@@ -62,11 +62,12 @@ void AILife_RCSetSpeeds(Car_tObj *carObj)
 /* ---- AILife_RCPickSliceAndDirection__FP8Car_tObj  [@0x800676e4] ---- */
 void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
 {
-  /* SYM @0x800676e4: approachSide($s5), offset(scratch $v0), search($s6), count($s4),
+  /* SYM @0x800676e4: approachSide($s5), offset(unscaled $v0), search($s6), count($s4),
    * checkCar($s0). Every fastRandom/randSeed roll writes its raw product to randtemp; these
    * stores are observable even when the product is immediately consumed. approachOffset
    * (unnamed $s2 in retail) is loop-invariant and materialized once. The post-loop slice
-   * adjustment is distinct from approachSide, which remains live and unmodified in $s5. */
+   * adjustment multiplies offset anonymously by approachSide, which remains
+   * live and unmodified in $s5. */
   int approachSide;
   int offset;
   int search;
@@ -94,8 +95,9 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
   for (count = 0; count < Cars_gNumCars;
        search = search + approachSide, count = count + 1) {
     checkCar = Cars_gSortedList[(search + Cars_gNumCars) % Cars_gNumCars];
-    if (((checkCar != carObj) && (checkCar != carObj->basisCar)) &&
-        ((checkCar->carFlags & 0x100U) != 0))
+    if (checkCar == carObj) continue;
+    if (checkCar == carObj->basisCar) continue;
+    if ((checkCar->carFlags & 0x100U) != 0)
     {
       coorddef basisOuterCoord;
       int basisOuterSlice =
@@ -127,9 +129,9 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
   carObj->desiredDirection = carObj->direction;
-  offset = ((randtemp >> 0x15 & 7) + 0x1c) * approachSide;
+  offset = (randtemp >> 0x15 & 7) + 0x1c;
   (carObj->N).simRoadInfo.slice =
-      WRAP_SLICE(offset, (carObj->basisCar->N).simRoadInfo.slice);
+      WRAP_SLICE(offset * approachSide, (carObj->basisCar->N).simRoadInfo.slice);
   /* RAW @0x80067ad4-e8: a1=basisCar->carIndex(+0x254), a2=(basisCar->N).simRoadInfo.slice(+8),
    * a3=(carObj->N).simRoadInfo.slice(+8) -- the 3 dropped varargs, restored from the oracle. */
   AILife_Debug(" psad checked group, basis now %d(s=%d) new slice=%d\n",
@@ -265,13 +267,11 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
 /* ---- AILife_ReencarnateTraffic__FP8Car_tObj  [@0x80067ee4] ---- */
 void AILife_ReencarnateTraffic(Car_tObj *carObj)
 {
-  /* ORIGINAL-NAME-RECOVERED: paintIndex -- exact symbol-bearing NFS2 ancestor
-   * name/type; retail NFS4 SLD retains the same standalone assignment shape. */
-  int paintIndex;
-
+  /* NFS2 PC recovers paintIndex's name; NFS4's const initializer has no native
+   * local record and preserves the retail instruction stream. */
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
-  paintIndex = (((randtemp & 0xffff00) >> 8) * 3) >> 0x10;
+  const int paintIndex = (((randtemp & 0xffff00) >> 8) * 3) >> 0x10;
   if ((carObj->carFlags & 0x10U) != 0) {
     R3DCar_ChangeTrafficColor(carObj,paintIndex);
   }
@@ -295,15 +295,14 @@ void AILife_ReencarnateTrafficByPosition(Car_tObj *carObj,int slice,int travelDi
    * decls the earlier pass left unused (w18-a7). */
   coorddef zero;
   coorddef offset;
-  /* ORIGINAL-NAME-RECOVERED: paintIndex -- exact symbol-bearing NFS2 ancestor
-   * name/type; retail NFS4 SLD retains the same standalone assignment shape. */
-  int paintIndex;
+  /* NFS2 PC recovers paintIndex's name; NFS4's const initializer has no native
+   * local record and preserves the retail instruction stream. */
 
   memset((u_char *)&zero,'\0',0xc);
   memset((u_char *)&offset,'\0',0xc);
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
-  paintIndex = (((randtemp & 0xffff00) >> 8) * 3) >> 0x10;
+  const int paintIndex = (((randtemp & 0xffff00) >> 8) * 3) >> 0x10;
   if ((carObj->carFlags & 0x10U) != 0) {
     R3DCar_ChangeTrafficColor(carObj,paintIndex);
   }

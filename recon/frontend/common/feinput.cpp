@@ -12,15 +12,22 @@ static int debounce[2];     /* @0x80052b60; SYM STAT INT[2] */
 
 
 /* ---- FEInput_VerifyControllerValues  [FEINPUT.CPP:28-38] SLD-VERIFIED ---- */
+/* Retail SLD separates the no-pad and controller-ID guards on +1/+5,
+   then the reset call on +9. The +10 epilogue tag remains one line later
+   than GCC's natural empty tail; no artificial source value is retained. */
 
 void FEInput_VerifyControllerValues(int controller)
 
 {
-  if ((gPadinfo.buf[controller * 4].nopad == '\0') &&
-     (frontEnd.controlType[controller] != (u_short)gPadinfo.buf[controller * 4].ID)) {
-    Front_ResetPSXController(controller,0);
-  }
-  return;
+  if (gPadinfo.buf[controller * 4].nopad == '\0')
+
+
+
+    if (frontEnd.controlType[controller] != (u_short)gPadinfo.buf[controller * 4].ID)
+
+
+
+      Front_ResetPSXController(controller,0);
 }
 
 

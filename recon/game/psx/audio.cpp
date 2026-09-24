@@ -5,6 +5,10 @@
 #include "audio_types.h"
 #include "audio_externs.h"
 
+/* Retail audio.obj begins its read-only data with this unreferenced class
+ * tag, as do the other TUs that included the SimpleMem class header. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -31,16 +35,14 @@ int AudioCmn_LoadBank(char *filename,int BankNum);
 void Audio_InitDriver(int buffersize,int spusize)
 
 {
-  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80056748) ahead of this
-   * function's first literal; the constant-false call keeps it with no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
   for (int i = 0; i < 7; i++) {
+
     gSndBnk[i].bnkID = i;
     gSndBnk[i].pdata = 0;
   }
-  if ((AudioCmn_kAudioOn != 0) || (AudioCmn_kAudioStreamingOn != 0)) {
+  if ((AudioCmn_kAudioOn != 0) || (AudioCmn_kAudioStreamingOn != 0))
+  {
     SNDSYSOPTS opts;   /* retail SYM: declared in this block (one scope below the for-declaration) */
-
     SNDSYS_getopts(&opts);
     opts.set.maxbanks = 0x30;
     SNDSYS_setopts(&opts);
@@ -52,85 +54,80 @@ void Audio_InitDriver(int buffersize,int spusize)
   if (0 < buffersize) {
     AudioMus_SysStartUp(buffersize,spusize,"amus");
   }
-  Audio_direct3davail = 0;
-  return;
+  Audio_direct3davail = 0; return;
+
 }
 
 /* ---- Audio_DeInitDriver__Fv  [AUDIO.CPP:84-91] SLD-VERIFIED ---- */
 void Audio_DeInitDriver(void)
 
 {
-  
-  AudioMus_SysCleanUp();
-  if ((AudioCmn_kAudioOn != 0) || (AudioCmn_kAudioStreamingOn != 0)) {
+  const int audioOff = 0; AudioMus_SysCleanUp();
+
+  if ((AudioCmn_kAudioOn != audioOff) || (AudioCmn_kAudioStreamingOn != audioOff)) {
+
     SNDSYS_restore();
-    purgememadr(Audio_gHeap);
+    void *const heap = Audio_gHeap; purgememadr(heap);
+
   }
   return;
 }
 
 /* ---- Audio_CleanUp__Fv  [AUDIO.CPP:133-144] SLD-VERIFIED ---- */
+/* The unreferenced "game*" string belongs to audio.obj's data. A constant
+ * false call retains the literal; the compiler removes the call. The native
+ * source expression that emitted this otherwise unreferenced tag is unknown. */
 void Audio_CleanUp(void)
 
 {
   int i;
 
-  i = 0;
-  do {
+
+  i = 0; do {
+
     if (gSndBnk[i].pdata != 0) {
+
       purgememadr(gSndBnk[i].pdata);
       gSndBnk[i].pdata = 0;
     }
-    i = i + 1;
-  } while (i < 7);
-  /* compiled-out statement: retail audio.obj carries a "game*" literal (0x8013d50c, between
-   * "amus" and ".bnk") that no code references.  gcc 2.8 expands a constant-false branch
-   * (emitting its literal) and jump-optimizes the call away; a bare discarded expression
-   * would be dropped by the front end, so the dead call form is required. */
-  if (0) AudioMus_SysStartUp(0, 0, "game*");
-  return;
+    i = i + 1; } while (i < 7); if (0) AudioMus_SysStartUp(0, 0, "game*");
 }
 
 /* ---- Audio_FECleanUp__Fv  [AUDIO.CPP:151-158] SLD-VERIFIED ---- */
 void Audio_FECleanUp(void)
 
 {
+
   SNDbankremove(-1);
+
   if (gSndBnk[0].pdata != 0) {
+
     purgememadr(gSndBnk[0].pdata);
-    gSndBnk[0].pdata = 0;
-  }
-  return;
+    gSndBnk[0].pdata = 0; }
 }
 
-/* ---- AudioCmn_AddBank__FPciT0i  [AUDIO.CPP:167-213] SLD-VERIFIED ---- */
+/* ---- AudioCmn_AddBank__FPciT0i  [AUDIO.CPP:167-213] SYM locals verified; later SLD open ---- */
+/* Retail SYM: p is the filename walk ($v1), ptemp the allocated buffer ($s1).
+   filename itself advances to the basename after a separator. */
 int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
 
 {
-  int bhandle;
-  int check;
-  char *p;
-  char *ptemp;
+  int bhandle = -1;
+  int check; char *p, *ptemp;
+  p = filename;
+  ptemp = (char *)0x0;
 
-  ptemp = filename;
-  bhandle = -1;
-  p = (char *)0x0;
-  /* MATCH: the original mutates the filename PARAM in place as the pool name (param home
-     reg s0) and walks a FRESH temp (ptemp, v1) -- not the inverse. WHILE loop (not
-     if+do-while: the rotated guard re-loads *ptemp in the preheader = the oracle's double
-     load). destBuf=0 BEFORE the loop so the loop join blocks cse reusing s1 as the zero
-     arg of reservememadr (oracle: addu a2,zero,zero). */
-  while (*ptemp != '\0') {
-    if (*ptemp == '\\') {
-      filename = ptemp + 1;
-    }
-    ptemp = ptemp + 1;
+  while (*p != '\0') {
+
+    if (*p == '\\')
+      filename = p + 1;
+    p = p + 1;
   }
   check = SNDbankadd(&bhandle,pdata);
   if (check == 7) {
     check = SNDbankheadersize(bhandle);
-    p = reservememadr(filename,check,0);
-    SNDbankheadercopy(p,bhandle);
+    ptemp = reservememadr(filename,check,0);
+    SNDbankheadercopy(ptemp,bhandle);
     check = SNDbankheadersize(bhandle);
     size = size - check;
   }
@@ -138,7 +135,7 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
     AudioClc_SndError(check);
   }
   purgememadr(pdata);
-  gSndBnk[BankNum].pdata = p;
+  gSndBnk[BankNum].pdata = ptemp;
   gSndBnk[BankNum].bnkID = bhandle;
   return size;
 }
@@ -156,7 +153,10 @@ int AudioCmn_LoadBank(char *filename,int BankNum)
   strcpy(bankdata,filename);
   strcat(bankdata,".bnk");
   pdata = (char *)loadfileadrz(bankdata,(void *)0x10);
+
   if (pdata == (char *)0x0) {
+
+
     return 0;
   }
   return AudioCmn_AddBank(filename,filesize(bankdata),pdata,BankNum);

@@ -70,29 +70,18 @@ void tScreen::DisplayLoadingText()
 void tScreen::GoNonInterlaced()
 
 {
-  /* SYM's function block is empty: no recoverable source-local spelling is
-     recorded.  `iVar1`, `iVar2`, and `dispY` were removable decompiler names
-     (PASS stayed 52/52).  The seven remaining value webs are required by this
-     compiler/source shape, but SYM and retail bytes cannot uniquely recover
-     their private spellings; each counterfactual below was re-gated alone. */
-  /* SYM-CODEGEN-CARRIER: displayHeight -- inlining its four reads: 30 diffs. */
-  u_short displayHeight;
-  /* SYM-CODEGEN-CARRIER: viewHeight -- inlining the late reload: 18 diffs. */
-  short viewHeight;
-  /* SYM-CODEGEN-CARRIER: viewTable -- inlining the table base: 26 diffs. */
+  /* Retail's function block has no locals. Const use-site snapshots preserve
+     the six omitted pointer/height value webs and all 52 instructions. The
+     one remaining named carrier is viewTable: direct inlining costs 26 diffs,
+     while a const declaration at either site swaps $a1/$a2 (18 diffs).
+     Its private original spelling remains unrecoverable from SYM. */
+  /* SYM-CODEGEN-CARRIER: viewTable, tested against the raw byte oracle. */
   Draw_tView *viewTable;
-  /* SYM-CODEGEN-CARRIER: frontView -- inlining the first view: 25 diffs, +1 insn. */
-  Draw_tView *frontView;
-  /* SYM-CODEGEN-CARRIER: backView -- inlining the second view: 49 diffs, +7 insns. */
-  Draw_tView *backView;
   /* SYM-CODEGEN-CARRIER: playerViewIndex -- inlining the index address: 8 schedule diffs. */
   int *playerViewIndex;
-  /* SYM-CODEGEN-CARRIER: displayEnv -- direct field form without its shared base: 16 allocation diffs. */
-  dflip *displayEnv;
-
   screenheight = 0xf0;
-  displayEnv = gEnviro;
-  displayHeight = *(u_short *)&screenheight;
+  dflip *const displayEnv = gEnviro;
+  const u_short displayHeight = *(u_short *)&screenheight;
   gEnviro[0].disp.disp.y = 0x100;
   gEnviro[0].disp.disp.h = displayHeight;
   gEnviro[0].disp.screen.h = displayHeight;
@@ -102,14 +91,14 @@ void tScreen::GoNonInterlaced()
   displayEnv[1].disp.isinter = '\0';
   viewTable = Draw_gView;
   playerViewIndex = &Draw_gPlayer1View;
-  frontView = viewTable + *playerViewIndex;
+  Draw_tView *const frontView = viewTable + *playerViewIndex;
   frontView->drawenv[0].dfe = '\0';
-  backView = viewTable + *playerViewIndex;
+  Draw_tView *const backView = viewTable + *playerViewIndex;
   frontView->drawenv[0].clip.y = 0;
   frontView->drawenv[0].clip.h = displayHeight;
   frontView->drawenv[0].ofs[0] = 0;
   frontView->drawenv[0].ofs[1] = 0;
-  viewHeight = (short)screenheight;
+  const short viewHeight = (short)screenheight;
   backView->drawenv[1].clip.y = 0x100;
   backView->drawenv[1].ofs[0] = 0;
   backView->drawenv[1].ofs[1] = 0x100;
@@ -123,6 +112,8 @@ void tScreen::GoNonInterlaced()
 
 
 /* ---- tScreen::DrawBackgroundImage  [FESCREEN.CPP:185-197] SLD-VERIFIED ---- */
+/* Retail SLD separates drawFlags.flip_axis, custom_shapes, loop head,
+   first draw, flip guard and second draw across relative lines 4/5/7/9/10/11. */
 
 void tScreen::DrawBackgroundImage(int startShape,int numShapes,tTexture_ShapeInfo *shapes,int flip_axis)
 
@@ -130,18 +121,15 @@ void tScreen::DrawBackgroundImage(int startShape,int numShapes,tTexture_ShapeInf
   /* SYM ORDER (W86-S2): the 8c Def rows read drawFlags, i. */
   tDrawShapeExtended drawFlags;
   int i;
-
-  /* SLD statements: 189 flip_axis / 190 custom_shapes (UNCONDITIONAL, before the
-     loop) / 192 the `for` head / 194 / 195 / 196 / 197 back-edge. */
   drawFlags.flip_axis = (short)flip_axis;
   drawFlags.custom_shapes = shapes;
+
   for (i = startShape; i < startShape + numShapes; i = i + 1) {
+
     DrawShapeExtended(i,0x200,0,0,(int)this->fScreenFadeVal,0,&drawFlags);
-    if (0 < flip_axis) {
+    if (0 < flip_axis)
       DrawShapeExtended(i,0x260,0,0,(int)this->fScreenFadeVal,0,&drawFlags);
-    }
   }
-  return;
 }
 
 
@@ -152,7 +140,6 @@ void tScreen::AsyncLoadPermanentShapeFile(char *fileName)
 
 {
   this->AsyncLoadShapeFile(fileName,this->fPermShapes);
-  return;
 }
 
 
@@ -165,13 +152,12 @@ void tScreen::AsyncLoadSwapShapeFile(char *fileName)
   char buffer [32];
 
   if (fileName != 0) {
+
     sprintf(buffer,"z%s",fileName);
     this->AsyncLoadShapeFile(buffer,this->fSwapShapes);
-  }
-  else {
+  } else {
     this->AsyncLoadShapeFile((char *)0x0,this->fSwapShapes);
   }
-  return;
 }
 
 
@@ -253,10 +239,8 @@ bool tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
 void tScreen::UploadPermanentShapes(int numPermanentShapes)
 
 {
-  
   this->UploadShapes(this->fPermShapes,0,0,(short)numPermanentShapes,0);
   gCurrentShapes = (this->fPermShapes).fShapes;
-  return;
 }
 
 
@@ -266,8 +250,8 @@ void tScreen::UploadPermanentShapes(int numPermanentShapes)
 void tScreen::UploadSwapShapes(int numSwapShapes)
 
 {
+
   this->UploadShapes(this->fSwapShapes,0,0,(short)numSwapShapes,0);
-  return;
 }
 
 
@@ -278,11 +262,11 @@ void tScreen::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **perm
                char **swapFileName)
 
 {
-  numSwapShapes = 0;
-  numPermShapes = 0;
-  *swapFileName = (char *)0x0;
-  *permFileName = (char *)0x0;
-  return;
+
+
+
+  numPermShapes = numSwapShapes = 0;
+  *permFileName = *swapFileName = (char *)0x0;
 }
 
 
@@ -292,13 +276,11 @@ void tScreen::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **perm
 tScreen::tScreen()
 
 {
-  
   (this->fPermShapes).fShapes = (tTexture_ShapeInfo *)0x0;
   this->InitializeShapes(this->fPermShapes,0);
   (this->fSwapShapes).fShapes = (tTexture_ShapeInfo *)0x0;
   this->InitializeShapes(this->fSwapShapes,0);
   this->fScreenFadeVal = 0;
-  return;
 }
 
 
@@ -308,7 +290,6 @@ tScreen::tScreen()
 tScreen::~tScreen()
 
 {
-  return;
 }
 
 
@@ -370,9 +351,10 @@ void tScreen::Cleanup()
   
   this->AsyncLoadPermanentShapeFile((char *)0x0);
   this->AsyncLoadSwapShapeFile((char *)0x0);
+
+
   this->FreeShapes(this->fPermShapes);
   this->FreeShapes(this->fSwapShapes);
-  return;
 }
 
 
@@ -384,11 +366,9 @@ void tScreen::Draw(bool drawBackground)
 {
   if (drawBackground != 0) {
     this->DrawBackground();
-  }
-  else {
+  } else {
     this->DrawForeground();
   }
-  return;
 }
 
 
@@ -431,59 +411,71 @@ void tScreen::AsyncLoadShapeFile(char *name,tShapeInformation &data)
 
 
 /* ---- tScreen::CancelAsyncLoad  [FESCREEN.CPP:459-479] SLD-VERIFIED ---- */
+/* The inner purge is unbraced in the retail line partition. The status
+   call/compare pair alone remains ambiguous: an explicit const snapshot
+   aligns its two SLD tags but creates two non-retail debug scopes. */
 
 void tScreen::CancelAsyncLoad(tShapeInformation &data)
 
 {
+
+
   if (data.async_handle != 0) {
+
     if (getasyncreadstatus(data.async_handle) == 0) {
+
       data.fLoadCancelled = 1;
     }
     else {
+
       if (data.fDestFile == (char *)0x0) {
         data.fFile = getasyncreadadr(data.async_handle);
       }
       if (data.fFile != (char *)0x0) {
-        if (data.fDestFile == (char *)0x0) {
+
+        if (data.fDestFile == (char *)0x0)
           purgememadr(data.fFile);
-        }
         data.fFile = (char *)0x0;
       }
       data.async_handle = 0;
     }
   }
-  return;
 }
 
 
 
 /* ---- tScreen::InitializeShapes  [FESCREEN.CPP:485-509] SLD-VERIFIED ---- */
+/* Retail SLD places the loop head on +23 and its final store/function end
+   on +24. The compact closing brace records that line span, not a claim
+   that the original punctuation or non-emitting comments are known. */
 
 void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 
 {
   u_short i;
-  
+
+
+
   if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
+
+
     purgememadr(data.fShapes);
     data.fShapes = (tTexture_ShapeInfo *)0x0;
   }
+
+
   data.fFlags = 0;
   data.fNumShapes = (u_short)numShapes;
   data.async_handle = 0;
   data.fFile = (char *)0x0;
   data.fDestFile = (char *)0x0;
   data.fLoadCancelled = 0;
-  if (numShapes == 0) {
-    return;
-  }
-  data.fShapes =
-      (tTexture_ShapeInfo *)reservememadr("Shapes",numShapes << 5,0);
-  for (i = 0; i < numShapes; i = i + 1) {
-    data.fShapes[i].clutID = 0;
-  }
-  return;
-}
+
+  if (numShapes == 0) return;
+
+  data.fShapes = (tTexture_ShapeInfo *)reservememadr("Shapes",numShapes << 5,0);
+  for (i = 0; i < numShapes; i = i + 1)
+    data.fShapes[i].clutID = 0; }
 
 
 
@@ -578,33 +570,44 @@ void tScreen::UploadShapes(tShapeInformation &data,short x,short y,short numShap
 
 
 /* ---- tScreen::PreLoad  [FESCREEN.CPP:600-613] SLD-VERIFIED ---- */
+/* GetShapeInfo is the virtual slot-1 dispatch; native SYM owns the four
+   outgoing shape-count and filename stack locals. */
 void tScreen::PreLoad()
 {
   short numPermShapes;
   short numSwapShapes;
   char *permFileName;
   char *swapFileName;
-
-  /* virtual GetShapeInfo (vtbl slot 1) */
   this->GetShapeInfo(numPermShapes,numSwapShapes,&permFileName,&swapFileName);
+
+
   this->InitializeShapes(this->fPermShapes,(u_int)(int)numPermShapes);
   this->InitializeShapes(this->fSwapShapes,(u_int)(int)numSwapShapes);
+
+
   this->AsyncLoadPermanentShapeFile(permFileName);
   this->AsyncLoadSwapShapeFile(swapFileName);
-  return;
 }
 
 /* ---- tScreen::TransitionOff  [FESCREEN.CPP:621-625] SYM/SLD-REVIEWED; emitted partitions open (P889 SLD_RECEIPT.md) ---- */
+/* Both transition setters have two zero-length nested retail scopes. Their
+ * compile-time constant names below describe values, not original spelling. */
 
 void tScreen::TransitionOff(tScreen_TransitionType type,tMenu *)
 
 {
   /* ABI type/arity retained; this unused parameter's original name is
      unknown because optimized SYM has no corresponding named record. */
-  this->fInternalScreenFadeVal = this->fScreenFadeVal = 0;
-  this->fTransitionOff = 1;
-  this->fTransitionTicks = ticks;
-  return;
+  {
+    const int fade = 0;
+    {
+      const int transitionOff = 1;
+      this->fInternalScreenFadeVal = this->fScreenFadeVal = fade;
+      this->fTransitionOff = transitionOff;
+      this->fTransitionTicks = ticks;
+      return;
+    }
+  }
 }
 
 
@@ -616,10 +619,16 @@ void tScreen::TransitionOn(tScreen_TransitionType type,tMenu *)
 {
   /* ABI type/arity retained; this unused parameter's original name is
      unknown because optimized SYM has no corresponding named record. */
-  this->fInternalScreenFadeVal = this->fScreenFadeVal = 0x80;
-  this->fTransitionOff = 0;
-  this->fTransitionTicks = ticks;
-  return;
+  {
+    const int fade = 0x80;
+    {
+      const int transitionOff = 0;
+      this->fInternalScreenFadeVal = this->fScreenFadeVal = fade;
+      this->fTransitionOff = transitionOff;
+      this->fTransitionTicks = ticks;
+      return;
+    }
+  }
 }
 
 
@@ -629,31 +638,11 @@ void tScreen::TransitionOn(tScreen_TransitionType type,tMenu *)
 void tScreen::UpdateTransition()
 
 {
-  /* SYM-CODEGEN-CARRIER: transitionValue
-   * Retail first reuses $v0 for fTransitionOff and the selected +/-12 result.
-   * Removing this source value and updating fadeValue directly is 30/30 but
-   * measures FAIL 10 because the selected result remains in $v1. */
-  int transitionValue;
-  /* SYM-CODEGEN-CARRIER: fadeValue
-   * The clamp keeps the selected result in $v1 while its comparisons use $v0.
-   * Folding this value into transitionValue measures FAIL 19 (33/30). */
-  int fadeValue;
-
-  transitionValue = this->fTransitionOff;
-  fadeValue = this->fInternalScreenFadeVal;
-  if (transitionValue == 0) {
-    transitionValue = fadeValue + -0xc;
-  } else {
-    transitionValue = fadeValue + 0xc;
-  }
+  const int transitionValue = this->fInternalScreenFadeVal +
+      (this->fTransitionOff == 0 ? -0xc : 0xc);
   this->fInternalScreenFadeVal = transitionValue;
-  fadeValue = transitionValue;
-  if (transitionValue < -0x32) {
-    fadeValue = -0x32;
-  }
-  if (0x96 < fadeValue) {
-    fadeValue = 0x96;
-  }
+  const int lowerClamped = transitionValue < -0x32 ? -0x32 : transitionValue;
+  const int fadeValue = 0x96 < lowerClamped ? 0x96 : lowerClamped;
   this->fInternalScreenFadeVal = fadeValue;
   this->fScreenFadeVal = (short)this->fInternalScreenFadeVal;
   if (this->fScreenFadeVal < 0) {
@@ -683,7 +672,7 @@ bool tScreen::TransitionIsFinished()
 void tScreen::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
 
 {
-  return;
+  ; /* Original body has no emitted operation; retain its source statement line. */
 }
 
 

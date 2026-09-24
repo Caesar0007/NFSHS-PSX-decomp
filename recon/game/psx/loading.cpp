@@ -95,9 +95,7 @@ void Loading_UpdateLoadingScreen(int checkpoint)
 void Loading_GetInitialMemory(void)
 
 {
-  
   totalAvailMem = largestunused();
-  return;
 }
 
 /* end of loading.cpp */

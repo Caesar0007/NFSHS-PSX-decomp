@@ -5,6 +5,8 @@
  */
 #include "pausemenu_types.h"
 #include "pausemenu_externs.h"
+#include <stddef.h>
+#include <stdarg.h>
 extern "C" int sprintf(char *, const char *, ...);
 
 /* Data owned by PauseMenu.obj.  SYM records ChangedEnabling as EXT BOOL and
@@ -52,22 +54,21 @@ struct tPMenuItemFlagBits { u_int fDisabled : 1; };
 #define PMENU_ITEM_DISABLED(itm) (((tPMenuItemFlagBits *)&(itm)->fFlags)->fDisabled)
 
 /* ---- PauseMenu_MenuTextPositioned  [PAUSEMENU.CPP:87-99] SLD-VERIFIED ---- */
+/* ORIGINAL-NAME-RECOVERED: flags -- the byte-matched NFS2 PC
+   FeTools_Text source declares this same TextSys_WordFlags result as
+   `short flags`. With this exact short local, CC1PLPSX -O2 -g emits no
+   debug definition for it (it is coalesced into dead `index`), while it
+   still emits retail's only two local records, `str` and `color`. That
+   compiler receipt explains the optimized SYM omission without a carrier
+   exemption; SLD keeps the calls in retail order: flags, str, color, draw. */
 
 void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,short x)
 
 {
   char *str;
-  /* ORIGINAL-NAME-RECOVERED: flags -- the byte-matched NFS2 PC
-     FeTools_Text source declares this same TextSys_WordFlags result as
-     `short flags`.  With this exact short local, CC1PLPSX -O2 -g emits no
-     debug definition for it (it is coalesced into dead `index`), while it
-     still emits retail's only two local records, `str` and `color`.  That
-     compiler receipt explains the optimized SYM omission without a carrier
-     exemption; SLD keeps the calls in retail order: flags, str, color, draw. */
-  short flags;
+  short flags = TextSys_WordFlags(index);
   short color;
   
-  flags = TextSys_WordFlags(index);
   str = TextSys_Word(index);
   color = 4;
   if (selected != 0) {
@@ -80,21 +81,21 @@ void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,shor
 
 
 /* ---- PauseMenu_MenuText  [PAUSEMENU.CPP:103-109] SLD-VERIFIED ---- */
+/* ORIGINAL-NAME-RECOVERED: x -- same-TU SYM content cross-match; retail
+   PAUSEMENU.CPP records a SHORT `x` for the same TextSys_WordX ->
+   PauseMenu_MenuTextPositioned path in tPMenuItemLeftRightSlider::Draw; the
+   callee also names its SHORT fourth parameter `x`. NFS2's matched
+   MenuSys_Display source independently uses `short x` for this coordinate. */
 
 void PauseMenu_MenuText(short index,bool selected,bool disabled)
 
 {
-  /* ORIGINAL-NAME-RECOVERED: x -- same-TU SYM content cross-match; retail
-     PAUSEMENU.CPP records a SHORT `x` for the same TextSys_WordX ->
-     PauseMenu_MenuTextPositioned path in tPMenuItemLeftRightSlider::Draw; the
-     callee also names its SHORT fourth parameter `x`. NFS2's matched
-     MenuSys_Display source independently uses `short x` for this coordinate. */
   short x;
 
   x = (short)TextSys_WordX((int)index);
+
   PauseMenu_MenuTextPositioned(index,(short)selected,
              (short)disabled,x);
-  return;
 }
 
 
@@ -104,85 +105,74 @@ void PauseMenu_MenuText(short index,bool selected,bool disabled)
 tPListIterator::tPListIterator(short *selection,int *valPtr)
 
 {
-  
   this->fSelectionList = selection;
   this->fValue = valPtr;
-  return;
 }
 
 
 
 /* ---- tPListIterator::dtor  [PAUSEMENU.CPP:129-129] SLD-VERIFIED ---- */
 
-tPListIterator::~tPListIterator()
-
-{
-  return;
-}
+tPListIterator::~tPListIterator() {}
 
 
 
 /* ---- tPListIterator::Value  [PAUSEMENU.CPP:134-135] SLD-VERIFIED ---- */
+/* The unused tPlayer remains in the virtual ABI but has no source name
+   in the retail optimized SYM declaration block. */
 
-char tPListIterator::Value(tPlayer arg1)
+char tPListIterator::Value(tPlayer)
 
 {
-  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
   return *this->fValue;
 }
 
 
 
 /* ---- tPListIterator::TextValue  [PAUSEMENU.CPP:139-140] SLD-VERIFIED ---- */
+/* The unused tPlayer remains in the virtual ABI but has no source name
+   in the retail optimized SYM declaration block. */
 
-short tPListIterator::TextValue(tPlayer arg1)
+short tPListIterator::TextValue(tPlayer)
 
 {
-  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
-  return (int)this->fSelectionList[
-      this->Value((tPlayer)-1) & 0xff];
+  return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
 }
 
 
 
 /* ---- tPListIterator::Increment  [PAUSEMENU.CPP:144-149] SLD-VERIFIED ---- */
+/* The unused tPlayer remains in the virtual ABI but has no source name
+   in the retail optimized SYM declaration block. */
 
-void tPListIterator::Increment(tPlayer arg1)
+void tPListIterator::Increment(tPlayer)
 
 {
-  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
   *this->fValue = *this->fValue + 1;
   if (this->fSelectionList[*this->fValue] == 0) {
-    *this->fValue = 0;
-  }
+    *this->fValue = 0; }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
-  return;
 }
 
 
 
 /* ---- tPListIterator::Decrement  [PAUSEMENU.CPP:154-163] SLD-VERIFIED ---- */
+/* The unused tPlayer remains in the virtual ABI but has no source name
+   in the retail optimized SYM declaration block. */
 
-void tPListIterator::Decrement(tPlayer arg1)
+void tPListIterator::Decrement(tPlayer)
 
 {
-  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
   if (*this->fValue == 0) {
+
     while (0 < this->fSelectionList[*this->fValue + 1]) {
-      *this->fValue = *this->fValue + 1;
-    }
+      *this->fValue = *this->fValue + 1; }
   }
   else {
-    *this->fValue = *this->fValue + -1;
-  }
+    *this->fValue = *this->fValue + -1; }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
-  return;
 }
 
 
@@ -191,88 +181,73 @@ void tPListIterator::Decrement(tPlayer arg1)
 tPListIteratorIndexed::tPListIteratorIndexed(short *selection,int *valPtr,char *index)
   : tPListIterator(selection,valPtr)
 {
-  
   this->fIndex = index;
-  return;
 }
 
 
 
 /* ---- tPListIteratorIndexed::dtor  [PAUSEMENU.CPP:203-203] SLD-VERIFIED ---- */
 
-tPListIteratorIndexed::~tPListIteratorIndexed()
-
-{
-  return;
-}
+tPListIteratorIndexed::~tPListIteratorIndexed() {}
 
 
 
 /* ---- tPListIteratorIndexed::Value  [PAUSEMENU.CPP:207-208] SLD-VERIFIED ---- */
+/* The unused tPlayer remains in the virtual ABI but has no source name
+   in the retail optimized SYM declaration block. */
 
-char tPListIteratorIndexed::Value(tPlayer arg1)
+char tPListIteratorIndexed::Value(tPlayer)
 
 {
-  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
   return this->fValue[(u_char)*this->fIndex];
 }
 
 
 
 /* ---- tPListIteratorIndexed::TextValue  [PAUSEMENU.CPP:212-213] SLD-VERIFIED ---- */
+/* The unused tPlayer remains in the virtual ABI but has no source name
+   in the retail optimized SYM declaration block. */
 
-short tPListIteratorIndexed::TextValue(tPlayer arg1)
+short tPListIteratorIndexed::TextValue(tPlayer)
 
 {
-  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
-  return (int)this->fSelectionList[
-      this->Value((tPlayer)-1) & 0xff];
+  return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
 }
 
 
 
 /* ---- tPListIteratorIndexed::Increment  [PAUSEMENU.CPP:219-224] SLD-VERIFIED ---- */
+/* The unused tPlayer remains in the virtual ABI but has no source name
+   in the retail optimized SYM declaration block. */
 
-void tPListIteratorIndexed::Increment(tPlayer arg1)
+void tPListIteratorIndexed::Increment(tPlayer)
 
 {
-  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
-  this->fValue[(u_char)*this->fIndex] =
-      this->fValue[(u_char)*this->fIndex] + 1;
+  this->fValue[(u_char)*this->fIndex] = this->fValue[(u_char)*this->fIndex] + 1;
   if (this->fSelectionList[this->fValue[(u_char)*this->fIndex]] == 0) {
-    this->fValue[(u_char)*this->fIndex] = 0;
-  }
+    this->fValue[(u_char)*this->fIndex] = 0; }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
-  return;
 }
 
 
 
 /* ---- tPListIteratorIndexed::Decrement  [PAUSEMENU.CPP:229-238] SLD-VERIFIED ---- */
+/* The unused tPlayer remains in the virtual ABI but has no source name
+   in the retail optimized SYM declaration block. */
 
-void tPListIteratorIndexed::Decrement(tPlayer arg1)
+void tPListIteratorIndexed::Decrement(tPlayer)
 
 {
-  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
   if (this->fValue[(u_char)*this->fIndex] == 0) {
-    while (0 < this->fSelectionList[
-                   this->fValue[(u_char)*this->fIndex] + 1]) {
-      this->fValue[(u_char)*this->fIndex] =
-          this->fValue[(u_char)*this->fIndex] + 1;
-    }
+
+    while (0 < this->fSelectionList[this->fValue[(u_char)*this->fIndex] + 1]) {
+      this->fValue[(u_char)*this->fIndex] = this->fValue[(u_char)*this->fIndex] + 1; }
   }
   else {
-    this->fValue[(u_char)*this->fIndex] =
-        this->fValue[(u_char)*this->fIndex] + -1;
-  }
+    this->fValue[(u_char)*this->fIndex] = this->fValue[(u_char)*this->fIndex] + -1; }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
-  return;
 }
 
 
@@ -284,18 +259,13 @@ tPMenuItem::tPMenuItem(u_int textDescription)
 {
   this->fTextDescription = textDescription;
   this->fFlags = 0;
-  return;
 }
 
 
 
 /* ---- tPMenuItem::dtor  [PAUSEMENU.CPP:252-252] SLD-VERIFIED ---- */
 
-tPMenuItem::~tPMenuItem()
-
-{
-  return;
-}
+tPMenuItem::~tPMenuItem() {}
 
 
 
@@ -320,14 +290,11 @@ bool tPMenuItem::Debounce()
 
 
 /* ---- tPMenuItem::ProcessInput  [PAUSEMENU.CPP:266-267] SLD-VERIFIED ---- */
+/* Both virtual ABI parameters are unused and unnamed in retail SYM;
+   the empty base implementation retains only its implicit this. */
 
-void tPMenuItem::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
-
+void tPMenuItem::ProcessInput(tInputKeyType &,tPMenuCommand &)
 {
-  /* SYM-ABI-PARAM: keyval -- required by the virtual signature/linkage. */
-  /* SYM-ABI-PARAM: command -- required by the virtual signature/linkage.
-     This base implementation is empty, so optimized SYM retains only `this`. */
-  return;
 }
 
 
@@ -336,31 +303,24 @@ void tPMenuItem::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 tPMenuItemNonInteractiveText::tPMenuItemNonInteractiveText(u_int textDescription)
   : tPMenuItem(textDescription)
 {
-  
-  return;
 }
 
 
 
 /* ---- tPMenuItemNonInteractiveText::dtor  [PAUSEMENU.CPP:278-278] SLD-VERIFIED ---- */
 
-tPMenuItemNonInteractiveText::~tPMenuItemNonInteractiveText()
-
-{
-  return;
-}
+tPMenuItemNonInteractiveText::~tPMenuItemNonInteractiveText() {}
 
 
 
 /* ---- tPMenuItemNonInteractiveText::Draw  [PAUSEMENU.CPP:283-284] SLD-VERIFIED ---- */
+/* The unused bool remains in the virtual ABI but has no source name in
+   the retail optimized SYM declaration block. */
 
-void tPMenuItemNonInteractiveText::Draw(bool selected)
+void tPMenuItemNonInteractiveText::Draw(bool)
 
 {
-  /* SYM-ABI-PARAM: selected -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
   PauseMenu_MenuText((short)this->fTextDescription,false,0);
-  return;
 }
 
 
@@ -369,19 +329,13 @@ void tPMenuItemNonInteractiveText::Draw(bool selected)
 tPMenuItemInteractive::tPMenuItemInteractive(u_int textDescription)
   : tPMenuItem(textDescription)
 {
-  
-  return;
 }
 
 
 
 /* ---- tPMenuItemInteractive::dtor  [PAUSEMENU.CPP:302-302] SLD-VERIFIED ---- */
 
-tPMenuItemInteractive::~tPMenuItemInteractive()
-
-{
-  return;
-}
+tPMenuItemInteractive::~tPMenuItemInteractive() {}
 
 
 
@@ -401,26 +355,20 @@ void tPMenuItemInteractive::Draw(bool selected)
 tPMenuItemLeftRightChoice::tPMenuItemLeftRightChoice(u_int textDescription,tPListIterator *dataPtr)
   : tPMenuItemInteractive(textDescription)
 {
-  
   this->fData = dataPtr;
-  return;
 }
 
 
 
 /* ---- tPMenuItemLeftRightChoice::dtor  [PAUSEMENU.CPP:325-325] SLD-VERIFIED ---- */
 
-tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice()
-
-{
-  return;
-}
+tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice() {}
 
 
 
 /* ---- tPMenuItemLeftRightChoice::ProcessInput  [PAUSEMENU.CPP:329-341] SLD-VERIFIED ---- */
 
-void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
+void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &)
 
 {
   /* SYM-ABI-PARAM: command -- required by the virtual signature/linkage but
@@ -495,21 +443,15 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
 tPMenuItemLeftRightSlider::tPMenuItemLeftRightSlider(u_int textDescription,int *dataPtr,char maxVal)
   : tPMenuItemInteractive(textDescription)
 {
-  
   this->fData = dataPtr;
   this->fMaxVal = maxVal;
-  return;
 }
 
 
 
 /* ---- tPMenuItemLeftRightSlider::dtor  [PAUSEMENU.CPP:449-449] SLD-VERIFIED ---- */
 
-tPMenuItemLeftRightSlider::~tPMenuItemLeftRightSlider()
-
-{
-  return;
-}
+tPMenuItemLeftRightSlider::~tPMenuItemLeftRightSlider() {}
 
 
 
@@ -525,13 +467,13 @@ bool tPMenuItemLeftRightSlider::Debounce()
 
 /* ---- tPMenuItemLeftRightSlider::ProcessInput  [PAUSEMENU.CPP:458-485] SLD-VERIFIED ---- */
 
-void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
+void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &)
 
 {
   bool sound;
 
-  /* SYM-ABI-PARAM: command -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
+  /* The unused command reference remains in the virtual ABI but is unnamed
+     in retail SYM. */
   
   sound = false;
   if (keyval == kInput_KeyType_Left) {
@@ -723,20 +665,14 @@ tPMenuItemLeftRightSliderIndexed::tPMenuItemLeftRightSliderIndexed(u_int textDes
           char *index)
   : tPMenuItemLeftRightSlider(textDescription,dataPtr,maxVal)
 {
-  
   this->fIndex = index;
-  return;
 }
 
 
 
 /* ---- tPMenuItemLeftRightSliderIndexed::dtor  [PAUSEMENU.CPP:547-547] SLD-VERIFIED ---- */
 
-tPMenuItemLeftRightSliderIndexed::~tPMenuItemLeftRightSliderIndexed()
-
-{
-  return;
-}
+tPMenuItemLeftRightSliderIndexed::~tPMenuItemLeftRightSliderIndexed() {}
 
 
 
@@ -746,12 +682,10 @@ void tPMenuItemLeftRightSliderIndexed::ProcessInput(tInputKeyType &keyval,tPMenu
 
 {
   int *orgdata;
-  
   orgdata = this->fData;
   this->fData = orgdata + (u_char)*this->fIndex;
   this->tPMenuItemLeftRightSlider::ProcessInput(keyval,command);
   this->fData = orgdata;
-  return;
 }
 
 
@@ -762,12 +696,10 @@ void tPMenuItemLeftRightSliderIndexed::Draw(bool selected)
 
 {
   int *orgdata;
-  
   orgdata = this->fData;
   this->fData = orgdata + (u_char)*this->fIndex;
   this->tPMenuItemLeftRightSlider::Draw(selected);
   this->fData = orgdata;
-  return;
 }
 
 
@@ -778,21 +710,15 @@ tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu 
               void (*OnButtonPress)(tPMenuCommand&))
   : tPMenuItemInteractive(textDescription)
 {
-  
   this->fNewMenu = newMenu;
   this->fOnButtonPress = OnButtonPress;
-  return;
 }
 
 
 
 /* ---- tPMenuItemGoToMenuButton::dtor  [PAUSEMENU.CPP:580-580] SLD-VERIFIED ---- */
 
-tPMenuItemGoToMenuButton::~tPMenuItemGoToMenuButton()
-
-{
-  return;
-}
+tPMenuItemGoToMenuButton::~tPMenuItemGoToMenuButton() {}
 
 
 
@@ -831,20 +757,14 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
 tPMenuItemCommandButton::tPMenuItemCommandButton(u_int textDescription,tPMenuCommandType command)
   : tPMenuItemInteractive(textDescription)
 {
-  
   this->fCommand = command;
-  return;
 }
 
 
 
 /* ---- tPMenuItemCommandButton::dtor  [PAUSEMENU.CPP:619-619] SLD-VERIFIED ---- */
 
-tPMenuItemCommandButton::~tPMenuItemCommandButton()
-
-{
-  return;
-}
+tPMenuItemCommandButton::~tPMenuItemCommandButton() {}
 
 
 
@@ -853,8 +773,9 @@ tPMenuItemCommandButton::~tPMenuItemCommandButton()
 void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
-  
   if (keyval == kInput_KeyType_Cross) {
+
+
     AudioCmn_PlayPauseSound(4);
     command.type = this->fCommand;
     keyval = kInput_KeyType_AlreadyProcessed;
@@ -900,21 +821,19 @@ void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
 tPMenu::tPMenu(tPMenuItem *firstItem, ...)
 
 {
-  
+  va_list ap;
+
   this->fCurrentItem = 0;
-  this->tPMenuConstructor(firstItem,(u_char *)(&firstItem + 1));
-  return;
+  va_start(ap,firstItem);
+  this->tPMenuConstructor(firstItem,ap);
+  va_end(ap);
 }
 
 
 
 /* ---- tPMenu::dtor  [PAUSEMENU.CPP:679-679] SLD-VERIFIED ---- */
 
-tPMenu::~tPMenu()
-
-{
-  return;
-}
+tPMenu::~tPMenu() {}
 
 
 
@@ -942,13 +861,13 @@ void tPMenu::Initialize()
 
 
 /* ---- tPMenu::Debounce  [PAUSEMENU.CPP:698-699] SLD-VERIFIED ---- */
+/* SYM declares the virtual result as native bool. Preserve that result type
+   at the manual vtable boundary so GCC trusts the callee's normalization,
+   just as it would for the original C++ virtual call. */
 
 bool tPMenu::Debounce()
 
 {
-  /* SYM declares the virtual result as native bool.  Preserve that result type
-     at the manual vtable boundary so GCC trusts the callee's normalization,
-     just as it would for the original C++ virtual call. */
   return this->fItemList[this->fCurrentItem]->Debounce();
 }
 

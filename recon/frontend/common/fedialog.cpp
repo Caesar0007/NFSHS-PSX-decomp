@@ -180,7 +180,7 @@ short tDialogBase::ShouldTimeOut()
 void tDialogBase::InitializeClass()
 
 {
-  this->HideAllDialogs();
+  HideAllDialogs();
   return;
 }
 
@@ -188,7 +188,8 @@ void tDialogBase::InitializeClass()
 
 /* ---- tDialogBase::DrawAllDialogs  [FEDIALOG.CPP:90-101] SLD-VERIFIED ---- */
 
-/* MATCH (2026-08-26): 52/52 with SLD/SYM's sole local `short i`.  The nested
+/* MATCH (2026-08-26 and scope follow-up): 52/52 with SYM's sole local `short i`
+   now owned by its retail inner function-spanning block. The nested
    timeout -> Hide -> null-slot return control flow naturally preserves the
    short call-result truncation, eliminating the old sVar1 carrier.  Expressing
    the old-ABI virtual-call adjustment directly as object + delta is also
@@ -198,23 +199,25 @@ void tDialogBase::InitializeClass()
 void tDialogBase::DrawAllDialogs()
 
 {
-  short i;
-  
-  i = 0;
-  while (DialogVisibilityList[i] != (tDialogBase *)0x0) {
-    if (7 < i) break;
-    if ((short)DialogVisibilityList[i]->ShouldTimeOut() != 0) {
-      DialogVisibilityList[i]->Hide();
-      if (DialogVisibilityList[i] == (tDialogBase *)0x0) {
-        return;
+  {
+    short i;
+
+    i = 0;
+    while (DialogVisibilityList[i] != (tDialogBase *)0x0) {
+      if (7 < i) break;
+      if ((short)DialogVisibilityList[i]->ShouldTimeOut() != 0) {
+        DialogVisibilityList[i]->Hide();
+        if (DialogVisibilityList[i] == (tDialogBase *)0x0) {
+          return;
+        }
       }
+      /* ABI-neutral spelling of the original virtual `Draw()` call; retail SYM
+         records no source vtable or array-slot pointer locals. */
+      DialogVisibilityList[i]->Draw();
+      i = i + 1;
     }
-    /* ABI-neutral spelling of the original virtual `Draw()` call; retail SYM
-       records no source vtable or array-slot pointer locals. */
-    DialogVisibilityList[i]->Draw();
-    i = i + 1;
+    return;
   }
-  return;
 }
 
 
@@ -248,27 +251,27 @@ tDialogBase *tDialogBase::GetTopMostDialog()
 void tDialogBase::Display()
 
 {
-  /* SYM: `i` lives in the block that opens at 0x80018864 (the currentlyOn guard),
-     not at function scope. */
-  if (this->currentlyOn == 0) {
+  /* SYM: `i` owns only the visibility-list shift, not the following setup. */
+  if (this->currentlyOn != 0) return;
+  this->currentlyOn = 1;
+  this->fFullyOpen = 0;
+  this->ReturnValue = this->fDefault;
+  {
     short i;
 
     i = 7;
-    this->currentlyOn = 1;
-    this->fFullyOpen = 0;
-    this->ReturnValue = this->fDefault;
     do {
       DialogVisibilityList[i] = DialogVisibilityList[i - 1];
       i = i - 1;
     } while (0 < i);
-    DialogVisibilityList[0] = this;
-    this->ShouldTimeOut();
-    (DialogVisibilityList[0])->ShouldTimeOut();
-    this->startTicks = ticks[0];
-    AudioCmn_PlayFESFX(0xf);
-    this->fFullyOpen = 0;
-    this->fFadeText = 0x80;
   }
+  DialogVisibilityList[0] = this;
+  this->ShouldTimeOut();
+  (DialogVisibilityList[0])->ShouldTimeOut();
+  this->startTicks = ticks[0];
+  AudioCmn_PlayFESFX(0xf);
+  this->fFullyOpen = 0;
+  this->fFadeText = 0x80;
   return;
 }
 
@@ -279,11 +282,13 @@ void tDialogBase::Display()
 void tDialogBase::Hide()
 
 {
-  /* SYM: `i` lives in the block that opens at 0x8001892c (the currentlyOn guard). */
-  if (this->currentlyOn != 0) {
+  /* SYM: `i` lives in the block opened after the currentlyOn early-out and
+     reset, at retail offset +0x28. */
+  if (this->currentlyOn == 0) return;
+  this->currentlyOn = 0;
+  {
     short i;
 
-    this->currentlyOn = 0;
     for (i = 0; i < 8; i++) {
       if (DialogVisibilityList[i] == this) {
         this->currentlyOn = 0;
@@ -318,12 +323,11 @@ void tDialogBase::Draw()
 
 /* ---- tDialogBase::ProcessInput  [FEDIALOG.CPP:217-245] SLD-VERIFIED ---- */
 
-void tDialogBase::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
+void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 
 {
-  /* SYM-ABI-PARAM: fromPlayer -- the mangled signature proves this
-     unused argument even though optimized debug has no parameter row. */
-  /* SYM-ABI-PARAM: command -- likewise retained by the retail ABI. */
+  /* The first and third ABI parameters are unnamed in retail SYM and
+     unused here; their types remain in the mangled method signature. */
   if (keyval != kInput_KeyType_AlreadyProcessed) {
     this->Hide();
     keyval = kInput_KeyType_AlreadyProcessed;

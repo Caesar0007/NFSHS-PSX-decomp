@@ -480,8 +480,6 @@ int iMCRD_DoFileLoad(int card)
   int error;
   MCRDFILEINFO *pMFI;
   SHAPE *s;
-  u_char ch; /* SYM-CODEGEN-CARRIER: ch -- reusing the SYM error value removes
-                one instruction and is measured FAIL 5 (169/170) */
 
   /* MATCH: SYM (8c @0x8004f7a4) lists exactly SIX locals - cmd/res AUTO -0x30/-0x2C,
    * i REG $17($s1), error REG $2($v0), pMFI REG $18($s2), s REG $16($s0).  ONE index
@@ -507,9 +505,7 @@ int iMCRD_DoFileLoad(int card)
     i = 0;
     if (pMFI->title != (char *)0x0) {
       while (1) {
-        ch = sjis2ascii(pMFI->header.title[i]);
-        pMFI->title[i] = ch;
-        if (ch == '\0') break;
+        if ((pMFI->title[i] = sjis2ascii(pMFI->header.title[i])) == '\0') break;
         i = i + 1;
       }
     }
@@ -1136,29 +1132,26 @@ static void iMCRD_timersub(void)
 /* lines 1542-1543: (static data / macros / comments - no emitted code) */
 
 /* ---- garyMemCardGrabBlocks  (memcard.c:1544, code lines 1544-1561) ---- */
+/* Declaration order follows retail SYM: i, pCI, pDir. */
 int garyMemCardGrabBlocks(int card,int filenum)
 
 {
-  /* decl order = SYM Def-record order (i, pCI, pDir) -- w86-S5 */
-  int i;
-  CARDINFO *pCI;
-  struct DIRENTRY *pDir;
-  
+  int i; CARDINFO *pCI; struct DIRENTRY *pDir;
   pCI = MCRD_getcard(card);
   pDir = pCI->dir;
+
+
   MemCardGetDirentry(gMemCardInfo.channel,"*",pDir,&pCI->numfiles,0,0xf);
-  i = 0;
-  if (0 < filenum) {
-    do {
-      i = i + 1;
-      pDir = pDir + 1;
-    } while (i < filenum);
-  }
-  card = pDir->size;
-  if (card < 0) {
-    card = card + 0x1fff;
-  }
-  return card >> 0xd;
+
+
+  for (i = 0; i < filenum; i++) pDir = pDir + 1;
+  /* Retail SLD has six un-emitted source lines before the signed
+     size-to-block return. Their original contents are not recoverable
+     from the optimized image or the available SYM records; this
+     annotation preserves the line region without claiming text.
+     No executable statement or post-compile rewrite is inserted.
+     The division below is the compiler's original sign-bias idiom. */
+  return pDir->size / 0x2000;
 }
 
 /* lines 1562-1565: (static data / macros / comments - no emitted code) */
@@ -1173,8 +1166,6 @@ int iMCRD_LoadCard(int card)
   int slot;
   CARDINFO *pCI;
   struct DIRENTRY *pDir;
-  int size; /* SYM-CODEGEN-CARRIER: size -- direct field/ternary form is measured
-               FAIL 13 (62/63); reusing the SYM error pseudo also adds two moves */
   
   pCI = MCRD_getcard(card);
   pDir = pCI->dir;
@@ -1189,11 +1180,7 @@ int iMCRD_LoadCard(int card)
     if (error == 0) {
       do {
         if (pDir->name[0] != '\0') {
-          size = pDir->size;
-          if (size < 0) {
-            size = size + 0x1fff;
-          }
-          pCI->freeblocks = pCI->freeblocks - (size >> 0xd);
+          pCI->freeblocks = pCI->freeblocks - pDir->size / 0x2000;
         }
         slot = slot + 1;
         pDir = pDir + 1;
@@ -1568,14 +1555,14 @@ static short ascii2sjis(u_char ascii_code)
 static u_char sjis2ascii(short sjis_code)
 
 {
+  /* Retail `idx` is the table selector in $a1, not the sign-extended high
+     byte in $v1. Repeated source shifts are CSE'd into that unnamed value;
+     the narrow `bottom` remains distinct in $a2. */
   int idx;
   u_char bottom;
-  int kind; /* SYM-CODEGEN-CARRIER: kind -- reusing sjis_code is measured FAIL 15
-               (43/44) and rotates the recorded idx/bottom allocation */
 
-  kind = 0;
-  idx = sjis_code >> 8;         /* MATCH: short >> 8 = the oracle's sll 16 / sra 24 */
-  bottom = idx;                 /* the SECOND BYTE itself */
+  idx = 0;
+  bottom = sjis_code >> 8;      /* short >> 8 = oracle sll 16 / sra 24 */
   /* MATCH: retail keeps TWO live values for the second byte - the sign-extended
    * word in $v1 that all three RANGE TESTS read, and a byte-typed copy in $a2
    * (the oracle's `addu $a2,$v1,$zero`, filled into the 0x81 bne's delay slot)
@@ -1591,15 +1578,15 @@ static u_char sjis2ascii(short sjis_code)
     return sjis_k_table[(bottom & 0xff) - 0x40];
   }
   if ((sjis_code & 0xffU) == 0x82) {
-    if (9U < (u_int)(idx - 0x4f)) {
-      if ((u_int)(idx - 0x60) < 0x1aU) {
-        kind = 1;
+    if (9U < (u_int)((sjis_code >> 8) - 0x4f)) {
+      if ((u_int)((sjis_code >> 8) - 0x60) < 0x1aU) {
+        idx = 1;
       }
-      else if ((u_int)(idx + 0x7f & 0xff) < 0x1aU) {
-        kind = 2;
+      else if ((u_int)((sjis_code >> 8) + 0x7f & 0xff) < 0x1aU) {
+        idx = 2;
       }
     }
-    return sjis_table[kind][1] + (bottom - sjis_table[kind][0]);
+    return sjis_table[idx][1] + (bottom - sjis_table[idx][0]);
   }
   return '\0';
 }

@@ -54,7 +54,7 @@ static fontblit gCurrentBlitter;
 void Font_TextColor(int color);
 void Font_TextTint(int rgb);
 void Font_SetABR(int abr);
-void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6);
+void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int);
 void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game);
 charactertbl * Font_Getcharacter(int targetindex);
 void Font_SetBlitter(fontblit blitter);
@@ -73,7 +73,6 @@ void Font_TextColor(int color)
 {
   shpfontclut.shapex = (short)((u_int)(u_short)font_clutx + color * 0x10);
   gFontClut = shpfontclut.shapey << 6 | (u_int)shpfontclut.shapex >> 4 & 0x3f;
-  return;
 }
 
 /* ---- Font_TextTint__Fi  [FONT.CPP:89-90] SLD-VERIFIED ---- */
@@ -81,7 +80,6 @@ void Font_TextTint(int rgb)
 
 {
   font_tint = rgb & 0xffffffU | 0x66000000;
-  return;
 }
 
 /* ---- Font_SetABR__Fi  [FONT.CPP:96-101] SLD-FLAG:NONMONO ---- */
@@ -102,7 +100,7 @@ void Font_SetABR(int abr)
 /* ---- Font_Blit__FiiPviiP12charactertbli  [FONT.CPP:128-152] SLD-FLAG:NONMONO ----
  * SYM (fsize 24, only ra saved): x $a0, y $a1, src $a2, u $a3, v ARG+$t6,
  * ch ARG+$t0; block locals width $t7, height $t0, sprt $t1 (PTR SPRT), dv $a2.
- * NOTE the 7th parameter (tpage) is in the blitter fn-ptr typedef and IS passed by
+ * NOTE the 7th parameter (unnamed int) is in the blitter fn-ptr typedef and IS passed by
  * Font_TextXY, but this implementation never reads it (absent from the SYM param
  * list) -- keep it in the signature so the indirect call type matches.
  * width/height are INT locals per the SYM: u_char locals would re-mask every use
@@ -130,10 +128,10 @@ void Font_SetABR(int abr)
  *  all were echoes of the wrong basin, not allocator floors.  The full grind receipt
  *  (w39-w50: qty tables, ref-step probes, fence sweeps, stmtclimb runs) is in git
  *  history @ the parent of this commit -- do not re-derive it, the fn is byte-exact. */
-void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
+void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
 
 {
-  /* SYM-CODEGEN-CARRIER: tpage -- unused ABI parameter required by the blitter signature */
+  /* Retail leaves the unused seventh ABI int unnamed; blitter linkage keeps it. */
   int width;
   int height;
   SPRT *sprt;
@@ -285,13 +283,12 @@ Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
 charactertbl * Font_Getcharacter(int targetindex)
 
 {
-  u_int characterTableBase; /* SYM-CODEGEN-CARRIER: characterTableBase -- removal shrinks 35 to 33 insns */
   charactertbl *ch;
   char *base;
 
-  base = (char *)&(currentfont);
-  characterTableBase = (*(int *)(base + 132));
-  ch = (charactertbl *)((*(int *)(base + 132)) + (targetindex + -0x20) * 0xb);
+  base = (char *)&currentfont;
+  const u_int characterTableBase = (*(int *)(base + 132));
+  ch = (charactertbl *)(characterTableBase + (targetindex + -0x20) * 0xb);
   if (geti(ch,2) == targetindex) {
     return ch;
   }
@@ -303,7 +300,6 @@ void Font_SetBlitter(fontblit blitter)
 
 {
   gCurrentBlitter = blitter;
-  return;
 }
 
 /* ---- Font_ReSetBlitter__Fv  [FONT.CPP:311-312] SLD-VERIFIED ---- */
@@ -311,7 +307,6 @@ void Font_ReSetBlitter(void)
 
 {
   gCurrentBlitter = Font_Blit;
-  return;
 }
 
 /* ---- Font_SwitchFont__FPc  [FONT.CPP:317-329] SLD-VERIFIED ---- */
@@ -349,13 +344,11 @@ void Font_SwitchFont(char *f1)
 
 {
   u_char *base; /* SYM-CODEGEN-CARRIER: base -- anchors the MEM_IN_STRUCT_P store view */
-  u_char *fontShape; /* SYM-CODEGEN-CARRIER: fontShape -- carries the current font shape pointer */
-  int abr_val; /* SYM-CODEGEN-CARRIER: abr_val -- measured load-placement carrier */
 
   setfont(f1);
-  base = (u_char *)&(currentfont);
-  fontShape = *(u_char **)(base + 136);
-  abr_val = font_abr;
+  base = (u_char *)&currentfont;
+  u_char *const fontShape = *(u_char **)(base + 136);
+  const int abr_val = font_abr;
   /* w46-a8 SEAL (2 -> PASS, 27/27).  THE MEM_IN_STRUCT_P STORE VIEW, and it is the STORE
      side alone that is the operative bit -- font_abr is untouched.  Writing the three
      currentfont zero stores through a STRUCT type sets MEM_IN_STRUCT_P on them, which
@@ -373,12 +366,10 @@ void Font_SwitchFont(char *f1)
     ((DR_MODE *)(base + 0x94))->code[0] = 0;
     ((DR_MODE *)(base + 0x94))->code[1] = 0;
   }
-  {
-    int arg3 = (*(int *)(fontShape + 0xc) << 4) >> 0x14; /* SYM-CODEGEN-CARRIER: arg3 */
-    font_currentTPage = GetTPage(*(u_char *)fontShape & 3,abr_val,
-                                (*(int *)(fontShape + 0xc) << 0x14) >> 0x14,
-                                arg3);
-  }
+  int arg3 = (*(int *)(fontShape + 0xc) << 4) >> 0x14; /* SYM-CODEGEN-CARRIER: arg3 */
+  font_currentTPage = GetTPage(*(u_char *)fontShape & 3,abr_val,
+                              (*(int *)(fontShape + 0xc) << 0x14) >> 0x14,
+                              arg3);
   gFontSpaceWidth = Font_Getcharacter(0x20)->advance;
   return;
 }
@@ -392,7 +383,6 @@ void Font_DeInit(void)
   }
   font_clutx = -1;
   font_cluty = -1;
-  return;
 }
 
 /* ---- Font_ExitFromGame__Fv  [FONT.CPP:342-344] SLD-VERIFIED ---- */
@@ -401,7 +391,6 @@ void Font_ExitFromGame(void)
 {
   font_clutx = -1;
   font_cluty = -1;
-  return;
 }
 
 /* ---- Font_LoadFont__FPciic  [FONT.CPP:348-399] SLD-VERIFIED ----
@@ -413,10 +402,9 @@ void Font_ExitFromGame(void)
 int Font_LoadFont(char *f1,int x,int y,char in_game)
 
 {
+  shapetbl *shp;
   int i;
   int l;
-  shapetbl *shp;
-  char *hdr; /* SYM-CODEGEN-CARRIER: hdr -- named header base preserves retail constant association */
 
   setfont(f1);
   shp = (shapetbl *)(*(int *)((u_char *)&(currentfont) + 136));
@@ -438,10 +426,10 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   }
   Font_ReSetBlitter();
   Font_SwitchFont(f1);
-  /* MATCH (w39-a6): the header base MUST be its own named local.  Written inline as
-   * `X - (int)(f1 - 0x10)` gcc reassociates the constant out (addiu a1,a1,16; subu a1,a1,a0);
-   * the oracle keeps the subexpression whole (addiu v0,a0,-16; subu a1,a1,v0).  PASS 117/117. */
-  hdr = f1 - 0x10;
+  /* MATCH: a const use-site header base keeps `f1 - 0x10` intact while GCC
+   * omits its debug local.  Inlining it reassociates the constant into
+   * `addiu a1,a1,16; subu a1,a1,a0` instead of retail's separate subexpression. */
+  char *const hdr = f1 - 0x10;
   resizememadr(f1,(*(int *)((u_char *)&(currentfont) + 136)) - (int)hdr);
   Font_TextTint(0x808080);
   Font_TextColor(2);

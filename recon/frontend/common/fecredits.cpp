@@ -22,17 +22,16 @@ void tCreditManager::Setup()
   this->fCreditsInitialized = 0;
   this->fRequestDeInit = 0;
   this->fTVFade = 0;
-  return;
 }
 
 
 
 /* ---- tCreditManager::Init  [FECREDITS.CPP:57-99] ---- */
-void tCreditManager::Init(int arg1)
+void tCreditManager::Init(int)
 
 {
-  /* SYM-CODEGEN-CARRIER: arg1 -- the method's trailing `i` mangling proves the
-     unused argument; optimized debug consequently has no parameter record. */
+  /* The trailing int remains in the ABI; retail SYM has no name for this
+     unused parameter, so the definition leaves it unnamed. */
   char filename [80];
   
   if (this->fCreditsInitialized == 0) {
@@ -63,7 +62,6 @@ void tCreditManager::DeInit()
 
 {
   this->fRequestDeInit = 1;
-  return;
 }
 
 
@@ -74,11 +72,15 @@ void tCreditManager::RealDeInit()
 {
   
   this->fRequestDeInit = 0;
-  if (this->fCreditsInitialized != 0) {
+
+
+  if (this->fCreditsInitialized != 0)
+  {
+
     purgememadr(this->CreditBuffer);
     this->fCreditsInitialized = 0;
+    return;
   }
-  return;
 }
 
 
@@ -135,18 +137,15 @@ void tCreditManager::Draw(bool selected)
 /* ---- tCreditManager::SetupCurrCredit  [FECREDITS.CPP:155-238] ---- */
 void tCreditManager::SetupCurrCredit()
 
-/* MATCH (w37-a2 + 2026-08-03 follow-up, 58->PASS): SYM records the function-static
-   `lasttick` (restored to real local-static storage in P881), plus the nested
-   line-66 `int NNNNN` in $v1 and the outer `this` receiver.  The remaining seven
-   identities are optimized away and their private original spellings are not
-   recoverable from SYM:
-   SYM-CODEGEN-CARRIER: advanceRequested
-   SYM-CODEGEN-CARRIER: inputPressed
-   SYM-CODEGEN-CARRIER: nextCredit
-   SYM-CODEGEN-CARRIER: textFade
-   SYM-CODEGEN-CARRIER: currentCredit
-   SYM-CODEGEN-CARRIER: backgroundReady
-   SYM-CODEGEN-CARRIER: startTicksSnapshot
+/* MATCH (w37-a2 + later source-restoration rounds): SYM records function-static
+   `lasttick`, nested-block `NNNNN` in $v1, and `this`. The input-key tests now
+   use direct short-circuiting; const snapshots of nextCredit and textFade
+   emit no extra debug locals. Reusing fShowCreditNum after its assignment
+   removes the source-only currentCredit carrier while preserving 199 instructions.
+   The volatile ticks snapshot remains a compile-shaping expression, not a
+   claimed original spelling: a direct/nonvolatile read loses two oracle
+   instructions and moves the load after the field stores. Native locals
+   now match retail; lexical scope blocks (ours 9, retail 28) remain open.
    Two levers found:
    (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
    nested-block local (SYM block@0x80035f94) for `currentCredit+1`, not a
@@ -166,22 +165,12 @@ void tCreditManager::SetupCurrCredit()
      Explicit zero initialization retains the native initialized data run
      after CREDFADETICKS; link ownership excludes the raw oracle-only copy. */
   static int lasttick = 0;
-  bool advanceRequested;
-  int inputPressed;
-  int nextCredit;
-  int textFade;
-  int currentCredit;
   bool backgroundReady;
 
   if (((0xc < ticks - lasttick) && (this->fTextFade == 0)) &&
-     (advanceRequested = false, this->fCurrCredit == this->fShowCreditNum)) {
-    inputPressed = FEInput_GetNoDebounceKey(0x20,0);
-    if ((inputPressed != 0) ||
-       (inputPressed = FEInput_GetNoDebounceKey(0x20,1), inputPressed != 0))
-    {
-      advanceRequested = true;
-    }
-    if (advanceRequested) {
+      this->fCurrCredit == this->fShowCreditNum) {
+    if (FEInput_GetNoDebounceKey(0x20,0) != 0 ||
+        FEInput_GetNoDebounceKey(0x20,1) != 0) {
       AudioCmn_PlayFESFX(6);
       this->fStartTicks = 0;
       this->fCurrCredit = this->fShowCreditNum + 1;
@@ -195,7 +184,7 @@ void tCreditManager::SetupCurrCredit()
     }
   }
   if ((this->fStartTicks != 0) && (ticks - this->fStartTicks > CREDFADETICKS)) {
-    nextCredit = this->fCurrCredit + 1;
+    const int nextCredit = this->fCurrCredit + 1;
     this->fCurrCredit = nextCredit;
     if (this->fNumCredits <= nextCredit) {
       this->fCurrCredit = 0;
@@ -211,7 +200,7 @@ void tCreditManager::SetupCurrCredit()
     this->StartedLines = 0;
     this->StartedTextFade = 0;
   }
-  textFade = this->fTextFade + this->fTextFadeDir;
+  const int textFade = this->fTextFade + this->fTextFadeDir;
   this->fTextFade = textFade;
   if (textFade < 1) {
     this->fTextFade = 0;
@@ -220,15 +209,14 @@ void tCreditManager::SetupCurrCredit()
     this->fTextFade = 0x80;
   }
   if ((this->fTextFade == 0x80) && (this->StartedTransition == 0)) {
-    currentCredit = this->fCurrCredit;
     this->StartedTransition = 1;
-    this->fShowCreditNum = currentCredit;
-    if ((currentCredit == (currentCredit / 3) * 3) ||
-        (this->CreditBuffer[currentCredit].bgNumber != -1)) {
+    this->fShowCreditNum = this->fCurrCredit;
+    if ((this->fShowCreditNum == (this->fShowCreditNum / 3) * 3) ||
+        (this->CreditBuffer[this->fShowCreditNum].bgNumber != -1)) {
       /* MATCH (w37-a2): SYM shows a SEPARATE nested-block local at
          VA 0x80035f94 (line 66) for currentCredit+1, not a reassignment of
          currentCredit itself. */
-      int NNNNN = currentCredit + 1;
+      int NNNNN = this->fShowCreditNum + 1;
       if (this->fNumCredits < NNNNN) {
         NNNNN = 0;
       }
@@ -243,7 +231,7 @@ void tCreditManager::SetupCurrCredit()
   }
   if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&
      (0x1e < ticks - this->fLineTicks)) {
-    int startTicksSnapshot = *(volatile int *)&ticks;
+    const int startTicksSnapshot = *(volatile int *)&ticks;
     this->StartedTextFade = 1;
     this->fTextFadeDir = -8;
     this->fStartTicks = startTicksSnapshot;

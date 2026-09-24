@@ -28,11 +28,12 @@ void CalcStartSegment(Skidmark_Segment *r1,Skidmark_Segment *r2,coorddef *cp,coo
 
   int pxp;
   int pzp;
-  int angle;
-
-  angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
-  pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
-  pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
+  {
+    int angle;
+    angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
+    pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
+    pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
+  }
   r1->svx[0].vx = (short)((pt1->x + pxp) - cp->x >> 6);
   r1->svx[0].vy = (short)(pt1->y - cp->y >> 6);
   r1->svx[0].vz = (short)((pt1->z + pzp) - cp->z >> 6);
@@ -54,11 +55,12 @@ void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt
 {
   int pxp;
   int pzp;
-  int angle;
-
-  angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
-  pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
-  pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
+  {
+    int angle;
+    angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
+    pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
+    pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
+  }
   r1->svx[0].vx = (short)((pt2->x + pxp) - cp->x >> 6);
   r1->svx[0].vy = (short)(pt2->y - cp->y >> 6);
   r1->svx[0].vz = (short)((pt2->z + pzp) - cp->z >> 6);
@@ -297,9 +299,6 @@ void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
 {
   Draw_tCtrlSkidmark *fskid;
   Draw_tCtrlSkidmark fskidspace;
-  int t1;
-  int t2;
-  int t3;
 
   /* Oracle loads each 3-int group into THREE distinct caller-saved regs and only then
      stores them (the loads fill each other's load-delay slots); per-field
@@ -310,24 +309,29 @@ void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
   fskidspace.t = Vi->cview.translation;
   fskid->count = gCountSm;
   fskid->smp = gSm;
-  t1 = Vi->cview.mrotationInv.m[0];
-  t2 = Vi->cview.mrotationInv.m[1];
-  t3 = Vi->cview.mrotationInv.m[2];
-  fskidspace.m.m[0] = t1;
-  fskid->m.m[1] = -t2;
-  fskid->m.m[2] = t3;
-  t1 = Vi->cview.mrotationInv.m[3];
-  t2 = Vi->cview.mrotationInv.m[4];
-  t3 = Vi->cview.mrotationInv.m[5];
-  fskid->m.m[3] = t1;
-  fskid->m.m[4] = -t2;
-  fskid->m.m[5] = t3;
-  t1 = Vi->cview.mrotationInv.m[6];
-  t2 = Vi->cview.mrotationInv.m[7];
-  t3 = Vi->cview.mrotationInv.m[8];
-  fskid->m.m[6] = t1;
-  fskid->m.m[7] = -t2;
-  fskid->m.m[8] = t3;
+  {
+    int t1;
+    int t2;
+    int t3;
+    t1 = Vi->cview.mrotationInv.m[0];
+    t2 = Vi->cview.mrotationInv.m[1];
+    t3 = Vi->cview.mrotationInv.m[2];
+    fskidspace.m.m[0] = t1;
+    fskid->m.m[1] = -t2;
+    fskid->m.m[2] = t3;
+    t1 = Vi->cview.mrotationInv.m[3];
+    t2 = Vi->cview.mrotationInv.m[4];
+    t3 = Vi->cview.mrotationInv.m[5];
+    fskid->m.m[3] = t1;
+    fskid->m.m[4] = -t2;
+    fskid->m.m[5] = t3;
+    t1 = Vi->cview.mrotationInv.m[6];
+    t2 = Vi->cview.mrotationInv.m[7];
+    t3 = Vi->cview.mrotationInv.m[8];
+    fskid->m.m[6] = t1;
+    fskid->m.m[7] = -t2;
+    fskid->m.m[8] = t3;
+  }
   Draw_kCtrlSkidmark(fskid);
   return;
 }

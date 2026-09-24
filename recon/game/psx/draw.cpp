@@ -9,6 +9,9 @@
  * byte-neutral (21 PASS, StopRenderingView still 50).  draw.obj is NOT a flag
  * object -- do not re-probe. */
 #include "draw_types.h"
+/* PsyQ 4.3 libgpu.h setRGB0: the three color stores share one source line. */
+#define setRGB0(p, _r0, _g0, _b0) \
+  (p)->r0 = _r0, (p)->g0 = _g0, (p)->b0 = _b0
 /* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
  * FIRST-DECLARATION order.  Retail draw.obj .sdata after its four literals
  * ("ot0","ot1","ps0","ps1" @0x8013d798) is Draw_gDoVSync 0x8013d7a8 /
@@ -82,7 +85,6 @@ int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int ot
   Draw_tView *newview;
   DRAWENV *e00;
   DRAWENV *e10;
-  int viewIndex; /* SYM-CODEGEN-CARRIER: viewIndex -- retains the pre-increment view count for return */
 
   newview = Draw_gView + Draw_gNumView;
   e00 = newview->drawenv;
@@ -99,7 +101,9 @@ int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int ot
   e00->isbg = (u_char)isbg;
   e10->dtd = (u_char)dtd;
   e00->dtd = (u_char)dtd;
-  viewIndex = Draw_gNumView;
+  /* Const use-site snapshot preserves the pre-increment return value without
+     emitting a retail-absent `viewIndex` debug local. */
+  const int viewIndex = Draw_gNumView;
   newview->otsize = otsize;
   newview->membudget = 0;
   Draw_gNumView = Draw_gNumView + 1;
@@ -111,7 +115,6 @@ void Draw_InitViews(void)
 
 {
   Draw_gNumView = 0;
-  return;
 }
 
 /* ---- Draw_InitViewOT__Fv  [DRAW.CPP:127-134] SLD-VERIFIED ---- */
@@ -252,7 +255,6 @@ void Draw_SetViewMemBudget(int viewid,int totalmem)
 
 {
   Draw_gView[viewid].membudget = totalmem;
-  return;
 }
 
 /* ---- Draw_SetViewColor__Fiiii  [DRAW.CPP:213-219] SLD-VERIFIED ---- */
@@ -262,17 +264,9 @@ void Draw_SetViewColor(int viewid,int r,int g,int b)
   Draw_tView *view;
 
   view = &Draw_gView[viewid];
-  if (view->drawenv[0].isbg != '\0') {
-    view->drawenv[0].r0 = (u_char)r;
-    view->drawenv[0].g0 = (u_char)g;
-    view->drawenv[0].b0 = (u_char)b;
-  }
-  if (view->drawenv[1].isbg != '\0') {
-    view->drawenv[1].r0 = (u_char)r;
-    view->drawenv[1].g0 = (u_char)g;
-    view->drawenv[1].b0 = (u_char)b;
-  }
-  return;
+
+  if (view->drawenv[0].isbg != '\0') { setRGB0(&view->drawenv[0], (u_char)r, (u_char)g, (u_char)b); }
+  if (view->drawenv[1].isbg != '\0') { setRGB0(&view->drawenv[1], (u_char)r, (u_char)g, (u_char)b); }
 }
 
 /* ---- AllocatePrimitivesBuffer__Fv  [DRAW.CPP:237-292] SLD-VERIFIED ---- */
@@ -297,10 +291,6 @@ void AllocatePrimitivesBuffer(void)
      between the `commMode==1` compare and the multiply), so gcc reuses the still-live
      compare constant register as the shift-amount operand (a variable-form `sllv`) --
      an allocator artifact of NOT introducing an intervening `membudget` computation. */
-  Draw_tView *view0;
-  Draw_tView *view1;
-  Draw_tView *view;
-
   if (GameSetup_gData.commMode == 1) {
     Draw_InitViewOT();
   }
@@ -316,12 +306,15 @@ void AllocatePrimitivesBuffer(void)
   gEnviro[0].server = Platform_ReserveMemory(gTotalMem,"ps0");
   gEnviro[1].server = Platform_ReserveMemory(gTotalMem,"ps1");
   if (GameSetup_gData.commMode == 1) {
+    Draw_tView *view0;
+    Draw_tView *view1;
     view0 = &Draw_gView[Draw_gPlayer1View];
     view0->membudget = (gTotalMem >> 1) + -0x1a00;
     view1 = &Draw_gView[Draw_gPlayer2View];
     view1->membudget = (gTotalMem >> 1) + -0x1a00;
   }
   else {
+    Draw_tView *view;
     view = &Draw_gView[Draw_gPlayer1View];
     view->membudget = gTotalMem + -0x1a00;
   }
@@ -332,17 +325,14 @@ void AllocatePrimitivesBuffer(void)
 void ClearPrimitivesBuffer(void)
 
 {
+
   DrawSync(0);
-  if (gEnviro[0].server != (char *)0x0) {
-    purgememadr(gEnviro[0].server);
-  }
-  if (gEnviro[1].server != (char *)0x0) {
-    purgememadr(gEnviro[1].server);
-  }
-  gEnviro[1].server = (char *)0x0;
-  gEnviro[0].server = (char *)0x0;
+
+  if (gEnviro[0].server != (char *)0x0) purgememadr(gEnviro[0].server);
+  if (gEnviro[1].server != (char *)0x0) purgememadr(gEnviro[1].server);
+  gEnviro[1].server = (char *)0x0; gEnviro[0].server = (char *)0x0;
+
   Draw_DeInitViews();
-  return;
 }
 
 /* ---- ClearPlatformPrimitivesBuffer__Fv  [DRAW.CPP:325-339] SLD-VERIFIED ---- */
@@ -386,18 +376,16 @@ void Draw_StartRenderingView(int viewid)
      PASS 46/46 as of 2026-07-31.) */
   Draw_DCache *sd;
   Draw_tView *view;
-  int midGroundOtzNumerator; /* SYM-CODEGEN-CARRIER: midGroundOtzNumerator -- in-place signed /8 rounding carrier */
 
   sd = (Draw_DCache *)0x1F800000;
   view = Draw_gView + viewid;
-  midGroundOtzNumerator = view->otsize * 7;
+  const int midGroundOtzNumerator = view->otsize * 7;
   Draw_gViewOtSize = view->otsize;
-  if (midGroundOtzNumerator < 0) {
-    midGroundOtzNumerator = midGroundOtzNumerator + 7;
-  }
+  const int roundedNumerator = midGroundOtzNumerator < 0
+      ? midGroundOtzNumerator + 7 : midGroundOtzNumerator;
   sd->head.clipW = Draw_gView[viewid].drawenv[0].clip.w;
   sd->head.clipH = Draw_gView[viewid].drawenv[0].clip.h;
-  Draw_gMidGroundOtz = midGroundOtzNumerator >> 3;
+  Draw_gMidGroundOtz = roundedNumerator >> 3;
   sd->head.cprim.LastPrim = (u_long *)view->ot[gFlip];
   /* MATCH (2026-07-31, w38-a3): the oracle's tail is the DE MORGAN form --
      `if (viewid != P1 && viewid != P2) { gMaxPrim } else { PrimPtr+membudget }`
@@ -466,17 +454,17 @@ void Draw_StopRenderingView(int viewid)
      to the movstrsi copy-walker (which has loop-DOUBLED ref counts and therefore a much
      higher floor_log2(refs)*refs/live_length priority here).  Falsified while chasing it:
      decl-order permutation, `pal` init before/after `pEnv`, late `view` init (index-form
-     copy source) 107, index-form 2nd otsize read 65.  Allocno-priority tie -- accept
-     (WEAK floor: an -dg/-dl allocno dump for the C++ lane would settle it). */
-  Draw_tView *view;
-  DR_ENV *pEnv;
+     copy source) 107, index-form 2nd otsize read 65.  The later byte-PASS
+     source remains authoritative; a const pal snapshot and retail declaration
+     order LEnv/pEnv/view also make its native SYM record exact. */
   DRAWENV LEnv;
-  u_char *pal; /* SYM-CODEGEN-CARRIER: pal -- oracle's CSE'd Render_gPalettePtr value */
+  DR_ENV *pEnv;
+  Draw_tView *view;
 
   view = Draw_gView + viewid;
   LEnv = view->drawenv[gFlip];
   pEnv = (DR_ENV *)Render_gPacketPtr;
-  pal = Render_gPalettePtr;
+  u_char *const pal = Render_gPalettePtr;
   *(u_int *)pEnv = *(u_int *)pEnv & 0xff000000 |
        *(u_int *)(pal + view->otsize * 4 + -4) & 0xffffff;
   Render_gPacketPtr = (char *)pEnv + 0x40;
@@ -560,9 +548,7 @@ void Draw_StartFrameRender(void)
 void Draw_SetDrawSyncCallback(void (*p)(void))
 
 {
-  
   Draw_gSyncCallback = p;
-  return;
 }
 
 /* ---- Draw_StopFrameRender__Fv  [DRAW.CPP:463-487] SLD-VERIFIED ---- */
@@ -613,32 +599,30 @@ void Draw_DrawDirectScreen(shapetbl *tile,int x,int y)
 
 {
   
+  /* Retail SLD leaves three non-emitting source lines before this call.
+     Their original content is not identified by the available SYM
+     or linked instruction stream. */
   Texture_Vramcf(tile,x,y + 0x100,0,0);
-  return;
 }
 
 /* ---- Draw_DirectSetEnvironment__Fiiiiiiiiii  [DRAW.CPP:513-546] SLD-VERIFIED ---- */
 void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)
 
 {
-  /* SYM (nfs4-f-v3.txt @0x800BE478) names TWO `AUTO` locals both called `e` (one typed
-     DRAWENV/92B, one DISPENV/20B) -- but the RAW oracle disproves "two independent
-     slots": both SetDefDrawEnv's and SetDefDispEnv's buffer args resolve to the exact
-     SAME address `sp+0x18` (`addiu a0,sp,0x18` at all 3 call sites). So the two SYM
-     `e`s are typed views of ONE shared stack buffer -- the original bug was the buffer
-     being declared as the SMALLER `DISPENV` (20B, too small for a real DRAWENV) and
-     cast; fix is a single buffer big enough for both, sized/typed as `DRAWENV` (92B),
-     used directly for the draw-env call and passed to SetDefDispEnv via a DISPENV*
-     reinterpret for the disp-env call (matches oracle's single shared address).
-     🔴 ALSO: the oracle has a WHOLE MISSING FEATURE -- a `beqz $s0,...` (erase==0)
+  /* SYM records two disjoint branch-local `e` objects: DRAWENV/92B under
+     edraw and DISPENV/20B under edisplay. Their nonoverlapping lifetimes
+     let GCC reuse the same sp-128 stack slot, explaining the shared address
+     at all three environment calls without a false cross-type cast. Native
+     local types, storage and scope offsets now agree with retail at 65/65
+     byte-PASS; source-line fields remain to be restored.
+     The oracle also has an erase-gated color setup -- a `beqz $s0,...`
      gate right after SetDefDrawEnv, writing e.r0/e.g0/e.b0 (DRAWENV +0x19/+0x1A/+0x1B)
      from the r/g/b params and setting e.isbg=1 when erase!=0 (else e.isbg=0), all
      BEFORE PutDrawEnv -- confirmed by decoding the buffer offsets 0x31/0x32/0x33/0x30
      (relative to the sp+0x18 base) against the real DRAWENV field layout. The prior
      reconstruction dropped this whole block (treating erase/r/g/b as unused params). */
-  DRAWENV e;
-
   if (edraw != 0) {
+    DRAWENV e;
     SetDefDrawEnv(&e,x,y,w,h);
     if (erase != 0) {
       e.r0 = (u_char)r;
@@ -652,9 +636,10 @@ void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,in
     PutDrawEnv(&e);
   }
   if (edisplay != 0) {
-    SetDefDispEnv((DISPENV *)&e,x,y,w,h);
+    DISPENV e;
+    SetDefDispEnv(&e,x,y,w,h);
     SetDispMask(0);
-    PutDispEnv((DISPENV *)&e);
+    PutDispEnv(&e);
     timedwait(timerhz >> 1);
     SetDispMask(1);
   }
@@ -667,7 +652,6 @@ void Draw_SetEnvironment(int w,int h,int edraw,int edisplay,int erase,int r,int 
 {
   
   Draw_DirectSetEnvironment(0,0x100,w,h,edraw,edisplay,erase,r,g,b);
-  return;
 }
 
 /* ---- Draw_InitRenderEngine__Fiiiiii  [DRAW.CPP:577-591] SLD-VERIFIED ---- */
@@ -688,25 +672,25 @@ void Draw_InitRenderEngine(int x0,int y0,int x1,int y1,int w,int h)
 void Draw_RestartRenderEngine(void)
 
 {
-  return;
 }
 
 /* ---- Draw_DeInitRenderEngine__Fv  [DRAW.CPP:600-603] SLD-VERIFIED ---- */
 void Draw_DeInitRenderEngine(void)
 
 {
+
   ClearPlatformPrimitivesBuffer();
   gFlip = -1;
-  return;
 }
 
 /* ---- Draw_InitLibRender__Fv  [DRAW.CPP:609-613] SLD-VERIFIED ---- */
 void Draw_InitLibRender(void)
 
 {
+
   gLoop = 1;
+
   InitGeom();
-  return;
 }
 
 /* end of draw.cpp */

@@ -285,11 +285,10 @@ void tScreenAudio::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char *
                char **swapFileName)
 
 {
-  numSwapShapes = 0;
-  *swapFileName = (char *)0x0;
+
+  numSwapShapes = 0; *swapFileName = (char *)0x0;
   numPermShapes = 0x34;
   *permFileName = "zAudio";
-  return;
 }
 
 /* ---- tScreenAudio::tScreenAudio  (screenaudio.cpp:297) ---- */
@@ -299,31 +298,23 @@ tScreenAudio::tScreenAudio()
   this->fSelectedSong = 0;
   this->fCurrentAudioMode = '\0';
   this->songlist = (AudioMus_tSongList *)0x0;
-  return;
 }
 
 /* ---- tScreenAudio::Initialize  (screenaudio.cpp:305) ---- */
+/* The initial selection store precedes the direct menuDefs call in source.
+   This ordering gives the retail $a2 reuse with no non-SYM menus local. */
 void tScreenAudio::Initialize()
 
 {
-  /* SYM-CODEGEN-CARRIER: menus -- direct menuDefs accesses are measured FAIL 9
-     (25/24) and add an address materialization. */
-  tGlobalMenuDefs *menus;
-
-  menus = menuDefs;
   this->fPrevSelectedSong = -1;
-  SetMenu((tMenuItemSlidingMenu *)&menus->itemSlidingPlayList,true,
-             (tInsideBoxMenu*)&menus->menuPlayListMenu);
+
+  SetMenu((tMenuItemSlidingMenu *)&menuDefs->itemSlidingPlayList,true,(tInsideBoxMenu*)&menuDefs->menuPlayListMenu);
+
   this->tScreen::Initialize();
-  /* P864: SLD 311 owns both the audio-mode load and the final delayed store;
-     lines 312-314 own the intervening zero stores.  Writing the member
-     assignment here removes the non-SYM audioMode carrier (PASS 24/24,
-     exact -g twin) without claiming that original expression spelling survives. */
   this->prevAudioMode = frontEnd.audioMode;
   this->audioTest = 0;
   this->audioTestHandle = 0;
   this->songlist = (AudioMus_tSongList *)0x0;
-  return;
 }
 
 /* ---- tScreenAudio::Cleanup  (screenaudio.cpp:318) ---- */

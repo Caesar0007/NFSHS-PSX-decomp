@@ -82,6 +82,8 @@ struct Object_tIMassObjInfo {
 /* Real virtuals since 2026-09-19.  Declaration order, in-class inline destructors and the pure base Draw are all retail
  * evidence (vtable order, deferred-inline tail order, __pure_virtual slot) -- see scratchpad/psyq_pipe/fevirt_object.py. */
 struct ObjectAnim {
+    /* Retail derived-ctor SYM has the empty inline base-construction scope. */
+    ObjectAnim() {}
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };

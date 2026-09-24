@@ -21,23 +21,16 @@ tPlayer      gMenu_SubMenuPlayer = (tPlayer)-1;   /* @0x800517c0 */
 tListIterator::tListIterator(short *selection,char *valPtr)
 
 {
-  
   this->fSelectionList = selection;
   this->fValue = valPtr;
-  this->fMaxValue = '\0';
-  this->fMinValue = '\0';
-  return;
+  this->fMaxValue = '\0'; this->fMinValue = '\0';
 }
 
 
 
 /* ---- tListIterator::dtor  [FEMENU.CPP:68-68] SLD-VERIFIED ---- */
 
-tListIterator::~tListIterator()
-
-{
-  return;
-}
+tListIterator::~tListIterator() {}
 
 
 
@@ -56,8 +49,7 @@ char tListIterator::Value(tPlayer)
 short tListIterator::TextValue(tPlayer)
 
 {
-  return (int)this->fSelectionList[
-      this->Value((tPlayer)-1) & 0xff];
+  return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
 }
 
 
@@ -99,18 +91,13 @@ tListIteratorIndexed::tListIteratorIndexed(short *selection,char *valPtr,char *i
   : tListIterator(selection,valPtr)
 {
   this->fIndex = index;
-  return;
 }
 
 
 
 /* ---- tListIteratorIndexed::dtor  [FEMENU.CPP:110-110] SLD-VERIFIED ---- */
 
-tListIteratorIndexed::~tListIteratorIndexed()
-
-{
-  return;
-}
+tListIteratorIndexed::~tListIteratorIndexed() {}
 
 
 
@@ -129,8 +116,7 @@ char tListIteratorIndexed::Value(tPlayer)
 short tListIteratorIndexed::TextValue(tPlayer)
 
 {
-  return (int)this->fSelectionList[
-    this->Value((tPlayer)-1) & 0xff];
+  return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
 }
 
 
@@ -170,11 +156,7 @@ void tListIteratorIndexed::Decrement(tPlayer)
 
 /* ---- tListIteratorDoubleIndexed::dtor  [FEMENU.CPP:156-156] SLD-VERIFIED ---- */
 
-tListIteratorDoubleIndexed::~tListIteratorDoubleIndexed()
-
-{
-  return;
-}
+tListIteratorDoubleIndexed::~tListIteratorDoubleIndexed() {}
 
 
 
@@ -195,8 +177,7 @@ char tListIteratorDoubleIndexed::Value(tPlayer)
 short tListIteratorDoubleIndexed::TextValue(tPlayer)
 
 {
-  return (int)this->fSelectionList[
-    this->Value((tPlayer)-1) & 0xff];
+  return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
 }
 
 
@@ -244,11 +225,7 @@ void tListIteratorDoubleIndexed::Decrement(tPlayer)
 
 /* ---- tListIteratorMultiPlayer::dtor  [FEMENU.CPP:202-202] SLD-VERIFIED ---- */
 
-tListIteratorMultiPlayer::~tListIteratorMultiPlayer()
-
-{
-  return;
-}
+tListIteratorMultiPlayer::~tListIteratorMultiPlayer() {}
 
 
 
@@ -270,8 +247,7 @@ char tListIteratorMultiPlayer::Value(tPlayer atIndex)
 short tListIteratorMultiPlayer::TextValue(tPlayer atIndex)
 
 {
-  return this->fSelectionList[
-    this->Value(atIndex) & 0xff];   /* the hand call passed no argument: a1 still held atIndex */
+  return this->fSelectionList[this->Value(atIndex) & 0xff];   /* the hand call passed no argument: a1 still held atIndex */
 }
 
 
@@ -286,9 +262,7 @@ void tListIteratorMultiPlayer::Increment(tPlayer atIndex)
   }
   this->fValue[atIndex]++;
   if (this->fSelectionList[(u_char)this->fValue[atIndex]] == 0) {
-    this->fValue[atIndex] = 0;
-  }
-  return;
+    this->fValue[atIndex] = 0; }
 }
 
 
@@ -319,18 +293,13 @@ tListIteratorRange::tListIteratorRange(char minValue,char maxValue,char *valPtr)
 {
   this->fMinValue = minValue;
   this->fMaxValue = maxValue;
-  return;
 }
 
 
 
 /* ---- tListIteratorRange::dtor  [FEMENU.CPP:257-257] SLD-VERIFIED ---- */
 
-tListIteratorRange::~tListIteratorRange()
-
-{
-  return;
-}
+tListIteratorRange::~tListIteratorRange() {}
 
 
 
@@ -339,6 +308,9 @@ tListIteratorRange::~tListIteratorRange()
 char tListIteratorRange::Value(tPlayer)
 
 {
+  /* Retail SLD has three non-emitting lines before this return.
+     It records no local or call in that region; the original text
+     cannot be determined from this SYM and instruction stream. */
   return (u_int)(u_char)*this->fValue;
 }
 
@@ -359,10 +331,12 @@ short tListIteratorRange::TextValue(tPlayer)
 void tListIteratorRange::Increment(tPlayer)
 
 {
+  /* Retail SLD leaves three non-emitting lines before this guard.
+     No source local or call is recorded there; their original
+     contents are not uniquely recoverable from SYM and code. */
   if ((u_int)(u_char)*this->fValue < (u_char)this->fMaxValue) {
     *this->fValue = (u_char)*this->fValue + '\x01';
   }
-  return;
 }
 
 
@@ -372,10 +346,12 @@ void tListIteratorRange::Increment(tPlayer)
 void tListIteratorRange::Decrement(tPlayer)
 
 {
+  /* Retail SLD leaves three non-emitting lines before this guard.
+     No source local or call is recorded there; their original
+     contents are not uniquely recoverable from SYM and code. */
   if ((u_char)this->fMinValue < (u_int)(u_char)*this->fValue) {
     *this->fValue = (u_char)((u_int)(u_char)*this->fValue - 1);
   }
-  return;
 }
 
 
@@ -384,20 +360,14 @@ void tListIteratorRange::Decrement(tPlayer)
 tListIteratorRangeIndexed::tListIteratorRangeIndexed(char minValue,char maxValue,char *valPtr,char *index)
   : tListIteratorRange(minValue,maxValue,valPtr)
 {
-  
   this->fIndex = index;
-  return;
 }
 
 
 
 /* ---- tListIteratorRangeIndexed::dtor  [FEMENU.CPP:304-304] SLD-VERIFIED ---- */
 
-tListIteratorRangeIndexed::~tListIteratorRangeIndexed()
-
-{
-  return;
-}
+tListIteratorRangeIndexed::~tListIteratorRangeIndexed() {}
 
 
 
@@ -416,12 +386,9 @@ char tListIteratorRangeIndexed::Value(tPlayer)
 void tListIteratorRangeIndexed::Increment(tPlayer)
 
 {
-  if ((u_int)(u_char)this->fValue[(u_char)*this->fIndex] <
-      (u_char)this->fMaxValue) {
-    this->fValue[(u_char)*this->fIndex] =
-        (u_char)this->fValue[(u_char)*this->fIndex] + '\x01';
+  if ((u_int)(u_char)this->fValue[(u_char)*this->fIndex] < (u_char)this->fMaxValue) {
+    this->fValue[(u_char)*this->fIndex] = (u_char)this->fValue[(u_char)*this->fIndex] + '\x01';
   }
-  return;
 }
 
 
@@ -431,12 +398,9 @@ void tListIteratorRangeIndexed::Increment(tPlayer)
 void tListIteratorRangeIndexed::Decrement(tPlayer)
 
 {
-  if ((u_char)this->fMinValue <
-      (u_int)(u_char)this->fValue[(u_char)*this->fIndex]) {
-    this->fValue[(u_char)*this->fIndex] =
-        (u_char)((u_int)(u_char)this->fValue[(u_char)*this->fIndex] - 1);
+  if ((u_char)this->fMinValue < (u_int)(u_char)this->fValue[(u_char)*this->fIndex]) {
+    this->fValue[(u_char)*this->fIndex] = (u_char)((u_int)(u_char)this->fValue[(u_char)*this->fIndex] - 1);
   }
-  return;
 }
 
 
@@ -452,18 +416,13 @@ tMenuItem::tMenuItem(u_int textDescription)
   this->fButtonImage = -1;
   this->fNumFrames = 0;
   this->fNewMenu = (tMenu *)0x0;
-  return;
 }
 
 
 
 /* ---- tMenuItem::dtor  [FEMENU.CPP:433-433] SLD-VERIFIED ---- */
 
-tMenuItem::~tMenuItem()
-
-{
-  return;
-}
+tMenuItem::~tMenuItem() {}
 
 
 
@@ -480,9 +439,7 @@ long tMenuItem::DebounceKeys()
 /* ---- tMenuItem::ProcessInput  [FEMENU.CPP:447-448] SLD-VERIFIED ---- */
 
 void tMenuItem::ProcessInput(tPlayer,tInputKeyType &,tMenuCommand &)
-
 {
-  return;
 }
 
 
@@ -493,7 +450,6 @@ void tMenuItem::UpdateTransition(bool selected)
 
 {
   this->UpdateSelFade(selected);
-  return;
 }
 
 
@@ -531,24 +487,24 @@ void tMenuItem::UpdateSelFade(bool selected)
 
 
 /* ---- tMenuItem::Draw  [FEMENU.CPP:481-482] SLD-VERIFIED ---- */
+/* The `iib` signature retains both unused coordinates; retail SYM has
+   no source names for them. */
 
-void tMenuItem::Draw(int x,int y,bool selected)
+void tMenuItem::Draw(int,int,bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: x -- the `iib` mangling proves this unused argument. */
-  /* SYM-CODEGEN-CARRIER: y -- the `iib` mangling proves this unused argument. */
   this->Draw(selected);
 }
 
 
 
 /* ---- tMenuItem::Draw  [FEMENU.CPP:486-487] SLD-VERIFIED ---- */
+/* The mangled `iiib` signature retains this unused third coordinate;
+   retail SYM has no source name for it. */
 
-void tMenuItem::Draw(int x,int y,int w,bool selected)
+void tMenuItem::Draw(int x,int y,int,bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: w -- the mangled `iiib` signature proves this unused
-     third coordinate argument even though optimized debug has no parameter row. */
   this->Draw(selected,x,y,0);
 }
 
@@ -558,19 +514,13 @@ void tMenuItem::Draw(int x,int y,int w,bool selected)
 tMenuItemInteractive::tMenuItemInteractive(u_int textDescription)
   : tMenuItem(textDescription)
 {
-  
-  return;
 }
 
 
 
 /* ---- tMenuItemInteractive::dtor  [FEMENU.CPP:538-538] SLD-VERIFIED ---- */
 
-tMenuItemInteractive::~tMenuItemInteractive()
-
-{
-  return;
-}
+tMenuItemInteractive::~tMenuItemInteractive() {}
 
 
 
@@ -580,29 +530,24 @@ tMenuItemLeftRightChoice::tMenuItemLeftRightChoice(u_int textDescription,tListIt
 {
   this->fData = dataPtr;
   this->fFlags |= 0x400;
-  return;
 }
 
 
 
 /* ---- tMenuItemLeftRightChoice::dtor  [FEMENU.CPP:559-559] SLD-VERIFIED ---- */
 
-tMenuItemLeftRightChoice::~tMenuItemLeftRightChoice()
-
-{
-  return;
-}
+tMenuItemLeftRightChoice::~tMenuItemLeftRightChoice() {}
 
 
 
 /* ---- tMenuItemLeftRightChoice::ProcessInput  [FEMENU.CPP:563-582] SLD-VERIFIED ---- */
 
 void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
-              tMenuCommand &command)
+              tMenuCommand &)
 
 {
-  /* SYM-ABI-PARAM: command -- the `R12tMenuCommand` mangling proves this
-     optimized-away reference parameter even though the SYM omits it. */
+  /* The unused command reference remains in the `R12tMenuCommand` ABI;
+     retail SYM leaves its source name absent. */
   /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 with vars=8 but
      records no named local at any scope.  Removing these two words is FAIL
      12 (44/44): only the frame allocation, save/restore offsets, and final
@@ -640,17 +585,16 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 void tMenuItemLeftRightChoice::Draw(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: x
-     SYM-CODEGEN-CARRIER: y
-     SYM records no named locals, but retail calls TextSys_WordX/WordY once
-     and reuses both results across two render calls, which requires shared C
-     storage.  The semantic names follow those APIs; `int` is codegen-proven
-     (changing both to short is FAIL 5, 52/51).  The original optimized
-     spelling/name pair is not uniquely recoverable from SYM or the binary. */
-  int x;
+  /* Retail SYM records no locals in this Draw method.  A const use-site x
+     and the shared y result both optimize out of debug while GCC calls
+     TextSys_WordX/WordY once and reuses their values across two renders.
+     Their semantic names follow those APIs, not recovered source spelling.
+     The `int` value shape is codegen-proven: shortening x or both values
+     gave FAIL 5 at 52/51 instructions in earlier probes.  The retained
+     source form is byte-PASS and its native declaration tree is exact. */
   int y;
 
-  x = TextSys_WordX(this->fTextDescription);
+  const int x = TextSys_WordX(this->fTextDescription);
   y = TextSys_WordY(this->fTextDescription);
   FETextRender_MenuTextPositioned((short)this->fTextDescription,(short)x,
              (short)y,(tMenuTextState)(selected != 0),textType_Options);
@@ -671,18 +615,13 @@ tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIt
   this->fFlags |= 0x80;
   this->fData = dataPtr;
   this->fFlags |= 0x80;
-  return;
 }
 
 
 
 /* ---- tMenuItemLeftRightSlider::dtor  [FEMENU.CPP:621-621] SLD-VERIFIED ---- */
 
-tMenuItemLeftRightSlider::~tMenuItemLeftRightSlider()
-
-{
-  return;
-}
+tMenuItemLeftRightSlider::~tMenuItemLeftRightSlider() {}
 
 
 
@@ -699,11 +638,11 @@ long tMenuItemLeftRightSlider::DebounceKeys()
 /* ---- tMenuItemLeftRightSlider::ProcessInput  [FEMENU.CPP:630-650] SLD-VERIFIED ---- */
 
 void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
-              tMenuCommand &command)
+              tMenuCommand &)
 
 {
-  /* SYM-ABI-PARAM: command -- the `R12tMenuCommand` mangling proves this
-     optimized-away reference parameter even though the SYM omits it. */
+  /* The unused command reference remains in the `R12tMenuCommand` ABI;
+     retail SYM leaves its source name absent. */
   /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 with vars=8 but
      records no named local at any scope.  This is the same anonymous
      eight-byte source/compiler temporary measured in the adjacent choice
@@ -1311,9 +1250,9 @@ void tMenuItemLeftRightSlider::SetDimensions(short x,short y,short width,short h
 {
   this->fX = x;
   this->fY = y;
+
   this->fWidth = width;
   this->fHeight = height;
-  return;
 }
 
 
@@ -1324,21 +1263,15 @@ tMenuItemGoToMenuButton::tMenuItemGoToMenuButton(u_int textDescription,tMenu *ne
               void (*OnButtonPress)(tMenuCommand&))
   : tMenuItemInteractive(textDescription)
 {
-  
   this->fNewMenu = newMenu;
   this->fOnButtonPress = OnButtonPress;
-  return;
 }
 
 
 
 /* ---- tMenuItemGoToMenuButton::dtor  [FEMENU.CPP:888-888] SLD-VERIFIED ---- */
 
-tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton()
-
-{
-  return;
-}
+tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton() {}
 
 
 
@@ -1387,17 +1320,19 @@ void tMenu::tMenuConstructor(tMenuItem *firstItem,void *ap)
      that opens at 0x80025440 (SLD line 8). */
   int i;
 
-  i = 0;
-  this->VertHelp = 0;
-  this->fItemList[0] = firstItem;
-  while (1) {
-    tMenuItem *p;
+  {
+    i = 0;
+    this->VertHelp = 0;
+    this->fItemList[0] = firstItem;
+    while (1) {
+      tMenuItem *p;
 
-    ap = (int *)((int)ap + 4);
-    p = ((tMenuItem **)ap)[-1];
-    this->fItemList[i + 1] = p;
-    if (p == (tMenuItem *)0x0) break;
-    i = i + 1;
+      ap = (int *)((int)ap + 4);
+      p = ((tMenuItem **)ap)[-1];
+      this->fItemList[i + 1] = p;
+      if (p == (tMenuItem *)0x0) break;
+      i = i + 1;
+    }
   }
   return;
 }
@@ -1414,23 +1349,18 @@ tMenu::tMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMe
   this->fCurrentItem = 0;
   this->fScreen = screenHandler;
   this->fNextMenu = nextMenu;
-  this->fNeverAnyEnabled = 0;
-  this->fChildMenu = (tMenu *)0x0;
   this->fOptionsMenu = optionsMenu;
   this->fOnButtonPress = OnButtonPress;
   this->fTitle = title;
-  return;
+  this->fNeverAnyEnabled = 0;
+  this->fChildMenu = (tMenu *)0x0;
 }
 
 
 
 /* ---- tMenu::dtor  [FEMENU.CPP:1022-1022] SLD-VERIFIED ---- */
 
-tMenu::~tMenu()
-
-{
-  return;
-}
+tMenu::~tMenu() {}
 
 
 
@@ -1617,12 +1547,14 @@ void tMenu::Draw()
 void tMenu::UpdateTransition()
 
 {
-  short item;
+  {
+    short item;
 
-  item = 0;
-  while (this->fItemList[item] != (tMenuItem *)0x0) {
-    this->fItemList[item]->UpdateTransition(this->fCurrentItem == (int)item);
-    item = item + 1;
+    item = 0;
+    while (this->fItemList[item] != (tMenuItem *)0x0) {
+      this->fItemList[item]->UpdateTransition(this->fCurrentItem == (int)item);
+      item = item + 1;
+    }
   }
   return;
 }
@@ -1632,9 +1564,7 @@ void tMenu::UpdateTransition()
 /* ---- tMenu::TransitionOff  [FEMENU.CPP:1235-1236] SLD-VERIFIED ---- */
 
 void tMenu::TransitionOff()
-
 {
-  return;
 }
 
 
@@ -1642,9 +1572,7 @@ void tMenu::TransitionOff()
 /* ---- tMenu::TransitionOn  [FEMENU.CPP:1239-1240] SLD-VERIFIED ---- */
 
 void tMenu::TransitionOn()
-
 {
-  return;
 }
 
 /* ---- tMenu::TransitionIsFinished  [FEMENU.CPP:1243-1244] SLD-VERIFIED ---- */

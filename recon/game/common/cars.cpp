@@ -95,38 +95,47 @@ void Cars_CheckForAccidentScenes(void);
 void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
 {
   if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
-
   coorddef gravity_ch;
 
   if ((carObj->carFlags & 0x10U) != 0) {
     return;
   }
-  if (fixedmult(0x10000,(carObj->N).orientMat.m[4]) < 0xb5c2) {
+  const int roadNormal = fixedmult(0x10000,(carObj->N).orientMat.m[4]);
+  /* Retail SLD separates the normal calculation from its threshold test. */
+
+  if (roadNormal < 0xb5c2) {
+
     gravity_ch.x = fixedmult(-0xa0000,(carObj->N).orientMat.m[1]);
     gravity_ch.y = fixedmult(-0xa0000,(carObj->N).orientMat.m[4]);
     gravity_ch.z = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
+
     (carObj->linearAcc_ch).x = (carObj->linearAcc_ch).x + gravity_ch.x;
     (carObj->linearAcc_ch).y = (carObj->linearAcc_ch).y + gravity_ch.y;
     (carObj->linearAcc_ch).z = (carObj->linearAcc_ch).z + gravity_ch.z;
   }
   else {
     if (0x3f < (u_char)(carObj->control).brakeLevel) {
-      return;
-    }
+      return; }
     gravity_ch.z = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
     gravity_ch.z = fixedmult(gravity_ch.z,(carObj->N).gravityMult);
+
     if (__builtin_abs(gravity_ch.z) < 0xccd) {
-      return;
-    }
+      return; }
     if (0 < gravity_ch.z) {
-      (carObj->linearAcc_ch).z +=
-          0 < (carObj->linearAcc_ch).z ? gravity_ch.z >> 1 : gravity_ch.z >> 3;
+      /* The two acceleration-sign paths occupy distinct retail lines. */
+      if (0 < (carObj->linearAcc_ch).z) {
+        (carObj->linearAcc_ch).z += gravity_ch.z >> 1;
+      } else {
+        (carObj->linearAcc_ch).z += gravity_ch.z >> 3;
+      }
     }
     else {
-      (carObj->linearAcc_ch).z +=
-          0 < (carObj->linearAcc_ch).z ? gravity_ch.z >> 3 : gravity_ch.z >> 1;
-    }
-  }
+      if (0 < (carObj->linearAcc_ch).z) {
+        (carObj->linearAcc_ch).z += gravity_ch.z >> 3;
+      } else {
+        (carObj->linearAcc_ch).z += gravity_ch.z >> 1;
+      }
+    } }
   return;
 }
 
@@ -136,25 +145,24 @@ void Cars_GetDashData(Car_tObj *carObj,int *rpm,int *gear,int *speed)
   *rpm = carObj->flywheelRpm;
   *gear = (u_int)(u_char)(carObj->control).gear;
   *speed = (carObj->linearVel_ch).z;
-  return;
 }
 
 /* ---- Cars_QDUpdateVelGlue__FP8Car_tObj  [@0x80085ee8] ---- */
+/* MATCH: SYM shows the fn is 8 source lines, ONE named local "glue" (REG $a2), spanning
+   the whole body -- so glue is the only real C variable; linearVel.x/z corrections are
+   plain `/256` divisions on ANONYMOUS temps (compiler mutates them in place), while
+   glue/256 is a plain division too but gcc keeps glue itself (a2) pristine + live for its
+   own sign test, materializing the /256 quotient into a FRESH reg -- and CSEs the shared
+   `glue/256` subexpression across both position.x and position.z updates (computed once). */
 void Cars_QDUpdateVelGlue(Car_tObj *carObj)
 {
-  /* MATCH: SYM shows the fn is 8 source lines, ONE named local "glue" (REG $a2), spanning
-     the whole body -- so glue is the only real C variable; linearVel.x/z corrections are
-     plain `/256` divisions on ANONYMOUS temps (compiler mutates them in place), while
-     glue/256 is a plain division too but gcc keeps glue itself (a2) pristine + live for its
-     own sign test, materializing the /256 quotient into a FRESH reg -- and CSEs the shared
-     `glue/256` subexpression across both position.x and position.z updates (computed once). */
+
   int glue;
 
   glue = carObj->glue;
   (carObj->N).position.x = (carObj->N).position.x + (((carObj->N).linearVel.x / 256) * (glue / 256) >> 6);
   (carObj->N).position.y = (carObj->N).position.y + ((carObj->N).linearVel.y >> 6);
   (carObj->N).position.z = (carObj->N).position.z + (((carObj->N).linearVel.z / 256) * (glue / 256) >> 6);
-  return;
 }
 
 /* ---- Cars_InitDashData__FP8Car_tObjPiT1  [@0x80085f64] ---- */
@@ -162,12 +170,12 @@ void Cars_InitDashData(Car_tObj *carObj,int *redline,int *topspeed)
 {
   *redline = carObj->specs->redline;
   *topspeed = carObj->specs->maxSpeed;
-  return;
 }
 
 /* ---- Cars_SetAudioCalls__FP8Car_tObjiiiiii  [@0x80085f8c] ---- */
 void Cars_SetAudioCalls(Car_tObj *carObj,int type,int chan,int s1,int s2,int force,int pan)
 {
+
   carObj->audio[carObj->audioCount].type = type;
   carObj->audio[carObj->audioCount].channel = chan;
   carObj->audio[carObj->audioCount].surface1 = s1;
@@ -175,7 +183,6 @@ void Cars_SetAudioCalls(Car_tObj *carObj,int type,int chan,int s1,int s2,int for
   carObj->audio[carObj->audioCount].force = force;
   carObj->audio[carObj->audioCount].panangle = pan;
   carObj->audioCount = carObj->audioCount + 1;
-  return;
 }
 
 /* ---- Cars_ResetCarCounters__Fv  [@0x80086054] ---- */
@@ -184,55 +191,57 @@ void Cars_ResetCarCounters(void)
   Cars_gNumCars = 0;
   Cars_gNumRaceCars = 0;
   Cars_gNumAICars = 0;
+
   Cars_gNumHumanRaceCars = 0;
   Cars_gNumAIRaceCars = 0;
   Cars_gNumTrafficCars = 0;
   Cars_gNumCopCars = 0;
   Cars_gNumLifeBasisCars = 0;
-  return;
 }
 
 /* ---- Cars_InitStats__FP8Car_tObj  [@0x8008607c] ---- */
+/* MATCH: EVERY field access shares ONE base pointer `stats = &carObj->stats` (oracle
+   materializes `a0 = carObj+0x34C` ONCE, reused for all offsets incl. the loop) --
+   the prior `(carObj->stats).xxx` form re-derived carObj+K per access (raw big
+   offsets, no shared base). The time[]/topSpeed[] loop is array-indexed (not a
+   pointer-walk pCVar1) -- a pointer-walk gave pCVar1 its own independent anchor. */
 void Cars_InitStats(Car_tObj *carObj)
 {
-  /* MATCH: EVERY field access shares ONE base pointer `stats = &carObj->stats` (oracle
-     materializes `a0 = carObj+0x34C` ONCE, reused for all offsets incl. the loop) --
-     the prior `(carObj->stats).xxx` form re-derived carObj+K per access (raw big
-     offsets, no shared base). The time[]/topSpeed[] loop is array-indexed (not a
-     pointer-walk pCVar1) -- a pointer-walk gave pCVar1 its own independent anchor. */
+
   Car_tStats *stats;
   int lapLoop;
-
-  lapLoop = 0;
   stats = &carObj->stats;
+
   stats->sliceTotal = 0;
   stats->sliceTime = 0;
   stats->slice = 0;
   stats->lastSlice = 0;
   stats->lap = 0;
   stats->lapTime = 0x200;
-  do {
+
+  lapLoop = 0; do {
+
     stats->time[lapLoop] = 0;
     stats->topSpeed[lapLoop] = 0;
-    lapLoop = lapLoop + 1;
-  } while (lapLoop < 4);
+    lapLoop = lapLoop + 1; } while (lapLoop < 4);
+
   stats->position = 0;
   stats->fatalCrashes = 0;
   stats->finishType = 0;
+
   stats->checkpointUpdate = 0;
   stats->checkpointDifference = 0;
   stats->checkpointDisplay = 0;
+
   stats->numWarnings = 0;
   stats->numFines = 0;
   stats->numArrests = 0;
-  return;
 }
 
 /* ---- Cars_InitializeCarTablesFlagsAndCounters__FP8Car_tObj  [@0x800860e4] ---- */
 void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)
 {
   int carClass;
-  int personality;
 
   carClass = carObj->carInfo->carClass;
   Cars_gList[Cars_gNumCars] = carObj;
@@ -281,6 +290,7 @@ LAB_80086248:
   }
 LAB_80086300:
   if ((carClass & 2) != 0) {
+    int personality;
     personality = GameSetup_gData.carInfo[carObj->carIndex].Personality;
     strcpy(carObj->carInfo->driver,GameSetup_gPersonalityNames[0] + personality * 8);
     if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
@@ -344,12 +354,16 @@ void Cars_ResetVariablesAfterACollision(Car_tObj *carObj)
   (carObj->N).angularVel.x = 0;
   (carObj->N).angularVel.y = 0;
   (carObj->N).angularVel.z = 0;
+
   (carObj->angularVel_ch).x = 0;
   (carObj->angularVel_ch).y = 0;
   (carObj->angularVel_ch).z = 0;
+
   (carObj->linearAcc_ch).x = 0;
   (carObj->linearAcc_ch).y = 0;
   (carObj->linearAcc_ch).z = 0;
+
+
   (carObj->N).flightTime = 0;
   (carObj->N).collision.collided = 0;
   (carObj->N).collision.lastCollision = 0;
@@ -361,7 +375,6 @@ void Cars_ResetVariablesAfterACollision(Car_tObj *carObj)
   (carObj->collision).smoking = 0;
   (carObj->N).roadGravityModifier = 0;
   Physics_ResetCar(carObj);
-  return;
 }
 
 /* ---- Cars_ResetCollidedCars__FP8Car_tObjii  [@0x80086664] ---- */
@@ -390,9 +403,9 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
     return;
   }
   if (forceReset == 0) {
-    if (((0xc000 < (carObj->N).roadMatrix.m[3] / 256 * ((carObj->N).orientMat.m[3] / 256) +
+    if (((0xc000 < (y = (carObj->N).roadMatrix.m[3] / 256 * ((carObj->N).orientMat.m[3] / 256) +
                    (carObj->N).roadMatrix.m[4] / 256 * ((carObj->N).orientMat.m[4] / 256) +
-                   (carObj->N).roadMatrix.m[5] / 256 * ((carObj->N).orientMat.m[5] / 256)) &&
+                   (carObj->N).roadMatrix.m[5] / 256 * ((carObj->N).orientMat.m[5] / 256))) &&
          ((carObj->N).angularVel.x < 0x10000)) &&
         ((carObj->N).angularVel.z < 0x10000) &&
         ((((carObj->N).driveSurfaceType != 0xe &&
@@ -465,14 +478,13 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
 void Cars_SetCarUpForHiRezSim(Car_tObj *carObj)
 {
   (carObj->collision).smoking = 0;
+
   if ((carObj->N).simOptz < 2) {
+
     BWorldSm_FindClosestQuadRez(&(carObj->N).position,&(carObj->N).simRoadInfo,1);
     if (((carObj->N).simRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) &&
         ((((carObj->N).simRoadInfo.simQuad)->surface & 0xf) == 0)) {
-      Cars_ResetCollidedCars(carObj,1,0);
-    }
-  }
-  return;
+      Cars_ResetCollidedCars(carObj,1,0); } }
 }
 
 /* ---- Cars_DoExtraCarCollisionProcessing__FP8Car_tObj  [@0x80086b38] ---- */
@@ -1340,28 +1352,22 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
 }
 
 /* ---- Cars_FindTotalSlice__FP8Car_tObj  [@0x80089760] ---- */
+/* The retail `lapSlices` local caches gNumSlices before the reverse-track
+ * branch; both arms share the same multiply/add/store merge. */
 void Cars_FindTotalSlice(Car_tObj *carObj)
 {
-  /* MATCH: the sole SYM local `lapSlices` is $v1 and caches gNumSlices before the
-     reverseTrack branch.  Each arm multiplies lap by that cached value; the shared
-     mflo/add/store merge is exactly the retail dependency graph. */
-  int lapSlices;
-
-  if (0 < carObj->unlap) {
-    (carObj->N).totalSlice = 0;
-    return;
-  }
-  lapSlices = gNumSlices;
-  if (GameSetup_gData.reverseTrack != 0) {
-    (carObj->N).totalSlice =
-        (lapSlices - (u_short)(carObj->N).simRoadInfo.slice) - 1 +
-        carObj->lap * lapSlices;
-  }
-  else {
-    (carObj->N).totalSlice =
-        (u_short)(carObj->N).simRoadInfo.slice + carObj->lap * lapSlices;
-  }
-  return;
+  {
+    if (0 < carObj->unlap) {
+      (carObj->N).totalSlice = 0;
+      return;
+    }
+    {
+      int lapSlices;
+      lapSlices = gNumSlices;
+      if (GameSetup_gData.reverseTrack != 0) {
+        (carObj->N).totalSlice = (lapSlices - (u_short)(carObj->N).simRoadInfo.slice) - 1 + carObj->lap * lapSlices;
+      } else {
+        (carObj->N).totalSlice = (u_short)(carObj->N).simRoadInfo.slice + carObj->lap * lapSlices; } } }
 }
 
 /* ---- Car_DoSkiddingStuff__FP8Car_tObj  [@0x800897cc] ---- */
@@ -1577,12 +1583,12 @@ void Cars_IniCarObjects(Car_tObj *carObj,int index)
 {
   int startSlice;
   coorddef offset;
-  int carMass;
 
   Cars_InitStats(carObj);
   carObj->swapCar = (Car_tObj *)0x0;
   carObj->swapTime = 0;
   if (index < GameSetup_gData.numCars) {
+    int carMass;
     if (carObj->carInfo->carType == 0x21) goto MASS_HEAVY;
     if (carObj->carInfo->carType == 0x24) goto MASS_HEAVY;
     if (carObj->carInfo->carType == 0x26) goto MASS_HEAVY;
@@ -1849,11 +1855,12 @@ void Cars_DeInitCar(Car_tObj *carObj)
 {
   AIInit_DeInitAICar(carObj);
   if (carObj->specs != (Car_tSpecs *)0x0) {
+
     purgememadr(carObj->specs);
     carObj->specs = (Car_tSpecs *)0x0;
   }
+
   R3DCar_DeInstantiate3DCar(carObj);
-  return;
 }
 
 /* ---- Cars_Restart__Fv  [@0x8008a4cc] ---- */
@@ -1889,18 +1896,13 @@ void Cars_Restart(void)
 /* ---- Cars_Initialize__FPci  [@0x8008a5b4] ---- */
 void Cars_Initialize(char *mem,int size)
 {
-  int i;
-
-  i = 0;
+  int i = 0;
   if (0 < size) {
     do {
       *mem = '\0';
-      i = i + 1;
-      mem = mem + 1;
-    } while (i < size);
-  }
-  return;
-}
+
+      i = i + 1; mem = mem + 1; } while (i < size);
+  } }
 
 /* ---- Cars_StartUp__Fv  [@0x8008a5d8] ---- */
 void Cars_StartUp(void)
@@ -2136,38 +2138,30 @@ int Cars_CalculateRoadPosition(Car_tObj *carObj)
 }
 
 /* ---- Cars_CalcVelDownRoad__FP8Car_tObj  [@0x8008aee8] ---- */
+/* MATCH: SYM exposes one real local, `temp` in $a1. Keeping the dot product
+   as three direct /256 terms lets the compiler interleave each velocity/matrix
+   pair and fill the signed-division branch delay slots exactly like retail. */
 int Cars_CalcVelDownRoad(Car_tObj *carObj)
 {
-  /* MATCH: SYM exposes one real local, `temp` in $a1. Keeping the dot product
-     as three direct /256 terms lets the compiler interleave each velocity/matrix
-     pair and fill the signed-division branch delay slots exactly like retail. */
   int temp;
 
   temp = ((carObj->N).linearVel.x / 256) * ((carObj->N).roadMatrix.m[6] / 256);
   temp += ((carObj->N).linearVel.y / 256) * ((carObj->N).roadMatrix.m[7] / 256);
   temp += ((carObj->N).linearVel.z / 256) * ((carObj->N).roadMatrix.m[8] / 256);
+
   return temp;
 }
 
 /* ---- Cars_Randomize__Fv  [@0x8008af84] ---- */
 void Cars_Randomize(void)
 {
-  if (Cars_gNumAICars != 0) {
-    int count;
-    int rLoop;
 
+  if (Cars_gNumAICars != 0) { int count; {
+    int rLoop = 0;
     count = (int)((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x574)) & 0x300) >> 8;
-    rLoop = 0;
-    if (count != 0) {
-      do {
-        randtemp = fastRandom * randSeed;
-        rLoop = rLoop + 1;
-        fastRandom = randtemp & 0xffff;
-      } while (rLoop < count);
-    }
-  }
-  return;
-}
+    if (count != 0) { do {
+      randtemp = fastRandom * randSeed; rLoop = rLoop + 1; fastRandom = randtemp & 0xffff; } while (rLoop < count);
+    } } } }
 
 /* ---- Cars_ManageBureaucracy__Fv  [@0x8008affc] ---- RECONSTRUCTED 2026-06-13 (Ghidra @NFS4.EXE.c:65747).
  *  Skipped from the cars.obj pass. Per active car: recompute road span/position + lane info,
@@ -2179,18 +2173,18 @@ void Cars_ManageBureaucracy(void)
 
   for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
     Car_tObj *carObj = Cars_gList[carLoop];
-    if (carObj->N.active != '\0') {
-      carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
-      carObj->roadPosition = Cars_CalculateRoadPosition(carObj);
-      AIWorld_CalculateLaneInfo(carObj);
+    if (carObj->N.active == '\0') continue;
+    carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
+    carObj->roadPosition = Cars_CalculateRoadPosition(carObj);
+    AIWorld_CalculateLaneInfo(carObj);
+    {
       if (AIPhysics_UseCoolPhysics(carObj) != 0) {
         carObj->currentSpeed = Cars_CalcVelDownRoad(carObj);
       }
       if ((carObj->carFlags & 4U) != 0) {
-        int facing;
-
         carObj->speed = carObj->N.speedXZ;
         if ((unsigned)(carObj->currentSpeed + 0x2ffff) < 0x5ffff) {
+          int facing;
           facing =
               fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) +
               fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]) +
@@ -2217,7 +2211,8 @@ void Cars_CheckForAccidentScenes(void)
 {
   if (((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_HotPursuit)) &&
      (GameSetup_gData.raceType != RaceType_Id5)) {
-    if (SceneLoaded != 0) {
+    const int sceneLoaded = SceneLoaded;
+    if (sceneLoaded != 0) {
       if ((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x360)) == GameSetup_gData.SceneEndLap) {
         Object_ClearCustomObjects();
         SceneLoaded = 0;
@@ -2243,38 +2238,48 @@ void Cars_SortCars(void)
   int i;
   Car_tObj *temp;
 
+  /* Retain the two sorting phases separately: the first orders cars by
+     current road slice and assigns sort indices; the second orders the
+     accumulated slices while recording each affected swap partner and
+     its time. These notes describe the reconstruction, not recovered
+     retail comment text. */
   do {
     swapped = 0;
+
     for (i = 0; i < Cars_gNumCars - 1; i++) {
       if (Cars_gSortedList[i]->N.simRoadInfo.slice >
           Cars_gSortedList[i + 1]->N.simRoadInfo.slice) {
         temp = Cars_gSortedList[i];
+        swapped = 1;
+
         Cars_gSortedList[i] = Cars_gSortedList[i + 1];
         Cars_gSortedList[i + 1] = temp;
-        swapped = 1;
       }
-    }
-  } while (swapped != 0);
+    } } while (swapped != 0);
+
+
 
   for (i = 0; i < Cars_gNumCars; i++) {
-    Cars_gSortedList[i]->sortIndex = i;
-  }
+    Cars_gSortedList[i]->sortIndex = i; }
+
+  /* The second pass also records swap bookkeeping. */
+
 
   do {
     swapped = 0;
+
     for (i = 0; i < Cars_gNumCars - 1; i++) {
       if (Cars_gTotalSortedList[i]->N.totalSlice >
           Cars_gTotalSortedList[i + 1]->N.totalSlice) {
+
         Cars_gTotalSortedList[i]->swapCar = Cars_gTotalSortedList[i + 1];
         Cars_gTotalSortedList[i + 1]->swapCar = Cars_gTotalSortedList[i];
-        Cars_gTotalSortedList[i]->swapTime =
-            Cars_gTotalSortedList[i + 1]->swapTime = simGlobal.gameTicks;
+        Cars_gTotalSortedList[i]->swapTime = Cars_gTotalSortedList[i + 1]->swapTime = simGlobal.gameTicks;
+        swapped = 1;
         temp = Cars_gTotalSortedList[i];
         Cars_gTotalSortedList[i] = Cars_gTotalSortedList[i + 1];
         Cars_gTotalSortedList[i + 1] = temp;
-        swapped = 1;
       }
-    }
-  } while (swapped != 0);
+    } } while (swapped != 0);
 }
 

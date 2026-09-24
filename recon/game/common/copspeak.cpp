@@ -142,84 +142,95 @@ void CopSpeak_RadioStaticSquelch(void)
 void CopSpeak_InitRequest(CopSpeak_tRequest *r)
 
 {
+  r->car = (Car_tObj *)0x0;
   r->buffer = -1;
   r->phrase = -1;
-  r->car = (Car_tObj *)0x0;
   r->offset = 0;
   r->size = 0;
   r->player = '\0';
   r->sfx = '\0';
   r->bank = '\x02';
   r->noise = '\0';
-  return;
 }
 
 /* ---- CopSpeak_SilenceCop__FP8Car_tObji  [COPSPEAK.CPP:295-306] SLD-VERIFIED ---- */
 void CopSpeak_SilenceCop(Car_tObj *car,int playerIndex)
 
 {
-  if ((car == (Car_tObj *)0x0) ||
-     (((u_char)CopSpeak_gCurrent.player == playerIndex && (car == CopSpeak_gCurrent.car)))) {
-    if (CopSpeak_gSpchHandle != -1) {
-      SNDvol(CopSpeak_gSpchHandle,0);
-    }
-    CopSpeak_RadioStaticSquelch();
-  }
-  return;
+  if (car == (Car_tObj *)0x0) goto silence; if ((u_char)CopSpeak_gCurrent.player != playerIndex) return;
+
+
+
+  if (car != CopSpeak_gCurrent.car) return;
+silence:
+  if (CopSpeak_gSpchHandle != -1)
+    SNDvol(CopSpeak_gSpchHandle,0);
+  CopSpeak_RadioStaticSquelch();
+
 }
+
+/* Compact SYM has `Copspeak_gTimeString.308` at 0x8013E0B0, but Debug's
+ * typed local list does not own it. The suffix is compatible with the
+ * 307-311 source-line gap here; exact TU/storage attribution is still open. */
+static char Copspeak_gTimeString[16]; /* @0x8013E0B0 */
 
 /* ---- CopSpeak_Alloc__FP17CopSpeak_tRequest  [COPSPEAK.CPP:312-337] SLD-VERIFIED ---- */
 void CopSpeak_Alloc(CopSpeak_tRequest *r)
 
 {
   if (CopSpeak_gQueueReady == CopSpeak_gQueueLoad) {
+
     CopSpeak_gBufferLow = 0;
     CopSpeak_gBufferHigh = 0;
     CopSpeak_gBufferStart = 0;
     CopSpeak_gBufferEnd = 0x7ffc;
   }
+
   if (r->size <= (int)CopSpeak_gBufferEnd - (int)CopSpeak_gBufferStart) {
+
     r->buffer = (int)CopSpeak_gBufferStart;
-    CopSpeak_gBufferStart = CopSpeak_gBufferStart + (short)r->size;
-    return;
+    CopSpeak_gBufferStart = CopSpeak_gBufferStart + (short)r->size; return;
   }
   if (r->size <= (int)CopSpeak_gBufferLow) {
+
     CopSpeak_gBufferHigh = CopSpeak_gBufferStart;
+    CopSpeak_gBufferStart = (u_short)r->size;
+
     CopSpeak_gBufferEnd = CopSpeak_gBufferLow;
     CopSpeak_gBufferLow = 0;
-    r->buffer = 0;
-    CopSpeak_gBufferStart = (u_short)r->size;
-    return;
+
+    r->buffer = 0; return;
   }
-  r->buffer = 0xffffffff;
-  return;
-}
+
+  r->buffer = 0xffffffff; }
 
 /* ---- CopSpeak_Free__FP17CopSpeak_tRequest  [COPSPEAK.CPP:344-361] SLD-VERIFIED ---- */
 void CopSpeak_Free(CopSpeak_tRequest *r)
 
 {
   if ((-1 < r->buffer) && (0 < r->size)) {
+
     if (CopSpeak_gBufferHigh != 0) {
+
       if (r->buffer + r->size == (int)CopSpeak_gBufferHigh) {
+
         CopSpeak_gBufferHigh = 0;
         CopSpeak_gBufferEnd = 0x7ffc;
       }
     }
     else if (r->buffer + r->size == (int)CopSpeak_gBufferStart) {
-      CopSpeak_gBufferStart = 0;
-      r->buffer = 0xffffffff;
-      return;
-    }
-    else {
+      CopSpeak_gBufferStart = 0; r->buffer = 0xffffffff; return;
+    } else {
       CopSpeak_gBufferLow = (short)r->buffer + (short)r->size;
     }
     r->buffer = 0xffffffff;
-  }
-  return;
-}
+  } }
 
 /* ---- CopSpeak_ReadyNextRequest__Fv  [COPSPEAK.CPP:367-533] SLD-VERIFIED ---- */
+/* The direct `ok` guard and a const hasSfx snapshot reproduce retail's
+ * +0xb4..+0x1d8 and +0xbc..+0xe8 nested scope offsets without named
+ * extra locals or changes to the 156-byte-matched instruction stream.
+ * `hasSfx` is a semantic reconstruction label, not original spelling. */
 void CopSpeak_ReadyNextRequest(void)
 
 {
@@ -249,34 +260,34 @@ void CopSpeak_ReadyNextRequest(void)
     if ((bnk->ver != 4) && (bnk->ver != 2)) {
       ok = false;
     }
-    if (!ok) {
-      if ((r->sfx != 0) && (*(signed char *)&r->bank >= 0)) {
-        AudioCmn_LoadAsyncSfx(*(signed char *)&r->bank,r->phrase,0,0);
+      if (!ok) {
+        const int hasSfx = r->sfx != 0;
+        if (hasSfx && (*(signed char *)&r->bank >= 0))
+          AudioCmn_LoadAsyncSfx(*(signed char *)&r->bank,r->phrase,0,0);
+        bnk->id = 0x4c494146;
+        r->ophandle = FILE_read(r->filehandle,(void *)r->offset,
+                                CopSpeak_gBuffer + r->buffer,r->size,0,(void *)0x0);
+        CopSpeak_gHandleCount++;
+        FILE_operror(r->ophandle);
       }
-      bnk->id = 0x4c494146;
-      r->ophandle = FILE_read(r->filehandle,(void *)r->offset,
-                              CopSpeak_gBuffer + r->buffer,r->size,0,(void *)0x0);
-      CopSpeak_gHandleCount++;
-      FILE_operror(r->ophandle);
-    }
-    else {
-      if (*(signed char *)&r->bank >= 0) {
-        if ((r->sfx != 0) || (r->phrase >= 0)) {
-          if (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->phrase,true) == -1) {
-            AudioCmn_LoadAsyncSfx(*(signed char *)&r->bank,r->phrase,
-                                  CopSpeak_gBuffer + r->buffer,r->size);
+      else {
+        if (*(signed char *)&r->bank >= 0) {
+          if ((r->sfx != 0) || (r->phrase >= 0)) {
+            if (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->phrase,true) == -1) {
+              AudioCmn_LoadAsyncSfx(*(signed char *)&r->bank,r->phrase,
+                                    CopSpeak_gBuffer + r->buffer,r->size);
+            }
+          }
+          else {
+            if (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->offset + 0x4000,true) == -1) {
+              AudioCmn_LoadAsyncSfx(*(signed char *)&r->bank,r->offset + 0x4000,
+                                    CopSpeak_gBuffer + r->buffer,r->size);
+            }
           }
         }
-        else {
-          if (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->offset + 0x4000,true) == -1) {
-            AudioCmn_LoadAsyncSfx(*(signed char *)&r->bank,r->offset + 0x4000,
-                                  CopSpeak_gBuffer + r->buffer,r->size);
-          }
-        }
+        bnk->id = 0x4c494146;
+        CopSpeak_Free(r);
       }
-      bnk->id = 0x4c494146;
-      CopSpeak_Free(r);
-    }
   }
   else {
     if ((r->sfx != 0) || ((r->phrase >= 0) && (*(signed char *)&r->bank >= 0))) {
@@ -296,68 +307,95 @@ void CopSpeak_Cancel(void)
 {
   if (CopSpeak_gQueueReady != CopSpeak_gQueueLoad) {
     do {
+
+
+
+
+
+
+
       CopSpeak_ReadyNextRequest();
-      systemtask(0);
-    } while (CopSpeak_gQueueReady != CopSpeak_gQueueLoad);
+      systemtask(0); } while (CopSpeak_gQueueReady != CopSpeak_gQueueLoad);
   }
+
+
+
+
+
+
   if (CopSpeak_gSpchHandle != -1) {
     SNDstop(CopSpeak_gSpchHandle);
   }
   CopSpeak_RadioStaticSquelch();
+
   CopSpeak_gSpchHandle = 0xffffffff;
   CopSpeak_InitRequest(&CopSpeak_gCurrent);
+
   CopSpeak_gQueueHead = 0;
   CopSpeak_gQueueLoad = 0;
   CopSpeak_gQueueReady = 0;
   CopSpeak_gQueuePlay = 0;
+
   CopSpeak_gBufferLow = 0;
   CopSpeak_gBufferHigh = 0;
   CopSpeak_gBufferStart = 0;
-  CopSpeak_gBufferEnd = 0x7ffc;
-  return;
-}
+  CopSpeak_gBufferEnd = 0x7ffc; }
 
 /* ---- CopSpeak_Stop__Fv  [COPSPEAK.CPP:582-583] SLD-VERIFIED ---- */
 void CopSpeak_Stop(void)
 
 {
   CopSpeak_Cancel();
-  return;
 }
 
 /* ---- CopSpeak_CleanUp__Fv  [COPSPEAK.CPP:592-620] SLD-VERIFIED ---- */
 void CopSpeak_CleanUp(void)
 
 {
-
   CopSpeak_Stop();
+
+
+
+
+
+
+
+
+
+
   for (int i = 0; i < 4; i++) {
+
     if (Copspeak_gBank[i].FileOpen != 0) {
+
       FILE_closesync(Copspeak_gBank[i].FileHandle,100);   /* oracle 0x89b10/b14: a1=0x64 (was dropped) */
       Copspeak_gBank[i].FileOpen = 0;
     }
     if (Copspeak_gBank[i].Index != (CopSpeak_tFileIndex *)0x0) {
+
       purgememadr(Copspeak_gBank[i].Index);
       Copspeak_gBank[i].Index = (CopSpeak_tFileIndex *)0x0;
     }
   }
   if (((int)CopSpeak_gBuffer) != 0) {
-    CopSpeak_gBuffer = (char *)0;
-  }
-  return;
-}
+
+
+    CopSpeak_gBuffer = (char *)0; } }
 
 /* ---- CopSpeak_InitVars__Fv  [COPSPEAK.CPP:628-649] SLD-VERIFIED ---- */
 void CopSpeak_InitVars(void)
 
 {
 
+
+
+
   for (int i = 0; i < 4; i++) {
+
     Copspeak_gBank[i].FileOpen = 0;
     Copspeak_gBank[i].Index = (CopSpeak_tFileIndex *)0x0;
   }
-  CopSpeak_gSpchHandle = 0xffffffff;
   CopSpeak_gBuffer = (char *)0;
+  CopSpeak_gSpchHandle = 0xffffffff;
   CopSpeak_gQueueHead = 0;
   CopSpeak_gQueueLoad = 0;
   CopSpeak_gQueueReady = 0;
@@ -368,46 +406,45 @@ void CopSpeak_InitVars(void)
   CopSpeak_gBufferStart = 0;
   CopSpeak_gBufferEnd = 0x7ffc;
   CopSpeak_InitRequest(&CopSpeak_gCurrent);
-  return;
 }
 
 /* ---- CopSpeak_DirectRequest__FillP8Car_tObjPc  [COPSPEAK.CPP:656-675] SLD-VERIFIED ---- */
 void CopSpeak_DirectRequest(int filehandle,long offset,long size,Car_tObj *car,char *name)
 
 {
-  CopSpeak_tRequest *r;
-  int next;
+  CopSpeak_tRequest *r = CopSpeak_gQueue + CopSpeak_gQueueHead; int next = 0;
 
-  r = CopSpeak_gQueue + CopSpeak_gQueueHead;
-  next = 0;
-  if (CopSpeak_gQueueHead < 0x3f) {
-    next = CopSpeak_gQueueHead + 1;
-  }
+  if (CopSpeak_gQueueHead < 0x3f) next = CopSpeak_gQueueHead + 1;
+
+
   if (next != CopSpeak_gQueuePlay) {
+
     CopSpeak_InitRequest(r);
     r->filehandle = filehandle;
     r->offset = offset;
     r->size = size;
     r->noise = '\x7f';
     r->car = car;
+    /* Retail SLD spans five non-emitting source lines here.
+       The exact original text is not available in the binary.
+       The unused name parameter does not prove any runtime action.
+       No file or queue operation is invented for this gap.
+       The following head update remains the next emitted store. */
     CopSpeak_gQueueHead = next;
   }
-  return;
 }
 
 /* ---- CopSpeak_GenericBankRequest__FiP8Car_tObj  [COPSPEAK.CPP:682-695] SLD-VERIFIED ---- */
 void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)
 
 {
-  CopSpeak_tRequest *r;
-  int next;
+  CopSpeak_tRequest *r = CopSpeak_gQueue + CopSpeak_gQueueHead; int next = 0;
 
-  r = CopSpeak_gQueue + CopSpeak_gQueueHead;
-  next = 0;
-  if (CopSpeak_gQueueHead < 0x3f) {
-    next = CopSpeak_gQueueHead + 1;
-  }
+  if (CopSpeak_gQueueHead < 0x3f) next = CopSpeak_gQueueHead + 1;
+
+
   if ((next != CopSpeak_gQueuePlay) && (next != CopSpeak_gQueueReady)) {
+
     CopSpeak_InitRequest(r);
     r->bank = '\x03';
     r->phrase = patch;
@@ -415,7 +452,6 @@ void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)
     r->car = car;
     CopSpeak_gQueueHead = next;
   }
-  return;
 }
 
 /* ---- CopSpeak_StartUp__Fv  [COPSPEAK.CPP:709-878] SLD-VERIFIED ---- */
@@ -458,19 +494,15 @@ void CopSpeak_StartUp(void)
       }
     }
 
-    {
-      int i;
+    for (int i = 0; i < bank->Count - 1; i++) {
+      char bankname[16];
+      char *timbre[2] = {"lden","ldex"};
 
-      for (i = 0; i < bank->Count - 1; i++) {
-        char bankname[16];
-        char *timbre[2] = {"lden","ldex"};
-
-        sprintf(bankname,"%.4s%.4s.bnk",GameSetup_gCarNames + i / 2,timbre[i % 2]);
-        if (locatebigentryz(header,bankname,0,&bank->Index[i + 1].offset,
-                            &bank->Index[i + 1].size) == (void *)0x0) {
-          bank->Index[i + 1].offset = 0;
-          bank->Index[i + 1].size = 0;
-        }
+      sprintf(bankname,"%.4s%.4s.bnk",GameSetup_gCarNames + i / 2,timbre[i % 2]);
+      if (locatebigentryz(header,bankname,0,&bank->Index[i + 1].offset,
+                          &bank->Index[i + 1].size) == (void *)0x0) {
+        bank->Index[i + 1].offset = 0;
+        bank->Index[i + 1].size = 0;
       }
     }
 
@@ -577,15 +609,12 @@ void CopSpeak_StartUp(void)
 int CopSpeak_GetEnginePatch(int type,int timbre)
 
 {
-  int patch;
+  int patch; const int nextTimbre = timbre + 1; patch = type + type; patch = patch + nextTimbre;
 
-  type = type + type;
-  patch = timbre + 1;
-  type = type + patch;
-  if (Copspeak_gBank[1].Index[type].size == 0) {
-    type = timbre + 0x45;
+  if (Copspeak_gBank[1].Index[patch].size == 0) {
+    patch = timbre + 0x45;
   }
-  return type;
+  return patch;
 }
 
 /* ---- CopSpeak_Play__FP17CopSpeak_tRequesti  [COPSPEAK.CPP:920-974] SLD-VERIFIED ---- */
@@ -596,7 +625,8 @@ int CopSpeak_Play(CopSpeak_tRequest *r,int handle)
   int vol;
   int azimuth = 0;
   int noise;
-  int scaled; /* UNRESOLVED: extra retail-absent narration temporary; no original-name or required-object claim. */
+  int scaled; /* UNRESOLVED: extra retail-absent narration temporary; noise-in-place
+                 is count-exact but rotates 16 multiplication registers. */
 
 
 
@@ -650,18 +680,20 @@ int CopSpeak_Play(CopSpeak_tRequest *r,int handle)
 
 /* ---- CopSpeak_Skip__Fv  [COPSPEAK.CPP:1028-1042] SLD-VERIFIED ---- */
 void CopSpeak_Skip(void)
-
 {
-  CopSpeak_tRequest *r;
+  CopSpeak_tRequest *r; r = &CopSpeak_gQueue[CopSpeak_gQueueLoad];
 
-  r = &CopSpeak_gQueue[CopSpeak_gQueueLoad];
+
+
+
+
   r->buffer = -1;
   r->phrase = -1;
+
   if (r->sfx != 0) {
     AudioCmn_LoadAsyncSfx(*(signed char *)&r->bank,0xffffffff,0,0);
   }
-  CopSpeak_gQueueLoad =
-      CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
+  CopSpeak_gQueueLoad = CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
   return;
 }
 
@@ -810,9 +842,11 @@ void CopSpeak_PlayNextRequest(void)
 {
   CopSpeak_tRequest *r;
   int handle;
-  /* ORIGINAL-NAME-RECOVERED: next -- the same retail COPSPEAK.CPP object
-   * records `next` for the wraparound queue-output quantity in
-   * CopSpeak_DirectRequest, CopSpeak_GenericBankRequest, and CopSpeak_Request. */
+  /* UNRESOLVED: retail does not record this local in PlayNextRequest.
+   * `next` is a same-TU spelling for the wraparound queue-output quantity
+   * in DirectRequest, GenericBankRequest, and Request, not proof that this
+   * function declared it.  Direct indexing moves six instructions; a
+   * separate negative-bank tail grows the 71-instruction body to 79. */
   int next;
 
   r = &CopSpeak_gQueue[next = CopSpeak_gQueuePlay];
@@ -842,17 +876,13 @@ void CopSpeak_PlayNextRequest(void)
 }
 
 /* ---- CopSpeak_Flush__Fv  [COPSPEAK.CPP:1257-1259] SLD-VERIFIED ---- */
+/* P879: the signed bank field permits the native direct store (li -1,
+   sb +30) without an unrecorded request pointer or per-use address cast. */
 void CopSpeak_Flush(void)
 
 {
-  /* P879: the signed bank field permits the native direct store (li -1,
-     sb +30) without an unrecorded request pointer or per-use address cast. */
   for (int i = CopSpeak_gQueuePlay; i != CopSpeak_gQueueHead;
-       i = i < 0x3f ? i + 1 : 0) {
-    CopSpeak_gQueue[i].bank = -1;
-  }
-  return;
-}
+       i = i < 0x3f ? i + 1 : 0) { CopSpeak_gQueue[i].bank = -1; } }
 
 /* ---- CopSpeak_Server__Fv  [COPSPEAK.CPP:1271-1353] SLD-VERIFIED ---- */
 void CopSpeak_Server(void)
@@ -925,18 +955,9 @@ void CopSpeak_Server(void)
   if ((next != (CopSpeak_tRequest *)0x0) && (next->noise != 0)) {
     int noise = 0x30;
 
-    if (next->car != (Car_tObj *)0x0) {
-      /* SYM-CODEGEN-CARRIER: carNoise -- the source clamp input is optimized
-       * away after copying into SYM's `noise`.  Merging both values remains
-       * 179 instructions but changes the clamp register and branch orientation
-       * for eight authoritative diffs. */
-      int carNoise = *(short *)((char *)next->car + 0x8e) + 0x20;
-
-      noise = 0x7f;
-      if (carNoise < 0x80) {
-        noise = carNoise;
-      }
-    }
+    if (next->car != (Car_tObj *)0x0)
+      noise = (0x7f < *(short *)((char *)next->car + 0x8e) + 0x20) ?
+          0x7f : *(short *)((char *)next->car + 0x8e) + 0x20;
     CopSpeak_RadioStaticActive(noise);
   }
   else {
@@ -1015,14 +1036,7 @@ void CopSpeak_ShowQueue(void)
 void CopSpeak_Debug(void)
 
 {
-  /* UNRESOLVED OWNER: compact SYM records `Copspeak_gTimeString.308` at
-   * 0x8013E0B0 (16 bytes to gBackList); its suffix suggests a local static.
-   * Retail CopSpeak_Debug's typed records list no such local, and the
-   * available SLD does not establish this owner. Preserve the storage
-   * pending ownership recovery; do not move it merely to clear EXTRA. */
-  static char Copspeak_gTimeString[16]; /* @0x8013E0B0: compact SYM `Copspeak_gTimeString.308` */
   CopSpeak_ShowQueue();
-  return;
 }
 
 /* end of copspeak.cpp */

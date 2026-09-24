@@ -138,10 +138,10 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
 void Sky_InitStars(void)
 
 {
-  long oldSeed;
-  int i;
-
   if (starPosInSky == (SVECTOR *)0x0) {
+    long oldSeed;
+    int i;
+
     oldSeed = random();
     seedrandom(Sky_gTrackSpec->starRandomSeed);
     starPosInSky = (SVECTOR *)reservememadr("stars",Sky_gTrackSpec->numStars << 3,0);
@@ -505,9 +505,9 @@ void Hrz_InitHorizon(void)
 void Hrz_KillHorizon(void)
 
 {
+
   purgememadr(gRngCoordTop);
   Sky_KillStars();
-  return;
 }
 
 /* ---- Hrz_LightningAddFork__FScScSc  [HRZSKU.CPP:783-822] SLD-VERIFIED ----
@@ -573,7 +573,6 @@ void Hrz_CalculateLightning(void)
   gHrz_Lightning.numForks = '\0';
   gHrz_Lightning.brightness = 200;
   Hrz_LightningAddFork('\x01','\0','\0');
-  return;
 }
 
 /* ---- Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache  [HRZSKU.CPP:833-856] SLD-VERIFIED ----
@@ -1210,6 +1209,7 @@ void HrzSetPsxTranslation(coorddef *t)
   mpsx.t[0] = ((int *)t)[0] >> 10;
   mpsx.t[1] = ((int *)t)[1] >> 10;
   mpsx.t[2] = ((int *)t)[2] >> 10;
+
   gte_SetTransMatrix(&mpsx);
 }
 

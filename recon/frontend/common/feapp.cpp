@@ -691,9 +691,9 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
  * integer-address/long-long/shift casts while preserving PASS20/exact-g.
  * Use the same typed array form at EVERY access: retaining the old widened
  * first test with typed later accesses gave FAIL17 (23/20 instructions).
- * Retail SLD454 now groups the scale, load and first comparison; SLD457
- * groups the store and null checks; SLD458 contains the call. The shared
- * epilogue still has a separate closing-brace source tag (not SLD-exact).
+ * Retail SLD454 groups the scale, load and first comparison; SLD457
+ * groups the store and null checks; SLD458 contains the call. Removing the
+ * redundant return and inner braces makes the epilogue SLD-exact.
  * This supersedes the earlier permuter cast/re-read/Yoda recipe, not the
  * native parameter/array evidence. No new local, helper, asm or volatile. */
 
@@ -702,11 +702,10 @@ void tFEApplication::SetScreen(short i,tScreen *screen)
 {
   if (screen != this->fCurrentScreen[i]) {
     this->fTransitionToScreen[i] = screen;
-    if ((this->fCurrentScreen[i] != (tScreen *)0x0) && (screen != (tScreen *)0x0)) {
+
+    if ((this->fCurrentScreen[i] != (tScreen *)0x0) && (screen != (tScreen *)0x0))
       this->fCurrentScreen[i]->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-    }
   }
-  return;
 }
 
 

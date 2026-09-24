@@ -20,20 +20,21 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
      locals are EXACTLY i($06) j($10) nADummy($08) nBDummy($0b) nTemp($04) -- the
      walking pointers in the Ghidra body (pIdx/pVal/pIdxScan/pValScan) are compiler
      GIVs, not source variables, so this is the index-form insertion sort.  (W55-A15)
+     Retail i is the inner scan; retail j is the initial/outer loop counter.
      Two further levers were needed for the SYM's 4-saved-reg mask ($800f0000, fsize 40):
-       * `i = 0;` BEFORE the reservememadr call -- that makes i CALL-CROSSING, so it gets a
+       * `j = 0;` BEFORE the reservememadr call -- that makes j CALL-CROSSING, so it gets a
          callee-saved home ($s0) instead of the caller-saved $t0 a post-call init lands in;
        * the explicit `if (nNumber != 1)` wrapper -- the oracle really does test `beq $s1,1`
          ahead of the ordinary `slt` zero-trip guard, and no `for` spelling emits it.
      108 -> 2 diffs, count-exact 77/77.
      W57-A7 SEAL (2 -> PASS 77/77): the last residual was ours `addu $s0,$v0,$zero` copying
-     the guard's live `li $v0,1` into i where retail re-materializes `li $s0,1` in the beq
+     the guard's live `li $v0,1` into j where retail re-materializes `li $s0,1` in the beq
      delay slot.  It was NOT the 3.25-3b no-copy-prop identity -- it is plain cse constant
      sharing, and the OPACITY/IDENTITY FENCE (catalog 04-a4/a5, zero insns) breaks it: with
      `one` laundered (SYM-CODEGEN-CARRIER: one), cse can no longer prove the
-     compare's register holds 1, so `i = 1`
-     re-materializes.  Falsified at this basin BEFORE the fence: i=1 hoisted above the guard,
-     i=1 inside the guard, guard spelled against i.
+     compare's register holds 1, so `j = 1`
+     re-materializes.  Falsified at this basin BEFORE the fence: j=1 hoisted above the guard,
+     j=1 inside the guard, guard spelled against j.
      W86-S4 re-priced dropping the fence and the `one` carrier (plain
      `if (nNumber != 1)`) in today's PASS basin: exactly 2 diffs, unchanged.
      `one` therefore stays as a SYM-absent carrier; a pure-C replacement for the
@@ -44,26 +45,26 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
   int nBDummy;
   int *nTemp;
 
-  i = 0;
+  j = 0;
   nTemp = (int *)reservememadr("TempSort",(nNumber + 1) * 4,0x10);
-  while (i < nNumber) {
-    nIndex[i] = (short)i;
-    nTemp[i] = nInput[i];
-    i++;
+  while (j < nNumber) {
+    nIndex[j] = (short)j;
+    nTemp[j] = nInput[j];
+    j++;
   }
   {
   int one = 1;
   __asm__ ("" : "=r" (one) : "0" (one));
   if (nNumber != one) {
-  for (i = 1; i < nNumber; i++) {
-    nADummy = nTemp[i];
-    nBDummy = nIndex[i];
-    for (j = i - 1; j >= 0 && nADummy < nTemp[j]; j--) {
-      nTemp[j + 1] = nTemp[j];
-      nIndex[j + 1] = nIndex[j];
+  for (j = 1; j < nNumber; j++) {
+    nADummy = nTemp[j];
+    nBDummy = nIndex[j];
+    for (i = j - 1; i >= 0 && nADummy < nTemp[i]; i--) {
+      nTemp[i + 1] = nTemp[i];
+      nIndex[i + 1] = nIndex[i];
     }
-    nTemp[j + 1] = nADummy;
-    nIndex[j + 1] = (short)nBDummy;
+    nTemp[i + 1] = nADummy;
+    nIndex[i + 1] = (short)nBDummy;
   }
   }
   }
@@ -206,11 +207,11 @@ void StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(char *string)
 }
 
 /* ---- Stattool_GetAllDefaultRecords  (stattool.cpp:279) ---- */
+/* Retail SYM: i is the inner $s2 counter, n the outer $s4 counter;
+   declaration order is i, n, s, AllRecords. */
 void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
 
 {
-  /* W86-S4: SYM `8c` declaration order restored (i REG $18 s2, n REG $20 s4,
-     s REG $2 v0, AllRecords REG $21 s5).  Re-gated PASS. */
   int i;
   int n;
   int s;
@@ -218,22 +219,21 @@ void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
   
   AllRecords = (tRecordBuffer *)reservememadr("records",0xe9c,0x10);
   Stattool_ReadDefaultRecords(AllRecords,cheatones);
-  i = 0;
-  do {
-    n = 0;
+  n = 0; do {
+
+
+    i = 0;
     do {
-      s = i * 0x11 + n;
+      s = n * 0x11 + i;
       strcpy(TrackRecords[s].sName,AllRecords[s].sName);
       Stattool_SamNelsonsUpperLowerStringConverterForRecords(TrackRecords[s].sName);
       TrackRecords[s].nCar = AllRecords[s].nCar;
       TrackRecords[s].nTime = AllRecords[s].nTime;
-      n = n + 1;
       TrackRecords[s].nBestLap = AllRecords[s].nBestLap;
-    } while (n < 0x11);
-    i = i + 1;
-  } while (i < 0xb);
+    } while (++i < 0x11);
+  } while (++n < 0xb);
+
   purgememadr(AllRecords);
-  return;
 }
 
 /* ---- Stattool_ReadDefaultRecords  (stattool.cpp:323) ---- */
@@ -242,19 +242,12 @@ void Stattool_ReadDefaultRecords(tRecordBuffer *Records,bool cheatones)
 {
   char filename [80];
   
-  if (cheatones != 0) {
-    sprintf(filename,"%sznfsrec.dat",Paths_Paths[0x24]);
-  }
-  else {
-    sprintf(filename,"%szrecord.dat",Paths_Paths[0x24]);
-  }
-  if (filesize(filename) == 0xe9c) {
+  cheatones ? sprintf(filename,"%sznfsrec.dat",Paths_Paths[0x24]) :
+              sprintf(filename,"%szrecord.dat",Paths_Paths[0x24]);
+  if (filesize(filename) == 0xe9c)
     loadfileatadrz(filename,Records);
-  }
-  else {
+  else
     blockclear(Records,0xe9c);
-  }
-  return;
 }
 
 /* ---- Stattool_GetRecords  (stattool.cpp:364) ---- */
@@ -313,19 +306,9 @@ short Stattool_CheckForHumanCar(Car_tStats *dummyCars)
 char * Stattool_GetAINameFromPersonality(tPersonalities personality)
 
 {
-  /* SYM-CODEGEN-CARRIER: namePtr -- the shared-result source shape is the
-   * retail 15-insn basin.  Direct/ternary returns invert the branch and add a
-   * jump (FAIL 9 / 16).  W86-S4 re-priced the direct-return fold in today's
-   * PASS basin: still exactly 9. */
-  char (*namePtr) [8];
-
-  if ((unsigned int)personality < (kPersonalityTraffic|kPersonalityCop3)) {
-    namePtr = GameSetup_gPersonalityNames + personality;
-  }
-  else {
-    namePtr = (char (*) [8])TextSys_Word(0x2ee);
-  }
-  return *namePtr;
+  if ((unsigned int)personality >= (kPersonalityTraffic|kPersonalityCop3))
+    return TextSys_Word(0x2ee);
+  return GameSetup_gPersonalityNames[personality];
 }
 
 /* end of stattool.cpp */

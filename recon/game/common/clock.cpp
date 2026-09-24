@@ -83,9 +83,9 @@ void Clock_SystemStartUp(void)
 /* ---- Clock_SystemCleanUp__Fv  [@0x8008ba40] ---- */
 void Clock_SystemCleanUp(void)
 {
-  if (clock_InterruptStarted != 0) {
+  if (clock_InterruptStarted != 0)
+  {
     clock_InterruptStarted = 0;
     deltimer(Clock_MasterInterruptHandler);
   }
-  return;
 }

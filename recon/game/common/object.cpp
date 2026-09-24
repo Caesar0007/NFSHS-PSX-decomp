@@ -308,7 +308,12 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
     }
     if (objInstance != (Trk_SimpleInst *)0x0) {
       Trk_ObjectDef *objDef;
-
+      {
+        const int extentType = 5;
+        {
+          const int clearFlag = 0;
+        }
+      }
       objDef = Track_gObjDefs[objInstance->pad];
       if ((objInstance->type == '\x05') &&
           (*(char *)((int)&objInstance[1].y + 3) == '\0')) {
@@ -342,12 +347,10 @@ void Object_InitStatus(void)
 {
   int i;
 
-  i = 0x1c1;
-  do {
+  for (i = 0x1c1; -1 < i; i = i + -1) {
+
     gSimObjAnims[i] = (ObjectAnim *)0x0;
-    i = i + -1;
-  } while (-1 < i);
-  return;
+  }
 }
 
 
@@ -360,14 +363,11 @@ void Object_KillStatus(void)
 {
   int i;
   
-  i = 0;
-  do {
-    if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
+  for (i = 0; i < 0x1c2; i = i + 1) {
+
+    if (gSimObjAnims[i] != (ObjectAnim *)0x0)
       delete gSimObjAnims[i];
-    }
-    i = i + 1;
-  } while (i < 0x1c2);
-  return;
+  }
 }
 
 
@@ -378,9 +378,8 @@ void Object_KillStatus(void)
 ObjectAnim * Object_GetAnim(Trk_SimObject *simObj)
 
 {
-  if (simObj == (Trk_SimObject *)0x0) {
+  if (simObj == (Trk_SimObject *)0x0)
     return (ObjectAnim *)0x0;
-  }
   return gSimObjAnims[simObj->serialNum];
 }
 
@@ -497,15 +496,21 @@ void Object_InitCustomObjects(void)
 
 {
   if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
-  Object_customObjInst = reservememadr("Custom Objects",0x400,0);
-  Object_customObjInst->m_num_elements = 0;
-  Object_customSimObjs = reservememadr("Custom SimObjects",0x400,0);
-  Object_customSimObjs->m_num_elements = 0;
-  blockfill(Object_customSimObjs + 1,0x3fc,0);
-  Object_customSFXInst = reservememadr("Custom SimObjects",0x400,0);
-  Object_customSFXInst->m_num_elements = 0;
-  Object_customSliceNum = 0;
-  return;
+  {
+    const int customCapacity = 0x400;
+    {
+      const int empty = 0;
+      Object_customObjInst = reservememadr("Custom Objects",customCapacity,empty);
+      Object_customObjInst->m_num_elements = 0;
+      Object_customSimObjs = reservememadr("Custom SimObjects",0x400,0);
+      Object_customSimObjs->m_num_elements = 0;
+      blockfill(Object_customSimObjs + 1,0x3fc,0);
+      Object_customSFXInst = reservememadr("Custom SimObjects",0x400,0);
+      Object_customSFXInst->m_num_elements = 0;
+      Object_customSliceNum = 0;
+      return;
+    }
+  }
 }
 
 
@@ -516,19 +521,16 @@ void Object_InitCustomObjects(void)
 void Object_DeInitCustomObjects(void)
 
 {
-  if (Object_customObjInst != (Group *)0x0) {
+  if (Object_customObjInst != (Group *)0x0)
     purgememadr(Object_customObjInst);
-  }
-  if (Object_customSFXInst != (Group *)0x0) {
+  if (Object_customSFXInst != (Group *)0x0)
     purgememadr(Object_customSFXInst);
-  }
-  if (Object_customSimObjs != (Group *)0x0) {
+  if (Object_customSimObjs != (Group *)0x0)
     purgememadr(Object_customSimObjs);
-  }
+
   Object_customObjInst = (Group *)0x0;
   Object_customSFXInst = (Group *)0x0;
   Object_customSimObjs = (Group *)0x0;
-  return;
 }
 
 
@@ -539,18 +541,19 @@ void Object_DeInitCustomObjects(void)
 void Object_ClearCustomObjects(void)
 
 {
-  int i;
-  
-  Object_customObjInst->m_num_elements = 0;
-  Object_customSimObjs->m_num_elements = 0;
-  Object_customSFXInst->m_num_elements = 0;
-  for (i = 0; i < Cars_gNumTrafficCars; i++) {
-    Cars_gTrafficCarList[i]->carFlags =
-        Cars_gTrafficCarList[i]->carFlags & 0xfffffbff;
-  }
-  for (i = 0; i < Cars_gNumCopCars; i++) {
-    Cars_gCopCarList[i]->carFlags =
-        Cars_gCopCarList[i]->carFlags & 0xfffffbff;
+  {
+    int i;
+    Object_customObjInst->m_num_elements = 0;
+    Object_customSimObjs->m_num_elements = 0;
+    Object_customSFXInst->m_num_elements = 0;
+    for (i = 0; i < Cars_gNumTrafficCars; i++) {
+      Cars_gTrafficCarList[i]->carFlags =
+          Cars_gTrafficCarList[i]->carFlags & 0xfffffbff;
+    }
+    for (i = 0; i < Cars_gNumCopCars; i++) {
+      Cars_gCopCarList[i]->carFlags =
+          Cars_gCopCarList[i]->carFlags & 0xfffffbff;
+    }
   }
   if (Track_gSaveSurface != (SaveSurface *)0x0) {
     (Track_gSaveSurface)->RestoreAll();
@@ -579,11 +582,11 @@ void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)
 int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
 
 {
-  Trk_SimObject *simObj;
-  BWorldSm_Pos slicePos;
-  coorddef pt;
-  
   if (objectData->type == 0) {
+    Trk_SimObject *simObj;
+    BWorldSm_Pos slicePos;
+    coorddef pt;
+
     simObj = (Trk_SimObject *)Object_customSimObjs->GetData() +
              Object_customSimObjs->m_num_elements;
     simObj->point[0] = objectData->cp.x;
@@ -626,6 +629,7 @@ int Object_GetObjDefID(int index)
   if ((gPersistObjDef != (Group *)0x0) && (index < gPersistObjDef->m_num_elements)) {
     return (int)Track_gObjDefs[index]->id;
   }
+
   return 0;
 }
 
@@ -637,11 +641,10 @@ int Object_GetObjDefID(int index)
 int Object_FindDefWithThisID(int ID)
 
 {
-
-  for (int i = 0; i < gPersistObjDef->GetNumElements(); i = i + 1) {
-    if (ID == Track_gObjDefs[i]->id) {
+  for (int i = 0; i < gPersistObjDef->GetNumElements(); i = i + 1)
+  {
+    if (ID == Track_gObjDefs[i]->id)
       return i;
-    }
   }
   return -1;
 }
@@ -837,46 +840,48 @@ done:
 void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,coorddef *dimensions)
 
 {
-  Trk_ObjectDef *objDef;
-  CCOORD16 minDim;
-  CCOORD16 maxDim;
-  int vertCount;
-  CCOORD16 *pts;
+  {
+    Trk_ObjectDef *objDef;
+    CCOORD16 minDim;
+    CCOORD16 maxDim;
+    int vertCount;
+    CCOORD16 *pts;
 
-  objDef = pObjDefs[objInstance->pad];
-  memset(&minDim,0,8);
-  memset(&maxDim,0,8);
-  vertCount = (int)objDef->vertexCount;
-  pts = (CCOORD16 *)(objDef + 1);
-  vertCount = vertCount + -1;
-  if (vertCount != -1) {
-    do {
-    if (pts->x > maxDim.x) {
-      maxDim.x = pts->x;
-    }
-    else if (pts->x < minDim.x) {
-      minDim.x = pts->x;
-    }
-    if (pts->y > maxDim.y) {
-      maxDim.y = pts->y;
-    }
-    else if (pts->y < minDim.y) {
-      minDim.y = pts->y;
-    }
-    if (pts->z > maxDim.z) {
-      maxDim.z = pts->z;
-    }
-    else if (pts->z < minDim.z) {
-      minDim.z = pts->z;
-    }
-    pts = pts + 1;
+    objDef = pObjDefs[objInstance->pad];
+    memset(&minDim,0,8);
+    memset(&maxDim,0,8);
+    vertCount = (int)objDef->vertexCount;
+    pts = (CCOORD16 *)(objDef + 1);
     vertCount = vertCount + -1;
-    } while (vertCount != -1);
+    if (vertCount != -1) {
+      do {
+        if (pts->x > maxDim.x) {
+          maxDim.x = pts->x;
+        }
+        else if (pts->x < minDim.x) {
+          minDim.x = pts->x;
+        }
+        if (pts->y > maxDim.y) {
+          maxDim.y = pts->y;
+        }
+        else if (pts->y < minDim.y) {
+          minDim.y = pts->y;
+        }
+        if (pts->z > maxDim.z) {
+          maxDim.z = pts->z;
+        }
+        else if (pts->z < minDim.z) {
+          minDim.z = pts->z;
+        }
+        pts = pts + 1;
+        vertCount = vertCount + -1;
+      } while (vertCount != -1);
+    }
+    dimensions->x = ((int)maxDim.x - (int)minDim.x) * 0x200;
+    dimensions->y = ((int)maxDim.y - (int)minDim.y) * 0x200;
+    dimensions->z = ((int)maxDim.z - (int)minDim.z) * 0x200;
+    return;
   }
-  dimensions->x = ((int)maxDim.x - (int)minDim.x) * 0x200;
-  dimensions->y = ((int)maxDim.y - (int)minDim.y) * 0x200;
-  dimensions->z = ((int)maxDim.z - (int)minDim.z) * 0x200;
-  return;
 }
 
 /* ---- Object_InitIMassObjectInfo  [OBJECT.CPP:1055-1088] SLD-VERIFIED ---- */
@@ -885,36 +890,39 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
 void Object_InitIMassObjectInfo(void)
 
 {
-  int objIndex;
-  Trk_AnimateInst *objInst;
-  
   gNumIMassObjects = 0;
   Object_IMassObjInst = (Object_tIMassObjInfo *)0x0;
-  if ((gPersistObjInst != (Group *)0x0) && (gPersistObjDef != (Group *)0x0)) {
-    Object_IMassObjInst =
-         reservememadr("IMObj info",gPersistObjInst->m_num_elements << 5,0)
-    ;
-    if (Object_IMassObjInst != (Object_tIMassObjInfo *)0x0) {
-      objIndex = 0;
-      objInst = (Trk_AnimateInst *)(gPersistObjInst + 1);
-      if (0 < gPersistObjInst->m_num_elements) {
-        do {
-          if (objInst->type == '\a') {
-            Object_IMassObjInst[gNumIMassObjects].animInst =
-                (Trk_AnimateInst *)objInst;
-            GetObjMaxDimensions(Track_gObjDefs,(Trk_SimpleInst *)objInst,
-                &Object_IMassObjInst[gNumIMassObjects].dimension);
-            Object_IMassObjInst[gNumIMassObjects].lastPos.x = 0;
-            Object_IMassObjInst[gNumIMassObjects].lastPos.y = 0;
-            Object_IMassObjInst[gNumIMassObjects].lastPos.z = 0;
-            Object_IMassObjInst[gNumIMassObjects].lastTick = 0;
-            gNumIMassObjects = gNumIMassObjects + 1;
-          }
-          objIndex = objIndex + 1;
-          objInst =
-              (Trk_AnimateInst *)((int)&objInst->size + (int)objInst->size);
-        } while (objIndex < gPersistObjInst->m_num_elements);
-      }
+  if ((gPersistObjInst == (Group *)0x0) || (gPersistObjDef == (Group *)0x0)) {
+    return;
+  }
+  Object_IMassObjInst =
+       reservememadr("IMObj info",gPersistObjInst->m_num_elements << 5,0)
+  ;
+  if (Object_IMassObjInst == (Object_tIMassObjInfo *)0x0) {
+    return;
+  }
+  {
+    int objIndex;
+    Trk_AnimateInst *objInst;
+    objIndex = 0;
+    objInst = (Trk_AnimateInst *)(gPersistObjInst + 1);
+    if (0 < gPersistObjInst->m_num_elements) {
+      do {
+        if (objInst->type == '\a') {
+          Object_IMassObjInst[gNumIMassObjects].animInst =
+              (Trk_AnimateInst *)objInst;
+          GetObjMaxDimensions(Track_gObjDefs,(Trk_SimpleInst *)objInst,
+              &Object_IMassObjInst[gNumIMassObjects].dimension);
+          Object_IMassObjInst[gNumIMassObjects].lastPos.x = 0;
+          Object_IMassObjInst[gNumIMassObjects].lastPos.y = 0;
+          Object_IMassObjInst[gNumIMassObjects].lastPos.z = 0;
+          Object_IMassObjInst[gNumIMassObjects].lastTick = 0;
+          gNumIMassObjects = gNumIMassObjects + 1;
+        }
+        objIndex = objIndex + 1;
+        objInst =
+            (Trk_AnimateInst *)((int)&objInst->size + (int)objInst->size);
+      } while (objIndex < gPersistObjInst->m_num_elements);
     }
   }
   return;
@@ -931,7 +939,6 @@ void Object_DeInitIMassObjectInfo(void)
   if (Object_IMassObjInst != (Object_tIMassObjInfo *)0x0) {
     purgememadr(Object_IMassObjInst);
   }
-  return;
 }
 
 
@@ -953,8 +960,9 @@ int Object_GetNumIMassObjects(void)
 void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions)
 
 {
+  /* Retail SLD leaves two non-emitting lines here; the original text
+     is not identified by SYM or the linked instruction stream. */
   *dimensions = Object_IMassObjInst[objIndex].dimension;
-  return;
 }
 
 
@@ -963,25 +971,27 @@ void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions)
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity)
 
 {
-  int timeDiff;
-  int objTime;
+  {
+    int timeDiff;
+    int objTime;
 
-  objTime = DrawW_GetAnimationTime(Object_IMassObjInst[objIndex].animInst);
-  Anim_GetRotPos(Object_IMassObjInst[objIndex].animInst,1,objTime,cpoint,orientMat);
-  timeDiff = objTime - Object_IMassObjInst[objIndex].lastTick;
-  if (0 < timeDiff) {
-    velocity->x = (cpoint->x - Object_IMassObjInst[objIndex].lastPos.x) / timeDiff << 6;
-    velocity->y = (cpoint->y - Object_IMassObjInst[objIndex].lastPos.y) / timeDiff << 6;
-    velocity->z = (cpoint->z - Object_IMassObjInst[objIndex].lastPos.z) / timeDiff << 6;
+    objTime = DrawW_GetAnimationTime(Object_IMassObjInst[objIndex].animInst);
+    Anim_GetRotPos(Object_IMassObjInst[objIndex].animInst,1,objTime,cpoint,orientMat);
+    timeDiff = objTime - Object_IMassObjInst[objIndex].lastTick;
+    if (0 < timeDiff) {
+      velocity->x = (cpoint->x - Object_IMassObjInst[objIndex].lastPos.x) / timeDiff << 6;
+      velocity->y = (cpoint->y - Object_IMassObjInst[objIndex].lastPos.y) / timeDiff << 6;
+      velocity->z = (cpoint->z - Object_IMassObjInst[objIndex].lastPos.z) / timeDiff << 6;
+    }
+    else {
+      velocity->x = 0;
+      velocity->y = 0;
+      velocity->z = 0;
+    }
+    Object_IMassObjInst[objIndex].lastPos = *cpoint;
+    Object_IMassObjInst[objIndex].lastTick = objTime;
+    return;
   }
-  else {
-    velocity->x = 0;
-    velocity->y = 0;
-    velocity->z = 0;
-  }
-  Object_IMassObjInst[objIndex].lastPos = *cpoint;
-  Object_IMassObjInst[objIndex].lastTick = objTime;
-  return;
 }
 
 /* ---- ObjectFinishedMultiAnim_Draw  [OBJECT.CPP:1160-1161] SLD-VERIFIED ---- */
@@ -1002,16 +1012,11 @@ ObjectMultiAnim::ObjectMultiAnim(coorddef *impactVel,AnimDef *def,
 {
   this->impactVel.x = impactVel->x >> 6;
   this->impactVel.y = impactVel->y >> 6;
-  /* SYM-CODEGEN-CARRIER: z -- reading impactVel->z at the final store keeps
-   * the same 62 instructions but moves eight load/shift/store slots.  This
-   * early cached component reproduces retail's schedule around the intervening
-   * member assignments. */
-  int z = impactVel->z;
+  this->impactVel.z = impactVel->z >> 6;
   animParms = def;
   this->objCollideInstance = objCollideInstance;
   this->objDef = objDef;
   this->simObj = simObj;
-  this->impactVel.z = z >> 6;
   if (objCollideInstance->type == '\x06') {
     script = new AnimScript(gPersistObjInst,8,
                             *(u_char *)((int)&objCollideInstance->y + 1),
@@ -1166,13 +1171,6 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
 
 {
   int vel;
-  coorddef *rotx;
-  coorddef *roty;
-  coorddef *rotz;
-  matrixtdef yawMat;
-  matrixtdef objAngleMat;
-  matrixtdef tmpMat;
-  matrixtdef mat;
 
   vel = (__builtin_abs(impactVel->x) + __builtin_abs(impactVel->z)) >> 16;
   this->impactVel = *impactVel;
@@ -1189,6 +1187,14 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
   script->SetAnimAttrib(2);
   this->finishedAnim = finishedAnim;
 
+  {
+  coorddef *rotx;
+  coorddef *roty;
+  coorddef *rotz;
+  matrixtdef yawMat;
+  matrixtdef objAngleMat;
+  matrixtdef tmpMat;
+  matrixtdef mat;
   rotx = (coorddef *)&finishedAnim->finalMatrix.m[0];
   roty = (coorddef *)&finishedAnim->finalMatrix.m[3];
   rotz = (coorddef *)&finishedAnim->finalMatrix.m[6];
@@ -1212,6 +1218,7 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
                      &finishedAnim->finalMatrix);
   finishedAnim->objDef = objDef;
   finishedAnim->objCollideInstance = objCollideInstance;
+  }
 }
 
 
@@ -1222,14 +1229,10 @@ int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 {
   matrixtdef matrix;
   coorddef animcp;
-  int i;
-  ObjectAnim *anim;
-  Trk_ObjectDef *pObjDef;
-  coorddef cp;
-  int frame;
-  int numFrames;
 
   if (this->script->GetTimedAnimPosRot(0, &animcp, &matrix) + 1U < 2) {
+    int i;
+    ObjectAnim *anim;
     anim = this->finishedAnim;
     i = this->simObj->serialNum;
     this->finishedAnim = (ObjectFinishedSignAnim *)0x0;
@@ -1240,6 +1243,10 @@ int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
     return anim->Draw(Vi,sd,offset);
   }
   else {
+    Trk_ObjectDef *pObjDef;
+    coorddef cp;
+    int frame;
+    int numFrames;
     pObjDef = this->objDef;
     this->script->GetTimedAnimPosRot(0, &animcp, &matrix);
     this->script->GetAnimFrameInfo(&frame, &numFrames);

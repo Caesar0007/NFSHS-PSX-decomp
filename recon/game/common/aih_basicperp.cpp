@@ -9,6 +9,10 @@
 #include "aih_basicperp_externs.h"
 extern "C" int sprintf(char *, const char *, ...);
 
+/* Semantic reconstruction names: retail SYM retains the inlined receiver
+   scopes, but not the inline method identifiers. Owner-only bodies in the
+   type surface avoid out-of-line copies in the key-function TUs. */
+
 /* ---- aih_basicperp.obj-owned globals (.bss zero) ---- */
 int          AIHigh_BasicPerp_PlayerCaughtSpeed[3] = { 1019448, 1165084, 1310720 };   /* @0x8010cd5c */
 int          AIHigh_BasicPerp_PlayerCaughtDeltaY[3] = { 327680, 425984, 524288 };   /* @0x8010cd68 */
@@ -28,7 +32,7 @@ void AIHigh_BasicPerp::CheckForCrimes()
      first non-leaf function, ahead of the vtable batch) */
   if (0) sprintf((char *)0,"SimpleMem");
 
-  crimeType crime = basicPerpInfo_.crime_;
+  crimeType crime = basicPerpInfo_.GetCrime();
   crimeType originalCrime = crime;
   int legal = AISpeeds_GetLegalSpeed(carObj_->N.simRoadInfo.slice);
 
@@ -58,16 +62,13 @@ void AIHigh_BasicPerp::CheckForCrimes()
     /* SYM-CODEGEN-CARRIER: speed -- this retained value reproduces the retail
        single load shared by the reverse-track sign test.  Expanding the two
        field reads compiles to 169 instructions/14 diffs instead of 163/PASS. */
+    /* The conditional switch keeps the retail signed-test funnel without
+       the non-SYM wrongWay result local (direct if: 164 instructions). */
     int speed = carObj_->currentSpeed;
-    /* SYM-CODEGEN-CARRIER: wrongWay -- the explicit result preserves GCC's
-       branch-shaped signed test.  A direct conditional expression produces
-       164 instructions/7 diffs instead of the retail 163/PASS. */
-    int wrongWay;
-    if (GameSetup_gData.reverseTrack != 0)
-      wrongWay = (u_int)-speed >> 31;
-    else
-      wrongWay = (u_int)speed >> 31;
-    if (wrongWay != 0) {
+    switch (GameSetup_gData.reverseTrack != 0 ?
+            ((u_int)-speed >> 31) : ((u_int)speed >> 31)) {
+    case 0: break;
+    default:
       if ((__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
           (crime == CRIME_NONE))
         crime = CRIME_WRONGSIDE;
@@ -93,7 +94,7 @@ crime_checks_done:
     for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
       Car_tObj *carObj = Cars_gList[carLoop];
       if ((carObj->carFlags & 0x220) && carObj->N.active) {
-        basicPerpInfo_.crime_ = crime;
+        basicPerpInfo_.SetCrime(crime);
         return;
       }
     }
@@ -125,6 +126,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
 {
   int absSpeed;
+  int perpUpright;
   int skill;
 
   skill = GameSetup_gData.skill;
@@ -141,7 +143,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
   }
 
-  if ((this->basicPerpInfo_).crime_ != 0) {
+  if (this->basicPerpInfo_.GetCrime() == 0) return 0;
 
     if (AIHigh_BasicPerp_PlayerCaughtSpeed[skill] < absSpeed) {
 
@@ -155,9 +157,8 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
     }
 
-    if ((this->carObj_->stats).finishType < 2) {
+    if ((this->carObj_->stats).finishType >= 2) goto not_caught;
 
-      int perpUpright;
       int carLoop;
 
       perpUpright = 0x9999 < this->carObj_->N.orientMat.m[4];
@@ -167,7 +168,6 @@ int AIHigh_BasicPerp::CheckIfCaught()
         Car_tObj *cop;
         int diffSpeed;
         int validCar;
-        int xDot;
 
         if (Cars_gNumCars <= carLoop) {
 
@@ -254,6 +254,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
           if (barrierInWay) continue;
 
           {
+          int xDot;
           int zDot;
 
           xDot = 0;
@@ -316,10 +317,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
       }
 
-    }
-
-  }
-
+not_caught:
   return 0;
 
 }
@@ -332,65 +330,46 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
 
 /* ---- RemoveCloseCops__16AIHigh_BasicPerp  AIHigh_BasicPerp::RemoveCloseCops  [AIH_BASICPERP.CPP:296-325] SLD-VERIFIED ---- */
+/* Retail SYM scopes the channel loop, its cop/distance pair, and the two
+   inlined drive-away setters plus base car accessor. Inline names are inferred;
+   their receiver types/homes and exact block addresses come from retail.
+   All instruction-relative SLD tags match; lexical block-line fields remain open. */
 
 void AIHigh_BasicPerp::RemoveCloseCops()
-
-
-
 {
-  int copLoop;
-  Car_tObj*cop;
-  int distance;
-  AIHigh_Cop*thisCop;
+  { int copLoop = 0; while (true) { if (Cars_gNumCopCars <= copLoop) break;
 
-  copLoop = 0;
+    Car_tObj *cop = Cars_gCopCarList[copLoop]; int distance;
 
-  while( true ) {
+    if ((cop->AIFlags & 4U) != 0) goto nextCop;
 
-    if (Cars_gNumCopCars <= copLoop) break;
+    distance = AIWorld_ApxSplineDistance(cop,this->carObj_);
+    distance = __builtin_abs(distance);
 
-    cop = Cars_gCopCarList[copLoop];
+    if (distance < 0x960000) {
 
-    if ((cop->AIFlags & 4U) == 0) {
+      AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[cop->carIndex];
 
-      distance = AIWorld_ApxSplineDistance(cop,this->carObj_);
+      cop->desiredDirection = cop->direction = GameSetup_gData.reverseTrack == 0 ? -1 : 1;
 
-      distance = __builtin_abs(distance);
-
-      if (distance < 0x960000) {
-
-        thisCop = (AIHigh_Cop *)highLevelAIObjs[cop->carIndex];
-
-        cop->direction = GameSetup_gData.reverseTrack == 0 ? -1 : 1;
-
-        cop->desiredDirection = cop->direction;
-
-        cop->driveDirection = 1;
-
-        if (distance < 0x1e0000) {
-
-          thisCop->driveAway_ = DRIVEAWAY_RESET;
-
-        }
-
-        else {
-
-          thisCop->driveAway_ = DRIVEAWAY_NORESET;
-
-        }
-
-        Speech::Mobile(thisCop->carObj_)->Purge();
-
+      cop->driveDirection = 1;
+      if (distance < 0x1e0000) {
+        thisCop->SetDriveAway(DRIVEAWAY_RESET);
       }
+      else { thisCop->SetDriveAway(DRIVEAWAY_NORESET); }
+
+      Speech::Mobile(thisCop->GetCarObj())->Purge();
 
     }
 
+
+
+nextCop:
     copLoop = copLoop + 1;
 
   }
 
-  return;
-
+  }
 }
 
 
@@ -403,23 +382,13 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 /* ---- RemoveChaser__16AIHigh_BasicPerpii7copType  AIHigh_BasicPerp::RemoveChaser  [AIH_BASICPERP.CPP:331-337] SLD-VERIFIED ---- */
 
 void AIHigh_BasicPerp::RemoveChaser(int copIndex,int carIndex,copType type)
-
-
-
 {
-  int pos;
-
-
-  pos = this->copVSPositionList_[copIndex];
-
+  int pos = this->copVSPositionList_[copIndex];
   this->basicPerpInfo_.RemoveCop(type);
 
+
   this->positionVSCopList_[pos].copIndex = -1;
-
   this->positionVSCopList_[pos].carIndex = -1;
-
-  return;
-
 }
 
 
@@ -440,16 +409,14 @@ int AIHigh_BasicPerp::AddChaser(int copIndex,int carIndex,copType type)
 
   this->basicPerpInfo_.AddCop(type);
 
+
   pos = 5;
-
   this->positionVSCopList_[pos].copIndex = copIndex;
-
   this->positionVSCopList_[pos].carIndex = carIndex;
-
   this->copVSPositionList_[copIndex] = pos;
 
-  return this->CheckChaserPosition(copIndex,carIndex);
-
+  int result = this->CheckChaserPosition(copIndex,carIndex);
+  return result;
 }
 
 
@@ -475,7 +442,7 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
   pos = this->copVSPositionList_[copIndex];
 
-  thisCopSlice = (highLevelAIObjs[carIndex]->carObj_->N).simRoadInfo.slice;
+  thisCopSlice = (highLevelAIObjs[carIndex]->GetCarObj()->N).simRoadInfo.slice;
 
   if (0 < pos) {
     do {
@@ -731,28 +698,18 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
 
 /* ---- Clear__16AIHigh_BasicPerp  AIHigh_BasicPerp::Clear  [AIH_BASICPERP.CPP:406-415] SLD-VERIFIED ---- */
-
+/* Retail SYM scopes `loop` to the for statement (source lines 2..6). */
 void AIHigh_BasicPerp::Clear()
-
-
-
 {
-  /* retail SYM: `loop` lives in its own scope (lines 2..6) = a C++ for-declaration */
   for (int loop = 0; loop < 6; loop++) {
+
     this->positionVSCopList_[loop].copIndex = -1;
     this->positionVSCopList_[loop].carIndex = -1;
   }
-
   this->pullOverMode_ = 0;
-
   this->beatingTicksLeft_ = 0;
-
   this->lastPullOverTime_ = -0x280;
-
   this->lastArrestingCop_ = (Car_tObj *)0x0;
-
-  return;
-
 }
 
 

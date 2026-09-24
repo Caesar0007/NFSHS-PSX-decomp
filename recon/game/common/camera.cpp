@@ -5,6 +5,9 @@
 #include "camera_types.h"
 #include "camera_externs.h"
 
+/* Retail camera.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
 
 
@@ -148,20 +151,22 @@ void Camera_TunnelLimit(int player,int *armheight)
 {
   if (BWorldSm_TunnelFlagSm(&Camera_gInfo[player].slicePos) ||
       BWorldSm_TunnelFlagSm(&Camera_gInfo[player].anchor->simRoadInfo)) {
-    BWorldSm_Pos *slicePos = &Camera_gInfo[player].slicePos;
-    coorddef quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
-    coorddef underCam = Camera_gInfo[player].position;
-    int roadheight =
-        Newton_FindGroundElevationGeneral(&underCam,&quadnormal,slicePos->quadPts);
-    int track = GameSetup_gData.track;
-    if (0xf < GameSetup_gData.track) {
-      track = GameSetup_gData.track + -7;
-    }
-    int maxheight =
-        (gTunnelCamHeight[track] - Camera_gInfo[player].anchor->position.y) +
-        roadheight;
-    if (maxheight < *armheight) {
-      *armheight = maxheight;
+    {
+      BWorldSm_Pos *slicePos = &Camera_gInfo[player].slicePos;
+      coorddef quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
+      coorddef underCam = Camera_gInfo[player].position;
+      int roadheight =
+          Newton_FindGroundElevationGeneral(&underCam,&quadnormal,slicePos->quadPts);
+      int track = GameSetup_gData.track;
+      if (0xf < GameSetup_gData.track) {
+        track = GameSetup_gData.track + -7;
+      }
+      int maxheight =
+          (gTunnelCamHeight[track] - Camera_gInfo[player].anchor->position.y) +
+          roadheight;
+      if (maxheight < *armheight) {
+        *armheight = maxheight;
+      }
     }
   }
   return;
@@ -170,11 +175,6 @@ void Camera_TunnelLimit(int player,int *armheight)
 /* ---- Camera_UpdateCollisionCam__Fi  [@0x8008090c] ---- */
 void Camera_UpdateCollisionCam(int player)
 {
-  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
-   * function's own constants (the same dead tag string r3dcar/fedialog carry); the
-   * constant-false call keeps the string and adds no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
-
   coorddef arm = {0, 0x30000, -0xa0000};   /* SYM: AUTO; braced init -> rodata template D_800558A4 copy */
   coorddef newarm;   /* SYM: AUTO */
   coorddef oldarm;   /* SYM: AUTO */
@@ -211,18 +211,19 @@ void Camera_UpdateCollisionCam(int player)
 /* ---- Camera_UpdateSimpleCam__Fi  [@0x80080ac8] ---- */
 void Camera_UpdateSimpleCam(int player)
 {
-  coorddef arm;
-  coorddef newarm;
-
+  coorddef arm, newarm;
   arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
+
+
+
   transform((int *)&arm,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
   Camera_TunnelLimit(player,&newarm.y);
   Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
   Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y;
   Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + newarm.z;
+
   Camera_LookBack(&Camera_gInfo[player].anchor->orientMat,
                   &Camera_gInfo[player].rotation);
-  return;
 }
 
 /* ---- Camera_UpdateBumperCam__Fi  [@0x80080bac] ---- */
@@ -833,35 +834,35 @@ void Camera_UpdateCircleCam(int player)
   int cos;
   int circle_height[3] = { 0x10000, 0x20000, 0x30000 };
 
-  if ((((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
-      (InBetween == 0)) && (simVar.pauseSim == 0)) {
-    intsincos((int)++Camera_gInfo[player].circleAngle,&sin,&cos);
-    src.x = fixedmult(0x48000,cos);
-    src.z = fixedmult(0x60000,sin);
-    if (((int)Camera_gInfo[player].circleAngle + 0x100U & 0x1ff) == 0) {
-      Camera_gInfo[player].circleCounter = Camera_gInfo[player].circleCounter + 1;
-    }
-    if ((((int)Camera_gInfo[player].circleAngle - 0x80) & 0x1ff) < 0x80) {
-      int h0;
-      int h1;
-      int ang;
-
-      h0 = circle_height[Camera_gInfo[player].circleCounter % 3];
-      h1 = circle_height[(Camera_gInfo[player].circleCounter + 1) % 3];
-      ang = ((int)Camera_gInfo[player].circleAngle - 0x80) & 0x7f;
-      src.y = ((h1 - h0) * ang >> 7) + h0;
-    }
-    else {
-      src.y = circle_height[Camera_gInfo[player].circleCounter % 3];
-    }
-    /* SYM has scoped h0/h1/ang but no hval or persistent Camera_tInfo pointer.
-     * Direct src.y arms let gcc create the retail $s0 base only after their merge. */
-    transform(&src,(Camera_gInfo[player].anchor->orientMat).m,&des);
-    Camera_TunnelLimit(player,&des.y);
-    Camera_gInfo[player].position.x = (Camera_gInfo[player].anchor->position).x + des.x;
-    Camera_gInfo[player].position.y = (Camera_gInfo[player].anchor->position).y + des.y;
-    Camera_gInfo[player].position.z = (Camera_gInfo[player].anchor->position).z + des.z;
+  if (!(((((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
+      (InBetween == 0)) && (simVar.pauseSim == 0))))
+    return;
+  intsincos((int)++Camera_gInfo[player].circleAngle,&sin,&cos);
+  src.x = fixedmult(0x48000,cos);
+  src.z = fixedmult(0x60000,sin);
+  if (((int)Camera_gInfo[player].circleAngle + 0x100U & 0x1ff) == 0) {
+    Camera_gInfo[player].circleCounter = Camera_gInfo[player].circleCounter + 1;
   }
+  if ((((int)Camera_gInfo[player].circleAngle - 0x80) & 0x1ff) < 0x80) {
+    int h0;
+    int h1;
+    int ang;
+
+    h0 = circle_height[Camera_gInfo[player].circleCounter % 3];
+    h1 = circle_height[(Camera_gInfo[player].circleCounter + 1) % 3];
+    ang = ((int)Camera_gInfo[player].circleAngle - 0x80) & 0x7f;
+    src.y = ((h1 - h0) * ang >> 7) + h0;
+  }
+  else {
+    src.y = circle_height[Camera_gInfo[player].circleCounter % 3];
+  }
+  /* SYM has scoped h0/h1/ang but no hval or persistent Camera_tInfo pointer.
+   * Direct src.y arms let gcc create the retail $s0 base only after their merge. */
+  transform(&src,(Camera_gInfo[player].anchor->orientMat).m,&des);
+  Camera_TunnelLimit(player,&des.y);
+  Camera_gInfo[player].position.x = (Camera_gInfo[player].anchor->position).x + des.x;
+  Camera_gInfo[player].position.y = (Camera_gInfo[player].anchor->position).y + des.y;
+  Camera_gInfo[player].position.z = (Camera_gInfo[player].anchor->position).z + des.z;
   return;
 }
 
@@ -1050,21 +1051,23 @@ void Camera_UpdateFinishCam(int player)
 /* ---- Camera_UpdateBlimpCam__Fi  [@0x8008237c] ---- */
 void Camera_UpdateBlimpCam(int player)
 {
-  coorddef arm;
-  coorddef oldarm;
-
+  coorddef arm, oldarm;
   arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
+
+
+
   Camera_TunnelLimit(player,&arm.y);
-  oldarm.x = Camera_gInfo[player].position.x - Camera_gInfo[player].anchor->position.x;
-  oldarm.y = Camera_gInfo[player].position.y - Camera_gInfo[player].anchor->position.y;
-  oldarm.z = Camera_gInfo[player].position.z - Camera_gInfo[player].anchor->position.z;
+
+
+  oldarm.x = Camera_gInfo[player].position.x - Camera_gInfo[player].anchor->position.x; oldarm.y = Camera_gInfo[player].position.y - Camera_gInfo[player].anchor->position.y; oldarm.z = Camera_gInfo[player].position.z - Camera_gInfo[player].anchor->position.z;
+
+
   oldarm.x = oldarm.x + fixedmult(arm.x - oldarm.x,0x1999);
   oldarm.y = oldarm.y + fixedmult(arm.y - oldarm.y,0x1999);
   oldarm.z = oldarm.z + fixedmult(arm.z - oldarm.z,0x1999);
-  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + oldarm.x;
-  Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + oldarm.y;
-  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + oldarm.z;
-  return;
+
+
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + oldarm.x; Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + oldarm.y; Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + oldarm.z;
 }
 
 /* ---- Camera_SetSplineCam__Fi  [@0x800824c0] ---- */
@@ -1416,23 +1419,30 @@ void Camera_UpdateSplineCam(int player)
 }
 
 /* ---- Camera_IslandProfile__FUs  [@0x80082c3c] ---- */
+/* MATCH: u_short locals + mutated param; masks (andi 0xFFFF) appear lazily
+ * at compares; plain while yields the top and bottom loop tests. */
 int Camera_IslandProfile(u_short before)
 {
   u_short after;   /* SYM: REG after USHORT */
   u_short diff;    /* SYM: REG diff USHORT */
 
-  /* MATCH: u_short locals + mutated param; masks (andi 0xFFFF) appear lazily at the compares
-   * only; plain while -> gcc duplicate_loop_exit_test gives the top+bottom test pair */
   after = before & (before - 1);
   diff = before - after;
+
+
   while (before != 0) {
+
+
+
     if (before - after != diff) {
       return 1;
     }
     before = after;
+
     after = before & (before - 1);
     diff = diff << 1;
   }
+
   return 0;
 }
 
@@ -1522,23 +1532,19 @@ void Camera_UpdateCopCam1(int player)
 {
   coorddef vec;
 
-  vec.x = Camera_gInfo[player].anchor->position.x + Camera_gInfo[player].target->position.x;
-  vec.y = Camera_gInfo[player].anchor->position.y + Camera_gInfo[player].target->position.y;
-  vec.z = Camera_gInfo[player].anchor->position.z + Camera_gInfo[player].target->position.z;
+
+  vec.x = Camera_gInfo[player].anchor->position.x + Camera_gInfo[player].target->position.x; vec.y = Camera_gInfo[player].anchor->position.y + Camera_gInfo[player].target->position.y; vec.z = Camera_gInfo[player].anchor->position.z + Camera_gInfo[player].target->position.z;
   gCop1Target[player].x = vec.x >> 1;
   gCop1Target[player].y = vec.y >> 1;
   gCop1Target[player].z = vec.z >> 1;
-  vec.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].target->position.x;
-  vec.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].target->position.y;
-  vec.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].target->position.z;
+
+
+  vec.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].target->position.x; vec.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].target->position.y; vec.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].target->position.z;
   Math_NormalizeVector(&vec);
-  vec.x = fixedmult(0x40000,vec.x);
-  vec.y = fixedmult(0x40000,vec.y);
-  vec.z = fixedmult(0x40000,vec.z);   /* MATCH: result lives in vec.z (sw/lw 24(sp)), not a reg temp */
+  vec.x = fixedmult(0x40000,vec.x); vec.y = fixedmult(0x40000,vec.y); vec.z = fixedmult(0x40000,vec.z);   /* MATCH: result lives in vec.z (sw/lw 24(sp)), not a reg temp */
   Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + vec.x + vec.z;
   Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + 0x18000;
   Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z - vec.x + vec.z;
-  return;
 }
 
 /* ---- Camera_UpdateCopCam2__Fi  [@0x800831a8] ---- */
@@ -1856,7 +1862,6 @@ void Camera_Init(void)
   BWorldSm_Pos slicePos;
   int localCar;
   int i;
-  int type;
   
   splitScreen = GameSetup_gData.commMode == 1;
   memset((u_char *)&slicePos,'\0',sizeof(slicePos));
@@ -1905,54 +1910,61 @@ void Camera_Init(void)
     Camera_gInfo[i].slicePos = slicePos;
   }
   Camera_ResetRelPos(3);
-  type = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
-  Camera_gGeomScreen = 0xbe;
-  if (((type < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (splitScreen == 0)) {
-    GameSetup_gData.carInfo[0].Camera[0] = 1;
-    Camera_gFlags[1].arm = gDriverCam[type];
+  {
+    int type;
+    type = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
+    Camera_gGeomScreen = 0xbe;
+    if (((type < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (splitScreen == 0)) {
+      GameSetup_gData.carInfo[0].Camera[0] = 1;
+      Camera_gFlags[1].arm = gDriverCam[type];
                     
                     
                     
+    }
   }
   return;
 }
 
 /* ---- Camera_Kill__Fv  [@0x80083bec] ---- */
+/* Indexing Camera_gInfo lets GCC strength-reduce the 0x110 stride while
+ * retaining the retail animHandle displacement; pointer-walk changes it. */
 void Camera_Kill(void)
 {
-  int i;            /* SYM: REG i INT */
-  int splitScreen;  /* SYM: REG splitScreen INT */
+  int i; int splitScreen = GameSetup_gData.commMode == 1;
 
-  splitScreen = GameSetup_gData.commMode == 1;
-  /* MATCH: index form (SYM has NO pointer local) — gcc strength-reduces to the s0+=0x110 walk
-   * keeping animHandle's 0x7D displacement; a hand pointer-walk folds base+125 into the biv */
   for (i = 0; i <= splitScreen; i = i + 1) {
+
     if ((signed char)Camera_gInfo[i].animHandle != -1) {
-      Anim_FreeHandle((int)(signed char)Camera_gInfo[i].animHandle);
-    }
+      Anim_FreeHandle((int)(signed char)Camera_gInfo[i].animHandle); }
     Camera_gInfo[i].animHandle = -1;
   }
-  return;
 }
 
 /* ---- Camera_PitchAndRoll__Fi  [@0x80083c74] ---- */
 void Camera_PitchAndRoll(int player)
 {
-  matrixtdef m1;
-  matrixtdef m2;
-  matrixtdef m3;
-  Car_tObj *anchor;
-  int pitch;
-  
+  matrixtdef m1, m2, m3; Car_tObj *anchor; int pitch;
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
+
+
+
+
   pitch = anchor->render.bodyPitch;
   pitch = pitch << 1;   /* MATCH: separate stmt -> sll lands in fixedxformz's jal delay slot */
+
+
+
+
+
+
   fixedxformz((int)&m1,(int *)anchor->render.bodyRoll);
-  fixedxformx((int)&m2,
-             (int *)(pitch | Camera_gInfo[player].pitch));
+  fixedxformx((int)&m2,(int *)(pitch | Camera_gInfo[player].pitch));
   Math_fasttransmult(&m1,&m2,&m3);
+
+
+
+
   Math_fasttransmult(&m3,&Camera_gInfo[player].rotation,&Camera_gInfo[player].rotation);
-  return;
 }
 
 /* ---- Camera_TooSteep__FiP12BWorldSm_Pos  [@0x80083d28] ---- */
@@ -1961,24 +1973,28 @@ int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
   BWorldSm_Pos *slicePos2;  /* SYM: REG (anchor+8, addiu s0,s0,8 in the 1st jal slot) */
   coorddef normUnderCam;    /* SYM: AUTO */
   coorddef normUnderCar;    /* SYM: AUTO */
-  coorddef camToCar;        /* SYM: AUTO */
 
-  slicePos2 = &(Camera_gInfo[player].anchor)->simRoadInfo;
-  normUnderCam = *(coorddef *)BWorldSm_UNormal(slicePos);
-  normUnderCar = *(coorddef *)BWorldSm_UNormal(slicePos2);
-  if (0xb4fc < fixedmult(normUnderCam.x,normUnderCar.x) +
-               fixedmult(normUnderCam.y,normUnderCar.y) +
-               fixedmult(normUnderCam.z,normUnderCar.z)) {
-    return 0;   /* MATCH: direct returns - v0=0/1 staged in branch delay slots, no result var */
-  }
-  camToCar.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x;
-  camToCar.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y;
-  camToCar.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
-  if (0 < fixedmult(normUnderCam.x,camToCar.x) +
-          fixedmult(normUnderCam.y,camToCar.y) +
-          fixedmult(normUnderCam.z,camToCar.z)) {
-    if ((Camera_gInfo[player].anchor)->flightTime == 0) {
-      return 1;
+  {
+    slicePos2 = &(Camera_gInfo[player].anchor)->simRoadInfo;
+    normUnderCam = *(coorddef *)BWorldSm_UNormal(slicePos);
+    normUnderCar = *(coorddef *)BWorldSm_UNormal(slicePos2);
+    if (0xb4fc < fixedmult(normUnderCam.x,normUnderCar.x) +
+                 fixedmult(normUnderCam.y,normUnderCar.y) +
+                 fixedmult(normUnderCam.z,normUnderCar.z)) {
+      return 0;   /* MATCH: direct returns - v0=0/1 staged in branch delay slots, no result var */
+    }
+    {
+      coorddef camToCar;        /* SYM: AUTO in nested post-guard block */
+      camToCar.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x;
+      camToCar.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y;
+      camToCar.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
+      if (0 < fixedmult(normUnderCam.x,camToCar.x) +
+              fixedmult(normUnderCam.y,camToCar.y) +
+              fixedmult(normUnderCam.z,camToCar.z)) {
+        if ((Camera_gInfo[player].anchor)->flightTime == 0) {
+          return 1;
+        }
+      }
     }
   }
   return 0;
@@ -2172,17 +2188,18 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
 /* ---- Camera_SetAboveGround__FiP8coorddef  [@0x8008480c] ---- */
 void Camera_SetAboveGround(int player,coorddef *pos)
 {
-  BWorldSm_Pos *slicePos;
+  BWorldSm_Pos *slicePos = &Camera_gInfo[player].slicePos;
   coorddef quadnormal;
   int elevation;
 
-  slicePos = &Camera_gInfo[player].slicePos;
+
   quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
+
+
   elevation = Newton_FindGroundElevationGeneral(pos,&quadnormal,slicePos->quadPts);
-  if (pos->y < elevation + 0x10000) {
-    pos->y = elevation + 0x10000;
-  }
-  return;
+  elevation += 0x10000;
+  if (pos->y < elevation) {
+    pos->y = elevation; }
 }
 
 /* ---- Camera_AcquireTarget__FiP8coorddefT1P10matrixtdefi  [@0x80084898] ---- */
@@ -2193,10 +2210,6 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
   coorddef*rotx;
   coorddef*roty;
   coorddef*rotz;
-  /* SYM-CODEGEN-CARRIER: adj -- spelling the three signed divide-by-four
-   * adjustments as direct conditional expressions keeps 231 instructions but
-   * changes 12 global-base/allocation instructions. */
-  int adj;
 
   rotx = (coorddef *)rot;
   roty = (coorddef *)(rot->m + 3);
@@ -2207,21 +2220,9 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
   else {
     tgtPos = Camera_gInfo[player].target->position;
   }
-  adj = tgtPos.x - pos->x;
-  if (adj < 0) {
-    adj = adj + 3;
-  }
-  rotz->x = adj >> 2;
-  adj = tgtPos.y - pos->y;
-  if (adj < 0) {
-    adj = adj + 3;
-  }
-  rotz->y = adj >> 2;
-  adj = tgtPos.z - pos->z;
-  if (adj < 0) {
-    adj = adj + 3;
-  }
-  rotz->z = adj >> 2;
+  rotz->x = (tgtPos.x - pos->x) / 4;
+  rotz->y = (tgtPos.y - pos->y) / 4;
+  rotz->z = (tgtPos.z - pos->z) / 4;
   if (Camera_gInfo[player].pitch != 0) {
     rotz->y = rotz->y +
         ((2 < (u_int)((u_short)Camera_gInfo[player].mode - 2)) ? 0x6666 : 0x5333);
@@ -2273,36 +2274,35 @@ void Camera_OpponentLookBehind(int player,coorddef *pos,int reset)
   oppVector =
       *(coorddef *)(Cars_gHumanRaceCarList[player]->N.orientMat.m + 6);
   i = 0;
-  if (0 < Cars_gNumCars) {
-    do {
-      if (Cars_gList[i] != Cars_gHumanRaceCarList[player]) {
-        dist = (int)Cars_gList[i]->N.simRoadInfo.slice -
-               (int)Cars_gHumanRaceCarList[player]->N.simRoadInfo.slice;
-        dist = (gNumSlices / 2 < __builtin_abs(dist)) ?
-               gNumSlices - __builtin_abs(dist) : __builtin_abs(dist);
-        if (dist < 0xb) {
-          tempVector.x = pos->x - Cars_gList[i]->N.position.x;
-          tempVector.y = pos->y - Cars_gList[i]->N.position.y;
-          tempVector.z = pos->z - Cars_gList[i]->N.position.z;
-          Math_NormalizeVector(&tempVector);
-          oppAngle =
-              fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[6],
-                        tempVector.x) +
-              fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[7],
-                        tempVector.y) +
-              fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[8],
-                        tempVector.z);
-          oppAngle = (0 < intarccos(oppAngle)) ?
-                     intarccos(oppAngle) : -intarccos(oppAngle);
-          if ((oppAngle < 0x80) && (dist < oppSlice)) {
-            oppVector = tempVector;
-            oppSlice = dist;
-          }
-        }
-      }
-      i++;
-    } while (i < Cars_gNumCars);
-  }
+  if (Cars_gNumCars <= 0) goto afterOpponents;
+  do {
+    if (Cars_gList[i] == Cars_gHumanRaceCarList[player]) goto nextCar;
+    dist = (int)Cars_gList[i]->N.simRoadInfo.slice -
+           (int)Cars_gHumanRaceCarList[player]->N.simRoadInfo.slice;
+    dist = (gNumSlices / 2 < __builtin_abs(dist)) ?
+           gNumSlices - __builtin_abs(dist) : __builtin_abs(dist);
+    if (dist >= 0xb) goto nextCar;
+    tempVector.x = pos->x - Cars_gList[i]->N.position.x;
+    tempVector.y = pos->y - Cars_gList[i]->N.position.y;
+    tempVector.z = pos->z - Cars_gList[i]->N.position.z;
+    Math_NormalizeVector(&tempVector);
+    oppAngle =
+        fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[6],
+                  tempVector.x) +
+        fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[7],
+                  tempVector.y) +
+        fixedmult(Cars_gHumanRaceCarList[player]->N.orientMat.m[8],
+                  tempVector.z);
+    oppAngle = (0 < intarccos(oppAngle)) ?
+               intarccos(oppAngle) : -intarccos(oppAngle);
+    if ((oppAngle < 0x80) && (dist < oppSlice)) {
+      oppVector = tempVector;
+      oppSlice = dist;
+    }
+nextCar:
+    i++;
+  } while (i < Cars_gNumCars);
+afterOpponents:
   lastOppVector[player].x +=
       fixedmult(oppVector.x - lastOppVector[player].x,0x4ccc);
   lastOppVector[player].y +=
@@ -2448,10 +2448,16 @@ void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel
 /* ---- Camera_GetMode__Fi  [@0x80085568] ---- */
 int Camera_GetMode(int cviewP)
 {
+
+
+
+
+
+
+
   if (((Cars_gHumanRaceCarList[cviewP]->carFlags & 1U) != 0) &&
       ((Cars_gHumanRaceCarList[cviewP]->stats).finishType == 2)) {
-    return 0x14;
-  }
+    return 0x14; }
   if ((Cars_gHumanRaceCarList[cviewP]->pullOver != 0) &&
       ((Cars_gHumanRaceCarList[cviewP]->stats).finishType != 3)) {
     return 0x14;
@@ -2462,29 +2468,30 @@ int Camera_GetMode(int cviewP)
 /* ---- Camera_SetMode__Fii  [@0x80085608] ---- */
 void Camera_SetMode(int cviewP,int mode)
 {
-  camera_flags*flagMode;
-
   InBetween = 0;
-  if (Camera_gInfo[cviewP].modechange == 0) {
-    if ((u_int)((u_short)Camera_gInfo[cviewP].mode - 0xb) < 2) {
-      Camera_gGeomScreen = 0xbe;
-      TrsProj_SetProjection(0,0,0x140,0xf0);
-    }
-    if (5 < (u_int)((u_short)Camera_gInfo[cviewP].mode - 2)) {
-      Camera_ResetRelPos(cviewP + 1);
-    }
-    if (-1 < (signed char)Camera_gInfo[cviewP].animHandle) {
-      Anim_FreeHandle((signed char)Camera_gInfo[cviewP].animHandle);
-      Camera_gInfo[cviewP].animHandle = -1;
-    }
-    Camera_gInfo[cviewP].mode = (short)mode;
-    if (0x13 < (short)mode) {
-      Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];
-    }
-    if (Camera_gInfo[cviewP].mode == 0xb) {
-      Camera_SetSplineCam(cviewP);
-    }
-    Camera_gInfo[cviewP].intransition = '2';
+  if (Camera_gInfo[cviewP].modechange != 0)
+    return;
+  if ((u_int)((u_short)Camera_gInfo[cviewP].mode - 0xb) < 2) {
+    Camera_gGeomScreen = 0xbe;
+    TrsProj_SetProjection(0,0,0x140,0xf0);
+  }
+  if (5 < (u_int)((u_short)Camera_gInfo[cviewP].mode - 2)) {
+    Camera_ResetRelPos(cviewP + 1);
+  }
+  if (-1 < (signed char)Camera_gInfo[cviewP].animHandle) {
+    Anim_FreeHandle((signed char)Camera_gInfo[cviewP].animHandle);
+    Camera_gInfo[cviewP].animHandle = -1;
+  }
+  Camera_gInfo[cviewP].mode = (short)mode;
+  if (0x13 < (short)mode) {
+    Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];
+  }
+  if (Camera_gInfo[cviewP].mode == 0xb) {
+    Camera_SetSplineCam(cviewP);
+  }
+  Camera_gInfo[cviewP].intransition = '2';
+  {
+    camera_flags *flagMode;
     flagMode = &Camera_gFlags[Camera_gInfo[cviewP].mode];
     Camera_gInfo[cviewP].pitch = flagMode->pitch;
     Camera_gInfo[cviewP].jostling = flagMode->jostling;
@@ -2500,55 +2507,56 @@ void Camera_SetMode(int cviewP,int mode)
 /* ---- Camera_NextMode__Fi  [@0x8008581c] ---- */
 void Camera_NextMode(int cviewP)
 {
-  camera_flags*flagMode;
-  /* SYM-CODEGEN-CARRIER: modeForRange -- direct mode field use adds two
-     instructions and changes the shared load/range test to 12 diffs. */
-  u_short modeForRange;
-
-  modeForRange = (u_short)Camera_gInfo[cviewP].mode;
-  if ((Camera_gInfo[cviewP].mode != 0xe) && (Camera_gInfo[cviewP].modechange == 0)) {
-    if ((u_int)(modeForRange - 0xb) < 2) {
-      Camera_gGeomScreen = 0xbe;
-      TrsProj_SetProjection(0,0,0x140,0xf0);
-    }
-    if (5 < (u_int)((u_short)Camera_gInfo[cviewP].mode - 2)) {
-      Camera_ResetRelPos(cviewP + 1);
-    }
-    if (-1 < (signed char)Camera_gInfo[cviewP].animHandle) {
-      Anim_FreeHandle((signed char)Camera_gInfo[cviewP].animHandle);
-      Camera_gInfo[cviewP].animHandle = -1;
-    }
-    if (Camera_gInfo[cviewP].splitscreen != 0) {
-      /* SYM-CODEGEN-CARRIER: splitBase -- direct typed gSplitCameras indexing
-         keeps 237 instructions but changes base allocation at six positions. */
-      register int splitBase;
-      Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
-      splitBase = (int)gSplitCameras;
-      Camera_gInfo[cviewP].mode =
-           *(short *)(splitBase +
-                     (((int)Camera_gInfo[cviewP].camNum % 3) * 0x10000 >> 0xe));
-    }
-    else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-            ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
-             ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-      Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
-      Camera_gInfo[cviewP].mode =
-          (short)GameSetup_gData.carInfo[cviewP].Camera[
-              (u_short)Camera_gInfo[cviewP].camNum & 3];
-    }
-    else {
-      Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
-      Camera_gInfo[cviewP].mode =
-          (short)GameSetup_gData.carInfo[cviewP].Camera[
-              (int)Camera_gInfo[cviewP].camNum % 3];
-    }
-    if (0x13 < Camera_gInfo[cviewP].mode) {
-      Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];
-    }
-    if (Camera_gInfo[cviewP].mode == 0xb) {
-      Camera_SetSplineCam(cviewP);
-    }
-    Camera_gInfo[cviewP].intransition = '2';
+  /* The const alias preserves the retail signed range test without a debug
+     local; direct field use changes 12 instructions. */
+  const u_short modeForRange = (u_short)Camera_gInfo[cviewP].mode;
+  if ((Camera_gInfo[cviewP].mode == 0xe) || (Camera_gInfo[cviewP].modechange != 0))
+    return;
+  if ((u_int)(modeForRange - 0xb) < 2) {
+    Camera_gGeomScreen = 0xbe;
+    TrsProj_SetProjection(0,0,0x140,0xf0);
+  }
+  if (5 < (u_int)((u_short)Camera_gInfo[cviewP].mode - 2)) {
+    Camera_ResetRelPos(cviewP + 1);
+  }
+  if (-1 < (signed char)Camera_gInfo[cviewP].animHandle) {
+    Anim_FreeHandle((signed char)Camera_gInfo[cviewP].animHandle);
+    Camera_gInfo[cviewP].animHandle = -1;
+  }
+  if (Camera_gInfo[cviewP].splitscreen != 0) {
+    /* SYM-CODEGEN-CARRIER: splitBase -- direct typed gSplitCameras indexing
+       changes base allocation at six positions. A const alias retains 237
+       instructions but schedules `addiu a1,a1,0` one slot late (2 diffs). */
+    register int splitBase;
+    Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
+    splitBase = (int)gSplitCameras;
+    Camera_gInfo[cviewP].mode =
+         *(short *)(splitBase +
+                   (((int)Camera_gInfo[cviewP].camNum % 3) * 0x10000 >> 0xe));
+  }
+  else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+          ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+           ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
+    Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
+    Camera_gInfo[cviewP].mode =
+        (short)GameSetup_gData.carInfo[cviewP].Camera[
+            (u_short)Camera_gInfo[cviewP].camNum & 3];
+  }
+  else {
+    Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
+    Camera_gInfo[cviewP].mode =
+        (short)GameSetup_gData.carInfo[cviewP].Camera[
+            (int)Camera_gInfo[cviewP].camNum % 3];
+  }
+  if (0x13 < Camera_gInfo[cviewP].mode) {
+    Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];
+  }
+  if (Camera_gInfo[cviewP].mode == 0xb) {
+    Camera_SetSplineCam(cviewP);
+  }
+  Camera_gInfo[cviewP].intransition = '2';
+  {
+    camera_flags *flagMode;
     flagMode = &Camera_gFlags[Camera_gInfo[cviewP].mode];
     Camera_gInfo[cviewP].pitch = flagMode->pitch;
     Camera_gInfo[cviewP].jostling = flagMode->jostling;
@@ -2564,7 +2572,10 @@ void Camera_NextMode(int cviewP)
 /* ---- Camera_ReplayUpdate__FiP15Camera_tCamSlot  [@0x80085bd0] ---- */
 void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
 {
+
   if (Camera_gInfo[cviewP].modechange == 0) {
+
+
     Camera_SetMode(cviewP,(u_int)(u_char)ptr->mode);
     Camera_gInfo[cviewP].tracking = ptr->track;
     Camera_gInfo[cviewP].zooming = ptr->zoom;
@@ -2575,6 +2586,10 @@ void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
     EulerToMat(&Camera_gInfo[cviewP].rotation,(int)(ptr->euler).x,(int)(ptr->euler).y,
                (int)(ptr->euler).z);
   }
+
+
+
+
   return;
 }
 
@@ -2582,14 +2597,15 @@ void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
 void Camera_ResetRelPos(int bitMask)
 {
   if ((bitMask & 1U) != 0) {
+
     Camera_gInfo[0].relpos.x = ((Camera_gInfo[0].anchor)->orientMat).m[6] * -4;
     Camera_gInfo[0].relpos.y = ((Camera_gInfo[0].anchor)->orientMat).m[7] * -4;
     Camera_gInfo[0].relpos.z = ((Camera_gInfo[0].anchor)->orientMat).m[8] * -4;
   }
   if ((bitMask & 2U) != 0) {
+
     Camera_gInfo[1].relpos.x = ((Camera_gInfo[1].anchor)->orientMat).m[6] * -4;
     Camera_gInfo[1].relpos.y = ((Camera_gInfo[1].anchor)->orientMat).m[7] * -4;
     Camera_gInfo[1].relpos.z = ((Camera_gInfo[1].anchor)->orientMat).m[8] * -4;
   }
-  return;
 }

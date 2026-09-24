@@ -75,12 +75,11 @@ tCarInfo * tCarManager::GetCarFromID(short carID)
   u_long i;
 
   for (i = 0; i < this->fNumCars; i++) {
+
     if ((int)(signed char)this->fCars[i].fCarID == (int)carID) {
-      return &this->fCars[i];
-    }
+      return &this->fCars[i]; }
   }
-  return (tCarInfo *)0x0;
-}
+  return (tCarInfo *)0x0; }
 
 
 
@@ -92,12 +91,11 @@ tCarInfo * tCarManager::GetCarFromSimID(short carID)
   u_long i;
 
   for (i = 0; i < this->fNumCars; i++) {
+
     if ((u_short)this->fCars[i].fSimNumber == carID) {
-      return &this->fCars[i];
-    }
+      return &this->fCars[i]; }
   }
-  return (tCarInfo *)0x0;
-}
+  return (tCarInfo *)0x0; }
 
 
 
@@ -108,15 +106,17 @@ long tCarManager::CheapestCarStockPrice()
 {
   int carPrice;
   u_long i;
-  long returnprice;
 
-  returnprice = 10000000;
+  long returnprice = 10000000;
+
   for (i = 0; i < this->fNumCars; i++) {
+
     carPrice = this->fCars[i].fPrices[0];
+
     if ((0 < carPrice) && (carPrice < returnprice)) {
-      returnprice = carPrice;
-    }
+      returnprice = carPrice; }
   }
+
   return returnprice;
 }
 
@@ -146,14 +146,10 @@ long tCarManager::CheapestCarStockPrice()
 long tCarManager::CalcUsedPrice(short garageNumber)
 
 {
-  /* SYM-CODEGEN-CARRIER: carID
-   * SYM-CODEGEN-CARRIER: upgrades
-   * Signed one-read slot staging restores retail's lb/-1 guard, and the
-   * upgrades staging preserves the single garage-byte load used by its tests. */
+  /* Signed one-read slot staging restores retail's lb/-1 guard. */
   long result;
   tCarInfo *carInfo;
   signed char carID;
-  u_char upgrades;
 
   result = 0;
   if ((u_int)garageNumber >= this->fNumCars) {
@@ -176,15 +172,14 @@ long tCarManager::CalcUsedPrice(short garageNumber)
       __asm__ __volatile__("" : : : "$4");
       carInfo = this->GetCarFromID((short)carID);
       if (carInfo != (tCarInfo *)0x0) {
-        upgrades = this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades;
         result = carInfo->fPrices[0];
-        if ((upgrades & 1) != 0) {
+        if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 1) != 0) {
           result = result + carInfo->fPrices[1];
         }
-        if ((upgrades & 2) != 0) {
+        if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 2) != 0) {
           result = result + carInfo->fPrices[2];
         }
-        if ((upgrades & 4) != 0) {
+        if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 4) != 0) {
           result = result + carInfo->fPrices[3];
         }
         if (carInfo->fExoticCar != '\0') {
@@ -243,26 +238,17 @@ long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
 long tCarManager::SellCar(short garageNumber,short playerNum)
 
 {
-  /* Reliable SYM records only `i` and `result` for this function.  The
-     optimized-away identities below are retained because the measured W54,
-     W57, and W70 source shapes are all required for the exact retail codegen;
-     their private original spellings are not recoverable from SYM.
-     SYM-CODEGEN-CARRIER: removedSlotOffset
-     SYM-CODEGEN-CARRIER: previousSlotOffset
-     SYM-CODEGEN-CARRIER: lastSlotOffset
-     SYM-CODEGEN-CARRIER: numCars
-     SYM-CODEGEN-CARRIER: playerFrontEnd
-     SYM-CODEGEN-CARRIER: selectedSlotOffset
-     SYM-CODEGEN-CARRIER: newSelection */
+  /* Retail SYM records only i and result. Combined const address snapshots
+     preserve all 96 instructions without emitting extra debug locals, and
+     the unwrapped statements reproduce retail's one lexical block. The
+     original spelling of the address expressions remains unproven. */
   short i;
   long result;
 
   result = this->CalcUsedPrice(garageNumber);
-  {
-    int removedSlotOffset = ((int)garageNumber - (int)this->fNumCars) * 4;
-    removedSlotOffset = removedSlotOffset + playerNum * 128;
-    *(signed char *)(removedSlotOffset + (char *)this + 8) = -1;
-  }
+  const int removedSlotOffset =
+      ((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128;
+  *(signed char *)(removedSlotOffset + (char *)this + 8) = -1;
   for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) {
     /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
        loads the byte TWICE (lb for the test, lbu for the copy). */
@@ -271,33 +257,18 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
     this->fCarGarage[playerNum][i - 1].fUpgrades = this->fCarGarage[playerNum][i].fUpgrades;
     this->fCarGarage[playerNum][i - 1].fCarColor = this->fCarGarage[playerNum][i].fCarColor;
   }
-  { /* own statement: keeps fold from merging the -4 into the +8 displacement */
-    int previousSlotOffset = i * 4 - 4;
-    previousSlotOffset = previousSlotOffset + playerNum * 128;
-    *(signed char *)(previousSlotOffset + (char *)this + 8) = -1;
-  }
-  { /* MATCH (W57-A7, 8 -> 6): see the RemoveFromPinkSlipsList twin -- naming `playerNum*128`
-       makes `this` the addu's operand 0 (retail `addu v0,s3,a1`). */
-    int lastSlotOffset = playerNum * 128;
-
-    *(signed char *)(lastSlotOffset + (char *)this + 0x84) = -1;
-  }
-  {
-  u_long numCars;
-  u_char *playerFrontEnd = (u_char *)&frontEnd + playerNum;
-  int selectedSlotOffset =
-      ((u_int)playerFrontEnd[0x123] - (numCars = this->fNumCars)) * 4;
-  selectedSlotOffset = selectedSlotOffset + playerNum * 128;
+  /* Keep the -4 outside the +8 displacement. */
+  const int previousSlotOffset = i * 4 - 4 + playerNum * 128;
+  *(signed char *)(previousSlotOffset + (char *)this + 8) = -1;
+  /* The named player stride keeps `this` as the addu's first operand. */
+  int lastSlotOffset = playerNum * 128;
+  *(signed char *)(lastSlotOffset + (char *)this + 0x84) = -1;
+  const int selectedSlotOffset =
+      ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4
+      + playerNum * 128;
   if (*(signed char *)(selectedSlotOffset + (char *)this + 8) < 0) {
-    char newSelection;
-    if ((u_int)playerFrontEnd[0x123] <= numCars) {
-      newSelection = '\0';
-    }
-    else {
-      newSelection = playerFrontEnd[0x123] - 1;
-    }
-    playerFrontEnd[0x123] = newSelection;
-  }
+    frontEnd.garageCar[playerNum] = (u_int)(u_char)frontEnd.garageCar[playerNum] <= this->fNumCars
+        ? '\0' : frontEnd.garageCar[playerNum] - 1;
   }
   return result;
 }
@@ -390,26 +361,17 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
 void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
 
 {
-  /* Reliable SYM records only `i` for this function.  These seven
-     optimized-away identities are the exact twin of SellCar's measured
-     address/allocation shape; their private original spellings are not
-     recoverable from SYM.
-     SYM-CODEGEN-CARRIER: removedSlotOffset
-     SYM-CODEGEN-CARRIER: previousSlotOffset
-     SYM-CODEGEN-CARRIER: lastSlotOffset
-     SYM-CODEGEN-CARRIER: numCars
-     SYM-CODEGEN-CARRIER: playerFrontEnd
-     SYM-CODEGEN-CARRIER: selectedSlotOffset
-     SYM-CODEGEN-CARRIER: newSelection */
+  /* Retail SYM records only i. Combined const address snapshots preserve
+     all 82 instructions without emitting extra debug locals; removing their
+     wrapper scopes reproduces retail's one lexical block. The exact source
+     spelling of these address expressions remains unproven. */
   short i;
 
   /* INDEX-FIRST spelling: retail keeps `playerNum*128` and `this` SEPARATE
      (`addu v0,v0,a0; addu v0,t1,v0`); the natural member form hoists `this + playerNum*128`. */
-  {
-    int removedSlotOffset = ((int)garageNumber - (int)this->fNumCars) * 4;
-    removedSlotOffset = removedSlotOffset + playerNum * 128;
-    *(signed char *)(removedSlotOffset + (char *)this + 0x108) = -1;
-  }
+  const int removedSlotOffset =
+      ((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128;
+  *(signed char *)(removedSlotOffset + (char *)this + 0x108) = -1;
   for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) {
     /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
        loads the byte TWICE (lb for the test, lbu for the copy). */
@@ -418,38 +380,23 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
     this->fPinkSlipsCars[playerNum][i - 1].fUpgrades = this->fPinkSlipsCars[playerNum][i].fUpgrades;
     this->fPinkSlipsCars[playerNum][i - 1].fCarColor = this->fPinkSlipsCars[playerNum][i].fCarColor;
   }
-  { /* own statement: keeps fold from merging the -4 into the 0x108 displacement
-       (retail has an explicit `addiu v0,v0,-4` on the index chain) */
-    int previousSlotOffset = i * 4 - 4;
-    previousSlotOffset = previousSlotOffset + playerNum * 128;
-    *(signed char *)(previousSlotOffset + (char *)this + 0x108) = -1;
-  }
-  { /* MATCH (W57-A7, 8 -> 6): the slot-31 store's `addu` operand order is decided by whether
+  /* Keep the -4 outside the 0x108 displacement. */
+  const int previousSlotOffset = i * 4 - 4 + playerNum * 128;
+  *(signed char *)(previousSlotOffset + (char *)this + 0x108) = -1;
+  /* MATCH (W57-A7, 8 -> 6): the slot-31 store's `addu` operand order is decided by whether
        `playerNum*128` is an EXPRESSION or a real INPUT OPERAND.  Written flat, gcc builds the
        whole sum fresh and emits `addu v0,<pn128>,this`; naming it (exactly as the three other
        address sites already do) makes `this` operand 0 -> retail's `addu v0,t1,a1`.  The w41
        "int-typed sum flips addu operand 0" spelling `(int)this + playerNum*128 + K` measured
        IDENTICAL to the flat form -- statement granularity, not operand spelling, is the dial. */
-    int lastSlotOffset = playerNum * 128;
-
-    *(signed char *)(lastSlotOffset + (char *)this + 0x184) = -1;
-  }
-  {
-  u_long numCars;
-  u_char *playerFrontEnd = (u_char *)&frontEnd + playerNum;
-  int selectedSlotOffset =
-      ((u_int)playerFrontEnd[0x123] - (numCars = this->fNumCars)) * 4;
-  selectedSlotOffset = selectedSlotOffset + playerNum * 128;
+  int lastSlotOffset = playerNum * 128;
+  *(signed char *)(lastSlotOffset + (char *)this + 0x184) = -1;
+  const int selectedSlotOffset =
+      ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4
+      + playerNum * 128;
   if (*(signed char *)(selectedSlotOffset + (char *)this + 0x108) < 0) {
-    char newSelection;
-    if ((u_int)playerFrontEnd[0x125] <= numCars) {
-      newSelection = '\0';
-    }
-    else {
-      newSelection = playerFrontEnd[0x123] - 1;
-    }
-    playerFrontEnd[0x125] = newSelection;
-  }
+    frontEnd.pinkSlipsCar[playerNum] = (u_int)(u_char)frontEnd.pinkSlipsCar[playerNum] <= this->fNumCars
+        ? '\0' : frontEnd.garageCar[playerNum] - 1;
   }
   return;
 }
@@ -632,20 +579,18 @@ void tCarManager::SetClassAvailable(tCarClassType carClass,bool avail)
 {
   u_long i;
 
-  i = 0;
-  if (this->fNumCars != 0) {
-    do {
-      if (((signed char)this->fCars[i].fCarID >= 0) &&
-          ((u_char)this->fCars[i].fCarClass == carClass)) {
+  for (i = 0; i < this->fNumCars; i++) {
+
+    if ((signed char)this->fCars[i].fCarID >= 0) {
+
+      if ((u_char)this->fCars[i].fCarClass == carClass) {
+
         this->fAvailableCars[(signed char)this->fCars[i].fCarID] = avail;
         if (avail != 0) {
-          this->fViewableCars[(signed char)this->fCars[i].fCarID] = '\x01';
-        }
+          this->fViewableCars[(signed char)this->fCars[i].fCarID] = '\x01'; }
       }
-      i = i + 1;
-    } while (i < this->fNumCars);
+    }
   }
-  return;
 }
 
 
@@ -655,12 +600,9 @@ void tCarManager::SetClassAvailable(tCarClassType carClass,bool avail)
 void tCarManager::SetCarAvailable(tCarModels carModel,bool avail)
 
 {
-  
   this->fAvailableCars[carModel] = avail;
-  if (avail != 0) {
+  if (avail != 0)
     this->fViewableCars[carModel] = '\x01';
-  }
-  return;
 }
 
 
@@ -673,16 +615,17 @@ void tCarManager::SetClassViewable(tCarClassType carClass,bool view)
   u_long i;
 
   for (i = 0; i < this->fNumCars; i = i + 1) {
+
     if ((signed char)this->fCars[i].fCarID >= 0) {
+
       if ((u_char)this->fCars[i].fCarClass == carClass) {
+
         this->fViewableCars[(signed char)this->fCars[i].fCarID] = view;
       }
     }
     else {
-      this->fViewableCars[(signed char)this->fCars[i].fCarID] = '\0';
-    }
+      this->fViewableCars[(signed char)this->fCars[i].fCarID] = '\0'; }
   }
-  return;
 }
 
 
@@ -692,12 +635,9 @@ void tCarManager::SetClassViewable(tCarClassType carClass,bool view)
 void tCarManager::SetCarViewable(tCarModels carModel,bool view)
 
 {
-  
   this->fViewableCars[carModel] = view;
-  if (view == 0) {
+  if (view == 0)
     this->fAvailableCars[carModel] = '\x01';
-  }
-  return;
 }
 
 
@@ -707,24 +647,17 @@ void tCarManager::SetCarViewable(tCarModels carModel,bool view)
 void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: viewable -- retail schedules the fViewableCars read before
-     the two zero stores, then publishes it afterward. Inlining the read moves
-     both stores across the load (PASS -> 6 diffs). */
-  uchar viewable;
-
   if ((u_int)(int)carNumber >= this->fNumCars) {
     this->GetGarageCar(carNumber,carInfo,0);
   }
   else {
     blockmove(this->fCars + carNumber,&carInfo,0xcc);
     carInfo.fAvailable = this->fAvailableCars[(signed char)carInfo.fCarID];
-    viewable = this->fViewableCars[(signed char)carInfo.fCarID];
+    carInfo.fViewable = this->fViewableCars[(signed char)carInfo.fCarID];
     carInfo.fUpgrades = '\0';
     carInfo.fCountry = '\0';
-    carInfo.fViewable = viewable;
   }
   carInfo.fCarIndex = (uchar)carNumber;
-  return;
 }
 
 
@@ -777,7 +710,10 @@ void tCarManager::GetPinkSlipsCar(short garageNumber,tCarInfo &carInfo,short pla
 
 
 
-/* ---- tCarManager::LoadDescription  [FECARS.CPP:645-702] SLD-VERIFIED ---- */
+/* ---- tCarManager::LoadDescription  [FECARS.CPP:645-702] native locals verified; SLD open ---- */
+
+/* Retail SYM names data in $a0: it is the payload at input+4. The allocated
+   car-list buffer is the direct reservememadr result stored in fCars. */
 
 /* MATCH: direct format/allocation strings avoid a false shared-base CSE, and
    the top-tested color loop keeps `j` as the retail loop phi instead of
@@ -799,9 +735,9 @@ void tCarManager::LoadDescription()
   this->ReleaseDescription();
   input = (char *)loadfileadr(filename,0x10);
   this->fNumCars = *(u_long *)input;
-  data = (char *)reservememadr("Car List",this->fNumCars * 0xcc,0);
-  this->fCars = (tCarInfo *)data;
-  blockmove(input + 4,data,this->fNumCars * 0xcc);
+  data = input + 4;
+  this->fCars = (tCarInfo *)reservememadr("Car List",this->fNumCars * 0xcc,0);
+  blockmove(data,this->fCars,this->fNumCars * 0xcc);
   i = 0;
   if (this->fNumCars != 0) {
     do {
@@ -834,12 +770,9 @@ void tCarManager::ReleaseDescription()
 {
   
   if (this->fCars != (tCarInfo *)0x0) {
-    purgememadr(this->fCars);
-  }
+    purgememadr(this->fCars); }
   this->fCars = (tCarInfo *)0x0;
-  this->fNumCars = 0;
-  return;
-}
+  this->fNumCars = 0; }
 
 
 
@@ -849,49 +782,48 @@ short tCarManager::GetNumOwnedCars(short playerNum)
 
 {
   int i;
-  short num;
+  short num = 0;
 
-  num = 0;
-  i = 0;
-  do {
+  for (i = 0; i < 0x20; i++) {
+
+
     if (-1 < this->fCarGarage[playerNum][i].fCarID) {
+
       num = num + 1;
     }
-    i = i + 1;
-  } while (i < 0x20);
+  }
   return num;
 }
 
 
 
-/* ---- tCarManager::GetNumTourneyCars  [FECARS.CPP:741-761] SLD-VERIFIED ---- */
+/* ---- tCarManager::GetNumTourneyCars  [FECARS.CPP:741-761] native locals verified; SLD open ---- */
+
+/* MATCH: reuse carInfo.fCarID for the lookup after storing it. A named
+   carID is not in retail SYM; rereading the garage ID changes allocation. */
 
 short tCarManager::GetNumTourneyCars(short playerNum)
 
 {
-  /* MATCH: SYM-CODEGEN-CARRIER: carID -- one signed slot-ID carrier preserves
-     lb/bltz and the call argument;
-     natural array indexing lets gcc form the retail s0 strength-reduction walk. */
-  signed char carID;
   int i;
-  short result;
+  short result = 0;
   tCarInfo carInfo;
 
-  result = 0;
-  i = 0;
-  do {
-    carID = this->fCarGarage[playerNum][i].fCarID;
-    if (carID >= 0) {
+
+  for (i = 0; i < 0x20; i++) {
+
+    if ((signed char)this->fCarGarage[playerNum][i].fCarID >= 0) {
+
       carInfo.fCarID = this->fCarGarage[playerNum][i].fCarID;
       carInfo.fUpgrades = this->fCarGarage[playerNum][i].fUpgrades;
-      carInfo.fCarClass =
-          this->GetCarFromID(carID)->fCarClass;
+      carInfo.fCarClass = this->GetCarFromID((signed char)carInfo.fCarID)->fCarClass;
+
+
       if (tournamentManager.ValidCar(carInfo)) {
-        result = result + 1;
-      }
+        result = result + 1; }
     }
-    i = i + 1;
-  } while (i < 0x20);
+  }
+
   return result;
 }
 
@@ -903,16 +835,16 @@ short tCarManager::GetNumPinkSlipsCars(short playerNum)
 
 {
   int i;
-  short num;
+  short num = 0;
 
-  num = 0;
-  i = 0;
-  do {
+  for (i = 0; i < 0x20; i++) {
+
+
     if (-1 < this->fPinkSlipsCars[playerNum][i].fCarID) {
+
       num = num + 1;
     }
-    i = i + 1;
-  } while (i < 0x20);
+  }
   return num;
 }
 
@@ -1005,7 +937,7 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
    HISTORICAL 39-diff diagnosis: one coherent loop-invariant short-caching /
    LICM-depth class; it was initially attributed to the missing qtytrace lane.
    Retail's outer loop
-   (i=0,1) HOISTS and CACHES loop-invariants our compile recomputes/re-colors:
+   (j=0,1) HOISTS and CACHES loop-invariants our compile recomputes/re-colors:
      - numColors kept as `numColors<<16` in $a0/$t5, sign-extended per-use via
        `sra $a2,$a0,16` (retail treats it as a short needing re-extension); ours
        holds a clean int in $a2 and never does the <<16/sra dance.
@@ -1033,6 +965,8 @@ bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short,tCarModels 
      because both are unused.  Keep them intentionally unnamed: their original
      identifiers are not recoverable, and decompiler `arg3`/`arg4` aliases are
      not source evidence. */
+  /* Retail SYM: i is the inner counter ($t0), j the outer counter ($t4);
+     carColor is the raw color-order byte ($a0), not its >>3 group. */
   short i;
   short j;
   char carColor;
@@ -1054,21 +988,18 @@ bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short,tCarModels 
   colorScheme = *(signed char *)((int)carInfo + (int)(u_char)color + 0xAF) / 8;
   numColors = (short)((u_int)(u_char)carInfo->fNumLightColors +
                       (u_int)(u_char)carInfo->fNumDarkColors);
-  for (i = 0; i < 2; i++) {
-    for (j = 0; j < numColors; j++) {
-      carColor = (char)((u_char)carInfo->fColorOrder[
-          ((int)j + (int)(u_char)color) % numColors] >> 3);
-      if (carColor == colorScheme) {
-        if (((int)(u_int)gCarSelected[carColor][model] >>
-             ((u_char)carInfo->fColorOrder[
-                 ((int)j + (int)(u_char)color) % numColors] & 7) & 1U) == 0) {
-          gCarSelected[carColor][model] |= (u_char)(1 <<
-              ((u_char)carInfo->fColorOrder[
-                  ((int)j + (int)(u_char)color) % numColors] & 7));
+  for (j = 0; j < 2; j++) {
+    for (i = 0; i < numColors; i++) {
+      carColor = carInfo->fColorOrder[((int)i + (int)(u_char)color) % numColors];
+      if ((u_char)carColor >> 3 == colorScheme) {
+        if (((int)(u_int)gCarSelected[(u_char)carColor >> 3][model] >>
+             ((u_char)carColor & 7) & 1U) == 0) {
+          gCarSelected[(u_char)carColor >> 3][model] |= (u_char)(1 <<
+              ((u_char)carColor & 7));
           /* MATCH (W56-A8): the SECOND modulo recomputes `j + color`, and retail
              divides SIGNED (`div`, with the INT_MIN/-1 guard @0x80017854).
              Keep the color cast signed here just as in both order-table indices. */
-          color = (char)(((int)j + (int)(u_char)color) % numColors);
+          color = (char)(((int)i + (int)(u_char)color) % numColors);
           return 1;
         }
       }
@@ -1282,23 +1213,15 @@ adjusted_country:;
 
 /* ---- tListIteratorCar::Increment  [FECARS.CPP:1062-1063] SLD-VERIFIED ---- */
 
-void tListIteratorCar::Increment(tPlayer atIndex)
-
-{
-  this->AdjustPosition(atIndex,1);
-  return;
-}
+void tListIteratorCar::Increment(tPlayer atIndex) {
+  this->AdjustPosition(atIndex,1); }
 
 
 
 /* ---- tListIteratorCar::Decrement  [FECARS.CPP:1067-1068] SLD-VERIFIED ---- */
 
-void tListIteratorCar::Decrement(tPlayer atIndex)
-
-{
-  this->AdjustPosition(atIndex,-1);
-  return;
-}
+void tListIteratorCar::Decrement(tPlayer atIndex) {
+  this->AdjustPosition(atIndex,-1); }
 
 
 
@@ -1311,10 +1234,6 @@ bool tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   short k;
   bool result;
   short carID;
-  /* SYM-CODEGEN-CARRIER: carClass -- widening the enum field to int preserves
-     retail's signed slti/bltz class dispatch; direct field tests collapse to
-     unsigned range logic and remove two instructions (PASS -> 4 diffs). */
-  int carClass;
   tCarInfo *carInfo;
   tCarInfo garageCar;
 
@@ -1370,22 +1289,23 @@ bool tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
       (this->fCarManager->fCars[(u_char)carNumber].fPursuitAvailable == 0)) {
     return 0;
   }
-  /* MATCH: retail re-derives the base-car address here and lowers the three
-     class arms as an out-of-line dispatch; caching carInfo keeps the wrong CFG. */
-  carClass = this->fCarManager->fCars[(u_char)carNumber].fCarClass;
-  if (carClass == 7) {
-    goto ValidCar_classCop;
-  }
-  if (carClass < 8) {
+  /* Retail SYM has no carClass local. A switch on the UCHAR field preserves
+     the signed range dispatch and all 243 words without that source carrier.
+     Retail's additional lexical scopes remain unresolved. */
+  switch (this->fCarManager->fCars[(u_char)carNumber].fCarClass) {
+  case 0: case 1: case 2: case 3: case 4: case 5: case 6:
     goto ValidCar_classNormal;
-  }
-  if (carClass == 8) {
+  case 7:
+    goto ValidCar_classCop;
+  case 8:
     goto ValidCar_classTraffic;
+  default:
+    break;
   }
   goto ValidCar_classDone;
 
 ValidCar_classNormal:
-  if (carClass >= 0) {
+  {
     if ((this->fCarListFilter & 0x81U) != 0) {
       result = 1;
     }
@@ -1468,12 +1388,10 @@ char tListIteratorCarColor::Value(tPlayer)
   int offset;
   tCarInfo *carInfo;
 
-  offset = (int)this->fPlayer;
-  carInfo = &this->fCarManager->fCars[(u_char)this->fPlayerCar[*(u_char *)offset]];
-  return (u_int)(u_char)this->fValue
-                     [(u_int)*(u_char *)offset * this->fIndexSize +
-                      (int)(signed char)carInfo->fCarID]
-  ;
+  offset = *this->fPlayer * this->fIndexSize;
+  carInfo = &this->fCarManager->fCars[this->fPlayerCar[*this->fPlayer]];
+
+  return this->fValue[offset + (signed char)carInfo->fCarID];
 }
 
 
@@ -1488,44 +1406,23 @@ short tListIteratorCarColor::TextValue(tPlayer)
 
 
 
-/* ---- tListIteratorCarColor::Increment  [FECARS.CPP:1205-1214] SLD-VERIFIED ----  NATURAL-SOURCE REWRITE (2026-08-04, edgbla-style after the Decrement land): 42 -> 4 diffs,
-   count-exact 38/38.  ORACLE FACTS driving the shape: the index expression is evaluated
-   TWICE (the u_char store aliases fCarID/*fPlayer, blocking cse of the loads) but the
-   *fPlayer * fIndexSize PRODUCT is reused from mflo => the product is a NAMED local computed
-   once, with fCarID added INLINE in each expression; fCarID is read with lb = (signed char);
-   the compare is SIGNED slt (no u_int casts -- default-unsigned chars promote to int); the
-   named fNumColors value-load gives the slt its retail operand.  FALSIFIED: full re-eval
-   forms 43-48 (mult redone -- the product must be named), 1/0-early-returns 5@39 (retail
-   returns the slt result itself, no li 1/addu 0), V7-inline-value 14, dark+light sum swap 12,
-   embedded-assignment 4 (no change), early-return-var polarity 15@39.
-   🏆 SEALED W54-A3 (2026-08-09) 4 -> PASS 38/38: the residual TWO coalescing copies
-   (`addu v1,v0,zero` in the bnez slot + `addu v0,v1,zero` in the jr slot) were RETURN-VALUE
-   STAGING, not an allocator tie.  Retail's body has NO `return` statement and SYM declares
-   the method VOID, so $v0 merely holds the slt result incidentally and both delay slots stay
-   `nop`.  Deleting `return notWrapped;` removes both copies -> byte-exact.
-   LAW: an "ours has 2 extra moves funnelling a value to $v0" residual on a fn whose returned
-   value is ALREADY in $v0 = a MISSING-RETURN retail body, not a coalescing wall.
- */
+/* ---- tListIteratorCarColor::Increment  [FECARS.CPP:1205-1214] native locals verified; SLD open ----
+ * MATCH: offset and carInfo are retail locals. A direct signed wrap guard
+ * leaves the color-table value and comparison anonymous. This preserves the
+ * retail slt/bnez sequence without the old fNumColors/notWrapped carriers.
+ * The earlier inline-value trial used a different boolean source shape. */
 
 void tListIteratorCarColor::Increment(tPlayer)
 
 {
   int offset;
   tCarInfo *carInfo;
-  /* SYM-CODEGEN-CARRIER: notWrapped
-   * SYM-CODEGEN-CARRIER: fNumColors
-   * These source-only staging values are required by the sealed PASS receipt
-   * above: the named value-load feeds retail's signed slt, while the SYM-void
-   * body avoids two non-retail return-value copies. */
-  int notWrapped;
-  int fNumColors;
 
   offset = *fPlayer * fIndexSize;
   carInfo = &fCarManager->fCars[fPlayerCar[*fPlayer]];
+
   fValue[offset + (signed char)carInfo->fCarID]++;
-  fNumColors = fValue[offset + (signed char)carInfo->fCarID];
-  notWrapped = fNumColors < carInfo->fNumLightColors + carInfo->fNumDarkColors;
-  if (notWrapped == 0) {
+  if (fValue[offset + (signed char)carInfo->fCarID] >= carInfo->fNumLightColors + carInfo->fNumDarkColors) {
     fValue[offset + (signed char)carInfo->fCarID] = 0;
   }
 }
@@ -1538,11 +1435,14 @@ void tListIteratorCarColor::Decrement(tPlayer)
   int offset;
   tCarInfo *carInfo;
 
+  offset = *fPlayer * fIndexSize;
   carInfo = &fCarManager->fCars[fPlayerCar[*fPlayer]];
-  offset = *fPlayer * fIndexSize + (signed char)carInfo->fCarID;
-  fValue[offset] = fValue[offset] == 0
-      ? carInfo->fNumLightColors + carInfo->fNumDarkColors - 1
-      : fValue[offset] - 1;
+
+  if (fValue[offset + (signed char)carInfo->fCarID] == 0) {
+
+
+    fValue[offset + (signed char)carInfo->fCarID] = carInfo->fNumLightColors + carInfo->fNumDarkColors - 1; } else { fValue[offset + (signed char)carInfo->fCarID] = fValue[offset + (signed char)carInfo->fCarID] - 1;
+  }
 }
 
 

@@ -189,11 +189,7 @@ void AIHigh_Restart1(void)
 
 
 {
-
   AIHigh_CleanUp();
-
-  return;
-
 }
 
 
@@ -210,13 +206,8 @@ void AIHigh_Restart2(void)
 
 
 {
-
   AIState_Restart();
-
   AIHigh_StartUp();
-
-  return;
-
 }
 
 
@@ -230,20 +221,15 @@ void AIHigh_Restart2(void)
 
 void AIHigh_CleanUp(void)
 {
-  int carLoop;
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
 
-  carLoop = 0;
-  if (0 < Cars_gNumCars) {
-    do {
-      if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0x0) {
-        delete highLevelAIObjs[carLoop];
-        highLevelAIObjs[carLoop] = (AIHigh_Base *)0x0;
-      }
-      carLoop = carLoop + 1;
-    } while (carLoop < Cars_gNumCars);
+    if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0x0)
+    {
+      delete highLevelAIObjs[carLoop];
+      highLevelAIObjs[carLoop] = (AIHigh_Base *)0x0;
+    }
   }
   AIState_CleanUp();
-  return;
 }
 
 
@@ -260,14 +246,14 @@ void AIHigh_Execute(void)
 
 
 {
+  {
   int carLoop;
-  Car_tObj *carObj;
 
-  /* SYM-CODEGEN-CARRIER: bVar1 -- spelling the scheduling test directly as a
+  /* SYM-CODEGEN-CARRIER: executeNow -- spelling the scheduling test directly as a
      short-circuit condition produces 61 instructions/33 diffs instead of the
      exact retail 66; this optimized boolean lifetime is absent from the
      surviving debug-local records. */
-  bool bVar1;
+  bool executeNow;
 
   carLoop = 0;
 
@@ -279,16 +265,16 @@ void AIHigh_Execute(void)
 
     }
 
+    Car_tObj *carObj;
     carObj = Cars_gList[carLoop];
 
     if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0x0) {
 
-      bVar1 = false;
+      executeNow = false;
 
       if (highLevelAIObjs[carLoop]->schedulingOff_ == 0) {
 
         if (Sched_ExecuteCheck(1,0,(carObj->N).distToPlayer,(carObj->N).objID,&AI_time,&AI_elapsedTime,
-
                                &AI_iTime,carObj->forceNoSimOptz) != 0) goto LAB_8005b2bc;
 
       }
@@ -297,22 +283,22 @@ void AIHigh_Execute(void)
 
 LAB_8005b2bc:
 
-        bVar1 = true;
+        executeNow = true;
 
       }
 
-      if (bVar1) {
+      if (executeNow) {
 
         highLevelAIObjs[carLoop]->HighExecute();
 
       }
 
     }
-
     carLoop = carLoop + 1;
 
   } while( true );
 
+  }
 }
 
 

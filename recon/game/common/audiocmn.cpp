@@ -110,18 +110,6 @@ void AudioCmn_UnPause(void);
 void AudioCmn_InitReverb(void);
 
 
-/* local helper used only for the AudioCmn_UnPause inline expansion below (the oracle inlines
-   the AudioCmn_MusicLevel formula directly into UnPause with no jal -- see UnPause body).
-   static so it folds away after inlining and never competes with the real out-of-line
-   AudioCmn_MusicLevel__Fi symbol. */
-static inline int AudioCmn_MusicLevel_inl(int level)
-{
-  if (0x56 <= level) {
-    return (((level + -0x55) * 7) / 2 + 0x55) * 0x46 >> 7;
-  }
-  return level * 0x46 >> 7;
-}
-
 /* W60-A9: file-scope helper decls hoisted here from the old audiocmn.obj-tail block
  * so they precede EVERY consumer after the retail-VA reorder of the fn definitions. */
 
@@ -156,16 +144,15 @@ extern int gMusicHandle;
 /* ---- AudioCmn_MusicLevel__Fi  [@0x80076420] ---- */
 int AudioCmn_MusicLevel(int level)
 {
-  if (0x56 <= level) {
-    return (((level + -0x55) * 7) / 2 + 0x55) * 0x46 >> 7;
-  }
-  return level * 0x46 >> 7;
+  if (0x56 <= level) { return (((level + -0x55) * 7) / 2 + 0x55) * 0x46 >> 7; } return level * 0x46 >> 7;
 }
 
 /* ---- AudioCmn_GetTrackRecordLapTime__Fv  [@0x80076480] ---- */
+/* The field return is byte-PASS; retail SLD separates its address setup
+   from the value load/return across source lines +4 and +6. */
 int AudioCmn_GetTrackRecordLapTime(void)
 {
-  return GameSetup_gData.userSetting.bestlap;   /* 2-diff near-miss: oracle fuses the +offset into %lo (maspsx splits it) — a toolchain reloc difference, not a source fix */
+  return GameSetup_gData.userSetting.bestlap;
 }
 
 /* ---- AudioCmn_InitThunder__Fv  [@0x80076490] ---- */
@@ -174,18 +161,17 @@ void AudioCmn_InitThunder(void)
   AudioCmn_ThunderAmp = 0;
   AudioCmn_ThunderAzi = 0;
   AudioCmn_ThunderDel = 0;
-  return;
 }
 
 /* ---- AudioCmn_PlayThunder__Fii  [@0x800764a4] ---- */
 void AudioCmn_PlayThunder(int intensity,int azimuth)
 {
   if (AudioCmn_ThunderAmp < intensity) {
+
     AudioCmn_ThunderAmp = intensity;
     AudioCmn_ThunderAzi = azimuth;
     AudioCmn_ThunderDel = 0x87 - intensity;
   }
-  return;
 }
 
 /* ---- AudioCmn_UpdateThunder__Fv  [@0x800764d0] ---- */
@@ -208,54 +194,55 @@ void AudioCmn_UpdateThunder(void)
 /* ---- AudioCmn_InitAsyncSfx__Fv  [@0x8007657c] ---- */
 void AudioCmn_InitAsyncSfx(void)
 {
-  int i;
-
-  i = 0;
-  while (1) {
-    if (0x20 <= i) break;
+  for (int i = 0; ; ) {
+    const int inRange = i < 0x20;
+    if (!inRange) break;
     AudioCmn_gSfxSlot[i].patch = -1;
     AudioCmn_gSfxSlot[i].handle = -1;
     AudioCmn_gSfxSlot[i].header = (char *)0x0;
     i = i + 1;
   }
-  return;
 }
 
 /* ---- AudioCmn_RemoveAsyncSfx__Fi  [@0x800765b4] ---- */
 void AudioCmn_RemoveAsyncSfx(int slot)
 {
-  AudioCmn_tAsyncSfxSlot *s;
+  AudioCmn_tAsyncSfxSlot *s = &AudioCmn_gSfxSlot[slot];
 
-  s = &AudioCmn_gSfxSlot[slot];
   if (s->patch != -1) {
+
     if (s->handle != 0xffffffff) {
+
       SNDbankremove(s->handle);
       s->handle = -1;
+
       if (s->header != (char *)0x0) {
+
         purgememadr(s->header);
         s->header = (char *)0x0;
       }
     }
+
+
+
     s->patch = -1;
   }
-  return;
 }
 
 /* ---- AudioCmn_DeInitAsyncSfx__Fv  [@0x8007663c] ---- */
 void AudioCmn_DeInitAsyncSfx(void)
 {
-  
   for (int i = 0; i < 0x20; i++) {
-    AudioCmn_RemoveAsyncSfx(i);
-  }
-  return;
+    AudioCmn_RemoveAsyncSfx(i); }
 }
 
 /* ---- AudioCmn_RemoveOldestAsyncSfx__Fi  [@0x80076674] ---- */
 /* SYM (nfs4-f-v3.txt @0x80076674): named locals `oldest`=$s0, `ticks`=$v1, `i`=$a3 (outer
    loop) / $a1 (inner loop, same source name `i`, fresh block scope). Rewritten with array
    indexing (matches the SYM's plain "i" loop var, not a pointer-walk) instead of a
-   pAVar2/pAVar2++ struct-pointer walk. */
+   pAVar2/pAVar2++ struct-pointer walk. Const per-iteration slot snapshots
+   preserve the byte stream while restoring both retail loop-body scopes;
+   the second `i` has its own nested search scope. */
 int AudioCmn_RemoveOldestAsyncSfx(int bank)
 {
   int oldest;
@@ -268,22 +255,27 @@ int AudioCmn_RemoveOldestAsyncSfx(int bank)
     i = 0;
     while (1) {
       if (!(i < 0x20)) break;
-      if ((AudioCmn_gSfxSlot[i].patch != -1) && (AudioCmn_gSfxSlot[i].ticks < ticks)) {
-        ticks = AudioCmn_gSfxSlot[i].ticks;
+      AudioCmn_tAsyncSfxSlot *const slot = &AudioCmn_gSfxSlot[i];
+      if ((slot->patch != -1) && (slot->ticks < ticks)) {
+        ticks = slot->ticks;
         oldest = i;
       }
       i = i + 1;
     }
   }
   if (oldest == -1) {
-    int i;
-    i = 0;
-    while (1) {
-      if (!(i < 0x20)) break;
-      if ((AudioCmn_gSfxSlot[i].patch != -1) && (AudioCmn_gSfxSlot[i].bank < bank)) {
-        oldest = i;
+    /* Retail records the second index in a distinct nested search scope. */
+    {
+      int i;
+      i = 0;
+      while (1) {
+        if (!(i < 0x20)) break;
+        AudioCmn_tAsyncSfxSlot *const slot = &AudioCmn_gSfxSlot[i];
+        if ((slot->patch != -1) && (slot->bank < bank)) {
+          oldest = i;
+        }
+        i = i + 1;
       }
-      i = i + 1;
     }
   }
   if (-1 < oldest) {
@@ -301,13 +293,13 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
   if (0) AudioCmn_LoadBank("SimpleMem",0);
   int slot;
   int check;
+  AudioCmn_tAsyncSfxSlot *s;
 
   slot = 0;
   do {
-    /* SYM-CODEGEN-CARRIER: s remains unproved (native 191a14..191aed:
-       slot/check only). Retail's slot GIV is s0; s4 holds a string address.
-       P902 removes failure labels/do-while(0), not this source-only alias. */
-    AudioCmn_tAsyncSfxSlot *s = &AudioCmn_gSfxSlot[slot];
+    /* The function-scoped `s` aliases this indexed slot. It emits no extra
+       debug local or block; retail records only slot/check here. */
+    s = &AudioCmn_gSfxSlot[slot];
     if ((patch == s->patch) && (bank == s->bank) && (s->handle == -1)) {
       if (size != 0) {
         while (SNDmemlargestunused(&check) - 0x1000 < size) {
@@ -351,14 +343,14 @@ int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly)
   int slot;
   CopSpeak_tRequest r;
 
-  AudioCmn_tAsyncSfxSlot *s;
-
+  {
   slot = 0;
   while (true) {
     if (!(slot < 0x20)) break;
-    s = &AudioCmn_gSfxSlot[slot];
+    AudioCmn_tAsyncSfxSlot *s = &AudioCmn_gSfxSlot[slot];
     if ((patch == s->patch) && (bank == s->bank)) goto FOUND;
     slot = slot + 1;
+  }
   }
   slot = 0;
   while (true) {
@@ -377,8 +369,8 @@ int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly)
   if (checkonly == false) goto DOREQ;
   goto FILL;
 FOUND:
-  s->ticks = simGlobal.gameTicks;
-  return s->handle;
+  AudioCmn_gSfxSlot[slot].ticks = simGlobal.gameTicks;
+  return AudioCmn_gSfxSlot[slot].handle;
 DOREQ:
   if (5 < CopSpeak_SfxQueued()) {
     return -1;
@@ -450,12 +442,12 @@ void AudioCmn_Init(void)
        an unsupported named local.  Retail data layout identifies -G8 as this TU's
        compiler lane: Init is source-PASS 94/94 under a strict TU-wide -G8 build. */
     j = 0;
-    /* SYM-CODEGEN-CARRIER: ambient -- explicit array bases preserve retail's
-       t4/t3/t2 preheader allocation and indexed-store order. */
-    char *ambient = fAmbientRangeON;
-    /* SYM-CODEGEN-CARRIER: mystic -- retaining this base keeps retail's address
-       addition before the adjacent byte store in the loop schedule. */
-    char *mystic = fMysticWindON;
+    /* Const array-base snapshot preserves retail's t4/t3/t2 preheader
+       allocation and indexed-store order without an extra SYM local. */
+    char *const ambient = fAmbientRangeON;
+    /* Const array-base snapshot keeps retail's address addition before the
+       adjacent byte store without an extra SYM local. */
+    char *const mystic = fMysticWindON;
     do {
       AudioCmn_gReTrig[j].count = 0;
       *(char *)((int)j + (int)ambient) = '\0';
@@ -492,7 +484,8 @@ void AudioCmn_Init(void)
 void AudioCmn_Reset(void)
 
 {
-
+  /* Retail owns the channel-loop index in a +0..+0x80 lexical block. */
+  {
   int i;
 
 
@@ -518,6 +511,7 @@ void AudioCmn_Reset(void)
     }
 
   }
+  }
 
   if (fReverbOn != '\0')
 
@@ -531,7 +525,7 @@ void AudioCmn_Reset(void)
      (2) the wait loop is UN-ROTATED -- retail keeps both head tests at the loop top
          with a `j` back-edge (`bnez s1` on goodtogo BEFORE the gettick call); the
          `while (!ready && ...)` form lets gcc prove entry and rotate (row 52);
-     (3) SYM BLOCK SCOPES: `i` is re-declared per block -- fn-scope $s1 (channel loop),
+     (3) SYM BLOCK SCOPES: `i` is re-declared per block -- initial channel-loop $s1,
          block line 52 $s0 (the 4-phrase loop), block line 60 $s2 (the numCars loop).
          One shared fn-scope `i` pins all three to the same register.  `goodtogo` is
          $s1 (our `ready`), which only frees up once the inner i's move out. */
@@ -551,10 +545,12 @@ void AudioCmn_Reset(void)
       systemtask(0);
       if (0x8000 < SNDmemlargestunused(&check)) {
         if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+          {
           int i;
           for (i = 0; i < 4; i++) {
             if (AudioCmn_GetAsyncSfx(2, i + 0x2f, false) == -1)
               goodtogo = false;
+          }
           }
         }
         if (GameSetup_gData.Weather == 1 &&
@@ -581,6 +577,9 @@ void AudioCmn_Reset(void)
       }
     }
   }
+  /* Retail's music-wait block begins at +0x200; its second `ticks`
+     belongs to the nested +0x218 block below. */
+  {
   AudioTrk_PreLoad();
 
   if (gMasterMusicLevel == 0)
@@ -616,6 +615,8 @@ void AudioCmn_Reset(void)
     gettick();
     AudioMus_Buffered();
     AudioMus_Threshold();
+  }
+
   }
 
 }
@@ -685,34 +686,46 @@ void AudioCmn_DeInit(void)
 void AudioCmn_SetLevels(void)
 {
   if (Replay_ReplayInterface.statsScreen != 0) {
+
     AudioCmn_gLastFade = 0x20;
-    gMasterSFXLevel = (GameSetup_gData.userSetting.sfxLevel * 0x40) / 0x7f;
-  }
-  return;
+    gMasterSFXLevel = (GameSetup_gData.userSetting.sfxLevel * 0x40) / 0x7f; }
 }
 
 /* ---- AudioCmn_GetTimePhrase__Fi  [@0x8007706c] ---- */
 int AudioCmn_GetTimePhrase(int time)
 {
-  int seconds;
+  int seconds = time >= 0 ? (time >> 6) : ((time - 1) >> 6);
   static char compareTimes[25] = {
-    30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
-    -10, -11, -12, -15, -20, -25, -30
+    30,
+    12,
+    6,
+    5,
+    4,
+    3,
+    2,
+    1,
+    0,
+    -1,
+    -2,
+    -3,
+    -4,
+    -5,
+    -6,
+    -7,
+    -8,
+    -9,
+    -10,
+    -11,
+    -12,
+    -15,
+    -20,
+    -25,
+    -30
   };
   int index;
 
-  if (-1 < time) {
-    seconds = time >> 6;
-  }
-  else {
-    seconds = (time + -1) >> 6;
-  }
-  index = 0;
-  while (1) {
-    if (!(seconds < (signed char)compareTimes[index])) break;
-    index = index + 1;
-    if (!(index < 0x19)) break;
-  }
+
+  index = 0; while (1) { if (!(seconds < (signed char)compareTimes[index])) break; index = index + 1; if (!(index < 0x19)) break; }
   return index + 0x35;
 }
 
@@ -912,7 +925,6 @@ void AudioCmn_LoadFESamples(void)
   strcpy(filename, Paths_Paths[0x1c]);
   strcat(filename, "fesfx");
   AudioCmn_LoadBank(filename,0);
-  return;
 }
 
 char *AudioCmn_LanguageName[7] = { /* @0x8010e774 */
@@ -924,13 +936,19 @@ void AudioCmn_LoadGameSamples(void)
 {
   char filename[100];
 
+
+
   AudioEng_StartUp(0,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[0].carType * 5);
+
   if (GameSetup_gData.commMode == 1) {
     AudioEng_StartUp(1,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[1].carType * 5);
   }
   AudioEng_StartServer();
+
+
   strcpy(filename, Paths_Paths[0x1c]);
   strcat(filename, "Gen");
+
   char *TrackGenBank[11] = {
     "eng", "brt", "eng", "fre", "eng",
     "brt", "ger", "brt", "eng", "eng",
@@ -938,9 +956,10 @@ void AudioCmn_LoadGameSamples(void)
   };
   strcat(filename, TrackGenBank[GameSetup_gData.track]);
   AudioCmn_LoadBank(filename,3);
+
+
   gSndBnk[5].bnkID = -2;
   gSndBnk[2].bnkID = -3;
-  return;
 }
 
 /* ---- AudioCmn_InitChannelArray__Fv  [@0x800778b0] ---- */
@@ -948,7 +967,10 @@ void AudioCmn_InitChannelArray(void)
 {
   int i;
 
+
+
   for (i = 0; i < 0x47; i++) {
+
     gaChannel[i].Partial = -1;
     gaChannel[i].SFXnum = -1;
   }
@@ -1796,7 +1818,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   }
   {
   /* SYM-CODEGEN-CARRIER: roadProduct -- folding the product into roadNoiseAmp
-     shrinks 530 to 529 instructions and leaves 11 multiply-latency diffs. */
+     shrinks 530 to 529 instructions and leaves 11 multiply-latency diffs.
+     Inlining the product at both the fence input and shifted use also gives
+     529 instructions, 7 diffs; neither trial proves the original source name. */
   int roadProduct;
 
   /* Write the signed /128 as a DIVIDE, not the hand-expanded bgez/+0x7f/sra rounding:
@@ -2042,7 +2066,6 @@ LAB_800795e8:
 void AudioCmn_PlayFESFX(int SFXnum)
 {
   AudioCmn_PlayFESFXVol(SFXnum,0x7f);
-  return;
 }
 
 /* ---- AudioCmn_PlayFESFXVol__Fii  [@0x80079624] ---- */
@@ -2076,14 +2099,12 @@ void AudioCmn_PlayFESFXVol(int SFXnum,int vol)
 void AudioCmn_PlayWrongWaySFX(void)
 {
   AudioCmn_PlaySound(gSndBnk[3].bnkID,0x10,0,0x7f,0x40);
-  return;
 }
 
 /* ---- AudioCmn_PlayPauseSound__Fi  [@0x800796e4] ---- */
 void AudioCmn_PlayPauseSound(int patch)
 {
   AudioCmn_gCursorSndHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,patch,0,0x7f,0x40);
-  return;
 }
 
 /* ---- quickSirenOn__Fi  [@0x8007971c] ---- */
@@ -2139,20 +2160,19 @@ void SirenOff(int sirennum)
   reachedSirenMin[sirennum] = 0;
   quickSirenTimeCount[sirennum] = 0;
   SNDautovol(gaChannel[sirennum + 0x2b].Partial,5,-1);
-  return;
 }
 
 /* ---- UpdateSiren__Fiiiii  [@0x8007995c] ---- */
 void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
 {
   /* SYM rule-8: params sirennum=s1 amp=s2 dop=s5 azimuth=s4, supercop ARG->REG s0;
-     ONE block-local iFreq (a2). No other named locals: iFreq is reused for its upper
+     ONE iFreq (a2). No other named locals: iFreq is reused for its upper
      clamp before the call, and the channel-slot ADDRESS for the
      pitchbend/vol pair is a scoped anonymous pointer (s0, reusing dead supercop; Partial
      RELOADED per call since the jals clobber memory), and the vol arms are per-arm INLINE
      SNDvol calls cross-jumped into one jal. */
+  int iFreq;
   if (bSirenOn[sirennum] != 0) {
-    int iFreq;
     if (SNDover(gaChannel[sirennum + 0x2b].Partial) != 0) {
       if (supercop != 0) {
         SuperCopSirenOn(sirennum);
@@ -2199,32 +2219,35 @@ void AudioCmn_Pause(void)
 {
 
   CopSpeak_SilenceCop((Car_tObj *)0, 0);
+
   for (int i = 0; i < 71; i++) {
     if (gaChannel[i].Partial != -1)
       SNDvol(gaChannel[i].Partial, 0);
-  }
-  AudioMus_Volume(0);
+  } AudioMus_Volume(0);
   if (fReverbOn)
     AudioCmn_ReverbOff();
+
   AudioEng_Pause();
+
   SNDstopall();
+
   gMasterSFXLevel   = GameSetup_gData.userSetting.sfxLevel;
   gMasterMusicLevel = GameSetup_gData.userSetting.musicLevel;
 }
 
 /* ---- AudioCmn_UnPause__Fv  [@0x80079c18] ---- */
+/* Retail performs the music-level calculation directly, without a call
+   or the non-SYM inline-helper parameter previously used here. */
 void AudioCmn_UnPause(void)
 {
+
   SNDmastervol(0x7f);
-  /* MATCH: oracle inlines the AudioCmn_MusicLevel formula here with NO jal (no
-     AudioCmn_MusicLevel call in the disasm at all) -- reproduced via a local
-     static-inline twin of AudioCmn_MusicLevel so cc1plus folds it in-line while the
-     real out-of-line AudioCmn_MusicLevel__Fi (used by AudioCmn_Reset) stays untouched. */
-  AudioMus_Volume(AudioCmn_MusicLevel_inl(gMasterMusicLevel));
+  AudioMus_Volume(((gMasterMusicLevel < 0x56 ? gMasterMusicLevel : ((gMasterMusicLevel - 0x55) * 7) / 2 + 0x55) * 0x46) >> 7);
+
   AudioEng_Resume();
+
   GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
   GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;
-  return;
 }
 
 /* ---- AudioCmn_UnPauseAndQuit__Fv  [@0x80079ca4] ---- */
@@ -2232,27 +2255,30 @@ void AudioCmn_UnPauseAndQuit(void)
 {
   int i;
 
+
   while (SNDover(AudioCmn_gCursorSndHandle) == 0)
     systemtask(0);
+
   CopSpeak_Stop();
   SNDmastervol(0);
   AudioMus_StopSong(0);
-  for (i = 0; i < 71; i++) {
-    if (gaChannel[i].Partial != -1) {
-      SNDstop(gaChannel[i].Partial);
-      gaChannel[i].Partial = -1;
-      gaChannel[i].SFXnum  = -1;
+  { int i;
+    for (i = 0; i < 71; i++) {
+
+      if (gaChannel[i].Partial != -1) {
+
+        SNDstop(gaChannel[i].Partial);
+        gaChannel[i].Partial = -1;
+        gaChannel[i].SFXnum  = -1;
+      }
     }
   }
   GameSetup_gData.userSetting.sfxLevel   = gMasterSFXLevel;
   GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;
-  if (fReverbOn)
-    AudioCmn_ReverbOff();
-  {
-    int i;
-    for (i = 0; i < 0x80; i++)
-      SNDmastervol(i);
-  }
+
+  if (fReverbOn) AudioCmn_ReverbOff();
+
+  for (i = 0; i < 0x80; i++) SNDmastervol(i);
 }
 
 /* ---- AudioCmn_UnPauseAndRestart__Fv  [@0x80079d8c] ---- */
@@ -2260,40 +2286,44 @@ void AudioCmn_UnPauseAndRestart(void)
 {
   int i;
 
+
   SPCH_ClearEventQueue();
+
   while (SNDover(AudioCmn_gCursorSndHandle) == 0)
     systemtask(0);
+
   CopSpeak_Cancel();
   SNDmastervol(0);
   AudioCmn_DeInitAsyncSfx();
   AudioMus_StopSong(0);
-  for (i = 0; i < 71; i++) {
-    if (gaChannel[i].Partial != -1) {
-      SNDstop(gaChannel[i].Partial);
-      gaChannel[i].Partial = -1;
-      gaChannel[i].SFXnum  = -1;
+  { int i;
+    for (i = 0; i < 71; i++) {
+
+      if (gaChannel[i].Partial != -1) {
+
+        SNDstop(gaChannel[i].Partial);
+        gaChannel[i].Partial = -1;
+        gaChannel[i].SFXnum  = -1;
+      }
     }
   }
-  {
-    int i;
-    for (i = 0; i < 0x80; i++)
-      SNDmastervol(i);
-  }
-  if (fReverbOn)
-    AudioCmn_ReverbOff();
+  for (i = 0; i < 0x80; i++) SNDmastervol(i);
+  if (fReverbOn) AudioCmn_ReverbOff();
+
   GameSetup_gData.userSetting.sfxLevel   = gMasterSFXLevel;
   GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;
+
   AudioCmn_Init();
 }
 
 /* ---- AudioCmn_InitReverb__Fv  [@0x80079e88] ---- */
 void AudioCmn_InitReverb(void)
 {
+
   SNDfxinitbus(0x0,0x7f,10,-1,-1);
   fReverbLevel = '\0';
   SNDfxmasterlevel(0x0,0);
   fReverbOn = '\0';
-  return;
 }
 
 /* ---- AudioCmn_ReverbOff__Fv  [@0x80079ecc] ---- */
@@ -2303,9 +2333,7 @@ void AudioCmn_ReverbOff(void)
 {
 
   SNDfxmasterlevel(0,0);
-
   fReverbLevel = '\0';
-
   fReverbOn = '\0';
 
 }

@@ -160,7 +160,6 @@ void tMenuItemGoToMenuButtonFade::TransitionOff()
 
 {
   this->fFadeDir = 0x1e;
-  return;
 }
 
 
@@ -207,19 +206,10 @@ done:
 void tMenuItemGoToMenuButtonFade::UpdateTransition(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar2
-   * The no-local SYM block and one-line SLD clamp identify this as the
-   * compiler-created result of EA's nested MIN/MAX expression. */
-  int iVar2;
-  
-  iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
-  if (0x80 < iVar2) {
-    iVar2 = 0x80;
-  }
-  if (iVar2 < 0) {
-    iVar2 = 0;
-  }
-  this->fFadeVal = (short)iVar2;
+  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
+  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
+  const int fadeValue = highClamped < 0 ? 0 : highClamped;
+  this->fFadeVal = (short)fadeValue;
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -247,7 +237,6 @@ void tMenuItemLeftRightFade::TransitionOff()
   this->fInTransition = 1;
   this->fFadeDir = 0x1e;
   this->fFadeVal = 0;
-  return;
 }
 
 
@@ -296,18 +285,10 @@ bool tMenuItemLeftRightFade::TransitionIsFinished()
 void tMenuItemLeftRightFade::UpdateTransition(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar2
-   * Compiler-created destination of the one-line nested MIN/MAX clamp. */
-  int iVar2;
-  
-  iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
-  if (0x80 < iVar2) {
-    iVar2 = 0x80;
-  }
-  if (iVar2 < 0) {
-    iVar2 = 0;
-  }
-  this->fFadeVal = (short)iVar2;
+  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
+  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
+  const int fadeValue = highClamped < 0 ? 0 : highClamped;
+  this->fFadeVal = (short)fadeValue;
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -641,20 +622,14 @@ tInsideBoxMenu::~tInsideBoxMenu()
 void tInsideBoxMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: tVar2
-   * The no-local SYM block still requires the original key value to survive
-   * the AlreadyProcessed write; this is the compiler's cached reference load. */
-  tInputKeyType tVar2;
-  
+  /* The post-write reference read is the original key on the unmodified
+     path and AlreadyProcessed on the moved Up/Down path. Retail has no
+     named cached-key local; this direct form retains all 52 instructions. */
   if (this->fMoving != 0) {
-    tVar2 = keyval;
-    if ((tVar2 != kInput_KeyType_Up) && (tVar2 != kInput_KeyType_Down))
-    goto ProcInpFE_keyUpItemZero;
-    keyval = kInput_KeyType_AlreadyProcessed;
+    if ((keyval == kInput_KeyType_Up) || (keyval == kInput_KeyType_Down))
+      keyval = kInput_KeyType_AlreadyProcessed;
   }
-  tVar2 = keyval;
-ProcInpFE_keyUpItemZero:
-  if ((tVar2 == kInput_KeyType_Up) && (this->fCurrentItem == 0)) {
+  if ((keyval == kInput_KeyType_Up) && (this->fCurrentItem == 0)) {
     this->fItemList[0]->ProcessInput(fromPlayer,keyval,command);
   }
   else if ((keyval != kInput_KeyType_Down) ||
@@ -816,18 +791,10 @@ bool tMenuItemSlidingMenu::TransitionIsFinished()
 void tMenuItemSlidingMenu::UpdateTransition(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar2
-   * Compiler-created destination of the one-line nested MIN/MAX clamp. */
-  int iVar2;
-  
-  iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
-  if (0x80 < iVar2) {
-    iVar2 = 0x80;
-  }
-  if (iVar2 < 0) {
-    iVar2 = 0;
-  }
-  this->fFadeVal = (short)iVar2;
+  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
+  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
+  const int fadeValue = highClamped < 0 ? 0 : highClamped;
+  this->fFadeVal = (short)fadeValue;
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -854,7 +821,6 @@ void tMenuItemSlidingMenu::Draw(bool selected)
 
 {
   this->Draw(0,0,selected);
-  return;
 }
 
 
@@ -1187,16 +1153,11 @@ void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
 
 /* ---- tMenuItemSlidingActivated::UpdatefOpenHeight  [FEMENUOPTIONS.CPP:925-931] SLD-VERIFIED ---- */
 
-void tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
+void tMenuItemSlidingActivated::UpdatefOpenHeight(bool)
 
 {
-  /* SYM-CODEGEN-CARRIER: arg1 -- retained by the mangled ABI signature. */
-  /* SYM-CODEGEN-CARRIER: iVar2
-   * SYM-CODEGEN-CARRIER: iVar4
-   * Compiler-created destinations for the ordered MIN/MAX expression whose
-   * exact load order and no-return behavior are receipted below. */
-  int iVar2;
-  int iVar4;
+  /* Two const clamp stages retain the retail 26-instruction dataflow while
+     emitting no extra SYM local; their names are semantic, not original. */
 
   /* MATCH: store IN each branch (gcc cross-jump-merges the two `sh`s back into
      the oracle's single join store); a shared `sVar1` temp costs an extra reg
@@ -1212,19 +1173,15 @@ void tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
      The limit is ONE natural expression (same spelling as TransitionOn): the
      hand-split `<<0x10` intermediate minted an extra named pseudo, which pushed
      the sum off `$v1` and forced a return funnel for uVar3. */
-  iVar2 = (int)this->fHeight + ((int)this->fHeight >> 1);
-  iVar4 = (int)this->fSlideOffset;
-  if (iVar4 < iVar2) {
-    iVar2 = iVar4;
-  }
-  if (iVar2 < 0) {
-    iVar2 = 0;
-  }
+  const int heightLimit = (int)this->fHeight + ((int)this->fHeight >> 1);
+  const int boundedSlideHeight = (int)this->fSlideOffset < heightLimit
+      ? (int)this->fSlideOffset : heightLimit;
   /* MATCH (06A): retail DROPS the result — there is no `return`; $v0 is left
      holding the `slt` of the clamp test incidentally.  An explicit
      `return uVar3;` funnels it through a second register (`addu a2,v0,zero`
      + `addu v0,a2,zero`). */
-  this->fSlideOffset = (short)iVar2;
+  const int clampedSlideHeight = boundedSlideHeight < 0 ? 0 : boundedSlideHeight;
+  this->fSlideOffset = (short)clampedSlideHeight;
 }
 
 
@@ -1298,18 +1255,10 @@ void tMenuItemSlidingActivated::UpdateTransition(bool selected)
    * constant-false call keeps the string and adds no code. */
   if (0) textpixels("SimpleMem");
 
-  /* SYM-CODEGEN-CARRIER: iVar2
-   * Compiler-created destination of the one-line nested MIN/MAX clamp. */
-  int iVar2;
-  
-  iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
-  if (0x80 < iVar2) {
-    iVar2 = 0x80;
-  }
-  if (iVar2 < 0) {
-    iVar2 = 0;
-  }
-  this->fFadeVal = (short)iVar2;
+  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
+  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
+  const int fadeValue = highClamped < 0 ? 0 : highClamped;
+  this->fFadeVal = (short)fadeValue;
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -1404,33 +1353,25 @@ void tMenuItemLeftRightFade::MyLeftRightDraw(int x,int y)
 
 /* ---- tMenuItemDisplayLeftRightChoice::Draw  [FEMENUOPTIONS.CPP:1085-1102] SLD-VERIFIED ---- */
 
-void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
+void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool)
 
 {
-  /* SYM-ABI-PARAM: selected -- unused, but the `iib` linkage proves the bool arg.
+  /* Retail ABI bool is unnamed; the `iib` linkage proves the argument.
      SYM 8c block: params this($s3)/offx($s0)/offy($s2) and the ONE named local
      `int ColText` ($s2, reusing offy's reg); x/y are compiler temps.
      MATCH: NO return funnel — retail drops the result ($v0 is the shared `li 2`
      stack arg, and on the fade==0x80 early-out it is the compare's `li 0x80`);
      x stays an int narrowed per use, while y's narrowing CSEs once. */
   int ColText;
-  /* SYM-CODEGEN-CARRIER: x -- the parameter-only spelling changes retail's
-     saved-register handout (42 diffs); retaining only y leaves 40 diffs. */
-  int x;
-  /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves a 16-diff allocation
-     swap.  Both independent values are required for the exact 60-insn body. */
-  int y;
-
-  if (this->fFadeVal != 0x80) {
-    x = TextSys_WordX(this->fTextDescription) + offx;
-    y = TextSys_WordY(this->fTextDescription) + offy;
-    ColText = CalcTextFadeSelToHi(textType_Options,
-                     this->fSelFade,this->fFadeVal);
-    this->MyLeftRightDraw((short)x,(short)y);
-    FETextRender_FullTextRGB(
-        TextSys_Word((int)(short)this->fData->TextValue(gMenu_SubMenuPlayer)),
-        (short)(x + 0x73),(short)y,ColText,'\0',2);
-  }
+  if (this->fFadeVal == 0x80) return;
+  const int x = TextSys_WordX(this->fTextDescription) + offx;
+  const int y = TextSys_WordY(this->fTextDescription) + offy;
+  ColText = CalcTextFadeSelToHi(textType_Options,
+                   this->fSelFade,this->fFadeVal);
+  this->MyLeftRightDraw((short)x,(short)y);
+  FETextRender_FullTextRGB(
+      TextSys_Word((int)(short)this->fData->TextValue(gMenu_SubMenuPlayer)),
+      (short)(x + 0x73),(short)y,ColText,'\0',2);
 }
 
 
@@ -1450,46 +1391,38 @@ void tMenuItemOnOffLeftRightChoice::TransitionOn()
 
 /* ---- tMenuItemOnOffLeftRightChoice::Draw  [FEMENUOPTIONS.CPP:1111-1140] SLD-VERIFIED ---- */
 
-void tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
+void tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool)
 
 {
-  /* SYM-ABI-PARAM: selected -- unused, but the `iib` linkage proves the bool arg.
+  /* Retail ABI bool is unnamed; the `iib` linkage proves the argument.
      MATCH (same family as tMenuItemDisplayLeftRightChoice::Draw): no return
      funnel, in-branch fOnFade stores, x/y plain ints narrowed PER USE, and the
      TextSys_Word results consumed straight into $a0. */
-  /* SYM ORDER (W86-S2): the SYM rows ColTextOn, ColTextOff lead; the two
-     non-SYM carriers follow the SYM set. */
+  /* SYM ORDER: only ColTextOn and ColTextOff survive as locals. The early
+     fade exit and const use-site coordinates retain retail allocation. */
   int ColTextOn;
   int ColTextOff;
-  /* SYM-CODEGEN-CARRIER: x -- adjusting the parameters directly is two
-     instructions short and 68 diffs; retaining only y leaves 64 diffs. */
-  int x;
-  /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves 80 diffs.  The two
-     independent values restore the exact 94-insn frame and allocation. */
-  int y;
-
-  if (this->fFadeVal != 0x80) {
-    /* MATCH: branch polarity — the `!= 0` (+0x20) arm is the FALL-THROUGH. */
-    if ((char)this->fData->Value((tPlayer)-1) != '\0') {
-      this->fOnFade = this->fOnFade + 0x20;
-    }
-    else {
-      this->fOnFade = this->fOnFade + -0x20;
-    }
-    if (0x80 < this->fOnFade) {
-      this->fOnFade = 0x80;
-    }
-    if (this->fOnFade < 0) {
-      this->fOnFade = 0;
-    }
-    x = TextSys_WordX(this->fTextDescription) + offx;
-    y = TextSys_WordY(this->fTextDescription) + offy;
-    CalcOnOffFade(textType_Options,this->fOnFade,
-               this->fSelFade,this->fFadeVal,ColTextOn,ColTextOff);  /* W58-A1: int& decl */
-    this->MyLeftRightDraw((short)x,(short)y);
-    FETextRender_FullTextRGB(TextSys_Word(0x66),(short)(x + 0x37),(short)y,ColTextOn,'\0',0);
-    FETextRender_FullTextRGB(TextSys_Word(0x67),(short)(x + 0x9e),(short)y,ColTextOff,'\0',0);
+  if (this->fFadeVal == 0x80) return;
+  /* MATCH: branch polarity — the `!= 0` (+0x20) arm is the FALL-THROUGH. */
+  if ((char)this->fData->Value((tPlayer)-1) != '\0') {
+    this->fOnFade = this->fOnFade + 0x20;
   }
+  else {
+    this->fOnFade = this->fOnFade + -0x20;
+  }
+  if (0x80 < this->fOnFade) {
+    this->fOnFade = 0x80;
+  }
+  if (this->fOnFade < 0) {
+    this->fOnFade = 0;
+  }
+  const int x = TextSys_WordX(this->fTextDescription) + offx;
+  const int y = TextSys_WordY(this->fTextDescription) + offy;
+  CalcOnOffFade(textType_Options,this->fOnFade,
+             this->fSelFade,this->fFadeVal,ColTextOn,ColTextOff);  /* W58-A1: int& decl */
+  this->MyLeftRightDraw((short)x,(short)y);
+  FETextRender_FullTextRGB(TextSys_Word(0x66),(short)(x + 0x37),(short)y,ColTextOn,'\0',0);
+  FETextRender_FullTextRGB(TextSys_Word(0x67),(short)(x + 0x9e),(short)y,ColTextOff,'\0',0);
 }
 
 
@@ -1520,10 +1453,10 @@ tMenuItemLeftRightAudioSlider::~tMenuItemLeftRightAudioSlider()
 
 /* ---- tMenuItemLeftRightAudioSlider::Draw  [FEMENUOPTIONS.CPP:1167-1201] SLD-VERIFIED ---- */
 
-void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
+void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool)
 
 {
-  /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iib` linkage. */
+  /* Retail ABI bool is unnamed while the `iib` linkage retains it. */
   /* SYM ORDER (W86-S2): the 8c Def rows read coltext, tCol; the two non-SYM
      carriers follow the SYM set. */
   int coltext;
@@ -1615,7 +1548,6 @@ void tMenuItemLeftRightAudioSlider::TransitionOff()
 {
   this->fFadeVal = 0;
   this->fFadeDir = 0x3c;
-  return;
 }
 
 
@@ -1628,7 +1560,6 @@ void tMenuItemLeftRightAudioSlider::TransitionOn()
   this->fFadeVal = 0x80;
   this->fFadeDir = -0x3c;
   this->fSelFade = 0;
-  return;
 }
 
 
@@ -1655,19 +1586,21 @@ bool tMenuItemLeftRightAudioSlider::TransitionIsFinished()
 void tMenuItemLeftRightAudioSlider::UpdateTransition(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar1 -- one signed promoted sum is required for
-   * retail's 19-insn clamp.  Field-in-place is FAIL 21 / 24; a repeated
-   * ternary is count-exact but FAIL 20 from unsigned reloads/allocation. */
-  int iVar1;
+  /* SYM-CODEGEN-CARRIER: fadeValue (semantic name, not recovered) -- one signed promoted sum is required for
+   * retail's 19-insn clamp. Field-in-place is FAIL 21 / 24; the two-stage
+   * const clamp matching five siblings is FAIL 9 at 20/19. A GNU statement
+   * expression is byte-PASS but emits an extra `value` local and an extra
+   * lexical block, so it does not improve source fidelity. */
+  int fadeValue;
 
-  iVar1 = (int)this->fFadeVal + (int)this->fFadeDir;
-  if (0x80 < iVar1) {
-    iVar1 = 0x80;
+  fadeValue = (int)this->fFadeVal + (int)this->fFadeDir;
+  if (0x80 < fadeValue) {
+    fadeValue = 0x80;
   }
-  if (iVar1 < 0) {
-    iVar1 = 0;
+  if (fadeValue < 0) {
+    fadeValue = 0;
   }
-  this->fFadeVal = (short)iVar1;
+  this->fFadeVal = (short)fadeValue;
   this->tMenuItem::UpdateTransition(selected);
   return;
 }
@@ -1852,12 +1785,12 @@ long tInsideBoxSongMenu::DebounceKeys()
 
 /* ---- tInsideBoxSongMenu::ProcessInput  [FEMENUOPTIONS.CPP:1350-1408] SLD-VERIFIED ---- */
 
-void tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
-              tMenuCommand &command)
+void tInsideBoxSongMenu::ProcessInput(tPlayer,tInputKeyType &keyval,
+              tMenuCommand &)
 
 {
-  /* SYM-ABI-PARAM: fromPlayer -- retained by the mangled ABI signature. */
-  /* SYM-ABI-PARAM: command -- retained by the mangled ABI signature. */
+  /* ABI tPlayer and tMenuCommand reference are unnamed in retail SYM. */
+  /* Their types remain in the mangled signature; neither is read here. */
   /* SYM: FCN VOID, one local (int j). w35-a9 diagnosis confirmed against the
      raw oracle: this fn writes its result THROUGH the keyval reference (not
      a return value) -- the earlier `return 0x1000`/`return -0x7ffb0000`
@@ -1926,10 +1859,10 @@ void tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 
 /* ---- tMenuItemControllerLeftRightChoice::Draw  [FEMENUOPTIONS.CPP:1423-1459] SLD-VERIFIED ---- */
 
-void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
+void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool)
 
 {
-  /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iib` linkage.
+  /* Retail ABI bool is unnamed while the `iib` linkage retains it.
      MATCH: (a) BASE-ANCHOR — retail holds `&gHelpShapes[0x1e]` in one saved reg
      ($s5: `lui;lw;addiu +960`), not the array base re-indexed per use;
      (b) ONE tDrawShapeExtended AUTO (the 2nd cost 32 frame bytes);
@@ -1937,9 +1870,8 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
      (d) `y` is an int MUTATED in place by -3 (`addiu s0,s0,-3`) and reused;
      (e) SYM records inner `tCol` and outer `drawFlags` at the same AUTO -56.
      Declaring drawFlags after the inner block lets gcc reuse that slot. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read shape, Col, ColText (drawFlags and
-     tCol are the AUTO rows declared at their own blocks); the three non-SYM
-     carriers follow the SYM set. */
+  /* SYM ORDER: shape, Col, ColText precede the AUTO drawFlags/tCol slots;
+     only the x/y coordinate carriers still survive as extra debug locals. */
   tTexture_ShapeInfo *shape;
   int Col;
   int ColText;
@@ -1949,7 +1881,6 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
   /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves 28 diffs.  With both
      values exposed, GCC reproduces the exact 129-insn saved-register map. */
   int y;
-  int w;
 
   x = TextSys_WordX(this->fTextDescription) + ox;
   y = TextSys_WordY(this->fTextDescription) + oy;
@@ -1975,11 +1906,11 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
                             (int)this->fFadeVal);
   DrawShapeExtended(0xa,0x18,(short)x + 0x83,(short)y,0,1,&drawFlags);
   DrawShapeExtended(0xb,0x18,(short)x + 0xa1,(short)y,0,1,&drawFlags);
-  /* SYM-CODEGEN-CARRIER: w
-     MATCH: keep the subtraction UN-reassociated — inline, gcc rewrites
-     `x - (w - 0xb0)` into `(x + 0xb0) - w`; a temp pins the oracle's
+  /* MATCH: const use-site w optimizes out of SYM while keeping the
+     subtraction UN-reassociated. Inline, gcc rewrites it as
+     `(x + 0xb0) - width`; this value preserves retail's
      `addiu a2,a2,-176; subu a2,s1,a2`. */
-  w = (int)shape->width - 0xb0;
+  const int w = (int)shape->width - 0xb0;
   DrawShapeExtended(0x1e,8,(short)x - w,(short)y - 3,
              (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
   PSXDrawSquare(0,(short)x,(short)y - 3,0xb0 - shape->width,(int)shape->height);
@@ -1991,10 +1922,9 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
 tInsideBoxLeftRightSlider::tInsideBoxLeftRightSlider(u_int textDescription,tListIterator *dataPtr)
   : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
-  
   this->fSelFade = 0;
+
   this->fHeight = 5;
-  return;
 }
 
 
@@ -2011,10 +1941,10 @@ tInsideBoxLeftRightSlider::~tInsideBoxLeftRightSlider()
 
 /* ---- tInsideBoxLeftRightSlider::Draw  [FEMENUOPTIONS.CPP:1480-1493] SLD-VERIFIED ---- */
 
-void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
+void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool)
 
 {
-  /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iiib` linkage.
+  /* Retail ABI bool is unnamed while the `iiib` linkage retains it.
      MATCH: no `fSelFade`/`col` return funnel — retail's Draw drops its result
      ($v0 is DrawSlider's, incidental), so the `lh 8(s0)` for the fSelFade arg is
      emitted LATE at the call instead of being hoisted into a saved reg.  Decl
@@ -2076,12 +2006,12 @@ tInsideBoxTwoWaySlider::~tInsideBoxTwoWaySlider()
 
 /* ---- tInsideBoxTwoWaySlider::ProcessInput  [FEMENUOPTIONS.CPP:1512-1536] SLD-VERIFIED ---- */
 
-void tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
-              tMenuCommand &command)
+void tInsideBoxTwoWaySlider::ProcessInput(tPlayer,tInputKeyType &keyval,
+              tMenuCommand &)
 
 {
-  /* SYM-ABI-PARAM: fromPlayer -- retained by the mangled ABI signature. */
-  /* SYM-ABI-PARAM: command -- retained by the mangled ABI signature. */
+  /* ABI tPlayer and tMenuCommand reference are unnamed in retail SYM. */
+  /* Their types remain in the mangled signature; neither is read here. */
   /* MATCH: plain straight-line ifs reading the `keyval` REFERENCE directly — no
      tVar1 cache, no volatile, no goto.  gcc reloads keyval at the end of the
      Cross body all by itself (partial redundancy across the two `if (keyval==K)`
@@ -2114,10 +2044,10 @@ void tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
 
 /* ---- tInsideBoxTwoWaySlider::Draw  [FEMENUOPTIONS.CPP:1543-1573] SLD-VERIFIED ---- */
 
-void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
+void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool)
 
 {
-  /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iiib` linkage. */
+  /* Retail ABI bool is unnamed while the `iiib` linkage retains it. */
   /* SYM-CODEGEN-CARRIER: selection
      The virtual read must remain a separate statement before fWidth so retail
      performs the jalr before the width narrowing; SYM retains only the inlined
@@ -2397,16 +2327,16 @@ bool CheckForCheats(char *fData)
 
 /* ---- tUserNameMenuItem::ProcessInput  [FEMENUOPTIONS.CPP:1712-1849] SLD-VERIFIED ---- */
 
-void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
-              tMenuCommand &command)
+void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
+              tMenuCommand &)
 
 {
-  /* SYM: FCN VOID, REGPARM this($s0)+keyval($s1) only -- fromPlayer/command
-     are dead (never read in the body, matching the oracle: $a3/&command is
+  /* SYM: FCN VOID, REGPARM this($s0)+keyval($s1) only -- the unnamed ABI args
+     are dead (never read in the body, matching the oracle: $a3 is
      never touched). SYM's 8c block shows NO named locals at all: every
      scalar below is a Ghidra-fabricated compiler temp, not a real variable.
-     SYM-ABI-PARAM: fromPlayer
-     SYM-ABI-PARAM: command
+     ABI-PARAM: tPlayer remains in the mangling, unnamed.
+     ABI-PARAM: tMenuCommand& remains in the mangling, unnamed.
      SYM-CODEGEN-CARRIER: selectedChar
      SYM-CODEGEN-CARRIER: column
      SYM-CODEGEN-CARRIER: stringLength
@@ -2620,16 +2550,16 @@ int SpecialCharacter(char current)
 
 /* ---- tUserNameMenuItem::Draw  [FEMENUOPTIONS.CPP:1874-1966] SLD-VERIFIED ---- */
 
-void tUserNameMenuItem::Draw(bool selected)
+void tUserNameMenuItem::Draw(bool)
 
 {
-  /* SYM-ABI-PARAM: selected
+  /* Retail ABI bool is unnamed;
      SYM-CODEGEN-CARRIER: boxRight
      SYM-CODEGEN-CARRIER: menuStartY
      SYM-CODEGEN-CARRIER: columnx
      SYM-CODEGEN-CARRIER: row
      SYM-CODEGEN-CARRIER: right
-     SYM names x/y/shape and the inner lexical locals, but not these ABI and
+     SYM names x/y/shape and the inner lexical locals, but not the remaining
      expression carriers; the descriptive names below are not claimed as
      recoverable original identifiers.
      MATCH (2026-08-14): IDA/SLD show that lowercase, digit, and fallback
@@ -2893,7 +2823,6 @@ void tUserNameMenuItem::TransitionOff()
 
 {
   this->fFadeDir = 0x1e;
-  return;
 }
 
 
@@ -2979,18 +2908,10 @@ done:
 void tUserNameMenuItem::UpdateTransition(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar2
-   * Compiler-created destination of the one-line nested MIN/MAX clamp. */
-  int iVar2;
-  
-  iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
-  if (0x80 < iVar2) {
-    iVar2 = 0x80;
-  }
-  if (iVar2 < 0) {
-    iVar2 = 0;
-  }
-  this->fFadeVal = (short)iVar2;
+  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
+  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
+  const int fadeValue = highClamped < 0 ? 0 : highClamped;
+  this->fFadeVal = (short)fadeValue;
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -3000,10 +2921,10 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
 
 /* ---- tMemoryCardMenuItem::Draw  [FEMENUOPTIONS.CPP:2048-2085] SLD-VERIFIED ---- */
 
-void tMemoryCardMenuItem::Draw(bool selected)
+void tMemoryCardMenuItem::Draw(bool)
 
 {
-  /* SYM-ABI-PARAM: selected -- retained by the mangled ABI signature. */
+  /* Retail ABI bool is unnamed while the mangled signature keeps it. */
   /* SYM-CODEGEN-CARRIER: sVar2
    * SYM-CODEGEN-CARRIER: v
    * SYM-CODEGEN-CARRIER: sv

@@ -2,7 +2,7 @@
 SYM (psylink_lane.py in NFS4_LANE_G mode) with the retail SYM, function by function:
 
   FRAME    fsize / register mask / mask offset
-  LOCALS   every parameter and local: name, class (REG / REGPARM / AUTO / ARG / STAT), register number or sp offset, type
+  LOCALS   every parameter and local: name, class (REG / REGPARM / AUTO / ARG / STAT), register number or sp offset, type, scope depth
            -- EXTRA = a local retail does not have (an invented carrier), MISSING = a retail local we lack, MOVED = same
            name, different home, TYPE = same name, different type
   BLOCKS   the scope tree: nesting + function-relative start/end addresses (a wrong scope, an extra brace level, a missing
@@ -15,6 +15,9 @@ Writes symtree_report.json next to OURS_DUMP.
 
 2026-09-20: corrected this documentation only; comparison behavior is unchanged.
 Backup: scratchpad/sym_copspeak_engine_20260920/backups/symtree_cmp.py.
+2026-09-23: compare local scope depth as SCOPE. Matching block trees alone do
+not prove a named local belongs to the same block (AILife checkCar showed this).
+Backup: scratchpad/symtree_cmp_pre_scope_20260923.py.
 """
 import json
 import re
@@ -97,6 +100,10 @@ for fn in common:
                     issues.append('MOVED %s %s != %s' % (n, h1, h2))
                 elif t1 != t2:
                     issues.append('TYPE %s "%s" != "%s"' % (n, t1, t2))
+                # A scope tree can match while a name is bound to a different
+                # block; that is a source-declaration mismatch, not CLEAN.
+                if d1 != d2:
+                    issues.append('SCOPE %s depth %d != %d' % (n, d1, d2))
     if [n for n, *_ in o['locals'] if n in rh] != [n for n, *_ in r['locals'] if n in oh] and not any(i.startswith(('EXTRA', 'MISSING')) for i in issues):
         issues.append('ORDER of declarations differs')
     if o['blocks'] != r['blocks']:
@@ -117,7 +124,7 @@ Path(ours_path).with_name('symtree_report.json').write_text(json.dumps(report, i
 print('functions with debug records: ours %d, retail %d, common %d; retail-only %d, ours-only %d' % (
     len(ours), len(retail), len(common), len(set(retail) - set(ours)), len(set(ours) - set(retail))))
 print('CLEAN %d | DIRTY %d' % (tally['CLEAN'], tally['DIRTY']))
-for k in ('FRAME', 'EXTRA', 'MISSING', 'MOVED', 'TYPE', 'ORDER', 'BLOCKS'):
+for k in ('FRAME', 'EXTRA', 'MISSING', 'MOVED', 'TYPE', 'SCOPE', 'ORDER', 'BLOCKS'):
     print('  %-8s %5d functions' % (k, tally[k]))
 if '--list' in sys.argv:
     want = sys.argv[sys.argv.index('--list') + 1]

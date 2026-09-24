@@ -624,9 +624,9 @@ struct tDialogBase : public tScreen {
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
     tDialogBase();
     short ShouldTimeOut();
-    void InitializeClass();
+    static void InitializeClass();
     static void DrawAllDialogs();
-    void HideAllDialogs();
+    static void HideAllDialogs();
     static tDialogBase *GetTopMostDialog();
     void Display();
     void Hide();

@@ -167,17 +167,16 @@ char * Replay_Decompress(char *compressed_data)
 void Replay_InitReplay(void)
 
 {
-  GameSetup_tUserSetting temp;
-
   Replay_ReplayMode = GameSetup_gData.replayMode;
   Replay_LoadCameraFile();
   if (Replay_ReplayMode == 2) {
+    GameSetup_tUserSetting temp;
     temp = GameSetup_gData.userSetting;
     Replay_LoadReplay();
     GameSetup_gData = Replay_ReplayBuffer.gameSetup;
     GameSetup_gData.userSetting = temp;
-    Replay_ReplayGetPtr = 0;
     Replay_Size = Replay_ReplayBuffer.size;
+    Replay_ReplayGetPtr = 0;
   }
   else {
     Replay_ReplayBuffer.gameSetup = GameSetup_gData;
@@ -199,10 +198,10 @@ void Replay_ResetReplay(void)
    * that index to the oracle's incrementing $s2 cursor and hoists it after the
    * GameSetup/ReplayCamera bases. */
   int i;
-  /* SYM-CODEGEN-CARRIER: piVar2 -- the decrementing pointer produces retail's
-   * two-store walk.  Direct `Replay_ReplayCounter[i]` measures 87/86 and adds
-   * one address increment, so SYM cannot recover a unique source identifier. */
-  int *piVar2;
+  /* SYM-CODEGEN-CARRIER: counterSlot is the reverse two-counter cursor in $v0.
+   * NFS2-style indexing and a for loop emit 87 vs retail's 86 instructions
+   * (one extra address increment); a changed countdown shape costs 13 diffs. */
+  int *counterSlot;
   if ((u_int)Replay_ReplayMode < 2) {
     for (i = 0; i < 0x6000; i++)
       Replay_ReplayBuffer.buffer[i] = 0;
@@ -234,11 +233,11 @@ void Replay_ResetReplay(void)
     } while (i < 2);
   }
   i = 1;
-  piVar2 = Replay_ReplayCounter + 1;
+  counterSlot = Replay_ReplayCounter + 1;
   do {
-    *piVar2 = 0;
+    *counterSlot = 0;
     i = i + -1;
-    piVar2 = piVar2 + -1;
+    counterSlot = counterSlot + -1;
   } while (-1 < i);
   StatsTimer[0] = 0;
   StatsTimer[1] = 0;
@@ -249,9 +248,11 @@ void Replay_ResetReplay(void)
 void Replay_StoringReplay(void)
 
 {
+
   Replay_SaveReplay();
+
+
   numValidCams = 0;
-  return;
 }
 
 /* ---- Replay_StoringControllerData__FG15tControllerData  [REPLAY.CPP:283-307] SLD-VERIFIED ---- */
@@ -403,8 +404,8 @@ void Replay_GetInput(int car)
         controlData[car].brake[Replay_ReplayCounter[car]] & 0x7f;
     /* SYM-CODEGEN-CARRIER: steering
        SYM retains no locals in this function.  The signed temporary keeps
-       the retail `lb` load; the direct expression is count-exact but uses
-       `lbu` because the final store truncates the value back to a byte. */
+       the retail `lb` load; direct signed-byte lvalue and field-type forms
+       emit `lbu` and reverse two address-add operands (6 diffs). */
     int steering =
         (signed char)controlData[car].steering[Replay_ReplayCounter[car]];
     Input_gSim.steering = (char)((steering - '@') << 2);
@@ -442,27 +443,54 @@ void Replay_SaveReplay(void)
   Replay_ReplayBuffer.gameSetup = GameSetup_gData;
   Replay_ReplayBuffer.gameSetup.replayMode = 2;
   Replay_ReplayBuffer.size = Replay_Size;
-  return;
 }
 
 /* ---- Replay_LoadReplay__Fv  [REPLAY.CPP:469-492] SLD-VERIFIED ---- */
+/* The optimized retail function is empty. SYM/SLD retain 21 non-emitting
+   source lines between its null body statement and the final brace;
+   the original content of that region cannot be inferred from bytes. */
 void Replay_LoadReplay(void)
 
 {
-  return;
+  ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 /* ---- Replay_DoReplay__FP8Car_tObj  [REPLAY.CPP:498-506] SLD-VERIFIED ---- */
+/* Retail starts the mode guard at relative source line +5; the preceding
+   four non-emitting lines cannot be recovered verbatim from the image. */
 void Replay_DoReplay(Car_tObj *carObj)
 
 {
+
+
+
+
   if ((u_int)Replay_ReplayMode < 2) {
     Replay_SaveInput(carObj->humanIndex);
-  }
-  else {
+  } else {
     Replay_GetInput(carObj->humanIndex);
   }
-  return;
 }
 
 /* ---- Replay_GetInterfaceKey__Fv  [REPLAY.CPP:516-647] SLD-VERIFIED ---- */
@@ -583,11 +611,11 @@ void Replay_LoadCameraFile(void)
    * constant-false call keeps the string and adds no code. */
   if (0) sprintf((char *)0,"SimpleMem");
 
-  Camera_tCamSlot *cameraFile;
-  char fname [80];
-  int bigFile;
-  
   if (numValidCams == 0) {
+    Camera_tCamSlot *cameraFile;
+    char fname [80];
+    int bigFile;
+
     bigFile = 0;
     sprintf(fname,"%scamera.viv",Paths_Paths[8]);
     FILE_addbigsync(fname,0x10,100,&bigFile);
@@ -726,10 +754,8 @@ void Replay_ReplayFindClosestCamera(int player,int slice)
 
 {
   int cameraIndex;
-  {
-    int i;
     cameraIndex = 0;
-    for (i = cameraIndex; i < numValidCams; i++) {
+    for (int i = cameraIndex; i < numValidCams; i++) {
       int currDist;
       int nextDist;
       int actualDist;
@@ -745,7 +771,6 @@ void Replay_ReplayFindClosestCamera(int player,int slice)
         break;
       }
     }
-  }
   Replay_ReplayCamera[player].cutToNextCamera = cameraIndex;
   if (gReplayCameraSlots[Replay_ReplayCamera[player].cutToNextCamera].mode == 11) {
     Replay_ReplayCamera[player].defaultCamera = 0;

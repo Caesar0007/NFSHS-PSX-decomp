@@ -8,18 +8,24 @@
    remain defined below; fMemIcon keeps its native pointer-to-array dimensions. */
 
 /* ---- tScreenMemcard::GetShapeInfo  (screenmemcard.cpp:65) ---- */
+/* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800121a8) ahead of this
+ * function's first literal; the constant-false store keeps it with no code. */
 void tScreenMemcard::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
                char **swapFileName)
 
 {
-  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800121a8) ahead of this
-   * function's first literal; the constant-false call keeps it with no code. */
   if (0) *permFileName = "SimpleMem";   /* a dead STORE, not a call: GetShapeInfo is a leaf */
-  numSwapShapes = 0;
-  *swapFileName = (char *)0x0;
+
+  numSwapShapes = 0; *swapFileName = (char *)0x0;
   numPermShapes = 0x3c;
-  *permFileName = "zmemcrd";
-  return;
+  /* Retail SLD leaves seven source lines before the filename store.
+   * There is no instruction in this interval and no named SYM local.
+   * The region may have contained comments or a compiled-out branch.
+   * Its historical text cannot be recovered from SYM or image bytes.
+   * This note marks the gap without asserting unseen behavior.
+   * Revisit if another original source reference becomes available.
+   */
+  *permFileName = "zmemcrd"; return;
 }
 
 /* ---- tScreenMemcard::DrawIcon  (screenmemcard.cpp:90) ---- */
@@ -96,9 +102,7 @@ void tScreenMemcard::LoadIcon(int filenum)
   int clutx;
   int cluty;
   int i;
-  /* SYM-CODEGEN-CARRIER: cardInfo -- direct this->pCI access keeps the same
-     215 instructions but moves the pCI load below the title store (2 diffs). */
-  CARDINFO_def *cardInfo;
+  bool pulled;
   
   if (AudioMus_Buffered() < AudioMus_Threshold()) {
     return;
@@ -108,7 +112,7 @@ void tScreenMemcard::LoadIcon(int filenum)
     this->numblock[filenum] = '\0';
     if (filenum < this->pCI->numfiles) {
       blockclear(this->fMemFile + filenum,0x2c);
-      cardInfo = this->pCI;
+      CARDINFO_def *const cardInfo = this->pCI;
       this->fMemFile[filenum].title = (char *)((int)this->fMemTitle + filenum * 0x20);
       this->fMemFile[filenum].name = (char *)(cardInfo->dir + filenum);
       this->fMemFile[filenum].icon[0] = (shapetbl *)(*fMemIcon)[filenum][0];
@@ -123,6 +127,9 @@ void tScreenMemcard::LoadIcon(int filenum)
         if (done) {
           break;
         }
+        /* Retail's +0x14c..+0x310 loop-body scope; the value itself is
+           optimized out of native SYM but holds the two $t0 stores. */
+        int one;
         if (MCRD_getcard(this->card)->status == -1) {
           this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
         }
@@ -160,14 +167,11 @@ void tScreenMemcard::LoadIcon(int filenum)
               i = i + 1;
             } while (i < (int)(uint)this->numicon[filenum]);
           }
-          {
-            /* SYM-CODEGEN-CARRIER: one -- direct literal stores allocate $v0;
-               this shared block-local value restores retail's two $t0 stores
-               and measures 8 fewer instruction diffs. */
-            int one = 1;
-            this->fFadeIcon[filenum] = 0x80;
-            this->goticon[filenum] = one;
-          }
+          /* SYM-CODEGEN-CARRIER: one -- direct literal stores allocate $v0;
+             this shared value restores retail's two $t0 stores. */
+          one = 1;
+          this->fFadeIcon[filenum] = 0x80;
+          this->goticon[filenum] = one;
           break;
         case 2:
         case 3:
@@ -178,13 +182,11 @@ void tScreenMemcard::LoadIcon(int filenum)
         case 0x13:
         case 0x17:
           done = true;
-          {
-            /* SYM-CODEGEN-CARRIER: pulled -- assigning done directly removes
-               retail's `addu $t0,$s7,$zero` and measures 3 diffs (214/215). */
-            bool pulled = done;
-            __asm__("" : "=r"(pulled) : "0"(pulled));
-            this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = pulled;
-          }
+          /* SYM-CODEGEN-CARRIER: pulled -- assigning done directly removes
+             retail's `addu $t0,$s7,$zero` and measures 3 diffs (214/215). */
+          pulled = done;
+          __asm__("" : "=r"(pulled) : "0"(pulled));
+          this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = pulled;
           this->goticon[filenum] = '\0';
           break;
         }
@@ -322,11 +324,13 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
 {
   short xx;
   short yy;
+  short computedY;
   int j;
   /* SYM-CODEGEN-CARRIER: animFrame -- recomputing the remainder only in the
      icon-table arm is FAIL 93 at 214/213 and moves the div across the branch. */
   int animFrame;
 
+  {
   j = 0;
   while (1) {
     if (j >= (int)(uint)this->numblock[i]) {
@@ -340,10 +344,10 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
       xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX +
            MEMCARD_DELTAX * (2 - (short)((int)this->cursorPosition % 3));
     }
-    yy = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
+    computedY = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
             (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY);
     /* SYM-CODEGEN-CARRIER: nfs4Icon -- direct member comparison is FAIL 3 at
-       214/213, loading the member beside the div instead of before savedY. */
+       214/213, loading the member beside the div instead of before yy. */
     int nfs4Icon = this->theNFS4icon;
     /* SYM-CODEGEN-CARRIER: tickFrame -- folding the shifted tick load into
        the remainder expression is count-exact FAIL 18 and rotates its web. */
@@ -354,14 +358,15 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     /* SYM-CODEGEN-CARRIER: tickPtr -- direct `ticks` is count-exact FAIL 2,
        placing its address high half one instruction after retail. */
     int *tickPtr = &ticks;
-    /* SYM-CODEGEN-CARRIER: savedY -- direct reuse of `yy` is count-exact
-       FAIL 2, moving the tick-address high half after retail's $a3->$s0 copy. */
-    short savedY = yy;
+    /* Retail's named `yy` is the $s0 value surviving the calls. `computedY`
+       models the earlier $a3 expression; direct reuse collapses their copy
+       and moves the tick-address high half (count-exact FAIL 2). */
+    yy = computedY;
     /* MATCH (73 -> 4 -> 2 -> PASS, 213/213): the natural signed-short
        coordinate expressions and sum-before-limit spelling establish the
        retail homes.  Naming the NFS4 icon and modulo divisor, then pricing the
        divisor with the empty read-only fence, restores the $a0 comparison and
-       remainder webs.  `savedY` plus its zero-insn identity boundary preserves
+       remainder webs. `yy` plus its zero-insn identity boundary preserves
        retail's real $a3->$s0 copy for the coordinate that survives the calls.
        Crucially, the honest `ticks` base pointer is born before that boundary:
        split-address scheduling emits `%hi(ticks)`, the saved-Y copy, and then
@@ -378,28 +383,29 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
       tDrawShapeExtended fFlags;   /* [SYM] AUTO sp+32, block opened at SLD 16 */
 
       fFlags.tint[0] = 0xb55623;
-      DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,yy - 0x70,
+      DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,computedY - 0x70,
                  fadeval + this->fFadeIcon[i] < 0x81 ?
                  fadeval + this->fFadeIcon[i] : 0x80,1,
                  &fFlags);
     }
     else {
       this->DrawIcon((shapetbl *)(*fMemIcon)[i][animFrame],
-                 xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,
+                 xx * 0x10000 >> 0x10,computedY * 0x10000 >> 0x10,0x1f,0x10,
                  (short)(fadeval + this->fFadeIcon[i] < 0x81 ?
                          fadeval + this->fFadeIcon[i] : 0x80));
     }
     if (((this->theNFS4icon == i) && (fadeval == 0)) && (this->fGetNewIcons == 0)) {
       xx = xx * 0x10000 >> 0x10;
-      yy = (int)(short)savedY;
-      PSXDrawSquare(0,(xx - MEMCARDICONOFFX) + 2,(yy - MEMCARDICONOFFY) + 1,MEMCARD_DELTAX + -2,
+      computedY = (int)(short)yy;
+      PSXDrawSquare(0,(xx - MEMCARDICONOFFX) + 2,(computedY - MEMCARDICONOFFY) + 1,MEMCARD_DELTAX + -2,
                  MEMCARD_DELTAY + -1);
       PSXDrawSquare
-                (0xbebe,xx - MEMCARDICONOFFX,yy - MEMCARDICONOFFY,MEMCARD_DELTAX + 2,
+                (0xbebe,xx - MEMCARDICONOFFX,computedY - MEMCARDICONOFFY,MEMCARD_DELTAX + 2,
                  MEMCARD_DELTAY + 1);
     }
     this->cursorPosition = this->cursorPosition + 1;
     j = j + 1;
+  }
   }
   return;
 }
@@ -875,8 +881,7 @@ tScreenMemcard::tScreenMemcard()
 
 {
   this->message = -1;
-  this->card = 1;
-  return;
+  this->card = 1; return;
 }
 
 /* ---- tScreenMemcard::ReleaseIcons  (screenmemcard.cpp:710) ---- */
@@ -884,30 +889,30 @@ void tScreenMemcard::ReleaseIcons()
 
 {
   int i;
-
-  i = 0;
-  do {
+  i = 0; do {
+    /* Retail SLD leaves three source lines before the icon-state clears.
+     * No instruction or named local occupies the intervening region.
+     * Its original contents are not recoverable from the available inputs. */
     this->goticon[i] = '\0';
     this->numicon[i] = '\0';
     this->numblock[i] = '\0';
+
     if (this->fMemIconClutId[i] != 0) {
+
       Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
       this->fMemIconClutId[i] = 0;
     }
-    i = i + 1;
-  } while (i < 0xf);
-  return;
+    /* Retail has two unassigned source lines before the loop update.
+     * No additional executable operation is inferred here. */
+    i = i + 1; } while (i < 0xf); return;
 }
 
 /* ---- tScreenMemcard::Initialize  (screenmemcard.cpp:734) ---- */
+/* A const use-site message choice preserves retail's staged $a3 value and
+ * optimizes out of native locals; a direct menu-field ternary costs 43 diffs. */
 void tScreenMemcard::Initialize()
 
 {
-  /* SYM-CODEGEN-CARRIER: msgId -- folding this conditional into the later
-     menu-field store is FAIL 43 at 107/106 instructions; the staged value is
-     retail's live $a3 across the menuDefs load and has no recoverable name. */
-  uint msgId;
-  
   GRIDMEMCARD_STARTX = 0xf6;
   GRIDMEMCARD_STARTY = 0x3c;
   MEMCARD_DELTAX = 0x3b;
@@ -930,12 +935,9 @@ void tScreenMemcard::Initialize()
   this->checkingstart = 0;
   this->memcardanimframe = 0;
   this->count = 0;
-  msgId = 0x287;
   this->player = FEApp->fInputPlayer;
   this->card = this->player * 4 + 1;
-  if (this->player != 0) {
-    msgId = 0x289;
-  }
+  const uint msgId = this->player != 0 ? 0x289 : 0x287;
   {
     int i = 0;
     (menuDefs->itemLoadGame).fTextDescription = msgId;

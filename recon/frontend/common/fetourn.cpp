@@ -9,8 +9,8 @@
 void tTournamentManager::Initialize()
 
 {
-  /* SYM-CODEGEN-CARRIER: numCars -- keeping the promoted car-count value
-     separate preserves the retail byte load before the two garage stores. */
+  /* The const car-count snapshot keeps the retail byte load before both
+     garage stores without emitting a synthetic SYM local. */
   short i;
 
   this->fMoney = Tourn_StartMoney;
@@ -30,7 +30,7 @@ void tTournamentManager::Initialize()
     this->fTierFinishPrizeChange[i] = 0;
   }
 
-  long numCars = carManager.fNumCars;
+  const long numCars = carManager.fNumCars;
   frontEnd.garageCar[0] = numCars - 1;
   frontEnd.garageCar[1] = frontEnd.garageCar[0];
   return;
@@ -115,12 +115,11 @@ void tTournamentManager::LoadDescription()
 void tTournamentManager::ReleaseDescription()
 
 {
-  
-  if (this->fDefinition != NULL) {
+  if (this->fDefinition != NULL)
+  {
     purgememadr(this->fDefinition);
     this->fDefinition = NULL;
   }
-  return;
 }
 
 
@@ -153,7 +152,6 @@ void tTournamentManager::UpdateTrackList(short tier,short tournament)
 short * tTournamentManager::GetTrackList(short tier,short tournament)
 
 {
-  
   this->UpdateTrackList(tier,tournament);
   return this->fTrackList;
 }
@@ -315,19 +313,16 @@ ret0:
 static int tournPointsCompare(char *p1,char *p2)
 
 {
-  /* SYM-CODEGEN-CARRIER: tm
-     SYM-CODEGEN-CARRIER: comps
-     The two-stage embedded-array base formation supplies the retail +280
-     adjustment; direct tournamentManager indexing is one instruction short. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read result, dummyCars; the two
-     non-SYM carriers follow the SYM set. */
+  /* SYM-CODEGEN-CARRIER: tm. The two-stage embedded-array base formation
+     supplies the retail +280 adjustment; direct indexing or a const tm
+     declaration omits one instruction. The const comps snapshot does not
+     emit an extra SYM local. Retail records result and dummyCars only. */
   int result;
   Car_tStats *dummyCars;
   tTournamentManager *tm;
-  tCompetitor *comps;
 
   tm = &tournamentManager;
-  comps = tm->fCompetitors;
+  tCompetitor *const comps = tm->fCompetitors;
   dummyCars = Cars_gNewCarStatsList;
   result = (u_int)comps[(byte)*p2].fPoints - (u_int)comps[(byte)*p1].fPoints;
   if ((result == 0) &&
@@ -378,10 +373,11 @@ void tTournamentManager::UpdateTrackFinishMoney()
 
 {
   Car_tStats *dummyCars;
-  
-  if (Cars_gNewCarStatsList[0].finalFinishType == 2) {
+
+  dummyCars = Cars_gNewCarStatsList;
+  if (dummyCars[0].finalFinishType == 2) {
     (this->fAwards).fMoney +=
-        this->GetTrackFinishPrize((short)Cars_gNewCarStatsList[0].finalPosition + -1);
+        this->GetTrackFinishPrize((short)dummyCars[0].finalPosition + -1);
   }
   return;
 }
@@ -863,12 +859,12 @@ long tTournamentManager::GetTournamentFinishPrize(short position)
 }
 
 /* ---- tTournamentManager::GetAwardInformation  [FETOURN.CPP:913-914] ---- */
+/* Ghidra hand-expanded gcc's own movstrsi block copy of the 68-byte
+   tAwardInformation (4 words/iter + 1-word tail) -- one struct assignment. */
 
 void tTournamentManager::GetAwardInformation(tAwardInformation &info)
 
 {
-  /* Ghidra hand-expanded gcc's own movstrsi block copy of the 68-byte
-     tAwardInformation (4 words/iter + 1-word tail) — it is one struct assignment. */
   info = this->fAwards;
 }
 
@@ -956,7 +952,6 @@ void tTournamentManager::CalcTierFinishPrize()
 {
   this->fTierFinishPrize[this->fTier] = 7;
   this->fTierFinishPrizeChange[this->fTier] = 0;
-  return;
 }
 
 
@@ -967,10 +962,8 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
                )
 
 {
-  /* SYM-CODEGEN-CARRIER: best
-     SYM-CODEGEN-CARRIER: t
-     `best` fixes the pre-branch load schedule and the short `t` controls the
-     aggregate-initializer allocation; folding t changes 40 instructions. */
+  /* Const snapshots preserve the pre-branch best-placement load and the
+     short branch selection without adding retail-absent SYM locals. */
   /* SYM locals: int showplace (REG $2) + char trophySizeLetter[3] (AUTO -0x18)
      + char trophyPlacementLetter[4] (AUTO -0x10); `place` keeps its own REG $3.
      The two arrays are AGGREGATE INITIALIZERS (rodata->stack copies: 3x lb/sb
@@ -978,20 +971,16 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
      the Ghidra body had hand-expanded gcc's own unaligned block move. */
   int showplace;
   char trophySizeLetter [3] = { 'S', 'M', 'L' };
-  int best;
   /* MATCH: `char` is UNSIGNED on this build -> (signed char) restores the oracle's lb.
      SLD puts this read on line 1042/1043 -- BETWEEN the two array initializers and
      before the guard, i.e. in the entry basic block (sched1 cannot move a load
      across a branch, so an in-branch placement can never reproduce it). */
-  best = (signed char)tournamentManager.fBestPlacement
-                    [(signed char)tourn->fTournamentID];
+  const int best = (signed char)tournamentManager.fBestPlacement
+                  [(signed char)tourn->fTournamentID];
   char trophyPlacementLetter [4] = { 'W', 'G', 'S', 'B' };
 
   if (place == -1) {
-    short t = 0;
-    if ((u_int)(best - 1U) < 3) {
-      t = best;
-    }
+    const short t = (u_int)(best - 1U) < 3 ? best : 0;
     showplace = t;
   }
   else {
@@ -1092,12 +1081,11 @@ short tListIteratorTournament::TextValue(tPlayer)
 
 {
   short tournIndex;
-
-  /* MATCH: SYM = one local (tournIndex); the fDefinition chain written TWICE (CSE -> in-place a1) */
-  tournIndex = this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier].fTournOffset
-      + (byte)*this->fValue;
-  return (signed char)this->fTournamentManager->fDefinition->fTournaments[tournIndex]
-             .fTournamentID + 0x341;
+  /* SYM/SLD: the offset is initialized first, then the selected value is
+     accumulated on the following retail source line. */
+  tournIndex = this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier].fTournOffset;
+  tournIndex += (byte)*this->fValue;
+  return (signed char)this->fTournamentManager->fDefinition->fTournaments[tournIndex].fTournamentID + 0x341;
 }
 
 

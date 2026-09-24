@@ -14,34 +14,27 @@ void FastRandom_StartUp(unsigned int seeder);
 
 /* ---- FastRandom_CleanUp__Fv  [FASTRAND.CPP:13-14] SLD-VERIFIED ---- */
 void FastRandom_CleanUp(void)
-
 {
-  return;
 }
 
 /* ---- FastRandom_StartUp__FUi  [FASTRAND.CPP:18-33] SLD-VERIFIED ---- */
 void FastRandom_StartUp(unsigned int seeder)
 
 {
-  unsigned int a;
-  unsigned int b;
+  unsigned int a, b;
   int seedIterations;
-  int i;
-
   a = 0x75bcd15;
   b = 0x3ade68b1;
-  randSeed = a;
-  fastRandom = b;
-  i = 0;
-  seedIterations = (int)(seeder % 500);
-  if (0 < seedIterations) {
-    do {
-      randtemp = fastRandom * 0x75bcd15;
-      i = i + 1;
-      fastRandom = randtemp & 0xffff;
-    } while (i < seedIterations);
-  }
-  return;
-}
+  {
+    int i;
+    randSeed = a; fastRandom = b;
+    i = 0;
+    seedIterations = (int)(seeder % 500);
+
+    if (0 < seedIterations) { do {
+
+        randtemp = fastRandom * 0x75bcd15; fastRandom = randtemp & 0xffff;
+
+        i = i + 1; } while (i < seedIterations); } return; } }
 
 /* end of fastrand.cpp */

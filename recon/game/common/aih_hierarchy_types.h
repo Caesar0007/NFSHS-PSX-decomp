@@ -158,6 +158,10 @@ struct copGame_t { int numLevels; copLevel_t *levels; };
 struct AICop_BasicPerpInfo {
     int copsAssigned_[2];
     crimeType crime_;
+    /* Names inferred from behavior: retail SYM records the inlined scopes,
+       not the original inline member identifiers. */
+    inline crimeType GetCrime() const { return crime_; }
+    inline void SetCrime(crimeType crime) { crime_ = crime; }
     /* retail inlines a member here: AddChaser / RemoveChaser show the scope pair { this { } } (SYM Block records) */
     inline void AddCop(copType type) { copsAssigned_[type]++; }
     inline void RemoveCop(copType type) { copsAssigned_[type]--; }
@@ -195,6 +199,11 @@ struct AIState_None : public AIState_Base {
 
 struct AIHigh_Base {
     Car_tObj *carObj_;
+#ifdef NFS4_AIH_BASICPERP_INLINE_SCOPE
+    inline Car_tObj *GetCarObj() { return carObj_; }
+#else
+    Car_tObj *GetCarObj();
+#endif
     AIState_Base *state_;
     stateType_t stateType_;
     int schedulingOff_, lastTrafficTriggerCheckSlice_;
@@ -293,6 +302,11 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     int copIndex_;
     blockade_t blockade_;
     AIHigh_tDriveAwayMode driveAway_;
+#ifdef NFS4_AIH_BASICPERP_INLINE_SCOPE
+    inline void SetDriveAway(AIHigh_tDriveAwayMode mode) { driveAway_ = mode; }
+#else
+    void SetDriveAway(AIHigh_tDriveAwayMode mode);
+#endif
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);

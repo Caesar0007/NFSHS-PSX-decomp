@@ -561,21 +561,18 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 }
 
 /* ---- StatChk_ClearNewRecords  (statchk.cpp:664) ---- */
+/* W86-S4: the SYM's `8c` block records exactly ONE local here,
+   `REG i $3 v1 INT` -- the former `int *pRec` walk-pointer carrier was a hard
+   fiction.  Folded into the down-counting index loop; the split
+   `la NewRecords` + `addiu 0x1C` shape it was buying comes out of the index
+   form for free.  Re-gated PASS. */
 void StatChk_ClearNewRecords(void)
 
 {
-  /* W86-S4: the SYM's `8c` block records exactly ONE local here,
-     `REG i $3 v1 INT` -- the former `int *pRec` walk-pointer carrier was a hard
-     fiction.  Folded into the down-counting index loop; the split
-     `la NewRecords` + `addiu 0x1C` shape it was buying comes out of the index
-     form for free.  Re-gated PASS. */
   int i;
-
   for (i = 7; -1 < i; i = i + -1) {
-    NewRecords[i] = 0;
-  }
+    NewRecords[i] = 0; }
   NewBestLap = 0;
-  return;
 }
 
 /* end of statchk.cpp */

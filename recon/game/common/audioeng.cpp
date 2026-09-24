@@ -542,9 +542,7 @@ void AudioEng_StopServer(void)
 /* ---- AudioEng_Pause__Fv  [@0x8007c47c] ---- */
 void AudioEng_Pause(void)
 {
-  int player;
-
-  for (player = 0; player < 2; player++) {
+  for (int player = 0; player < 2; player++) {
     AudioEng_t *g = AudioEng_g[player];
     AudioEng_tState *s;
 

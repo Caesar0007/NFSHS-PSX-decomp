@@ -7,10 +7,8 @@
 
 static inline int TextDefinitionColor(tMenuTextType type, int column)
 {
-  /* The retail SYM records a nested inline block for each lookup.  Keeping
-     this as an accessor prevents CSE from merging the row-base expressions. */
-  int *colors = kRGBVals;
-  return colors[(byte)textDefinitions[type][column]];
+  /* The retail SYM records a nested inline block for each lookup. */
+  return kRGBVals[(byte)textDefinitions[type][column]];
 }
 
 /* lines 1-20: file header, #includes, static data, macros (no symbols emitted) */
@@ -29,6 +27,7 @@ int CalcFadeVal(int col1,int col2,int amount)
   r = (int)((0x80 - amount) * (col1 & 0xffU) + amount * (col2 & 0xffU)) >> 7;
   g = (int)((0x80 - amount) * (col1 >> 8 & 0xffU) + amount * (col2 >> 8 & 0xffU)) >> 7;
   b = (int)((0x80 - amount) * (col1 >> 0x10 & 0xffU) + amount * (col2 >> 0x10 & 0xffU)) >> 7;
+
   return b << 0x10 | g << 8 | r;
 }
 
@@ -53,27 +52,31 @@ int CalcFadeVal(int col1,int col2,int amount,int fFade)
 /* lines 41-43: (static data / macros / comments - no emitted code) */
 
 /* ---- CalcTextFadeUnselToSel  (fefades.cpp:44, code lines 44-49) ---- */
+/* Two inline lookups retain separate row bases and 3/4 displacements. */
 int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
 
 {
-  /* MATCH: the SYM's two nested inline-block pairs reveal two calls to the
-     accessor above.  They retain separate row bases and 3/4 load displacements. */
-  return CalcFadeVal(TextDefinitionColor(type,3),
-                     TextDefinitionColor(type,4),
-                     (int)fSelFade,(int)fFade);
+  const int color = CalcFadeVal(TextDefinitionColor(type,3),
+                                TextDefinitionColor(type,4),
+                                (int)fSelFade,
+                                (int)fFade);
+  return color;
+
 }
 
 /* lines 50-52: (static data / macros / comments - no emitted code) */
 
 /* ---- CalcTextFadeSelToHi  (fefades.cpp:53, code lines 53-59) ---- */
+/* Two inlined accessor calls reproduce the SYM block nesting. */
 int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
 
 {
-  /* MATCH: two inlined accessor calls reproduce the SYM block nesting. */
-  return CalcFadeVal(
-      CalcFadeVal(TextDefinitionColor(type,4),
-                  TextDefinitionColor(type,5),(int)fSelFade),
-      0,(int)fFade);
+
+  const int selectedColor = CalcFadeVal(TextDefinitionColor(type,4),
+                                        TextDefinitionColor(type,5),
+                                        (int)fSelFade);
+  const int color = CalcFadeVal(selectedColor,0,(int)fFade);
+  return color;
 }
 
 /* lines 60-64: (static data / macros / comments - no emitted code) */
@@ -85,7 +88,7 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
    72 / 73 / 75 / 76 / 78 / 79 -- the order kept here.
    MATCH 2026-08-13 (12->2): the three SYM inline-block pairs were accessor calls.
    PASS 2026-08-26 (2->0, 88/88): initialize the three SYM-unnamed value carriers
-   in baseB/baseA/baseC order.  The order changes only sched2's address-chain
+   in column 5/4/3 order.  The order changes only sched2's address-chain
    priority and places `%lo(kRGBVals)` immediately after its `%hi`; the six named
    SLD statements below, register allocation, row bases, displacements, and calls
    remain exact.
@@ -93,29 +96,24 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
    before the first call.  Removing them with inline-accessor expressions is
    FAIL 135 (103/88); raw expressions are FAIL 93 (97/88), and raw expressions
    with these value webs are FAIL 14 (86/88). */
+/* Source-only column-color value webs preserve retail scheduling;
+   their original names are not recoverable from SYM. */
 void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFade,int &OnColor,
                int &OffColor)
 
 {
-  int ColSelOn;
-  int ColSelOff;
-  int ColUnSelOn;
-  int ColUnSelOff;
-  /* SYM-CODEGEN-CARRIER: baseA
-     SYM-CODEGEN-CARRIER: baseB
-     SYM-CODEGEN-CARRIER: baseC -- measured source-only value webs; see the
-     function receipt above. */
-  int baseA;
-  int baseB;
-  int baseC;
+  int ColSelOn, ColSelOff, ColUnSelOn, ColUnSelOff;
+  int colorColumn4, colorColumn5, colorColumn3;
 
-  baseB = TextDefinitionColor(type,5);
-  baseA = TextDefinitionColor(type,4);
-  baseC = TextDefinitionColor(type,3);
-  ColSelOn = CalcFadeVal(baseA,baseB,(int)fOnOffFade);
-  ColSelOff = CalcFadeVal(baseB,baseA,(int)fOnOffFade);
-  ColUnSelOn = CalcFadeVal(baseC,baseA,(int)fOnOffFade);
-  ColUnSelOff = CalcFadeVal(baseA,baseC,(int)fOnOffFade);
+  colorColumn5 = TextDefinitionColor(type,5);
+  colorColumn4 = TextDefinitionColor(type,4);
+  colorColumn3 = TextDefinitionColor(type,3);
+  ColSelOn = CalcFadeVal(colorColumn4,colorColumn5,(int)fOnOffFade);
+  ColSelOff = CalcFadeVal(colorColumn5,colorColumn4,(int)fOnOffFade);
+
+  ColUnSelOn = CalcFadeVal(colorColumn3,colorColumn4,(int)fOnOffFade);
+  ColUnSelOff = CalcFadeVal(colorColumn4,colorColumn3,(int)fOnOffFade);
+
   OnColor = CalcFadeVal(ColUnSelOn,ColSelOn,(int)fSelFade,(int)fFade);
   OffColor = CalcFadeVal(ColUnSelOff,ColSelOff,(int)fSelFade,(int)fFade);
 }

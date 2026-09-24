@@ -100,50 +100,26 @@ void tScreenControllerConfig::ShakeIt()
 }
 
 /* ---- Controller_SetRamp  (screencontroller.cpp:791) ---- */
+/* Retail SYM places short i in an outer block and type/config in the loop.
+   The named type first holds the raw controller type in $v1, then the mapped
+   category. A chained ramp assignment preserves the per-iteration constant.
+   Compiler/assembler trial receipts: scratchpad/w64a20/RECEIPTS.md. */
 void Controller_SetRamp(void)
 
 {
-  /* MATCH (06A, SYM 8c @0x80043250): the recovered semantic locals are `i`
-     (SHORT, loop counter, REG s2), `type` (INT), and `config` (INT).
-     device/devType/ctrl_type were Ghidra-fabricated and remain inlined. */
+  {
   short i;
-  int type;
-  int config;
 
-  /* MATCH (SLD 794): the oracle re-tests at the TOP of every iteration
-     (sll/sra/slti/beqz before the body) -- a plain `for` gets loop-rotated and
-     fuses the sign-extend into the address (sra ..,15). */
   i = 0;
   while (1) {
+    int type;
+    int config;
+
     if (i >= 2) break;
-    /* MATCH (SLD 797 = ONE source line): a nested ternary -- the if/else-if
-       chain lays the `0` arm out inline, the oracle has it LAST. */
-    type = frontEnd.controlType[i] == 0x23 ? 0 :
-           ((frontEnd.controlType[i] == 0x53 || frontEnd.controlType[i] == 0x73) ? 1 : 2);
+    type = frontEnd.controlType[i];
+    type = type == 0x23 ? 0 :
+           ((type == 0x53 || type == 0x73) ? 1 : 2);
     config = frontEnd.controlConfig[i];
-    /* MATCH (2026-08-10, 26 -> PASS 83/83): plain literals let LICM hoist the
-       store-only 1 into $s4, which adds an $s6 save and two instructions.  `one`
-       is only an identity-fence carrier: the empty template retains retail's
-       per-iteration `li $v0,1` without emitting code.  The read-only `config`
-       fence immediately before it preserves retail's `lbu $v1,866($s0)` then
-       `li $v0,1` schedule.  Retail still hoists the comparison constant 1 into
-       $s3 across the three calls.  A plain void scheduling barrier and literal
-       type changes were neutral and reverted. */
-    /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
-     * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
-     * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
-     * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
-     * Gate-lane object is byte-identical (proven by hash); see
-     * scratchpad/w64a20/RECEIPTS.md. */
-    /* [W85-S5, BOTH DEVICES REMOVED] The two fences and the `one` carrier are
-       gone: a CHAINED assignment `steer = brake = gas = 1;` reproduces retail's
-       per-iteration `li $v0,1` on its own (whole-TU 22/22 PASS).  The chain
-       gives the constant exactly one definition feeding three stores, which is
-       what stops LICM hoisting it into an extra callee-saved register the way
-       three independent literal stores do.  FALSIFIED (whole-TU re-gated):
-       three plain literal stores 26; the same plus the read-only `config`
-       fence 27; a plain (unfenced) `one` local 27; `config` fence + plain
-       `one` 27. */
     frontEnd.rampSteer[i] = frontEnd.rampBrake[i] = frontEnd.rampGas[i] = 1;
     if (InGame_GetDevice(GetPSXPadValue(mappings[config][0][type],0)) == 1) {
       frontEnd.rampSteer[i] = '\0';
@@ -157,6 +133,7 @@ void Controller_SetRamp(void)
     i = i + 1;
   }
   return;
+  }
 }
 
 /* ---- tScreenControllerConfig::AnimKeyPoints  (screencontroller.cpp:817) ---- */

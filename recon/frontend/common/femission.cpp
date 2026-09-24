@@ -19,10 +19,10 @@ void tMissionManager::Initialize()
 
 
 /* ---- tMissionManager::LoadDescription  [FEMISSION.CPP:79-133] ---- */
-/* SYM 8c @0x8003407c: 4 REG locals data(s1) input(s2) numMissions(s5 ULONG)
+/* SYM 8c @0x8003407c: 4 REG locals input(s2) data(s1) numMissions(s5 ULONG)
    numStages(s3 ULONG) + filename AUTO; mask $803f0000 = 6 saved regs (s0/s4 are
    the blockmove address temps).  MATCH: 79/79.  The retail source advances the
-   named input pointer after the tier and mission copies; spelling the later
+   named data pointer after the tier and mission copies; spelling the later
    sources as repeated expressions introduced an unlisted byte temporary and
    rotated the saved-register allocation (24 diffs). */
 void tMissionManager::LoadDescription(bool LoadHotPursuit)
@@ -38,20 +38,20 @@ void tMissionManager::LoadDescription(bool LoadHotPursuit)
 
   sprintf(filename,"%s%s",Paths_Paths[0x25],
           frontEnd.gameMode != '\x01' ? "zHPurs.mis" : "zHPurs2.mis");
-  data = (char *)loadfileadr(filename,0x10);
-  this->fNumTiers = *data;
-  numMissions = *(unsigned long *)(data + 4);
-  numStages = *(unsigned long *)(data + 8);
-  input = data + 0xc;
+  input = (char *)loadfileadr(filename,0x10);
+  this->fNumTiers = *input;
+  numMissions = *(unsigned long *)(input + 4);
+  numStages = *(unsigned long *)(input + 8);
+  data = input + 0xc;
   if (this->fDefinition == (tAcademyDefinition *)0x0) {
     this->fDefinition = (tAcademyDefinition *)reservememadr("Missions",0x3120,0);
   }
-  blockmove(input,this->fDefinition,(uint)(byte)this->fNumTiers << 2);
-  input = input + (uint)(byte)this->fNumTiers * 4;
-  blockmove(input,this->fDefinition->fMissions,numMissions * 0x14);
-  input = input + numMissions * 0x14;
-  blockmove(input,this->fDefinition->fStages,numStages * 0x2c);
-  purgememadr(data);
+  blockmove(data,this->fDefinition,(uint)(byte)this->fNumTiers << 2);
+  data = data + (uint)(byte)this->fNumTiers * 4;
+  blockmove(data,this->fDefinition->fMissions,numMissions * 0x14);
+  data = data + numMissions * 0x14;
+  blockmove(data,this->fDefinition->fStages,numStages * 0x2c);
+  purgememadr(input);
   return;
 }
 
@@ -61,13 +61,11 @@ void tMissionManager::LoadDescription(bool LoadHotPursuit)
 void tMissionManager::ReleaseDescription()
 
 {
-  
   if (this->fDefinition != (tAcademyDefinition *)0x0) {
+
     purgememadr(this->fDefinition);
     this->fDefinition = (tAcademyDefinition *)0x0;
-  }
-  return;
-}
+  } }
 
 
 
@@ -79,10 +77,10 @@ short tMissionManager::GetMissionStages(short tier,short mission,tStageInfo **pS
 
 {
   tMissionInfo *pMissionInfo;
-
   pMissionInfo = &this->fDefinition->fMissions[
       (uint)this->fDefinition->fTiers[tier].fMissionOffset + (int)mission];
   *pStages = this->fDefinition->fStages + pMissionInfo->fStageOffset;
+
   return (short)pMissionInfo->fNumStages;
 }
 
@@ -92,13 +90,8 @@ short tMissionManager::GetMissionStages(short tier,short mission,tStageInfo **pS
 void tMissionManager::GetMissionToRace(tMissionInfo **mission)
 
 {
-  tMissionTierInfo *currentTier;
-
-  *mission = &this->fDefinition->fMissions[
-               (uint)this->fDefinition->fTiers[(byte)frontEnd.policeTier].fMissionOffset +
-               (uint)(byte)frontEnd.policeMission];
-  return;
-}
+  tMissionTierInfo *currentTier = &this->fDefinition->fTiers[(byte)frontEnd.policeTier];
+  *mission = &this->fDefinition->fMissions[(uint)currentTier->fMissionOffset + (uint)(byte)frontEnd.policeMission]; }
 
 
 

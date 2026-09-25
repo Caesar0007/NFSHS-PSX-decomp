@@ -69,4 +69,18 @@ extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRN
 extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
 extern u_long              gWSavePtr;
 
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" unsigned long SetSp(unsigned long stack_pointer);
+extern "C" int fixeddiv(int a, int b);
+extern "C" int fixedmult(int a, int b);
+extern "C" int fixedsqrt(int value);
+extern "C" void fixedxformx(matrixtdef *out, int angle);
+extern "C" void fixedxformy(matrixtdef *out, int angle);
+extern "C" void fixedxformz(matrixtdef *out, int angle);
+extern "C" int intatan(int y, int x);
+extern "C" void *memset(void *dst, int value, unsigned int size);
+extern "C" void reorthogonalize(matrixtdef *m);
+extern "C" void transpose(matrixtdef *src, matrixtdef *dst);
+
 #endif /* NEWTON_EXTERNS_H */

@@ -68,4 +68,8 @@ extern char GameSetup_gCarNames[51][5];            /* gmesetup.obj */
 extern char GameSetup_gTrackNames[12][4];          /* gmesetup.obj */
 extern GameSetup_tData GameSetup_gData;            /* gmesetup.obj */
 
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" int strncmp(char *a, char *b, int n);
+
 #endif /* COPSPEAK_EXTERNS_H */

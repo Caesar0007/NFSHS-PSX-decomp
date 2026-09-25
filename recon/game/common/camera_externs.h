@@ -53,4 +53,13 @@ extern "C" void transform(...);
 extern "C" void transpose(...);
  /* eaclib trnsfrm, verify #148 */
 
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" void SetGeomScreen(long h);
+extern "C" void fixedxformx(matrixtdef *out, int angle);
+extern "C" void fixedxformy(matrixtdef *out, int angle);
+extern "C" void fixedxformz(matrixtdef *out, int angle);
+extern "C" int intarccos(int x);
+extern "C" void intsincos(int angle, int *psin, int *pcos);
+
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

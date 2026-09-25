@@ -13,6 +13,22 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   constant-false call had been leaving two empty debug scopes in each first function; they are
   gone. Only one of those functions became CLEAN outright (the others carry further issues), so
   the board moves 1781 -> 1784 with the two items below.
+- Implicitly declared callees create debug scopes. CC1PLPSX 2.8.0 accepts a call to a function
+  with no visible declaration (an implicit `int f(...)`), but it wraps every such call statement
+  in nested debug scopes that retail's SYM does not have: `AI_CalcMeritsBasedOnSpeed` carried
+  30 scopes against retail's 1 (a pair around each `fixedmult` call, nested per enclosing `if`
+  and `do`); one `extern "C" int fixedmult(int, int)` in `ai_externs.h` collapses it to the
+  retail tree at unchanged bytes. `tools/psyq_pipe/implicit_sweep.py` compiles every game and
+  frontend TU as `build.py` does and lists the compiler's implicit-declaration warnings: 17 TUs
+  (34 names: eaclib fixed-point and matrix helpers, libc `memset`/`strncmp`/`sprintf`,
+  `SetSp`, `blockclear`/`purgememadr`/`reservememadr`, libgpu/libgte/libpad calls).
+  `implicit_fix.py` inserts C-linkage prototypes (every name is an unmangled symbol in the
+  retail MAP) into each TU's `<tu>_externs.h`, spelled after the tree's / PsyQ 4.3's typed
+  declarations; `aih_basiccop.cpp`'s `(MATRIX *)` casts on its `transpose` call became
+  `(matrixtdef *)` to fit the prototype. Gate: one symloop run over the 16 TUs, BYTES UNCHANGED
+  (382 functions); with `ai.cpp` the board rises 1784 -> 1794 CLEAN (AI 26 -> 28, CAMERA,
+  NEWTON, OBJECT, PHYSICS, AISTATE, MPAUSE gain the rest); BLOCKS 671 -> 659. The parameter
+  names in those prototypes are ours, not recovered spellings.
 - `Night_AdditiveNightCalc`: retail `lookup` ($v0) is the night-table byte and `addColor`
   ($v1) the colour word fetched with it; ours had folded `lookup` into `addColor`. Split as
   `lookup = Night_gNightTbl[index]; addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];`

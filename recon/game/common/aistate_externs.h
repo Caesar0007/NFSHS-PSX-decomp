@@ -63,4 +63,8 @@ void AI_TargetLane(Car_tObj *carObj, int lane);
 void AudioClc_HonkHorn(Car_tObj *carObj, int a, int b, int c);
 /* AIDelayCar ctor/SetNewTargetCar/Update now used as C++ members (aidelaycar.obj) -- flat externs removed */
 
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" int fixedmult(int a, int b);
+
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

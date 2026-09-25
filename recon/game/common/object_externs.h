@@ -75,4 +75,9 @@ void blockfill(...);
 
 /* ---- vtables for the 4 anim classes (data owned by object.obj) ---- */
 
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" void fixedxformx(matrixtdef *out, int angle);
+extern "C" void reorthogonalize(matrixtdef *m);
+
 #endif /* _GAME_COMMON_OBJECT_EXTERNS_H_ */

@@ -66,4 +66,10 @@ extern int      slippery, steeringControl, powerControl;
 extern int      physics_blipInit[8];
 extern int      physics_bblipInit[8];
 
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" int fixedatan(int y, int x);
+extern "C" int rdiv(int a, int b);
+extern "C" void transpose(matrixtdef *src, matrixtdef *dst);
+
 #endif

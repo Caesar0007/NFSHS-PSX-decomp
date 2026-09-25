@@ -22,4 +22,13 @@ void DecDCTout(u_long *buf, long size);
 /* PsyQ libgpu */
 /* eaclib */
 }
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" int DrawSync(int mode);
+extern "C" int LoadImage(RECT *rect, u_long *p);
+extern "C" void blockclear(void *dst, int n);
+extern "C" int purgememadr(void *ptr);
+extern "C" void *reservememadr(const char *name, int size, int memory_class);
+extern "C" int systemtask(int);
+
 #endif

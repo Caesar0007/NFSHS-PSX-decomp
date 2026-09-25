@@ -43,4 +43,11 @@ extern int   IsDisabled(int item);
 extern int   ItemEnabledNum(void *menu, int item) asm("ItemEnabledNum__6tPMenui");     /* dropped-arg Logic site disasm-bound */
 extern int   NumEnabledItems(void *menu) asm("NumEnabledItems__6tPMenu");
 
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" int DrawSync(int mode);
+extern "C" int PadGetState(int port);
+extern "C" int SNDover(int handle);
+extern "C" int SNDstop(int handle);
+
 #endif /* MPAUSE_EXTERNS_H */

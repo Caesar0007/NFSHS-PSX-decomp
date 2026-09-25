@@ -89,4 +89,8 @@ void R3DCar_DeInstantiate3DCar(Car_tObj * carObj);
 void R3DCar_Instantiate3DCar(Car_tObj * carObj, int index);
 
 extern char           *Paths_Paths[];   /* 0x80116468 (paths.obj) */
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" int strncmp(char *a, char *b, int n);
+
 #endif /* _GAME_COMMON_CARS_EXTERNS_H_ */

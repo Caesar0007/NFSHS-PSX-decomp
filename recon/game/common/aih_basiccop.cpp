@@ -263,7 +263,7 @@ static void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 
   rotx->z = fixedmult(roty->x,rotz->y) - fixedmult(roty->y,rotz->x);
 
-  transpose((MATRIX *)rotx,(MATRIX *)rotx);
+  transpose((matrixtdef *)rotx,(matrixtdef *)rotx);
 
   Object_AddCustomObject(&theObj,1);
 

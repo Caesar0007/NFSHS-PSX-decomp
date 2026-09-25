@@ -110,4 +110,8 @@ extern int Weather_DeInit(void);
 extern int Weather_Init(void);
 extern int Weather_Restart(void);
 
+/* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
+   every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
+extern "C" int strncmp(char *a, char *b, int n);
+
 #endif

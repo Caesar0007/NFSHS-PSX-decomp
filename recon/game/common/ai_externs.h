@@ -44,5 +44,8 @@ int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
 int AIWorld_SplineDistance(Car_tObj *a, Car_tObj *b);
 void  trap(int code);
 void AudioClc_HonkHorn(Car_tObj *carObj, int a, int b, int c);
+/* eaclib 16.16 multiply.  It was undeclared here: CC1PLPSX 2.8.0 accepted the implicit `int fixedmult(...)` but wrapped every
+   such call statement in nested debug scopes retail's SYM does not have (AI_CalcMeritsBasedOnSpeed: 30 scopes vs 1). */
+extern "C" int fixedmult(int a, int b);
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

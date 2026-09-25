@@ -1,6 +1,6 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-09-25. Current full-debug board: `build/psyq_g/symtree_report.json`.
+Status as of 2026-09-26. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
 2026-09-25 (session from commit 4eff2f1a). SLD line matching is parked by the user for a later
 stage; this round is the native contract (locals, homes, scope trees) only. Every retained
@@ -62,6 +62,29 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   road-position test then declaring nothing); `Collide_TestWithPlane` (`height` in its own
   block, and the three nested `Collide_gRaiseUp`/`raiseUp`/`Raise.y` ifs are one `&&` chain
   around the `correction`/`v2` block). Board 1802 -> 1805.
+- Carrier round (2026-09-26, user: "continue with the carrier functions"). Every `SYM-CODEGEN-CARRIER`
+  local is an invented variable the SYM lacks; each was kept because the pure spelling missed bytes in
+  some earlier basin. Re-priced in today's basin with statement-ORDER and store-position variants
+  (scratch `build/tmp/trials.py` runs a spec of named variants through `var_fn.py`; `var_fn.py` now
+  matches member functions as `Class::Name`). Twelve carriers removed, all `verify_asm` PASS and
+  `symloop` BYTES UNCHANGED, functions now native CLEAN: `tScreenCarSelectDuel::UpdateVideoWall` and
+  the TwoPlayer twin (`country`: store `fPreviousCountry` BEFORE `fTVsInitialized`, the order the base
+  class already used); `Hud_FBuildSprite`/`Hud_FBuildF4` (`prev_pkt`: the direct OT link in
+  `Hud_GoTpage`'s order); `Hud_InitTables` (`positionTable`: one indexed read
+  `Hud_gElementPositions[1 < numPlayerRaceCars]`, a `?:` select also passes); `Device_Update`
+  (`commMode`: the arm stores the literal 1, the same bytes as a copy of a value known to be 1);
+  `Flare_Spikes`/`Flare_HexFlare`/`Flare_ReflectHexFlare` (`rgb`: the colour store sits where the
+  load was, plus `flare_dvxy` declared before `i` as the SYM orders them);
+  `DrawW_kCtrlWorld_High` (`sentinel`: `while (numQuads != -1)`, the hoisted loop constant is what
+  retail parks in $s3); `Skidmark_Add`/`Skidmark_AddStretch` (`n`: chained assignments
+  `seg[n].rgb = seg[n+1].rgb = *color`, one `sm->n` read per pair). Falsified today (all variants
+  gated): `bright` x2 (param mutate 27, casts 32), `gs` (19/13/20), `result` in
+  GetRearEndDamageFactor (9/21/9), `limit` (4/6/47), `offset` (10), `random` (15/3), `m` (15/5/15),
+  `newBestLap` (6/6/11/10), `counterSlot` (index forms 1 diff: an extra address insn),
+  `carCount` (22), `otWord` (32/46/44), `linkWord` (12; macro forms need a tag type the TU lacks),
+  `packetCell` (30), `fadeValue` (21/18), `rgb` in Flare_2DSpike (5/2/6/7). Board 1807 -> 1819.
+  Also: `build/symloop_runs` had grown to 32 GB; symloop now keeps only the newest 20 runs
+  (`SYMLOOP_KEEP_RUNS`).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers
@@ -2447,7 +2470,7 @@ All tools are in `tools/psyq_pipe/` unless a path is given; their generated outp
 
 | Tool | What it does |
 |---|---|
-| `symloop.py <rel path> [...] [--quiet] [--ref-only]` | Guarded per-file loop. `--ref-only` **freshly rebuilds** before capturing a missing reference or verifying an existing one; run it **before editing**, including once to adopt a legacy reference's section-layout companion. Normal runs require references, unchanged section bytes/layout, fresh successful debug/native-link outputs and complete selected-function coverage. Failures return nonzero without a success token. `BYTES: UNCHANGED` is printed only after the full pipeline succeeds. Logs and earlier generated artifacts are retained in `build/symloop_runs/`. |
+| `symloop.py <rel path> [...] [--quiet] [--ref-only]` | Guarded per-file loop. `--ref-only` **freshly rebuilds** before capturing a missing reference or verifying an existing one; run it **before editing**, including once to adopt a legacy reference's section-layout companion. Normal runs require references, unchanged section bytes/layout, fresh successful debug/native-link outputs and complete selected-function coverage. Failures return nonzero without a success token. `BYTES: UNCHANGED` is printed only after the full pipeline succeeds. Logs and quarantined objects of the newest 20 runs are kept in `build/symloop_runs/` (older runs are pruned automatically; `SYMLOOP_KEEP_RUNS` overrides the count). |
 | `symfix_order_drive.py [fixer.py]` | Legacy automatic driver: still uses whole-file `git checkout` reverts and needs separate hardening. Do not use on a dirty worktree or assume its stdout-based acceptance is a complete source/matching proof. Use the guarded per-file loop manually for now. |
 
 Wrapper regression tests: `python tools/psyq_pipe/test_symloop.py` (11 tests /38 controlled runs).

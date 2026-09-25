@@ -2268,7 +2268,6 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
      exactly the oracle's lazy sentinel. The earlier attempt failed because it kept
      `sentinel = -1` UP FRONT (sentinel then owns the -1 materialization in $s3 and the
      guard compares vs $s3) AND fused the load-decrement through a $v0 stage. */
-  int sentinel; /* SYM-CODEGEN-CARRIER: sentinel -- lazily materializes the retail $s3 loop terminator */
   int numQuads;
   Trk_Quad *pquad;
 
@@ -2276,14 +2275,13 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
   pquad = (Trk_Quad *)sd->quads;
   numQuads = numQuads - 1;
   if (numQuads != -1) {
-    sentinel = -1;
     do {
       if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
         DrawW_DrawQuad(sd,pquad);
         pquad = pquad + 1;
       }
       numQuads = numQuads - 1;
-    } while (numQuads != sentinel);
+    } while (numQuads != -1);   /* the loop-invariant -1 is what retail parks in $s3 (no local in the SYM) */
   }
   return;
 }

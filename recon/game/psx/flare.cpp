@@ -399,8 +399,8 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
 void Flare_Spikes(long *center,int otz)
 
 {
+  long flare_dvxy [13];   /* SYM order: the array is declared before i */
   int i;
-  long flare_dvxy [13];
 
   /* MATCH: SYM locals = flare_dvxy[13] + i(t2) + block-scope prim(a0, POLY_G4*);
    * walkers = givs from gfSpikePt0/1/2[i]; per-iter gfrgb2 reload. */
@@ -446,18 +446,15 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
     if (i == -1) break;
     {
       POLY_G4 *prim;
-      u_int rgb; /* SYM-CODEGEN-CARRIER: rgb -- direct gfrgb2 store is FAIL 5 (184/183) */
-
       prim = (POLY_G4 *)Render_gPacketPtr;
       setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
       Render_gPacketPtr = (u_char *)prim + 0x24;
       setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
       *(u_int *)((u_char *)prim + 4) = 0x3a000000;
-      rgb = *(u_int *)&gfrgb2;
+      *(u_int *)((u_char *)prim + 0xc) = *(u_int *)&gfrgb2;   /* stored here, where the SYM-less retail loads it */
       *(u_int *)((u_char *)prim + 0x14) = 0;
       *(u_int *)((u_char *)prim + 0x1c) = 0;
       ((u_char *)prim)[3] = 8;
-      *(u_int *)((u_char *)prim + 0xc) = rgb;
       *(long *)((u_char *)prim + 8) = flare_dvxy[gfSpikePt0[i]];
       *(long *)((u_char *)prim + 0x10) = *center;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfSpikePt2[i]];   /* retail: +0x18 walks gfSpikePt2 ($a3), +0x20 gfSpikePt1 ($t0) */
@@ -504,8 +501,8 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
 void Flare_HexFlare(long *center,int otz)
 
 {
+  long flare_dvxy [7];   /* SYM order: the array is declared before i */
   int i;
-  long flare_dvxy [7];
 
 gte_ldv0(&Flare_gHex);
   gte_rtps();
@@ -534,17 +531,14 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
     if (i == -1) break;
     {
       POLY_G3 *prim;
-      u_int rgb; /* SYM-CODEGEN-CARRIER: rgb -- direct gfrgb store is FAIL 5 (118/117) */
-
       prim = (POLY_G3 *)Render_gPacketPtr;
       setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
       Render_gPacketPtr = (u_char *)prim + 0x1c;
       setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
       *(u_int *)((u_char *)prim + 4) = 0x32000000;
-      rgb = *(u_int *)&gfrgb;
+      *(u_int *)((u_char *)prim + 0xc) = *(u_int *)&gfrgb;   /* stored here, where the SYM-less retail loads it */
       *(u_int *)((u_char *)prim + 0x14) = 0;
       ((u_char *)prim)[3] = 6;
-      *(u_int *)((u_char *)prim + 0xc) = rgb;
       *(long *)((u_char *)prim + 8) = flare_dvxy[gfHexPt2[i]];
       *(long *)((u_char *)prim + 0x10) = *center;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfHexPt1[i]];
@@ -557,8 +551,8 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
 void Flare_ReflectHexFlare(long *center,int otz)
 
 {
+  long flare_dvxy [7];   /* SYM order: the array is declared before i */
   int i;
-  long flare_dvxy [7];
 
 gte_ldv0(&Flare_gReflectHex);
   gte_rtps();
@@ -587,17 +581,14 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
     if (i == -1) break;
     {
       POLY_G3 *prim;
-      u_int rgb; /* SYM-CODEGEN-CARRIER: rgb -- direct gfrgb store is FAIL 5 (118/117) */
-
       prim = (POLY_G3 *)Render_gPacketPtr;
       setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
       Render_gPacketPtr = (u_char *)prim + 0x1c;
       setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
       *(u_int *)((u_char *)prim + 4) = 0x32000000;
-      rgb = *(u_int *)&gfrgb;
+      *(u_int *)((u_char *)prim + 0xc) = *(u_int *)&gfrgb;   /* stored here, where the SYM-less retail loads it */
       *(u_int *)((u_char *)prim + 0x14) = 0;
       ((u_char *)prim)[3] = 6;
-      *(u_int *)((u_char *)prim + 0xc) = rgb;
       *(long *)((u_char *)prim + 8) = flare_dvxy[gfHexPt2[i]];
       *(long *)((u_char *)prim + 0x10) = *center;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfHexPt1[i]];

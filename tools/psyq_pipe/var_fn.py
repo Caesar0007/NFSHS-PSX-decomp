@@ -11,11 +11,18 @@ R = Path(__file__).resolve().parents[2]
 src = R / sys.argv[1]; fn = sys.argv[2]; var = Path(sys.argv[3]).read_text()
 keep = '--keep' in sys.argv
 plain = fn.split('__')[0]
+# a member function (`Name__<len>Class...`) must be matched as `Class::Name(` so twins in sibling classes are not confused
+mcls = re.match(r'^' + re.escape(plain) + r'__(\d+)', fn)
+if mcls:
+    n = int(mcls.group(1)); cls = fn[len(plain) + 2 + len(mcls.group(1)):][:n]
+    pat = re.escape(cls) + r'::' + re.escape(plain) + r'\s*\('
+else:
+    pat = r'\b' + re.escape(plain) + r'\s*\('
 raw = src.read_bytes(); crlf = b'\r\n' in raw; t = raw.decode().replace('\r\n', '\n')
 lines = t.split('\n')
 start = None
 for i, l in enumerate(lines):
-    if re.search(r'\b' + re.escape(plain) + r'\s*\(', l) and not l.rstrip().endswith(';') and re.match(r'^[A-Za-z]', l) and not l.startswith(('/', '*')):
+    if re.search(pat, l) and not l.rstrip().endswith(';') and re.match(r'^[A-Za-z]', l) and not l.startswith(('/', '*')):
         start = i; break
 assert start is not None, 'definition not found'
 end = start

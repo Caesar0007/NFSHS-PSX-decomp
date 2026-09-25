@@ -1557,10 +1557,6 @@ void tScreenCarSelectDuel::GetShapeInfo(short &numPermShapes,short &numSwapShape
 void tScreenCarSelectDuel::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: country -- direct fCountry storage is measured FAIL 2
-     (52/52) because its relocation/reference identity differs from retail. */
-  u_int country;
-
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
       ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' &&
@@ -1570,9 +1566,8 @@ void tScreenCarSelectDuel::UpdateVideoWall(tCarInfo &carInfo)
     }
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
-    country = carInfo.fCountry;
+    this->fPreviousCountry = (ushort)carInfo.fCountry;   /* stored BEFORE fTVsInitialized: that order needs no temp (SYM has none) */
     this->fTVsInitialized = 0;
-    this->fPreviousCountry = (ushort)country;
     this->SetBrightness(0,0);
     TurnOff(this->fVideoWall);
   }
@@ -1930,10 +1925,6 @@ void tScreenCarSelectTwoPlayer::GetShapeInfo(short &numPermShapes,short &numSwap
 void tScreenCarSelectTwoPlayer::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: country -- direct fCountry storage is measured FAIL 3
-     (52/53); this temporary retains retail's load-delay-slot schedule. */
-  u_int country;
-
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
       ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' &&
@@ -1943,9 +1934,8 @@ void tScreenCarSelectTwoPlayer::UpdateVideoWall(tCarInfo &carInfo)
     }
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
-    country = carInfo.fCountry;
+    this->fPreviousCountry = (ushort)carInfo.fCountry;   /* stored BEFORE fTVsInitialized: that order needs no temp (SYM has none) */
     this->fTVsInitialized = 0;
-    this->fPreviousCountry = (ushort)country;
     TurnOff(this->fVideoWall);
     this->SetBrightness(0,0);
   }

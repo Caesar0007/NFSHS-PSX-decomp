@@ -364,13 +364,11 @@ void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
 
 {
   SPRT *prim;
-  u_char *prev_pkt; /* SYM-CODEGEN-CARRIER: prev_pkt -- cached palette-link cell; direct/global form regresses the measured allocation */
 
   prim = (SPRT *)Render_gPacketPtr;
-  prev_pkt = Render_gPalettePtr;
-  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)prev_pkt)->addr;
+  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
   Render_gPacketPtr = (u_char *)prim + 0x14;
-  ((Hud_PTag *)prev_pkt)->addr = (u_int)prim;
+  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
   Hud_BuildSprite(prim,shapeIdx,x,y,color,trans);
   return;
 }
@@ -588,13 +586,11 @@ void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char x0off, char x1off)
 {
   POLY_F4 *prim;
-  u_char  *prev_pkt; /* SYM-CODEGEN-CARRIER: prev_pkt -- cached palette-link cell required by the exact OT-RMW source shape */
 
-  prim     = (POLY_F4 *)Render_gPacketPtr;
-  prev_pkt = Render_gPalettePtr;
-  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)prev_pkt)->addr;
+  prim = (POLY_F4 *)Render_gPacketPtr;
+  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
   Render_gPacketPtr = (u_char *)prim + 0x18;
-  ((Hud_PTag *)prev_pkt)->addr = (u_int)prim;
+  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
   Hud_BuildF4o(prim, transparent, x, y, w, h, col1, x0off, x1off);
 }
 
@@ -1216,13 +1212,8 @@ void Hud_Init(void)
 void Hud_InitTables(void)
 
 {
-  tSmallCoordXY (*positionTable) [19]; /* SYM-CODEGEN-CARRIER: positionTable -- shared table-base result funnel */
-  
-  positionTable = Hud_gElementPositions;
-  if (1 < GameSetup_gData.numPlayerRaceCars) {
-    positionTable = Hud_gElementPositions + 1;
-  }
-  g1Player = *positionTable;
+  /* the SYM has no local here: the row select is one indexed read (also PASS as a ?: select) */
+  g1Player = Hud_gElementPositions[1 < GameSetup_gData.numPlayerRaceCars];
   return;
 }
 

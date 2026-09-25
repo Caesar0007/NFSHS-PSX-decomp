@@ -140,8 +140,6 @@ int Device_Fail(int port)
 void Device_Update(void)
 
 {
-  int commMode; /* SYM-CODEGEN-CARRIER: commMode -- removal changes PASS 56 to 59 insns */
-
   PAD_update();
   if (simVar.pauseSim != 0) {
     Device_gPaused = 1;
@@ -161,11 +159,11 @@ void Device_Update(void)
       Device_gPausePortIndex = '\0';
     }
     else {
-      commMode = GameSetup_gData.commMode;
-      if ((commMode == 1) && (Device_Fail(4) != 0)) {
-        Device_gForcePause = commMode;
+      if ((GameSetup_gData.commMode == 1) && (Device_Fail(4) != 0)) {
+        /* the SYM has no local here; retail stores the literal 1 (same bytes as a commMode copy, which is 1 in this arm) */
+        Device_gForcePause = 1;
         Device_gPausePort = 4;
-        Device_gPausePortIndex = (char)commMode;
+        Device_gPausePortIndex = 1;
       }
       else {
         Device_gForcePause = 0;

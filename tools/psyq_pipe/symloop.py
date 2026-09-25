@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -121,6 +122,10 @@ def run_gate(args):
     expected = {} if args.ref_only else expected_functions(sources)
     runs = ROOT / 'build/symloop_runs'
     runs.mkdir(parents=True, exist_ok=True)
+    # run directories are diagnostics only (never read back); keep the newest few so the tree does not grow by GBs
+    old = sorted((d for d in runs.iterdir() if d.is_dir()), key=lambda d: d.stat().st_mtime)[:-int(os.environ.get('SYMLOOP_KEEP_RUNS', '20'))]
+    for d in old:
+        shutil.rmtree(d, ignore_errors=True)
     run_dir = Path(tempfile.mkdtemp(prefix='run-', dir=runs))
     objects = [ROOT / 'build' / (rel + '.o') for rel in rels]
     normal_s = [ROOT / 'build' / (rel + '.s') for rel in rels]

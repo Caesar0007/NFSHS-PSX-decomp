@@ -163,17 +163,13 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
 
 {
   Skidmark_Chunk *sm;
-  int n; /* SYM-CODEGEN-CARRIER: n -- prevents non-retail cross-jump over-merging */
 
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
     CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
-    n = sm->n;
-    sm->seg[n + 1].rgb = *color;
-    sm->seg[n].rgb = sm->seg[n + 1].rgb;
-    n = sm->n;
-    sm->seg[n + 1].type = type;
-    sm->seg[n].type = type;
+    /* chained assignments: one sm->n read per pair, as retail (no `n` local in the SYM) */
+    sm->seg[sm->n].rgb = sm->seg[sm->n + 1].rgb = *color;
+    sm->seg[sm->n].type = sm->seg[sm->n + 1].type = type;
   }
   else {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
@@ -229,17 +225,13 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
 
 {
   Skidmark_Chunk *sm;
-  int n; /* SYM-CODEGEN-CARRIER: n -- preserves the per-arm segment-index web */
 
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
     CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
-    n = sm->n;
-    sm->seg[n + 1].rgb = *color;
-    sm->seg[n].rgb = sm->seg[n + 1].rgb;
-    n = sm->n;
-    sm->seg[n + 1].type = type;
-    sm->seg[n].type = type;
+    /* chained assignments: one sm->n read per pair, as retail (no `n` local in the SYM) */
+    sm->seg[sm->n].rgb = sm->seg[sm->n + 1].rgb = *color;
+    sm->seg[sm->n].type = sm->seg[sm->n + 1].type = type;
   }
   else {
     sm = Skidmark_CheckChunk(skidpt,2,slice);

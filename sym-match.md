@@ -44,6 +44,16 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   inner declaration, stays a `for`).  All five: bytes unchanged in one symloop run over the four
   TUs, each now native CLEAN; board 1794 -> 1799.  Retail's block-line fields and the SLD tags
   of these functions are not claimed (SLD is parked).
+- Inline-call multiplicity and counter scopes. `Blockade_AddRoadFlare` had two inline scope
+  pairs where retail has one (`GetData()` with its `this`): the element count is read as the
+  `m_num_elements` field, as the increment below it already did. `BWorldSm_QuadLight` expanded a
+  `GetData()` macro four times (four pairs; retail one): the vertex base is now one
+  `CCOORD16 *const` local (optimised out of the debug locals), and the miss path is the `else`
+  arm of the `rez == 2` test, which makes the statement level span the function as retail's does.
+  `FindBarrierEndSlice` declared each `sliceLoop` in a wrapper block around a `for`; retail's
+  tree is the `for`-level scope holding the counter with the body block inside it, i.e.
+  `for (int sliceLoop = 0; ...)`. All three byte-unchanged (symloop), native CLEAN; board
+  1799 -> 1802.
 - `Night_AdditiveNightCalc`: retail `lookup` ($v0) is the night-table byte and `addColor`
   ($v1) the colour word fetched with it; ours had folded `lookup` into `addColor`. Split as
   `lookup = Night_gNightTbl[index]; addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];`

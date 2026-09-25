@@ -752,8 +752,6 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
 /* ---- BWorldSm_QuadLight__FP12BWorldSm_Pos  [@0x8007fe44] ---- */
 int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 {
-#define QUAD_LIGHT_VERTICES \
-  ((CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData())
   if (*(signed char *)&slicePos->rez == 2) {
     CVECTOR light;
     CVECTOR temp0;
@@ -765,6 +763,8 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
     short s1;
     short s2;
     short s3;
+    /* one inline GetData() call (retail's single `this` scope pair); the const base is optimised out of the debug locals */
+    CCOORD16 *const QUAD_LIGHT_VERTICES = (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
 
     topInd = (u_int)slicePos->strip->topVert;
     botInd = (u_int)slicePos->strip->botVert;
@@ -782,8 +782,9 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
     light.b = (u_char)((temp0.b + temp1.b + temp2.b + temp3.b) >> 2);
     return *(int *)&light;
   }
-#undef QUAD_LIGHT_VERTICES
-  return 0x7f7f7f;
+  else {
+    return 0x7f7f7f;
+  }
 }
 
 /* ---- BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos  [@0x8007ffd4] ---- */

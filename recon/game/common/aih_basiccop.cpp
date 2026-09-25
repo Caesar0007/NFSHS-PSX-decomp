@@ -185,7 +185,7 @@ static void Blockade_AddRoadFlare(coorddef *pos)
   Trk_SFX*sfxInstance;
 
   sfxInstance = (Trk_SFX *)Object_customSFXInst->GetData() +
-                Object_customSFXInst->GetNumElements();
+                Object_customSFXInst->m_num_elements;
   sfxInstance->point[0] = pos->x;
   sfxInstance->point[1] = pos->y;
   sfxInstance->point[2] = pos->z;

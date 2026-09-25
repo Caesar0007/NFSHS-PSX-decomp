@@ -5,6 +5,9 @@
 #include "cars_types.h"
 #include "cars_externs.h"
 
+/* Retail cars.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* w64-a19 LINK FIX: these four cross-module helpers + the file-local Cars_SortCars were
  * used BEFORE any declaration was in scope (the prototypes sat below their call sites at
  * old lines 2304-2308), so cc1plus fell back to an IMPLICIT declaration and emitted the
@@ -94,7 +97,6 @@ void Cars_CheckForAccidentScenes(void);
 /* ---- Cars_DoGravityEffectsOnAcc__FP8Car_tObji  [@0x80085d84] ---- */
 void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   coorddef gravity_ch;
 
   if ((carObj->carFlags & 0x10U) != 0) {

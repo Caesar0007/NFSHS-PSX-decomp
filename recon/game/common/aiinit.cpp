@@ -5,6 +5,9 @@
 #include "aiinit_types.h"
 #include "aiinit_externs.h"
 
+/* Retail aiinit.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 
 /* ---- aiinit.obj-owned globals (.bss zero) ---- */
@@ -164,8 +167,6 @@ void AI_TrafficStartUp(void)
 {
   char filename[100];
 
-  /* retail aiinit.obj .rodata opens with the unreferenced "SimpleMem" tag (0x80055210), ahead of this function's format */
-  if (0) sprintf((char *)0,"SimpleMem");
   if (GameSetup_gData.trafficDensity != 0) {
     triggerManagerTraffic = new AITrigger_TriggerManager;
     sprintf(filename,"%sTr%02d.trf",Paths_Paths[18],GameSetup_gData.track);   /* literal @0x8005521C */

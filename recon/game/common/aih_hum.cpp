@@ -8,6 +8,9 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_hum_types.h"
 #include "aih_hum_externs.h"
+
+/* Retail aih_hum.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 
@@ -18,10 +21,6 @@ void AIHigh_Human::HighExecute()
 
 
 {
-  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
-     first non-leaf function, ahead of the vtable batch) */
-  if (0) sprintf((char *)0,"SimpleMem");
-
 
   this->HandleCops();
 

@@ -6,6 +6,9 @@
 #include "audiomus_types.h"
 #include "audiomus_externs.h"
 
+/* Retail audiomus.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- audiomus.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 /* retail audiomus.obj .sdata: AudioMus_g @0x8013c720 precedes the "*-%s" literal of
@@ -45,7 +48,7 @@ void AudioMus_AutoVolume(int fadeticks,int volume);
    the active guard and calls below follow retail SLD lines +1/+3/+5/+6/+9. */
 void AudioMus_RefreshStatus(void)
 {
-  if (0) sprintf((char *)0,"SimpleMem"); if (AudioMus_g->streamhandle >= 0) {
+  if (AudioMus_g->streamhandle >= 0) {
 
     SNDSTRM_status(AudioMus_g->streamhandle,(int)&AudioMus_g->streamstatus);
 

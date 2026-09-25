@@ -8,6 +8,9 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_btcperp_types.h"
 #include "aih_btcperp_externs.h"
+
+/* Retail aih_btcperp.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 extern int AI_elapsedTime;   /* H21: ai.cpp @0x8013C554 (not in this TU's externs) */
@@ -53,9 +56,6 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 
 {
-  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
-     first non-leaf function, ahead of the vtable batch) */
-  if (0) sprintf((char *)0,"SimpleMem");
 
   int carLoop;
 
@@ -882,7 +882,6 @@ void AIHigh_BTC_HumanPerp::HighExecute()
 /* ---- __17AIHigh_BTC_AIPerpP8Car_tObj  AIHigh_BTC_AIPerp::ctor  [AIH_BTCPERP.CPP:441-454] SLD-VERIFIED ---- */
 AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj)
 {
-
 
   
 

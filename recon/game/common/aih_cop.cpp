@@ -9,6 +9,9 @@
 #include "aih_cop_types.h"
 #include "aih_cop_externs.h"
 #include "../../link_stripped.h"
+
+/* Retail aih_cop.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs).
@@ -73,10 +76,6 @@ int          NitroDistanceMeters[2][2] = { 3932160, 1638400, 3932160, 1638400 };
 /* ---- __10AIHigh_CopP8Car_tObji  AIHigh_Cop::ctor  [AIH_COP.CPP:95-105] SLD-VERIFIED ---- */
 AIHigh_Cop::AIHigh_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
-  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
-     first non-leaf function, ahead of the vtable batch) */
-  if (0) sprintf((char *)0,"SimpleMem");
-
 
 
   this->perpTarget_ = (AIHigh_Player *)0x0;

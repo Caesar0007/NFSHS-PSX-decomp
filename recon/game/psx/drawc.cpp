@@ -25,6 +25,9 @@
 #include "drawc_types.h"
 #include "../../lib/psx_gte.h"
 #include "psyq_prim_macros.h"
+
+/* Retail drawc.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 /* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
  * FIRST-DECLARATION order.  Retail drawc.obj .sdata (-G8, 0x8013d7c8..0x8013d818)
  * is DrawC_gEnvMapOffset (initialized) / the literals "envmap" "Shadow" "d" "l"
@@ -211,9 +214,6 @@ void DrawC_SetEnviroment(void)
 void DrawC_ReadLightingData(void)
 
 {
-  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80056808) ahead of this
-   * function's first literal; the constant-false call keeps it with no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
   int i;
   char *ScaneData;
   char *RenderingFileData;

@@ -5,6 +5,9 @@
 #include "replay_types.h"
 #include "replay_externs.h"
 
+/* Retail replay.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* SYM assigns replay.obj one contiguous main-data run at
  * 0x80117008..0x8011dfdc.  Named sections preserve that exact order while
  * keeping the objects as typed source definitions rather than legacy bytes. */
@@ -485,7 +488,6 @@ void Replay_DoReplay(Car_tObj *carObj)
 
 
 
-
   if ((u_int)Replay_ReplayMode < 2) {
     Replay_SaveInput(carObj->humanIndex);
   } else {
@@ -606,10 +608,6 @@ void Replay_GetInterfaceKey(void)
 void Replay_LoadCameraFile(void)
 
 {
-  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
-   * function's own constants (the same dead tag string r3dcar/fedialog carry); the
-   * constant-false call keeps the string and adds no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
 
   if (numValidCams == 0) {
     Camera_tCamSlot *cameraFile;

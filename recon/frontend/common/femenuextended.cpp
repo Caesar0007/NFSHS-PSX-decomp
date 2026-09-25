@@ -5,6 +5,9 @@
  */
 #include "femenuextended.h"
 
+/* Retail femenuextended.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- FEMenuExtended.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
 static RECT  gHelpPos;   /* @0x80052b58  (bss(zero)); SYM STAT */
 
@@ -41,9 +44,6 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
                bool drawArrows,bool reflected)
 
 {
-  /* retail: this TU's .rodata is just "SimpleMem" (UNREFERENCED, 0x80010610) + "%s"; the
-   * constant-false call keeps the dead tag string with no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
   DRAWENV *drenv;
   DR_AREA *daprim;
   RECT temp;

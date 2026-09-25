@@ -108,10 +108,12 @@ void DashHUD_CheckWrongWay(int player)
   int wrongway;
   Car_tObj * car;
   
-  car = (Car_tObj *)(DASHHUD_CAMERA_ANCHOR(player) + 1);
+  /* 2026-09-25: the camera anchor IS the car (Car_tObj::N sits at offset 0) and the word at 0x3F0 is Car_tObj::wrongway,
+     not a byte-shifted lastOtherObj; retail SYM keeps `car` in $v0 as this loaded pointer. */
+  car = (Car_tObj *)DASHHUD_CAMERA_ANCHOR(player);
   wrongway = 0;
-  if ((0x3f < (int)car->N.collision.lastOtherObj) &&
-      (wrongway = 2, (int)car->N.collision.lastOtherObj < 0x94)) {
+  if ((0x3f < car->wrongway) &&
+      (wrongway = 2, car->wrongway < 0x94)) {
     wrongway = 1;
   }
   if (wrongway != DashHUD_gInfo.wrongway[player]) {

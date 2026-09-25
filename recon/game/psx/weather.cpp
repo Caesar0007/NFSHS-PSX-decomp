@@ -4,6 +4,9 @@
  */
 #include "weather_types.h"
 
+/* Retail weather.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* CC1PLPSX emission law (00_current_nfs4 15g): an INITIALIZED global is
  * emitted at its definition point; an UNINITIALIZED one is flushed at end of
  * file in FIRST-DECLARATION order (an extern declaration counts); an
@@ -242,7 +245,6 @@ void Weather_InitRain(void)
 void Weather_InitSplats(void)
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
   int ySize;
   int i;

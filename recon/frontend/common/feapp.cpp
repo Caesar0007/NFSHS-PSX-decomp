@@ -6,6 +6,9 @@
 #include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
+/* Retail feapp.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 typedef struct tPsyQPrimTag {
   unsigned int addr : 24;
   unsigned int len : 8;
@@ -69,7 +72,6 @@ inline tDialogNoInputMessage::tDialogNoInputMessage()
 tFEApplication::tFEApplication()
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   for (int i = 0; i < 2; i++) {
     this->gotName[i] = 0;
     this->needName[i] = 0;

@@ -4,6 +4,9 @@
  */
 #include "front.h"
 
+/* Retail front.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- Front.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes, .bss=zero) ---- */
 /* overRide + ComingIntoTheFrontEndTheVeryFirstTime lead Front.obj's run at
    0x800517e8, BEFORE the two initialised cop-model tables -- a tentative
@@ -143,7 +146,6 @@ inline tScreenTournamentCongrats::tScreenTournamentCongrats()
 void Front_ConstructAll(void)
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
   gAllScreens = new tAllScreens;
   /* MATCH: retail publishes screenMain before the remaining sub-screen pointers. */

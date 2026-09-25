@@ -1612,8 +1612,8 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
       x = x + xdist;
       x = x >> Night_gXDistShift;
       index = (z << 6) + x;
-      addColor = *(long *)&Night_gAdditiveHeadlightColor[(u_char)Night_gNightTbl[index]];
-      lookup = (int)addColor;
+      lookup = (u_char)Night_gNightTbl[index];
+      addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];
       /* W71-A5 (51 -> 31): the loaded colour byte is assigned INTO its own newX
          variable first, so the byte load and the clamp result are ONE pseudo
          (retail's `lbu $a3,0($a1)` loads straight into newR's home and only the
@@ -1626,9 +1626,9 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
       newR = color->r;
       newG = color->g;
       newB = color->b;
-      newR = (short)(newR + (lookup & 0xff));
-      newG = (short)(newG + ((lookup & 0xff00) >> 8));
-      newB = (short)(newB + (((u_int)lookup >> 0x10) & 0xff));
+      newR = (short)(newR + (addColor & 0xff));
+      newG = (short)(newG + ((addColor & 0xff00) >> 8));
+      newB = (short)(newB + (((u_int)addColor >> 0x10) & 0xff));
       if (0xff < newR) newR = 0xff;
       if (0xff < newG) newG = 0xff;
       if (0xff < newB) newB = 0xff;

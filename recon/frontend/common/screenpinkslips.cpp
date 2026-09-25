@@ -5,6 +5,9 @@
  */
 #include "screenpinkslips.h"
 
+/* Retail screenpinkslips.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
    ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
@@ -21,7 +24,6 @@ extern int A_ticks[] __asm__("ticks");
 void tScreenPinkSlips::DrawBackground()
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
   /* W86-S4: SYM `8c` declaration order -- the fn-static `flareextra` (STAT) is
      recorded BETWEEN trackInfo and shapeY, not at the top.  Re-gated PASS. */

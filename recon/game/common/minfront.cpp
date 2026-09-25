@@ -18,6 +18,9 @@
  *   described a 46-function car-manager TU that has never lived in this file.)
  */
 #include "minfront.h"
+
+/* Retail minfront.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 
@@ -28,7 +31,6 @@ int * MinFront_ParseOptions(void)
 {
   int *stream;
 
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   stream = reservememadr("FE Data Stream",0x2000,0x10);   /* literal @0x8001000C */
   *stream = 0;
   resizememadr(stream,4);

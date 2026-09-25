@@ -19,6 +19,9 @@ extern tScreenTournamentCongrats *screenTournamentCongrats;
 #define NFS4_TSCREENCONGRATS_OWNER   /* ScreenCongrats.obj emits tScreenCongrats's table: slot 11 is __pure_virtual */
 #include "screencongrats.h"
 
+/* Retail screencongrats.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ScreenCongrats.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) */
 tScreenPinkSlipCongrats *screenPinkSlipCongrats;   /* @0x80052944  (bss(zero)) */
 tScreenTournamentTrophy *screenTournamentTrophy;   /* @0x80052948  (bss(zero)) */
@@ -31,8 +34,6 @@ char         fPermFileNameBuf[16];   /* @0x80052964  (bss(zero)) */
 void tScreenCongrats::Cleanup()
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
-
   
   CleanupSpinningCarsMenu();
   this->tScreen::Cleanup();

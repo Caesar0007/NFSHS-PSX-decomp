@@ -7,6 +7,9 @@
  */
 #include "color.h"
 #include "color_externs.h"
+
+/* Retail color.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 /* @0x80091ec0  IsNumChar(char c) -- line 454 */
@@ -24,7 +27,6 @@ char IsNumChar(char c)
 /* @0x80091efc  Risk_ReadNextValue(char **aScript) -- line 462 */
 int Risk_ReadNextValue(char **aScript)
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   char s[256];
   int n;
   char *Script;

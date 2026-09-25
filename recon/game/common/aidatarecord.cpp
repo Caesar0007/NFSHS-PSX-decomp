@@ -7,6 +7,9 @@
 #include "aidatarecord_types.h"
 #include "aidatarecord_externs.h"
 
+/* Retail aidatarecord.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- aidatarecord.obj-owned globals (.bss zero) ---- */
 AIDataRecord_BestLine_t *AIDataRecord_BestLine;   /* @0x8013c5a0 */
@@ -148,8 +151,6 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
           AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,preBuffer)
 {
-  /* retail aidatarecord.obj .rodata opens with the unreferenced "SimpleMem" tag (0x800553AC) */
-  if (0) sprintf((char *)0,"SimpleMem");
   this->numElements_ = 0x70;
   this->bSize_ = 0xe0;
   this->scale_ = scale;

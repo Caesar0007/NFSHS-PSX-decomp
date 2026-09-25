@@ -7,6 +7,9 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_basiccop_types.h"
 #include "aih_basiccop_externs.h"
+
+/* Retail aih_basiccop.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 /* H18: not in this TU's externs -- needed by the ShouldIPerformCutOffBlock reconstruction */
@@ -23,10 +26,6 @@ extern Sim_tSimGlobalVar simGlobal;   /* Sim.obj @0x8011E0AC (.gameTicks @0x8011
 /* ---- __15AIHigh_BasicCopP8Car_tObji  AIHigh_BasicCop::ctor  [AIH_BASICCOP.CPP:18-34] SLD-VERIFIED ---- */
 AIHigh_BasicCop::AIHigh_BasicCop(Car_tObj *carObj,int copIndex) : AIHigh_Base(carObj)
 {
-  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
-     first non-leaf function, ahead of the vtable batch) */
-  if (0) sprintf((char *)0,"SimpleMem");
-
 
 
   this->copIndex_ = copIndex;

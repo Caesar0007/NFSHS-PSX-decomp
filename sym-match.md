@@ -1,6 +1,51 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-09-22. Current full-debug board: `build/psyq_g/symtree_report.json`.
+Status as of 2026-09-25. Current full-debug board: `build/psyq_g/symtree_report.json`.
+
+2026-09-25 (session from commit 4eff2f1a). SLD line matching is parked by the user for a later
+stage; this round is the native contract (locals, homes, scope trees) only. Every retained
+change passed `symloop.py` (BYTES UNCHANGED), and the whole tree was rebuilt, relinked and
+measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 violations).
+
+- The 52 remaining in-function `if (0) sprintf((char *)0,"SimpleMem")` carriers were converted
+  to the file-scope unused inline class-name form (`tools/psyq_pipe/simplemem_inline.py`, kept as a
+  scratch tool). One symloop run over all 52 TUs: BYTES UNCHANGED, 930 functions compared. The
+  constant-false call had been leaving two empty debug scopes in each first function; they are
+  gone. Only one of those functions became CLEAN outright (the others carry further issues), so
+  the board moves 1781 -> 1784 with the two items below.
+- `Night_AdditiveNightCalc`: retail `lookup` ($v0) is the night-table byte and `addColor`
+  ($v1) the colour word fetched with it; ours had folded `lookup` into `addColor`. Split as
+  `lookup = Night_gNightTbl[index]; addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];`
+  the sums read `addColor`. 64/64 bytes unchanged, function native CLEAN; NIGHT 14/19.
+- `DashHUD_CheckWrongWay`: the camera anchor IS the car (`Car_tObj::N` is at offset 0) and the
+  word at 0x3F0 is `Car_tObj::wrongway` (retail MOS record), not a byte-shifted
+  `N.collision.lastOtherObj` reached through `anchor + 1`. `car` is now the loaded pointer, as
+  retail's `car` ($v0) is. Bytes unchanged, function native CLEAN; DASHHUD 5/6.
+- Reverted trials, receipts: `AI_TryToShareLanes` MOVED `absLaneIndex` ($a2 ours, $v1 retail =
+  the lane-relative index): assigning the global read to the condition and the `-7`/`-6`
+  result to `absLaneIndex` moved the gap tail (20+ diffs); in-place `absLaneIndex -= 7` moved
+  49. `Hud_BuildTimeString` REGPARM `time` ($a2 ours, $a1 retail): in-place
+  `if (time < 0) time = -time;` 21 diffs, two `__builtin_abs(time)` reads 8 diffs. Both stay
+  open. `AI_CalcMeritsBasedOnSpeed` (30 scopes vs retail 1): the per-call scope pairs are not
+  from `+=` (plain assignment reproduces the same tree at PASS bytes) nor from a `(...)`
+  prototype (probe shows none); `fixedmult` has NO declaration in that TU (implicit
+  declaration) -- untested lead.
+- Stale byte references: `symloop --ref-only` reported BYTES MOVED on untouched TUs because the
+  committed 2026-09-22 SimpleMem rodata tag (12/16-byte prefix + LO16 addends) and the
+  `CopCarTypeLights-22` address post-date the Sep-20 references. `tools/psyq_pipe/ref_refresh.py`
+  archives such a reference to `scratchpad/symloop_ref_archive_20260925/` and re-adopts it;
+  the proof is the fresh honest link (0 diff) at the same commit, checked before adopting.
+- Mechanics of the SN debug records, measured with `tools/psyq_pipe/gprobe.py` (standalone `-g`
+  probe) and `tools/psyq_pipe/sldprobe.py` (real TU, tags aligned to the real object; `var_fn.py`
+  splices a candidate function body and reports both): the function's `line` is the line of its
+  `{`; `.begin`/`.bend` values are relative to that line minus one, so the function block
+  always starts at 1; a block's end line is the highest line note seen inside it; sched2
+  re-emits BLOCK_BEG/END notes at the head of their basic block, which is why retail scopes so
+  often sit zero-length at a block boundary; a header-defined inline called on line L gives the
+  `{L {L }L }L` pair with its body instructions tagged L, while a same-file inline leaks the
+  callee's `{` line (clamped to 1); an `if` condition is tagged with its `)` line; the epilogue
+  carries the last statement's line. These are for the parked SLD stage.
+
 
 FETOURN source-line round: `CalcTierFinishPrize` omits a redundant `return;`,
 `ReleaseDescription` uses the retail-aligned guard/brace layout without its
@@ -2325,7 +2370,7 @@ All tools are in `tools/psyq_pipe/` unless a path is given; their generated outp
 | `symfn_cmp.py <dump> <mangled name>` | One function, both sides next to each other: frame, every local with its home, and the scope tree with function-relative addresses and line numbers. The main tool for hand work. |
 | `symlocals.py <name> ...` | Compact one-line view: the locals of a function in declaration order with scope depth and home, ours against retail. |
 | `symtree_parse.py` | The dumpsym-text parser shared by the tools above. |
-| `scope_probe.py <file.cpp>` | Compiles a small probe with the retail compiler and `-g` and prints each function's scope tree. Used to learn which source constructs create a debug scope (see "Scope rules"). Probe source: `build/tmp/gsym/scopes.cpp`. |
+| `scope_probe.py <file.cpp>` | Compiles a small probe with the retail compiler and `-g` and prints each function's scope tree. Used to learn which source constructs create a debug scope (see "Scope rules"). Probe source: `tools/psyq_pipe/gsym/scopes.cpp`. |
 | `g_codecmp.py A.s B.s`, `g_codediff_fn.py <rel path>` | Does `-g` change the generated instructions? Whole file, or per function with the diff. |
 
 ### The edit loop and its gate

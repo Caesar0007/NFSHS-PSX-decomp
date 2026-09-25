@@ -4,6 +4,9 @@
  *   Member defs; base ctors via init-lists; manual _vf vtable for the iterator virtuals.
  */
 #include "fe3dmenu_externs.h"
+
+/* Retail fe3dmenu.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 /* fe3dmenu.obj front.data 0x80051260..0x800514B8, owned here since 2026-09-19 (SYM: all five are EXT symbols of
@@ -32,7 +35,6 @@ int      gShowroomLights;                         /* 0x800514b4 */
 void Fe3D_InitShowroom(void)
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   int trigValue; /* SYM-CODEGEN-CARRIER: trigValue -- direct-call algebra is FAIL 22 (105/107) and loses the retail staged return use */
   long angle_sin;
   long angle_cos;

@@ -4,6 +4,9 @@
  */
 #include "screentournselect.h"
 
+/* Retail screentournselect.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* M13: DrawVideoWall (below) now indexes the real trophyTVOrder[4]={1,2,0,3} @0x80052058 (already
  * materialized in screentournselect_externs.h, EXE bytes 01 02 00 03) instead of an inlined truncated
  * literal "\x01\x02" (={1,2,0}+NUL) that read OUT OF BOUNDS at i=3 where the real table holds 3. */
@@ -13,8 +16,6 @@
 tScreenTournSelect::tScreenTournSelect()
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
-
 
   return;
 }

@@ -3,6 +3,9 @@
  */
 #include "screenpost.h"
 
+/* Retail screenpost.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* P893: native SLD113 is the flag store and SLD115 is max/max/divide.
  * SYM records only tInfo; the original maximum-operator spelling is unknown. */
 
@@ -16,7 +19,6 @@
 void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
   char string1 [50];
   char string2 [50];

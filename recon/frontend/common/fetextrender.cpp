@@ -5,6 +5,9 @@
  */
 #include "fetextrender.h"
 
+/* Retail fetextrender.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* EXT data owned by FETextRender.obj, byte-exact from retail binary */
 char textDefinitions[14][6] = {   /* @0x800515b8 (ARY ARY CHAR, SYM dims 14x6 -> 14 rows x 6 cols; same 84 bytes, row-stride 6) */
   {3,0,0,9,9,9},
@@ -54,9 +57,6 @@ void FETextRender_SetFont(int size)
 void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,short justify)
 
 {
-  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80010fb8) ahead of this
-   * function's first literal; the constant-false call keeps it with no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
   char *str;
   char buffer [128];
   

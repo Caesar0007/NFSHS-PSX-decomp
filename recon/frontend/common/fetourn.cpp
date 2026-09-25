@@ -4,6 +4,9 @@
  */
 #include "fetourn.h"
 
+/* Retail fetourn.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- tTournamentManager::Initialize  [FETOURN.CPP:36-82] ---- */
 
 void tTournamentManager::Initialize()
@@ -43,9 +46,6 @@ void tTournamentManager::Initialize()
 void tTournamentManager::LoadDescription()
 
 {
-  /* retail: FETourn.obj .rodata opens with the unreferenced "SimpleMem" tag at 0x80011588.  That it is THIS object's is
-   * proven by the vtable: g++ aligns vtables to 8 section-relative, and 0x80011670 only works from an 8-aligned base. */
-  if (0) sprintf((char *)0,"SimpleMem");
   /* SYM-CODEGEN-CARRIER: tourneyDef
      SYM-CODEGEN-CARRIER: trackId
      SYM-CODEGEN-CARRIER: trnId

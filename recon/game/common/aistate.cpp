@@ -10,6 +10,9 @@
 #include "aistate_types.h"
 #include "aistate_externs.h"
 
+/* Retail aistate.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 static int   AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss(zero); SYM STAT) */
@@ -31,10 +34,6 @@ void AIState_StartUp(void)
 
 
 {
-  /* retail aistate.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800554f0) ahead
-   * of the vtables; the constant-false call keeps it with no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
-
 
   AIState_Purgatory::StartUp();
 

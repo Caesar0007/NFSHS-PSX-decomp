@@ -7,6 +7,9 @@
 #include "pausemenu_externs.h"
 #include <stddef.h>
 #include <stdarg.h>
+
+/* Retail pausemenu.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 /* Data owned by PauseMenu.obj.  SYM records ChangedEnabling as EXT BOOL and
@@ -20,9 +23,6 @@ static int gPause_CurrentY;
 void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 {
-  /* retail: PauseMenu.obj .rodata opens with the unreferenced "SimpleMem" tag (0x8005610C); the vtables follow at the
-   * next 8-aligned section offset (0x8005611C). */
-  if (0) sprintf((char *)0,"SimpleMem");
   char *str;
 
   str = sMenuText;
@@ -774,7 +774,6 @@ void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &
 
 {
   if (keyval == kInput_KeyType_Cross) {
-
 
     AudioCmn_PlayPauseSound(4);
     command.type = this->fCommand;

@@ -5,6 +5,9 @@
 #include "copspeak_types.h"
 #include "copspeak_externs.h"
 
+/* Retail copspeak.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- copspeak.obj OWNED globals (EXT; SYM Globals.jsonl; $gp state @0x8013d07c..0x8013d0f8) ----
  * SYM v3 VAs (2026-07-12): gBank @0x80111ea4, gRequest @0x80111ee4, gCurrent @0x80111f04,
  * gQueue @0x80111f24 (64*32B, ends exactly at gMusicStat @0x80112724). ALL image-verified
@@ -80,7 +83,6 @@ void CopSpeak_RadioStaticInit(void)
 void CopSpeak_RadioStaticActive(int noise)
 
 {
-
 
 
 
@@ -458,9 +460,6 @@ void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)
 void CopSpeak_StartUp(void)
 
 {
-  /* retail copspeak.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80055ebc) ahead of this
-     function's "%szzzwzzz.viv" */
-  if (0) sprintf((char *)0,"SimpleMem");
 
   char filename[100];
   char *header;

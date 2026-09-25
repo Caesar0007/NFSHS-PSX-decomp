@@ -3,6 +3,9 @@
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
 #include "screentrophyroom.h"
+
+/* Retail screentrophyroom.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 
@@ -10,8 +13,6 @@ extern "C" int sprintf(char *, const char *, ...);
 tScreenTrophyRoom::tScreenTrophyRoom()
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
-
 
   this->fPreviousTrophy = '\0';
   this->fRealCurrentTourn[0] = 0;

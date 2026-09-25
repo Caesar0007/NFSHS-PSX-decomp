@@ -5,6 +5,9 @@
  */
 #include "fetools.h"
 
+/* Retail fetools.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- Fetools.obj-OWNED globals -- DEFINED here (self-contained; .bss zero / real bytes).
    font12/font18/fontTitle = FE font pointers (set in FeTools_init); currentSize = current font
    size (SYM short -- fetextrender uses it). FeTools_gScrollTicksOut=30 defined below. ---- */
@@ -31,7 +34,6 @@ short currentSize;                   /* @0x800517e0; SYM SHORT */
 void s_upper(char *string)
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
   int n;
   int len;

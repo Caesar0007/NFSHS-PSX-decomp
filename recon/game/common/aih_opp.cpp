@@ -8,6 +8,9 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_opp_types.h"
 #include "aih_opp_externs.h"
+
+/* Retail aih_opp.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 extern int          AI_elapsedTime;     /* H24: ai.cpp @0x8013C554 (not in this TU's externs) */
@@ -516,9 +519,6 @@ int AIHigh_Opponent::DoRearEnder()
 
 
 {
-  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
-     first non-leaf function, ahead of the vtable batch) */
-  if (0) sprintf((char *)0,"SimpleMem");
 
   int attackIndex;
 
@@ -783,7 +783,6 @@ void AIHigh_Opponent::HighExecute()
 /* ---- __15AIHigh_OpponentP8Car_tObj  AIHigh_Opponent::ctor  [AIH_OPP.CPP:250-255] SLD-VERIFIED ---- */
 AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj) : AIHigh_Player(carObj)
 {
-
 
   this->attackMode_ = 0;
 

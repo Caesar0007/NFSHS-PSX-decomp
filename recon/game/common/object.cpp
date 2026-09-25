@@ -5,6 +5,9 @@
  */
 #include "object_types.h"
 #include "object_externs.h"
+
+/* Retail object.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 
@@ -495,7 +498,6 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
 void Object_InitCustomObjects(void)
 
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   {
     const int customCapacity = 0x400;
     {

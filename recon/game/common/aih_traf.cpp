@@ -8,6 +8,9 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_traf_types.h"
 #include "aih_traf_externs.h"
+
+/* Retail aih_traf.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 
@@ -19,9 +22,6 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
 
 {
-  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
-     first non-leaf function, ahead of the vtable batch) */
-  if (0) sprintf((char *)0,"SimpleMem");
 
   int copLoop;
   Car_tObj*closestCop;
@@ -391,7 +391,6 @@ void AIHigh_Traffic::HighExecute()
 /* ---- __14AIHigh_TrafficP8Car_tObj  AIHigh_Traffic::ctor  [AIH_TRAF.CPP:343-347] SLD-VERIFIED ---- */
 AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj) : AIHigh_Base(carObj)
 {
-
 
   this->ignoreCops_ = 0;
 

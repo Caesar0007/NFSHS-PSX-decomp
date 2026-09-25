@@ -7,6 +7,9 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_basicperp_types.h"
 #include "aih_basicperp_externs.h"
+
+/* Retail aih_basicperp.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 /* Semantic reconstruction names: retail SYM retains the inlined receiver
@@ -28,9 +31,6 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
 
 {
-  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
-     first non-leaf function, ahead of the vtable batch) */
-  if (0) sprintf((char *)0,"SimpleMem");
 
   crimeType crime = basicPerpInfo_.GetCrime();
   crimeType originalCrime = crime;
@@ -722,7 +722,6 @@ void AIHigh_BasicPerp::Clear()
 /* ---- __16AIHigh_BasicPerpP8Car_tObj  AIHigh_BasicPerp::ctor  [AIH_BASICPERP.CPP:419-421] SLD-VERIFIED ---- */
 AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj) : AIHigh_Base(carObj)
 {
-
 
   (this->basicPerpInfo_).copsAssigned_[0] = 0;
 

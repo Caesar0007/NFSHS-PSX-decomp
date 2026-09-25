@@ -9,6 +9,9 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_btccop_types.h"
 #include "aih_btccop_externs.h"
+
+/* Retail aih_btccop.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 extern int AI_elapsedTime;   /* H19: ai.cpp @0x8013C554 (not in this TU's externs) */
@@ -31,10 +34,6 @@ coorddef     AIH_BTCCop_chasePositions[3][6] = { { {0, 0, 720896}, {-524288, 0, 
 /* ---- __14AIHigh_BTC_CopP8Car_tObji  AIHigh_BTC_Cop::ctor  [AIH_BTCCOP.CPP:107-111] SLD-VERIFIED ---- */
 AIHigh_BTC_Cop::AIHigh_BTC_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
-  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
-     first non-leaf function, ahead of the vtable batch) */
-  if (0) sprintf((char *)0,"SimpleMem");
-
 
 
   this->perpTarget_ = (AIHigh_BTC_Perp *)0x0;

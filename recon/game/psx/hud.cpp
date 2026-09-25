@@ -105,6 +105,9 @@
 #include "psyq_prim_macros.h"
 #include "hud_externs.h"
 
+/* Retail hud.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- Hud.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero; extern-vs-SYM disagreements resolved to SYM) ---- */
 /* P909 native storage receipt: the complete HUD .sdata is240 bytes,
@@ -255,7 +258,6 @@ void Hud_Perp_OverlayOff(int player);
 /* ---- Hud_CreateHudViews__Fv  [HUD.CPP:273-375] SLD-VERIFIED ---- */
 void Hud_CreateHudViews(void)
 {
-  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
   int i;
 

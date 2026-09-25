@@ -5,6 +5,9 @@
 #define FEAPP_DEFINE_DIALOG_CTORS
 #include "fememcard.h"
 
+/* Retail fememcard.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- FEMemCard.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes / .bss zero;
    productCode="SLUS-00826" = the retail PSX game ID; textSysMemCardFail_Index = fail-message LUT).
    Only the 4 externed-not-defined gaps (nm-confirmed); TITLE/nomessage/MEMCARD_INITIALIZED are
@@ -367,10 +370,6 @@ void DeInit_Memcard(void)
 void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
 
 {
-  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
-   * function's own constants (the dead tag string most objects carry); the constant-false
-   * call keeps the string and adds no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
 
   blockclear(&memCardFile,0x2c);
   memCardFile.name = "NFS4";

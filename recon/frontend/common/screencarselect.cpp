@@ -4,6 +4,9 @@
  */
 #include "screencarselect.h"
 
+/* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 extern tFEApplication *FEAppB[] asm("FEApp");
 
 typedef struct tPsyQPrimTag {
@@ -198,10 +201,6 @@ void tScreenCarSelect::Cleanup()
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
-  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
-   * function's own constants (the dead tag string r3dcar/fedialog/replay/camera carry too);
-   * the constant-false call keeps the string and adds no code. */
-  if (0) sprintf((char *)0,"SimpleMem");
 
   /* [SYM] 8c decl order: pos, temp, carInfo, fade, i, j, drawFlags, text,
      value, validCar, moneyColor, upgradeTranslate, upgradeIcons */

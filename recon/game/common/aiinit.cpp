@@ -70,13 +70,14 @@ void AIInit_StartUp2(void)
     AIDataRecord_t::StartUp2();
     AIPhysic_StartUp();
     AITune_StartUp2();
-    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+    carLoop = 0;
+    while (carLoop < Cars_gNumCars) {
       Car_tObj *carObj = Cars_gList[carLoop];
       AIPhysic_InitCar(carObj);
       AIInit_InitAICar2(carObj);
+      carLoop = carLoop + 1;
     }
   }
-  return;
 }
 
 /* ---- AIInit_Reset1__Fv  [@0x80066cfc] ---- */

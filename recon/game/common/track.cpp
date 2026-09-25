@@ -713,19 +713,17 @@ void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
   int count;
   Trk_SimpleInst * inst;
   
-  if ((instGroup != (Group *)0x0) && (defGroup != (Group *)0x0)) {
-    /* SYM-INLINE-THIS: GetNumElements -- retail SLD line 6 records the
-       Group receiver at 0x800ba30c for this count load. */
-    count = instGroup->GetNumElements();
-    inst = (Trk_SimpleInst *)(instGroup + 1);
-    while (--count != -1) {
-      if (Track_gObjDefs[inst->pad]->id != -1) {
-        inst->type = 0;
-      }
-      inst = (Trk_SimpleInst *)((int)inst + (int)inst->size);
+  if ((instGroup == (Group *)0x0) || (defGroup == (Group *)0x0)) return;
+  /* SYM-INLINE-THIS: GetNumElements -- retail SLD line 6 records the
+     Group receiver at 0x800ba30c for this count load. */
+  count = instGroup->GetNumElements();
+  inst = (Trk_SimpleInst *)(instGroup + 1);
+  while (--count != -1) {
+    if (Track_gObjDefs[inst->pad]->id != -1) {
+      inst->type = 0;
     }
+    inst = (Trk_SimpleInst *)((int)inst + (int)inst->size);
   }
-  return;
 }
 
 /* ---- CalcObjectBoundingSphere__FP5GroupT0  [TRACK.CPP:1064-1125] SLD-VERIFIED ---- */

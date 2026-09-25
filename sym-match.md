@@ -29,6 +29,21 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   (382 functions); with `ai.cpp` the board rises 1784 -> 1794 CLEAN (AI 26 -> 28, CAMERA,
   NEWTON, OBJECT, PHYSICS, AISTATE, MPAUSE gain the rest); BLOCKS 671 -> 659. The parameter
   names in those prototypes are ours, not recovered spellings.
+- Guards around declared blocks. The C++ front end pushes a binding level for `if`, `for` and
+  `switch` statements (for condition declarations); a level is kept in the debug output when it
+  declares something or contains a kept sub-block. So an `if` whose body holds a block-local
+  declaration (or an inline call, whose params/body are blocks) adds TWO scopes of its own -- the
+  statement level and the body compound -- and a `for` whose body declares a local adds one.
+  Where retail's tree has such blocks directly under the function, EA wrote the guard as an
+  early return: `InvalidatePersistentCollideBoomObjects` (`if (!instGroup || !defGroup) return;`,
+  the `GetNumElements` inline pair then sits under the function block), `CleanupSpinningCars`
+  and `CleanupSpinningCarsMenu` (`if (!rendering3DEnvironmentInitialized) return;` with the `i`
+  and `handle`/`fname` blocks as siblings), `Render_InsertDepthOfField` (`if (!(mode & 1))
+  return;`, the three prim blocks under the function).  `AIInit_StartUp2`'s second loop is a
+  `while` (its `for` form nested the `carObj` block one level too deep; the first loop, with no
+  inner declaration, stays a `for`).  All five: bytes unchanged in one symloop run over the four
+  TUs, each now native CLEAN; board 1794 -> 1799.  Retail's block-line fields and the SLD tags
+  of these functions are not claimed (SLD is parked).
 - `Night_AdditiveNightCalc`: retail `lookup` ($v0) is the night-table byte and `addColor`
   ($v1) the colour word fetched with it; ours had folded `lookup` into `addColor`. Split as
   `lookup = Night_gNightTbl[index]; addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];`

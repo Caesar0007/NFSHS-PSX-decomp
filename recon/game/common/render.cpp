@@ -454,12 +454,13 @@ void Render_InsertDepthOfField(void)
 {
   /* MATCH/SYM(8c @800b3a6c, W57-A12 05A+rule-8 pass): the SYM lists EXACTLY three locals --
      prim (REG $6 = $a2), stp_prim (REG $4 = $a0), dr_mode (REG $0x10 = $s0) -- each in its OWN
-     block scope (three 90/92 Block start/end pairs, all at $800b3ac8). Applied here: (a) the
-     Ghidra `tpage` local is NOT in the SYM -> GetTPage feeds SetDrawMode inline; (b) the OT-slot
-     pointer is a PER-BLOCK temp (fresh pseudo per block) -> reproduces the oracle's a0/a2/t0
-     rotation instead of one function-scope $t0; (c) SLD 819 groups all EIGHT halfword stores as
-     ONE statement (setXY4 order x0,y0,x1,y1,x2,y2,x3,y3), SLD 820 the setRGB0 triple after it
-     (Ghidra had emitted r0/g0/b0 in the middle of the XY chain).
+     block scope (three 90/92 Block start/end pairs, all at $800b3ac8) directly under the function
+     block (an `if` around them would add two scopes, so the mode test is an early return). Applied
+     here: (a) the Ghidra `tpage` local is NOT in the SYM -> GetTPage feeds SetDrawMode inline; (b)
+     the OT-slot pointer is a PER-BLOCK temp (fresh pseudo per block) -> reproduces the oracle's
+     a0/a2/t0 rotation instead of one function-scope $t0; (c) SLD 819 groups all EIGHT halfword
+     stores as ONE statement (setXY4 order x0,y0,x1,y1,x2,y2,x3,y3), SLD 820 the setRGB0 triple
+     after it (Ghidra had emitted r0/g0/b0 in the middle of the XY chain).
      RESULT: blocks 2 and 3 now carry the oracle's exact register map (stp_prim=$a0/ot=$a2;
      dr_mode=$s0/ot=$t0). RESIDUAL = block 1 only, a pure $a0<->$a2 swap (prim=$a0 ours vs $a2
      retail) with the instruction COUNT exact (120/120).
@@ -475,42 +476,40 @@ void Render_InsertDepthOfField(void)
      after prim dies -> no overlap -> prim = $a0. All 8 statement-order permutations of the three
      blocks were measured: byte-identical output (92) -- sched1's ready-list tie-break is
      source-invariant here. => the 06E/07E LOCAL-ALLOC/SCHED1 instrument gap, not a source shape. */
-  if ((Render_gBlurEffectMode & 1U) != 0) {
-    if ((Render_gBlurEffectMode & 8U) != 0) {
-      StampImage(1,Render_gBlurEffectDepth1);
-    }
-    if ((Render_gBlurEffectMode & 0x10U) != 0) {
-      StampImage(2,Render_gBlurEffectDepth2);
-    }
-    {
-      POLY_F4 *prim;
-
-      prim = (POLY_F4 *)Render_gPacketPtr;
-      RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,prim);
-      Render_gPacketPtr = (u_char *)prim + 0x18;
-      RENDER_SETPOLYF4(prim);
-      RENDER_SETSEMITRANS(prim);
-      RENDER_SETXY4(prim,0,0,0x140,0,0,0xf0,0x140,0xf0);
-      RENDER_SETRGB0(prim,0,0,0);
-    }
-    {
-      DR_STP *stp_prim;
-
-      stp_prim = (DR_STP *)Render_gPacketPtr;
-      RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,stp_prim);
-      Render_gPacketPtr = (u_char *)stp_prim + 0xc;
-      SetDrawStp(stp_prim,1);
-    }
-    {
-      DR_MODE *dr_mode;
-
-      dr_mode = (DR_MODE *)Render_gPacketPtr;
-      RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,dr_mode);
-      Render_gPacketPtr = (u_char *)dr_mode + 0xc;
-      SetDrawMode(dr_mode,0,0,(u_int)(u_short)GetTPage(2,1,0,0x100),(RECT *)0x0);
-    }
+  if ((Render_gBlurEffectMode & 1U) == 0) return;
+  if ((Render_gBlurEffectMode & 8U) != 0) {
+    StampImage(1,Render_gBlurEffectDepth1);
   }
-  return;
+  if ((Render_gBlurEffectMode & 0x10U) != 0) {
+    StampImage(2,Render_gBlurEffectDepth2);
+  }
+  {
+    POLY_F4 *prim;
+
+    prim = (POLY_F4 *)Render_gPacketPtr;
+    RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,prim);
+    Render_gPacketPtr = (u_char *)prim + 0x18;
+    RENDER_SETPOLYF4(prim);
+    RENDER_SETSEMITRANS(prim);
+    RENDER_SETXY4(prim,0,0,0x140,0,0,0xf0,0x140,0xf0);
+    RENDER_SETRGB0(prim,0,0,0);
+  }
+  {
+    DR_STP *stp_prim;
+
+    stp_prim = (DR_STP *)Render_gPacketPtr;
+    RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,stp_prim);
+    Render_gPacketPtr = (u_char *)stp_prim + 0xc;
+    SetDrawStp(stp_prim,1);
+  }
+  {
+    DR_MODE *dr_mode;
+
+    dr_mode = (DR_MODE *)Render_gPacketPtr;
+    RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,dr_mode);
+    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+    SetDrawMode(dr_mode,0,0,(u_int)(u_short)GetTPage(2,1,0,0x100),(RECT *)0x0);
+  }
 }
 
 /* end of render.cpp */

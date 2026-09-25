@@ -185,41 +185,40 @@ void CleanupSpinningCars(void)
    * indexes gCarObj[i] (loop.c turns the walker into a giv) and RE-READS it for purgememadr, so the
    * handle then lands in the walker's dead $s0 rather than in i's $s1. w42-a7.
    * SYM BLOCK STRUCTURE (w86-S5): there are NO function-scope locals.  Two SIBLING
-   * nested blocks sit inside the guard -- `90 Block start line = 8 .. 92 Block end
+   * nested blocks sit directly under the function block -- `90 Block start line = 8 .. 92 Block end
    * line = 18` holds `i` (the de-instantiate loop) and `90 Block start line = 21 ..
-   * 92 Block end line = 47` holds `handle` and `fname[60]`. */
-  if (rendering3DEnvironmentInitialized != '\0') {
-    DrawSync(0);
-    {
-      int i;
+   * 92 Block end line = 47` holds `handle` and `fname[60]`.  An `if` whose body holds those blocks
+   * would add two scopes of its own (the if level and its compound), so the guard is an early return. */
+  if (rendering3DEnvironmentInitialized == '\0') return;
+  DrawSync(0);
+  {
+    int i;
 
-      for (i = 0; i < 2; i = i + 1) {
-        R3DCar_DeInstantiate3DCar(gCarObj[i]);
-        purgememadr(gCarObj[i]);
-      }
-    }
-    {
-      int handle;
-      char fname [60];
-
-      inFrontEnd[0] = 1;
-      R3DCar_CleanUp();
-      CarIO_CleanUp();
-      inFrontEnd[0] = 0;
-      Texture_KillMenuTexture();
-      PSXFront_FreeDrawMemory();
-      R3DCar_InMenu[0] = 0;
-      gFlip[0] = -1;
-      rendering3DEnvironmentInitialized = '\0';
-      Platform_ResetDCTBuffer();
-      sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
-      handle = asyncloadfileat(fname,CF_DVLC);
-      while (getasyncreadstatus(handle) == 0) {
-        systemtask(0);
-      }
+    for (i = 0; i < 2; i = i + 1) {
+      R3DCar_DeInstantiate3DCar(gCarObj[i]);
+      purgememadr(gCarObj[i]);
     }
   }
-  return;
+  {
+    int handle;
+    char fname [60];
+
+    inFrontEnd[0] = 1;
+    R3DCar_CleanUp();
+    CarIO_CleanUp();
+    inFrontEnd[0] = 0;
+    Texture_KillMenuTexture();
+    PSXFront_FreeDrawMemory();
+    R3DCar_InMenu[0] = 0;
+    gFlip[0] = -1;
+    rendering3DEnvironmentInitialized = '\0';
+    Platform_ResetDCTBuffer();
+    sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
+    handle = asyncloadfileat(fname,CF_DVLC);
+    while (getasyncreadstatus(handle) == 0) {
+      systemtask(0);
+    }
+  }
 }
 
 /* lines 276-280: (static data / macros / comments - no emitted code) */
@@ -228,20 +227,21 @@ void CleanupSpinningCars(void)
 void CleanupSpinningCarsMenu(void)
 
 {
-  /* `i` is a NESTED-block local (SYM `90 Block start line = 8`) -- w86-S5 */
-  if (rendering3DEnvironmentInitialized != '\0') {
+  /* `i` is a NESTED-block local (SYM `90 Block start line = 8`, directly under the function block:
+   * an `if` wrapping it would add its own scope, so the guard is an early return) -- w86-S5 */
+  if (rendering3DEnvironmentInitialized == '\0') return;
+  DrawSync(0);
+  {
     int i;
 
-    DrawSync(0);
     i = 0;
     do {
       R3DCar_DeInstantiate3DCarMenu(gCarObj[i]);
       i = i + 1;
     } while (i < 2);
-    Texture_CleanupMenuTexture();
-    CarIO_ReStart();
   }
-  return;
+  Texture_CleanupMenuTexture();
+  CarIO_ReStart();
 }
 
 /* lines 300-303: (static data / macros / comments - no emitted code) */

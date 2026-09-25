@@ -1776,8 +1776,8 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
 void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int player)
 
 {
+  char filename [10];   /* SYM order: filename, carType */
   int carType;
-  char filename [10];
 
   carType = (int)(carObj->render).currentCarType;
   R3DCar_GetCarName(filename,carType,carObj->carInfo->Country);

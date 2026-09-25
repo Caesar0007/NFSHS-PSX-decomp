@@ -1607,6 +1607,17 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
 /* ---- CheckForWipeOut__10AIHigh_Cop  AIHigh_Cop::CheckForWipeOut  [AIH_COP.CPP:845-885] SLD-VERIFIED ---- */
 
+/* retail's CheckForWipeOut tree: the guard level holds two inline-call pairs (one is the game-tick read),
+   one pair sits before the loop (the RAND statement, SLD 861), and the loop is a for-level with hLoop
+   whose body block holds one more pair that is still unidentified */
+static inline int AI_Rand(void)
+{
+  randtemp = fastRandom * randSeed;
+  fastRandom = randtemp & 0xffff;
+  return (int)((randtemp >> 8) & 0xffff);
+}
+static inline int GameTicks(void) { return simGlobal.gameTicks; }
+
 void AIHigh_Cop::CheckForWipeOut()
 
 
@@ -1639,62 +1650,44 @@ void AIHigh_Cop::CheckForWipeOut()
   skipWipeOut =
       (this->perpTarget_ == (AIHigh_Player *)0x0) ||
       (((this->perpTarget_->carObj_)->carFlags & 8U) == 0) ||
-      (simGlobal.gameTicks < (this->carObj_)->wipeOutEndTick) ||
+      (GameTicks() < (this->carObj_)->wipeOutEndTick) ||
       ((this->perpTarget_->perpChaseInfo_.engagementTime_ / 0x10000) >= 2);
 
   if (skipWipeOut) {
     return;
   }
 
-  {
-    /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
-       (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
-       materializations, the AI_elapsedTime load, Cars_gNumHumanRaceCars, the perpTarget_
-       re-read + thisTargetLevel load, and 5 of the 6 insns of `AI_elapsedTime * 89`),
-       867/868 = the two list lookups, 877 = the paired guard (the multiply's LAST insn
-       `addu $v1,$t1,$a2` lands in its delay slot), 879 = the store, 884 = the bump. */
-    int hLoop;
+  /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
+     (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
+     materializations, the AI_elapsedTime load, Cars_gNumHumanRaceCars, the perpTarget_
+     re-read + thisTargetLevel load, and 5 of the 6 insns of `AI_elapsedTime * 89`),
+     867/868 = the two list lookups, 877 = the paired guard (the multiply's LAST insn
+     `addu $v1,$t1,$a2` lands in its delay slot), 879 = the store, 884 = the bump. */
+  randVal = AI_Rand();
+  thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
+  for (int hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop++) {
 
-    randtemp = fastRandom * randSeed;
+    Car_tObj *thisPlayerObj;
 
-    randVal = (int)((randtemp >> 8) & 0xffff);
+    AIHigh_Player *thisPlayer;
 
-    fastRandom = randtemp & 0xffff;
+    thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
 
-    thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
+    thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
 
-    hLoop = 0;
+    perTickProb = AI_elapsedTime * 89;
 
-    while (true) {
+    if (thisTargetLevel < (thisPlayer->perpChaseInfo_).chaseLevelIndex_) {
 
-      if (Cars_gNumHumanRaceCars <= hLoop) break;
+      if (randVal < perTickProb) {
 
-      Car_tObj *thisPlayerObj;
-
-      AIHigh_Player *thisPlayer;
-
-      thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
-
-      thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
-
-      perTickProb = AI_elapsedTime * 89;
-
-      if (thisTargetLevel < (thisPlayer->perpChaseInfo_).chaseLevelIndex_) {
-
-        if (randVal < perTickProb) {
-
-          (this->carObj_)->wipeOutEndTick = simGlobal.gameTicks + 0x280;
-
-        }
+        (this->carObj_)->wipeOutEndTick = simGlobal.gameTicks + 0x280;
 
       }
-
-      hLoop = hLoop + 1;
 
     }
 
   }
-
   return;
 
 }

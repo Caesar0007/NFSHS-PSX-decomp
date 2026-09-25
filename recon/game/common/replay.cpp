@@ -405,13 +405,9 @@ void Replay_GetInput(int car)
         controlData[car].gas[Replay_ReplayCounter[car]] & 0x7f;
     controlData[car].brake[Replay_ReplayCounter[car]] =
         controlData[car].brake[Replay_ReplayCounter[car]] & 0x7f;
-    /* SYM-CODEGEN-CARRIER: steering
-       SYM retains no locals in this function.  The signed temporary keeps
-       the retail `lb` load; direct signed-byte lvalue and field-type forms
-       emit `lbu` and reverse two address-add operands (6 diffs). */
-    int steering =
-        (signed char)controlData[car].steering[Replay_ReplayCounter[car]];
-    Input_gSim.steering = (char)((steering - '@') << 2);
+    /* retail keeps this arm's compound out of the SYM (no block local): the signed byte times 4, whose
+       int-typed product keeps the `lb` that a `<< 2` narrowed away */
+    Input_gSim.steering = ((signed char)controlData[car].steering[Replay_ReplayCounter[car]] - '@') * 4;
     Input_gSim.gas = controlData[car].gas[Replay_ReplayCounter[car]] << 3;
     Input_gSim.brake = controlData[car].brake[Replay_ReplayCounter[car]] << 3;
     Input_gSim.flags = controlData[car].states[Replay_ReplayCounter[car]];

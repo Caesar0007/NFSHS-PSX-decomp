@@ -2509,6 +2509,7 @@ void Camera_NextMode(int cviewP)
 {
   /* The const alias preserves the retail signed range test without a debug
      local; direct field use changes 12 instructions. */
+  int splitBase;   /* function scope: retail's split-screen arm is not a declaring block (only the flagMode block is) */
   const u_short modeForRange = (u_short)Camera_gInfo[cviewP].mode;
   if ((Camera_gInfo[cviewP].mode == 0xe) || (Camera_gInfo[cviewP].modechange != 0))
     return;
@@ -2527,7 +2528,6 @@ void Camera_NextMode(int cviewP)
     /* SYM-CODEGEN-CARRIER: splitBase -- direct typed gSplitCameras indexing
        changes base allocation at six positions. A const alias retains 237
        instructions but schedules `addiu a1,a1,0` one slot late (2 diffs). */
-    register int splitBase;
     Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
     splitBase = (int)gSplitCameras;
     Camera_gInfo[cviewP].mode =

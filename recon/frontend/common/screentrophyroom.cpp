@@ -35,27 +35,22 @@ tScreenTrophyRoom::~tScreenTrophyRoom()
 
 
 /* ---- tScreenTrophyRoom::GetShapeInfo  [SCREENTROPHYROOM.CPP:49-63] ---- */
+/* retail's SYM shows an inline-call pair (no `this`) inside GetShapeInfo's block and inside LoadTrophy's
+   if-compound: the tier/tournament lookup is an inline accessor, not an open-coded index chain */
+static inline tTourneyInfo *TourneyInTier(uint tier, uint cur)
+{
+  return (tournamentManager.fDefinition)->fTournaments +
+         ((uint)(tournamentManager.fDefinition)->fTiers[tier].fTournOffset + cur);
+}
+
 void tScreenTrophyRoom::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
   numPermShapes = 0x26;
   numSwapShapes = 0x20;
-  /* MATCH: the SLD splits the THIS-dependent current-tournament read from the
-     call.  Folding that read into the call scales the index terms separately
-     and hands &tournamentManager a non-$a0 scratch; the remaining offset plus
-     `cur` expression can stay in the call without changing code or SLD. */
-  {
-    /* SYM-CODEGEN-CARRIER: cur -- folding this member read into the index is
-       FAIL27 (49/48); its own statement frees $a0 before the manager address
-       is formed and reproduces retail's allocation order. */
-    uint cur = (uint)(byte)this->fRealCurrentTourn[(byte)frontEnd.tier];
-
-    GetTrophyName(&tournamentManager,
-               (tournamentManager.fDefinition)->fTournaments +
-                 ((uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset + cur),
-               ts_Small,gSwapFileName,-1);
-  }
+  /* retail's tree is the function level plus one inline-call pair: no block, no `cur` local */
+  GetTrophyName(&tournamentManager,TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[(byte)frontEnd.tier]),ts_Small,gSwapFileName,-1);
   *permFileName = "zTrophy";
   *swapFileName = gSwapFileName;
   return;
@@ -341,19 +336,7 @@ void tScreenTrophyRoom::LoadTrophy()
        no source alias is required. */
     /* the frontEnd.tier read is its OWN local so its %hi lands in the beq
        delay slot (retail's eager steal) instead of tournamentManager's. */
-    /* SYM-CODEGEN-CARRIER: tierIdx -- folding the frontend tier read into the
-       index is measured FAIL2 (54/54): the eager delay-slot %hi switches from
-       frontEnd to tournamentManager even though the instruction text matches. */
-    uint tierIdx = (uint)(byte)frontEnd.tier;
-    /* SYM-CODEGEN-CARRIER: tourn -- folding the grouped tournament index into
-       GetTrophyName is measured FAIL29 with five extra instructions (59/54),
-       changing the call argument and saved-register allocation. */
-    uint tourn = (uint)(tournamentManager.fDefinition)->fTiers[tierIdx].fTournOffset +
-                 (uint)(byte)this->fRealCurrentTourn[this->tier];
-
-    GetTrophyName(&tournamentManager,
-               (tournamentManager.fDefinition)->fTournaments + tourn,
-               ts_Small,gSwapFileName,-1);
+    GetTrophyName(&tournamentManager,TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[this->tier]),ts_Small,gSwapFileName,-1);
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }

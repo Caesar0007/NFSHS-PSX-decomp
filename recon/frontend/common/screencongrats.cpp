@@ -438,20 +438,17 @@ void tScreenCongrats::Initialize()
 }
 
 /* ---- tScreenCongrats::ProcessInput  (screencongrats.cpp:423) ---- */
+/* retail's ProcessInput tree: if-level, compound, inner if-level holding two inline-call pairs -- the speech-loading
+   test and the tick read are inlines, and there is no consume flag */
+static inline int SpeechLoading(SPEECHINFO *si) { return *(u_short *)((char *)si + 0x10); }
+static inline long CongratsTicks(void) { return ticks[0]; }
+
 void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand &c)
 
 {
   extern SPEECHINFO ginfo;   /* global @0x800514e8 (feaudio.cpp); oracle reads ginfo+0x10 as lhu */
-  /* SYM-CODEGEN-CARRIER: bConsumeKey -- collapsing this temporary is measured
-     FAIL 5 (19/22) and removes retail's explicit normalized-boolean branch. */
-  bool bConsumeKey;
-
   if (keyval != kInput_KeyType_Circle) {
-    bConsumeKey = false;
-    if ((*(u_short *)((char *)&ginfo + 0x10) != 0) || (ticks[0] - this->starttick < 0x96)) {
-      bConsumeKey = true;
-    }
-    if (bConsumeKey) {
+    if (SpeechLoading(&ginfo) || (CongratsTicks() - this->starttick < 0x96)) {
       keyval = kInput_KeyType_AlreadyProcessed;
     }
   }

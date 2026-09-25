@@ -126,6 +126,29 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   inner block starts at +018 after both tests and no condition-argument spelling keeps the bytes).
   Falsified: `tournPointsCompare` accessor forms (9 diffs, free or member inline alike: the +280
   base formation), `Camera_UpdateAnimCam`. Board 1823 -> 1831.
+- Carrier round 4 (2026-09-26), same tree-reading method, all `symloop` BYTES UNCHANGED. Native CLEAN
+  now: `tScreenTrophyRoom::GetShapeInfo` and `LoadTrophy` (one `static inline TourneyInTier(tier, cur)`
+  replaces the open-coded index chain; GetShapeInfo has no block and no `cur`), `Replay_GetInput`
+  (`Input_gSim.steering = ((signed char)x - '@') * 4`: the int-typed product keeps retail's `lb`
+  where the `<< 2` form let gcc narrow the load to `lbu`; no `steering` block local),
+  `tScreenCongrats::ProcessInput` (inner if-level with two pairs: `SpeechLoading(&ginfo)` and a
+  `long` tick getter, no consume flag). Partial, tree closer but still DIRTY: `Camera_NextMode`
+  (`splitBase` at function scope: retail's split-screen arm is not a declaring block),
+  `AIState_Chase::SetUp` (four pairs: two `AIState_SpeedDir` selects and two delay-car getters; the
+  inline parameters `speed`/`d` are recorded in ours while retail's pairs hold no variables, and
+  `dc` must stay), `tMenuOptions::TransitionOn` (end pair = tick getter; the `tMenuItem_IsDisabled`
+  pair inside the goto loop costs 2 diffs, and every for/while spelling of the walk costs 6),
+  `AIHigh_Cop::CheckForWipeOut` (`AI_Rand()` inline for the RAND statement, a `GameTicks()` pair in
+  the guard, `for (int hLoop ...)`; the pair retail keeps inside the loop body is unidentified, and a
+  `WipeOutTickProb()` getter for `AI_elapsedTime * 89` breaks LICM, 75 diffs),
+  `R3DCar_ReadInCarTextureMenu` (SYM order `filename`, `carType`; direct `shpfiles[index]` is 12 diffs).
+  Falsified: `tScreenAudio::DrawForeground` inline clamp (25-31 diffs), `AIHigh_Execute` inline
+  predicate (byte-exact with the `||` form, but the inline's `carObj` parameter is recorded and the
+  addresses differ, so it was reverted), `CalcTrackFinishDamageBill`, `AudioCmn_Init`,
+  `Hud_RenderStatsView`, `Execute__21AIState_RovingTraffic` (retail's levels are unexplained).
+  Observation for the inline-pair lever: a pair with no recorded variable needs an inline whose
+  arguments are constants or which has no parameters; a parameter bound to a loaded value is recorded
+  under the parameter's name. Board 1831 -> 1835.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

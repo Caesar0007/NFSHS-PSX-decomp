@@ -525,16 +525,18 @@ void AIState_Chase::SetMurderMode(int murderMode,int murderTicks)
 
 /* ---- SetUp__13AIState_Chase  AIState_Chase::SetUp  [AISTATE.CPP:252-282] SLD-VERIFIED ---- */
 
+/* retail's SetUp tree holds four inline-call pairs with no recorded variables (one after Update(), three in the
+   next block): the two direction selects and two delay-car reads are inline calls, not open-coded */
+static inline int AIState_SpeedDir(int speed) { return (-1 < speed) ? 1 : -1; }
+static inline int DelayCarRoadPosition(AIDelayCar *d) { return d->roadPosition_; }
+static inline int DelayCarSlice(AIDelayCar *d) { return d->slice_; }
+
 void AIState_Chase::SetUp()
 
 
 
 {
   coorddef targetCarPosition;
-  /* SYM-CODEGEN-CARRIER: iVar2 -- absent from the surviving local records.
-   * Folding its two sign selections and spline-call result into assignments
-   * changes 75 instructions and adds one. */
-  int iVar2;
 
   /* SYM-CODEGEN-CARRIER: dc -- absent from the surviving local records.
    * Direct `delayCar_` member accesses change 20 instructions and shorten the
@@ -550,33 +552,11 @@ void AIState_Chase::SetUp()
 
   dc->Update();
 
-  iVar2 = -1;
-
-  if (-1 < (this->carObj_)->currentSpeed) {
-
-    iVar2 = 1;
-
-  }
-
-  this->carDir_ = iVar2;
-
-  iVar2 = -1;
-
-  if (-1 < dc->currentSpeed_) {
-
-    iVar2 = 1;
-
-  }
-
-  this->targetDir_ = iVar2;
-
-  this->latMetersBetween_ = (this->carObj_)->roadPosition - dc->roadPosition_;
-
+  this->carDir_ = AIState_SpeedDir((this->carObj_)->currentSpeed);
+  this->targetDir_ = AIState_SpeedDir(dc->currentSpeed_);
+  this->latMetersBetween_ = (this->carObj_)->roadPosition - DelayCarRoadPosition(dc);
   targetCarPosition = (this->delayCar_).position_;
-
-  iVar2 = AIWorld_SplineDistance(this->carObj_,dc->slice_,&targetCarPosition);
-
-  this->longMetersBetween_ = iVar2;
+  this->longMetersBetween_ = AIWorld_SplineDistance(this->carObj_,DelayCarSlice(dc),&targetCarPosition);
 
   (this->carObj_)->targetPos.x =
       (this->carObj_)->targetPos.y =

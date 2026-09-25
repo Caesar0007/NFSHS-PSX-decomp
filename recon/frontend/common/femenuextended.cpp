@@ -1125,6 +1125,10 @@ void tMenuOptions::TransitionOff()
 
 /* ---- tMenuOptions::TransitionOn [FEMENUEXTENDED.CPP:863-874] P889: ticks carrier removed; iterator/source-scope recovery remains open. ---- */
 
+/* retail's TransitionOn ends in a zero-length inline-call pair: the tick read is a getter (the loop-level pairs
+   retail shows around the item walk are still open: the IsDisabled inline costs 2 diffs in this goto shape) */
+static inline u_long tMenuOptions_Ticks(void) { return ticks; }
+
 void tMenuOptions::TransitionOn()
 
 {
@@ -1147,7 +1151,7 @@ TransitionOn_nextItem:
 TransitionOn_itemsDone:
   this->fTransitionDirection = '\x01';
   this->fInMenuTransition = 1;
-  this->fMenuEnterTicks = ticks;
+  this->fMenuEnterTicks = tMenuOptions_Ticks();
   AudioCmn_PlayFESFX(0xf);
   return;
 }

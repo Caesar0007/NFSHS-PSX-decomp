@@ -404,7 +404,6 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
   /* NFS4 SYM and the symbol-bearing NFS2 source both assign `height` to the
      complete signed plane-distance sum.  NFS2 writes the later raiseUp/2
      fixedmult arguments directly, so no second source local is required. */
-  int height;
 
   /* MATCH: SYM rule-8 rebuild - names/blocks from the SYM 8c block; inline /256 idiom
      (no hoisted temps); X_DIR*((m/256)*(dim/256)) association.
@@ -449,72 +448,72 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
   relativeDot = (normal->x / 256) * (relativePos.x / 256) +
                 (normal->y / 256) * (relativePos.y / 256) +
                 (normal->z / 256) * (relativePos.z / 256);
-  height = (xDir * basisDots[0] + Y_DIR * basisDots[1] + zDir * basisDots[2]) + relativeDot;
-  if (height < 0) {
-    coorddef Raise;
-    coorddef vertexVelocity;
-    coorddef r;
-    coorddef spot;
+  {
+    int height;
 
-    spot.x = (o->position).x +
-             xDir * (((o->orientMat).m[0] / 256) * ((o->dimension).x / 256)) +
-             Y_DIR * (((o->orientMat).m[3] / 256) * ((o->dimension).y / 256)) +
-             zDir * (((o->orientMat).m[6] / 256) * ((o->dimension).z / 256));
-    spot.y = (o->position).y +
-             xDir * (((o->orientMat).m[1] / 256) * ((o->dimension).x / 256)) +
-             Y_DIR * (((o->orientMat).m[4] / 256) * ((o->dimension).y / 256)) +
-             zDir * (((o->orientMat).m[7] / 256) * ((o->dimension).z / 256));
-    spot.z = (o->position).z +
-             xDir * (((o->orientMat).m[2] / 256) * ((o->dimension).x / 256)) +
-             Y_DIR * (((o->orientMat).m[5] / 256) * ((o->dimension).y / 256)) +
-             zDir * (((o->orientMat).m[8] / 256) * ((o->dimension).z / 256));
-    if (raiseUp < -height) {
-      raiseUp = -height;
-    }
-    if (Collide_gRaiseUp != 0) {
-      if (raiseUp != 0) {
-        Raise.x = fixedmult(raiseUp / 2,normal->x);
-        Raise.y = fixedmult(raiseUp / 2,normal->y);
-        Raise.z = fixedmult(raiseUp / 2,normal->z);
-        (o->position).x = (o->position).x + Raise.x;
-        (o->position).y = (o->position).y + Raise.y;
-        (o->position).z = (o->position).z + Raise.z;
+    height = (xDir * basisDots[0] + Y_DIR * basisDots[1] + zDir * basisDots[2]) + relativeDot;
+    if (height < 0) {
+      coorddef Raise;
+      coorddef vertexVelocity;
+      coorddef r;
+      coorddef spot;
+
+      spot.x = (o->position).x +
+               xDir * (((o->orientMat).m[0] / 256) * ((o->dimension).x / 256)) +
+               Y_DIR * (((o->orientMat).m[3] / 256) * ((o->dimension).y / 256)) +
+               zDir * (((o->orientMat).m[6] / 256) * ((o->dimension).z / 256));
+      spot.y = (o->position).y +
+               xDir * (((o->orientMat).m[1] / 256) * ((o->dimension).x / 256)) +
+               Y_DIR * (((o->orientMat).m[4] / 256) * ((o->dimension).y / 256)) +
+               zDir * (((o->orientMat).m[7] / 256) * ((o->dimension).z / 256));
+      spot.z = (o->position).z +
+               xDir * (((o->orientMat).m[2] / 256) * ((o->dimension).x / 256)) +
+               Y_DIR * (((o->orientMat).m[5] / 256) * ((o->dimension).y / 256)) +
+               zDir * (((o->orientMat).m[8] / 256) * ((o->dimension).z / 256));
+      if (raiseUp < -height) {
+        raiseUp = -height;
       }
-    }
-    r.x = spot.x - (o->position).x;
-    r.y = spot.y - (o->position).y;
-    r.z = spot.z - (o->position).z;
-    vertexVelocity.x = ((o->angularVel).y / 256) * (r.z / 256) -
-                       ((o->angularVel).z / 256) * (r.y / 256);
-    vertexVelocity.y = ((o->angularVel).z / 256) * (r.x / 256) -
-                       ((o->angularVel).x / 256) * (r.z / 256);
-    vertexVelocity.z = ((o->angularVel).x / 256) * (r.y / 256) -
-                       ((o->angularVel).y / 256) * (r.x / 256);
-    vertexVelocity.x = vertexVelocity.x + (o->linearVel).x;
-    vertexVelocity.y = vertexVelocity.y + (o->linearVel).y;
-    vertexVelocity.z = vertexVelocity.z + (o->linearVel).z;
-    if ((normal->x / 256) * (vertexVelocity.x / 256) +
-        (normal->y / 256) * (vertexVelocity.y / 256) +
-        (normal->z / 256) * (vertexVelocity.z / 256) < 0) {
-      Collide_DoObjectFixedObjectCollision(o,&spot,&vertexVelocity,normal);
-    }
-    if (Collide_gRaiseUp != 0) {
-      if (raiseUp != 0) {
-        if (0 < Raise.y) {
-          int correction;
-          int v2;
+      if (Collide_gRaiseUp != 0) {
+        if (raiseUp != 0) {
+          Raise.x = fixedmult(raiseUp / 2,normal->x);
+          Raise.y = fixedmult(raiseUp / 2,normal->y);
+          Raise.z = fixedmult(raiseUp / 2,normal->z);
+          (o->position).x = (o->position).x + Raise.x;
+          (o->position).y = (o->position).y + Raise.y;
+          (o->position).z = (o->position).z + Raise.z;
+        }
+      }
+      r.x = spot.x - (o->position).x;
+      r.y = spot.y - (o->position).y;
+      r.z = spot.z - (o->position).z;
+      vertexVelocity.x = ((o->angularVel).y / 256) * (r.z / 256) -
+                         ((o->angularVel).z / 256) * (r.y / 256);
+      vertexVelocity.y = ((o->angularVel).z / 256) * (r.x / 256) -
+                         ((o->angularVel).x / 256) * (r.z / 256);
+      vertexVelocity.z = ((o->angularVel).x / 256) * (r.y / 256) -
+                         ((o->angularVel).y / 256) * (r.x / 256);
+      vertexVelocity.x = vertexVelocity.x + (o->linearVel).x;
+      vertexVelocity.y = vertexVelocity.y + (o->linearVel).y;
+      vertexVelocity.z = vertexVelocity.z + (o->linearVel).z;
+      if ((normal->x / 256) * (vertexVelocity.x / 256) +
+          (normal->y / 256) * (vertexVelocity.y / 256) +
+          (normal->z / 256) * (vertexVelocity.z / 256) < 0) {
+        Collide_DoObjectFixedObjectCollision(o,&spot,&vertexVelocity,normal);
+      }
+      if ((Collide_gRaiseUp != 0) && (raiseUp != 0) && (0 < Raise.y)) {
+        int correction;
+        int v2;
 
-          correction = fixedmult(0x9cccc,Raise.y) * 2;
-          v2 = fixedmult((o->linearVel).y,(o->linearVel).y);
-          if (v2 < correction) {
-            (o->linearVel).y = 0;
-          }
-          else if (0 < (o->linearVel).y) {
-            (o->linearVel).y = fixedsqrt(v2 - correction);
-          }
-          else {
-            (o->linearVel).y = -fixedsqrt(v2 - correction);
-          }
+        correction = fixedmult(0x9cccc,Raise.y) * 2;
+        v2 = fixedmult((o->linearVel).y,(o->linearVel).y);
+        if (v2 < correction) {
+          (o->linearVel).y = 0;
+        }
+        else if (0 < (o->linearVel).y) {
+          (o->linearVel).y = fixedsqrt(v2 - correction);
+        }
+        else {
+          (o->linearVel).y = -fixedsqrt(v2 - correction);
         }
       }
     }

@@ -453,58 +453,59 @@ void R3DCar_CalcCarDimensions(Car_tObj *carObj,Transformer_zScene *scene,int car
   maxp.z = -0x630000;
 
   for (i = 0; i < 57; i++) {
-  int j;
+    int j;
     Transformer_zObj *obj;
 
     obj = scene->obj[i];
-    if (((signed char)R3DCar_ObjectInfo[i][3] == 1) && (obj->numVertex != 0)) {
-      if ((i == 0) || (i > 46) || ((i == 2) && (carType == 28))) {
-        for (j = 0; j < obj->numVertex; j++) {
-          minp.x = obj->vertex[j].x + obj->translation.x / 256 >= minp.x ?
-              minp.x : obj->vertex[j].x + obj->translation.x / 256;
-          minp.y = obj->vertex[j].y + obj->translation.y / 256 >= minp.y ?
-              minp.y : obj->vertex[j].y + obj->translation.y / 256;
-          minp.z = obj->vertex[j].z + obj->translation.z / 256 >= minp.z ?
-              minp.z : obj->vertex[j].z + obj->translation.z / 256;
-          maxp.x = obj->vertex[j].x + obj->translation.x / 256 >= maxp.x ?
-              obj->vertex[j].x + obj->translation.x / 256 : maxp.x;
-          maxp.y = obj->vertex[j].y + obj->translation.y / 256 >= maxp.y ?
-              obj->vertex[j].y + obj->translation.y / 256 : maxp.y;
-          maxp.z = obj->vertex[j].z + obj->translation.z / 256 >= maxp.z ?
-              obj->vertex[j].z + obj->translation.z / 256 : maxp.z;
-        }
+    /* retail's scope tree puts the wheel block straight inside this loop body: the object test is a `continue`,
+       not an `if` around the rest of the body (an if whose body holds a declared block adds two scopes) */
+    if (((signed char)R3DCar_ObjectInfo[i][3] != 1) || (obj->numVertex == 0)) continue;
+    if ((i == 0) || (i > 46) || ((i == 2) && (carType == 28))) {
+      for (j = 0; j < obj->numVertex; j++) {
+        minp.x = obj->vertex[j].x + obj->translation.x / 256 >= minp.x ?
+            minp.x : obj->vertex[j].x + obj->translation.x / 256;
+        minp.y = obj->vertex[j].y + obj->translation.y / 256 >= minp.y ?
+            minp.y : obj->vertex[j].y + obj->translation.y / 256;
+        minp.z = obj->vertex[j].z + obj->translation.z / 256 >= minp.z ?
+            minp.z : obj->vertex[j].z + obj->translation.z / 256;
+        maxp.x = obj->vertex[j].x + obj->translation.x / 256 >= maxp.x ?
+            obj->vertex[j].x + obj->translation.x / 256 : maxp.x;
+        maxp.y = obj->vertex[j].y + obj->translation.y / 256 >= maxp.y ?
+            obj->vertex[j].y + obj->translation.y / 256 : maxp.y;
+        maxp.z = obj->vertex[j].z + obj->translation.z / 256 >= maxp.z ?
+            obj->vertex[j].z + obj->translation.z / 256 : maxp.z;
+      }
+    }
+
+    if (i > 46) {
+      int minWheelX;
+      int minWheelZ;
+      int maxWheelX;
+      int maxWheelZ;
+
+      minWheelX = 0x630000;
+      minWheelZ = 0x630000;
+      maxWheelX = -0x630000;
+      maxWheelZ = -0x630000;
+      for (j = 0; j < obj->numVertex; j++) {
+        minWheelX = __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) >= minWheelX ?
+            minWheelX : __builtin_abs(obj->vertex[j].x + obj->translation.x / 256);
+        minWheelZ = __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) >= minWheelZ ?
+            minWheelZ : __builtin_abs(obj->vertex[j].z + obj->translation.z / 256);
+        maxWheelX = __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) >= maxWheelX ?
+            __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) : maxWheelX;
+        maxWheelZ = __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) >= maxWheelZ ?
+            __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) : maxWheelZ;
       }
 
-      if (i > 46) {
-        int minWheelX;
-        int minWheelZ;
-        int maxWheelX;
-        int maxWheelZ;
-
-        minWheelX = 0x630000;
-        minWheelZ = 0x630000;
-        maxWheelX = -0x630000;
-        maxWheelZ = -0x630000;
-        for (j = 0; j < obj->numVertex; j++) {
-          minWheelX = __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) >= minWheelX ?
-              minWheelX : __builtin_abs(obj->vertex[j].x + obj->translation.x / 256);
-          minWheelZ = __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) >= minWheelZ ?
-              minWheelZ : __builtin_abs(obj->vertex[j].z + obj->translation.z / 256);
-          maxWheelX = __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) >= maxWheelX ?
-              __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) : maxWheelX;
-          maxWheelZ = __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) >= maxWheelZ ?
-              __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) : maxWheelZ;
-        }
-
-        if (i >= 53) {
-          carObj->N.wheelBackX = ((minWheelX + maxWheelX + 1) >> 1) << 8;
-          carObj->N.wheelBackZ = ((minWheelZ + maxWheelZ + 1) >> 1) << 8;
-          carObj->N.wheelWidthB = ((maxWheelX - minWheelX) << 8) + 0xccc;
-        } else if (i >= 47) {
-          carObj->N.wheelFrontX = ((minWheelX + maxWheelX + 1) >> 1) << 8;
-          carObj->N.wheelFrontZ = ((minWheelZ + maxWheelZ + 1) >> 1) << 8;
-          carObj->N.wheelWidthF = ((maxWheelX - minWheelX) << 8) + 0xccc;
-        }
+      if (i >= 53) {
+        carObj->N.wheelBackX = ((minWheelX + maxWheelX + 1) >> 1) << 8;
+        carObj->N.wheelBackZ = ((minWheelZ + maxWheelZ + 1) >> 1) << 8;
+        carObj->N.wheelWidthB = ((maxWheelX - minWheelX) << 8) + 0xccc;
+      } else if (i >= 47) {
+        carObj->N.wheelFrontX = ((minWheelX + maxWheelX + 1) >> 1) << 8;
+        carObj->N.wheelFrontZ = ((minWheelZ + maxWheelZ + 1) >> 1) << 8;
+        carObj->N.wheelWidthF = ((maxWheelX - minWheelX) << 8) + 0xccc;
       }
     }
   }

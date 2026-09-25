@@ -54,6 +54,14 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   tree is the `for`-level scope holding the counter with the body block inside it, i.e.
   `for (int sliceLoop = 0; ...)`. All three byte-unchanged (symloop), native CLEAN; board
   1799 -> 1802.
+- Three more scope-tree restorations of the same family, each byte-unchanged (symloop) and now
+  native CLEAN: `R3DCar_CalcCarDimensions` (the per-object test is a `continue`, so the wheel
+  block sits straight inside the loop body as retail's does); `AIHigh_Opponent::DoRearEnder`
+  (one `simOptz && speed` guard instead of two nested ifs, `for (int racerLoop ...)`, and
+  `longDistance`/`latDistance` declared with `otherCarObj` at the top of the loop body, the
+  road-position test then declaring nothing); `Collide_TestWithPlane` (`height` in its own
+  block, and the three nested `Collide_gRaiseUp`/`raiseUp`/`Raise.y` ifs are one `&&` chain
+  around the `correction`/`v2` block). Board 1802 -> 1805.
 - `Night_AdditiveNightCalc`: retail `lookup` ($v0) is the night-table byte and `addColor`
   ($v1) the colour word fetched with it; ours had folded `lookup` into `addColor`. Split as
   `lookup = Night_gNightTbl[index]; addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];`

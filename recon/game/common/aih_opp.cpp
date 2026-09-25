@@ -516,13 +516,8 @@ void AIHigh_Opponent::CheckForWipeOut()
 
 int AIHigh_Opponent::DoRearEnder()
 
-
-
 {
-
   int attackIndex;
-
-
 
   attackIndex = AIScript_DoReAction(&(this->carObj_)->script,0x100);   /* SYM: attackIndex is REG $s1,
                                             held live across the AIWorld_SplineDistance call below --
@@ -540,112 +535,69 @@ int AIHigh_Opponent::DoRearEnder()
        `__builtin_abs` is ONE RTL insn (its bgez/nop/negu is an asm template, invisible to
        the CFG), so the whole region stays ONE basic block and sched2 places the mflo after
        it, exactly like retail -- and the two 32-bit range constants then fall into the
-       roadPosition load-delay slots for free.
-       ORDER OF LANDING IS LOAD-BEARING (measured, this basin): the IN-LOOP site (~line 352)
-       first = 50 -> 24; site 1 alone = 60; BOTH at once from the 50-basin = 34.  Only after
-       the in-loop site was landed did site 1 pay: 24 -> PASS.
-       THE W63 FENCE SCAFFOLDING IS RETIRED BY THIS.  The named+opacity-fenced lo1/hi1
-       constants (w63-a12, 54 -> 50) were a WORKAROUND for the constant-hoist that the
-       branchy abs made necessary; with __builtin_abs they are actively harmful --
-       re-measured on the post-site-2 basin: plain literals 24 -> PASS, named+fenced 34,
-       named-unfenced PASS, fence order reversed 30, single fence 34.  Landed form = plain
-       literal constants, zero asm, zero named temps (09L: __builtin_abs is the retail
-       spelling; 04Z: the W59 "__builtin_abs makes it WORSE (58)" receipt was measured in a
-       basin where the other site still had the branchy abs).  W59/W60/W61/W63 near-miss
-       receipts for this fn (constant-hoist family, ~20 falsified spellings) are all
-       superseded and deleted with this seal. ==== */
+       roadPosition load-delay slots for free.  Landed form = plain literal constants, zero
+       asm, zero named temps (09L: __builtin_abs is the retail spelling). ==== */
 
     otherCarObj = Cars_gList[attackIndex];
-
     longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
-
     longDistance = longDistance * this->carObj_->direction;
-
     latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
-
-    {
-
     latDistance = __builtin_abs(latDistance);
-
     if (((u_int)(longDistance - 0x10001) <= 0x26fffeU) && (latDistance < longDistance * 2)) {
-
       if (0xb1c71 < __builtin_abs(otherCarObj->currentSpeed)) {
-
         return attackIndex;
-
       }
-
     }
-    }
-
   }
 
-  if ((this->carObj_->N).simOptz == '\0') {
+  /* SYM scope tree (2026-09-25): ONE guard statement here (retail: if level + its compound, then the
+     for level holding racerLoop, then the loop body block holding otherCarObj/longDistance/latDistance
+     TOGETHER); two nested ifs, or the distances declared inside the road-position test, each add scopes
+     retail does not have. */
+  if (((this->carObj_->N).simOptz == '\0') && (0x140000 < __builtin_abs(this->carObj_->currentSpeed))) {
+    for (int racerLoop = 0; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {
+      Car_tObj *otherCarObj = Cars_gHumanRaceCarList[racerLoop]; /* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh
+                                   block-scope pseudo) inside this loop -- same physical slot as section 1's. */
+      int longDistance;
+      int latDistance;   /* SYM: REG $a1, re-declared fresh in this block (same reg as section 1's). */
 
-    if (0x140000 < __builtin_abs(this->carObj_->currentSpeed)) {
-
-      int racerLoop = 0;
-      for (; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {   /* SYM: racerLoop is a
-                                            SEPARATE local from the pre-loop longDistance check (2nd SYM
-                                            decl block re-declares otherCarObj/longDistance/latDistance but
-                                            NOT attackIndex/racerLoop -- racerLoop is the outer-scope loop
-                                            var, conflating it with the pre-loop longDistance temp forces
-                                            them into ONE callee-saved reg for the whole function). */
-
-        Car_tObj *otherCarObj = Cars_gHumanRaceCarList[racerLoop]; /* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh block-scope
-                                     pseudo) inside this loop -- same physical slot as section 1's
-                                     otherCarObj, rewired from anonymous pCVar4. */
-
-        if (((int)-(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
-                                  .avgPavedWidthLf << 15) *
-                    (u_int)(BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
-                                  .laneCount >> 4)) <=
-             otherCarObj->roadPosition) &&
-            (otherCarObj->roadPosition <=
-             (int)(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
-                                  .avgPavedWidthRt << 15) *
-                   (BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
-                                  .laneCount & 0xf)))) {
-
-          int longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
-
-          longDistance = longDistance * this->carObj_->direction;
-
-          int latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition; /* SYM: latDistance REG $a1,
-                                     re-declared fresh in this block (same reg as section 1's). */
-
-          latDistance = __builtin_abs(latDistance);   /* MATCH (w64-a12, THE seal lever, 50 -> 24):
-                                     __builtin_abs is ONE RTL insn, so this whole region stays ONE
-                                     basic block and sched2 can put the longDistance*direction `mflo`
-                                     AFTER the sign test like retail; the branchy `if (x<0) x=-x;`
-                                     splits the region and pins the mflo before it. */
-
-          if ((longDistance - 0x10001U < 0x26ffff) &&
-              (latDistance < longDistance * 2)) {
-            if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b &
-                 this->carObj_->personality->rearBumpProbMask) ==
-                this->carObj_->personality->rearBumpProbMask) {
-              return otherCarObj->carIndex;
-            }
+      if (((int)-(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                .avgPavedWidthLf << 15) *
+                  (u_int)(BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                .laneCount >> 4)) <=
+           otherCarObj->roadPosition) &&
+          (otherCarObj->roadPosition <=
+           (int)(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                .avgPavedWidthRt << 15) *
+                 (BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                .laneCount & 0xf)))) {
+        longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
+        longDistance = longDistance * this->carObj_->direction;
+        latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
+        latDistance = __builtin_abs(latDistance);   /* MATCH (w64-a12, THE seal lever, 50 -> 24):
+                                   __builtin_abs is ONE RTL insn, so this whole region stays ONE
+                                   basic block and sched2 can put the longDistance*direction `mflo`
+                                   AFTER the sign test like retail; the branchy `if (x<0) x=-x;`
+                                   splits the region and pins the mflo before it. */
+        if ((longDistance - 0x10001U < 0x26ffff) &&
+            (latDistance < longDistance * 2)) {
+          if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b &
+               this->carObj_->personality->rearBumpProbMask) ==
+              this->carObj_->personality->rearBumpProbMask) {
+            return otherCarObj->carIndex;
           }
-          if (longDistance + 0x3ffffU < 0x7ffff) {
-            if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b &
-                 this->carObj_->personality->smackProbMask) ==
-                this->carObj_->personality->smackProbMask) {
-              return otherCarObj->carIndex;
-            }
-          }
-
         }
-
+        if (longDistance + 0x3ffffU < 0x7ffff) {
+          if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b &
+               this->carObj_->personality->smackProbMask) ==
+              this->carObj_->personality->smackProbMask) {
+            return otherCarObj->carIndex;
+          }
+        }
       }
-
     }
-
   }
-
   return -1;
-
 }
 
 

@@ -4677,17 +4677,16 @@ void Hud_BuildReplay(void)
 int Hud_NextPlayer(int player)
 
 {
+  int i;   /* SYM order: i, j, direction, carObj */
   int j;
-  int i;
-  Car_tObj *carObj;
-  Car_tObj *humanCar; /* SYM-CODEGEN-CARRIER: humanCar -- merging into carObj is FAIL 78 (87/89) */
   int direction;
+  Car_tObj *carObj;
 
   direction = (u_int)(0 < *(int *)((player << 2) + (int)Input_gLookBehind) !=
                          0 < DashHUD_gInfo.wrongway[player]);
-  humanCar = Cars_gHumanRaceCarList[player];
+  carObj = Cars_gHumanRaceCarList[player];   /* retail's only pointer local; sorted-list entries are read direct */
   if (1 < Cars_gNumRaceCars) {
-    j = Stats_GetPosition(humanCar);
+    j = Stats_GetPosition(carObj);
     if ((j == 1) && (direction == 0)) {
       /* MATCH (w45-a7): zero-length VOLATILE asm = a reorg barrier, not a pin.  Without
        * it fill_simple_delay_slots grabs this block's `li v0,-1` out of the fall-through
@@ -4703,7 +4702,7 @@ int Hud_NextPlayer(int player)
     }
     i = 0;
     direction = direction ^ GameSetup_gData.reverseTrack;
-    j = humanCar->sortIndex;
+    j = carObj->sortIndex;
     if (0 < Cars_gNumCars + -1) {
       do {
         if (direction != 0) {
@@ -4718,16 +4717,15 @@ int Hud_NextPlayer(int player)
         if (Cars_gNumCars <= j) {
           j = 0;
         }
-        carObj = Cars_gSortedList[j];
-        if ((carObj->carFlags & 4) != 0) {
+        if ((Cars_gSortedList[j]->carFlags & 4) != 0) {
           if (player != 0) {
             return 7;
           }
           return 8;
         }
         i = i + 1;
-        if ((carObj->carFlags & 8) != 0) {
-          return *(int *)((int)carObj + 0x4ec);
+        if ((Cars_gSortedList[j]->carFlags & 8) != 0) {
+          return *(int *)((int)Cars_gSortedList[j] + 0x4ec);
         }
       } while (i < Cars_gNumCars + -1);
     }
@@ -4766,23 +4764,22 @@ int Hud_NextPlayer(int player)
 char * Hud_NextPlayerNameOrCarOrTime(int player)
 
 {
+  int i;   /* SYM order: i, j, direction, carObj */
   int j;
-  int i;
-  Car_tObj *carObj;
-  Car_tObj *humanCar; /* SYM-CODEGEN-CARRIER: humanCar -- merging into carObj is FAIL 59 (97/98) */
   int direction;
+  Car_tObj *carObj;
   
   direction = (u_int)(0 < Input_gLookBehind[player] != 0 < DashHUD_gInfo.wrongway[player]);
-  humanCar = Cars_gHumanRaceCarList[player];
+  carObj = Cars_gHumanRaceCarList[player];   /* retail's only pointer local; sorted-list entries are read direct */
   if (1 < Cars_gNumRaceCars) {
-    j = Stats_GetPosition(humanCar);
+    j = Stats_GetPosition(carObj);
     if ((j == 1) && (direction == 0)) {
       return "";
     }
     {
       i = 0;
       direction = direction ^ GameSetup_gData.reverseTrack;
-      j = humanCar->sortIndex;
+      j = carObj->sortIndex;
       if (0 < Cars_gNumCars + -1) {
         do {
           if (direction != 0) {
@@ -4797,12 +4794,11 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
           if (Cars_gNumCars <= j) {
             j = 0;
           }
-          carObj = Cars_gSortedList[j];
-          if ((carObj->carFlags & 0xc) != 0) {
+          if ((Cars_gSortedList[j]->carFlags & 0xc) != 0) {
             if (GameSetup_gData.carInfo[player].HudOpponentID == 2) {
-              return (char *)carObj + 0x249;
+              return (char *)Cars_gSortedList[j] + 0x249;
             }
-            return carObj->carInfo->driver;
+            return Cars_gSortedList[j]->carInfo->driver;
           }
           i = i + 1;
         } while (i < Cars_gNumCars + -1);

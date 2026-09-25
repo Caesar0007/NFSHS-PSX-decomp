@@ -318,6 +318,10 @@ void tScreenAudio::Initialize()
 }
 
 /* ---- tScreenAudio::Cleanup  (screenaudio.cpp:318) ---- */
+/* retail's Cleanup ends in a loop level holding an inline-call pair: the speech-loading test is an
+   inline taking the info block, whose hoisted address is what the old `info` carrier reproduced */
+static inline int SpeechLoading(SPEECHINFO *si) { return *(u_short *)&si->areLoading; }
+
 void tScreenAudio::Cleanup()
 
 {
@@ -334,17 +338,9 @@ void tScreenAudio::Cleanup()
   gMasterAmbientLevel = (int)(byte)frontEnd.ambientVolume;
   AudioMus_Volume((int)(byte)frontEnd.musicVolume * 0x23 >> 6);
   this->tScreen::Cleanup();
-  /* SYM-CODEGEN-CARRIER: info
-   * The SYM has no named local here, but retail materializes &ginfo once in
-   * $s0 for the line-339 wait loop. Direct while/goto spellings cost 5/11+
-   * diffs; this anonymous-address carrier preserves the exact 62-word body. */
-  SPEECHINFO *info = &ginfo;
-L_wait:
-  if ((*(u_short *)&info->areLoading) != 0) {
+  while (SpeechLoading(&ginfo)) {
     FeAudio_systemtask(0);
-    goto L_wait;
   }
-  return;
   return;
 }
 

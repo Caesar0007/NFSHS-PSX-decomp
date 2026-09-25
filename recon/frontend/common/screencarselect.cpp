@@ -87,19 +87,18 @@ static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[
    remove the decompiler's byte/pointer aliases and make the remainder of the
    body byte-identical. */
 
+/* retail's SYM opens DrawCar with an inline-call pair at +000: the tick read is an inline getter
+   (its long return type supplies the signed remainder the old `signedTicks` carrier staged) */
+static inline long GetTicks(void) { return (long)::ticks[0]; }
+
 void DrawCar(tCarInfo &carInfo,short x,short y,float camerax,float cameray,char brightness,
                bool reflection,u_long rotate,tPlayer player)
 
 {
   int the_simcarcolor;
   u_long ticks;
-  /* SYM-CODEGEN-CARRIER: signedTicks -- the W63/W66 oracle receipt above
-     proves this source conversion supplies retail's signed remainder shape. */
-  long signedTicks;
-  
-  ticks = ::ticks[0];
-  signedTicks = (long)ticks;
-  ticks = signedTicks % 0x800;
+
+  ticks = GetTicks() % 0x800;
   DrawC_gMenuLights = 0;
   if (ticks < 0x400) {
     DrawC_gMenuLightsDirection = 0;
@@ -1808,11 +1807,6 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 {
   /* SYM-INLINE-THIS: GetPlayer */
-  /* SYM-CODEGEN-CARRIER: player.  Retail omits a caller-local name, but this
-     long-lived cache is currently required to preserve its $s0 allocation:
-     direct fPlayer repetition is FAIL 67 and repeated GetPlayer calls are
-     count-exact FAIL 46.  The accessor spelling itself is not retained by
-     SYM; see the shared-type declaration receipt. */
   /* MATCH 2026-08-11 (59 -> PASS, 84/84).  SYM 8c @0x8003e040 gives fsize 48,
      mask $803f0000 = ra + s0..s5;
      REGPARM `carInfo` = $18 ($s2); the ONLY named REG locals are
@@ -1826,18 +1820,16 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
      anonymous/cache s0, currentplayer s5, garageNumber s3; no fence is needed. */
   int currentplayer;
   int garageNumber;
-  int player;
 
-  player = FEApp->GetPlayer();
-  currentplayer = player;
-  garageNumber = player;
+  currentplayer = FEApp->GetPlayer();
+  garageNumber = currentplayer;
   if (frontEnd.carListType == '\0') {
-    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[player],carInfo);
+    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[currentplayer],carInfo);
     carInfo.fColor = carInfo.fColorOrder
-         [frontEnd.carColors[player][(signed char)carInfo.fCarID]];
+         [frontEnd.carColors[currentplayer][(signed char)carInfo.fCarID]];
   }
   else {
-    if (carManager.GetNumOwnedCars((short)player) <= 0) {
+    if (carManager.GetNumOwnedCars((short)currentplayer) <= 0) {
       garageNumber = 0;
     }
     if (carManager.GetNumOwnedCars((short)garageNumber) <= 0) {

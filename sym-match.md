@@ -100,6 +100,32 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   store, which the `--` form does not produce), `Hrz_SetDitheringPrim` `prev_val` (4), `Flare_Tri`
   `pkt_addr24` (4 in five spellings), `Night_GenerateNextLightningEvent` (10-16),
   `Flare_QuadRing` (5). Board 1819 -> 1823.
+- Carrier round 3 (2026-09-26): the retail tree itself names the lever. A function-level `{ {} }`
+  pair with no `this` is an inline call where we open-code an expression; a carrier whose register
+  equals a MISSING retail local is that local under another name; a level with no recorded variable
+  is a block whose local was optimised out of the debug records. Applied, all `symloop` BYTES UNCHANGED:
+  `tScreenCarSelectTwoPlayer::GetCar` (`player` IS retail's `currentplayer`, $s5);
+  `DrawW_CalcSubdivision` (`minz` IS retail's `z0`, $a1: z0 is the running minimum);
+  `Hud_NextPlayer`/`Hud_NextPlayerNameOrCarOrTime` (`humanCar` IS retail's `carObj`, $s0; the
+  sorted-list entry is read direct, and the SYM order is i, j, direction, carObj); `DrawCar`
+  (the pair at +000 is a tick getter: `static inline long GetTicks()`, whose long return type
+  supplies the signed remainder the `signedTicks` carrier staged); `Front_InitTourneyTraffic`
+  (the pair at +000 is a current-tourney accessor, `static inline tTourneyInfo *CurrentTourney()`,
+  the same index chain that 28 other frontend sites still open-code); `tScreenAudio::Cleanup`
+  (loop level + pair: `while (SpeechLoading(&ginfo)) FeAudio_systemtask(0);` with a
+  `static inline` taking the info pointer, which is what the `info` carrier held); `Front_AppendCopData`
+  (a plain `for` whose body declares the looked-up car, no explicit block, no `carInfo` carrier; the
+  body END note is hoisted to the ternary join at +104, and the loop is not rotated because jump.c
+  will not duplicate the two-load bound); `tScreenControllerConfig::SetActuators` (pair inside the
+  shaker compound: `static inline int GetTicks()` plus block-local tick/pulse; `pulse` still gets
+  a register and stays EXTRA); `tScreenTournSelect::GetShapeInfo` (zero-length pair at the end:
+  `*swapFileName = SwapFileName()`; `fe`/`useSpecial` remain, direct `frontEnd` reads are 3 diffs);
+  `AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode` (the pre-clear value lives in the else
+  compound, matching retail's if-level + inner level; the local still records); `strCallback`
+  (`static inline void strCdCheck()` for the RGB24 CD-interrupt test: pair present, but retail's
+  inner block starts at +018 after both tests and no condition-argument spelling keeps the bytes).
+  Falsified: `tournPointsCompare` accessor forms (9 diffs, free or member inline alike: the +280
+  base formation), `Camera_UpdateAnimCam`. Board 1823 -> 1831.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

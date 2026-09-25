@@ -34,6 +34,9 @@ tScreenTournSelect::~tScreenTournSelect()
 
 
 /* ---- tScreenTournSelect::GetShapeInfo  [SCREENTOURNSELECT.CPP:69-87] ---- */
+/* retail's GetShapeInfo ends in a zero-length inline-call pair: the swap-file name comes from a getter */
+static inline char *SwapFileName(void) { return gSwapFileName; }
+
 void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
@@ -71,7 +74,7 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
   numSwapShapes = 0x20;
   *permFileName = "ztourn";
   GetTrophyName(&tournamentManager,trophyTourn,ts_Medium,gSwapFileName,-1);
-  *swapFileName = gSwapFileName;
+  *swapFileName = SwapFileName();
   return;
 }
 

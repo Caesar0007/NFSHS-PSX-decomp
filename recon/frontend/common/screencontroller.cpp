@@ -35,6 +35,10 @@ void tScreenControllerConfig::ClearActuators()
 }
 
 /* ---- tScreenControllerConfig::SetActuators  (screencontroller.cpp:47) ---- */
+/* retail's SetActuators holds an inline-call pair inside the shaker-time compound: the tick read is an
+   inline getter, and the pulse/tick values are block locals the SYM does not record */
+static inline int GetTicks(void) { return ticks; }
+
 void tScreenControllerConfig::SetActuators(int max)
 
 {
@@ -42,11 +46,6 @@ void tScreenControllerConfig::SetActuators(int max)
      expose the common timer store and retail branch layout.  The full-width
      pulse removes a redundant mask; tickValue orders the two independent
      global-address pseudos exactly as retail. */
-  /* SYM-CODEGEN-CARRIER: tickValue -- the oracle receipt above proves this
-     split orders the independent ticks/random-table address pseudos. */
-  int tickValue;
-  /* SYM-CODEGEN-CARRIER: pulse -- the full-width carrier removes a mask. */
-  uint pulse;
 
   if (this->fResetShakeTimeOut != 0) {
     this->fResetShakeTimeOut = 0;
@@ -57,8 +56,8 @@ void tScreenControllerConfig::SetActuators(int max)
     (this->fShaker).time = (this->fShaker).time - 1;
   }
   if (*(uchar *)&(this->fShaker).time != '\0') {
-    tickValue = ticks;
-    pulse = Force_rand_256[tickValue >> 2 & 0xff];   /* @0x80043180 lbu Force_rand_256((ticks>>2)&0xff) */
+    int tickValue = GetTicks();
+    uint pulse = Force_rand_256[tickValue >> 2 & 0xff];   /* @0x80043180 lbu Force_rand_256((ticks>>2)&0xff) */
     (this->fShaker).actuator[1] = (uchar)max;
     (this->fShaker).actuator[0] = (int)(uint)pulse < max;
     return;

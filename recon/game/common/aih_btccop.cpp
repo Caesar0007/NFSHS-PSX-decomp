@@ -2946,23 +2946,19 @@ int AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode()
   /* SYM-CODEGEN-CARRIER: oldFreezeMode -- the retail sequence preserves the
    * pre-clear value across `freezeMode_ = 0` and compares it afterwards.
    * Expanding the result as control flow produces 20 instructions/20 diffs. */
-  int oldFreezeMode;
-
+  /* SYM scope tree: retail's if-level holds an else compound (+030..+038) that declares nothing the
+     SYM records; the pre-clear value lives in that block */
   if (this->freezeMode_ == 3) {
-
     (this->carObj_)->pullOver = 1;
-
     return 0;
-
   }
-
-  (this->carObj_)->pullOver = 0;
-
-  oldFreezeMode = this->freezeMode_;
-
-  this->freezeMode_ = 0;
-
-  return (u_int)(oldFreezeMode == 4);
+  else {
+    int oldFreezeMode;
+    (this->carObj_)->pullOver = 0;
+    oldFreezeMode = this->freezeMode_;
+    this->freezeMode_ = 0;
+    return (u_int)(oldFreezeMode == 4);
+  }
 
 }
 

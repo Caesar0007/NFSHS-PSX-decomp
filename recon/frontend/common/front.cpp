@@ -1424,6 +1424,15 @@ static void Front_InitPlayerCars(tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
+/* retail's SYM opens Front_InitTourneyTraffic with an inline-call pair at +000 and no `this`: the
+   current-tourney pointer comes from an inline accessor, not an open-coded index chain */
+static inline tTourneyInfo *CurrentTourney(void)
+{
+  return tournamentManager.fDefinition->fTournaments +
+         (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+          tournamentManager.fTournament);
+}
+
 static void Front_InitTourneyTraffic(tFEStream &streamData)
 
 {
@@ -1448,9 +1457,7 @@ static void Front_InitTourneyTraffic(tFEStream &streamData)
      traffic flag is read as `tourn->fTraffic` (one `lbu 4(a1)`), not as a fresh
      fTournaments[(uint)tournOffset + tournament] expression inside the `&&` (which
      re-masks the byte offset with `andi 0xff` and re-does the *84 chain below the test). */
-  tourn = tournamentManager.fDefinition->fTournaments +
-          (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-           tournamentManager.fTournament);
+  tourn = CurrentTourney();
   streamData.numTraffic = 0;
   if ((frontEnd.raceType == RaceType_Tournament) && (tourn->fTraffic != '\0'))
   {
@@ -2367,9 +2374,7 @@ static int *Front_AppendCopData(int *stream,tFEStream &streamData)
 {
   /* SYM ORDER (W86-S2): the SYM row i leads; the non-SYM carrier follows it. */
   short i;
-  /* SYM-CODEGEN-CARRIER: carInfo -- inlining GetCarFromID at fSimNumber
-     moves the call past the leading tag stores (FAIL 14 at 149/149). */
-  tCarInfo *carInfo;
+  const int copCarModelTag = 0x104;
 
   if (0 < (int)streamData.numCops + (int)streamData.numSuperCops) {
     *stream++ = 0xc;
@@ -2389,12 +2394,11 @@ static int *Front_AppendCopData(int *stream,tFEStream &streamData)
      SYM restore 2026-08-25: the direct conditional cursor store below removes the
      decompiler iVar2/slot pair and reproduces retail's pre-saved cursor and branch
      delay-slot increment, sealing the function at 149/149. */
-  {
-  const int copCarModelTag = 0x104;
-  i = 0;
-  while (1) {
-    if (i >= (int)streamData.numCops + (int)streamData.numSuperCops) break;
-    carInfo = carManager.GetCarFromID((short)streamData.copCars[i]);
+  /* SYM: a plain for (level +04c) whose body compound (+050..+104, its END note hoisted to the ternary join)
+     declares the looked-up car, optimised out of the debug locals; retail's loop is not rotated here because the
+     two-load bound is too long for jump.c to duplicate */
+  for (i = 0; i < (int)streamData.numCops + (int)streamData.numSuperCops; i++) {
+    tCarInfo *carInfo = carManager.GetCarFromID((short)streamData.copCars[i]);
     *stream++ = copCarModelTag;
     *stream++ = (int)streamData.currentCar;
     *stream++ = (uint)carInfo->fSimNumber;
@@ -2428,9 +2432,7 @@ static int *Front_AppendCopData(int *stream,tFEStream &streamData)
     *stream++ = 0x10d;
     *stream++ = (int)streamData.currentCar;
     *stream++ = 0;
-    i = i + 1;
     streamData.currentCar = streamData.currentCar + 1;
-  }
   }
   return stream;
 }

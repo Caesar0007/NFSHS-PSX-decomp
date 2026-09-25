@@ -441,7 +441,6 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
      order gives the oracle's beqz-to-far-block layout + duplicated `jr` returns.
      Every funnel/ternary/nested form leaves the value in $v1 + a copy (14 diffs), and
      the ascending/nested direct-return orders flip branch polarity (6-10 diffs). */
-  int minz; /* SYM-CODEGEN-CARRIER: minz -- running-min funnel required by the measured retail guard chain */
   int z0;
   int z1;
   int z2;
@@ -451,24 +450,24 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
   z1 = (int)v1->vz;
   z2 = (int)v2->vz;
   z3 = (int)v3->vz;
-  minz = z0;
+  /* z0 is the running minimum (retail's z0 is REG $a1, the min funnel) */
   if (z1 < z0) {
-    minz = z1;
+    z0 = z1;
   }
-  if (z2 < minz) {
-    minz = z2;
+  if (z2 < z0) {
+    z0 = z2;
   }
-  if (z3 < minz) {
-    minz = z3;
+  if (z3 < z0) {
+    z0 = z3;
   }
-  minz = minz + sd->offsubdivid;
-  if (0x800 < minz) {
+  z0 = z0 + sd->offsubdivid;
+  if (0x800 < z0) {
     return 0;
   }
-  if (0x500 < minz) {
+  if (0x500 < z0) {
     return 1;
   }
-  if (0x200 < minz) {
+  if (0x200 < z0) {
     return 2;
   }
   return 3;

@@ -496,6 +496,16 @@ static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFun
 /* lines 446-449: (static data / macros / comments - no emitted code) */
 
 /* ---- strCallback  (movie.cpp:450, code lines 450-488) ---- */
+/* retail's strCallback opens with an inline-call pair (+000..+038): the RGB24 CD-interrupt check is an
+   inline, not open-coded */
+static inline void strCdCheck(void)
+{
+  if ((gIsRGB24 != 0) && (StCdIntrFlag != 0)) {
+    StCdInterrupt();
+    StCdIntrFlag = 0;
+  }
+}
+
 static void strCallback(void)
 
 {
@@ -506,10 +516,7 @@ static void strCallback(void)
                      carrier changes the SYM-proven 32-byte frame and stack offsets */
 
   (void)deadfrm;
-  if ((gIsRGB24 != 0) && (StCdIntrFlag != 0)) {
-    StCdInterrupt();
-    StCdIntrFlag = 0;
-  }
+  strCdCheck();
   if (download[0] != 0) {
     LoadImage(&dec.slice,(u_long *)dec.imgbuf);
   }

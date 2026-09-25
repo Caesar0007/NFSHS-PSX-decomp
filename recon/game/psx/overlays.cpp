@@ -114,11 +114,11 @@ void RaceSummary(void)
 
 {
   short i;
+  char string [40];
   short HUD_STATS_POS_X;
   short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H;
   short HUD_STATS_POS_Y;
-  char string [40];
   int titleY; /* SYM-CODEGEN-CARRIER: titleY -- direct HUD_STATS_POS_Y-derived expressions are FAIL 87 (344/349) */
   int titleX; /* SYM-CODEGEN-CARRIER: titleX -- direct title-coordinate spelling is FAIL 79 (350/349) */
 
@@ -169,10 +169,7 @@ void RaceSummary(void)
   if (GameSetup_gData.numLaps != 1) {
     Hud_FBuildF4(0,colbestlap + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   }
-  i = 0;
-  while (1) {
-    if (Cars_gNumRaceCars <= i) break;
-    {
+  for (i = 0; i < Cars_gNumRaceCars; i = i + 1) {
     /* SYM: `pos` is a BLOCK-scoped REG $s2 inside the per-car loop. */
     int pos;
 
@@ -221,8 +218,6 @@ void RaceSummary(void)
         Font_TextXY(string,colbestlap,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       }
     }
-    }
-    i = i + 1;
   }
   {
   /* w46-a8 SEAL (5 -> PASS, 349/349).  THE `& 0xffff` NAMED CARRIER.  Retail reloads the

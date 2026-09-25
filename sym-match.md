@@ -62,6 +62,27 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   road-position test then declaring nothing); `Collide_TestWithPlane` (`height` in its own
   block, and the three nested `Collide_gRaiseUp`/`raiseUp`/`Raise.y` ifs are one `&&` chain
   around the `correction`/`v2` block). Board 1802 -> 1805.
+- Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
+  `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
+  loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers
+  around the three later loops are gone) and `Collide_DoObjectObjectCollision` (`zone`/`impulse`
+  declared straight in the `objID < 0x200` compounds, no inner block). Byte-unchanged but still
+  DIRTY, kept as verified partial restorations: `Track_LoadObjectKillData` (early return on a null
+  file, `for (int i ...)`; 20 vs 19 scopes -- retail's `inst` block closes at +0a0 before the
+  `index` and `simGroup` blocks, which are its siblings, so retail's `inst` cannot be the pointer
+  those later blocks walk; unresolved), `Cars_DoExtraCarCollisionProcessing` (the six pull-over
+  tests are three `&&` ifs, and `surfaceType == 1 && (random() & 3) == 0` is one if; 23 = 23
+  scopes but retail opens its first level at +0a8 BEFORE the blowout re-read, i.e. its first
+  condition is `blowout == 0 && pullOver == 0` with no goto -- that spelling passes verify_asm
+  but symloop reports BYTES MOVED, the entry guard retargets, so the goto stays),
+  `AIPhysic_SimplePhysics_LatVel` (`right` at function scope like retail; tree now exact, the
+  remaining issue is carSpeed's register home), `RaceSummary` (`char string[40]` declared right
+  after `i` as retail's AUTO order shows, and the per-car loop is a `for` whose level opens at
+  +280 like retail's; the `w2` carrier block remains). Falsified: `CalcObjDefPtrs` with the loop
+  body reading `(int *)(gObjDefOffsetsGroup + 1)` instead of `GetData()` (8 diffs);
+  `Night_SetCopColor` with `copColors`/`col1`/`col2` at function scope (32 diffs, as the older
+  note already said). Board 1805 -> 1807. Legacy symloop references for hudpmx, aiphysic and
+  overlays were adopted/refreshed on pristine source (`ref_refresh.py --proven`).
 - `Night_AdditiveNightCalc`: retail `lookup` ($v0) is the night-table byte and `addColor`
   ($v1) the colour word fetched with it; ours had folded `lookup` into `addColor`. Split as
   `lookup = Night_gNightTbl[index]; addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];`

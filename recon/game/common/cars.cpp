@@ -519,31 +519,30 @@ void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj)
      * (04Q) -- psyqproof word 14 is the only witness. */
     if (carObj->blowout != 0) goto afterPullOver;
   }
-  if (carObj->pullOver == 0) {
-      if (carObj->control.abort) {
-        if (carObj->stats.finishType == 0) {
-          if (simGlobal.gameTicks > 0x340) {
-            if (carObj->stats.fatalCrashes == 0) {
-              if (carObj->N.speedXZ <= 0x1b9998) {
-                /* SYM-CODEGEN-CARRIER: player -- absent from the nested SYM
-                   scope, but removing it and repeating the comparison grows
-                   retail's 597 instructions to 606 with 33 word diffs.  The
-                   named value is required for GCC 2.8.1 to retain and reuse
-                   the selected Camera_gInfo row across all three stores. */
-                int player;
+  /* SYM scope tree (2026-09-25): retail pairs these six tests into three ifs (six scopes, none with a
+     variable of its own).  Retail opens its first if-level at +0a8, BEFORE the blowout re-read, i.e.
+     its first condition is `blowout == 0 && pullOver == 0` with no goto -- but that structured spelling
+     retargets the y == 0 entry guard (symloop BYTES MOVED), so the goto stays and the first if-level
+     opens at +0b8; the remaining grouping/addresses are an honest near-miss. */
+  if ((carObj->pullOver == 0) && carObj->control.abort) {
+    if ((carObj->stats.finishType == 0) && (simGlobal.gameTicks > 0x340)) {
+      if ((carObj->stats.fatalCrashes == 0) && (carObj->N.speedXZ <= 0x1b9998)) {
+        /* SYM-CODEGEN-CARRIER: player -- absent from the nested SYM
+           scope, but removing it and repeating the comparison grows
+           retail's 597 instructions to 606 with 33 word diffs.  The
+           named value is required for GCC 2.8.1 to retain and reuse
+           the selected Camera_gInfo row across all three stores. */
+        int player;
 
-                Cars_ResetCollidedCars(carObj,2,0);
-                carObj->stats.fatalCrashes = 0xa0;
-                player = carObj == Cars_gHumanRaceCarList[1];   /* retail lw 0x8010fa4c: row 1 only for the SECOND human */
-                Camera_gInfo[player].relpos.x = -carObj->N.orientMat.m[6] * 2;
-                Camera_gInfo[player].relpos.y = -carObj->N.orientMat.m[7] * 2;
-                Camera_gInfo[player].relpos.z = -carObj->N.orientMat.m[8] * 2;
-              }
-            }
-          }
-        }
+        Cars_ResetCollidedCars(carObj,2,0);
+        carObj->stats.fatalCrashes = 0xa0;
+        player = carObj == Cars_gHumanRaceCarList[1];   /* retail lw 0x8010fa4c: row 1 only for the SECOND human */
+        Camera_gInfo[player].relpos.x = -carObj->N.orientMat.m[6] * 2;
+        Camera_gInfo[player].relpos.y = -carObj->N.orientMat.m[7] * 2;
+        Camera_gInfo[player].relpos.z = -carObj->N.orientMat.m[8] * 2;
       }
     }
+  }
 afterPullOver:
   if (carObj->stats.fatalCrashes > 0) {
     carObj->stats.fatalCrashes--;
@@ -565,8 +564,7 @@ afterPullOver:
     }
     roadSurfaceWheel = carObj->wheel[wheel].roadSurfaceType;
     surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
-    if (surfaceType == 1) {
-      if ((random() & 3) == 0) {
+    if ((surfaceType == 1) && ((random() & 3) == 0)) {
         coorddef position;
         coorddef point;
         coorddef sideX;
@@ -596,7 +594,6 @@ afterPullOver:
         point.y -= sideZ.y;
         point.z -= sideZ.z;
         TrgSfx_AddCarSfx(carObj->N.objID,&point,4,&carObj->N.linearVel);
-      }
     }
     carObj->audioDamageScrape = 0;
   }

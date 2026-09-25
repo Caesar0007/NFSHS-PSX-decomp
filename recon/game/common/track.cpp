@@ -1068,74 +1068,69 @@ void Track_LoadObjectKillData(void)
   int objInd;
 
   filePtr = KillFile_OpenRead();
-  if (filePtr != (char *)0x0) {
-    int i;
+  if (filePtr == (char *)0x0) return;
+  for (int i = 0; i < *(int *)filePtr; i = i + 1) {
+    Chunk *chunkDat;
+    Group *group;
 
-    i = 0;
-    while (i < *(int *)filePtr) {
-      Chunk *chunkDat;
-      Group *group;
+    KillFile_ReadEntry(filePtr,i,chunkInd,objInd);
+    chunkDat = Track_chunkList + chunkInd;
+    group = chunkDat->objInstanceBuf;
+    if (group != (Group *)0x0) {
+      Trk_SimpleInst *inst;
 
-      KillFile_ReadEntry(filePtr,i,chunkInd,objInd);
-      chunkDat = Track_chunkList + chunkInd;
-      group = chunkDat->objInstanceBuf;
-      if (group != (Group *)0x0) {
-        Trk_SimpleInst *inst;
+      /* SYM-INLINE-THIS: GetNumElements
+       * SYM-INLINE-THIS: GetData
+       * Retail SLD line 25 contains the two nested Group receiver records
+       * at 0x800bae3c.  The member calls also reproduce the exact load and
+       * branch-delay-slot address calculation without an extra local. */
+      if (objInd < group->GetNumElements()) {
+        inst = (Trk_SimpleInst *)group->GetData();
 
-        /* SYM-INLINE-THIS: GetNumElements
-         * SYM-INLINE-THIS: GetData
-         * Retail SLD line 25 contains the two nested Group receiver records
-         * at 0x800bae3c.  The member calls also reproduce the exact load and
-         * branch-delay-slot address calculation without an extra local. */
-        if (objInd < group->GetNumElements()) {
-          inst = (Trk_SimpleInst *)group->GetData();
+        {
+          int index;
 
-          {
-            int index;
-
-            index = 0;
-            while (index < objInd) {
-              index = index + 1;
-              inst = (Trk_SimpleInst *)((char *)inst + inst->size);
-            }
+          index = 0;
+          while (index < objInd) {
+            index = index + 1;
+            inst = (Trk_SimpleInst *)((char *)inst + inst->size);
           }
+        }
 
-          {
-            Group *simGroup;
+        {
+          Group *simGroup;
 
-            simGroup = chunkDat->simObjBuf;
-            if (simGroup != (Group *)0x0) {
-              Trk_SimObject *simObjs;
-              int numElements;
+          simGroup = chunkDat->simObjBuf;
+          if (simGroup != (Group *)0x0) {
+            Trk_SimObject *simObjs;
+            int numElements;
 
-              /* SYM-INLINE-THIS: GetData
-               * SYM-INLINE-THIS: GetNumElements
-               * Retail SLD line 44 records both inline receivers together at
-               * 0x800bae84, matching these two Group member calls. */
-              simObjs = (Trk_SimObject *)simGroup->GetData();
-              numElements = simGroup->GetNumElements();
+            /* SYM-INLINE-THIS: GetData
+             * SYM-INLINE-THIS: GetNumElements
+             * Retail SLD line 44 records both inline receivers together at
+             * 0x800bae84, matching these two Group member calls. */
+            simObjs = (Trk_SimObject *)simGroup->GetData();
+            numElements = simGroup->GetNumElements();
 
-              {
-                int j;
+            {
+              int j;
 
-                j = 0;
-                while (j < numElements) {
-                  if (Math_DistXZ((coorddef *)&simObjs[j],
-                                  (coorddef *)&inst->x) < 0x1999) {
-                    simObjs[j].type = 0x10;
-                  }
-                  j = j + 1;
+              j = 0;
+              while (j < numElements) {
+                if (Math_DistXZ((coorddef *)&simObjs[j],
+                                (coorddef *)&inst->x) < 0x1999) {
+                  simObjs[j].type = 0x10;
                 }
+                j = j + 1;
               }
             }
           }
-          inst->type = inst->type | 0x80;
         }
+        inst->type = inst->type | 0x80;
       }
-      i = i + 1;
     }
-    purgememadr(filePtr);
   }
+  purgememadr(filePtr);
   return;
 }
 

@@ -90,7 +90,7 @@ void HudPmx_InitTextures(void)
   gHudFont = loadfileadrz(name,0);
   Font_LoadFont(gHudFont,0x80,0x80,1);
   {
-    while (i < 10) {
+    for (; i < 10; i = i + 1) {
       int u;
       int v;
       int w;
@@ -101,7 +101,6 @@ void HudPmx_InitTextures(void)
       HudPmx_gHudNumberUV[i].u0 = (u_char)u;
       HudPmx_gHudNumberUV[i].v0 = (u_char)v;
       HudPmx_gHudNumberUV[i].clut = gFontClut;
-      i = i + 1;
     }
   }
   sprintf(name,"%shud.psh",Paths_Paths[0x1a]);
@@ -139,19 +138,15 @@ HudPmxInit_shapeLoadLoop:
   for (i = 0; i < 0x83; i = i + 1) {
     HudPmx_LoadShape(shapes[i],&HudPmx_gShapes[i]);
   }
-  {
   for (i = 0x84; i < 0x9e; i = i + 1) {
-    { static char alph [5] = "alpX";  /* @0x8013cd34, runtime-patched at [3] */
-      alph[3] = (char)(i - 0x43);
-      HudPmx_LoadShape(alph,&HudPmx_gShapes[i]); }
+    static char alph [5] = "alpX";  /* @0x8013cd34, runtime-patched at [3] */
+    alph[3] = (char)(i - 0x43);
+    HudPmx_LoadShape(alph,&HudPmx_gShapes[i]);
   }
-  }
-  {
   for (i = 0x9e; i < 0xa8; i = i + 1) {
-    { static char alph [5] = "alpX";  /* @0x8013cd3c, runtime-patched at [3] */
-      alph[3] = (char)(i - 0x6e);
-      HudPmx_LoadShape(alph,&HudPmx_gShapes[i]); }
-  }
+    static char alph [5] = "alpX";  /* @0x8013cd3c, runtime-patched at [3] */
+    alph[3] = (char)(i - 0x6e);
+    HudPmx_LoadShape(alph,&HudPmx_gShapes[i]);
   }
   HudPmx_LoadShape("alTR",&HudPmx_gShapes[168] /* @0x801119b8 */);
   HudPmx_LoadShape("alCI",&HudPmx_gShapes[169] /* @0x801119cc */);
@@ -160,10 +155,8 @@ HudPmxInit_shapeLoadLoop:
   HudPmx_LoadShape("negB",&HudPmx_gShapes[172] /* @0x80111a08 */);
   HudPmx_LoadShape("neg2",&HudPmx_gShapes[173] /* @0x80111a1c */);
   HudPmx_LoadShape("alUP",&HudPmx_gShapes[174] /* @0x80111a30 */);
-  {
   for (i = 0; i < 0x1c; i = i + 1) {
     HudPmx_LoadShape(shapes[i + 74],&HudPmx_gShapes[i + 74]);
-  }
   }
   HudPmx_LoadShape("a229",&HudPmx_gShapes[103] /* @0x801114a4 */);
   HudPmx_LoadShape("ahyp",&HudPmx_gShapes[72] /* @0x80111238 */);

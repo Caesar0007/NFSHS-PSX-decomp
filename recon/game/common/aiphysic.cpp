@@ -733,12 +733,12 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
 void AIPhysic_SimplePhysics_LatVel(Car_tObj *carObj)
 {
     int off;
+    coorddef right;
     if (0x30000 < carObj->speed)
         off = carObj->rampDesiredLatPos - carObj->roadPosition;
     else
         off = 0;
     if (0x190000 < carObj->speed) {
-        coorddef right;
         right = *(coorddef *)&carObj->N.roadMatrix;
         right.x = fixedmult(off, right.x);
         right.y = fixedmult(off, right.y);

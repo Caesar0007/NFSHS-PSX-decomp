@@ -587,18 +587,18 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
 {
   /* RULE-8 rewrite from SYM 8c block @0x8008e5d4 (fsize=184 mask=$c0ff0000 = ra+fp+s0..s7) + m2c
      pregen + raw oracle, blocks in oracle VA order.  Note SYM: o0/normal are class ARG (stack-
-     spilled params, §3.15), o1/p are REGPARM (kept live).  SYM fn-scope names applied verbatim:
+     spilled params, В§3.15), o1/p are REGPARM (kept live).  SYM fn-scope names applied verbatim:
        impulse,impulseWST,impulseV,R0CrossN,R1CrossN,Rt0,Rt1,numerator,deltaV,damageVector
      Block layout: @ec40 (o0 damage-zone check) nests {zone,impulse}@ecdc, same-VA-nested (no
      locals of its own) wraps {right,top,front}@ed2c inside the impulse>0xA0000 guard; mirrored
      @eef4..f15c for o1.  The source-order x,y,z negation schedules to retail's x,z,y instruction
      order.  The right/top/front 9-way damage-zone dispatch uses the structured IDA conditions;
      keeping the common zone<8 test after the dispatch reproduces the retail branch-delay layout.
-     MATCH: R0/R1 moment-of-inertia terms use raw >>1 (NOT /2 — no div-guard, non-negative operands);
+     MATCH: R0/R1 moment-of-inertia terms use raw >>1 (NOT /2 вЂ” no div-guard, non-negative operands);
      massInv terms use plain /2 (real division, guard regenerates).  moInertiaInv*3/4 angular-scale
      branch is the plain-/256-idiom family at divisor 4 (if(x<0)x+=3;x>>=2 == x/4); write plain
      division duplicated per axis (x,y,z) so it recomputes across the fixedmult() call boundary
-     instead of CSE'ing, matching the oracle's 3x recompute — do NOT hoist into a shared temp. */
+     instead of CSE'ing, matching the oracle's 3x recompute вЂ” do NOT hoist into a shared temp. */
   int impulse;
   int impulseWST;
   coorddef impulseV;
@@ -693,53 +693,51 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
   (o0->collision).sfxType = 0x50001;
   (o0->collision).otherObj = o1;
   if (o0->objID < 0x200) {
-    {
-      int zone;
-      int impulse;
+    int zone;
+    int impulse;
 
-      impulse = (o0->collision).impulse;
-      damageVector.x = (o0->position).x - (o1->position).x;
-      zone = 9;
-      damageVector.y = (o0->position).y - (o1->position).y;
-      damageVector.z = (o0->position).z - (o1->position).z;
-      Math_NormalizeShortVector(&damageVector);
-      if (0xA0000 < impulse) {
-        int right;
-        int top;
-        int front;
+    impulse = (o0->collision).impulse;
+    damageVector.x = (o0->position).x - (o1->position).x;
+    zone = 9;
+    damageVector.y = (o0->position).y - (o1->position).y;
+    damageVector.z = (o0->position).z - (o1->position).z;
+    Math_NormalizeShortVector(&damageVector);
+    if (0xA0000 < impulse) {
+      int right;
+      int top;
+      int front;
 
-        right = fixedmult(damageVector.x,(o0->orientMat).m[0]) + fixedmult(damageVector.y,(o0->orientMat).m[1]) +
-                fixedmult(damageVector.z,(o0->orientMat).m[2]);
-        top = fixedmult(damageVector.x,(o0->orientMat).m[3]) + fixedmult(damageVector.y,(o0->orientMat).m[4]) +
-              fixedmult(damageVector.z,(o0->orientMat).m[5]);
-        front = fixedmult(damageVector.x,(o0->orientMat).m[6]) + fixedmult(damageVector.y,(o0->orientMat).m[7]) +
-                fixedmult(damageVector.z,(o0->orientMat).m[8]);
-        if (top < -0x8000) {
-          zone = 8;
-          Newton_AddDamageZone(o0,impulse,8,2);
+      right = fixedmult(damageVector.x,(o0->orientMat).m[0]) + fixedmult(damageVector.y,(o0->orientMat).m[1]) +
+              fixedmult(damageVector.z,(o0->orientMat).m[2]);
+      top = fixedmult(damageVector.x,(o0->orientMat).m[3]) + fixedmult(damageVector.y,(o0->orientMat).m[4]) +
+            fixedmult(damageVector.z,(o0->orientMat).m[5]);
+      front = fixedmult(damageVector.x,(o0->orientMat).m[6]) + fixedmult(damageVector.y,(o0->orientMat).m[7]) +
+              fixedmult(damageVector.z,(o0->orientMat).m[8]);
+      if (top < -0x8000) {
+        zone = 8;
+        Newton_AddDamageZone(o0,impulse,8,2);
+      }
+      if (__builtin_abs(right) < 0x1999) {
+        if (front < -0x1999) { zone = 1; goto o0_zdisp; }
+        if (front >= 0x199A) { zone = 5; goto o0_zdisp; }
+      }
+      if (__builtin_abs(front) < 0x1999) {
+        if (right >= 0x199A) { zone = 7; goto o0_zdisp; }
+        if (right < -0x1999) { zone = 3; goto o0_zdisp; }
+      }
+      if (front < -0x1999) {
+        if (right >= 0x199A) { zone = 0; goto o0_zdisp; }
+        if (right < -0x1999) { zone = 2; goto o0_zdisp; }
+      }
+      if (front >= 0x199A) {
+        if (right >= 0x199A) { zone = 6; goto o0_zdisp; }
+        if (right < -0x1999) {
+          zone = 4;
         }
-        if (__builtin_abs(right) < 0x1999) {
-          if (front < -0x1999) { zone = 1; goto o0_zdisp; }
-          if (front >= 0x199A) { zone = 5; goto o0_zdisp; }
-        }
-        if (__builtin_abs(front) < 0x1999) {
-          if (right >= 0x199A) { zone = 7; goto o0_zdisp; }
-          if (right < -0x1999) { zone = 3; goto o0_zdisp; }
-        }
-        if (front < -0x1999) {
-          if (right >= 0x199A) { zone = 0; goto o0_zdisp; }
-          if (right < -0x1999) { zone = 2; goto o0_zdisp; }
-        }
-        if (front >= 0x199A) {
-          if (right >= 0x199A) { zone = 6; goto o0_zdisp; }
-          if (right < -0x1999) {
-            zone = 4;
-          }
-        }
+      }
 o0_zdisp:
-        if (zone < 8) {
-          Newton_AddDamageZone(o0,impulse,zone,2);
-        }
+      if (zone < 8) {
+        Newton_AddDamageZone(o0,impulse,zone,2);
       }
     }
   }
@@ -752,52 +750,50 @@ o0_zdisp:
   (o1->collision).sfxType = 0x50001;
   (o1->collision).otherObj = o0;
   if (o1->objID < 0x200) {
-    {
-      int zone;
-      int impulse;
+    int zone;
+    int impulse;
 
-      impulse = (o1->collision).impulse;
-      damageVector.x = -damageVector.x;
-      damageVector.y = -damageVector.y;
-      damageVector.z = -damageVector.z;
-      zone = 9;
-      if (0xA0000 < impulse) {
-        int right;
-        int top;
-        int front;
+    impulse = (o1->collision).impulse;
+    damageVector.x = -damageVector.x;
+    damageVector.y = -damageVector.y;
+    damageVector.z = -damageVector.z;
+    zone = 9;
+    if (0xA0000 < impulse) {
+      int right;
+      int top;
+      int front;
 
-        right = fixedmult(damageVector.x,(o1->orientMat).m[0]) + fixedmult(damageVector.y,(o1->orientMat).m[1]) +
-                fixedmult(damageVector.z,(o1->orientMat).m[2]);
-        top = fixedmult(damageVector.x,(o1->orientMat).m[3]) + fixedmult(damageVector.y,(o1->orientMat).m[4]) +
-              fixedmult(damageVector.z,(o1->orientMat).m[5]);
-        front = fixedmult(damageVector.x,(o1->orientMat).m[6]) + fixedmult(damageVector.y,(o1->orientMat).m[7]) +
-                fixedmult(damageVector.z,(o1->orientMat).m[8]);
-        if (top < -0x8000) {
-          zone = 8;
-          Newton_AddDamageZone(o1,impulse,8,2);
+      right = fixedmult(damageVector.x,(o1->orientMat).m[0]) + fixedmult(damageVector.y,(o1->orientMat).m[1]) +
+              fixedmult(damageVector.z,(o1->orientMat).m[2]);
+      top = fixedmult(damageVector.x,(o1->orientMat).m[3]) + fixedmult(damageVector.y,(o1->orientMat).m[4]) +
+            fixedmult(damageVector.z,(o1->orientMat).m[5]);
+      front = fixedmult(damageVector.x,(o1->orientMat).m[6]) + fixedmult(damageVector.y,(o1->orientMat).m[7]) +
+              fixedmult(damageVector.z,(o1->orientMat).m[8]);
+      if (top < -0x8000) {
+        zone = 8;
+        Newton_AddDamageZone(o1,impulse,8,2);
+      }
+      if (__builtin_abs(right) < 0x1999) {
+        if (front < -0x1999) { zone = 1; goto o1_zdisp; }
+        if (front >= 0x199A) { zone = 5; goto o1_zdisp; }
+      }
+      if (__builtin_abs(front) < 0x1999) {
+        if (right >= 0x199A) { zone = 7; goto o1_zdisp; }
+        if (right < -0x1999) { zone = 3; goto o1_zdisp; }
+      }
+      if (front < -0x1999) {
+        if (right >= 0x199A) { zone = 0; goto o1_zdisp; }
+        if (right < -0x1999) { zone = 2; goto o1_zdisp; }
+      }
+      if (front >= 0x199A) {
+        if (right >= 0x199A) { zone = 6; goto o1_zdisp; }
+        if (right < -0x1999) {
+          zone = 4;
         }
-        if (__builtin_abs(right) < 0x1999) {
-          if (front < -0x1999) { zone = 1; goto o1_zdisp; }
-          if (front >= 0x199A) { zone = 5; goto o1_zdisp; }
-        }
-        if (__builtin_abs(front) < 0x1999) {
-          if (right >= 0x199A) { zone = 7; goto o1_zdisp; }
-          if (right < -0x1999) { zone = 3; goto o1_zdisp; }
-        }
-        if (front < -0x1999) {
-          if (right >= 0x199A) { zone = 0; goto o1_zdisp; }
-          if (right < -0x1999) { zone = 2; goto o1_zdisp; }
-        }
-        if (front >= 0x199A) {
-          if (right >= 0x199A) { zone = 6; goto o1_zdisp; }
-          if (right < -0x1999) {
-            zone = 4;
-          }
-        }
+      }
 o1_zdisp:
-        if (zone < 8) {
-          Newton_AddDamageZone(o1,impulse,zone,2);
-        }
+      if (zone < 8) {
+        Newton_AddDamageZone(o1,impulse,zone,2);
       }
     }
   }

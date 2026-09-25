@@ -27,8 +27,8 @@ static inline void DialogHelpAnimateOpen(tDialogHelp *dialog)
      inline boundary restores that scope while preserving retail allocation. */
   long currentTicks = ticks[0];
 
-  dialog->width = dialog->width + 0x14;
-  dialog->height = dialog->height + 10;
+  dialog->width += 0x14;
+  dialog->height += 10;
   if ((u_int)(currentTicks - dialog->startTicks) < 0x32) {
     int openHeight = gHelpShapes[0x2a].height;
 
@@ -165,8 +165,8 @@ short tDialogBase::ShouldTimeOut()
      return and the zero case as the tail.  The ticks array view exposes its
      address pseudo, so GCC fills the outer branch delay with %hi(ticks)
      instead of preloading the zero result. */
-  if (0 < this->timeOutTicks) {
-    if (this->timeOutTicks <= ticks[0] - this->startTicks) {
+  if (0 < timeOutTicks) {
+    if (timeOutTicks <= ticks[0] - startTicks) {
       return 1;
     }
   }
@@ -181,7 +181,6 @@ void tDialogBase::InitializeClass()
 
 {
   HideAllDialogs();
-  return;
 }
 
 
@@ -214,9 +213,8 @@ void tDialogBase::DrawAllDialogs()
       /* ABI-neutral spelling of the original virtual `Draw()` call; retail SYM
          records no source vtable or array-slot pointer locals. */
       DialogVisibilityList[i]->Draw();
-      i = i + 1;
+      i++;
     }
-    return;
   }
 }
 
@@ -231,7 +229,6 @@ void tDialogBase::HideAllDialogs()
   for (short i = 0; i < 8; i++) {
     DialogVisibilityList[i] = (tDialogBase *)0x0;
   }
-  return;
 }
 
 
@@ -252,29 +249,24 @@ void tDialogBase::Display()
 
 {
   /* SYM: `i` owns only the visibility-list shift, not the following setup. */
-  if (this->currentlyOn != 0) return;
-  this->currentlyOn = 1;
-  this->fFullyOpen = 0;
-  this->ReturnValue = this->fDefault;
-  {
-    short i;
+  if (currentlyOn != 0)
+    return;
+  
+  currentlyOn = 1;
+  fFullyOpen = 0;
+  ReturnValue = fDefault;
 
-    i = 7;
-    do {
-      DialogVisibilityList[i] = DialogVisibilityList[i - 1];
-      i = i - 1;
-    } while (0 < i);
-  }
+  for (short i = 7; i > 0; i--)
+    DialogVisibilityList[i] = DialogVisibilityList[i - 1];
+
   DialogVisibilityList[0] = this;
-  this->ShouldTimeOut();
-  (DialogVisibilityList[0])->ShouldTimeOut();
-  this->startTicks = ticks[0];
+  ShouldTimeOut();
+  DialogVisibilityList[0]->ShouldTimeOut();
+  startTicks = ticks[0];
   AudioCmn_PlayFESFX(0xf);
-  this->fFullyOpen = 0;
-  this->fFadeText = 0x80;
-  return;
+  fFullyOpen = 0;
+  fFadeText = 0x80;
 }
-
 
 
 /* ---- tDialogBase::Hide  [FEDIALOG.CPP:159-181] SLD-VERIFIED ---- */
@@ -284,25 +276,21 @@ void tDialogBase::Hide()
 {
   /* SYM: `i` lives in the block opened after the currentlyOn early-out and
      reset, at retail offset +0x28. */
-  if (this->currentlyOn == 0) return;
-  this->currentlyOn = 0;
-  {
-    short i;
+  if (currentlyOn == 0)
+    return;
 
-    for (i = 0; i < 8; i++) {
-      if (DialogVisibilityList[i] == this) {
-        this->currentlyOn = 0;
-        DialogVisibilityList[i] = (tDialogBase *)0x0;
-        blockmove(DialogVisibilityList + i + 1,
-                  DialogVisibilityList + i,(7 - i) * 4);
-        DialogVisibilityList[7] = (tDialogBase *)0x0;
-        AudioCmn_PlayFESFX(0x12);
-      }
+  currentlyOn = 0;
+  for (short i = 0; i < 8; i++) {
+    if (DialogVisibilityList[i] == this) {
+      currentlyOn = 0;
+      DialogVisibilityList[i] = (tDialogBase *)0x0;
+      blockmove(&DialogVisibilityList[i + 1],
+                &DialogVisibilityList[i],(7 - i) * 4);
+      DialogVisibilityList[7] = (tDialogBase *)0x0;
+      AudioCmn_PlayFESFX(0x12);
     }
   }
-  return;
 }
-
 
 
 /* ---- tDialogBase::Draw  [FEDIALOG.CPP:200-210] SLD-VERIFIED ---- */
@@ -310,13 +298,12 @@ void tDialogBase::Hide()
 void tDialogBase::Draw()
 
 {
-  PSXDrawTransSquare(0,(int)this->left,(int)this->top,4,(int)this->height,4);
-  PSXDrawTransSquare(0,(this->left + this->width) - 4,(int)this->top,4,(int)this->height,4);
-  PSXDrawTransSquare(0,this->left + 4,(int)this->top,this->width + -8,2,4);
-  PSXDrawTransSquare(0,this->left + 4,(this->top + this->height) - 2,this->width + -8,2,4);
-  PSXDrawTransSquare(0,this->left + 4,this->top + 2,this->width + -8,this->height + -4,2);
+  PSXDrawTransSquare(0,left,top,4,height,4);
+  PSXDrawTransSquare(0,(left + width) - 4,top,4,height,4);
+  PSXDrawTransSquare(0,left + 4,top,width + -8,2,4);
+  PSXDrawTransSquare(0,left + 4,(top + height) - 2,width + -8,2,4);
+  PSXDrawTransSquare(0,left + 4,top + 2,width + -8,height + -4,2);
   FeDraw_SetABRMode(0);
-  return;
 }
 
 
@@ -329,10 +316,9 @@ void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
   /* The first and third ABI parameters are unnamed in retail SYM and
      unused here; their types remain in the mangled method signature. */
   if (keyval != kInput_KeyType_AlreadyProcessed) {
-    this->Hide();
+    Hide();
     keyval = kInput_KeyType_AlreadyProcessed;
   }
-  return;
 }
 
 
@@ -342,12 +328,11 @@ void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 void tDialogHelp::AddItem(short textID,short controllerID)
 
 {
-  if (this->numItems < 7) {
-    this->text[this->numItems] = TextSys_Word((int)textID);
-    this->cont[this->numItems] = (int)controllerID;
-    this->numItems = this->numItems + 1;
+  if (numItems < 7) {
+    text[numItems] = TextSys_Word(textID);
+    cont[numItems] = controllerID;
+    numItems++;
   }
-  return;
 }
 
 
@@ -378,11 +363,11 @@ void tDialogHelp::CalculateDimensions()
   tPlayer player;
 
   FETextRender_SetFont(0);
-  this->numItems = 0;
-  this->AddItem(0x59,0);
+  numItems = 0;
+  AddItem(0x59,0);
   player = (tPlayer)0;
-  if (this->specificPlayer != -1) {
-    player = (tPlayer)this->specificPlayer;
+  if (specificPlayer != -1) {
+    player = (tPlayer)specificPlayer;
   }
   if (helpArray[this->variant].autoGenerate != '\0') {
     bool showLeftRight;
@@ -408,93 +393,92 @@ void tDialogHelp::CalculateDimensions()
           showCross = true;
         }
       }
-      i = i + 1;
+      i++;
     }
     if (1 < menu->GetNumberEnabledItems()) {
-      this->AddItem(0x52,0x50);
+      AddItem(0x52,0x50);
     }
     if (showLeftRight) {
-      this->AddItem(0x53,0xa0);
+      AddItem(0x53,0xa0);
     }
     if (showCross) {
       /* SYM-INLINE-THIS: HasFlag */
       if (menu->HasFlag(0x10000) || menu->HasFlag(0x20000)) {
-        this->AddItem(0x56,0x4000);
+        AddItem(0x56,0x4000);
       }
       else {
-        this->AddItem(0x55,0x4000);
+        AddItem(0x55,0x4000);
       }
     }
     if (0 < FEApp->backDepth[player]) {
-      this->AddItem(0x54,0x1000);
+      AddItem(0x54,0x1000);
     }
     if (menu->fOptionsMenu != (tMenu *)0x0) {
-      this->AddItem(0x57,-0x8000);
+      AddItem(0x57,-0x8000);
     }
     if ((menu->fFlags & 0x800) != 0) {
-      this->AddItem(0x58,8);
+      AddItem(0x58,8);
     }
     else {
       /* SYM-INLINE-THIS: CanContinue
          SYM-INLINE-THIS: HasFlag */
       if (menu->CanContinue()) {
-        this->AddItem(0x56,8);
+        AddItem(0x56,8);
       }
       else if (menu->HasFlag(4)) {
-        this->AddItem(0x56,8);
+        AddItem(0x56,8);
       }
     }
   }
   i = 0;
-  while (helpArray[this->variant].items[i].text != 0) {
-    this->AddItem(helpArray[this->variant].items[i].text,
-                  helpArray[this->variant].items[i].button);
-    i = i + 1;
+  while (helpArray[variant].items[i].text != 0) {
+    AddItem(helpArray[variant].items[i].text,
+            helpArray[variant].items[i].button);
+    i++;
   }
-  this->helpcontrollers = 0;
+  helpcontrollers = 0;
   PAD_update();
   {
     if (gPadinfo.buf[0].nopad == '\0') {
-      this->helpcontrollers =
-          this->helpcontrollers | (gPadinfo.buf[0].ID == '#' ? 2 : 1);
+      helpcontrollers =
+          helpcontrollers | (gPadinfo.buf[0].ID == '#' ? 2 : 1);
     }
   }
   {
     if (gPadinfo.buf[4].nopad == '\0') {
-      this->helpcontrollers =
-          this->helpcontrollers | (gPadinfo.buf[4].ID == '#' ? 2 : 1);
+      helpcontrollers =
+          helpcontrollers | (gPadinfo.buf[4].ID == '#' ? 2 : 1);
     }
   }
   i = 0;
-  this->width = 0;
-  if (0 < this->numItems) {
+  width = 0;
+  if (0 < numItems) {
     do {
-      newWidth = textpixels(this->text[i]);
-      if (this->width < newWidth) {
-        this->width = (short)newWidth;
+      newWidth = textpixels(text[i]);
+      if (width < newWidth) {
+        width = (short)newWidth;
       }
-      i = i + 1;
-    } while (i < this->numItems);
+      i++;
+    } while (i < numItems);
   }
-  if (this->helpcontrollers == 3) {
-    this->lefttext = 0x46;
-    this->width = this->width + 0x46;
-  }
-  else {
-    this->lefttext = 0x28;
-    this->width = this->width + 0x28;
-  }
-  if (this->numItems < 2) {
-    this->height = 0;
+  if (helpcontrollers == 3) {
+    lefttext = 0x46;
+    width += 0x46;
   }
   else {
-    this->height = this->numItems * 0xf;
+    lefttext = 0x28;
+    width += 0x28;
+  }
+  if (numItems < 2) {
+    height = 0;
+  }
+  else {
+    height = numItems * 0xf;
   }
   DialogHelpPositionAndClamp(this,&gHelpShapes[3]);
   DialogHelpAnimateOpen(this);
-  this->top = 0x14;
-  this->left = 0x1f9 - this->width;
-  return;
+  top = 0x14;
+  left = 0x1f9 - width;
 }
 
 
@@ -532,8 +516,8 @@ void tDialogHelp::Draw()
   long firstTick;
   
   /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
-  this->CalculateDimensionsVirtual();
-  firstTick = this->startTicks;
+  CalculateDimensionsVirtual();
+  firstTick = startTicks;
   {
     /* SYM-CODEGEN-CARRIER: loadedTicks -- direct `ticks = ::ticks[0]`
        measures FAIL 3 (186/187): retail has a separate `v0 -> a0` value copy
@@ -549,61 +533,60 @@ void tDialogHelp::Draw()
     bufferPtr = buffer;
     numLetters = (ticks - firstTick - 0x32) / 3;
     __asm__("" : : "r"(ticks));
-    for (; i < this->numItems; i++) {
+    for (; i < numItems; i++) {
       if (i == 0) {
-        y = this->top + 4;
+        y = top + 4;
       }
       else {
-        y = this->top + (i - 1) * 0xf + 0x13;
+        y = top + (i - 1) * 0xf + 0x13;
       }
       if (i > 0) {
-        int control = this->cont[i];
-        if (this->helpcontrollers == 2) goto DialogHelpDraw_pad35;
-        if (this->helpcontrollers < 3) goto DialogHelpDraw_pad65;
-        if (this->helpcontrollers == 3) goto DialogHelpDraw_specialButtons;
+        int control = cont[i];
+        if (helpcontrollers == 2) goto DialogHelpDraw_pad35;
+        if (helpcontrollers < 3) goto DialogHelpDraw_pad65;
+        if (helpcontrollers == 3) goto DialogHelpDraw_specialButtons;
 DialogHelpDraw_pad65:
-        FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
-                   (i - 1) * 0xf + this->top + 0x13);
+        FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
+                   (i - 1) * 0xf + top + 0x13);
         goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_pad35:
-        FeTools_DrawPSXButton(0x23,(u_short)control,this->left + 0x14,
-                   (i - 1) * 0xf + this->top + 0x13);
+        FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x14,
+                   (i - 1) * 0xf + top + 0x13);
         goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_specialButtons:
         if ((control == 0xa0) || (control == 0x50) || (control == 0x40))
           goto DialogHelpDraw_pad65Special;
-        FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
-                   this->top + DialogHelpButtonY(i) + 4);
-        FeTools_DrawPSXButton(0x23,(u_short)control,this->left + 0x28,
-                   this->top + DialogHelpButtonY(i) + 4);
+        FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
+                   top + DialogHelpButtonY(i) + 4);
+        FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x28,
+                   top + DialogHelpButtonY(i) + 4);
         goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_pad65Special:
-        FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
-                   (i - 1) * 0xf + this->top + 0x13);
+        FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
+                   (i - 1) * 0xf + top + 0x13);
 DialogHelpDraw_buttonsDone:;
       }
-      if (numLetters < (int)strlen(this->text[i])) {
+      if (numLetters < (int)strlen(text[i])) {
         j = 0;
         if (numLetters > 0) {
           do {
-            bufferPtr[j] = this->text[i][j];
-            j = j + 1;
+            bufferPtr[j] = text[i][j];
+            j++;
           } while (j < numLetters);
         }
         bufferPtr[numLetters] = '\0';
-        FETextRender_FullText(bufferPtr,this->left + this->lefttext,y,
+        FETextRender_FullText(bufferPtr,left + lefttext,y,
                              i == 0 ? textType_PopUpTitle : textType_PopUpText,
                              textState_Selected,0);
       }
       else {
-        FETextRender_FullText(this->text[i],this->left + this->lefttext,y,
+        FETextRender_FullText(text[i],left + lefttext,y,
                              i == 0 ? textType_PopUpTitle : textType_PopUpText,
                              textState_Selected,0);
       }
     }
   }
   tDialogBase::Draw();
-  return;
 }
 
 
@@ -625,32 +608,29 @@ void tDialogMessageString::CalculateDimensions()
   int ticks;
   
   ticks = ::ticks[0];
-  this->fFadeText = 0x80 - ((DialogMessageTickAge(ticks) - this->startTicks) * 0x80) / 100;
+  fFadeText = 0x80 - ((DialogMessageTickAge(ticks) - startTicks) * 0x80) / 100;
   if (DialogMessageClampFade(this) != 0) {
-    this->fFullyOpen = 0;
+    fFullyOpen = 0;
   }
-  this->width = this->MaxW;
-  if (this->MaxH == 0) {
-    this->height = FETextRender_WordWrapHeight(this->MaxW + -0x28,this->string);
-    if (this->height == 8) {
-      this->Centerit = 1;
+  width = MaxW;
+  if (MaxH == 0) {
+    height = FETextRender_WordWrapHeight(MaxW + -0x28,string);
+    if (height == 8) {
+      Centerit = 1;
     }
     else {
-      this->Centerit = 0;
+      Centerit = 0;
     }
-    this->height = this->height + 0x10;
+    height += 0x10;
   }
   else {
-    this->Centerit = 0;
-    this->height = this->MaxH;
+    Centerit = 0;
+    height = MaxH;
   }
   ticks = ::ticks[0];
   DialogMessageAnimateOpen(this, ticks);
-  this->left =
-       this->OffsetX + (short)((screenwidth - this->width) / 2);
-  this->top =
-       this->OffsetY + (short)((0xf0 - this->height) / 2);
-  return;
+  left = OffsetX + (short)((screenwidth - width) / 2);
+  top = OffsetY + (short)((0xf0 - height) / 2);
 }
 
 
@@ -663,28 +643,28 @@ void tDialogMessageString::Draw()
   int col;
   RECT r;
   
-  this->CalculateDimensions();
-  if (ticks[0] < this->startTicks + 0x32) {
-    this->fFullyOpen = 0;
+  CalculateDimensions();
+  if (ticks[0] < startTicks + 0x32) {
+    fFullyOpen = 0;
   }
   else {
-    if (this->fFadeText != 0) {
-      this->fFullyOpen = 0;
+    if (fFadeText != 0) {
+      fFullyOpen = 0;
     }
-    col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][4]],(int)this->fFadeText);
-    r.x = this->left + 0x11;
-    r.y = this->top + 10;
-    r.w = this->width + -0x14;
-    r.h = this->height - ((u_short)this->reservedheight + 8);
+    col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][4]],fFadeText);
+    r.x = left + 0x11;
+    r.y = top + 10;
+    r.w = width + -0x14;
+    r.h = height - ((u_short)reservedheight + 8);
     FETextRender_SetABR(1,true);
-    if (this->Centerit != 0) {
-      FETextRender_FullTextRGB(this->string,
-                 (short)(((u_int)(u_short)this->left +
+    if (Centerit != 0) {
+      FETextRender_FullTextRGB(string,
+                 (short)(((u_int)(u_short)left +
                           DialogMessageHalfWidth(this)) * 0x10000
-                        >> 0x10),this->top + 8,col,'\0',2);
+                        >> 0x10),top + 8,col,'\0',2);
     }
     else {
-      FETextRender_WordWrapTextRGB(this->string,r,col);
+      FETextRender_WordWrapTextRGB(string,r,col);
     }
     FETextRender_SetABR(0,false);
   }
@@ -693,8 +673,7 @@ void tDialogMessageString::Draw()
    * unqualified name resolves to the derived override that shadows the base's
    * (§3.23c SILENT-SHADOW, here in its same-name-override form).  Explicit
    * base scope binds the call retail makes.  REAL RUNTIME BUG. */
-  this->tDialogBase::Draw();
-  return;
+  tDialogBase::Draw();
 }
 
 
@@ -709,7 +688,7 @@ void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
      the oracle never sets $v0).  SLD: 655 guard / 658 key test / 660 the
      AlreadyProcessed store / 664 Hide() -- so Hide is the ELSE arm (source
      order puts the store BEFORE it), which is what lays it out-of-line. */
-  if ((this->specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)this->specificPlayer)) {
+  if ((specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)specificPlayer)) {
     if (keyval != kInput_KeyType_Triangle) {
       if (keyval != kInput_KeyType_Circle) {
         keyval = kInput_KeyType_AlreadyProcessed;
@@ -742,22 +721,19 @@ short tDialogInteractive::Run()
      SYM-INLINE-LOCAL: player = DialogCanProcessCircle */
   /* SYM: keyVal, command and debounce all live in the outer-loop block that
      opens at 0x80019848; `i` is one level further in (0x80019858). */
-  this->fCurrentlyRunning = 1;
+  fCurrentlyRunning = 1;
   ((tDialogBase *)this)->Display();
   /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
-  this->CalculateDimensionsVirtual();
-  this->ReadyToReturnValue = 0;
-  while (this->ReadyToReturnValue == 0) {
+  CalculateDimensionsVirtual();
+  ReadyToReturnValue = 0;
+  while (ReadyToReturnValue == 0) {
     tInputKeyType keyVal [2];
     tMenuCommand command;
     u_long debounce = -1;
 
     command.type = kMenu_Command_None;
-    {
-      int i;
 
-      i = 0;
-      while (i < 2) {
+    for(int i = 0; i < 2; i++) {
       keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
       if (keyVal[i] == kInput_KeyType_NoKey) {
         keyVal[i] = kInput_KeyType_AlreadyProcessed;
@@ -778,18 +754,17 @@ short tDialogInteractive::Run()
       }
       if (keyVal[i] != kInput_KeyType_NoKey) {
         /* SYM-INLINE-THIS: ProcessInputVirtual */
-        this->ProcessInputVirtual((tPlayer)i,keyVal[i],command);
-      }
-        i++;
+        ProcessInputVirtual((tPlayer)i,keyVal[i],command);
       }
     }
+
     FEApp->Redraw();
   }
   AudioCmn_PlayFESFX(0);
   ((tDialogBase *)this)->Hide();
   FEApp->Redraw();
-  this->fCurrentlyRunning = 0;
-  return this->ReturnValue;
+  fCurrentlyRunning = 0;
+  return ReturnValue;
 }
 
 
@@ -802,21 +777,18 @@ void tDialogYesNo::CalculateDimensions()
   /* MATCH (2026-08-26): 46/46 and zero named locals, matching SYM.  The
      elapsed accessor replaces the former iVar2 carrier while preserving the
      retail in-place height update and merged trailing store. */
-  this->tDialogMessageString::CalculateDimensions();
-  if (this->MaxH == 0) {
+  tDialogMessageString::CalculateDimensions();
+  if (MaxH == 0) {
     if (DialogYesNoOpenElapsed(this) < 0x32) {
-      this->height = this->height +
+      height = height +
           (short)((DialogYesNoOpenElapsed(this) * 0xf) / 0x32);
     }
     else {
-      this->height = this->height + 0xf;
+      height = height + 0xf;
     }
-    this->reservedheight = 0xf;
-    this->top =
-         this->OffsetY +
-         (short)((0xf0 - this->height) / 2);
+    reservedheight = 0xf;
+    top = OffsetY + (short)((0xf0 - height) / 2);
   }
-  return;
 }
 
 
@@ -870,9 +842,8 @@ inline tDialogInteractive::tDialogInteractive()
 tDialogYesNo::tDialogYesNo()
   : tDialogInteractive()
 {
-  this->ReturnValue = 0;
-  this->ReadyToReturnValue = 0;
-  return;
+  ReturnValue = 0;
+  ReadyToReturnValue = 0;
 }
 
 
@@ -890,38 +861,33 @@ tDialogYesNo::tDialogYesNo()
 void tDialogYesNo::Draw()
 
 {
-  int i;
   int x;
   int y;
   int col;
+  int i;
 
   /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
-  this->CalculateDimensionsVirtual();
-  if (this->fFadeText != 0) {
-    this->fFullyOpen = 0;
+  CalculateDimensionsVirtual();
+  if (fFadeText != 0) {
+    fFullyOpen = 0;
   }
-  i = 0;
-  if (0x31 < ticks[0] - this->startTicks) {
-    x = (int)this->left +
-            ((int)((u_int)(u_short)this->width
-                  << 0x10) >> 0x12);
-    while( true ) {
-      if (2 <= i) break;
+
+  if (0x31 < ticks[0] - startTicks) {
+    x = left + (((u_short)width << 0x10) >> 0x12);
+
+    for (i = 0; i < 2; i++) {
       col = CalcFadeVal(
           kRGBVals[(u_char)DialogTextDefinitionsBase()
               [DialogYesNoTextState(this,i) + 0x33]],
-          (int)this->fFadeText);
-      y = (int)this->top + (int)this->height - 0xb;
+          fFadeText);
+      y = top + height - 0xb;
       FETextRender_SetABR(1,true);
-      FETextRender_FullTextRGB(TextSys_Word(this->yesnowords[i]),
-                              (short)x,(short)y,col,'\0',2);
+      FETextRender_FullTextRGB(TextSys_Word(yesnowords[i]),x,y,col,'\0',2);
       FETextRender_SetABR(0,false);
-      x = x + ((int)((u_int)(u_short)this->width << 0x10) >> 0x11);
-      i = i + 1;
+      x += ((int)((u_int)(u_short)width << 0x10) >> 0x11);
     }
   }
-  this->tDialogMessageString::Draw();
-  return;
+  tDialogMessageString::Draw();
 }
 
 
@@ -935,16 +901,16 @@ void tDialogYesNo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCo
      831 the dispatch (a real switch -- gcc balance_case_nodes builds the
      ==0x800 root + <0x801 bound test tree over 4 case labels) /
      834-836, 838-840, 844-846 the three arms in ascending source order. */
-  if ((this->specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)this->specificPlayer)) {
-    if ((this->fFullyOpen ^ 1) == 0) {   /* xori;bnez -- same idiom as fememcard.cpp */
+  if ((specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)specificPlayer)) {
+    if ((fFullyOpen ^ 1) == 0) {   /* xori;bnez -- same idiom as fememcard.cpp */
       switch (keyVal) {
       case kInput_KeyType_Left:
         AudioCmn_PlayFESFX(5);
-        this->ReturnValue = 1;
+        ReturnValue = 1;
         break;
       case kInput_KeyType_Right:
         AudioCmn_PlayFESFX(6);
-        this->ReturnValue = 0;
+        ReturnValue = 0;
         break;
       case kInput_KeyType_Cross:
       case kInput_KeyType_Start:
@@ -985,16 +951,15 @@ void tDialogYesNoMem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
     fMemCardGone = true;
   }
   if (fMemCardGone) {
-    this->ReadyToReturnValue = 1;
-    this->ReturnValue = -1;
+    ReadyToReturnValue = 1;
+    ReturnValue = -1;
   }
   else {
     /* W65-A3 (calltarget): unqualified `this->ProcessInput(...)` bound to THIS
      * override -- INFINITE RECURSION.  Retail calls
      * ProcessInput__12tDialogYesNo...; explicit base scope binds it. REAL BUG. */
-    this->tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
+    tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
   }
-  return;
 }
 
 
@@ -1006,14 +971,13 @@ void tDialogYesNoTri::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
 
 {
   if (keyVal == kInput_KeyType_Triangle) {
-    this->ReadyToReturnValue = 1;
-    this->ReturnValue = -1;
+    ReadyToReturnValue = 1;
+    ReturnValue = -1;
   }
   else {
     /* W65-A3 (calltarget): as tDialogYesNoMem -- was infinite recursion. */
-    this->tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
+    tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
   }
-  return;
 }
 
 
@@ -1024,7 +988,6 @@ void tDialogNoInputMessage::ProcessInput(tPlayer,tInputKeyType &,
                tMenuCommand &)
 
 {
-  return;
 }
 
 

@@ -840,21 +840,15 @@ void CarIO_CreateLicense(char *text,int carType,int player)
 void CarIO_CleanUpLicense(int player)
 
 {
-  shapetbl **plateSlot; /* SYM-CODEGEN-CARRIER: plateSlot -- shared element-address walker; the measured index form is FAIL 6 */
-  shapetbl *plateShape; /* SYM-CODEGEN-CARRIER: plateShape -- shared loaded plate passed to purgememadr */
-
-  plateSlot = CarIO_Plate1 + player;
-  plateShape = *plateSlot;
-  if (plateShape != (shapetbl *)0x0) {
-    purgememadr(plateShape);
+  /* plain indexed form: no locals, as the SYM records none */
+  if (CarIO_Plate1[player] != (shapetbl *)0x0) {
+    purgememadr(CarIO_Plate1[player]);
   }
-  *plateSlot = (shapetbl *)0x0;
-  plateSlot = CarIO_Plate2 + player;
-  plateShape = *plateSlot;
-  if (plateShape != (shapetbl *)0x0) {
-    purgememadr(plateShape);
+  CarIO_Plate1[player] = (shapetbl *)0x0;
+  if (CarIO_Plate2[player] != (shapetbl *)0x0) {
+    purgememadr(CarIO_Plate2[player]);
   }
-  *plateSlot = (shapetbl *)0x0;
+  CarIO_Plate2[player] = (shapetbl *)0x0;
   return;
 }
 

@@ -204,13 +204,7 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   /* MATCH: the oracle keeps &dec.rect[0] and &dec.rect[1] in registers (they are the
    * two ClearImage arguments) and writes every field through them, in the order
    * x0,y0,x1,y1,h,h,w,w -- statement order IS store order here. */
-  RECT *r0; /* SYM-CODEGEN-CARRIER: r0 -- direct dec.rect field stores are measured
-               FAIL 27; this base preserves the retail paired-store allocation */
-  RECT *r1; /* SYM-CODEGEN-CARRIER: r1 -- direct dec.rect + 1 field stores are measured
-               FAIL 27; this base preserves the retail paired-store allocation */
-
-  r0 = dec.rect;
-  r1 = dec.rect + 1;
+  /* pointer-arithmetic element access, no RECT* temps (the SYM has none) */
 
   /* MATCH: PER-SITE storage view -- read gMovieHeight through the SCALAR static
    * (`_d`), not the unsized `_v[]` view.  The view's split %hi/%lo lowering is
@@ -218,16 +212,16 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
    * macro form is unschedulable and issues where retail has it.  (Same symbol
    * uses the view form in strNext/Movie_Init -- both spellings are correct,
    * pick per site.) */
-  r0->x = x0;
-  r0->y = y0;
-  r1->x = x1;
-  r1->y = y1;
-  r0->h = gMovieHeight_d;
-  r1->h = gMovieHeight_d;
-  r0->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
-  r1->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
-  ClearImage(r0,'\0','\0','\0');
-  ClearImage(r1,'\0','\0','\0');
+  dec.rect->x = x0;
+  dec.rect->y = y0;
+  (dec.rect + 1)->x = x1;
+  (dec.rect + 1)->y = y1;
+  dec.rect->h = gMovieHeight_d;
+  (dec.rect + 1)->h = gMovieHeight_d;
+  dec.rect->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
+  (dec.rect + 1)->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
+  ClearImage(dec.rect,'\0','\0','\0');
+  ClearImage(dec.rect + 1,'\0','\0','\0');
   DrawSync(0);
   return;
 }
@@ -283,8 +277,6 @@ void Movie_Load(char movie)
 int Movie_NextFrame(void)
 
 {
-  int ret; /* SYM-CODEGEN-CARRIER: ret -- direct/goto returns are measured FAIL 3
-              (76/77), losing the retail shared-return jump */
   /* MATCH: SYM says fsize=32 with mask s0+ra and NO named locals -- the oracle's frame
    * carries 8 bytes of never-referenced slack that our expression shape does not
    * allocate; a dead 2-word local restores the exact frame + sp displacements. */
@@ -306,16 +298,12 @@ int Movie_NextFrame(void)
              ((dec.slice.h + -1) / 0x10 + 1) >> 1);
   /* MATCH: the error arm is the OUT-OF-LINE branch target in the oracle (bltz skips
    * to it) and the success arm falls through -- write it in that polarity. */
-  ret = strNextVlc(&dec);
-  if (ret >= 0) {
-    strSync(&dec,0);
-    VSync(0);
-    ret = 0;
+  if (strNextVlc(&dec) < 0) {
+    return -1;
   }
-  else {
-    ret = -1;
-  }
-  return ret;
+  strSync(&dec,0);
+  VSync(0);
+  return 0;
 }
 
 /* lines 300-305: (static data / macros / comments - no emitted code) */

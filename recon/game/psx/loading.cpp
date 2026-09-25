@@ -67,7 +67,6 @@ void Loading_UpdateLoadingScreen(int checkpoint)
   shapetbl *tile; /* SYM-CODEGEN-CARRIER: tile -- nested call is 44 diffs, 64/62 */
   int i;
   int max;
-  int y; /* SYM-CODEGEN-CARRIER: y -- required for retail addend reassociation */
   char name [255];
 
   max = 0x17;
@@ -79,8 +78,7 @@ void Loading_UpdateLoadingScreen(int checkpoint)
   if (i < max) {
     do {
       tile = locateshapez(smallShapeFile,"back");
-      y = i + 0x8e;
-      Draw_DrawDirectScreen(tile,(checkpoint + -1) * 0x17 + y,0xc0);
+      Draw_DrawDirectScreen(tile,(checkpoint - 1) * 0x17 + 0x8e + i,0xc0);   /* this addend order needs no `y` temp (none in the SYM) */
       i = i + 1;
     } while (i < max);
   }

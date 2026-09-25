@@ -1503,7 +1503,6 @@ gte_ldv0(&Flare_gOct[i]);
 void Flare_Quad(long *pt,CVECTOR *color,int otz)
 
 {
-  int color_word; /* SYM-CODEGEN-CARRIER: color_word -- direct color load/store is FAIL 5 (42/41) */
   int pkt_addr24; /* SYM-CODEGEN-CARRIER: pkt_addr24 -- stages the OT high word before the potentially aliasing packet writes */
   POLY_F4 *prim;
 
@@ -1513,9 +1512,8 @@ void Flare_Quad(long *pt,CVECTOR *color,int otz)
   pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x18;
   *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
-  color_word = *(int *)color;
+  *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */
   ((u_char *)prim)[3] = 5;
-  *(int *)((u_char *)prim + 4) = color_word;
   ((u_char *)prim)[7] = 0x2a;
   *(long *)((u_char *)prim + 8) = *pt;
   *(long *)((u_char *)prim + 0xc) = pt[1];
@@ -1528,7 +1526,6 @@ void Flare_Quad(long *pt,CVECTOR *color,int otz)
 void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
 
 {
-  int color_word; /* SYM-CODEGEN-CARRIER: color_word -- direct color load/store is FAIL 5 (42/41) */
   int pkt_addr24; /* SYM-CODEGEN-CARRIER: pkt_addr24 -- stages the OT high word before the potentially aliasing packet writes */
   POLY_F4 *prim;
 
@@ -1538,9 +1535,8 @@ void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
   pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x18;
   *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
-  color_word = *(int *)color;
+  *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */
   ((u_char *)prim)[3] = 5;
-  *(int *)((u_char *)prim + 4) = color_word;
   ((u_char *)prim)[7] = 0x28;
   *(long *)((u_char *)prim + 8) = *pt;
   *(long *)((u_char *)prim + 0xc) = pt[1];
@@ -1581,7 +1577,6 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
 void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
 
 {
-  int color_word; /* SYM-CODEGEN-CARRIER: color_word -- direct color load/store is FAIL 5 (56/55) */
   int pkt_addr24; /* SYM-CODEGEN-CARRIER: pkt_addr24 -- stages the OT high word before the potentially aliasing packet writes */
   POLY_FT4 *prim;
 
@@ -1591,9 +1586,8 @@ void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
   pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x28;
   *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
-  color_word = *(int *)color;
+  *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */
   ((u_char *)prim)[3] = 9;
-  *(int *)((u_char *)prim + 4) = color_word;
   ((u_char *)prim)[7] = 0x2e;
   *(long *)((u_char *)prim + 8) = *pt;
   *(long *)((u_char *)prim + 0x10) = pt[1];

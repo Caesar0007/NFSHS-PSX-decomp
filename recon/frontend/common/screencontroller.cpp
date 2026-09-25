@@ -1381,23 +1381,16 @@ void tScreenControllerConfig::GetShapeInfo(short &numPermShapes,short &numSwapSh
 void tScreenControllerConfig::Initialize()
 
 {
-  /* SYM-CODEGEN-CARRIER: b -- direct fInputPlayer storage is measured FAIL 23
-     (76/73) and rotates the subsequent frontend/menu address schedule. */
-  uint b;
-  /* SYM-CODEGEN-CARRIER: mode -- direct duplicate config loads are part of
-     that same three-instruction regression. */
-  char mode;
 
   (this->fShaker).active = '\0';
   this->TurnOffShakers();
   this->ClearActuators();
   this->fResetShakeTimeOut = 1;
   this->fShakingItem = -1;
-  b = (uint)(byte)FEApp->fInputPlayer;
+  this->player = (uint)(byte)FEApp->fInputPlayer;   /* stored here, where the SYM-less retail loads it */
   this->fTimeOutStartTick = 0;
   this->CurrentlyLoadedArt = -1;
   this->negconChoice = -1;
-  this->player = b;
   this->tScreen::Initialize();
   this->fCurrentController = '\0';
   SetMenu(&menuDefs->itemControllerSettings,true,(tInsideBoxMenu *)0x0);
@@ -1410,9 +1403,7 @@ void tScreenControllerConfig::Initialize()
   if (this->fTextController == '\x06') {
     this->fTextController = '\x05';
   }
-  mode = frontEnd.controlConfig[this->player];
-  this->fPrevConfig = mode;
-  this->fTextConfig = mode;
+  this->fTextConfig = this->fPrevConfig = frontEnd.controlConfig[this->player];   /* chained: one load, no temp */
   this->CheckConfigs();
   this->fGotTick = 0;
   this->fAnim = 0;

@@ -85,6 +85,21 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   `packetCell` (30), `fadeValue` (21/18), `rgb` in Flare_2DSpike (5/2/6/7). Board 1807 -> 1819.
   Also: `build/symloop_runs` had grown to 32 GB; symloop now keeps only the newest 20 runs
   (`SYMLOOP_KEEP_RUNS`).
+- Carrier round 2 (2026-09-26). Same method; ten more carriers gone, all `verify_asm` PASS and `symloop`
+  BYTES UNCHANGED: `CarIO_CleanUpLicense` (`plateSlot`/`plateShape`: the plain indexed
+  `CarIO_Plate1[player]` form); `Loading_UpdateLoadingScreen` (`y`: the addend order
+  `(checkpoint - 1) * 0x17 + 0x8e + i`); `Flare_Quad`/`Flare_QuadNotTransparent`/`Flare_TextureQuad`
+  (`color_word`: colour store at the load position; `pkt_addr24` stays, every bump spelling is the same
+  v0/v1 swap of the bump value, 4 diffs); `tScreenControllerConfig::Initialize` (`b`: store
+  `player` where the load was; `mode`: chained `fTextConfig = fPrevConfig = ...`); `Movie_NextFrame`
+  (`ret`: early `return -1`; `deadfrm` stays); `Movie_SetDecodeOffset` (`r0`/`r1`: `dec.rect->` and
+  `(dec.rect + 1)->`, the indexed `dec.rect[1].` form is 27 diffs); `Hud_ParseTime` (`centi_total`:
+  `nTime * 0x6400 / 0x4000`; `min`/`sec` stay, inlining them is 87-115 diffs). Falsified:
+  `Camera_UpdateTVCam` (57/49), `Force_Vbl` `actuator1` (83/64), `Camera_UpdateAnimCam` post-decrement
+  index (2 diffs per site: retail's decrement is `addiu 255`, i.e. an SImode subtract masked by the byte
+  store, which the `--` form does not produce), `Hrz_SetDitheringPrim` `prev_val` (4), `Flare_Tri`
+  `pkt_addr24` (4 in five spellings), `Night_GenerateNextLightningEvent` (10-16),
+  `Flare_QuadRing` (5). Board 1819 -> 1823.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

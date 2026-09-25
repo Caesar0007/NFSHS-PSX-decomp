@@ -5961,7 +5961,6 @@ void Hud_RenderTacView(void)
 void Hud_ParseTime(int nTime,char *sLapTime)
 
 {
-  int centi_total; /* SYM-CODEGEN-CARRIER: centi_total -- separate scaled-time staging; mutating nTime directly is FAIL 13 (92/91) */
   int min; /* SYM-CODEGEN-CARRIER: min -- formatted minute quotient remains live across the remainder updates */
   bool showtime;
   int sec; /* SYM-CODEGEN-CARRIER: sec -- formatted second quotient remains live through sprintf */
@@ -5970,11 +5969,7 @@ void Hud_ParseTime(int nTime,char *sLapTime)
     nTime = 0;
   }
   showtime = nTime != 0;
-  centi_total = nTime * 0x6400;
-  if (centi_total < 0) {
-    centi_total = centi_total + 0x3fff;
-  }
-  nTime = centi_total >> 0xe;
+  nTime = nTime * 0x6400 / 0x4000;   /* the signed /0x4000 is retail's +0x3fff/sra 14 pair */
   min = (nTime / 6000) * 0x10000 >> 0x10;
   nTime = nTime + min * -6000;
   sec = (nTime / 100) * 0x10000 >> 0x10;

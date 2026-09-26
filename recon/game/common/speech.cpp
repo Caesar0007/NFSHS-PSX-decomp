@@ -1871,68 +1871,28 @@ void Speech::DispatchSpeaker::AddPerp(Car_tObj *car)
 void Speech::DispatchSpeaker::Report(Car_tObj *perp)
 
 {
-  /* SYM-CODEGEN-CARRIER: hasSub -- folding the two-stage predicate into one
-     condition shortens retail's 104-instruction body to 100 and leaves 18
-     control-flow/allocation diffs. */
-  bool hasSub;
-  /* SYM-CODEGEN-CARRIER: pursuitLocation -- passing fLocation directly is
-     count-exact but changes six call-setup/delay-slot instructions. */
-  int pursuitLocation;
-  /* SYM-CODEGEN-CARRIER: speech -- storing through Speech::fgSpeech directly
-     grows the body to 105 instructions and leaves 3 load/nop diffs. */
-  Speech *speech;
-  
-  speech = Speech::fgSpeech;
-  hasSub = false;
-  __asm__("" : : "i"(0));
-  *(u_int *)((int)speech + 0x38c) = 0;
-  /* W57-A8 5.0c commutative-addu: fold the -0x5c into the BASE term so the
-     just-loaded delta stays operand 2 (`addu a0,s1,a0` like retail, not
-     `addu a0,a0,s1`). All four vf-thunk arg sites. 42 -> 36 diffs. */
-  if (this->KnownPerp(perp) != 0) {
-    hasSub = this->fSub != (Speaker *)0x0;
-  }
-  if (hasSub) {
-    if (Speech::fgSpeech->fMultiplePerps == 0) {
-      /* SYM-CODEGEN-CARRIER: bank -- inlining the combined bank expression is
-         count-exact but reverses the addu destination and changes four
-         instructions around the final load. */
-      int *bank;
-
-      bank = (int *)((int)this->CallSign() +
-        this->fSub->Unit() * 4);
-      SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(
-        &this->fConfirm,
-        this->fTo = bank[2]);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+  this->ClearSpeaker();
+  if (this->KnownPerp(perp) && this->Sub() != 0) {
+    if (!Speech::MultiplePerps()) {
+      this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
+      SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(this->Confirm(),this->To());
+      SPCH_PlaySpeech();
     }
   }
   else {
-    if (Speech::fgSpeech->fMultiplePerps == 0) {
-      SPCHNFS_D_C_INTRO_CALL(
-        this->fTo =
-          *(int *)this->CallSign(),
-        this->fFrom,
-        &this->fReverse);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+    if (!Speech::MultiplePerps()) {
+      this->SetTo(this->CallSign()->AllUnits());
+      SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
+      SPCH_PlaySpeech();
       this->SetCar(perp);
       this->FindLocation(perp);
-      /* SYM-CODEGEN-CARRIER: pursuitCar -- passing fCar directly is
-         count-exact but changes six call-setup/delay-slot instructions. */
-      int pursuitCar;
-
-      pursuitCar = this->fCar;
-      pursuitLocation = this->fLocation;
-      SPCHNFS_D_C_BEGIN_PURS_REP_SPDR(
-        &this->fColour,pursuitCar,
-        (SPCHNFSType_POSITION *)this,pursuitLocation,
-        &this->fDistance);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+      SPCHNFS_D_C_BEGIN_PURS_REP_SPDR(this->Colour(),this->Car(),this->Position(),this->Location(),
+                                      this->Distance());
+      SPCH_PlaySpeech();
     }
     this->AddPerp(perp);
     this->fStatusCount = 0x2a0;
   }
-  return;
 }
 
 /* ---- Accident__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:2039-2043] SLD-VERIFIED ---- */
@@ -2172,34 +2132,18 @@ int Speech::MobileSpeaker::DistToPerp()
 void Speech::MobileSpeaker::Report(Car_tObj *perp)
 
 {
-  Speaker * Sub;
-  Car_tObj *carObj;
-  
   this->MakeSpeaker();
-  this->fTo =
-      this->CallSign()->fDispatch;
-  SPCHNFS_C_A_INTRO(this->Voice(),this->fTo,
-                    this->fFrom,&this->fReverse);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+  this->SetTo(this->CallSign()->Dispatch());
+  SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+  SPCH_PlaySpeech();
   this->MakeSpeaker();
   this->SetCar(perp);
   this->FindLocation(perp);
   this->SetSpeed(perp);
-  {
-    /* SYM-CODEGEN-CARRIER: reportCar -- direct fCar argument preserves 59
-       instructions but changes six words. */
-    int reportCar = this->fCar;
-    /* SYM-CODEGEN-CARRIER: reportLocation -- direct fLocation argument
-       preserves 59 instructions but changes four words. */
-    int reportLocation = this->fLocation;
-    SPCHNFS_C_D_PERP_SIGHTED(this->Voice(),&this->fColour,
-               reportCar,&this->fDistance,
-               (SPCHNFSType_POSITION *)this,reportLocation,
-               &this->fPerpName);
-  }
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  *(MobileSpeaker **)((int)Speech::Dispatch() + 0x48) = this;
-  return;
+  SPCHNFS_C_D_PERP_SIGHTED(this->Voice(),this->Colour(),this->Car(),this->Distance(),this->Position(),
+                           this->Location(),this->PerpName());
+  SPCH_PlaySpeech();
+  Speech::Dispatch()->SetSub(this);
 }
 
 /* ---- Engage__Q26Speech13MobileSpeakerP8Car_tObj  [SPEECH.CPP:2331-2450] SLD-VERIFIED ---- */

@@ -337,6 +337,9 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   each arm (gcc cross-jumps them into one call) so the if-chain spans the function, and the two arms that must skip
   PlaySpeech just END (no `return;`) -- a trailing `return` makes gcc extend the arm's block to the next arm.
   78 CLEAN.
+- Both `Report`s CLEAN with the accessor spelling (MobileSpeaker: trailing `Dispatch()->SetSub(this)`;
+  DispatchSpeaker: `ClearSpeaker()`, `KnownPerp(perp) && Sub() != 0`, `SetTo(CallSign()->Mobile(Sub()->Unit()))`,
+  `SetTo(CallSign()->AllUnits())`) -- carriers and one more empty `__asm__` barrier removed. 80 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

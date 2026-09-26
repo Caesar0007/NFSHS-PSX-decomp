@@ -1262,6 +1262,15 @@ int *OutputDisplaySettings(int *d,int c,int player,tTrackInformation &trackInfo)
 
 
 
+/* retail's SYM opens Front_GetLapsForType and Front_InitTourneyTraffic with an inline-call pair at +000 and no `this`: the
+   current-tourney pointer comes from an inline accessor, not an open-coded index chain */
+static inline tTourneyInfo *CurrentTourney(void)
+{
+  return tournamentManager.fDefinition->fTournaments +
+         (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+          tournamentManager.fTournament);
+}
+
 /* ---- Front_GetLapsForType  [FRONT.CPP:1210-1223] ---- */
 
 /* Decoded Phase 83: Front_GetLapsForType() - return default lap count for current raceType (168 B,
@@ -1277,10 +1286,7 @@ int Front_GetLapsForType(void)
 
   switch (frontEnd.raceType) {
   case RaceType_Tournament:
-    return (uint)((tournamentManager.fDefinition)->fTournaments +
-                  ((uint)(tournamentManager.fDefinition)->fTiers[
-                       tournamentManager.fTier].fTournOffset +
-                   tournamentManager.fTournament))->fNumLaps;
+    return CurrentTourney()->fNumLaps;
   default:
     return (uint)lapconv[
         (byte)frontEnd.lapind[(byte)frontEnd.pinkSlipsTrackIndex]];
@@ -1431,15 +1437,6 @@ static void Front_InitPlayerCars(tFEStream &streamData)
 /* Decoded Phase 83: Front_InitTourneyTraffic__FR9tFEStream(tFEStream&) - tournament-mode traffic init (372 B).Different traffic profile per tournament tier.
    
    [ghidra-meta] section: front.text */
-
-/* retail's SYM opens Front_InitTourneyTraffic with an inline-call pair at +000 and no `this`: the
-   current-tourney pointer comes from an inline accessor, not an open-coded index chain */
-static inline tTourneyInfo *CurrentTourney(void)
-{
-  return tournamentManager.fDefinition->fTournaments +
-         (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-          tournamentManager.fTournament);
-}
 
 static void Front_InitTourneyTraffic(tFEStream &streamData)
 

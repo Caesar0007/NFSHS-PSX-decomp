@@ -35,7 +35,8 @@ def records(path):
                 continue
             if cur is not None:
                 if cls in ('MOS', 'MOU', 'FIELD'):
-                    cur[1].append((int(off, 16), cls, typ, size, (dims or '').strip(), tag or '', name))
+                    tg = '._N' if (tag or '').startswith('._') else (tag or '')   # anonymous tags are numbered per object
+                    cur[1].append((int(off, 16), cls, typ, size, (dims or '').strip(), tg, name))
                     continue
                 if cls == 'EOS':
                     nm = cur[0]

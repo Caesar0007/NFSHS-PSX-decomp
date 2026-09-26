@@ -67,21 +67,8 @@ struct tMenuNFS4 : public tMenu {
 
 
 #include "fescreen_virtual_types.h"
-struct tScreen {
-    tShapeInformation fPermShapes, fSwapShapes;
-    int fTransitionTicks;
-    bool fTransitionOff;
-    int fInternalScreenFadeVal;
-    short fScreenFadeVal;
-#include "fescreen_virtuals.inc"
-
-    inline int &TrophyRoomTierView() {
-        return *(int *)((char *)this + 0xd0);
-    }
-    inline short *TrophyRoomCurrentView() {
-        return (short *)((char *)this + 0xd4);
-    }
-};
+struct tMenu;
+#include "fescreen.h"
 
 #include "shared/tActiveLine.h"
 
@@ -103,9 +90,33 @@ struct tScreenTrophyInfo : public tScreen {
 
 };
 
-/* ScreenTrophyRoom is only an external pointer here.  Its two accessed tail
- * fields are exposed through the storage-neutral tScreen inline views above,
- * avoiding a foreign debug record in this owner. */
-#define tScreenTrophyRoom tScreen
+/* ScreenTrophyRoom is only an external pointer here; the two fields this owner
+ * reads are `tier` and `fRealCurrentTourn`, at the offsets the retail SYM
+ * records for the class (size 344). */
+struct tScreenTrophyRoom : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void PreLoad();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    tShapeInformation fTrophyShapes;
+    short fNumTrophies;
+    int startTicks;
+    short fShapeCount;
+    bool fLoadingTrophy;
+    char fPreviousTrophy, fDoUpdate;
+    bool fClearScreen;
+    char fBrightness;
+    u_long fStartTicks;
+    short fTextInfo[16];
+    char thisisuseless;
+    int tier;
+    short fRealCurrentTourn[2], fTrophyList[64];
+
+    tScreenTrophyRoom();
+    ~tScreenTrophyRoom();
+};
 
 #endif

@@ -57,37 +57,8 @@ struct tDrawShapeExtended;
 
 
 #include "fescreen_virtual_types.h"
-struct tScreen {
-    tShapeInformation fPermShapes, fSwapShapes;
-    int fTransitionTicks;
-    bool fTransitionOff;
-    int fInternalScreenFadeVal;
-    short fScreenFadeVal;
-#include "fescreen_virtuals.inc"
-
-#if defined(NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS) || \
-    defined(NFS4_SCREENDISPLAY_FEDIALOG_METHODS) || \
-    defined(NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS)
-    tScreen();
-#endif
-#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
-    void UploadSwapShapes(int);
-    void UploadShapes(tShapeInformation &, short, short, short, short);
-    void TransitionOff(tScreen_TransitionType, tMenu *)
-        __asm__("TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu");
-    void TransitionOn(tScreen_TransitionType, tMenu *)
-        __asm__("TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu");
-#endif
-#ifdef NFS4_SCREENDISPLAY_FEAPP_METHODS
-    static void DisplayLoadingText();
-    void Draw(bool);
-    void TransitionOff(int, tMenu *)
-        __asm__("TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu");
-    void TransitionOn(int, tMenu *)
-        __asm__("TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu");
-    void UpdateTransition();
-#endif
-};
+struct tMenu;
+#include "fescreen.h"
 
 #include "shared/tActiveLine.h"
 

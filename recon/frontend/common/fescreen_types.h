@@ -26,11 +26,6 @@ enum tMenuCommandType {
 #include "fe_core_types.h"
 #include "fe_input_enums.h"
 
-typedef enum tScreen_TransitionType {
-    kScreen_TransitionTypeItem = 0,
-    kScreen_TransitionTypeMenu = 1,
-    kScreen_TransitionTypeScreen = 2
-} tScreen_TransitionType;
 
 #include "shared/tShapeInformation.h"
 
@@ -42,36 +37,7 @@ typedef enum tScreen_TransitionType {
 
 
 #include "fescreen_virtual_types.h"
-struct tScreen {
-    static int fSuppressLoadingText;   /* retail FEScreen.obj .data @0x800517c8 (SYM `_7tScreen.fSuppressLoadingText`) */
-    tShapeInformation fPermShapes, fSwapShapes;
-    int fTransitionTicks;
-    bool fTransitionOff;
-    int fInternalScreenFadeVal;
-    short fScreenFadeVal;
-#include "fescreen_virtuals.inc"
-
-    tScreen();
-    static void DisplayLoadingText();
-    static void GoNonInterlaced();
-    void DrawBackgroundImage(int startShape, int numShapes,
-                             tTexture_ShapeInfo *shapes, int flip_axis);
-    void AsyncLoadPermanentShapeFile(char *fileName);
-    void AsyncLoadSwapShapeFile(char *fileName);
-    bool IsShapeFileLoaded(tShapeInformation &shapes);
-    void UploadPermanentShapes(int numPermanentShapes);
-    void UploadSwapShapes(int numSwapShapes);
-    void Draw(bool drawBackground);
-    void AsyncLoadShapeFile(char *name, tShapeInformation &data);
-    void CancelAsyncLoad(tShapeInformation &data);
-    void InitializeShapes(tShapeInformation &data, unsigned int numShapes);
-    void FreeShapes(tShapeInformation &data);
-    void UploadShapes(tShapeInformation &data, short x, short y,
-                      short numShapes, short index);
-    void TransitionOff(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
-    void TransitionOn(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
-    void UpdateTransition();
-};
+#include "fescreen.h"
 
 #include "shared/tActiveLine.h"
 

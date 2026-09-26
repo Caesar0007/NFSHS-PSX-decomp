@@ -96,17 +96,8 @@ struct tTournamentManager {
 
 
 #include "fescreen_virtual_types.h"
-struct tScreen {
-    tShapeInformation fPermShapes, fSwapShapes;
-    int fTransitionTicks;
-    bool fTransitionOff;
-    int fInternalScreenFadeVal;
-    short fScreenFadeVal;
-#include "fescreen_virtuals.inc"
-#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
-    tScreen();
-#endif
-};
+struct tMenu;
+#include "fescreen.h"
 
 struct tDialogBase : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

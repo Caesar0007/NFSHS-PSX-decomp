@@ -48,7 +48,6 @@ enum tMenuCommandType {
 #define textType_FramedInfo 3
 #define textState_Selected 1
 #define textState_Hilighted 2
-#define kScreen_TransitionTypeScreen 2
 #define RaceType_SingleRace 0
 #define RaceType_PinkSlips 6
 #define PinkSlipsNoError 0

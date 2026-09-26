@@ -5,7 +5,8 @@
  *   vtable. tShapeInformation& ref params per mangled names. Phantoms (lost DrawShapeExtended
  *   coords, void DisplayLoadingText, PreLoad numSwapShapes/swapFileName coalescing) m2c-resolved.
  */
-#include "fescreen.h"
+#include "fescreen_types.h"
+#include "fescreen_externs.h"
 
 /* ---- FEScreen.obj globals ---- */
 int tScreen::fSuppressLoadingText;   /* @0x800517c8 (deferred, declared first via the class) */

@@ -53,19 +53,12 @@ struct tMenuCommand;
 
 
 
-struct tScreen {
-    tShapeInformation fPermShapes, fSwapShapes;
-    int fTransitionTicks;
-    bool fTransitionOff;
-    int fInternalScreenFadeVal;
-    short fScreenFadeVal;
-/* retail slot list (10 slots); MMEFFECT.obj defines neither tPlayer nor tInputKeyType */
+/* this owner defines neither tPlayer nor tInputKeyType: the int spellings it always used */
 #define tPlayer int
 #define tInputKeyType int
-#include "../common/fescreen_virtuals.inc"
+#include "frontend/common/fescreen.h"
 #undef tPlayer
 #undef tInputKeyType
-};
 
 #include "shared/tActiveLine.h"
 

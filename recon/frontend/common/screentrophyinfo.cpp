@@ -75,8 +75,8 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
        measured final 4 -> PASS step, restoring retail's v0/v1 ownership. */
     byte currentTourn;
     idx = (currentTourn =
-               (uint)(byte)screenTrophyRoom->TrophyRoomCurrentView()
-                   [screenTrophyRoom->TrophyRoomTierView()],
+               (uint)(byte)screenTrophyRoom
+                   ->fRealCurrentTourn[screenTrophyRoom->tier],
            (uint)(tournamentManager.fDefinition)->fTiers[feTier].fTournOffset +
                currentTourn);
   }
@@ -145,8 +145,8 @@ void tScreenTrophyInfo::DrawBackground()
     byte currentTourn;
     feTier = (uint)(byte)frontEnd.tier;
     tourn = tournamentManager.fDefinition->fTournaments +
-        (currentTourn = (byte)screenTrophyRoom->TrophyRoomCurrentView()
-                             [screenTrophyRoom->TrophyRoomTierView()],
+        (currentTourn = (byte)screenTrophyRoom
+                             ->fRealCurrentTourn[screenTrophyRoom->tier],
          (uint)tournamentManager.fDefinition->fTiers[feTier].fTournOffset + currentTourn);
     tournID = (signed char)tourn->fTournamentID;
   }

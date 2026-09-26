@@ -61,14 +61,8 @@ struct tMenuNFS4 : public tMenu {
 
 
 #include "fescreen_virtual_types.h"
-struct tScreen {
-    tShapeInformation fPermShapes, fSwapShapes;
-    int fTransitionTicks;
-    bool fTransitionOff;
-    int fInternalScreenFadeVal;
-    short fScreenFadeVal;
-#include "fescreen_virtuals.inc"
-};
+struct tMenu;
+#include "fescreen.h"
 
 #include "shared/tActiveLine.h"
 

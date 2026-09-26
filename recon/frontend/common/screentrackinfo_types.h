@@ -67,16 +67,7 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 
 
 #include "fescreen_virtual_types.h"
-struct tScreen {
-    tShapeInformation fPermShapes, fSwapShapes;
-    int fTransitionTicks;
-    bool fTransitionOff;
-    int fInternalScreenFadeVal;
-    short fScreenFadeVal;
-#include "fescreen_virtuals.inc"
-
-    tScreen();
-};
+#include "fescreen.h"
 
 #include "shared/tActiveLine.h"
 

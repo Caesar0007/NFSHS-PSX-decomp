@@ -6,8 +6,6 @@
  * linked SYM emits no completed enum or typedef records for them. */
 #define BOOL int
 #define uchar unsigned char
-#define tScreen_TransitionType int
-#define kScreen_TransitionTypeScreen 2
 #define tMenuTextType int
 #define tMenuTextState int
 #define textState_Unselected 0

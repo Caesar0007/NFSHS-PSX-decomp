@@ -18,6 +18,9 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
+/* `ticks` is VSync-ISR state: each read is a real load */
+static inline int VSyncTicks(void) { return *(volatile int *)&ticks; }
+static inline bool Credits_Initialized(tCreditManager &credits) { return credits.fCreditsInitialized; }
 
 
 /* ---- ScreenMain.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes;
@@ -173,7 +176,7 @@ void tScreenMain::SetState(tScreenMainState state)
     VIDEO_abortplayback(this->hVideo);
     this->bVideoAborted = 1;
     this->fMovieTicks = FE_Ticks();
-    if ((state != kScreenMain_Credits) && (CreditManager.fCreditsInitialized == 1)) {
+    if ((state != kScreenMain_Credits) && Credits_Initialized(CreditManager) == 1) {
       DeInit(&CreditManager);
     }
     i = 0;
@@ -858,8 +861,8 @@ void tScreenMain::Initialize()
   this->fFrame = 0;
   this->hVideo = VIDEO_create(0x50,0x50,0xf0000,0x20000,0x10);
   this->bVideoAborted = 0;
-  this->fStartTicks = *(volatile int *)&ticks;
-  this->fAnimTicks = FE_Ticks() - 800;
+  this->fStartTicks = VSyncTicks();
+  this->fAnimTicks = VSyncTicks() - 800;
   this->fTransitionDirection = '\x01';
   this->fAnimationUploaded = 0;
   this->fWarningFade = 0;

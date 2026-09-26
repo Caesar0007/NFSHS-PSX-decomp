@@ -2051,7 +2051,7 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool)
      The virtual read must remain a separate statement before fWidth so retail
      performs the jalr before the width narrowing; SYM retains only the inlined
      tListIterator `this`, so no original name survives for this value. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read ww, col, col2, coltext; the two
+  /* SYM ORDER (W86-S2): the 8c Def rows read ww, col2, col, coltext; the two
      non-SYM carriers follow the SYM set. */
   int ww;
   int col;
@@ -2066,28 +2066,28 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool)
   if (this->fActive != 0) {
     this->Calibrate();
   }
-  /* MATCH (LAW 05A — the SLD IS the statement order): retail computes `ww` at
+  /* MATCH (LAW 05A вЂ” the SLD IS the statement order): retail computes `ww` at
      line 1553, BEFORE the 1555 fX/fY + CalcFadeVal group; hoisting it here is
      what puts the `w` param in $s2 and `y` in $s1 like the oracle.
-     Also: read fSelFade AT the call — a `short sVar1` copy makes gcc stage it
+     Also: read fSelFade AT the call вЂ” a `short sVar1` copy makes gcc stage it
      `lhu; sll 16; sra 16` (+2) where the oracle has a bare `lh`. */
   ww = (w >> 1) + -4;
   this->fX = (short)x;
   this->fY = (short)y;
-  col2 = CalcFadeVal(0x551e00,0xc83c1e,(int)this->fSelFade);
-  col = CalcFadeVal(0x551e00,0xbebe,
+  col = CalcFadeVal(0x551e00,0xc83c1e,(int)this->fSelFade);
+  col2 = CalcFadeVal(0x551e00,0xbebe,
                    (int)this->fSelFade);
   coltext = CalcTextFadeUnselToSel(textType_Options,
                       this->fSelFade,0);
-  PSXDrawSquare(col2,(int)this->fX,(int)this->fY
+  PSXDrawSquare(col,(int)this->fX,(int)this->fY
              ,ww,1);
-  PSXDrawSquare(col2,this->fX + ww + 8,
+  PSXDrawSquare(col,this->fX + ww + 8,
              (int)this->fY,ww,1);
-  PSXDrawSquare(col2,(int)this->fX,this->fY + 8,
+  PSXDrawSquare(col,(int)this->fX,this->fY + 8,
              ww,1);
-  PSXDrawSquare(col2,this->fX + ww + 9,
+  PSXDrawSquare(col,this->fX + ww + 9,
              this->fY + 8,ww,1);
-  PSXDrawSquare(col,this->fX + ww + 3,
+  PSXDrawSquare(col2,this->fX + ww + 3,
              (int)this->fY,2,9);
   FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),this->fX + 4,
              this->fY + 10,coltext,'\0',0);
@@ -2095,14 +2095,14 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool)
   /* MATCH: the min/max fData reloads remain inside the argument list, and
      retail drops the result ($v0 = DrawSlider's). */
   fWidth = (short)((u_int)(((w >> 1) + -8) * 0x10000) >> 0x10);
-  DrawSlider(selection & 0xff,(u_short)(u_char)this->fData->fMinValue,
-             (u_short)(u_char)this->fData->fMaxValue,
+  DrawSlider(selection & 0xff,this->fData->MinValue(),
+             ListIterator_Max(this->fData),
              this->fX + 1,this->fY + 2,fWidth,
              this->fHeight,4,4,true,0,
              this->fSelFade,0);
   selection = this->fData->Value((tPlayer)-1);
-  DrawSlider(selection & 0xff,(u_short)(u_char)this->fData->fMinValue,
-             (u_short)(u_char)this->fData->fMaxValue,
+  DrawSlider(selection & 0xff,this->fData->MinValue(),
+             ListIterator_Max(this->fData),
              (short)(((u_int)(u_short)this->fX + ww + 10) * 0x10000 >>
                     0x10),this->fY + 2,fWidth,
              this->fHeight,4,4,false,0,this->fSelFade,0);

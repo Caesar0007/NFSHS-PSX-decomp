@@ -1943,7 +1943,7 @@ void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool)
 
 {
   /* Retail ABI bool is unnamed while the `iiib` linkage retains it.
-     MATCH: no `fSelFade`/`col` return funnel — retail's Draw drops its result
+     MATCH: no `fSelFade`/`col` return funnel вЂ” retail's Draw drops its result
      ($v0 is DrawSlider's, incidental), so the `lh 8(s0)` for the fSelFade arg is
      emitted LATE at the call instead of being hoisted into a saved reg.  Decl
      order follows the SYM: col ($s3) then coltext ($s4).  (W86-S2 corrected an
@@ -1969,8 +1969,8 @@ void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool)
      argument; this leaves the following fData reload inside the argument list
      and schedules it between retail's fX and fY reads. */
   DrawSlider(this->fData->Value((tPlayer)-1) & 0xff,
-             (u_short)(u_char)this->fData->fMinValue,
-             (u_short)(u_char)this->fData->fMaxValue,
+             this->fData->MinValue(),
+             ListIterator_Max(this->fData),
              this->fX + 4,this->fY + 2,
              (short)((u_int)((w + -8) * 0x10000) >> 0x10),this->fHeight,4,
              4,false,0,this->fSelFade,0);

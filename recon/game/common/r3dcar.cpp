@@ -731,10 +731,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       int color;
       /* SYM-CODEGEN-CARRIER: colorTypeOffset.  Repeating carType<<1 is
          count-exact but changes eight address-building instructions. */
-      int colorTypeOffset;
       /* SYM-CODEGEN-CARRIER: scaledIndex.  Collapsing this and finalIndex into
          SYM index remains 520/520 but reverses retail's addu operands. */
-      int scaledIndex;
       /* SYM-CODEGEN-CARRIER: finalIndex.  Removing only this second handoff
          leaves the same two operand-order diffs. */
       int finalIndex;
@@ -749,9 +747,9 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       /* MATCH: keep the color-table base live through the counter update. */
       __asm__("" : : "r"(loadedSceneColor));
       index = (short)color >> 3;
-      colorTypeOffset = carType << 1;
+      const int colorTypeOffset = carType << 1;
       __asm__("" : : "r"(colorTypeOffset));
-      scaledIndex = (index * 3) << 3;
+      const int scaledIndex = (index * 3) << 3;
       finalIndex = scaledIndex + index;
       index = finalIndex;
       /* MATCH: GCC's refs=6 color quantity loses a1 to the scaled index.

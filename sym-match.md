@@ -532,6 +532,17 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   - Register-swapped names (MOVED col/col2) = the names are the other way round.
   - Open: tMenuItemLeftRightAudioSlider::UpdateTransition (clamp without a local; const snapshots 8 diffs),
     tMemoryCardMenuItem::Draw (volatile carrier), UpdateTransition__12tOptionsMenu (goto carriers).
+- screencarselect 39 -> 47/56 (board 1998), bytes unchanged.
+  - A `while` counter loop has no scope; the same loop as `for (j = 0; ...)` gives retail's loop scope when the body
+    holds an inline block (DrawSliders, both multiplayer DrawForeground).
+  - An inline parameter bound to a bare variable argument is recorded (SetPosition's `player`, OtherPlayer's
+    `player`); a converted argument (`(tPlayer)(short)player`) is an expression and propagates.
+  - One `GetPlayer()` feeding two uses = a `const` snapshot (unrecorded) + free accessors on it.
+  - If-scope ending after the fall-back return = `if (ok) {...; return 1;} else { return 0; }`.
+  - Goto dispatch over sparse states was a `switch` (SetState: case 0/2/5/6).
+  - VSync `ticks`: a volatile-reading free accessor keeps both loads batched (Initialize, SetState).
+  - Open: GetCar `color` (a const needs braces in the case -> extra block), DrawVideoWall (two record-less wrapper
+    scopes around both GetPlayer pairs; a free wrapper inline loses the delay-slot init), the DrawBackground set.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

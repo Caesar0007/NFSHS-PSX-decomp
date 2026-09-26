@@ -59,38 +59,38 @@ struct tMenuCommand;
 struct tMenu;
 struct tScreen;
 
-struct tListIterator {
-    short *fSelectionList;
-    char *fValue;
-    char fMinValue, fMaxValue;
-    virtual ~tListIterator();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
-};
-struct tListIteratorRange : public tListIterator {};
+#include "shared/fe_menu_game_surface.h"
 
-struct tMenuItem {
-    unsigned int fFlags, fTextDescription;
-    short fSelFade;
-    int fButtonImage, fNumFrames;
-    tMenu *fNewMenu;
-    virtual ~tMenuItem();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
-};
 
-typedef tMenuItem *tItemList[16];
 
-struct tMenu {
-    unsigned int fFlags;
-    short fTitle;
-    int fCurrentItem;
-    bool fNeverAnyEnabled;
-    tMenuItem *fItemList[16];
-    tScreen *fScreen;
-    tMenu *fNextMenu, *fChildMenu, *fOptionsMenu;
-    void (*fOnButtonPress)(tMenuCommand&);
-    short VertHelp;
-    virtual ~tMenu();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
-};
 
-struct tMenuItemInteractive : public tMenuItem {};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef enum tCarModels {
     cm_MercedesSLK = 0, cm_BMWZ3 = 1, cm_HoldenHSVT = 2,

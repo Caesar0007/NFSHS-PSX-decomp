@@ -265,6 +265,18 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   members, 10 differ (Sim_tSimGlobalVar, Speech, tScreen, tMenu, ...), 9 have several retail definitions. The 97
   types still listed as differing are classes whose copies declare different member functions (33 differ only
   there) or carry class-body extras: they move with their retail module headers (step 2c).
+- Step 2c, first member-record fixes (2026-09-26). The game objects saw the frontend menu roots as trimmed
+  "layout-only" copies with only a virtual destructor, so our SYM gave them 2-slot vtables where retail records
+  tListIterator 6, tMenuItem 11, tMenu 11 and tScreen 10 in every object. `recon/shared/fe_menu_game_surface.h` now
+  holds the game-side family once (audiocmn, gmesetup, pausemenu, mmeffect) with retail's full virtual lists, and the
+  MMEFFECT/NFS3 tScreen copies include `fescreen_virtuals.inc`. Retail's game objects define neither tPlayer nor
+  tInputKeyType, so those surfaces spell them `int` (the `felist_classes.h` idiom). Bytes unchanged; the SYM changes
+  in exactly 41 `.vf` member records (dims 2 -> 11/6/10); tListIterator, tMenuItem and tScreen now record retail's
+  members in every object. Open member differences (`member_cmp.py --summary`): FEMENU's tMenu sees tScreen complete
+  (retail: incomplete, pointer size 0); CAMERA's Sim_tSimGlobalVar sees Sched_tSchedule incomplete; FRONT.CPP defines
+  2-member stubs of tCreditManager/tFEApplication/tGlobalMenuDefs that retail FRONT does not record; Speech is a
+  1-byte stub in six AI objects; AIHIGH.CPP records AIHigh_BTC_AIPerp. Retail records Sim_tSimGlobalVar ONLY in
+  SIM.CPP (we record it in 33 objects), so the other objects reached `simGlobal` without that type -- open question.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

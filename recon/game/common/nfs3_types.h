@@ -54,13 +54,19 @@ struct tListIteratorIndexed : public tListIterator { char *fIndex; };
 
 
 
+struct tMenuCommand;
 struct tScreen {
     tShapeInformation fPermShapes, fSwapShapes;
     int fTransitionTicks;
     bool fTransitionOff;
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
-    virtual ~tScreen();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
+/* retail slot list (10 slots); NFS3.obj defines neither tPlayer nor tInputKeyType */
+#define tPlayer int
+#define tInputKeyType int
+#include "../../frontend/common/fescreen_virtuals.inc"
+#undef tPlayer
+#undef tInputKeyType
 };
 
 #include "shared/tCarLineup.h"

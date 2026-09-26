@@ -38,43 +38,11 @@ enum tMenuCommandType {
 
 
 
-struct tListIterator {
-    short *fSelectionList;
-    char *fValue;
-    char fMinValue, fMaxValue;
-    virtual ~tListIterator();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
-};
-
-struct tListIteratorRange : public tListIterator {};
-
 struct tMenu;
 struct tScreen;
 struct tMenuCommand;
 
-struct tMenuItem {
-    unsigned int fFlags, fTextDescription;
-    short fSelFade;
-    int fButtonImage, fNumFrames;
-    tMenu *fNewMenu;
-    virtual ~tMenuItem();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
-};
-
-typedef tMenuItem *tItemList[16];
-
-struct tMenu {
-    unsigned int fFlags;
-    short fTitle;
-    int fCurrentItem;
-    bool fNeverAnyEnabled;
-    tItemList fItemList;
-    tScreen *fScreen;
-    tMenu *fNextMenu, *fChildMenu, *fOptionsMenu;
-    void (*fOnButtonPress)(tMenuCommand &);
-    short VertHelp;
-    virtual ~tMenu();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
-};
-
-struct tMenuItemInteractive : public tMenuItem {};
+#include "shared/fe_menu_game_surface.h"
 
 #include "shared/tShapeInformation.h"
 
@@ -91,7 +59,12 @@ struct tScreen {
     bool fTransitionOff;
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
-    virtual ~tScreen();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
+/* retail slot list (10 slots); MMEFFECT.obj defines neither tPlayer nor tInputKeyType */
+#define tPlayer int
+#define tInputKeyType int
+#include "../common/fescreen_virtuals.inc"
+#undef tPlayer
+#undef tInputKeyType
 };
 
 #include "shared/tActiveLine.h"

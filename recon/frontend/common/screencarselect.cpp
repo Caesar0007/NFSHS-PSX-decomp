@@ -781,8 +781,7 @@ void tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
       }
     }
     if ((frontEnd.oppNumber == '\x01') || (frontEnd.gameMode == '\x01')) {
-      (menuDefs->itemOpponentUpgrades).
-      fFlags = (menuDefs->itemOpponentUpgrades).fFlags | 1;
+      MenuItem_Disable(&menuDefs->itemOpponentUpgrades);
     }
   }
   if (keyval != kInput_KeyType_Triangle) {

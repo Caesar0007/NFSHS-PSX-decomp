@@ -135,13 +135,12 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd);
 void Flare_Tri(long *cp,long *p1,long *p2,int otz)
 
 {
-  int pkt_addr24; /* SYM-CODEGEN-CARRIER: pkt_addr24 -- keeps the retail OT-link mask/hoist order */
   POLY_G3 *prim;
 
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = (POLY_G3 *)Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  pkt_addr24 = *(u_int *)otz & 0xff000000;
+  const u_int pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x1c;
   *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   *(u_int *)((u_char *)prim + 4) = 0x32000000;
@@ -1167,7 +1166,6 @@ void Flare_2DSpike(long *center,long *end,int otz)
 {
   long pt [2];
   LINE_G2 *prim;
-  u_int rgb; /* SYM-CODEGEN-CARRIER: rgb -- load-bearing zero-insn allocation fence for the colour word */
 
   pt[0] = *center;
   pt[1] = *end;
@@ -1175,7 +1173,7 @@ void Flare_2DSpike(long *center,long *end,int otz)
   prim = (LINE_G2 *)Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
-  rgb = *(u_int *)&gfrgb2;
+  const u_int rgb = *(u_int *)&gfrgb2;
   __asm__ volatile("" : : "r"(rgb));
   Render_gPacketPtr = (u_char *)prim + 0x14;
   ((u_char *)prim)[3] = 4;
@@ -1477,7 +1475,6 @@ void Flare_PreCalcHexLightBeam(long *center,int otz)
     if (i >= 8) break;
     {
       LINE_G2 *prim;
-      u_int rgb; /* SYM-CODEGEN-CARRIER: rgb -- direct gfrgb2 store is FAIL 7 (54/53) */
 
 gte_ldv0(&Flare_gOct[i]);
       prim = (LINE_G2 *)Render_gPacketPtr;
@@ -1485,7 +1482,7 @@ gte_ldv0(&Flare_gOct[i]);
       Render_gPacketPtr = (u_char *)prim + 0x14;
       setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
       gte_rtps_b();
-      rgb = *(u_int *)&gfrgb2;
+      const u_int rgb = *(u_int *)&gfrgb2;
       *((u_char *)prim + 3) = 4;
       *(u_int *)((u_char *)prim + 0xc) = 0;
       *(u_int *)((u_char *)prim + 4) = rgb;
@@ -1503,13 +1500,12 @@ gte_ldv0(&Flare_gOct[i]);
 void Flare_Quad(long *pt,CVECTOR *color,int otz)
 
 {
-  int pkt_addr24; /* SYM-CODEGEN-CARRIER: pkt_addr24 -- stages the OT high word before the potentially aliasing packet writes */
   POLY_F4 *prim;
 
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = (POLY_F4 *)Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  pkt_addr24 = *(u_int *)otz & 0xff000000;
+  const u_int pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x18;
   *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */
@@ -1526,13 +1522,12 @@ void Flare_Quad(long *pt,CVECTOR *color,int otz)
 void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
 
 {
-  int pkt_addr24; /* SYM-CODEGEN-CARRIER: pkt_addr24 -- stages the OT high word before the potentially aliasing packet writes */
   POLY_F4 *prim;
 
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = (POLY_F4 *)Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  pkt_addr24 = *(u_int *)otz & 0xff000000;
+  const u_int pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x18;
   *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */
@@ -1549,19 +1544,17 @@ void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
 void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
 
 {
-  int innerColor; /* SYM-CODEGEN-CARRIER: innerColor -- direct first color store is FAIL 5 (46/45) */
-  int outerColor; /* SYM-CODEGEN-CARRIER: outerColor -- direct second color store is FAIL 9 (46/45) */
   POLY_G4 *prim;
 
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = (POLY_G4 *)Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
-  innerColor = *(int *)color;
+  const int innerColor = *(int *)color;
   Render_gPacketPtr = (u_char *)prim + 0x24;
   *(u_int *)((u_char *)prim + 0xc) = 0;
   *(int *)((u_char *)prim + 4) = innerColor;
-  outerColor = *(int *)color;
+  const int outerColor = *(int *)color;
   ((u_char *)prim)[3] = 8;
   *(u_int *)((u_char *)prim + 0x1c) = 0;
   ((u_char *)prim)[7] = 0x3a;
@@ -1577,13 +1570,12 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
 void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
 
 {
-  int pkt_addr24; /* SYM-CODEGEN-CARRIER: pkt_addr24 -- stages the OT high word before the potentially aliasing packet writes */
   POLY_FT4 *prim;
 
   otz = otz * 4 + (int)Render_gPalettePtr;
   prim = (POLY_FT4 *)Render_gPacketPtr;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  pkt_addr24 = *(u_int *)otz & 0xff000000;
+  const u_int pkt_addr24 = *(u_int *)otz & 0xff000000;
   Render_gPacketPtr = (u_char *)prim + 0x28;
   *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */

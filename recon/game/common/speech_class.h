@@ -48,6 +48,7 @@ struct Speech {
         int fMobile[15];
         inline void SetAllUnits(int bankid) { fAllUnits = bankid; }
         inline void SetDispatch(int bankid) { fDispatch = bankid; }
+        inline int Dispatch() { return fDispatch; }
         inline void SetMobile(int unit, int bankid) { fMobile[unit] = bankid; }
     };
 
@@ -80,6 +81,14 @@ struct Speech {
         }
         inline void SetColour(int Colour);
         inline void SetBlockade(int Blockade) { fBlockade.flags = Blockade; }
+        /* inline setters: retail's SYM shows one zero-length `this` pair per field reset (e.g. Purge's five at +1a0) */
+        inline void SetArrest(int Arrest) { fArrest.flags = Arrest; }
+        inline void SetUpdate(int Update) { fUpdate.flags = Update; }
+        inline void SetSub(Speaker *Sub) { fSub = Sub; }
+        inline void SetTo(int to) { fTo = to; }
+        inline int To() { return fTo; }
+        inline int From() { return fFrom; }
+        inline SPCHNFSType_REVINTRO *Reverse() { return &fReverse; }
         inline bool HasDifferentSub(Speaker *Wing) {
             return fSub != 0 && Wing != fSub;
         }
@@ -142,6 +151,13 @@ struct Speech {
         SPCHNFSType_vs_KMH_MPH fSpeedType;
         int fSpeed, fUnit;
         Car_tObj *fCarObj, *fPerp;
+        inline void SetPerp(Car_tObj *perp) { fPerp = perp; }
+        /* retail: `Speech::fgSpeech->fSpeakerCar = fCarObj` is an inline on the mobile that calls an inner
+           Speech inline with parameter `carObj` (Bullhorn's nested pair records carObj/$2 and the Speech this) */
+        inline void MakeSpeaker();   /* defined after struct Speech so the inner Speech inline is expanded */
+        inline SPCHNFSType_VOICE *Voice() { return &fVoice; }
+        inline void SetSpeedType(int type) { fSpeedType.flags = type; }
+        inline void ClearCarObj() { fCarObj = 0; }
         Car_tObj *Perp();
         int Unit();
         CallSignBank *CallSign();
@@ -189,6 +205,14 @@ struct Speech {
         return bank >= 0 && bank < fBankCount ? fBankOffset[bank] : 0;
     }
     inline int FileHandle() { return fFileHandle; }
+    inline void SetSpeakerCar(Car_tObj *carObj) { fSpeakerCar = carObj; }
+    static inline int MultiplePerps() { return fgSpeech->fMultiplePerps; }
+    /* bank accessors: retail's one-line Speaker accessors are each a single inline-call pair -- a member on
+       the instance (`this` only) or a forwarding member (`this` + `slice`) */
+    inline CallSignBank *MobileCallSign() { return &fCallSignBank.Mobile; }
+    inline CallSignBank *DispatchCallSign() { return &fCallSignBank.Dispatch; }
+    inline LocationBank *ClosestMobileLocation(int slice) { return FindClosestLocationTo(fLocationBank.Mobile, slice); }
+    inline LocationBank *ClosestDispatchLocation(int slice) { return FindClosestLocationTo(fLocationBank.Dispatch, slice); }
     inline int ReadBE32(char *p) {
         int a = (u_char)p[0];
         int b = (u_char)p[1];
@@ -221,5 +245,8 @@ struct Speech {
     Speech();
     ~Speech();
 };
+
+inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); }
+
 
 #endif

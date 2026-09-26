@@ -185,6 +185,23 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   the deeply DIRTY ones, so these are shape steps. `AI_elapsedTime` is never a getter (0 of 14 kept).
   Diminishing returns for the no-parameter getter lever; the remaining retail pairs are mostly `this`
   pairs (member inlines of Speech/AIHigh classes) and pairs inside deeper levels.
+- Speech `this`-pair round (2026-09-26). Retail's Speech code is written against small inline members,
+  and the SYM names them by receiver: a pair recording the outer `this` is a Speaker/MobileSpeaker
+  member, a pair with no variables is an inline on a temporary receiver (e.g. `Dispatch()->Sub()`,
+  `CallSign()->Dispatch()`) or a static getter, and a nested pair recording `carObj` is an inline
+  calling an inner Speech inline. Added to `speech_class.h`: Speaker `SetArrest/SetUpdate/SetSub/To/
+  From/Reverse/SetTo`, MobileSpeaker `SetPerp/MakeSpeaker/Voice/SetSpeedType/ClearCarObj`, Speech
+  `SetSpeakerCar(carObj)`, `MultiplePerps()`, `Mobile/DispatchCallSign()`, `ClosestMobile/Dispatch
+  Location(slice)`, CallSignBank `Dispatch()`. `MakeSpeaker` must be defined after `struct Speech`
+  closes, or the inner inline is not yet available and gcc emits a real call. Native CLEAN now:
+  `MobileSpeaker::Purge` (setters, natural fall-through, `while (Chain->Sub() != this)`), `CallSign`,
+  `FindClosestLocationTo` (both speakers), `KnownPerp` (`for (int i ...)`), `Bullhorn`, `SetSpeed`,
+  `Speech::Reset` (early return, `for (int i ...)` with `ClearCarObj()`), `RoadBlock` and `SpikeBelt`
+  (the `ctx`/`dispatch` carriers are gone: `if (Dispatch()->Sub() != 0 && Dispatch()->Sub() != this)`,
+  plain `Promote()`, `MultiplePerps()`, `SetTo(CallSign()->Dispatch())`). `MakeSpeaker()`/`Voice()`
+  swept into 10 more MobileSpeaker functions (shape steps). Falsified: `GetCarBank` through a getter
+  (the `fgSpeech` load moves ahead of the index arithmetic), `Speech::Dispatch` with a `result` local
+  (8-11 diffs). `var_fn.py` now parses `Q`-qualified mangled names. Board 1858 -> 1869.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

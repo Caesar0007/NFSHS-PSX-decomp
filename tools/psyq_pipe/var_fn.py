@@ -13,7 +13,16 @@ keep = '--keep' in sys.argv
 plain = fn.split('__')[0]
 # a member function (`Name__<len>Class...`) must be matched as `Class::Name(` so twins in sibling classes are not confused
 mcls = re.match(r'^' + re.escape(plain) + r'__(\d+)', fn)
-if mcls:
+mq = re.match(r'^' + re.escape(plain) + r'__Q(\d)', fn)
+if mq:
+    # qualified class: Q<count><len><name><len><name>...
+    rest = fn[len(plain) + 3 + len(mq.group(1)):]
+    parts = []
+    for _ in range(int(mq.group(1))):
+        m = re.match(r'(\d+)', rest)
+        n = int(m.group(1)); parts.append(rest[len(m.group(1)):len(m.group(1)) + n]); rest = rest[len(m.group(1)) + n:]
+    pat = r'::'.join(re.escape(x) for x in parts) + r'::' + re.escape(plain) + r'\s*\('
+elif mcls:
     n = int(mcls.group(1)); cls = fn[len(plain) + 2 + len(mcls.group(1)):][:n]
     pat = re.escape(cls) + r'::' + re.escape(plain) + r'\s*\('
 else:

@@ -1516,7 +1516,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   stage = chaserCop->currentStage_;
 
-  humanCopCarObj = chaserCop->carObj_;
+  humanCopCarObj = AIHigh_GetCarObj(chaserCop);
 
   this->originalActivationCop_ = chaserCop;
 

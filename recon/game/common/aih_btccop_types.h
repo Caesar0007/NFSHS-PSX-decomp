@@ -213,6 +213,7 @@ struct AIHigh_Base {
     virtual void HighExecute() = 0;
     virtual ~AIHigh_Base();
     void StateExecute();
+    inline Car_tObj *CarObj() { return carObj_; }   /* retail pairs record `this` typed AIHigh_Base */
 };
 
 /* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,
@@ -357,6 +358,10 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     void SetDesiredSpeed();
     void HighExecute();
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
+    /* accessors (retail HumanCop pairs; aih_btccop is built with no_implement_inlines) */
+    inline int CurrentStage() { return currentStage_; }
+    inline int InitialDirection() { return initialDirection_; }
+    inline int InitialMovement() { return initialMovement_; }
 };
 
 

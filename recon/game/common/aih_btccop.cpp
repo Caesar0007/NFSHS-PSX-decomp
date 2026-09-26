@@ -704,70 +704,33 @@ void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
 
 {
   if (this->copIndex_ != 0) {
-    AIHigh_BTC_HumanCop *leadCop;
+    AIHigh_BTC_HumanCop *leadCop = (AIHigh_BTC_HumanCop *)highLevelAIObjs[0];
 
-    leadCop = (AIHigh_BTC_HumanCop *)highLevelAIObjs[0];
-
-    if (this->currentStage_ < leadCop->currentStage_) {
-      int startDirection;
+    if (leadCop->CurrentStage() > this->CurrentStage()) {
+      int startDirection = leadCop->InitialDirection();
       int startSlice;
-      int startMovement;
+      int startMovement = leadCop->InitialMovement();
       int addToSlice;
 
-      startDirection = leadCop->initialDirection_;
-
-      startMovement = leadCop->initialMovement_;
-
-      startSlice = (int)(leadCop->carObj_->N).simRoadInfo.slice;
-
-      if ((this->currentStage_ + 1U & 1) != 0) {
-
+      startSlice = leadCop->CarObj()->N.simRoadInfo.slice;
+      if ((this->currentStage_ + 1U & 1) != 0)
         addToSlice = startDirection * 0xe;
-
-      }
-
-      else {
-
+      else
         addToSlice = startDirection * -0xe;
-
-      }
-
       if (0 <= addToSlice) {
-
         startSlice = startSlice + addToSlice;
-
-        if (gNumSlices <= startSlice) {
-
+        if (gNumSlices <= startSlice)
           startSlice = startSlice - gNumSlices;
-
-        }
-
       }
-
       else {
-
         startSlice = startSlice + addToSlice;
-
-        if (startSlice < 0) {
-
+        if (startSlice < 0)
           startSlice = startSlice + gNumSlices;
-
-        }
-
       }
-
       this->NewStage(startSlice,startDirection,startMovement);
-
     }
-
-    (this->carObj_)->desiredSpeed =
-
-         leadCop->carObj_->desiredSpeed;
-
+    this->carObj_->desiredSpeed = leadCop->CarObj()->desiredSpeed;
   }
-
-  return;
-
 }
 
 

@@ -747,12 +747,12 @@ void AIPhysic_SimplePhysics_LatVel(Car_tObj *carObj)
         carObj->N.position.z += right.z;
         carObj->laneChangeSpeed = 0;
     } else {
-        int carSpeed = carObj->currentSpeed;
+        int carSpeed = __builtin_abs(carObj->currentSpeed);
         carObj->laneChangeSpeed = off;
-        if (off < -__builtin_abs(carSpeed))
-            carObj->laneChangeSpeed = -__builtin_abs(carSpeed);
-        else if (__builtin_abs(carSpeed) < off)
-            carObj->laneChangeSpeed = __builtin_abs(carSpeed);
+        if (off < -carSpeed)
+            carObj->laneChangeSpeed = -carSpeed;
+        else if (carSpeed < off)
+            carObj->laneChangeSpeed = carSpeed;
     }
 }
 

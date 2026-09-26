@@ -506,6 +506,20 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
     short selection (fold pushes `(short)` into the ?: arms; only a named short temp keeps the sign-extension
     after the merge, and it brings a block); screencongrats PinkSlip `player` (1 - fWinner held in s1 across
     the licence calls with no record).
+- femenuextended 44 -> 52/53 and front Front_GetLapsForType, bytes unchanged.
+  - Per-TU member inlines on classes whose key function lives elsewhere: guard them with a macro defined only in
+    the owner's _types.h (`NFS4_FE_CORE_MENUITEM_ISENABLED`, `NFS4_FE_LIST_SELECTION_INLINE`, following the
+    screencarselect precedent), so FEMenu.obj (the key-function TU) never sees them.
+  - Member vs free is read straight off the record: a `this` of the BASE class type (tMenuItem, tListIterator,
+    tFEApplication) = member inline on that base; a variable-free pair = free inline (parameters used once, or a
+    constant global argument).  tMenuItem enabled test exists in both forms: member `(fFlags & 1) == 0` in the item
+    Draw bodies, free `((fFlags ^ 1) & 1) != 0` in the menu loops (the xor form fixes the xori/andi order).
+  - A for-init counter that loop strength reduction replaces by a pointer walk leaves its scope with NO record
+    (tMenuOptions::TransitionOn: `for (int i = 0; ...)` reproduces retail's record-less for-scope).
+  - `const` locals with initialisers are not recorded; they hold inline results the scheduler keeps in registers
+    (tMenuNFS4::Draw image/frames).
+  - Open: Front_EnableLocalSpeech (block end must precede the final return copy; the goto form crosses `lang`'s
+    initialisation), MenuNFS4_DrawTextBox (asm-pinned carrier block).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

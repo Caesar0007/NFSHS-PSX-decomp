@@ -332,7 +332,7 @@ PER_TU_FLAGS = {
     # hoff @0x8013dac0, AILIFE.obj the compiled-out "dist=%d" (8B) @0x8013c588.
     "recon/game/common/souffle.cpp": {"g_value": "8"},
     "recon/game/psx/psxcontroller.cpp": {"g_value": "8"},
-    "recon/game/common/ailife.cpp": {"g_value": "8"},
+    "recon/game/common/ailife.cpp": {"g_value": "8", "no_implement_inlines": True},
     # audiomus.obj holds "*-%s" (5B) @0x8013c724, audio.obj "amus"/"game*"/".bnk" @0x8013d504..
     "recon/game/common/audiomus.cpp": {"g_value": "8"},
     "recon/game/psx/audio.cpp": {"g_value": "8"},
@@ -447,23 +447,38 @@ PER_TU_FLAGS = {
     # w63-a19: -G IDENTITY TELLS from the data-ownership sweep (E5): 8-byte
     # sdata objects only reachable at -G8 ("aiwther" literal; mpause short[4]
     # pair = 2 of the W62 sec-3.2 wrong-section symbols). Gated 2x post-wire.
+    "recon/game/common/AIWORLD.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/ai.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aicop.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aidebug.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aidelaycar.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aih_basiccop.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aih_cop.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aih_hum.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aiinit.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aiperson.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aiphysic.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aiscript.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aispeech.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aitriger.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    "recon/game/common/aitune.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/speech.cpp":         {"g_value": "8", "no_implement_inlines": True},   # FEVIRT-NII-PROBE: Speaker::SetColour (inline member) has no out-of-line copy in retail;  # w67-a8: retail -G8; small car/file literals -> .sdata (were .rodata at -G0)
     # w67-a8: gprobe8-proven retail -G8 (gate pass rises + small const -> .sdata,
     # no PASS regression) -- were wrongly at the lane default -G0.
     "recon/game/common/track.cpp":          {"g_value": "8"},  # pass 12->23
-    "recon/game/common/aistate.cpp":        {"g_value": "8"},  # pass 29->37
+    "recon/game/common/aistate.cpp":        {"g_value": "8"},  # pass 29->37  # AI-NII: NOT set -- carries retail inline virtual dtor copies
     "recon/game/common/object.cpp":         {"g_value": "8"},  # pass 13->30
     "recon/game/common/pausemenu.cpp":      {"g_value": "8"},  # pass 51->57
-    "recon/game/common/aidatarecord.cpp":   {"g_value": "8"},  # pass 23->26 (all)
+    "recon/game/common/aidatarecord.cpp":   {"g_value": "8", "no_implement_inlines": True},  # pass 23->26 (all)
     # w67-a8 batch2-safe: gate-improve at -G8 with sdata=0 (no own small data, so
     # cannot shift the .sdata layout / break SOURCE_DATA_OWNERS; pure gp-relative
     # addressing-mode change toward retail).
-    "recon/game/common/aih_btcperp.cpp":    {"g_value": "8"},  # +9
-    "recon/game/common/aih_traf.cpp":       {"g_value": "8"},  # +1
-    "recon/game/common/aih_basicperp.cpp":  {"g_value": "8"},
+    "recon/game/common/aih_btcperp.cpp":    {"g_value": "8"},  # +9  # AI-NII: NOT set -- carries retail inline virtual dtor copies
+    "recon/game/common/aih_traf.cpp":       {"g_value": "8", "no_implement_inlines": True},  # +1
+    "recon/game/common/aih_basicperp.cpp":  {"g_value": "8"},  # AI-NII: NOT set -- carries retail inline virtual dtor copies
     "recon/game/psx/fe3dmenu.cpp":          {"g_value": "0"},  # 2026-09-19: its 4-byte publics showRoomFlag/gShowroomLights are retail front.data, not small data
-    "recon/game/common/aih_play.cpp":       {"g_value": "8"},  # class (b) 2026-09-17: its 5-byte literal is retail .sdata 0x8013c568 (data row), not .rodata
-    "recon/game/common/aih_opp.cpp":        {"g_value": "8"},
+    "recon/game/common/aih_play.cpp":       {"g_value": "8", "no_implement_inlines": True},  # class (b) 2026-09-17: its 5-byte literal is retail .sdata 0x8013c568 (data row), not .rodata
+    "recon/game/common/aih_opp.cpp":        {"g_value": "8", "no_implement_inlines": True},
     "recon/game/common/control.cpp":        {"g_value": "8"},  # +1
     # w67-a10: fragment-member TU -G8 via surgical residual re-cut (its -G8
     # small-data literals move out of the adjacent residual blob r20_post, which
@@ -475,8 +490,8 @@ PER_TU_FLAGS = {
     # replay.cpp held at -G4: its split .sdata.replay_counter section makes -G8
     # regress the image (2038 diff); needs its own placement handling.
     "recon/game/common/bworldSm.cpp":       {"g_value": "8"},  # +11
-    "recon/game/common/aih_btccop.cpp":     {"g_value": "8"},  # +7
-    "recon/game/common/aihigh.cpp":         {"g_value": "8"},  # +3 (14/14)
+    "recon/game/common/aih_btccop.cpp":     {"g_value": "8", "no_implement_inlines": True},  # +7
+    "recon/game/common/aihigh.cpp":         {"g_value": "8", "no_implement_inlines": True},  # +3 (14/14)
     "recon/game/common/camera.cpp":         {"g_value": "8"},  # +3
     "recon/game/common/clock.cpp":          {"g_value": "8"},  # +3
     # NOTE: drawc.cpp + movie.cpp + the .sdata-adding batch2 TUs (texture/draw/
@@ -484,7 +499,7 @@ PER_TU_FLAGS = {
     # the layout and breaks curated SOURCE_DATA_OWNERS (e.g. TrackSpec_*).  Held at
     # -G0 until gen_rodata_extra + the owners co-place the new .sdata; -G8 is still
     # the correct retail flag for them.
-    "recon/game/common/aispeeds.cpp":       {"g_value": "8"},
+    "recon/game/common/aispeeds.cpp":       {"g_value": "8", "no_implement_inlines": True},
     "recon/game/common/mpause.cpp":         {"g_value": "8"},
     "recon/game/common/bworld.cpp":         {"g_value": "8"},  # w67-a4: probe-proven 20/21 x2, .sdata byte-exact retail
     # W72-A12 (probe-proven on a scratchpad build.py copy, TU 7/8 -> 8/8, x2):

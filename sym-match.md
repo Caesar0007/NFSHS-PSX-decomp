@@ -392,6 +392,13 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   two pairs -- but `curveSpeed` (retail REG $2) is copy-propagated away in every byte-exact spelling tried
   (in-block init, declare-then-assign, function level, swapped compare), and the clamp spellings that keep it
   cost an instruction (the car load moves after the branch). Next: find what keeps curveSpeed in v0 in retail.
+- AI lane build flag (user decision 2026-09-26): `no_implement_inlines` for the AI translation units, so inline
+  MEMBER accessors (retail's `this`-typed pairs in AIHigh/AIState classes) no longer force out-of-line copies that
+  retail does not have. Set on 22 of 25 `recon/game/common/ai*.cpp`; NOT on aih_basicperp, aih_btcperp and aistate,
+  whose objects carry retail inline virtual destructor copies the flag would suppress (bytes moved). Every flagged
+  file gated byte-unchanged (symloop; aidebug/aispeech have no retail functions and are covered by the link), honest
+  link 0 diff, full debug SYM byte-identical. Five stale symloop references (rodata-prefix only) were re-adopted on
+  the honest-link proof with `ref_refresh.py --proven`.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

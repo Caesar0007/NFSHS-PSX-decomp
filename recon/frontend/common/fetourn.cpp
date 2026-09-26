@@ -207,88 +207,40 @@ void tTournamentManager::GetTrackToRace(tTrackInfo &track)
        `*(int *)&` casts are gone. */
 
 void tTournamentManager::StartNewTournament(byte tier,byte tournament)
-
 {
-  /* SYM-CODEGEN-CARRIER: fRandOption
-     SYM-CODEGEN-CARRIER: fTrackOption
-     SYM-CODEGEN-CARRIER: numCompetitors
-     SYM-CODEGEN-CARRIER: tourneyDef
-     SYM-CODEGEN-CARRIER: tourneyDefLocal
-     SYM-CODEGEN-CARRIER: tourneyInfoOffset
-     SYM-CODEGEN-CARRIER: trackOffset
-     These are the expression-splitting carriers documented in the PASS
-     receipt above; the retail SYM records only i, tourn, and track. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read i, tourn, track; the seven
-     non-SYM carriers follow the SYM set. */
   short i;
-  tTourneyInfo* tourn;
-  tTrackInfo* track;
-  byte fTrackOption;
-  short numCompetitors;
-  int fRandOption;
-  int trackOffset;
-  tTournamentDefinition* tourneyDefLocal;
-  int tourneyInfoOffset;
-  tTournamentDefinition* tourneyDef;
+  tTourneyInfo *tourn;
+  tTrackInfo *track;
 
-  this->fTier = (uint)tier;
-  this->fTournament = (uint)tournament;
+  this->fTier = tier;
+  this->fTournament = tournament;
   this->fCurrentTrack = 0;
-  numCompetitors = this->GetNumCompetitors();
-  tourneyDef = this->fDefinition;
-
-  *(int*)&this->fNumRacers = (int)numCompetitors;
-  i = 0;
-  tourneyInfoOffset = (uint)tourneyDef->fTiers[this->fTier].fTournOffset + this->fTournament;
-  tourn = tourneyDef->fTournaments + tourneyInfoOffset;
-  if (0 < numCompetitors) {
-      do {
-          this->fCompetitors[i].fPoints = 0;
-          this->fCompetitors[i].fEliminated = 0;
-          this->fCompetitors[i].fIsPlayerCar = (byte)0;
-
-          this->fCompetitors[i].fPersonality =
-              (i != 0) ? (uint)tourn->fPersonalities[i + -1] : (uint)kPersonalityNemesis;
-          this->fCompetitors[i].fPosition = (i != 0) ? (uchar)i : (uchar)this->fNumRacers;
-          i = i + 1;
-      } while (i < *(int*)&this->fNumRacers);
+  this->fNumRacers = this->GetNumCompetitors();
+  tourn = this->CurrentTourney();
+  for (i = 0; i < this->fNumRacers; i++) {
+    this->fCompetitors[i].fPoints = 0;
+    this->fCompetitors[i].fEliminated = 0;
+    this->fCompetitors[i].fIsPlayerCar = 0;
+    this->fCompetitors[i].fPersonality =
+        (i != 0) ? (tPersonalities)tourn->fPersonalities[i - 1] : kPersonalityNemesis;
+    this->fCompetitors[i].fPosition = (i != 0) ? i : this->fNumRacers;
   }
-  i = 0;
-  if (tourn->fNumTracks != 0) {
-      do {
-          trackOffset = (uint)tourn->fTrackOffset;
-          trackOffset = trackOffset + i;
-          tourneyDefLocal = this->fDefinition;
-          track = tourneyDefLocal->fTracks + trackOffset;
-          fTrackOption = track->fDirection; // 0 - Disabled, 1 - Enabled, 2 - Random
-          this->fDirection[i] = fTrackOption;
-          if (1 < fTrackOption) {
-              fRandOption = rand();
-              this->fDirection[i] = (byte)fRandOption & 1;
-          }
-          fTrackOption = track->fMirrored;
-          this->fMirror[i] = fTrackOption;
-          if (1 < fTrackOption) {
-              fRandOption = rand();
-              this->fMirror[i] = (byte)fRandOption & 1;
-          }
-          fTrackOption = track->fTimeOfDay;
-          this->fTimeOfDay[i] = fTrackOption;
-          if (1 < fTrackOption) {
-              fRandOption = rand();
-              this->fTimeOfDay[i] = (byte)fRandOption & 1;
-          }
-          fTrackOption = track->fWeather;
-          this->fWeather[i] = fTrackOption;
-          if (1 < fTrackOption) {
-              trackOffset = rand();
-              this->fWeather[i] = (byte)trackOffset & 1;
-          }
-          i = i + 1;
-      } while (i < (int)(uint)tourn->fNumTracks);
+  for (i = 0; i < tourn->fNumTracks; i++) {
+    track = &this->fDefinition->fTracks[tourn->fTrackOffset + i];
+    if ((this->fDirection[i] = track->fDirection) > 1) {
+      this->fDirection[i] = rand() & 1;
+    }
+    if ((this->fMirror[i] = track->fMirrored) > 1) {
+      this->fMirror[i] = rand() & 1;
+    }
+    if ((this->fTimeOfDay[i] = track->fTimeOfDay) > 1) {
+      this->fTimeOfDay[i] = rand() & 1;
+    }
+    if ((this->fWeather[i] = track->fWeather) > 1) {
+      this->fWeather[i] = rand() & 1;
+    }
   }
-  this->fCompetitors[0].fIsPlayerCar = (byte)1;
-  return;
+  this->fCompetitors[0].fIsPlayerCar = 1;
 }
 
 

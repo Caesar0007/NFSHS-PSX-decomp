@@ -2713,8 +2713,6 @@ void tUserNameMenuItem::Draw(bool)
     short sl;
     short startx;
     short *menuStartY;
-    int columnx;
-    int row;
     int xx;
     int yy;
 
@@ -2752,8 +2750,8 @@ void tUserNameMenuItem::Draw(bool)
        kept 17, a do{}while(0) dial on the row load 10, an in-place `xx += columnx` 3,
        row loaded before columnx 3. */
     menuStartY = &MENUUSERNAME_STARTY;
-    columnx = this->fCurrentColumn * 0x1c;
-    row = this->fCurrentRow;
+    const int columnx = this->fCurrentColumn * 0x1c;
+    const int row = this->fCurrentRow;
     xx = columnx + 0x102;
     yy = *menuStartY + row * 0xf;
     if (this->fFadeVal == 0) {
@@ -2789,7 +2787,7 @@ void tUserNameMenuItem::Draw(bool)
       }
     }
   }
-  int right = x + 0x9c;
+  const int right = x + 0x9c;
   DrawShapeExtended(0x1e,8,right - (int)shape->width,y - 3,
                     (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
   PSXDrawSquare(0,x,y + -3,boxRight - shape->width,(int)shape->height);

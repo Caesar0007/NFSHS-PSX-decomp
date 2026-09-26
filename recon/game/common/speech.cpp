@@ -1195,26 +1195,18 @@ void Speech::SetDelayedStatus(Speaker *sub,int delay)
 void Speech::DispatchSpeaker::Activate(int seedupdatecount)
 
 {
-  int i;
-  /* SYM-CODEGEN-CARRIER: iVar1 -- holds the inlined virtual CallSign result,
-     then is reused for GameSetup.track.  Direct member chaining grows the
-     function from 39 to 43 instructions and changes 60 instructions. */
-  int iVar1;
-
-  iVar1 = (int)this->CallSign();
-  i = 1;
-  this->fFrom = ((CallSignBank *)iVar1)->fDispatch;
-  iVar1 = GameSetup_gData.track;
-  this->fConfirm.flags = 0xff;
-  this->fPerpName.flags = 0xf;
-  this->fSub = (Speaker *)0x0;
-  this->fReverse.flags = iVar1 & 1;
-  for (; i >= 0; i--)
+  this->SetFrom(this->CallSign()->Dispatch());
+  this->SetReverse(GameSetup_gData.track & 1);
+  this->SetConfirm(0xff);
+  this->SetPerpName(0xf);
+  this->SetSub((Speaker *)0x0);
+  for (int i = 1; i >= 0; i--) {
     this->fPerp[i] = (Car_tObj *)0x0;
+  }
   this->fStatusCount = 0x200;
   this->fStatusSub = (Speaker *)0x0;
   this->fUpdateCount = seedupdatecount;
-  this->fHavePerp = 0;
+  this->SetHavePerp(0);
 }
 
 /* ---- Dispatch__6Speech  [SPEECH.CPP:1578-1586] SLD-VERIFIED ---- */
@@ -2220,48 +2212,21 @@ void Speech::DispatchSpeaker::Accident(int slice)
 void Speech::DispatchSpeaker::Deny()
 
 {
-  /* SYM-CODEGEN-CARRIER: vs_RDBLK_SSTRP -- retaining the blockade address as
-     one pseudo gives retail's a0/v0/v1 branch-and-delay-slot layout; spelling
-     the receiver/field expression directly is count-exact but costs 10 diffs. */
-  SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_SSTRP;
-  
-  if (this->fSub != (Speaker *)0x0) {
-    Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-    /* MATCH: retail SLD line 2060 owns BOTH vtable calls AND the index scale +
-       load (one fused statement); line 2061 owns only the INTRO_CALL args, with
-       `fTo = bank[2]` written as the arg-0 assignment (oracle `sw a0,60(s1)` in the
-       jal delay slot).  Splitting the calls into iVar2/iVar3 statements and
-       storing fTo separately cost 21 diffs. [05A LAW: SLD = statement order]
-       The arg-0 term order also matters: base FIRST (`addu a0,s1,a0`). */
-    {
-      /* SYM-CODEGEN-CARRIER: bank -- this scoped computed base coalesces with
-         the first virtual result and mutates in place; the anonymous address
-         expression moves the add into the scaled temporary and loses PASS. */
-      /* MATCH: the computed base needs its OWN (block-scoped) variable -- gcc then
-         coalesces `bank` with the 1st call's result pseudo and mutates it IN PLACE
-         (oracle `addu s0,s0,v0; lw a0,8(s0)`).  As an anonymous sub-expression
-         (`*(void**)(A + B*4 + 8)`) the address lands in the scaled temp instead
-         (`addu v0,v0,s0`).  Same shape the PASSing sibling Roger uses. [3.12 #14] */
-      int *bank = (int *)((int)this->CallSign() +
-         this->fSub->Unit() * 4);
-      SPCHNFS_D_C_INTRO_CALL(this->fTo = bank[2],
-                            this->fFrom,
-                            &this->fReverse);
-    }
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    vs_RDBLK_SSTRP = &this->fSub->fBlockade;
-    /* MATCH: retail's FALL-THROUGH arm is the RDBLK one (oracle `beqz v1` +
-       `addiu a0,v0,20` in the slot); the `flags == 0` spelling puts
-       DENIED_REPLY first and flips the branch polarity. */
-    if (vs_RDBLK_SSTRP->flags != 0) {
-      SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(vs_RDBLK_SSTRP);
-    }
-    else {
-      SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY();
-    }
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    ((this->fSub)->fBlockade).flags = 0;
+  if (this->Sub() == (Speaker *)0x0) {
+    return;
   }
+  this->ClearSpeaker();
+  this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
+  SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
+  SPCH_PlaySpeech();
+  if (this->Sub()->BlockadeSlot()->flags != 0) {
+    SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(this->Sub()->BlockadeSlot());
+  }
+  else {
+    SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY();
+  }
+  SPCH_PlaySpeech();
+  this->Sub()->SetBlockade(0);
   return;
 }
 
@@ -2324,42 +2289,27 @@ void Speech::MobileSpeaker::Activate(Car_tObj *carObj)
 
 {
   Speech_tMobileVoiceAttr *a;
-  int Voice;
-  /* SYM-CODEGEN-CARRIER: iVar3 -- carries the virtual CallSign result into
-     the indexed load, then is naturally reused for GameSetup.track.  Direct
-     member chaining is two instructions shorter and changes 22 instructions. */
-  int iVar3;
-  int unit;
-  /* MATCH: as in ReActivate, branch-local fVoice assignments keep the merged voice value in
-     v0; the scoped pFrom below preserves the virtual-call result as the address-add base. */
 
   this->fCarObj = carObj;
-  Voice = Speech::GetVoice(carObj);
-  this->fUnit = Voice;
-  a = &Speech_gCopAttr[Voice];
+  this->fUnit = Speech::GetVoice(carObj);
+  a = &Speech_gCopAttr[this->fUnit];
   if ((carObj->carFlags & 0x40U) != 0) {
-    this->fUnit = Voice + 9;
-    (this->fVoice).flags = 8;
+    this->fUnit = this->fUnit + 9;
+    this->SetVoice(8);
   }
   else {
-    (this->fVoice).flags = a->voice;
+    this->SetVoice(a->voice);
   }
-  iVar3 = (int)this->CallSign();
-  {
-    unit = this->fUnit;
-    this->fFrom =
-        ((CallSignBank *)iVar3)->fMobile[unit];
-  }
-  iVar3 = GameSetup_gData.track;
-  this->fConfirm.flags = 0xff;
-  this->fPerpName.flags = 0xf;
-  this->fBlockade.flags = 0;
-  this->fArrest.flags = 0;
-  this->fUpdate.flags = 0;
-  this->fPerp = (Car_tObj *)0x0;
-  this->fSub = (Speaker *)0x0;
-  this->fHavePerp = 0;
-  this->fReverse.flags = iVar3 & 1;
+  this->SetFrom(this->CallSign()->Mobile(this->fUnit));
+  this->SetReverse(GameSetup_gData.track & 1);
+  this->SetConfirm(0xff);
+  this->SetPerpName(0xf);
+  this->SetBlockade(0);
+  this->SetArrest(0);
+  this->SetUpdate(0);
+  this->SetPerp((Car_tObj *)0x0);
+  this->SetSub((Speaker *)0x0);
+  this->SetHavePerp(0);
   return;
 }
 
@@ -2368,22 +2318,17 @@ void Speech::MobileSpeaker::ReActivate()
 
 {
   Speech_tMobileVoiceAttr *a;
-  int Voice;
-  int unit;
 
-  Voice = Speech::GetVoice(this->fCarObj);
-  this->fUnit = Voice;
-  a = &Speech_gCopAttr[Voice];
+  this->fUnit = Speech::GetVoice(this->fCarObj);
+  a = &Speech_gCopAttr[this->fUnit];
   if ((this->fCarObj->carFlags & 0x40U) != 0) {
-    this->fUnit = Voice + 9;
-    (this->fVoice).flags = 8;
+    this->fUnit = this->fUnit + 9;
+    this->SetVoice(8);
   }
   else {
-    (this->fVoice).flags = a->voice;
+    this->SetVoice(a->voice);
   }
-  unit = (int)this->CallSign();
-  this->fFrom =
-      ((CallSignBank *)unit)->fMobile[this->fUnit];
+  this->SetFrom(this->CallSign()->Mobile(this->fUnit));
 }
 
 /* ---- FindMobile__6SpeechP8Car_tObj  [SPEECH.CPP:2218-2237] SLD-VERIFIED ---- */

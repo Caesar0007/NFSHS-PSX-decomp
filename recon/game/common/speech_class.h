@@ -50,6 +50,7 @@ struct Speech {
         inline void SetDispatch(int bankid) { fDispatch = bankid; }
         inline int Dispatch() { return fDispatch; }
         inline void SetMobile(int unit, int bankid) { fMobile[unit] = bankid; }
+        inline int Mobile(int unit) { return fMobile[unit]; }
     };
 
     struct Speaker {
@@ -88,6 +89,11 @@ struct Speech {
         inline void SetTo(int to) { fTo = to; }
         inline int To() { return fTo; }
         inline int From() { return fFrom; }
+        inline void SetFrom(int from) { fFrom = from; }
+        inline void SetConfirm(int confirm) { fConfirm.flags = confirm; }
+        inline void SetPerpName(int name) { fPerpName.flags = name; }
+        inline void SetHavePerp(bool have) { fHavePerp = have; }
+        inline void SetReverse(int reverse) { fReverse.flags = reverse; }
         inline SPCHNFSType_REVINTRO *Reverse() { return &fReverse; }
         inline SPCHNFSType_POSITION *Position() { return &fPosition; }
         inline SPCHNFSType_SPIKE_BELT_SIDE *SpikeSide() { return &fSpikeSide; }
@@ -164,6 +170,7 @@ struct Speech {
            Speech inline with parameter `carObj` (Bullhorn's nested pair records carObj/$2 and the Speech this) */
         inline void MakeSpeaker();   /* defined after struct Speech so the inner Speech inline is expanded */
         inline SPCHNFSType_VOICE *Voice() { return &fVoice; }
+        inline void SetVoice(int Voice) { fVoice.flags = Voice; }
         inline void SetSpeedType(int type) { fSpeedType.flags = type; }
         inline void ClearCarObj() { fCarObj = 0; }
         Car_tObj *Perp();

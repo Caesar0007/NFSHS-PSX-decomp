@@ -211,6 +211,11 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   recorded only when its argument is a real load -- `SetBlockade(Sub()->BlockadeSlot()->flags)` records
   retail's `Blockade`, `SetBlockade(Sub()->BlockadeFlags())` does not (and a member function named like
   that parameter also suppresses it). Board 1869 -> 1873.
+- Speech round 3: `MobileSpeaker::ReActivate`, `DispatchSpeaker::Deny`, both `Activate` native CLEAN; the
+  carriers `iVar3`, `iVar1`, `unit`, `bank` and `vs_RDBLK_SSTRP` are gone. `Voice`/`unit` in retail are inline
+  parameters (`SetVoice(a->voice)`, `CallSign()->Mobile(fUnit)`), not function locals. In `Activate` the
+  `SetReverse(GameSetup_gData.track & 1)` call is written right after `SetFrom` (retail loads `track` there;
+  gcc schedules the store last). Board 1873 -> 1877.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

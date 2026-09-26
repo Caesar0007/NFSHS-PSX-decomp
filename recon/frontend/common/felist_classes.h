@@ -23,6 +23,9 @@ struct tListIterator {
     virtual short TextValue(tPlayer);
     virtual void Increment(tPlayer);
     virtual void Decrement(tPlayer);
+#ifdef NFS4_FE_LIST_SELECTION_INLINE
+    inline short Selection(int i) { return fSelectionList[i]; }
+#endif
 };
 
 struct tListIteratorIndexed : public tListIterator {

@@ -595,10 +595,10 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
              (short)((u_int)((x + 0x94) * 0x10000) >> 0x10),
              (short)(y + 3),Col,'\0',1);
-  FETextRender_FullTextRGB(TextSys_Word((int)*(this->fData)->fSelectionList),
+  FETextRender_FullTextRGB(TextSys_Word(this->fData->Selection(0)),
              (short)((u_int)((x + 0xb0) * 0x10000) >> 0x10),
              (short)(y + 3),ColTextOff,'\0',0);
-  FETextRender_FullTextRGB(TextSys_Word((int)(this->fData)->fSelectionList[1]),
+  FETextRender_FullTextRGB(TextSys_Word(this->fData->Selection(1)),
              (short)(((x - (u_int)(u_short)left->width) + 0x126) * 0x10000 >> 0x10),
              (short)(y + 3),ColTextOn,'\0',1);
   drawFlags.tint[0] =

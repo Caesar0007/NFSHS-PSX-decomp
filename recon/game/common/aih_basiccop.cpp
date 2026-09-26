@@ -207,68 +207,27 @@ static void Blockade_AddRoadFlare(coorddef *pos)
 /* ---- Blockade_AddObject__FiP8coorddefi  Blockade_AddObject  [AIH_BASICCOP.CPP:134-193] SLD-VERIFIED ---- */
 
 static void Blockade_AddObject(int slice,coorddef *pos,int objectID)
-
-
-
 {
   SceneElem theObj;
-
   BWorldSm_Pos slicePos;
-
-  coorddef *roty;
-
-  coorddef *rotz;
-
-  coorddef *rotx;
-
-  /* H22-a12: rotx/roty/rotz are NOT separate stack locals -- they're pointers straight into
-     theObj.orient's 3 rows (matrixtdef.m[0..2]/[3..5]/[6..8], each a coorddef-shaped row). The
-     oracle builds the object's rotation matrix IN PLACE inside theObj (orient sits at SceneElem
-     +0x20, right after cp; the address arithmetic 0x30/0x3C/0x48 in the raw is exactly
-     &theObj+0x20/0x2C/0x38) -- so orient is NOT left uninitialized (prior comment was wrong): it's
-     row1=UNormal, row2=UForward, row0=row1 x row2 (cross product), then transposed in place. */
+  coorddef *rotx = (coorddef *)&theObj.orient.m[0];
+  coorddef *roty = (coorddef *)&theObj.orient.m[3];
+  coorddef *rotz = (coorddef *)&theObj.orient.m[6];
   theObj.type = 0;
-
   theObj.subType = 1;
-
   theObj.scalar1 = Object_GetObjDefID(objectID);
-
   theObj.scalar2 = 0x23916;
-
   theObj.cp = *pos;
-
   theObj.subTypeIndex = objectID;
-
   BWorldSm_SetSlice(slice,&slicePos);
-
   BWorldSm_FindClosestQuadRez(pos,&slicePos,1);
-
-  roty = BWorldSm_UNormal(&slicePos);
-
-  *(coorddef *)&theObj.orient.m[3] = *roty;
-
-  rotz = BWorldSm_UForward(&slicePos);
-
-  *(coorddef *)&theObj.orient.m[6] = *rotz;
-
-  roty = (coorddef *)&theObj.orient.m[3];
-
-  rotz = (coorddef *)&theObj.orient.m[6];
-
-  rotx = (coorddef *)&theObj.orient.m[0];
-
+  *roty = *(coorddef *)BWorldSm_UNormal(&slicePos);
+  *rotz = *(coorddef *)BWorldSm_UForward(&slicePos);
   rotx->x = fixedmult(roty->y,rotz->z) - fixedmult(roty->z,rotz->y);
-
   rotx->y = fixedmult(roty->z,rotz->x) - fixedmult(roty->x,rotz->z);
-
   rotx->z = fixedmult(roty->x,rotz->y) - fixedmult(roty->y,rotz->x);
-
   transpose((matrixtdef *)rotx,(matrixtdef *)rotx);
-
   Object_AddCustomObject(&theObj,1);
-
-  return;
-
 }
 
 

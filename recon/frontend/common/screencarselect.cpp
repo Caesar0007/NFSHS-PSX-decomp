@@ -1021,34 +1021,16 @@ void tScreenCarSelect::DrawBackground()
 
 /* ---- tScreenCarSelect::DrawSliders  [SCREENCARSELECT.CPP:1002-1011] ---- */
 void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
-
 {
-  /* MATCH/SYM: the caller's own local is only short j ($s2).  The repeated
-     nested `carStat`, pointer `carInfo`, and `result` records belong to the
-     inlined CarStatValue body reconstructed above.  Ghidra's
-     bVar1/tVar2/value/iVar3/sVar4 were fabricated; the extra
-     sign-extended copy of `y` they induced cost an 8th saved reg ($s7).
-     Loop is EXIT-IN-THE-MIDDLE (oracle: top test + unconditional `j` back
-     edge at .L8003C6B4) -- a `for` rotates it. */
   short j;
 
-  j = 0;
-  while (true) {
-    if (4 < j) break;
-    /* MATCH: the (short) cast must sit on the SUM -- `y + 4` alone makes gcc
-       materialize a sign-extended copy of y in its own saved reg (an 8th
-       callee-save + 8 bytes of frame); the oracle extends AFTER the add. */
+  for (j = 0; j < 5; j++) {
     FETextRender_MenuTextPositioned(textVals[j],x,(short)(y + 4),textState_Unselected,
                                     textType_Default);
-    /* SYM-INLINE-LOCAL: carStat = CarStatValue
-       SYM-INLINE-LOCAL: carInfo = CarStatValue
-       SYM-INLINE-LOCAL: result = CarStatValue */
     DrawSlider(CarStatValue(remap[j],&carInfo),0,0xb,x,y,0x68,3,7,3,
                false,0,0x80,0);
     y = y + 0xf;
-    j = j + 1;
   }
-  return;
 }
 
 
@@ -1760,10 +1742,8 @@ void tScreenCarSelectDuel::DrawForeground()
   
   y = 0x2d;
   validCar = this->GetCar(carInfo);
-  i = 0;
-  while (i < 2) {
-    j = 0;
-    while (j < 5) {
+  for (i = 0; i < 2; i++) {
+    for (j = 0; j < 5; j++) {
       FETextRender_MenuTextPositionedJustify(text2PVals[j],500,y + 4,1,
           textState_Unselected,textType_ScreenInfo);
       /* SYM-INLINE-LOCAL: carStat = CarStatValue
@@ -1772,11 +1752,9 @@ void tScreenCarSelectDuel::DrawForeground()
       DrawSlider((validCar != 0) ? CarStatValue(remap[j],&carInfo) : 0,
                  0,0xb,0x1a1,y,0x49,3,4,3,true,0,0x80,0);
       y = y + 0xf;
-      j = j + 1;
     }
     y = 0x96;
     carManager.GetStockCar((ushort)(byte)frontEnd.oppCar,carInfo);
-    i = i + 1;
   }
   return;
 }
@@ -2150,9 +2128,7 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
            (menuDefs->itemColorP2).fFlags | 1;
     }
   }
-  j = 0;
-  while (true) {
-    if (4 < j) break;
+  for (j = 0; j < 5; j++) {
     FETextRender_MenuTextPositionedJustify(text2PVals[j],500,(short)(yOffset + 4),1,
                                            textState_Unselected,textType_Default);
     /* SYM-INLINE-LOCAL: carStat = CarStatValue
@@ -2165,7 +2141,6 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
                0,0xb,0x1a1,yOffset,0x49,3,4,3,
                true,0,0x80,0);
     yOffset = yOffset + 0xf;
-    j = j + 1;
   }
   return;
 }

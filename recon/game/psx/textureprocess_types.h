@@ -12,40 +12,40 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-struct CHorizonSpec {
-    int mirror, angle, yoffset, height;
-    CVECTOR frontColor[2], backColor[2];
-    char ringPMX[16];
-};
+#include "shared/CHorizonSpec.h"
 
-struct CSkySpec {
-    int type, flags;
-    CVECTOR frontcolors[5], backcolors[5], clearcolor;
-    int sunAngleInSky, sunHeightInSky, moonAngleInSky, moonHeightInSky;
-    int numStars, starAngleLow, starAngleHigh, starBrightMin, starBrightMax;
-    CVECTOR starBaseColor;
-    int starRandomSeed;
-    CVECTOR sunBeamColor, sunHaloColor;
-    int yoffset;
-    char cloudIndices[5][4];
-    int ringAngles[5];
-};
+
+
+
+
+#include "shared/CSkySpec.h"
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/CNightSpec.h"
-struct CWeatherSpec { int type, intensity_limit; };
-struct CFogSpec { int contrast; CVECTOR color; int start, dist2base; };
+#include "shared/CWeatherSpec.h"
+#include "shared/CFogSpec.h"
 #include "shared/CDepthCueSpec.h"
-struct CWorldColor {
-    int contrast;
-    CVECTOR contrast_color;
-    short worldR, worldG, worldB, type;
-};
+#include "shared/CWorldColor.h"
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+
+
+
+
+#include "shared/kernpair.h"
+
+
+
+
 typedef kernpair KERN;
 typedef int (*getcode)();
 typedef void (*adjustchar)();

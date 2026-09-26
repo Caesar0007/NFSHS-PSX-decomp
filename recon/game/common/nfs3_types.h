@@ -38,10 +38,10 @@ typedef enum tTrackClassType {
 
 struct tNfsSystemInfo { int userRam; };
 
-struct Sim_tSimSystemVar {
-    int restartGame, endSimGame, pauseSim, keyRelease;
-    int quickPauseSim, goalClockTicks, currentClockTicks;
-};
+#include "shared/Sim_tSimSystemVar.h"
+
+
+
 
 struct tListIteratorIndexed : public tListIterator { char *fIndex; };
 

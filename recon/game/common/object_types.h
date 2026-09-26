@@ -52,13 +52,13 @@ struct AnimScript {
 #include "shared/AnimDef.h"
 
 #include "shared/DRender_tView.h"
-struct Draw_DCache {
-    Draw_tCacheHeader head;
-    MATRIX matB, matNight, matCop, identMat;
-    int otz;
-    VECTOR tVn0, tVn1, tVn2, tVn3;
-    short light, doublelayer;
-};
+#include "shared/Draw_DCache.h"
+
+
+
+
+
+
 
 struct Chunk {
     RelCoord16 boundPts[4], chunkboundPts[4];

@@ -14,12 +14,12 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-struct BW_tContext {
-    int client;
-    BWorldSm_Pos slicePos;
-    int currentChunk, chunkFarZClipSq, polyFarZClipSq, lowDetailDistSq;
-    int lineFarZClipSq;
-};
+#include "shared/BW_tContext.h"
+
+
+
+
+
 
 struct AIHigh_Cop : public AIHigh_BasicCop {
     AIHigh_Player *perpTarget_;
@@ -83,22 +83,22 @@ struct Speech {
 };
 
 /* Canonical foreign aggregates used by this translation unit. */
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
-    int Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/Sim_tSimGlobalVar.h"
 
 

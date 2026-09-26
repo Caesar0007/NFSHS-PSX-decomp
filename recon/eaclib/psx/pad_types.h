@@ -22,10 +22,10 @@ typedef unsigned short ushort;
 
 
 
-struct EXEC {
-    u_long pc0, gp0, t_addr, t_size, d_addr, d_size;
-    u_long b_addr, b_size, s_addr, s_size, sp, fp, gp, ret, base;
-};
+#include "shared/EXEC.h"
+
+
+
 
 struct DIRENTRY {
     u_char name[20];

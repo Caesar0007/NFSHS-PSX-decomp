@@ -6,20 +6,20 @@
 
 #include "shared/SndBnk_t.h"
 
-struct SNDSYSCAP {
-    u_short outputratemin, outputratemax;
-    u_char outputchannelsmin, outputchannelsmax, inputvoicesmax;
-    u_char input3dvoicesmax, eax, voicemanager;
-    char pad[2];
-};
+#include "shared/SNDSYSCAP.h"
 
-struct SNDSYSSET {
-    u_short maxbanks, outputrate;
-    u_char outputchannels, inputvoices, useeax, use3dacceleration, use3dmixing;
-    char pad;
-    u_short emulationsubtype;
-    u_short spkrcfg3d[4][4];
-};
+
+
+
+
+
+#include "shared/SNDSYSSET.h"
+
+
+
+
+
+
 
 #include "shared/SNDSYSVEC.h"
 

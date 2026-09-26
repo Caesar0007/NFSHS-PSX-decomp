@@ -6,19 +6,19 @@
 #include "nfs4_types.h"
 #undef NFS4_PSYQ_WCHAR_TYPE
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef struct kernpair KERN;
 
-struct charactertbl {
-    u_char index[2];
-    u_char width, height;
-    u_char u[2], v[2];
-    char advance, xoffset, yoffset;
-};
+#include "shared/charactertbl.h"
+
+
+
+
+
 typedef struct charactertbl FONTFILECHAR;
 
 typedef void (*fontblit)();

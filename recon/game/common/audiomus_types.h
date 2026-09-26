@@ -20,20 +20,20 @@
 
 
 
-struct SNDSYSCAP {
-    u_short outputratemin, outputratemax;
-    u_char outputchannelsmin, outputchannelsmax, inputvoicesmax,
-           input3dvoicesmax, eax, voicemanager;
-    char pad[2];
-};
+#include "shared/SNDSYSCAP.h"
 
-struct SNDSYSSET {
-    u_short maxbanks, outputrate;
-    u_char outputchannels, inputvoices, useeax, use3dacceleration, use3dmixing;
-    char pad;
-    u_short emulationsubtype;
-    u_short spkrcfg3d[4][4];
-};
+
+
+
+
+
+#include "shared/SNDSYSSET.h"
+
+
+
+
+
+
 
 #include "shared/SNDSYSVEC.h"
 
@@ -56,10 +56,10 @@ struct SNDLIMITS {
 };
 
 #include "shared/TCB.h"
-struct EXEC {
-    u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
-    u_long s_addr, s_size, sp, fp, gp, ret, base;
-};
+#include "shared/EXEC.h"
+
+
+
 struct DIRENTRY {
     char name[20];
     long attr, size;

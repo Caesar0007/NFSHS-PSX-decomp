@@ -7,16 +7,16 @@
 #include "group_types.h"
 
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
-struct POLY_GT4 {
-    u_long tag;
-    u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
-    u_char r1, g1, b1, p1; short x1, y1; u_char u1, v1; u_short tpage;
-    u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
-    u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
-};
+#include "shared/POLY_GT4.h"
+
+
+
+
+
+
 #endif
 
-struct CCOORD16 { short x, y, z, light; };
+#include "shared/CCOORD16.h"
 
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 #include "shared/DRender_tView.h"
@@ -55,11 +55,11 @@ struct CCOORD16 { short x, y, z, light; };
 
 
 #include "shared/Trk_Quad.h"
-struct Trk_NewStrip { u_char topVert, botVert; char quadCount, size; };
+#include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
-struct Trk_NewSimSlice {
-    u_char stripIndex, quadCount, simquadIndex, simquadCount, simquadStartIndex;
-};
+#include "shared/Trk_NewSimSlice.h"
+
+
 
 #include "shared/Trk_SimObject.h"
 
@@ -67,7 +67,7 @@ struct Trk_NewSimSlice {
 
 
 
-struct RelCoord16 { short x, z; };
+#include "shared/RelCoord16.h"
 
 struct Chunk {
     RelCoord16 boundPts[4], chunkboundPts[4];
@@ -83,15 +83,15 @@ struct Chunk {
     void InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem);
 };
 
-struct Track_tArtresource {
-    int id;
-    char *shapeFile;
-    int shapeCount;
-    Draw_tPixMap *pPmx;
-    int pmxCount, basePmxCount;
-};
+#include "shared/Track_tArtresource.h"
 
-struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
+
+
+
+
+
+
+#include "shared/Track_tMaterial.h"
 #include "shared/tSaveSurface.h"
 
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
@@ -102,11 +102,11 @@ struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
 
 
-struct Skidmark_Chunk {
-    coorddef cp;
-    short n, slice;
-    Skidmark_Segment seg[24];
-};
+#include "shared/Skidmark_Chunk.h"
+
+
+
+
 #endif
 
 struct AnimScript {
@@ -114,59 +114,59 @@ struct AnimScript {
     Trk_AnimateInst **inst;
 };
 
-struct BWorldSm_Pos {
-    short slice, stripQuadInd, simRotFlag;
-    coorddef quadPts[4];
-    CCOORD16 quadPts16[4];
-    char sliceChanged, quadChanged, offEdge, triangleFlag;
-    coorddef normal, forward;
-    char quad;
-    u_char chunk;
-    char lastRezRequested, rez;
-    Trk_NewSimQuad *simQuad;
-    Trk_NewStrip *strip;
-    Trk_NewSimSlice *simSlice;
-};
+#include "shared/BWorldSm_Pos.h"
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct BO_tNewtonObj;
-struct BO_tNewtonCollisionInfo {
-    int collided, impulse;
-    BO_tNewtonObj *otherObj;
-    int sfxType, disableCollisionTimer;
-    coorddef collisionPoint;
-    int lastCollision;
-    BO_tNewtonObj *lastOtherObj;
-    int lastImpulse, lastTime;
-};
+#include "shared/BO_tNewtonCollisionInfo.h"
 
-struct BO_tNewtonObj {
-    int objID;
-    u_short oldSlice, totalSlice;
-    BWorldSm_Pos simRoadInfo;
-    int distToPlayer;
-    u_char simOptz, active, reOrthoCounter;
-    int gravityMult, cumulatedRot, lastUpdated;
-    coorddef position, linearVel;
-    int mass, massInv, speedXZ, xRelRoadCenter;
-    short positionXZ, eIndexEnvMap, eIndexShadow;
-    int wheelRot[2];
-    int wheelFrontX, wheelFrontZ, wheelBackX, wheelBackZ, wheelWidthF, wheelWidthB;
-    matrixtdef orientMat;
-    coorddef angularVel;
-    int moInertia, moInertiaInv;
-    coorddef orientationToGround, dimension;
-    int dimensionRadius;
-    matrixtdef roadMatrix;
-    coorddef roadCenterPoint;
-    int roadGravityModifier, roadYaw;
-    u_short flightTime, deadTimer;
-    int groundElevation, groundVel, objAltitude;
-    BO_tNewtonCollisionInfo collision;
-    int groundSurfaceType, driveSurfaceType;
-    matrixtdef shadowMat;
-    coorddef shadowCoord[4];
-    int damage[10];
-};
+
+
+
+
+
+
+
+
+#include "shared/BO_tNewtonObj.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/SceneElem.h"
 

@@ -6,6 +6,9 @@ replace every copy with `#include "shared/<Name>.h"` at the same position, padde
 keeps its line count (later inline functions keep their line numbers).  Each translation unit therefore sees
 the same token stream in the same order, so its object bytes and its SYM type block cannot change; the only
 effect is that each type has one definition.  Types whose copies differ are listed, not touched.
+--canon also accepts copies that differ only in spelling (tools/psyq_pipe/type_canon.py: same members, member types
+and order); an alias-free spelling (unsigned short, not u_short) becomes the definition when one exists, since the
+aliases are not yet typedef'd everywhere a copy stood; otherwise the most common spelling.
 
 Classes with inline member-function bodies are skipped: the code they emit carries the defining file in its line
 records, so they belong in their retail module header.
@@ -93,10 +96,24 @@ def main():
         for d in defs:
             per[d['name']].append((f, d))
     eligible, differing, inline_bodies = [], [], []
+    canon_mode = '--canon' in sys.argv
+    if canon_mode:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import type_canon
     for name, v in per.items():
         if len(v) < min_copies or (only and name not in only):
             continue
-        if len({d['norm'] for _, d in v}) == 1:
+        same = len({d['norm'] for _, d in v}) == 1
+        if not same and canon_mode and len({type_canon.canon(d['text']) for _, d in v}) == 1:
+            # same members, types and order in every copy, spelled differently.  The definition keeps a spelling
+            # without the SYS/TYPES.H aliases when one exists: some headers define the type before u_short & co.
+            # are typedef'd, and cc1 then silently drops those members (font_obj_types.h: kernpair shrank 8 -> 4).
+            # Among equals the most common spelling wins.
+            freq = collections.Counter(d['norm'] for _, d in v)
+            alias = re.compile(r'\b(u_char|u_short|u_int|u_long|ushort)\b')
+            v.sort(key=lambda fd: (bool(alias.search(fd[1]['norm'])), -freq[fd[1]['norm']]))
+            same = True
+        if same:
             # classes with inline member-function bodies emit code whose line records name the defining file:
             # they belong in their retail module header (AIHIGH.H, SPEECH.H, ...), not in a per-type file
             # (also any derived or virtual class: its compiler-generated members -- implicit destructors etc. -- carry

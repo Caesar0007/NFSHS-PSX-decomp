@@ -13,13 +13,13 @@
 #define Render_gPacketPtr (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
-struct POLY_GT4 {
-    u_long tag;
-    u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
-    u_char r1, g1, b1, p1; short x1, y1; u_char u1, v1; u_short tpage;
-    u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
-    u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
-};
+#include "shared/POLY_GT4.h"
+
+
+
+
+
+
 
 struct tTexture_ShapeInfo {
     shapetbl *shpptr;
@@ -151,52 +151,52 @@ struct tCarManager {
     short fCarTextList[49];
 };
 
-struct tfrontEnd {
-    short randomSeed;
-    char currentPlayer, gameMode, raceType, style, skillLevel, catchup;
-    char ghostcar, tractionassist, bestline;
-    short pinkSlipsWinner[5];
-    char timeOfDay[5], weather[5];
-    char fog, localSpeech, opponentUpgrades;
-    char track[5];
-    int recordlaptime;
-    char laps;
-    char lapind[5], trackdirection[5], trackmirrored[5], traffic[5];
-    char situations[5];
-    char pinkSlipsTrackIndex, pinkSlipsNumTracks, pinkSlipsWins[2];
-    long pinkSlipsCash[2];
-    short cheatFlags, cheatFlagsActive, secretFlags, pinkSlipsForfeit;
-    char playerCar[2], transmission[2];
-    char carColors[2][48], carCountry[2][48];
-    char tournament, specialevent, tier;
-    char garageCar[2], pinkSlipsCar[2];
-    char upgrade, dealerCar, sellerCar, carListType;
-    char policeTier, policeMission, congratsCopCar, congratsCopCountry;
-    short settingsActive[2];
-    char steeringSensitivity[2][48], tireType[2][48], suspension[2][48];
-    char carDownforce[2][48], engineTuning[2][48];
-    char ABS[2], damage, rampSteer[2], rampGas[2], rampBrake[2];
-    char oppCar, oppNumber, measurement;
-    char displaySpeed[2], displayTach[2], displayMap[2];
-    char displayOpponentID[2], displayTime[2], displayPosition[2];
-    char displayLapNumber[2], displayMirror[2];
-    char cameraType[2][4], cameraSway[2][4];
-    char language, musicVolume, sfxVolume, narrationVolume, engineVolume;
-    char ambientVolume, audioMode, song, sensitivity;
-    char steeringRange[2], deadSpot[2], ImaxRange[2], IImaxRange[2];
-    char J1MAX[2], J1MIN[2], J2MAX[2], J2MIN[2];
-    char shockMode[2], shockImpact[2];
-    short controlType[2];
-    char controlConfig[2];
-    char playerNameList[2][8], allUpperCasedPlayerNameList[2][8];
-    char licensePlate[2][8];
-    char headstart, numBTracksActivated, checkPointType;
-    char checkPointDisplay[2], defaultedPlayerName[2];
-    bool FEPlayList[40];
-    u_long gPinkSlipsNoCheat[2];
-    bool GotAPlayList;
-    bool AnalogOn[2];
-};
+#include "shared/tfrontEnd.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Canonical hudpmx.obj aggregate used by this translation unit. */
 #include "shared/HudPmx_tShape.h"

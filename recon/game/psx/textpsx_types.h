@@ -22,11 +22,11 @@ typedef struct linedef LINE;
 
 typedef struct SHAPETABLEENTRY SHAPETABLEENTRY;
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef struct kernpair KERN;
 
 typedef void *va_list;

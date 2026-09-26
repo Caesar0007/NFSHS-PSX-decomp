@@ -14,23 +14,23 @@ struct LINE_F2 {
     short x0, y0, x1, y1;
 };
 
-struct POLY_G4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0;
-    u_char r1, g1, b1, pad1;
-    short x1, y1;
-    u_char r2, g2, b2, pad2;
-    short x2, y2;
-    u_char r3, g3, b3, pad3;
-    short x3, y3;
-};
+#include "shared/POLY_G4.h"
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+
+
+
+
+
+
+
+
+
+
+#include "shared/kernpair.h"
+
+
+
+
 
 #include "shared/tActiveLine.h"
 

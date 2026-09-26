@@ -27,11 +27,11 @@ struct tMenuCommand;
 typedef short tArrowLocation[6];
 typedef short tTextLocation[5];
 
-struct FLARE_PIECE_DEF {
-    int distance, size;
-    CVECTOR color;
-    char type;
-};
+#include "shared/FLARE_PIECE_DEF.h"
+
+
+
+
 
 #include "shared/Force_tGlobal.h"
 

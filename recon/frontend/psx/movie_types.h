@@ -34,11 +34,11 @@ typedef struct DIRENTRY {
     char system[4];
 } DIRENTRY;
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef struct kernpair kernpair;
 typedef struct kernpair KERN;
 

@@ -31,11 +31,11 @@ enum tMenuCommandType {
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
 
-struct POLY_F4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0, x1, y1, x2, y2, x3, y3;
-};
+#include "shared/POLY_F4.h"
+
+
+
+
 
 #include "shared/tShapeInformation.h"
 

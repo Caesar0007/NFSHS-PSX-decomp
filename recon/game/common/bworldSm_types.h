@@ -25,15 +25,15 @@ struct Chunk {
     Group *vertexBuf;
 };
 
-struct BW_tContext {
-    int client;
-    BWorldSm_Pos slicePos;
-    int currentChunk;
-    int chunkFarZClipSq;
-    int polyFarZClipSq;
-    int lowDetailDistSq;
-    int lineFarZClipSq;
-};
+#include "shared/BW_tContext.h"
+
+
+
+
+
+
+
+
 
 struct tNormalCacheEntry {
     short sliceInd;

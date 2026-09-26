@@ -6,28 +6,28 @@
 #include "../common/draw_leaf_types.h"
 
 /* Canonical GameSetup_gData aggregate used by this translation unit. */
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
-    int Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include "shared/TCB.h"
-struct EXEC {
-    u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
-    u_long s_addr, s_size, sp, fp, gp, ret, base;
-};
+#include "shared/EXEC.h"
+
+
+
 struct DIRENTRY {
     char name[20];
     long attr, size;
@@ -36,7 +36,7 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct CCOORD16 { short x, y, z, light; };
+#include "shared/CCOORD16.h"
 
 #include "shared/DRender_tView.h"
 
@@ -44,12 +44,12 @@ struct CCOORD16 { short x, y, z, light; };
 
 
 #include "shared/Trk_Quad.h"
-struct Trk_NewStrip { u_char topVert, botVert; char quadCount, size; };
+#include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
-struct Trk_NewSimSlice {
-    u_char stripIndex, quadCount, simquadIndex, simquadCount, simquadStartIndex;
-};
-struct RelCoord16 { short x, z; };
+#include "shared/Trk_NewSimSlice.h"
+
+
+#include "shared/RelCoord16.h"
 
 struct Group {
     int m_num_elements;
@@ -59,87 +59,87 @@ struct Group {
 
 #include "shared/tSaveSurface.h"
 
-struct BWorldSm_Pos {
-    short slice, stripQuadInd, simRotFlag;
-    coorddef quadPts[4];
-    CCOORD16 quadPts16[4];
-    char sliceChanged, quadChanged, offEdge, triangleFlag;
-    coorddef normal, forward;
-    char quad;
-    u_char chunk;
-    char lastRezRequested, rez;
-    Trk_NewSimQuad *simQuad;
-    Trk_NewStrip *strip;
-    Trk_NewSimSlice *simSlice;
-};
+#include "shared/BWorldSm_Pos.h"
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct BO_tNewtonObj;
-struct BO_tNewtonCollisionInfo {
-    int collided, impulse;
-    BO_tNewtonObj *otherObj;
-    int sfxType, disableCollisionTimer;
-    coorddef collisionPoint;
-    int lastCollision;
-    BO_tNewtonObj *lastOtherObj;
-    int lastImpulse, lastTime;
-};
+#include "shared/BO_tNewtonCollisionInfo.h"
 
-struct BO_tNewtonObj {
-    int objID;
-    u_short oldSlice, totalSlice;
-    BWorldSm_Pos simRoadInfo;
-    int distToPlayer;
-    u_char simOptz, active, reOrthoCounter;
-    int gravityMult, cumulatedRot, lastUpdated;
-    coorddef position, linearVel;
-    int mass, massInv, speedXZ, xRelRoadCenter;
-    short positionXZ, eIndexEnvMap, eIndexShadow;
-    int wheelRot[2];
-    int wheelFrontX, wheelFrontZ, wheelBackX, wheelBackZ, wheelWidthF, wheelWidthB;
-    matrixtdef orientMat;
-    coorddef angularVel;
-    int moInertia, moInertiaInv;
-    coorddef orientationToGround, dimension;
-    int dimensionRadius;
-    matrixtdef roadMatrix;
-    coorddef roadCenterPoint;
-    int roadGravityModifier, roadYaw;
-    u_short flightTime, deadTimer;
-    int groundElevation, groundVel, objAltitude;
-    BO_tNewtonCollisionInfo collision;
-    int groundSurfaceType, driveSurfaceType;
-    matrixtdef shadowMat;
-    coorddef shadowCoord[4];
-    int damage[10];
-};
 
-struct CHorizonSpec {
-    int mirror, angle, yoffset, height;
-    CVECTOR frontColor[2], backColor[2];
-    char ringPMX[16];
-};
-struct CSkySpec {
-    int type, flags;
-    CVECTOR frontcolors[5], backcolors[5];
-    CVECTOR clearcolor;
-    int sunAngleInSky, sunHeightInSky, moonAngleInSky, moonHeightInSky;
-    int numStars, starAngleLow, starAngleHigh, starBrightMin, starBrightMax;
-    CVECTOR starBaseColor;
-    int starRandomSeed;
-    CVECTOR sunBeamColor, sunHaloColor;
-    int yoffset;
-    char cloudIndices[5][4];
-    int ringAngles[5];
-};
+
+
+
+
+
+
+
+#include "shared/BO_tNewtonObj.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/CHorizonSpec.h"
+
+
+
+
+#include "shared/CSkySpec.h"
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/CNightSpec.h"
-struct CWeatherSpec { int type, intensity_limit; };
-struct CFogSpec { int contrast; CVECTOR color; int start, dist2base; };
+#include "shared/CWeatherSpec.h"
+#include "shared/CFogSpec.h"
 #include "shared/CDepthCueSpec.h"
-struct CWorldColor {
-    int contrast;
-    CVECTOR contrast_color;
-    short worldR, worldG, worldB, type;
-};
+#include "shared/CWorldColor.h"
+
+
+
+
 
 #include "shared/CTrackSpec.h"
 
@@ -169,34 +169,34 @@ typedef void (*Sched_tFunctionPt)(void *);
 
 
 
-struct POLY_F4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0, x1, y1, x2, y2, x3, y3;
-};
-struct POLY_FT4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0;
-    u_char u0, v0;
-    u_short clut;
-    short x1, y1;
-    u_char u1, v1;
-    u_short tpage;
-    short x2, y2;
-    u_char u2, v2;
-    u_short pad1;
-    short x3, y3;
-    u_char u3, v3;
-    u_short pad2;
-};
-struct LINE_G2 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0;
-    u_char r1, g1, b1, p1;
-    short x1, y1;
-};
+#include "shared/POLY_F4.h"
+
+
+
+
+#include "shared/POLY_FT4.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/LINE_G2.h"
+
+
+
+
+
+
 
 struct Weather_tSys {
     int num[2];
@@ -245,11 +245,11 @@ typedef enum forceFocus_t {
 
 
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef kernpair KERN;
 
 typedef void Trk_Chunk;

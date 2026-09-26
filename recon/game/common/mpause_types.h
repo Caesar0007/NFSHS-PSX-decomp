@@ -41,22 +41,22 @@ typedef enum tInputKeyType {
 } tInputKeyType;
 
 /* Canonical gmesetup.obj aggregate used by the pause-menu source. */
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
-    int Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* unconditional since 2026-09-19: the iterator VIRTUALS take a tPlayer, so every TU that sees the classes needs it */
 typedef enum tPlayer {
@@ -66,19 +66,19 @@ typedef enum tPlayer {
 } tPlayer;
 
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
-struct SNDSYSCAP {
-    u_short outputratemin, outputratemax;
-    u_char outputchannelsmin, outputchannelsmax, inputvoicesmax;
-    u_char input3dvoicesmax, eax, voicemanager;
-    char pad[2];
-};
-struct SNDSYSSET {
-    u_short maxbanks, outputrate;
-    u_char outputchannels, inputvoices, useeax, use3dacceleration, use3dmixing;
-    char pad;
-    u_short emulationsubtype;
-    u_short spkrcfg3d[4][4];
-};
+#include "shared/SNDSYSCAP.h"
+
+
+
+
+
+#include "shared/SNDSYSSET.h"
+
+
+
+
+
+
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
 #endif
@@ -244,7 +244,7 @@ struct tPauseMenuDefs {
 };
 #endif
 
-struct kernpair { u_short previouscode, code; char kernvalue; char pad[3]; };
+#include "shared/kernpair.h"
 typedef kernpair KERN;
 typedef void (*fontblit)();
 typedef int (*getcode)();

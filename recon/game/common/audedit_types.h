@@ -78,11 +78,11 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
 
 #include "shared/CAudioList.h"
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef kernpair KERN;
 
 typedef void (*fontblit)();

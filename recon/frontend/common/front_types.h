@@ -35,15 +35,15 @@ enum crimeType {
     CRIME_SMASHCOP = 4
 };
 
-struct copLevel_t {
-    int copChasers[2];
-    int numBlockaders;
-    int copBlockaders[2];
-    int spikeBelt;
-    int copAggression[2];
-    int copsPerLap, engagementLapFraction, warningTicks, beatingTicks;
-    int numWarningsAdded;
-};
+#include "shared/copLevel_t.h"
+
+
+
+
+
+
+
+
 
 #include "shared/copGame_t.h"
 

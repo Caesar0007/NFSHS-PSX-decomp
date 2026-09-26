@@ -21,11 +21,11 @@ struct tTexture_ShapeInfo {
     u_short tpage, clut;
 };
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef struct kernpair KERN;
 
 typedef void (*fontblit)();

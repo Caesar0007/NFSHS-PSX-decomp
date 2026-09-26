@@ -19,12 +19,12 @@
 
 
 
-struct charactertbl {
-    u_char index[2];
-    u_char width, height;
-    u_char u[2], v[2];
-    char advance, xoffset, yoffset;
-};
+#include "shared/charactertbl.h"
+
+
+
+
+
 
 struct DR_OFFSET {
     u_long tag;
@@ -35,76 +35,76 @@ struct DR_OFFSET {
 
 
 
-struct POLY_F4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0, x1, y1, x2, y2, x3, y3;
-};
+#include "shared/POLY_F4.h"
 
-struct POLY_FT4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0;
-    u_char u0, v0;
-    u_short clut;
-    short x1, y1;
-    u_char u1, v1;
-    u_short tpage;
-    short x2, y2;
-    u_char u2, v2;
-    u_short pad1;
-    short x3, y3;
-    u_char u3, v3;
-    u_short pad2;
-};
 
-struct POLY_G4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0;
-    u_char r1, g1, b1, pad1;
-    short x1, y1;
-    u_char r2, g2, b2, pad2;
-    short x2, y2;
-    u_char r3, g3, b3, pad3;
-    short x3, y3;
-};
 
-struct POLY_GT4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0;
-    u_char u0, v0;
-    u_short clut;
-    u_char r1, g1, b1, p1;
-    short x1, y1;
-    u_char u1, v1;
-    u_short tpage;
-    u_char r2, g2, b2, p2;
-    short x2, y2;
-    u_char u2, v2;
-    u_short pad2;
-    u_char r3, g3, b3, p3;
-    short x3, y3;
-    u_char u3, v3;
-    u_short pad3;
-};
 
-struct SNDSYSCAP {
-    u_short outputratemin, outputratemax;
-    u_char outputchannelsmin, outputchannelsmax;
-    u_char inputvoicesmax, input3dvoicesmax, eax, voicemanager;
-    char pad[2];
-};
 
-struct SNDSYSSET {
-    u_short maxbanks, outputrate;
-    u_char outputchannels, inputvoices, useeax;
-    u_char use3dacceleration, use3dmixing;
-    char pad;
-    u_short emulationsubtype;
-    u_short spkrcfg3d[4][4];
-};
+#include "shared/POLY_FT4.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/POLY_G4.h"
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/POLY_GT4.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/SNDSYSCAP.h"
+
+
+
+
+
+
+#include "shared/SNDSYSSET.h"
+
+
+
+
+
+
+
 
 #include "shared/SNDSYSVEC.h"
 

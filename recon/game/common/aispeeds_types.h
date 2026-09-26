@@ -81,11 +81,11 @@ struct AIPhysic_BrakeInfo {
 
 
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef kernpair KERN;
 
 struct AISpeeds_Upgrade_t { int accMult, brakeMult, handlingMult, topSpeedMult; };

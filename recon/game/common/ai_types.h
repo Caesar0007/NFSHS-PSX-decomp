@@ -13,22 +13,22 @@
 
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
-    int Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #define RaceType_HotPursuit 1
 
@@ -95,11 +95,11 @@ struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
 
 
 
-struct BW_tContext {
-    int client;
-    BWorldSm_Pos slicePos;
-    int currentChunk, chunkFarZClipSq, polyFarZClipSq, lowDetailDistSq, lineFarZClipSq;
-};
+#include "shared/BW_tContext.h"
+
+
+
+
 
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;

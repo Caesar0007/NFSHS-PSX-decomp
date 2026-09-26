@@ -6,39 +6,39 @@
 #include "chunk_types.h"
 #undef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 
-struct BW_tContext {
-    int client;
-    BWorldSm_Pos slicePos;
-    int currentChunk, chunkFarZClipSq, polyFarZClipSq;
-    int lowDetailDistSq, lineFarZClipSq;
-};
+#include "shared/BW_tContext.h"
 
-struct CHorizonSpec {
-    int mirror, angle, yoffset, height;
-    CVECTOR frontColor[2], backColor[2];
-    char ringPMX[16];
-};
-struct CSkySpec {
-    int type, flags;
-    CVECTOR frontcolors[5], backcolors[5], clearcolor;
-    int sunAngleInSky, sunHeightInSky, moonAngleInSky, moonHeightInSky;
-    int numStars, starAngleLow, starAngleHigh, starBrightMin, starBrightMax;
-    CVECTOR starBaseColor;
-    int starRandomSeed;
-    CVECTOR sunBeamColor, sunHaloColor;
-    int yoffset;
-    char cloudIndices[5][4];
-    int ringAngles[5];
-};
+
+
+
+
+
+#include "shared/CHorizonSpec.h"
+
+
+
+
+#include "shared/CSkySpec.h"
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/CNightSpec.h"
-struct CWeatherSpec { int type, intensity_limit; };
-struct CFogSpec { int contrast; CVECTOR color; int start, dist2base; };
+#include "shared/CWeatherSpec.h"
+#include "shared/CFogSpec.h"
 #include "shared/CDepthCueSpec.h"
-struct CWorldColor {
-    int contrast;
-    CVECTOR contrast_color;
-    short worldR, worldG, worldB, type;
-};
+#include "shared/CWorldColor.h"
+
+
+
+
 
 typedef void (*Sched_tFunctionPt)(void *);
 #include "shared/Sched_tFunctionSchedule.h"
@@ -103,22 +103,22 @@ struct Track_tMaterialController {
 
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
-    int Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include "shared/Sim_tSimGlobalVar.h"
 
 

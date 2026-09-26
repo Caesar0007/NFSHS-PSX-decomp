@@ -19,22 +19,22 @@
 
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
-    int Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct Sched_tSchedule;
 #include "shared/Sim_tSimGlobalVar.h"
@@ -42,15 +42,15 @@ struct Sched_tSchedule;
 
 
 
-struct Sim_tSimSystemVar {
-    int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
-    int goalClockTicks, currentClockTicks;
-};
+#include "shared/Sim_tSimSystemVar.h"
 
-struct tReplayInterface {
-    int pause, speed, end, camera, selection, depressed, changeCamera;
-    int statsScreen;
-};
+
+
+
+#include "shared/tReplayInterface.h"
+
+
+
 
 /* Owner-derived replay type (SYM326706..32678F); camera.obj's own type
  * stream does not retain this foreign body. This is not a caller-graph seal. */
@@ -86,22 +86,22 @@ struct AIDataRecord_t {
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
-struct POLY_GT4 {
-    u_long tag;
-    u_char r0,g0,b0,code; short x0,y0; u_char u0,v0; u_short clut;
-    u_char r1,g1,b1,p1; short x1,y1; u_char u1,v1; u_short tpage;
-    u_char r2,g2,b2,p2; short x2,y2; u_char u2,v2; u_short pad2;
-    u_char r3,g3,b3,p3; short x3,y3; u_char u3,v3; u_short pad3;
-};
+#include "shared/POLY_GT4.h"
+
+
+
+
+
+
 #include "shared/Draw_SubdivStruct.h"
-struct Track_tArtresource {
-    int id;
-    char *shapeFile;
-    int shapeCount;
-    Draw_tPixMap *pPmx;
-    int pmxCount, basePmxCount;
-};
-struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
+#include "shared/Track_tArtresource.h"
+
+
+
+
+
+
+#include "shared/Track_tMaterial.h"
 
 #include "shared/Trk_AnimateInst.h"
 
@@ -166,13 +166,13 @@ struct camera_flags {
 
 
 
-struct kernpair { u_short previouscode, code; char kernvalue; char pad[3]; };
+#include "shared/kernpair.h"
 
 #include "shared/TCB.h"
-struct EXEC {
-    u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
-    u_long s_addr, s_size, sp, fp, gp, ret, base;
-};
+#include "shared/EXEC.h"
+
+
+
 struct DIRENTRY {
     char name[20];
     long attr, size;
@@ -187,11 +187,11 @@ struct DIRENTRY {
 
 
 
-struct Skidmark_Chunk {
-    coorddef cp;
-    short n, slice;
-    Skidmark_Segment seg[24];
-};
+#include "shared/Skidmark_Chunk.h"
+
+
+
+
 
 typedef int Input_tDeviceCall();
 typedef kernpair KERN;

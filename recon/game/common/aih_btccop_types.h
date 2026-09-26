@@ -429,10 +429,10 @@ struct Speech {
 
 
 
-struct Sim_tSimSystemVar {
-    int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
-    int goalClockTicks, currentClockTicks;
-};
+#include "shared/Sim_tSimSystemVar.h"
+
+
+
 #include "shared/Trk_NewSlice.h"
 
 

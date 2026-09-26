@@ -6,24 +6,24 @@
 #include "../common/draw_leaf_types.h"
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
-    int Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
 
-struct CCOORD16 { short x, y, z, light; };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/CCOORD16.h"
 #include "shared/Draw_tVertex.h"
 
 #include "shared/DRender_tView.h"
@@ -32,12 +32,12 @@ struct CCOORD16 { short x, y, z, light; };
 
 
 #include "shared/Trk_Quad.h"
-struct Trk_NewStrip { u_char topVert, botVert; char quadCount, size; };
+#include "shared/Trk_NewStrip.h"
 #include "shared/Trk_NewSimQuad.h"
-struct Trk_NewSimSlice {
-    u_char stripIndex, quadCount, simquadIndex, simquadCount, simquadStartIndex;
-};
-struct RelCoord16 { short x, z; };
+#include "shared/Trk_NewSimSlice.h"
+
+
+#include "shared/RelCoord16.h"
 
 struct Group {
     int m_num_elements;
@@ -47,59 +47,59 @@ struct Group {
 
 #include "shared/tSaveSurface.h"
 
-struct BWorldSm_Pos {
-    short slice, stripQuadInd, simRotFlag;
-    coorddef quadPts[4];
-    CCOORD16 quadPts16[4];
-    char sliceChanged, quadChanged, offEdge, triangleFlag;
-    coorddef normal, forward;
-    char quad;
-    u_char chunk;
-    char lastRezRequested, rez;
-    Trk_NewSimQuad *simQuad;
-    Trk_NewStrip *strip;
-    Trk_NewSimSlice *simSlice;
-};
+#include "shared/BWorldSm_Pos.h"
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct BO_tNewtonObj;
-struct BO_tNewtonCollisionInfo {
-    int collided, impulse;
-    BO_tNewtonObj *otherObj;
-    int sfxType, disableCollisionTimer;
-    coorddef collisionPoint;
-    int lastCollision;
-    BO_tNewtonObj *lastOtherObj;
-    int lastImpulse, lastTime;
-};
+#include "shared/BO_tNewtonCollisionInfo.h"
 
-struct BO_tNewtonObj {
-    int objID;
-    u_short oldSlice, totalSlice;
-    BWorldSm_Pos simRoadInfo;
-    int distToPlayer;
-    u_char simOptz, active, reOrthoCounter;
-    int gravityMult, cumulatedRot, lastUpdated;
-    coorddef position, linearVel;
-    int mass, massInv, speedXZ, xRelRoadCenter;
-    short positionXZ, eIndexEnvMap, eIndexShadow;
-    int wheelRot[2];
-    int wheelFrontX, wheelFrontZ, wheelBackX, wheelBackZ, wheelWidthF, wheelWidthB;
-    matrixtdef orientMat;
-    coorddef angularVel;
-    int moInertia, moInertiaInv;
-    coorddef orientationToGround, dimension;
-    int dimensionRadius;
-    matrixtdef roadMatrix;
-    coorddef roadCenterPoint;
-    int roadGravityModifier, roadYaw;
-    u_short flightTime, deadTimer;
-    int groundElevation, groundVel, objAltitude;
-    BO_tNewtonCollisionInfo collision;
-    int groundSurfaceType, driveSurfaceType;
-    matrixtdef shadowMat;
-    coorddef shadowCoord[4];
-    int damage[10];
-};
+
+
+
+
+
+
+
+
+#include "shared/BO_tNewtonObj.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,

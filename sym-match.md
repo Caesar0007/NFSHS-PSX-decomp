@@ -247,6 +247,17 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   copies reconciled against retail's member records before it can be shared. `header_groups.py` groups retail types
   by co-occurrence as a first map of the original headers; most groups are single types because retail objects
   include headers selectively.
+- Type dedup, step 2b (2026-09-26). `dedup_types.py --canon --apply` also shares types whose copies differ only in
+  spelling (`tools/psyq_pipe/type_canon.py`: comments dropped, `u_short`/`u_char`/... expanded, elaborated
+  `struct X` members reduced to `X`, one declarator per declaration). 34 more types / 365 copies now have one
+  definition (e.g. `GameSetup_tData`, `EXEC`, `POLY_FT4`, `SPRT`, `kernpair`, `charactertbl`, `tfrontEnd`). Program
+  bytes, board 1877, tag totals and the ENTIRE debug SYM are byte-identical to the step-2a SYM. Trap found on the
+  way: the first run took the most common spelling, which used `u_short`/`u_char`; `font_obj_types.h` defines
+  `kernpair`/`charactertbl` BEFORE those aliases are typedef'd, and cc1 silently dropped the unparsable members
+  (`kernpair` 8 -> 4 bytes, `charactertbl` 11 -> 3). The honest byte gate stayed green; only the debug-lane SYM
+  moved (Font_Blit -12 bytes, everything after it shifted). The shared definition now keeps an alias-free spelling
+  whenever one copy has it. The full debug-SYM compare is therefore the gate for header refactors, not only the
+  byte gate. Left: 99 types whose copies really differ (members or member types), and the class module headers.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

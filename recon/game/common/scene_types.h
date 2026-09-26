@@ -73,11 +73,11 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef kernpair KERN;
 
 typedef void (*fontblit)();

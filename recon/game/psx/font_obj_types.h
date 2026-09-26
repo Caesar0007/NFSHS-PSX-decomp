@@ -4,20 +4,20 @@
 #ifndef NFS4_GAME_PSX_FONT_OBJ_TYPES_H
 #define NFS4_GAME_PSX_FONT_OBJ_TYPES_H
 
-struct kernpair {
-    unsigned short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef struct kernpair kernpair;
 typedef struct kernpair KERN;
 
-struct charactertbl {
-    unsigned char index[2];
-    unsigned char width, height;
-    unsigned char u[2], v[2];
-    char advance, xoffset, yoffset;
-};
+#include "shared/charactertbl.h"
+
+
+
+
+
 typedef struct charactertbl charactertbl;
 typedef struct charactertbl FONTFILECHAR;
 /* font.obj repeats this semantic through a second owner-visible header. */
@@ -43,14 +43,14 @@ typedef struct DR_ENV DR_ENV;
 typedef struct DRAWENV DRAWENV;
 typedef struct DISPENV DISPENV;
 
-struct SPRT {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0;
-    u_char u0, v0;
-    u_short clut;
-    short w, h;
-};
+#include "shared/SPRT.h"
+
+
+
+
+
+
+
 typedef struct SPRT SPRT;
 
 #include "shared/DR_MODE.h"

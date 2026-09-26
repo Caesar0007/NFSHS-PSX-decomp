@@ -20,11 +20,11 @@ typedef enum tMenuTextState {
 #define tMenuTextType int
 #define textType_TrackRecords 11
 
-struct FLARE_PIECE_DEF {
-    int distance, size;
-    CVECTOR color;
-    char type;
-};
+#include "shared/FLARE_PIECE_DEF.h"
+
+
+
+
 
 struct tRecordBuffer;
 

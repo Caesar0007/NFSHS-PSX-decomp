@@ -30,32 +30,32 @@ typedef enum forceFocus_t {
 
 
 
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct tControllerData {
     char steering[32];
     u_char gas[32], brake[32], states[32];
 };
 
-struct tReplayInterface {
-    int pause, speed, end, camera, selection, depressed, changeCamera;
-    int statsScreen;
-};
+#include "shared/tReplayInterface.h"
+
+
+
 
 #include "shared/tReplayCameraModes.h"
 
@@ -73,10 +73,10 @@ struct tReplayBuffer {
 
 
 
-struct Sim_tSimSystemVar {
-    int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
-    int goalClockTicks, currentClockTicks;
-};
+#include "shared/Sim_tSimSystemVar.h"
+
+
+
 
 /* Canonical input.obj result aggregate used by this translation unit. */
 #include "shared/Input_tResults.h"

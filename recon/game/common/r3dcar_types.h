@@ -71,15 +71,15 @@ struct R3DCar_tEnvMapInfo {
 
 
 
-struct Sim_tSimSystemVar {
-    int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
-    int goalClockTicks, currentClockTicks;
-};
+#include "shared/Sim_tSimSystemVar.h"
+
+
+
 
 /* Canonical replay.obj aggregate used by this translation unit. */
-struct tReplayInterface {
-    int pause, speed, end, camera, selection, depressed, changeCamera, statsScreen;
-};
+#include "shared/tReplayInterface.h"
+
+
 
 /* Canonical DrawC.obj aggregate used by this translation unit. */
 #include "shared/DrawC_tEnvMap.h"

@@ -21,15 +21,15 @@ typedef int CarLogic_tObservations[1][3];
 
 
 
-struct Sim_tSimSystemVar {
-    int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
-    int goalClockTicks, currentClockTicks;
-};
+#include "shared/Sim_tSimSystemVar.h"
 
-struct tReplayInterface {
-    int pause, speed, end, camera, selection, depressed, changeCamera;
-    int statsScreen;
-};
+
+
+
+#include "shared/tReplayInterface.h"
+
+
+
 
 #include "shared/DRender_tView.h"
 
@@ -113,34 +113,34 @@ typedef enum forceFocus_t {
 
 
 
-struct FLARE_PIECE_DEF { int distance, size; CVECTOR color; char type; };
+#include "shared/FLARE_PIECE_DEF.h"
 
 struct POLY_F3 {
     u_long tag; u_char r0,g0,b0,code; short x0,y0,x1,y1,x2,y2;
 };
-struct POLY_F4 {
-    u_long tag; u_char r0,g0,b0,code; short x0,y0,x1,y1,x2,y2,x3,y3;
-};
-struct POLY_FT4 {
-    u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char u0,v0; u_short clut;
-    short x1,y1; u_char u1,v1; u_short tpage; short x2,y2; u_char u2,v2;
-    u_short pad1; short x3,y3; u_char u3,v3; u_short pad2;
-};
-struct POLY_G4 {
-    u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char r1,g1,b1,pad1;
-    short x1,y1; u_char r2,g2,b2,pad2; short x2,y2; u_char r3,g3,b3,pad3;
-    short x3,y3;
-};
-struct POLY_GT4 {
-    u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char u0,v0; u_short clut;
-    u_char r1,g1,b1,p1; short x1,y1; u_char u1,v1; u_short tpage;
-    u_char r2,g2,b2,p2; short x2,y2; u_char u2,v2; u_short pad2;
-    u_char r3,g3,b3,p3; short x3,y3; u_char u3,v3; u_short pad3;
-};
-struct SPRT {
-    u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char u0,v0;
-    u_short clut; short w,h;
-};
+#include "shared/POLY_F4.h"
+
+
+#include "shared/POLY_FT4.h"
+
+
+
+
+#include "shared/POLY_G4.h"
+
+
+
+
+#include "shared/POLY_GT4.h"
+
+
+
+
+
+#include "shared/SPRT.h"
+
+
+
 
 #include "shared/HudPmx_tShape.h"
 struct tSmallCoordXY { short x, y; };

@@ -28,22 +28,22 @@
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
-struct POLY_FT4 {
-    u_long tag;
-    u_char r0, g0, b0, code;
-    short x0, y0;
-    u_char u0, v0;
-    u_short clut;
-    short x1, y1;
-    u_char u1, v1;
-    u_short tpage;
-    short x2, y2;
-    u_char u2, v2;
-    u_short pad1;
-    short x3, y3;
-    u_char u3, v3;
-    u_short pad2;
-};
+#include "shared/POLY_FT4.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
@@ -68,10 +68,10 @@ typedef enum MANAGERTASK {
 
 
 
-struct EXEC {
-    u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
-    u_long s_addr, s_size, sp, fp, gp, ret, base;
-};
+#include "shared/EXEC.h"
+
+
+
 
 struct DIRENTRY {
     char name[20];

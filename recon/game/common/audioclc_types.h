@@ -13,41 +13,41 @@
 #define s_type int
 #endif
 
-struct POLY_GT4 {
-    u_long tag;
-    u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
-    u_char r1, g1, b1, p1; short x1, y1; u_char u1, v1; u_short tpage;
-    u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
-    u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
-};
+#include "shared/POLY_GT4.h"
+
+
+
+
+
+
 
 #include "shared/Draw_SubdivStruct.h"
 
-struct Track_tArtresource {
-    int id;
-    char *shapeFile;
-    int shapeCount;
-    Draw_tPixMap *pPmx;
-    int pmxCount, basePmxCount;
-};
+#include "shared/Track_tArtresource.h"
 
-struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
+
+
+
+
+
+
+#include "shared/Track_tMaterial.h"
 
 #ifndef NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
-struct SNDSYSCAP {
-    u_short outputratemin, outputratemax;
-    u_char outputchannelsmin, outputchannelsmax, inputvoicesmax;
-    u_char input3dvoicesmax, eax, voicemanager;
-    char pad[2];
-};
+#include "shared/SNDSYSCAP.h"
 
-struct SNDSYSSET {
-    u_short maxbanks, outputrate;
-    u_char outputchannels, inputvoices, useeax, use3dacceleration, use3dmixing;
-    char pad;
-    u_short emulationsubtype;
-    u_short spkrcfg3d[4][4];
-};
+
+
+
+
+
+#include "shared/SNDSYSSET.h"
+
+
+
+
+
+
 
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
@@ -82,10 +82,10 @@ struct SNDSYSSET {
 
 #include "shared/TCB.h"
 
-struct EXEC {
-    u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
-    u_long s_addr, s_size, sp, fp, gp, ret, base;
-};
+#include "shared/EXEC.h"
+
+
+
 
 struct DIRENTRY {
     char name[20];
@@ -102,11 +102,11 @@ struct DIRENTRY {
 
 
 
-struct Skidmark_Chunk {
-    coorddef cp;
-    short n, slice;
-    Skidmark_Segment seg[24];
-};
+#include "shared/Skidmark_Chunk.h"
+
+
+
+
 
 #ifdef NFS4_AUDIOCLC_OMIT_FORCE_FOCUS
 #define forceFocus_t int
@@ -126,11 +126,11 @@ typedef enum forceFocus_t {
 #endif
 #endif
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 struct AudioClc_tSource {
@@ -149,22 +149,22 @@ struct AudioClc_tCLCache { Car_tObj *ptr; int dst; };
 #endif
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
-struct GameSetup_tData {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
+#include "shared/GameSetup_tData.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef NFS4_AUDIOCLC_OMIT_CAMERA_VIEW
 #include "shared/camera_info.h"

@@ -64,11 +64,11 @@ struct tVideoWall {
     void TurnOn();
 };
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 typedef struct kernpair KERN;
 
 #include "shared/tDrawShapeExtended.h"

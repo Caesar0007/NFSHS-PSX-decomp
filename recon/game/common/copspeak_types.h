@@ -39,12 +39,12 @@
 
 #if !defined(NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES) || \
     defined(NFS4_COPSPEAK_KEEP_BW_CONTEXT)
-struct BW_tContext {
-    int client;
-    BWorldSm_Pos slicePos;
-    int currentChunk, chunkFarZClipSq, polyFarZClipSq;
-    int lowDetailDistSq, lineFarZClipSq;
-};
+#include "shared/BW_tContext.h"
+
+
+
+
+
 #endif
 
 #ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES

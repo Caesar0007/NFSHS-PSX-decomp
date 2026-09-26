@@ -21,11 +21,11 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 
-struct kernpair {
-    u_short previouscode, code;
-    char kernvalue;
-    char pad[3];
-};
+#include "shared/kernpair.h"
+
+
+
+
 
 struct tTexture_ShapeInfo {
     shapetbl *shpptr;

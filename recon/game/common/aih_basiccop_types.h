@@ -4,11 +4,11 @@
 
 #include "aih_hierarchy_types.h"
 
-struct BW_tContext {
-    int client;
-    BWorldSm_Pos slicePos;
-    int currentChunk, chunkFarZClipSq, polyFarZClipSq, lowDetailDistSq, lineFarZClipSq;
-};
+#include "shared/BW_tContext.h"
+
+
+
+
 
 #include "shared/Trk_ObjectDef.h"
 #include "shared/Trk_CollideBoomInst.h"
@@ -96,11 +96,11 @@ struct Speech {
 };
 
 #include "shared/Trk_SFX.h"
-struct FLARE_PIECE_DEF {
-    int distance, size;
-    CVECTOR color;
-    char type;
-};
+#include "shared/FLARE_PIECE_DEF.h"
+
+
+
+
 
 /* Canonical foreign aggregates from the retail aicop.obj/bworldSm.obj type graphs. */
 #include "shared/AICop_spikeBelt_t.h"

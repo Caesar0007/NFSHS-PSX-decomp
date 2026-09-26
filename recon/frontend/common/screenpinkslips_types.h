@@ -19,26 +19,26 @@ struct tMenuCommand;
 typedef tRecordBuffer tSaveRecords[187];
 
 #ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
-struct FLARE_PIECE_DEF {
-    int distance, size;
-    CVECTOR color;
-    char type;
-};
+#include "shared/FLARE_PIECE_DEF.h"
+
+
+
+
 #endif
 
-struct SNDSYSCAP {
-    u_short outputratemin, outputratemax;
-    u_char outputchannelsmin, outputchannelsmax;
-    u_char inputvoicesmax, input3dvoicesmax, eax, voicemanager;
-    char pad[2];
-};
-struct SNDSYSSET {
-    u_short maxbanks, outputrate;
-    u_char outputchannels, inputvoices, useeax, use3dacceleration, use3dmixing;
-    char pad;
-    u_short emulationsubtype;
-    u_short spkrcfg3d[4][4];
-};
+#include "shared/SNDSYSCAP.h"
+
+
+
+
+
+#include "shared/SNDSYSSET.h"
+
+
+
+
+
+
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
 

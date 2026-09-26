@@ -452,6 +452,21 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
     GetEngagementSeconds()/GetChaseLevelSeconds() pairs. Two `CopsAssigned()` calls fix the load order; the last
     5 diffs are the engagementTime_ store: retail stores through the Player base (140(s1)) and reloads via the inline's
     `this`, ours stores through `this` (0(a1)). Receipts: build/tmp/hc_combo.py, hc_combo2.py.
+- aih_traf 1 -> 3/5 (CopCheck, CheckForCops) and aih_opp 2 -> 4/5 (DoProvokedAttack, HighExecute) CLEAN, bytes unchanged.
+  - Placement-new spellings (`new((T *)operator new(n)) T(...)`) add a variable-free pair (the inline placement
+    `operator new`); retail uses plain `new T(...)`.
+  - A `break`/`goto` inside a case compound stretches the case block; retail puts `break` after the `}`.
+  - A then-block with no records but emitted = a local declared there that gcc propagates (DoProvokedAttack otherCar).
+  - Member inlines ALWAYS record `this` (even single-use); plain parameters used once are propagated (no row). A
+    retail pair with only `trigger` therefore comes from a free inline, but passing the AI object as its first
+    parameter records it (`high`) -- traffic HighExecute is byte-exact and fence/carrier-free but still DIRTY on
+    that row and on where retail closes the type==5 then-block (before the reencarnate pair).
+  - `idleState = (AIState_Idle *)this->state_` right after SetState is how retail gets the object for
+    SetIdlePosition (CSE turns the reload into `addu a0,s0`); the first of the two idle blocks is nested one extra
+    brace level in retail.
+  - OPEN aih_opp CheckForWipeOut: a clean rewrite (chase-level/crime/CopsAssigned accessors, early returns, for loop,
+    propagated `speeding`/`lowLevel` temps) is byte-exact up to the loop body with NO asm fences; 4 diffs remain
+    (sched order of the thisPlayer/playFines/level loads). Receipt: build/tmp/ow_best_4diffs.txt.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

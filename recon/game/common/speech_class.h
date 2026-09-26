@@ -177,7 +177,7 @@ struct Speech {
         SPCHNFSType_vs_KMH_MPH fSpeedType;
         int fSpeed, fUnit;
         Car_tObj *fCarObj, *fPerp;
-        inline void SetPerp(Car_tObj *perp) { fPerp = perp; }
+        inline void SetPerp(Car_tObj *car) { fPerp = car; }
         /* retail: `Speech::fgSpeech->fSpeakerCar = fCarObj` is an inline on the mobile that calls an inner
            Speech inline with parameter `carObj` (Bullhorn's nested pair records carObj/$2 and the Speech this) */
         inline void MakeSpeaker();   /* defined after struct Speech so the inner Speech inline is expanded */

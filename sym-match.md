@@ -343,6 +343,12 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
 - Both `Roger`s CLEAN with the accessor spelling (DispatchSpeaker: every access to the sub goes through `Sub()`,
   e.g. `Sub()->BlockadeFlags()`/`Sub()->ArrestFlags()`/`Sub()->UpdateFlags()` = a `this` pair for Sub() plus a
   variable-free pair on its temporary). MobileSpeaker::Roger's zero-byte `__asm__` identity carrier is gone. 82 CLEAN.
+- `MobileSpeaker::Engage` (467 instructions) CLEAN, byte-exact on the first try with the accessor spelling; the
+  goto/carrier form (superReady, pursuitReady, condition, repeatReady, the reply/sighted/engage staging locals) is
+  gone. Two SYM readings: a list-walk advance `SubChain = SubChain->Sub();` records a VARIABLE-FREE pair (gcc does
+  not give the inline's `this` its own copy when the result overwrites the receiver), and retail reuses `SubChain`
+  as the saved dispatch sub around `Dispatch()->Report(Perp())` -- that restore pair records `Sub` = SubChain.
+  SetPerp's parameter is `car` (retail's name). speech.cpp 83 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

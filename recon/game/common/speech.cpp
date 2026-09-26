@@ -2106,209 +2106,93 @@ void Speech::MobileSpeaker::Report(Car_tObj *perp)
 void Speech::MobileSpeaker::Engage(Car_tObj *perp)
 
 {
-  Car_tObj * car;
-  /* SYM-CODEGEN-CARRIER: superReady -- retail materializes the nested
-     IsSuper/perp/sub predicate before entering the arrival arm; its masked
-     producer must also remain separate (see superFlag below). */
-  bool superReady;
-  /* SYM-CODEGEN-CARRIER: pursuitReady -- retail normalizes pursuitFlag into a
-     Boolean before choosing between dispatch replacement and tail insertion. */
-  bool pursuitReady;
-  /* SYM-CODEGEN-CARRIER: condition -- retail reuses one staged Boolean for the
-     status-limit guard and later KnownPerp result; replacing the first phase
-     with direct early returns shortens 467 to 464 and leaves 5 diffs. */
-  bool condition;
-  /* SYM-CODEGEN-CARRIER: repeatReady -- direct sequential guards remain
-     count-exact but change 6 instructions around the zero/slti result web. */
-  bool repeatReady;
-  Car_tObj *carObj;
-  /* SYM-OPTIMIZED: Sub -- the repeated inlined Speaker accessors name their
-     receiver Sub in debug data; each aliases the active chain node. */
-  
   this->MakeSpeaker();
-  this->fHavePerp = 1;
-  if (perp == this->Perp())
-    goto MSEngage_samePerp;
-  this->fPerp = perp;
-  this->SetCar(this->Perp());
-  if ((this->CarObj()->carFlags & 0x200) == 0) {
-    Speaker *SubChain;
-    Speaker *Sub;
-    SubChain = (Speaker *)Speech::Dispatch();
-MSEngage_unlinkLoop:
-    Sub = SubChain->fSub;
-    if (Sub == (Speaker *)0x0) goto MSEngage_dispatchCheck;
-    if (Sub != (Speaker *)this) {
-      SubChain = Sub;
-      goto MSEngage_unlinkLoop;
-    }
-    SubChain->fSub = this->fSub;
-    this->fSub = (Speaker *)0x0;
-  }
-MSEngage_dispatchCheck:
-  if (Speech::Dispatch()->fSub == (Speaker *)this) {
+  this->SetHavePerp(1);
+  if (perp != this->Perp()) {
+    this->SetPerp(perp);
+    this->SetCar(this->Perp());
     if ((this->CarObj()->carFlags & 0x200) == 0) {
-      return;
-    }
-    Speech::Dispatch()->Report(perp);
-    this->MakeSpeaker();
-    this->fTo =
-        this->CallSign()->fDispatch;
-    this->FindLocation(
-        this->Perp());
-    /* SYM-CODEGEN-CARRIER: replyTo -- direct fTo changes 6 call-setup
-       instructions while preserving the 467-instruction count.
-       SYM-CODEGEN-CARRIER: replyCar -- direct fCar likewise leaves 6 diffs.
-       SYM-CODEGEN-CARRIER: replyLocation -- direct fLocation leaves 4 diffs. */
-    int replyTo = this->fTo;
-    int replyCar = this->fCar;
-    int replyLocation = this->fLocation;
-    SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(this->Voice(),replyTo,
-               &this->fColour,replyCar,
-               &this->fDistance,(SPCHNFSType_POSITION *)this,
-               replyLocation,&this->fConfirm);
-    goto MSEngage_emitSpeech;
-  }
-  superReady = false;
-  if (this->IsSuper()) {
-    if ((this->Perp()->carFlags & 4) != 0) {
-      if (Speech::Dispatch()->fSub != (Speaker *)0x0) {
-        /* SYM-CODEGEN-CARRIER: superFlag -- folding the mask into the Boolean
-           grows 467 to 468 and leaves 5 bit-test diffs. */
-        u_int superFlag =
-            Speech::Dispatch()->fSub->CarObj()->carFlags & 0x40;
-        superReady = superFlag < 1;
+      Speaker *SubChain = Speech::Dispatch();
+
+      while (SubChain->Sub() != 0) {
+        if (SubChain->Sub() == this) {
+          SubChain->SetSub(this->Sub());
+          this->SetSub(0);
+          break;
+        }
+        SubChain = SubChain->Sub();
       }
     }
-  }
-  if (superReady) {
-    this->fSub = Speech::Dispatch()->fSub;
-    Speech::Dispatch()->fSub = (Speaker *)this;
-    if (this->fBlockade.flags != 0) {
-      return;
+    if (Speech::Dispatch()->Sub() == this) {
+      if ((this->CarObj()->carFlags & 0x200) != 0) {
+        Speech::Dispatch()->Report(perp);
+        this->MakeSpeaker();
+        this->SetTo(this->CallSign()->Dispatch());
+        this->FindLocation(this->Perp());
+        SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(this->Voice(),this->To(),this->Colour(),this->Car(),
+                                               this->Distance(),this->Position(),this->Location(),
+                                               this->Confirm());
+        SPCH_PlaySpeech();
+      }
     }
-    this->fTo =
-        this->CallSign()->fAllUnits;
-    SPCHNFS_C_A_INTRO(this->Voice(),this->fTo,
-                      this->fFrom,
-                      &this->fReverse);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    SPCHNFS_S_C_SUPER_COP_ARRIVAL(this->Voice());
-    goto MSEngage_emitSpeech;
-  }
-  {
-    pursuitReady = false;
-    Speaker *SubChain = Speech::Dispatch();
-    if (Speech::Dispatch()->fSub != (Speaker *)0x0) {
-      if (Speech::Dispatch()->fSub->Perp() != (Car_tObj *)0x0) {
-        if ((Speech::Dispatch()->fSub->Perp()->carFlags & 4) == 0) {
-          /* SYM-CODEGEN-CARRIER: pursuitFlag -- folding this mask into the
-             comparison is count-exact but changes 4 bit-test instructions. */
-          u_int pursuitFlag =
-              this->Perp()->carFlags & 4;
-          pursuitReady = 0 < pursuitFlag;
+    else if (this->IsSuper() && (this->Perp()->carFlags & 4) != 0 && Speech::Dispatch()->Sub() != 0 &&
+             (Speech::Dispatch()->Sub()->CarObj()->carFlags & 0x40) == 0) {
+      this->SetSub(Speech::Dispatch()->Sub());
+      Speech::Dispatch()->SetSub(this);
+      if (this->BlockadeFlags() == 0) {
+        this->SetTo(this->CallSign()->AllUnits());
+        SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+        SPCH_PlaySpeech();
+        SPCHNFS_S_C_SUPER_COP_ARRIVAL(this->Voice());
+        SPCH_PlaySpeech();
+      }
+    }
+    else {
+      Speaker *SubChain = Speech::Dispatch();
+
+      if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Perp() != 0 &&
+          (Speech::Dispatch()->Sub()->Perp()->carFlags & 4) == 0 && (this->Perp()->carFlags & 4) != 0) {
+        this->SetSub(Speech::Dispatch()->Sub());
+        Speech::Dispatch()->SetSub(this);
+      }
+      else {
+        while (SubChain->Sub() != 0)
+          SubChain = SubChain->Sub();
+        SubChain->SetSub(this);
+      }
+      if (this->BlockadeFlags() == 0) {
+        if (!Speech::Dispatch()->KnownPerp(perp) || Speech::Dispatch()->StatusCount() <= 0x17f) {
+          this->SetTo(this->CallSign()->Dispatch());
+          SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+          SPCH_PlaySpeech();
+          this->FindLocation(this->Perp());
+          this->SetSpeed(this->Perp());
+          if (Speech::Dispatch()->KnownPerp(this->Perp()))
+            SPCHNFS_C_D_PERP_SIGHTED(this->Voice(),this->Colour(),this->Car(),this->Distance(),
+                                     this->Position(),this->Location(),this->PerpName());
+          else
+            SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(this->Voice(),this->Colour(),this->Car(),this->Position(),
+                                             this->Location(),this->Distance(),this->Speed(),
+                                             this->SpeedType(),this->PerpName());
+          SPCH_PlaySpeech();
+          SubChain = Speech::Dispatch()->Sub();
+          Speech::Dispatch()->SetSub(this);
+          Speech::Dispatch()->Report(this->Perp());
+          Speech::Dispatch()->SetSub(SubChain);
         }
       }
     }
-    if (pursuitReady) {
-      this->fSub = Speech::Dispatch()->fSub;
-      Speech::Dispatch()->fSub = (Speaker *)this;
-    }
-    else {
-MSEngage_tailLoop:
-      if (SubChain->fSub == (Speaker *)0x0)
-        goto MSEngage_tailEnd;
-      SubChain = SubChain->fSub;
-      goto MSEngage_tailLoop;
-MSEngage_tailEnd:
-      SubChain->fSub = (Speaker *)this;
-    }
-  if (this->fBlockade.flags != 0) {
-    return;
   }
-  condition = false;
-  if (Speech::Dispatch()->KnownPerp(perp)) {
-    if (Speech::Dispatch()->StatusCount() > 0x17f)
-      goto MSEngage_validateAndProceed;
+  else if (!Speech::MultiplePerps() && Speech::Dispatch()->StatusCount() < 0x160) {
+    this->SetCar(this->Perp());
+    this->SetTo(this->CallSign()->Dispatch());
+    SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    this->FindLocation(this->Perp());
+    SPCHNFS_C_C_PERP_REAQUIRED(this->Voice(),this->Colour(),this->Car(),this->Position(),this->Location(),
+                               this->Distance());
+    SPCH_PlaySpeech();
   }
-  condition = true;
-MSEngage_validateAndProceed:
-  if (!condition) {
-    return;
-  }
-  this->fTo =
-      this->CallSign()->fDispatch;
-  SPCHNFS_C_A_INTRO(this->Voice(),this->fTo,
-             this->fFrom,&this->fReverse);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  this->FindLocation(this->Perp());
-  this->SetSpeed(this->Perp());
-  /* BOTH arguments contain a call (the receiver Speech::Dispatch() and Perp()), so gcc precomputes them in order:
-     receiver + vtable delta first, then Perp() -- retail's exact sequence.  A `Sub` local here makes only Perp()
-     call-bearing and flips the order. */
-  condition = Speech::Dispatch()->KnownPerp(this->Perp());
-  if (condition) {
-    /* SYM-CODEGEN-CARRIER: sightedCar -- direct fCar is count-exact with
-       6 call-setup diffs.
-       SYM-CODEGEN-CARRIER: sightedLocation -- direct fLocation is count-exact
-       with 4 stack/delay-slot diffs. */
-    int sightedCar = this->fCar;
-    int sightedLocation = this->fLocation;
-    SPCHNFS_C_D_PERP_SIGHTED(this->Voice(),&this->fColour,
-               sightedCar,&this->fDistance,
-               (SPCHNFSType_POSITION *)this,sightedLocation,
-               &this->fPerpName);
-  }
-  else {
-    /* SYM-CODEGEN-CARRIER: engageCar -- direct fCar is count-exact with
-       10 call-setup diffs.
-       SYM-CODEGEN-CARRIER: engageLocation -- direct fLocation is count-exact
-       with 2 stack-argument diffs.
-       SYM-CODEGEN-CARRIER: engageSpeed -- direct fSpeed is count-exact with
-       8 call-setup/delay-slot diffs. */
-    int engageCar = this->fCar;
-    int engageLocation = this->fLocation;
-    int engageSpeed = this->fSpeed;
-    SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(this->Voice(),&this->fColour,
-               engageCar,(SPCHNFSType_POSITION *)this,engageLocation,
-               &this->fDistance,engageSpeed,
-               &this->fSpeedType,&this->fPerpName)
-    ;
-  }
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  SubChain = Speech::Dispatch()->fSub;
-  Speech::Dispatch()->fSub = (Speaker *)this;
-  /* same shape as KnownPerp above: receiver call and argument call, precomputed in order */
-  Speech::Dispatch()->Report(this->Perp());
-  Speech::Dispatch()->fSub = SubChain;
-  }
-  return;
-MSEngage_samePerp:
-  repeatReady = false;
-  if (Speech::fgSpeech->fMultiplePerps == 0) {
-    repeatReady = Speech::Dispatch()->StatusCount() < 0x160;
-  }
-  if (!repeatReady) {
-    return;
-  }
-  {
-  this->SetCar(this->Perp());
-  this->fTo =
-      this->CallSign()->fDispatch;
-  SPCHNFS_C_A_INTRO(this->Voice(),this->fTo,
-             this->fFrom,&this->fReverse);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  this->FindLocation(this->Perp());
-  /* SYM-CODEGEN-CARRIER: reacquiredCar -- direct fCar remains count-exact but
-     causes 10 call-setup diffs. */
-  int reacquiredCar = this->fCar;
-  SPCHNFS_C_C_PERP_REAQUIRED(this->Voice(),&this->fColour,
-             reacquiredCar,(SPCHNFSType_POSITION *)this,this->fLocation,
-             &this->fDistance);
-  }
-MSEngage_emitSpeech:
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  return;
 }
 
 /* ---- Lose__Q26Speech13MobileSpeaker  [SPEECH.CPP:2463-2538] SLD-VERIFIED ----

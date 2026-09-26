@@ -263,8 +263,6 @@ void Hud_Perp_OverlayOff(int player);
 /* ---- Hud_CreateHudViews__Fv  [HUD.CPP:273-375] SLD-VERIFIED ---- */
 void Hud_CreateHudViews(void)
 {
-
-
   Hud_InitTables();
   Hud_BeTheCop = 0;
   for (int i = 0; i < GameSetup_gData.numCars; i++) {
@@ -6166,8 +6164,6 @@ void Hud_BTC_Update(char *perpname,int timeleft,bool userHasControl)
 void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
 
 {
-  int i;
-  
   StatsTimer[player] = 0;
   if (Replay_ReplayMode < 2) {
     FinalBTC_Countdown = BTC_Countdown;
@@ -6186,7 +6182,7 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
      * first (29) / int copy of player used for both indices (20) / `&Hud_NextPerp[i]` +
      * `*psVar3` index (36).
      * NEW NAMED ANGLE: this is a 4-insn block-local QTY question (all four pseudos are
-     * born and die inside the entry block) -- per catalog w45 §A0 `QTY_CMP_PRI ==
+     * born and die inside the entry block) -- per catalog w45 В§A0 `QTY_CMP_PRI ==
      * allocno_compare`, so read the -dl qty table for this block and apply the ref-step /
      * live-length dial to the sign-extended `player` pseudo so it ranks where retail's does
      * (retail's dies 2 insns earlier).  A source shape that makes the *5 the FIRST consumer
@@ -6208,8 +6204,7 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
       Hud_NextPerp[player] = Hud_NextPerp[player] + 1;
     }
     else {
-      i = 0;
-      do {
+      for (int i = 0; i < 2; i++) {
         /* MATCH (w45-a7): REAL 2-D FIELD ACCESS, not the hand-folded byte form.
          * `BTCPerpInfo[0][Hud_NextPerp[i]-1].name + 0xc` lets gcc fold
          * (Hud_NextPerp[i]-1)*16+12 into Hud_NextPerp[i]*16-4 and park
@@ -6223,8 +6218,7 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
           sprintf(BTCPerpInfo[i][Hud_NextPerp[i]].name,BTC_CurrentPerpName);
           Hud_NextPerp[i] = Hud_NextPerp[i] + 1;
         }
-        i = i + 1;
-      } while (i < 2);
+      }
     }
     HudBustedOverlay = 1;
     HudBustedOverlayPlayer = player;

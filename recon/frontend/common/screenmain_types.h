@@ -81,6 +81,9 @@ struct tFEApplication {
     tDialogNoInputMessage NoInputMemCardDialog;
     bool gotName[2], needName[2];
     int speechToPlay[2];
+
+    int BackDepth(int player) { return backDepth[player]; }
+    tMenu *CurrentMenu(int player) { return fCurrentMenu[player]; }
 };
 
 struct tCreditManager {

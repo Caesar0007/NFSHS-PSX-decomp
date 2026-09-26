@@ -16,6 +16,11 @@ static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline int GameTicks(void) { return simGlobal.gameTicks; }
+/* slice arithmetic with wrap-around (a macro: retail records no locals or inline pairs for it, and every
+   use of its slice argument expands again -- six CarObj() pairs on one line in SetupBlockader) */
+#define SLICE_ADD(slice, delta) \
+    ((delta) >= 0 ? ((slice) + (delta) >= gNumSlices ? (slice) + (delta) - gNumSlices : (slice) + (delta)) \
+                  : ((slice) + (delta) < 0 ? (slice) + (delta) + gNumSlices : (slice) + (delta)))
 
 
 /* Retail aih_btccop.obj opens .rodata with this unreferenced class tag. */
@@ -2835,53 +2840,23 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
 {
-  /* PASS RECEIPT 2026-08-13 (340/340): division/clamp boundaries recovered
-     the retail rematerialization and upper-clamp allocation (103 -> 95).
-     The real gBlockadeTypes table plus SLD-ordered RNG locals reduced 95 -> 58;
-     distinct selector/product and branch-local slice shapes reduced 58 -> 16.
-     Finally, direct Trk_NewSlice width/lane field expressions (width << 15),
-     with no redundant address snapshots, reproduce both spike-belt calls and
-     close 16 -> PASS.  Falsified: long-lived volatile belt snapshots, result
-     fences, and explicit width/lane locals. */
+  /* SYM (retail): fn-scope locals are only initSlice/copObj/blockadeType.  The accessor pairs
+     (humanCop->CarObj(), PerpTarget(), the spike belt's Set/Freshen), the SLICE_ADD wrap macro and
+     plain field stores reproduce the 340 retail instructions without the former carrier locals
+     (blockadeDirection, blockadeFlags, sliceOffset, blockadeSlice, perpDistance, slice, the
+     else-arm candidates) and without the identity asm fences. */
   int initSlice;
   Car_tObj*copObj;
   int blockadeType;
-
-  /* SYM-CODEGEN-CARRIER: blockadeDirection -- snapshotting the car direction
-   * prevents a second member load and preserves the delayed blockade_.direction
-   * store. Direct field use grows the body to 342 instructions/20 diffs. */
-  int blockadeDirection;
-
-  /* SYM-CODEGEN-CARRIER: blockadeFlags -- the selected table byte is distinct
-   * from the recorded blockadeType selector. Folding the lookup into
-   * blockadeType preserves length but causes ten address-allocation diffs. */
-  u_char blockadeFlags;
-
-  /* SYM-CODEGEN-CARRIER: sliceOffset -- the distance-to-slice conversion
-   * occupies the oracle's anonymous $a1. Reusing the recorded
-   * initializationDistance local instead produces 22 register diffs. */
-  int sliceOffset;
-
-  /* SYM-CODEGEN-CARRIER: blockadeSlice -- retail wraps the candidate in an
-   * anonymous caller-saved value and stores blockade_.slice only after the RNG
-   * setup. Updating the member in place preserves length but causes 30 diffs. */
-  int blockadeSlice;
-
-  /* SYM-CODEGEN-CARRIER: perpDistance -- preserving the spline-distance
-   * result separately leaves the recorded spikeBeltSide in $v1. Folding the
-   * call into the sign test causes 18 allocation diffs. */
-  int perpDistance;
-
-  copObj = AIHigh_GetCarObj(humanCop);
-
-  if (humanCop->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
+  copObj = humanCop->CarObj();
+  if (humanCop->PerpTarget() != (AIHigh_BTC_Perp *)0x0) {
 
     int perpToHumanDistance;
     int side;
     int initializationDistance;
     Car_tObj*perpObj;
 
-    perpObj = AIHigh_GetCarObj(humanCop->perpTarget_);
+    perpObj = humanCop->PerpTarget()->CarObj();
 
     side = -1;
 
@@ -2897,136 +2872,34 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
     if (initializationDistance < __builtin_abs(perpToHumanDistance)) {
       initializationDistance = __builtin_abs(perpToHumanDistance);
     }
-    /* SYM-CODEGEN-CARRIER: maximumDistance -- materializing the upper clamp
-     * independently reproduces the oracle's compare/copy form. A literal
-     * conditional shrinks the body to 337 instructions and causes nine diffs. */
+    /* a named bound (gcc propagates it away, so it leaves no record): the literal form is folded to
+       MIN_EXPR(x, K) and clamps in place, while retail computes MIN(K, x) in a temporary. */
     int maximumDistance = 0x5dc0000;
     initializationDistance =
         (initializationDistance < maximumDistance) ?
         initializationDistance : maximumDistance;
 
     if (perpToHumanDistance * side < 0) {
-
-      sliceOffset = (initializationDistance / 0x60000) * side;
-
-      if (-1 < sliceOffset) {
-
-        initSlice = (copObj->N).simRoadInfo.slice + sliceOffset;
-
-      if (gNumSlices <= initSlice) {
-
-        initSlice = initSlice - gNumSlices;
-
-      }
-
-      }
-
-      else {
-
-        initSlice = (copObj->N).simRoadInfo.slice + sliceOffset;
-
-        if (initSlice < 0) {
-
-          initSlice = initSlice + gNumSlices;
-
-        }
-
-      }
-
+      initSlice = SLICE_ADD(copObj->N.simRoadInfo.slice, (initializationDistance / 0x60000) * side);
     }
-
     else {
-
-      sliceOffset = (initializationDistance / 0x60000) * side;
-
-      if (-1 < sliceOffset) {
-
-        initSlice = (perpObj->N).simRoadInfo.slice + sliceOffset;
-
-        if (gNumSlices <= initSlice) {
-
-          initSlice = initSlice - gNumSlices;
-
-        }
-
-      }
-
-      else {
-
-        initSlice = (perpObj->N).simRoadInfo.slice + sliceOffset;
-
-      if (initSlice < 0) {
-
-        initSlice = initSlice + gNumSlices;
-
-      }
-
-      }
-
+      initSlice = SLICE_ADD(perpObj->N.simRoadInfo.slice, (initializationDistance / 0x60000) * side);
     }
 
     this->blockade_.blockadeSpeechFlags = 1;
 
-    this->blockade_.target =
-
-         (AIHigh_Player *)(humanCop)->perpTarget_;
+    this->blockade_.target = (AIHigh_Player *)humanCop->PerpTarget();
 
   }
 
   else {
 
     int side = -1;
-
-    if (-1 < copObj->currentSpeed) {
-
+    if (-1 < humanCop->CarObj()->currentSpeed) {
       side = 1;
-
     }
-
-    /* SYM-CODEGEN-CARRIER: initializationSliceDistance -- keeping the 0x53
-     * scale as a value emits the retail multiply. A literal is strength-
-     * reduced, grows the body to 343 instructions, and causes nine diffs. */
-    int initializationSliceDistance = 0x53;
-    side = side * initializationSliceDistance;
-
-    /* SYM-CODEGEN-CARRIER: initSliceCandidate -- the two branch-local
-     * candidates preserve the retail copy into initSlice. Direct initSlice
-     * updates shrink the body to 338 instructions and cause 32 diffs.
-     * W85-S1 (device clearance): the `+r` identity fence on the FIRST branch's
-     * candidate is DEAD (removed -> 40/40 PASS byte-identical) and is gone; the
-     * one on the ELSE branch's candidate is LIVE (removing it costs 20 diffs on
-     * SetupBlockader), as is the `+r` fence on `slice` further down (28 diffs). */
-    if (-1 < side) {
-
-      int initSliceCandidate = (copObj->N).simRoadInfo.slice + side;
-      __asm__("" : "+r"(initSliceCandidate));
-      /* SYM-CODEGEN-CARRIER: numSlices -- the saved wrap bound moves the
-       * global load ahead of initSlice's copy; using gNumSlices directly leaves
-       * a 341-instruction/5-diff schedule. */
-      int numSlices = gNumSlices;
-      initSlice = initSliceCandidate;
-
-      if (numSlices <= initSlice) {
-
-        initSlice = initSlice - numSlices;
-
-      }
-
-    }
-
-    else {
-
-      int initSliceCandidate = (copObj->N).simRoadInfo.slice + side;
-
-      if (initSliceCandidate < 0) {
-
-        initSlice = initSliceCandidate + gNumSlices;
-      }
-      else {
-        initSlice = initSliceCandidate;
-      }
-
-    }
+    int initializationDistance = 0x1f40000;
+    initSlice = SLICE_ADD(humanCop->CarObj()->N.simRoadInfo.slice, initializationDistance / 0x60000 * side);
 
     this->blockade_.blockadeSpeechFlags = 0;
 
@@ -3034,50 +2907,18 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
   }
 
-LAB_8005f268:
 
-  blockadeDirection = copObj->direction;
-
-  this->blockade_.direction = blockadeDirection;
-
-  if (0 <= -blockadeDirection) {
-
-    blockadeSlice = initSlice - blockadeDirection;
-
-    if (gNumSlices <= blockadeSlice) {
-
-      blockadeSlice = blockadeSlice - gNumSlices;
-
-    }
-
-  }
-
-  else {
-
-    blockadeSlice = initSlice - blockadeDirection;
-
-    if (blockadeSlice < 0) {
-
-      blockadeSlice = blockadeSlice + gNumSlices;
-
-    }
-
-  }
-
+  this->blockade_.direction = copObj->direction;
+  this->blockade_.slice = SLICE_ADD(initSlice, -this->blockade_.direction);
   randtemp = fastRandom * randSeed;
-
-  this->blockade_.slice = blockadeSlice;
 
   AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp;
 
   fastRandom = randtemp & 0xffff;
 
   blockadeType = (randtemp >> 8 & 0xffff) % 5;
-  blockadeFlags = gBlockadeTypes[blockadeType];
-
-  this->blockade_.flags = blockadeFlags;
-
-  if (blockadeFlags != 0) {
+  this->blockade_.flags = gBlockadeTypes[blockadeType];
+  if (this->blockade_.flags != 0) {
 
     if (stackSpeedUpEnbabledFlag != 0) {
 
@@ -3100,64 +2941,21 @@ LAB_8005f268:
   }
 
   AILife_ReencarnateCopByLatPosAndRotation(this->carObj_,initSlice,
-
-             ((humanCop)->carObj_)->direction,0,0x100);
+             humanCop->CarObj()->direction,0,0x100);
 
   if (spikeBeltRequest != 0) {
 
     int spikeBeltSide;
     int left;
     int right;
-    int slice;
-    int rightLatPos;
-    int timeNow;
 
-    perpDistance = AIWorld_ApxSplineDistance(this->carObj_,copObj);
 
-    spikeBeltSide = -1;
-
-    if (-1 < perpDistance) {
-
-      spikeBeltSide = 1;
-
-    }
-
+    spikeBeltSide = AIWorld_ApxSplineDistance(this->carObj_,copObj) >= 0 ? 1 : -1;
     spikeBeltSide = spikeBeltSide * 6;
 
-    if (-1 < spikeBeltSide) {
+    this->spikeBeltSlice_ = SLICE_ADD(this->carObj_->N.simRoadInfo.slice, spikeBeltSide);
 
-      slice = ((this->carObj_)->N).simRoadInfo.slice +
 
-              spikeBeltSide;
-
-      if (gNumSlices <= slice) {
-
-        slice = slice - gNumSlices;
-
-      }
-
-    }
-
-    else {
-
-      slice = ((this->carObj_)->N).simRoadInfo.slice +
-
-              spikeBeltSide;
-
-      if (slice < 0) {
-
-        slice = slice + gNumSlices;
-
-      }
-
-    }
-
-    /* MATCH: zero-insn identity fence keeps the SYM-recorded `slice` live in
-     * the retail caller-saved register across the member store/RNG sequence.
-     * Removing it preserves 340 instructions but causes 28 diffs; replacing
-     * following member reads with the local shrinks to 337/173 diffs. */
-    __asm__("" : "+r"(slice));
-    this->spikeBeltSlice_ = slice;
 
     randtemp = fastRandom * randSeed;
 
@@ -3177,28 +2975,12 @@ LAB_8005f268:
 
     ;
 
-    rightLatPos = right;
 
-    /* SYM-CODEGEN-CARRIER: beltSlice -- snapshotting the member preserves the
-     * retail ordering of the global spike-belt stores. Reading the member at
-     * the slice store keeps 340 instructions but causes 16 scheduling diffs. */
-    int beltSlice = this->spikeBeltSlice_;
 
-    AICop_spikeBelt.leftLatPos_ = -left;
-
-    AICop_spikeBelt.rightLatPos_ = rightLatPos;
-
-    AICop_spikeBelt.active_ = 1;
-
-    AICop_spikeBelt.slice_ = beltSlice;
-
-    timeNow = GameTicks();
-
-    AICop_spikeBelt.freshenTime_ = timeNow;
+    AICop_spikeBelt.Set(this->spikeBeltSlice_, -left, right); AICop_spikeBelt.Freshen(simGlobal.gameTicks);
 
     BWorld_SetSpikeBelt(this->spikeBeltSlice_,AICop_spikeBelt.leftLatPos_,
-
-               left + rightLatPos);
+               left + right);
 
     this->spikeBeltPlaced_ = 1;
 

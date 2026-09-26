@@ -335,6 +335,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     void FalseArrest(AIHigh_BTC_Perp *p);
     virtual void FreezeAndEndChase();
     void HudOff();
+    inline AIHigh_BTC_Perp *PerpTarget() { return perpTarget_; }
 };
 
 struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {

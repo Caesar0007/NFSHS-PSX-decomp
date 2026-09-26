@@ -277,6 +277,8 @@ struct AIHigh_Player : public AIHigh_BasicPerp {
     void MaintainAvailableCops();
     void CleanupBlockaders(int a);
     void HandlePullOver();
+    inline copLevel_t *ChaseLevel() { return perpChaseInfo_.chaseLevel_; }   /* retail pairs (this typed AIHigh_Player) */
+    inline int LastPullOverTime() { return lastPullOverTime_; }
 };
 
 struct AIHigh_BTC_HumanCop;

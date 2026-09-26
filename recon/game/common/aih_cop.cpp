@@ -1879,23 +1879,19 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
         int startSlice;
         int endSlice;
         int fRandomChance;
-        copType type;
+
         /* SYM-CODEGEN-CARRIER: perpInfo -- optimized SYM omits this base alias,
            but spelling both BasicPerpInfo accesses through this pointer is
            required for retail's load/base order; direct member spelling emits
            201/202 instructions with nine detailed differences. */
-        AICop_BasicPerpInfo *perpInfo;
-
         thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex];
-        perpInfo = &thisPlayer->basicPerpInfo_;
-        pLevel = AIHigh_Player_ChaseLevel(thisPlayer);
-        type = *(volatile copType *)&this->type_;
+        pLevel = thisPlayer->ChaseLevel();
         fRandomChance = thisPlayer->newTriggerProb_;
-        got = perpInfo->copsAssigned_[type];
-        if (perpInfo->crime_ == 0) {
+        got = thisPlayer->basicPerpInfo_.CopsAssigned(this->type_);
+        if (thisPlayer->basicPerpInfo_.GetCrime() == 0) {
           fRandomChance = fRandomChance * 2;
-          if ((0 < pLevel->copChasers[type]) &&
-              (AICop_NoCopsInArea((int)(AIHigh_GetCarObj(thisPlayer)->N).simRoadInfo.slice, 0x1f40000) != 0)) {
+          if ((0 < pLevel->copChasers[this->type_]) &&
+              (AICop_NoCopsInArea((int)(thisPlayer->CarObj()->N).simRoadInfo.slice, 0x1f40000) != 0)) {
             needs = 1;
           }
           else {
@@ -1903,13 +1899,12 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
           }
         }
         else {
-          needs = pLevel->copChasers[type];
+          needs = pLevel->copChasers[this->type_];
         }
         if (GameSetup_gData.skill == 2) {
           fRandomChance = 0x10000;
         }
-        if (0x1bf < simGlobal.gameTicks -
-                      AIHigh_Player_LastPullOverTime(thisPlayer)) {
+        if (0x1bf < simGlobal.gameTicks - thisPlayer->LastPullOverTime()) {
           if (got < needs) {
             int newSlice;
 

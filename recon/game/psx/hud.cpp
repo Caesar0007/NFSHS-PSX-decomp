@@ -2991,7 +2991,7 @@ void Hud_BuildNumbers(int player)
      * `x = w1*2 + (A+B+4)` 228. */
     x = (int)g1Player[1].x + (int)g1Player[0xc].x;
     {
-      int xt /* SYM-CODEGEN-CARRIER: xt -- statement-granular fold barrier is the measured 196-to-188 lever */ = x + 4;
+      const int xt /* SYM-CODEGEN-CARRIER: xt -- statement-granular fold barrier is the measured 196-to-188 lever */ = x + 4;
       x = w1 * 2 + xt;
     }
     y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
@@ -3038,7 +3038,7 @@ void Hud_BuildNumbers(int player)
       x = x - w3;
     }
     {
-      int xm1 /* SYM-CODEGEN-CARRIER: xm1 -- block-local fold barrier preserves x-1 before the width subtraction */ = x - 1;
+      const int xm1 /* SYM-CODEGEN-CARRIER: xm1 -- block-local fold barrier preserves x-1 before the width subtraction */ = x - 1;
       x = xm1 - (int)HudPmx_gShapes[hun + 0x2c].width;
     }
     if (hun != 0) {
@@ -3666,7 +3666,7 @@ void Hud_BuildWingmanInterface(int player)
     Render_gPacketPtr = (u_char *)poly + 0x18;
     ((Hud_PTag *)pal)->addr = (u_int)poly;
     {
-      int iconRow /* SYM-CODEGEN-CARRIER: iconRow -- statement-level fold barrier seals the final 2 diffs */ = ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2;
+      const int iconRow /* SYM-CODEGEN-CARRIER: iconRow -- statement-level fold barrier seals the final 2 diffs */ = ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2;
       Hud_BuildF4(poly,0,x - 0x10,y + iconRow,0x3f,8,fc);
     }
   }

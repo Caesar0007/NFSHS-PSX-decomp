@@ -384,6 +384,14 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
     Dump detail for (1): header = pseudo 81 (5 refs, local-alloc priority higher than the "spch temp" pointer, pseudo
     119) yet 119 takes s0; retail's s0 sharing of header and ReadBE32's `p` needs sched1 to hoist the folded
     `lbu 8(header)` above `p = header + 8` so header dies at p's definition and local-alloc ties them.
+- aih_btccop.cpp probe (not committed): retail's pairs there record `this` typed AIHigh_BTC_HumanCop, i.e. inline
+  MEMBERS of HumanCop, yet retail has no out-of-line copies of them. cc1plus 2.8 emits a copy of every inline member
+  of a class whose vtable the TU emits (standalone probes: top-level, nested and derived classes alike), which is
+  why speech.cpp carries `no_implement_inlines`. With that flag aih_btccop's current bytes are unchanged, and
+  SetDesiredSpeed spelled `CarObj()->desiredSpeed = req < curveSpeed ? req : curveSpeed;` is byte-exact with retail's
+  two pairs -- but `curveSpeed` (retail REG $2) is copy-propagated away in every byte-exact spelling tried
+  (in-block init, declare-then-assign, function level, swapped compare), and the clamp spellings that keep it
+  cost an instruction (the car load moves after the branch). Next: find what keeps curveSpeed in v0 in retail.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

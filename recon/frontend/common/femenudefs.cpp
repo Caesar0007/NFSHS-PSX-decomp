@@ -1281,6 +1281,11 @@ void MenuExtended_GoToDealerShowroom(tMenuCommand &command)
 
 
 
+/* car-list filter setter (retail records a variable-free inline pair on menuDefs->iteratorCar1) */
+static inline void CarIterator_SetFilter(tListIteratorCar &iterator, int filter) { iterator.fCarListFilter = filter; }
+/* menu-item state test (retail records a variable-free inline pair on menuDefs->itemSaveGame) */
+static inline int MenuItem_IsEnabled(tMenuItem &item) { return ((item.fFlags ^ 1) & 1) != 0; }
+
 /* ---- MenuExtended_SetHPSoloRace__FR12tMenuCommand  [FEMENUDEFS.CPP:764-768] ---- */
 
 /* Decoded Phase 83: MenuExtended_SetHPSoloRace__FR12tMenuCommand(tMenuCommand&) - set raceType=HotPursuit Solo (44 B)
@@ -1301,7 +1306,7 @@ void MenuExtended_SetHPSoloRace(tMenuCommand &)
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\x01';
   frontEnd.oppNumber = '\0';
-  (menuDefs->iteratorCar1).fCarListFilter = 0xb;
+  CarIterator_SetFilter(menuDefs->iteratorCar1, 0xb);
   return;
 }
 
@@ -1327,7 +1332,7 @@ void MenuExtended_SetHPDuelRace(tMenuCommand &)
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\x01';
   frontEnd.oppNumber = '\x01';
-  (menuDefs->iteratorCar1).fCarListFilter = 1;
+  CarIterator_SetFilter(menuDefs->iteratorCar1, 1);
   return;
 }
 
@@ -1355,10 +1360,10 @@ void MenuExtended_SetHotPursuit(tMenuCommand &)
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\x01';
   if (frontEnd.gameMode == '\x01') {
-    (menuDefs->iteratorCar1).fCarListFilter = 9;
+    CarIterator_SetFilter(menuDefs->iteratorCar1, 9);
   }
   else {
-    (menuDefs->iteratorCar1).fCarListFilter = 1;
+    CarIterator_SetFilter(menuDefs->iteratorCar1, 1);
   }
   frontEnd.oppNumber = '\0';
   return;
@@ -1749,7 +1754,7 @@ void MenuExtended_SaveGame(tMenuCommand &)
 
 {
   if ((CURRENTLYUSINGMEMCARD == 0) &&
-     ((((menuDefs->itemSaveGame).fFlags ^ 1) & 1) != 0)) {
+     MenuItem_IsEnabled(menuDefs->itemSaveGame)) {
     GenericMenuSaveGame(0);
   }
   return;

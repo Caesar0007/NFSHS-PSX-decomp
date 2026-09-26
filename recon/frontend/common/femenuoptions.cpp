@@ -12,6 +12,7 @@ static inline int FE_Ticks(void) { return ticks; }
 static inline bool MenuItem_Enabled(tMenuItem *item) { return ((item->fFlags & 1) ^ 1) != 0; }
 static inline int ListIterator_Min(tListIterator *it) { return (unsigned char)it->fMinValue; }
 static inline int ListIterator_Max(tListIterator *it) { return (unsigned char)it->fMaxValue; }
+static inline u_short GInfo_Busy(void) { return *(u_short *)&ginfo[16]; }
 
 
 /* EXT data owned by FeMenuOptions.obj: both UNINITIALIZED -- cc1plus 2.8 defers them to
@@ -2877,25 +2878,17 @@ void tUserNameMenuItem::TransitionOn()
 /* ---- tUserNameMenuItem::TransitionIsFinished  [FEMENUOPTIONS.CPP:2018-2028] SLD-VERIFIED ---- */
 
 bool tUserNameMenuItem::TransitionIsFinished()
-
 {
   this->fInTransition = 0;
-  if (this->fFadeDir < 0) {
-    if (0 < this->fFadeVal) {
-      this->fInTransition = 1;
-      goto done;
-    }
+  if (this->fFadeDir < 0 && this->fFadeVal > 0) {
+    this->fInTransition = 1;
   }
-  if (0 < this->fFadeDir) {
-    if (this->fFadeVal < 0x80) {
-      this->fInTransition = 1;
-      goto done;
-    }
-    if ((*(u_short*)&ginfo[16]) != 0) {
-      this->fInTransition = 1;
-    }
+  else if (this->fFadeDir > 0 && this->fFadeVal < 0x80) {
+    this->fInTransition = 1;
   }
-done:
+  else if (this->fFadeDir > 0 && GInfo_Busy() != 0) {
+    this->fInTransition = 1;
+  }
   return !this->fInTransition;
 }
 

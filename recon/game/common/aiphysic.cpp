@@ -177,26 +177,31 @@ end:
 /* ---- AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t ---- */
 int AIPhysic_GearInvSpeedRange(Car_tObj *carObj, Gear_t gear)
 {
-    int convertedGear;
     if (gear < 2) return AIPhysic_GearInvSpeedRange(carObj, (Gear_t)2);
-    convertedGear = gear - 2;
-    return carObj->invTopSpeeds[convertedGear];
+    else {
+        int convertedGear = gear - 2;
+        return carObj->invTopSpeeds[convertedGear];
+    }
 }
 
 /* ---- AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t  (clamp via tail-recursion -> gcc `j self`) ---- */
 int AIPhysic_GearTopSpeed(Car_tObj *carObj, Gear_t gear)
 {
-    int convertedGear;
     if (gear < 2) return AIPhysic_GearTopSpeed(carObj, (Gear_t)2);
-    convertedGear = gear - 2;
-    return carObj->topSpeeds[convertedGear];
+    else {
+        int convertedGear = gear - 2;
+        return carObj->topSpeeds[convertedGear];
+    }
 }
 
 /* ---- AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t ---- */
 int AIPhysic_GearBottomSpeed(Car_tObj *carObj, Gear_t gear)
 {
     if (gear < 3) return 0;
-    return carObj->topSpeeds[gear - 3];
+    else {
+        int convertedGear = gear - 3;
+        return carObj->topSpeeds[convertedGear];
+    }
 }
 
 /* ---- AIPhysic_CalcAcceleration__FP8Car_tObji ---- */

@@ -199,7 +199,7 @@ int AIPhysic_GearBottomSpeed(Car_tObj *carObj, Gear_t gear)
 {
     if (gear < 3) return 0;
     else {
-        int convertedGear = gear - 3;
+        const int convertedGear = gear - 3;
         return carObj->topSpeeds[convertedGear];
     }
 }

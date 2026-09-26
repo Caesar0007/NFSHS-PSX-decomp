@@ -449,7 +449,6 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     int x1raw;
     /* SYM-CODEGEN-CARRIER: centerZ.  Merging this live range with centerKeep
        retains size but changes 64 register/schedule positions. */
-    int centerZ;
     /* SYM-CODEGEN-CARRIER: centerX.  Inlining the slice-center access preserves
        size but moves its load, leaving two detailed diffs. */
     int centerX;
@@ -458,17 +457,14 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     int centerY;
     /* SYM-CODEGEN-CARRIER: positionX.  Direct field use with no alias-only
        fence keeps 358 instructions but recolors/schedules 42 positions. */
-    int positionX;
     /* SYM-CODEGEN-CARRIER: positionY.  Its direct field form independently
        preserves size but reproduces the same 42-diff allocation shift. */
-    int positionY;
     /* SYM-CODEGEN-CARRIER: positionZ.  Direct field use moves its load past
        the slice-address fences and produces 54 diffs at unchanged size. */
     int positionZ;
     /* SYM-CODEGEN-CARRIER: linearZ.  Direct field use moves its load and adds
        a nop (359/358, three diffs); load-first ordering also reverses the addu
        operands (five diffs). */
-    int linearZ;
     /* SYM-CODEGEN-CARRIER: velocityX.  Directly storing the expression into
        vel_b.x keeps 358 instructions but changes 16 allocation positions. */
     int velocityX;
@@ -477,7 +473,6 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     int velocityZ;
     /* SYM-CODEGEN-CARRIER: centerKeep.  Reusing centerZ keeps 358 instructions
        but changes the x3 multiply live range and produces 64 detailed diffs. */
-    int centerKeep;
 
     {
     int r1;
@@ -509,17 +504,17 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
 
     centerX = PHYSICS_SLICE_CENTER(slice,0);
     __asm__("" : : "r"(centerX), "r"(centerX));
-    positionX = (carObj->N).position.x;
+    const int positionX = (carObj->N).position.x;
     velocityX = positionX + ((carObj->N).linearVel.x >> 5) - centerX;
     vel_b.x = velocityX;
     __asm__("" : : "r"(positionX));
     centerY = PHYSICS_SLICE_CENTER(slice,1);
     __asm__("" : : "r"(centerY), "r"(centerY));
-    positionY = (carObj->N).position.y;
+    const int positionY = (carObj->N).position.y;
     vel_b.y = positionY + ((carObj->N).linearVel.y >> 5) - centerY;
     __asm__("" : : "r"(positionY));
-    centerZ = PHYSICS_SLICE_CENTER(slice,2);
-    linearZ = (carObj->N).linearVel.z;
+    const int centerZ = PHYSICS_SLICE_CENTER(slice,2);
+    const int linearZ = (carObj->N).linearVel.z;
     positionZ = (carObj->N).position.z;
     __asm__("" : : "r"(PHYSICS_SLICE_ADDR(slice)),
                  "r"(PHYSICS_SLICE_ADDR(slice)),
@@ -529,7 +524,7 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
                  "r"(PHYSICS_SLICE_ADDR(slice)),
                  "r"(PHYSICS_SLICE_ADDR(slice)));
     velocityZ = positionZ + (linearZ >> 5) - centerZ;
-    centerKeep = centerZ;
+    const int centerKeep = centerZ;
     __asm__("" : : "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
                  "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
                  "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
@@ -1432,7 +1427,7 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
           }
           /* SYM-CODEGEN-CARRIER: downshiftRedlineRpm.  The isolated snapshot
              preserves retail's lw-v0 then move-v1-v0 before the clamp. */
-          int downshiftRedlineRpm = specs->redline;
+          const int downshiftRedlineRpm = specs->redline;
           __asm__("" : : "r"(downshiftRedlineRpm));
           ratio = downshiftRedlineRpm;
           if (ratio >= carObj->flywheelRpm) {

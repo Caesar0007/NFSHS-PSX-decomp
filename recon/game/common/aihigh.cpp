@@ -330,7 +330,7 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
 
   this->schedulingOff_ = 0;
 
-  this->lastTrafficTriggerCheckSlice_ = (int)(this->carObj_->N).simRoadInfo.slice;
+  this->lastTrafficTriggerCheckSlice_ = (int)(this->CarObj()->N).simRoadInfo.slice;
 
   return;
 

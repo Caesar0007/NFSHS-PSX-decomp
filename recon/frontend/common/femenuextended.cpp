@@ -1085,14 +1085,11 @@ void tMenuOptions::Draw()
                  textType_PopUpTitle);
     }
     itemY = y + 0x12;
-    i = 0;
-    while (true) {
-      if (this->fItemList[i] == (tMenuItem *)0x0) break;
-      if (((this->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+    for (i = 0; this->fItemList[i] != 0; i++) {
+      if (MenuItem_IsEnabled(this->fItemList[i])) {
         this->fItemList[i]->Draw(x + 10,itemY,(int)i == this->fCurrentItem);
         itemY = itemY + 0x12;
       }
-      i = i + 1;
     }
   }
   PSXDrawSquare(0,x,y,w,0xc);

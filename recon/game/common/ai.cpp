@@ -979,15 +979,12 @@ void AI_AvoidSpikeBelt(Car_tObj *carObj)
   int spikeSlice;
   int leftLatPos;
   int width;
-
-  if (BWorld_GetSpikeBelt(&spikeSlice,&leftLatPos,&width) == 0) {
-    return;
+  if (BWorld_GetSpikeBelt(&spikeSlice,&leftLatPos,&width) != 0) {
+    int distance;   /* unused: retail emits this then-block with no record, which an unused local reproduces */
+    if (AIWorld_ApxSplineDistance(spikeSlice,carObj) * carObj->direction - 1U < 0x63ffff) {
+      AI_SubmitObstacle(carObj,-0x280000,leftLatPos,leftLatPos + width,spikeSlice);
+    }
   }
-  if (0x63ffff <= AIWorld_ApxSplineDistance(spikeSlice,carObj) * carObj->direction - 1U) {
-    return;
-  }
-  AI_SubmitObstacle(carObj,-0x280000,leftLatPos,leftLatPos + width,spikeSlice);
-  return;
 }
 
 /* ---- AI_SubmitObstacle__FP8Car_tObjiiii  [@0x800599e4] ---- */

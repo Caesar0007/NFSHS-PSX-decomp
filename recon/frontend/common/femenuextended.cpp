@@ -7,6 +7,7 @@
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tFEApplication * App(void) { return FEApp; }
+static inline int MenuItem_NumFrames(tMenuItem *item) { return item->fNumFrames; }
 
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
@@ -776,36 +777,24 @@ void tMenuNFS4::DrawItem(int item)
 /* ---- tMenuNFS4::Draw  [FEMENUEXTENDED.CPP:534-556] SLD-VERIFIED ---- */
 
 void tMenuNFS4::Draw()
-
 {
-  /* SYM-CODEGEN-CARRIER: iVar3
-   * SYM-CODEGEN-CARRIER: iVar4
-   * The SYM records only `short i` and `tDrawShapeExtended drawFlags`.
-   * These two optimized field-value carriers preserve the retail register
-   * handout: collapsing both into direct member reads is FAIL 31 / 85 insns
-   * versus PASS 82, while the direct title, item-pointer, and vtable forms pass. */
-  /* SYM ORDER (W86-S2): the SYM rows i, drawFlags lead; the two non-SYM
-     carriers follow them. */
   short i;
   tDrawShapeExtended drawFlags;
-  int iVar3;
-  int iVar4;
 
-  if (-1 < this->fTitle) {
+  if (this->fTitle >= 0) {
     FETextRender_Title(this->fTitle);
   }
   this->tMenu::Initialize();
-  iVar4 = this->fItemList[this->fCurrentItem]->fButtonImage;
-  iVar3 = this->fItemList[this->fCurrentItem]->fNumFrames;
-  if ((-1 < iVar4) && (0 < iVar3)) {
+  const int image = this->fItemList[this->fCurrentItem]->ButtonImage();
+  const int frames = MenuItem_NumFrames(this->fItemList[this->fCurrentItem]);
+  if (image >= 0 && frames > 0) {
     drawFlags.tint[0] = 0xcec844;
-    DrawShapeExtended(iVar4 + ((int)(FE_Ticks() >> 4) % iVar3),0x410,0x10,
-                      App()->fPlayer != 0 ? 0x79 : 0x10,0,0,&drawFlags);
+    DrawShapeExtended(image + (FE_Ticks() >> 4) % frames, 0x410, 0x10,
+                      FEApp->Player() != 0 ? 0x79 : 0x10, 0, 0, &drawFlags);
   }
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    this->DrawItem((int)i);
+    this->DrawItem(i);
   }
-  return;
 }
 
 

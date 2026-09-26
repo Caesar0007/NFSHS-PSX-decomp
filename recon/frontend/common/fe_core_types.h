@@ -103,6 +103,7 @@ struct tMenuItem {
 #endif
 #ifdef NFS4_FE_CORE_MENUITEM_ISENABLED
     inline bool IsEnabled() { return (fFlags & 1) == 0; }
+    inline int ButtonImage() { return fButtonImage; }
 #endif
 };
 

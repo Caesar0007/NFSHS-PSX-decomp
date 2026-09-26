@@ -58,59 +58,34 @@ AIHigh_BasicCop::AIHigh_BasicCop(Car_tObj *carObj,int copIndex) : AIHigh_Base(ca
 
 
 
+/* spike-belt helpers (retail pairs: no `this`; SetFreshenTime/IsStale record `timeNow`) */
+static inline int SpikeBelt_IsActive(void) { return AICop_spikeBelt.active_; }
+static inline int SpikeBelt_IsFresh(int timeNow) { return timeNow - AICop_spikeBelt.freshenTime_ < 0x140; }
+static inline int SpikeBelt_Slice(void) { return AICop_spikeBelt.slice_; }
+static inline void SpikeBelt_SetActive(int active) { AICop_spikeBelt.active_ = active; }
+static inline void SpikeBelt_SetFreshenTime(int timeNow) { AICop_spikeBelt.freshenTime_ = timeNow; }
+
 /* ---- CheckSpikeBelt__15AIHigh_BasicCop  AIHigh_BasicCop::CheckSpikeBelt  [AIH_BASICCOP.CPP:41-73] SLD-VERIFIED ---- */
 
 void AIHigh_BasicCop::CheckSpikeBelt()
-
-
-
 {
-  /* SYM-CODEGEN-CARRIER: freshenElapsed -- retail's short-circuit result is
-     optimized out of the local table, but a distinct predicate is required
-     for the exact zero initialization and slti/sltiu sequence.  The two
-     `timeNow` declarations below are the exact names and lexical regions
-     retained by the SLD for the elapsed-time and refresh expansions. */
-  int freshenElapsed;
-
-  freshenElapsed = 0;
-
-  if (AICop_spikeBelt.active_ != 0) {
-    int timeNow;
-
-    timeNow = simGlobal.gameTicks;
-    timeNow -= AICop_spikeBelt.freshenTime_;
-    timeNow = timeNow < 0x140;
-    freshenElapsed = !timeNow;
-  }
-
-  if (freshenElapsed) {
-    if (AILife_IsSliceInAnyVisibleArea(AICop_spikeBelt.slice_) == 0) {
-
+  if (SpikeBelt_IsActive() && !SpikeBelt_IsFresh(simGlobal.gameTicks)) {
+    int slice = SpikeBelt_Slice();
+    if (AILife_IsSliceInAnyVisibleArea(slice) == 0) {
       BWorld_InitSpikeBelt();
-
-      AICop_spikeBelt.active_ = 0;
-
+      SpikeBelt_SetActive(0);
     }
     else {
-      int timeNow;
-
-      timeNow = simGlobal.gameTicks;
-      AICop_spikeBelt.freshenTime_ = timeNow;
-
+      SpikeBelt_SetFreshenTime(simGlobal.gameTicks);
     }
   }
-
-  if ((AICop_gRoadBlockState == kAICop_RoadBlockState_PerpPassed) &&
-      (AILife_IsSliceInAnyVisibleArea(Object_customSliceNum) == 0)) {
-
-    Object_ClearCustomObjects();
-
-    AICop_gRoadBlockState = kAICop_RoadBlockState_None;
-
+  if (AICop_gRoadBlockState == kAICop_RoadBlockState_PerpPassed) {
+    int slice = Object_customSliceNum;
+    if (AILife_IsSliceInAnyVisibleArea(slice) == 0) {
+      Object_ClearCustomObjects();
+      AICop_gRoadBlockState = kAICop_RoadBlockState_None;
+    }
   }
-
-  return;
-
 }
 
 

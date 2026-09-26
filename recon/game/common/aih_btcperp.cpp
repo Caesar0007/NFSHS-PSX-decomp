@@ -9,6 +9,10 @@
 #include "aih_btcperp_types.h"
 #include "aih_btcperp_externs.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int GameTicks(void) { return simGlobal.gameTicks; }
+
+
 /* Retail aih_btcperp.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -1281,7 +1285,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
       if (this->timeUntilContact_ < 0x140) {
 
-        this->madeContactTime_ = simGlobal.gameTicks;
+        this->madeContactTime_ = GameTicks();
 
         if (this->perpMode_ != 2) {
 
@@ -1316,7 +1320,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
     case 4:
 
-      if (this->escapeDuration_ < simGlobal.gameTicks - this->madeContactTime_) {
+      if (this->escapeDuration_ < GameTicks() - this->madeContactTime_) {
 
         this->perpMode_ = 5;
 
@@ -1324,7 +1328,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
       }
 
-      if (simGlobal.gameTicks - this->madeContactTime_ > this->escapeDuration_ - 0x40) {
+      if (GameTicks() - this->madeContactTime_ > this->escapeDuration_ - 0x40) {
 
         if (Camera_gInfo[0].forceFocus != 0) {
 
@@ -1419,7 +1423,7 @@ perpMode_merge:
 
     if ((this->perpMode_ == 0) && (this->timeUntilContact_ < 0x140)) {
 
-      this->madeContactTime_ = simGlobal.gameTicks;
+      this->madeContactTime_ = GameTicks();
 
       if (this->perpMode_ != 2) {
 
@@ -1706,7 +1710,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   Hud_InitMap();
 
-  this->creationTime_ = simGlobal.gameTicks;
+  this->creationTime_ = GameTicks();
 
   if (placementSpeed == PLACEMENTSPEED_FAST) {
 

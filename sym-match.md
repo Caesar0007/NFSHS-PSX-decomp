@@ -160,6 +160,15 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   gains its 14 pairs. Not kept: functions where the pairs would exceed retail's (the read is not a
   getter there, e.g. `PlaceIcons`, `SetPads`, `tDialogYesNo::Draw`) and `tDialogHelp::Draw` (bytes).
   Board 1835 -> 1857.
+- The same getter sweep for `simGlobal.gameTicks` (`build/tmp/getter_sweep.py`, generalised: needle,
+  getter name/type/expression) is NOT universal: of 49 DIRTY readers, 26 have no retail pair at all,
+  and where a tick read is inside the getter's pair the scope total can still overshoot retail
+  (`AIHigh_Cop::CheckForWipeOut` 13 vs 12 with a getter at the store site; `AIState_Chase::SetUp`,
+  `Execute`, `AIHigh_Opponent::CheckForWipeOut` likewise) -- those four were reverted. Six AI
+  functions kept a `GameTicks()` getter where the pairs grow within retail's count
+  (`DoNitrous`, `HandlePullOver` (Player), `HighExecute` (BTC_AIPerp), `HudOn`, `NewStage` (BTC_AIPerp),
+  `SetupBlockader`); all stay DIRTY, so this is a shape step, not a board step. Lesson: gate a
+  getter sweep on the function's total scope count as well as its pair count.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

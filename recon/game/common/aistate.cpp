@@ -10,6 +10,10 @@
 #include "aistate_types.h"
 #include "aistate_externs.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int GameTicks(void) { return simGlobal.gameTicks; }
+
+
 /* Retail aistate.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -632,7 +636,7 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
-  if ((0 < this->nitrousTicks_) && (simGlobal.gameTicks >= this->slowDownEndTime_)) {
+  if ((0 < this->nitrousTicks_) && (GameTicks() >= this->slowDownEndTime_)) {
 
     (this->carObj_)->accNitrous = 0x30000;
 

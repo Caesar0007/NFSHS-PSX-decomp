@@ -10,6 +10,10 @@
 #include "aih_btccop_types.h"
 #include "aih_btccop_externs.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int GameTicks(void) { return simGlobal.gameTicks; }
+
+
 /* Retail aih_btccop.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -1618,7 +1622,7 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 
     arrestingHumanCop = arrestMe->carObj_;
 
-    Hud_BustedOverlayOn(simGlobal.gameTicks - this->chaseStartTime_,
+    Hud_BustedOverlayOn(GameTicks() - this->chaseStartTime_,
 
                arrestingHumanCop->carInfo->driver,
 
@@ -3418,7 +3422,7 @@ LAB_8005f268:
 
     AICop_spikeBelt.slice_ = beltSlice;
 
-    timeNow = simGlobal.gameTicks;
+    timeNow = GameTicks();
 
     AICop_spikeBelt.freshenTime_ = timeNow;
 

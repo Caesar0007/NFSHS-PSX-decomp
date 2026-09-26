@@ -9,6 +9,10 @@
 #include "aih_play_types.h"
 #include "aih_play_externs.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int GameTicks(void) { return simGlobal.gameTicks; }
+
+
 /* Retail aih_play.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -1242,7 +1246,7 @@ void AIHigh_Player::HandlePullOver()
     if ((this->carObj_)->carIndex < 2) {
       Hud_Perp_OverlayOff((this->carObj_)->carIndex);
     }
-    this->lastPullOverTime_ = simGlobal.gameTicks;
+    this->lastPullOverTime_ = GameTicks();
     if (this->pullOverMode_ == 3) {
       if (((this->carObj_)->carFlags & 4U) != 0) {
         AICop_numArrestedHumans = AICop_numArrestedHumans + 1;
@@ -1284,7 +1288,7 @@ void AIHigh_Player::HandlePullOver()
 
     chaseTime = chaseInfo->GetChaseTime();
     this->beatingTicksLeft_ = chaseInfo->GetChaseLevel()->beatingTicks;
-    this->lastPullOverTime_ = simGlobal.gameTicks;
+    this->lastPullOverTime_ = GameTicks();
     /* SYM-CODEGEN-CARRIER: bVar1 -- retail materializes this short-circuit
        result in $a2.  Folding it into the following guard keeps 307
        instructions but changes 18 authoritative instructions/registers. */

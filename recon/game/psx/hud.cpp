@@ -264,11 +264,10 @@ void Hud_Perp_OverlayOff(int player);
 void Hud_CreateHudViews(void)
 {
 
-  int i;
 
   Hud_InitTables();
   Hud_BeTheCop = 0;
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
+  for (int i = 0; i < GameSetup_gData.numCars; i++) {
     if (GameSetup_gData.carInfo[i].carClass & 0x40) Hud_BeTheCop = 1;
   }
   if (GameSetup_gData.numPlayerRaceCars >= 2) {
@@ -5911,44 +5910,17 @@ extern int DashHUD_view[] __asm__("DashHUD_gInfo");
  * per-fn flag changes it.  Under the policy (no TEXT_MOVES-family rows) this residual
  * (+1 body lui, self-temp entry/tail pairs, 11 LCS lines) is the fn's floor receipt. */
 void Hud_RenderTacView(void)
-
 {
-  int j;
-  dashhud_info *dh; /* SYM-CODEGEN-CARRIER: dh -- typed pointer staging preserves the shared lo_sum;
-                       ORIGINAL-NAME-UNRESOLVED: dh. */
-
-  /* MATCH (w77-a16): a real top-tested loop names the canonical DashHUD_gInfo
-     aggregate in its test and body.  GCC rotates and duplicates the exit test,
-     then CSE forms retail's two-definition caller-saved high part. */
-  j = 0;
-  while (j <= DashHUD_gInfo.splitscreen) {
-      /* MATCH (w44-a5): the repeated index-term-first expressions let gcc CSE ONE
-       * shared `j * 4` for both Hud_gTacView[] fetches -- no source `j4` local is
-       * required. This reproduces the oracle's single `sll $v1,$s1,2; addu` per
-       * iteration. */
-      if ((GameSetup_gData.carInfo[j].HudTach != 0) &&
-          (dh = &DashHUD_gInfo, dh->showhud[j] != 0)) {
-
-        Draw_StartRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
-        DashHUD_HUDCalc(j);
-        Hud_BuildTach(j);
-        /* Canonical PsyQ addPrim expansion: the repeated gTPage1[j][2] expression
-         * becomes one +0x30 giv (the oracle's $s2 walker) without `tp`/`pal` locals. */
-        /* MATCH (w75-a4): the OT link written as the addPrim P_TAG BITFIELD PAIR (the w45
-         * lever already used in Hud_BuildMapMarkers / Hud_BuildWingmanInterface), not as
-         * explicit &0xff000000 / &0xffffff masks.  With explicit masks the 0xff000000
-         * constant is the FIRST loop-invariant the body mentions, so LICM hoists it before
-         * the 0xffffff pair ($s5 emitted one slot early, oracle has $s4 first); the
-         * bitfield store generates the masks in retail's order for free.  13 -> 11, count
-         * unchanged.  Falsified alternatives (all with the explicit masks kept): swapping
-         * the first `|`'s operands 19, both statements' operands 23, the second only 17. */
-        ((Hud_PTag *)&gTPage1[j][2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-        ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage1[j][2];
-        Draw_StopRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
-      }
-      j = j + 1;
+  for (int j = 0; j <= DashHUD_gInfo.splitscreen; j++) {
+    if (GameSetup_gData.carInfo[j].HudTach != 0 && DashHUD_gInfo.showhud[j] != 0) {
+      Draw_StartRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
+      DashHUD_HUDCalc(j);
+      Hud_BuildTach(j);
+      ((Hud_PTag *)&gTPage1[j][2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage1[j][2];
+      Draw_StopRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
+    }
   }
-  return;
 }
 
 /* P907: both arms now use the same native field in the existing type view;

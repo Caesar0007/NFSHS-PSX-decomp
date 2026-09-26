@@ -1056,75 +1056,31 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
 
 {
-
   if (this->timeLeft_ < 0) {
-
     AIInit_forceHumanHandBrake = 1;
-
     this->carObj_->RSControl = this->carObj_->direction;
-
-    this->requestedDesiredSpeed_ = 0;
-
-    return;
-
+    this->SetRequestedDesiredSpeed(0);
   }
-
-  if (this->freezeMode_ == 3) {
-
-    (this->carObj_)->RSControl = 0;
-
-    (this->carObj_)->pullOver = 1;
-
-    this->requestedDesiredSpeed_ = 0;
-
-    return;
-
-  }
-
-  if (this->freezeMode_ == 1) {
-
-    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
-
-    /* SYM-CODEGEN-CARRIER: startingDirection -- the direct field assignment
-     * is 6 oracle diffs; the explicit value preserves retail scheduling. */
-    int startingDirection = this->initialDirection_;
-
-    (this->carObj_)->RSControl = startingDirection;
-
-    (this->carObj_)->pullOver =
-
-         (u_int)(this->initialMovement_ == 0);
-
-    if ((this->carObj_)->pullOver != 0) {
-
-      this->requestedDesiredSpeed_ = 0;
-
-      return;
-
-    }
-
-  }
-
-  else {
-
-    if ((this->carObj_->pullOver == 1) || (this->carObj_->RSControl != 0)) {
-
-      this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
-
-    }
-
-    this->requestedDesiredSpeed_ = 0;
-
-    this->freezeMode_ = 0;
-
+  else if (this->freezeMode_ == 3) {
     this->carObj_->RSControl = 0;
-
-    (this->carObj_)->pullOver = 0;
-
+    this->carObj_->pullOver = 1;
+    this->SetRequestedDesiredSpeed(0);
   }
-
-  return;
-
+  else if (this->freezeMode_ == 1) {
+    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
+    this->carObj_->RSControl = this->InitialDirection();
+    this->carObj_->pullOver = (u_int)(this->InitialMovement() == 0);
+    if (this->carObj_->pullOver != 0)
+      this->SetRequestedDesiredSpeed(0);
+  }
+  else {
+    if (this->carObj_->pullOver == 1 || this->carObj_->RSControl != 0)
+      this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
+    this->SetRequestedDesiredSpeed(0);
+    this->freezeMode_ = 0;
+    this->carObj_->RSControl = 0;
+    this->carObj_->pullOver = 0;
+  }
 }
 
 

@@ -317,6 +317,10 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   constructor adds a body block); `Speaker::SetCar` (CarBank getters `Full()`/`Model()` on GetCarBank's temporary
   = variable-free pairs; `if (MultiplePerps()) SetColour(c); else SetColour(c | 0x78020);` with SetColour a plain
   setter -- the computed argument is why the second pair records only `this`). speech.cpp 74 CLEAN.
+- Speech round 7: `MobileSpeaker::Catch` CLEAN (was the goto/carrier spelling). Retail's pairs map one-to-one
+  onto accessor calls in the SPCHNFS argument lists; new Speaker accessors PerpName/SetAmbulance/Ambulance/Arrest
+  and MobileSpeaker::DelayStatus (defined after struct Speech). The first test is an early `return` (no scope),
+  so MakeSpeaker's pair sits at body level as in retail. Bytes unchanged; speech.cpp 75 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

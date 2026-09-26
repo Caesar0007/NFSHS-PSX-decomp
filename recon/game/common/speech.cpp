@@ -2835,88 +2835,50 @@ void Speech::MobileSpeaker::Accident(int slice)
 void Speech::MobileSpeaker::Catch(int ticket)
 
 {
-  /* The repeated line-14/27 SLD `Speaker *this` scopes are the inline field
-     and virtual operations below.  One receipt is retained per expansion.
-     SYM-INLINE-THIS: VirtualPerp
-     SYM-INLINE-THIS: VirtualPerp
-     SYM-INLINE-THIS: VirtualPerp
-     SYM-INLINE-THIS: VirtualPerp
-     SYM-INLINE-THIS: VirtualPerp
-     SYM-INLINE-THIS: VirtualPerp
-     SYM-INLINE-THIS: VirtualCallSign
-     SYM-INLINE-THIS: VirtualCallSign
-     SYM-INLINE-THIS: Location
-     SYM-INLINE-THIS: Location
-     SYM-INLINE-THIS: Distance
-     SYM-INLINE-THIS: Colour
-     SYM-INLINE-THIS: VirtualClearPerp */
-  /* SYM-OPTIMIZED: carObj -- the nested debug quantity is the direct
-     fCarObj RHS consumed by the Speech::fSpeakerCar store; materializing it
-     as a C++ local reverses the two retail loads and gives six diffs. */
-  /* SYM-OPTIMIZED: Arrest -- the inlined arrest-phrase helper reuses the
-     incoming `ticket` value in $s0, so no second source object survives. */
-
-  if (this->Perp() != 0) {
-    this->MakeSpeaker();
-    if (*(int *)((int)this->Perp() + 300) < 0) {
-      this->fTo =
-          this->CallSign()->fDispatch;
-      SPCHNFS_C_A_INTRO(this->Voice(),this->fTo,
-                        this->fFrom,&this->fReverse);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      this->FindLocation(
-          this->Perp());
-      SPCHNFS_C_D_PERP_CRASH_ROLL(this->Voice(),(SPCHNFSType_POSITION *)this,
-                 this->Location(),
-                 this->Distance(),
-                 &this->fPerpName);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      this->fAmbulance.flags = 4;
-      SPCHNFS_C_D_REQUEST_EMS(this->Voice(),&this->fAmbulance);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      goto Catch_dispatchCallback;
-    }
-    else {
-      if (*(int *)((int)this->Perp() + 0x78c) != 0) {
-        this->fTo =
-            this->CallSign()->fDispatch;
-        SPCHNFS_C_A_INTRO(this->Voice(),this->fTo,
-                          this->fFrom,&this->fReverse);
-        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-        this->SetCar(this->Perp());
-        this->FindLocation(
-            this->Perp());
-        SPCHNFS_C_D_PERP_CRASH_GEN(this->Voice(),(SPCHNFSType_POSITION *)this,
-                 this->Location(),this->Colour(),
-                 this->fCar,&this->fDistance,
-                 &this->fPerpName);
-        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-        this->fAmbulance.flags = 0x20;
-        SPCHNFS_C_D_REQUEST_EMS(this->Voice(),&this->fAmbulance);
-        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-        goto Catch_dispatchCallback;
-      }
-      else {
-        this->fArrest.flags = ticket;
-        if (ticket == 1) {
-          SPCHNFS_C_P_ARRESTED(this->Voice(),&this->fArrest);
-        }
-        else if (ticket == 2) {
-          SPCHNFS_C_P_WARNING(this->Voice(),&this->fArrest);
-        }
-        else {
-          SPCHNFS_C_P_TICKET(this->Voice(),&this->fArrest);
-        }
-        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-        if (ticket == 1) {
-          Speech::fgSpeech->SetDelayedStatus((Speaker *)this,0x60);
-        }
-        goto Catch_dispatchCallback;
-      }
-    }
-Catch_dispatchCallback:
-    Speech::Dispatch()->ClearPerp(this->fPerp);
+  /* Retail records one inline pair per accessor below (To/From/Reverse/Position/Location/Distance/PerpName/
+     Ambulance/Arrest on Speaker, Voice on MobileSpeaker, Dispatch on the call-sign temporary), MakeSpeaker at
+     body level after the early return, and SetArrest's `Arrest` = ticket. */
+  if (this->Perp() == 0)
+    return;
+  this->MakeSpeaker();
+  if (*(int *)((int)this->Perp() + 300) < 0) {
+    this->SetTo(this->CallSign()->Dispatch());
+    SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    this->FindLocation(this->Perp());
+    SPCHNFS_C_D_PERP_CRASH_ROLL(this->Voice(),this->Position(),this->Location(),this->Distance(),
+                                this->PerpName());
+    SPCH_PlaySpeech();
+    this->SetAmbulance(4);
+    SPCHNFS_C_D_REQUEST_EMS(this->Voice(),this->Ambulance());
+    SPCH_PlaySpeech();
   }
+  else if (*(int *)((int)this->Perp() + 0x78c) != 0) {
+    this->SetTo(this->CallSign()->Dispatch());
+    SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    this->SetCar(this->Perp());
+    this->FindLocation(this->Perp());
+    SPCHNFS_C_D_PERP_CRASH_GEN(this->Voice(),this->Position(),this->Location(),this->Colour(),
+                               this->Car(),this->Distance(),this->PerpName());
+    SPCH_PlaySpeech();
+    this->SetAmbulance(0x20);
+    SPCHNFS_C_D_REQUEST_EMS(this->Voice(),this->Ambulance());
+    SPCH_PlaySpeech();
+  }
+  else {
+    this->SetArrest(ticket);
+    if (ticket == 1)
+      SPCHNFS_C_P_ARRESTED(this->Voice(),this->Arrest());
+    else if (ticket == 2)
+      SPCHNFS_C_P_WARNING(this->Voice(),this->Arrest());
+    else
+      SPCHNFS_C_P_TICKET(this->Voice(),this->Arrest());
+    SPCH_PlaySpeech();
+    if (ticket == 1)
+      this->DelayStatus(0x60);
+  }
+  Speech::Dispatch()->ClearPerp(this->fPerp);
 }
 
 /* ---- RoadBlock__Q26Speech13MobileSpeaker  [SPEECH.CPP:2627-2648] SLD-VERIFIED ---- */

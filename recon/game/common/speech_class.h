@@ -100,6 +100,10 @@ struct Speech {
         inline void SetReverse(int reverse) { fReverse.flags = reverse; }
         inline SPCHNFSType_REVINTRO *Reverse() { return &fReverse; }
         inline SPCHNFSType_POSITION *Position() { return &fPosition; }
+        inline SPCHNFSType_PERP_NAME *PerpName() { return &fPerpName; }
+        inline void SetAmbulance(int ambulance) { fAmbulance.flags = ambulance; }
+        inline SPCHNFSType_AMBULANCE *Ambulance() { return &fAmbulance; }
+        inline SPCHNFSType_ARREST *Arrest() { return &fArrest; }
         inline SPCHNFSType_SPIKE_BELT_SIDE *SpikeSide() { return &fSpikeSide; }
         inline void SetSpikeSide(int side) { fSpikeSide.flags = side; }
         inline int BlockadeFlags() { return fBlockade.flags; }
@@ -173,6 +177,7 @@ struct Speech {
         /* retail: `Speech::fgSpeech->fSpeakerCar = fCarObj` is an inline on the mobile that calls an inner
            Speech inline with parameter `carObj` (Bullhorn's nested pair records carObj/$2 and the Speech this) */
         inline void MakeSpeaker();   /* defined after struct Speech so the inner Speech inline is expanded */
+        inline void DelayStatus(int delay);   /* Catch: `this` pair around Speech::SetDelayedStatus (defined after struct Speech) */
         inline SPCHNFSType_VOICE *Voice() { return &fVoice; }
         inline void SetVoice(int Voice) { fVoice.flags = Voice; }
         inline void SetSpeedType(int type) { fSpeedType.flags = type; }
@@ -284,6 +289,7 @@ struct Speech {
     ~Speech();
 };
 
+inline void Speech::MobileSpeaker::DelayStatus(int delay) { fgSpeech->SetDelayedStatus(this, delay); }
 inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); }
 inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); }
 

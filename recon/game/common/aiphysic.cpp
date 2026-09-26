@@ -566,15 +566,15 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
   coorddef right;
   int speed;
   int sliceLookAhead;
-
   if ((carObj->AIFlags & 0x10U) != 0) {
     carObj->rampDesiredLatPos = carObj->roadPosition;
     carObj->AIFlags = carObj->AIFlags & 0xffffffef;
   }
-  if (((((carObj->carFlags & 8U) != 0) && (simGlobal[1] > carObj->wipeOutStartTick)) &&
-      (0x1e < AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,(int)(carObj->N).simRoadInfo.slice))
-      ) && (0x1638e3 < carObj->speed)) {
-    carObj->wipeOutEndTick = simGlobal[1] + 0x180;
+  if (((carObj->carFlags & 8U) != 0) && (simGlobal[1] > carObj->wipeOutStartTick)) {
+    int curve = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,(int)(carObj->N).simRoadInfo.slice);
+    if ((0x1e < curve) && (0x1638e3 < carObj->speed)) {
+      carObj->wipeOutEndTick = simGlobal[1] + 0x180;
+    }
   }
   AIPhysic_SimplePhysics_LongVel(carObj);
   AIPhysic_SimplePhysics_LatVel(carObj);
@@ -590,22 +590,18 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
   (carObj->N).linearVel.y = forward.y + right.y;
   (carObj->N).linearVel.z = forward.z + right.z;
   (carObj->linearVel_ch).z = carObj->speed;
-  {
-    (carObj->linearVel_ch).x =
-        carObj->laneChangeSpeed * carObj->direction;
-    if (__builtin_abs((carObj->linearVel_ch).x) / 256 * 0x19 <
-        __builtin_abs((carObj->linearVel_ch).x)) {
-      carObj->slide = 0x8000;
-    }
-    else {
-      carObj->slide = 0;
-    }
+  speed = carObj->laneChangeSpeed * carObj->direction;
+  (carObj->linearVel_ch).x = speed;
+  if (__builtin_abs(speed) / 256 * 0x19 < __builtin_abs(speed)) {
+    carObj->slide = 0x8000;
   }
-  speed = carObj->speed;
+  else {
+    carObj->slide = 0;
+  }
   (carObj->N).angularVel.x = 0;
   (carObj->N).angularVel.y = 0;
   (carObj->N).angularVel.z = 0;
-  if (0x30000 < speed) {
+  if (0x30000 < carObj->speed) {
     Newton_CopyRoadMatrixToOrientMat(&carObj->N,(u_int)(carObj->direction == -1));
   }
   sliceLookAhead = __builtin_abs(carObj->currentSpeed) / 0x60000;

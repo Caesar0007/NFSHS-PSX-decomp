@@ -10,6 +10,14 @@
 #include "aih_play_externs.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline int GameTicks(void) { return simGlobal.gameTicks; }
 
 
@@ -122,7 +130,7 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
   memset(assigned,0,sizeof(assigned));
 
   cannotSetup = false;
-  split = Cars_gNumHumanRaceCars == 2;
+  split = NumHumanRaceCars() == 2;
   if ((pLevel->numBlockaders == 0) ||
       (chaseInfo->blockadeDone_ != 0) ||
       ((this->basicPerpInfo_.copsAssigned_[0] < pLevel->copChasers[0]) && !split) ||
@@ -170,7 +178,7 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
     }
   }
 
-  if ((Cars_gNumHumanRaceCars != 1) && (nCopsNeeded[1] > assigned[1])) {
+  if ((NumHumanRaceCars() != 1) && (nCopsNeeded[1] > assigned[1])) {
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
       AIHigh_Cop *thisCop;
       thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
@@ -862,9 +870,9 @@ void AIHigh_Player::MaintainAvailableCops()
   memset((u_char *)got, '\0', sizeof(got));
 
   availableCops = 3;
-  if (Cars_gNumRaceCars != 1) {
+  if (NumRaceCars() != 1) {
     availableCops = 4;
-    if (Cars_gNumHumanRaceCars == 2) {
+    if (NumHumanRaceCars() == 2) {
       availableCops = 2;
     }
   }
@@ -872,7 +880,7 @@ void AIHigh_Player::MaintainAvailableCops()
   {
     int playLoop;
 
-    for (playLoop = 0; playLoop < Cars_gNumRaceCars; playLoop++) {
+    for (playLoop = 0; playLoop < NumRaceCars(); playLoop++) {
       Car_tObj *playerCarObj;
       AIHigh_Player *playerHighObj;
       /* SYM-CODEGEN-CARRIER: pInfo -- the retail SLD records an inlined

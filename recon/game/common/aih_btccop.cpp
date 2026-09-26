@@ -11,6 +11,10 @@
 #include "aih_btccop_externs.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline int GameTicks(void) { return simGlobal.gameTicks; }
 
 
@@ -149,7 +153,7 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
 
   old = this->perpTarget_;
 
-  for (perpLoop = 0; perpLoop < Cars_gNumRaceCars; perpLoop = perpLoop + 1) {
+  for (perpLoop = 0; perpLoop < NumRaceCars(); perpLoop = perpLoop + 1) {
 
     Car_tObj*testPerpCarObj;
     int thisPerpCarIndex;

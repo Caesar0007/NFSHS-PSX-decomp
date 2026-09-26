@@ -6,6 +6,10 @@
  */
 #include "screenmain.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
@@ -284,9 +288,9 @@ void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 
 {
   
-  if ((keyval == kInput_KeyType_Triangle) && (0 < FEApp->backDepth[0])) {
+  if ((keyval == kInput_KeyType_Triangle) && (0 < App()->backDepth[0])) {
     this->SwapBackground(-1);
-    if ((tMenuNFS4 *)FEApp->fCurrentMenu[0] == &menuDefs->menuPinkSlipSelect) {
+    if ((tMenuNFS4 *)App()->fCurrentMenu[0] == &menuDefs->menuPinkSlipSelect) {
       frontEnd.raceType = RaceType_SingleRace;
     }
   }

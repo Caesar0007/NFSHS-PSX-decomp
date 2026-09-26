@@ -5,6 +5,10 @@
  */
 #include "femenuextended.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
@@ -796,7 +800,7 @@ void tMenuNFS4::Draw()
   if ((-1 < iVar4) && (0 < iVar3)) {
     drawFlags.tint[0] = 0xcec844;
     DrawShapeExtended(iVar4 + ((int)(FE_Ticks() >> 4) % iVar3),0x410,0x10,
-                      FEApp->fPlayer != 0 ? 0x79 : 0x10,0,0,&drawFlags);
+                      App()->fPlayer != 0 ? 0x79 : 0x10,0,0,&drawFlags);
   }
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
     this->DrawItem((int)i);
@@ -838,7 +842,7 @@ void tMenuNFS4TwoPlayer::DrawItem(int item)
   short y;
   
   y = 0x2b;
-  if (FEApp->fPlayer == '\x01') {
+  if (App()->fPlayer == '\x01') {
     y = 0x94;
   }
   this->fItemList[item]->Draw(10,y + item * 0x12,item == this->fCurrentItem);

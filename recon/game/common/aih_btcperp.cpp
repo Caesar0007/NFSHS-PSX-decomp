@@ -10,6 +10,10 @@
 #include "aih_btcperp_externs.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumCars(void) { return Cars_gNumCars; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline int GameTicks(void) { return simGlobal.gameTicks; }
 
 
@@ -654,7 +658,7 @@ AIHigh_BTC_Perp::CheckForActivation()
 
   while (true) {
 
-    if (Cars_gNumCars <= carLoop) {
+    if (NumCars() <= carLoop) {
 
       break;
 

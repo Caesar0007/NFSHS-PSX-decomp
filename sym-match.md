@@ -179,6 +179,12 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   from the normal one (the `tGlobalMenuDefs` constructor's frame is 640 bytes without `-g` and 608 with
   it; `gdebug_compile.py` reports CODE DIFFERS 6030 vs 6031 insns). Its sweep edits were reverted and
   the TU is excluded until that divergence is understood.
+- Six more getter sweeps (`FEApp->`, `Cars_gNumHumanRaceCars`, `AI_elapsedTime`, `Cars_gNumRaceCars`,
+  `Cars_gNumCars`, `screenMemcard->`): 35 functions kept by the pair gate, 5 reverted for overshooting the
+  scope count, none native CLEAN (board stays 1858) -- the AI/frontend functions that hold these reads are
+  the deeply DIRTY ones, so these are shape steps. `AI_elapsedTime` is never a getter (0 of 14 kept).
+  Diminishing returns for the no-parameter getter lever; the remaining retail pairs are mostly `this`
+  pairs (member inlines of Speech/AIHigh classes) and pairs inside deeper levels.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

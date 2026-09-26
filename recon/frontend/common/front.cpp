@@ -5,6 +5,10 @@
 #include "front.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
 
 
@@ -1140,7 +1144,7 @@ int Front_Menu(tFront_ProcessingType role)
       tMenuCommand tempCommand;
 
       MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);
-      result = FEApp->RunFrontEnd();
+      result = App()->RunFrontEnd();
     }
     break;
   case kFront_QuitToPostGame:
@@ -1162,7 +1166,7 @@ int Front_Menu(tFront_ProcessingType role)
         frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
       }
     }
-    result = FEApp->RunPostGame();
+    result = App()->RunPostGame();
     break;
   }
   Front_DeleteAll();

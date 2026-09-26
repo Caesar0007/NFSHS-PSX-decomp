@@ -6,6 +6,10 @@
 #include "screenpinkslips.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
 
@@ -237,7 +241,7 @@ void tScreenPinkSlips::Initialize()
   frontEnd.pinkSlipsTrackIndex = '\0';
   Decrement(&menuDefs->iteratorTrack,kPlayerBoth);
   Increment(&menuDefs->iteratorTrack,kPlayerBoth);
-  this->fMenu = FEApp->fCurrentMenu[0];
+  this->fMenu = App()->fCurrentMenu[0];
   this->tScreen::Initialize();
   this->fTVsInitialized = 0;
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);

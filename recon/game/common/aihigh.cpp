@@ -9,6 +9,10 @@
 #include "aihigh_types.h"
 #include "aihigh_externs.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumCars(void) { return Cars_gNumCars; }
+
+
 /* Retail aihigh.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -259,7 +263,7 @@ void AIHigh_Execute(void)
 
   do {
 
-    if (Cars_gNumCars <= carLoop) {
+    if (NumCars() <= carLoop) {
 
       return;
 

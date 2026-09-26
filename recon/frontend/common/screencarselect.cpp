@@ -4,6 +4,10 @@
  */
 #include "screencarselect.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
@@ -1103,7 +1107,7 @@ void tScreenCarSelect::DrawForeground()
      FAIL 7 at 556/557 and loses retail's loop-invariant `$t0 = 1`. */
   int overlayDirection;
   
-  currentItemValue = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
+  currentItemValue = App()->fCurrentMenu[0]->fItemList[App()->fCurrentMenu[0]->fCurrentItem];
   validCarValue = this->GetCar(carInfo);
   /* MATCH W86-D3 2026-09-02: the identity launder that kept `currentItem` and
      `currentItemValue` in two registers (gcc otherwise copy-propagates one into
@@ -1206,7 +1210,7 @@ void tScreenCarSelect::DrawForeground()
         *(signed char *)&carInfo.fCarID = -1;
       }
       this->UpdateVideoWall(carInfo);
-      if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
+      if (gCarObj[(byte)App()->fPlayer]->async_handle != 0) {
         this->SetBrightness(0,0);
         TurnOff(this->fVideoWall);
         this->fFadeTicks[0] = FE_Ticks();
@@ -2199,10 +2203,10 @@ void tScreenCarSelectTwoPlayer::SetDialog()
      `addu $s0,$a0,$zero` in the guard delay slot.  Exact result: PASS 48/48.
      The debug data proves the inline member's type/body but does not encode its
      original identifier; SetPosition is the explicit semantic reconstruction. */
-  int player = FEApp->fPlayer;
+  int player = App()->fPlayer;
 
-  if (FEApp->waitingForOtherPlayer[player] != 0) {
-    player = FEApp->fPlayer;
+  if (App()->waitingForOtherPlayer[player] != 0) {
+    player = App()->fPlayer;
     /* P866: SYM WaitingString[50] at 80052c58 is the writable destination
        and the displayed string. Empty literals previously passed the
        relocation-normalized gate but referenced the wrong storage. */
@@ -2517,7 +2521,7 @@ void tScreenPinkSlipsCarSelect::SetDialog()
   /* SYM: `player` is the sole caller local ($s0).  SetPosition reconstructs the
      line-2100 inline tDialogBase receiver and its three retail halfword stores. */
   /* SYM-INLINE-THIS: GetPlayer */
-  player = FEApp->GetPlayer();
+  player = App()->GetPlayer();
   this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c,
                               (tPlayer)player);
   /* MATCH: the Hide+return block is OUT OF LINE -- the oracle's `bnez fExitingScreen`
@@ -2542,7 +2546,7 @@ switchD_8003f3b4_caseD_7:
     ((tDialogBase *)&this->CarDialog)->Hide();
     return;
   case CardLoadedFine:
-    if ((FEApp->waitingForOtherPlayer[player] != 0) ||
+    if ((App()->waitingForOtherPlayer[player] != 0) ||
         (PinkSlipsScreenState[1 - player] != CardLoadedFine)) {
       /* P866: both references are the module's SYM WaitingString buffer. */
       sprintf(WaitingString,TextSys_Word(0x2a8),PlayerName(1 - player));

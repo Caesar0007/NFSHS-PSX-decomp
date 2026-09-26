@@ -9,6 +9,10 @@
 #include "aih_opp_types.h"
 #include "aih_opp_externs.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
+
+
 /* Retail aih_opp.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -41,7 +45,7 @@ void AIHigh_Opponent::CheckForWipeOut()
      current identifiers are placeholders, not accepted semantic restorations. */
   /* SYM-CODEGEN-CARRIER: numRacers -- its named lifetime makes the loop-bound
      load a profitable loop.c movable and the zero-op references reproduce
-     retail $t3.  Reading Cars_gNumHumanRaceCars directly was measured at 30
+     retail $t3.  Reading NumHumanRaceCars() directly was measured at 30
      diffs and 122 instructions. */
   int numRacers;
 
@@ -422,7 +426,7 @@ void AIHigh_Opponent::CheckForWipeOut()
            (measured: 30 @122, the load stays in the loop).  Assigning through `numRacers`, which
            the zero-insn fences reference on BOTH sides of the loop, spans the whole loop => the
            movable clears the budget with the loop unchanged. */
-        for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) {   /* 0x80063450 */
+        for (; hLoop < (numRacers = NumHumanRaceCars()); hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *thisPlayerObj;
           int speedLimit;
           /* 🔴 W72-A11: the do{}while(0) is a ZERO-INSN REF DIAL, not a stray brace.

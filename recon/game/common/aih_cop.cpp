@@ -10,6 +10,15 @@
 #include "aih_cop_externs.h"
 #include "../../link_stripped.h"
 
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
+
+
 /* Retail aih_cop.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -411,7 +420,7 @@ void AIHigh_Cop::HighExecute()
 
         newTrigger = *pNewTrigger;
 
-        if (Cars_gNumHumanRaceCars == 2) {
+        if (NumHumanRaceCars() == 2) {
 
           int distanceMeters;
 
@@ -1441,7 +1450,7 @@ LAB_80064a0c:
 
     while (true) {
 
-      if (Cars_gNumRaceCars <= hLoop) break;
+      if (NumRaceCars() <= hLoop) break;
 
       {
         Car_tObj *thisPlayerObj;
@@ -1576,7 +1585,7 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
   while (true) {
 
-    if (Cars_gNumHumanRaceCars <= hLoop) break;
+    if (NumHumanRaceCars() <= hLoop) break;
 
     thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
 
@@ -1659,13 +1668,13 @@ void AIHigh_Cop::CheckForWipeOut()
 
   /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
      (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
-     materializations, the AI_elapsedTime load, Cars_gNumHumanRaceCars, the perpTarget_
+     materializations, the AI_elapsedTime load, NumHumanRaceCars(), the perpTarget_
      re-read + thisTargetLevel load, and 5 of the 6 insns of `AI_elapsedTime * 89`),
      867/868 = the two list lookups, 877 = the paired guard (the multiply's LAST insn
      `addu $v1,$t1,$a2` lands in its delay slot), 879 = the store, 884 = the bump. */
   randVal = AI_Rand();
   thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
-  for (int hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop++) {
+  for (int hLoop = 0; hLoop < NumHumanRaceCars(); hLoop++) {
 
     Car_tObj *thisPlayerObj;
 
@@ -1748,7 +1757,7 @@ int AIHigh_Cop::CheckForNewTarget()
     int needs;
     int got;
 
-    if (Cars_gNumRaceCars <= playerLoop) break;
+    if (NumRaceCars() <= playerLoop) break;
 
     thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
     thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
@@ -1807,7 +1816,7 @@ int AIHigh_Cop::CheckForNewTarget()
       AIHigh_Player *thisPlayer;
       int copToTargetDistanceMeters;
 
-      if (Cars_gNumRaceCars <= playerLoop) break;
+      if (NumRaceCars() <= playerLoop) break;
 
       thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
       thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];

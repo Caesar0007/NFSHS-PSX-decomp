@@ -5,6 +5,10 @@
  */
 #include "fetextrender.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+
 /* Retail fetextrender.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -368,7 +372,7 @@ void FETextRender_Title(short index)
   short offset;
   
   offset = 0;
-  if (FEApp->fPlayer == '\x01') {
+  if (App()->fPlayer == '\x01') {
     offset = 0x69;
   }
   strcpy(upstr,TextSys_Word((int)index));

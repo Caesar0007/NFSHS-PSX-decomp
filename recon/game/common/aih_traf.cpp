@@ -9,6 +9,10 @@
 #include "aih_traf_types.h"
 #include "aih_traf_externs.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline int NumCars(void) { return Cars_gNumCars; }
+
+
 /* Retail aih_traf.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -415,7 +419,7 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 {
   int sortedLoop;
 
-  sortedLoop = Cars_gNumCars - 1;
+  sortedLoop = NumCars() - 1;
 
   while (sortedLoop >= 0) {
     Car_tObj *testCar = Cars_gTotalSortedList[sortedLoop];

@@ -3070,17 +3070,28 @@ void Hud_BuildNumbers(int player)
  * reading each global in the loop guard is FAIL 22 (46/40), so `carCount` is retained as a
  * measured source-only carrier. */
 void Hud_InitMap(void)
+
 {
+  int carCount; /* SYM-CODEGEN-CARRIER: carCount -- cached bound preserves the dual-GIV loop shape */
   int i;
 
-  const int numCars = Cars_gNumRaceCars;
-  for (i = 0; i < numCars; i++) {
-    *(int *)&Hud_gMarkerColor[i] = Cars_gRaceCarList[i]->carInfo->HudColour;
+  carCount = Cars_gNumRaceCars;
+  i = 0;
+  if (0 < Cars_gNumRaceCars) {
+    do {
+      *(int *)&Hud_gMarkerColor[i] = Cars_gRaceCarList[i]->carInfo->HudColour;
+      i = i + 1;
+    } while (i < carCount);
   }
-  const int numCops = Cars_gNumCopCars;
-  for (i = 0; i < numCops; i++) {
-    *(int *)&Hud_gCopMarkerColor[i] = Cars_gCopCarList[i]->carInfo->HudColour;
+  carCount = Cars_gNumCopCars;
+  i = 0;
+  if (0 < Cars_gNumCopCars) {
+    do {
+      *(int *)&Hud_gCopMarkerColor[i] = Cars_gCopCarList[i]->carInfo->HudColour;
+      i = i + 1;
+    } while (i < carCount);
   }
+  return;
 }
 
 /* ---- Hud_BuildMapMarkers__Fi  [HUD.CPP:2019-2133] SLD-VERIFIED ----

@@ -505,8 +505,6 @@ void tTournamentManager::UpdateTrackFinishPoints()
   /* SYM-CODEGEN-CARRIER: comp
      SYM-CODEGEN-CARRIER: knockout
      SYM-CODEGEN-CARRIER: next
-     SYM-CODEGEN-CARRIER: rankVal
-     SYM-CODEGEN-CARRIER: ranked
      SYM-CODEGEN-CARRIER: ranking
      SYM-CODEGEN-CARRIER: stats
      These expression carriers implement the allocation/address-shape receipt
@@ -516,16 +514,15 @@ void tTournamentManager::UpdateTrackFinishPoints()
   Car_tStats *dummyCars;
   short numCompetitors;
   Car_tStats *stats;
+  u_char *ranking;
   tCompetitor *comp;
-  u_char rankVal;
   bool knockout;
 
   numCompetitors = this->GetNumCompetitors();
   k = 0;
-  knockout = (this->fDefinition->fTournaments +
-      ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament))->fKnockout
+  knockout = this->CurrentTourney()->fKnockout
       != '\0';
-  dummyCars = Cars_gNewCarStatsList;
+  dummyCars = Cars_NewCarStatsList();
   if (knockout) {
     for (i = 0; i < numCompetitors; i = i + 1) {
       if (this->fCompetitors[i].fEliminated == 0) {
@@ -550,8 +547,6 @@ void tTournamentManager::UpdateTrackFinishPoints()
     *(long *)&this->fNumRacers = *(long *)&this->fNumRacers + -1;
   }
   else {
-    u_char *ranking;
-
     for (i = 0; i < numCompetitors; i = i + 1) {
       if ((dummyCars[i].finalPosition - 1U < 6) && (dummyCars[i].finalFinishType == 2)) {
         this->fCompetitors[i].fPoints =
@@ -578,9 +573,7 @@ void tTournamentManager::UpdateTrackFinishPoints()
        with a `ranked` temp 3; increment-before-store inline 5; a plain
        `int next = i + 1;` local in the old position 3. */
     do {
-      rankVal = this->fRanking[i];
-      char *ranked = (char *)this + rankVal * (int)sizeof(tCompetitor);
-      ranked[294] = (uchar)(i + 1);
+      this->fCompetitors[this->fRanking[i]].fPosition = i + 1;
       i = i + 1;
     } while (i < 6);
   }

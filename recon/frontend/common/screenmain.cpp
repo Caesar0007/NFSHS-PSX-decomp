@@ -309,16 +309,14 @@ void tScreenMain::DrawDropShadow()
   POLY_G4 *prim;
   int addr_24;
   uint addrMask;
-  uint tagMask;
   u_char *pal_link;
-  uint palTag;
   
   i = 0;
   do {
     prim = (POLY_G4 *)Render_gPacketPtr;
     pal_link = Render_gPalettePtr;
     addrMask = 0xffffff;
-    tagMask = 0xff000000;
+    const uint tagMask = 0xff000000;
     /* MATCH (2026-08-11, 32 -> PASS, 69/69):
        SYM-CODEGEN-CARRIER: addr_24
        SYM-CODEGEN-CARRIER: addrMask
@@ -336,7 +334,7 @@ void tScreenMain::DrawDropShadow()
        the two scratchpad address constants in the exact retail order. */
     *(uint *)prim = *(uint *)prim & tagMask |
                     *(uint *)pal_link & addrMask;
-    palTag = *(uint *)pal_link;
+    const uint palTag = *(uint *)pal_link;
     addr_24 = (uint)prim & addrMask;
     Render_gPacketPtr = (u_char *)prim + 0x24;
     *(uint *)pal_link = palTag & tagMask | (addr_24 & addrMask);

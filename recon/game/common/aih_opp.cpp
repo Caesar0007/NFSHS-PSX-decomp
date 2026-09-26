@@ -760,48 +760,24 @@ AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj) : AIHigh_Player(carObj)
 /* ---- DoProvokedAttack__15AIHigh_Opponent  AIHigh_Opponent::DoProvokedAttack  [AIH_OPP.CPP:260-280] SLD-VERIFIED ---- */
 
 int AIHigh_Opponent::DoProvokedAttack()
-
-
-
 {
-  /* ORIGINAL-NAME-RECOVERED: otherCar -- NFS2 PC beta's source-bearing
-     AI_ProcessCollision ancestor and its independent SYM both retain this
-     spelling for the corresponding collision object.  NFS4's optimized SYM
-     omits the local; raw/IDA/m2c confirm its retail $a2 role. */
-  Car_tObj *otherCar;
-
-  if (((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) &&
-
-      (otherCar = (Car_tObj *)this->carObj_->N.collision.lastOtherObj,
-       otherCar != (Car_tObj *)0x0)) &&
-
-     ((otherCar->carFlags & 4U) != 0)) {
-
+  if ((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) &&
+      ((Car_tObj *)this->carObj_->N.collision.lastOtherObj != (Car_tObj *)0x0) &&
+      ((((Car_tObj *)this->carObj_->N.collision.lastOtherObj)->carFlags & 4U) != 0)) {
+    Car_tObj *otherCar = (Car_tObj *)this->carObj_->N.collision.lastOtherObj;
     if (this->lastHumanHitter_ != otherCar) {
-
       this->lastHumanHitter_ = otherCar;
-
       this->hitCount_ = 0;
-
     }
-
     this->hitCount_++;
-
     if (this->hitCount_ >
         this->carObj_->personality->attackActivationHits) {
-
       this->attackTicksLeft_ = this->carObj_->personality->attackTime;
-
       this->hitCount_ = 0;
-
       return otherCar->carIndex;
-
     }
-
   }
-
   return -1;
-
 }
 
 

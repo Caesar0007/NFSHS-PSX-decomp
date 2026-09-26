@@ -72,6 +72,7 @@ void UpdateContext(DRender_tView *Vi,int contextHandle)
   }
   BWorldSm_FindClosestQuadRez(&Vi->cview.translation,&gCurrContext->slicePos,1);
   if ((signed char)(gCurrContext->slicePos).offEdge != '\0') {
+    int unused;   /* unused: retail emits this then-block with no record */
     FindAbsClosestSliceCrude(&Vi->cview.translation,&gCurrContext->slicePos);
     BWorldSm_FindClosestQuadRez(&Vi->cview.translation,&gCurrContext->slicePos,1);
   }
@@ -873,21 +874,11 @@ int SetupChunkBuildList(DRender_tView *Vi)
  * copies it to long-lived $a2 in the guard's delay slot. */
 bool BWorld_IsSliceInBuildList(int slice)
 {
-  int chunk;
-  int bi;
-
-  bi = 0;
-  if (slice < 0) {
-    slice = slice + 7;
-  }
-  chunk = slice >> 3;
-  if (0 < BWorld_gChunkCount) {
-    do {
-      if ((int)((tBuildEntry *)BWorld_gChunkBuildList)[bi].chunkInd == chunk) {
-        return 1;
-      }
-      bi = bi + 1;
-    } while (bi < BWorld_gChunkCount);
+  int chunk = slice / 8;
+  for (int bi = 0; bi < BWorld_gChunkCount; bi++) {
+    if ((int)((tBuildEntry *)BWorld_gChunkBuildList)[bi].chunkInd == chunk) {
+      return 1;
+    }
   }
   return 0;
 }
@@ -1065,6 +1056,9 @@ int BWorld_OpenContext(int contextType,int client)
 /* ---- BWorld_Restart__Fv  [@0x8007e564] ---- */
 void BWorld_Restart(void)
 {
+  {
+    int unused;   /* unused: retail emits a record-less block in this function */
+  }
   Object_KillStatus();
   Object_InitStatus();
   SetContext(0);

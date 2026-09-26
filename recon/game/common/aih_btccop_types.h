@@ -373,6 +373,8 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     inline int InitialMovement() { return initialMovement_; }
     inline void SetRequestedDesiredSpeed(int speed) { requestedDesiredSpeed_ = speed; }
     inline int RequestedDesiredSpeed() { return requestedDesiredSpeed_; }
+    inline void SetInitialDirection(int initialDirection) { initialDirection_ = initialDirection; }
+    inline void SetInitialMovement(int initialMovement) { initialMovement_ = initialMovement; }
 };
 
 

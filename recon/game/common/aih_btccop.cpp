@@ -330,16 +330,7 @@ void AIHigh_BTC_Cop::HudOff()
 /* ---- __19AIHigh_BTC_HumanCopP8Car_tObji  AIHigh_BTC_HumanCop::ctor  [AIH_BTCCOP.CPP:326-369] SLD-VERIFIED ---- */
 AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh_BTC_Cop(carObj,copIndex)
 {
-  int startMovement;
-  int startDirection;
-  int startSlice;
-  int addToSlice;
-  int bend;
-
-  
-
-
-  this->initialMovement_ = 1;
+  this->SetInitialMovement(1);
 
   this->currentStage_ = -1;
 
@@ -347,9 +338,9 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh
 
   this->needPerp_ = 0;
 
-  this->initialDirection_ = 0;
+  this->SetInitialDirection(0);
 
-  this->requestedDesiredSpeed_ = 0;
+  this->SetRequestedDesiredSpeed(0);
 
   this->stageRepeatCount_ = 0;
 
@@ -362,6 +353,11 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh
   AILife_PlaceCarAtLocation(this->carObj_,0,0,1,0,0);
 
   if (copIndex == 0) {
+    int startDirection;
+    int startMovement;
+    int startSlice;
+    int addToSlice;
+    int bend;
 
     startDirection = -1;
 

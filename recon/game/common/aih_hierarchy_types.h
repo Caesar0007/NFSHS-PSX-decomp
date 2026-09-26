@@ -325,6 +325,7 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     void HandleBlockadeSpeech();
     int ShouldIPerformCutOffBlock(int a, Car_tObj *carObj);
     inline blockadeMode_t BlockadeMode() { return blockade_.mode; }   /* retail pairs (this typed AIHigh_BasicCop) */
+    inline blockade_t *Blockade() { return &blockade_; }
 };
 
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {

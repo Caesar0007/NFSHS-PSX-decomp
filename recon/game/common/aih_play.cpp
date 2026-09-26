@@ -1181,56 +1181,22 @@ void AIHigh_Player::HandleCops()
 /* ---- CleanupBlockaders__13AIHigh_Playeri  AIHigh_Player::CleanupBlockaders  [AIH_PLAY.CPP:871-902] SLD-VERIFIED ---- */
 
 void AIHigh_Player::CleanupBlockaders(int forceClearAll)
-
-
-
 {
-  int clearWaitingBlockaders;
-  int copLoop;
-  AIHigh_Cop*thisCop;
-  blockade_t*blockade;
-
-  clearWaitingBlockaders = 0;
-
+  int clearWaitingBlockaders = 0;
   if ((0 < (this->carObj_->stats).numArrests) ||
       (1 < (this->carObj_->stats).finishType) || (forceClearAll != 0)) {
-
     clearWaitingBlockaders = 1;
-
   }
-
-  copLoop = 0;
-
-  while (true) {
-
-    if (Cars_gNumCopCars <= copLoop) break;
-
-    /* MATCH: SYM shows no walking-pointer local in this fn's block scopes (only
-       copLoop/thisCop/blockade) -- oracle indexes Cars_gCopCarList[copLoop] directly
-       (gcc strength-reduces to the same pointer-walk body, but the LICM preheader then
-       hoists highLevelAIObjs's base BEFORE Cars_gCopCarList's, matching the oracle order). */
-    thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
-
-    blockade = &thisCop->blockade_;
-
-    if (((((blockadeMode_t)blockade->mode == 1) ||
-          ((blockadeMode_t)blockade->mode == 4)) ||
-         (((blockadeMode_t)blockade->mode == 2 && clearWaitingBlockaders))) &&
-
-       (blockade->target == this)) {
-
-      blockade->mode = 0;
-
+  for (int copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
+    AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
+    blockade_t *blockade = thisCop->Blockade();
+    if (((blockade->mode == 1) || (blockade->mode == 4) ||
+         ((blockade->mode == 2) && clearWaitingBlockaders)) &&
+        (blockade->target == this)) {
+      blockade->mode = (blockadeMode_t)0;
       thisCop->AssignToPlayer((AIHigh_Player *)0x0);
-
     }
-
-    copLoop = copLoop + 1;
-
   }
-
-  return;
-
 }
 
 

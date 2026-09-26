@@ -434,20 +434,14 @@ void AIPhysic_HandleSignalling(Car_tObj *carObj)
  * as `(unsigned short)(r>>8)` to anchor the andi on the random + keep the full `lw` of the personality field. */
 void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
 {
-    /* SYM-CODEGEN-CARRIER: limit -- optimized SYM omits this scalar, but the
-       single snapshot selects retail's separate v1/a2 global-load pseudos;
-       repeating D_8011E0B0[0] keeps 37 instructions with four detailed
-       address-register/load-order differences. */
-    int limit;
     if ((carObj->carFlags & 8) == 0)
         return;
-    limit = simGlobal[1];
-    if (!(carObj->wipeOutStartTick < limit))
+    if (simGlobal[1] <= carObj->wipeOutStartTick)
         return;
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xFFFF;
     carObj->wipeOutStartTick =
-        limit + carObj->personality->minimumBetweenWipeoutTicks +
+        simGlobal[1] + carObj->personality->minimumBetweenWipeoutTicks +
         (int)((unsigned int)(unsigned short)(randtemp >> 8) &
               carObj->personality->randomBetweenWipeoutTicks);
 }

@@ -17,6 +17,7 @@ struct AIHigh_Cop : public AIHigh_BasicCop {
     void AssignToPlayer(AIHigh_Player *p);
     int GetCheckChasePosition(coorddef *pt);
     trigger_t *CheckForNewTriggers();
+    inline AIHigh_Player *PerpTarget() { return perpTarget_; }   /* retail pair (this typed AIHigh_Cop) */
 };
 
 struct AIHigh_Traffic : public AIHigh_Base {

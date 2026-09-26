@@ -22,53 +22,25 @@ extern "C" int sprintf(char *, const char *, ...);
 Car_tObj *
 
 AIHigh_Traffic::CheckForCops(int *closestDistance)
-
-
-
 {
-
   int copLoop;
   Car_tObj*closestCop;
-
-
-
   closestCop = (Car_tObj *)0x0;
-
   *closestDistance = 0x4e200000;
-
-  copLoop = 0;
-
-  while (true) {
-
+  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
     Car_tObj*cop;
     int sliceDistance;
-
-    if (Cars_gNumCopCars <= copLoop) break;
-
     cop = Cars_gCopCarList[copLoop];
-
     if ((cop->AIFlags & 4U) == 0) {
-
       sliceDistance = AIWorld_ApxSplineDistance(this->carObj_,cop);
-
       sliceDistance = __builtin_abs(sliceDistance);
-
       if (sliceDistance < *closestDistance) {
-
         closestCop = cop;
-
         *closestDistance = sliceDistance;
-
       }
-
     }
-
-    copLoop = copLoop + 1;
-
   }
-
   return closestCop;
-
 }
 
 
@@ -95,68 +67,32 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 AIHigh_Cop *
 
 AIHigh_Traffic::CopCheck(int *blockade)
-
-
-
 {
   Car_tObj*closest;
   int closestDistance;
   int speed;
   AIHigh_Cop*cop;
-
-
-
   *blockade = 0;
-
   cop = (AIHigh_Cop *)0x0;
-
-  /* 04T: SOLVED by community scratch https://decomp.me/scratch/DDEJs (score 0):
-   * BOTH failure paths are early `return cop;` -- returning the VARIABLE (not a
-   * 0 literal) keeps distinct return sites, and the closest==0 site's v0 zero
-   * lands eager-stolen in the beqz slot exactly like retail.  The 6 falsified
-   * spellings from the 04R receipt all returned constants/merged shapes. */
   if (Cars_gNumCopCars == 0) {
-
     return cop;
-
   }
-
   closest = this->CheckForCops(&closestDistance);
-
   if (closest == (Car_tObj *)0x0) {
-
     return cop;
-
   }
-
-  /* The retail inline abs form is required to retain the SLD allocation:
-   * closest in $a0 and speed in $a1. */
   speed = __builtin_abs(closest->currentSpeed);
-
   if ((speed < 0x20000) && (closestDistance < 0x4b0000)) {
-
     *blockade = 1;
-
     cop = (AIHigh_Cop *)highLevelAIObjs[closest->carIndex];
-
-    if (((AIHigh_Cop *)highLevelAIObjs[closest->carIndex])->perpTarget_ == (AIHigh_Player *)0x0)
-
-    {
-
+    if (cop->PerpTarget() == (AIHigh_Player *)0x0) {
       cop = (AIHigh_Cop *)0x0;
-
     }
-
   }
-
   else if ((0x20000 < speed) && (closestDistance < 0x4b0000)) {
-
     cop = (AIHigh_Cop *)highLevelAIObjs[closest->carIndex];
-
   }
-
   return cop;
-
 }
 
 

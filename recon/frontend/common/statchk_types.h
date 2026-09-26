@@ -9,10 +9,10 @@
 #undef NFS4_FECNTL_NO_RECORD_CARRIER
 
 /* Statchk.obj's sole canonical addition to the Fecntl graph. */
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 
 #endif

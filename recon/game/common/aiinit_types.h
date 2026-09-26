@@ -25,20 +25,20 @@ struct GameSetup_tData {
 
 #define RaceType_Id3 3
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef enum Udff_tAccessType {
     UDFF_FILE = 0,
     UDFF_MEMORY = 1
 } Udff_tAccessType;
-struct Udff_tInfo {
-    Udff_tAccessType type;
-    int handle;
-    char *memPtr;
-};
+#include "shared/Udff_tInfo.h"
+
+
+
+
 typedef Udff_tInfo *Udff_tHandle;
 
 typedef enum AIDataRecord_RecordMethod_t {
@@ -80,63 +80,63 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
 /* P892: the shared data owner's native type (SYM130b95..130c49,
    EXT1371f7), needed for the real leaderBoard fields. This foreign type
    projection is not claimed present in aiinit.obj's surviving type list. */
-struct AISpeeds_tLeaderBoard {
-    Car_tObj *leadRacer, *leadHumanRacer, *leadAIRacer, *lastAIRacer;
-};
+#include "shared/AISpeeds_tLeaderBoard.h"
+
+
 
 struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
 
-struct AIPhysic_ModelConfig_t {
-    int dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc;
-    int dangle_to_dav, max_dav, dav_to_aa, max_aa;
-    int vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;
-};
+#include "shared/AIPhysic_ModelConfig_t.h"
 
-struct AIPhysic_Config_t {
-    int latvelcalc_lookahead, min_lookahead, max_lookahead, look_ahead_factor;
-    int skid_value;
-    AIPhysic_ModelConfig_t ICModel, OOCModel;
-};
 
-struct AI_tInfo {
-    Car_tObj *blockingCars[3];
-    int blockingCarsDist[3], laneSpeeds[3], laneSpeedsAhead[3], laneWeights[3];
-    int desiredLane, desiredLaneSide, deltaYaw;
-};
 
-struct accelscale_t {
-    int scale;
-};
 
-struct trigger_anyTrigger_t { int type, slice; };
-struct trigger_simple_t { int type, slice, dir, side, moving; };
-struct trigger_roadblock_t { int type, slice, dir, numCars, spikeBelt; };
-struct trigger_offroad_t {
-    int type, slice, dir;
-    coorddef position;
-    matrixtdef orientation;
-    int maxSpeed, releaseTime, endSlice;
-};
-struct trigger_trafficAccident_t {
-    int type, slice;
-    coorddef position;
-    matrixtdef orientation;
-};
-struct trigger_pathPosition_t { coorddef position; int targetSpeed, waitTime; };
-struct trigger_trafficPath_t {
-    int type, slice, dir;
-    matrixtdef orientation;
-    int maxSpeed, releaseTime, numPoints;
-    trigger_pathPosition_t *path;
-};
-union trigger_t {
-    trigger_anyTrigger_t any;
-    trigger_simple_t simple;
-    trigger_roadblock_t roadblock;
-    trigger_offroad_t offroad;
-    trigger_trafficAccident_t trafficAccident;
-    trigger_trafficPath_t trafficPath;
-};
+
+#include "shared/AIPhysic_Config_t.h"
+
+
+
+
+
+#include "shared/AI_tInfo.h"
+
+
+
+
+
+#include "shared/accelscale_t.h"
+
+
+
+#include "shared/trigger_anyTrigger_t.h"
+#include "shared/trigger_simple_t.h"
+#include "shared/trigger_roadblock_t.h"
+#include "shared/trigger_offroad_t.h"
+
+
+
+
+
+#include "shared/trigger_trafficAccident_t.h"
+
+
+
+
+#include "shared/trigger_pathPosition_t.h"
+#include "shared/trigger_trafficPath_t.h"
+
+
+
+
+
+#include "shared/trigger_t.h"
+
+
+
+
+
+
+
 
 struct AITrigger_TriggerManager {
     int numTriggers_, invNumTriggers_;

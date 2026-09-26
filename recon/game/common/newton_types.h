@@ -30,27 +30,27 @@ typedef enum crimeType {
     CRIME_SMASHCOP = 4
 } crimeType;
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 /* Canonical sim.obj aggregate from the retail SYM type graph. */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
 
-struct AICop_spikeBelt_t {
-    int active_, slice_, leftLatPos_, rightLatPos_, freshenTime_;
-};
+
+
+
+#include "shared/AICop_spikeBelt_t.h"
+
+
 
 struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
-struct AIPhysic_ModelConfig_t {
-    int dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc;
-    int dangle_to_dav, max_dav, dav_to_aa, max_aa;
-    int vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;
-};
+#include "shared/AIPhysic_ModelConfig_t.h"
+
+
+
+
 struct BW_tContext {
     int client;
     BWorldSm_Pos slicePos;
@@ -61,7 +61,7 @@ struct copLevel_t {
     int copAggression[2], copsPerLap, engagementLapFraction;
     int warningTicks, beatingTicks, numWarningsAdded;
 };
-struct copGame_t { int numLevels; copLevel_t *levels; };
+#include "shared/copGame_t.h"
 
 struct POLY_GT4 {
     u_long tag;
@@ -70,7 +70,7 @@ struct POLY_GT4 {
     u_char r2,g2,b2,p2; short x2,y2; u_char u2,v2; u_short pad2;
     u_char r3,g3,b3,p3; short x3,y3; u_char u3,v3; u_short pad3;
 };
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 struct Track_tArtresource {
     int id;
     char *shapeFile;
@@ -79,19 +79,19 @@ struct Track_tArtresource {
     int pmxCount, basePmxCount;
 };
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 struct Skidmark_Chunk {
     coorddef cp;
     short n, slice;
     Skidmark_Segment seg[24];
 };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;

@@ -10,13 +10,13 @@
 /* Owner-derived bworldSm type: SYM1cec71..1cedc3,32 bytes. Camera's
  * surviving type stream does not preserve this foreign body; its original
  * header visibility remains a source-recovery question, not a sealed claim. */
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 struct GameSetup_tData {
@@ -37,10 +37,10 @@ struct GameSetup_tData {
 };
 
 struct Sched_tSchedule;
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
@@ -54,9 +54,9 @@ struct tReplayInterface {
 
 /* Owner-derived replay type (SYM326706..32678F); camera.obj's own type
  * stream does not retain this foreign body. This is not a caller-graph seal. */
-struct tReplayCameraModes {
-    int defaultCamera, timeCounter, cameraMode, cutToNextCamera;
-};
+#include "shared/tReplayCameraModes.h"
+
+
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
@@ -64,10 +64,10 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
@@ -93,7 +93,7 @@ struct POLY_GT4 {
     u_char r2,g2,b2,p2; short x2,y2; u_char u2,v2; u_short pad2;
     u_char r3,g3,b3,p3; short x3,y3; u_char u3,v3; u_short pad3;
 };
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 struct Track_tArtresource {
     int id;
     char *shapeFile;
@@ -103,46 +103,46 @@ struct Track_tArtresource {
 };
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
+#include "shared/Trk_AnimateInst.h"
 
-struct DRender_tView {
-    int id, player;
-    DRender_tCalcView cview;
-};
 
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
+
+
+
+#include "shared/DRender_tView.h"
+
+
+
+
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct camera_flags {
     coorddef arm;
@@ -154,21 +154,21 @@ struct camera_flags {
     int checkcollisions : 1;
 };
 
-struct Camera_tCamSlot {
-    char mode;
-    char track : 1;
-    char zoom : 2;
-    char splineMode : 3;
-    short fov;
-    coorddef pos;
-    int height, splineOffset;
-    COORD16 euler;
-    short slice;
-};
+#include "shared/Camera_tCamSlot.h"
+
+
+
+
+
+
+
+
+
+
 
 struct kernpair { u_short previouscode, code; char kernvalue; char pad[3]; };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -181,12 +181,12 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 struct Skidmark_Chunk {
     coorddef cp;
     short n, slice;

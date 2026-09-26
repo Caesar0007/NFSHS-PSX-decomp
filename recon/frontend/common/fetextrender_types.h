@@ -38,14 +38,14 @@ enum tMenuTextState {
     textState_NumStates = 3
 };
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -57,11 +57,11 @@ struct tScreen {
 #include "fescreen_virtuals.inc"
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 struct tDialogBase : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

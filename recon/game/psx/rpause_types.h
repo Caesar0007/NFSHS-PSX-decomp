@@ -4,7 +4,7 @@
 
 #include "../common/draw_leaf_types.h"
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -17,15 +17,15 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct Draw_tView {
-    int otsize, membudget;
-    DRAWENV drawenv[2];
-    u_long *ot[2];
-};
+#include "shared/Draw_tView.h"
 
-struct dflip {
-    DISPENV disp;
-    char *server;
-};
+
+
+
+
+#include "shared/dflip.h"
+
+
+
 
 #endif

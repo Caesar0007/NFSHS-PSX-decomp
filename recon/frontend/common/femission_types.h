@@ -4,33 +4,33 @@
 
 #include "fe_core_types.h"
 
-struct tMissionTierInfo {
-    u_char fNumMissions, fDescriptionID, fMissionOffset, fPad;
-};
+#include "shared/tMissionTierInfo.h"
 
-struct tMissionInfo {
-    u_char fDescriptionID, fTrackNumber, fDirection, fMirrored;
-    u_char fTimeOfDay, fWeather, fTraffic, fPad;
-    u_short fStageOffset;
-    u_char fNumStages;
-    u_char fReserved[9];
-};
 
-struct tStageInfo {
-    u_char fCarModel, fColor, fAIPersonality, fDirection;
-    short fTimeLimit, fWingman, fSpikeBelt, fBlockadeCop;
-    u_char fPlacement, fStyle;
-    u_short fDistance;
-    u_long fSpeed, fWeight, fGlue;
-    u_char fSpeechColor;
-    u_char fReserved[15];
-};
 
-struct tAcademyDefinition {
-    tMissionTierInfo fTiers[8];
-    tMissionInfo fMissions[64];
-    tStageInfo fStages[256];
-};
+#include "shared/tMissionInfo.h"
+
+
+
+
+
+
+
+#include "shared/tStageInfo.h"
+
+
+
+
+
+
+
+
+
+#include "shared/tAcademyDefinition.h"
+
+
+
+
 
 struct tMissionManager {
     char fNumTiers;

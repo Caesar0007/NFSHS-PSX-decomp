@@ -31,21 +31,21 @@ struct GameSetup_tData {
 #define RaceType_Tournament 2
 #define RaceType_Id5 5
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef enum Udff_tAccessType {
     UDFF_FILE = 0,
     UDFF_MEMORY = 1
 } Udff_tAccessType;
 
-struct Udff_tInfo {
-    Udff_tAccessType type;
-    int handle;
-    char *memPtr;
-};
+#include "shared/Udff_tInfo.h"
+
+
+
+
 typedef struct Udff_tInfo Udff_tInfo;
 typedef Udff_tInfo *Udff_tHandle;
 

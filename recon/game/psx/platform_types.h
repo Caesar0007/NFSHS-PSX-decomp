@@ -4,7 +4,7 @@
 
 #include "../common/color_types.h"
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -17,16 +17,16 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct CARD_FILE_HEADER {
-    char magic[2];
-    char type, numslots;
-    char documentname[64];
-    char pad[28];
-    char clut[32];
-    char icon[3][128];
-};
+#include "shared/CARD_FILE_HEADER.h"
 
-struct eacelement { eacelement *link; };
+
+
+
+
+
+
+
+#include "shared/eacelement.h"
 typedef eacelement EACELEMENT;
 typedef unsigned int qfunc();
 

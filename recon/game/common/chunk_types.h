@@ -19,53 +19,53 @@ struct POLY_GT4 {
 struct CCOORD16 { short x, y, z, light; };
 
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
-struct DRender_tView {
-    int id, player;
-    DRender_tCalcView cview;
-};
+#include "shared/DRender_tView.h"
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+
+
+
+#include "shared/Draw_SubdivStruct.h"
 #endif
 
-struct Trk_ObjectDef {
-    short id;
-    u_char vertexCount, quadCount;
-};
+#include "shared/Trk_ObjectDef.h"
 
-struct Trk_SimpleInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad;
-    int x, y, z;
-};
 
-struct Trk_CollideBoomInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad;
-    int x, y, z;
-    short qx, qy, qz, qw, sx, sy, sz;
-    u_char simIndex, boomIndex;
-};
 
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
 
-struct Trk_Quad { short material; u_char aPoints[4]; };
+#include "shared/Trk_SimpleInst.h"
+
+
+
+
+
+
+#include "shared/Trk_CollideBoomInst.h"
+
+
+
+
+
+
+
+
+#include "shared/Trk_AnimateInst.h"
+
+
+
+
+
+#include "shared/Trk_Quad.h"
 struct Trk_NewStrip { u_char topVert, botVert; char quadCount, size; };
-struct Trk_NewSimQuad { u_char surface; };
+#include "shared/Trk_NewSimQuad.h"
 struct Trk_NewSimSlice {
     u_char stripIndex, quadCount, simquadIndex, simquadCount, simquadStartIndex;
 };
 
-struct Trk_SimObject {
-    int point[3];
-    short radius, serialNum;
-    u_char topCRAP, bottomCRAP, instIndex, type;
-};
+#include "shared/Trk_SimObject.h"
+
+
+
+
 
 struct RelCoord16 { short x, z; };
 
@@ -92,15 +92,15 @@ struct Track_tArtresource {
 };
 
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
-struct tSaveSurface { Trk_NewSimQuad *fSimQuad; u_char fSurface; };
+#include "shared/tSaveSurface.h"
 
 #ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 
 struct Skidmark_Chunk {
     coorddef cp;
@@ -168,16 +168,16 @@ struct BO_tNewtonObj {
     int damage[10];
 };
 
-struct SceneElem {
-    int type, size, committed, visible;
-    coorddef cp;
-    int height;
-    matrixtdef orient;
-    int subType, subTypeIndex, scalar1, scalar2, scalar3, scalar4;
-};
+#include "shared/SceneElem.h"
 
-struct SceneSortedElem { int slice_; SceneElem *se; };
-struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
+
+
+
+
+
+
+#include "shared/SceneSortedElem.h"
+#include "shared/AnimDef.h"
 
 /* __vtbl_ptr_type is GCC 2.7.2's built-in vtable-entry typedef. */
 struct DRender_tView;

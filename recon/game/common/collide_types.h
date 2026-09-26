@@ -4,28 +4,28 @@
 
 #include "color_types.h"
 
-struct Trk_ObjectDef { short id; u_char vertexCount, quadCount; };
+#include "shared/Trk_ObjectDef.h"
 
-struct Trk_CollideBoomInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad;
-    int x, y, z;
-    short qx, qy, qz, qw, sx, sy, sz;
-    u_char simIndex, boomIndex;
-};
+#include "shared/Trk_CollideBoomInst.h"
 
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
 
-struct Trk_SimObject {
-    int point[3];
-    short radius, serialNum;
-    u_char topCRAP, bottomCRAP, instIndex, type;
-};
+
+
+
+
+
+
+#include "shared/Trk_AnimateInst.h"
+
+
+
+
+
+#include "shared/Trk_SimObject.h"
+
+
+
+
 
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
@@ -41,15 +41,15 @@ struct AnimScript {
     int GetStatus();
 };
 
-struct SceneElem {
-    int type, size, committed, visible;
-    coorddef cp;
-    int height;
-    matrixtdef orient;
-    int subType, subTypeIndex, scalar1, scalar2, scalar3, scalar4;
-};
-struct SceneSortedElem { int slice_; SceneElem *se; };
-struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
+#include "shared/SceneElem.h"
+
+
+
+
+
+
+#include "shared/SceneSortedElem.h"
+#include "shared/AnimDef.h"
 
 struct DRender_tView;
 struct Draw_DCache;
@@ -69,11 +69,11 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 
-struct Object_tSimObjList { int numObjects, chunk, numObjects2, chunk2; };
+#include "shared/Object_tSimObjList.h"
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 #endif

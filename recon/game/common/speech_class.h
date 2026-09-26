@@ -5,18 +5,18 @@
 
 struct Car_tObj;
 
-struct SPCHNFSType_POSITION { u_long flags; };
-struct SPCHNFSType_DISTANCE { u_long flags; };
-struct SPCHNFSType_COLOUR { u_long flags; };
-struct SPCHNFSType_ACCIDENT { u_long flags; };
-struct SPCHNFSType_AMBULANCE { u_long flags; };
-struct SPCHNFSType_PURS_UPDT { u_long flags; };
-struct SPCHNFSType_ARREST { u_long flags; };
-struct SPCHNFSType_vs_RDBLK_SSTRP { u_long flags; };
-struct SPCHNFSType_PERP_NAME { u_long flags; };
-struct SPCHNFSType_CONFIRM { u_long flags; };
-struct SPCHNFSType_SPIKE_BELT_SIDE { u_long flags; };
-struct SPCHNFSType_REVINTRO { u_long flags; };
+#include "shared/SPCHNFSType_POSITION.h"
+#include "shared/SPCHNFSType_DISTANCE.h"
+#include "shared/SPCHNFSType_COLOUR.h"
+#include "shared/SPCHNFSType_ACCIDENT.h"
+#include "shared/SPCHNFSType_AMBULANCE.h"
+#include "shared/SPCHNFSType_PURS_UPDT.h"
+#include "shared/SPCHNFSType_ARREST.h"
+#include "shared/SPCHNFSType_vs_RDBLK_SSTRP.h"
+#include "shared/SPCHNFSType_PERP_NAME.h"
+#include "shared/SPCHNFSType_CONFIRM.h"
+#include "shared/SPCHNFSType_SPIKE_BELT_SIDE.h"
+#include "shared/SPCHNFSType_REVINTRO.h"
 struct SPCHNFSType_vs_KMH_MPH { u_long flags; };
 struct SPCHNFSType_VOICE { u_long flags; };
 

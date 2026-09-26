@@ -27,14 +27,14 @@ struct tMenuNFS4 : public tMenu {
     char fLastItem, fNumItems;
 };
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -46,17 +46,17 @@ struct tScreen {
 #include "fescreen_virtuals.inc"
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
 
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+
+
+
+
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 
 struct tDialogBase : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
@@ -93,12 +93,12 @@ struct tDialogYesNo : public tDialogInteractive {
     int yesnowords[2];
 };
 
-struct tCredit {
-    short titleTextID, subTitleTextID, titleX, titleY, titleJustify, titleWidth;
-    short subTitleX, subTitleY, subTitleJustify, subTitleWidth;
-    short textX, textY, textJustify, creditType, bgNumber, pad;
-    char text[292];
-};
+#include "shared/tCredit.h"
+
+
+
+
+
 
 struct tCreditManager {
     tCredit *CreditBuffer;
@@ -132,29 +132,29 @@ enum tScreenMainState {
     kScreenMain_Credits = 4
 };
 
-struct tTVConfig {
-    tTVState state;
-    short transition;
-    u_short destBrightness, flags;
-    short fxWide, fxThin;
-    int tint;
-    short x, y, w, h;
-    u_char u, v, uw, vh, shapeType;
-    u_short clut, tpage, shapex, shapey, clutID, flip_axis;
-};
+#include "shared/tTVConfig.h"
 
-struct tVideoTransition {
-    tScreenMainState state;
-    u_short flags;
-    u_char u, v, uw, vh;
-    u_short clut, tpage;
-    unsigned int tint;
-    short bright;
-};
 
-struct tVideo {
-    char x, y, width, height, tileWidth, tileHeight, deltaX, deltaY;
-};
+
+
+
+
+
+
+
+
+#include "shared/tVideoTransition.h"
+
+
+
+
+
+
+
+
+#include "shared/tVideo.h"
+
+
 
 /* Compiler-layout carrier needed for field offsets; this foreign owner tag is
  * not retained by FECredits.obj's linked SYM. */

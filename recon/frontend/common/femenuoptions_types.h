@@ -16,10 +16,10 @@ enum tMenuCommandType {
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
 };
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 
 #define NFS4_EA_PSX_INCOMPLETE_PHYSADR
 #define NFS4_FEMENUOPTIONS_SURFACE
@@ -42,10 +42,10 @@ struct tMenuCommand {
 #define tMenuTextType int
 #define textType_Options 6
 
-struct DR_AREA {
-    u_long tag;
-    u_long code[2];
-};
+#include "shared/DR_AREA.h"
+
+
+
 
 struct POLY_G4 {
     u_long tag;
@@ -59,23 +59,23 @@ struct POLY_G4 {
     short x3, y3;
 };
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
 
-struct AudioMus_tSongList {
-    int numsongs, currentsong;
-    AudioMus_tSongEntry song[0];
-};
+
+
+
+
+#include "shared/AudioMus_tSongList.h"
+
+
+
 
 /* The linked owner retains this public array typedef while attributing the
  * already-seen element body elsewhere. */
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 
 struct tFEApplication {

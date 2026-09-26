@@ -62,11 +62,11 @@ typedef enum MANAGERTASK {
     DELETE_FILE = 4
 } MANAGERTASK;
 
-struct TCB {
-    long status, mode;
-    u_long reg[40];
-    long system[6];
-};
+#include "shared/TCB.h"
+
+
+
+
 
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
@@ -86,43 +86,43 @@ struct DIRENTRY {
     !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 typedef char tMemIcon[15][3][192];
 #endif
 
-struct tSaveCarInfo {
-    tOwnedCarInfo fSaveInfo[32];
-    u_char fSaveAvailable[48], fSaveViewable[48];
-};
+#include "shared/tSaveCarInfo.h"
 
-struct tSaveTrackInfo {
-    u_char fTrackActivated[16];
-};
 
-struct tSaveTournament {
-    long fSaveMoney;
-    u_char fSaveTier, fSaveTournament, fSaveTrack, fSaveNumRacers;
-    tCompetitor fSaveCompetitors[6];
-    u_char fSaveBestPlacement[64];
-    short fSaveTierFinishPrize[4];
-};
+
+
+#include "shared/tSaveTrackInfo.h"
+
+
+
+#include "shared/tSaveTournament.h"
+
+
+
+
+
+
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
@@ -132,65 +132,65 @@ typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
 
-struct FE3d_zUV {
-    u_char u, v;
-};
+#include "shared/FE3d_zUV.h"
 
-struct FE3d_zFacet {
-    u_short vertexId0, vertexId1, vertexId2, uvId0, uvId1, uvId2;
-    SVECTOR normal[3];
-    CVECTOR color;
-    u_char flag, pad1, pad2, pad3;
-};
 
-struct FE3d_zObj {
-    int numVertex, numUV, numFacet;
-    u_char textureId, textureWidth, textureHeight, pad1;
-    COORD16 *vertex;
-    FE3d_zUV *uv;
-    COORD16 *Nvertex;
-    FE3d_zFacet *facet;
-};
+
+#include "shared/FE3d_zFacet.h"
+
+
+
+
+
+
+#include "shared/FE3d_zObj.h"
+
+
+
+
+
+
+
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
-struct CARDINFO_def {
-    int status, lasterror, numfiles, freeblocks;
-    DIRENTRY dir[15];
-};
+#include "shared/CARDINFO_def.h"
 
-struct MCRDFILEHEADER_def {
-    u_char magicnumber[2];
-    u_char type, nslots;
-    u_short title[32];
-    u_char unused[28];
-    u_char iconclut[32];
-    u_char icon1[128], icon2[128], icon3[128];
-};
 
-struct MCRDFILEINFO_def {
-    int cardnum;
-    char name[24];
-    char *title;
-    int size, offset;
-    unsigned int flags;
-    MCRDFILEHEADER_def header;
-    void *pData;
-    shapetbl *icon[3];
-};
+
+
+#include "shared/MCRDFILEHEADER_def.h"
+
+
+
+
+
+
+
+
+#include "shared/MCRDFILEINFO_def.h"
+
+
+
+
+
+
+
+
+
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
-struct MCRDFILE_def {
-    char *name, *title;
-    int size, offset;
-    unsigned int flags;
-    void *pData;
-    shapetbl *icon[3];
-    u_char *numicons, *numblocks;
-};
+#include "shared/MCRDFILE_def.h"
+
+
+
+
+
+
+
 #endif
 
 #ifndef NFS4_SCREENMEMCARD_FEAPP_SURFACE
@@ -205,11 +205,11 @@ typedef MCRDFILE_def MCRDFILE;
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_PINKSLIPS_SURFACE)
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \

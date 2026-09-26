@@ -8,11 +8,11 @@
 #include "../common/gmesetup_types.h"
 #undef NFS4_GMESETUP_OMIT_OWNER_RECORDS
 
-struct Input_tDeviceList {
-    char *devicename;
-    int (*devicefunc)(u_long);
-    int (*startupfunc)(int);
-};
+#include "shared/Input_tDeviceList.h"
+
+
+
+
 
 struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
@@ -36,17 +36,17 @@ struct Sim_tSimSystemVar {
     int goalClockTicks, currentClockTicks;
 };
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
 
-struct tPadModuleState {
-    int initialized;
-    PAD_COMMON buf[8];
-    struct {
-        char bActive, time;
-    } state[8];
-};
+
+
+
+#include "shared/tPadModuleState.h"
+
+
+
+
+
+
 
 #endif

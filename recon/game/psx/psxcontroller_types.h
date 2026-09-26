@@ -6,13 +6,13 @@
 #include "../common/gmesetup_types.h"
 #undef NFS4_GMESETUP_OMIT_OWNER_RECORDS
 
-struct tPadModuleState {
-    int initialized;
-    PAD_COMMON buf[8];
-    struct {
-        char bActive, time;
-    } state[8];
-};
+#include "shared/tPadModuleState.h"
+
+
+
+
+
+
 
 struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;

@@ -4,29 +4,29 @@
 
 #include "color_types.h"
 
-struct DRender_tView {
-    int id, player;
-    DRender_tCalcView cview;
-};
+#include "shared/DRender_tView.h"
 
-struct Souffle_tISouffle {
-    char type, id, wind, cycle;
-    int aspeed, angle;
-    coorddef source, motion, extramotion;
-    SVECTOR trans;
-    int rndpixmap, ground, colour;
-};
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
 
-struct TCB {
-    long status, mode;
-    u_long reg[40];
-    long system[6];
-};
+
+#include "shared/Souffle_tISouffle.h"
+
+
+
+
+
+
+
+#include "shared/Sched_tSchedule.h"
+
+
+
+
+#include "shared/TCB.h"
+
+
+
+
 
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;

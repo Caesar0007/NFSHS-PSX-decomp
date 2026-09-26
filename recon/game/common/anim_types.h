@@ -15,7 +15,7 @@ struct POLY_GT4 {
 
 struct CCOORD16 { short x, y, z, light; };
 
-struct tQuat { short x, y, z, w; };
+#include "shared/tQuat.h"
 typedef struct tQuat Quatern_quat;
 
 struct Group {
@@ -24,25 +24,25 @@ struct Group {
     inline int GetNumElements() { return m_num_elements; }
 };
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
+#include "shared/Trk_AnimateInst.h"
 
-struct Trk_AnimateBoomInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-    u_char simIndex, boomIndex;
-    short pad2;
-};
 
-struct Trk_Quad { short material; u_char aPoints[4]; };
+
+
+
+#include "shared/Trk_AnimateBoomInst.h"
+
+
+
+
+
+
+
+#include "shared/Trk_Quad.h"
 struct Trk_NewStrip { u_char topVert, botVert; char quadCount, size; };
-struct Trk_NewSimQuad { u_char surface; };
+#include "shared/Trk_NewSimQuad.h"
 struct RelCoord16 { short x, z; };
 
 struct Track_tArtresource {
@@ -55,10 +55,10 @@ struct Track_tArtresource {
 
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
-struct tSaveSurface {
-    Trk_NewSimQuad *fSimQuad;
-    u_char fSurface;
-};
+#include "shared/tSaveSurface.h"
+
+
+
 
 struct Anim_tFrame {
     long x, y, z;
@@ -82,7 +82,7 @@ struct AnimScript {
     int GetStatus();
 };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -91,12 +91,12 @@ struct DIRENTRY {
     char name[20]; long attr, size; DIRENTRY *next; long head; char system[4];
 };
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 struct Skidmark_Chunk {
     coorddef cp;
     short n, slice;

@@ -29,24 +29,24 @@ typedef enum s_type {
 #endif
 
 #ifndef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
-struct SNDPLAYOPTS {
-    int patnum;
-    char bhandle, keynum, velocity, pan, vol, bend, fxlevel0, use3dpos;
-    u_short pitchmult, timemult, azimuth;
-    short elevation;
-};
+#include "shared/SNDPLAYOPTS.h"
+
+
+
+
+
 #endif
 
 #ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
-struct SndBnk_t { int bnkID; char *phdr, *pdata; };
+#include "shared/SndBnk_t.h"
 struct Channels_t { int Partial, SFXnum; };
 #endif
 #ifndef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 #endif
 
 #ifndef NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
@@ -77,10 +77,10 @@ struct AudioCmn_tAsyncSfxSlot {
 };
 #endif
 
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 struct tReplayInterface {
     int pause, speed, end, camera, selection, depressed, changeCamera, statsScreen;
 };
@@ -173,28 +173,28 @@ enum tPersonalities {
     kPersonalityTraffic = 8, kPersonalityNUM = 9
 };
 
-struct tCarInfo {
-    signed char fCarID;
-    u_char fSimNumber, fCarClass, fABSAvailable, fDefaultColor;
-    u_char fCopClass, fDefaultTires, fAvailable;
-    char fShapeName[8], fSmallName[8], fQTVRName[8];
-    long fPrices[4];
-    u_char fStats[4][5];
-    u_long fColorList[16];
-    u_char fSpeechColors[16];
-    u_long fHudColor[2];
-    char fDayTachFile[8], fNightTachFile[8];
-    char fNumLightColors, fNumDarkColors;
-    u_char fCountries;
-    char fColorOrder[16];
-    u_char fPursuitAvailable, fEnginePatch;
-    signed char fSpeechCarID;
-    u_char fTractionAvailable, fExoticCar, fUpgrades, fColor;
-    u_char fViewable, fCountry, fCarIndex;
-    u_char fReserved[3];
-};
+#include "shared/tCarInfo.h"
 
-struct tOwnedCarInfo { signed char fCarID; u_char fUpgrades, fCarColor, fPad; };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/tOwnedCarInfo.h"
 
 struct tCarManager {
     u_long fNumCars;
@@ -253,10 +253,10 @@ struct tfrontEnd {
  * compiler carrier for the public array typedef; the linked owner attributes
  * that completed tag elsewhere. */
 #ifndef NFS4_AUDIOCMN_OMIT_SAVE_RECORDS
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 #endif
 

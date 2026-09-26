@@ -20,10 +20,10 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 
 #define NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 #include "screencarselect_types.h"

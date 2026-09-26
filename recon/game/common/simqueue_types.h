@@ -4,10 +4,10 @@
 
 #include "color_types.h"
 
-struct Input_tResults {
-    char steering;
-    u_char gas, brake, flags;
-};
+#include "shared/Input_tResults.h"
+
+
+
 
 typedef enum VALIDITY {
     kINVALID = 0,

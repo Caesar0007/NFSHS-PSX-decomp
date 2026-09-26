@@ -33,10 +33,10 @@ struct FLARE_PIECE_DEF {
     char type;
 };
 
-struct Force_tGlobal {
-    u_char active, high, low, jolt, time, fade;
-    u_char actuator[2];
-};
+#include "shared/Force_tGlobal.h"
+
+
+
 
 struct tScreenControllerConfig : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

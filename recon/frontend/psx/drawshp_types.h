@@ -32,11 +32,11 @@ struct kernpair {
     char pad[3];
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 struct tTexture_ShapeInfo {
     shapetbl *shpptr;
@@ -49,11 +49,11 @@ struct tTexture_ShapeInfo {
     u_short tpage, clut;
 };
 
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 
 /* The call ABI needs these enum identities only in the external symbol name;
  * drawshp.obj does not retain either completed enum definition. */

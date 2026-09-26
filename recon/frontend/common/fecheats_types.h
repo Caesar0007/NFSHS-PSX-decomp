@@ -80,20 +80,20 @@ struct tTournamentManager {
     tAwardInformation fAwards;
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+
+
+
+
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -217,10 +217,10 @@ struct tFEApplication {
 /* The owner retains tSaveRecords but attributes this already-seen element tag
  * body elsewhere in the linked SYM.  The canonical audit pair-locks both. */
 #ifndef NFS4_FECHEATS_NO_RECORD_BUFFER
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 #endif
 

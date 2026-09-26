@@ -45,10 +45,10 @@ struct copLevel_t {
     int numWarningsAdded;
 };
 
-struct copGame_t {
-    int numLevels;
-    copLevel_t *levels;
-};
+#include "shared/copGame_t.h"
+
+
+
 
 struct tScreenControllerConfig : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

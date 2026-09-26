@@ -31,25 +31,25 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC {
-    int (*issurfacelocked)(void);
-};
+#include "shared/SNDSYSVEC.h"
 
-struct SNDPLAYOPTS {
-    int     patnum;
-    char    bhandle, keynum, velocity, pan, vol, bend, fxlevel0, use3dpos;
-    u_short pitchmult, timemult, azimuth;
-    short   elevation;
-};
 
-struct SNDREQUESTSTATUS {
-    int state, currenttime, timetoend, timebuffered;
-};
 
-struct SNDSAMPLEFORMAT {
-    u_short samplerate;
-    u_char  channels, samplerep;
-};
+#include "shared/SNDPLAYOPTS.h"
+
+
+
+
+
+
+#include "shared/SNDREQUESTSTATUS.h"
+
+
+
+#include "shared/SNDSAMPLEFORMAT.h"
+
+
+
 
 struct STREAMCHUNKHDR {
     long type, size;

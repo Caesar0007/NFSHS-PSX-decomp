@@ -5,11 +5,11 @@
 /* Statchk.obj's complete 89-record graph is a strict subset. */
 #include "statchk_types.h"
 
-struct TCB {
-    long status, mode;
-    u_long reg[40];
-    long system[6];
-};
+#include "shared/TCB.h"
+
+
+
+
 
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
@@ -24,32 +24,32 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct CARD_FILE_HEADER {
-    char magic[2];
-    char type, numslots;
-    char documentname[64];
-    char pad[28];
-    char clut[32];
-    char icon[3][128];
-};
-
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/CARD_FILE_HEADER.h"
 
 
-struct tTrackInformation {
-    char fTrackID;
-    u_char fSimNumber, fTrackDifficulty, fAvailable, fIsEgg;
-    u_char fLengthKM, fLengthMiles, fNumMoments;
-    char fShapeName[8], fSplineName[8];
-    char fCountry, fDispatch, fReverseCall, fLanguage;
-    char fTrafficCars[6];
-    short fTX, fTY, fSX, fSY;
-    u_char fSpeedoCountry, fPad;
-    long fRotate;
-};
+
+
+
+
+
+
+#include "shared/Sched_tSchedule.h"
+
+
+
+
+
+#include "shared/tTrackInformation.h"
+
+
+
+
+
+
+
+
+
+
 
 struct tTrackManager {
     u_long fNumTracks;

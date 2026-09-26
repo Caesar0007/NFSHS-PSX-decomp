@@ -22,13 +22,13 @@ extern Sim_tSimGlobalVar simGlobal;
 extern Trk_AnimateInst * Anim_gInstanceFromIndex[8];
 /* Owner-derived bworldSm type, SYM1cec71..1cedc3. The original foreign
  * header visibility is not established by AudioTrk's surviving type stream. */
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 extern Trk_NewSlice *BWorldSm_slices; /* SYM1d937e */
 extern int   AudioCmn_GetAsyncSfx(int bank, int patch, bool checkonly); /* SYM191b4b..191b70 */
 extern int   DrawW_GetAnimationTime(Trk_AnimateInst *animInst);

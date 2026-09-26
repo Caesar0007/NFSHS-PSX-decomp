@@ -5,10 +5,10 @@
 #include "textsys_types.h"
 #include "draw_leaf_types.h"
 
-struct HudPmx_tShape {
-    Draw_tPixMap pixmap;
-    short width, height;
-};
+#include "shared/HudPmx_tShape.h"
+
+
+
 
 struct HudPmx_tUV {
     u_char u0, v0;
@@ -36,14 +36,14 @@ struct GameSetup_tData {
 };
 
 /* Canonical dashHUD.obj aggregate used by this translation unit. */
-struct dashhud_info {
-    int splitscreen;
-    char name[9];
-    int conversion, flashtime, flashlap;
-    int showhud[2], showmap[2], wrongway[2];
-    int laptime, lap, maxlaps, rpm, redline, gear, speed, topspeed;
-    int position, opponents, record, tutor;
-    int warning[2];
-};
+#include "shared/dashhud_info.h"
+
+
+
+
+
+
+
+
 
 #endif

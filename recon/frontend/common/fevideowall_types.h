@@ -23,16 +23,16 @@ enum tTVState {
     tv_TransitionOff = 3
 };
 
-struct tTVConfig {
-    tTVState state;
-    short transition;
-    u_short destBrightness, flags;
-    short fxWide, fxThin;
-    int tint;
-    short x, y, w, h;
-    u_char u, v, uw, vh, shapeType;
-    u_short clut, tpage, shapex, shapey, clutID, flip_axis;
-};
+#include "shared/tTVConfig.h"
+
+
+
+
+
+
+
+
+
 
 struct tVideoWall {
     tTVConfig *fTVs;
@@ -71,11 +71,11 @@ struct kernpair {
 };
 typedef struct kernpair KERN;
 
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 
 typedef void (*fontblit)();
 typedef int (*getcode)();

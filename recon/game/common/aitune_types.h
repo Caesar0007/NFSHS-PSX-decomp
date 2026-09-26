@@ -4,28 +4,28 @@
 
 #include "color_types.h"
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
 
-struct accelscale_t {
-    int scale;
-};
 
-struct copTuning_t {
-    int regularCopAccMultiplier, superCopAccMultiplier;
-    int regularCopTopSpeedCap, superCopTopSpeedCap;
-};
 
-struct AITune_tTrackInfo {
-    int oneWay, driveSide, roughLapTimeSeconds;
-};
 
-struct AITune_BTC_t {
-    int glueMult, speedMult, weightMult, baseChaseTime;
-    int wingmanTime, blockaderTime, spikeBeltTime;
-};
+#include "shared/accelscale_t.h"
+
+
+
+#include "shared/copTuning_t.h"
+
+
+
+
+#include "shared/AITune_tTrackInfo.h"
+
+
+
+#include "shared/AITune_BTC_t.h"
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 

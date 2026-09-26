@@ -25,11 +25,11 @@ struct Group {
     inline int GetNumElements() { return m_num_elements; }
 };
 
-struct TCB {
-    long status, mode;
-    u_long reg[40];
-    long system[6];
-};
+#include "shared/TCB.h"
+
+
+
+
 
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;

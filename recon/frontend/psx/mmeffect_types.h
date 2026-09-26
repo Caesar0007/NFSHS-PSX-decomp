@@ -76,14 +76,14 @@ struct tMenu {
 
 struct tMenuItemInteractive : public tMenuItem {};
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 struct tScreen {
     tShapeInformation fPermShapes, fSwapShapes;
@@ -94,11 +94,11 @@ struct tScreen {
     virtual ~tScreen();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 typedef kernpair KERN;
 typedef int (*getcode)();

@@ -35,43 +35,43 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 #endif
 
-struct Trk_ObjectDef { short id; u_char vertexCount, quadCount; };
+#include "shared/Trk_ObjectDef.h"
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
-struct Trk_SimpleInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad;
-    int x, y, z;
-};
+#include "shared/Trk_SimpleInst.h"
+
+
+
+
+
 #endif
-struct Trk_CollideBoomInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad;
-    int x, y, z;
-    short qx, qy, qz, qw, sx, sy, sz;
-    u_char simIndex, boomIndex;
-};
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
-struct Trk_SimObject {
-    int point[3];
-    short radius, serialNum;
-    u_char topCRAP, bottomCRAP, instIndex, type;
-};
+#include "shared/Trk_CollideBoomInst.h"
+
+
+
+
+
+
+
+#include "shared/Trk_AnimateInst.h"
+
+
+
+
+#include "shared/Trk_SimObject.h"
+
+
+
+
 
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 /* Canonical bworldSm.obj aggregate (SYM: Trk_NewSlice, size 32). */
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 #endif
 
 struct BW_tContext {
@@ -85,15 +85,15 @@ struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
 };
-struct SceneElem {
-    int type, size, committed, visible;
-    coorddef cp;
-    int height;
-    matrixtdef orient;
-    int subType, subTypeIndex, scalar1, scalar2, scalar3, scalar4;
-};
-struct SceneSortedElem { int slice_; SceneElem *se; };
-struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
+#include "shared/SceneElem.h"
+
+
+
+
+
+
+#include "shared/SceneSortedElem.h"
+#include "shared/AnimDef.h"
 
 struct DRender_tView;
 struct Draw_DCache;
@@ -110,7 +110,7 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
     Trk_CollideBoomInst *objCollideInstance;
 };
 
-struct DRender_tView { int id, player; DRender_tCalcView cview; };
+#include "shared/DRender_tView.h"
 struct Draw_DCache {
     Draw_tCacheHeader head;
     MATRIX matB, matNight, matCop, identMat;
@@ -148,10 +148,10 @@ struct CSkySpec {
     char cloudIndices[5][4];
     int ringAngles[5];
 };
-struct CNightSpec { CVECTOR nightcolor; };
+#include "shared/CNightSpec.h"
 struct CWeatherSpec { int type, intensity_limit; };
 struct CFogSpec { int contrast; CVECTOR color; int start, dist2base; };
-struct CDepthCueSpec { CVECTOR color; int distance; };
+#include "shared/CDepthCueSpec.h"
 struct CWorldColor {
     int contrast;
     CVECTOR contrast_color;
@@ -178,51 +178,51 @@ struct GameSetup_tData {
 };
 
 /* Canonical trackspec.obj aggregate (SYM: CTrackSpec, size 264). */
-struct CTrackSpec {
-    short fogstate, weatherstate, horizonstate, skystate;
-    short nightstate, depthcuestate, worldcolorstate, pad0;
-    CFogSpec fogspec;
-    CWeatherSpec weatherspec;
-    CHorizonSpec horizonspec;
-    CSkySpec skyspec;
-    CNightSpec nightspec;
-    CDepthCueSpec depthcuespec;
-    CWorldColor worldcolorspec;
-};
+#include "shared/CTrackSpec.h"
+
+
+
+
+
+
+
+
+
+
 
 /* Canonical camera.obj aggregate (SYM: camera_info, size 272). */
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -254,7 +254,7 @@ struct POLY_GT4 {
 struct DR_TWIN { u_long tag, code[2]; };
 #endif
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 struct Track_tArtresource {
     int id;
     char *shapeFile;
@@ -266,52 +266,52 @@ struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 struct Trk_Line { u_char firstPoint, slice, type, quadIndex; };
 
-struct Draw_tGiveShelbyMoreCache {
-    Draw_tCacheHeader head;
-    MATRIX matB, matNight, matCop, identMat;
-    int otz;
-    VECTOR tVn0, tVn1, tVn2, tVn3;
-    short light, doublelayer, startfog, distfog;
-    CCOORD16 *vertices;
-    u_char chunkInd, rezInd, garb3, quadCount;
-    void *quads;
-    int offset;
-    Track_tMaterial *materials;
-    COORD16 trans;
-    Track_tArtresource *artInfo;
-    Trk_NewStrip *stripPtr;
-    short numStrips;
-    char nightFlags, zeroGTETransFlag;
-    short night_ZNear;
-    u_char night_XDistShift, night_ZDistShift, night_DrawLightning;
-    u_char night_LightningType, fogstate, padnight;
-    POLY_GT4 GT4Prim;
-    u_short tpage, clut;
-    short offsubdivid;
-    u_char code, magiknum;
-    Draw_SVertex v0, v1, v2, v3;
-    Draw_SubdivStruct div;
-};
+#include "shared/Draw_tGiveShelbyMoreCache.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 struct Skidmark_Chunk {
     coorddef cp;
     short n, slice;
     Skidmark_Segment seg[24];
 };
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
-struct Draw_tCtrlSkidmark {
-    matrixtdef m;
-    coorddef t;
-    int count;
-    Skidmark_Chunk *smp;
-};
+#include "shared/Draw_tCtrlSkidmark.h"
+
+
+
+
+
 
 struct ChunkObjectInfo {
     Trk_SimObject *simObjs;
@@ -322,18 +322,18 @@ struct ChunkObjectInfo {
 #endif
 
 struct FLARE_PIECE_DEF { int distance, size; CVECTOR color; char type; };
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 /* Canonical sim.obj aggregate (SYM: Sim_tSimGlobalVar, size 24). */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
-struct tBoundingSphere { COORD16 cp; short radius; };
-struct tQuat { short x, y, z, w; };
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
+#include "shared/tBoundingSphere.h"
+#include "shared/tQuat.h"
 struct kernpair {
     u_short previouscode, code;
     char kernvalue, pad[3];

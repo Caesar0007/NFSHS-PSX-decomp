@@ -4,54 +4,54 @@
 
 #include "game_common_min_types.h"
 
-struct MATRIX { short m[3][3]; long t[3]; };
-struct DR_MODE { u_long tag; u_long code[2]; };
+#include "shared/MATRIX.h"
+#include "shared/DR_MODE.h"
 
-struct matrixtdef { int m[9]; };
+#include "shared/matrixtdef.h"
 typedef struct matrixtdef MATRIX3DT;
 
-struct PCOORD16 { short x, y, z, p; };
-struct COORD16 { short x, y, z; };
+#include "shared/PCOORD16.h"
+#include "shared/COORD16.h"
 
-struct Draw_tPixMap {
-    u_char u0, v0;
-    u_short clut;
-    u_char u1, v1;
-    u_short tpage;
-    u_char u2, v2;
-    u_short pad2;
-    u_char u3, v3;
-    u_short flag;
-};
+#include "shared/Draw_tPixMap.h"
 
-struct DRender_tCalcView {
-    coorddef translation;
-    matrixtdef mrotation;
-    coorddef translationInv;
-    matrixtdef mrotationInv, mrotationInvRaw;
-};
 
-struct Draw_SVertex {
-    short vx, vy, vz;
-    u_char u, v;
-    short dvx, dvy;
-    u_char r, g, b, a;
-};
 
-struct Draw_PrimStruct {
-    u_long *LastPrim;
-    char *PrimPtr, *MPrimPtr;
-};
 
-struct Draw_tCacheHeader {
-    Draw_PrimStruct cprim;
-    int mirror;
-    short clipW, clipH;
-};
 
-struct Draw_CarVertex {
-    COORD16 vt;
-    char u, v;
-};
+
+
+
+
+
+#include "shared/DRender_tCalcView.h"
+
+
+
+
+
+
+#include "shared/Draw_SVertex.h"
+
+
+
+
+
+
+#include "shared/Draw_PrimStruct.h"
+
+
+
+
+#include "shared/Draw_tCacheHeader.h"
+
+
+
+
+
+#include "shared/Draw_CarVertex.h"
+
+
+
 
 #endif

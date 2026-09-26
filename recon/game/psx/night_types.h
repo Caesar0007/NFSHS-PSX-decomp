@@ -27,7 +27,7 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -43,16 +43,16 @@ struct POLY_GT4 {
     u_char r3,g3,b3,p3; short x3,y3; u_char u3,v3; u_short pad3;
 };
 
-struct DRender_tView { int id, player; DRender_tCalcView cview; };
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/DRender_tView.h"
+#include "shared/Draw_SubdivStruct.h"
 struct Track_tArtresource {
     int id; char *shapeFile; int shapeCount; Draw_tPixMap *pPmx;
     int pmxCount, basePmxCount;
 };
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
-struct Skidmark_Segment {
-    SVECTOR svx[2]; CVECTOR rgb; int type; Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
 struct Skidmark_Chunk { coorddef cp; short n, slice; Skidmark_Segment seg[24]; };
 
 typedef enum forceFocus_t {
@@ -71,65 +71,65 @@ struct CSkySpec {
     CVECTOR starBaseColor; int starRandomSeed; CVECTOR sunBeamColor,sunHaloColor;
     int yoffset; char cloudIndices[5][4]; int ringAngles[5];
 };
-struct CNightSpec { CVECTOR nightcolor; };
+#include "shared/CNightSpec.h"
 struct CWeatherSpec { int type, intensity_limit; };
 struct CFogSpec { int contrast; CVECTOR color; int start, dist2base; };
-struct CDepthCueSpec { CVECTOR color; int distance; };
+#include "shared/CDepthCueSpec.h"
 struct CWorldColor {
     int contrast; CVECTOR contrast_color; short worldR,worldG,worldB,type;
 };
 
-struct CTrackSpec {
-    short fogstate, weatherstate, horizonstate, skystate;
-    short nightstate, depthcuestate, worldcolorstate, pad0;
-    CFogSpec fogspec;
-    CWeatherSpec weatherspec;
-    CHorizonSpec horizonspec;
-    CSkySpec skyspec;
-    CNightSpec nightspec;
-    CDepthCueSpec depthcuespec;
-    CWorldColor worldcolorspec;
-};
+#include "shared/CTrackSpec.h"
 
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
 
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+
+
+
+
+
+
+
+
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/Sched_tSchedule.h"
+
+
+
+
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 #ifndef NFS4_NIGHT_OMIT_PRIVATE_TYPES
 struct tCompRGB { char r, g, b; };

@@ -17,31 +17,31 @@ struct BW_tContext {
     int lineFarZClipSq;
 };
 
-struct Trk_ObjectDef { short id; u_char vertexCount, quadCount; };
-struct Trk_CollideBoomInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad;
-    int x, y, z;
-    short qx, qy, qz, qw, sx, sy, sz;
-    u_char simIndex, boomIndex;
-};
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
-struct Trk_SimObject {
-    int point[3];
-    short radius, serialNum;
-    u_char topCRAP, bottomCRAP, instIndex, type;
-};
+#include "shared/Trk_ObjectDef.h"
+#include "shared/Trk_CollideBoomInst.h"
+
+
+
+
+
+
+
+#include "shared/Trk_AnimateInst.h"
+
+
+
+
+#include "shared/Trk_SimObject.h"
+
+
+
+
 
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
 };
-struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
+#include "shared/AnimDef.h"
 struct DRender_tView;
 struct Draw_DCache;
 /* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
@@ -81,22 +81,22 @@ struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
 #include "aistate_classes.h"
 
 
-struct SPCHNFSType_POSITION { u_long flags; };
-struct SPCHNFSType_DISTANCE { u_long flags; };
-struct SPCHNFSType_COLOUR { u_long flags; };
-struct SPCHNFSType_ACCIDENT { u_long flags; };
-struct SPCHNFSType_AMBULANCE { u_long flags; };
-struct SPCHNFSType_PURS_UPDT { u_long flags; };
-struct SPCHNFSType_ARREST { u_long flags; };
-struct SPCHNFSType_vs_RDBLK_SSTRP { u_long flags; };
-struct SPCHNFSType_PERP_NAME { u_long flags; };
-struct SPCHNFSType_CONFIRM { u_long flags; };
-struct SPCHNFSType_SPIKE_BELT_SIDE { u_long flags; };
-struct SPCHNFSType_REVINTRO { u_long flags; };
+#include "shared/SPCHNFSType_POSITION.h"
+#include "shared/SPCHNFSType_DISTANCE.h"
+#include "shared/SPCHNFSType_COLOUR.h"
+#include "shared/SPCHNFSType_ACCIDENT.h"
+#include "shared/SPCHNFSType_AMBULANCE.h"
+#include "shared/SPCHNFSType_PURS_UPDT.h"
+#include "shared/SPCHNFSType_ARREST.h"
+#include "shared/SPCHNFSType_vs_RDBLK_SSTRP.h"
+#include "shared/SPCHNFSType_PERP_NAME.h"
+#include "shared/SPCHNFSType_CONFIRM.h"
+#include "shared/SPCHNFSType_SPIKE_BELT_SIDE.h"
+#include "shared/SPCHNFSType_REVINTRO.h"
 
-struct CarBank { int fFull, fMake, fModel; };
-struct LocationBank { int fStartSlice, fEndSlice, fBankId; char *fName; };
-struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; };
+#include "shared/CarBank.h"
+#include "shared/LocationBank.h"
+#include "shared/CallSignBank.h"
 
 /* Speech's nested banks are retained although its outer definition is not. */
 struct { CarBank Mobile[9], Dispatch[9]; };
@@ -128,10 +128,10 @@ struct Speech {
 };
 
 /* Canonical foreign aggregates used by this translation unit. */
-struct AITune_BTC_t {
-    int glueMult, speedMult, weightMult, baseChaseTime;
-    int wingmanTime, blockaderTime, spikeBeltTime;
-};
+#include "shared/AITune_BTC_t.h"
+
+
+
 struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
@@ -148,39 +148,39 @@ struct GameSetup_tData {
     int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
     GameSetup_tCarData carInfo[9];
 };
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef enum AICop_RoadBlockState {
     kAICop_RoadBlockState_None = 0,

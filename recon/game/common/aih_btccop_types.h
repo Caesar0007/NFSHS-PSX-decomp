@@ -81,38 +81,38 @@ enum {
     PERPMODE_CHASEON = 5
 };
 
-struct trigger_anyTrigger_t { int type, slice; };
-struct trigger_simple_t { int type, slice, dir, side, moving; };
-struct trigger_roadblock_t { int type, slice, dir, numCars, spikeBelt; };
-struct trigger_offroad_t {
-    int type, slice, dir;
-    coorddef position;
-    matrixtdef orientation;
-    int maxSpeed, releaseTime, endSlice;
-};
-struct trigger_trafficAccident_t {
-    int type, slice;
-    coorddef position;
-    matrixtdef orientation;
-};
-struct trigger_pathPosition_t {
-    coorddef position;
-    int targetSpeed, waitTime;
-};
-struct trigger_trafficPath_t {
-    int type, slice, dir;
-    matrixtdef orientation;
-    int maxSpeed, releaseTime, numPoints;
-    trigger_pathPosition_t *path;
-};
-union trigger_t {
-    trigger_anyTrigger_t any;
-    trigger_simple_t simple;
-    trigger_roadblock_t roadblock;
-    trigger_offroad_t offroad;
-    trigger_trafficAccident_t trafficAccident;
-    trigger_trafficPath_t trafficPath;
-};
+#include "shared/trigger_anyTrigger_t.h"
+#include "shared/trigger_simple_t.h"
+#include "shared/trigger_roadblock_t.h"
+#include "shared/trigger_offroad_t.h"
+
+
+
+
+
+#include "shared/trigger_trafficAccident_t.h"
+
+
+
+
+#include "shared/trigger_pathPosition_t.h"
+
+
+
+#include "shared/trigger_trafficPath_t.h"
+
+
+
+
+
+#include "shared/trigger_t.h"
+
+
+
+
+
+
+
 
 struct AIDataRecord_t {
     int numElements_, bSize_;
@@ -125,39 +125,39 @@ struct AIDataRecord_t {
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
-struct Trk_ObjectDef { short id; u_char vertexCount, quadCount; };
-struct Trk_CollideBoomInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad;
-    int x, y, z;
-    short qx, qy, qz, qw, sx, sy, sz;
-    u_char simIndex, boomIndex;
-};
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
-struct Trk_SimObject {
-    int point[3];
-    short radius, serialNum;
-    u_char topCRAP, bottomCRAP, instIndex, type;
-};
+#include "shared/Trk_ObjectDef.h"
+#include "shared/Trk_CollideBoomInst.h"
+
+
+
+
+
+
+
+#include "shared/Trk_AnimateInst.h"
+
+
+
+
+#include "shared/Trk_SimObject.h"
+
+
+
+
 
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
 };
-struct SceneElem {
-    int type, size, committed, visible;
-    coorddef cp;
-    int height;
-    matrixtdef orient;
-    int subType, subTypeIndex, scalar1, scalar2, scalar3, scalar4;
-};
-struct SceneSortedElem { int slice_; SceneElem *se; };
-struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
+#include "shared/SceneElem.h"
+
+
+
+
+
+
+#include "shared/SceneSortedElem.h"
+#include "shared/AnimDef.h"
 struct DRender_tView;
 struct Draw_DCache;
 /* object.cpp's polymorphic root, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
@@ -286,13 +286,13 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     AIHigh_BTC_HumanCop *CheckForActivation();
 };
 
-struct blockade_t {
-    blockadeMode_t mode;
-    AIHigh_Player *target;
-    int flags, chaseLevel, requestSpikeBeltAtSlice, slice, direction;
-    int latPos, rotation, reverse, releaseTime, initialPlayerDistanceMetersInt;
-    short blockadeSpeechFlags;
-};
+#include "shared/blockade_t.h"
+
+
+
+
+
+
 
 struct AIHigh_BasicCop : public AIHigh_Base {
     copType type_;
@@ -378,22 +378,22 @@ struct AIHigh_Traffic : public AIHigh_Base {
     SceneElem *accidentData_;
 };
 
-struct SPCHNFSType_POSITION { u_long flags; };
-struct SPCHNFSType_DISTANCE { u_long flags; };
-struct SPCHNFSType_COLOUR { u_long flags; };
-struct SPCHNFSType_ACCIDENT { u_long flags; };
-struct SPCHNFSType_AMBULANCE { u_long flags; };
-struct SPCHNFSType_PURS_UPDT { u_long flags; };
-struct SPCHNFSType_ARREST { u_long flags; };
-struct SPCHNFSType_vs_RDBLK_SSTRP { u_long flags; };
-struct SPCHNFSType_PERP_NAME { u_long flags; };
-struct SPCHNFSType_CONFIRM { u_long flags; };
-struct SPCHNFSType_SPIKE_BELT_SIDE { u_long flags; };
-struct SPCHNFSType_REVINTRO { u_long flags; };
+#include "shared/SPCHNFSType_POSITION.h"
+#include "shared/SPCHNFSType_DISTANCE.h"
+#include "shared/SPCHNFSType_COLOUR.h"
+#include "shared/SPCHNFSType_ACCIDENT.h"
+#include "shared/SPCHNFSType_AMBULANCE.h"
+#include "shared/SPCHNFSType_PURS_UPDT.h"
+#include "shared/SPCHNFSType_ARREST.h"
+#include "shared/SPCHNFSType_vs_RDBLK_SSTRP.h"
+#include "shared/SPCHNFSType_PERP_NAME.h"
+#include "shared/SPCHNFSType_CONFIRM.h"
+#include "shared/SPCHNFSType_SPIKE_BELT_SIDE.h"
+#include "shared/SPCHNFSType_REVINTRO.h"
 
-struct CarBank { int fFull, fMake, fModel; };
-struct LocationBank { int fStartSlice, fEndSlice, fBankId; char *fName; };
-struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; };
+#include "shared/CarBank.h"
+#include "shared/LocationBank.h"
+#include "shared/CallSignBank.h"
 
 /* Speech's three nested bank aggregates survive even though its outer tag does not. */
 struct { CarBank Mobile[9], Dispatch[9]; };
@@ -425,21 +425,21 @@ struct Speech {
 };
 
 /* Canonical foreign aggregates used by this translation unit. */
-struct AITune_BTC_t {
-    int glueMult, speedMult, weightMult, baseChaseTime;
-    int wingmanTime, blockaderTime, spikeBeltTime;
-};
+#include "shared/AITune_BTC_t.h"
+
+
+
 struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
     int goalClockTicks, currentClockTicks;
 };
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 typedef int Input_tDeviceCall();

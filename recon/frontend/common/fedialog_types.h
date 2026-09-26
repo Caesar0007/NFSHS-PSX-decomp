@@ -24,10 +24,10 @@ struct tMenu;
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 struct tMenuCommand;
 #else
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 #endif
 
 #define NFS4_FE_CORE_FEDIALOG_METHODS

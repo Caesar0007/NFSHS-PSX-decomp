@@ -35,10 +35,10 @@ typedef int FEMATRIX[4][4];
 #undef NFS4_FE_CORE_SCREENCARSELECT_METHODS
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
-struct DR_AREA {
-    u_long tag;
-    u_long code[2];
-};
+#include "shared/DR_AREA.h"
+
+
+
 #endif
 
 struct DRender_tView;
@@ -52,19 +52,19 @@ struct ScreenCarSelect_GameSetupCodegenView {
 #endif
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 #endif
 
 #ifndef NFS4_SCREENCARSELECT_FEMENUDEFS_SURFACE
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 #else
 struct tDrawShapeExtended;
 #endif

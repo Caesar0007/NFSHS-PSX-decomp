@@ -36,20 +36,20 @@ typedef enum tTrophySize {
     ts_Large = 2
 } tTrophySize;
 
-struct tSaveTournament {
-    long fSaveMoney;
-    u_char fSaveTier, fSaveTournament, fSaveTrack, fSaveNumRacers;
-    tCompetitor fSaveCompetitors[6];
-    u_char fSaveBestPlacement[64];
-    short fSaveTierFinishPrize[4];
-};
+#include "shared/tSaveTournament.h"
+
+
+
+
+
+
 
 /* The linked FETourn SYM retains this public array typedef while attributing
  * the already-defined element tag body to its earlier owner. */
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 
 struct tCarManager {

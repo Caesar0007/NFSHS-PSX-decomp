@@ -4,7 +4,7 @@
 
 #include "../common/color_types.h"
 
-struct SndBnk_t { int bnkID; char *phdr, *pdata; };
+#include "shared/SndBnk_t.h"
 
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
@@ -21,26 +21,26 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC {
-    int (*issurfacelocked)(void);
-};
+#include "shared/SNDSYSVEC.h"
 
-struct SNDSYSOPTS {
-    SNDSYSCAP cap;
-    SNDSYSSET set;
-    SNDSYSVEC vec;
-};
 
-struct SNDSAMPLEFORMAT {
-    u_short samplerate;
-    u_char channels, samplerep;
-};
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/SNDSYSOPTS.h"
+
+
+
+
+
+#include "shared/SNDSAMPLEFORMAT.h"
+
+
+
+
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 
 struct SpuVolume {
     short left, right;

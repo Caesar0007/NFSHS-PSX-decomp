@@ -4,10 +4,10 @@
 
 #include "color_types.h"
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
@@ -30,14 +30,14 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC {
-    int (*issurfacelocked)(void);
-};
+#include "shared/SNDSYSVEC.h"
 
-struct SNDSAMPLEFORMAT {
-    u_short samplerate;
-    u_char channels, samplerep;
-};
+
+
+#include "shared/SNDSAMPLEFORMAT.h"
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 typedef int Input_tDeviceCall();

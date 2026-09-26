@@ -30,10 +30,10 @@ struct CSkySpec {
     char cloudIndices[5][4];
     int ringAngles[5];
 };
-struct CNightSpec { CVECTOR nightcolor; };
+#include "shared/CNightSpec.h"
 struct CWeatherSpec { int type, intensity_limit; };
 struct CFogSpec { int contrast; CVECTOR color; int start, dist2base; };
-struct CDepthCueSpec { CVECTOR color; int distance; };
+#include "shared/CDepthCueSpec.h"
 struct CWorldColor {
     int contrast;
     CVECTOR contrast_color;
@@ -41,15 +41,15 @@ struct CWorldColor {
 };
 
 typedef void (*Sched_tFunctionPt)(void *);
-struct Sched_tFunctionSchedule {
-    int priority;
-    Sched_tFunctionPt function;
-    void *var1, *var2;
-};
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tFunctionSchedule.h"
+
+
+
+
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 struct Trk_Material {
     short shapeIndex;
@@ -70,7 +70,7 @@ struct SaveSurface {
     void Save(Trk_NewSimQuad *simQuad);
     void RestoreAll();
 };
-struct tBoundingSphere { COORD16 cp; short radius; };
+#include "shared/tBoundingSphere.h"
 struct Track_MipMap {
     u_short code[2];
     int shapeParentIndex, mipMapIndex;
@@ -91,17 +91,17 @@ struct Track_tMaterialController {
 };
 
 /* Canonical trackspec.obj aggregate used by this translation unit. */
-struct CTrackSpec {
-    short fogstate, weatherstate, horizonstate, skystate;
-    short nightstate, depthcuestate, worldcolorstate, pad0;
-    CFogSpec fogspec;
-    CWeatherSpec weatherspec;
-    CHorizonSpec horizonspec;
-    CSkySpec skyspec;
-    CNightSpec nightspec;
-    CDepthCueSpec depthcuespec;
-    CWorldColor worldcolorspec;
-};
+#include "shared/CTrackSpec.h"
+
+
+
+
+
+
+
+
+
+
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
@@ -119,9 +119,9 @@ struct GameSetup_tData {
     int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
     GameSetup_tCarData carInfo[9];
 };
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 #endif

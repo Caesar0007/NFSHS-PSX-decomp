@@ -12,12 +12,12 @@ struct POLY_GT4 {
     u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
 };
 
-struct DRender_tView {
-    int id, player;
-    DRender_tCalcView cview;
-};
+#include "shared/DRender_tView.h"
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+
+
+
+#include "shared/Draw_SubdivStruct.h"
 
 struct Track_tArtresource {
     int id;
@@ -29,7 +29,7 @@ struct Track_tArtresource {
 
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -42,12 +42,12 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 
 struct Skidmark_Chunk {
     coorddef cp;
@@ -61,43 +61,43 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
 
-struct Draw_CarCache {
-    Draw_tCacheHeader head;
-    MATRIX matB;
-    int pad;
-    u_long *sub_ot;
-    int otz, sub_otz, bfct;
-    DR_MODE drawModeOn, drawModeOff;
-    Draw_tPixMap *pmxStart;
-    Draw_tPixMap ePmx0, ePmx1;
-    int eAddZ, sub_otSize;
-    long color, eColor0, eColor1, eColor2;
-    VECTOR tv;
-    COORD16 vt0;
-    u_char u0, v0;
-    COORD16 vt1;
-    u_char u1, v1;
-    COORD16 vt2;
-    u_char u2, v2;
-    short dvx0, dvy0, dvx1, dvy1, dvx2, dvy2;
-    Draw_CarVertex tV[96];
-    COORD16 vt3;
-    u_char u3, v3;
-    COORD16 vt4;
-    u_char u4, v4;
-    COORD16 vt5;
-    u_char u5, v5;
-    COORD16 vt6;
-    u_char offsetU0, offsetV0;
-    COORD16 vt7;
-    u_char offsetU1, offsetV1;
-    COORD16 vt8;
-    u_char offsetU2, offsetV2;
-};
+
+
+
+#include "shared/Draw_CarCache.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

@@ -6,54 +6,54 @@
 
 #include "nfs4_types.h"
 
-struct coorddef {
-    int x, y, z;
-};
+#include "shared/coorddef.h"
+
+
 typedef struct coorddef LIBCOORD;
 
-struct linedef {
-    int start, end, colour, thickness;
-};
+#include "shared/linedef.h"
+
+
 typedef struct linedef LINE;
 
-struct SHAPETABLEENTRY {
-    char id[4];
-    long offset;
-};
+#include "shared/SHAPETABLEENTRY.h"
 
-struct PAD_PSX {
-    u_short state;
-    u_short unused[2];
-};
 
-struct PAD_NEGCON {
-    u_char state : 4;
-    u_char start : 4;
-    u_char buttonAB : 4;
-    u_char rightshift : 4;
-    u_char twist, buttonI, buttonII, leftshift;
-};
 
-struct PAD_ANALOG {
-    u_short state;
-    u_char rightx, righty, leftx, lefty;
-};
 
-struct PAD_MOUSE {
-    u_char unused, state;
-    char horizontalvalue, verticalvalue;
-    u_char unused2[2];
-};
+#include "shared/PAD_PSX.h"
 
-struct PAD_COMMON {
-    u_char nopad, ID;
-    union {
-        PAD_PSX standard;
-        PAD_NEGCON negcon;
-        PAD_MOUSE mouse;
-        PAD_ANALOG analog;
-    } data;
-};
+
+
+
+#include "shared/PAD_NEGCON.h"
+
+
+
+
+
+
+
+#include "shared/PAD_ANALOG.h"
+
+
+
+
+#include "shared/PAD_MOUSE.h"
+
+
+
+
+
+#include "shared/PAD_COMMON.h"
+
+
+
+
+
+
+
+
 
 struct {
     char bActive, time;

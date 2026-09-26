@@ -17,10 +17,10 @@ enum tMenuCommandType {
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
 };
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 
 #define NFS4_EA_PSX_INCOMPLETE_PHYSADR
 #define NFS4_SCREENMEMCARD_SCREENPOST_SURFACE
@@ -32,10 +32,10 @@ struct tMenuCommand {
 
 /* The linked SYM keeps the public array typedef but attributes the completed
  * element body elsewhere.  CC1PL requires the exact 20-byte body to form it. */
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 
 #endif

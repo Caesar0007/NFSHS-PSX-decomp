@@ -8,10 +8,10 @@
 #define RaceType_Tournament 2
 #define RaceType_Id5 5
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 struct Stats_tPosition {
     int car, slice, sliceTime, isHuman;

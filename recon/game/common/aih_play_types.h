@@ -42,22 +42,22 @@ struct AIHigh_Cop : public AIHigh_BasicCop {
     trigger_t *CheckForNewTriggers();
 };
 
-struct SPCHNFSType_POSITION { u_long flags; };
-struct SPCHNFSType_DISTANCE { u_long flags; };
-struct SPCHNFSType_COLOUR { u_long flags; };
-struct SPCHNFSType_ACCIDENT { u_long flags; };
-struct SPCHNFSType_AMBULANCE { u_long flags; };
-struct SPCHNFSType_PURS_UPDT { u_long flags; };
-struct SPCHNFSType_ARREST { u_long flags; };
-struct SPCHNFSType_vs_RDBLK_SSTRP { u_long flags; };
-struct SPCHNFSType_PERP_NAME { u_long flags; };
-struct SPCHNFSType_CONFIRM { u_long flags; };
-struct SPCHNFSType_SPIKE_BELT_SIDE { u_long flags; };
-struct SPCHNFSType_REVINTRO { u_long flags; };
+#include "shared/SPCHNFSType_POSITION.h"
+#include "shared/SPCHNFSType_DISTANCE.h"
+#include "shared/SPCHNFSType_COLOUR.h"
+#include "shared/SPCHNFSType_ACCIDENT.h"
+#include "shared/SPCHNFSType_AMBULANCE.h"
+#include "shared/SPCHNFSType_PURS_UPDT.h"
+#include "shared/SPCHNFSType_ARREST.h"
+#include "shared/SPCHNFSType_vs_RDBLK_SSTRP.h"
+#include "shared/SPCHNFSType_PERP_NAME.h"
+#include "shared/SPCHNFSType_CONFIRM.h"
+#include "shared/SPCHNFSType_SPIKE_BELT_SIDE.h"
+#include "shared/SPCHNFSType_REVINTRO.h"
 
-struct CarBank { int fFull, fMake, fModel; };
-struct LocationBank { int fStartSlice, fEndSlice, fBankId; char *fName; };
-struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; };
+#include "shared/CarBank.h"
+#include "shared/LocationBank.h"
+#include "shared/CallSignBank.h"
 
 /* Speech's nested banks are retained although its outer definition is not. */
 struct { CarBank Mobile[9], Dispatch[9]; };
@@ -121,30 +121,30 @@ struct GameSetup_tData {
     int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
     GameSetup_tCarData carInfo[9];
 };
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease;
     int quickPauseSim, goalClockTicks, currentClockTicks;
 };
-struct dashhud_info {
-    int splitscreen;
-    char name[9];
-    int conversion, flashtime, flashlap;
-    int showhud[2], showmap[2], wrongway[2];
-    int laptime, lap, maxlaps, rpm, redline, gear, speed, topspeed;
-    int position, opponents, record, tutor;
-    int warning[2];
-};
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/dashhud_info.h"
+
+
+
+
+
+
+
+
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 
 typedef enum AICop_RoadBlockState {
     kAICop_RoadBlockState_None = 0,

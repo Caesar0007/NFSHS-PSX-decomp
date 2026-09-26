@@ -24,16 +24,16 @@ struct GameSetup_tData {
 };
 
 struct CCOORD16 { short x, y, z, light; };
-struct Draw_tVertex { PCOORD16 sv; };
+#include "shared/Draw_tVertex.h"
 
-struct DRender_tView {
-    int id, player;
-    DRender_tCalcView cview;
-};
+#include "shared/DRender_tView.h"
 
-struct Trk_Quad { short material; u_char aPoints[4]; };
+
+
+
+#include "shared/Trk_Quad.h"
 struct Trk_NewStrip { u_char topVert, botVert; char quadCount, size; };
-struct Trk_NewSimQuad { u_char surface; };
+#include "shared/Trk_NewSimQuad.h"
 struct Trk_NewSimSlice {
     u_char stripIndex, quadCount, simquadIndex, simquadCount, simquadStartIndex;
 };
@@ -45,7 +45,7 @@ struct Group {
     inline int GetNumElements() { return m_num_elements; }
 };
 
-struct tSaveSurface { Trk_NewSimQuad *fSimQuad; u_char fSurface; };
+#include "shared/tSaveSurface.h"
 
 struct BWorldSm_Pos {
     short slice, stripQuadInd, simRotFlag;

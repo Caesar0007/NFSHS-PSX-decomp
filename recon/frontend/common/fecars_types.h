@@ -44,10 +44,10 @@ struct tTournamentManager {
     bool ValidCar(tCarInfo &carInfo);
 };
 
-struct tSaveCarInfo {
-    tOwnedCarInfo fSaveInfo[32];
-    u_char fSaveAvailable[48], fSaveViewable[48];
-};
+#include "shared/tSaveCarInfo.h"
+
+
+
 
 struct tCarManager {
     u_long fNumCars;

@@ -18,16 +18,16 @@
 #define tMenuTextType int
 #define textType_ScreenInfo 4
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
 
-struct AudioMus_tSongList {
-    int numsongs, currentsong;
-    AudioMus_tSongEntry song[0];
-};
+
+
+
+
+#include "shared/AudioMus_tSongList.h"
+
+
+
 
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
@@ -44,33 +44,33 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC {
-    int (*issurfacelocked)(void);
-};
+#include "shared/SNDSYSVEC.h"
 
-struct SNDSYSOPTS {
-    SNDSYSCAP cap;
-    SNDSYSSET set;
-    SNDSYSVEC vec;
-};
 
-struct SNDSAMPLEFORMAT {
-    u_short samplerate;
-    u_char channels, samplerep;
-};
 
-struct SndBnk_t {
-    int bnkID;
-    char *phdr, *pdata;
-};
+#include "shared/SNDSYSOPTS.h"
 
-struct SPEECHINFO {
-    char name[4];
-    int multiplay, nHandle, nSoundHandle;
-    char areLoading, soundIsPlaying, playNextOne;
-    char *pBankHeader, *sSpeechData, *lastSpeechData;
-    int vivHandle;
-};
+
+
+
+
+#include "shared/SNDSAMPLEFORMAT.h"
+
+
+
+
+#include "shared/SndBnk_t.h"
+
+
+
+
+#include "shared/SPEECHINFO.h"
+
+
+
+
+
+
 
 struct tDrawShapeExtended;
 

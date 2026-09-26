@@ -32,14 +32,14 @@ struct Group {
     inline int GetNumElements() { return m_num_elements; }
 };
 
-struct Trk_Quad { short material; u_char aPoints[4]; };
+#include "shared/Trk_Quad.h"
 struct Trk_NewStrip { u_char topVert, botVert; char quadCount, size; };
-struct Trk_NewSimQuad { u_char surface; };
+#include "shared/Trk_NewSimQuad.h"
 struct Trk_NewSimSlice {
     u_char stripIndex, quadCount, simquadIndex, simquadCount, simquadStartIndex;
 };
 struct RelCoord16 { short x, z; };
-struct tSaveSurface { Trk_NewSimQuad *fSimQuad; u_char fSurface; };
+#include "shared/tSaveSurface.h"
 
 struct BWorldSm_Pos {
     short slice, stripQuadInd, simRotFlag;
@@ -97,11 +97,11 @@ struct BO_tNewtonObj {
 };
 
 typedef void (*Sched_tFunctionPt)(void *);
-struct Sched_tFunctionSchedule {
-    int priority;
-    Sched_tFunctionPt function;
-    void *var1, *var2;
-};
+#include "shared/Sched_tFunctionSchedule.h"
+
+
+
+
 
 #ifndef NFS4_OWNER_DEFINES_UDFF_TYPES
 typedef enum Udff_tAccessType {

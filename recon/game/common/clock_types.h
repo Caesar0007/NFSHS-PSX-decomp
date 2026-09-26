@@ -4,9 +4,9 @@
 
 #include "color_types.h"
 
-struct Clock_tGameClock {
-    int time128Hz, time64Hz, time32Hz;
-};
+#include "shared/Clock_tGameClock.h"
+
+
 
 typedef int Input_tDeviceCall();
 

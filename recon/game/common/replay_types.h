@@ -7,10 +7,10 @@
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
@@ -18,17 +18,17 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-struct Camera_tCamSlot {
-    char mode;
-    char track : 1;
-    char zoom : 2;
-    char splineMode : 3;
-    short fov;
-    coorddef pos;
-    int height, splineOffset;
-    COORD16 euler;
-    short slice;
-};
+#include "shared/Camera_tCamSlot.h"
+
+
+
+
+
+
+
+
+
+
 
 struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
@@ -57,9 +57,9 @@ struct tReplayInterface {
     int statsScreen;
 };
 
-struct tReplayCameraModes {
-    int defaultCamera, timeCounter, cameraMode, cutToNextCamera;
-};
+#include "shared/tReplayCameraModes.h"
+
+
 
 struct tReplayBuffer {
     GameSetup_tData gameSetup;
@@ -68,10 +68,10 @@ struct tReplayBuffer {
 };
 
 /* Canonical sim.obj aggregates used by this translation unit. */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
@@ -79,41 +79,41 @@ struct Sim_tSimSystemVar {
 };
 
 /* Canonical input.obj result aggregate used by this translation unit. */
-struct Input_tResults {
-    char steering;
-    u_char gas, brake, flags;
-};
+#include "shared/Input_tResults.h"
+
+
+
 
 /* Canonical camera.obj aggregate used by this translation unit. */
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef int Input_tDeviceCall();
 

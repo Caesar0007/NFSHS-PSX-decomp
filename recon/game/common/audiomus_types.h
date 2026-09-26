@@ -4,21 +4,21 @@
 
 #include "color_types.h"
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
 
-struct AudioMus_tCurrentSong {
-    int newsong, index, remaining;
-    AudioMus_tSongEntry info;
-};
 
-struct AudioMus_tSongList {
-    int numsongs, currentsong;
-    AudioMus_tSongEntry song[0];
-};
+
+
+
+#include "shared/AudioMus_tCurrentSong.h"
+
+
+
+
+#include "shared/AudioMus_tSongList.h"
+
+
+
 
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
@@ -35,18 +35,18 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC { int (*issurfacelocked)(void); };
+#include "shared/SNDSYSVEC.h"
 
-struct SNDPLAYOPTS {
-    int patnum;
-    char bhandle, keynum, velocity, pan, vol, bend, fxlevel0, use3dpos;
-    u_short pitchmult, timemult, azimuth;
-    short elevation;
-};
+#include "shared/SNDPLAYOPTS.h"
 
-struct SNDREQUESTSTATUS { int state, currenttime, timetoend, timebuffered; };
-struct SNDSTREAMSTATUS { int outstandingrequests, currentrequest, timebuffered; };
-struct SNDSAMPLEFORMAT { u_short samplerate; u_char channels, samplerep; };
+
+
+
+
+
+#include "shared/SNDREQUESTSTATUS.h"
+#include "shared/SNDSTREAMSTATUS.h"
+#include "shared/SNDSAMPLEFORMAT.h"
 
 struct SNDLIMITS {
     int dmabuflen;
@@ -55,7 +55,7 @@ struct SNDLIMITS {
     int audiostreambufsize, packetbufsize;
 };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -68,7 +68,7 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct CdlLOC { u_char minute, second, sector, track; };
+#include "shared/CdlLOC.h"
 typedef void (*CdlCB)(u_char intr, u_char *result); /* PsyQ 4.3 <libcd.h> */
 
 struct AudioMus_tMusicGlobals {

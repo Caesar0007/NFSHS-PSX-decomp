@@ -15,11 +15,11 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 #endif
 
 struct BW_tContext {
@@ -37,7 +37,7 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
@@ -53,10 +53,10 @@ struct POLY_GT4 {
 };
 
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
@@ -64,19 +64,19 @@ struct Sim_tSimSystemVar {
 };
 #endif
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 struct Skidmark_Chunk {
     coorddef cp;
     short n, slice;
     Skidmark_Segment seg[24];
 };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 
 struct Track_tArtresource {
     int id;
@@ -108,7 +108,7 @@ struct tReplayInterface {
     int pause, speed, end, camera, selection, depressed, changeCamera, statsScreen;
 };
 
-struct Clock_tGameClock { int time128Hz, time64Hz, time32Hz; };
+#include "shared/Clock_tGameClock.h"
 #endif
 
 typedef int CarLogic_tObservations[1][3];

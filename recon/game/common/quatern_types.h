@@ -4,9 +4,9 @@
 
 #include "mathnfs_types.h"
 
-struct tQuat {
-    short x, y, z, w;
-};
+#include "shared/tQuat.h"
+
+
 typedef struct tQuat Quatern_quat;
 
 #endif

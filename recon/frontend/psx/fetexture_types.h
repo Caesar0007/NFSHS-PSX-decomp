@@ -6,77 +6,77 @@
 
 #include "nfs4_types.h"
 
-struct MATRIX {
-    short m[3][3];
-    long  t[3];
-};
+#include "shared/MATRIX.h"
 
-struct DR_MODE {
-    u_long tag;
-    u_long code[2];
-};
 
-struct coorddef {
-    int x, y, z;
-};
+
+
+#include "shared/DR_MODE.h"
+
+
+
+
+#include "shared/coorddef.h"
+
+
 typedef struct coorddef LIBCOORD;
 
-struct matrixtdef {
-    int m[9];
-};
+#include "shared/matrixtdef.h"
+
+
 typedef struct matrixtdef MATRIX3DT;
 
-struct linedef {
-    int start, end, colour, thickness;
-};
+#include "shared/linedef.h"
+
+
 typedef struct linedef LINE;
 
-struct SHAPETABLEENTRY {
-    char id[4];
-    long offset;
-};
+#include "shared/SHAPETABLEENTRY.h"
 
-struct PCOORD16 {
-    short x, y, z, p;
-};
 
-struct COORD16 {
-    short x, y, z;
-};
 
-struct PAD_PSX {
-    u_short state;
-    u_short unused[2];
-};
 
-struct PAD_NEGCON {
-    u_char state : 4;
-    u_char start : 4;
-    u_char buttonAB : 4;
-    u_char rightshift : 4;
-    u_char twist, buttonI, buttonII, leftshift;
-};
+#include "shared/PCOORD16.h"
 
-struct PAD_ANALOG {
-    u_short state;
-    u_char rightx, righty, leftx, lefty;
-};
 
-struct PAD_MOUSE {
-    u_char unused, state;
-    char horizontalvalue, verticalvalue;
-    u_char unused2[2];
-};
 
-struct PAD_COMMON {
-    u_char nopad, ID;
-    union {
-        PAD_PSX standard;
-        PAD_NEGCON negcon;
-        PAD_MOUSE mouse;
-        PAD_ANALOG analog;
-    } data;
-};
+#include "shared/COORD16.h"
+
+
+
+#include "shared/PAD_PSX.h"
+
+
+
+
+#include "shared/PAD_NEGCON.h"
+
+
+
+
+
+
+
+#include "shared/PAD_ANALOG.h"
+
+
+
+
+#include "shared/PAD_MOUSE.h"
+
+
+
+
+
+#include "shared/PAD_COMMON.h"
+
+
+
+
+
+
+
+
 
 /* The original include graph emits this otherwise-unreferenced anonymous
  * two-byte state cell into fetexture.obj's debug stream. */
@@ -84,46 +84,46 @@ struct {
     char bActive, time;
 };
 
-struct Draw_tPixMap {
-    u_char u0, v0;
-    u_short clut;
-    u_char u1, v1;
-    u_short tpage;
-    u_char u2, v2;
-    u_short pad2;
-    u_char u3, v3;
-    u_short flag;
-};
+#include "shared/Draw_tPixMap.h"
 
-struct DRender_tCalcView {
-    coorddef translation;
-    matrixtdef mrotation;
-    coorddef translationInv;
-    matrixtdef mrotationInv, mrotationInvRaw;
-};
 
-struct Draw_SVertex {
-    short vx, vy, vz;
-    u_char u, v;
-    short dvx, dvy;
-    u_char r, g, b, a;
-};
 
-struct Draw_PrimStruct {
-    u_long *LastPrim;
-    char *PrimPtr, *MPrimPtr;
-};
 
-struct Draw_tCacheHeader {
-    Draw_PrimStruct cprim;
-    int mirror;
-    short clipW, clipH;
-};
 
-struct Draw_CarVertex {
-    COORD16 vt;
-    char u, v;
-};
+
+
+
+
+
+#include "shared/DRender_tCalcView.h"
+
+
+
+
+
+
+#include "shared/Draw_SVertex.h"
+
+
+
+
+
+
+#include "shared/Draw_PrimStruct.h"
+
+
+
+
+#include "shared/Draw_tCacheHeader.h"
+
+
+
+
+
+#include "shared/Draw_CarVertex.h"
+
+
+
 
 struct tTexture_ShapeInfo {
     shapetbl *shpptr;

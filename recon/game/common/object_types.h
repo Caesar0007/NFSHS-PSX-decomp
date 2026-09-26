@@ -10,29 +10,29 @@ struct SerializedGroup;
 struct SimpleMem;
 struct AIHigh_Cop;
 
-struct Trk_ObjectDef { short id; u_char vertexCount, quadCount; };
-struct Trk_CollideBoomInst {
-    short size; u_char type, objectIndex, zoffset, flags; short pad;
-    int x, y, z; short qx, qy, qz, qw, sx, sy, sz;
-    u_char simIndex, boomIndex;
-};
-struct Trk_AnimateInst {
-    short size; u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
-struct Trk_SimObject {
-    int point[3]; short radius, serialNum;
-    u_char topCRAP, bottomCRAP, instIndex, type;
-};
-struct Trk_SimpleInst {
-    short size; u_char type, objectIndex, zoffset, flags; short pad;
-    int x, y, z;
-};
-struct Trk_AnimateBoomInst {
-    short size; u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval; u_char simIndex, boomIndex; short pad2;
-};
-struct Trk_SFX { int point[3]; short type, pad; };
+#include "shared/Trk_ObjectDef.h"
+#include "shared/Trk_CollideBoomInst.h"
+
+
+
+
+#include "shared/Trk_AnimateInst.h"
+
+
+
+#include "shared/Trk_SimObject.h"
+
+
+
+#include "shared/Trk_SimpleInst.h"
+
+
+
+#include "shared/Trk_AnimateBoomInst.h"
+
+
+
+#include "shared/Trk_SFX.h"
 
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
@@ -49,9 +49,9 @@ struct AnimScript {
     int GetTimedAnimPosRot(int index, coorddef *pt, matrixtdef *mat);
     int GetStatus();
 };
-struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
+#include "shared/AnimDef.h"
 
-struct DRender_tView { int id, player; DRender_tCalcView cview; };
+#include "shared/DRender_tView.h"
 struct Draw_DCache {
     Draw_tCacheHeader head;
     MATRIX matB, matNight, matCop, identMat;
@@ -72,12 +72,12 @@ struct Chunk {
     void InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem);
 };
 
-struct Object_tSimObjList { int numObjects, chunk, numObjects2, chunk2; };
-struct Object_tIMassObjInfo {
-    Trk_AnimateInst *animInst;
-    coorddef dimension, lastPos;
-    int lastTick;
-};
+#include "shared/Object_tSimObjList.h"
+#include "shared/Object_tIMassObjInfo.h"
+
+
+
+
 
 /* Real virtuals since 2026-09-19.  Declaration order, in-class inline destructors and the pure base Draw are all retail
  * evidence (vtable order, deferred-inline tail order, __pure_virtual slot) -- see scratchpad/psyq_pipe/fevirt_object.py. */
@@ -130,21 +130,21 @@ struct ObjectSignAnim : public ObjectAnim {
     int Draw(DRender_tView *, Draw_DCache *, int);
 };
 
-struct tQuat { short x, y, z, w; };
+#include "shared/tQuat.h"
 typedef tQuat Quatern_quat;
 
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
 
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+
+
+
+
+
+
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 struct SaveSurface {
     short fCount, fMaxCount;

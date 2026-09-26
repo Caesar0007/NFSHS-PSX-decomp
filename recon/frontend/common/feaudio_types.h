@@ -18,13 +18,13 @@ struct FILEINFO {
     char name[1];
 };
 
-struct SPEECHINFO {
-    char name[4];
-    int multiplay, nHandle, nSoundHandle;
-    char areLoading, soundIsPlaying, playNextOne;
-    char *pBankHeader, *sSpeechData, *lastSpeechData;
-    int vivHandle;
-};
+#include "shared/SPEECHINFO.h"
+
+
+
+
+
+
 
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
@@ -41,40 +41,40 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC {
-    int (*issurfacelocked)(void);
-};
-
-struct SNDPLAYOPTS {
-    int patnum;
-    char bhandle, keynum, velocity, pan, vol, bend, fxlevel0, use3dpos;
-    u_short pitchmult, timemult, azimuth;
-    short elevation;
-};
-
-struct SNDSAMPLEFORMAT {
-    u_short samplerate;
-    u_char channels, samplerep;
-};
-
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/SNDSYSVEC.h"
 
 
-struct tTrackInformation {
-    char fTrackID;
-    u_char fSimNumber, fTrackDifficulty, fAvailable, fIsEgg;
-    u_char fLengthKM, fLengthMiles, fNumMoments;
-    char fShapeName[8], fSplineName[8];
-    char fCountry, fDispatch, fReverseCall, fLanguage;
-    char fTrafficCars[6];
-    short fTX, fTY, fSX, fSY;
-    u_char fSpeedoCountry, fPad;
-    long fRotate;
-};
+
+#include "shared/SNDPLAYOPTS.h"
+
+
+
+
+
+
+#include "shared/SNDSAMPLEFORMAT.h"
+
+
+
+
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
+
+
+#include "shared/tTrackInformation.h"
+
+
+
+
+
+
+
+
+
+
 
 struct tTrackManager {
     u_long fNumTracks;

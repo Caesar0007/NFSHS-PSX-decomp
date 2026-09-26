@@ -6,23 +6,23 @@
 
 typedef void (*Sched_tFunctionPt)(void *);
 
-struct Sched_tFunctionSchedule {
-    int priority;
-    Sched_tFunctionPt function;
-    void *var1, *var2;
-};
+#include "shared/Sched_tFunctionSchedule.h"
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+
+
+
+
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 #include "gamesetup_leaf_types.h"
 
 /* Canonical sim.obj aggregate from the retail SYM type graph. */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 #endif

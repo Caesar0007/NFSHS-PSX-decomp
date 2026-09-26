@@ -4,9 +4,9 @@
 
 #include "game_common_min_types.h"
 
-struct matrixtdef {
-    int m[9];
-};
+#include "shared/matrixtdef.h"
+
+
 typedef struct matrixtdef MATRIX3DT;
 
 #endif

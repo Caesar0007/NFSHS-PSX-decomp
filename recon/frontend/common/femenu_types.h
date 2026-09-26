@@ -21,10 +21,10 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 
 #define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu comes after the item classes below */
@@ -37,14 +37,14 @@ struct POLY_F4 {
     short x0, y0, x1, y1, x2, y2, x3, y3;
 };
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -56,11 +56,11 @@ struct tScreen {
 #include "fescreen_virtuals.inc"
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 struct tDialogBase : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

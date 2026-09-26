@@ -73,66 +73,66 @@ struct FEMenuDefs_GameSetupCodegenView {
 #define GameSetup_tData FEMenuDefs_GameSetupCodegenView
 #endif
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
 
-struct AudioMus_tSongList {
-    int numsongs, currentsong;
-    AudioMus_tSongEntry song[0];
-};
+
+
+
+
+#include "shared/AudioMus_tSongList.h"
+
+
+
 
 typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
 
-struct FE3d_zUV { u_char u, v; };
-struct FE3d_zFacet {
-    u_short vertexId0, vertexId1, vertexId2, uvId0, uvId1, uvId2;
-    SVECTOR normal[3];
-    CVECTOR color;
-    u_char flag, pad1, pad2, pad3;
-};
-struct FE3d_zObj {
-    int numVertex, numUV, numFacet;
-    u_char textureId, textureWidth, textureHeight, pad1;
-    COORD16 *vertex;
-    FE3d_zUV *uv;
-    COORD16 *Nvertex;
-    FE3d_zFacet *facet;
-};
+#include "shared/FE3d_zUV.h"
+#include "shared/FE3d_zFacet.h"
 
-struct Force_tGlobal {
-    u_char active, high, low, jolt, time, fade;
-    u_char actuator[2];
-};
 
-struct tMissionTierInfo {
-    u_char fNumMissions, fDescriptionID, fMissionOffset, fPad;
-};
-struct tMissionInfo {
-    u_char fDescriptionID, fTrackNumber, fDirection, fMirrored;
-    u_char fTimeOfDay, fWeather, fTraffic, fPad;
-    u_short fStageOffset;
-    u_char fNumStages;
-    u_char fReserved[9];
-};
-struct tStageInfo {
-    u_char fCarModel, fColor, fAIPersonality, fDirection;
-    short fTimeLimit, fWingman, fSpikeBelt, fBlockadeCop;
-    u_char fPlacement, fStyle;
-    u_short fDistance;
-    u_long fSpeed, fWeight, fGlue;
-    u_char fSpeechColor;
-    u_char fReserved[15];
-};
-struct tAcademyDefinition {
-    tMissionTierInfo fTiers[8];
-    tMissionInfo fMissions[64];
-    tStageInfo fStages[256];
-};
+
+
+
+#include "shared/FE3d_zObj.h"
+
+
+
+
+
+
+
+
+#include "shared/Force_tGlobal.h"
+
+
+
+
+#include "shared/tMissionTierInfo.h"
+
+
+#include "shared/tMissionInfo.h"
+
+
+
+
+
+
+#include "shared/tStageInfo.h"
+
+
+
+
+
+
+
+
+#include "shared/tAcademyDefinition.h"
+
+
+
+
 
 #ifndef NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
 struct tDialogYesNoTri : public tDialogYesNo {
@@ -142,14 +142,14 @@ struct tDialogYesNoTri : public tDialogYesNo {
 };
 #endif
 
-struct MCRDFILE_def {
-    char *name, *title;
-    int size, offset;
-    unsigned int flags;
-    void *pData;
-    shapetbl *icon[3];
-    u_char *numicons, *numblocks;
-};
+#include "shared/MCRDFILE_def.h"
+
+
+
+
+
+
+
 typedef MCRDFILE_def MCRDFILE;
 
 typedef short tArrowLocation[6];

@@ -35,7 +35,7 @@
 #endif
 #undef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 
-struct SndBnk_t { int bnkID; char *phdr, *pdata; };
+#include "shared/SndBnk_t.h"
 
 #if !defined(NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES) || \
     defined(NFS4_COPSPEAK_KEEP_BW_CONTEXT)
@@ -48,9 +48,9 @@ struct BW_tContext {
 #endif
 
 #ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
-struct SNDSTREAMSTATUS {
-    int outstandingrequests, currentrequest, timebuffered;
-};
+#include "shared/SNDSTREAMSTATUS.h"
+
+
 
 struct CopSpeak_tFileIndex { long offset, size; };
 struct CopSpeak_tBankHeader { int id; u_char ver; };

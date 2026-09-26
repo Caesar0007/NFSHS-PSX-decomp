@@ -45,14 +45,14 @@ struct Sim_tSimSystemVar {
 
 struct tListIteratorIndexed : public tListIterator { char *fIndex; };
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 struct tScreen {
     tShapeInformation fPermShapes, fSwapShapes;
@@ -63,25 +63,25 @@ struct tScreen {
     virtual ~tScreen();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
-struct tCarLineup {
-    bool isPlayerCar;
-    tPersonalities personality;
-    char position;
-    tCarModels carModel;
-    char carColor, carUpgrades;
-};
+#include "shared/tCarLineup.h"
 
-struct tTrackInformation {
-    char fTrackID;
-    u_char fSimNumber, fTrackDifficulty, fAvailable, fIsEgg;
-    u_char fLengthKM, fLengthMiles, fNumMoments;
-    char fShapeName[8], fSplineName[8];
-    char fCountry, fDispatch, fReverseCall, fLanguage;
-    char fTrafficCars[6];
-    short fTX, fTY, fSX, fSY;
-    u_char fSpeedoCountry, fPad;
-    long fRotate;
-};
+
+
+
+
+
+
+#include "shared/tTrackInformation.h"
+
+
+
+
+
+
+
+
+
+
 
 struct tTrackManager {
     u_long fNumTracks;
@@ -93,68 +93,68 @@ struct tTrackManager {
     void ReleaseDescription();
 };
 
-struct tTierInfo {
-    u_char fNumTournaments, fDescriptionID, fTournOffset, fPad;
-    u_char fReserved[8];
-};
+#include "shared/tTierInfo.h"
 
-struct tTourneyInfo {
-    char fTournamentID;
-    u_char fNumTracks, fTrackOffset, fOpponentCarClass, fTraffic, fKnockout;
-    u_char fNumCars, fAwardCar, fAwardCarModel, fAwardCarUpgrades;
-    u_short fActivateFlags, fRequiredFlags;
-    u_char fActivatedTrack, fActivatedCarClass, fActivatedCar;
-    u_char fRequiredTournamentID, fRequiredCar, fRequiredUpgrades;
-    u_char fSpecificUpgrades, fRequiredCheatID, fTrophyID, fPad;
-    long fPrize[6];
-    long fEntranceFee;
-    u_char fPersonalities[5], fOpponentCar[5], fOpponentUpgrades[5];
-    u_char fActivatedTrackClass, fActivatedCheat, fNumLaps;
-    u_char fReserved[14];
-};
 
-struct tTrackInfo {
-    signed char fTrackNumber;
-    u_char fDirection, fMirrored, fTimeOfDay, fWeather;
-    u_char fRandom, fSituations, fPad;
-    long fPrize[6];
-    u_long fDifficulty;
-    u_char fReserved[4];
-};
 
-struct tTournamentDefinition {
-    tTierInfo fTiers[3];
-    tTourneyInfo fTournaments[64];
-    tTrackInfo fTracks[128];
-};
 
-struct tAwardInformation {
-    long fMoney, fTournMoney;
-    u_short fActivateFlags;
-    char fActivateTrack;
-    tCarClassType fActivateCarClass;
-    tCarModels fActivateCar;
-    tTrackClassType fActivateTrackClass;
-    long fActivateCheat;
-    bool fAwardCar, fAwardCarGarageFull;
-    long fAwardCarBonusMoney;
-    tCarModels fAwardCarModel;
-    char fAwardCarColor, fAwardCarUpgrades;
-    bool fCompletedTier;
-    short fCompletedText;
-    tCarModels fCompletedCar;
-    bool fCompletedGarageFull;
-    long fCompletedBonusMoney;
-};
+#include "shared/tTourneyInfo.h"
 
-struct tCompetitor {
-    tPersonalities fPersonality;
-    u_char fVariation;
-    signed char fIsPlayerCar;
-    bool fEliminated;
-    u_short fPoints;
-    u_char fPosition;
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/tTrackInfo.h"
+
+
+
+
+
+
+
+
+#include "shared/tTournamentDefinition.h"
+
+
+
+
+
+#include "shared/tAwardInformation.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/tCompetitor.h"
+
+
+
+
+
+
+
 
 struct tTournamentManager {
     char fNumTiers;
@@ -178,33 +178,33 @@ struct tTournamentManager {
     void ReleaseDescription();
 };
 
-struct tMissionTierInfo {
-    u_char fNumMissions, fDescriptionID, fMissionOffset, fPad;
-};
+#include "shared/tMissionTierInfo.h"
 
-struct tMissionInfo {
-    u_char fDescriptionID, fTrackNumber, fDirection, fMirrored;
-    u_char fTimeOfDay, fWeather, fTraffic, fPad;
-    u_short fStageOffset;
-    u_char fNumStages;
-    u_char fReserved[9];
-};
 
-struct tStageInfo {
-    u_char fCarModel, fColor, fAIPersonality, fDirection;
-    short fTimeLimit, fWingman, fSpikeBelt, fBlockadeCop;
-    u_char fPlacement, fStyle;
-    u_short fDistance;
-    u_long fSpeed, fWeight, fGlue;
-    u_char fSpeechColor;
-    u_char fReserved[15];
-};
 
-struct tAcademyDefinition {
-    tMissionTierInfo fTiers[8];
-    tMissionInfo fMissions[64];
-    tStageInfo fStages[256];
-};
+#include "shared/tMissionInfo.h"
+
+
+
+
+
+
+
+#include "shared/tStageInfo.h"
+
+
+
+
+
+
+
+
+
+#include "shared/tAcademyDefinition.h"
+
+
+
+
 
 struct tMissionManager {
     char fNumTiers;
@@ -215,11 +215,11 @@ struct tMissionManager {
     void ReleaseDescription();
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 struct tDialogBase : public tScreen {
     short specificPlayer, left, top, width, height, reservedheight;
@@ -242,12 +242,12 @@ struct tDialogInteractive : public tDialogMessageString {
 
 struct tDialogYesNo : public tDialogInteractive { int yesnowords[2]; };
 
-struct tCredit {
-    short titleTextID, subTitleTextID, titleX, titleY, titleJustify, titleWidth;
-    short subTitleX, subTitleY, subTitleJustify, subTitleWidth;
-    short textX, textY, textJustify, creditType, bgNumber, pad;
-    char text[292];
-};
+#include "shared/tCredit.h"
+
+
+
+
+
 
 struct tCreditManager {
     tCredit *CreditBuffer;
@@ -258,10 +258,10 @@ struct tCreditManager {
     int fLineTicks, fStartTicks;
 };
 
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 
 typedef tRecordBuffer tSaveRecords[187];
 typedef u_char Night_tLightingTable[256][16];

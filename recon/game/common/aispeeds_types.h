@@ -10,20 +10,20 @@
 #define RaceType_Id3 3
 #define RaceType_Id5 5
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef enum Udff_tAccessType {
     UDFF_FILE = 0,
     UDFF_MEMORY = 1
 } Udff_tAccessType;
-struct Udff_tInfo {
-    Udff_tAccessType type;
-    int handle;
-    char *memPtr;
-};
+#include "shared/Udff_tInfo.h"
+
+
+
+
 typedef Udff_tInfo *Udff_tHandle;
 
 typedef enum AIDataRecord_RecordMethod_t {
@@ -71,15 +71,15 @@ struct AIPhysic_BrakeInfo {
     }
 };
 
-struct AISpeeds_tLeaderBoard {
-    Car_tObj *leadRacer, *leadHumanRacer, *leadAIRacer, *lastAIRacer;
-};
+#include "shared/AISpeeds_tLeaderBoard.h"
 
-struct AIPhysic_ModelConfig_t {
-    int dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc;
-    int dangle_to_dav, max_dav, dav_to_aa, max_aa;
-    int vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;
-};
+
+
+#include "shared/AIPhysic_ModelConfig_t.h"
+
+
+
+
 
 struct kernpair {
     u_short previouscode, code;
@@ -98,10 +98,10 @@ struct speedData_t { u_short endSlice, speedMPS; };
 struct AIDataRecord_TrackCurve_t;
 
 /* Canonical sim.obj aggregate from the retail SYM type graph. */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 typedef void (*fontblit)();

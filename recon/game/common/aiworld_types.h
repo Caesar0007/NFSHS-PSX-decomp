@@ -4,10 +4,10 @@
 
 #include "color_types.h"
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 

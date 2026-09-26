@@ -7,9 +7,9 @@
 /* This source spelling is not a typedef record in FETracks.obj. */
 #define uchar unsigned char
 
-struct tSaveTrackInfo {
-    u_char fTrackActivated[16];
-};
+#include "shared/tSaveTrackInfo.h"
+
+
 
 struct tListIteratorTrack : public tListIteratorIndexed {
     tTrackManager *fTrackManager;

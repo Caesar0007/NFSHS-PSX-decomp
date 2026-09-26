@@ -7,11 +7,11 @@
 #ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS
 struct FEI_tList { int v; int *p; };
 
-struct Input_tDeviceList {
-    char *devicename;
-    int (*devicefunc)(u_long);
-    int (*startupfunc)(int);
-};
+#include "shared/Input_tDeviceList.h"
+
+
+
+
 
 struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
@@ -124,31 +124,31 @@ typedef enum tPersonalities {
     kPersonalityTraffic = 8, kPersonalityNUM = 9
 } tPersonalities;
 
-struct tCarInfo {
-    signed char fCarID;
-    u_char fSimNumber, fCarClass, fABSAvailable, fDefaultColor;
-    u_char fCopClass, fDefaultTires, fAvailable;
-    char fShapeName[8], fSmallName[8], fQTVRName[8];
-    long fPrices[4];
-    u_char fStats[4][5];
-    u_long fColorList[16];
-    u_char fSpeechColors[16];
-    u_long fHudColor[2];
-    char fDayTachFile[8], fNightTachFile[8];
-    char fNumLightColors, fNumDarkColors;
-    u_char fCountries;
-    char fColorOrder[16];
-    u_char fPursuitAvailable, fEnginePatch;
-    signed char fSpeechCarID;
-    u_char fTractionAvailable, fExoticCar, fUpgrades, fColor;
-    u_char fViewable, fCountry, fCarIndex;
-    u_char fReserved[3];
-};
+#include "shared/tCarInfo.h"
 
-struct tOwnedCarInfo {
-    signed char fCarID;
-    u_char fUpgrades, fCarColor, fPad;
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "shared/tOwnedCarInfo.h"
+
+
+
 
 struct tCarManager {
     u_long fNumCars;

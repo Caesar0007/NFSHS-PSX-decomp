@@ -47,14 +47,14 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 
 struct tDrawShapeExtended;
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -89,11 +89,11 @@ struct tScreen {
 #endif
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 struct tScreenDisplay : public tScreen {
@@ -597,16 +597,16 @@ typedef enum tTVState {
     tv_TransitionOff = 3
 } tTVState;
 
-struct tTVConfig {
-    tTVState state;
-    short transition;
-    u_short destBrightness, flags;
-    short fxWide, fxThin;
-    int tint;
-    short x, y, w, h;
-    u_char u, v, uw, vh, shapeType;
-    u_short clut, tpage, shapex, shapey, clutID, flip_axis;
-};
+#include "shared/tTVConfig.h"
+
+
+
+
+
+
+
+
+
 
 struct tDialogBase : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
@@ -694,12 +694,12 @@ struct tDialogYesNo : public tDialogInteractive {
 #endif
 };
 
-struct tCredit {
-    short titleTextID, subTitleTextID, titleX, titleY, titleJustify, titleWidth;
-    short subTitleX, subTitleY, subTitleJustify, subTitleWidth;
-    short textX, textY, textJustify, creditType, bgNumber, pad;
-    char text[292];
-};
+#include "shared/tCredit.h"
+
+
+
+
+
 
 typedef enum tScreenMainState {
     kScreenMain_Off = 0,
@@ -709,18 +709,18 @@ typedef enum tScreenMainState {
     kScreenMain_Credits = 4
 } tScreenMainState;
 
-struct tVideoTransition {
-    tScreenMainState state;
-    u_short flags;
-    u_char u, v, uw, vh;
-    u_short clut, tpage;
-    unsigned int tint;
-    short bright;
-};
+#include "shared/tVideoTransition.h"
 
-struct tVideo {
-    char x, y, width, height, tileWidth, tileHeight, deltaX, deltaY;
-};
+
+
+
+
+
+
+
+#include "shared/tVideo.h"
+
+
 
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 /* Only this offset is used by ScreenDisplay.  The real aggregate owner is

@@ -26,13 +26,13 @@ extern int   BWorld_CheckChunkVisible(BWorldSm_Pos *a, BWorldSm_Pos *b);
  * surviving type stream does not preserve this foreign body; original header
  * visibility remains a source-recovery question, not a sealed per-TU claim.
  * This private external contract is not exported by newton_types.h. */
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 extern Trk_NewSlice *BWorldSm_slices; /* SYM1d937e */
 extern int            gNumSlices;
 

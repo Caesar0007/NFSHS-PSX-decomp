@@ -24,21 +24,21 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
 
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
 
-struct tBTCPerpInfo {
-    char name[8];
-    int time;
-    bool caught;
-};
+
+
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
+
+#include "shared/tBTCPerpInfo.h"
+
+
+
+
 
 struct kernpair {
     u_short previouscode, code;

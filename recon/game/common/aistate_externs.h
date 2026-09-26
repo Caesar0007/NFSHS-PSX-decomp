@@ -30,13 +30,13 @@ extern int                 AI_elapsedTime;     /* ai.cpp    @0x8013C554 */
  * AIState's surviving type stream does not preserve this foreign body;
  * original header visibility remains a source-recovery question.
  * Keep this projection at the private external boundary, not the shared graph. */
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 extern Trk_NewSlice *BWorldSm_slices;
 extern int                 Cars_gNumTrafficCars;
 extern int            Cars_gNumCars;

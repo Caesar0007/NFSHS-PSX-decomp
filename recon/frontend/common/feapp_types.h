@@ -18,10 +18,10 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 
 /* FEApp uses player values without retaining the foreign tPlayer enum.  Input
  * keys are real owner records and must be available before dialog methods. */
@@ -53,10 +53,10 @@ struct tMenuCommand {
 #define RaceType_PinkSlips 6
 #define PinkSlipsNoError 0
 
-struct DR_AREA {
-    u_long tag;
-    u_long code[2];
-};
+#include "shared/DR_AREA.h"
+
+
+
 
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
@@ -73,14 +73,14 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC {
-    int (*issurfacelocked)(void);
-};
+#include "shared/SNDSYSVEC.h"
 
-struct SNDSAMPLEFORMAT {
-    u_short samplerate;
-    u_char channels, samplerep;
-};
+
+
+#include "shared/SNDSAMPLEFORMAT.h"
+
+
+
 
 enum tAppCommand {
     kApp_Command_StartRace = 0,

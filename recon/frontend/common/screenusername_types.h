@@ -12,25 +12,25 @@ typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
 
-struct FE3d_zUV {
-    u_char u, v;
-};
+#include "shared/FE3d_zUV.h"
 
-struct FE3d_zFacet {
-    u_short vertexId0, vertexId1, vertexId2, uvId0, uvId1, uvId2;
-    SVECTOR normal[3];
-    CVECTOR color;
-    u_char flag, pad1, pad2, pad3;
-};
 
-struct FE3d_zObj {
-    int numVertex, numUV, numFacet;
-    u_char textureId, textureWidth, textureHeight, pad1;
-    COORD16 *vertex;
-    FE3d_zUV *uv;
-    COORD16 *Nvertex;
-    FE3d_zFacet *facet;
-};
+
+#include "shared/FE3d_zFacet.h"
+
+
+
+
+
+
+#include "shared/FE3d_zObj.h"
+
+
+
+
+
+
+
 
 struct tScreenUserName : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

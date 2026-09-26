@@ -234,6 +234,19 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   0 files exact -- the game-type tiers are the remaining work (e.g. `GameSetup_tData` is defined in 41 headers).
   To rebuild the full debug SYM: `gdebug_compile.py` (no args), then `psylink_lane.py` with `NFS4_LANE_G=1
   NFS4_LANE_OUT=build/psyq_g`, then `symtree_cmp.py build/psyq_g/nfs4_sym.txt`.
+- Type dedup, step 2a (2026-09-26). `tools/psyq_pipe/dedup_types.py --apply`: 154 game types that were defined
+  identically in 2-41 headers each (854 copies: `Sched_tSchedule` x41, `TCB` x32, `Sim_tSimGlobalVar` x26, ...) now
+  have ONE definition in `recon/shared/<Type>.h`; each former copy is `#include "shared/<Type>.h"` at the same
+  place, padded with blank lines so the header keeps its line count. Every object therefore compiles the same tokens
+  in the same order: program bytes, the board and the ENTIRE SYM text are byte-identical to before (checked by
+  comparing the full debug SYM). Excluded on purpose: classes with inline member bodies and derived/virtual classes
+  (13, e.g. `AIHigh_Player`, `AIHigh_BTC_Wingman`, the dialog/screen subclasses) -- the code they emit, including
+  compiler-generated destructors, records the class definition's file and line, so they must move as part of their
+  retail module header (`AIHIGH.H`, `FEDIALOG.H`, ...), not into a per-type file. Also left: 134 types whose copies
+  differ (e.g. `GameSetup_tData` has 3 bodies in 41 headers, `EXEC`/`DIRENTRY` 2, `tScreen` 7); each needs its
+  copies reconciled against retail's member records before it can be shared. `header_groups.py` groups retail types
+  by co-occurrence as a first map of the original headers; most groups are single types because retail objects
+  include headers selectively.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

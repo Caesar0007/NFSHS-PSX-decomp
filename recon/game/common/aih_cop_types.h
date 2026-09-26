@@ -41,7 +41,7 @@ struct POLY_GT4 {
     u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
 };
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 
 struct Track_tArtresource {
     int id;
@@ -53,7 +53,7 @@ struct Track_tArtresource {
 
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -66,12 +66,12 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 
 struct Skidmark_Chunk {
     coorddef cp;
@@ -79,22 +79,22 @@ struct Skidmark_Chunk {
     Skidmark_Segment seg[24];
 };
 
-struct SPCHNFSType_POSITION { u_long flags; };
-struct SPCHNFSType_DISTANCE { u_long flags; };
-struct SPCHNFSType_COLOUR { u_long flags; };
-struct SPCHNFSType_ACCIDENT { u_long flags; };
-struct SPCHNFSType_AMBULANCE { u_long flags; };
-struct SPCHNFSType_PURS_UPDT { u_long flags; };
-struct SPCHNFSType_ARREST { u_long flags; };
-struct SPCHNFSType_vs_RDBLK_SSTRP { u_long flags; };
-struct SPCHNFSType_PERP_NAME { u_long flags; };
-struct SPCHNFSType_CONFIRM { u_long flags; };
-struct SPCHNFSType_SPIKE_BELT_SIDE { u_long flags; };
-struct SPCHNFSType_REVINTRO { u_long flags; };
+#include "shared/SPCHNFSType_POSITION.h"
+#include "shared/SPCHNFSType_DISTANCE.h"
+#include "shared/SPCHNFSType_COLOUR.h"
+#include "shared/SPCHNFSType_ACCIDENT.h"
+#include "shared/SPCHNFSType_AMBULANCE.h"
+#include "shared/SPCHNFSType_PURS_UPDT.h"
+#include "shared/SPCHNFSType_ARREST.h"
+#include "shared/SPCHNFSType_vs_RDBLK_SSTRP.h"
+#include "shared/SPCHNFSType_PERP_NAME.h"
+#include "shared/SPCHNFSType_CONFIRM.h"
+#include "shared/SPCHNFSType_SPIKE_BELT_SIDE.h"
+#include "shared/SPCHNFSType_REVINTRO.h"
 
-struct CarBank { int fFull, fMake, fModel; };
-struct LocationBank { int fStartSlice, fEndSlice, fBankId; char *fName; };
-struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; };
+#include "shared/CarBank.h"
+#include "shared/LocationBank.h"
+#include "shared/CallSignBank.h"
 
 /* Speech's nested banks are retained although its outer definition is not. */
 struct { CarBank Mobile[9], Dispatch[9]; };
@@ -142,24 +142,24 @@ struct GameSetup_tData {
     int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
     GameSetup_tCarData carInfo[9];
 };
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
-struct AICop_spikeBelt_t {
-    int active_, slice_, leftLatPos_, rightLatPos_, freshenTime_;
-};
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
-struct copTuning_t {
-    int regularCopAccMultiplier, superCopAccMultiplier;
-    int regularCopTopSpeedCap, superCopTopSpeedCap;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
+#include "shared/AICop_spikeBelt_t.h"
+
+
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
+#include "shared/copTuning_t.h"
+
+
+
 typedef enum triggerType {
     TRIGGER_NONE = 0,
     TRIGGER_COP_SIMPLE = 1,

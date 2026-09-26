@@ -15,15 +15,15 @@ struct BW_tContext {
     int lowDetailDistSq, lineFarZClipSq;
 };
 
-struct SceneElem {
-    int type, size, committed, visible;
-    coorddef cp;
-    int height;
-    matrixtdef orient;
-    int subType, subTypeIndex, scalar1, scalar2, scalar3, scalar4;
-};
+#include "shared/SceneElem.h"
 
-struct SceneSortedElem { int slice_; SceneElem *se; };
+
+
+
+
+
+
+#include "shared/SceneSortedElem.h"
 
 struct FLARE_PIECE_DEF { int distance, size; CVECTOR color; char type; };
 
@@ -33,11 +33,11 @@ struct kernpair {
     char pad[3];
 };
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 
 struct tTexture_ShapeInfo {
     shapetbl *shpptr;
@@ -75,15 +75,15 @@ struct POLY_FT4 {
 
 struct DR_STP { u_long tag; u_long code[2]; };
 
-struct dflip { DISPENV disp; char *server; };
+#include "shared/dflip.h"
 
-struct FLARE_DEF {
-    DVECTOR pos[2], oldpos[2];
-    u_short screenData[2][5][5];
-    int size;
-    FLARE_PIECE_DEF *piece;
-    char isDrawn[2];
-};
+#include "shared/FLARE_DEF.h"
+
+
+
+
+
+
 
 typedef int Input_tDeviceCall();
 typedef kernpair KERN;

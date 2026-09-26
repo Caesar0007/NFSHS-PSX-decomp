@@ -19,11 +19,11 @@
 #undef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 #undef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 
 #include "speech_class.h"
 

@@ -18,13 +18,13 @@ extern GameSetup_tData GameSetup_gData;
  * surviving type stream does not preserve this foreign body; original header
  * visibility remains unproved. This is a private external field contract,
  * not an exported addition to aiphysic_types.h. */
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 extern Trk_NewSlice *BWorldSm_slices; /* SYM1d937e */
 /* W65-A8 ORDER IS LOAD-BEARING: a TU-owned tentative definition is emitted in
  * the order its identifier is FIRST DECLARED (here, not at the .cpp def).

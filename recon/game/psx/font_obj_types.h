@@ -26,10 +26,10 @@ typedef struct charactertbl charactertbl;
 /* PsyQ SYS/TYPES.H, LIBGTE.H, and LIBGPU.H declarations retained by font.obj. */
 #include "nfs4_types.h"
 
-struct MATRIX {
-    short m[3][3];
-    long t[3];
-};
+#include "shared/MATRIX.h"
+
+
+
 typedef struct MATRIX MATRIX;
 typedef struct VECTOR VECTOR;
 typedef struct SVECTOR SVECTOR;
@@ -53,85 +53,85 @@ struct SPRT {
 };
 typedef struct SPRT SPRT;
 
-struct DR_MODE {
-    u_long tag;
-    u_long code[2];
-};
+#include "shared/DR_MODE.h"
+
+
+
 typedef struct DR_MODE DR_MODE;
 typedef struct shapetbl shapetbl;
 
-struct coorddef {
-    int x, y, z;
-};
+#include "shared/coorddef.h"
+
+
 typedef struct coorddef coorddef;
 typedef struct coorddef LIBCOORD;
 
-struct matrixtdef {
-    int m[9];
-};
+#include "shared/matrixtdef.h"
+
+
 typedef struct matrixtdef matrixtdef;
 typedef struct matrixtdef MATRIX3DT;
 typedef struct cdstreamstruct cdstreamstruct;
 
-struct linedef {
-    int start, end, colour, thickness;
-};
+#include "shared/linedef.h"
+
+
 typedef struct linedef linedef;
 typedef struct linedef LINE;
 
-struct SHAPETABLEENTRY {
-    char id[4];
-    long offset;
-};
+#include "shared/SHAPETABLEENTRY.h"
+
+
+
 typedef struct SHAPETABLEENTRY SHAPETABLEENTRY;
 
-struct PCOORD16 {
-    short x, y, z, p;
-};
+#include "shared/PCOORD16.h"
+
+
 typedef struct PCOORD16 PCOORD16;
 
-struct COORD16 {
-    short x, y, z;
-};
+#include "shared/COORD16.h"
+
+
 typedef struct COORD16 COORD16;
 
-struct PAD_PSX {
-    u_short state;
-    u_short unused[2];
-};
+#include "shared/PAD_PSX.h"
+
+
+
 typedef struct PAD_PSX PAD_PSX;
 
-struct PAD_NEGCON {
-    u_char state : 4;
-    u_char start : 4;
-    u_char buttonAB : 4;
-    u_char rightshift : 4;
-    u_char twist, buttonI, buttonII, leftshift;
-};
+#include "shared/PAD_NEGCON.h"
+
+
+
+
+
+
 typedef struct PAD_NEGCON PAD_NEGCON;
 
-struct PAD_ANALOG {
-    u_short state;
-    u_char rightx, righty, leftx, lefty;
-};
+#include "shared/PAD_ANALOG.h"
+
+
+
 typedef struct PAD_ANALOG PAD_ANALOG;
 
-struct PAD_MOUSE {
-    u_char unused, state;
-    char horizontalvalue, verticalvalue;
-    u_char unused2[2];
-};
+#include "shared/PAD_MOUSE.h"
+
+
+
+
 typedef struct PAD_MOUSE PAD_MOUSE;
 
-struct PAD_COMMON {
-    u_char nopad, ID;
-    union {
-        PAD_PSX standard;
-        PAD_NEGCON negcon;
-        PAD_MOUSE mouse;
-        PAD_ANALOG analog;
-    } data;
-};
+#include "shared/PAD_COMMON.h"
+
+
+
+
+
+
+
+
 typedef struct PAD_COMMON PAD_COMMON;
 
 /* The include graph emits this otherwise-unreferenced two-byte state cell. */
@@ -139,51 +139,51 @@ struct {
     char bActive, time;
 };
 
-struct Draw_tPixMap {
-    u_char u0, v0;
-    u_short clut;
-    u_char u1, v1;
-    u_short tpage;
-    u_char u2, v2;
-    u_short pad2;
-    u_char u3, v3;
-    u_short flag;
-};
+#include "shared/Draw_tPixMap.h"
+
+
+
+
+
+
+
+
+
 typedef struct Draw_tPixMap Draw_tPixMap;
 
-struct DRender_tCalcView {
-    coorddef translation;
-    matrixtdef mrotation;
-    coorddef translationInv;
-    matrixtdef mrotationInv, mrotationInvRaw;
-};
+#include "shared/DRender_tCalcView.h"
+
+
+
+
+
 typedef struct DRender_tCalcView DRender_tCalcView;
 
-struct Draw_SVertex {
-    short vx, vy, vz;
-    u_char u, v;
-    short dvx, dvy;
-    u_char r, g, b, a;
-};
+#include "shared/Draw_SVertex.h"
+
+
+
+
+
 typedef struct Draw_SVertex Draw_SVertex;
 
-struct Draw_PrimStruct {
-    u_long *LastPrim;
-    char *PrimPtr, *MPrimPtr;
-};
+#include "shared/Draw_PrimStruct.h"
+
+
+
 typedef struct Draw_PrimStruct Draw_PrimStruct;
 
-struct Draw_tCacheHeader {
-    Draw_PrimStruct cprim;
-    int mirror;
-    short clipW, clipH;
-};
+#include "shared/Draw_tCacheHeader.h"
+
+
+
+
 typedef struct Draw_tCacheHeader Draw_tCacheHeader;
 
-struct Draw_CarVertex {
-    COORD16 vt;
-    char u, v;
-};
+#include "shared/Draw_CarVertex.h"
+
+
+
 typedef struct Draw_CarVertex Draw_CarVertex;
 
 struct cluttbl {

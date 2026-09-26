@@ -12,7 +12,7 @@ struct POLY_GT4 {
     u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
 };
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 
 struct Track_tArtresource {
     int id;
@@ -27,12 +27,12 @@ struct Track_tMaterial {
     short pmxIndex;
 };
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+
+
+
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -45,20 +45,20 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
 
-struct tSkid {
-    coorddef pt;
-    CVECTOR clr;
-    int type;
-    Skidmark_Segment *nseg;
-    int chunk;
-};
+
+
+
+
+
+#include "shared/tSkid.h"
+
+
+
+
+
+
 
 struct Skidmark_Chunk {
     coorddef cp;
@@ -66,12 +66,12 @@ struct Skidmark_Chunk {
     Skidmark_Segment seg[24];
 };
 
-struct Souffle_tISouffle {
-    char type, id, wind, cycle;
-    int aspeed, angle;
-    coorddef source, motion, extramotion;
-    SVECTOR trans;
-    int rndpixmap, ground, colour;
-};
+#include "shared/Souffle_tISouffle.h"
+
+
+
+
+
+
 
 #endif

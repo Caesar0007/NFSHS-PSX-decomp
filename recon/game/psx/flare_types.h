@@ -27,7 +27,7 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -45,10 +45,10 @@ struct POLY_FT4 {
     short x1,y1; u_char u1,v1; u_short tpage; short x2,y2; u_char u2,v2;
     u_short pad1; short x3,y3; u_char u3,v3; u_short pad2;
 };
-struct POLY_G3 {
-    u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char r1,g1,b1,pad1;
-    short x1,y1; u_char r2,g2,b2,pad2; short x2,y2;
-};
+#include "shared/POLY_G3.h"
+
+
+
 struct POLY_G4 {
     u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char r1,g1,b1,pad1;
     short x1,y1; u_char r2,g2,b2,pad2; short x2,y2; u_char r3,g3,b3,pad3;
@@ -59,29 +59,29 @@ struct LINE_G2 {
     short x1,y1;
 };
 
-struct DRender_tView { int id, player; DRender_tCalcView cview; };
-struct Draw_FlareCache { Draw_tCacheHeader head; };
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/DRender_tView.h"
+#include "shared/Draw_FlareCache.h"
+#include "shared/Sched_tSchedule.h"
+
+
+
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
 } forceFocus_t;
 
 struct FLARE_PIECE_DEF { int distance,size; CVECTOR color; char type; };
-struct FLARE_DEF {
-    DVECTOR pos[2], oldpos[2];
-    u_short screenData[2][5][5];
-    int size;
-    FLARE_PIECE_DEF *piece;
-    char isDrawn[2];
-};
+#include "shared/FLARE_DEF.h"
+
+
+
+
+
+
 struct Flare_tInfo { u_long chalo,cbeam; int scale,flags; };
 
 struct CHorizonSpec {
@@ -96,23 +96,23 @@ struct CSkySpec {
     CVECTOR starBaseColor; int starRandomSeed; CVECTOR sunBeamColor,sunHaloColor;
     int yoffset; char cloudIndices[5][4]; int ringAngles[5];
 };
-struct CNightSpec { CVECTOR nightcolor; };
+#include "shared/CNightSpec.h"
 struct CWeatherSpec { int type,intensity_limit; };
 struct CFogSpec { int contrast; CVECTOR color; int start,dist2base; };
-struct CDepthCueSpec { CVECTOR color; int distance; };
+#include "shared/CDepthCueSpec.h"
 struct CWorldColor {
     int contrast; CVECTOR contrast_color; short worldR,worldG,worldB,type;
 };
-struct CTrackSpec {
-    short fogstate, weatherstate, horizonstate, skystate;
-    short nightstate, depthcuestate, worldcolorstate, pad0;
-    CFogSpec fogspec;
-    CWeatherSpec weatherspec;
-    CHorizonSpec horizonspec;
-    CSkySpec skyspec;
-    CNightSpec nightspec;
-    CDepthCueSpec depthcuespec;
-    CWorldColor worldcolorspec;
-};
+#include "shared/CTrackSpec.h"
+
+
+
+
+
+
+
+
+
+
 
 #endif

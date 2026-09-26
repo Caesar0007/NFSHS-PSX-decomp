@@ -15,9 +15,9 @@
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
-struct CdlLOC {
-    u_char minute, second, sector, track;
-};
+#include "shared/CdlLOC.h"
+
+
 
 struct charactertbl {
     u_char index[2];
@@ -31,9 +31,9 @@ struct DR_OFFSET {
     u_long code[2];
 };
 
-struct eacelement {
-    eacelement *link;
-};
+#include "shared/eacelement.h"
+
+
 
 struct POLY_F4 {
     u_long tag;
@@ -106,14 +106,14 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC {
-    int (*issurfacelocked)(void);
-};
+#include "shared/SNDSYSVEC.h"
 
-struct SNDSAMPLEFORMAT {
-    u_short samplerate;
-    u_char channels, samplerep;
-};
+
+
+#include "shared/SNDSAMPLEFORMAT.h"
+
+
+
 
 typedef void (*CdlCB)(u_char intr, u_char *result); /* PsyQ 4.3 <libcd.h> */
 typedef charactertbl FONTFILECHAR;

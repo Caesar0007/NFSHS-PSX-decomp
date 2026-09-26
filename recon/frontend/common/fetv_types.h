@@ -69,16 +69,16 @@ enum tTVState {
     tv_TransitionOff = 3
 };
 
-struct tTVConfig {
-    tTVState state;
-    short transition;
-    u_short destBrightness, flags;
-    short fxWide, fxThin;
-    int tint;
-    short x, y, w, h;
-    u_char u, v, uw, vh, shapeType;
-    u_short clut, tpage, shapex, shapey, clutID, flip_axis;
-};
+#include "shared/tTVConfig.h"
+
+
+
+
+
+
+
+
+
 
 struct kernpair {
     u_short previouscode, code;
@@ -87,11 +87,11 @@ struct kernpair {
 };
 typedef struct kernpair KERN;
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 typedef void (*fontblit)();
 typedef int (*getcode)();

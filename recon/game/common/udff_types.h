@@ -9,11 +9,11 @@ typedef enum Udff_tAccessType {
     UDFF_MEMORY = 1
 } Udff_tAccessType;
 
-struct Udff_tInfo {
-    Udff_tAccessType type;
-    int handle;
-    char *memPtr;
-};
+#include "shared/Udff_tInfo.h"
+
+
+
+
 typedef struct Udff_tInfo Udff_tInfo;
 typedef Udff_tInfo *Udff_tHandle;
 

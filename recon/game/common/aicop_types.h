@@ -4,10 +4,10 @@
 
 #include "color_types.h"
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 struct copLevel_t {
     int copChasers[2];
@@ -19,10 +19,10 @@ struct copLevel_t {
     int numWarningsAdded;
 };
 
-struct copGame_t {
-    int numLevels;
-    copLevel_t *levels;
-};
+#include "shared/copGame_t.h"
+
+
+
 
 typedef enum crimeType {
     CRIME_NONE = 0,
@@ -32,9 +32,9 @@ typedef enum crimeType {
     CRIME_SMASHCOP = 4
 } crimeType;
 
-struct AICop_spikeBelt_t {
-    int active_, slice_, leftLatPos_, rightLatPos_, freshenTime_;
-};
+#include "shared/AICop_spikeBelt_t.h"
+
+
 
 typedef enum AICop_RoadBlockState {
     kAICop_RoadBlockState_None = 0,
@@ -42,43 +42,43 @@ typedef enum AICop_RoadBlockState {
     kAICop_RoadBlockState_PerpPassed = 2
 } AICop_RoadBlockState;
 
-struct trigger_anyTrigger_t { int type, slice; };
-struct trigger_simple_t { int type, slice, dir, side, moving; };
-struct trigger_roadblock_t { int type, slice, dir, numCars, spikeBelt; };
+#include "shared/trigger_anyTrigger_t.h"
+#include "shared/trigger_simple_t.h"
+#include "shared/trigger_roadblock_t.h"
 
-struct trigger_offroad_t {
-    int type, slice, dir;
-    coorddef position;
-    matrixtdef orientation;
-    int maxSpeed, releaseTime, endSlice;
-};
+#include "shared/trigger_offroad_t.h"
 
-struct trigger_trafficAccident_t {
-    int type, slice;
-    coorddef position;
-    matrixtdef orientation;
-};
 
-struct trigger_pathPosition_t {
-    coorddef position;
-    int targetSpeed, waitTime;
-};
 
-struct trigger_trafficPath_t {
-    int type, slice, dir;
-    matrixtdef orientation;
-    int maxSpeed, releaseTime, numPoints;
-    trigger_pathPosition_t *path;
-};
 
-union trigger_t {
-    trigger_anyTrigger_t any;
-    trigger_simple_t simple;
-    trigger_roadblock_t roadblock;
-    trigger_offroad_t offroad;
-    trigger_trafficAccident_t trafficAccident;
-    trigger_trafficPath_t trafficPath;
-};
+
+
+#include "shared/trigger_trafficAccident_t.h"
+
+
+
+
+
+#include "shared/trigger_pathPosition_t.h"
+
+
+
+
+#include "shared/trigger_trafficPath_t.h"
+
+
+
+
+
+
+#include "shared/trigger_t.h"
+
+
+
+
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 

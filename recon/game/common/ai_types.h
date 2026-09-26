@@ -4,13 +4,13 @@
 
 #include "color_types.h"
 
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 struct GameSetup_tData {
@@ -32,16 +32,16 @@ struct GameSetup_tData {
 
 #define RaceType_HotPursuit 1
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 /* Canonical sim.obj aggregate from the retail SYM type graph. */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 typedef enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
@@ -63,37 +63,37 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 struct AIDataRecord_BestLine_t : public AIDataRecord_t {};
 
 struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
-struct AIPhysic_ModelConfig_t {
-    int dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc;
-    int dangle_to_dav, max_dav, dav_to_aa, max_aa;
-    int vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;
-};
+#include "shared/AIPhysic_ModelConfig_t.h"
 
-struct AI_tInfo {
-    Car_tObj *blockingCars[3];
-    int blockingCarsDist[3], laneSpeeds[3], laneSpeedsAhead[3], laneWeights[3];
-    int desiredLane, desiredLaneSide, deltaYaw;
-};
 
-struct Trk_ObjectDef { short id; u_char vertexCount, quadCount; };
-struct Trk_CollideBoomInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad;
-    int x, y, z;
-    short qx, qy, qz, qw, sx, sy, sz;
-    u_char simIndex, boomIndex;
-};
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
-struct Trk_SimObject {
-    int point[3];
-    short radius, serialNum;
-    u_char topCRAP, bottomCRAP, instIndex, type;
-};
+
+
+
+#include "shared/AI_tInfo.h"
+
+
+
+
+
+#include "shared/Trk_ObjectDef.h"
+#include "shared/Trk_CollideBoomInst.h"
+
+
+
+
+
+
+
+#include "shared/Trk_AnimateInst.h"
+
+
+
+
+#include "shared/Trk_SimObject.h"
+
+
+
+
 
 struct BW_tContext {
     int client;
@@ -105,15 +105,15 @@ struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
 };
-struct SceneElem {
-    int type, size, committed, visible;
-    coorddef cp;
-    int height;
-    matrixtdef orient;
-    int subType, subTypeIndex, scalar1, scalar2, scalar3, scalar4;
-};
-struct SceneSortedElem { int slice_; SceneElem *se; };
-struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
+#include "shared/SceneElem.h"
+
+
+
+
+
+
+#include "shared/SceneSortedElem.h"
+#include "shared/AnimDef.h"
 
 struct DRender_tView;
 struct Draw_DCache;

@@ -42,7 +42,7 @@ struct CSkySpec {
     int ringAngles[5];
 };
 
-struct CNightSpec { CVECTOR nightcolor; };
+#include "shared/CNightSpec.h"
 struct CWeatherSpec { int type, intensity_limit; };
 
 struct CFogSpec {
@@ -51,10 +51,10 @@ struct CFogSpec {
     int start, dist2base;
 };
 
-struct CDepthCueSpec {
-    CVECTOR color;
-    int distance;
-};
+#include "shared/CDepthCueSpec.h"
+
+
+
 
 struct CWorldColor {
     int contrast;
@@ -62,16 +62,16 @@ struct CWorldColor {
     short worldR, worldG, worldB, type;
 };
 
-struct CTrackSpec {
-    short fogstate, weatherstate, horizonstate, skystate;
-    short nightstate, depthcuestate, worldcolorstate, pad0;
-    CFogSpec fogspec;
-    CWeatherSpec weatherspec;
-    CHorizonSpec horizonspec;
-    CSkySpec skyspec;
-    CNightSpec nightspec;
-    CDepthCueSpec depthcuespec;
-    CWorldColor worldcolorspec;
-};
+#include "shared/CTrackSpec.h"
+
+
+
+
+
+
+
+
+
+
 
 #endif

@@ -14,11 +14,11 @@
 
 struct Texture_pal8bit;
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 
 struct Transformer_zScene {
     Transformer_zObj *obj[57];
@@ -30,46 +30,46 @@ struct R3DCar_tEnvMapInfo {
 };
 
 /* Canonical AITune.obj aggregate used by this translation unit. */
-struct AITune_tTrackInfo {
-    int oneWay, driveSide, roughLapTimeSeconds;
-};
+#include "shared/AITune_tTrackInfo.h"
+
+
 
 /* Canonical camera.obj aggregate used by this translation unit. */
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Canonical sim.obj aggregates used by this translation unit. */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
@@ -82,9 +82,9 @@ struct tReplayInterface {
 };
 
 /* Canonical DrawC.obj aggregate used by this translation unit. */
-struct DrawC_tEnvMap {
-    short slice, tex, extra;
-};
+#include "shared/DrawC_tEnvMap.h"
+
+
 
 typedef int Input_tDeviceCall();
 

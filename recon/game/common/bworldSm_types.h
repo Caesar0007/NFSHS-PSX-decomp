@@ -5,13 +5,13 @@
 /* bworldSm.obj contains color.obj's complete 71-record game/platform graph. */
 #include "color_types.h"
 
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 
 struct Chunk {
     RelCoord16 boundPts[4], chunkboundPts[4];

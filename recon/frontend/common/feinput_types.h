@@ -5,11 +5,11 @@
 #include "fe_core_types.h"
 #include "fe_input_enums.h"
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 
 struct tPSXToFEMapping {
     int PSXKey;

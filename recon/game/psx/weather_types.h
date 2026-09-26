@@ -23,7 +23,7 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -38,14 +38,14 @@ struct DIRENTRY {
 
 struct CCOORD16 { short x, y, z, light; };
 
-struct DRender_tView {
-    int id, player;
-    DRender_tCalcView cview;
-};
+#include "shared/DRender_tView.h"
 
-struct Trk_Quad { short material; u_char aPoints[4]; };
+
+
+
+#include "shared/Trk_Quad.h"
 struct Trk_NewStrip { u_char topVert, botVert; char quadCount, size; };
-struct Trk_NewSimQuad { u_char surface; };
+#include "shared/Trk_NewSimQuad.h"
 struct Trk_NewSimSlice {
     u_char stripIndex, quadCount, simquadIndex, simquadCount, simquadStartIndex;
 };
@@ -57,7 +57,7 @@ struct Group {
     inline int GetNumElements() { return m_num_elements; }
 };
 
-struct tSaveSurface { Trk_NewSimQuad *fSimQuad; u_char fSurface; };
+#include "shared/tSaveSurface.h"
 
 struct BWorldSm_Pos {
     short slice, stripQuadInd, simRotFlag;
@@ -131,43 +131,43 @@ struct CSkySpec {
     char cloudIndices[5][4];
     int ringAngles[5];
 };
-struct CNightSpec { CVECTOR nightcolor; };
+#include "shared/CNightSpec.h"
 struct CWeatherSpec { int type, intensity_limit; };
 struct CFogSpec { int contrast; CVECTOR color; int start, dist2base; };
-struct CDepthCueSpec { CVECTOR color; int distance; };
+#include "shared/CDepthCueSpec.h"
 struct CWorldColor {
     int contrast;
     CVECTOR contrast_color;
     short worldR, worldG, worldB, type;
 };
 
-struct CTrackSpec {
-    short fogstate, weatherstate, horizonstate, skystate;
-    short nightstate, depthcuestate, worldcolorstate, pad0;
-    CFogSpec fogspec;
-    CWeatherSpec weatherspec;
-    CHorizonSpec horizonspec;
-    CSkySpec skyspec;
-    CNightSpec nightspec;
-    CDepthCueSpec depthcuespec;
-    CWorldColor worldcolorspec;
-};
+#include "shared/CTrackSpec.h"
+
+
+
+
+
+
+
+
+
+
 
 typedef void (*Sched_tFunctionPt)(void *);
-struct Sched_tFunctionSchedule {
-    int priority;
-    Sched_tFunctionPt function;
-    void *var1, *var2;
-};
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tFunctionSchedule.h"
 
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+
+
+
+#include "shared/Sched_tSchedule.h"
+
+
+
+
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 struct POLY_F4 {
     u_long tag;
@@ -215,35 +215,35 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct kernpair {
     u_short previouscode, code;

@@ -34,13 +34,13 @@ struct AIHigh_Traffic : public AIHigh_Base {
 
 /* Exact foreign header definitions used by this owner but omitted by its
    linked debug graph. Their canonical names preserve call mangling. */
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 struct AITrigger_TriggerManager {
     int numTriggers_, invNumTriggers_;
     trigger_t *triggers_[100];

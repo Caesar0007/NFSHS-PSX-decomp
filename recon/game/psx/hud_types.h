@@ -11,15 +11,15 @@
 
 typedef int CarLogic_tObservations[1][3];
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
 
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+
+
+
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
@@ -31,10 +31,10 @@ struct tReplayInterface {
     int statsScreen;
 };
 
-struct DRender_tView {
-    int id, player;
-    DRender_tCalcView cview;
-};
+#include "shared/DRender_tView.h"
+
+
+
 
 typedef enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0, RECORD_M = 1, TEST_M = 2
@@ -51,67 +51,67 @@ struct AIDataRecord_t {
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
 
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
-struct AudioMus_tCurrentSong {
-    int newsong, index, remaining;
-    AudioMus_tSongEntry info;
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
+#include "shared/AudioMus_tCurrentSong.h"
+
+
+
 
 /* Canonical dashHUD.obj aggregate retained by the retail SYM. */
-struct dashhud_info {
-    int splitscreen;
-    char name[9];
-    int conversion, flashtime, flashlap;
-    int showhud[2], showmap[2], wrongway[2];
-    int laptime, lap, maxlaps, rpm, redline, gear, speed, topspeed;
-    int position, opponents, record, tutor;
-    int warning[2];
-};
+#include "shared/dashhud_info.h"
+
+
+
+
+
+
+
+
 
 /* Canonical overlays.obj BTC record retained by the retail SYM. */
-struct tBTCPerpInfo {
-    char name[8];
-    int time;
-    bool caught;
-};
+#include "shared/tBTCPerpInfo.h"
+
+
+
+
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
 } forceFocus_t;
 
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct FLARE_PIECE_DEF { int distance, size; CVECTOR color; char type; };
 
@@ -142,7 +142,7 @@ struct SPRT {
     u_short clut; short w,h;
 };
 
-struct HudPmx_tShape { Draw_tPixMap pixmap; short width, height; };
+#include "shared/HudPmx_tShape.h"
 struct tSmallCoordXY { short x, y; };
 
 #endif

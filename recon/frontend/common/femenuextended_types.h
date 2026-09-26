@@ -20,10 +20,10 @@ enum tMenuCommandType {
 };
 
 struct tMenu;
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 
 #define NFS4_FE_CORE_FEMENU_METHODS
 #include "fe_core_types.h"
@@ -33,10 +33,10 @@ struct tMenuCommand {
 #include "../../game/common/color_types.h"
 #include "../../game/psx/psyq_prim_macros.h"
 
-struct DR_AREA {
-    u_long tag;
-    u_long code[2];
-};
+#include "shared/DR_AREA.h"
+
+
+
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
@@ -56,11 +56,11 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 
 struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;
@@ -164,14 +164,14 @@ struct tMenuOptions : public tMenuNFS4 {
     bool IsSubMenu();
 };
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -183,11 +183,11 @@ struct tScreen {
 #include "fescreen_virtuals.inc"
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 struct tDialogBase : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
@@ -263,10 +263,10 @@ struct tFEApplication {
 
 /* The linked owner retains this public array typedef while attributing the
  * already-seen element tag body elsewhere. */
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 
 /* These foreign enum tags are not retained by FEMenuExtended.obj.  Exact

@@ -21,7 +21,7 @@ struct POLY_GT4 {
     u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
 };
 
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 
 struct Track_tArtresource {
     int id;
@@ -49,38 +49,38 @@ struct SNDSYSSET {
     u_short spkrcfg3d[4][4];
 };
 
-struct SNDSYSVEC { int (*issurfacelocked)(void); };
-struct SNDSAMPLEFORMAT { u_short samplerate; u_char channels, samplerep; };
+#include "shared/SNDSYSVEC.h"
+#include "shared/SNDSAMPLEFORMAT.h"
 #endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_SCHED_SCHEDULE
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 #endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
-struct Trk_AnimateInst {
-    short size;
-    u_char type, objectIndex, zoffset, flags;
-    short pad, count, interval;
-};
+#include "shared/Trk_AnimateInst.h"
+
+
+
+
 #endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
-struct SceneElem {
-    int type, size, committed, visible;
-    coorddef cp;
-    int height;
-    matrixtdef orient;
-    int subType, subTypeIndex, scalar1, scalar2, scalar3, scalar4;
-};
+#include "shared/SceneElem.h"
 
-struct SceneSortedElem { int slice_; SceneElem *se; };
+
+
+
+
+
+
+#include "shared/SceneSortedElem.h"
 #endif
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
@@ -95,12 +95,12 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 
 struct Skidmark_Chunk {
     coorddef cp;
@@ -167,35 +167,35 @@ struct GameSetup_tData {
 };
 
 #ifndef NFS4_AUDIOCLC_OMIT_CAMERA_VIEW
-struct camera_info {
-    BO_tNewtonObj *anchor, *target;
-    coorddef position, relpos, audioPos;
-    int TVHeight;
-    matrixtdef rotation;
-    int twist;
-    coorddef wallLeft, wallRight;
-    short mode, camNum;
-    char modechange : 1;
-    char pitch : 1;
-    char jostling : 1;
-    char tracking : 1;
-    char checkwalls : 1;
-    char noLookBack : 1;
-    char checkcollisions : 1;
-    char splitscreen : 1;
-    char intransition, tumbling;
-    char direction : 1;
-    char zooming : 2;
-    char inCar : 1;
-    short circleCounter, circleAngle;
-    char animNum;
-    signed char animHandle;
-    char splineMode;
-    forceFocus_t forceFocus;
-    signed char focusOnAICar;
-    int POInhibitor;
-    BWorldSm_Pos slicePos;
-};
+#include "shared/camera_info.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif
 
 struct CARDINFO_def;

@@ -40,11 +40,11 @@ struct POLY_G4 {
     short x3, y3;
 };
 
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 
 struct tDialogHelp : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */

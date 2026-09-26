@@ -7,11 +7,11 @@
 #include "fecntl_types.h"
 #undef NFS4_FECNTL_NO_RECORD_CARRIER
 
-struct TCB {
-    long status, mode;
-    u_long reg[40];
-    long system[6];
-};
+#include "shared/TCB.h"
+
+
+
+
 
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
@@ -51,14 +51,14 @@ struct tMenuNFS4 : public tMenu {
 };
 #endif
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -70,16 +70,16 @@ struct tScreen {
 #include "fescreen_virtuals.inc"
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
 
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+
+
+
+
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 
 #endif

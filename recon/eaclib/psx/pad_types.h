@@ -16,11 +16,11 @@ typedef unsigned int   u_int;
 typedef unsigned long  u_long;
 typedef unsigned short ushort;
 
-struct TCB {
-    long status, mode;
-    u_long reg[40];
-    long system[6];
-};
+#include "shared/TCB.h"
+
+
+
+
 
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size;

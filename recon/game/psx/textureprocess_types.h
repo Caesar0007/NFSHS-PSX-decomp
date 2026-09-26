@@ -31,10 +31,10 @@ struct CSkySpec {
     int ringAngles[5];
 };
 
-struct CNightSpec { CVECTOR nightcolor; };
+#include "shared/CNightSpec.h"
 struct CWeatherSpec { int type, intensity_limit; };
 struct CFogSpec { int contrast; CVECTOR color; int start, dist2base; };
-struct CDepthCueSpec { CVECTOR color; int distance; };
+#include "shared/CDepthCueSpec.h"
 struct CWorldColor {
     int contrast;
     CVECTOR contrast_color;

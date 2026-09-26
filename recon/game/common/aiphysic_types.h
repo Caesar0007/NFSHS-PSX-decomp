@@ -25,10 +25,10 @@ struct GameSetup_tData {
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
@@ -97,16 +97,16 @@ typedef enum eRampType {
     kRampType_NoInterpolate = 1
 } eRampType;
 
-struct AIPhysic_ModelConfig_t {
-    int dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc;
-    int dangle_to_dav, max_dav, dav_to_aa, max_aa;
-    int vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;
-};
-struct AIPhysic_Config_t {
-    int latvelcalc_lookahead, min_lookahead, max_lookahead, look_ahead_factor;
-    int skid_value;
-    AIPhysic_ModelConfig_t ICModel, OOCModel;
-};
+#include "shared/AIPhysic_ModelConfig_t.h"
+
+
+
+
+#include "shared/AIPhysic_Config_t.h"
+
+
+
+
 
 struct kernpair {
     u_short previouscode, code;

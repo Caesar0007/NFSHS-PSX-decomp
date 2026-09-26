@@ -6,20 +6,20 @@
 #include "nfs4_types.h"
 #undef NFS4_PSYQ_WCHAR_TYPE
 
-struct coorddef {
-    int x, y, z;
-};
+#include "shared/coorddef.h"
+
+
 typedef struct coorddef LIBCOORD;
 
-struct linedef {
-    int start, end, colour, thickness;
-};
+#include "shared/linedef.h"
+
+
 typedef struct linedef LINE;
 
-struct SHAPETABLEENTRY {
-    char id[4];
-    long offset;
-};
+#include "shared/SHAPETABLEENTRY.h"
+
+
+
 typedef struct SHAPETABLEENTRY SHAPETABLEENTRY;
 
 struct kernpair {

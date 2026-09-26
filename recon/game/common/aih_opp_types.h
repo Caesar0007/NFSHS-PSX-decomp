@@ -36,17 +36,17 @@ struct GameSetup_tData {
     int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
     GameSetup_tCarData carInfo[9];
 };
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
-struct Trk_NewSlice {
-    int center[3];
-    char normal[3], forward[3], right[3];
-    u_char acousticType;
-    short pavedProfile, leftDrive, rightDrive;
-    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
+#include "shared/Trk_NewSlice.h"
+
+
+
+
+
+
 
 typedef int CarLogic_tObservations[1][3];
 

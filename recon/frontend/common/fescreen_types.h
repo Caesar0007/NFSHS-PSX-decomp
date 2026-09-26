@@ -18,10 +18,10 @@ enum tMenuCommandType {
     kMenu_Command_ClearRecords = 9
 };
 
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 
 #include "fe_core_types.h"
 #include "fe_input_enums.h"
@@ -32,14 +32,14 @@ typedef enum tScreen_TransitionType {
     kScreen_TransitionTypeScreen = 2
 } tScreen_TransitionType;
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -73,11 +73,11 @@ struct tScreen {
     void UpdateTransition();
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 struct tDialogBase : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */
@@ -114,11 +114,11 @@ struct tDialogYesNo : public tDialogInteractive {
     int yesnowords[2];
 };
 
-struct tDrawShapeExtended {
-    short flip_axis;
-    int tint[4];
-    tTexture_ShapeInfo *custom_shapes;
-};
+#include "shared/tDrawShapeExtended.h"
+
+
+
+
 
 struct tDialogHelp : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */

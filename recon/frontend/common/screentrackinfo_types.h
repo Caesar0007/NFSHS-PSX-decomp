@@ -20,10 +20,10 @@ enum tMenuCommandType {
 };
 
 struct tMenu;
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 #endif
 
 #include "fe_core_types.h"
@@ -57,14 +57,14 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
 };
 
-struct tShapeInformation {
-    tTexture_ShapeInfo *fShapes;
-    char *fFile, *fDestFile;
-    unsigned int async_handle;
-    u_short fNumShapes, fFlags;
-    char fFilename[16];
-    bool fLoadCancelled;
-};
+#include "shared/tShapeInformation.h"
+
+
+
+
+
+
+
 
 #include "fescreen_virtual_types.h"
 struct tScreen {
@@ -78,11 +78,11 @@ struct tScreen {
     tScreen();
 };
 
-struct tActiveLine {
-    short startTick, endTick, x1, y1;
-    char type;
-    short data;
-};
+#include "shared/tActiveLine.h"
+
+
+
+
 
 struct tCarManager;
 struct tListIteratorCar : public tListIterator {
@@ -236,16 +236,16 @@ typedef enum tTVState {
     tv_TransitionOff = 3
 } tTVState;
 
-struct tTVConfig {
-    tTVState state;
-    short transition;
-    u_short destBrightness, flags;
-    short fxWide, fxThin;
-    int tint;
-    short x, y, w, h;
-    u_char u, v, uw, vh, shapeType;
-    u_short clut, tpage, shapex, shapey, clutID, flip_axis;
-};
+#include "shared/tTVConfig.h"
+
+
+
+
+
+
+
+
+
 
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 struct tVideoWall {
@@ -312,12 +312,12 @@ struct tDialogYesNo : public tDialogInteractive {
     int yesnowords[2];
 };
 
-struct tCredit {
-    short titleTextID, subTitleTextID, titleX, titleY, titleJustify, titleWidth;
-    short subTitleX, subTitleY, subTitleJustify, subTitleWidth;
-    short textX, textY, textJustify, creditType, bgNumber, pad;
-    char text[292];
-};
+#include "shared/tCredit.h"
+
+
+
+
+
 
 typedef enum tScreenMainState {
     kScreenMain_Off = 0,
@@ -327,17 +327,17 @@ typedef enum tScreenMainState {
     kScreenMain_Credits = 4
 } tScreenMainState;
 
-struct tVideoTransition {
-    tScreenMainState state;
-    u_short flags;
-    u_char u, v, uw, vh;
-    u_short clut, tpage;
-    unsigned int tint;
-    short bright;
-};
+#include "shared/tVideoTransition.h"
 
-struct tVideo {
-    char x, y, width, height, tileWidth, tileHeight, deltaX, deltaY;
-};
+
+
+
+
+
+
+
+#include "shared/tVideo.h"
+
+
 
 #endif

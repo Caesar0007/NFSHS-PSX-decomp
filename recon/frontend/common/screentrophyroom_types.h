@@ -16,10 +16,10 @@ enum tMenuCommandType {
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
 };
-struct tMenuCommand {
-    tMenuCommandType type;
-    tMenu *nextMenu;
-};
+#include "shared/tMenuCommand.h"
+
+
+
 
 /* This owner retains both frontend input enums. */
 #include "fe_input_enums.h"

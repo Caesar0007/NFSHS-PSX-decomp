@@ -4,7 +4,7 @@
 
 #include "color_types.h"
 
-struct SndBnk_t { int bnkID; char *phdr, *pdata; };
+#include "shared/SndBnk_t.h"
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 struct GameSetup_tData {
@@ -31,7 +31,7 @@ struct POLY_GT4 {
     u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
     u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
 };
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/Draw_SubdivStruct.h"
 struct Track_tArtresource {
     int id;
     char *shapeFile;
@@ -41,10 +41,10 @@ struct Track_tArtresource {
 };
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
@@ -59,16 +59,16 @@ struct SNDSYSSET {
     u_short emulationsubtype;
     u_short spkrcfg3d[4][4];
 };
-struct SNDSYSVEC { int (*issurfacelocked)(void); };
-struct SNDSAMPLEFORMAT { u_short samplerate; u_char channels, samplerep; };
-struct SNDPLAYOPTS {
-    int patnum;
-    char bhandle, keynum, velocity, pan, vol, bend, fxlevel0, use3dpos;
-    u_short pitchmult, timemult, azimuth;
-    short elevation;
-};
+#include "shared/SNDSYSVEC.h"
+#include "shared/SNDSAMPLEFORMAT.h"
+#include "shared/SNDPLAYOPTS.h"
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+
+
+
+
+
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -81,12 +81,12 @@ struct DIRENTRY {
     char system[4];
 };
 
-struct Skidmark_Segment {
-    SVECTOR svx[2];
-    CVECTOR rgb;
-    int type;
-    Skidmark_Segment *next;
-};
+#include "shared/Skidmark_Segment.h"
+
+
+
+
+
 struct Skidmark_Chunk {
     coorddef cp;
     short n, slice;

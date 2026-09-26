@@ -26,7 +26,7 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
-struct TCB { long status, mode; u_long reg[40]; long system[6]; };
+#include "shared/TCB.h"
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
     u_long s_addr, s_size, sp, fp, gp, ret, base;
@@ -52,21 +52,21 @@ struct POLY_GT4 {
 struct TILE_1 { u_long tag; u_char r0,g0,b0,code; short x0,y0; };
 
 struct CCOORD16 { short x,y,z,light; };
-struct DRender_tView { int id, player; DRender_tCalcView cview; };
-struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#include "shared/DRender_tView.h"
+#include "shared/Draw_SubdivStruct.h"
 struct Draw_DCache {
     Draw_tCacheHeader head; MATRIX matB,matNight,matCop,identMat; int otz;
     VECTOR tVn0,tVn1,tVn2,tVn3; short light,doublelayer;
 };
-struct Trk_Quad { short material; u_char aPoints[4]; };
+#include "shared/Trk_Quad.h"
 struct Trk_NewStrip { u_char topVert,botVert; char quadCount,size; };
-struct Trk_NewSimQuad { u_char surface; };
+#include "shared/Trk_NewSimQuad.h"
 struct Trk_NewSimSlice { u_char stripIndex,quadCount,simquadIndex,simquadCount,simquadStartIndex; };
 struct RelCoord16 { short x,z; };
 struct Group { int m_num_elements; inline void *GetData(){return this+1;} inline int GetNumElements(){return m_num_elements;} };
 struct Track_tArtresource { int id; char *shapeFile; int shapeCount; Draw_tPixMap *pPmx; int pmxCount,basePmxCount; };
 struct Track_tMaterial { char flag,mipmap_offset; short pmxIndex; };
-struct tSaveSurface { Trk_NewSimQuad *fSimQuad; u_char fSurface; };
+#include "shared/tSaveSurface.h"
 
 struct BWorldSm_Pos {
     short slice,stripQuadInd,simRotFlag; coorddef quadPts[4]; CCOORD16 quadPts16[4];
@@ -93,7 +93,7 @@ struct BO_tNewtonObj {
     int groundSurfaceType,driveSurfaceType; matrixtdef shadowMat; coorddef shadowCoord[4];
     int damage[10];
 };
-struct Skidmark_Segment { SVECTOR svx[2]; CVECTOR rgb; int type; Skidmark_Segment *next; };
+#include "shared/Skidmark_Segment.h"
 struct Skidmark_Chunk { coorddef cp; short n,slice; Skidmark_Segment seg[24]; };
 
 typedef enum forceFocus_t { FOCUS_NORMAL=0, FOCUS_AI=1, FOCUS_COPANDAI=2 } forceFocus_t;
@@ -106,22 +106,22 @@ struct CSkySpec {
     CVECTOR starBaseColor; int starRandomSeed; CVECTOR sunBeamColor,sunHaloColor;
     int yoffset; char cloudIndices[5][4]; int ringAngles[5];
 };
-struct CNightSpec { CVECTOR nightcolor; };
+#include "shared/CNightSpec.h"
 struct CWeatherSpec { int type,intensity_limit; };
 struct CFogSpec { int contrast; CVECTOR color; int start,dist2base; };
-struct CDepthCueSpec { CVECTOR color; int distance; };
+#include "shared/CDepthCueSpec.h"
 struct CWorldColor { int contrast; CVECTOR contrast_color; short worldR,worldG,worldB,type; };
-struct CTrackSpec {
-    short fogstate, weatherstate, horizonstate, skystate;
-    short nightstate, depthcuestate, worldcolorstate, pad0;
-    CFogSpec fogspec;
-    CWeatherSpec weatherspec;
-    CHorizonSpec horizonspec;
-    CSkySpec skyspec;
-    CNightSpec nightspec;
-    CDepthCueSpec depthcuespec;
-    CWorldColor worldcolorspec;
-};
+#include "shared/CTrackSpec.h"
+
+
+
+
+
+
+
+
+
+
 struct kernpair { u_short previouscode,code; char kernvalue; char pad[3]; };
 typedef kernpair KERN;
 typedef void Trk_Chunk;

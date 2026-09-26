@@ -4,10 +4,10 @@
 
 #include "color_types.h"
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 typedef enum AIDataRecord_WhichRecord_t {
     NORECORD_R = 0,

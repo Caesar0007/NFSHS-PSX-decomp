@@ -4,7 +4,7 @@
 
 #include "color_types.h"
 
-struct SndBnk_t { int bnkID; char *phdr, *pdata; };
+#include "shared/SndBnk_t.h"
 
 #define RaceType_Tournament 2
 #define RaceType_PinkSlips 6
@@ -79,14 +79,14 @@ struct SNDSYSSET {
     u_short emulationsubtype;
     u_short spkrcfg3d[4][4];
 };
-struct SNDSYSVEC { int (*issurfacelocked)(void); };
-struct SNDSAMPLEFORMAT { u_short samplerate; u_char channels, samplerep; };
+#include "shared/SNDSYSVEC.h"
+#include "shared/SNDSAMPLEFORMAT.h"
 #endif
-struct AudioMus_tSongEntry {
-    char *filename, *title, *artist, *label, *date, *notes;
-    int length, index;
-    char strbuf[32];
-};
+#include "shared/AudioMus_tSongEntry.h"
+
+
+
+
 
 struct tPMenu;
 struct tPMenuCommand { tPMenuCommandType type; tPMenu *nextMenu; };

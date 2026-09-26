@@ -31,10 +31,10 @@ typedef int Input_tDeviceCall();
  * already-known element tag body to an earlier owner.  CC1PL needs the exact
  * element body to form the array; the canonical audit pair-locks this carrier. */
 #ifndef NFS4_FECNTL_NO_RECORD_CARRIER
-struct tRecordBuffer {
-    char sName[8];
-    int nCar, nTime, nBestLap;
-};
+#include "shared/tRecordBuffer.h"
+
+
+
 typedef tRecordBuffer tSaveRecords[187];
 #endif
 

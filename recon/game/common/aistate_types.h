@@ -22,53 +22,53 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 /* Canonical sim.obj aggregate from the retail SYM type graph. */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
-struct AIPhysic_ModelConfig_t {
-    int dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc;
-    int dangle_to_dav, max_dav, dav_to_aa, max_aa;
-    int vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;
-};
+#include "shared/AIPhysic_ModelConfig_t.h"
 
-struct trigger_anyTrigger_t { int type, slice; };
-struct trigger_offroad_t {
-    int type, slice, dir;
-    coorddef position;
-    matrixtdef orientation;
-    int maxSpeed, releaseTime, endSlice;
-};
-struct trigger_roadblock_t { int type, slice, dir, numCars, spikeBelt; };
-struct trigger_simple_t { int type, slice, dir, side, moving; };
-struct trigger_trafficAccident_t {
-    int type, slice;
-    coorddef position;
-    matrixtdef orientation;
-};
-struct trigger_pathPosition_t { coorddef position; int targetSpeed, waitTime; };
-struct trigger_trafficPath_t {
-    int type, slice, dir;
-    matrixtdef orientation;
-    int maxSpeed, releaseTime, numPoints;
-    trigger_pathPosition_t *path;
-};
-union trigger_t {
-    trigger_anyTrigger_t any;
-    trigger_simple_t simple;
-    trigger_roadblock_t roadblock;
-    trigger_offroad_t offroad;
-    trigger_trafficAccident_t trafficAccident;
-    trigger_trafficPath_t trafficPath;
-};
+
+
+
+
+#include "shared/trigger_anyTrigger_t.h"
+#include "shared/trigger_offroad_t.h"
+
+
+
+
+
+#include "shared/trigger_roadblock_t.h"
+#include "shared/trigger_simple_t.h"
+#include "shared/trigger_trafficAccident_t.h"
+
+
+
+
+#include "shared/trigger_pathPosition_t.h"
+#include "shared/trigger_trafficPath_t.h"
+
+
+
+
+
+#include "shared/trigger_t.h"
+
+
+
+
+
+
+
 
 struct AIDelayCar {
     int delayFactor_;

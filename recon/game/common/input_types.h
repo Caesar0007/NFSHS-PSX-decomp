@@ -4,16 +4,16 @@
 
 #include "color_types.h"
 
-struct Sched_tSchedule {
-    int maxNumFunctions, numFunctions;
-    Sched_tFunctionSchedule func[1];
-};
+#include "shared/Sched_tSchedule.h"
+
+
+
 
 /* Canonical sim.obj aggregate from the retail SYM type graph. */
-struct Sim_tSimGlobalVar {
-    int gameStarted, gameTicks, time32Hz;
-    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
+#include "shared/Sim_tSimGlobalVar.h"
+
+
+
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 struct GameSetup_tData {
@@ -33,16 +33,16 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
-struct Input_tDeviceList {
-    char *devicename;
-    int (*devicefunc)(u_long);
-    int (*startupfunc)(int);
-};
+#include "shared/Input_tDeviceList.h"
 
-struct Input_tResults {
-    char steering;
-    u_char gas, brake, flags;
-};
+
+
+
+
+#include "shared/Input_tResults.h"
+
+
+
 
 typedef int Input_tDeviceCall(u_long value);
 

@@ -187,6 +187,7 @@ struct AIDelayCar {
 struct AICop_BasicPerpInfo {
     int copsAssigned_[2];
     crimeType crime_;
+    inline crimeType Crime() { return crime_; }   /* retail pair on the embedded info (computed `this`, no row) */
 };
 struct AICop_PerpChaseInfo {
     int engagementTime_;

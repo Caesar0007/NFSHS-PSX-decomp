@@ -153,36 +153,25 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
 
   old = this->perpTarget_;
 
-  for (perpLoop = 0; perpLoop < NumRaceCars(); perpLoop = perpLoop + 1) {
-
-    Car_tObj*testPerpCarObj;
+  for (perpLoop = 0; perpLoop < Cars_gNumRaceCars; perpLoop = perpLoop + 1) {
+    Car_tObj *testPerpCarObj;
     int thisPerpCarIndex;
-    AIHigh_BTC_Perp*thisPerpHigh;
+    AIHigh_BTC_Perp *thisPerpHigh;
 
     testPerpCarObj = Cars_gRaceCarList[perpLoop];
-
-    if ((((testPerpCarObj->N).active != '\0') && ((testPerpCarObj->carFlags & 0x200U) == 0)) &&
-
-       (thisPerpCarIndex = testPerpCarObj->carIndex,
-
-       thisPerpHigh = (AIHigh_BTC_Perp *)highLevelAIObjs[thisPerpCarIndex],
-
-       (thisPerpHigh)->basicPerpInfo_.crime_ != 0)) {
-
+    if (testPerpCarObj->N.active == '\0' || (testPerpCarObj->carFlags & 0x200U) != 0)
+      continue;
+    if ((thisPerpCarIndex = testPerpCarObj->carIndex,
+         thisPerpHigh = (AIHigh_BTC_Perp *)highLevelAIObjs[thisPerpCarIndex],
+         thisPerpHigh->basicPerpInfo_.Crime() != 0)) {
       int copToTargetDistanceMeters;
 
       copToTargetDistanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj));
-
       if (copToTargetDistanceMeters < newTargetDistance) {
-
         newTargetDistance = copToTargetDistanceMeters;
-
         newTarget = thisPerpHigh;
-
       }
-
     }
-
   }
 
   if ((newTarget != (AIHigh_BTC_Perp *)0x0) && (newTarget != old)) {

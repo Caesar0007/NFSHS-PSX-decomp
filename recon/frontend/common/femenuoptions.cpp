@@ -9,6 +9,7 @@
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
+static inline bool MenuItem_Enabled(tMenuItem *item) { return ((item->fFlags & 1) ^ 1) != 0; }
 
 
 /* EXT data owned by FeMenuOptions.obj: both UNINITIALIZED -- cc1plus 2.8 defers them to
@@ -332,10 +333,9 @@ tOptionsMenu::~tOptionsMenu()
 /* ---- tOptionsMenu::DebounceKeys  [FEMENUOPTIONS.CPP:286-289] SLD-VERIFIED ---- */
 
 long tOptionsMenu::DebounceKeys()
-
 {
-  if ((this->fItemList[this->fCurrentItem] != (tMenuItem *)0x0) &&
-      (((this->fItemList[this->fCurrentItem]->fFlags & 1) ^ 1) != 0)) {
+  if (this->fItemList[this->fCurrentItem] != 0 &&
+      MenuItem_Enabled(this->fItemList[this->fCurrentItem])) {
     return this->fItemList[this->fCurrentItem]->DebounceKeys();
   }
   return 0;
@@ -392,12 +392,12 @@ bool tOptionsMenu::TransitionIsFinished()
 {
   /* SYM 8c block: the ONLY local is `short i` (REG $s0); the fn returns BOOL.  The
      nested `Block start line=24` carrying a `tFEApplication *this` is an INLINED
-     tFEApplication accessor — i.e. the tail reads FEApp->fCurrentScreen inline. */
+     tFEApplication accessor вЂ” i.e. the tail reads FEApp->fCurrentScreen inline. */
   short i;
 
   /* MATCH: if/else-if chain of &&-guards (the oracle reloads fScreenFade for the
      2nd guard because the 1st guard's `lb` clobbered $v0).  fTransitionDirection
-     is a SIGNED byte in retail — this build's plain `char` is UNSIGNED, so the
+     is a SIGNED byte in retail вЂ” this build's plain `char` is UNSIGNED, so the
      (signed char) casts are what produce the oracle's `lb`/`bgtz`/`bgez`. */
   if ((0x228 <= this->fScreenFade) && (0 < (signed char)this->fTransitionDirection)) {
     this->fInMenuTransition = 0;
@@ -419,7 +419,8 @@ bool tOptionsMenu::TransitionIsFinished()
       }
     }
   }
-  if (!FEApp->fCurrentScreen[0]->TransitionIsFinished()) {
+  tScreen *const screen = FEApp->CurrentScreen(0);
+  if (!screen->TransitionIsFinished()) {
     this->fInMenuTransition = 1;
   }
   return !this->fInMenuTransition;

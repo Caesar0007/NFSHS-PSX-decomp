@@ -367,6 +367,20 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   conditions, a short-typed slice and a statement expression stay at 12 diffs. Next angle: the division spelling
   itself (a helper macro with its own cast/shift) or a copy-propagated local.
 - Session total (2026-09-26): speech.cpp 62 -> 85 CLEAN; whole board 1877 -> 1900 CLEAN; honest link 0 diff.
+- Still open in speech.cpp (receipts for the next angle):
+  * FindLocation slice look-ahead: side-by-side shows the only difference is the `addu` in the two range tests --
+    retail makes the SLICE register the destination/first operand with the fixedmult call evaluated first.
+    `A + S` evaluates the call first but ties the sum to the quotient; `S + A` loads the slice before the call
+    (+2 instructions). A statement expression `({ int ahead = A; S + ahead; })` is byte-exact but records
+    `ahead` (+7 scopes); the committed spelling keeps the `advance`/`offset` carriers.
+  * LoadBankHeaders: a from-scratch natural spelling (ReadBE32/IsHeader/IsData pointer inlines, for-scoped loops,
+    else-if chain) is count-exact at 28 diffs in two regions. (1) Retail reads header[8] before advancing
+    `header`: only `ReadBE32(header + 8)` gives that order, but then `header` loses s0 to the "spch temp" pointer
+    (header 5 refs/72 insns vs string 3/52 in the -dl dump; the tie is not decided by priority). (2) The IsHeader
+    result pseudo (6 refs / 12 insns, global-alloc priority 1.0) loses v1 to the character loads (4 refs / 5 insns,
+    1.6); the old `__asm__` fence adds exactly the two references that flip it. Inline shapes (int/bool, declare
+    order, if-return, ?:, negated ||), `!= 0`, `== true` and optimized-away locals in the header arm do not.
+    Tools: build/tmp/va_side.py (side-by-side verify), CC1PLPSX -dg/-dl on build/recon/.../speech.cpp.i.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

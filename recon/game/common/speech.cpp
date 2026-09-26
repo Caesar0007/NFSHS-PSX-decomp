@@ -1197,267 +1197,74 @@ void Speech::DispatchSpeaker::Roger()
 }
 
 /* ---- StatusReply__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1636-1713] SLD-VERIFIED ----
- * MATCH 269/269 (W69).  SYM: 40-byte frame, `this` in $s1, `Blocker` in $s2,
- * saved mask $80070000 ($s0-$s2).  The former 5-diff/268-insn residual was the
- * delete_noop_moves copy-preference case documented at the
- * SPCHNFS_D_C_SPBLT_CONFIRMED call below; its non-volatile zero-insn preference
- * killer restores retail's surviving `addu a3,v1,zero`. */
+ * SYM CLEAN (2026-09-26): accessor spelling from retail's pairs (Sub()/Sub()->Sub(), SetTo/SetWing on the
+ * call-sign temporary, Position/Location/Distance/Wing/SpikeSide).  Byte-exact without the former W69 `__asm__`
+ * launder: the spike arm stores the wing through SetWing() and reads it back through Wing(), and the backup
+ * arm fetches Sub()->Sub() (a copy-propagated local) before the counter stores. */
 void Speech::DispatchSpeaker::StatusReply()
 
 {
   Speaker *Blocker;
-  /* SYM-CODEGEN-CARRIER: invalid -- returning directly from the guard shrinks
-     269 to 266 instructions and leaves seven branch/materialization diffs. */
-  bool invalid = false;
-  /* SYM-CODEGEN-CARRIER: context -- assigning fTo in both arms and reloading it
-     at the macro call preserves count but changes six load/store sites. */
-  int context;
-  /* SYM-CODEGEN-CARRIER: from -- passing fFrom directly shrinks 269 to 268 and
-     leaves three load-placement diffs. */
-  int from;
-  /* SYM-CODEGEN-CARRIER: reverse -- passing &fReverse directly shrinks 269 to
-     268 and leaves five argument-setup diffs. */
-  SPCHNFSType_REVINTRO *reverse;
 
-  if ((this->fSub == (Speaker *)0x0) ||
-      (this->fSub->Perp() == 0)) {
-    invalid = true;
-  }
-  if (invalid) {
+  if (this->Sub() == 0 || this->Sub()->Perp() == 0)
     return;
-  }
-
-  Speech::fgSpeech->fSpeakerCar = 0;
-  Blocker = (Speaker *)0x0;
-  if (this->fSub->fBlockade.flags != 0) {
-    if (Speech::fgSpeech->fMultiplePerps != 0) {
-      this->fSub->ReportBlockade();
+  this->ClearSpeaker();
+  Blocker = 0;
+  if (this->Sub()->BlockadeFlags() != 0) {
+    if (Speech::MultiplePerps()) {
+      this->Sub()->ReportBlockade();
       return;
     }
-    /* SYM-CODEGEN-CARRIER: candidate -- assigning the SYM-named Blocker directly
-       preserves count but changes ten load/copy sites and delays the `$s2` move. */
-    Speaker *candidate = this->fSub->fSub;
-    /* SYM-CODEGEN-CARRIER: hasBlocker -- a direct compound predicate shrinks
-       269 to 268 instructions and leaves 19 allocation/branch diffs. */
-    bool hasBlocker = false;
-    if (candidate != (Speaker *)0x0) {
-      hasBlocker = candidate->fBlockade.flags != 0;
-    }
-    Blocker = candidate;
-    if (hasBlocker) {
-      this->fTo =
-        ((CallSignBank *)this->CallSign())->fMobile[
-        this->fSub->Unit()];
-    }
     else {
-      Blocker = this->fSub;
-      this->fTo =
-        *(int *)this->CallSign();
+      if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->BlockadeFlags() != 0) {
+        Blocker = this->Sub()->Sub();
+        this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
+      }
+      else {
+        Blocker = this->Sub();
+        this->SetTo(this->CallSign()->AllUnits());
+      }
+      Blocker->ReportBlockade();
+      this->ClearSpeaker();
+      SPCHNFS_D_A_CONFIRM(this->Confirm());
+      SPCH_PlaySpeech();
+      SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
+      SPCH_PlaySpeech();
     }
-    Blocker->ReportBlockade();
-    Speech::fgSpeech->fSpeakerCar = 0;
-    SPCHNFS_D_A_CONFIRM(&this->fConfirm);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    context = this->fTo;
-    from = this->fFrom;
-    reverse = &this->fReverse;
   }
   else {
-    context = ((CallSignBank *)this->CallSign())->fMobile[
-      this->fSub->Unit()];
-    from = this->fFrom;
-    reverse = &this->fReverse;
-    this->fTo = context;
+    this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
+    SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
   }
-
-  SPCHNFS_D_C_INTRO_CALL(context,from,reverse);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  {
-    this->FindLocation(
-      (Car_tObj *)this->fSub->CarObj());
+  this->FindLocation(this->Sub()->CarObj());
+  if (this->Sub()->BlockadeFlags() == 1) {
+    this->SetWing(this->CallSign()->Mobile(Blocker->Unit()));
+    this->SetSpikeSide(4);
+    SPCHNFS_D_C_SPBLT_CONFIRMED(this->Position(),this->Location(),this->Distance(),this->Wing(),
+                                this->SpikeSide());
+    SPCH_PlaySpeech();
+    if (Blocker != this->Sub())
+      this->Sub()->Roger();
   }
-
-  if (this->fSub->fBlockade.flags == 1) {
-    /* SYM-CODEGEN-CARRIER: wing -- the measured W69 non-volatile preference
-       killer below is required for retail's surviving `$v1` -> `$a3` copy. */
-    int wing = ((CallSignBank *)this->CallSign())->fMobile[
-      Blocker->Unit()];
-    /* SYM-CODEGEN-CARRIER: location -- passing fLocation directly preserves
-       count but moves the load across the `$a3` copy, leaving six diffs. */
-    int location = this->fLocation;
-    this->fSpikeSide.flags = 4;
-    this->fWing = wing;
-    /* *** MATCH (W69) -- THE 12A PREFERENCE-KILLER IN ITS NON-VOLATILE FORM.
-       The seal is the one-line `__asm__("" : "=r"(wing) : "0"(wing) : "$7");`
-       sitting immediately before the SPCHNFS_D_C_SPBLT_CONFIRMED call below.
-       ZERO INSNS.  DO NOT DELETE OR "SIMPLIFY" IT: it is the only thing
-       standing between this function and the 5-diff near-miss documented below.
-       It is NOT a register pin (no `register T x asm("$N")` binding); it is the
-       13B identity launder carrying a 12A hard-register clobber, and it emits
-       nothing (empty template + matching "0" constraint = a reg-reg tie gcc
-       coalesces away).  BOTH halves are load-bearing and BOTH were measured:
-         launder alone, no clobber ................ 15 diffs
-         clobber alone, volatile (no output) ...... 12 diffs   (W68's 14@269 class)
-         launder + clobber, NON-volatile .......... PASS 269/269
-       The clobber may be spelled "$7" or "a3" (both PASS); adding "memory"
-       is also PASS but is noise -- keep the minimal form.
-       WHY NON-VOLATILE IS THE WHOLE TRICK (this is the W68/20A closure, solved):
-       an output-LESS asm is implicitly volatile => a sched1 BARRIER, and retail
-       hoists the call's $a0/$a2 arg setup (`addu a0,s1,zero`, `addiu a2,s1,4`)
-       from the call site all the way ABOVE the index chain; a barrier anywhere
-       inside wing's live range traps them below it.  Giving the asm an OUTPUT
-       (here wing itself, matched back to its own input) drops MEM_VOLATILE_P,
-       so the insn is an ordinary schedulable RTL node: the clobber still makes
-       $a3 conflict with wing's quantity -- denying local-alloc's
-       qty_phys_copy_sugg, so wing takes $v1 and retail's surviving copy
-       `addu a3,v1,zero` MINTS -- while sched1 remains free to hoist a0/a2.
-       W68's structural law ("any RTL fence inside the range blocks the hoists")
-       was right about VOLATILE fences only; the non-volatile launder is the
-       device 13B had been asking for across four waves.
-       POSITION IS A DIAL, and only P5 wins (all five measured, W69):
-         P1 after the wing load ....... 7 @270   P2 after `location` .... 7 @270
-         P3 after `distance` .......... 7 @270   P4 after `flags = 4` ... 10 @269
-         P5 after the fWing store ..... PASS     (volatile controls at the same
-         five positions: 10 / 12 / 12 / 14 / 12 -- never better than the 5-diff
-         no-fence baseline, exactly as W68 recorded.)
-       FENCE-FREE ANGLES RE-SWEPT THIS WAVE, ALL INERT AT EXACTLY 5 @268 (so the
-       "source-level preference change" 20A asked for still does not exist, but
-       it is no longer needed): `unsigned int wing`; a `pos` local for arg0 taken
-       before the wing statement; `(int)wing` cast at the call; wing+call wrapped
-       in one inner block (13A block anchor); the fWing store spelled through an
-       int-pun lvalue (14D alias dial); a read-back `wing = fWing;` after the
-       store (w43 case-2).  Two were WORSE: the index-term-first address spelling
-       of the fMobile read and a `volatile int` read of the same slot both give
-       7 @268 (they only re-order the `addu`).  Hoisting the location/distance
-       declarations above the CallSign call is catastrophic (208 @273 -- the two
-       locals then live across the virtual call and buy an extra callee-saved
-       register plus a bigger frame).
-       ---- the historical near-miss receipt this seal retires ----
-       NEAR-MISS 5 (ours 268 / oracle 269) -- same class as SubmitRequest above:
-       retail stages the loaded value in $v1 and COPIES it into the $a3 call-arg
-       (`addu a3,v1,zero`); ours colours `wing` straight into $a3 because
-       local-alloc's qty_phys_copy_sugg (and, for a global allocno, global.c's
-       find_reg copy-preference OVERRIDE) hands the pseudo the very arg register
-       it is copied into.  MEASURED (W55-A16): passing the re-read field
-       `this->fWing` as arg4 instead of `wing` DOES move the load
-       to $v1 and makes the count EXACT 269/269 -- but the arg then becomes a
-       RELOAD `lw a3,64(s1)` (6 diffs, a net regression), because expand_call's
-       stack-arg store `sw v0,16(sp)` is emitted BEFORE arg4 and cse conservatively
-       invalidates the s1-based MEM across it.  Keeping the 5-diff form.
-       W59-A4: the 09G "make the copy a GLOBAL allocno" route is also falsified here --
-       an identity fence on `wing` AFTER the fWing store gives 15, and the same fence
-       placed right after `wing` is computed gives 9 (it DOES move the load to $v1 as
-       predicted, but rotates the surrounding arg block).  Both worse than 5; the
-       dial remains local-alloc copy-preference (06E), not a fence placement.
-       W61-A10: the 12D DEAD-PSEUDO STAGING route (which SEALED Status's LOOK arm in
-       this same TU on this wave) is FALSIFIED here -- staging the value into the
-       fn-scope `context` gives 15@268, into `from` gives 11@268; neither
-       materialises retail's `addu a3,v1,zero` copy, both stay ONE SHORT.  Staging
-       works when retail needs a FRESH register for a stack arg; it does not defeat
-       a copy-preference onto an arg register that is genuinely the value's only
-       consumer.  Route unchanged (06E copy-preference / 12A preference killer).
-       W62-A9 (13B copy devices) -- the residual is now QUANTIFIED, not just named.
-       A read-only fence on `wing` placed AFTER the call DOES mint retail's missing
-       copy and makes the count EXACT 269/269 (`addu a3,s0,zero`), so the copy device
-       IS the right family -- but any post-call reference extends the live range
-       ACROSS the call, so the value is forced CALLEE-saved ($s0) where retail keeps
-       it caller-saved ($v1, dead at the copy): 8 diffs, worse than 5.  A `wingArg`
-       copy carrier plus an identity launder does the same at 14@269.  Read-only
-       fences on `wing` before/after the fWing store, with 1, 2 and 3 operands, are
-       ALL 15@268 -- the floor_log2 ref-step is inert here because this is a hard-reg
-       PREFERENCE, not a priority (12A).  Moving the fWing store to just before the
-       call: 5 (inert).
-       => THE EXACT WANTED DEVICE (13B's 4-witness request, sharpened by a witness):
-       mint the copy WITHOUT adding a reference after the call.  Every device that
-       mints it today also lengthens the range past the call and therefore buys the
-       wrong register CLASS.
-       W63-A10 (three more families, all real gate runs, all INERT at exactly
-       5@268 -- they supersede nothing, they CLOSE the pseudo-shape axis):
-         decl split `int wing; wing = ...` (12D's decl-with-init demote) 5;
-         a named `wingIdx` for the CallSign call result + the array read 5;
-         both together 5;
-         a FUNCTION-SCOPE `int wing;` swept through ALL SIX positions of the
-         local declaration list (before Blocker / after Blocker / after invalid /
-         after context / after from / after reverse) -- 5 at every position.
-       The 13A decl-order dial reaches allocno NUMBER, and the number is not the
-       decider here: local-alloc's copy suggestion hands the pseudo $a3 whatever
-       its number, its scope, or how its value is spelled.  The residual is
-       exactly and only the 12A hard-reg PREFERENCE; nothing below the
-       preference-killer instrument will move it.
-       W68 (this session, 3 new angles, all real gate runs):
-         (1) overlap-blocked carrier (`int wingSent = wing;` BEFORE the fWing
-             store, call passes wingSent -- live ranges overlap so local-alloc
-             cannot tie): 5@268 INERT -- cse copy-propagates wingSent:=wing
-             before allocation ever sees the copy.
-         (2) assignment-as-argument (`CALL(..., fWing = wing, ...)`, no separate
-             store stmt -- hoping expand_assignment(want_value) returns a
-             protected copy): 5@268 INERT -- 2.8 returns the source pseudo.
-         (3) 🏆 ZERO-INSN a3-CLOBBER (`__asm__("" ::: "$7")` between the load
-             and the store -- the wanted 12A preference killer, adds NO
-             references to wing): MINTS THE COPY, count EXACT 269/269, wing
-             lands in $v1 exactly as retail -- but the volatile asm is a
-             SCHED BARRIER: retail's a0/a2 call-arg hoists land BETWEEN the
-             index chain and the lw (inside wing's range), so they cannot
-             cross the fence: 14@269, worse.  STRUCTURAL CLOSURE of the asm
-             axis: ANY RTL fence inside [lw..sw] blocks exactly those hoists;
-             a fence outside the range does not deny the preference.  The
-             remaining wanted device must deny $a3 with ZERO RTL between the
-             load and the store -- i.e. at the SOURCE/preference level, not
-             via an inserted insn.  Keeping the 5-diff form.
-             [W69 RESOLUTION: the premise "ANY RTL fence inside [lw..sw]" was
-             true only for VOLATILE fences; a NON-VOLATILE asm (one with an
-             output) is not a sched barrier, denies the preference just the
-             same, and seals the function -- see the MATCH block at the top.] */
-    __asm__("" : "=r"(wing) : "0"(wing) : "$7");  /* W69 seal -- see MATCH above */
-    SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)this,
-      location,&this->fDistance,wing,
-      &this->fSpikeSide);
+  else if (this->Sub()->BlockadeFlags() == 2) {
+    SPCHNFS_D_C_RDBLK_CONFIRMED(this->Position(),this->Location(),this->Distance());
+    SPCH_PlaySpeech();
+    if (Blocker != this->Sub())
+      this->Sub()->Roger();
   }
-  else {
-    if (this->fSub->fBlockade.flags != 2) {
-      goto StatusReply_backup;
-    }
-    SPCHNFS_D_C_RDBLK_CONFIRMED((SPCHNFSType_POSITION *)this,
-      this->fLocation,&this->fDistance);
-  }
-
-StatusReply_play:
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  if (Blocker != this->fSub) {
-    this->fSub->Roger();
-  }
-  goto StatusReply_subFetch;
-
-StatusReply_backup:
-  if (this->fSub->fSub != (Speaker *)0x0) {
-    this->fWing =
-      ((CallSignBank *)this->CallSign())->fMobile[
-        this->fSub->fSub->Unit()];
-    SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(&this->fDistance,
-      (SPCHNFSType_POSITION *)this,this->fLocation,
-      this->fWing);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    this->fSub->Roger();
-    /* SYM-CODEGEN-CARRIER: statusSub -- direct assignment preserves count but
-       changes 12 instructions by moving the child fetch ahead of the counters. */
-    Speaker *statusSub = this->fSub->fSub;
+  else if (this->Sub()->Sub() != 0) {
+    this->SetWing(this->CallSign()->Mobile(this->Sub()->Sub()->Unit()));
+    SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(this->Distance(),this->Position(),this->Location(),this->Wing());
+    SPCH_PlaySpeech();
+    this->Sub()->Roger();
+    Speaker *next = this->Sub()->Sub();
     this->fStatusCount = 0x140;
-    this->fUpdateCount = this->fUpdateCount + 1;
-    this->fStatusSub = statusSub;
+    this->fUpdateCount++;
+    this->fStatusSub = next;
   }
-
-StatusReply_subFetch:
-  {
-    /* SYM-CODEGEN-CARRIER: blocked -- a direct child predicate shrinks 269 to
-       268 instructions and leaves 13 branch/value-flow diffs. */
-    bool blocked = false;
-    if (this->fSub->fSub != (Speaker *)0x0) {
-      blocked = this->fSub->fSub->fBlockade.flags != 0;
-    }
-    if (blocked) {
-      this->fSub->fBlockade.flags = 0;
-    }
-  }
+  if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->BlockadeFlags() != 0)
+    this->Sub()->SetBlockade(0);
 }
 
 /* ---- Status__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1718-1848] SLD-VERIFIED ---- */

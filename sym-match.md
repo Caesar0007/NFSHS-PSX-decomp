@@ -353,6 +353,12 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   `if (Sub() == 0 || Sub()->Perp() == 0) return;` (the old two-stage `initialInvalid` flag was a carrier -- the
   oracle's s0 flag is gcc's own `||` materialization), `Sub()->Sub()`/`Sub()->Update()` pairs, and the update switch
   in retail's case order 2 -> 0 and 3 (else-if distance test) -> 1 with fall-throughs. 84 CLEAN.
+- `DispatchSpeaker::StatusReply` (269 instructions) CLEAN, and the W69 `__asm__("" : "=r"(wing) : "0"(wing) :
+  "$7")` launder seal is no longer needed: retail's pairs show the spike arm writing the wing through `SetWing()`
+  and passing `Wing()`, which reproduces the $v1 -> $a3 copy by itself. Also: the fallback arm reads
+  `CallSign()->AllUnits()`, the backup arm fetches `Sub()->Sub()` into a copy-propagated local before the counter
+  stores, and the final test is `Sub()->SetBlockade(0)` on the direct sub. 85 CLEAN, 2 DIRTY (FindLocation,
+  LoadBankHeaders).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

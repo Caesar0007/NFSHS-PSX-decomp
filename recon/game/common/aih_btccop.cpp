@@ -1539,28 +1539,13 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 
 
 {
-  Car_tObj*arrestingHumanCop;
+  Car_tObj *arrestingHumanCop = arrestingCop;
 
-  if ((arrestingCop->carFlags & 2U) != 0) {
-
-    arrestingCop = Cars_gHumanRaceCarList[0];
-
-  }
-
-  if ((this->copIndex_ == 0) || (gameOver != 0)) {
-
-    arrestingHumanCop = arrestMe->carObj_;
-
-    Hud_BustedOverlayOn(GameTicks() - this->chaseStartTime_,
-
-               arrestingHumanCop->carInfo->driver,
-
-               (void *)(u_int)(gameOver == 0),(short)arrestingCop->carIndex);
-
-  }
-
-  return;
-
+  if ((arrestingCop->carFlags & 2U) != 0)
+    arrestingHumanCop = Cars_gHumanRaceCarList[0];
+  if (this->copIndex_ == 0 || gameOver != 0)
+    Hud_BustedOverlayOn(simGlobal.gameTicks - this->chaseStartTime_,arrestMe->CarObj()->carInfo->driver,
+                        (void *)(u_int)(gameOver == 0),(short)arrestingHumanCop->carIndex);
 }
 
 

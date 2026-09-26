@@ -488,6 +488,24 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   - `x > limit ? limit : x` with a named `limit` gives retail's clamp shape (GetRearEnd) but the bound is recorded;
     SetupBlockader's `x < max ? x : max` propagated it. Open: GetRearEnd, RevEngine's record-less 8-byte frame,
     ChangeDirection's `&simGlobal` base register, AI_HandleTrafficHonking (honkprob must exist for the load order).
+- Frontend round (fetourn 19 -> 32/35, screencongrats tScreenTournamentCongrats::CalculatePrizes), bytes unchanged.
+  - A member inline gives TWO blocks: the parameter level (records `this`) and its body. Retail's
+    "pair + nested pair with `this` in the outer" is one member inline, not two inlines. fetourn's
+    `tTournamentManager::CurrentTourney()` (`&fDefinition->fTournaments[fTiers[fTier].fTournOffset + fTournament]`)
+    turns nine functions CLEAN; the functions that lost the `this` REGPARM record entirely were the ones retail
+    wrote through it.
+  - Free accessor pairs at entry: the new-car-stats list, carManager.fNumCars (Initialize: one call per
+    garageCar store, not a reused value), the competitor array (tournPointsCompare's `tm` carrier),
+    tournamentManager.fMoney, the best-placement byte (pass the id, not `tourn`, or the inline's parameter is
+    recorded as an EXTRA REGPARM).
+  - StartNewTournament rewritten carrier-free: `if ((this->fDirection[i] = track->fDirection) > 1)` gives retail's
+    reload of the track byte after the store; `x = f; if (f > 1)` CSEs it.
+  - Open: LoadDescription (retail reloads fDefinition at each use with no local; spelling it directly changes
+    CSE/regalloc, 77 diffs); UpdateTrackFinishPoints `stats` (held &dummyCars[k]) and `ranking` (retail forms
+    this+i from the counter register; every for/do spelling folds it to this+5 -- 2 diffs); GetTrophyName's
+    short selection (fold pushes `(short)` into the ?: arms; only a named short temp keeps the sign-extension
+    after the merge, and it brings a block); screencongrats PinkSlip `player` (1 - fWinner held in s1 across
+    the licence calls with no record).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -17,6 +17,8 @@ static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
+/* accessor on the player's embedded chase info (retail pair with a computed receiver: no row) */
+static inline int PerpChase_CopFreeTicks(AICop_PerpChaseInfo *info) { return info->copFreeTicks_; }
 
 
 /* Retail aih_cop.obj opens .rodata with this unreferenced class tag. */
@@ -1567,44 +1569,16 @@ stateExecuteAndReturn:
 /* ---- CheckForNeedyPlayers__10AIHigh_Cop  AIHigh_Cop::CheckForNeedyPlayers  [AIH_COP.CPP:819-835] SLD-VERIFIED ---- */
 
 int AIHigh_Cop::CheckForNeedyPlayers()
-
-
-
 {
-  /* SYM-OPTIMIZED: thisPlayer -- retail keeps the named AIHigh_Player value in
-   * the indexed highLevelAIObjs expression; no distinct source carrier remains. */
-  int needy;
-
-  int hLoop;
-
-  Car_tObj *thisPlayerObj;
-
-  needy = -1;
-
-  hLoop = 0;
-
-  while (true) {
-
-    if (NumHumanRaceCars() <= hLoop) break;
-
-    thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
-
-    if (800 < (int)highLevelAIObjs[thisPlayerObj->carIndex][7].state_) {
-
-      if (0x140000 < __builtin_abs(thisPlayerObj->currentSpeed)) {
-
-        needy = thisPlayerObj->carIndex;
-
-      }
-
-    }
-
-    hLoop = hLoop + 1;
-
+  int needy = -1;
+  for (int hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop++) {
+    Car_tObj *thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
+    AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
+    if (PerpChase_CopFreeTicks(&thisPlayer->perpChaseInfo_) > 800 &&
+        __builtin_abs(thisPlayerObj->currentSpeed) > 0x140000)
+      needy = thisPlayerObj->carIndex;
   }
-
   return needy;
-
 }
 
 

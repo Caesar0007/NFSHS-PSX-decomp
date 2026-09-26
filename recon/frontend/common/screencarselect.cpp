@@ -2090,59 +2090,37 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
 extern tFEApplication *FEAppA[] asm("FEApp");
 
 void tScreenCarSelectTwoPlayer::DrawForeground()
-
 {
-  /* MATCH: caller locals verbatim from the SYM 8c block (fsize 296,
-       mask $807f0000):
-       AUTO tCarInfo carInfo (@sp+0x38)   REG short j($s2), short yOffset($s1),
-       BOOL gotcar($s4).  Ghidra's auStack_f0/abStack_c0/bb/b6/b1/loc_2c were
-       byte-slices of that ONE tCarInfo -- keeping them apart cost the shared
-       `addu $a1,$s3,$v0` stat base.  Loop is exit-in-the-middle like
-       tScreenCarSelect::DrawSliders, and the (short) cast sits on `yOffset + 4`.
-       The nested carStat/pointer-carInfo/result records at 0x8003EB60 are the
-       byte-exact inline CarStatValue expansion, not extra caller locals. */
   tCarInfo carInfo;
   short j;
   short yOffset;
-  bool gotcar;   /* SYM BOOL is native C++ bool; the oracle copies the normalized `$v0`. */
+  bool gotcar;
 
   yOffset = 0x2d;
-  if (FEAppA[0]->fPlayer == '\x01') {
+  if (FEApp->GetPlayer() == 1) {
     yOffset = 0x96;
   }
-  gotcar = (*(bool (*)(...))(*(code **)(*(int *)((int)this + 0x60) + 0x6c)))
-                     ((int)this + *(short *)(*(int *)((int)this + 0x60) + 0x68),&carInfo);
-  if (FEAppA[0]->fPlayer == '\0') {
-    (menuDefs->itemColorP1).fFlags =
-         (menuDefs->itemColorP1).fFlags & 0xfffffffe;
-    if ((gotcar == 0) || (carInfo.fCarClass == '\a')) {
-      (menuDefs->itemColorP1).fFlags =
-           (menuDefs->itemColorP1).fFlags | 1;
+  gotcar = this->GetCar(carInfo);
+  if (FEApp->GetPlayer() == 0) {
+    MenuItem_Enable(&menuDefs->itemColorP1);
+    if (gotcar == 0 || carInfo.fCarClass == 7) {
+      MenuItem_Disable(&menuDefs->itemColorP1);
     }
   }
   else {
-    (menuDefs->itemColorP2).fFlags =
-         (menuDefs->itemColorP2).fFlags & 0xfffffffe;
-    if ((gotcar == 0) || (carInfo.fCarClass == '\a')) {
-      (menuDefs->itemColorP2).fFlags =
-           (menuDefs->itemColorP2).fFlags | 1;
+    MenuItem_Enable(&menuDefs->itemColorP2);
+    if (gotcar == 0 || carInfo.fCarClass == 7) {
+      MenuItem_Disable(&menuDefs->itemColorP2);
     }
   }
   for (j = 0; j < 5; j++) {
     FETextRender_MenuTextPositionedJustify(text2PVals[j],500,(short)(yOffset + 4),1,
                                            textState_Unselected,textType_Default);
-    /* SYM-INLINE-LOCAL: carStat = CarStatValue
-       SYM-INLINE-LOCAL: carInfo = CarStatValue
-       SYM-INLINE-LOCAL: result = CarStatValue
-       The conditional call keeps result in retail/SYM $v1, the upgrades byte
-       in $a0, and materializes the invalid-car zero directly as DrawSlider's
-       first argument.  Exact result: PASS 143/143. */
     DrawSlider((gotcar != 0) ? CarStatValue(remap[j],&carInfo) : 0,
                0,0xb,0x1a1,yOffset,0x49,3,4,3,
                true,0,0x80,0);
     yOffset = yOffset + 0xf;
   }
-  return;
 }
 
 

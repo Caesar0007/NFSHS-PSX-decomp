@@ -301,6 +301,14 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   `fStartSlice > fEndSlice` so start loads first); `Speech::FindMobile` (each loop calls one inline on
   `fMobile[i]`: `IsCar(carObj)` = `carObj == fCarObj`, which records this+carObj, and `IsFree()`). speech.cpp
   62 -> 67 CLEAN.
+- Speech round 5. Byte-unchanged and CLEAN: `CalculateBankSize` (`for (int i ...)`; IsHeader reads the four
+  extension chars into locals a-d from a COMPUTED pointer `c - 4` -- a plain variable argument (`c`) is recorded
+  as a parameter row, a computed one is not; the '.', 'h', 'd' stay constant arguments because they decide the
+  constant hoisting); `CheckCallSignBank` (`i` in its own block around the un-rotated loop); `CheckLocationBank`
+  (`for (int i ...)`, and the Set call BEFORE `match = 1` so the inline's body block is empty as in retail);
+  `FindClosestLocationTo` (locals in their scopes, `if (locationbank->BankId() == -1) continue;` -- a bool
+  predicate inline loses the hoisted -1 and two saved registers -- and `else return 0;` so the if-scope reaches
+  the function end). speech.cpp 71 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

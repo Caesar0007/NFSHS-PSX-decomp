@@ -254,7 +254,6 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
      SYM-INLINE-LOCAL: name = Set */
   bool match;
   Speech_tLocationDescription * d;
-  int i;
   
   d = Speech_gLocationDescription[GameSetup_gData.track];
   match = 0;
@@ -262,10 +261,10 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
     match = 0;
   }
   else {
-    for (i = 0; i < this->fLocationCount; i = i + 1) {
+    for (int i = 0; i < this->fLocationCount; i = i + 1) {
       if (strncmp(name,d->name,strlen((u_long)d->name)) == 0) {
-        match = 1;
         locationbank[i].Set(d->start,d->end,id,d->name);
+        match = 1;
       }
       d = d + 1;
     }
@@ -297,31 +296,26 @@ int Speech::LocationBank::Distance(int slice)
 Speech::LocationBank *Speech::FindClosestLocationTo(LocationBank *bank,int slice)
 
 {
-  int distance;
-  LocationBank *locationbank;
-  int i;
-  int closestdistance;
-  LocationBank *closestbank;
-  
   if (this->fLocationCount != 0) {
-    closestbank = (LocationBank *)0x0;
-    closestdistance = 10000;
-    i = 0;
-    while (1) {
-      if (this->fLocationCount <= i) break;
-      locationbank = &bank[i];
-      if (locationbank->fBankId != -1) {
-        distance = locationbank->Distance(slice);
-        if (distance < closestdistance) {
-          closestdistance = distance;
-          closestbank = locationbank;
-        }
+    LocationBank *closestbank = (LocationBank *)0x0;
+    int closestdistance = 10000;
+
+    for (int i = 0; i < this->fLocationCount; i++) {
+      LocationBank *locationbank = &bank[i];
+      int distance;
+
+      if (locationbank->BankId() == -1)
+        continue;
+      distance = locationbank->Distance(slice);
+      if (distance < closestdistance) {
+        closestdistance = distance;
+        closestbank = locationbank;
       }
-      i++;
     }
     return closestbank;
   }
-  return (LocationBank *)0x0;
+  else
+    return (LocationBank *)0x0;
 }
 
 /* ---- FindLocation__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:624-788] SLD-VERIFIED ---- */
@@ -449,7 +443,6 @@ bool Speech::CheckCallSignBank(CallSignBank *bank,char *name,int id)
   bool match;
   Speech_tCallSignDescription * d;
   int dispatchName;
-  int i;
   
   d = Speech_gCallSignDescription;
   /* MATCH: retail sets the match flag INSIDE each branch (`li s3,1` per arm),
@@ -469,18 +462,21 @@ bool Speech::CheckCallSignBank(CallSignBank *bank,char *name,int id)
   }
   /* MATCH: `i` is born in the for-init, not before the 2nd guard (oracle sets it
      in the `bnez` delay slot AFTER the guard).  35 -> 34, count now exact. */
-  i = 0;
-  while (true) {
-    if (0xf <= i) break;
-    /* W57-A8 3.12#1 + 07C: BOTH walks are index forms in retail (`bank[i+2]` and
-       `Speech_gCallSignDescription[0].Mobile[i]` -> one giv each), and the loop is
-       UN-ROTATED (`while(true){ if(N<=i) break; ... }`) -- a `for` lets gcc prove
-       entry and rotate the test to the bottom. 34 -> PASS. */
-    if (strncmp(name,d->Mobile[i],strlen((u_long)d->Mobile[i])) == 0) {
-      bank->SetMobile(i,id);
-      match = true;
+  {
+    int i = 0;
+
+    while (true) {
+      if (0xf <= i) break;
+      /* W57-A8 3.12#1 + 07C: BOTH walks are index forms in retail (`bank[i+2]` and
+         `Speech_gCallSignDescription[0].Mobile[i]` -> one giv each), and the loop is
+         UN-ROTATED (`while(true){ if(N<=i) break; ... }`) -- a `for` lets gcc prove
+         entry and rotate the test to the bottom. 34 -> PASS. */
+      if (strncmp(name,d->Mobile[i],strlen((u_long)d->Mobile[i])) == 0) {
+        bank->SetMobile(i,id);
+        match = true;
+      }
+      i = i + 1;
     }
-    i = i + 1;
   }
   return match;
 }
@@ -561,13 +557,11 @@ int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *h
   if (locatebigentry(header,"j:eventdat\\event.dat",0,&offset,(int)&size) != 0) {
     int filecount;
     char *c;
-    int i;
 
     c = header + 0x10;
     bsize = size;
     filecount = this->ReadBE32(header + 8);
-    i = 0;
-    while (i < filecount) {
+    for (int i = 0; i < filecount; i++) {
       char *name;
 
       offset = this->ReadBE32(c);
@@ -577,8 +571,7 @@ int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *h
       while (*c != '\0') {
         c++;
       }
-      if (this->IsHeader((u_char)c[-4], (u_char)c[-3],
-                         (u_char)c[-2], (u_char)c[-1], '.', 'h', 'd')) {
+      if (this->IsHeader(c - 4, '.', 'h', 'd')) {
         if (*hoffset == 0) {
           *hoffset = offset;
         }
@@ -589,7 +582,6 @@ int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *h
         }
       }
       c++;
-      i++;
     }
   }
   this->fBankCount = bcount;

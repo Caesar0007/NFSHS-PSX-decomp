@@ -40,6 +40,7 @@ struct Speech {
             fEndSlice = end;
             fName = name;
         }
+        inline int BankId() { return fBankId; }   /* FindClosestLocationTo: one pair on `locationbank` */
         int Distance(int slice);
     };
 
@@ -244,6 +245,14 @@ struct Speech {
     }
     inline bool IsHeader(int a, int b, int c, int d, int period,
                          int h, int hd) {
+        return a == period && b == h && c == hd && d == 'r';
+    }
+    /* pointer form (CalculateBankSize): retail's pair records `this` and the four char locals, like ReadBE32 */
+    inline bool IsHeader(char *ext, int period, int h, int hd) {
+        int a = (u_char)ext[0];
+        int b = (u_char)ext[1];
+        int c = (u_char)ext[2];
+        int d = (u_char)ext[3];
         return a == period && b == h && c == hd && d == 'r';
     }
     inline bool IsData(int a, int b, int c, int d, int period,

@@ -324,6 +324,13 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
 - `Speaker::Promote` CLEAN: `while (Super->Sub() != 0 && Super->Sub() != this) Super = Super->Sub();` then
   `Super->SetSub(this->Sub()); this->SetSub(Dispatch()->Sub()); Dispatch()->SetSub(this);` -- retail's five
   trailing pairs, the last recording SetSub's parameter `Sub` = this. The `cont` carrier is gone. 76 CLEAN.
+- `MobileSpeaker::Lose` CLEAN, and its whole carrier apparatus (voiceArg launder, iVar3, perpCar, outOfRange,
+  savedDispatch, dispatchThis/finalDispatch) is gone: the accessor spelling retail's pairs imply is byte-exact on
+  the first try. Two readings from the SYM: a Speaker pair that emits no code right after BlockadeFlags() is a
+  REPEATED `ArrestFlags() == 0` test that gcc folds on the path where arrest is already known zero; and the final
+  save/Roger/restore keeps its saved value in `Speaker *saved = Dispatch()->Sub();` which gcc copy-propagates, so
+  the variable (and SetSub's parameter row for it) leave no record -- exactly retail's variable-free last pair.
+  77 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

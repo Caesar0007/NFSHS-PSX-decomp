@@ -2613,206 +2613,62 @@ MSEngage_emitSpeech:
 }
 
 /* ---- Lose__Q26Speech13MobileSpeaker  [SPEECH.CPP:2463-2538] SLD-VERIFIED ----
- * NEAR-MISS 3, ours 214 / oracle 213 -- ours is ONE LONG (W60-A9): we emit an extra
- * `addu a0,s0,zero` and issue `lw a2,48(s1)` one slot later than retail.  Ours-longer
- * with a redundant receiver copy = the "cache a pointer the oracle re-derives" class;
- * try inlining the receiver expression at that call site instead of the cached local
- * (catalog: drop the eager whole-pointer cache).
- * W61-A10 RE-DIAGNOSIS (the "cached pointer" reading is WRONG -- do not chase it):
- * the extra insn is a0 SETUP, not a receiver cache.  Retail's `.L800986BC`
- * `bne $v1,$v0,.L800986D8` carries `addu $a0,$s0,$zero` in its DELAY SLOT, so on the
- * BRANCH-TAKEN path $a0 already holds pSVar7 when control reaches `.L800986F0`
- * (PERP_LOST) -- nothing clobbers it in between (`.L800986D8` only tests $s2 and sets
- * $a1 in its own slot).  Retail's PERP_LOST block therefore opens straight with
- * `addu $a3,$s1,$zero`; ours re-materialises `addu $a0,$s0,$zero` first because our
- * RTL has an independent a0 set in that block that reorg never got to delete.  The
- * second diff (a2/v1 load order) rides on it.  So this is a reorg/`redundant_insn`
- * cross-path question, NOT a source-level pointer-caching one; the source levers to
- * price are the ones that change which insn reorg puts in the `bne` slot.
- * W63-A10 SEALED (DUAL-LANE: gate PASS 213/213 + psyqproof REAL=0).  W61-A10's
- * diagnosis was right and the cure was TWO independent one-liners, both in the
- * `Leader`/PERP_LOST else block:
- *  (1) THE ARM-LOCAL LAUNDERED RECEIVER CARRIER kills the extra `addu a0,s0,zero`.
- *      `SPCHNFSType_VOICE *voiceArg = &this->fVoice;` plus a 13B identity launder,
- *      declared at the TOP of the blockade fallback before the Leader split, used
- *      as PERP_LOST's receiver ONLY -- IDLE_WINGMAN keeps direct `&this->fVoice`.
- *      The launder
- *      makes the carrier a GLOBAL allocno (dies twice => combine_regs refuses,
- *      12E), it wins $a0 outright, and its single defining copy is the one retail
- *      carries in the `bne` delay slot -- so the PERP_LOST block opens on
- *      `addu a3,s1,zero` exactly like retail.  MEASURED LADDER (all real gate runs):
- *      plain unlaundered carrier over all four chain calls 3 (inert); over the
- *      inner IDLE/PERP pair 3 (inert); laundered over all four 11@212 (too long);
- *      laundered inner pair with IDLE ALSO switched to the carrier 4@213;
- *      laundered inner pair with IDLE left on direct fVoice 2@213 <= KEPT; moving
- *      the launder below the old staged fColour assignment gave 25@214; declaring
- *      a laundered carrier inside
- *      the PERP_LOST arm itself 3@214 (too late to reach the branch).
- *      => placement is a dial separate from choice (13B), and the carrier must NOT
- *      be shared with the sibling arm or its live range spans both threads.
- *  (2) THE ARG-EVALUATION-ORDER lever: pass the location through the fn-scope
- *      `iVar3` instead of the Ghidra-invented `reg_a1`.  That flips gcc's emission
- *      order of the two folded field loads to retail's `lw a2,48(s1); lw v1,52(s1)`.
- *      The loads are NOT at their statement positions (combine folds each
- *      single-use `(set pseudo (mem))` into the call-sequence arg move), which is
- *      why every statement-order and barrier lever is INERT here -- MEASURED:
- *      swapping the two reads 2; REVINTRO first 2; location read last 2; a void
- *      barrier between the reads / after REVINTRO / with a3 first 2; a read-only
- *      fence on iVar4 2; an identity launder on iVar4 2.  What DOES move it is
- *      WHICH pseudo carries the value: `iVar3` PASS, `reg_a1` 2, `uVar8` 4, a fresh
- *      block-local `perpLoc` 14, the field inlined at the call 14, and swapping the
- *      two carriers (car via reg_a1, loc via iVar4) 6.  Same family as 13A's
- *      "both allocator layers tie-break by NUMBER": the carrier's declaration
- *      position is the dial, not the statement position. */
+ * SYM CLEAN (2026-09-26): written with the Speaker/MobileSpeaker accessor inlines that retail's pairs record
+ * (Sub/SetSub on the Dispatch() temporary, SetTo, Voice, To/From/Reverse, Colour/Car/Position/Location/Distance/
+ * PerpName, ArrestFlags/BlockadeFlags).  The former carrier spelling (voiceArg launder, iVar3, outOfRange,
+ * savedDispatch) is no longer needed for the bytes; `saved` below is copy-propagated away, so like retail it
+ * leaves no debug record. */
 void Speech::MobileSpeaker::Lose()
 
 {
-  Speaker * Sub;
-  /* SYM-CODEGEN-CARRIER: useLeader -- folding the staged predicate into the
-     branch shortens retail's 213-instruction body to 212 and leaves 5 diffs. */
-  bool useLeader;
-  /* SYM-CODEGEN-CARRIER: iVar3 -- this shared expression-result quantity is
-     allocator-significant.  In the PERP_LOST phase a direct fLocation argument
-     leaves 14 diffs, while this declaration-position carrier is byte-exact. */
-  int iVar3;
-  /* SYM-CODEGEN-CARRIER: perpCar -- passing fCar directly to PERP_LOST is
-     count-exact but changes six call-setup/delay-slot instructions. */
-  int perpCar;
-  /* SYM-CODEGEN-CARRIER: outOfRange -- returning from the comparison directly
-     shortens the function to 212 instructions and leaves 5 diffs. */
-  int outOfRange;
-  /* SYM-CODEGEN-CARRIER: savedDispatch -- folding the saved fSub snapshot into
-     direct Dispatch() expressions grows the body to 215 and leaves 32 diffs. */
-  u_int savedDispatch;
   Speaker *Leader;
-  /* SYM-CODEGEN-CARRIER: dispatchThis -- reusing iVar3 for the virtual receiver
-     grows the body to 214 instructions and leaves 17 diffs. */
-  DispatchSpeaker *dispatchThis;
-  /* SYM-CODEGEN-CARRIER: finalDispatch -- reusing dispatchThis for the final
-     virtual receiver grows the body to 215 instructions and leaves 30 diffs. */
-  DispatchSpeaker *finalDispatch;
-  
-  /* SYM-OPTIMIZED: carObj -- the line-1 inline Speech expansion consumes
-     `this->fCarObj` directly in fSpeakerCar; no ordinary local survives. */
-  if (this->Perp() != 0) {
-    this->MakeSpeaker();
-    iVar3 = Speech::Dispatch();
-    useLeader = false;
-    if (((*(int *)(iVar3 + 0x48) != 0) &&
-        (iVar3 = Speech::Dispatch(), *(MobileSpeaker **)(*(int *)(iVar3 + 0x48) + 0x48) == this)) &&
-       (this->fBlockade.flags == 0)) {
-      useLeader = this->fArrest.flags == 0;
-    }
-    if (useLeader) {
-      iVar3 = Speech::Dispatch();
-      Leader = *(Speaker **)(iVar3 + 0x48);
-      {
-        /* MATCH: retail SLD line 2479 owns BOTH calls + the scale + the load +
-           the fTo store = ONE fused statement, and the computed base needs its
-           own block-scoped variable so gcc mutates it in place (oracle
-           `addu s0,s0,v0; lw v0,8(s0)`). [05A LAW + 3.12 #14]  7 -> 3. */
-        /* SYM-CODEGEN-CARRIER: bank -- the block-scoped computed base lets GCC
-           mutate it in place (`addu s0,s0,v0; lw v0,8(s0)`); the direct fused
-           expression is not byte-exact. */
-        int *bank = (int *)
-            ((int)this->CallSign() +
-             (**(int (**)(...))(*(int *)((int)Leader + 0x4c) + 0x8c))
-                       ((int)Leader + *(short *)(*(int *)((int)Leader + 0x4c) + 0x88)) * 4);
-        this->fTo = bank[2];
-      }
-    }
-    else {
-      Sub = (Speaker *)this->CallSign();
-      Leader = (Speaker *)0x0;
-      this->fTo = *(int *)((int)Sub + 4);
-    }
-    if (this->fArrest.flags != 0) {
-      SPCHNFS_C_P_FALSE_ARREST_BULLHORN(this->Voice());
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    }
-    else {
-      outOfRange = 0;
-      if ((this->fBlockade.flags == 0) && (Leader == (Speaker *)0x0)) {
-        dispatchThis = (DispatchSpeaker *)Speech::Dispatch();
-        iVar3 = dispatchThis->StatusCount();
-        outOfRange = (iVar3 < 0x161) ^ 1;
-      }
-      if (outOfRange != 0) {
-        return;
-      }
-    }
-    iVar3 = this->fTo;
-    SPCHNFS_C_A_INTRO(
-      this->Voice(),iVar3,this->fFrom,
-      &this->fReverse);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    this->SetCar((Car_tObj *)
-      this->Perp());
-    this->FindLocation((Car_tObj *)
-      this->Perp());
-    if (this->fArrest.flags != 0) {
-      SPCHNFS_C_D_DURING_FALSE_ARREST(
-        this->Voice(),&this->fPerpName);
-    }
-    else {
-      iVar3 = this->CarObj();
-      if ((*(u_int *)(iVar3 + 0x260) & 0x200) != 0) {
-        SPCHNFS_C_D_ENDGAME(this->Voice());
-      }
-      else {
-        if (this->fBlockade.flags == 1) {
-          SPCHNFS_C_D_SPBLT_FAILED(
-            this->Voice(),&this->fColour,
-            this->fCar);
-        }
-        else if (this->fBlockade.flags == 2) {
-          SPCHNFS_C_D_RDBLK_FAILED(
-            this->Voice(),&this->fColour,
-            this->fCar);
-        }
-        else {
-          /* MATCH: arm-local laundered receiver carrier -- see the header block.
-             The launder makes it a GLOBAL allocno that wins $a0 outright, so its
-             single defining copy is retail's `bne` delay-slot `addu a0,s0,zero`
-             and the PERP_LOST block opens on `addu a3,s1,zero`.  Must stay ABOVE
-             the fColour assignment and must NOT be shared with the IDLE arm. */
-          /* SYM-CODEGEN-CARRIER: voiceArg -- the zero-byte identity carrier is
-             required for retail's cross-path a0 allocation; the measured ladder
-             and placement constraints are recorded in the function header. */
-          SPCHNFSType_VOICE *voiceArg = this->Voice();
-          /* W85-S2: an INERT zero-insn fence was deleted here -- measured 102/102
-             PASS alone and as the pair {SubmitRequest, MobileSpeaker::Lose}. */
-          if (Leader != (Speaker *)0x0) {
-            SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(this->Voice());
-          }
-          else {
-            perpCar = this->fCar;
-            iVar3 = this->fLocation;
-            SPCHNFS_C_D_PERP_LOST(voiceArg,&this->fColour,
-                       perpCar,
-                       (SPCHNFSType_POSITION *)this,
-                       iVar3,&this->fDistance,
-                       &this->fPerpName);
-          }
-        }
-      }
-    }
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    this->fBlockade.flags = 0;
-    this->fArrest.flags = 0;
-    this->fUpdate.flags = 0;
-    if (Leader == (Speaker *)0x0) {
-      iVar3 = Speech::Dispatch();
-      savedDispatch = *(u_int *)(iVar3 + 0x48);
-      iVar3 = Speech::Dispatch();
-      *(MobileSpeaker **)(iVar3 + 0x48) = this;
-      finalDispatch = (DispatchSpeaker *)Speech::Dispatch();
-      finalDispatch->Roger();
-      iVar3 = Speech::Dispatch();
-      *(u_int *)(iVar3 + 0x48) = savedDispatch;
-    }
+
+  if (this->Perp() == 0)
+    return;
+  this->MakeSpeaker();
+  if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Sub() == this &&
+      this->BlockadeFlags() == 0 && this->ArrestFlags() == 0) {
+    Leader = Speech::Dispatch()->Sub();
+    this->SetTo(this->CallSign()->Mobile(Leader->Unit()));
   }
-  return;
+  else {
+    Leader = 0;
+    this->SetTo(this->CallSign()->Dispatch());
+  }
+  if (this->ArrestFlags() != 0) {
+    SPCHNFS_C_P_FALSE_ARREST_BULLHORN(this->Voice());
+    SPCH_PlaySpeech();
+  }
+  else if (this->BlockadeFlags() == 0 && this->ArrestFlags() == 0 && Leader == 0 && Speech::Dispatch()->StatusCount() > 0x160)
+    return;
+  SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+  SPCH_PlaySpeech();
+  this->SetCar(this->Perp());
+  this->FindLocation(this->Perp());
+  if (this->ArrestFlags() != 0)
+    SPCHNFS_C_D_DURING_FALSE_ARREST(this->Voice(),this->PerpName());
+  else if ((*(u_int *)((int)this->CarObj() + 0x260) & 0x200) != 0)
+    SPCHNFS_C_D_ENDGAME(this->Voice());
+  else if (this->BlockadeFlags() == 1)
+    SPCHNFS_C_D_SPBLT_FAILED(this->Voice(),this->Colour(),this->Car());
+  else if (this->BlockadeFlags() == 2)
+    SPCHNFS_C_D_RDBLK_FAILED(this->Voice(),this->Colour(),this->Car());
+  else if (Leader != 0)
+    SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(this->Voice());
+  else
+    SPCHNFS_C_D_PERP_LOST(this->Voice(),this->Colour(),this->Car(),this->Position(),this->Location(),
+                          this->Distance(),this->PerpName());
+  SPCH_PlaySpeech();
+  this->SetBlockade(0);
+  this->SetArrest(0);
+  this->SetUpdate(0);
+  if (Leader == 0) {
+    Speaker *saved = Speech::Dispatch()->Sub();
+
+    Speech::Dispatch()->SetSub(this);
+    Speech::Dispatch()->Roger();
+    Speech::Dispatch()->SetSub(saved);
+  }
 }
 
 /* ---- Accident__Q26Speech13MobileSpeakeri  [SPEECH.CPP:2544-2548] SLD-VERIFIED ---- */

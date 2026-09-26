@@ -107,6 +107,7 @@ struct Speech {
         inline SPCHNFSType_SPIKE_BELT_SIDE *SpikeSide() { return &fSpikeSide; }
         inline void SetSpikeSide(int side) { fSpikeSide.flags = side; }
         inline int BlockadeFlags() { return fBlockade.flags; }
+        inline int ArrestFlags() { return fArrest.flags; }
         inline int Car() { return fCar; }
         inline SPCHNFSType_vs_RDBLK_SSTRP *BlockadeSlot() { return &fBlockade; }
         inline SPCHNFSType_CONFIRM *Confirm() { return &fConfirm; }

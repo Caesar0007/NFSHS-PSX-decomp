@@ -2752,16 +2752,10 @@ int AIHigh_BTC_Wingman::CheckForActivation()
 
 {
   int spikeBeltRequest;
-  int carLoop;
-
-  carLoop = 0;
-
   spikeBeltRequest = 0;
 
-  while (true) {
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
     Car_tObj *otherCarObj;
-
-    if (Cars_gNumCars <= carLoop) break;
 
     otherCarObj = Cars_gList[carLoop];
 
@@ -2788,8 +2782,6 @@ int AIHigh_BTC_Wingman::CheckForActivation()
       }
 
     }
-
-    carLoop = carLoop + 1;
 
   }
 

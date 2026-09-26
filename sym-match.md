@@ -277,6 +277,22 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   2-member stubs of tCreditManager/tFEApplication/tGlobalMenuDefs that retail FRONT does not record; Speech is a
   1-byte stub in six AI objects; AIHIGH.CPP records AIHigh_BTC_AIPerp. Retail records Sim_tSimGlobalVar ONLY in
   SIM.CPP (we record it in 33 objects), so the other objects reached `simGlobal` without that type -- open question.
+- FEMENU order fix: `femenu_types.h` now defines the item classes and tMenu first, then tShapeInformation, tScreen,
+  tActiveLine and the dialog family in retail's order (Base, Help, MessageString, WithTimeout, NoInput, Interactive,
+  YesNo). FEMENU's tMenu now records `fScreen` as a pointer to an incomplete tScreen, as retail does. Bytes and board
+  unchanged; `member_cmp.py --summary`: 365 SAME, 6 left (Sim_tSimGlobalVar, Speech, the three FRONT stubs,
+  AIHigh_BTC_AIPerp).
+- Two retail type-record patterns our cc1plus does not produce from any source form tried (standalone probes with the
+  same CC1PLPSX, and the PsyQ 4.4/4.5 2.8.1 builds): (1) REPEATED tags -- retail records BO_tNewtonObj twice in 111
+  objects, TCB in 53, tMenu in 50, tScreen in 32, AIPhysic_BrakeInfo in 18 (804 repeats in all; ours has none beyond
+  the doubled objects). A repeat is either back to back with identical members (BO_tNewtonObj, TCB) or a first record
+  where the type is first needed and a second at its definition (tMenu, tScreen); both carry the complete layout.
+  Forward declarations, `typedef struct X X`, anonymous typedef structs, `const` variants, prototypes, array externs,
+  by-value members, derivation, in-class inlines, `#pragma interface` did not repeat a tag. (2) SUPPRESSED tags --
+  retail FRONT.CPP allocates tFEApplication/tGlobalMenuDefs with `new` (complete types needed) yet records neither,
+  and only SIM.CPP records Sim_tSimGlobalVar although ~30 objects read `simGlobal.gameTicks`. Our cc1plus records
+  every struct a unit defines. Both point at how retail's headers presented these types (or at a debug-emission
+  difference), not at member layouts; they account for much of the tag-count gap (missing 13,042 / extra 3,611).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

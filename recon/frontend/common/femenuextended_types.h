@@ -261,6 +261,8 @@ struct tFEApplication {
     tDialogNoInputMessage NoInputMemCardDialog;
     bool gotName[2], needName[2];
     int speechToPlay[2];
+
+    char Player() { return fPlayer; }
 };
 
 /* The linked owner retains this public array typedef while attributing the

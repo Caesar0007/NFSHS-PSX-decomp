@@ -837,16 +837,14 @@ tMenuNFS4TwoPlayer::~tMenuNFS4TwoPlayer()
 /* ---- tMenuNFS4TwoPlayer::DrawItem  [FEMENUEXTENDED.CPP:579-587] SLD-VERIFIED ---- */
 
 void tMenuNFS4TwoPlayer::DrawItem(int item)
-
 {
   short y;
-  
+
   y = 0x2b;
-  if (App()->fPlayer == '\x01') {
+  if (FEApp->Player() == 1) {
     y = 0x94;
   }
   this->fItemList[item]->Draw(10,y + item * 0x12,item == this->fCurrentItem);
-  return;
 }
 
 

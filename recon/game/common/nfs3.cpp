@@ -334,7 +334,6 @@ void NFS4_LoadingIcon(void)
   int lang;
   char *ldfile;
   shapetbl *shp;
-  RECT r;
 
   sprintf(fname,"%sldic.psh",Paths_Paths[0x25]);
   ldfile = (char *)loadfileadr(fname,0);
@@ -343,11 +342,14 @@ void NFS4_LoadingIcon(void)
     lang = 0;
   }
   shp = (shapetbl *)shapepointer(ldfile,lang);
-  r.w = 0x400;
-  r.x = 0;
-  r.y = 0;
-  r.h = 0x200;
-  ClearImage(&r,'\0','\0','\0');
+  {
+    RECT r;
+    r.w = 0x400;
+    r.x = 0;
+    r.y = 0;
+    r.h = 0x200;
+    ClearImage(&r,'\0','\0','\0');
+  }
   DrawSync(0);
   initlinkmode(0,100,0);   /* oracle 0x94650: a2=0 (dropped 3rd arg) */
   Draw_DirectSetEnvironment(0,0,0x200,0xf0,1,1,1,0,0,0);
@@ -835,6 +837,7 @@ int main(void)
   Front_InitGraphics();
   Front_Menu(kFront_InitialLoad);
   do {
+    int unusedLoopLocal;   /* unused: retail emits the loop body block with no record */
     NFS3_CheckForFileOperations();
     setup = (int *)MinFront_ParseOptions();
     if (gUseFrontend != 0) {
@@ -884,19 +887,22 @@ int main(void)
         Replay_ReplayInterface.statsScreen = 0;
       }
     }
-    Nfs2_CleanUpGameModule();
-    NFS4_LoadingIcon();
-    LoadOverlay();
-    NFS3_CheckForFileOperations();
-    Front_InitGraphicsAndDisplayLoading();
-    GameSetup_gData.replayMode = (int)oldReplayMode;
-    Front_GetInGameVars();
-    (&carManager)->LoadDescription();
-    (&tournamentManager)->LoadDescription();
-    (&trackManager)->LoadDescription();
-    Front_Menu((quitType == 1) ? 2 : 1);
-    oldReplayMode = (short)GameSetup_gData.replayMode;
-    NFS3_CheckForFileOperations();
+    {
+      int unusedTailLocal;   /* unused: retail block from here to the loop end has no record */
+      Nfs2_CleanUpGameModule();
+      NFS4_LoadingIcon();
+      LoadOverlay();
+      NFS3_CheckForFileOperations();
+      Front_InitGraphicsAndDisplayLoading();
+      GameSetup_gData.replayMode = (int)oldReplayMode;
+      Front_GetInGameVars();
+      (&carManager)->LoadDescription();
+      (&tournamentManager)->LoadDescription();
+      (&trackManager)->LoadDescription();
+      Front_Menu((quitType == 1) ? 2 : 1);
+      oldReplayMode = (short)GameSetup_gData.replayMode;
+      NFS3_CheckForFileOperations();
+    }
   } while( true );
 }
 

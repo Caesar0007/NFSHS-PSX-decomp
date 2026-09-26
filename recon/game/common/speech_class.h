@@ -28,6 +28,9 @@ struct Speech {
         int fFull, fMake, fModel;
         CarBank() : fFull(-1), fMake(-1), fModel(-1) {}
         bool Check(char *name, int id, CarBankName *bankname);
+        /* getters: Speaker::SetCar reads them through GetCarBank()'s temporary (variable-free pairs) */
+        inline int Full() { return fFull; }
+        inline int Model() { return fModel; }
     };
 
     struct LocationBank {
@@ -81,7 +84,7 @@ struct Speech {
             fCar = 0;
             fColour.flags = 0;
         }
-        inline void SetColour(int Colour);
+        inline void SetColour(int Colour) { fColour.flags = Colour; }
         inline void SetBlockade(int Blockade) { fBlockade.flags = Blockade; }
         /* inline setters: retail's SYM shows one zero-length `this` pair per field reset (e.g. Purge's five at +1a0) */
         inline void SetArrest(int Arrest) { fArrest.flags = Arrest; }
@@ -132,8 +135,8 @@ struct Speech {
 
     /* declaration ORDER is retail evidence: tables are emitted Mobile, Dispatch, Speaker = reverse of Speaker, Dispatch, Mobile */
     struct DispatchSpeaker : public Speaker {
-        /* inline ctor: retail's Speech::Speech() shows it expanded in place */
-        DispatchSpeaker() {}
+        /* no user constructor: retail's Speech::Speech() expands only the base Speaker() pair for `new DispatchSpeaker`
+           (MobileSpeaker's user constructor adds a body block after that pair) */
         inline void ClearSpeaker();   /* defined after struct Speech (inner Speech inline) */
         int fStatusCount;
         Speaker *fStatusSub;
@@ -230,6 +233,10 @@ struct Speech {
        the index is a register argument, so no parameter row) */
     static inline CarBank *MobileCarBank(int carIndex) { return &fgSpeech->fCarBank.Mobile[carIndex]; }
     static inline CarBank *DispatchCarBank(int carIndex) { return &fgSpeech->fCarBank.Dispatch[carIndex]; }
+    /* SubmitRequest: retail shows a variable-free inline pair where the dispatch status is reset, and a second
+       one right after the bank offset is taken that emits no instructions; both names are inferred */
+    static inline void ResetStatus() { fgSpeech->fDispatch->fStatusSub = 0; fgSpeech->fDispatch->fStatusCount = 0x200; }
+    static inline void Idle() {}
     /* bank accessors: retail's one-line Speaker accessors are each a single inline-call pair -- a member on
        the instance (`this` only) or a forwarding member (`this` + `slice`) */
     inline CallSignBank *MobileCallSign() { return &fCallSignBank.Mobile; }

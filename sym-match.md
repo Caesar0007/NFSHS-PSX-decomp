@@ -309,6 +309,14 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   `FindClosestLocationTo` (locals in their scopes, `if (locationbank->BankId() == -1) continue;` -- a bool
   predicate inline loses the hoisted -1 and two saved registers -- and `else return 0;` so the if-scope reaches
   the function end). speech.cpp 71 CLEAN.
+- Speech round 6. Byte-unchanged and CLEAN: `SubmitRequest` (locals declared in the `if` block; a static
+  `ResetStatus()` inline for the dispatch status reset and an instruction-free static `Idle()` inline right after
+  the bank offset -- retail records a variable-free pair exactly there -- which also retires the empty `__asm__`
+  barrier the old spelling needed; `else return 0;`); `Speech::Speech()` (DispatchSpeaker has NO user
+  constructor: `new DispatchSpeaker` then expands only the base Speaker() pair, while MobileSpeaker's user
+  constructor adds a body block); `Speaker::SetCar` (CarBank getters `Full()`/`Model()` on GetCarBank's temporary
+  = variable-free pairs; `if (MultiplePerps()) SetColour(c); else SetColour(c | 0x78020);` with SetColour a plain
+  setter -- the computed argument is why the second pair records only `this`). speech.cpp 74 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -189,16 +189,6 @@ bool Speech::CheckCarBank(CarBank *carbank,char *name,int id,CarBankName *bankna
   return match;
 }
 
-inline void Speech::Speaker::SetColour(int Colour)
-{
-  if (Speech::fgSpeech->fMultiplePerps != 0) {
-    this->fColour.flags = Colour;
-  }
-  else {
-    this->fColour.flags = Colour | 0x78020;
-  }
-}
-
 /* ---- SetCar__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:301-373] SLD-VERIFIED ---- */
 void Speech::Speaker::SetCar(Car_tObj *car)
 
@@ -207,19 +197,19 @@ void Speech::Speaker::SetCar(Car_tObj *car)
   int carcolour;
   
   carcolour = 1 << car->carInfo->SpeechColour;
-  if (this->GetCarBank(car->carIndex)->fFull == -1) {
+  if (this->GetCarBank(car->carIndex)->Full() == -1) {
     this->ClearCar();
   }
   else {
-    this->SetColour(carcolour);
-    if (Speech::Dispatch()->KnownPerp(car)) {
-      this->fCar = this->GetCarBank(car->carIndex)->fModel;
-    }
-    else {
-      this->fCar = this->GetCarBank(car->carIndex)->fFull;
-    }
+    if (Speech::MultiplePerps())
+      this->SetColour(carcolour);
+    else
+      this->SetColour(carcolour | 0x78020);
+    if (Speech::Dispatch()->KnownPerp(car))
+      this->fCar = this->GetCarBank(car->carIndex)->Model();
+    else
+      this->fCar = this->GetCarBank(car->carIndex)->Full();
   }
-  return;
 }
 
 /* ---- CountLocations__6Speech  [SPEECH.CPP:521-534] SLD-VERIFIED ---- */
@@ -979,17 +969,16 @@ long Speech::SubmitRequest(long bank,long localoffset,long size)
      The helper spellings are source-shape inferences: SYM proves their
      receivers/parameter scopes and the retail body proves their operations,
      but fully inlined functions have no surviving linkage name. */
-  Car_tObj *car;
-  int patch;
-  long offset;
-
   if (Speech::fgSpeech != 0) {
-    Speech::fgSpeech->fDispatch->fStatusSub = 0;
-    Speech::fgSpeech->fDispatch->fStatusCount = 0x200;
+    Car_tObj *car;
+    int patch;
+    long offset;
+
+    Speech::ResetStatus();
     car = Speech::fgSpeech->fSpeakerCar;
     patch = Speech::fgSpeech->BankPatch(bank,car);
     offset = Speech::fgSpeech->BankOffset(bank);
-    __asm__("" : "=r"(offset) : "0"(offset));
+    Speech::Idle();
     if (patch >= 0) {
       CopSpeak_GenericBankRequest(patch,car);
     }
@@ -997,14 +986,10 @@ long Speech::SubmitRequest(long bank,long localoffset,long size)
       CopSpeak_DirectRequest(Speech::fgSpeech->FileHandle(),
                              offset + localoffset,size,car,0);
     }
-    /* ONE return after the if/else-if: retail's two `j epilogue; addu v0,s0,s2` tails are
-       reorg's delay-slot copies of this single join block (0x80095cec), and the
-       `offset == 0` branch targets that join (beqz +7).  Two source returns made jump.c
-       cross-jump that branch onto the other arm's copy (beqz -3) -- a branch-direction
-       defect the target-masking gate could not see (2026-09-17, lane fncompare --mask). */
     return offset + localoffset;
   }
-  return 0;
+  else
+    return 0;
 }
 
 /* ---- Report__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:1352-1356] SLD-VERIFIED ---- */

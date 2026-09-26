@@ -13,6 +13,8 @@ static inline bool MenuItem_Enabled(tMenuItem *item) { return ((item->fFlags & 1
 static inline int ListIterator_Min(tListIterator *it) { return (unsigned char)it->fMinValue; }
 static inline int ListIterator_Max(tListIterator *it) { return (unsigned char)it->fMaxValue; }
 static inline u_short GInfo_Busy(void) { return *(u_short *)&ginfo[16]; }
+static inline int Text_BrightColor(int text) { return kRGBVals[(u_char)textDefinitions[TextSys_WordFlags((short)text)][5]]; }
+static inline int Text_Color(int text) { return kRGBVals[(u_char)textDefinitions[TextSys_WordFlags((short)text)][4]]; }
 
 
 /* EXT data owned by FeMenuOptions.obj: both UNINITIALIZED -- cc1plus 2.8 defers them to
@@ -1464,63 +1466,46 @@ void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool)
 
 {
   /* Retail ABI bool is unnamed while the `iib` linkage retains it. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read coltext, tCol; the two non-SYM
-     carriers follow the SYM set. */
   int coltext;
   tDrawShapeExtended tCol;
-  /* SYM-CODEGEN-CARRIER: brightTextColor
-     The trusted block names only `coltext` ($s0). Retail nevertheless holds
-     textDefinitions[][5]'s bright palette color across DrawLeftFlare in $s2;
-     no debug name survives, so this semantic name is not claimed as original. */
-  int brightTextColor;
-  /* SYM-CODEGEN-CARRIER: rgbVals
-     GCC must materialize kRGBVals before the first TextSys_WordFlags call so
-     the address remains in $s1 across both calls; inlining the array base
-     rematerializes it after the call and loses the 131/131 retail allocation. */
-  int *rgbVals;
 
   /* MATCH: `textDefinitions` is 6 bytes per row in retail (index scaling
-     `sll 1; addu` = *3, then *2) — the externs header now carries the true
+     `sll 1; addu` = *3, then *2) вЂ” the externs header now carries the true
      [14][6] shape (it used to say [6][14] -> stride 14 -> `sll 3; subu` = *7,
      a real OOB addressing bug).
-     Also: read (short)fTextDescription straight off the field (`lh 4(s3)`) —
+     Also: read (short)fTextDescription straight off the field (`lh 4(s3)`) вЂ”
      the `u_int uVar5` cache forced an `lw` + `sll/sra` pair. */
   coltext = TextSys_WordX(this->fTextDescription);
   this->fX = (short)coltext + (short)ox;
   coltext = TextSys_WordY(this->fTextDescription);
   this->fY = (short)coltext + (short)oy;
-  /* MATCH (methodology #16): the oracle completes the `la s1,kRGBVals` BEFORE the
-     TextSys_WordFlags call (s1 held across it); the natural in-expression use
-     rematerializes the address after the call. */
-  rgbVals = kRGBVals;
-  coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
-  brightTextColor = rgbVals[(u_char)textDefinitions[coltext][5]];
-  coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
-  coltext = rgbVals[(u_char)textDefinitions[coltext][4]];
+  /* The two palette colours are free text-colour accessors (retail's two entry pairs); the bright one is
+     held across DrawLeftFlare in a const snapshot, which is not recorded. */
+  const int brightTextColor = Text_BrightColor(this->fTextDescription);
+  coltext = Text_Color(this->fTextDescription);
   DrawLeftFlare((int)this->fY,
              (int)this->fSelFade,
              (int)this->fFadeVal,this->flareextra);
   coltext = CalcFadeVal(coltext,brightTextColor,
                      (int)this->fSelFade,
                      (int)this->fFadeVal);
-  /* MATCH: no return funnel ($v0 incidental) and the fData reload lives INSIDE
-     the DrawSlider argument list. */
-  if (this->fFadeVal != 0x80) {
-    FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),this->fX,this->fY,
-               coltext,'\0',1);
-    tCol.tint[0] = CalcFadeVal(0x551e00,0xbebe,
-                              (int)this->fSelFade,(int)this->fFadeVal);
-    if (this->fSelFade != 0) {
-      DrawShapeExtended(this->fAudioArt + 1,0x10,0,0,0,0,&tCol);
-    }
-    DrawSlider(this->fData->Value((tPlayer)-1) & 0xff,
-               (u_short)(u_char)this->fData->fMinValue,
-               (u_short)(u_char)this->fData->fMaxValue,
-               this->fX + 0x14,this->fY + 1,
-               this->fWidth,this->fHeight,4,4,
-               false,0,this->fSelFade,
-               this->fFadeVal);
+  if (this->fFadeVal == 0x80) {
+    return;
   }
+  FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),this->fX,this->fY,
+             coltext,'\0',1);
+  tCol.tint[0] = CalcFadeVal(0x551e00,0xbebe,
+                            (int)this->fSelFade,(int)this->fFadeVal);
+  if (this->fSelFade != 0) {
+    DrawShapeExtended(this->fAudioArt + 1,0x10,0,0,0,0,&tCol);
+  }
+  DrawSlider(this->fData->Value((tPlayer)-1) & 0xff,
+             this->fData->MinValue(),
+             ListIterator_Max(this->fData),
+             this->fX + 0x14,this->fY + 1,
+             this->fWidth,this->fHeight,4,4,
+             false,0,this->fSelFade,
+             this->fFadeVal);
 }
 
 

@@ -17,6 +17,8 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks[0]; }
 static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
+/* `ticks` is VSync-ISR state: each read is a real load */
+static inline int VSyncTicks(void) { return *(volatile int *)&ticks[0]; }
 
 
 /* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
@@ -475,64 +477,44 @@ void tScreenCarSelect::SetState(int state)
       i = i + 1;
     } while (i < 4);
   }
-  /* MATCH (W57-A2): GOTO-DISPATCH in the oracle's branch polarity.  The nested
-     `if (state != 2) { if (state < 3) { if (state != 0) return; } ... }` form makes
-     the state==0 test a `bnez s1,<return>` with the compute block as FALL-THROUGH;
-     the oracle has `beqz s1,<compute>` + a fall-through `j <return>` (the return is
-     the fall-through arm, the compute block is the branch TARGET).  Writing the
-     arms as explicit `goto compute;` reproduces it (22 -> 18).  The state==2 arm
-     enters one insn LATER than the state==0 arm in the oracle (0x8003B6D8 vs
-     0x8003B6DC) purely because reorg put `addiu v0,s1,-5` in the state==0 branch's
-     delay slot and jump.c threaded the edge past it -- not a source distinction. */
-  if (state == 2) goto compute;
-  if (state < 3) {
-    if (state == 0) goto compute;
-    return;
-  }
-  if (6 < state) {
-    return;
-  }
-  if (state < 5) {
-    return;
-  }
-compute:
-  /* `ticks` is VSync-ISR state, so both volatile reads are semantically real.
-     This statement order lets the scheduler batch retail's two loads, then emit
-     its fSpeechTicks/fSpeechPlayed/fShowroomTicks stores without the former
-     source-only t1/t2 temporaries.  Exact result: PASS 161/161. */
-  this->fInShowroom = (uint)(state - 5U < 2);
-  gStopCommentaryNow = 1;
-  this->fSpeechTicks = *(volatile int *)&ticks[0];
-  this->fShowroomTicks = *(volatile int *)&ticks[0];
-  this->fSpeechPlayed = 0;
-  if (this->fInShowroom != 0) {
-    AudioMus_StopSong(1000);
-    i = 0;
-    this->fSplineInterval = 0;
-    gKnots[1][4] = this->fCameraRotation & 0x3ff;
-    do {
-      gKnots[0][i] = gKnots[1][i] - (gKnots[2][i] - gKnots[1][i]);
-      i = i + 1;
-    } while (i < 5);
-    gRotateOffset[3] = 0x10000;
-    gRotateOffset[2] = 0x10000;
-    gRotateOffset[1] = 0x10000;
-    gRotateOffset[0] = 0x10000;
-    this->tScreen::TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-  }
-  else {
-    i = 0;
-    do {
-      this->tvConfigs[i].state = tv_StateOff;
-      this->tvConfigs[i].transition = 0;
-      i = i + 1;
-    } while (i < 10);
-    if (fPreviousState != 1) {
-      this->tScreen::TransitionOn(kScreen_TransitionTypeScreen,(tMenu *)0x0);
+  switch (state) {
+  case 0:
+  case 2:
+  case 5:
+  case 6:
+    this->fInShowroom = (uint)(state - 5U < 2);
+    gStopCommentaryNow = 1;
+    this->fSpeechTicks = VSyncTicks();
+    this->fShowroomTicks = VSyncTicks();
+    this->fSpeechPlayed = 0;
+    if (this->fInShowroom != 0) {
+      AudioMus_StopSong(1000);
+      i = 0;
+      this->fSplineInterval = 0;
+      gKnots[1][4] = this->fCameraRotation & 0x3ff;
+      do {
+        gKnots[0][i] = gKnots[1][i] - (gKnots[2][i] - gKnots[1][i]);
+        i = i + 1;
+      } while (i < 5);
+      gRotateOffset[3] = 0x10000;
+      gRotateOffset[2] = 0x10000;
+      gRotateOffset[1] = 0x10000;
+      gRotateOffset[0] = 0x10000;
+      this->tScreen::TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
     }
-    TurnOn(this->fVideoWall);
+    else {
+      i = 0;
+      do {
+        this->tvConfigs[i].state = tv_StateOff;
+        this->tvConfigs[i].transition = 0;
+        i = i + 1;
+      } while (i < 10);
+      if (fPreviousState != 1) {
+        this->tScreen::TransitionOn(kScreen_TransitionTypeScreen,(tMenu *)0x0);
+      }
+      TurnOn(this->fVideoWall);
+    }
   }
-  return;
 }
 
 

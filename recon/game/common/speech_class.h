@@ -100,6 +100,9 @@ struct Speech {
         inline void SetHavePerp(bool have) { fHavePerp = have; }
         inline void SetReverse(int reverse) { fReverse.flags = reverse; }
         inline SPCHNFSType_REVINTRO *Reverse() { return &fReverse; }
+        inline void SetPosition(int position) { fPosition.flags = position; }
+        inline void SetDistance(int distance) { fDistance.flags = distance; }
+        inline void SetLocation(LocationBank *location) { fLocation = location->BankId(); }
         inline SPCHNFSType_POSITION *Position() { return &fPosition; }
         inline SPCHNFSType_PERP_NAME *PerpName() { return &fPerpName; }
         inline void SetAmbulance(int ambulance) { fAmbulance.flags = ambulance; }

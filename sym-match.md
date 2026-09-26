@@ -359,6 +359,14 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   `CallSign()->AllUnits()`, the backup arm fetches `Sub()->Sub()` into a copy-propagated local before the counter
   stores, and the final test is `Sub()->SetBlockade(0)` on the direct sub. 85 CLEAN, 2 DIRTY (FindLocation,
   LoadBankHeaders).
+- `Speaker::FindLocation`: lower half now in accessor spelling (SetDistance/SetPosition setters, SetLocation(loc)
+  = `fLocation = loc->BankId()` in BOTH arms -- retail's no-location arm really reads the null bank,
+  `lw v0,8($zero)`, and only the literal `SetLocation(0)` keeps that load). Still DIRTY: the slice look-ahead.
+  Retail records no local there and calls fixedmult six times, but without the `advance`/`offset` carriers the
+  quotient is allocated to $v0 instead of $v1 -- all 64 operand orders of the six sums, flipped/negated/subtracted
+  conditions, a short-typed slice and a statement expression stay at 12 diffs. Next angle: the division spelling
+  itself (a helper macro with its own cast/shift) or a copy-propagated local.
+- Session total (2026-09-26): speech.cpp 62 -> 85 CLEAN; whole board 1877 -> 1900 CLEAN; honest link 0 diff.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

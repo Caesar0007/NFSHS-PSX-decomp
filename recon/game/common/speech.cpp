@@ -315,11 +315,6 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
   int slice;
   LocationBank *location;
 
-  /* SYM-CODEGEN-CARRIER: advance
-     SYM-CODEGEN-CARRIER: offset
-     These single-use spellings preserve retail GCC's quantity lifetimes;
-     direct substitution makes the function two instructions longer and
-     changes 92 oracle instructions. */
   if (fixedmult(car->currentSpeed,0x50000) / 0x60000 >= 0) {
     int advance = fixedmult(car->currentSpeed,0x50000) / 0x60000;
     if ((int)car->N.simRoadInfo.slice + advance < gNumSlices) {
@@ -342,84 +337,68 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
     }
   }
 
-  location = (LocationBank *)
-            this->FindClosestLocationTo(slice);
-  if (location == (LocationBank *)0x0) {
-    (this->fDistance).flags = 0;
-    (this->fPosition).flags = 0;
-    /* Retail preserves the null LocationBank::fBankId read at address 8. */
-    *(SPCHNFSType_POSITION *)&this->fLocation = *(SPCHNFSType_POSITION *)8;
+  location = this->FindClosestLocationTo(slice);
+  if (location == 0) {
+    this->SetDistance(0);
+    this->SetPosition(0);
+    this->SetLocation(0);
   }
   else {
     int actual = location->Distance((int)car->N.simRoadInfo.slice);
     int distance = location->Distance(slice);
 
     if (distance == 0) {
-      (this->fDistance).flags = 0;
-      (this->fPosition).flags = 4;
+      this->SetDistance(0);
+      this->SetPosition(4);
     }
     else if ((double)distance < 100.0 / 3.0) {
-      (this->fDistance).flags = 0;
-      if (distance + 2 < actual) {
-        (this->fPosition).flags = 9;
-      }
-      if (distance - 2 < actual) {
-        (this->fPosition).flags = 8;
-      }
-      else {
-        (this->fPosition).flags = 2;
-      }
+      this->SetDistance(0);
+      if (distance + 2 < actual)
+        this->SetPosition(9);
+      if (distance - 2 < actual)
+        this->SetPosition(8);
+      else
+        this->SetPosition(2);
     }
     else if (GameSetup_gData.measurement == 1) {
       if (distance < 0xa6) {
-        (this->fDistance).flags = 8;
-        if (distance - 2 < actual) {
-          (this->fPosition).flags = 0x10;
-        }
-        else {
-          (this->fPosition).flags = 2;
-        }
+        this->SetDistance(8);
+        if (distance - 2 < actual)
+          this->SetPosition(0x10);
+        else
+          this->SetPosition(2);
       }
       else {
-        (this->fDistance).flags = 0x10;
-        if (distance - 2 < actual) {
-          (this->fPosition).flags = 0x10;
-        }
-        else {
-          (this->fPosition).flags = 2;
-        }
+        this->SetDistance(0x10);
+        if (distance - 2 < actual)
+          this->SetPosition(0x10);
+        else
+          this->SetPosition(2);
       }
     }
     else if (distance < 0x86) {
-      (this->fDistance).flags = 1;
-      if (distance - 2 < actual) {
-        (this->fPosition).flags = 0x10;
-      }
-      else {
-        (this->fPosition).flags = 2;
-      }
+      this->SetDistance(1);
+      if (distance - 2 < actual)
+        this->SetPosition(0x10);
+      else
+        this->SetPosition(2);
     }
     else if (distance < 0x10c) {
-      (this->fDistance).flags = 2;
-      if (distance - 2 < actual) {
-        (this->fPosition).flags = 0x10;
-      }
-      else {
-        (this->fPosition).flags = 2;
-      }
+      this->SetDistance(2);
+      if (distance - 2 < actual)
+        this->SetPosition(0x10);
+      else
+        this->SetPosition(2);
     }
     else {
-      (this->fDistance).flags = 4;
-      if (distance - 2 < actual) {
-        (this->fPosition).flags = 0x10;
-      }
-      else {
-        (this->fPosition).flags = 2;
-      }
+      this->SetDistance(4);
+      if (distance - 2 < actual)
+        this->SetPosition(0x10);
+      else
+        this->SetPosition(2);
     }
-    this->fLocation = location->fBankId;
+    this->SetLocation(location);
   }
-  return;
 }
 
 /* ---- CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci  [SPEECH.CPP:852-884] SLD-VERIFIED ---- */

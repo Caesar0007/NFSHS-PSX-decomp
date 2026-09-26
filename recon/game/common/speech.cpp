@@ -1102,22 +1102,13 @@ void Speech::Speaker::Promote()
 
 {
   Speaker *Super;
-  Speaker *Sub;
-  /* SYM-CODEGEN-CARRIER: cont -- GCC's materialized conjunction reproduces
-     the retail loop; the direct disjunction is four instructions shorter and
-     changes 14 oracle instructions. */
-  int cont;
 
-  Super = (Speaker *)Speech::Dispatch();
-  for (;;) {
-    Sub = Super->fSub;
-    cont = Sub != (Speaker *)0x0 && Sub != this;
-    if (!cont) break;
-    Super = Sub;
-  }
-  Super->fSub = this->fSub;
-  this->fSub = Speech::Dispatch()->fSub;
-  Speech::Dispatch()->fSub = this;
+  Super = Speech::Dispatch();
+  while (Super->Sub() != 0 && Super->Sub() != this)
+    Super = Super->Sub();
+  Super->SetSub(this->Sub());
+  this->SetSub(Speech::Dispatch()->Sub());
+  Speech::Dispatch()->SetSub(this);
 }
 
 /* ---- Speech_Server__Fv  [SPEECH.CPP:1539-1540] SLD-VERIFIED ---- */

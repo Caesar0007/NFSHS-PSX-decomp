@@ -321,6 +321,9 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   onto accessor calls in the SPCHNFS argument lists; new Speaker accessors PerpName/SetAmbulance/Ambulance/Arrest
   and MobileSpeaker::DelayStatus (defined after struct Speech). The first test is an early `return` (no scope),
   so MakeSpeaker's pair sits at body level as in retail. Bytes unchanged; speech.cpp 75 CLEAN.
+- `Speaker::Promote` CLEAN: `while (Super->Sub() != 0 && Super->Sub() != this) Super = Super->Sub();` then
+  `Super->SetSub(this->Sub()); this->SetSub(Dispatch()->Sub()); Dispatch()->SetSub(this);` -- retail's five
+  trailing pairs, the last recording SetSub's parameter `Sub` = this. The `cont` carrier is gone. 76 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

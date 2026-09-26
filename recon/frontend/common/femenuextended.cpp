@@ -110,7 +110,7 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
          in-place `dist += 0x19` 210.  Kept under the W85 iron rule. */
       int fade;
       dist = ({
-        int selected = textpix >= dist ? textpix : dist;
+        const int selected = textpix >= dist ? textpix : dist;
         selFade = fSelFade;
         textType = textType_FlybyHelp;
         /* MATCH W86-D3 2026-09-02: textType's identity launder replaced by a

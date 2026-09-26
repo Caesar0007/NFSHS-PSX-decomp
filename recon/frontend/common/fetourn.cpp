@@ -7,6 +7,7 @@
 /* Retail fetourn.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
+static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
 static inline int Tier_TournOffset(tTierInfo &tier) { return tier.fTournOffset; }
 inline tTourneyInfo *tTournamentManager::CurrentTourney() { return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament]; }
 
@@ -36,9 +37,8 @@ void tTournamentManager::Initialize()
     this->fTierFinishPrizeChange[i] = 0;
   }
 
-  const long numCars = carManager.fNumCars;
-  frontEnd.garageCar[0] = numCars - 1;
-  frontEnd.garageCar[1] = frontEnd.garageCar[0];
+  frontEnd.garageCar[0] = CarManager_NumCars(carManager) - 1;
+  frontEnd.garageCar[1] = CarManager_NumCars(carManager) - 1;
   return;
 }
 
@@ -407,7 +407,7 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,l
        block depth 4, below the depth-1 rows (retbill/retbonus/dummyCars/
        carInfo/damage/totalcarprice) that are the function-scope set. */
 
-    dummyCars = Cars_gNewCarStatsList;
+    dummyCars = Cars_NewCarStatsList();
     carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
     totalcarprice = carInfo.fPrices[0];
     for (int i = 0; i < 2; i++) {
@@ -612,8 +612,7 @@ short tTournamentManager::AdvanceToNextTrack()
   tTierInfo *currentTier;
   short i;
 
-  currentTourney = this->fDefinition->fTournaments +
-                   ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
+  currentTourney = this->CurrentTourney();
   if (this->fCurrentTrack <= (int)(currentTourney->fNumTracks - 1)) {
     (this->fAwards).fMoney = 0;
     (this->fAwards).fTournMoney = 0;
@@ -816,8 +815,7 @@ long tTournamentManager::GetTrackFinishPrize(short position)
   };
 
   if ((ushort)position < 6) {
-    currentTourney = &this->fDefinition->fTournaments[
-        this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];
+    currentTourney = this->CurrentTourney();
     if ((currentTourney->fOpponentCarClass == '\n') &&
        (carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0),
        carInfo.fCarClass < 7)) {

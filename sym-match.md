@@ -435,6 +435,23 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   - Dead copy warning: aih_btccop.cpp carried an `#if 0` old Wingman::HighExecute ahead of the live one; `var_fn.py`
     splices the FIRST textual match, so a variant "PASS" there was the untouched live function. The dead copy is
     removed; check for `#if 0` twins before trusting var_fn on a file.
+- aih_cop 4 -> 6/9 and aih_play 1 -> 2/9 CLEAN (CheckForNeedyPlayers, CheckForNewTarget, CleanupBlockaders), all
+  byte-unchanged; CheckForNewTriggers lost its `volatile copType` read and perpInfo/type carriers (bytes exact, still
+  DIRTY on scope shape). Accessors added to the shared hierarchy header: AIHigh_Base::CarObj(),
+  AIHigh_BasicCop::BlockadeMode()/Blockade(), AICop_BasicPerpInfo::CopsAssigned(type), AIHigh_Player::ChaseLevel()/
+  LastPullOverTime(); free inlines on the embedded chase info (PerpChase_CopFreeTicks/ChaseLevel) in aih_cop.cpp.
+  - A pair with a computed receiver (`&thisPlayer->basicPerpInfo_`) DOES record `this` when that address pseudo is
+    reused by a second accessor (CheckForNewTriggers: CopsAssigned's `this` REG 3); two accessors on it CSE the
+    address into one register, which retail avoided in CheckForNewTarget by computing `needs` as a ternary.
+  - OPEN CheckForNewTriggers: retail's Player inline (param newSlice, local temp) returns the old lastTriggerCheckSlice_
+    into an anonymous register that both min/max arms copy from. Caller spellings (7 tried) coalesce it with
+    startSlice/endSlice (10-16 diffs); reference outputs spill (140 diffs). Early return + `continue` guards + the
+    accessor set are otherwise byte-exact (W3 in build/tmp/ntr_W3.txt: 10 diffs, only that split).
+  - OPEN HandleCops: retail = early return, `perpChaseInfo_.GetChaseLevel()`, then ONE AICop_PerpChaseInfo inline with
+    parameters ticks/totalCopsEngaged (+ a computed direction flag) holding the whole engagement update, with nested
+    GetEngagementSeconds()/GetChaseLevelSeconds() pairs. Two `CopsAssigned()` calls fix the load order; the last
+    5 diffs are the engagementTime_ store: retail stores through the Player base (140(s1)) and reloads via the inline's
+    `this`, ours stores through `this` (0(a1)). Receipts: build/tmp/hc_combo.py, hc_combo2.py.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -475,6 +475,19 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   - Blockade_AddObject: rotx/roty/rotz are the three row pointers into theObj.orient declared up front.
   - OPEN AIHigh_Execute: retail's predicate inline (scheduling-off || Sched_ExecuteCheck(...carObj...)) records no
     rows although it uses carObj four times; every parameter spelling records the car parameter.
+- Board 1930 -> 1946 CLEAN (aicop 4/4, aiphysic 26 -> 34/42, ai 28 -> 33/40, aih_play MaintainAvailableCops partial),
+  bytes unchanged, 0 regressions.
+  - NEW LAW: a declared-but-UNUSED scalar local makes gcc emit its block with NO record (no RTL -> dbxout skips it).
+    Retail blocks that exist but carry no records (AI_AvoidSpikeBelt's then-block) are reproduced that way. A USED
+    local that is only propagated can still be recorded (register -1), and an unused local in a for-init's second
+    declarator is recorded one scope late -- so the unused-local reading applies to plain block declarations.
+  - Locals whose retail value differs from ours: SimplePhysics `speed` is the lateral speed (laneChangeSpeed *
+    direction); SimplePhysics_LatVel `carSpeed` is the absolute speed; ShouldIPerformCutOffBlock `metersBetween` is the
+    signed spline distance and `carLength` the target length term.
+  - Compare operand order decides the load order: `simGlobal[1] <= tick` loads gameTicks first (HandleWipeoutTimer).
+  - `x > limit ? limit : x` with a named `limit` gives retail's clamp shape (GetRearEnd) but the bound is recorded;
+    SetupBlockader's `x < max ? x : max` propagated it. Open: GetRearEnd, RevEngine's record-less 8-byte frame,
+    ChangeDirection's `&simGlobal` base register, AI_HandleTrafficHonking (honkprob must exist for the load order).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

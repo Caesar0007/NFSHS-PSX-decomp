@@ -4,6 +4,11 @@
  */
 #include "fecredits.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80011858): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -142,7 +147,7 @@ void tCreditManager::SetupCurrCredit()
    use direct short-circuiting; const snapshots of nextCredit and textFade
    emit no extra debug locals. Reusing fShowCreditNum after its assignment
    removes the source-only currentCredit carrier while preserving 199 instructions.
-   The volatile ticks snapshot remains a compile-shaping expression, not a
+   The volatile FE_Ticks() snapshot remains a compile-shaping expression, not a
    claimed original spelling: a direct/nonvolatile read loses two oracle
    instructions and moves the load after the field stores. Native locals
    now match retail; lexical scope blocks (ours 9, retail 28) remain open.
@@ -150,13 +155,13 @@ void tCreditManager::SetupCurrCredit()
    (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
    nested-block local (SYM block@0x80035f94) for `currentCredit+1`, not a
    reassignment of currentCredit itself -- keeps currentCredit in $a0 matching the oracle
-   instead of drifting to $a1. (2) both `ticks` reads that feed a
-   store-after-a-call (fLineTicks, fStartTicks) read `ticks` directly at
+   instead of drifting to $a1. (2) both `FE_Ticks()` reads that feed a
+   store-after-a-call (fLineTicks, fStartTicks) read `FE_Ticks()` directly at
    the point of use (not via a cached tick temporary) with the store-order
-   `fLineTicks=ticks; StartedLines=1;`. The follow-up's compare-operand
-   order makes the ticks `%hi` issue before CREDFADETICKS like retail,
+   `fLineTicks=FE_Ticks(); StartedLines=1;`. The follow-up's compare-operand
+   order makes the FE_Ticks() `%hi` issue before CREDFADETICKS like retail,
    while the final block-local volatile snapshot preserves retail's
-   second ticks load and keeps it in $v1 across the two preceding stores.
+   second FE_Ticks() load and keeps it in $v1 across the two preceding stores.
    The final two-diff load-order residual was source-shape: spelling the first
    wrap test as `fCurrCredit >= fNumCredits` presents GCC with retail's operand
    order while preserving the same comparison and branch. */
@@ -167,14 +172,14 @@ void tCreditManager::SetupCurrCredit()
   static int lasttick = 0;
   bool backgroundReady;
 
-  if (((0xc < ticks - lasttick) && (this->fTextFade == 0)) &&
+  if (((0xc < FE_Ticks() - lasttick) && (this->fTextFade == 0)) &&
       this->fCurrCredit == this->fShowCreditNum) {
     if (FEInput_GetNoDebounceKey(0x20,0) != 0 ||
         FEInput_GetNoDebounceKey(0x20,1) != 0) {
       AudioCmn_PlayFESFX(6);
       this->fStartTicks = 0;
       this->fCurrCredit = this->fShowCreditNum + 1;
-      lasttick = ticks;
+      lasttick = FE_Ticks();
     }
     if (this->fCurrCredit >= this->fNumCredits) {
       this->fCurrCredit = 0;
@@ -183,7 +188,7 @@ void tCreditManager::SetupCurrCredit()
       this->fCurrCredit = this->fNumCredits + -1;
     }
   }
-  if ((this->fStartTicks != 0) && (ticks - this->fStartTicks > CREDFADETICKS)) {
+  if ((this->fStartTicks != 0) && (FE_Ticks() - this->fStartTicks > CREDFADETICKS)) {
     const int nextCredit = this->fCurrCredit + 1;
     this->fCurrCredit = nextCredit;
     if (this->fNumCredits <= nextCredit) {
@@ -226,11 +231,11 @@ void tCreditManager::SetupCurrCredit()
   if (((this->StartedLines == 0) && (this->StartedTransition != 0)) &&
      (backgroundReady = screenMain->DoneLoadingBackground(), backgroundReady)
      ) {
-    this->fLineTicks = ticks;
+    this->fLineTicks = FE_Ticks();
     this->StartedLines = 1;
   }
   if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&
-     (0x1e < ticks - this->fLineTicks)) {
+     (0x1e < FE_Ticks() - this->fLineTicks)) {
     const int startTicksSnapshot = *(volatile int *)&ticks;
     this->StartedTextFade = 1;
     this->fTextFadeDir = -8;
@@ -261,10 +266,10 @@ void tCreditManager::DrawCurrCredit()
      was split across 3 fabricated locals (tu1/fadeAlpha/fadeAlpha_2)
      instead of being ONE variable updated in place, matching the oracle's
      single $s3 live across the whole function. Also: the DrawShapeExtended
-     frame index arg is `(ticks>>4) % 10`, not `ticks/160` (m2c's guess) --
-     mathematically equal for ticks>=0 but the oracle's magic-multiply
+     frame index arg is `(FE_Ticks()>>4) % 10`, not `FE_Ticks()/160` (m2c's guess) --
+     mathematically equal for FE_Ticks()>=0 but the oracle's magic-multiply
      divides the ALREADY-SHIFTED value (shift=2 in the div-by-10 sequence),
-     so the source must apply `% 10` to `ticks>>4` for the codegen to match.
+     so the source must apply `% 10` to `FE_Ticks()>>4` for the codegen to match.
      Also a real bug: the cheat-gated FullTextRGB color was hardcoded
      `CalcFadeVal(0x505050,0x40)` -- the oracle reloads `this->fTextFade`
      (offset 8) as the 2nd arg, not the literal 0x40 (0x40 IS correct for
@@ -301,7 +306,7 @@ void tCreditManager::DrawCurrCredit()
   byte tag;
 
   drawFlags.tint[0] = 0xcec844;
-  DrawShapeExtended(((ticks >> 4) % 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
+  DrawShapeExtended(((FE_Ticks() >> 4) % 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
   fShowCred = this->CreditBuffer + this->fShowCreditNum;
   FETextRender_SetABR(1,true);
   y = (u_short)fShowCred->subTitleY;
@@ -459,7 +464,7 @@ void tCreditManager::DrawCurrCredit()
     int width;
     int height;
 
-    dist = ((ticks - this->fLineTicks) * 0x208) / 0x50;
+    dist = ((FE_Ticks() - this->fLineTicks) * 0x208) / 0x50;
     width = 200;
     if (dist < 200) {
       width = dist;
@@ -477,7 +482,7 @@ void tCreditManager::DrawCurrCredit()
       ColTextTitle = fShowCred->subTitleY + -2;
       PSXTransDrawBrightEndLine(ColTextSubTitle,dist + -0x25,ColTextTitle,width,4,3,1,0,1);
     }
-    dist = ((ticks - this->fLineTicks) * 0x10c) / 0x50;
+    dist = ((FE_Ticks() - this->fLineTicks) * 0x10c) / 0x50;
     height = 100;
     if (dist < 100) {
       height = dist;

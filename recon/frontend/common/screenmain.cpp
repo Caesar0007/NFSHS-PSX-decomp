@@ -6,6 +6,11 @@
  */
 #include "screenmain.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* ---- ScreenMain.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes;
    videoWallConfigs[].videos = SYMBOL-REF ptrs to the tVideo globals, not absolute addresses) ---- */
 static tVideo video11a = {0, 0, 1, 1, 1, 1, 0, 0};   /* @0x80051b78; SYM STAT */
@@ -158,13 +163,13 @@ void tScreenMain::SetState(tScreenMainState state)
   if (state != this->fState) {
     VIDEO_abortplayback(this->hVideo);
     this->bVideoAborted = 1;
-    this->fMovieTicks = ticks;
+    this->fMovieTicks = FE_Ticks();
     if ((state != kScreenMain_Credits) && (CreditManager.fCreditsInitialized == 1)) {
       DeInit(&CreditManager);
     }
     i = 0;
     this->fState = state;
-    this->fStartTicks = ticks;
+    this->fStartTicks = FE_Ticks();
     do {
       shape = this->fVideoShapes[this->fCurrentSlot].fShapes + i;
       this->tvTransitions[i].state = kScreenMain_StaticImage;
@@ -542,7 +547,7 @@ credits_state_done:
   }
   if (VIDEO_state(this->hVideo) == 3) {
     this->bVideoAborted = 0;
-    this->fMovieTicks = ticks;
+    this->fMovieTicks = FE_Ticks();
     if (VIDEO_updateframexy(this->hVideo,0x200,videoY) != 0) {
       this->fFrame = this->fFrame + 1;
     }
@@ -562,15 +567,15 @@ credits_state_done:
     if (VIDEO_state(this->hVideo) != 1) {
       /* MATCH W64-A17: the elapsed-tick subtraction is its OWN named value.
          Folded into the compare, cc1plus computes it straight into the
-         carrier's register (`subu s0,v1,v0`) and loads `ticks` through the
+         carrier's register (`subu s0,v1,v0`) and loads `FE_Ticks()` through the
          shared %hi (`lw v1,0(v0)`); retail keeps it anonymous in $v0 with a
-         SELF-TEMP ticks load (`lui v0,0; lw v0,0(v0); lw v1,108(s6);
+         SELF-TEMP FE_Ticks() load (`lui v0,0; lw v0,0(v0); lw v1,108(s6);
          subu v0,v0,v1`).  Naming it splits the two and lands the whole
          cluster.  Yoda-flipping the compare instead is neutral (11). */
       /* SYM-CODEGEN-CARRIER: elapsedTicks -- folding this subtraction into
          the comparison is count-exact FAIL 10 and reverses the retail load
          destinations before the subtraction. */
-      u_long elapsedTicks = ticks - this->fStartTicks;
+      u_long elapsedTicks = FE_Ticks() - this->fStartTicks;
       startMovie = (0x280 < elapsedTicks);
     }
     if (startMovie && (this->fState == kScreenMain_StaticImage)) {
@@ -600,7 +605,7 @@ credits_state_done:
   ::DrawBackgroundImage((tScreen *)this,2,0x1c,this->fPermShapes.fShapes,0);
   this->DrawDropShadow();
   this->DrawVideoLines();
-  deltaTicks = ticks - this->fAnimTicks;
+  deltaTicks = FE_Ticks() - this->fAnimTicks;
   if ((0x5dc < deltaTicks) && (this->fState != kScreenMain_WarningImage)) {
     deltaTicks = 0;
     this->fAnimationUploaded = 0;
@@ -622,7 +627,7 @@ credits_state_done:
   if (this->fSwapShapes.fFile != (char *)0x0) {
     this->fSwapShapes.fNumShapes = 10;
     ::UploadSwapShapes((tScreen *)this,10);
-    this->fAnimTicks = ticks;
+    this->fAnimTicks = FE_Ticks();
     this->fAnimationUploaded = 1;
     this->fAnimLocation = (ushort)this->fAnimTicks & 3;
   }
@@ -682,7 +687,7 @@ credits_state_done:
     j = 4;
     while (1) {
       if (j < 0) break;
-      DrawShapeExtended((numberValues[(i + ticks / 0x14) % 0x19] >> j) & 1,1,x,y,0x40,3,
+      DrawShapeExtended((numberValues[(i + FE_Ticks() / 0x14) % 0x19] >> j) & 1,1,x,y,0x40,3,
                  (tDrawShapeExtended *)0x0);
       j--;
       x = x + 0xd;
@@ -702,7 +707,7 @@ credits_state_done:
      SYM local, ULONG, needs an `(int)` at both compares) is EXACTLY neutral
      at 12; inlining the expression at both sites 35 @827; the fabricated
      bound temp had no SYM record. */
-  x = (short)((int)((ticks - this->fStartTicks) * 0x1000) >> 0x10);
+  x = (short)((int)((FE_Ticks() - this->fStartTicks) * 0x1000) >> 0x10);
   j = 0;
   if (-1 < x) {
     /* MATCH W63-A17 (84 -> 68, count still EXACT 822/822): the tvOrder loop is
@@ -848,7 +853,7 @@ void tScreenMain::Initialize()
   this->hVideo = VIDEO_create(0x50,0x50,0xf0000,0x20000,0x10);
   this->bVideoAborted = 0;
   this->fStartTicks = *(volatile int *)&ticks;
-  this->fAnimTicks = ticks - 800;
+  this->fAnimTicks = FE_Ticks() - 800;
   this->fTransitionDirection = '\x01';
   this->fAnimationUploaded = 0;
   this->fWarningFade = 0;

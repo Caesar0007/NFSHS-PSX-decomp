@@ -4,6 +4,11 @@
 #include "../../lib/nfs4_new.h"
 #include "screencontroller.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (its vtables' 8-byte alignment proves the
  * section starts there).  An unused inline leaves exactly that behind: the literal is emitted, the body is not. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -415,13 +420,13 @@ SetCurCtrl_noNegconDialog:
       if ((PadGetState((this->player != 0) * 0x10) == 2) ||
           (((this->fTimeOutStartTick != 0) &&
             (PadGetState((this->player != 0) * 0x10) == 1)) &&
-           (0x60 < ticks - this->fTimeOutStartTick)) ||
+           (0x60 < FE_Ticks() - this->fTimeOutStartTick)) ||
           (this->fCurrentController == '\x03')) {
         setmenutonull = true;
         goto SetCurCtrl_unknown;
       }
       if (this->fTimeOutStartTick == 0) {
-        this->fTimeOutStartTick = ticks;
+        this->fTimeOutStartTick = FE_Ticks();
       }
       goto SetCurCtrl_menuSetVertHelp;
     }
@@ -790,15 +795,15 @@ DrawCtrl_ticksUpdate:
     if (this->fGotTick == 0) {
       this->fGotTick = 1;
       this->fPlayedInSound = 0;
-      this->fStartTick = ticks;
+      this->fStartTick = FE_Ticks();
     }
-    if (((10 < ticks - this->fStartTick) && (this->fPlayedInSound == 0)) && (this->fAnimFade == 1))
+    if (((10 < FE_Ticks() - this->fStartTick) && (this->fPlayedInSound == 0)) && (this->fAnimFade == 1))
     {
       AudioCmn_PlayFESFX(0xf);
       this->fPlayedInSound = 1;
     }
     this->fAnimFadeFrame = (u_short)this->fAnimFadeStart +
-            ((ticks - this->fStartTick) / 6) * (int)this->fAnimFade;
+            ((FE_Ticks() - this->fStartTick) / 6) * (int)this->fAnimFade;
     if (((this->fAnimFadeStop < this->fAnimFadeFrame) && (this->fAnimFade == 1)) ||
        ((this->fAnimFadeFrame < this->fAnimFadeStop && (this->fAnimFade == -1)))) {
       this->fGotTick = 0;
@@ -832,17 +837,17 @@ DrawCtrl_ticksUpdate:
     if (this->fGotTick == 0) {
       AudioCmn_PlayFESFX(0xf);
       this->fGotTick = 1;
-      this->fStartTick = ticks;
+      this->fStartTick = FE_Ticks();
     }
     this->fAnimFrame = (u_short)this->fAnimStart +
-                       ((ticks - this->fStartTick) / 6) * (int)this->fAnimStep;
+                       ((FE_Ticks() - this->fStartTick) / 6) * (int)this->fAnimStep;
     if (((this->fAnimStop < this->fAnimFrame) && (this->fAnimStep == 1)) ||
        ((this->fAnimFrame < this->fAnimStop && (this->fAnimStep == -1)))) {
       this->fAnim = 0;
       this->fGotTick = 0;
       this->fAnimFrame = this->fAnimStop;
     }
-    fadelevel = (int)(((float)(ticks - this->fStartTick) /
+    fadelevel = (int)(((float)(FE_Ticks() - this->fStartTick) /
                        (float)((((int)this->fAnimStop - (int)this->fAnimStart) * 6) *
                                (int)this->fAnimStep)) * 256.0);
     if (0x100 < fadelevel) {

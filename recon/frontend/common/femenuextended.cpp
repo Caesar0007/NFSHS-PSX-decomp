@@ -5,6 +5,11 @@
  */
 #include "femenuextended.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* Retail femenuextended.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -790,7 +795,7 @@ void tMenuNFS4::Draw()
   iVar3 = this->fItemList[this->fCurrentItem]->fNumFrames;
   if ((-1 < iVar4) && (0 < iVar3)) {
     drawFlags.tint[0] = 0xcec844;
-    DrawShapeExtended(iVar4 + ((int)(ticks >> 4) % iVar3),0x410,0x10,
+    DrawShapeExtended(iVar4 + ((int)(FE_Ticks() >> 4) % iVar3),0x410,0x10,
                       FEApp->fPlayer != 0 ? 0x79 : 0x10,0,0,&drawFlags);
   }
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
@@ -1052,7 +1057,7 @@ void tMenuOptions::Draw()
   this->TransitionIsFinished();
   h = numItems * 0x12;
   if (this->fInMenuTransition != 0) {
-    deltaTicks = ticks - this->fMenuEnterTicks;
+    deltaTicks = FE_Ticks() - this->fMenuEnterTicks;
     if (0x20 < deltaTicks) {
       deltaTicks = 0x20;
       this->fInMenuTransition = 0;
@@ -1116,7 +1121,7 @@ void tMenuOptions::TransitionOff()
 {
   *(signed char *)&this->fTransitionDirection = -1;
   this->fInMenuTransition = 1;
-  this->fMenuEnterTicks = ticks;
+  this->fMenuEnterTicks = FE_Ticks();
   AudioCmn_PlayFESFX(0x12);
   return;
 }
@@ -1163,7 +1168,7 @@ TransitionOn_itemsDone:
 bool tMenuOptions::TransitionIsFinished()
 
 {
-  this->fInMenuTransition = (u_int)(ticks - this->fMenuEnterTicks < 0x20);
+  this->fInMenuTransition = (u_int)(FE_Ticks() - this->fMenuEnterTicks < 0x20);
   return !this->fInMenuTransition;
 }
 

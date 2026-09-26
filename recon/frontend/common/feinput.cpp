@@ -5,6 +5,11 @@
  */
 #include "feinput.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* ---- FEInput.obj-OWNED data -- DEFINED here (self-contained; real NFS4.EXE bytes). ---- */
 static long nextTick = 0;   /* @0x80051738; SYM STAT LONG */
 tPSXToFEMapping getKeyMappings[16] = { {16, 512}, {128, 2048}, {32, 4096}, {64, 1024}, {1024, 32}, {256, 64}, {2048, 128}, {512, 256}, {1048576, 512}, {8388608, 2048}, {2097152, 4096}, {4194304, 1024}, {268435456, 512}, {-2147483648, 2048}, {536870912, 4096}, {1073741824, 1024} };   /* @0x8005173c */
@@ -152,15 +157,15 @@ int FEInput_GetDebounceKey(int key,int controller)
 {
   /* SYM (nfs4-f-v3.txt @0x80023B74): key REGPARM $16, controller REGPARM $17,
      and exactly ONE named local -- `int tick` REG $4 (a0), declared at the top of
-     the block starting at 0x80023BB8 (the `lw ticks`) and running to 0x80023C38.
-     The oracle reads `ticks` ONCE into that local; the old body re-read the global
+     the block starting at 0x80023BB8 (the `lw FE_Ticks()`) and running to 0x80023C38.
+     The oracle reads `FE_Ticks()` ONCE into that local; the old body re-read the global
      at every use.  Branch polarity: the debounce SET path and the debounce CLEAR
      path are both laid out OUT OF LINE after the tick block (oracle `beqz` to
      .L80023C38 / .L80023C50), so both guards must be written as the taken-branch
      case with the tick block falling through. */
   if (FEInput_GetNoDebounceKey(key,controller) != 0) {
     if ((debounce[controller] & key) != 0) {
-      int tick = ticks;
+      int tick = FE_Ticks();
 
       if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (key == 0x40)) {
         if (nextTick == 0) {

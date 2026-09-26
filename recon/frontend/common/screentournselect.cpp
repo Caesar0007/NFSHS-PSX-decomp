@@ -4,6 +4,11 @@
  */
 #include "screentournselect.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* Retail screentournselect.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -152,7 +157,7 @@ void tScreenTournSelect::Initialize()
              sizeof(tTourneyInfo) +
          (int)(tournamentManager.fDefinition)->fTournaments))->fTrophyID;
   this->fTransitionDirection = 1;
-  this->fTVTicks = ticks;
+  this->fTVTicks = FE_Ticks();
   return;
 }
 
@@ -182,7 +187,7 @@ void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
     this->fPreviousTrophy = tourn->fTrophyID;
     if (-1 < this->fTransitionDirection) {
       this->fTransitionDirection = -1;
-      this->fTVTicks = ticks;
+      this->fTVTicks = FE_Ticks();
     }
   }
   return;
@@ -222,7 +227,7 @@ void tScreenTournSelect::DrawVideoWall()
   /* W55-A2 BUGFIX: retail passes literal 2 (oracle 8003FC7C delay slot `addiu a0,zero,2`);
      the recon passed the stale coordinate 0xA5 via a phantom `abr`. */
   FeDraw_SetABRMode(2);
-  i = ticks - this->fTVTicks >> 2;
+  i = FE_Ticks() - this->fTVTicks >> 2;
   if (this->fTransitionDirection > 0) {
     for (j = 0; (j < i) && (j < 4); j++) {
       if (this->trophyTV[trophyTVOrder[j]].state == tv_StateOff) {
@@ -252,8 +257,8 @@ void tScreenTournSelect::DrawVideoWall()
     i = i + 1;
     j = j + 1;
   } while (i < 4);
-  /* Oracle 8003FDF4-8003FE34: a0 = (ticks >> 4) % 0x20, then 0x600,0xB6,0x93,0,0,&drawFlags. */
-  ScaleShapeExtended(((int)ticks >> 4) % 0x20,0x600,0xb6,0x93,0,0,&drawFlags);
+  /* Oracle 8003FDF4-8003FE34: a0 = (FE_Ticks() >> 4) % 0x20, then 0x600,0xB6,0x93,0,0,&drawFlags. */
+  ScaleShapeExtended(((int)FE_Ticks() >> 4) % 0x20,0x600,0xb6,0x93,0,0,&drawFlags);
   return;
 }
 
@@ -329,7 +334,7 @@ void tScreenTournSelect::DrawBackground()
   if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection)) {
     ::UploadSwapShapes((tScreen *)this,0x20);
     this->fTransitionDirection = 1;
-    this->fTVTicks = ticks;
+    this->fTVTicks = FE_Ticks();
   }
   this->DrawVideoWall();
   shapeY = 0;

@@ -149,6 +149,17 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   Observation for the inline-pair lever: a pair with no recorded variable needs an inline whose
   arguments are constants or which has no parameters; a parameter bound to a loaded value is recorded
   under the parameter's name. Board 1831 -> 1835.
+- Tick-getter round (2026-09-26). Retail's SYM records an inline-call pair at nearly every read of the
+  frontend `ticks` counter: the counter was read through an inline getter, not directly. A per-TU
+  `static inline int FE_Ticks(void) { return ticks; }` (or `ticks[0]` where the TU declares the array
+  form), inserted once after the TU's include block, with every bare read in a function replaced by
+  `FE_Ticks()`, keeps the bytes and reproduces the pairs. `build/tmp/ticks_sweep.py --apply` tried
+  every DIRTY function that reads `ticks` (75), kept 63 (verify_asm PASS, pairs grew but did not exceed
+  retail's), across 23 TUs; `symloop` BYTES UNCHANGED on all 23 (464 functions). Examples:
+  `tCreditManager::SetupCurrCredit` 9 -> 25 of retail's 28 scopes; `tScreenCongrats::DrawBackground`
+  gains its 14 pairs. Not kept: functions where the pairs would exceed retail's (the read is not a
+  getter there, e.g. `PlaceIcons`, `SetPads`, `tDialogYesNo::Draw`) and `tDialogHelp::Draw` (bytes).
+  Board 1835 -> 1857.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

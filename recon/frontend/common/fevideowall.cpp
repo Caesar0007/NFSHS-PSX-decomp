@@ -5,6 +5,11 @@
  */
 #include "fevideowall.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* ---- tVideoWall::Initialize  [FEVIDEOWALL.CPP:59-88] ---- */
 void tVideoWall::Initialize
                (tTVConfig *tvs,tTexture_ShapeInfo *shapes,short firstTV,
@@ -27,7 +32,7 @@ void tVideoWall::Initialize
   this->fValid = 1;
   this->fIconShapes = (tTexture_ShapeInfo *)0x0;
   this->tvOrder = tvOrdering;
-  this->fTVTicks = ticks;
+  this->fTVTicks = FE_Ticks();
   this->fFlipAxis = flip_axis;
   if (0 < this->fNumTVs) {
     do {
@@ -138,7 +143,7 @@ void tVideoWall::UpdateTransition()
   short i;
   short j;
 
-  i = (ticks - this->fTVTicks) >> 3;
+  i = (FE_Ticks() - this->fTVTicks) >> 3;
 
   if (0 < this->fTransitionDirection) {
     if (this->fValid != 0) {
@@ -150,7 +155,7 @@ void tVideoWall::UpdateTransition()
       }
     }
     else {
-      this->fTVTicks = ticks;
+      this->fTVTicks = FE_Ticks();
     }
   }
   else {
@@ -203,7 +208,7 @@ void tVideoWall::Draw()
       if ((this->fIconShapes != (tTexture_ShapeInfo *)0x0) && (0 < this->fIconFrames)) {
         drawFlags.tint[0] = 0xbebe;
         drawFlags.custom_shapes = this->fIconShapes;
-        DrawShapeExtended(this->fIcon + (ticks >> 4) % (int)this->fIconFrames,
+        DrawShapeExtended(this->fIcon + (FE_Ticks() >> 4) % (int)this->fIconFrames,
                    0x611,this->fIconX,this->fIconY,
                    0x80 - this->fAvailableBright,1,&drawFlags);
       }
@@ -234,7 +239,7 @@ void tVideoWall::TurnOff()
 {
   if (this->fTransitionDirection != -1) {
     this->fTransitionDirection = -1;
-    this->fTVTicks = ticks;
+    this->fTVTicks = FE_Ticks();
   }
   return;
 }
@@ -266,7 +271,7 @@ void tVideoWall::TurnOn()
 {
   if (this->fTransitionDirection != 1) {
     this->fTransitionDirection = 1;
-    this->fTVTicks = ticks;
+    this->fTVTicks = FE_Ticks();
   }
   return;
 }

@@ -3,6 +3,11 @@
  */
 #include "screenpost.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* Retail screenpost.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -90,7 +95,7 @@ void tScreenTournamentStandings::Initialize()
   else {
     this->moneyFinal = tournamentManager.fMoney - tInfo.fTournMoney;
   }
-  this->starttick = ticks;
+  this->starttick = FE_Ticks();
   return;
 }
 
@@ -410,7 +415,7 @@ void tScreenTournamentStandings::DrawBackground()
      keep its evaluation order without halfWidth; signed-short width/centerx
      bound the final int result to -49153..49149.  Exact -g twin and PASS. */
   lbx = (long long)(((short)shape->width >> 1) - 2) - shape->centerx;
-  tt = ticks % (short)shape->width;
+  tt = FE_Ticks() % (short)shape->width;
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
   }
@@ -422,7 +427,7 @@ void tScreenTournamentStandings::DrawBackground()
                        300,1,3,fadeline,0x1e);
   colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fade);
   colb = CalcFadeVal(0x232323,fade);
-  if ((1000 < ticks - this->starttick) || (this->fStartCountdownNOW != 0)) {
+  if ((1000 < FE_Ticks() - this->starttick) || (this->fStartCountdownNOW != 0)) {
     if ((0 < this->moneyAwarded) || ((0 < this->moneyDamage || (0 < this->moneyBonus)))) {
       AudioCmn_PlayFESFX(0x15);
     }
@@ -538,7 +543,7 @@ void tScreenPinkSlipStandings::DrawBackground()
      No halfWidth local in SYM; widening preserves the grouping and PASS
      without changing the bounded signed result or claiming original syntax. */
   lbx = (long long)((shape->width >> 1) - 2) - shape->centerx;
-  tt = ticks % (short)shape->width;
+  tt = FE_Ticks() % (short)shape->width;
   if ((shape->width / 2) < tt) {
     tt = shape->width - tt;
   }

@@ -3,6 +3,11 @@
  */
 #include "screenmemcard.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* P884: use native scalar declarations for the grid/message INTs, the
    CURRENTLYUSINGMEMCARD BOOL and ticks. The layout globals and fMemIcon pointer
    remain defined below; fMemIcon keeps its native pointer-to-array dimensions. */
@@ -455,9 +460,9 @@ void tScreenMemcard::DrawMemCardStuff(short fadeval)
   if (this->pCI->status == -1) {
     this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
     if (this->checkingstart == 0) {
-      this->checkingstart = ticks;
+      this->checkingstart = FE_Ticks();
     }
-    this->fMemCardMessageTextSys = (800 < ticks - this->checkingstart) ? 0x27f : 0x27b;
+    this->fMemCardMessageTextSys = (800 < FE_Ticks() - this->checkingstart) ? 0x27f : 0x27b;
     i = 0;
     if (0 < this->pCI->numfiles) {
       do {
@@ -758,7 +763,7 @@ void tScreenMemcard::DrawBackground()
   if (this->fInitedMemCard == 0) {
     this->fMemCardMessageTextSys = 0x27c;
     if ((this->fScreenFadeVal == 0) &&
-        (ticks - this->fScreenFadeReadyTick > 0x80)) {
+        (FE_Ticks() - this->fScreenFadeReadyTick > 0x80)) {
       Init_Memcard(true,false);
       {
         int i;
@@ -772,7 +777,7 @@ void tScreenMemcard::DrawBackground()
       this->fInitedMemCard = 1;
     }
     else if (this->fScreenFadeReadyTick == 0) {
-      this->fScreenFadeReadyTick = ticks;
+      this->fScreenFadeReadyTick = FE_Ticks();
     }
   }
   if ((this->fInitedMemCard != 0) && (fadebox != 0x80)) {

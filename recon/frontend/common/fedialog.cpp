@@ -5,6 +5,11 @@
  */
 #include "fedialog.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks[0]; }
+
+
 /* ---- FEDialog.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
 static tDialogBase *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)); SYM STAT */
 
@@ -166,7 +171,7 @@ short tDialogBase::ShouldTimeOut()
      address pseudo, so GCC fills the outer branch delay with %hi(ticks)
      instead of preloading the zero result. */
   if (0 < timeOutTicks) {
-    if (timeOutTicks <= ticks[0] - startTicks) {
+    if (timeOutTicks <= FE_Ticks() - startTicks) {
       return 1;
     }
   }
@@ -262,7 +267,7 @@ void tDialogBase::Display()
   DialogVisibilityList[0] = this;
   ShouldTimeOut();
   DialogVisibilityList[0]->ShouldTimeOut();
-  startTicks = ticks[0];
+  startTicks = FE_Ticks();
   AudioCmn_PlayFESFX(0xf);
   fFullyOpen = 0;
   fFadeText = 0x80;
@@ -644,7 +649,7 @@ void tDialogMessageString::Draw()
   RECT r;
   
   CalculateDimensions();
-  if (ticks[0] < startTicks + 0x32) {
+  if (FE_Ticks() < startTicks + 0x32) {
     fFullyOpen = 0;
   }
   else {

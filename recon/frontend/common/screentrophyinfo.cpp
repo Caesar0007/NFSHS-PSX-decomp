@@ -4,6 +4,11 @@
  */
 #include "screentrophyinfo.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (its vtables' 8-byte alignment proves the
  * section starts there).  An unused inline leaves exactly that behind: the literal is emitted, the body is not. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -189,7 +194,7 @@ void tScreenTrophyInfo::DrawBackground()
   FETextRender_WordWrapTextRGBJustify(TextSys_Word(tournID + 0x367),r,
       CalcFadeVal(0x505050,FadePartI),3,0,false);
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-  ScaleShapeExtended((ticks / 12) % 32,0x600,0x46,-5,FadePartI,0,&drawFlags);
+  ScaleShapeExtended((FE_Ticks() / 12) % 32,0x600,0x46,-5,FadePartI,0,&drawFlags);
   drawFlags2.tint[0] = this->BannerCol;
   i = 1;
   do {

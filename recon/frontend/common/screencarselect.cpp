@@ -4,6 +4,11 @@
  */
 #include "screencarselect.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks[0]; }
+
+
 /* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -327,7 +332,7 @@ DrawOvl_transitionPos:
       flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
       flags |= 0x410;
       xPos = i * 0x28 + 0x21;
-      DrawShapeExtended(0x62 + i * 10 + (ticks[0] >> 4) % 10,
+      DrawShapeExtended(0x62 + i * 10 + (FE_Ticks() >> 4) % 10,
                         flags,
                         pos.x + xPos,pos.y + 6,
                         yOffset,1,&drawFlags);
@@ -351,7 +356,7 @@ DrawOvl_transitionPos:
         flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
         flags |= 0x410;
         xPos = i * 0x28 + 0x85;
-        DrawShapeExtended(0x62 + i * 10 + (ticks[0] >> 4) % 10,
+        DrawShapeExtended(0x62 + i * 10 + (FE_Ticks() >> 4) % 10,
                           flags,
                           pos.x + xPos,pos.y + 6,
                           yOffset,1,&drawFlags);
@@ -1004,7 +1009,7 @@ void tScreenCarSelect::DrawBackground()
                 (this->fVideoWall[0].fTransitionDirection != -1) &&
                 /* SYM-INLINE-THIS: GetPlayer */
                 (gCarObj[FEAppB[0]->GetPlayer()]->async_handle == 0) &&
-                (0x80 < ticks[0] - this->fFadeTicks[0]);
+                (0x80 < FE_Ticks() - this->fFadeTicks[0]);
     if (canUpload) {
       this->tScreen::UploadSwapShapes(0xb);
       TurnOn(this->fVideoWall);
@@ -1199,7 +1204,7 @@ void tScreenCarSelect::DrawForeground()
       if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
         this->SetBrightness(0,0);
         TurnOff(this->fVideoWall);
-        this->fFadeTicks[0] = ticks[0];
+        this->fFadeTicks[0] = FE_Ticks();
       }
       this->UpdateBrightness(0);
       if ((u_int)((ushort)this->fState - 5) >= 2) {
@@ -1248,7 +1253,7 @@ void tScreenCarSelect::DrawForeground()
         screenY = 0;
         camRot = 0;
         cameraY = 0;
-        elapsedticks = (ticks[0] - this->fSpeechTicks) + -0x100;
+        elapsedticks = (FE_Ticks() - this->fSpeechTicks) + -0x100;
         cameraZ = 0;
         if ((-1 < elapsedticks) && (-1 < (signed char)carInfo.fSpeechCarID)) {
           textBase = (elapsedticks >> 9) % 0x13 + 0x3e4;
@@ -1283,7 +1288,7 @@ void tScreenCarSelect::DrawForeground()
         }
 DrawFG_fadeDone:
         DrawShapeExtended(0xA,0x200,0,0,shapeFade,0,&drawFlags);
-        elapsedticks = ticks[0] - this->fShowroomTicks;
+        elapsedticks = FE_Ticks() - this->fShowroomTicks;
         while (600 < elapsedticks) {
           this->fShowroomTicks = this->fShowroomTicks + 600;
           this->fSplineInterval = this->fSplineInterval + 1;
@@ -1333,7 +1338,7 @@ DrawFG_fadeDone:
       }
 DrawFG_afterCarRender:
       if (((gCarObj[0]->async_handle == 0) && (this->fBrightness[0] == this->fDestBrightness[0])) &&
-         ((this->fBrightness[0] == 0 && (0x80 < ticks[0] - this->fFadeTicks[0])))) {
+         ((this->fBrightness[0] == 0 && (0x80 < FE_Ticks() - this->fFadeTicks[0])))) {
         this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
         TurnOn(this->fVideoWall);
       }
@@ -1650,7 +1655,7 @@ void tScreenCarSelectDuel::DrawBackground()
     /* SYM-CODEGEN-CARRIER: elapsed -- folding both block-local elapsed-time
        values into their comparisons is count-exact FAIL 20 and reverses each
        retail load/subtract destination web. */
-    int elapsed = ticks[0] - this->fFadeTicks[1];
+    int elapsed = FE_Ticks() - this->fFadeTicks[1];
     p2Ready = 0x80 < elapsed;
   }
   if ((bool)p2Ready) {
@@ -1663,10 +1668,10 @@ void tScreenCarSelectDuel::DrawBackground()
   }
   this->fCameraRotation = this->fCameraRotation + 3;
   carInfo.fUpgrades = '\0';
-  if ((gCarObj[1]->async_handle != 0) && (0x80 < ticks[0] - this->fFadeTicks[1])) {
+  if ((gCarObj[1]->async_handle != 0) && (0x80 < FE_Ticks() - this->fFadeTicks[1])) {
     this->SetBrightness(0,1);
     TurnOff(this->fVideoWall + 1);
-    this->fFadeTicks[1] = ticks[0];
+    this->fFadeTicks[1] = FE_Ticks();
   }
   this->UpdateBrightness(1);
   showRoomFlag = 0;
@@ -1674,7 +1679,7 @@ void tScreenCarSelectDuel::DrawBackground()
              this->fCameraRotation,kPlayerTwo);
   if (((gCarObj[1]->async_handle == 0) &&
       (this->fBrightness[1] == this->fDestBrightness[1])) &&
-     ((this->fBrightness[1] == 0 && (0x80 < ticks[0] - this->fFadeTicks[1])))) {
+     ((this->fBrightness[1] == 0 && (0x80 < FE_Ticks() - this->fFadeTicks[1])))) {
     this->SetBrightness(0x80,1);
     TurnOn(this->fVideoWall + 1);
   }
@@ -1705,10 +1710,10 @@ void tScreenCarSelectDuel::DrawBackground()
     carInfo.fCarID = -1;
   }
   this->UpdateVideoWall(carInfo);
-  if ((gCarObj[0]->async_handle != 0) && (0x80 < ticks[0] - this->fFadeTicks[0])) {
+  if ((gCarObj[0]->async_handle != 0) && (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
     this->SetBrightness(0,0);
     TurnOff(this->fVideoWall);
-    this->fFadeTicks[0] = ticks[0];
+    this->fFadeTicks[0] = FE_Ticks();
   }
   this->UpdateBrightness(0);
   showRoomFlag = 0;
@@ -1717,7 +1722,7 @@ void tScreenCarSelectDuel::DrawBackground()
   if ((((gCarObj[0]->async_handle == 0) &&
        (this->fBrightness[0] == this->fDestBrightness[0])) &&
       (this->fBrightness[0] == 0)) &&
-     (0x80 < ticks[0] - this->fFadeTicks[0])) {
+     (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
     this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
     TurnOn(this->fVideoWall);
   }
@@ -1727,7 +1732,7 @@ void tScreenCarSelectDuel::DrawBackground()
     if (((this->fSwapShapes.fFile != (char *)0x0) &&
         (this->fVideoWall[0].fTransitionDirection != -1)) &&
        (gCarObj[0]->async_handle == 0)) {
-      int elapsed = ticks[0] - this->fFadeTicks[0];
+      int elapsed = FE_Ticks() - this->fFadeTicks[0];
       p1Ready = 0x80 < elapsed;
     }
     if ((bool)p1Ready) {
@@ -2025,12 +2030,12 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     int loading = gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle;
     if (loading != 0) {
       this->SetBrightness(0,0);
-      this->fFadeTicks[0] = ticks[0];
+      this->fFadeTicks[0] = FE_Ticks();
     }
     if (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0) {
       if (((this->fBrightness[0] == this->fDestBrightness[0]) &&
            (this->fBrightness[0] == 0)) &&
-          (0x80 < ticks[0] - this->fFadeTicks[0])) {
+          (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
         this->SetBrightness(carInfo.fAvailable != '\0' ? 0x80 : 0x20,0);
         TurnOn(this->fVideoWall);
       }
@@ -2069,7 +2074,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   if (((this->fSwapShapes.fFile != (char *)0x0) &&
      (this->fVideoWall[0].fTransitionDirection != -1)) &&
      (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0)) {
-    elapsed = ticks[0] - this->fFadeTicks[0];
+    elapsed = FE_Ticks() - this->fFadeTicks[0];
     uploadReady = 0x80 < elapsed;
   }
   if (uploadReady) {
@@ -2550,10 +2555,10 @@ switchD_8003f3b4_caseD_7:
   case NoCardInserted:
     if (this->fCardFailed == 0) {
       if (this->fStartCheckTick == 0) {
-        this->fStartCheckTick = ticks[0];
+        this->fStartCheckTick = FE_Ticks();
       }
       wordnum = player + 0x2ab;
-      if (799 < ticks[0] - this->fStartCheckTick) {
+      if (799 < FE_Ticks() - this->fStartCheckTick) {
         wordnum = player + 0x2a9;
       }
       {
@@ -2565,9 +2570,9 @@ switchD_8003f3b4_caseD_7:
       return;
     }
     if (this->fStartCheckTick == 0) {
-      this->fStartCheckTick = ticks[0];
+      this->fStartCheckTick = FE_Ticks();
     }
-    if (ticks[0] - this->fStartCheckTick < 0x385) {
+    if (FE_Ticks() - this->fStartCheckTick < 0x385) {
       return;
     }
     this->fStartCheckTick = 0;

@@ -4,6 +4,11 @@
  */
 #include "screentrophyroom.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* Retail screentrophyroom.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
@@ -203,7 +208,7 @@ void tScreenTrophyRoom::Initialize()
   }
   this->fRealCurrentTourn[this->tier] = (short)curIdx;
   this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
-  this->startTicks = ticks;
+  this->startTicks = FE_Ticks();
   return;
 }
 
@@ -258,7 +263,7 @@ void tScreenTrophyRoom::DrawBackground()
   tDrawShapeExtended *drawFlagsPtr;
   
   drawFlags3.tint[0] = 0xcec844;
-  DrawShapeExtended((ticks >> 4) % 10 + 0x1c,
+  DrawShapeExtended((FE_Ticks() >> 4) % 10 + 0x1c,
                     0x410,0x10,0x10,0,0,&drawFlags3);
   fModNumber = 3;
   if (frontEnd.tier != '\0') {
@@ -271,7 +276,7 @@ void tScreenTrophyRoom::DrawBackground()
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
   if (this->fSwapShapes.fFile != (char *)0x0) {
     ::UploadSwapShapes((tScreen *)this,0x20);
-    this->startTicks = ticks;
+    this->startTicks = FE_Ticks();
   }
   {
     uint feTier = (uint)(byte)frontEnd.tier;
@@ -308,7 +313,7 @@ void tScreenTrophyRoom::DrawBackground()
     if ((i == this->fRealCurrentTourn[this->tier]) &&
        ((this->fSwapShapes.fFlags & 1) != 0)) {
       drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-      texttoshow = ((ticks - this->startTicks) / 12) % 32;
+      texttoshow = ((FE_Ticks() - this->startTicks) / 12) % 32;
       ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,drawFlagsPtr);
     }
     else {

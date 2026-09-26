@@ -5,6 +5,11 @@
  */
 #include "screenpinkslips.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* Retail screenpinkslips.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -118,7 +123,7 @@ void tScreenPinkSlips::DrawBackground()
       (-1 < *(signed char *)&this->fTransitionDirection)) {
     ::UploadSwapShapes((tScreen *)this,4);
     this->fTransitionDirection = '\x01';
-    this->fTVTicks = ticks;
+    this->fTVTicks = FE_Ticks();
   }
   this->DrawVideoWall();
   shapeY = (ushort)((this->fFrame & 1U) == 0) << 7;
@@ -154,7 +159,7 @@ void tScreenPinkSlips::DrawBackground()
       i = i + 1;
     } while (i < 2);
   }
-  else if (0x100 < ticks - this->fTVTicks) {
+  else if (0x100 < FE_Ticks() - this->fTVTicks) {
     char moviename [80];
 
     sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
@@ -210,7 +215,7 @@ void tScreenPinkSlips::Initialize()
 {
   /* SYM `8c` order is r (AUTO sp+24), moviename (AUTO sp+32),
      trackInfo (AUTO sp+112).  P865 removes the two non-SYM value carriers:
-     hVideo owns VIDEO_create's result, and fTVTicks owns the ticks snapshot.
+     hVideo owns VIDEO_create's result, and fTVTicks owns the FE_Ticks() snapshot.
      This preserves PASS 82/82 with an exact debug twin.  SLD still cannot
      establish the snapshot's original spelling/order: retail labels the
      hoisted load as 252 and its store as 258; putting the assignment after
@@ -236,7 +241,7 @@ void tScreenPinkSlips::Initialize()
   this->hVideo = VIDEO_create(0xa0,0x80,0xf0000,0x20000,0x10);
   VIDEO_spoolfile(this->hVideo,moviename);
   VIDEO_startplayback(this->hVideo);
-  this->fTVTicks = ticks;
+  this->fTVTicks = FE_Ticks();
   this->fFrame = 0;
   this->fBrightness = 0;
   this->fDestBrightness = 0;
@@ -270,7 +275,7 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
      read across the compare and sprintf argument while retaining retail's
      lbu/sll/sra promotion sequence; the calls then force the later
      fPreviousTrack assignment to reread the field.  Writing fTVTicks before
-     fTransitionDirection also schedules the ticks load before the -1 store,
+     fTransitionDirection also schedules the FE_Ticks() load before the -1 store,
      reproducing retail without the former trackID/iVar1 carriers or volatile. */
   if ((signed char)(u_char)trackInfo.fTrackID != this->fPreviousTrack) {
     sprintf(gSwapFileName,"TR%02dPS",(signed char)(u_char)trackInfo.fTrackID);
@@ -278,7 +283,7 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
     this->fTVsInitialized = 0;
     this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
     if (-1 < *(signed char *)&this->fTransitionDirection) {
-      this->fTVTicks = ticks;
+      this->fTVTicks = FE_Ticks();
       *(signed char *)&this->fTransitionDirection = -1;
     }
     VIDEO_abortplayback(this->hVideo);
@@ -308,7 +313,7 @@ void tScreenPinkSlips::DrawVideoWall()
     }
     this->fTVsInitialized = 1;
   }
-  i = (short)((u_int)(ticks - this->fTVTicks) >> 2);
+  i = (short)((u_int)(FE_Ticks() - this->fTVTicks) >> 2);
   if (0 < *(signed char *)&this->fTransitionDirection) {
     j = 0;
     while ((j < i) && (j < 4)) {

@@ -6,6 +6,11 @@
 #include "../../lib/nfs4_new.h"
 #include "femenuoptions.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* EXT data owned by FeMenuOptions.obj: both UNINITIALIZED -- cc1plus 2.8 defers them to
  * end-of-file as .data .space, so retail's order is [Draw's static flareextra = 0 @0x800515a8]
  * [PulsateYellow @0x800515ac][fHelpText @0x800515b0] (probe build/psyq/probe/nc.i). */
@@ -557,7 +562,7 @@ void tOptionsMenu::Draw()
   }
   if ((-1 < this->fFirstFrame) && (0 < this->fNumFrames)) {
     drawFlags.tint[0] = 0xcec844;
-    DrawShapeExtended(this->fFirstFrame + ((int)(ticks >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
+    DrawShapeExtended(this->fFirstFrame + ((int)(FE_Ticks() >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
   }
   /* MATCH: `short i` + `fItemList[i]` (per-use sll16/sra14 remat). */
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {

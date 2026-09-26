@@ -4,6 +4,11 @@
  */
 #include "screentracks.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* Retail screentracks.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -77,7 +82,7 @@ void tScreenTrackSelect::DrawBackground()
     r.h = 0x100;
     ClearImage(&r,'\0','\0','\0');
     DrawSync(0);
-    startTicks = ticks;
+    startTicks = FE_Ticks();
     this->fBrightness = 0;
     this->fStartTicks = startTicks - 0x14;
   }
@@ -90,7 +95,7 @@ void tScreenTrackSelect::DrawBackground()
     }
   }
   else if (((this->fTicksSet != 0) || (this->fDestBrightness < this->fBrightness)) &&
-          ((uint)(ticks - this->fVideoTicks) >= 0x101U)) {
+          ((uint)(FE_Ticks() - this->fVideoTicks) >= 0x101U)) {
     /* P867: SYM 691546/69154f/69156d owns moviename (AUTO -128, char[80])
        in the whole 800417f8-80041864 block, source 143-150: before the
        brightness guard through VIDEO_startplayback. PASS 299, exact debug twin. */
@@ -319,7 +324,7 @@ void tScreenTrackSelect::Initialize()
   this->fTVsInitialized = 0;
   TurnOn(&this->fVideoWall);
   /* MATCH: retail computes the dependent tick value before publishing fTicksSet. */
-  this->fVideoTicks = ticks - 0x100;
+  this->fVideoTicks = FE_Ticks() - 0x100;
   this->fTicksSet = 1;
   this->fMovieTrack = (short)(signed char)trackInfo.fTrackID;
   return;
@@ -347,7 +352,7 @@ void tScreenTrackSelect::SetBrightness(short bright)
   if (bright != this->fDestBrightness) {
     this->fStartBrightness = this->fBrightness;
     this->fDestBrightness = bright;
-    this->fStartTicks = ticks;
+    this->fStartTicks = FE_Ticks();
   }
   return;
 }
@@ -365,7 +370,7 @@ void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
 {
   long elapsed;
   
-  elapsed = ticks - this->fStartTicks;
+  elapsed = FE_Ticks() - this->fStartTicks;
   if ((int)this->fDestBrightness != (int)this->fBrightness) {
     if (elapsed >= 0x80) {
       this->fBrightness = this->fDestBrightness;
@@ -381,7 +386,7 @@ void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
   if ((this->fBrightness == 0) && (this->fDestBrightness == 0)) {
     VIDEO_abortplayback(this->hVideo);
     if (this->fTicksSet == 0) {
-      elapsed = ticks;
+      elapsed = FE_Ticks();
       this->fTicksSet = 1;
       this->fVideoTicks = elapsed;
       this->fMovieTrack = (short)(signed char)trackInfo.fTrackID;

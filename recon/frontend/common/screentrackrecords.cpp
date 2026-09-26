@@ -4,6 +4,11 @@
 #include "screentrackrecords_types.h"
 #include "screentrackrecords_externs.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (its vtables' 8-byte alignment proves the
  * section starts there).  An unused inline leaves exactly that behind: the literal is emitted, the body is not. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -201,7 +206,7 @@ void tScreenTrackRecords::DrawBackground()
      addiu -2 before the centerx subtraction, without a non-SYM half local.
      This is a verified source shape, not proof of the original cast spelling. */
   lbx = (long long)(((short)shape->width >> 1) - 2) - shape->centerx;
-  tt = ticks % (short)shape->width;
+  tt = FE_Ticks() % (short)shape->width;
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
   }

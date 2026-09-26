@@ -17,6 +17,11 @@
  */
 #include "video.h"
 #include "video_externs.h"
+
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
 /* MATCH: split-address view of `ticks` for videodecode's PRE-LOOP read only -- a bare
    scalar extern compiles to the atomic `lw $r,sym` assembler macro, so its lui cannot
    interleave with timerhz's the way retail does.  The IN-LOOP read must stay the plain
@@ -175,7 +180,7 @@ int VIDEO_updateframexy(int handle,int x,int y)
     if (vid->state != VIDEOSTATE_PLAYING) {
       return 0;
     }
-    currenttime = ticks * 10 - vid->reftime;
+    currenttime = FE_Ticks() * 10 - vid->reftime;
     if (vid->displaytime > currenttime) {
       return 0;
     }
@@ -253,7 +258,7 @@ int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y
         }
         systemtask(0);
       } while (0); } while (0);
-    } while (ticks <= timeout);
+    } while (FE_Ticks() <= timeout);
     mdecreset();
   }
   return 0;

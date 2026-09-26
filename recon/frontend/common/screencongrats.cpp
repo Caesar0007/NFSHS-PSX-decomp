@@ -19,6 +19,11 @@ extern tScreenTournamentCongrats *screenTournamentCongrats;
 #define NFS4_TSCREENCONGRATS_OWNER   /* ScreenCongrats.obj emits tScreenCongrats's table: slot 11 is __pure_virtual */
 #include "screencongrats.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks[0]; }
+
+
 /* Retail screencongrats.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -167,20 +172,20 @@ void tScreenCongrats::DrawBackground()
   if ((((this->trophy == kTrophyCar) && (this->starttick == -1)) ||
       ((this->fGotCar == 0) && (this->trophy == kTrophyCar))) ||
      ((this->trophy == kTrophyCar) &&
-      ((-1 < R3DCar_aSyncLoading) || (ticks[0] - this->fEnterTick < 0x3c)))) {
-    this->starttick = ticks[0];
+      ((-1 < R3DCar_aSyncLoading) || (FE_Ticks() - this->fEnterTick < 0x3c)))) {
+    this->starttick = FE_Ticks();
   }
   else {
     bool scale;
 
     if (this->starttick == -1) {
-      this->starttick = ticks[0];
+      this->starttick = FE_Ticks();
     }
     if (this->CashAwarded != -1) {
       int colf;
       int colb;
 
-      if ((1000 < ticks[0] - this->starttick) || (this->fStartCountdownNOW != 0)) {
+      if ((1000 < FE_Ticks() - this->starttick) || (this->fStartCountdownNOW != 0)) {
         if (this->CashAwarded != 0) {
           AudioCmn_PlayFESFX(0x15);
         }
@@ -200,7 +205,7 @@ void tScreenCongrats::DrawBackground()
       DrawMoney(TextSys_WordX(0x319),TextSys_WordY(0x319),9,
                 this->TotalCash - this->CashAwarded,colf,colb);
     }
-    if ((this->fSpeechToPlay != 0) && (0x80 < ticks[0] - this->starttick)) {
+    if ((this->fSpeechToPlay != 0) && (0x80 < FE_Ticks() - this->starttick)) {
       FeAudio_AsyncPlaySpeech(2,this->fSpeechToPlay);
       this->fSpeechToPlay = 0;
     }
@@ -209,7 +214,7 @@ void tScreenCongrats::DrawBackground()
       drawFlags.tint[0] = CalcFadeVal(0xbebe,this->fScreenFadeVal);
       drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);
       if (this->InExtraSpin != 0) {
-        this->framenum = (ticks[0] - this->InExtraSpinTick) / 6 + 0x15;
+        this->framenum = (FE_Ticks() - this->InExtraSpinTick) / 6 + 0x15;
         scale = true;
         if (0x29 < this->framenum) {
           this->InExtraSpin = 0;
@@ -217,11 +222,11 @@ void tScreenCongrats::DrawBackground()
         }
       }
       else {
-        this->framenum = (ticks[0] - this->starttick) / 2;
+        this->framenum = (FE_Ticks() - this->starttick) / 2;
         if (0x13 < this->framenum) {
           /* SYM-CODEGEN-CARRIER: spinTicks -- retail records no source local,
              but the scoped tick copy is required for its reload/value split.
-             Reading ticks[0] directly is FAIL 13 (540/541). */
+             Reading FE_Ticks() directly is FAIL 13 (540/541). */
           int spinTicks;
 
           /* W85-S5: this block carried TWO boundaries -- a void `__asm__("" : :
@@ -241,10 +246,10 @@ void tScreenCongrats::DrawBackground()
              on a constant with no source anchor. */
           __asm__("" : : "i"(0));
           scale = true;
-          spinTicks = ticks[0];
+          spinTicks = FE_Ticks();
           this->framenum = 0x14;
           if ((spinTicks - this->starttick / 4) % 0x5dc < 0x2d) {
-            this->InExtraSpinTick = ticks[0];
+            this->InExtraSpinTick = FE_Ticks();
             this->InExtraSpin = 1;
           }
         }
@@ -253,7 +258,7 @@ void tScreenCongrats::DrawBackground()
     else {
       drawFlags.tint[0] = CalcFadeVal(0x646464,fJustFadeOff);
       drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);
-      this->framenum = (ticks[0] - this->starttick) / 4;
+      this->framenum = (FE_Ticks() - this->starttick) / 4;
       if (0x14 < this->framenum) {
         this->framenum = 0x14;
       }
@@ -270,17 +275,17 @@ void tScreenCongrats::DrawBackground()
                         0,0,&drawFlags);
     }
     if ((uint)(this->trophy - kTrophyCar) >= 2) {
-      ScaleShapeExtended((ticks[0] / 12) % 0x20,0x610,0x46,0xf,0,0,&drawFlags2);
+      ScaleShapeExtended((FE_Ticks() / 12) % 0x20,0x610,0x46,0xf,0,0,&drawFlags2);
     }
     if ((uint)this->trophy >= (uint)kTrophyCar) {
       switch (this->smallSpinningThing) {
       case kSpinningGold:
-        ScaleShapeExtended((ticks[0] >> 3) % this->fNumSmallSpinShapes,
+        ScaleShapeExtended((FE_Ticks() >> 3) % this->fNumSmallSpinShapes,
                            0x610,0x29,0xbe,0,0,&drawFlags2);
         break;
       case kSpinningMemCard:
         drawFlags.tint[0] = 0x551e00;
-        DrawShapeExtended((ticks[0] / 0x14) % this->fNumSmallSpinShapes,
+        DrawShapeExtended((FE_Ticks() / 0x14) % this->fNumSmallSpinShapes,
                           0x610,-0xc1,0x56,0,0,&drawFlags);
         break;
       }
@@ -412,7 +417,7 @@ void tScreenCongrats::Initialize()
 
   /* P892: capture the entry tick before state writes. Direct native fields
      remove an unproved inline helper; exact bytes and improved SLD pairs. */
-  this->fEnterTick = ticks[0];
+  this->fEnterTick = FE_Ticks();
   this->fSpeechToPlay = 0;
   this->starttick = -1;
   this->framenum = -1;

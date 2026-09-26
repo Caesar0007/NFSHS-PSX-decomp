@@ -5,6 +5,11 @@
 #define FEAPP_DEFINE_DIALOG_CTORS
 #include "fememcard.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline volatile int FE_Ticks(void) { return ticks; }
+
+
 /* Retail fememcard.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -318,8 +323,8 @@ void Init_Memcard(bool redraw,bool pinkslips)
     timedwait(5);
   }
   PAD_restore();
-  padrestorestarttick = ::ticks;
-  do { } while (::ticks - padrestorestarttick < 0x3c);
+  padrestorestarttick = FE_Ticks();
+  do { } while (FE_Ticks() - padrestorestarttick < 0x3c);
   deltimer(Clock_MasterInterruptHandler);
   timedwait(0x14);
   MCRD_init(0);
@@ -356,8 +361,8 @@ void DeInit_Memcard(void)
   MCRD_restore();
   addtimer(Clock_MasterInterruptHandler);
   PAD_restore();
-  padrestorestarttick = ::ticks;
-  do { } while (::ticks - padrestorestarttick < 0xc0);
+  padrestorestarttick = FE_Ticks();
+  do { } while (FE_Ticks() - padrestorestarttick < 0xc0);
   padinit();
   if (MEMCARDFRONTENDISINITTED != 0) {
     UpdateMusic(FEApp);

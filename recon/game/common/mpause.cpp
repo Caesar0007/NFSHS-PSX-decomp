@@ -6,6 +6,11 @@
 #include "../../lib/nfs4_new.h"
 #include "mpause_externs.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FD0): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -193,7 +198,7 @@ void MPause_MusicLogic(char active)
       else {
         sndover = SNDover(SFXHandle);
       }
-      if ((sndover != 0) && (0xc0 < ticks - lastplaytick)) {
+      if ((sndover != 0) && (0xc0 < FE_Ticks() - lastplaytick)) {
         lastplaytick = *(volatile int *)&ticks;
         SFXHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,samp,0,vol,0x40)
         ;

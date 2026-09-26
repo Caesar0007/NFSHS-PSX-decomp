@@ -22,6 +22,11 @@ struct {
 int g_mdecdrawsyncfailed = 0;                 /* 0x80052b30 (SYM: EXT INT) */
 #include "mdec_externs.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* lines 1-91: file header, #includes, static data (DECDCTTAB), macros (no symbols) */
 
 /* ---- initmdec  (mdec.cpp:92, code lines 92-145) ---- */
@@ -125,13 +130,13 @@ void mdec(int handle,char *src,int x,int y)
   int timeout;
   struct MDECSTRUCT *mdec = (struct MDECSTRUCT *)handle;
 
-  timeout = ticks + timerhz * 4;
+  timeout = FE_Ticks() + timerhz * 4;
   /* MATCH: exit-in-the-middle prevents gcc's loop rotation -- the oracle keeps the
      hDecode test at the TOP of the loop with an unconditional `j` back-edge. */
   while (1) {
     if (gMDECinfo.hDecode == 0) break;
     systemtask(0);
-    if (timeout < ticks) {
+    if (timeout < FE_Ticks()) {
       mdecreset();
     }
   }

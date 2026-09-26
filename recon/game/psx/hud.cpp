@@ -105,6 +105,11 @@
 #include "psyq_prim_macros.h"
 #include "hud_externs.h"
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+
 /* Retail hud.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -3488,7 +3493,7 @@ void Hud_WingmanFlash(int player,int index)
       Hud_gWingmanInterface[player] = '\x01';
     }
     Hud_gWingmanFlashIcon[player] = (char)index;
-    Hud_gWingmanFlashTicks[player] = ticks + 100;
+    Hud_gWingmanFlashTicks[player] = FE_Ticks() + 100;
   }
   return;
 }
@@ -3597,7 +3602,7 @@ void Hud_BuildWingmanInterface(int player)
    * g1Player[0xe].x read once (s1), the -0x1b string-x CSEs into s0. */
   int splitY;
   int flashTicks;
-  int now; /* SYM-CODEGEN-CARRIER: now -- named ticks load is the measured 114-to-98 evaluation-order lever */
+  int now; /* SYM-CODEGEN-CARRIER: now -- named FE_Ticks() load is the measured 114-to-98 evaluation-order lever */
   POLY_F4 *poly;
   int x;
   int xf; /* SYM-CODEGEN-CARRIER: xf -- shared x-minus-0x1c CSE is the measured 176-to-135 lever */
@@ -3620,7 +3625,7 @@ void Hud_BuildWingmanInterface(int player)
   if (player != 0) {
     splitY = -0xf;
   }
-  now = ticks;
+  now = FE_Ticks();
   flashTicks = Hud_gWingmanFlashTicks[player] - now;
   x = (int)g1Player[0xe].x;
   xf = x - 0x1c;
@@ -3984,7 +3989,7 @@ HudCdPlay_activateGate:
     }
     Hud_ActivateCDPlayer = 0;
     Hud_gCdScrollTitle = 1;
-    Hud_gCdLastTick = ticks;
+    Hud_gCdLastTick = FE_Ticks();
     if (type == 0) {
       keepup = 1;
     }
@@ -4028,7 +4033,7 @@ HudCdPlay_activateGate:
     sprintf(strindex,"%02d",index);
     if (title == (char *)0x0) {
       Hud_gCdScrollTitle = 1;
-      Hud_gCdLastTick = ticks;
+      Hud_gCdLastTick = FE_Ticks();
       goto HudCdPlay_nullStringFallback;
     }
   }
@@ -4080,10 +4085,10 @@ HudCdPlay_nullStringFallback:
      * the loop.  The oracle's loop body is `lw a0,%gp_rel(LastTick); slt v0,a0,v0; beqz;
      * [ds] addiu v0,a0,4; sw v0,%gp_rel(LastTick); addiu v1,v1,1` -- LastTick is RE-LOADED
      * every iteration and the counter lives in a register with NO store, which is the exact
-     * inverse of what a global counter gives (ours re-loaded `ticks` and kept LastTick in a
+     * inverse of what a global counter gives (ours re-loaded `FE_Ticks()` and kept LastTick in a
      * register).  -3 diffs alone (70 @473) but PAIRED with the per-arm glyph re-read above
      * it lands the count EXACTLY (475/475) and 73 -> 58.  Falsified alternatives: caching
-     * `ticks` in a local 77; volatile on the LastTick RMW 77 (+2 insns); both 77. */
+     * `FE_Ticks()` in a local 77; volatile on the LastTick RMW 77 (+2 insns); both 77. */
     /* MATCH (w75-a4): the tick loop is a GLOBAL RMW ON BOTH COUNTERS, not a cached
      * local written back after the loop.  Retail's body is [lw lastTick][slt][beqz]
      * [addiu lastTick+4 (ds)][lw scroll][sw lastTick][addiu scroll+1][sw scroll][j][nop]
@@ -4106,7 +4111,7 @@ HudCdPlay_scrollTick:
     {
       int lt /* SYM-CODEGEN-CARRIER: lt -- no-local form is FAIL 39; the measured laundered load is required for retail's $a0 coloring */ = Hud_gCdLastTick;
       __asm__("" : "=r"(lt) : "0"(lt) : "$3");
-      if (ticks > lt) {   /* operand order: oracle loads ticks FIRST */
+      if (FE_Ticks() > lt) {   /* operand order: oracle loads FE_Ticks() FIRST */
         /* MATCH (w75-a4): a COMPUTED ref-step (21A-4) on the lastTick+4 quantity.  The
          * loop body block holds exactly two local qtys -- `lt4` (2 refs, live 2) and the
          * scroll RMW value (4 refs, live 3) -- so QTY_CMP_PRI = floor_log2(refs)*refs/live
@@ -4125,7 +4130,7 @@ HudCdPlay_scrollTick:
       }
     }
   }
-  else if (Hud_gCdLastTick + 0x80 < ticks) {
+  else if (Hud_gCdLastTick + 0x80 < FE_Ticks()) {
     Hud_gCdActive = 0;
   }
   dx = 0;
@@ -4217,7 +4222,7 @@ HudCdPlay_scrollTick:
   goto HudCdPlay_buildOutString;
 HudCdPlay_nullTitleTail:
   keepup = 0;
-  Hud_gCdLastTick = ticks;
+  Hud_gCdLastTick = FE_Ticks();
 HudCdPlay_buildOutString:
   if (type == 0) {
     if (title == (char *)0x0) {
@@ -5173,9 +5178,9 @@ void Hud_Render321Go(void)
   x = 160;
   if ((int)oldCountdown != (u_int)(u_char)countdown) {
     oldCountdown = countdown;
-    countdownTick = ticks;
+    countdownTick = FE_Ticks();
   }
-  currentTick = ticks - countdownTick;
+  currentTick = FE_Ticks() - countdownTick;
   if ((u_char)countdown == 4) {
     if (currentTick < 100) {
       flare_intensity = 8000 - currentTick * 0x50;
@@ -5239,7 +5244,7 @@ void BigBTCTime(int secs)
   if (((BTC_BonusTime == 0) && (HudBustedOverlay == 0)) && (-1 < secs)) {
     if (secs != lastsec) {
       lastsec = secs;
-      lastsectick = ticks;
+      lastsectick = FE_Ticks();
     }
     x = g1Player[0xf].x + 2;
     y = g1Player[0xf].y;
@@ -5255,7 +5260,7 @@ void BigBTCTime(int secs)
     else {
       int diff;
 
-      diff = ticks - lastsectick;
+      diff = FE_Ticks() - lastsectick;
       if (diff < 0x40) {
         Hud_BlackThinBox(xx,yy,w1 * 2,0xe);
         Hud_FBuildF4(0,xx,yy,w1 * 2,0xe,0,'\0','\0');
@@ -6029,7 +6034,7 @@ void Hud_Render(void)
     Draw_StopRenderingView(Hud_gStatsView);
     return;
   }
-  if (((HudBustedOverlay == 0) && (BTC_BonusTime != 0)) && (0xfa < ticks - BTC_BonusTimeTick)) {
+  if (((HudBustedOverlay == 0) && (BTC_BonusTime != 0)) && (0xfa < FE_Ticks() - BTC_BonusTimeTick)) {
     /* MATCH: plain if / else-if / else with BOTH 0x32 arms written out -- gcc
      * cross-jumps them into the single shared `j; addiu a0,0x32` block the oracle
      * reaches from the splitscreen==0 branch AND from the car[1] fall-through.
@@ -6130,7 +6135,7 @@ HudRender_amtDone:
         Hud_gWingmanInterface[i] = 0;
         Hud_InitMapFrame(i,0);
       }
-      else if (ticks > Hud_gWingmanFlashTicks[i]) {
+      else if (FE_Ticks() > Hud_gWingmanFlashTicks[i]) {
         if ((u_char)Hud_gWingmanInterface[i] != wingmode) {
           if (1 < Replay_ReplayMode) goto HudRender_initMapFrame;
           if (HudBustedOverlay == 0) {
@@ -6312,7 +6317,7 @@ void Hud_BTC_BonusTime(long extratime)
 
 {
   BTC_BonusTime = extratime;
-  BTC_BonusTimeTick = ticks;
+  BTC_BonusTimeTick = FE_Ticks();
   return;
 }
 

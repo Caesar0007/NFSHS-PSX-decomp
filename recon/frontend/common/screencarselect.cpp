@@ -1833,10 +1833,6 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   short i;
   bool validCar;
   tCarInfo carInfo;
-  /* SYM-CODEGEN-CARRIER: videoOffset
-   * Retail initializes the third SetOffset argument in the FEApp branch delay
-   * slot.  A direct ternary is one instruction shorter and measures FAIL 5. */
-  int videoOffset;
 
   validCar = this->GetCar(carInfo);
   i = 0;
@@ -1847,13 +1843,9 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   } while (i < 0xc);
   if (((this->fSwapShapes.fFlags & 1) != 0) &&
      (this->fTVsInitialized == 0)) {
-    videoOffset = 0;
-    if (FEAppB[0]->fPlayer != '\0') {
-      videoOffset = 0x69;
-    }
-    this->fVideoWall->SetOffset(6,videoOffset);
+    this->fVideoWall->SetOffset(6,(FEApp->GetPlayer() != 0) ? 0x69 : 0);
     SetAvailableText(this->fVideoWall,0xf8,0x10e,
-        (FEAppB[0]->fPlayer != '\0') ? 0x96 : 0x2d);
+        (FEApp->GetPlayer() != 0) ? 0x96 : 0x2d);
     UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
   }

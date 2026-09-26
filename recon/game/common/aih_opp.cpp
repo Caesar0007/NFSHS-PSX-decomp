@@ -446,7 +446,7 @@ void AIHigh_Opponent::CheckForWipeOut()
           speedLimit = 0xd0000;
           do { thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
                speedLimit = speedLimit | 0x5554; } while (0);  /* 0x8006345C */
-          int carIndex = *(int *)((char *)thisPlayerObj + 596);
+          const int carIndex = *(int *)((char *)thisPlayerObj + 596);
           int field1380 = *(int *)((char *)thisPlayerObj + 1380);
           /* W85-S1: the ADDRESS arithmetic (not the load) sits in its own zero-insn
              `do{}while(0)`.  flow.c weights a reference by 1+loop_depth, so this is the
@@ -458,7 +458,7 @@ void AIHigh_Opponent::CheckForWipeOut()
              + a 3-instruction `__asm__("lw/sll/addu")` block. */
           int slotAddr;
           do { slotAddr = (carIndex << 2) + (int)hlai; } while (0);
-          int absField = __builtin_abs(field1380);
+          const int absField = __builtin_abs(field1380);
           AIHigh_Player *thisPlayer = *(AIHigh_Player **)slotAddr; /* 0x80063464-84 */
           int          playFines    = *(int *)((char *)thisPlayerObj + 932);   /* SYM REG $3=$v1, 0x80063488 */
           /* SYM-CODEGEN-CARRIER: state -- naming the preloaded state keeps its

@@ -410,78 +410,44 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 /* ---- HandleBlockadeSpeech__15AIHigh_BasicCop  AIHigh_BasicCop::HandleBlockadeSpeech  [AIH_BASICCOP.CPP:298-339] SLD-VERIFIED ---- */
 
 void AIHigh_BasicCop::HandleBlockadeSpeech()
-
-
-
 {
   Car_tObj*theCar;
-
-  if ((this->blockade_).blockadeSpeechFlags != 0) {
-
-    theCar = AIHigh_GetCarObj(((this->blockade_).target));
-
-    if (theCar == (Car_tObj *)0x0) {
-
-      (this->blockade_).blockadeSpeechFlags = 0;
-
-    }
-
-    else {
-      int carSlice;
-      int sliceDiff;
-
-      carSlice = (theCar->stats).slice;
-
-      sliceDiff = carSlice - (this->blockade_).slice;
-
-      if (theCar->blowout != 0) {
-
-        (this->blockade_).blockadeSpeechFlags = 0;
-
-      }
-
-      else {
-
-        if (__builtin_abs(sliceDiff) < 0x21) {
-          int checkSlice;
-
-          checkSlice =
-              (Cars_topSpeedCap[(theCar->render).currentCarType] * 0x1c) /
-              0x640000;
-
-          if (sliceDiff < checkSlice) {
-
-            (this->blockade_).blockadeSpeechFlags =
-                (this->blockade_).blockadeSpeechFlags | 2;
-
-          }
-
-          else if (checkSlice < sliceDiff) {
-
-            (this->blockade_).blockadeSpeechFlags =
-                (this->blockade_).blockadeSpeechFlags | 4;
-
-          }
-
-          if (((this->blockade_).blockadeSpeechFlags & 6U) == 6) {
-            Speech::Mobile(this->carObj_)->Lose();
-
-            (this->blockade_).blockadeSpeechFlags = 0;
-
-            AICop_gRoadBlockState = kAICop_RoadBlockState_PerpPassed;
-
-          }
-
-        }
-
-      }
-
-    }
-
+  if ((this->blockade_).blockadeSpeechFlags == 0)
+    return;
+  theCar = (this->blockade_).target->CarObj();
+  if (theCar == (Car_tObj *)0x0) {
+    (this->blockade_).blockadeSpeechFlags = 0;
   }
-
-  return;
-
+  else {
+    int carSlice;
+    int sliceDiff;
+    carSlice = (theCar->stats).slice;
+    sliceDiff = carSlice - (this->blockade_).slice;
+    if (theCar->blowout != 0) {
+      (this->blockade_).blockadeSpeechFlags = 0;
+    }
+    else {
+      if (__builtin_abs(sliceDiff) < 0x21) {
+        int checkSlice;
+        checkSlice =
+            (Cars_topSpeedCap[(theCar->render).currentCarType] * 0x1c) /
+            0x640000;
+        if (sliceDiff < checkSlice) {
+          (this->blockade_).blockadeSpeechFlags =
+              (this->blockade_).blockadeSpeechFlags | 2;
+        }
+        else if (checkSlice < sliceDiff) {
+          (this->blockade_).blockadeSpeechFlags =
+              (this->blockade_).blockadeSpeechFlags | 4;
+        }
+        if (((this->blockade_).blockadeSpeechFlags & 6U) == 6) {
+          Speech::Mobile(this->carObj_)->Lose();
+          (this->blockade_).blockadeSpeechFlags = 0;
+          AICop_gRoadBlockState = kAICop_RoadBlockState_PerpPassed;
+        }
+      }
+    }
+  }
 }
 
 

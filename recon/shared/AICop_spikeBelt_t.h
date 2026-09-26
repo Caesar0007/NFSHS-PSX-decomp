@@ -5,5 +5,6 @@
 
 struct AICop_spikeBelt_t {
     int active_, slice_, leftLatPos_, rightLatPos_, freshenTime_;
+    inline void SetActive(int active) { active_ = active; }
 };
 #endif

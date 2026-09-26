@@ -732,19 +732,11 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
 
 {
-  /* W57-A11: SYM 8c fn-scope REG locals are ONLY nextStageTime ($10) plus the two AUTOs;
-     rightPos/leftPos are BLOCK-scoped in the third arm and iVar3/uVar4/iVar5/iVar6 are
-     Ghidra inventions (an unlisted local costs a callee-saved reg + frame bytes).
-     2026-08-11 PASS RECEIPT: removing the invented post-scale iVar2 and mutating
-     nextStageTime in place recovered its SLD-authoritative s0 lifetime (32 -> 20).
-     Short-lived rightWidth/leftWidth identities preserve `byte << 15` before each
-     multiply without perturbing the slice pointer, reducing 20 -> 2; spelling the
-     stage comparison currentStage_ >= numPerps restores retail load order and PASS
-     (220/220).  The direct shifted-expression + leftPos-anchor basin ended at 48
-     and was fully unwound. */
+  /* SYM (retail): fn-scope locals are nextStageTime plus the AUTOs newLatPos/throwAway (the lane search
+     writes throwAway first); rightPos/leftPos are block-scoped in the third arm.  The accessor pairs
+     (spike belt SetActive, SetInitialDirection/SetInitialMovement) and the plain ternary MINs are
+     byte-exact without the earlier laneBits/leftWidth/limitR/limitL carrier locals. */
   int nextStageTime;
-  int initialDirection;
-  int initialMovement;
 
   int newLatPos;
 
@@ -768,17 +760,12 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   BWorld_InitSpikeBelt();
 
-  AICop_spikeBelt.active_ = 0;
+  AICop_spikeBelt.SetActive(0);
 
   Object_ClearCustomObjects();
 
-  initialDirection = direction;
-
-  initialMovement = movement;
-
-  this->initialDirection_ = initialDirection;
-
-  this->initialMovement_ = initialMovement;
+  this->SetInitialDirection(direction);
+  this->SetInitialMovement(movement);
 
   (this->carObj_->N).simRoadInfo.slice = (short)copSlice;
 
@@ -786,11 +773,11 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   AICop_gRoadBlockState = kAICop_RoadBlockState_None;
 
-  throwAway = 0;
-
   newLatPos = 0;
 
-  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&newLatPos,&throwAway);
+  throwAway = 0;
+
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
 
   /* W57-A11: the oracle sets up the AILife_PlaceCarAtLocation ARGS inside EACH arm
      (per-arm `lw a2,0x1C(sp)` + `sw ..,0x10/0x14(sp)` stack args, SLD 542/551) and only
@@ -798,13 +785,13 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
      call + goto form hoisted the last two args into callee-saved regs and lost 7 insns. */
   if (AIHigh_CopGameType == COP_GAME_BTC_1HC1HP) {
 
-    AILife_PlaceCarAtLocation(this->carObj_,copSlice,throwAway,direction,0,0);
+    AILife_PlaceCarAtLocation(this->carObj_,copSlice,newLatPos,direction,0,0);
 
   }
 
   else if (movement != 0) {
 
-    AILife_PlaceCarAtLocation(this->carObj_,copSlice,throwAway,direction,
+    AILife_PlaceCarAtLocation(this->carObj_,copSlice,newLatPos,direction,
                direction * 0xd5555,0);
 
   }
@@ -814,67 +801,12 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
   /* W57-A11: SYM 8c -- this arm's REAL locals are BLOCK-SCOPED `rightPos` ($11=s1) and
      `leftPos` ($10=s0); iVar3/uVar4/the IsDriveableLane results are anonymous temps. */
   int rightPos;
-
   int leftPos;
-
-  /* SYM-CODEGEN-CARRIER: laneBits -- the retained high-nibble value is the
-   * oracle's anonymous $a3. Re-reading the field at each use changes the
-   * local-allocation handout despite identical semantics. */
-  u_int laneBits;
-
-  /* SYM-CODEGEN-CARRIER: leftWidth -- keeping the byte-to-FIX15 conversion
-   * separate reproduces the oracle's multiply destination. Folding it into
-   * `leftPos` keeps 220 instructions but produces 40 register diffs. */
-  u_int leftWidth;
-
-  rightPos = ((u_int)BWorldSm_slices[copSlice].avgPavedWidthRt << 15) *
-             (BWorldSm_slices[copSlice].laneCount & 0xf);
-
-  laneBits = (u_int)(BWorldSm_slices[copSlice].laneCount >> 4);
-
-  leftWidth = (u_int)BWorldSm_slices[copSlice].avgPavedWidthLf;
-
-  leftWidth = leftWidth << 15;
-
-  leftPos = leftWidth * laneBits;
-
-  {
-
-    /* W57-A11: retail holds each MIN's limit in its OWN caller-saved temp (a1 / v1) and
-       copies into rightPos/leftPos at the end; one shared temp merges the two ranges. */
-    /* SYM-CODEGEN-CARRIER: limitR -- the retail MIN expansion holds this
-     * bound in its own caller-saved register before copying it to rightPos.
-     * A direct MIN macro grows the body to 225 instructions/173 diffs. */
-    int limitR = BWorldSm_slices[copSlice].rightDrive * 0x100 + -0x8000;
-
-    if (rightPos < limitR) {
-
-      limitR = rightPos;
-
-    }
-
-    rightPos = limitR;
-
-  }
-
-  {
-
-    /* SYM-CODEGEN-CARRIER: limitL -- the second retail MIN expansion likewise
-     * has a distinct caller-saved bound; sharing the first carrier changes
-     * the branch/delay-slot allocation. */
-    int limitL = BWorldSm_slices[copSlice].leftDrive * 0x100 + -0x8000;
-
-    if (leftPos < limitL) {
-
-      limitL = leftPos;
-
-    }
-
-    leftPos = limitL;
-
-  }
-
-  if (AIWorld_IsDriveableLane(copSlice,6 - laneBits) == 0) {
+  rightPos = (BWorldSm_slices[copSlice].avgPavedWidthRt << 15) * (BWorldSm_slices[copSlice].laneCount & 0xf);
+  leftPos = (BWorldSm_slices[copSlice].avgPavedWidthLf << 15) * (BWorldSm_slices[copSlice].laneCount >> 4);
+  rightPos = rightPos < BWorldSm_slices[copSlice].rightDrive * 0x100 + -0x8000 ? rightPos : BWorldSm_slices[copSlice].rightDrive * 0x100 + -0x8000;
+  leftPos = leftPos < BWorldSm_slices[copSlice].leftDrive * 0x100 + -0x8000 ? leftPos : BWorldSm_slices[copSlice].leftDrive * 0x100 + -0x8000;
+  if (AIWorld_IsDriveableLane(copSlice,6 - (BWorldSm_slices[copSlice].laneCount >> 4)) == 0) {
 
     leftPos = leftPos + -0x20000;
 

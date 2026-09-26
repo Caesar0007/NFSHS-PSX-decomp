@@ -652,13 +652,6 @@ void Hud_InitMapFrame(int i,int mode)
   POLY_F4 *HudF4;
   POLY_FT4 *HudFT4;
   long splitY;
-  int lx;
-  int h1;
-  int h2;
-  int h3;
-  int w1;
-  int w2;
-  int w3;
 
   if (i != 0) {
     gSprt1 = gSprite1;
@@ -678,43 +671,53 @@ void Hud_InitMapFrame(int i,int mode)
   if (i != 0) {
     splitY = -0xd;
   }
-  h1 = (int)HudPmx_gShapes[0xe].height;
-  w1 = (int)HudPmx_gShapes[0xe].width;
-  lx = (int)g1Player[0xe].x;
-  h3 = h1 - (int)HudPmx_gShapes[0x14].height;
-  w3 = w1 - (int)HudPmx_gShapes[0x18].width;
-  h2 = (int)HudPmx_gShapes[0x18].height;
-  w2 = (int)HudPmx_gShapes[0x14].width;
-  if (mode == 1) {
-    lx = lx + -0x1e;
+  {
+    int lx;
+    int h1;
+    int h2;
+    int h3;
+    int w1;
+    int w2;
+    int w3;
+
+    h1 = (int)HudPmx_gShapes[0xe].height;
+    w1 = (int)HudPmx_gShapes[0xe].width;
+    lx = (int)g1Player[0xe].x;
+    h3 = h1 - (int)HudPmx_gShapes[0x14].height;
+    w3 = w1 - (int)HudPmx_gShapes[0x18].width;
+    h2 = (int)HudPmx_gShapes[0x18].height;
+    w2 = (int)HudPmx_gShapes[0x14].width;
+    if (mode == 1) {
+      lx = lx + -0x1e;
+    }
+    currentSpriteColor = 0xff5721;
+    currentSpriteTransparent = '\0';
+    Hud_BuildSprite2(gSprt1 + 0x3f,0xe,lx,g1Player[0xe].y + HudMapOffsetY + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x40,0xf,g1Player[0xe].x + w1 + w2,
+               g1Player[0xe].y + HudMapOffsetY + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x41,0x10,lx,g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x42,0x11,g1Player[0xe].x + w1 + w2,
+               g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x43,mode + 0x14,lx + w1,g1Player[0xe].y + HudMapOffsetY + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x44,mode + 0x14,lx + w1,
+               g1Player[0xe].y + HudMapOffsetY + h1 + h2 + h3 + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x45,0x18,lx,g1Player[0xe].y + HudMapOffsetY + h1 + splitY)
+    ;
+    Hud_BuildSprite2(gSprt1 + 0x46,0x18,g1Player[0xe].x + w1 + w2 + w3,
+               g1Player[0xe].y + HudMapOffsetY + h1 + splitY);
+    Hud_BuildF4(HudF4 + 4,1,0,0,0x2d,0x30,0);
+    if (GameSetup_gData.mirrorTrack != 0) {
+      Hud_BuildMapMirrorFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
+    }
+    else {
+      Hud_BuildFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
+    }
+    Hud_BuildFT4(HudFT4 + 1,HudPmx_gShapes + 0x70,0,0,0x808080,1);
+    Hud_BuildMirrorFT4(HudFT4 + 2,HudPmx_gShapes + 0x70,(int)HudPmx_gShapes[0x70].width,0,0x808080,1);
+    Hud_BuildFT4(HudFT4 + 3,HudPmx_gShapes + 0x71,0,0,0x808080,1);
+    Hud_BuildMirrorFT4(HudFT4 + 4,HudPmx_gShapes + 0x71,(int)HudPmx_gShapes[0x71].width,0,0x808080,1);
+    return;
   }
-  currentSpriteColor = 0xff5721;
-  currentSpriteTransparent = '\0';
-  Hud_BuildSprite2(gSprt1 + 0x3f,0xe,lx,g1Player[0xe].y + HudMapOffsetY + splitY);
-  Hud_BuildSprite2(gSprt1 + 0x40,0xf,g1Player[0xe].x + w1 + w2,
-             g1Player[0xe].y + HudMapOffsetY + splitY);
-  Hud_BuildSprite2(gSprt1 + 0x41,0x10,lx,g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
-  Hud_BuildSprite2(gSprt1 + 0x42,0x11,g1Player[0xe].x + w1 + w2,
-             g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
-  Hud_BuildSprite2(gSprt1 + 0x43,mode + 0x14,lx + w1,g1Player[0xe].y + HudMapOffsetY + splitY);
-  Hud_BuildSprite2(gSprt1 + 0x44,mode + 0x14,lx + w1,
-             g1Player[0xe].y + HudMapOffsetY + h1 + h2 + h3 + splitY);
-  Hud_BuildSprite2(gSprt1 + 0x45,0x18,lx,g1Player[0xe].y + HudMapOffsetY + h1 + splitY)
-  ;
-  Hud_BuildSprite2(gSprt1 + 0x46,0x18,g1Player[0xe].x + w1 + w2 + w3,
-             g1Player[0xe].y + HudMapOffsetY + h1 + splitY);
-  Hud_BuildF4(HudF4 + 4,1,0,0,0x2d,0x30,0);
-  if (GameSetup_gData.mirrorTrack != 0) {
-    Hud_BuildMapMirrorFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
-  }
-  else {
-    Hud_BuildFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
-  }
-  Hud_BuildFT4(HudFT4 + 1,HudPmx_gShapes + 0x70,0,0,0x808080,1);
-  Hud_BuildMirrorFT4(HudFT4 + 2,HudPmx_gShapes + 0x70,(int)HudPmx_gShapes[0x70].width,0,0x808080,1);
-  Hud_BuildFT4(HudFT4 + 3,HudPmx_gShapes + 0x71,0,0,0x808080,1);
-  Hud_BuildMirrorFT4(HudFT4 + 4,HudPmx_gShapes + 0x71,(int)HudPmx_gShapes[0x71].width,0,0x808080,1);
-  return;
 }
 
 /* ---- Hud_BuildTimeSprites__FP4SPRTPcii  [HUD.CPP:883-923] SLD-VERIFIED ----

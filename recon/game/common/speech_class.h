@@ -110,6 +110,7 @@ struct Speech {
         inline int BlockadeFlags() { return fBlockade.flags; }
         inline int ArrestFlags() { return fArrest.flags; }
         inline int UpdateFlags() { return fUpdate.flags; }
+        inline SPCHNFSType_PURS_UPDT *Update() { return &fUpdate; }
         inline bool HavePerp() { return fHavePerp; }
         inline int Car() { return fCar; }
         inline SPCHNFSType_vs_RDBLK_SSTRP *BlockadeSlot() { return &fBlockade; }

@@ -1464,160 +1464,75 @@ StatusReply_subFetch:
 void Speech::DispatchSpeaker::Status()
 
 {
-  int dist;
-  
-  /* SYM-CODEGEN-CARRIER: initialInvalid -- expressing the positive guard
-     directly shortens retail's 366-instruction body to 363 and leaves 7
-     branch/value-flow diffs. */
-  bool initialInvalid = false;
-  if ((this->fSub == (Speaker *)0x0) ||
-     (this->fSub->Perp() == 0)) {
-    initialInvalid = true;
-  }
-  if (!initialInvalid) {
-  {
-    if ((this->fSub->CarObj()->carFlags & 0x200) != 0) {
-    /* SYM-CODEGEN-CARRIER: perpDistance -- the one virtual result is reused by
-       mutually exclusive far/near tests; removing it would duplicate an
-       observable virtual call, while SYM cannot recover its spelling. */
-    int perpDistance = this->fSub->DistToPerp();
+  if (this->Sub() == 0 || this->Sub()->Perp() == 0)
+    return;
+  if ((this->Sub()->CarObj()->carFlags & 0x200) != 0) {
+    int dist = this->Sub()->DistToPerp();
 
-    if (this->fSub->fHavePerp != 0) {
-      if (0x15e0000 < perpDistance) {
-        this->fSub->fHavePerp = 0;
-        ((this->fSub)->fUpdate).flags = 0;
-        this->fSub->Status();
+    if (this->Sub()->HavePerp()) {
+      if (dist > 0x15e0000) {
+        this->Sub()->SetHavePerp(0);
+        this->Sub()->SetUpdate(0);
+        this->Sub()->Status();
       }
     }
-    else if (perpDistance < 0x640000) {
-        /* the receiver is the inline accessor: an argument holding a call is evaluated first, and the
-           implicit `this + delta` is argument 1 -- so the Engage entry is fetched before Perp() runs */
-        this->Sub()->Engage(this->Sub()->Perp());
-    }
-    }
+    else if (dist < 0x640000)
+      this->Sub()->Engage(this->Sub()->Perp());
   }
-  if (this->fStatusSub != (Speaker *)0x0) {
+  if (this->fStatusSub != 0) {
     if (this->fStatusCount-- == 1) {
-      if (this->fStatusSub == (Speaker *)this) {
+      if (this->fStatusSub == this)
         this->StatusReply();
-      }
+      else if (this->Sub() != 0 && this->fStatusSub == this->Sub()->Sub())
+        this->fStatusSub->Status();
       else {
-        /* SYM-CODEGEN-CARRIER: isCurrentSub -- a direct compound comparison
-           shortens 366 to 364 and leaves 16 branch/value-flow diffs. */
-        bool isCurrentSub = false;
-
-        if (this->fSub != (Speaker *)0x0) {
-          isCurrentSub =
-              this->fStatusSub == this->fSub->fSub;
-        }
-        if (isCurrentSub) {
-          this->fStatusSub->Status();
-        }
-        else {
-          this->fStatusSub->Status();
-          Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-          this->Roger();
-        }
+        this->fStatusSub->Status();
+        this->ClearSpeaker();
+        this->Roger();
       }
     }
-    return;
   }
-  if (0 < this->fStatusCount) {
-    this->fStatusCount = this->fStatusCount + -1;
-    return;
-  }
-  /* SYM-CODEGEN-CARRIER: canUpdate -- direct blockade/arrest early returns
-     shorten 366 to 365 and leave 5 normalized-Boolean diffs. */
-  bool canUpdate = false;
-  if ((this->fSub->fBlockade).flags == 0) {
-    canUpdate = (this->fSub->fArrest).flags == 0;
-  }
-  if (!canUpdate) {
-    return;
-  }
-  /* SYM-CODEGEN-CARRIER: nestedDifferent -- folding the two virtual Perp
-     results into the guard shortens 366 to 364 and leaves 6 comparison diffs. */
-  bool nestedDifferent = false;
-  if (this->fSub->fSub != (Speaker *)0x0) {
-    nestedDifferent =
-        this->fSub->fSub->Perp() !=
-        this->fSub->Perp();
-  }
-  if (nestedDifferent) {
-    (this->fSub)->fSub->Promote();
-  }
-  switch (this->fUpdateCount & 3) {
-  case 0:
-    goto DispStatus_updateCount38;
-  case 1:
-    goto DispStatus_updateCount1;
-  case 2:
-    goto DispStatus_updateCount2;
-  case 3:
-    goto DispStatus_updateCount3;
-  default:
-    goto DispStatus_fetchSpeechCtx;
-  }
-DispStatus_updateCount2:
-  {
-    /* SYM-CODEGEN-CARRIER: fastEnough -- direct nested early-exit control flow
-       shortens 366 to 365 and leaves 5 normalized-Boolean diffs. */
-    bool fastEnough = false;
-
-    if (this->fSub->DistToPerp() < 0x280000) {
-      if (0x32 < this->CalcMph(
-                     this->fSub->CarObj())) {
-        fastEnough = 0x32 < this->CalcMph(
-            this->fSub->Perp());
+  else if (this->fStatusCount > 0)
+    this->fStatusCount--;
+  else if (this->Sub()->BlockadeFlags() == 0 && this->Sub()->ArrestFlags() == 0) {
+    if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->Perp() != this->Sub()->Perp())
+      this->Sub()->Sub()->Promote();
+    switch (this->fUpdateCount & 3) {
+    case 2:
+      if (this->Sub()->DistToPerp() < 0x280000 && this->CalcMph(this->Sub()->CarObj()) > 0x32 &&
+          this->CalcMph(this->Sub()->Perp()) > 0x32) {
+        this->Sub()->SetUpdate(8);
+        break;
       }
+    case 0:
+      this->Sub()->SetUpdate(0x26);
+      break;
+    case 3:
+      if (this->Sub()->IsSuper() && this->fUpdateCount == 7) {
+        this->Sub()->SetUpdate(0);
+        this->Sub()->Status();
+        this->fUpdateCount++;
+        return;
+      }
+      else if (this->Sub()->DistToPerp() < 0x140000) {
+        this->Sub()->Bullhorn();
+        this->fUpdateCount++;
+        return;
+      }
+    case 1:
+      this->Sub()->SetUpdate(1);
+      break;
     }
-    if (fastEnough) {
-      ((this->fSub)->fUpdate).flags = 8;
-      goto DispStatus_fetchSpeechCtx;
-    }
-    goto DispStatus_updateCount38;
+    this->ClearSpeaker();
+    this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
+    SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    SPCHNFS_D_C_IN_PURS_NEAR_PERP(this->Sub()->Update());
+    SPCH_PlaySpeech();
+    this->fStatusCount = 0x60;
+    this->fStatusSub = this->Sub();
+    this->fUpdateCount++;
   }
-DispStatus_updateCount38:
-  (this->fSub->fUpdate).flags = 0x26;
-  goto DispStatus_fetchSpeechCtx;
-DispStatus_updateCount3:
-    {
-    if (this->fSub->IsSuper() &&
-        (this->fUpdateCount == 7)) {
-      ((this->fSub)->fUpdate).flags = 0;
-      this->fSub->Status();
-      this->fUpdateCount = this->fUpdateCount + 1;
-      return;
-    }
-    if (this->fSub->DistToPerp() < 0x140000) {
-      this->fSub->Bullhorn();
-      this->fUpdateCount = this->fUpdateCount + 1;
-      return;
-    }
-    goto DispStatus_updateCount1;
-    }
-DispStatus_updateCount1:
-  (this->fSub->fUpdate).flags = 1;
-DispStatus_fetchSpeechCtx:
-  Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-  /* SYM-CODEGEN-CARRIER: callSign -- folding the virtual CallSign result into
-     fMobile indexing shortens 366 to 364 and leaves 38 receiver/allocation
-     diffs; the typed pointer restores its semantic role. */
-  CallSignBank *callSign = this->CallSign();
-  this->fTo = callSign->fMobile[
-      this->fSub->Unit()];
-  SPCHNFS_D_C_INTRO_CALL(this->fTo,
-                         this->fFrom,
-                         &this->fReverse);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  SPCHNFS_D_C_IN_PURS_NEAR_PERP(
-      &(this->fSub)->fUpdate);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  this->fStatusCount = 0x60;
-  this->fStatusSub = this->fSub;
-  this->fUpdateCount = this->fUpdateCount + 1;
-  }
-  return;
 }
 
 /* ---- Status__Q26Speech13MobileSpeaker  [SPEECH.CPP:1853-1948] SLD-VERIFIED ----

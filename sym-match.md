@@ -349,6 +349,10 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   not give the inline's `this` its own copy when the result overwrites the receiver), and retail reuses `SubChain`
   as the saved dispatch sub around `Dispatch()->Report(Perp())` -- that restore pair records `Sub` = SubChain.
   SetPerp's parameter is `car` (retail's name). speech.cpp 83 CLEAN.
+- `DispatchSpeaker::Status` (366 instructions) CLEAN with the accessor spelling: a plain early
+  `if (Sub() == 0 || Sub()->Perp() == 0) return;` (the old two-stage `initialInvalid` flag was a carrier -- the
+  oracle's s0 flag is gcc's own `||` materialization), `Sub()->Sub()`/`Sub()->Update()` pairs, and the update switch
+  in retail's case order 2 -> 0 and 3 (else-if distance test) -> 1 with fall-throughs. 84 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

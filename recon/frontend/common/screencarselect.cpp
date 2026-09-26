@@ -19,6 +19,8 @@ static inline int FE_Ticks(void) { return ticks[0]; }
 static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
 /* `ticks` is VSync-ISR state: each read is a real load */
 static inline int VSyncTicks(void) { return *(volatile int *)&ticks[0]; }
+static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
+static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 
 
 /* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
@@ -684,9 +686,9 @@ void tScreenCarSelect::Initialize()
     GameSetup_gData.track = (int)trackInfo.fSimNumber;
   }
   gShowroomLights[0] = 1;
-  (MenuDefs()->itemDamage).fFlags &= 0xfffffffe;
+  MenuItem_Enable(&menuDefs->itemDamage);
   if (frontEnd.raceType == RaceType_Tournament) {
-    (MenuDefs()->itemDamage).fFlags |= 1;
+    MenuItem_Disable(&menuDefs->itemDamage);
   }
   this->tScreen::Initialize();
   /* MATCH (W66): retail reloads each virtual-table entry directly from `_vf`;
@@ -719,9 +721,9 @@ void tScreenCarSelect::Initialize()
      two real reads before the brightness stores; the first feeds fShowroomTicks
      and the second feeds the shared chained fFadeTicks assignment.  Direct
      member assignments preserve that schedule and need no snapshot locals. */
-  this->fShowroomTicks = *(volatile int *)&ticks[0];
+  this->fShowroomTicks = VSyncTicks();
   this->fFadeTicks[0] = this->fFadeTicks[1] =
-      *(volatile int *)&ticks[0] + -0x100;
+      VSyncTicks() + -0x100;
   this->fBrightness[1] = 0;
   this->fBrightness[0] = 0;
   this->fDestBrightness[1] = 0;

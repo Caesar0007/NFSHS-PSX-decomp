@@ -22,6 +22,8 @@ static inline int VSyncTicks(void) { return *(volatile int *)&ticks[0]; }
 static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
 static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 static inline u_char FrontEnd_PinkSlipsCar(int player) { return frontEnd.pinkSlipsCar[player]; }
+static inline char *Text_WaitingForPlayer(void) { return TextSys_Word(0x2a8); }
+static inline void Dialog_SetString(tDialogBase *dialog, char *string) { ((tDialogBackUpOnly *)dialog)->string = string; }
 
 
 /* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
@@ -2128,35 +2130,17 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
 
 /* ---- tScreenCarSelectTwoPlayer::SetDialog  [SCREENCARSELECT.CPP:1881-1892] ---- */
 void tScreenCarSelectTwoPlayer::SetDialog()
-
 {
-  /* SYM/PASS (2026-08-25): retail lists only `int player` ($s0).  Its SLD
-     records inline tFEApplication::this at entry and inline tDialogBase::this
-     at 0x8003EC9C, exactly where OffsetX, OffsetY, and specificPlayer are
-     written.  Reconstructing that inline member removes the former SYM-extra
-     `y_off` and `dlg` locals.  The member's returned `this` carries the dialog
-     subobject through sprintf and the string store, allowing GCC to advance
-     outer `this` from $s1 to CarDialog in place as retail does.  The duplicated
-     FEApp read remains load-bearing: CSE turns it into the retail
-     `addu $s0,$a0,$zero` in the guard delay slot.  Exact result: PASS 48/48.
-     The debug data proves the inline member's type/body but does not encode its
-     original identifier; SetPosition is the explicit semantic reconstruction. */
-  int player = App()->fPlayer;
+  int player = FEApp->GetPlayer();
 
-  if (App()->waitingForOtherPlayer[player] != 0) {
-    player = App()->fPlayer;
-    /* P866: SYM WaitingString[50] at 80052c58 is the writable destination
-       and the displayed string. Empty literals previously passed the
-       relocation-normalized gate but referenced the wrong storage. */
-    ((tDialogBackUpOnly *)this->CarDialog.SetPosition(
-        0, (player == 0) ? -0x3c : 0x3c, (tPlayer)player))->string =
-      (sprintf(WaitingString,TextSys_Word(0x2a8),PlayerName(1 - player)), WaitingString);
+  if (FEApp->waitingForOtherPlayer[player] != 0) {
+    Dialog_SetString(this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c, (tPlayer)(short)player),
+      (sprintf(WaitingString,Text_WaitingForPlayer(),PlayerName(1 - player)), WaitingString));
     this->CarDialog.Display();
   }
   else {
     this->CarDialog.Hide();
   }
-  return;
 }
 
 

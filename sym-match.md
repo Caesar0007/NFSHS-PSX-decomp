@@ -381,6 +381,9 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
     1.6); the old `__asm__` fence adds exactly the two references that flip it. Inline shapes (int/bool, declare
     order, if-return, ?:, negated ||), `!= 0`, `== true` and optimized-away locals in the header arm do not.
     Tools: build/tmp/va_side.py (side-by-side verify), CC1PLPSX -dg/-dl on build/recon/.../speech.cpp.i.
+    Dump detail for (1): header = pseudo 81 (5 refs, local-alloc priority higher than the "spch temp" pointer, pseudo
+    119) yet 119 takes s0; retail's s0 sharing of header and ReadBE32's `p` needs sched1 to hoist the folded
+    `lbu 8(header)` above `p = header + 8` so header dies at p's definition and local-alloc ties them.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

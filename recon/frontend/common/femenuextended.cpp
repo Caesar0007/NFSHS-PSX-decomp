@@ -9,6 +9,7 @@
 static inline tFEApplication * App(void) { return FEApp; }
 static inline int MenuItem_NumFrames(tMenuItem *item) { return item->fNumFrames; }
 static inline bool MenuItem_IsEnabled(tMenuItem *item) { return ((item->fFlags ^ 1) & 1) != 0; }
+static inline void MenuItem_SetFlags(tMenuItem *item, unsigned int flags) { item->fFlags |= flags; }
 
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
@@ -658,7 +659,6 @@ tMenuNFS4::~tMenuNFS4()
 /* ---- tMenuNFS4::Initialize  [FEMENUEXTENDED.CPP:463-476] SLD-VERIFIED ---- */
 
 void tMenuNFS4::Initialize()
-
 {
   this->tMenu::Initialize();
   this->fLastItem = (char)this->fCurrentItem;
@@ -669,19 +669,10 @@ void tMenuNFS4::Initialize()
     this->fNumItems++;
   }
   if ((this->fFlags & 0x200) != 0) {
-    /* SYM SCOPE (W86-S2): `item` is a BLOCK local of this `if` (SYM `Def class
-       REG SHORT name item` sits inside the depth-4 block that opens at the
-       flag test), not a function-scope declaration. */
-    short item;
-
-    item = 0;
-    while (true) {
-      if (this->fItemList[item] == (tMenuItem *)0x0) break;
-      this->fItemList[item]->fFlags |= 0x200;
-      item++;
+    for (short item = 0; this->fItemList[item] != 0; item++) {
+      MenuItem_SetFlags(this->fItemList[item], 0x200);
     }
   }
-  return;
 }
 
 

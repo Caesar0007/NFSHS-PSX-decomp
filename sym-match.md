@@ -467,6 +467,14 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   - OPEN aih_opp CheckForWipeOut: a clean rewrite (chase-level/crime/CopsAssigned accessors, early returns, for loop,
     propagated `speeding`/`lowLevel` temps) is byte-exact up to the loop body with NO asm fences; 4 diffs remain
     (sched order of the thisPlayer/playFines/level loads). Receipt: build/tmp/ow_best_4diffs.txt.
+- aih_basiccop 3 -> 8/8 CLEAN and aihigh 4 -> 5/7 (AIHigh_Base ctor) -- board 1930, bytes unchanged.
+  - A block with no records that retail still emits (CheckSpikeBelt's two ifs) = a local that gcc propagates:
+    `int slice = SpikeBelt_Slice(); if (!AILife_IsSliceInAnyVisibleArea(slice)) ...`.
+  - `!Inline()` in the caller gives retail's `sltiu` where every in-inline negation spelling folds to `xori`
+    (`return !(a < b)`, `== 0`, `?:`, bool return).
+  - Blockade_AddObject: rotx/roty/rotz are the three row pointers into theObj.orient declared up front.
+  - OPEN AIHigh_Execute: retail's predicate inline (scheduling-off || Sched_ExecuteCheck(...carObj...)) records no
+    rows although it uses carObj four times; every parameter spelling records the car parameter.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

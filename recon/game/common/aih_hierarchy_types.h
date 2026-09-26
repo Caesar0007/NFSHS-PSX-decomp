@@ -211,6 +211,14 @@ struct AIHigh_Base {
     virtual void HighExecute() = 0;
     virtual ~AIHigh_Base();
     void StateExecute();
+    /* member form of AIHigh_SetState: retail pairs record `this` (AIHigh_Base) + newState; safe as an inline MEMBER
+       now that aihigh.cpp (the key-function TU) is built with no_implement_inlines */
+    inline void SetState(AIState_Base *newState, stateType_t newStateType) {
+        if (state_ != (AIState_Base *)0)
+            delete state_;
+        state_ = newState;
+        stateType_ = newStateType;
+    }
 };
 
 /* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,

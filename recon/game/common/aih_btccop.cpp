@@ -2267,7 +2267,7 @@ stateExecuteAndReturn:
    (nfsu2_x86_1.1.5/nfsu2.dll: AIHigh_BTC_Wingman::HighExecute @0x1015fa??
    calls ctor 0x10161850 = base-ctor + vf store + {coorddef local; zero-init;
    .y = carIndex*0xa0000; Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,
-   0,&local,1);} + carObj_->N.active=0, then AIHigh_SetState(this, p,7) @0x101619b0).
+   0,&local,1);} + carObj_->N.active=0, then this->SetState(p,7) @0x101619b0).
    EA wrote a file-local class (its own D_80054F24 NonActive-vtable copy) whose
    INLINE CTOR holds the memset/Newton payload; integrate.c inline expansion is
    why retail rematerializes `addiu a2,sp,OFF` per arm with NO shared address
@@ -2291,7 +2291,7 @@ void AIHigh_BTC_Wingman::HighExecute()
 
       this->carObj_->AIFlags &= ~2;
       newState = new AIState_NonActive(this->carObj_);
-      AIHigh_SetState(this, newState,(stateType_t)7);
+      this->SetState(newState,(stateType_t)7);
     }
     goto stateExecuteAndReturn;
 
@@ -2310,7 +2310,7 @@ void AIHigh_BTC_Wingman::HighExecute()
 
           newState = new AIState_Idle(this->carObj_);
           ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-          AIHigh_SetState(this, newState,(stateType_t)3);
+          this->SetState(newState,(stateType_t)3);
         }
       } else {
         this->CheckForNewTarget();
@@ -2323,7 +2323,7 @@ void AIHigh_BTC_Wingman::HighExecute()
           newState = new(newState) AIState_Chase(
               this->carObj_,AIHigh_GetCarObj(this->perpTarget_),&pos,
               0x200,0x3c0000,0x190000,2,0x10000);
-          AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)4);
+          this->SetState((AIState_Base *)newState,(stateType_t)4);
         }
       }
 
@@ -2332,7 +2332,7 @@ void AIHigh_BTC_Wingman::HighExecute()
 
         this->AssignToPlayer(0);
       newState = new AIState_NonActive(this->carObj_);
-        AIHigh_SetState(this, newState,(stateType_t)7);
+        this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
         goto stateExecuteAndReturn;
@@ -2362,7 +2362,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         newState = operator new(0x10);
         newState =
             new(newState) AIState_GotoSlice(this->carObj_,endSlice,0);
-        AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)9);
+        this->SetState((AIState_Base *)newState,(stateType_t)9);
       }
 
       if (this->CheckForNewTarget() != 0) {
@@ -2413,7 +2413,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        AIHigh_SetState(this, newState,(stateType_t)2);
+        this->SetState(newState,(stateType_t)2);
       }
 
       if ((this->newRole_ != this->currentRole_) &&
@@ -2425,7 +2425,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        AIHigh_SetState(this, newState,(stateType_t)2);
+        this->SetState(newState,(stateType_t)2);
         Speech::Mobile(this->carObj_)->Lose();
       }
 
@@ -2434,7 +2434,7 @@ void AIHigh_BTC_Wingman::HighExecute()
 
         this->AssignToPlayer(0);
         newState = new AIState_NonActive(this->carObj_);
-        AIHigh_SetState(this, newState,(stateType_t)7);
+        this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
         goto stateExecuteAndReturn;
@@ -2461,7 +2461,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        AIHigh_SetState(this, newState,(stateType_t)2);
+        this->SetState(newState,(stateType_t)2);
         return;
       }
 
@@ -2516,7 +2516,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         newState = new(newState) AIState_Chase(
             this->carObj_,AIHigh_GetCarObj(this->perpTarget_),&newPos,
             0x200,0x3c0000,0x190000,2,0x10000);
-        AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)4);
+        this->SetState((AIState_Base *)newState,(stateType_t)4);
       }
 
       if ((this->newRole_ != this->currentRole_) &&
@@ -2527,7 +2527,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        AIHigh_SetState(this, newState,(stateType_t)2);
+        this->SetState(newState,(stateType_t)2);
       }
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
@@ -2535,7 +2535,7 @@ void AIHigh_BTC_Wingman::HighExecute()
 
         this->AssignToPlayer(0);
         newState = new AIState_NonActive(this->carObj_);
-        AIHigh_SetState(this, newState,(stateType_t)7);
+        this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
         goto stateExecuteAndReturn;
@@ -2686,7 +2686,7 @@ void AIHigh_BTC_Wingman::HighExecute()
             this->newHumanBoss_,this->newRole_ == 3);
         newState = new AIState_Idle(this->carObj_);
         ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-        AIHigh_SetState(this, newState,(stateType_t)3);
+        this->SetState(newState,(stateType_t)3);
         goto stateExecuteAndReturn;
       }
 
@@ -2695,7 +2695,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        AIHigh_SetState(this, newState,(stateType_t)2);
+        this->SetState(newState,(stateType_t)2);
       }
     }
     goto stateExecuteAndReturn;
@@ -2713,7 +2713,7 @@ void AIHigh_BTC_Wingman::HighExecute()
       newState = operator new(8);
       newState =
           (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-      AIHigh_SetState(this, newState,(stateType_t)2);
+      this->SetState(newState,(stateType_t)2);
     }
     goto stateExecuteAndReturn;
 

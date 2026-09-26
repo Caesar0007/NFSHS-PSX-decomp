@@ -326,7 +326,7 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
 
   this->stateType_ = 0;
 
-  AIHigh_SetState(this, new AIState_None(this->carObj_),STATE_NONE);
+  this->SetState(new AIState_None(this->carObj_),STATE_NONE);
 
   this->schedulingOff_ = 0;
 

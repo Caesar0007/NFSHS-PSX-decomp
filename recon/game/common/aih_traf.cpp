@@ -191,13 +191,13 @@ void AIHigh_Traffic::HighExecute()
       if ((carObj_->carFlags & 0x400U) != 0) {
         AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
         idleState->idleInPlaceFlag_ = 1;
-        AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
+        this->SetState((AIState_Base *)idleState,STATE_IDLE);
       }
       else {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        AIHigh_SetState(this, newState,STATE_PURGATORY);
+        this->SetState(newState,STATE_PURGATORY);
       }
 
       Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
@@ -210,7 +210,7 @@ void AIHigh_Traffic::HighExecute()
         BWorldSm_Pos spos;
         AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
         idleState->idleInPlaceFlag_ = 1;
-        AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
+        this->SetState((AIState_Base *)idleState,STATE_IDLE);
 
         spos.slice = 0;
         BWorldSm_FindClosestSlice(&accidentData_->cp,&spos);
@@ -236,8 +236,7 @@ void AIHigh_Traffic::HighExecute()
                aliases pNewTrigger in $s0; it has no independent source value. */
             triggerManagerTraffic->DescribeTrigger(pNewTrigger);
             if (*(int *)pNewTrigger == 5) {
-              AIHigh_SetState(this, 
-                (AIState_Base *)new((AIState_RovingTraffic *)operator new(0x18))
+              this->SetState((AIState_Base *)new((AIState_RovingTraffic *)operator new(0x18))
                   AIState_RovingTraffic(carObj_,pNewTrigger),
                 STATE_ROVING_TRAFFIC);
               AILife_ReencarnateTrafficByPosition
@@ -250,7 +249,7 @@ void AIHigh_Traffic::HighExecute()
             AIState_Base *newState =
               (AIState_Base *)new((AIState_Normal *)operator new(8))
                 AIState_Normal(carObj_);
-            AIHigh_SetState(this, newState,STATE_NORMAL);
+            this->SetState(newState,STATE_NORMAL);
             AILife_ReencarnateTraffic(carObj_);
           }
         }
@@ -266,7 +265,7 @@ void AIHigh_Traffic::HighExecute()
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        AIHigh_SetState(this, newState,STATE_PURGATORY);
+        this->SetState(newState,STATE_PURGATORY);
         break;
       }
 
@@ -274,7 +273,7 @@ void AIHigh_Traffic::HighExecute()
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        AIHigh_SetState(this, newState,STATE_PURGATORY);
+        this->SetState(newState,STATE_PURGATORY);
         break;
       }
 
@@ -292,7 +291,7 @@ void AIHigh_Traffic::HighExecute()
           int slice = (int)carObj_->N.simRoadInfo.slice;
           idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
-          AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
+          this->SetState((AIState_Base *)idleState,STATE_IDLE);
 
           (idleState = idleState)->SetIdlePosition(
             carObj_->direction == 1 ?
@@ -304,14 +303,14 @@ void AIHigh_Traffic::HighExecute()
         else if (cRand <= 0) {
           AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
-          AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
+          this->SetState((AIState_Base *)idleState,STATE_IDLE);
         }
         else if (cRand < 8) {
           AIState_Idle *idleState;
           int slice = (int)carObj_->N.simRoadInfo.slice;
           idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
-          AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
+          this->SetState((AIState_Base *)idleState,STATE_IDLE);
 
           (idleState = idleState)->SetIdlePosition(
             carObj_->direction == 1 ?
@@ -337,14 +336,14 @@ void AIHigh_Traffic::HighExecute()
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        AIHigh_SetState(this, newState,STATE_PURGATORY);
+        this->SetState(newState,STATE_PURGATORY);
       }
       else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) &&
                ((carObj_->carFlags & 0x400U) == 0)) {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Normal *)operator new(8))
             AIState_Normal(carObj_);
-        AIHigh_SetState(this, newState,STATE_NORMAL);
+        this->SetState(newState,STATE_NORMAL);
       }
       break;
     }
@@ -355,19 +354,19 @@ void AIHigh_Traffic::HighExecute()
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        AIHigh_SetState(this, newState,STATE_PURGATORY);
+        this->SetState(newState,STATE_PURGATORY);
       }
       else if (forcePurgatory_ != 0) {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        AIHigh_SetState(this, newState,STATE_PURGATORY);
+        this->SetState(newState,STATE_PURGATORY);
       }
       else if (state_->TestForRelease() != 0) {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Normal *)operator new(8))
             AIState_Normal(carObj_);
-        AIHigh_SetState(this, newState,STATE_NORMAL);
+        this->SetState(newState,STATE_NORMAL);
       }
       break;
     }

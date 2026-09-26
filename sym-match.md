@@ -543,6 +543,16 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   - VSync `ticks`: a volatile-reading free accessor keeps both loads batched (Initialize, SetState).
   - Open: GetCar `color` (a const needs braces in the case -> extra block), DrawVideoWall (two record-less wrapper
     scopes around both GetPlayer pairs; a free wrapper inline loses the delay-slot init), the DrawBackground set.
+- hud 37 -> 45/62 (board 2006), bytes unchanged.
+  - `if (...) { for (int i ...) }` reproduces retail's if-scope/then/for-scope triple (Hud_Reset, BTC_QuitOut,
+    BustedOverlayOn); locals one level deeper than the function block = an explicit inner `{ ... }` (InitMapFrame).
+  - `const` locals are unrecorded only when their value is propagated: `const short min = nTime / 6000;`
+    (ParseTime) leaves no record, but a const loop bound living in a register across the loop IS recorded
+    (InitMap keeps its one carCount carrier).
+  - A param moved to another register (MOVED time) = the source reassigns it; spell the expression at each use
+    (`abs(time)` twice, CSE merges them) so the param keeps its incoming register.
+  - Open: BuildDistanceString (retail keeps `dist` live in $t1; abs spellings 12 diffs), Draw321Num (i/j swap + by2),
+    the Build*/Render* carrier sets.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

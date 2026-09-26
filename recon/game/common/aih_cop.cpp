@@ -19,6 +19,7 @@ static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
 static inline int NumHumanRaceCars(void) { return Cars_gNumHumanRaceCars; }
 /* accessor on the player's embedded chase info (retail pair with a computed receiver: no row) */
 static inline int PerpChase_CopFreeTicks(AICop_PerpChaseInfo *info) { return info->copFreeTicks_; }
+static inline copLevel_t *PerpChase_ChaseLevel(AICop_PerpChaseInfo *info) { return info->chaseLevel_; }
 
 
 /* Retail aih_cop.obj opens .rodata with this unreferenced class tag. */
@@ -1683,162 +1684,54 @@ void AIHigh_Cop::CheckForWipeOut()
 /* ---- CheckForNewTarget__10AIHigh_Cop  AIHigh_Cop::CheckForNewTarget  [AIH_COP.CPP:891-968] SLD-VERIFIED ---- */
 
 int AIHigh_Cop::CheckForNewTarget()
-
-
-
 {
-  /* SYM-CODEGEN-CARRIER: blockadeActive -- SYM records no result local for
-     this early mode test, but returning directly compiles to 147 instructions
-     and 9 oracle diffs instead of the retail 152/PASS branch graph. */
-  bool blockadeActive;
-
   AIHigh_Player *newTarget;
   int newTargetDistance;
   int playerLoop;
   AIHigh_Player *old;
-
-  
-
   newTarget = (AIHigh_Player *)0x0;
-
   newTargetDistance = 0x27100000;
-
   old = this->perpTarget_;
-
-  blockadeActive = false;
-
-  if (((this->blockade_.mode == 1) || (this->blockade_.mode == 4)) ||
-      (this->blockade_.mode == 2)) {
-
-    blockadeActive = true;
-
-  }
-
-  if (blockadeActive) {
-
+  if (this->BlockadeMode() == 1 || this->BlockadeMode() == 4 || this->BlockadeMode() == 2)
     return 0;
-
-  }
-
-  playerLoop = 0;
-
-  while (true) {
-
-    int thisCarIndex;
-    AIHigh_Player *thisPlayer;
-    int needs;
-    int got;
-
-    if (NumRaceCars() <= playerLoop) break;
-
-    thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
-    thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
-
-    needs = 0;
-
-    if (thisPlayer->basicPerpInfo_.crime_ != 0) {
-
-      needs = thisPlayer->perpChaseInfo_.chaseLevel_->copChasers[this->type_];
-
-    }
-
-    {
-      copType type = (copType)this->type_;
-      got = thisPlayer->basicPerpInfo_.copsAssigned_[type];
-    }
-
-    if ((this->perpTarget_ != (AIHigh_Player *)0x0) &&
-        (this->perpTarget_ == thisPlayer)) {
-
-      got = got + -1;
-
-    }
-
+  for (playerLoop = 0; playerLoop < Cars_gNumRaceCars; playerLoop++) {
+    int thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
+    AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
+    int needs = thisPlayer->basicPerpInfo_.GetCrime() != 0 ?
+        PerpChase_ChaseLevel(&thisPlayer->perpChaseInfo_)->copChasers[this->type_] : 0;
+    int got = thisPlayer->basicPerpInfo_.CopsAssigned(this->type_);
+    if (this->perpTarget_ != (AIHigh_Player *)0x0 && this->perpTarget_ == thisPlayer)
+      got = got - 1;
     if (got < needs) {
-
-      int copToTargetDistanceMeters;
-
-      copToTargetDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,
-
-                         thisPlayer->carObj_);
-
-      copToTargetDistanceMeters = __builtin_abs(copToTargetDistanceMeters);
-
+      int copToTargetDistanceMeters =
+          __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj()));
       if (copToTargetDistanceMeters < newTargetDistance) {
-
         newTargetDistance = copToTargetDistanceMeters;
-
         newTarget = thisPlayer;
-
       }
-
     }
-
-    playerLoop = playerLoop + 1;
-
   }
-
-  playerLoop = 0;
-
   if (newTarget == (AIHigh_Player *)0x0) {
-
-    while (true) {
-
-      int thisCarIndex;
-      AIHigh_Player *thisPlayer;
-      int copToTargetDistanceMeters;
-
-      if (NumRaceCars() <= playerLoop) break;
-
-      thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
-      thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
-
-      copToTargetDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,
-
-                         thisPlayer->carObj_);
-
-      copToTargetDistanceMeters = __builtin_abs(copToTargetDistanceMeters);
-
-      if ((copToTargetDistanceMeters < newTargetDistance) &&
-          (thisPlayer->basicPerpInfo_.crime_ != 0)) {
-
+    for (playerLoop = 0; playerLoop < Cars_gNumRaceCars; playerLoop++) {
+      int thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
+      AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
+      int copToTargetDistanceMeters =
+          __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj()));
+      if (copToTargetDistanceMeters < newTargetDistance && thisPlayer->basicPerpInfo_.GetCrime() != 0) {
         newTargetDistance = copToTargetDistanceMeters;
-
         newTarget = thisPlayer;
-
       }
-
-      playerLoop = playerLoop + 1;
-
     }
-
-    if (newTarget == (AIHigh_Player *)0x0) goto LAB_800657c0;
-
   }
-
-  if (newTarget != old) {
-
+  if (newTarget != (AIHigh_Player *)0x0 && newTarget != old) {
     this->AssignToPlayer(newTarget);
-
-    this->aggressionLevel_ =
-
-         ((newTarget->perpChaseInfo_).chaseLevel_)->copAggression[this->type_];
-
+    this->aggressionLevel_ = PerpChase_ChaseLevel(&newTarget->perpChaseInfo_)->copAggression[this->type_];
     return 1;
-
+  } else {
+    if (old != (AIHigh_Player *)0x0 && newTarget == (AIHigh_Player *)0x0)
+      this->AssignToPlayer((AIHigh_Player *)0x0);
+    return 0;
   }
-
-LAB_800657c0:
-
-  if ((old != (AIHigh_Player *)0x0) &&
-      (newTarget == (AIHigh_Player *)0x0)) {
-
-    this->AssignToPlayer((AIHigh_Player *)0x0);
-
-  }
-
-  return 0;
-
 }
 
 

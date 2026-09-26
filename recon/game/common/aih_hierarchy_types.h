@@ -165,6 +165,7 @@ struct AICop_BasicPerpInfo {
     /* retail inlines a member here: AddChaser / RemoveChaser show the scope pair { this { } } (SYM Block records) */
     inline void AddCop(copType type) { copsAssigned_[type]++; }
     inline void RemoveCop(copType type) { copsAssigned_[type]--; }
+    inline int CopsAssigned(copType type) { return copsAssigned_[type]; }
 };
 struct AICop_PerpChaseInfo {
     int engagementTime_;
@@ -219,6 +220,7 @@ struct AIHigh_Base {
         state_ = newState;
         stateType_ = newStateType;
     }
+    inline Car_tObj *CarObj() { return carObj_; }   /* retail pairs record `this` typed AIHigh_Base */
 };
 
 /* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,
@@ -320,6 +322,7 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     void SetupBlockadeElements(blockade_t *blockade);
     void HandleBlockadeSpeech();
     int ShouldIPerformCutOffBlock(int a, Car_tObj *carObj);
+    inline blockadeMode_t BlockadeMode() { return blockade_.mode; }   /* retail pairs (this typed AIHigh_BasicCop) */
 };
 
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {

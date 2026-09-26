@@ -203,6 +203,14 @@ struct AICop_PerpChaseInfo {
 /* AIState_Idle's empty inline ctor lives HERE, not in aistate_classes.h: aistate.obj (Idle's key-function
    TU) carries no out-of-line copy, which cc1plus 2.8 would emit for any inline member it can see. */
 inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}
+inline AIState_Idle::AIState_Idle(Car_tObj *carObj, int idleInPlace) : AIState_Base(carObj) {
+    idleInPlaceFlag_ = idleInPlace;
+}
+inline int AIState_Chase::BarrierTicks32() { return barrierTicks32_; }
+inline int AIState_Chase::InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance) {
+    return minTimeInZone < inTargetRegion_ && __builtin_abs(latMetersBetween_) < minLatMetersDistance &&
+           __builtin_abs(longMetersBetween_) < minLongMetersDistance;
+}
 
 
 struct AIHigh_Base {

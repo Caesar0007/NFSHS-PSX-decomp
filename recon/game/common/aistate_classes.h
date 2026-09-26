@@ -30,6 +30,7 @@ struct AIState_Normal : public AIState_Base {
 struct AIState_Idle : public AIState_Base {
     int roadPosition_, idleInPlaceFlag_;
     AIState_Idle(Car_tObj *carObj);   /* inline, defined in aih_hierarchy_types.h: retail aistate.obj (the key TU, Execute) has NO copy */
+    AIState_Idle(Car_tObj *carObj, int idleInPlace);   /* inline, likewise (aih_btccop_types.h) */
     ~AIState_Idle() { carObj_->carFlags = carObj_->carFlags & 0xfffffbff; }   /* inline: retail emits it in the deferred batch after ~AIState_NonActive */
     void Execute();
     void SetIdlePosition(int pos);
@@ -58,6 +59,8 @@ struct AIState_Chase : public AIState_Base {
     void ApproachTargeting(int);
     void CheckForBarriersAndTargetAroundThem();
     int FindBarrierEndSlice();
+    int BarrierTicks32();       /* inline, defined in the AI-high type headers (no copy in aistate.obj) */
+    int InMurderRange(int minTimeInZone, int minLatMetersDistance, int minLongMetersDistance);   /* inline, likewise */
 };
 
 struct AIState_Offroad : public AIState_Base {
@@ -78,12 +81,18 @@ extern "C" void *memset(void *, int, unsigned int);
 void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *, int, coorddef *, int);
 struct AIState_NonActive : public AIState_Base {
     /* retail's inline body (aistate/aih_btccop/aih_btcperp all expand it): park the car */
+    /* retail records trafficOffset two blocks below the inline body block (every expansion, e.g. the Purgatory
+       ctor and the AI-high SetState sites); the extra braces reproduce that nesting and emit no code */
     AIState_NonActive(Car_tObj *carObj) : AIState_Base(carObj) {
-        coorddef trafficOffset;
-        memset((u_char *)&trafficOffset, '\0', 0xc);
-        trafficOffset.y = carObj->carIndex * 0xa0000;
-        Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N, 0, &trafficOffset, 1);
-        carObj_->N.active = '\0';
+        {
+            {
+                coorddef trafficOffset;
+                memset((u_char *)&trafficOffset, '\0', 0xc);
+                trafficOffset.y = carObj->carIndex * 0xa0000;
+                Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N, 0, &trafficOffset, 1);
+                carObj_->N.active = '\0';
+            }
+        }
     }
     ~AIState_NonActive() { (carObj_->N).active = '\x01'; }   /* declared before Execute: the deferred batch is emitted in reverse member order (retail: Execute 0x80072750, dtor 0x80072758) */
     void Execute() {}

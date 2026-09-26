@@ -407,6 +407,34 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   loop locals, `continue` guards, a copy-propagated `result`, else-if chains. AIHigh_Base::SetState is now a MEMBER
   inline (retail pairs: this + newState) in the flagged TUs. aih_cop CheckForWipeOut: one more retail pair, still
   DIRTY (`skipWipeOut` flag). Board 1900 -> 1911 CLEAN; honest 0 diff.
+- aih_btccop 28 -> 33/33 CLEAN (SetDesiredSpeed, HumanCop ctor, NewStage, SetupBlockader, Wingman::HighExecute), all
+  byte-unchanged. What retail's records gave:
+  - Accessor names come from retail pair PARAMETERS where another site passes a variable: NewStage records
+    `SetInitialDirection(initialDirection)` / `SetInitialMovement(initialMovement)`; an aih_cop function records the
+    Chase inline's `minTimeInZone`/`minLatMetersDistance`/`minLongMetersDistance`. Wingman::HighExecute calls it
+    with constants (`chaseState->InMurderRange(8, 0xe0000, 0xf0000)`), which is why retail compares against
+    constants held in registers: inline parameters are variables at tree level, so fold cannot canonicalize the
+    compares, and constant arguments leave no rows.
+  - Empty pairs inside one basic block are collected at the block head by the scheduler: the ctor's three setter
+    pairs all sit at +0, the NonActive ctor + SetState pairs of a case at the case head. A pair whose body spans
+    basic blocks keeps its real end (InMurderRange +3fc..+448).
+  - Six `CarObj()` pairs on ONE retail line (SetupBlockader) = a macro that expands its slice argument several times:
+    `SLICE_ADD(slice, delta)` (wrap into [0, gNumSlices)). It replaced every per-branch wrap and its carrier locals.
+  - `x = x < K ? x : K` with a literal K is folded to MIN_EXPR(x, K) = an in-place clamp. Retail's
+    `a0 = K; if (x < a0) a0 = x; x = a0` is MIN_EXPR(K, x), which fold builds only when the bound is not an
+    INTEGER_CST at fold time: a named bound (`int maximumDistance = 0x5dc0000;`), which gcc propagates away, so it
+    leaves NO record. `const` locals/globals and g++'s `<?` fold like the literal.
+  - A `mult` by a register constant with no record: `initializationDistance / 0x60000 * side` with a local
+    initialized to a constant (CSE folds the division, the operand stays anonymous).
+  - The inlined AIState_NonActive ctor records `trafficOffset` two blocks below its body block in every retail
+    expansion; two plain brace levels reproduce it (no code).
+  - A `goto` at the end of an if-arm stretches the arm's block over the jump (as `return` does); the case's own
+    trailing goto is enough.
+  - Spike-belt helpers are free static inlines (`SpikeBelt_Set/Freshen/SetFreshenTime/SetActive/Slice`): member
+    functions on the shared `AICop_spikeBelt_t` added four TPDEF records.
+  - Dead copy warning: aih_btccop.cpp carried an `#if 0` old Wingman::HighExecute ahead of the live one; `var_fn.py`
+    splices the FIRST textual match, so a variant "PASS" there was the untouched live function. The dead copy is
+    removed; check for `#if 0` twins before trusting var_fn on a file.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

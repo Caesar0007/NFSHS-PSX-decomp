@@ -16,6 +16,17 @@ static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline int GameTicks(void) { return simGlobal.gameTicks; }
+/* spike-belt helpers: retail records their inline pairs (parameters slice/rightLatPos/timeNow, no `this`) */
+static inline void SpikeBelt_SetActive(int active) { AICop_spikeBelt.active_ = active; }
+static inline int SpikeBelt_Slice(void) { return AICop_spikeBelt.slice_; }
+static inline void SpikeBelt_Set(int slice, int leftLatPos, int rightLatPos) {
+    AICop_spikeBelt.leftLatPos_ = leftLatPos;
+    AICop_spikeBelt.rightLatPos_ = rightLatPos;
+    AICop_spikeBelt.active_ = 1;
+    AICop_spikeBelt.slice_ = slice;
+}
+static inline void SpikeBelt_SetFreshenTime(int timeNow) { AICop_spikeBelt.freshenTime_ = timeNow; }
+static inline void SpikeBelt_Freshen(int timeNow) { SpikeBelt_SetFreshenTime(timeNow); }
 /* slice arithmetic with wrap-around (a macro: retail records no locals or inline pairs for it, and every
    use of its slice argument expands again -- six CarObj() pairs on one line in SetupBlockader) */
 #define SLICE_ADD(slice, delta) \
@@ -765,7 +776,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   BWorld_InitSpikeBelt();
 
-  AICop_spikeBelt.SetActive(0);
+  SpikeBelt_SetActive(0);
 
   Object_ClearCustomObjects();
 
@@ -1459,554 +1470,6 @@ AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex) : AIHigh_B
 
 /* ---- HighExecute__18AIHigh_BTC_Wingman  AIHigh_BTC_Wingman::HighExecute  [AIH_BTCCOP.CPP:976-1266] SLD-VERIFIED ---- */
 
-#if 0
-void AIHigh_BTC_Wingman::HighExecute()
-
-
-
-{
-  coorddef pos;
-  coorddef newPos;
-  coorddef trafficOffset;
-  coorddef *offset;
-
-  AIState_Base *newState;
-  AIState_Base *oldState;
-  Car_tObj *carObj;
-
-  bool bVar1;
-
-  Speaker *pSVar2;
-
-  int a;
-
-  int iVar3;
-
-  stateType_t sVar6;
-
-  Wingman_Role WVar7;
-
-
-
-  ((AIHigh_BasicCop *)this)->CheckSpikeBelt();
-
-  this->CheckForActivation();
-
-  switch(this->stateType_) {
-
-  case 0:
-
-    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
-    carObj = this->carObj_;
-
-    newState = new AIState_NonActive(carObj);   /* inline ctor: memset / y / Newton_SetInitial... / active = 0 */
-
-    oldState = this->state_;
-
-    if (oldState != (AIState_Base *)0x0) {
-
-      (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-    }
-
-    sVar6 = 7;
-
-    this->state_ = newState;
-
-    goto LAB_8005eda0;
-
-  case 10:
-
-  default:
-
-    goto stateExecuteAndReturn;
-
-  case 2:
-
-    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
-
-    if ((this->newRole_ == this->currentRole_) || (1 < this->newRole_ - 2)) {
-
-      this->CheckForNewTarget();
-
-      if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
-
-        this->GetCheckChasePosition(&pos);
-
-        newState = operator new(0x94);
-
-        newState = (AIState_Base*)(new((AIState_Chase*)newState) AIState_Chase(this->carObj_,
-
-                             ((this->perpTarget_))->carObj_,&pos,0x200,0x3c0000,0x190000,2,0x10000));
-
-        oldState = this->state_;
-
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-        }
-
-        sVar6 = 4;
-
-        goto LAB_8005e5d8;
-
-      }
-
-    }
-
-    else {
-
-      carObj = AILife_IsCarInAnyVisibleArea(this->carObj_);
-
-      if (carObj == (Car_tObj *)0x0) {
-
-        pSVar2 = (Speaker *)Speech::Mobile(this->carObj_);
-
-        (**(int (**)(...))((int)*pSVar2->_vf + 0x84))
-
-                  ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x80));
-
-        this->currentRole_ = this->newRole_;
-
-        this->SetupBlockader(this->newHumanBoss_,(u_int)(this->newRole_ == 3));
-
-        newState = new AIState_Idle(this->carObj_);
-
-        ((AIState_Idle *)newState)->roadPosition_ = 1;
-
-        oldState = this->state_;
-
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-        }
-
-        sVar6 = 3;
-
-LAB_8005e5d8:
-
-        this->state_ = newState;
-
-        this->stateType_ = sVar6;
-
-      }
-
-    }
-
-    iVar3 = this->UpdateFreezeModeAndPullOverMode();
-
-    if (iVar3 == 0) goto stateExecuteAndReturn;
-
-    this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
-
-    ;
-    carObj = this->carObj_;
-
-    newState = new AIState_NonActive(carObj);   /* inline ctor: memset / y / Newton_SetInitial... / active = 0 */
-
-    break;
-
-  case 3:
-
-    this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
-
-    this->CheckForNewTarget();
-
-    bVar1 = false;
-
-    if (this->perpTarget_ == (AIHigh_BTC_Perp *)0x0) {
-
-      this->newRole_ = 1;
-
-      this->currentRole_ = 1;
-
-      newState = operator new(8);
-
-      newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = 2;
-
-      return;
-
-    }
-
-    this->GetCheckChasePosition(&pos);
-
-    if ((this->spikeBeltPlaced_ != 0) && (AICop_spikeBelt.slice_ == this->spikeBeltSlice_)) {
-
-      AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
-
-    }
-
-    a = AIWorld_ApxSplineDistance(this->carObj_,
-
-                   ((this->perpTarget_))->carObj_);
-
-    iVar3 = a;
-
-    if (a < 0) {
-
-      iVar3 = -a;
-
-    }
-
-    if (iVar3 < 0x320000) {
-
-LAB_8005ea9c:
-
-      bVar1 = true;
-
-    }
-
-    else if (iVar3 < 0x12c0000) {
-
-      iVar3 = (((this->perpTarget_))->carObj_)->currentSpeed;
-
-      if (iVar3 < 1) {
-
-        iVar3 = -iVar3;
-
-      }
-
-      if (((0x471c7 < iVar3) &&
-
-          (iVar3 = fixeddiv(a,(((this->perpTarget_))->carObj_)->currentSpeed), 0 < iVar3)) &&
-
-         (iVar3 < this->spikeBeltInterceptReleaseTime_)) goto LAB_8005ea9c;
-
-    }
-
-    if (bVar1) {
-
-      this->spikeBeltPlaced_ = 0;
-
-      this->newRole_ = 1;
-
-      this->currentRole_ = 1;
-
-      newState = operator new(0x94);
-
-      newState = (AIState_Base*)(new((AIState_Chase*)newState) AIState_Chase(this->carObj_,
-
-                           ((this->perpTarget_))->carObj_,&pos,0x200,0x3c0000,0x190000,2,0x10000));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = 4;
-
-    }
-
-    if ((this->newRole_ != this->currentRole_) && (this->newRole_ == 1)) {
-
-      this->currentRole_ = 1;
-
-      newState = operator new(8);
-
-      newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = 2;
-
-    }
-
-    iVar3 = this->UpdateFreezeModeAndPullOverMode();
-
-    if (iVar3 == 0) goto stateExecuteAndReturn;
-
-    this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
-
-    ;
-    carObj = this->carObj_;
-
-    newState = new AIState_NonActive(carObj);   /* inline ctor: memset / y / Newton_SetInitial... / active = 0 */
-
-    break;
-
-  case 4:
-
-    newState = this->state_;
-
-    this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
-
-    ((AIHigh_BasicCop *)this)->HandleBlockadeSpeech();
-
-    iVar3 = this->GetCheckChasePosition(&pos);
-
-    if (iVar3 != 0) {
-
-      ((AIState_Chase *)newState)->SetTarget(((this->perpTarget_))->carObj_,&pos);
-
-    }
-
-    if (0xa0 < ((AIState_Chase *)newState)->barrierTicks32_) {
-
-      iVar3 = ((AIState_Chase *)newState)->FindBarrierEndSlice();
-
-      carObj = (Car_tObj *)operator new(0x10);
-
-      carObj = (Car_tObj *)(new((AIState_GotoSlice *)carObj) AIState_GotoSlice(this->carObj_,iVar3,
-
-                           0));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-      }
-
-      this->state_ = (AIState_Base *)carObj;
-
-      this->stateType_ = 9;
-
-    }
-
-    iVar3 = this->CheckForNewTarget();
-
-    if (iVar3 != 0) {
-
-      this->GetCheckChasePosition(&newPos);
-
-      ((AIState_Chase *)newState)->SetTarget(((this->perpTarget_))->carObj_,&newPos);
-
-    }
-
-    bVar1 = false;
-
-    if (8 < ((AIState_Chase *)newState)->inTargetRegion_) {
-
-      iVar3 = ((AIState_Chase *)newState)->latMetersBetween_;
-
-      if (iVar3 < 0) {
-
-        iVar3 = -iVar3;
-
-      }
-
-      if (iVar3 < 0xe0000) {
-
-        iVar3 = ((AIState_Chase *)newState)->longMetersBetween_;
-
-        if (iVar3 < 0) {
-
-          iVar3 = -iVar3;
-
-        }
-
-        bVar1 = iVar3 < 0xf0000;
-
-      }
-
-    }
-
-    if (bVar1) {
-
-      ((AIState_Chase *)newState)->SetMurderMode(1,0x300);
-
-    }
-
-    if (this->perpTarget_ == (AIHigh_BTC_Perp *)0x0) {
-
-      this->AssignToPlayer((AIHigh_BTC_Perp *)0x0);
-
-      newState = operator new(8);
-
-      newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = 2;
-
-    }
-
-    if ((this->newRole_ != this->currentRole_) && (this->newRole_ - 2 < 2)) {
-
-      this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
-
-      this->AssignToPlayer((AIHigh_BTC_Perp *)0x0);
-
-      newState = operator new(8);
-
-      newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = 2;
-
-      pSVar2 = (Speaker *)Speech::Mobile(this->carObj_);
-
-      (**(int (**)(...))((int)*pSVar2->_vf + 0x3c))
-
-                ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x38));
-
-    }
-
-    iVar3 = this->UpdateFreezeModeAndPullOverMode();
-
-    if (iVar3 == 0) goto stateExecuteAndReturn;
-
-    this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
-
-    ;
-    carObj = this->carObj_;
-
-    newState = new AIState_NonActive(carObj);   /* inline ctor: memset / y / Newton_SetInitial... / active = 0 */
-
-    break;
-
-  case 7:
-
-    this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
-
-    WVar7 = this->newRole_;
-
-    if (this->currentRole_ == WVar7) goto stateExecuteAndReturn;
-
-    if (WVar7 == 1) {
-
-      this->currentRole_ = 1;
-
-      this->SetupWingman(this->newHumanBoss_);
-
-      goto LAB_8005ed58;
-
-    }
-
-    if (1 < WVar7 - 2) goto stateExecuteAndReturn;
-
-    this->currentRole_ = WVar7;
-
-    this->SetupBlockader(this->newHumanBoss_,(u_int)(this->newRole_ == 3));
-
-    newState = new AIState_Idle(this->carObj_);
-
-    ((AIState_Idle *)newState)->roadPosition_ = 1;
-
-    oldState = this->state_;
-
-    if (oldState != (AIState_Base *)0x0) {
-
-      (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-    }
-
-    sVar6 = 3;
-
-    goto LAB_8005ed9c;
-
-  case 9:
-
-    carObj = (Car_tObj *)this->state_;
-
-    this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
-
-    ;
-
-    iVar3 = ((AIState_GotoSlice *)carObj)->InTargetSliceRange(0xa0000);
-
-    if (iVar3 == 0) goto stateExecuteAndReturn;
-
-LAB_8005ed58:
-
-    newState = operator new(8);
-
-    newState = (AIState_Base*)(new(newState) AIState_Normal(this->carObj_));
-
-    oldState = this->state_;
-
-    if (oldState != (AIState_Base *)0x0) {
-
-      (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-    }
-
-    sVar6 = 2;
-
-LAB_8005ed9c:
-
-    this->state_ = newState;
-
-LAB_8005eda0:
-
-    this->stateType_ = sVar6;
-
-    goto stateExecuteAndReturn;
-
-  }
-
-
-  (newState->carObj_->N).active = '\0';
-
-  oldState = this->state_;
-
-  if (oldState != (AIState_Base *)0x0) {
-
-    (*(int (*)(...))((int)*oldState->_vf + 0x14))((int)&oldState->carObj_ + (int)*(short *)((int)*oldState->_vf + 0x10),3);
-
-  }
-
-  this->state_ = newState;
-
-  this->stateType_ = 7;
-
-  this->newRole_ = 0;
-
-  this->currentRole_ = 0;
-
-stateExecuteAndReturn:
-
-  (this->state_)->StateExecute();
-
-  return;
-
-}
-#endif
 
 /* NEAR-MISS 4 diffs (675/675): two of the three `Newton_SetInitial...` arms
    reuse memset's return (v0=&trafficOffset) as arg a2 where retail
@@ -2212,445 +1675,166 @@ void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();
   this->CheckForActivation();
-
   switch (this->stateType_) {
   case 0:
     {
-      AIState_Base *newState;
-
       this->carObj_->AIFlags &= ~2;
-      newState = new AIState_NonActive(this->carObj_);
-      this->SetState(newState,(stateType_t)7);
+      this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
     }
     goto stateExecuteAndReturn;
-
   case 2:
     {
       this->carObj_->AIFlags &= ~2;
-
       if ((this->newRole_ != this->currentRole_) &&
           ((u_int)(this->newRole_ - 2) < 2)) {
         if (AILife_IsCarInAnyVisibleArea(this->carObj_) == 0) {
-          AIState_Base *newState;
-
           Speech::Mobile(this->carObj_)->Purge();
           this->currentRole_ = this->newRole_;
           this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
-
-          newState = new AIState_Idle(this->carObj_);
-          ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-          this->SetState(newState,(stateType_t)3);
+          this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3);
         }
       } else {
         this->CheckForNewTarget();
         if (this->perpTarget_ != 0) {
           coorddef pos;
-          AIState_Chase *newState;
-
           this->GetCheckChasePosition(&pos);
-          newState = operator new(0x94);
-          newState = new(newState) AIState_Chase(
-              this->carObj_,AIHigh_GetCarObj(this->perpTarget_),&pos,
-              0x200,0x3c0000,0x190000,2,0x10000);
-          this->SetState((AIState_Base *)newState,(stateType_t)4);
+          this->SetState(new AIState_Chase(this->carObj_,this->perpTarget_->CarObj(),&pos,
+                                           0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4);
         }
       }
-
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-        AIState_Base *newState;
-
         this->AssignToPlayer(0);
-      newState = new AIState_NonActive(this->carObj_);
-        this->SetState(newState,(stateType_t)7);
+        this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
-        goto stateExecuteAndReturn;
       }
     }
     goto stateExecuteAndReturn;
-
-  case 4:
-    {
-      coorddef newPos;
-      coorddef pos;
-      AIState_Chase *chaseState;
-
-      chaseState = (AIState_Chase *)this->state_;
-      this->carObj_->AIFlags |= 2;
-      ((AIHigh_BasicCop *)this)->HandleBlockadeSpeech();
-
-      if (this->GetCheckChasePosition(&newPos) != 0) {
-        chaseState->SetTarget(this->perpTarget_->carObj_,&newPos);
-      }
-
-      if (0xa0 < chaseState->barrierTicks32_) {
-        int endSlice;
-        AIState_GotoSlice *newState;
-
-        endSlice = chaseState->FindBarrierEndSlice();
-        newState = operator new(0x10);
-        newState =
-            new(newState) AIState_GotoSlice(this->carObj_,endSlice,0);
-        this->SetState((AIState_Base *)newState,(stateType_t)9);
-      }
-
-      if (this->CheckForNewTarget() != 0) {
-        this->GetCheckChasePosition(&pos);
-        chaseState->SetTarget(this->perpTarget_->carObj_,&pos);
-      }
-
-      {
-        /* SYM-CODEGEN-CARRIER: minTimeInZone -- the three named threshold
-         * values reproduce retail's constant allocation; folding all three
-         * literals into the tests preserves 675 instructions but causes 24
-         * diffs. */
-        int minTimeInZone;
-        /* SYM-CODEGEN-CARRIER: minLatMetersDistance */
-        int minLatMetersDistance;
-        /* SYM-CODEGEN-CARRIER: minLongMetersDistance */
-        int minLongMetersDistance;
-        /* SYM-CODEGEN-CARRIER: murder -- SYM records the three threshold
-         * values but not this boolean. Removing it preserves the 675-
-         * instruction body yet causes eight allocation/branch diffs: the
-         * retail zero in a0 disappears and the first comparison moves from
-         * v0 to a0. Both compound and nested direct tests give that same
-         * receipt, so this carrier is required by the retail code shape. */
-        int murder;
-
-        minTimeInZone = 8;
-        minLatMetersDistance = 0xe0000;
-        minLongMetersDistance = 0xf0000;
-        murder = 0;
-        if (minTimeInZone < chaseState->inTargetRegion_) {
-          if (__builtin_abs(chaseState->latMetersBetween_) <
-              minLatMetersDistance) {
-            if (__builtin_abs(chaseState->longMetersBetween_) <
-                minLongMetersDistance) {
-              murder = 1;
-            }
-          }
-        }
-        if (murder) {
-          chaseState->SetMurderMode(1,0x300);
-        }
-      }
-
-      if (this->perpTarget_ == 0) {
-        AIState_Base *newState;
-
-        this->AssignToPlayer(0);
-        newState = operator new(8);
-        newState =
-            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        this->SetState(newState,(stateType_t)2);
-      }
-
-      if ((this->newRole_ != this->currentRole_) &&
-          ((u_int)(this->newRole_ - 2) < 2)) {
-        AIState_Base *newState;
-
-        this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
-        this->AssignToPlayer(0);
-        newState = operator new(8);
-        newState =
-            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        this->SetState(newState,(stateType_t)2);
-        Speech::Mobile(this->carObj_)->Lose();
-      }
-
-      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-        AIState_Base *newState;
-
-        this->AssignToPlayer(0);
-        newState = new AIState_NonActive(this->carObj_);
-        this->SetState(newState,(stateType_t)7);
-        this->newRole_ = 0;
-        this->currentRole_ = 0;
-        goto stateExecuteAndReturn;
-      }
-    }
-    goto stateExecuteAndReturn;
-
-  case 3:
-    {
-      coorddef newPos;
-      int rbDistanceMeters;
-      int rbAbsDistanceMeters;
-      int release;
-
-      this->carObj_->AIFlags |= 2;
-      this->CheckForNewTarget();
-      release = 0;
-
-      if (this->perpTarget_ == 0) {
-        AIState_Base *newState;
-
-        this->newRole_ = 1;
-        this->currentRole_ = 1;
-        newState = operator new(8);
-        newState =
-            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        this->SetState(newState,(stateType_t)2);
-        return;
-      }
-
-      this->GetCheckChasePosition(&newPos);
-      if ((this->spikeBeltPlaced_ != 0) &&
-          (AICop_spikeBelt.slice_ == this->spikeBeltSlice_)) {
-        int timeNow = simGlobal.gameTicks;
-        AICop_spikeBelt.freshenTime_ = timeNow;
-      }
-
-      rbDistanceMeters = AIWorld_ApxSplineDistance(
-          this->carObj_,this->perpTarget_->carObj_);
-      rbAbsDistanceMeters = __builtin_abs(rbDistanceMeters);
-
-      if (rbAbsDistanceMeters < 0x320000) {
-        release = 1;
-      } else if (rbAbsDistanceMeters < 0x12c0000) {
-        /* SYM-CODEGEN-CARRIER: speed -- a direct abs expression plus the
-         * boundary fence builds only 674 instructions/15 diffs because GCC
-         * fills the speed-load delay slot with the threshold constant. This
-         * carrier restores retail's nop and bgtz/lui ordering. */
-        int speed;
-        int timeToRB;
-
-        speed = AIHigh_GetCarObj(this->perpTarget_)->currentSpeed;
-        if (speed <= 0) {
-          speed = -speed;
-        }
-        speed = 0x471c7 < speed;
-        if (speed) {
-          /* MATCH: zero-instruction SLD-boundary fence. Without it GCC keeps
-           * the first target chain live into line 189, producing 671
-           * instructions/12 diffs. The retail body re-derives the complete
-           * perpTarget_/carObj_/currentSpeed chain before fixeddiv. */
-          __asm__("" : : : "memory");
-          if (((timeToRB = fixeddiv(
-                    rbDistanceMeters,
-                    AIHigh_GetCarObj(this->perpTarget_)->currentSpeed)) > 0) &&
-              (timeToRB < this->spikeBeltInterceptReleaseTime_)) {
-            release = 1;
-          }
-        }
-      }
-
-      if (release) {
-        AIState_Chase *newState;
-
-        this->spikeBeltPlaced_ = 0;
-        this->newRole_ = 1;
-        this->currentRole_ = 1;
-        newState = operator new(0x94);
-        newState = new(newState) AIState_Chase(
-            this->carObj_,AIHigh_GetCarObj(this->perpTarget_),&newPos,
-            0x200,0x3c0000,0x190000,2,0x10000);
-        this->SetState((AIState_Base *)newState,(stateType_t)4);
-      }
-
-      if ((this->newRole_ != this->currentRole_) &&
-          (this->newRole_ == 1)) {
-        AIState_Base *newState;
-
-        this->currentRole_ = 1;
-        newState = operator new(8);
-        newState =
-            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        this->SetState(newState,(stateType_t)2);
-      }
-
-      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-        AIState_Base *newState;
-
-        this->AssignToPlayer(0);
-        newState = new AIState_NonActive(this->carObj_);
-        this->SetState(newState,(stateType_t)7);
-        this->newRole_ = 0;
-        this->currentRole_ = 0;
-        goto stateExecuteAndReturn;
-      }
-    }
-    goto stateExecuteAndReturn;
-
-#if 0
   case 4:
     {
       coorddef newPos;
       AIState_Chase *chaseState;
-
       chaseState = (AIState_Chase *)this->state_;
       this->carObj_->AIFlags |= 2;
       ((AIHigh_BasicCop *)this)->HandleBlockadeSpeech();
-
       if (this->GetCheckChasePosition(&newPos) != 0) {
-        chaseState->SetTarget(this->perpTarget_->carObj_,&newPos);
+        chaseState->SetTarget(this->perpTarget_->CarObj(),&newPos);
       }
-
-      if (0xa0 < chaseState->barrierTicks32_) {
-        int endSlice;
-        AIState_GotoSlice *newState;
-        AIState_Base *oldState;
-
-        endSlice = chaseState->FindBarrierEndSlice();
-        newState = operator new(0x10);
-        newState =
-            new(newState) AIState_GotoSlice(this->carObj_,endSlice,0);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = (AIState_Base *)newState;
-        this->stateType_ = (stateType_t)9;
+      if (chaseState->BarrierTicks32() > 0xa0) {
+        int endSlice = chaseState->FindBarrierEndSlice();
+        this->SetState(new AIState_GotoSlice(this->carObj_,endSlice,0),(stateType_t)9);
       }
-
       if (this->CheckForNewTarget() != 0) {
         coorddef pos;
         this->GetCheckChasePosition(&pos);
-        chaseState->SetTarget(this->perpTarget_->carObj_,&pos);
+        chaseState->SetTarget(this->perpTarget_->CarObj(),&pos);
       }
-
-      {
-        int murder;
-        murder = 0;
-        if (8 < chaseState->inTargetRegion_) {
-          int meters;
-          meters = chaseState->latMetersBetween_;
-          if (meters < 0) {
-            meters = -meters;
-          }
-          if (meters < 0xe0000) {
-            meters = chaseState->longMetersBetween_;
-            if (meters < 0) {
-              meters = -meters;
-            }
-            murder = meters < 0xf0000;
-          }
-        }
-        if (murder) {
-          chaseState->SetMurderMode(1,0x300);
-        }
+      if (chaseState->InMurderRange(8,0xe0000,0xf0000)) {
+        chaseState->SetMurderMode(1,0x300);
       }
-
       if (this->perpTarget_ == 0) {
-        AIState_Base *newState;
-        AIState_Base *oldState;
-
         this->AssignToPlayer(0);
-        newState = operator new(8);
-        newState =
-            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)2;
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
       }
-
-      if ((this->newRole_ != this->currentRole_) &&
-          ((u_int)(this->newRole_ - 2) < 2)) {
-        AIState_Base *newState;
-        AIState_Base *oldState;
-        Speaker *speaker;
-
-        this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
-        this->AssignToPlayer(0);
-        newState = operator new(8);
-        newState =
-            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
+      if (this->newRole_ != this->currentRole_) {
+        if ((u_int)(this->newRole_ - 2) < 2) {
+          this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
+          this->AssignToPlayer(0);
+          this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
+          Speech::Mobile(this->carObj_)->Lose();
         }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)2;
-        speaker = (Speaker *)Speech::Mobile(this->carObj_);
-        (**(int (**)(...))((int)*speaker->_vf + 0x3c))(
-            (int)&speaker->fPosition.flags +
-                (int)*(short *)((int)*speaker->_vf + 0x38));
       }
-
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-        Car_tObj *carObj;
-        coorddef trafficOffset;
-
         this->AssignToPlayer(0);
-        newState = operator new(8);
-        carObj = this->carObj_;
-        new(newState) AIState_Base(carObj);
-        newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
-        memset((u_char *)&trafficOffset,0,12);
-        offset = &trafficOffset;
-        trafficOffset.y = carObj->carIndex * 0xa0000;
-        break;
+        this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
+        this->newRole_ = 0;
+        this->currentRole_ = 0;
       }
     }
     goto stateExecuteAndReturn;
-
-#endif
+  case 3:
+    {
+      int rbDistanceMeters;
+      int rbAbsDistanceMeters;
+      int release;
+      coorddef newPos;
+      this->carObj_->AIFlags |= 2;
+      this->CheckForNewTarget();
+      release = 0;
+      if (this->perpTarget_ == 0) {
+        this->newRole_ = 1;
+        this->currentRole_ = 1;
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
+        return;
+      }
+      this->GetCheckChasePosition(&newPos);
+      if ((this->spikeBeltPlaced_ != 0) &&
+          (SpikeBelt_Slice() == this->spikeBeltSlice_)) {
+        SpikeBelt_SetFreshenTime(simGlobal.gameTicks);
+      }
+      rbDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,this->perpTarget_->CarObj());
+      rbAbsDistanceMeters = __builtin_abs(rbDistanceMeters);
+      if (rbAbsDistanceMeters < 0x320000) {
+        release = 1;
+      } else if (rbAbsDistanceMeters < 0x12c0000 &&
+                 (this->perpTarget_->CarObj()->currentSpeed > 0 ? this->perpTarget_->CarObj()->currentSpeed : -this->perpTarget_->CarObj()->currentSpeed) > 0x471c7) {
+        int timeToRB = fixeddiv(rbDistanceMeters,this->perpTarget_->CarObj()->currentSpeed);
+        if (timeToRB > 0 && timeToRB < this->spikeBeltInterceptReleaseTime_) {
+          release = 1;
+        }
+      }
+      if (release) {
+        this->spikeBeltPlaced_ = 0;
+        this->newRole_ = 1;
+        this->currentRole_ = 1;
+        this->SetState(new AIState_Chase(this->carObj_,this->perpTarget_->CarObj(),&newPos,
+                                         0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4);
+      }
+      if ((this->newRole_ != this->currentRole_) &&
+          (this->newRole_ == 1)) {
+        this->currentRole_ = 1;
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
+      }
+      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
+        this->AssignToPlayer(0);
+        this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
+        this->newRole_ = 0;
+        this->currentRole_ = 0;
+      }
+    }
+    goto stateExecuteAndReturn;
   case 7:
     {
       this->carObj_->AIFlags &= ~2;
-      if (this->currentRole_ == this->newRole_) {
-        goto stateExecuteAndReturn;
-      }
-
-      if (this->newRole_ == 1) {
-        this->currentRole_ = 1;
-        this->SetupWingman(this->newHumanBoss_);
-      } else {
-        AIState_Base *newState;
-
-        if (1 < (u_int)(this->newRole_ - 2)) {
-          goto stateExecuteAndReturn;
+      if (this->currentRole_ != this->newRole_) {
+        if (this->newRole_ == 1) {
+          this->currentRole_ = 1;
+          this->SetupWingman(this->newHumanBoss_);
+          this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
+        } else {
+          if ((u_int)(this->newRole_ - 2) < 2) {
+            this->currentRole_ = this->newRole_;
+            this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
+            this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3);
+          }
         }
-        this->currentRole_ = this->newRole_;
-        this->SetupBlockader(
-            this->newHumanBoss_,this->newRole_ == 3);
-        newState = new AIState_Idle(this->carObj_);
-        ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-        this->SetState(newState,(stateType_t)3);
-        goto stateExecuteAndReturn;
-      }
-
-      {
-        AIState_Base *newState;
-        newState = operator new(8);
-        newState =
-            (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        this->SetState(newState,(stateType_t)2);
       }
     }
     goto stateExecuteAndReturn;
-
   case 9:
     {
       AIState_GotoSlice *gotoState;
-      AIState_Base *newState;
-
       gotoState = (AIState_GotoSlice *)this->state_;
       this->AssignToPlayer(0);
-      if (gotoState->InTargetSliceRange(0xa0000) == 0) {
-        goto stateExecuteAndReturn;
+      if (gotoState->InTargetSliceRange(0xa0000) != 0) {
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
       }
-      newState = operator new(8);
-      newState =
-          (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-      this->SetState(newState,(stateType_t)2);
     }
     goto stateExecuteAndReturn;
-
   case 10:
   default:
     goto stateExecuteAndReturn;
   }
-
 stateExecuteAndReturn:
   this->state_->StateExecute();
 }
@@ -2977,7 +2161,7 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
 
-    AICop_spikeBelt.Set(this->spikeBeltSlice_, -left, right); AICop_spikeBelt.Freshen(simGlobal.gameTicks);
+    SpikeBelt_Set(this->spikeBeltSlice_, -left, right); SpikeBelt_Freshen(simGlobal.gameTicks);
 
     BWorld_SetSpikeBelt(this->spikeBeltSlice_,AICop_spikeBelt.leftLatPos_,
                left + right);

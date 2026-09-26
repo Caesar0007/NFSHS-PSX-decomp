@@ -290,7 +290,7 @@ void Camera_UpdateTailCam(int player,int behavior)
     if (0 < anchor->wrongway) {
       /* SYM-CODEGEN-CARRIER: flip.  Direct `if (rev ^ 1)` emits xori/bnez
          instead of retail's compare-to-one form (18 diffs at 402/402). */
-      int flip = rev ^ 1;
+      const int flip = rev ^ 1;
       /* MATCH: pin-free zero-instruction fence keeps the XOR ahead of the branch. */
       lookahead = 3;
       if (flip) goto lookahead_done;
@@ -408,7 +408,7 @@ lookahead_done:;
    * Loading arm.y before the boundary restores the retail load order (4 -> 2). */
   /* SYM-CODEGEN-CARRIER: armY.  The pre-boundary snapshot is the measured
      source-side load-order fix; a compound arm.y update leaves two diffs. */
-  int armY = arm.y;
+  const int armY = arm.y;
   __asm__("" : : "i"(2));
   /* W78 source-only closure: force the look-behind base into the arm-load
      latency window; it occupies v1 while vertigo retains retail's a0. */

@@ -351,7 +351,7 @@ int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *carObj, int acc)
 /* ---- AIPhysic_CalcDeceleration__FP8Car_tObj  (the bgez/+0xFF/sra-8 = gcc-2.x signed /256) ---- */
 int AIPhysic_CalcDeceleration(Car_tObj *carObj)
 {
-    int d = *(int *)((char *)carObj->brakeInfo + 0x80);
+    int d = ((AIPhysic_BrakeInfo *)carObj->brakeInfo)->Deceleration();
     if (0x10000 < carObj->aiGlue) {
         d = (d / 256) * (carObj->aiGlue / 256);
     }
@@ -1844,13 +1844,10 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *carObj)
 /* ---- AIPhysic_ProcessCollision__FP8Car_tObj  [MATCHED 100% via __builtin_abs, as ProcessBarrier] ---- */
 void AIPhysic_ProcessCollision(Car_tObj *carObj)
 {
-    /* SYM-OPTIMIZED: reverseTime -- the named $a1 value is the conditional
-     * call argument below and has no separate source storage. */
-    if (0xD999 < carObj->N.collision.impulse) {
-        if (carObj->N.collision.otherObj != 0) {
-            if (!(0x9FFFF < __builtin_abs(carObj->currentSpeed))) {
-                AIPhysic_ChangeDirection(carObj, (carObj->carFlags & 0x10) ? 0xA0 : 0x60);
-            }
+    if (0xD999 < carObj->N.collision.impulse && carObj->N.collision.otherObj != 0) {
+        if (!(0x9FFFF < __builtin_abs(carObj->currentSpeed))) {
+            int reverseTime = (carObj->carFlags & 0x10) ? 0xA0 : 0x60;
+            AIPhysic_ChangeDirection(carObj, reverseTime);
         }
     }
 }
@@ -1900,9 +1897,6 @@ action:
 /* ---- AIPhysic_CheckForGripReduction__FP8Car_tObj ---- */
 void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
 {
-  int randVal;
-  int perTickProb;
-
   if (carObj->gripFactor < 0x10000) {
     carObj->gripFactor +=
         AIPhysic_elapsedTime * carObj->personality->gripLossRecoveryPerTick;
@@ -1914,19 +1908,18 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
       carObj->gripFactor = 0x10000;
     }
   }
-  else if (((carObj->N).simOptz == '\0') && ((carObj->carFlags & 0x28U) != 0)) {
-    if (2000 < ((AIWorld_CalcRoadBend(carObj,1) >= 1) ?
-                AIWorld_CalcRoadBend(carObj,1) :
-                -AIWorld_CalcRoadBend(carObj,1))) {
+  else if (((carObj->N).simOptz == '\0') && ((carObj->carFlags & 0x28U) != 0) &&
+           2000 < ((AIWorld_CalcRoadBend(carObj,1) >= 1) ? AIWorld_CalcRoadBend(carObj,1) : -AIWorld_CalcRoadBend(carObj,1))) {
+      int randVal;
+      int perTickProb;
       randtemp = fastRandom * randSeed;
       randVal = (int)(((u_int)randtemp >> 8) & 0xffff);
       fastRandom = randtemp & 0xffff;
       perTickProb = AIPhysic_elapsedTime *
-                    carObj->personality->gripLossProbPerSecond;
-      if (randVal < perTickProb / 32) {
+                    carObj->personality->gripLossProbPerSecond / 32;
+      if (randVal < perTickProb) {
         carObj->gripFactor = carObj->personality->gripLossMinFactor;
       }
-    }
   }
   return;
 }

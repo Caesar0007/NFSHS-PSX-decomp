@@ -78,6 +78,7 @@ struct AIPhysic_BrakeInfo {
             brakeTableLoop = brakeTableLoop + 1;
         }
     }
+    inline int Deceleration() { return deceleration_; }   /* retail pair (this typed AIPhysic_BrakeInfo) */
 };
 
 typedef enum Gear_t {

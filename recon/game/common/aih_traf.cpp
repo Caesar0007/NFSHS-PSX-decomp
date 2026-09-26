@@ -112,42 +112,39 @@ AIHigh_Traffic::CopCheck(int *blockade)
 /* (class (b) 2026-09-17) the 12-byte constant is HighExecute's local brace initializer: cc1plus emits it at
    expansion time, BEFORE the vtable batch (retail order D_800551A4 0x800551a4, _vt 0x800551b0). */
 
+/* reencarnate a traffic car at a roving trigger: retail's pair records only `trigger` (the AI object argument is
+   used once and propagated; the car is read inside, after the other arguments) */
+static inline void Traffic_ReencarnateAtTrigger(AIHigh_Base *high, trigger_t *trigger)
+{
+  AILife_ReencarnateTrafficByPosition(high->carObj_, *(int *)((char *)trigger + 4), 1,
+                                      *(coorddef **)((char *)trigger + 0x3c),
+                                      (matrixtdef *)((char *)trigger + 0xc));
+}
+
 /* ---- HighExecute__14AIHigh_Traffic  AIHigh_Traffic::HighExecute  [AIH_TRAF.CPP:129-340] SLD-VERIFIED ---- */
 
 void AIHigh_Traffic::HighExecute()
 {
   carObj_->unlap = 0;
   carObj_->lap = 0;
-
   switch ((stateType_t)stateType_) {
+    trigger_t *pNewTrigger;
   case STATE_NONE:
-    {
-      coorddef trafficOffset = { 0, 0x640000, 0 };
-
-      if ((carObj_->carFlags & 0x400U) != 0) {
-        AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
-        idleState->idleInPlaceFlag_ = 1;
-        this->SetState((AIState_Base *)idleState,STATE_IDLE);
+      {
+        coorddef trafficOffset = { 0, 0x640000, 0 };
+        if ((carObj_->carFlags & 0x400U) != 0) {
+          this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
+        }
+        else {
+          this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
+        }
+        Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
+        return;
       }
-      else {
-        AIState_Base *newState =
-          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
-            AIState_Purgatory(carObj_);
-        this->SetState(newState,STATE_PURGATORY);
-      }
-
-      Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
-      return;
-    }
-
   case STATE_PURGATORY:
-    {
       if (accidentData_ != (SceneElem *)0x0) {
         BWorldSm_Pos spos;
-        AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
-        idleState->idleInPlaceFlag_ = 1;
-        this->SetState((AIState_Base *)idleState,STATE_IDLE);
-
+        this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
         spos.slice = 0;
         BWorldSm_FindClosestSlice(&accidentData_->cp,&spos);
         AILife_ReencarnateTrafficByPosition
@@ -156,157 +153,100 @@ void AIHigh_Traffic::HighExecute()
         accidentData_ = (SceneElem *)0x0;
       }
       else {
-        /* SYM-CODEGEN-CARRIER: release -- SYM does not retain this optimized
-           short-circuit result. A direct conjunction compiles to 546
-           instructions/5 oracle diffs; the native boolean assignment keeps
-           retail's pre-call zero initialization and 547-instruction PASS. */
-        bool release;
-        release =
-          (state_->TestForRelease() != 0) &&
-          (forcePurgatory_ == 0);
-        if (release) {
-          trigger_t *pNewTrigger = CheckForNewTriggers();
-
+        if ((state_->TestForRelease() != 0) && (this->ForcePurgatory() == 0)) {
+          pNewTrigger = CheckForNewTriggers();
           if (pNewTrigger != (trigger_t *)0x0) {
-            /* SYM-OPTIMIZED: trigger -- DescribeTrigger's inlined parameter
-               aliases pNewTrigger in $s0; it has no independent source value. */
             triggerManagerTraffic->DescribeTrigger(pNewTrigger);
             if (*(int *)pNewTrigger == 5) {
-              this->SetState((AIState_Base *)new((AIState_RovingTraffic *)operator new(0x18))
-                  AIState_RovingTraffic(carObj_,pNewTrigger),
-                STATE_ROVING_TRAFFIC);
-              AILife_ReencarnateTrafficByPosition
-                (carObj_,*(int *)((char *)pNewTrigger + 4),1,
-                 *(coorddef **)((char *)pNewTrigger + 0x3c),
-                 (matrixtdef *)((char *)pNewTrigger + 0xc));
+              this->SetState(new AIState_RovingTraffic(carObj_,pNewTrigger), STATE_ROVING_TRAFFIC);
+              Traffic_ReencarnateAtTrigger(this, pNewTrigger);
             }
           }
           else {
-            AIState_Base *newState =
-              (AIState_Base *)new((AIState_Normal *)operator new(8))
-                AIState_Normal(carObj_);
-            this->SetState(newState,STATE_NORMAL);
+            this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
             AILife_ReencarnateTraffic(carObj_);
           }
         }
       }
-      break;
-    }
-
+    break;
   case STATE_NORMAL:
     {
       int blockade;
-
       if (AILife_EvaluateLife(carObj_) != 0) {
-        AIState_Base *newState =
-          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
-            AIState_Purgatory(carObj_);
-        this->SetState(newState,STATE_PURGATORY);
-        break;
+        this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
-
-      if (forcePurgatory_ != 0) {
-        AIState_Base *newState =
-          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
-            AIState_Purgatory(carObj_);
-        this->SetState(newState,STATE_PURGATORY);
-        break;
+      else if (this->ForcePurgatory() != 0) {
+        this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
-
-      if (CopCheck(&blockade) != (AIHigh_Cop *)0x0) {
-        if (ignoreCops_ != 0) {
-          break;
-        }
-
-        randtemp = fastRandom * randSeed;
-        fastRandom = randtemp & 0xffff;
-        int cRand = ((randtemp >> 8) & 0xffff) * 5 >> 0xf;
-
-        if (blockade != 0) {
-          AIState_Idle *idleState;
-          int slice = (int)carObj_->N.simRoadInfo.slice;
-          idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
-          idleState->idleInPlaceFlag_ = 1;
-          this->SetState((AIState_Base *)idleState,STATE_IDLE);
-
-          (idleState = idleState)->SetIdlePosition(
-            carObj_->direction == 1 ?
-              ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
-                (BWorldSm_slices[slice].laneCount & 0xf) :
-              ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) *
-                ((u_int)BWorldSm_slices[slice].laneCount >> 4));
-        }
-        else if (cRand <= 0) {
-          AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
-          idleState->idleInPlaceFlag_ = 1;
-          this->SetState((AIState_Base *)idleState,STATE_IDLE);
-        }
-        else if (cRand < 8) {
-          AIState_Idle *idleState;
-          int slice = (int)carObj_->N.simRoadInfo.slice;
-          idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
-          idleState->idleInPlaceFlag_ = 1;
-          this->SetState((AIState_Base *)idleState,STATE_IDLE);
-
-          (idleState = idleState)->SetIdlePosition(
-            carObj_->direction == 1 ?
-              ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
-                (BWorldSm_slices[slice].laneCount & 0xf) :
-              ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) *
-                ((u_int)BWorldSm_slices[slice].laneCount >> 4));
-        }
-        else {
-          ignoreCops_ = 1;
+      else if (CopCheck(&blockade) != (AIHigh_Cop *)0x0) {
+        if (ignoreCops_ == 0) {
+          randtemp = fastRandom * randSeed;
+          fastRandom = randtemp & 0xffff;
+          int cRand = ((randtemp >> 8) & 0xffff) * 5 >> 0xf;
+          if (blockade != 0) {
+            {
+            AIState_Idle *idleState;
+            int slice = (int)carObj_->N.simRoadInfo.slice;
+            this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
+            idleState = (AIState_Idle *)this->state_;
+            idleState->SetIdlePosition(
+              carObj_->direction == 1 ?
+                ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
+                  (BWorldSm_slices[slice].laneCount & 0xf) :
+                ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) *
+                  ((u_int)BWorldSm_slices[slice].laneCount >> 4));
+            }
+          }
+          else if (cRand <= 0) {
+            this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
+          }
+          else if (cRand < 8) {
+            AIState_Idle *idleState;
+            int slice = (int)carObj_->N.simRoadInfo.slice;
+            this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
+            idleState = (AIState_Idle *)this->state_;
+            idleState->SetIdlePosition(
+              carObj_->direction == 1 ?
+                ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
+                  (BWorldSm_slices[slice].laneCount & 0xf) :
+                ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) *
+                  ((u_int)BWorldSm_slices[slice].laneCount >> 4));
+          }
+          else {
+            ignoreCops_ = 1;
+          }
         }
       }
       else {
         ignoreCops_ = 0;
       }
-      break;
     }
-
+    break;
   case STATE_IDLE:
     {
       int blockade;
       if (AILife_EvaluateLife(carObj_) != 0) {
-        AIState_Base *newState =
-          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
-            AIState_Purgatory(carObj_);
-        this->SetState(newState,STATE_PURGATORY);
+        this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
       else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) &&
                ((carObj_->carFlags & 0x400U) == 0)) {
-        AIState_Base *newState =
-          (AIState_Base *)new((AIState_Normal *)operator new(8))
-            AIState_Normal(carObj_);
-        this->SetState(newState,STATE_NORMAL);
+        this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
       }
-      break;
     }
-
+    break;
   case STATE_ROVING_TRAFFIC:
     {
       if (AILife_EvaluateLife(carObj_) != 0) {
-        AIState_Base *newState =
-          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
-            AIState_Purgatory(carObj_);
-        this->SetState(newState,STATE_PURGATORY);
+        this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
-      else if (forcePurgatory_ != 0) {
-        AIState_Base *newState =
-          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
-            AIState_Purgatory(carObj_);
-        this->SetState(newState,STATE_PURGATORY);
+      else if (this->ForcePurgatory() != 0) {
+        this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
       else if (state_->TestForRelease() != 0) {
-        AIState_Base *newState =
-          (AIState_Base *)new((AIState_Normal *)operator new(8))
-            AIState_Normal(carObj_);
-        this->SetState(newState,STATE_NORMAL);
+        this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
       }
-      break;
     }
-
+    break;
   case STATE_CHASE:
   case STATE_OFFROAD:
   case STATE_NONACTIVE:
@@ -316,7 +256,6 @@ void AIHigh_Traffic::HighExecute()
   default:
     break;
   }
-
   state_->StateExecute();
 }
 

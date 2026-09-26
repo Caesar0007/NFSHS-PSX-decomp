@@ -188,6 +188,9 @@ struct AICop_PerpChaseInfo {
 /* AIState_Idle's empty inline ctor lives HERE, not in aistate_classes.h: aistate.obj (Idle's key-function
    TU) carries no out-of-line copy, which cc1plus 2.8 would emit for any inline member it can see. */
 inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}
+inline AIState_Idle::AIState_Idle(Car_tObj *carObj, int idleInPlace) : AIState_Base(carObj) {
+    idleInPlaceFlag_ = idleInPlace;
+}
 
 /* aihigh.obj-local all-inline classes.  Declared HERE (AIState_None right after the AIState family,
    AIHigh_None right after AIHigh_Base) because cc1plus 2.8 emits a TU's vtable batch in REVERSE

@@ -28,6 +28,7 @@ struct AIHigh_Traffic : public AIHigh_Base {
     AIHigh_Cop *CopCheck(int *p);
     void HighExecute();
     trigger_t *CheckForNewTriggers();
+    inline int ForcePurgatory() { return forcePurgatory_; }   /* retail pair (this typed AIHigh_Traffic) */
 };
 
 #include "aistate_classes.h"

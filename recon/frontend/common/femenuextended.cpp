@@ -228,7 +228,7 @@ void tMenuItemGoToMenuNFS4Button::Draw(int x,int y,bool selected)
       this->fOffset = (u_short)this->fOffset + dist;
     }
   }
-  if (((this->fFlags ^ 1) & 1) != 0) {
+  if (this->IsEnabled()) {
     this->fEnabledTransitionVal = this->fEnabledTransitionVal + 0xc;
   }
   else {
@@ -403,7 +403,7 @@ void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
       this->fOffset = (u_short)this->fOffset + dist;
     }
   }
-  if (((this->fFlags ^ 1) & 1) != 0) {
+  if (this->IsEnabled()) {
     this->fEnabledTransitionVal = this->fEnabledTransitionVal + 0xc;
   }
   else {

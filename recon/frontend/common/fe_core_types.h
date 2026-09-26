@@ -101,6 +101,9 @@ struct tMenuItem {
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     void UpdateSelFade(bool);
 #endif
+#ifdef NFS4_FE_CORE_MENUITEM_ISENABLED
+    inline bool IsEnabled() { return (fFlags & 1) == 0; }
+#endif
 };
 
 /* non-member: an inline MEMBER of a class whose key function is in the TU (FEMenu) would get an out-of-line copy */

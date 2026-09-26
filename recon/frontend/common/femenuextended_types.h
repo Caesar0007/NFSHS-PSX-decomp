@@ -26,6 +26,7 @@ struct tMenu;
 
 
 #define NFS4_FE_CORE_FEMENU_METHODS
+#define NFS4_FE_CORE_MENUITEM_ISENABLED   /* tMenuItem::IsEnabled() -- retail's tMenuItem `this` pair in the Draw bodies */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
 

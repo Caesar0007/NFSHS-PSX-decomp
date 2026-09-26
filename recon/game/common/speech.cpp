@@ -1166,78 +1166,34 @@ Speech::Speaker *Speech::Dispatch(void)
 void Speech::DispatchSpeaker::Roger()
 
 {
-  /* SYM-CODEGEN-CARRIER: invalid -- retail's optimized SYM has no ordinary
-     local rows, so this source spelling is not recoverable.  The two-stage
-     boolean shape is nevertheless required: folding the condition directly
-     into the second `if` emits 152/157 instructions and 11 diffs. */
-  bool invalid;
-  /* SYM-CODEGEN-CARRIER: ID_CAR -- semantic name/type follow the canonical
-     SPCHNFS_D_C_IN_PURS_* prototype.  A direct fCar argument moves its load
-     into the jal delay slot (12 count-exact diffs across the two arms).
-     SYM-CODEGEN-CARRIER: ID_UNIT -- the corresponding fTo staging statement
-     is independently required for the same retail argument-setup order. */
-  int ID_CAR;
-  int ID_UNIT;
-  
-  Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-  invalid = false;
-  if ((this->fSub == (Speaker *)0x0 ||
-      (this->fSub->Perp() == 0)) ||
-      ((this->fSub)->fBlockade).flags != 0) {
-    invalid = true;
+  this->ClearSpeaker();
+  if (this->Sub() == 0 || this->Sub()->Perp() == 0 || this->Sub()->BlockadeFlags() != 0) {
+    SPCHNFS_D_A_CONFIRM(this->Confirm());
+    SPCH_PlaySpeech();
   }
-  if (invalid) {
-    SPCHNFS_D_A_CONFIRM(&this->fConfirm);
+  else if (this->Sub()->ArrestFlags() != 0) {
+    this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
+    SPCHNFS_D_C_PERP_APPREHENSION_REPLY(this->To(),this->Confirm(),this->PerpName());
+    SPCH_PlaySpeech();
+  }
+  else if (this->Sub()->UpdateFlags() == 0) {
+    SPCHNFS_D_A_CONFIRM(this->Confirm());
+    SPCH_PlaySpeech();
+    this->SetCar(this->Sub()->Perp());
+    SPCHNFS_D_C_PERP_LOST_CONFIRM(this->Colour(),this->Car());
+    SPCH_PlaySpeech();
   }
   else {
-    if ((this->fSub->fArrest).flags != 0) {
-      /* SYM-CODEGEN-CARRIER: bank -- both scoped instances make GCC coalesce
-         the first virtual result with the computed table base and mutate it
-         in place.  Anonymous address expressions stay 157/157 but use $v0
-         rather than retail's $s0 at both sites (8 diffs). */
-      int *bank = (int *)
-          ((int)this->CallSign() +
-           this->fSub->Unit() * 4);
-      SPCHNFS_D_C_PERP_APPREHENSION_REPLY(
-          this->fTo = bank[2],
-          &this->fConfirm,
-          &this->fPerpName);
-    }
-    else if ((this->fSub->fUpdate).flags == 0) {
-      SPCHNFS_D_A_CONFIRM(&this->fConfirm);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      this->SetCar((Car_tObj *)
-          this->fSub->Perp());
-      SPCHNFS_D_C_PERP_LOST_CONFIRM(&this->fColour,
-                                    this->fCar);
-    }
-    else {
-      this->SetCar((Car_tObj *)
-          this->fSub->Perp());
-      {
-        int *bank = (int *)
-            ((int)this->CallSign() +
-             this->fSub->Unit() * 4);
-        this->fTo = bank[2];
-      }
-      if (this->fSub->DistToPerp() < 0x280000) {
-        ID_CAR = this->fCar;
-        ID_UNIT = this->fTo;
-        SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(&this->fColour,
-                   ID_CAR,ID_UNIT,&this->fConfirm,
-                   &this->fPerpName);
-      }
-      else {
-        ID_CAR = this->fCar;
-        ID_UNIT = this->fTo;
-        SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(&this->fColour,
-                   ID_CAR,ID_UNIT,&this->fConfirm,
-                   &this->fPerpName);
-      }
-    }
+    this->SetCar(this->Sub()->Perp());
+    this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
+    if (this->Sub()->DistToPerp() < 0x280000)
+      SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(this->Colour(),this->Car(),this->To(),this->Confirm(),
+                                            this->PerpName());
+    else
+      SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(this->Colour(),this->Car(),this->To(),this->Confirm(),
+                                            this->PerpName());
+    SPCH_PlaySpeech();
   }
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  return;
 }
 
 /* ---- StatusReply__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1636-1713] SLD-VERIFIED ----
@@ -2552,68 +2508,21 @@ void Speech::MobileSpeaker::Backup()
 void Speech::MobileSpeaker::Roger()
 
 {
-  /* SYM-CODEGEN-CARRIER: isStatusSub -- folding the staged predicate into the
-     condition shortens the body to 92 instructions and leaves 6 diffs. */
-  bool isStatusSub;
-  /* SYM-CODEGEN-CARRIER: elseBankBase -- inlining this virtual result is
-     count-exact but causes a 50-diff whole-function s1/s2 allocation swap. */
-  int elseBankBase;
-  /* SYM-CODEGEN-CARRIER: voice -- direct fVoice expressions shorten the body
-     to 92 instructions and cause a 50-diff s1/s2 allocation swap. */
-  SPCHNFSType_VOICE *voice;
-  
-  /* SYM-OPTIMIZED: carObj -- the line-1 inline Speech expansion consumes
-     `this->fCarObj` directly in fSpeakerCar; no ordinary local survives. */
   this->MakeSpeaker();
-  isStatusSub = false;
-  if (this->fSub != (Speaker *)0x0) {
-    isStatusSub = Speech::Dispatch()->StatusSub() ==
-        this->fSub;
-  }
-  if (isStatusSub) {
-    /* SYM-CODEGEN-CARRIER: bank -- replacing the computed alias with
-       bankBase[bankIndex + 2] is count-exact but changes four instructions;
-       mutating bankBase instead shortens the body to 92 with 16 diffs. */
-    int *bank;
-    /* SYM-CODEGEN-CARRIER: bankBase -- folding this first virtual result into
-       the sum grows the body to 96 instructions and leaves 78 diffs. */
-    int *bankBase;
-    /* SYM-CODEGEN-CARRIER: bankIndex -- folding this second virtual result into
-       the sum grows the body to 96 instructions and leaves 70 diffs. */
-    int bankIndex;
-    /* SYM-CODEGEN-CARRIER: confirmVoice -- this zero-byte identity carrier and
-       its three priced read operands reproduce retail's s1/s2 allocation; the
-       allocator receipt and failed two-operand variant are recorded above. */
-    SPCHNFSType_VOICE *confirmVoice;
-
-    voice = this->Voice();
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    bankBase = (int *)this->CallSign();
-    bankIndex = this->fSub->Unit();
-    confirmVoice = voice;
-    __asm__("" : "=r"(confirmVoice)
-               : "0"(confirmVoice), "r"(confirmVoice), "r"(confirmVoice),
-                 "r"(confirmVoice));
-    bank = bankBase + bankIndex;
-    SPCHNFS_C_A_CONFIRM(confirmVoice,
-      this->fTo = bank[2],
-      &this->fConfirm);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    this->SetCar((Car_tObj *)
-      this->Perp());
-    SPCHNFS_C_C_IN_PURS_NEAR_PERP(
-      voice,&this->fColour,this->fCar);
+  if (this->Sub() != 0 && Speech::Dispatch()->StatusSub() == this->Sub()) {
+    SPCH_PlaySpeech();
+    this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
+    SPCHNFS_C_A_CONFIRM(this->Voice(),this->To(),this->Confirm());
+    SPCH_PlaySpeech();
+    this->SetCar(this->Perp());
+    SPCHNFS_C_C_IN_PURS_NEAR_PERP(this->Voice(),this->Colour(),this->Car());
+    SPCH_PlaySpeech();
   }
   else {
-    elseBankBase = this->CallSign();
-    voice = this->Voice();
-    SPCHNFS_C_A_CONFIRM(
-      voice,
-      this->fTo = *(int *)(elseBankBase + 4),
-      &this->fConfirm);
+    this->SetTo(this->CallSign()->Dispatch());
+    SPCHNFS_C_A_CONFIRM(this->Voice(),this->To(),this->Confirm());
+    SPCH_PlaySpeech();
   }
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  return;
 }
 
 /* ---- Bullhorn__Q26Speech13MobileSpeaker  [SPEECH.CPP:2741-2748] SLD-VERIFIED ---- */

@@ -340,6 +340,9 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
 - Both `Report`s CLEAN with the accessor spelling (MobileSpeaker: trailing `Dispatch()->SetSub(this)`;
   DispatchSpeaker: `ClearSpeaker()`, `KnownPerp(perp) && Sub() != 0`, `SetTo(CallSign()->Mobile(Sub()->Unit()))`,
   `SetTo(CallSign()->AllUnits())`) -- carriers and one more empty `__asm__` barrier removed. 80 CLEAN.
+- Both `Roger`s CLEAN with the accessor spelling (DispatchSpeaker: every access to the sub goes through `Sub()`,
+  e.g. `Sub()->BlockadeFlags()`/`Sub()->ArrestFlags()`/`Sub()->UpdateFlags()` = a `this` pair for Sub() plus a
+  variable-free pair on its temporary). MobileSpeaker::Roger's zero-byte `__asm__` identity carrier is gone. 82 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -1349,15 +1349,11 @@ void AIHigh_BTC_HumanCop::SetDesiredSpeed()
 
 
 {
-  int curveSpeed;
-
   if (this->carObj_->RSControl != 0) {
-
-    curveSpeed = AISpeeds_CalcHumanTopSpeed(this->carObj_);
-
+    int curveSpeed = AISpeeds_CalcHumanTopSpeed(this->carObj_);
     this->carObj_->desiredSpeed =
-        this->requestedDesiredSpeed_ < curveSpeed
-            ? this->requestedDesiredSpeed_ : curveSpeed;
+        this->RequestedDesiredSpeed() < curveSpeed
+            ? this->RequestedDesiredSpeed() : curveSpeed;
 
   }
 

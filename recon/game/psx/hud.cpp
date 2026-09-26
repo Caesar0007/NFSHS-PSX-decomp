@@ -6242,24 +6242,18 @@ void Hud_BustedOverlayOff(void)
 
 /* ---- Hud_Reset__Fv  [HUD.CPP:4056-4069] SLD-VERIFIED ---- */
 void Hud_Reset(void)
-
 {
-  int i;
-
-  i = 0;
   if (Replay_ReplayMode < 2) {
-    do {
+    for (int i = 0; i < 2; i++) {
       Hud_NextPerp[i] = 0;
-      i = i + 1;
       BTC_CurrentPerpName[0] = '\0';
-    } while (i < 2);
+    }
   }
   BTC_BonusTime = 0;
   HudBustedOverlay = 0;
   PerpOverlayOn[0] = 0;
   PerpOverlayOn[1] = 0;
   BTC_UserHasControl = 0;
-  return;
 }
 
 /* ---- Hud_BTC_QuitOut__Fv  [HUD.CPP:4074-4086] SLD-VERIFIED ----
@@ -6267,21 +6261,15 @@ void Hud_Reset(void)
  * BTCPerpInfo[i][Hud_NextPerp[i]] accesses reproduce the 0xA0 row GIV and sprintf grouping;
  * the former flattened row/pointer/index temporaries were decompiler artifacts. */
 void Hud_BTC_QuitOut(void)
-
 {
-  int i;
-
   if (HudBustedOverlay == 0) {
-    i = 0;
-    do {
+    for (int i = 0; i < 2; i++) {
       sprintf(BTCPerpInfo[i][Hud_NextPerp[i]].name,BTC_CurrentPerpName);
       BTCPerpInfo[i][Hud_NextPerp[i]].caught = 0;
       BTCPerpInfo[i][Hud_NextPerp[i]].time = 0;
       Hud_NextPerp[i] = Hud_NextPerp[i] + 1;
-      i = i + 1;
-    } while (i < 2);
+    }
   }
-  return;
 }
 
 /* ---- Hud_BTC_BonusTime__Fl  [HUD.CPP:4091-4096] SLD-VERIFIED ---- */

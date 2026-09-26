@@ -382,9 +382,9 @@ void tScreenCongrats::CalculatePrizes()
      neutral at FAIL 4; the bounded store ordering alone reached FAIL 2, and a
      redundant fCarCX store was FAIL 6.  No hard register, emitted asm, extra
      local, or post-compilation modification is used. */
-  unsigned long carCXBits = 0x40800000;
+  const unsigned long carCXBits = 0x40800000;
   __asm__("" : : "r"(carCXBits));
-  unsigned long carCYBits = 0xc0eccccd;
+  const unsigned long carCYBits = 0xc0eccccd;
 
   this->congratsMessage = kScreenCongrats_Congrats;
   this->trophy = kTrophyNone;

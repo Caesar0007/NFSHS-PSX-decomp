@@ -172,16 +172,16 @@ void AI_TargetLane(Car_tObj *carObj,int lane)
 /* ---- AI_ClearLaneMerits__Fv  [@0x80057b6c] ---- */
 void AI_ClearLaneMerits(void)
 {
-  int o;
-  
-  o = 0;
-  do {
-    o = o + 1;
-    CarLogic_gObs[0][2] = 0;
-    CarLogic_gObs[0][1] = 0;
-    CarLogic_gObs[0][0] = 0;
-  } while (o < 1);
-  return;
+  {
+    int o;
+    o = 0;
+    do {
+      o = o + 1;
+      CarLogic_gObs[0][2] = 0;
+      CarLogic_gObs[0][1] = 0;
+      CarLogic_gObs[0][0] = 0;
+    } while (o < 1);
+  }
 }
 
 /* ---- AI_DoReactions__FP8Car_tObj  [@0x80057b94] ---- */
@@ -318,15 +318,9 @@ LAB_80057f34:
 void AI_DoReactionsAndBehavior(Car_tObj *carObj)
 {
   int t;
-  Car_tObj *otherCarObj;
-
   AI_DoReactions(carObj);
-  t = 0;
-  while (1) {
-    if (Cars_gNumCars <= t) {
-      break;
-    }
-    otherCarObj = Cars_gList[t];
+  for (t = 0; t < Cars_gNumCars; t++) {
+    Car_tObj *otherCarObj = Cars_gList[t];
     if (((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) &&
         ((otherCarObj->carFlags & 4U) != 0)) {
       AI_CheckForPlayerActions(carObj,otherCarObj);
@@ -334,9 +328,7 @@ void AI_DoReactionsAndBehavior(Car_tObj *carObj)
         AI_OpponentBlockPlayer(carObj,otherCarObj);
       }
     }
-    t = t + 1;
   }
-  return;
 }
 
 /* ---- AI_OpponentBlockPlayer__FP8Car_tObjT0  [@0x800580d8] ---- */
@@ -566,7 +558,6 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
 {
   int slice;
   int shoulder_merit;
-  int isRight;
 
   slice = (int)(carObj->N).simRoadInfo.slice;
   shoulder_merit = -0x4e666;
@@ -605,6 +596,7 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
       (carObj->laneIndex ==
        (BWorldSm_slices[slice].laneCount & 0xf) + 7)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + shoulder_merit;
+    int isRight;
     isRight = (carObj->laneIndex < 7) ^ 1;
     if (carObj->laneIndex < 7) {
       if ((BWorldSm_slices[(carObj->N).simRoadInfo.slice].leftDrive << 8) -
@@ -993,13 +985,13 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
   int leftEdgeIndex;
   int rightEdgeIndex;
   int observations[3];
-  int leftDistance;
-  int rightDistance;
 
   memset((u_char *)observations,'\0',0xc);
   leftEdgeIndex = AIWorld_LaneIndex(slice,leftLatPosition);
   rightEdgeIndex = AIWorld_LaneIndex(slice,rightLatPosition);
-  if (((u_int)rightEdgeIndex < 0xe) && ((u_int)leftEdgeIndex < 0xe)) {
+  if (!(((u_int)rightEdgeIndex < 0xe) && ((u_int)leftEdgeIndex < 0xe)))
+    return;
+  
     if (((int)leftEdgeIndex <= carObj->laneIndex + -1) &&
         (carObj->laneIndex + -1 <= (int)rightEdgeIndex)) {
       observations[0] = importance;
@@ -1012,6 +1004,8 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
       observations[2] = importance;
     }
     if (((observations[0] != 0) && (observations[1] != 0)) && (observations[2] != 0)) {
+      int leftDistance;
+      int rightDistance;
       leftDistance = carObj->roadPosition - leftLatPosition;
       rightDistance = carObj->roadPosition - rightLatPosition;
       leftDistance = __builtin_abs(leftDistance);
@@ -1026,7 +1020,7 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + observations[0];
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + observations[1];
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + observations[2];
-  }
+  
   return;
 }
 

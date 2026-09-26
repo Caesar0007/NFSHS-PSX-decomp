@@ -2475,7 +2475,6 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       Draw_tPixMap *pmx;
       u_int *pal;
       u_char **pp;
-      u_int c1;
 
       /* MATCH (W72-A4, -12 with its fence below): the 24-bit OT mask as a NAMED local.
          Naming it alone is neutral (96) and the identity-launder form is worse (102); it
@@ -2598,7 +2597,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    sw v0,0(a2); sw v1,4(s0)`) -- splitting the load out of the store is
                    what lets the bump land there.  After this the whole packet block is
                    byte-identical to the oracle bar the two RMW load-order lines. */
-                c1 = *(u_int *)(&gHrzRingColor[1][0].r + iv);
+                const u_int c1 = *(u_int *)(&gHrzRingColor[1][0].r + iv);
                 *pp = (u_char *)prim + 0x34;
                 *(u_int *)((u_char *)prim + 4) = c1;
                 *(u_int *)((u_char *)prim + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + ringOffset);

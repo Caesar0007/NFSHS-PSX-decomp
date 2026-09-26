@@ -264,7 +264,6 @@ void tScreenTrophyRoom::DrawBackground()
      drawFlags AUTO sp+56, i REG $17 s1, x REG $6 a2, y REG $7 a3, texttoshow
      REG $4 a0); the SYM-ABSENT drawFlagsPtr carrier is quarantined after them.
      Re-gated PASS. */
-  tDrawShapeExtended *drawFlagsPtr;
   
   drawFlags3.tint[0] = 0xcec844;
   DrawShapeExtended((FE_Ticks() >> 4) % 10 + 0x1c,
@@ -283,7 +282,7 @@ void tScreenTrophyRoom::DrawBackground()
     this->startTicks = FE_Ticks();
   }
   {
-    uint feTier = (uint)(byte)frontEnd.tier;
+    const uint feTier = (uint)(byte)frontEnd.tier;
     byte currentTourn;
     uint tourn;
     tTourneyInfo *selectedTourn;
@@ -309,7 +308,7 @@ void tScreenTrophyRoom::DrawBackground()
   i = 0;
   FETextRender_FullTextRGB(TextSys_Word(texttoshow),0x100,200,
                            CalcFadeVal(0x505050,this->fScreenFadeVal),'\0',2);
-  drawFlagsPtr = &drawFlags;
+  const tDrawShapeExtended * drawFlagsPtr = &drawFlags;
   while (true) {
     if ((int)i >= (int)this->fNumTrophies) break;
     x = TROPHY_LEFTOFFSET + (i % fModNumber) * 0x5f;

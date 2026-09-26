@@ -8,6 +8,7 @@
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tFEApplication * App(void) { return FEApp; }
 static inline int MenuItem_NumFrames(tMenuItem *item) { return item->fNumFrames; }
+static inline bool MenuItem_IsEnabled(tMenuItem *item) { return ((item->fFlags ^ 1) & 1) != 0; }
 
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
@@ -1126,30 +1127,16 @@ void tMenuOptions::TransitionOff()
 static inline u_long tMenuOptions_Ticks(void) { return ticks; }
 
 void tMenuOptions::TransitionOn()
-
 {
-  /* SYM-CODEGEN-CARRIER: itemCursor
-   * Retail keeps this in $s1 and a separate address cursor in $s0, starting
-   * at this and advancing four bytes per fItemList slot.  The debug stream
-   * exposes no original source name for that optimized cursor. */
-  tMenuOptions *itemCursor;
-
-  itemCursor = this;
-TransitionOn_nextItem:
-  if (itemCursor->fItemList[0] == (tMenuItem *)0x0) {
-    goto TransitionOn_itemsDone;
+  for (int i = 0; this->fItemList[i] != 0; i++) {
+    if (MenuItem_IsEnabled(this->fItemList[i])) {
+      this->fItemList[i]->TransitionOn();
+    }
   }
-  if (((itemCursor->fItemList[0]->fFlags ^ 1) & 1) != 0) {
-    itemCursor->fItemList[0]->TransitionOn();
-  }
-  itemCursor = (tMenuOptions *)&itemCursor->fTitle;
-  goto TransitionOn_nextItem;
-TransitionOn_itemsDone:
-  this->fTransitionDirection = '\x01';
+  this->fTransitionDirection = 1;
   this->fInMenuTransition = 1;
   this->fMenuEnterTicks = tMenuOptions_Ticks();
   AudioCmn_PlayFESFX(0xf);
-  return;
 }
 
 

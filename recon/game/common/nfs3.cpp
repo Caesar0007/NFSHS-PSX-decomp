@@ -185,6 +185,19 @@ static void NFS4_LoadPerps(void)
 
 
 
+/* the speech object's lifetime (retail records variable-free inline pairs at the two call sites) */
+static inline void Speech_Create(void)
+{
+  if (Speech::fgSpeech == 0) Speech::fgSpeech = new Speech;
+}
+static inline void Speech_Destroy(void)
+{
+  if (Speech::fgSpeech != 0) {
+    delete Speech::fgSpeech;
+    Speech::fgSpeech = 0;
+  }
+}
+
 /* ---- Nfs2_GameModuleStartUp  [NFS3.CPP:357-460] SLD-VERIFIED ---- */
 
 
@@ -206,9 +219,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   Clock_SystemStartUp();
   AudioCmn_LoadGameSamples();
   CopSpeak_StartUp();
-  if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (Speech::fgSpeech == 0)) {
-    Speech::fgSpeech = new Speech;
-  }
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) Speech_Create();
   Render_InitPauseMenu();
   Render_InitTrackRender();
   Loading_UpdateLoadingScreen(4);
@@ -261,10 +272,7 @@ void Nfs2_CleanUpGameModule(void)
   }
   Replay_StoringReplay();
   AudioCmn_DeInit();
-  if (Speech::fgSpeech != 0) {
-    delete Speech::fgSpeech;
-    Speech::fgSpeech = 0;
-  }
+  Speech_Destroy();
   CopSpeak_CleanUp();
   Clock_SystemCleanUp();
   GameSetup_CleanUp();

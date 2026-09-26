@@ -410,12 +410,10 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
     if ((blockade->flags & 4U) != 0) {
 
       int objId;
-
+      coorddef pt;
       objId = Object_FindDefWithThisID(3);
 
       if (objId != -1) {
-
-        coorddef pt;
 
         pt.x = -0x28000;
 

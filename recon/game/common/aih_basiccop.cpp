@@ -123,49 +123,27 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 /* ---- ShouldIPerformCutOffBlock__15AIHigh_BasicCopiP8Car_tObj  AIHigh_BasicCop::ShouldIPerformCutOffBlock  [AIH_BASICCOP.CPP:83-193] SLD-VERIFIED ---- */
 
 int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *target)
-
-
-
 {
   int chanceForElapsedTime;
   int chanceOutOf1000;
   int random1000;
-  int relLatPosition;
-  int absRelLatPosition;
-  int metersBetween;
-  int carLength;
-
-  /* H18: full body reconstructed from oracle 0x8005C2B4-0x8005C410 (was stubbed `return 0`, so the
-     cut-off block could never fire). this=$s1, target=$s0; cop car = this->carObj_, RE-DERIVED
-     fresh at each use (NOT hoisted into a saved local) -- the oracle re-derefs this->carObj_ both
-     before AND after the AIWorld_SplineDistance call rather than caching it across the call. */
-  chanceForElapsedTime = (chancePerSecond / 32) * AI_elapsedTime;          /* 0x8005C2DC-E4 */
-  chanceOutOf1000 = (chanceForElapsedTime * 1000) / 0x10000;              /* *125<<3 then signed >>16, 0x8005C2E8-F8 / C320 */
-
-  randtemp = fastRandom * randSeed;                                        /* 0x8005C31C/330 */
-  fastRandom = fastRandom * randSeed & 0xffff;                             /* 0x8005C328/340 */
-  random1000 = (int)((((randtemp >> 8) & 0xffff) * 1000) >> 16);           /* 0x8005C334-358 (randtemp u_int -> logical shifts) */
-
-  if (random1000 < chanceOutOf1000) {                                      /* 0x8005C35C/360 */
-    relLatPosition = *(int *)((char *)this->carObj_ + 1396) -
-                     *(int *)((char *)target + 1396);                     /* 0x8005C36C-378 */
-    absRelLatPosition = __builtin_abs(relLatPosition);
-    if ((*(int *)((char *)target + 308) + 0x10000) < absRelLatPosition &&  /* 0x8005C388-398 */
-        absRelLatPosition <= 0x3FFFF) {                                    /* 0x8005C39C-3A8 */
-      metersBetween = AIWorld_SplineDistance(this->carObj_, target);      /* 0x8005C3B0 */
-      carLength = metersBetween * *(int *)((char *)this->carObj_ + 1364);  /* 0x8005C3B8-C8/DC */
-      if ((*(int *)((char *)target + 316) * 2 + 0x20000) < carLength &&    /* 0x8005C3CC-E4 */
-          carLength < 0xC0000) {   /* H18-fix: was `0xBFFFF < carLength` (wrong polarity/logic --
-                                       traced the beqz+delay-slot-1 idiom at 0x8005C3F4/F8: branch
-                                       TAKEN (v1==0) skips the v0-reset and returns the delay slot's
-                                       v0=1 -- so it's an UPPER-cap range check, not an open lower
-                                       bound; verify_asm PASS confirms) 0x8005C3E8-F4 */
-        return 1;                                                          /* 0x8005C3F8 */
+  chanceForElapsedTime = (chancePerSecond / 32) * AI_elapsedTime;
+  chanceOutOf1000 = (chanceForElapsedTime * 1000) / 0x10000;
+  randtemp = fastRandom * randSeed;
+  fastRandom = fastRandom * randSeed & 0xffff;
+  random1000 = (int)((((randtemp >> 8) & 0xffff) * 1000) >> 16);
+  if (random1000 < chanceOutOf1000) {
+    int relLatPosition = *(int *)((char *)this->carObj_ + 1396) - *(int *)((char *)target + 1396);
+    int absRelLatPosition = __builtin_abs(relLatPosition);
+    if ((*(int *)((char *)target + 308) + 0x10000) < absRelLatPosition && absRelLatPosition <= 0x3FFFF) {
+      int metersBetween = AIWorld_SplineDistance(this->carObj_, target) * *(int *)((char *)this->carObj_ + 1364);
+      int carLength = *(int *)((char *)target + 316) * 2 + 0x20000;
+      if (carLength < metersBetween && metersBetween < 0xC0000) {
+        return 1;
       }
     }
   }
-  return 0;                                                                /* 0x8005C3FC / C400 */
-
+  return 0;
 }
 
 

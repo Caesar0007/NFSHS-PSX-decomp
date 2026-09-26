@@ -44,6 +44,9 @@ void AICop_CleanUp(void);
 int AICop_NoCopsInArea(int slice,int sliceDistance);
 
 
+/* spike-belt helper: retail records a variable-free inline pair for it */
+static inline void SpikeBelt_SetActive(int active) { AICop_spikeBelt.active_ = active; }
+
 /* ---- AICop_StartUp__Fv  [@0x800669ac] ---- */
 void AICop_StartUp(void)
 {
@@ -60,7 +63,7 @@ void AICop_StartUp(void)
       triggerManagerCops->Init((char *)0x0);
     }
   }
-  AICop_spikeBelt.active_ = 0;
+  SpikeBelt_SetActive(0);
   AICop_numArrestedHumans = 0;
   AICop_gRoadBlockState = kAICop_RoadBlockState_None;
   return;
@@ -72,7 +75,7 @@ void AICop_Restart(void)
   if ((AICop_rawTriggers != (u_char *)0x0) && (AICOP_COPS != 0)) {
     triggerManagerCops->Init((char *)AICop_rawTriggers);
   }
-  AICop_spikeBelt.active_ = 0;
+  SpikeBelt_SetActive(0);
   AICop_numArrestedHumans = 0;
   AICop_gRoadBlockState = kAICop_RoadBlockState_None;
   return;
@@ -95,14 +98,8 @@ void AICop_CleanUp(void)
 /* ---- AICop_NoCopsInArea__Fii  [@0x80066b08] ---- */
 int AICop_NoCopsInArea(int slice,int sliceDistance)
 {
-  int copLoop;
-  int absDistance;
-
-  copLoop = 0;
-  do {
-    if (Cars_gNumCopCars <= copLoop) {
-      return 1;
-    }
+  for (int copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
+    int absDistance;
     if ((Cars_gCopCarList[copLoop]->AIFlags & 4U) == 0) {
       absDistance = AIWorld_ApxSplineDistance(Cars_gCopCarList[copLoop],slice);
       if (absDistance < 0) {
@@ -112,6 +109,6 @@ int AICop_NoCopsInArea(int slice,int sliceDistance)
         return 0;
       }
     }
-    copLoop = copLoop + 1;
-  } while( true );
+  }
+  return 1;
 }

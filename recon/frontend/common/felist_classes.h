@@ -23,6 +23,11 @@ struct tListIterator {
     virtual short TextValue(tPlayer);
     virtual void Increment(tPlayer);
     virtual void Decrement(tPlayer);
+#ifdef NFS4_FE_LIST_RANGE_INLINE
+    inline int MinValue() { return (unsigned char)fMinValue; }
+    inline int MaxValue() { return (unsigned char)fMaxValue; }
+    inline int Range() { return (unsigned char)fMaxValue - (unsigned char)fMinValue; }
+#endif
 #ifdef NFS4_FE_LIST_SELECTION_INLINE
     inline short Selection(int i) { return fSelectionList[i]; }
 #endif

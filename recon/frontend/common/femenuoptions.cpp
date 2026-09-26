@@ -10,6 +10,8 @@
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
 static inline bool MenuItem_Enabled(tMenuItem *item) { return ((item->fFlags & 1) ^ 1) != 0; }
+static inline int ListIterator_Min(tListIterator *it) { return (unsigned char)it->fMinValue; }
+static inline int ListIterator_Max(tListIterator *it) { return (unsigned char)it->fMaxValue; }
 
 
 /* EXT data owned by FeMenuOptions.obj: both UNINITIALIZED -- cc1plus 2.8 defers them to
@@ -1140,19 +1142,17 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
 /* ---- tMenuItemSlidingMenu::SetMenu  [FEMENUOPTIONS.CPP:904-918] SLD-VERIFIED ---- */
 
 void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
-
 {
-  
   this->nextMenu = menu;
-  if (bothmenus != 0) {
+  if (bothmenus) {
     this->currMenu = menu;
   }
-  if (this->nextMenu == (tInsideBoxMenu *)0x0) {
-    this->fFlags = this->fFlags | 1;
-    return;
+  if (this->nextMenu == 0) {
+    this->Disable();
   }
-  this->fFlags = this->fFlags & 0xfffffffe;
-  return;
+  else {
+    this->Enable();
+  }
 }
 
 
@@ -1527,19 +1527,11 @@ void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool)
 /* ---- tMenuItemLeftRightAudioSlider::Percentage  [FEMENUOPTIONS.CPP:1204-1209] SLD-VERIFIED ---- */
 
 int tMenuItemLeftRightAudioSlider::Percentage()
-
 {
   int percent;
-
-  /* MATCH: SLD's only source local is `percent` in $s0.  Assign the scaled
-     numerator to it before division; the decompiler's iVar6 pseudo kept that
-     value in a caller register and displaced the inlined iterator `this`. */
-  percent = ((this->fData->Value((tPlayer)-1) & 0xff) -
-             (u_int)(u_char)this->fData->fMinValue) * 100;
-  percent = percent / (int)((u_int)(u_char)this->fData->fMaxValue -
-                            (u_int)(u_char)this->fData->fMinValue);
-  if (((u_char)this->fData->Value((tPlayer)-1) != 0) &&
-      (percent < 100)) {
+  percent = ((this->fData->Value((tPlayer)-1) & 0xff) - this->fData->MinValue()) * 100;
+  percent = percent / (ListIterator_Max(this->fData) - ListIterator_Min(this->fData));
+  if ((u_char)this->fData->Value((tPlayer)-1) != 0 && percent < 100) {
     percent = percent + 1;
   }
   return percent;

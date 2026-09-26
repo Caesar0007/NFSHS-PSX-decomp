@@ -101,6 +101,10 @@ struct tMenuItem {
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     void UpdateSelFade(bool);
 #endif
+#ifdef NFS4_FE_CORE_MENUITEM_SETENABLED
+    inline void Disable() { fFlags |= 1; }
+    inline void Enable() { fFlags &= ~1; }
+#endif
 #ifdef NFS4_FE_CORE_MENUITEM_ISENABLED
     inline bool IsEnabled() { return (fFlags & 1) == 0; }
     inline int ButtonImage() { return fButtonImage; }

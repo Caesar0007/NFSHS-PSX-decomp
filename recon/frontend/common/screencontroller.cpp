@@ -62,7 +62,7 @@ void tScreenControllerConfig::SetActuators(int max)
   }
   if (*(uchar *)&(this->fShaker).time != '\0') {
     int tickValue = GetTicks();
-    uint pulse = Force_rand_256[tickValue >> 2 & 0xff];   /* @0x80043180 lbu Force_rand_256((ticks>>2)&0xff) */
+    const uint pulse = Force_rand_256[tickValue >> 2 & 0xff];   /* @0x80043180 lbu Force_rand_256((ticks>>2)&0xff) */
     (this->fShaker).actuator[1] = (uchar)max;
     (this->fShaker).actuator[0] = (int)(uint)pulse < max;
     return;
@@ -184,9 +184,6 @@ void tScreenControllerConfig::CheckConfigs()
      SYM-CODEGEN-CARRIER: previousControllerSnapshot
      SYM-CODEGEN-CARRIER: currentControllerForSwap
      SYM-CODEGEN-CARRIER: arrowFadeBelowHalf */
-  int currentControllerSnapshot;
-  int previousControllerSnapshot;
-  int currentControllerForSwap;
 
   /* MATCH (2026-08-10, 18 -> PASS 187/187; SLD-driven block order,
      oracle 0x80043400..0x800436EC): allocsim exactly reproduced all 10 global
@@ -233,7 +230,7 @@ void tScreenControllerConfig::CheckConfigs()
       if (this->fAnimFade != 0) {
         return;
       }
-      currentControllerSnapshot = (byte)this->fCurrentController;
+      const int currentControllerSnapshot = (byte)this->fCurrentController;
       arrowFadeBelowHalf = this->fArrowFade < 0x80;
       this->fSwap = 1;
       this->fFade[1] = 1;
@@ -253,8 +250,8 @@ void tScreenControllerConfig::CheckConfigs()
       if (this->fAnimFade != 0) {
         return;
       }
-      previousControllerSnapshot = (byte)this->fPrevController;
-      currentControllerForSwap = (byte)this->fCurrentController;
+      const int previousControllerSnapshot = (byte)this->fPrevController;
+      const int currentControllerForSwap = (byte)this->fCurrentController;
       arrowFadeBelowHalf = this->fArrowFade < 0x80;
       this->fFade[0] = 1;
       this->fSwap = 1;

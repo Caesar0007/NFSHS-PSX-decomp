@@ -447,6 +447,7 @@ void tScreenCongrats::Initialize()
    test and the tick read are inlines, and there is no consume flag */
 static inline int SpeechLoading(SPEECHINFO *si) { return *(u_short *)((char *)si + 0x10); }
 static inline long CongratsTicks(void) { return ticks[0]; }
+static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
 
 void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand &c)
 
@@ -921,21 +922,18 @@ bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
 
 /* ---- tScreenTournamentCongrats::CalculatePrizes  (screencongrats.cpp:807) ---- */
 void tScreenTournamentCongrats::CalculatePrizes()
-
 {
   tAwardInformation tInfo;
-  
+
   GetAwardInformation(&tournamentManager,&tInfo);
   this->tScreenCongrats::CalculatePrizes();
   this->trophy = kTrophyCar;
-  this->TotalCash = tournamentManager.fMoney;
-  this->CashAwarded = tInfo.fCompletedGarageFull != 0 ?
-      tInfo.fCompletedBonusMoney : -1;
+  this->TotalCash = Tournament_Money(tournamentManager);
+  this->CashAwarded = tInfo.fCompletedGarageFull != 0 ? tInfo.fCompletedBonusMoney : -1;
   this->fCarX = 0x116;
   this->fCarY = 0x4b;
   this->fCarCX = 4.0;
   this->fCarCY = -7.4;
-  return;
 }
 
 /* ---- tScreenTournamentCongrats::DrawCongratsMessage  (screencongrats.cpp:825) ---- */

@@ -520,6 +520,18 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
     (tMenuNFS4::Draw image/frames).
   - Open: Front_EnableLocalSpeech (block end must precede the final return copy; the goto form crosses `lang`'s
     initialisation), MenuNFS4_DrawTextBox (asm-pinned carrier block).
+- femenuoptions 61 -> 70/83 (board 1990), bytes unchanged.
+  - More guarded per-TU members: tListIterator MinValue/MaxValue (`NFS4_FE_LIST_RANGE_INLINE`), tMenuItem
+    Enable/Disable (`NFS4_FE_CORE_MENUITEM_SETENABLED`), tScreenControllerConfig::ResetShakeTimeOut
+    (`NFS4_SCREENCONTROLLER_RESETSHAKE_INLINE`), tFEApplication::CurrentScreen in femenuoptions' own copy.
+  - DrawSlider's range arguments are `fData->MinValue()` (member, records the iterator) + a free max accessor, in
+    every slider Draw and in Percentage.
+  - An if-scope that holds a pair: move the call into a `T *const x = ...;` snapshot before the if (unrecorded).
+  - An else-if chain whose repeated test is removed by jump threading (tUserNameMenuItem::TransitionIsFinished:
+    `else if (dir > 0 && val < 0x80) ... else if (dir > 0 && Busy())`) gives retail's late-starting scopes.
+  - Register-swapped names (MOVED col/col2) = the names are the other way round.
+  - Open: tMenuItemLeftRightAudioSlider::UpdateTransition (clamp without a local; const snapshots 8 diffs),
+    tMemoryCardMenuItem::Draw (volatile carrier), UpdateTransition__12tOptionsMenu (goto carriers).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

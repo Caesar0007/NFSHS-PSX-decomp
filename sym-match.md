@@ -331,6 +331,12 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   save/Roger/restore keeps its saved value in `Speaker *saved = Dispatch()->Sub();` which gcc copy-propagates, so
   the variable (and SetSub's parameter row for it) leave no record -- exactly retail's variable-free last pair.
   77 CLEAN.
+- `MobileSpeaker::Status` (358 instructions) CLEAN with the accessor spelling, byte-exact on the first try; the
+  carrier locals and BOTH `__asm__("" : "+r"(branchVoice) : : "$2")` clobbers are gone. New accessors UpdateFlags,
+  HavePerp (Speaker), Speed/SpeedType (MobileSpeaker), AllUnits (CallSignBank). Block extents: PlaySpeech belongs in
+  each arm (gcc cross-jumps them into one call) so the if-chain spans the function, and the two arms that must skip
+  PlaySpeech just END (no `return;`) -- a trailing `return` makes gcc extend the arm's block to the next arm.
+  78 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

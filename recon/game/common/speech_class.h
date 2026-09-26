@@ -53,6 +53,7 @@ struct Speech {
         inline void SetAllUnits(int bankid) { fAllUnits = bankid; }
         inline void SetDispatch(int bankid) { fDispatch = bankid; }
         inline int Dispatch() { return fDispatch; }
+        inline int AllUnits() { return fAllUnits; }
         inline void SetMobile(int unit, int bankid) { fMobile[unit] = bankid; }
         inline int Mobile(int unit) { return fMobile[unit]; }
     };
@@ -108,6 +109,8 @@ struct Speech {
         inline void SetSpikeSide(int side) { fSpikeSide.flags = side; }
         inline int BlockadeFlags() { return fBlockade.flags; }
         inline int ArrestFlags() { return fArrest.flags; }
+        inline int UpdateFlags() { return fUpdate.flags; }
+        inline bool HavePerp() { return fHavePerp; }
         inline int Car() { return fCar; }
         inline SPCHNFSType_vs_RDBLK_SSTRP *BlockadeSlot() { return &fBlockade; }
         inline SPCHNFSType_CONFIRM *Confirm() { return &fConfirm; }
@@ -182,6 +185,8 @@ struct Speech {
         inline SPCHNFSType_VOICE *Voice() { return &fVoice; }
         inline void SetVoice(int Voice) { fVoice.flags = Voice; }
         inline void SetSpeedType(int type) { fSpeedType.flags = type; }
+        inline int Speed() { return fSpeed; }
+        inline SPCHNFSType_vs_KMH_MPH *SpeedType() { return &fSpeedType; }
         inline void ClearCarObj() { fCarObj = 0; }
         /* FindMobile's two loops each call one inline on fMobile[i]: (this, carObj) and (this) */
         inline bool IsCar(Car_tObj *carObj) { return carObj == fCarObj; }

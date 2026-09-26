@@ -1665,289 +1665,88 @@ DispStatus_fetchSpeechCtx:
 }
 
 /* ---- Status__Q26Speech13MobileSpeaker  [SPEECH.CPP:1853-1948] SLD-VERIFIED ----
- * W61-A10: 14 -> 8 by SOURCE (two levers below).  A historical production
- * experiment used four PER_FN_TEXT_MOVES rows; those are not part of the strict
- * source-only closure described below.
- *
- * LEVER 1 -- CSE-CONSTANT-CAPTURE ESCAPE (kills the x2 `addu a1,s1,v0`).
- *   cc1 emits `li $2,8` at the HEAD of the `uVar8 != 8` block (the compare needs a
- *   register: MIPS `beq`/`bne` have no immediate form), and cse then rewrites the
- *   *following* `&fColour` address `(plus $17 (const_int 8))` into `addu $5,$17,$2`
- *   -- a register reuse retail does not make.  Proof it is cse and not maspsx: the
- *   raw cc1 .s carries `addu $5,$17,$2` at the two captured sites and
- *   `addu $5,$17,8` at the third (`$L943`, a JOIN target, so the constant is not in
- *   cse's table there).  The first cure hoisted `pCVar5 = &fColour;` above the
- *   guard.  The final strict closure instead sinks it behind the zero-byte
- *   barrier below; its $2 clobber ends the stale constant live range and retains
- *   the immediate `addiu a1,s1,8` form.
- *   FALSIFIED first (all neutral at 14): `(char *)this + 8`, a block-local colour
- *   pointer, the address inline in the call, colour-assigned-last, and an identity
- *   fence on pCVar5 (16, worse).
- *
- * LEVER 2 -- DEAD-PSEUDO STAGING (12D) on the LOOK_PERP_REPLY_LOC arm.
- *   Retail loads fCar into a FRESH register before materialising &fColour, so the
- *   stack-arg copy survives into the jal delay slot; ours reused $v0 for both and
- *   emitted the loads in the wrong order.  Do NOT add a variable: the guard variable
- *   `uVar8` is DEAD on this arm (its compare already branched), so retail's carrier
- *   is uVar8 itself -- `uVar8 = fCar;` staged before the two address setups gives
- *   count-exact 358 and reduces the site to one line relocation.
- *   FALSIFIED: staging into iVar4 (13 @359, one insn LONG), iVar11 (28), uVar13
- *   (33 @359), pCVar5 (43 @361), a fresh block-local (60), and a `{ }`-scoped local
- *   (60); swapping the pMVar12/vs_KMH_MPH setup order is inert (14).
- *
- * W77-root follow-up (2026-08-24): ordering each dead-uVar8 fCar stage AFTER
- * its distance/location setup fixes both load-order rows naturally, 8 -> 4 at
- * exact 358/358.  The duplicated final 4 are closed by making an arm-local
- * voice alias, passing it through a zero-instruction `+r` barrier that clobbers
- * $2, and only then forming &fColour.  Reorg puts `move a0,s0` in both beq delay
- * slots, while cse can no longer turn the address into `addu a1,s1,v0`.
- * Strict source-only result: PASS 358/358. */
+ * SYM CLEAN (2026-09-26): accessor spelling from retail's pairs, as in Lose.  PlaySpeech sits in each arm
+ * (gcc cross-jumps them into one call) and the two arms that skip it simply end, so the if-chain spans
+ * the function as in retail.  The former carriers and both `__asm__` register clobbers are gone. */
 void Speech::MobileSpeaker::Status()
 
 {
-  Speaker * Sub;
-  /* SYM-CODEGEN-CARRIER: condition -- the function reuses one staged Boolean
-     across mutually exclusive retail tests; keeping the shared quantity
-     preserves the exact 358-instruction control-flow form. */
-  bool condition;
-  /* SYM-CODEGEN-CARRIER: superReady -- this staged result carries the retail
-     bit-test idiom into the super-cop arm; folding its maskedFlags producer
-     grows the function to 359 instructions and leaves 5 diffs. */
-  bool superReady;
-  Car_tObj *carObj;
-  /* SYM-CODEGEN-CARRIER: pa_Var3 -- this shared vtable-result carrier is part
-     of the exact virtual-call source shape throughout the function; SYM emits
-     only nested inline this quantities and cannot recover its spelling. */
-  /* SYM-CODEGEN-CARRIER: iVar4 -- the shared virtual/result carrier feeds the
-     retail branch and call setup sequence; replacement must be priced per
-     phase because its declaration position controls local allocation. */
-  int iVar4;
-  /* SYM-CODEGEN-CARRIER: colourArg -- these two arm-local-looking assignments
-     must remain on the shared carrier: together with branchVoice and the $2
-     clobber they prevent stale-constant CSE, as proven in the header receipt. */
-  Car_tObj *colourArg;
-  /* SYM-CODEGEN-CARRIER: superBank -- folding this one-use virtual bank result
-     into the intro argument shortens the body to 357 instructions and leaves
-     3 load/address-order diffs. */
-  u_int *superBank;
-  /* SYM-CODEGEN-CARRIER: uVar8 -- this update-mode quantity is intentionally
-     reused as retail's dead-pseudo fCar stage in two reply arms; the exhaustive
-     failed-carrier ladder and exact 358/358 result are recorded above. */
-  u_long uVar8;
-  /* SYM-CODEGEN-CARRIER: branchVoice -- the tied arm-local voice carrier plus
-     zero-byte $2 clobber supplies retail's branch-slot receiver copies and
-     blocks the stale constant capture documented above. */
-  SPCHNFSType_VOICE *branchVoice;
-  /* SYM-CODEGEN-CARRIER: pSVar10 -- this shared primary voice carrier spans
-     the mutually exclusive speech arms and preserves retail's saved-register
-     allocation; the branch-only copy is isolated in branchVoice. */
-  SPCHNFSType_VOICE *pSVar10;
-  /* SYM-CODEGEN-CARRIER: vs_KMH_MPH -- the phrase-value carrier deliberately
-     shares location, fCar, and speed-type phases; changing the carrier/order
-     is one of the inert or worse setup-order levers recorded above. */
-  SPCHNFSType_vs_KMH_MPH *vs_KMH_MPH;
-  /* SYM-CODEGEN-CARRIER: pMVar12 -- the shared phrase pointer carries distance
-     and perp-name arguments through retail's stack-argument schedule. */
-  MobileSpeaker *pMVar12;
-  /* SYM-CODEGEN-CARRIER: savedDispatch -- reusing uVar8 for this save/restore
-     grows the body to 360 instructions and leaves 88 allocation diffs. */
-  u_int savedDispatch;
-  
-  iVar4 = this->Perp();
-  if (iVar4 == 0) {
+  if (this->Perp() == 0)
     return;
-  }
   this->MakeSpeaker();
-  if (this->fArrest.flags == 1) {
-    iVar4 = this->CallSign();
-    pSVar10 = this->Voice();
-    /* MATCH: fold `fTo = *(iVar4+4)` INTO the a1 arg so the store lands in the
-       jal delay slot (`sw a1,60(s1)`) and a1 loads direct; keep a2(fFrom)/a3(fReverse)
-       inline so gcc loads a1,a2,a3 in order -- the split temp+store form forced a
-       `lw a2/t0 then move a2->a1,t0->a2` arg shuffle. [W55-A16 idiom] */
-    SPCHNFS_C_A_INTRO(pSVar10,this->fTo = *(int *)(iVar4 + 4),(int)this->fFrom,(SPCHNFSType_REVINTRO *)&this->fReverse);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    SPCHNFS_C_D_PERP_APPREHENSION(
-      pSVar10,&this->fPerpName);
+  if (this->ArrestFlags() == 1) {
+    this->SetTo(this->CallSign()->Dispatch());
+    SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    SPCHNFS_C_D_PERP_APPREHENSION(this->Voice(),this->PerpName());
+    SPCH_PlaySpeech();
+  }
+  else if ((*(u_int *)((int)this->CarObj() + 0x260) & 0x200) != 0 && this->UpdateFlags() == 0) {
+    this->SetTo(this->CallSign()->Dispatch());
+    SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    this->SetCar(this->Perp());
+    this->FindLocation(this->fCarObj);
+    SPCHNFS_C_D_PERP_LOST(this->Voice(),this->Colour(),this->Car(),this->Position(),this->Location(),
+                          this->Distance(),this->PerpName());
+    SPCH_PlaySpeech();
+    Speaker *saved = Speech::Dispatch()->Sub();
+
+    Speech::Dispatch()->SetSub(this);
+    Speech::Dispatch()->Roger();
+    Speech::Dispatch()->SetSub(saved);
+  }
+  else if (this->IsSuper() && this->UpdateFlags() == 0 && this->Sub() != 0 &&
+           (*(u_int *)((int)this->Sub()->CarObj() + 0x260) & 0x40) == 0) {
+    this->SetTo(this->CallSign()->AllUnits());
+    SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    SPCHNFS_S_C_SUPER_COP_CRITICISM(this->Voice());
+    SPCH_PlaySpeech();
+  }
+  else if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Sub() == this) {
+    SPCHNFS_C_C_NEW_OFFICER_ENGAGING(this->Voice(),this->From());
+    Speech::Dispatch()->Sub()->Roger();
   }
   else {
-    iVar4 = this->CarObj();
-    condition = false;
-    if ((*(u_int *)(iVar4 + 0x260) & 0x200) != 0) {
-      condition = this->fUpdate.flags == 0;
+    this->SetTo(this->CallSign()->Dispatch());
+    SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    this->SetCar(this->Perp());
+    this->FindLocation(this->CarObj());
+    this->SetSpeed(this->fPerp);
+    if (this->DistToPerp() < 0x280000) {
+      if (*(u_short *)((int)this->Perp() + 0x17c) > 0x40)
+        SPCHNFS_C_D_IN_PURS_PERP_AIRBORN(this->Voice());
+      else if (this->UpdateFlags() == 1)
+        SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC(this->Voice(),this->Position(),this->Location(),this->Distance());
+      else if (this->UpdateFlags() == 8)
+        SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType());
+      else
+        SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(this->Voice(),this->Colour(),this->Car(),this->Distance(),
+                                              this->Position(),this->Location());
     }
-    if (condition) {
-      iVar4 = this->CallSign();
-      pSVar10 = this->Voice();
-      /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
-      SPCHNFS_C_A_INTRO(pSVar10,this->fTo = *(int *)(iVar4 + 4),this->fFrom,&this->fReverse);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      this->SetCar((Car_tObj *)
-        this->Perp());
-      this->FindLocation(this->fCarObj);
-      iVar4 = this->fCar;
-      SPCHNFS_C_D_PERP_LOST(pSVar10,&this->fColour,
-                 iVar4,(SPCHNFSType_POSITION *)this,this->fLocation,
-                 &this->fDistance,&this->fPerpName);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      iVar4 = Speech::Dispatch();
-      savedDispatch = *(u_int *)(iVar4 + 0x48);
-      iVar4 = Speech::Dispatch();
-      *(MobileSpeaker **)(iVar4 + 0x48) = this;
-      {
-        /* SYM-CODEGEN-CARRIER: dispatchThis -- the result must be evaluated
-           once and then reused for its vtable, delta, and receiver address;
-           the retail binary cannot identify a unique original spelling. */
-        DispatchSpeaker *dispatchThis = (DispatchSpeaker *)Speech::Dispatch();
-        dispatchThis->Roger();
-      }
-      iVar4 = Speech::Dispatch();
-      *(u_int *)(iVar4 + 0x48) = savedDispatch;
-      return;
-    }
-    superReady = false;
-    iVar4 = this->IsSuper();
-    if (((iVar4 != 0) && (this->fUpdate.flags == 0)) &&
-       (this->fSub != (Speaker *)0x0)) {
-      /* SYM-CODEGEN-CARRIER: maskedFlags -- folding the mask into the Boolean
-         grows the function to 359 instructions and changes five bit-test
-         instructions (srl/xori/andi versus andi/sltiu). */
-      u_int maskedFlags;
-
-      iVar4 = this->fSub->CarObj();
-      maskedFlags = *(u_int *)(iVar4 + 0x260) & 0x40;
-      superReady = maskedFlags < 1;
-    }
-    if (superReady) {
-      superBank = (u_int *)
-               this->CallSign();
-      pSVar10 = this->Voice();
-      /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
-      SPCHNFS_C_A_INTRO(pSVar10,
-        this->fTo = *superBank,
-        (int)this->fFrom,
-        (SPCHNFSType_REVINTRO *)&this->fReverse);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      SPCHNFS_S_C_SUPER_COP_CRITICISM(pSVar10);
+    else if (this->HavePerp()) {
+      if (this->UpdateFlags() == 1)
+        SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(this->Voice(),this->Position(),this->Location(),this->Distance(),
+                                                this->Colour(),this->Car(),this->PerpName());
+      else if (this->UpdateFlags() == 8)
+        SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType());
+      else
+        SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(this->Voice(),this->Colour(),this->Car(),this->Position(),
+                                                this->Location(),this->Distance());
     }
     else {
-      condition = false;
-      iVar4 = Speech::Dispatch();
-      if (*(int *)(iVar4 + 0x48) != 0) {
-        iVar4 = Speech::Dispatch();
-        condition = *(MobileSpeaker **)(*(int *)(iVar4 + 0x48) + 0x48) == this;
-      }
-      if (condition) {
-        SPCHNFS_C_C_NEW_OFFICER_ENGAGING(this->Voice(),this->fFrom);
-        iVar4 = Speech::Dispatch();
-        (**(int (**)(...))
-          (*(int *)(*(int *)(iVar4 + 0x48) + 0x4c) + 0x74))
-          (*(int *)(iVar4 + 0x48) +
-           (int)*(short *)
-             (*(int *)(*(int *)(iVar4 + 0x48) + 0x4c) + 0x70));
-        return;
-      }
-      iVar4 = this->CallSign();
-      pSVar10 = this->Voice();
-      /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
-      SPCHNFS_C_A_INTRO(pSVar10,this->fTo = *(int *)(iVar4 + 4),(int)this->fFrom,(SPCHNFSType_REVINTRO *)&this->fReverse);
-      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      this->SetCar((Car_tObj *)
-        this->Perp());
-      this->FindLocation((Car_tObj *)
-        this->CarObj());
-      this->SetSpeed(this->fPerp);
-      iVar4 = this->DistToPerp();
-      if (iVar4 < 0x280000) {
-        iVar4 = this->Perp();
-        if (0x40 < *(u_short *)(iVar4 + 0x17c)) {
-          SPCHNFS_C_D_IN_PURS_PERP_AIRBORN(pSVar10);
-          goto DispStatus_playSpeechReturn;
-        }
-        uVar8 = this->fUpdate.flags;
-        if (uVar8 == 1) {
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fLocation;
-          pMVar12 = (MobileSpeaker *)&this->fDistance;
-          SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC(pSVar10,(SPCHNFSType_POSITION *)this,(int)vs_KMH_MPH,
-                     (SPCHNFSType_DISTANCE *)pMVar12);
-          goto DispStatus_playSpeechReturn;
-        }
-        /* MATCH strict closure: the tied voice alias supplies the branch-slot
-           receiver copy.  The user-authorized last-resort $2 clobber ends the
-           compare constant's live range, so &fColour may follow as addiu. */
-        if (uVar8 != 8) {
-          /* SYM-CODEGEN-CARRIER: nearLocation -- passing fLocation directly is
-             count-exact but changes four address/stack-argument instructions. */
-          int nearLocation;
-
-          branchVoice = pSVar10;
-          __asm__("" : "+r"(branchVoice) : : "$2");
-          colourArg = (Car_tObj *)&this->fColour;
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fCar;
-          pMVar12 = (MobileSpeaker *)&this->fDistance;
-          nearLocation = this->fLocation;
-          SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(branchVoice,(SPCHNFSType_COLOUR *)colourArg,(int)vs_KMH_MPH,
-                     (SPCHNFSType_DISTANCE *)pMVar12,(SPCHNFSType_POSITION *)this,
-                     nearLocation);
-          goto DispStatus_playSpeechReturn;
-        }
-      }
-      else if (this->fHavePerp != 0) {
-        uVar8 = this->fUpdate.flags;
-        if (uVar8 == 1) {
-          pMVar12 = (MobileSpeaker *)&this->fDistance;
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fLocation;
-          uVar8 = this->fCar;
-          SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(pSVar10,(SPCHNFSType_POSITION *)this,(int)vs_KMH_MPH,
-                     (SPCHNFSType_DISTANCE *)pMVar12,&this->fColour,(int)uVar8,
-                     &this->fPerpName);
-          goto DispStatus_playSpeechReturn;
-        }
-        /* MATCH strict closure, second duplicated STS arm; see first site. */
-        if (uVar8 != 8) {
-          branchVoice = pSVar10;
-          __asm__("" : "+r"(branchVoice) : : "$2");
-          colourArg = (Car_tObj *)&this->fColour;
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fCar;
-          SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(branchVoice,(SPCHNFSType_COLOUR *)colourArg,(int)vs_KMH_MPH,
-                     (SPCHNFSType_POSITION *)this,this->fLocation,
-                     &this->fDistance);
-          goto DispStatus_playSpeechReturn;
-        }
-      }
-      else {
-        uVar8 = this->fUpdate.flags;
-        if (uVar8 == 1) {
-          /* MATCH lever 2 (12D dead-pseudo staging): uVar8 is dead on this arm and
-             is retail's carrier for fCar -- staging it here (NOT a new local) gives
-             the fresh register the stack-arg copy needs. [W61-A10] */
-          pMVar12 = (MobileSpeaker *)&this->fDistance;
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fLocation;
-          uVar8 = this->fCar;
-          SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(pSVar10,(SPCHNFSType_POSITION *)this,(int)vs_KMH_MPH,
-                     (SPCHNFSType_DISTANCE *)pMVar12,&this->fColour,(int)uVar8);
-          goto DispStatus_playSpeechReturn;
-        }
-        if (uVar8 != 8) {
-          goto DispStatus_lookReplyStatus;
-        }
-      }
-DispStatus_speedReply:
-      vs_KMH_MPH = &this->fSpeedType;
-      SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(
-        pSVar10,this->fSpeed,vs_KMH_MPH);
-      goto DispStatus_playSpeechReturn;
-DispStatus_lookReplyStatus:
-      vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fCar;
-      pMVar12 = (MobileSpeaker *)&this->fPerpName;
-      SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS(
-        pSVar10,&this->fColour,(int)vs_KMH_MPH,
-                 (SPCHNFSType_PERP_NAME *)pMVar12);
+      if (this->UpdateFlags() == 1)
+        SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(this->Voice(),this->Position(),this->Location(),this->Distance(),
+                                                this->Colour(),this->Car());
+      else if (this->UpdateFlags() == 8)
+        SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(this->Voice(),this->Speed(),this->SpeedType());
+      else
+        SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS(this->Voice(),this->Colour(),this->Car(),this->PerpName());
     }
+    SPCH_PlaySpeech();
   }
-DispStatus_playSpeechReturn:
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  return;
 }
 
 /* ---- ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1954-1958] SLD-VERIFIED ---- */

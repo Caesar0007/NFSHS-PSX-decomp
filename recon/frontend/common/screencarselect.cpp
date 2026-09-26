@@ -21,6 +21,7 @@ static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
 static inline int VSyncTicks(void) { return *(volatile int *)&ticks[0]; }
 static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
 static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
+static inline u_char FrontEnd_PinkSlipsCar(int player) { return frontEnd.pinkSlipsCar[player]; }
 
 
 /* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
@@ -2233,20 +2234,16 @@ void tScreenCarSelectTwoPlayer::Cleanup()
    materializing carInfo by VALUE into a huge stack frame -- also a correctness bug: `carInfo`
    was being copied instead of passed by the caller's reference). */
 bool tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
-
 {
-  /* SYM-INLINE-THIS: GetPlayer */
-  if (PinkSlipsScreenState[0] != CardLoadedFine) {
+  if (PinkSlipsScreenState[0] == CardLoadedFine && PinkSlipsScreenState[1] == CardLoadedFine) {
+    const tPlayer player = FEApp->GetPlayer();
+    carManager.GetPinkSlipsCar(FrontEnd_PinkSlipsCar(player), carInfo, player);
+    carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
+    return 1;
+  }
+  else {
     return 0;
   }
-  if (PinkSlipsScreenState[1] != CardLoadedFine) {
-    return 0;
-  }
-  carManager.GetPinkSlipsCar
-       ((ushort)(byte)frontEnd.pinkSlipsCar[FEApp->GetPlayer()],carInfo,
-        (ushort)FEApp->GetPlayer());
-  carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
-  return 1;
 }
 
 

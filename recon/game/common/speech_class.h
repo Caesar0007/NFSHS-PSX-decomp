@@ -89,6 +89,13 @@ struct Speech {
         inline int To() { return fTo; }
         inline int From() { return fFrom; }
         inline SPCHNFSType_REVINTRO *Reverse() { return &fReverse; }
+        inline SPCHNFSType_POSITION *Position() { return &fPosition; }
+        inline SPCHNFSType_SPIKE_BELT_SIDE *SpikeSide() { return &fSpikeSide; }
+        inline void SetSpikeSide(int side) { fSpikeSide.flags = side; }
+        inline int BlockadeFlags() { return fBlockade.flags; }
+        inline int Car() { return fCar; }
+        inline SPCHNFSType_vs_RDBLK_SSTRP *BlockadeSlot() { return &fBlockade; }
+        inline SPCHNFSType_CONFIRM *Confirm() { return &fConfirm; }
         inline bool HasDifferentSub(Speaker *Wing) {
             return fSub != 0 && Wing != fSub;
         }
@@ -120,6 +127,7 @@ struct Speech {
     struct DispatchSpeaker : public Speaker {
         /* inline ctor: retail's Speech::Speech() shows it expanded in place */
         DispatchSpeaker() {}
+        inline void ClearSpeaker();   /* defined after struct Speech (inner Speech inline) */
         int fStatusCount;
         Speaker *fStatusSub;
         int fUpdateCount;
@@ -247,6 +255,7 @@ struct Speech {
 };
 
 inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); }
+inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); }
 
 
 #endif

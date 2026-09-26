@@ -202,6 +202,15 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   swept into 10 more MobileSpeaker functions (shape steps). Falsified: `GetCarBank` through a getter
   (the `fgSpeech` load moves ahead of the index arithmetic), `Speech::Dispatch` with a `result` local
   (8-11 diffs). `var_fn.py` now parses `Q`-qualified mangled names. Board 1858 -> 1869.
+- Speech round 2: `ReportBlockade`, `Backup`, `DispatchSpeaker::Grant` and `Ready` native CLEAN, all
+  carriers gone (`DISTANCE`, `requestCar`). Retail's local list gives each pair's receiver type in order
+  (Speaker vs MobileSpeaker vs none), which pins the argument accessors left to right: `Voice()`,
+  `Position()`, `Location()`, `Distance()`, `SpikeSide()`, `From()`, `To()`, `Reverse()`, `Colour()`,
+  `Car()`, `Confirm()`, `BlockadeSlot()`. Two more lessons: a trailing call shared by both arms of an `if`
+  belongs in each arm (retail's arm scopes close after gcc cross-jumps it); and an inline's parameter is
+  recorded only when its argument is a real load -- `SetBlockade(Sub()->BlockadeSlot()->flags)` records
+  retail's `Blockade`, `SetBlockade(Sub()->BlockadeFlags())` does not (and a member function named like
+  that parameter also suppresses it). Board 1869 -> 1873.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

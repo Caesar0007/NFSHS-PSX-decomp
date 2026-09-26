@@ -2269,21 +2269,17 @@ void Speech::DispatchSpeaker::Deny()
 void Speech::DispatchSpeaker::Grant()
 
 {
-  if (this->fSub == (Speaker *)0x0) {
+  if (this->Sub() == (Speaker *)0x0) {
     return;
   }
-  if (&this->fSub->fBlockade ==
-      (SPCHNFSType_vs_RDBLK_SSTRP *)0x0) {
+  if (this->Sub()->BlockadeSlot() == (SPCHNFSType_vs_RDBLK_SSTRP *)0x0) {
     return;
   }
-  Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-  if (Speech::fgSpeech->fMultiplePerps != 0) {
-    return;
+  this->ClearSpeaker();
+  if (Speech::MultiplePerps() == 0) {
+    SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(this->Sub()->BlockadeSlot(),this->Confirm());
+    SPCH_PlaySpeech();
   }
-  SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(
-      &this->fSub->fBlockade,
-      &this->fConfirm);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 
@@ -2291,13 +2287,12 @@ void Speech::DispatchSpeaker::Grant()
 void Speech::DispatchSpeaker::Ready(Car_tObj *carObj)
 
 {
-  /* SYM-INLINE-LOCAL: Blockade = SetBlockade */
   Speaker *Wing;
 
   Wing = Speech::Mobile(carObj);
-  if (this->HasDifferentSub(Wing)) {
-    Wing->SetBlockade(this->fSub->fBlockade.flags);
-    Wing->Engage(this->fSub->Perp());
+  if (this->Sub() != (Speaker *)0x0 && Wing != this->Sub()) {
+    Wing->SetBlockade(this->Sub()->BlockadeSlot()->flags);
+    Wing->Engage(this->Sub()->Perp());
   }
   this->fStatusSub = (Speaker *)this;
   this->fStatusCount = 0x80;
@@ -3097,30 +3092,16 @@ void Speech::MobileSpeaker::SpikeBelt()
 void Speech::MobileSpeaker::Backup()
 
 {
-  Car_tObj *carObj;
-
-  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
-  this->fTo = this->CallSign()->fDispatch;
-  SPCHNFS_C_A_INTRO(this->Voice(),this->fTo,
-                    this->fFrom,
-                    &this->fReverse);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  this->SetCar((Car_tObj *)
-      this->Perp());
-  this->FindLocation((Car_tObj *)
-      this->CarObj());
-  {
-    /* SYM-CODEGEN-CARRIER: requestCar -- the staged third argument leaves the
-       `this` copy in the jal delay slot.  Passing fCar directly is count-exact
-       but reverses those two setup instructions (6 diffs). */
-    int requestCar = this->fCar;
-    SPCHNFS_C_D_REQUEST_BKUP(this->Voice(),&this->fColour,
-               requestCar,(SPCHNFSType_POSITION *)this,
-               this->fLocation,
-               &this->fDistance);
-  }
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  this->fBlockade.flags = 0;
+  this->MakeSpeaker();
+  this->SetTo(this->CallSign()->Dispatch());
+  SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+  SPCH_PlaySpeech();
+  this->SetCar(this->Perp());
+  this->FindLocation(this->CarObj());
+  SPCHNFS_C_D_REQUEST_BKUP(this->Voice(),this->Colour(),this->Car(),this->Position(),
+                           this->Location(),this->Distance());
+  SPCH_PlaySpeech();
+  this->SetBlockade(0);
   return;
 }
 
@@ -3279,42 +3260,21 @@ void Speech::MobileSpeaker::Purge()
 void Speech::MobileSpeaker::ReportBlockade()
 
 {
-  Car_tObj *carObj;
-  /* SYM-CODEGEN-CARRIER: DISTANCE -- staging the arm-dependent fourth macro
-     argument preserves retail's addiu/lw/jal order; direct field arguments
-     remain 63/63 but move the addiu into the jal delay slot (6 diffs). */
-  SPCHNFSType_DISTANCE *DISTANCE;
-  
   this->MakeSpeaker();
-  /* MATCH: re-read `_vf` INLINE at every use (the sibling PASSing fns' idiom).
-     A hoisted `pa_Var1 = _vf;` local is a Ghidra artifact: it becomes its own
-     pseudo ($v1) so the pfn load can't reuse the vtable base reg -- oracle
-     `lw v0,76(s1); lh a0,240(v0); lw v0,244(v0)` (self-temp). 6 -> 0. */
-  this->fTo = this->CallSign()->fDispatch;
-  carObj = (Car_tObj *)
-        this->CarObj();
-  this->FindLocation(carObj);
-  this->fSpikeSide.flags = 4;
-  /* MATCH: keep `this->Voice()` inside each arm.  Hoisting it above the `if`
-     creates a pre-branch pseudo (`addiu s1,s0,80` in the bne delay slot) and
-     flips the whole s0<->s1 map.  Arm-local expressions rematerialize the
-     address directly in $a0, including the else-arm delay-slot fill. */
-  if (this->fBlockade.flags == 2) {
-    SPCHNFS_C_A_INTRO(this->Voice(),this->fTo,
-                      this->fFrom,
-                      &this->fReverse);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    DISTANCE = &this->fDistance;
-    SPCHNFS_W_D_RDBLK_PLC(this->Voice(),(SPCHNFSType_POSITION *)this,
-                          this->fLocation,DISTANCE);
+  this->SetTo(this->CallSign()->Dispatch());
+  this->FindLocation(this->CarObj());
+  this->SetSpikeSide(4);
+  if (this->BlockadeFlags() == 2) {
+    SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
+    SPCH_PlaySpeech();
+    SPCHNFS_W_D_RDBLK_PLC(this->Voice(),this->Position(),this->Location(),this->Distance());
+    SPCH_PlaySpeech();
   }
   else {
-    DISTANCE = (SPCHNFSType_DISTANCE *)this->fFrom;
-    SPCHNFS_W_D_SPBLT_PLC(this->Voice(),(SPCHNFSType_POSITION *)this,
-               &this->fSpikeSide,(int)DISTANCE,
-               this->fLocation,&this->fDistance);
+    SPCHNFS_W_D_SPBLT_PLC(this->Voice(),this->Position(),this->SpikeSide(),this->From(),
+                          this->Location(),this->Distance());
+    SPCH_PlaySpeech();
   }
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 

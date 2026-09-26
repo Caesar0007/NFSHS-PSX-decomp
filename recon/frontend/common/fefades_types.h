@@ -10,16 +10,16 @@
  * record for it, so retain the spelling as a macro in this visibility surface. */
 #define byte unsigned char
 
-struct tTexture_ShapeInfo {
-    shapetbl *shpptr;
-    long clutID;
-    char depth;
-    u_long type : 8;
-    long next : 24;
-    signed short width, height;
-    short centerx, centery, shapex, shapey;
-    u_short tpage, clut;
-};
+#include "shared/tTexture_ShapeInfo.h"
+
+
+
+
+
+
+
+
+
 
 #include "shared/kernpair.h"
 

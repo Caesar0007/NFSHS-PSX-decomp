@@ -25,6 +25,9 @@ BS = chr(92)
 apply = '--apply' in sys.argv
 min_copies = int(sys.argv[sys.argv.index('--min') + 1]) if '--min' in sys.argv else 2
 only = set(sys.argv[sys.argv.index('--only') + 1].split(',')) if '--only' in sys.argv else None
+# --except NAME@header[,...]: a copy that retail shows to be a DIFFERENT definition (member_cmp.py: another member
+# signature in that object) stays where it is; the remaining copies are shared if they agree.
+EXCEPT = {tuple(x.split('@', 1)) for x in sys.argv[sys.argv.index('--except') + 1].split(',')} if '--except' in sys.argv else set()
 
 
 def mask_comments(t):
@@ -94,6 +97,9 @@ def main():
         raw, defs = top_level_defs(f)
         cache[f] = (raw, defs)
         for d in defs:
+            rel = str(Path(f).relative_to(ROOT)).replace(BS, '/')
+            if (d['name'], rel) in EXCEPT:
+                continue
             per[d['name']].append((f, d))
     eligible, differing, inline_bodies = [], [], []
     canon_mode = '--canon' in sys.argv

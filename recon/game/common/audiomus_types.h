@@ -60,13 +60,13 @@ struct SNDLIMITS {
 
 
 
-struct DIRENTRY {
-    char name[20];
-    long attr, size;
-    DIRENTRY *next;
-    long head;
-    char system[4];
-};
+#include "shared/DIRENTRY.h"
+
+
+
+
+
+
 
 #include "shared/CdlLOC.h"
 typedef void (*CdlCB)(u_char intr, u_char *result); /* PsyQ 4.3 <libcd.h> */

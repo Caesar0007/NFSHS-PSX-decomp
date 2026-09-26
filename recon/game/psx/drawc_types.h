@@ -20,9 +20,9 @@ typedef u_char Night_tCopLightingTable[256][8];
 
 
 
-struct DIRENTRY {
-    char name[20]; long attr, size; DIRENTRY *next; long head; char system[4];
-};
+#include "shared/DIRENTRY.h"
+
+
 
 #ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 struct POLY_FT3 {

@@ -227,13 +227,13 @@ struct tBuildEntry { short chunkInd; char geomRez, enableBits; };
 
 
 
-struct DIRENTRY {
-    char name[20];
-    long attr, size;
-    DIRENTRY *next;
-    long head;
-    char system[4];
-};
+#include "shared/DIRENTRY.h"
+
+
+
+
+
+
 
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 struct POLY_GT3 {

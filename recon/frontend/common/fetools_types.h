@@ -18,13 +18,13 @@
 
 
 
-struct DIRENTRY {
-    char name[20];
-    long attr, size;
-    DIRENTRY *next;
-    long head;
-    char system[4];
-};
+#include "shared/DIRENTRY.h"
+
+
+
+
+
+
 
 /* These four classes are Fetools-owned header surface.  PSXFront shares the
  * remainder of this graph, but its linked SYM has no completed body for any

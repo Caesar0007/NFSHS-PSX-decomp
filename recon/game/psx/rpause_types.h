@@ -9,13 +9,13 @@
 
 
 
-struct DIRENTRY {
-    char name[20];
-    long attr, size;
-    DIRENTRY *next;
-    long head;
-    char system[4];
-};
+#include "shared/DIRENTRY.h"
+
+
+
+
+
+
 
 #include "shared/Draw_tView.h"
 

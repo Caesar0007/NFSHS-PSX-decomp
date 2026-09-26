@@ -3,6 +3,7 @@
 Canonicalisation (semantics-preserving for member layout, member types and debug records):
   * comments and whitespace dropped, tokens rejoined with single spaces;
   * the unsigned shorthands u_char/u_short/u_int/u_long/ushort expanded to their SYS/TYPES.H meaning;
+  * `signed short/int/long` reduced to `short/int/long`;
   * elaborated `struct X` / `union X` / `enum X` inside member types reduced to `X` (C++ sees the same type);
   * every data-member declaration split to one declarator per declaration (`int a, *b[2];` -> `int a; int *b[2];`).
 Members containing parentheses or braces (functions, nested definitions) are kept as token strings.
@@ -70,7 +71,8 @@ def canon(body):
     ex = []
     for tk in toks:
         ex.extend(ALIAS.get(tk, [tk]))
-    toks = ex
+    # `signed short/int/long` is plain short/int/long (only `signed char` is a distinct type)
+    toks = [tk for i, tk in enumerate(ex) if not (tk == 'signed' and i + 1 < len(ex) and ex[i + 1] in ('short', 'int', 'long'))]
     # head: everything up to the first '{'
     h = toks.index('{')
     head, inner = toks[:h], toks[h + 1:]

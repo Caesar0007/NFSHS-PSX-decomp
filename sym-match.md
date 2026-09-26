@@ -257,7 +257,14 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   (`kernpair` 8 -> 4 bytes, `charactertbl` 11 -> 3). The honest byte gate stayed green; only the debug-lane SYM
   moved (Font_Blit -12 bytes, everything after it shifted). The shared definition now keeps an alias-free spelling
   whenever one copy has it. The full debug-SYM compare is therefore the gate for header refactors, not only the
-  byte gate. Left: 99 types whose copies really differ (members or member types), and the class module headers.
+  byte gate. Then `type_canon.py` also folds `signed short/int/long` (tTexture_ShapeInfo), and
+  `dedup_types.py --except NAME@header` leaves out a copy that retail shows is a different definition:
+  `tools/psyq_pipe/member_cmp.py` compares member records per source file and finds DIRENTRY recorded with
+  `unsigned char` arrays only in retail PAD.C, exactly like our `pad_types.h`, so that copy stays and the other 30
+  are shared. SYM still identical. member_cmp's summary: 361 of our multi-file types record exactly retail's
+  members, 10 differ (Sim_tSimGlobalVar, Speech, tScreen, tMenu, ...), 9 have several retail definitions. The 97
+  types still listed as differing are classes whose copies declare different member functions (33 differ only
+  there) or carry class-body extras: they move with their retail module headers (step 2c).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

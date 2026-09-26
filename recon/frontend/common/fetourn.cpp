@@ -8,6 +8,7 @@
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
 static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
+static inline tCompetitor *Tournament_Competitors(tTournamentManager &tm) { return tm.fCompetitors; }
 static inline int Tier_TournOffset(tTierInfo &tier) { return tier.fTournOffset; }
 inline tTourneyInfo *tTournamentManager::CurrentTourney() { return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament]; }
 
@@ -314,17 +315,11 @@ ret0:
 static int tournPointsCompare(char *p1,char *p2)
 
 {
-  /* SYM-CODEGEN-CARRIER: tm. The two-stage embedded-array base formation
-     supplies the retail +280 adjustment; direct indexing or a const tm
-     declaration omits one instruction. The const comps snapshot does not
-     emit an extra SYM local. Retail records result and dummyCars only. */
   int result;
   Car_tStats *dummyCars;
-  tTournamentManager *tm;
-
-  tm = &tournamentManager;
-  tCompetitor *const comps = tm->fCompetitors;
-  dummyCars = Cars_gNewCarStatsList;
+  tCompetitor *comps;
+  comps = Tournament_Competitors(tournamentManager);
+  dummyCars = Cars_NewCarStatsList();
   result = (u_int)comps[(byte)*p2].fPoints - (u_int)comps[(byte)*p1].fPoints;
   if ((result == 0) &&
      (result = (int)comps[(byte)*p2].fIsPlayerCar -

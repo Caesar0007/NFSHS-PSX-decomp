@@ -6,6 +6,9 @@
 
 /* Retail fetourn.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
+static inline int Tier_TournOffset(tTierInfo &tier) { return tier.fTournOffset; }
+inline tTourneyInfo *tTournamentManager::CurrentTourney() { return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament]; }
 
 /* ---- tTournamentManager::Initialize  [FETOURN.CPP:36-82] ---- */
 
@@ -164,8 +167,7 @@ void tTournamentManager::GetTrackToRace(tTrackInfo &track)
 
 {
   blockmove(this->fDefinition->fTracks +
-             ((uint)(((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament)
-                       + this->fDefinition->fTournaments)->fTrackOffset
+             (this->CurrentTourney()->fTrackOffset
               + this->fCurrentTrack),&track,sizeof(tTrackInfo));
 
   track.fDirection = this->fDirection[this->fCurrentTrack];
@@ -297,8 +299,7 @@ short tTournamentManager::IsTournamentFinished()
      repeating the field chain loses an instruction and changes offsets. */
   tTourneyInfo *currentTourney;
 
-  currentTourney = this->fDefinition->fTournaments +
-      (this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
+  currentTourney = this->CurrentTourney();
   if (this->fCurrentTrack >= (int)currentTourney->fNumTracks) goto ret1;
   if (currentTourney->fKnockout == '\0') goto ret0;
   if (this->fCurrentTrack <= (int)this->fCompetitors[0].fPoints) goto ret0;
@@ -345,8 +346,7 @@ void tTournamentManager::UpdateTournFinishMoney()
   u_char i;
   tTourneyInfo *tourn;
 
-  tourn = &this->fDefinition->fTournaments
-      [(u_int)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];
+  tourn = this->CurrentTourney();
   this->fPrevBestPlacement = this->fBestPlacement[(signed char)tourn->fTournamentID];
   if (tourn->fKnockout != '\0') {
     (this->fAwards).fTournMoney +=
@@ -374,7 +374,7 @@ void tTournamentManager::UpdateTrackFinishMoney()
 {
   Car_tStats *dummyCars;
 
-  dummyCars = Cars_gNewCarStatsList;
+  dummyCars = Cars_NewCarStatsList();
   if (dummyCars[0].finalFinishType == 2) {
     (this->fAwards).fMoney +=
         this->GetTrackFinishPrize((short)dummyCars[0].finalPosition + -1);
@@ -723,8 +723,7 @@ short tTournamentManager::GetLastTrackRaced()
 
 {
   return (short)(signed char)this->fDefinition->fTracks
-                [(uint)(this->fDefinition->fTournaments +
-                       ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament))->
+                [this->CurrentTourney()->
                        fTrackOffset + this->fCurrentTrack + -1].fTrackNumber;
 }
 
@@ -761,11 +760,8 @@ void tTournamentManager::LoadTournament(tSaveTournament &load)
 /* ---- tTournamentManager::GetNumCompetitors  [FETOURN.CPP:803-805] ---- */
 
 short tTournamentManager::GetNumCompetitors()
-
 {
-  return (short)(this->fDefinition->fTournaments +
-                ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament))->
-                fNumCars;
+  return this->CurrentTourney()->fNumCars;
 }
 
 
@@ -851,8 +847,7 @@ long tTournamentManager::GetTournamentFinishPrize(short position)
   /* SYM-CODEGEN-CARRIER: tourn -- SYM has no locals here; the shared pointer
      is required for the retail address schedule (inlining changes 14 insns). */
   if ((ushort)position < 6) {
-    tTourneyInfo *tourn = this->fDefinition->fTournaments +
-             (this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
+    tTourneyInfo *tourn = this->CurrentTourney();
     return tourn->fPrize[position];
   }
   return 0;
@@ -1001,8 +996,7 @@ bool tTournamentManager::ValidCar(tCarInfo &carInfo)
   tTourneyInfo *tourney;
   bool result;
 
-  tourney = &this->fDefinition->fTournaments
-      [(u_int)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];
+  tourney = this->CurrentTourney();
   result = 1;
   if (tourney->fOpponentCarClass != '\n') {
     result = carInfo.fCarClass == tourney->fOpponentCarClass;

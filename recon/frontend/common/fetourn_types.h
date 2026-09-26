@@ -106,6 +106,7 @@ struct tTournamentManager {
     void SaveTournament(tSaveTournament &save);
     void LoadTournament(tSaveTournament &load);
     short GetNumCompetitors();
+    tTourneyInfo *CurrentTourney();
     void UpdateCarLineup();
     long GetTrackFinishPrize(short position);
     long GetTournamentFinishPrize(short position);

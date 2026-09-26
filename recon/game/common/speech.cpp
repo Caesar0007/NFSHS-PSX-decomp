@@ -273,52 +273,23 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
   return match;
 }
 
+/* retail Distance records no locals and no inline scopes: the minimum is a macro (both operands are
+   computed first; gcc cross-jumps the three minimum tails into one) */
+#define SPEECH_MIN(a, b) ((a) < (b) ? (a) : (b))
+
 /* ---- Distance__Q26Speech12LocationBanki  [SPEECH.CPP:567-587] SLD-VERIFIED ---- */
 int Speech::LocationBank::Distance(int slice)
 
 {
-  /* SYM-CODEGEN-CARRIER: start -- optimized field snapshot; its retail source
-     spelling is not recoverable from the zero-local SLD record.
-     SYM-CODEGEN-CARRIER: end -- paired optimized field snapshot.
-     SYM-CODEGEN-CARRIER: forward -- cross-branch circular-distance quantity.
-     SYM-CODEGEN-CARRIER: backward -- shared minimum-tail quantity.
-     Receipt: removing all four gives 36/37 instructions and 19 diffs; keeping
-     only forward/backward gives 39/37 and 26 diffs; this form is 37/37. */
-  int start;
-  int end;
-  int forward;
-  int backward;
-
-  start = this->fStartSlice;
-  end = this->fEndSlice;
-  if (end < start) {
-    if (slice >= start) {
-      goto Distance_wrappedZero;
-    }
-    forward = slice - end;
-    if (slice <= end) {
-      goto Distance_wrappedZero;
-    }
-Distance_backward:
-    backward = start - slice;
-Distance_min:
-    if (backward < forward) {
-      forward = backward;
-    }
-    return forward;
-Distance_wrappedZero:
+  if (fStartSlice > fEndSlice) {
+    if (slice < fStartSlice && slice > fEndSlice)
+      return SPEECH_MIN(fStartSlice - slice, slice - fEndSlice);
     return 0;
   }
-
-  if (slice < start) {
-    forward = (slice + gNumSlices) - end;
-    goto Distance_backward;
-  }
-  if (slice > end) {
-    backward = slice - end;
-    forward = (start + gNumSlices) - slice;
-    goto Distance_min;
-  }
+  if (slice < fStartSlice)
+    return SPEECH_MIN(fStartSlice - slice, slice + gNumSlices - fEndSlice);
+  if (slice > fEndSlice)
+    return SPEECH_MIN(slice - fEndSlice, fStartSlice + gNumSlices - slice);
   return 0;
 }
 
@@ -1215,15 +1186,11 @@ Speech::Speaker *Speech::Dispatch(void)
 {
   Speaker *result;
 
-  if (Speech::fgSpeech != (Speech *)0x0) {
-    if (Speech::fgSpeech->fBankOffset != (long *)0x0) {
-      goto Dispatch_useValue;
-    }
-  }
-  result = Speech::fgUndefined;
-  return result;
-Dispatch_useValue:
-  result = (Speaker *)Speech::fgSpeech->fDispatch;
+  if (Speech::fgSpeech == (Speech *)0x0 || Speech::fgSpeech->fBankOffset == (long *)0x0)
+    result = Speech::fgUndefined;
+  else
+    result = (Speaker *)Speech::fgSpeech->fDispatch;
+
   return result;
 }
 
@@ -2335,27 +2302,19 @@ void Speech::MobileSpeaker::ReActivate()
 Speech::Speaker *Speech::FindMobile(Car_tObj *carObj)
 
 {
-  /* SYM-CODEGEN-CARRIER: mobile -- the optimized SYM block retains only each
-     loop's `i`; spelling the repeated member access directly is four
-     instructions shorter and changes 20 oracle instructions. */
   for (int i = 0; i < 4; i++) {
-    MobileSpeaker *mobile = this->fMobile[i];
-
-    if (carObj == mobile->fCarObj) {
-      return (Speaker *)mobile;
-    }
+    if (fMobile[i]->IsCar(carObj))
+      return fMobile[i];
   }
 
   for (int i = 0; i < 4; i++) {
-    MobileSpeaker *mobile = this->fMobile[i];
-
-    if (mobile->fCarObj == (Car_tObj *)0x0) {
-      mobile->Activate(carObj);
-      return (Speaker *)this->fMobile[i];
+    if (fMobile[i]->IsFree()) {
+      fMobile[i]->Activate(carObj);
+      return fMobile[i];
     }
   }
 
-  return Speech::fgUndefined;
+  return fgUndefined;
 }
 
 /* ---- Mobile__6SpeechP8Car_tObj  [SPEECH.CPP:2244-2250] SLD-VERIFIED ---- */
@@ -3255,7 +3214,7 @@ Speech::LocationBank *Speech::MobileSpeaker::FindClosestLocationTo(int slice)
 Speech::CarBank *Speech::MobileSpeaker::GetCarBank(int carIndex)
 
 {
-  return &Speech::fgSpeech->fCarBank.Mobile[carIndex];
+  return Speech::MobileCarBank(carIndex);
 }
 
 /* ---- CarObj__Q26Speech13MobileSpeaker  [SPEECH.CPP:114-114] SLD-VERIFIED ---- */
@@ -3290,7 +3249,7 @@ Speech::LocationBank *Speech::DispatchSpeaker::FindClosestLocationTo(int slice)
 Speech::CarBank *Speech::DispatchSpeaker::GetCarBank(int carIndex)
 
 {
-  return &Speech::fgSpeech->fCarBank.Dispatch[carIndex];
+  return Speech::DispatchCarBank(carIndex);
 }
 
 /* ---- PurgeStatusSub__Q26Speech15DispatchSpeaker  [SPEECH.CPP:58-66] SLD-FLAG:NONMONO ---- */

@@ -293,6 +293,14 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   and only SIM.CPP records Sim_tSimGlobalVar although ~30 objects read `simGlobal.gameTicks`. Our cc1plus records
   every struct a unit defines. Both point at how retail's headers presented these types (or at a debug-emission
   difference), not at member layouts; they account for much of the tag-count gap (missing 13,042 / extra 3,611).
+- Speech round 4 (2026-09-26). Byte-unchanged (symloop) and CLEAN: `Speech::Dispatch` (one `result`, the
+  fallback first: `if (!fgSpeech || !fgSpeech->fBankOffset) result = fgUndefined; else result = fDispatch;` --
+  the early-return form matches bytes but lets gcc drop `result`); both `GetCarBank`s (one variable-free inline
+  pair = a STATIC inline taking the register index, `Speech::MobileCarBank(carIndex)`); `LocationBank::Distance`
+  (retail records no locals and no inline scopes: a `SPEECH_MIN` macro over the two distances, first test
+  `fStartSlice > fEndSlice` so start loads first); `Speech::FindMobile` (each loop calls one inline on
+  `fMobile[i]`: `IsCar(carObj)` = `carObj == fCarObj`, which records this+carObj, and `IsFree()`). speech.cpp
+  62 -> 67 CLEAN.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

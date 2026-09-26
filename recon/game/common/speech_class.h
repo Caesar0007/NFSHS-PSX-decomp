@@ -173,6 +173,9 @@ struct Speech {
         inline void SetVoice(int Voice) { fVoice.flags = Voice; }
         inline void SetSpeedType(int type) { fSpeedType.flags = type; }
         inline void ClearCarObj() { fCarObj = 0; }
+        /* FindMobile's two loops each call one inline on fMobile[i]: (this, carObj) and (this) */
+        inline bool IsCar(Car_tObj *carObj) { return carObj == fCarObj; }
+        inline bool IsFree() { return fCarObj == 0; }
         Car_tObj *Perp();
         int Unit();
         CallSignBank *CallSign();
@@ -222,6 +225,10 @@ struct Speech {
     inline int FileHandle() { return fFileHandle; }
     inline void SetSpeakerCar(Car_tObj *carObj) { fSpeakerCar = carObj; }
     static inline int MultiplePerps() { return fgSpeech->fMultiplePerps; }
+    /* car-bank lookup: retail's GetCarBank bodies are one inline-call pair with no variables (static inline;
+       the index is a register argument, so no parameter row) */
+    static inline CarBank *MobileCarBank(int carIndex) { return &fgSpeech->fCarBank.Mobile[carIndex]; }
+    static inline CarBank *DispatchCarBank(int carIndex) { return &fgSpeech->fCarBank.Dispatch[carIndex]; }
     /* bank accessors: retail's one-line Speaker accessors are each a single inline-call pair -- a member on
        the instance (`this` only) or a forwarding member (`this` + `slice`) */
     inline CallSignBank *MobileCallSign() { return &fCallSignBank.Mobile; }

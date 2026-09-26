@@ -389,7 +389,7 @@ DrawOvl_transitionPos:
          reproduces it with no volatile (whole-TU 59/59 PASS).  FALSIFIED:
          a plain `*(int *)&` cast 2; the direct field read 2. */
       {
-        int curItem = menuDefs->menuCarUpgrades.fCurrentItem;
+        const int curItem = menuDefs->menuCarUpgrades.fCurrentItem;
 
         FETextRender_MenuTextPositionedJustify
                   (curItem + 0x96,

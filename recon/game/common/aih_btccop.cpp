@@ -1041,7 +1041,7 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
      (a0=carInfo+0x5C self-add in then-arm; a0=0/a1=a0-copy zeros in else; shared sltiu in the jal slot) */
   if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
 
-    Hud_BTC_Update(((this->perpTarget_)->carObj_)->carInfo->driver,this->timeLeft_,
+    Hud_BTC_Update(AIHigh_GetCarObj(this->perpTarget_)->carInfo->driver,this->timeLeft_,
                    (void *)(u_int)((this->carObj_)->RSControl == 0));
 
   }
@@ -1503,11 +1503,7 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
 
 {
-  coorddef notUsed;
-
-
-
-  if ((this->copIndex_ == 0) &&
+if ((this->copIndex_ == 0) &&
 
      (this->freezeMode_ == 1)) {
 
@@ -1517,9 +1513,7 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
   if ((this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) && (this->freezeMode_ != 1)) {
 
-    (this->carObj_)->desiredDirection =
-
-         ((this->perpTarget_)->carObj_)->direction;
+    (this->carObj_)->desiredDirection = AIHigh_GetCarObj(this->perpTarget_)->direction;
 
   }
 
@@ -1534,9 +1528,9 @@ void AIHigh_BTC_HumanCop::HighExecute()
   this->CheckForNewTarget();
 
   if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
+    coorddef notUsed;
 
     this->GetCheckChasePosition(&notUsed);
-
   }
 
   if (AIHigh_CopGameType == COP_GAME_BTC_1HC) {
@@ -2990,7 +2984,7 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   int perpSide;
 
-  otherCarObj = (humanCop)->carObj_;
+  otherCarObj = AIHigh_GetCarObj(humanCop);
 
   side = -1;
 

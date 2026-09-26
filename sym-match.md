@@ -399,6 +399,9 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   file gated byte-unchanged (symloop; aidebug/aispeech have no retail functions and are covered by the link), honest
   link 0 diff, full debug SYM byte-identical. Five stale symloop references (rodata-prefix only) were re-adopted on
   the honest-link proof with `ref_refresh.py --proven`.
+- aih_btccop round 1: HumanCop::HighExecute, UpdateAndCheckTimeLeft, Wingman::SetupWingman CLEAN (17 -> 20). Retail's
+  variable-free pair there is the existing static helper `AIHigh_GetCarObj(other)` reading ANOTHER AI object's car
+  (`perpTarget_`, `humanCop`) -- its parameter leaves no record -- plus `coorddef notUsed` scoped to its if-block.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -858,101 +858,52 @@ LAB_800625d0:
 /* ---- MaintainAvailableCops__13AIHigh_Player  AIHigh_Player::MaintainAvailableCops  [AIH_PLAY.CPP:669-744] SLD-VERIFIED ---- */
 
 void AIHigh_Player::MaintainAvailableCops()
-
-
-
 {
   int need[2];
   int got[2];
   int availableCops;
-
   memset((u_char *)need, '\0', sizeof(need));
   memset((u_char *)got, '\0', sizeof(got));
-
   availableCops = 3;
-  if (NumRaceCars() != 1) {
+  if (Cars_gNumRaceCars != 1) {
     availableCops = 4;
-    if (NumHumanRaceCars() == 2) {
+    if (Cars_gNumHumanRaceCars == 2) {
       availableCops = 2;
     }
   }
-
-  {
-    int playLoop;
-
-    for (playLoop = 0; playLoop < NumRaceCars(); playLoop++) {
-      Car_tObj *playerCarObj;
-      AIHigh_Player *playerHighObj;
-      /* SYM-CODEGEN-CARRIER: pInfo -- the retail SLD records an inlined
-         AICop_PerpChaseInfo `this` receiver here, but not the unrecoverable
-         helper name. Direct field spelling is 161/162 with nine base-address
-         and load-form diffs; this receiver restores the exact +0x8c view. */
-      AICop_PerpChaseInfo *pInfo;
-
-      playerCarObj = Cars_gRaceCarList[playLoop];
-      playerHighObj = (AIHigh_Player *)highLevelAIObjs[playerCarObj->carIndex];
-      pInfo = &playerHighObj->perpChaseInfo_;
-      need[0] += pInfo->chaseLevel_->copBlockaders[0];
-      need[1] += pInfo->chaseLevel_->copBlockaders[1];
-      need[0] += pInfo->chaseLevel_->copChasers[0];
-      need[1] += pInfo->chaseLevel_->copChasers[1];
+  for (int playLoop = 0; playLoop < Cars_gNumRaceCars; playLoop++) {
+    Car_tObj *playerCarObj = Cars_gRaceCarList[playLoop];
+    AIHigh_Player *playerHighObj = (AIHigh_Player *)highLevelAIObjs[playerCarObj->carIndex];
+    need[0] += playerHighObj->perpChaseInfo_.GetChaseLevel()->copBlockaders[0];
+    need[1] += playerHighObj->perpChaseInfo_.GetChaseLevel()->copBlockaders[1];
+    need[0] += playerHighObj->perpChaseInfo_.GetChaseLevel()->copChasers[0];
+    need[1] += playerHighObj->perpChaseInfo_.GetChaseLevel()->copChasers[1];
+  }
+  for (int copLoop = 0, playLoop; copLoop < Cars_gNumCopCars; copLoop++) {
+    Car_tObj *copCarObj = Cars_gCopCarList[copLoop];
+    AIHigh_Cop *copHighObj = (AIHigh_Cop *)highLevelAIObjs[copCarObj->carIndex];
+    if ((copCarObj->AIFlags & 4U) == 0 || copHighObj->BlockadeMode() == 1 || copHighObj->BlockadeMode() == 2) {
+      playLoop = copHighObj->Type();
+      got[playLoop]++;
+      availableCops--;
+      copCarObj->AIFlags |= 8;
+    }
+    else {
+      copCarObj->AIFlags &= ~8U;
     }
   }
-
-  {
-    int copLoop;
-    int playLoop;
-
-    for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
-      Car_tObj *copCarObj;
-      AIHigh_Cop *copHighObj;
-      /* SYM-CODEGEN-CARRIER: available -- retail materializes the combined
-         inline-state predicate although no result name survives. Using the
-         condition directly shrinks 162 to 159 instructions and changes 63
-         allocation/control-flow instructions. */
-      bool available;
-
-      copCarObj = Cars_gCopCarList[copLoop];
-      copHighObj = (AIHigh_Cop *)highLevelAIObjs[copCarObj->carIndex];
-      available = (copCarObj->AIFlags & 4U) == 0 ||
-                  highLevelAIObjs[copCarObj->carIndex][1].stateType_ == STATE_PURGATORY ||
-                  highLevelAIObjs[copCarObj->carIndex][1].stateType_ == STATE_NORMAL;
-      if (available) {
-        playLoop = copHighObj->type_;
+  for (int copLoop = 0; availableCops > 0 && copLoop < Cars_gNumCopCars; copLoop++) {
+    Car_tObj *copCarObj = Cars_gCopCarList[copLoop];
+    if ((copCarObj->AIFlags & 8U) == 0) {
+      AIHigh_Cop *copHighObj = (AIHigh_Cop *)highLevelAIObjs[copCarObj->carIndex];
+      int playLoop = copHighObj->Type();
+      if (need[playLoop] > got[playLoop]) {
         got[playLoop]++;
         availableCops--;
         copCarObj->AIFlags |= 8;
       }
-      else {
-        copCarObj->AIFlags &= ~8U;
-      }
     }
   }
-
-  {
-    int copLoop;
-
-    for (copLoop = 0;
-         availableCops > 0 && copLoop < Cars_gNumCopCars;
-         copLoop++) {
-      Car_tObj *copCarObj;
-
-      copCarObj = Cars_gCopCarList[copLoop];
-      if ((copCarObj->AIFlags & 8U) == 0) {
-        AIHigh_Cop *copHighObj;
-        int playLoop;
-
-        copHighObj = (AIHigh_Cop *)highLevelAIObjs[copCarObj->carIndex];
-        playLoop = copHighObj->type_;
-        if (need[playLoop] > got[playLoop]) {
-          got[playLoop]++;
-          availableCops--;
-          copCarObj->AIFlags |= 8;
-        }
-      }
-    }
-  }
-
 }
 
 

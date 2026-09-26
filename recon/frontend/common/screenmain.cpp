@@ -6,6 +6,11 @@
  */
 #include "screenmain.h"
 
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
@@ -454,14 +459,14 @@ void tScreenMain::DrawBackground()
   if (this->fState != kScreenMain_Credits) {
     goto test_credits_menu;
   }
-  if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {
+  if (FEApp->fCurrentMenu[0] != (tMenu *)&MenuDefs()->menuCredits) {
     this->SetState(kScreenMain_StaticImage);
     goto credits_state_done;
   }
 test_credits_menu:
   {
     tMenu *curMenu = FEApp->fCurrentMenu[0];
-    if (curMenu == (tMenu *)&menuDefs->menuCredits) {
+    if (curMenu == (tMenu *)&MenuDefs()->menuCredits) {
       this->SetState(kScreenMain_Credits);
     }
   }
@@ -471,14 +476,14 @@ credits_state_done:
     if ((frontEnd.raceType != RaceType_PinkSlips) &&
        ((tMenuItemGoToMenuNFS4Button *)
         FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] !=
-        &menuDefs->itemTwoPlayerPinkSlips)) {
+        &MenuDefs()->itemTwoPlayerPinkSlips)) {
       this->SetState(kScreenMain_StaticImage);
     }
   }
   else if ((frontEnd.raceType == RaceType_PinkSlips) ||
           ((tMenuItemGoToMenuNFS4Button *)
            FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] ==
-           &menuDefs->itemTwoPlayerPinkSlips)) {
+           &MenuDefs()->itemTwoPlayerPinkSlips)) {
     this->SetState(kScreenMain_WarningImage);
   }
   if ((this->fState == kScreenMain_WarningImage) || (0 < this->fWarningFade)) {

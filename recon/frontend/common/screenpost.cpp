@@ -3,6 +3,14 @@
  */
 #include "screenpost.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
@@ -400,9 +408,9 @@ void tScreenTournamentStandings::DrawBackground()
   trackManager.GetTrack((short)Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
                            (short)TextSys_WordY(0x2fd),type,textState_Hilighted,2);
-  i = (short)(frontEnd.tier != '\0' ?
-                TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) :
-                TextValue(&menuDefs->iteratorTournament,kPlayerBoth));
+  i = (short)(FrontEnd().tier != '\0' ?
+                TextValue(&MenuDefs()->iteratorSpecialEvent,kPlayerBoth) :
+                TextValue(&MenuDefs()->iteratorTournament,kPlayerBoth));
   i += 0x13;
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
                                              2,textState_Hilighted,type);

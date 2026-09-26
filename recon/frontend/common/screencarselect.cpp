@@ -4,6 +4,11 @@
  */
 #include "screencarselect.h"
 
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks[0]; }
@@ -692,9 +697,9 @@ void tScreenCarSelect::Initialize()
     GameSetup_gData.track = (int)trackInfo.fSimNumber;
   }
   gShowroomLights[0] = 1;
-  (menuDefs->itemDamage).fFlags &= 0xfffffffe;
+  (MenuDefs()->itemDamage).fFlags &= 0xfffffffe;
   if (frontEnd.raceType == RaceType_Tournament) {
-    (menuDefs->itemDamage).fFlags |= 1;
+    (MenuDefs()->itemDamage).fFlags |= 1;
   }
   this->tScreen::Initialize();
   /* MATCH (W66): retail reloads each virtual-table entry directly from `_vf`;

@@ -3,6 +3,10 @@
  */
 #include "screenaudio.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+
 /* Retail screenaudio.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -143,7 +147,7 @@ void tScreenAudio::DrawForeground()
      69/68.  Omitting the identity fence is count-exact FAIL 2. */
   int fadeCalc;
 
-  fadeCalc = (menuDefs->menuAudio).fScreenFade >> 1;
+  fadeCalc = (MenuDefs()->menuAudio).fScreenFade >> 1;
   if ((short)fadeCalc < 0x80) {
     if ((short)fadeCalc <= 0) goto DrawFgAudio_fadeZero;
   }

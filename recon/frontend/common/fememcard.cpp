@@ -5,6 +5,10 @@
 #define FEAPP_DEFINE_DIALOG_CTORS
 #include "fememcard.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
+
+
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline volatile int FE_Ticks(void) { return ticks; }
@@ -196,7 +200,7 @@ static int Confirm(int Text,int yesText)
     dialog->yesnowords[1] = 0x292;
     dialog->yesnowords[0] = yes;
     dialog->fDefault = 0;
-    if (frontEnd.language == '\x03') {
+    if (FrontEnd().language == '\x03') {
       dialog->OffsetX = 0;
       dialog->OffsetY = 10;
     }
@@ -852,7 +856,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
       /* MATCH arm order: success path INLINE (beqz jumps the fail block out-of-line to the
          arm end); nocheat-mismatch = 2-insn inline wedge (beq skips it into the save body). */
       if (VerifySuccessfulRead(&memCardData)) {
-        if (frontEnd.gPinkSlipsNoCheat[player] != memCardData.pinkSlipsNoCheat) {
+        if (FrontEnd().gPinkSlipsNoCheat[player] != memCardData.pinkSlipsNoCheat) {
           /* anti-cheat token mismatch: not the original card */
           finished = true;
           result = (PinkSlipsErrorCode)finished;   /* oracle: addu s2,s3,zero -- =1 NotOriginalCard as a COPY of finished */

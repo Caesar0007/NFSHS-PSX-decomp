@@ -5,6 +5,10 @@
  */
 #include "screenpinkslips.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
@@ -93,7 +97,7 @@ void tScreenPinkSlips::DrawBackground()
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[i],&trackInfo);
     frontEnd.pinkSlipsTrackIndex = (char)i;
     FETextRender_MenuTextPositionedJustify(
-        TextValue(&menuDefs->iteratorTrack,kPlayerBoth),r.x + 10,r.y + 3,0,
+        TextValue(&MenuDefs()->iteratorTrack,kPlayerBoth),r.x + 10,r.y + 3,0,
         textState,textType_FlybyHelp);
     DrawShape_NFS4RoundRectangle(-1,&r,1);
     i = i + 1;

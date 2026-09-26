@@ -4,6 +4,10 @@
  */
 #include "screentrophyroom.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
+
+
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
@@ -141,7 +145,7 @@ void tScreenTrophyRoom::Initialize()
      reproduced all 13 global handouts and isolated the frontEnd/constant priority
      crossing and the loop's caller-saved-to-$s3 handoff.  The later source-only SYM
      cleanup (2026-08-26) found the simpler original-looking form: direct
-     `frontEnd.tier` reads plus `loopFe = &frontEnd` preserve that handoff at exact
+     `FrontEnd().tier` reads plus `loopFe = &frontEnd` preserve that handoff at exact
      PASS, so the old `fe` alias and four-input opacity fence were unnecessary.
      The load-poll result also feeds its condition directly.  The six remaining
      SYM-omitted value webs have measured counterfactual receipts beside their
@@ -164,8 +168,8 @@ void tScreenTrophyRoom::Initialize()
   do {
     systemtask(0);
   } while (((int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes) ^ 1) != 0);
-  this->tier = (uint)(byte)frontEnd.tier;
-  this->fNumTrophies = frontEnd.tier != '\0' ? 8 : 6;
+  this->tier = (uint)(byte)FrontEnd().tier;
+  this->fNumTrophies = FrontEnd().tier != '\0' ? 8 : 6;
   this->fClearScreen = 1;
   i = 0;
   loopFe = &frontEnd;

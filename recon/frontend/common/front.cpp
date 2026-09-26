@@ -4,6 +4,10 @@
  */
 #include "front.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
+
+
 /* Retail front.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -773,7 +777,7 @@ void SetPads(void)
     int starttick;
     LookingFor = 4;
     pad = j << 4;
-    if (frontEnd.AnalogOn[j] != 0) {
+    if (FrontEnd().AnalogOn[j] != 0) {
       LookingFor = 7;
     }
     starttick = ticks;

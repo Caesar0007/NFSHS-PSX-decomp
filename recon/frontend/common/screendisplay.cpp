@@ -3,6 +3,10 @@
  */
 #include "screendisplay.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+
 tScreenDisplay *screenDisplay;   /* global instance pointer owned by this TU (SYM EXT @0x800528d8) */
 
 /* ---- tScreenDisplay::DrawBackground  (screendisplay.cpp:30) ---- */
@@ -12,7 +16,7 @@ void tScreenDisplay::DrawBackground()
   int i;
   short fade;
 
-  fade = (short)((menuDefs->menuDisplayOptions).fScreenFade >> 1);
+  fade = (short)((MenuDefs()->menuDisplayOptions).fScreenFade >> 1);
   i = 0;
   if (0x80 < fade) {
     fade = 0x80;

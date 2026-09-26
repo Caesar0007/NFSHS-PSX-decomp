@@ -3,6 +3,10 @@
  */
 #include "screenmemcard.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
@@ -945,9 +949,9 @@ void tScreenMemcard::Initialize()
   const uint msgId = this->player != 0 ? 0x289 : 0x287;
   {
     int i = 0;
-    (menuDefs->itemLoadGame).fTextDescription = msgId;
-    (menuDefs->itemSaveGame).fFlags |= 1;
-    (menuDefs->itemLoadGame).fFlags |= 1;
+    (MenuDefs()->itemLoadGame).fTextDescription = msgId;
+    (MenuDefs()->itemSaveGame).fFlags |= 1;
+    (MenuDefs()->itemLoadGame).fFlags |= 1;
     do {
       this->goticon[i] = '\0';
       this->numicon[i] = '\0';

@@ -6,6 +6,14 @@
 #include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
+
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+
 /* Retail feapp.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -985,7 +993,7 @@ MainLoop_perPlayerFlagCheck:
         inputEndPlayer = (tPlayer)(u_char)this->fPlayer;
         inputStartPlayer = inputEndPlayer;
         if (((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x10) != 0) ||
-           ((frontEnd.gameMode == kPlayerTwo &&
+           ((FrontEnd().gameMode == kPlayerTwo &&
              ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 8) == 0)))) {
           perPlayer = true;
         }
@@ -1156,7 +1164,7 @@ MainLoop_noBack:
               break;
             }
             this->waitingForOtherPlayer[1 - (u_int)(u_char)this->fPlayer] = 0;
-            if (frontEnd.raceType != RaceType_PinkSlips) goto MainLoop_carInfoStockGarage;
+            if (FrontEnd().raceType != RaceType_PinkSlips) goto MainLoop_carInfoStockGarage;
             AudioMus_StopSong(400);
             Init_Memcard(false,1);
             {
@@ -1178,7 +1186,7 @@ MainLoop_noBack:
                 if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
                 FEApp->Redraw();
               }
-              err = SavePinkSlipsCarsWithErrorDialogs((short)player,0,(u_short)(u_char)frontEnd.pinkSlipsCar[player]);
+              err = SavePinkSlipsCarsWithErrorDialogs((short)player,0,(u_short)(u_char)FrontEnd().pinkSlipsCar[player]);
               if ((err != PinkSlipsNoError) && (player == 1)) {
                 sprintf(string,TextSys_Word(0x297),PlayerName(0),1);
                 (FEApp->NoInputMemCardDialog).string = string;
@@ -1190,7 +1198,7 @@ MainLoop_noBack:
             DeInit_Memcard();
             if (err == PinkSlipsNoError) goto MainLoop_carInfoPinkSlips;
             this->UpdateMusic();
-            AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
+            AudioMus_Volume((int)((u_int)(u_char)FrontEnd().musicVolume * 0x23) >> 6);
             continue;
             }
           case 5:
@@ -1199,19 +1207,19 @@ MainLoop_carInfoPinkSlips:
             {
             tCarInfo carInfo;
             u_long ticks;
-            if (frontEnd.raceType != RaceType_PinkSlips) {
+            if (FrontEnd().raceType != RaceType_PinkSlips) {
 MainLoop_carInfoStockGarage:
-              if (frontEnd.carListType == '\0') {
-                carManager.GetStockCar((u_short)(u_char)frontEnd.playerCar[(u_char)this->fPlayer],carInfo)
+              if (FrontEnd().carListType == '\0') {
+                carManager.GetStockCar((u_short)(u_char)FrontEnd().playerCar[(u_char)this->fPlayer],carInfo)
                 ;
               }
               else {
-                carManager.GetGarageCar((u_short)(u_char)frontEnd.garageCar[(u_char)this->fPlayer],carInfo,
+                carManager.GetGarageCar((u_short)(u_char)FrontEnd().garageCar[(u_char)this->fPlayer],carInfo,
                            (u_short)(u_char)this->fPlayer);
               }
             }
             else {
-              carManager.GetPinkSlipsCar((u_short)(u_char)frontEnd.pinkSlipsCar[(u_char)this->fPlayer],
+              carManager.GetPinkSlipsCar((u_short)(u_char)FrontEnd().pinkSlipsCar[(u_char)this->fPlayer],
                          carInfo,(u_short)(u_char)this->fPlayer);
             }
 MainLoop_carInfoApplied:
@@ -1362,9 +1370,9 @@ tAppCommand tFEApplication::RunPostGame()
       }
     }
     if (this->needName[0] != 0) {
-      tUserNameMenuItem *item = &menuDefs->menuItemUserName1;
+      tUserNameMenuItem *item = &MenuDefs()->menuItemUserName1;
       tScreenUserName *screen = screenUserName;
-      tOptionsMenu *m = &menuDefs->menuPostGamePlayer1Name;
+      tOptionsMenu *m = &MenuDefs()->menuPostGamePlayer1Name;
       item->fData = frontEnd.playerNameList[0];
       item->fPlayer = 0;
       item->fMaxStringLength = 7;
@@ -1374,9 +1382,9 @@ tAppCommand tFEApplication::RunPostGame()
       return this->MainLoop((tMenu *)m);
     }
     if (this->needName[1] != 0) {
-      tUserNameMenuItem *item = &menuDefs->menuItemUserName2;
+      tUserNameMenuItem *item = &MenuDefs()->menuItemUserName2;
       tScreenUserName *screen = screenUserName;
-      tOptionsMenu *m = &menuDefs->menuPostGamePlayer2Name;
+      tOptionsMenu *m = &MenuDefs()->menuPostGamePlayer2Name;
       item->fPlayer = 1;
       item->fData = frontEnd.playerNameList[1];   /* retail: frontEnd+0x36c = player 2's name ([4] would be licensePlate) */
       item->fMaxStringLength = 7;

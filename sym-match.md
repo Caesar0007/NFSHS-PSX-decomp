@@ -169,6 +169,16 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   (`DoNitrous`, `HandlePullOver` (Player), `HighExecute` (BTC_AIPerp), `HudOn`, `NewStage` (BTC_AIPerp),
   `SetupBlockader`); all stay DIRTY, so this is a shape step, not a board step. Lesson: gate a
   getter sweep on the function's total scope count as well as its pair count.
+- Getter sweeps for `menuDefs->` (`static inline tGlobalMenuDefs *MenuDefs()`) and `frontEnd.`
+  (`static inline tfrontEnd &FrontEnd()`), same gate as the tick sweep plus a hand check of the total
+  scope count afterwards: 41 functions kept by the pair gate, 8 reverted for overshooting retail's
+  scope count (the read is not a getter there), `tScreenDisplay::DrawBackground` native CLEAN, the rest
+  DIRTY but closer (e.g. `tScreenMain::DrawBackground` 37 -> 52 of 55, `tFEApplication::MainLoop`
+  24 -> 50 of 70). Board 1857 -> 1858.
+  OPEN: `femenudefs.cpp` cannot be gated by `symloop` at all -- its PRISTINE `-g` compile already differs
+  from the normal one (the `tGlobalMenuDefs` constructor's frame is 640 bytes without `-g` and 608 with
+  it; `gdebug_compile.py` reports CODE DIFFERS 6030 vs 6031 insns). Its sweep edits were reverted and
+  the TU is excluded until that divergence is understood.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -402,6 +402,11 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
 - aih_btccop round 1: HumanCop::HighExecute, UpdateAndCheckTimeLeft, Wingman::SetupWingman CLEAN (17 -> 20). Retail's
   variable-free pair there is the existing static helper `AIHigh_GetCarObj(other)` reading ANOTHER AI object's car
   (`perpTarget_`, `humanCop`) -- its parameter leaves no record -- plus `coorddef notUsed` scoped to its if-block.
+- aih_btccop 20 -> 28 CLEAN with the new flag: HumanCop/AIHigh_Base/AIHigh_Traffic/AICop_BasicPerpInfo accessors
+  (CurrentStage, InitialDirection/Movement, SetRequestedDesiredSpeed, CarObj, SetForcePurgatory, Crime), for-scoped
+  loop locals, `continue` guards, a copy-propagated `result`, else-if chains. AIHigh_Base::SetState is now a MEMBER
+  inline (retail pairs: this + newState) in the flagged TUs. aih_cop CheckForWipeOut: one more retail pair, still
+  DIRTY (`skipWipeOut` flag). Board 1900 -> 1911 CLEAN; honest 0 diff.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

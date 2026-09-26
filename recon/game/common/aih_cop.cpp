@@ -1656,12 +1656,10 @@ void AIHigh_Cop::CheckForWipeOut()
      (gameTicks FIRST) makes gcc schedule the D_8011E0B0 load into the load-delay
      gap after `lw carObj_`; the `wipeOutEndTick <= gameTicks` spelling emits a nop
      there instead and rotated the whole a0/a1 band. 25 -> PASS. */
-  skipWipeOut =
-      (this->perpTarget_ == (AIHigh_Player *)0x0) ||
-      (((this->perpTarget_->carObj_)->carFlags & 8U) == 0) ||
+  skipWipeOut = (this->perpTarget_ == (AIHigh_Player *)0x0) ||
+      (((AIHigh_GetCarObj(this->perpTarget_))->carFlags & 8U) == 0) ||
       (GameTicks() < (this->carObj_)->wipeOutEndTick) ||
       ((this->perpTarget_->perpChaseInfo_.engagementTime_ / 0x10000) >= 2);
-
   if (skipWipeOut) {
     return;
   }

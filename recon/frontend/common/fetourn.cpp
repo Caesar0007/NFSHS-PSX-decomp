@@ -9,6 +9,7 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
 static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
 static inline tCompetitor *Tournament_Competitors(tTournamentManager &tm) { return tm.fCompetitors; }
+static inline int Tournament_BestPlacement(tTournamentManager &tm, int tournamentID) { return (signed char)tm.fBestPlacement[tournamentID]; }
 static inline int Tier_TournOffset(tTierInfo &tier) { return tier.fTournOffset; }
 inline tTourneyInfo *tTournamentManager::CurrentTourney() { return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament]; }
 
@@ -908,8 +909,7 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
      SLD puts this read on line 1042/1043 -- BETWEEN the two array initializers and
      before the guard, i.e. in the entry basic block (sched1 cannot move a load
      across a branch, so an in-branch placement can never reproduce it). */
-  const int best = (signed char)tournamentManager.fBestPlacement
-                  [(signed char)tourn->fTournamentID];
+  const int best = Tournament_BestPlacement(tournamentManager, (signed char)tourn->fTournamentID);
   char trophyPlacementLetter [4] = { 'W', 'G', 'S', 'B' };
 
   if (place == -1) {

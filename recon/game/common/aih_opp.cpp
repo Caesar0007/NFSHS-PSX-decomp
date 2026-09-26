@@ -631,12 +631,7 @@ void AIHigh_Opponent::HighExecute()
     break;
 
   case STATE_NONE:
-    {
-      AIState_Base *newState =
-        (AIState_Base *)new((AIState_Normal *)operator new(8))
-          AIState_Normal(carObj_);
-      this->SetState(newState,STATE_NORMAL);
-    }
+    this->SetState(new AIState_Normal(carObj_),STATE_NORMAL);
     return;
 
   case STATE_NORMAL:
@@ -665,15 +660,13 @@ void AIHigh_Opponent::HighExecute()
       int aggression = attackMode_ - 1;
       aggression = aggression < 2 ? 2 : aggression;
 
-      this->SetState((AIState_Base *)new((AIState_Chase *)operator new(0x94))
-          AIState_Chase(carObj_,Cars_gList[attackIndex],&pos,0x20,
+      this->SetState(new AIState_Chase(carObj_,Cars_gList[attackIndex],&pos,0x20,
                         0x960000,0x960000,aggression,0x10000),
         STATE_CHASE);
 
     }
-
-    break;
     }
+    break;
 
   case STATE_CHASE:
     {
@@ -710,8 +703,7 @@ void AIHigh_Opponent::HighExecute()
       carObj_->desiredDirection =
         GameSetup_gData.reverseTrack == 0 ? 1 : -1;
 
-      this->SetState((AIState_Base *)new((AIState_Normal *)operator new(8))
-          AIState_Normal(carObj_),
+      this->SetState(new AIState_Normal(carObj_),
         STATE_NORMAL);
 
       attackMode_ = NO_ATTACK;

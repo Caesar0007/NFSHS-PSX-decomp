@@ -381,6 +381,7 @@ struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
 struct AIHigh_Traffic : public AIHigh_Base {
     int ignoreCops_, forcePurgatory_;
     SceneElem *accidentData_;
+    inline void SetForcePurgatory(int force) { forcePurgatory_ = force; }   /* retail pair: this AIHigh_Traffic */
 };
 
 #include "shared/SPCHNFSType_POSITION.h"

@@ -1360,28 +1360,12 @@ void AIHigh_BTC_HumanCop::ClearTrafficToPurgatory()
 
 
 {
-  int trafficLoop;
-  Car_tObj*testTrafficCarObj;
-  AIHigh_Traffic*testTrafficHigh;
+  for (int trafficLoop = 0; trafficLoop < Cars_gNumTrafficCars; trafficLoop++) {
+    Car_tObj *testTrafficCarObj = Cars_gTrafficCarList[trafficLoop];
+    AIHigh_Traffic *testTrafficHigh = (AIHigh_Traffic *)highLevelAIObjs[testTrafficCarObj->carIndex];
 
-  trafficLoop = 0;
-
-  while (1) {
-
-    if (Cars_gNumTrafficCars <= trafficLoop) break;
-
-    testTrafficCarObj = Cars_gTrafficCarList[trafficLoop];
-
-    trafficLoop = trafficLoop + 1;
-
-    testTrafficHigh = (AIHigh_Traffic *)highLevelAIObjs[testTrafficCarObj->carIndex];
-
-    testTrafficHigh->forcePurgatory_ = 1;
-
+    testTrafficHigh->SetForcePurgatory(1);
   }
-
-  return;
-
 }
 
 
@@ -1398,28 +1382,12 @@ void AIHigh_BTC_HumanCop::ResetClearTrafficToPurgatory()
 
 
 {
-  int trafficLoop;
-  Car_tObj*testTrafficCarObj;
-  AIHigh_Traffic*testTrafficHigh;
+  for (int trafficLoop = 0; trafficLoop < Cars_gNumTrafficCars; trafficLoop++) {
+    Car_tObj *testTrafficCarObj = Cars_gTrafficCarList[trafficLoop];
+    AIHigh_Traffic *testTrafficHigh = (AIHigh_Traffic *)highLevelAIObjs[testTrafficCarObj->carIndex];
 
-  trafficLoop = 0;
-
-  while (1) {
-
-    if (Cars_gNumTrafficCars <= trafficLoop) break;
-
-    testTrafficCarObj = Cars_gTrafficCarList[trafficLoop];
-
-    trafficLoop = trafficLoop + 1;
-
-    testTrafficHigh = (AIHigh_Traffic *)highLevelAIObjs[testTrafficCarObj->carIndex];
-
-    testTrafficHigh->forcePurgatory_ = 0;
-
+    testTrafficHigh->SetForcePurgatory(0);
   }
-
-  return;
-
 }
 
 

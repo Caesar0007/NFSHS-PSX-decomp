@@ -6,6 +6,7 @@
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
 static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
+static inline void MenuItem_SetText(tMenuItem *item, unsigned int text) { item->fTextDescription = text; }
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
 
@@ -944,20 +945,15 @@ void tScreenMemcard::Initialize()
   this->player = FEApp->fInputPlayer;
   this->card = this->player * 4 + 1;
   const uint msgId = this->player != 0 ? 0x289 : 0x287;
-  {
-    int i = 0;
-    (MenuDefs()->itemLoadGame).fTextDescription = msgId;
-    (MenuDefs()->itemSaveGame).fFlags |= 1;
-    (MenuDefs()->itemLoadGame).fFlags |= 1;
-    do {
-      this->goticon[i] = '\0';
-      this->numicon[i] = '\0';
-      this->numblock[i] = '\0';
-      /* Direct indexing lets GCC share the retail this + i * 2 base. */
-      this->fFadeIcon[i] = 0x80;
-      this->fMemIconClutId[i] = 0;
-      i = i + 1;
-    } while (i < 0xf);
+  MenuItem_SetText(&menuDefs->itemLoadGame, msgId);
+  MenuItem_Disable(&menuDefs->itemSaveGame);
+  MenuItem_Disable(&menuDefs->itemLoadGame);
+  for (int i = 0; i < 0xf; i++) {
+    this->goticon[i] = 0;
+    this->numicon[i] = 0;
+    this->numblock[i] = 0;
+    this->fFadeIcon[i] = 0x80;
+    this->fMemIconClutId[i] = 0;
   }
   this->fInitedMemCard = 0;
   this->fGetNewIcons = 0;
@@ -970,17 +966,13 @@ void tScreenMemcard::Initialize()
 
 /* ---- tScreenMemcard::Cleanup  (screenmemcard.cpp:833) ---- */
 void tScreenMemcard::Cleanup()
-
 {
   this->ReleaseIcons();
   DeInit_Memcard();
-  (menuDefs->itemSaveGame).fFlags =
-       (menuDefs->itemSaveGame).fFlags & 0xfffffffe;
-  (menuDefs->itemLoadGame).fFlags =
-       (menuDefs->itemLoadGame).fFlags & 0xfffffffe;
+  MenuItem_Enable(&menuDefs->itemSaveGame);
+  MenuItem_Enable(&menuDefs->itemLoadGame);
   purgememadr(fMemIcon);
   this->tScreen::Cleanup();
-  return;
 }
 
 /* ---- tScreenMemcard::~tScreenMemcard  (screenmemcard.cpp:99) ---- */

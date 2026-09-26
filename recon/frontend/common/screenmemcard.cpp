@@ -4,6 +4,8 @@
 #include "screenmemcard.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
+static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
 
@@ -664,27 +666,22 @@ void tScreenMemcard::SetEnablings()
     /* MATCH (SLD 538/539/540): the oracle's `beq` puts the CLEAR arm inline and
        the SET arm out of line -- i.e. the test is `!= -1`, not `== -1`. */
     if (this->theNFS4icon != -1) {
-      (menuDefs->itemLoadGame).fFlags =
-           (menuDefs->itemLoadGame).fFlags & 0xfffffffe;
+      MenuItem_Enable(&menuDefs->itemLoadGame);
     }
     else {
-      (menuDefs->itemLoadGame).fFlags =
-           (menuDefs->itemLoadGame).fFlags | 1;
+      MenuItem_Disable(&menuDefs->itemLoadGame);
     }
     if ((((this->pCI->status == 0) || (this->pCI->status == -2)) ||
         ((this->pCI->status == -3 && (this->theNFS4icon != -1)))) &&
        (this->player == 0)) {
-      (menuDefs->itemSaveGame).fFlags =
-           (menuDefs->itemSaveGame).fFlags & 0xfffffffe;
+      MenuItem_Enable(&menuDefs->itemSaveGame);
     }
     else {
-      (menuDefs->itemSaveGame).fFlags =
-           (menuDefs->itemSaveGame).fFlags | 1;
+      MenuItem_Disable(&menuDefs->itemSaveGame);
     }
   }
   if (FECheat_IsTheUserACryBabyCheater() != 0) {
-    (menuDefs->itemSaveGame).fFlags =
-         (menuDefs->itemSaveGame).fFlags | 1;
+    MenuItem_Disable(&menuDefs->itemSaveGame);
   }
   return;
 }

@@ -1,15 +1,11 @@
-/* Reduced EA/PsyQ platform type surface reconstructed from the frontend/PSX
- * object-local SYM graphs.  The original header filename is not encoded in
- * the SYM; this file restores the common declarations without exposing the
- * hundreds of unrelated game types from nfs4_types.h. */
-#ifndef NFS4_FRONTEND_PSX_EA_PSX_TYPES_H
-#define NFS4_FRONTEND_PSX_EA_PSX_TYPES_H
+/* nfs4_types.h -- the shared platform type core.  Retail's SYM records exactly these types in (nearly) every
+ * object, in this order: the PsyQ graphics/geometry structs, EA's shape and CD-stream structs, then SYS/TYPES.H
+ * and EA's file/thread typedefs (tools/psyq_pipe/tagset_cmp.py --core lists them).  cc1 -g records every struct a
+ * translation unit defines, used or not, so ONLY the retail-universal core belongs here; game types stay in their
+ * module headers (the old mega nfs4_types.h leaked hundreds of them into every object and was removed). */
+#ifndef NFS4_TYPES_H
+#define NFS4_TYPES_H
 
-typedef unsigned char  u_char;
-typedef unsigned short u_short;
-typedef unsigned int   u_int;
-typedef unsigned long  u_long;
-typedef unsigned short ushort;
 
 struct VECTOR {
     long vx, vy, vz, pad;
@@ -26,7 +22,7 @@ typedef struct SVECTOR SVECTOR;
 #endif
 
 struct CVECTOR {
-    u_char r, g, b, cd;
+    unsigned char r, g, b, cd;
 };
 #ifndef __cplusplus
 typedef struct CVECTOR CVECTOR;
@@ -41,11 +37,11 @@ typedef struct DVECTOR DVECTOR;
 
 struct RVECTOR {
     SVECTOR v;
-    u_char  uv[2];
-    u_short pad;
+    unsigned char  uv[2];
+    unsigned short pad;
     CVECTOR c;
     DVECTOR sxy;
-    u_long  sz;
+    unsigned long  sz;
 };
 #ifndef __cplusplus
 typedef struct RVECTOR RVECTOR;
@@ -54,7 +50,7 @@ typedef struct RVECTOR RVECTOR;
 struct CRVECTOR3 {
     RVECTOR r01, r12, r20;
     RVECTOR *r0, *r1, *r2;
-    u_long  *rtn;
+    unsigned long  *rtn;
 };
 #ifndef __cplusplus
 typedef struct CRVECTOR3 CRVECTOR3;
@@ -63,7 +59,7 @@ typedef struct CRVECTOR3 CRVECTOR3;
 struct CRVECTOR4 {
     RVECTOR r01, r02, r31, r32, rc;
     RVECTOR *r0, *r1, *r2, *r3;
-    u_long  *rtn;
+    unsigned long  *rtn;
 };
 #ifndef __cplusplus
 typedef struct CRVECTOR4 CRVECTOR4;
@@ -77,8 +73,8 @@ typedef struct RECT RECT;
 #endif
 
 struct DR_ENV {
-    u_long tag;
-    u_long code[15];
+    unsigned long tag;
+    unsigned long code[15];
 };
 #ifndef __cplusplus
 typedef struct DR_ENV DR_ENV;
@@ -88,8 +84,8 @@ struct DRAWENV {
     RECT    clip;
     short   ofs[2];
     RECT    tw;
-    u_short tpage;
-    u_char  dtd, dfe, isbg, r0, g0, b0;
+    unsigned short tpage;
+    unsigned char  dtd, dfe, isbg, r0, g0, b0;
     DR_ENV  dr_env;
 };
 #ifndef __cplusplus
@@ -98,7 +94,7 @@ typedef struct DRAWENV DRAWENV;
 
 struct DISPENV {
     RECT   disp, screen;
-    u_char isinter, isrgb24, pad0, pad1;
+    unsigned char isinter, isrgb24, pad0, pad1;
 };
 #ifndef __cplusplus
 typedef struct DISPENV DISPENV;
@@ -139,6 +135,13 @@ typedef struct cdstreamstruct CDSTREAM;
 /* PsyQ SYS/TYPES.H.  The SYM retains physadr's tag and referent size while
  * filtering the private `_physadr` tag block itself. */
 typedef unsigned int size_t;
+/* retail records the unsigned shorthands here, after size_t: SYS/TYPES.H follows the graphics headers, whose
+   structs spell their fields with the plain unsigned types */
+typedef unsigned char  u_char;
+typedef unsigned short u_short;
+typedef unsigned int   u_int;
+typedef unsigned long  u_long;
+typedef unsigned short ushort;
 #ifdef NFS4_EA_PSX_INCOMPLETE_PHYSADR
 /* Some retail owners retain only the public pointer typedef.  Keep the SDK's
  * private referent incomplete so CC1 does not emit a foreign completed tag. */

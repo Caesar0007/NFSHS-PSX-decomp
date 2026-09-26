@@ -24,7 +24,7 @@ typedef struct charactertbl FONTFILECHAR;
 typedef struct charactertbl charactertbl;
 
 /* PsyQ SYS/TYPES.H, LIBGTE.H, and LIBGPU.H declarations retained by font.obj. */
-#include "../../frontend/psx/ea_psx_types.h"
+#include "nfs4_types.h"
 
 struct MATRIX {
     short m[3][3];

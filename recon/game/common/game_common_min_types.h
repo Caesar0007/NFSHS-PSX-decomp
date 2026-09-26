@@ -4,7 +4,7 @@
 #ifndef NFS4_GAME_COMMON_MIN_TYPES_H
 #define NFS4_GAME_COMMON_MIN_TYPES_H
 
-#include "../../frontend/psx/ea_psx_types.h"
+#include "nfs4_types.h"
 
 struct coorddef {
     int x, y, z;

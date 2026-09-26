@@ -4,7 +4,7 @@
 #ifndef NFS4_FRONTEND_PSX_FETEXTURE_TYPES_H
 #define NFS4_FRONTEND_PSX_FETEXTURE_TYPES_H
 
-#include "ea_psx_types.h"
+#include "nfs4_types.h"
 
 struct MATRIX {
     short m[3][3];

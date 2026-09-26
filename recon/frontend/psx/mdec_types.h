@@ -2,7 +2,7 @@
 #ifndef NFS4_FRONTEND_PSX_MDEC_TYPES_H
 #define NFS4_FRONTEND_PSX_MDEC_TYPES_H
 
-#include "ea_psx_types.h"
+#include "nfs4_types.h"
 
 struct MDECSTRUCT {
     int    id, width, height, bpp;

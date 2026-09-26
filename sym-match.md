@@ -216,6 +216,24 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   parameters (`SetVoice(a->voice)`, `CallSign()->Mobile(fUnit)`), not function locals. In `Activate` the
   `SetReverse(GameSetup_gData.track & 1)` call is written right after `SetFrom` (retail loads `track` there;
   gcc schedules the store last). Board 1873 -> 1877.
+- Shared type core (2026-09-26, user request). cc1 -g records every struct a translation unit DEFINES, used or
+  not (probe: an unreferenced struct gets its full tag record), so the headers decide each object's SYM type block
+  and one mega header would put hundreds of game types into every object. Retail's own blocks show the right
+  shared set: 50 tags recorded by >= 99% of its 151 objects -- the PsyQ geometry/graphics structs, EA
+  `shapetbl`/`cdstreamstruct`, SYS/TYPES.H and EA's file/thread typedefs. That core already lived in
+  `frontend/psx/ea_psx_types.h` (reaching 149/150 objects through the `*_leaf_types.h` chain); it is now
+  `recon/nfs4_types.h`, and its five unsigned shorthands (`u_char`..`ushort`) are declared after `size_t` as
+  retail records them (the SDK structs spell their fields `unsigned char` etc.). New gate
+  `tools/psyq_pipe/tagset_cmp.py`: per source file, retail vs ours type-record sets and per-kind order (retail
+  emits all tags of an object before its typedefs, our cc1 interleaves them -- an emission difference, not a
+  source one). Result: the core's order now matches retail in 92 of 150 files (was 1); 46 differ only by
+  function-level typedef re-emissions (cc1 re-emits the typedef of each struct a function uses; retail does this
+  too, 19,861 repeats, for different types), 8 are retail objects sharing one source name, 5 need a closer look
+  (MDEC, MEMCARD.C, DEVICE, FEINPUT, DRAWW/FLARE). Bytes, board (1877) and the whole SYM text otherwise
+  unchanged. Whole-object totals today: retail 55,436 tag records, ours 46,005, 13,042 missing, 3,611 extra,
+  0 files exact -- the game-type tiers are the remaining work (e.g. `GameSetup_tData` is defined in 41 headers).
+  To rebuild the full debug SYM: `gdebug_compile.py` (no args), then `psylink_lane.py` with `NFS4_LANE_G=1
+  NFS4_LANE_OUT=build/psyq_g`, then `symtree_cmp.py build/psyq_g/nfs4_sym.txt`.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

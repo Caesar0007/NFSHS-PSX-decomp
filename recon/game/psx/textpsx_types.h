@@ -3,7 +3,7 @@
 #define NFS4_GAME_PSX_TEXTPSX_TYPES_H
 
 #define NFS4_PSYQ_WCHAR_TYPE u_long
-#include "../../frontend/psx/ea_psx_types.h"
+#include "nfs4_types.h"
 #undef NFS4_PSYQ_WCHAR_TYPE
 
 struct coorddef {

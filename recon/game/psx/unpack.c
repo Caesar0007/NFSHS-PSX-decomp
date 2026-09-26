@@ -9,7 +9,7 @@
 /* The retail TU's debug stream proves the shared PsyQ/EA platform include
  * surface even though this file directly uses only u_char. */
 #define NFS4_PSYQ_WCHAR_TYPE u_long
-#include "../../frontend/psx/ea_psx_types.h"
+#include "nfs4_types.h"
 #undef NFS4_PSYQ_WCHAR_TYPE
 
 /* eaclib EACPSXZ codec backends (EXT symbols; sigs from the call sites + SYM)

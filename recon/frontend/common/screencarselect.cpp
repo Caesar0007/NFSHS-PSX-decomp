@@ -16,6 +16,7 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks[0]; }
+static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
 
 
 /* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
@@ -918,7 +919,7 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
   case 0:
   case 5:
     carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
-    if ((int)(uint)(byte)frontEnd.playerCar[0] < (int)carManager.fNumCars) {
+    if ((int)(uint)(byte)frontEnd.playerCar[0] < CarManager_NumCars(carManager)) {
       carInfo.fColor = frontEnd.carColors[0][(signed char)carInfo.fCarID];
     }
     carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];

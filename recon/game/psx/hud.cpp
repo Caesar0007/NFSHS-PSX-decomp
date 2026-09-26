@@ -1424,9 +1424,8 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
   int temp1;
   int temp2;
 
-  time = __builtin_abs(time);
-  temp1 = time / 0x40;
-  temp2 = time - temp1 * 0x40;
+  temp1 = __builtin_abs(time) / 0x40;
+  temp2 = __builtin_abs(time) - temp1 * 0x40;
   min = temp1 / 0x3c;
   sec = temp1 % 0x3c;
   hun = temp2 * 100 / 0x40;

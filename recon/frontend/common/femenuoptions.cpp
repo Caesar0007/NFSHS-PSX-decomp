@@ -3052,17 +3052,14 @@ fEnableStore:
 
 void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
                tMenuCommand &command)
-
 {
-  if (((keyval == kInput_KeyType_Left) || (keyval == kInput_KeyType_Right)) &&
-      ((keyval != kInput_KeyType_Right) ||
-       ((u_char)this->fData->Value((tPlayer)-1) !=
-        (u_char)this->fData->fMaxValue))) {
-    screenControllerConfig[0]->fResetShakeTimeOut = 1;
+  if (keyval == kInput_KeyType_Left || keyval == kInput_KeyType_Right) {
+    if (keyval != kInput_KeyType_Right ||
+        (u_char)this->fData->Value((tPlayer)-1) != this->fData->MaxValue()) {
+      screenControllerConfig[0]->ResetShakeTimeOut();
+    }
   }
-  this->tMenuItemLeftRightSlider::ProcessInput(fromPlayer,keyval,command)
-  ;
-  return;
+  this->tMenuItemLeftRightSlider::ProcessInput(fromPlayer,keyval,command);
 }
 
 

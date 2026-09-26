@@ -64,6 +64,9 @@ struct tScreenControllerConfig : public tScreen {
     char fCurrentController;
     int player;
 
+#ifdef NFS4_SCREENCONTROLLER_RESETSHAKE_INLINE
+    inline void ResetShakeTimeOut() { fResetShakeTimeOut = 1; }
+#endif
     void ClearActuators();
     void SetActuators(int);
     void TurnOffShakers();

@@ -24,6 +24,7 @@ enum tMenuCommandType {
 #define NFS4_EA_PSX_INCOMPLETE_PHYSADR
 #define NFS4_FEMENUOPTIONS_SURFACE
 #define NFS4_FE_CORE_FEMENU_METHODS
+#define NFS4_SCREENCONTROLLER_RESETSHAKE_INLINE   /* tScreenControllerConfig `this` pair in the slider ProcessInput */
 #define NFS4_FE_CORE_MENUITEM_SETENABLED   /* tMenuItem::Enable()/Disable() -- retail's tMenuItem `this` pairs */
 #define NFS4_FE_LIST_RANGE_INLINE   /* tListIterator range accessors -- retail's tListIterator `this` pairs */
 #include "screencontroller_types.h"

@@ -183,7 +183,7 @@ this slot map:
 | Type | In chunks | Record | Tag | Meaning / evidence |
 |------|-----------|--------|-----|--------------------|
 | 4 | 2,234 | u16 | ★★★ | **visibility list**: low 10 bits = chunk index, range-checked ("Bad data in visibility list - out of range!"); identical to the `.VIS` text rows in 1,382 of 1,388 rows (6 rows of `00B` are stale) |
-| 6 | 2,234 | 8 B `{u16 firstQuad, u8 quadCount, u8 n (4–9), i16 link[2]}` | ★★★ | **sim slices**: per chunk they partition q4 exactly (contiguous, total = q4, all chunks); the per-chunk counts sum to the COL slice count in all 15 files. `n` (byte 3) = **interactive-music section**: `func_8006BE14` reads it up to 16 slices ahead of the car and `func_8005FC14` passes it (min 4) to the PathFinder music player (`func_800ECDD4`, which range-checks it against byte 7 = 16 of the loaded `PFDx` `.MAP`). `link[2]` = global slice indices of alternative routes: when one is not −1, the "slice jump" code (`func_80069E14`) re-resolves the car onto whichever slice is closer. All 196 links on disc are valid slice indices (192 slices with one link, 2 with both) |
+| 6 | 2,234 | 8 B `{u16 firstQuad, u8 quadCount, u8 n (4–9), i16 link[2]}` | ★★★ | **sim slices**: per chunk they partition q4 exactly (contiguous, total = q4, all chunks); the per-chunk counts sum to the COL slice count in all 15 files. `n` (byte 3) = **interactive-music event**: `func_8006BE14` reads it up to 16 slices ahead of the car and `func_8005FC14` posts it (min 4) as a PathFinder event (`SNDpathevent`, `func_800ECDD4`, range-checked against the event count, byte 7 = 16, of the loaded `PFDx` `.MAP`; §11.3). `link[2]` = global slice indices of alternative routes: when one is not −1, the "slice jump" code (`func_80069E14`) re-resolves the car onto whichever slice is closer. All 196 links on disc are valid slice indices (192 slices with one link, 2 with both) |
 | 5 | 2,234 | 2 B `{u8 frame, u8 flags}` | ★★★ / ★★ | one word per q4 quad (count = q4 in all chunks), addressed as `type5 + 8 + 2·(firstQuad + lane)` by the sim code (`func_80068F48`, `func_80069E14`). `frame` indexes the chunk's type-0xD table (below it in all 225,739 words). `flags`: bits 0–5 = **surface id** (the car keeps it at +0x1C0/+0x1C4; getter `func_8006BD28`), bit 0x80 = triggers a ±3.5-unit height test in `func_80071874`, **bit 0x40 = check object collisions**: on such a quad the car gathers the nearby sim objects (type 0xB, `func_8006AA2C`) and tests contact (`func_80080664` → `func_80080468`, `func_8006834C`); 629 chunks with 0x40 quads have sim objects and the other 53 border chunks that do. Surface 0xE = **wall**: a sideways move onto it is refused (`func_80068F48`); groups {1, 7, 0xA, 0xC, 0xD} are tested together by `func_8006C044` / `func_800A5B08`. On disc: 0, 1, 2, 3, 5, 7, 0xA–0xF (0xE = 43 %) |
 | 0xD | 2,234 | 12 B `{i16 normal[3], i16 direction[3]}` | ★★ | quad orientation frames, shared by quads through type 5's `frame`. Both vectors are unit length in 1.15 fixed point (all but 31 of 166,240 records); `normal` points up in 63 %, and the two are orthogonal in 79 % |
 | 8 | 1,832 | `{u32 size, u16 vertexCount, u16 quadCount}` + vertices (8 B) + quads (6 B), padded to 4 | ★★★ | **object definitions** of the chunk: size exact for all 10,881 records and each chain ends at the block end |
@@ -478,25 +478,104 @@ the HSV → RGB routine `func_800813D0` and recolours only the "paintable" palet
 higher), scaling them by `value / reference` (car paint code at `0x80095FE8`, entries fetched with `func_80080DCC`). The 4th value (48–192) is
 the brightness of the key colour in the car texture.
 
-## 11. Track audio ★★★ container (sound banks, music maps, music streams)
-These are EA's shared audio families; they are documented here at container level, as the track uses them.
+## 11. Track audio ★★★ (sound banks, speech, music maps, music streams)
+These are EA's shared audio formats (the same `iSND`/`SND` library as the PC game; names below follow the
+PC reconstruction in `nfs3-sound/nfs3snd/`, cross-checked against the PSX code and all files on the disc).
 
-**Sound banks `BNKl`** (95 files: track banks, car engines, coach speech, front end). Header
-`{char[4] 'BNKl', u16 version = 2, u16 count, u32 X, u32 slot[count]}`: each non-zero slot is an offset relative
-to the slot itself and points at a `PT` patch record (EA's TLV patch format, as in NFS4) inside the first
-8 + X bytes; sample data follows. All 95 banks satisfy this. Track banks come per condition:
-`ZTR<NN><v>.BNK` (day), `…N.BNK` (night), `…NW.BNK` (night + weather), `…W.BNK` (weather); the runtime trace
-loaded `ztr00a.bnk` for a day race. `ZZZTR<NN>C.<lang>` holds the track's **speech clips** (cop radio and coach):
-227 one-patch `BNKl` banks back to back, indexed by **`ZTR<NN>CSP.<lang>`** = 227 `{u32 offset, u32 size}`
-pairs that tile the clip file exactly (all 25 language files; all 5,675 clips start with `BNKl`). Tutor prompt
-id n plays clip n + 36 (§5).
+### 11.1 Sound banks `BNKl` ★★★ (95 files, 454 patches, 550 samples)
+Header `{char[4] 'BNKl', u16 version = 2, u16 count, u32 dataStart, u32 slot[count]}`. Each non-zero slot is an
+offset relative to the slot itself and points at a `PT` patch; the patches end at `dataStart` (86 banks within 3
+bytes of padding), and the sample data runs from `dataStart` to the end of the file. Track banks come per
+condition: `ZTR<NN><v>.BNK` (day), `…N.BNK` (night), `…NW.BNK` (night + weather), `…W.BNK` (weather); the runtime
+trace loaded `ztr00a.bnk` for a day race.
 
-**Music maps `PFDx`** (67 `.MAP`): EA's interactive-music ("PathFinder") map; byte 7 = 16 in every file, the
-section count that `func_800ECDD4` range-checks when the sim slice's music byte (§1.5, type 6) selects a section.
-**Music streams** (`ZZZTR<NN>A.TRJ`, `ZZZTR<NN>B.TRM`, `ZZ*.MUS`; 18 files): EA ASF streams, i.e. sequences of
-`SCHl` (header) / `SCCl` (count) / `SCDl` (data) / `SCEl` (end) segments (1,729 segments; every file ends
-exactly). Selection (`func_800A01D4`; the song number is the track number, with b tracks folded onto their a
-partner):
+**`PT` patch** (`iSNDgettag`, `iSNDplaytaggedpatch`): `{'P', 'T', u8 = 1 on PSX (the PC library requires 0),
+u8 flags}` (flags bit 1 adds 4 more header bytes; bit 0 is set at run time once the patch is resolved), then a
+tag list:
+
+| Tag byte | Meaning |
+|----------|---------|
+| `0xFC` | padding, skipped |
+| `0xFF` | end of the list |
+| `0xFD` | start of a sample ("timbre"); its sample-header tags follow |
+| `0xFE` | end of a split: play the timbre if the request falls in its ranges, then reset the attributes |
+| other | `{tag, u8 length, value}`; length 0xFF = a 4-byte big-endian length follows; values of up to 4 bytes are big-endian integers |
+
+Tags below 0x26 set per-timbre playback attributes (PC `ISndTaggedAttrs.word[tag]`; defaults in brackets):
+1/2 range of request byte 6 [0, 127] (★★ velocity), 3/4 key range [0, 127], 5 channel class [−1], 7 root key
+[60], 0xA detune (× 100 cents), 0xC pan [64] and 0xD its randomisation, 0xE volume [127] and 0xF its
+randomisation, 0x24 random pitch. The rest (0x06, 0x08–0x0B, 0x10–0x23) are copied into the voice record
+(envelope, priority, modulation; `iSNDplaytaggedtimbre` in `nfs3snd/isnd.c` lists every destination).
+Sample-header tags after `0xFD`: **0x82 channels** (2 on 27 samples, else 1), **0x84 sample rate** (4,000–32,000 Hz;
+11,025 on 165), **0x85 sample count**, **0x88 absolute file offset of the sample data**; 0x8A = 0 and 0x92 = 1 on
+every PSX sample. There is no codec tag (0x83): PSX samples are SPU ADPCM, 16 bytes per 28 samples per channel.
+Census: all 454 patches parse and end inside the header; all 550 samples lie inside `[dataStart, EOF)`, and 534
+start with the ADPCM zero frame; some samples are shared by several patches (`ZGEN.BNK`).
+
+### 11.2 Speech ★★★
+`ZZZTR<NN>C.<lang>` holds the track's **speech clips**: 227 one-patch `BNKl` banks back to back, indexed by
+**`ZTR<NN>CSP.<lang>`** = 227 `{u32 offset, u32 size}` pairs that tile the clip file exactly (all 25 language
+files; all 5,675 clips start with `BNKl`). **`ZSPEECH.IDX`** names them: 236 u16 offsets, then C strings: 9
+language names ("ENGLISH ONE" … "ITALIAN"), then one English line per clip, so **clip k = string k + 9**. It is
+opened by the front-end routine `func_8002A460` (`"%sspeech.idx"`), next to the speech loader `func_80083688`;
+the race code plays clips by number only.
+
+| Clips | Speaker | Content |
+|-------|---------|---------|
+| 0–4 | announcer | best lap, lap record, final lap, split time, checkpoint |
+| 5–10 | announcer | "Lap two" … "Lap Seven" |
+| 11–18, 19–26, 27–34 | announcer | finishing place, 1st … last (single player, player one, player two) |
+| 35 | announcer | "Ghost car activated" |
+| 36–53 | coach | tutor ids 0–17 (§5): easy / medium / hard left and right, into, caution, jump, dip, chicane, S curve, slow down, speed up, obstacle, hairpin, left, right |
+| 54–57 | coach | brake, easy, medium, hard (no tutor id reaches them) |
+| 58–121 | Cop 1 | 64 pursuit lines (warnings, "Busted", arrest, roadblock, collisions, scream) |
+| 122–185 | Cop 2 | the same 64 lines, second voice |
+| 186–226 | Super Cop | 41 lines, including licence-loss lines ("Licence revoked", "Game over bud") |
+
+The tutor mapping confirms the numbering: the MIRROR swap pairs 0↔1, 2↔3, 4↔5, 16↔17 (§5) are exactly the
+left/right phrase pairs.
+
+### 11.3 Music maps `PFDx` ★★★ (67 `.MAP`)
+EA's interactive-music ("PathFinder") database, installed by `SNDpathinit` (PSX `func_800ECB54`):
+
+| Offset | Size | Field |
+|--------|------|-------|
+| 0 | 4 | `'PFDx'` |
+| 4 | 1 | version, must be 0 |
+| 5 | 1 | start node |
+| 6 | 1 | node count N |
+| 7 | 1 | event count E (16 in every file) |
+| 8 | 3 | 0 |
+| 0xB | 1 | event-row count R |
+| 0xC | 28 × N | nodes |
+| | R × E | event matrix: `next = matrix[node.row · E + event]` |
+| | 4 × N | big-endian file offset of each node's section in the music stream |
+
+**Node** (28 B, read by the path service `func_800EC7D4`): `{u8 row, u8 branchCount, u8 0xFF, u8 0xFF,
+branch[8] × {s8 lo, s8 hi, u8 next}}`. When a node's section finishes, the next node is the event transition if
+an event is pending (`SNDpathevent`, PSX `func_800ECDD4`), else the first branch whose `[lo, hi]` contains the
+control level (`SNDpathcontrol`, `func_800ECD88`, 0–127), else the same node again; a node without branches and
+without a pending event ends the music. The chosen node's section is queued at its offset. Census: every file's
+size is exactly `12 + 28N + RE + 4N`, R = highest row + 1, every `next` < N, bytes 2/3 = 0xFF in all 8,607 nodes,
+branch counts 0–3, ranges within 0–100 (typically 0–28 / 29–72 / 73–100).
+
+**Game side** (`func_8005FC14`, per frame in a race): the control level is 100 while an active car with flag 2 at
++1440 has its +132 value (16.16, ★★ distance to the player) between 15 and 125 units (75 once the music is up),
+otherwise 0, so the music intensifies during a chase. The events posted are the sim slice's music byte (§1.5,
+type 6; values below 4 are raised to 4, keeping 0–3 for the driver's own state changes).
+
+**Streams**: 48 of the 67 maps match a stream on the disc exactly (every node offset lands on an `SCHl` header):
+
+| Maps | Stream |
+|------|--------|
+| `ZTR<NN>R0A/R0B/R01/ROK/PGR.MAP` | `ZZZTR<NN>A.TRJ` (rock) |
+| `ZTR<NN>TEC/T0x/PGT.MAP` | `ZZZTR<NN>B.TRM` (techno) |
+| `ZZMENU0–5.MAP`, `ZZSHOW.MAP`, `ZZCREDIT.MAP` | the `.MUS` of the same name |
+
+The other 19 (`ZTR01R00–06`, `ZTR01T00/02–06`, `ZTR04R00–03`, `ZTR04TOK`, all ten `ZTR05*`) fit no stream on
+this disc: leftovers for songs that were not shipped. Streams are EA ASF: `SCHl` (header, a `PT` tag list as in
+11.1) / `SCCl` (count) / `SCDl` (data) / `SCEl` (end) segments (1,729 segments; every file ends exactly).
+Selection (`func_800A01D4`; the song number is the track number, with b tracks folded onto their a partner):
 
 | Music style (`0x80125938`) | Map | Stream |
 |----------------------------|-----|--------|
@@ -505,8 +584,7 @@ partner):
 
 Special song numbers: 0x30 = attract show (`zshow.map` / `zshow2.map` + `zshow.mus`), 0x31 = credits
 (`zcredit.map` + `.mus`), 0x63 = a random rock/techno pick. The `pgr`/`pgt` and `r<nn>`/`t<nn>` maps are chosen by
-the other music entry points (`func_800A0590`, `func_800A0C70`). The PFDx body (section/transition table) is not
-decoded here.
+the other music entry points (`func_800A0590`, `func_800A0C70`).
 
 ## 12. Surface ids and acoustic classes ★★★ / ★★
 ### 12.1 Surface ids
@@ -563,9 +641,9 @@ too, so the change is anticipated. In a tunnel the reverb applies only while the
 Only track 1 (Redrock Ridge) has its own table; all other ids share `0x80109658`. Special case: on track 0x13
 slices 318–360 the reverb is off unless the car is on surface 0xA.
 
-## Open questions (next steps)
-1. Audio internals shared with the other EA titles: `PT` patch fields, the PFDx section table, which phrase
-   each speech clip is.
+## Open questions
+None: every NFS3 track file, record and field on the disc is accounted for above (★★ marks the few names
+that rest on data evidence rather than code).
 
 ## Tools
 - `tools/nfs3_trk.py` — `trk`, `col`, `census` (container validation above).

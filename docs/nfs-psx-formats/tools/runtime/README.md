@@ -41,5 +41,8 @@ Addresses from the NFS3 raw oracle (`C:\Temp\nfs3-clean\nfs3-raw-L.txt`).
 - `nfs3_watch_probe.py <log.json> --addr 0xADDR:LEN ...`: from the checkpoint, hold accelerate and set GDB read
   watchpoints (`Z3`, supported by this runtime; 52 at once worked); logs every PC that reads the watched bytes.
   Used to find the readers of COL slice +21/+24/+26/+34 and material +2 (NFS3_TRACK_FILES.md §2).
+- `nfs3_boot_watch.py <log.json> --addr 0xADDR:LEN ...`: cold boot with the menu pad pattern and GDB write
+  watchpoints (`Z2`); logs pc/ra/value of every write until the race loads. Found the TRACK hand-off
+  (`0x80084100` writes `0x800F9F80`; NFS3_TRACK_FILES.md, Track identity).
 - 2026-09-27: track 00A, 56 chunk captures (48 distinct chunks) byte-exact after the predicted relocation; all
   `Chunk_tChunkDat` slots, tables, slices and materials match (NFS3_TRACK_FILES.md §1.7).

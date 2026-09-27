@@ -1,8 +1,8 @@
 # NFS3 track files — file set, loaders, TRK/COL records
 
-Game: Need for Speed III: Hot Pursuit, PSX USA retail **SLUS-006.20**. Status: file set, loader map, both binary containers (`.TRK`, `.COL`) and the core TRK records (chunk,
-geometry/LOD, vertices, quads, materials, visibility, sim slices, object definitions and instances) are established;
-the remaining records are listed under *Open questions*. Tags per [METHOD.md](../METHOD.md).
+Game: Need for Speed III: Hot Pursuit, PSX USA retail **SLUS-006.20**. Status: file set, loader map, track identity (menu → ID → files), both binary containers (`.TRK`, `.COL`)
+with their records, and the `.CCM`, tutor `.BIN` and `.COP` files are established; the remaining details are listed
+under *Open questions*. Tags per [METHOD.md](../METHOD.md).
 
 ## Sources and code oracle
 - Disc: share `NFS3.bin` (USA retail), extracted with `tools/psx_iso.py` (MOVIES skipped) → 774 files.
@@ -20,20 +20,43 @@ the remaining records are listed under *Open questions*. Tags per [METHOD.md](..
   name evidence (NO-AUTO-NAMING rule).
 
 ## Track identity ★★★ (`func_80065DB0`, `func_80065E18`, `func_80065EB0`)
-The race track ID is config word `0x800F9F80`: **low nibble = track number, bit 4 = layout variant**.
-File names are built as `<prefix>Tr<NN><v><suffix>` with `v = 'a' + variant`; the streamed geometry
-uses `zzTr` (`%szzTr%02d%c%s` when the suffix is `.trk`). One special case: track 2 with config word
-`0x800F9F8C` set is forced to `02b` (`func_80065EB0`).
+The race track ID is config word `0x800F9F80`: **low nibble = file number, bit 4 = second layout (`b`)**.
+File names are built as `<prefix>Tr<NN><v><suffix>` with `v = 'a' + (id >> 4)`; the streamed geometry uses
+`zzTr` (`%szzTr%02d%c%s` when the suffix is `.trk`). Files keyed by the whole ID print it in decimal
+(`ZTR16…` = ID 0x10).
 
-| Track | Variants on disc | Notes |
-|-------|------------------|-------|
-| 00–04 | a, b | b starts at a's first chunk centre and shares 15–95 chunk centres with a, but is a longer, different layout (not a reversed a) |
-| 05 | a, b | b shares no chunk centre with a |
-| 06, 07, 08 | a | |
-| 16, 17, 19 | — | AI/cop data only (`Q*`, `BEG/EXP.COP`, `.QTS`); 18 has only `.QTS` |
+**How the front end sets it ★★★.** `FRONT.BIN` hands race settings to the game as `{key, value}` records;
+the key names (`CONTROL`, `RACETYPE`, `TRACK`, `WEATHER`, `REVERSE`, …, table at `0x80042B18`) and the
+key → address table the game's setter uses (`func_80083F4C`, table `0x800F9CCC`) map TRACK to `0x800F9F80`
+(runtime: written once, just before the race loads, at `0x80084100`; `tools/runtime/nfs3_boot_watch.py`).
+The value comes from the menu's 14-entry track table at `0x80043938`, and the names from the game text
+(`ZTEXT.ENG`, same order):
 
-Which menu track selects which ID/variant is not yet traced (front-end table; the ten front-end names are
-`trkHom trkRed trkAtl trkRoc trkCnt trkLst trkAqu trkSum trkEmp trkRec`).
+| Menu | Name | ID | Files | | Menu | Name | ID | Files |
+|------|------|----|-------|-|------|------|----|-------|
+| 0 | Hometown | 0x00 | 00A | | 7 | The Summit | 0x14 | 04B |
+| 1 | Redrock Ridge | 0x01 | 01A | | 8 | Empire City | 0x02 | 02A |
+| 2 | Atlantica | 0x03 | 03A | | 9 | The Room | 0x05 | 05A |
+| 3 | Rocky Pass | 0x04 | 04A | | 10 | Caverns | 0x06 | 06A |
+| 4 | Country Woods | 0x10 | 00B | | 11 | AutoCross | 0x07 | 07A |
+| 5 | Lost Canyons | 0x11 | 01B | | 12 | Space Race | 0x08 | 08A |
+| 6 | Aquatica | 0x13 | 03B | | 13 | Scorpio-7 | 0x15 | 05B |
+
+So the `b` layouts are **separate named tracks that share scenery with their `a` partner**. The geometry shows it
+directly: each b track follows its partner chunk-for-chunk at the start and the end and replaces the middle
+(e.g. Lost Canyons = Redrock Ridge chunks 0–55, then 140 own chunks, then Redrock Ridge 167–182); Scorpio-7
+(05B) shares nothing with The Room (05A). The per-ID AI/cop files (`Q*`, `.QTS`, `BEG/EXP.COP`) exist for the
+nine main tracks: IDs 00–04 and 16, 17, 19, 20 (= 0x10, 0x11, 0x13, 0x14); ID 18 has only a `.QTS`; the bonus
+tracks (05–08, 0x15) have none.
+
+**02B is unreachable as a track ★★★.** No menu entry maps to 0x12. The only 02B file the game ever loads is
+`ZTR02BR.PSH` (reflection maps): `func_80065EB0`, used only for `R.psh`, forces `02b` when the track is Empire
+City (02) and WEATHER (`cfg[0x12]`) is on, i.e. wet-road reflections. Every other loader builds its letter
+from `id >> 4`, so 02B's `.TRK`, `.COL`, `0.PSH`, `.DPQ`, `.HRZ`, `.CLR` and `A.VIV` are never opened.
+
+Race options used by the track files (`0x800F9F44 + 4·k`, from the setter's table): `cfg[0x2]` SKILL,
+`cfg[0x5]` COPS, `cfg[0xB]` MIRROR, `cfg[0xC]` REVERSE, `cfg[0xD]` TUTOR, `cfg[0xF]` TRACK, `cfg[0x12]` WEATHER,
+`cfg[0x13]` TIME.
 
 ## File set and loaders
 `v` = variant letter; `.<lang>` = ENG/FRE/GER/ITA/SPA.
@@ -42,18 +65,18 @@ Which menu track selects which ID/variant is not yet traced (front-end table; th
 |------|--------------|-----------------|-----|-------|
 | `ZZZTR<NN><v>.TRK` | `TRAC` v22, streamed | `func_800799A4` "BWorld Init" → `func_800C370C` | ★★★ container | §1 |
 | `ZTR<NN><v>.COL` | `COLL` v11 | `func_80068018` "Opened track Persistent file and found %d collections" | ★★★ container | §2 |
-| `ZTR<NN><v>.CCM` | binary, 176 B–… | `func_800660A4` → `func_8006BB78(".ccm")` | seen | |
+| `ZTR<NN><v>.CCM` | binary | `func_800660A4` → `func_8006BB78(".ccm")` | ★★★ | trackside cameras, §4 |
 | `ZTR<NN><v>0.PSH`, `…R.PSH` | SHPP shape files | `func_80067960` ("0.psh", "R.psh") | ★★★ container | textures / reflection maps; format as [NFS4_PSH.md](NFS4_PSH.md) (to re-verify on NFS3) |
 | `ZTR<NN><v>A.VIV` | BIGF archive | `func_8005B878` ("%sA.viv") | seen | |
 | `ZTR<NN><v>.DPQ` | text | `func_800A7250` ("%sTr%02d%c.dpq") | ★ | depth-cue distance + colour, car env-map zones `{slice, tex, extra, quad}` (the NFS4 `.ENV` content lives here) |
 | `ZTR<NN><v>.HRZ` | text | `func_800B84BC` ("%sTr%02d%c.hrz") | ★ | horizon/sky parameters, commented |
 | `ZTR<NN><v>{D,N,W}.CLR` | text | `func_80080C18` ("%sTr%02d%c%c.clr") | ★ | car colour table per condition (day/night/weather); also `carmenu.clr` |
 | `ZTR<NN><v>{,N,NW,W}.BNK` | sound bank | ".bnk" builders | seen | |
-| `ZTR<NN><v>T{B,F}.BIN` | 16-byte records `{i32, 16.16, i32, -1}` | `func_80081DB4` ("b.bin", "f.bin") | ★ | |
+| `ZTR<NN><v>T{F,B}.BIN` | tutor prompts | `func_80081DB4` ("at"/"bt" + "f.bin"/"b.bin"), only when TUTOR is on | ★★★ | §5 |
 | `ZTR<NN><v>.VIS` | text `#chunk` + list | **none** (no reference in the EXE) | ★★★ | exporter source of TRK sub-block 4 (§1.5) |
 | `ZTR<NN>{F,R}.QAL/.QAS/.QBE` | Huffman `30FB` | "%sTr%02d%s.qbe", "qal", "qas" | seen | codec as [NFS4_Q_CODECS.md](NFS4_Q_CODECS.md) |
 | `ZTR<NN>{F,R}.QSL/.QSS`, `ZTR<NN>.QTS` | Huffman `30FB` | **no reference found** | ✗? | likely unused; confirm with a runtime file-open trace |
-| `ZTR<NN>{BEG,EXP}.COP` | binary | `func_800520FC` ("%sTr%02d%s.cop") | seen | cop data |
+| `ZTR<NN>{BEG,EXP}.COP` | cop triggers | `func_800520FC` ("%sTr%02d%s.cop"), only when COPS is on | ★★★ container | §6 |
 | `ZTR<NN>CSP.<lang>`, `ZZZTR<NN>C.<lang>` | speech | `func_80081DB4`, `func_80083688` ("cop speech") | seen | |
 | `ZZZTR<NN>A.TRJ`, `ZZZTR<NN>B.TRM` | `SCHl` EA audio stream | "%szztr%02da.trj", "%szztr%02db.trm" | seen | track music |
 | `ZTR<NN>{PGR,PGT,R<nn>,T<nn>,ROK,TEC,TOK,R0A,R0B}.MAP` | `PFDx` | "%str%02d….map" | seen | interactive-music maps |
@@ -292,12 +315,67 @@ live form of what NFS4 keeps only vestigially.
 
 Other moves: NFS3's `.DPQ` carries the car env-map zone list that NFS4 moved to its text `.ENV`.
 
+## 4. `.CCM` — trackside cameras ★★★ (9 files, 86 cameras)
+Loaded by `func_8006B8C0` (via `func_8006BB78`). Header `{u32 1, u32 count}`, then `count` × 28-byte records;
+file size = 8 + 28 · count in every file.
+
+| Off | Type | Field | Tag |
+|-----|------|-------|-----|
+| 0 | i32 × 3 | position, 16.16 world | ★★★ the loader finds the nearest slice to it (`func_800686EC` / `func_8006879C`) |
+| 12 | i16 × 4 | orientation quaternion (x, y, z, w; 0x4000 = 1.0, unit length in all 86) | ★★★ turned into a 3×3 matrix by `func_80095388` |
+| 20 | i16 | angle in degrees (47–78), converted to 4096-per-turn units and fed to sin/cos: presumably the field of view | ★★ |
+| 22 | u16 | camera kind: 0 × 33, 1 × 27, 3 × 26; bit 1 selects a separate path in the view code | ★★ |
+| 24 | i32 | slice index, **written at load** (file value −1) | ★★★ |
+
+After loading, the records are sorted by slice, and `func_8006BA90` builds a camera schedule at `0x800F7380`
+(12-byte entries `{i16 kind, u8 index, …, i32 slice}`): each camera becomes a kind-2 entry at its slice and the
+gaps are filled with evenly spaced kind-1 (automatic) entries. The view code (`func_8006E30C` →
+`func_8006B730` → `func_8006B63C`) fetches the active camera's position, matrix, angle and kind. (The
+nfs3-clean comments call these records "sound spots"; the quaternion → matrix use says camera.)
+
+## 5. `T{F,B}.BIN` — driving-tutor prompts ★★★ (18 files, 712 prompts)
+`func_80081DB4` loads `<prefix>Tr<NN>` + `at`/`bt` (track bit 4) + `f.bin`/`b.bin` (REVERSE, `cfg[0xC]`), only
+when the TUTOR option (`cfg[0xD]`) is on. The per-frame reader is `func_8008288C`.
+
+A sequence of records, ended by −2:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| slice | i32 | where the prompt belongs (all valid; `F` files ascending, `B` files descending) |
+| lead | i32 16.16 | seconds of warning: the prompt fires once the car is within lead × speed of the slice (0.5–3 s on disc) |
+| ids | i32 × n | message ids 0–17, 1–4 per record |
+| end | i32 | −1 |
+
+The reader adds lap × ring length to the slice (the lap counter stops at NUMLAPS) and mirrors it from the ring
+end when REVERSE is on. (The nfs3-clean comment calls this reader "cop radio chatter".)
+
+## 6. `.COP` — police pursuit triggers ★★★ container (18 files, 1,384 records)
+`func_800520FC` loads `<prefix>Tr<id in decimal><BEG|EXP>.cop` when COPS (`cfg[0x5]`) is on; SKILL
+(`cfg[0x2]`) = 0 picks BEG, otherwise EXP. Both branches use the full track ID (a branch-delay-slot load; the
+nfs3-clean reconstruction wrongly reads `cfg[5]` in the EXP branch). Files exist for IDs 00–04, 16, 17, 19, 20.
+
+`{i32 count}`, then records whose size is chosen by their type (`func_8005AB1C`):
+
+| Type | Size | On disc | NFS4 name |
+|------|------|---------|-----------|
+| 1 | 20 B | 490 | roadblock |
+| 2 | 20 B | 245 | simple |
+| 3 | 72 B | 649 | off-road |
+
+Every record starts `{i32 type, i32 slice}`; all 1,384 slices are valid for the track, and every file ends
+exactly after its last record. Records are nearly in slice order (31 backsteps: lap wrap-arounds such as a
+type-1 record at slice 50 after the end of the list, and a few local swaps).
+
+Trigger rule (`func_8005ACA4`): each player keeps a cursor into the list; a record fires when the car's slice
+equals the record's slice, the type is not 2, and more than 0xA00 frame ticks have passed since that record
+last fired (per-record timestamps at `+408` of the manager `0x800F4FE8`). The field layout inside the type-1/3
+bodies is not traced yet (NFS4 lineage: same sizes and type numbers).
+
 ## Open questions (next steps)
 1. TRK: type-5 flag bit 0x40 and the surface-id names (sound / grip tables), the line-style table at `0x8010BCFC`.
 2. COL: material flag 0x20; slice +15 forward vector's readers; the surface-id and acoustic-class names.
-3. Variant meaning (front-end track table) and the track-ID special case for 02b.
-4. `.CCM`, `T{B,F}.BIN`, `.COP`, the `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime
-   CD file-open trace).
+3. `.COP` type-1/3 record bodies; `.CCM` kind values; tutor message ids → voice clips.
+4. `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime CD file-open trace).
 
 ## Tools
 - `tools/nfs3_trk.py` — `trk`, `col`, `census` (container validation above).

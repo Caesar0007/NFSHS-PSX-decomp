@@ -9,7 +9,8 @@ Follows the retail loaders (NFS3 SLUS-006.20, raw oracle nfs3-clean/nfs3-raw-L.t
   COL                     func_80068018 (collection dispatch on type)
   census also checks      chunk meta (+0xA first sim slice, +0xC index), LOD vertex nesting, geometry size,
                           quad vertex/material bounds, type 5 = q4, sim slices partition q4, slice total = COL,
-                          slice links, type-5 frame < type-0xD count, 0xA/0x11/9 sizes, flare types < 17
+                          slice links, type-5 frame < type-0xD count, 0xA/0x11/9 sizes, flare types < 17;
+                          .CCM cameras, T{F,B}.BIN tutor prompts, .COP triggers
 
   python nfs3_trk.py trk    <file.TRK>      header, tables, per-chunk sub-block list
   python nfs3_trk.py col    <file.COL>      collection list
@@ -172,10 +173,54 @@ def census(dirpath):
         for (o, length, typ, num), e in zip(cols, ends):
             ctypes[typ] += 1
             if o + length > e: ok = False; print('  %s: collection %#x overruns' % (os.path.basename(f), typ))
+    ok &= census_extras(dirpath, st)
     print('census:', dict(st))
     print('TRK sub-block types (occurrences):', {hex(k): v for k, v in sorted(types.items())})
     print('COL collection types (files):', {hex(k): v for k, v in sorted(ctypes.items())})
     print('problems:', 'none' if ok else 'see above')
+
+
+COP_SIZE = {1: 20, 2: 20, 3: 72}                          # func_8005AB1C
+COP_TRACK = {0: '00A', 1: '01A', 2: '02A', 3: '03A', 4: '04A', 16: '00B', 17: '01B', 19: '03B', 20: '04B'}
+
+
+def col_slices(dirpath, var):
+    cols = parse_col(open(os.path.join(dirpath, 'ZTR%s.COL' % var), 'rb').read())[3]
+    return next(n for o, l, ty, n in cols if ty == 0xF)
+
+
+def census_extras(dirpath, st):
+    """.CCM cameras, T{F,B}.BIN tutor prompts, .COP triggers (NFS3_TRACK_FILES.md sections 4-6)."""
+    ok = True
+    for f in sorted(glob.glob(os.path.join(dirpath, '*.CCM'))):
+        d = open(f, 'rb').read(); ver, n = struct.unpack_from('<II', d, 0)
+        if ver != 1 or len(d) != 8 + 28 * n: ok = False; print('  %s: CCM header' % os.path.basename(f))
+        for i in range(n):
+            q = struct.unpack_from('<4h', d, 8 + 28 * i + 12)
+            if abs(sum(x * x for x in q) ** 0.5 - 0x4000) > 4: ok = False; print('  %s: camera %d quaternion' % (os.path.basename(f), i))
+        st['ccm cameras'] += n
+    for f in sorted(glob.glob(os.path.join(dirpath, 'ZTR*T[FB].BIN'))):
+        b = os.path.basename(f); ns = col_slices(dirpath, b[3:6])
+        d = open(f, 'rb').read(); w = struct.unpack('<%di' % (len(d) // 4), d)
+        i = 0; sl = []
+        while w[i] != -2:
+            j = i + 2
+            while w[j] != -1: j += 1
+            sl.append(w[i]); i = j + 1
+        rising = sl == sorted(sl)
+        if i != len(w) - 1 or not all(0 <= x < ns for x in sl) or rising != (b[7] == 'F'):
+            ok = False; print('  %s: tutor layout' % b)
+        st['tutor prompts'] += len(sl)
+    for f in sorted(glob.glob(os.path.join(dirpath, 'ZTR*.COP'))):
+        b = os.path.basename(f); ns = col_slices(dirpath, COP_TRACK[int(b[3:5])])
+        d = open(f, 'rb').read(); n = struct.unpack_from('<i', d, 0)[0]; p = 4
+        for i in range(n):
+            t, s_ = struct.unpack_from('<ii', d, p)
+            if t not in COP_SIZE or not 0 <= s_ < ns: ok = False; print('  %s: record %d' % (b, i)); break
+            p += COP_SIZE[t]
+        if p != len(d): ok = False; print('  %s: size' % b)
+        st['cop records'] += n
+    return ok
 
 
 def main():

@@ -15,7 +15,8 @@ spec + later corrections; they get re-verified as each family is migrated into `
 | TRK (`TRAC` v22) | streamed track geometry: meta-chunks of 8 chunks, typed sub-blocks | ? | ? | ★★★ container + core records | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | COL (`COLL` v11) | persistent track data: typed collections (materials, slices, objects, instances) | ? | ? | ★★★ container, materials, slices, objects | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | VIS / DPQ / HRZ / CLR (text) | vis-list source; depth cue + env zones; horizon; car colours | ? | ? | ★ (VIS ★★★ = TRK type 4) | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
-| CCM / T{B,F}.BIN / MAP (PFDx) / TRJ, TRM (SCHl) | NFS3 track extras, music | ? | ? | seen | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
+| CCM (trackside cameras) / T{F,B}.BIN (tutor prompts) | NFS3 track extras | ? | ? | ★★★ | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
+| MAP (PFDx) / TRJ, TRM (SCHl) | interactive music | ? | ? | seen | — | ? | — |
 | ZTR<NN>.BIN (TrackSpec) | sky/fog/horizon/weather/night config | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
 | CAR / GEO (zScene) | car geometry | ? | ? | ? | ★★★ | ? | — |
 | QBE / QCR | AI racing line / curvature (Huffman) | ? | ? | seen | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
@@ -24,7 +25,7 @@ spec + later corrections; they get re-verified as each family is migrated into `
 | AUD | ambient positional sounds | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
 | ENG.VIV inner (.bnk/.h/.ltb/.ctb/.cfg) | per-car engine audio | ? | ? | ? | ★★ | ? | — |
 | PFN (FNTP) | fonts | ? | ? | ? | ★★★ | ? | — |
-| COP | cop / pursuit triggers | ? | ? | seen | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
+| COP | cop / pursuit triggers | ? | ? | ★★★ container | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md), [NFS3](formats/NFS3_TRACK_FILES.md) |
 | FOG | fog keys {slice, distance} | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
 | KIL / ENV (text) | kill list; car env-map/shadow zones | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
 | MIS / TRN | missions; tournaments | ? | ? | ? | ★★ | ? | — |

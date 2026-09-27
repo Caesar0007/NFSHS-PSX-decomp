@@ -8,6 +8,9 @@
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline int Tournament_CurrentTrack(tTournamentManager &tm) { return tm.fCurrentTrack; }
 static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFullyOpen ^ 1) == 0; }
+static inline tDialogYesNo *Dialog_AsYesNo(tDialogMessageString *dialog) { return (tDialogYesNo *)dialog; }
+static inline void Dialog_SetText(tDialogMessageString *dialog, char *text) { dialog->string = text; }
+static inline bool MenuItem_IsDisabled(tMenuItem &item) { return (item.fFlags & 1) != 0; }
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -385,28 +388,15 @@ void MenuExtended_SetFullGrid(tMenuCommand &)
    dialog. Returns user_choice (1=Yes, 0=No). */
 
 int AskTheUserToSaveTheGame(void)
-
 {
-  /* SYM-CODEGEN-CARRIER: dlgThis -- retail has no caller local here, but SLD
-     records the inlined tDialogMessageString::SetString receiver `this` in
-     $s0.  Pure direct-object spelling is FAIL 13 (29/30); using SetString but
-     addressing the three following fields from the stack is FAIL 6 (30/30).
-     Carrying SetString's returned receiver through those stores and Run is the
-     exact PASS 30/30 representation of that optimized inline `this` lifetime. */
-  tDialogMessageString *dlgThis;
-
-  /* MATCH 2026-08-03: SLD starts YesNoDialog and answer only inside the
-     non-cheater block.  Returning answer from that block reproduces retail's
-     s0 allocation and the single automatic constructor/destructor pair. */
   if ((FECheat_IsTheUserACryBabyCheater() ^ 1) != 0) {
     tDialogYesNo YesNoDialog;
     int answer;
-
-    dlgThis = YesNoDialog.SetString(TextSys_Word(0x331));
-    ((tDialogYesNo *)dlgThis)->yesnowords[0] = 0x321;
-    ((tDialogYesNo *)dlgThis)->yesnowords[1] = 0x322;
-    ((tDialogYesNo *)dlgThis)->fDefault = 0;
-    answer = (short)((tDialogInteractive *)dlgThis)->Run();
+    tDialogYesNo *const dialog = Dialog_AsYesNo(YesNoDialog.SetString(TextSys_Word(0x331)));
+    dialog->yesnowords[0] = 0x321;
+    dialog->yesnowords[1] = 0x322;
+    dialog->fDefault = 0;
+    answer = (short)((tDialogInteractive *)dialog)->Run();
     return answer;
   }
   return 0;
@@ -1809,27 +1799,16 @@ void GenericMenuLoadGame(int player)
    Focused verify_asm and the independent -g/SLD twin are both exact. */
 
 void MenuExtended_LoadGame(tMenuCommand &)
-
 {
-  if (((menuDefs->itemLoadGame).fFlags & 1) != 0) {
+  if (MenuItem_IsDisabled(menuDefs->itemLoadGame)) {
     return;
   }
   tDialogYesNo AreYouSure;
-  /* SYM-ANONYMOUS-CARRIER: retail reserves eight bytes between the only
-     named AUTO (`AreYouSure`, 168 bytes at sp+16) and the s0/ra save area at
-     sp+192.  IDA independently recovers a 176-byte local region, while SYM
-     records no second caller local.  A discarded temporary of this function's
-     eight-byte ABI type reproduces that compiler-owned slot without creating
-     a false debug-local record.  Omitting it is count-exact FAIL 12 and changes
-     only the frame/save offsets from 200/192/196 to 192/184/188.  The artifacts
-     cannot recover the temporary's original source spelling or exact type. */
   tMenuCommand();
-  /* SYM-INLINE-THIS: SetChoices */
-  AreYouSure.SetChoices(0x321, 0x322, 0)->string = TextSys_Word(0x2c0);
+  Dialog_SetText(AreYouSure.SetChoices(0x321, 0x322, 0), TextSys_Word(0x2c0));
   if (AreYouSure.Run() != 0) {
     GenericMenuLoadGame((int)screenMemcard->player);
   }
-  return;
 }
 
 

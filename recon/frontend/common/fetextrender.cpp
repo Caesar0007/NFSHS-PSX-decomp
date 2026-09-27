@@ -372,7 +372,7 @@ void FETextRender_Title(short index)
   short offset;
   
   offset = 0;
-  if (App()->fPlayer == '\x01') {
+  if (FEApp->GetPlayer() == 1) {
     offset = 0x69;
   }
   strcpy(upstr,TextSys_Word((int)index));

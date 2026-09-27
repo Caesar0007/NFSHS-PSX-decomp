@@ -1091,27 +1091,20 @@ void tScreenCarSelect::DrawForeground()
   currentItem = (tMenuItem *)((int)currentItemValue & ((int)currentItemValue | (int)menuDefs));
   validCar = validCarValue;
   bShowStats = false;
-  (menuDefs->itemOpponentUpgrades).fFlags =
-       (menuDefs->itemOpponentUpgrades).
-       fFlags | 1;
+  MenuItem_Disable(&menuDefs->itemOpponentUpgrades);
   if (this->fState == 1) {
     bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItemValue == &menuDefs->itemGarageCar;
-    (menuDefs->itemUpgradeCar).fFlags =
-         (menuDefs->itemUpgradeCar).fFlags &
-         0xfffffffe;
+    MenuItem_Enable(&menuDefs->itemUpgradeCar);
     if (((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) &&
        (FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0)) {
-      (menuDefs->itemOpponentUpgrades).
-      fFlags = (menuDefs->itemOpponentUpgrades).fFlags & 0xfffffffe;
+      MenuItem_Enable(&menuDefs->itemOpponentUpgrades);
     }
     __asm__("" : : "r"(currentItem));
     if ((validCar != 0) && (carInfo.fCarClass < 5)) {
       this->fOverlays[4].direction = 1;
     }
     else {
-      (menuDefs->itemUpgradeCar).fFlags =
-           (menuDefs->itemUpgradeCar).fFlags
-           | 1;
+      MenuItem_Disable(&menuDefs->itemUpgradeCar);
       this->fOverlays[4].direction = -1;
     }
   }
@@ -1119,11 +1112,11 @@ void tScreenCarSelect::DrawForeground()
     if ((tMenuItemNFS4LeftRightChoice *)currentItemValue == &menuDefs->itemCar) {
       bShowStats = true;
     }
-    (menuDefs->itemColor).fFlags &= 0xfffffffe;
-    (menuDefs->itemShowcase).fFlags &= 0xfffffffe;
+    MenuItem_Enable(&menuDefs->itemColor);
+    MenuItem_Enable(&menuDefs->itemShowcase);
     if (carInfo.fCarClass == '\a') {
-      (menuDefs->itemColor).fFlags |= 1;
-      (menuDefs->itemShowcase).fFlags |= 1;
+      MenuItem_Disable(&menuDefs->itemColor);
+      MenuItem_Disable(&menuDefs->itemShowcase);
     }
   }
   else if (this->fState == 2) {
@@ -1135,16 +1128,13 @@ void tScreenCarSelect::DrawForeground()
     if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemSellerCar) {
       bShowStats = true;
     }
-    (menuDefs->itemSellCar).fFlags =
-         (menuDefs->itemSellCar).fFlags &
-         0xfffffffe;
+    MenuItem_Enable(&menuDefs->itemSellCar);
     if (validCar != 0) {
       this->fOverlays[4].direction = 1;
     }
     else {
       this->fOverlays[4].direction = -1;
-      (menuDefs->itemSellCar).fFlags =
-           (menuDefs->itemSellCar).fFlags | 1;
+      MenuItem_Disable(&menuDefs->itemSellCar);
     }
   }
   else if (this->fState == 4) {

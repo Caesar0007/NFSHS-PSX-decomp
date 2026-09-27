@@ -47,3 +47,9 @@ Addresses from the NFS3 raw oracle (`C:\Temp\nfs3-clean\nfs3-raw-L.txt`).
 - 2026-09-27: track 00A, 56 chunk captures (48 distinct chunks) byte-exact after the predicted relocation; all
   `Chunk_tChunkDat` slots, tables, slices and materials match (NFS3_TRACK_FILES.md §1.7).
 - `nfs3_roster_probe.py` — boots a race with COPS forced (optionally `--racetype`) and logs the race roster (model name + kind bits), the police list `0x800F82D8` (flags +1440, distance +132) and the PathFinder control level / node. With the default menu path the roster holds only the player and one opponent, so no police cars appear.
+
+## NFS2 (PAL SLES-00658)
+- `nfs2_pad_probe.py` — stops at the BIOS B0:0x15 thunk (`func_8008D39C`); its arguments are not a button destination (input comes from the SIO pad driver instead).
+- `nfs2_track_probe.py` — pad injection at 0x800A0058 (`_padDr`, writes `{0,0x41,btn}` to `*0x800D5F60`), race load, dump of the chunk slot records after `LoadChunkFromBuffer` (NFS2_TRACK_FILES.md §1.9).
+- `nfs2_race_setup.py` — forces RACETYPE/NUMCARS/TRACK during the menus, saves a checkpoint in the race (`--checkpoint`), logs slots, cars and the AI table pointers. Uses the game gp 0x800D50A0 (stops are in the VSync IRQ).
+- `nfs2_watch_probe.py` — loads such a checkpoint and logs PCs/data addresses hitting Z3/Z4 watchpoints (`--addr addr:len`, len ≤ 0x100).

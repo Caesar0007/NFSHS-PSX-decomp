@@ -18,6 +18,18 @@ Follows the retail loaders (NFS3 SLUS-006.20, raw oracle nfs3-clean/nfs3-raw-L.t
 """
 import os, sys, glob, struct, collections
 
+# Geometry record layout (NFS3 defaults; nfs2_trk.py overrides): vertex size, quad size, quad decoder.
+VSIZE, QSIZE = 8, 6
+LOD_ONE_PAST = False
+ONE_PAST = [0]   # NFS2: tolerate (and count) quads indexing file vertices not transformed at their level
+
+
+def quad(d, p):
+    """NFS3 Trk_Quad {u16 material, u8 v[4]} -> (material, (v0, v1, v2, v3))."""
+    mat, a, b, c, e = struct.unpack_from('<H4B', d, p)
+    return mat, (a, b, c, e)
+
+
 COL_NAMES = {2: '(type 2)', 7: 'kINSTANCE_COLLECTION', 8: 'kOBJECTDEF_COLLECTION',
              0xF: 'slices', 0x12: '(type 0x12)', 0x14: 'kOBJSFXINST_COLLECTION'}
 
@@ -65,9 +77,9 @@ def geometry(d, c):
     q = struct.unpack_from('<6H', d, g + 12)
     vbase = g + 0x18
     nv = n0 + n3
-    arrays, p = [], vbase + 8 * nv
+    arrays, p = [], vbase + VSIZE * nv
     for n in q:
-        arrays.append((p, n)); p += 6 * n
+        arrays.append((p, n)); p += QSIZE * n
     return dict(rel=rel, n=(n0, n1, n2, n3), q=q, vbase=vbase, nv=nv, arrays=arrays, end=p - g)
 
 
@@ -84,8 +96,10 @@ def check_records(d, t, errs, materials, slices=None):
         lim = [n0 + n1, n0 + n1, n0 + n2, n0 + n2, n0 + n3, n0 + n3]
         for k, (p, n) in enumerate(g['arrays']):
             for i in range(n):
-                mat, a, b, cc, dd = struct.unpack_from('<H4B', d, p + 6 * i)
-                if max(a, b, cc, dd) >= lim[k] or (materials is not None and mat >= materials):
+                mat, vv = quad(d, p + QSIZE * i)
+                if LOD_ONE_PAST and lim[k] <= max(vv) < n0 + n3 and k < 4 and (materials is None or mat < materials):
+                    ONE_PAST[0] += 1; continue
+                if max(vv) >= lim[k] or (materials is not None and mat >= materials):
                     errs.append('chunk %d array %d quad %d' % (ci, k, i)); break
         if tb[5][2] != g['q'][4]: errs.append('chunk %d type 5 count' % ci)
         so, length, num = tb[6]; nxt = 0

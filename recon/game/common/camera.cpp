@@ -1466,12 +1466,10 @@ void Camera_UpdatePulloverCam(int player)
      (InBetween == 0)) {
     /* SYM-CODEGEN-CARRIER: gameTicks -- the separate snapshot keeps retail's
        SimGlobal address materialization in v0 instead of a0. */
-    int gameTicks;
 
     SetGeomScreen(0xbe);
     /* MATCH: separate tick/index values keep Camera_gInfo[player] itself in s1. */
-    gameTicks = simGlobal.gameTicks;
-    if (gameTicks < Camera_gInfo[player].POInhibitor) {
+    if ((simGlobal.gameTicks) < Camera_gInfo[player].POInhibitor) {
       Camera_UpdateCopCam2(player);
       return;
     }

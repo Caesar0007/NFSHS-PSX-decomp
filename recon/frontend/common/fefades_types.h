@@ -11,20 +11,7 @@
 #define byte unsigned char
 
 #include "shared/tTexture_ShapeInfo.h"
-
-
-
-
-
-
-
-
-
-
 #include "shared/kernpair.h"
-
-
-
 
 typedef struct kernpair KERN;
 

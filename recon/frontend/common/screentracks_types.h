@@ -11,21 +11,6 @@
 
 #include "shared/POLY_FT4.h"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 typedef enum VIDEOSTATE {
     VIDEOSTATE_IDLE = 0,
     VIDEOSTATE_SPOOLING = 1,

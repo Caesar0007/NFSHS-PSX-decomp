@@ -48,23 +48,10 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 struct tDrawShapeExtended;
 
 #include "shared/tShapeInformation.h"
-
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 struct tMenu;
 #include "fescreen.h"
-
 #include "shared/tActiveLine.h"
-
-
-
-
 
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 struct tScreenDisplay : public tScreen {

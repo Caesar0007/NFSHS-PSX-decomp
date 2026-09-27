@@ -71,31 +71,10 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 /* retail FEMenu.obj order: tMenu, then tScreen and the dialog family (tMenu::fScreen sees tScreen incomplete) */
 #include "shared/tShapeInformation.h"
 
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
-
 #include "shared/tActiveLine.h"
-
 #include "fedialog.h"
-
-
-
-
-
-
-
-
-
-
-
-
 
 struct tFEApplication;
 

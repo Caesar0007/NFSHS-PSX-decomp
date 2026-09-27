@@ -36,19 +36,7 @@ enum crimeType {
 };
 
 #include "shared/copLevel_t.h"
-
-
-
-
-
-
-
-
-
 #include "shared/copGame_t.h"
-
-
-
 
 struct tScreenControllerConfig : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

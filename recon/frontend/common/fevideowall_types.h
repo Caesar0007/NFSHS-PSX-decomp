@@ -4,16 +4,7 @@
 #define NFS4_FRONTEND_COMMON_FEVIDEOWALL_TYPES_H
 
 #include "../../game/common/draw_leaf_types.h"
-
 #include "shared/tTexture_ShapeInfo.h"
-
-
-
-
-
-
-
-
 
 
 enum tTVState {
@@ -24,15 +15,6 @@ enum tTVState {
 };
 
 #include "shared/tTVConfig.h"
-
-
-
-
-
-
-
-
-
 
 struct tVideoWall {
     tTVConfig *fTVs;
@@ -66,16 +48,9 @@ struct tVideoWall {
 
 #include "shared/kernpair.h"
 
-
-
-
 typedef struct kernpair KERN;
 
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
 
 typedef void (*fontblit)();
 typedef int (*getcode)();

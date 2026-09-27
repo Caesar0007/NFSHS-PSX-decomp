@@ -4,52 +4,12 @@
 
 /* Statchk.obj's complete 89-record graph is a strict subset. */
 #include "statchk_types.h"
-
 #include "shared/TCB.h"
-
-
-
-
-
 #include "shared/EXEC.h"
-
-
-
-
 #include "shared/DIRENTRY.h"
-
-
-
-
-
-
-
 #include "shared/CARD_FILE_HEADER.h"
-
-
-
-
-
-
-
-
 #include "shared/Sched_tSchedule.h"
-
-
-
-
-
 #include "shared/tTrackInformation.h"
-
-
-
-
-
-
-
-
-
-
 
 struct tTrackManager {
     u_long fNumTracks;

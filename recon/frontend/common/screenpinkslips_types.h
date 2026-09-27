@@ -14,61 +14,20 @@ struct tMenuCommand;
 
 #include "shared/tRecordBuffer.h"
 
-
-
 typedef tRecordBuffer tSaveRecords[187];
 
 #ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 #include "shared/FLARE_PIECE_DEF.h"
-
-
-
-
 #endif
 
 #include "shared/SNDSYSCAP.h"
-
-
-
-
-
 #include "shared/SNDSYSSET.h"
-
-
-
-
-
-
 #include "shared/SNDSYSVEC.h"
 #include "shared/SNDSAMPLEFORMAT.h"
-
-
-
-
 #include "shared/tMissionTierInfo.h"
-
-
 #include "shared/tMissionInfo.h"
-
-
-
-
-
-
 #include "shared/tStageInfo.h"
-
-
-
-
-
-
-
-
 #include "shared/tAcademyDefinition.h"
-
-
-
-
 
 struct tFEApplication {
     unsigned int fCurrentMusic;

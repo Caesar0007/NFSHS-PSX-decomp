@@ -74,14 +74,7 @@ struct FEMenuDefs_GameSetupCodegenView {
 #endif
 
 #include "shared/AudioMus_tSongEntry.h"
-
-
-
-
-
 #include "shared/AudioMus_tSongList.h"
-
-
 
 
 typedef COORD16 FE3d_zVertex;
@@ -90,60 +83,18 @@ typedef SVECTOR FE3d_zNormal;
 
 #include "shared/FE3d_zUV.h"
 #include "shared/FE3d_zFacet.h"
-
-
-
-
-
 #include "shared/FE3d_zObj.h"
-
-
-
-
-
-
-
-
 #include "shared/Force_tGlobal.h"
-
-
-
-
 #include "shared/tMissionTierInfo.h"
-
-
 #include "shared/tMissionInfo.h"
-
-
-
-
-
-
 #include "shared/tStageInfo.h"
-
-
-
-
-
-
-
-
 #include "shared/tAcademyDefinition.h"
-
-
-
-
 
 #ifndef NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
 #include "fedialog.h"
 #endif
 
 #include "shared/MCRDFILE_def.h"
-
-
-
-
-
 
 
 typedef MCRDFILE_def MCRDFILE;

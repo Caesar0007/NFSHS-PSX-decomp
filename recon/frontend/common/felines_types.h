@@ -5,22 +5,8 @@
 #define NFS4_FRONTEND_COMMON_FELINES_TYPES_H
 
 #include "../../game/common/draw_leaf_types.h"
-
 #include "shared/tTexture_ShapeInfo.h"
-
-
-
-
-
-
-
-
-
-
 #include "shared/kernpair.h"
-
-
-
 
 typedef struct kernpair KERN;
 

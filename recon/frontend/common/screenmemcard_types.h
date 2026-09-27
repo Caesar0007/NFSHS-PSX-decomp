@@ -29,21 +29,6 @@
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 #include "shared/POLY_FT4.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
@@ -63,23 +48,8 @@ typedef enum MANAGERTASK {
 } MANAGERTASK;
 
 #include "shared/TCB.h"
-
-
-
-
-
 #include "shared/EXEC.h"
-
-
-
-
 #include "shared/DIRENTRY.h"
-
-
-
-
-
-
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
@@ -87,10 +57,6 @@ typedef enum MANAGERTASK {
     !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 #include "shared/AudioMus_tSongEntry.h"
-
-
-
-
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
@@ -99,8 +65,6 @@ typedef enum MANAGERTASK {
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 #include "shared/tRecordBuffer.h"
 
-
-
 typedef tRecordBuffer tSaveRecords[187];
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
@@ -108,21 +72,8 @@ typedef char tMemIcon[15][3][192];
 #endif
 
 #include "shared/tSaveCarInfo.h"
-
-
-
-
 #include "shared/tSaveTrackInfo.h"
-
-
-
 #include "shared/tSaveTournament.h"
-
-
-
-
-
-
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
@@ -133,64 +84,20 @@ typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
 
 #include "shared/FE3d_zUV.h"
-
-
-
 #include "shared/FE3d_zFacet.h"
-
-
-
-
-
-
 #include "shared/FE3d_zObj.h"
-
-
-
-
-
-
-
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 #include "shared/CARDINFO_def.h"
-
-
-
-
 #include "shared/MCRDFILEHEADER_def.h"
-
-
-
-
-
-
-
-
 #include "shared/MCRDFILEINFO_def.h"
-
-
-
-
-
-
-
-
-
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 #include "shared/MCRDFILE_def.h"
-
-
-
-
-
-
-
 #endif
 
 #ifndef NFS4_SCREENMEMCARD_FEAPP_SURFACE
@@ -206,10 +113,6 @@ typedef MCRDFILE_def MCRDFILE;
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_PINKSLIPS_SURFACE)
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \

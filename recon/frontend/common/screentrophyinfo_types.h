@@ -58,29 +58,11 @@ struct tMenuNFS4 : public tMenu {
 };
 
 #include "shared/tShapeInformation.h"
-
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 struct tMenu;
 #include "fescreen.h"
-
 #include "shared/tActiveLine.h"
-
-
-
-
-
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
 
 struct tScreenTrophyInfo : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

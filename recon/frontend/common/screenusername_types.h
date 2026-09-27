@@ -13,24 +13,8 @@ typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
 
 #include "shared/FE3d_zUV.h"
-
-
-
 #include "shared/FE3d_zFacet.h"
-
-
-
-
-
-
 #include "shared/FE3d_zObj.h"
-
-
-
-
-
-
-
 
 struct tScreenUserName : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

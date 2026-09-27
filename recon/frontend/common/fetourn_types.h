@@ -37,17 +37,9 @@ typedef enum tTrophySize {
 } tTrophySize;
 
 #include "shared/tSaveTournament.h"
-
-
-
-
-
-
-
 /* The linked FETourn SYM retains this public array typedef while attributing
  * the already-defined element tag body to its earlier owner. */
 #include "shared/tRecordBuffer.h"
-
 
 
 typedef tRecordBuffer tSaveRecords[187];

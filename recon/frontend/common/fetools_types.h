@@ -8,23 +8,8 @@
 #undef NFS4_FECNTL_NO_RECORD_CARRIER
 
 #include "shared/TCB.h"
-
-
-
-
-
 #include "shared/EXEC.h"
-
-
-
-
 #include "shared/DIRENTRY.h"
-
-
-
-
-
-
 
 /* These four classes are Fetools-owned header surface.  PSXFront shares the
  * remainder of this graph, but its linked SYM has no completed body for any
@@ -52,28 +37,10 @@ struct tMenuNFS4 : public tMenu {
 #endif
 
 #include "shared/tShapeInformation.h"
-
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 struct tMenu;
 #include "fescreen.h"
-
 #include "shared/tActiveLine.h"
-
-
-
-
-
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
 
 #endif

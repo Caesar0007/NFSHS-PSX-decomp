@@ -22,9 +22,6 @@ enum tMenuCommandType {
 
 #include "shared/tMenuCommand.h"
 
-
-
-
 #define NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 #include "screencarselect_types.h"
 #undef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE

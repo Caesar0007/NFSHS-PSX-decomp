@@ -18,9 +18,6 @@ enum tMenuCommandType {
 };
 #include "shared/tMenuCommand.h"
 
-
-
-
 #define NFS4_EA_PSX_INCOMPLETE_PHYSADR
 #define NFS4_FEMENUOPTIONS_SURFACE
 #define NFS4_FE_CORE_FEMENU_METHODS
@@ -46,37 +43,13 @@ enum tMenuCommandType {
 #define textType_Options 6
 
 #include "shared/DR_AREA.h"
-
-
-
-
 #include "shared/POLY_G4.h"
-
-
-
-
-
-
-
-
-
-
-
 #include "shared/AudioMus_tSongEntry.h"
-
-
-
-
-
 #include "shared/AudioMus_tSongList.h"
-
-
-
 
 /* The linked owner retains this public array typedef while attributing the
  * already-seen element body elsewhere. */
 #include "shared/tRecordBuffer.h"
-
 
 
 typedef tRecordBuffer tSaveRecords[187];

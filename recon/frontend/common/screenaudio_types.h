@@ -19,58 +19,14 @@
 #define textType_ScreenInfo 4
 
 #include "shared/AudioMus_tSongEntry.h"
-
-
-
-
-
 #include "shared/AudioMus_tSongList.h"
-
-
-
-
 #include "shared/SNDSYSCAP.h"
-
-
-
-
-
-
 #include "shared/SNDSYSSET.h"
-
-
-
-
-
-
-
 #include "shared/SNDSYSVEC.h"
-
-
-
 #include "shared/SNDSYSOPTS.h"
-
-
-
-
-
 #include "shared/SNDSAMPLEFORMAT.h"
-
-
-
-
 #include "shared/SndBnk_t.h"
-
-
-
-
 #include "shared/SPEECHINFO.h"
-
-
-
-
-
-
 
 struct tDrawShapeExtended;
 

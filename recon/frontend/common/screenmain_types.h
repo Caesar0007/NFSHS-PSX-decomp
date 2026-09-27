@@ -29,27 +29,8 @@ typedef long STREAMREQUESTID;
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
 #include "shared/POLY_G4.h"
-
-
-
-
-
-
-
-
-
-
-
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
-
 #include "fedialog.h"
-
-
-
 
 struct tFEApplication {
     unsigned int fCurrentMusic;

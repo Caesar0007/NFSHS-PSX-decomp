@@ -7,10 +7,6 @@
 
 #include "shared/AudioMus_tSongEntry.h"
 
-
-
-
-
 struct tPSXToFEMapping {
     int PSXKey;
     tInputKeyType FEKey;

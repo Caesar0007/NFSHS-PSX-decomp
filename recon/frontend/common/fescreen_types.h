@@ -19,49 +19,13 @@ enum tMenuCommandType {
 };
 
 #include "shared/tMenuCommand.h"
-
-
-
-
 #include "fe_core_types.h"
 #include "fe_input_enums.h"
-
-
 #include "shared/tShapeInformation.h"
-
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
-
 #include "shared/tActiveLine.h"
-
-
-
-
-
 #include "fedialog.h"
-
-
-
-
-
-
-
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
-
-
-
-
-
 
 #endif

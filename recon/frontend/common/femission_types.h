@@ -3,34 +3,10 @@
 #define NFS4_FRONTEND_COMMON_FEMISSION_TYPES_H
 
 #include "fe_core_types.h"
-
 #include "shared/tMissionTierInfo.h"
-
-
-
 #include "shared/tMissionInfo.h"
-
-
-
-
-
-
-
 #include "shared/tStageInfo.h"
-
-
-
-
-
-
-
-
-
 #include "shared/tAcademyDefinition.h"
-
-
-
-
 
 struct tMissionManager {
     char fNumTiers;

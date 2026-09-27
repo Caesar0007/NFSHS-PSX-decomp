@@ -21,9 +21,6 @@ enum tMenuCommandType {
 
 struct tMenu;
 #include "shared/tMenuCommand.h"
-
-
-
 #endif
 
 #include "fe_core_types.h"
@@ -58,22 +55,9 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 };
 
 #include "shared/tShapeInformation.h"
-
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
-
 #include "shared/tActiveLine.h"
-
-
-
-
 
 struct tCarManager;
 struct tListIteratorCar : public tListIterator {
@@ -229,15 +213,6 @@ typedef enum tTVState {
 
 #include "shared/tTVConfig.h"
 
-
-
-
-
-
-
-
-
-
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 struct tVideoWall {
     tTVConfig *fTVs;
@@ -269,19 +244,7 @@ struct tScreenTrackInfo : public tScreen {
 #endif
 
 #include "fedialog.h"
-
-
-
-
-
-
-
 #include "shared/tCredit.h"
-
-
-
-
-
 
 typedef enum tScreenMainState {
     kScreenMain_Off = 0,
@@ -292,16 +255,6 @@ typedef enum tScreenMainState {
 } tScreenMainState;
 
 #include "shared/tVideoTransition.h"
-
-
-
-
-
-
-
-
 #include "shared/tVideo.h"
-
-
 
 #endif

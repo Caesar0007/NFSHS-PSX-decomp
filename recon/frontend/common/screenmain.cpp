@@ -9,8 +9,6 @@
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tFEApplication * App(void) { return FEApp; }
 
-
-
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 

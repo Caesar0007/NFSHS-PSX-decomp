@@ -28,15 +28,7 @@ typedef short tArrowLocation[6];
 typedef short tTextLocation[5];
 
 #include "shared/FLARE_PIECE_DEF.h"
-
-
-
-
-
 #include "shared/Force_tGlobal.h"
-
-
-
 
 struct tScreenControllerConfig : public tScreen {
     /* overrides (retail vtable), declared on every owner surface */

@@ -167,34 +167,10 @@ struct tMenuOptions : public tMenuNFS4 {
 };
 
 #include "shared/tShapeInformation.h"
-
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 #include "fescreen.h"
-
 #include "shared/tActiveLine.h"
-
-
-
-
-
 #include "fedialog.h"
-
-
-
-
-
-
-
-
-
-
 
 
 struct tFEApplication {
@@ -223,7 +199,6 @@ struct tFEApplication {
 /* The linked owner retains this public array typedef while attributing the
  * already-seen element tag body elsewhere. */
 #include "shared/tRecordBuffer.h"
-
 
 
 typedef tRecordBuffer tSaveRecords[187];

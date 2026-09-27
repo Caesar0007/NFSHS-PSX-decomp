@@ -34,9 +34,6 @@ typedef int FEMATRIX[4][4];
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 #include "shared/DR_AREA.h"
-
-
-
 #endif
 
 struct DRender_tView;
@@ -51,18 +48,10 @@ struct ScreenCarSelect_GameSetupCodegenView {
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 #include "shared/AudioMus_tSongEntry.h"
-
-
-
-
 #endif
 
 #ifndef NFS4_SCREENCARSELECT_FEMENUDEFS_SURFACE
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
 #else
 struct tDrawShapeExtended;
 #endif

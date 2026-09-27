@@ -9,58 +9,9 @@
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
 #include "shared/POLY_F4.h"
-
-
-
-
-
 #include "shared/POLY_FT4.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include "shared/POLY_GT4.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include "shared/tTexture_ShapeInfo.h"
-
-
-
-
-
-
-
-
-
 
 enum tTVState {
     tv_StateOff = 0,
@@ -70,28 +21,11 @@ enum tTVState {
 };
 
 #include "shared/tTVConfig.h"
-
-
-
-
-
-
-
-
-
-
 #include "shared/kernpair.h"
-
-
-
 
 typedef struct kernpair KERN;
 
 #include "shared/tActiveLine.h"
-
-
-
-
 
 typedef void (*fontblit)();
 typedef int (*getcode)();

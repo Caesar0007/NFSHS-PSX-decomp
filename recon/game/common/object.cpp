@@ -138,12 +138,11 @@ FindObjInstanceFromSerialNum(Group *group,int index)
     return (Trk_SimpleInst *)0x0;
   }
   if ((index & 0x80) != 0) {
-    group = Object_customObjInst;
     index &= ~0x80;
-    if (index >= group->GetNumElements()) {
+    if (index >= Object_customObjInst->GetNumElements()) {
       return (Trk_SimpleInst *)0x0;
     }
-    objInstance = (Trk_SimpleInst *)Group_Data(group);
+    objInstance = (Trk_SimpleInst *)Group_Data(Object_customObjInst);
   }
   else {
     if (index >= group->GetNumElements()) {

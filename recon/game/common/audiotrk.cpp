@@ -282,7 +282,7 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
       int quater = (numelems >> 2) + 1;
       int gtck = simGlobal.gameTicks >> 3;
       int vx = AudioClc_gRenderView.translation.x;
-      se = (AudioElem *)(gGameAudioList + 1);
+      se = AudioList_Elems(gGameAudioList);
       int vz = AudioClc_gRenderView.translation.z;
       coorddef v;
       int start = ((simGlobal.gameTicks >> 1) % 4) * quater;
@@ -411,7 +411,7 @@ int AudioTrk_PreLoad(void)
     AudioElem *se;
 
     loaded = true;
-    se = (AudioElem *)(gGameAudioList + 1);
+    se = gGameAudioList->Elems();
     for (int i = 0; i < numelems; i++) {
       int x;
       int z;

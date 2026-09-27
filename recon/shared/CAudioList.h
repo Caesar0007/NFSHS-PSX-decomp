@@ -3,5 +3,10 @@
 #ifndef NFS4_SHARED_CAUDIOLIST_H
 #define NFS4_SHARED_CAUDIOLIST_H
 
-struct CAudioList { int id_, numElements_, slice_, versionNumber_; };
+struct CAudioList {
+    int id_, numElements_, slice_, versionNumber_;
+#ifdef NFS4_AUDIOLIST_ELEMS_INLINE
+    inline AudioElem *Elems() { return (AudioElem *)(this + 1); }
+#endif
+};
 #endif

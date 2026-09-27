@@ -91,6 +91,7 @@ struct AudioElem {
     signed char chan;
     char minRepeat, randomRepeat;
 };
+#define NFS4_AUDIOLIST_ELEMS_INLINE   /* CAudioList::Elems() -- retail's CAudioList `this` pair in AudioTrk_PreLoad */
 #include "shared/CAudioList.h"
 
 #include "shared/FLARE_PIECE_DEF.h"

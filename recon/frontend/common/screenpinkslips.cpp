@@ -241,7 +241,7 @@ void tScreenPinkSlips::Initialize()
   frontEnd.pinkSlipsTrackIndex = '\0';
   Decrement(&menuDefs->iteratorTrack,kPlayerBoth);
   Increment(&menuDefs->iteratorTrack,kPlayerBoth);
-  this->fMenu = App()->fCurrentMenu[0];
+  this->fMenu = FEApp->CurrentMenu(0);
   this->tScreen::Initialize();
   this->fTVsInitialized = 0;
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);

@@ -89,6 +89,8 @@ struct tFEApplication {
     tDialogNoInputMessage NoInputMemCardDialog;
     bool gotName[2], needName[2];
     int speechToPlay[2];
+
+    tMenu *CurrentMenu(int player) { return fCurrentMenu[player]; }
 };
 
 #ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE

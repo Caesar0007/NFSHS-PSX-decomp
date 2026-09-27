@@ -15,74 +15,11 @@ typedef enum tCarClassType {
 #endif
 
 #include "shared/tCarLineup.h"
-
-
-
-
-
-
-
 #include "shared/tTierInfo.h"
-
-
-
-
 #include "shared/tTourneyInfo.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include "shared/tTrackInfo.h"
-
-
-
-
-
-
-
-
 #include "shared/tTournamentDefinition.h"
-
-
-
-
-
 #include "shared/tAwardInformation.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include "shared/tCompetitor.h"
-
-
-
-
-
-
-
 
 #endif

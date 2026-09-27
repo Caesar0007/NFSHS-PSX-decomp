@@ -2,7 +2,8 @@
  *   3 member fns of tScreenTrophyInfo (embeds tScreen base as _base_tScreen).
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
-#include "screentrophyinfo.h"
+#include "screentrophyinfo_types.h"
+#include "screentrophyinfo_externs.h"
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */

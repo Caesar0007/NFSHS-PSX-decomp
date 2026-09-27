@@ -18,16 +18,6 @@ typedef enum tTrackClassType {
 
 #include "shared/tTrackInformation.h"
 
-
-
-
-
-
-
-
-
-
-
 struct tSaveTrackInfo;
 
 struct tTrackManager {

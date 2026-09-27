@@ -22,9 +22,6 @@ enum tMenuCommandType {
 struct tMenu;
 #include "shared/tMenuCommand.h"
 
-
-
-
 #define NFS4_FE_CORE_FEMENU_METHODS
 #define NFS4_FE_LIST_SELECTION_INLINE   /* tListIterator::Selection(i) -- retail's tListIterator `this` pairs */
 #define NFS4_FE_CORE_MENUITEM_ISENABLED   /* tMenuItem::IsEnabled() -- retail's tMenuItem `this` pair in the Draw bodies */
@@ -36,9 +33,6 @@ struct tMenu;
 #include "../../game/psx/psyq_prim_macros.h"
 
 #include "shared/DR_AREA.h"
-
-
-
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
@@ -59,10 +53,6 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
 };
 
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
 
 struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     int fOrdinalPos;

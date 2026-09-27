@@ -32,35 +32,7 @@ struct tVideoWall {
     bool fUpdated;
 };
 
-struct tScreenTrackSelect : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    int hVideo, fFrame;
-    short fPreviousTrack, fMovieTrack, fBrightness;
-    short fDestBrightness, fStartBrightness;
-    u_long fStartTicks;
-    bool fTicksSet;
-    tTVConfig tvConfigs[10];
-    tVideoWall fVideoWall;
-    bool fTVsInitialized;
-    u_long fVideoTicks;
-
-    tScreenTrackSelect();
-    void SetBrightness(short);
-    inline void SetBrightnessTransition(short bright, short current,
-                                        u_long start) {
-        fDestBrightness = bright;
-        fStartBrightness = current;
-        fStartTicks = start;
-    }
-    void UpdateBrightness(tTrackInformation &);
-    void UpdateVideoWall(tTrackInformation &);
-    void DrawVideoWall();
-};
+#include "screentracks.h"
 
 struct ScreenTracks_GlobalMenuDefsCodegenView {
     char _beforeIteratorTrack[0xc88];

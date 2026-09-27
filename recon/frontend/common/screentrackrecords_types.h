@@ -28,20 +28,7 @@ typedef enum tMenuTextState {
 
 struct tRecordBuffer;
 
-struct tScreenTrackRecords : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    tRecordBuffer *TrackRecords;
-    int flare_intensity, flareextra;
-    bool fReadNewData;
-
-    tScreenTrackRecords();
-    void DrawOneRecord(int, bool, int);
-    void DrawRecords(short);
-};
+#include "screentrackrecords.h"
 
 /* SYM completes this record after tScreenTrackRecords. */
 #include "shared/tRecordBuffer.h"

@@ -74,37 +74,7 @@ struct tVideoWallConfig {
     tVideo *videos[4];
 };
 
-struct tScreenMain : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    int hVideo, fFrame;
-    u_long fStartTicks, fAnimTicks;
-    short fAnimLocation;
-    tScreenMainState fState;
-    tTVConfig tvConfigs[16];
-    tScreenMainState tvStates[16];
-    tVideoTransition tvTransitions[16];
-    bool fTVsInitialized;
-    char fTransitionDirection;
-    bool fAnimationUploaded;
-    short fPreviousAnim, fWarningFade, fPreviousMovie, fCurrentMovie;
-    bool bVideoAborted;
-    u_long fMovieTicks;
-    tShapeInformation fVideoShapes[2];
-    int fCurrentSlot, fCurrentBG[2], fNumTVsInTransition;
-
-    void SwapBackground(int);
-    bool DoneLoadingBackground();
-    void SetState(tScreenMainState);
-    void InitDynamicImages();
-    void DrawDropShadow();
-    void DrawVideoLines();
-};
+#include "screenmain.h"
 
 /* ScreenMain reads three fields from the foreign FEMenuDefs aggregate. */
 struct ScreenMain_GlobalMenuDefsCodegenView {

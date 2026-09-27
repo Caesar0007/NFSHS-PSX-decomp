@@ -2,7 +2,8 @@
  *   10 member fns of tScreenTrackSelect (embeds tScreen base as _base_tScreen).
  *   Bodies from Ghidra; namespaces stripped, phantom regs resolved vs disasm.
  */
-#include "screentracks.h"
+#include "screentracks_types.h"
+#include "screentracks_externs.h"
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */

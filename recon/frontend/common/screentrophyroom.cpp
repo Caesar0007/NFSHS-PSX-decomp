@@ -2,7 +2,8 @@
  *   9 member fns (incl ctor) of tScreenTrophyRoom (embeds tScreen base as _base_tScreen).
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
-#include "screentrophyroom.h"
+#include "screentrophyroom_types.h"
+#include "screentrophyroom_externs.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tfrontEnd & FrontEnd(void) { return frontEnd; }

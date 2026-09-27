@@ -67,32 +67,7 @@ struct tScreenControllerConfig : public tScreen {
     tScreenControllerConfig();
 };
 
-struct tScreenMain : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    int hVideo, fFrame;
-    u_long fStartTicks, fAnimTicks;
-    short fAnimLocation;
-    tScreenMainState fState;
-    tTVConfig tvConfigs[16];
-    tScreenMainState tvStates[16];
-    tVideoTransition tvTransitions[16];
-    bool fTVsInitialized;
-    char fTransitionDirection;
-    bool fAnimationUploaded;
-    short fPreviousAnim, fWarningFade, fPreviousMovie, fCurrentMovie;
-    bool bVideoAborted;
-    u_long fMovieTicks;
-    tShapeInformation fVideoShapes[2];
-    int fCurrentSlot, fCurrentBG[2], fNumTVsInTransition;
-
-    tScreenMain();
-};
+#include "screenmain.h"
 
 struct tScreenCarSelectDuel : public tScreenCarSelect {
     /* overrides (retail vtable), declared on every owner surface */
@@ -133,25 +108,7 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
     tScreenPinkSlipsCarSelect();
 };
 
-struct tScreenTournSelect : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    int hVideo, fFrame;
-    tTVConfig tvConfigs[8], trophyTV[4];
-    short fPreviousMovie, fCurrentMovie;
-    u_long fStartTicks, fTVTicks;
-    short fTransitionDirection;
-    char fPreviousTrophy;
-    bool fTVsInitialized;
-    int PreCalculatedTournamentY, fPrevi;
-
-    tScreenTournSelect();
-    ~tScreenTournSelect();
-};
+#include "screentournselect.h"
 
 struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
     /* overrides (retail vtable), declared on every owner surface */
@@ -160,65 +117,13 @@ struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
     tScreenPinkSlipStandings();
 };
 
-struct tScreenTrophyRoom : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tShapeInformation fTrophyShapes;
-    short fNumTrophies;
-    int startTicks;
-    short fShapeCount;
-    bool fLoadingTrophy;
-    char fPreviousTrophy, fDoUpdate;
-    bool fClearScreen;
-    char fBrightness;
-    u_long fStartTicks;
-    short fTextInfo[16];
-    char thisisuseless;
-    int tier;
-    short fRealCurrentTourn[2], fTrophyList[64];
+#include "screentrophyroom.h"
 
-    tScreenTrophyRoom();
-    ~tScreenTrophyRoom();
-};
+#include "screentrophyinfo.h"
 
-struct tScreenTrophyInfo : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    int BannerCol;
-    tScreenTrophyInfo();
-};
+#include "screendisplay.h"
 
-struct tScreenDisplay : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    tScreenDisplay();
-};
-
-struct tScreenAudio : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    short fShapeCount;
-    char prevAudioMode;
-    short audioTest;
-    int audioTestHandle;
-    short fPrevSelectedSong;
-    char fCurrentAudioMode;
-    short fSelectedSong;
-    AudioMus_tSongList *songlist;
-
-    tScreenAudio();
-};
+#include "screenaudio.h"
 
 struct tScreenTournamentTrophy : public tScreenCongrats {
     /* overrides (retail vtable), declared on every owner surface */
@@ -247,65 +152,13 @@ struct tScreenTournamentCongrats : public tScreenCongrats {
     tScreenTournamentCongrats();
 };
 
-struct tScreenTrackRecords : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    tRecordBuffer *TrackRecords;
-    int flare_intensity, flareextra;
-    bool fReadNewData;
-    tScreenTrackRecords();
-};
+#include "screentrackrecords.h"
 
-struct tScreenTrackSelect : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    int hVideo, fFrame;
-    short fPreviousTrack, fMovieTrack, fBrightness, fDestBrightness;
-    short fStartBrightness;
-    u_long fStartTicks;
-    bool fTicksSet;
-    tTVConfig tvConfigs[10];
-    tVideoWall fVideoWall;
-    bool fTVsInitialized;
-    u_long fVideoTicks;
-    tScreenTrackSelect();
-};
+#include "screentracks.h"
 
-struct tScreenTrackInfo : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tTrackInfo fTrack;
-    tTVConfig tvConfigs[10];
-    tVideoWall fVideoWall;
-    tScreenTrackInfo();
-};
+#include "screentrackinfo.h"
 
-struct tScreenPinkSlips : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tMenu *fMenu;
-    int hVideo, fFrame;
-    short fPreviousTrack, fBrightness, fDestBrightness, fStartBrightness;
-    u_long fStartTicks, fTVTicks;
-    char fTransitionDirection;
-    tTVConfig fTrackTVs[8], fImageTVs[4];
-    bool fTVsInitialized;
-    tScreenPinkSlips();
-};
+#include "screenpinkslips.h"
 
 struct tAllScreens {
     tScreenMain screenMain;

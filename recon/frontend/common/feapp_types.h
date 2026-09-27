@@ -20,9 +20,6 @@ enum tMenuCommandType {
 
 #include "shared/tMenuCommand.h"
 
-
-
-
 /* FEApp uses player values without retaining the foreign tPlayer enum.  Input
  * keys are real owner records and must be available before dialog methods. */
 /* (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
@@ -53,33 +50,10 @@ enum tMenuCommandType {
 #define PinkSlipsNoError 0
 
 #include "shared/DR_AREA.h"
-
-
-
-
 #include "shared/SNDSYSCAP.h"
-
-
-
-
-
-
 #include "shared/SNDSYSSET.h"
-
-
-
-
-
-
-
 #include "shared/SNDSYSVEC.h"
-
-
-
 #include "shared/SNDSAMPLEFORMAT.h"
-
-
-
 
 enum tAppCommand {
     kApp_Command_StartRace = 0,

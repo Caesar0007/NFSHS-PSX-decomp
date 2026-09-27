@@ -41,33 +41,7 @@ enum tMenuCommandType {
 #define tMenuTextType int
 #define textType_ScreenInfo 4
 
-struct tScreenTrophyRoom : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tShapeInformation fTrophyShapes;
-    short fNumTrophies;
-    int startTicks;
-    short fShapeCount;
-    bool fLoadingTrophy;
-    char fPreviousTrophy, fDoUpdate;
-    bool fClearScreen;
-    char fBrightness;
-    u_long fStartTicks;
-    short fTextInfo[16];
-    char thisisuseless;
-    int tier;
-    short fRealCurrentTourn[2];
-    short fTrophyList[64];
-
-    tScreenTrophyRoom();
-    ~tScreenTrophyRoom();
-    void LoadTrophy();
-};
+#include "screentrophyroom.h"
 
 /* Foreign singleton tags are absent; expose only the priced members. */
 struct ScreenTrophyRoom_GlobalMenuDefsCodegenView {

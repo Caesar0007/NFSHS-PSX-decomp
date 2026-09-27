@@ -19,62 +19,13 @@ struct FILEINFO {
 };
 
 #include "shared/SPEECHINFO.h"
-
-
-
-
-
-
-
 #include "shared/SNDSYSCAP.h"
-
-
-
-
-
-
 #include "shared/SNDSYSSET.h"
-
-
-
-
-
-
-
 #include "shared/SNDSYSVEC.h"
-
-
-
 #include "shared/SNDPLAYOPTS.h"
-
-
-
-
-
-
 #include "shared/SNDSAMPLEFORMAT.h"
-
-
-
-
 #include "shared/AudioMus_tSongEntry.h"
-
-
-
-
-
-
 #include "shared/tTrackInformation.h"
-
-
-
-
-
-
-
-
-
-
 
 struct tTrackManager {
     u_long fNumTracks;

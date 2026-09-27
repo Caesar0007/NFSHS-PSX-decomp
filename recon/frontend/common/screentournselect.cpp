@@ -2,7 +2,8 @@
  *   9 member fns (incl ctor) of tScreenTournSelect (embeds tScreen base as _base_tScreen).
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
-#include "screentournselect.h"
+#include "screentournselect_types.h"
+#include "screentournselect_externs.h"
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */

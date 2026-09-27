@@ -54,11 +54,7 @@ struct tMenu;
 #include "shared/tActiveLine.h"
 
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
-struct tScreenDisplay : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-};
+#include "screendisplay.h"
 #endif
 
 struct tCarManager;

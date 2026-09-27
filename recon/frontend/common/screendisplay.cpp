@@ -1,7 +1,8 @@
 /* frontend/screens/screendisplay.cpp  --  RECONSTRUCTED  (display-options screen; C++ TU)
  *   3 MEMBER fns of tScreenDisplay : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra.
  */
-#include "screendisplay.h"
+#include "screendisplay_types.h"
+#include "screendisplay_externs.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }

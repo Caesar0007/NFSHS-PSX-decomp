@@ -1,16 +1,21 @@
-/* frontend/common/screentrackrecords.h — reconstructed from frontend/common/screentrackrecords.cpp, frontend/common/screentrackrecords.h (7 fns) */
+/* frontend/common/screentrackrecords.h -- retail SCREENTRACKRECORDS.H: the one definition of tScreenTrackRecords.  Layout and the defining
+ * .CPP are the retail SYM's; the including surface provides tScreen (fescreen.h) and the types
+ * the declarations name. */
 #ifndef _FRONTEND_COMMON_SCREENTRACKRECORDS_H_
 #define _FRONTEND_COMMON_SCREENTRACKRECORDS_H_
-#include "screentrackrecords_types.h"
 
-void GetShapeInfo__19tScreenTrackRecordsRsT1PPcT3(tScreenTrackRecords *self, short *numPermShapes, short *numSwapShapes, char **permFileName, char **swapFileName);   /* :67 */
-void Initialize__19tScreenTrackRecords(tScreenTrackRecords *self);   /* :78 */
-void Cleanup__19tScreenTrackRecords(tScreenTrackRecords *self);   /* :97 */
-void DrawOneRecord__19tScreenTrackRecordsibi(tScreenTrackRecords *self, int index, bool newrecord, int y);   /* :113 */
-void DrawRecords__19tScreenTrackRecordss(tScreenTrackRecords *self, short maxitem);   /* :161 */
-void DrawBackground__19tScreenTrackRecords(tScreenTrackRecords *self);   /* :210 */
+struct tScreenTrackRecords : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
+    void Cleanup();
+    tRecordBuffer *TrackRecords;
+    int flare_intensity, flareextra;
+    bool fReadNewData;
+    tScreenTrackRecords();
+    void DrawOneRecord(int, bool, int);
+    void DrawRecords(short);
+};
 
-/* ---- header-defined (inline / class) functions ---- */
-void ___19tScreenTrackRecords(tScreenTrackRecords *self, int __in_chrg);   /* :55 */
-
-#endif /* _FRONTEND_COMMON_SCREENTRACKRECORDS_H_ */
+#endif

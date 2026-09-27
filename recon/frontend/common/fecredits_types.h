@@ -28,44 +28,13 @@ struct tMenuNFS4 : public tMenu {
 };
 
 #include "shared/tShapeInformation.h"
-
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 struct tMenu;
 #include "fescreen.h"
-
 #include "shared/tActiveLine.h"
-
-
-
-
-
 #include "shared/tDrawShapeExtended.h"
-
-
-
-
-
 #include "fedialog.h"
-
-
-
-
-
-
-
 #include "shared/tCredit.h"
-
-
-
-
-
 
 struct tCreditManager {
     tCredit *CreditBuffer;
@@ -100,58 +69,11 @@ enum tScreenMainState {
 };
 
 #include "shared/tTVConfig.h"
-
-
-
-
-
-
-
-
-
-
 #include "shared/tVideoTransition.h"
-
-
-
-
-
-
-
-
 #include "shared/tVideo.h"
-
-
-
 /* Compiler-layout carrier needed for field offsets; this foreign owner tag is
  * not retained by FECredits.obj's linked SYM. */
-struct tScreenMain : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    int hVideo, fFrame;
-    u_long fStartTicks, fAnimTicks;
-    short fAnimLocation;
-    tScreenMainState fState;
-    tTVConfig tvConfigs[16];
-    tScreenMainState tvStates[16];
-    tVideoTransition tvTransitions[16];
-    bool fTVsInitialized;
-    char fTransitionDirection;
-    bool fAnimationUploaded;
-    short fPreviousAnim, fWarningFade, fPreviousMovie, fCurrentMovie;
-    bool bVideoAborted;
-    u_long fMovieTicks;
-    tShapeInformation fVideoShapes[2];
-    int fCurrentSlot, fCurrentBG[2], fNumTVsInTransition;
-
-    void SwapBackground(int);
-    bool DoneLoadingBackground();
-};
+#include "screenmain.h"
 
 #define cheat_MyMomSaysImCool 21
 

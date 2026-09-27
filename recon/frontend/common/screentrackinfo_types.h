@@ -230,17 +230,7 @@ struct tVideoWall {
 #endif
 
 #ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
-struct tScreenTrackInfo : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tTrackInfo fTrack;
-    tTVConfig tvConfigs[10];
-    tVideoWall fVideoWall;
-
-};
+#include "screentrackinfo.h"
 #endif
 
 #include "fedialog.h"

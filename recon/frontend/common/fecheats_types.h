@@ -81,36 +81,11 @@ struct tTournamentManager {
 };
 
 #include "shared/tActiveLine.h"
-
-
-
-
-
 #include "shared/tShapeInformation.h"
-
-
-
-
-
-
-
-
 #include "fescreen_virtual_types.h"
 struct tMenu;
 #include "fescreen.h"
-
 #include "fedialog.h"
-
-
-
-
-
-
-
-
-
-
-
 
 /* FECheats needs this foreign class's MemCardDialog offset.  Its exact layout
  * is pair-locked by the canonical audit because the linked owner attributes
@@ -140,9 +115,6 @@ struct tFEApplication {
  * body elsewhere in the linked SYM.  The canonical audit pair-locks both. */
 #ifndef NFS4_FECHEATS_NO_RECORD_BUFFER
 #include "shared/tRecordBuffer.h"
-
-
-
 typedef tRecordBuffer tSaveRecords[187];
 #endif
 

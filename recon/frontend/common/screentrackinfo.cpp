@@ -1,7 +1,8 @@
 /* frontend/screens/screentrackinfo.cpp  --  RECONSTRUCTED  (track-records screen; C++ TU)
  *   5 member fns of tScreenTrackInfo : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra.
  */
-#include "screentrackinfo.h"
+#include "screentrackinfo_types.h"
+#include "screentrackinfo_externs.h"
 
 /* ---- tScreenTrackInfo::GetShapeInfo  (screentrackinfo.cpp:46) ---- */
 void tScreenTrackInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName

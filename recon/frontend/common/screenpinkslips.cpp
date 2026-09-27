@@ -3,7 +3,8 @@
  *   Phantoms (DrawShapeExtended/PSXDrawTransSquare loop args, gSwapFileName, imageTVOrder,
  *   void ProcessInput) resolved via m2c oracle C:\Temp\nfs4-split\cur_c\front\*.c
  */
-#include "screenpinkslips.h"
+#include "screenpinkslips_types.h"
+#include "screenpinkslips_externs.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }

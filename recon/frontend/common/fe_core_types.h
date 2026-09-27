@@ -67,8 +67,6 @@ enum tPersonalities {
 struct tMenu;
 struct tScreen;
 
-
-
 #include "fescreen_virtual_types.h"
 #include "felist_classes.h"
 
@@ -131,30 +129,7 @@ struct tMenuItemInteractive : public tMenuItem {
 
 #ifndef NFS4_FE_CORE_NO_CAR_TYPES
 #include "shared/tCarInfo.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include "shared/tOwnedCarInfo.h"
-
-
-
 
 struct tCarManager {
     u_long fNumCars;

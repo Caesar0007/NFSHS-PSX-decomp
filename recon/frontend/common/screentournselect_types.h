@@ -113,28 +113,7 @@ struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
     tScreenPinkSlipStandings();
 };
 #else
-struct tScreenTournSelect : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    int hVideo, fFrame;
-    tTVConfig tvConfigs[8];
-    tTVConfig trophyTV[4];
-    short fPreviousMovie, fCurrentMovie;
-    u_long fStartTicks, fTVTicks;
-    short fTransitionDirection;
-    char fPreviousTrophy;
-    bool fTVsInitialized;
-    int PreCalculatedTournamentY, fPrevi;
-
-    tScreenTournSelect();
-    ~tScreenTournSelect();
-    void UpdateVideoWall(tTourneyInfo *);
-    void DrawVideoWall();
-};
+#include "screentournselect.h"
 #endif
 
 /* tGlobalMenuDefs is owned by FEMenuDefs.obj and has no completed tag here.

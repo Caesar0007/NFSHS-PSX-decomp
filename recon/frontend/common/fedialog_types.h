@@ -25,9 +25,6 @@ struct tMenu;
 struct tMenuCommand;
 #else
 #include "shared/tMenuCommand.h"
-
-
-
 #endif
 
 #define NFS4_FE_CORE_FEDIALOG_METHODS
@@ -52,8 +49,6 @@ struct tHelpData {
 
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 #include "fedialog.h"
-
-
 #endif
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE

@@ -64,41 +64,11 @@ struct tMenu;
 #include "shared/tActiveLine.h"
 #include "shared/tDrawShapeExtended.h"
 
-struct tScreenTrophyInfo : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    int BannerCol;
-
-};
+#include "screentrophyinfo.h"
 
 /* ScreenTrophyRoom is only an external pointer here; the two fields this owner
  * reads are `tier` and `fRealCurrentTourn`, at the offsets the retail SYM
  * records for the class (size 344). */
-struct tScreenTrophyRoom : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tShapeInformation fTrophyShapes;
-    short fNumTrophies;
-    int startTicks;
-    short fShapeCount;
-    bool fLoadingTrophy;
-    char fPreviousTrophy, fDoUpdate;
-    bool fClearScreen;
-    char fBrightness;
-    u_long fStartTicks;
-    short fTextInfo[16];
-    char thisisuseless;
-    int tier;
-    short fRealCurrentTourn[2], fTrophyList[64];
-
-    tScreenTrophyRoom();
-    ~tScreenTrophyRoom();
-};
+#include "screentrophyroom.h"
 
 #endif

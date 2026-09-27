@@ -4,7 +4,8 @@
  *   bitmap + x-walker, tvOrder/animLocations/tintColors statics, gNameBuffer/gPermBuffer sprintf
  *   dsts, void ProcessInput) resolved via m2c oracle + binary static reads.
  */
-#include "screenmain.h"
+#include "screenmain_types.h"
+#include "screenmain_externs.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tFEApplication * App(void) { return FEApp; }

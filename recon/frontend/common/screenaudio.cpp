@@ -1,7 +1,8 @@
 /* frontend/screens/screenaudio.cpp  --  RECONSTRUCTED  (audio-options screen; C++ TU)
  *   8 MEMBER fns of tScreenAudio : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra.
  */
-#include "screenaudio.h"
+#include "screenaudio_types.h"
+#include "screenaudio_externs.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }

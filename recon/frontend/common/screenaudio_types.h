@@ -30,25 +30,7 @@
 
 struct tDrawShapeExtended;
 
-struct tScreenAudio : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    short fShapeCount;
-    char prevAudioMode;
-    short audioTest;
-    int audioTestHandle;
-    short fPrevSelectedSong;
-    char fCurrentAudioMode;
-    short fSelectedSong;
-    AudioMus_tSongList *songlist;
-
-    void PlaySound();
-    tScreenAudio();
-};
+#include "screenaudio.h"
 
 /* FEMenuDefs.obj owns the complete aggregate.  ScreenAudio reads this exact
  * contiguous member slice only. */

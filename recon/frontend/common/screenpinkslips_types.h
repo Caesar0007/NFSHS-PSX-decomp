@@ -53,26 +53,7 @@ struct tFEApplication {
 };
 
 #ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
-struct tScreenPinkSlips : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();
-    void Cleanup();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tMenu *fMenu;
-    int hVideo, fFrame;
-    short fPreviousTrack, fBrightness, fDestBrightness, fStartBrightness;
-    u_long fStartTicks, fTVTicks;
-    char fTransitionDirection;
-    tTVConfig fTrackTVs[8];
-    tTVConfig fImageTVs[4];
-    bool fTVsInitialized;
-
-    tScreenPinkSlips();
-    void UpdateVideoWall(tTrackInformation &);
-    void DrawVideoWall();
-};
+#include "screenpinkslips.h"
 #endif
 
 #ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE

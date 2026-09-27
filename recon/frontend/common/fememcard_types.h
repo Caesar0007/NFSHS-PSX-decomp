@@ -42,112 +42,29 @@ typedef enum PinkSlipsErrorCode {
 } PinkSlipsErrorCode;
 
 #include "shared/TCB.h"
-
-
-
-
-
 #include "shared/EXEC.h"
-
-
-
-
 #include "shared/DIRENTRY.h"
-
-
-
-
-
-
-
 #include "shared/AudioMus_tSongEntry.h"
-
-
-
-
-
 #include "shared/tRecordBuffer.h"
-
-
 
 typedef tRecordBuffer tSaveRecords[187];
 
 #include "shared/tSaveCarInfo.h"
-
-
-
-
 #include "shared/tSaveTrackInfo.h"
-
-
-
 #include "shared/tSaveTournament.h"
-
-
-
-
-
-
 
 typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
 
 #include "shared/FE3d_zUV.h"
-
-
-
 #include "shared/FE3d_zFacet.h"
-
-
-
-
-
-
 #include "shared/FE3d_zObj.h"
-
-
-
-
-
-
-
-
 #include "fedialog.h"
-
 #include "shared/CARDINFO_def.h"
-
-
-
-
 #include "shared/MCRDFILEHEADER_def.h"
-
-
-
-
-
-
-
-
 #include "shared/MCRDFILEINFO_def.h"
-
-
-
-
-
-
-
-
-
-
 #include "shared/MCRDFILE_def.h"
-
-
-
-
-
-
-
 
 struct tMemCardData {
     u_long fSize, bonus;

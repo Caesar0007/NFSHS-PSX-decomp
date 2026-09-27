@@ -7,6 +7,8 @@ Follows the retail loaders (NFS3 SLUS-006.20, raw oracle nfs3-clean/nfs3-raw-L.t
   meta-chunk streaming    func_80079C58 -> func_800C3990 (seek StmChunkF[meta], read MaxMetaChunkSize)
   chunk binder            func_8007A198 (sub-block lookup func_8009E870(chunk, type))
   COL                     func_80068018 (collection dispatch on type)
+  census also checks      chunk meta (+0xA first sim slice, +0xC index), LOD vertex nesting, geometry size,
+                          quad vertex/material bounds, type 5 = q4, sim slices partition q4, slice total = COL
 
   python nfs3_trk.py trk    <file.TRK>      header, tables, per-chunk sub-block list
   python nfs3_trk.py col    <file.COL>      collection list
@@ -52,7 +54,49 @@ class Trk:
                 yield 8 * i + j, c, s1, s2, blocks
 
 
-def check_trk(d, name, st, types):
+def geometry(d, c):
+    """Geometry header at chunk+0x40 (func_8009E850 / func_8007A198; NFS4 keeps it as group 0x1B):
+    u32 offset of the sub-block table (rel. to +0x40); u16 vertex counts n0 <= n1 <= n2 <= n3 (LOD prefixes,
+    n0 added to each); u16 quad counts q[6]; vertices (8 B) at +0x18; then the six quad arrays (6 B)."""
+    g = c + 0x40
+    rel, n0, n1, n2, n3 = struct.unpack_from('<I4H', d, g)
+    q = struct.unpack_from('<6H', d, g + 12)
+    vbase = g + 0x18
+    nv = n0 + n3
+    arrays, p = [], vbase + 8 * nv
+    for n in q:
+        arrays.append((p, n)); p += 6 * n
+    return dict(rel=rel, n=(n0, n1, n2, n3), q=q, vbase=vbase, nv=nv, arrays=arrays, end=p - g)
+
+
+def check_records(d, t, errs, materials):
+    run = 0
+    for ci, c, s1, s2, blocks in t.chunks():
+        tb = {typ: (so, length, num) for so, length, typ, num in blocks}
+        first, idx, pad = struct.unpack_from('<hhh', d, c + 10)
+        if first != run or idx != ci or pad != 0: errs.append('chunk %d meta' % ci)
+        g = geometry(d, c)
+        n0, n1, n2, n3 = g['n']
+        if not (n0 <= n1 <= n2 <= n3): errs.append('chunk %d LOD vertex counts' % ci)
+        if not (0 <= g['rel'] - g['end'] <= 3): errs.append('chunk %d geometry size' % ci)
+        lim = [n0 + n1, n0 + n1, n0 + n2, n0 + n2, n0 + n3, n0 + n3]
+        for k, (p, n) in enumerate(g['arrays']):
+            for i in range(n):
+                mat, a, b, cc, dd = struct.unpack_from('<H4B', d, p + 6 * i)
+                if max(a, b, cc, dd) >= lim[k] or (materials is not None and mat >= materials):
+                    errs.append('chunk %d array %d quad %d' % (ci, k, i)); break
+        if tb[5][2] != g['q'][4]: errs.append('chunk %d type 5 count' % ci)
+        so, length, num = tb[6]; nxt = 0
+        for i in range(num):
+            fq, qc = struct.unpack_from('<HB', d, c + so + 8 + 8 * i)
+            if fq != nxt: errs.append('chunk %d sim slice %d' % (ci, i))
+            nxt = fq + qc
+        if nxt != g['q'][4]: errs.append('chunk %d sim slices do not cover q4' % ci)
+        run += num
+    return run
+
+
+def check_trk(d, name, st, types, materials=None, slices=None):
     t = Trk(d)
     errs = []
     if t.magic != b'TRAC' or t.version != 0x16: errs.append('magic/version')
@@ -76,6 +120,8 @@ def check_trk(d, name, st, types):
         for so, length, typ, num in blocks:
             types[typ] += 1
             if so + length > s1: errs.append('chunk %d block overruns' % ci)
+    nsl = check_records(d, t, errs, materials)
+    if slices is not None and nsl != slices: errs.append('sim slices %d != COL slices %d' % (nsl, slices))
     st['trk files'] += 1; st['chunks'] += t.chunkCount
     for e in errs: print('  %s: %s' % (name, e))
     return not errs
@@ -95,7 +141,14 @@ def census(dirpath):
     st = collections.Counter(); types = collections.Counter(); ctypes = collections.Counter()
     ok = True
     for f in sorted(glob.glob(os.path.join(dirpath, '*.TRK'))):
-        ok &= check_trk(open(f, 'rb').read(), os.path.basename(f), st, types)
+        v = os.path.basename(f)[5:8]
+        colf = os.path.join(dirpath, 'ZTR%s.COL' % v)
+        mats = sl = None
+        if os.path.exists(colf):
+            cols = parse_col(open(colf, 'rb').read())[3]
+            mats = next((n for o, l, ty, n in cols if ty == 2), None)
+            sl = next((n for o, l, ty, n in cols if ty == 0xF), None)
+        ok &= check_trk(open(f, 'rb').read(), os.path.basename(f), st, types, mats, sl)
     for f in sorted(glob.glob(os.path.join(dirpath, '*.COL'))):
         d = open(f, 'rb').read()
         magic, version, size, cols = parse_col(d)

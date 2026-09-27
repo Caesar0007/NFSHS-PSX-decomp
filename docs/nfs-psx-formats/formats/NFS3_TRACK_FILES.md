@@ -1,8 +1,8 @@
-# NFS3 track files — survey (file set, loaders, containers)
+# NFS3 track files — file set, loaders, TRK/COL records
 
-Game: Need for Speed III: Hot Pursuit, PSX USA retail **SLUS-006.20**. Status: **survey** — file set,
-loader map and the two binary containers (`.TRK`, `.COL`) are established; the per-type record layouts
-inside them are the next step (see *Open questions*). Tags per [METHOD.md](../METHOD.md).
+Game: Need for Speed III: Hot Pursuit, PSX USA retail **SLUS-006.20**. Status: file set, loader map, both binary containers (`.TRK`, `.COL`) and the core TRK records (chunk,
+geometry/LOD, vertices, quads, materials, visibility, sim slices, object definitions and instances) are established;
+the remaining records are listed under *Open questions*. Tags per [METHOD.md](../METHOD.md).
 
 ## Sources and code oracle
 - Disc: share `NFS3.bin` (USA retail), extracted with `tools/psx_iso.py` (MOVIES skipped) → 774 files.
@@ -90,40 +90,90 @@ the stream buffer (allocated from header +8 in `func_800799A4`).
 | 8 | u32 | 0 in every file |
 | 12 | u32[count] | chunk offsets, relative to the meta-chunk start (first = 12 + 4·count) |
 
-### 1.4 Chunk
+### 1.4 Chunk ★★★
 | Off | Type | Field | Evidence |
 |-----|------|-------|----------|
 | 0 | u32 | chunk size | = distance to the next chunk, all 2,234 chunks |
 | 4 | u32 | chunk size again | equal in every chunk (NFS4 keeps this duplicated word as "value A") |
 | 8 | i16 | sub-block count (4–12) | loop bound of `func_8009E870` |
-| 0xA | i16 | (read by `func_8009E91C` in the binder) | open |
-| 0x10 | 4 × {i32 x, y, z} | bounding points | `func_8009E940`; centre-relative after load (`func_80079F4C`) |
-| 0x40 | u32 | offset of the sub-block offset table, relative to +0x40 | `func_8009E840`/`func_8009E870` |
-| 0x44 | … | geometry block: counts, then 8-byte vertices at +0x58 (chunk+0x40+0x18), then five arrays of 6-byte entries | `func_8009E850`, `func_8007A198`; ★ provisional (the count arithmetic closes for ~95% of chunks) |
-| table | u32[count] | sub-block offsets, relative to the chunk | |
+| 0xA | i16 | first sim slice of the chunk = running sum of the preceding chunks' type-6 counts | all chunks; kept by the binder (`ChunkDat+0x54`); NFS4 `firstSimSliceInd` |
+| 0xC | i16 | chunk index | all chunks; NFS4 `chunkInd` |
+| 0xE | i16 | 0 | all chunks |
+| 0x10 | 4 × {i32 x, y, z} | bounding points, absolute 16.16 | `func_8009E940`; made centre-relative on load (`func_80079F4C`) |
+| 0x40 | | geometry block, §1.4.1 (its first word also locates the sub-block table) | |
+| … | u32[count] | sub-block offset table at `chunk + 0x40 + geometry.rel`; offsets relative to the chunk | `func_8009E870` |
 
-On load, vertex coordinates are divided by 4 in place (`(v << 16) >> 18`, `func_80079F4C` and
-`func_80079EBC`).
+#### 1.4.1 Geometry block (chunk + 0x40) — `func_8009E850`, `func_8007A198`, renderer `func_800B1F1C`
+| Off | Type | Field |
+|-----|------|-------|
+| 0 | u32 | `rel`: offset of the sub-block offset table, relative to this block |
+| 4 | u16 | n0: vertices common to every level (0 in 2,031 chunks) |
+| 6, 8, 0xA | u16 × 3 | n1 ≤ n2 ≤ n3: vertex counts of the low / medium / high level of detail; a level uses the first `n0 + nK` vertices |
+| 0xC … 0x16 | u16 × 6 | quad counts q0 … q5 |
+| 0x18 | 8 B × (n0 + n3) | vertices |
+| … | 6 B × q0 … q5 | six quad arrays, back to back; then 0–3 bytes of padding up to `rel` |
+
+The renderer takes a detail descriptor `{vertex level, array}`, draws array k with `q[k]` quads, and transforms
+`n0 + n_level` vertices. Census (all 2,234 chunks): `n0 ≤ n1 ≤ n2 ≤ n3`; the block ends within 3 bytes of `rel`; every vertex
+index of arrays 0/1 is below `n0 + n1`, of arrays 2/3 below `n0 + n2`, of arrays 4/5 below `n0 + n3`.
+
+| Array | Level | Content |
+|-------|-------|---------|
+| q0, q1 | low | q0 = main geometry at low detail (presumably the trough, ★★); q1 = extra quads |
+| q2, q3 | medium | q2 = main geometry at medium detail (★★); q3 = extra quads |
+| q4, q5 | high | q4 = the trough exactly as covered by the sim slices (type 6) and surface words (type 5); q5 = extra quads |
+
+The odd arrays hold 0.6 % of all quads (2,290 of 408,005) and use only materials below 374; which polygons the exporter put there (walls,
+decals?) is still open.
+
+**Vertex** (8 B) ★★★: `{i16 x, y, z; u16 colour}`. The colour is RGB555, split into three 5-bit channels by
+`func_800B16D4` (0x6317 = 23, 24, 24 → grey) and used for Gouraud shading. On load, x/y/z are divided by 4 in place
+(`(v << 16) >> 18`, `func_80079F4C`). World position = chunk centre + (loaded vertex << 10) (`func_80068B48`), so the
+stored units are 1/256 of the 16.16 world unit.
+
+**Quad** (6 B) ★★★: `{u16 material, u8 v[4]}`. Triangles repeat an index (773 of 408,005 quads). `material` indexes
+COL type 2 (§2): in all 15 files every index is below that file's material count. Vertex indices are u8, so a chunk
+holds at most 256 vertices.
 
 ### 1.5 Sub-blocks — 8-byte header `{u32 length, u16 type, u16 count}`
-`func_8009E870(chunk, type)` finds a sub-block by type. The chunk binder `func_8007A198` fills the 0x58-byte
-"Chunk_tChunkDat" (size printed by name) with the sub-blocks below.
+`func_8009E870(chunk, type)` finds a sub-block by type; `func_8007A198` binds them into the 0x58-byte
+"Chunk_tChunkDat" (size printed by name). Stores in `jal` delay slots capture the previous call's result, which gives
+this slot map:
 
-| Type | In chunks | Element size (length−8)/count | Known |
-|------|-----------|-------------------------------|-------|
-| 4 | all 2,234 | 2 (+ pad) | **visibility list**: u16, low 10 bits = chunk index, range-checked ("Bad data in visibility list - out of range!"); byte-identical to the `.VIS` text rows in 1,382 of 1,388 rows (6 rows of `00B` differ: stale VIS) |
-| 5 | all | 2 | count is below the geometry block's vertex count; 2 bytes per element |
-| 6 | all | 8 | |
-| 0xD | all | 12 | |
-| 8 | 1,832 | variable (48–200) | |
-| 7 | 1,367 | 16–20 | |
-| 0x12 | 1,557 | 16–20 | |
-| 9 | 1,345 | 4 | |
-| 0xB | 632 | 20 | |
-| 0xA | 248 | 16 | |
-| 0x13 | 71 | 16 | |
-| 0x11 | 36 | 16 | |
-| 0x14 | 4 | 16 | |
+| ChunkDat | Content | | ChunkDat | Content |
+|----------|---------|-|----------|---------|
+| +0x00 | chunk | | +0x2C | type 0x11 |
+| +0x04 | geometry block | | +0x30 | type 0xA |
+| +0x08 | type 8 | | +0x34 … +0x48 | quad arrays q0 … q5 |
+| +0x0C | type 7 | | +0x4C | type 4 list (header + 8) |
+| +0x10 | type 0x14 | | +0x50 | type 4 count (truncated at the first bad entry) |
+| +0x14 | type 0x12 | | +0x54 | chunk +0xA (first sim slice) |
+| +0x18 | type 0x13 | | +0x1C | type 6 |
+| +0x20 | type 0xD | | +0x24 | type 5 |
+| +0x28 | type 0xB | | | |
+
+| Type | In chunks | Record | Tag | Meaning / evidence |
+|------|-----------|--------|-----|--------------------|
+| 4 | 2,234 | u16 | ★★★ | **visibility list**: low 10 bits = chunk index, range-checked ("Bad data in visibility list - out of range!"); identical to the `.VIS` text rows in 1,382 of 1,388 rows (6 rows of `00B` are stale) |
+| 6 | 2,234 | 8 B `{u16 firstQuad, u8 quadCount, u8 n (4–9), i16 link[2]}` | ★★★ | **sim slices**: per chunk they partition q4 exactly (contiguous, total = q4, all chunks); the per-chunk counts sum to the COL slice count in all 15 files. `link` is −1/−1 except in a few slices (branch links?). Read by `func_80068F48` / `func_8006BE14` |
+| 5 | 2,234 | 2 B | ★★ | one surface word per q4 quad (count = q4 in all chunks); addressed as `type5 + 8 + 2·(firstQuad + i)` by `func_80068F48` |
+| 0xD | 2,234 | 12 B | ★ | read with type 5 / q4 by the sim code (`func_80069E14`, `func_80068F48`); layout open |
+| 8 | 1,832 | `{u32 size, u16 vertexCount, u16 quadCount}` + vertices (8 B) + quads (6 B), padded to 4 | ★★★ | **object definitions** of the chunk: size exact for all 10,881 records and each chain ends at the block end |
+| 7, 0x12, 0x13, 0x14 | 1,367 / 1,557 / 71 / 4 | instance records, below | ★★★ | object instances (drawn by `func_800B2C18`, which reads all four); 0x14 = "kOBJSFXINST" per the COL log string |
+| 0xB | 632 | 20 B `{i32 point[3]; i16 radius, i16 serial; u8 ×4}` | ★★ | **sim objects**, one per kind-4 instance (§1.5.1); same shape as NFS4 `Trk_SimObject` |
+| 9 | 1,345 | 4 B | ★ | NFS4 type 9 = centre/edge lines (same size) |
+| 0xA | 248 | 16 B | ★ | NFS4 type 0xA = light flares `Trk_SFX` (same size) |
+| 0x11 | 36 | not size-prefixed; varies | ★ | open |
+
+#### 1.5.1 Instance records (TRK 7/0x12/0x13/0x14, COL 7/0x12) ★★★
+`{u16 size, u8 kind, u8 objectDef, …}`, walked by `size`. `objectDef` is below the object-definition count of the
+same container (chunk type 8 or COL type 8) in all 10,906 records.
+
+| Kind | Size | Payload after the 4-byte header |
+|------|------|---------------------------------|
+| 1 | 16 | i32 position[3] (16.16) |
+| 4 | 20 | i32 position[3]; i32 sim-object index: a chunk has as many kind-4 instances as type-0xB records (all chunks), and the indices are exactly 0 … n−1 |
+| 3 | 8 + 20·frames | u16 frameCount, u16 interval; then frames of 20 B = NFS4 `Anim_tFrame` {i32 x, y, z; i16 qx, qy, qz, qw} (all 26 records exact) |
 
 ### 1.6 Census ★★★
 All 15 files pass every check in `tools/nfs3_trk.py census`: magic/version, meta count = ceil(chunks/8),
@@ -157,32 +207,50 @@ Each collection starts with the same 8-byte header as a TRK sub-block: `{u32 len
 
 | Type | Files | Element | Handler | Name / role |
 |------|-------|---------|---------|-------------|
-| 2 | 15 | 10 B | `func_80067A48` | open |
-| 8 | 10 | variable | kept in `gp+824`; vertices scaled by `func_80079EBC` | "kOBJECTDEF_COLLECTION" (object definitions) |
-| 7 | 9 | variable (u16 record size at +0) | kept in `gp+828` | "kINSTANCE_COLLECTION" (object instances) |
-| 0x12 | 2 | | kept in `gp+832` | open |
+| 2 | 15 | 10 B | `func_80067A48` → `func_80067A8C` | **materials**, below |
+| 8 | 10 | as TRK type 8 (§1.5) | kept in `gp+824`; vertices scaled by `func_80079EBC` | "kOBJECTDEF_COLLECTION" (object definitions; all 25 records exact) |
+| 7 | 9 | instance records (§1.5.1) | kept in `gp+828` | "kINSTANCE_COLLECTION" (object instances; all kind 3 = animated) |
+| 0x12 | 2 | instance records (§1.5.1) | kept in `gp+832` | persistent instances of the 0x12 kind (all kind 3) |
 | 0xF | 15 | 36 B | `func_8006869C` "Opened track sim file and found %d slices" | track slices |
 | 0x14 | 0 | | log only | "kOBJSFXINST_COLLECTION" (not on the NFS3 disc) |
 
+**Material** (COL type 2, 10 B) — same layout as NFS4 `Trk_Material`:
+
+| Off | Type | Field | Tag |
+|-----|------|-------|-----|
+| 0 | u16 | shape index in the track's `ZTR<NN><v>0.PSH` | ★★★ `func_80067A8C` indexes the pixmap table with it; with the animation frames it stays below the PSH shape count in all 15 tracks (5,521 records) |
+| 2 | u8 | flags (values 0, 0x10–0x70 step 0x10, 4, 0x24) | ★ meaning open (NFS4: 0x02 multi-palette, 0x04 animated, 0x80 scrolling) |
+| 3 | u8 | `uvFlag`: flip/rotate bits; `& 0x5E` creates a derived pixmap (bits 0x02/0x04/0x08 select the variant, 0x10/0x40 transform) | ★★★ `func_80067A8C` |
+| 4 | u8 × 3 | r, g, b tint (178,178,178 in 79 %; 0,0,0 in 15 %) | ★★ (NFS4 lineage) |
+| 7 | i8 | animation frame count (0 = static) | ★★★ loop bound in `func_80067A8C` |
+| 8 | u8 | animation interval | ★★ (NFS4 lineage) |
+| 9 | u8 | 0 | ★★★ census |
+
 ## 3. Lineage to NFS4 ★★
-- `.TRK` is the direct ancestor of the NFS4 `.GRP`:
-  - the same "BWorld"/chunk vocabulary;
-  - a header holding {max meta-chunk size, max geometry size, two more budgets, metaChunkCount = ceil(chunks/8), chunkCount};
-  - chunks that repeat their first word;
-  - the 4-point bound block;
-  - a visibility list of u16 chunk indices with flag bits (the `.VIS` source uses 0x800 like NFS4);
-  - and typed sub-blocks.
-- NFS3 streams meta-chunks of 8 chunks from CD. NFS4 loads the whole GRP and widens the element
-  header from 8 to 16 bytes (`{type, length, 0xCDCDCDCD, count}`).
-- Slices are type 0xF in both games (NFS3 36 bytes in `.COL`; NFS4 32 bytes in the persistent group).
-- NFS3's `.DPQ` carries the car env-map zone list that NFS4 moved to its text `.ENV`.
+`.TRK` + `.COL` are the direct ancestors of the NFS4 `.GRP`; most NFS4 structures exist here first, some as the
+live form of what NFS4 keeps only vestigially.
+
+| NFS3 | NFS4 | Change |
+|------|------|--------|
+| TRK header {max meta size, max chunk size, 2 budgets, metaCount = ceil(chunks/8), chunkCount} | `TrackHeader` (only `chunkCount` read) | budgets became dead metadata once streaming was dropped |
+| meta-chunks of 8 chunks streamed from CD | whole GRP loaded at once | |
+| sub-block header `{u32 length, u16 type, u16 count}` (8 B) | `{type, length, 0xCDCDCDCD, count}` (16 B) | same type enum: 2 materials, 4 visibility, 5 sim quads, 6 sim slices, 7 instances, 8 object definitions, 9 lines, 0xA flares, 0xB sim objects, 0xF slices |
+| chunk header {size, size, count, firstSimSliceInd, chunkInd, 0, 4 × i32 xyz bound points} | chunk meta `0x1C` {A, A, small count, firstSimSliceInd, chunkInd, pad, boundPts, chunkboundPts} | NFS4's unexplained "value A ×2" and "small count 4–9" are most likely NFS3's chunk size ×2 and sub-block count (★) |
+| geometry header {u32 rel, n0, n1, n2, n3, q0 … q5} | quad counts `0x1B` (12 × i16) | NFS4's open s[0] (1,600–3,000, s[1] = 0) is NFS3's u32 offset to the sub-block table; s[2..5] = n0 … n3 |
+| six quad arrays, low / medium / high detail × {main, extra} | `0x19` holds only `[c0][c1][c4][c5]` | NFS4 dropped the medium level: its c2/c3 space holds exporter heap fill |
+| vertex `{i16 x, y, z; RGB555 colour}` | `CCOORD16 {x, y, z, light index}` | per-vertex colour became an index into the light table |
+| `Trk_Quad` `{u16 material, u8 v[4]}`, world = centre + (vertex << 10) | same | |
+| material (COL type 2, 10 B) | `Trk_Material` (10 B) | same layout |
+| sim slice (type 6, 8 B) partitions the high-detail quads | `Trk_NewSimSlice` (5 B) | |
+| visibility list u16, `.VIS` text source, flag 0x800 | same list, bits 0x800/0x1000/0x2000/0x4000 | |
+| instance `{u16 size, u8 kind, u8 def}` kinds 1/3/4; animated = 20-byte frames | kinds 1/2/5/9/3/7/8; `Anim_tFrame` 20 B | NFS4 widened the animated header by 4 bytes |
+
+Other moves: NFS3's `.DPQ` carries the car env-map zone list that NFS4 moved to its text `.ENV`.
 
 ## Open questions (next steps)
-1. Record layouts for TRK sub-blocks 5/6/7/8/9/0xA/0xB/0xD/0x11–0x14 and the geometry block: trace the
-   consumers of each `Chunk_tChunkDat` slot bound in `func_8007A198`.
-2. COL types 2, 7, 8, 0x12 and the 36-byte slice (`func_8006869C` consumers; compare with NFS4
-   `Trk_NewSlice`).
-3. TRK header +0x10/+0x14, chunk +0xA.
+1. TRK type 5 (surface word), type 0xD (12 B), type 0x11, the extra quad arrays (q1/q3/q5), sim-slice byte 3 and links.
+2. COL slices (type 0xF, 36 B) and the material flag byte +2 (compare with NFS4 `Trk_NewSlice` / `Trk_Material`).
+3. TRK header +0x10/+0x14.
 4. Variant meaning (front-end track table) and the track-ID special case for 02b.
 5. `.CCM`, `T{B,F}.BIN`, `.COP`, the `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime
    CD file-open trace).

@@ -102,7 +102,8 @@ exporter metadata, and the loader never validates `type` or `version`. A re-writ
 | `0x29` | object-instance quads | `Trk_Quad`, count = c3 | `objQuadInstanceBuf` |
 
 Quad-count block `0x1B` (12 × i16):
-- s[0]: about 1,600–3,000; meaning open.
+- s[0]: about 1,600–3,000; not read by NFS4. Lineage (★★): in NFS3 the same 24-byte header is live, and s[0..1]
+  is a u32 offset from the header to the chunk's sub-block table ([NFS3_TRACK_FILES.md](NFS3_TRACK_FILES.md) §1.4.1).
 - s[1] = s[2] = 0 in every chunk.
 - s[3] ≤ s[4] ≤ s[5], and **s[5] = the chunk's vertex count** in every chunk.
 - s[6..11] = the counts c0..c5 used below.
@@ -138,7 +139,8 @@ partitions are valid in every chunk.
 **Exporter garbage ★★★:** in 1,736 chunks the payload is longer by exactly `c2 + c3` quads. The game
 never addresses those bytes, and every one of those tails contains MSVC heap fill (`FD FD FD FD` or
 `CD CD`). The exporter sized the buffer for all six counts but wrote only the four partitions the game
-uses. A re-writer can drop them.
+uses. A re-writer can drop them. Lineage (★★): NFS3 fills all six partitions (low / medium / high detail ×
+{main, extra}); NFS4 dropped the medium level c2/c3 but the exporter still sized for it.
 
 A quad's material is a plain signed index into the material table (§6), with no flag bits
 (`DrawW_DrawQuad`).

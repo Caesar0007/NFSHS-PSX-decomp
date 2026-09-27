@@ -678,7 +678,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
   shapetbl *q1; /* SYM-CODEGEN-CARRIER: q1 -- first RMW base; reusing the dead SYM clutPlate pair is current FAIL 78/229 */
   shapetbl *q2; /* SYM-CODEGEN-CARRIER: q2 -- paired preloaded base keeps both aliasable loads ahead of either store */
   shapetbl *r1; /* SYM-CODEGEN-CARRIER: r1 -- fresh width-store base; reusing q1/q2 is measured FAIL 40 */
-  shapetbl *r2; /* SYM-CODEGEN-CARRIER: r2 -- paired fresh base; reusing clutPlate1/2 is current FAIL 58/229 */
   int i;
 
   /* oracle: `slti a1,carType,22; bnez a1,<big arm>` -- the carType>=0x16
@@ -756,8 +755,7 @@ void CarIO_CreateLicense(char *text,int carType,int player)
      * own pseudos.  2x2 from the 44 basin: reads12/stores12 34, reads12/stores21 38,
      * reads21/stores12 34, reads21/stores21 30 (kept). */
     r1 = CarIO_Plate1[player];
-    r2 = CarIO_Plate2[player];
-    r2->width = 0x18;
+    (CarIO_Plate2[player])->width = 0x18;
     r1->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
     {

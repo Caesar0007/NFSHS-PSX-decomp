@@ -467,7 +467,6 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
        operands (five diffs). */
     /* SYM-CODEGEN-CARRIER: velocityX.  Directly storing the expression into
        vel_b.x keeps 358 instructions but changes 16 allocation positions. */
-    int velocityX;
     /* SYM-CODEGEN-CARRIER: velocityZ.  Directly storing into vel_b.z while
        removing the register-only uses keeps size but produces 68 diffs. */
     int velocityZ;
@@ -505,8 +504,7 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     centerX = PHYSICS_SLICE_CENTER(slice,0);
     __asm__("" : : "r"(centerX), "r"(centerX));
     const int positionX = (carObj->N).position.x;
-    velocityX = positionX + ((carObj->N).linearVel.x >> 5) - centerX;
-    vel_b.x = velocityX;
+    vel_b.x = (positionX + ((carObj->N).linearVel.x >> 5) - centerX);
     __asm__("" : : "r"(positionX));
     centerY = PHYSICS_SLICE_CENTER(slice,1);
     __asm__("" : : "r"(centerY), "r"(centerY));
@@ -1077,16 +1075,13 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
      Measured path: 28 -> 23 -> 15 -> 6 -> PASS (86/86). */
   /* SYM-CODEGEN-CARRIER: nextVelX -- inlining it and removing its empty
      lifetime fence preserves 86 instructions but changes six words. */
-  int nextVelX;
   /* SYM-CODEGEN-CARRIER: firstProduct -- folding it into transformedZ adds
      two instructions and produces 32 diffs (88/86). */
   int firstProduct;
   /* SYM-CODEGEN-CARRIER: nextVelY -- inlining it adds one instruction and
      produces nine diffs (87/86). */
-  int nextVelY;
   /* SYM-CODEGEN-CARRIER: nextMatY -- inlining it adds one instruction and
      produces three diffs (87/86). */
-  int nextMatY;
   /* SYM-CODEGEN-CARRIER: transformedZ -- updating linearVel_ch.z directly
      adds two instructions and produces 24 diffs (88/86); its empty reference
      fence emits no instructions and preserves the retail allocator handout. */
@@ -1096,11 +1091,8 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
        (carObj->N).linearVel.x / 256 * ((carObj->N).shadowMat.m[0] / 256) +
        (carObj->N).linearVel.y / 256 * ((carObj->N).shadowMat.m[1] / 256) +
        (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[2] / 256);
-  nextVelX = (carObj->N).linearVel.x / 256;
-  firstProduct = nextVelX * ((carObj->N).shadowMat.m[6] / 256);
-  nextVelY = (carObj->N).linearVel.y / 256;
-  nextMatY = (carObj->N).shadowMat.m[7] / 256;
-  transformedZ = firstProduct + nextVelY * nextMatY;
+  firstProduct = ((carObj->N).linearVel.x / 256) * ((carObj->N).shadowMat.m[6] / 256);
+  transformedZ = firstProduct + ((carObj->N).linearVel.y / 256) * ((carObj->N).shadowMat.m[7] / 256);
   transformedZ +=
        (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[8] / 256);
   __asm__("" : : "r"(transformedZ), "r"(transformedZ), "r"(transformedZ),

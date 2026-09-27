@@ -183,20 +183,16 @@ void tScreenTrophyRoom::Initialize()
     /* SYM-CODEGEN-CARRIER: tournIdx -- folding the tier offset into the
        tournament pointer is FAIL 15 at 125/118 and decomposes the scaled
        address into a longer shift/add web. */
-    int tournIdx;
     /* SYM-CODEGEN-CARRIER: place -- folding the clamp into the texture-call
        argument is FAIL 8 at 114/118; it removes retail's independent short
        result and its sign-extension/value-selection web. */
     short place;
     /* SYM-CODEGEN-CARRIER: tourney -- direct indexed access is count-exact
        FAIL 4 and reverses retail's pointer-add destination/operand order. */
-    tTourneyInfo *tourney;
 
     this->fTrophyList[i] = 1;
-    tournIdx = (uint)(tournamentManager.fDefinition)->fTiers[(byte)loopFe->tier].fTournOffset +
-               (uint)(byte)i;
-    tourney = (tournamentManager.fDefinition)->fTournaments + tournIdx;
-    placement = (signed char)tournamentManager.fBestPlacement[(signed char)tourney->fTournamentID];
+    placement = (signed char)tournamentManager.fBestPlacement[(signed char)((tournamentManager.fDefinition)->fTournaments + ((uint)(tournamentManager.fDefinition)->fTiers[(byte)loopFe->tier].fTournOffset +
+               (uint)(byte)i))->fTournamentID];
     place = 0;
     if ((u_int)(placement - 1) < 3) {
       place = placement;

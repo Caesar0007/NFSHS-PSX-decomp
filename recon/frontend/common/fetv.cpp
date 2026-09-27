@@ -107,16 +107,8 @@ void DrawTVLines(tTVConfig &tv)
   }
   FeDraw_SetABRMode(1);
   if ((tv.flags & 0x20) != 0) {
-    x = (short)((u_short)tv.x + 4 & 0xfffc);
-    if ((int)x < (int)tv.x + (int)tv.w) {
-      /* SYM-CODEGEN-CARRIER: abe -- absent from SYM, but keeping the constant
-         in a loop-live short reproduces retail's s2 save and 213-insn body;
-         an inline literal compiles five instructions short with 21 diffs. */
-      short abe = 1;
-      do {
-        PSXDrawTransSquare(0xa0a0a,(int)x,(int)tv.y,1,(int)tv.h,abe);
-        x = (short)(x + 4);
-      } while ((int)((u_int)x << 0x10) >> 0x10 < (int)tv.x + (int)tv.w);
+    for (x = (short)((u_short)tv.x + 4 & 0xfffc); x < tv.x + tv.w; x += 4) {
+      PSXDrawTransSquare(0xa0a0a,x,tv.y,1,tv.h,1);
     }
     FeDraw_SetABRMode(2);
   }

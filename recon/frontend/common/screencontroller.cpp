@@ -178,38 +178,8 @@ short tScreenControllerConfig::AnimKeyPoints(bool forward,bool pt)
 void tScreenControllerConfig::CheckConfigs()
 
 {
-  /* Reliable SYM names no locals in this function.  IDA/SLD and the measured
-     alternatives below prove these optimized-away source identities:
-     SYM-CODEGEN-CARRIER: currentControllerSnapshot
-     SYM-CODEGEN-CARRIER: previousControllerSnapshot
-     SYM-CODEGEN-CARRIER: currentControllerForSwap
-     SYM-CODEGEN-CARRIER: arrowFadeBelowHalf */
-
-  /* MATCH (2026-08-10, 18 -> PASS 187/187; SLD-driven block order,
-     oracle 0x80043400..0x800436EC): allocsim exactly reproduced all 10 global
-     handouts and proved that the old function-wide `arrowDim` pseudo (p81=$v0)
-     could not reach retail's $v1 by any refs/live dial.  IDA's gold annotations
-     instead show arm-local controller snapshots in $a0/$a1 and the comparison in
-     $v1.  Giving each arm its own `armArrowDim`, then targeting the common text
-     tail, lets GCC local-allocate those values and cross-jump-merge the identical
-     branch.  In that basin the SLD/IDA [0]-then-[1] controller-store order is exact.
-     `short` snapshot types, `bool`/`register` comparison types, and declaration
-     permutations were neutral and reverted.  Direct use of the first current
-     controller is FAIL17 at 188/187; direct previous-controller use is
-     count-exact FAIL2; direct current-controller use in the two-snapshot arm
-     is FAIL12 at 185/187.  A direct strcmp comparison remains exact and removes
-     the decompiler-only `cmp` identity.
-     - top-level guard is `!=` with the CHANGED-controller arm INLINE
-       (oracle `beq v1,v0,.L800435B8` jumps AWAY to the unchanged arm);
-     - the strcmp-hit "swap in" body is OUT OF LINE at the end (oracle
-       `beqz $v0,.L80043570` branches FORWARD past the fTextController block),
-       so it must be a `goto` target, not an inline if-body;
-     - the two fade arms each compute `slti fArrowFade,0x80` locally and share
-       ONE `bnez` at .L80043544 (cross-jump-merged `ChkConfigs_textDone` tail).
-     SLD: 835 guard / 837 TurnOffShakers / 840 fAnim / 843 curr==0 /
-          853 prev==0 / 869 strcmp / 871-879 fades / 880-883 fTextController /
-          888-892 swap-in / 899-926 unchanged arm. */
-  if (this->fCurrentController != this->fPrevController) {
+  
+    if (this->fCurrentController != this->fPrevController) {
     this->TurnOffShakers();
     Front_ResetPSXController(this->player,(uint)(byte)frontEnd.controlConfig[this->player]);
     if (this->fAnim != 0) {
@@ -225,22 +195,18 @@ void tScreenControllerConfig::CheckConfigs()
       return;
     }
     if (this->fPrevController == '\0') {
-      int arrowFadeBelowHalf;
 
       if (this->fAnimFade != 0) {
         return;
       }
-      const int currentControllerSnapshot = (byte)this->fCurrentController;
-      arrowFadeBelowHalf = this->fArrowFade < 0x80;
       this->fSwap = 1;
       this->fFade[1] = 1;
-      this->fFadeController[1] = (ushort)currentControllerSnapshot;
-      if (arrowFadeBelowHalf) {
+      this->fFadeController[1] = (ushort)(byte)this->fCurrentController;
+      if (this->fArrowFade < 0x80) {
         goto ChkConfigs_textDone;
       }
     }
     else {
-      int arrowFadeBelowHalf;
 
       if ((this->CurrentlyLoadedArt != -1) &&
          (strcmp(fileNames[(byte)this->fCurrentController],
@@ -250,15 +216,12 @@ void tScreenControllerConfig::CheckConfigs()
       if (this->fAnimFade != 0) {
         return;
       }
-      const int previousControllerSnapshot = (byte)this->fPrevController;
-      const int currentControllerForSwap = (byte)this->fCurrentController;
-      arrowFadeBelowHalf = this->fArrowFade < 0x80;
       this->fFade[0] = 1;
       this->fSwap = 1;
       this->fFade[1] = 1;
-      this->fFadeController[0] = (ushort)previousControllerSnapshot;
-      this->fFadeController[1] = (ushort)currentControllerForSwap;
-      if (arrowFadeBelowHalf) {
+      this->fFadeController[0] = (ushort)(byte)this->fPrevController;
+      this->fFadeController[1] = (ushort)(byte)this->fCurrentController;
+      if (this->fArrowFade < 0x80) {
         goto ChkConfigs_textDone;
       }
     }
@@ -285,18 +248,12 @@ ChkConfigs_swapIn:
   if ((*(int *)this->fFade == 0) && (this->fAnim == 0)) {
     this->fAnim = 1;
     this->fAnimController = (ushort)(byte)this->fCurrentController;
-    /* MATCH: SLD 911 owns BOTH byte loads AND the whole compare chain -> retail
-       read the two config bytes INSIDE the if-expression (no line-267/268 locals);
-       that alone fixes the config-vs-prevConfig load order. */
-    if (((frontEnd.controlConfig[this->player] > this->fPrevConfig) &&
+        if (((frontEnd.controlConfig[this->player] > this->fPrevConfig) &&
          ((frontEnd.controlConfig[this->player] != 2 || (this->fPrevConfig != 0)))) ||
         ((frontEnd.controlConfig[this->player] == 0 && (this->fPrevConfig == 2)))) {
       this->fAnimStart = this->AnimKeyPoints(true,1);
       this->fAnimStop = this->AnimKeyPoints(true,0);
-      this->fAnimStep = 1;   /* MATCH: store the step DIRECTLY per arm (no shared
-                                animVal local) -- gcc colors each to $v0 and
-                                cross-jump-merges only the `sh $v0,0x86` tail. */
-    }
+      this->fAnimStep = 1;       }
     else {
       this->fAnimStart = this->AnimKeyPoints(false,1);
       this->fAnimStop = this->AnimKeyPoints(false,0);

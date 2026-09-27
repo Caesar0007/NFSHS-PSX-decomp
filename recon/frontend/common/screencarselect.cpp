@@ -996,17 +996,15 @@ void tScreenCarSelect::DrawBackground()
      removes retail's boolean materialization/nop and reverses the final branch.
      The identifier is not recoverable; this semantic spelling documents the
      exact source-level allocation carrier. */
-  bool canUpload;
   tCarInfo carInfo;
 
   if (this->GetCar(carInfo) != 0) {
     ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-    canUpload = (this->fSwapShapes.fFile != (char *)0x0) &&
+    if (((this->fSwapShapes.fFile != (char *)0x0) &&
                 (this->fVideoWall[0].fTransitionDirection != -1) &&
                 /* SYM-INLINE-THIS: GetPlayer */
                 (gCarObj[FEAppB[0]->GetPlayer()]->async_handle == 0) &&
-                (0x80 < FE_Ticks() - this->fFadeTicks[0]);
-    if (canUpload) {
+                (0x80 < FE_Ticks() - this->fFadeTicks[0]))) {
       this->tScreen::UploadSwapShapes(0xb);
       TurnOn(this->fVideoWall);
       if (this->fBrightness[0] == this->fDestBrightness[0]) {

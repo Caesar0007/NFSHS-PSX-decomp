@@ -449,7 +449,6 @@ void tOptionsMenu::UpdateTransition()
      item loop / 422 the menu's own vtable[7] call. */
   short i;
   tMenuItem *citem;
-  tMenuItem *item;
 
   if (this->fInMenuTransition != 0) {
     /* MATCH: `char` is UNSIGNED on this build -> a plain `< 0` folds to false and
@@ -517,8 +516,7 @@ feo_callUpdate:
     /* MATCH: g++ old-ABI virtual-call spelling — ENTRY pointer for the pfn fetch
        (`lw 4(a3)`), delta off the vtable base as a displacement (`lh 80(v0)`). */
     for (i = 0; this->fItemList[i] != 0; i++) {
-      item = this->fItemList[i];
-      item->UpdateTransition(
+      (this->fItemList[i])->UpdateTransition(
          this->fInMenuTransition == 0 && (int)i == this->fCurrentItem);
     }
   }

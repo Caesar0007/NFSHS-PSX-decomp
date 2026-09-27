@@ -14,14 +14,14 @@ spec + later corrections; they get re-verified as each family is migrated into `
 | GRP (SerializedGroup) | track geometry container | — | — | — (ancestor = TRK) | ★★★ | ? | [NFS4](formats/NFS4_TRACK_GRP.md) |
 | TRK (`TRAC` v22) | streamed track geometry: meta-chunks of 8 chunks, typed sub-blocks | ? | ? | ★★★ container + core records | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | COL (`COLL` v11) | persistent track data: typed collections (materials, slices, objects, instances) | ? | ? | ★★★ container, materials, slices, objects | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
-| VIS / DPQ / HRZ / CLR (text) | vis-list source; depth cue + env zones; horizon; car colours | ? | ? | ★ (VIS ★★★ = TRK type 4) | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
+| VIS / DPQ / HRZ / CLR (text) | vis-list source; depth cue + env zones; horizon; car colours | ? | ? | ★★★ (VIS = TRK type 4 source, never opened) | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | CCM (trackside cameras) / T{F,B}.BIN (tutor prompts) | NFS3 track extras | ? | ? | ★★★ | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
-| MAP (PFDx) / TRJ, TRM (SCHl) | interactive music | ? | ? | seen | — | ? | — |
+| MAP (PFDx) / TRJ, TRM, MUS (SCHl) | interactive music (PathFinder maps + ASF streams) | ? | ? | ★★★ | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | ZTR<NN>.BIN (TrackSpec) | sky/fog/horizon/weather/night config | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
 | CAR / GEO (zScene) | car geometry | ? | ? | ? | ★★★ | ? | — |
 | QBE / QCR | AI racing line / curvature (Huffman) | ? | ? | seen | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
 | QDA / QCS | car data / curve-speed tables (compressed) | ? | ? | seen | ★★ | ? | — |
-| BNK (BNKl) | sound bank, TLV patch records | ? | ? | ? | ★★★ | ? | — |
+| BNK (BNKl) | sound bank, TLV patch records | ? | ? | ★★★ (+ speech clips, ZSPEECH.IDX) | ★★★ | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | AUD | ambient positional sounds | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
 | ENG.VIV inner (.bnk/.h/.ltb/.ctb/.cfg) | per-car engine audio | ? | ? | ? | ★★ | ? | — |
 | PFN (FNTP) | fonts | ? | ? | ? | ★★★ | ? | — |

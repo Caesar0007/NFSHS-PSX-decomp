@@ -553,6 +553,15 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
     (`abs(time)` twice, CSE merges them) so the param keeps its incoming register.
   - Open: BuildDistanceString (retail keeps `dist` live in $t1; abs spellings 12 diffs), Draw321Num (i/j swap + by2),
     the Build*/Render* carrier sets.
+- const-snapshot sweep (board 2006 -> 2020, EXTRA records 997 -> 961), bytes unchanged.
+  - A single-assignment carrier written as `const T v = e;` leaves no record when gcc propagates the value (it
+    is used once, or folded into addresses); when the const still owns a register across a loop or call it IS
+    recorded, so such edits are useless and are reverted.
+  - Tool: `build/tmp/const_sweep.py REL` (per DIRTY function: const-ify each EXTRA var with exactly one
+    assignment, keep only verify_asm-PASS edits, re-measure with symloop, undo edits whose EXTRA survives) and
+    `build/tmp/const_sweep_all.sh FILE...` (runs it over many TUs and commits each file that improved).
+    Round 1 kept edits in 13 files (flare, femenuoptions, physics, camera, screencarselect, screencontroller,
+    r3dcar, aiphysic, hrzsku, screencongrats, screenmain, screentrophyroom, aih_opp, femenuextended).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -156,12 +156,12 @@ this slot map:
 |------|-----------|--------|-----|--------------------|
 | 4 | 2,234 | u16 | ★★★ | **visibility list**: low 10 bits = chunk index, range-checked ("Bad data in visibility list - out of range!"); identical to the `.VIS` text rows in 1,382 of 1,388 rows (6 rows of `00B` are stale) |
 | 6 | 2,234 | 8 B `{u16 firstQuad, u8 quadCount, u8 n (4–9), i16 link[2]}` | ★★★ | **sim slices**: per chunk they partition q4 exactly (contiguous, total = q4, all chunks); the per-chunk counts sum to the COL slice count in all 15 files. `link` is −1/−1 except in a few slices (branch links?). Read by `func_80068F48` / `func_8006BE14` |
-| 5 | 2,234 | 2 B | ★★ | one surface word per q4 quad (count = q4 in all chunks); addressed as `type5 + 8 + 2·(firstQuad + i)` by `func_80068F48` |
-| 0xD | 2,234 | 12 B | ★ | read with type 5 / q4 by the sim code (`func_80069E14`, `func_80068F48`); layout open |
+| 5 | 2,234 | 2 B `{u8 frame, u8 flags}` | ★★★ / ★ | one word per q4 quad (count = q4 in all chunks), addressed as `type5 + 8 + 2·(firstQuad + lane)` by the sim code (`func_80068F48`, `func_80069E14`). `frame` indexes the chunk's type-0xD table (below it in all 225,739 words). `flags`: low nibble 0–15 plus bits 0x40/0x80; meaning open |
+| 0xD | 2,234 | 12 B `{i16 normal[3], i16 direction[3]}` | ★★ | quad orientation frames, shared by quads through type 5's `frame`. Both vectors are unit length in 1.15 fixed point (all but 31 of 166,240 records); `normal` points up in 63 %, and the two are orthogonal in 79 % |
 | 8 | 1,832 | `{u32 size, u16 vertexCount, u16 quadCount}` + vertices (8 B) + quads (6 B), padded to 4 | ★★★ | **object definitions** of the chunk: size exact for all 10,881 records and each chain ends at the block end |
 | 7, 0x12, 0x13, 0x14 | 1,367 / 1,557 / 71 / 4 | instance records, below | ★★★ | object instances (drawn by `func_800B2C18`, which reads all four); 0x14 = "kOBJSFXINST" per the COL log string |
 | 0xB | 632 | 20 B `{i32 point[3]; i16 radius, i16 serial; u8 ×4}` | ★★ | **sim objects**, one per kind-4 instance (§1.5.1); same shape as NFS4 `Trk_SimObject` |
-| 9 | 1,345 | 4 B | ★ | NFS4 type 9 = centre/edge lines (same size) |
+| 9 | 1,345 | 4 B `{u8 vertex, u8 slice, u8, u8}` | ★★ | **road lines** (fetched in `func_800B4AF8`, built by `func_800B496C`): `slice` is relative to the chunk's first sim slice; each point is the chunk vertex ± the slice's `right` vector (top 5 bits of each s8), giving a painted line's two edges. Bytes 2–3 feed the draw call (`func_800B4090`); open. NFS4 `Trk_Line` has the same size |
 | 0xA | 248 | 16 B | ★ | NFS4 type 0xA = light flares `Trk_SFX` (same size) |
 | 0x11 | 36 | not size-prefixed; varies | ★ | open |
 
@@ -211,7 +211,7 @@ Each collection starts with the same 8-byte header as a TRK sub-block: `{u32 len
 | 8 | 10 | as TRK type 8 (§1.5) | kept in `gp+824`; vertices scaled by `func_80079EBC` | "kOBJECTDEF_COLLECTION" (object definitions; all 25 records exact) |
 | 7 | 9 | instance records (§1.5.1) | kept in `gp+828` | "kINSTANCE_COLLECTION" (object instances; all kind 3 = animated) |
 | 0x12 | 2 | instance records (§1.5.1) | kept in `gp+832` | persistent instances of the 0x12 kind (all kind 3) |
-| 0xF | 15 | 36 B | `func_8006869C` "Opened track sim file and found %d slices" | track slices |
+| 0xF | 15 | 36 B | `func_8006869C` "Opened track sim file and found %d slices" | **track slices**, below |
 | 0x14 | 0 | | log only | "kOBJSFXINST_COLLECTION" (not on the NFS3 disc) |
 
 **Material** (COL type 2, 10 B) — same layout as NFS4 `Trk_Material`:
@@ -225,6 +225,22 @@ Each collection starts with the same 8-byte header as a TRK sub-block: `{u32 len
 | 7 | i8 | animation frame count (0 = static) | ★★★ loop bound in `func_80067A8C` |
 | 8 | u8 | animation interval | ★★ (NFS4 lineage) |
 | 9 | u8 | 0 | ★★★ census |
+
+**Track slice** (COL type 0xF, 36 B) — census over all 17,818 slices; NFS4 `Trk_NewSlice` (32 B) is its descendant:
+
+| Off | Type | Field | Tag |
+|-----|------|-------|-----|
+| 0 | i32 × 3 | centre, 16.16 world position | ★★ |
+| 12 | s8 × 3 | normal (up), length ≈ 127 in every slice | ★★ |
+| 15 | s8 × 3 | forward, length ≈ 127 | ★★ |
+| 18 | s8 × 3 | right, length ≈ 127; its top 5 bits give road-line half-widths (`func_800B496C`) | ★★★ |
+| 21 | u8 | nibble-pair values 0, 0x11, 0x22, 0x33, 0x44, 0x55, 2, 3 (NFS4 `acousticType` sits here) | ★ |
+| 22 | u16 | owning chunk index (all slices; slice *i* lies inside that chunk's sim-slice range) | ★★★ |
+| 24 | u16 | contiguous bit mask (0x03C0, 0x07E0, 0x1FF8, …): presumably the valid lanes (NFS4 replaced it with `laneCount` nibbles) | ★ |
+| 26, 28 | i16 × 2 | positive in 99 % (thousands): presumably left / right drivable extents (NFS4 `leftDrive`/`rightDrive`) | ★ |
+| 30, 31 | u8 × 2 | nibble pairs (0x44, 0x55, 0x22, 0x11, 0x21, 0x12, 0x66) | ★ |
+| 32, 33 | u8 × 2 | 6–16: presumably paved widths left / right (NFS4 `avgPavedWidthLf/Rt`) | ★ |
+| 34 | u16 | 0 | ★★★ census |
 
 ## 3. Lineage to NFS4 ★★
 `.TRK` + `.COL` are the direct ancestors of the NFS4 `.GRP`; most NFS4 structures exist here first, some as the
@@ -248,8 +264,8 @@ live form of what NFS4 keeps only vestigially.
 Other moves: NFS3's `.DPQ` carries the car env-map zone list that NFS4 moved to its text `.ENV`.
 
 ## Open questions (next steps)
-1. TRK type 5 (surface word), type 0xD (12 B), type 0x11, the extra quad arrays (q1/q3/q5), sim-slice byte 3 and links.
-2. COL slices (type 0xF, 36 B) and the material flag byte +2 (compare with NFS4 `Trk_NewSlice` / `Trk_Material`).
+1. TRK type 5 `flags`, type 0x11, type 0xA (flares?), type-9 bytes 2–3, the extra quad arrays (q1/q3/q5), sim-slice byte 3 and links.
+2. COL slice fields marked ★ (trace the AI / physics readers) and the material flag byte +2.
 3. TRK header +0x10/+0x14.
 4. Variant meaning (front-end track table) and the track-ID special case for 02b.
 5. `.CCM`, `T{B,F}.BIN`, `.COP`, the `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime

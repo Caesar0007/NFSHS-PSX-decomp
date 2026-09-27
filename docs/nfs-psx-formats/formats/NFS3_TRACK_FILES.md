@@ -508,32 +508,63 @@ Special song numbers: 0x30 = attract show (`zshow.map` / `zshow2.map` + `zshow.m
 the other music entry points (`func_800A0590`, `func_800A0C70`). The PFDx body (section/transition table) is not
 decoded here.
 
-## 12. Surface ids ★★
-Byte 1 of TRK type 5, bits 0–5 (§1.5). Only 0xE is named by code (wall: sideways moves onto it are refused).
-The game keys these per-surface tables on the id:
+## 12. Surface ids and acoustic classes ★★★ / ★★
+### 12.1 Surface ids
+Byte 1 of TRK type 5, bits 0–5 (§1.5), one per q4 road quad. The code names none of them, so the names below come
+from the **textures painted on those quads** (quad material → COL material → `0.PSH` shape; census of all 225,739
+road quads, the ten most-used textures per id inspected) and agree with the parameter tables and the
+reverb gate (§12.2). NFS4 (same `simQuad->surface` byte) treats 0 and 0xE as undrivable (`Newton_*`,
+`Netwon_CheckForBadQuad`).
 
-| Id | Quads | `0x800F7EBC` | `0x800FA844` | `0x800F7EFC` (16.16) | `0x800F7F3C` sound | `0x800F7F7C` sound |
-|----|-------|---|---|---|---|---|
-| 0 | 11,991 | 1 | 1 | 0 | 0 | 0 |
-| 1 | 39,094 | 0 | 0 | 0 | 0 | 0 |
-| 2 | 2,411 | 1 | 0 | 0.70 | 7 | 3 |
-| 3 | 7,334 | 1 | 1 | 0.60 | 8 | 11 |
-| 5 | 9,767 | 0 | 1 | 0.40 | 6 | 3 |
-| 7 | 224 | 0 | 0 | 0.20 | 0 | 0 |
-| 10 | 29,863 | 1 | 1 | 0.20 | 0 | 0 |
-| 11 | 191 | 1 | 1 | 0.50 | 0 | 0 |
-| 12 | 1,079 | 1 | 1 | 0.40 | 0 | 3 |
-| 13 | 19,691 | 1 | 1 | 0.60 | 6 | 3 |
-| 14 (wall) | 97,801 | 0 | 1 | 0 | 0 | 3 |
-| 15 | 6,293 | 1 | 1 | 0.60 | 9 | 10 |
+| Id | Name (★★ texture evidence) | Quads | Where | `0x800F7EBC` | `0x800FA844` | `0x800F7EFC` (16.16) | `0x800F7F3C` sound | `0x800F7F7C` sound |
+|----|------|-------|-------|---|---|---|---|---|
+| 0 | void / non-road (water, black fill, grates) | 11,991 | everywhere, 02B/05B most | 1 | 1 | 0 | 0 | 0 |
+| 1 | asphalt (the lanes) | 39,094 | all but 06A/07A, lane middle | 0 | 0 | 0 | 0 | 0 |
+| 2 | gravel / rough rock | 2,411 | 00A, 03B, 06A | 1 | 0 | 0.70 | 7 | 3 |
+| 3 | grass | 7,334 | 00A–04A verges | 1 | 1 | 0.60 | 8 | 11 |
+| 5 | rock floor / packed dirt | 9,767 | 06A (Caverns), 07A, 01, 03A | 0 | 1 | 0.40 | 6 | 3 |
+| 7 | wooden planks | 224 | 00, 03 bridges | 0 | 0 | 0.20 | 0 | 0 |
+| 10 | concrete / pavement, shoulder, painted road | 29,863 | all asphalt tracks | 1 | 1 | 0.20 | 0 | 0 |
+| 11 | planks and cobbles | 191 | 03 | 1 | 1 | 0.50 | 0 | 0 |
+| 12 | wooden planks (edges) | 1,079 | 00, 03 | 1 | 1 | 0.40 | 0 | 3 |
+| 13 | dirt / sand | 19,691 | 01 (Redrock Ridge), 07A (AutoCross), 04A | 1 | 1 | 0.60 | 6 | 3 |
+| 14 | wall (any scenery) | 97,801 | everywhere, 43 % | 0 | 1 | 0 | 0 | 3 |
+| 15 | snow | 6,293 | 00B (Country Woods), 04B (The Summit) | 1 | 1 | 0.60 | 9 | 10 |
 
-(`0x800F7F3C`/`0x800F7F7C` feed the tyre/road sound mode; `0x800F7EFC` is used by the physics at
-`func_80076FC0`; ids 4, 6, 8, 9 have table entries but no quads on disc.) The acoustic class of COL slice +21 is
-likewise an index: `func_800A10D4` maps it through the per-track table `0x80109690[track]`.
+`0x800F7F3C`/`0x800F7F7C` feed the tyre/road sound mode (6 = dirt, 7 = gravel, 8 = grass, 9 = snow by the table
+above); `0x800F7EFC` is used by the physics at `func_80076FC0` (0 on asphalt and walls, 0.6–0.7 off-road). Only
+0xE is named by code (wall: sideways moves onto it are refused); ids 4, 6, 8, 9 have table entries but no quads
+on disc. The road group {1, 7, 0xA, 0xC, 0xD} of `func_8006C044`/`func_800A5B08` is exactly the paved, wooden
+and (on dirt tracks) dirt driving surfaces.
+
+### 12.2 Acoustic classes → SPU reverb ★★★
+COL slice +21 holds a class per side (high nibble left, low nibble right; §2). `func_800A10D4` (per frame, for the
+view car) takes the larger of the two classes, adds 1 when either side's cover (+30) is 2 (tunnel), and looks the
+result up in a per-track 4-byte table `0x80109690[TRACK]` = `{mode open, mode tunnel, depth open, depth tunnel}`.
+The mode is a **PsyQ SPU reverb mode**: the size table it is checked against, `0x80109624` = 0x80, 0x26C0, 0x1F40,
+0x4840, 0x6FE0, 0xADE0, 0xF6C0, 0x18040, 0x18040, 0x3C00, is exactly libspu's reverb work-area size for
+OFF, ROOM, STUDIO_A, STUDIO_B, STUDIO_C, HALL, SPACE, ECHO, DELAY, PIPE. If the reserved reverb RAM
+(`0x8012593C`, at least 0x1F40 or reverb stays off) is too small, `0x8010964C` steps down to the next smaller
+mode. The result goes to `SpuReverbAttr` at `0x80109760` (`{mask, mode, depth L, depth R}`), set through
+`func_800D418C`/`func_800D598C`; the depth byte feeds `func_800EEECC`. The slices ahead of the car are scanned
+too, so the change is anticipated. In a tunnel the reverb applies only while the car is on surface 1, 7, 0xA or
+0xC (road or wooden bridge); on other surfaces it is off.
+
+| Class | Slices (sides) | Mostly | Default table `0x80109658` (open / tunnel, depth) | Redrock Ridge `0x80109674` |
+|-------|----------------|--------|------|------|
+| 0 | 15,622 | open road | OFF / OFF | same |
+| 1 | 3,880 | | STUDIO_A / STUDIO_A, 4 / 16 | same |
+| 2 | 4,608 | | ROOM / ROOM, 4 / 16 | ROOM, 8 / 16 |
+| 3 | 4,740 | | STUDIO_B / STUDIO_B, 8 / 32 | STUDIO_B, 32 / 64 |
+| 4 | 4,817 | tunnels (2,232 of 2,531 slices covered) | STUDIO_C / STUDIO_C, 31 / 127 | same |
+| 5 | 1,779 | caves (06A: 1,073), covered | SPACE / SPACE, 31 / 127 | STUDIO_B, 127 / 127 |
+| 6 | 190 | 03B only, covered | STUDIO_C / STUDIO_C, 31 / 127 | PIPE, 16 / 16 |
+
+Only track 1 (Redrock Ridge) has its own table; all other ids share `0x80109658`. Special case: on track 0x13
+slices 318–360 the reverb is off unless the car is on surface 0xA.
 
 ## Open questions (next steps)
-1. Human names for surface ids and acoustic classes (only the parameter tables are known, §12).
-2. Audio internals shared with the other EA titles: `PT` patch fields, the PFDx section table, which phrase
+1. Audio internals shared with the other EA titles: `PT` patch fields, the PFDx section table, which phrase
    each speech clip is.
 
 ## Tools

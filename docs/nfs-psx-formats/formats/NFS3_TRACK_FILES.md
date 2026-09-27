@@ -71,14 +71,14 @@ Race options used by the track files (`0x800F9F44 + 4·k`, from the setter's tab
 | `ZTR<NN><v>.DPQ` | text | `func_800A7250` ("%sTr%02d%c.dpq") | ★★★ | depth cue + car env-map zones, §10.2 |
 | `ZTR<NN><v>.HRZ` | text | `func_800B84BC` ("%sTr%02d%c.hrz") | ★★★ | horizon and sky, §10.1 |
 | `ZTR<NN><v>{D,N,W}.CLR` | text | `func_80080C18` ("%sTr%02d%c%c.clr") | ★★★ | car paint (HSV + reference) per condition, §10.3; also `carmenu.clr` |
-| `ZTR<NN><v>{,N,NW,W}.BNK` | sound bank | ".bnk" builders | seen | |
+| `ZTR<NN><v>{,N,NW,W}.BNK` | `BNKl` sound bank | ".bnk" builders | ★★★ container | per condition, §11 |
 | `ZTR<NN><v>T{F,B}.BIN` | tutor prompts | `func_80081DB4` ("at"/"bt" + "f.bin"/"b.bin"), only when TUTOR is on | ★★★ | §5 |
 | `ZTR<NN><v>.VIS` | text `#chunk` + list | **none**: never opened (runtime trace, §9) | ★★★ | exporter source of TRK sub-block 4 (§1.5) |
 | `ZTR<NN>{F,R}.Q{A,S}{L,S}`, `.QBE`, `ZTR<NN>.QTS` | Huffman `30FB` | `func_8005791C` (extensions stored as "letter − 1") | ★★★ | AI speed / line tables, §7 |
 | `ZTR<NN>{BEG,EXP}.COP` | cop triggers | `func_800520FC` ("%sTr%02d%s.cop"), only when COPS is on | ★★★ container | §6 |
-| `ZTR<NN>CSP.<lang>`, `ZZZTR<NN>C.<lang>` | speech | `func_80081DB4`, `func_80083688` ("cop speech") | seen | |
-| `ZZZTR<NN>A.TRJ`, `ZZZTR<NN>B.TRM` | `SCHl` EA audio stream | "%szztr%02da.trj", "%szztr%02db.trm" | seen | track music |
-| `ZTR<NN>{PGR,PGT,R<nn>,T<nn>,ROK,TEC,TOK,R0A,R0B}.MAP` | `PFDx` | "%str%02d….map" | seen | interactive-music maps |
+| `ZTR<NN>CSP.<lang>`, `ZZZTR<NN>C.<lang>` | speech clip table + clips | `func_80081DB4`, `func_80083688` ("cop speech", streamed through a 32 KB "CopSpk Buf") | ★★★ | §11 |
+| `ZZZTR<NN>A.TRJ`, `ZZZTR<NN>B.TRM` | `SCHl` EA audio stream | `func_800A01D4` | ★★★ container | rock / techno music streams, §11 |
+| `ZTR<NN>{PGR,PGT,R<nn>,T<nn>,ROK,TEC,TOK,R0A,R0B}.MAP` | `PFDx` | `func_800A01D4`, `func_800A0590`, `func_800A0C70` | ★★★ container | interactive-music maps, §11 |
 
 ## 1. `.TRK` — streamed track geometry ★★★
 ### 1.1 Header (32 bytes) — `func_800C370C`, accessors `func_8009E694…8009E784`
@@ -189,7 +189,7 @@ this slot map:
 | 8 | 1,832 | `{u32 size, u16 vertexCount, u16 quadCount}` + vertices (8 B) + quads (6 B), padded to 4 | ★★★ | **object definitions** of the chunk: size exact for all 10,881 records and each chain ends at the block end |
 | 7, 0x12, 0x13, 0x14 | 1,367 / 1,557 / 71 / 4 | instance records, below | ★★★ | object instances (drawn by `func_800B2C18`, which reads all four); 0x14 = "kOBJSFXINST" per the COL log string |
 | 0xB | 632 | 20 B `{i32 point[3]; i16 radius, i16 serial; u8 ×4}` | ★★ | **sim objects**, one per kind-4 instance (§1.5.1); same shape as NFS4 `Trk_SimObject` |
-| 9 | 1,345 | 4 B `{u8 vertex, u8 slice, u8, u8}` | ★★ | **road lines** (fetched in `func_800B4AF8`, built by `func_800B496C`): `slice` is relative to the chunk's first sim slice; each point is the chunk vertex ± the slice's `right` vector (top 5 bits of each s8), giving a painted line's two edges. Byte 2 = **line style** of the segment to the next point: 0xFF = no line, else an index into the 4-byte table at `0x8010BCFC` (`func_800B4090`); values 0, 1, 2, 5, 6, 0xFF. Byte 3 is never read (★★★ unread; the only type-9 lookup feeds these two functions). NFS4 `Trk_Line` has the same size |
+| 9 | 1,345 | 4 B `{u8 vertex, u8 slice, u8, u8}` | ★★ | **road lines** (fetched in `func_800B4AF8`, built by `func_800B496C`): `slice` is relative to the chunk's first sim slice; each point is the chunk vertex ± the slice's `right` vector (top 5 bits of each s8), giving a painted line's two edges. Byte 2 = **line style** of the segment to the next point: 0xFF = no line, else k selects pixmap `0x8010BD04[k]`, which the loader at `0x800C3A40` fills from shapes `LIN0`…`LIN9` of `ZSFX.PSH` (48×16 textures); on disc: 0, 1, 2, 5, 6, 0xFF (`func_800B4090`). Byte 3 is never read (★★★ unread; the only type-9 lookup feeds these two functions). NFS4 `Trk_Line` has the same size |
 | 0xA | 248 | 16 B `{i32 position[3]; u16 flareType, u16 0}` | ★★★ | **light flares** (NFS4 `Trk_SFX`): the world draw `func_80066F60` passes each visible chunk's list to `func_80066384` → `func_800B71CC` (projected from position − camera). Flare types 2/5/7/0xC/0x10 blink on a frame timer, 6 with a phase offset. Per-type colours and size come from a 17-entry table at `0x8010B250` `{u8 core rgb, pad; u8 halo rgb, pad; i32 size}` (1 = orange streetlight, 5/6 = red, 0xC/0xF = blue, 7 = green, 0x10 = yellow). On disc: types 1 (235), 2, 4, 5, 6, 7, 0xC, 0xF, 0x10; +14 always 0 |
 | 0x11 | 36 | 16 B `{i32 position[3]; u16 soundId, u16 mode}` | ★★★ | **ambient sound emitters**: for each chunk in the camera chunk's visibility list, `func_800672C0` passes this list to `func_80067430`, which derives volume (0x10000 / distance², ≤ 127) and pan from the listener, then calls the sound player `func_80061720(0x11, soundId, …)`; mode 1 takes a random-interval path. On disc: one record per block (35×), two once; sound ids 0–20 |
 
@@ -322,8 +322,8 @@ file size = 8 + 28 · count in every file.
 |-----|------|-------|-----|
 | 0 | i32 × 3 | position, 16.16 world | ★★★ the loader finds the nearest slice to it (`func_800686EC` / `func_8006879C`) |
 | 12 | i16 × 4 | orientation quaternion (x, y, z, w; 0x4000 = 1.0, unit length in all 86) | ★★★ turned into a 3×3 matrix by `func_80095388` |
-| 20 | i16 | angle in degrees (47–78), converted to 4096-per-turn units and fed to sin/cos: presumably the field of view | ★★ |
-| 22 | u16 | camera kind: 0 × 33, 1 × 27, 3 × 26; bit 1 selects a separate path in the view code | ★★ |
+| 20 | i16 | **field of view** in degrees (47–78): unless kind bit 1 is set, `func_8006E30C` turns it into the projection distance (gp+964, from sin/cos of the angle) | ★★★ |
+| 22 | u16 | camera kind (0 × 33, 1 × 27, 3 × 26): **bit 0 = track the car** (clear: the quaternion's matrix fixes the view direction), **bit 1 = keep the default lens** (ignore the FOV). So 0 = fixed aim, 1 = tracking, 3 = tracking with the default lens | ★★★ |
 | 24 | i32 | slice index, **written at load** (file value −1) | ★★★ |
 
 After loading, the records are sorted by slice, and `func_8006BA90` builds a camera schedule at `0x800F7380`
@@ -342,7 +342,7 @@ A sequence of records, ended by −2:
 |-------|------|---------|
 | slice | i32 | where the prompt belongs (all valid; `F` files ascending, `B` files descending) |
 | lead | i32 16.16 | seconds of warning: the prompt fires once the car is within lead × speed of the slice (0.5–3 s on disc) |
-| ids | i32 × n | message ids 0–17, 1–4 per record |
+| ids | i32 × n | message ids 0–17, 1–4 per record: each plays speech clip **id + 36** of `ZZZTR<NN>C.<lang>` (clip table `ZTR<NN>CSP.<lang>`, §11; `func_800826CC`). With MIRROR on, ids go through the swap table `0x800F9810` (0↔1, 2↔3, 4↔5, 16↔17: left/right prompt pairs); `0x800F97F8` gives each id a category 1–12 (−1 for 16/17), used alongside |
 | end | i32 | −1 |
 
 The reader adds lap × ring length to the slice (the lap counter stops at NUMLAPS) and mirrors it from the ring
@@ -355,11 +355,11 @@ nfs3-clean reconstruction wrongly reads `cfg[5]` in the EXP branch). Files exist
 
 `{i32 count}`, then records whose size is chosen by their type (`func_8005AB1C`):
 
-| Type | Size | On disc | NFS4 name |
-|------|------|---------|-----------|
-| 1 | 20 B | 490 | roadblock |
-| 2 | 20 B | 245 | simple |
-| 3 | 72 B | 649 | off-road |
+| Type | Size | On disc | NFS4 struct | Fields after `{type, slice}` (NFS3 census) |
+|------|------|---------|-------------|--------------------------------------------|
+| 1 | 20 B | 490 | `trigger_roadblock_t` | i32 dir (±1), numCars (1; −1 in 48), spikeBelt (1/0) |
+| 2 | 20 B | 245 | `trigger_simple_t` | i32 dir (±1), side (always 2), moving (always 0) |
+| 3 | 72 B | 649 | `trigger_offroad_t` | i32 dir (−1/0/1); i32 position[3]; 3×3 i32 orientation (16.16); maxSpeed (50–100); releaseTime (96 or 90); endSlice |
 
 Every record starts `{i32 type, i32 slice}`; all 1,384 slices are valid for the track, and every file ends
 exactly after its last record. Records are nearly in slice order (31 backsteps: lap wrap-arounds such as a
@@ -367,8 +367,9 @@ type-1 record at slice 50 after the end of the list, and a few local swaps).
 
 Trigger rule (`func_8005ACA4`): each player keeps a cursor into the list; a record fires when the car's slice
 equals the record's slice, the type is not 2, and more than 0xA00 frame ticks have passed since that record
-last fired (per-record timestamps at `+408` of the manager `0x800F4FE8`). The field layout inside the type-1/3
-bodies is not traced yet (NFS4 lineage: same sizes and type numbers).
+last fired (per-record timestamps at `+408` of the manager `0x800F4FE8`). The field names follow NFS4, whose structs have the same sizes and type numbers (NFS3 has no type 5);
+the NFS3 values agree with them (unit orientation matrices, speeds, slice-like end values). Type 2 records are
+looked up separately (`func_8005AEC8(…, 2)`, up to 4 consecutive) as spawn points.
 
 ## 7. AI speed / line files (`Q*`) ★★★ (Huffman-packed, see [NFS4_Q_CODECS.md](NFS4_Q_CODECS.md))
 Loaded by `func_8005791C` (called from `func_800578EC`). The extensions are stored in the EXE **with every
@@ -397,7 +398,13 @@ animation slots of 20 bytes (`{script, start time, …}`, `func_8005B9EC`); the 
 
 Every track's archive holds the same eight scripts: 00, 01, 02, 03, 06, 07, 08, 09 (02B: only 02 and 03), each
 starting with a u16 equal to its own size. Scripts 01, 02, 03, 06, 08 and 09 are byte-identical on all tracks;
-00 (10 versions) and 07 (6 versions) are track-specific. The script body format is not decoded yet.
+00 (10 versions) and 07 (6 versions) are track-specific.
+
+**Script body ★★★** (all 114 scripts): the same layout as a kind-3 animated instance (§1.5.1):
+`{u16 size, u8, u8, u16 frameCount, u16 interval}` + `frameCount` × 20-byte `Anim_tFrame`
+`{i32 x, y, z; i16 qx, qy, qz, qw}`. Size = 8 + 20 · frameCount in every script, interval is always 6, and all
+6,953 quaternions are unit length (0x4000). Bytes 2–3 are unused (0/0, or leftover values in scripts 02/03).
+NFS4 keeps the same idea with a 12-byte header.
 
 ## 9. Runtime file-open trace ★★★
 `tools/runtime/nfs3_open_trace.py` boots the disc, drives the menus into a default race (Hometown, day, no cops)
@@ -451,10 +458,64 @@ the HSV → RGB routine `func_800813D0` and recolours only the "paintable" palet
 higher), scaling them by `value / reference` (car paint code at `0x80095FE8`, entries fetched with `func_80080DCC`). The 4th value (48–192) is
 the brightness of the key colour in the car texture.
 
+## 11. Track audio ★★★ container (sound banks, music maps, music streams)
+These are EA's shared audio families; they are documented here at container level, as the track uses them.
+
+**Sound banks `BNKl`** (95 files: track banks, car engines, coach speech, front end). Header
+`{char[4] 'BNKl', u16 version = 2, u16 count, u32 X, u32 slot[count]}`: each non-zero slot is an offset relative
+to the slot itself and points at a `PT` patch record (EA's TLV patch format, as in NFS4) inside the first
+8 + X bytes; sample data follows. All 95 banks satisfy this. Track banks come per condition:
+`ZTR<NN><v>.BNK` (day), `…N.BNK` (night), `…NW.BNK` (night + weather), `…W.BNK` (weather); the runtime trace
+loaded `ztr00a.bnk` for a day race. `ZZZTR<NN>C.<lang>` holds the track's **speech clips** (cop radio and coach):
+227 one-patch `BNKl` banks back to back, indexed by **`ZTR<NN>CSP.<lang>`** = 227 `{u32 offset, u32 size}`
+pairs that tile the clip file exactly (all 25 language files; all 5,675 clips start with `BNKl`). Tutor prompt
+id n plays clip n + 36 (§5).
+
+**Music maps `PFDx`** (67 `.MAP`): EA's interactive-music ("PathFinder") map; byte 7 = 16 in every file, the
+section count that `func_800ECDD4` range-checks when the sim slice's music byte (§1.5, type 6) selects a section.
+**Music streams** (`ZZZTR<NN>A.TRJ`, `ZZZTR<NN>B.TRM`, `ZZ*.MUS`; 18 files): EA ASF streams, i.e. sequences of
+`SCHl` (header) / `SCCl` (count) / `SCDl` (data) / `SCEl` (end) segments (1,729 segments; every file ends
+exactly). Selection (`func_800A01D4`; the song number is the track number, with b tracks folded onto their a
+partner):
+
+| Music style (`0x80125938`) | Map | Stream |
+|----------------------------|-----|--------|
+| rock (0) | `tr<NN>r0a.map` / `r0b.map` / `rok.map` | `ZZZTR<NN>A.TRJ` |
+| techno (1) | `tr<NN>tec.map` | `ZZZTR<NN>B.TRM` |
+
+Special song numbers: 0x30 = attract show (`zshow.map` / `zshow2.map` + `zshow.mus`), 0x31 = credits
+(`zcredit.map` + `.mus`), 0x63 = a random rock/techno pick. The `pgr`/`pgt` and `r<nn>`/`t<nn>` maps are chosen by
+the other music entry points (`func_800A0590`, `func_800A0C70`). The PFDx body (section/transition table) is not
+decoded here.
+
+## 12. Surface ids ★★
+Byte 1 of TRK type 5, bits 0–5 (§1.5). Only 0xE is named by code (wall: sideways moves onto it are refused).
+The game keys these per-surface tables on the id:
+
+| Id | Quads | `0x800F7EBC` | `0x800FA844` | `0x800F7EFC` (16.16) | `0x800F7F3C` sound | `0x800F7F7C` sound |
+|----|-------|---|---|---|---|---|
+| 0 | 11,991 | 1 | 1 | 0 | 0 | 0 |
+| 1 | 39,094 | 0 | 0 | 0 | 0 | 0 |
+| 2 | 2,411 | 1 | 0 | 0.70 | 7 | 3 |
+| 3 | 7,334 | 1 | 1 | 0.60 | 8 | 11 |
+| 5 | 9,767 | 0 | 1 | 0.40 | 6 | 3 |
+| 7 | 224 | 0 | 0 | 0.20 | 0 | 0 |
+| 10 | 29,863 | 1 | 1 | 0.20 | 0 | 0 |
+| 11 | 191 | 1 | 1 | 0.50 | 0 | 0 |
+| 12 | 1,079 | 1 | 1 | 0.40 | 0 | 3 |
+| 13 | 19,691 | 1 | 1 | 0.60 | 6 | 3 |
+| 14 (wall) | 97,801 | 0 | 1 | 0 | 0 | 3 |
+| 15 | 6,293 | 1 | 1 | 0.60 | 9 | 10 |
+
+(`0x800F7F3C`/`0x800F7F7C` feed the tyre/road sound mode; `0x800F7EFC` is used by the physics at
+`func_80076FC0`; ids 4, 6, 8, 9 have table entries but no quads on disc.) The acoustic class of COL slice +21 is
+likewise an index: `func_800A10D4` maps it through the per-track table `0x80109690[track]`.
+
 ## Open questions (next steps)
-1. Names of the surface ids and acoustic classes; the line-style table at `0x8010BCFC`.
-2. `.COP` type-1/3 record bodies; `.CCM` kind values; tutor message ids → voice clips; the `.CAN` script body.
-3. Sound banks and music (`.BNK`, `.MAP`, `.TRJ`, `.TRM`); env-map zone `tex`/`extra`/`quad` values.
+1. Human names for surface ids and acoustic classes (only the parameter tables are known, §12).
+2. Audio internals shared with the other EA titles: `PT` patch fields, the PFDx section table, which phrase
+   each speech clip is.
+3. DPQ env-map zone `tex`/`extra`/`quad` values (NFS4 `.ENV` lineage).
 
 ## Tools
 - `tools/nfs3_trk.py` — `trk`, `col`, `census` (container validation above).

@@ -6,6 +6,8 @@
 #include "screenpinkslips.h"
 
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
+static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 static inline tFEApplication * App(void) { return FEApp; }
 
 
@@ -355,44 +357,27 @@ void tScreenPinkSlips::DrawVideoWall()
 /* ---- tScreenPinkSlips::ProcessInput  [SCREENPINKSLIPS.CPP:371-389] ---- */
 void tScreenPinkSlips::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
               )
-
 {
   tTrackInformation trackInfo;
-  /* SYM-CODEGEN-CARRIER: defs -- direct menuDefs access rematerializes the
-     global base, expanding this function from 79 to 84 instructions and
-     measuring 21 diffs. */
-  tGlobalMenuDefs *defs;
-  
+
   if (keyval == kInput_KeyType_Square) {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
-    /* Keep the first traffic-item base live across the short mode/traffic
-       test.  GCC 2.8.1 then retains it in $a0, as in the retail object,
-       instead of rematerializing menuDefs for the conditional store. */
-    defs = menuDefs;
-    (defs->itemTraffic).fFlags &= 0xfffffffe;
+    MenuItem_Enable(&menuDefs->itemTraffic);
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      (defs->itemTraffic).fFlags |= 1;
+      MenuItem_Disable(&menuDefs->itemTraffic);
     }
     if (2 < trackInfo.fTrackDifficulty) {
-      (menuDefs->itemTraffic).fFlags =
-           (menuDefs->itemTraffic).fFlags |
-           1;
+      MenuItem_Disable(&menuDefs->itemTraffic);
     }
     if (trackInfo.fIsEgg != '\0') {
-      (menuDefs->itemTraffic).fFlags =
-           (menuDefs->itemTraffic).fFlags |
-           1;
+      MenuItem_Disable(&menuDefs->itemTraffic);
     }
     if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == RaceType_HotPursuit)) {
-      (menuDefs->itemTraffic).fFlags =
-           (menuDefs->itemTraffic).fFlags |
-           1;
+      MenuItem_Disable(&menuDefs->itemTraffic);
     }
-    (menuDefs->itemLocalSpeech).fFlags =
-         (menuDefs->itemLocalSpeech).fFlags | 1;
+    MenuItem_Disable(&menuDefs->itemLocalSpeech);
   }
-  return;
 }
 
 

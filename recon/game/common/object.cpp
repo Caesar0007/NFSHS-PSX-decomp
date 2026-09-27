@@ -131,7 +131,6 @@ void BuildObjCollisionMatrix(int weight,int objAngle,int impactAngle,matrixtdef 
 
 Trk_SimpleInst *
 FindObjInstanceFromSerialNum(Group *group,int index)
-
 {
   Trk_SimpleInst *objInstance;
 
@@ -141,18 +140,17 @@ FindObjInstanceFromSerialNum(Group *group,int index)
   if ((index & 0x80) != 0) {
     group = Object_customObjInst;
     index &= ~0x80;
-    if (index < group->m_num_elements) {
-      goto valid_index;
+    if (index >= group->GetNumElements()) {
+      return (Trk_SimpleInst *)0x0;
     }
+    objInstance = (Trk_SimpleInst *)Group_Data(group);
   }
   else {
-    if (index < group->m_num_elements) {
-      goto valid_index;
+    if (index >= group->GetNumElements()) {
+      return (Trk_SimpleInst *)0x0;
     }
+    objInstance = (Trk_SimpleInst *)group->GetData();
   }
-  return (Trk_SimpleInst *)0x0;
-valid_index:
-  objInstance = (Trk_SimpleInst *)(group + 1);
   while (index-- != 0) {
     objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size);
   }

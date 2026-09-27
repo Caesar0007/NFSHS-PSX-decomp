@@ -13,7 +13,7 @@ spec + later corrections; they get re-verified as each family is migrated into `
 | QPS | B-tree-packed PSH (loading screens) | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_PSH.md) |
 | GRP (SerializedGroup) | track geometry container | — | — | — (ancestor = TRK) | ★★★ | ? | [NFS4](formats/NFS4_TRACK_GRP.md) |
 | TRK (`TRAC` v22) | streamed track geometry: meta-chunks of 8 chunks, typed sub-blocks | ? | ? | ★★★ container + core records | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
-| COL (`COLL` v11) | persistent track data: typed collections (materials, slices, objects, instances) | ? | ? | ★★★ container, materials/objects; slices ★ | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
+| COL (`COLL` v11) | persistent track data: typed collections (materials, slices, objects, instances) | ? | ? | ★★★ container, materials, slices, objects | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | VIS / DPQ / HRZ / CLR (text) | vis-list source; depth cue + env zones; horizon; car colours | ? | ? | ★ (VIS ★★★ = TRK type 4) | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | CCM / T{B,F}.BIN / MAP (PFDx) / TRJ, TRM (SCHl) | NFS3 track extras, music | ? | ? | seen | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | ZTR<NN>.BIN (TrackSpec) | sky/fog/horizon/weather/night config | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |

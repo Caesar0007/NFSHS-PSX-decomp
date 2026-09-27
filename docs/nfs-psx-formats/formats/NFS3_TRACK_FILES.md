@@ -243,28 +243,30 @@ Each collection starts with the same 8-byte header as a TRK sub-block: `{u32 len
 | Off | Type | Field | Tag |
 |-----|------|-------|-----|
 | 0 | u16 | shape index in the track's `ZTR<NN><v>0.PSH` | ★★★ `func_80067A8C` indexes the pixmap table with it; with the animation frames it stays below the PSH shape count in all 15 tracks (5,521 records) |
-| 2 | u8 | flags (values 0, 0x10–0x70 step 0x10, 4, 0x24) | ★ meaning open (NFS4: 0x02 multi-palette, 0x04 animated, 0x80 scrolling) |
+| 2 | u8 | flags, read per quad by both track renderers (`func_800B16D4`, `func_800AFB5C`; runtime read-watch found no other reader): **0x04 = animated** (frame = (timer / interval) mod frameCount, the pixmap advances 16 B per frame; set exactly when +7 > 0, all 5,521 records); **0x40 = one-sided** (the quad goes through the `nclip` back-face test; without it both sides are drawn); **0x10 = force double-sided** (overrides 0x40, chunk renderer only); 0x20 = no reader found. Counts: 0x40 × 1,122, 0x20 × 858, 0x10 × 289, 0x04 × 40 | ★★★ (0x20 ★★) |
 | 3 | u8 | `uvFlag`: flip/rotate bits; `& 0x5E` creates a derived pixmap (bits 0x02/0x04/0x08 select the variant, 0x10/0x40 transform) | ★★★ `func_80067A8C` |
 | 4 | u8 × 3 | r, g, b tint (178,178,178 in 79 %; 0,0,0 in 15 %) | ★★ (NFS4 lineage) |
 | 7 | i8 | animation frame count (0 = static) | ★★★ loop bound in `func_80067A8C` |
-| 8 | u8 | animation interval | ★★ (NFS4 lineage) |
+| 8 | u8 | animation interval (divisor of the frame timer; non-zero for all 40 animated materials) | ★★★ |
 | 9 | u8 | 0 | ★★★ census |
 
-**Track slice** (COL type 0xF, 36 B) — census over all 17,818 slices; NFS4 `Trk_NewSlice` (32 B) is its descendant:
+**Track slice** (COL type 0xF, 36 B) — census over all 17,818 slices; readers found statically and with runtime read
+watchpoints (`tools/runtime/nfs3_watch_probe.py`). NFS4 `Trk_NewSlice` (32 B) is its descendant:
 
 | Off | Type | Field | Tag |
 |-----|------|-------|-----|
-| 0 | i32 × 3 | centre, 16.16 world position | ★★ |
-| 12 | s8 × 3 | normal (up), length ≈ 127 in every slice | ★★ |
+| 0 | i32 × 3 | centre, 16.16 world position (lane positions are built from it, `func_8006ADC8`) | ★★★ |
+| 12 | s8 × 3 | normal (up), length ≈ 127 in every slice; scaled by a height offset in `func_8006ADC8` | ★★★ |
 | 15 | s8 × 3 | forward, length ≈ 127 | ★★ |
-| 18 | s8 × 3 | right, length ≈ 127; its top 5 bits give road-line half-widths (`func_800B496C`) | ★★★ |
-| 21 | u8 | nibble-pair values 0, 0x11, 0x22, 0x33, 0x44, 0x55, 2, 3 (NFS4 `acousticType` sits here) | ★ |
-| 22 | u16 | owning chunk index (all slices; slice *i* lies inside that chunk's sim-slice range) | ★★★ |
-| 24 | u16 | contiguous bit mask (0x03C0, 0x07E0, 0x1FF8, …): presumably the valid lanes (NFS4 replaced it with `laneCount` nibbles) | ★ |
-| 26, 28 | i16 × 2 | positive in 99 % (thousands): presumably left / right drivable extents (NFS4 `leftDrive`/`rightDrive`) | ★ |
-| 30, 31 | u8 × 2 | nibble pairs (0x44, 0x55, 0x22, 0x11, 0x21, 0x12, 0x66) | ★ |
-| 32, 33 | u8 × 2 | 6–16: presumably paved widths left / right (NFS4 `avgPavedWidthLf/Rt`) | ★ |
-| 34 | u16 | 0 | ★★★ census |
+| 18 | s8 × 3 | right, length ≈ 127; lane positions step along it (`func_8006ADC8`) and its top 5 bits give road-line half-widths (`func_800B496C`) | ★★★ |
+| 21 | u8 | **acoustic class** left (high nibble) / right (low nibble): the environment-audio tick `func_800A10D4` takes the smaller nibble as an index into a per-track table (`0x80109690[track]`), switching to the covered variant when +30 says covered. NFS4 kept this byte as `acousticType` but no longer reads it | ★★★ |
+| 22 | u16 | owning chunk index (all slices; slice *i* lies inside that chunk's sim-slice range); used to find and force-load the chunk (`func_80068E68`, `func_8006BE14`) | ★★★ |
+| 24 | u16 | **legal-path lane mask**: bit `14 − lane` set = lane allowed (`func_8005B25C` builds the car's bit, `func_8005B29C` tests it). The wrong-way / off-path checker `func_8004A22C` penalises a car whose lane bit is missing ahead. Wider than the +31 lane counts (only 645 slices match NFS4's `[7−L, 6+R]` rule; e.g. 0x03C0 = lanes 5–8 with +31 = 0x11) | ★★★ |
+| 26, 28 | u16 × 2 | **left / right drivable extents**, `<< 8` = 16.16 world units: `func_80054800` treats a car whose lateral offset passes −(35.0 + left) or +(35.0 + right) as off the road (NFS4 `leftDrive` / `rightDrive`) | ★★★ |
+| 30 | u8 | **cover** left / right nibbles: value 2 = covered (tunnel). A covered slice 8 ahead of the car replaces the sky with a flat dark quad (`func_8006BD70` → `func_800B97F8`) and selects the covered acoustic variant. Other values (0, 1, 4, 5) are not distinguished by any code | ★★★ |
+| 31 | u8 | **lane counts**: high nibble = lanes left of centre, low nibble = right (`func_8006ADC8`) | ★★★ |
+| 32, 33 | u8 × 2 | **lane width** left / right, `<< 15` = world units: `func_8006ADC8` places the outer lane edge at centre ± right × laneCount × laneWidth (NFS4 `avgPavedWidthLf/Rt`) | ★★★ |
+| 34 | u16 | 0; never read (runtime read-watch, 2,000 frames) | ★★★ |
 
 ## 3. Lineage to NFS4 ★★
 `.TRK` + `.COL` are the direct ancestors of the NFS4 `.GRP`; most NFS4 structures exist here first, some as the
@@ -292,7 +294,7 @@ Other moves: NFS3's `.DPQ` carries the car env-map zone list that NFS4 moved to 
 
 ## Open questions (next steps)
 1. TRK: type-5 flag bit 0x40 and the surface-id names (sound / grip tables), the line-style table at `0x8010BCFC`.
-2. COL slice fields marked ★ (trace the AI / physics readers) and the material flag byte +2.
+2. COL: material flag 0x20; slice +15 forward vector's readers; the surface-id and acoustic-class names.
 3. Variant meaning (front-end track table) and the track-ID special case for 02b.
 4. `.CCM`, `T{B,F}.BIN`, `.COP`, the `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime
    CD file-open trace).

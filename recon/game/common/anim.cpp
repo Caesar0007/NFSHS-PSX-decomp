@@ -20,17 +20,13 @@ Trk_AnimateInst *animScripts[10];   /* @0x8010e24c  (bss(zero)) */
 /* ---- Anim_Restart  [@0x80073a94] ---- */
 void Anim_Restart(void)
 {
-  /* ORIGINAL-NAME-RECOVERED: i -- the symbol-bearing NFS2 Anim_Restart
-     retains `i` for the same 32-entry animation-table loop; NFS4 SLD line 86
-     identifies the loop while retail optimization omits its local record. */
-  int i;
-
-  for (i = 0; i < 32; i++) {
-    delete animSlots[i];
+  for (int i = 0; i < 32; i++) {
+    if (animSlots[i] != 0) {
+      delete animSlots[i];
+    }
     animSlots[i] = (AnimScript *)0x0;
   }
   DrawW_ResetAnimationTimer();
-  return;
 }
 
 /* ---- Anim_InitSystem  [@0x80073b1c] ---- */

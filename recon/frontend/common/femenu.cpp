@@ -8,6 +8,7 @@
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800110B8): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline bool MenuItem_IsEnabled(tMenuItem *item) { return ((item->fFlags ^ 1) & 1) != 0; }
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- FEMenu.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
@@ -1490,28 +1491,18 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
 /* ---- tMenu::GetNumberEnabledItems  [FEMENU.CPP:1195-1208] SLD-VERIFIED ---- */
 
 short tMenu::GetNumberEnabledItems()
-
 {
   short result;
   short i;
-  
-  /* MATCH: the loop count is initialized only after the early-return
-     guard.  GCC fills the guard delay slot with result=0, then retains
-     the retail result-to-index copy instead of folding i to literal zero. */
+
   if (this->fNeverAnyEnabled != 0) {
     return 0;
   }
   result = 0;
-  i = result;
-  /* The explicit backedge prevents GCC's loop pass from rotating this into
-     a bottom-tested loop; retail performs the null test at the loop head. */
-GetNumberEnabledItems_loop:
-  if (this->fItemList[i] != (tMenuItem *)0x0) {
-    if (((this->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+  for (i = 0; this->fItemList[i] != 0; i++) {
+    if (MenuItem_IsEnabled(this->fItemList[i])) {
       result = result + 1;
     }
-    i = i + 1;
-    goto GetNumberEnabledItems_loop;
   }
   return result;
 }

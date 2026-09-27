@@ -5,6 +5,7 @@
 #include "audiotrk_externs.h"
 
 /* Retail audiotrk.obj opens .rodata with this unreferenced class tag. */
+static inline AudioElem *AudioList_Elems(CAudioList *list) { return (AudioElem *)(list + 1); }
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
@@ -43,7 +44,7 @@ void AudioTrk_Reset(void)
        verified code, but a distinct original source pointer/name is unproved.
        P897's direct index trial is58/56 with32diffs; no carrier exemption or
        original-name claim is justified by that failed source form. */
-    AudioElem *se = (AudioElem *)(gGameAudioList + 1);
+    AudioElem *se = AudioList_Elems(gGameAudioList);
     for (int i = 0; i < gGameAudioList->numElements_; i++) {
       se->nextDelay = 0;
       se->chan = -1;

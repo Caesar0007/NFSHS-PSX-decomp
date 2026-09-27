@@ -8,7 +8,8 @@ Follows the retail loaders (NFS3 SLUS-006.20, raw oracle nfs3-clean/nfs3-raw-L.t
   chunk binder            func_8007A198 (sub-block lookup func_8009E870(chunk, type))
   COL                     func_80068018 (collection dispatch on type)
   census also checks      chunk meta (+0xA first sim slice, +0xC index), LOD vertex nesting, geometry size,
-                          quad vertex/material bounds, type 5 = q4, sim slices partition q4, slice total = COL
+                          quad vertex/material bounds, type 5 = q4, sim slices partition q4, slice total = COL,
+                          slice links, type-5 frame < type-0xD count, 0xA/0x11/9 sizes, flare types < 17
 
   python nfs3_trk.py trk    <file.TRK>      header, tables, per-chunk sub-block list
   python nfs3_trk.py col    <file.COL>      collection list
@@ -69,7 +70,7 @@ def geometry(d, c):
     return dict(rel=rel, n=(n0, n1, n2, n3), q=q, vbase=vbase, nv=nv, arrays=arrays, end=p - g)
 
 
-def check_records(d, t, errs, materials):
+def check_records(d, t, errs, materials, slices=None):
     run = 0
     for ci, c, s1, s2, blocks in t.chunks():
         tb = {typ: (so, length, num) for so, length, typ, num in blocks}
@@ -92,6 +93,18 @@ def check_records(d, t, errs, materials):
             if fq != nxt: errs.append('chunk %d sim slice %d' % (ci, i))
             nxt = fq + qc
         if nxt != g['q'][4]: errs.append('chunk %d sim slices do not cover q4' % ci)
+        for i in range(num):                              # links: -1 or a valid global slice
+            for ln in struct.unpack_from('<hh', d, c + so + 12 + 8 * i):
+                if ln != -1 and (slices is not None and not 0 <= ln < slices):
+                    errs.append('chunk %d sim slice %d link %d' % (ci, i, ln))
+        nd = tb[0xD][2]
+        so5 = tb[5][0]
+        if any(d[c + so5 + 8 + 2 * i] >= nd for i in range(tb[5][2])): errs.append('chunk %d type 5 frame' % ci)
+        for typ, recsize in ((0xA, 16), (0x11, 16), (9, 4)):
+            if typ in tb and tb[typ][1] < 8 + recsize * tb[typ][2]: errs.append('chunk %d type %#x size' % (ci, typ))
+        if 0xA in tb:                                     # flare types index the 17-entry table
+            if any(struct.unpack_from('<H', d, c + tb[0xA][0] + 20 + 16 * i)[0] >= 17 for i in range(tb[0xA][2])):
+                errs.append('chunk %d flare type' % ci)
         run += num
     return run
 
@@ -120,7 +133,7 @@ def check_trk(d, name, st, types, materials=None, slices=None):
         for so, length, typ, num in blocks:
             types[typ] += 1
             if so + length > s1: errs.append('chunk %d block overruns' % ci)
-    nsl = check_records(d, t, errs, materials)
+    nsl = check_records(d, t, errs, materials, slices)
     if slices is not None and nsl != slices: errs.append('sim slices %d != COL slices %d' % (nsl, slices))
     st['trk files'] += 1; st['chunks'] += t.chunkCount
     for e in errs: print('  %s: %s' % (name, e))

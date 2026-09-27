@@ -66,8 +66,8 @@ Which menu track selects which ID/variant is not yet traced (front-end table; th
 | 4 | u32 | version = **0x16** | compared; load fails otherwise |
 | 8 | u32 | "MaxMetaChunkSize" | printed by name; = largest meta-chunk in all 15 files; the streaming buffer size |
 | 0xC | u32 | "MaxGeomSize" | printed by name; = largest chunk in all 15 files |
-| 0x10 | u32 | (accessor `func_8009E754`) | meaning open |
-| 0x14 | u32 | (accessor `func_8009E784`) | meaning open |
+| 0x10 | u32 | budget; **never read**: its accessor `func_8009E754` has no caller and no other load reaches the word (EXE-wide `jal`/`lw` scan) | ★★★ unread |
+| 0x14 | u32 | budget; **never read** (accessor `func_8009E784` uncalled, same scan). The meta-count accessor `func_8009E6C4` is uncalled too | ★★★ unread |
 | 0x18 | u32 | meta-chunk count | = ceil(chunkCount / 8) in every file |
 | 0x1C | u32 | "NumChunks" | printed by name |
 
@@ -113,18 +113,21 @@ the stream buffer (allocated from header +8 in `func_800799A4`).
 | 0x18 | 8 B × (n0 + n3) | vertices |
 | … | 6 B × q0 … q5 | six quad arrays, back to back; then 0–3 bytes of padding up to `rel` |
 
-The renderer takes a detail descriptor `{vertex level, array}`, draws array k with `q[k]` quads, and transforms
-`n0 + n_level` vertices. Census (all 2,234 chunks): `n0 ≤ n1 ≤ n2 ≤ n3`; the block ends within 3 bytes of `rel`; every vertex
+Level of detail: `func_80066AF8` picks a level from the chunk's squared distance, and the table at `0x800F6898`
+maps it to `{vertex level, array}` = (1, 0), (2, 2), (3, 4). For each visible chunk the renderer (`func_800B1F1C`)
+transforms `n0 + n_level` vertices and draws **two passes**: array k with ordering-table depth bias 125 (0x7D), then
+array k+1 with bias 30 (0x1E). The odd arrays therefore sort in front of the main surface (the same bias mechanism
+as NFS4's `goffsets`). Census (all 2,234 chunks): `n0 ≤ n1 ≤ n2 ≤ n3`; the block ends within 3 bytes of `rel`; every vertex
 index of arrays 0/1 is below `n0 + n1`, of arrays 2/3 below `n0 + n2`, of arrays 4/5 below `n0 + n3`.
 
 | Array | Level | Content |
 |-------|-------|---------|
-| q0, q1 | low | q0 = main geometry at low detail (presumably the trough, ★★); q1 = extra quads |
-| q2, q3 | medium | q2 = main geometry at medium detail (★★); q3 = extra quads |
-| q4, q5 | high | q4 = the trough exactly as covered by the sim slices (type 6) and surface words (type 5); q5 = extra quads |
+| q0, q1 | low | q0 = main geometry at low detail (presumably the trough, ★★); q1 = overlay quads (bias 30) |
+| q2, q3 | medium | q2 = main geometry at medium detail (★★); q3 = overlay quads (bias 30) |
+| q4, q5 | high | q4 = the trough exactly as covered by the sim slices (type 6) and surface words (type 5); q5 = overlay quads (bias 30) |
 
-The odd arrays hold 0.6 % of all quads (2,290 of 408,005) and use only materials below 374; which polygons the exporter put there (walls,
-decals?) is still open.
+The overlay arrays hold 0.6 % of all quads (2,290 of 408,005) and use only materials below 374; drawn in front of
+the surface, they are decals such as markings or shadows (★★ for that reading; the draw order is ★★★).
 
 **Vertex** (8 B) ★★★: `{i16 x, y, z; u16 colour}`. The colour is RGB555, split into three 5-bit channels by
 `func_800B16D4` (0x6317 = 23, 24, 24 → grey) and used for Gouraud shading. On load
@@ -158,15 +161,15 @@ this slot map:
 | Type | In chunks | Record | Tag | Meaning / evidence |
 |------|-----------|--------|-----|--------------------|
 | 4 | 2,234 | u16 | ★★★ | **visibility list**: low 10 bits = chunk index, range-checked ("Bad data in visibility list - out of range!"); identical to the `.VIS` text rows in 1,382 of 1,388 rows (6 rows of `00B` are stale) |
-| 6 | 2,234 | 8 B `{u16 firstQuad, u8 quadCount, u8 n (4–9), i16 link[2]}` | ★★★ | **sim slices**: per chunk they partition q4 exactly (contiguous, total = q4, all chunks); the per-chunk counts sum to the COL slice count in all 15 files. `link` is −1/−1 except in a few slices (branch links?). Read by `func_80068F48` / `func_8006BE14` |
-| 5 | 2,234 | 2 B `{u8 frame, u8 flags}` | ★★★ / ★ | one word per q4 quad (count = q4 in all chunks), addressed as `type5 + 8 + 2·(firstQuad + lane)` by the sim code (`func_80068F48`, `func_80069E14`). `frame` indexes the chunk's type-0xD table (below it in all 225,739 words). `flags`: low nibble 0–15 plus bits 0x40/0x80; meaning open |
+| 6 | 2,234 | 8 B `{u16 firstQuad, u8 quadCount, u8 n (4–9), i16 link[2]}` | ★★★ | **sim slices**: per chunk they partition q4 exactly (contiguous, total = q4, all chunks); the per-chunk counts sum to the COL slice count in all 15 files. `n` (byte 3) = **interactive-music section**: `func_8006BE14` reads it up to 16 slices ahead of the car and `func_8005FC14` passes it (min 4) to the PathFinder music player (`func_800ECDD4`, which range-checks it against byte 7 = 16 of the loaded `PFDx` `.MAP`). `link[2]` = global slice indices of alternative routes: when one is not −1, the "slice jump" code (`func_80069E14`) re-resolves the car onto whichever slice is closer. All 196 links on disc are valid slice indices (192 slices with one link, 2 with both) |
+| 5 | 2,234 | 2 B `{u8 frame, u8 flags}` | ★★★ / ★★ | one word per q4 quad (count = q4 in all chunks), addressed as `type5 + 8 + 2·(firstQuad + lane)` by the sim code (`func_80068F48`, `func_80069E14`). `frame` indexes the chunk's type-0xD table (below it in all 225,739 words). `flags`: bits 0–5 = **surface id** (the car keeps it at +0x1C0/+0x1C4; getter `func_8006BD28`), bit 0x80 = triggers a ±3.5-unit height test in `func_80071874`, bit 0x40 open. Surface 0xE = **wall**: a sideways move onto it is refused (`func_80068F48`); groups {1, 7, 0xA, 0xC, 0xD} are tested together by `func_8006C044` / `func_800A5B08`. On disc: 0, 1, 2, 3, 5, 7, 0xA–0xF (0xE = 43 %) |
 | 0xD | 2,234 | 12 B `{i16 normal[3], i16 direction[3]}` | ★★ | quad orientation frames, shared by quads through type 5's `frame`. Both vectors are unit length in 1.15 fixed point (all but 31 of 166,240 records); `normal` points up in 63 %, and the two are orthogonal in 79 % |
 | 8 | 1,832 | `{u32 size, u16 vertexCount, u16 quadCount}` + vertices (8 B) + quads (6 B), padded to 4 | ★★★ | **object definitions** of the chunk: size exact for all 10,881 records and each chain ends at the block end |
 | 7, 0x12, 0x13, 0x14 | 1,367 / 1,557 / 71 / 4 | instance records, below | ★★★ | object instances (drawn by `func_800B2C18`, which reads all four); 0x14 = "kOBJSFXINST" per the COL log string |
 | 0xB | 632 | 20 B `{i32 point[3]; i16 radius, i16 serial; u8 ×4}` | ★★ | **sim objects**, one per kind-4 instance (§1.5.1); same shape as NFS4 `Trk_SimObject` |
-| 9 | 1,345 | 4 B `{u8 vertex, u8 slice, u8, u8}` | ★★ | **road lines** (fetched in `func_800B4AF8`, built by `func_800B496C`): `slice` is relative to the chunk's first sim slice; each point is the chunk vertex ± the slice's `right` vector (top 5 bits of each s8), giving a painted line's two edges. Bytes 2–3 feed the draw call (`func_800B4090`); open. NFS4 `Trk_Line` has the same size |
-| 0xA | 248 | 16 B | ★ | NFS4 type 0xA = light flares `Trk_SFX` (same size) |
-| 0x11 | 36 | not size-prefixed; varies | ★ | open |
+| 9 | 1,345 | 4 B `{u8 vertex, u8 slice, u8, u8}` | ★★ | **road lines** (fetched in `func_800B4AF8`, built by `func_800B496C`): `slice` is relative to the chunk's first sim slice; each point is the chunk vertex ± the slice's `right` vector (top 5 bits of each s8), giving a painted line's two edges. Byte 2 = **line style** of the segment to the next point: 0xFF = no line, else an index into the 4-byte table at `0x8010BCFC` (`func_800B4090`); values 0, 1, 2, 5, 6, 0xFF. Byte 3 is never read (★★★ unread; the only type-9 lookup feeds these two functions). NFS4 `Trk_Line` has the same size |
+| 0xA | 248 | 16 B `{i32 position[3]; u16 flareType, u16 0}` | ★★★ | **light flares** (NFS4 `Trk_SFX`): the world draw `func_80066F60` passes each visible chunk's list to `func_80066384` → `func_800B71CC` (projected from position − camera). Flare types 2/5/7/0xC/0x10 blink on a frame timer, 6 with a phase offset. Per-type colours and size come from a 17-entry table at `0x8010B250` `{u8 core rgb, pad; u8 halo rgb, pad; i32 size}` (1 = orange streetlight, 5/6 = red, 0xC/0xF = blue, 7 = green, 0x10 = yellow). On disc: types 1 (235), 2, 4, 5, 6, 7, 0xC, 0xF, 0x10; +14 always 0 |
+| 0x11 | 36 | 16 B `{i32 position[3]; u16 soundId, u16 mode}` | ★★★ | **ambient sound emitters**: for each chunk in the camera chunk's visibility list, `func_800672C0` passes this list to `func_80067430`, which derives volume (0x10000 / distance², ≤ 127) and pan from the listener, then calls the sound player `func_80061720(0x11, soundId, …)`; mode 1 takes a random-interval path. On disc: one record per block (35×), two once; sound ids 0–20 |
 
 #### 1.5.1 Instance records (TRK 7/0x12/0x13/0x14, COL 7/0x12) ★★★
 `{u16 size, u8 kind, u8 objectDef, …}`, walked by `size`. `objectDef` is below the object-definition count of the
@@ -281,15 +284,17 @@ live form of what NFS4 keeps only vestigially.
 | sim slice (type 6, 8 B) partitions the high-detail quads | `Trk_NewSimSlice` (5 B) | |
 | visibility list u16, `.VIS` text source, flag 0x800 | same list, bits 0x800/0x1000/0x2000/0x4000 | |
 | instance `{u16 size, u8 kind, u8 def}` kinds 1/3/4; animated = 20-byte frames | kinds 1/2/5/9/3/7/8; `Anim_tFrame` 20 B | NFS4 widened the animated header by 4 bytes |
+| flares (type 0xA, 16 B `{pos, type}`) + 17-entry colour table | `Trk_SFX` (16 B), type 0xA | same size and type number |
+| ambient sound emitters in each chunk (type 0x11) | per-track `.AUD` file | moved out of the geometry |
+| music section per sim slice (byte 3) → PathFinder `.MAP` | — | |
 
 Other moves: NFS3's `.DPQ` carries the car env-map zone list that NFS4 moved to its text `.ENV`.
 
 ## Open questions (next steps)
-1. TRK type 5 `flags`, type 0x11, type 0xA (flares?), type-9 bytes 2–3, the extra quad arrays (q1/q3/q5), sim-slice byte 3 and links.
+1. TRK: type-5 flag bit 0x40 and the surface-id names (sound / grip tables), the line-style table at `0x8010BCFC`.
 2. COL slice fields marked ★ (trace the AI / physics readers) and the material flag byte +2.
-3. TRK header +0x10/+0x14.
-4. Variant meaning (front-end track table) and the track-ID special case for 02b.
-5. `.CCM`, `T{B,F}.BIN`, `.COP`, the `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime
+3. Variant meaning (front-end track table) and the track-ID special case for 02b.
+4. `.CCM`, `T{B,F}.BIN`, `.COP`, the `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime
    CD file-open trace).
 
 ## Tools

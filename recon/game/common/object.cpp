@@ -8,6 +8,7 @@
 
 /* Retail object.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+static inline void *Group_Data(Group *group) { return group + 1; }
 extern "C" int sprintf(char *, const char *, ...);
 
 
@@ -226,7 +227,6 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
 
 Trk_SimObject *
 GetSimObj(int objIndex,Object_tSimObjList *objList,int *chunk)
-
 {
   Trk_SimObject *simObj;
   int index;
@@ -235,20 +235,22 @@ GetSimObj(int objIndex,Object_tSimObjList *objList,int *chunk)
   simObj = (Trk_SimObject *)0x0;
   if (index >= objList->numObjects + objList->numObjects2) {
     index = index - objList->numObjects - objList->numObjects2;
-    simObj = (Trk_SimObject *)(Object_customSimObjs + 1);
+    simObj = (Trk_SimObject *)Object_customSimObjs->GetData();
     *chunk = -1;
     return simObj + index;
   }
-  *chunk = objList->chunk;
-  if (objList->numObjects <= index) {
-    index = index - objList->numObjects;
-    *chunk = objList->chunk2;
-  }
-  if (Track_chunkList[*chunk].simObjBuf != (Group *)0x0) {
-    simObj = (Trk_SimObject *)(Track_chunkList[*chunk].simObjBuf + 1);
-    simObj += index;
-    if (simObj->type == '\x10') {
-      simObj = (Trk_SimObject *)0x0;
+  else {
+    *chunk = objList->chunk;
+    if (objList->numObjects <= index) {
+      index = index - objList->numObjects;
+      *chunk = objList->chunk2;
+    }
+    if (Track_chunkList[*chunk].simObjBuf != (Group *)0x0) {
+      simObj = (Trk_SimObject *)Group_Data(Track_chunkList[*chunk].simObjBuf);
+      simObj += index;
+      if (simObj->type == '\x10') {
+        simObj = (Trk_SimObject *)0x0;
+      }
     }
   }
   return simObj;

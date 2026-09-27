@@ -132,18 +132,13 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
 /* ---- TextureProcess_DepthColorCluts__FPci  [TEXTUREPROCESS.CPP:422-462] SLD-VERIFIED ---- */
 int TextureProcess_DepthColorCluts(char *data,int numentry)
 {
-  int i;
-  int cx;
-  int cy;
-
   DrawSync(0);
-  i = 0;
-  while (1) {
-    if (!(i < 0x10)) break;
+  for (int i = 0; i < 0x10; i++) {
+    int cx;
+    int cy;
     Texture_GetClutId(0x10 < numentry,&cx,&cy);
     gClutDepth[TP_gZPaletteSystem.numdepthclut][i] = (short)((cy << 6) | ((cx >> 4) & 0x3f));
     TextureProcess_ColorClut(i,0x10,data,numentry,cx,cy);
-    i = i + 1;
   }
   return TP_gZPaletteSystem.numdepthclut++;
 }
@@ -199,51 +194,34 @@ FogKey * Fog_FindKey(int currentslice,FogKey *fkey)
 
 /* ---- Fog_AllocKey__Fv  [TEXTUREPROCESS.CPP:716-726] SLD-VERIFIED ---- */
 FogKey * Fog_AllocKey(void)
-
 {
-  int i;
-  int one;                 /* SYM-CODEGEN-CARRIER: one -- the "slot is free" marker held in a named
-                            * local -- the oracle materializes `li a2,1` right
-                            * after i=0 and BEFORE the two base addresses; a bare
-                            * literal in the compare gets it emitted last. */
-
-  i = 0;
-  one = 1;
-  do {
-    /* MATCH: if/else with the ADVANCE as the if-arm -- the oracle keeps the
-     * found-body INLINE (bne skips it); an early `return` if-arm makes gcc
-     * invert the branch and push the found block past the loop exit. */
-    if (openkeys[i] != one) {
-      i = i + 1;
-    }
-    else {
+  for (int i = 0; i < 0x20; i++) {
+    if (openkeys[i] == 1) {
       openkeys[i] = 0;
       return &Fog_gBuf[i];
     }
-  } while (i < 0x20);
+  }
   return (FogKey *)0x0;
 }
 
 /* ---- Fog_AddKey__Fii  [TEXTUREPROCESS.CPP:733-790] SLD-VERIFIED ---- */
 void Fog_AddKey(int slice,int distance)
-
 {
   FogKey *newkey;
-  FogKey *insertkey;
-  FogKey *savenextkey;
-  
+
   newkey = Fog_AllocKey();
-  insertkey = Fog_gHeadKey;
   newkey->prev = (FogKey *)0x0;
   newkey->next = (FogKey *)0x0;
   newkey->slice = (short)slice;
   newkey->distance = (short)distance;
-  if (insertkey == (FogKey *)0x0) {
+  if (Fog_gHeadKey == (FogKey *)0x0) {
     Fog_gHeadKey = newkey;
     newkey->next = newkey;
     newkey->prev = newkey;
   }
   else {
+    FogKey *insertkey = Fog_gHeadKey;
+    FogKey *savenextkey;
     if (insertkey != insertkey->next) {
       insertkey = Fog_FindKey(slice,(FogKey *)0x0);
     }
@@ -257,7 +235,6 @@ void Fog_AddKey(int slice,int distance)
     savenextkey->prev = newkey;
   }
   Fog_gNumKeys = Fog_gNumKeys + 1;
-  return;
 }
 
 /* ---- Fog_Update__Fi  [TEXTUREPROCESS.CPP:840-884] SLD-VERIFIED ----

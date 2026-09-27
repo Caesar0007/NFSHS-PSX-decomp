@@ -46,21 +46,10 @@ typedef long STREAMREQUESTID;
 
 
 
-struct tDialogHelp : public tDialogBase {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculateDimensions();
-    void Draw();
-    short variant;
-    char *text[7];
-    int cont[7];
-    short numItems, helpcontrollers, lefttext;
-};
+#include "fedialog.h"
 
-struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
-struct tDialogNoInputMessage : public tDialogMessageString {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-};
+
+
 
 struct tFEApplication {
     unsigned int fCurrentMusic;

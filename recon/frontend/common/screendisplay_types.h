@@ -580,91 +580,17 @@ typedef enum tTVState {
 
 
 
-struct tDialogBase : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
-    virtual void CalculateDimensions() = 0;
-    virtual void Draw();
-    short specificPlayer, left, top, width, height, reservedheight;
-    bool currentlyOn;
-    long startTicks, timeOutTicks;
-    short OffsetX, OffsetY, MaxW, MaxH;
-    bool fFullyOpen;
-    short fDefault, ReturnValue;
-    int fFadeText;
-#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-    tDialogBase();
-    short ShouldTimeOut();
-    static void InitializeClass();
-    static void DrawAllDialogs();
-    static void HideAllDialogs();
-    static tDialogBase *GetTopMostDialog();
-    void Display();
-    void Hide();
-    inline bool IsVisible() { return currentlyOn != 0; }
-#endif
-#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
-    inline tDialogBase *SetPosition(short, short, tPlayer);
-#endif
-};
+#include "fedialog.h"
 
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS   /* FEDialog.obj: retail order is Base, Help, MessageString, ... */
-#include "fedialog_class_help.h"
 #endif
-struct tDialogMessageString : public tDialogBase {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculateDimensions();
-    void Draw();
-    char *string;
-    bool Centerit;
-#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-    tDialogMessageString();
-#endif
-#if defined(NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS) || \
-    defined(NFS4_SCREENDISPLAY_FEAPP_METHODS) || \
-    defined(NFS4_SCREENDISPLAY_CONTROLLER_METHODS)
-    inline tDialogMessageString *SetString(char *text) {
-        string = text;
-        return this;
-    }
-#endif
-};
+
 
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS   /* ..., MessageString, BackUpOnly, NoInputMessage, Interactive, ... */
-#include "fedialog_class_backuponly.h"
-#include "fedialog_class_noinput.h"
 #endif
-struct tDialogInteractive : public tDialogMessageString {
-    bool ReadyToReturnValue, fCurrentlyRunning;
-    /* an explicit inline ctor: retail's derived constructors (tDialogYesNo...) store THIS class's vtable on the way
-     * (Base, MessageString, Interactive, YesNo); a compiler-synthesized ctor leaves that store out. */
-    tDialogInteractive();   /* defined inline in fedialog.cpp, after tDialogMessageString's inline ctor */
-#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-    inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
-    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key, tMenuCommand &command) { ProcessInput(player, key, command); }
-    short Run();
-#endif
-};
 
-struct tDialogYesNo : public tDialogInteractive {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void CalculateDimensions();
-    void Draw();
-    int yesnowords[2];
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    inline tDialogYesNo *SetChoices(int yesWord, int noWord, short defaultValue) {
-        yesnowords[0] = yesWord;
-        yesnowords[1] = noWord;
-        fDefault = defaultValue;
-        return this;
-    }
-#endif
-#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-    tDialogYesNo();
-#endif
-};
+
+
 
 #include "shared/tCredit.h"
 

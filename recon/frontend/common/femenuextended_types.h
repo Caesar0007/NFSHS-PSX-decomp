@@ -184,56 +184,18 @@ struct tMenuOptions : public tMenuNFS4 {
 
 
 
-struct tDialogBase : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
-    virtual void CalculateDimensions() = 0;
-    virtual void Draw();
-    short specificPlayer, left, top, width, height, reservedheight;
-    bool currentlyOn;
-    long startTicks, timeOutTicks;
-    short OffsetX, OffsetY, MaxW, MaxH;
-    bool fFullyOpen;
-    short fDefault, ReturnValue;
-    int fFadeText;
-};
+#include "fedialog.h"
 
-struct tDialogHelp : public tDialogBase {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculateDimensions();
-    void Draw();
-    short variant;
-    char *text[7];
-    int cont[7];
-    short numItems, helpcontrollers, lefttext;
-};
 
-struct tDialogMessageString : public tDialogBase {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculateDimensions();
-    void Draw();
-    char *string;
-    bool Centerit;
-};
 
-struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
-struct tDialogNoInputMessage : public tDialogMessageString {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-};
 
-struct tDialogInteractive : public tDialogMessageString {
-    bool ReadyToReturnValue, fCurrentlyRunning;
-};
 
-struct tDialogYesNo : public tDialogInteractive {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void CalculateDimensions();
-    void Draw();
-    int yesnowords[2];
-};
+
+
+
+
+
+
 
 struct tFEApplication {
     unsigned int fCurrentMusic;

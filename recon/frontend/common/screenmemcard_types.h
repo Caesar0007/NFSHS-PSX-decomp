@@ -215,10 +215,10 @@ typedef MCRDFILE_def MCRDFILE;
 #if !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_SCREENPOST_SURFACE)
-#include "fedialog_class_help.h"
+#include "fedialog.h"
 
-#include "fedialog_timeout_class.h"   /* own header: scopes the interface/implementation pragmas to this class */
-#include "fedialog_class_noinput.h"
+#include "fedialog.h"
+#include "fedialog.h"
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \

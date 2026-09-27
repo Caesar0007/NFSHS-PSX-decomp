@@ -113,10 +113,7 @@ typedef SVECTOR FE3d_zNormal;
 
 
 
-struct tDialogYesNoMem : public tDialogYesNo {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-};
+#include "fedialog.h"
 
 #include "shared/CARDINFO_def.h"
 

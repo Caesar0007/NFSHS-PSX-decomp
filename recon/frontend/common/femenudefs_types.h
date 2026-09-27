@@ -135,11 +135,7 @@ typedef SVECTOR FE3d_zNormal;
 
 
 #ifndef NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
-struct tDialogYesNoTri : public tDialogYesNo {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    inline tDialogYesNoTri() {}
-};
+#include "fedialog.h"
 #endif
 
 #include "shared/MCRDFILE_def.h"

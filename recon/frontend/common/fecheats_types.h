@@ -99,87 +99,18 @@ struct tTournamentManager {
 struct tMenu;
 #include "fescreen.h"
 
-struct tDialogBase : public tScreen {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
-    virtual void CalculateDimensions() = 0;
-    virtual void Draw();
-    short specificPlayer, left, top, width, height, reservedheight;
-    bool currentlyOn;
-    long startTicks, timeOutTicks;
-    short OffsetX, OffsetY, MaxW, MaxH;
-    bool fFullyOpen;
-    short fDefault, ReturnValue;
-    int fFadeText;
+#include "fedialog.h"
 
-    void Display();
-#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
-    tDialogBase();
-    void Hide();
-#endif
-};
 
-struct tDialogHelp : public tDialogBase {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculateDimensions();
-    void Draw();
-    short variant;
-    char *text[7];
-    int cont[7];
-    short numItems, helpcontrollers, lefttext;
-};
 
-struct tDialogMessageString : public tDialogBase {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculateDimensions();
-    void Draw();
-    char *string;
-    bool Centerit;
 
-    inline tDialogMessageString *SetString(char *text) {
-        string = text;
-        return this;
-    }
-#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
-    tDialogMessageString();
-#endif
-};
 
-struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
-struct tDialogNoInputMessage : public tDialogMessageString {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
-    tDialogNoInputMessage();
-#endif
-};
 
-struct tDialogInteractive : public tDialogMessageString {
-    bool ReadyToReturnValue, fCurrentlyRunning;
-#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
-    short Run();
-#endif
-};
 
-struct tDialogYesNo : public tDialogInteractive {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void CalculateDimensions();
-    void Draw();
-    int yesnowords[2];
-#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
-    tDialogYesNo();
-    inline tDialogYesNo *SetChoices(int yesWord, int noWord,
-                                    short defaultValue, short player) {
-        yesnowords[0] = yesWord;
-        yesnowords[1] = noWord;
-        fDefault = defaultValue;
-        specificPlayer = player;
-        return this;
-    }
-#endif
-};
+
+
+
+
 
 /* FECheats needs this foreign class's MemCardDialog offset.  Its exact layout
  * is pair-locked by the canonical audit because the linked owner attributes

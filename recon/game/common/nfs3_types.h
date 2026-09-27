@@ -221,26 +221,17 @@ struct tMissionManager {
 
 
 
-struct tDialogBase : public tScreen {
-    short specificPlayer, left, top, width, height, reservedheight;
-    bool currentlyOn;
-    long startTicks, timeOutTicks;
-    short OffsetX, OffsetY, MaxW, MaxH;
-    bool fFullyOpen;
-    short fDefault, ReturnValue;
-    int fFadeText;
-};
+#define tPlayer int
+#define tInputKeyType int
+#include "frontend/common/fedialog.h"
+#undef tPlayer
+#undef tInputKeyType
 
-struct tDialogMessageString : public tDialogBase {
-    char *string;
-    bool Centerit;
-};
 
-struct tDialogInteractive : public tDialogMessageString {
-    bool ReadyToReturnValue, fCurrentlyRunning;
-};
 
-struct tDialogYesNo : public tDialogInteractive { int yesnowords[2]; };
+
+
+
 
 #include "shared/tCredit.h"
 

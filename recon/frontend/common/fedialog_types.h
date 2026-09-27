@@ -49,19 +49,11 @@ struct tHelpData {
 };
 #endif
 
-#include "fedialog_class_backuponly.h"
 
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-struct tDialogYesNoMem : public tDialogYesNo {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-};
+#include "fedialog.h"
 
-struct tDialogYesNoTri : public tDialogYesNo {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    inline tDialogYesNoTri() {}
-};
+
 #endif
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE

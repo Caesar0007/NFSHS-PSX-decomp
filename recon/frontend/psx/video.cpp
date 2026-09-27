@@ -165,58 +165,48 @@ enum VIDEOSTATE VIDEO_state(int handle)
 
 /* ---- VIDEO_updateframexy  (video.cpp:257, code lines 257-335) ---- */
 int VIDEO_updateframexy(int handle,int x,int y)
-
 {
-  /* decl order = SYM Def-record order (vid, chunk, audiostatus, currenttime,
-     dropped); `result` has NO SYM record -- see the carrier note below. */
   struct VIDEOSTRUCT *vid;
   struct STREAMCHUNKHDR *chunk;
   SNDREQUESTSTATUS audiostatus;
   int currenttime;
   int dropped;
-  int result; /* SYM-CODEGEN-CARRIER: result -- direct videodecode testing rotates
-                 retail chunk/dropped ($s2/$s1) and is measured FAIL 17 (81/80) */
+
   vid = (struct VIDEOSTRUCT *)handle;
-  
-  if (vid->id == 0x57444956   /* 'VIDW' */) {
-    if (vid->state != VIDEOSTATE_PLAYING) {
+  if (vid->id != 0x57444956) goto invalid;
+  if (vid->state != VIDEOSTATE_PLAYING) {
+    return 0;
+  }
+  currenttime = FE_Ticks() * 10 - vid->reftime;
+  if (vid->displaytime > currenttime) {
+    return 0;
+  }
+  if (STREAM_isendofstream(vid->videotap) != 0) {
+    return 0;
+  }
+  while (1) {
+    chunk = STREAM_get(vid->videotap);
+    if (chunk == (struct STREAMCHUNKHDR *)0x0) {
       return 0;
     }
-    currenttime = FE_Ticks() * 10 - vid->reftime;
-    if (vid->displaytime > currenttime) {
-      return 0;
+    videoupdatetime(vid);
+    if (currenttime < vid->displaytime && videodecode(vid,chunk,x,y) != 0) {
+      dropped = 0;
+    }
+    else {
+      dropped = 1;
+      vid->droppedframes = vid->droppedframes + 1;
+    }
+    STREAM_release(vid->videotap,chunk);
+    if (!dropped) {
+      return 1;
     }
     if (STREAM_isendofstream(vid->videotap) != 0) {
-      return 0;
-    }
-    while (1) {
-      chunk = STREAM_get(vid->videotap);
-      if (chunk == (struct STREAMCHUNKHDR *)0x0) {
-        return 0;
-      }
-      videoupdatetime(vid);
-      if (currenttime < vid->displaytime) {
-        result = videodecode(vid,chunk,x,y);
-        dropped = 0;
-        if (result == 0) goto VIDEOupdateFrame_incCounter;
-      }
-      else {
-VIDEOupdateFrame_incCounter:
-        dropped = 1;
-        vid->droppedframes = vid->droppedframes + 1;
-      }
-      STREAM_release(vid->videotap,chunk);
-      if (!dropped) {
-        return 1;
-      }
-      if (STREAM_isendofstream(vid->videotap) == 0) continue;
       return 1;
     }
   }
-  else {
-    result = 0;
-  }
-  return result;
+invalid:
+  return 0;
 }
 
 /* lines 336-368: (static data / macros / comments - no emitted code) */

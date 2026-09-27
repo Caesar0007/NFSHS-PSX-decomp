@@ -467,7 +467,7 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
     pt16.x = (short)(pt->x - cp->x >> 10);
     pt16.z = (short)(pt->z - cp->z >> 10);
     lastDist = 0x7fffffff;
-    vertices = (CCOORD16 *)(Track_chunkList[slicePos->chunk].vertexBuf + 1);
+    vertices = (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
     GetFirstStmQuadPts(slicePos,vertices);
     BworldSm_UpdateSimQuad(slicePos);
     while ((int)(signed char)slicePos->quad <=

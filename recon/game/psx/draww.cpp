@@ -3023,59 +3023,31 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 
 /* ---- DrawW_SetAnimationTime__FP15Trk_AnimateInstPii  [DRAWW.CPP:1721-1779] SLD-VERIFIED ---- */
 void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
-
 {
-  /* MATCH (2026-07-10 SYM-structure pass, 3.8b): the SYM 8c block has ONLY `objIndex`
-     (REG $a0 -- gcc reuses the dead animInst reg), per-arm block-scoped `i` (REG $a3)
-     and `slice` (REG $a0); piVar2/ppCVar5/iVar1 of the old draft were COMPILER TEMPS
-     (no SYM records).  The list access is the INDEX form Cars_gHumanRaceCarList[i]
-     (strength-reduced by gcc into the walking-pointer giv $a2, +4 in the j delay slot);
-     `(table + objIndex*2)[k]` stays an IN-LOOP expression so loop.c hoists it into the
-     preheader AFTER the Cars_gNumHumanRaceCars invariant load (a pre-loop `table +=`
-     statement lands BEFORE the hoist = 8 diffs) and the hoisted add coalesces in-place
-     into $a1 with the canonical scaled-term-first operand order (addu a1,v0,a1);
-     the loops are the EXIT-IN-THE-MIDDLE no-rotation shape (top test + unconditional
-     `j` back-edge, sect.3.12 #15a / catalog par.B).  *** PASS 80/80 (2026-07-10) *** */
-  int objIndex;   /* SYM: REG $a0 */
+  int objIndex;
 
   objIndex = animInst->objectIndex - 1;
   if (0xf00 < animation_timer[objIndex]) {
-    int i;   /* SYM: REG $a3 (per-arm block scope) */
-    i = 0;
-    while (true) {
-      if (Cars_gNumHumanRaceCars <= i) break;
-      {
-        int slice;   /* SYM: REG $a0 */
-        slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
-        if ((slice < (table + objIndex * 2)[0]) || ((table + objIndex * 2)[1] < slice)) {
-          animation_timer[objIndex] = 0;
-        }
+    for (int i = 0; i < Cars_gNumHumanRaceCars; i++) {
+      int slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
+      if ((slice < (table + objIndex * 2)[0]) || ((table + objIndex * 2)[1] < slice)) {
+        animation_timer[objIndex] = 0;
       }
-      i = i + 1;
     }
   }
   else {
     if (0 < animation_timer[objIndex]) {
       animation_timer[objIndex] = animation_timer[objIndex] + 1;
-      return;
     }
-    {
-      int i;   /* SYM: REG $a3 */
-      i = 0;
-      while (true) {
-        if (Cars_gNumHumanRaceCars <= i) break;
-        {
-          int slice;   /* SYM: REG $a0 */
-          slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
-          if (((table + objIndex * 2)[0] <= slice) && (slice <= (table + objIndex * 2)[1])) {
-            animation_timer[objIndex] = animation_timer[objIndex] + 1;
-          }
+    else {
+      for (int i = 0; i < Cars_gNumHumanRaceCars; i++) {
+        int slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
+        if (((table + objIndex * 2)[0] <= slice) && (slice <= (table + objIndex * 2)[1])) {
+          animation_timer[objIndex] = animation_timer[objIndex] + 1;
         }
-        i = i + 1;
       }
     }
   }
-  return;
 }
 
 /* ---- DrawW_DoObjectAnimations__Fv  [DRAWW.CPP:1784-1805] SLD-VERIFIED ---- */

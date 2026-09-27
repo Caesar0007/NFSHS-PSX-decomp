@@ -132,6 +132,9 @@ void VIDEO_abortplayback(int handle)
 /* lines 196-197: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_state  (video.cpp:198, code lines 198-247) ---- */
+/* the VSync tick counter read as the array the video module declares */
+static inline int VIDEO_TicksNow(void) { extern int ticks[]; return ticks[0]; }
+
 enum VIDEOSTATE VIDEO_state(int handle)
 
 {
@@ -144,8 +147,7 @@ enum VIDEOSTATE VIDEO_state(int handle)
   }
   if (vid->state == VIDEOSTATE_SPOOLING) {
     if (STREAM_state(vid->videotap) == 2) {
-      extern int ticks[];
-      vid->reftime = ticks[0] * 10;
+      vid->reftime = VIDEO_TicksNow() * 10;
       vid->state = VIDEOSTATE_PLAYING;
       vid->displaytime = 0;
       vid->displaytimefrac = 0;

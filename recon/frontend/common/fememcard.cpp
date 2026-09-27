@@ -328,7 +328,8 @@ void Init_Memcard(bool redraw,bool pinkslips)
   }
   PAD_restore();
   padrestorestarttick = FE_Ticks();
-  do { } while (FE_Ticks() - padrestorestarttick < 0x3c);
+  while (FE_Ticks() - padrestorestarttick < 0x3c) {
+  }
   deltimer(Clock_MasterInterruptHandler);
   timedwait(0x14);
   MCRD_init(0);
@@ -366,7 +367,8 @@ void DeInit_Memcard(void)
   addtimer(Clock_MasterInterruptHandler);
   PAD_restore();
   padrestorestarttick = FE_Ticks();
-  do { } while (FE_Ticks() - padrestorestarttick < 0xc0);
+  while (FE_Ticks() - padrestorestarttick < 0xc0) {
+  }
   padinit();
   if (MEMCARDFRONTENDISINITTED != 0) {
     UpdateMusic(FEApp);

@@ -14,6 +14,7 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
+static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
 
 
 /* Retail screenpost.obj opens .rodata with this unreferenced class tag. */
@@ -81,7 +82,7 @@ void tScreenTournamentStandings::Initialize()
     if (tInfo.fMoney != 0) {
       this->gotmoney = 1;
     }
-    this->moneyFinal = tournamentManager.fMoney - tInfo.fTournMoney;
+    this->moneyFinal = Tournament_Money(tournamentManager) - tInfo.fTournMoney;
     if (tInfo.fCompletedGarageFull != 0) {
       this->moneyFinal -= tInfo.fCompletedBonusMoney;
     }
@@ -101,7 +102,7 @@ void tScreenTournamentStandings::Initialize()
     this->fCountSpeed = (this->moneyDamage >? (this->moneyBonus >? tInfo.fMoney)) / 0x18;
   }
   else {
-    this->moneyFinal = tournamentManager.fMoney - tInfo.fTournMoney;
+    this->moneyFinal = Tournament_Money(tournamentManager) - tInfo.fTournMoney;
   }
   this->starttick = FE_Ticks();
   return;

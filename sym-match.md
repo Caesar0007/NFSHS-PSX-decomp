@@ -573,6 +573,17 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
     rather than a nested if (FindClosestQuad).
   - A busy-wait on ticks has a scope holding the ticks pair when written `while (cond) {}` (do-while has none).
   - A loop-body `const` snapshot gives a record-less loop block (TransColorCheck).
+- Round to board 2062, bytes unchanged.
+  - A `tMenuItem` member inline cannot be added in femenu: that TU holds tMenuItem's key function, so every inline
+    member is emitted out of line and the bytes move.  femenu uses free inlines only.
+  - Menu-item flag writes are free enable/disable pairs across the frontend (screenpinkslips, screentracks,
+    screencarselect DrawForeground, screenmemcard).
+  - A sequence of checks that jumps past a later `if (keyval == Triangle)` = `else if` (screentracks).
+  - Early-return functions whose failure path is the last block = `if (!ok) goto invalid; ... invalid: return 0;`
+    (VIDEO_updateframexy); `while (!done()) { ...; if (timeout) { reset(); return 0; } } return 1;` (videodecode).
+  - An explicit `if (p) delete p;` adds retail's two scopes around an inline destructor (Anim_Restart).
+  - CAudioList::Elems() member (guarded) vs a free accessor: pick by whether retail records `this`; a free accessor
+    inside a loop records its parameter.
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -584,6 +584,17 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
   - An explicit `if (p) delete p;` adds retail's two scopes around an inline destructor (Anim_Restart).
   - CAudioList::Elems() member (guarded) vs a free accessor: pick by whether retail records `this`; a free accessor
     inside a loop records its parameter.
+- Round to board 2069, bytes unchanged.
+  - femenudefs is now edited with per-function verify_asm plus var_fn's `-g` probe (blocks), then one full gate:
+    GoToGarage (tListIteratorCar::SetFilter member on the femenudefs surface), GenericMenuLoadGame
+    (tScreenMemcard::SetMessage pairs), AskTheUserToSaveTheGame (free Dialog_AsYesNo on the chained SetString
+    result), Finished*GetName (stats-list pair).
+  - Carriers that "keep a constant loop-live" or "snapshot a field" were often only needed for an older loop or
+    control-flow spelling: DrawTVLines (a plain `for` with the literal gets retail's hoisted s2) and CheckConfigs
+    (all snapshots removable) compile identically without them.
+  - Tool: `build/tmp/inline_sweep.py` (+ `inline_sweep_all.sh`) substitutes a single-assignment, single-read carrier
+    at its read when nothing between them writes memory or calls, keeps it only on verify_asm PASS and a
+    disappearing EXTRA; round 1 committed 8 files (EXTRA 949 -> 937).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

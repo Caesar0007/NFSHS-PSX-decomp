@@ -30,12 +30,12 @@ SerializedGroup * SerializedGroup::LocateNextGroupType(int type)
 SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
 
 {
-  SerializedGroup *group;
-  int numElems;
   int count;
+  int numElems;
+  SerializedGroup *group;
 
   count = 0;
-  group = (SerializedGroup *)((int)this + 0x10);
+  group = (SerializedGroup *)this->GetData();
   numElems = this->m_num_elements;
   for (numElems = numElems + -1; numElems != -1; numElems = numElems + -1) {
     if (group->m_type == type) {
@@ -60,10 +60,10 @@ SerializedGroup * SerializedGroup::LocateGroupNum(int index)
   char * group;
 
   numElems = this->m_num_elements;
-  group = (char *)this + 0x10;
   if (numElems <= index) {
     return (SerializedGroup *)0;
   }
+  group = (char *)this->GetData();
   for (int i = 0; i < index; i++) {
     group = group + ((SerializedGroup *)group)->m_length;
   }
@@ -89,8 +89,8 @@ Group * SerializedGroup::CreateLiteGroup(SerializedGroup *source,SimpleMem *mem)
 
   newLen = source->m_length - 0xc;
   ret = (Group *)mem->Alloc(newLen,0);
-  ret->m_num_elements = source->m_num_elements;
-  blockmove(source + 1,ret + 1,newLen);
+  ret->m_num_elements = source->GetNumElements();
+  blockmove(source->GetData(),ret->GetData(),newLen);
   return ret;
 }
 
@@ -105,7 +105,7 @@ SerializedGroup::CreateLiteGroupDataSize(SerializedGroup *source,SimpleMem *mem,
   newLen = dataSize + 4;
   ret = (Group *)mem->Alloc(newLen,0);
   ret->m_num_elements = 0;
-  blockmove(source + 1,ret + 1,newLen);
+  blockmove(source->GetData(),ret->GetData(),newLen);
   return ret;
 }
 

@@ -9,6 +9,9 @@ struct Group;
 struct SerializedGroup {
     int m_type, m_length, dummy, m_num_elements;
 
+    inline void *GetData() { return this + 1; }
+    inline int GetNumElements() { return m_num_elements; }
+
     SerializedGroup *LocateNextGroupType(int type);
     SerializedGroup *LocateGroupType(int type, int index);
     SerializedGroup *LocateGroupNum(int index);

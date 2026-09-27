@@ -46,3 +46,4 @@ Addresses from the NFS3 raw oracle (`C:\Temp\nfs3-clean\nfs3-raw-L.txt`).
   (`0x80084100` writes `0x800F9F80`; NFS3_TRACK_FILES.md, Track identity).
 - 2026-09-27: track 00A, 56 chunk captures (48 distinct chunks) byte-exact after the predicted relocation; all
   `Chunk_tChunkDat` slots, tables, slices and materials match (NFS3_TRACK_FILES.md §1.7).
+- `nfs3_roster_probe.py` — boots a race with COPS forced (optionally `--racetype`) and logs the race roster (model name + kind bits), the police list `0x800F82D8` (flags +1440, distance +132) and the PathFinder control level / node. With the default menu path the roster holds only the player and one opponent, so no police cars appear.

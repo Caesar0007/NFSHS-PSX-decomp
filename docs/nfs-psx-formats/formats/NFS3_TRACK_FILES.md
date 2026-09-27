@@ -502,7 +502,9 @@ tag list:
 | other | `{tag, u8 length, value}`; length 0xFF = a 4-byte big-endian length follows; values of up to 4 bytes are big-endian integers |
 
 Tags below 0x26 set per-timbre playback attributes (PC `ISndTaggedAttrs.word[tag]`; defaults in brackets):
-1/2 range of request byte 6 [0, 127] (★★ velocity), 3/4 key range [0, 127], 5 channel class [−1], 7 root key
+1/2 velocity range [0, 127] and 3/4 key range [0, 127] (the play request's byte 6 is the velocity and byte 5
+the key number: EA's own checks in the PC EXE print "VELOCITY OF %i OUT OF RANGE" / "KEYNUM OF %i OUT OF RANGE"
+for exactly those bytes, in `iSNDcheckplayopts` and `iSNDplaytaggedpatch`), 5 channel class [−1], 7 root key
 [60], 0xA detune (× 100 cents), 0xC pan [64] and 0xD its randomisation, 0xE volume [127] and 0xF its
 randomisation, 0x24 random pitch. The rest (0x06, 0x08–0x0B, 0x10–0x23) are copied into the voice record
 (envelope, priority, modulation; `iSNDplaytaggedtimbre` in `nfs3snd/isnd.c` lists every destination).
@@ -559,10 +561,19 @@ without a pending event ends the music. The chosen node's section is queued at i
 size is exactly `12 + 28N + RE + 4N`, R = highest row + 1, every `next` < N, bytes 2/3 = 0xFF in all 8,607 nodes,
 branch counts 0–3, ranges within 0–100 (typically 0–28 / 29–72 / 73–100).
 
-**Game side** (`func_8005FC14`, per frame in a race): the control level is 100 while an active car with flag 2 at
-+1440 has its +132 value (16.16, ★★ distance to the player) between 15 and 125 units (75 once the music is up),
-otherwise 0, so the music intensifies during a chase. The events posted are the sim slice's music byte (§1.5,
-type 6; values below 4 are raised to 4, keeping 0–3 for the driver's own state changes).
+**Game side** (`func_8005FC14`, per frame in a race): the control level is 100 while some active car in the list
+`0x800F82D8` has flag bit 2 at +1440 and lies between 15 and 125 units from a player (75 once the music is up),
+otherwise 0, so the music intensifies during a chase. Car +132 is that distance: `func_80086C04` writes
+`max(|dx|, |dz|) + min(|dx|, |dz|) / 4` from the car's position (+152/+160) to the player car every frame, keeping
+the nearer of the two players in split screen. Bit 2 of +1440 is **police lights on**: the car draw (`0x800982E8`) animates a light phase at +2128 (0–15, one
+step per frame) only for police models (ids 11–17 of the name table `0x800F9B8C`: TALN, LAM, CROW, LROV, CHEV,
+COP1, COP2) with this bit set, and −1 otherwise; the bit is set by the per-car pursuit controller (vtable
+`0x80047490`, `func_8004FB7C`), which the factory `func_8004C4C0` attaches to cars whose roster kind has 0x08/0x10
+(the same cars `func_80074404` puts in `0x800F82D8`). Police models also get the cop radio lines: `func_8005E434`
+picks clips from the 3-byte rows `{Cop 1, Cop 2, Super Cop}` at `0x800F5DF4` by the car's voice (+552), e.g. row 0 =
+clips 77 / 141 / 201, "You can't out run the police!". So the music turns up while a police car with its lights on
+is within range. The events posted are the sim slice's music byte (§1.5, type 6;
+values below 4 are raised to 4, keeping 0–3 for the driver's own state changes).
 
 **Streams**: 48 of the 67 maps match a stream on the disc exactly (every node offset lands on an `SCHl` header):
 
@@ -591,7 +602,8 @@ the other music entry points (`func_800A0590`, `func_800A0C70`).
 Byte 1 of TRK type 5, bits 0–5 (§1.5), one per q4 road quad. The code names none of them, so the names below come
 from the **textures painted on those quads** (quad material → COL material → `0.PSH` shape; census of all 225,739
 road quads, the ten most-used textures per id inspected) and agree with the parameter tables and the
-reverb gate (§12.2). NFS4 (same `simQuad->surface` byte) treats 0 and 0xE as undrivable (`Newton_*`,
+reverb gate (§12.2). No shipped file names them: the PSX EXE, the PC `nfs3.exe` 1.02, the PC track and
+audio data and the debug-info `MRC.EXE` tool were all searched, so these names stay ★★. NFS4 (same `simQuad->surface` byte) treats 0 and 0xE as undrivable (`Newton_*`,
 `Netwon_CheckForBadQuad`).
 
 | Id | Name (★★ texture evidence) | Quads | Where | `0x800F7EBC` | `0x800FA844` | `0x800F7EFC` (16.16) | `0x800F7F3C` sound | `0x800F7F7C` sound |

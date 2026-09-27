@@ -42,16 +42,14 @@ int      openkeys[32];
 
 /* ---- TextureProcess_TransColorCheck__FPci  [TEXTUREPROCESS.CPP:47-62] SLD-VERIFIED ---- */
 int TextureProcess_TransColorCheck(char *data,int numentry)
-
 {
   int translucent_flag;
 
   translucent_flag = 0;
-  while (1) {
-    numentry = numentry - 1;
-    if (numentry == -1) break;
-    translucent_flag = translucent_flag | (0x8000 < *(u_short *)data);
-    data = (char *)((int)data + 2);
+  while (numentry-- != 0) {
+    const u_short color = *(u_short *)data;
+    translucent_flag |= 0x8000 < color;
+    data += 2;
   }
   return translucent_flag;
 }

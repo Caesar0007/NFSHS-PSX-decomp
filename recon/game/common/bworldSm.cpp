@@ -698,15 +698,19 @@ int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFla
         return 0;
       }
     }
-    return FindClosestQuad(pt,slicePos);
+    const int result = FindClosestQuad(pt,slicePos);
+    return result;
   }
-  slicePos->lastRezRequested = '\x01';
-  slicePos->rez = '\x01';
-  slicePos->simSlice = (Trk_NewSimSlice *)0x0;
-  slicePos->simQuad = (Trk_NewSimQuad *)0x0;
-  *(signed char *)&slicePos->quad = -1;
-  slicePos->triangleFlag = '\0';
-  return BWorldSm_FindClosestSlice(pt,slicePos);
+  else {
+    slicePos->lastRezRequested = '\x01';
+    slicePos->rez = '\x01';
+    slicePos->simSlice = (Trk_NewSimSlice *)0x0;
+    slicePos->simQuad = (Trk_NewSimQuad *)0x0;
+    *(signed char *)&slicePos->quad = -1;
+    slicePos->triangleFlag = '\0';
+    const int result = BWorldSm_FindClosestSlice(pt,slicePos);
+    return result;
+  }
 }
 #undef PT_IN_QUAD
 

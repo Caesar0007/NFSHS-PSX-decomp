@@ -92,6 +92,7 @@ struct tListIteratorCar : public tListIterator {
     char Value(tPlayer);
     void AdjustPosition(tPlayer, short);
     bool ValidCar(tPlayer, char);
+    inline void SetFilter(int filter) { fCarListFilter = filter; }
 #endif
 };
 

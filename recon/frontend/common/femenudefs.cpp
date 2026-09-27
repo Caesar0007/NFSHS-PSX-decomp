@@ -6,6 +6,8 @@
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800114C8): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline int Tournament_CurrentTrack(tTournamentManager &tm) { return tm.fCurrentTrack; }
+static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 inline void tFEApplication::DisplayMessage(int word)
@@ -2054,7 +2056,7 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
     Car_tStats *dummyCars;
     short nBestCarIndex;
 
-    dummyCars = Cars_gNewCarStatsList;
+    dummyCars = Cars_NewCarStatsList();
     if (StatChk_IsRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,&nBestCarIndex)) {
       StatChk_SaveRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,nBestCarIndex);
     }
@@ -2085,7 +2087,7 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
 
   /* SYM: `dummyCars` is the real REG Car_tStats pointer in $s1 and is reused
      across all four stat-tool calls; `nBestCarIndex` is its recorded AUTO. */
-  dummyCars = Cars_gNewCarStatsList;
+  dummyCars = Cars_NewCarStatsList();
   if (StatChk_IsRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,&nBestCarIndex)) {
     StatChk_SaveRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,nBestCarIndex);
   }
@@ -2290,29 +2292,18 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
    the retail SLD1228/1229/1230 condition/then/else partition. The existing
    garageIterator carrier still represents an unrecovered inline this scope. */
 void MenuExtended_GoToGarage(tMenuCommand &command)
-
 {
-  /* SYM-CODEGEN-CARRIER: garageIterator
-   * The retail call shares one post-frontEnd address between the filter store
-   * and Decrement's member-call receiver.  Repeating the member is FAIL 11; a
-   * declaration-initialized reference moves the frontEnd LUI and is FAIL 2. */
-  tListIteratorCar *garageIterator;
-
-  frontEnd.carListType = '\x01';
-  garageIterator = &menuDefs->iteratorGarageCar;
-  garageIterator->fCarListFilter = 0x40;
-  /* retail calls Decrement DIRECTLY (jal): the receiver is a member object of known type, not a polymorphic pointer.
-   * The qualified spelling keeps that through the garageIterator carrier. */
-  garageIterator->tListIteratorCar::Decrement(kPlayerBoth);
+  frontEnd.carListType = '';
+  menuDefs->iteratorGarageCar.SetFilter(0x40);
+  menuDefs->iteratorGarageCar.tListIteratorCar::Decrement(kPlayerBoth);
   menuDefs->iteratorGarageCar.Increment(kPlayerBoth);
   command.type = kMenu_Command_GoToMenu;
-  if (tournamentManager.fCurrentTrack == 0) {
+  if (Tournament_CurrentTrack(tournamentManager) == 0) {
     command.nextMenu = (tMenu *)&menuDefs->menuCarGarage;
   } else {
     command.nextMenu = (tMenu *)&menuDefs->menuPostCarGarage;
   }
   screenCarSelect->SetState(1);
-  return;
 }
 
 

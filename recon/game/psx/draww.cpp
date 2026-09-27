@@ -2994,16 +2994,10 @@ gte_SetTransMatrix(mat);
 
 /* ---- DrawW_ResetAnimationTimer__Fv  [DRAWW.CPP:1698-1700] SLD-VERIFIED ---- */
 void DrawW_ResetAnimationTimer(void)
-
 {
-  int i;
-
-  i = 0xb;
-  do {
+  for (int i = 0xb; i >= 0; i--) {
     animation_timer[i] = 0;
-    i = i + -1;
-  } while (-1 < i);
-  return;
+  }
 }
 
 /* ---- DrawW_GetAnimationTime__FP15Trk_AnimateInst [DRAWW.CPP:1704-1716] ---- */
@@ -3086,12 +3080,9 @@ void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
 
 /* ---- DrawW_DoObjectAnimations__Fv  [DRAWW.CPP:1784-1805] SLD-VERIFIED ---- */
 void DrawW_DoObjectAnimations(void)
-
 {
   int track;
   int *trackPtr;
-  int time;
-  int i;
 
   track = GameSetup_gData.track;
   if (track == 0) {
@@ -3103,15 +3094,14 @@ void DrawW_DoObjectAnimations(void)
     }
     trackPtr = trk4[0];
   }
-  time = simGlobal.gameTicks;   /* MATCH: load deferred past the track test (oracle order) */
-  i = 0;
-  do {
-    if (Anim_gInstanceFromIndex[i]->objectIndex != '\0') {
-      DrawW_SetAnimationTime(Anim_gInstanceFromIndex[i],trackPtr,time);
+  {
+    int time = simGlobal.gameTicks;
+    for (int i = 0; i < 0x10; i++) {
+      if (Anim_gInstanceFromIndex[i]->objectIndex != '\0') {
+        DrawW_SetAnimationTime(Anim_gInstanceFromIndex[i],trackPtr,time);
+      }
     }
-    i = i + 1;
-  } while (i < 0x10);
-  return;
+  }
 }
 
 /* ---- DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo  [DRAWW.CPP:1909-2048] SLD-VERIFIED ---- */
@@ -5231,12 +5221,10 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 /* ---- Draw_CircleClip__FP8coorddefT0i  [DRAWW.CPP:2888-2896] SLD-VERIFIED ---- */
 int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
-
 {
   int dx;
   int dz;
-  int dist;
-  
+
   dx = pt1->x - pt2->x;
   if (dx < 1) {
     dx = pt2->x - pt1->x;
@@ -5245,13 +5233,16 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
   if (dz < 1) {
     dz = pt2->z - pt1->z;
   }
-  if (dz < dx) {
-    dist = dx + (dz >> 2);
+  {
+    int dist;
+    if (dz < dx) {
+      dist = dx + (dz >> 2);
+    }
+    else {
+      dist = dz + (dx >> 2);
+    }
+    return dist < r;
   }
-  else {
-    dist = dz + (dx >> 2);
-  }
-  return (u_int)(dist < r);
 }
 
 /* MATCH (w46-a6, step A): UNSIZED ASM-LABEL VIEW of the depth-CLUT table.  The

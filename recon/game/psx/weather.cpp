@@ -1517,8 +1517,6 @@ void Weather_DoWeather(DRender_tView *Vi)
   DR_MODE *prim;
   int *plb; /* SYM-CODEGEN-CARRIER: plb -- laundered prevLookBehind slot */
   u_int *pal; /* SYM-CODEGEN-CARRIER: pal -- palette cursor CSE value */
-  char **wdp; /* SYM-CODEGEN-CARRIER: wdp -- retaining the DrawnServer slot restores
-                 retail's local-alloc handout and keeps Weather_DoWeather PASS197. */
 
   /* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
      this function's GLOBAL handout 25/25 EXACTLY, so none of the residual is a global
@@ -1732,8 +1730,7 @@ void Weather_DoWeather(DRender_tView *Vi)
   wprevpt = Weather_gPrevPServer[player];
   /* W80 source-only: load through an explicit DrawnServer slot pointer.  This prices
      the local against the scaled-index quantity and restores retail's a0/a1 handout. */
-  wdp = Weather_gDrawnServer + player;
-  wd = *wdp;
+  wd = *(Weather_gDrawnServer + player);
   /* The canonical typed declaration makes the direct guard byte-exact; the former
      staged `cm` and `one` codegen carriers are not required. */
   if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {

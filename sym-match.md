@@ -562,6 +562,17 @@ measured afterwards (honest 299819/299819, vtable audit PASS, link-stripped 0 vi
     `build/tmp/const_sweep_all.sh FILE...` (runs it over many TUs and commits each file that improved).
     Round 1 kept edits in 13 files (flare, femenuoptions, physics, camera, screencarselect, screencontroller,
     r3dcar, aiphysic, hrzsku, screencongrats, screenmain, screentrophyroom, aih_opp, femenuextended).
+- Group/scope round (board 2037), bytes unchanged.
+  - `Group::GetData()` / `GetNumElements()` are member inlines (records `this` of tag Group): chunk buffers
+    (`stripBuf->GetData()`, `vertexBuf->GetData()`), BWorldSm_Init, object GetSimObj/FindObjInstanceFromSerialNum.
+    Some sites are a FREE `Group_Data(g)` instead (variable-free pair); pass a global expression, never a bare
+    local variable, or the inline parameter is recorded.
+  - Record-less then/else blocks around returns = `const int result = f(); return result;` in each arm
+    (BWorldSm_FindClosestQuadRez).
+  - A LABEL record (`done`) plus a function-level block of locals = `if (!x) goto done; ... { locals ... } done:`
+    rather than a nested if (FindClosestQuad).
+  - A busy-wait on ticks has a scope holding the ticks pair when written `while (cond) {}` (do-while has none).
+  - A loop-body `const` snapshot gives a record-less loop block (TransColorCheck).
 - Fourth round of the same family. Byte-unchanged (symloop) and native CLEAN:
   `HudPmx_InitTextures` (the digit loop is a `for` inside the explicit block, the two `alpX`
   loops declare their `static char alph[5]` directly in the loop body, the explicit wrappers

@@ -4873,7 +4873,7 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
      (not from `Vi` again) -- `Vi` itself stays resident in the caller-saved $a3 across
      the call (never spilled) purely for the 3 field reads that happen before the call
      + the matrix-address arg; nothing reads `Vi` after the call. This is the classic
-     §5.0c STRUCT-COPY lever (field-by-field would let gcc skip the .y copy + keep
+     В§5.0c STRUCT-COPY lever (field-by-field would let gcc skip the .y copy + keep
      iVar1/iVar2 live across the call in registers -- the 59-diff version this replaces).
      The base-address arithmetic ALSO needed the exact `+4-then-scaled-index` ORDER the
      oracle uses (`addiu s0,s0,4; addu s0,s0,a1`, not `addu` first) -- a single combined
@@ -4901,15 +4901,12 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
      `sw`+`negu`+`j`+`slt`) and jumps forward only for the `pvVar3=1` arm -- writing
      `if(iVar1<=iVar2){slt-arm} else {pvVar3=1;}` (arms swapped from the natural
      `if(iVar2<iVar1)` reading) matches. All three combined -> 61==61, byte-identical. */
-  tBoundingSphere *bSphere;
-  bool clipped; /* SYM-CODEGEN-CARRIER: clipped -- result funnel preserves retail branch polarity; direct returns are FAIL 6 (61/61) */
   coorddef tmp;
   coorddef tmp2;
   coorddef trans;
+  tBoundingSphere *bSphere;
 
-  bSphere = (tBoundingSphere *)(gPersistObjDefBoundingSpheres);
-  bSphere = (tBoundingSphere *)((char *)bSphere + 4);
-  bSphere = (tBoundingSphere *)((char *)bSphere + ind * 8);
+  bSphere = (tBoundingSphere *)gPersistObjDefBoundingSpheres->GetData() + ind;
   tmp.x = bSphere->cp.x * 0x400 + pCp->x;
   tmp.y = bSphere->cp.y * 0x400 + pCp->y;
   tmp.z = bSphere->cp.z * 0x400 + pCp->z;
@@ -4921,13 +4918,7 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
   tmp2.y = tmp2.y + trans.y;
   tmp2.z = tmp2.z + trans.z;
   tmp2.z = tmp2.z + bSphere->radius * 0x400;
-  if (tmp2.x <= tmp2.z) {
-    clipped = (u_int)(tmp2.z < -tmp2.x);
-  }
-  else {
-    clipped = 1;
-  }
-  return clipped;
+  return (tmp2.x <= tmp2.z) ? (u_int)(tmp2.z < -tmp2.x) : 1;
 }
 
 /* w55-a9 TRIAGE + NEGATIVE.  Re-gated 30 @222/222 (count EXACT).  chunkdiff localises the

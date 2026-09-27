@@ -235,35 +235,24 @@ void videoupdatetime(struct VIDEOSTRUCT *vid)
 
 /* ---- videodecode  (video.cpp:375, code lines 375-423) ---- */
 int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y)
-
 {
   int timeout;
 
-  if (chunk->type == 0x4443546d) {
-    vid->framewidth = (int)(short)chunk[1].size;
-    vid->frameheight = (int)*(short *)((int)&chunk[1].size + 2);
-    mdec(vid->mdechandle,(char *)(chunk + 1),x,y);
-    timeout = ticks_a[0] + timerhz * 4;
-    /* MATCH (allocno ref dial, -dg receipts): the poll step sits in two nested
-       scopes.  gcc-2.8 weights REG_N_REFS by loop_depth, so the in-loop
-       `vid->mdechandle` read counts 4x instead of 2x -> vid 8 refs / live 52 =>
-       priority 4615 vs timeout 3/9 => 3333, so `vid` is allocated FIRST and takes
-       $s0 with timeout in $s1 (SYM: vid REGPARM $10=s0, timeout REG $11=s1).
-       Flat (unwrapped) the numbers invert (vid 6/52 = 2307 < 3333) and the whole
-       function comes out as a clean s0<->s1 role swap, 18 diffs at 43/43 insns.
-       SYM shows 4 nested Block records inside this loop body, so nested scopes
-       are real here; the exact nesting SITE is a codegen dial, not SYM-placed. */
-    do {
-      do { do {
-        if (mdecdone(vid->mdechandle) != 0) {
-          return 1;
-        }
-        systemtask(0);
-      } while (0); } while (0);
-    } while (FE_Ticks() <= timeout);
-    mdecreset();
+  if (chunk->type != 0x4443546d) {
+    return 0;
   }
-  return 0;
+  vid->framewidth = (int)(short)chunk[1].size;
+  vid->frameheight = (int)*(short *)((int)&chunk[1].size + 2);
+  mdec(vid->mdechandle,(char *)(chunk + 1),x,y);
+  timeout = VIDEO_TicksNow() + timerhz * 4;
+  while (mdecdone(vid->mdechandle) == 0) {
+    systemtask(0);
+    if (VIDEO_TicksNow() > timeout) {
+      mdecreset();
+      return 0;
+    }
+  }
+  return 1;
 }
 
 /* end of video.cpp */

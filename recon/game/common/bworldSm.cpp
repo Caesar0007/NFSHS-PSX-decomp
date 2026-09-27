@@ -631,8 +631,6 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
   int startSlice;
   int startQuad;
   int foundSlice;
-  static coorddef corrPt;
-  int rCount;
   /* ORIGINAL-NAME-RECOVERED: sliceChanged -- NFS2 FindClosestQuad's debug block and matching
    * source name the same post-search comparison local `sliceChanged`.
    * Reusing the stored byte adds an `andi` (116 instructions), while
@@ -645,18 +643,22 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
   startQuad = (int)(signed char)slicePos->quad;
   BWorldSm_FindClosestSlice(pt,slicePos);
   foundSlice = slicePos->slice;
-  if (RawFindClosestQuad(pt,slicePos) == 0) {
-    if (*(signed char *)&slicePos->offEdge != 0) {
-      slicePos->slice = (short)foundSlice;
-      BWorld_SetSimSlice(slicePos);
-      slicePos->quad =
-          (*(signed char *)&slicePos->offEdge == 1) ?
-          0 : slicePos->simSlice->quadCount - 1;
-      BworldSm_UpdateSimQuad(slicePos);
-      slicePos->rez = '\x02';
-      SetStrip(slicePos);
-      GetStmQuadPts(slicePos,Chunk_chunkCenters + slicePos->chunk);
-    }
+  if (RawFindClosestQuad(pt,slicePos) != 0) goto done;
+  if (*(signed char *)&slicePos->offEdge != 0) {
+    slicePos->slice = (short)foundSlice;
+    BWorld_SetSimSlice(slicePos);
+    slicePos->quad =
+        (*(signed char *)&slicePos->offEdge == 1) ?
+        0 : slicePos->simSlice->quadCount - 1;
+    BworldSm_UpdateSimQuad(slicePos);
+    slicePos->rez = '\x02';
+    SetStrip(slicePos);
+    GetStmQuadPts(slicePos,Chunk_chunkCenters + slicePos->chunk);
+  }
+  {
+    static coorddef corrPt;
+    int rCount;
+
     corrPt = *pt;
     rCount = 0;
     while ((slicePos->simQuad == (Trk_NewSimQuad *)0x0) &&
@@ -669,6 +671,7 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
       rCount = rCount + 1;
     }
   }
+done:
   sliceChanged = startSlice != slicePos->slice;
   slicePos->sliceChanged = sliceChanged;
   slicePos->quadChanged =
@@ -732,7 +735,6 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
 {
   int ret;
   coorddef *pts;
-  int y;
   
   pts = slicePos1->quadPts;
   ret = PointDirection(pts + 2,pts + 3,pt) >= -0x18000;
@@ -746,6 +748,8 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
     ret = ret | 4;
   }
   {
+    int y;
+
     pts = slicePos2->quadPts;
     y = pts[0].y + pts[1].y + pts[2].y + pts[3].y;
     *heightDiff = (y >> 2) - pt->y;
@@ -872,17 +876,14 @@ bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 /* ---- NormalCache_Init__Fv  [@0x800801ac] ---- */
 void NormalCache_Init(void)
 {
-  int i;
 
   BWSM_NormalCacheSysTime = 0;
-  i = 0;
-  do {
+  for (int i = 0; i < 0x10; i++) {
     BWSM_NormalCache[i].sliceInd = -1;
     BWSM_NormalCache[i].quadInd = -1;
     BWSM_NormalCache[i].triangleFlag = '\0';
     BWSM_NormalCache[i].accessTime = 0;
-    i++;
-  } while (i < 0x10);
+  }
   return;
 }
 

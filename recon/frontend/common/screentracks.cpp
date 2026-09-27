@@ -6,6 +6,8 @@
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
+static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
+static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 static inline int FE_Ticks(void) { return ticks; }
 
 
@@ -446,77 +448,38 @@ void tScreenTrackSelect::DrawVideoWall()
    The frontend -G0 lane preserves its separate-temp loads directly. */
 extern tFEApplication *FEAppA[] asm("FEApp");
 
-void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
-              tMenuCommand &command)
-
+void tScreenTrackSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 {
-  /* SYM-ABI-PARAM: player -- unused, but `7tPlayer` in retail linkage proves
-     the by-value parameter retained by the original source signature. */
-  /* SYM-ABI-PARAM: command -- unused, but `R12tMenuCommand` proves the
-     reference parameter retained by the original source signature. */
-  /* MATCH (SLD 341-370 + SYM fsize 72 / mask $80010000 = ra,s0 only):
-     the SQUARE arm is the INLINE one (oracle `bne $a2,8,.L80042178` branches
-     AWAY to the Triangle arm); the recon had them the other way round, which
-     rotated the whole body.  Note $s0 holds `this` on the Triangle path and is
-     REASSIGNED to &frontEnd on the Square path.
-     There is NO `return -0x7ffb0000`: the `lui $v0,0x8005` that produced it is
-     just the `lui $v0,%hi(FEApp)` sitting in the `bne` delay slot at 0x80042178,
-     and the SYM types this function FCN VOID -- the Triangle tail simply falls
-     into the epilogue with $v0 incidental.
-     [2026-08-03, 12->PASS] Keep the Square arm separate from the Triangle
-     call expression.  With ptVar1 retained for its two stores, GCC assigns
-     retail's menuDefs base to $a0 and the masked flags to $a1 without a
-     source identity, reload, or extra instruction. */
-  /* W86-S4: SYM `8c` records exactly one local here, AUTO trackInfo sp+16;
-     the carrier below is quarantined after it.  Re-gated PASS. */
   tTrackInformation trackInfo;
-  /* SYM-CODEGEN-CARRIER: ptVar1 -- direct menuDefsA[0] spellings are FAIL 8
-     at 116/114 and reload the global base instead of retaining `$a0`.
-     P867: chaining clear and conditional bit-set as one compound lvalue
-     expression was FAIL21 at 117/114; restored, not ruled out. */
-  tGlobalMenuDefs *ptVar1;
 
   if (keyval == kInput_KeyType_Square) {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
-
-    ptVar1 = menuDefs;
-    (ptVar1->itemTraffic).fFlags &= 0xfffffffe;
+    MenuItem_Enable(&menuDefs->itemTraffic);
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      (ptVar1->itemTraffic).fFlags |= 1;
+      MenuItem_Disable(&menuDefs->itemTraffic);
     }
     if (2 < trackInfo.fTrackDifficulty) {
-      (menuDefs->itemTraffic).fFlags =
-           (menuDefs->itemTraffic).fFlags | 1;
+      MenuItem_Disable(&menuDefs->itemTraffic);
     }
     if (trackInfo.fIsEgg != '\0') {
-      (menuDefs->itemTraffic).fFlags =
-           (menuDefs->itemTraffic).fFlags | 1;
+      MenuItem_Disable(&menuDefs->itemTraffic);
     }
-    if (frontEnd.gameMode == '\x01') {
-      if (frontEnd.raceType != RaceType_HotPursuit) goto ProcInpLocSpch_setFlags;
-      (menuDefs->itemTraffic).fFlags =
-           (menuDefs->itemTraffic).fFlags | 1;
+    if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == RaceType_HotPursuit)) {
+      MenuItem_Disable(&menuDefs->itemTraffic);
     }
-    if ((frontEnd.raceType == RaceType_HotPursuit) && Front_EnableLocalSpeech())
-    {
-      (menuDefs->itemLocalSpeech).fFlags =
-           (menuDefs->itemLocalSpeech).fFlags & 0xfffffffe;
-      return;
+    if ((frontEnd.raceType == RaceType_HotPursuit) && Front_EnableLocalSpeech()) {
+      MenuItem_Enable(&menuDefs->itemLocalSpeech);
     }
-ProcInpLocSpch_setFlags:
-    (menuDefs->itemLocalSpeech).fFlags =
-         (menuDefs->itemLocalSpeech).fFlags | 1;
-    return;
+    else {
+      MenuItem_Disable(&menuDefs->itemLocalSpeech);
+    }
   }
-  if (keyval == kInput_KeyType_Triangle) {
-    if ((FEAppA[0]->fCurrentMenu[0]->IsSubMenu() ^ 1) != 0) {
+  else if (keyval == kInput_KeyType_Triangle) {
+    if (!FEApp->CurrentMenu(0)->IsSubMenu()) {
       TurnOffInstant(&this->fVideoWall);
     }
   }
-  /* NO return statement -- the SYM types this FCN VOID and the oracle's tail
-     falls straight into the epilogue ($v0 incidental).  A literal `return 0;`
-     emits three un-merged `addu $v0,$zero,$zero`. */
 }
 
 

@@ -446,7 +446,27 @@ The game reads 3 + 3 + 3 triples whatever the condition and keeps the set that a
 | up to 50 × `{slice, tex, extra, quad}` | table `0x80109FC4`, 6-byte entries `{i16 slice, i16 tex, u16 extra << 8 | quad}` | car SIDE env-map zones; a negative slice ends the list (stored as 0x7FFF) |
 | same | table `0x8010A0F0` | car TOP env-map zones |
 
-The zone list is NFS4's `.ENV` content (there as a separate text file).
+The zone list is NFS4's `.ENV` content (there a separate text file); the entry struct is NFS4's
+`DrawC_tEnvMap {short slice, tex, extra}`, and the two zone indices live in the car at +210/+212 (NFS4
+`eIndexEnvMap`/`eIndexShadow`, here named SIDE/TOP by the file comments).
+
+**Zone lookup ★★★** (`func_80097F14`, 0x80098540): the zone index is the first entry whose `slice` is
+greater than the car's slice, so an entry covers the slices from the previous entry's `slice` up to its own; the
+`-1` terminator (0x7FFF) covers the rest of the track.
+
+**Zone use ★★★** (`func_800A9F98`, per car per frame, from the car draw `func_800985D0`):
+- `tex` selects one of the four reflection images `ref1`…`ref4` of the track's `<v>R.PSH` (every R.PSH holds
+  exactly these four; `func_80067834` uploads them to VRAM (640, 256) and keeps 16-byte descriptors at
+  `0x800F6FEC`, 12-byte prepared textures at `0x80109F88`). `0` = no reflection on that face.
+- `quad` splits the road across: when the car's lateral quad index (its position struct +112, i.e. car +120;
+  0 = leftmost, reset to the middle quad) is **below** `quad`, `extra` is used instead of `tex`. With `quad = 0`
+  the test never passes, which is the file comment's "If QUAD is 0 then EXTRA is ignored".
+- SIDE: image = `tex − 1` (negative → none). TOP: image = `|tex| − 1`; a **negative** TOP `tex` changes the map's
+  horizontal scroll from `(car[+196] >> 6) & 63` to `(car[+196] >> 3) & 63`, i.e. 8× faster (used for tunnel
+  roofs: `-3`, `-4`).
+
+Census (all 15 files, no leftover values): SIDE `tex` ∈ {0, 1, 3, 4}, TOP `tex` ∈ {−4, −3, 0, 2, 4},
+`extra` ∈ {1 (SIDE), 2 (TOP)}, `quad` ∈ 4…9 in the 15 split zones; 02B, 05A, 06A, 07A, 08A have empty lists.
 
 ### 10.3 `<v>{D,N,W}.CLR` and `ZCARMENU.CLR` — car paint (`func_80080C18`; 46 files)
 Chosen by condition: `n` when TIME = night, else `w` with WEATHER, else `d`; the menus load `carmenu.clr`. The
@@ -515,7 +535,6 @@ likewise an index: `func_800A10D4` maps it through the per-track table `0x801096
 1. Human names for surface ids and acoustic classes (only the parameter tables are known, §12).
 2. Audio internals shared with the other EA titles: `PT` patch fields, the PFDx section table, which phrase
    each speech clip is.
-3. DPQ env-map zone `tex`/`extra`/`quad` values (NFS4 `.ENV` lineage).
 
 ## Tools
 - `tools/nfs3_trk.py` — `trk`, `col`, `census` (container validation above).

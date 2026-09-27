@@ -160,11 +160,22 @@ Category bits (from `SetupChunkBuildList`, `bworld.cpp`; census uses only these 
 | Bit | Effect on the neighbour |
 |-----|-------------------------|
 | `0x0800` | never drawn from this chunk; also treated as not visible by the line-of-sight test |
-| `0x1000` | no reader found (present in retail data) |
+| `0x1000` | **midground-object mask**, read by position, not by neighbour: see below |
 | `0x2000` | build-enable bit 0x01 cleared: its road geometry is not drawn (`DrawW_DoTrough`) |
 | `0x4000` | build-enable bit 0x02 cleared: its objects are not drawn (`DrawW_DoObjects`) |
 
 Build-enable bit 0x04 (lines) is set only within the context's line distance.
+
+**Midground mask (bit 12) ★★★.** When drawing the midground objects (`0x24`), `DrawW_DoObjects` passes
+the camera chunk's own visibility row as a per-object mask (`gChunkObjInfo.visList =
+Track_gInViewList + chunk * 64 bytes`); `DrawW_BuildObjectFacets` draws midground object *i* only if
+row entry *i* has bit `0x1000` set. So each entry does double duty: bits 0–9 name a neighbour chunk,
+bit 12 gates midground object number *i*. Consequences: a chunk whose row has fewer entries than there
+are midground objects cannot show the remaining objects (the `0x3FF` padding has bit 12 clear), and
+dropping an out-of-range entry at load would shift the mask (never happens in retail).
+Census: files without midground objects never set bit 12; 16 files set it only at positions below the
+midground-object count; 8 files (two tracks, all variants) have stale bits past the count, which are
+never read because the loop stops at the object count.
 
 ## 6. Persistent group (`0x21`) children ★★★
 | Type | Name | Payload | Consumer |
@@ -207,8 +218,8 @@ Variable length, walked by `size`. Common 8-byte header:
 |-----|------|-------|---------|
 | 0 | i16 | `size` | record length in bytes |
 | 2 | u8 | `type` | layout/behaviour, table below |
-| 3 | u8 | `objectIndex` | |
-| 4 | u8 | `zoffset` | |
+| 3 | u8 | `objectIndex` | animation trigger ID for types 3/7 (0 = none), below |
+| 4 | u8 | `zoffset` | depth-sort bias selector, below |
 | 5 | u8 | `flags` | bit 0x02 on animated types: draw a headlight streak along −Z |
 | 6 | i16 | `pad` | **object-definition index** into `Track_gObjDefs` (the recon's field name hides this) |
 
@@ -224,6 +235,26 @@ Variable length, walked by `size`. Common 8-byte header:
 `Anim_tFrame` (20 B) = i32 x, y, z + i16 qx, qy, qz, qw. Playback: frame = ticks / interval (interval
 outside 1–400 falls back to 6), looping over `count − 1` segments, interpolating position and quaternion
 between frames. Census: all 766 animated records satisfy `size = header + 20 · count`; all intervals valid.
+
+**`zoffset` ★★★** indexes the fixed EXE table `goffsets[8] = {125, 125, 50, 15, −1, 125, 0, 0}`
+(`draww.cpp:70`). The result is the object's ordering-table bias: `otz = depth + offset`
+(`DrawW_DrawQuad`), so larger values sort objects further back; −1 selects the midground layer (and
+halves coordinates by `>> 2`). It is consulted only when the draw context's own offset is 0 (normal
+chunk objects); midground objects are always drawn with −1. Census: chunk instances use 1, 2, 3
+(125/50/15), persistent use 2, 3, midground always 4.
+
+**`objectIndex` ★★★ — triggered animations.** For types 3/7 a non-zero `objectIndex` registers the
+instance in `Anim_gInstanceFromIndex[objectIndex]` and gives it a clock `animation_timer[objectIndex − 1]`
+(`DrawW_GetAnimationTime` / `DrawW_SetAnimationTime`). Each frame the timer starts counting when a
+human car's slice is inside that ID's range, plays the animation once (clamped at
+`(count − 2) · interval`), and resets once the timer has passed 0xF00 ticks and every human car is
+outside the range. Index 0 means free-running on the game clock. The slice ranges are **hard-coded in
+the EXE**, only for track 00 (`trk0[9][2]`, e.g. 410–530, 800–850, 815–885) and track 04 (`trk4[10][2]`,
+300–440, 705–910); tracks 03 and 07 are forced to free-run. Census matches: triggered IDs exist only
+on 00 (1–6, ID 1 used twice) and 04 (1–10); 03 and 07 carry IDs that act only as lookup keys.
+Latent bug: `DrawW_DoObjectAnimations` walks 16 slots without a NULL check, reading
+`NULL->objectIndex` (RAM byte 3) for empty ones; that byte is 0 in the running game (checked in the
+runtime checkpoint), so empty slots are skipped harmlessly.
 
 Where each type occurs on disc: chunk instances use 1, 2, 5, 9; persistent use 1, 3, 7, 8; midground use
 1, 3. Midground instances get their definition's vertices shifted right by 2 at load
@@ -283,11 +314,10 @@ the visibility rows including the 64-byte-stride overlap. A full-state checkpoin
 `nfs4_after_track_init` (track 06, day) is saved in the isolated runtime for further probes.
 
 ## Open questions
-- Visibility bit `0x1000`; instance `objectIndex` (animation link ID for types 3/7) and `zoffset`.
-- Chunk-meta A and the short at +8; quad-block s[0], s[3], s[4] (all unread by the game).
-
-Plan: trace each consumer in the recon, then confirm in DuckStation (break after `Track_Init`, dump
-`Track_chunkList`).
+None that the game reads. Unread by the game (exporter metadata): chunk-meta A and the short at +8,
+quad-block s[0], s[3], s[4], TrackHeader `type`/`version`/`max*`/`metaChunkCount`, slice
+`acousticType`, and the render-quad surplus. Their exporter-side meaning is open but irrelevant to
+the game; a re-writer can copy them or fill them with the census values.
 
 ## Tools
 - `tools/nfs4_grp.py` — walker and census.

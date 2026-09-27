@@ -68,9 +68,9 @@ Race options used by the track files (`0x800F9F44 + 4·k`, from the setter's tab
 | `ZTR<NN><v>.CCM` | binary | `func_800660A4` → `func_8006BB78(".ccm")` | ★★★ | trackside cameras, §4 |
 | `ZTR<NN><v>0.PSH`, `…R.PSH` | SHPP shape files | `func_80067960` ("0.psh", "R.psh") | ★★★ container | textures / reflection maps; format as [NFS4_PSH.md](NFS4_PSH.md) (to re-verify on NFS3) |
 | `ZTR<NN><v>A.VIV` | BIGF archive of `.CAN` | `func_8005B878` ("%sA.viv") | ★★★ container | camera animation scripts, §8 |
-| `ZTR<NN><v>.DPQ` | text | `func_800A7250` ("%sTr%02d%c.dpq") | ★ | depth-cue distance + colour, car env-map zones `{slice, tex, extra, quad}` (the NFS4 `.ENV` content lives here) |
-| `ZTR<NN><v>.HRZ` | text | `func_800B84BC` ("%sTr%02d%c.hrz") | ★ | horizon/sky parameters, commented |
-| `ZTR<NN><v>{D,N,W}.CLR` | text | `func_80080C18` ("%sTr%02d%c%c.clr") | ★ | car colour table per condition (day/night/weather); also `carmenu.clr` |
+| `ZTR<NN><v>.DPQ` | text | `func_800A7250` ("%sTr%02d%c.dpq") | ★★★ | depth cue + car env-map zones, §10.2 |
+| `ZTR<NN><v>.HRZ` | text | `func_800B84BC` ("%sTr%02d%c.hrz") | ★★★ | horizon and sky, §10.1 |
+| `ZTR<NN><v>{D,N,W}.CLR` | text | `func_80080C18` ("%sTr%02d%c%c.clr") | ★★★ | car paint (HSV + reference) per condition, §10.3; also `carmenu.clr` |
 | `ZTR<NN><v>{,N,NW,W}.BNK` | sound bank | ".bnk" builders | seen | |
 | `ZTR<NN><v>T{F,B}.BIN` | tutor prompts | `func_80081DB4` ("at"/"bt" + "f.bin"/"b.bin"), only when TUTOR is on | ★★★ | §5 |
 | `ZTR<NN><v>.VIS` | text `#chunk` + list | **none**: never opened (runtime trace, §9) | ★★★ | exporter source of TRK sub-block 4 (§1.5) |
@@ -407,10 +407,54 @@ and logs every name passed to the file layer (`func_800DB910` load, `func_800DAD
 `zTr00f.qal`, `zTr00f.qbe` and the music map `ztr00r0a.map`. `.VIS` is never opened (it is the exporter source
 of TRK type 4). `.COP` and the tutor `.BIN` load only with COPS / TUTOR on.
 
+## 10. Text parameter files (`.HRZ`, `.DPQ`, `.CLR`) ★★★
+All three are read with `func_800B8388`: it skips `/* … */` comments and returns the next integer (`,` and
+whitespace separate values). Values are read strictly in order; the comments are for people only.
+
+### 10.1 `<v>.HRZ` — horizon and sky (`func_800B84BC`; 15 files)
+| # | Values | Stored | Meaning |
+|---|--------|--------|---------|
+| 1 | 1 | gp+2508 | mirror flag |
+| 2 | 1 | gp+2524 | make the sky's base flush with the horizon |
+| 3 | 1 | gp+2504 | 0 = gouraud sky, 1 = textured (forced to 0 when WEATHER is on) |
+| 4 | 1 | gp+2512 | horizon rotation in degrees (converted to 4096-per-turn units) |
+| 5 | 1 | gp+2516 (`<< 5`) | height of the horizon's bottom above screen centre |
+| 6 | 1 | gp+2520 (`<< 5`) | horizon height |
+| 7 | RGB | `0x801261DC` | background colour behind horizon and sky |
+| 8 | 3 × RGB | `0x801261E0/E4/E8` when WEATHER is off | gouraud sky: base front, base back, top |
+| 9 | 3 × RGB | same slots when WEATHER is on | gouraud sky with weather |
+| 10 | 3 × RGB | `0x801261E0`, `0x801261EC`, `0x80126188` when TIME = night | night: flat sky, horizon shading, world ambient (otherwise the ambient is 128, 128, 128) |
+| 11 | RGB + C | `0x801267E0`; `C << 7` → `0x801266EC` | world colour with weather and its strength (read only with WEATHER on, else cleared) |
+| 12 | 1 | — | "magic cookie" 123456789, never read |
+
+The game reads 3 + 3 + 3 triples whatever the condition and keeps the set that applies. Special case: track 0x15
+(Scorpio-7) sets the ambient red to 0x58. 12 files have 41 values; 06A, 07A and 08A have only RGB in block 11
+(40 values), which is harmless because weather is not offered on those tracks.
+
+### 10.2 `<v>.DPQ` — depth cue and car env-map zones (`func_800A7250`; 15 files)
+| Values | Stored | Meaning |
+|--------|--------|---------|
+| 1 | gp+2328 | depth-cue (fog) start distance |
+| RGB | gp+2332…2334 | depth-cue colour |
+| up to 50 × `{slice, tex, extra, quad}` | table `0x80109FC4`, 6-byte entries `{i16 slice, i16 tex, u16 extra << 8 | quad}` | car SIDE env-map zones; a negative slice ends the list (stored as 0x7FFF) |
+| same | table `0x8010A0F0` | car TOP env-map zones |
+
+The zone list is NFS4's `.ENV` content (there as a separate text file).
+
+### 10.3 `<v>{D,N,W}.CLR` and `ZCARMENU.CLR` — car paint (`func_80080C18`; 46 files)
+Chosen by condition: `n` when TIME = night, else `w` with WEATHER, else `d`; the menus load `carmenu.clr`. The
+game reads 88 entries of 4 values into `0x800F964C` (11 cars × 8 paints, in the order F355, CORV, COUN, NAZC,
+F550, DIAB, JAGR, MCLK, BONS, "Diablo SV logo", "bonus car side"); all 46 files have exactly 352 values.
+
+An entry is `{hue, saturation, value, reference}` (bytes), **not RGB**: the car renderer passes the first three to
+the HSV → RGB routine `func_800813D0` and recolours only the "paintable" palette entries (red = blue, green
+higher), scaling them by `value / reference` (car paint code at `0x80095FE8`, entries fetched with `func_80080DCC`). The 4th value (48–192) is
+the brightness of the key colour in the car texture.
+
 ## Open questions (next steps)
 1. Names of the surface ids and acoustic classes; the line-style table at `0x8010BCFC`.
 2. `.COP` type-1/3 record bodies; `.CCM` kind values; tutor message ids → voice clips; the `.CAN` script body.
-3. The text files (`.DPQ`, `.HRZ`, `.CLR`) field by field; sound banks and music (`.BNK`, `.MAP`, `.TRJ`, `.TRM`).
+3. Sound banks and music (`.BNK`, `.MAP`, `.TRJ`, `.TRM`); env-map zone `tex`/`extra`/`quad` values.
 
 ## Tools
 - `tools/nfs3_trk.py` — `trk`, `col`, `census` (container validation above).

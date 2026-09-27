@@ -241,6 +241,9 @@ struct tScreenMemcard : public tScreen {
     bool fReadyToGetNewIcons, fInitedMemCard;
     char fMemCardMessage[40];
     int fMemCardMessageTextSys, message;
+#ifdef NFS4_FEMENUDEFS_SURFACE
+    inline void SetMessage(int msg) { message = msg; }
+#endif
     short memcardanimframe, count, cursorPosition;
     int checkingstart;
     bool fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons;

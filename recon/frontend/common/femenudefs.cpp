@@ -7,6 +7,7 @@
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800114C8): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline int Tournament_CurrentTrack(tTournamentManager &tm) { return tm.fCurrentTrack; }
+static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFullyOpen ^ 1) == 0; }
 static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
@@ -759,14 +760,14 @@ bool GenericMenuSaveGame(int showdialog)
   if ((MEMCARD_INITIALIZED == 0) || (showdialog != 0)) {
     /* SYM-CODEGEN-CARRIER: noInput -- retail forms and holds this receiver in
        s0 across TextSys_Word while Display uses a fresh FEApp dereference. */
-    tDialogNoInputMessage *noInput = &FEApp->NoInputMemCardDialog;
+    tDialogNoInputMessage *const noInput = &FEApp->NoInputMemCardDialog;
 
     /* SYM-INLINE-THIS: SetString */
     noInput->SetString(TextSys_Word(0x282));
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
     while (1) {
       app = FEApp;
-      if (((app->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
+      if (Dialog_FullyOpen((tDialogBase *)&app->NoInputMemCardDialog)) break;
       app->Redraw();
     }
     app->Redraw();
@@ -1776,45 +1777,15 @@ void MenuExtended_SaveGame(tMenuCommand &)
    on both sides of LoadGame reproduce retail's value registers and scheduling. */
 
 void GenericMenuLoadGame(int player)
-
 {
-  /* SYM-CODEGEN-CARRIER: app
-     SYM-CODEGEN-CARRIER: mc
-     Retail records only caller parameter `player`; its two `this` records are
-     nested tScreenMemcard inline receivers at source line 925.  These aliases
-     are therefore not additional semantic locals: they preserve the retail
-     s0/s1 global-address lifetimes and scratch reloads.  Direct global
-     dereferences and pointer-to-pointer spellings both measured FAIL 36,
-     while this shape is the exact 37/37 -g twin. */
-  tFEApplication *app;
-  tScreenMemcard *mc;
-
-  /* Historical probes: the cached-value and double-indirection forms changed the frame or
-     player->s2, s0/s1 hold FEApp/screenMemcard across the calls. Residual = gcc-2.7.2 reload
-     tie-break: oracle holds %hi(FEApp)/%hi(screenMemcard) in s0/s1 and reloads the VALUE into a
-     scratch reg each access; our build coalesces the VALUE into s0/s1. Caching the value (this
-     form) vs not caching (literal derefs -> 36 diffs, wrong 1-saved-reg structure) are the only
-     two source-expressible options; the address-hi-CSE-with-value-reload form is not
-     source-reachable (methodology 3.15 reload tie-break).
-     [2026-07-27 re-tried] T** double-indirection (&FEApp / &screenMemcard held across the call,
-     deref at each use, per §3.12 #16) REGRESSES to 36 diffs with a SMALLER 24B frame (drops s1/s2
-     entirely, spills differently) -- the extra indirection level changes register-pressure
-     enough that gcc abandons the 2-saved-reg structure altogether. Reverted; confirms the
-     allocation basin; the explicit volatile reload form below supersedes those results. */
   if (CURRENTLYUSINGMEMCARD == 0) {
-    __asm__("" : : "m"(FEApp));
-    app = *(tFEApplication **)&FEApp;
-    mc = *(tScreenMemcard **)&screenMemcard;
-    mc->message = 0x27d;
-    app->Redraw();
+    screenMemcard->SetMessage(0x27d);
+    FEApp->Redraw();
     LoadGame((short)player,false,1);
-    app = *(tFEApplication **)&FEApp;
-    mc = *(tScreenMemcard **)&screenMemcard;
-    mc->message = -1;
-    ((tDialogBase *)&app->NoInputMemCardDialog)->Hide();
+    screenMemcard->SetMessage(-1);
+    ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
   }
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-  return;
 }
 
 

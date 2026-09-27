@@ -315,18 +315,18 @@ int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x80074624] ---- */
 int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 {
-  int tmp;
-
   if (this->GetStatus() != 1) {
     return -1;
   }
-  tmp = simGlobal.gameTicks - this->baseTicks;
-  if (Anim_GetRotPos(this->inst[index],this->flags,tmp,pt,mat) == 0) {
+  const int time = simGlobal.gameTicks - this->baseTicks;
+  if (Anim_GetRotPos(this->inst[index],this->flags,time,pt,mat) == 0) {
     this->baseTicks = -1;
     this->inst[index] = (Trk_AnimateInst *)0x0;
     return 0;
   }
   if ((this->flags & 4U) != 0) {
+    int tmp;
+
     tmp = mat->m[3];
     mat->m[3] = mat->m[6];
     mat->m[6] = -tmp;

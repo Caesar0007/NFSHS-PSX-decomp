@@ -42,8 +42,11 @@ int Anim_InitSystem(char *trackName)
   bigFile = (char *)loadfileadrz(fname,(void *)0x0);
   i = 9;
   if (bigFile != (char *)0x0) {
-    int size = filesize(fname);
-    char *mem = (char *)Platform_GetDCTBuffer(size,"animScripts");
+    char *mem;
+    int size;
+
+    size = filesize(fname);
+    mem = (char *)Platform_GetDCTBuffer(size,"animScripts");
 
     blockmove((int *)bigFile,(int *)mem,size);
     purgememadr(bigFile);
@@ -241,19 +244,12 @@ AnimScript::AnimScript(int num)
 /* ---- AnimScript::AnimScript  [@0x800743cc] ---- */
 AnimScript::AnimScript(int num,int numParts)
 {
-  int i;
-
   this->inst = new Trk_AnimateInst *[numParts];
-  i = 0;
-  if (0 < numParts) {
-    do {
-      this->inst[i] = animScripts[num + i];
-      i = i + 1;
-    } while (i < numParts);
+  for (int i = 0; i < numParts; i++) {
+    this->inst[i] = animScripts[num + i];
   }
   this->baseTicks = simGlobal.gameTicks;
   this->flags = 6;
-  return;
 }
 
 /* ---- AnimScript::AnimScript  [@0x80074468] ---- */

@@ -1453,10 +1453,8 @@ perpMode_merge:
     }
 
     else if (this->perpMode_ == 2) {
-      AIState_Base *newState;
 
-      newState = new AIState_Normal(this->carObj_);
-      AIHigh_SetState(this, newState,STATE_NORMAL);
+      AIHigh_SetState(this, (new AIState_Normal(this->carObj_)),STATE_NORMAL);
 
       this->perpMode_ = 4;
 

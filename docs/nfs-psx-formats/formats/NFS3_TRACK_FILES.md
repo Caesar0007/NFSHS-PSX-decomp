@@ -107,7 +107,7 @@ the stream buffer (allocated from header +8 in `func_800799A4`).
 | Off | Type | Field |
 |-----|------|-------|
 | 0 | u32 | `rel`: offset of the sub-block offset table, relative to this block |
-| 4 | u16 | n0: vertices common to every level (0 in 2,031 chunks) |
+| 4 | u16 | n0: **seam vertices**, stored relative to the *next* chunk's centre (the last chunk wraps to chunk 0) and re-based on load; they belong to every level (0 in 2,031 chunks) |
 | 6, 8, 0xA | u16 × 3 | n1 ≤ n2 ≤ n3: vertex counts of the low / medium / high level of detail; a level uses the first `n0 + nK` vertices |
 | 0xC … 0x16 | u16 × 6 | quad counts q0 … q5 |
 | 0x18 | 8 B × (n0 + n3) | vertices |
@@ -127,8 +127,11 @@ The odd arrays hold 0.6 % of all quads (2,290 of 408,005) and use only materials
 decals?) is still open.
 
 **Vertex** (8 B) ★★★: `{i16 x, y, z; u16 colour}`. The colour is RGB555, split into three 5-bit channels by
-`func_800B16D4` (0x6317 = 23, 24, 24 → grey) and used for Gouraud shading. On load, x/y/z are divided by 4 in place
-(`(v << 16) >> 18`, `func_80079F4C`). World position = chunk centre + (loaded vertex << 10) (`func_80068B48`), so the
+`func_800B16D4` (0x6317 = 23, 24, 24 → grey) and used for Gouraud shading. On load
+(`func_80079F4C`, runtime-verified in §1.7), in this order: the four bound points become centre-relative;
+x/y/z of all `n0 + n3` vertices are divided by 4 (`(v << 16) >> 18`); the first n0 vertices get
+`(d + (d >> 7)) >> 10` added per axis, with d = next centre − this centre (16.16); and `func_80079EBC` divides
+the object-definition vertices (type 8) by 4. Colours are untouched. World position = chunk centre + (loaded vertex << 10) (`func_80068B48`), so the
 stored units are 1/256 of the 16.16 world unit.
 
 **Quad** (6 B) ★★★: `{u16 material, u8 v[4]}`. Triangles repeat an index (773 of 408,005 quads). `material` indexes
@@ -190,6 +193,24 @@ header +8 / +0xC = largest meta / chunk.
 | 02B | 189 | 24 | | 06A | 101 | 13 |
 | 03A | 166 | 21 | | 07A | 112 | 14 |
 | | | | | 08A | 98 | 13 |
+
+### 1.7 Runtime check ★★★ (DuckStation, track 00A)
+`tools/runtime/nfs3_track_probe.py` boots the retail disc in the modified DuckStation and drives the front end
+by rewriting the pad record at `0x8012E2F0` on the `jr ra` of `func_800DE180` (Cross/Start pattern, race after
+~7,000 ticks). It stops at `0x8007A728`, right after each chunk is copied, bound (`func_8007A198`) and relocated
+(`func_80079F4C`), and saves checkpoint `nfs3_after_chunks`. `nfs3_track_probe2.py` resumes from that checkpoint,
+holds accelerate and captures further chunks. `compare_nfs3_chunks.py` checks the dumps against this spec.
+
+| Check | Result |
+|-------|--------|
+| TRK header (32 B) and the `StmChunkF` / `StmCenter` / `StmMetaI` tables in RAM | byte-identical to the file |
+| chunk source in the meta-chunk stream buffer | byte-identical to the file, 56 captures |
+| loaded chunk vs the file after the predicted relocation (§1.4.1) | byte-identical, 56 captures covering 48 distinct chunks (0–30, 104–119), including the wrap-around seam of chunk 119 |
+| every `Chunk_tChunkDat` slot (§1.5) | equals the parser's prediction in all 56 captures |
+| material list (gp+844) | 403 entries, each pointing at its 10-byte record in the loaded COL |
+| slice array | 959 × 36 B, byte-identical to the file's type-0xF payload |
+| whole COL buffer (`0x800247EC`; gp+884 = its +0x10) | identical except the reused 16-byte header and the object-definition vertices, which are exactly the file's divided by 4 |
+| material and slice counts the game uses | 0x193 = 403 and 0x3BF = 959, the `.COL` counts |
 
 ## 2. `.COL` — persistent track data ★★★ (container)
 `func_80068018` loads the whole file, logs the collection count, then dispatches each collection on its
@@ -270,7 +291,6 @@ Other moves: NFS3's `.DPQ` carries the car env-map zone list that NFS4 moved to 
 4. Variant meaning (front-end track table) and the track-ID special case for 02b.
 5. `.CCM`, `T{B,F}.BIN`, `.COP`, the `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime
    CD file-open trace).
-6. Runtime validation (DuckStation, as done for NFS4): dump `Chunk_tChunkDat` for a loaded chunk.
 
 ## Tools
 - `tools/nfs3_trk.py` — `trk`, `col`, `census` (container validation above).

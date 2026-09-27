@@ -60,7 +60,18 @@ struct AIDataRecord_t {
 
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
-struct AIDataRecord_BestLine_t : public AIDataRecord_t {};
+struct AIDataRecord_BestLine_t : public AIDataRecord_t {
+    /* Retail AI.obj keeps this/slice and buffer/latPos as an inline pair.
+     * Get follows the record family's accessor spelling; the inline name
+     * itself is not retained in that scope record. */
+    inline int Get(int slice) {
+        int latPos;
+        char *buffer;
+        buffer = dataBuffer_;
+        latPos = (int)(signed char)buffer[slice];
+        return latPos << 0xe;
+    }
+};
 
 struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
 #include "shared/AIPhysic_ModelConfig_t.h"

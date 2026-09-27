@@ -121,27 +121,14 @@ void Draw_InitViews(void)
 void Draw_InitViewOT(void)
 
 {
-  /* FIXED: oracle is top-tested-while-no-guard -- falls straight from the prologue
-     into the test label (NO entry jump), `beqz` skips to the shared epilogue, body
-     ends with an UNCONDITIONAL `j` back to the test label (increment is folded into
-     the body, not the branch's delay slot). A `goto TEST;do{}while(cond)` (entry-jump
-     to a bottom test, conditional `bnez` back-edge) is the OPPOSITE topology and was
-     the true residual cause (not a "loop-rotation floor"). Correct C shape = the
-     if-guarded backward-goto idiom (catalog §B row 56 / same family as the sibling
-     Draw_DeInitViews, which already sealed 100% with this exact form): a `TEST:` label
-     directly after init, `if(cond){body; goto TEST;}`, `return;` after. */
-  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- retail's +0xC8 OT pointer walker */
-  int i;
-
-  i = 0;
-  view = Draw_gView;
- TEST:
-  if (i < Draw_gNumView) {
+  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
+     strength-reduce the view walk without an extra mutable debug local.
+     `view` is a const reconstruction expression alias, not a recovered name.
+     Byte-PASS and native scope/home contract verified 2026-09-27. */
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
     view->ot[0] = reservememadr("ot0",view->otsize << 2,0x10);
     view->ot[1] = reservememadr("ot1",view->otsize << 2,0x10);
-    view = view + 1;
-    i = i + 1;
-    goto TEST;
   }
   return;
 }
@@ -150,23 +137,14 @@ void Draw_InitViewOT(void)
 void Draw_InitViewOTInGame(void)
 
 {
-  /* FIXED -- same fix/rationale as the sibling Draw_InitViewOT (see its comment): the
-     oracle is top-tested-while-no-guard (fallthrough into the test, unconditional `j`
-     back-edge, no entry jump); the if-guarded backward-goto idiom reproduces it
-     exactly, plus the s1(count)-before-s0(pointer) init order to match the prologue
-     save order. */
-  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- retail's +0xC8 OT pointer walker */
-  int i;
-
-  i = 0;
-  view = Draw_gView;
- TEST:
-  if (i < Draw_gNumView) {
+  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
+     strength-reduce the view walk without an extra mutable debug local.
+     `view` is a const reconstruction expression alias, not a recovered name.
+     Byte-PASS and native scope/home contract verified 2026-09-27. */
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
     view->ot[0] = (u_long *)Platform_ReserveMemory(view->otsize << 2,"ot0");
     view->ot[1] = (u_long *)Platform_ReserveMemory(view->otsize << 2,"ot1");
-    view = view + 1;
-    i = i + 1;
-    goto TEST;
   }
   return;
 }
@@ -175,21 +153,12 @@ void Draw_InitViewOTInGame(void)
 void Draw_DeInitViews(void)
 
 {
-  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- required pointer-walk source shape */
-  int i;
-
-  /* MATCH: SYM (nfs4-f-v3.txt @0x800BDCE0) names exactly ONE local (`i`); the oracle is a
-     genuine top-tested while (test-block-first-with-fallthrough, unconditional `j` back-
-     edge, NO zero-trip `blez` guard) -- same family as the sibling Draw_DeInitViewsInGame.
-     LEVER: `label: if(cond){body; goto label;}` (an if-guarded explicit backward goto,
-     NOT a `goto TEST;do{}while()` do-while) is the C shape gcc-2.8.0 lowers to this exact
-     topology -- confirmed against the PASSing sibling AIPerson_SetPersonalityPointers,
-     the only other function in the whole oracle corpus with this fallthrough-test/
-     unconditional-back-j shape. Sealed 100% (was a documented "floor"). */
-  i = 0;
-  view = Draw_gView;
- loopTop:
-  if (i < Draw_gNumView) {
+  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
+     strength-reduce the view walk without an extra mutable debug local.
+     `view` is a const reconstruction expression alias, not a recovered name.
+     Byte-PASS and native scope/home contract verified 2026-09-27. */
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
     if (view->ot[0] != (u_long *)0x0) {
       purgememadr(view->ot[0]);
     }
@@ -198,9 +167,6 @@ void Draw_DeInitViews(void)
     }
     view->ot[0] = (u_long *)0x0;
     view->ot[1] = (u_long *)0x0;
-    view = view + 1;
-    i = i + 1;
-    goto loopTop;
   }
   return;
 }
@@ -209,36 +175,14 @@ void Draw_DeInitViews(void)
 void Draw_DeInitViewsInGame(void)
 
 {
-  int i;
-  int numViews; /* SYM-CODEGEN-CARRIER: numViews -- cached bound preserves the exact loop allocation */
-  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- preserves the field-unbiased +0xC8 walk */
-
-  /* MATCH: SYM (nfs4-f-v3.txt @0x800BDD68) names exactly ONE local (`i`) -- the pointer
-     walk + cached-count temps below are compiler-internal, not separately named, so their
-     C form is chosen purely to reproduce the oracle's addressing/stride (base-pointer `v1`
-     walked +0xC8/struct with `sw` at +0xC0/+0xC4, NOT a field-biased pointer).
-     NEAR-MISS FLOOR (10 diffs, down from 17): the goto-TEST do-while below reproduces the
-     oracle's exact insn COUNT (13) and the exact addressing/stride/register-coloring; the
-     residual 10-diff is a genuine LOOP-ROTATION direction swap -- oracle is test-block-
-     first-with-plain-fallthrough + unconditional back-jump (`slt;beqz-fwd` then body then
-     `j`-back), ours is body-first-with-goto-skip + conditional back-branch (`j`-fwd-skip
-     then body then `slt;bnez`-back). Tried 12 source shapes this session (plain `while`,
-     `for`, `for(;;)+break`, do-while-with-precheck, array-indexed `Draw_gView[i]` instead
-     of the pointer, ot[0]/ot[1] store-order swap, pointer-vs-counter increment order) --
-     every natural `while`/`for` gcc-2.8 idiom inserts a `blez`-zero-trip guard the oracle
-     doesn't have; every `goto`-based do-while gets the body/test blocks in the OPPOSITE
-     position from the oracle. Not reachable by a source lever at this opt level; permuter
-     (no cast) or accept. */
-  i = 0;
-  numViews = Draw_gNumView;
-  view = Draw_gView;
- loopTop:
-  if (i < numViews) {
+  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
+     strength-reduce the view walk without an extra mutable debug local.
+     `view` is a const reconstruction expression alias, not a recovered name.
+     Byte-PASS and native scope/home contract verified 2026-09-27. */
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
     view->ot[0] = (u_long *)0x0;
     view->ot[1] = (u_long *)0x0;
-    view = view + 1;
-    i = i + 1;
-    goto loopTop;
   }
   return;
 }
@@ -492,39 +436,13 @@ void Draw_CheckFirstFrameRender(void)
 void Draw_StartFrameRender(void)
 
 {
-  /* MATCH: SYM (nfs4-f-v3.txt @0x800BE2C0) names exactly ONE local (`i`, reg $s1); oracle
-     is the same top-tested-while-no-guard family as the DeInitViews(InGame)/
-     kCtrlWorld_High/StripDraw_High siblings (see their comments).
-     FIXED (was 34-diff floor via a "safe partial fix" comma-while that a prior pass
-     reverted from `goto TEST` over a suspected miscompile; now 21-diff via a CAREFULLY
-     re-verified `goto TEST` do-while): re-checked the compiled disasm directly -- `s0`
-     (`view = &Draw_gView[0]`) is written at the prologue BEFORE the `goto TEST`'s forward
-     jump, and the loop body (which reads `view`) is reached ONLY via the back-branch
-     from the test, never as straight-line fallthrough from the prologue -- so there is
-     NO read-before-write; the earlier miscompile report must have been a different
-     (buggier) source shape. This do-while now reproduces the oracle's loop EXACTLY (same
-     insns, pure test/body rotation floor, same family as Draw_DeInitViewsInGame -- not
-     reachable by a source lever at this opt level, see that fn's 12-shape survey).
-     Residual 21 diffs = (a) the loop-rotation floor (test-block-first-with-fallthrough +
-     unconditional back-`j` w/ increment in the exit-beqz's delay slot, vs ours body-first-
-     with-goto-skip + conditional back-branch) + (b) a SEPARATE, pre-existing, loop-
-     independent tail near-miss: the oracle re-reads `gEnviro[gFlip].server` from memory
-     TWICE (once per consuming statement, interleaved with the s0/s1/ra epilogue restores)
-     while our -O2 build CSEs it to one load reused for both `Render_gPacketPtr` and
-     `Draw_gMaxPrim` -- confirmed pre-existing (byte-identical in the git HEAD baseline
-     before this session's loop fix) and unaffected by statement reordering (tried both
-     orders). Permuter or accept. */
-  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- pins the exact loop walker lifetime */
-  int i;
-
-  i = 0;
-  view = Draw_gView;
- TEST:
-  if (i < Draw_gNumView) {
+  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
+     strength-reduce the view walk without an extra mutable debug local.
+     `view` is a const reconstruction expression alias, not a recovered name.
+     Byte-PASS and native scope/home contract verified 2026-09-27. */
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
     ClearOTagR(view->ot[gFlip],view->otsize);
-    view = view + 1;
-    i = i + 1;
-    goto TEST;
   }
   /* MATCH (2026-07-31, w38-a3): the oracle LOADS gEnviro[gFlip].server TWICE
      (`lw v1,0x14(v0)` then `lw v0,0x14(v0)` off the SAME CSE'd address); our
@@ -555,23 +473,10 @@ void Draw_SetDrawSyncCallback(void (*p)(void))
 void Draw_StopFrameRender(void)
 
 {
-  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- pins the exact loop walker lifetime */
-  int i;
-
-  /* MATCH: SYM (nfs4-f-v3.txt @0x800BE36C) names exactly ONE local (`i`), live range
-     starting at the merge point right after the VSync if-block (0x800BE3BC) -- matches
-     oracle's loop counter $s1 (init `addu s1,zero,zero` once, straight `sll v0,v1,1` for
-     the gEnviro[gFlip]*24 address calc, NOT a variable shift).
-     FIXED (was 24-diff floor via a comma-`while`; then 11-diff via `goto TEST` do-while,
-     same family as Draw_DeInitViews/Draw_DeInitViewsInGame; the comma-while shape kept
-     `iVar3`/$s1 live back across the gEnviro[gFlip]*24 calc, so gcc reused $s1 for BOTH the
-     loop counter AND the *3 sub-multiply -- the do-while broke that false liveness overlap).
-     LEVER: `label: if(cond){body; goto label;}` (an if-guarded explicit backward goto, NOT
-     a `goto TEST;do{}while()` do-while) is the C shape gcc-2.8.0 lowers to the oracle's
-     test-block-first-fallthrough + unconditional-back-`j` topology -- confirmed against the
-     PASSing sibling AIPerson_SetPersonalityPointers, the only other function in the whole
-     oracle corpus with this shape. Keeps the same liveness break (still no comma-while).
-     Sealed 100% (was a documented "floor"). */
+  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
+     strength-reduce the view walk without an extra mutable debug local.
+     `view` is a const reconstruction expression alias, not a recovered name.
+     Byte-PASS and native scope/home contract verified 2026-09-27. */
   DrawSync(0);
   gLoop = gLoop + 1;
   if (Draw_gSyncCallback != (void *)0x0) {
@@ -581,14 +486,9 @@ void Draw_StopFrameRender(void)
     VSync(0);
   }
   PutDispEnv(&gEnviro[gFlip].disp);
-  i = 0;
-  view = Draw_gView;
- loopTop:
-  if (i < Draw_gNumView) {
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
     DrawOTag(view->ot[gFlip] + view->otsize + -1);
-    view = view + 1;
-    i = i + 1;
-    goto loopTop;
   }
   gFlip = 1 - gFlip;
   return;

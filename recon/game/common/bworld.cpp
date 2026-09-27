@@ -91,11 +91,11 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
   int numObjects;
 
   i = 0;
-  objInstance = (Trk_SFX *)(group + 1);
+  objInstance = (Trk_SFX *)group->GetData();
   numObjects = group->m_num_elements;
-  while (i < numObjects) {
-    short type;
+  for (; i < numObjects; i++) {
     short pad;
+    short type;
 
     pad = objInstance[i].pad;
     type = (short)objInstance[i].type;
@@ -113,25 +113,28 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
       found_match = 0;
       group = pad & 0x7fff;
       for (j = 0; j < numObjects; j++) {
+        /* Source-recovery queue: this unrecorded declaration preserves the
+           retail loop-body binding level. Removing it changes 86 -> 87
+           instructions (33 diffs); its old unused assignment is unnecessary.
+           Its original spelling/type are not proven by the retail SYM. */
         coorddef *pt1;
-
-        pt1 = (coorddef *)&objInstance[j];
         if (group == (objInstance[j].pad & 0x7fff)) {
           found_match = 1;
           break;
         }
       }
-      if ((found_match != 0) && (pad < 0)) {
-        Flare_Halo2(Vi, -1, (short)type,
-                    (coorddef *)&objInstance[i],
-                    (coorddef *)&objInstance[j], (Draw_FlareCache *)sd);
+      if (found_match != 0) {
+        if (pad < 0) {
+          coorddef *pt1 = (coorddef *)&objInstance[j];
+          Flare_Halo2(Vi, -1, (short)type,
+                      (coorddef *)&objInstance[i], pt1, (Draw_FlareCache *)sd);
+        }
       }
     }
     else {
       Flare_Halo(Vi, -1, (short)type,
                  (coorddef *)&objInstance[i], (Draw_FlareCache *)sd);
     }
-    i++;
   }
 }
 
@@ -283,15 +286,14 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
       int t2;
       int t3;
 
-      /* MATCH: retail negates m[7] through the FIRST temp and m[4] through the second
-         (oracle 8007DA44 `lw v1,28` before `lw v0,16`); the 4-then-7 order emits the
-         loads/stores the other way round. */
+      /* Retail SYM: t2=$v0 (m[4]), t3=$v1 (m[7]). Keep the matched
+         statement order while assigning the recoverable original names. */
       t1 = gNightMat.m[1];
-      t3 = gNightMat.m[4];
+      t2 = gNightMat.m[4];
       gNightMat.m[1] = -t1;
-      t2 = gNightMat.m[7];
-      gNightMat.m[4] = -t3;
-      gNightMat.m[7] = -t2;
+      t3 = gNightMat.m[7];
+      gNightMat.m[4] = -t2;
+      gNightMat.m[7] = -t3;
     }
     DrawW_WorldSetUpMatrix(&gNightMat,&sd->matNight);
     BW_gCopCarObj = (Car_tObj *)0x0;
@@ -343,15 +345,13 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
           int t2;
           int t3;
 
-          /* MATCH: retail negates m[7] through the FIRST temp and m[4] through the second
-             (oracle 8007DA44 `lw v1,28` before `lw v0,16`); the 4-then-7 order emits the
-             loads/stores the other way round. */
+          /* Same retail t2=$v0 / t3=$v1 contract as the night matrix. */
           t1 = gCopMat.m[1];
-          t3 = gCopMat.m[4];
+          t2 = gCopMat.m[4];
           gCopMat.m[1] = -t1;
-          t2 = gCopMat.m[7];
-          gCopMat.m[4] = -t3;
-          gCopMat.m[7] = -t2;
+          t3 = gCopMat.m[7];
+          gCopMat.m[4] = -t2;
+          gCopMat.m[7] = -t3;
         }
         DrawW_WorldSetUpMatrix(&gCopMat,&sd->matCop);
       }
@@ -398,12 +398,6 @@ int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePos
   int sourceChunkInd;
   int testChunkIndFwd;
   int testChunkIndBwd;
-  /* SYM-CODEGEN-CARRIER: chunkIndFwd -- loop-invariant wrapped forward chunk
-     lookup; folding it into the SYM index quantity or loop comparison
-     collapses retail's distinct pseudo. */
-  int chunkIndFwd;
-  /* SYM-CODEGEN-CARRIER: chunkIndBwd -- backward twin of chunkIndFwd. */
-  int chunkIndBwd;
   short *chunkViewList;
   int chunkInd;
   int count;
@@ -412,14 +406,17 @@ int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePos
   if (slicePosSource == slicePosTest) {
     return 1;
   }
-  testChunkIndFwd = slicePosTest->slice + 2;
-  chunkIndFwd = (u_short)(testChunkIndFwd < gNumSlices
-      ? BWorldSm_slices + testChunkIndFwd
+  /* Retail's testChunkIndFwd/Bwd are the resulting chunk IDs ($t3/$v1),
+     not these preliminary slice indices. Const expression aliases emit no
+     extra debug locals; sliceIndexFwd/Bwd are inferred role names. */
+  const int sliceIndexFwd = slicePosTest->slice + 2;
+  testChunkIndFwd = (u_short)(sliceIndexFwd < gNumSlices
+      ? BWorldSm_slices + sliceIndexFwd
       : BWorldSm_slices +
             ((int)slicePosTest->slice - (gNumSlices + -2)))->chunkIndex;
-  testChunkIndBwd = slicePosTest->slice + -2;
-  chunkIndBwd = (u_short)(testChunkIndBwd >= 0
-      ? BWorldSm_slices + testChunkIndBwd
+  const int sliceIndexBwd = slicePosTest->slice + -2;
+  testChunkIndBwd = (u_short)(sliceIndexBwd >= 0
+      ? BWorldSm_slices + sliceIndexBwd
       : BWorldSm_slices +
             ((int)slicePosTest->slice + (gNumSlices + -2)))->chunkIndex;
   sourceChunkInd = slicePosSource->chunk;
@@ -430,12 +427,12 @@ int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePos
   if (count != -1) {
     do {
       chunkInd = chunkViewList[count];
-      if ((chunkInd & 0x3ff) == chunkIndFwd) {
+      if ((chunkInd & 0x3ff) == testChunkIndFwd) {
         if ((chunkInd & 0x800) != 0) goto visible_check;
         vis++;
         if (vis != 1) goto visible_check;
       }
-      if ((chunkInd & 0x3ff) == chunkIndBwd) {
+      if ((chunkInd & 0x3ff) == testChunkIndBwd) {
         if ((chunkInd & 0x800) != 0) goto visible_check;
         vis++;
         if (vis != 1) goto visible_check;
@@ -807,7 +804,9 @@ int SetupChunkBuildList(DRender_tView *Vi)
           ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
       chunkCount = 0;
       viewInd = chunkCount;
-      for (; viewInd < totalVisChunks; viewInd++) {
+      /* Retail's six body locals are at depth 3. A for adds a fourth
+         binding level here; while preserves both their scopes and 203 insns. */
+      while (viewInd < totalVisChunks) {
        int chunkDist;
        coorddef *pChunkCp;
        Chunk *chunkPtr;
@@ -862,6 +861,7 @@ int SetupChunkBuildList(DRender_tView *Vi)
           chunkCount++;
         }
       }
+      viewInd++;
      }
   }
   return chunkCount;
@@ -952,18 +952,14 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
   }
 NO_LINES:
   if (gSpikeBelt != 0) {
-    int buildInd;
-
-    for (buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
+    for (int buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
       if (((tBuildEntry *)BWorld_gChunkBuildList)[buildInd].chunkInd == gSpikeBeltChunk) {
         DrawW_BuildSpikeBelt(Vi,gSpikeBeltWidth,sd);
       }
     }
   }
   if (GameSetup_gData.commMode == 0) {
-    int buildInd;
-
-    for (buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
+    for (int buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
       Chunk *chunkPtr;
       int chunkInd;
 

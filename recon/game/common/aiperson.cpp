@@ -94,30 +94,26 @@ void AIPerson_SetPersonalityPointers(void)
 /* ---- AIPerson_LoadPersonalityData__FP10Udff_tInfo  [@0x80068b60] ---- */
 void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
 {
-  int perLoop;
-  int blockingDistance;
-  int cutOffDistance;
-  int lookAhead;
-  int swervyness;
-  int braking;
-  int roadRage;
-  int fishtailControl;
-  int wipeOutFreq;
-  int corneringAbility;
-  int bestLineAbility;
-  int rearEndingTendency;
-  int aggression;
   /* SYM-CODEGEN-CARRIER: copCollisionFirmness -- no retail debug name survives for this final read,
    * but keeping it distinct reproduces the 80-byte frame and saved-register
    * allocation; assigning Udff_GetInt directly removes three instructions. */
   int copCollisionFirmness;
   Udff_GetInt(handle);
 
-  perLoop = 0;
-  while (1) {
-    if (perLoop >= 9) {
-      break;
-    }
+  for (int perLoop = 0; perLoop < 9; perLoop++) {
+    int blockingDistance;
+    int cutOffDistance;
+    int lookAhead;
+    int swervyness;
+    int braking;
+    int roadRage;
+    int fishtailControl;
+    int wipeOutFreq;
+    int corneringAbility;
+    int bestLineAbility;
+    int rearEndingTendency;
+    int aggression;
+
     blockingDistance = Udff_GetInt(handle);
     cutOffDistance = Udff_GetInt(handle);
     lookAhead = Udff_GetInt(handle);
@@ -153,7 +149,6 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
     AIPerson_PersonalityData[perLoop].rearBumpProbMask = AIPerson_rearEndProbMask[rearEndingTendency];
     AIPerson_PersonalityData[perLoop].smackProbMask = AIPerson_smackProbMask[aggression];
     AIPerson_PersonalityData[perLoop].copCollisionFirmness = copCollisionFirmness;
-    perLoop++;
   }
   return;
 }
@@ -182,14 +177,13 @@ void AIPerson_LoadScriptData(Udff_tInfo *handle)
 /* ---- AIPerson_LoadGlue__FP10Udff_tInfo  [@0x80068f80] ---- */
 void AIPerson_LoadGlue(Udff_tInfo *handle)
 {
-  int glueLoop;
-
   Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
   if ((Cars_gNumCopCars != 0) &&
      (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))))) {
+    int glueLoop;
     for (glueLoop = 0; glueLoop < 0x15; glueLoop++) {
       if (0x10000 < AIPerson_glueTable[glueLoop]) {
         AIPerson_glueTable[glueLoop] =

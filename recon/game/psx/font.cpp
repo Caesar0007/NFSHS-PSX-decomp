@@ -86,10 +86,11 @@ void Font_TextTint(int rgb)
 void Font_SetABR(int abr)
 
 {
-  int y; /* SYM-CODEGEN-CARRIER: y -- inlining swaps $a2/$a3 (6 diffs, 18/18) */
-
   font_abr = abr;
-  y = (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 20;
+  /* Canonical PsyQ GetTPage y argument. Const use-site expression leaves no
+     extra SYM local and preserves the 18-instruction match; direct argument
+     substitution swaps a2/a3 (six diffs). Original local spelling is unknown. */
+  const int y = (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 20;
   font_currentTPage =
        GetTPage(*(u_char *)(*(int *)((u_char *)&(currentfont) + 136)) & 3,abr,
                   (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14,
@@ -461,9 +462,9 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
 void Font_TextXY(char *string,int x,int y)
 
 {
+  char *str;
   charactertbl *ch;
   int code;
-  char *str;
   u_char *cfbase; /* SYM-CODEGEN-CARRIER: cfbase -- direct currentfont uses add 2 insns/52 diffs */
 
   str = string;

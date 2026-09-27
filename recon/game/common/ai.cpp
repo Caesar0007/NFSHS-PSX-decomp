@@ -188,10 +188,6 @@ void AI_ClearLaneMerits(void)
 void AI_DoReactions(Car_tObj *carObj)
 {
   int target;
-  int absDistance;
-  int seconds;
-  int metersDistance;
-  Car_tObj *otherCarObj;
   
   target = AIScript_DoReAction(&carObj->script,8);
   if (target == -1) goto LAB_horncheck;
@@ -227,8 +223,10 @@ LAB_afterhorn:
 LAB_80057cc0:
   target = AIScript_DoReAction(&carObj->script,0x200);
   if (target != -1) {
+    int absDistance;
     absDistance = __builtin_abs(AIWorld_ApxSplineDistance(carObj,Cars_gList[target]));
     if (0xc0000 < absDistance) {
+      int seconds;
       seconds = AIScript_GetReactionTicksLeft(&carObj->script);
       if (seconds < 0) {
         seconds = seconds + 0x1f;
@@ -243,9 +241,13 @@ LAB_80057cc0:
   }
   target = AIScript_DoReAction(&carObj->script,0x20);
   if (target != -1) {
+    Car_tObj *otherCarObj;
+    int metersDistance;
     otherCarObj = Cars_gList[target];
-    metersDistance = AIWorld_SplineDistance(carObj,otherCarObj);
-    if (metersDistance * carObj->direction < 0x40000) {
+    /* Retail REG $ffffffff is GCC's unmapped special-register home (LO),
+       so this name belongs to the directed product, not the raw distance. */
+    metersDistance = AIWorld_SplineDistance(carObj,otherCarObj) * carObj->direction;
+    if (metersDistance < 0x40000) {
       AI_TargetLane(carObj,otherCarObj->laneIndex);
     }
   }
@@ -437,7 +439,7 @@ void AI_CheckForBarriers(Car_tObj *carObj)
       interval = 1;
     }
     carObj->barrierThinkHarder = carObj->barrierThinkHarder - AI_elapsedTime;
-    while (sliceLoop < slicesAhead) {
+    for (; sliceLoop < slicesAhead; sliceLoop = sliceLoop + interval) {
       int checkSlice;
 
       checkSlice = WRAP_SLICE(sliceLoop * dir,slice);
@@ -456,7 +458,6 @@ void AI_CheckForBarriers(Car_tObj *carObj)
         laneNotChecked[2] = 0;
         CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x280000;
       }
-      sliceLoop = sliceLoop + interval;
     }
   }
   return;
@@ -504,34 +505,25 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
   int lookAhead;
   int laneIndex;
 
-  absLaneLookAhead = carObj->currentSpeed;
-  if (absLaneLookAhead < 0) {
-    absLaneLookAhead = -absLaneLookAhead;
+  lookAhead = fixedmult(ABS(carObj->currentSpeed),0x6aaa);
+  const int roundedLookAhead = lookAhead < 0 ? lookAhead + 0xffff : lookAhead;
+  absLaneLookAhead = roundedLookAhead >> 0x10;
+  if (absLaneLookAhead < 5) {
+    absLaneLookAhead = 5;
   }
-  laneIndex = fixedmult(absLaneLookAhead,0x6aaa);
-  lookAhead = laneIndex;
-  if (laneIndex < 0) {
-    lookAhead = laneIndex + 0xffff;
-  }
-  laneIndex = lookAhead >> 0x10;
-  if (laneIndex < 5) {
-    laneIndex = 5;
-  }
-  laneIndex = carObj->direction * laneIndex;
-  if (0 <= laneIndex) {
-    lookAheadSlice = (carObj->N).simRoadInfo.slice + laneIndex;
+  lookAhead = absLaneLookAhead * carObj->direction;
+  if (0 <= lookAhead) {
+    lookAheadSlice = (carObj->N).simRoadInfo.slice + lookAhead;
     if (gNumSlices <= lookAheadSlice) {
       lookAheadSlice = lookAheadSlice - gNumSlices;
-      goto LAB_800588a4;
     }
   }
   else {
-    lookAheadSlice = (carObj->N).simRoadInfo.slice + laneIndex;
+    lookAheadSlice = (carObj->N).simRoadInfo.slice + lookAhead;
     if (lookAheadSlice < 0) {
       lookAheadSlice = lookAheadSlice + gNumSlices;
     }
   }
-LAB_800588a4:
   laneIndex = carObj->laneIndex;
   if ((laneIndex < 7 - (BWorldSm_slices[lookAheadSlice].laneCount >> 4)) ||
       ((BWorldSm_slices[lookAheadSlice].laneCount & 0xf) + 6 < laneIndex)) {
@@ -653,8 +645,6 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   int carObjThisLaneBits;
   int carObjRightLaneBits;
   int maxDistanceToCheck;
-  int collisionSpeed;
-  int aheadCollisionSpeed;
 
   lanesFilled = 0;
   ci = 0;
@@ -670,14 +660,14 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   carObjLeftLaneBits = 1 << (carObj->laneIndex - 1);
   carObjThisLaneBits = 1 << carObj->laneIndex;
   carObjRightLaneBits = 1 << (carObj->laneIndex + 1);
-  do {
+  for (;; ci = ci + 1) {
     if ((carsFound == 3) || (Cars_gNumCars <= ci)) {
       return;
     }
     otherCarObj = Cars_gSortedList[
         (carObjIndexInSortedList + ci * carObj->direction + Cars_gNumCars) %
         Cars_gNumCars];
-    if ((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) {
+    if ((carObj == otherCarObj) || ((otherCarObj->N).active == '\0')) continue;
       distanceFixedMeters = AIWorld_SplineDistance(otherCarObj,carObj);
       distanceFixedMetersSignChecked = distanceFixedMeters * carObj->direction;
       if (__builtin_abs(carObj->currentSpeed) < 0x1638e3) {
@@ -694,6 +684,8 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
       }
       if (((carObj->N).dimension.z < distanceFixedMetersSignChecked) &&
         (distanceFixedMetersSignChecked < maxDistanceToCheck)) {
+        int collisionSpeed;
+        int aheadCollisionSpeed;
         if (carObj->direction == 1) {
           distanceIntMeters = distanceFixedMeters / 0x10000 - 2;
           if ((carObj->carFlags & 0x28U) != 0) {
@@ -745,9 +737,7 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
           AI_Info.blockingCarsDist[2] = distanceFixedMetersSignChecked;
         }
       }
-    }
-    ci = ci + 1;
-  } while( true );
+  }
 }
 
 /* ---- AI_CalcMeritsBasedOnSpeed__FP8Car_tObj  [@0x800590b4] ---- */
@@ -888,19 +878,15 @@ NEXT_CAR:
 void AI_CalcBestLineMerits(Car_tObj *carObj)
 {
   int checkSlice;
-  int slice;
-  char*buffer;
-  int latPos;
 
-  slice = carObj->lookAheadSlice;
-  if ((carObj->carFlags & 8U) != 0) {
-    latPos = fixedmult(*(int *)((char *)carObj->personality + 0x44),
-                        (int)(signed char)AIDataRecord_BestLine->dataBuffer_
-                             [slice] << 0xe);
-    carObj->preferredLateralPosition = latPos;
-    carObj->preferredLateralPositionPower = 0x50000;
-    carObj->preferredLateralPosition = latPos - carObj->laneSlack * carObj->direction;
-  }
+  checkSlice = carObj->lookAheadSlice;
+  if ((carObj->carFlags & 8U) == 0) return;
+  carObj->preferredLateralPosition =
+      fixedmult(*(int *)((char *)carObj->personality + 0x44),
+                AIDataRecord_BestLine->Get(checkSlice));
+  carObj->preferredLateralPositionPower = 0x50000;
+  carObj->preferredLateralPosition = carObj->preferredLateralPosition -
+      carObj->laneSlack * carObj->direction;
   return;
 }
 
@@ -1036,11 +1022,10 @@ void AI_HandleTrafficHonking(Car_tObj *carObj)
       (-0x30000 < AI_Info.laneSpeeds[1])) {
     /* ORIGINAL-NAME-RECOVERED: honkprob -- the symbol-bearing NFS2
        predecessor records this same RNG probability intermediate as `int honkprob`. */
-    int honkprob;
 
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
-    honkprob = (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10);
+    const int honkprob = (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10);
     if (((GameSetup_gData.commMode != 1) &&
          (honkprob < 5)) &&
        (carObj->currentSpeed != 0)) {

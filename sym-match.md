@@ -2,6 +2,174 @@
 
 Status as of 2026-09-26. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
+2026-09-27: `game/psx/draw.cpp` native-contract round, 19/25 -> 25/25 CLEAN.
+The six OT/view/frame loops now declare retail's `i` in the `for` scope and
+derive a const per-iteration view expression instead of mutable pointer-walker
+carriers (and a cached-bound carrier in DeInitViewsInGame). Detailed verify_asm:
+InitViewOT 33, InitViewOTInGame 31, DeInitViews 34, DeInitViewsInGame 13,
+StartFrameRender 40, StopFrameRender 57 instructions, all PASS. Full symloop:
+BYTES UNCHANGED; 524 ASPSX objects, zero failures; PSYLINK zero errors;
+25 CLEAN, zero DIRTY (`build/symloop_runs/run-awwgapgn`). Original spelling of
+the absent view temporary is not claimed recovered. Stale comments asserting
+unreachable loop-rotation floors have been replaced. SLD-only work remains parked.
+Final comment-cleaned rebuild: `run-u5f7v5o0`, again 25/25 native CLEAN and
+BYTES UNCHANGED. Whole-tree native report: 2075 CLEAN / 490 DIRTY; honest
+RECON 299819/299819, zero mismatches or masked mismatches, zero foreign labels;
+vtable audit PASS across 1314 files; whitespace check clean.
+GNU link checkpoint: fresh 526-object census; strict rc=0 (existing overlap
+warnings), multdef-ok rc=0 with empty stderr, zero undefined names or truncated
+relocations. `SetupBuildMatrices` now assigns retail's t2=$v0 and t3=$v1
+to the night/cop-matrix temporaries without reordering their computations.
+181/181 PASS; full bworld symloop BYTES UNCHANGED, 16/21 CLEAN (one gained),
+zero ASPSX failures or PSYLINK errors (`run-48fpin8l`).
+After the naming fix, full-tree native board: 2076 CLEAN / 489 DIRTY; honest
+RECON remains 299819/299819. GetGlueFactor's direct ternary-clamp experiment
+merged the first two arms (118 vs 131 instructions, 47 diffs) and was reverted.
+Its restored TU passes the full byte gate (`run-vcwfkgnj`); the three glueIndex
+home mismatches remain an active source-shape investigation, not a proven floor.
+
+2026-09-27 bworld continuation: 16/21 -> 19/21 native CLEAN, plus Onyx's
+two buildInd scope mismatches resolved (its ts carrier remains).
+- CheckChunkVisible: retail's testChunkIndFwd/Bwd are the loaded chunk IDs
+  at REG $11/$3, not the preliminary slice indices. Const slice-index expression
+  aliases retain 80/80 instructions and disappear from debug locals; both original
+  chunk names now have their retail homes. Direct index expressions were 22 diffs.
+  The sliceIndexFwd/Bwd spellings describe proven arithmetic roles, not recovered names.
+- SetupChunkBuildList: while instead of for removes the extra C++ loop binding
+  level. All six body locals are now at retail depth 3; 203/203 PASS.
+- BuildGlareEffects: canonical Group::GetData supplies retail's this/inline pair;
+  the outer for restores the loop level, pad/type declaration order is restored,
+  and nested found_match/pad guards place the recorded pt1=$v0 (the fifth call
+  argument, objInstance[j]) in its retail scope. 86/86 PASS; native CLEAN.
+- Source-recovery queue, NOT a generic exemption: the inner search loop still
+  needs an unrecorded declaration to preserve its binding level. Removing it
+  changes 86 -> 87 instructions (33 diffs); its unused assignment can be removed
+  without changing bytes. Its pre-existing pt1 spelling and coorddef-pointer type
+  are not uniquely recoverable from this retail SYM. The source flags this uncertainty;
+  native CLEAN must not be presented as fully recovered original text.
+- Falsified and reverted: BWorld_Init const use-site random remains EXTRA and adds
+  four unwanted scopes; reusing AudioScene gives 186/187 and 15 diffs. Onyx's const
+  ts collapses to direct field expressions (193/193, ten diffs), so ts remains open.
+Full combined byte/native receipt: `run-cx6rtyiv`, BYTES UNCHANGED, 524 ASPSX
+objects with zero failures, PSYLINK zero errors, 19 CLEAN / 2 DIRTY. SLD-only
+work stays parked; this receipt covers locals, homes, declaration order and native
+scope trees, not instruction/source-line attribution.
+Final restored rebuild: `run-imxc_29_`, again 19/21 CLEAN and BYTES UNCHANGED.
+Full-tree native board: 2079 CLEAN / 486 DIRTY, with five retail-only functions
+still outside the common set. Native-only directory coverage (not a source/SLD seal):
+
+| Retail directory | Native clean | Unresolved | Covered |
+|---|---:|---:|---:|
+| FRONTEND/COMMON | 711 | 127 | 838 |
+| FRONTEND/PSX | 61 | 24 | 85 |
+| GAME/COMMON | 1032 | 215 | 1247 |
+| GAME/PSX | 275 | 120 | 395 |
+
+Fresh GNU link: 526 objects, zero undefined names/truncated relocations;
+multdef-ok rc=0, empty stderr (strict retains existing overlap diagnostics).
+Vtable audit PASS in 1314 files. Original-source, unrecorded-declaration and SLD
+requirements remain open; no completion claim is implied by these native counts.
+
+2026-09-27 AI continuation: ai.cpp 33/40 -> 37/40 native CLEAN. Retained
+source changes all pass detailed verify_asm and full symloop BYTES UNCHANGED
+(`run-pqkoxlim`, 524 ASPSX objects, zero failures, PSYLINK zero errors):
+- HandleChangeInNumLanes (92 instructions): absLaneLookAhead now holds the
+  positive slice distance, lookAhead the directed distance, laneIndex only the
+  lane checks. The const rounding expression reproduces the distinct v0
+  correction while all three original names get retail's v1 home. Direct signed
+  division was one instruction short/seven diffs; the rounding-alias spelling is inferred.
+- CheckForBarriers (240): the for loop supplies retail's +278 binding level,
+  putting checkSlice in depth 5 rather than 4.
+- CalcBestLineMerits (34): restore the inline BestLine accessor's this/slice
+  parameters and buffer/latPos locals, rather than open-coding the read. The early
+  flag return puts the inline pair directly under the function; CC1PLPSX reverses
+  the inline local declaration list, so latPos-before-buffer emits retail's
+  buffer-before-latPos debug order. Get is the record-family accessor spelling,
+  not a name retained in this retail inline scope; ai_types.h has only ai.cpp as a consumer.
+- CalculateLaneSpeeds (229): for-loop binding, inactive-car continue, and the
+  two collision-speed declarations inside the distance guard reproduce depth 5.
+TryToShareLanes remains open: direct normalized offsets gave 26 diffs, in-place
+normalization 49, and a const desired-lane snapshot 30. All three were reverted;
+the restored TU passed the full byte gate (`run-ay3x3law`).
+Fresh full-tree native report: 2083 CLEAN / 482 DIRTY. Full normal and expected
+build lanes are running; their completion is not yet claimed. No SLD seal is claimed.
+Isolated preprocessed-snapshot probe while those builds run: deleting the
+redundant HandleChangeInNumLanes goto and LAB_800588a4 label preserves the
+entire AI object's .text SHA256:
+`0628d87b946ec965cd60a6c222070a9fc62d11b765289b68c2c8a1683dbe68dc`.
+The combined alias-plus-label deletion does not: it duplicates the shift and
+adds an instruction. Label-only cleanup is ready for promotion after the
+integration snapshot finishes; the project source has not yet been changed.
+Probe artifacts: ignored `build/ai_source_probe/` (CC1PLPSX -O2 -G4
+-fno-implement-inlines, canonical maspsx/as pipeline; no instruction rewrites).
+DoReactions isolated probe: moving absDistance/seconds/otherCarObj to their
+retail compounds and making metersDistance hold
+`AIWorld_SplineDistance(carObj,otherCarObj) * carObj->direction` reproduces
+the missing `.def metersDistance; .val -1; .scl 4; .type 0x4` naturally.
+The non-debug probe's entire .text has the same SHA256 quoted above. Ordinary
+scope placement alone, and an ordinary register keyword, did not recover the record.
+GCC evidence: `gcc-2.8.1-src/extracted/config/mips/mips.c:3766..3780` initializes
+all debug-register mappings to -1, then maps only GP/FP registers, explicitly
+ignoring special-purpose registers. Thus retail REG $ffffffff is consistent
+with the named multiply result in LO, not evidence of a dead/uninitialized local.
+The raw oracle at 80057D98..80057DA8 is mult/mflo followed by the threshold test.
+This candidate is ready for main-source/native-SYM promotion after the full builds;
+no comparator exemption or instruction rewrite was introduced.
+Honking isolated probe: const use-site initialization of the predecessor's
+recovered honkprob name emits no honkprob debug local and preserves the same
+entire .text hash. Direct substitution into the condition changes code.
+Artifacts: `build/ai_source_probe/honk_const.i`, `honk_const.s` (-g receipt),
+`honk_const.o` (normal byte receipt). This candidate is also queued for
+main-source scope/native verification after the integration builds finish.
+Integration snapshot completed: both `build.py --skip-asm` and
+`build.py --out expected --no-link` exited 0 with no failed/skipped TUs.
+The queued DoReactions/honking/label changes are now promoted to main source.
+Detailed gates: DoReactions 144/144, HandleTrafficHonking 65/65,
+HandleChangeInNumLanes 92/92 PASS. Combined symloop `run-394n3ncf`:
+BYTES UNCHANGED; ASPSX 524 good / 0 bad; PSYLINK zero errors;
+AI 39/40 native CLEAN. Only TryToShareLanes' absLaneIndex home remains open.
+The expression-assignment normalization probe also changes bytes and was not promoted.
+Post-promotion full-tree native report: 2085 CLEAN / 480 DIRTY.
+Fresh 526-object GNU link: multdef-ok rc=0 with empty stderr; zero undefined
+symbols/truncated relocations. Strict lane keeps the pre-existing overlap
+diagnostics. Vtable audit PASS across 1314 files; whitespace check clean.
+Post-promotion honest linked measure: RECON 299819/299819 identical, zero
+diff words, zero masked mismatches, zero foreign-label violations.
+Font round: Getcharacter's retail base=$s2 is the character-table pointer,
+not the font-header pointer currently named base=$s3. Const pointer/integer
+header aliases each produced 14 diffs at 35 instructions; destructive pointer
+replacement lost the held header address (33 vs 35, 38 diffs). All were reverted;
+the restored full Font byte gate passed (`run-9q87qpbb`). This remains a source-
+shape problem, not merely a register-name swap.
+SetABR's generic y carrier exemption was replaced by a const use-site expression
+and explicit evidence: canonical PsyQ LIBGPU.H:744 declares GetTPage(tp,abr,x,y);
+retained y gives 18/18 PASS with no extra debug local. Fresh direct substitution
+gives six a2/a3 diffs at the same 18 instructions. Original local spelling is not
+recoverable from this SYM; y is the canonical argument role, not a recovered spelling.
+Final Font symloop `run-4p0poh5w`: BYTES UNCHANGED, 524 ASPSX good / 0 bad,
+PSYLINK zero errors; 12/15 native CLEAN (unchanged). No failed Getcharacter
+experiment remains in source. Fresh GNU link and vtable audit remain green.
+Font continuation: SwitchFont const header-base substitution produced 13 diffs
+and 28 vs 27 instructions; TextXY's const header-base substitution produced
+24 diffs and 88 vs 86. Both were reverted. TextXY's recoverable root declaration
+order is now str, ch, code as retail emits, retaining 86/86 PASS; the extra
+cfbase remains an explicit unresolved item. No masking comparator change was made.
+Combined Font scope/byte receipt: `run-mbb1cbfq`, BYTES UNCHANGED; ASPSX
+524 good / 0 bad, PSYLINK zero errors, 12/15 native CLEAN. The three remaining
+Font issues are unchanged; the named TextXY root locals now have retail's order.
+2026-09-28 AIPerson scope round: 6/8 -> 8/8 native CLEAN.
+LoadGlue's glueLoop declaration is inside the guarded compound (retail depth 3),
+not at function scope or in the for initializer; 67/67 PASS.
+LoadPersonalityData uses a for-declared perLoop (depth 2) and twelve named
+body locals (depth 3) in retail's order; 209/209 PASS. Its unrecorded final-read
+copCollisionFirmness object remains explicitly queued rather than claimed original.
+Full symloop `run-6dz31g7t`: BYTES UNCHANGED, ASPSX 524 good / 0 bad,
+PSYLINK zero errors; native 8 CLEAN / 0 DIRTY. Whole-tree native report:
+2087 CLEAN / 478 DIRTY. Native CLEAN does not seal unknown source spellings or SLD.
+Regression: fresh 526-object GNU link, multdef-ok rc=0/empty stderr,
+zero undefined names or truncated relocations; vtable audit PASS in 1314 files;
+whitespace check clean.
+
 2026-09-25 (session from commit 4eff2f1a). SLD line matching is parked by the user for a later
 stage; this round is the native contract (locals, homes, scope trees) only. Every retained
 change passed `symloop.py` (BYTES UNCHANGED), and the whole tree was rebuilt, relinked and

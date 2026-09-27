@@ -37,7 +37,7 @@ text/fonts, trimmed content, pre-final builds).
 
 ## Extracted trees
 - NFS4: `C:\Temp\nfs4_extracted` — 702 files (232 VIV, 139 PSH, 40 GRP, 40 AUD, 31 DCT, 29 QDA, 29 QCS, 22 QPS, 18 BIN, 13 BNK, …)
-- NFS3: `C:\Temp\claud\nfs3_re_project\extracted` — one track's set (TRK COL GEO HRZ DPQ VIS CCM MAP PSH GRP QAS QAL QBE QSL QSS QTS PKL OBJ COP) — **partial**, full disc not extracted
+- NFS3: **`C:\Temp\nfs3_disc`** — full USA retail extraction (774 files, MOVIES skipped) via `tools/psx_iso.py`; `SLUS_006.20` + `FRONT.BIN` at 0x80010008 == `nfs3-clean/NFS3-F.EXE`. Older partial set: `C:\Temp\claud\nfs3_re_project\extracted` — one track's set (TRK COL GEO HRZ DPQ VIS CCM MAP PSH GRP QAS QAL QBE QSL QSS QTS PKL OBJ COP) — partial
 - NFS1 / NFS2 / NFS5: not yet extracted
 
 ## Prior specs (to be migrated into `formats/`)

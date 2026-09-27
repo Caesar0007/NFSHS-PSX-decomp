@@ -41,4 +41,6 @@ Project started 2026-09-27.
   and the GRP loader output confirmed byte-exact in a running game (`tools/runtime/`).
   Specs: `formats/NFS4_TRACK_FILES.md` (index), `NFS4_TRACK_GRP.md`, `NFS4_TRACK_AUX.md`,
   `NFS4_TRACK_TEXTURES.md`, `NFS4_PSH.md`, `NFS4_Q_CODECS.md`.
-- NFS1/NFS2/NFS3/NFS5 surveys not yet started (NFS5 image pending upload).
+- **NFS3 track survey: started** — `formats/NFS3_TRACK_FILES.md`: file set, loader map, and the `.TRK`
+  (`TRAC`) and `.COL` (`COLL`) containers checked on all 15 files each; record layouts next.
+- NFS1/NFS2/NFS5 surveys not yet started (NFS5 image pending upload).

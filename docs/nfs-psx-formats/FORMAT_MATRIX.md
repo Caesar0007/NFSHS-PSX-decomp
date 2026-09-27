@@ -11,8 +11,11 @@ spec + later corrections; they get re-verified as each family is migrated into `
 | Q* codecs (RefPack 0x10, Huffman 0x30/32/34, B-tree 0x46) | compression wrapper (`unpackz`) | ? | ? | seen | ★★★ | ? | [NFS4](formats/NFS4_Q_CODECS.md) |
 | PSH (SHPP/GIMX) | textures / sprites | ? | ? | seen | ★★★ | ? | [NFS4](formats/NFS4_PSH.md) |
 | QPS | B-tree-packed PSH (loading screens) | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_PSH.md) |
-| GRP (SerializedGroup) | track geometry container | — | — | ★★ (converter output) | ★★★ | ? | [NFS4](formats/NFS4_TRACK_GRP.md) |
-| TRK / COL / GEO / HRZ / DPQ / VIS / CCM / MAP | NFS2-engine track set | ? | ? | ★★ | — | ? | — |
+| GRP (SerializedGroup) | track geometry container | — | — | — (ancestor = TRK) | ★★★ | ? | [NFS4](formats/NFS4_TRACK_GRP.md) |
+| TRK (`TRAC` v22) | streamed track geometry: meta-chunks of 8 chunks, typed sub-blocks | ? | ? | ★★★ container, ★ records | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
+| COL (`COLL` v11) | persistent track data: typed collections (slices, objects, instances) | ? | ? | ★★★ container, ★ records | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
+| VIS / DPQ / HRZ / CLR (text) | vis-list source; depth cue + env zones; horizon; car colours | ? | ? | ★ (VIS ★★★ = TRK type 4) | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
+| CCM / T{B,F}.BIN / MAP (PFDx) / TRJ, TRM (SCHl) | NFS3 track extras, music | ? | ? | seen | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md) |
 | ZTR<NN>.BIN (TrackSpec) | sky/fog/horizon/weather/night config | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
 | CAR / GEO (zScene) | car geometry | ? | ? | ? | ★★★ | ? | — |
 | QBE / QCR | AI racing line / curvature (Huffman) | ? | ? | seen | ★★★ | ? | [NFS4](formats/NFS4_TRACK_AUX.md) |
@@ -34,7 +37,7 @@ spec + later corrections; they get re-verified as each family is migrated into `
 | Memory-card save | save format | ? | ? | ? | ? | ? | — |
 
 ## Next surveys (in order)
-1. Extract NFS3 USA retail fully → census every extension, fill the NFS3 column.
+1. NFS3: track survey done ([NFS3_TRACK_FILES.md](formats/NFS3_TRACK_FILES.md)); next = TRK/COL record layouts, then the non-track families.
 2. NFS2 USA → same; NFS2 beta for pre-retail deltas.
 3. NFS1 USA → census (likely distinct 3DO-lineage formats).
 4. Migrate NFS4 families into `formats/` one at a time, re-verifying each field against

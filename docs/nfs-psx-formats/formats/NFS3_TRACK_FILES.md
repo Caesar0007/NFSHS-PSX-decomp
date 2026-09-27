@@ -67,15 +67,14 @@ Race options used by the track files (`0x800F9F44 + 4·k`, from the setter's tab
 | `ZTR<NN><v>.COL` | `COLL` v11 | `func_80068018` "Opened track Persistent file and found %d collections" | ★★★ container | §2 |
 | `ZTR<NN><v>.CCM` | binary | `func_800660A4` → `func_8006BB78(".ccm")` | ★★★ | trackside cameras, §4 |
 | `ZTR<NN><v>0.PSH`, `…R.PSH` | SHPP shape files | `func_80067960` ("0.psh", "R.psh") | ★★★ container | textures / reflection maps; format as [NFS4_PSH.md](NFS4_PSH.md) (to re-verify on NFS3) |
-| `ZTR<NN><v>A.VIV` | BIGF archive | `func_8005B878` ("%sA.viv") | seen | |
+| `ZTR<NN><v>A.VIV` | BIGF archive of `.CAN` | `func_8005B878` ("%sA.viv") | ★★★ container | camera animation scripts, §8 |
 | `ZTR<NN><v>.DPQ` | text | `func_800A7250` ("%sTr%02d%c.dpq") | ★ | depth-cue distance + colour, car env-map zones `{slice, tex, extra, quad}` (the NFS4 `.ENV` content lives here) |
 | `ZTR<NN><v>.HRZ` | text | `func_800B84BC` ("%sTr%02d%c.hrz") | ★ | horizon/sky parameters, commented |
 | `ZTR<NN><v>{D,N,W}.CLR` | text | `func_80080C18` ("%sTr%02d%c%c.clr") | ★ | car colour table per condition (day/night/weather); also `carmenu.clr` |
 | `ZTR<NN><v>{,N,NW,W}.BNK` | sound bank | ".bnk" builders | seen | |
 | `ZTR<NN><v>T{F,B}.BIN` | tutor prompts | `func_80081DB4` ("at"/"bt" + "f.bin"/"b.bin"), only when TUTOR is on | ★★★ | §5 |
-| `ZTR<NN><v>.VIS` | text `#chunk` + list | **none** (no reference in the EXE) | ★★★ | exporter source of TRK sub-block 4 (§1.5) |
-| `ZTR<NN>{F,R}.QAL/.QAS/.QBE` | Huffman `30FB` | "%sTr%02d%s.qbe", "qal", "qas" | seen | codec as [NFS4_Q_CODECS.md](NFS4_Q_CODECS.md) |
-| `ZTR<NN>{F,R}.QSL/.QSS`, `ZTR<NN>.QTS` | Huffman `30FB` | **no reference found** | ✗? | likely unused; confirm with a runtime file-open trace |
+| `ZTR<NN><v>.VIS` | text `#chunk` + list | **none**: never opened (runtime trace, §9) | ★★★ | exporter source of TRK sub-block 4 (§1.5) |
+| `ZTR<NN>{F,R}.Q{A,S}{L,S}`, `.QBE`, `ZTR<NN>.QTS` | Huffman `30FB` | `func_8005791C` (extensions stored as "letter − 1") | ★★★ | AI speed / line tables, §7 |
 | `ZTR<NN>{BEG,EXP}.COP` | cop triggers | `func_800520FC` ("%sTr%02d%s.cop"), only when COPS is on | ★★★ container | §6 |
 | `ZTR<NN>CSP.<lang>`, `ZZZTR<NN>C.<lang>` | speech | `func_80081DB4`, `func_80083688` ("cop speech") | seen | |
 | `ZZZTR<NN>A.TRJ`, `ZZZTR<NN>B.TRM` | `SCHl` EA audio stream | "%szztr%02da.trj", "%szztr%02db.trm" | seen | track music |
@@ -185,7 +184,7 @@ this slot map:
 |------|-----------|--------|-----|--------------------|
 | 4 | 2,234 | u16 | ★★★ | **visibility list**: low 10 bits = chunk index, range-checked ("Bad data in visibility list - out of range!"); identical to the `.VIS` text rows in 1,382 of 1,388 rows (6 rows of `00B` are stale) |
 | 6 | 2,234 | 8 B `{u16 firstQuad, u8 quadCount, u8 n (4–9), i16 link[2]}` | ★★★ | **sim slices**: per chunk they partition q4 exactly (contiguous, total = q4, all chunks); the per-chunk counts sum to the COL slice count in all 15 files. `n` (byte 3) = **interactive-music section**: `func_8006BE14` reads it up to 16 slices ahead of the car and `func_8005FC14` passes it (min 4) to the PathFinder music player (`func_800ECDD4`, which range-checks it against byte 7 = 16 of the loaded `PFDx` `.MAP`). `link[2]` = global slice indices of alternative routes: when one is not −1, the "slice jump" code (`func_80069E14`) re-resolves the car onto whichever slice is closer. All 196 links on disc are valid slice indices (192 slices with one link, 2 with both) |
-| 5 | 2,234 | 2 B `{u8 frame, u8 flags}` | ★★★ / ★★ | one word per q4 quad (count = q4 in all chunks), addressed as `type5 + 8 + 2·(firstQuad + lane)` by the sim code (`func_80068F48`, `func_80069E14`). `frame` indexes the chunk's type-0xD table (below it in all 225,739 words). `flags`: bits 0–5 = **surface id** (the car keeps it at +0x1C0/+0x1C4; getter `func_8006BD28`), bit 0x80 = triggers a ±3.5-unit height test in `func_80071874`, bit 0x40 open. Surface 0xE = **wall**: a sideways move onto it is refused (`func_80068F48`); groups {1, 7, 0xA, 0xC, 0xD} are tested together by `func_8006C044` / `func_800A5B08`. On disc: 0, 1, 2, 3, 5, 7, 0xA–0xF (0xE = 43 %) |
+| 5 | 2,234 | 2 B `{u8 frame, u8 flags}` | ★★★ / ★★ | one word per q4 quad (count = q4 in all chunks), addressed as `type5 + 8 + 2·(firstQuad + lane)` by the sim code (`func_80068F48`, `func_80069E14`). `frame` indexes the chunk's type-0xD table (below it in all 225,739 words). `flags`: bits 0–5 = **surface id** (the car keeps it at +0x1C0/+0x1C4; getter `func_8006BD28`), bit 0x80 = triggers a ±3.5-unit height test in `func_80071874`, **bit 0x40 = check object collisions**: on such a quad the car gathers the nearby sim objects (type 0xB, `func_8006AA2C`) and tests contact (`func_80080664` → `func_80080468`, `func_8006834C`); 629 chunks with 0x40 quads have sim objects and the other 53 border chunks that do. Surface 0xE = **wall**: a sideways move onto it is refused (`func_80068F48`); groups {1, 7, 0xA, 0xC, 0xD} are tested together by `func_8006C044` / `func_800A5B08`. On disc: 0, 1, 2, 3, 5, 7, 0xA–0xF (0xE = 43 %) |
 | 0xD | 2,234 | 12 B `{i16 normal[3], i16 direction[3]}` | ★★ | quad orientation frames, shared by quads through type 5's `frame`. Both vectors are unit length in 1.15 fixed point (all but 31 of 166,240 records); `normal` points up in 63 %, and the two are orthogonal in 79 % |
 | 8 | 1,832 | `{u32 size, u16 vertexCount, u16 quadCount}` + vertices (8 B) + quads (6 B), padded to 4 | ★★★ | **object definitions** of the chunk: size exact for all 10,881 records and each chain ends at the block end |
 | 7, 0x12, 0x13, 0x14 | 1,367 / 1,557 / 71 / 4 | instance records, below | ★★★ | object instances (drawn by `func_800B2C18`, which reads all four); 0x14 = "kOBJSFXINST" per the COL log string |
@@ -266,7 +265,7 @@ Each collection starts with the same 8-byte header as a TRK sub-block: `{u32 len
 | Off | Type | Field | Tag |
 |-----|------|-------|-----|
 | 0 | u16 | shape index in the track's `ZTR<NN><v>0.PSH` | ★★★ `func_80067A8C` indexes the pixmap table with it; with the animation frames it stays below the PSH shape count in all 15 tracks (5,521 records) |
-| 2 | u8 | flags, read per quad by both track renderers (`func_800B16D4`, `func_800AFB5C`; runtime read-watch found no other reader): **0x04 = animated** (frame = (timer / interval) mod frameCount, the pixmap advances 16 B per frame; set exactly when +7 > 0, all 5,521 records); **0x40 = one-sided** (the quad goes through the `nclip` back-face test; without it both sides are drawn); **0x10 = force double-sided** (overrides 0x40, chunk renderer only); 0x20 = no reader found. Counts: 0x40 × 1,122, 0x20 × 858, 0x10 × 289, 0x04 × 40 | ★★★ (0x20 ★★) |
+| 2 | u8 | flags, read per quad by both track renderers (`func_800B16D4`, `func_800AFB5C`; runtime read-watch found no other reader, and no other 0x20 test in the EXE follows a material load): **0x04 = animated** (frame = (timer / interval) mod frameCount, the pixmap advances 16 B per frame; set exactly when +7 > 0, all 5,521 records); **0x40 = one-sided** (the quad goes through the `nclip` back-face test; without it both sides are drawn); **0x10 = force double-sided** (overrides 0x40, chunk renderer only); **0x20 = never read** (exporter flag). Counts: 0x40 × 1,122, 0x20 × 858, 0x10 × 289, 0x04 × 40 | ★★★ |
 | 3 | u8 | `uvFlag`: flip/rotate bits; `& 0x5E` creates a derived pixmap (bits 0x02/0x04/0x08 select the variant, 0x10/0x40 transform) | ★★★ `func_80067A8C` |
 | 4 | u8 × 3 | r, g, b tint (178,178,178 in 79 %; 0,0,0 in 15 %) | ★★ (NFS4 lineage) |
 | 7 | i8 | animation frame count (0 = static) | ★★★ loop bound in `func_80067A8C` |
@@ -371,11 +370,47 @@ equals the record's slice, the type is not 2, and more than 0xA00 frame ticks ha
 last fired (per-record timestamps at `+408` of the manager `0x800F4FE8`). The field layout inside the type-1/3
 bodies is not traced yet (NFS4 lineage: same sizes and type numbers).
 
+## 7. AI speed / line files (`Q*`) ★★★ (Huffman-packed, see [NFS4_Q_CODECS.md](NFS4_Q_CODECS.md))
+Loaded by `func_8005791C` (called from `func_800578EC`). The extensions are stored in the EXE **with every
+character minus 1** (`func_800736F0` adds 1 back), which is why they never show up as plain strings. Each pair is
+indexed by `STYLE > 0` (`cfg[3]`; table `0x800F4FA8` in 12-byte steps). The direction letter is `f`, or `r` when
+REVERSE (`cfg[0xC]`) is on. If a file is missing, the game allocates a zeroed buffer of the listed size, named
+by the allocation tag.
+
+| File | STYLE = 0 / > 0 | Name pattern | Tag | Unpacked size (all files) | Reader |
+|------|-----------------|--------------|-----|---------------------------|--------|
+| racer speeds | `QSS` / `QAS` | `Tr<id><f/r>` | "racer speeds" | slices/2 + 1 (18 of 18) | `func_80057E40`: one u8 per two slices, target speed `<< 16` |
+| traffic speeds | `QTS` | `Tr<id>` (no direction) | "Traffic Speeds" | slices/2 + 1 (9 of 10) | |
+| speed line | `QSL` / `QAL` | `Tr<id><f/r>` | "Spd Line" | slices (18 of 18) | |
+| best line | `QBE` (both) | `Tr<id><f/r>` | "best" | 3 × slices (18 of 18) | `func_80057E00`: per slice `{s8 lateral << 14, u8 << 12, u8 << 14}` (16.16); a missing file is seeded per slice by `func_80057DB8` |
+
+The one size mismatch is `ZTR16.QTS` (Country Woods): 727 entries where 1,399 slices need 700, so it was made
+for a longer earlier version of the track; the extra entries are never reached. The runtime file-open trace
+(§9) shows `zTr00f.qas`, `zTr00.qts`, `zTr00f.qal` and `zTr00f.qbe` opened for a default race; `QSS`/`QSL` are the
+STYLE = 0 set, so every `Q*` file on the disc is reachable.
+
+## 8. `<v>A.VIV` — camera animation scripts (`.CAN`) ★★★ container
+`func_8005B878` loads the BIGF archive, copies it to its own buffer and looks up `<name>00.can` … `<name>09.can`
+(`%s%02d.can`, `func_800DC150`) into a 10-entry pointer table at `0x800F5954`. Scripts are played through 32
+animation slots of 20 bytes (`{script, start time, …}`, `func_8005B9EC`); the callers are the view code
+(`func_8006E30C` and neighbours), so these are camera paths, as in NFS4.
+
+Every track's archive holds the same eight scripts: 00, 01, 02, 03, 06, 07, 08, 09 (02B: only 02 and 03), each
+starting with a u16 equal to its own size. Scripts 01, 02, 03, 06, 08 and 09 are byte-identical on all tracks;
+00 (10 versions) and 07 (6 versions) are track-specific. The script body format is not decoded yet.
+
+## 9. Runtime file-open trace ★★★
+`tools/runtime/nfs3_open_trace.py` boots the disc, drives the menus into a default race (Hometown, day, no cops)
+and logs every name passed to the file layer (`func_800DB910` load, `func_800DADAC` open). Track files opened:
+`ztr00a.bnk`, `zTr00csp.eng`, `zTr00a.hrz`, `zTr00a.dpq`, `zTr00ad.clr`, `zTr00aA.viv`, `zTr00a0.psh`,
+`zTr00aR.psh`, `zTr00a.col`, `zTr00a.ccm`, `zzzTr00a.trk`, then in the race `zTr00f.qas`, `zTr00.qts`,
+`zTr00f.qal`, `zTr00f.qbe` and the music map `ztr00r0a.map`. `.VIS` is never opened (it is the exporter source
+of TRK type 4). `.COP` and the tutor `.BIN` load only with COPS / TUTOR on.
+
 ## Open questions (next steps)
-1. TRK: type-5 flag bit 0x40 and the surface-id names (sound / grip tables), the line-style table at `0x8010BCFC`.
-2. COL: material flag 0x20; slice +15 forward vector's readers; the surface-id and acoustic-class names.
-3. `.COP` type-1/3 record bodies; `.CCM` kind values; tutor message ids → voice clips.
-4. `A.VIV` contents; confirm QSL/QSS/QTS and VIS are never opened (runtime CD file-open trace).
+1. Names of the surface ids and acoustic classes; the line-style table at `0x8010BCFC`.
+2. `.COP` type-1/3 record bodies; `.CCM` kind values; tutor message ids → voice clips; the `.CAN` script body.
+3. The text files (`.DPQ`, `.HRZ`, `.CLR`) field by field; sound banks and music (`.BNK`, `.MAP`, `.TRJ`, `.TRM`).
 
 ## Tools
 - `tools/nfs3_trk.py` — `trk`, `col`, `census` (container validation above).

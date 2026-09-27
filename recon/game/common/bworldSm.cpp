@@ -58,7 +58,7 @@ int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRe
 int BWorldSm_Init(Group *simGroup)
 {
   gNumSlices = simGroup->m_num_elements;
-  BWorldSm_slices = (int)(simGroup + 1);
+  BWorldSm_slices = (int)simGroup->GetData();
   gMaxFindQuadSliceIterations = 5;
   BWorldSm_Restart();
   return 1;
@@ -301,7 +301,7 @@ void SetStrip(BWorldSm_Pos *slicePos)
 
   i = 0;
   maxIndex = (u_int)slicePos->simSlice->stripIndex;
-  slicePos->strip = (Trk_NewStrip *)(Track_chunkList[slicePos->chunk].stripBuf + 1);
+  slicePos->strip = (Trk_NewStrip *)Track_chunkList[slicePos->chunk].stripBuf->GetData();
   if (maxIndex != 0) {
     do {
       i = i + 1;

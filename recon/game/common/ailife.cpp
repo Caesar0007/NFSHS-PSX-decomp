@@ -74,7 +74,6 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
   int offset;
   int search;
   int count;
-  Car_tObj *checkCar;
 
   {
     randtemp = fastRandom * randSeed;
@@ -96,7 +95,7 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
   search = carObj->basisCar->sortIndex;
   for (count = 0; count < Cars_gNumCars;
        search = search + approachSide, count = count + 1) {
-    checkCar = Cars_gSortedList[(search + Cars_gNumCars) % Cars_gNumCars];
+    Car_tObj *checkCar = Cars_gSortedList[(search + Cars_gNumCars) % Cars_gNumCars];
     if (checkCar == carObj) continue;
     if (checkCar == carObj->basisCar) continue;
     if ((checkCar->carFlags & 0x100U) != 0)

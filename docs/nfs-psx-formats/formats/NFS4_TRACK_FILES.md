@@ -30,7 +30,19 @@ Path prefix comes from `Track_MakeTrackPathName` / `Track_MakeTrackDataPathName`
 Names referenced by code but **absent from the retail disc**: `Tr%02d.trf` (`aiinit.cpp:173`),
 `Tr%02d%c.ctk` (`aidatarecord.cpp:231`), and the uncompressed `.bes`/`.crv` — dev-build leftovers.
 
-Global track-related files: `ZFETRK.TRK`, `ZFETRKB.TRK` (front-end track list), `ZTOURN*.TRN` (tournaments).
+Global track-related files (specs in [AUX](NFS4_TRACK_AUX.md)):
+
+| File | Loader (recon) | Purpose |
+|------|----------------|---------|
+| `ZTRACK.DAT` | `R3DCcar_ReadTrackShadow` `r3dcar.cpp:422` | car shadow + env-map colour per track × time × weather (text) |
+| `ZSFX.PSH`, `ZSFX4.PSH`, `ZSFX4W.PSH` | `genericpmx.cpp:61-68` (track 04 dry / wet get their own) | road-line textures `LIN0`–`LIN9` (GRP §9), spike belt, shadow, skid marks |
+| `ZNIGHT.PSH` | `night.cpp:1091` (night races only) | shape `nght` = 64×64 headlight light-pattern table |
+| `ZFETRK.TRK` | `tTrackManager::LoadDescription` `fetracks.cpp:86` | front-end track list |
+| `ZTOURN.TRN` | `tTournamentManager` `fetourn.cpp:71` | tournaments |
+| `ZTRAFCFG.DAT` | **none**: `AIInit_LoadConfigs` formats the name but parses the compiled-in copy `trafcfg[108]` @0x8010D560 (byte-identical to the file) | AI physics config |
+| `ZFETRKB.TRK`, `ZTOURNB.TRN`, `ZTOURNC.TRN` | **none** (no name in any binary) | unused alternates; B differs from the base only in which tracks start unlocked (TR07 instead of TR04) |
+| `ZZZZTR<NN>.DCT`, `ZZZZTRN.DCT` | `screentracks.cpp:110`, `screentournselect.cpp:127` | track / tournament preview videos (DCT, not track data) |
+| `ZZZZW*.VIV` | `copspeak.cpp:470-517` | cop radio speech by region (audio, not track data) |
 
 ## Variant selection
 `bworld.cpp:1134-1144` picks `S.grp`, `N.grp`, `W.grp` or `.grp`; `textureprocess.cpp:320-332` does the

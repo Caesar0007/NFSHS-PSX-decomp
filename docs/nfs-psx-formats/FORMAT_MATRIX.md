@@ -11,6 +11,9 @@ spec + later corrections; they get re-verified as each family is migrated into `
 | Q* codecs (RefPack 0x10, Huffman 0x30/32/34, B-tree 0x46) | compression wrapper (`unpackz`) | ? | ? | seen | ★★★ | ? | [NFS4](formats/NFS4_Q_CODECS.md) |
 | PSH (SHPP/GIMX) | textures / sprites | ? | ? | seen | ★★★ | ? | [NFS4](formats/NFS4_PSH.md) |
 | QPS | B-tree-packed PSH (loading screens) | ? | ? | ? | ★★★ | ? | [NFS4](formats/NFS4_PSH.md) |
+| TRI (NFS1: RoadSection + `OBJS` + `TRKD` records + `CRCF`) | NFS1 track geometry | ★★★ container, nodes, cross-sections, objects, speed table | — | — | — | — | [NFS1](formats/NFS1_TRACK_FILES.md) |
+| FAM / INF / LGT / LGS (NFS1) | animated objects (`0x77777777` offset container of `ORIX` models + `SHPP` textures), horizon script, per-point lighting, light script | ★★★ | — | — | — | — | [NFS1](formats/NFS1_TRACK_FILES.md) §2–5 |
+| `CRCF` trailer (NFS1) | CRC-16 (0xA001 table, init 0xFBEA) on every data file / BIGF entry | ★★★ 1,052/1,052 | — | — | — | — | [NFS1](formats/NFS1_TRACK_FILES.md) §6 |
 | GRP (SerializedGroup) | track geometry container | — | — | — (ancestor = TRK) | ★★★ | ? | [NFS4](formats/NFS4_TRACK_GRP.md) |
 | TRK (`TRAC` v22) | streamed track geometry: meta-chunks of 8 chunks, typed sub-blocks | ? | ★★★ container (6 B verts, 8 B quads) | ★★★ container + core records | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md), [NFS2](formats/NFS2_TRACK_FILES.md) |
 | COL (`COLL` v11) | persistent track data: typed collections (materials, slices, objects, instances) | ? | ★★★ container | ★★★ container, materials, slices, objects | — | ? | [NFS3](formats/NFS3_TRACK_FILES.md), [NFS2](formats/NFS2_TRACK_FILES.md) |

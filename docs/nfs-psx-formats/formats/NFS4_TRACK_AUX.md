@@ -1,4 +1,4 @@
-# NFS4 per-track auxiliary files: `.KIL`, `.FOG`, `.BIN` (TrackSpec), `.ENV`, `.COP`, `.QBE`, `.QCR`, `.AUD`, `A.VIV`, replay cameras `.rho`, scenes `.scn`
+# NFS4 per-track auxiliary files: `.KIL`, `.FOG`, `.BIN` (TrackSpec), `.ENV`, `.COP`, `.QBE`, `.QCR`, `.AUD`, `A.VIV`, replay cameras `.rho`, scenes `.scn`; global `ZTRACK.DAT`, `ZTRAFCFG.DAT`, `ZFETRK.TRK`, `ZTOURN.TRN`, `ZSFX*.PSH`, `ZNIGHT.PSH`
 
 Games: NFS4 ★★★. Reference data: pristine files from the retail image. All are small and little-endian;
 `.ENV` is text and `.QBE`/`.QCR` are Huffman-packed. Every claim below was checked on every
@@ -207,3 +207,31 @@ record's own `size` field is 0 on disc and unused):
 | 76 | i32 × 4 | `scalar1`..`scalar4` |
 
 Files are padded to 8192 bytes. Census (type, subType): (0, 0) 84, (0, 1) 185, (1, 0) 15, (2, 22) 66.
+
+## `ZTRACK.DAT` — car shadow and env-map colour per track ★★★
+Text, C comments, read with `Risk_ReadNextValue` by `R3DCcar_ReadTrackShadow` (`r3dcar.cpp:422`). The header comment reads "Track car shadow and horizon colour info"; the block order is `[normal], [weather], [night], [weather & night]`. The file holds 48 records (TR00–TR11, 4 each) of 6 numbers: `shadow r, g, b, env r, g, b` (0 = none). The game reads records 0…`track·4 + Weather + Time·2` and keeps the last: the first triple becomes `R3DCar_shadowColour` and the second `R3DCar_eMapColour` (the car env-map tint; the file comment says "horizon").
+
+## `ZTRAFCFG.DAT` — AI physics config (not loaded) ★★★
+108 bytes. `AIInit_LoadConfigs` (`aiinit.cpp:206`) formats `"%strafcfg.dat"` but then reads the compiled-in copy `trafcfg[108]` (@0x8010D560; byte-identical to the file) through `Udff_Opena` / `Udff_GetInt`. The layout is 27 ints: `latvelcalc_lookahead, min_lookahead, max_lookahead, look_ahead_factor, skid_value`, then two 11-int models (IC, OOC) `{dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc, dangle_to_dav, max_dav, dav_to_aa, max_aa, vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor}`.
+
+## `ZFETRK.TRK` — front-end track list ★★★
+`{u32 count, tTrackInformation[count]}`, 48-byte records (`shared/tTrackInformation.h`), copied whole (`fetracks.cpp:86`). The record fields are:
+- `char trackID`, `u8 simNumber, difficulty, available, isEgg, lengthKM, lengthMiles, numMoments`;
+- `char shapeName[8]` (`yTR06`), `splineName[8]` (`TR06`);
+- `char country, dispatch, reverseCall, language`, `char trafficCars[6]`;
+- `i16 TX, TY, SX, SY`, `u8 speedoCountry, pad`, `i32 rotate`.
+
+Retail: 10 tracks, 484 bytes exact. `available` sets `fAvailableTracks[id]`, and `isEgg == 0` makes the track viewable. `ZFETRKB.TRK` (never loaded) differs only in the unlock set.
+
+## `ZTOURN.TRN` — tournaments ★★★
+Loaded by `fetourn.cpp:71`:
+- `u8 finishPoints[6]` (8, 6, 4, 3, 2, 1), then `u8 tierCount`;
+- then per tier: `tTierInfo` (12 B `{numTournaments, descriptionID, tournOffset, pad, reserved[8]}`) followed by its tournaments;
+- each tournament is `tTourneyInfo` (84 B: id, track count/offset, opponent class, traffic, knockout, car count, award car/model/upgrades, activate/required flags, prizes[6], entrance fee, personalities/opponent cars/upgrades[5], laps…), followed by its tracks;
+- each track is `tTrackInfo` (40 B `{i8 track, direction, mirrored, timeOfDay, weather, random, situations, pad, i32 prize[6], u32 difficulty, reserved[4]}`).
+
+Retail: 3 tiers, 43 tournaments, 60 races, and the walk ends exactly at 6,055 bytes. `ZTOURNB.TRN` / `ZTOURNC.TRN` (never loaded) differ in 13 / 41 bytes.
+
+## `ZSFX*.PSH` and `ZNIGHT.PSH` — track-effect shapes ★★★
+- `genericpmx.cpp` loads from `ZSFX.PSH` the shapes `LIN0`–`LIN9` (road-line textures: `gDLPixmap[type]` of GRP §9), `spik` (spike belt), `DEBG`, `SHAD` (car shadow) and `SKD0/1` (skid marks). Track 04 uses `ZSFX4.PSH`, and `ZSFX4W.PSH` in wet weather. The file's other shapes (SMX*, SMOK, DIRT, GRX*, …) are particle textures loaded elsewhere.
+- `ZNIGHT.PSH` (night races only, `night.cpp:1091`) has one shape, `nght`: an 8-bit 64×64 image whose pixel bytes are used as a **headlight light-pattern table** (`Night_gNightTbl` = shape + 0x10). The cell for a point relative to the car is `(|z| >> 5)·64 + ((x + 0x400) >> 5)`, for x in ±0x400 and |z| < 0x800. The byte then selects the night or cop-light colour (`Night_NightCalc`, `draww.cpp:1265`).

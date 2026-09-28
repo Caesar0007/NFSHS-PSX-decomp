@@ -82,7 +82,7 @@ exporter metadata, and the loader never validates `type` or `version`. A re-writ
 |-----|------|-------|-----|
 | 0 | i32 | value A, repeated at +4 in every chunk | ★★ census; not read by the loader |
 | 4 | i32 | A (duplicate) | ★★ unread |
-| 8 | i16 | small count, 4–9 | ★★ unread, meaning open |
+| 8 | i16 | small count, 4–9: equals the chunk's number of child groups in 4,506 of 4,856 chunks, and is ±1 off in the other 350 (all of them with the lines / flares set {0x04, 0x05, 0x06, 0x09, (0x0A), 0x17, 0x1C}). Exporter's sub-block count | ★★ unread |
 | 10 | i16 | `firstSimSliceInd` = running sum of the preceding chunks' sim-slice counts | ★★★ |
 | 12 | i16 | `chunkInd` = the chunk's own index | ★★★ |
 | 14 | i16 | pad | ★★ |
@@ -137,8 +137,11 @@ it draws `0x25`.
 partitions are valid in every chunk.
 
 **Exporter garbage ★★★:** in 1,736 chunks the payload is longer by exactly `c2 + c3` quads. The game
-never addresses those bytes, and every one of those tails contains MSVC heap fill (`FD FD FD FD` or
-`CD CD`). The exporter sized the buffer for all six counts but wrote only the four partitions the game
+never addresses those bytes. Each tail is memory read past the end of an MSVC debug-heap block. It starts with the
+heap's no-man's-land guard `FD FD FD FD`, directly (908 chunks) or after 2 zero bytes (828). After the guard comes
+stale heap: debug block headers such as `{0x81, 0x41, pointers 0x00A1xxxx…}` and `DD` dead-land fill. Every
+out-of-range material or vertex index in the file (48,527) lies inside these tails
+(`nfs4_grp_validate.py`). The exporter wrote the counts for all six partitions but filled only the four the game
 uses. A re-writer can drop them. Lineage (★★): NFS3 fills all six partitions (low / medium / high detail ×
 {main, extra}); NFS4 dropped the medium level c2/c3 but the exporter still sized for it.
 
@@ -147,7 +150,7 @@ A quad's material is a plain signed index into the material table (§6), with no
 
 ## 5. Visibility list (`0x04`) ★★★, plus a retail bug
 - Each entry is a u16: bits 0–9 = neighbour chunk index (always < chunkCount on disc); bits 10–15 =
-  category (observed even values 0–20; meaning open).
+  category flags (values `v >> 10` = 0–20, i.e. combinations of bits 0x0800 / 0x1000 / 0x2000 / 0x4000 only; decoded below).
 - `Track_Init` keeps up to 36 entries per chunk, drops any whose index ≥ chunkCount, and pads with
   `0x3FF`.
 
@@ -291,7 +294,12 @@ Closest-slice searches measure XZ distance as `((p − center) >> 9)²`.
 `slice` is chunk-local (global = `firstSimSliceInd + slice`); the segment is built from that vertex
 along the slice's `right` vector (`DrawW_BuildChunkCenterLineFacets`). Lines are drawn only when a
 chunk's build entry has `geomRez == 4` and enable bit `0x04`. All 87,024 records are in range.
-`type` census: 0–9 and 255 (meaning open); `quadIndex` meaning open.
+
+A group is a list of **polylines**. `DrawW_OnyxLinePrim` draws a quad from each record to the next one, textured
+with `gDLPixmap[type]`, until it reaches a record with `type` = 0xFF, which ends the polyline.
+- `gDLPixmap[0..9]` = shapes `LIN0`–`LIN9` of `ZSFX.PSH` (48×16, 4-bit), loaded by `genericpmx.cpp` (track 04: `ZSFX4.PSH` / wet `ZSFX4W.PSH`).
+- Census of `type`: 0 × 9,628, 1 × 80, 2 × 2,600, 3 × 1,768, 4 × 3,452, 5 × 30,656, 6 × 27,396, 7 × 1,184, 9 × 56, 0xFF × 10,204. All 4,068 groups end with 0xFF. LIN8 is never used.
+- `quadIndex` (byte 3; 157 distinct values, near `firstPoint`) is **never read** by the game. The only consumers, the two functions above, read `firstPoint`, `slice` and `type` only; NFS3's type-9 byte 3 is unread too.
 
 ## 10. Glare / light flares (`0x0A`, `Trk_SFX`, 16 B) ★★★
 `{i32 point[3]; i16 type; i16 pad}`, consumed by `BWorld_BuildGlareEffects`:
@@ -318,7 +326,9 @@ the visibility rows including the 64-byte-stride overlap. A full-state checkpoin
 ## Open questions
 None that the game reads. Unread by the game (exporter metadata): chunk-meta A and the short at +8,
 quad-block s[0], s[3], s[4], TrackHeader `type`/`version`/`max*`/`metaChunkCount`, slice
-`acousticType`, and the render-quad surplus. Their exporter-side meaning is open but irrelevant to
+`acousticType`, line byte 3 (`quadIndex`), and the render-quad surplus (stale heap, §4.4).
+Re-audit 2026-09-27: `nfs4_grp_validate.py` passes on all 40 retail GRPs (4,856 chunks, 0 failures),
+and every chunk type on the disc (29 types) is described above. Their exporter-side meaning is open but irrelevant to
 the game; a re-writer can copy them or fill them with the census values.
 
 ## Tools

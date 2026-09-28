@@ -66,7 +66,7 @@ Race options used by the track files (`0x800F9F44 + 4·k`, from the setter's tab
 | `ZZZTR<NN><v>.TRK` | `TRAC` v22, streamed | `func_800799A4` "BWorld Init" → `func_800C370C` | ★★★ container | §1 |
 | `ZTR<NN><v>.COL` | `COLL` v11 | `func_80068018` "Opened track Persistent file and found %d collections" | ★★★ container | §2 |
 | `ZTR<NN><v>.CCM` | binary | `func_800660A4` → `func_8006BB78(".ccm")` | ★★★ | trackside cameras, §4 |
-| `ZTR<NN><v>0.PSH`, `…R.PSH` | SHPP shape files | `func_80067960` ("0.psh", "R.psh") | ★★★ container | textures / reflection maps; format as [NFS4_PSH.md](NFS4_PSH.md) (to re-verify on NFS3) |
+| `ZTR<NN><v>0.PSH`, `…R.PSH` | SHPP shape files | `func_80067960` ("0.psh", "R.psh") | ★★★ container | textures / reflection maps; format as [NFS4_PSH.md](NFS4_PSH.md). Verified on NFS3 with `nfs4_psh.py census` over all 30 track PSH files plus `ZSFX.PSH` / `ZNIGHT.PSH`: 2,919 shapes, 0 problems (4-bit 0x40 × 2,692, 8-bit 0x41 × 227, each with a 0x23 palette) |
 | `ZTR<NN><v>A.VIV` | BIGF archive of `.CAN` | `func_8005B878` ("%sA.viv") | ★★★ container | camera animation scripts, §8 |
 | `ZTR<NN><v>.DPQ` | text | `func_800A7250` ("%sTr%02d%c.dpq") | ★★★ | depth cue + car env-map zones, §10.2 |
 | `ZTR<NN><v>.HRZ` | text | `func_800B84BC` ("%sTr%02d%c.hrz") | ★★★ | horizon and sky, §10.1 |
@@ -79,6 +79,17 @@ Race options used by the track files (`0x800F9F44 + 4·k`, from the setter's tab
 | `ZTR<NN>CSP.<lang>`, `ZZZTR<NN>C.<lang>` | speech clip table + clips | `func_80081DB4`, `func_80083688` ("cop speech", streamed through a 32 KB "CopSpk Buf") | ★★★ | §11 |
 | `ZZZTR<NN>A.TRJ`, `ZZZTR<NN>B.TRM` | `SCHl` EA audio stream | `func_800A01D4` | ★★★ container | rock / techno music streams, §11 |
 | `ZTR<NN>{PGR,PGT,R<nn>,T<nn>,ROK,TEC,TOK,R0A,R0B}.MAP` | `PFDx` | `func_800A01D4`, `func_800A0590`, `func_800A0C70` | ★★★ container | interactive-music maps, §11 |
+
+Global files used with every track (re-audit 2026-09-27; loaders found by xref of the name strings):
+
+| File | Loader (raw VA) | Tag | Notes |
+|------|-----------------|-----|-------|
+| `ZSFX.PSH` | `0x800C3A38` ("%sSfx.psh") | ★★★ | 38 shapes. The road-line textures `LIN0`–`LIN9` (48×16) are selected by the line style of TRK type 9. The rest are `DEBG`, `SKD0`, `spik` (spike belt), smoke / dirt / grass / gravel / snow particles, and skid marks `SKX0`–`SKX5` / `SHX*` |
+| `ZNIGHT.PSH` | `func_800B64F4` ("%snight.psh", night races only) | ★★★ | one shape `nght`, an 8-bit 64 × **128** image whose pixel bytes are the headlight light-pattern table (`locateshape(…, "nght") + 0x10` → `gp+2424`). `func_800B6854` indexes it as `((z − z0) >> sz)·64 + ((x + 2^(sx+5)) >> sx)`, with z in [z0, z0 + 2^(sz+7)) and x in ±2^(sx+5). The parameters are set in code (default sx = 10, sz = 12, z0 = 0x80; `0x800B6724`). NFS4's `nght` is 64 × 64 |
+| `trafcfg.dat` | `func_800525DC` | ★★★ | **not on the disc and not loaded**: the name is formatted, then `func_8009FCE4(0, 0x800F4BD4, 1)` parses the compiled-in copy (as NFS4, whose disc still carries the file) |
+| `ZPRSONAL.BIN`, `ZSCRIPTS.BIN`, `ZSPREAD.BIN`, `Z{,HH,KO}GLUE.BIN` | `func_80054684` | ★★★ loaded | global race configuration, opened with `func_8009FCE4(name, 0, 1)` and parsed by `func_80053FA4`, `func_800541C8` and `func_800542E0` (the glue file is chosen by mode from `0x800F9F44`). Not per-track data; their contents are outside this survey |
+| `ZZTRK{HOM,RED,ATL,ROC,CNT,LST,AQU,SUM,EMP,REC}.PSH` | `FRONT.BIN` ("trkHom"…, "%sz%%s.psh") | ★★★ | front-end track pictures |
+| `ZGRID.BIN`, `ZSURF1.PSH`–`ZSURF5.PSH` | **none** | ★★★ unused | no "grid" / "surf" string in any case in `SLUS_006.20` or `FRONT.BIN`; never opened in the runtime trace (§9) |
 
 ## 1. `.TRK` — streamed track geometry ★★★
 ### 1.1 Header (32 bytes) — `func_800C370C`, accessors `func_8009E694…8009E784`
@@ -144,12 +155,20 @@ index of arrays 0/1 is below `n0 + n1`, of arrays 2/3 below `n0 + n2`, of arrays
 
 | Array | Level | Content |
 |-------|-------|---------|
-| q0, q1 | low | q0 = main geometry at low detail (presumably the trough, ★★); q1 = overlay quads (bias 30) |
-| q2, q3 | medium | q2 = main geometry at medium detail (★★); q3 = overlay quads (bias 30) |
+| q0, q1 | low | q0 = the same trough at low detail; q1 = overlay quads (bias 30) |
+| q2, q3 | medium | q2 = the same trough at medium detail; q3 = overlay quads (bias 30) |
 | q4, q5 | high | q4 = the trough exactly as covered by the sim slices (type 6) and surface words (type 5); q5 = overlay quads (bias 30) |
 
-The overlay arrays hold 0.6 % of all quads (2,290 of 408,005) and use only materials below 374; drawn in front of
-the surface, they are decals such as markings or shadows (★★ for that reading; the draw order is ★★★).
+q0 and q2 are the **same surface** as q4 at lower detail. Their summed ground (XZ) area equals q4's in every chunk
+(median ratio 0.992 for q0 and 0.998 for q2; 10th–90th percentile 0.91–1.01 over all 2,234 chunks).
+
+The overlay arrays hold 0.6 % of all quads (2,290 of 408,005), and use 15 materials (mostly 12 and 0).
+**Every overlay quad is vertical** (face normal |ny| < 0.3; none flat), and they stand on the edge of the level's main surface:
+- q5: all 1,261 share an edge with q4;
+- q3: 623 of 662 share an edge with q2;
+- q1: 313 of 367 share an edge with q0.
+
+So they are upright roadside faces (kerbs, barriers, fences, low walls), not flat decals. The depth bias 30 draws them in front of the surface they stand on (draw order from `func_800B1F1C`; census `nfs3_trk.py`).
 
 **Vertex** (8 B) ★★★: `{i16 x, y, z; u16 colour}`. The colour is RGB555, split into three 5-bit channels by
 `func_800B16D4` (0x6317 = 23, 24, 24 → grey) and used for Gouraud shading. On load
@@ -299,7 +318,7 @@ live form of what NFS4 keeps only vestigially.
 | TRK header {max meta size, max chunk size, 2 budgets, metaCount = ceil(chunks/8), chunkCount} | `TrackHeader` (only `chunkCount` read) | budgets became dead metadata once streaming was dropped |
 | meta-chunks of 8 chunks streamed from CD | whole GRP loaded at once | |
 | sub-block header `{u32 length, u16 type, u16 count}` (8 B) | `{type, length, 0xCDCDCDCD, count}` (16 B) | same type enum: 2 materials, 4 visibility, 5 sim quads, 6 sim slices, 7 instances, 8 object definitions, 9 lines, 0xA flares, 0xB sim objects, 0xF slices |
-| chunk header {size, size, count, firstSimSliceInd, chunkInd, 0, 4 × i32 xyz bound points} | chunk meta `0x1C` {A, A, small count, firstSimSliceInd, chunkInd, pad, boundPts, chunkboundPts} | NFS4's unexplained "value A ×2" and "small count 4–9" are most likely NFS3's chunk size ×2 and sub-block count (★) |
+| chunk header {size, size, count, firstSimSliceInd, chunkInd, 0, 4 × i32 xyz bound points} | chunk meta `0x1C` {A, A, small count, firstSimSliceInd, chunkInd, pad, boundPts, chunkboundPts} | NFS4's "small count 4–9" matches NFS3's sub-block count (equal to the NFS4 chunk's child-group count in 4,506 of 4,856 chunks, ★★). NFS4's "value A ×2" sits where NFS3 keeps its chunk size twice, but it is **not** the NFS4 group length: it is 1,750–2,200 bytes larger. It is probably the size in the exporter's own chunk format (★) |
 | geometry header {u32 rel, n0, n1, n2, n3, q0 … q5} | quad counts `0x1B` (12 × i16) | NFS4's open s[0] (1,600–3,000, s[1] = 0) is NFS3's u32 offset to the sub-block table; s[2..5] = n0 … n3 |
 | six quad arrays, low / medium / high detail × {main, extra} | `0x19` holds only `[c0][c1][c4][c5]` | NFS4 dropped the medium level: its c2/c3 space holds exporter heap fill |
 | vertex `{i16 x, y, z; RGB555 colour}` | `CCOORD16 {x, y, z, light index}` | per-vertex colour became an index into the light table |
@@ -413,6 +432,12 @@ and logs every name passed to the file layer (`func_800DB910` load, `func_800DAD
 `zTr00aR.psh`, `zTr00a.col`, `zTr00a.ccm`, `zzzTr00a.trk`, then in the race `zTr00f.qas`, `zTr00.qts`,
 `zTr00f.qal`, `zTr00f.qbe` and the music map `ztr00r0a.map`. `.VIS` is never opened (it is the exporter source
 of TRK type 4). `.COP` and the tutor `.BIN` load only with COPS / TUTOR on.
+
+Re-run 2026-09-27 (same default race, 51 names, the full ordered list). Front end, then:
+- **track side**: `zBCVC5.bnk`, `zoBCVC5.bnk`, `zGen.bnk`, `ztr00a.bnk`, `zcnteng.bnk`, `zTr00csp.eng`, `zTr00a.hrz`, `zTr00a.dpq`, `zTr00ad.clr`, `zcarmap.dat`, `zSfx.psh`, `zhud.psh`, `zTr00aA.viv`, `zTr00a0.psh`, `zTr00aR.psh`, `zTr00a.col`, `zTr00a.ccm`, `zzzTr00a.trk`;
+- **then**: `zLoadt0a.qps`, `zSimTune.qda`, the car (`zCORV.qda/.geo/.psh`, `zpCORV.qda`), `zprsonal.bin`, `zscripts.bin`, `zspread.bin`, `zhhglue.bin`, and the race tables `zTr00f.qas`, `zTr00.qts`, `zTr00f.qal`, `zTr00f.qbe`, `ztr00r0a.map`.
+
+`trafcfg.dat`, `ZGRID.BIN` and `ZSURF*.PSH` are **never opened**. `ZNIGHT.PSH` loads only in night races (flag `0x800F9F90`).
 
 ## 10. Text parameter files (`.HRZ`, `.DPQ`, `.CLR`) ★★★
 All three are read with `func_800B8388`: it skips `/* … */` comments and returns the next integer (`,` and

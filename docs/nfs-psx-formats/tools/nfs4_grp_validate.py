@@ -5,6 +5,8 @@ import struct, sys, glob, os, collections
 sys.path.insert(0, os.path.dirname(__file__))
 import nfs4_grp as G
 
+GUARD = bytes([0xFD] * 4)                              # MSVC debug-heap no-man's-land
+
 def payload(b, g): return b[g['off']+16 : g['off']+g['length']]
 
 def check_file(fn, stats):
@@ -49,18 +51,24 @@ def check_file(fn, stats):
         # render quads partitions
         rq = by[0x19][0] if by[0x19] else None
         nrq = (rq['length'] - 16) // 6 if rq else 0
-        if nrq != qc[0] + qc[1] + qc[4] + qc[5]: fails['renderQuads!=qc0+1+4+5'] += 1
+        nuse = qc[0] + qc[1] + qc[4] + qc[5]           # partitions the game addresses (chunk.cpp)
+        if nrq == nuse + qc[2] + qc[3] and nrq != nuse:
+            tail = payload(b, rq)[6 * nuse:6 * nrq]      # exporter surplus: bytes past an MSVC debug-heap block
+            stats['rq_surplus_chunks'] += 1
+            if tail[:4] != GUARD and tail[:6] != bytes(2) + GUARD:
+                fails['rq_surplus_no_heap_guard'] += 1
+        elif nrq != nuse: fails['renderQuads!=qc0+1+4+5(+2+3)'] += 1
         for t, idx, vsrc in ((0x28, 2, 0x27), (0x29, 3, 0x27)):
             g = by[t][0] if by[t] else None
             n = (g['length'] - 16) // 6 if g else 0
             if n != qc[idx]: fails[f'{t:#x}!=qc{idx}'] += 1
-        def chkquads(g, nverts, tag):
+        def chkquads(g, nverts, tag, limit=None):
             p = payload(b, g)
-            for q in range((len(p)) // 6):
+            for q in range(len(p) // 6 if limit is None else limit):
                 m, a0, a1, a2, a3 = struct.unpack_from('<h4B', p, q*6)
                 if not (0 <= m < nmat): fails[tag + '_mat_oob'] += 1
                 if max(a0, a1, a2, a3) >= nverts: fails[tag + '_vert_oob'] += 1
-        if rq: chkquads(rq, nv, 'rq')
+        if rq: chkquads(rq, nv, 'rq', nuse)
         nov = (by[0x27][0]['length'] - 16) // 8 if by[0x27] else 0
         for t in (0x28, 0x29):
             if by[t]: chkquads(by[t][0], nov, f'{t:#x}')
@@ -75,7 +83,7 @@ def check_file(fn, stats):
     return fails, len(chunks)
 
 if __name__ == '__main__':
-    stats = dict(vtx_n_vs_count=collections.Counter(), max_verts=0, strip_size_pad=collections.Counter(),
+    stats = dict(vtx_n_vs_count=collections.Counter(), max_verts=0, rq_surplus_chunks=0, strip_size_pad=collections.Counter(),
                  vis_cat=collections.Counter(), vis_len=collections.Counter())
     total = collections.Counter(); nch = 0
     for fn in sorted(glob.glob(os.path.join(sys.argv[1], '*.GRP'))):
@@ -83,6 +91,7 @@ if __name__ == '__main__':
         total.update(f)
         print(f"{os.path.basename(fn):<12} chunks={n:<4} " + ('OK' if not f else str(dict(f))))
     print('\nTOTAL chunks', nch, 'failures', dict(total) or 'none')
+    print('render-quad surplus chunks (heap guard) :', stats['rq_surplus_chunks'])
     print('vertex group n == payload/8 :', dict(stats['vtx_n_vs_count']), ' max verts/chunk', stats['max_verts'])
     print('strip size - (4+2*quads)    :', dict(stats['strip_size_pad']))
     print('vis category (v>>10)        :', dict(sorted(stats['vis_cat'].items())))

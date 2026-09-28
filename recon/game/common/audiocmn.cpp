@@ -1402,6 +1402,9 @@ int AudioCmn_PlaySFX(int sndPlayer,int iSFXnum,int iFreqIn,int iDopplerIn,int iA
   int iFreq;
   int iAmp;
   long PatchBank;
+  /* NFS2's symbol-backed PlaySFX declares this lookup byte at root scope.
+     NFS4 emits no name row, and retail has no lookup-only declaring region. */
+  u_char bankNum;
 
   iFreq = iFreqIn;
   iFreq = (iFreq < 0) ? 0 : iFreq;
@@ -1435,16 +1438,14 @@ BNK5:
   PatchBank = gSndBnk[5].bnkID;
   goto GOTBANK;
 LOOKUP:
-  {
     /* Actual lookup storage is int[71]; narrowing the indexed value gives
        the retail byte load without a separate byte-view lookup object. */
     /* ORIGINAL-NAME-RECOVERED: bankNum -- the symbol-bearing NFS2 AudioCmn_PlaySFX
        records the same byte-table index as `bankNum`.  The intermediate gives
        retail's v0 lookup base and v1 index/load web; folding both names into
        one expression is count-exact but leaves 36 authoritative diffs. */
-    u_char bankNum = (u_char)gBankNumLookupTable[sndPlayer];
+    bankNum = (u_char)gBankNumLookupTable[sndPlayer];
     PatchBank = gSndBnk[bankNum].bnkID;
-  }
 GOTBANK:
   if (sndPlayer == 0x31) {
     gaChannel[0x31].Partial =
@@ -1463,7 +1464,7 @@ GOTBANK:
        through SNDover and the async guard.  Its measured post-use reference is
        zero-instruction and closes the former 94-diff allocation basin. */
     Channels_t *slot = (Channels_t *)((sndPlayer << 3) + chbase);
-    if (slot->SFXnum != iSFXnum) goto NEWSOUND;
+    if (slot->SFXnum == iSFXnum) {
     if (SNDover(slot->Partial) != 0) {
       slot->Partial = -1;
       slot->SFXnum = -1;
@@ -1479,6 +1480,7 @@ GOTBANK:
       slot->Partial = -1;
       slot->SFXnum = -1;
     }
+    } else goto NEWSOUND;
     if (gaChannel[sndPlayer].SFXnum == iSFXnum) goto RECHECK;
 NEWSOUND:
     {
@@ -1486,9 +1488,9 @@ NEWSOUND:
         SNDstop(gaChannel[sndPlayer].Partial);
         NumSFXOn = NumSFXOn - 1;
       }
-      /* SYM-CODEGEN-CARRIER: r -- the block-local result dies in `$v0` and
-         preserves the shared-store control flow.  Reusing SYM's `iPartial`
-         emits 317/316 instructions and 13 diffs. */
+      /* Source-recovery queue: r is absent from retail. Assigning the sound
+         result to root iPartial and using a direct RECHECK test removes this
+         carrier, but needs the separate bank-flag allocation solved first. */
       int r = AudioCmn_PlayDoppleredSound(PatchBank,iSFXnum,azimuth,iAmp,iFreq,iDopplerIn);
       if (r != -1) {
         gaChannel[sndPlayer].Partial = r;

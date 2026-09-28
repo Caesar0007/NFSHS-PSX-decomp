@@ -1,6 +1,6 @@
 /* game/psx/schedule.cpp -- RECONSTRUCTED (NFS4 PSX cooperative scheduler; C++ TU)
  *   6 fns: Sched_ExecuteCheck/CreateNewSchedule/CleanUpSchedule/AddFunction/DeleteFunction/Execute.
- *   GTE-free. Full SYM-locals applied.
+ *   GTE-free. Native records are checked separately from complete SLD/source restoration.
  */
 #include "schedule_types.h"
 #include "schedule_externs.h"
@@ -25,16 +25,16 @@ void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,v
 void Sched_Execute(Sched_tSchedule *schedule);
 
 
-/* ---- Sched_ExecuteCheck__FiiiiPiN24i  [SCHEDULE.CPP:55-83] SLD-VERIFIED ---- */
+/* ---- Sched_ExecuteCheck__FiiiiPiN24i [retail SCHEDULE.CPP:55-83; full SLD attribution open] ---- */
 int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time,int *elapsedTime,int *iTime
               ,int forceNoSimOptz)
 
 {
   int index;
-  int distanceIndex;
-  int mask;
 
   if (0xf < simGlobal.gameTicks) {
+    int distanceIndex;
+    int mask;
     distanceIndex = distance / 16;
     distanceIndex = distanceIndex / 65536;
     if (0x13 < distanceIndex) {
@@ -50,10 +50,12 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
     mask = Sched_ExecuteMasks[index];
     return (u_int)((simGlobal.gameTicks / 2 + carId * staggered & mask) == mask);
   }
+  else {
   *time = Sched_ExecuteTimes[6];
   *iTime = Sched_ExecuteiTimes[6];
   *elapsedTime = Sched_ExecuteElapsedTimes[6];
   return 1;
+  }
 }
 
 /* ---- Sched_CreateNewSchedule__FPci  [SCHEDULE.CPP:89-109] SLD-VERIFIED ---- */

@@ -1,9 +1,14 @@
-/* game/psx/r3dcar.cpp -- RECONSTRUCTED (NFS4 PSX 3D car renderer; C++ TU)
- *   6 fns: Scene_Init/DeInit/PurgeScene/BuildCustomSceneList/LoadSceneFile + GetPlaneY.
- *   GTE-free. Full SYM-locals applied.
+/* game/common/r3dcar.cpp -- RECONSTRUCTED (NFS4 PSX 3D car renderer; C++ TU)
+ *   27 native-debug-covered functions. Remaining carrier, local and full
+ *   SLD differences are tracked in sym-match.md; no whole-module seal claimed.
  */
 #include "r3dcar_types.h"
 #include "r3dcar_externs.h"
+
+/* Retail opens .rodata with the unused SimpleMem class tag at0x800563b0.
+ * Reuse the project's unused-inline representation, not a fake allocator call.
+ * The literal is retail-proven; original header spelling remains unsealed. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- R3DCar.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
@@ -110,17 +115,11 @@ void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
   return;
 }
 
-/* ---- R3DCar_StartUp__Fv  [R3DCAR.CPP:424-461] SLD-VERIFIED ---- */
+/* ---- R3DCar_StartUp__Fv [retail R3DCAR.CPP:424-461; full SLD attribution open] ---- */
 void R3DCar_StartUp(void)
 
 {
   int i;
-  char name [100];
-
-  /* retail r3dcar.obj .rodata opens with an UNREFERENCED "SimpleMem" literal (0x800563b0,
-   * no code reaches it): a compiled-out call; the constant-false branch keeps the string
-   * and adds no code (same device as audio.cpp's "game*"). */
-  if (0) reservememadr("SimpleMem",0,0);
   i = 0;
   do {
     R3DCar_LoadedScenePointer[1][i] = (Transformer_zScene *)0x0;
@@ -134,8 +133,11 @@ void R3DCar_StartUp(void)
   } while (i < 0x32);
   R3DCar_orientMat = (matrixtdef *)reservememadr("orientMat",0x804,0);
   R3DCar_position = (coorddef *)reservememadr("position",0x2b8,0);
+  {
+  char name [100];
   sprintf(name,"%slicense.psh",Paths_Paths[0x19]);
   R3DCar_LicenseShapeFile = (char *)loadfileadr(name,0);
+  }
   return;
 }
 
@@ -166,49 +168,26 @@ void R3DCar_PostStartUp(void)
   return;
 }
 
-/* ---- R3DCar_Restart__Fv  [R3DCAR.CPP:495-514] SLD-VERIFIED ---- */
+/* ---- R3DCar_Restart__Fv [retail R3DCAR.CPP:495-514; full SLD attribution open] ---- */
+/* Real loop/body ownership and indexed access retire the five old captures.
+ * No replacement source object or original-text/SLD seal is implied. */
 void R3DCar_Restart(void)
 
 {
   int i;
-  /* SYM-CODEGEN-CARRIER: numCars -- direct Cars_gNumCars loop testing adds one
-     instruction and changes preheader/loop allocation to 19 diffs. */
-  int numCars;
-  /* SYM-CODEGEN-CARRIER: gsData -- direct GameSetup_gData.Time access removes
-     one instruction and changes loop allocation to 21 diffs. */
-  GameSetup_tData *gsData;
-  /* SYM-CODEGEN-CARRIER: headOn -- direct 0x33 storage removes one instruction
-     and changes the light-store allocation to nine diffs. */
-  short headOn;
-  /* SYM-CODEGEN-CARRIER: brakeOn -- direct constant storage removes one
-     instruction and changes the light-store allocation to 13 diffs. */
-  short brakeOn;
-  /* SYM-CODEGEN-CARRIER: ppCVar3 -- indexed Cars_gList[i] access preserves the
-     30-instruction count but recolors the loop to 32 diffs. */
-  Car_tObj **ppCVar3;
-  Car_tObj *carObj;
 
-  i = 0;
-  numCars = Cars_gNumCars;
-  gsData = &GameSetup_gData;
-  headOn = 0x33;
-  brakeOn = 2;
-  ppCVar3 = Cars_gList;
-R3DRestart_loopTop:
-  if (i < numCars) {
-    carObj = *ppCVar3;
+  for (i = 0; i < Cars_gNumCars; i++) {
+    Car_tObj *carObj;
+    carObj = Cars_gList[i];
     (carObj->render).headLight = 0;
     (carObj->render).brakeLight = 0;
-    if (gsData->Time != 0) {
-      (carObj->render).headLight = headOn;
-      (carObj->render).brakeLight = brakeOn;
+    if (GameSetup_gData.Time != 0) {
+      (carObj->render).headLight = 0x33;
+      (carObj->render).brakeLight = 2;
     }
-    ppCVar3 = ppCVar3 + 1;
-    i = i + 1;
     (carObj->render).signalLight[0] = 0;
     (carObj->render).signalLight[1] = 0;
     (carObj->render).damageParts = 0;
-    goto R3DRestart_loopTop;
   }
   return;
 }
@@ -266,7 +245,7 @@ void R3DCar_CleanUp(void)
   return;
 }
 
-/* ---- R3DCar_ReadInCarData__FPcP8Car_tObj  [R3DCAR.CPP:580-881] SLD-VERIFIED ---- */
+/* ---- R3DCar_ReadInCarData__FPcP8Car_tObj [retail R3DCAR.CPP:580-881; full SLD attribution open] ---- */
 Transformer_zScene *
 R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
 
@@ -278,10 +257,12 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
   char * filestart;
   long filesize;
   char infilename [15];
+  /* Retail owns carType/eScaleX/eScaleY in this whole geometry region;
+     the object loop owns Nobj, not the function root. */
+  {
   int carType;
   int eScaleX;
   int eScaleY;
-  Transformer_zObj *Nobj;
   
   strcpy(infilename,filename);
   strcat(infilename,".geo");
@@ -297,10 +278,8 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
   eScaleY = R3DCar_EnvMapInfo[carType].eScaleY;
   (carObj->render).rideHeight = R3DCar_EnvMapInfo[carType].rideHeight << 7;
   (carObj->render).upgradeHeight = R3DCar_EnvMapInfo[carType].upgradeHeight << 7;
-  while (1) {
-    if (i >= 0x39) {
-      goto R3DCar_objects_done;
-    }
+  for (; i < 0x39; i++) {
+    Transformer_zObj *Nobj;
     scene->obj[i] = (Transformer_zObj *)((int)rawData + offset);
     offset = offset + 0x1c;
     Nobj = scene->obj[i];
@@ -316,20 +295,24 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
       if ((Nobj->numVertex & 1) != 0) {
         offset = offset + 2;
       }
+    }
       if (((Nobj->numVertex != 0) && ((R3DCar_ObjectInfo[i][1] & 1U) != 0)) && (carType < 0x1c)) {
-        short tx;
-        short ty;
-        short tz;
-
         Nobj->Nvertex = (COORD16 *)((int)rawData + offset);
         offset = offset + (u_int)Nobj->numVertex * 6;
         if ((Nobj->numVertex & 1) != 0) {
           offset = offset + 2;
         }
+        /* j/tx/ty/tz share the translation/normal loop's depth7 region.
+           Normal generation has its own guard, outside vertex allocation. */
+        {
+        int j;
+        short tx;
+        short ty;
+        short tz;
         tx = (short)((u_int)(Nobj->translation).x >> 8);
         ty = (short)((u_int)(Nobj->translation).y >> 8);
         tz = (short)((u_int)(Nobj->translation).z >> 8);
-        for (int j = 0; j < (int)(u_int)Nobj->numVertex; j++) {
+        for (j = 0; j < (int)(u_int)Nobj->numVertex; j++) {
           VECTOR vt;
           SVECTOR nm;
           short nm_vx;
@@ -380,9 +363,8 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
       Nobj->facet = (Transformer_zFacet *)((int)rawData + offset);
       offset = offset + (u_int)Nobj->numFacet * 0xc;
     }
-    i = i + 1;
   }
-R3DCar_objects_done:
+  }
   return scene;
 }
 
@@ -536,17 +518,15 @@ void R3DCar_DeInstantiate3DCar(Car_tObj *carObj)
   return;
 }
 
-/* ---- R3DCar_DeInstantiate3DCarMenu__FP8Car_tObj  [R3DCAR.CPP:1054-1113] SLD-VERIFIED ---- */
+/* ---- R3DCar_DeInstantiate3DCarMenu__FP8Car_tObj [retail R3DCAR.CPP:1054-1113; full SLD attribution open] ---- */
 void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
 
 {
   int currentCarType;
-  int countryFlag;
-  int status;
-  char *bigFile;
 
   currentCarType = (int)(carObj->render).currentCarType;
   if (-1 < currentCarType) {
+    int countryFlag;
     countryFlag = (u_char)(carObj->render).currentCountry >> 7;
     R3DCar_LoadedSceneCounter[countryFlag][currentCarType]--;
     if (R3DCar_LoadedSceneCounter[countryFlag][currentCarType] == '\0') {
@@ -558,13 +538,16 @@ void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
   (carObj->render).currentCarType = -1;
   (carObj->render).newCarType = (carObj->render).newCarType | 0x80;
   if (carObj->async_handle != 0) {
+    int status;
     while (status = getasyncreadstatus(carObj->async_handle), status == 0) {
       systemtask(0);
     }
-    if (((0 < status) || (status == -1)) &&
-       (bigFile = (char *)getasyncreadadr(carObj->async_handle),
-       bigFile != (char *)0x0)) {
-      purgememadr(bigFile);
+    if ((0 < status) || (status == -1)) {
+      char *bigFile;
+      bigFile = (char *)getasyncreadadr(carObj->async_handle);
+      if (bigFile != (char *)0x0) {
+        purgememadr(bigFile);
+      }
     }
     carObj->async_handle = 0;
     R3DCar_aSyncLoading = -1;
@@ -600,35 +583,34 @@ char * R3DCar_LoadFileAdr(char *name)
   return buf;
 }
 
-/* ---- R3DCar_GetCarName__FPcii  [R3DCAR.CPP:1145-1154] SLD-VERIFIED ---- */
+/* ---- R3DCar_GetCarName__FPcii [retail R3DCAR.CPP:1145-1154; carrier/source/SLD recovery open] ---- */
 void R3DCar_GetCarName(char *filename,int carType,int country)
 
 {
-  /* SYM-CODEGEN-CARRIER: copIdx -- folding the unsigned car-type offset into
-   * the range test and table index compiles to 38 instructions and 13 oracle
-   * diffs.  This retained value produces the exact 37-instruction schedule,
-   * including the retail lifetime of the unadjusted carType. */
+  /* Source-recovery queue: copIdx is absent from retail. Mutating carType
+     before sprintf and undoing for its argument is11dif/38; mutating it
+     after sprintf is13dif/38. The retained37-word snapshot proves no source
+     object was necessary. Real index belongs only to the cop-country arm. */
   u_int copIdx;
-  int index;
-
   copIdx = carType - 0x16U;
   sprintf(filename,"zz%s",GameSetup_gCarNames[0] + carType * 5);
   if (copIdx < 6) {
+    int index;
     index = R3DCar_CopIndex[copIdx][country];
     filename[2] = R3DCar_CopCountry[index];
   }
   return;
 }
 
-/* ---- R3DCar_Instantiate3DCar__FP8Car_tObji  [R3DCAR.CPP:1159-1399] SLD-VERIFIED ---- */
+/* ---- R3DCar_Instantiate3DCar__FP8Car_tObji [retail R3DCAR.CPP:1159-1399; carrier/source/SLD recovery open] ---- */
 void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
 
 {
-  int carType;
-  int reload;
   char filename [10];
   char workFile [10];
   char bigname [100];
+  int reload;
+  int carType;
   
   carType = carObj->carInfo->carType;
   if (5 < carType - 0x16U) {
@@ -731,14 +713,12 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       int color;
       /* SYM-CODEGEN-CARRIER: colorTypeOffset.  Repeating carType<<1 is
          count-exact but changes eight address-building instructions. */
-      /* SYM-CODEGEN-CARRIER: scaledIndex.  Collapsing this and finalIndex into
-         SYM index remains 520/520 but reverses retail's addu operands. */
-      /* SYM-CODEGEN-CARRIER: finalIndex.  Removing only this second handoff
-         leaves the same two operand-order diffs. */
-      int finalIndex;
-      /* SYM-CODEGEN-CARRIER: loadedSceneColor.  The typed base must remain a
-         register value across the counter update; the direct array expression
-         cannot satisfy GCC 2.8.1's register constraint for the lifetime fence. */
+      /* The old scaledIndex/finalIndex handoffs are retired. The actual
+         negative-subtrahend spelling below preserves the index-first add
+         without extra source objects. This does not seal original syntax. */
+      /* Source-recovery queue: loadedSceneColor is absent from retail and
+         still feeds an older reference device below. Neither that device
+         nor prior register-constraint failures prove original source storage. */
       short (*loadedSceneColor)[2] =
           (short (*)[2])R3DCar_LoadedSceneColor;
 
@@ -749,19 +729,16 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       index = (short)color >> 3;
       const int colorTypeOffset = carType << 1;
       __asm__("" : : "r"(colorTypeOffset));
-      const int scaledIndex = (index * 3) << 3;
-      finalIndex = scaledIndex + index;
-      index = finalIndex;
+      index = ((index * 3) << 3) - (-index);
       /* MATCH: GCC's refs=6 color quantity loses a1 to the scaled index.
          Four read-only refs cross the measured refs=10 allocation step. */
       __asm__("" : : "r"(color), "r"(color), "r"(color), "r"(color));
       reload = 0;
       if ((int)*(short *)(colorTypeOffset + (index << 2) +
                           (u_int)loadedSceneColor) == (color &= 8)) {
-        /* SYM-CODEGEN-CARRIER: loadedSceneVRam.  Direct global addressing is
-           count-exact but changes 14 load/address scheduling instructions. */
+        /* Source-recovery queue: loadedSceneVRam is absent from retail.
+           Both direct global forms were14dif/520; restored, not a floor. */
         short (*loadedSceneVRam)[2][2];
-
         loadedSceneVRam = (short (*)[2][2])R3DCar_LoadedSceneVRam;
         (carObj->render).VRamX =
             *(short *)((carType << 2) + (index << 3) +
@@ -895,7 +872,7 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
   return;
 }
 
-/* ---- R3DCar_Visibilty__FP8Car_tObjP13DRender_tView  [R3DCAR.CPP:1405-1511] SLD-VERIFIED ---- */
+/* ---- R3DCar_Visibilty__FP8Car_tObjP13DRender_tView [retail R3DCAR.CPP:1405-1511; mode/device/source/SLD recovery open] ---- */
 int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
 
 {
@@ -918,9 +895,10 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
       (Camera_gInfo[Vi->player].inCar != 0)) {
     if (Camera_GetMode(Vi->player) == 0) goto R3DVis_setNoDetailReturn;
     if (Camera_gInfo[Vi->player].inCar != 0) {
-      /* SYM-CODEGEN-CARRIER: modeOne -- the measured pin-free identity fence
-       * preserves the retail mask value separately from the later inCarCam
-       * rematerialization; direct literal forms retain two oracle diffs. */
+      /* Source-recovery queue: modeOne is absent from retail. Direct1 and
+         flag-before-mask forms both2dif/234 (copy vs literal rematerialization);
+         comparison-assigned inCarCam11dif/235. Restored, not proof of storage.
+         The older identity device remains explicit unresolved source work. */
       u_int modeOne;
 
       if (Camera_GetMode(Vi->player) ==
@@ -956,6 +934,8 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
      later inCarCam literal rematerializes as `li s5,1` in the branch delay slot (2 -> PASS).
      A direct literal, assignment reordering, ++/|=, and volatile-free comma variants stay at 2;
      deriving inCarCam from inside recolors s1/s2 and regresses to 50. W56-A14. */
+  /* Current removal trial after coordinate ownership fix:82dif/234. This
+     measures this basin only, not original source-object/device necessity. */
   __asm__ ("" : : "r"(maxMax), "r"(carObj));
   car.x = (carObj->N).position.x - (Vi->cview).translation.x;
   car.y = (carObj->N).position.y - (Vi->cview).translation.y;
@@ -995,6 +975,9 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
     carPos[2].z -= z;
     carPos[3].x += x;
     carPos[3].z -= z;
+    /* These real x/z locals end before the corner tests and common rejection
+       label; retail's optimized declaring region is +2d0..+2d0. */
+  }
     if (((carPos[0].z < __builtin_abs(carPos[0].x)) &&
          (carPos[1].z < __builtin_abs(carPos[1].x))) &&
         ((carPos[2].z < __builtin_abs(carPos[2].x)) &&
@@ -1005,7 +988,6 @@ R3DVis_setNoDetailReturn:
       (carObj->render).detail = -1;
       return -0x80000000;
     }
-  }
   if (inCarCam != 0) {
     (carObj->render).detail = 3;
   }
@@ -1770,7 +1752,7 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   return;
 }
 
-/* ---- R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii  [R3DCAR.CPP:2185-2342] SLD-VERIFIED ---- */
+/* ---- R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii [retail R3DCAR.CPP:2185-2342; base carrier/source/SLD recovery open] ---- */
 void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int player)
 
 {
@@ -1792,18 +1774,11 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
     char infilenames [3][15];
     char *shpfiles [3];
     int index;
-    /* SYM-CODEGEN-CARRIER: sfBase
-       SYM-CODEGEN-CARRIER: sfp
-       The optimized SYM retains only `i`, `infilenames`, `shpfiles`, and
-       `index` in this block.  Retail nevertheless materializes `sp+0x50`
-       into $s0 in the 0x800b0f7c branch delay slot and later forms the final
-       element address as `addu v0,s0,v0`.  Direct `shpfiles[index]` emits
-       209/211 and computes from $sp at the call; retaining only the base web
-       emits 211/211 but reverses the commutative addu operands (2 diffs).
-       This split base/selected-element web is the measured 211/211 source
-       representation.  Neither optimized-away identifier is recoverable
-       from SYM, so these neutral reconstruction names make that uncertainty
-       explicit rather than pretending they are retail debug declarations. */
+    /* Source-recovery queue: sfBase is absent from retail. The selected sfp
+       object and its extra region are retired: base-first integer arithmetic
+       below keeps211/211 without it. Direct stack-array base was12dif/209,
+       indexed second-load/postincrement24dif/209. These failures prove no
+       distinct sfBase source object was required; its spelling remains open. */
     char **sfBase;
 
     index = 0;
@@ -1843,10 +1818,7 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
     if (reload == 0) {
       reload = 0x91;
     }
-    {
-      char **sfp = sfBase + index;
-      CarIO_ReadInCarTextureData(*sfp,carObj,reload,player);
-    }
+    CarIO_ReadInCarTextureData(*(char **)((int)sfBase + (index << 2)),carObj,reload,player);
     (carObj->render).palNum = (short)Texture_palNum;
     DrawSync(0);
     Texture_CarColor =
@@ -2549,7 +2521,7 @@ R_ICFtMenu_suspensionSelected:
   return;
 }
 
-/* ---- R3DCar_InsertCarFacetII__FP8Car_tObj  [R3DCAR.CPP:3091-3270] SLD-VERIFIED ---- */
+/* ---- R3DCar_InsertCarFacetII__FP8Car_tObj [retail R3DCAR.CPP:3091-3270; full SLD attribution open] ---- */
 void R3DCar_InsertCarFacetII(Car_tObj *carObj)
 
 {
@@ -2573,15 +2545,17 @@ void R3DCar_InsertCarFacetII(Car_tObj *carObj)
   countryFlag = (u_char)(carObj->render).currentCountry >> 7;
   rightHandDrive = R3DCar_rightHandDrive;
   overlay = R3DCar_LoadedScenePointer[countryFlag][carType]->overlay;
-  if ((carObj->wheel[0].wheelInAir | carObj->wheel[1].wheelInAir |
-       carObj->wheel[2].wheelInAir | carObj->wheel[3].wheelInAir) == 0) {
+  /* Actual recorded roles: inAir is the wheel-flag OR; light is the masked
+     packed color stored below, not the discarded full return value. */
+  inAir = carObj->wheel[0].wheelInAir | carObj->wheel[1].wheelInAir |
+          carObj->wheel[2].wheelInAir | carObj->wheel[3].wheelInAir;
+  if (inAir == 0) {
     if (GameSetup_gData.Time == 0) {
       reflect = (u_int)(DrawC_gWetRoad != 0);
     }
     else {
-      inAir = -1;
       if (GameSetup_gData.commMode == 1) {
-        reflect = inAir;
+        reflect = -1;
         if (DrawC_gWetRoad == 0) goto R_ICFtII_setQuadLight;
         reflect = 1;
       }
@@ -2592,9 +2566,9 @@ void R3DCar_InsertCarFacetII(Car_tObj *carObj)
     }
   }
 R_ICFtII_setQuadLight:
-  light = BWorldSm_QuadLight(&(carObj->N).simRoadInfo);
-  (carObj->render).light = light & 0xffffff;
-  if (-1 < (carObj->render).detail) {
+  light = BWorldSm_QuadLight(&(carObj->N).simRoadInfo) & 0xffffff;
+  (carObj->render).light = light;
+  if ((carObj->render).detail < 0) return;
     sd = (Draw_CarCache *)&Render_gPalettePtr;
     if (gNight_renderNight != 0) {
       DrawC_NightHeadlight(carObj);
@@ -2608,7 +2582,7 @@ R_ICFtII_setQuadLight:
     }
     sd->color = (lightAvg << 16) + (lightAvg << 8) + lightAvg;
     worldZ = DrawC_PrimStart(&R3DCar_center,carObj,lightAvg,sd);
-    if (-1 < worldZ) {
+    if (worldZ < 0) return;
       for (i = 0; i < 0x39; i = i + 1) {
         Transformer_zObj *obj;
         int visible;
@@ -2713,12 +2687,10 @@ R_ICFtII_setQuadLight:
           DrawC_ShadowPrim(R3DCar_shadowVertex,sd);
         }
       }
-    }
-  }
   return;
 }
 
-/* ---- R3DCar_InsertCarFacetMenuII__FP8Car_tObji  [R3DCAR.CPP:3273-3395] SLD-VERIFIED ---- */
+/* ---- R3DCar_InsertCarFacetMenuII__FP8Car_tObji [retail R3DCAR.CPP:3273-3395; full SLD attribution open] ---- */
 void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
 
 {
@@ -2741,8 +2713,8 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
   }
   sd->color = (lightAvg << 16) + (lightAvg << 8) + lightAvg;
   if (-1 < (carObj->render).detail) {
-    if (-1 < DrawC_PrimStart(&R3DCar_center,carObj,lightAvg,
-                             (Draw_CarCache *)0x1f800000)) {
+    if (DrawC_PrimStart(&R3DCar_center,carObj,lightAvg,
+                             (Draw_CarCache *)0x1f800000) < 0) return;
       for (i = 0; i < 0x39; i = i + 1) {
         Transformer_zObj *obj;
         int visible;
@@ -2760,14 +2732,9 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
           if ((carType < 0x1c) && ((i - 0x1cU < 2 && (R3DCar_RecessedLight[carType] != 0)))) {
             offset = -offset;
           }
-          /* MATCH: retail allocates the SYM locals as offset=$t0, visible=$t1,
-             envmap=$t2.  Mutating envmap in place gives the exact 266-insn body
-             but, without this loop-depth priority fence, gcc rotates them to
-             envmap/offset/visible=$t0/$t1/$t2 (76 diffs).  qtytrace priced the
-             required ref steps: four offset operands plus one visible operand
-             restore the retail order; placing the fence here, after the first
-             guard, preserves retail's slti/mirror delay-slot schedule.  The same
-             fence before the guard leaves a 6-diff scheduling residual. */
+          /* Current named homes match offset=t0, visible=t1, envmap=t2.
+             Old priority-fence trials are superseded: no such source device
+             remains here. Real early-exit ownership keeps266 words exact. */
           if (((rightHandDrive != 0) && (0x22 < i)) && (i < 0x29)) {
             mirror = true;
             sd->head.mirror = sd->head.mirror ^ 1;
@@ -2853,7 +2820,6 @@ R_ICFtMenuII_block43:
       if ((R3DCar_InMenu & 0x80U) == 0) {
         DrawC_ShadowPrimClip(R3DCar_shadowVertex,sd);
       }
-    }
   }
   return;
 }
@@ -2877,7 +2843,7 @@ void R3DCar_InsertCarFacetZ(Car_tObj *carObj,DRender_tView *Vi)
   return;
 }
 
-/* ---- R3DCar_InsertAllListFacet__FP13DRender_tView  [R3DCAR.CPP:3416-3551] SLD-VERIFIED ---- */
+/* ---- R3DCar_InsertAllListFacet__FP13DRender_tView [retail R3DCAR.CPP:3416-3551; full SLD attribution open] ---- */
 void R3DCar_InsertAllListFacet(DRender_tView *Vi)
 
 {
@@ -2981,7 +2947,6 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi)
     stackSpeedUpEnbabledFlag = 0;
     R3DCar_InsertCarFacetII(carObj);
   }
-  return;
 }
 
 /* end of r3dcar.cpp */

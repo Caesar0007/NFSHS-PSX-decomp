@@ -2,16 +2,16 @@
 
 Status as of 2026-09-28. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
-Native-only per-directory snapshot after the drawc scope round (2565 common
+Native-only per-directory snapshot after the scheduler/track scope round (2565 common
 covered functions; not a full source-declaration/carrier/SLD seal):
 
 | Retail directory | Native CLEAN | Native DIRTY |
 |---|---:|---:|
 | FRONTEND/COMMON | 711 | 127 |
 | FRONTEND/PSX | 61 | 24 |
-| GAME/COMMON | 1061 | 186 |
+| GAME/COMMON | 1086 | 161 |
 | GAME/PSX | 284 | 111 |
-| Total | 2117 | 448 |
+| Total | 2142 | 423 |
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
@@ -1353,6 +1353,597 @@ vtable audit PASS1314 files, whitespace check clean. This checkpoint includes
 only drawc.cpp, psyq_prim_macros.h, audiocmn.cpp and this journal; unrelated
 staged format documentation and untracked port/build files are excluded.
 Native CLEAN is not a full original-source/SLD seal; the main goal remains open.
+
+2026-09-28 post-checkpoint PlaySFX scope/ownership continuation:
+The cross-version-supported bankNum declaration now sits at root, as in matched
+NFS2 PlaySFX, removing the unsupported lookup-only +148..+178 region. It remains
+debug-elided; its literal original NFS4 spelling is not claimed uniquely recovered.
+The positive selected-SFX guard with explicit NEWSOUND else preserves the original
+branch target and bypasses the later SFXnum reload on mismatched entry.
+Final `run-4pvdmtzh`: 316/316 PASS, full-TU BYTES UNCHANGED, ASPSX524/0,
+PSYLINK zero errors, audiocmn45/48 native CLEAN. Scope tree now has the exact
+root/+178/+1c4 outer prefix, but four scopes vs retail five; the result's +254..+2b8
+region remains misplaced and retail's +1c4/+1e0..+234 regions remain absent.
+No dummy declaration was introduced to manufacture those empty regions.
+
+Actionable combined experiment (not retained): assign the new-sound result to
+root iPartial, use the direct channel test in RECHECK, and put the async flag
+directly in the call. This reduces the failed old13-diff/317-word reuse trial
+to6 diffs at316 words. With a positive SFX guard, direct gaChannel accesses also
+remove chbase/slot and their empty fence at the SAME six-difference stream.
+The only mismatch is three flag instructions: retail li/xor in v0 then sltiu
+a0,v0,1; trial li/xor in a0 then sltiu a0,a0,1. Narrow casts and opposite integer
+conditional spelling are neutral; duplicated conditional calls give21dif/321.
+Restoring the old iPartial bank-flag use with the carrier-free guard produces an
+80-difference saved-register rotation. All non-PASS candidates were reverted;
+the existing slot fence and r remain explicit recovery work, not proven source
+objects. Solving the anonymous flag target can unlock the handle name, both
+address carriers and the fence together. Full source/SLD goal remains active.
+Final regression: fresh526-object link, multdef-ok rc=0/empty stderr, no
+undefined/truncated relocations (590 existing strict overlap diagnostics).
+Honest RECON299819/299819 identical, zero masked mismatch bytes/foreign labels;
+vtable audit PASS1314 files. Source and evidence remain local/uncommitted.
+
+2026-09-28 Newton continuation:18/32 ->23/32 native CLEAN, five corrected
+covered functions, all detailed PASS and complete section/layout fingerprints
+unchanged. Retail blocks/local/type/home/order records were read directly:
+- CopyRoadMatrixToOrientMat and CopyRoadMatrixToShadowMat (53 words each):
+  ordinary if/else, not early-return plus a standalone declaring block, restores
+  the outer +000 binding and depth3 ori/road or shad/road at +04c..+0cc.
+- InitBaseNewtonObj (160): i is owned by the damage-clear/tail region at
+  +1dc..+24c, depth2, not function root. An actual block owns that real local
+  and following tail stores; no unused declaration, new name or line padding.
+- QDUpdateVel (57): inactive early return removes an unsupported outer if
+  binding; t1/t2/t3 belong to the sgge branch. This ordinary C++ reproduces
+  retail's empty +03c..+03c declaring region and +028..+0cc parent, without
+  a manufactured empty statement or GNU expression region.
+- CalcDistToClosestPlayerCar (200): merge the far/forced condition and startup
+  condition by short-circuit &&, then make oldOptz work the else arm. Far/forced
+  alone does NOT skip that work: both conditions must hold for early return.
+  All five scopes now agree, oldOptz depth3 and static dummy depth5.
+Final source/comment gate `run-4ceidwmp`: BYTES UNCHANGED, ASPSX524 good/0 bad,
+PSYLINK zero errors; no new asm, volatile, carrier or compiler-output rewrite.
+The five native contracts are CLEAN, but complete statement-line attribution
+and literal original spelling are not yet sealed; stale SLD-VERIFIED claims
+were removed from all five edited header annotations. Final annotation-only
+recheck `run-wtufe2a_` again23/32 CLEAN, full bytes/layouts unchanged,
+ASPSX524/0 and PSYLINK zero errors. Full tree2122/443.
+Fresh526-object link: multdef-ok rc=0/empty stderr, zero undefined/truncated
+relocations,590 existing strict overlap diagnostics. Honest RECON299819/299819,
+zero masked mismatches/foreign labels, vtable audit PASS1314 files.
+Source/evidence changes remain local and uncommitted; main goal active.
+
+2026-09-28 Newton continuation II:23/32 ->26/32 native CLEAN, three more
+retail local/type/home/order/scope contracts restored, all previously PASS:
+- CalculateGroundShadowMatrix (221): retain both real r1/r2/r3 copy regions,
+  but make the general construction the else arm of the initial orient branch.
+  Second copy names now depth4, and all six scope tuples agree. Matched NFS2
+  PC source independently uses the same if/else architecture. No copy local
+  renamed or manufactured; initial orient path still skips general construction.
+- CheckForSpikeBelts (49): inline getter directly tests/returns active_, removing
+  its unrecorded active snapshot. Collapse getter/active/slice guards with &&,
+  placing real latPos in the depth3 selected-body region +048..+0bc. All five
+  scopes agree, including the nameless inline pair. Getter spelling is explicitly
+  inferred, not a recovered NFS4 symbol; literal original header spelling remains
+  review work. Full-TU check covers its complete consumer set.
+- FindGroundElevationAndNormalFast (72): end the first r1/r2/r3 copy region
+  before the height guard, then test normal->y (same loaded value; stores and
+  guard remain byte-exact). The second r2/r3/r4 copy is now depth4, not5.
+  Missing surfaceType was an unused zero placeholder. Restore it to retail's
+  real v0=1 wheel-surface value and use it for the four stores. Its correct REG
+  record survives with actual uses; the (void) fake use is removed. All five
+  scope tuples and original names/types/homes now agree. No new name or fence.
+Final comment-cleaned `run-uvjnfiwy`: complete bytes/layouts UNCHANGED,
+ASPSX524 good/0 bad, PSYLINK zero errors; no post-compile rewriting.
+Whole-tree2125 CLEAN /440 DIRTY; EXTRA299, MISSING120, SCOPE186, BLOCKS360
+affected functions. Full SLD statement/line attribution is still unsealed;
+stale SLD-VERIFIED claims were removed from these three modified headers.
+Fresh526-object link: multdef-ok rc=0/empty stderr, no undefined/truncated
+relocations;590 existing strict overlap diagnostics. Honest RECON299819/299819,
+zero masked mismatches/foreign labels; vtable audit PASS1314 files, whitespace
+clean. Changes remain local/uncommitted. Main exhaustive goal remains active.
+
+2026-09-28 Newton continuation III:26/32 ->28/32 native CLEAN:
+- UpdateRoadGeometry (228 words): inactive early return removes two unsupported
+  binding levels. i belongs to the for initializer, temp to its body; the high-res
+  copy/matrix r1..r6/x1 group owns its own real declaring region at depth6,
+  while low-res r1/r2/r3 belong at depth3. All13 native scope tuples now agree.
+  Root hiRez/slice and final yaw locals retain retail types/homes/order.
+  Full gate `run-p9by44ma` BYTES UNCHANGED, ASPSX524/0, PSYLINK zero errors.
+- AddDamageZone (502): the second average/clamp in each of four explicit-zone
+  arms belongs to the already-recorded imp, not a new block-local temp.
+  Restore actual imp computations/stores; four extra declarations and their
+  four extra scopes disappear, without renaming an unrelated carrier or adding
+  fake uses. The first average's temp stays in each retail block; the general
+  zone arm's separate temp also stays. Reusing the first temp instead lost an
+  instruction (19dif/501); a direct repeated-expression clamp was30dif/512,
+  so both failed forms were reverted. The recorded imp home is v1 and the
+  second quantity also occupies v1; matched code/native evidence supports
+  this no-extra-object reconstruction, not uniquely recovered literal text.
+  Type arm declaration order is transposeMat/intensity/xMult/yMult/zMult.
+  Unused Newton_AddDmgZ_typeSet reconstruction label is gone. Final
+  `run-r2ec3c75`: full bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK zero errors,
+  Newton28 CLEAN/4 DIRTY. Full SLD statement attribution remains unsealed;
+  old SLD-VERIFIED annotations on both edited functions were corrected.
+Whole-tree2127 CLEAN/438 DIRTY; EXTRA298, SCOPE185, BLOCKS358 affected
+functions. Fresh526-object link: multdef-ok rc=0/empty stderr, no undefined/
+truncated relocations;590 existing strict overlap diagnostics. Honest
+RECON299819/299819 identical, zero masked mismatch bytes/foreign labels;
+vtable audit PASS1314 files and whitespace clean. No new asm/volatile/pin or
+compiler-output rewrite. Changes local/uncommitted; exhaustive goal active.
+
+2026-09-28 Newton gravity continuation:28/32 ->29/32 native CLEAN.
+ApplyTheLawOfGravity (315 words) uses inactive/scheduler/fast-sim early returns,
+removing unsupported outer declaring levels while preserving all branch words.
+The orientation selection has its own real enclosing region; collisionPoint
+and bounceVel now depth8. k belongs to the for initializer at depth9, and scale
+to the high groundVel branch at depth7. All names/types/homes/order agree.
+The remaining empty +0a8..+0a8 region corresponds to the actual shadowNormal
+copy (retail block line54). A name-free GNU expression around that assignment
+restores it without a dummy object or test. This verified representation does
+not uniquely recover literal original copy-macro text; source spelling and full
+SLD statement mapping remain explicitly open. All15 scope tuples agree.
+Final comment-cleaned `run-9e1vupey`: BYTES/layouts UNCHANGED, ASPSX524/0,
+PSYLINK zero errors; no new asm/volatile/pin or compiler-output rewrite.
+Whole-tree2128 CLEAN/437 DIRTY. Fresh526-object link completed rc=0;
+multdef-ok stderr empty, zero undefined/truncated relocations,590 existing
+strict overlap diagnostics. Honest measurement rerun after link completion:
+RECON299819/299819 identical, zero masked mismatches/foreign labels. Vtable
+audit PASS1314 files, whitespace clean. Source/evidence remain uncommitted;
+the exhaustive source/SLD goal remains active, not complete.
+
+2026-09-28 Newton undrivable continuation:29/32 ->30/32 native CLEAN.
+TestForUndrivableSurfaces remains470/470 PASS. The outer for owns testPoint
+at depth3 and check/newTestPoint at depth7. Two real centroid regions own j
+and loop-body temp at retail depths16/17 and14/15; they end at loop exit,
+BEFORE centroid divisions. Closing after division was byte-exact but both
+scope endpoints were60 bytes late. While loops preserve j=0 before the
+existing cursor boundary; direct for-initializer variants moved it (four
+differences) and were superseded. Both old mechanical loop labels are gone.
+Positive aborted==0 and high-impulse guards own impulse/zone at depth9;
+the low/aborted paths still return without damage processing. All26 native
+scope tuples and recorded local types/homes/order now agree.
+
+With ownership restored, remove quadPt and BOTH empty pointer identity asm
+calls. temp=testSimRoadInfo.quadPts[j] was18 differences at468/470, with
+struct-anchor reuse and bare8/12/16 offsets. The index-first expression
+`temp=*(coorddef*)((j*12)+(int)testSimRoadInfo.quadPts)` at BOTH sites instead
+gives470/470 PASS, no pointer carrier, no replacement fence or fake local.
+Old NO C SPELLING/SEALED assertions are explicitly historical, not source
+evidence. Existing memory-ref fences and the cross-version-supported abort
+flag still need source-only review; native CLEAN does not exempt those.
+Final comment-cleaned `run-gr0asj2g`: full bytes/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors, Newton30 CLEAN/2 DIRTY. Whole-tree2129/436;
+EXTRA297, SCOPE183, BLOCKS356 affected functions. Full SLD attribution and
+literal original macro spelling remain unsealed. Source/evidence uncommitted;
+main exhaustive goal active. No new asm/volatile/pin or output rewriting.
+Final regression: fresh526-object link completed, multdef-ok rc=0/empty
+stderr, zero undefined/truncated relocations (590 existing strict overlaps).
+Post-link honest RECON299819/299819 identical, zero masked mismatches or
+foreign labels; vtable audit PASS1314 files, whitespace clean.
+
+2026-09-28 Newton full-ground partial restoration (still DIRTY,905/905 PASS):
+- Restore six sibling vector-calculation regions, not nested lifetimes. r1/r2/
+  r3 in the first three groups are shifted matrix inputs, not product results;
+  scaling appears in the vector stores. This corrects three r3 home mismatches
+  while preserving every word. Root declaration order now matches retail.
+- Restore enclosing wheelHeight/testSimRoadInfo region and final vector region,
+  original declaration order, per-wheel roadNormal/roadCenterPoint/roadSurfaceType
+  ownership, and the three real for-initializer i records. The actual low speed
+  limit has its own clamp region. All recorded names/types/homes/depths now agree.
+- Missing suspension-sum r1/r2/r3/r4 are actual four loaded wheel-acceleration
+  terms, not fake declarations: restore their loads/use in count's sum. All four
+  REG records return in retail homes at depth5, complete bytes unchanged.
+- Two nested real selection regions restore speed/ratio ownership at depths9/13.
+  Independent bounce predicates retain retail's global allocation; changing them
+  to ordinary else rotated34 words at905/905 and was reverted. Direct wheelAcc
+  updates with first-arm continue preserve the shared store, removing newWheelAcc
+  plus storeWheelAcc/nextWheel labels. Without continue three differences at906.
+  Literal original helper/macro spelling for those regions is not uniquely proved;
+  native ownership improvement is not a full source-text/SLD seal.
+- Failed and restored: direct wheelHeight.y loses the old height snapshot20dif/
+  907; assignment inside the guard25dif/906. Tire-range clamp direct ternary27dif/
+  906, bound-first26dif/905. wheelY and five unsupported clamp-result limit names
+  remain precise recovery work, not proof distinct source objects were necessary.
+Final `run-afqmcjjl`: full-TU bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK
+zero errors; Newton30/32 native CLEAN. Target remaining native differences are
+EXTRA limit/wheelY and49 vs41 scopes. Whole-tree2129 CLEAN/436 DIRTY;
+MISSING119 and SCOPE182 affected functions, down from120/183. Full SLD/statement
+attribution remains open. No new asm/volatile/pin or compiler-output rewriting.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels, vtable audit
+PASS1314 files, whitespace clean. Changes local/uncommitted; full goal active.
+
+2026-09-28 Newton post-barrier named-ownership round (still DIRTY,106/106 PASS):
+Retail's distRetreat is the pre-clamp signed quotient in v1, not the clamped
+attenuation argument in a1. Restore that actual role; existing retreat is now
+explicitly the unresolved clamp-result carrier, not a recovered local. Other
+recorded locals impactVel/upVec/islandMatrix belong to the depth2 +000..+128
+region, with barrierVec at root. Those original names/types/homes/depths/order
+now agree; only11 EXTRA carriers and3 scopes vs2 remain in native comparison.
+Stale SLD-VERIFIED and retreat-role assertions corrected; full source/SLD open.
+Failed and restored: live conditional clamp in the attenuation call79dif/103
+vs106; deleting early reorg boundary8dif/106; dot accumulation through dsum
+without p1 capture26dif/106. These trials prove no source-object necessity.
+No failed edit survives, no replacement asm/volatile/pin or output rewrite.
+Final comment-cleaned `run-522veaof`: full bytes/layouts UNCHANGED, ASPSX524/0,
+PSYLINK zero errors, Newton30/32 native CLEAN. Whole-tree2129/436; MOVED36
+and SCOPE181 affected functions, down from37/182. No completion claim.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels; vtable audit
+PASS1314 files and whitespace clean. Source/evidence local/uncommitted, goal active.
+
+2026-09-28 scheduler/track native ownership round:three additional CLEAN
+functions, all detailed PASS and complete compiled sections/layouts unchanged.
+- Sched_ExecuteCheck (77): distanceIndex/mask belong to the late-game guard
+  at depth3; index stays root. Fallback is the else arm, extending the outer
+  binding to +12c rather than ending at +100. Final schedule `run-zkz9k_9_`:
+  native6/6 CLEAN, ASPSX524/0, PSYLINK zero errors.
+- CalcObjectBoundingSphere (152): center-average/radius calculation owns the
+  +0c0..+1f8 region, including the second point loop. Its diff now depth5,
+  all9 scope tuples agree; no dummy name or extra operation.
+- SaveSurface::RestoreAll (27): i belongs to the actual restore/count-clear
+  region at depth2, +000..+064, not function root. All records agree.
+Final track `run-pkc6eysf`: native19/29 CLEAN (up from17/29), full bytes/layouts
+unchanged, ASPSX524/0, PSYLINK zero errors. Full SLD attribution and literal
+original region/helper spelling remain open; old SLD-VERIFIED claims corrected.
+
+CalcObjDefPtrs stays unresolved/PASS25. Its loop has three extra GetData
+inline pairs absent from retail. Direct payload pointer or equivalent Group
+word indexing is8 differences/25: ours anchors base+4 with0/4 load/store
+offsets, retail base+8 with-4/0. Compound store sixdif/25; explicit index-first
+integer addresses28dif/29. No differing reference overwritten, all failed
+forms restored. These are source-basin results, not a source-impossibility floor.
+Whole-tree2132 CLEAN/433 DIRTY, SCOPE178/BLOCKS353 affected functions. No new
+asm/volatile/pin, synthetic carrier or compiler-output rewriting.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, no undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels; vtable
+audit PASS1314 files, whitespace clean. Source/evidence remain local/uncommitted.
+Main exhaustive source/SLD goal is active, not complete.
+
+2026-09-28 track shape-loader ownership round (still DIRTY,211/211 PASS):
+LoadShapesAndMakePmx main for(i=0;...;i++) owns name/tempclut at depth3.
+Null-shape continue removes unsupported declaring levels without changing
+the branch or pmx increment behavior. Both inner palette/mipmap j names
+belong to their for initializers. palnum/icode now depth5, both j records
+match their retail scopes, and all19 native scope tuples agree. No new name,
+asm/volatile/pin or compiler-output rewrite; root induction multiPalCount
+is debug-elided and remains original-spelling review, not a full seal.
+Only emptyPalNum remains EXTRA. Literal store after scope restoration is
+two differences at211/211: do/while, local for initializer, and typed
+index-first palette address all move li a0,-1 relative to li v1,127. All
+non-PASS forms restored; the existing snapshot is explicitly unresolved,
+not proven distinct source storage and not excused by a generic exemption.
+Final `run-x2jly2yp`: full bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK
+zero errors. Track19/29 native CLEAN, whole-tree2132/433. SCOPE177 and
+BLOCKS352 affected functions (down from178/353); complete SLD attribution
+and original macro spelling remain open. Stale SLD-VERIFIED header corrected.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, no undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link
+honest RECON299819/299819 identical, zero masked mismatches/foreign labels;
+vtable audit PASS1314 files and whitespace clean. Source/evidence local and
+uncommitted; exhaustive main goal remains active, not complete.
+
+2026-09-28 material/object precision ownership round: Track_AssociateSingleMaterial
+native CLEAN/91 PASS; Track20/29 native CLEAN (up from19/29).
+Retail records TWO separate shapeIndex locals in the UV processing and direct
+arms, both at depth5/a0. Root shared shapeIndex was incomplete. Restore both
+actual declarations/uses, originalPmx only in the processing arm, and root
+animCount. Ordinary for loop removes TrkAssoc_loopTest; all6 scope tuples and
+recorded names/types/homes/order agree. Old generic-name exemption paragraph
+removed, obsolete compiler version annotation corrected. Full SLD remains open.
+
+ReduceObjectPrecision stays DIRTY/40 PASS: inactive early return removes
+unsupported outer bindings, puts inline GetNumElements receiver at depth2 and
+objDef at depth4. Its real nested count/pts region owns those locals at depth5,
+in retail declaration order. All8 scope tuples and recorded names/homes agree.
+Only EXTRA x/y/z remain. Direct member shifts37dif/41, direct halfword indexing
+42dif/40: all non-PASS forms restored, no unsupported const alias or substitute
+carrier introduced. Those captures remain recovery work, not proven source
+objects. Existing CCOORD16 signed-short fields verified against raw lh/srav/sh.
+Final comment-cleaned `run-jp68azkb`: full-TU bytes/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors. Whole-tree2133 CLEAN/432 DIRTY; MISSING118,
+SCOPE175, BLOCKS350 affected functions. Full source/SLD goal remains active.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels; vtable
+audit PASS1314 files and whitespace clean. No new asm/volatile/pin or output
+rewriting. Source/evidence local/uncommitted; no full original-source seal claimed.
+
+2026-09-28 track object-kill loader: native CLEAN/86 PASS; Track21/29 CLEAN.
+Retail orders inst's GetData receiver at depth6, then bounds-check receiver
+at depth7, followed by index/simGroup at depth6. Source had GetNumElements
+before GetData inside a positive bounds owner, putting descendants two levels
+too deep. GetData first plus objInd>=GetNumElements continue restores all19
+scope tuples, all original names/types/homes/order, and all86 words. A merged
+positive guard was byte-exact but receiver depths/order still disagreed;
+the final earlier getter/continue spelling satisfies the full native contract.
+Null group and invalid index still skip processing; file purge remains common.
+No synthetic block/local, asm/volatile/pin, or compiler-output rewrite added.
+Full statement-line attribution and literal original spelling remain open;
+stale SLD-VERIFIED annotation and wrong accessor-order comment corrected.
+Track_AnimateTextures standard while and while(true)/break trials both55dif/
+105 versus102, including constant hoists and register rotation. Both restored;
+the existing102-word PASS and its precise carrier/scope queue remain unchanged.
+Final `run-dhawczuj`: complete bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK
+zero errors. Whole-tree2134 CLEAN/431 DIRTY; SCOPE174/BLOCKS349 affected
+functions. Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero
+undefined/truncated relocations;590 existing strict overlap diagnostics.
+Post-link honest RECON299819/299819 identical, zero masked mismatches/foreign
+labels; vtable audit PASS1314 files, whitespace clean. Changes local/uncommitted;
+full original-source/SLD goal remains active, not complete.
+
+2026-09-28 track material-link receiver restoration: native CLEAN/241 PASS.
+Track_LinkMaterials mats must use SerializedGroup::GetData, not bare group+1.
+The real member expansion restores missing this REG:$4 at depth4 and its
+two empty +034 scope regions. All21 scope tuples, recorded local names/types/
+homes/order agree, with all241 words unchanged. Track22/29 native CLEAN.
+Track_InitPersistentData declaration order is now persistentGroups/count,
+still119/119 PASS. Its one missing receiver and nine absent regions remain
+open. Case2 raw proves m_length-16 for the payload length, but surviving SYM
+and inspected PC-beta headers provide no accessor spelling. No guessed getter
+or fake use was added merely to match empty scopes. Original case-wrapper
+source and complete SLD attribution require further reference investigation.
+Final comment-cleaned `run-y403ul1q`: full bytes/layouts UNCHANGED, ASPSX524/0,
+PSYLINK zero errors; no new asm/volatile/pin or output rewriting. Stale
+SLD-VERIFIED annotations corrected on both edited functions. Whole-tree
+2135 CLEAN/430 DIRTY; MISSING117 and BLOCKS348 affected functions.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels; vtable
+audit PASS1314 files, whitespace clean. Changes remain local/uncommitted;
+the exhaustive original-source/SLD goal remains active, not complete.
+
+2026-09-28 renderer startup: R3DCar_StartUp native CLEAN/52 PASS.
+Its filename buffer belongs to the license-path/load region at depth2,
+not root. Full scope tuple +06c..+06c and all recorded locals now agree.
+Remove fake if(0) allocator call that existed only to retain SimpleMem.
+The project's existing unused-inline class-tag representation retains the
+same literal without inventing an allocator operation. All compiled sections
+and layouts stay unchanged, including .rodata. Literal original header
+spelling/full SLD remain unsealed; root file's wrong module/function-count
+and whole-SYM-applied claim corrected. Final `run-uwi7t_9q`: R3DCar15/27
+native CLEAN, BYTES UNCHANGED, ASPSX524/0, PSYLINK zero errors.
+
+Souffle pre-edit guard stopped at `run-btk38ke0`; no source edit or differing
+reference overwrite. Independent read-only comparison proves old reference
+equals fresh sections except its missing10-byte SimpleMem\0 .rodata tag.
+Raw rom/nfs4-f.exe at0x800565D8 confirms that tag, and all10 fresh detailed
+Souffle functions PASS (18/14/16/120/295/24/59/16/7/10 words). Its baseline
+is stale, not evidence of a code regression. Asked user before reference-only
+backup/refresh; pending decision. Keep old baseline intact meanwhile.
+MaintainAvailableCops remains ORDER-only unresolved. Initial declaration swap
+and normal increment spelling did not fix it. Reusing second-loop playLoop
+in third loop fails ordinary lexical scope; initializing it to0 preserves
+162 words but introduces a third debug playLoop. All neutral/failed trials
+restored; aih_play source content unchanged. Fresh `run-zewod0q9` again
+BYTES UNCHANGED, ASPSX524/0, PSYLINK zero errors,2/9 native CLEAN.
+Whole-tree2136 CLEAN/429 DIRTY; SCOPE173/BLOCKS347 affected functions.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, no undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link
+honest RECON299819/299819 identical, zero masked mismatches/foreign labels;
+vtable audit PASS1314 files, whitespace clean. No new asm/volatile/pin or
+compiler-output rewriting; changes local/uncommitted. Full source/SLD goal active.
+
+2026-09-28 renderer filename/menu-release round:
+- GetCarName remains37 PASS. Real index is owned only by the cop-country
+  guard at depth3, +04c..+07c; all three scope tuples and recorded locals now
+  agree. Only copIdx remains EXTRA. Mutating carType before sprintf then
+  undoing for its name argument11dif/38; after sprintf13dif/38. Both restored,
+  no replacement alias/const qualifier added. This is not a source-object floor.
+- DeInstantiate3DCarMenu native CLEAN/80 PASS. countryFlag belongs to valid
+  current-car arm, status to pending-read arm, both depth3. Separate successful
+  status guard owns bigFile at depth5, then its null guard purges it. Calls and
+  invalid/pending paths remain byte-exact; all7 scope tuples and original
+  names/types/homes/order agree. R3DCar16/27 native CLEAN (up from15/27).
+Final comment-cleaned `run-l6hjzlk_`: complete bytes/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors. Stale SLD-VERIFIED claims corrected; literal
+original spelling/full statement-line attribution remain unsealed.
+Whole-tree2137 CLEAN/428 DIRTY; SCOPE171/BLOCKS345 affected functions.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link
+honest RECON299819/299819 identical, zero masked mismatches/foreign labels;
+vtable audit PASS1314 files and whitespace clean. No new asm/volatile/pin or
+compiler-output rewriting. Source/evidence local/uncommitted, full goal active.
+Souffle baseline remains unchanged pending the previously requested decision.
+
+2026-09-28 renderer restart: native CLEAN/30 PASS, all FIVE old captures
+removed (ppCVar3/numCars/gsData/headOn/brakeOn), no replacement alias.
+Real for/body ownership puts carObj at depth3. For plus pointer walker was
+12dif/30 a0/a1 swap; indexed Cars_gList[i] fixes the swap, leaving only i
+initialization order (two differences). Restore initialization before the
+captured preheader; later retire both light constants jointly (literal stores
+are30 PASS), then direct GameSetup.Time and finally direct Cars_gNumCars also
+become30 PASS. Initial direct count alone was4dif/30 and direct Time12dif/30;
+those results were basin-specific, not source-object requirements. With all
+captures gone, ordinary for(i=0;...) is again30 PASS and restores genuine
+loop statement grouping. R3DRestart_loopTop and obsolete carrier assertions
+gone. Final source `run-1al493qs`: full sections/layouts UNCHANGED, ASPSX524/0,
+PSYLINK zero errors; R3DCar17/27 native CLEAN. All3 native scope tuples and
+recorded names/types/homes/order agree. No new asm/volatile/pin or output rewrite.
+
+SLD diagnostic repair: sldprobe's old header heuristic used the first code
+statement/prologue, not the function's pre-.ent .loc header; this shifts all
+relative tags. Corrected capture/comment with backup
+scratchpad/sldprobe_before_header_20260928.py. All27 renderer header anchors
+agree with the independently emitted full-debug SYM, py_compile passes.
+Actual native dump versus retail SLD comparison for Restart confirms17/30
+remaining instruction-line differences;13 tags agree, including initialization,
+whole preheader and car pointer load. Not an SLD seal. No #line or source-line
+padding introduced, no byte verifier behavior relaxed. Literal original layout/
+statement formatting remains review work. Whole-tree2138 CLEAN/427 DIRTY;
+EXTRA296, SCOPE170, BLOCKS344 affected functions. Full source/SLD goal active.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels; vtable
+audit PASS1314 files and whitespace clean. Source/tool/evidence local/uncommitted.
+
+2026-09-28 texture-menu selected-pointer removal (still DIRTY,211 PASS):
+ReadInCarTextureMenu's sfp object and its extra +1f8 region are unnecessary.
+Use the actual dereference directly with base-first integer address arithmetic:
+`*(char **)((int)sfBase+(index<<2))`. It preserves the original addu operand
+order with all211 words unchanged, where the earlier ordinary base+index
+pointer form had two differences. All4 scope tuples and recorded local
+names/types/homes/order now agree; only EXTRA sfBase remains. No new alias,
+const/volatile qualifier, asm operand or compiler-output rewrite added.
+Direct stack-array base12dif/209; indexed optional-file load/postincrement
+24dif/209. Both restored. A temporary misplaced declaration during restoration
+was removed immediately; complete-TU byte gate confirms no collateral change.
+sfBase still requires original-source investigation, not a generic exemption
+or assertion that an original object was necessary. Stale combined carrier
+and SLD-VERIFIED comments corrected. Full SLD attribution remains unsealed.
+Final `run-pi2_sy0_`: full bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK zero
+errors; R3DCar17/27 native CLEAN. Whole-tree2138/427; BLOCKS343 affected
+functions (down from344), native count alone not a source-completion seal.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels; vtable
+audit PASS1314 files and whitespace clean. Source/evidence local/uncommitted;
+the full goal remains active. Souffle baseline still unchanged pending decision.
+
+2026-09-28 renderer geometry reader: native CLEAN/322 PASS.
+ReadInCarData carType/eScaleX/eScaleY belong to the whole geometry region at
+depth2, not root; object for loop owns Nobj at depth4. R3DCar_objects_done
+label removed. Normal generation is a separate numVertex/object-flag/carType
+guard AFTER vertex allocation, not nested within it. Its actual shared region
+owns j/tx/ty/tz at depth7 in retail order; the inner for uses that j and its
+body owns vt/nm/nm_vx at depth9. All9 scope tuples and all recorded original
+names/types/homes/order now agree, with every322 word unchanged. No new
+carrier, helper name, fake use, asm/volatile/pin or output rewrite added.
+Final comment-cleaned `run-q4xjrq_x`: full bytes/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors, R3DCar18/27 native CLEAN.
+Direct actual native/retail SLD comparison still310/322 instruction-line
+differences. Retail object-loop block starts at source relative71, normal
+processing at145, translation/normal iteration region at219. Missing source
+formatting/comment/conditional/template context cannot be identified uniquely
+from those line spans alone; investigate references, do not manufacture dead
+code or line padding. This native-contract result is NOT a full SLD/source seal.
+Whole-tree2139 CLEAN/426 DIRTY; SCOPE169, ORDER2, BLOCKS342 affected functions.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations;590 existing strict overlap diagnostics. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels; vtable
+audit PASS1314 files, whitespace clean. Source/evidence local/uncommitted;
+the exhaustive full goal remains active, not complete.
+
+2026-09-28 VLA terminal-cleanup ownership round:
+InsertAllListFacet native CLEAN/301 PASS: explicit terminal return created
+an extra empty +480..+480 cleanup region after the final car loop. Implicit
+void fallthrough removes that unsupported region, preserving every301 word
+and dynamic-stack restoration. All17 scope tuples and recorded names/types/
+homes/order now agree; no local/operation added. Final `run-dwldyeaa`:
+R3DCar19/27 native CLEAN, complete bytes/layouts UNCHANGED, ASPSX524/0,
+PSYLINK zero errors. Full source/SLD statement attribution remains open.
+The same explicit-return pattern explains Track_InitPersistentData's unwanted
++1b4 terminal region. Remove its final return, still119/119 PASS and full
+sections/layouts unchanged (`run-g21eemkr`, ASPSX524/0, PSYLINK zero errors).
+It now has12 actual regions vs22 retail, rather than13 including a spurious
+terminal region; missing inline/accessor context is still explicit backlog.
+No missing region was fabricated, no source padding/new helper name or
+generic exemption introduced. Track22/29 native CLEAN remains unchanged.
+Whole-tree2140 CLEAN/425 DIRTY, BLOCKS341 affected functions. No new
+asm/volatile/pin or compiler-output rewriting; stale renderer SLD-VERIFIED
+annotation corrected. Fresh526-object link completed: multdef-ok rc=0/empty
+stderr, zero undefined/truncated relocations;590 existing strict overlaps.
+Post-link honest RECON299819/299819 identical, zero masked mismatches/foreign
+labels; vtable audit PASS1314 files, whitespace clean. Source/evidence local
+and uncommitted; exhaustive full goal active, not complete.
+
+2026-09-28 primitive-emitter ownership/role round:two additional native CLEAN,
+R3DCar21/27 native CLEAN (up from19/27), both detailed PASS:
+- InsertCarFacetMenuII266: failed PrimStart is an early return inside the
+  valid-detail arm, not another positive owning level. This restores every
+  original loop/facet/cop local's depth and all14 scope tuples, with the same
+  failure path and every instruction unchanged. Obsolete priority-fence comment
+  corrected: no such source device remains at that site.
+- InsertCarFacetII379: negative-detail and negative-worldZ setup checks are
+  early returns. Remove four unsupported owning levels, restoring all12 scope
+  tuples and original object/facet/clip/cop ownership. Missing inAir is the real
+  wheel-flag OR used by its zero test, not an optimized-away night constant;
+  reflect's night -1 is assigned directly only in the commMode1 arm. Missing
+  light is the masked packed QuadLight value stored on the car, not a discarded
+  full call return. Real computations/uses restore both REG:$2 records without
+  fake use or storage. All recorded names/types/homes/order now agree.
+Final comment-cleaned `run-okr4gaky`: full-TU bytes/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors. Whole-tree2142 CLEAN/423 DIRTY; MISSING116,
+SCOPE167, BLOCKS339 affected functions. Literal original/complete SLD remains
+unsealed; stale SLD-VERIFIED annotations corrected. No new carrier/helper name,
+asm/volatile/pin or compiler-output rewrite. Fresh526-object link completed:
+multdef-ok rc=0/empty stderr, zero undefined/truncated relocations;590 existing
+strict overlaps. Post-link honest RECON299819/299819 identical, zero masked
+mismatches/foreign labels; vtable audit PASS1314 files and whitespace clean.
+Source/evidence local/uncommitted, full source/SLD goal remains active.
+
+2026-09-28 instantiation source-only handoff round (still DIRTY,520 PASS):
+Root original declaration order restored: filename/workFile/bigname/reload/
+carType. Remove the unrecorded scaledIndex and finalIndex handoffs. Actual
+`index=((index*3)<<3)-(-index)` preserves retail's operand order and all520
+instructions; simple addition had previously reversed two operands. The
+negated operand is safe in int: index originates from signed-short color>>3,
+so cannot be INT_MIN. No new object, const qualifier or fake use introduced.
+This verifies a no-handoff representation, not unique original expression text.
+Five native extras and15 vs13 regions still remain; native-clean count unchanged.
+Failed/restored: direct VRAM global addressing and base-first grouping both
+14dif/520; remove colorTypeOffset plus its old reference device8dif/520;
+index-first form6dif/520; reversed comparison8dif/520. Restore the original
+device exactly, no substitute or additional operand. Existing loadedSceneColor/
+VRam and pressure-device comments now explicitly queue unknown original storage,
+not generic exemptions. Stale SLD-VERIFIED annotation corrected; full SLD open.
+Final comment-cleaned `run-_yjkozk1`: complete bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK
+zero errors, R3DCar21/27 native CLEAN, whole-tree2142/423. Source-only progress
+must not be hidden by unchanged native counts. Fresh526-object link completed:
+multdef-ok rc=0/empty stderr, zero undefined/truncated relocations;590 existing
+strict overlaps. Post-link honest RECON299819/299819 identical, zero masked
+mismatches/foreign labels; vtable audit PASS1314 files, whitespace clean.
+Source/evidence local/uncommitted; full source/SLD goal active, not complete.
+
+2026-09-28 visibility coordinate ownership round (still DIRTY,234 PASS):
+R3DCar_Visibilty x/z own only the corner construction, not the subsequent
+corner tests/common rejection label. Close their actual region before that
+test: +2d0..+2d0 now matches retail, formerly ended at+374. All recorded
+names/types/homes remain unchanged; modeOne's seven extra regions are still
+explicit unresolved source work. No source variable/qualifier/fake use added.
+Failed/restored: direct1 plus no mode identity2dif/234 (addu s5,v1,zero vs
+li s5,1), flag-before-mask same2dif/234; comparison-assigned inCarCam11dif/
+235; dropping older maxMax/carObj reference82dif/234. These are priced
+counterexamples, not proof original devices/objects were necessary. Existing
+identity and reference operands restored exactly, no replacements added.
+Final `run-3xbuw3v9`: full bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK zero
+errors, R3DCar21/27 native CLEAN, whole-tree2142/423. Source-only ownership
+progress must not be misrepresented as a full-clean function; full SLD and
+original mode-source construction remain open, stale SLD-VERIFIED annotation
+corrected. Fresh526-object link completed: multdef-ok rc=0/empty stderr,
+zero undefined/truncated relocations;590 existing strict overlaps. Post-link
+honest RECON299819/299819 identical, zero masked mismatches/foreign labels;
+vtable audit PASS1314 files and whitespace clean. Source/evidence local and
+uncommitted; full goal active. Souffle baseline remains untouched pending decision.
+
+2026-09-28 human-control gear ownership round (still DIRTY,288 PASS):
+Control_Human newGear belongs only to the post-event gear selection region
+at depth2, +428..+470, not function root. Restore its actual declaration/use
+region; all original names/types/homes/depths agree. Two light-event regions
+remain missing (six vs eight scopes); no dummy region or helper was invented.
+Debug-elided lights capture remains original-source work. Direct field shifts/
+reads and fused ^=3 store/test both17dif/289 vs288; restored. Queue comment
+states those trials establish no distinct source-object necessity, no generic
+exemption. No new name/qualifier, asm/fake use or compiler-output rewrite.
+Final `run-ffq96g0f`: full bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK zero
+errors; control1/2 native CLEAN. Whole-tree2142/423 unchanged, SCOPE166
+affected functions (down from167). Full SLD/light-inline spelling still open.
+
+Trigger-SFX pre-edit guard `run-n17ecvhn` found another stale baseline:
+read-only snapshot comparison equals the reference except the omitted10-byte
+SimpleMem\0 .rodata tag. Raw rom/nfs4-f.exe at0x80056724 confirms that tag.
+No TrgSfx source edit or reference overwrite; the same diagnosis as Souffle
+does not authorize an unrequested baseline replacement. Preserve old data
+until an appropriate refresh decision. This is no code-regression claim.
+Fresh526-object link completed: multdef-ok rc=0/empty stderr, no undefined/
+truncated relocations;590 existing strict overlaps. Post-link honest
+RECON299819/299819 identical, zero masked mismatches/foreign labels;
+vtable audit PASS1314 files, whitespace clean. Source/evidence local and
+uncommitted; the full source/SLD goal remains active, not complete.
 
 2026-09-25 (session from commit 4eff2f1a). SLD line matching is parked by the user for a later
 stage; this round is the native contract (locals, homes, scope trees) only. Every retained

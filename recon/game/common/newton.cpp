@@ -1,7 +1,8 @@
 /* game/common/newton.cpp -- RECONSTRUCTED (NFS4 PSX Newton physics integrator; C++ TU)
  *   32 fns: ground elevation/normal ray-cast, road geometry, slice orientation, rot/vel
  *   integration @32/64Hz, ground-shadow matrices, barrier/spike collision, gravity.
- *   GTE-free (fixed-point + eaclib math). Full SYM-locals applied.
+ *   GTE-free (fixed-point + eaclib math). Remaining native/source/SLD
+ *   differences are tracked in sym-match.md; no whole-module seal is claimed.
  */
 #include "newton_types.h"
 #include "newton_externs.h"
@@ -36,17 +37,17 @@ int          swap[4] = { 0, 1, 2, 3 };
 BWorldSm_Pos testSimRoadInfo;
 BWorldSm_Pos newtestSimRoadInfo;
 
+/* Retail's nameless inline pair matches this getter's parameters/body;
+ * Newton_GetSpikeBelt is an inferred helper spelling, not a recovered symbol.
+ * The direct active_ result needs no extra source-local active snapshot. */
 static inline int Newton_GetSpikeBelt(int *slice,int *leftLatPos,int *rightLatPos)
 {
-  int active;
-
-  active = AICop_spikeBelt.active_;
-  if (active != 0) {
+  if (AICop_spikeBelt.active_ != 0) {
     *slice = AICop_spikeBelt.slice_;
     *leftLatPos = AICop_spikeBelt.leftLatPos_;
     *rightLatPos = AICop_spikeBelt.rightLatPos_;
   }
-  return active;
+  return AICop_spikeBelt.active_;
 }
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
@@ -98,7 +99,7 @@ int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *positio
 int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj);
 
 
-/* ---- Newton_AddDamageZone__FP13BO_tNewtonObjiii  [NEWTON.CPP:50-216] SLD-VERIFIED ---- */
+/* ---- Newton_AddDamageZone__FP13BO_tNewtonObjiii [retail NEWTON.CPP:50-216; full SLD attribution open] ---- */
 void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type)
 
 {
@@ -127,14 +128,11 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
 
         newtonObj->damage[1] = temp < newtonObj->damage[1] ?
             newtonObj->damage[1] : temp;
-        {
-          int temp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
-
-          if (temp < newtonObj->damage[7]) {
-            temp = newtonObj->damage[7];
-          }
-          newtonObj->damage[7] = temp;
+        imp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
+        if (imp < newtonObj->damage[7]) {
+          imp = newtonObj->damage[7];
         }
+        newtonObj->damage[7] = imp;
       }
       else if (zone == 1) {
         int temp;
@@ -142,14 +140,11 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         temp = (newtonObj->damage[7] + newtonObj->damage[1]) / 2;
         newtonObj->damage[0] = temp < newtonObj->damage[0] ?
             newtonObj->damage[0] : temp;
-        {
-          int temp = (newtonObj->damage[1] + newtonObj->damage[3]) / 2;
-
-          if (temp < newtonObj->damage[2]) {
-            temp = newtonObj->damage[2];
-          }
-          newtonObj->damage[2] = temp;
+        imp = (newtonObj->damage[1] + newtonObj->damage[3]) / 2;
+        if (imp < newtonObj->damage[2]) {
+          imp = newtonObj->damage[2];
         }
+        newtonObj->damage[2] = imp;
       }
       else if (zone == 6) {
         int temp;
@@ -157,14 +152,11 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         temp = (newtonObj->damage[4] + newtonObj->damage[6]) / 2;
         newtonObj->damage[5] = temp < newtonObj->damage[5] ?
             newtonObj->damage[5] : temp;
-        {
-          int temp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
-
-          if (temp < newtonObj->damage[7]) {
-            temp = newtonObj->damage[7];
-          }
-          newtonObj->damage[7] = temp;
+        imp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
+        if (imp < newtonObj->damage[7]) {
+          imp = newtonObj->damage[7];
         }
+        newtonObj->damage[7] = imp;
       }
       else if (zone == 7) {
         int temp;
@@ -172,14 +164,11 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         temp = (newtonObj->damage[7] + newtonObj->damage[1]) / 2;
         newtonObj->damage[0] = temp < newtonObj->damage[0] ?
             newtonObj->damage[0] : temp;
-        {
-          int temp = (newtonObj->damage[5] + newtonObj->damage[7]) / 2;
-
-          if (temp < newtonObj->damage[6]) {
-            temp = newtonObj->damage[6];
-          }
-          newtonObj->damage[6] = temp;
+        imp = (newtonObj->damage[5] + newtonObj->damage[7]) / 2;
+        if (imp < newtonObj->damage[6]) {
+          imp = newtonObj->damage[6];
         }
+        newtonObj->damage[6] = imp;
       }
       else {
         int temp;
@@ -200,13 +189,12 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
       }
     }
   }
-Newton_AddDmgZ_typeSet:
   if (type != 0) {
-    int intensity;
-    int zMult;
-    int yMult;
-    int xMult;
     matrixtdef transposeMat;
+    int intensity;
+    int xMult;
+    int yMult;
+    int zMult;
 
     xMult = 0x20000;
     yMult = 0;
@@ -341,24 +329,22 @@ int Newton_CalculateSliceYaw(int slice)
   return intatan(x1,z1);
 }
 
-/* ---- Newton_UpdateRoadGeometry__FP13BO_tNewtonObj  [NEWTON.CPP:248-354] SLD-VERIFIED ---- */
+/* ---- Newton_UpdateRoadGeometry__FP13BO_tNewtonObj [retail NEWTON.CPP:248-354; full SLD attribution open] ---- */
 void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
 
 {
   int hiRez;
   int slice;
 
-  if (n->active) {
+  if (!n->active) return;
     slice = n->simRoadInfo.slice;
     hiRez = n->simOptz < 2;
 
     if (hiRez) {
-      int i;
-
       n->roadCenterPoint.z = 0;
       n->roadCenterPoint.y = 0;
       n->roadCenterPoint.x = 0;
-      for (i = 0; i < 4; i++) {
+      for (int i = 0; i < 4; i++) {
         coorddef temp;
 
         if (n->simRoadInfo.simQuad) {
@@ -386,6 +372,7 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
 
     if (hiRez) {
       if (*(signed char *)&n->simRoadInfo.quadChanged) {
+        {
         int r1;
         int r2;
         int r3;
@@ -410,6 +397,7 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
         n->roadMatrix.m[1] = x1 - fixedmult(r1,r6);
         x1 = fixedmult(r1,r5);
         n->roadMatrix.m[2] = x1 - fixedmult(r2,r4);
+        }
       }
     }
     else {
@@ -453,7 +441,6 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
       z1 = z2 - z1;
       n->roadYaw = intatan(x1,z1);
     }
-  }
 }
 
 /* ---- Newton_FindGroundElevationGeneral__FP8coorddefN20  [NEWTON.CPP:445-463] SLD-VERIFIED ---- */
@@ -533,7 +520,7 @@ int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *p
   return result;
 }
 
-/* ---- Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef  [NEWTON.CPP:515-599] SLD-VERIFIED ---- */
+/* ---- Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef [retail NEWTON.CPP:515-599; full SLD attribution open] ---- */
 extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,coorddef *normal)
 
 {
@@ -550,12 +537,12 @@ extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,
     normal->y = r2;
     normal->x = r1;
     normal->z = r3;
-    if (0x199a <= r2) {
+  }
+    if (0x199a <= normal->y) {
       int surfaceType;
       elevation = Newton_FindGroundElevationGeneral(
           (coorddef *)((int)newtonObj + 0xa0),normal,
           (coorddef *)((int)newtonObj + 0x168));
-      surfaceType = 0;
       {
         int r2;
         int r3;
@@ -591,10 +578,13 @@ extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,
         r2 = normal->x;
         r3 = normal->y;
         r4 = normal->z;
-    *(u_int *)((int)newtonObj + 0x2b8) = 1;
-    *(u_int *)((int)newtonObj + 0x2e8) = 1;
-    *(u_int *)((int)newtonObj + 0x318) = 1;
-    *(u_int *)((int)newtonObj + 0x348) = 1;
+    /* Retail surfaceType is the v0 value stored to each wheel, not an
+       unused zero placeholder. Real uses preserve its native REG record. */
+    surfaceType = 1;
+    *(u_int *)((int)newtonObj + 0x2b8) = surfaceType;
+    *(u_int *)((int)newtonObj + 0x2e8) = surfaceType;
+    *(u_int *)((int)newtonObj + 0x318) = surfaceType;
+    *(u_int *)((int)newtonObj + 0x348) = surfaceType;
         *(int *)((int)newtonObj + 0x298) = r2;
         *(int *)((int)newtonObj + 0x2c8) = r2;
         *(int *)((int)newtonObj + 0x2f8) = r2;
@@ -608,24 +598,22 @@ extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,
         *(int *)((int)newtonObj + 0x300) = r4;
         *(int *)((int)newtonObj + 0x330) = r4;
       }
-      (void)surfaceType;
     }
     else {
       elevation = -0x7d000000;
     }
-  }
   return elevation;
 }
 
-/* ---- Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef  [NEWTON.CPP:610-1057] SLD-VERIFIED ---- */
+/* ---- Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef [retail NEWTON.CPP:610-1057; source/native/SLD recovery in progress] ---- */
 int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *normal)
 
 {
-  int wheelsInAir;
-  int bounce;
   coorddef elevation;
   coorddef tireCoord [4];
   coorddef carNormal;
+  int wheelsInAir;
+  int bounce;
   
   {
     int r2 = ((coorddef *)&(newtonObj->orientMat).m[3])->x;
@@ -643,30 +631,36 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
     coorddef widthVector;
     coorddef carGroundCoord;
     coorddef vecOffset;
+    /* Retail owns six sibling copy/calculation regions, not nested lifetimes.
+       r1/r2/r3 in the scaled groups hold shifted matrix inputs; the products
+       are their stores' expressions, including the anonymous last result. */
     {
       int v1 = (newtonObj->dimension).z * 0xd >> 0xc;
-      int r1 = v1 * ((newtonObj->orientMat).m[6] >> 8);
-      int r2 = v1 * ((newtonObj->orientMat).m[7] >> 8);
-      int r3 = v1 * ((newtonObj->orientMat).m[8] >> 8);
-      lengthVector.x = r1;
-      lengthVector.y = r2;
-      lengthVector.z = r3;
+      int r1 = (newtonObj->orientMat).m[6] >> 8;
+      int r2 = (newtonObj->orientMat).m[7] >> 8;
+      int r3 = (newtonObj->orientMat).m[8] >> 8;
+      lengthVector.x = v1 * r1;
+      lengthVector.y = v1 * r2;
+      lengthVector.z = v1 * r3;
+    }
       {
         int v1 = (newtonObj->dimension).x * 7 >> 0xb;
-        int r1 = v1 * ((newtonObj->orientMat).m[0] >> 8);
-        int r2 = v1 * ((newtonObj->orientMat).m[1] >> 8);
-        int r3 = v1 * ((newtonObj->orientMat).m[2] >> 8);
-        widthVector.x = r1;
-        widthVector.y = r2;
-        widthVector.z = r3;
+        int r1 = (newtonObj->orientMat).m[0] >> 8;
+        int r2 = (newtonObj->orientMat).m[1] >> 8;
+        int r3 = (newtonObj->orientMat).m[2] >> 8;
+        widthVector.x = v1 * r1;
+        widthVector.y = v1 * r2;
+        widthVector.z = v1 * r3;
+      }
         {
           int v1 = -(newtonObj->dimension).y >> 8;
-          int r1 = v1 * ((newtonObj->orientMat).m[3] >> 8);
-          int r2 = v1 * ((newtonObj->orientMat).m[4] >> 8);
-          int r3 = v1 * ((newtonObj->orientMat).m[5] >> 8);
-          vecOffset.x = r1;
-          vecOffset.y = r2;
-          vecOffset.z = r3;
+          int r1 = (newtonObj->orientMat).m[3] >> 8;
+          int r2 = (newtonObj->orientMat).m[4] >> 8;
+          int r3 = (newtonObj->orientMat).m[5] >> 8;
+          vecOffset.x = v1 * r1;
+          vecOffset.y = v1 * r2;
+          vecOffset.z = v1 * r3;
+        }
           {
             int r1 = (newtonObj->position).x + vecOffset.x;
             int r2 = (newtonObj->position).y + vecOffset.y;
@@ -674,6 +668,7 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
             carGroundCoord.x = r1;
             carGroundCoord.y = r2;
             carGroundCoord.z = r3;
+          }
             {
               int r1 = carGroundCoord.x + lengthVector.x;
               int r2 = carGroundCoord.y + lengthVector.y;
@@ -684,6 +679,7 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
               tireCoord[1].x = r1 + widthVector.x;
               tireCoord[1].y = r2 + widthVector.y;
               tireCoord[1].z = r3 + widthVector.z;
+            }
               {
                 int r1 = carGroundCoord.x - lengthVector.x;
                 int r2 = carGroundCoord.y - lengthVector.y;
@@ -695,27 +691,20 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
                 tireCoord[3].y = r2 + widthVector.y;
                 tireCoord[3].z = r3 + widthVector.z;
               }
-            }
-          }
-        }
-      }
-    }
   }
-  coorddef wheelHeight [4];
+  {
   BWorldSm_Pos testSimRoadInfo;
+  coorddef wheelHeight [4];
 
   wheelsInAir = 0;
   bounce = 0;
   testSimRoadInfo = newtonObj->simRoadInfo;
-  {
-  coorddef roadNormal;
-  coorddef roadCenterPoint;
-  int roadSurfaceType;
-  int i;
-
-  for (i = 0;
+  for (int i = 0;
        (int)((char *)newtonObj + i * 0x30) < (int)((char *)newtonObj + 0xc0);
        i = i + 1) {
+    coorddef roadNormal;
+    coorddef roadCenterPoint;
+    int roadSurfaceType;
     wheelHeight[i] = tireCoord[i];
     ((Car_tObj *)newtonObj)->wheel[i].actualHeight = tireCoord[i].y;
     BWorldSm_FindClosestTriangleRez(&tireCoord[i],&testSimRoadInfo,1);
@@ -789,19 +778,15 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
       ((Car_tObj *)newtonObj)->wheel[i].roadNormal.z = r3;
     }
   }
-  }
   {
   coorddef wheelVec;
   int compressionValue [4];
   int count;
-  int i;
 
   count = 0;
   wheelVec.x = 0;
   wheelVec.z = 0;
-  for (i = 0; i < 4; i = i + 1) {
-    int limit;
-
+  for (int i = 0; i < 4; i = i + 1) {
     wheelVec.y = (((Car_tObj *)newtonObj)->wheel[i].currentPos.y - tireCoord[i].y) / 2;
     ((Car_tObj *)newtonObj)->wheel[i].rebound = 0;
     if (wheelVec.y < -0x2665) {
@@ -819,12 +804,15 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
         ((Car_tObj *)newtonObj)->wheel[i].wheelInAir = 0;
       }
     }
+    {
+    int limit;
     limit = -0x3333;
     if (0x358000 < newtonObj->speedXZ) {
       limit = -0x2666;
     }
     if (wheelVec.y < limit) {
       wheelVec.y = limit;
+    }
     }
     compressionValue[i] = (wheelVec.y / 0x100) * (carNormal.y / 0x100);
     ((Car_tObj *)newtonObj)->wheel[i].wheelAcc =
@@ -835,28 +823,27 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
           ((Car_tObj *)newtonObj)->wheel[i].wheelAcc * 2;
     }
   }
-  {
-    int i;
-
     if (bounce != 0) {
-      count = newtonObj[1].simRoadInfo.forward.x + newtonObj[1].position.x +
-              newtonObj[1].wheelRot[0] + newtonObj[1].orientMat.m[4];
+      int r1 = newtonObj[1].simRoadInfo.forward.x;
+      int r2 = newtonObj[1].position.x;
+      int r3 = newtonObj[1].wheelRot[0];
+      int r4 = newtonObj[1].orientMat.m[4];
+      count = r1 + r2 + r3 + r4;
     }
-    for (i = 0; i < 4; i = i + 1) {
-      /* SYM-CODEGEN-CARRIER: newWheelAcc -- joined result web for the two
-         suspension-update arms.  Direct member updates are count-exact at
-         905/905 but rotate 34 instructions; the explicit joined store retains
-         retail's saved-register allocation. */
-      int newWheelAcc;
+    for (int i = 0; i < 4; i = i + 1) {
+      /* Real selection regions plus first-arm continue preserve the shared
+         store without newWheelAcc, storeWheelAcc or nextWheel carriers. */
       int wheelBounce;
 
+      {
       if (bounce == 0) {
         if ((((Car_tObj *)newtonObj)->wheel[i].wheelAcc < 0) &&
             (0xdc28 < (newtonObj->orientationToGround).y)) {
-          newWheelAcc = ((Car_tObj *)newtonObj)->wheel[i].wheelAcc >> 1;
-          goto storeWheelAcc;
+          ((Car_tObj *)newtonObj)->wheel[i].wheelAcc >>= 1;
+          continue;
         }
       }
+      {
       if ((bounce != 0) && (((Car_tObj *)newtonObj)->wheel[i].rebound != 0) &&
           ((newtonObj->linearVel).y < 0)) {
         int speed;
@@ -876,20 +863,13 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
             }
             wheelBounce = fixedmult(ratio,wheelBounce);
           }
-          newWheelAcc = ((Car_tObj *)newtonObj)->wheel[i].wheelAcc + wheelBounce;
-          goto storeWheelAcc;
+          ((Car_tObj *)newtonObj)->wheel[i].wheelAcc += wheelBounce;
         }
       }
-      goto nextWheel;
-storeWheelAcc:
-      ((Car_tObj *)newtonObj)->wheel[i].wheelAcc = newWheelAcc;
-nextWheel:;
+      }
+      }
     }
-  }
-  {
-    int i;
-
-    for (i = 0; i < 4; i = i + 1) {
+    for (int i = 0; i < 4; i = i + 1) {
       int desiredCompression;
 
       desiredCompression =
@@ -909,7 +889,7 @@ nextWheel:;
       ((Car_tObj *)newtonObj)->wheel[swap[i]].impactCompression = desiredCompression;
     }
   }
-  }
+  {
   coorddef tempVecX;
   coorddef tempVecY;
   coorddef tempVecZ;
@@ -1077,6 +1057,8 @@ nextWheel:;
         newtonObj->objAltitude = Newton_CalcPerpenHeightOfCenterPointFromGround
                                    (newtonObj,normal,&elevation);
       }
+  }
+  }
       return elevation.y;
 }
 
@@ -1160,7 +1142,7 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
   return relativeDot - (newtonObj->dimension).x;
 }
 
-/* ---- Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj  [NEWTON.CPP:1123-1215] SLD-VERIFIED ---- */
+/* ---- Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj [retail NEWTON.CPP:1123-1215; full SLD attribution open] ---- */
 void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
 
 {
@@ -1204,8 +1186,10 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
       forcedSimOptz = 1;
     }
   }
-  if ((0x600000 < n->distToPlayer) || (forcedSimOptz != 0)) {
-    if ((n[3].lastUpdated == 0) || (simGlobal.gameTicks < 3)) {
+  /* The short-circuit guard and its else own oldOptz/dummy at retail depths
+     3/5. Early return covers only the combined far/forced and startup test. */
+  if (((0x600000 < n->distToPlayer) || (forcedSimOptz != 0)) &&
+      ((n[3].lastUpdated == 0) || (simGlobal.gameTicks < 3))) {
       if (n->simOptz != '\x02') {
         n->groundSurfaceType = 1;
         n->driveSurfaceType = 1;
@@ -1214,9 +1198,8 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
       (n->angularVel).x = 0;
       (n->angularVel).z = 0;
       return;
-    }
   }
-  {
+  else {
     int oldOptz;
 
     oldOptz = n->simOptz;
@@ -1279,15 +1262,14 @@ void Newton_UpdateRoadInfo(BO_tNewtonObj *n)
   return;
 }
 
-/* ---- Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji  [NEWTON.CPP:1264-1281] SLD-VERIFIED ---- */
+/* ---- Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji [retail NEWTON.CPP:1264-1281; full SLD attribution open] ---- */
 void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
 
 {
   if (backwards == 0) {
     n->orientMat = n->roadMatrix;
-    return;
   }
-  {
+  else {
     matrixtdef *ori;
     matrixtdef *road;
 
@@ -1306,15 +1288,14 @@ void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
   return;
 }
 
-/* ---- Newton_CopyRoadMatrixToShadowMat__FP13BO_tNewtonObji  [NEWTON.CPP:1285-1302] SLD-VERIFIED ---- */
+/* ---- Newton_CopyRoadMatrixToShadowMat__FP13BO_tNewtonObji [retail NEWTON.CPP:1285-1302; full SLD attribution open] ---- */
 void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
 
 {
   if (backwards == 0) {
     n->shadowMat = n->roadMatrix;
-    return;
   }
-  {
+  else {
     matrixtdef *shad;
     matrixtdef *road;
 
@@ -1432,13 +1413,11 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
   return;
 }
 
-/* ---- Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii  [NEWTON.CPP:1420-1512] SLD-VERIFIED ---- */
+/* ---- Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii [retail NEWTON.CPP:1420-1512; full SLD attribution open] ---- */
 extern "C" void Newton_InitBaseNewtonObj(
     BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,
     int dimX,int dimY,int dimZ)
 {
-  int i;
-
   newtonObj->objID = index;
   ((int *)newtonObj)[0x22] = 0;
   newtonObj->simOptz = 0;
@@ -1498,6 +1477,10 @@ extern "C" void Newton_InitBaseNewtonObj(
   newtonObj->collision.lastOtherObj = 0;
   newtonObj->collision.lastImpulse = 0;
   newtonObj->collision.lastTime = 0;
+  {
+  /* Retail's i belongs to the damage-clear/tail region, +1dc..+24c,
+     not the function root. No padding or unused declaration is needed. */
+  int i;
   i = 9;
   do {
     newtonObj->damage[i] = 0;
@@ -1507,18 +1490,20 @@ extern "C" void Newton_InitBaseNewtonObj(
   newtonObj->deadTimer = 0;
   newtonObj->active = 1;
   newtonObj->cumulatedRot = 0;
+  }
 }
 
-/* ---- Newton_QDUpdateVel__FP13BO_tNewtonObj  [NEWTON.CPP:1516-1558] SLD-VERIFIED ---- */
+/* ---- Newton_QDUpdateVel__FP13BO_tNewtonObj [retail NEWTON.CPP:1516-1558; full SLD attribution open] ---- */
 extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
 
 {
-  int t1;
-  int t2;
-  int t3;
-
-  if (newtonObj->active != '\0') {
+  /* Retail's active test has no declaring binding level. t1/t2/t3 belong
+     to the sgge arm at depth3; GCC emits its optimized empty +03c region. */
+  if (newtonObj->active == '\0') return;
     if ((GameSetup_gData.sgge & 4U) != 0) {
+      int t1;
+      int t2;
+      int t3;
       t1 = newtonObj->linearVel.x >> 6;
       t2 = newtonObj->linearVel.y >> 6;
       t3 = newtonObj->linearVel.z >> 6;
@@ -1533,7 +1518,6 @@ extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
       newtonObj->position.y = newtonObj->position.y + (newtonObj->linearVel.y >> 6);
       newtonObj->position.z = newtonObj->position.z + (newtonObj->linearVel.z >> 6);
     }
-  }
   return;
 }
 
@@ -1629,7 +1613,7 @@ extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
   return;
 }
 
-/* ---- Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi  [NEWTON.CPP:1730-1807] SLD-VERIFIED ---- */
+/* ---- Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi [retail NEWTON.CPP:1730-1807; full SLD attribution open] ---- */
 extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coorddef *normal,int orientToGround)
 
 {
@@ -1648,8 +1632,8 @@ extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coor
       newtonObj->shadowMat.m[4] = r2;
       newtonObj->shadowMat.m[5] = r3;
     }
-    return;
   }
+  else {
   {
     int r1;
     int r2;
@@ -1710,6 +1694,7 @@ extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coor
        fixedmult(newtonObj->shadowMat.m[3],newtonObj->shadowMat.m[7]) -
        fixedmult(newtonObj->shadowMat.m[4],newtonObj->shadowMat.m[6]);
   Math_NormalizeShortVector((coorddef *)&newtonObj->shadowMat.m[0]);
+  }
   return;
 }
 
@@ -1793,18 +1778,18 @@ extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTic
   return;
 }
 
-/* ---- Newton_CheckForSpikeBelts__FP13BO_tNewtonObj  [NEWTON.CPP:1885-1916] SLD-VERIFIED ---- */
+/* ---- Newton_CheckForSpikeBelts__FP13BO_tNewtonObj [retail NEWTON.CPP:1885-1916; full SLD attribution open] ---- */
 extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
 
 {
   int slice;
   int leftLatPos;
   int rightLatPos;
-  int latPos;
 
-  if (Newton_GetSpikeBelt(&slice,&leftLatPos,&rightLatPos) != 0) {
-    if ((AICop_spikeBelt.active_ != 0) &&
+  if ((Newton_GetSpikeBelt(&slice,&leftLatPos,&rightLatPos) != 0) &&
+        (AICop_spikeBelt.active_ != 0) &&
         (newtonObj->simRoadInfo.slice == slice)) {
+      int latPos;
       latPos = ((Car_tObj *)newtonObj)->roadPosition;
       if (((((Car_tObj *)newtonObj)->carFlags & 0x230) == 0) &&
           (leftLatPos < latPos) && (latPos < rightLatPos) &&
@@ -1813,11 +1798,10 @@ extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
         newtonObj->collision.sfxType = 0x50007;
         newtonObj->collision.collisionPoint = newtonObj->position;
       }
-    }
   }
 }
 
-/* ---- Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef  [NEWTON.CPP:1922-1956] SLD-VERIFIED ---- */
+/* ---- Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef [retail NEWTON.CPP:1922-1956; carrier/native/SLD recovery in progress] ---- */
 extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal)
 
 {
@@ -1827,12 +1811,15 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      only the final shift as a one-instruction source ASM prevents sched2 from
      reversing the pair without changing any register allocation. */
   coorddef barrierVec;
+  /* Retail owns barrierVec at root, and the other four recorded locals
+     inside this +000..+128 region. Extra carriers below remain unresolved. */
+  {
   int impactVel;
   int distRetreat;
-  /* SYM-CODEGEN-CARRIER: retreat -- pre-clamp signed quotient web.  Keeping it
-     distinct from SYM's `$v1` `distRetreat` reproduces retail's two-pseudo
-     branch select; the single-variable and ternary forms lose that copy and
-     measure ten diffs worse on the final allocation basin. */
+  /* Source-recovery queue: retreat is the unrecorded clamped a1 argument.
+     Retail distRetreat is the pre-clamp quotient in v1, now correctly named.
+     A live clamp in the final call was79 diffs/103 versus106; this does not
+     prove a distinct source object was required or seal its spelling. */
   int retreat;
   /* SYM-CODEGEN-CARRIER: nx -- survivor copy of by-value `normal.x`.  It feeds
      both the signed divide and islandMatrix.m[0], forcing retail's long-lived
@@ -1874,7 +1861,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   upVec.x = 0;
   upVec.y = 0x10000;
   upVec.z = 0;
-  __asm__("" : : "i"(0));   /* w62-a11 reorg slot-steal barrier, see receipt */
+  __asm__("" : : "i"(0));   /* existing reorg boundary; still unresolved source device */
   /* MATCH (W74-A9) -- THE DIVIDE-COPY LAW, proven from the gcc-2.8.1 source:
      expmed.c:3026 expands every signed `/2^k` (BRANCH_COST<3) as
          t1 = copy_to_mode_reg(op0); cmp t1,0; bge L; t1 += 2^k-1; L: q = t1>>k;
@@ -1969,7 +1956,8 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   /* MATCH (w55-a11): plain `/0x10` replaces a hand-written `if(x<0)x+=0xf; x>>=4`
      guard -- that guard IS gcc's own signed power-of-2 divide (83->81, and a
      semantic correction: the hand form was a transcription of the codegen). */
-  retreat = -dsum / 0x10;
+  /* Actual recorded quantity: post-divide, before clamping the call argument. */
+  distRetreat = -dsum / 0x10;
   /* MATCH (W72-A9): 71 -> 61.  THE CLAMP IS A TWO-PSEUDO SELECT, not an in-place
      override.  Retail keeps the divide result in $v1 (SYM `distRetreat REG $3`)
      and mints an explicit `addu $a1,$v1,$zero` on the fall-through arm while the
@@ -1991,11 +1979,11 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      obvious]) | `else`-arm-assigns-the-const (i.e.
      `if (-0x7ad <= retreat) distRetreat = -0x7ae; else distRetreat = retreat;`)
      72 @106 (mints the copy but colours retreat into $a2). */
-  if (retreat <= -0x7ae) {   /* == MIN(retreat, -0x7ae); gcc canonicalises to slti -0x7ad */
-    distRetreat = retreat;
+  if (distRetreat <= -0x7ae) {
+    retreat = distRetreat;
   }
   else {
-    distRetreat = -0x7ae;
+    retreat = -0x7ae;
   }
   /* RECEIPT (w55-a11): residual 81, ours 101 vs oracle 106 -- the 5-insn gap is the
      PARM-SPILL + non-propagated-copy pair.  SYM decode (VA 800A2AF0): the by-value
@@ -2360,9 +2348,10 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   islandMatrix.m[6] = *(volatile int *)&barrierVec.x;
   islandMatrix.m[7] = *(volatile int *)&barrierVec.y;
   islandMatrix.m[8] = barrierVec.z;
-  impactVel = Physics_AttenuateVelocity((Car_tObj *)newtonObj,distRetreat,&islandMatrix);
+  impactVel = Physics_AttenuateVelocity((Car_tObj *)newtonObj,retreat,&islandMatrix);
   Physics_SetCurrentWallType(4);
   Physics_CorrectPostCollisionYaw((Car_tObj *)newtonObj,impactVel,normal);
+  }
 }
 
 /* ---- Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos  [NEWTON.CPP:2107-2140] SLD-VERIFIED ---- */
@@ -2428,7 +2417,11 @@ Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,in
   return bad;
 }
 
-/* ---- Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj  [NEWTON.CPP:2161-2361] SLD-VERIFIED ---- */
+/* ---- Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj [retail NEWTON.CPP:2161-2361; full SLD attribution open] ---- */
+/* Historical probes below precede the restored scope graph. The cursor and
+ * its two pointer identity-asm calls are now retired: index-first address
+ * expressions keep all470 words exact with no quadPt. Do not reinstate the
+ * superseded NO C SPELLING/SEALED verdicts as original-source evidence. */
 /* RECEIPT (w57-a9): 113 -> 75.  The two `temp.x/.y/.z = BWorldSm_slices[..].center[k]`
    triples are a STRUCT COPY in retail (oracle loads all 3 into t1/t2/t3 THEN stores
    all 3 -- the gcc block-move shape), not field-by-field (ours interleaved
@@ -2563,13 +2556,9 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
      it changes the exact body by 14 diffs.  The detailed allocator/position
      receipt is preserved at the assignment below. */
   int aborted;
-  /* SYM-CODEGEN-CARRIER: quadPt -- SYM records only each block's `j` and `temp`.
-     This cursor is the source-level carrier that reproduces retail's two
-     strength-reduced pointer walks.  Direct `quadPts[j]`, block-local cursors,
-     and every equivalent C address spelling were measured non-exact; the two
-     existing zero-instruction identity launders are required to keep the
-     address CSE scopes separate.  Full receipts remain beside both loops. */
-  coorddef *quadPt;
+  /* Both centroid loops use the index-first address expression below, not
+     an unrecorded quadPt source object or pointer identity asm. Their real
+     j/temp regions end before the divisions, as in retail. */
   
   collision_type = 0;
   /* W71-A20: the w59-a2 4-operand read-only fence on `collision_type` is GONE --
@@ -2584,8 +2573,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
     speedVec.y = (newtonObj->linearVel).y * 5 / 0x100;
     speedVec.z = (newtonObj->linearVel).z * 5 / 0x100;
   }
-  i = 0;
-  do {
+  for (i = 0; ; i++) {
     coorddef testPoint;
 
     if (3 < i) {
@@ -2759,14 +2747,15 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
               newTestPoint.z = newTestPoint.z + normal.z;
               BWorldSm_FindClosestQuadRez(&newTestPoint,&newtestSimRoadInfo,1);
               if (Netwon_CheckForBadQuad(newtonObj,&newtestSimRoadInfo,i) != 0) {
+                {
                 int j;
-                coorddef temp;
-
                 undrivableCenter.z = 0;
                 undrivableCenter.y = 0;
                 undrivableCenter.x = 0;
                 j = 0;
-                /* MATCH (W72-A9) -- THE LAST 8 DIFFS, and the seal.  Both loops initialise the
+                /* HISTORICAL ONLY: pointer identity calls below are retired.
+                   Current index-first expressions match without a cursor.
+                   MATCH (W72-A9) -- THE LAST 8 DIFFS, and the seal.  Both loops initialise the
                    cursor from the SAME address value `%hi/%lo(testSimRoadInfo+0x18)`, so cse
                    merges the two `(high (const (plus sym 24)))` pseudos into ONE allocno that
                    spans both blocks; local-alloc.c combine_regs (:1866) then REFUSES to tie a
@@ -2783,12 +2772,10 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
                    `&quadPts[0] + 0` / `&quadPts[j]` / two BLOCK-SCOPE cursor variables / the
                    init moved above `j = 0`.  ONE launder (either site) = 4; BOTH = PASS.
                    Retire this pair if a future wave finds a cse-scope lever that is not an asm. */
-                quadPt = testSimRoadInfo.quadPts;
-                __asm__("" : "=r"(quadPt) : "0"(quadPt));
-NewtonTestUndrv_loop1:
-                if (j < 4) {
+                while (j < 4) {
+                  coorddef temp;
                   if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
-                    temp = *quadPt;
+                    temp = *(coorddef *)((j * 12) + (int)testSimRoadInfo.quadPts);
                   }
                   else {
                     temp = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
@@ -2796,9 +2783,8 @@ NewtonTestUndrv_loop1:
                   undrivableCenter.x = undrivableCenter.x + temp.x;
                   undrivableCenter.y = undrivableCenter.y + temp.y;
                   undrivableCenter.z = undrivableCenter.z + temp.z;
-                  quadPt = quadPt + 1;
-                  j = j + 1;
-                  goto NewtonTestUndrv_loop1;
+                  j++;
+                }
                 }
                 undrivableCenter.x /= 4;
                 undrivableCenter.y /= 4;
@@ -2815,19 +2801,16 @@ NewtonTestUndrv_loop1:
               }
             }
             else {
+              {
               int j;
-              coorddef temp;
-
               undrivableCenter.z = 0;
               undrivableCenter.y = 0;
               undrivableCenter.x = 0;
               j = 0;
-              quadPt = testSimRoadInfo.quadPts;
-              __asm__("" : "=r"(quadPt) : "0"(quadPt));   /* MATCH: 2nd cse-scope launder, see the loop-1 receipt */
-NewtonTestUndrv_loop2:
-              if (j < 4) {
+              while (j < 4) {
+                coorddef temp;
                 if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
-                  temp = *quadPt;
+                  temp = *(coorddef *)((j * 12) + (int)testSimRoadInfo.quadPts);
                 }
                 else {
                   temp = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
@@ -2835,9 +2818,8 @@ NewtonTestUndrv_loop2:
                 undrivableCenter.x = undrivableCenter.x + temp.x;
                 undrivableCenter.y = undrivableCenter.y + temp.y;
                 undrivableCenter.z = undrivableCenter.z + temp.z;
-                quadPt = quadPt + 1;
-                j = j + 1;
-                goto NewtonTestUndrv_loop2;
+                j++;
+              }
               }
               undrivableCenter.x /= 4;
               undrivableCenter.y /= 4;
@@ -2853,11 +2835,7 @@ NewtonTestUndrv_loop2:
       }
     }
     if (collision_type != 0) {
-      int impulse;
-      int zone;
-      if (aborted != 0) {   /* MATCH: the twin's `if (v21 == 0) {...}` -- see the `aborted = 0;` receipt */
-        return;
-      }
+      if (aborted == 0) {
       Newton_DoPostBarrierCollisionHandling(newtonObj,normal);
       (newtonObj->collision).collisionPoint =
           *(coorddef *)((char *)newtonObj + i * 0x30 + 0x28c);
@@ -2865,10 +2843,10 @@ NewtonTestUndrv_loop2:
       if ((newtonObj[1].simRoadInfo.quadPts[1].y & 4U) != 0) {
         Physics_FixEngineRpm((Car_tObj *)newtonObj);
       }
+      if ((newtonObj->collision).impulse >= 0xa0001) {
+      int impulse;
+      int zone;
       impulse = (newtonObj->collision).impulse;
-      if (impulse < 0xa0001) {
-        return;
-      }
       zone = 6;
       if (i != 2) {
         zone = 2 * i;
@@ -2877,10 +2855,11 @@ NewtonTestUndrv_loop2:
         }
       }
       Newton_AddDamageZone(newtonObj,impulse,zone,1);
+      }
+      }
       return;
     }
-    i = i + 1;
-  } while( true );
+  }
 }
 
 /* ---- Newton_LimitAngularVelocity__FP13BO_tNewtonObj  [NEWTON.CPP:2440-2456] SLD-VERIFIED ---- */
@@ -2908,7 +2887,7 @@ extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
   return;
 }
 
-/* ---- Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj  [NEWTON.CPP:2466-2733] SLD-VERIFIED ---- */
+/* ---- Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj [retail NEWTON.CPP:2466-2733; full SLD attribution open] ---- */
 extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
 {
   int elevationOfGround;
@@ -2923,10 +2902,10 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
   int modifiedGravity;
 
   modifiedGravity = 0x4800;
-  if (newtonObj->active &&
-      Sched_ExecuteCheck(1,3,newtonObj->distToPlayer,newtonObj->objID,
+  if (!newtonObj->active) return;
+  if (!Sched_ExecuteCheck(1,3,newtonObj->distToPlayer,newtonObj->objID,
                          &timeCount,&elapsedTime,&iTimeCount,
-                         ((Car_tObj *)newtonObj)->forceNoSimOptz)) {
+                         ((Car_tObj *)newtonObj)->forceNoSimOptz)) return;
     if (newtonObj->simOptz >= 2) {
       newtonObj->linearVel.y = 0;
       newtonObj->flightTime = 0;
@@ -2934,9 +2913,13 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
           Newton_FindGroundElevationAndNormalFast(
               newtonObj,&normal);
       newtonObj->position.y = elevationOfGround + newtonObj->dimension.y;
-    } else {
+      return;
+    }
       elevationOfGround = Newton_FindGroundElevationAndNormal(newtonObj,&normal);
-      shadowNormal = normal;
+      /* This actual copy owns retail's empty +0a8 region. Name-free GNU
+         expression reproduces it without a fake local; the literal original
+         macro/copy spelling and complete statement-line mapping are open. */
+      ({ shadowNormal = normal; });
       relativeClosingVelocity = newtonObj->groundElevation;
       newtonObj->groundElevation = elevationOfGround;
       groundVel = (elevationOfGround - relativeClosingVelocity) * timeCount;
@@ -2971,6 +2954,7 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
           }
 
           relativeClosingVelocity = groundVel - newtonObj->linearVel.y;
+          {
           if (newtonObj->orientationToGround.y < 0xb334) {
             coorddef collisionPoint;
             collisionPoint = newtonObj->roadCenterPoint;
@@ -2985,8 +2969,7 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
             }
           } else {
             int bounceVel = 0;
-            int k;
-            for (k = 0; k < 4; k++) {
+            for (int k = 0; k < 4; k++) {
               bounceVel += ((Car_tObj *)newtonObj)->wheel[k].wheelAcc;
             }
             if (bounceVel > 0) {
@@ -3007,13 +2990,13 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
               }
             }
           }
+          }
           Newton_LimitAngularVelocity(newtonObj);
         } else {
           Newton_CheckForSpikeBelts(newtonObj);
         }
 
         if (objAltitude < 0xa3d) {
-          int scale;
           newtonObj->position.y -= objAltitude;
           newtonObj->objAltitude = 0;
           if (((((Car_tObj *)newtonObj)->carFlags & 0x400) == 0) &&
@@ -3021,6 +3004,7 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
             newtonObj->flightTime = 0;
           }
           if (groundVel > 0x5ffff) {
+            int scale;
             scale = 0xffdf;
             if (groundVel > 0xc0000) {
               scale = 0xffbe;
@@ -3044,8 +3028,6 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
           newtonObj->position.y - newtonObj->roadCenterPoint.y > 0x80000) {
         newtonObj->linearVel.y = -newtonObj->linearVel.y;
       }
-    }
-  }
 }
 
 /* ---- Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef  [NEWTON.CPP:2736-2745] SLD-VERIFIED ---- */

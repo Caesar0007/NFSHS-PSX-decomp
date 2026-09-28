@@ -150,7 +150,7 @@ void DeInitArtResources(void)
   return;
 }
 
-/* ---- LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii  [TRACK.CPP:225-359] SLD-VERIFIED ---- */
+/* ---- LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii [retail TRACK.CPP:225-359; carrier/source/SLD recovery open] ---- */
 void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,int x,int y)
 
 {
@@ -184,30 +184,27 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
   gTempMultiPalInfo = reservememadr("mpalinfo",0x400,0x10);
   {
     int pcnt;
-    /* SYM-CODEGEN-CARRIER: emptyPalNum
-       SYM retains only `pcnt` for this block.  Keeping the constant as a
-       separate source value places `li a0,-1` before `li v1,127`, exactly as
-       retail; a direct `palnum = -1` store is count-exact but produces two
-       scheduling diffs.  The retail identifier is not recoverable. */
+    /* Source-recovery queue: retail records only pcnt, not emptyPalNum.
+       Literal stores under the restored scope graph remain two scheduling
+       differences at211/211 (do/while, local-for and index-first address).
+       This unresolved byte-preserving snapshot proves no original object. */
     int emptyPalNum;
-
     emptyPalNum = -1;
-    for (pcnt = 0x7f; 0 <= pcnt; pcnt = pcnt - 1) {
+    for (pcnt = 0x7f; pcnt >= 0; pcnt--) {
       gTempMultiPalInfo[pcnt].palnum = emptyPalNum;
     }
   }
 
   DrawSync(0);
   mipmapcounter = 0;
-  i = 0;
   multiPalCount = 0;
 
-  while (i < shapecount(shapefile)) {
+  for (i = 0; i < shapecount(shapefile); i++) {
     char name[4];
     int tempclut;
 
     shape = (shapetbl *)shapepointer(shapefile,i);
-    if (shape != (shapetbl *)0x0) {
+    if (shape == (shapetbl *)0x0) continue;
       shapename(shapefile,i,name);
       tempclut = cluttype;
       if ((i < 0xc) || ((shape->type & 3) == 1) || (name[0] == '#')) {
@@ -226,9 +223,7 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
         gTempMultiPalInfo[multiPalCount].palnum = palnum;
         gTempMultiPalInfo[multiPalCount].actualshapeindex = i;
         if (palnum != 0) {
-          int j;
-
-          for (j = 0; j < 0x80; j = j + 1) {
+          for (int j = 0; j < 0x80; j = j + 1) {
             if ((gTempMultiPalInfo[j].charcode[0] == (u_char)name[1]) &&
                 (gTempMultiPalInfo[j].charcode[1] == (u_char)name[2]) &&
                 (gTempMultiPalInfo[j].palnum == 0)) {
@@ -257,9 +252,7 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
           mipmapcounter = mipmapcounter + 1;
         }
         else if (name[1] == 'Z') {
-          int j;
-
-          for (j = 0; j < 0x20; j = j + 1) {
+          for (int j = 0; j < 0x20; j = j + 1) {
             if ((icode[0] == gTempMipMapInfo[j].code[0]) &&
                 (icode[1] == gTempMipMapInfo[j].code[1])) {
               gTempMipMapInfo[j].mipMapIndex = i;
@@ -269,8 +262,6 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
         }
       }
       pPmx = pPmx + 1;
-    }
-    i = i + 1;
   }
 }
 
@@ -482,7 +473,7 @@ void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap 
   return;
 }
 
-/* ---- Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource  [TRACK.CPP:577-626] SLD-VERIFIED ---- */
+/* ---- Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource [retail TRACK.CPP:577-626; full SLD attribution open] ---- */
 /* void 
    Track_AssociateSingleMaterial(Trk_Material
    * inputMat, Track_tMaterial * outputMat, Track_tArtresource * art)
@@ -498,7 +489,7 @@ void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap 
      SYM data: 3 regparms / 0 args / 1 autos
      Sample callers: Track_LinkMaterials
    
-   Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.
+   Matching toolchain: PsyQ SDK 4.3, CC1PLPSX GCC 2.8.0, ASPSX 2.77.
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md.
    
@@ -511,23 +502,23 @@ void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap 
    material bindings + UV permutation flags so render time has zero conditional branches per
    material.
    
-   [Locals 2026-05-10 bulk] Bulk-renamed Ghidra SSA temps to type-hinted user-names (ti=int,
-   tu=u_int, ts=short, tb=u_char, tstr=char*, tp=void*, etc.) for audit cleanliness. Generic but
-   preserves type info; these are minor secondary-effect register temps that did not warrant
-   individual semantic naming. */
+   [2026-09-28] Two real shapeIndex declarations belong to separate UV arms;
+   originalPmx belongs only to the processing arm. Root animCount and the
+   for binding now reproduce all six native scopes. No generic-name exemption;
+   literal original source spelling and full SLD remain unsealed. */
 
 void Track_AssociateSingleMaterial(Trk_Material *inputMat,Track_tMaterial *outputMat,Track_tArtresource *art)
 
 {
-  int shapeIndex;
   int animCount;
-  Draw_tPixMap originalPmx;
 
   outputMat->flag = inputMat->flag;
-  animCount = 0;
-TrkAssoc_loopTest:
-  if (animCount < 1 || (animCount < (int)(u_int)(u_char)inputMat->textureCount)) {
+  for (animCount = 0;
+       animCount < 1 || animCount < (int)(u_int)(u_char)inputMat->textureCount;
+       animCount++) {
     if ((inputMat->uvFlag & 0x5e) != 0) {
+      Draw_tPixMap originalPmx;
+      int shapeIndex;
       shapeIndex = (int)inputMat->shapeIndex;
       if ((inputMat->flag & 2) != 0) {
         shapeIndex = Track_GetProperMultiPalShapeIndex(shapeIndex,(u_int)inputMat->interval);
@@ -540,6 +531,7 @@ TrkAssoc_loopTest:
       art->pmxCount = art->pmxCount + 1;
     }
     else {
+      int shapeIndex;
       shapeIndex = (int)inputMat->shapeIndex;
       if ((inputMat->flag & 2) != 0) {
         shapeIndex = Track_GetProperMultiPalShapeIndex(shapeIndex,(u_int)inputMat->interval);
@@ -548,13 +540,11 @@ TrkAssoc_loopTest:
         outputMat->pmxIndex = (short)shapeIndex;
       }
     }
-    animCount = animCount + 1;
-    goto TrkAssoc_loopTest;
   }
   return;
 }
 
-/* ---- Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial  [TRACK.CPP:688-848] SLD-VERIFIED ---- */
+/* ---- Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial [retail TRACK.CPP:688-848; full SLD attribution open] ---- */
 void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matList)
 
 {
@@ -566,7 +556,9 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
     int controlIndex;
 
     matCount = length / sizeof(Trk_Material);
-    mats = (Trk_Material *)(group + 1);
+    /* Retail retains the SerializedGroup receiver at depth4 for GetData;
+       bare payload arithmetic loses that real inline pair. */
+    mats = (Trk_Material *)group->GetData();
     Track_gControllerCount = 0;
     gInitialArt.pmxCount = gInitialArt.basePmxCount;
 
@@ -663,14 +655,14 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
   return;
 }
 
-/* ---- ReduceObjectPrecision__FP5GroupT0i  [TRACK.CPP:963-1004] SLD-VERIFIED ---- */
+/* ---- ReduceObjectPrecision__FP5GroupT0i [retail TRACK.CPP:963-1004; carrier/source/SLD recovery open] ---- */
 void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
 
 {
   int count;
   Trk_SimpleInst *inst;
 
-  if (instGroup != (Group *)0x0) {
+  if (instGroup == (Group *)0x0) return;
     inst = (Trk_SimpleInst *)(instGroup + 1);
     /* SYM-INLINE-THIS: GetNumElements -- retail SLD line 6 records the
        Group receiver at 0x800ba264 for this exact member expansion. */
@@ -678,17 +670,15 @@ void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
     while (--count != -1) {
       if (defGroup != (Group *)0x0) {
         Trk_ObjectDef *objDef = Track_gObjDefs[inst->pad];
-        CCOORD16 *pts = (CCOORD16 *)(objDef + 1);
+        {
         int count = objDef->vertexCount;
+        CCOORD16 *pts = (CCOORD16 *)(objDef + 1);
 
         while (--count != -1) {
-          /* SYM-CODEGEN-CARRIER: x
-           * SYM-CODEGEN-CARRIER: y
-           * SYM-CODEGEN-CARRIER: z
-           * These three short-lived promoted values have no debug homes.
-           * Direct field assignments measure
-           * 41/40 with 37 diffs; the carriers produce retail's load-all,
-           * shift-all, store-all schedule and exact surrounding allocation. */
+          /* Source-recovery queue: x/y/z are absent from retail. Restored
+             ownership keeps40/40, but direct members are37dif/41 and direct
+             halfword-pointer indexing42dif/40. These trials establish no
+             original source-object necessity; no generic exemption applies. */
           int x = pts->x;
           int y = pts->y;
           int z = pts->z;
@@ -700,10 +690,10 @@ void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
           pts->z = z;
           pts++;
         }
+        }
       }
       inst = (Trk_SimpleInst *)((int)&inst->size + (int)inst->size);
     }
-  }
 }
 
 /* ---- InvalidatePersistentCollideBoomObjects__FP5GroupT0  [TRACK.CPP:1012-1026] SLD-VERIFIED ---- */
@@ -726,7 +716,7 @@ void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
   }
 }
 
-/* ---- CalcObjectBoundingSphere__FP5GroupT0  [TRACK.CPP:1064-1125] SLD-VERIFIED ---- */
+/* ---- CalcObjectBoundingSphere__FP5GroupT0 [retail TRACK.CPP:1064-1125; full SLD attribution open] ---- */
 void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
 
 {
@@ -759,6 +749,7 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
       pts = pts + 1;
     }
 
+    {
     cp.x = cp.x / objDef->vertexCount;
     cp.y = cp.y / objDef->vertexCount;
     cp.z = cp.z / objDef->vertexCount;
@@ -780,6 +771,7 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
       }
       pts = pts + 1;
     }
+    }
 
     bSphere->cp.x = (short)cp.x;
     bSphere->cp.y = (short)cp.y;
@@ -791,7 +783,7 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
   return;
 }
 
-/* ---- CalcObjDefPtrs__Fv  [TRACK.CPP:1179-1188] SLD-VERIFIED ---- */
+/* ---- CalcObjDefPtrs__Fv [retail TRACK.CPP:1179-1188; full SLD attribution open] ---- */
 void CalcObjDefPtrs(void)
 
 {
@@ -799,6 +791,9 @@ void CalcObjDefPtrs(void)
   ((int *)gObjDefOffsetsGroup->GetData())[0] =
       (int)gPersistObjDef->GetData();
   for (int i = 1; i < gPersistObjDef->GetNumElements(); i = i + 1) {
+    /* Source-recovery queue: these three GetData expansions add six empty
+       scopes absent from retail. Direct payload forms currently change the
+       loop anchor (base+4 with0/4 offsets vs retail base+8 with-4/0); unresolved. */
     ((int *)gObjDefOffsetsGroup->GetData())[i] =
         ((int *)gObjDefOffsetsGroup->GetData())[i - 1] +
         ((int *)gObjDefOffsetsGroup->GetData())[i];
@@ -807,12 +802,12 @@ void CalcObjDefPtrs(void)
   return;
 }
 
-/* ---- Track_InitPersistentData__FP15SerializedGroup  [TRACK.CPP:1212-1292] SLD-VERIFIED ---- */
+/* ---- Track_InitPersistentData__FP15SerializedGroup [retail TRACK.CPP:1212-1292; accessor/source/SLD recovery open] ---- */
 void Track_InitPersistentData(SerializedGroup *perGroup)
 
 {
-  int count;
   SerializedGroup *persistentGroups[perGroup->m_num_elements];
+  int count;
 
   gObjDefOffsetsGroup = (Group *)0x0;
 
@@ -833,6 +828,9 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
     while (i < count) {
       switch (persistentGroups[i]->m_type) {
       case 2:
+        /* Retail has a receiver pair around this payload-length calculation.
+           Raw proves m_length-16; the original accessor spelling is not yet
+           recovered. Do not add a guessed getter merely to clean the report. */
         Track_LinkMaterials(persistentGroups[i],persistentGroups[i]->m_length + -0x10,
                    Track_materials);
         break;
@@ -863,7 +861,6 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
   if (gObjDefOffsetsGroup != (Group *)0x0) {
     CalcObjDefPtrs();
   }
-  return;
 }
 
 /* ---- Track_Init__FPc  [TRACK.CPP:1312-1475] SLD-VERIFIED ---- */
@@ -1059,7 +1056,7 @@ void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
   return;
 }
 
-/* ---- Track_LoadObjectKillData__Fv  [TRACK.CPP:1742-1821] SLD-VERIFIED ---- */
+/* ---- Track_LoadObjectKillData__Fv [retail TRACK.CPP:1742-1821; full SLD attribution open] ---- */
 void Track_LoadObjectKillData(void)
 
 {
@@ -1079,13 +1076,12 @@ void Track_LoadObjectKillData(void)
     if (group != (Group *)0x0) {
       Trk_SimpleInst *inst;
 
-      /* SYM-INLINE-THIS: GetNumElements
-       * SYM-INLINE-THIS: GetData
-       * Retail SLD line 25 contains the two nested Group receiver records
-       * at 0x800bae3c.  The member calls also reproduce the exact load and
-       * branch-delay-slot address calculation without an extra local. */
-      if (objInd < group->GetNumElements()) {
+      /* Retail orders the depth6 GetData receiver before the depth7
+         GetNumElements bounds-check receiver. The invalid-index continue
+         avoids an extra owning if level for index/simGroup and descendants.
+         All19 native scopes match; original text/full SLD remain open. */
         inst = (Trk_SimpleInst *)group->GetData();
+        if (objInd >= group->GetNumElements()) continue;
 
         {
           int index;
@@ -1127,7 +1123,6 @@ void Track_LoadObjectKillData(void)
           }
         }
         inst->type = inst->type | 0x80;
-      }
     }
   }
   purgememadr(filePtr);
@@ -1198,10 +1193,11 @@ SaveSurface::~SaveSurface()
   purgememadr(fStack);
 }
 
-/* ---- RestoreAll  [TRACK.CPP:1871-1879] SLD-VERIFIED ---- */
+/* ---- RestoreAll [retail TRACK.CPP:1871-1879; full SLD attribution open] ---- */
 void SaveSurface::RestoreAll()
 
 {
+  {
   int i;
 
   i = 0;
@@ -1214,6 +1210,7 @@ void SaveSurface::RestoreAll()
     } while (i < this->fCount);
   }
   this->fCount = 0;
+  }
   return;
 }
 

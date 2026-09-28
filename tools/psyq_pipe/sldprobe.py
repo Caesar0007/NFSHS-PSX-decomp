@@ -1,7 +1,12 @@
 """sldprobe.py recon/x.cpp [fn ...] -- FAST SLD/scope probe: compile the TU with -g (retail compiler, build.py flags) into a
 temp dir and print, per function, the debug line structure the SN SYM will carry, next to retail's:
   hdr line, then per instruction the function-relative line tag (ours from the .loc stream incl. reorder #nop slots,
-  retail from the SYM), and the block begin/end records (relative lines).  No object is written to build/."""
+  retail from the SYM), and the block begin/end records (relative lines).  No object is written to build/.
+2026-09-28: use the pre-.ent .loc as the function-header anchor, matching the
+native SYM header. First emitted instruction/prologue may belong to a later
+statement; using it shifts every relative tag. No source/output rewriting.
+Backup: scratchpad/sldprobe_before_header_20260928.py.
+"""
 import bisect
 import re
 import sys
@@ -56,11 +61,16 @@ for l in Path(P.RETAIL).read_text(errors='replace').splitlines():
     if m and name:
         rblocks[name].append(('{' if m[2] == '90' else '}', int(m[3]), int(m[1], 16)))
 
-fn = None; cur = None; out = {}
+fn = None; cur = None; out = {}; pending_loc = None
 for l in lines:
+    # GCC emits the defining/body header .loc immediately BEFORE .ent.
+    # Preserve it even while outside a function; do not infer it from code.
+    loc = re.match(r'^\t\.loc\t\d+ (\d+)', l)
+    if loc:
+        pending_loc = int(loc[1])
     m = re.match(r'^\t\.ent\t(\S+)', l)
     if m:
-        fn = m[1]; out[fn] = dict(hdr=None, ins=[], blocks=[], loc=None); cur = out[fn]; continue
+        fn = m[1]; out[fn] = dict(hdr=pending_loc, ins=[], blocks=[], loc=pending_loc); cur = out[fn]; continue
     if fn is None:
         continue
     m = re.match(r'^\t\.loc\t\d+ (\d+)', l)
@@ -70,7 +80,7 @@ for l in lines:
     if m:
         cur['blocks'].append(('{' if m[1] == 'begin' else '}', int(m[2]), len(cur['ins']) * 4)); continue
     if re.match(r'^\t\.end\t', l):
-        fn = None; continue
+        fn = None; pending_loc = None; continue
     if re.match(r'^\t\.', l) or re.match(r'^\S', l) or not l.strip():
         continue
     body = l.split('#')[0].strip()
@@ -115,7 +125,9 @@ for fname, d in out.items():
         continue
     r = retail.get(fname)
     locs = [t for t, _ in d['ins'] if t is not None]
-    hdr = next((t for t, b in d['ins'] if re.match(r'(subu|addiu)\s+\$sp,\$sp,-?\d+', b)), locs[0] if locs else 0)
+    hdr = d['hdr']
+    if hdr is None:  # legacy/no pre-.ent .loc: retain the old heuristic explicitly
+        hdr = next((t for t, b in d['ins'] if re.match(r'(subu|addiu)\s+\$sp,\$sp,-?\d+', b)), locs[0] if locs else 0)
     sins = [(t, b) for t, b in d['ins'] if b != 'nop']
     rins = real.get(fname, [])
     al = align(sins, rins)

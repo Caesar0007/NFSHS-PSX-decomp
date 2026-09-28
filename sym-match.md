@@ -2,16 +2,16 @@
 
 Status as of 2026-09-28. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
-Native-only per-directory snapshot after the scheduler/track scope round (2565 common
+Native-only per-directory snapshot after the physics/collision restoration rounds (2565 common
 covered functions; not a full source-declaration/carrier/SLD seal):
 
 | Retail directory | Native CLEAN | Native DIRTY |
 |---|---:|---:|
 | FRONTEND/COMMON | 711 | 127 |
 | FRONTEND/PSX | 61 | 24 |
-| GAME/COMMON | 1090 | 157 |
+| GAME/COMMON | 1091 | 156 |
 | GAME/PSX | 284 | 111 |
-| Total | 2146 | 419 |
+| Total | 2147 | 418 |
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
@@ -2462,6 +2462,422 @@ This receipt supplies real compiler state for the pending RPM/look-ahead
 investigation rather than another spelling sweep or status restatement.
 Matched source unchanged in this diagnostic round; retained physics/doc
 restoration checkpoint remains uncommitted after adc9fb10. Full goal active.
+
+2026-09-28 allocation diagnostic repair after physics checkpoint00c8c2cb.
+Revalidated authentic auth.s versus normal physics assembly: both SHA256
+503463949C70102A4DFA640286CE6A4ECFC3B4CAB607CEB4356B8BE063072217.
+The two Physics_Real simulator discrepancies are explained by GCC global.c
+expand_preferences (776..817), not by a guessed register dial. At RTL insn1295
+p332 dies while copied into non-conflicting p348. p332's a1 COPY preference
+must propagate to p348 before pruning/allocation; the printed greg union
+{v1,a1} alone cannot reveal that the copy subset prefers a1 first. Correcting
+that recovery also restores p344 to v1 through the ordinary conflict handout.
+No hard-coded pseudo number/register answer is added to the parser.
+
+allocsim now replays pure single-set allocno copies with matching REG_DEAD,
+non-conflict checks in BOTH directions, and one forward pass in RTL order.
+Arithmetic preferences, subreg forms and unsupported patterns are not silently
+treated as copy preferences. All in-repo consumers supply the allocno/conflict
+tables (validator, reqdelta, dialsearch, dial). Comments and pre-change backups
+*.bak-pre-copydeath-20260928 accompany each modified diagnostic tool.
+No reconstructed source, baseline, compiler output or binary is rewritten.
+
+Seven focused unittest cases pass (death, liveness, both conflict directions,
+non-allocno, arithmetic, wrong death, one-pass-vs-fixed-point). Physics_Real
+now95/95; reqdelta's constructed model independently reports95/95. Physics
+validator:461 matching handouts plus five separately classified reload cases,
+20/20 functions with no remaining unclassified miss. Do not misreport this as
+466/466: raw disposition agreement is461/466. Saved physics/screencongrats/
+front/hud regression comparison covers1386 handouts:1367->1369 raw agreements,
+zero previously correct handouts lost. Existing other-corpus/reload discrepancies
+remain and this bounded repair is not a blanket validation of all allocator paths.
+All six touched Python files compile; whitespace checks clean. Source remains
+exactly the committed physics checkpoint; no fresh relink is claimed for this
+tool-only round. The full original-source/SLD objective stays active. Next:
+map the now-validated function's actual quantity ownership before any source
+experiment; final register reuse alone does not prove an original C name.
+
+2026-09-28 Physics_Real trace-fidelity and RPM ownership experiments.
+Fresh immutable-reference compile passes. Full instrumented cc1plus-ecoff
+compile stops with an internal compiler error in RampCarControlValues (rc33),
+so no complete-TU trace fidelity is asserted. Isolated real.i preserves the
+preprocessed headers/declarations and the complete Physics_Real body. Authentic
+CC1PLPSX compiles it with a normalized instruction stream identical to the
+production function; no declaration/context shortcut is used. Instrumented
+compile then succeeds, but three genuine register differences remain in the
+wheel-multiplier region: leftMult v1->a1, rightMult a1->v0, and the corresponding
+subtraction operands. No full-function instrumented byte fidelity receipt;
+do not price qty windows from that trace as if it were the retail/original lane.
+Generated inputs, outputs and traces stay isolated under
+build/physics_trace_20260928, not committed reconstructed source.
+
+Direct retail SYM re-read confirms currentRpm REG:v0, diffRpm REG:a1,
+tempGas REG:a0; current source currentRpm remains wrongly attached to the later
+speed-step value in a2. IDA sub_800AC164 separately confirms the signed RPM
+product/bias, gas division, difference, and speed-step/look-ahead computations.
+Retained source is NOT repaired just because those values are understood.
+New no-asm/no-volatile source trials were all reverted:
+- diffRpm owns product/bias then becomes desired minus shifted value:5diffs,
+  1273/1272; the shifted quotient is duplicated across the sign-bias arms.
+- explicit currentRpm quotient between gas division and diff assignment:
+  same5/1273, quotient now a2 instead of v0.
+- complete signed /65536 assigned to currentRpm before gas division:11/1273.
+- currentRpm owns raw product, division at difference use, with lookAhead
+  holding the later speed-step phase:21/1273; bias/division schedule changes.
+None proves a distinct adjustedRpm object was original or a source floor.
+Next source/allocator work must account for the signed division's split value
+web and genuine named-value lifetime, not simply rename the later speed step.
+
+Restoration verified against git: physics.cpp has no changes from00c8c2cb.
+Detailed1272/1272 PASS, full TU gate run-fyi1fpig: BYTES UNCHANGED, ASPSX524/0,
+PSYLINK zero errors, physics14/22 native CLEAN with the same eight discrepancies.
+Rebuilt production assembly has the same full50346394...072217 SHA256 as the
+authentic diagnostic dump; vtable audit PASS1314 files. Prior linked-image
+checkpoint unchanged; no fresh GNU relink claimed for this restored-code round.
+Only diagnostic tools/tests and this evidence journal remain pending. Full
+original-source/SLD goal active and incomplete; no new code improvement claimed.
+
+2026-09-28 barrier-check real ownership and byte-stage recovery,358/358 retained.
+Retail has three sibling calculation regions at depth2 (including the initial
+optimized zero-length region), then widthVector at depth2,+368..+480. Remove
+the reconstruction's enclosing carrier block; write the real no-collision
+early return before Force/width/contact handling. All ten native block tuples
+now equal retail, not merely an ordered subsequence or a correct block count.
+All already-recorded nested r/x and widthVector depths are correct. No fake
+declaration, wrapper, new asm/volatile, or output rewrite is introduced.
+
+Reprice byte-stage captures on that shape: r3 directly receives the signed
+byte then <<=9, r2 likewise. raw2/raw3 are both removed at358/358 PASS; their
+previous grouped direct-shift failure did not prove either object necessary.
+The remaining raw1 has its existing read-only fence and is explicit unresolved
+source recovery, not proof of an original source object. Function banner no
+longer claims complete SLD verification. Other carriers/old devices remain
+unsealed, including native extras x1raw/centerX/centerY/positionZ/velocityZ/
+centerKeep/raw1/x3factor/x3left and source-only const aliases. No replacement
+alias hides either removed name. Missing wallType remains an investigation.
+
+Reverted trials in this round: direct field-target MIN on wheel-lock38/127
+and40/127; cmp-cap plus root roadGrip skid capture9/128. Original127/127 wheel
+lock restored. Barrier centerX+its fence removal2/358, same with negative-first
+form; paired positionX removal/regrouping6/358, positionX-only removal42/358.
+Attaching wallType to the collision flags as full OR/split in-place OR8/358;
+loaded flag plus separate OR6/358 in both operand orders. These do not recover
+wallType's actual original quantity, so all are reverted rather than naming a
+convenient reused hard register to clean a report.
+
+Final comment/format-cleaned full gate run-4dmfoq7f: complete TU bytes/layouts
+UNCHANGED, ASPSX524/0, PSYLINK zero errors; physics14/22 native CLEAN unchanged.
+Global2146 CLEAN/419 DIRTY; SCOPE161->160 and BLOCKS335->334 affected functions.
+Native-extra rows in this function decrease11->9, though function-level EXTRA
+remains292. Independent full-native-versus-retail relative SLD is349/358
+different: original source-line attribution is NOT sealed by exact scopes.
+Fresh526-object GNU link strict rc0 with existing590 overlap warnings;
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent fresh linked RECON299819/299819 identical, zero masked mismatches
+and foreign labels (retail passthrough BLOB excluded from reconstruction proof).
+Vtable audit PASS1314 files; scoped whitespace clean. Original-source/SLD
+goal remains active and incomplete. Source/doc restoration and diagnostic-tool
+repair remain pending after00c8c2cb; no new commit/push in this round.
+
+2026-09-28 barrier-check instrumented trace fidelity established on current source.
+Further source trials all reverted: x3 owns the divided right.z then *=factor
+48diffs at358 words; removing raw1/fence with in-place signed-byte shift18/358;
+unsigned-domain combined shift20/358. No failed source change, replacement
+alias or new fake-use/asm device remains. Current physics.cpp SHA256 equals
+the pre-round backup168E92953364F1583A4C17F19E13CF043D38D26D189F08102320FB807459E4BB.
+The retained previous round's exact scope and raw2/raw3 improvements remain.
+
+Unlike Physics_Real's three-difference instrumentation result, DoBarrierCheck
+now has a genuine function-specific trace receipt. Current preprocessed headers/
+decls and the entire target body are isolated in
+build/physics_trace_20260928/barrier.i. Authentic and instrumented ECOFF C++
+compiles both succeed; normalized source instruction streams match the normal
+production function. Then BOTH compiler outputs are assembled through the
+normal maspsx/as pipeline/flags:358 raw instruction words identical, and all20
+relocation rows (offset/type/target) identical. SHA256 of concatenated objdump
+word bytes is c7a0dc387ea5eb76910a686a89511edc5304e70f7ee98d6c7b532404cb9968d8
+for both. This is unlinked function-code fidelity, not a new whole-image seal.
+No compiler output is rewritten; the normal assembler performs its ordinary
+translation. All diagnostic outputs are isolated and generated/ignored.
+
+Actual first local-alloc window maps: raw1=p97 (q2,v0,refs4/life6), shifted
+r1=p94 (q4,a1,refs2/life8), x1raw=p89 (q6,a2,refs2/life60), centerX=p90 and
+centerY=p91 (q7/q10,a0,refs4/life12). Slice address quantity p101 has merged
+refs16/life74 in the trace, while the lreg pseudo's unmerged proxy says14/37.
+Use qtytrace's merged windows, not proxy arithmetic or final hard-reg reuse.
+The authentic global model has59 exact handouts plus one separately classified
+reload case out of60. Finite reframe failures do NOT prove any remaining
+carrier was an original source object; no floor or blanket exemption claimed.
+Next genuine source experiment can now inspect those checked local quantities
+before changing capture lifetimes/evaluation order; no unverified trace swap.
+
+Final restored-source TU gate run-tm_5_4ow: BYTES UNCHANGED, ASPSX524/0,
+PSYLINK zero errors, physics14/22 native CLEAN; same nine barrier extras and
+missing wallType. Prior fresh linked299819/299819 checkpoint remains valid
+for this unchanged source; no new GNU relink or source improvement claimed
+in this diagnostic round. Full original-source/SLD goal active and incomplete.
+
+2026-09-28 barrier-check missing wallType value restored,358/358 retained.
+Retail root INT wallType is REG:v0. The formerly declaration-only reconstruction
+attached it only to the AttenuateVelocity result, which GCC optimized out of
+debug records. Raw boundary handling has the actual classification1 in v0
+before the first global currentWallType store; mobile twin independently
+stages classification1 in both boundary arms. Make the existing wallType own
+that value and make both real global stores use it. All358 instructions remain
+exact, including the second arm's shared collide=1 store register. No new
+declaration, fake use, fence, volatile or opcode/output rewrite.
+
+Every retail-recorded parameter/local/type/home/depth and relative declaration
+sequence now agrees, including wallType; all ten scope tuples still agree.
+The nine unrecorded captures remain and are not excused by that narrower proof.
+Complete original source/SLD is still unsealed: native-versus-retail relative
+SLD349/358 differs. Actual source-line attribution is not repaired by padding.
+
+Earlier centerX follow-ups reverted: dropping only its read-only fence moves
+the center load AFTER the two car loads (2diffs at358), explicit negative
+capture gives the same two; staged vel_b.x +=/-= target form adds one word
+(359/358) and reorders/recolors other quantities. These are source-basin
+receipts, not distinct-object necessity proofs. All prior raw2/raw3 and scope
+improvements remain; no failed variant retained.
+
+Final source-only detailed gates358/358 and neighboring FixEngineRpm86/86;
+full TU run-1o0ncm4h: complete bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK zero
+errors. Global2146 CLEAN/419 DIRTY; MISSING114->113 affected functions, other
+issue tallies unchanged. Physics14/22 native CLEAN remains unchanged because
+of its extras, not because this missing name is still absent. Fresh526-object
+real GNU link strict rc0 with existing590 overlap warnings; multdef-ok rc0
+with empty stderr, zero undefined names/truncated relocations. Fresh linked
+RECON299819/299819 identical, zero masked mismatch bytes and foreign labels;
+retail passthrough BLOB excluded from reconstruction proof. Vtable audit
+PASS1314 files; scoped whitespace clean. Retained changes pending after00c8c2cb;
+the exhaustive original-source/SLD goal remains active and incomplete.
+
+2026-09-28 collision fixed-object native contract restored,874/874 retained.
+Fresh immutable-reference compile passed. Retail's scale/lengthInverse and
+upVec/dotx/doty/dotz belong at depth4, not5: remove the two extra reconstruction
+wrappers around the velocity and low-speed guarded phases. The real if owners
+supply the parent regions. Every six retail scope tuples (12 endpoints) now
+match exactly; no fake empty region or local is manufactured.
+
+Missing root temp3 was attached to the wrong arithmetic stage. NFS2 PC matched
+Collide_DoObjectFixedObjectCollision explicitly names the half-scaled
+fixedmult(VectorLength2(RCrossN),moInertiaInv*2)/2 term temp3, then adds temp2
+in the division argument. Retail NFS4 independently computes that half in
+a1, then adds s0=temp2 in rdiv's jal delay slot. Restore that actual named
+value, leaving temp2+temp3 as the call argument, rather than naming the sum
+denominator temp3. This naturally restores INT REG:a1 without a fake use,
+new object, asm/volatile, register pin, or compiler/output rewrite. All874
+instructions and full TU sections/layouts remain exact.
+
+Final comment/format-cleaned source-only gate and full symloop run-kjf1d5q1:
+BYTES UNCHANGED, ASPSX524/0, PSYLINK zero errors; collide9/14 ->10/14 native
+CLEAN. Target frame/params/every local type/home/depth/order and all scopes
+are exact, with no extra/missing native row. This is NOT a complete original
+source/SLD seal: actual relative native-versus-retail SLD864/874 differs.
+Other collide functions still have known source/scope/capture discrepancies;
+the broader goal is neither completed nor reduced to this native contract.
+
+Global2147 CLEAN/418 DIRTY; GAME/COMMON1091/156. Affected-function tallies:
+MISSING113->112, SCOPE160->159, BLOCKS334->333; others unchanged. Vtable audit
+PASS1314 files, scoped whitespace clean. Retained collide/physics/doc and
+allocator-tool/test changes remain pending after00c8c2cb. Backup:
+scratchpad/collide_before_fixedobject_20260928.cpp. Full goal stays active.
+Fresh526-object GNU link: strict rc0 with existing590 overlap warnings;
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent real linked RECON299819/299819 identical, zero masked mismatches
+or foreign labels (retail passthrough BLOB excluded from reconstruction proof).
+
+2026-09-28 actual-object collision ownership/scopes restored,765/765 retained.
+Retail has sibling max-velocity regions at depth2 and high/low locals at
+depth3 in each half. The reconstruction nested the entire second half inside
+the first low-velocity block and added extra wrappers. Remove those wrappers,
+make the halves siblings, and use real inactive-high-path jumps into the
+low-velocity regions. Terminal branches belong OUTSIDE declaring regions:
+first high's last goto outside its vector block, first negate jump outside
+both low block and parent, second high's return outside its vector block,
+and the common return outside the second low block/parent. That restores
+all18 retail block endpoints exactly, not merely counts/depths. Low-velocity
+label names describe proven control flow; original label text is not claimed.
+All recorded parameter/local types/homes/order/depth agree; selectedRange is
+the only native EXTRA. No new asm, volatile, fake object/use or output rewrite.
+
+Important source-lifetime work remains, not an audit exception: first high
+still uses the existing shared-copy labels in the second high source region.
+Same physical AUTO slots/byte match do not by themselves prove a portable C++
+object-lifetime representation. Recover a legitimate shared-copy expression/
+owner (or make equivalent ordinary per-half copies match) before claiming
+whole original-source or portable semantic restoration. Existing normal ref
+fences and selectedRange also remain genuine work, not declared original
+objects or unreachable floors. Source comments explicitly keep those open.
+
+Reverted broader variants: ordinary per-half copies+returns, common-return
+gotos, builtin memcpy copies, and comma returns all765 words but68diffs:
+GCC retains the shared normal-copy tails in FIRST half instead of retail's
+SECOND. Per-axis range tests with that variant72/769. On the scope-correct
+matched form, one side-effecting conditional expression removes selectedRange
+but distributes comparison into three slti tests plus a Boolean join:7/766,
+unchanged by long cast; long long184/773. All reverted. The real scope repairs
+are retained independently, without treating those failures as proof that
+a named range carrier was required in the lost source.
+
+Final comment/format-cleaned source-only gates765/765 and neighbor874/874;
+full TU run-muz56b34: complete bytes/layouts UNCHANGED, ASPSX524/0, PSYLINK
+zero errors; collide10/14 native CLEAN unchanged. Global2147/418 unchanged,
+but SCOPE159->158 and BLOCKS333->332 affected functions. Full relative
+native-versus-retail SLD755/765 still differs; no line padding/full SLD seal.
+Vtable audit PASS1314 files; scoped whitespace clean. Backups:
+scratchpad/collide_before_actual_20260928.cpp and
+collide_after_actual_scopes_20260928.cpp. Retained source/doc/tool/test work
+pending after00c8c2cb; exhaustive original-source/SLD goal remains active.
+Fresh526-object GNU link: strict rc0 with existing590 overlap warnings,
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent real linked RECON299819/299819 identical, zero masked mismatch
+bytes or foreign labels; retail passthrough BLOB excluded from source proof.
+
+2026-09-28 actual collision shared-copy SOURCE LIFETIME repaired at765/765.
+The prior first-half jumps entered second-half vector-copy labels, reading
+different source AUTO objects whose initialization had been bypassed. Shared
+physical frame slots hid that issue in the byte gate. It is now removed:
+each first-half case actually copies from its own initialized normalx/y/z,
+then jumps to a shared return label AFTER the corresponding second-half copy.
+Second-half cases likewise use their own initialized objects. Incoming
+first-half jumps reach constant returns, not uninitialized object reads.
+No new object, alias, asm, volatile, fake use or output rewrite. Label names
+describe actual axis-return paths, not claimed literal original spellings.
+
+GCC-source lever: jump.c:2124..2155 tries instructions immediately before an
+unconditional jump's DIRECT target (minimum1) BEFORE other jumps to the same
+label (minimum2). find_cross_jump at2528 stops on a label in stream1 but skips
+labels in stream2; do_cross_jump redirects the jump BEFORE the matched tail
+and deletes the first copy. Returns/shared function-exit funnels had kept
+FIRST copies (the68-diff relocation); direct targets just AFTER each SECOND
+copy make GCC retain retail's SECOND copies instead. This is a real source
+control-flow lever, not relocating instructions after compilation. Detailed
+source-only gate confirms765/765 and every instruction/register unchanged.
+
+Diagnostic setup also recovered authentic jump-state files, not just final
+assembly. CC1PLPSX accepts -dj ->.jump and -dJ ->.jump2 (toplev.c3904..3912),
+with -ds ->.cse; cross-jump runs after register allocation/sched2 but BEFORE
+delay filling (toplev.c3548ff). Isolated matched input base.i and ordinary
+per-half-copy ordinary.i are in build/collide_jump_20260928/. Both compile
+with authentic -O2 -G4 and those dump flags; base.s's normalized target stream
+equals the production function. Dumps/output files are isolated/generated,
+not modified compiler/binary output or committed reconstructed functions.
+No instrumented-compiler fidelity is assumed for this target.
+
+Reverted candidate forms: aggregate lvalue conditional first-half copy20/771
+(materializes selected stack address); copy-valued casts68/793 (extra stack
+temporary); scalar conditional-return copies68/765 (still wrong tail owner).
+The retained AFTER-copy return-target form is the one that fixes source
+lifetime AND remains byte-exact. Builtin last-Z copy and a same-block Z
+return label do not seal its scope end; both are reverted/kept out.
+
+Explicit remaining native gap: one second-high block now ends+aa8(2728),
+retail+a90(2704),24 bytes later. All named locals/types/homes/order/depth
+still agree; the other17 block endpoints agree. This known debug-endpoint
+gap stays open; do NOT roll back the genuine lifetime fix merely to make
+the native scope report greener, or call either form fully source/SLD sealed.
+selectedRange and the older normal ref fences also remain source recovery.
+Goal scope is unchanged and includes those genuine outstanding requirements.
+
+Final source-only765/765 and neighbor874/874; full TU run-kyhu6qug: all
+sections/layouts UNCHANGED, ASPSX524/0, PSYLINK zero errors; collide10/14
+native CLEAN unchanged. Global2147/418; BLOCKS332->333 affected functions
+reflects the explicit endpoint gap, SCOPE158 and other issue counts unchanged.
+Fresh526-object GNU link strict rc0 with existing590 overlap warnings,
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches/foreign
+labels (retail BLOB passthrough excluded); vtable audit PASS1314 files;
+whitespace clean. Source/doc/tool/test work still uncommitted after00c8c2cb.
+Full original-source/SLD goal active and incomplete. Backup:
+scratchpad/collide_before_normal_select_20260928.cpp.
+
+2026-09-28 registry-bound carrier removed,128/128 retained.
+Retail tail loads Cars_gNumCars once into a0, compares the actual root
+carLoop in v1 and increments it in the back-branch slot. A real
+exit-in-the-middle while(true)/break loop lets loop optimization hoist that
+anonymous bound naturally. n and the old carloop_top label are removed, not
+renamed or hidden behind const, with no replacement source object/fence/use.
+The body-expression region contains only the actual range-exit and increment
+statements; it retains the two empty loop regions without invented locals.
+Every original frame/parameter/local/type/home/order/depth record agrees.
+
+Known gap, not a floor: the parent's start is+1c8(456), retail+1bc(444),
+12 bytes late. Six scopes now match in nesting/count and the other11
+endpoints agree. Actual relative native-versus-retail SLD119/128 differs;
+literal original loop/macro spelling and exact ownership/SLD remain open.
+No full native CLEAN or original-text seal is claimed. NFS2 PC's sibling
+contains only the global clear, so it is not a body substitute for this
+NFS4 loop; raw retail/SYM remain the authority.
+
+Reverted trials: ordinary top-tested while131/128 adds a pretest and final
+counter correction; initialized and separately initialized infinite for,
+exit-middle do, unsigned-char predicate and braceless for variants10/132.
+Bare exit-middle while matches128 but drops both empty debug regions.
+Two real GNU regions give seven scopes; only outer gives five; predicate-
+region or body-region for variants match128 but give seven scopes. A used
+labelled while body is128 PASS but still five scopes, so it is not kept as
+a dummy scope dial. The retained single real body-expression form has no
+such label, unused declaration, fake test, asm addition or output rewrite.
+Neutral returnNormalZ label-at-block-end/null-statement experiment also
+reverted:765 PASS but no endpoint improvement. The earlier genuine shared-
+copy source-lifetime fix remains, with its explicit24-byte endpoint gap.
+
+Final comment-cleaned source-only gates registry128/128, actual collision
+765/765 and fixed-object874/874; full TU run-c7f3mh0u: sections/layouts
+UNCHANGED, ASPSX524/0, PSYLINK zero errors; collide10/14 native CLEAN.
+Global2147/418 unchanged, but affected-function EXTRA292->291; other issue
+counts unchanged. Vtable audit PASS1314 files; scoped whitespace clean.
+Source/doc/tool/test changes pending after00c8c2cb. Backup:
+scratchpad/collide_before_registry_loop_20260928.cpp. Full exhaustive
+original-source/SLD objective active and incomplete, not reduced to native
+record coverage or byte identity.
+Fresh526-object GNU link: strict rc0 with existing590 overlap warnings;
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatch bytes
+or foreign labels; retail BLOB passthrough excluded from reconstruction proof.
+
+2026-09-28 CheckMeForCollisions ownership checkpoint before user-requested pause.
+Inactive/simOptz real early exits replace the enclosing catch-all nesting;
+timer and surface tests are separate positive owners. A real region around
+Object_InitCollisionCheckLoop and for-owned object iteration restores the
+point-list/j levels; closest-point, accurate-hit and nonzero-result guards
+own signCase. The geometry phase is a one-case switch (case1) with default
+sign2/-1 checks, not an invented source object. Its normal/samplePoint/impulse
+scope ends AFTER the zero-impulse skip and BEFORE effect bookkeeping.
+Every original param/local/type/home/depth/order now agrees, with no native
+extra/missing name. No new asm/volatile, fake references or output rewrite.
+
+Retained form381/381 PASS. Remaining native scope gap is exactly one of36
+endpoints: switch-body start+1a8(424), retail+190(400),24 bytes late; the other
+35 endpoints agree. Full literal original syntax and SLD remain unsealed.
+Do not describe this function as fully SYM/source/SLD-exact despite repaired
+names/owners. Other collision functions retain their separately recorded
+endpoint/capture work, and the broader exhaustive goal remains incomplete.
+
+Source experiments, all not retained: three-case switch37/388 (different
+dispatch and handouts), Boolean switch4/383 (materialized Boolean), comma
+getter switch condition neutral for the endpoint. Geometry/body expression
+forms preserve381 but produce extra level or two bad endpoints. One-case
+ordinary switch plus moving the real geometry boundary after the zero-impulse
+skip is the verified retained form; initializer/case labels are not dummy uses.
+Registry grouped do expressions also neutral/worse in scope count and were
+reverted to its earlier128/128 form; no neutral boundary/null-label trial remains.
+
+Final comment/format-cleaned source-only gates: CheckMe381, Registry128,
+ActualCollision765, FixedObject874 all PASS. Full collide TU run-jw9ju1l7:
+complete sections/layouts UNCHANGED, ASPSX524/0, PSYLINK zero errors,
+collide10/14 native CLEAN. Global2147 CLEAN/418 DIRTY; SCOPE158->157 affected
+functions; other issue counts unchanged (EXTRA291, MISSING112, BLOCKS333).
+Fresh526-object GNU link: strict rc0 with existing590 overlap warnings;
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, zero masked mismatch bytes
+or foreign labels, retail BLOB passthrough excluded. Vtable PASS1314 files;
+seven allocation-parser tests pass; all six diagnostic Python files compile;
+scoped whitespace clean. User requested finish current round, commit/push,
+then pause. Only verified physics/collide restoration, diagnostic tools/test
+and this journal enter the checkpoint; unrelated files/generated artifacts
+are excluded. Baseline backups remain local; no differing reference refreshed.
 
 2026-09-25 (session from commit 4eff2f1a). SLD line matching is parked by the user for a later
 stage; this round is the native contract (locals, homes, scope trees) only. Every retained

@@ -40,8 +40,9 @@ def parse_want(spec):
 def build(greg, lreg, fn):
     L = A.parse_lreg(lreg, fn)
     order, conf, prefs, disp = A.parse_greg(greg, fn)
+    # Include global.c's copy-death propagation; pre-change backup next to tool.
     return L, A.Sim(L, order, conf, prefs, disp,
-                    A.parse_copy_prefs(lreg, fn), A.parse_ever_live(lreg, fn))
+                    A.parse_copy_prefs(lreg, fn, order, conf), A.parse_ever_live(lreg, fn))
 
 
 def hits(sim, want, ov):

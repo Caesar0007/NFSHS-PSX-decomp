@@ -203,6 +203,11 @@ ret0:
 
 
 /* ---- Collide_DoObjectFixedObjectCollision__FP13BO_tNewtonObjP8coorddefN21  [@0x8008cb0c] ---- */
+/* 2026-09-28: temp3 owns the half-scaled inertia term, not the sum denominator.
+   NFS2 matched source independently uses that role; retail adds temp2 in the
+   rdiv delay slot. Removing two extraneous wrappers restores guarded locals'
+   depth4. Native frame/local/scope records now agree at874/874 PASS; literal
+   original source spelling and full SLD attribution remain unsealed. */
 void Collide_DoObjectFixedObjectCollision(BO_tNewtonObj *o,coorddef *p,coorddef *v,coorddef *n)
 {
   /* RULE-8 rewrite from SYM 8c block @0x8008cb0c (fsize=192 mask=$803f0000 = ra+s0..s5) + m2c
@@ -254,59 +259,55 @@ void Collide_DoObjectFixedObjectCollision(BO_tNewtonObj *o,coorddef *p,coorddef 
     int frictionalImpulseOverMoment;
     int deltaSpeedInFrictionDirection;
 
-    {
-      temp3 = temp2 + fixedmult(Math_VectorLength2(&RCrossN), o->moInertiaInv * 2) / 2;
-      impulse = fixedmult(rdiv(-(temp0 + temp1), temp3), 0x6666);
-      (o->collision).impulse = __builtin_abs(temp0) * 4;
-      (o->collision).otherObj = (BO_tNewtonObj *)0;
-      (o->collision).sfxType = o->driveSurfaceType | 0x30000;
-      (o->collision).collisionPoint = *p;
-      if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0) {
-        int scale;
-        int lengthInverse;
+    temp3 = fixedmult(Math_VectorLength2(&RCrossN), o->moInertiaInv * 2) / 2;
+    impulse = fixedmult(rdiv(-(temp0 + temp1), temp2 + temp3), 0x6666);
+    (o->collision).impulse = __builtin_abs(temp0) * 4;
+    (o->collision).otherObj = (BO_tNewtonObj *)0;
+    (o->collision).sfxType = o->driveSurfaceType | 0x30000;
+    (o->collision).collisionPoint = *p;
+    if (velocity.x != 0 || velocity.y != 0 || velocity.z != 0) {
+      int scale;
+      int lengthInverse;
 
-        scale = (velocity.x / 256) * (normal.x / 256) +
-                (velocity.y / 256) * (normal.y / 256) +
-                (velocity.z / 256) * (normal.z / 256);
-        velocity.x = velocity.x - (scale / 256) * (normal.x / 256);
-        velocity.y = velocity.y - (scale / 256) * (normal.y / 256);
-        velocity.z = velocity.z - (scale / 256) * (normal.z / 256);
-        velocityLength = fixedsqrt((velocity.x / 256) * (velocity.x / 256) +
-                                   (velocity.y / 256) * (velocity.y / 256) +
-                                   (velocity.z / 256) * (velocity.z / 256));
-        /* MATCH: fixedmult calls duplicated per-arm in retail source; gcc cross-jump-merges
-           only the trailing .z call (oracle j to shared tail) */
-        if (velocityLength / 2 != 0) {
-          lengthInverse = -rdiv(0x8000, velocityLength / 2);
-          velocity.x = fixedmult(lengthInverse, velocity.x);
-          velocity.y = fixedmult(lengthInverse, velocity.y);
-          velocity.z = fixedmult(lengthInverse, velocity.z);
-        } else {
-          velocity.x = fixedmult(-0x10000, velocity.x);
-          velocity.y = fixedmult(-0x10000, velocity.y);
-          velocity.z = fixedmult(-0x10000, velocity.z);
-        }
+      scale = (velocity.x / 256) * (normal.x / 256) +
+              (velocity.y / 256) * (normal.y / 256) +
+              (velocity.z / 256) * (normal.z / 256);
+      velocity.x = velocity.x - (scale / 256) * (normal.x / 256);
+      velocity.y = velocity.y - (scale / 256) * (normal.y / 256);
+      velocity.z = velocity.z - (scale / 256) * (normal.z / 256);
+      velocityLength = fixedsqrt((velocity.x / 256) * (velocity.x / 256) +
+                                 (velocity.y / 256) * (velocity.y / 256) +
+                                 (velocity.z / 256) * (velocity.z / 256));
+      /* MATCH: fixedmult calls duplicated per-arm in retail source; gcc cross-jump-merges
+         only the trailing .z call (oracle j to shared tail) */
+      if (velocityLength / 2 != 0) {
+        lengthInverse = -rdiv(0x8000, velocityLength / 2);
+        velocity.x = fixedmult(lengthInverse, velocity.x);
+        velocity.y = fixedmult(lengthInverse, velocity.y);
+        velocity.z = fixedmult(lengthInverse, velocity.z);
+      } else {
+        velocity.x = fixedmult(-0x10000, velocity.x);
+        velocity.y = fixedmult(-0x10000, velocity.y);
+        velocity.z = fixedmult(-0x10000, velocity.z);
       }
     }
-    {
-      if (__builtin_abs(o->speedXZ) <= 0x9FFFF) {
-        coorddef upVec = { 0, 0x10000, 0 };   /* local aggregate initializer: its constant is retail .rodata 0x80055A00 */
-        int dotx;
-        int doty;
-        int dotz;
+    if (__builtin_abs(o->speedXZ) <= 0x9FFFF) {
+      coorddef upVec = { 0, 0x10000, 0 };   /* local aggregate initializer: its constant is retail .rodata 0x80055A00 */
+      int dotx;
+      int doty;
+      int dotz;
 
-        dotx = (upVec.x / 256) * ((o->orientMat).m[0] / 256) +
-               (upVec.y / 256) * ((o->orientMat).m[1] / 256) +
-               (upVec.z / 256) * ((o->orientMat).m[2] / 256);
-        doty = (upVec.x / 256) * ((o->orientMat).m[3] / 256) +
-               (upVec.y / 256) * ((o->orientMat).m[4] / 256) +
-               (upVec.z / 256) * ((o->orientMat).m[5] / 256);
-        dotz = (upVec.x / 256) * ((o->orientMat).m[6] / 256) +
-               (upVec.y / 256) * ((o->orientMat).m[7] / 256) +
-               (upVec.z / 256) * ((o->orientMat).m[8] / 256);
-        if (0xF5C2 < __builtin_abs(dotx) || 0xF5C2 < __builtin_abs(dotz) || doty < -0xF5C2) {
-          frictionLess = 1;
-        }
+      dotx = (upVec.x / 256) * ((o->orientMat).m[0] / 256) +
+             (upVec.y / 256) * ((o->orientMat).m[1] / 256) +
+             (upVec.z / 256) * ((o->orientMat).m[2] / 256);
+      doty = (upVec.x / 256) * ((o->orientMat).m[3] / 256) +
+             (upVec.y / 256) * ((o->orientMat).m[4] / 256) +
+             (upVec.z / 256) * ((o->orientMat).m[5] / 256);
+      dotz = (upVec.x / 256) * ((o->orientMat).m[6] / 256) +
+             (upVec.y / 256) * ((o->orientMat).m[7] / 256) +
+             (upVec.z / 256) * ((o->orientMat).m[8] / 256);
+      if (0xF5C2 < __builtin_abs(dotx) || 0xF5C2 < __builtin_abs(dotz) || doty < -0xF5C2) {
+        frictionLess = 1;
       }
     }
     frictionalImpulse = fixedmult(frictionLess == 1 ? 0x28F : 0x8000, impulse);
@@ -836,6 +837,15 @@ o1_zdisp:
 }
 
 /* ---- Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2  [@0x8008f550] ---- */
+/* 2026-09-28: sibling max-velocity regions, real guarded high/low regions and
+   terminal branches outside declaring regions restore every retail local
+   depth/home/order at765/765. Shared return labels AFTER each second-half
+   copy let GCC merge first-half copies forward: each source path now reads
+   its own initialized vector, not another scope's uninitialized object.
+   jump.c's direct-target cross-jump rule explains the matching tail placement.
+   Label names describe proven branches, not recovered original text.
+   selectedRange, old reference devices, one +24-byte high-scope endpoint and
+   full original-source/SLD attribution remain open. */
 int Collide_DoActualObjectCollisionCheck(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
 
 
@@ -915,298 +925,305 @@ int Collide_DoActualObjectCollisionCheck(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coo
   return 0;
 vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
   {
-    {
-      int maxv;
-      int vx;
-      int vy;
-      int vz;
+    int maxv;
+    int vx;
+    int vy;
+    int vz;
 
-      findClosestSideDave = 0;
-      vx = (o1->linearVel).x - (o0->linearVel).x;
-      if (vx <= 0) {
-        vx = (o0->linearVel).x - (o1->linearVel).x;
+    findClosestSideDave = 0;
+    vx = (o1->linearVel).x - (o0->linearVel).x;
+    if (vx <= 0) {
+      vx = (o0->linearVel).x - (o1->linearVel).x;
+    }
+    vy = (o1->linearVel).y - (o0->linearVel).y;
+    if (vy <= 0) {
+      vy = (o0->linearVel).y - (o1->linearVel).y;
+    }
+    vz = (o1->linearVel).z - (o0->linearVel).z;
+    if (vz <= 0) {
+      vz = (o0->linearVel).z - (o1->linearVel).z;
+    }
+    maxv = vx;
+    if (maxv < vy) {
+      maxv = vy;
+    }
+    if (maxv < vz) {
+      maxv = vz;
+    }
+    if (0xF0000 < maxv) {
+      findClosestSideDave = 1;
+    }
+  }
+  {
+    if (findClosestSideDave == 0) goto vertexLowVelocity;
+    {
+      coorddef normalx;
+      coorddef normaly;
+      coorddef normalz;
+      int dotx;
+      int doty;
+      int dotz;
+      coorddef vel;
+
+      vel = o1->linearVel;
+      normalx = *(coorddef *)&(o0->orientMat).m[0];
+      normaly = *(coorddef *)&(o0->orientMat).m[3];
+      normalz = *(coorddef *)&(o0->orientMat).m[6];
+      if (0 < xRange) {
+        normalx.x = -normalx.x;
+        normalx.y = -normalx.y;
+        normalx.z = -normalx.z;
       }
-      vy = (o1->linearVel).y - (o0->linearVel).y;
-      if (vy <= 0) {
-        vy = (o0->linearVel).y - (o1->linearVel).y;
+      if (0 < yRange) {
+        normaly.x = -normaly.x;
+        normaly.y = -normaly.y;
+        normaly.z = -normaly.z;
       }
-      vz = (o1->linearVel).z - (o0->linearVel).z;
-      if (vz <= 0) {
-        vz = (o0->linearVel).z - (o1->linearVel).z;
+      if (0 < zRange) {
+        normalz.x = -normalz.x;
+        normalz.y = -normalz.y;
+        normalz.z = -normalz.z;
       }
-      maxv = vx;
-      if (maxv < vy) {
-        maxv = vy;
+      dotx = normalx.x / 256 * (vel.x / 256) + normalx.y / 256 * (vel.y / 256) +
+             normalx.z / 256 * (vel.z / 256);
+      doty = normaly.x / 256 * (vel.x / 256) + normaly.y / 256 * (vel.y / 256) +
+             normaly.z / 256 * (vel.z / 256);
+      dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
+             normalz.z / 256 * (vel.z / 256);
+      /* SEALED W72-A10 (2026-08-22): 14 diffs @763/765 -> PASS 765/765.  TWO edits,
+         both applied at BOTH sites (this one and the `zRange < 0` twin below):
+           (1) `x = __builtin_abs(x)` for the dotx/doty/dotz triple instead of
+               `if (x < 0) x = -x;`   ** THE LAW **
+           (2) delete the bare `__asm__("")` that used to sit after the dotz
+               statement.
+         WHY (mips.md `abssi2`, gcc-2.8.1 config/mips/mips.md:1800-1822): abssi2 is a
+         SINGLE define_insn whose template emits the whole `bgez %1,1f%#\n\tsubu
+         %0,$0,%0\n1:` sequence (dst==src arm; `%#` = the delay-slot nop, and the
+         pattern bumps dslots_jump_total/filled itself, length 3).  So the retail abs
+         chain is NOT three basic blocks -- it is three ordinary insns.  The whole
+         region `mult / abs / abs / slt / mflo / addu / abs` therefore lives in ONE
+         basic block, and gcc's per-BB scheduler is free to sink dotz's `mflo`+`addu`
+         past the two abs insns and hoist the `slt $v0,$a1,$a3` above them -- exactly
+         retail's order -- and the two "missing" nops are the abssi2 templates' own
+         `%#`, not reorg slots.  Written as `if (x<0) x=-x;` the abs is a real branch
+         + BB, sched2 cannot cross it, the mflo stays welded to its mult, and reorg
+         then steals the `slt` into the abs(dotz) branch's slot (= the old 2-insn
+         deficit + the 14-diff residual).  The bare `__asm__("")` was a volatile
+         scheduling BARRIER pinning `mflo` next to `mult`; with the abs insns in place
+         it was the last thing blocking the sink.  (SLD confirms retail's statement
+         order is ours: 863 = dotz, 864/865/866 = the three abs, 868 = the compare;
+         insns 366-368 carry lines 868/863/863 out of order = pure scheduling.)
+         MEASURED ON THE WAY (real gate runs, both sites unless noted):
+           baseline (if-form abs + bare fence) ................ 14 @763/765
+           + head-of-thread void fence `("" : : "i"(0))` before
+             the `doty<dotx` compare ......................... 20 @765/765
+             (zero-insn, restores BOTH nops by blocking reorg's
+              eager steal -- proves the deficit was slot theft)
+           + zprod split (3rd term in its own local) ......... 220 @765/765
+           + third term recomputed after the abs blocks ....... 88 @769/765
+           __builtin_abs, bare fence KEPT .................... 20 @765/765
+           __builtin_abs, bare fence REMOVED ................. PASS 765/765
+         W64-A15's "absfirst" basin (44 @765) was the same insight seen from the
+         wrong side: hoisting the abs STATEMENTS restored the length by accident;
+         making the abs an INSN restores it by construction. */
+      dotx = __builtin_abs(dotx);
+      doty = __builtin_abs(doty);
+      dotz = __builtin_abs(dotz);
+      if (doty < dotx && dotz < dotx) {
+        *normal = normalx;
+        goto returnNormalX;
       }
-      if (maxv < vz) {
-        maxv = vz;
+      if (dotz < doty) {
+        *normal = normaly;
+        goto returnNormalY;
       }
-      if (0xF0000 < maxv) {
-        findClosestSideDave = 1;
+      *normal = normalz;
+    }
+    goto returnNormalZ;
+vertexLowVelocity:
+    {
+      int xDiff;
+      int yDiff;
+      int zDiff;
+      /* SOURCE-RECOVERY REVIEW: selectedRange is absent from retail SYM.
+         A side-effecting conditional expression removes it but distributes
+         the sign test (7diffs/766); per-axis tests add four words. Existing
+         reference fences and literal selection spelling still need recovery;
+         native local/scope agreement alone is not a portability/source seal. */
+      int selectedRange;
+
+      if (xRange < 0) {
+        xDiff = (o0->dimension).x + xRange;
+      }
+      else {
+        xDiff = (o0->dimension).x - xRange;
+      }
+      if (yRange < 0) {
+        yDiff = (o0->dimension).y + yRange;
+      }
+      else {
+        yDiff = (o0->dimension).y - yRange;
+      }
+      if (zRange < 0) {
+        zDiff = (o0->dimension).z + zRange;
+      }
+      else {
+        zDiff = (o0->dimension).z - zRange;
+      }
+      if (xDiff < yDiff && xDiff < zDiff) {
+        *normal = *(coorddef *)&(o0->orientMat).m[0];
+        selectedRange = xRange;
+      }
+      else if (yDiff < zDiff) {
+        *normal = *(coorddef *)&(o0->orientMat).m[3];
+        selectedRange = yRange;
+      }
+      else {
+        *normal = *(coorddef *)&(o0->orientMat).m[6];
+        selectedRange = zRange;
+      }
+      if (selectedRange <= 0) {
+        goto returnOne;
       }
     }
-    {
-      if (findClosestSideDave != 0) {
-        coorddef normalx;
-        coorddef normaly;
-        coorddef normalz;
-        int dotx;
-        int doty;
-        int dotz;
-        coorddef vel;
-
-        vel = o1->linearVel;
-        normalx = *(coorddef *)&(o0->orientMat).m[0];
-        normaly = *(coorddef *)&(o0->orientMat).m[3];
-        normalz = *(coorddef *)&(o0->orientMat).m[6];
-        if (0 < xRange) {
-          normalx.x = -normalx.x;
-          normalx.y = -normalx.y;
-          normalx.z = -normalx.z;
-        }
-        if (0 < yRange) {
-          normaly.x = -normaly.x;
-          normaly.y = -normaly.y;
-          normaly.z = -normaly.z;
-        }
-        if (0 < zRange) {
-          normalz.x = -normalz.x;
-          normalz.y = -normalz.y;
-          normalz.z = -normalz.z;
-        }
-        dotx = normalx.x / 256 * (vel.x / 256) + normalx.y / 256 * (vel.y / 256) +
-               normalx.z / 256 * (vel.z / 256);
-        doty = normaly.x / 256 * (vel.x / 256) + normaly.y / 256 * (vel.y / 256) +
-               normaly.z / 256 * (vel.z / 256);
-        dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
-               normalz.z / 256 * (vel.z / 256);
-        /* SEALED W72-A10 (2026-08-22): 14 diffs @763/765 -> PASS 765/765.  TWO edits,
-           both applied at BOTH sites (this one and the `zRange < 0` twin below):
-             (1) `x = __builtin_abs(x)` for the dotx/doty/dotz triple instead of
-                 `if (x < 0) x = -x;`   ** THE LAW **
-             (2) delete the bare `__asm__("")` that used to sit after the dotz
-                 statement.
-           WHY (mips.md `abssi2`, gcc-2.8.1 config/mips/mips.md:1800-1822): abssi2 is a
-           SINGLE define_insn whose template emits the whole `bgez %1,1f%#\n\tsubu
-           %0,$0,%0\n1:` sequence (dst==src arm; `%#` = the delay-slot nop, and the
-           pattern bumps dslots_jump_total/filled itself, length 3).  So the retail abs
-           chain is NOT three basic blocks -- it is three ordinary insns.  The whole
-           region `mult / abs / abs / slt / mflo / addu / abs` therefore lives in ONE
-           basic block, and gcc's per-BB scheduler is free to sink dotz's `mflo`+`addu`
-           past the two abs insns and hoist the `slt $v0,$a1,$a3` above them -- exactly
-           retail's order -- and the two "missing" nops are the abssi2 templates' own
-           `%#`, not reorg slots.  Written as `if (x<0) x=-x;` the abs is a real branch
-           + BB, sched2 cannot cross it, the mflo stays welded to its mult, and reorg
-           then steals the `slt` into the abs(dotz) branch's slot (= the old 2-insn
-           deficit + the 14-diff residual).  The bare `__asm__("")` was a volatile
-           scheduling BARRIER pinning `mflo` next to `mult`; with the abs insns in place
-           it was the last thing blocking the sink.  (SLD confirms retail's statement
-           order is ours: 863 = dotz, 864/865/866 = the three abs, 868 = the compare;
-           insns 366-368 carry lines 868/863/863 out of order = pure scheduling.)
-           MEASURED ON THE WAY (real gate runs, both sites unless noted):
-             baseline (if-form abs + bare fence) ................ 14 @763/765
-             + head-of-thread void fence `("" : : "i"(0))` before
-               the `doty<dotx` compare ......................... 20 @765/765
-               (zero-insn, restores BOTH nops by blocking reorg's
-                eager steal -- proves the deficit was slot theft)
-             + zprod split (3rd term in its own local) ......... 220 @765/765
-             + third term recomputed after the abs blocks ....... 88 @769/765
-             __builtin_abs, bare fence KEPT .................... 20 @765/765
-             __builtin_abs, bare fence REMOVED ................. PASS 765/765
-           W64-A15's "absfirst" basin (44 @765) was the same insight seen from the
-           wrong side: hoisting the abs STATEMENTS restored the length by accident;
-           making the abs an INSN restores it by construction. */
-        dotx = __builtin_abs(dotx);
-        doty = __builtin_abs(doty);
-        dotz = __builtin_abs(dotz);
-        if (doty < dotx && dotz < dotx) {
-          goto useNormalX;
-        }
-        if (dotz < doty) {
-          goto useNormalY;
-        }
-        goto useNormalZ;
-      }
-      {
-        int xDiff;
-        int yDiff;
-        int zDiff;
-        int selectedRange;
-
-        if (xRange < 0) {
-          xDiff = (o0->dimension).x + xRange;
-        }
-        else {
-          xDiff = (o0->dimension).x - xRange;
-        }
-        if (yRange < 0) {
-          yDiff = (o0->dimension).y + yRange;
-        }
-        else {
-          yDiff = (o0->dimension).y - yRange;
-        }
-        if (zRange < 0) {
-          zDiff = (o0->dimension).z + zRange;
-        }
-        else {
-          zDiff = (o0->dimension).z - zRange;
-        }
-        if (xDiff < yDiff && xDiff < zDiff) {
-          *normal = *(coorddef *)&(o0->orientMat).m[0];
-          selectedRange = xRange;
-        }
-        else if (yDiff < zDiff) {
-          *normal = *(coorddef *)&(o0->orientMat).m[3];
-          selectedRange = yRange;
-        }
-        else {
-          *normal = *(coorddef *)&(o0->orientMat).m[6];
-          selectedRange = zRange;
-        }
-        if (selectedRange <= 0) {
-          goto returnOne;
-        }
-        goto negateNormal;
+  }
+  goto negateNormal;
 ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
   {
-    {
-      int maxv;
-      int vx;
-      int vy;
-      int vz;
+    int maxv;
+    int vx;
+    int vy;
+    int vz;
 
-      findClosestSideDave = 0;
-      vx = (o1->linearVel).x - (o0->linearVel).x;
-      if (vx <= 0) {
-        vx = (o0->linearVel).x - (o1->linearVel).x;
-      }
-      vy = (o1->linearVel).y - (o0->linearVel).y;
-      if (vy <= 0) {
-        vy = (o0->linearVel).y - (o1->linearVel).y;
-      }
-      vz = (o1->linearVel).z - (o0->linearVel).z;
-      if (vz <= 0) {
-        vz = (o0->linearVel).z - (o1->linearVel).z;
-      }
-      maxv = vx;
-      if (maxv < vy) {
-        maxv = vy;
-      }
-      if (maxv < vz) {
-        maxv = vz;
-      }
-      if (0xF0000 < maxv) {
-        findClosestSideDave = 1;
-      }
+    findClosestSideDave = 0;
+    vx = (o1->linearVel).x - (o0->linearVel).x;
+    if (vx <= 0) {
+      vx = (o0->linearVel).x - (o1->linearVel).x;
     }
+    vy = (o1->linearVel).y - (o0->linearVel).y;
+    if (vy <= 0) {
+      vy = (o0->linearVel).y - (o1->linearVel).y;
+    }
+    vz = (o1->linearVel).z - (o0->linearVel).z;
+    if (vz <= 0) {
+      vz = (o0->linearVel).z - (o1->linearVel).z;
+    }
+    maxv = vx;
+    if (maxv < vy) {
+      maxv = vy;
+    }
+    if (maxv < vz) {
+      maxv = vz;
+    }
+    if (0xF0000 < maxv) {
+      findClosestSideDave = 1;
+    }
+  }
+  {
+    if (findClosestSideDave == 0) goto otherLowVelocity;
     {
-      if (findClosestSideDave != 0) {
-        coorddef normalx;
-        coorddef normaly;
-        coorddef normalz;
-        int dotx;
-        int doty;
-        int dotz;
-        coorddef vel;
+      coorddef normalx;
+      coorddef normaly;
+      coorddef normalz;
+      int dotx;
+      int doty;
+      int dotz;
+      coorddef vel;
 
-        vel = o0->linearVel;
-        normalx = *(coorddef *)&(o1->orientMat).m[0];
-        normaly = *(coorddef *)&(o1->orientMat).m[3];
-        normalz = *(coorddef *)&(o1->orientMat).m[6];
-        if (xRange < 0) {
-          normalx.x = -normalx.x;
-          normalx.y = -normalx.y;
-          normalx.z = -normalx.z;
-        }
-        if (yRange < 0) {
-          normaly.x = -normaly.x;
-          normaly.y = -normaly.y;
-          normaly.z = -normaly.z;
-        }
-        if (zRange < 0) {
-          normalz.x = -normalz.x;
-          normalz.y = -normalz.y;
-          normalz.z = -normalz.z;
-        }
-        dotx = normalx.x / 256 * (vel.x / 256) + normalx.y / 256 * (vel.y / 256) +
-               normalx.z / 256 * (vel.z / 256);
-        doty = normaly.x / 256 * (vel.x / 256) + normaly.y / 256 * (vel.y / 256) +
-               normaly.z / 256 * (vel.z / 256);
-        dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
-               normalz.z / 256 * (vel.z / 256);
-        dotx = __builtin_abs(dotx);
-        doty = __builtin_abs(doty);
-        dotz = __builtin_abs(dotz);
-        if (doty < dotx && dotz < dotx) {
-useNormalX:
-          *normal = normalx;
-          return 1;
-        }
-        if (dotz < doty) {
-useNormalY:
-          *normal = normaly;
-          return 1;
-        }
-useNormalZ:
-        *normal = normalz;
+      vel = o0->linearVel;
+      normalx = *(coorddef *)&(o1->orientMat).m[0];
+      normaly = *(coorddef *)&(o1->orientMat).m[3];
+      normalz = *(coorddef *)&(o1->orientMat).m[6];
+      if (xRange < 0) {
+        normalx.x = -normalx.x;
+        normalx.y = -normalx.y;
+        normalx.z = -normalx.z;
+      }
+      if (yRange < 0) {
+        normaly.x = -normaly.x;
+        normaly.y = -normaly.y;
+        normaly.z = -normaly.z;
+      }
+      if (zRange < 0) {
+        normalz.x = -normalz.x;
+        normalz.y = -normalz.y;
+        normalz.z = -normalz.z;
+      }
+      dotx = normalx.x / 256 * (vel.x / 256) + normalx.y / 256 * (vel.y / 256) +
+             normalx.z / 256 * (vel.z / 256);
+      doty = normaly.x / 256 * (vel.x / 256) + normaly.y / 256 * (vel.y / 256) +
+             normaly.z / 256 * (vel.z / 256);
+      dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
+             normalz.z / 256 * (vel.z / 256);
+      dotx = __builtin_abs(dotx);
+      doty = __builtin_abs(doty);
+      dotz = __builtin_abs(dotz);
+      if (doty < dotx && dotz < dotx) {
+        *normal = normalx;
+returnNormalX:
         return 1;
       }
-      {
-        int xDiff;
-        int yDiff;
-        int zDiff;
+      if (dotz < doty) {
+        *normal = normaly;
+returnNormalY:
+        return 1;
+      }
+      *normal = normalz;
+    }
+returnNormalZ:
+    return 1;
+otherLowVelocity:
+    {
+      int xDiff;
+      int yDiff;
+      int zDiff;
 
-        if (xRange < 0) {
-          xDiff = (o1->dimension).x + xRange;
-        }
-        else {
-          xDiff = (o1->dimension).x - xRange;
-        }
-        if (yRange < 0) {
-          yDiff = (o1->dimension).y + yRange;
-        }
-        else {
-          yDiff = (o1->dimension).y - yRange;
-        }
-        if (zRange < 0) {
-          zDiff = (o1->dimension).z + zRange;
-        }
-        else {
-          zDiff = (o1->dimension).z - zRange;
-        }
-        if (xDiff < yDiff && xDiff < zDiff) {
-          *normal = *(coorddef *)&(o1->orientMat).m[0];
-          /* P862: retail SLD 999/1009/1019 tests each selected axis separately.
-             NFS2's sibling body has the same per-axis tests; GCC joins their
-             common negation tail without a selectedRange source local. */
-          if (xRange >= 0) goto returnOne;
-        }
-        else if (yDiff < zDiff) {
-          *normal = *(coorddef *)&(o1->orientMat).m[3];
-          if (yRange >= 0) goto returnOne;
-        }
-        else {
-          *normal = *(coorddef *)&(o1->orientMat).m[6];
-          if (zRange >= 0) goto returnOne;
-        }
+      if (xRange < 0) {
+        xDiff = (o1->dimension).x + xRange;
+      }
+      else {
+        xDiff = (o1->dimension).x - xRange;
+      }
+      if (yRange < 0) {
+        yDiff = (o1->dimension).y + yRange;
+      }
+      else {
+        yDiff = (o1->dimension).y - yRange;
+      }
+      if (zRange < 0) {
+        zDiff = (o1->dimension).z + zRange;
+      }
+      else {
+        zDiff = (o1->dimension).z - zRange;
+      }
+      if (xDiff < yDiff && xDiff < zDiff) {
+        *normal = *(coorddef *)&(o1->orientMat).m[0];
+        /* P862: retail SLD 999/1009/1019 tests each selected axis separately.
+           NFS2's sibling body has the same per-axis tests; GCC joins their
+           common negation tail without a selectedRange source local. */
+        if (xRange >= 0) goto returnOne;
+      }
+      else if (yDiff < zDiff) {
+        *normal = *(coorddef *)&(o1->orientMat).m[3];
+        if (yRange >= 0) goto returnOne;
+      }
+      else {
+        *normal = *(coorddef *)&(o1->orientMat).m[6];
+        if (zRange >= 0) goto returnOne;
+      }
 negateNormal:
-        normal->x = -normal->x;
-        normal->y = -normal->y;
-        normal->z = -normal->z;
-        __asm__("" : : "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal),
-                     "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal));
-        __asm__("" : : "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal),
-                     "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal));
-        __asm__("" : : "r"(normal));
+      normal->x = -normal->x;
+      normal->y = -normal->y;
+      normal->z = -normal->z;
+      __asm__("" : : "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal),
+                   "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal));
+      __asm__("" : : "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal),
+                   "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal));
+      __asm__("" : : "r"(normal));
+    }
+  }
 returnOne:
-        return 1;
-      }
-    }
-  }
-        return 1;
-      }
-    }
-  }
+  return 1;
 }
 
 /* ---- Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2  [@0x80090144] ---- */
@@ -1687,23 +1704,16 @@ void Collide_ClearCollisionRegistry(void)
           (relVec.z / 256) * (rightVec.z / 256);
     }
   }
+  /* 2026-09-28: genuine exit-in-the-middle loop lets loop optimization
+     hoist the anonymous Cars_gNumCars load, without n or a label loop.
+     This real body-expression region retains both empty loop regions;
+     one parent start is still+1c8, retail+1bc. All128 words and original
+     locals match. Literal lost loop/macro spelling and full SLD are open. */
   carLoop = 0;
-  {
-    /* SYM-CODEGEN-CARRIER: n -- the optimized retail bound has no surviving
-       debug record. A direct global bound is count-exact but has six register
-       diffs; keeping this source snapshot reproduces the exact $a0 bound web.
-       P874 re-tested after restoring the i/slice scopes: ordinary for and
-       exit-in-the-middle for FAIL 10 (132/128), postincrement-condition for
-       FAIL 11 (131/128), do/postincrement FAIL 4 (128/128), and do/prefix
-       FAIL 7 (129/128).  The count-exact do form retains an unwanted old-value
-       copy; the original empty-loop source still needs recovery. */
-    int n = Cars_gNumCars;
-carloop_top:
-    if (carLoop < n) {
-      carLoop = carLoop + 1;
-      goto carloop_top;
-    }
-  }
+  while (true) ({
+    if (carLoop >= Cars_gNumCars) break;
+    carLoop = carLoop + 1;
+  });
   return;
 }
 
@@ -1746,6 +1756,11 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
 
 
 /* ---- Collide_CheckMeForCollisions__FP13BO_tNewtonObj  [@0x800918cc] ---- */
+/* 2026-09-28 source ownership: inactive/simOptz early exits, separate timer/
+   surface guards, a for-owned object loop and positive-result regions restore
+   every original local depth/home/order. A one-case geometry switch with
+   default sign checks preserves381/381 and the geometry region's true end.
+   One switch-body start remains+1a8, retail+190; literal source/SLD unsealed. */
 void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
 {
   int i;
@@ -1781,26 +1796,26 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
      the two initializers DOES pin `li $s3,-1` to the oracle position (2 -> 1) but leaves the
      blez slot a bare nop (382/381) -- it blocks the backward scan without supplying the
      oracle's slot insn.  Not retained; the j=0 hoist subsumes it (PASS with the fence removed). */
-  if (newObj->active != 0) {
-    if (newObj->simOptz != 0) {
-      Physics_TestForBarrierCollision((Car_tObj *)newObj);
-    }
-    else {
-      if (0 < (newObj->collision).disableCollisionTimer) {
-        (newObj->collision).disableCollisionTimer = (newObj->collision).disableCollisionTimer - 1;
-      }
-      if (((newObj->collision).disableCollisionTimer == 0) &&
-          ((newObj->groundSurfaceType & 0x40) != 0)) {
-        int i;
-        int numObjs;
-        int fixedRadius;
-        Object_tSimObjList objList;
-        coorddef pos;
-        int dist;
+  if (newObj->active == 0) return;
+  if (newObj->simOptz != 0) {
+    Physics_TestForBarrierCollision((Car_tObj *)newObj);
+    return;
+  }
+  if (0 < (newObj->collision).disableCollisionTimer) {
+    (newObj->collision).disableCollisionTimer = (newObj->collision).disableCollisionTimer - 1;
+  }
+  if ((newObj->collision).disableCollisionTimer == 0) {
+    if ((newObj->groundSurfaceType & 0x40) != 0) {
+      int i;
+      int numObjs;
+      int fixedRadius;
+      Object_tSimObjList objList;
+      coorddef pos;
+      int dist;
 
+      {
         Object_InitCollisionCheckLoop(&newObj->simRoadInfo,&objList,&numObjs);
-        i = 0;
-        while (i < numObjs) {
+        for (i = 0; i < numObjs; i = i + 1) {
           coorddef pointList[3];
           int closestDist = 0xA0000;
           int closestPoint = -1;
@@ -1825,134 +1840,138 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
               } while (j < numPoints);
             }
           }
-          if (closestPoint < 0) goto nextObj;
-          if (Collide_CheckAccuratePointRadiusCollision(newObj,&pointList[closestPoint],fixedRadius) == 0)
-            goto nextObj;
-          {
-            int signCase;
-            signCase = Object_CheckCollisionResults(&objList,i,newObj);
-            if (signCase == 0) goto nextObj;
-            Object_GetRadiusCollisionData(&objList,i,&pos,&fixedRadius);
-            if (signCase == 1) {
-              coorddef normal;
-              coorddef samplePoint;
-              int impulse;
+          if (closestPoint >= 0) {
+            if (Collide_CheckAccuratePointRadiusCollision(newObj,&pointList[closestPoint],fixedRadius) != 0) {
+              int signCase;
+              signCase = Object_CheckCollisionResults(&objList,i,newObj);
+              if (signCase != 0) {
+                Object_GetRadiusCollisionData(&objList,i,&pos,&fixedRadius);
+                switch (signCase) {
+                case 1:
+                  {
+                    coorddef normal;
+                    coorddef samplePoint;
+                    int impulse;
 
-              normal.y = 0;
-              normal.x = (newObj->position).x - pos.x;
-              normal.z = (newObj->position).z - pos.z;
-              Math_NormalizeShortVector(&normal);
-              impulse = 0;
-              samplePoint.x = ((fixedRadius / 256) * normal.x) / 256;
-              samplePoint.y = ((fixedRadius / 256) * normal.y) / 256;
-              samplePoint.z = ((fixedRadius / 256) * normal.z) / 256;
-              samplePoint.x = samplePoint.x + pos.x;
-              samplePoint.z = samplePoint.z + pos.z;
-              samplePoint.y = samplePoint.y + pos.y;
-              if (0x280000 < newObj->speedXZ) {
+                    normal.y = 0;
+                    normal.x = (newObj->position).x - pos.x;
+                    normal.z = (newObj->position).z - pos.z;
+                    Math_NormalizeShortVector(&normal);
+                    impulse = 0;
+                    samplePoint.x = ((fixedRadius / 256) * normal.x) / 256;
+                    samplePoint.y = ((fixedRadius / 256) * normal.y) / 256;
+                    samplePoint.z = ((fixedRadius / 256) * normal.z) / 256;
+                    samplePoint.x = samplePoint.x + pos.x;
+                    samplePoint.z = samplePoint.z + pos.z;
+                    samplePoint.y = samplePoint.y + pos.y;
+                    if (0x280000 < newObj->speedXZ) {
                 /* MATCH: double-compute CSE keeps the sll in a temp + copy (oracle shape) */
-                if (0x960000 < newObj->speedXZ << 1) {
-                  impulse = 0x960000;
-                }
-                else {
-                  impulse = newObj->speedXZ << 1;
-                }
-              }
-              else if (0x190000 < newObj->speedXZ) {
-                impulse = 0x1E0000 < newObj->speedXZ ? newObj->speedXZ : 0x1E0000;
-              }
-              else {
+                      if (0x960000 < newObj->speedXZ << 1) {
+                        impulse = 0x960000;
+                      }
+                      else {
+                        impulse = newObj->speedXZ << 1;
+                      }
+                    }
+                    else if (0x190000 < newObj->speedXZ) {
+                      impulse = 0x1E0000 < newObj->speedXZ ? newObj->speedXZ : 0x1E0000;
+                    }
+                    else {
                 /* MATCH: oracle stores the signCase register (sw s1) - value is 1 on this path */
-                frictionLess = signCase;
-              }
-              Collide_TestWithPlane(newObj,&normal,&samplePoint);
-              frictionLess = 0;
-              Newton_DoPostBarrierCollisionHandling(newObj,normal);
-              (newObj->collision).impulse = impulse;
-              (newObj->collision).collided = 1;
-              (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
-              if ((newObj->collision).impulse == 0) goto nextObj; /* MATCH: read-back CSEs to reg copy */
-              (newObj->collision).sfxType = 0x50001;
-              (newObj->collision).collisionPoint = newObj->position;
-              i = i + 1;
-              continue;
-            }
-            if (signCase == 2) {
-              if (0x20000 < newObj->speedXZ) {
-                (newObj->collision).impulse = 0xF0000;
-                (newObj->collision).sfxType = 0x60006;
-                (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
-                (newObj->collision).collisionPoint = newObj->position;
-                if (Force_IsForceOn((Car_tObj *)newObj) != 0) {
-                  Force_HitSign((Car_tObj *)newObj);
+                      frictionLess = signCase;
+                    }
+                    Collide_TestWithPlane(newObj,&normal,&samplePoint);
+                    frictionLess = 0;
+                    Newton_DoPostBarrierCollisionHandling(newObj,normal);
+                    (newObj->collision).impulse = impulse;
+                    (newObj->collision).collided = 1;
+                    (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
+                    if ((newObj->collision).impulse == 0) goto nextObj; /* MATCH: read-back CSEs to reg copy */
+                  }
+                  (newObj->collision).sfxType = 0x50001;
+                  (newObj->collision).collisionPoint = newObj->position;
+                  continue;
+                default:
+                  if (signCase == 2) {
+                    if (0x20000 < newObj->speedXZ) {
+                      (newObj->collision).impulse = 0xF0000;
+                      (newObj->collision).sfxType = 0x60006;
+                      (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
+                      (newObj->collision).collisionPoint = newObj->position;
+                      if (Force_IsForceOn((Car_tObj *)newObj) != 0) {
+                        Force_HitSign((Car_tObj *)newObj);
+                      }
+                    }
+                  }
+                  else if (signCase == -1) {
+                    (newObj->collision).impulse = 0xF0000;
+                    (newObj->collision).sfxType = 0x60005;
+                    (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
+                    (newObj->collision).collisionPoint = newObj->position;
+                    if (Force_IsForceOn((Car_tObj *)newObj) != 0) {
+                      Force_HitSign((Car_tObj *)newObj);
+                    }
+                  }
+                  break;
                 }
-              }
-            }
-            else if (signCase == -1) {
-              (newObj->collision).impulse = 0xF0000;
-              (newObj->collision).sfxType = 0x60005;
-              (newObj->collision).otherObj = (BO_tNewtonObj *)0x0;
-              (newObj->collision).collisionPoint = newObj->position;
-              if (Force_IsForceOn((Car_tObj *)newObj) != 0) {
-                Force_HitSign((Car_tObj *)newObj);
               }
             }
           }
 nextObj:
-          i = i + 1;
+          ;
         }
-      }
-      if ((newObj->groundSurfaceType & 0x80) != 0) {
-        Newton_TestForUndrivableSurfaces(newObj);
-      }
-      if (newObj->flightTime != 0) {
-        Physics_TestForBarrierCollision((Car_tObj *)newObj);
-      }
-      if ((newObj->collision).disableCollisionTimer == 0) {
-        i = 0;
-        Collide_gRegistry[Collide_gNumRegistered] = newObj;
-        if (0 < Collide_gNumRegistered) {
-          do {
-            otherObj = Collide_gRegistry[i];
-            /* MATCH: ABS-macro-in-compare (no diff local, per SYM): sum > ((d>0)?d:-d);
-               fold turns -(a-b) into b-a giving the oracle's reversed subu */
-            if (newObj->dimensionRadius + otherObj->dimensionRadius >
-                (((newObj->position).z - (otherObj->position).z > 0) ?
-                 (newObj->position).z - (otherObj->position).z :
-                 -((newObj->position).z - (otherObj->position).z))) {
-              if (newObj->dimensionRadius + otherObj->dimensionRadius >
-                  (((newObj->position).x - (otherObj->position).x > 0) ?
-                   (newObj->position).x - (otherObj->position).x :
-                   -((newObj->position).x - (otherObj->position).x))) {
-                if (newObj->dimensionRadius + otherObj->dimensionRadius >
-                    (((newObj->position).y - (otherObj->position).y > 0) ?
-                     (newObj->position).y - (otherObj->position).y :
-                     -((newObj->position).y - (otherObj->position).y))) {
-                  (newObj->angularVel).x = fixedmult(0x6487e,(newObj->angularVel).x);
-                  (newObj->angularVel).y = fixedmult(0x6487e,(newObj->angularVel).y);
-                  (newObj->angularVel).z = fixedmult(0x6487e,(newObj->angularVel).z);
-                  (otherObj->angularVel).x = fixedmult(0x6487e,(otherObj->angularVel).x);
-                  (otherObj->angularVel).y = fixedmult(0x6487e,(otherObj->angularVel).y);
-                  (otherObj->angularVel).z = fixedmult(0x6487e,(otherObj->angularVel).z);
-                  Collide_CheckForCollisionBetween(newObj,otherObj);
-                  (newObj->angularVel).x = fixedmult(0x28be,(newObj->angularVel).x);
-                  (newObj->angularVel).y = fixedmult(0x28be,(newObj->angularVel).y);
-                  (newObj->angularVel).z = fixedmult(0x28be,(newObj->angularVel).z);
-                  (otherObj->angularVel).x = fixedmult(0x28be,(otherObj->angularVel).x);
-                  (otherObj->angularVel).y = fixedmult(0x28be,(otherObj->angularVel).y);
-                  (otherObj->angularVel).z = fixedmult(0x28be,(otherObj->angularVel).z);
-                  Collide_LimitAngularVel(newObj);
-                  Collide_LimitAngularVel(otherObj);
-                }
-              }
-            }
-            i = i + 1;
-          } while (i < Collide_gNumRegistered);
-        }
-        __asm__("" : : "r"(i));
-        Collide_gNumRegistered = Collide_gNumRegistered + 1;
       }
     }
+  }
+  if ((newObj->groundSurfaceType & 0x80) != 0) {
+    Newton_TestForUndrivableSurfaces(newObj);
+  }
+  if (newObj->flightTime != 0) {
+    Physics_TestForBarrierCollision((Car_tObj *)newObj);
+  }
+  if ((newObj->collision).disableCollisionTimer == 0) {
+    i = 0;
+    Collide_gRegistry[Collide_gNumRegistered] = newObj;
+    if (0 < Collide_gNumRegistered) {
+      do {
+        otherObj = Collide_gRegistry[i];
+            /* MATCH: ABS-macro-in-compare (no diff local, per SYM): sum > ((d>0)?d:-d);
+               fold turns -(a-b) into b-a giving the oracle's reversed subu */
+        if (newObj->dimensionRadius + otherObj->dimensionRadius >
+        (((newObj->position).z - (otherObj->position).z > 0) ?
+        (newObj->position).z - (otherObj->position).z :
+        -((newObj->position).z - (otherObj->position).z))) {
+          if (newObj->dimensionRadius + otherObj->dimensionRadius >
+          (((newObj->position).x - (otherObj->position).x > 0) ?
+          (newObj->position).x - (otherObj->position).x :
+          -((newObj->position).x - (otherObj->position).x))) {
+            if (newObj->dimensionRadius + otherObj->dimensionRadius >
+            (((newObj->position).y - (otherObj->position).y > 0) ?
+            (newObj->position).y - (otherObj->position).y :
+            -((newObj->position).y - (otherObj->position).y))) {
+              (newObj->angularVel).x = fixedmult(0x6487e,(newObj->angularVel).x);
+              (newObj->angularVel).y = fixedmult(0x6487e,(newObj->angularVel).y);
+              (newObj->angularVel).z = fixedmult(0x6487e,(newObj->angularVel).z);
+              (otherObj->angularVel).x = fixedmult(0x6487e,(otherObj->angularVel).x);
+              (otherObj->angularVel).y = fixedmult(0x6487e,(otherObj->angularVel).y);
+              (otherObj->angularVel).z = fixedmult(0x6487e,(otherObj->angularVel).z);
+              Collide_CheckForCollisionBetween(newObj,otherObj);
+              (newObj->angularVel).x = fixedmult(0x28be,(newObj->angularVel).x);
+              (newObj->angularVel).y = fixedmult(0x28be,(newObj->angularVel).y);
+              (newObj->angularVel).z = fixedmult(0x28be,(newObj->angularVel).z);
+              (otherObj->angularVel).x = fixedmult(0x28be,(otherObj->angularVel).x);
+              (otherObj->angularVel).y = fixedmult(0x28be,(otherObj->angularVel).y);
+              (otherObj->angularVel).z = fixedmult(0x28be,(otherObj->angularVel).z);
+              Collide_LimitAngularVel(newObj);
+              Collide_LimitAngularVel(otherObj);
+            }
+          }
+        }
+        i = i + 1;
+      } while (i < Collide_gNumRegistered);
+    }
+    __asm__("" : : "r"(i));
+    Collide_gNumRegistered = Collide_gNumRegistered + 1;
   }
   return;
 }

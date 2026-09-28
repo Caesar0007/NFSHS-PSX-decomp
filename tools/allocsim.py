@@ -153,7 +153,7 @@ def parse_ever_live(path, fn):
     return {int(x) for x in RE_HARDREG.findall(sec) if int(x) < FIRST_PSEUDO}
 
 
-def parse_copy_prefs(path, fn):
+def parse_copy_prefs(path, fn, order=None, conflicts=None):
     sec = _section(open(path, errors='replace').read(), fn)
     out = {}
     for a, b in RE_COPY.findall(sec):
@@ -165,6 +165,38 @@ def parse_copy_prefs(path, fn):
             out.setdefault(x, set()).add(y)
         elif y >= FIRST_PSEUDO and x < FIRST_PSEUDO:
             out.setdefault(y, set()).add(x)
+    # 2026-09-28: global.c:776 expand_preferences merges COPY preferences
+    # for a dying source in a non-conflicting allocno-to-allocno copy.
+    # Physics_Real insn1295 copies p332 -> p348 at p332's death; omitting
+    # this loses a1's copy priority and cascades into p344's wrong handout.
+    # Backup: tools/allocsim.py.bak-pre-copydeath-20260928. Diagnostic only:
+    # never change compiler output or use a final register as a forced answer.
+    # The printed greg preferences already contain the ordinary union, but
+    # do not expose this copy subset. Replay in RTL order, not to a fixed point.
+    if order is not None and conflicts is not None:
+        allocnos = set(order)
+        for insn in re.split(
+                r'\n(?=\((?:insn|jump_insn|call_insn|note|code_label|barrier)\b)', sec):
+            copies = RE_COPY.findall(insn)
+            # This bounded recovery handles pure register single_sets only.
+            # Arithmetic/subreg preferences remain distinct from copy prefs.
+            if len(copies) != 1 or len(re.findall(r'\(set\s', insn)) != 1:
+                continue
+            dest, src = (RE_REGBODY.match(x.strip()) for x in copies[0])
+            if not dest or not src:
+                continue
+            x, y = int(dest.group(1)), int(src.group(1))
+            if x not in allocnos or y not in allocnos:
+                continue
+            if not re.search(r'\(expr_list:REG_DEAD\s+\(reg[/\w]*:\w+ '
+                             + str(y) + r'(?:\s|\))', insn):
+                continue
+            if y in conflicts.get(x, {}).get('allocnos', ()) or \
+                    x in conflicts.get(y, {}).get('allocnos', ()):
+                continue
+            merged = out.get(x, set()) | out.get(y, set())
+            out[x] = set(merged)
+            out[y] = set(merged)
     return out
 
 
@@ -310,9 +342,8 @@ class Sim:
 
         # global.c:986-1057 -- copy-preference then preference refinement.
         # The .greg dump prints hard_reg_preferences (already pruned); it does
-        # NOT print hard_reg_copy_preferences, but both blocks do the same
-        # thing on MIPS (every GP reg is GR_REGS so the same-class test is
-        # always true), so applying the printed set once is equivalent.
+        # NOT print hard_reg_copy_preferences. The recovered copy subset
+        # wins before the ordinary union, even though GP classes agree.
         if best >= 0:
             allp = set(self.prefs.get(p, ()))
             cpy = set(self.copy.get(p, ())) & allp
@@ -431,7 +462,7 @@ def main():
     args = sys.argv[4:]
     L = parse_lreg(lreg, fn)
     order, conf, prefs, disp = parse_greg(greg, fn)
-    sim = Sim(L, order, conf, prefs, disp, parse_copy_prefs(lreg, fn),
+    sim = Sim(L, order, conf, prefs, disp, parse_copy_prefs(lreg, fn, order, conf),
               parse_ever_live(lreg, fn))
 
     override = {}

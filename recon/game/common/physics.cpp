@@ -377,7 +377,13 @@ void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef bar
   return;
 }
 
-/* ---- Physics_DoBarrierCheck__FP8Car_tObj  [PHYSICS.CPP:761-932] SLD-VERIFIED ---- */
+/* ---- Physics_DoBarrierCheck__FP8Car_tObj  [PHYSICS.CPP:761-932] scopes restored; source/SLD review open ---- */
+/* 2026-09-28 SOURCE RECEIPT: real sibling calculation regions and the
+   no-collision early return reproduce all ten retail block tuples at358/358.
+   r2/r3 can own the loaded signed bytes and shift in place: raw2/raw3 are
+   removed without replacement objects or fences. wallType now owns the actual
+   boundary classification stored to currentWallType, restoring its v0 record.
+   Other carriers and original statement/SLD spelling remain unresolved. */
 /* ==== 2026-08-10 MOBILE-TWIN CROSS-CHECK (NFSU2-mobile sub_5046C6, x86; extraction at
  * scratchpad/mobile_DoBarrierCheck.c; VA map in memory reference-nfs4-mobile-nfsu2) ====
  * STRUCTURE CONFIRMED 1:1: every block of this body corresponds to the mobile twin
@@ -431,94 +437,91 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
 
   diff = 0;
   slice = (carObj->N).simRoadInfo.slice;
-  {
-    /* SYM-CODEGEN-CARRIER: x1raw.  Reloading right.x in the later product adds
-       one instruction and changes its surrounding handout (359/358, 27 diffs). */
-    int x1raw;
-    /* SYM-CODEGEN-CARRIER: centerZ.  Merging this live range with centerKeep
-       retains size but changes 64 register/schedule positions. */
-    /* SYM-CODEGEN-CARRIER: centerX.  Inlining the slice-center access preserves
-       size but moves its load, leaving two detailed diffs. */
-    int centerX;
-    /* SYM-CODEGEN-CARRIER: centerY.  Its direct slice-center expression has the
-       same unchanged-size, two-diff moved-load result. */
-    int centerY;
-    /* SYM-CODEGEN-CARRIER: positionX.  Direct field use with no alias-only
-       fence keeps 358 instructions but recolors/schedules 42 positions. */
-    /* SYM-CODEGEN-CARRIER: positionY.  Its direct field form independently
-       preserves size but reproduces the same 42-diff allocation shift. */
-    /* SYM-CODEGEN-CARRIER: positionZ.  Direct field use moves its load past
-       the slice-address fences and produces 54 diffs at unchanged size. */
-    int positionZ;
-    /* SYM-CODEGEN-CARRIER: linearZ.  Direct field use moves its load and adds
-       a nop (359/358, three diffs); load-first ordering also reverses the addu
-       operands (five diffs). */
-    /* SYM-CODEGEN-CARRIER: velocityX.  Directly storing the expression into
-       vel_b.x keeps 358 instructions but changes 16 allocation positions. */
-    /* SYM-CODEGEN-CARRIER: velocityZ.  Directly storing into vel_b.z while
-       removing the register-only uses keeps size but produces 68 diffs. */
-    int velocityZ;
-    /* SYM-CODEGEN-CARRIER: centerKeep.  Reusing centerZ keeps 358 instructions
-       but changes the x3 multiply live range and produces 64 detailed diffs. */
+  /* SYM-CODEGEN-CARRIER: x1raw.  Reloading right.x in the later product adds
+     one instruction and changes its surrounding handout (359/358, 27 diffs). */
+  int x1raw;
+  /* SYM-CODEGEN-CARRIER: centerZ.  Merging this live range with centerKeep
+     retains size but changes 64 register/schedule positions. */
+  /* SYM-CODEGEN-CARRIER: centerX.  Inlining the slice-center access preserves
+     size but moves its load, leaving two detailed diffs. */
+  int centerX;
+  /* SYM-CODEGEN-CARRIER: centerY.  Its direct slice-center expression has the
+     same unchanged-size, two-diff moved-load result. */
+  int centerY;
+  /* SYM-CODEGEN-CARRIER: positionX.  Direct field use with no alias-only
+     fence keeps 358 instructions but recolors/schedules 42 positions. */
+  /* SYM-CODEGEN-CARRIER: positionY.  Its direct field form independently
+     preserves size but reproduces the same 42-diff allocation shift. */
+  /* SYM-CODEGEN-CARRIER: positionZ.  Direct field use moves its load past
+     the slice-address fences and produces 54 diffs at unchanged size. */
+  int positionZ;
+  /* SYM-CODEGEN-CARRIER: linearZ.  Direct field use moves its load and adds
+     a nop (359/358, three diffs); load-first ordering also reverses the addu
+     operands (five diffs). */
+  /* SYM-CODEGEN-CARRIER: velocityX.  Directly storing the expression into
+     vel_b.x keeps 358 instructions but changes 16 allocation positions. */
+  /* SYM-CODEGEN-CARRIER: velocityZ.  Directly storing into vel_b.z while
+     removing the register-only uses keeps size but produces 68 diffs. */
+  int velocityZ;
+  /* SYM-CODEGEN-CARRIER: centerKeep.  Reusing centerZ keeps 358 instructions
+     but changes the x3 multiply live range and produces 64 detailed diffs. */
 
-    {
+  {
     int r1;
     int r2;
     int r3;
-    /* SYM-CODEGEN-CARRIER: raw1.  Direct signed-byte shifts into r1/r2/r3
-       add two instructions and change 14 detailed positions (360/358). */
+    /* SOURCE-RECOVERY REVIEW: raw1 and its pre-existing read-only fence
+       remain unrecorded. The earlier grouped shift trial was360/358,14diffs;
+       it did not prove that raw2/raw3 were needed (both are now removed).
+       Original raw1 spelling/object necessity remains unresolved. */
     int raw1;
-    /* SYM-CODEGEN-CARRIER: raw2.  See the grouped direct-shift receipt above. */
-    int raw2;
-    /* SYM-CODEGEN-CARRIER: raw3.  See the grouped direct-shift receipt above. */
-    int raw3;
 
     raw1 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,0);
-    raw3 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,2);
+    r3 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,2);
     r1 = raw1 << 9;
     __asm__("" : : "r"(raw1), "r"(raw1));
-    raw2 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,1);
+    r2 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,1);
     collide = diff;
     right.x = r1;
     __asm__("" : "+m"(right.x));
     x1raw = right.x;
-    r3 = raw3 << 9;
+    r3 <<= 9;
     right.z = r3;
-    r2 = raw2 << 9;
+    r2 <<= 9;
     right.y = r2;
     __asm__("" : "+m"(right.y), "+m"(right.z));
-    }
+  }
 
-    centerX = PHYSICS_SLICE_CENTER(slice,0);
-    __asm__("" : : "r"(centerX), "r"(centerX));
-    const int positionX = (carObj->N).position.x;
-    vel_b.x = (positionX + ((carObj->N).linearVel.x >> 5) - centerX);
-    __asm__("" : : "r"(positionX));
-    centerY = PHYSICS_SLICE_CENTER(slice,1);
-    __asm__("" : : "r"(centerY), "r"(centerY));
-    const int positionY = (carObj->N).position.y;
-    vel_b.y = positionY + ((carObj->N).linearVel.y >> 5) - centerY;
-    __asm__("" : : "r"(positionY));
-    const int centerZ = PHYSICS_SLICE_CENTER(slice,2);
-    const int linearZ = (carObj->N).linearVel.z;
-    positionZ = (carObj->N).position.z;
-    __asm__("" : : "r"(PHYSICS_SLICE_ADDR(slice)),
-                 "r"(PHYSICS_SLICE_ADDR(slice)),
-                 "r"(PHYSICS_SLICE_ADDR(slice)),
-                 "r"(PHYSICS_SLICE_ADDR(slice)),
-                 "r"(PHYSICS_SLICE_ADDR(slice)),
-                 "r"(PHYSICS_SLICE_ADDR(slice)),
-                 "r"(PHYSICS_SLICE_ADDR(slice)));
-    velocityZ = positionZ + (linearZ >> 5) - centerZ;
-    const int centerKeep = centerZ;
-    __asm__("" : : "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
-                 "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
-                 "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
-                 "r"(velocityZ));
-    __asm__("" : : "r"(velocityZ), "r"(velocityZ), "r"(velocityZ));
-    __asm__("" : : "r"(positionZ));
-    vel_b.z = velocityZ;
-    {
+  centerX = PHYSICS_SLICE_CENTER(slice,0);
+  __asm__("" : : "r"(centerX), "r"(centerX));
+  const int positionX = (carObj->N).position.x;
+  vel_b.x = (positionX + ((carObj->N).linearVel.x >> 5) - centerX);
+  __asm__("" : : "r"(positionX));
+  centerY = PHYSICS_SLICE_CENTER(slice,1);
+  __asm__("" : : "r"(centerY), "r"(centerY));
+  const int positionY = (carObj->N).position.y;
+  vel_b.y = positionY + ((carObj->N).linearVel.y >> 5) - centerY;
+  __asm__("" : : "r"(positionY));
+  const int centerZ = PHYSICS_SLICE_CENTER(slice,2);
+  const int linearZ = (carObj->N).linearVel.z;
+  positionZ = (carObj->N).position.z;
+  __asm__("" : : "r"(PHYSICS_SLICE_ADDR(slice)),
+               "r"(PHYSICS_SLICE_ADDR(slice)),
+               "r"(PHYSICS_SLICE_ADDR(slice)),
+               "r"(PHYSICS_SLICE_ADDR(slice)),
+               "r"(PHYSICS_SLICE_ADDR(slice)),
+               "r"(PHYSICS_SLICE_ADDR(slice)),
+               "r"(PHYSICS_SLICE_ADDR(slice)));
+  velocityZ = positionZ + (linearZ >> 5) - centerZ;
+  const int centerKeep = centerZ;
+  __asm__("" : : "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
+               "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
+               "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
+               "r"(velocityZ));
+  __asm__("" : : "r"(velocityZ), "r"(velocityZ), "r"(velocityZ));
+  __asm__("" : : "r"(positionZ));
+  vel_b.z = velocityZ;
+  {
     int x1;
     int x2;
     /* SYM-CODEGEN-CARRIER: x3factor.  Together with x3left this stages both
@@ -538,9 +541,9 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     x3 = x3left * x3factor;
     x_relRoad = x1 + x2 + x3;
     (carObj->N).xRelRoadCenter = x_relRoad;
-    }
+  }
 
-    {
+  {
     int r1;
     int r2;
     int r3;
@@ -569,70 +572,69 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
       (0 < ((carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100))) ?
       ((carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100)) :
       -((carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100));
-    }
-    if (x_relRoad < carCollisionWidth - PHYSICS_SLICE_LEFT_DRIVE(slice) * 0x100 -
-                        carObj->extraWallCollisionAllowance) {
-      collide = -1;
-      diff = carCollisionWidth - PHYSICS_SLICE_LEFT_DRIVE(slice) * 0x100 -
-             x_relRoad;
-      currentWallType = 1;
-    }
-    if (PHYSICS_SLICE_RIGHT_DRIVE(slice) * 0x100 - carCollisionWidth +
-            carObj->extraWallCollisionAllowance < x_relRoad) {
-      collide = 1;
-      diff = x_relRoad -
-             (PHYSICS_SLICE_RIGHT_DRIVE(slice) * 0x100 - carCollisionWidth);
-      currentWallType = 1;
-    }
   }
-  if (collide != 0) {
-    if (Force_IsForceOn(carObj) != 0) {
-      Force_HitWall(0x1e0000);
-    }
-    {
-      coorddef widthVector;
+  if (x_relRoad < carCollisionWidth - PHYSICS_SLICE_LEFT_DRIVE(slice) * 0x100 -
+                      carObj->extraWallCollisionAllowance) {
+    collide = -1;
+    diff = carCollisionWidth - PHYSICS_SLICE_LEFT_DRIVE(slice) * 0x100 -
+           x_relRoad;
+    wallType = 1;
+    currentWallType = wallType;
+  }
+  if (PHYSICS_SLICE_RIGHT_DRIVE(slice) * 0x100 - carCollisionWidth +
+          carObj->extraWallCollisionAllowance < x_relRoad) {
+    collide = 1;
+    diff = x_relRoad -
+           (PHYSICS_SLICE_RIGHT_DRIVE(slice) * 0x100 - carCollisionWidth);
+    wallType = 1;
+    currentWallType = wallType;
+  }
+  if (collide == 0) return 0;
+  if (Force_IsForceOn(carObj) != 0) {
+    Force_HitWall(0x1e0000);
+  }
+  {
+    coorddef widthVector;
 
-      widthVector.x = ((carObj->N).dimension.x / 0x100 * right.x) / 0x100;
-      widthVector.y = ((carObj->N).dimension.x / 0x100 * right.y) / 0x100;
-      widthVector.z = ((carObj->N).dimension.x / 0x100 * right.z) / 0x100;
-      if (0 < collide) {
-        (carObj->N).collision.collisionPoint.x = (carObj->N).position.x + widthVector.x;
-        (carObj->N).collision.collisionPoint.y = (carObj->N).position.y + widthVector.y;
-        (carObj->N).collision.collisionPoint.z = (carObj->N).position.z + widthVector.z;
-      }
-      else {
-        (carObj->N).collision.collisionPoint.x = (carObj->N).position.x - widthVector.x;
-        (carObj->N).collision.collisionPoint.y = (carObj->N).position.y - widthVector.y;
-        (carObj->N).collision.collisionPoint.z = (carObj->N).position.z - widthVector.z;
-      }
-    }
-    if (((carObj->N).objAltitude >= 0x999a) ||
-        ((carObj->N).orientationToGround.y <= 0xe665) ||
-        ((carObj->N).flightTime != 0)) {
-      if (collide < 0) {
-        normal.x = right.x;
-        normal.y = right.y;
-        normal.z = right.z;
-      }
-      else {
-        normal.x = -right.x;
-        normal.y = -right.y;
-        normal.z = -right.z;
-      }
-      Collide_TestWithPlane(&carObj->N,&normal,&(carObj->N).position);
-      if ((carObj->N).collision.impulse != 0) {
-        (carObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
-        (carObj->N).collision.sfxType = currentWallType | 0x40000;
-      }
+    widthVector.x = ((carObj->N).dimension.x / 0x100 * right.x) / 0x100;
+    widthVector.y = ((carObj->N).dimension.x / 0x100 * right.y) / 0x100;
+    widthVector.z = ((carObj->N).dimension.x / 0x100 * right.z) / 0x100;
+    if (0 < collide) {
+      (carObj->N).collision.collisionPoint.x = (carObj->N).position.x + widthVector.x;
+      (carObj->N).collision.collisionPoint.y = (carObj->N).position.y + widthVector.y;
+      (carObj->N).collision.collisionPoint.z = (carObj->N).position.z + widthVector.z;
     }
     else {
-      wallType = Physics_AttenuateVelocity(
-          carObj,collide * __builtin_abs(diff * 2),&(carObj->N).roadMatrix);
-      Physics_CorrectPostCollisionYaw(carObj,wallType,normal);
+      (carObj->N).collision.collisionPoint.x = (carObj->N).position.x - widthVector.x;
+      (carObj->N).collision.collisionPoint.y = (carObj->N).position.y - widthVector.y;
+      (carObj->N).collision.collisionPoint.z = (carObj->N).position.z - widthVector.z;
     }
-    return collide;
   }
-  return 0;
+  if (((carObj->N).objAltitude >= 0x999a) ||
+      ((carObj->N).orientationToGround.y <= 0xe665) ||
+      ((carObj->N).flightTime != 0)) {
+    if (collide < 0) {
+      normal.x = right.x;
+      normal.y = right.y;
+      normal.z = right.z;
+    }
+    else {
+      normal.x = -right.x;
+      normal.y = -right.y;
+      normal.z = -right.z;
+    }
+    Collide_TestWithPlane(&carObj->N,&normal,&(carObj->N).position);
+    if ((carObj->N).collision.impulse != 0) {
+      (carObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
+      (carObj->N).collision.sfxType = currentWallType | 0x40000;
+    }
+  }
+  else {
+    wallType = Physics_AttenuateVelocity(
+        carObj,collide * __builtin_abs(diff * 2),&(carObj->N).roadMatrix);
+    Physics_CorrectPostCollisionYaw(carObj,wallType,normal);
+  }
+  return collide;
 }
 
 /* ---- Physics_AutoShift__FP8Car_tObj  [PHYSICS.CPP:938-1038] native SYM exact; SLD unsealed ---- */

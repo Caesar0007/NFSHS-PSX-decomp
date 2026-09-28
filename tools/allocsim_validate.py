@@ -24,7 +24,10 @@ for fn in fns:
         continue
     if not order:
         continue
-    sim = A.Sim(L, order, conf, prefs, disp, A.parse_copy_prefs(lreg, fn), A.parse_ever_live(lreg, fn))
+    # Replay GCC's dying-source copy propagation too (global.c:776).
+    # Backup: tools/allocsim_validate.py.bak-pre-copydeath-20260928.
+    sim = A.Sim(L, order, conf, prefs, disp,
+                A.parse_copy_prefs(lreg, fn, order, conf), A.parse_ever_live(lreg, fn))
     ok, bad, o, got = A.report(sim, None, verbose=False)
     # The .greg "Register dispositions" block is printed by dump_global_regs
     # AFTER reload(), so a pseudo can have been RE-HOMED by reload

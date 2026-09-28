@@ -26,7 +26,8 @@ for t in want_s.split(','):
 
 L = A.parse_lreg(lreg, fn)
 order, conf, prefs, disp = A.parse_greg(greg, fn)
-sim = A.Sim(L, order, conf, prefs, disp, A.parse_copy_prefs(lreg, fn),
+# Include global.c's copy-death propagation; pre-change backup next to tool.
+sim = A.Sim(L, order, conf, prefs, disp, A.parse_copy_prefs(lreg, fn, order, conf),
             A.parse_ever_live(lreg, fn))
 pool = [int(x) for x in pool_s.split(',')] if pool_s else list(order)
 

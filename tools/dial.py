@@ -59,8 +59,9 @@ try:
         try:
             L = A.parse_lreg(i + ".lreg", sig)
             order, conf, prefs, disp = A.parse_greg(i + ".greg", sig)
+            # Include copy-death propagation; pre-change backup next to tool.
             sim = A.Sim(L, order, conf, prefs, disp,
-                        A.parse_copy_prefs(i + ".lreg", sig),
+                        A.parse_copy_prefs(i + ".lreg", sig, order, conf),
                         A.parse_ever_live(i + ".lreg", sig))
             pri = sim.priorities(None)
             show = pseudos or [p for p in order]

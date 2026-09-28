@@ -1,6 +1,7 @@
 /* game/common/physics.cpp -- RECONSTRUCTED (NFS4 PSX car physics engine; C++ TU)
  *   22 fns: SimCar/Real driver + tire forces, traction circle, accel, autoshift, barrier, RS control.
- *   GTE-free (fixed-point + eaclib math). Full SYM-locals applied.
+ *   GTE-free (fixed-point + eaclib math). Remaining local/scope/SLD restoration
+ *   is tracked in sym-match.md; declarations alone are not a source seal.
  */
 #include "physics_types.h"
 #include "physics_externs.h"
@@ -221,10 +222,11 @@ void Physics_CheckGamedata(void)
 }
 
 
-/* ---- Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef  [PHYSICS.CPP:591-659] SLD-VERIFIED ---- */
+/* ---- Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef  [PHYSICS.CPP:591-659] native SYM exact; SLD unsealed ---- */
 int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
 
 {
+  coorddef vel_b;
   /* ORIGINAL-NAME-RECOVERED: vy -- the symbol-bearing NFS2
      Physics_AttenuateVelocity records this transform component as `vy`.
      Inlining the one-use value changes retail allocation to 109 diffs and
@@ -236,7 +238,6 @@ int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
      retail allocation to 78 diffs and grows 279 to 293 instructions. */
   int vz;
   int absvelbx;
-  coorddef vel_b;
   matrixtdef transposeMat;
 
   vel_b.x = force;
@@ -299,23 +300,10 @@ int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
                              fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[7]) +
                              fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[8]);
 
-  {
-    /* ORIGINAL-NAME-RECOVERED: x -- the symbol-bearing NFS2 PC
-       Physics_AttenuateVelocity retains nested block locals `x` and `z`
-       under its function record at parent offset 02F5, and its matched source
-       assigns this same absolute-X value to `x`.  Repeating the absolute-x
-       expression preserves 279 instructions but reverses operand/load order
-       and leaves 12 diffs. */
-    int x = (0 <= (carObj->N).linearVel.x) ?
-            (carObj->N).linearVel.x : -(carObj->N).linearVel.x;
-    (carObj->N).speedXZ =
-        (x > ((0 <= (carObj->N).linearVel.z) ?
-              (carObj->N).linearVel.z : -(carObj->N).linearVel.z)) ?
-        x + (((0 <= (carObj->N).linearVel.z) ?
-              (carObj->N).linearVel.z : -(carObj->N).linearVel.z) >> 2) :
-        ((0 <= (carObj->N).linearVel.z) ?
-         (carObj->N).linearVel.z : -(carObj->N).linearVel.z) + (x >> 2);
-  }
+  (carObj->N).speedXZ =
+      (__builtin_abs((carObj->N).linearVel.x) > __builtin_abs((carObj->N).linearVel.z)) ?
+      __builtin_abs((carObj->N).linearVel.x) + (__builtin_abs((carObj->N).linearVel.z) >> 2) :
+      __builtin_abs((carObj->N).linearVel.z) + (__builtin_abs((carObj->N).linearVel.x) >> 2);
   return absvelbx;
 }
 
@@ -647,7 +635,7 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
   return 0;
 }
 
-/* ---- Physics_AutoShift__FP8Car_tObj  [PHYSICS.CPP:938-1038] SLD-VERIFIED ---- */
+/* ---- Physics_AutoShift__FP8Car_tObj  [PHYSICS.CPP:938-1038] native SYM exact; SLD unsealed ---- */
 /* RECEIPT (w59-a2): 73 -> 50, ours 168 -> 173 (oracle 175).  TWO landings:
    (1) ** FIELD-TO-FIELD `lastGear = gear` INSTEAD OF A `char oldGear` LOCAL (73->51,
        +6 insns).  A `char` LOCAL is PROMOTE_MODE'd to SImode, so `char oldGear =
@@ -731,102 +719,96 @@ void Physics_AutoShift(Car_tObj *carObj)
   int SkipLastGear;
   int ShiftPoint;
   int sliding;
-  /* SYM-CODEGEN-CARRIER: lastGearOffset -- absent from retained debug locals,
-     but the function-scope snapshot is the measured allocator lever described
-     above: removing/inlining it leaves 20 diffs, while block scope leaves 46. */
-  int lastGearOffset;
 
   SkipLastGear = 0;
   ShiftPoint = carObj->specs->redline - carObj->specs->redline / 6;
-  if (1 < (u_char)(carObj->control).gear) {
-    if (carObj->RSControl != 0) {
-      ShiftPoint = carObj->specs->redline - carObj->specs->redline / 2;
-    }
-    sliding = (0 <= carObj->slide) ? carObj->slide : -carObj->slide;
-    previousRpm = fixedmult(
-        carObj->specs->velToRpmRatioInv[carObj->specs->numGears - 2],
-        carObj->specs->redline << 0x10);
-    if (carObj->specs->maxSpeed < previousRpm) {
-      SkipLastGear = 1;
-    }
-    lastGearOffset = SkipLastGear + 1;
-    if ((u_char)(carObj->control).gear >=
-        carObj->specs->numGears - lastGearOffset) {
-      nextGear = (u_char)(carObj->control).gear;
-    }
-    else {
-      nextGear = (u_char)(carObj->control).gear + 1;
-    }
-    if ((u_char)(carObj->control).gear <= 2) {
-      previousGear = (u_char)(carObj->control).gear;
-    }
-    else {
-      previousGear = (u_char)(carObj->control).gear - 1;
-    }
-    {
-      int velocity;
+  if ((u_char)(carObj->control).gear <= 1) return;
+  if (carObj->RSControl != 0) {
+    ShiftPoint = carObj->specs->redline - carObj->specs->redline / 2;
+  }
+  sliding = (0 <= carObj->slide) ? carObj->slide : -carObj->slide;
+  previousRpm = fixedmult(
+      carObj->specs->velToRpmRatioInv[carObj->specs->numGears - 2],
+      carObj->specs->redline << 0x10);
+  if (carObj->specs->maxSpeed < previousRpm) {
+    SkipLastGear = 1;
+  }
+  if ((u_char)(carObj->control).gear >=
+      -(SkipLastGear + 1) + carObj->specs->numGears) {
+    nextGear = (u_char)(carObj->control).gear;
+  }
+  else {
+    nextGear = (u_char)(carObj->control).gear + 1;
+  }
+  if ((u_char)(carObj->control).gear <= 2) {
+    previousGear = (u_char)(carObj->control).gear;
+  }
+  else {
+    previousGear = (u_char)(carObj->control).gear - 1;
+  }
+  {
+    int velocity;
 
-      velocity = (carObj->N).speedXZ;
-      if ((carObj->linearVel_ch).z < 0) {
-        velocity = -velocity;
-      }
-      wheelRpm = fixedmult(velocity,
-                           carObj->specs->velToRpmRatio[(u_char)(carObj->control).gear]) /
-                 0x10000;
-      fixedmult(velocity,carObj->specs->velToRpmRatio[nextGear]);
-      previousRpm = fixedmult(velocity,carObj->specs->velToRpmRatio[previousGear]) /
-                    0x10000;
+    velocity = (carObj->N).speedXZ;
+    if ((carObj->linearVel_ch).z < 0) {
+      velocity = -velocity;
     }
-    {
-      if ((0x8000 < gGasRatio) ||
-          (carObj->specs->redline <
-           ((0 <= wheelRpm) ? wheelRpm : -wheelRpm))) {
-        if (ShiftPoint + 500 < wheelRpm) {
-          /* MATCH (W60-A9, 20 -> PASS 175/175): the w45 FOLD-REWRITE ESCAPE.  Retail
-           * computes `SkipLastGear + 1` as its OWN insn in the beqz delay slot
-           * (`addiu $v1,$s6,1`) and subtracts it; every natural spelling of
-           * `numGears - SkipLastGear - 1` (incl. the parenthesised
-           * `numGears - (SkipLastGear + 1)` and `- (1 + SkipLastGear)`) is
-           * reassociated by fold() to `(numGears - SkipLastGear) - 1` = ours'
-           * `subu;addiu -1` pair (20 diffs).  Writing the sum NEGATED FIRST takes
-           * split_tree's varsign=-1 branch, whose rewrite fold never re-folds, so the
-           * `addiu +1` survives.  Do NOT "simplify" this back -- and do NOT reuse the
-           * existing `lastGearOffset` local here either (cse then shares the earlier
-           * computation instead of rematerialising: 47 diffs).  `move_term`
-           * (`gear + SkipLastGear + 1 < numGears`) = 23. */
-          if ((u_char)(carObj->control).gear <
-              -(SkipLastGear + 1) + carObj->specs->numGears) {
-            if (nextGear != (u_char)(carObj->control).gear) {
-              (carObj->control).downShifting = '\0';
-              (carObj->control).lastGear = (carObj->control).gear;
-              (carObj->control).gear = (char)nextGear;
-              (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
-            }
-            return;
+    wheelRpm = fixedmult(velocity,
+                         carObj->specs->velToRpmRatio[(u_char)(carObj->control).gear]) /
+               0x10000;
+    fixedmult(velocity,carObj->specs->velToRpmRatio[nextGear]);
+    previousRpm = fixedmult(velocity,carObj->specs->velToRpmRatio[previousGear]) /
+                  0x10000;
+  }
+  {
+    if ((0x8000 < gGasRatio) ||
+        (carObj->specs->redline <
+         ((0 <= wheelRpm) ? wheelRpm : -wheelRpm))) {
+      if (ShiftPoint + 500 < wheelRpm) {
+        /* MATCH (W60-A9, 20 -> PASS 175/175): the w45 FOLD-REWRITE ESCAPE.  Retail
+         * computes `SkipLastGear + 1` as its OWN insn in the beqz delay slot
+         * (`addiu $v1,$s6,1`) and subtracts it; every natural spelling of
+         * `numGears - SkipLastGear - 1` (incl. the parenthesised
+         * `numGears - (SkipLastGear + 1)` and `- (1 + SkipLastGear)`) is
+         * reassociated by fold() to `(numGears - SkipLastGear) - 1` = ours'
+         * `subu;addiu -1` pair (20 diffs).  Writing the sum NEGATED FIRST takes
+         * split_tree's varsign=-1 branch, whose rewrite fold never re-folds, so the
+           * `addiu +1` survives.  The same direct spelling now replaces the earlier
+           * unrecorded lastGearOffset snapshot (2026-09-28, 175/175 PASS).
+           * Sharing one snapshot across the guards was 47 diffs.  `move_term`
+         * (`gear + SkipLastGear + 1 < numGears`) = 23. */
+        if ((u_char)(carObj->control).gear <
+            -(SkipLastGear + 1) + carObj->specs->numGears) {
+          if (nextGear != (u_char)(carObj->control).gear) {
+            (carObj->control).downShifting = '\0';
+            (carObj->control).lastGear = (carObj->control).gear;
+            (carObj->control).gear = (char)nextGear;
+            (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
           }
-        }
-        if ((previousRpm < ShiftPoint) &&
-            (previousGear != (u_char)(carObj->control).gear)) {
-          (carObj->control).downShifting = '\x01';
-          (carObj->control).lastGear = (carObj->control).gear;
-          (carObj->control).gear = (char)previousGear;
-          (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
+          return;
         }
       }
-      else if ((previousRpm < ShiftPoint) &&
-               (1 < previousGear) &&
-               (sliding < 0x1999) &&
-               (previousGear != (u_char)(carObj->control).gear)) {
+      if ((previousRpm < ShiftPoint) &&
+          (previousGear != (u_char)(carObj->control).gear)) {
         (carObj->control).downShifting = '\x01';
+        (carObj->control).lastGear = (carObj->control).gear;
         (carObj->control).gear = (char)previousGear;
         (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
       }
+    }
+    else if ((previousRpm < ShiftPoint) &&
+             (1 < previousGear) &&
+             (sliding < 0x1999) &&
+             (previousGear != (u_char)(carObj->control).gear)) {
+      (carObj->control).downShifting = '\x01';
+      (carObj->control).gear = (char)previousGear;
+      (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
     }
   }
   return;
 }
 
-/* ---- Physics_RampCarControlValues__FP8Car_tObj  [PHYSICS.CPP:1044-1278] SLD-VERIFIED ---- */
+/* ---- Physics_RampCarControlValues__FP8Car_tObj  [PHYSICS.CPP:1044-1278] SLD/scope review open ---- */
 void Physics_RampCarControlValues(Car_tObj *carObj)
 
 {
@@ -847,158 +829,146 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
     (carObj->N).linearVel.x = (carObj->N).linearVel.x * 0xfe / 0x100;
     (carObj->N).linearVel.y = (carObj->N).linearVel.y * 0xfe / 0x100;
     (carObj->N).linearVel.z = (carObj->N).linearVel.z * 0xfe / 0x100;
-    goto RampCtrl_earlyBrake;
-  }
-  {
-    char inc;
-
-    if (carObj->carInfo->RampGas != 0) {
-      inc = 0x24;
-    }
-    else {
-      inc = 0x30;
-    }
-    diff = (carObj->control).desiredGasLevel - (carObj->control).gasLevel;
-    if (diff >= 0) {
-      (carObj->control).gasLevel += MIN(inc,diff);
-    }
-    else {
-      (carObj->control).gasLevel -= MIN(inc,-diff);
-    }
-  }
-  if (carObj->carInfo->RampBrake != 0) {
-    diff = (carObj->control).desiredBrakeLevel - (carObj->control).brakeLevel;
-    if (diff >= 0) {
-      if (diff < 0x10) {
-        (carObj->control).brakeLevel += diff;
-      }
-      else {
-        (carObj->control).brakeLevel += 0x10;
-      }
-    }
-    else {
-      diff = -diff;
-      if (diff < 0x10) {
-        (carObj->control).brakeLevel -= diff;
-      }
-      else {
-        (carObj->control).brakeLevel -= 0x10;
-      }
-    }
   }
   else {
-    (carObj->control).brakeLevel = (carObj->control).desiredBrakeLevel;
-  }
-  if ((carObj->control).gearShiftTimer > 0) {
-    (carObj->control).gearShiftTimer--;
-  }
-  if (0x200 < PHYSICS_GAME_TICKS) {
-    if (PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) {
-      if ((PHYSICS_GAME_TICKS < 0x208) &&
-         (((PHYSICS_RACE_TYPE != RaceType_HotPursuit && (PHYSICS_RACE_TYPE != RaceType_Id5)) ||
-          (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
-           ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))
-          )))) {
-        (carObj->control).desiredGear = '\x02';
+    {
+      char inc;
+
+      if (carObj->carInfo->RampGas != 0) {
+        inc = 0x24;
       }
       else {
-        if (((carObj->control).desiredGear == (carObj->control).gear) &&
-            ((carObj->stats).finishType == 0)) {
-          if ((carObj->pullOver == 0) && (carObj->blowout == 0)) {
-            if ((((carObj->N).speedXZ < 0) ? -(carObj->N).speedXZ :
-                 (carObj->N).speedXZ) < 0x3333) {
-              if (((u_char)(carObj->control).desiredBrakeLevel > 0x80) &&
-                  ((carObj->control).desiredGasLevel == '\0') &&
-                  ((u_char)(carObj->control).desiredGear >= 2) &&
-                  ((carObj->control).hanno == 0)) {
-                (carObj->control).desiredGear = '\0';
-                (carObj->control).hanno = 1;
-              }
-              else {
-                if ((((((carObj->N).speedXZ < 0) ? -(carObj->N).speedXZ :
-                       (carObj->N).speedXZ) < 0x3333) &&
-                     (0x80 < (u_char)(carObj->control).desiredGasLevel)) &&
-                   (((carObj->control).gear == '\0' && ((carObj->control).hanno != 0)))) {
-                  (carObj->control).desiredGear = '\x02';
-                  (carObj->control).hanno = 0;
+        inc = 0x30;
+      }
+      diff = (carObj->control).desiredGasLevel - (carObj->control).gasLevel;
+      if (diff >= 0) {
+        (carObj->control).gasLevel += MIN(inc,diff);
+      }
+      else {
+        (carObj->control).gasLevel -= MIN(inc,-diff);
+      }
+    }
+    if (carObj->carInfo->RampBrake != 0) {
+      diff = (carObj->control).desiredBrakeLevel - (carObj->control).brakeLevel;
+      if (diff >= 0) {
+        if (diff < 0x10) {
+          (carObj->control).brakeLevel += diff;
+        }
+        else {
+          (carObj->control).brakeLevel += 0x10;
+        }
+      }
+      else {
+        diff = -diff;
+        if (diff < 0x10) {
+          (carObj->control).brakeLevel -= diff;
+        }
+        else {
+          (carObj->control).brakeLevel -= 0x10;
+        }
+      }
+    }
+    else {
+      (carObj->control).brakeLevel = (carObj->control).desiredBrakeLevel;
+    }
+    if ((carObj->control).gearShiftTimer > 0) {
+      (carObj->control).gearShiftTimer--;
+    }
+    if (0x200 < PHYSICS_GAME_TICKS) {
+      if (PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) {
+        if ((PHYSICS_GAME_TICKS < 0x208) &&
+           (((PHYSICS_RACE_TYPE != RaceType_HotPursuit && (PHYSICS_RACE_TYPE != RaceType_Id5)) ||
+            (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
+             ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))
+            )))) {
+          (carObj->control).desiredGear = '\x02';
+        }
+        else {
+          if (((carObj->control).desiredGear == (carObj->control).gear) &&
+              ((carObj->stats).finishType == 0)) {
+            if ((carObj->pullOver == 0) && (carObj->blowout == 0)) {
+              if ((((carObj->N).speedXZ < 0) ? -(carObj->N).speedXZ :
+                   (carObj->N).speedXZ) < 0x3333) {
+                if (((u_char)(carObj->control).desiredBrakeLevel > 0x80) &&
+                    ((carObj->control).desiredGasLevel == '\0') &&
+                    ((u_char)(carObj->control).desiredGear >= 2) &&
+                    ((carObj->control).hanno == 0)) {
+                  (carObj->control).desiredGear = '\0';
+                  (carObj->control).hanno = 1;
+                }
+                else {
+                  if ((((((carObj->N).speedXZ < 0) ? -(carObj->N).speedXZ :
+                         (carObj->N).speedXZ) < 0x3333) &&
+                       (0x80 < (u_char)(carObj->control).desiredGasLevel)) &&
+                     (((carObj->control).gear == '\0' && ((carObj->control).hanno != 0)))) {
+                    (carObj->control).desiredGear = '\x02';
+                    (carObj->control).hanno = 0;
+                  }
                 }
               }
             }
           }
-        }
-        else {
-          (carObj->control).hanno = 0;
+          else {
+            (carObj->control).hanno = 0;
+          }
         }
       }
-    }
-    if ((carObj->control).desiredGear != (carObj->control).gear) {
-      if ((PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) ||
-          (carObj->RSControl != 0)) {
-        if ((u_char)(carObj->control).desiredGear < 2) {
-          (carObj->control).downShifting = '\0';
+      if ((carObj->control).desiredGear != (carObj->control).gear) {
+        if ((PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) ||
+            (carObj->RSControl != 0)) {
+          if ((u_char)(carObj->control).desiredGear < 2) {
+            (carObj->control).downShifting = '\0';
+            (carObj->control).lastGear = (carObj->control).gear;
+            (carObj->control).gear = (carObj->control).desiredGear;
+            (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
+          }
+          else if (((carObj->control).desiredGear == 2) &&
+                   ((u_char)(carObj->control).gear < 2)) {
+            (carObj->control).lastGear = (carObj->control).gear;
+            gear = 2;
+            for (i = 2; i < carObj->specs->numGears; i++) {
+              if (fixedmult(carObj->specs->velToRpmRatioInv[i],
+                            carObj->specs->redline << 0x10) <
+                  (carObj->linearVel_ch).z) {
+                gear = i;
+              }
+            }
+            (carObj->control).downShifting = '\0';
+            (carObj->control).gear = gear;
+            (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
+          }
+        }
+        else {
+          if (((u_char)(carObj->control).desiredGear <
+               (u_char)(carObj->control).gear) &&
+              (1 < (u_char)(carObj->control).desiredGear)) {
+            (carObj->control).downShifting = '\x01';
+          }
+          else {
+            (carObj->control).downShifting = '\0';
+          }
           (carObj->control).lastGear = (carObj->control).gear;
           (carObj->control).gear = (carObj->control).desiredGear;
           (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
         }
-        else if (((carObj->control).desiredGear == 2) &&
-                 ((u_char)(carObj->control).gear < 2)) {
-          (carObj->control).lastGear = (carObj->control).gear;
-          gear = 2;
-          for (i = 2; i < carObj->specs->numGears; i++) {
-            if (fixedmult(carObj->specs->velToRpmRatioInv[i],
-                          carObj->specs->redline << 0x10) <
-                (carObj->linearVel_ch).z) {
-              gear = i;
-            }
-          }
-          (carObj->control).downShifting = '\0';
-          (carObj->control).gear = gear;
-          (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
-        }
-      }
-      else {
-        if (((u_char)(carObj->control).desiredGear <
-             (u_char)(carObj->control).gear) &&
-            (1 < (u_char)(carObj->control).desiredGear)) {
-          (carObj->control).downShifting = '\x01';
-        }
-        else {
-          (carObj->control).downShifting = '\0';
-        }
-        (carObj->control).lastGear = (carObj->control).gear;
-        (carObj->control).gear = (carObj->control).desiredGear;
-        (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
       }
     }
-  }
-RampCtrl_setSteering:
-  if (carObj->carInfo->RampSteering != 0) {
-    int rampIn;
+    if (carObj->carInfo->RampSteering != 0) {
+      int rampIn;
 
-    rampIn = carObj->specs->steeringRamp;
-    diff = (carObj->control).desiredSteering - (carObj->control).steering;
-    if (diff >= 0) {
-      if (diff < rampIn) {
-        (carObj->control).steering += diff;
+      rampIn = carObj->specs->steeringRamp;
+      diff = (carObj->control).desiredSteering - (carObj->control).steering;
+      if (diff >= 0) {
+        (carObj->control).steering += MIN(rampIn,diff);
       }
       else {
-        (carObj->control).steering += rampIn;
+        (carObj->control).steering -= MIN(rampIn,-diff);
       }
     }
     else {
-      diff = -diff;
-      if (diff < rampIn) {
-        (carObj->control).steering -= diff;
-      }
-      else {
-        (carObj->control).steering -= rampIn;
-      }
+      (carObj->control).steering = (carObj->control).desiredSteering;
     }
   }
-  else {
-    (carObj->control).steering = (carObj->control).desiredSteering;
-  }
-RampCtrl_earlyBrake:
   if ((PHYSICS_GAME_TICKS < 0x200) &&
      (((PHYSICS_RACE_TYPE != RaceType_HotPursuit && (PHYSICS_RACE_TYPE != RaceType_Id5)) ||
       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
@@ -1061,38 +1031,27 @@ RampCtrl_earlyBrake:
   return;
 }
 
-/* ---- Physics_FixEngineRpm__FP8Car_tObj  [PHYSICS.CPP:1287-1307] SLD-VERIFIED ---- */
+/* ---- Physics_FixEngineRpm__FP8Car_tObj  [PHYSICS.CPP:1287-1307] source/SLD review open ---- */
 void Physics_FixEngineRpm(Car_tObj *carObj)
 
 {
-  /* MATCH: the SYM block has no locals, so collision.collided is read inline.
-     A byte-identical qtytrace receipt identified transformedZ as global pseudo
-     p88 ($a1, refs 2/live 14) and the final velocity input as p123 ($v1).
-     The nine zero-insn references after the destructive += raise p88 across
-     the exact global-allocator boundary, producing retail's p88=$v1/p123=$a1
-     handout without blocking the retail load/branch schedule.  The smaller
-     expression-lifetime fences preserve the two multiply-chain handouts.
-     Measured path: 28 -> 23 -> 15 -> 6 -> PASS (86/86). */
-  /* SYM-CODEGEN-CARRIER: nextVelX -- inlining it and removing its empty
-     lifetime fence preserves 86 instructions but changes six words. */
-  /* SYM-CODEGEN-CARRIER: firstProduct -- folding it into transformedZ adds
-     two instructions and produces 32 diffs (88/86). */
-  int firstProduct;
-  /* SYM-CODEGEN-CARRIER: nextVelY -- inlining it adds one instruction and
-     produces nine diffs (87/86). */
-  /* SYM-CODEGEN-CARRIER: nextMatY -- inlining it adds one instruction and
-     produces three diffs (87/86). */
-  /* SYM-CODEGEN-CARRIER: transformedZ -- updating linearVel_ch.z directly
-     adds two instructions and produces 24 diffs (88/86); its empty reference
-     fence emits no instructions and preserves the retail allocator handout. */
+  /* SOURCE-RECOVERY REVIEW: retail records only carObj, not a dot-product local.
+     2026-09-28: firstProduct inlines at 86/86 PASS, superseding its old 88/86
+     failure. transformedZ and the existing nine-reference empty fence still
+     need recovery: removing the fence is 32 diffs at 86, the direct full sum
+     is 35 at 87, and field-by-field accumulation is 49 at 89. These are measured
+     source basins, not proof that retail required an extra named source object.
+     Earlier qtytrace associated its two webs with p88/p123 and explained the
+     reference dial; that explains this device, not the lost original spelling.
+     No generic carrier exemption; unresolved source/SLD work is in sym-match.md. */
   int transformedZ;
 
   (carObj->linearVel_ch).x =
        (carObj->N).linearVel.x / 256 * ((carObj->N).shadowMat.m[0] / 256) +
        (carObj->N).linearVel.y / 256 * ((carObj->N).shadowMat.m[1] / 256) +
        (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[2] / 256);
-  firstProduct = ((carObj->N).linearVel.x / 256) * ((carObj->N).shadowMat.m[6] / 256);
-  transformedZ = firstProduct + ((carObj->N).linearVel.y / 256) * ((carObj->N).shadowMat.m[7] / 256);
+  transformedZ = ((carObj->N).linearVel.x / 256) * ((carObj->N).shadowMat.m[6] / 256)
+    + ((carObj->N).linearVel.y / 256) * ((carObj->N).shadowMat.m[7] / 256);
   transformedZ +=
        (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[8] / 256);
   __asm__("" : : "r"(transformedZ), "r"(transformedZ), "r"(transformedZ),
@@ -1177,7 +1136,7 @@ void Physics_TestForBarrierCollision(Car_tObj *carObj)
   return;
 }
 
-/* ---- Physics_CalculateRoadGripModifiers__FP8Car_tObj  [PHYSICS.CPP:1394-1439] SLD-VERIFIED ---- */
+/* ---- Physics_CalculateRoadGripModifiers__FP8Car_tObj  [PHYSICS.CPP:1394-1439] native SYM exact; SLD unsealed ---- */
 void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
 
 {
@@ -1185,53 +1144,55 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
   int rearWheels;
   int leftWheels;
   int rightWheels;
-  int i;
-  int roadSurfaceType;
-  int tempSurface;
 
   frontWheels = 0;
   rearWheels = 0;
   leftWheels = 0;
   rightWheels = 0;
-  i = 0;
-  while (true) {
-    if (4 <= i) {
-      break;
+  {
+    for (int i = 0; i < 4; i++) {
+      int roadSurfaceType;
+      int tempSurface;
+      roadSurfaceType = carObj->wheel[i].roadSurfaceType & 0xf;
+      tempSurface = (u_int)(u_char)roadSurfaceIndex[carObj->carInfo->TireType][roadSurfaceType];
+      if (slippery != 0) {
+        tempSurface = tempSurface + 1;
+      }
+      if (i < 2) {
+        frontWheels = frontWheels + roadSurfaceFrictionCoeff[tempSurface];
+      }
+      else {
+        rearWheels = rearWheels + roadSurfaceFrictionCoeff[tempSurface];
+      }
+      if ((i == 0) || (i == 2)) {
+        leftWheels = leftWheels + roadSurfaceFrictionCoeff[tempSurface];
+      }
+      else {
+        rightWheels = rightWheels + roadSurfaceFrictionCoeff[tempSurface];
+      }
     }
-    roadSurfaceType = carObj->wheel[i].roadSurfaceType & 0xf;
-    tempSurface = (u_int)(u_char)roadSurfaceIndex[carObj->carInfo->TireType][roadSurfaceType];
-    if (slippery != 0) {
-      tempSurface = tempSurface + 1;
-    }
-    if (i < 2) {
-      frontWheels = frontWheels + roadSurfaceFrictionCoeff[tempSurface];
-    }
-    else {
-      rearWheels = rearWheels + roadSurfaceFrictionCoeff[tempSurface];
-    }
-    if ((i == 0) || (i == 2)) {
-      leftWheels = leftWheels + roadSurfaceFrictionCoeff[tempSurface];
-    }
-    else {
-      rightWheels = rightWheels + roadSurfaceFrictionCoeff[tempSurface];
-    }
-    i = i + 1;
   }
-  frontMult = frontWheels >> 1;
-  rearMult = rearWheels >> 1;
-  leftMult = leftWheels >> 1;
-  rightMult = rightWheels >> 1;
-  roadMult = (frontMult + rearMult >> 1) + (carObj->N).roadGravityModifier;
-  if (0x50000 < (carObj->linearVel_ch).z) {
-    frontMult = frontMult +
-        fixedmult((carObj->linearVel_ch).z,carObj->specs->frontAeroDownForce);
-    rearMult = rearMult +
-        fixedmult((carObj->linearVel_ch).z,carObj->specs->rearAeroDownForce);
-  }
+  /* Retail owns the final computation and its guarded aero contribution in
+     two variable-free regions. These real computation regions reproduce that
+     tree without dummy declarations; the literal original macro spelling is
+     unknown and remains a source/SLD review item in sym-match.md. */
+  ({
+    frontMult = frontWheels >> 1;
+    rearMult = rearWheels >> 1;
+    leftMult = leftWheels >> 1;
+    rightMult = rightWheels >> 1;
+    roadMult = (frontMult + rearMult >> 1) + (carObj->N).roadGravityModifier;
+    (0x50000 < (carObj->linearVel_ch).z) ? ({
+      frontMult = frontMult +
+          fixedmult((carObj->linearVel_ch).z,carObj->specs->frontAeroDownForce);
+      (void)(rearMult = rearMult +
+          fixedmult((carObj->linearVel_ch).z,carObj->specs->rearAeroDownForce));
+    }) : (void)0;
+  });
   return;
 }
 
-/* ---- Physics_CalculateCarAcceleration__FP8Car_tObj  [PHYSICS.CPP:1447-1672] SLD-VERIFIED ---- */
+/* ---- Physics_CalculateCarAcceleration__FP8Car_tObj  [PHYSICS.CPP:1447-1672] source/SLD review open ---- */
 /* RECEIPT (w56-a12): fixed a real LINK BUG -- the `MAX(flywheelRpm,0)` clamp at
    cfLbl1 had no macro in scope, so cc1 emitted an implicit variadic `jal MAX`
    (unresolved symbol; final link would fail) instead of the inline `bgez`
@@ -1276,12 +1237,13 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
    to stop reusing the SYM-named temp for unrelated expression temporaries:
    direct signed redline/8 plus a short-lived damageAmount made the entire
    RNG/damage opening exact (63 -> 21).  The rev-limit timer is the direct ternary
-   store, which creates retail's block-local $v0 graph (21 -> 13).  The +250 clamp
-   reuses SYM temp=$a0 and ratio=$v1 around the early flywheel store; this removed
-   the complete 8-diff clamp cluster.  A flywheel snapshot fixed both retail load
+   store, which creates retail's block-local $v0 graph (21 -> 13). The older
+   +250 temp/ratio staging removed eight diffs but misidentified temp's home;
+   it is superseded by the 2026-09-28 receipt below. A snapshot fixed both load
    orders.  The damage arm needs split compute / empty barrier / store so its store
    fills the jump delay slot without cross-jump merging into the other -100 arm.
-   The downshift redline's read-only fence preserves lw-v0 then move-v1-v0.
+   The old downshift snapshot/fence is superseded by the canonical field MIN
+   operand-order receipt (2026-09-28); no such source-only object remains.
    Finally, after a scheduling boundary, the signed /256 pair reuses dead
    diffDesiredRpm=$a0 and an identity-laundered ratio copy=$v0; placing the $a0
    shift before the $v0 sign test gives retail's delay-slot interleave.
@@ -1290,22 +1252,32 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
    local (7); reversed multiply operands (12); direct/identity-only divisor copy
    (4/6).  All retained asm templates are zero-instruction allocation/scheduling
    fences; no hard-register pins or emitted hand assembly. */
+/* SOURCE-RECOVERY RECEIPT (2026-09-28, 710/710): temp belongs to the raw
+   fixedmult RPM product in v1, not the anonymous RPM+250 precursor in a0.
+   Direct field increment plus temp-owned selection preserves the early stores.
+   In the late positive-demand arm, diffDesiredRpm's earlier difference is dead;
+   it holds the real minimum result before its subsequent driveAcc definition.
+   This preserves retail's a0 selection and removes the old temp identity fence.
+   Original declaration order and normal-driving ELSE restore rpmDrop/rpmRise
+   depths5/7. Native types/homes/order/depth now agree for all recorded locals;
+   extra captures/scopes and full SLD still require recovery. Original literal
+   dead-phase spelling is not proved by hard-register reuse alone. */
 int Physics_CalculateCarAcceleration(Car_tObj *carObj)
 
 {
-  int diffDesiredRpm;
-  int ratio;
-  int temp;
-  int desiredRpm;
-  Car_tSpecs *specs;
-  int diffFlywheelRpm;
-  int driveAcc;
-  int wheelRpm;
-  int drag;
-  int damage;
-  int smokeRpm;
   int blip [8] = { 0, 0, 250, 200, 175, 150, 125, 0 };
   int bblip [8] = { 0, 0, 200, 175, 150, 125, 100, 0 };
+  int diffDesiredRpm;
+  int diffFlywheelRpm;
+  int desiredRpm;
+  int wheelRpm;
+  int driveAcc;
+  int drag;
+  int ratio;
+  int temp;
+  int smokeRpm;
+  int damage;
+  Car_tSpecs *specs;
   driveAcc = 0;
   wheelRpm = 0;
   smokeRpm = carObj->specs->redline / 8;
@@ -1330,81 +1302,62 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   drag = fixedmult(specs->dragCoeff,
                    (drag / 0x10000) * (drag / 0x10000) * (drag / 0x10000));
   if (((carObj->control).gear == '\x01') || (powerControl == 0)) {
-    /* SYM-CODEGEN-CARRIER: candidateRpm.  Repeating the source expression
-       removes eight instructions and changes the saved-register allocation
-       (702/710 instructions, 438 detailed diffs). */
-    int candidateRpm = specs->redline + 0xfa;
-    if (fixedmult(candidateRpm,gGasRatio) >= candidateRpm) {
-      desiredRpm = specs->redline + 0xfa;
-    } else {
-      desiredRpm = fixedmult(specs->redline + 0xfa,gGasRatio);
-    }
+    desiredRpm = MIN(specs->redline + 0xfa,fixedmult(specs->redline + 0xfa,gGasRatio));
   }
   else {
-    int candidateRpm = specs->redline + 100;
-    if (fixedmult(candidateRpm,gGasRatio) >= candidateRpm) {
-      desiredRpm = specs->redline + 100;
-    } else {
-      desiredRpm = fixedmult(specs->redline + 100,gGasRatio);
-    }
+    desiredRpm = MIN(specs->redline + 100,fixedmult(specs->redline + 100,gGasRatio));
   }
-  /* SYM-CODEGEN-CARRIER: currentFlywheelRpm.  Direct fields fail independently:
-     the redline comparison moves one load (710/710, two diffs), the rpm-rise
-     ternary repeats the load (714/710, 12 diffs), and the final MIN adds a nop
-     around its moved load (711/710, three diffs). */
-  int currentFlywheelRpm = carObj->flywheelRpm;
-  if (specs->redline <= currentFlywheelRpm) {
+  /* 2026-09-28: field-first comparison preserves the old snapshot's load
+     order without a source-only currentFlywheelRpm object (710/710 PASS).
+     Late selection and rise-phase snapshots are gone too: direct field clamp
+     after identity removal, and += MIN(-diffFlywheelRpm,rpmRise), respectively.
+     Older independent inlining failures did not prove object necessity. */
+  if (carObj->flywheelRpm >= specs->redline) {
     carObj->flywheelRpm = specs->redline + 0x32;
     carObj->revLimit =
         (((carObj->control).gear == '\x01') || (powerControl == 0)) ? 3 : 4;
   }
   if (0 < carObj->revLimit) {
-    /* SYM-CODEGEN-CARRIER: revLimitedRpm.  Merging it into
-       adjustedDesiredRpm removes retail's v0-to-v1 copy (709/710, five diffs). */
+    /* SOURCE-RECOVERY REVIEW: revLimitedRpm is not recorded; its selected
+       minimum now uses the original temp (710/710), removing adjustedDesiredRpm.
+       Direct conditional assignment was5 diffs/709 words; MIN into temp33/727.
+       The remaining first stage is unresolved, not a carrier exemption. */
     int revLimitedRpm;
-    /* SYM-CODEGEN-CARRIER: adjustedDesiredRpm.  Assigning desiredRpm through
-       MIN instead removes two instructions and recolors saved registers
-       (708/710, 60 detailed diffs). */
-    int adjustedDesiredRpm;
     if (((carObj->control).gear == '\x01') || (powerControl == 0)) {
-      revLimitedRpm = specs->redline + -800;
+      revLimitedRpm = specs->redline - 800;
     }
     else {
-      revLimitedRpm = specs->redline + -400;
+      revLimitedRpm = specs->redline - 400;
     }
-    adjustedDesiredRpm = revLimitedRpm;
-    if (adjustedDesiredRpm >= desiredRpm) {
-      adjustedDesiredRpm = desiredRpm;
+    temp = revLimitedRpm;
+    if (temp >= desiredRpm) {
+      temp = desiredRpm;
     }
-    desiredRpm = adjustedDesiredRpm;
+    desiredRpm = temp;
     __asm__("" : : "i"(0));
     carObj->revLimit = carObj->revLimit + -1;
   }
   if ((((carObj->control).gear == '\x01') || ((carObj->control).gearShiftTimer != '\0')) ||
      (powerControl == 0)) {
-    /* MATCH (W83-A8, 26G-2 second firing): staging the clamp's read into a
-       local owned by the non-jumping arms makes the damage arm's `goto` land
-       PAST the reload, matching retail's j +4 (brdist word #25) -- the
-       skipped insn was a semantics-neutral re-read of flywheelRpm. */
-    /* SYM-CODEGEN-CARRIER: clampedFlywheelRpm.  This value spans the damage
-       jump into the shared >=0 clamp; using the field directly reloads after
-       the jump and loses retail's store in the jump delay slot (W83-A8). */
-    int clampedFlywheelRpm;
+    /* 2026-09-28: the real MAX field clamp in both source paths lets GCC
+       cross-jump them into retail's shared comparison/store, preserving the
+       damage path's skip past the reload without clampedFlywheelRpm or a jump
+       into a declaration region. Full710/710 and byte/layout gates agree;
+       older snapshot/if-funnel necessity claims were shape-specific. */
     if (damage) {
-      clampedFlywheelRpm = carObj->flywheelRpm + -100;
-      carObj->flywheelRpm = clampedFlywheelRpm;
-      goto cfLbl1;   /* retail: j into the shared >=0 clamp @0x800aae34 */
+      carObj->flywheelRpm = carObj->flywheelRpm + -100;
+      carObj->flywheelRpm = MAX(carObj->flywheelRpm,0);
+      goto Phy_CalcAcc_clearWheelSpinExit;
     }
     else {
       if ((carObj->flywheelRpm < desiredRpm) &&
           ((carObj->control).gearShiftTimer == '\0')) {
-        temp = carObj->flywheelRpm + 0xfa;
-        ratio = desiredRpm;
-        carObj->flywheelRpm = temp;
-        if (ratio >= temp) {
-          ratio = temp;
+        carObj->flywheelRpm += 0xfa;
+        temp = desiredRpm;
+        if (temp >= carObj->flywheelRpm) {
+          temp = carObj->flywheelRpm;
         }
-        carObj->flywheelRpm = ratio;
+        carObj->flywheelRpm = temp;
       }
       else if (((carObj->control).gearShiftTimer != '\0') &&
                ((carObj->control).lastGear != '\x01')) {
@@ -1417,14 +1370,9 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
             carObj->flywheelRpm =
                 carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
           }
-          /* SYM-CODEGEN-CARRIER: downshiftRedlineRpm.  The isolated snapshot
-             preserves retail's lw-v0 then move-v1-v0 before the clamp. */
-          const int downshiftRedlineRpm = specs->redline;
-          __asm__("" : : "r"(downshiftRedlineRpm));
-          ratio = downshiftRedlineRpm;
-          if (ratio >= carObj->flywheelRpm) {
-            ratio = carObj->flywheelRpm;
-          }
+          /* 2026-09-28: operand order keeps redline-v0/flywheel-a0 loads
+             and the selected ratio in v1, with no snapshot or fence. */
+          ratio = MIN(carObj->flywheelRpm,specs->redline);
           carObj->flywheelRpm = ratio;
         }
         else {
@@ -1434,14 +1382,7 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
           else {
             carObj->flywheelRpm = carObj->flywheelRpm + -100;
           }
-          clampedFlywheelRpm = carObj->flywheelRpm;
-cfLbl1:   /* @0x800aae34  (retail's shared clamp; the damage arm jumps here) */
-          /* the if-funnel is mandatory: a ternary over the LOCAL stores $zero
-             directly and drops retail's `addu v0,zero,zero` (W83-A8 §1.3) */
-          if (clampedFlywheelRpm < 0) {
-            clampedFlywheelRpm = 0;
-          }
-          carObj->flywheelRpm = clampedFlywheelRpm;
+          carObj->flywheelRpm = MAX(carObj->flywheelRpm,0);
         }
       }
       else {
@@ -1453,168 +1394,158 @@ cfLbl1:   /* @0x800aae34  (retail's shared clamp; the damage arm jumps here) */
 Phy_CalcAcc_clearWheelSpinExit:
     carObj->frontWheelSpin = 0;
     carObj->wheelSpin = 0;
-    goto Phy_CalcAcc_finalAdjustReturn;
-  }
-  if ((PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) || (carObj->RSControl != 0)) {
-    Physics_AutoShift(carObj);
-  }
-  if (((carObj->control).gearShiftTimer != '\0') && ((carObj->control).downShifting == '\0')) {
-    ratio = fixedmult((carObj->linearVel_ch).z,
-                     specs->velToRpmRatio[(u_char)(carObj->control).lastGear]);
   }
   else {
-    ratio = fixedmult((carObj->linearVel_ch).z,
-                     specs->velToRpmRatio[(u_char)(carObj->control).gear]);
-  }
-  if (ratio < 0) {
-    ratio = ratio + 0xffff;
-  }
-  wheelRpm = ratio >> 0x10;
-  if ((exceedRedline != 0) || (0 < carObj->revLimit)) {
-    driveAcc = fixedmult(specs->torqueCurve[specs->redline / 0x100],
-                         specs->gearAccCoeff[(u_char)(carObj->control).gear]) << 1;
-  }
-  else {
-    driveAcc = fixedmult(Physics_GetTorque(carObj,carObj->flywheelRpm / 0x100),
-                         specs->gearAccCoeff[(u_char)(carObj->control).gear]);
-  }
-  diffDesiredRpm = desiredRpm - wheelRpm;
-  if ((__builtin_abs(diffDesiredRpm) < 0x7d) && (desiredRpm < specs->redline + -300)) {
-    diffDesiredRpm = 0;
-  }
-  diffFlywheelRpm = carObj->flywheelRpm - wheelRpm;
-  if (!((((((diffFlywheelRpm < 0xfb) || ((carObj->control).gearShiftTimer != '\0')) ||
-        (4 < (u_char)(carObj->control).gear)) &&
-       ((((u_char)(carObj->control).gear < 2 || (-0x199a < (carObj->linearVel_ch).z)) ||
-        (gGasRatio < 0x8001)))) &&
-      (((((carObj->control).gear != '\0' || ((carObj->linearVel_ch).z < 0x199a)) ||
-        (gGasRatio < 0x8001)) && (carObj->wheelSpin != 1)))) || (carObj->revLimit != 0))) {
-    int rpmDrop;
-    rpmDrop = 0;
-    if (((desiredRpm < 2000) || ((u_char)(carObj->control).desiredGasLevel < 0x40)) ||
-       ((damage || ((carObj->carInfo->carType == 0x13 && (2 < (u_char)(carObj->control).gear)))))) {
-      rpmDrop = 200;
+    if ((PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) || (carObj->RSControl != 0)) {
+      Physics_AutoShift(carObj);
+    }
+    if (((carObj->control).gearShiftTimer != '\0') && ((carObj->control).downShifting == '\0')) {
+      temp = fixedmult((carObj->linearVel_ch).z,
+                      specs->velToRpmRatio[(u_char)(carObj->control).lastGear]);
     }
     else {
-      if (((carObj->control).gear == 2) || ((carObj->control).gear == 0)) {
-        rpmDrop = 10;
-      }
-      else if (2 < (u_char)(carObj->control).gear) {
-        rpmDrop = 0x32;
-      }
+      temp = fixedmult((carObj->linearVel_ch).z,
+                      specs->velToRpmRatio[(u_char)(carObj->control).gear]);
     }
-    if (smokeRpm < diffFlywheelRpm) {
-      carObj->wheelSpin = 2;
+    if (temp < 0) {
+      temp = temp + 0xffff;
     }
-    carObj->flywheelRpm -=
-        (rpmDrop >= diffFlywheelRpm) ? diffFlywheelRpm : rpmDrop;
-  }
-  else {
-    if (diffDesiredRpm < 0) {
-      int rpmRise;
-      driveAcc = -fixedmult(driveAcc,specs->gasOffFactor);
-      if ((((0 < gravity_ch.z) && (1 < (u_char)(carObj->control).gear)) &&
-           ((driveAcc < 0) && ((u_char)(carObj->control).gear < 3))) ||
-          (((gravity_ch.z < 0) && ((carObj->control).gear == 0)) && (0 < driveAcc))) {
-        driveAcc = driveAcc / 2;
-      }
-      rpmRise = fixedmult(specs->velToRpmRatioInv[(u_char)(carObj->control).gear] << 3,
-                          0x28000000) / 0x10000;
-      if ((carObj->control).gear == '\0') {
-        if (rpmRise < -diffFlywheelRpm) {
-          rpmRise = -diffFlywheelRpm;
-        }
-        carObj->flywheelRpm += rpmRise;
-      }
-      else {
-        int currentFlywheelRpm = carObj->flywheelRpm;
-        carObj->flywheelRpm = (rpmRise < -diffFlywheelRpm) ?
-            currentFlywheelRpm + rpmRise :
-            currentFlywheelRpm - diffFlywheelRpm;
-      }
-      if (exceedRedline == 0) {
-        carObj->flywheelRpm =
-            ((carObj->flywheelRpm > desiredRpm) ? carObj->flywheelRpm : desiredRpm);
-      }
-    }
-    else if (diffDesiredRpm == 0) {
-      carObj->flywheelRpm = wheelRpm;
-      driveAcc = drag;
+    wheelRpm = temp >> 0x10;
+    if ((exceedRedline != 0) || (0 < carObj->revLimit)) {
+      driveAcc = fixedmult(specs->torqueCurve[specs->redline / 0x100],
+                           specs->gearAccCoeff[(u_char)(carObj->control).gear]) << 1;
     }
     else {
-      if (damage) {
-        driveAcc = 0;
-        carObj->flywheelRpm = carObj->flywheelRpm + -100;
+      driveAcc = fixedmult(Physics_GetTorque(carObj,carObj->flywheelRpm / 0x100),
+                           specs->gearAccCoeff[(u_char)(carObj->control).gear]);
+    }
+    diffDesiredRpm = desiredRpm - wheelRpm;
+    if ((__builtin_abs(diffDesiredRpm) < 0x7d) && (desiredRpm < specs->redline + -300)) {
+      diffDesiredRpm = 0;
+    }
+    diffFlywheelRpm = carObj->flywheelRpm - wheelRpm;
+    if (!((((((diffFlywheelRpm < 0xfb) || ((carObj->control).gearShiftTimer != '\0')) ||
+          (4 < (u_char)(carObj->control).gear)) &&
+         ((((u_char)(carObj->control).gear < 2 || (-0x199a < (carObj->linearVel_ch).z)) ||
+          (gGasRatio < 0x8001)))) &&
+        (((((carObj->control).gear != '\0' || ((carObj->linearVel_ch).z < 0x199a)) ||
+          (gGasRatio < 0x8001)) && (carObj->wheelSpin != 1)))) || (carObj->revLimit != 0))) {
+      int rpmDrop;
+      rpmDrop = 0;
+      if (((desiredRpm < 2000) || ((u_char)(carObj->control).desiredGasLevel < 0x40)) ||
+         ((damage || ((carObj->carInfo->carType == 0x13 && (2 < (u_char)(carObj->control).gear)))))) {
+        rpmDrop = 200;
       }
       else {
-        if (diffFlywheelRpm >= 0xc9) {
-          carObj->flywheelRpm = carObj->flywheelRpm + -200;
+        if (((carObj->control).gear == 2) || ((carObj->control).gear == 0)) {
+          rpmDrop = 10;
         }
-        else if (diffFlywheelRpm < -200) {
-          carObj->flywheelRpm = carObj->flywheelRpm + 200;
+        else if (2 < (u_char)(carObj->control).gear) {
+          rpmDrop = 0x32;
+        }
+      }
+      if (smokeRpm < diffFlywheelRpm) {
+        carObj->wheelSpin = 2;
+      }
+      carObj->flywheelRpm -=
+          (rpmDrop >= diffFlywheelRpm) ? diffFlywheelRpm : rpmDrop;
+    }
+    else {
+      if (diffDesiredRpm < 0) {
+        int rpmRise;
+        driveAcc = -fixedmult(driveAcc,specs->gasOffFactor);
+        if ((((0 < gravity_ch.z) && (1 < (u_char)(carObj->control).gear)) &&
+             ((driveAcc < 0) && ((u_char)(carObj->control).gear < 3))) ||
+            (((gravity_ch.z < 0) && ((carObj->control).gear == 0)) && (0 < driveAcc))) {
+          driveAcc = driveAcc / 2;
+        }
+        rpmRise = fixedmult(specs->velToRpmRatioInv[(u_char)(carObj->control).gear] << 3,
+                            0x28000000) / 0x10000;
+        if ((carObj->control).gear == '\0') {
+          if (rpmRise < -diffFlywheelRpm) {
+            rpmRise = -diffFlywheelRpm;
+          }
+          carObj->flywheelRpm += rpmRise;
         }
         else {
-          carObj->flywheelRpm = wheelRpm;
+          carObj->flywheelRpm += MIN(-diffFlywheelRpm,rpmRise);
         }
-        driveAcc = fixedmult(driveAcc,gGasRatio);
-      }
-      int currentFlywheelRpm = carObj->flywheelRpm;
-      temp = desiredRpm;
-      __asm__("" : "=r"(temp) : "0"(temp));
-      if (temp >= currentFlywheelRpm) {
-        temp = currentFlywheelRpm;
-      }
-      carObj->flywheelRpm = temp;
-      __asm__("" : : "r"(desiredRpm), "r"(desiredRpm), "r"(desiredRpm), "r"(desiredRpm));
-      ratio = __builtin_abs(carObj->slide) + 0x10000;
-      if ((PHYSICS_SGGE & 8U) != 0) {
-        if (0x30000 < ratio) {
-          ratio = 0x30000;
+        if (exceedRedline == 0) {
+          carObj->flywheelRpm =
+              ((carObj->flywheelRpm > desiredRpm) ? carObj->flywheelRpm : desiredRpm);
         }
       }
-      else if (0x20000 < ratio) {
-        ratio = 0x20000;
+      else if (diffDesiredRpm == 0) {
+        carObj->flywheelRpm = wheelRpm;
+        driveAcc = drag;
       }
-      diffDesiredRpm = driveAcc;
-      if (driveAcc < 0) {
-        diffDesiredRpm = driveAcc + 0xff;
+      else {
+        if (damage) {
+          driveAcc = 0;
+          carObj->flywheelRpm = carObj->flywheelRpm + -100;
+        }
+        else {
+          if (diffFlywheelRpm >= 0xc9) {
+            carObj->flywheelRpm = carObj->flywheelRpm + -200;
+          }
+          else if (diffFlywheelRpm < -200) {
+            carObj->flywheelRpm = carObj->flywheelRpm + 200;
+          }
+          else {
+            carObj->flywheelRpm = wheelRpm;
+          }
+          driveAcc = fixedmult(driveAcc,gGasRatio);
+        }
+        diffDesiredRpm = desiredRpm;
+        if (diffDesiredRpm >= carObj->flywheelRpm) {
+          diffDesiredRpm = carObj->flywheelRpm;
+        }
+        carObj->flywheelRpm = diffDesiredRpm;
+        __asm__("" : : "r"(desiredRpm), "r"(desiredRpm), "r"(desiredRpm), "r"(desiredRpm));
+        ratio = __builtin_abs(carObj->slide) + 0x10000;
+        if ((PHYSICS_SGGE & 8U) != 0) {
+          if (0x30000 < ratio) {
+            ratio = 0x30000;
+          }
+        }
+        else if (0x20000 < ratio) {
+          ratio = 0x20000;
+        }
+        diffDesiredRpm = driveAcc;
+        if (driveAcc < 0) {
+          diffDesiredRpm = driveAcc + 0xff;
+        }
+        /* SOURCE-RECOVERY REVIEW: scaledRatio is unrecorded. Whole /256
+           product and split quotient forms were10 diffs at710 in this source
+           shape. The existing identity fence is restored; source necessity
+           remains unresolved, not a generic exemption or floor. */
+        int scaledRatio = ratio;
+        __asm__("" : "=r"(scaledRatio) : "0"(scaledRatio));
+        diffDesiredRpm = diffDesiredRpm >> 8;
+        if (scaledRatio < 0) {
+          scaledRatio = scaledRatio + 0xff;
+        }
+        scaledRatio = scaledRatio >> 8;
+        driveAcc = diffDesiredRpm * scaledRatio;
       }
-      /* SYM-CODEGEN-CARRIER: scaledRatio.  The separate identity-laundered
-         divisor copy is required for retail's signed /256 interleave; direct
-         and identity-only divisor forms leave four and six diffs respectively. */
-      int scaledRatio = ratio;
-      __asm__("" : "=r"(scaledRatio) : "0"(scaledRatio));
-      diffDesiredRpm = diffDesiredRpm >> 8;
-      if (scaledRatio < 0) {
-        scaledRatio = scaledRatio + 0xff;
+    }
+    if (carObj->flywheelRpm < 0) {
+      ratio = (carObj->linearVel_ch).z * -0x20;
+      if ((((driveAcc < 1) || (ratio < 1)) || (driveAcc - ratio < 1)) &&
+         (((-1 < driveAcc || (-1 < ratio)) || (-1 < driveAcc - ratio)))) {
+        driveAcc = ratio;
+        carObj->flywheelRpm = 0;
       }
-      scaledRatio = scaledRatio >> 8;
-      driveAcc = diffDesiredRpm * scaledRatio;
     }
   }
-  if (carObj->flywheelRpm < 0) {
-    ratio = (carObj->linearVel_ch).z * -0x20;
-    if ((((driveAcc < 1) || (ratio < 1)) || (driveAcc - ratio < 1)) &&
-       (((-1 < driveAcc || (-1 < ratio)) || (-1 < driveAcc - ratio)))) {
-      driveAcc = ratio;
-      carObj->flywheelRpm = 0;
-    }
-  }
-Phy_CalcAcc_finalAdjustReturn:
-  if (carObj->carInfo->carType - 0xcU < 4) {
-    if (slippery != 0) {
-      if ((carObj->control).gear != '\x02') {
-        return driveAcc - drag;
-      }
-      if (0 < driveAcc) {
-        driveAcc = driveAcc * 3 >> 2;
-      }
-    }
+  if ((carObj->carInfo->carType - 0xcU < 4) && (slippery != 0) &&
+      ((carObj->control).gear == '\x02') && (0 < driveAcc)) {
+    driveAcc = driveAcc * 3 >> 2;
   }
   return driveAcc - drag;
 }
 
-/* ---- Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1680-1725] SLD-VERIFIED ---- */
+/* ---- Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1680-1725] source/SLD review open ---- */
 void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
@@ -1683,15 +1614,15 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
      1867-1869 then guarantee the copy survives (roadGrip is multi-block => reg_qty
      -1 => combine_regs can never tie it).  4 -> PASS 127/127. */
   {
-    /* SYM-CODEGEN-CARRIER: skid -- hoisting this anonymous value above the
-       opacity fence preserves retail's load-delay fill; the exhaustive
-       receipt above records the direct/volatile alternatives as worse. */
+    /* SOURCE-RECOVERY REVIEW: neither skid nor cmp is in retail SYM.
+       The old empty identity fence is restored, not an original-source claim.
+       2026-09-28 direct fields plus this fence were 3 diffs/128 words;
+       ordinary direct clamp (also with register roadGrip) was 4/127;
+       two MIN operand orders were 40/127 and 38/127. The lost source spelling
+       remains unresolved; no generic carrier exemption or floor is asserted. */
     int skid = wheel->skid;
-    /* SYM-CODEGEN-CARRIER: cmp -- GCC cse otherwise removes retail's
-       `addu v0,a2,zero`; the empty identity fence is the measured source-only
-       device that keeps the block-local copy without changing behavior. */
     int cmp = roadGrip;
-    __asm__("" : "=r"(cmp) : "0"(cmp));   /* opacity: mints retail's addu v0,a2,zero */
+    __asm__("" : "=r"(cmp) : "0"(cmp));
     if (cmp >= skid) {
       roadGrip = skid;
     }
@@ -1705,45 +1636,39 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
   return;
 }
 
-/* ---- Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1731-1810] SLD-VERIFIED ---- */
-/* MATCH (w58-a1): 41 -> PASS, 233/233.  Retail evaluates gripLoss/divider first
-   (`div zero,s1,a1`) and roadGrip/divider second, then keeps the smaller quotient.
-   Reversing the symmetric MIN operands first recovered that divide order; spelling
-   the result as IDA's explicit quotient/override recovered the remaining copy shape.
-   SYM 8c: carObj=$13=s3, wheel=$10=s0, totalAcc=$14=s4,
-   ratio=$12=s2, gripLoss=$3=v1, roadGrip=$4=a0, gripLossDivider=$5=a1 (all match).
-   IDA's explicit quotient/override shape plus a read-only fence preserves retail's
-   `mflo v0` and delayed `addu v1,v0,zero`; the adjacent gripLoss fence crosses the
-   global-allocation ref step and restores gripLoss=$s1 / ratio=$s2.  The explicit
-   TireType labels and a zero-insn block fence retain retail's fall-through arm and
-   filled `j` slot.  Finally, naming skidValue before the identity-fenced comparison
-   copy gives the exact `lw v1; addu v0,a0,zero; slt v0,v0,v1` load-delay sequence.
-   All three fences emit zero instructions. */
+/* ---- Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1731-1810] source/SLD review open ---- */
+/* SOURCE-RECOVERY RECEIPT (2026-09-28, 233/233 PASS): retail's gripLoss in v1
+   is the clamped quotient, not the earlier excess acceleration in s1. The
+   excess is now the real totalAcc-roadGrip expression; canonical MIN retains
+   the loss-first/road-second divide order and v0-to-v1 copy. gripLossRatio and
+   gripLossQuotient plus both old read-only fences are removed, not renamed or
+   hidden behind const. The recorded gripLoss type/home/order now matches.
+   Direct quotient/override without its fence was four diffs; MIN fixes that.
+   Remaining source review: wheel_reg still substitutes for retail's wheel
+   parameter home (direct parameter, with/without register, is 90 diffs at233;
+   early raw-difference reuse in gripLoss was229 at236). roadGripCompare,
+   skidValue, the two remaining empty fences and TireType labels are not a
+   full original-source/SLD seal. No generic carrier exemption or floor. */
 void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
-  /* SYM-CODEGEN-CARRIER: wheel_reg -- replacing this alias with the `wheel`
-     parameter preserves 233 instructions but changes 90 register-allocation words. */
-  Physics_tWheelAccStruct *wheel_reg;
   int totalAcc;
+  Physics_tWheelAccStruct *wheel_reg;
   int ratio;
   int gripLoss;
   int roadGrip;
   int gripLossDivider;
-  /* SYM-CODEGEN-CARRIER: gripLossQuotient -- folding the first quotient into
-     gripLossRatio preserves 233 instructions but changes four retail words. */
-  int gripLossQuotient;
-  /* SYM-CODEGEN-CARRIER: gripLossRatio -- clamping gripLossQuotient in place
-     preserves 233 instructions but changes four retail words. */
-  int gripLossRatio;
-  /* SYM-CODEGEN-CARRIER: roadGripCompare -- comparing roadGrip directly
-     preserves 233 instructions but changes four retail words. */
+  /* SOURCE-RECOVERY REVIEW: roadGripCompare -- unrecorded comparison copy;
+     the earlier direct comparison was four diffs. Original spelling/necessity
+     remains unresolved, not exempted by that finite trial. */
   int roadGripCompare;
-  /* SYM-CODEGEN-CARRIER: skidValue -- direct member reads add one instruction
-     and leave three diffs (234/233). */
+  /* SOURCE-RECOVERY REVIEW: skidValue -- unrecorded field capture;
+     earlier direct reads were three diffs at234/233. Still active review. */
   int skidValue;
 
   wheel_reg = wheel;
+
+
   if (__builtin_abs(wheel_reg->finalAcc.x) > __builtin_abs(wheel_reg->finalAcc.z)) {
     totalAcc = __builtin_abs(wheel_reg->finalAcc.x) + (__builtin_abs(wheel_reg->finalAcc.z) >> 2);
   }
@@ -1772,7 +1697,6 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
     gripLossDivider = gripLossTable[carObj->carInfo->TireType];
   }
   if (roadGrip < totalAcc) {
-    gripLoss = totalAcc - roadGrip;
     if (((carObj->carInfo->Traction != 0) && (wheel_reg->frontTire == 0)) &&
         (__builtin_abs(carObj->slide) < 0x2666)) {
       ratio = rdiv(roadGrip,totalAcc);
@@ -1783,19 +1707,14 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
       wheel_reg->finalAcc.z = fixedmult(wheel_reg->finalAcc.z,ratio);
     }
     else {
-      __asm__("" : : "r"(gripLoss));
-      gripLossQuotient = gripLoss / gripLossDivider;
-      __asm__("" : : "r"(gripLossQuotient));
-      gripLossRatio = gripLossQuotient;
-      if (gripLossRatio >= roadGrip / gripLossDivider) {
-        gripLossRatio = roadGrip / gripLossDivider;
-      }
-      ratio = rdiv(roadGrip - gripLossRatio,totalAcc);
+      gripLoss = MIN(roadGrip / gripLossDivider,
+                     (totalAcc - roadGrip) / gripLossDivider);
+      ratio = rdiv(roadGrip - gripLoss,totalAcc);
       if (carObj->carInfo->TireType == 2) {
-        wheel_reg->skid = (wheel_reg->skid * 0xf + gripLoss) / 16;
+        wheel_reg->skid = (wheel_reg->skid * 0xf + (totalAcc - roadGrip)) / 16;
       }
       else {
-        wheel_reg->skid = (wheel_reg->skid * 3 + gripLoss) / 4;
+        wheel_reg->skid = (wheel_reg->skid * 3 + (totalAcc - roadGrip)) / 4;
       }
       wheel_reg->finalAcc.x = fixedmult(wheel_reg->finalAcc.x,ratio);
       wheel_reg->finalAcc.z = fixedmult(wheel_reg->finalAcc.z,ratio);
@@ -1832,10 +1751,13 @@ PhyTracCircle_skidAdjust:
   return;
 }
 
-/* ---- Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1815-1979] SLD-VERIFIED ---- */
+/* ---- Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1815-1979] native SYM exact; SLD unsealed ---- */
 /* MATCH: the two signed-acceleration clamps use the canonical ealib MAX/MIN
    macros found in the matched NFS2 source.  NFS4 SYM retains only latAcc,
-   brakingSituation, slipAngle and roadGrip; no anonymous clamp locals exist. */
+   brakingSituation, slipAngle and roadGrip. 2026-09-28: canonical field MIN/MAX
+   and nested angle MIN/MAX remove both xAcc captures, cap and minSlipAngle at
+   346/346 PASS. Older result-funnel/constant-capture necessity claims were
+   source-basin-specific; all their scopes disappear. Full SLD remains unsealed. */
 void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
@@ -1867,12 +1789,12 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
       (((carObj->control).handBrake != '\0') && (wheel->frontTire == 0) &&
        (__builtin_abs(carObj->linearVel_ch.z) > 0x8000))) {
     if ((carObj->control).handBrake != '\0') {
-      goto Phy_TireF_wheelLock;
+      goto wheelLock;
     }
     if ((((carObj->carInfo->ABS == 0) && (carObj->linearVel_ch.z < 0x190001)) &&
          (0xeb < (u_char)(carObj->control).brakeLevel)) &&
         ((__builtin_abs(carObj->linearVel_ch.z) > 0x4ffff) || (carObj->wheelSpin != 0))) {
-      goto Phy_TireF_wheelLock;
+      goto wheelLock;
     }
     if (wheel->acc > wheel->roadGrip) {
       wheel->acc = wheel->roadGrip;
@@ -1889,8 +1811,8 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
       }
     }
   }
-  goto Phy_TireF_normalTire;
-Phy_TireF_wheelLock:
+  goto normalTire;
+wheelLock:
   if (wheel->frontTire != 0) {
     carObj->wheelLock = carObj->wheelLock + 1;
   }
@@ -1905,7 +1827,7 @@ Phy_TireF_wheelLock:
     carObj->rearSkid = wheel->skid;
   }
   return;
-Phy_TireF_normalTire:
+normalTire:
   if (wheel->velCap.z != 0) {
     slipAngle = fixedatan(wheel->velCap.x,-wheel->velCap.z / 2);
     if (0 < wheel->velCap.z) {
@@ -1931,100 +1853,26 @@ Phy_TireF_normalTire:
     wheel->finalAcc.x = latAcc;
     wheel->finalAcc.x = latAcc + gravity_ch.x / 2;
     if (__builtin_abs(wheel->velCap.x) + __builtin_abs(wheel->velCap.z) < 0x200000) {
-      /* SYM-CODEGEN-CARRIER: xAcc -- the shared result is required for retail's
-         both-arms funnel and single post-join finalAcc.x store. */
-      int xAcc;
-
       if (0 < wheel->velCap.x) {
-        if (wheel->velCap.x <= __builtin_abs(latAcc)) {
-          xAcc = wheel->velCap.x;
-        }
-        else {
-          xAcc = __builtin_abs(latAcc);
-        }
+        wheel->finalAcc.x = MIN(wheel->velCap.x,__builtin_abs(latAcc));
       }
       else {
-        /* MATCH (w64-a11, 09A at site A too): retail negates the abs into the
-           funnel register (`negu $v1,$v0`) and OVERRIDES with velCap.x
-           (`addu $v1,$a2,$zero` in the `j`'s delay slot) -- the per-arm store
-           the w59-a2 asymmetry receipt kept was the miss. */
-        xAcc = -__builtin_abs(latAcc);
-        if (xAcc < wheel->velCap.x) {
-          xAcc = wheel->velCap.x;
-        }
+        wheel->finalAcc.x = MAX(wheel->velCap.x,-__builtin_abs(latAcc));
       }
-      wheel->finalAcc.x = xAcc;
     }
   }
   else {
-    /* SYM-CODEGEN-CARRIER: minSlipAngle -- inlining 0x8000 was measured at
-       75 diffs / 347 instructions versus retail's exact 346. */
-    int minSlipAngle;
-    int xAcc;
-
-    minSlipAngle = 0x8000;
-    /* MATCH (w64-a11): the MIN is an if/else onto a named result with the
-       CONSTANT ARM LAST (13D) and the inner MAX re-spelled as a default-then-
-       override that RECOMPUTES __builtin_abs(slipAngle) -- retail expands the
-       abs TWICE (w63-a11's clamp receipt) and materialises 0x20000 TWICE
-       (`lui $v0,2` for the compare, `lui $a0,2` in the `bnez` delay slot for the
-       arm).  With the constant arm written FIRST, cse shares the one 0x20000
-       across the compare and the arm and pays a copy instead (15 @348, the extra
-       `addu $v0,$a0,$zero`); moving it to the else arm restores both `lui`s and
-       makes the fn COUNT-EXACT.  Keeping the whole thing as the original nested
-       ternary leaves the second max as a funnel (`addu $a0,$v1,$zero`) where
-       retail computes straight into the call's $a0. */
-    {
-      /* SYM-CODEGEN-CARRIER: cap -- the named clamp with the constant arm last
-         preserves two independent 0x20000 materializations and call setup. */
-      int cap;
-
-      if (((__builtin_abs(slipAngle) < minSlipAngle) ?
-           minSlipAngle : __builtin_abs(slipAngle)) <= 0x20000) {
-        cap = __builtin_abs(slipAngle);
-        if (cap < minSlipAngle) {
-          cap = minSlipAngle;
-        }
-      }
-      else {
-        cap = 0x20000;
-      }
-      latAcc = fixedmult(cap, roadGrip) / 2;
-    }
+    latAcc = fixedmult(MIN(MAX(__builtin_abs(slipAngle),0x8000),0x20000),roadGrip) / 2;
     if (slipAngle < 0) {
       latAcc = -latAcc;
     }
     latAcc = latAcc + gravity_ch.x / 2;
-    /* MATCH (w63-a11): RESULT-FUNNEL + EXPLICIT if/else ARMS.  Retail computes
-       BOTH clamp arms into one result register and stores finalAcc.x ONCE after
-       the join (oracle 0x800ABEF8/0x800ABF14 `addu $v1,...` then a shared `sw`);
-       ours stored per-arm.  BOTH halves are load-bearing and the ARMS matter more
-       than the funnel: funnel + ternary arms 53@351, funnel + if/else arms
-       21@347 (09C -- a COND_EXPR whose target is a MEM stores in both arms and
-       can never reach the shared-store shape).  A `cap` local for velCap.x
-       REGRESSES hard (57@351); xAcc declared first vs last is neutral.
-       w64-a11: the negative-velCap arm below is the 09A default-then-override
-       (`negu $v1,$v0` straight into the funnel, then the velCap override) --
-       the if/else spelling negates in place and pays `addu $v1,$v0,$zero`. */
     if (0 < wheel->velCap.x) {
-      if (wheel->velCap.x <= __builtin_abs(latAcc)) {
-        xAcc = wheel->velCap.x;
-      }
-      else {
-        xAcc = __builtin_abs(latAcc);
-      }
+      wheel->finalAcc.x = MIN(wheel->velCap.x,__builtin_abs(latAcc));
     }
     else {
-      /* MATCH (w64-a11, 09A): retail negates the abs STRAIGHT INTO the result
-         register (`negu $v1,$v0`) and then overrides -- the if/else form
-         negates in place and pays a copy into the funnel (`negu $v0,$v0;
-         addu $v1,$v0,$zero`). */
-      xAcc = -__builtin_abs(latAcc);
-      if (xAcc < wheel->velCap.x) {
-        xAcc = wheel->velCap.x;
-      }
+      wheel->finalAcc.x = MAX(wheel->velCap.x,-__builtin_abs(latAcc));
     }
-    wheel->finalAcc.x = xAcc;
   }
   wheel->finalAcc.y = 0;
   wheel->finalAcc.z = wheel->acc;
@@ -2033,7 +1881,6 @@ Phy_TireF_normalTire:
     Math_ResolveRotatedVector(wheel->finalAcc.x,wheel->finalAcc.z,-wheel->steeringAngle,
                              &wheel->finalAcc.x,&wheel->finalAcc.z);
   }
-Phy_TireF_storeSkid:
   if (wheel->frontTire != 0) {
     carObj->frontSkid = wheel->skid;
   }
@@ -2043,7 +1890,7 @@ Phy_TireF_storeSkid:
   return;
 }
 
-/* ---- Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii  [PHYSICS.CPP:1982-2040] SLD-VERIFIED ---- */
+/* ---- Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii  [PHYSICS.CPP:1982-2040] source/SLD review open ---- */
 int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,int lookAhead)
 
 {
@@ -2060,6 +1907,11 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
   if (0 < driveSide) {
     int desLane;
     int laneOffset;
+    /* Retail laneOffset is desLane-7 (v1), not the width in v0.
+       laneWidth names the old width capture by its proven byte-field/scale role;
+       its original spelling/object necessity and position's v0 home remain
+       source-recovery review in sym-match.md, not a generic carrier exemption. */
+    int laneWidth;
 
     desLane = 7;
     while ((AIWorld_IsDriveableLaneInSliceRange((int)carObj->N.simRoadInfo.slice,lookAhead,
@@ -2067,9 +1919,10 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
            (desLane < 10)) {
       desLane = desLane + 1;
     }
-    laneOffset = (u_int)PHYSICS_SLICE_WIDTH_RT(sliceAhead) * 0x8000;
-    position = (desLane - 7) * laneOffset + ((u_int)laneOffset >> 1);
-    if (0 < desLane - 7) {
+    laneOffset = desLane - 7;
+    laneWidth = (u_int)PHYSICS_SLICE_WIDTH_RT(sliceAhead) * 0x8000;
+    position = laneOffset * laneWidth + ((u_int)laneWidth >> 1);
+    if (0 < laneOffset) {
       position = position + 0x18000;
     }
     return position;
@@ -2077,11 +1930,7 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
   else {
     int desLane;
     int laneOffset;
-    /* SYM-CODEGEN-CARRIER: laneDelta -- both direct `6 - desLane` uses remain
-       count-exact at 112 instructions but change ten constant/global-load and
-       scratch-register instructions. The optimized difference restores the
-       retail shared value web without observable storage. */
-    int laneDelta;
+    int laneWidth;
 
     desLane = 6;
     while ((AIWorld_IsDriveableLaneInSliceRange((int)carObj->N.simRoadInfo.slice,lookAhead,
@@ -2089,14 +1938,14 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
            (4 <= desLane)) {
       desLane = desLane - 1;
     }
-    laneDelta = 6 - desLane;
-    laneOffset = (u_int)PHYSICS_SLICE_WIDTH_LF(sliceAhead) * 0x8000;
-    position = laneDelta * laneOffset + ((u_int)laneOffset >> 1);
-    return (0 < laneDelta) ? -(position + 0x18000) : -position;
+    laneOffset = 6 - desLane;
+    laneWidth = (u_int)PHYSICS_SLICE_WIDTH_LF(sliceAhead) * 0x8000;
+    position = laneOffset * laneWidth + ((u_int)laneWidth >> 1);
+    return (0 < laneOffset) ? -(position + 0x18000) : -position;
   }
 }
 
-/* ---- Physics_Real__FP8Car_tObj  [PHYSICS.CPP:2048-2500] SLD-VERIFIED ----
+/* ---- Physics_Real__FP8Car_tObj  [PHYSICS.CPP:2048-2500] source/SLD review open ----
  * RESIDUAL 6, count-EXACT 1272/1272.  ONE statement (SLD 2341, the wheelMult
  * fixedmult below): retail emits `lw $6,52(sp); lw $4,100(sp); lw $3,leftMult;
  * lw $5,rightMult; addu $4,$6,$4`, ours emits `lw $3,leftMult` FIRST and seats
@@ -2117,6 +1966,14 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
  * order half IS source-reachable; what it costs is the seat, and the seat is the
  * same 2-pseudo rotation the TEXT_MOVES row leaves behind.  A dial that pushes
  * both pseudos one slot UP the ascending find_free_reg scan closes the fn. */
+/* SOURCE-RECOVERY RECEIPT (2026-09-28, 1272/1272): original declaration order,
+   brake-attenuation damage coefficient and transfer divided-damage quantity
+   now match native retail records. damp is guarded at depth5; the mutually
+   exclusive handbrake ELSE restores every damping-region boundary, including
+   the optimized end before its six calls. Missing/extra/moved source objects,
+   other scopes and SLD remain explicitly open in sym-match.md. Bound-first
+   field MIN/MAX also remove gasLevel/brakeLevel and the old tempGas identity
+   fence (1272/1272); old direct-store necessity claims were shape-specific. */
 void Physics_Real(Car_tObj *carObj)
 
 {
@@ -2125,17 +1982,16 @@ void Physics_Real(Car_tObj *carObj)
   int frontBrake;
   int ratio;
   int tempSteer;
-  int frontGrip;
   int roadGrip;
-  int damp;
-  int rotationalAccCap;
-  Car_tSpecs *specs;
+  int frontGrip;
   Physics_tWheelAccStruct frontWheel;
   Physics_tWheelAccStruct rearWheel;
   coorddef temp;
   coorddef finalAngularAcc_ch;
   coorddef carAccCap_ch;
+  int rotationalAccCap;
   matrixtdef transposeMat;
+  Car_tSpecs *specs;
   
   (carObj->linearAcc_ch).x = 0;
   (carObj->linearAcc_ch).y = 0;
@@ -2357,15 +2213,10 @@ void Physics_Real(Car_tObj *carObj)
   brakeAcc =
       (gBrakeRatio / 0x100) * (specs->maxBrakeAcc / 0x100);
   brakeAcc = MIN(brakeAcc,__builtin_abs((carObj->linearVel_ch).z) * 32);
-  {
+  if ((carObj->N).damage[9] != 0) {
     int damage;
-    int damageMult;
-
-    damage = (carObj->N).damage[9];
-    if (damage != 0) {
-      damageMult = 0x10000 - damage / 0x80;
-      brakeAcc = (brakeAcc / 0x100) * (damageMult / 0x100);
-    }
+    damage = 0x10000 - (carObj->N).damage[9] / 0x80;
+    brakeAcc = (brakeAcc / 0x100) * (damage / 0x100);
   }
   if (0 < (carObj->linearVel_ch).z) {
     brakeAcc = -brakeAcc;
@@ -2391,9 +2242,9 @@ void Physics_Real(Car_tObj *carObj)
     int damage;
     int transferMult;
 
-    damage = (carObj->N).damage[4] + (carObj->N).damage[5] +
-             (carObj->N).damage[6] + (carObj->N).damage[9];
-    transferMult = damage / 0x200 + 0xc000;
+    damage = ((carObj->N).damage[4] + (carObj->N).damage[5] +
+              (carObj->N).damage[6] + (carObj->N).damage[9]) / 0x200;
+    transferMult = damage + 0xc000;
     carObj->gTransferFront =
         fixedmult(carObj->gTransferFront,transferMult);
     if (carObj->gTransferFront < 0) {
@@ -2601,39 +2452,18 @@ void Physics_Real(Car_tObj *carObj)
       adjustedRpm += 0xffff;
     }
     tempGas = (desiredRpm << 8) / specs->redline;
-    __asm__("" : "=r"(tempGas) : "0"(tempGas));
     diffRpm = desiredRpm - (adjustedRpm >> 16);
     if (diffRpm >= 0xc9) {
-      /* SYM-CODEGEN-CARRIER: gasLevel.  Reusing tempGas drops the retail copy
-         (1271/1272, 13 diffs); a direct ternary store is count-exact but changes
-         14 branch/store instructions. */
-      int gasLevel;
-
       tempGas += (diffRpm * 0x80) / desiredRpm;
-      gasLevel = tempGas;
-      if (0xe0 < gasLevel) {
-        gasLevel = 0xe0;
-      }
-      carObj->RSGasLevel = (char)gasLevel;
+      carObj->RSGasLevel = (char)MIN(0xe0,tempGas);
     }
     else if (diffRpm < 200) {
       tempGas = tempGas + (diffRpm * 0x80) / desiredRpm;
-      if (tempGas >= 0) {
-        carObj->RSGasLevel = (char)tempGas;
-      }
-      else {
-        carObj->RSGasLevel = '\0';
-      }
+      carObj->RSGasLevel = (char)MAX(0,tempGas);
       if (diffRpm < 0) {
-        /* SYM-CODEGEN-CARRIER: brakeLevel.  Reusing dead tempGas is count-exact
-           but moves the quotient from retail $a0 to $v1 (16 detailed diffs). */
-        u_int brakeLevel =
-            __builtin_abs(diffRpm << 9) / specs->redline;
-        if (0xff < (int)brakeLevel) {
-          brakeLevel = 0xff;
-        }
-        carObj->RSBrakeLevel = (char)brakeLevel;
-        if (0x80 < (u_char)brakeLevel) {
+        tempGas = __builtin_abs(diffRpm << 9) / specs->redline;
+        carObj->RSBrakeLevel = (char)MIN(0xff,tempGas);
+        if (0x80 < (u_char)carObj->RSBrakeLevel) {
           carObj->RSGasLevel = '\0';
         }
       }
@@ -2645,8 +2475,10 @@ void Physics_Real(Car_tObj *carObj)
       coorddef dirVector;
 
       currentRpm = __builtin_abs(carObj->currentSpeed) / 0x60000;
-      /* SYM-CODEGEN-CARRIER: rsControl.  Repeating the field read in both arms
-         adds four instructions and produces 16 detailed diffs (1276/1272). */
+      /* SOURCE-RECOVERY REVIEW: unrecorded RS-control capture. Paired RPM
+         ownership plus MAX/factored/expanded conditional forms were15/1273,
+         17/1271 and16/1276 after clamp cleanup. Original spelling and source
+         object necessity remain unresolved, not generically exempted. */
       int rsControl = carObj->RSControl;
       if (currentRpm >= 3) {
         lookAhead = rsControl * currentRpm;
@@ -2729,6 +2561,7 @@ PhyReal_iceBraking:
   else {
     if (((carObj->control).gear == '\x01') &&
         (__builtin_abs(gravity_ch.z) < 0x8000)) {
+      int damp;
       if ((__builtin_abs((carObj->linearVel_ch).z) < 0x140000) ||
           (__builtin_abs((carObj->control).steering) > 0x20)) {
         damp = 0xfd70;
@@ -2748,9 +2581,8 @@ PhyReal_iceBraking:
           fixedmult(damp,(carObj->N).angularVel.y);
       (carObj->N).angularVel.z =
           fixedmult(damp,(carObj->N).angularVel.z);
-      return;
     }
-    if (((carObj->control).handBrake != '\0') &&
+    else if (((carObj->control).handBrake != '\0') &&
         ((carObj->N).speedXZ <= 0xffff)) {
       (carObj->N).linearVel.x =
           fixedmult(0x8000,(carObj->N).linearVel.x);

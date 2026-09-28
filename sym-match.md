@@ -9,9 +9,9 @@ covered functions; not a full source-declaration/carrier/SLD seal):
 |---|---:|---:|
 | FRONTEND/COMMON | 711 | 127 |
 | FRONTEND/PSX | 61 | 24 |
-| GAME/COMMON | 1086 | 161 |
+| GAME/COMMON | 1090 | 157 |
 | GAME/PSX | 284 | 111 |
-| Total | 2142 | 423 |
+| Total | 2146 | 419 |
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
@@ -1944,6 +1944,524 @@ truncated relocations;590 existing strict overlaps. Post-link honest
 RECON299819/299819 identical, zero masked mismatches/foreign labels;
 vtable audit PASS1314 files, whitespace clean. Source/evidence local and
 uncommitted; the full source/SLD goal remains active, not complete.
+
+2026-09-28 physics continuation, diagnostic baseline (no function edit yet).
+Fresh immutable-reference check passed; detailed RampCarControlValues is
+502/502 PASS. Full TU gate `run-k9d6yrvn`: complete sections/layouts UNCHANGED,
+ASPSX 524 good/0 bad, PSYLINK zero errors, physics 10/22 native CLEAN.
+The earlier root comment's "Full SYM-locals applied" is not a completion proof:
+12 covered physics functions still have concrete native discrepancies.
+
+RampCarControlValues's missing ownership is now tied to cross-version source,
+not an arbitrary brace-count nudge. Matched NFS2 PC beta
+`match/physics/Physics_RampCarControlValues.c` owns normal ramping in the
+finish-state ELSE arm. Retail NFS4 has the corresponding enclosing +044..+528
+and ELSE +0d8..+528 regions; the current jump-to-earlyBrake spelling omits both.
+The actual gas calculation region owns inc at depth4 (ours2), and steering's
+guarded calculation owns rampIn at depth5 (ours3). Raw retail branches from
+the finished-car velocity decay directly to +528, confirming that the normal
+ramp/gear/steering phase is skipped but the shared early-brake tail still runs.
+Next source experiment: restore that real if/else ownership, remove the unused
+setSteering label, then reprice the brake/steering calculation regions. Preserve
+the shared tail and check +158..+198 and +4d8..+51c before claiming eight exact
+retail scopes; do not add fake locals merely to force empty debug regions.
+
+Independent full-g native-SYM versus retail per-word relative SLD baseline is
+496/502 differences (actual pre-.ent header anchors, not first-instruction
+heuristics). Scope boundary source tags also differ: +044 retail23/ours9,
++0d8 42/23, +4d8 171/147, +528 184/173. This is explicit remaining source-order/
+ownership evidence, NOT an SLD seal and not a justification for line padding.
+No source, baseline, compiler output or binary was rewritten in this round.
+
+2026-09-28 physics source round, retained changes after that baseline.
+- AutoShift: failed-gear early return removes two unsupported binding levels;
+  velocity is now at retail depth2 with the exact +0f8..+180 region. The
+  negated-sum spelling already proved at the later upshift guard also works at
+  the first gear guard, eliminating lastGearOffset and its generic carrier
+  exemption. Both calculations remain distinct/rematerialized; no replacement
+  local, asm, volatile, fake use or output rewrite. All175 words PASS and all
+  recorded names/types/homes/order plus the two scope tuples are retail-exact.
+- RampCarControlValues: normal phase now belongs to the real finish-state
+  ELSE, replacing the earlyBrake jump and unused setSteering label. inc and
+  rampIn depths/homes match retail. NFS2-supported MIN expressions in steering
+  extend its inner region through +51c exactly, not the former +514 endpoint.
+  All502 words PASS. Six of eight retail scopes are represented; the empty
+  brake selection/calculation pair +140..+1a4 / +158..+198 remains unresolved.
+  Do not claim that the whole TU's locals or source text is fully restored.
+- Reverted brake experiments: MIN/conditional clamp folded to slti17 instead
+  of16 and produced504/502 with14 differences. Void conditional side effects
+  with GNU regions preserved502 but closed the inner region at+190 rather
+  than+198. Selecting the complete adjusted byte needed explicit void casts
+  to avoid a narrowed-value reload (505/502, five differences), yet still
+  closed at+190. A value-returning region feeding the common assignment was
+  eight differences at502; swapping its outer arms was eleven at503. None of
+  these GNU brake representations is retained merely to improve block counts;
+  the original ordinary brake statements remain. No invented declaration.
+
+Final comment/indent-cleaned gate `run-0aknr5pu`: full TU sections/layouts
+UNCHANGED, ASPSX524/0, PSYLINK zero errors, physics10/22 ->11/22 native CLEAN.
+Global native report2143 CLEAN/422 DIRTY; GAME/COMMON1087/160, other directory
+counts unchanged. This measures native contracts, not full source/SLD completion.
+Actual native-SYM versus retail SLD remains157/175 different in AutoShift and
+496/502 in RampCarControlValues; no padding/#line work or full SLD seal claimed.
+Fresh real526-object GNU link: strict rc0 with the existing590 overlap warnings;
+multdef-ok rc0 with empty stderr, zero undefined names/truncated relocations.
+Independent honest RECON299819/299819 identical, zero masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Retained physics/doc changes are uncommitted after adc9fb10. Backups:
+scratchpad/physics_before_ramp_20260928.cpp and physics_after_ramp_20260928.cpp.
+
+2026-09-28 physics continuation: two more native contracts restored and one
+unrecorded product capture removed, while preserving every compiled TU byte.
+- CalculateRoadGripModifiers95/95: i belongs to an enclosing for binding at
+  depth3; roadSurfaceType/tempSurface are body locals at depth4. Ordinary
+  enclosing block plus for initializer reproduces the first four scopes.
+  The final multiplier calculation and guarded aero contribution are real
+  variable-free expression regions, reproducing +0e4..+16c and +128..+16c.
+  Their literal lost macro spelling is unknown, not asserted recovered.
+  The last real store is explicitly void-valued so this compiler accepts
+  the no-op false arm; no dummy object/use or additional asm/volatile.
+  All six scope tuples and named type/home/order/depth records are exact.
+- AttenuateVelocity279/279: direct builtin-abs expressions in the octagonal
+  speed approximation remove x and its declaring block. The formerly cited
+  twelve-difference repeat-expression failure was specific to manual abs
+  selectors; builtin abs gives the actual retail graph without the capture.
+  vel_b declaration now precedes the scalar locals as retail records it.
+  All native locals/types/homes/order and the single root scope match.
+  vy/vz remain source-only, with independent NFS2 name/value evidence already
+  in source; native CLEAN does not by itself prove original NFS4 spelling.
+- FixEngineRpm86/86: firstProduct inlines into the first two-term sum despite
+  its older 88-word/32-difference necessity claim. It is gone, together with
+  obsolete exemptions for nextVelX/nextVelY/nextMatY (already absent objects).
+  The remaining transformedZ and pre-existing nine-reference empty fence are
+  explicit unresolved source review, NOT a generic exemption or proof of an
+  original distinct object. Reverted trials: no fence32/86, direct full sum
+  35/87, field-by-field accumulation49/89. The existing fence is restored;
+  no replacement device was introduced. Only transformedZ remains EXTRA.
+
+Final comment/format-cleaned full gate `run-vyvw28vi`: complete sections/layouts
+UNCHANGED, ASPSX524/0, PSYLINK zero errors, physics13/22 native CLEAN (was11/22).
+Global native coverage2145 CLEAN/420 DIRTY; GAME/COMMON1089/158, other directory
+counts unchanged. Actual per-word relative native-versus-retail SLD differences
+remain248/279 in AttenuateVelocity,91/95 in RoadGripModifiers,86/86 in FixEngineRpm.
+Function banners no longer assert SLD verification for these unsealed bodies.
+Fresh526-object real GNU link: strict rc0 with the existing590 overlap warnings,
+multdef-ok rc0/empty stderr, zero undefined names or truncated relocations.
+Independent linked RECON299819/299819 identical, zero masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+All these physics/doc changes remain uncommitted after adc9fb10. Backups:
+scratchpad/physics_before_grip_20260928.cpp, physics_after_grip_20260928.cpp,
+and physics_before_attenuate_20260928.cpp. Full source/SLD goal remains active.
+
+2026-09-28 RS desired-position value-ownership round (partial native restoration).
+Raw v1 holds desLane-7 in the right arm and6-desLane in the left, followed by
+the shared multiplication/comparison uses. Those are retail's two laneOffset
+records, not the scaled slice-width values previously assigned that name.
+Restore both named index-difference objects and remove laneDelta plus its
+generic carrier exemption. The former width captures are retained as laneWidth,
+an explicitly inferred role from the byte-field read and0x8000 scale, NOT a
+recovered original name or an exemption for its source-object necessity.
+Each branch's desLane/laneOffset name, type, home, order and depth now agrees.
+No asm, volatile, fake read, const-name masking or compiler/output rewrite.
+
+Still active, not a floor: position is recorded in a0, retail v0, and the first
+arm closes at+124 instead of retail+11c. Its quantity/return funnel needs actual
+source reconstruction; do not simply rename the width or another unrelated
+v0 value to position. The width captures' original declaration/macro context
+also needs recovery. Direct width expressions were42 differences at112 words;
+using position as the width then returning adjusted expressions was39/115;
+in-place final negation in that form was33/111. Assigning the final negative
+selection to position (split statements, common return, or return-assignment)
+was8/112. Moving only the positive return outside the if/else was5/113.
+All failing variants reverted; the retained112/112 form is a verified naming/
+ownership improvement, not a complete native or SLD seal.
+
+Final full gate `run-4cu6ex5s`: all TU sections/layouts UNCHANGED, ASPSX524/0,
+PSYLINK zero errors, physics13/22 native CLEAN. Global2145/420 unchanged;
+affected-function EXTRA tally294->293 and MISSING116->115. Actual per-word
+relative native-vs-retail SLD still99/112 different in this function.
+Fresh526-object real link strict rc0 (existing590 overlap warnings),
+multdef-ok rc0/empty stderr; zero undefined names or truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches/foreign
+labels; vtable audit PASS1314 files. Backup:
+scratchpad/physics_before_rsposition_20260928.cpp. Retained edits uncommitted.
+The full project source/SLD objective remains active; this entry is evidence
+for known work still required, not an assertion that remaining work is unknowable.
+
+2026-09-28 traction/wheel-lock source round, retained value recovery at233/233.
+Retail gripLoss is the clamped quotient in v1, not the earlier excess
+acceleration kept in s1. Express that excess as totalAcc-roadGrip at its actual
+uses, put the quotient/clamp into the existing recorded gripLoss, and use
+canonical MIN(roadGrip/divider,excess/divider). Despite textual operand order,
+the emitted divisions remain loss-first/road-second, with retail's v0-to-v1
+copy. gripLossRatio and gripLossQuotient are removed, along with both existing
+read-only fences on those earlier stages. The first operand/reference-fence
+removal was independently PASS; quotient/override without the second fence
+was four differences at233, and MIN sealed it. All recorded non-parameter
+locals now have their correct original names, types, homes, order and depth.
+
+Not sealed: wheel_reg remains unrecorded and the wheel parameter debug home
+is a1 instead of retail s0; direct wheel references were90 differences at233
+both before and after the MIN landing, unchanged by register on the parameter.
+Reusing named gripLoss for the early difference then clamping it was229/236.
+Those variants are reverted. roadGripCompare/skidValue plus the two remaining
+empty fences and TireType labels still require genuine source recovery.
+Do not treat these finite trials as proof that extra source objects were
+original, or as generic exemptions. Current source comments state that review.
+
+WheelLock127/127 is restored unchanged in code after unsuccessful source trials:
+two direct MIN operand orders40/127 and38/127; field reads after the old
+comparison fence3/128; direct ordinary clamp4/127, unchanged by register
+roadGrip; inline TireType cap inside MIN29/142; explicit branch stores12/127.
+No failing rewrite, neutral register keyword or self-store experiment remains.
+Its skid/cmp and original empty identity fence are still active source review,
+not a newly proved floor; generic carrier exemptions were replaced by receipts.
+
+Final full gate `run-4kg_ipbh`: complete sections/layouts UNCHANGED, ASPSX524/0,
+PSYLINK zero errors, physics13/22 native CLEAN, global2145/420 unchanged.
+The traction function remains DIRTY only for its three native extras and wheel
+parameter home; the previous gripLoss home mismatch is gone. Actual relative
+per-word SLD differences remain225/233 in traction and117/127 in wheel lock.
+Fresh526-object GNU link strict rc0 with existing590 overlap warnings,
+multdef-ok rc0/empty stderr, zero undefined names or truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches or foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Backups: scratchpad/physics_before_lock_20260928.cpp and
+physics_before_traction_20260928.cpp. Retained physics/doc work remains
+uncommitted after adc9fb10; the full original-source/SLD goal remains active.
+
+2026-09-28 tire-force capture elimination: native CLEAN at346/346 PASS.
+Canonical MIN(wheel->velCap.x,abs(latAcc)) and
+MAX(wheel->velCap.x,-abs(latAcc)) assigned directly to finalAcc.x match BOTH
+front/rear instruction streams, including the shared physical stores. Both
+xAcc declarations are removed. The older claim that a memory-target conditional
+could never produce the shared store was source-basin-specific, not a law.
+Then the COMPLETE nested MIN(MAX(abs(slipAngle),0x8000),0x20000) inside fixedmult
+also matches346 exactly, eliminating minSlipAngle and cap, with no replacement
+object, alias, fake use, asm or volatile. This shape is independently supported
+by matched NFS2 tire-force source. All six extra native scopes disappear; only
+retail's root remains. Names/types/homes/order/depth for both params and all four
+root locals match. Removed unused storeSkid label; used wheelLock/normalTire
+labels now use the independently evidenced NFS2 semantic spellings, not a claim
+of uniquely recovered NFS4 label text. Obsolete necessity claims removed from
+the live source and superseded here, not kept as generic carrier exemptions.
+
+Reverted interim shapes: reusing latAcc as the rear lower-bound capture was
+six schedule differences at346, both before/after the xAcc removal; duplicated
+branch-local fixedmult calls16/346; latAcc reused through every cap stage24/348;
+front result reuse in latAcc25/347. Their finite failures do not rule out the
+complete macro form that subsequently passed. The retained version has NONE
+of those substitutions and no temporary diff degradation is left in the tree.
+
+Final comment/label-cleaned full gate `run-fn_pw48a`: all TU sections/layouts
+UNCHANGED, ASPSX524/0, PSYLINK zero errors. Physics13/22 ->14/22 native CLEAN;
+global2146 CLEAN/419 DIRTY, GAME/COMMON1090/157; other directories unchanged.
+Actual relative per-word native-versus-retail SLD remains337/346 different;
+no line padding/#line and no full original-text/SLD seal claimed.
+Fresh526-object real GNU link strict rc0 (existing590 overlap warnings),
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, zero masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Backups: scratchpad/physics_before_tireforces_20260928.cpp and
+physics_after_tire_xacc_20260928.cpp. Retained physics/doc edits remain
+uncommitted after adc9fb10; full project original-source/SLD goal still active.
+
+2026-09-28 car-acceleration named-value/ownership round,710/710 retained.
+Retail temp in v1 owns the raw fixedmult RPM product before signed /65536,
+not the RPM+250 precursor in a0. Express that precursor as the actual field
+increment; temp owns the early selected minimum and the later raw product.
+The late positive-demand clamp uses diffDesiredRpm after its initial difference
+is dead, before its existing driveAcc overwrite. Its real selection/stores
+preserve the a0 web and remove the former temp identity fence. This is a
+verified no-new-object/dead-phase representation; register reuse alone does
+not uniquely prove literal original C variable spelling for that late phase.
+No new fence, volatile, dummy read or output rewrite. Original declaration
+order restored, including blip/bblip before the scalar locals. Normal driving
+is the real ELSE of the initial gear/shift/power branch (also NFS2-supported),
+not a body reached after a jump to the common tail; rpmDrop/rpmRise now belong
+to retail depths5/7. Removed the newly unused finalAdjustReturn label.
+All recorded names, types, homes, relative declaration order and depths agree.
+
+Detailed diffsrc (-g twin EXACT) attributed the14-difference paired-source
+trial solely to the late clamp: moving temp to its v1 role exposed that the
+old identity-fenced desired-RPM selection was borrowing its a0 web. Correct
+dead-phase ownership removed that fence and preserved710 exact words.
+Reverted trials: combined rev-limit conditional MIN29/727; per-arm MIN22/710;
+early direct MIN plus temp product14/710 (reversed MIN25/709); product rename
+alone8/710; direct late MIN14/710; both candidate caps reused as desiredRpm
+370/708. Candidate/rev-limit captures remain explicitly unresolved, not floors.
+
+Final comment/format-cleaned full gate `run-ct36lhg5`: all TU sections/layouts
+UNCHANGED, ASPSX524/0, PSYLINK zero errors. Physics14/22 native CLEAN and
+global2146/419 unchanged, but affected-function MOVED36->35 and SCOPE163->162.
+CarAcceleration still has extra RPM/scaled-ratio captures and27 scopes versus
+retail8; root end+ae8 instead of+ae4. These are known recovery targets, not an
+assertion of native CLEAN. Actual relative per-word SLD remains662/710 different.
+Fresh526-object GNU link strict rc0 with existing590 overlap warnings;
+multdef-ok rc0/empty stderr, zero undefined names or truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Backups: scratchpad/physics_before_caracc_20260928.cpp and
+physics_after_caracc_temp_20260928.cpp. Physics/doc edits remain uncommitted
+after adc9fb10; the full original-source/SLD objective remains active.
+
+2026-09-28 car-acceleration rev-limit continuation: adjustedDesiredRpm removed.
+The already-recorded temp now owns the selected rev-limit minimum in v1,
+without a new object/fence or home/depth mismatch. All710 words remain PASS;
+the intermediate original-name restoration also matches full TU bytes/layouts.
+The preceding revLimitedRpm value in v0 is still unrecorded and unresolved.
+Reverted follow-ups: direct conditional selection into temp5/709 (lost the
+v0-to-v1 copy), MIN with conditional operand into temp33/727, removal of the
+existing scheduling fence3/709. The original fence is restored, not replaced
+with a new device. Live source comments now name the one remaining review
+item rather than asserting that two extra objects must be retained.
+
+Final full gate `run-7blpob69`: complete sections/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors, physics14/22 native CLEAN; global2146/419
+unchanged. The function still has other captures and27 scopes versus retail8;
+actual relative per-word SLD remains662/710 different. No native/full-source
+seal is claimed. Fresh526-object GNU link strict rc0 (existing590 overlap
+warnings), multdef-ok rc0/empty stderr; zero undefined names/truncated
+relocations. Independent linked RECON299819/299819 identical, no masked
+mismatches/foreign labels; vtable audit PASS1314 files; whitespace check clean.
+Backup: scratchpad/physics_after_revlimit_temp_20260928.cpp. Retained
+physics/doc edits remain uncommitted after adc9fb10; full goal still active.
+
+2026-09-28 car-acceleration flywheel-snapshot elimination,710/710 retained.
+All three currentFlywheelRpm objects are removed. Root redline comparison
+uses flywheel>=redline instead of redline<=flywheel: the operand spelling
+restores the snapshot's source-driven load order (direct old order was two
+differences at710). The late minimum reads the field directly after the earlier
+identity-fence removal/value-owner correction, with no additional code.
+The rise arm factors the common base into += MIN(-diffFlywheelRpm,rpmRise).
+That operand order preserves the branch and both additions exactly; the
+reverse MIN was six differences at710. Plain factored ternary was102/712;
+direct fields in both original ternary arms were12/714. Failing alternatives
+reverted, no replacement alias, asm, volatile or fake use retained.
+The older snapshot-necessity comments are superseded, not generic exemptions.
+
+Final full gate `run-9ri5bnxl`: all TU sections/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors, physics14/22 native CLEAN; global2146/419
+unchanged. CarAcceleration is still DIRTY for remaining captures and25
+scopes versus retail8. Full relative SLD/original text remains unsealed;
+no line-padding work is used to conceal that gap. Fresh526-object GNU link
+strict rc0 with existing590 overlap warnings, multdef-ok rc0/empty stderr;
+zero undefined names/truncated relocations. Independent linked RECON
+299819/299819 identical, no masked mismatches/foreign labels; vtable audit
+PASS1314 files; scoped whitespace check clean. Retained physics/doc edits
+remain uncommitted after adc9fb10; full project goal is still active.
+
+2026-09-28 desired-RPM candidate elimination,710/710 retained.
+Each branch now assigns the complete canonical MIN(redline+bias,
+fixedmult(redline+bias,gGasRatio)) expression. Both candidateRpm declarations
+are removed; the macro's repeated call operand preserves retail's comparison/
+fallback call behavior, unlike single-call rewrites or eager desiredRpm reuse.
+Detailed710/710 and immutable-reference whole-TU byte/layout checks confirm
+the call setup, branches, arithmetic and data placement are unchanged.
+Three extra native scopes disappear (CarAcceleration25->22); all recorded
+local names/types/homes/order/depth remain correct. No replacement object,
+asm, volatile, dummy read or post-compile rewrite.
+
+Signed-/256 follow-ups were not retained: whole (driveAcc/256)*(ratio/256)
+and split named diffDesiredRpm quotient both10 differences at710. The earlier
+manual bias/interleave plus scaledRatio and its original identity fence are
+restored. scaledRatio is an explicitly unresolved source-recovery item, not
+exempted or proved original by those finite trials. Remaining native extras:
+clampedFlywheelRpm, revLimitedRpm and scaledRatio. Known scope/SLD recovery
+also remains; no native/full-source seal is claimed.
+
+Final full gate `run-72s2_wuz`: all sections/layouts UNCHANGED, ASPSX524/0,
+PSYLINK zero errors; physics14/22 native CLEAN, global2146/419 unchanged.
+Fresh526-object GNU link strict rc0 (existing590 overlap warnings),
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Backups: scratchpad/physics_before_candidate_min_20260928.cpp and
+physics_after_candidate_min_20260928.cpp. Retained physics/doc edits remain
+uncommitted after adc9fb10; full project original-source/SLD goal stays active.
+
+2026-09-28 shared flywheel-clamp snapshot elimination,710/710 retained.
+Damage now performs its real field decrement and MAX(flywheelRpm,0), then
+reaches the wheel-spin tail. The non-damage shifted-gear path writes the same
+real MAX clamp. GCC cross-jumps the two source tails back into the exact retail
+shared comparison/store, including the damage path's skip past the reload and
+its jump-delay-slot store. clampedFlywheelRpm and the now-unused cfLbl1 label
+are removed. No new object, asm, volatile, fake use or output rewrite.
+Old staging/if-funnel necessity assertions were source-shape-specific and are
+superseded in the live source. Independent NFS2 source also uses field MAX.
+
+Reverted partial steps: direct field if-clamp while retaining the jump into
+the other arm14/704; replacing only that common clamp with MAX9/705. The paired
+source-tail rewrite, not either isolated edit, is710/710 PASS. Final full gate
+`run-nyqi32w2`: all TU sections/layouts UNCHANGED, ASPSX524/0, PSYLINK zero errors.
+Physics14/22 native CLEAN and global2146/419 unchanged; CarAcceleration's
+remaining native extras are only revLimitedRpm and scaledRatio, with22 scopes
+versus retail8. The elided downshiftRedlineRpm source capture also remains
+explicit review; native-extra counts are not a complete carrier audit.
+Actual relative SLD661/710 still differs; no full original-text/SLD seal claimed.
+Fresh526-object GNU link strict rc0 (existing590 overlap warnings),
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Backup: scratchpad/physics_before_flyclamp_20260928.cpp. Retained physics/doc
+work remains uncommitted after adc9fb10; full project goal remains active.
+
+2026-09-28 downshift redline source-capture elimination,710/710 retained.
+Canonical ratio=MIN(flywheelRpm,specs->redline) preserves the redline-v0,
+flywheel-a0 loads and the selected v1 quantity. The reverse operand spelling
+was four moved-load differences at710, so operand order is part of the receipt.
+The elided const downshiftRedlineRpm object and its read-only empty fence are
+removed, not hidden behind a native-CLEAN exception. Original named ratio is
+the actual selection result; no new object, alias, asm, volatile or fake use.
+This is source-only progress a declaration/local-row-only audit would miss:
+nine extra binding regions vanish (CarAcceleration22->13 scopes, retail8).
+The earlier fenced-snapshot necessity statement is superseded in live source.
+
+Final full gate `run-6h5ehkl9`: all TU sections/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors, physics14/22 native CLEAN; global2146/419
+unchanged. Remaining native captures in CarAcceleration: revLimitedRpm and
+scaledRatio; scope boundaries and full original-source/SLD remain open.
+Actual relative SLD661/710 still differs, with no line-padding workaround.
+Fresh526-object GNU link strict rc0 (existing590 overlap warnings),
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Backup: scratchpad/physics_before_downshift_20260928.cpp. Retained physics/doc
+changes remain uncommitted after adc9fb10; full project goal remains active.
+
+2026-09-28 car-acceleration root-scope endpoint correction,710/710 retained.
+Combine the final car-type/slippery/second-gear/positive-acceleration guards,
+eliminating the duplicate early return expression. Every instruction remains
+identical, but the root binding now ends at retail's+ae4 instead of+ae8.
+All retail block tuples are now an exact ordered subsequence of the native
+tree; the five extra regions correspond to remaining revLimitedRpm/scaledRatio
+declarations. This is a scope-boundary improvement, NOT full native CLEAN:
+13 scopes still differ from retail8. No padding, dummy object/use, asm addition,
+volatile or output rewrite. ScaledRatio fence-removal retest was4/710 (only
+the preserved ratio-copy input); its pre-existing fence is restored.
+
+Final full gate `run-xzd3zwwx`: all TU sections/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors, physics14/22 native CLEAN. Actual relative
+SLD661/710 remains different, with full project source/SLD goal still active.
+Fresh526-object GNU link strict rc0 (existing590 overlap warnings),
+multdef-ok rc0/empty stderr, zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Backup: scratchpad/physics_before_scaledratio_round2_20260928.cpp. Retained
+physics/doc edits remain uncommitted after adc9fb10; no completion seal claimed.
+
+2026-09-28 Physics_Real named damage/damping source round,1272/1272 retained.
+Restore original root declaration order without changing any code/data/layout.
+damp moves from function root to the real guarded damping region at depth5,
+supported independently by matched NFS2 source. Removing its terminal return
+and writing the mutually exclusive handbrake case as ELSE restores ALL tail
+scope tuples, including +12bc..+1300 for the declared damping region and its
+parents ending+13b8. The optimized scope ends before the six calls even though
+the source block contains them; do not model debug bounds as literal code length.
+
+Brake attenuation retail damage is the coefficient in v0 at depth3, not the
+initial raw damage[9] severity in v1. Direct field guard plus block-local
+damage=0x10000-damage[9]/128 restores that record/region and removes the extra
+damageMult object. Transfer damage is the divided four-zone sum in v1, not
+the unrecorded pre-division sum: damage=(sum)/512;transferMult=damage+0xc000
+restores its missing REG record with all1272 instructions unchanged. The
+alternative in-place divide statement was26 differences at1272 and reverted.
+All three damage records now agree in name/type/home/order/depth.
+
+Reverted RPM/look-ahead pair: naming the shifted RPM as currentRpm and direct
+look-ahead MAX expressions were15/1273 and17/1271 by operand order. currentRpm
+home and remaining rsControl capture remain known source-recovery work, not
+exempted by those finite trials. Other snapshots/math devices and regions
+remain explicitly unsealed. No new asm, volatile, dummy object/use, padding
+or compiler/output rewrite in this retained round.
+
+Final full gate `run-5kh8adqt`: all TU sections/layouts UNCHANGED,
+ASPSX524/0, PSYLINK zero errors, physics14/22 native CLEAN. Global2146/419
+unchanged; affected-function MISSING115->114 and SCOPE162->161. Actual
+relative native-versus-retail SLD1227/1272 still differs; no full SLD seal.
+Fresh526-object GNU link strict rc0 (existing590 overlap warnings),
+multdef-ok rc0/empty stderr; zero undefined names/truncated relocations.
+Independent linked RECON299819/299819 identical, no masked mismatches/foreign
+labels; vtable audit PASS1314 files; scoped whitespace check clean.
+Backups: scratchpad/physics_before_real_20260928.cpp and
+physics_after_real_damage_20260928.cpp. Retained physics/doc changes remain
+uncommitted after adc9fb10; full project original-source/SLD goal remains active.
+
+2026-09-28 Physics_Real RS gas/brake source-clamp round,1272/1272 retained.
+Bound-first (char)MIN(0xe0,tempGas) removes gasLevel while retaining the
+shared physical compare/store. The reverse MIN was14 differences at1272,
+including the byte-target constant/store lowering, and was superseded.
+For braking, reuse the recorded tempGas for the real signed quotient,
+store (char)MIN(0xff,tempGas), then test the actual unsigned RSBrakeLevel
+field. This removes brakeLevel without altering its original signed clamp
+or low-byte threshold behavior. MAX(0,tempGas) expresses the negative-demand
+gas floor directly. The former tempGas identity fence is unnecessary in
+this source shape and is removed too, with no replacement alias/fence,
+volatile, fake use or output rewrite. All1272 words and full TU sections/
+layouts are unchanged. Reusing lookAhead for the RS direction/multiplier
+precursor was44 differences at1272 and reverted; rsControl remains review.
+
+Final full gate `run-__1dx8nh`: ASPSX524/0, PSYLINK zero errors,
+physics14/22 native CLEAN; global2146/419 unchanged. Physics_Real remaining
+native extras: adjustedRpm,fz,lm,rsControl; currentRpm home and24 scopes versus
+retail23 remain unresolved. Per-word relative SLD1227/1272 still differs,
+so no whole-function original-source/SLD seal is claimed. Fresh526-object
+GNU link strict rc0 (existing590 overlap warnings), multdef-ok rc0/empty
+stderr; zero undefined names/truncated relocations. Independent linked
+RECON299819/299819 identical, no masked mismatches/foreign labels; vtable
+audit PASS1314 files; scoped whitespace check clean.
+Backup: scratchpad/physics_before_real_clamps_20260928.cpp. Retained
+physics/doc changes remain uncommitted after adc9fb10; full goal still active.
+
+2026-09-28 Physics_Real RPM/look-ahead diagnostic revalidation (no failing
+function changes retained). After the gas/brake/fence cleanup, paired real
+shifted-currentRpm ownership and look-ahead forms still failed: MAX with
+reversed multiply order15/1273; explicit intermediate lookAhead quotient17/1271;
+expanded conditional with per-arm multiplication16/1276. The current verified
+branch/capture form is restored at1272/1272 and full TU byte/layout identity
+(`run-d644fefc`, ASPSX524/0, PSYLINK zero errors). Source comments now explicitly
+record these current failures instead of silently exempting rsControl.
+The missing original quantity ownership is not fixed by renaming its width/
+step precursor; it remains a known investigation, not a floor or unknowable.
+
+Next instrument routing established read-only: complete GCC function.c exists
+under extracted2/gcc-2.8.1 and extracted5/gcc-2.8.1 (not the small extracted/
+subset); global.c/local-alloc.c are in extracted/. C++ trace binaries exist
+in C:/Temp/nfs4-instr-cc1. qtytrace/qtyprio accept file-first positional inputs,
+not --help: trace function filter with --steps/--blocked/--want, or lreg plus
+signature. A trace receipt requires byte fidelity against the authentic
+compiler for this specific function first; no such new trace is claimed here.
+The global simulator needs genuine greg/lreg dumps; do not infer allocation
+windows from already scheduled final assembly or silently swap compiler lanes.
+All failed source variants are reverted, no baseline/tool/compiler output or
+binary rewrite. Existing linked-image checkpoint remains unchanged by these
+restored-code/comment-only diagnostics. Full project goal remains active;
+retained physics/doc restoration changes are still uncommitted after adc9fb10.
+
+2026-09-28 authentic allocation-dump preparation (diagnostics, no source experiment).
+Normal physics preprocessing input copied into isolated
+build/physics_alloc_20260928/physics.i. Authentic CC1PLPSX -quiet -O2 -G4
+with -dg -dl -dS produced greg/lreg/sched dumps and auth.s. Its FULL assembly
+SHA256 is exactly the normal verified build's:
+503463949C70102A4DFA640286CE6A4ECFC3B4CAB607CEB4356B8BE063072217.
+Thus dump flags are code-neutral for this current TU, without relying on a
+different compiler or post-compile rewrites. Inputs and generated outputs are
+isolated; production build objects/source/baselines were not overwritten.
+
+Simulator invoked with the actual dump signature prefix, void Physics_Real
+(bare Physics_Real is not a valid prefix for allocsim). Order matches the dump,
+but handout fidelity is only93/95: p348 sim v1/actual a1, p344 sim a0/actual v1.
+Do NOT price or retain register dials on the assumption that this whole model
+is validated. Next diagnostic work must reconcile those differences or obtain
+a per-function code-faithful instrumented trace before using local qty windows.
+qtyprio's refs/live numbers are proxies; merged quantities need qtytrace's
+actual merged counts. No new instrumented-compiler trace/fidelity claim here.
+Current matching and original-source/SLD objective remain open, not a floor.
+
+This receipt supplies real compiler state for the pending RPM/look-ahead
+investigation rather than another spelling sweep or status restatement.
+Matched source unchanged in this diagnostic round; retained physics/doc
+restoration checkpoint remains uncommitted after adc9fb10. Full goal active.
 
 2026-09-25 (session from commit 4eff2f1a). SLD line matching is parked by the user for a later
 stage; this round is the native contract (locals, homes, scope trees) only. Every retained

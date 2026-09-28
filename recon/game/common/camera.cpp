@@ -638,8 +638,10 @@ void Camera_UpdateHeliCam(int player,int behavior)
          refuses to thread `bnez -> $Lexit -> j $Lmerge` (retail threads it and
          puts `li $17,-3` in the surviving j's slot).  Fencing the OTHER arm's
          tail un-merges exactly the same and leaves the wrongway arm's exit label
-         asm-free => the thread fires.  12 -> 9 alone; PASS 443/443 together with
-         the four PER_FN_TEXT_MOVES rows (scratchpad/w63a11/tm_helicam_spec.json).
+         asm-free => the thread fires. Those were historical trials using
+         now-removed text-move rows; the current whole-TU byte gate is direct,
+         with no such rows in build.py. The empty fence itself remains a
+         source-restoration review item, not evidence of original spelling.
          Priced: fence at wrongway-arm tail 12(shipped)/3(with moves) - dropped
          8@441 - before the inner if 8@441 - inside the inner if 3 - both arms 3 -
          arms swapped 7.  __volatile__ flavour and a goto-out-of-arm1 variant are
@@ -686,10 +688,8 @@ void Camera_UpdateHeliCam(int player,int behavior)
       rate = z + (ax >> 2);
     }
     rate = rate / 900;
-    /* MATCH: MAX(0x51E, MIN(rate,maxrate)) funnels into vertigo, then rate = vertigo */
-    vertigo = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
+    rate = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
             : (maxrate < rate ? maxrate : rate);
-    rate = vertigo;
   }
   if (1 < Replay_ReplayMode) {
     rate = 0x28F;
@@ -732,11 +732,11 @@ void Camera_UpdateHeliCam(int player,int behavior)
     }
   }
   {
-    /* SYM-CODEGEN-CARRIER: second -- retail keeps the normalized comparison
-       sample as a pointer quantity separate from `slice`; reusing the SYM
-       `slice` local for that index emits 445/443 instructions and 112 diffs. */
+    /* SYM-CODEGEN-CARRIER: second -- the anonymous second-slice address has
+     * no retail local record. Current pointer/array conditional replacements
+     * change scheduling or add instructions; this remains a recovery task. */
     char *second;
-    fallback = BWorldSm_slices[slice].center[1];
+    vertigo = BWorldSm_slices[slice].center[1];
     if (lookahead < 1) {
       slice = slice - lookahead;
       second = (char *)BWorldSm_slices +
@@ -747,28 +747,24 @@ void Camera_UpdateHeliCam(int player,int behavior)
       second = (char *)BWorldSm_slices +
           ((slice < 0 ? slice + gNumSlices : slice) << 5);
     }
-    fallback -= ((Trk_NewSlice *)second)->center[1];
-    fallback = fallback / 2;
+    vertigo -= ((Trk_NewSlice *)second)->center[1];
+    vertigo = vertigo / 2;
     switch (behavior) {
     case 0:
-      fallback = 0;
+      vertigo = 0;
       break;
     case 1:
-      fallback = ((0x14000 < fallback ? 0x14000 : fallback) < 0x4000) ? 0x4000
-          : (0x14000 < fallback ? 0x14000 : fallback);
+      vertigo = ((0x14000 < vertigo ? 0x14000 : vertigo) < 0x4000) ? 0x4000
+          : (0x14000 < vertigo ? 0x14000 : vertigo);
       break;
     case 2:
-      fallback = ((0x30000 < fallback ? 0x30000 : fallback) < -0xc000) ? -0xc000
-          : (0x30000 < fallback ? 0x30000 : fallback);
+      vertigo = ((0x30000 < vertigo ? 0x30000 : vertigo) < -0xc000) ? -0xc000
+          : (0x30000 < vertigo ? 0x30000 : vertigo);
       break;
     }
-    /* SYM-CODEGEN-CARRIER: armY -- loading arm.y before the boundary leaves
-       the following Input_gLookBehind high/low pair free to fill its latency
-       window.  A direct `arm.y += fallback` is count-exact but leaves 2 diffs. */
-    int armY = arm.y;
     /* MATCH: this boundary blocks the clamp-switch target steals. */
     __asm__("" : : "i"(0));
-    arm.y = armY + fallback;
+    arm.y += vertigo;
   }
   if (Input_gLookBehind[player] != 0) {
     /* audio (look-behind) arm FIRST in VA order */
@@ -799,14 +795,12 @@ void Camera_UpdateHeliCam(int player,int behavior)
   Camera_gInfo[player].relpos.x = oldarm.x + fixedmult(newarm.x - oldarm.x,rate);
   Camera_gInfo[player].relpos.y = oldarm.y + fixedmult(newarm.y - oldarm.y,rateY);
   Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,rate);
-  if (Camera_gInfo[player].intransition == 0) {
-    len = Math_VectorLength(&Camera_gInfo[player].relpos);
-    if (len < 0x651eb) {
-      int scale = fixeddiv(0x651eb,len);   /* SYM: REG scale in NESTED block scope ($s0) */
-      Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x);
-      Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y);
-      Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
-    }
+  if ((Camera_gInfo[player].intransition == 0) &&
+      ((len = Math_VectorLength(&Camera_gInfo[player].relpos)) < 0x651eb)) {
+    int scale = fixeddiv(0x651eb,len);   /* SYM: REG scale in body scope, depth 3 ($s0) */
+    Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x);
+    Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y);
+    Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
   }
   Camera_gInfo[player].position.x =
        ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
@@ -816,12 +810,8 @@ void Camera_UpdateHeliCam(int player,int behavior)
   Camera_gInfo[player].position.z =
       ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z +
       Camera_gInfo[player].relpos.z;
-  /* W61-A11 REF-STEP DIAL -- DO NOT DELETE.  Zero-insn read-only fence: it adds
-     exactly ONE reference to the &Camera_gInfo[player] address pseudo, taking its
-     local-alloc qty from refs 15 (QTY_CMP_PRI 1.3235) to refs 16 (1.882) so it
-     out-ranks the two position adds (1.3333) and wins $v0 -- retail's seat.
-     Removing it puts the whole epilogue block back on the $v0<->$v1 swap (57).
-     See the fn header for the qty table and the position sweep. */
+  /* Historical W61-A11 used an epilogue ref-step fence. It is no longer
+   * present or needed in the current source; all bytes pass without it. */
   return;
 }
 
@@ -953,21 +943,21 @@ void Camera_UpdateAnimCam(int player)
   coorddef animPos;    /* SYM: AUTO */
   coorddef newarm;     /* SYM: AUTO */
   matrixtdef animRot;  /* SYM: AUTO */
-  /* SYM-CODEGEN-CARRIER: cVar1 -- a direct animNum post-decrement index loses
-     one retail instruction and changes the acquisition sequence by 21 diffs. */
-  signed char cVar1;
-  /* SYM-CODEGEN-CARRIER: cVar4 -- the second direct animNum post-decrement
-     index likewise loses one retail instruction and produces 21 diffs. */
-  signed char cVar4;
+
+  /* The two acquisition indices reconstruct the signed old byte after an
+   * explicit subtraction on the unsigned animNum field. Narrowing the sum
+   * wraps 255+1 back to zero, so this equals the old byte for all 256 values.
+   * It preserves retail's -1 immediate (plain postfix emits 255 here) without
+   * cVar1/cVar4 source-only captures. Byte/native receipt: run-u555nwy7.
+   * Exact original spelling and relative SLD attribution remain unsealed. */
 
   /* BUGFIX (H-class): animHandle is plain char (unsigned on this build) - the == -1 compare
    * was provably-false and gcc DELETED the whole re-acquire branch; (signed char) restores it */
   if ((signed char)Camera_gInfo[player].animHandle == -1) {
-    /* MATCH: post-decrement in the index expr (lbu clobbers the compare's -1 reg) */
-    cVar1 = (signed char)Camera_gInfo[player].animNum;
-    Camera_gInfo[player].animNum = cVar1 - 1;
+    /* Consume the old byte while decrementing the field before acquisition. */
     Camera_gInfo[player].animHandle = (char)Anim_Handle(
-        (u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar1]);
+        (u_int)(u_char)gAnimCams[GameSetup_gData.track][
+            (signed char)((Camera_gInfo[player].animNum -= 1) + 1)]);
   }
   if (Camera_AnimGetTimedAnimPosRot(
           Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle),
@@ -975,10 +965,9 @@ void Camera_UpdateAnimCam(int player)
     /* MATCH: re-acquire arm FIRST in VA order (blez jumps away to the <1 arm) */
     if (0 < (signed char)Camera_gInfo[player].animNum) {
       Anim_FreeHandle((int)(signed char)Camera_gInfo[player].animHandle);
-      cVar4 = (signed char)Camera_gInfo[player].animNum;
-      Camera_gInfo[player].animNum--;
       Camera_gInfo[player].animHandle = (char)Anim_Handle(
-          (u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar4]);
+          (u_int)(u_char)gAnimCams[GameSetup_gData.track][
+              (signed char)((Camera_gInfo[player].animNum -= 1) + 1)]);
       Camera_AnimGetTimedAnimPosRot(
           Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle),
           &animPos,&animRot);
@@ -1458,9 +1447,6 @@ void Camera_UpdatePulloverCam(int player)
   coorddef sccVec;    /* SYM: AUTO @0x40 */
   coorddef newarm;    /* SYM: AUTO @0x50 */
   int ySign;          /* SYM: REG */
-  /* SYM-CODEGEN-CARRIER: side -- retaining the road-frame cross product before
-     the profile call preserves retail's live range and 223-instruction body. */
-  int side;
 
   if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
      (InBetween == 0)) {
@@ -1484,21 +1470,16 @@ void Camera_UpdatePulloverCam(int player)
     sRight.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[0]) << 0xb;
     sRight.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[1]) << 0xb;
     sRight.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[2]) << 0xb;
-    side = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
-    ySign = Camera_IslandProfile(BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].pavedProfile);
-    /* w62-a11 PRODUCTION-LANE FIX (psyqproof REAL 1 -> 0).  The shipped form
-       `if (iVar3 < 0) { ySign = ySign != 1; }` put BOTH the xori and the 0/1
-       renormalising `sltu v0,zero,v0` inside the guard, so our `bgez $s0`
-       skipped 3 insns where retail skips 2 (word 146 @0x80082EDC: ours
-       0x06010003 vs retail 0x06010002).  verify_asm normalises branch TARGETS,
-       so the testing gate called it PASS -- only the ASPSX word compare saw it.
-       The ternary puts the `!= 0` on the SHARED result, so the sltu falls
-       through on both arms exactly like retail.  Falsified alternatives (all
-       222 insns = one SHORT, gcc drops the redundant sltu): `ySign ^= 1` in the
-       guard with the test alone / with a separate `ySign = ySign != 0;` /
-       with `(ySign != 0) != 0` in the test. */
-    ySign = ((side < 0) ? (ySign ^ 1) : ySign) != 0;
-    if (ySign != 0) {
+    ySign = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
+    /* Retail's ySign is the y component of the road-frame cross product,
+     * held in s0 across the profile call, not the Boolean result in v0.
+     * XOR the anonymous profile with the sign mask, then normalize the shared
+     * result. This preserves the bgez skip of two instructions and the sltu
+     * on both paths; moving normalization into the arm changed a branch word.
+     * No side/profile capture is needed (run-b_4ty6c4, 223/223 PASS). Exact
+     * expression spelling and complete SLD attribution remain unsealed. */
+    if ((Camera_IslandProfile(BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].pavedProfile) ^
+         ((ySign < 0) ? 1 : 0)) != 0) {
       sRight.x = -sRight.x;
       sRight.y = -sRight.y;
       sRight.z = -sRight.z;
@@ -2507,7 +2488,6 @@ void Camera_NextMode(int cviewP)
 {
   /* The const alias preserves the retail signed range test without a debug
      local; direct field use changes 12 instructions. */
-  int splitBase;   /* function scope: retail's split-screen arm is not a declaring block (only the flagMode block is) */
   const u_short modeForRange = (u_short)Camera_gInfo[cviewP].mode;
   if ((Camera_gInfo[cviewP].mode == 0xe) || (Camera_gInfo[cviewP].modechange != 0))
     return;
@@ -2523,14 +2503,11 @@ void Camera_NextMode(int cviewP)
     Camera_gInfo[cviewP].animHandle = -1;
   }
   if (Camera_gInfo[cviewP].splitscreen != 0) {
-    /* SYM-CODEGEN-CARRIER: splitBase -- direct typed gSplitCameras indexing
-       changes base allocation at six positions. A const alias retains 237
-       instructions but schedules `addiu a1,a1,0` one slot late (2 diffs). */
-    Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
-    splitBase = (int)gSplitCameras;
+    /* A signed-short remainder subscript preserves retail's scaled index
+     * and address allocation without a splitBase source-only capture.
+     * The increment's assignment value is already narrowed by camNum's type. */
     Camera_gInfo[cviewP].mode =
-         *(short *)(splitBase +
-                   (((int)Camera_gInfo[cviewP].camNum % 3) * 0x10000 >> 0xe));
+        (short)gSplitCameras[(short)((Camera_gInfo[cviewP].camNum += 1) % 3)];
   }
   else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
           ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||

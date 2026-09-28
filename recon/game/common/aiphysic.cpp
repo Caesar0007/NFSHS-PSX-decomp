@@ -1404,10 +1404,10 @@ LAB_8006b908:
  *    lifetime start at damage[4], so the sum accumulates IN totalDamage ($v1) and the fixedmult
  *    result moves back into it (`move v1,v0`) — exactly the SYM's `totalDamage REG $3`. The single-
  *    expression form let gcc coalesce the (anonymous) sum into $v0 (the 17-diff near-miss).
- * 3. SEPARATE `result` var + `if(x<=0x10000) result=x; else result=0x10000;` (BOTH branches assign
- *    — NOT a default+conditional-override funnel): produces the oracle's $a0 result-
- *    funnel + the `addu v0,a0,zero` slt-scratch copy.  On the authoritative in-tree lane,
- *    removing the funnel via a ternary gives 21 diffs and early returns give 23.
+ * 3. BOUND-FIRST conditional expression: `0x10000 < totalDamage ? 0x10000 : totalDamage`
+ *    preserves the oracle's anonymous $a0 clamp-result funnel and scratch copy without
+ *    inventing a named result local (retail names only totalDamage). Operand/arm order
+ *    matters to GCC's MIN_EXPR expansion; the other measured ternary had 21 diffs.
  * 24→0. META: a "permuter plateau" (it stalled at 115) does NOT mean unbeatable — the permuter
  * can't restructure a sum-expr into +=-accumulation or change scalar→array access. Re-derive the
  * SYM's variable/type structure first. CANONICAL 100% scratch: https://decomp.me/scratch/JS0Q0
@@ -1415,19 +1415,12 @@ LAB_8006b908:
 int AIPhysic_GetRearEndDamageFactor(Car_tObj *carObj)
 {
     int totalDamage;
-    /* SYM-CODEGEN-CARRIER: result -- absent from retained debug locals;
-     * ternary removal is 21 diffs and early-return form is 23. */
-    int result;
     totalDamage = carObj->N.damage[4];
     totalDamage += carObj->N.damage[5];
     totalDamage += carObj->N.damage[6];
     totalDamage += carObj->N.damage[9];
     totalDamage = fixedmult(totalDamage, 0x147);
-    if (totalDamage <= 0x10000)
-        result = totalDamage;
-    else
-        result = 0x10000;
-    return result;
+    return 0x10000 < totalDamage ? 0x10000 : totalDamage;
 }
 
 /* The retail SYM has no `r` local in AIPhysic_InControlPhysics, while the

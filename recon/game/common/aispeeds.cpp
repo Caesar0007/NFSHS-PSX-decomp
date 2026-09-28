@@ -412,7 +412,9 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
 {
   /* Native loop scopes recovered without an asm fence: the excluded-car
    * early return and for-declared humanLoop preserve all 111 instructions.
-   * Clamp-result and final scope/SLD recovery remain unresolved. */
+   * The default-first nested if/else restores all remaining native scope
+   * boundaries and glue/glueIndex depths (run-3js278sh). The unrecorded clamp
+   * result and relative source-line/SLD attribution remain unresolved. */
   int closestHumanDistance;
   Car_tObj *closestHumanCarObj;
 
@@ -445,36 +447,36 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
      * inline inside the later `/0x3c0000+10` expression reproduces that scheduling. */
     closestHumanDistance = closestHumanDistance * carObj->direction;
     if (closestHumanCarObj->RSControl != 0) {
-      goto LAB_DEFAULT_GLUE;
-    }
-    if (0x13fffe < closestHumanCarObj->currentSpeed + 0x9ffffU)
-      goto LAB_GLUE;
-LAB_DEFAULT_GLUE:
-  return 0x10000;
-LAB_GLUE:
-  {
-      int glueIndex;
-      int glue;
-      /* UNRESOLVED: retail SYM has no clampedGlueIndex record. */
-      int clampedGlueIndex;
-      glueIndex = closestHumanDistance / 0x3c0000 + 10;
-      if (0 <= glueIndex) {
-        if (glueIndex < 0x15) clampedGlueIndex = glueIndex;
-        else clampedGlueIndex = 0x14;
+      return 0x10000;
+    } else {
+      if (closestHumanCarObj->currentSpeed + 0x9ffffU <= 0x13fffe) {
+        return 0x10000;
       } else {
-        clampedGlueIndex = 0;
+        int glueIndex;
+        int glue;
+        /* UNRESOLVED: retail SYM has no clampedGlueIndex record. Direct
+         * conditional-expression and glue-reuse alternatives change code;
+         * this remains a recovery task, not a proven compiler limit. */
+        int clampedGlueIndex;
+        glueIndex = closestHumanDistance / 0x3c0000 + 10;
+        if (0 <= glueIndex) {
+          if (glueIndex < 0x15) clampedGlueIndex = glueIndex;
+          else clampedGlueIndex = 0x14;
+        } else {
+          clampedGlueIndex = 0;
+        }
+        glue = AIPerson_glueTable[clampedGlueIndex];
+        if (glue < 0x10000) {
+          glue = fixedmult(0x10000 - glue,carObj->btcGlueModifier);
+          glue = 0x10000 - glue;
+        }
+        if (glue < 0x6666) {
+          glue = 0x6666;
+        }
+        glue = fixedmult(glue,carObj->speedFactor);
+        return glue;
       }
-      glue = AIPerson_glueTable[clampedGlueIndex];
-      if (glue < 0x10000) {
-        glue = fixedmult(0x10000 - glue,carObj->btcGlueModifier);
-        glue = 0x10000 - glue;
-      }
-      if (glue < 0x6666) {
-        glue = 0x6666;
-      }
-      glue = fixedmult(glue,carObj->speedFactor);
-      return glue;
-  }
+    }
 }
 
 /* ---- AISpeeds_GetNextAICar__FP8Car_tObj  [@0x8006e258] ---- */
@@ -506,13 +508,15 @@ Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_GetCaravanFactor__FP8Car_tObj  [@0x8006e2d0] ---- */
+/* Native SYM scopes: the default-first selection recovers the retail nested
+ * if/else binding levels; the acquisition guards own tempRandom/prevAICar.
+ * Receipt: symloop run-d_3m40a7, all sections unchanged, native records CLEAN.
+ * Relative source-line/SLD attribution remains a separate, unsealed check. */
 int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
 {
   int slot;   /* SYM: REG INT slot */
   Car_tObj*nextAICar;
   int f_caravan;
-  u_int tempRandom;
-  Car_tObj*prevAICar;
 
   slot = carObj->AISlot;
   nextAICar = AISpeeds_GetNextAICar(carObj);
@@ -521,60 +525,36 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
     if (carObj->fallBehindCar->AISlot < (int)slot) {
       carObj->fallBehindCar = (Car_tObj *)0x0;
     }
-    goto LAB_8006e444;
-  }
-  if (nextAICar != (Car_tObj *)0x0) {
-    if (nextAICar->fallBehindCar == (Car_tObj *)0x0) {
-      if (0xd6491 < nextAICar->speed) {
-        /* H37 (wave-21 fix): this threshold scratch was aliased onto f_caravan (the
-         * function's f_caravan/return-value accumulator, oracle $s3) -- but the oracle
-         * keeps $s3 UNTOUCHED through this whole straight-line block (pure a0/a1/v0/v1
-         * temps), so the aliasing was a register-identity bug that force-extended
-         * f_caravan's live range and cascaded a whole-function coloring mismatch. */
-        if (!(nextAICar->desiredSpeed * carObj->direction <
-              (nextAICar->originalDesiredSpeed * carObj->direction / 256) * 0xb3)) {
-          /* H38 (wave-21 fix): the oracle reaches the odometer block via a FORWARD BRANCH
-           * (beqz ...,.L8006E3C8) placed OUT OF LINE, with the reload merge code as the
-           * straight-line fallthrough (the odometer block is much bigger -- 2 calls + more
-           * branches -- and gcc-2.8 pushes it out; a plain nested-if put it inline instead,
-           * flipping which side is the branch target). Transcribed as an explicit guard +
-           * out-of-line label to reproduce the oracle's block order 1:1. */
-          goto LAB_8006e3c8;
+  } else {
+    if (!((nextAICar != (Car_tObj *)0x0) &&
+        (nextAICar->fallBehindCar == (Car_tObj *)0x0) &&
+        (0xd6491 < nextAICar->speed) &&
+        !(nextAICar->desiredSpeed * carObj->direction <
+          (nextAICar->originalDesiredSpeed * carObj->direction / 256) * 0xb3))) {
+      f_caravan = 0x10000;
+      if (nextAICar->fallBehindCar == carObj) {
+        f_caravan = 0x11999;
+      }
+    } else {
+      int leaderIsThisManyMetersAhead;   /* SYM name, block-scoped @0x8006e3c8 line=61 */
+      leaderIsThisManyMetersAhead = AIWorld_GameOdometer(nextAICar) - AIWorld_GameOdometer(carObj);
+      if (carObj->caravanFollowBehindDistanceMeters + 0xa0000 < leaderIsThisManyMetersAhead) {
+        f_caravan = 0x13333;
+        if (carObj->caravanFollowBehindDistanceMeters + 0x3e80000 < leaderIsThisManyMetersAhead) {
+          f_caravan = 0x18000;
         }
       }
-      goto LAB_8006e3b0;
-    }
-  }
-  else {
-LAB_8006e3b0:
-    ;
-  }
-  f_caravan = 0x10000;
-  if (nextAICar->fallBehindCar == carObj) {
-    f_caravan = 0x11999;
-  }
-  goto LAB_8006e444;
-LAB_8006e3c8:
-  {
-    int leaderIsThisManyMetersAhead;   /* SYM name, block-scoped @0x8006e3c8 line=61 */
-    leaderIsThisManyMetersAhead = AIWorld_GameOdometer(nextAICar) - AIWorld_GameOdometer(carObj);
-    if (carObj->caravanFollowBehindDistanceMeters + 0xa0000 < leaderIsThisManyMetersAhead) {
-      f_caravan = 0x13333;
-      if (carObj->caravanFollowBehindDistanceMeters + 0x3e80000 < leaderIsThisManyMetersAhead) {
-        f_caravan = 0x18000;
+      else if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0xa0000) {
+        f_caravan = 0xcccc;
+        if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0x3e80000) {
+          f_caravan = 0x9999;
+        }
+      }
+      else {
+        f_caravan = 0x10000;
       }
     }
-    else if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0xa0000) {
-      f_caravan = 0xcccc;
-      if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0x3e80000) {
-        f_caravan = 0x9999;
-      }
-    }
-    else {
-      f_caravan = 0x10000;
-    }
   }
-LAB_8006e444:
   if (CaravanInfo[slot].distanceMaintainTime32 != 0) {
     carObj->caravanTimer = carObj->caravanTimer - AI_elapsedTime;
   }
@@ -595,6 +575,7 @@ LAB_8006e444:
   if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&
       ((int)(u_int)(carObj->N).totalSlice < AISPEEDS_NUM_LAPS * gNumSlices + -0x14d)) &&
      ((1U < (u_int)slot || (leaderBoard.leadRacer != Cars_gHumanRaceCarList[0])))) {
+    u_int tempRandom;
     /* H36 (wave-21 real bug): oracle @0x8006e5b4-0x8006e638 continues past the fastRandom
      * re-seed with a stochastic "pick up a fall-behind car" roll gated by
      * CaravanInfo[slot].fallBackRandomTime_TickPercent * AI_elapsedTime, then calls
@@ -604,12 +585,12 @@ LAB_8006e444:
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     tempRandom = (randtemp >> 8) & 0xffff;
-    if ((nextAICar == (Car_tObj *)0x0) || (nextAICar->fallBehindCar == (Car_tObj *)0x0)) {
-      if (tempRandom < CaravanInfo[slot].fallBackRandomTime_TickPercent * (u_int)AI_elapsedTime) {
-        prevAICar = AISpeeds_GetPrevAICar(carObj);
-        if (prevAICar != (Car_tObj *)0x0) {
-          carObj->fallBehindCar = prevAICar;
-        }
+    if (((nextAICar == (Car_tObj *)0x0) || (nextAICar->fallBehindCar == (Car_tObj *)0x0)) &&
+        (tempRandom < CaravanInfo[slot].fallBackRandomTime_TickPercent * (u_int)AI_elapsedTime)) {
+      Car_tObj *prevAICar;
+      prevAICar = AISpeeds_GetPrevAICar(carObj);
+      if (prevAICar != (Car_tObj *)0x0) {
+        carObj->fallBehindCar = prevAICar;
       }
     }
   }

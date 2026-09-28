@@ -105,12 +105,10 @@ void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
 int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int startSlice;
-  /* ORIGINAL-NAME-RECOVERED: sliceChanged -- `sliceChanged` comes from the symbol-bearing
-   * NFS2 BWorldSm_FindClosestSlice, where the same comparison result feeds the
-   * two change fields and the return. Repeating the comparison directly grows
-   * NFS4 from 39 to 45 instructions with 40 oracle diffs. */
-  int sliceChanged;
-
+  /* NFS2's matched source uses chained assignments of this comparison to
+   * quadChanged and sliceChanged. Returning that expression keeps the shared
+   * result anonymous, as in NFS4's SYM, and preserves all 39 instructions.
+   * NFS2's named sliceChanged local is not present in the NFS4 native records. */
   startSlice = slicePos->slice;
   if (0x800000 <
       Math_DistXZ((coorddef *)((char *)BWorldSm_slices + startSlice * 0x20),pt)) {
@@ -119,20 +117,20 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
   RawFindClosestSlice(pt,slicePos);
   slicePos->chunk =
       *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
-  sliceChanged = slicePos->slice != startSlice;
-  slicePos->quadChanged = sliceChanged;
-  slicePos->sliceChanged = sliceChanged;
-  return sliceChanged;
+  return slicePos->sliceChanged = slicePos->quadChanged =
+      (slicePos->slice != startSlice);
 }
 
 /* ---- RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos  [@0x8007eab0] ---- */
-static inline int closeXZDistSquared(Trk_NewSlice *slice,coorddef *pt)
-{
-  return (((pt->x - slice->center[0]) >> 9) *
-          ((pt->x - slice->center[0]) >> 9)) +
-         (((pt->z - slice->center[2]) >> 9) *
-          ((pt->z - slice->center[2]) >> 9));
-}
+/* Retail has no inline-helper scope pairs here. Keep the distance arithmetic
+ * as a macro, without introducing parameter/local debug records. Its name is
+ * supported by the NFS2 PC helper symbol, not claimed as retail macro spelling.
+ * Every argument below is side-effect-free. Byte/native receipt: run-3nuk7jqp. */
+#define closeXZDistSquared(slice, pt) \
+  (((((pt)->x - (slice)->center[0]) >> 9) * \
+    (((pt)->x - (slice)->center[0]) >> 9)) + \
+   ((((pt)->z - (slice)->center[2]) >> 9) * \
+    (((pt)->z - (slice)->center[2]) >> 9)))
 
 void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
@@ -208,6 +206,7 @@ void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_SetSlice__FiP12BWorldSm_Pos  [@0x8007ed64] ---- */
+#undef closeXZDistSquared
 void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
 {
   /* SLD statement order is source-significant here: lines 263, 266-271,
@@ -397,9 +396,10 @@ void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
         ((int)startsimquad +
          ((u_int)slicePos->simSlice->simquadIndex + simIndex));
     return;
+  } else {
+    slicePos->simQuad = &GlobalSimQuad;
+    return;
   }
-  slicePos->simQuad = &GlobalSimQuad;
-  return;
 }
 
 /* ---- BworldSm_IsSimQuadValid__FP12BWorldSm_Pos  [@0x8007f11c] ---- */
@@ -890,11 +890,13 @@ void NormalCache_Init(void)
 /* ---- Check_Rot__FP12BWorldSm_Pos  [@0x800801e8] ---- */
 void Check_Rot(BWorldSm_Pos *slicePos)
 {
-  coorddef vecX;
-  coorddef vecZ;
-  
+  /* Retail owns vecX/vecZ in the cache-miss body, and ends the forward/normal
+   * region before NormalCache_AddEntry. Native scopes and all bytes agree;
+   * source-line/SLD attribution remains unsealed (run-a2bxfjip). */
   if (slicePos->simRotFlag != (signed char)slicePos->triangleFlag) {
     if (!NormalCache_FindEntry(slicePos)) {
+      coorddef vecX;
+      coorddef vecZ;
       if ((signed char)slicePos->triangleFlag == 3) {
         vecZ.x = slicePos->quadPts[2].x - slicePos->quadPts[3].x;
         vecZ.x += (slicePos->quadPts[1].x - slicePos->quadPts[0].x) / 8;
@@ -935,8 +937,8 @@ void Check_Rot(BWorldSm_Pos *slicePos)
           normal->y = 0xfff9;
         }
         Math_NormalizeVector(forward);
-        NormalCache_AddEntry(slicePos);
       }
+      NormalCache_AddEntry(slicePos);
     }
   }
   slicePos->simRotFlag = (signed char)slicePos->triangleFlag;

@@ -1,6 +1,21 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-09-26. Current full-debug board: `build/psyq_g/symtree_report.json`.
+Status as of 2026-09-28. Current full-debug board: `build/psyq_g/symtree_report.json`.
+
+Native-only per-directory snapshot after the aistate round (2565 common
+covered functions; not a full source-declaration/carrier/SLD seal):
+
+| Retail directory | Native CLEAN | Native DIRTY |
+|---|---:|---:|
+| FRONTEND/COMMON | 711 | 127 |
+| FRONTEND/PSX | 61 | 24 |
+| GAME/COMMON | 1058 | 189 |
+| GAME/PSX | 276 | 119 |
+| Total | 2106 | 459 |
+
+Retail-only functions and incomplete eaclib/syslib data are outside these
+common-function counts. Unrecorded const aliases and inferred inline helper
+spellings still require explicit source review even when native CLEAN.
 
 2026-09-27: `game/psx/draw.cpp` native-contract round, 19/25 -> 25/25 CLEAN.
 The six OT/view/frame loops now declare retail's `i` in the `for` scope and
@@ -169,6 +184,612 @@ PSYLINK zero errors; native 8 CLEAN / 0 DIRTY. Whole-tree native report:
 Regression: fresh 526-object GNU link, multdef-ok rc=0/empty stderr,
 zero undefined names or truncated relocations; vtable audit PASS in 1314 files;
 whitespace check clean.
+
+2026-09-28 AISpeeds_GetCaravanFactor native-source round: aispeeds 25/29 ->
+26/29 CLEAN. Replaced the selection's decompiler-label jumps with a default-first
+if/else inside the original outer if/else. Retail's scope sequence is now exact:
+root selection binding at +000, two nested bindings at +058, named leader-distance
+body at +0f8..+174. tempRandom is declared in the acquisition body (+2e4), and
+prevAICar in its combined short-circuit guard body (+354..+368), rather than at
+function scope. No new locals, asm, volatile, comparator masking, or tool changes.
+The positive-condition-first alternative changed 18 instructions (239/239) and
+was replaced with the byte-identical default-first form, not retained.
+Detailed verify_asm: 239/239 PASS. Final comment/format-cleaned full symloop
+`run-70p99ma8`: all four compiled sections/layouts UNCHANGED, ASPSX 524 good /
+0 bad, PSYLINK zero errors; 26 native CLEAN / 3 DIRTY. Native frame header, local
+names/types/homes/order/depths, and scope nesting/address boundaries agree.
+The instruction-level retail/our source-line attribution has not been restored;
+this is explicitly not a full SLD seal. Remaining AISpeeds native queue:
+BTCGetGlueFactor's extra clamp result and nested scopes; GetGlueFactor's three
+glueIndex homes; GetLegalSpeed's block nesting/address differences.
+Whole-tree native report: 2088 CLEAN / 477 DIRTY. Fresh 526-object GNU relink:
+strict rc=0 with the existing 590 overlap multiple-definition diagnostics;
+multdef-ok rc=0 and empty stderr; both have zero undefined names and truncated
+relocations. Honest linked RECON is 299819/299819 identical, zero masked mismatch
+bytes or foreign labels; retail-passthrough BLOB words are excluded. Vtable audit
+PASS in 1314 files; source/ledger whitespace check clean.
+
+2026-09-28 AISpeeds_BTCGetGlueFactor scope round: replaced the two decompiler
+label jumps with default-first nested if/else arms. The multiplication remains
+before the RSControl guard; moving it inside the else changed 17 instructions
+(112 vs 111), so that experiment was reversed. All nine retail scopes now agree
+in nesting and instruction-relative boundaries, and glueIndex/glue are at retail
+depth 5 instead of depth 2. No carrier exemption or comparison-tool change.
+Final full symloop `run-drka_kvf`: BYTES UNCHANGED, ASPSX 524 good / 0 bad,
+PSYLINK zero errors; native module 26/29 CLEAN, with this function's only remaining
+issue EXTRA clampedGlueIndex REG:$3. Detailed checks: BTCGetGlueFactor 111/111
+PASS and GetCaravanFactor 239/239 PASS. Source-line/SLD attribution remains open.
+Failed clamp probes were reversed: both direct nested-conditional polarities
+changed 22 instructions at 111/111; reuse of glue as the clamp result changed
+14 instructions at 111/111. These do not prove a distinct original source object
+was required, nor a compiler limit; the unrecorded clamp variable remains an
+explicit source-recovery backlog item.
+Compiler-source lead for future clamp work: gcc-2.8.1 fold-const.c at 5631-5731
+recognizes both A op B ? A : B and the adjacent-bound A < 21 ? A : 20 forms
+as MIN/MAX; expr.c at 6519-6589 then expands those through its own target and
+conditional-jump selection. This explains why a direct ternary is not merely
+the explicit assignment tree with a local removed, but is not yet a traced
+receipt for this particular build's allocation. A new source form must still
+pass the byte and native-record checks.
+Fresh 526-object relink after this scope round: strict rc=0 (existing 590
+multiple-definition diagnostics), multdef-ok rc=0/empty stderr, zero undefined
+names or truncated relocations. Vtable audit PASS in 1314 files.
+Fresh honest measurement: RECON 299819/299819 identical, zero masked mismatch
+bytes and foreign labels; BLOB passthrough is excluded. Whole-tree native board
+remains 2088 CLEAN / 477 DIRTY; no native CLEAN function regressed.
+
+2026-09-28 AISpeeds_GetGlueFactor value-role investigation (no retained body
+change): the raw subtraction feeds v1, the unbounded quotient-plus-ten index
+also lives in v1, while the bounded index is an anonymous a0 quantity. Retail
+names distance and glueIndex both at REG:$3; our glueIndex currently names the
+bounded a0 value. This is a genuine phase/name mismatch, not debug decoration.
+Probes with distance as the raw odometer subtraction and glueIndex as its
+quotient-plus-ten were reverted: reuse of root glue for the bounded index
+changed 11 instructions (138 vs 131); a direct ternary in one arm changed 12
+(139 vs 131), and in all three arms changed 47 (118 vs 131) through tail sharing;
+branch-local table reads changed 16 (139 vs 131). Baseline detailed verification
+returned to 131/131 PASS before the final full-module gate. Do not add a third
+named clamp carrier just to turn these three MOVED records into EXTRA records;
+the needed target is retail's original locals plus an anonymous bounded value.
+Final baseline full-module receipt `run-rrfc6il9`: BYTES UNCHANGED, ASPSX 524
+good / 0 bad, PSYLINK zero errors, 26/29 native CLEAN (unchanged issue set).
+An independent GetLegalSpeed source-order probe combined the pointer decrement
+with its return-expression load. `run-x_yt2k8m` was byte-identical but did not
+correct the scope boundary (+034 ours versus +038 retail), so the neutral edit
+was also reversed. No new body change from these investigations is retained.
+
+2026-09-28 AIPhysic_GetRearEndDamageFactor: removed the unrecorded `result`
+local and its carrier annotation. The ordinary bound-first return expression
+`0x10000 < totalDamage ? 0x10000 : totalDamage` reproduces all 22 retail
+instructions, including the anonymous a0 result funnel and v1 named accumulator.
+No asm, volatile, extra alias, compiler pin, or tool change was added. Native
+frame/local name/type/home/order/depth and scope boundaries now match exactly;
+relative SLD source lines still differ and are not claimed recovered.
+The old source comment claiming a separate named result was necessary has been
+corrected. GCC MIN_EXPR operand/arm order is a site-specific source lever, not
+a reason to preserve a debug-visible carrier. Individual full symloop
+`run-eyeb_eof`: aiphysic 35/42 -> 36/42 native CLEAN, BYTES UNCHANGED.
+Final combined comment-cleaned symloop `run-to5zbjux`: both TUs' compiled
+sections/layouts unchanged; ASPSX 524 good/0 bad; PSYLINK zero errors;
+aiphysic+aispeeds 62/71 native CLEAN. This removes one EXTRA issue rather than
+renaming or exempting it. The reconstruction-methodology reference also records
+the exact successful spelling and receipts for future work.
+The corresponding nested bound-first clamps were tried in AISpeeds, failed,
+and reverted: BTCGetGlueFactor 13 diffs at 110/111 for either outer polarity;
+GetGlueFactor 39 diffs at 130/131. The earlier verified AISpeeds scope changes
+remain intact, with no additional body change from those clamp probes.
+Final regression: fresh 526-object GNU relink, strict rc=0 with existing 590
+overlap multiple-definition diagnostics; multdef-ok rc=0 and empty stderr;
+zero undefined names/truncated relocations. Honest RECON 299819/299819 identical,
+zero masked mismatch bytes or foreign labels (retail BLOB passthrough excluded).
+Vtable audit PASS in 1314 files. Whole-tree native board 2089 CLEAN / 476 DIRTY.
+The broad source-restoration goal and its SLD coverage remain incomplete.
+
+2026-09-28 BWorldSm_FindClosestSlice: removed the extra sliceChanged local
+entirely. Return the chained field assignments of the comparison instead of
+storing its anonymous result in a reconstructed local. This preserves the
+quadChanged-then-sliceChanged store order and all 39 retail instructions.
+Cross-version evidence: NFS2 matched source
+`C:/Temp/nfs2-clean/pc-beta/match/bworldSm/BWorldSm_FindClosestSlice.c`
+uses that same assignment chain, and NFS2 SYM function at 0041618c has the
+named sliceChanged AUTO record at dump offset 050884. NFS4 retains only
+startSlice in this function; do not blindly import the NFS2 local.
+A const use-site alias first passed (`run-iokdzwun`), then was superseded by
+the stronger alias-free return expression. Final comment-cleaned full symloop
+`run-n487b51m`: whole compiled sections/layouts unchanged; ASPSX 524 good/0 bad;
+PSYLINK zero errors; bworldSm 24/28 -> 25/28 native CLEAN. Frame, params, sole
+local, and scope boundaries match retail; complete SLD attribution remains open.
+No new name, alias, asm, volatile, tool change, or generic exemption was added.
+Camera_UpdateTVCam clamp probes failed and were fully reversed: direct nested
+MAX/MIN forms with two operand orders changed 51 instructions (84 vs 83) and
+47 (80 vs 83). camera.cpp is unchanged; this is not a compiler-limit verdict.
+Rebuilt the reverted camera baseline explicitly because verify_asm writes the
+normal object cache. `run-f5c1lqpf` confirms camera's compiled sections/layouts
+unchanged, ASPSX 524 good/0 bad, PSYLINK zero errors; camera native 29/38 CLEAN
+and its original nine-function issue set are unchanged. Final GNU relink is
+performed after that rebuild, rather than measuring a failed trial's cached
+object.
+Final fresh 526-object relink: strict rc=0 (existing 590 multiple-definition
+diagnostics); multdef-ok rc=0/empty stderr; zero undefined names and truncated
+relocations. Honest RECON 299819/299819 identical, zero masked mismatch bytes
+or foreign labels, BLOB passthrough excluded. Vtable audit PASS in 1314 files.
+Native whole-tree board: 2090 CLEAN / 475 DIRTY, with no CLEAN regressions.
+Next concrete bworldSm scope evidence: Check_Rot's vecX/vecZ are currently at
+depth 1 but retail places both at depth 5 inside the cache-miss body. The
+forward/normal sub-block ends at +30c ours versus +2fc retail, suggesting the
+NormalCache_AddEntry call belongs after that sub-block. These are untested
+source-shape hypotheses, not established original-text claims.
+
+2026-09-28 bworldSm scope/helper round: Check_Rot now declares vecX/vecZ in
+the cache-miss body (retail depth 5, same AUTO homes -48/-32). Moved the
+NormalCache_AddEntry call after the forward/normal sub-block, restoring its
+retail +2ac..+2fc extent rather than +2ac..+30c. All compiled sections/layouts
+unchanged; native function CLEAN, detailed 206/206 PASS. Full receipts
+`run-a2bxfjip`, then comment-cleaned `run-zlancl97`, module 26/28 native CLEAN.
+RawFindClosestSlice's reconstruction-only closeXZDistSquared inline function
+was replaced by the identical arithmetic macro with side-effect-free arguments.
+This removes all four inline expansions' artificial scope pairs and repeated
+slice/pt records; the existing root locals and homes remain exact. Retail
+scope count is now 1 rather than 19. Detailed 173/173 PASS. Full receipt
+`run-3nuk7jqp`: all compiled sections/layouts unchanged, ASPSX 524 good/0 bad,
+PSYLINK zero errors, module 27/28 native CLEAN. Macro name provenance:
+NFS2 SYM's closeXZDistSquared symbol at 0041603f and matched-source declaration
+in match/nfs2.h; the literal PSX macro spelling is not claimed recoverable.
+The remaining UpdateSimQuad scope probe was reversed: ending startsimquad's
+region before an outer offset calculation introduced three instructions,
+37 versus 34, and 21 detailed differences. Baseline restored to 34/34 PASS.
+SLD attribution remains unsealed; these are native-source contract corrections,
+not a whole-project source-restoration completion claim.
+Final comment-cleaned helper/scope gate `run-0nvhfh0n` repeats 27/28 native
+CLEAN, compiled sections/layouts unchanged, ASPSX 524 good/0 bad, PSYLINK zero
+errors. The subsequent explicit else arm in UpdateSimQuad is also byte-identical
+(`run-dlntnucv`) and corrects its outer binding endpoint +078 -> retail +080.
+Its inner startsimquad endpoint is still +078 versus retail +030; this is now
+the only native difference in the module. The partial boundary improvement is
+retained, not described as a seal. Whole-tree native board 2092 CLEAN / 473 DIRTY.
+Final fresh 526-object link: strict rc=0 with the existing 590 overlap
+multiple-definition diagnostics; multdef-ok rc=0/empty stderr; zero undefined
+names and truncated relocations. Honest RECON 299819/299819 identical, zero
+masked mismatch bytes or foreign labels, BLOB passthrough excluded. Vtable audit
+PASS in 1314 files. Final detailed Check_Rot/RawFindClosestSlice/UpdateSimQuad
+checks are 206/173/34 instructions respectively, all PASS.
+
+2026-09-28 UpdateSimQuad/relocation investigation: all new scope experiments
+were reversed. A const startsimquad initializer preserved bytes but hid its
+required REG:$3 record (`run-2ik81ubd`); a mutable initializer preserved bytes
+without fixing scope (`run-zl4mv81i`). A GNU scoped-expression trial reproduced
+the short +030..+030 region but added a fourth scope and depth 4 versus retail
+3 (`run-371n3izc`), so it was not kept. Baseline restored and full module gate
+`run-97he3u_v` confirms unchanged compiled sections/layouts and 27/28 native CLEAN.
+
+Platform_InitMemory's pre-edit reference check failed on already-present source;
+no platform source edit is retained and the legacy reference was not replaced.
+That legacy fingerprint is 599 bytes versus current 609, lacks its layout
+companion, omits the current SimpleMem tag, and has different address addends.
+The current canonical bigBuf addressing accounts for the high/low addend
+differences in InitMemory; other fingerprint differences need separate review.
+Current code's
+bigBuf+0x44d10 is retail's 0x80054d10 after link. Independent fresh GNU relink
+and honest_measure prove RECON 299819/299819 identical, zero masked mismatches
+or foreign labels, with the restored current platform source compiled.
+
+Fixed a comparison-only verify_asm defect revealed by that canonical large
+addend: an actual R_MIPS_HI16-relocated LUI can contain a nonzero high addend
+(4 here), not always 0 as the old comment assumed. Normalize only the immediate
+of a LUI carrying that relocation, symmetrically with oracle %hi(SYM)->0.
+Literal LUIs without HI16, opcode/register differences, and unrelocated low
+immediates remain visible. No source/object/compiler/link output is rewritten.
+Backup: scratchpad/verify_hi16_addend_20260928/verify_asm.py. New regression
+tests tools/test_verify_asm_relocations.py load the real normalizer via AST
+without CLI compilation: 2 high-addend tests failed before the fix, all 8
+positive/negative tests pass afterwards. Linked address correctness remains
+an independent gate; relocation normalization is not proof of correct offsets.
+Detailed receipts after the fix: Platform_InitMemory 12/12, UpdateSimQuad 34/34,
+Check_Rot 206/206, RawFindClosestSlice 173/173, RearEndDamageFactor 22/22, all
+PASS. Native board remains 2092 CLEAN / 473 DIRTY. Platform's stale reference
+must be reconciled separately before a guarded source change; it was not
+bypassed or silently re-recorded in this round.
+
+2026-09-28 replay/night carrier investigation (no retained body change):
+Replay_ResetReplay's indexed post-decrement, index-term-first byte address,
+and end-relative array index each preserved the stream except for one extra
+address increment (87 vs 86). A use-site initialized mutable pointer preserved
+all compiled sections but retained counterSlot REG:$2 (`run-f2q95a5n`), so
+that neutral edit was reversed. A pre-decrement for condition produced 8 diffs
+at 88/86; unsigned end-relative distance prevented induction strength reduction
+and produced 9 at 89/86. The original source body was restored; its fresh
+reference check verified the existing baseline. No new cursor name or alias
+was kept, and no array/global ownership declaration was changed.
+Night_GenerateNextLightningEvent's anonymous delay arithmetic had 16/8/12
+detailed differences at 29/29 under operand-order, association, and unsigned-bound
+variants. Using the existing timing globals as arithmetic accumulators preserved
+the old instruction sequence but added two stores (31 vs 29); those writes are
+not in retail and were rejected. The original body was restored and its fresh
+reference check verified unchanged compiled sections. These failed shapes are
+not evidence of a compiler limit or proof that a named source object was original.
+Final combined restored-baseline gate `run-qw8067j6`: all compiled sections/
+layouts unchanged, ASPSX 524 good/0 bad, PSYLINK zero errors; 35 covered native
+functions, 29 CLEAN / 6 DIRTY, original issue set unchanged. The 8 relocation
+normalizer regression tests also remain green. No replay/night source change
+or failed-trial cache is retained.
+
+2026-09-28 lighting declaration round: Night_SetCopColor's copColors/col1/col2
+now belong to the retail root scope, not a reconstruction-only extra block.
+Its use-site array initializer remains after the country/model reads; hoisting
+it before those reads changed 32 detailed differences at 37/37, so that order
+experiment was reversed. The original cartype value-role remains unresolved:
+raw model and model-minus-22 probes, with the mapping moved into the color
+lookups, both produced 23 differences at 38/37 and were reversed. The retained
+scope fix remains detailed 37/37 PASS; the only native issue is cartype's home.
+
+Night_InitNightDriving now has the positive rendering guard around its load/
+initialization body. name (AUTO -272) precedes mem (REG:$16) inside that body,
+at retail depth 3, rather than both at root scope in reversed order. Native
+frame, names/types/homes/order and the +060/+070..+188 scope pairs now agree.
+Detailed 103/103 PASS. Initial full gate `run-8g9mktec`: compiled sections/
+layouts unchanged, ASPSX 524 good/0 bad, PSYLINK zero errors; night 14/19 ->
+15/19 native CLEAN. Source-line/SLD attribution remains unsealed. No asm,
+volatile, new local name, carrier exemption, or tool change was introduced.
+Final comment/indent-cleaned gate `run-v9vq5wph`: unchanged compiled sections/
+layouts, ASPSX 524 good/0 bad, PSYLINK zero errors, 15/19 native CLEAN. An
+additional value-phase probe put the raw model in cartype and the mapped index
+temporarily in carTable before its pointer use; it changed 50 detailed
+differences at 43/37 and was reverted. It is not part of the retained scope fix.
+Fresh 526-object GNU link of the verified checkpoint: strict rc=0 with existing
+590 multiple-definition diagnostics, multdef-ok rc=0/empty stderr, zero undefined
+names or truncated relocations. Honest RECON 299819/299819 identical, zero masked
+mismatch bytes or foreign labels; BLOB passthrough excluded. Vtable audit PASS
+in 1314 files. Native whole-tree board: 2093 CLEAN / 472 DIRTY.
+Post-probe restored-baseline full gate `run-3cpzhdxw` again confirms unchanged
+compiled sections/layouts, ASPSX 524/0, PSYLINK zero errors and 15/19 native CLEAN.
+Final SetCopColor/InitNightDriving detailed checks remain 37/103 instructions,
+both PASS; no failed experiment is retained in source or its normal object cache.
+2026-09-28 Night_GenerateAllLightTables scope round: moved the inner i into
+the for declaration after Night_SetWeatherColors, replacing the enclosing
+reconstruction block and separate while initialization. Retail's +0e8..+134
+i scope and +0ec..+12c bright body now agree, as do all other scope boundaries
+and nesting. Full gate `run-_b34a841`: whole compiled sections/layouts unchanged,
+ASPSX 524 good/0 bad, PSYLINK zero errors. The only native issue is now the
+missing outer i REG:$6 record; that declaration is currently unused. A zero
+initialization preserved bytes but still emitted no record (`run-o85j70bq`),
+so the neutral initialization was reversed. Do not add an artificial use or
+invent a role merely to manufacture the debug record. Final comment/indent
+gate `run-ngis9hca` confirms unchanged compiled sections/layouts and native
+15/19 CLEAN. Relative source-line/SLD attribution remains unsealed.
+Detailed GenerateAllLightTables verification is 165/165 PASS. Fresh 526-object
+GNU link: strict rc=0 with existing 590 multiple-definition diagnostics;
+multdef-ok rc=0/empty stderr; zero undefined names/truncated relocations.
+Vtable audit PASS in 1314 files. The native count is unchanged, but the
+previously wrong loop-scope boundaries have been corrected independently of
+the unresolved missing local record.
+Honest linked RECON remains 299819/299819 identical, zero masked mismatch bytes
+or foreign labels, BLOB passthrough excluded. Whole-tree native board remains
+2093 CLEAN / 472 DIRTY; no native CLEAN function regressed.
+
+2026-09-28 Camera_UpdateAnimCam: removed both cVar1/cVar4 synthetic signed-byte
+captures and their carrier annotations. Each acquisition now uses
+`(signed char)((Camera_gInfo[player].animNum -= 1) + 1)` as the array index.
+The unsigned byte assignment wraps the decrement; casting after the plus-one
+reconstructs the signed old byte, including old zero/128/255. All 256 byte
+values were checked for index equivalence, and the compiled instruction stream
+matches independently. No new local, asm, volatile, header/type change, macro
+exemption, or post-compile edit was introduced.
+Plain signed-lvalue postfix cost 17 differences (179 vs 176); a signed cast of
+unsigned postfix had the right count but the wrong decrement immediate, 255
+versus retail -1. Explicit subtraction with old-byte reconstruction resolves
+that without a named temporary at either acquisition site. Detailed 176/176
+PASS. Full gate `run-u555nwy7`: compiled sections/layouts unchanged, ASPSX 524
+good/0 bad, PSYLINK zero errors; camera 29/38 -> 30/38 native CLEAN. Target
+frame, sole parameter, three AUTO names/types/homes/order and scope boundaries
+match retail. Original expression spelling/field-signedness context and complete
+SLD attribution are not claimed uniquely recovered; source reconstruction stays
+explicit about that uncertainty rather than presenting native CLEAN as a full seal.
+Final comment-cleaned gate `run-vp06rioz` repeats unchanged compiled sections/
+layouts, ASPSX 524 good/0 bad, PSYLINK zero errors and camera 30/38 native CLEAN.
+The stored decrement byte as well as the reconstructed signed old index agree
+for all 256 byte inputs. Fresh 526-object GNU relink: strict rc=0 with existing
+590 overlap multiple-definition diagnostics; multdef-ok rc=0/empty stderr;
+zero undefined names and truncated relocations. Vtable audit PASS in 1314 files;
+all 8 relocation-normalizer regression tests pass. Native whole-tree board:
+2094 CLEAN / 471 DIRTY. The exact successful spelling and limitations were also
+recorded in the reconstruction-methodology reference.
+Fresh honest linked measurement remains RECON 299819/299819 identical, zero
+masked mismatch bytes or foreign labels, with retail BLOB passthrough excluded.
+The complete source-restoration/SLD goal is still incomplete.
+
+2026-09-28 Camera_NextMode: removed the splitBase integer-address carrier.
+The split-screen mode selection now uses the real int[3] gSplitCameras array
+with a signed-short remainder subscript and the increment's narrowed assignment
+value: `(short)gSplitCameras[(short)((Camera_gInfo[cviewP].camNum += 1) % 3)]`.
+This preserves retail's halfword load, signed-short index scaling, address
+allocation and all 237 instructions. No new alias, local, asm, volatile, header
+change or post-compile rewrite. Plain pointer-arithmetic forms (base-first,
+index-first, unsigned base, widened base) were each count-exact but had six
+differences in the address allocation/schedule and were replaced, not retained.
+Initial whole-module gate `run-x1nos9vf`: compiled sections/layouts unchanged,
+ASPSX 524 good/0 bad, PSYLINK zero errors; camera 30/38 -> 31/38 native CLEAN.
+Frame, parameter, flagMode local/home/scope and all scope boundaries now match
+retail. The pre-existing unrecorded const modeForRange alias remains an explicit
+source-review item; native CLEAN does not erase that review obligation or seal
+original expression spelling/SLD attribution.
+Final comment-cleaned gate `run-8f_zbxts`: unchanged compiled sections/layouts,
+ASPSX 524 good/0 bad, PSYLINK zero errors, 31/38 native CLEAN. Fresh 526-object
+GNU link: strict rc=0 with existing 590 multiple-definition diagnostics;
+multdef-ok rc=0/empty stderr; zero undefined names/truncated relocations.
+Vtable audit PASS in 1314 files, all 8 relocation-normalizer tests pass.
+Whole-tree native board: 2095 CLEAN / 470 DIRTY; no native CLEAN regressions.
+Fresh honest RECON remains 299819/299819 identical, zero masked mismatch bytes
+or foreign labels; retail BLOB passthrough excluded. The source-restoration and
+full SLD goal remains active and incomplete.
+
+2026-09-28 Camera_UpdatePulloverCam: restored ySign to the actual road-frame
+cross product's y component in retail REG:$16 and removed the unrecorded side
+local. The Camera_IslandProfile return remains anonymous in the sign-flip
+condition, XORed with `(ySign < 0) ? 1 : 0` and normalized at the common join.
+This preserves the two-instruction bgez skip and shared sltu, not merely a
+branch-target-normalized match. Full compiled-section gate `run-b_4ty6c4` is
+UNCHANGED; ASPSX 524 good/0 bad, PSYLINK zero errors; camera 31/38 -> 32/38
+native CLEAN. Detailed 223/223 PASS. Target frame, parameter, five AUTO records,
+ySign's type/home/order and scope boundaries match retail; source spelling and
+full SLD attribution remain unsealed. The pre-existing unrecorded gameTicks
+const snapshot still requires source review and is not erased by native CLEAN.
+SetCameraZoom probes were reversed: reusing targetDist as the zoom working value
+changed 20 detailed differences at 70/68; global accumulation with a bound-first
+clamp expression changed 14 at 70/68. The original gs carrier remains explicitly
+unresolved. No fake name, alias, asm, volatile or tool exemption was added.
+Final comment-cleaned gate `run-0f7sz75d`: compiled sections/layouts unchanged,
+ASPSX 524 good/0 bad, PSYLINK zero errors, camera 32/38 native CLEAN. Fresh
+526-object GNU link: strict rc=0 with existing 590 multiple-definition
+diagnostics; multdef-ok rc=0/empty stderr; zero undefined names/truncated
+relocations. Vtable audit PASS in 1314 files, all 8 relocation-normalizer tests
+pass. Whole-tree native board 2096 CLEAN / 469 DIRTY. The successful value-role
+correction and shared-normalization recipe are recorded in the methodology ref.
+Fresh honest linked RECON is 299819/299819 identical, zero masked mismatch
+bytes and foreign labels, BLOB passthrough excluded. Full original-source/SLD
+restoration is not complete; const snapshots remain in the explicit review queue.
+
+Additional heli carrier correction: after restoring vertigo's quantity, direct
+`arm.y += vertigo` after the existing boundary removes armY while preserving
+443/443 instructions. Neither a new fence nor a relocated fence is retained.
+Full gate `run-b89clpg1`: compiled sections/layouts unchanged, ASPSX 524/0,
+PSYLINK zero errors; armY's EXTRA record disappears. Earlier accumulating arm.y
+into vertigo changed 11 differences at 444/443; moving the field update before
+the existing boundary changed 5 at 444/443; both were reversed.
+Second-slice address removal probes were reversed: branch-local typed array,
+typed-pointer conditional and explicit byte-pointer conditional each changed
+8 differences at 445/443. Moving the slice subtraction before a unified index
+conditional was count-exact but changed 12 schedule differences. The original
+second address carrier remains visible with a corrected unresolved comment.
+Final full-module gate `run-rkeh3jc2`: compiled sections/layouts unchanged,
+ASPSX 524 good/0 bad, PSYLINK zero errors. Heli retains four EXTRA categories
+(ax/z occur in two phases, plus rev and second) and 8 versus 3 scopes; the
+vertigo home and scale depth are no longer issues, and armY is gone. Native
+board remains 2096 CLEAN / 469 DIRTY; camera 32/38 native CLEAN, with no CLEAN
+regressions. Fresh 526-object link: strict rc=0 with existing 590 overlap
+multiple-definition diagnostics; multdef-ok rc=0/empty stderr; zero undefined
+names/truncated relocations. Vtable audit PASS in 1314 files.
+Fresh honest RECON remains 299819/299819 identical, zero masked mismatch bytes
+and foreign labels, BLOB passthrough excluded. All 8 relocation-normalizer
+tests pass. Complete original-source/SLD restoration remains unproven.
+Post-probe restored-baseline gate `run-5a04dm6k`: camera's compiled sections/
+layouts unchanged, ASPSX 524 good/0 bad, PSYLINK zero errors, 32/38 native
+CLEAN. A patch context initially matched the neighboring TailCam's similar
+behavior block; the compiler gate rejected its duplicate z declaration, and
+the edit was corrected before the final gate. Neither a failed trial nor a
+change to TailCam is retained.
+
+2026-09-28 Camera_UpdateHeliCam partial native correction: combined the
+transition/length predicates, with len assigned in the short-circuited second
+operand. This restores scale to retail depth 3 and the exact +59c/+62c..+670
+scope pair, reducing total scopes from 10 to 8 (`run-4ypgcw97`, BYTES UNCHANGED).
+Restored vertigo to the terrain-height difference/behavior-clamp quantity in
+retail REG:$4, instead of naming the speed-rate clamp result in REG:$5. The
+rate clamp now assigns directly to rate; fallback retains its velocity-retreat
+role. NFS2's matched Camera_UpdateHeliCam2 independently names the velocity
+retreat fallback. No new local or semantic name was introduced. Detailed
+443/443 PASS; full gate `run-25g9arek` has unchanged compiled sections/layouts,
+ASPSX 524 good/0 bad and PSYLINK zero errors. All retail named root locals now
+agree in type/home/order; extra z/ax/rev/second/armY objects and their declaring
+blocks remain visible and unresolved. Native module count remains 32/38 CLEAN.
+Stale comments claiming current text-move rows or an epilogue ref-step fence
+were corrected: neither exists in the current build/source. Existing empty
+fences remain explicit source-restoration review items; none was added. Full
+SLD/source spelling remains unsealed, and this function is not called CLEAN.
+
+2026-09-28 first helicopter speed-quantity check (no retained change): replacing
+the unrecorded z capture with repeated conditional absolute-Z expressions
+changed 24 detailed differences at 455/443. Repeated __builtin_abs was closer
+but still 8 differences at 445/443: the Z load moved after the existing
+boundary, and the required in-place sign correction gained a copy. Both forms
+were reverted. This identifies the current scheduling/value-flow constraint,
+not a proven compiler limit or original source spelling. The previously
+verified vertigo, scale, and arm.y corrections remain intact.
+
+2026-09-28 AITrigger_TriggerManager::CheckForClosestTriggerOfType: the original
+thisTrigger pointer belongs to the loop body at depth 3, not function root.
+Moving its declaration alone was byte-identical but still left the loop one
+scope short (`run-2foxwywa`). A normal `for` with tLoop's increment in its
+header restores the retail binding at +02c, body at +034, and the exact
++0a0/+0ac scope ends. Final full gate `run-j58u7_33`: all compiled sections/
+layouts unchanged, ASPSX 524 good/0 bad, PSYLINK zero errors; aitriger 5/10 ->
+6/10 native CLEAN. Target frame, four parameters, six local names/types/homes/
+order and scope tree match. No synthetic alias, asm, volatile, post-compile
+rewrite or new name was added. Relative SLD line attribution remains unsealed.
+
+2026-09-28 aitriger.obj completed its native function-local contract, 5/10 ->
+10/10 CLEAN with all compiled sections/layouts unchanged. CheckForClosestTriggerOfType
+now uses a for loop whose +02c binding and +034 body own retail's thisTrigger
+REG:$3; receipt `run-j58u7_33`, 52/52 detailed PASS. GetNextTrigger and
+GetPrevTrigger update lastTriggerChecked_[car] with prefix ++/--, leaving no
+extra root triggerNum. Their shared tail is an inferred nonvirtual inline member
+GetCheckedTrigger(int triggerNum): receiver `this` and value parameter belong
+to the +040 outer inline scope, the inner empty scope extends to +068. Passing
+the slot pointer instead preserved bytes but put triggerNum one scope too deep;
+passing its loaded value matches both debug trees. The exact original helper
+name is not in retail SYM and remains unproven; its semantic name and upper-bound
+only behavior are annotated in the header. GetTrigger shares that helper for
+its bounds-checked return, restoring its own nested this/triggerNum records at
++034..+060 without an invented int-as-pointer result variable.
+AITrigger_Compare now names the two trigger_t pointer values ta and tb and
+compares their typed `any.slice` fields, replacing offset-cast loads. It matches
+retail REG:$2/$3 and all six original leaf instructions. Final full native gate
+`run-y0h1v4q8`: BYTES UNCHANGED, ASPSX 524 good/0 bad, PSYLINK zero errors,
+aitriger 10/10 CLEAN; no previous PASS regressed. The two manager-pointer
+globals are under retail's aitriger.obj FILE record, not anim.obj; corrected
+the stale owner comment. No general asm, volatile, register pins, generic
+exemption or post-compile rewrite was introduced. Original helper spelling,
+complete SLD line attribution, and broader project declaration coverage remain
+open; 10/10 native CLEAN is not a full-project source-restoration claim.
+The final full reconstruction build (`python tools/build.py --skip-asm`) passed
+after the private header edit. The inferred helper has no standalone symbol in
+the reconstructed object or generated SYM; it is used only at the three proven
+inline sites. Current whole-tree native board: 2101 CLEAN / 464 DIRTY.
+Both full builds passed after the header edit: `build.py --skip-asm` and
+`build.py --out expected --no-link`, with no failed/skipped units. Final
+comment-cleaned native gate `run-kjce9_uc` repeats unchanged sections/layouts,
+ASPSX 524/0, PSYLINK zero errors and 10/10 CLEAN. Detailed GetNext/GetPrev/
+GetTrigger/Compare/Closest checks are 28/28/26/6/52 instructions, all PASS.
+The inferred nonvirtual member preserves retail's 844-byte manager layout and
+emits no standalone helper symbol. Fresh 526-object GNU link: strict rc=0 with
+existing 590 multiple-definition diagnostics; multdef-ok rc=0/empty stderr;
+zero undefined names/truncated relocations. Vtable audit PASS in 1314 files;
+all 8 relocation-normalizer tests pass. Complete original-source/SLD restoration
+remains open, including the exact original inline helper name.
+Final honest real-link measurement: RECON 299819/299819 identical, zero masked
+mismatch bytes or foreign labels; retail BLOB passthrough excluded. No failed
+experiment is retained in the reconstructed source or the normal object cache.
+
+2026-09-28 AIState_Idle::Execute and AIState_Offroad::Execute: moved off into
+Idle's declaring else body and zero into Offroad's hold-in-place body, both
+at retail depth 3. Idle's +000/+040..+0ac scopes now match; Offroad's zero
+scope +020..+0c8 matches. Offroad's targetLatPos clear belongs in both source
+arms; placing it there leaves one merged physical store and extends the outer
+scope to retail +19c, rather than +190. Full gate `run-ysc5kkvm` is unchanged
+in compiled sections/layouts, ASPSX 524/0, PSYLINK zero errors; aistate 26/42 ->
+28/42 native CLEAN. With that source shape restored, direct assignment of
+AIWorld_ApxSplineDistance to longMetersBetween_ is also 107/107 PASS, so the
+synthetic iVar4 carrier and its exemption comment were removed entirely.
+The earlier comment's 73-diff verdict applied to a different source shape,
+not a compiler limit. No alias, invented name, new asm/volatile or post-compile
+rewrite was introduced. Full original expression spelling/SLD attribution
+remain unsealed; native CLEAN is not a project-completion claim.
+Final carrier-free Offroad gate `run-_pn_5wry` repeats unchanged compiled
+sections/layouts, ASPSX 524/0 and PSYLINK zero errors. Idle/Offroad detailed
+checks are 47/107 instructions, both PASS. Updated their stale SLD-VERIFIED
+labels to distinguish verified native/byte contracts from open line attribution.
+Purgatory::TestForRelease now declares trafficInWorld in the timer-expired body
+at retail depth 3. Full gate `run-zwyuwq6g` is unchanged in compiled sections/
+layouts, ASPSX 524/0, PSYLINK zero errors; aistate becomes 29/42 native CLEAN.
+Its +000/+018..+06c scope pair, record type/home/order and frame now agree.
+Final comment-cleaned gate `run-e7gbelwu`: whole compiled sections/layouts
+unchanged, ASPSX 524 good/0 bad, PSYLINK zero errors; aistate 29/42 native CLEAN.
+Detailed Idle/Offroad/TestForRelease checks are 47/107/31 instructions, all PASS.
+The three modified functions' source labels now explicitly leave SLD line
+attribution open instead of retaining an unjustified SLD-VERIFIED stamp.
+Current native whole-tree board: 2104 CLEAN / 461 DIRTY; no CLEAN regressions.
+Fresh 526-object GNU link: strict rc=0 with existing 590 multiple-definition
+diagnostics; multdef-ok rc=0/empty stderr; zero undefined names/truncated
+relocations. Vtable audit PASS in 1314 files and all 8 relocation-normalizer
+regression tests pass. No failed trial or Offroad's former iVar4 carrier is retained.
+Fresh honest linked RECON remains 299819/299819 identical, zero masked mismatch
+bytes or foreign labels, BLOB passthrough excluded. Full original-source/SLD
+restoration remains active and incomplete.
+
+2026-09-28 AIState_RovingTraffic::CheckIfCarIsNearbyAndStop: restored nested
+longitudinal/lateral guards and moved posDiff to retail depth 5, AUTO -40.
+The status=2 else arm's explicit return restores the surrounding +194 endpoints;
+the distance-failure else arm restores +198. All +074/+084/+0cc..+188/+194/+198
+scope boundaries now match. Replaced the two LAB_STATUS labels with ordinary
+returns/else stores. The nonpositive-dot path still leaves status untouched,
+including its exact epilogue-target branch word. Initial native-complete gate
+`run-9pinrbcy` is unchanged in compiled sections/layouts. With that source shape,
+removing the old otherCarObj identity asm also preserves all 109 instructions;
+carrier-free gate `run-osxgw8l6`: BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero
+errors, aistate 29/42 -> 30/42 native CLEAN. No replacement fence, volatile,
+register pin, fake use, alias or invented local name was added. Frame, three
+parameters, distance/posDiff records and scope tree match retail. Source
+spelling/full SLD attribution remains unsealed; updated the old SLD-VERIFIED
+label accordingly rather than treating native CLEAN as complete restoration.
+Final comment/indent-cleaned gate `run-5_wbz74u`: whole compiled sections/
+layouts unchanged, ASPSX 524 good/0 bad, PSYLINK zero errors; aistate 30/42
+native CLEAN. Detailed 109/109 PASS. No previous CLEAN function regressed;
+whole-tree native board is 2105 CLEAN / 460 DIRTY. No header change was made.
+Fresh 526-object GNU link: strict rc=0 with existing 590 multiple-definition
+diagnostics; multdef-ok rc=0/empty stderr; zero undefined names and truncated
+relocations. Vtable audit PASS in 1314 files; all 8 relocation-normalizer tests
+pass. Original-source/SLD completion remains unproven across the broader tree.
+Fresh honest linked RECON remains 299819/299819 identical, zero masked mismatch
+bytes or foreign labels; retail BLOB passthrough excluded. No failed trial is
+retained in source or the normal object cache.
+
+2026-09-28 release/donuts source-scope investigation: release lower-bound
+statement probes changed 7 differences at 31/30 and 14 at 30/30. Reversing the
+comparison or initializing releaseDistanceMeters at use preserved bytes but
+did not recover its record. An inferred inline release setter matched the
+30-instruction caller but emitted an unwanted 12-byte standalone function and
+changed rodata, so the whole-object gate rejected it. Its in-class and
+out-of-class forms were both reverted; aistate_classes.h is unchanged and no
+helper or byte-reference replacement is kept. Full restored baseline gate
+`run-_gl5ni3b` verified unchanged compiled sections/layouts and 30/42 native CLEAN.
+Removed the artificial declaring block around Donuts' carObj snapshot without
+removing or exempting the unresolved capture itself. Full gate `run-708btuc_`:
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors; Donuts scope count 4 -> 3
+(retail 3). Its first if-binding start is still +0c4 versus retail +0cc, and
+carObj REG:$4 remains EXTRA. This partial source correction is retained because
+it removes an unsupported lexical region, not because native CLEAN was attained.
+No invented name, asm/volatile, tool exclusion or post-compile rewrite added.
+Final comment-cleaned gate `run-2i4c5jy_`: unchanged compiled sections/layouts,
+ASPSX 524/0, PSYLINK zero errors; aistate 30/42 native CLEAN, original DIRTY
+issue set except the verified Donuts scope reduction. Detailed Donuts and
+UnleashIfInRange checks are 319/30 instructions, both PASS. The attempted
+release helper is absent from source, and no shared header change is retained.
+Fresh 526-object GNU link: strict rc=0 with existing 590 multiple-definition
+diagnostics; multdef-ok rc=0/empty stderr; zero undefined names/truncated
+relocations. Vtable audit PASS in 1314 files; all 8 relocation-normalizer
+regressions pass. Honest RECON remains 299819/299819 identical, zero masked
+mismatch bytes or foreign labels, BLOB passthrough excluded. Native board
+remains 2105 CLEAN / 460 DIRTY; source/SLD completion remains unproven.
+
+2026-09-28 AIHigh_BTC_AIPerp::AvoidCops: combined the null/control/direction/
+distance predicates into one short-circuit guard. Retail's four x/z position
+and index locals now occupy its single depth-3 +05c..+324 body instead of
+depth 7 across separately nested tests. Guard binding +000..+324 and function
+end +33c match too. Full gate `run-hprv7677`: compiled sections/layouts unchanged,
+ASPSX 524/0, PSYLINK zero errors; aih_btcperp 5/20 -> 6/20 native CLEAN.
+The address-style exit label was replaced by semantic apply_brake_choice,
+which explicitly denotes skipping the u-turn random roll after brake selection;
+its original spelling is unavailable and not claimed recovered. Byte/native
+gate `run-2c6quygr` is unchanged. The alternative guarded second-roll form
+changed 11 differences at 210/209; a single-pass do/break form changed 290 at
+203/209 and was also reversed. No new alias, fake variable, asm/volatile,
+register pin, tool exclusion or post-compile rewrite was kept. Original source
+spelling/full SLD attribution remains unsealed; the old SLD-VERIFIED stamp
+was corrected rather than promoting native CLEAN to a full source seal.
+Final comment-cleaned gate `run-do9xw8zp`: unchanged compiled sections/layouts,
+ASPSX 524/0, PSYLINK zero errors; AvoidCops detailed 209/209 PASS. All retail
+named locals, homes, order, depth and scope boundaries now agree. The semantic
+label is not a recovered original spelling; complete SLD attribution remains
+unsealed. Whole-tree native board 2106 CLEAN / 459 DIRTY; no CLEAN regressions.
+Fresh 526-object link: strict rc=0 with existing 590 multiple-definition
+diagnostics; multdef-ok rc=0/empty stderr; zero undefined names/truncated
+relocations. Vtable audit PASS in 1314 files and all 8 relocation-normalizer
+tests pass. No failed structured-exit experiment is retained.
+Fresh honest linked RECON remains 299819/299819 identical, zero masked mismatch
+bytes or foreign labels; BLOB passthrough excluded. Overall original-source/SLD
+completion remains active and unproven.
+
+2026-09-28 cop-notification loop ownership round: ReleaseCops, NotifyCopsOfArrest,
+NotifyCopsOfArrestComplete, NotifyCopsOfFalseArrest and NotifyHumanCopsOfArrestHud
+now use for-declared carLoop and body-local otherCarObj, at retail depths 2/3
+and the same homes. Full gate `run-n90lash3`: compiled sections/layouts unchanged,
+ASPSX 524/0, PSYLINK zero errors; no prior PASS regressed. Each function's
+remaining native issue is now only BLOCKS 3 versus retail 5: two empty regions
+around the action/receiver path are not recovered. Separating the flag and
+active checks was byte-identical but did not create those regions, so that
+neutral variant was reversed. Do not add dummy declarations or an invented
+forwarder just to manufacture empty scopes. The verified named-local ownership
+improvement is retained while the missing regions remain explicit backlog items.
+No new name, alias, asm/volatile, generic exemption or instruction rewrite.
 
 2026-09-25 (session from commit 4eff2f1a). SLD line matching is parked by the user for a later
 stage; this round is the native contract (locals, homes, scope trees) only. Every retained

@@ -65,28 +65,14 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 {
 
-  int carLoop;
-
-  Car_tObj *otherCarObj;
-
-
-
-  carLoop = 0;
-  while (true) {
-
-    if (Cars_gNumCars <= carLoop) {
-      break;
-    }
-
-    otherCarObj = Cars_gList[carLoop];
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+    Car_tObj *otherCarObj = Cars_gList[carLoop];
 
     if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) {
 
       ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->ReleaseAndStartChase(this);
 
     }
-
-    carLoop = carLoop + 1;
 
   }
 
@@ -432,18 +418,8 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
 
 
 {
-  int carLoop;
-  Car_tObj *otherCarObj;
-  
-
-  carLoop = 0;
-  while (true) {
-
-    if (Cars_gNumCars <= carLoop) {
-      break;
-    }
-
-    otherCarObj = Cars_gList[carLoop];
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+    Car_tObj *otherCarObj = Cars_gList[carLoop];
 
     if (((otherCarObj->carFlags & 0x220U) != 0) &&
         ((otherCarObj->N).active != '\0')) {
@@ -451,8 +427,6 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
       ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->StartArrest(this);
 
     }
-
-    carLoop = carLoop + 1;
 
   }
 
@@ -474,19 +448,11 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
 
 
 {
-  int carLoop;
-  Car_tObj *otherCarObj;
 
   
 
-  carLoop = 0;
-  while (true) {
-
-    if (Cars_gNumCars <= carLoop) {
-      break;
-    }
-
-    otherCarObj = Cars_gList[carLoop];
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+    Car_tObj *otherCarObj = Cars_gList[carLoop];
 
     if (((otherCarObj->carFlags & 0x220U) != 0) &&
         ((otherCarObj->N).active != '\0')) {
@@ -494,8 +460,6 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
       ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FinishArrest(this);
 
     }
-
-    carLoop = carLoop + 1;
 
   }
 
@@ -517,19 +481,8 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
 
 
 {
-  int carLoop;
-  Car_tObj *otherCarObj;
-
-  
-
-  carLoop = 0;
-  while (true) {
-
-    if (Cars_gNumCars <= carLoop) {
-      break;
-    }
-
-    otherCarObj = Cars_gList[carLoop];
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+    Car_tObj *otherCarObj = Cars_gList[carLoop];
 
     if (((otherCarObj->carFlags & 0x220U) != 0) &&
         ((otherCarObj->N).active != '\0')) {
@@ -537,8 +490,6 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
       ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FalseArrest(this);
 
     }
-
-    carLoop = carLoop + 1;
 
   }
 
@@ -560,19 +511,8 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
 
 
 {
-  int carLoop;
-  Car_tObj *otherCarObj;
-
-  
-
-  carLoop = 0;
-  while (true) {
-
-    if (Cars_gNumCars <= carLoop) {
-      break;
-    }
-
-    otherCarObj = Cars_gList[carLoop];
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+    Car_tObj *otherCarObj = Cars_gList[carLoop];
 
     if (((otherCarObj->carFlags & 0x200U) != 0) &&
         ((otherCarObj->N).active != '\0')) {
@@ -582,8 +522,6 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
                  this->lastArrestingCop_);
 
     }
-
-    carLoop = carLoop + 1;
 
   }
 
@@ -952,7 +890,7 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
 
 
 
-/* ---- AvoidCops__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::AvoidCops  [AIH_BTCPERP.CPP:488-552] SLD-VERIFIED ---- */
+/* ---- AvoidCops__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::AvoidCops  [retail AIH_BTCPERP.CPP:488-552; native/byte verified, SLD attribution open] ---- */
 
 /* PASS (209/209 insns; was 200 diffs).  Retail's missing first-roll threshold is
  * `AI_elapsedTime * 7 + pullOver * 500`.  The SYM starts xPosition, zPosition,
@@ -974,15 +912,15 @@ void AIHigh_BTC_AIPerp::AvoidCops()
   doBrake = 0;
 
   if ((this->closestCopCarObj_ != (Car_tObj *)0x0) &&
-      (this->closestCopCarObj_->RSControl == 0)) {
-
-    if (this->closestCopCarObj_->direction == this->carObj_->direction) {
-
-      if (__builtin_abs(this->closestCopCarDistanceMeters_) < 0x1f40000) {
-        int xPosition;
-        int zPosition;
-        int xPositionIndex;
-        int zPositionIndex;
+      (this->closestCopCarObj_->RSControl == 0) &&
+      (this->closestCopCarObj_->direction == this->carObj_->direction) &&
+      (__builtin_abs(this->closestCopCarDistanceMeters_) < 0x1f40000)) {
+    /* Retail owns these four quantities in this compound guard body
+     * (+05c..+324), not in separately nested tests. SLD attribution is open. */
+    int xPosition;
+    int zPosition;
+    int xPositionIndex;
+    int zPositionIndex;
 
         xPosition = this->carObj_->roadPosition;
         xPosition -= this->closestCopCarObj_->roadPosition;
@@ -1040,8 +978,7 @@ void AIHigh_BTC_AIPerp::AvoidCops()
               if (0x11c71c < __builtin_abs(this->carObj_->currentSpeed)) {
 
                 doBrake = 1;
-
-                goto LAB_800606f0;
+                goto apply_brake_choice;
 
               }
 
@@ -1080,14 +1017,11 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
         }
 
-      }
-
-    }
-
   }
 
-LAB_800606f0:
-
+/* Semantic reconstructed label; original spelling is unavailable. Selecting
+ * braking skips the u-turn random roll before committing pullOver. */
+apply_brake_choice:
   if (doBrake) {
 
     (this->carObj_)->pullOver = 1;

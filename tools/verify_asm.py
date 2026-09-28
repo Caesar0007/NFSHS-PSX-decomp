@@ -204,8 +204,17 @@ def ours(fn, oracle_va=None):
         # (R_MIPS_GPREL16 vs base, addend 1 in the immediate) links to the SAME word as the
         # oracle's `sb v0,%gp_rel(D_…39D)(gp)` (splat's synthetic per-byte gp symbol) -- verified
         # by hand on R3DCcar_ReadTrackShadow (oracle 0xA3820E50..56 == ours after link).
-        # (Symmetric with the existing reloc-name leniency; HI16 already shows 0 in objdump.)
+        # 2026-09-28: HI16 does NOT always show 0: bigBuf+0x44d10 in
+        # Platform_InitMemory has a high addend of 4 (5 with a signed-low
+        # carry). Normalize only a real HI16-relocated LUI, symmetrically
+        # with oracle %hi(SYM)->0. Literal LUIs and register/opcode differences
+        # remain visible. Linked addresses still require honest_measure;
+        # this changes comparison text, never source/objects/link output.
+        # Backup: scratchpad/verify_hi16_addend_20260928/verify_asm.py.
+        # Tests: tools/test_verify_asm_relocations.py (positive/negative cases).
         nxt = lines[i+1] if i+1 < len(lines) else ''
+        if 'R_MIPS_HI16' in nxt and re.match(r'^lui\s', insn):
+            insn = re.sub(r',\s*(?:0x)?[0-9a-fA-F]+$', ',0', insn)
         if 'R_MIPS_LO16' in nxt or 'R_MIPS_GPREL16' in nxt:
             insn = re.sub(r',\s*-?(?:0x)?[0-9a-fA-F]+\(', ',0(', insn)   # lw rD,N(base) -> 0(base)
             insn = re.sub(r',\s*-?(?:0x)?[0-9a-fA-F]+$', ',0', insn)     # addiu/ori rD,rS,N -> ,0

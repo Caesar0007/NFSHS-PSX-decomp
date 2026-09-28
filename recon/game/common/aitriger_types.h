@@ -66,6 +66,13 @@ struct AITrigger_TriggerManager {
     int InsertTrigger(trigger_t *trigger, bool fromFile);
     trigger_t *GetNextTrigger(int car);
     trigger_t *GetPrevTrigger(int car);
+    /* Inferred semantic name: retail's three nested inline scope pairs prove
+     * this bounds-checked receiver/index shape, not its literal spelling.
+     * Like retail, the check is only against numTriggers_ (no lower bound). */
+    inline trigger_t *GetCheckedTrigger(int triggerNum) {
+        if (triggerNum < numTriggers_) return triggers_[triggerNum];
+        return (trigger_t *)0;
+    }
     int CheckForTriggerAtSlice(int car, int slice);
     trigger_t *GetTrigger(int trigger, int *used);
     int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);

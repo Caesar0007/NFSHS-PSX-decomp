@@ -806,6 +806,9 @@ void Night_DoLightningEffect(DRender_tView *Vi)
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
 {
+  /* All six named locals belong to retail's single root block. Keep the
+   * copColors initializer after the country/model reads to preserve its
+   * stack-copy schedule. cartype's quantity/home remains unresolved. */
   int cartype;
   int country;
   /* SYM's INT carrier is confirmed by both retail allocation and the split m2c
@@ -814,11 +817,11 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
   country = carinfo->Country;
   cartype = CopCarTypeLights[carinfo->carType - 22];
-  {
-    u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed,
-                                       Night_gCopLightingTableBlue };
-    int col1;
-    int col2;
+  u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed,
+                                   Night_gCopLightingTableBlue };
+  int col1;
+  int col2;
+
 
     /* w46-a9 (5 -> 2, count now EXACT 37/37).  Two changes:
      *  (1) col2's index arithmetic is hoisted ABOVE the Night_gCopColor store, so
@@ -842,12 +845,11 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
      * DECL (forces a memcpy call, 41 insns); volatile array-ptr / elem-ptr views over
      * copColors (35 insns); one reused `col` variable (36); a `u_char *pair` local for the
      * two table bytes (35); store-before-col2 (38); both-cols-first (35). */
-    col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
-    carTable = (int)copColors[col1];
-    col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
-    Night_gCopColor[0] = (u_char (*)[256][8])carTable;
-    Night_gCopColor[1] = copColors[col2];
-  }
+  col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
+  carTable = (int)copColors[col1];
+  col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
+  Night_gCopColor[0] = (u_char (*)[256][8])carTable;
+  Night_gCopColor[1] = copColors[col2];
   return;
 }
 
@@ -1004,25 +1006,19 @@ void Night_GenerateAllLightTables(void)
 
     colorIndex = 0;
     while (colorIndex < Night_gTotalLights) {
-      {
-        int i;
+      if (GameSetup_gData.Weather == 1) {
+        Night_SetWeatherColors(colorIndex);
+      }
+      /* Retail's inner i begins after the weather call (+0e8); its bright
+       * body starts at +0ec. A for-declaration restores those exact scopes.
+       * The unused outer i's missing REG:$6 record remains unresolved. */
+      for (int i = 0; i < 0x10; i = i + 1) {
+        int bright;
 
-        if (GameSetup_gData.Weather == 1) {
-          Night_SetWeatherColors(colorIndex);
-          i = 0;
-        }
-        else {
-          i = 0;
-        }
-        while (i < 0x10) {
-          int bright;
-
-          bright = colorCreationTable[i];
-          Night_SetPlayerHeadLightColor(0,colorIndex,bright);
-          if ((GameSetup_gData.cops != 0) && (i < 8)) {
-            Night_SetCopLightColors(colorIndex,bright);
-          }
-          i = i + 1;
+        bright = colorCreationTable[i];
+        Night_SetPlayerHeadLightColor(0,colorIndex,bright);
+        if ((GameSetup_gData.cops != 0) && (i < 8)) {
+          Night_SetCopLightColors(colorIndex,bright);
         }
       }
       colorIndex = colorIndex + 1;
@@ -1067,10 +1063,6 @@ void Night_GenerateAllLightTables(void)
 void Night_InitNightDriving(void)
 
 {
-  char *mem;          /* SYM: the ONLY REG local ($10 = s0) -- it serves TWO roles,
-                         first the loadshapeadr buffer then the locateshape result */
-  char name [256];    /* SYM: AUTO char[256] @ -0x110 => sp+16 */
-
   /* ONE `&&` expression, ONE store: the oracle computes the flag in $v0 (`addu
      $v0,zero,zero` in the Time==0 beqz delay slot, xori/sltu otherwise) and stores it
      once at the join, then RE-TESTS Time (same CSE'd $v1) to gate the depth-cue clear
@@ -1085,37 +1077,41 @@ void Night_InitNightDriving(void)
     TrackSpec_gSpec.depthcuespec.distance = 0xff;
     *(long *)&TrackSpec_gSpec.depthcuespec.color = 0;
   }
-  if (gNight_renderNight == 0) {
-    return;
-  }
-  sprintf(name,"%snight.psh",Paths_Paths[0x19]);
-  /* no `sz`/`shp` locals: the SYM lists only `mem` and `name`.  Both filesize() results
-     are consumed straight out of $v0 (the second one lands in the blockmove arg while
-     the loadshapeadr pointer is parked in $s0 from the jal delay slot), and `mem`
-     carries the shape buffer BEFORE it carries the locateshape result. */
-  nightfile = (char *)reservememadr("night.psh",filesize(name),0);
-  mem = (char *)loadshapeadr(name,(void *)0x0);
-  blockmove(mem,nightfile,filesize(name));
-  purgememadr(mem);
-  /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.c: `void *locateshape(void
-     *shapefile,int *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
-     a phantom read of the stale blockmove size. */
-  mem = (char *)locateshape(nightfile,(int *)"nght");
-  Night_gNightTbl = mem + 0x10;
-  Night_InitPlayerHeadLightColor(0);
-  if (GameSetup_gData.cops != 0) {
-    Night_InitCopLightColors();
-  }
-  if (GameSetup_gData.Weather == 1) {
-    Night_InitWeatherTables();
-  }
-  Night_GenerateAllLightTables();
-  if (GameSetup_gData.Weather == 1) {
-    Night_gLightning = 0;
-    Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
-    Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
-    Night_gNextFlicker = Night_gNextLightning;
-    Hrz_CalculateLightning();
+  if (gNight_renderNight != 0) {
+    /* Retail's buffer and pointer live in this guarded body, in this order.
+     * Native frame/locals/scopes and all 103 instructions agree; relative
+     * source-line/SLD attribution remains unsealed (run-8g9mktec). */
+    char name [256];    /* SYM: AUTO char[256] @ -0x110 => sp+16 */
+    char *mem;          /* SYM: REG $s0, load buffer then located shape */
+    sprintf(name,"%snight.psh",Paths_Paths[0x19]);
+    /* no `sz`/`shp` locals: the SYM lists only `mem` and `name`.  Both filesize() results
+       are consumed straight out of $v0 (the second one lands in the blockmove arg while
+       the loadshapeadr pointer is parked in $s0 from the jal delay slot), and `mem`
+       carries the shape buffer BEFORE it carries the locateshape result. */
+    nightfile = (char *)reservememadr("night.psh",filesize(name),0);
+    mem = (char *)loadshapeadr(name,(void *)0x0);
+    blockmove(mem,nightfile,filesize(name));
+    purgememadr(mem);
+    /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.c: `void *locateshape(void
+       *shapefile,int *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
+       a phantom read of the stale blockmove size. */
+    mem = (char *)locateshape(nightfile,(int *)"nght");
+    Night_gNightTbl = mem + 0x10;
+    Night_InitPlayerHeadLightColor(0);
+    if (GameSetup_gData.cops != 0) {
+      Night_InitCopLightColors();
+    }
+    if (GameSetup_gData.Weather == 1) {
+      Night_InitWeatherTables();
+    }
+    Night_GenerateAllLightTables();
+    if (GameSetup_gData.Weather == 1) {
+      Night_gLightning = 0;
+      Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
+      Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
+      Night_gNextFlicker = Night_gNextLightning;
+      Hrz_CalculateLightning();
+    }
   }
   return;
 }

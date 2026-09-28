@@ -194,14 +194,13 @@ AIState_Normal::AIState_Normal(Car_tObj *carObj)
 
 
 
-/* ---- Execute__12AIState_Idle  AIState_Idle::Execute  [AISTATE.CPP:129-149] SLD-VERIFIED ---- */
+/* ---- Execute__12AIState_Idle  AIState_Idle::Execute  [retail AISTATE.CPP:129-149; native/byte verified, SLD attribution open] ---- */
 
 void AIState_Idle::Execute()
 
 
 
 {
-  int off;
 
 
 
@@ -214,6 +213,8 @@ void AIState_Idle::Execute()
   }
 
   else {
+    int off;
+    /* Retail owns off in this else region (+040..+0ac), not at root. */
     if (((this->carObj_)->roadPosition - this->roadPosition_) + 0xffffU < 0x1ffff) {
 
       (this->carObj_)->desiredSpeed = 0;
@@ -1767,22 +1768,21 @@ void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 
 
 
-/* ---- Execute__15AIState_Offroad  AIState_Offroad::Execute  [AISTATE.CPP:944-978] SLD-VERIFIED ---- */
+/* ---- Execute__15AIState_Offroad  AIState_Offroad::Execute  [retail AISTATE.CPP:944-978; native/byte verified, SLD attribution open] ---- */
 
 void AIState_Offroad::Execute()
 
 
 
 {
-  coorddef zero;
-  /* SYM-CODEGEN-CARRIER: iVar4 -- absent from the surviving local records.
-   * Folding the spline-call result into `longMetersBetween_` changes 73
-   * instructions and adds one by changing the saved-register/frame web. */
-  int iVar4;
 
   
 
   if (this->letGo_ == 0) {
+    coorddef zero;
+    /* Retail owns zero only in the hold branch. The targetLatPos clears
+     * in both arms compile to one shared store while preserving the outer
+     * scope through +19c. Native/byte receipt: run-_pn_5wry. */
 
     memset((u_char *)&zero,'\0',0xc);
 
@@ -1800,13 +1800,12 @@ void AIState_Offroad::Execute()
         (this->carObj_)->targetPos.y =
         (this->carObj_)->targetPos.z = 0;
 
+    (this->carObj_)->targetLatPos = 0;
   }
 
   else {
 
-    iVar4 = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
-
-    this->longMetersBetween_ = iVar4;
+    this->longMetersBetween_ = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
 
     this->carObj_->desiredSpeed = this->maxSpeedMPS_;
 
@@ -1832,9 +1831,8 @@ void AIState_Offroad::Execute()
 
     (this->carObj_)->targetPos = this->targetPosition_;
 
+    (this->carObj_)->targetLatPos = 0;
   }
-
-  (this->carObj_)->targetLatPos = 0;
 
   return;
 
@@ -2042,16 +2040,16 @@ LOOP_800716DC:
 
 
 
-/* ---- TestForRelease__17AIState_Purgatory  AIState_Purgatory::TestForRelease  [AISTATE.CPP:1048-1063] SLD-VERIFIED ---- */
+/* ---- TestForRelease__17AIState_Purgatory  AIState_Purgatory::TestForRelease  [retail AISTATE.CPP:1048-1063; native/byte verified, SLD attribution open] ---- */
 
 int AIState_Purgatory::TestForRelease()
 
 
 
 {
-  int trafficInWorld;
-
   if (this->carObj_->physicsModelTimer < 1) {
+    int trafficInWorld;
+    /* Retail declares this count in the timer-expired body (+018..+06c). */
     trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory;
 
     if (trafficInWorld <
@@ -2155,7 +2153,7 @@ AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger
 
 
 
-/* ---- CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi  AIState_RovingTraffic::CheckIfCarIsNearbyAndStop  [AISTATE.CPP:1130-1169] SLD-VERIFIED ---- */
+/* ---- CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi  AIState_RovingTraffic::CheckIfCarIsNearbyAndStop  [retail AISTATE.CPP:1130-1169; native/byte verified, SLD attribution open] ---- */
 
 void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int &status)
 
@@ -2163,16 +2161,10 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
 {
   int distance;
-  coorddef posDiff;
 
-  if (this->carObj_ == otherCarObj) goto LAB_STATUS2;
+  if (this->carObj_ == otherCarObj) { status = 2; return; }
 
-  if ((otherCarObj->N).active == '\0') goto LAB_STATUS2;
-
-  /* W54-A15: identity/opacity fence (0 insns) -- gcc otherwise proves the incoming $a1 still
-   * holds otherCarObj at the first SplineDistance call and DELETES the arg copy, leaving a
-   * nop in the jal slot; retail rematerializes `addu a1,s0,zero` there. */
-  __asm__("" : "=r"(otherCarObj) : "0"(otherCarObj));
+  if ((otherCarObj->N).active == '\0') { status = 2; return; }
 
   distance = AIWorld_SplineDistance(this->carObj_,otherCarObj);
 
@@ -2188,63 +2180,34 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
   }
 
-  if (0xc0000 < distance) goto LAB_STATUS0;
+  if (distance <= 0xc0000) {
+    if (0 < this->carObj_->roadPosition - otherCarObj->roadPosition ?
+        this->carObj_->roadPosition - otherCarObj->roadPosition <= 0x9ffff :
+        otherCarObj->roadPosition - this->carObj_->roadPosition <= 0x9ffff) {
+      coorddef posDiff;
 
-  if (0 < this->carObj_->roadPosition - otherCarObj->roadPosition) {
+      posDiff.x = (otherCarObj->N).position.x - ((this->carObj_)->N).position.x;
+      posDiff.y = (otherCarObj->N).position.y - ((this->carObj_)->N).position.y;
+      posDiff.z = (otherCarObj->N).position.z - ((this->carObj_)->N).position.z;
 
-    if (0x9ffff < this->carObj_->roadPosition - otherCarObj->roadPosition) {
+      /* Retail blez at 80071a0c targets the epilogue, not the nearby status=0
+       * store. Leave status untouched on this path. The full byte gate checks
+       * that branch displacement, not only its normalized target spelling. */
+      if (fixedmult(this->carObj_->N.orientMat.m[6],posDiff.x) +
+          fixedmult(this->carObj_->N.orientMat.m[7],posDiff.y) +
+          fixedmult(this->carObj_->N.orientMat.m[8],posDiff.z) <= 0) return;
 
-      status = 2;
-
+      AudioClc_HonkHorn(this->carObj_,4,0x10,8);
+      (this->carObj_)->desiredSpeed = 0;
+      status = 1;
       return;
-
+    } else {
+      status = 2;
+      return;
     }
-
+  } else {
+    status = 0;
   }
-
-  else {
-
-    if (0x9ffff < otherCarObj->roadPosition - this->carObj_->roadPosition)
-      goto LAB_STATUS2;
-
-  }
-
-  posDiff.x = (otherCarObj->N).position.x - ((this->carObj_)->N).position.x;
-
-  posDiff.y = (otherCarObj->N).position.y - ((this->carObj_)->N).position.y;
-
-  posDiff.z = (otherCarObj->N).position.z - ((this->carObj_)->N).position.z;
-
-  /* CORRECTNESS (w65-a2, REVERSES the w13-a5 note above it): retail's `blez $s0` at
-     0x80071A0C encodes offset 0x000F -> .L80071A4C = the EPILOGUE, NOT the
-     `sw $zero,0($s3)` one word earlier (.L80071A48, which only the
-     `0xC0000 < distance` guard's `bnez` at 0x80071930 reaches).  So retail leaves
-     *status UNTOUCHED on the sum<=0 path; `goto LAB_STATUS0` here wrote a 0 the
-     original never wrote.  The gate could never see it (verify_asm normalises every
-     branch TARGET to `T`); `tools/brdist.py` reported it as (9, 15, 16).  Bare
-     `return;` reproduces retail's branch word and drops the spurious store. */
-
-  if (fixedmult(this->carObj_->N.orientMat.m[6],posDiff.x) +
-      fixedmult(this->carObj_->N.orientMat.m[7],posDiff.y) +
-      fixedmult(this->carObj_->N.orientMat.m[8],posDiff.z) <= 0) return;
-
-  AudioClc_HonkHorn(this->carObj_,4,0x10,8);
-
-  (this->carObj_)->desiredSpeed = 0;
-
-  status = 1;
-
-  return;
-
-LAB_STATUS2:
-
-  status = 2;
-
-  return;
-
-LAB_STATUS0:
-
-  status = 0;
 
   return;
 
@@ -2436,12 +2399,10 @@ void AIState_Donuts::Execute()
 
 
 
-  {
-    /* SYM-CODEGEN-CARRIER: carObj -- absent from the surviving outer-local
-     * records. Direct member expressions change 14 instructions and add two
-     * reloads, including the forward-dot result web and paired direction
-     * stores. */
-    Car_tObj *carObj = this->carObj_;
+  /* SYM-CODEGEN-CARRIER: carObj -- absent from retail locals. Its artificial
+   * declaring block has been removed; the capture itself remains unresolved.
+   * Direct member expressions changed 14 instructions and added two reloads. */
+  Car_tObj *carObj = this->carObj_;
 
     slice = (int)carObj->N.simRoadInfo.slice;
 
@@ -2463,7 +2424,6 @@ void AIState_Donuts::Execute()
     }
 
     carObj->desiredDirection = carObj->direction = forwardDot;
-  }
 
   if ((this->donutMode_ == 1) || (this->donutMode_ == 3)) {
 

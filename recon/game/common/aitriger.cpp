@@ -12,7 +12,7 @@
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 
-/* ---- anim.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
+/* ---- aitriger.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 AITrigger_TriggerManager *triggerManagerCops;   /* @0x8013c5e8  (bss(zero)) */
 AITrigger_TriggerManager *triggerManagerTraffic;   /* @0x8013c5ec  (bss(zero)) */
 
@@ -90,40 +90,26 @@ LAB_80072a14:
 trigger_t *
 AITrigger_TriggerManager::GetNextTrigger(int car)
 {
-  int triggerNum;
-
   if (this->numTriggers_ == 0) {
     return (trigger_t *)0x0;
   }
-  triggerNum = this->lastTriggerChecked_[car] + 1;
-  this->lastTriggerChecked_[car] = triggerNum;
-  if (triggerNum == this->numTriggers_) {
+  if (++this->lastTriggerChecked_[car] == this->numTriggers_) {
     this->lastTriggerChecked_[car] = 0;
   }
-  if (this->lastTriggerChecked_[car] >= this->numTriggers_) {
-    return (trigger_t *)0x0;
-  }
-  return this->triggers_[this->lastTriggerChecked_[car]];
+  return this->GetCheckedTrigger(this->lastTriggerChecked_[car]);
 }
 
 /* ---- AITrigger_TriggerManager::GetPrevTrigger  [@0x80072ab4] ---- */
 trigger_t *
 AITrigger_TriggerManager::GetPrevTrigger(int car)
 {
-  int triggerNum;
-
   if (this->numTriggers_ == 0) {
     return (trigger_t *)0x0;
   }
-  triggerNum = this->lastTriggerChecked_[car] + -1;
-  this->lastTriggerChecked_[car] = triggerNum;
-  if (triggerNum == -1) {
+  if (--this->lastTriggerChecked_[car] == -1) {
     this->lastTriggerChecked_[car] = this->numTriggers_ + -1;
   }
-  if (this->lastTriggerChecked_[car] >= this->numTriggers_) {
-    return (trigger_t *)0x0;
-  }
-  return this->triggers_[this->lastTriggerChecked_[car]];
+  return this->GetCheckedTrigger(this->lastTriggerChecked_[car]);
 }
 
 /* ---- AITrigger_TriggerManager::CheckForTriggerAtSlice  [@0x80072b24] ---- */
@@ -177,8 +163,6 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
 trigger_t *
 AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
 {
-  int triggerNum;
-  
   if (0xa00 < AITRIGGER_GAME_TICKS - this->checkTime_[trigger]) {
     *used = 0;
   }
@@ -186,11 +170,7 @@ AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
     *used = 1;
   }
   this->checkTime_[trigger] = AITRIGGER_GAME_TICKS;
-  triggerNum = 0;
-  if (trigger < this->numTriggers_) {
-    triggerNum = (int)this->triggers_[trigger];
-  }
-  return (trigger_t *)triggerNum;
+  return this->GetCheckedTrigger(trigger);
 }
 
 /* ---- AITrigger_TriggerManager::CheckForClosestTriggerOfType  [@0x80072d40] ---- */
@@ -201,7 +181,6 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
   trigger_t *firstTrigger;
   int prevTriggerIndex;
   int firstTriggerIndex;
-  trigger_t *thisTrigger;
 
   /* SYM-driven rewrite (w19-a4): SYM shows `fsize=0 mask=$00000000` -- a TRUE LEAF (no saved
    * regs, no stack frame at all). The Ghidra "shadow ptVar6/iVar8 provisional update, commit
@@ -220,8 +199,10 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
     return prevTriggerIndex;
   }
   tLoop = 0;
-  while (true) {
-    if (this->numTriggers_ <= tLoop) break;
+  /* Retail scopes the loop binding at +02c and thisTrigger's body at +034.
+   * The ordinary for shape preserves the entire leaf instruction stream. */
+  for (; tLoop < this->numTriggers_; tLoop = tLoop + 1) {
+    trigger_t *thisTrigger;
     thisTrigger = this->triggers_[tLoop];
     if (thisTrigger->any.type == type) {
       if (firstTrigger == (trigger_t *)0x0) {
@@ -242,7 +223,6 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
       prevTrigger = thisTrigger;
       prevTriggerIndex = tLoop;
     }
-    tLoop = tLoop + 1;
   }
   if ((prevTrigger != (trigger_t *)0x0) && (direction < 0)) {
     return prevTriggerIndex;
@@ -265,9 +245,9 @@ void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
  * qsort comparator signature; both params really are const (never written). */
 int AITrigger_Compare(const void *op1, const void *op2)
 {
-  trigger_t *ta;
-  trigger_t *tb;
-  return *(int *)(*(int *)op1 + 4) - *(int *)(*(int *)op2 + 4);
+  trigger_t *ta = *(trigger_t *const *)op1;
+  trigger_t *tb = *(trigger_t *const *)op2;
+  return ta->any.slice - tb->any.slice;
 }
 
 /* ---- AITrigger_TriggerManager::Sort  [@0x80072e30] ---- */

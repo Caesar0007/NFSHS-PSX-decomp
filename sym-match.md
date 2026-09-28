@@ -2,16 +2,16 @@
 
 Status as of 2026-09-28. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
-Native-only per-directory snapshot after the aistate round (2565 common
+Native-only per-directory snapshot after the drawc scope round (2565 common
 covered functions; not a full source-declaration/carrier/SLD seal):
 
 | Retail directory | Native CLEAN | Native DIRTY |
 |---|---:|---:|
 | FRONTEND/COMMON | 711 | 127 |
 | FRONTEND/PSX | 61 | 24 |
-| GAME/COMMON | 1058 | 189 |
-| GAME/PSX | 276 | 119 |
-| Total | 2106 | 459 |
+| GAME/COMMON | 1061 | 186 |
+| GAME/PSX | 284 | 111 |
+| Total | 2117 | 448 |
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
@@ -790,6 +790,569 @@ neutral variant was reversed. Do not add dummy declarations or an invented
 forwarder just to manufacture empty scopes. The verified named-local ownership
 improvement is retained while the missing regions remain explicit backlog items.
 No new name, alias, asm/volatile, generic exemption or instruction rewrite.
+
+2026-09-28 drawc declaration-region round: DrawC_ReadLightingData's retail
+records contain one root scope and i/ScaneData/RenderingFileData/name. Removing
+the artificial block around the optimized-away track staging declaration
+restores that scope tree without changing the 130 retail instructions. Final
+symloop `run-vwx1i907`: all sections/layouts UNCHANGED, ASPSX 524 good/0 bad,
+PSYLINK zero errors, drawc 7/20 native CLEAN (one gained). Whole-tree native
+report is now 2107 CLEAN / 458 DIRTY. Direct field passing was still two
+scheduled-word differences at 130/130 and was reverted: trk's source spelling
+and need for a distinct original object remain explicitly unresolved. Native
+CLEAN does not seal that source carrier or full SLD attribution. No new asm,
+volatile, dummy use or instruction rewrite. Clock's comma-expression and
+duplicated generic-increment-arm probes were 18/31 diffs and were fully
+reverted; its fresh restored baseline passes the immutable byte reference.
+Force's fresh pre-edit byte gate disagrees with its existing reference
+(`run-tam51vrp`); no Force source or reference was changed. Reconcile that
+baseline separately before attempting its loop-local ownership corrections.
+Final linked regression: fresh 526-object census, multdef-ok rc=0/empty stderr,
+zero undefined names or truncated relocations (strict retains the existing
+590 multiple-definition diagnostics). Honest RECON 299819/299819, zero
+differences/masked mismatches/foreign labels; vtable audit PASS in 1314 files,
+whitespace check clean. This post-12c98ae1 correction is local and uncommitted.
+
+2026-09-28 DrawC_PrimStop guarded ownership: retail records place sort_carObj,
+worldZ and sub_otSize at depth 3 in +010..+0b8, under the sort_flag==0
+guard, rather than at root before a negative early return. Restoring that
+positive body reproduces all three native scopes and local homes without
+changing 48/48 instructions. SLD independently maps the initial flag test to
+1536 and body acquisition to 1538. Final comment-cleaned full symloop
+`run-k4u5ikll`: BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors, drawc
+8/20 native CLEAN; whole-tree 2108 CLEAN / 457 DIRTY. No new carrier/name,
+asm, volatile, dummy use, header edit or instruction rewrite. Full statement
+and instruction-line attribution remains open. The following round resolves
+the backwards 1548/1547 ordering evidence without claiming a full SLD seal.
+This correction and the preceding ReadLightingData region cleanup are local,
+uncommitted post-12c98ae1 work.
+Fresh GNU link: 526 objects, multdef-ok rc=0/empty stderr, no undefined names
+or truncated relocations; strict retains existing overlap diagnostics. Honest
+RECON 299819/299819, zero differences/masked mismatches/foreign labels. Vtable
+audit PASS across 1314 files; whitespace check clean.
+
+2026-09-28 DrawC_PrimStop SLD/source-spelling continuation: retail associates
+worldZ with lines 1547/1551 and sub_otSize with the following 1548/1552;
+the scheduled machine loads run size-first. Reordering both source pairs to
+world-first preserves 48/48 instructions, and sldprobe reproduces those
+backwards line-tag pairs (+040/+044 and +050/+054). Retail also tags the
+entire two-tag-store tail +05c..+0b4 as one source statement, line 1561.
+Canonical PsyQ 4.3 LIBGPU.H:248 defines addPrims(ot,p0,p1) as precisely
+setaddr(p1,getaddr(ot)),setaddr(ot,p0). Restoring that SDK macro spelling
+with p0=sd->sub_ot+sub_otSize and p1=sd->sub_ot preserves all 48 words
+and puts both stores under one call-site tag; no invented game helper or
+inline scopes are introduced. Added the canonical macro to the existing
+psyq_prim_macros.h without changing its types or existing macros. Remaining
+relative line counts/complete SLD attribution still differ (sldprobe reports
+46/48 tag differences); no padding or artificial #line directives were used.
+This is partial source restoration, not a claim of complete SLD validity.
+Final gate `run-dwjq_ayi`: all compiled sections/layouts UNCHANGED, ASPSX
+524/0, PSYLINK zero errors, drawc 8/20 native CLEAN. Whole-tree native report
+stays 2108 CLEAN / 457 DIRTY. Fresh GNU census 526 objects; multdef-ok
+rc=0/empty stderr, no undefined names or truncated relocations (strict retains
+existing overlap diagnostics). Honest RECON 299819/299819, no differences,
+masked mismatches or foreign labels; vtable audit PASS in 1314 files.
+Changes remain local/uncommitted, and full source/SLD restoration remains active.
+
+2026-09-28 DrawC_MenuColorData carrier/ownership round: retail carType REG:$3
+is the initial car-info type, not the later anonymous current-render-type load
+in a1. Assign carType only to the former and pass/read the latter directly.
+Retail filename/infilename/shpfile live at depth 5 in the texture-reload arm,
+not at function scope. The asynchronous path's early colorIndex store/return
+cross-jumps with the common final store, removes two excess enclosing scopes,
+and preserves branch words. The pointer-free typed array spelling remained
+22 diffs at 136/136; fused comparison assignment was 18 diffs. Index-term-first
+`*(int *)((player << 2) + (int)DrawC_gMenuColor)` for the compare and store
+preserves 136/136 instructions without menuColorSlot. No alias, const-hidden
+carrier, asm/volatile or instruction rewrite replaces it. Final full gate
+`run-fwyjbk7y`: complete sections/layouts UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors, drawc 9/20 native CLEAN. Target now matches all named homes,
+types, depths and five native scopes; full SLD attribution remains unsealed.
+Whole-tree native comparison: 2109 CLEAN / 456 DIRTY (EXTRA 305, MOVED 40,
+SCOPE 201, BLOCKS 380 affected functions). New work remains uncommitted.
+Final linked regression: fresh 526-object census; multdef-ok rc=0/empty stderr,
+zero undefined/truncated relocations, existing strict overlap diagnostics.
+Honest RECON 299819/299819 with zero differences/masked mismatches/foreign
+labels. Vtable audit PASS in 1314 files; whitespace check clean.
+
+2026-09-28 DrawC_NightHeadlight carrier reduction: negative-first arithmetic
+`tmp.x = -human.position.x + car.position.x` (and y/z) preserves retail's
+subtrahend-first read order without three named h0/h1/h2 objects or their
+extra declaring block. GCC emits the same subu operations, all 107/107
+instructions and complete section/layout fingerprints. Direct staging through
+the AUTO tmp fields added six instructions (113/107, 18 diffs) and was reverted.
+The old h-object necessity claim was basin-specific and is now explicitly
+superseded in source. Final `run-2id3fxoe`: BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors; all retail named locals/homes/depths and five scopes
+match, leaving only EXTRA lightSlotView REG:$6. Direct &light guards in
+either operand order are still two scheduling differences at 107/107 and were
+reverted. That view remains a specific unresolved source-recovery item, not
+proof of an original separate object and not a generic exemption. The retired
+PER_FN_TEXT_MOVES historical recipe is labeled obsolete; current build.py
+has no such output rewrites. No new asm/volatile/fence/alias. Whole-tree native
+board stays 2109 CLEAN / 456 DIRTY; BLOCKS issues fall to 379 functions.
+Full SLD/source spelling remains open; this reduction is local/uncommitted.
+Fresh linked regression: 526-object census, no undefined names/truncated
+relocations, multdef-ok rc=0/empty stderr (existing strict overlap diagnostics).
+Honest RECON 299819/299819, zero differences/masked mismatches/foreign labels;
+vtable audit PASS in 1314 files and whitespace check clean.
+
+2026-09-28 DrawC_NightHeadlight pointer-view continuation: retail pos is the
+root coorddef pointer in a2. Its coordinate phase ends before the transform
+calls; retail later reuses a2 as sp+104, the address of light's pointer slot,
+for lightning RGB. Reuse pos as `(coorddef *)&light`, then actually read/write
+the three channels through `(CVECTOR *)pos`. The guard is only the real
+Night_gDrawLightning test: the dummy non-null predicate and unrecorded
+lightSlotView are gone. No coorddef members are read through the four-byte
+slot; only CVECTOR r/g/b are touched, preserving the retail pointer-slot bug
+confirmed by raw loads/stores and independent M2C func_800BE978.c. Restore
+root declaration order pos/light/i/nightMat/nightV/zero to match the retained
+SYM records. Final `run-isoj73rm`: 107/107 PASS, all sections/layouts UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors, drawc 10/20 native CLEAN. Whole-tree native
+board 2110 CLEAN / 455 DIRTY. This is a verified reconstruction with no extra
+object, not proof of the literal original pointer-reuse/cast expression;
+that spelling and complete SLD attribution remain explicit source-review work.
+Integer-cast direct &light guard was 38 diffs at 107/107 and was reverted.
+No new invented name, alias, asm, volatile, fence or output rewrite. Local,
+uncommitted post-12c98ae1 work remains active.
+Fresh link regression: 526-object census; multdef-ok rc=0/empty stderr,
+zero undefined names/truncated relocations (existing strict overlap diagnostics).
+Honest RECON 299819/299819, zero differences/masked mismatches/foreign labels;
+vtable audit PASS in 1314 files and whitespace check clean.
+
+2026-09-28 DrawC_ShowroomPrims identity round: root index REG:$2 is the
+tick remainder, now `index=gettick()%256`; i REG:$8 is the fill and outer
+counter, j REG:$7 is the inner counter. The main loop is for(i...), with a
+separate body-local index=i*2 at REG:$2 and iPlus=index+2 at REG:$5. All
+vertex and hilight-state uses now follow those distinct roles. This restores
+the missing root/nested index record and original counter homes without new
+names or alias copies. The explicit fill block was also unnecessary: move
+the still-unresolved hs/m1 into the existing guarded body, restoring all
+18 retail scopes. Pointer-free indexed fills with and without m1 were still
+8 diffs at 297/297; fully reverted. Existing vt0 fence/z1 carrier still need
+source review even where optimized out of native locals. Final full gate
+`run-d2eu1mlk`: 297/297 PASS, complete sections/layouts UNCHANGED, ASPSX
+524/0, PSYLINK zero errors. Target issues now only EXTRA hs REG:$2 and
+EXTRA m1 REG:$3; they are specific unresolved recovery items, not a proven
+source-object necessity or generic exemption. Whole-tree 2110 CLEAN / 455
+DIRTY, with MISSING 123, MOVED 39, BLOCKS 378 affected functions. No new asm,
+volatile, dummy use or output rewrite. Full SLD remains open; uncommitted.
+Fresh regression: 526-object link census, multdef-ok rc=0/empty stderr,
+zero undefined names or truncated relocations (existing strict overlap
+diagnostics). Honest RECON 299819/299819, zero differences/masked mismatches/
+foreign labels; vtable audit PASS across 1314 files, whitespace clean.
+
+2026-09-28 Showroom fill compiler diagnosis (no speculative source retained):
+post-decrement, ordinary for-loop and index-term-first integer address forms
+all remain eight differences at 297/297. The canonical CC1PLPSX -O2 -G8
+`-dL` diagnostic (`tools/rtl_dump.py`, scratch/rtl/drawc.i.loop) identifies
+fill loop 118..144, six real instructions, BIV reg83 initialized to31;
+address GIV insn132 has benefit3 before reduction costs and is rejected:
+`giv of insn 132 not worth while, 0 vs 6`. GCC 2.8.1 loop.c:3879..3921
+subtracts increment costs then tests lifetime*threshold*benefit < insn_count.
+This explains this indexed spelling's absent reverse walker, not a universal
+source floor. The more focused explicit-walker/literal -1 trial is just two
+ordering differences: the -1 materialization must precede the counter setup.
+Both hs and m1 remain unresolved; no invented rename, const-hidden alias,
+fake use or changed compiler flags were kept. All failed variants were
+reverted; a fresh immutable reference gate passes and detailed target is again
+297/297 PASS. The next investigation can compare those constant-ready-list
+graphs and price a genuinely different loop form rather than retry identical
+indexed forms. Native board unchanged; full SLD/source recovery still active.
+Restored-state regression: 526-object link, no undefined/truncated relocations,
+multdef-ok rc=0/empty stderr (existing strict overlap diagnostics), honest
+RECON 299819/299819 with no differences/masked mismatches/foreign labels.
+Vtable audit PASS in 1314 files; whitespace clean; no new code fix or commit.
+
+2026-09-28 DrawC_DividePrim declaration-region restoration: replace the
+capacity/OT-range positive wrappers with negative early guards, leaving
+retail's explicit bfct, clipW/clipH and packet-field regions directly under
+the proper parent. bfct/clip depths are 2, packet-local depths 3; native
+scope nesting and instruction boundaries now agree. Declare uv0/uv1/uv2
+before clut/tpage as retail records do, assigning the latter at their existing
+use sites. This fixes declaration order without changing emitted loads or
+stores. Final full `run-439z8mx0`: 153/153 PASS, all sections/layouts
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors, drawc 11/20 native CLEAN.
+Whole-tree native board 2111 CLEAN / 454 DIRTY (SCOPE 200, ORDER 3,
+BLOCKS 377 affected functions). No new name, carrier, asm, volatile, fake
+use or compiler-output rewrite; existing hardware/template macros unchanged.
+Original expression spelling and full instruction-line attribution remain
+unsealed. Source/journal changes remain local and uncommitted.
+Final regression: fresh 526-object link; zero undefined names/truncated
+relocations, multdef-ok rc=0/empty stderr (existing strict overlap diagnostics).
+Honest RECON 299819/299819, zero differences/masked mismatches/foreign labels;
+vtable audit PASS in 1314 files; whitespace check clean.
+
+2026-09-28 DrawC_DivideShadowPrim partial restoration: negative early
+capacity/front-z guards remove artificial declaring wrappers; the OT and
+texture-field regions now have retail depth 2 and exact native boundaries.
+Declare uv0/uv1/uv2/uv3/clut/tpage in retail order inside the field region.
+uv2/uv3 name destination slots: uv2 reads *u3 and uv3 reads *u2, matching
+their retail v1/v0 homes rather than preserving the swapped decompiler names.
+The separate color capture is unnecessary: copy sd->color directly into the
+packet before the length store, allowing GCC to produce the same load/store
+schedule. Final full `run-puxsyq5t`: 122/122 PASS, complete sections/layouts
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors. Target's sole native issue is
+EXTRA otp REG:$4; all retail named types/homes/depths/order/scopes match.
+Plain ot mutation, uint-pointer arithmetic, compound mutation in the first
+tag expression, and canonical addPrim were all 8 scheduled-word differences
+at 122/122 and were reverted. They did not improve the whole-byte gate.
+otp is an explicit unresolved recovery item, not proof of original separate
+storage or a generic exemption. No new name/alias, asm/volatile/fence/output
+rewrite. Whole-tree 2111 CLEAN / 454 DIRTY; MOVED 38, SCOPE 199, BLOCKS
+376 affected functions. Full SLD/original text remains open; uncommitted.
+Fresh regression: 526-object GNU link, multdef-ok rc=0/empty stderr,
+no undefined/truncated relocations (existing strict overlap diagnostics).
+Honest RECON 299819/299819, zero differences/masked mismatches/foreign labels;
+vtable audit PASS in 1314 files and whitespace check clean.
+
+2026-09-28 DivideShadowPrim OT-carrier completion: separate base-load/ot
+mutation forms, integer-address operand ordering, earlier mutation, and typed
+`prim+1` advancement still left 8 scheduled-word differences at 122/122.
+The distinct source-shape lever is one initializer before packet advancement:
+`ot = LastPrim + sd->otz`. This removes otp with 122/122 PASS; canonical
+PsyQ addPrim(ot,prim) is also byte-exact at this basin and replaces the two
+manual masked tag stores. Typed packet advancement is retained as prim+1;
+it is not credited as the independent fix. Final `run-rdwmed1l`: all sections/
+layouts UNCHANGED, ASPSX 524/0, PSYLINK zero errors, drawc 12/20 native
+CLEAN. Target matches all retail locals/homes/types/order and scopes; all
+old color/otp carriers are gone. Whole-tree 2112 CLEAN / 453 DIRTY, EXTRA
+303 affected functions. No new name/alias, fence, asm/volatile, compiler flag
+or output rewrite. Literal original initializer spelling and full SLD
+attribution remain unsealed. This verified source round remains uncommitted.
+Fresh 526-object GNU link: no undefined/truncated relocations, multdef-ok
+rc=0/empty stderr (existing strict overlap diagnostics). Honest RECON
+299819/299819, zero differences/masked mismatches/foreign labels; vtable
+audit PASS across 1314 files and whitespace check clean.
+
+2026-09-28 DrawC_ShadowPrim local-role/scope round: retail's l0 REG:$2
+is the first pixmap word, not the earlier anonymous sd->color capture in v1.
+Copy color directly before the packet length store; assign l0 together with
+l1/l2/l3 from shadowPmx and then store all four texture words. Early negative
+capacity/OT-range guards leave separate root-child OT and field-copy regions,
+matching retail's three scopes and depth-2 locals. Target native issues reduce
+to only EXTRA otp REG:$4. DivideShadowPrim's fused-slot initializer does not
+transfer here: it omits the retail forwarded-index copy (128/129, three diffs);
+in-place ot plus canonical or manual tag stores is count-exact but ten schedule
+differences. These failed variants were reverted; no extra asm/fence/volatile
+or flag/output rewrite was added. Retain otp only as explicit unresolved
+source recovery, not proven original separate storage or generic exemption.
+Final `run-61o05y0k`: 129/129 PASS, complete sections/layouts UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors, drawc 12/20 native CLEAN. Whole-tree native
+board stays 2112 CLEAN / 453 DIRTY; MOVED 37, SCOPE 198, BLOCKS 375
+affected functions. Full SLD/source spelling remains open; uncommitted.
+Fresh linked regression: 526-object census, multdef-ok rc=0/empty stderr,
+no undefined names or truncated relocations (existing strict overlaps).
+Honest RECON 299819/299819, zero differences/masked mismatches/foreign labels;
+vtable audit PASS in 1314 files and whitespace check clean.
+
+2026-09-28 ShadowPrim OT-carrier completion: the missing placement variant
+is the complete initializer `ot=LastPrim+sd->otz` AFTER PrimPtr advancement.
+Unlike the before-advance form (128/129), this preserves the retail forwarded
+index copy and all 129/129 instructions. Canonical addPrim(ot,prim) is exact
+at this spelling; otp and manual tag stores are removed, with their old
+necessity comment replaced. Final `run-qbqm6yqy`: complete sections/layouts
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors, drawc 13/20 native CLEAN.
+Target locals/types/homes/order and all three scopes now agree with retail.
+Whole-tree native board 2113 CLEAN / 452 DIRTY; EXTRA 302 affected functions.
+This is site-specific: DivideShadowPrim's initializer passes BEFORE packet
+advancement, ShadowPrim's AFTER. Do not generalize one location or assume the
+earlier missing-copy trial proved a source floor. No new object/name/alias,
+asm, volatile, fence, compiler flag or output rewrite. Original spelling and
+full SLD attribution remain unsealed; source/journal changes are uncommitted.
+Fresh GNU census 526 objects; no undefined/truncated relocations, multdef-ok
+rc=0/empty stderr (existing strict overlap diagnostics). Honest RECON
+299819/299819, zero differences/masked mismatches/foreign labels; vtable
+audit PASS in 1314 files and whitespace check clean.
+
+2026-09-28 DrawC_SpotPrims source-shape restoration: retail records a root
+POLY_G3* prim plus two block-local DR_MODE* prim objects, not drawMode.
+Restore those shadowing declarations; each mode's nested u_long* ot directly
+initializes LastPrim+sd->otz after packet advancement and uses canonical
+addPrim, removing both otEntry captures. The loop's direct color copy before
+length/zero-channel stores also removes color. Use an indefinite for with
+the exit-in-body test and shared increment; capacity failure continues to
+that increment. This removes two excess declaring levels and a temporary
+semantic skip label. The duplicated-increment while/continue trial was
+228/225, 13 diffs and was reverted; a shared-label trial passed but was
+superseded by the ordinary for form. All three OT links use canonical
+addPrim. Final `run-a18uizm7`: 225/225 PASS, complete sections/layouts
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors, drawc 14/20 native CLEAN;
+all target locals/types/homes/order/scopes match. Whole-tree native board
+2114 CLEAN / 451 DIRTY (EXTRA 301, MISSING 122, SCOPE 197, BLOCKS 374
+affected functions). No new object/name/alias, asm/volatile/fence/flag/output
+rewrite. Original spelling and full instruction-line attribution remain
+unsealed. Source and evidence changes are local/uncommitted.
+Fresh 526-object GNU link: multdef-ok rc=0/empty stderr, zero undefined/
+truncated relocations (existing strict overlap diagnostics). Honest RECON
+299819/299819, zero differences/masked mismatches/foreign labels; vtable
+audit PASS across 1314 files and whitespace check clean.
+
+2026-09-28 DrawC_PrimHalo lexical/flow restoration: remove three artificial
+parent regions around the facet work; vertex z/t1/t2/t3 groups are now direct
+loop children. bfct belongs to its own depth-3 backface region, copyLastPrim
+to the final depth-3 emission region. Restore the positive index>=0 overlay
+body with overlayFlag at retail depth4; reuse ov/ovs within that region rather
+than separate declaring blocks. Select real_type's high byte there before
+common emission, eliminating the jump into the old flare-selection if.
+Direct real_type&0xff call/reflect uses then remove flareType; the facet
+absorption identity also becomes unnecessary and is deleted. Both preserve
+all 298/298 words at this recovered shape despite older failed trials.
+Removing all four existing ovs fences was 18 diffs at 296/298; fully reverted.
+ov/ovs and these fences remain explicit unresolved source-recovery devices,
+not proof of original objects or a generic exemption. No new asm/volatile,
+alias name, fake use, compiler flag or output rewrite was retained. Final
+`run-34vr4u9j`: complete sections/layouts UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors, drawc 14/20 native CLEAN. Target issues only EXTRA ov REG:$2
+and ovs REG:$4: all retail named homes/types/depths/order and 12 scopes match.
+Whole-tree remains 2114 CLEAN / 451 DIRTY; SCOPE 196 and BLOCKS 373 affected
+functions. Original spelling/full SLD remain unsealed; changes uncommitted.
+Fresh 526-object link: multdef-ok rc=0/empty stderr, zero undefined/truncated
+relocations (existing strict overlap diagnostics). Honest RECON 299819/299819,
+no differences/masked mismatches/foreign labels; vtable audit PASS in 1314
+files and whitespace check clean.
+
+2026-09-28 PrimHalo raw-word capture removal: initialize/assign ovs directly
+from `(int)((u_int)(u_short)DrawC_gOverlay[...]<<16)` at both sites; ov is
+removed without replacing it with another name or const-hidden alias.
+All 298/298 instructions remain exact. The first-site direct conditional
+without the capture/fences instead hoists array-address work, grows the
+frame and gives 98 differences at 302/298; fully reverted. Final full
+`run-ucnwcbf3`: complete sections/layouts UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors, drawc 14/20 native CLEAN. Halo now has only EXTRA ovs REG:$4;
+all recorded homes/types/depths/order and 12 scopes still agree. ovs and
+the four pre-existing fences remain specific source-recovery work, not
+proof of an original distinct object or a source floor. No new device,
+name/alias, asm/volatile, compiler flag or output rewrite was kept. Whole-tree
+native board stays 2114 CLEAN / 451 DIRTY; literal original expression and
+full SLD attribution remain open. Changes are local and uncommitted.
+Fresh 526-object GNU link, multdef-ok rc=0/empty stderr, no undefined or
+truncated relocations (existing strict overlap diagnostics). Honest RECON
+299819/299819, zero differences/masked mismatches/foreign labels; vtable
+audit PASS in 1314 files and whitespace check clean.
+
+2026-09-28 DrawC_PrimMenu partial declaration-region round: use while(true)
+instead of the empty for facet loop, eliminating its extra binding level.
+Remove the extra u/v wrapper in the first vertex loop. Put byte setter locals
+in a child region of pmx in both UV arms, and the halfword setter locals in
+their retained inner region. Full retail/ours scope-tree inspection shows
+the environment packet field groups share a parent at +408; restore that
+parent rather than wrapping only clut/tpage. Lift tex's declaration from its
+artificial private block into the facet body without changing its use site
+or existing fence. All retained changes are 480/480 PASS; target now has no
+SCOPE issues for emitted matching locals. In-place facetFlag masking after
+sign decoding was 128 diffs at 484/480, frame increased; fully reverted.
+Final `run-7r6a6rv8`: complete sections/layouts UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors, drawc 14/20 native CLEAN. Remaining target issues:
+EXTRA facetMask/tex, facetFlag in a0 rather than t3, missing emitted u0/u1/u2/
+v0/v1/v2 debug rows (the source already declares/assigns them in both arms),
+and scope-tree addresses/nesting still different at the environment color
+end and overlay tail. Do not manufacture uses or claim existing declarations
+prove native recovery. Whole-tree 2114 CLEAN / 451 DIRTY, SCOPE 195 affected
+functions. No new name, object, asm/volatile/fence/flag/output rewrite.
+Full SLD and literal original spelling remain open; local/uncommitted.
+Fresh 526-object GNU link, zero undefined/truncated relocations, multdef-ok
+rc=0/empty stderr (existing strict overlap diagnostics). Honest RECON
+299819/299819, no differences/masked mismatches/foreign labels; vtable audit
+PASS in 1314 files and whitespace check clean.
+
+2026-09-28 PrimMenu UV identities and scope endpoints: for each of u0/u1/u2/
+v0/v1/v2, separate the byte load from its in-place offset addition in both
+setter arms. This preserves all 480 words but retains the original variable
+identities in GCC's full debug output; all missing UV rows disappear, with
+matching types/homes/depths/order. Scope-tree comparison reveals bfct ends
+at +348 (before SXY/depth extraction), not +394: end its region after the
+backface gate and use direct sd->otz arithmetic/tests outside. The old claim
+that bfct also holds composed OT depth is superseded. Remove the redundant
+overlay-arm continue to restore its +5f4 endpoint; use one shared environment
+color store after branch selection to restore the +4f8 endpoint. A GNU
+statement-expression code-byte variant was neutral and was reversed. All 33
+retail scope records (nesting/relative begin/end addresses) now match.
+Masked facetFlag with raw-field sign tests was 51 diffs at 481/480; later
+in-place masking 21 at 483/480. Both were fully reverted. Final full gate
+`run-dfji9cyz`: 480/480 PASS, complete sections/layouts UNCHANGED, ASPSX
+524/0, PSYLINK zero errors, drawc 14/20 native CLEAN. Target remaining only
+EXTRA facetMask REG:$11, EXTRA tex REG:$2, MOVED facetFlag a0 versus t3.
+Whole-tree 2114 CLEAN / 451 DIRTY; MISSING 121 and BLOCKS 372 affected
+functions. No new name/object, asm/volatile/fence/flag/output rewrite retained.
+Full SLD and literal source spelling remain open; local/uncommitted.
+Fresh 526-object link, multdef-ok rc=0/empty stderr, zero undefined/truncated
+relocations (existing strict overlap diagnostics). Honest RECON 299819/299819,
+zero differences/masked mismatches/foreign labels; vtable audit PASS across
+1314 files and whitespace check clean.
+
+2026-09-28 PrimMenu tex/fence placement probe (no failed code retained):
+direct texture-field input in the existing fence after facetFlag gives only
+3 differences at 481/480 (texture-load order and an extra load-delay nop).
+Moving that fence before facetFlag, removing it entirely, or reversing the
+two direct source reads gives 7 differences at 481/480; raw flag load/mask/
+sign-extension register choices differ. Reusing overlayFlag as the initial
+texture index is 24 differences at 484/480. These distinct source forms do
+not prove an original named tex capture existed; they narrow the next
+investigation to the raw flag/texture load schedule and quantity assignment,
+not another whole-function rewrite or a source floor. All were fully reverted.
+Fresh immutable reference passes and restored target is 480/480 PASS.
+Only precise source-review comments remain from this round; existing UV
+identity and 33-scope restorations are preserved. No new asm input, operand,
+fake use, alias name, compiler flag or output rewrite was kept. Native board
+unchanged; full source/SLD goal remains active, changes uncommitted.
+Restored-state regression: fresh 526-object GNU link, no undefined/truncated
+relocations, multdef-ok rc=0/empty stderr (existing strict overlaps). Honest
+RECON 299819/299819 with zero differences/masked mismatches/foreign labels;
+vtable audit PASS in 1314 files, whitespace clean. No new function fix/commit.
+
+2026-09-28 AudioCmn_Init source-object cleanup: direct GameSetup_gData.track/
+reverseTrack loads preserve the retail head schedule with no setup pointer
+or empty identity asm. Inline the ambient/mystic global-array addresses in
+the indexed byte stores, removing both const snapshots and their private
+region. The audio-on guard now emits no extra declaring scopes. Target's
+root j/temptrack records and single +0..+110 scope match retail; all 94/94
+instructions remain exact. Dropping the existing volatile-only direction
+read was 92/94, four diffs; restored, with original qualifier/spelling still
+source-review work rather than a proven permanent requirement. Corrected
+the file's stale bworld header provenance to its real AUDIOCMN owner. Final
+`run-jn3kvw_5`: complete sections/layouts UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors, audiocmn 43/48 native CLEAN. Whole-tree 2115 CLEAN / 450 DIRTY,
+EXTRA 300 and BLOCKS 371 affected functions. No new object/name, asm/volatile,
+fence, compiler flag or output rewrite. Full SLD/source spelling remains
+unsealed; source/evidence changes are local and uncommitted.
+Fresh 526-object link, no undefined/truncated relocations, multdef-ok rc=0/
+empty stderr (existing strict overlap diagnostics). Honest RECON 299819/299819,
+zero differences/masked mismatches/foreign labels; vtable audit PASS across
+1314 files and whitespace check clean.
+
+2026-09-28 AudioCmn_CheckState guarded ownership: opponents in the first
+checkpoint body belongs at depth3, not a private depth4 block. The changed-
+lap/non-arrested compound guard owns r/saidplayer/opponents at depth3 and
+all subsequent lap bookkeeping; unchanged/arrested paths still skip those
+stores, preserving the old early-return behavior. The second position is
+inside the opponents guard, and phrase belongs to the depth9 time-phrase
+else arm, not its outer lap test. Replace LAB_800774e0's early skip with an
+ordinary else-if; no semantic label replaces it. Typed carFlags members
+also replace two raw +0x260 pointer accesses. Final `run-ymynmshu`:
+415/415 PASS, complete sections/layouts UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors, audiocmn 44/48 native CLEAN. Target locals/types/homes/order
+and all13 scopes agree. Whole-tree 2116 CLEAN / 449 DIRTY; SCOPE194 and
+BLOCKS370 affected functions. No new object/name/alias, asm/volatile/fence,
+flag or output rewrite. Literal original spelling/full SLD attribution
+remain unsealed; source/evidence changes local/uncommitted.
+Fresh 526-object link, multdef-ok rc=0/empty stderr, no undefined/truncated
+relocations (existing strict overlaps). Honest RECON 299819/299819 with zero
+differences/masked mismatches/foreign labels; vtable audit PASS in 1314 files,
+whitespace check clean.
+
+2026-09-28 AudioCmn_SFX partial ownership: tempAmp belongs to the selected
+0x1f impact arm at depth5, not the outer negative-player body at depth3.
+Move its declaration there, and place ChooseImpactSample's assignment in
+the arm's condition so its binding region starts at the call. All 224/224
+instructions remain exact. A nested car-type guard putting c at depth9
+was 8 diffs at 224/224 (first load v1 versus retail s0 and a new copy);
+fully reverted, so c still needs recovery. A clamp statement-expression
+returning to tweakedForce was 8 at 226/224 and was reverted. Deleting the
+two existing force-reference fences was 68 at 224/224 and was reverted;
+all four old ref devices remain explicitly unresolved, not source proof or
+a permanent compiler floor. Final `run-oigaq_3k`: complete sections/layouts
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors, audiocmn 44/48 native CLEAN.
+Target now only SCOPE c depth7 versus9 and BLOCKS10 versus12; tempAmp's
+depth/type/home match, exact region endpoints remain in the open block issue.
+Whole-tree 2116 CLEAN / 449 DIRTY. No new name/object, asm/volatile/fence,
+flag or output rewrite retained. Full source/SLD goal active; uncommitted.
+Fresh 526-object GNU link, no undefined/truncated relocations, multdef-ok
+rc=0/empty stderr (existing strict overlaps). Honest RECON 299819/299819,
+zero differences/masked mismatches/foreign labels; vtable audit PASS in
+1314 files and whitespace check clean.
+
+2026-09-28 AudioCmn_SoundCar region cleanup: root-declare the existing
+distanceScale/roadProduct intermediates and remove their artificial private
+regions. All recorded local/type/home/order contracts and retail's two-scope
+tree (root plus final gas region) agree; native target issues now only EXTRA
+attenuation/distanceScale/roadProduct/scaledAmplitude. tunnelFlag/rpmRatio
+still require source-only review even though optimized out of native rows.
+Direct gas scaling in two source steps was 14 diffs at 530/530; one fused
+division was 92 at 530/530. Direct tuntrig in the existing fence/condition
+was 23 at 531/530, with spill offsets changed. All failed variants were
+reverted; no source-object necessity or source floor is proved. Final full
+`run-o1l0rl6j`: 530/530 PASS, complete sections/layouts UNCHANGED, ASPSX
+524/0, PSYLINK zero errors; audiocmn 44/48 native CLEAN. Whole-tree stays
+2116 CLEAN / 449 DIRTY, BLOCKS369 affected functions. No new object/name,
+asm/volatile/fence/flag/output rewrite retained. Existing qualifier/device
+and literal original source/SLD requirements remain open; uncommitted.
+Fresh 526-object GNU link, multdef-ok rc=0/empty stderr, no undefined/
+truncated relocations (existing strict overlaps). Honest RECON 299819/299819,
+zero differences/masked mismatches/foreign labels; vtable audit PASS across
+1314 files and whitespace check clean.
+
+2026-09-28 AudioCmn_Reset empty-region restoration: retail's missing pair is
+the final threshold-test region +2d0..+318 and fallback gettick region
++310..+318, both with no named locals. A fallback-only GNU expression gives
+19 scopes (one extra), while an expression around the whole if gives17
+(one missing). A conditional expression within the outer expression region,
+with the real zero-level/volume side effects sequenced in its true arm and
+the gettick expression region in its false arm, exactly reproduces all18
+retail scopes without adding a dummy variable, name, alias or fake use.
+All 214/214 instructions remain exact. This is a verified name-free source
+representation, not proof of the literal original macro syntax; that remains
+explicit source-review/SLD work. Final `run-omjds8lr`: complete sections/
+layouts UNCHANGED, ASPSX 524/0, PSYLINK zero errors, audiocmn45/48 native
+CLEAN. Target frame, locals/types/homes/depths/order/scopes agree. Whole-tree
+2117 CLEAN / 448 DIRTY; BLOCKS368 affected functions. No asm/volatile,
+compiler flag or output rewrite added. Local/uncommitted, full goal active.
+Fresh 526-object link, zero undefined/truncated relocations, multdef-ok rc=0/
+empty stderr (existing strict overlaps). Honest RECON 299819/299819, zero
+differences/masked mismatches/foreign labels; vtable audit PASS across 1314
+files and whitespace check clean.
+
+2026-09-28 AudioCmn_PlaySFX two-base cleanup: the real bank lookup storage
+is int[71]. `(u_char)gBankNumLookupTable[sndPlayer]` keeps the retail byte
+load without the separate lookup byte-view base. bankNum's existing
+cross-version-supported role remains (folding it too was38 diffs at316/316
+and was reverted). Direct gaChannel indexed reads in the final pitch calls
+remove bbase. Target remains316/316 PASS with complete object bytes/layouts
+UNCHANGED. Direct chbase integer sums in either order or typed channel address
+were8 diffs at316/316; stereo pbase removal4; direct final returns5 at317/316;
+inlined bank flag (boolean or int conditional)6 at316/316. All failed forms
+fully reverted. Final `run-5k7ikfpk`: ASPSX524/0, PSYLINK zero errors,
+audiocmn45/48 native CLEAN. PlaySFX remaining native extras chbase/nbase/pan/
+pbase/pch/r/slot; iPartial's home and scope tree remain unresolved. No new
+name/object, asm/volatile/fence/flag/output rewrite retained; existing devices
+and unrecorded source-only names still require review even when debug-elided.
+Whole-tree stays2117 CLEAN /448 DIRTY; full source/SLD goal active, uncommitted.
+Fresh526-object GNU link, no undefined/truncated relocations, multdef-ok rc=0/
+empty stderr (existing strict overlaps). Honest RECON299819/299819, zero
+differences/masked mismatches/foreign labels; vtable audit PASS in1314 files,
+whitespace clean.
+
+2026-09-28 PlaySFX pan web cleanup: replace pan's assignment funnel with
+the same unsigned selection directly in SNDpan's second argument, cast to
+int before the right shift. Both selected values are0..65535. At this form,
+the pch pointer and pbase base snapshot can also be removed in favor of
+gaChannel[sndPlayer].Partial. All three source captures disappear with
+316/316 PASS. Branch-local SNDpan calls were17 diffs at319/316 and were
+reverted; the direct conditional changes the expression graph where those
+duplicated calls did not merge correctly. Final `run-g399av7q`: complete
+sections/layouts UNCHANGED, ASPSX524/0, PSYLINK zero errors, audiocmn45/48
+native CLEAN. PlaySFX now has only chbase/nbase/r/slot native extras plus
+iPartial's wrong home and scope-address/nesting issues. No new name/alias,
+asm/volatile/fence/flag/output rewrite. Whole-tree stays2117 CLEAN /448
+DIRTY; full source/SLD recovery still active, source/evidence uncommitted.
+Fresh526-object link: multdef-ok rc=0/empty stderr, no undefined/truncated
+relocations (existing strict overlaps). Honest RECON299819/299819, zero
+differences/masked mismatches/foreign labels; vtable audit PASS across1314
+files and whitespace clean.
+
+2026-09-28 commit checkpoint: PlaySFX's new-sound arm now indexes gaChannel
+directly, removing nbase and its obsolete carrier comment. Detailed target
+check remains316/316 PASS. Final whole-TU `run-uc0gp_26`: BYTES UNCHANGED,
+ASPSX524 good/0 bad, PSYLINK zero errors, audiocmn45/48 native CLEAN.
+PlaySFX remaining native extras are chbase/r/slot, with iPartial home and
+scope-address issues still open. Whole-tree2117 CLEAN /448 DIRTY. Fresh
+526-object link: multdef-ok rc=0/empty stderr, no undefined or truncated
+relocations; strict link retains590 existing overlap diagnostics. Honest
+RECON299819/299819 identical, zero masked mismatch bytes/foreign labels;
+vtable audit PASS1314 files, whitespace check clean. This checkpoint includes
+only drawc.cpp, psyq_prim_macros.h, audiocmn.cpp and this journal; unrelated
+staged format documentation and untracked port/build files are excluded.
+Native CLEAN is not a full original-source/SLD seal; the main goal remains open.
 
 2026-09-25 (session from commit 4eff2f1a). SLD line matching is parked by the user for a later
 stage; this round is the native contract (locals, homes, scope trees) only. Every retained

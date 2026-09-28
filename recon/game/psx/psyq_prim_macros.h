@@ -14,5 +14,8 @@ typedef struct {
 #define setaddr(p, _addr) (((P_TAG *)(p))->addr = (u_long)(_addr))
 #define getaddr(p)       ((u_long)(((P_TAG *)(p))->addr))
 #define addPrim(ot, p)   (setaddr((p), getaddr(ot)), setaddr((ot), (p)))
+/* PsyQ 4.3 LIBGPU.H: prepend a primitive chain, first p0 through last p1.
+ * Kept as a macro so both tag stores belong to the call-site SLD statement. */
+#define addPrims(ot, p0, p1) (setaddr((p1), getaddr(ot)), setaddr((ot), (p0)))
 
 #endif

@@ -1,7 +1,7 @@
 /* game/common/audiocmn.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
- *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
- *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
- *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
+ *   audiocmn.obj (GAME\COMMON\AUDIOCMN.CPP): common audio, effects and music state.
+ *   48 native-debug-covered functions; unresolved source/SLD items are tracked
+ *   in sym-match.md. No whole-module original-source seal is claimed.
  */
 #include "audiocmn_types.h"
 #include "audiocmn_externs.h"
@@ -398,20 +398,14 @@ void AudioCmn_Init(void)
    * The channel-array init + false-lap-trigger select + backwards-direction are audio-on-guarded (H42). */
   if (AudioCmn_kAudioOn != 0) {
     AudioCmn_InitChannelArray();
-    /* SYM-CODEGEN-CARRIER: setup -- the shared GameSetup base and its read-only
-       identity fence preserve retail's reverseTrack load/store schedule. */
-    GameSetup_tData *setup = &GameSetup_gData;
     /* MATCH (SYM rule-8): temptrack = REG $4 (a0), mutated IN PLACE by the &0x10 arm
        (addiu a0,v0,5); track is loaded ONCE.  The SYM-owned j local is reused for
        reverseTrack here and redefined as the later loop index.  audioBackwardsDirection
        is stored then RE-READ for the table select (the join starts a new EBB). */
-    temptrack = setup->track;
-    j = setup->reverseTrack;
-    /* MATCH: stage reverseTrack across the zero-insn identity fence.  This keeps
-       the shared setup base live through both loads (so reverseTrack uses v1),
-       while leaving its store and the temptrack mask in the same schedulable EBB.
-       Result: retail's lw a0 / lw v1 / andi v0 / sw v1 head order (22 -> 18). */
-    __asm__("" : "=r"(setup) : "0"(setup));
+    temptrack = GameSetup_gData.track;
+    j = GameSetup_gData.reverseTrack;
+    /* Direct global members now preserve lw a0 / lw v1 / andi v0 / sw v1
+       without the former setup object or its empty identity asm. */
     audioBackwardsDirection = j;
     if ((temptrack & 0x10) != 0) {
       temptrack = (temptrack & 0xf) + 5;
@@ -435,23 +429,16 @@ void AudioCmn_Init(void)
     intensityFalseLapCounter = 0;
     falseLapCounter = 0;
   }
-  {
-    /* MATCH: the two explicit byte bases plus direct currentLap indexing establish
+    /* MATCH: the two global byte bases plus direct currentLap indexing establish
        retail's t4/t3/t2 preheader order; integer-address additions preserve the
        `addu v0,v1,tN` operand order.  The literal 512 store remains exact without
        an unsupported named local.  Retail data layout identifies -G8 as this TU's
        compiler lane: Init is source-PASS 94/94 under a strict TU-wide -G8 build. */
     j = 0;
-    /* Const array-base snapshot preserves retail's t4/t3/t2 preheader
-       allocation and indexed-store order without an extra SYM local. */
-    char *const ambient = fAmbientRangeON;
-    /* Const array-base snapshot keeps retail's address addition before the
-       adjacent byte store without an extra SYM local. */
-    char *const mystic = fMysticWindON;
     do {
       AudioCmn_gReTrig[j].count = 0;
-      *(char *)((int)j + (int)ambient) = '\0';
-      *(char *)((int)j + (int)mystic) = '\0';
+      *(char *)((int)j + (int)fAmbientRangeON) = '\0';
+      *(char *)((int)j + (int)fMysticWindON) = '\0';
       currentLap[j] = '\0';
       bestLapTime[j] = 0;
       PlayersRampedGasLevel[j] = 0;
@@ -459,7 +446,6 @@ void AudioCmn_Init(void)
       AudioCmn_gPlayerArrested[j] = 0;
       j++;
     } while (j < 2);
-  }
   AudioCmn_InitThunder();
   AudioCmn_InitAsyncSfx();
   AudioTrk_StartUp();
@@ -604,14 +590,16 @@ void AudioCmn_Reset(void)
             (AudioMus_Buffered() < AudioMus_Threshold())) && (gettick() < ticks)) {
       systemtask(0);
     }
-    if (AudioMus_Buffered() < AudioMus_Threshold() + -100) {
-      GameSetup_gData.userSetting.musicLevel = 0;
-      gMasterMusicLevel = 0;
-      AudioMus_Volume(AudioCmn_MusicLevel(0));
-    }
-    else {
-      gettick();
-    }
+    /* Name-free expression regions reproduce retail's empty +2d0..+318
+       and +310..+318 scopes without an unused declaration. This verified
+       representation is not proof of the literal original macro syntax. */
+    ({
+    AudioMus_Buffered() < AudioMus_Threshold() + -100
+      ? (void)(GameSetup_gData.userSetting.musicLevel = 0,
+               gMasterMusicLevel = 0,
+               AudioMus_Volume(AudioCmn_MusicLevel(0)))
+      : (void)({ gettick(); });
+    });
     gettick();
     AudioMus_Buffered();
     AudioMus_Threshold();
@@ -737,6 +725,8 @@ int AudioCmn_GetTimePhrase(int time)
  * policy. */
 void AudioCmn_CheckState(Car_tObj *car)
 {
+  /* Native local homes and all 13 scope regions are restored, with 415/415
+     instructions unchanged. Original text/full SLD attribution remains open. */
   /* The optimized SYM stream retains only the source-visible car number and
      speed locals here; the -G8 small-data forms supply the retail schedule. */
   char carnum;
@@ -744,10 +734,10 @@ void AudioCmn_CheckState(Car_tObj *car)
 
   carnum = (char)car->carIndex;
   if ((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) {
-    if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) {
+    if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0) {
       return;
     }
-    if ((Cars_gNumHumanRaceCars == 2) && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)) {
+    if ((Cars_gNumHumanRaceCars == 2) && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)) {
       return;
     }
   }
@@ -761,6 +751,7 @@ void AudioCmn_CheckState(Car_tObj *car)
   if (((car->stats).lap < GameSetup_gData.numLaps) &&
      ((car->stats).sliceTotal + fixedmult(carspeed,0x50000) / 0x60000 >
       ((car->stats).lap + 1) * gNumSlices)) {
+    int opponents;
     if ((recordLapTime == 0) ||
        (simGlobal.gameTicks -
         *(int *)(((u_char)carnum << 2) + (int)gtotallaptimes) < recordLapTime)) {
@@ -772,8 +763,6 @@ void AudioCmn_CheckState(Car_tObj *car)
         AudioCmn_GetAsyncSfx(2,0,false);
       }
     }
-    {
-      int opponents;
       opponents = Stats_GetNumOpponents();
       if (1 < opponents) {
         int position;
@@ -793,7 +782,6 @@ void AudioCmn_CheckState(Car_tObj *car)
         }
         AudioCmn_GetAsyncSfx(2,position,false);
       }
-    }
     if ((car->stats).lap < GameSetup_gData.numLaps + -1) {
       if ((car->stats).lap < GameSetup_gData.numLaps + -2) {
         AudioCmn_GetAsyncSfx(2,(car->stats).lap + 5,false);
@@ -803,16 +791,13 @@ void AudioCmn_CheckState(Car_tObj *car)
       }
     }
   }
-  if (car->lap == (u_int)(u_char)currentLap[(u_char)carnum]) {
-    return;
-  }
-  if (*(int *)(((u_char)carnum << 2) +
-               (int)AudioCmn_gPlayerArrested) != 0) {
-    return;
-  }
-  {
+  if ((car->lap != (u_int)(u_char)currentLap[(u_char)carnum]) &&
+      (*(int *)(((u_char)carnum << 2) + (int)AudioCmn_gPlayerArrested) == 0)) {
+    /* Retail owns r/saidplayer/opponents in this guarded depth-3 region,
+       including the bookkeeping below. Unchanged/arrested paths skip it. */
     CopSpeak_tRequest r;
     bool saidplayer;
+    int opponents;
 
     CopSpeak_InitRequest(&r);
     saidplayer = false;
@@ -830,22 +815,17 @@ void AudioCmn_CheckState(Car_tObj *car)
           (car->stats).time[(car->stats).lap + -1];
       CopSpeak_Request(&r);
     }
-    else {
-      if (bestLapTime[car->carIndex] <= carspeed) goto LAB_800774e0;
+    else if (bestLapTime[car->carIndex] > carspeed) {
       r.phrase = 0;
       bestLapTime[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
       CopSpeak_Request(&r);
     }
-LAB_800774e0:
-    {
-      int opponents;
 
       opponents = Stats_GetNumOpponents();
       if (1 < opponents) {
       int position;
       position = Stats_GetPosition(car);
       if (car->lap < GameSetup_gData.numLaps) {
-        int phrase;
         if ((opponents >= 3) || ((car->stats).checkpointDisplay == 0)) {
           if (position == opponents) {
             r.phrase = 0x57;
@@ -855,6 +835,8 @@ LAB_800774e0:
           }
         }
         else {
+          int phrase;
+          /* Retail phrase is local to this depth-9 time-phrase arm. */
           phrase = AudioCmn_GetTimePhrase(-(car->stats).checkpointDifference);
           if (((GameSetup_gData.commMode == 1) && (!saidplayer)) &&
              ((phrase - 0x3bU < 3 || (phrase - 0x3fU < 0xf)))) {
@@ -896,7 +878,6 @@ LAB_800774e0:
       }
       CopSpeak_Request(&r);
       }
-    }
     if ((car->stats).lap < GameSetup_gData.numLaps) {
       if ((car->stats).lap < GameSetup_gData.numLaps + -1) {
         r.phrase = (car->stats).lap + 4;
@@ -906,7 +887,6 @@ LAB_800774e0:
       }
       CopSpeak_Request(&r);
     }
-  }
   if (currentLap[(u_char)carnum] == '\0') {
     bestLapTime[(u_char)carnum] =
         simGlobal.gameTicks - gtotallaptimes[(u_char)carnum];
@@ -914,6 +894,7 @@ LAB_800774e0:
   currentLap[(u_char)carnum] = (char)car->lap;
   gtotallaptimes[(u_char)carnum] = (car->stats).lapTime;
   intensityFalseLapCounter = falseLapCounter = car->lap;
+  }
   return;
 }
 
@@ -1193,6 +1174,8 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
   else {
     amplitude = 0;
   }
+  /* Source-recovery queue: two existing force-ref devices; deleting them
+     at this restored scope shape is 68 diffs at 224/224. Not a source floor. */
   __asm__("" : : "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
                  "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
                  "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
@@ -1203,10 +1186,10 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
     /* Retail spells the 0x23 follow-up as its OWN PlaySFX call with literal args; gcc
        cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
        late because it stores tempAmp instead of amplitude into 0x10(sp). */
-    int tempAmp;
     tweakedForce = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
-    iSFXnumber = ChooseImpactSample(tweakedForce,surface1,surface2);
-    if (iSFXnumber == 0x1f) {
+    if ((iSFXnumber = ChooseImpactSample(tweakedForce,surface1,surface2)) == 0x1f) {
+      /* Retail owns tempAmp here at depth5; its exact endpoint remains open. */
+      int tempAmp;
       tempAmp = ((amplitude * tweakedForce) / 0x7f) * 2;
       if (0x7f < tempAmp) {
         tempAmp = 0x7f;
@@ -1247,8 +1230,7 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
       tweakedForce = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
       amplitude = amplitude * tweakedForce >> 7;
       if (amplitude >= 0x1f) {
-        Car_tObj*c;
-
+        Car_tObj *c;
         c = Cars_gList[sndPlayer - 0x12U];
         if ((c->carInfo->carType < 0x1c) &&
            ((((c->render).currentRoll > 0 && (0x1e0000 < (c->N).damage[7]))
@@ -1454,14 +1436,13 @@ BNK5:
   goto GOTBANK;
 LOOKUP:
   {
-    /* SYM-CODEGEN-CARRIER: lookup -- the typed byte-table base remains a
-       separate address quantity in retail's lookup arm. */
-    u_char *lookup = (u_char *)gBankNumLookupTable;
+    /* Actual lookup storage is int[71]; narrowing the indexed value gives
+       the retail byte load without a separate byte-view lookup object. */
     /* ORIGINAL-NAME-RECOVERED: bankNum -- the symbol-bearing NFS2 AudioCmn_PlaySFX
        records the same byte-table index as `bankNum`.  The intermediate gives
        retail's v0 lookup base and v1 index/load web; folding both names into
        one expression is count-exact but leaves 36 authoritative diffs. */
-    u_char bankNum = lookup[sndPlayer << 2];
+    u_char bankNum = (u_char)gBankNumLookupTable[sndPlayer];
     PatchBank = gSndBnk[bankNum].bnkID;
   }
 GOTBANK:
@@ -1501,12 +1482,8 @@ GOTBANK:
     if (gaChannel[sndPlayer].SFXnum == iSFXnum) goto RECHECK;
 NEWSOUND:
     {
-      /* SYM-CODEGEN-CARRIER: nbase -- staging the channel-array base before
-         the shifted index fixes the `%lo` materialization position.  Direct
-         `&gaChannel[sndPlayer]` is count-exact but leaves 2 diffs. */
-      int nbase = (int)gaChannel;
-      if (((Channels_t *)((sndPlayer << 3) + nbase))->Partial != -1) {
-        SNDstop(((Channels_t *)((sndPlayer << 3) + nbase))->Partial);
+      if (gaChannel[sndPlayer].Partial != -1) {
+        SNDstop(gaChannel[sndPlayer].Partial);
         NumSFXOn = NumSFXOn - 1;
       }
       /* SYM-CODEGEN-CARRIER: r -- the block-local result dies in `$v0` and
@@ -1514,12 +1491,12 @@ NEWSOUND:
          emits 317/316 instructions and 13 diffs. */
       int r = AudioCmn_PlayDoppleredSound(PatchBank,iSFXnum,azimuth,iAmp,iFreq,iDopplerIn);
       if (r != -1) {
-        ((Channels_t *)((sndPlayer << 3) + nbase))->Partial = r;
-        ((Channels_t *)((sndPlayer << 3) + nbase))->SFXnum = iSFXnum;
+        gaChannel[sndPlayer].Partial = r;
+        gaChannel[sndPlayer].SFXnum = iSFXnum;
       }
       else {
-        ((Channels_t *)((sndPlayer << 3) + nbase))->Partial = r;
-        ((Channels_t *)((sndPlayer << 3) + nbase))->SFXnum = r;
+        gaChannel[sndPlayer].Partial = r;
+        gaChannel[sndPlayer].SFXnum = r;
       }
     }
     goto LAB_8007887c;
@@ -1559,34 +1536,17 @@ RECHECK:
     }
     else {
       if (gStereoMode != 0) {
-        /* SYM-CODEGEN-CARRIER: pbase -- the explicit base controls the stereo
-           pan block's high/low materialization.  Direct array addressing is
-           count-exact but moves both instructions (4 diffs). */
-        int pbase = (int)gaChannel;
-        /* SYM-CODEGEN-CARRIER: pch -- keeping the selected channel separate
-           from the base preserves the pan-result and address webs.  Folding
-           the pointer into SNDpan is count-exact but leaves 20 diffs. */
-        Channels_t *pch = (Channels_t *)((sndPlayer << 3) + pbase);
-        /* SYM-CODEGEN-CARRIER: pan -- the unsigned scoped result must remain
-           separate from SYM's earlier `iPartial` web.  Reusing `iPartial`
-           emits 322/316 instructions and 46 diffs. */
-        u_int pan;
-        if (azimuth - 0x4000U < 0x8000) {
-          pan = 0xbfff - azimuth;
-        }
-        else {
-          pan = azimuth + 0x4000U & 0xffff;
-        }
-        SNDpan(pch->Partial,(int)pan >> 8);
+        /* Direct selection at the call site preserves the pan schedule and
+           needs no pan/pch/pbase capture. Both results are 0..65535, and
+           the int cast preserves the retail arithmetic shift spelling. */
+        SNDpan(gaChannel[sndPlayer].Partial,(int)(azimuth - 0x4000U < 0x8000
+          ? (u_int)(0xbfff - azimuth) : (azimuth + 0x4000U & 0xffff)) >> 8);
       }
     }
     {
-      /* SYM-CODEGEN-CARRIER: bbase -- the final pitch block needs a fresh
-           base/index web.  Direct array addressing is count-exact but leaves
-           6 address-generation diffs. */
-      int bbase = (int)gaChannel;
-      SNDpitchbend(((Channels_t *)((sndPlayer << 3) + bbase))->Partial,iFreq);
-      SNDpitchmult(((Channels_t *)((sndPlayer << 3) + bbase))->Partial,
+      /* Direct array addressing now preserves this pitch web without bbase. */
+      SNDpitchbend(gaChannel[sndPlayer].Partial,iFreq);
+      SNDpitchmult(gaChannel[sndPlayer].Partial,
                    iDopplerIn >> 4);
     }
     goto LAB_8007887c;
@@ -1627,8 +1587,8 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int iAmpIn;
   int tuntrig;
   /* SYM-CODEGEN-CARRIER: tunnelFlag -- unproved source snapshot. Historical
-     direct-read trial:531/23diffs. P903's paired direct products reach530/4,
-     but no verified removal is retained; these failures prove no necessity. */
+   direct-read trial:531/23diffs. P903's paired direct products reach530/4,
+   but no verified removal is retained; these failures prove no necessity. */
   int tunnelFlag;
   int cam;
   int roadNoisePatch;
@@ -1636,6 +1596,12 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      SYM-named `amplitude` preserves count but changes 14 instructions around the
      clamp and multiply handoff. */
   int scaledAmplitude;
+  /* Source-recovery queue: these arithmetic objects remain unproved, but
+     their artificial private scopes are removed. Native retail has only
+     the root region and the final gas region. Direct gas scaling trials
+     remain 14/92 diffs at 530/530; do not treat that as a source floor. */
+  int distanceScale;
+  int roadProduct;
   /* SYM-CODEGEN-CARRIER: rpmRatio -- inlining the redline quotient into
      AudioEng_Set grows 530 to 531 instructions and changes 43 instructions by
      advancing the guarded divide ahead of the gas selection. */
@@ -1741,7 +1707,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     /* SYM-CODEGEN-CARRIER: distanceScale -- replacing the lowered signed-shift
        result with the direct `/ 0x10000` source expression preserves count but
        changes 92 instructions by perturbing the saved-register allocation. */
-    int distanceScale;
 
     /* @0x80078B7C: the final >>16 (with negative-rounding fixup) writes BACK into
        CurCarGasLevel itself ($s0). */
@@ -1816,12 +1781,10 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (0xff < cobblestoneAmp) {
     cobblestoneAmp = 0xff;
   }
-  {
   /* SYM-CODEGEN-CARRIER: roadProduct -- folding the product into roadNoiseAmp
      shrinks 530 to 529 instructions and leaves 11 multiply-latency diffs.
      Inlining the product at both the fence input and shifted use also gives
      529 instructions, 7 diffs; neither trial proves the original source name. */
-  int roadProduct;
 
   /* Write the signed /128 as a DIVIDE, not the hand-expanded bgez/+0x7f/sra rounding:
      gcc emits that idiom itself and schedules the `li 127` into the bgez delay slot
@@ -1838,7 +1801,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   __asm__("" : : "r"(tunnelFlag));
   __asm__("" : : "r"(roadProduct));
   roadNoiseAmp = roadProduct >> 7;
-  }
   if (tunnelFlag != 0) {
     wetNoiseAmp = 0;
   } else {

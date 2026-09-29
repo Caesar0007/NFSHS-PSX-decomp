@@ -53,3 +53,12 @@ Addresses from the NFS3 raw oracle (`C:\Temp\nfs3-clean\nfs3-raw-L.txt`).
 - `nfs2_track_probe.py` — pad injection at 0x800A0058 (`_padDr`, writes `{0,0x41,btn}` to `*0x800D5F60`), race load, dump of the chunk slot records after `LoadChunkFromBuffer` (NFS2_TRACK_FILES.md §1.9).
 - `nfs2_race_setup.py` — forces RACETYPE/NUMCARS/TRACK during the menus, saves a checkpoint in the race (`--checkpoint`), logs slots, cars and the AI table pointers. Uses the game gp 0x800D50A0 (stops are in the VSync IRQ).
 - `nfs2_watch_probe.py` — loads such a checkpoint and logs PCs/data addresses hitting Z3/Z4 watchpoints (`--addr addr:len`, len ≤ 0x100).
+
+## Visual test of a converted track
+- `nfs4_drive_shots.py <image.cue> <tag> <checkpoint> <frames>` — loads a full-state checkpoint (e.g. the
+  one saved right after `Track_Init`), holds accelerate, and saves a checkpoint `<tag>-<frame>` at each
+  listed pad frame. Checkpoints land in `duckstation/savestates/ff-audit-<name>.sav`.
+- `duckstation_sav_shot.py <outdir> <file.sav>…` — extracts the screenshot embedded in each save state
+  (zstd, 256×192 RGBA) as a PNG. Needs Python 3.14 (`compression.zstd`) and Pillow.
+- `nfs4_border_test.py <image.cue> <checkpoint>` — accelerates, then steers left and right into the borders,
+  printing the player car's slice, lateral quad, `offEdge`, speed, height and sim-quad byte every 25 frames.

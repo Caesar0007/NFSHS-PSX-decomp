@@ -128,6 +128,99 @@ def build_palette(colors: collections.Counter[int]) -> tuple[bytes, dict[int, in
     return b"".join(bytes((r, g, b, 0)) for r, g, b in palette), mapping
 
 
+def quantize16(colors: collections.Counter[int], limit: int) -> dict[int, int]:
+    """Map 16-bit PSX colours onto at most `limit` of them (weighted median cut on r, g, b;
+    0x0000 = transparent and the semi-transparency bit are kept apart)."""
+    def channels(value: int) -> tuple[int, int, int, int]:
+        return value & 31, (value >> 5) & 31, (value >> 10) & 31, value >> 15
+
+    fixed = [value for value in colors if value == 0]
+    entries = [(value, count, channels(value)) for value, count in colors.items() if value != 0]
+    if len(entries) + len(fixed) <= limit:
+        return {value: value for value in colors}
+    boxes = [[e for e in entries if e[2][3] == stp] for stp in (0, 1)]
+    boxes = [box for box in boxes if box]
+    while len(boxes) < limit - len(fixed):
+        candidates = []
+        for index, box in enumerate(boxes):
+            if len(box) < 2:
+                continue
+            ranges = [max(x[2][c] for x in box) - min(x[2][c] for x in box) for c in range(3)]
+            candidates.append((max(ranges) * sum(x[1] for x in box), index, ranges.index(max(ranges))))
+        if not candidates:
+            break
+        _score, index, channel = max(candidates)
+        box = sorted(boxes.pop(index), key=lambda x: x[2][channel])
+        half = sum(x[1] for x in box) / 2
+        running = 0
+        split = 1
+        for split, item in enumerate(box, 1):
+            running += item[1]
+            if running >= half:
+                break
+        split = min(max(1, split), len(box) - 1)
+        boxes.extend((box[:split], box[split:]))
+    mapping = {0: 0} if fixed else {}
+    for box in boxes:
+        weight = sum(x[1] for x in box)
+        r, g, b = (round(sum(x[2][c] * x[1] for x in box) / weight) for c in range(3))
+        target = r | (g << 5) | (b << 10) | (box[0][2][3] << 15)
+        if target == 0:
+            target = 1          # never turn an opaque colour into the transparent value
+        for value, _count, _channels in box:
+            mapping[value] = target
+    return mapping
+
+
+def convert_psh(data: bytes, losses: collections.Counter[str]) -> bytes:
+    """Re-index the 8-bit shapes of an NFS3 track PSH onto two shared 256-colour palettes.
+
+    NFS4 has only 8 CLUT slots for 256-colour palettes (`Texture_InitClut`, `gFreePal8`) and
+    `Texture_GetClutId` returns slot 0 once they are gone; retail NFS4 tracks use two distinct
+    ones. NFS3 files carry one palette per 8-bit shape (16 distinct in 00A: horizon and asphalt).
+    Identical palette data is shared by `Texture_CheckForSharedPalette`, so the shapes are grouped
+    (the first 12 shapes = horizon set, the rest = road set) and each group gets one palette.
+    Pixel and palette blocks keep their size, so the file layout is unchanged."""
+    out = bytearray(data)
+    if data[:4] != b"SHPP":
+        return data
+    count = struct.unpack_from("<i", data, 8)[0]
+    groups: dict[int, list[tuple[int, int, int, int]]] = {0: [], 1: []}
+    for index in range(count):
+        offset = struct.unpack_from("<i", data, 20 + 8 * index)[0]
+        if data[offset] & 3 != 1:
+            continue
+        width, height = struct.unpack_from("<hh", data, offset + 4)
+        clut = offset + (int.from_bytes(data[offset + 1 : offset + 4], "little"))
+        if clut == offset or data[clut] & 0xF7 != 0x23:
+            continue
+        groups[0 if index < 12 else 1].append((offset, clut, width, height))
+    for members in groups.values():
+        palettes = {data[clut + 16 : clut + 16 + 512] for _o, clut, _w, _h in members}
+        if len(palettes) <= 1:
+            continue
+        usage: collections.Counter[int] = collections.Counter()
+        decoded = []
+        for offset, clut, width, height in members:
+            stride = ((width * 8 + 15) & ~15) // 8
+            palette = struct.unpack_from("<256H", data, clut + 16)
+            pixels = data[offset + 16 : offset + 16 + stride * height]
+            usage.update(palette[p] for p in pixels)
+            decoded.append((offset, clut, palette, pixels))
+        mapping = quantize16(usage, 256)
+        shared = sorted(set(mapping.values()))
+        slot = {value: i for i, value in enumerate(shared)}
+        table = struct.pack("<256H", *(shared + [0] * (256 - len(shared))))
+        for offset, clut, palette, pixels in decoded:
+            lookup = bytes(slot[mapping[palette[p]]] if palette[p] in mapping else 0 for p in range(256))
+            out[offset + 16 : offset + 16 + len(pixels)] = pixels.translate(lookup)
+            out[clut + 16 : clut + 16 + 512] = table
+        losses["8-bit textures re-indexed onto a shared palette (NFS4 has 8 slots)"] += len(members)
+        if len(usage) > 256:
+            losses["8-bit texture colours merged by that re-indexing"] += len(usage) - len(shared)
+    return bytes(out)
+
+
 @dataclass
 class StripRun:
     first_quad: int
@@ -596,47 +689,58 @@ def build_trackspec(hrz_path: Path, dpq_path: Path) -> bytes | None:
     weather_contrast = (hrz[39] << 7) if len(hrz) >= 41 else 0
     depth_color = dpq[1:4]
 
+    # NFS4's built-in default spec (`trackspec.cpp`) is NFS3 Hometown's HRZ/DPQ, which
+    # fixes the mapping: horizon ring = the first 8 shapes of the track PSH, second half
+    # mirrored (ringPMX 0..7, 15..8); neutral 0x80 tint; sky type 0 / flags 4; sky ring
+    # angles i << 12. NFS3 forces the gouraud sky (no textured horizon) in weather.
+    textured = hrz[2] != 0
     specs = []
     for weather, night in ((0, 0), (0, 1), (1, 0), (1, 1)):
         record = bytearray(264)
-        states = (0, weather, 0, 1, night, 1, weather or night, 0)
+        horizon = 1 if textured and not weather else 0
+        states = (0, weather, horizon, 1, night, 1, weather or night, 0)
         struct.pack_into("<8h", record, 0, *states)
 
-        # Fog block remains disabled; preserve its colour/start as useful metadata.
-        struct.pack_into("<i", record, 16, 0)
+        # Fog block stays disabled (defaults); depth cue below carries the DPQ values.
+        struct.pack_into("<i", record, 16, 0x10000)
         put_color(record, 20, depth_color)
-        struct.pack_into("<2i", record, 24, dpq[0], 10)
+        struct.pack_into("<2i", record, 24, 200, 8)
         struct.pack_into("<2i", record, 32, 1 if weather else 0, 2)
 
-        # Horizon is disabled because NFS3 and NFS4 texture-ring indices differ.
         angle = (hrz[3] * 4096) // 360
         struct.pack_into("<4i", record, 40, hrz[0], angle, hrz[4] << 5, hrz[5] << 5)
-        put_color(record, 56, night_horizon if night else (wet_front if weather else day_front))
-        put_color(record, 60, night_horizon if night else (wet_back if weather else day_back))
-        put_color(record, 64, background)
-        put_color(record, 68, background)
+        tint = night_horizon if night else (128, 128, 128)
+        for offset in (56, 60, 64, 68):
+            put_color(record, offset, tint)
+        record[72:88] = bytes(i if i < 8 else 0x17 - i for i in range(16))
 
-        # Gouraud sky is independent of NFS4-specific PMX/ring texture indices.
         if night:
             front = back = top = night_sky
         elif weather:
             front, back, top = wet_front, wet_back, wet_top
         else:
             front, back, top = day_front, day_back, day_top
-        struct.pack_into("<2i", record, 88, 0, hrz[1])
+        struct.pack_into("<2i", record, 88, 0, 4)
         for index, color in enumerate(gradient(front, top)):
             put_color(record, 96 + 4 * index, color)
         for index, color in enumerate(gradient(back, top)):
             put_color(record, 116 + 4 * index, color)
         put_color(record, 136, background)
-        struct.pack_into("<i", record, 192, hrz[4] << 5)
+        # sun / moon / stars: engine defaults
+        struct.pack_into("<9i", record, 140, -0x1848, 0xEE, 0, 0xEE, 0x3C, 4000, 10000, 0x40, 200)
+        put_color(record, 176, (255, 255, 255))
+        struct.pack_into("<i", record, 180, 0x3039)
+        put_color(record, 184, (0x21, 0x21, 0x10))
+        put_color(record, 188, (0x19, 0x0A, 0))
+        struct.pack_into("<i", record, 192, 0)
+        struct.pack_into("<5i", record, 216, *(i << 12 for i in range(5)))
 
-        put_color(record, 236, night_world if night else background)
+        put_color(record, 236, night_world if night else (8, 16, 16))
         put_color(record, 240, depth_color)
         struct.pack_into("<i", record, 244, dpq[0])
-        struct.pack_into("<i", record, 248, weather_contrast if weather else 0)
-        put_color(record, 252, weather_world if weather else (night_world if night else (128, 128, 128)))
+        struct.pack_into("<i", record, 248, weather_contrast if weather else 0x4CCC)
         world = weather_world if weather else (night_world if night else (128, 128, 128))
+        put_color(record, 252, world)
         struct.pack_into("<4h", record, 256, world[0], world[1], world[2], 0)
         specs.append(bytes(record))
     return struct.pack("<2i", 108, 4) + b"".join(specs)
@@ -682,7 +786,10 @@ def convert_chunk(
                 raise ValueError(f"chunk {chunk_index}: material {material} out of range")
             quads.append(points)
             materials.append(material)
-            surfaces.append(type5[2 * (first_quad + local) + 1] & 0x3F)
+            # Same byte in both games: bits 0-3 surface id, 0x40 = test object collisions,
+            # 0x80 = test barriers. Without 0x80 NFS4 never runs its wall collision
+            # (`collide.cpp`: `groundSurfaceType & 0x80` gates Newton_TestForUndrivableSurfaces).
+            surfaces.append(type5[2 * (first_quad + local) + 1] & 0xCF)
         slice_runs.append(split_strip_runs(first_quad, quads, materials, surfaces))
 
     q5_offset, q5_count = geom["arrays"][5]
@@ -927,7 +1034,7 @@ def convert(
 
     source_psh = source_dir / f"ZTR{layout}0.PSH"
     if source_psh.exists():
-        shutil.copyfile(source_psh, output_dir / f"{target_stem}0.PSH")
+        (output_dir / f"{target_stem}0.PSH").write_bytes(convert_psh(source_psh.read_bytes(), losses))
     source_reflection = source_dir / f"ZTR{layout}R.PSH"
     if source_reflection.exists():
         shutil.copyfile(source_reflection, output_dir / f"{target_stem}R.PSH")

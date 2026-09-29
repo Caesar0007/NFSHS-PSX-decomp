@@ -6,7 +6,7 @@ synthesized**, validation status, and tool location.
 ## NFS3 → NFS4 track (authoritative core exists)
 - Tool: [`tools/nfs3_to_nfs4.py`](tools/nfs3_to_nfs4.py).
 - Direction: one NFS3 PSX layout (`TRK` + `COL`, with `PSH`/`DPQ` companions) → one selected NFS4
-  track slot (`GRP` + copied `0.PSH`/`R.PSH` + converted `.ENV`). This is intentionally a slot
+  track slot (`GRP` + re-indexed `0.PSH`, copied `R.PSH`, converted `.ENV`). This is intentionally a slot
   overlay: keep the target NFS4 track's `.BIN`, AI, audio and other auxiliary files until converters
   for those families exist.
 - Example:
@@ -32,7 +32,7 @@ synthesized**, validation status, and tool location.
   ambient emitters are moved into all four NFS4 `.AUD` condition files with retail-derived default
   range/timing fields; `.QBE`/`.QCR` are valid RefPack files containing a neutral centre racing line
   and zero curvature rather than converted NFS3 AI strategy; the synthesized four-condition TrackSpec
-  uses NFS3 HRZ/DPQ colours and depth distance but deliberately disables texture-indexed horizons;
+  uses NFS3 HRZ/DPQ colours, depth distance and the textured horizon (gouraud sky in weather);
   music/animation/replay auxiliaries are not generated; NFS3's alternative-route slice links and
   per-slice interactive-music events have no NFS4 equivalent and are dropped (reported).
 - Validation: all **15/15** USA-retail NFS3 layouts convert; all **2,234/2,234 chunks** pass
@@ -47,6 +47,27 @@ synthesized**, validation status, and tool location.
   GRP (header, centres, 959 slices, 97-entry light table, 120 chunk metas, quad counts, visibility
   rows, no overlap-bug chunks), and the simulation advanced 5,159 ticks over 1,500 post-init pad
   frames with Cross held. Manual visual-fidelity inspection is still required.
+- Visual test 2026-09-29 (frames captured from the running game, `tools/runtime/nfs4_drive_shots.py`
+  + `duckstation_sav_shot.py`): found and fixed two faults the structural checks cannot see.
+  (1) **8-bit textures**: NFS4 has only 8 CLUT slots for 256-colour palettes (`Texture_InitClut`)
+  and returns slot 0 when they run out; NFS3 files carry one palette per 8-bit shape (16 in 00A), so
+  the asphalt and horizon rendered as noise. The track `0.PSH` is no longer copied: its 8-bit shapes
+  are re-indexed onto two shared palettes (horizon set, road set), like retail NFS4.
+  (2) **Sky / horizon**: the TrackSpec now follows NFS4's built-in default spec, which is NFS3
+  Hometown's HRZ: textured horizon enabled over the first 8 shapes (`ringPMX` 0…7, 15…8), sky type 0 /
+  flags 4, ring angles `i << 12` (they were 0, a degenerate dome). After both fixes 00A shows its
+  horizon, sky, sun flare, road markings and scenery correctly.
+  Still wrong by design: the intro fly-by and replay cameras come from the target slot's own
+  `.scn` / `.rho` files, so they look at empty space.
+- Border collision test 2026-09-29 (`tools/runtime/nfs4_border_test.py`: steer into each border, log
+  slice / lateral quad / `offEdge` / speed / height / sim-quad byte). Before the fix the car drove
+  through the wall quads at full speed, ran off the end of the geometry and was reset to the road.
+  Cause: the sim-quad byte is `{bits 0–3 surface, 0x40 test object collisions, 0x80 test barriers}`
+  in both games, and NFS4 runs its wall collision only when the car's quad has 0x80
+  (`collide.cpp`: `groundSurfaceType & 0x80` gates `Newton_TestForUndrivableSurfaces`); the converter
+  masked the flags away. They are now preserved (surface 14 stays 14 = NFS4's out-of-range value).
+  After the fix: impact at the barrier (speed 27 → 2.5), the car is held on the last drivable quad on
+  both sides, height steady, no `offEdge`, no reset.
 - Test images: `tools/psx_iso_inject.py <NFS4.IMG> <out.bin> <converted dir>` replaces the slot's
   files in a copy of the retail image (in place or appended, Mode 2 Form 1 EDC/ECC regenerated —
   byte-exact against retail sectors) and writes the `.cue`.

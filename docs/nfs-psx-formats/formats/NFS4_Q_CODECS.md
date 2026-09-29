@@ -77,5 +77,8 @@ Every packed file on the NFS4 disc decodes to exactly its header size with `tool
 | Huffman `0x32FB` | 10 `.QBE`, 10 `.QCR`, 29 `.QCS` | racing lines smooth (max step 12); curve-speed tables fall with curvature (16 have a single +1 round-off) |
 | B-tree `0x46FB` | 22 `.QPS` | all decode to valid `SHPP` shape files |
 
+NFS3's 25 `.QPS` (`ZLOADT*` track and `ZLOADC*` car loading pictures) are RefPack `0x10FB` and decode to `SHPP`
+too (197,672 / 308,696 bytes) with the same tool.
+
 The older `C:\Temp\_from_github\pcsx-redux\nfs4\unhuff_port.py` fails on these files; use
 `tools/nfs4_codecs.py`.

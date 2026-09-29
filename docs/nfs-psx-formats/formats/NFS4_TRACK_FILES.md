@@ -26,6 +26,7 @@ Path prefix comes from `Track_MakeTrackPathName` / `Track_MakeTrackDataPathName`
 | `ZTR<NN>A.VIV` | — | canned animation scripts `tr00aNN.can` (C0FB archive) | `anim.cpp:41,55` | [AUX](NFS4_TRACK_AUX.md) |
 | (in `ZCAMERA.VIV`) `trNN.rho`, `trNNr.rho` | replay | replay cameras (32 slots) | `replay.cpp:614-619` | [AUX](NFS4_TRACK_AUX.md) |
 | (in scene VIV) `trNNMM.scn` | — | scripted scenes | `scene.cpp:92` | [AUX](NFS4_TRACK_AUX.md) |
+| `ZLOAD<N>{A,B}.QPS` | `B` = mirrored | loading picture: B-tree `46FB`-packed `SHPP`, one full-screen shape | `Loading_DrawLoadingScreen` `loading.cpp:35` (`"%sLoad%d%c.qps"`, `%c` = 'a' + mirrorTrack); `Loada.psh` / `Loadb.psh` are the language caption and progress tiles | [Q_CODECS](NFS4_Q_CODECS.md) — 22 files; `ZLOAD1A/B` exist for the absent track 01 |
 
 Names referenced by code but **absent from the retail disc**: `Tr%02d.trf` (`aiinit.cpp:173`),
 `Tr%02d%c.ctk` (`aidatarecord.cpp:231`), and the uncompressed `.bes`/`.crv` — dev-build leftovers.
@@ -43,6 +44,12 @@ Global track-related files (specs in [AUX](NFS4_TRACK_AUX.md)):
 | `ZFETRKB.TRK`, `ZTOURNB.TRN`, `ZTOURNC.TRN` | **none** (no name in any binary) | unused alternates; B differs from the base only in which tracks start unlocked (TR07 instead of TR04) |
 | `ZZZZTR<NN>.DCT`, `ZZZZTRN.DCT` | `screentracks.cpp:110`, `screentournselect.cpp:127` | track / tournament preview videos (DCT, not track data) |
 | `ZZZZW*.VIV` | `copspeak.cpp:470-517` | cop radio speech by region (audio, not track data) |
+| `ZZHPURS.MIS`, `ZZHPURS2.MIS` | `tMissionManager::LoadDescription` `femission.cpp:40` (front end) and `nfs3.cpp:126` (game); `2` when the game / comm mode is 1 | Hot Pursuit stage table: tiers → missions → cop stages (spec in [AUX](NFS4_TRACK_AUX.md)) |
+| `ZCARMAP.DAT` | `R3DCcar_ReadeMapData` `r3dcar.cpp:380` | text, 28 cars × `{eScaleX, eScaleY, rideHeight, upgradeHeight}` (car env-map render info, read with every track; car data) |
+| traffic vehicles `ZZZTAXI.VIV`, `ZZZTBUS.VIV`, `ZZZVAN.VIV`, … | car loader, chosen by `tTrackInformation.trafficCars[6]` | car-format archives, not track data |
+
+Coverage re-check 2026-09-29: `tools/track_coverage.py nfs4` matches all 697 disc names against these families
+(265 track-side, 432 known car / front-end / system), 0 unclassified.
 
 ## Variant selection
 `bworld.cpp:1134-1144` picks `S.grp`, `N.grp`, `W.grp` or `.grp`; `textureprocess.cpp:320-332` does the

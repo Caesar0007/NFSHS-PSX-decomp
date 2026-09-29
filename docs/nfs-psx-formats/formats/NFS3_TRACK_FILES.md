@@ -79,6 +79,7 @@ Race options used by the track files (`0x800F9F44 + 4·k`, from the setter's tab
 | `ZTR<NN>CSP.<lang>`, `ZZZTR<NN>C.<lang>` | speech clip table + clips | `func_80081DB4`, `func_80083688` ("cop speech", streamed through a 32 KB "CopSpk Buf") | ★★★ | §11 |
 | `ZZZTR<NN>A.TRJ`, `ZZZTR<NN>B.TRM` | `SCHl` EA audio stream | `func_800A01D4` | ★★★ container | rock / techno music streams, §11 |
 | `ZTR<NN>{PGR,PGT,R<nn>,T<nn>,ROK,TEC,TOK,R0A,R0B}.MAP` | `PFDx` | `func_800A01D4`, `func_800A0590`, `func_800A0C70` | ★★★ container | interactive-music maps, §11 |
+| `ZLOADT<N><v>.QPS` | RefPack `10FB` → `SHPP` (197,672 B, one full-screen shape) | `func_800C0C70` (`"%sLoadt%d%c.qps"`: `%d` = id & 15, `%c` = 'a' + id / 15) | ★★★ container | the track loading picture ([codecs](NFS4_Q_CODECS.md)); 16 files (A for 0–8, B for 0–5). `ZLOADT0.QPS` is a byte-identical copy of `ZLOADT0A.QPS` that no name pattern reaches. `ZLOADC<N>.QPS` (9 files, 308,696 B) are the car loading pictures, not track data |
 
 Global files used with every track (re-audit 2026-09-27; loaders found by xref of the name strings):
 
@@ -90,6 +91,12 @@ Global files used with every track (re-audit 2026-09-27; loaders found by xref o
 | `ZPRSONAL.BIN`, `ZSCRIPTS.BIN`, `ZSPREAD.BIN`, `Z{,HH,KO}GLUE.BIN` | `func_80054684` | ★★★ loaded | global race configuration, opened with `func_8009FCE4(name, 0, 1)` and parsed by `func_80053FA4`, `func_800541C8` and `func_800542E0` (the glue file is chosen by mode from `0x800F9F44`). Not per-track data; their contents are outside this survey |
 | `ZZTRK{HOM,RED,ATL,ROC,CNT,LST,AQU,SUM,EMP,REC}.PSH` | `FRONT.BIN` ("trkHom"…, "%sz%%s.psh") | ★★★ | front-end track pictures |
 | `ZGRID.BIN`, `ZSURF1.PSH`–`ZSURF5.PSH` | **none** | ★★★ unused | no "grid" / "surf" string in any case in `SLUS_006.20` or `FRONT.BIN`; never opened in the runtime trace (§9) |
+| `ZCARMAP.DAT` | `func_80096E84` (`"%scarmap.dat"`, called from the `.DPQ` path at `0x800A74A4`) | ★★★ loaded | text, "Car environment map render info": 11 cars × (3 × 3 env-map values + 2 × 32-entry tables, 803 numbers). Car data read with every track; contents outside this survey |
+
+Names the code formats that are **not on the disc**: `tr07tec.mop` and `tr05rok.mop` (a fixed-music branch of the
+music-map loader `func_800A01D4`, paired with the streams `zztr07b.trm` / `zztr05a.trj` and chosen by
+`func_800E07E8() & 1`; the sibling branch uses `zcredit.map` / `zcredit.mus`). Files whose names merely contain
+`TR` but are car data: `ZSTRD.QDA`, `Z{,O,S}BLMCTR.BNK`.
 
 ## 1. `.TRK` — streamed track geometry ★★★
 ### 1.1 Header (32 bytes) — `func_800C370C`, accessors `func_8009E694…8009E784`
@@ -680,8 +687,11 @@ slices 318–360 the reverb is off unless the car is on surface 0xA.
 
 ## Open questions
 None: every NFS3 track file, record and field on the disc is accounted for above (★★ marks the few names
-that rest on data evidence rather than code).
+that rest on data evidence rather than code). Coverage re-check 2026-09-29: `tools/track_coverage.py nfs3` matches
+all 774 disc names against the families above (500 track-side, 274 known car / front-end / system), 0 unclassified;
+that pass added the loading picture (`ZLOADT*.QPS`), `ZCARMAP.DAT` and the absent `.mop` names.
 
 ## Tools
 - `tools/nfs3_trk.py` — `trk`, `col`, `census` (container validation above).
 - `tools/psx_iso.py` — extraction.
+- `tools/track_coverage.py nfs3 <dir>` — every disc name must match a documented family (exit 1 otherwise).

@@ -1,4 +1,4 @@
-# NFS4 per-track auxiliary files: `.KIL`, `.FOG`, `.BIN` (TrackSpec), `.ENV`, `.COP`, `.QBE`, `.QCR`, `.AUD`, `A.VIV`, replay cameras `.rho`, scenes `.scn`; global `ZTRACK.DAT`, `ZTRAFCFG.DAT`, `ZFETRK.TRK`, `ZTOURN.TRN`, `ZSFX*.PSH`, `ZNIGHT.PSH`
+# NFS4 per-track auxiliary files: `.KIL`, `.FOG`, `.BIN` (TrackSpec), `.ENV`, `.COP`, `.QBE`, `.QCR`, `.AUD`, `A.VIV`, replay cameras `.rho`, scenes `.scn`; global `ZTRACK.DAT`, `ZTRAFCFG.DAT`, `ZFETRK.TRK`, `ZTOURN.TRN`, `ZSFX*.PSH`, `ZNIGHT.PSH`, `ZZHPURS.MIS`, `ZCARMAP.DAT`
 
 Games: NFS4 ★★★. Reference data: pristine files from the retail image. All are small and little-endian;
 `.ENV` is text and `.QBE`/`.QCR` are Huffman-packed. Every claim below was checked on every
@@ -235,3 +235,20 @@ Retail: 3 tiers, 43 tournaments, 60 races, and the walk ends exactly at 6,055 by
 ## `ZSFX*.PSH` and `ZNIGHT.PSH` — track-effect shapes ★★★
 - `genericpmx.cpp` loads from `ZSFX.PSH` the shapes `LIN0`–`LIN9` (road-line textures: `gDLPixmap[type]` of GRP §9), `spik` (spike belt), `DEBG`, `SHAD` (car shadow) and `SKD0/1` (skid marks). Track 04 uses `ZSFX4.PSH`, and `ZSFX4W.PSH` in wet weather. The file's other shapes (SMX*, SMOK, DIRT, GRX*, …) are particle textures loaded elsewhere.
 - `ZNIGHT.PSH` (night races only, `night.cpp:1091`) has one shape, `nght`: an 8-bit 64×64 image whose pixel bytes are used as a **headlight light-pattern table** (`Night_gNightTbl` = shape + 0x10). The cell for a point relative to the car is `(|z| >> 5)·64 + ((x + 0x400) >> 5)`, for x in ±0x400 and |z| < 0x800. The byte then selects the night or cop-light colour (`Night_NightCalc`, `draww.cpp:1265`).
+
+## `ZZHPURS.MIS` / `ZZHPURS2.MIS` — Hot Pursuit stage table ★★★
+Loaded whole by `tMissionManager::LoadDescription` (`femission.cpp:40`; the game side re-reads it in `nfs3.cpp:126`);
+`ZZHPURS2.MIS` is used when the game / comm mode is 1 (131 bytes differ). Layout (`shared/tAcademyDefinition.h`):
+- `u8 numTiers` (+3 pad), `u32 numMissions`, `u32 numStages`, then the three arrays back to back;
+- `tMissionTierInfo` 4 B `{numMissions, descriptionID, missionOffset, pad}`;
+- `tMissionInfo` 20 B `{descriptionID, trackNumber, direction, mirrored, timeOfDay, weather, traffic, pad; u16 stageOffset; u8 numStages; reserved[9]}`;
+- `tStageInfo` 44 B `{u8 carModel, color, AIPersonality, direction; i16 timeLimit, wingman, spikeBelt, blockadeCop; u8 placement, style; u16 distance; u32 speed, weight, glue; u8 speechColor; reserved[15]}`.
+
+Retail: 6 tiers × 1 mission × 10 stages = 2,796 bytes exact. Every mission record has track 0 / forward / day /
+clear, so the file only scripts the cop stages (car model, colour, personality, time limit, wingman / spike-belt /
+blockade flags, speed / weight / glue); the track comes from the front end.
+
+## `ZCARMAP.DAT` — car env-map render info ★★★
+Text, C comments, read by `R3DCcar_ReadeMapData` (`r3dcar.cpp:380`) with `Risk_ReadNextValue`: 28 records
+(one per car model, in `ZFECARS.CAR` order) of `{eScaleX, eScaleY, rideHeight, upgradeHeight}` into
+`R3DCar_EnvMapInfo[28]`. Loaded with every track but car data, listed here only for completeness.

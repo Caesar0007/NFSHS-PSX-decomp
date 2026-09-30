@@ -2835,13 +2835,11 @@ void R3DCar_Showroom(DRender_tView *Vi)
   return;
 }
 
-/* ---- R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView  [R3DCAR.CPP:3411-3412] SLD-VERIFIED ---- */
-void R3DCar_InsertCarFacetZ(Car_tObj *carObj,DRender_tView *Vi)
-
-{
-  R3DCar_InsertCarFacet(carObj,Vi);
-  return;
-}
+/* ---- R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView  [R3DCAR.CPP:3411-3412] ----
+ * One call on source line +1, with implicit void fallthrough, preserves all
+ * eight instructions and matches retail's SLD/block/function-end lines. */
+void R3DCar_InsertCarFacetZ(Car_tObj *carObj,DRender_tView *Vi) {
+  R3DCar_InsertCarFacet(carObj,Vi); }
 
 /* ---- R3DCar_InsertAllListFacet__FP13DRender_tView [retail R3DCAR.CPP:3416-3551; full SLD attribution open] ---- */
 void R3DCar_InsertAllListFacet(DRender_tView *Vi)

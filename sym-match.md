@@ -85,6 +85,15 @@ function-end lines. The 12-instruction body and full `bworldSm.cpp` bytes/
 layout remain unchanged; 28/28 native CLEAN, ASPSX 524/0, PSYLINK zero
 errors (`run-6hprt9qb`). The literal original syntax remains unproved.
 
+2026-09-30 `R3DCar_InsertCarFacetZ`: retail is a two-source-line wrapper.
+The explicit `return;` placed the four epilogue words on relative line 2,
+while retail attributes the call and epilogue to line 1. A call followed by
+implicit void fallthrough, with the function's closing brace on the call
+line, keeps all eight instructions and matches 0/8 SLD tag differences,
+the one-line block record, and the function-end delta. Full `r3dcar.cpp`
+gate `run-0x3ewviu`: `BYTES: UNCHANGED`, ASPSX 524/0, PSYLINK zero errors;
+21/27 native CLEAN. Literal original whitespace is not claimed.
+
 2026-09-30 `TexturesLoadInitial` partial scope cleanup: the old three nested
 zero-length debug regions at +0x8c came from two explicit braces and a
 count-zero loop. One lexical level and the `n` temporary are unnecessary:

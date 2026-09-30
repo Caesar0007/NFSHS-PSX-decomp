@@ -49,6 +49,20 @@ variants were reverted. The remaining `i` spelling and literal original loop
 form are not recoverable from this SYM; they remain source/SLD review work,
 not an exemption or a claimed original-source seal.
 
+2026-09-30 `Control_Human` partial lexical restoration: retail opens an
+additional region at +0x39c around the case-12 headlight toggle. One nested
+ordinary source block there restores that region without changing any of the
+288 retail instructions or other functions in `control.cpp`; full-TU gate
+`run-ipiyfy9_` is `BYTES: UNCHANGED`, ASPSX 524/0, PSYLINK zero errors.
+Native scopes improve from 6/8 to 7/8. Retail has one more zero-length region
+at +0x3c8 (the off-headlight branch); an empty brace and `if(0)` were pruned,
+while a GNU argument statement-expression added three regions (10/8), so
+none was retained. `lights` remains debug-elided and its literal source name
+unknown; no dummy source object or invented label was added. `Stats_TrackEndGame`
+for-loop reshaping failed 60 detailed diffs/234 versus 232 and was reverted;
+`R3DCar_GetCarName` direct cop-index expressions failed 13/50 diffs and were
+reverted. These trials are finite evidence, not compiler-floor claims.
+
 2026-09-30 targeted source-shape probes (all failed variants reverted; no source
 or PASS-status change): `CopSpeak_Play` remains 86/86 PASS with an unrecorded
 `scaled` local. Duplicating the arithmetic directly and factoring it as `*0x81`

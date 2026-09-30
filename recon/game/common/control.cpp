@@ -121,18 +121,20 @@ void Control_Human(Car_tObj *carObj)
     break;
   case '\f':
     if ((carObj->AIFlags & 2U) == 0) {
-      /* Source-recovery queue: lights is debug-elided, not a recovered name.
-         Direct field and fused store/test forms are17dif/289 versus288.
-         These trials establish no original source-object necessity. */
-      signed char lights;
+      {
+        /* Retail has an additional lexical region around this toggle at
+         * +0x39c. lights is debug-elided, not a recovered source name;
+         * direct field and fused store/test forms were 17 diffs/289 words. */
+        signed char lights;
 
-      lights = carObj->control.lights ^ 3;
-      carObj->control.lights = lights;
-      if ((lights & 2) != 0) {
-        R3DCar_TurnHeadLightOn(carObj,1);
-      }
-      else {
-        R3DCar_TurnHeadLightOff(carObj, (lights &= 4) < 1);
+        lights = carObj->control.lights ^ 3;
+        carObj->control.lights = lights;
+        if ((lights & 2) != 0) {
+          R3DCar_TurnHeadLightOn(carObj,1);
+        }
+        else {
+          R3DCar_TurnHeadLightOff(carObj, (lights &= 4) < 1);
+        }
       }
     }
     break;

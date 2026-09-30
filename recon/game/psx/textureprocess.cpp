@@ -680,8 +680,8 @@ CVColor_emitFinal:
 void CV_InitColorVertices(void)
 
 {
+
   CV_ColorTracks(GameSetup_gData[15] & 0xf,GameSetup_gData[18],GameSetup_gData[21]);
-  return;
 }
 
 /* end of textureprocess.cpp */

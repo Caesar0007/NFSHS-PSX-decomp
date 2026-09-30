@@ -6525,6 +6525,20 @@ The owning TUs remain byte-unchanged under `symloop`. The strict SLD board
 is 433/2565 exact (FRONTEND/COMMON 167/838). The rest of these TUs and the
 whole project remain under source/SLD review.
 
+## 2026-10-01 short cleanup/call SLD follow-up
+
+- `Texture_KillMenuTexture`: both purge calls now have retail relative tags
+  2/3; removing the trailing void return retains 12/12 byte-PASS, native
+  CLEAN, 0/12 SLD tag differences and exact block/end lines.
+- `CV_InitColorVertices`: the color-track call belongs on relative line 2.
+  Implicit void fallthrough keeps 13/13 byte-PASS, native CLEAN, 0/13 SLD
+  tag differences and exact block/end lines.
+
+Together with `PinkSlipsCarSelect::Cleanup` and `tDialogYesNoTri::ProcessInput`
+above, the strict board is now 435/2565 SLD-exact (FRONTEND/COMMON 167/838,
+GAME/PSX 32/395). These receipts prove line partition and unchanged code;
+the precise retail whitespace/comments are not independently recoverable.
+
 ## 2026-10-01 Weather intensity state without asm or goto labels
 
 `Weather_ChangeIntensityBasedOnTime` no longer needs the empty asm barrier

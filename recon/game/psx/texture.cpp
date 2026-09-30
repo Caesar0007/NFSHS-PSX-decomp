@@ -857,9 +857,9 @@ void Texture_KillTrackTexture(void)
 void Texture_KillMenuTexture(void)
 
 {
+
   purgememadr(gFreePal4);
   purgememadr(gFreePal8);
-  return;
 }
 
 /* end of texture.cpp */

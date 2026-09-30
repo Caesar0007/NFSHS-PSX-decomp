@@ -1164,6 +1164,8 @@ int AI_CheckPreferredLateralPosition(Car_tObj *carObj)
 }
 
 /* ---- AI_TryToShareLanes__FP8Car_tObjT0  [@0x8005a060] ---- */
+/* SYM: absLaneIndex names the lane-minus-7 value in $v1, not the raw lane in
+   $a2. The false arm's direct global read preserves the retail $a2 path. */
 int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
 {
   int absLaneIndex;
@@ -1175,10 +1177,11 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
 
   minGapSize =
       (carObj->N).dimension.x + (carObj->N).dimension.x / 2;
-  absLaneIndex = AI_Info.desiredLane;
-  if (7 <= absLaneIndex) {
+  const int lane = AI_Info.desiredLane;
+  if (7 <= lane) {
+    absLaneIndex = lane - 7;
     leftRoadEdge =
-        (absLaneIndex + -7) *
+        absLaneIndex *
         (BWorldSm_slices[(carInWay->N).simRoadInfo.slice].avgPavedWidthRt << 0xf);
     rightRoadEdge =
         leftRoadEdge +
@@ -1186,7 +1189,7 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
   }
   else {
     rightRoadEdge =
-        (absLaneIndex + -6) *
+        (AI_Info.desiredLane - 6) *
         (BWorldSm_slices[(carInWay->N).simRoadInfo.slice].avgPavedWidthLf << 0xf);
     leftRoadEdge =
         rightRoadEdge -

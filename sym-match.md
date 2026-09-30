@@ -6575,3 +6575,16 @@ makes the function native CLEAN (the TU rises 15/19 -> 16/19 CLEAN).
 Inlining the decoded-byte load at both uses was 22 diffs, so the distinct
 cached value is currently codegen-proven; exact literal source spelling and
 full SLD attribution remain open.
+
+## 2026-10-01 AI_TryToShareLanes adjusted-index ownership
+
+Retail SYM places `absLaneIndex` in `$v1`, while the raw lane loaded from
+`AI_Info.desiredLane` occupies `$a2`. The old source named that raw lane
+`absLaneIndex`, leaving its record MOVED. The retail `$v1` value is the
+lane-minus-7 term in the right-width branch. Assign that term to the named
+local; keep a debug-elided `const int lane` for the guard. In the other arm,
+spell `AI_Info.desiredLane - 6` directly, rather than using the snapshot:
+the latter inserts an `a2 -> a3` copy and is four diffs. The final form is
+63/63 byte-PASS, leaves whole `ai.cpp` bytes unchanged, and makes all 40/40
+functions in that TU native CLEAN. `const lane` has no native row; deleting
+it or repeating the global in both arms was 26+ diffs. Full SLD remains open.

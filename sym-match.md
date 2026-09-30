@@ -147,6 +147,17 @@ function-end line deltas. Full byte/native gates: `bworldSm.cpp` 28/28 CLEAN
 524/0 and PSYLINK zero errors in both. Literal original formatting is not
 claimed, but these three function-level SYM/SLD traces are verified.
 
+2026-09-30 renderer/HUD wrapper SLD round: `Render_InitLibRender` and
+`DashHUD_KillHUD` each had the call on retail line +1 but an explicit void
+`return;` tagged four epilogue words as line +2. Implicit fallthrough on
+the call line preserves both eight-instruction bodies and produces 0/8
+relative SLD differences with exact block/function-end lines. Full native
+gates are BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors:
+`render.cpp` 23/23 CLEAN (`run-k8_44otb`) and `dashhud.cpp` 6/6 CLEAN
+(`run-hh603ylq`). The separate `Render_StopRenderingWorldView` call-line
+gap does not respond to this form and remains open; this is not a blanket
+mechanical rewrite rule.
+
 2026-09-30 void-wrapper SLD round: `Speech_PurgeRAM`, `Scene_DeInit`, and
 `AudioClc_SilenceOpponentHorn` retain their respective eight-instruction
 PASS bodies when their explicit `return;` is replaced with implicit void

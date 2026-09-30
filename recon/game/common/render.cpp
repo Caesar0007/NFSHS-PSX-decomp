@@ -369,13 +369,13 @@ void Render_KillTrackRender(void)
   return;
 }
 
-/* ---- Render_InitLibRender__Fv  [RENDER.CPP:640-641] SLD-VERIFIED ---- */
+/* ---- Render_InitLibRender__Fv  [RENDER.CPP:640-641] ----
+ * One call plus implicit void fallthrough matches all eight retail words,
+ * SLD tags and block/function-end source lines. */
 void Render_InitLibRender(void)
 
 {
-  Draw_InitLibRender();
-  return;
-}
+  Draw_InitLibRender(); }
 
 /* ---- StampImage__Fii  [RENDER.CPP:711-769] SLD-VERIFIED ---- */
 void StampImage(int xo,int depth)

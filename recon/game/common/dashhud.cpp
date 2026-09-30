@@ -66,13 +66,13 @@ void DashHUD_InitHUD(void)
   return;
 }
 
-/* ---- DashHUD_KillHUD__Fv  [DASHHUD.CPP:101-102] SLD-VERIFIED ---- */
+/* ---- DashHUD_KillHUD__Fv  [DASHHUD.CPP:101-102] ----
+ * One call plus implicit void fallthrough matches all eight retail words,
+ * SLD tags and block/function-end source lines. */
 void DashHUD_KillHUD(void)
 
 {
-  Hud_Kill();
-  return;
-}
+  Hud_Kill(); }
 
 /* ---- DashHUD_ResetHUD__Fv  [DASHHUD.CPP:106-118] SLD-VERIFIED ---- */
 void DashHUD_ResetHUD(void)

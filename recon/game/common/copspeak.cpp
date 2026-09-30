@@ -832,23 +832,14 @@ void CopSpeak_LoadNextRequest(void)
 }
 
 /* ---- CopSpeak_PlayNextRequest__Fv  [COPSPEAK.CPP:1191-1238] SLD-VERIFIED ---- */
-/* P877: one value chain through the already recovered `next` replaces the
- * unrecorded iVar3 queue index.  The conditional expression preserves retail's
- * separate input/output registers; in-place if/else was FAIL 8 (71/71), while
- * the ternary is PASS 71/71 with an exact debug twin. */
+/* 2026-10-01: branch-local wraparound updates replace the non-SYM `next`.
+ * GCC merges the two update tails into the retail 71-instruction body;
+ * the target's named locals and root scope now match retail. */
 void CopSpeak_PlayNextRequest(void)
 
 {
-  CopSpeak_tRequest *r;
+  CopSpeak_tRequest *r = &CopSpeak_gQueue[CopSpeak_gQueuePlay];
   int handle;
-  /* UNRESOLVED: retail does not record this local in PlayNextRequest.
-   * `next` is a same-TU spelling for the wraparound queue-output quantity
-   * in DirectRequest, GenericBankRequest, and Request, not proof that this
-   * function declared it.  Direct indexing moves six instructions; a
-   * separate negative-bank tail grows the 71-instruction body to 79. */
-  int next;
-
-  r = &CopSpeak_gQueue[next = CopSpeak_gQueuePlay];
   if (*(signed char *)&r->bank >= 0) {
     if (r->sfx == '\0') {
       if (CopSpeak_gSpchHandle != -1) {
@@ -868,9 +859,10 @@ void CopSpeak_PlayNextRequest(void)
       }
     }
     CopSpeak_InitRequest(r);
-    next = CopSpeak_gQueuePlay;
+    CopSpeak_gQueuePlay = CopSpeak_gQueuePlay < 0x3f ? CopSpeak_gQueuePlay + 1 : 0;
+    return;
   }
-  CopSpeak_gQueuePlay = next = next < 0x3f ? next + 1 : 0;
+  CopSpeak_gQueuePlay = CopSpeak_gQueuePlay < 0x3f ? CopSpeak_gQueuePlay + 1 : 0;
   return;
 }
 

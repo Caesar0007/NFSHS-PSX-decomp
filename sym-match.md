@@ -6599,6 +6599,18 @@ original spelling is not recoverable from SYM. The `ticksp` address carrier
 still matters: direct `simGlobal.gameTicks` was two diffs even in this new
 source basin. Full SLD line attribution remains open.
 
+## 2026-10-01 CopSpeak_PlayNextRequest queue cursor
+
+The mutable `next` carrier in `CopSpeak_PlayNextRequest` was absent from
+retail SYM. A direct queue lookup alone moved six instructions, but placing
+the wraparound queue-play update and return in each bank-sign branch gives
+GCC the retail merged tail: 71/71 byte-PASS, unchanged whole `copspeak.cpp`
+sections, and no source-only local or extra scope. The TU improves from
+24/27 to 25/27 native CLEAN. Initializing the retail `r` pointer directly
+at declaration is also byte-neutral and removes the stale in-body carrier
+comment; its SLD tag differences fall from 68/71 to 59/71. Full line/block
+attribution and the other CopSpeak functions remain open.
+
 ## 2026-10-01 AI_TryToShareLanes adjusted-index ownership
 
 Retail SYM places `absLaneIndex` in `$v1`, while the raw lane loaded from

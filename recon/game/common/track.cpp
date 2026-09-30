@@ -311,16 +311,14 @@ void TexturesLoadInitial(void)
   }
   if ((gInitialArt.shapeFile = (char *)loadshapeadr((char *)success,(void *)0x0)) !=
       (char *)0x0) {
-    /* SYM: two nested, ZERO-LENGTH blocks open here (lines 420 and 422, both @0x800B98BC): a counted loop whose count is
-       0 in this build.  It emits nothing, but its head label still stands when cse runs and cse never scans across a
-       label -- so the body materialises &gInitialArt afresh and the store above keeps its own `lui %hi(gInitialArt+4)`,
-       as retail has it (that is what the invented D_8011E15C label used to fake). */
+    /* Retail has two zero-length nested regions at +0x8c. This count-zero
+     * loop preserves the compiler label/CSE boundary without emitting code;
+     * zero-variable if/for forms moved six instructions. Its optimized-away
+     * index spelling is not recoverable from the retail SYM. The enclosing
+     * region still starts at +0x74 here versus retail +0x84. */
     {
-      int n = 0;
-      {
-        int i;
-        for (i = 0; i < n; i++) { }
-      }
+      int i = 0;
+      for (; i < 0; i++) { }
     }
     Texture_ResetPaletteSharing();
     gInitialArt.shapeCount = (int)shapecount(gInitialArt.shapeFile);

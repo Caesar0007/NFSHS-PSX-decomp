@@ -33,6 +33,22 @@ is a verified representation, not proof of EA's literal macro or ternary
 spelling: SLD attribution still differs at all 34 instruction positions in
 the current source (`sldprobe.py`), and original text remains open.
 
+2026-09-30 `TexturesLoadInitial` partial scope cleanup: the old three nested
+zero-length debug regions at +0x8c came from two explicit braces and a
+count-zero loop. One lexical level and the `n` temporary are unnecessary:
+one `i`-counted zero loop retains the required compiler label/CSE boundary,
+107/107 instructions, and whole-`track.cpp` `BYTES: UNCHANGED`, ASPSX 524/0,
+PSYLINK zero errors (`run-jc1zgx7u`). The five scope count now equals retail's,
+with matching two zero-length nested regions and `tmpShapes` ownership. This
+is not CLEAN: its outer loaded-shapes region still starts at +0x74 rather
+than retail +0x84. Separating the shape-file assignment from the guard did
+not move that native start; inverted guard changed 10 detailed instructions;
+reusing named `success` for the shape-file result changed seven and added one
+instruction; zero-variable `if(0)` and `for(;0;)` forms changed six. All such
+variants were reverted. The remaining `i` spelling and literal original loop
+form are not recoverable from this SYM; they remain source/SLD review work,
+not an exemption or a claimed original-source seal.
+
 2026-09-30 targeted source-shape probes (all failed variants reverted; no source
 or PASS-status change): `CopSpeak_Play` remains 86/86 PASS with an unrecorded
 `scaled` local. Duplicating the arithmetic directly and factoring it as `*0x81`

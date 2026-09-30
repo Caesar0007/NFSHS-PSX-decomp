@@ -856,8 +856,6 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
                  FAIL 60 (247/245), duplicating loads and rotating divide operands */
     int wsel; /* SYM-CODEGEN-CARRIER: wsel -- folding the clamp into SYM local w is
                  measured FAIL 78 (245/245), rotating the callee-saved allocation */
-    int c3; /* SYM-CODEGEN-CARRIER: c3 -- direct color[3] at its store is measured
-               FAIL 10 (245/245); this early latch restores retail load/store order */
     int addwm1; /* SYM-CODEGEN-CARRIER: addwm1 -- repeating addw-1 is measured
                    FAIL 39 (248/245), reassociating the four vertex expressions */
     int ibp; /* SYM-CODEGEN-CARRIER: ibp -- fusing this divide into texX is measured
@@ -889,18 +887,13 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
     *(int *)((u_char *)prim + 4) = color[0];
     *(int *)((u_char *)prim + 0x10) = color[1];
     *(int *)((u_char *)prim + 0x1c) = color[2];
-    /* MATCH (w45-a1, permuter-derived then bisected to this ONE site): reading
-     * color[3] into a named temp HERE -- before the prim[7]/prim[3] tag stores --
-     * rather than at its store site.  Lengthening c3's live range across the tag
-     * stores is what re-colors the region (113 -> 103, posdiff 63 -> 58); the
-     * other two mutations in the permuter's score-825 candidate (a `nvi = 0x30`
-     * index variable and a `<<3 <<13` shift split) measured EXACTLY 0 each and
-     * were rejected as scaffolding.  Natural 1998 shape: latch the colour, then
-     * build the packet header. */
-    c3 = color[3];
+    /* Current typed-packet basin: write color[3] before the packet header.
+     * GCC schedules the same retail load/store sequence as the old early
+     * c3 latch, but no unrecorded c3 source object or debug row is needed.
+     * A direct store AFTER the header was 10 detailed diffs at 245 words. */
+    *(int *)((u_char *)prim + 0x28) = color[3];
     ((u_char *)prim)[7] = (flags & 1) * 2 + 0x3c;
     ((u_char *)prim)[3] = 0xc;
-    *(int *)((u_char *)prim + 0x28) = c3;
     *(short *)((u_char *)prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
     *(ushort *)((u_char *)prim + 0x1a) =
          ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |

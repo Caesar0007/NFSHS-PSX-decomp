@@ -31,6 +31,17 @@ for seven additional locals and two excess scopes; none were hidden or
 renamed. Its source spelling and SLD remain open. The isolated probe source
 was removed after promotion; no compiler-output rewrite or new ASM was used.
 
+2026-09-30 `DrawGouraudShape` carrier follow-up on that type-correct basin:
+retail has no `c3` local. Direct `color[3]` at its old late store was still
+10 detailed diffs, but moving the same direct packet-field store *before*
+the two header-byte stores lets GCC schedule the identical 245 instructions
+without a named snapshot. Whole `psxfront.cpp` bytes/layout remain unchanged,
+ASPSX 524/0, PSYLINK zero errors (`run-aq4gg4ld`); `c3` is removed from the
+native EXTRA list. Six other extra locals and the 4-vs-2 scope tree remain
+open. Direct repeated `addw - 1` was 41 diffs at 248/245 and folding `wsel`
+into `w` was 77 diffs at 246/245 on this refreshed basin; both were reverted.
+No new carrier, ASM or generic exemption was added.
+
 2026-09-30 `AIState_GotoSlice::InTargetSliceRange`: retail has one v0
 `distanceMeters` local and a root block whose start/end are both at function
 entry. The explicit negative-value `if` kept the native block open through

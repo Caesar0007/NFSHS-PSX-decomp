@@ -17,6 +17,20 @@ Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
 spellings still require explicit source review even when native CLEAN.
 
+2026-09-30 `DrawGouraudShape` native TYPE correction: retail records `prim`
+as `POLY_GT4*` in s0, but our byte-cursor declaration was `u_char*`.
+Repricing the current 245-word source basin (the older typed trial measured
+89 diffs on a different basin) shows that a real `POLY_GT4* prim` plus
+explicit `u_char*` views for packet byte offsets is 245/245 PASS. A same-TU
+-G0 probe was first confirmed byte-identical and emitted `.def prim; .val 16;
+.tag POLY_GT4; .size 52`; the change was then applied to the authoritative
+source. Final `psxfront.cpp` gate `run-0a3rq8_8`: whole-TU bytes/layout
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors, 15/25 native CLEAN. Global
+native TYPE issues fall from one to zero, while the function remains DIRTY
+for seven additional locals and two excess scopes; none were hidden or
+renamed. Its source spelling and SLD remain open. The isolated probe source
+was removed after promotion; no compiler-output rewrite or new ASM was used.
+
 2026-09-30 `AIState_GotoSlice::InTargetSliceRange`: retail has one v0
 `distanceMeters` local and a root block whose start/end are both at function
 entry. The explicit negative-value `if` kept the native block open through

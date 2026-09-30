@@ -578,7 +578,8 @@ typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
  *   (c) probe the razor directly per the w43 giv-worth recipe -- inject N dummy statements into a
  *   scratch copy and re-dump -dL to find the exact life cut, then aim each constant at it.
  */
-/* GPU packet: builds POLY_GT4 (stride 0x34, code 0x3c); prim=u_char* build cursor, prevPrim=u_char* link word */
+/* GPU packet: builds POLY_GT4 (stride 0x34, code 0x3c); retail prim is a
+ * POLY_GT4* packet cursor, viewed as u_char* at byte-offset packet accesses. */
 static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
 
 {
@@ -587,10 +588,10 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
    * Params: shp=$s4 flags=$t6 x=$t2 y=$s7 color=$t5.  The old recon carried ~35 fabricated locals
    * and, critically, a NEVER-ASSIGNED `xoff` in the vertex-X math where the real `x` param belongs
    * (oracle $t2 = the x REGPARM copy) -- x was silently dropped from every emitted quad. w42-a7. */
-  /* SYM-TYPE-OVERRIDE: prim -- SYM records POLY_GT4*, but the byte-cursor
-   * spelling is load-bearing: a typed pointer plus explicit byte casts changes
-   * GCC's MEM_IN_STRUCT/alias edges and regresses the detailed gate 7 -> 89. */
-  u_char  *prim;
+  /* Retail SYM records prim as POLY_GT4* in $s0. Explicit byte views at
+   * packet-offset sites retain the current 245-word allocation; the earlier
+   * typed-pointer failure applied to a different source basin. */
+  POLY_GT4 *prim;
   short    width;
   short    height;
   short    u;
@@ -875,8 +876,8 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
       wsel = shp->width - i;
     }
     w = wsel;
-    prim = Render_gPacketPtr;
-    Render_gPacketPtr = prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */
+    prim = (POLY_GT4 *)Render_gPacketPtr;
+    Render_gPacketPtr = (u_char *)prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */
     /* w44-a1 addr24-EARLY (w41 family): giving the 2nd RMW's 24-bit link term its OWN temp at
        the top of the loop body lengthens the 0xFFFFFF movable and shortens 0xFF000000 --
        INDEPENDENTLY, which the OR-operand swaps could not do (they move both).  -dL now shows
@@ -885,9 +886,9 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
     /* EA-1998 addPrim(): P_TAG bitfield setaddr pair (house idiom). */
     ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr;
     ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
-    *(int *)(prim + 4) = color[0];
-    *(int *)(prim + 0x10) = color[1];
-    *(int *)(prim + 0x1c) = color[2];
+    *(int *)((u_char *)prim + 4) = color[0];
+    *(int *)((u_char *)prim + 0x10) = color[1];
+    *(int *)((u_char *)prim + 0x1c) = color[2];
     /* MATCH (w45-a1, permuter-derived then bisected to this ONE site): reading
      * color[3] into a named temp HERE -- before the prim[7]/prim[3] tag stores --
      * rather than at its store site.  Lengthening c3's live range across the tag
@@ -897,11 +898,11 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
      * were rejected as scaffolding.  Natural 1998 shape: latch the colour, then
      * build the packet header. */
     c3 = color[3];
-    prim[7] = (flags & 1) * 2 + 0x3c;
-    prim[3] = 0xc;
-    *(int *)(prim + 0x28) = c3;
-    *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-    *(ushort *)(prim + 0x1a) =
+    ((u_char *)prim)[7] = (flags & 1) * 2 + 0x3c;
+    ((u_char *)prim)[3] = 0xc;
+    *(int *)((u_char *)prim + 0x28) = c3;
+    *(short *)((u_char *)prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
+    *(ushort *)((u_char *)prim + 0x1a) =
          ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
          (shp->shapey & 0x100) >> 4 |
          (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
@@ -920,9 +921,9 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
      * NON-ASM alternatives all falsified from this basin (re-gated): decl order
      * w1-before-w 16 (exactly neutral), `w1 = wsel; w = w1;` 99 @244,
      * `w1 = w; w = w1;` 88, `(int)w1` cast 0 (cse folds it), dropping `w` 168. */
-    prim[0xc] = u;
-    prim[0xd] = v;
-    prim[0x18] = u + w1;
+    ((u_char *)prim)[0xc] = u;
+    ((u_char *)prim)[0xd] = v;
+    ((u_char *)prim)[0x18] = u + w1;
     /* 🏆 MATCH (w45-a1) -- THE v-ROOT CRACK.  Vertex 1's V equals vertex 0's V, so the
      * quad's second row is written by READING BACK the byte just stored at prim[0xd]
      * rather than referencing `v` again (store-then-read-back, w40/w42 family: cc1
@@ -937,7 +938,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
      * tools/prio.py, and by a10's validated allocator replica, which answered
      * `--solve 82=t2,167=t3,90=t4`  ->  `p90 refs 9 -> 7 (|d|=2)` -- a single-pseudo,
      * single-dial requirement.  103 -> 83. */
-    prim[0x19] = v;
+    ((u_char *)prim)[0x19] = v;
     /* MATCH W64-A17 (11 -> 7, count still 246/245): the vertex-2/3 V pair is
        written BEFORE the U pair.  With the U stores first, sched hoists
        `prim[0x30] = u + w1` up between the 0x18 store and the 0x19 read-back
@@ -949,7 +950,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
        read-back 47 @248.  From THIS basin: 0x30-before-0x24 7 (neutral),
        fence after the read-back 9, interleaved 0x25/0x24/0x31/0x30 114 @245,
        `prim[0x24]=prim[0xc]` read-back 42 @247, `prim[0x19]=v` direct 32 @245. */
-    prim[0x24] = u;
+    ((u_char *)prim)[0x24] = u;
     /* 🏆 MATCH (W71-A18, 7 -> PASS 245/245).  THREE coupled edits, none of which
      * gates alone -- land them together or not at all:
      *  (1) `prim[0x19] = v;` DIRECT (the w45 `prim[0x19] = prim[0xd]` store-read-back
@@ -972,8 +973,8 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
      * Falsified from the 4-diff basin: full ascending 0x24/0x25/0x30/0x31 (129, frame
      * drops to 96 -- vb leaves memory); dropping `vb` and storing `vh + v` directly
      * (124 @243, frame 96). */
-    PSXFRONT_STORE_BOTTOM_V(prim,vh,v);
-    prim[0x30] = u + w1;
+    PSXFRONT_STORE_BOTTOM_V(((u_char *)prim),vh,v);
+    ((u_char *)prim)[0x30] = u + w1;
     if (w1 <= 0) {
       w1 = 1;
     }
@@ -983,7 +984,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
        * mutate rotated the whole flags&4 arm's a-band down one register
        * ({w1=a0,addw=a1,u+w1=v0} ours vs {w1=a1,addw=a2,u+w1=v1} retail). */
       addwm1 = addw - 1;
-      *(short *)(prim + 8) = ((width + x) - i) + addwm1;
+      *(short *)((u_char *)prim + 8) = ((width + x) - i) + addwm1;
       /* DEVICE KEPT (audited W85-S11 2026-09-02): zero-byte memory INPUT on the
        * x0 packet field.  It is the only source-expressible store-store ordering
        * constraint here: gcc-2.8 disambiguates `prim+8` and `prim+10` (constant
@@ -997,24 +998,24 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
        * (b)/(c) bracket the retail slot without hitting it; only the memory
        * input pins y0 immediately after x0.  Restored verbatim.
        * Detailed gate: 3 -> PASS 245/245. */
-      __asm__("" : : "m"(*(short *)(prim + 8)));
-      *(short *)(prim + 10) = y;
-      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1;
-      *(short *)(prim + 0x16) = y;
-      *(short *)(prim + 0x20) = ((shp->width + x) - i) + addwm1;
-      *(short *)(prim + 0x22) = y + height;
-      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1;
-      *(short *)(prim + 0x2e) = y + height;
+      __asm__("" : : "m"(*(short *)((u_char *)prim + 8)));
+      *(short *)((u_char *)prim + 10) = y;
+      *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1;
+      *(short *)((u_char *)prim + 0x16) = y;
+      *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + addwm1;
+      *(short *)((u_char *)prim + 0x22) = y + height;
+      *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1;
+      *(short *)((u_char *)prim + 0x2e) = y + height;
     }
     else {
-      *(short *)(prim + 8) = i + x;
-      *(short *)(prim + 10) = y;
-      *(short *)(prim + 0x14) = w1 + (i + x);
-      *(short *)(prim + 0x16) = y;
-      *(short *)(prim + 0x20) = i + x;
-      *(short *)(prim + 0x22) = y + height;
-      *(short *)(prim + 0x2c) = w1 + (i + x);
-      *(short *)(prim + 0x2e) = y + height;
+      *(short *)((u_char *)prim + 8) = i + x;
+      *(short *)((u_char *)prim + 10) = y;
+      *(short *)((u_char *)prim + 0x14) = w1 + (i + x);
+      *(short *)((u_char *)prim + 0x16) = y;
+      *(short *)((u_char *)prim + 0x20) = i + x;
+      *(short *)((u_char *)prim + 0x22) = y + height;
+      *(short *)((u_char *)prim + 0x2c) = w1 + (i + x);
+      *(short *)((u_char *)prim + 0x2e) = y + height;
     }
     i = i + w1;
   }

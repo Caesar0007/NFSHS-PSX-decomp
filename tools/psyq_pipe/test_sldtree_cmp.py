@@ -78,7 +78,7 @@ class SldTreeCompareTests(unittest.TestCase):
         native_text = native_text.replace(
             "000003: $80001004 80 Inc SLD linenum (to 201)\n", "")
         native_text = native_text.replace(
-            "000000: $80001000 88 Set SLD to line 200", 
+            "000000: $80001000 88 Set SLD to line 200",
             "000000: $80000ffc 88 Set SLD to line 200")
         native, nk, ne, _ = self.parse(native_text)
         retail, rk, re, _ = self.parse(fixture(0x80002000, 100, 101, 102))

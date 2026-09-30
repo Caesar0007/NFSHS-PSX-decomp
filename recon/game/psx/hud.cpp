@@ -1084,22 +1084,13 @@ void Hud_Init(void)
       y = g1Player[5].y + splitY;
     }
     Hud_BuildSprite2(gSprt1 + 10,0x76,x,y);
-    /* W79 source-only: staged pointer/literal identities make the call setup
-       issue before x+=w1, matching retail without a post-cc1 move. */
-    {
-      POLY_G4 *g4 = HudG4 + 2; /* SYM-CODEGEN-CARRIER: g4 -- W79 source-only identity stages the call address before x += w1 */
-      int one = 1; /* SYM-CODEGEN-CARRIER: one -- W79 source-only identity stages literal a1 before x += w1 */
-      __asm__("" : "=r"(g4), "=r"(one) : "0"(g4), "1"(one));
-      x = x + w1;
-      Hud_BuildG4(g4,one,x,y,w2,10,0,0x707070,0,0x707070);
-    }
-    /* Same source shape for the following F4 literal: li a1 precedes x+=w2. */
-    {
-      int one = 1; /* SYM-CODEGEN-CARRIER: one -- W79 source-only identity stages literal a1 before x += w2 */
-      __asm__("" : "=r"(one) : "0"(one));
-      x = x + w2;
-      Hud_BuildF4(HudF4 + 3,one,x,y + 7,7,3,0x707070);
-    }
+    /* Pass the next X to the call, then advance the running cursor; this
+       stages the address and literal arguments before the addition. */
+    Hud_BuildG4(HudG4 + 2,1,x + w1,y,w2,10,0,0x707070,0,0x707070);
+    x = x + w1;
+    /* The F4 call uses the same call-before-cursor-update shape. */
+    Hud_BuildF4(HudF4 + 3,1,x + w2,y + 7,7,3,0x707070);
+    x = x + w2;
     Hud_BuildSprite(gSprt1 + 0xb,0x7d,x,y,0x808080,0);
     currentSpriteColor = textcolour;
     Hud_BuildTimeSprites(gSprt1 + 0xc,"00M00S00",g1Player[2].x + g1Player[6].x,

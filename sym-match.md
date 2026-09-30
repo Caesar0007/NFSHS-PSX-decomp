@@ -6422,3 +6422,21 @@ assignment it yields 69/68 and five diffs; after it, the old `+r` asm can go
 and all 68 instructions and whole `screenaudio.cpp` bytes stay exact. The
 temporary has no native debug row. The pre-existing `fadeCalc` EXTRA local
 and the function's SLD differences remain source-restoration work.
+
+## 2026-10-01 Hud_Init call-shape repair
+
+`Hud_Init`'s two empty identity-asm fences were staging `g4` and literal-one
+call arguments ahead of `x += w1/w2`. The C source can do that directly:
+pass `x + w1` or `x + w2` to `Hud_BuildG4`/`Hud_BuildF4`, then advance the
+running `x` cursor after each call. In this source shape both fences, the
+`g4` pointer carrier, both `one` carriers, and their now-empty wrapper
+scopes can be removed. `Hud_Init` stays 624/624 byte-PASS; a fresh debug
+compile emits no replacement `nextX` locals and has fewer artificial scopes.
+
+The older `symloop` byte reference for `hud.cpp` predates this checkpoint:
+its stored `.text` already differed by 19 bytes from a freshly compiled HEAD
+object *before* this edit. A preserved fresh HEAD object and the final C-only
+object have identical section snapshots (33516 bytes in the combined
+snapshot). Do not overwrite the old reference to hide that drift. The full
+linked-image check remains the authoritative byte gate; full native/SLD
+ownership for `Hud_Init` is still open.

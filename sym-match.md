@@ -6453,6 +6453,20 @@ and native locals/scopes CLEAN. A named schedule variable in the if/else was
 previously 11 diffs; duplicating the call itself is the load-bearing change.
 Instruction SLD tags and block/end lines remain far from retail.
 
+## 2026-10-01 slider input actions without asm
+
+`tMenuItemLeftRightSlider::ProcessInput` no longer needs its two identity
+fences or the source-only `sound`/`volume` immediates. Keep the left and
+right item action in its switch arm, then perform the processed-key store
+and the identical audio call in each arm. GCC tail-merges both calls into
+the retail single-call byte stream: 42/42 PASS and unchanged whole
+`femenu.cpp` sections. A comma-assignment inside either call argument was
+six diffs, so the branch-local call shape matters. Moving reconstruction
+notes before the function removes 28 non-retail source lines from its body:
+the function-end line delta is now exact (20), and instruction SLD tag
+differences fall from 38/42 to 18/42. The pre-existing frameFiller/item/
+receiver native-record differences and remaining SLD tags stay open.
+
 ## 2026-10-01 Weather intensity state without asm or goto labels
 
 `Weather_ChangeIntensityBasedOnTime` no longer needs the empty asm barrier

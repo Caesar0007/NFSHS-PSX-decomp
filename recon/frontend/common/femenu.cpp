@@ -637,60 +637,33 @@ long tMenuItemLeftRightSlider::DebounceKeys()
 
 
 /* ---- tMenuItemLeftRightSlider::ProcessInput  [FEMENU.CPP:630-650] SLD-VERIFIED ---- */
+/* Retail leaves the command reference unnamed. The anonymous two-word frame
+   carrier preserves its 32-byte frame. Case-local sound calls merge into the
+   single retail call site while staging its arguments before the key store. */
 
 void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &)
 
 {
-  /* The unused command reference remains in the `R12tMenuCommand` ABI;
-     retail SYM leaves its source name absent. */
-  /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 with vars=8 but
-     records no named local at any scope.  This is the same anonymous
-     eight-byte source/compiler temporary measured in the adjacent choice
-     implementation; omitting it changes the retail frame to 24 bytes. */
   int frameFiller[2];
 
-  /* SYM-INLINE-THIS: IsDisabled */
   if (tMenuItem_IsDisabled(this)) {
     return;
   }
   switch (keyval) {
   case kInput_KeyType_Left:
     this->fData->Decrement(fromPlayer);
-    break;
+    keyval = kInput_KeyType_AlreadyProcessed;
+    AudioCmn_PlayFESFXVol(0x15,0x40);
+    return;
   case kInput_KeyType_Right:
     this->fData->Increment(fromPlayer);
-    break;
+    keyval = kInput_KeyType_AlreadyProcessed;
+    AudioCmn_PlayFESFXVol(0x15,0x40);
+    return;
   default:
     return;
   }
-  /* MATCH: SYM-CODEGEN-CARRIER: sound
-     MATCH: SYM-CODEGEN-CARRIER: volume
-     Retail SLD assigns the processed-key store to original line 644 and the
-     sound call to line 645, proving that source statement order.  The direct
-     spelling is FAIL 6 (42/42); placing the call first violates the SLD and is
-     still FAIL 2.  These statement-local immediate carriers and zero-insn
-     identity fences preserve the proven statement order while giving sched2
-     retail's `a0`, `a1`, processed-value, call/store ordering.  Fence order is
-     measured: sound-before-volume is FAIL 2 with only the immediate loads
-     swapped.  SYM records no lexical locals here, so their original spelling
-     is not recoverable; the binary proves only the two immediate value webs.
-     W85-S3 (2026-09-02) RE-CERTIFIED, both fences KEPT.  Removing both is 6 diffs
-     @42/42, removing either alone 4: retail issues `li a0,21; li a1,64` BEFORE the
-     `li v0,1` keyval value and puts the `sw v0,0(s0)` store in the jal delay slot,
-     while ours emits the store first and sinks `li a1,64` into the slot.  Falsified
-     this wave (whole-TU gate, all 6): literals passed directly at the call, both
-     decls under a do{}while(0) dial, decl order swapped, the keyval store moved
-     between the two decls, the keyval store hoisted above both, a do{}while(0) dial
-     on the keyval store, an `int kv` carrier for the keyval value, and a dial around
-     the whole tail.  Pure sched2 issue-order tie. */
-  int sound = 0x15;
-  int volume = 0x40;
-  __asm__("" : "=r"(volume) : "0"(volume));
-  __asm__("" : "=r"(sound) : "0"(sound));
-  keyval = kInput_KeyType_AlreadyProcessed;
-  AudioCmn_PlayFESFXVol(sound,volume);
-  /* MATCH: retail falls off the end (no return-value materialization). */
 }
 
 

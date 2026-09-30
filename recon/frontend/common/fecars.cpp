@@ -797,7 +797,10 @@ short tCarManager::GetNumOwnedCars(short playerNum)
 
 
 
-/* ---- tCarManager::GetNumTourneyCars  [FECARS.CPP:741-761] native locals verified; SLD open ---- */
+/* ---- tCarManager::GetNumTourneyCars  [FECARS.CPP:741-761] ----
+ * A typed GetCarFromID result separates retail's call (line +12) from its
+ * class-field load (line +13). matchedCar is an inferred semantic name and
+ * leaves no native debug row; all 42 words, locals/scopes and SLD tags match. */
 
 /* MATCH: reuse carInfo.fCarID for the lookup after storing it. A named
    carID is not in retail SYM; rereading the garage ID changes allocation. */
@@ -807,7 +810,7 @@ short tCarManager::GetNumTourneyCars(short playerNum)
 {
   int i;
   short result = 0;
-  tCarInfo carInfo;
+  tCarInfo carInfo; tCarInfo *matchedCar;
 
 
   for (i = 0; i < 0x20; i++) {
@@ -816,8 +819,8 @@ short tCarManager::GetNumTourneyCars(short playerNum)
 
       carInfo.fCarID = this->fCarGarage[playerNum][i].fCarID;
       carInfo.fUpgrades = this->fCarGarage[playerNum][i].fUpgrades;
-      carInfo.fCarClass = this->GetCarFromID((signed char)carInfo.fCarID)->fCarClass;
-
+      matchedCar = this->GetCarFromID((signed char)carInfo.fCarID);
+      carInfo.fCarClass = matchedCar->fCarClass;
 
       if (tournamentManager.ValidCar(carInfo)) {
         result = result + 1; }

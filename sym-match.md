@@ -51,18 +51,32 @@ by this snapshot.
 
 | Retail directory | SLD exact / covered | Tag differences / compared words |
 |---|---:|---:|
-| FRONTEND/COMMON | 160 / 838 | 46,059 / 55,037 |
+| FRONTEND/COMMON | 161 / 838 | 46,058 / 55,037 |
 | FRONTEND/PSX | 4 / 85 | 4,700 / 5,393 |
-| GAME/COMMON | 229 / 1,247 | 87,760 / 102,405 |
+| GAME/COMMON | 229 / 1,247 | 87,773 / 102,405 |
 | GAME/PSX | 30 / 395 | 38,130 / 41,666 |
-| Total | 423 / 2,565 | 176,649 / 204,501 |
+| Total | 424 / 2,565 | 176,661 / 204,501 |
 
-The remaining classifications are 2,136 SLD differences, five duplicate
+The remaining classifications are 2,135 SLD differences, five duplicate
 function names intentionally marked ambiguous, and one code-span mismatch
 (`tGlobalMenuDefs` constructor, 3,206 native versus 3,207 retail words).
 The five retail-only PAD functions and incomplete eaclib/syslib records remain
 outside this common-function board. SLD-exact is still weaker than recovered
 literal source spelling or complete carrier review.
+
+2026-09-30 `tCarManager::GetNumTourneyCars`: retail tags the
+`GetCarFromID` call and its delay-slot store as line +12, then the returned
+car's class-field load as +13. A direct chained call/load tagged that load
++12; splitting the call into a block-local pointer changed the 42-word
+loop body. A function-root `tCarInfo *matchedCar` (inferred semantic name)
+declared on the existing `carInfo` line is optimized out of detailed SYM,
+preserves all 42 instructions and the complete native local/scope tree, and
+gives 0/42 relative SLD differences plus exact block/end line records. The
+full `fecars.cpp` gate is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors;
+44/46 native CLEAN (`run-pz8aqmw5`). After refreshing the exact TUs touched
+by rejected probes, the SLD snapshot above is 424/2,565 exact; BasicPerp's
+13 tail-tag differences remain counted, not hidden. Literal original pointer
+spelling is not uniquely determined.
 
 2026-09-30 `CalcObjDefPtrs`: three repeated `gObjDefOffsetsGroup->GetData()`
 expressions inside the offset-accumulation loop created six inline scopes

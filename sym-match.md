@@ -6414,3 +6414,11 @@ differences remain open. The analogous `bool pulled` fence in
 `tScreenMemcard::LoadIcon` was not removable by this method: `bool` and `int`
 saves both lost the retail `s7 -> t0` copy (214/215), so that source was
 restored.
+
+`tScreenAudio::DrawForeground` supplies a fourth verified replacement. Its
+clamped `fadeCalc` is 0–128, so a `short` save is lossless. The same-scope
+save/dead-set/restore must follow `fade = (short)fadeCalc`: before that real
+assignment it yields 69/68 and five diffs; after it, the old `+r` asm can go
+and all 68 instructions and whole `screenaudio.cpp` bytes stay exact. The
+temporary has no native debug row. The pre-existing `fadeCalc` EXTRA local
+and the function's SLD differences remain source-restoration work.

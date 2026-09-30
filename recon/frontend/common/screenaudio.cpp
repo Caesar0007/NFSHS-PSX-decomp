@@ -162,7 +162,7 @@ DrawFgAudio_fadeDone:
     int i = 0;
 
     fade = (short)fadeCalc;
-    __asm__("" : "+r"(fadeCalc));
+    short savedFadeCalc = (short)fadeCalc; fadeCalc = 0; fadeCalc = savedFadeCalc; /* C-only CSE boundary. */
     do {
       DrawShapeExtended(i + 0x30,1,0,0,(int)fade,0,
                  (tDrawShapeExtended *)0x0);

@@ -879,8 +879,8 @@ void Night_InitPlayerHeadLightColor(int player)
 void Night_SetPlayerHeadLightColor(int player,int colorIndex,int bright)
 
 {
+
   Night_CreateNightTable(colorIndex,Night_gPlayerHeadLightColor[player],bright,Night_gPlayerLightingTable);
-  return;
 }
 
 /* ---- Night_InitCopLightColors__Fv  [NIGHT.CPP:507-515] SLD-VERIFIED ---- */

@@ -6576,6 +6576,16 @@ Inlining the decoded-byte load at both uses was 22 diffs, so the distinct
 cached value is currently codegen-proven; exact literal source spelling and
 full SLD attribution remain open.
 
+## 2026-10-01 Night player-headlight SLD seal
+
+`Night_SetPlayerHeadLightColor` retains 15/15 byte-PASS and native CLEAN.
+Placing its sole `Night_CreateNightTable` call on retail relative line 2
+and allowing implicit void fallthrough yields 0/15 instruction tag
+differences, exact root-block line and exact function-end delta. This is
+independent of the `Night_SetCopColor` value-ownership repair; the whole
+`night.cpp` object remains byte-unchanged. The strict SLD board rises to
+436/2565 (GAME/PSX 33/395). Original non-emitting whitespace is not proven.
+
 ## 2026-10-01 AI_TryToShareLanes adjusted-index ownership
 
 Retail SYM places `absLaneIndex` in `$v1`, while the raw lane loaded from

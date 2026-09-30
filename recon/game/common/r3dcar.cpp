@@ -583,16 +583,14 @@ char * R3DCar_LoadFileAdr(char *name)
   return buf;
 }
 
-/* ---- R3DCar_GetCarName__FPcii [retail R3DCAR.CPP:1145-1154; carrier/source/SLD recovery open] ---- */
+/* ---- R3DCar_GetCarName__FPcii [retail R3DCAR.CPP:1145-1154; SLD recovery open] ---- */
+/* A const snapshot holds the cop index across sprintf without creating the
+   source-only REG local from the former mutable copIdx. The object remains
+   37/37 byte-exact and its native local/scope records now match retail. */
 void R3DCar_GetCarName(char *filename,int carType,int country)
 
 {
-  /* Source-recovery queue: copIdx is absent from retail. Mutating carType
-     before sprintf and undoing for its argument is11dif/38; mutating it
-     after sprintf is13dif/38. The retained37-word snapshot proves no source
-     object was necessary. Real index belongs only to the cop-country arm. */
-  u_int copIdx;
-  copIdx = carType - 0x16U;
+  const u_int copIdx = carType - 0x16U;
   sprintf(filename,"zz%s",GameSetup_gCarNames[0] + carType * 5);
   if (copIdx < 6) {
     int index;

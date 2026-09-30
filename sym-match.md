@@ -6330,3 +6330,14 @@ NFS4_LANE_OUT=build/psyq_g`, then `symtree_cmp.py`.
 - Both owning TUs remain byte-unchanged under `symloop`; strict full compile and GNU measurement link recover
   299819/299819 reconstructed image words, zero masked mismatches, and zero dropped text objects. The vtable audit
   passes 1314 files. `Font_SwitchFont`'s direct `currentfont` view was tested and reverted (13 diffs, 28/27 words).
+
+## 2026-10-01 source-only carrier checkpoint
+
+`R3DCar_GetCarName`'s mutable `copIdx` created a source-only `REG $16` local. A single-assignment
+`const u_int` snapshot keeps its needed pre-`sprintf` value in `$16` without emitting a debug local:
+37/37 byte PASS, unchanged whole-TU sections, and native local/scope records CLEAN. Moving the
+explanatory comment before the function also reduces its SLD tag differences from 30 to 24 and
+matches the retail function-end delta. The remaining SLD tags and block-line positions are not
+exact; the original spelling of this debug-elided value is not proved. Reusing `carType` and
+recomputing the index were previously byte-regressive. The analogous two-branch `const col`
+trial in `Hrz_LightningFlicker` was four instruction diffs and was reverted.

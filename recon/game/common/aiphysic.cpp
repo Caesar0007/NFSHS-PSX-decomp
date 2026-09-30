@@ -1950,11 +1950,10 @@ void AIPhysic_InitCar(Car_tObj *carObj)
 /* ---- AIPhysic_DeInitCar__FP8Car_tObj ---- */
 void AIPhysic_DeInitCar(Car_tObj *carObj)
 {
-    if (carObj->carFlags & 2) {
-        if (carObj->brakeInfo != (AIPhysic_BrakeInfo *)0) {
-            delete carObj->brakeInfo;
-            carObj->brakeInfo = (AIPhysic_BrakeInfo *)0;
-        }
+    if ((carObj->carFlags & 2) && carObj->brakeInfo != (AIPhysic_BrakeInfo *)0) {
+
+        delete carObj->brakeInfo;
+        carObj->brakeInfo = (AIPhysic_BrakeInfo *)0;
     }
 }
 

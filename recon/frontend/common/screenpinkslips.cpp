@@ -270,9 +270,9 @@ void tScreenPinkSlips::Cleanup()
   
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
+
   frontEnd.pinkSlipsTrackIndex = '\0';
   this->tScreen::Cleanup();
-  return;
 }
 
 

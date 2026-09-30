@@ -40,9 +40,9 @@ void tScreenCongrats::Cleanup()
 
 {
   
+
   CleanupSpinningCarsMenu();
   this->tScreen::Cleanup();
-  return;
 }
 
 /* ---- tScreenCongrats::GetShapeInfo  (screencongrats.cpp:64) ---- */
@@ -583,9 +583,9 @@ void tScreenPinkSlipCongrats::Cleanup()
 
 {
   
+
   CleanupSpinningCarsMenu();
   this->tScreen::Cleanup();
-  return;
 }
 
 

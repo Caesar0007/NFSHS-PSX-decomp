@@ -6489,6 +6489,26 @@ about other locals/scopes, and 50/57 SLD instruction tags remain different.
 The algebraic identity is a verified C codegen form, not recovered literal
 source; the latter stays in the backlog.
 
+## 2026-10-01 four short SLD seals
+
+- `tScreenCongrats::Cleanup` and `tScreenPinkSlipCongrats::Cleanup` each keep
+  11/11 byte-PASS and native CLEAN. Their two calls now occupy retail relative
+  lines 3 and 4; implicit void fallthrough replaces an explicit trailing
+  return. Both have 0/11 tag differences, exact block lines and end delta.
+- `tScreenPinkSlips::Cleanup` keeps 18/18 byte-PASS and native CLEAN. Separating
+  its frontend flag reset from the memory purge and using implicit fallthrough
+  puts the reset/base cleanup on retail relative lines 5/6: 0/18 tags,
+  block lines and end delta exact.
+- `AIPhysic_DeInitCar` keeps 20/20 byte-PASS and native CLEAN. One short-circuit
+  guard replaces nested guard statements; both branch tests now inherit retail
+  line 1 while the delete and pointer clear stay on lines 3/4. All 20 tags,
+  block lines and end delta match.
+
+The whole owning TUs are byte-unchanged under `symloop`. The strict tree
+snapshot rises to 431/2565 SLD-exact functions (FRONTEND/COMMON 165/838,
+GAME/COMMON 232/1247). Line partition is proven; original non-emitting
+whitespace and comments are not uniquely recoverable from SYM.
+
 ## 2026-10-01 Weather intensity state without asm or goto labels
 
 `Weather_ChangeIntensityBasedOnTime` no longer needs the empty asm barrier

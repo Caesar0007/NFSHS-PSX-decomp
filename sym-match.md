@@ -6561,3 +6561,17 @@ with unchanged whole `weather.cpp` sections. The latter removes the two
 source-only label records and keeps the native function CLEAN. Historical
 claims that the polarity/cross-jump residual was a compiler floor are thus
 refuted. Full SLD line tags and block/end lines remain unresolved.
+
+## 2026-10-01 Night_SetCopColor value ownership
+
+Retail SYM declares `cartype` as an `int` in `$v0`. The byte oracle uses
+`$v0` for the address of the selected `CopCarTypeLights` entry, then loads
+the decoded byte into `$a0`. The former source named that decoded byte
+`cartype`, producing a MOVED `$a0 != $v0` debug record despite 37/37 bytes.
+Restore `cartype` as the integer table-entry address and use a debug-elided
+`const int copType` for the decoded byte across both country-light reads.
+This leaves the whole `night.cpp` object unchanged, keeps 37/37 PASS, and
+makes the function native CLEAN (the TU rises 15/19 -> 16/19 CLEAN).
+Inlining the decoded-byte load at both uses was 22 diffs, so the distinct
+cached value is currently codegen-proven; exact literal source spelling and
+full SLD attribution remain open.

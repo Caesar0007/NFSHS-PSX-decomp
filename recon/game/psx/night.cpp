@@ -806,9 +806,9 @@ void Night_DoLightningEffect(DRender_tView *Vi)
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
 {
-  /* All six named locals belong to retail's single root block. Keep the
-   * copColors initializer after the country/model reads to preserve its
-   * stack-copy schedule. cartype's quantity/home remains unresolved. */
+  /* All six retail locals belong to one root block. cartype owns the integer
+   * table-entry address in $v0; const copType keeps its decoded byte live in
+   * $a0 without a debug row. Keep the copColors stack-copy order. */
   int cartype;
   int country;
   /* SYM's INT carrier is confirmed by both retail allocation and the split m2c
@@ -816,7 +816,8 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
   int carTable;
 
   country = carinfo->Country;
-  cartype = CopCarTypeLights[carinfo->carType - 22];
+  cartype = (int)CopCarTypeLights + carinfo->carType - 22;
+  const int copType = *(u_char *)cartype;
   u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed,
                                    Night_gCopLightingTableBlue };
   int col1;
@@ -845,9 +846,9 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
      * DECL (forces a memcpy call, 41 insns); volatile array-ptr / elem-ptr views over
      * copColors (35 insns); one reused `col` variable (36); a `u_char *pair` local for the
      * two table bytes (35); store-before-col2 (38); both-cols-first (35). */
-  col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
+  col1 = (u_char)Night_gCopCountryLightTbl[copType][country][0];
   carTable = (int)copColors[col1];
-  col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
+  col2 = (u_char)Night_gCopCountryLightTbl[copType][country][1];
   Night_gCopColor[0] = (u_char (*)[256][8])carTable;
   Night_gCopColor[1] = copColors[col2];
   return;

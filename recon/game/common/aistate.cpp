@@ -2706,20 +2706,13 @@ void AIState_GotoSlice::Execute()
  * [AISTATE.CPP:1395-1398] ----
  * Assigning the built-in absolute value to retail's distanceMeters keeps
  * its v0 debug row and zero-length root block while matching 17 instructions.
- * Full source-line/SLD attribution remains open. */
+ * Three successive source statements also reproduce all 17 retail relative
+ * SLD tags and the function-end line delta (3). Literal spelling is unknown. */
 
-int AIState_GotoSlice::InTargetSliceRange(int rangeMeters)
-
-
-
-{
-  int distanceMeters;
-
-  distanceMeters = __builtin_abs(
-      AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_));
-
+int AIState_GotoSlice::InTargetSliceRange(int rangeMeters) {
+  int distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
+  distanceMeters = __builtin_abs(distanceMeters);
   return (u_int)(distanceMeters < rangeMeters);
-
 }
 
 

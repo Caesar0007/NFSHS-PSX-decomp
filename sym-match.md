@@ -26,8 +26,11 @@ built-in absolute value directly to `distanceMeters` preserves the same 17
 instructions, its correct v0 record and the zero-length retail block, with
 no extra carrier or label. Full `aistate.cpp` gate `run-kgbcdms1` is
 `BYTES: UNCHANGED`, ASPSX 524/0, PSYLINK zero errors; 31/42 native CLEAN.
-Full common board is 2151/2565 CLEAN, 414 DIRTY. The exact source spelling
-and complete SLD remain open (12/17 relative line-tag differences).
+Full common board is 2151/2565 CLEAN, 414 DIRTY. A subsequent three-statement
+layout assigns the call, built-in absolute value, and return to successive
+source lines: `sldprobe.py` reports 0/17 relative instruction-tag differences,
+the block start/end lines agree, and the native function-end line is header+3
+as in retail (`run-o8dqphts`). Exact literal EA spelling remains unknown.
 
 2026-09-30 `Quatern_QuatToMat`: retail names doubled quaternion components
 `x/y/z` in v0/t3/t1. Direct `q->field * 2` compiles byte-exactly but drops all

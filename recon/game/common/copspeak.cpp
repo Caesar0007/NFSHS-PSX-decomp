@@ -700,24 +700,20 @@ void CopSpeak_Skip(void)
 int CopSpeak_Request(CopSpeak_tRequest *r)
 
 {
-  /* SYM-CODEGEN-CARRIER: head -- retail debug retains only `next` and `bank`.
-   * Removing this queue-head snapshot and using one function-scope `next`
-   * keeps 79 instructions but changes 16 allocation/load instructions; a
-   * direct conditional-expression spelling grows to 84/79 with 11 diffs. */
-  int head;
+  /* SYM-CODEGEN-CARRIER: head -- old queue slot needed after the head update.
+   * Root-scoped next now matches retail $v1; a direct final wrap expression
+   * removes the second next and its debug scope. head remains retail-absent;
+   * its source representation needs a separate value-ownership repair. */
+  int next;
   CopSpeak_tBank *bank;  /* SYM: Def class REG $5 (a1) PTR CopSpeak_tBank name bank */
 
-  head = CopSpeak_gQueueHead;
-  {
-    int next;
-
-    next = 0;
-    if (head < 0x3f) {
-      next = head + 1;
-    }
-    if (next == CopSpeak_gQueuePlay) {
-      return -1;
-    }
+  const int head = CopSpeak_gQueueHead;
+  next = 0;
+  if (head < 0x3f) {
+    next = head + 1;
+  }
+  if (next == CopSpeak_gQueuePlay) {
+    return -1;
   }
   bank = &Copspeak_gBank[*(signed char *)&r->bank];
   if (((bank->FileOpen == 0) ||
@@ -734,15 +730,7 @@ int CopSpeak_Request(CopSpeak_tRequest *r)
     return -1;
   }
   CopSpeak_gQueue[head] = *r;
-  {
-    int next;
-
-    next = 0;
-    if (CopSpeak_gQueueHead < 0x3f) {
-      next = CopSpeak_gQueueHead + 1;
-    }
-    CopSpeak_gQueueHead = next;
-  }
+  CopSpeak_gQueueHead = CopSpeak_gQueueHead < 0x3f ? CopSpeak_gQueueHead + 1 : 0;
   return head;
 }
 

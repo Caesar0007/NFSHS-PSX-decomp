@@ -6611,6 +6611,16 @@ at declaration is also byte-neutral and removes the stale in-body carrier
 comment; its SLD tag differences fall from 68/71 to 59/71. Full line/block
 attribution and the other CopSpeak functions remain open.
 
+`CopSpeak_Request` now puts retail's `next` in its root scope at `$v1` and
+uses a direct conditional queue-head assignment for the final wraparound.
+That removes the second `next` (`$a2`) and its non-retail debug scope while
+preserving 79/79 byte-PASS and unchanged whole-TU sections. A const snapshot
+of the old queue-head index still occupies `$a3` and is EXTRA: it survives
+the final global update because the function returns the prior slot. Reusing
+the root `next` for both phases rotated 16 instructions; replacing the clamp
+with a ternary was byte-exact only after the first scope repair. The target
+is not native CLEAN and full SLD remains open, so `head` stays in the backlog.
+
 ## 2026-10-01 AI_TryToShareLanes adjusted-index ownership
 
 Retail SYM places `absLaneIndex` in `$v1`, while the raw lane loaded from

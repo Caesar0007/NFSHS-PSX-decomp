@@ -237,9 +237,9 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
 /* ---- Get__30AIDataRecord_CurveSpeedTable_ti ---- */
 int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 {
-  if (curve < 0) {
+
+  if (curve < 0)
     curve = -curve;
-  }
   if (0xff < curve) {
     curve = 0xff;
   }

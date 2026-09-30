@@ -6282,8 +6282,8 @@ be re-matched under it first. Until then the debug compile lives beside the norm
 - `recon/eaclib/psx/pad.c` (5 functions with debug records in retail) is not in the `-g` file list.
 - `SPCHEVNT.C` is compiled **inside** `Speech.obj` in retail (its debug records sit in that object's block). Ours is a
   separate C file. The functions are clean, but the file structure is not retail's.
-- Line layout is not compared. Retail's block and function records carry function-relative line numbers, so the original
-  line structure of each function is recoverable (for example `Stats_TrackEndGame` spans 81 lines; ours 65).
+- Line layout is compared by `tools/psyq_pipe/sldtree_cmp.py`: instruction-relative tags, block lines and function-end
+  deltas. The 2026-09-30 snapshot is 426/2565 exact, so most source-line ownership remains to be restored.
 - Types of globals, struct layouts and the file-level records of the SYM are not compared yet — only function-level records.
 
 ## Typical session
@@ -6318,3 +6318,15 @@ python tools/psyq_pipe/symtree_cmp.py build/psyq_g/nfs4_sym.txt
 
 A full refresh from scratch (about 15 minutes): `gdebug_compile.py`, then the lane with `NFS4_LANE_G=1
 NFS4_LANE_OUT=build/psyq_g`, then `symtree_cmp.py`.
+
+## 2026-09-30 SLD checkpoint
+
+- `AIDataRecord_CurveSpeedTable_t::Get`: the negative-curve guard has no retail lexical sub-block. Removing its braces
+  while retaining the first statement's line position yields 0/13 SLD-tag differences, matching block lines and function
+  end, with 13/13 byte PASS and native CLEAN.
+- `tScreenTrackSelect::Cleanup`: separate the base-class cleanup call from the memory purge, then use implicit void
+  fallthrough. This yields 0/16 SLD-tag differences, matching block lines and function end, with 16/16 byte PASS and
+  native CLEAN.
+- Both owning TUs remain byte-unchanged under `symloop`; strict full compile and GNU measurement link recover
+  299819/299819 reconstructed image words, zero masked mismatches, and zero dropped text objects. The vtable audit
+  passes 1314 files. `Font_SwitchFont`'s direct `currentfont` view was tested and reverted (13 diffs, 28/27 words).

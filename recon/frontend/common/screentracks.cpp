@@ -342,8 +342,8 @@ void tScreenTrackSelect::Cleanup()
   
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
+
   this->tScreen::Cleanup();
-  return;
 }
 
 

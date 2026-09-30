@@ -63,6 +63,18 @@ for-loop reshaping failed 60 detailed diffs/234 versus 232 and was reverted;
 `R3DCar_GetCarName` direct cop-index expressions failed 13/50 diffs and were
 reverted. These trials are finite evidence, not compiler-floor claims.
 
+2026-09-30 `AIPhysic_CalculateGear`: retail has no source LABEL record at
+the return join, whereas the old byte-matched reconstruction emitted `end`.
+Keeping the named `gear` assignment funnel inside a structured
+`if / else if / else` and returning after it removes that unsupported label
+while retaining 65/65 instructions, all named homes and the whole physics
+TU byte/layout fingerprint (`run-dbc_v1ia`; ASPSX 524/0, PSYLINK zero errors).
+Direct early returns were 64/65 with five detailed diffs and were reverted.
+The native root block still closes at +0xe4 versus retail +0xe0; an extra
+lexical brace and an explicit return cast did not move that endpoint and were
+reverted. Relative SLD attribution is also unsealed (52/65 instruction tags
+in the current source probe); the label removal is not a full source seal.
+
 2026-09-30 targeted source-shape probes (all failed variants reverted; no source
 or PASS-status change): `CopSpeak_Play` remains 86/86 PASS with an unrecorded
 `scaled` local. Duplicating the arithmetic directly and factoring it as `*0x81`

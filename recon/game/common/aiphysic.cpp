@@ -144,7 +144,11 @@ void AIPhysic_HandleShifting(Car_tObj *carObj)
  * was the sole coalescing residual. Also `absSpeed <= 0x1FFFF` folds the constant (no separate
  * `int limit`). Re-verified in-tree (CC1PLPSX+maspsx): PASS 65/65. Pin-free → HARD RULE §3.13.
  * (cross-ref §3.14 SH `@hack Needs to be int for ABS to match`; same class as the
- * SimplePhysics_LatVel clamp-abs residual → __builtin_abs candidate there too.) */
+ * SimplePhysics_LatVel clamp-abs residual → __builtin_abs candidate there too.)
+ * The two early assignments now use a structured if/else-if/else funnel:
+ * GCC emits the same 65 words without a source LABEL record. Retail has no
+ * label at that join. The root debug block still ends +4 bytes late and
+ * relative SLD attribution is not sealed. */
 Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
 {
     int hi;
@@ -152,25 +156,22 @@ Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
     Gear_t gear = (Gear_t)carObj->control.gear;
     if (speed <= 0x1FFFF) {
         gear = 1;
-        goto end;
-    }
-    if (carObj->driveDirection == -1) {
+    } else if (carObj->driveDirection == -1) {
         gear = 0;
-        goto end;
-    }
-    while ((hi = AIPhysic_GearTopSpeed(carObj, gear) < speed) ||
-           AIPhysic_GearBottomSpeed(carObj, gear) > speed) {
-        if (hi) {
-            if (AIPhysic_GearTopSpeed(carObj, (Gear_t)(gear + 1)) == 0)
-                return gear;
-            carObj->aiShiftTimer = carObj->aiShiftDuration;
-            gear = (Gear_t)(gear + 1);
-        } else {
-            carObj->aiShiftTimer = carObj->aiShiftDuration;
-            gear = (Gear_t)(gear - 1);
+    } else {
+        while ((hi = AIPhysic_GearTopSpeed(carObj, gear) < speed) ||
+               AIPhysic_GearBottomSpeed(carObj, gear) > speed) {
+            if (hi) {
+                if (AIPhysic_GearTopSpeed(carObj, (Gear_t)(gear + 1)) == 0)
+                    return gear;
+                carObj->aiShiftTimer = carObj->aiShiftDuration;
+                gear = (Gear_t)(gear + 1);
+            } else {
+                carObj->aiShiftTimer = carObj->aiShiftDuration;
+                gear = (Gear_t)(gear - 1);
+            }
         }
     }
-end:
     return gear;
 }
 

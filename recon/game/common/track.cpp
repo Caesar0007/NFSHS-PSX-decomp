@@ -785,16 +785,13 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
 void CalcObjDefPtrs(void)
 
 {
-
-  ((int *)gObjDefOffsetsGroup->GetData())[0] =
-      (int)gPersistObjDef->GetData();
+  /* One typed view of the offset payload replaces three repeated inline
+   * GetData expansions in the loop. The semantic name is inferred; GCC
+   * optimizes it away, matching retail's local and scope records. */
+  int *offsets = (int *)gObjDefOffsetsGroup->GetData();
+  offsets[0] = (int)gPersistObjDef->GetData();
   for (int i = 1; i < gPersistObjDef->GetNumElements(); i = i + 1) {
-    /* Source-recovery queue: these three GetData expansions add six empty
-       scopes absent from retail. Direct payload forms currently change the
-       loop anchor (base+4 with0/4 offsets vs retail base+8 with-4/0); unresolved. */
-    ((int *)gObjDefOffsetsGroup->GetData())[i] =
-        ((int *)gObjDefOffsetsGroup->GetData())[i - 1] +
-        ((int *)gObjDefOffsetsGroup->GetData())[i];
+    offsets[i] = offsets[i - 1] + offsets[i];
   }
   Track_gObjDefs = (Trk_ObjectDef **)gObjDefOffsetsGroup->GetData();
   return;

@@ -9,13 +9,26 @@ covered functions; not a full source-declaration/carrier/SLD seal):
 |---|---:|---:|
 | FRONTEND/COMMON | 711 | 127 |
 | FRONTEND/PSX | 61 | 24 |
-| GAME/COMMON | 1095 | 152 |
+| GAME/COMMON | 1096 | 151 |
 | GAME/PSX | 284 | 111 |
-| Total | 2151 | 414 |
+| Total | 2152 | 413 |
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
 spellings still require explicit source review even when native CLEAN.
+
+2026-09-30 `CalcObjDefPtrs`: three repeated `gObjDefOffsetsGroup->GetData()`
+expressions inside the offset-accumulation loop created six inline scopes
+absent from retail. A single typed `offsets` payload pointer acquired before
+the loop is optimized away as a debug local and reproduces the retail
+strength-reduced cursor and all 25 instructions. The complete 11-region
+native scope tree, named `this`/`i` records and section/layout fingerprints
+now match (`track.cpp` gate `run-6bwsadai`: BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors). `track.cpp` rises 22/29 to 23/29 native CLEAN; the
+full board is 2152/2565 CLEAN, 413 DIRTY. `offsets` is an evidence-supported
+semantic name, not a recovered literal identifier. Complete relative SLD
+still differs at all 25 instruction positions, so no source/SLD seal is
+claimed from native CLEAN alone.
 
 2026-09-30 `DrawGouraudShape` native TYPE correction: retail records `prim`
 as `POLY_GT4*` in s0, but our byte-cursor declaration was `u_char*`.

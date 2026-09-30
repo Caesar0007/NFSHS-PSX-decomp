@@ -17,6 +17,22 @@ Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
 spellings still require explicit source review even when native CLEAN.
 
+2026-09-30 `AIHigh_BasicPerp::RemoveCloseCops`: the old byte-matched loop
+used a source `goto nextCop` and therefore emitted a LABEL record absent
+from retail. A `for (copLoop=0; ...; copLoop++)` with an early `continue`
+preserves all 84 retail instructions and the complete native
+local/home/depth/order/scope tree without the label. Whole `aih_basicperp.cpp`
+gate is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors (`run-1rqndfzy`);
+the TU remains 4/8 native CLEAN and the full board remains 2152/2565
+CLEAN, 413 DIRTY. The old comparator did not score LABEL records, so it
+already counted this function CLEAN before the label removal. This is a
+partial source recovery, not an SLD seal:
+13/84 linked-SYM line tags differ, all at the common loop tail (+0x11c..148),
+with native function-end delta 25 versus retail 29. A guarded-body `if`
+added two unsupported scopes and shifted named homes, while body-local
+duplicated increments changed the 84-word body to 86; both were reverted.
+The five cfront duplicate-name functions and SLD-only backlog remain open.
+
 ### Whole-tree SLD snapshot (2026-09-30)
 
 `python tools/psyq_pipe/sldtree_cmp.py` compares every common native/retail

@@ -329,19 +329,22 @@ not_caught:
 
 
 
-/* ---- RemoveCloseCops__16AIHigh_BasicPerp  AIHigh_BasicPerp::RemoveCloseCops  [AIH_BASICPERP.CPP:296-325] SLD-VERIFIED ---- */
+/* ---- RemoveCloseCops__16AIHigh_BasicPerp  AIHigh_BasicPerp::RemoveCloseCops
+ * [AIH_BASICPERP.CPP:296-325] ---- */
 /* Retail SYM scopes the channel loop, its cop/distance pair, and the two
    inlined drive-away setters plus base car accessor. Inline names are inferred;
    their receiver types/homes and exact block addresses come from retail.
-   All instruction-relative SLD tags match; lexical block-line fields remain open. */
+   A for/continue source removes the unsupported nextCop LABEL and restores
+   the native scope tree at 84/84 bytes. The tail's relative SLD lines still
+   differ at 13 instructions; complete statement attribution remains open. */
 
 void AIHigh_BasicPerp::RemoveCloseCops()
 {
-  { int copLoop = 0; while (true) { if (Cars_gNumCopCars <= copLoop) break;
+  for (int copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
 
     Car_tObj *cop = Cars_gCopCarList[copLoop]; int distance;
 
-    if ((cop->AIFlags & 4U) != 0) goto nextCop;
+    if ((cop->AIFlags & 4U) != 0) continue;
 
     distance = AIWorld_ApxSplineDistance(cop,this->carObj_);
     distance = __builtin_abs(distance);
@@ -361,14 +364,6 @@ void AIHigh_BasicPerp::RemoveCloseCops()
       Speech::Mobile(thisCop->GetCarObj())->Purge();
 
     }
-
-
-
-nextCop:
-    copLoop = copLoop + 1;
-
-  }
-
   }
 }
 

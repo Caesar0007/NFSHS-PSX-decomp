@@ -9,13 +9,24 @@ covered functions; not a full source-declaration/carrier/SLD seal):
 |---|---:|---:|
 | FRONTEND/COMMON | 711 | 127 |
 | FRONTEND/PSX | 61 | 24 |
-| GAME/COMMON | 1093 | 154 |
+| GAME/COMMON | 1094 | 153 |
 | GAME/PSX | 284 | 111 |
-| Total | 2149 | 416 |
+| Total | 2150 | 415 |
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
 spellings still require explicit source review even when native CLEAN.
+
+2026-09-30 `Quatern_QuatToMat`: retail names doubled quaternion components
+`x/y/z` in v0/t3/t1. Direct `q->field * 2` compiles byte-exactly but drops all
+three native debug rows. Splitting raw loads then `*=2` restores the names on
+the *input* registers instead (a2/a3/v1), while `<<=1` changes the halfword
+load/sign-extension code. `x = q->x + q->x` (and y/z analogues) retains the
+names on the doubled values, with the original 68/68 instructions and all
+locals/types/homes/order/block boundaries matching. Whole-`quatern.cpp`
+gate: `BYTES: UNCHANGED`, ASPSX 524/0, PSYLINK zero errors, 4/4 native CLEAN
+(`run-xtpljb6y`). Full common board is 2150/2565 CLEAN, 415 DIRTY. This
+does not prove literal EA syntax; relative SLD tags remain unsealed.
 
 2026-09-30 `DashHUD_HUDCalc` compact-static reconciliation: the detailed
 retail function lists `car` then `resethud` but omits `tick32`; its raw type-6

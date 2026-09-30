@@ -34,7 +34,11 @@ void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int wei
   return;
 }
 
-/* ---- Quatern_QuatToMat__FP5tQuatP10matrixtdef  [QUATERN.CPP:158-189] SLD-VERIFIED ---- */
+/* ---- Quatern_QuatToMat__FP5tQuatP10matrixtdef  [QUATERN.CPP:158-189] ----
+ * SYM: x/y/z are the doubled components in v0/t3/t1. Spelling each as a
+ * self-add preserves all 68 instructions and retains the retail REG rows;
+ * *2 elides them, while split load/compound *=2 names the raw inputs.
+ * Literal source spelling and full SLD attribution remain unsealed. */
 void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)
 
 {
@@ -53,9 +57,9 @@ void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)
   int zz;
 
   one = 0x10000000;
-  x = q->x * 2;
-  y = q->y * 2;
-  z = q->z * 2;
+  x = q->x + q->x;
+  y = q->y + q->y;
+  z = q->z + q->z;
   wx = q->w * x;
   wy = q->w * y;
   wz = q->w * z;

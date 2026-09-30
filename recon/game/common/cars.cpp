@@ -2108,12 +2108,12 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
      (2) the fresh pseudo then re-colors `span` a2<-a1 (uniform a1<->a2 swap, count exact).
          allocsim/reqdelta: span = p81 refs=8 live=76 pri .3157 loses a1 to p139
          (refs=2 live=6 pri .3333); the minimal single dial is span refs 8->9, i.e. one
-         zero-insn read-only fence -> floor_log2(9)*9/76 = .355 wins a1.  Fence POSITION is
-         load-bearing (after the *dim.x = PASS; after the /256 = +1 insn/13 diffs; after the
-         dim.y term = +2 insns/6 diffs).  146/146 PASS. */
+          zero-byte extra reference -> floor_log2(9)*9/76 = .355 wins a1.  The
+          C absorption `span | (span & 3)` is algebraically identical to span,
+          supplies that reference after *dim.x, and combines away.  146/146 PASS. */
   span = ABS(span) / 256;
   span *= (carObj->N).dimension.x / 256;
-  __asm__("" : : "r"(span));
+  span = (int)((u_int)span | ((u_int)span & 3u));
   tempSpan = ((carObj->N).roadMatrix.m[0] / 256) *
                  ((carObj->N).orientMat.m[3] / 256) +
              ((carObj->N).roadMatrix.m[1] / 256) *

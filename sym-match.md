@@ -6467,6 +6467,20 @@ the function-end line delta is now exact (20), and instruction SLD tag
 differences fall from 38/42 to 18/42. The pre-existing frameFiller/item/
 receiver native-record differences and remaining SLD tags stay open.
 
+## 2026-10-01 Cars_CalculateRoadSpan reference without asm
+
+The read-only `span` asm operand supplied one weighted allocator reference
+after the X-dimension multiply. Replacing it there with the C identity
+`span | (span & 3u)` leaves the value unchanged for every 32-bit input;
+GCC retains its RTL reference through local allocation and then combines it
+away. `Cars_CalculateRoadSpan` remains 146/146 byte-PASS, whole `cars.cpp`
+sections are unchanged, and the target's two native locals and scope remain
+CLEAN. Removing the reference, spelling multiplication as a direct assignment,
+or reversing its operands rotated the allocation by 38 diffs at 146/146.
+This is a verified portable C codegen representation, **not proof** that the
+original author wrote an absorption expression; recoverable literal source
+and full SLD remain open.
+
 ## 2026-10-01 Weather intensity state without asm or goto labels
 
 `Weather_ChangeIntensityBasedOnTime` no longer needs the empty asm barrier

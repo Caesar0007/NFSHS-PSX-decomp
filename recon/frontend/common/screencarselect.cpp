@@ -827,15 +827,15 @@ gamemode:
   }
   this->SetState(1);
 done:
-  /* MATCH (W57-A2, the 4->0 seal): VOID-TAIL FENCE at the shared exit label.
-     Without it reorg's fill_simple_delay_slots reaches the `j gamemode`
-     simplejump FIRST and steals the gameMode block's head
-     `lui %hi(frontEnd.gameMode)` into the *j's* slot; retail leaves the `j`
-     nop'd and the `lui` lands in the preceding `bnez` (fState<2) slot instead.
-     A zero-insn `asm("" : : "i"(0))` at THIS label (the bnez's target head) is
-     the only placement that flips it -- at the gamemode head it costs a real
-     insn (99), before the `goto` / after the guard it is inert. */
-  __asm__("" : : "i"(0));
+  /* 2026-10-01: explicit void return replaces the old empty-asm exit fence.
+     It closes this shared path before reorg searches across the gameMode
+     branch, leaving the jump's delay slot empty. The gameMode address `lui`
+     instead fills the earlier fState<2 branch slot, as in retail.
+     This is a source control-flow boundary, not a register pin or emitted
+     assembly. The preceding arms still share the original SetState call
+     structure and the function remains 98/98 byte-identical.
+     Native local records match; full SLD attribution remains open. */
+  return;
 }
 
 

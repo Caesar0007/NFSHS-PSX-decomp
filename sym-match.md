@@ -6539,6 +6539,17 @@ above, the strict board is now 435/2565 SLD-exact (FRONTEND/COMMON 167/838,
 GAME/PSX 32/395). These receipts prove line partition and unchanged code;
 the precise retail whitespace/comments are not independently recoverable.
 
+## 2026-10-01 car-select shared exit without asm
+
+`tScreenCarSelect::ProcessInput` used an empty asm at its shared `done:`
+label solely to stop reorg from stealing the gameMode address load into an
+earlier jump's delay slot. An explicit ordinary `return;` at that label
+provides the same control-flow boundary with no asm: 98/98 byte-PASS,
+unchanged whole `screencarselect.cpp` sections and target native CLEAN.
+The previous receipt calling the asm placement unique was source-basin
+specific. The function's broader goto reconstruction and SLD line/block
+differences remain open.
+
 ## 2026-10-01 Weather intensity state without asm or goto labels
 
 `Weather_ChangeIntensityBasedOnTime` no longer needs the empty asm barrier

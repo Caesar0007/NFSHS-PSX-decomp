@@ -32,14 +32,11 @@ void Scene_Init(int numObjDefs)
   return;
 }
 
-/* ---- Scene_DeInit__Fv  [SCENE.CPP:1029-1030] SLD-VERIFIED ---- */
-void Scene_DeInit(void)
-
-{
-
-  Scene_PurgeScene();
-  return;
-}
+/* ---- Scene_DeInit__Fv  [SCENE.CPP:1029-1030] ----
+ * Call and implicit void fallthrough on source line +1 reproduce all eight
+ * retail instructions, SLD tags and block/function-end line records. */
+void Scene_DeInit(void) {
+  Scene_PurgeScene(); }
 
 /* ---- Scene_PurgeScene__Fv  [SCENE.CPP:1040-1055] SLD-VERIFIED ---- */
 void Scene_PurgeScene(void)

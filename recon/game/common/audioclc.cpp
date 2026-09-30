@@ -275,12 +275,12 @@ void AudioClc_SoundOpponentHorn(int closestIndex,int azimuth,int dop,int dsquare
   return;
 }
 
-/* ---- AudioClc_SilenceOpponentHorn__Fi  [@0x80075008] ---- */
+/* ---- AudioClc_SilenceOpponentHorn__Fi  [@0x80075008] ----
+ * The call and implicit void fallthrough share retail's source line +1:
+ * 8/8 instructions and 0/8 relative SLD tag differences. */
 void AudioClc_SilenceOpponentHorn(int closestIndex)
 {
-  freeVoiceChannel(closestIndex + 0x25);
-  return;
-}
+  freeVoiceChannel(closestIndex + 0x25); }
 
 /* ---- AudioClc_SoundCloseCar__Fii  [@0x80075028] ---- */
 void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)

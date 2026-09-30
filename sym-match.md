@@ -94,6 +94,20 @@ the one-line block record, and the function-end delta. Full `r3dcar.cpp`
 gate `run-0x3ewviu`: `BYTES: UNCHANGED`, ASPSX 524/0, PSYLINK zero errors;
 21/27 native CLEAN. Literal original whitespace is not claimed.
 
+2026-09-30 void-wrapper SLD round: `Speech_PurgeRAM`, `Scene_DeInit`, and
+`AudioClc_SilenceOpponentHorn` retain their respective eight-instruction
+PASS bodies when their explicit `return;` is replaced with implicit void
+fallthrough on the call line. Each now has 0/8 relative SLD tag differences
+and matching block/function-end line deltas. `speech.cpp` is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 85/87 native CLEAN (`run-ks6u1p6d`);
+`scene.cpp` is likewise unchanged and 5/6 native CLEAN (`run-d5glnq8e`).
+`audioclc.cpp` has all 18 detailed functions PASS, but its fail-closed
+`symloop --ref-only` byte reference already failed before edits, so a fresh
+full-TU native seal is not claimed from that lane; independent real-link
+integrity remains the gate. Similar Render/BWorld wrappers need a call-line
+shift that neither implicit fallthrough nor `return void_call()` produced and
+were reverted; no dummy statements or line padding were retained.
+
 2026-09-30 `TexturesLoadInitial` partial scope cleanup: the old three nested
 zero-length debug regions at +0x8c came from two explicit braces and a
 count-zero loop. One lexical level and the `n` temporary are unnecessary:

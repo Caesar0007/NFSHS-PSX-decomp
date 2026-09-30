@@ -116,13 +116,13 @@ char *Speech_AllocateRAM(long numBytes,char *message)
   return (char *)reservememadr(message,numBytes,0);
 }
 
-/* ---- Speech_PurgeRAM__FPc  [SPEECH.CPP:174-175] SLD-VERIFIED ---- */
+/* ---- Speech_PurgeRAM__FPc  [SPEECH.CPP:174-175] ----
+ * A single call plus implicit void fallthrough matches all 8 instructions,
+ * 8 relative SLD tags and the retail block/function-end line. */
 void Speech_PurgeRAM(char *memPtr)
 
 {
-  purgememadr(memPtr);
-  return;
-}
+  purgememadr(memPtr); }
 
 /* ---- Speech_HandleRequest__Fllll  [SPEECH.CPP:179-180] SLD-VERIFIED ---- */
 long Speech_HandleRequest(long bank,long localoffset,long size,long event)

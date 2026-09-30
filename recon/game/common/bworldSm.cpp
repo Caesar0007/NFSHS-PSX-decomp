@@ -377,28 +377,27 @@ void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
 /* ---- BworldSm_UpdateSimQuad__FP12BWorldSm_Pos  [@0x8007f094] ---- */
 void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
 {
-  /* SYM/SLD records exactly this function-scope `simIndex` in $a2 and the
-     nested line-6 `startsimquad`.  Grouping the final offset as
-     startsimquad + (simquadIndex + simIndex) preserves that allocation; no
-     decompiler-only delta temporary is part of the source. */
+  /* Retail SYM records root simIndex in $a2, one outer expression region,
+   * and startsimquad in a zero-length nested region at +0x30. The final
+   * store reads the just-written simQuad; the source-expression spelling is
+   * not uniquely recoverable from those debug and instruction records. */
   int simIndex;
 
-  simIndex = (int)(signed char)slicePos->quad -
-             (u_int)slicePos->simSlice->simquadStartIndex;
-  if ((-1 < simIndex) &&
-      (simIndex < (int)(u_int)slicePos->simSlice->simquadCount)) {
-    Trk_NewSimQuad *startsimquad;
-
-    startsimquad = (Trk_NewSimQuad *)
-        (Track_chunkList[slicePos->chunk].simQuadBuf + 1);
-    slicePos->simQuad = startsimquad;
-    slicePos->simQuad = (Trk_NewSimQuad *)
-        ((int)startsimquad +
-         ((u_int)slicePos->simSlice->simquadIndex + simIndex));
-    return;
-  } else {
-    slicePos->simQuad = &GlobalSimQuad;
-    return;
+  {
+    simIndex = (int)(signed char)slicePos->quad -
+               (u_int)slicePos->simSlice->simquadStartIndex;
+    ((-1 < simIndex) &&
+     (simIndex < (int)(u_int)slicePos->simSlice->simquadCount))
+        ? (slicePos->simQuad = ({
+             Trk_NewSimQuad *startsimquad;
+             startsimquad = (Trk_NewSimQuad *)
+                 (Track_chunkList[slicePos->chunk].simQuadBuf + 1);
+             startsimquad;
+           }),
+           slicePos->simQuad = (Trk_NewSimQuad *)
+               ((int)slicePos->simQuad +
+                ((u_int)slicePos->simSlice->simquadIndex + simIndex)))
+        : (slicePos->simQuad = &GlobalSimQuad);
   }
 }
 

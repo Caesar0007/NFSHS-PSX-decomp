@@ -1,6 +1,6 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-09-28. Current full-debug board: `build/psyq_g/symtree_report.json`.
+Status as of 2026-09-30. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
 Native-only per-directory snapshot after the physics/collision restoration rounds (2565 common
 covered functions; not a full source-declaration/carrier/SLD seal):
@@ -9,13 +9,29 @@ covered functions; not a full source-declaration/carrier/SLD seal):
 |---|---:|---:|
 | FRONTEND/COMMON | 711 | 127 |
 | FRONTEND/PSX | 61 | 24 |
-| GAME/COMMON | 1091 | 156 |
+| GAME/COMMON | 1092 | 155 |
 | GAME/PSX | 284 | 111 |
-| Total | 2147 | 418 |
+| Total | 2148 | 417 |
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
 spellings still require explicit source review even when native CLEAN.
+
+2026-09-30 `BworldSm_UpdateSimQuad`: retail records `simIndex` at the root,
+an outer region starting at +0, and `startsimquad` in a zero-instruction
+inner region at +0x30; both outer/root regions end at +0x80. The previous
+positive-if body kept `startsimquad` scoped through +0x78. An ordinary
+single-result conditional expression inside the outer region, with a GNU
+statement-expression for the recorded `startsimquad` value and a direct
+read-back of the first `simQuad` store, reproduces all three native regions
+without an invented label, extra object, or ASM. Detailed 34/34 PASS; whole
+`bworldSm.cpp` byte/layout gate UNCHANGED, ASPSX 524/0, PSYLINK zero errors;
+28/28 native CLEAN (`run-qshk9jon`). Full-tree native board 2148/2565 CLEAN,
+417 DIRTY. An early-return/goto form also matched native scopes and bytes but
+emitted an unsupported LABEL record, so it was rejected. The source expression
+is a verified representation, not proof of EA's literal macro or ternary
+spelling: SLD attribution still differs at all 34 instruction positions in
+the current source (`sldprobe.py`), and original text remains open.
 
 2026-09-30 targeted source-shape probes (all failed variants reverted; no source
 or PASS-status change): `CopSpeak_Play` remains 86/86 PASS with an unrecorded

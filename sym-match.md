@@ -137,6 +137,16 @@ the one-line block record, and the function-end delta. Full `r3dcar.cpp`
 gate `run-0x3ewviu`: `BYTES: UNCHANGED`, ASPSX 524/0, PSYLINK zero errors;
 21/27 native CLEAN. Literal original whitespace is not claimed.
 
+2026-09-30 startup/restart wrapper SLD round: `BWorldSm_Restart`,
+`AIState_StartUp`, and `AIState_Restart` are call-only void functions. The
+prior explicit `return;` put their epilogue instructions one source line
+late. Implicit void fallthrough on the call line keeps each eight-word body
+exact and gives 0/8 relative SLD tag differences, matching root-block and
+function-end line deltas. Full byte/native gates: `bworldSm.cpp` 28/28 CLEAN
+(`run-_8lckee8`) and `aistate.cpp` 31/42 CLEAN (`run-twsqocxg`); ASPSX
+524/0 and PSYLINK zero errors in both. Literal original formatting is not
+claimed, but these three function-level SYM/SLD traces are verified.
+
 2026-09-30 void-wrapper SLD round: `Speech_PurgeRAM`, `Scene_DeInit`, and
 `AudioClc_SilenceOpponentHorn` retain their respective eight-instruction
 PASS bodies when their explicit `return;` is replaced with implicit void

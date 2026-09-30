@@ -64,12 +64,12 @@ int BWorldSm_Init(Group *simGroup)
   return 1;
 }
 
-/* ---- BWorldSm_Restart__Fv  [@0x8007e948] ---- */
+/* ---- BWorldSm_Restart__Fv  [@0x8007e948] ----
+ * Call and implicit void fallthrough share retail relative source line +1:
+ * 8/8 instructions, 0/8 SLD differences, exact native block/end lines. */
 void BWorldSm_Restart(void)
 {
-  NormalCache_Init();
-  return;
-}
+  NormalCache_Init(); }
 
 /* ---- BWorldSm_DeInit__Fv  [@0x8007e968] ---- */
 void BWorldSm_DeInit(void)

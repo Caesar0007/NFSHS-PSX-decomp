@@ -31,19 +31,11 @@ static int   AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss
  * comment ("the canonicals live in THIS TU") is superseded by this note. */
 
 
-/* ---- AIState_StartUp__Fv  AIState_StartUp  [AISTATE.CPP:25-26] SLD-VERIFIED ---- */
-
-void AIState_StartUp(void)
-
-
-
-{
-
-  AIState_Purgatory::StartUp();
-
-  return;
-
-}
+/* ---- AIState_StartUp__Fv  AIState_StartUp  [AISTATE.CPP:25-26] ----
+ * One call and implicit void fallthrough: 8/8 instructions and 0/8 retail
+ * relative SLD differences, with exact block/function-end line records. */
+void AIState_StartUp(void) {
+  AIState_Purgatory::StartUp(); }
 
 
 
@@ -52,19 +44,11 @@ void AIState_StartUp(void)
 
 
 
-/* ---- AIState_Restart__Fv  AIState_Restart  [AISTATE.CPP:30-31] SLD-VERIFIED ---- */
-
-void AIState_Restart(void)
-
-
-
-{
-
-  AIState_Purgatory::StartUp();
-
-  return;
-
-}
+/* ---- AIState_Restart__Fv  AIState_Restart  [AISTATE.CPP:30-31] ----
+ * Same source shape and exact 8-word / native-SYM / relative-SLD receipt as
+ * AIState_StartUp; literal whitespace of the original text is unknown. */
+void AIState_Restart(void) {
+  AIState_Purgatory::StartUp(); }
 
 
 

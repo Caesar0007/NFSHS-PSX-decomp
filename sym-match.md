@@ -17,6 +17,23 @@ Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
 spellings still require explicit source review even when native CLEAN.
 
+2026-09-30 targeted source-shape probes (all failed variants reverted; no source
+or PASS-status change): `CopSpeak_Play` remains 86/86 PASS with an unrecorded
+`scaled` local. Duplicating the arithmetic directly and factoring it as `*0x81`
+both produced 87 instructions/17 detailed diffs; updating `noise` in place gave
+86 instructions/16 diffs. `Replay_ResetReplay` remains 86/86 PASS with its
+unrecorded reverse cursor: indexed, index-first byte-address, and post-decrement
+indexed forms each added one `addiu v0,v0,4` (87 instructions). In
+`AISpeeds_BTCGetGlueFactor`, clamping retail's `glueIndex` in place retained
+111 instructions but made 12 register/branch diffs, so the unrecorded
+`clampedGlueIndex` remains open. `AISpeeds_GetLegalSpeed` remains 17/17 PASS;
+moving `--speedData` into the final access, or replacing `<<8` with `*256`,
+left the native root-block end at relative +0x34 versus retail +0x38, despite
+full-TU `BYTES: UNCHANGED`, ASPSX 524/0 and PSYLINK zero errors
+(`run-df4t27jn`, `run-v_fg5wv4`). These finite failures do not establish a
+compiler floor or an original spelling; next probes should use retail SLD and
+compiler debug/RTL evidence to change the ownership or evaluation boundary.
+
 2026-09-27: `game/psx/draw.cpp` native-contract round, 19/25 -> 25/25 CLEAN.
 The six OT/view/frame loops now declare retail's `i` in the `for` scope and
 derive a const per-iteration view expression instead of mutable pointer-walker

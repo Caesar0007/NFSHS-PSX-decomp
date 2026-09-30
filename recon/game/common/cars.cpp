@@ -1989,22 +1989,24 @@ void Cars_StartUp(void)
 
   for (i = 0; i < GameSetup_gData.numCars; i++) {
     Car_tObj *carObj = Cars_gList[i];
-    Sched_AddFunction(
-        ((carObj->carFlags & 4U) != 0)
-            ? simGlobal.schedule64Hz
-            : simGlobal.schedule32Hz2,
-        carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
-    /* MATCH (W54-A13, 05C/05H fence class): the ONLY residual was reorg's eager-steal --
-       with the call and the loop latch in ONE basic block (the schedule select is a
-       ternary, so both arms reach the call) sched1 hoists the giv bump `s0+=4` ABOVE the
-       jal, which leaves `li a3,0x1e` out of the jal's delay slot and hands the slot to
-       `i++` instead (=> an unfilled `j` slot, ours 283 vs oracle 282).  The sibling
-       `carFlags & 1` loop matches for free because its call sits in a CONDITIONAL block,
-       so the latch is a separate BB and reorg cannot steal from it.  A zero-insn
-       operand-less asm barrier here restores exactly that boundary: jal slot = li a3,30,
-       j slot = i++.  282/282 PASS.  Falsified first: if/else-with-named-`sched` variable
-       (11 diffs, unchanged), arg-per-line spelling. */
-    __asm__("");
+    if ((carObj->carFlags & 4U) != 0) {
+      Sched_AddFunction(simGlobal.schedule64Hz,
+                        carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
+    }
+    else {
+      Sched_AddFunction(simGlobal.schedule32Hz2,
+                        carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
+    }
+    /* 2026-10-01: explicit conditional calls replace the old empty asm fence.
+       GCC tail-merges the two calls into retail's one call site while keeping
+       the loop latch in a separate block. The jal delay slot is li a3,30 and
+       the loop-back jump's slot takes i++, matching all 282 instructions.
+       The prior ternary selected the schedule in one basic block, allowing
+       reorg to steal the latch into the jal slot and leaving the jump empty.
+       An if/else that merely assigned a named schedule was 11 diffs; the
+       call must occur syntactically in each branch for this source graph.
+       The argument values, pointer and callback are identical on both paths.
+       Native locals/scopes remain CLEAN; full SLD attribution stays open. */
   }
 }
 
@@ -2281,4 +2283,3 @@ void Cars_SortCars(void)
       }
     } } while (swapped != 0);
 }
-

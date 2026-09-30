@@ -6440,3 +6440,15 @@ object have identical section snapshots (33516 bytes in the combined
 snapshot). Do not overwrite the old reference to hide that drift. The full
 linked-image check remains the authoritative byte gate; full native/SLD
 ownership for `Hud_Init` is still open.
+
+## 2026-10-01 Cars_StartUp loop boundary without asm
+
+The last scheduling fence in `Cars_StartUp` followed a `Sched_AddFunction`
+whose schedule argument used a ternary. Spell the two schedule cases as an
+if/else with a call in each branch. GCC tail-merges them into the same single
+call site, but the source CFG keeps the loop-latch update separate: the jal
+delay slot remains `li a3,30`, and `i++` fills the loop-back jump's slot.
+The empty asm is gone with 282/282 PASS, unchanged whole `cars.cpp` sections,
+and native locals/scopes CLEAN. A named schedule variable in the if/else was
+previously 11 diffs; duplicating the call itself is the load-bearing change.
+Instruction SLD tags and block/end lines remain far from retail.

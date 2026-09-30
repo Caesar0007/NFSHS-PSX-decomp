@@ -17,6 +17,37 @@ Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
 spellings still require explicit source review even when native CLEAN.
 
+### Whole-tree SLD snapshot (2026-09-30)
+
+`python tools/psyq_pipe/sldtree_cmp.py` compares every common native/retail
+function's linked word-by-word relative SLD tag, block line/address sequence
+and function-end line delta. It writes the per-function evidence to ignored
+`build/psyq_g/sldtree_report.json`; `--fn NAME` shows one record and
+`--require-exact` fails while any covered function is not exact. Seven parser
+and fail-closed fixture tests pass (`python -m unittest
+tools.psyq_pipe.test_sldtree_cmp`). Golden checks agree with the individual
+`sldprobe.py` traces for `InTargetSliceRange`, `BworldSm_IsSimQuadValid` and
+`CalcObjDefPtrs`, and reject the known `Quatern_QuatToMat` and
+`AISpeeds_GetLegalSpeed` SLD gaps. Unlike a source-seal claim, this is a
+snapshot of the existing native dump: it must be refreshed after edits, and
+the current uncommitted `aih_play.cpp`/`platform.cpp` files are not certified
+by this snapshot.
+
+| Retail directory | SLD exact / covered | Tag differences / compared words |
+|---|---:|---:|
+| FRONTEND/COMMON | 160 / 838 | 46,059 / 55,037 |
+| FRONTEND/PSX | 4 / 85 | 4,700 / 5,393 |
+| GAME/COMMON | 229 / 1,247 | 87,760 / 102,405 |
+| GAME/PSX | 30 / 395 | 38,130 / 41,666 |
+| Total | 423 / 2,565 | 176,649 / 204,501 |
+
+The remaining classifications are 2,136 SLD differences, five duplicate
+function names intentionally marked ambiguous, and one code-span mismatch
+(`tGlobalMenuDefs` constructor, 3,206 native versus 3,207 retail words).
+The five retail-only PAD functions and incomplete eaclib/syslib records remain
+outside this common-function board. SLD-exact is still weaker than recovered
+literal source spelling or complete carrier review.
+
 2026-09-30 `CalcObjDefPtrs`: three repeated `gObjDefOffsetsGroup->GetData()`
 expressions inside the offset-accumulation loop created six inline scopes
 absent from retail. A single typed `offsets` payload pointer acquired before

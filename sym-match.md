@@ -158,6 +158,15 @@ gates are BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors:
 gap does not respond to this form and remains open; this is not a blanket
 mechanical rewrite rule.
 
+2026-09-30 audio-engine/HUDPMX wrapper SLD round: `AudioEng_StartServer`,
+`AudioEng_StopServer`, and `HudPmx_Kill` each had a byte-exact single call
+but their explicit `return;` put the four epilogue words on source line +2.
+Implicit void fallthrough on the call line preserves nine instructions per
+function and matches 0/9 relative SLD tags and exact block/end deltas.
+Whole-TU gates are BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors:
+`audioeng.cpp` 7/9 native CLEAN (`run-rhkb3euf`) and `hudpmx.cpp` 3/3
+native CLEAN (`run-okjx4y1d`). No dummy statements or line padding used.
+
 2026-09-30 void-wrapper SLD round: `Speech_PurgeRAM`, `Scene_DeInit`, and
 `AudioClc_SilenceOpponentHorn` retain their respective eight-instruction
 PASS bodies when their explicit `return;` is replaced with implicit void

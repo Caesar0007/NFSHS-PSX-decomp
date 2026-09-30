@@ -527,19 +527,18 @@ int AudioEng_StartUp(int player,char *carname)
   return spu;
 }
 
-/* ---- AudioEng_StartServer__Fv  [@0x8007c434] ---- */
+/* ---- AudioEng_StartServer__Fv  [@0x8007c434] ----
+ * One callback-registration call and implicit void fallthrough reproduce
+ * all nine retail words, SLD tags and block/function-end lines. */
 void AudioEng_StartServer(void)
 {
-  iSNDserveradd100hzclient((int)AudioEng_Update /* @0x8007b824 100Hz server callback */);
-  return;
-}
+  iSNDserveradd100hzclient((int)AudioEng_Update /* @0x8007b824 100Hz server callback */); }
 
-/* ---- AudioEng_StopServer__Fv  [@0x8007c458] ---- */
+/* ---- AudioEng_StopServer__Fv  [@0x8007c458] ----
+ * The matching deregistration wrapper has the same nine-word/SLD receipt. */
 void AudioEng_StopServer(void)
 {
-  iSNDserverremove100hzclient((int)AudioEng_Update /* @0x8007b824 100Hz server callback */);
-  return;
-}
+  iSNDserverremove100hzclient((int)AudioEng_Update /* @0x8007b824 100Hz server callback */); }
 
 /* ---- AudioEng_Pause__Fv  [@0x8007c47c] ---- */
 void AudioEng_Pause(void)

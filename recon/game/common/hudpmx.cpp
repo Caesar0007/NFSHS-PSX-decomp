@@ -169,12 +169,12 @@ HudPmxInit_shapeLoadLoop:
   return;
 }
 
-/* ---- HudPmx_Kill__Fv  [HUDPMX.CPP:209-210] SLD-VERIFIED ---- */
+/* ---- HudPmx_Kill__Fv  [HUDPMX.CPP:209-210] ----
+ * Purge call and implicit void fallthrough match nine retail words,
+ * all SLD tags and the block/function-end source line. */
 void HudPmx_Kill(void)
 
 {
-  purgememadr(gHudFont);
-  return;
-}
+  purgememadr(gHudFont); }
 
 /* end of hudpmx.cpp */

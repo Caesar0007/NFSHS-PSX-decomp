@@ -686,14 +686,13 @@ void Night_CreateNightTable(int colorIndex,long colorH,int bright,u_char (*tbl)[
 void Night_GenerateNextLightningEvent(void)
 
 {
-  int rmask; /* SYM-CODEGEN-CARRIER: rmask -- shared masked-delay result; direct expressions are FAIL 8 (29/29) */
-  int *ticksp; /* SYM-CODEGEN-CARRIER: ticksp -- explicit gameTicks cell preserves retail relocation/issue order; direct global is FAIL 2 */
+  int *ticksp; /* SYM-CODEGEN-CARRIER: ticksp -- gameTicks cell preserves retail issue order; direct global remains FAIL 2 */
 
   ticksp = &simGlobal.gameTicks;
-  rmask = (random() & 0x7ff) + 0x1f;
-  Night_gNextLightning = *ticksp + rmask;
-  rmask = (random() & 0xf) + 0xf;
-  Night_gEndNextLightning = Night_gNextLightning + rmask;
+  const int firstDelay = (random() & 0x7ff) + 0x1f;
+  Night_gNextLightning = *ticksp + firstDelay;
+  const int secondDelay = (random() & 0xf) + 0xf;
+  Night_gEndNextLightning = Night_gNextLightning + secondDelay;
   Night_gNextFlicker = Night_gNextLightning;
   Night_gFlashAzimuth = random() & 0xffff;
   Night_gShowForks = (u_char)random() & 1;

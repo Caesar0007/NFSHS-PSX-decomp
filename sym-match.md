@@ -6586,6 +6586,19 @@ independent of the `Night_SetCopColor` value-ownership repair; the whole
 `night.cpp` object remains byte-unchanged. The strict SLD board rises to
 436/2565 (GAME/PSX 33/395). Original non-emitting whitespace is not proven.
 
+## 2026-10-01 Night lightning delays without an invented debug local
+
+`Night_GenerateNextLightningEvent` reused a mutable `rmask` for two independent
+randomized delays, creating an EXTRA `$v0` local absent retail. Two
+single-assignment const values (`firstDelay` from the 0x7ff mask and
+`secondDelay` from the 0xf mask) preserve all 29 bytes and the whole
+`night.cpp` object while optimizing out of native debug. The function now
+has retail's empty root local scope, so Night rises to 17/19 native CLEAN.
+The semantic delay names describe their verified uses; their literal
+original spelling is not recoverable from SYM. The `ticksp` address carrier
+still matters: direct `simGlobal.gameTicks` was two diffs even in this new
+source basin. Full SLD line attribution remains open.
+
 ## 2026-10-01 AI_TryToShareLanes adjusted-index ownership
 
 Retail SYM places `absLaneIndex` in `$v1`, while the raw lane loaded from

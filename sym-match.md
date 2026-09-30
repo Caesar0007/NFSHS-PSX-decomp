@@ -6402,3 +6402,15 @@ new sites, with their other source expressions unchanged:
   native/SLD seal is claimed for either function. Keeping each save in its
   existing lexical scope rather than adding braces is also byte-exact and
   removes one artificial native scope from each experimental block.
+
+The same typed-flow technique now removes the `facet_flag` identity fence in
+`DrawC_PrimClip`. Its value is assigned from `facetValue & 0xfff`, so a
+`short` save is lossless on that branch. A same-scope save/dead-set/restore
+keeps all 1877 instructions byte-identical and the whole `drawc.cpp` object
+unchanged, without a surviving `savedFacetFlag` debug row. An `int` or
+`unsigned int` save left two register differences; moving the C boundary
+after the `ff` absorption produced 47 diffs. Its broader native/SLD
+differences remain open. The analogous `bool pulled` fence in
+`tScreenMemcard::LoadIcon` was not removable by this method: `bool` and `int`
+saves both lost the retail `s7 -> t0` copy (214/215), so that source was
+restored.

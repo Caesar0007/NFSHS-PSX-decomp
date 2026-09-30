@@ -2423,7 +2423,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              * they no longer stand BETWEEN that copy and the `beqz`, so
              * reorg.c:685 stop_search_p lets the backward scan reach the copy
              * and fill the guard's delay slot with it -- retail's stream. */
-            /* W86-D2 absorption identity: zero-byte device replacement, see above. */
+            /* W86-D2 ff absorption; the short save/dead-set/restore replaces facet_flag asm at zero bytes. */
             facet_flag = (__typeof__(facet_flag))((unsigned int)facet_flag & ((unsigned int)facet_flag | 3u));
             ff = (__typeof__(ff))((unsigned int)ff | ((unsigned int)ff & 3u));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
@@ -3952,7 +3952,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
              * the launders still break the cse collapse that would delete
              * the copy, but the slot is reachable again. */
             /* W86-D2 absorption identity: zero-byte device replacement, see above. */
-            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); ff = (__typeof__(ff))((unsigned int)ff | ((unsigned int)ff & 3u));
+            short savedFacetFlag = (short)facet_flag; facet_flag = 0; facet_flag = savedFacetFlag; ff = (__typeof__(ff))((unsigned int)ff | ((unsigned int)ff & 3u));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {

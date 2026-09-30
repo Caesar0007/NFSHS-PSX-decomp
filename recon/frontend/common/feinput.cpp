@@ -46,9 +46,9 @@ void FEInput_VerifyControllerValues(int controller)
    preserve retail's branch normalisers instead of folding them to xori/sltu.
    `return_one` gives buttonI and the final PAD-state test the shared constant target;
    `return_mask` joins the analog `~state` and negCon `PAD_state & 0xffff` paths before
-   the common `& key`, reproducing retail's shared raw-mask block.  The two empty asm
-   statements are zero-insn scheduling barriers permitted by AGENT_GUIDE.md; they have
-   no register pin and emit no instruction.
+   the common `& key`, reproducing retail's shared raw-mask block. One empty asm
+   scheduling barrier remains at `return_mask`; it has no register pin and emits
+   no instruction. The other was retired by the shared-tail source form.
    Falsified in the old 38 basin: direct if/return spellings (neutral), bool return/local
    spellings (neutral), raw-mask return (37), and per-site barriers (159, severe). */
 

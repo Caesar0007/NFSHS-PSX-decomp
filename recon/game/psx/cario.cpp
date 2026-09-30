@@ -428,7 +428,7 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
        * (each operand is a loop-body value that must be materialized into its own pseudo):
        * opq(pixel3) 13 @45, opq(n0) 8 @44, opq(n1) 24 @44, opq(n3) 24 @44, opq(n1)+opq(n2)
        * 24 @44, n0-first + opq(n1) 24 @44.  Every one breaks the exact 42/42 count.
-       * STRONG floor re-confirmed at 4 with the current kit. */
+       * 2026-10-01: now PASS 42/42; removing this fence gives 40/42, and pure-C source/mirror/i identities were worse or neutral. */
       __asm__("");
       source = source + 0xc;
     }

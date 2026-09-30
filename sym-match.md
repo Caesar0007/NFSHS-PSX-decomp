@@ -6347,3 +6347,36 @@ after dropping the zero-code `va_end(ap)` and separating its base-constructor ca
 `va_start` by one source line. Its 19 instruction tags, root block line and function-end
 delta now agree with retail. This supports the shorter source form but does not prove the
 original whitespace or whether a source-level no-op macro was present.
+
+## 2026-10-01 empty-asm source-restoration audit
+
+The next removal lane is zero-instruction game/frontend `__asm__("")` fences, not
+hardware GTE/COP0 instructions, BIOS thunks or SDK assembly. Two live sites were
+retested against the detailed byte oracle without retaining a regression:
+
+- `FEInput_GetNoDebounceKey` (159/159 PASS with one remaining fence): replacing
+  the `return_mask` fence with a direct jump to the existing `return_one` tail
+  yields 155/159 and six diffs. A shared zero-return label yields 154/159 and
+  thirteen diffs. Masking `result` in place before an if/switch gives 157/159
+  and four diffs (GCC folds the two returns to `sltu`); a jump from that form
+  is again 155/159. The return funnel needs another source shape; these tests
+  do not justify deleting the fence yet.
+- `CarIO_CopyToShape` (42/42 PASS with its empty tail fence): removing it merges
+  the two outer-loop tails and yields 40/42. Identity expressions on `mirror`
+  or `i` remain 40/42; a source-pointer absorption changes allocation and
+  yields 24 diffs at 40/42. An explicit `goto` loop-back, byte-pointer `+24`,
+  and `source -= -12` also stay at 40/42. GCC 2.8.1 `jump.c`'s
+  `find_cross_jump` explicitly refuses `ASM_INPUT`/volatile asm but compares
+  the ordinary tail patterns after skipping notes; these source variants
+  canonicalize to the same tail. The outstanding problem is the cross-jump
+  decision, not the nibble-copy body. All trial sources were reverted and
+  their objects rebuilt before the zero-diff linked-image gate.
+
+The second counter-use fence in `Chunk::InstanceGroup` was also tested via
+the natural `if (i == 0)` guard, with `numElements = i` on either side of it.
+Both 329-word variants rotate the global register assignment (68 and 60
+diffs respectively), rather than replacing the original weighted reference.
+The 329/329 source was restored. The instrumented `cc1plus` and GCC
+`local-alloc.c` remain available for a focused ref/live explanation before
+another source rewrite; neither a no-op asm deletion nor a fake identity is
+being kept as a solution.

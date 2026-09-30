@@ -76,6 +76,15 @@ is a verified representation, not proof of EA's literal macro or ternary
 spelling: SLD attribution still differs at all 34 instruction positions in
 the current source (`sldprobe.py`), and original text remains open.
 
+2026-09-30 `BworldSm_IsSimQuadValid`: the native declaration/block records
+were already exact, but the null-path return and function end were attributed
+one source line late. Spelling that path as `} else return 0;` places its
+return on retail relative line 3, leaves the non-null path on line 2, and
+matches all 12 relative instruction SLD tags plus the block-end and
+function-end lines. The 12-instruction body and full `bworldSm.cpp` bytes/
+layout remain unchanged; 28/28 native CLEAN, ASPSX 524/0, PSYLINK zero
+errors (`run-6hprt9qb`). The literal original syntax remains unproved.
+
 2026-09-30 `TexturesLoadInitial` partial scope cleanup: the old three nested
 zero-length debug regions at +0x8c came from two explicit braces and a
 count-zero loop. One lexical level and the `n` temporary are unnecessary:

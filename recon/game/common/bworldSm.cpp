@@ -401,13 +401,15 @@ void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
   }
 }
 
-/* ---- BworldSm_IsSimQuadValid__FP12BWorldSm_Pos  [@0x8007f11c] ---- */
+/* ---- BworldSm_IsSimQuadValid__FP12BWorldSm_Pos  [@0x8007f11c] ----
+ * The explicit null-path else shares its source line with the closing if:
+ * all 12 instruction SLD tags and the block/function end lines match retail.
+ * Literal EA spelling remains unknown. */
 int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
 {
   if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
     return (u_int)(((slicePos->simQuad->surface & 0xf) ^ 0xe) != 0);
-  }
-  return 0;
+  } else return 0;
 }
 
 /* ---- RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos  [@0x8007f14c] ---- */

@@ -6452,3 +6452,15 @@ The empty asm is gone with 282/282 PASS, unchanged whole `cars.cpp` sections,
 and native locals/scopes CLEAN. A named schedule variable in the if/else was
 previously 11 diffs; duplicating the call itself is the load-bearing change.
 Instruction SLD tags and block/end lines remain far from retail.
+
+## 2026-10-01 Weather intensity state without asm or goto labels
+
+`Weather_ChangeIntensityBasedOnTime` no longer needs the empty asm barrier
+that kept its two guard tails apart. Express the real state-change call in
+the positive, negative and zero-factor branches; GCC tail-merges those C
+calls into retail's 62/62 instruction graph. The first asm-free goto version
+was byte-PASS, and the final structured if/else version is also byte-PASS
+with unchanged whole `weather.cpp` sections. The latter removes the two
+source-only label records and keeps the native function CLEAN. Historical
+claims that the polarity/cross-jump residual was a compiler floor are thus
+refuted. Full SLD line tags and block/end lines remain unresolved.

@@ -369,68 +369,27 @@ void Weather_ChangeDensityBasedOnTime(void)
   return;
 }
 
-/* ---- Weather_ChangeIntensityBasedOnTime__Fv  [WEATHER.CPP:323-350] SLD-VERIFIED ----
- * NEAR-MISS 4 diffs (62/62 insns, down from 56 diffs): goto-based control-flow rewrite matching
- * the oracle's exact branch graph (fixes the Weather_ChangeDensityBasedOnTime family of bugs) +
- * explicit if/else for the Weather_gType tail (was a compact bool-store). Residual: one
- * beqz/bnez polarity flip on the FIRST branch's slt -- direct-condition form places the slt
- * correctly but wrong branch sense; negated form gets the right branch sense but the compiler
- * hoists the slt past an unconditional j (looks like a scheduling tie-break, same family as the
- * TrsProj_TransformProjectVertex register-coloring residual). Tried >=, <=-with-swapped-operands,
- * !(<) -- none land both position AND polarity simultaneously. */
-/* w39-a6 FLOOR (4 diffs, count EXACT 62/62): the first velocity-vs-table guard has the
- * opposite branch polarity (ours beqz-to-call, oracle bnez-to-velYUpdate) and therefore a
- * different `j` delay-slot filler (ours the addiu half of a `la`, oracle a nop).
- * FALSIFIED: writing the guard in the oracle's polarity
- * (`if (velY < tbl[state]) goto velYUpdate; goto call;`) lets gcc merge the two gotos --
- * 58 insns / 6 diffs, i.e. structurally further away.
- * w41-a6: re-gated at 4, count EXACT 62/62, -G8 probe no change.  The SECOND, structurally
- * identical guard (`vy > tbl[state]`) MATCHES byte-for-byte with the same source shape, so
- * the residual is specific to the first guard's branch-sense choice, not the goto graph.
- * w42-a6 MECHANISM NAMED (STRONG): writing guard 1 in the ORACLE polarity
- * (`if (vy < tbl[state]) goto velYUpdate; goto call;`) makes its 3-insn tail
- * `slt v0,v0,v1 / bnez v0,.velY / j .call` BYTE-IDENTICAL to guard 2's, and gcc's
- * cross-jumping pass merges them -- guard 1 becomes `j <guard2's bnez>` with the `slt`
- * stolen into the delay slot (58 insns / 6 diffs, confirmed by side_by_side).  Retail's
- * two tails are byte-identical too, yet NOT merged, so retail's cross_jump ran while the
- * two blocks still held DIFFERENT PSEUDOS (they are on mutually exclusive paths, so cse
- * cannot unify them) -- ours merges them because our cross_jump sees the post-reload hard
- * registers.  Pass-ordering identity, not a source shape: keeping our beqz polarity (62
- * insns, 4 diffs) is strictly the better ledger.  Any future fix has to make the two tails
- * differ in one instruction, which no equivalent C spelling of these two guards does. */
+/* ---- Weather_ChangeIntensityBasedOnTime__Fv  [WEATHER.CPP:323-350] SLD-REVIEWED ----
+ * 2026-10-01: structured positive/negative/zero guards each express the real
+ * Weather_ChangeIntensityState call. GCC merges the equivalent call tails
+ * into the retail 62-instruction graph. This replaces the earlier goto graph
+ * and its empty asm cross-jump barrier while preserving the native function
+ * frame, locals and scope tree. The historical 58/62 cross-jump misses were
+ * basin-specific, not a compiler floor. Full line-tag SLD remains open. */
 void Weather_ChangeIntensityBasedOnTime(void)
 
 {
-  if (Weather_gIntensityChangeFactor <= 0) goto WeatherIntensity_checkZero;
-  /* w46-a9 (4 -> PASS): the w42 "STRONG" verdict above named the mechanism exactly
-   * right -- guard 1 in the ORACLE polarity makes its 3-insn tail byte-identical to
-   * guard 2's and our post-reload cross_jump merges them (58 insns) -- but its
-   * conclusion ("no equivalent C spelling makes the two tails differ") only held for
-   * spellings that EMIT code.  A zero-operand USE FENCE is a real RTL insn that
-   * emits ZERO bytes, so it breaks cross_jump's tail equality at no instruction
-   * cost: guard 1 keeps the oracle's `bnez -> velYUpdate` sense AND its own `j`.
-   * Placement is the dial -- the fence must sit at the END of guard 1's block
-   * (before the `goto ..._call`); before the guard = 58/6, in the other arm = 62/4. */
-  if ((int)Weather_gSys.velocity.vy < Weather_gIntensityTbl[Weather_gIntensityGoalState])
-  goto WeatherIntensity_velYUpdate;
-  /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
-   * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
-   * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
-   * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
-   * Gate-lane object is byte-identical (proven by hash); see
-   * scratchpad/w64a20/RECEIPTS.md. */
-  __asm__ __volatile__("");
-  goto WeatherIntensity_call;
-WeatherIntensity_checkZero:
-  if (Weather_gIntensityChangeFactor >= 0) goto WeatherIntensity_checkTime;
-  if ((int)Weather_gSys.velocity.vy > Weather_gIntensityTbl[Weather_gIntensityGoalState])
-  goto WeatherIntensity_velYUpdate;
-  goto WeatherIntensity_call;
-WeatherIntensity_checkTime:
-  if (simGlobal.gameTicks <= Weather_gIntensityTimerGoal) goto WeatherIntensity_velYUpdate;
-WeatherIntensity_call:
-  Weather_ChangeIntensityState();
-WeatherIntensity_velYUpdate:
+  if (Weather_gIntensityChangeFactor > 0) {
+    if ((int)Weather_gSys.velocity.vy >= Weather_gIntensityTbl[Weather_gIntensityGoalState])
+      Weather_ChangeIntensityState();
+  }
+  else if (Weather_gIntensityChangeFactor < 0) {
+    if ((int)Weather_gSys.velocity.vy <= Weather_gIntensityTbl[Weather_gIntensityGoalState])
+      Weather_ChangeIntensityState();
+  }
+  else if (simGlobal.gameTicks > Weather_gIntensityTimerGoal) {
+    Weather_ChangeIntensityState();
+  }
   Weather_gSys.velocity.vy = Weather_gSys.velocity.vy + (short)Weather_gIntensityChangeFactor;
   if (Weather_gSys.velocity.vy < -0x20) {
     Weather_gType = 1;

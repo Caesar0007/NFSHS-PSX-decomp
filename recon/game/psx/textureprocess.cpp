@@ -451,11 +451,11 @@ void Fog_InitFogTriggers(void)
    * "beqz $s2" guard + "slt/bnez" bottom test but costs a hard $s0<->$s1 rotation
    * (14 diffs) because counter and address-giv have IDENTICAL ref counts (7/7) and
    * the counter always lives one insn longer.  What the w41 agent lacked was a
-   * ZERO-INSN ref inflator (w44/w45 catalog): a USE FENCE on a reg-resident local
-   * costs 0 instructions but IS a REG_N_REFS reference, and inside the loop it is
-   * loop-weighted -- pushing the counter across the floor_log2 step so it takes
-   * $s0 and the giv $s1, exactly like retail.  Body order is then the second dial
-   * (fence, call, increment, bump = PASS; every other position measured 4/7/14/15
+   * ZERO-BYTE ref inflator: the C absorption `k | (k & 3)` is exactly k, but
+   * supplies a loop-weighted RTL reference before combine removes it. This
+   * pushes the counter across the floor_log2 step into $s0 and the giv $s1.
+   * Body order remains the second dial: identity, call, increment, bump is
+   * PASS; other positions previously measured 4/7/14/15 differences
    * -- the two 4-diff forms differ only by an "addu a0,zero,zero" / "lw a1,(gp)"
    * issue-order swap).  Falsifications are BASIN-RELATIVE: the w41 receipt above
    * is retained as the measurement record, not as a verdict. */
@@ -463,7 +463,7 @@ void Fog_InitFogTriggers(void)
     k = 0;
     slice_off = k;
     do {
-      __asm__("" : : "r"(k));
+      k = (int)((u_int)k | ((u_int)k & 3u));
       BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
       k = k + 1;
       slice_off = slice_off + 0x84;

@@ -6481,6 +6481,14 @@ This is a verified portable C codegen representation, **not proof** that the
 original author wrote an absorption expression; recoverable literal source
 and full SLD remain open.
 
+`Fog_InitFogTriggers` uses the same zero-byte C absorption on its loop counter
+`k` in place of a read-only `__asm__` operand. The loop-weighted reference
+keeps `k` in `$s0` and the address GIV in `$s1`, preserving 57/57 PASS and
+unchanged whole `textureprocess.cpp` bytes. Its retail SYM still disagrees
+about other locals/scopes, and 50/57 SLD instruction tags remain different.
+The algebraic identity is a verified C codegen form, not recovered literal
+source; the latter stays in the backlog.
+
 ## 2026-10-01 Weather intensity state without asm or goto labels
 
 `Weather_ChangeIntensityBasedOnTime` no longer needs the empty asm barrier

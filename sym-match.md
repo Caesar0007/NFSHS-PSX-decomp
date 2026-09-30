@@ -6283,7 +6283,7 @@ be re-matched under it first. Until then the debug compile lives beside the norm
 - `SPCHEVNT.C` is compiled **inside** `Speech.obj` in retail (its debug records sit in that object's block). Ours is a
   separate C file. The functions are clean, but the file structure is not retail's.
 - Line layout is compared by `tools/psyq_pipe/sldtree_cmp.py`: instruction-relative tags, block lines and function-end
-  deltas. The 2026-09-30 snapshot is 426/2565 exact, so most source-line ownership remains to be restored.
+  deltas. The 2026-10-01 snapshot is 427/2565 exact, so most source-line ownership remains to be restored.
 - Types of globals, struct layouts and the file-level records of the SYM are not compared yet — only function-level records.
 
 ## Typical session
@@ -6341,3 +6341,9 @@ matches the retail function-end delta. The remaining SLD tags and block-line pos
 exact; the original spelling of this debug-elided value is not proved. Reusing `carType` and
 recomputing the index were previously byte-regressive. The analogous two-branch `const col`
 trial in `Hrz_LightningFlicker` was four instruction diffs and was reverted.
+
+The `tPMenu` variadic constructor is also 19/19 byte-PASS, native CLEAN and fully SLD-exact
+after dropping the zero-code `va_end(ap)` and separating its base-constructor call from
+`va_start` by one source line. Its 19 instruction tags, root block line and function-end
+delta now agree with retail. This supports the shorter source form but does not prove the
+original whitespace or whether a source-level no-op macro was present.

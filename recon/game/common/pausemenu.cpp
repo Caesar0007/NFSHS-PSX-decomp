@@ -824,8 +824,8 @@ tPMenu::tPMenu(tPMenuItem *firstItem, ...)
 
   this->fCurrentItem = 0;
   va_start(ap,firstItem);
+
   this->tPMenuConstructor(firstItem,ap);
-  va_end(ap);
 }
 
 

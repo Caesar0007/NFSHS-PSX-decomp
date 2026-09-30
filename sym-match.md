@@ -26,9 +26,14 @@ native scope tree, named `this`/`i` records and section/layout fingerprints
 now match (`track.cpp` gate `run-6bwsadai`: BYTES UNCHANGED, ASPSX 524/0,
 PSYLINK zero errors). `track.cpp` rises 22/29 to 23/29 native CLEAN; the
 full board is 2152/2565 CLEAN, 413 DIRTY. `offsets` is an evidence-supported
-semantic name, not a recovered literal identifier. Complete relative SLD
-still differs at all 25 instruction positions, so no source/SLD seal is
-claimed from native CLEAN alone.
+semantic name, not a recovered literal identifier. A subsequent source-line
+round puts the loop close with its body assignment, separates the final
+GetData result into a typed `objDefs` pointer (optimized out of detailed
+SYM), and lets the void function fall through on the final store line.
+`sldprobe.py` now reports 0/25 relative tag differences, matching block
+line pairs and header-to-end delta +9. The full gate is again byte/layout
+unchanged (`run-3bdif76v`). This is a verified function-level SYM/SLD
+representation, not proof of the literal local spellings.
 
 2026-09-30 `DrawGouraudShape` native TYPE correction: retail records `prim`
 as `POLY_GT4*` in s0, but our byte-cursor declaration was `u_char*`.

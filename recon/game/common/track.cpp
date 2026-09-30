@@ -781,7 +781,10 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
   return;
 }
 
-/* ---- CalcObjDefPtrs__Fv [retail TRACK.CPP:1179-1188; full SLD attribution open] ---- */
+/* ---- CalcObjDefPtrs__Fv [retail TRACK.CPP:1179-1188] ----
+ * The single offset cursor, one-line loop close and separate final pointer
+ * assignment reproduce all 25 relative SLD tags, native scopes/locals and
+ * the retail function-end line delta. Literal local spellings remain inferred. */
 void CalcObjDefPtrs(void)
 
 {
@@ -791,11 +794,9 @@ void CalcObjDefPtrs(void)
   int *offsets = (int *)gObjDefOffsetsGroup->GetData();
   offsets[0] = (int)gPersistObjDef->GetData();
   for (int i = 1; i < gPersistObjDef->GetNumElements(); i = i + 1) {
-    offsets[i] = offsets[i - 1] + offsets[i];
-  }
-  Track_gObjDefs = (Trk_ObjectDef **)gObjDefOffsetsGroup->GetData();
-  return;
-}
+    offsets[i] = offsets[i - 1] + offsets[i]; }
+  Trk_ObjectDef **objDefs = (Trk_ObjectDef **)gObjDefOffsetsGroup->GetData();
+  Track_gObjDefs = objDefs; }
 
 /* ---- Track_InitPersistentData__FP15SerializedGroup [retail TRACK.CPP:1212-1292; accessor/source/SLD recovery open] ---- */
 void Track_InitPersistentData(SerializedGroup *perGroup)

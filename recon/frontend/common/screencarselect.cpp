@@ -2385,14 +2385,14 @@ void tScreenPinkSlipsCarSelect::Initialize()
 void tScreenPinkSlipsCarSelect::Cleanup()
 
 {
-  
   this->fExitingScreen = 1;
   PinkSlipsScreenState[0] = WhoCaresWeBeExiting;
   PinkSlipsScreenState[1] = WhoCaresWeBeExiting;
+
   ((tDialogBase *)&this->CarDialog)->Hide();
   DeInit_Memcard();
+
   this->tScreenCarSelectTwoPlayer::Cleanup();
-  return;
 }
 
 

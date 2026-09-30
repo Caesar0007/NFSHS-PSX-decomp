@@ -977,11 +977,11 @@ void tDialogYesNoTri::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
 
 {
   if (keyVal == kInput_KeyType_Triangle) {
+
     ReadyToReturnValue = 1;
     ReturnValue = -1;
   }
   else {
-    /* W65-A3 (calltarget): as tDialogYesNoMem -- was infinite recursion. */
     tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
   }
 }

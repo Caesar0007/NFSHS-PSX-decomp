@@ -6509,6 +6509,22 @@ snapshot rises to 431/2565 SLD-exact functions (FRONTEND/COMMON 165/838,
 GAME/COMMON 232/1247). Line partition is proven; original non-emitting
 whitespace and comments are not uniquely recoverable from SYM.
 
+## 2026-10-01 Pink Slips cleanup and Yes/No dialog SLD
+
+- `tScreenPinkSlipsCarSelect::Cleanup`: byte-PASS 21/21 and native CLEAN.
+  The first two state writes belong on relative lines 1/2; the dialog hide
+  and memory-card teardown remain on lines 5/6, with base cleanup on line 8.
+  Repartitioning those source statements and using implicit void fallthrough
+  yields 0/21 instruction tag differences and exact block/end lines.
+- `tDialogYesNoTri::ProcessInput`: byte-PASS 16/16 and native CLEAN. Both
+  triangle-result stores now occupy retail lines 3/4, while the base-class
+  call stays on line 7. An obsolete in-body reconstruction note moved outside
+  the line-bearing code. All 16 tags, block lines and end delta are exact.
+
+The owning TUs remain byte-unchanged under `symloop`. The strict SLD board
+is 433/2565 exact (FRONTEND/COMMON 167/838). The rest of these TUs and the
+whole project remain under source/SLD review.
+
 ## 2026-10-01 Weather intensity state without asm or goto labels
 
 `Weather_ChangeIntensityBasedOnTime` no longer needs the empty asm barrier

@@ -9,13 +9,30 @@ covered functions; not a full source-declaration/carrier/SLD seal):
 |---|---:|---:|
 | FRONTEND/COMMON | 711 | 127 |
 | FRONTEND/PSX | 61 | 24 |
-| GAME/COMMON | 1092 | 155 |
+| GAME/COMMON | 1093 | 154 |
 | GAME/PSX | 284 | 111 |
-| Total | 2148 | 417 |
+| Total | 2149 | 416 |
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
 spellings still require explicit source review even when native CLEAN.
+
+2026-09-30 `DashHUD_HUDCalc` compact-static reconciliation: the detailed
+retail function lists `car` then `resethud` but omits `tick32`; its raw type-6
+symbol stream retains `resethud.28` at 0x8013ddb0 and `tick32.32` at +4.
+Native has `resethud.18` at 0x8013df24 and `tick32.19` at +4. The comparator
+now accepts only an INT function-static with an exact native compact address,
+a unique same-name retail compact symbol, and matching +4 offset from a
+same-function detailed INT STAT anchor; it records that receipt explicitly
+and does not excuse other extras (`aihCopFlagsBoundary_` remains EXTRA).
+Reordering the source declarations to retail `car`, `resethud` then the
+compact-only `tick32` preserves the 176-word PASS, 6/6 `dashhud.cpp` native
+CLEAN, whole-TU bytes/layout, ASPSX 524/0 and PSYLINK zero errors
+(`run-38fgw3pp`). Full common board is 2149/2565 CLEAN, 416 DIRTY; the
+comparator's EXTRA count falls to 290 with no other function's issues changed.
+The raw symbol corroborates storage/name, not every original source use:
+`sldprobe.py` still reports 129/176 relative line-tag differences.
+Comparator backup: `scratchpad/symtree_cmp_before_compact_static_20260930.py`.
 
 2026-09-30 `BworldSm_UpdateSimQuad`: retail records `simIndex` at the root,
 an outer region starting at +0, and `startsimquad` in a zero-instruction

@@ -18,6 +18,11 @@ Backup: scratchpad/sym_copspeak_engine_20260920/backups/symtree_cmp.py.
 2026-09-23: compare local scope depth as SCOPE. Matching block trees alone do
 not prove a named local belongs to the same block (AILife checkCar showed this).
 Backup: scratchpad/symtree_cmp_pre_scope_20260923.py.
+2026-09-30: a function-static STAT may be absent from retail's detailed
+Def/Def2 stream while surviving as a compact type-6 name. Reconcile only when
+both compact streams prove the exact name and the same four-byte offset from
+a detailed, same-function INT STAT anchor; keep the evidence in the report.
+Backup: scratchpad/symtree_cmp_before_compact_static_20260930.py.
 """
 import json
 import re
@@ -28,6 +33,58 @@ from pathlib import Path
 RETAIL = __import__('retail_sym').txt()
 REC = re.compile(r'^[0-9a-f]+: \$([0-9a-f]{8}) ([0-9a-f]{2}) (.*)$')
 DEF = re.compile(r'class (\w+) type (.*?) size (\d+)(?: dims .*?)?(?: tag (\S*))? name (\S+)$')
+COMPACT = re.compile(r'^[0-9a-f]+: \$([0-9a-f]{8}) 6 ([A-Za-z_]\w*\.\d+)$')
+
+
+def compact_stat_symbols(path):
+    """Return unambiguous compact type-6 static symbols by base source name."""
+    symbols = {}
+    for line in open(path, errors='replace'):
+        m = COMPACT.match(line)
+        if m:
+            full_name = m.group(2)
+            symbols.setdefault(full_name.rsplit('.', 1)[0], []).append(
+                (int(m.group(1), 16), full_name))
+    return symbols
+
+
+def compact_static_receipt(name, ours_fn, retail_fn, ours_symbols, retail_symbols):
+    """Prove a missing detailed INT STAT via a same-function adjacent anchor.
+
+    A mere compact name match is insufficient: the local suffix changes across
+    builds, and the two images have different absolute data addresses.
+    """
+    if not any(n == name and h == 'STAT' and ty == 'INT'
+               for n, h, ty, _ in ours_fn['locals']):
+        return None
+    candidate = ours_symbols.get(name, [])
+    retail_candidate = retail_symbols.get(name, [])
+    if len(candidate) != 1 or len(retail_candidate) != 1:
+        return None
+    native_address, native_symbol = candidate[0]
+    retail_address, retail_symbol = retail_candidate[0]
+    if ours_fn['stat_addrs'].get(name) != native_address:
+        return None
+    for anchor, home, ty, _ in retail_fn['locals']:
+        if home != 'STAT' or ty != 'INT':
+            continue
+        if not any(n == anchor and h == 'STAT' and t == 'INT'
+                   for n, h, t, _ in ours_fn['locals']):
+            continue
+        native_anchor = ours_symbols.get(anchor, [])
+        retail_anchor = retail_symbols.get(anchor, [])
+        if len(native_anchor) != 1 or len(retail_anchor) != 1:
+            continue
+        if ours_fn['stat_addrs'].get(anchor) != native_anchor[0][0]:
+            continue
+        if native_address - native_anchor[0][0] != 4:
+            continue
+        if retail_address - retail_anchor[0][0] != 4:
+            continue
+        return ('%s: %s@0x%08x / %s@0x%08x; +4 from %s in both compact '
+                'streams' % (name, native_symbol, native_address,
+                             retail_symbol, retail_address, anchor))
+    return None
 
 
 def parse(path):
@@ -49,7 +106,8 @@ def parse(path):
             continue
         a, t, rest = int(m.group(1), 16), m.group(2), m.group(3)
         if t == '8c':
-            cur = {'start': a, 'hdr': {}, 'locals': [], 'blocks': [], 'depth': 0, 'end_line': None}
+            cur = {'start': a, 'hdr': {}, 'locals': [], 'stat_addrs': {},
+                   'blocks': [], 'depth': 0, 'end_line': None}
             hdr_mode = True
         elif cur is None:
             continue
@@ -69,22 +127,30 @@ def parse(path):
                 # anonymous tags are numbered per TU (`._148`): the number counts every unnamed type seen before, not comparable
                 ty = re.sub(r'\._\d+', '._N', (d.group(2) + ' ' + (d.group(4) or '')).strip())
                 cur['locals'].append((d.group(5), home, ty, cur['depth']))
+                if d.group(1) == 'STAT':
+                    cur['stat_addrs'][d.group(5)] = a
     return fns
 
 
 ours_path = sys.argv[1]
 ours, retail = parse(ours_path), parse(RETAIL)
+ours_compact, retail_compact = compact_stat_symbols(ours_path), compact_stat_symbols(RETAIL)
 common = sorted(set(ours) & set(retail))
 report, tally = {}, Counter()
 for fn in common:
     o, r = ours[fn], retail[fn]
     issues = []
+    compact_evidence = []
     for k in ('fsize', 'mask', 'maskoffs'):
         if o['hdr'].get(k) != r['hdr'].get(k):
             issues.append('FRAME %s %s != %s' % (k, o['hdr'].get(k), r['hdr'].get(k)))
     on, rn = Counter(n for n, *_ in o['locals']), Counter(n for n, *_ in r['locals'])
     for n in sorted((on - rn)):
-        issues.append('EXTRA %s %s' % (n, next(h for x, h, *_ in o['locals'] if x == n)))
+        receipt = compact_static_receipt(n, o, r, ours_compact, retail_compact)
+        if receipt:
+            compact_evidence.append(receipt)
+        else:
+            issues.append('EXTRA %s %s' % (n, next(h for x, h, *_ in o['locals'] if x == n)))
     for n in sorted((rn - on)):
         issues.append('MISSING %s %s' % (n, next(h for x, h, *_ in r['locals'] if x == n)))
     oh = {}
@@ -115,7 +181,8 @@ for fn in common:
         span = (o['end_line'], r['end_line'])
     except Exception:
         span = None
-    report[fn] = {'issues': issues, 'file': r['hdr'].get('file', ''), 'end_line': span}
+    report[fn] = {'issues': issues, 'compact_stat_evidence': compact_evidence,
+                  'file': r['hdr'].get('file', ''), 'end_line': span}
     kinds = {i.split()[0] for i in issues}
     for k in kinds:
         tally[k] += 1

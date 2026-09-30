@@ -126,14 +126,15 @@ void DashHUD_CheckWrongWay(int player)
 void DashHUD_HUDCalc(int player)
 
 {
+  Car_tObj *car;             /* retail detailed SYM declaration order: car, resethud */
   static int resethud;        /* SYM STAT offset 0, retail 0x8013ddb0 */
   /* Compact SYM carries a second function-local 4-byte object immediately
    * after resethud (`tick32.32` @0x8013DDB4).  It has no code xrefs and no
    * Def/Def2 type record, so retail preserves the declaration/storage but the
-   * optimizer removed every use.  Restoring it here recovers dashhud.obj's
-   * complete 8-byte private-BSS footprint without changing instructions. */
+   * optimizer removed every use.  Native/retail compact type-6 symbols both
+   * put it +4 after resethud; the detailed retail Def stream omits it.
+   * Restoring it recovers dashhud.obj's 8-byte private-BSS footprint. */
   static int tick32;         /* @0x8013DDB4: compact SYM `tick32.32` */
-  Car_tObj *car;
 
   if (DashHUD_gInfo.showhud) {
   car = Cars_gHumanRaceCarList[player];

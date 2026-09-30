@@ -808,7 +808,7 @@ void CarIO_CreateLicense(char *text,int carType,int player)
            * (ascii+letter in one block 44, decl-with-init 44), which is why the
            * w41/w42 "SYM block shape is reachable but does not move the coloring"
            * receipt was right AND the coloring was still source-reachable. */
-          __asm__("" : "=r"(ascii) : "0"(ascii));
+          char savedAscii = ascii; ascii = 0; ascii = savedAscii; /* C-only CSE boundary. */
           letter[0] = ascii;
           letter[1] = '\0';
           strcat(letter,"   ");

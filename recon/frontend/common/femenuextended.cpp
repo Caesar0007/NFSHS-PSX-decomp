@@ -124,7 +124,7 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
            the OR form 20; fade absorbed against any of them 4; all three at
            once 26 (removal of all three is 4). */
         textType &= (textType | selected);
-        __asm__("" : "=r"(selFade) : "0"(selFade));
+        short savedSelFade = selFade; selFade = 0; selFade = savedSelFade; /* C-only CSE boundary. */
         fade = 0;
         __asm__("" : "=r"(fade) : "0"(fade));
         selected;

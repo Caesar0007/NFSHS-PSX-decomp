@@ -6380,3 +6380,25 @@ The 329/329 source was restored. The instrumented `cc1plus` and GCC
 `local-alloc.c` remain available for a focused ref/live explanation before
 another source rewrite; neither a no-op asm deletion nor a fake identity is
 being kept as a solution.
+
+## 2026-10-01 typed C opacity replaces two empty asm fences
+
+A source-level save/dead-set/restore can supply GCC's pre-flow second SET and
+then disappear at zero emitted bytes, but the temporary must retain the
+original scalar width. This is the `Hud_BuildString` device applied to two
+new sites, with their other source expressions unchanged:
+
+- `CarIO_CreateLicense`: replace `__asm__("" : "=r"(ascii) : "0"(ascii))`
+  with a same-scope `char` save, dead zero assignment and restore. The `int`
+  save rotated registers (34 diffs at 229/229); the `char` save is 229/229
+  PASS. Whole `cario.cpp` bytes and existing native comparison remain
+  unchanged; no `savedAscii` debug row survives.
+- `MenuNFS4_DrawTextBox`: the same pattern with a same-scope `short` save
+  removes the `selFade` identity fence while preserving 293/293 PASS and whole
+  `femenuextended.cpp` bytes. An `int` save had four diffs; the correct-width
+  `short` save has none and adds no saved-local debug row. The separate `fade`
+  fence remains: replacing it with a C save/restoration shifts the `dist`
+  addition across the `jal` delay slot by four diffs in this basin. No full
+  native/SLD seal is claimed for either function. Keeping each save in its
+  existing lexical scope rather than adding braces is also byte-exact and
+  removes one artificial native scope from each experimental block.

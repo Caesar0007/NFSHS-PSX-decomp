@@ -567,9 +567,9 @@ void R3DCar_GetFileName(char *infilename,char *filename,char *suffix)
   
   strcpy(workFile,filename);
   strcat(workFile,suffix);
+
   strcpy(infilename,workFile);
   strcat(infilename,".psh");
-  return;
 }
 
 /* ---- R3DCar_LoadFileAdr__FPc  [R3DCAR.CPP:1133-1141] SLD-VERIFIED ---- */

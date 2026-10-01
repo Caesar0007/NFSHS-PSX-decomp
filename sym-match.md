@@ -6611,6 +6611,17 @@ at declaration is also byte-neutral and removes the stale in-body carrier
 comment; its SLD tag differences fall from 68/71 to 59/71. Full line/block
 attribution and the other CopSpeak functions remain open.
 
+## 2026-10-01 R3DCar_GetFileName SLD seal
+
+The source builds a temporary car filename in two calls, then copies and
+suffixes the output in two more. Separating those phases by one source line
+and using implicit void fallthrough matches retail's relative call tags
+3/4 and 6/7 without changing the object. `R3DCar_GetFileName` is 23/23
+byte-PASS, native CLEAN, 0/23 SLD tag differences, with exact block lines
+and end delta. The owning `r3dcar.cpp` TU remains byte-unchanged. The strict
+SLD board rises to 437/2565 (GAME/COMMON 233/1247); literal whitespace
+and comments beyond the line partition remain unproved.
+
 `CopSpeak_Request` now puts retail's `next` in its root scope at `$v1` and
 uses a direct conditional queue-head assignment for the final wraparound.
 That removes the second `next` (`$a2`) and its non-retail debug scope while

@@ -7153,3 +7153,29 @@ the one-statement address wrapper and const-initializing
 `highAIEntryAddress` changed 23 at 121/120. Both were reverted. The five
 remaining extras, scope tree and SLD attribution remain open; const here
 is a verified codegen/debug-source shape, not proof of historical spelling.
+
+### AIHigh_Opponent predicate ownership and SLD source-line cleanup
+
+Keeping a named but use-site `const bool lacksActiveCopPursuit` for the
+crime/assigned-cop short-circuit preserves all 120 retail instructions and
+removes its unsupported native-SYM local row. The direct compound guard
+without that value was previously 112/120, so the expression still needs
+its own source evaluation boundary. Four EXTRA locals remain in this
+function. Moving `hLoop` from the root to the first guarded body or next
+to its assignment preserved bytes but put its debug depth at 3 or 5,
+versus retail 2; both trials were reverted.
+
+The old reconstruction also had hundreds of lines of historical compiler
+receipts inside this 56-line retail function. They were moved immediately
+above its definition, not discarded, and the now-spurious in-function blank
+lines were removed. Implicit void fallthrough preserved the epilogue. Grouping
+the existing list-load and constant-OR statements on one source line keeps
+their code and gives the native function-end delta **56**, equal to retail's
+56. Detailed verify remains PASS 120/120; whole `aih_opp.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors (`run-a_yecnax`). SLD
+instruction-line differences fall from 119/120 to 100/120. The remaining
+tags, block-line fields, five scope-depth issues and 13-vs-19 block tree
+are not sealed by an equal end span. Direct typed/index-first access to the
+high-AI slot was 121/120 with 13 detailed diffs and was reverted; the
+separate address evaluation remains a source-shape question, not an accepted
+compiler floor.

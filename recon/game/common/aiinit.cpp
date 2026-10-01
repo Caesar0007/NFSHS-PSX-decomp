@@ -84,7 +84,6 @@ void AIInit_StartUp2(void)
 void AIInit_Reset1(void)
 {
   AIInit_forceHumanHandBrake = 0;
-  return;
 }
 
 /* ---- AIInit_Reset2__Fv  [@0x80066d08] ---- */
@@ -184,15 +183,17 @@ void AI_TrafficStartUp(void)
 /* ---- AI_TrafficCleanUp__Fv  [@0x80066fa8] ---- */
 void AI_TrafficCleanUp(void)
 {
-  if (triggerManagerTraffic != (AITrigger_TriggerManager *)0x0) {
+  if (triggerManagerTraffic != (AITrigger_TriggerManager *)0x0)
+  {
     delete triggerManagerTraffic;
     triggerManagerTraffic = (AITrigger_TriggerManager *)0x0;
   }
-  if (AITraffic_rawTriggers != (u_char *)0x0) {
+
+  if (AITraffic_rawTriggers != (u_char *)0x0)
+  {
     purgememadr(AITraffic_rawTriggers);
     AITraffic_rawTriggers = (u_char *)0x0;
   }
-  return;
 }
 
 /* ---- AIInit_LoadConfigs__Fv  [@0x80066ff8] ---- */
@@ -384,15 +385,16 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
 /* ---- AIInit_DeInitAICar__FP8Car_tObj  [@0x800674e8] ---- */
 void AIInit_DeInitAICar(Car_tObj *carObj)
 {
-  if (carObj->curveSpeedTable != (AIDataRecord_CurveSpeedTable_t *)0x0) {
+  if (carObj->curveSpeedTable != (AIDataRecord_CurveSpeedTable_t *)0x0)
+  {
     delete carObj->curveSpeedTable;
     carObj->curveSpeedTable = (AIDataRecord_CurveSpeedTable_t *)0x0;
   }
-  if (carObj->accelerationRecord != (AIDataRecord_AccTable_t *)0x0) {
+  if (carObj->accelerationRecord != (AIDataRecord_AccTable_t *)0x0)
+  {
     delete carObj->accelerationRecord;
     carObj->accelerationRecord = (AIDataRecord_AccTable_t *)0x0;
   }
-  return;
 }
 
 /* ---- AIInit_InitAICar2__FP8Car_tObj  [@0x80067568] ---- */

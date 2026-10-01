@@ -7286,3 +7286,23 @@ the two inner block-open source lines are still +2/+7 native versus
 +3/+8 retail, although their instruction-address bounds and closing
 lines agree. The literal historical brace spelling is not inferred from
 the equal tags; source-region ownership for those two opens remains open.
+
+### AIInit reset and two cleanup regions: three strict SLD seals
+
+`AIInit_Reset1` is a three-instruction global zero/store plus return.
+Removing its redundant explicit `return;` keeps 3/3 PASS and assigns the
+epilogue to the same source line as the store, making tags, block lines and
+end delta exact. `AI_TrafficCleanUp` and `AIInit_DeInitAICar` each have two
+independent guarded cleanup regions. Putting each body brace on its own
+line and using implicit void fallthrough preserves their 20/20 and 32/32
+instruction streams while recovering the retail SLD regions. Retail
+requires one separating source line between the traffic-manager and
+trigger-buffer cleanups, but no such line between the car's curve-table and
+acceleration-record cleanups; the line maps, not an assumed common style,
+decide that distinction. Their literal historical whitespace is unknown.
+
+All three functions are now strict SLD EXACT and native CLEAN. The full
+`aiinit.cpp` gate is BYTES UNCHANGED, ASPSX 524/0 and PSYLINK zero errors
+(`run-sv9e91gk`), with 17/17 native CLEAN. GAME/COMMON strict exact coverage
+rises 251 -> 254 of 1247. No new locals, codegen fences or output rewrites
+were introduced.

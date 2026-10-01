@@ -67,23 +67,16 @@ void AITune_StartUp1(void)
   AITune_oneWay = AITune_GetOneWay();
   AITune_driveSide = AITune_GetDriveSide();
   AITune_gRoughLapTime = AITune_GetRoughLapTimes();
-  return;
 }
 
 /* ---- AITune_StartUp2__Fv  [@0x80072f78] ---- */
-void AITune_StartUp2(void)
-{
-  return;
+void AITune_StartUp2(void) {
 }
 
 /* ---- AITune_CleanUp1__Fv  [@0x80072f80] ---- */
-void AITune_CleanUp1(void)
-{
-  return;
+void AITune_CleanUp1(void) {
 }
 
 /* ---- AITune_CleanUp2__Fv  [@0x80072f88] ---- */
-void AITune_CleanUp2(void)
-{
-  return;
+void AITune_CleanUp2(void) {
 }

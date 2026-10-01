@@ -7250,3 +7250,19 @@ BYTES UNCHANGED, ASPSX 524/0 and PSYLINK zero errors (`run-a63dhq34`),
 of 1247. A similar return removal in `AI_AvoidObjects` shortened its native
 end span from +5 to +2 against retail +4, so it was reverted; its source
 region is not sealed by this pattern.
+
+### AITune complete strict SLD TU
+
+The retail SLD for `AITune_StartUp2`, `AITune_CleanUp1`, and
+`AITune_CleanUp2` is the same verified two-instruction/+1 empty-body
+signature as the AI physics lifecycle functions. Removing their synthetic
+`return;` statements and using an empty body with the opening brace on the
+header line restores all instruction tags, the sole block-line pair and
+the end delta. `AITune_StartUp1` instead makes three genuine setup calls;
+its explicit final return put the epilogue on line +4 rather than retail
++3. Implicit fallthrough makes its 14 instructions and complete SLD exact.
+The other three AITune accessors were already strict exact, so the whole
+TU is now 7/7 strict SLD EXACT and 7/7 native CLEAN. The `aitune.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors
+(`run-4r8q0y85`); GAME/COMMON strict SLD coverage rises 247 -> 251 of
+1247. No line padding, new local, compiler flag or output rewrite was used.

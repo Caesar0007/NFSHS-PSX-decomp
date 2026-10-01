@@ -7392,6 +7392,37 @@ functions are strict SLD EXACT and GAME/COMMON coverage rises 259 -> 261
 of 1247. These are measured source-line regions, not claims of unique
 historical brace formatting.
 
+### Active Ghidra-name cleanup across speech, sound, and AI
+
+A comment-stripped scan of all reconstructed `.c`/`.cpp` TUs found active
+`iVar/uVar/bVar/bvar/pCVar/ppTVar/local_*` names in three TUs. In
+`eacpsxz/stream.c`, `parsechunks` now names its header length and request
+cancellation flag `chunkLength`/`requestCancelled`; `readcallback` names
+the dual-phase running-total/flag `completionValue`, the filled byte count
+`bytesRead`, and the parser result `sawEndMarker`; `restartstream` names
+the +0x40/+0x48 stream pointers `readCursor`/`fillCursor`. Detailed gates
+remain PASS 119/119, 67/67 and 167/167, and the complete `stream.c`
+section bytes/layout equal its fail-closed pre-edit reference.
+
+In `sndpsxz/sdmemman.c`, the allocator's raw `local_block` and
+`local_avail` are now `candidateBlock` (64-byte unit returned as a byte
+address) and `availableBlocks` (the constrained gap). `iSNDpsxmalloc`
+remains PASS 127/127 and full `sdmemman.c` section bytes/layout equal its
+pre-edit reference. In `game/common/aih_play.cpp`, the short-circuit
+`bVar2` and `bVar1` become `needsBlockadeCop` and
+`shouldIssueWarning`, as shown by their actual update branches. The
+distinct values still matter for codegen (prior folded forms were
+669/674 and 307/307 with 18 differences respectively); both functions
+remain PASS 674/674 and 307/307. Full `aih_play.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors (`run-j8wr6tiy`).
+
+No literal original local spellings are claimed for the debug-stripped
+eaclib functions. The narrow comment-stripped token audit now returns
+zero active names in those seven generic families. A wider `*VarN`/related
+form audit still finds `ppCVar3` in `aistate.cpp`, `optVar1/2` in
+`AIWORLD.cpp` and `physics.cpp`, and `sVar2` in `femenuoptions.cpp`;
+those are explicit remaining review items, not covered by this checkpoint.
+
 ### AIPerson_Cleanup empty hook and two lexical-only probes
 
 `AIPerson_Cleanup` is a genuine two-instruction no-op. Its old explicit

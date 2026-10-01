@@ -701,11 +701,11 @@ extern int iSNDpsxmalloc(int size)
     unsigned short *prev;
     unsigned int blk, src;
     int          idx = 0;
-    /* ORIGINAL-NAME-UNRESOLVED: `local_block` and `local_avail` are retained
-     * placeholders.  NFS4 has no local debug records for iSNDpsxmalloc and no
-     * source-bearing cross-version implementation currently proves them. */
-    unsigned int local_block;
-    int          local_avail;
+    /* NFS4 has no retail local names for this allocator. candidateBlock is
+     * the 64-byte block index eventually returned as a byte address;
+     * availableBlocks is the constrained gap at that candidate position. */
+    unsigned int candidateBlock;
+    int          availableBlocks;
     unsigned short count = *(unsigned short *)(base + 0x518);
 
     if (count >= 0x80)
@@ -713,11 +713,11 @@ extern int iSNDpsxmalloc(int size)
     size += 0x3f;
     size >>= 6;
     if (count == 0) {
-        local_block = (unsigned int)*(unsigned short *)(base + 0x51A);
-        local_avail = (int)*(unsigned short *)(base + 0x51C) -
+        candidateBlock = (unsigned int)*(unsigned short *)(base + 0x51A);
+        availableBlocks = (int)*(unsigned short *)(base + 0x51C) -
                       (int)*(unsigned short *)(base + 0x51A);
-        iSNDpsxmemconstrain(&local_block, &local_avail);
-        if (size <= local_avail)
+        iSNDpsxmemconstrain(&candidateBlock, &availableBlocks);
+        if (size <= availableBlocks)
             goto commit;
         return 0;
     }
@@ -741,19 +741,19 @@ scan:
                 unsigned int block =
                     (unsigned int)*(unsigned short *)(pd + 0x51A);
                 int avail = *(unsigned short *)entry - (int)block;
-                local_block = block;
-                local_avail = avail;
+                candidateBlock = block;
+                availableBlocks = avail;
             } else {
                 unsigned int block;
                 int avail;
                 prev = (unsigned short *)(scan_off + (int)previous);
                 block = (unsigned int)prev[0] + (unsigned int)prev[1];
                 avail = *(unsigned short *)entry - (int)block;
-                local_block = block;
-                local_avail = avail;
+                candidateBlock = block;
+                availableBlocks = avail;
             }
-            iSNDpsxmemconstrain(&local_block, &local_avail);
-            if (size <= local_avail) {
+            iSNDpsxmemconstrain(&candidateBlock, &availableBlocks);
+            if (size <= availableBlocks) {
                 blk = (unsigned int)*(unsigned short *)(pd + 0x518);
                 if (idx < (int)blk) {
                     do {                                   /* shift entries up to open slot `idx` */
@@ -802,14 +802,14 @@ scan_done:
             } while (0);
             prev = (unsigned short *)((unsigned int)adjusted_off +
                                       (unsigned int)pv);
-            local_block = (unsigned int)prev[0] + (unsigned int)prev[1];
-            local_avail =
-                (int)pv[0] - (int)local_block - off + off -
+            candidateBlock = (unsigned int)prev[0] + (unsigned int)prev[1];
+            availableBlocks =
+                (int)pv[0] - (int)candidateBlock - off + off -
                 off + off - off + off;
         }
     }
-    iSNDpsxmemconstrain(&local_block, &local_avail);
-    if (size > local_avail)
+    iSNDpsxmemconstrain(&candidateBlock, &availableBlocks);
+    if (size > availableBlocks)
         return 0;
     goto commit;
 commit:
@@ -857,7 +857,7 @@ commit:
          * net-zero-pair adjudication.  Both removed; entry_off's is replaced by (1).
          * ============================================================================ */
         entry = (unsigned short *)(table + entry_off);
-        do { do { do { commit_block = (unsigned short)local_block; } while (0); } while (0); } while (0);
+        do { do { do { commit_block = (unsigned short)candidateBlock; } while (0); } while (0); } while (0);
         __asm__("" : "=r"(entry_off) : "0"(entry_off));
         commit_base = (unsigned char *)
             ((unsigned int)table - entry_off - 0x520 + entry_off);
@@ -871,7 +871,7 @@ commit:
              * home may-alias the sndpd store, so the scheduler may not hoist the load over it.
              * Naming the result BEFORE the RMW puts the load on retail's side of the store and the
              * `sll` becomes the count-load's delay filler. */
-            int result = (int)(local_block << 6);
+            int result = (int)(candidateBlock << 6);
             *(unsigned short *)(commit_base + 0x518) =
                 *(unsigned short *)(commit_base + 0x518) + 1;
             return result;

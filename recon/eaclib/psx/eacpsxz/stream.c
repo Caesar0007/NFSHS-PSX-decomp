@@ -341,15 +341,14 @@ static unsigned int filterchunk(int s, int chunk)
  *   Returns 1 if the end-of-stream marker was reached, else 0. */
 static int parsechunks(int s)
 {
-    /* ORIGINAL-NAME-UNRESOLVED: `bvar1` and `uVar5` are retained
-     * decompiler-style spellings.  NFS4 has no local debug records for this
-     * library function, and no source-bearing cross-version body has been
-     * found; neither spelling is accepted as original. */
-    int   bvar1;
+    /* Retail has no local names here. The request-state test is a cancellation
+     * flag, and chunk[1]'s low 24 bits supply the chunk's byte length. These
+     * roles are binary-evidenced; their literal source spellings are unknown. */
+    int   requestCancelled;
     int   consumer;
     int   consumerCount;
     int   level;
-    unsigned int fillptr, uVar5;
+    unsigned int fillptr, chunkLength;
     int  *chunk;
     int  *originalChunk;
     int   reqcur;
@@ -364,46 +363,46 @@ static int parsechunks(int s)
     freeTag = -2;
 
     while (1) {
-        uVar5 = chunk[1];
+        chunkLength = chunk[1];
         originalChunk = chunk;
-        if ((uVar5 & 0xff000000) != 0)
+        if ((chunkLength & 0xff000000) != 0)
             goto malformed;
-        if (fillptr < (unsigned int)((int)chunk + uVar5))
+        if (fillptr < (unsigned int)((int)chunk + chunkLength))
             goto malformed;
 
         consumer = filterchunk(s, (int)chunk);
         if (consumer < 0) {                     /* no consumer (skip) */
             sr = STREAM_enterCS();
-            bvar1 = (MI(reqcur, 4) == 4);       /* request cancelled? */
-            if (!bvar1) {
+            requestCancelled = (MI(reqcur, 4) == 4); /* request cancelled? */
+            if (!requestCancelled) {
                 chunk[0] = freeTag;             /* mark chunk free */
-                MI(s, 0x44) += uVar5;           /* advance writeptr */
+                MI(s, 0x44) += chunkLength;     /* advance writeptr */
             }
             STREAM_leaveCS(sr);
-        } else {                                /* routed to consumer uVar3 */
+        } else {                                /* routed to consumer */
             chunk[1] = chunk[1] | (consumer << 0x18);
             sr = STREAM_enterCS();
-            bvar1 = (MI(reqcur, 4) == 4);
-            if (!bvar1) {
+            requestCancelled = (MI(reqcur, 4) == 4);
+            if (!requestCancelled) {
                 int consOffset = (consumer << 4) - 0x10;
                 int cons = MI(s, 0x18) + consOffset; /* consumer slot */
                 int oldUsage;
                 int newUsage;
-                consumerCount = MI(cons, 8) + uVar5;
+                consumerCount = MI(cons, 8) + chunkLength;
                 MI(cons, 8) = consumerCount;    /* consumer.count += len */
-                if (consumerCount == uVar5)     /* first chunk for this consumer */
+                if (consumerCount == chunkLength) /* first chunk for this consumer */
                     MI(cons, 0xc) = (int)chunk; /* readcursor = chunk */
-                MI(s, 0x44) += uVar5;           /* advance writeptr */
+                MI(s, 0x44) += chunkLength;     /* advance writeptr */
                 oldUsage = MI(s, 0x3c);
                 level = MI(s, 0x34);
-                newUsage = oldUsage + uVar5;
+                newUsage = oldUsage + chunkLength;
                 MI(s, 0x3c) = newUsage;         /* bufusage += len */
                 if (oldUsage < level && level <= newUsage)
                     MI(s, 0x38) = 0;            /* crossed greedy level -> greedy off */
             }
             STREAM_leaveCS(sr);
         }
-        if (bvar1)
+        if (requestCancelled)
             break;
         if (originalChunk[0] == MI(reqcur, 0x5c)) /* reached end-of-stream id */
             return 1;
@@ -458,32 +457,32 @@ static void closecallback(int a0, int a1, int s)
  * allocno priority above reqcur's, so bvar1 takes $s1 and reqcur $s2 as in retail. */
 static int readcallback(int a0, int a1, int s)
 {
-    /* ORIGINAL-NAME-UNRESOLVED: `bvar1`, `iVar2`, and `uVar3` are retained
-     * placeholders.  The binary proves their value roles but NFS4 supplies no
-     * local-name records for this library function. */
-    int bvar1;
-    int iVar2;
-    unsigned int uVar3;
+    /* No retail local names survive here. completionValue first holds the
+     * candidate byte total, then the completion flag; bytesRead advances
+     * both stream cursors, and sawEndMarker is parsechunks' result. */
+    int completionValue;
+    int sawEndMarker;
+    unsigned int bytesRead;
     int reqcur;
     (void)a0; (void)a1;
 
     reqcur = MI(s, 0x50);
     if (MI(reqcur, 0x10) == 1) {               /* memory source */
-        uVar3 = MU(s, 0xa8);
-        /* MATCH: the running total is computed INTO `bvar1` itself (oracle: `addu s1,v1,a1`
+        bytesRead = MU(s, 0xa8);
+        /* MATCH: the running total is computed INTO `completionValue` itself (oracle: `addu s1,v1,a1`
          * writes the sum to the very register the `xori` then redefines as the flag).  Spelling
          * it as an anonymous sub-expression gives the sum its own caller-saved pseudo ($v0). */
-        bvar1 = MI(s, 0xa0) + uVar3;
-        bvar1 = (MI(reqcur, 0x58) <= bvar1);
+        completionValue = MI(s, 0xa0) + bytesRead;
+        completionValue = (MI(reqcur, 0x58) <= completionValue);
     } else {                                   /* file source */
-        uVar3 = FILE_completeop(MU(s, 0xa4));
-        bvar1 = ((int)uVar3 < MI(s, 0xa8));
+        bytesRead = FILE_completeop(MU(s, 0xa4));
+        completionValue = ((int)bytesRead < MI(s, 0xa8));
     }
-    MU(s, 0xa0) += uVar3;                       /* readaccum += bytes */
-    MU(s, 0x48) += uVar3;                       /* fillptr   += bytes */
-    iVar2 = parsechunks(s);
+    MU(s, 0xa0) += bytesRead;                    /* readaccum += bytes */
+    MU(s, 0x48) += bytesRead;                    /* fillptr   += bytes */
+    sawEndMarker = parsechunks(s);
     if (MI(reqcur, 4) != 4) {                   /* not cancelled */
-        if (bvar1 || iVar2 != 0) {
+        if (completionValue || sawEndMarker != 0) {
             int sr = STREAM_enterCS();
             MI(reqcur, 4) = 3;                  /* request done */
             STREAM_leaveCS(sr);
@@ -741,38 +740,38 @@ static int restartstream(int s, unsigned int prio)
 
     /* compute the next contiguous fill region [fillptr .. readptr) */
     {
-        /* ORIGINAL-NAME-UNRESOLVED: `uVar3` and `uVar5` are retained
-         * placeholders; no source-bearing or debug-local record currently
-         * proves their original spellings. */
-        unsigned int uVar3;
-        unsigned int uVar5;
+        /* The +0x40 and +0x48 fields are the read and fill cursors. Retail
+         * has no local spellings here; these names identify the proven
+         * address roles without asserting original identifier text. */
+        unsigned int readCursor;
+        unsigned int fillCursor;
         int room;
         int roomRaw;
-        uVar3 = MU(s, 0x40);                     /* readptr */
-        __asm__("" : : "r"(uVar3));              /* w47-a5 sched fixpoint: pin this load first */
-        uVar5 = MU(s, 0x48);                     /* fillptr */
-        if (uVar3 > uVar5) {
-            room = (uVar3 - uVar5) - 1;
+        readCursor = MU(s, 0x40);               /* readptr */
+        __asm__("" : : "r"(readCursor));        /* w47-a5 sched fixpoint: pin this load first */
+        fillCursor = MU(s, 0x48);               /* fillptr */
+        if (readCursor > fillCursor) {
+            room = (readCursor - fillCursor) - 1;
             goto check_room;
         } else {
-            room = (MI(s, 0x24) - uVar5) - 8;    /* room to bufEnd, less header */
+            room = (MI(s, 0x24) - fillCursor) - 8; /* room to bufEnd, less header */
             if (0x1fff < room)
                 goto have_room;
             /* not enough tail room -> wrap: move the partial chunk down to bufBase */
             {
-                int moveSize = uVar5 - (int)*(unsigned char **)(s + 0x44);
+                int moveSize = fillCursor - (int)*(unsigned char **)(s + 0x44);
                 bb = *(unsigned char **)(s + 0x20);
-                if ((int)(uVar3 - (int)bb) < moveSize + 1)
+                if ((int)(readCursor - (int)bb) < moveSize + 1)
                     goto stall;
                 memcpy(bb, *(unsigned char **)(s + 0x44), moveSize);
                 q = *(int **)(s + 0x44);
                 q[0] = -1;                       /* leave a wrap marker behind */
                 q[1] = 8;
                 bb = *(unsigned char **)(s + 0x20);
-                uVar5 = (unsigned int)bb + moveSize;
-                roomRaw = MI(s, 0x40) - uVar5;
+                fillCursor = (unsigned int)bb + moveSize;
+                roomRaw = MI(s, 0x40) - fillCursor;
                 MI(s, 0x44) = (int)bb;
-                MI(s, 0x48) = uVar5;
+                MI(s, 0x48) = fillCursor;
                 room = roomRaw - 1;
             }
         }

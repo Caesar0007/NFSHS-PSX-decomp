@@ -312,18 +312,18 @@ void AIHigh_Player::SetupBlockade()
     {
       AIHigh_Cop *thisCop;
       for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
-        /* SYM-CODEGEN-CARRIER: bVar2 -- folding this short-circuit result into
+        /* SOURCE-RECOVERY CARRIER: needsBlockadeCop -- folding this short-circuit result into
            the update guard emits 669 rather than 674 instructions and changes
            121 by reshaping the array bases and the following long loop. */
-        bool bVar2;
+        bool needsBlockadeCop;
         thisCop = (AIHigh_Cop *)highLevelAIObjs[
             Cars_gCopCarList[copLoop]->carIndex];
-        bVar2 = false;
+        needsBlockadeCop = false;
         if (((Cars_gCopCarList[copLoop]->AIFlags & 4U) != 0) &&
             (thisCop->blockade_.mode == 1)) {
-          bVar2 = needed[thisCop->type_] != 0;
+          needsBlockadeCop = needed[thisCop->type_] != 0;
         }
-        if (bVar2) {
+        if (needsBlockadeCop) {
           needed[thisCop->type_] = needed[thisCop->type_] - 1;
           nCopsAvail[thisCop->type_] = nCopsAvail[thisCop->type_] + 1;
         }
@@ -1162,7 +1162,7 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 void AIHigh_Player::HandlePullOver()
 {
   int chaseTime;
-  bool bVar1;
+  bool shouldIssueWarning;
   if (this->pullOverMode_ != 0) {
     this->beatingTicksLeft_ -= AI_elapsedTime;
     if (0 < this->beatingTicksLeft_) {
@@ -1214,18 +1214,18 @@ void AIHigh_Player::HandlePullOver()
     chaseTime = chaseInfo->GetChaseTime();
     this->beatingTicksLeft_ = chaseInfo->GetChaseLevel()->beatingTicks;
     this->lastPullOverTime_ = GameTicks();
-    /* SYM-CODEGEN-CARRIER: bVar1 -- retail materializes this short-circuit
+    /* SOURCE-RECOVERY CARRIER: shouldIssueWarning -- retail materializes this short-circuit
        result in $a2.  Folding it into the following guard keeps 307
        instructions but changes 18 authoritative instructions/registers. */
-    bVar1 = false;
+    shouldIssueWarning = false;
     if (((this->basicPerpInfo_.crime_ != 4) &&
          (((this->carObj_)->stats).numFines == 0)) &&
         (chaseInfo->copGameInfo_->levels[chaseInfo->bestChaseLevelIndex_]
              .numWarningsAdded != 0)) {
-      bVar1 = chaseTime < chaseInfo->GetChaseLevel()->warningTicks;
+      shouldIssueWarning = chaseTime < chaseInfo->GetChaseLevel()->warningTicks;
     }
   }
-    if ((bVar1) && (this->numWarnings_ < 2)) {
+    if ((shouldIssueWarning) && (this->numWarnings_ < 2)) {
       this->numWarnings_ =
           this->numWarnings_ + (this->perpChaseInfo_).chaseLevel_->numWarningsAdded;
       (this->carObj_->stats).numWarnings = (this->carObj_->stats).numWarnings + 1;

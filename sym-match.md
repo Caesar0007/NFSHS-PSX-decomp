@@ -7040,3 +7040,26 @@ while GCC drops all four EXTRA native-SYM rows. The normalized
 `loadedSceneSlot` pointer was also byte-PASS but its debug row survived,
 so that neutral source trial was reverted. The target still has 24 native
 issues, including `loadedSceneSlot`, and is not SLD- or source-text-sealed.
+
+### R3DCar menu-facet no-extra-local source basin, same day
+
+Seven further one-definition values became debug-elided without moving a
+single retail instruction: the async cancellation result `cancelFile`, the
+two cop-index subtractions, the menu sub-OT offset and its `gf`/`objId`/
+`subOtBase` operands all remain at their actual use sites as consts.
+The scene-table base needed its real type: a `[2][50]` array reference
+kept an EXTRA row, while an unsized `[][50]` reference did not. Repeating
+the computed scene-slot expression instead of naming a pointer then left
+one commutative `addu` operand-order mismatch; writing the country term
+first removed it. That repetition lengthened the base/offset aliases into
+new debug rows, so they were removed too. Crucially, after these source
+changes the natural `R3DCar_LoadedScenePointer[countryFlag][carType]`
+access—which had measured 24 diffs in the old basin—now compiles to the
+exact 1054-instruction oracle with no source-only address objects at all.
+
+Fail-closed whole-TU bytes and the independent linked image are unchanged.
+Retail/native SYM comparison for `R3DCar_InsertCarFacetMenu` now has zero
+EXTRA/MISSING/MOVED/TYPE local issues; 15 scope/order/block-tree issues
+remain. The exact original macro/statement spelling and full SLD line
+attribution are still unresolved. Earlier pointer-carrier necessity claims
+are explicitly superseded by this typed-indexing source result.

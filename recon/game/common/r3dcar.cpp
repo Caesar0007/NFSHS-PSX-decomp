@@ -1852,9 +1852,10 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
 }
 
 /* ---- R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView  [R3DCAR.CPP:2351-3084] SLD-VERIFIED ----
- * Six former Ghidra-style carrier identifiers below now have semantic labels,
- * not recovered literal source names. Retail SYM does not name their webs;
- * their roles follow the fields, branch masks and loaded-scene pointer use. */
+ * The former Ghidra-style values below now have semantic labels; retail SYM
+ * does not preserve their literal spelling. Current use-site consts and
+ * typed loaded-scene indexing leave no EXTRA native locals at 1054/1054.
+ * Historical pointer-offset failures below apply to the older source basin. */
 void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
 
 {
@@ -1882,10 +1883,9 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   /* DEBUG-ELIDED VALUE: menuModeBit -- preserves the original 0x80 mask value for
      the post-address early branch while menuSubOtRow carries its normalized row index;
      collapsing the pair yields 1053 instructions and 21 diffs. */
-  /* SOURCE-RECOVERY CARRIER: loadedSceneSlot -- the loaded-scene slot pointer must remain
-     distinct from its integer index-sum carrier. Natural two-dimensional
-     subscripting was measured at 24 diffs and the index-first cast at 22. */
-  Transformer_zScene **loadedSceneSlot;
+  /* SOURCE-RECOVERY: the loaded-scene slot is now selected by typed
+     two-dimensional indexing. The old pointer/index carriers were 24/22
+     diffs only before the later const and operand-order source repairs. */
   coorddef parent;       /* SYM fn AUTO sp+0x18 */
   matrixtdef bodyMat;
   matrixtdef orientMat;
@@ -1919,10 +1919,10 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      per site, so both sites get their own caller-saved scratch with no
      cross-site interference. */
   {
-    /* SYM-CODEGEN-CARRIER: copIndex0 -- the block-local subtraction gives retail
+    /* DEBUG-ELIDED VALUE: copIndex0 -- the block-local subtraction gives retail
        `addiu v0,s3,-22; sltiu s4,v0,6`; folding it reuses s4 as scratch and
        disturbs both cop-index sites. */
-    int copIndex0 = carType - 0x16;
+    const int copIndex0 = carType - 0x16;
     cop_flag = (u_int)copIndex0 < 6;
   }
   if (cop_flag == 0) {
@@ -2041,25 +2041,25 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      sum 4 | mask inlined WITHOUT the objId split 4.
      The now-dead `subOtStart` local (decl + assignment) and `iVar11` were removed;
      both removals were gate-checked and are byte-neutral. */
-  /* SYM-CODEGEN-CARRIER: subOtBase -- naming the base before the index sum keeps
+  /* DEBUG-ELIDED VALUE: subOtBase -- staging the base before the index sum keeps
      its addiu adjacent to the lui; folding it was measured four diffs worse. */
-  int subOtBase = (int)R3DCar_subOtStart;
-  /* SYM-CODEGEN-CARRIER: gf -- the three-reference zero-instruction fence below
+  const int subOtBase = (int)R3DCar_subOtStart;
+  /* DEBUG-ELIDED VALUE: gf -- the three-reference zero-instruction fence below
      lifts this local quantity above the row-index quantity in QTY_CMP_PRI;
      fewer than three references loses the measured allocation crossing. */
-  int gf = gFlip;
-  /* SYM-CODEGEN-CARRIER: objId -- splitting the object-ID load from its later mask
+  const int gf = gFlip;
+  /* DEBUG-ELIDED VALUE: objId -- splitting the object-ID load from its later mask
      is required for retail scheduling; folding it was measured four diffs worse. */
-  int objId = (carObj->N).objID;
+  const int objId = (carObj->N).objID;
   /* MATCH (W72-A12): 3-operand READ-ONLY fence = +3 refs, ZERO insns.  It lifts
      the gFlip quantity's QTY_CMP_PRI (14000) above the iVar9 accumulator chain's
      (12000) so local-alloc hands $v0 to gFlip and $v1 to iVar9, exactly as retail.
      n is not arbitrary: 1 and 2 are measured LOSSES (the pri crossing is at 3, see
      the arithmetic in the block comment above).  Do NOT "simplify" this away. */
-  /* SYM-CODEGEN-CARRIER: subOtOff -- the integer index sum must exist before the
+  /* DEBUG-ELIDED VALUE: subOtOff -- the integer index sum must exist before the
      pointer base is added. The natural row-pointer form was six diffs and the
      opposite operand order eight; this spelling plus the measured fence is exact. */
-  int subOtOff = menuSubOtRow * 4 + gf * 8;
+  const int subOtOff = menuSubOtRow * 4 + gf * 8;
   (carObj->render).sub_ot =
        *(u_long **)(subOtOff + subOtBase) + (objId & 0xfU) * 0x200;
   if (menuModeBit != 0) goto R_ICFtMenu_sceneCounterJoin;
@@ -2125,10 +2125,10 @@ R_ICFtMenu_asyncHandleCheck:
     if ((0 < status) || (status == -1)) {
       if (((carObj->render).newCarType != carType) ||
           ((u_int)(u_char)(carObj->render).newCountry != carObj->carInfo->Country)) {
-        /* SYM-CODEGEN-CARRIER: cancelFile -- the retail result stays in v0 for
+        /* DEBUG-ELIDED VALUE: cancelFile -- the retail result stays in v0 for
            the null test and purgememadr argument. Reusing SYM local status moves
            it into s0, adds one instruction, and produces nine diffs. */
-        char *cancelFile = getasyncreadadr(carObj->async_handle);
+        char *const cancelFile = getasyncreadadr(carObj->async_handle);
         if (cancelFile != (char *)0x0) {
           purgememadr(cancelFile);
           goto R_ICFtMenu_asyncAbort;
@@ -2210,23 +2210,20 @@ R_ICFtMenu_bigFileCheck:
        older 12-diff basin, where the cop-index sites still fought over $s4.)
        WARNING: do NOT parenthesise the index sum into the pointer expression
        (`base + (cf*50 + carType)`) -- cse then hoists the sum, -5 insns/133 diffs. */
-    /* SYM-CODEGEN-CARRIER: loadedSceneBase -- retaining a typed base separately
-       preserves retail's base-last address formation; direct subscripting was
-       measured at 24 diffs. */
-    Transformer_zScene **loadedSceneBase = &R3DCar_LoadedScenePointer[0][0];
-    /* SYM-CODEGEN-CARRIER: slotOff -- a distinct integer index sum preserves the
-       retail carType*4 + countryFlag*200 grouping and register allocation;
-       carrying the sum in ppTVar21 itself was measured at 20 diffs. */
-    int slotOff = carType * 4 + countryFlag * 200;
-    loadedSceneSlot = (Transformer_zScene **)(slotOff + (int)loadedSceneBase);
-    if (*loadedSceneSlot != (Transformer_zScene *)0x0) {
-      purgememadr(*loadedSceneSlot);
-      *loadedSceneSlot = (Transformer_zScene *)0x0;
+    /* Historical loadedSceneBase carrier: the typed array reference with an
+       unsized outer dimension removed its row; direct indexing now does too.
+       The earlier direct-subscripting 24-diff result is superseded. */
+    /* Historical slotOff carrier: use-site const removed the debug row; the
+       current source keeps the same arithmetic anonymously inside the array
+       subscript. No pointer/index sum local is required in this basin. */
+    if (R3DCar_LoadedScenePointer[countryFlag][carType] != (Transformer_zScene *)0x0) {
+      purgememadr(R3DCar_LoadedScenePointer[countryFlag][carType]);
+      R3DCar_LoadedScenePointer[countryFlag][carType] = (Transformer_zScene *)0x0;
     }
-    *loadedSceneSlot = R3DCar_ReadInCarData(workFile,carObj);
+    R3DCar_LoadedScenePointer[countryFlag][carType] = R3DCar_ReadInCarData(workFile,carObj);
     R3DCar_LoadedSceneCounter[countryFlag][carType] =
          R3DCar_LoadedSceneCounter[countryFlag][carType] + '\x01';
-    R3DCar_CalcCarDimensions(carObj,*loadedSceneSlot,carType);
+    R3DCar_CalcCarDimensions(carObj,R3DCar_LoadedScenePointer[countryFlag][carType],carType);
     R3DCar_ReadInCarTextureMenu(carObj,R3DCar_BigFile,reload,Vi->player);
     R3DCar_BigFile = (char *)0x0;
     changeCar = 1;
@@ -2245,10 +2242,10 @@ R_ICFtMenu_sceneCounterJoin:
      temp here flips the carInfo-pointer/temp pair $v0<->$v1 at the first site (18 diffs)
      -- which is the W56-A14 "cascades" reading.  Block-local at both sites: 12 -> 8. */
   {
-    /* SYM-CODEGEN-CARRIER: copIndex1 -- this sibling block-local subtraction is
+    /* DEBUG-ELIDED VALUE: copIndex1 -- this sibling block-local subtraction is
        independently required for retail's caller-saved scratch; folding either
        site perturbs the shared s4 cop-flag allocation. */
-    int copIndex1 = carType - 0x16;
+    const int copIndex1 = carType - 0x16;
     cop_flag = (u_int)copIndex1 < 6;
   }
   if (((R3DCar_InMenu & 0x80U) == 0) && (carType < 0)) {

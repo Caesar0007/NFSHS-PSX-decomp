@@ -7179,3 +7179,21 @@ are not sealed by an equal end span. Direct typed/index-first access to the
 high-AI slot was 121/120 with 13 detailed diffs and was reverted; the
 separate address evaluation remains a source-shape question, not an accepted
 compiler floor.
+
+### AIHigh_Opponent random-roll statement order from SLD
+
+Retail SLD assigns the `fastRandom * randSeed` product, the masked
+`fastRandom` store, and the extracted `randVal` to source line +19;
+`AI_elapsedTime * 3` belongs to +20 and the probability guard to +21.
+The compiler schedules the elapsed-time calculation between the random
+multiply and its dependent stores, so instruction order alone had suggested
+the wrong source order. Putting those three random-value statements on one
+source line before `perTickProb` preserves all 120 retail instructions and
+makes offsets `+0x90..+0xe4` SLD-exact. Splitting the existing timer store
+across its natural assignment/RHS lines and placing the following `if` brace
+on its own line keeps the function-end span at the retail 56 lines. The
+current whole-TU symloop is BYTES UNCHANGED, ASPSX 524/0 and PSYLINK zero
+errors (`run-ws4z51_a`); differing instruction tags fell 100 -> 92 of 120.
+The five named-local scope-depth mismatches, 13-vs-19 block tree and 92
+remaining tag differences are still open. No `#line`, dummy statement,
+post-compile rewrite or artificial source local was used.

@@ -448,15 +448,15 @@ void AIHigh_Opponent::CheckForWipeOut()
     if ((!lacksActiveCopPursuit) &&
        (0x27f < simGlobal.gameTicks -
                 (this->carObj_)->wipeOutEndTick)) {
-      randtemp    = fastRandom * randSeed;                        /* 0x800633AC */
+      randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; randVal = (int)(randtemp >> 8) & 0xffff;
       perTickProb = AI_elapsedTime * 2 + AI_elapsedTime;          /* $a0 = 3*ae, 0x800633BC-C0 -- scheduled into the mult->mflo latency gap */
-      fastRandom  = randtemp & 0xffff;                            /* 0x800633C8/E4 */
-      randVal     = (int)(randtemp >> 8) & 0xffff;                /* $t1, 0x800633D4-D8 */
       if (randVal < perTickProb) {                                /* 0x800633DC-E8 */
-        this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;      /* 0x800633EC-F8 */
+        this->carObj_->wipeOutEndTick =
+            simGlobal.gameTicks + 0xC0; /* 0x800633EC-F8 */
       }
       hLoop = 0;
-      if (!this->perpChaseInfo_.IsLastChaseLevel()) {
+      if (!this->perpChaseInfo_.IsLastChaseLevel())
+      {
         AIHigh_Base **const highAIList = highLevelAIObjs;
         __asm__("" : : "r"(numRacers),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this));
         __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop));

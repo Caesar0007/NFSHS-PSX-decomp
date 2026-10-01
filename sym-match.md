@@ -7490,3 +7490,24 @@ patterns now finds only `optVar1/2` in `AIWORLD.cpp` and `physics.cpp`, plus
 `var1` in `schedule.cpp`. Retail SYM explicitly records all five local or
 parameter names, so they must not be renamed. This closes those lexical
 token families, not the remaining semantic-carrier or SLD review queue.
+
+### CopSpeak_Request queue-head value ownership
+
+Retail's 79-instruction `CopSpeak_Request` loads the old queue head into
+`$a3` at entry, uses it to index the copied request and returns it in the
+`jr ra` delay slot. The queue-head global is separately reloaded into
+`$a1` for the later increment/store. Retail SYM names only `next` ($v1)
+and `bank` ($a1); it does not name the old-head value. The source carrier
+formerly called `head` is now `queueHeadSnapshot` to describe that exact
+value role without claiming a historical spelling.
+
+Two source reductions were priced and reverted. Making retail `next` hold
+the old head and computing the successor inline gave 84/79 with 11 detailed
+differences and changed the branch funnel. Computing the successor in
+`next`, then reassigning it from the global before the queue copy gave
+80/79 with 25 register/allocation differences and an extra copy. The
+snapshot remains necessary in this verified source basin; neither failed
+form proves the literal original object or an absolute compiler floor.
+The named version remains PASS 79/79 and the full `copspeak.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors (`run-vkszwde9`). Its
+one EXTRA native local and the function's SLD gaps remain explicit.

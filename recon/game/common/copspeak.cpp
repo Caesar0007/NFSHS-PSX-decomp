@@ -700,17 +700,17 @@ void CopSpeak_Skip(void)
 int CopSpeak_Request(CopSpeak_tRequest *r)
 
 {
-  /* SYM-CODEGEN-CARRIER: head -- old queue slot needed after the head update.
-   * Root-scoped next now matches retail $v1; a direct final wrap expression
-   * removes the second next and its debug scope. head remains retail-absent;
-   * its source representation needs a separate value-ownership repair. */
+  /* SOURCE-RECOVERY CARRIER: queueHeadSnapshot -- retail keeps the old head
+   * in $a3 for the slot and return, then reloads the global for advancement.
+   * next remains the retail-named $v1 successor; the snapshot's literal
+   * source spelling and debug-elided representation are unresolved. */
   int next;
   CopSpeak_tBank *bank;  /* SYM: Def class REG $5 (a1) PTR CopSpeak_tBank name bank */
 
-  const int head = CopSpeak_gQueueHead;
+  const int queueHeadSnapshot = CopSpeak_gQueueHead;
   next = 0;
-  if (head < 0x3f) {
-    next = head + 1;
+  if (queueHeadSnapshot < 0x3f) {
+    next = queueHeadSnapshot + 1;
   }
   if (next == CopSpeak_gQueuePlay) {
     return -1;
@@ -729,9 +729,9 @@ int CopSpeak_Request(CopSpeak_tRequest *r)
   if (r->size == 0) {
     return -1;
   }
-  CopSpeak_gQueue[head] = *r;
+  CopSpeak_gQueue[queueHeadSnapshot] = *r;
   CopSpeak_gQueueHead = CopSpeak_gQueueHead < 0x3f ? CopSpeak_gQueueHead + 1 : 0;
-  return head;
+  return queueHeadSnapshot;
 }
 
 /* ---- CopSpeak_BankVolume__FP17CopSpeak_tRequest  [COPSPEAK.CPP:1095-1099] SLD-VERIFIED ---- */

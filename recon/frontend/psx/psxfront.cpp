@@ -1338,40 +1338,30 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 
 /* ---- PSXDrawTransGouraudSquare  (psxfront.cpp:1377, code lines 1377-1398) ---- */
 /* GPU packet: builds POLY_G4 (stride 0x24, code 0x39); prim=u_char* build cursor. */
+/* Retail SLD attributes the packet-link expansion's three stores to one source line. */
+/* SYM records opacity/c1..c4 ARG-to-REG copies, prim in the outer block and i
+   in the inner block. The prior opacityv was uninitialized and wrongly fed
+   all four X vertices; retail uses x. The OT read must be a plain word, not
+   the bitfield accessor: the extra mask rotates i off $t0 by 14 diffs. */
 void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2,int c3,int c4)
 
 {
-  /* SYM: opacity/c1..c4 (ARG->REG copies), prim (POLY_G4*), i (INT).  🔴 `opacityv` was NEVER
-   * ASSIGNED and stood in for the real `x` param in all four packed vertex words (oracle $t5 = the
-   * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
-  /* decl order = SYM Def-record order (prim, i) -- w86-S5 */
   POLY_G4 *prim;
-  {
-    int i;
-
-    i = 0;
-    if (0 < opacity) {
-      do {
-        prim = (POLY_G4 *)Render_gPacketPtr;
-        i = i + 1;
-      /* setaddr(prim, getaddr(OT)) / setaddr(OT, prim) -- the P_TAG 24-bit bitfield
-       * stores.  The VALUE side must NOT be a bitfield READ (`((PTag *)prevPrim)->addr`):
-       * that masks twice, lifting the 0xffffff allocno's loop-weighted ref count 5 -> 7
-       * past the `i` counter's .2745 and stealing its $t0 (measured 14 diffs).  w44-a2 */
-        ((PSXFront_PTag *)prim)->addr = *(uint *)Render_gPalettePtr;
-        Render_gPacketPtr = (u_char *)prim + 0x24;
-        ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
-        *(int *)&prim->r0 = c1;
-        *(int *)&prim->r1 = c2;
-        *(int *)&prim->r2 = c3;
-        *(int *)&prim->r3 = c4;
-        prim->code = 0x39;
-        ((u_char *)prim)[3] = 8;
-        *(uint *)&prim->x0 = y << 0x10 | x;
-        *(uint *)&prim->x2 = (y + h) << 0x10 | x;
-        *(uint *)&prim->x1 = y << 0x10 | (x + w);
-        *(uint *)&prim->x3 = (y + h) << 0x10 | (x + w);
-      } while (i < opacity);
+  { int i;
+    for (i = 0; i < opacity; ) {
+      prim = (POLY_G4 *)Render_gPacketPtr;
+      i = i + 1;
+      ((PSXFront_PTag *)prim)->addr = *(uint *)Render_gPalettePtr; Render_gPacketPtr = (u_char *)prim + 0x24; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+      *(int *)&prim->r0 = c1;
+      *(int *)&prim->r1 = c2;
+      *(int *)&prim->r2 = c3;
+      *(int *)&prim->r3 = c4;
+      prim->code = 0x39;
+      ((u_char *)prim)[3] = 8;
+      *(uint *)&prim->x0 = y << 0x10 | x;
+      *(uint *)&prim->x2 = (y + h) << 0x10 | x;
+      *(uint *)&prim->x1 = y << 0x10 | (x + w);
+      *(uint *)&prim->x3 = (y + h) << 0x10 | (x + w);
     }
   }
 }

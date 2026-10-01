@@ -6858,3 +6858,20 @@ terminal `return;` is also byte-neutral and reduces the native function-end
 line delta from 35 to 31 (retail 21). Instruction SLD still has 54 tag
 differences and block-line attribution is not exact; this is a native scope
 restoration, not a full SLD seal.
+
+### For-header source-shape follow-up, same day
+
+Retail assigns the index initialization, opacity guard and loop preheader
+the same relative source line 3. A separate `i=0; if(opacity>0) do...while`
+shape could match bytes but left those stages on successive native lines.
+Changing the inner region to `{ int i; for (i=0; i<opacity; ) { ... i++; ... } }`
+keeps the retail 65/65 instruction graph and `i`'s exact nested SYM scope,
+while attributing the preheader to line 3. The packet-link stores remain
+one physical source line, consistent with their macro-shaped retail SLD;
+a trial function-like macro around only those three stores was byte-neutral
+but did not improve the line tags and was not retained. Moving historical
+reconstruction notes out of the function body and restoring the `for`
+header reduces tag differences 54 -> 33. Native end delta is now 17 vs
+retail 21, closer than the prior 31, but block-line attribution and 33
+instruction tags remain open. No dummy statement, #line directive or
+post-compile instruction edit was used.

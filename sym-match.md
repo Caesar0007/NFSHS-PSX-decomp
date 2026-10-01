@@ -7511,3 +7511,28 @@ form proves the literal original object or an absolute compiler floor.
 The named version remains PASS 79/79 and the full `copspeak.cpp` symloop is
 BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors (`run-vkszwde9`). Its
 one EXTRA native local and the function's SLD gaps remain explicit.
+
+### Clock parity value: remove EXTRA without losing byte PASS
+
+`Clock_MasterInterruptHandler`'s root `even128` declaration was an EXTRA
+native-SYM REG row; retail names only the stack local `gp`. A use-site
+`const int even128` inside the old positive `stopClock == 0` branch kept
+43/43 bytes but added two non-retail scopes. Moving the stopped-clock case
+to an early exit puts the const in the function-root active path. GCC then
+elides its debug row while preserving the same 43 instructions and the
+zero-insn scheduling fence's retail `nop` delay slot. `clock.cpp` is BYTES
+UNCHANGED, ASPSX 524/0 and PSYLINK zero errors (`run-eg33c5ss`). The
+native named-local list is now exact; the one remaining issue is lexical:
+native closes the root at `+0x9c`, retail at `+0x90`. The native/retail
+SLD tag differences improve 39 -> 30 and the end delta moves 32 -> 34
+toward retail 38, but neither scope nor full SLD is sealed.
+
+The `MaintainAvailableCops` ORDER-only problem was also checked with
+three byte-PASS for-owner forms this round: initializing `playLoop` added
+an EXTRA row, merely swapping its declaration with `copLoop` left ORDER
+unchanged, and moving both counters to an outer owner raised descendant
+scope depths and added a block. All were reverted. `PinkSlipsPreSave`'s
+dialog/answer reorder was byte-PASS in the normal build, but the debug
+lane fails by one instruction even after the committed source is restored;
+the issue needs a fresh baseline/debug-compiler diagnosis before any SYM
+claim. No experimental source from either function was retained.

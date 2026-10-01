@@ -6978,3 +6978,23 @@ versus retail 16. Instruction SLD remains 16/68 different and the block
 end is one source line late. A same-line closing brace was byte-neutral
 but did not move the debug line and was reverted. Full SLD attribution and
 the other Camera-native residuals remain open.
+
+## 2026-10-01 Camera_UpdateTVCam typed static indexing
+
+Retail SYM records separate fn-static `lastX[2]` and `lastY[2]`, plus
+`targetDist` and `height`; it does not record the reconstruction's
+`lastIndex` byte-offset local. Indexing each actual array by `player`
+lets GCC strength-reduce that `player*4` address quantity anonymously.
+All 83 instructions and whole `camera.cpp` TU bytes remain unchanged;
+`lastIndex` is no longer native-SYM EXTRA. Camera_UpdateTVCam now reports
+only the `clampedHeight` carrier. This also avoids the earlier Ghidra
+placeholder that treated lastY as an offset into lastX.
+
+With typed indexing established, a direct in-place MIN/MAX of retail's
+named `height` improved the former 56-diff experiment to 20 diffs at
+79/83, but still lost the separate `$a2` result funnel. Duplicated
+nested ternaries were 29 diffs at 84/83; a use-site const for the MIN
+result was 20 diffs at 79/83. All failed clamp experiments were reverted.
+The remaining separate value is explicitly receipted, not asserted to
+be an original named local. Native SLD line/order attribution and the
+other Camera residuals remain open.

@@ -883,18 +883,19 @@ void SetCameraZoom(int player,int targetDist)
   SetGeomScreen(Camera_gGeomScreen);
 }
 
-/* ---- Camera_UpdateTVCam__Fi  [@0x80081e48] ---- */
+/* ---- Camera_UpdateTVCam__Fi  [@0x80081e48] ----
+ * Retail owns two distinct fn-static int[2] arrays, lastX and lastY.
+ * Typed lastX[player]/lastY[player] lets GCC build the scaled byte-index
+ * quantity anonymously; the old named lastIndex was native-SYM EXTRA.
+ * The older Ghidra placeholder collapsed lastY into lastX (H43). */
 void Camera_UpdateTVCam(int player)
 {
   static int lastX[2];
   static int lastY[2];
   int targetDist;
   int height;
-  /* SYM-CODEGEN-CARRIER: lastIndex -- the optimized static-array byte index
-     has no retained debug name but occupies retail's s1 quantity. */
-  int lastIndex;
-  /* SYM-CODEGEN-CARRIER: clampedHeight -- anonymous result of the retail
-     MAX(0, MIN(TVHeight, height)) expansion, carried in a2. */
+  /* SOURCE-RECOVERY CARRIER: the anonymous MAX/MIN result lives in $a2;
+     direct in-place height/max forms were 20 diffs at 79/83 in this basin. */
   int clampedHeight;
 
   if (0 < Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position)) {
@@ -903,16 +904,12 @@ void Camera_UpdateTVCam(int player)
   else {
     targetDist = -Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position) >> 4;
   }
-  /* @0x80081EC4-F14: TWO distinct fn-statics indexed by player*4 -- lastX[2]@0x8013DD88 and
-   * lastY[2]@0x8013DD90 (8 bytes apart). The reconstruction routed every access through one
-   * Ghidra-ism `*(int*)("" + iVar3)` placeholder, collapsing lastY into lastX (H43). */
-  lastIndex = player * (int)sizeof(int);
-  if (*(int *)((char *)lastX + lastIndex) != Camera_gInfo[player].position.x) {
+  if (lastX[player] != Camera_gInfo[player].position.x) {
     /* MATCH: void fence at the arm HEAD -- defeats reorg's eager-steal of the lastY
      * %hi into the beq's delay slot (retail leaves that slot a nop). 0 insns. */
     __asm__("" : : "i"(0));
-    *(int *)((char *)lastX + lastIndex) = Camera_gInfo[player].position.x;
-    *(int *)((char *)lastY + lastIndex) = Camera_gInfo[player].position.y;
+    lastX[player] = Camera_gInfo[player].position.x;
+    lastY[player] = Camera_gInfo[player].position.y;
   }
   height = fixedmult(Camera_gInfo[player].TVHeight >> 2,targetDist + -0x4000);
   if (Camera_gInfo[player].TVHeight < height) {
@@ -927,7 +924,7 @@ void Camera_UpdateTVCam(int player)
     clampedHeight = 0;
   }
   Camera_gInfo[player].position.y =
-      *(int *)((char *)lastY + lastIndex) + clampedHeight;
+      lastY[player] + clampedHeight;
   SetCameraZoom(player,targetDist);
   return;
 }

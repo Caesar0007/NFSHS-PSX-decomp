@@ -53,6 +53,7 @@ struct AIState_Chase : public AIState_Base {
     void DoSlowNitrous();
     void DoNitrous(int);
     void Execute();
+    int GetSlowDownEndTime(); /* inferred inline accessor: retail records nested this */
     void FarTargeting();
     int CalculateCloseTargettingAheadSlowDownFactor();
     void CloseTargeting();
@@ -139,5 +140,11 @@ struct AIState_Cruise : public AIState_Normal {
     ~AIState_Cruise();
     void Execute();
 };
+
+/* Retail Execute has a nested inline `this` record for the slow-down-time read.
+   This accessor's spelling is inferred. GCC 2.8's interface form keeps its
+   inline debug scope without emitting a non-retail standalone copy. */
+#pragma interface
+inline int AIState_Chase::GetSlowDownEndTime() { return slowDownEndTime_; }
 
 #endif

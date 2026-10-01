@@ -679,7 +679,12 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
-/* ---- Execute__13AIState_Chase  AIState_Chase::Execute  [AISTATE.CPP:327-401] SLD-VERIFIED ---- */
+/* ---- Execute__13AIState_Chase  AIState_Chase::Execute  [AISTATE.CPP:327-401] SLD-VERIFIED ----
+ * SOURCE-RECOVERY: the short-circuit far test retains retail's 93-word branch
+ * graph without a named lmAbs local or its two extra native scopes. The
+ * inferred inline slow-down getter restores the nested `this` record; a
+ * const tick snapshot preserves the retail global-load-first schedule.
+ * Exact original accessor spelling and relative SLD lines remain open. */
 
 void AIState_Chase::Execute()
 
@@ -704,23 +709,8 @@ void AIState_Chase::Execute()
 
   deltaVelocity = __builtin_abs(deltaVelocity);
 
-  far = 0;
-
-  if (deltaVelocity < velocityToHitInTime) {
-
-    /* SYM-CODEGEN-CARRIER: lmAbs -- not preserved as a distinct SYM local.
-     * Folding the absolute-value expression changes 25 instructions and adds
-     * one; reusing the now-dead recorded `velocityToHitInTime` changes 28 and
-     * adds two. The separate value is required for the exact 93-insn body. */
-    int lmAbs;
-
-    lmAbs = this->longMetersBetween_;
-
-    lmAbs = __builtin_abs(lmAbs);
-
-    far = 0x8c0000 < lmAbs;
-
-  }
+  far = (deltaVelocity < velocityToHitInTime) &&
+        (0x8c0000 < __builtin_abs(this->longMetersBetween_));
 
   targetCarVerySlow = __builtin_abs(this->targetCar_->currentSpeed);
 
@@ -756,14 +746,15 @@ LAB_80070244:
 
 LAB_800702a0:
 
-  if (simGlobal.gameTicks < this->slowDownEndTime_) {
+  const int currentTick = simGlobal.gameTicks;
+  if (currentTick < this->GetSlowDownEndTime()) {
 
     this->DoSlowNitrous();
 
   }
 
-  /* Remaining 4 diffs are one uncoalesced retail load: currentSpeed enters $v1
-     before the subtraction result is assigned to deltaVelocity in $a1. */
+  /* Byte-PASS and native local/scope CLEAN; the remaining work here is SLD
+     statement-line attribution, not an instruction-stream residual. */
   return;
 
 }

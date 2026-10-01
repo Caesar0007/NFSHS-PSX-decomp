@@ -6760,3 +6760,35 @@ post-compile rewrite was used to claim a seal.
 Full `aistate.cpp` bytes are unchanged and both functions PASS; the broader
 SLD scope/order reconstruction remains open (ApproachTargeting still 188
 instruction-tag differences, end delta 186 vs retail 76).
+
+## 2026-10-01 Chase Execute inline receiver and far-test source shape
+
+Retail `Execute__13AIState_Chase` records a nested inline `this` receiver at
+the slow-down-time comparison (+0x140), but the direct field expression in
+our old source had no such record. An inferred nonvirtual inline
+`GetSlowDownEndTime()` supplies that receiver and the three retail nested
+scope levels. GCC 2.8 emits an unwanted standalone function if the method
+is merely defined inline; placing its definition under the header's
+`#pragma interface` suppresses that copy. A const tick snapshot is needed
+at the call site to keep the retail global load ahead of the field load;
+without it the caller is 2 diffs at 93/93. The accessor's literal original
+name and whether EA used the same pragma spelling are not recoverable from
+the current SYM; its value role, inline receiver and no-copy requirement are.
+
+The separate `lmAbs` local was native-SYM EXTRA. A const initialized from
+`__builtin_abs` preserved 93/93 bytes and removed its debug row, but left
+two extra lexical scopes. Re-expressing the same predicate as one
+short-circuit assignment to retail's named `far` removes those scopes too:
+the target is 93/93 byte-PASS and native-SYM CLEAN, and the owning
+`aistate.cpp` object is byte-identical to its pre-edit reference. Direct
+`__builtin_abs` inside the old if body was 25 diffs/94 words; assigning
+the compare to `far` before a second if was 29 diffs/94 words. The winning
+short-circuit form is therefore source-shape-specific, not an excused
+carrier. `DoNitrous` also has a retail inline `this` record, but using this
+getter there changed its branch by 3 diffs/84 words and was reverted.
+
+Full strict reconstruction and expected/oracle builds pass; the fresh linked
+RECON image remains 299819/299819 identical. Native SLD for `Execute` is
+still DIFF (90 instruction tags; end delta 67 versus retail 74), so native
+CLEAN is not a full original-source/SLD seal. The excess/offset line work
+and `DoNitrous` receiver remain in the explicit backlog.

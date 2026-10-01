@@ -7134,3 +7134,22 @@ differences. Detailed oracle verification remains PASS 120/120; full
 (`run-liz1urjk`), with four of five functions native CLEAN. This function
 still has seven EXTRA native locals, scope-depth/tree discrepancies and a
 large SLD gap; the renames do not excuse those outstanding source issues.
+
+### AIHigh_Opponent use-site const follow-up
+
+Two one-definition values in `CheckForWipeOut` are source-visible but need
+no retail debug-local record. `AIHigh_Base **const highAIList` still gives
+the high-AI table base its early compiler quantity and preserves the exact
+`$t5` allocation; `const int playerChaseLevelIndex` still stages the
+`perpChaseInfo_.chaseLevelIndex_` load before the branch. Their mutable
+declarations each produced an EXTRA native-SYM row; the const forms remove
+both rows while preserving all 120 retail instructions and the full
+`aih_opp.cpp` byte/layout fingerprint (`run-aq5ovi5w`, ASPSX 524/0,
+PSYLINK zero errors). The target's EXTRA count is now five, not seven.
+Making `playerCurrentSpeed` const was byte-neutral but did not remove its
+debug row, so that neutral probe was reverted. Inlining the speed read into
+the absolute-value expression changed 18 instructions at 122/120; removing
+the one-statement address wrapper and const-initializing
+`highAIEntryAddress` changed 23 at 121/120. Both were reverted. The five
+remaining extras, scope tree and SLD attribution remain open; const here
+is a verified codegen/debug-source shape, not proof of historical spelling.

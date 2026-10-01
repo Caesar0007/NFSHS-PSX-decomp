@@ -394,10 +394,10 @@ void AIHigh_Opponent::CheckForWipeOut()
       }
       hLoop = 0;
       if (!this->perpChaseInfo_.IsLastChaseLevel()) {
-        /* SOURCE-RECOVERY CARRIER: highAIList -- the source local gives this array base
-           an early allocno; the compiler-created loop hoist ties oppFines and
+        /* DEBUG-ELIDED SOURCE VALUE: highAIList -- the const base gives an
+           early allocno but no native local; a loop hoist ties oppFines and
            loses retail $t5. */
-        AIHigh_Base **highAIList = highLevelAIObjs; /* 🔴 W74-A11: the array BASE as a real pre-loop
+        AIHigh_Base **const highAIList = highLevelAIObjs; /* 🔴 W74-A11: the array BASE as a real pre-loop
                                        local, NOT a loop.c hoist.  Both spellings emit the same
                                        `lui;addiu` as the FIRST preheader insn, but a source local is
                                        an early-numbered pseudo that a zero-insn fence can dial; the
@@ -461,11 +461,11 @@ void AIHigh_Opponent::CheckForWipeOut()
           const int absolutePlayerSpeed = __builtin_abs(playerCurrentSpeed);
           AIHigh_Player *thisPlayer = *(AIHigh_Player **)highAIEntryAddress; /* 0x80063464-84 */
           int          playFines    = thisPlayerObj->stats.numFines;          /* SYM REG $3=$v1, 0x80063488 */
-          /* SOURCE-RECOVERY CARRIER: playerChaseLevelIndex -- the preloaded field keeps its
-             load ahead of the branch and avoids two load-delay nops.  Reading
-             it only in the condition emits 122 instructions and four ordered
-             diffs. */
-          int          playerChaseLevelIndex = thisPlayer->perpChaseInfo_.chaseLevelIndex_; /* 0x8006348C */
+          /* DEBUG-ELIDED SOURCE VALUE: playerChaseLevelIndex -- the use-site
+             const keeps its load ahead of the branch and avoids two load-delay
+             nops. Reading it only in the condition emits 122 instructions and
+             four ordered diffs. */
+          const int    playerChaseLevelIndex = thisPlayer->perpChaseInfo_.chaseLevelIndex_; /* 0x8006348C */
           if (speedLimit < absolutePlayerSpeed) { /* 0x80063480/90: permuter-found
                                             double-roll -- oracle RE-DERIVES the ternary at the compare site
                                             instead of reusing absField1380 (740 vs 1015 base permuter score) */

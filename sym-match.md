@@ -6707,3 +6707,32 @@ trade was also reverted. The `Font_SwitchFont` direct-base/const-base and
 and were restored. The independent linked RECON remains 299819/299819
 identical and the vtable-index audit passes. The wider carrier and SLD
 backlogs remain open.
+
+## 2026-10-01 AISTATE semantic carrier names
+
+`AIState_RovingTraffic::Execute` retained two source-only scalar webs named
+`iVar9`/`iVar8` even though their roles are explicit in the raw program:
+arithmetic right shifts by 12 of the X/Z relative-position deltas before the
+distance test. They are now `scaledDistanceX`/`scaledDistanceZ`. In-place
+mutation of the respective vector fields previously lost two/one retail
+instructions and produced 38/17 detailed diffs; keeping the separate webs
+preserves 233/233 PASS and unchanged whole-TU bytes. Retail SYM has no names
+for those webs, so the new spellings are evidence-backed semantic names, not
+claims to the literal original identifiers. Native SYM still marks both as
+EXTRA and the broader block/SLD reconstruction remains open.
+
+`AIState_Chase::ApproachTargeting`'s `pCVar4` was the repeatedly used
+`this->carObj_` pointer in its final speed-selection phase. It is now
+`chaseCar`, with the existing 14-diff/two-extra-reload direct-field receipt
+retained; the function remains 195/195 PASS and the whole `aistate.cpp` TU
+byte-unchanged. Its multi-role `iVar5` remains explicitly unresolved: it
+holds the tick, aggression selector and selected speed in successive phases,
+so a single invented role name would be misleading. The original spelling
+and whether this is one source object or register reuse require further
+source-shape/SYM work. Neither renamed function is claimed SLD-exact.
+
+In `BWorld_Init`, reusing the retail-named `AudioScene` for the earlier random
+draw was 15 diffs at 186/187 instructions; a branch-local `const random`
+preserved 187 bytes but added four non-retail scopes. Both trials were
+reverted. The separate random value remains a semantic source-recovery
+carrier, not a proved original local.

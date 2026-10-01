@@ -1161,9 +1161,9 @@ void AIState_Chase::ApproachTargeting(int intercept)
    * the recorded `minSpeed` changes 25 instructions and shortens the body by
    * one. */
   int iVar5;
-  /* SYM-CODEGEN-CARRIER: pCVar4 -- absent from the surviving local records.
-   * Direct `carObj_` accesses change 14 instructions and add two reloads. */
-  Car_tObj *pCVar4;
+  /* SOURCE-RECOVERY CARRIER: chaseCar caches this chase state's own car pointer;
+   * direct `carObj_` costs 14 diffs/two reloads; spelling is absent from SYM. */
+  Car_tObj *chaseCar;
 
   
 
@@ -1301,20 +1301,20 @@ LAB_MIN_A:
 
 LAB_80070adc:
 
-  pCVar4 = this->carObj_;
+  chaseCar = this->carObj_;
 
-  if (pCVar4->direction == 1) {
+  if (chaseCar->direction == 1) {
     iVar5 = minSpeed;
-    if (pCVar4->desiredSpeed < iVar5) {
-      iVar5 = pCVar4->desiredSpeed;
+    if (chaseCar->desiredSpeed < iVar5) {
+      iVar5 = chaseCar->desiredSpeed;
     }
   } else {
     iVar5 = -minSpeed;
-    if (iVar5 < pCVar4->desiredSpeed) {
-      iVar5 = pCVar4->desiredSpeed;
+    if (iVar5 < chaseCar->desiredSpeed) {
+      iVar5 = chaseCar->desiredSpeed;
     }
   }
-  pCVar4->desiredSpeed = iVar5;
+  chaseCar->desiredSpeed = iVar5;
 
   AI_GenericBeginCycle(this->carObj_);
 
@@ -2204,7 +2204,12 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
 
 
-/* ---- Execute__21AIState_RovingTraffic  AIState_RovingTraffic::Execute  [AISTATE.CPP:1172-1224] SLD-VERIFIED ---- */
+/* ---- Execute__21AIState_RovingTraffic  AIState_RovingTraffic::Execute  [AISTATE.CPP:1172-1224] SLD-VERIFIED ----
+ * SOURCE-RECOVERY: the formerly synthetic iVar9/iVar8 hold the signed X/Z
+ * relative-position deltas shifted right by 12. In-place shifts lose one/two
+ * retail instructions and score 17/38 diffs respectively. Retail SYM has no
+ * names for these separate value webs; scaledDistanceX/Z are semantic labels,
+ * not claimed original spellings. Keep this receipt outside the line-bearing body. */
 
 void AIState_RovingTraffic::Execute()
 {
@@ -2214,13 +2219,13 @@ void AIState_RovingTraffic::Execute()
   coorddef carRelativeForLatPos;
   coorddef carRelativeForDistance;
 
-  /* SYM-CODEGEN-CARRIER: iVar8 -- shifting carRelativeForDistance.z in place
-     removes one retail instruction and changes operand allocation to 17 diffs. */
-  int iVar8;
+  /* SOURCE-RECOVERY CARRIER: signed Z delta shifted by 12;
+     distinct value web required by the 233-word oracle. */
+  int scaledDistanceZ;
 
-  /* SYM-CODEGEN-CARRIER: iVar9 -- shifting carRelativeForDistance.x in place
-     removes two retail instructions and changes allocation to 38 diffs. */
-  int iVar9;
+  /* SOURCE-RECOVERY CARRIER: signed X delta shifted by 12;
+     distinct value web required by the 233-word oracle. */
+  int scaledDistanceX;
 
     /* W57-A11: SLD gives ONE retail line (1177) for the whole 3-word copy and the oracle
      uses t0/t1/t2 -- that is gcc's movstrsi 12-byte STRUCT ASSIGNMENT, not three per-field
@@ -2249,17 +2254,17 @@ void AIState_RovingTraffic::Execute()
 
   carRelativeForDistance.x = this->carObj_->targetPos.x - this->carObj_->N.position.x;
 
-  iVar9 = carRelativeForDistance.x >> 0xc;
+  scaledDistanceX = carRelativeForDistance.x >> 0xc;
 
   carRelativeForDistance.y = this->carObj_->targetPos.y - this->carObj_->N.position.y;
 
   carRelativeForDistance.z = this->carObj_->targetPos.z - this->carObj_->N.position.z;
 
-  iVar8 = carRelativeForDistance.z >> 0xc;
+  scaledDistanceZ = carRelativeForDistance.z >> 0xc;
 
-  carRelativeForDistance.x = iVar9;
+  carRelativeForDistance.x = scaledDistanceX;
 
-  carRelativeForDistance.z = iVar8;
+  carRelativeForDistance.z = scaledDistanceZ;
 
   if (carRelativeForDistance.x * carRelativeForDistance.x +
       carRelativeForDistance.z * carRelativeForDistance.z < 10000) {

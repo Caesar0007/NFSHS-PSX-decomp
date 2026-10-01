@@ -72,9 +72,7 @@ void BWorldSm_Restart(void)
   NormalCache_Init(); }
 
 /* ---- BWorldSm_DeInit__Fv  [@0x8007e968] ---- */
-void BWorldSm_DeInit(void)
-{
-  return;
+void BWorldSm_DeInit(void) {
 }
 
 /* ---- FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos  [@0x8007e970] ---- */

@@ -7320,3 +7320,24 @@ function-end delta exact without moving any instruction. The full
 strict SLD coverage rises 254 -> 255 of 1247. The other three AICop
 functions retain their own source-line residuals and are not sealed by this
 result.
+
+### BWorldSm_DeInit empty-body SLD seal and AICop inline probe
+
+`BWorldSm_DeInit` is a two-instruction no-op in NFS4 retail, and the
+independently matched NFS2 PC beta source has an empty body. Replacing the
+reconstruction's explicit `return;` with an empty body (`{` on the header
+line, `}` on the following line) retains 2/2 PASS and reproduces all retail
+instruction tags, the block-line pair and function-end delta. The full
+`bworldSm.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors
+(`run-_kev71gd`), 28/28 native CLEAN. GAME/COMMON strict SLD exact coverage
+rises 255 -> 256 of 1247.
+
+The separate `AICop_Restart`/`AICop_StartUp` inline-helper hypothesis was
+also tested and rejected this round. Expanding `SpikeBelt_SetActive` from
+one line to a multiline inline definition was byte-neutral but left both
+callers' scope line records at native +1 rather than retail +4/+17. A
+nested-brace `do` macro moved the source shape but changed four and six
+machine instructions respectively at unchanged function sizes. Both
+experiments were reverted; the original inline helper and both callers
+remain byte-PASS. This narrows the unresolved inline attribution without
+claiming a compiler floor or original macro syntax.

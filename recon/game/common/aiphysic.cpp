@@ -1909,9 +1909,12 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_StartUp__Fv / CleanUp / Reset (empty stubs, retail VA order 0x8006cc3c/44/4c) ---- */
-void AIPhysic_StartUp(void) { return; }
-void AIPhysic_CleanUp(void) { return; }
-void AIPhysic_Reset(void)   { return; }
+void AIPhysic_StartUp(void) {
+}
+void AIPhysic_CleanUp(void) {
+}
+void AIPhysic_Reset(void) {
+}
 
 /* ---- AIPhysic_ResetCar__FP8Car_tObj ---- */
 void AIPhysic_ResetCar(Car_tObj *carObj)

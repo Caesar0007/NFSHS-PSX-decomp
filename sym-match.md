@@ -7212,3 +7212,18 @@ ordered sentence-index buffer filled by `iSPCH_OrderSentences`, now
 fresh pre-edit source-only reference; ordinary `symloop` correctly refuses
 this eaclib TU because retail SYM does not cover its function locals.
 These names are evidence-supported roles, not claims of original spelling.
+
+### AIPhysic empty lifecycle bodies: three strict SLD seals
+
+Retail records `AIPhysic_StartUp`, `AIPhysic_CleanUp`, and `AIPhysic_Reset`
+as two-instruction bodies whose instruction tags, sole block close and
+function end are all one source line after the header. The old one-line
+`{ return; }` forms tagged both instructions at line +0. The independently
+matched NFS2 PC beta sources have empty bodies for the same three functions.
+For NFS4, `void name(void) {` followed by `}` on the next line reproduces
+the retail +1 tags, block lines and end delta with no return statement.
+Each remains 2/2 PASS, the full `aiphysic.cpp` TU is BYTES UNCHANGED
+(ASPSX 524/0, PSYLINK zero errors, `run-5yu48vcb`), and all three are
+strict SLD EXACT/native CLEAN. GAME/COMMON strict exact coverage rises
+240 -> 243 of 1247; six tag-word differences disappear. This is supported
+by retail SLD and the matched sibling source, not blank-line padding.

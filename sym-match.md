@@ -7112,3 +7112,25 @@ changed ten detailed instructions (132/128). All trial variants were
 reverted. A source loop that exposes the initializer region without the
 extra expression scope remains to be found; neither discrepancy is a
 proven compiler floor.
+
+### 2026-10-01 AIHigh_Opponent field and carrier semantics
+
+`AIHigh_Opponent::CheckForWipeOut` now reads the typed fields behind four
+retail offsets: `Car_tObj::carIndex` at `+0x254`, `stats.numFines` at
+`+0x3a4` (`stats` at `+0x34c`, `numFines` at `+0x58`), `currentSpeed` at
+`+0x564`, and inherited `AIHigh_Player::perpChaseInfo_.chaseLevelIndex_`
+at `+0x94` (`perpChaseInfo_` at `+0x8c`, member at `+8`). These names and
+offsets are direct retail SYM MOS evidence, not guesses from the decompiler.
+The unsupported `bVar1`/`field1380`/`hlai`/`slotAddr`/`absField`/`state`
+source spellings became `lacksActiveCopPursuit`, `playerCurrentSpeed`,
+`highAIList`, `highAIEntryAddress`, `absolutePlayerSpeed`, and
+`playerChaseLevelIndex`. Their literal historical local spellings are not
+claimed; each semantic role follows its tested value path. In particular,
+`lacksActiveCopPursuit` is true iff the crime is zero or the two assigned-cop
+counts sum to zero. The distinct short-circuit local still has a byte-matching need:
+folding it into the later guard was previously 112/120 with 22 instruction
+differences. Detailed oracle verification remains PASS 120/120; full
+`aih_opp.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors
+(`run-liz1urjk`), with four of five functions native CLEAN. This function
+still has seven EXTRA native locals, scope-depth/tree discrepancies and a
+large SLD gap; the renames do not excuse those outstanding source issues.

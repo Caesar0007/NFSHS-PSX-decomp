@@ -38,25 +38,25 @@ void AIHigh_Opponent::CheckForWipeOut()
   int oppLevel;
   int oppFines;
   int hLoop;
-  /* ORIGINAL-NAME-UNRESOLVED: `numRacers`, `bVar1`, `hlai`, `speedLimit`,
-     `carIndex`, `field1380`, `slotAddr`, `absField`, and `state` are retained
-     allocation/source-shape objects.  NFS4 SYM does not preserve their source
-     spellings, and no checked symbol-bearing reference proves them.  The
-     current identifiers are placeholders, not accepted semantic restorations. */
+  /* ORIGINAL-NAME-UNRESOLVED: `numRacers`, `highAIList`, `speedLimit`,
+     `highAIEntryAddress` and `absolutePlayerSpeed` are retained
+     allocation/source-shape objects. NFS4 SYM omits their literal names,
+     but types, member offsets and retail value flow support these semantic
+     roles; none is asserted to be the original identifier spelling. */
   /* SYM-CODEGEN-CARRIER: numRacers -- its named lifetime makes the loop-bound
      load a profitable loop.c movable and the zero-op references reproduce
      retail $t3.  Reading NumHumanRaceCars() directly was measured at 30
      diffs and 122 instructions. */
   int numRacers;
 
-  /* SYM-CODEGEN-CARRIER: bVar1 -- retail materializes this initial
-     crime/chaser short-circuit before the elapsed-time guard.  Folding it into
-     one compound condition emits 112 instead of 120 instructions and changes
-     22 authoritative load/compare/branch instructions. */
-  bool bVar1;
+  /* SOURCE-RECOVERY CARRIER: lacksActiveCopPursuit -- crime is zero or the
+     two assigned-cop counts sum to zero. Retail forms this before the
+     elapsed-time guard; folding it emits 112 instead of 120 instructions and
+     changes 22 authoritative load/compare/branch instructions. */
+  bool lacksActiveCopPursuit;
 
-  oppLevel = *(int *)((char *)this + 148);                    /* $t7, unconditional prologue load */
-  oppFines = *(int *)((char *)this->carObj_ + 932);           /* $t6, unconditional prologue load (via carObj_ = $v1) */
+  oppLevel = this->perpChaseInfo_.chaseLevelIndex_;          /* $t7, unconditional prologue load */
+  oppFines = this->carObj_->stats.numFines;                  /* $t6, unconditional prologue load (via carObj_ = $v1) */
 
   if ((Cars_gNumCopCars != 0) &&
 
@@ -64,7 +64,7 @@ void AIHigh_Opponent::CheckForWipeOut()
 
       (this->carObj_)->wipeOutEndTick)) {
 
-    bVar1 = false;
+    lacksActiveCopPursuit = false;
 
     if ((this->basicPerpInfo_.crime_ == 0) ||
 
@@ -72,11 +72,11 @@ void AIHigh_Opponent::CheckForWipeOut()
 
         this->basicPerpInfo_.copsAssigned_[1] == 0)) {
 
-      bVar1 = true;
+      lacksActiveCopPursuit = true;
 
     }
 
-    if ((!bVar1) &&
+    if ((!lacksActiveCopPursuit) &&
 
        (0x27f < simGlobal.gameTicks -
 
@@ -394,10 +394,10 @@ void AIHigh_Opponent::CheckForWipeOut()
       }
       hLoop = 0;
       if (!this->perpChaseInfo_.IsLastChaseLevel()) {
-        /* SYM-CODEGEN-CARRIER: hlai -- the source local gives this array base
+        /* SOURCE-RECOVERY CARRIER: highAIList -- the source local gives this array base
            an early allocno; the compiler-created loop hoist ties oppFines and
            loses retail $t5. */
-        AIHigh_Base **hlai = highLevelAIObjs;   /* 🔴 W74-A11: the array BASE as a real pre-loop
+        AIHigh_Base **highAIList = highLevelAIObjs; /* 🔴 W74-A11: the array BASE as a real pre-loop
                                        local, NOT a loop.c hoist.  Both spellings emit the same
                                        `lui;addiu` as the FIRST preheader insn, but a source local is
                                        an early-numbered pseudo that a zero-insn fence can dial; the
@@ -446,8 +446,8 @@ void AIHigh_Opponent::CheckForWipeOut()
           speedLimit = 0xd0000;
           do { thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
                speedLimit = speedLimit | 0x5554; } while (0);  /* 0x8006345C */
-          const int carIndex = *(int *)((char *)thisPlayerObj + 596);
-          int field1380 = *(int *)((char *)thisPlayerObj + 1380);
+          const int carIndex = thisPlayerObj->carIndex;
+          int playerCurrentSpeed = thisPlayerObj->currentSpeed;
           /* W85-S1: the ADDRESS arithmetic (not the load) sits in its own zero-insn
              `do{}while(0)`.  flow.c weights a reference by 1+loop_depth, so this is the
              +1 REG_N_REFS on the highLevelAIObjs base that lifts it over oppFines/oppLevel
@@ -456,20 +456,20 @@ void AIHigh_Opponent::CheckForWipeOut()
              `lw v0,0(v0)` can be scheduled after the abs (measured: 2 diffs).
              Replaces `register int carIndex asm("$2")` + `register int field1380 asm("$3")`
              + a 3-instruction `__asm__("lw/sll/addu")` block. */
-          int slotAddr;
-          do { slotAddr = (carIndex << 2) + (int)hlai; } while (0);
-          const int absField = __builtin_abs(field1380);
-          AIHigh_Player *thisPlayer = *(AIHigh_Player **)slotAddr; /* 0x80063464-84 */
-          int          playFines    = *(int *)((char *)thisPlayerObj + 932);   /* SYM REG $3=$v1, 0x80063488 */
-          /* SYM-CODEGEN-CARRIER: state -- naming the preloaded state keeps its
+          int highAIEntryAddress;
+          do { highAIEntryAddress = (carIndex << 2) + (int)highAIList; } while (0);
+          const int absolutePlayerSpeed = __builtin_abs(playerCurrentSpeed);
+          AIHigh_Player *thisPlayer = *(AIHigh_Player **)highAIEntryAddress; /* 0x80063464-84 */
+          int          playFines    = thisPlayerObj->stats.numFines;          /* SYM REG $3=$v1, 0x80063488 */
+          /* SOURCE-RECOVERY CARRIER: playerChaseLevelIndex -- the preloaded field keeps its
              load ahead of the branch and avoids two load-delay nops.  Reading
              it only in the condition emits 122 instructions and four ordered
              diffs. */
-          int          state        = *(int *)((char *)thisPlayer + 148);      /* 0x8006348C */
-          if (speedLimit < absField) { /* 0x80063480/90: permuter-found
+          int          playerChaseLevelIndex = thisPlayer->perpChaseInfo_.chaseLevelIndex_; /* 0x8006348C */
+          if (speedLimit < absolutePlayerSpeed) { /* 0x80063480/90: permuter-found
                                             double-roll -- oracle RE-DERIVES the ternary at the compare site
                                             instead of reusing absField1380 (740 vs 1015 base permuter score) */
-            if (state < 2 && !(oppLevel < 3)) {                                /* 0x80063494-A0: skips the fines check */
+            if (playerChaseLevelIndex < 2 && !(oppLevel < 3)) {                /* 0x80063494-A0: skips the fines check */
               /* branch 0x800634A0's DELAY SLOT (0x800634A4 $a0=$t2<<2=116*ae) runs before reaching RANDGATE.
                  oracle recomputes `AI_elapsedTime*116` FRESH at EACH branch's delay slot (byte-identical
                  `sll a0,t2,2` at both 0x800634A4 and 0x800634B4) instead of hoisting ONE shared boolean

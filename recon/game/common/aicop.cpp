@@ -84,15 +84,16 @@ void AICop_Restart(void)
 /* ---- AICop_CleanUp__Fv  [@0x80066aa8] ---- */
 void AICop_CleanUp(void)
 {
-  if (triggerManagerCops != (AITrigger_TriggerManager *)0x0) {
+  if (triggerManagerCops != (AITrigger_TriggerManager *)0x0)
+  {
     delete triggerManagerCops;
     triggerManagerCops = (AITrigger_TriggerManager *)0x0;
   }
-  if ((AICop_rawTriggers != (u_char *)0x0) && (AICOP_COPS != 0)) {
+  if ((AICop_rawTriggers != (u_char *)0x0) && (AICOP_COPS != 0))
+  {
     purgememadr(AICop_rawTriggers);
     AICop_rawTriggers = (u_char *)0x0;
   }
-  return;
 }
 
 /* ---- AICop_NoCopsInArea__Fii  [@0x80066b08] ---- */

@@ -7306,3 +7306,17 @@ All three functions are now strict SLD EXACT and native CLEAN. The full
 (`run-sv9e91gk`), with 17/17 native CLEAN. GAME/COMMON strict exact coverage
 rises 251 -> 254 of 1247. No new locals, codegen fences or output rewrites
 were introduced.
+
+### AICop_CleanUp strict SLD cleanup source
+
+`AICop_CleanUp` has the same two guarded resource releases as the AIInit
+cleanup functions, but its retail SLD puts the second guard immediately
+after the first block rather than leaving a source-line gap. Placing each
+body brace on the following line and using implicit void fallthrough makes
+all 24 instruction tags, the single lexical block line pair and the
+function-end delta exact without moving any instruction. The full
+`aicop.cpp` gate is BYTES UNCHANGED, ASPSX 524/0 and PSYLINK zero errors
+(`run-foheta6g`); all four functions remain native CLEAN. GAME/COMMON
+strict SLD coverage rises 254 -> 255 of 1247. The other three AICop
+functions retain their own source-line residuals and are not sealed by this
+result.

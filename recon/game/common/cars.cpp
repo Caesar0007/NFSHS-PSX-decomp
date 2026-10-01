@@ -1366,8 +1366,7 @@ void Cars_FindTotalSlice(Car_tObj *carObj)
       if (GameSetup_gData.reverseTrack != 0) {
         (carObj->N).totalSlice = (lapSlices - (u_short)(carObj->N).simRoadInfo.slice) - 1 + carObj->lap * lapSlices;
       } else {
-        (carObj->N).totalSlice = (u_short)(carObj->N).simRoadInfo.slice + carObj->lap * lapSlices; } } }
-}
+        (carObj->N).totalSlice = (u_short)(carObj->N).simRoadInfo.slice + carObj->lap * lapSlices; } } } }
 
 /* ---- Car_DoSkiddingStuff__FP8Car_tObj  [@0x800897cc] ---- */
 void Car_DoSkiddingStuff(Car_tObj *carObj)

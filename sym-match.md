@@ -7266,3 +7266,23 @@ TU is now 7/7 strict SLD EXACT and 7/7 native CLEAN. The `aitune.cpp`
 symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors
 (`run-4r8q0y85`); GAME/COMMON strict SLD coverage rises 247 -> 251 of
 1247. No line padding, new local, compiler flag or output rewrite was used.
+
+### Cars_FindTotalSlice: instruction tags exact, block opens still early
+
+Retail `Cars_FindTotalSlice` records `lapSlices` at depth 3 and has 27
+instructions. NFS2 PC beta uses a simpler `if/else` without NFS4's
+reverse-track branch. Translating NFS4 to that `if/else` shape was byte-PASS
+but added a fourth native scope and moved `lapSlices` to depth 4; removing
+the inner brace restored native CLEAN but made all 27 line tags differ.
+Both structural trials were reverted: the matching source requires its
+existing outer/inner lexical owner, not merely NFS2's control flow.
+
+With that owner restored, putting the terminal closing brace on the last
+statement line keeps 27/27 PASS, all original named locals/homes/depths,
+and the complete `cars.cpp` byte/layout fingerprint (ASPSX 524/0,
+PSYLINK zero errors, `run-y7tc7y_f`). All 27 instruction tags and the
+function-end delta now match retail (+12). It is not strict SLD exact:
+the two inner block-open source lines are still +2/+7 native versus
++3/+8 retail, although their instruction-address bounds and closing
+lines agree. The literal historical brace spelling is not inferred from
+the equal tags; source-region ownership for those two opens remains open.

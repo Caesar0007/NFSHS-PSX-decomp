@@ -6845,3 +6845,16 @@ backup under `build/symloop_ref`, then `--ref-only` established the current
 pre-edit reference by fresh compilation. The fail-closed whole-TU gates now
 pass for both. Literal macro spelling, remaining local/scope residuals and
 full SLD attribution are not sealed by this improvement.
+
+## 2026-10-01 PSXDrawTransGouraudSquare loop ownership
+
+Retail SYM records `prim` in the function block but `i` in a nested block
+starting at function entry. The reconstruction declared both at root. A
+lexical region around the index initialization and the quad loop moves `i`
+to exactly the retail scope depth and boundaries without changing any of
+the 65 instructions or the whole `psxfront.cpp` object. Native comparison
+for this function is now CLEAN. Implicit void fallthrough instead of a
+terminal `return;` is also byte-neutral and reduces the native function-end
+line delta from 35 to 31 (retail 21). Instruction SLD still has 54 tag
+differences and block-line attribution is not exact; this is a native scope
+restoration, not a full SLD seal.

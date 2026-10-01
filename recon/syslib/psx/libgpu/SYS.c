@@ -1856,8 +1856,8 @@ extern int _dws(RECT *rect, u_long *data)
 {
     int to_write;
     int size;
-    int var_s0;
-    int var_s4;
+    int tailWords;
+    int transferMode;
     int quotient;
     int readyMask;
     RECT *saved;
@@ -1944,16 +1944,16 @@ extern int _dws(RECT *rect, u_long *data)
      * all four uses, which is what made the old "old-gcc no-copy-prop" story plausible.) */
     saved = rect;
     __asm__("" : "=r"(data) : "0"(data), "r"(saved));
-    var_s4 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
+    transferMode = 0;                             /* GP0 cmd selector (0 = 0xA0 load) */
     _gpu_arm_timeout();
     saved->w = CLAMP(saved->w, 0, GEnv.screenW);
     saved->h = CLAMP(saved->h, 0, GEnv.screenH);
     to_write = (saved->w * saved->h + 1) / 2;
     if (to_write <= 0)
         return -1;
-    var_s0 = to_write >> 4;
-    quotient = var_s0;
-    var_s0 = to_write - (quotient << 4);
+    tailWords = to_write >> 4;
+    quotient = tailWords;
+    tailWords = to_write - (quotient << 4);
     size = quotient;
     if ((*GPU_GP1 & 0x04000000) == 0) {          /* wait until ready to receive DMA */
         /* W74-A18: reload_cse_regs donor-invalidation -- see the block comment above.
@@ -1968,7 +1968,7 @@ extern int _dws(RECT *rect, u_long *data)
     }
     *GPU_GP1 = 0x04000000;
     *GPU_GP0 = 0x01000000;
-    *GPU_GP0 = var_s4 ? 0xb0000000u : 0xa0000000u;
+    *GPU_GP0 = transferMode ? 0xb0000000u : 0xa0000000u;
     *GPU_GP0 = *(u_long *)saved;
     *GPU_GP0 = *((u_long *)saved + 1);
     /* 🟢 W71-A11 (8 -> 6, count-exact 143/143) -- HALF OF RESIDUAL CLASS (a) IS NOT THE
@@ -1989,13 +1989,13 @@ extern int _dws(RECT *rect, u_long *data)
     {
         int peel = -1;
         __asm__("" : "=r"(peel) : "0"(peel));    /* cse constant-sharing breaker */
-        var_s0--;
-        if (var_s0 != peel) {
+        tailWords--;
+        if (tailWords != peel) {
             do {
                 *GPU_GP0 = *data;
                 data++;
-                var_s0--;
-            } while (var_s0 != -1);
+                tailWords--;
+            } while (tailWords != -1);
         }
     }
     if (size) {
@@ -2029,7 +2029,7 @@ extern int _drs(RECT *rect, u_long *data)
      * (the 0x08000000 guard test), so both need their own clobber. */
     int to_read;
     int size;
-    int var_s0;
+    int tailWords;
     int quotient;
     int readyMask;
     int sendMask;
@@ -2047,9 +2047,9 @@ extern int _drs(RECT *rect, u_long *data)
     to_read = (saved->w * saved->h + 1) / 2;
     if (to_read <= 0)
         return -1;
-    var_s0 = to_read >> 4;
-    quotient = var_s0;
-    var_s0 = to_read - (quotient << 4);
+    tailWords = to_read >> 4;
+    quotient = tailWords;
+    tailWords = to_read - (quotient << 4);
     size = quotient;
     if ((*GPU_GP1 & 0x04000000) == 0) {          /* wait until ready for DMA */
         __asm__("" : : : "$3");                  /* W74-A18 reload_cse donor-invalidation */
@@ -2080,13 +2080,13 @@ extern int _drs(RECT *rect, u_long *data)
     {
         int peel = -1;
         __asm__("" : "=r"(peel) : "0"(peel));    /* cse constant-sharing breaker */
-        var_s0--;
-        if (var_s0 != peel) {
+        tailWords--;
+        if (tailWords != peel) {
             do {
                 *data = *GPU_GP0;
-                var_s0--;
+                tailWords--;
                 data++;
-            } while (var_s0 != -1);
+            } while (tailWords != -1);
         }
     }
     if (size) {

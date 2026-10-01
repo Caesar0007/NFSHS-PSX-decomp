@@ -7469,3 +7469,24 @@ kept its two bytes but moved the exact tags/end to +3 rather than retail
 +2, without fixing the +1 versus +2 block close. All trial source edits
 were reverted. These are unresolved lexical ownership questions, not
 licence for dummy blocks or line padding.
+
+### GPU transfer workers: semantic remainder/mode names
+
+The two libgpu workers `_dws` and `_drs` still contained the register-derived
+source name `var_s0`. It holds the quotient temporarily, then the 0–15
+remainder word count consumed by the peeled CPU transfer loop; it is now
+`tailWords`. `_dws` also carried `var_s4`, the zero-valued selector between
+GP0 A0 (load) and B0 (move); it is now `transferMode`. The matched Rage
+Racer PsyQ implementation independently has the analogous `rem` and `mode`
+roles, but not a retail NFS4 name record, so these are semantic names rather
+than asserted original spellings. Removing the selector and writing A0
+literally was tested: `_dws` fell to 138/143 with 25 detailed differences
+and a different saved-register frame, so the distinct source quantity stays.
+Both workers remain detailed PASS 143/143 and 160/160, and complete
+`libgpu/SYS.c` section bytes/layout equal its fail-closed pre-edit reference.
+
+The expanded comment-stripped active-code scan for `var`/`ivar`/`pvar`
+patterns now finds only `optVar1/2` in `AIWORLD.cpp` and `physics.cpp`, plus
+`var1` in `schedule.cpp`. Retail SYM explicitly records all five local or
+parameter names, so they must not be renamed. This closes those lexical
+token families, not the remaining semantic-carrier or SLD review queue.

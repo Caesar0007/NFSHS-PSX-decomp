@@ -7356,3 +7356,24 @@ has only a two-instruction no-op body but a retail source span of 51 lines;
 the skipped/conditional historical content is not determined by the binary
 or current SYM, so that SLD item remains explicit rather than padded with
 invented source.
+
+### AIPerson_Cleanup empty hook and two lexical-only probes
+
+`AIPerson_Cleanup` is a genuine two-instruction no-op. Its old explicit
+`return;` put both instruction tags and the end at header+2 versus retail
++1. An empty body with its opening brace on the header line reproduces
+both tags, the block-line pair and the end delta, preserving 2/2 PASS.
+The full `aiperson.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0 and
+PSYLINK zero errors (`run-f9ae10vi`), 8/8 native CLEAN. GAME/COMMON
+strict SLD exact coverage rises 257 -> 258 of 1247.
+
+Two other zero-tag-diff functions were checked but not claimed sealed.
+`Camera_ReplayUpdate` has an exact 65-word instruction line map/end, yet
+retail closes its one block at line +14 and native at +20; an extra
+enclosing source region and a branch-local early return each kept bytes
+but failed to move that block close and regressed tags. In
+`tScreenCongrats::DrawForeground`, an extra empty source block likewise
+kept its two bytes but moved the exact tags/end to +3 rather than retail
++2, without fixing the +1 versus +2 block close. All trial source edits
+were reverted. These are unresolved lexical ownership questions, not
+licence for dummy blocks or line padding.

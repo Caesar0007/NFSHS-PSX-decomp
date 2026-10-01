@@ -236,7 +236,5 @@ void AIPerson_Startup(void)
 }
 
 /* ---- AIPerson_Cleanup__Fv  [@0x80069230] ---- */
-void AIPerson_Cleanup(void)
-{
-  return;
+void AIPerson_Cleanup(void) {
 }

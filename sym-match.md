@@ -6875,3 +6875,28 @@ header reduces tag differences 54 -> 33. Native end delta is now 17 vs
 retail 21, closer than the prior 31, but block-line attribution and 33
 instruction tags remain open. No dummy statement, #line directive or
 post-compile instruction edit was used.
+
+## 2026-10-01 Force pointer-walk source and SLD seals
+
+`Force_StartUp`, `Force_Disable` and `Force_Pause` carried a root-scope
+`Force_tGlobal *f` plus a guarded `do` loop. Retail SYM places `f` in a
+single inner scope starting at function entry and ending with the loop.
+A C++ `for (Force_tGlobal *f = Force_g; f < Force_g + 2; f++)` expresses
+that ownership directly. Its guard and pointer updates strength-reduce to
+the same 51/29/16 retail instruction streams; the whole Force TU is
+byte-unchanged and all three functions are native-SYM CLEAN. Putting the
+loop opening brace on the following source line aligns the first store
+and loop-latch SLD tags. Implicit void fallthrough seals Disable/Pause;
+for StartUp, a natural separation between the common first schedule call
+and the optional second-player call aligns the last call tags. All three
+have zero tag differences, exact block-line records and exact end deltas.
+The strict SLD board rises 448 -> 451/2565, GAME/PSX 36 -> 39/395.
+
+The ignored `force.cpp` symloop reference was older than current main:
+its text and rodata differed. Before replacing it, all nine Force functions
+were independently detailed-PASS and the real linked image was exact.
+The old snapshot remains in a named recoverable backup in
+`build/symloop_ref`; `--ref-only` created a fresh pre-edit reference.
+After edits, fail-closed symloop reports all nine functions' TU bytes
+unchanged with 7/9 native-CLEAN. The remaining Force_Update and Force_Vbl
+local/source issues remain explicit, as do all other project-wide residuals.

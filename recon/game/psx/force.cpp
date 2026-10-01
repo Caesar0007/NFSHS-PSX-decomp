@@ -338,33 +338,32 @@ ForceUpd_audioRevLoop:
   return;
 }
 
-/* ---- Force_StartUp__Fv  [FORCE.CPP:230-244] SLD-VERIFIED ---- */
+/* ---- Force_StartUp__Fv  [FORCE.CPP:230-244] SLD-EXACT ----
+ * The for-init declaration gives f retail's inner scope from entry to the
+ * loop exit. A separate opening-brace line gives the six stores their
+ * retail source lines; implicit void fallthrough preserves the end delta.
+ * The identical pointer-walk source shape also seals Disable and Pause. */
 void Force_StartUp(void)
 
 {
-  Force_tGlobal *f;
-
-  f = Force_g;
-  if (f < Force_g + 2) {
-    do {
-      f->active = '\0';
-      f->high = '\0';
-      f->low = '\0';
-      f->time = '\0';
-      f->actuator[0] = '\0';
-      f->actuator[1] = '\0';
-      f = f + 1;
-    } while (f < Force_g + 2);
+  for (Force_tGlobal *f = Force_g; f < Force_g + 2; f = f + 1)
+  {
+    f->active = '\0';
+    f->high = '\0';
+    f->low = '\0';
+    f->time = '\0';
+    f->actuator[0] = '\0';
+    f->actuator[1] = '\0';
   }
   VSyncCallback(Force_Vbl);
   Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[0],0x32);
+
   if (GameSetup_gData.commMode == 1) {
     Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[1],0x32);
   }
-  return;
 }
 
-/* ---- Force_Disable__Fv  [FORCE.CPP:250-258] SLD-VERIFIED ---- */
+/* ---- Force_Disable__Fv  [FORCE.CPP:250-258] SLD-EXACT ---- */
 /* PASS 29/29 (w39-a7).  The loop body/guard was already exact after w38-a9's guarded
  * do-while + direct struct-member stores; the whole 17-diff residual was the POST-loop
  * tail -- the oracle REMATERIALIZES `Force_gOffAlign`'s address at each of the two
@@ -374,24 +373,19 @@ void Force_StartUp(void)
  * object** (see tools/build.py PER_TU_FLAGS), and under -G8 the 6-byte Force_gOffAlign is
  * small data, so cc1plus emits the `la` MACRO form instead of splitting %hi/%lo itself --
  * there is no split address expression left for GCSE to hoist.  Fixed by the per-TU
- * g_value=8 key, not by a source change. */
+ * g_value=8 key, not by a source change. The later for-init rewrite leaves
+ * those bytes intact while restoring f's scope and exact SLD attribution. */
 void Force_Disable(void)
 
 {
-  Force_tGlobal *f;
-
-  f = Force_g;
-  if (f < Force_g + 2) {
-    do {
-      f->actuator[0] = '\0';
-      f->actuator[1] = '\0';
-      f = f + 1;
-    } while (f < Force_g + 2);
+  for (Force_tGlobal *f = Force_g; f < Force_g + 2; f = f + 1)
+  {
+    f->actuator[0] = '\0';
+    f->actuator[1] = '\0';
   }
   PadSetActAlign(0,Force_gOffAlign);
   PadSetActAlign(4,Force_gOffAlign);
   VSyncCallback((void *)0x0);
-  return;
 }
 
 /* ---- Force_IsForceOn__FP8Car_tObj  [FORCE.CPP:264-273] SLD-VERIFIED ---- */
@@ -430,22 +424,16 @@ int Force_IsForceOn(Car_tObj *car)
   return f->active == 1;
 }
 
-/* ---- Force_Pause__Fv  [FORCE.CPP:279-285] SLD-VERIFIED ---- */
+/* ---- Force_Pause__Fv  [FORCE.CPP:279-285] SLD-EXACT ---- */
 void Force_Pause(void)
 
 {
-  Force_tGlobal *f;
-
-  f = Force_g;
-  if (f < Force_g + 2) {
-    do {
-      f->high = '\0';
-      f->low = '\0';
-      f->time = '\0';
-      f = f + 1;
-    } while (f < Force_g + 2);
+  for (Force_tGlobal *f = Force_g; f < Force_g + 2; f = f + 1)
+  {
+    f->high = '\0';
+    f->low = '\0';
+    f->time = '\0';
   }
-  return;
 }
 
 /* ---- Force_UnPause__Fv  [FORCE.CPP:291-292] SLD-VERIFIED ---- */

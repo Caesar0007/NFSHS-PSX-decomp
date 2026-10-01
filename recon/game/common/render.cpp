@@ -366,7 +366,6 @@ void Render_KillTrackRender(void)
   DashHUD_KillHUD();
   Draw_SetDrawSyncCallback((void (*)(void))0x0);
   Fog_DeInitFogTriggers();
-  return;
 }
 
 /* ---- Render_InitLibRender__Fv  [RENDER.CPP:640-641] ----
@@ -445,8 +444,7 @@ void Render_InitBlurMode(void)
     Render_gBlurEffectMode = 0x1f;
     break;
   }
-  return;
-}
+  return; }
 
 /* ---- Render_InsertDepthOfField__Fv  [RENDER.CPP:790-836] SLD-VERIFIED ---- */
 void Render_InsertDepthOfField(void)

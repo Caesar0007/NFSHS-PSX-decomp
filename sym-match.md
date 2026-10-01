@@ -7373,6 +7373,25 @@ GAME/COMMON strict SLD exact coverage rises 258 -> 259 of 1247. This
 recovers a compatible original-source region, not a unique literal
 historical spelling.
 
+### Render_InitBlurMode and KillTrackRender strict SLD seals
+
+`Render_InitBlurMode`'s three-way switch already emitted its 26 retail
+instructions and matched native locals. A plain implicit fallthrough
+tagged its epilogue too early, while a separately lined explicit return
+tagged it too late. Keeping the actual `return;` on the source line with
+the closing brace gives exact retail instruction tags, block close and
+12-line end span, with no machine-code change.
+
+`Render_KillTrackRender` is a straight sequence of ten cleanup calls.
+Its explicit final return put the four epilogue instructions on line +11
+instead of retail +10. Implicit void fallthrough tags those instructions
+to the last real cleanup call and makes all 26 words and full SLD exact.
+The `render.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0 and PSYLINK zero
+errors (`run-ydw7ccro`); all 23 functions remain native CLEAN. Both
+functions are strict SLD EXACT and GAME/COMMON coverage rises 259 -> 261
+of 1247. These are measured source-line regions, not claims of unique
+historical brace formatting.
+
 ### AIPerson_Cleanup empty hook and two lexical-only probes
 
 `AIPerson_Cleanup` is a genuine two-instruction no-op. Its old explicit

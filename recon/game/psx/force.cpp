@@ -175,10 +175,11 @@ void Force_Vbl(void)
  *      (`v0 = fixedmult(...)/0x10000;` ... `f->high = (u_char)v0;`), not fresh `u_char`
  *      temps: a u_char destination lets gcc narrow the divide's final shift to `srl`,
  *      and the oracle keeps both results in v0's/v1's own callee-saved regs across the
- *      second `fixedmult` call.  The pre-call clamp needs a block-local `clamped` copy
- *      (`clamped = v0; if (0xa0000 < clamped) clamped = 0xa0000;`) so the clamp happens
- *      on the arg-register copy (`addu $a0,$s4,$zero; lui $v0,10; slt; lui $a0,10`)
- *      instead of writing back into v0.  Guard polarity is `!= 0` (body = fall-through).
+ *      second `fixedmult` call. The pre-call clamp needs an int-valued result
+ *      (`0xa0000 < v0 ? 0xa0000 : v0`) so it acts on the arg-register copy
+ *      (`addu $a0,$s4,$zero; lui $v0,10; slt; lui $a0,10`) rather than mutating
+ *      v0. A use-site const preserves those bytes without a debug local.
+ *      Guard polarity is `!= 0` (body = fall-through).
  *      141 -> 130.
  *  (5) the surface clamps ARE the both-arms-assign ternary
  *      `v1 = 0x78000 < X ? 0x78000 : X;` (the w39 note's "falsified" verdict was measured
@@ -310,24 +311,14 @@ ForceUpd_audioRevLoop:
     }
   }
   if (frontmultiplier != 0) {
-    int clamped; /* SYM-CODEGEN-CARRIER: clamped -- forces the clamp onto the call-argument copy */
-
-    clamped = v0;
-    if (0xa0000 < clamped) {
-      clamped = 0xa0000;
-    }
+    const int clamped = 0xa0000 < v0 ? 0xa0000 : v0;
     v0 = fixedmult(clamped,frontmultiplier) / 0x10000;
   }
   else {
     v0 = 0;
   }
   if (rearmultiplier != 0) {
-    int clamped;
-
-    clamped = v1;
-    if (0xf0000 < clamped) {
-      clamped = 0xf0000;
-    }
+    const int clamped = 0xf0000 < v1 ? 0xf0000 : v1;
     v1 = fixedmult(clamped,rearmultiplier) / 0x10000;
   }
   else {

@@ -6900,3 +6900,19 @@ The old snapshot remains in a named recoverable backup in
 After edits, fail-closed symloop reports all nine functions' TU bytes
 unchanged with 7/9 native-CLEAN. The remaining Force_Update and Force_Vbl
 local/source issues remain explicit, as do all other project-wide residuals.
+
+### Force_Update clamp-local removal, same day
+
+The two post-loop multiplier arms no longer require mutable `clamped`
+source locals. Each uses an int-valued const conditional selection at the
+call site (`bound < v0/v1 ? bound : v0/v1`), keeping the retail comparison,
+constant materialization and `$a0` argument funnel. Detailed verification
+remains 278/278 PASS and the whole Force TU is byte-unchanged; GCC emits no
+native debug row for either const. `Force_Update`'s EXTRA `clamped` issue is
+gone. Its `controller` pointer and 14-vs-10 scope mismatch remain open.
+A use-site const pointer folded into direct global access and was 11 diffs
+at 279/278; a C++ reference matched bytes but still emitted `controller`
+as an extra debug row, so both were reverted. `Force_Vbl`'s `actuator1`
+is not yet removable: an int const ternary was 25 diffs/145 vs 138, and
+branch-local byte stores were 14 diffs/146 vs 138. Those are tested source
+shapes, not proof that a distinct original named local existed.

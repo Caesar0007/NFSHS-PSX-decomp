@@ -72,15 +72,11 @@ void AI_ChooseNewLaneSlack(Car_tObj *carObj);
 
 
 /* ---- AI_StartUp__Fv  [@0x8005797c] ---- */
-void AI_StartUp(void)
-{
-  return;
+void AI_StartUp(void) {
 }
 
 /* ---- AI_CleanUp__Fv  [@0x80057984] ---- */
-void AI_CleanUp(void)
-{
-  return;
+void AI_CleanUp(void) {
 }
 
 /* ---- AI_Main_OverallSetup__Fv  [@0x8005798c] ---- */
@@ -97,7 +93,6 @@ void AI_CarAvoidance(Car_tObj *carObj)
   AI_CalcMeritsBasedOnSpeed(carObj);
   AI_CheckForClearLanes(carObj);
   AI_CheckForCarsOnSide(carObj);
-  return;
 }
 
 /* ---- AI_WorldAvoidance__FP8Car_tObj  [@0x800579d8] ---- */
@@ -109,7 +104,6 @@ void AI_WorldAvoidance(Car_tObj *carObj)
   AI_CalcBestLineMerits(carObj);
   AI_AvoidObjects(carObj);
   AI_AvoidSpikeBelt(carObj);
-  return;
 }
 
 /* ---- AI_InitAIInfo__FP8Car_tObj  [@0x80057a24] ---- */

@@ -7227,3 +7227,26 @@ Each remains 2/2 PASS, the full `aiphysic.cpp` TU is BYTES UNCHANGED
 strict SLD EXACT/native CLEAN. GAME/COMMON strict exact coverage rises
 240 -> 243 of 1247; six tag-word differences disappear. This is supported
 by retail SLD and the matched sibling source, not blank-line padding.
+
+### AI core lifecycle and dispatch SLD round
+
+Retail `AI_StartUp` and `AI_CleanUp` are empty two-instruction functions
+whose instruction tags, block close and end are all header+1. The old
+explicit-return bodies mapped them to +2. Empty bodies with `{` on the
+function-header line and `}` on the next reproduce the complete retail SLD
+record, remain 2/2 PASS, and keep `ai.cpp` byte-identical. NFS2's matched
+`AI_CleanUp1` is independently empty; NFS4's own binary/SLD is the authority
+for both NFS4 functions. The similar-looking `AI_Main_OverallSetup` is
+intentionally left open: NFS2 actually calls `AI_WhichHumanIsLeading`,
+whereas NFS4 retail is a two-instruction no-op with a five-line SLD span.
+
+`AI_CarAvoidance` and `AI_WorldAvoidance` were straight-line void call
+sequences with redundant final `return;` statements. Implicit fallthrough
+keeps their 17/17 and 19/19 PASS bodies and assigns the epilogues to the
+last real call lines, exactly as retail SLD requires. All four functions
+are now strict SLD EXACT and native CLEAN. The whole `ai.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0 and PSYLINK zero errors (`run-a63dhq34`),
+40/40 native CLEAN. GAME/COMMON strict SLD exact coverage rises 243 -> 247
+of 1247. A similar return removal in `AI_AvoidObjects` shortened its native
+end span from +5 to +2 against retail +4, so it was reverted; its source
+region is not sealed by this pattern.

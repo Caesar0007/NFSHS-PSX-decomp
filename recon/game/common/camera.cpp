@@ -856,14 +856,14 @@ void Camera_UpdateCircleCam(int player)
   return;
 }
 
-/* ---- SetCameraZoom__Fii  [@0x80081d38] ---- */
+/* ---- SetCameraZoom__Fii  [@0x80081d38] ----
+ * Retail SYM has no local. A single in-place global clamp was 19 diffs at
+ * 67/68; repeating the pure zoom expression lets GCC CSE the same machine
+ * value across both stores and tests without a named `gs` carrier.
+ * The final 68/68 bytes and whole Camera TU are unchanged; original macro
+ * spelling and complete SLD statement lines remain unproved. */
 void SetCameraZoom(int player,int targetDist)
 {
-  /* SYM-CODEGEN-CARRIER: gs -- this private zoom result has no retained debug
-   * home, but it separates the calculation/clamp web from the global store.
-   * Mutating Camera_gGeomScreen directly shrinks 68 instructions to 67 and
-   * produces 19 authoritative control/data-flow diffs. */
-  int gs;
 
   if (Camera_gInfo[player].splitscreen != 0) {
     Camera_gGeomScreen = 0xbe;
@@ -873,19 +873,14 @@ void SetCameraZoom(int player,int targetDist)
       Camera_gGeomScreen = targetDist * 0xbe / 0x3000;
     }
     else if (Camera_gInfo[player].zooming == 2) {
-      gs = targetDist * 0xbe / 0x3000;
-      Camera_gGeomScreen = gs;
-      if (0x4b0 < gs) {
-        gs = (6000 - gs) >> 2;
-        if (gs < 0x2ee) {
-          gs = 0x2ee;
-        }
-        Camera_gGeomScreen = gs;
+      Camera_gGeomScreen = targetDist * 0xbe / 0x3000;
+      if (0x4b0 < targetDist * 0xbe / 0x3000) {
+        Camera_gGeomScreen = ((6000 - targetDist * 0xbe / 0x3000) >> 2) < 0x2ee
+            ? 0x2ee : ((6000 - targetDist * 0xbe / 0x3000) >> 2);
       }
     }
   }
   SetGeomScreen(Camera_gGeomScreen);
-  return;
 }
 
 /* ---- Camera_UpdateTVCam__Fi  [@0x80081e48] ---- */

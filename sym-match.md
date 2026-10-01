@@ -6956,3 +6956,25 @@ SLD still differs at 42/52 words, so this is a declaration/ownership
 repair, not full source-line restoration. The array-reference spelling is
 semantically sound and codegen-proven; whether EA wrote that exact alias
 or an equivalent macro/view is not uniquely recoverable from SYM.
+
+## 2026-10-01 SetCameraZoom without a named zoom carrier
+
+Retail `SetCameraZoom` records no local. The previous root `gs` held the
+computed zoom across an initial global store and a conditional correction;
+simply mutating `Camera_gGeomScreen` in place had been 19 diffs at 67/68.
+Repeating the pure `targetDist * 0xbe / 0x3000` expression at the comparison
+and correction lets GCC CSE one anonymous value web across those sites.
+The complete 68-instruction stream and whole `camera.cpp` TU remain
+byte-identical, and native SYM now reports `SetCameraZoom` CLEAN (Camera
+33/38 CLEAN). Two staged const values were also byte-PASS, but their branch
+declarations created eleven native scopes instead of retail's one, so that
+source shape was not retained. Repeated expression spelling is therefore
+a verified no-extra-object representation, not a claim that EA literally
+typed the arithmetic four times rather than using a macro.
+
+Moving the obsolete carrier receipt outside the function and allowing
+implicit void fallthrough improves its native function-end delta to 17
+versus retail 16. Instruction SLD remains 16/68 different and the block
+end is one source line late. A same-line closing brace was byte-neutral
+but did not move the debug line and was reverted. Full SLD attribution and
+the other Camera-native residuals remain open.

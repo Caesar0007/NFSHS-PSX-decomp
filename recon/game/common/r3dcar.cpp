@@ -1908,23 +1908,21 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   GameSetup_tCarData *const carInfoData = carObj->carInfo;
   carType = carInfoData->carType;
   R3DCar_rightHandDrive = rightHandDrive;
-  /* MATCH (W71-A21, 12 -> 8): BLOCK-LOCAL COP-INDEX CARRIER, at BOTH sites.
+  /* MATCH (W71-A21, 12 -> 8): separate COP-INDEX CARRIERS at BOTH sites.
      Retail keeps `carType-22` in a caller-saved temp and only the sltiu result in
      $s4 (`addiu v0,s3,-22; sltiu s4,v0,6` here, `addiu v1,s3,-22; sltiu s4,v1,6`
      at the sceneCounterJoin site).  The direct expression `(u_int)(carType-0x16)<6`
      lets gcc reuse the DEST ($s4) as the subtraction scratch; a FUNCTION-scope
-     named temp (or reusing `iVar8`) fixes the site but lengthens that pseudo's
+     reused temp (or `iVar8`) fixes the site but lengthens that pseudo's
      live range and flips the carInfo pointer / temp pair $v0<->$v1 at the other
-     site (18 diffs).  A block-local carrier at EACH site is a fresh short pseudo
+     site (18 diffs).  A distinct carrier at EACH site is a fresh short pseudo
      per site, so both sites get their own caller-saved scratch with no
-     cross-site interference. */
-  {
-    /* DEBUG-ELIDED VALUE: copIndex0 -- the block-local subtraction gives retail
+     cross-site interference.  P904: explicit braces were superfluous for bytes. */
+  /* DEBUG-ELIDED VALUE: copIndex0 -- the separate subtraction gives retail
        `addiu v0,s3,-22; sltiu s4,v0,6`; folding it reuses s4 as scratch and
        disturbs both cop-index sites. */
-    const int copIndex0 = carType - 0x16;
-    cop_flag = (u_int)copIndex0 < 6;
-  }
+  const int copIndex0 = carType - 0x16;
+  cop_flag = (u_int)copIndex0 < 6;
   if (cop_flag == 0) {
     carInfoData->Country = 0;
   }
@@ -2237,17 +2235,15 @@ R_ICFtMenu_sceneCounterJoin:
   /* MATCH (W71-A21): oracle `addiu v1,s3,-22; sltiu s4,v1,6` keeps carType-22 in a
      caller-saved temp; the direct expression reused s4(cop_flag) as scratch.  A named
      carrier fixes it -- but ONLY once the FIRST site (near the top of the fn) also
-     carries its subtraction in a BLOCK-LOCAL temp.  With the first site written as the
+     carries its subtraction in a separate temp.  With the first site written as the
      direct expression, or as an assignment to the function-scope `iVar8`, naming the
      temp here flips the carInfo-pointer/temp pair $v0<->$v1 at the first site (18 diffs)
-     -- which is the W56-A14 "cascades" reading.  Block-local at both sites: 12 -> 8. */
-  {
-    /* DEBUG-ELIDED VALUE: copIndex1 -- this sibling block-local subtraction is
+     -- which is the W56-A14 "cascades" reading.  Distinct temps: 12 -> 8. */
+  /* DEBUG-ELIDED VALUE: copIndex1 -- this sibling subtraction is
        independently required for retail's caller-saved scratch; folding either
        site perturbs the shared s4 cop-flag allocation. */
-    const int copIndex1 = carType - 0x16;
-    cop_flag = (u_int)copIndex1 < 6;
-  }
+  const int copIndex1 = carType - 0x16;
+  cop_flag = (u_int)copIndex1 < 6;
   if (((R3DCar_InMenu & 0x80U) == 0) && (carType < 0)) {
     (carObj->render).detail = -1;
   }

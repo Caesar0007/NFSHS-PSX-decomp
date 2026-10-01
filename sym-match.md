@@ -7063,3 +7063,13 @@ EXTRA/MISSING/MOVED/TYPE local issues; 15 scope/order/block-tree issues
 remain. The exact original macro/statement spelling and full SLD line
 attribution are still unresolved. Earlier pointer-carrier necessity claims
 are explicitly superseded by this typed-indexing source result.
+
+### R3DCar menu-facet lexical-scope follow-up
+
+The two distinct const cop-index values do not need explicit `{}` wrappers.
+Removing those wrappers leaves `R3DCar_InsertCarFacetMenu` at 1054/1054 PASS
+and the full `r3dcar.cpp` sections/layout unchanged (ASPSX 524/0, PSYLINK
+zero errors). Native and retail now have the same total scope count; the
+target still has 15 scope depth/order/nesting/address issues and is not
+SLD-exact. This is a debug-structure improvement, not a claim that the
+original source spelling is recovered.

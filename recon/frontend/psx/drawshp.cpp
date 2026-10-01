@@ -176,10 +176,8 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   short x2;
   short y2;
   short i;
-  u_char *prevPrim; /* SYM-CODEGEN-CARRIER: prevPrim -- removing the cached addPrim
-                       palette pointer is measured 107/108 and loses retail LICM */
-  u_long linkWord; /* SYM-CODEGEN-CARRIER: linkWord -- folding the addPrim link RMW
-                      moves its store before the packet bump; the split form is PASS */
+  /* SOURCE-RECOVERY: one cached palette pointer per iteration is codegen-required;
+     direct slot re-reads were 107/108 and lost retail LICM. */
 
   i = 0;
   y1 = rect.y + 1;
@@ -188,7 +186,7 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   x2 = rect.x + (rect.w >> 3);
   do {
     prim = (POLY_G4 *)Render_gPacketPtr;
-    prevPrim = Render_gPalettePtr;
+    u_char *const prevPrim = Render_gPalettePtr; /* debug-elided per-iteration palette cache */
     /* EA-1998 addPrim(): the P_TAG bitfield setaddr pair with the packet bump between
      * them -- the exact house shape that PASSed PSXDrawTrans*Square (w44). */
     ((DrawShp_PTag *)prim)->addr = ((DrawShp_PTag *)prevPrim)->addr;
@@ -214,7 +212,7 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   } while (i < 2);
   dr_mode = (DR_MODE *)Render_gPacketPtr;
   dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
-  linkWord = *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff;
+  const u_long linkWord = *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff; /* debug-elided OT staging */
   Render_gPacketPtr = (u_char *)dr_mode + 0xc;
   *(u_long *)Render_gPalettePtr = linkWord;
   SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,2,0,0x100),(RECT *)0x0);

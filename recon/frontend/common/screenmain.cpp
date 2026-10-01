@@ -302,25 +302,24 @@ void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 void tScreenMain::DrawDropShadow()
 
 {
-  /* [SYM] the 8c block records exactly `i` then `prim`; the five carriers
-     below have no record and are declared after the SYM set. */
+  /* [SYM] the 8c block records exactly `i` then `prim`. addr_24 and
+     addrMask remain source-only; palette values are staged at use sites. */
   int i;
   POLY_G4 *prim;
   int addr_24;
   uint addrMask;
-  u_char *pal_link;
   
   i = 0;
   do {
     prim = (POLY_G4 *)Render_gPacketPtr;
-    pal_link = Render_gPalettePtr;
+    u_char *const pal_link = Render_gPalettePtr;
     addrMask = 0xffffff;
     const uint tagMask = 0xff000000;
     /* MATCH (2026-08-11, 32 -> PASS, 69/69):
        SYM-CODEGEN-CARRIER: addr_24
        SYM-CODEGEN-CARRIER: addrMask
        SYM-CODEGEN-CARRIER: tagMask
-       SYM-CODEGEN-CARRIER: pal_link
+       DEBUG-ELIDED SOURCE VALUE: pal_link (const at its loop use site)
        SYM-CODEGEN-CARRIER: palTag
        allocsim reproduced all seven
        allocnos and priced the 3-way rotation to exactly +2 weighted refs on

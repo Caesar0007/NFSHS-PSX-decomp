@@ -1270,8 +1270,6 @@ void PSXDrawSquare(int col,int x,int y,int w,int h)
    * $a3 x+w mutated in place) and lets cse hold the OT-slot POINTER in one anonymous temp while
    * DE-referencing it twice (the 1st setaddr store may alias).  w43-a3 */
   POLY_F4 *prim;
-  uint link; /* SYM-CODEGEN-CARRIER: link -- direct OT read-modify-write is measured
-                FAIL 52 at the same 38-instruction count; this stages addPrim's value */
 
   prim = (POLY_F4 *)Render_gPacketPtr;
   /* setaddr(prim, getaddr(OT)) -- 24-bit tag bitfield RMW */
@@ -1281,7 +1279,7 @@ void PSXDrawSquare(int col,int x,int y,int w,int h)
    * 0x1F800004, so the oracle's `lw v0,0(t2); ...; sw v1,0(t4); ...; sw v0,0(t2)` order is only
    * reachable if the source reads the OT word first.  Bump-between / bump-first / `+= 0x18`
    * spellings all measured worse (52 / 34 / 31 vs 12 for bump-last).  w43-a3 */
-  link = *(uint *)Render_gPalettePtr;
+  const uint link = *(uint *)Render_gPalettePtr; /* debug-elided OT staging; direct RMW is 52 diffs. */
   Render_gPacketPtr = (u_char *)prim + 0x18;
   *(uint *)Render_gPalettePtr = link & 0xff000000 | (uint)prim & 0xffffff;
   *(int *)&prim->r0 = col;
@@ -1310,14 +1308,12 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
    * x_s, y_s, x_plus_w and y_plus_h were Ghidra fabrications: retail MUTATES the w
    * and y params in place (addu $s2,$s3,$s2 / addu $s1,$s1,$s4) and lets the `sh`
    * stores do the narrowing -- no (short) casts, no extra pseudos. */
-  /* the SYM's only local is `prim`; the non-SYM carrier follows it -- w86-S5 */
+  /* The SYM's only local is `prim`; the OT word is a debug-elided use-site const. */
   POLY_G4 *prim;
-  uint     otWord; /* SYM-CODEGEN-CARRIER: otWord -- direct OT read-modify-write
-                      is measured FAIL 44 at the same 60-instruction count */
 
   prim = (POLY_G4 *)Render_gPacketPtr;
   prim->tag = prim->tag & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  otWord = *(uint *)Render_gPalettePtr;
+  const uint otWord = *(uint *)Render_gPalettePtr; /* debug-elided OT staging; direct RMW: 44 diffs/60 words */
   Render_gPacketPtr = (u_char *)prim + 0x24;
   *(uint *)Render_gPalettePtr = otWord & 0xff000000 | (uint)prim & 0xffffff;
   *(int *)&prim->r0 = c1;

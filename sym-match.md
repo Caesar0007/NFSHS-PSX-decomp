@@ -6817,3 +6817,31 @@ introduced a second non-retail inline pair. The remaining source-scope
 and SLD differences (72 instruction tags, end delta 55 vs 22 after
 removing a redundant terminal void return) stay open.
 This is a partial native/source restoration, not a full SLD seal.
+
+## 2026-10-01 OT packet staging as use-site consts
+
+The frontend packet builders had six native-SYM EXTRA rows for values used
+only while splicing a 24-bit ordering-table link. A mutable function-scope
+`link`/`otWord`/`linkWord` declaration followed by a later assignment was
+unnecessary: a const declaration initialized at the actual palette read
+keeps the same value lifetime and machine scheduling, but GCC debug-elides
+the source name. This makes `PSXDrawSquare` (38/38),
+`PSXDrawGouraudSquare` (60/60), and `FeDraw_SetABRMode` (39/39) native-SYM
+CLEAN, with their whole TUs byte-unchanged. In the looped
+`DrawShape_SubtractNFS4RectEdges` (108/108), both the post-loop `linkWord`
+and the per-iteration cached palette pointer `prevPrim` can be consts at
+their read sites; both EXTRA rows disappear, leaving only a 2-vs-1 scope
+residual. `tScreenMain::DrawDropShadow` (69/69) likewise loses `pal_link`
+as a debug row using a per-iteration const pointer; its `addrMask` EXTRA
+and 2-vs-1 scopes remain open. Making `addrMask` const was a two-diff LUI
+schedule change and was reverted. These const spellings prove that a
+distinct machine value is needed, not that EA used these exact local names.
+
+The ignored `symloop` references for `mmeffect.cpp` and `drawshp.cpp`
+predated the independently verified retail `SimpleMem\0` rodata tag. Their
+text sections matched the old references exactly; only the 10-byte rodata
+presence differed. Each old reference was moved to a named recoverable
+backup under `build/symloop_ref`, then `--ref-only` established the current
+pre-edit reference by fresh compilation. The fail-closed whole-TU gates now
+pass for both. Literal macro spelling, remaining local/scope residuals and
+full SLD attribution are not sealed by this improvement.

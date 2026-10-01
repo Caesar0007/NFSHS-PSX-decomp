@@ -1228,11 +1228,11 @@ void iSPCH_PlayChosen(void)
  *   passes its rules, choose samples for it, and save the result.  Returns the chosen-sentence index or -1. */
 int iSPCH_ChooseSentence(unsigned int *eventArgs)
 {
-    /* ORIGINAL-NAME-UNRESOLVED: `local_order` and `local_30` are retained
-     * decompiler placeholders.  NFS4 has no local debug records for this
-     * library function and no canonical source has yet recovered the names. */
-    unsigned char local_order[104];
-    char          local_30 = 0;
+    /* Retail has no local debug names here. The callees and uses identify
+     * sentenceOrder as the ordered sentence-index buffer and ruleTestFlags
+     * as GetRuleSettings' byte out-parameter, not their literal spellings. */
+    unsigned char sentenceOrder[104];
+    char          ruleTestFlags = 0;
     int           idx = 0;
     VoxEvent     *event = iSPCH_FindEvent(*eventArgs);
     int           result = 0;
@@ -1267,15 +1267,15 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                  * gate above -- the oracle never saves it (bare `andi v0,v0,0xff; beqz`).
                  * The old recon reused useLen for both, which both mis-typed the argument
                  * and pinned useLen into a callee-saved reg for the whole function. */
-                ruleBits = iSPCH_GetRuleSettings(event, (int *)eventArgs, &local_30);
-                iSPCH_OrderSentences(event, (int)local_order);
+                ruleBits = iSPCH_GetRuleSettings(event, (int *)eventArgs, &ruleTestFlags);
+                iSPCH_OrderSentences(event, (int)sentenceOrder);
                 {
                     unsigned int n = event->numSentences;
                     result = -1;
                     if (0 < (int)n) {
                         result = 0;
                         do {
-                            int table;   /* MATCH: read UNSIGNED (oracle: lbu) -- local_order[] holds
+                            int table;   /* MATCH: read UNSIGNED (oracle: lbu) -- sentenceOrder[] holds
                                           * 0..n-1 always, so `table < 0` below is dead/vestigial code
                                           * (never true at runtime) but the oracle still emits the bltz
                                           * guard for it (a `(signed char)` cast would wrongly emit `lb`
@@ -1297,14 +1297,14 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                              * order 107 85 83 ... -> 107 83 85 ...; whole-fn 28 diffs -> 0.) */
                             if ((int)n <= idx)
                                 goto out;
-                            table = (int)local_order[idx];
+                            table = (int)sentenceOrder[idx];
                             if (table < 0)
                                 goto out;
                             if ((int)n <= table)
                                 goto out;
                             sentence = iSPCH_GetOffset16(event, event->sentenceOffs, (int)table);
                             r = iSPCH_SentenceGetChoices(sentence, (int)eventArgs, ruleBits,
-                                                         (unsigned int)(unsigned char)local_30, (int)filterMode);
+                                                         (unsigned int)(unsigned char)ruleTestFlags, (int)filterMode);
                             if (0 < r) {
                                 result = iSPCH_SentenceMakeChoice(sentence, (int)filterMode);
                                 if (result != 0)

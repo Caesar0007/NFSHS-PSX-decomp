@@ -7197,3 +7197,18 @@ errors (`run-ws4z51_a`); differing instruction tags fell 100 -> 92 of 120.
 The five named-local scope-depth mismatches, 13-vs-19 block tree and 92
 remaining tag differences are still open. No `#line`, dummy statement,
 post-compile rewrite or artificial source local was used.
+
+### spchpsxz ChooseSentence semantic local names (retail SYM partial)
+
+`iSPCH_ChooseSentence` has no usable retail local-name stream, so its
+Ghidra-style `local_order[104]` and `local_30` were not treated as recoverable
+literal spellings. The call/consumer chain identifies the first as the
+ordered sentence-index buffer filled by `iSPCH_OrderSentences`, now
+`sentenceOrder`. The second is the byte out-parameter written by
+`iSPCH_GetRuleSettings` from its rule-test flags and passed as
+`ruleByte2` to `iSPCH_SentenceGetChoices`, now `ruleTestFlags`.
+`iSPCH_ChooseSentence` remains detailed PASS 104/104. The entire
+`spchpick.c` object has byte-identical sections and layout against its
+fresh pre-edit source-only reference; ordinary `symloop` correctly refuses
+this eaclib TU because retail SYM does not cover its function locals.
+These names are evidence-supported roles, not claims of original spelling.

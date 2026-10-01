@@ -6792,3 +6792,28 @@ RECON image remains 299819/299819 identical. Native SLD for `Execute` is
 still DIFF (90 instruction tags; end delta 67 versus retail 74), so native
 CLEAN is not a full original-source/SLD seal. The excess/offset line work
 and `DoNitrous` receiver remain in the explicit backlog.
+
+## 2026-10-01 DoNitrous inline receiver and traversal ownership
+
+The same inferred inline `GetSlowDownEndTime()` can be used in
+`AIState_Chase::DoNitrous`, but not in its old compound `&&` guard: that
+form emitted an extra `xori` and inverted the final branch (3 diffs,
+84/83). Expressing the two genuine rejection paths as early returns gives
+the retail `blez` then `bnez` graph and restores the nested inline `this`
+record at +0x30, with all 83 instructions byte-identical. The global tick
+read must be staged into a debug-elided const after the first guard;
+direct access reversed its load against the getter (2 diffs), while
+moving the const initializer before the guard was 15 diffs/82 words.
+
+`humanLoop` now declares in the guarded traversal and `distanceMeters` in
+its loop body. Both still have their retail names, types and register
+homes, and the TU remains byte-identical. Native SYM now has seven scopes,
+the retail count, but the locals' depths are 3/4 versus retail 4/5 and the
+nesting/addresses differ. A top-level wrapper corrected the count but
+moved inline `this` one level too deep; moving two source blocks to the
+traversal restored that receiver depth without fixing the two local
+depths. `GameTicks()` as an inline free helper bought correct bytes but
+introduced a second non-retail inline pair. The remaining source-scope
+and SLD differences (72 instruction tags, end delta 55 vs 22 after
+removing a redundant terminal void return) stay open.
+This is a partial native/source restoration, not a full SLD seal.

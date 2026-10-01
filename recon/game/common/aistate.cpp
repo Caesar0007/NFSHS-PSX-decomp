@@ -609,27 +609,33 @@ void AIState_Chase::DoSlowNitrous()
 
 
 
-/* ---- DoNitrous__13AIState_Chasei  AIState_Chase::DoNitrous  [AISTATE.CPP:296-318] SLD-VERIFIED ---- */
+/* ---- DoNitrous__13AIState_Chasei  AIState_Chase::DoNitrous  [AISTATE.CPP:296-318] SLD review open ----
+ * SOURCE-RECOVERY: early exits retain retail's blez/bnez guards while allowing
+ * GetSlowDownEndTime() to restore the nested inline `this` record. The const
+ * tick snapshot preserves retail load order; direct global access is 2 diffs.
+ * humanLoop and distanceMeters belong to the guarded traversal, not root.
+ * Native nesting is still one level shallow for both; bytes remain 83/83. */
 
 void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
 {
-  int humanLoop;
-  int distanceMeters;
+  if (this->nitrousTicks_ <= 0) return;
+  const int currentTick = simGlobal.gameTicks; /* debug-elided source value; no retail local */
+  if (currentTick < this->GetSlowDownEndTime()) return;
 
+  (this->carObj_)->accNitrous = 0x30000;
 
+  (this->carObj_)->speedNitrous = 0x28000;
 
-  if ((0 < this->nitrousTicks_) && (GameTicks() >= this->slowDownEndTime_)) {
-
-    (this->carObj_)->accNitrous = 0x30000;
-
-    (this->carObj_)->speedNitrous = 0x28000;
-
-    humanLoop = 0;
+  {
+    {
+      int humanLoop;
+      humanLoop = 0;
 
     while (true) {
+      int distanceMeters;
 
       if (checkForHumans == 0) {
 
@@ -666,9 +672,8 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
     }
 
+    }
   }
-
-  return;
 
 }
 

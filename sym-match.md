@@ -7088,3 +7088,27 @@ The target still has 11 named-local scope-depth issues plus a scope-tree
 issue (native 37 scopes vs retail 36), and its SLD line tags remain far from
 exact (1041/1054 differ). The async-load nesting is the next source-shape
 question; no synthetic local was added or hidden.
+
+### 2026-10-01 block-owner probe: collision checks
+
+`Collide_CheckMeForCollisions` has one remaining block-start displacement:
+retail opens a depth-15 region at `+0x190` (before
+`Object_GetRadiusCollisionData`), while native opens it at `+0x1a8`
+(after that call); all other scope tuples and recorded locals agree.
+Placing the call in the `switch` condition with the C comma operator kept
+all 381 instructions and the whole `collide.cpp` byte/layout fingerprint,
+but left the region at `+0x1a8`. It was reverted: evaluation grouping alone
+does not restore the lexical owner. The next probe should change switch/body
+ownership while keeping the call before the case dispatch, not reprice call
+order or add an unrelated temporary.
+
+`Collide_ClearCollisionRegistry` shows a related but distinct boundary:
+retail opens its final two loop regions at `+0x1bc` and `+0x1c8`; native
+opens both at `+0x1c8`. Moving `carLoop = 0` into a `for` initializer
+restored the first address and kept 128/128 bytes only when the body used
+the existing statement-expression form, but that form introduced a third
+scope at `+0x1c8` (seven native vs six retail). An ordinary `for` body
+changed ten detailed instructions (132/128). All trial variants were
+reverted. A source loop that exposes the initializer region without the
+extra expression scope remains to be found; neither discrepancy is a
+proven compiler floor.

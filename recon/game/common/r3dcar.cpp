@@ -1861,10 +1861,17 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
 {
   int i;                 /* SYM fn REG s0 -- all loop counters */
   Transformer_zObj *obj; /* SYM fn REG a1 */
+  coorddef parent;       /* SYM fn AUTO sp+0x18 */
+  matrixtdef bodyMat;
+  matrixtdef orientMat;
+  matrixtdef insideMat;
+  matrixtdef orientIMat;
+  int rideHeight;
   int detailIndex;       /* SYM fn REG s2 */
   int carType;           /* SYM fn REG s3 -- reassigned in place (render then carInfo) */
   int changeCar;         /* SYM fn REG a3 -- "new car loaded" flag */
   int countryFlag;       /* SYM fn REG s5 */
+  int rightHandDrive;
   int cop_flag;          /* SYM fn REG s4 */
   /* DEBUG-ELIDED VALUE: newCountryByte -- direct field expressions reload
      the byte for the player-side 0x80 update, producing 1056 instructions and
@@ -1886,13 +1893,6 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   /* SOURCE-RECOVERY: the loaded-scene slot is now selected by typed
      two-dimensional indexing. The old pointer/index carriers were 24/22
      diffs only before the later const and operand-order source repairs. */
-  coorddef parent;       /* SYM fn AUTO sp+0x18 */
-  matrixtdef bodyMat;
-  matrixtdef orientMat;
-  matrixtdef insideMat;
-  matrixtdef orientIMat;
-  int rideHeight;
-  int rightHandDrive;
 
   rightHandDrive = 0;
   rideHeight = (carObj->render).rideHeight;
@@ -2061,6 +2061,7 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   (carObj->render).sub_ot =
        *(u_long **)(subOtOff + subOtBase) + (objId & 0xfU) * 0x200;
   if (menuModeBit != 0) goto R_ICFtMenu_sceneCounterJoin;
+  { /* Retail scope begins at +0x118: the non-menu load/setup path. */
   (carObj->render).sub_otSize = 0x200;
   (carObj->render).sub_otOffset = 0x100;
   (carObj->render).sort_carObj = (u_char *)0x0;
@@ -2228,6 +2229,7 @@ R_ICFtMenu_bigFileCheck:
   }
   else {
     changeCar = 0;
+  }
   }
 R_ICFtMenu_sceneCounterJoin:
   carType = (int)(carObj->render).currentCarType;

@@ -7073,3 +7073,18 @@ zero errors). Native and retail now have the same total scope count; the
 target still has 15 scope depth/order/nesting/address issues and is not
 SLD-exact. This is a debug-structure improvement, not a claim that the
 original source spelling is recovered.
+
+### R3DCar menu-facet retail declaration order and non-menu owner
+
+Retail's root declaration stream is `i`, `obj`, five matrix/vector objects,
+`rideHeight`, `detailIndex`, `carType`, `changeCar`, `countryFlag`,
+`rightHandDrive`, `cop_flag`. Reordering the existing declarations to that
+sequence removes the target's ORDER issue without changing its 1054 bytes.
+The retail `8c` block stream also opens a non-menu owner at function offset
+`+0x118` (280), just after the sub-OT branch. Adding that source block puts
+the native scope at the same address and restores `bigFile`'s retail depth;
+the full TU stays byte/layout identical (ASPSX 524/0, PSYLINK zero errors).
+The target still has 11 named-local scope-depth issues plus a scope-tree
+issue (native 37 scopes vs retail 36), and its SLD line tags remain far from
+exact (1041/1054 differ). The async-load nesting is the next source-shape
+question; no synthetic local was added or hidden.

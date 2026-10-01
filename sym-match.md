@@ -7341,3 +7341,18 @@ machine instructions respectively at unchanged function sizes. Both
 experiments were reverted; the original inline helper and both callers
 remain byte-PASS. This narrows the unresolved inline attribution without
 claiming a compiler floor or original macro syntax.
+
+### Physics_SetCurrentWallType exact source fallthrough
+
+The matched NFS2 PC source writes `currentWallType = wallType` and falls
+through, whereas the NFS4 reconstruction had added an explicit `return;`.
+Retail NFS4 SLD tags the store, return instructions, block lines and
+function end to that same +1 source region. Removing the redundant return
+retains all three retail instructions and makes the complete function
+strict SLD EXACT/native CLEAN. The `physics.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors (`run-h56tcmg1`); GAME/COMMON strict exact
+coverage rises 256 -> 257 of 1247. The adjacent `Physics_CheckGamedata`
+has only a two-instruction no-op body but a retail source span of 51 lines;
+the skipped/conditional historical content is not determined by the binary
+or current SYM, so that SLD item remains explicit rather than padded with
+invented source.

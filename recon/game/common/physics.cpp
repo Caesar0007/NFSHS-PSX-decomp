@@ -312,7 +312,6 @@ void Physics_SetCurrentWallType(int wallType)
 
 {
   currentWallType = wallType;
-  return;
 }
 
 /* ---- Physics_GetTorque__FP8Car_tObji  [PHYSICS.CPP:672-674] SLD-VERIFIED ---- */

@@ -7357,6 +7357,22 @@ the skipped/conditional historical content is not determined by the binary
 or current SYM, so that SLD item remains explicit rather than padded with
 invented source.
 
+### AnimScript::GetStatus source guard and SLD seal
+
+Retail `GetStatus` records only the receiver, tags its two pointer loads
+to source line +1, and tags the `sltu` boolean result/return to +4.
+The original one-expression return was byte-PASS but attributed all five
+instructions to +1. A typed, one-definition `Trk_AnimateInst *const
+instance` read followed by an `if (instance != 0) return 1; return 0;`
+source guard compiles to the same five retail instructions; GCC removes
+the const pointer from native debug locals. The branch close shares its
+source line with the true return, restoring the +4 result tag and exact
+block/end records. The full `anim.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0 and PSYLINK zero errors (`run-et9ng3l2`), 18/18 native CLEAN.
+GAME/COMMON strict SLD exact coverage rises 258 -> 259 of 1247. This
+recovers a compatible original-source region, not a unique literal
+historical spelling.
+
 ### AIPerson_Cleanup empty hook and two lexical-only probes
 
 `AIPerson_Cleanup` is a genuine two-instruction no-op. Its old explicit

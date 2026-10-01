@@ -343,5 +343,8 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 /* ---- AnimScript::GetStatus  [@0x8007471c] ---- */
 int AnimScript::GetStatus()
 {
-  return (u_int)(*this->inst != (Trk_AnimateInst *)0x0);
+  Trk_AnimateInst *const instance = *this->inst;
+  if (instance != (Trk_AnimateInst *)0x0) {
+    return 1; }
+  return 0;
 }

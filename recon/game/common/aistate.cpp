@@ -1156,14 +1156,6 @@ void AIState_Chase::ApproachTargeting(int intercept)
   int distance;
   int minSpeed;
 
-  /* SYM-CODEGEN-CARRIER: iVar5 -- absent from the surviving local records.
-   * Replacing its global/aggression/result web with direct expressions and
-   * the recorded `minSpeed` changes 25 instructions and shortens the body by
-   * one. */
-  int iVar5;
-  /* SOURCE-RECOVERY CARRIER: chaseCar caches this chase state's own car pointer;
-   * direct `carObj_` costs 14 diffs/two reloads; spelling is absent from SYM. */
-  Car_tObj *chaseCar;
 
   
 
@@ -1189,9 +1181,9 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
   this->inTargetRegion_ = 0;
 
-  iVar5 = simGlobal.gameTicks;
+  const int currentTick = simGlobal.gameTicks; /* DEBUG-ELIDED: direct test reverses the retail load order (8 diffs). */
 
-  if (this->noTurnAroundEndTime_ < iVar5) {
+  if (this->noTurnAroundEndTime_ < currentTick) {
 
     if (0 < this->longMetersBetween_) {
 
@@ -1213,13 +1205,11 @@ void AIState_Chase::ApproachTargeting(int intercept)
      (assignments land in the bnez delay slots); block order = oracle VA order
      (C0 @.L9B8, C1 @.LA10, shared 0x60000 tail @.LA60, C2 @.LA78). */
 
-  iVar5 = this->aggressionLevel_;
+  if (this->aggressionLevel_ == 1) goto LAB_CHAIN1;
 
-  if (iVar5 == 1) goto LAB_CHAIN1;
+  if (!(this->aggressionLevel_ < 2)) goto LAB_GE2;
 
-  if (!(iVar5 < 2)) goto LAB_GE2;
-
-  if (iVar5 == 0) goto LAB_CHAIN0;
+  if (this->aggressionLevel_ == 0) goto LAB_CHAIN0;
 
   minSpeed = 0x190000;
 
@@ -1227,7 +1217,7 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
 LAB_GE2:
 
-  if (iVar5 == 2) goto LAB_CHAIN2;
+  if (this->aggressionLevel_ == 2) goto LAB_CHAIN2;
 
   minSpeed = 0x190000;
 
@@ -1301,20 +1291,21 @@ LAB_MIN_A:
 
 LAB_80070adc:
 
-  chaseCar = this->carObj_;
+  int selectedSpeed; /* SOURCE CARRIER: retail $v1 clamp; direct ternary is 24 diffs at 199/195; name absent from SYM. */
+  Car_tObj *const chaseCar = this->carObj_; /* SOURCE CARRIER: direct member access is 14 diffs/2 reloads; name not in SYM. */
 
   if (chaseCar->direction == 1) {
-    iVar5 = minSpeed;
-    if (chaseCar->desiredSpeed < iVar5) {
-      iVar5 = chaseCar->desiredSpeed;
+    selectedSpeed = minSpeed;
+    if (chaseCar->desiredSpeed < selectedSpeed) {
+      selectedSpeed = chaseCar->desiredSpeed;
     }
   } else {
-    iVar5 = -minSpeed;
-    if (iVar5 < chaseCar->desiredSpeed) {
-      iVar5 = chaseCar->desiredSpeed;
+    selectedSpeed = -minSpeed;
+    if (selectedSpeed < chaseCar->desiredSpeed) {
+      selectedSpeed = chaseCar->desiredSpeed;
     }
   }
-  chaseCar->desiredSpeed = iVar5;
+  chaseCar->desiredSpeed = selectedSpeed;
 
   AI_GenericBeginCycle(this->carObj_);
 

@@ -6725,14 +6725,38 @@ EXTRA and the broader block/SLD reconstruction remains open.
 `this->carObj_` pointer in its final speed-selection phase. It is now
 `chaseCar`, with the existing 14-diff/two-extra-reload direct-field receipt
 retained; the function remains 195/195 PASS and the whole `aistate.cpp` TU
-byte-unchanged. Its multi-role `iVar5` remains explicitly unresolved: it
-holds the tick, aggression selector and selected speed in successive phases,
-so a single invented role name would be misleading. The original spelling
-and whether this is one source object or register reuse require further
-source-shape/SYM work. Neither renamed function is claimed SLD-exact.
+byte-unchanged. The then-multi-role `iVar5` remained an unresolved name at
+this checkpoint. Neither renamed function was claimed SLD-exact.
 
 In `BWorld_Init`, reusing the retail-named `AudioScene` for the earlier random
 draw was 15 diffs at 186/187 instructions; a branch-local `const random`
 preserved 187 bytes but added four non-retail scopes. Both trials were
 reverted. The separate random value remains a semantic source-recovery
 carrier, not a proved original local.
+
+### ApproachTargeting phase split, same day
+
+The tick phase now uses a `const currentTick` assigned before the guard:
+it is debug-elided, preserves the oracle's global-load-first order, and
+keeps 195/195 PASS. Direct comparison against `simGlobal.gameTicks` reversed
+the two loads/compare register and was 8 diffs. The aggression phase now
+tests `this->aggressionLevel_` directly four times; GCC CSEs the same `$v1`
+value and preserves all 195 instructions without a named debug local.
+A named mutable `aggressionLevel` was byte-PASS but EXTRA; a const alias
+added one instruction and three diffs. The old `iVar5` consequently serves
+only the final signed desired-speed clamp and is renamed `selectedSpeed`.
+The direct nested-ternary assignment cost 24 diffs at 199/195, while the
+separate value keeps the retail `$v1` funnel and shared store. It remains
+native-SYM EXTRA; its exact original source spelling is not provable.
+Repricing direct `this->carObj_` accesses after this phase split still costs
+14 diffs and two instructions, so the semantic `chaseCar` pointer remains.
+A use-site `Car_tObj *const chaseCar` initializer is byte-neutral and moves
+its declaration next to the only phase that uses it; it remains native EXTRA
+but reduces the native function-end line delta from 186 to 183. Moving the
+still-required `selectedSpeed` declaration to that same final-clamp region
+is also byte-neutral with no new debug scope, reducing the native end delta
+again to 179 (retail 76). Full SLD remains unresolved; no empty line or
+post-compile rewrite was used to claim a seal.
+Full `aistate.cpp` bytes are unchanged and both functions PASS; the broader
+SLD scope/order reconstruction remains open (ApproachTargeting still 188
+instruction-tag differences, end delta 186 vs retail 76).

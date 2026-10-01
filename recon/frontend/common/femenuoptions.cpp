@@ -2897,7 +2897,7 @@ void tMemoryCardMenuItem::Draw(bool)
 
 {
   /* Retail ABI bool is unnamed while the mangled signature keeps it. */
-  /* SYM-CODEGEN-CARRIER: sVar2
+  /* SOURCE-RECOVERY CARRIER: nextEnableValue
    * SYM-CODEGEN-CARRIER: v
    * SYM-CODEGEN-CARRIER: sv
    * SYM-CODEGEN-CARRIER: less
@@ -2918,7 +2918,7 @@ void tMemoryCardMenuItem::Draw(bool)
   tDrawShapeExtended tCol;
   int fWidth;
   tTexture_ShapeInfo *shape;
-  short sVar2;
+  short nextEnableValue;
   int v;
   int sv;
   int less;
@@ -2926,10 +2926,10 @@ void tMemoryCardMenuItem::Draw(bool)
   /* MATCH: test `(fFlags & 1) != 0` -> oracle `andi;beqz` (branch-when-clear to the
      +8 arm, -8 in the fall-through), not the `== 0` -> `bnez` polarity. */
   if ((this->fFlags & 1) != 0) {
-    sVar2 = this->fEnableVal + -8;
+    nextEnableValue = this->fEnableVal + -8;
   }
   else {
-    sVar2 = this->fEnableVal + 8;
+    nextEnableValue = this->fEnableVal + 8;
   }
   /* W85-S3 (2026-09-02): the volatile STORE barrier below is KEPT and re-certified.
      Removing it costs 29 diffs (5 back when the now-deleted `"r"(sv)` fence was still
@@ -2943,7 +2943,7 @@ void tMemoryCardMenuItem::Draw(bool)
      The barrier that stops cse store-forwarding must sit on the STORE, not on the
      reads: a volatile MEM also blocks combine, so a `volatile signed short` READ
      degrades to lhu + sll/sra (and the u_short read to lhu + andi 0xffff). */
-  *(volatile short *)&this->fEnableVal = sVar2;
+  *(volatile short *)&this->fEnableVal = nextEnableValue;
   sv = this->fEnableVal;
   v = *(u_short *)&this->fEnableVal;
   /* NESTED, not `&&`: gcc's fold_truthop merges `(sv<0x100) && (sv<1)` into the

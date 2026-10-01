@@ -7423,6 +7423,32 @@ form audit still finds `ppCVar3` in `aistate.cpp`, `optVar1/2` in
 `AIWORLD.cpp` and `physics.cpp`, and `sVar2` in `femenuoptions.cpp`;
 those are explicit remaining review items, not covered by this checkpoint.
 
+### Related-form audit: retain SYM optVar names, name the true carriers
+
+The wider active-code scan found `ppCVar3` in `aistate.cpp` and `sVar2` in
+`femenuoptions.cpp`. Retail SYM records neither as a local. The former is
+the descending pointer into `Cars_gSortedList` in the Purgatory destructor,
+now `sortedCarCursor`; reusing the separately staged `sortedList` as its
+cursor was previously 71/72 with 15 detailed differences. The destructor
+remains PASS 72/72 and the full `aistate.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors (`run-lcf3uyxk`). The latter holds the
+selected `fEnableVal +/- 8` before the preserved volatile store in
+`tMemoryCardMenuItem::Draw`, now `nextEnableValue`; the function remains
+PASS 150/150 and full `femenuoptions.cpp` is likewise unchanged
+(`run-t09leh2j`). Literal source spellings and the retail-absent carrier
+ownership remain review questions; the names express proven roles.
+
+`optVar1` and `optVar2` in `AIWorld_CalcSpeed` and
+`Physics_CalcWheelLockAcc` are different: both pairs are exact names in
+retail SYM's detailed REG local records (AIWorld $a1/$v1, Physics
+$a3/$a0), and the matched NFS2 physics source corroborates the latter.
+They must stay, despite matching a broad `*VarN` pattern. After these
+edits a comment-stripped scan for active `*VarN`, `local_*`, `undefinedN`,
+`in_aN`/`in_vN`-style tokens, `extraout_*` and `unaff_*` in reconstructed C/C++ TUs
+reports only those four SYM-backed occurrences. This is a scoped lexical
+audit, not a claim that every semantically named source-only carrier is
+explained or that every function is SLD-exact.
+
 ### AIPerson_Cleanup empty hook and two lexical-only probes
 
 `AIPerson_Cleanup` is a genuine two-instruction no-op. Its old explicit

@@ -1893,9 +1893,9 @@ AIState_Purgatory::~AIState_Purgatory()
   int search;
   Car_tObj*test;
 
-  /* SYM-CODEGEN-CARRIER: ppCVar3 -- reusing sortedList as the scan cursor
+  /* SOURCE-RECOVERY CARRIER: sortedCarCursor -- reusing sortedList as the scan cursor
      loses one instruction and produces 15 diffs (71/72). */
-  Car_tObj **ppCVar3;
+  Car_tObj **sortedCarCursor;
   /* SYM-CODEGEN-CARRIER: sortedList -- direct Cars_gSortedList addition
      preserves 72 instructions but changes the final ready-list pair. */
   Car_tObj **sortedList;
@@ -1966,7 +1966,7 @@ AIState_Purgatory::~AIState_Purgatory()
    * No post-cc1 relocation is required. */
   search = Cars_gNumCars + -1;
 
-  ppCVar3 = (sortedList = Cars_gSortedList, sortedList + search);
+  sortedCarCursor = (sortedList = Cars_gSortedList, sortedList + search);
 
   /* W86-D2: read-only ref fence -> pure-C ABSORPTION IDENTITY `X | (X & 3) == X`.
      A real RTL insn (both operands are the same VARIABLE, so fold() keeps it) that
@@ -1980,9 +1980,9 @@ LOOP_800716DC:
 
   if (-1 < search) {
 
-    test = *ppCVar3;
+    test = *sortedCarCursor;
 
-    ppCVar3 = ppCVar3 + -1;
+    sortedCarCursor = sortedCarCursor + -1;
 
     if ((test->carFlags & 0x100U) == 0) {
 

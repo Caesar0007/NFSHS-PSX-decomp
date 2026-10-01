@@ -6576,6 +6576,17 @@ Inlining the decoded-byte load at both uses was 22 diffs, so the distinct
 cached value is currently codegen-proven; exact literal source spelling and
 full SLD attribution remain open.
 
+For `Night_SetCopColor`, the long w46/w49 reconstruction receipt has been
+moved before the function so it no longer shifts retail line attribution.
+Grouping same-scope declarations and splitting the raw car-type load from
+the table-entry address addition preserves all 37 bytes and keeps native
+SYM exact. Retail SLD also places the second country-byte source statement
+before the stack-table lookup even though scheduling executes that lookup
+first; making that statement order explicit is byte-neutral. The target's
+SLD differences fall from 36/37 to 5/37, with exact block and function-end
+lines. Those five tags remain open; no line padding or output rewrite was
+used to claim an unsupported full seal.
+
 ## 2026-10-01 Night player-headlight SLD seal
 
 `Night_SetPlayerHeadLightColor` retains 15/15 byte-PASS and native CLEAN.

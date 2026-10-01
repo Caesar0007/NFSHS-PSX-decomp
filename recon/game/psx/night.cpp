@@ -802,55 +802,45 @@ void Night_DoLightningEffect(DRender_tView *Vi)
  * carTable block-scoped (5, tie), a
  * `char *pair` local for the two country-table bytes (20, worse), flat single-scope
  * decls (5, tie).  Also survives -G8 and all four wired per-TU codegen flags. */
+/* w46-a9 (5 -> 2, count now EXACT 37/37).  Two changes:
+ * (1) col2's index arithmetic is hoisted ABOVE the Night_gCopColor store, so
+ * that store lands after `addu` like retail (the w41 note's "move the store
+ * after col2" cross-merged the two stores because both were then adjacent;
+ * splitting the INDEX from the STORE avoids the merge entirely).
+ * (2) col2's table read is a `volatile`-cast deref. A plain `copColors[col2]`
+ * ARRAY_REF of a stack local is provably non-aliasing with the gp-rel global
+ * store, so gcc hoists the `lw` above it and fills the load-delay slot with
+ * `sw a0,0(gp)` -- 36 insns, one SHORT of retail. The volatile MEM cannot be
+ * reordered, so the `sw` issues first and the oracle's load-delay `nop`
+ * reappears (37/37).
+ * MATCH (w49-a5): SEALED 37/37 PASS. The volatile-cast deref above was the
+ * WRONG cure: it pinned the load but destroyed the sp-first `addu` operand
+ * order (only a genuine ARRAY_REF on the frame DECL emits `addu v0,sp,v0`;
+ * every address-of/cast spelling becomes index-first `addu v0,v0,sp`). The
+ * right cure is on the STORE side: both stores are ARRAY_REFs on the real
+ * Night_gCopColor[2], so `copColors[col2]` cannot hoist above them.
+ * Falsified on the way: volatile-qualified copColors (memcpy call, 41 insns),
+ * volatile pointer views (35), reused `col` (36), `u_char *pair` (35),
+ * store-before-col2 (38) and both-cols-first (35). */
+/* All six retail locals belong to one root block. cartype owns the integer
+ * table-entry address in $v0; const copType keeps its decoded byte live in
+ * $a0 without a debug row. Keep the copColors stack-copy order.
+ * SYM's INT carTable is confirmed by retail allocation and split m2c; casts
+ * occur only at the table boundaries. */
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
 
 {
-  /* All six retail locals belong to one root block. cartype owns the integer
-   * table-entry address in $v0; const copType keeps its decoded byte live in
-   * $a0 without a debug row. Keep the copColors stack-copy order. */
-  int cartype;
-  int country;
-  /* SYM's INT carrier is confirmed by both retail allocation and the split m2c
-     output (a 32-bit temp); pointer casts occur only at the table boundaries. */
-  int carTable;
-
-  country = carinfo->Country;
-  cartype = (int)CopCarTypeLights + carinfo->carType - 22;
+  int cartype = carinfo->carType;
+  int country = carinfo->Country; int carTable;
+  cartype += (int)CopCarTypeLights - 22;
   const int copType = *(u_char *)cartype;
-  u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed,
-                                   Night_gCopLightingTableBlue };
-  int col1;
-  int col2;
-
-
-    /* w46-a9 (5 -> 2, count now EXACT 37/37).  Two changes:
-     *  (1) col2's index arithmetic is hoisted ABOVE the Night_gCopColor store, so
-     *      that store lands after `addu` like retail (the w41 note's "move the store
-     *      after col2" cross-merged the two stores because both were then adjacent;
-     *      splitting the INDEX from the STORE avoids the merge entirely).
-     *  (2) col2's table read is a `volatile`-cast deref.  A plain `copColors[col2]`
-     *      ARRAY_REF of a stack local is provably non-aliasing with the gp-rel
-     *      global store, so gcc hoists the `lw` above it and fills the load-delay
-     *      slot with `sw a0,0(gp)` -- 36 insns, one SHORT of retail.  The volatile
-     *      MEM cannot be reordered, so the `sw` issues first and the oracle's
-     *      load-delay `nop` reappears (37/37).
-     * MATCH (w49-a5): SEALED 37/37 PASS.  The volatile-cast deref above was the WRONG
-     * cure: it pinned the load but destroyed the sp-first `addu` operand order (only a
-     * genuine ARRAY_REF on the frame DECL emits `addu v0,sp,v0`; every address-of /
-     * cast spelling gets fold-canonicalized to index-first `addu v0,v0,sp`).  The right
-     * cure is on the STORE side: with both stores made ARRAY_REFs on the real
-     * Night_gCopColor[2] object, the plain `copColors[col2]` read can
-     * no longer hoist above them, so the read keeps its ARRAY_REF form AND its position.
-     * Falsified on the way (all re-gated from this basin): `volatile`-qualified copColors
-     * DECL (forces a memcpy call, 41 insns); volatile array-ptr / elem-ptr views over
-     * copColors (35 insns); one reused `col` variable (36); a `u_char *pair` local for the
-     * two table bytes (35); store-before-col2 (38); both-cols-first (35). */
+  u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed, Night_gCopLightingTableBlue };
+  int col1, col2;
   col1 = (u_char)Night_gCopCountryLightTbl[copType][country][0];
-  carTable = (int)copColors[col1];
   col2 = (u_char)Night_gCopCountryLightTbl[copType][country][1];
+  carTable = (int)copColors[col1];
   Night_gCopColor[0] = (u_char (*)[256][8])carTable;
   Night_gCopColor[1] = copColors[col2];
-  return;
 }
 
 /* ---- Night_InitPlayerHeadLightColor__Fi  [NIGHT.CPP:488-496] SLD-VERIFIED ---- */

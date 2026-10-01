@@ -6916,3 +6916,23 @@ as an extra debug row, so both were reverted. `Force_Vbl`'s `actuator1`
 is not yet removable: an int const ternary was 25 diffs/145 vs 138, and
 branch-local byte stores were 14 diffs/146 vs 138. Those are tested source
 shapes, not proof that a distinct original named local existed.
+
+## 2026-10-01 CancelAsyncLoad early-exit ownership
+
+Retail `tScreen::CancelAsyncLoad` branches directly to its shared epilogue
+when no async handle exists and after setting `fLoadCancelled` when the
+status call returns zero. Flattening the reconstruction's outer nested
+`if`/`else` into those two actual early returns keeps all 38 retail
+instructions and the whole FESCREEN TU byte-identical, while removing its
+two extra native debug scopes. The function is now native-SYM CLEAN;
+FESCREEN is 24/25 CLEAN, with `GoNonInterlaced` still EXTRA.
+
+The status call and comparison are distinct retail SLD lines 5/6.
+In the flattened source, `const int readStatus = getasyncreadstatus(...)`
+followed by its test is debug-elided without reintroducing a scope—the
+older nested-source trial that added scopes was basin-specific. Splitting
+the first no-handle guard across its actual test and return lines aligns
+the early guard and both status tags. Later instruction lines remain
+different (26/38 tag differences, function-end delta 18 vs retail 20);
+no fabricated line or full SLD seal is claimed. The getter result's
+literal original variable spelling is not recoverable from retail SYM.

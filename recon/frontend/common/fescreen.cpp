@@ -411,36 +411,33 @@ void tScreen::AsyncLoadShapeFile(char *name,tShapeInformation &data)
 
 
 
-/* ---- tScreen::CancelAsyncLoad  [FESCREEN.CPP:459-479] SLD-VERIFIED ---- */
-/* The inner purge is unbraced in the retail line partition. The status
-   call/compare pair alone remains ambiguous: an explicit const snapshot
-   aligns its two SLD tags but creates two non-retail debug scopes. */
+/* ---- tScreen::CancelAsyncLoad  [FESCREEN.CPP:459-479] native-SYM CLEAN, SLD open ---- */
+/* Retail branches to the common exit for no handle and for a completed
+   cancellation. Early-return source expresses those exits without the two
+   non-retail nested scopes. A const status snapshot now debug-elides and
+   separates retail's call/compare line tags; the inner purge stays unbraced.
+   Remaining SLD attribution is not claimed exact. */
 
 void tScreen::CancelAsyncLoad(tShapeInformation &data)
 
 {
 
 
-  if (data.async_handle != 0) {
-
-    if (getasyncreadstatus(data.async_handle) == 0) {
-
-      data.fLoadCancelled = 1;
-    }
-    else {
-
-      if (data.fDestFile == (char *)0x0) {
-        data.fFile = getasyncreadadr(data.async_handle);
-      }
-      if (data.fFile != (char *)0x0) {
-
-        if (data.fDestFile == (char *)0x0)
-          purgememadr(data.fFile);
-        data.fFile = (char *)0x0;
-      }
-      data.async_handle = 0;
-    }
+  if (data.async_handle == 0)
+    return;
+  const int readStatus = getasyncreadstatus(data.async_handle); /* debug-elided status value */
+  if (readStatus == 0) {
+    data.fLoadCancelled = 1;
+    return;
   }
+  if (data.fDestFile == (char *)0x0)
+    data.fFile = getasyncreadadr(data.async_handle);
+  if (data.fFile != (char *)0x0) {
+    if (data.fDestFile == (char *)0x0)
+      purgememadr(data.fFile);
+    data.fFile = (char *)0x0;
+  }
+  data.async_handle = 0;
 }
 
 

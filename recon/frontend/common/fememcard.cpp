@@ -133,8 +133,8 @@ void MakeWayForMemoryCard(void)
 void BringThatBeatBack(void)
 
 {
+
   addtimer(Clock_MasterInterruptHandler);
-  return;
 }
 
 

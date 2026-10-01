@@ -1013,8 +1013,8 @@ void BWorld_InitContexts(void)
 /* ---- BWorld_DeInitContexts__Fv  [@0x8007e460] ---- */
 void BWorld_DeInitContexts(void)
 {
+
   BWorld_InitContexts();
-  return;
 }
 
 /* ---- SetContext__Fi  [@0x8007e480] ---- */

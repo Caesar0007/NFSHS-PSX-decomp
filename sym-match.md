@@ -6666,3 +6666,21 @@ the latter inserts an `a2 -> a3` copy and is four diffs. The final form is
 63/63 byte-PASS, leaves whole `ai.cpp` bytes unchanged, and makes all 40/40
 functions in that TU native CLEAN. `const lane` has no native row; deleting
 it or repeating the global in both arms was 26+ diffs. Full SLD remains open.
+
+## 2026-10-01 one-call void wrapper SLD partitions
+
+Five wrappers now use implicit void fallthrough instead of an explicit
+trailing `return`: `BWorld_DeInitContexts`, `Render_StopRenderingWorldView`,
+`Render_InitPauseMenu`, `Render_KillPauseMenu`, and `BringThatBeatBack`.
+Separating each call from the opening brace places its call on the retail
+relative source line without changing the function-end delta. Detailed
+`verify_asm` remains PASS (8/8 for the four game wrappers, 9/9 for the
+frontend wrapper); `symloop` reports unchanged bytes and native CLEAN for
+all five. Each now has zero instruction-tag differences, exact block lines,
+and exact function-end delta. The strict SLD board moves 438 -> 443/2565
+(GAME/COMMON 234 -> 238, FRONTEND/COMMON 167 -> 168).
+
+The source-line partition is supported by the retail SLD; the original
+non-emitting whitespace or comments are not uniquely recoverable. The
+independent linked image remains RECON 299819/299819 identical, and the
+vtable-index audit passes. Unrelated native/SLD residuals remain open.

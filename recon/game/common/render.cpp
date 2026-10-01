@@ -136,8 +136,8 @@ void Render_StartRenderingWorldView(int viewid)
 void Render_StopRenderingWorldView(int viewid)
 
 {
+
   Draw_StopRenderingView(viewid);
-  return;
 }
 
 /* ---- Render_RenderWorld__FP13DRender_tView  [RENDER.CPP:223-255] SLD-VERIFIED ---- */
@@ -206,8 +206,8 @@ void Render_StopFrameRender(void)
 void Render_InitPauseMenu(void)
 
 {
+
   MPause_InitMPause();
-  return;
 }
 
 /* ---- Render_RenderPauseMenuView__Fv  [RENDER.CPP:393-407] SLD-VERIFIED ---- */
@@ -230,8 +230,8 @@ void Render_RenderPauseMenuView(void)
 void Render_KillPauseMenu(void)
 
 {
+
   MPause_KillMPause();
-  return;
 }
 
 /* ---- Render_Render__Fi  [RENDER.CPP:417-525] SLD-VERIFIED ---- */

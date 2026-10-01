@@ -6610,6 +6610,17 @@ original spelling is not recoverable from SYM. The `ticksp` address carrier
 still matters: direct `simGlobal.gameTicks` was two diffs even in this new
 source basin. Full SLD line attribution remains open.
 
+## 2026-10-01 AILife_PlaceCarAtLocation SLD seal
+
+The six writes/call in the five-argument `AILife_PlaceCarAtLocation` body
+were one source line early relative to retail, while its function-end line
+already agreed. A separation after the opening brace and implicit void
+fallthrough put the field stores and forwarding call on retail lines 2–7.
+The function remains 15/15 byte-PASS; its whole `ailife.cpp` TU is
+byte-unchanged and 20/20 native CLEAN. All 15 SLD tags, root block line and
+end delta now match. The strict SLD board rises to 438/2565, with
+GAME/COMMON at 234/1247.
+
 ## 2026-10-01 CopSpeak_PlayNextRequest queue cursor
 
 The mutable `next` carrier in `CopSpeak_PlayNextRequest` was absent from

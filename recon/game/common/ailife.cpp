@@ -186,13 +186,13 @@ void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
 void AILife_PlaceCarAtLocation(Car_tObj *carObj,int slice,int desiredLatPos,int direction,int currentSpeed,
                int rotation1024)
 {
+
   carObj->desiredLatPos = desiredLatPos;
   carObj->direction = direction;
   carObj->desiredDirection = direction;
   (carObj->N).simRoadInfo.slice = (short)slice;
   carObj->currentSpeed = currentSpeed;
   AILife_PlaceCarAtLocation(carObj,rotation1024);
-  return;
 }
 
 /* ---- AILife_SetInitialSlicePositionOrientationEtc__FP8Car_tObj  [@0x80067c8c] ---- */

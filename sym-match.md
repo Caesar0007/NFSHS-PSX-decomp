@@ -6998,3 +6998,31 @@ result was 20 diffs at 79/83. All failed clamp experiments were reverted.
 The remaining separate value is explicitly receipted, not asserted to
 be an original named local. Native SLD line/order attribution and the
 other Camera residuals remain open.
+
+## 2026-10-01 R3DCar menu-facet semantic carrier names
+
+`R3DCar_InsertCarFacetMenu` still carried six live Ghidra-style local
+identifiers absent from retail SYM. Their roles are explicit in the raw
+value flow and typed field uses:
+
+| Former placeholder | Source name | Verified value role |
+| --- | --- | --- |
+| `bVar2` | `newCountryByte` | byte copied from `render.newCountry`, reused for the player 0x80 bit |
+| `sVar3` | `newCarType` | short copied from `render.newCarType` and promoted to `carType` |
+| `iVar9` | `menuSubOtRow` | normalized 0/1 row selected by the menu-mode bit |
+| `uVar20` | `menuModeBit` | original `R3DCar_InMenu & 0x80` mask retained for the later branch |
+| `pGVar14` | `carInfoData` | cached `carObj->carInfo` used for car type and Country |
+| `ppTVar21` | `loadedSceneSlot` | address of the selected loaded-scene pointer cell |
+
+These are evidence-backed semantic labels, not assertions about EA's exact
+private spelling. The source keeps the specific codegen receipts for the
+separate webs: direct field re-reads, collapsing the mask/row pair, or
+collapsing the scene slot/index sum caused measured 8–30-diff regressions.
+The renamed 1054-instruction function remains detailed-PASS and the whole
+`r3dcar.cpp` TU bytes are unchanged. Native SYM still reports other EXTRA
+carriers in this function and full SLD ownership/order remains open;
+the literal names that retail SYM omitted cannot be uniquely restored.
+The first independent relink saw six differing words because the normal
+`hrzsku.cpp` object still came from a reverted failed const probe. Rebuilding
+the affected trial TUs from restored sources returned the real linked RECON
+to 299819/299819 identical; no source/output rewrite was used.

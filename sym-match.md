@@ -6936,3 +6936,23 @@ the early guard and both status tags. Later instruction lines remain
 different (26/38 tag differences, function-end delta 18 vs retail 20);
 no fabricated line or full SLD seal is claimed. The getter result's
 literal original variable spelling is not recoverable from retail SYM.
+
+## 2026-10-01 GoNonInterlaced array-view ownership
+
+Retail `tScreen::GoNonInterlaced` has no named locals. The remaining native
+EXTRA `viewTable` pointer preserved an address web for the player-view
+array: direct global indexing was 26 diffs, and a use-site const pointer
+swapped `$a1/$a2` for 18 diffs. Binding a C++ reference to the unsized
+`Draw_gView` array and taking `&viewTable[*playerViewIndex]` preserves the
+same runtime view and all 52 oracle instructions while GCC debug-elides the
+source alias. Whole `fescreen.cpp` bytes are unchanged; its native-SYM
+coverage is now 25/25 CLEAN. The distinct player-view index address remains
+a debug-elided source value (direct index previously cost eight scheduling
+diffs), not a claim to the literal EA identifier.
+
+Moving old reconstruction notes outside the function leaves its native
+block-line record and function-end delta exact at retail 29. Instruction
+SLD still differs at 42/52 words, so this is a declaration/ownership
+repair, not full source-line restoration. The array-reference spelling is
+semantically sound and codegen-proven; whether EA wrote that exact alias
+or an equivalent macro/view is not uniquely recoverable from SYM.

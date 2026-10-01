@@ -66,19 +66,16 @@ void tScreen::DisplayLoadingText()
    naturally: gEnviro[0] y/h/screen.h (153-155), isinter (156), gEnviro[1]
    y/screen.h (157-158), isinter (159), then the view setup (161).  The lhu
    stays before both byte stores while the ra save sinks to retail's
-   slot.  No asm/post-cc1 aid; strict_branch clean. */
+   slot. No asm/post-cc1 aid; strict_branch clean.
+   SOURCE-RECOVERY: retail's block has no named locals. An unsized array
+   reference to Draw_gView keeps its base as a separate address web while
+   GCC debug-elides the reference: direct inlining was 26 diffs and a
+   const pointer was 18. The playerViewIndex address still requires a
+   separate debug-elided source value (direct index: 8 schedule diffs). */
 
 void tScreen::GoNonInterlaced()
 
 {
-  /* Retail's function block has no locals. Const use-site snapshots preserve
-     the six omitted pointer/height value webs and all 52 instructions. The
-     one remaining named carrier is viewTable: direct inlining costs 26 diffs,
-     while a const declaration at either site swaps $a1/$a2 (18 diffs).
-     Its private original spelling remains unrecoverable from SYM. */
-  /* SYM-CODEGEN-CARRIER: viewTable, tested against the raw byte oracle. */
-  Draw_tView *viewTable;
-  /* SYM-CODEGEN-CARRIER: playerViewIndex -- inlining the index address: 8 schedule diffs. */
   int *playerViewIndex;
   screenheight = 0xf0;
   dflip *const displayEnv = gEnviro;
@@ -90,11 +87,11 @@ void tScreen::GoNonInterlaced()
   gEnviro[1].disp.disp.y = 0;
   gEnviro[1].disp.screen.h = displayHeight;
   displayEnv[1].disp.isinter = '\0';
-  viewTable = Draw_gView;
+  Draw_tView (&viewTable)[] = Draw_gView;
   playerViewIndex = &Draw_gPlayer1View;
-  Draw_tView *const frontView = viewTable + *playerViewIndex;
+  Draw_tView *const frontView = &viewTable[*playerViewIndex];
   frontView->drawenv[0].dfe = '\0';
-  Draw_tView *const backView = viewTable + *playerViewIndex;
+  Draw_tView *const backView = &viewTable[*playerViewIndex];
   frontView->drawenv[0].clip.y = 0;
   frontView->drawenv[0].clip.h = displayHeight;
   frontView->drawenv[0].ofs[0] = 0;

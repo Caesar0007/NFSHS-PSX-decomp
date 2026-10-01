@@ -1865,27 +1865,23 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   int changeCar;         /* SYM fn REG a3 -- "new car loaded" flag */
   int countryFlag;       /* SYM fn REG s5 */
   int cop_flag;          /* SYM fn REG s4 */
-  /* SOURCE-RECOVERY CARRIER: newCountryByte -- direct field expressions reload
+  /* DEBUG-ELIDED VALUE: newCountryByte -- direct field expressions reload
      the byte for the player-side 0x80 update, producing 1056 instructions and
      eight load/store register diffs instead of the exact 1054. */
-  u_char newCountryByte;
-  /* SOURCE-RECOVERY CARRIER: newCarType -- direct field expressions remove
+  /* DEBUG-ELIDED VALUE: newCarType -- direct field expressions remove
      two retail instructions and perturb the adjacent country/player allocation,
      producing 14 diffs instead of the exact 1054-instruction function. */
-  short newCarType;
   /* SOURCE-RECOVERY CARRIER: menuSubOtRow -- this normalized menu-row index is a distinct
      local-alloc quantity used by the sub-OT address chain. Replacing it with
      `(uVar20 != 0)` was measured at 30 diffs; dropping uVar20 instead removes
      one instruction and produces 21 diffs. */
   int menuSubOtRow;
-  /* SOURCE-RECOVERY CARRIER: carInfoData -- spelling both accesses through carObj->carInfo
+  /* DEBUG-ELIDED VALUE: carInfoData -- spelling both accesses through carObj->carInfo
      reloads the pointer before the Country store, producing 1056 instructions and
      eight register/load diffs instead of the exact 1054-instruction function. */
-  GameSetup_tCarData *carInfoData;
-  /* SOURCE-RECOVERY CARRIER: menuModeBit -- preserves the original 0x80 mask value for
+  /* DEBUG-ELIDED VALUE: menuModeBit -- preserves the original 0x80 mask value for
      the post-address early branch while menuSubOtRow carries its normalized row index;
      collapsing the pair yields 1053 instructions and 21 diffs. */
-  u_int menuModeBit;
   /* SOURCE-RECOVERY CARRIER: loadedSceneSlot -- the loaded-scene slot pointer must remain
      distinct from its integer index-sum carrier. Natural two-dimensional
      subscripting was measured at 24 diffs and the index-first cast at 22. */
@@ -1909,7 +1905,7 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   {
     rightHandDrive = AITune_trackInfo[GameSetup_gData.track].driveSide + 1 >> 1 ^ 1;
   }
-  carInfoData = carObj->carInfo;
+  GameSetup_tCarData *const carInfoData = carObj->carInfo;
   carType = carInfoData->carType;
   R3DCar_rightHandDrive = rightHandDrive;
   /* MATCH (W71-A21, 12 -> 8): BLOCK-LOCAL COP-INDEX CARRIER, at BOTH sites.
@@ -1932,7 +1928,7 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   if (cop_flag == 0) {
     carInfoData->Country = 0;
   }
-  menuModeBit = R3DCar_InMenu & 0x80;
+  const u_int menuModeBit = R3DCar_InMenu & 0x80;
   menuSubOtRow = menuModeBit != 0;
   /* NEAR-MISS (W56-A14): subOtRow[iVar9]+iVar11 -- oracle sums both scaled indices
      (gFlip*8 + iVar9*4) THEN adds the R3DCar_subOtStart base LAST (%lo addend materialized
@@ -2179,8 +2175,8 @@ R_ICFtMenu_bigFileCheck:
         R3DCar_LoadedScenePointer[countryFlag][currentCarType] = (Transformer_zScene *)0x0;
       }
     }
-    newCarType = (carObj->render).newCarType;
-    newCountryByte = (carObj->render).newCountry;
+    const short newCarType = (carObj->render).newCarType;
+    const u_char newCountryByte = (carObj->render).newCountry;
     (carObj->render).currentCarType = newCarType;
     (carObj->render).currentCountry = newCountryByte;
     carType = (int)newCarType;

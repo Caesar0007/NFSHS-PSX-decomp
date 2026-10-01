@@ -7026,3 +7026,17 @@ The first independent relink saw six differing words because the normal
 `hrzsku.cpp` object still came from a reverted failed const probe. Rebuilding
 the affected trial TUs from restored sources returned the real linked RECON
 to 299819/299819 identical; no source/output rewrite was used.
+
+### R3DCar use-site const follow-up, same day
+
+Four of those semantic value webs need no source-visible mutable object.
+`newCountryByte` and `newCarType` are assigned once in the car-reload arm;
+`menuModeBit` is assigned once before the sub-OT row/branch pair; and
+`carInfoData` captures the car-info pointer before its two distinct reads.
+Declaring each as a const at its actual assignment site preserves all
+1054 retail instructions and the whole TU section/layout fingerprint,
+while GCC drops all four EXTRA native-SYM rows. The normalized
+`menuSubOtRow` already had no native row. A use-site const for the later
+`loadedSceneSlot` pointer was also byte-PASS but its debug row survived,
+so that neutral source trial was reverted. The target still has 24 native
+issues, including `loadedSceneSlot`, and is not SLD- or source-text-sealed.

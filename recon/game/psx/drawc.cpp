@@ -281,7 +281,6 @@ void DrawC_KillRenderingData(void)
 {
   purgememadr(DrawC_gEnvMap);
   purgememadr(DrawC_gShadow);
-  return;
 }
 
 /* ---- DrawC_NightHeadlight__FP8Car_tObj [retail DRAWC.CPP:214-265; native/byte verified, original spelling/full SLD open] ---- */

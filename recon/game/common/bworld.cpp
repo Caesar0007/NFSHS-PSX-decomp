@@ -174,7 +174,6 @@ void BWorld_SetSpikeBelt(int slice,int x,int width)
   gSpikeBeltChunk = (u_int)BWorldSm_slices[slice].chunkIndex;
   gSpikeBeltWidth = width;
   gSpikeBeltX = x;
-  return;
 }
 
 /* ---- BWorld_GetSpikeBelt__FPiN20  [@0x8007d8f8] ---- */

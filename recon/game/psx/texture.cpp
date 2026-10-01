@@ -33,7 +33,6 @@ void Texture_InitPaletteSharing(void)
   Texture_gP8bitPmx = reservememadr("pshare 8",0x100,0x10);
   Texture_gPalette4bit = reservememadr("pal 4bit",0x800,0x10);
   Texture_gPalette8bit = reservememadr("pal 8bit",0x100,0x10);
-  return;
 }
 
 /* ---- Texture_DeInitPaletteSharing__Fv  [TEXTURE.CPP:74-78] SLD-VERIFIED ---- */
@@ -44,7 +43,6 @@ void Texture_DeInitPaletteSharing(void)
   purgememadr(Texture_gP8bitPmx);
   purgememadr(Texture_gPalette4bit);
   purgememadr(Texture_gPalette8bit);
-  return;
 }
 
 /* ---- Texture_ResetPaletteSharing__Fv  [TEXTURE.CPP:84-86] SLD-VERIFIED ---- */

@@ -6684,3 +6684,26 @@ The source-line partition is supported by the retail SLD; the original
 non-emitting whitespace or comments are not uniquely recoverable. The
 independent linked image remains RECON 299819/299819 identical, and the
 vtable-index audit passes. Unrelated native/SLD residuals remain open.
+
+## 2026-10-01 terminal-statement SLD restoration
+
+Five additional byte-PASS/native-CLEAN functions now have exact retail SLD
+instruction tags, block lines and function-end deltas without inserted blank
+lines: `BWorld_SetSpikeBelt`, `Texture_InitPaletteSharing`,
+`Texture_DeInitPaletteSharing`, `AIInit_CleanUp1`, and
+`DrawC_KillRenderingData`. Their source ended with a redundant explicit
+`return;`; implicit void fallthrough places the final store/call and function
+end on the retail source line. Detailed byte checks remain 13/13, 31/31,
+18/18, 14/14 and 12/12 respectively. Fail-closed whole-TU `symloop` reports
+unchanged bytes and no native-SYM regression. The strict SLD board rises
+443 -> 448/2565 (GAME/COMMON 238 -> 240; GAME/PSX 33 -> 36).
+
+This is source-statement recovery, not a claim to know non-emitting original
+whitespace. A trial removing `Render_InitBlurMode`'s terminal return worsened
+its block/end lines and was reverted; removing its final-case `break` gave
+zero tag differences but moved its block end off retail, so that partial
+trade was also reverted. The `Font_SwitchFont` direct-base/const-base and
+`StatChk_SaveRecordLapTime` const-value trials failed detailed byte checks
+and were restored. The independent linked RECON remains 299819/299819
+identical and the vtable-index audit passes. The wider carrier and SLD
+backlogs remain open.

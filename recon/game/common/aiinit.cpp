@@ -134,7 +134,6 @@ void AIInit_CleanUp1(void)
   AIDataRecord_t::CleanUp1();
   AITune_CleanUp1();
   AI_TrafficCleanUp();
-  return;
 }
 
 /* ---- AIInit_CleanUp2__Fv  [@0x80066e44] ---- */

@@ -2408,11 +2408,13 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       gte_rtps();
       gte_stsxy2((DVECTOR *)&s_);
       *(long *)&temp2d[1] = s_;   /* MATCH: word copy (a DVECTOR assign = align-1 lwl/lwr quad) */
-      /* MATCH (W74-A4, part of 25 -> 22 and the count back to EXACT): a zero-insn VOID
-         FENCE stops sched1 SINKING the `sw v0,60(sp)` write-back past the second
+      /* MATCH (W74-A4, part of 25 -> 22 and the count back to EXACT): a zero-insn
+         barrier stops sched1 SINKING the `sw v0,60(sp)` write-back past the second
          transform's movstrsi copy.  Retail stores it immediately after its load and pays
-         the load-delay nop; ours filled that slot and came out one insn short. */
-      __asm__("" : : "i"(0));
+         the load-delay nop; ours filled that slot and came out one insn short.
+         PURE-C FENCE (HUDFX r2): empty do/while(0) wrapper (was a void asm fence);
+         wrapping the store itself instead is 3 diffs @472. */
+      do { } while (0);
       p_ = updown[0];
       gte_ldv0(&p_);
       gte_rtps();

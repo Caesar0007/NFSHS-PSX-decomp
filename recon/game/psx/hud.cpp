@@ -1693,14 +1693,15 @@ void Hud_BuildTach(int player)
   clut = clut & 0xffff0000;   /* in-place mutate: load lands in clut's reg directly */
   x = fixedmult(cos,0x1d);
   y = fixedmult(sin,0x1d);
-  /* MATCH (w75-a3 lever 1): the else-arm value hoisted ABOVE the select + a zero-insn
-   * read-only fence PINNING its `addiu` at the block head (sched1 issue-position fixpoint).
-   * Without the fence sched1 sinks the addiu to the bottom of the block and reorg steals it
-   * into the `beqz` delay slot; with it, retail's `or s0,s0,v0` is the steal and the hoisted
-   * value lands in $v1.  See the receipt block above the function. */
+  /* MATCH (w75-a3 lever 1): the else-arm value hoisted ABOVE the select and PINNED at the
+   * block head (sched1 issue-position fixpoint).  Unpinned, sched1 sinks the addiu to the
+   * bottom of the block and reorg steals it into the `beqz` delay slot; pinned, retail's
+   * `or s0,s0,v0` is the steal and the hoisted value lands in $v1.
+   * PURE-C FENCE (HUDFX r2): the pin is the do/while(0) wrapper (was a zero-insn asm use
+   * fence).  Falsified natural forms: ternary 7, default-then-override 6, combined OR 12,
+   * hoist above the fixedmult call 30. */
   u_long clutx; /* SYM-CODEGEN-CARRIER: clutx -- hoisted else-arm value plus fence is the measured sched1 fixpoint */
-  clutx = x + 0x1d;
-  __asm__ ("" : : "r"(clutx));
+  do { clutx = x + 0x1d; } while (0);
   clut = clut | (y + 0x9d) << 8;
   if (player != 0) {
     clut = clut | (x + 0x75);
@@ -2143,7 +2144,8 @@ HudBuildStr_next:
  * BASIN-RELATIVE") was right: one of these was explicitly falsified in the 141 basin and
  * works now.  Order matters -- (1) must land before (3) is worth anything.
  *  (1) REF-STEP ON THE j=4 TAG-WALK COUNTER -- zero-insn read-only fence right after
- *      `j = 4;` (`__asm__("" : : "r"(j));`).  46 -> 22.  The whole {j, pal, mask} triple
+ *      `j = 4;` (was `__asm__("" : : "r"(j));`; HUDFX r2: now `do { j = 4; } while (0);`,
+ *      a pure-C fence -- see the body).  46 -> 22.  The whole {j, pal, mask} triple
  *      was rotated (ours j=$a3/pal=$a2/mask=$a1, retail j=$a1/mask=$a2/pal=$a3) with EVERY
  *      instruction already in retail's position -- a pure allocno-priority order, and `j`
  *      ranks last because loop.c strength-reduces both `pSprt[j]` uses into the $a0 giv,
@@ -2275,8 +2277,11 @@ void Hud_BuildNumbers0(int player)
         u_int *pal;
         u_int *pal_2; /* SYM-CODEGEN-CARRIER: pal_2 -- merging the two packet-link ranges into `pal` is FAIL 44 at 531/531 */
 
-        j = 4;
-        __asm__("" : : "r"(j));
+        /* PURE-C FENCE (HUDFX r2, replaces the asm ref fence): the do/while(0) wrapper adds the
+         * one reference j needs (prio 7*2/20=.70 < mask .737 -> j served first only with +1 ref).
+         * Falsified natural forms: j=4 after pal + for/do loop 14 (pure a1/a2 j<->mask swap),
+         * while-loop 29, absorption in the increment 14 (kills the giv). */
+        do { j = 4; } while (0);
         pal = (u_int *)Render_gPalettePtr;
         do {
           ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
@@ -5451,33 +5456,21 @@ void Hud_RenderHudView(void)
       if ((u_int)((BTC_Countdown >> 6) - 1U) < 0x1e) {
         BigBTCTime(BTC_Countdown >> 6);
       } else {
-        /* MATCH (w62-a1): 14 -> 4, count EXACT 606/606.  Two levers, and they only
-         * work TOGETHER (the w60/w61 receipts had each half separately):
-         *  (1) 13C INVERTED-DEFAULT / PRE-SET-THE-DEFAULT: written as the `&&`/`||`
-         *      expression, gcc branches TO a `li a0,1` block; retail pre-sets `a0`
-         *      in each guard's DELAY SLOT (`addu a0,zero,zero` in the `bnez` slot,
-         *      `li a0,1` in the `beqz` slot) and clears on the fall-through.  Only
-         *      the explicit default+override statement chain emits that.
-         *  (2) 12C SAME-SOURCE-LINE CROSS_JUMP RULE (inverse direction): the preset
-         *      chain ALONE is 8 diffs but ours 604 (2 SHORT) -- find_cross_jump
-         *      merges the `cdshow = 0` tail onto the entry default.  reorg/jump
-         *      refuses to merge a thread containing an ASM_OPERANDS, so ONE zero-insn
-         *      void fence in the override arm un-merges it and restores exactly the
-         *      2 insns, WITHOUT re-coloring anything (that was the w61 open item:
-         *      "a +2 device that does not re-color").
-         * FALSIFIED in THIS basin: De Morgan on the inner `||` [14], De Morgan on the
-         * whole expression [14], `countdown >= 4` spelling [14] -- i.e. all three w60
-         * expression re-spellings are still exactly neutral; the preset chain WITHOUT
-         * the fence [8 @604].  Fence placement/scope are free: fn-scope `cdshow`,
-         * block-local, fence before or after the `cdshow = 0`, and the nested-if vs
-         * `&&` spelling of the override guard all measure the same 4 @606. */
-        int cdshow = 0; /* SYM-CODEGEN-CARRIER: cdshow -- explicit default/override plus fence is the measured PASS 606 branch shape */
+        /* MATCH (w62-a1 + HUDFX r2): explicit default + override statement chain (13C
+         * PRE-SET-THE-DEFAULT): retail pre-sets a0 in each guard's delay slot; the
+         * `&&`/`||` expression form branches TO a `li a0,1` block instead.  The override
+         * zero is written `countdown >> 8` (always 0 for the u_char just tested): a literal
+         * 0 is cross-jumped onto the entry default by jump2 (604, 2 short) or store-flagged;
+         * this non-constant RTL survives jump2 and combine's nonzero_bits folds it to
+         * `addu a0,zero,zero` afterwards.  Replaces the w62 zero-insn void asm fence.
+         * FALSIFIED: De Morgan on the inner `||` [14], on the whole expression [14],
+         * `countdown >= 4` [14]; `cdshow = Hud_BeTheCop` (cse folds it to 0 -> 4 @604). */
+        int cdshow = 0; /* SYM-CODEGEN-CARRIER: cdshow -- explicit default/override is the measured PASS 606 branch shape */
 
         if (0x23f < simGlobal.gameTicks) {
           cdshow = 1;
           if (((u_char)countdown < 4) && (Hud_BeTheCop == 0)) {
-            __asm__ ("" : : "i"(0));
-            cdshow = 0;
+            cdshow = countdown >> 8;
           }
         }
         Hud_BuildCdPlayer(cdshow, j);
@@ -6035,33 +6028,19 @@ HudRender_amtDone:
           Hud_BuildReplay();
         }
         if (i == DashHUD_gInfo.splitscreen) {
-          /* RESIDUAL 4 (only diff in this fn): gcc-2.8 store-flags this guard into
-           * ONE `sltu a0,zero,countdown`; retail branches twice (`beqz [ds li a0,1]`
-           * / `bnez [ds nop]` / `addu a0,zero,zero`).  FALSIFIED spellings: nested
-           * if, explicit goto-chain, if/else both-arms, 3-arm cascade, and TWO full
-           * Hud_BuildCdPlayer calls (that one regresses -- it moves `countamount` off
-           * $a0 in the BTC block above, proving retail reuses the SAME variable).
-           * NEXT ANGLE: the fold needs BOTH arms to be single `SET reg,const` insns
-           * adjacent to the jump -- find a zero-cost shape where the 0-arm is a
-           * reg-reg copy instead (e.g. the 0 already live in another local). */
+          /* MATCH (HUDFX r2): gcc-2.8 jump.c folds `x = 1; if (c) x = 0;` into ONE
+           * store-flag (`sltu a0,zero,countdown`) when the guarded set is a constant at
+           * jump2; retail branches (`beqz [ds li a0,1]` / `bnez [ds nop]` / `addu a0,zero,zero`).
+           * The 0-arm is written `countdown >> 8` (always 0 for the u_char): cse1/jump2 see
+           * a non-constant (so no store-flag), combine's nonzero_bits folds it to 0 afterwards.
+           * Replaces the w45-a7 zero-insn asm use fence.  Measured: plain `countdown` copy
+           * 2 diffs (`addu a0,v0,zero`); `-1`/`^=1`/`>>=1`/`(countdown!=0)` fold early (4);
+           * `& countamount` 2; `& 0x100` also PASS.  FALSIFIED before: nested if, goto-chain,
+           * if/else both-arms, 3-arm cascade, two full Hud_BuildCdPlayer calls. */
           countamount = 1;
           if (simGlobal.gameTicks < 0x240) {
             if (countdown == '\0') {
-              countamount = 0;
-              /* MATCH (w45-a7) -- STORE-FLAG BREAKER, the lever that sealed this fn.
-               * gcc-2.8 jump.c folds `x = 1; if (c) x = 0;` into ONE store-flag insn
-               * (`sltu a0,zero,countdown`) ONLY when the guarded block is a SINGLE
-               * `(set reg const)` insn.  A zero-length USE fence beside the store makes
-               * the block two insns, so the pattern no longer matches and gcc keeps
-               * retail's branch shape (`bnez [ds nop]` / `addu a0,zero,zero`), with the
-               * `li a0,1` still scheduled into the OUTER beqz delay slot.
-               * FALSIFIED before this: nested if, explicit goto-chain, if/else both-arms,
-               * 3-arm cascade, two full Hud_BuildCdPlayer calls (that one regresses --
-               * it moves `countamount` off $a0 in the BTC block above, proving retail
-               * reuses the SAME variable), and the fence placed OUTSIDE this block
-               * (before the countdown test) -- the block must itself stop being a
-               * lone const-set. */
-              __asm__ volatile("" : : "r"(countamount));
+              countamount = countdown >> 8;
             }
           }
           Hud_BuildCdPlayer(countamount,i);

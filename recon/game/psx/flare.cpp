@@ -1152,15 +1152,13 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
  * ready-list tie, not source-reachable.  (STRONG per the floor bar: prototype is void/void
  * per SYM, count exact, 3 alternate forms measured, named mechanism.)
  * ---- w45-a9: THE "NOT SOURCE-REACHABLE" VERDICT IS REFUTED -- PASS 43/43. ----
- * The floor above was correct about the MECHANISM (a sched1 issue-position tie) and wrong
- * about reachability: the ZERO-INSN USE FENCE (§2b.5) pins the issue position directly.
- * `__asm__ volatile("" : : "r"(rgb));` immediately after the read is a scheduling fixpoint,
- * so the `lw v1,0(gp)` must issue BEFORE it while the packet-cursor bump (which follows the
- * fence in source order) must issue AFTER -- exactly retail's 26/27/28.  Emits nothing.
- * GENERALIZATION: any "the oracle issues load X one slot earlier than sched1 does" residual
- * where source POSITION has already been swept is a USE-FENCE target, not a floor.  The
+ * A zero-insn scheduling barrier right after the read pins the `lw v1,0(gp)` BEFORE the
+ * packet-cursor bump (retail 26/27/28).  w45 used an asm use fence; HUDFX r2 replaced it
+ * with a `do { rgb = ...; } while (0);` wrapper (pure-C fence, same effect).  The
  * PTag-bitfield spellings were also measured here (§2b.1): value-side bitfield READ = 6,
- * plain word READ = 6 (both re-color the bump to $v1) -- this fn wants the hand-masked OR. */
+ * plain word READ = 6 (both re-color the bump to $v1) -- this fn wants the hand-masked OR.
+ * HUDFX r1/r2 falsified (no barrier): bump as `(prim + 1)` 2, `+= 0x14` 6, read between the
+ * two OT stores 4, after both 2, at the top 24, rgb stores reordered 2, `next` temp 2. */
 void Flare_2DSpike(long *center,long *end,int otz)
 
 {
@@ -1930,8 +1928,11 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
        * `i` keeps the index init between the address setup and screenPos reload.
        * Keeping the otSize adjustment and packed-colour store inside the existing
        * vx/vy carrier block, then fencing their register/memory dependencies,
-       * gives retail's `addiu a2,-2; sw a3,48(sp)` before the sx/sy copies. */
-      __asm__("" : : "r"(pp), "r"(cp));
+       * gives retail's `addiu a2,-2; sw a3,48(sp)` before the sx/sy copies.
+       * PURE-C FENCE (HUDFX r2): the head barrier after pp/cp is an empty do/while(0)
+       * (was an asm use of pp,cp); without any barrier `addu s0,zero,zero` (i = 0) issues
+       * late (2 diffs); wrapping `i = 0` itself is 3 @410; dropping pp/cp is 23. */
+      do { } while (0);
       i = 0;
       otSize = Draw_gViewOtSize;
       { int vx0 = screenPos->vx; /* SYM-CODEGEN-CARRIER: vx0 -- fence materializes retail's sx copy instead of folding the load into $fp */

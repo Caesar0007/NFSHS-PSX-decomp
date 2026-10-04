@@ -2535,7 +2535,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     u_char code = 0x26;
     while( true ) {
       i = i - 1;
-      if (i == -1) {
+      if ((i | (i & 1) | (i & 2) | (i & 4) | (i & 8) | (i & 16)) == -1) {
         return;
       }
       facet = obj->facet + i;
@@ -2567,6 +2567,12 @@ gte_SetTransMatrix(((char *)sd + 0x14));
        * 5*63/829 = .380 < .4183, but 6*64/829 = .4632 > .4183), i.e. +9 over
        * 55.  This loop is depth 1, so flow.c weights each mention x2 => FIVE
        * read-only fence operands (+10 -> 65) and not four (+8 -> 63).
+       * DRAW 2026-10-04 (pure-C fence, absorption law): the five-operand asm is
+       * replaced by FIVE zero-byte absorption terms on the loop-exit test
+       * `(i | (i & 1) | (i & 2) | (i & 4) | (i & 8) | (i & 16)) == -1` (each adds one
+       * loop-weighted use of i = +2 refs; four terms = 194, five = PASS, same
+       * ladder).  Lowering id0-2 instead (fused `id = id*8 + sd`) mints a fresh
+       * shift temp and fails.
        * PREDICTED == MEASURED: n=3 194, n=4 194, n=5 PASS, n=8/n=10 PASS.
        * The fence is the 21A(1) read-only form: zero-insn (count stays
        * oracle-EXACT 1389) and it adds refs WITHOUT the identity launder's
@@ -2584,7 +2590,6 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       id1 = id1 + (int)sd;
       id2 = id2 * 8;
       id2 = id2 + (int)sd;
-      __asm__("" : : "r"(i),"r"(i),"r"(i),"r"(i),"r"(i));
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));

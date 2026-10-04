@@ -1315,19 +1315,18 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
   znear = (int)sd->night_ZNear;
   zfar = znear + (1 << (sd->night_ZDistShift + 6));
   if (sd->night_DrawLightning != '\0') {
-    /* MATCH (w50-a2): the lui/addiu that materializes &Night_gWeatherLightingTable
-       must issue AFTER the `lbu $v0,269($a2)` index load, not before it (the same
-       lui-vs-load ready-list tie as DrawW_BuildObjectFacets` goffsets[] site in
-       this TU).  Splitting the index into its own statement is NOT enough (still
-       2 diffs, byte-identical) -- it is the w47 OPACITY FENCE on the split temp
-       that pins the issue order (w45: the fence is a sched-issue-position
-       FIXPOINT -- insns before it cannot sink past, insns after cannot float
-       above; here the address materialization is "after").  Zero insns: lt is
-       already register-resident.  FALSIFIED: split with no fence (2), split with
-       a USE-only fence `: : "r"(lt)` (21, count 58 -- it forces a real copy), a
-       void `: : "i"(0)` fence before the statement (2, byte-identical). */
-    int lt /* SYM-CODEGEN-CARRIER: lt -- identity laundering moves the table-byte load to the retail issue slot */ = sd->night_LightningType;
-    __asm__("" : "=r"(lt) : "0"(lt));
+    /* MATCH (w50-a2; pure-C fence DRAW 2026-10-04): the lui/addiu that materializes
+       &Night_gWeatherLightingTable must issue AFTER the `lbu $v0,269($a2)` index load,
+       and the index must win $v0 (address $v1).  The former identity-launder asm on
+       `lt` did both.  Its replacement: the index load inside TWO nested do{}while(0)
+       wrappers -- the loop notes keep the load ahead of the address materialization
+       (sched barrier) and the nesting adds the reference weight the launder supplied,
+       so local-alloc serves the index qty first.  One wrapper only gets the order but
+       swaps v0/v1 (21 diffs @58); absorption `lt|(lt&1)` at the use lets the lui float
+       back above the lbu (2 diffs); FALSIFIED earlier: plain split (2), use-only fence
+       (21 @58), void fence (2), index-first cast, row pointer, u_char/short/u_int lt. */
+    int lt;
+    do { do { lt = sd->night_LightningType; } while (0); } while (0);
     *idx = (u_short)(*Night_gWeatherLightingTable[lt])[*idx];
   }
   if (znear < z) {

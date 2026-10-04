@@ -178,11 +178,13 @@ void AISpeeds_ReadTuningInfo(void)
 /* ---- AISpeeds_CleanUp__Fv  [@0x8006d870] ---- */
 void AISpeeds_CleanUp(void)
 {
+
+
   if (AISpeeds_WeatherMultFactors != (int *)0x0) {
+
     purgememadr(AISpeeds_WeatherMultFactors);
     AISpeeds_WeatherMultFactors = (int *)0x0;
   }
-  return;
 }
 
 /* ---- AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars__FP8Car_tObj  [@0x8006d89c] ---- */
@@ -839,21 +841,23 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
   return desired * carObj->direction;
 }
 
+/* MATCH: the volatile view on the final load is a CODEGEN DEVICE, not
+ * a hardware/IRQ property. Without it GCC folds the prior pointer
+ * decrement into lhu -2(v1), losing retail's addiu v1,-4 plus lhu
+ * 2(v1) pair (three detailed diffs); see §3.13/H40. */
 /* ---- AISpeeds_GetLegalSpeed__Fi  [@0x8006ed0c] ---- */
 int AISpeeds_GetLegalSpeed(int slice)
 {
   speedData_t *speedData;   /* SYM-v3: single REG local 'speedData_t *speedData' -- no separate scratch */
 
   speedData = AISpeeds_TrackSpeeds[AISPEEDS_TRACK];
+
+
   do {
-  } while (speedData++->endSlice < slice);
-  speedData = speedData - 1;
-  /* H40: `volatile` here is a CODEGEN DEVICE, not a semantic hardware/IRQ property (cf. the "^ zero"
-   * runtime-zero idiom, §3.13) -- gcc otherwise re-associates the "-1" pointer correction straight
-   * into this load's displacement (lhu v0,-2(v1), 1 insn) instead of emitting the oracle's genuine
-   * `addiu v1,v1,-4` decrement + `lhu v0,2(v1)` (2 insns). DO NOT "clean up" by dropping the cast --
-   * it silently regresses this fn to a 3-diff near-miss. */
+  } while (speedData++->endSlice < slice); speedData = speedData - 1;
+
   return (u_int)((volatile speedData_t *)speedData)->speedMPS << 8;
+
 }
 
 /* ---- AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji  [@0x8006ed50] ---- */
@@ -1134,4 +1138,3 @@ int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
   if (0xff < tightestCurve) tightestCurve = 0xff;
   return carObj->curveSpeedTable->Get(tightestCurve);
 }
-

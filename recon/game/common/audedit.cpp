@@ -24,19 +24,18 @@ void AudList_LoadAudioFile(int AudioFileIndex);
 void AudList_PurgeAudio(void)
 {
   if (gGameAudioList != (CAudioList *)0x0) {
-    purgememadr(gGameAudioList);
-  }
-  return;
+    purgememadr(gGameAudioList); }
 }
 
 /* ---- AudList_LoadAudioFile__Fi  [@0x8007b554] ---- */
+/* Raw calls: Track_MakeTrackPathName("") @0x8007B568, then
+ * sprintf(fname,"%s%02d.aud",path,AudioFileIndex) @0x8007B580.
+ * Both varargs were once missing in the reconstruction (H40). */
 void AudList_LoadAudioFile(int AudioFileIndex)
 {
   char fname [128];
 
-  /* @0x8007B568 Track_MakeTrackPathName(arg @0x8013C72C = "") -- empty extension; EXE byte=0x00 so "" is faithful.
-   * @0x8007B580 sprintf(fname, "%s%02d.aud" @0x800557E8, $a2=$v0=returned path, $a3=$s0=AudioFileIndex):
-   *   both varargs were dropped in the reconstruction (H40) -> fname was filled from garbage registers. */
+
   sprintf(fname,"%s%02d.aud",Track_MakeTrackPathName(""),AudioFileIndex);
   gGameAudioList = (CAudioList *)loadfileadrz(fname,(void *)0x0);
   return;

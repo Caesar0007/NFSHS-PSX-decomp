@@ -109,73 +109,77 @@ void AI_WorldAvoidance(Car_tObj *carObj)
 /* ---- AI_InitAIInfo__FP8Car_tObj  [@0x80057a24] ---- */
 void AI_InitAIInfo(Car_tObj *carObj)
 {
-  AI_Info.blockingCars[2] = (Car_tObj *)0x0;
-  AI_Info.blockingCars[1] = (Car_tObj *)0x0;
-  AI_Info.blockingCars[0] = (Car_tObj *)0x0;
-  AI_Info.blockingCarsDist[2] = 0;
-  AI_Info.blockingCarsDist[1] = 0;
-  AI_Info.blockingCarsDist[0] = 0;
+
+  AI_Info.blockingCars[2] = (Car_tObj *)0x0; AI_Info.blockingCars[1] = (Car_tObj *)0x0; AI_Info.blockingCars[0] = (Car_tObj *)0x0;
+  AI_Info.blockingCarsDist[2] = 0; AI_Info.blockingCarsDist[1] = 0; AI_Info.blockingCarsDist[0] = 0;
   AI_Info.deltaYaw = AIWorld_CalculateDeltaRoadYaw(carObj);
   AI_Info.desiredLane = 0;
-  return;
 }
 
 /* ---- AI_GenericBeginCycle__FP8Car_tObj  [@0x80057a6c] ---- */
 void AI_GenericBeginCycle(Car_tObj *carObj)
 {
+
+
+
   AI_InitAIInfo(carObj);
   AI_ClearLaneMerits();
-  return;
 }
 
 /* ---- AI_GenericCycle__FP8Car_tObj  [@0x80057a94] ---- */
 void AI_GenericCycle(Car_tObj *carObj)
 {
+
+
+
+
+
+
   AI_MaybeChangeLaneSlack(carObj);
   AI_DoReactionsAndBehavior(carObj);
   AI_PushFinishedCarsToSide(carObj);
   AI_KeepCarsInLane(carObj);
   AI_HandleTrafficHonking(carObj);
+
   AI_CarAvoidance(carObj);
+
   AI_WorldAvoidance(carObj);
-  return;
 }
 
 /* ---- AI_GenericEndCycle__FP8Car_tObj  [@0x80057ae8] ---- */
 void AI_GenericEndCycle(Car_tObj *carObj)
 {
+
+
+
   AI_ProcessObservationsAndChooseLane(carObj);
   AI_CalculateDesiredLatPosition(carObj);
   AI_CalculateAdjustedDesiredSpeed(carObj);
-  return;
 }
 
 /* ---- AI_TargetLane__FP8Car_tObji  [@0x80057b1c] ---- */
 void AI_TargetLane(Car_tObj *carObj,int lane)
 {
   if (carObj->laneIndex < lane) {
-    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x50000;
-    return;
+
+
+
+
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x50000; return;
   }
   if (lane < carObj->laneIndex) {
-    CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x50000;
-  }
-  return;
-}
+
+
+
+
+    CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x50000; } }
 
 /* ---- AI_ClearLaneMerits__Fv  [@0x80057b6c] ---- */
 void AI_ClearLaneMerits(void)
 {
-  {
-    int o;
-    o = 0;
-    do {
-      o = o + 1;
-      CarLogic_gObs[0][2] = 0;
-      CarLogic_gObs[0][1] = 0;
-      CarLogic_gObs[0][0] = 0;
-    } while (o < 1);
-  }
+
+  for (int o = 0; o < 1; o++) {
+    CarLogic_gObs[0][2] = 0; CarLogic_gObs[0][1] = 0; CarLogic_gObs[0][0] = 0; }
 }
 
 /* ---- AI_DoReactions__FP8Car_tObj  [@0x80057b94] ---- */

@@ -875,15 +875,16 @@ bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 /* ---- NormalCache_Init__Fv  [@0x800801ac] ---- */
 void NormalCache_Init(void)
 {
-
   BWSM_NormalCacheSysTime = 0;
-  for (int i = 0; i < 0x10; i++) {
-    BWSM_NormalCache[i].sliceInd = -1;
-    BWSM_NormalCache[i].quadInd = -1;
-    BWSM_NormalCache[i].triangleFlag = '\0';
-    BWSM_NormalCache[i].accessTime = 0;
+  { int i;
+    for (i = 0; i < 0x10; i++) {
+
+      BWSM_NormalCache[i].sliceInd = -1;
+      BWSM_NormalCache[i].quadInd = -1;
+      BWSM_NormalCache[i].triangleFlag = '\0';
+      BWSM_NormalCache[i].accessTime = 0;
+    }
   }
-  return;
 }
 
 /* ---- Check_Rot__FP12BWorldSm_Pos  [@0x800801e8] ---- */
@@ -948,6 +949,7 @@ void Check_Rot(BWorldSm_Pos *slicePos)
 coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos)
 {
   Check_Rot(slicePos);
+
   return &slicePos->normal;
 }
 
@@ -955,6 +957,9 @@ coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos)
 coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)
 {
   Check_Rot(slicePos);
+
+
+
   return &slicePos->forward;
 }
 

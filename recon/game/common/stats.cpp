@@ -82,30 +82,27 @@ void Stats_ClearPosition(void)
 {
 
   for (int i = 0; i < 6; i++) {
+
     Stats_racePosition[i].car = -1;
     Stats_racePosition[i].slice = -99999;
     Stats_racePosition[i].sliceTime = 0;
     Stats_racePosition[i].isHuman = 0;
   }
-  return;
 }
 
 /* ---- Stats_GetPosition__FP8Car_tObj  [STATS.CPP:126-139] SLD-VERIFIED ---- */
 int Stats_GetPosition(Car_tObj *carObj)
 
 {
-  int position;
-  int carindex;
-
-  position = 0;
-  carindex = carObj->carIndex;
-  {
-    int i;
-
+  int position = 0;
+  int carindex = carObj->carIndex;
+  { int i;
     for (i = 0; i < Cars_gNumRaceCars; i++) {
+
       if (Stats_racePosition[i].car == carindex) {
-        position = i + 1;
-        break;
+
+
+        position = i + 1; break;
       }
     }
   }
@@ -117,36 +114,41 @@ int Stats_GetNumOpponents(void)
 
 {
   int i;
-  int numCars;
+  int numCars = 0;
   
-  numCars = 0;
   for (i = 0; i < Cars_gNumRaceCars; i++) {
-    if (Stats_racePosition[i].car != -1) {
+
+    if (Stats_racePosition[i].car != -1)
       numCars = numCars + 1;
-    }
   }
+
   return numCars;
 }
 
-/* ---- Stats_TrackStats__FP8Car_tObj  [STATS.CPP:161-273] SLD-VERIFIED ---- */
+/* ---- Stats_TrackStats__FP8Car_tObj  [STATS.CPP:161-273] SLD-PARTIAL ----
+ * The odd-tick early return and sibling body/race-order scopes preserve the
+ * 258-instruction PASS and all 11 retail SYM blocks. SLD line attribution
+ * remains open; see sym-match.md for the measured residual. */
 void Stats_TrackStats(Car_tObj *carObj)
 
 {
-  if ((STATS_GAME_TICKS & 1U) == 0) {
+
+  if ((STATS_GAME_TICKS & 1U) != 0) return;
+  {
     int trackSlices;
     int currentTime;
+
+
 
     trackSlices = gNumSlices;
     currentTime = STATS_GAME_TICKS;
     if (((carObj->stats).lap < 4) &&
         ((carObj->linearVel_ch).z >
          (carObj->stats).topSpeed[(carObj->stats).lap])) {
+
       if (((carObj->carFlags & 8U) != 0) && (carObj->carInfo->carType < 0x13)) {
-        (carObj->stats).topSpeed[(carObj->stats).lap] =
-            MIN((carObj->linearVel_ch).z,
-                Cars_topSpeedCap[carObj->carInfo->carType] - rand() * 3);
-      }
-      else {
+        (carObj->stats).topSpeed[(carObj->stats).lap] = MIN((carObj->linearVel_ch).z, Cars_topSpeedCap[carObj->carInfo->carType] - rand() * 3);
+      } else {
         (carObj->stats).topSpeed[(carObj->stats).lap] = (carObj->linearVel_ch).z;
       }
     }
@@ -154,8 +156,7 @@ void Stats_TrackStats(Car_tObj *carObj)
         ((carObj->stats).finishType == 0)) {
       if (((STATS_RACE_TYPE == RaceType_HotPursuit) || (STATS_RACE_TYPE == RaceType_Id5)) &&
          (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
-          ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))
-         ) {
+          ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))) {
         (carObj->stats).time[(carObj->stats).lap] = 99999;
       }
       else {
@@ -195,10 +196,15 @@ void Stats_TrackStats(Car_tObj *carObj)
         }
       }
     }
-    {
-      int i;
+  }
 
-      for (i = 0; i < Cars_gNumRaceCars; i++) {
+
+
+
+  {
+    int i;
+
+    for (i = 0; i < Cars_gNumRaceCars; i++) {
         if (((carObj->stats).sliceTotal > Stats_racePosition[i].slice) ||
             (((carObj->stats).sliceTotal == Stats_racePosition[i].slice) &&
              ((carObj->stats).sliceTime < Stats_racePosition[i].sliceTime))) {
@@ -220,15 +226,10 @@ void Stats_TrackStats(Car_tObj *carObj)
             Stats_racePosition[j + 1].isHuman = r4;
           }
           {
-            int r1;
-            int r2;
-            int r3;
-            int r4;
-
-            r1 = carObj->carIndex;
-            r2 = (carObj->stats).sliceTotal;
-            r3 = (carObj->stats).sliceTime;
-            r4 = carObj->carFlags & 4;
+            int r1 = carObj->carIndex;
+            int r2 = (carObj->stats).sliceTotal;
+            int r3 = (carObj->stats).sliceTime;
+            int r4 = carObj->carFlags & 4;
             Stats_racePosition[i].car = r1;
             Stats_racePosition[i].slice = r2;
             Stats_racePosition[i].sliceTime = r3;
@@ -237,7 +238,6 @@ void Stats_TrackStats(Car_tObj *carObj)
           return;
         }
       }
-    }
   }
   return;
 }
@@ -465,12 +465,13 @@ void Stats_ExtrapolateOpponentTimes(int type)
 /* ---- Stats_TrackEndGame__Fv [STATS.CPP:470-550] ---- */
 /* @0x800B8DB8 Native-C restoration, 2026-09-20: both minima use the
  * field-first MIN operand order. The compiler now supplies the original
- * register/stack allocation without pins, asm or non-SYM scratch locals.
+ * register/stack allocation without pins, asm or extra native-SYM locals.
  * PASS 232/232; all seven Stats functions and their branch targets retained.
  * Opposite MIN order: 234 instructions /142 diff lines; two-store override:
  * 223/95. Earlier device experiments are preserved in the scratch backup.
- * Exact named SYM locations are verified; remaining empty-scope/SLD details
- * are recorded separately in scratchpad/stats_native_20260920/README.md. */
+ * The debug-elided inRange condition inside the j loop supplies retail's
+ * otherwise missing child scope; its literal historical name is unknown.
+ * Remaining SLD details are tracked in sym-match.md. */
 void Stats_TrackEndGame(void)
 {
   int i;
@@ -500,7 +501,8 @@ void Stats_TrackEndGame(void)
         int j;
         j = 0;
         while (1) {
-          if (j >= Cars_gNumRaceCars) {
+          const int inRange = j < Cars_gNumRaceCars;
+          if (!inRange) {
             break;
           }
           if (Stats_GetPosition(Cars_gRaceCarList[j]) == DesiredComparison) {

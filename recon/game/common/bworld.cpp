@@ -876,10 +876,10 @@ bool BWorld_IsSliceInBuildList(int slice)
   int chunk = slice / 8;
   for (int bi = 0; bi < BWorld_gChunkCount; bi++) {
     if ((int)((tBuildEntry *)BWorld_gChunkBuildList)[bi].chunkInd == chunk) {
+
       return 1;
     }
-  }
-  return 0;
+  } return 0;
 }
 
 /* ---- BWorld_OnyxBuildFacets__FP13DRender_tView  [@0x8007e0f4] ---- */
@@ -986,14 +986,17 @@ NO_LINES:
    la-addressed, losing the oracle's split lui/addiu delay-slot fill.
    totalMem's definition position at BWAllocMem is load-bearing. */
 
-/* ---- BWAllocMem__Fl  [@0x8007e3f8] ---- */
+/* ---- BWAllocMem__Fl  [@0x8007e3f8] ----
+ * SLD separates the allocator call (+5) from its return (+6). The const
+ * dctBuffer value is debug-elided; its semantic name is inferred, not SYM. */
 char * BWAllocMem(long size)
 {
   /* SYM records this as BWAllocMem's function-local STAT at 0x8013c760. */
   static int totalMem = 0;
 
   totalMem = totalMem + size;
-  return Platform_GetDCTBuffer(size,"bworld");
+  char *const dctBuffer = Platform_GetDCTBuffer(size,"bworld");
+  return dctBuffer;
 }
 
 /* ---- BWorld_InitContexts__Fv  [@0x8007e428] ---- */
@@ -1003,10 +1006,11 @@ void BWorld_InitContexts(void)
 
   gContextMan.initialized = 1;
   gContextMan.count = 0;
+
   for (i = 0; i < 2; i++) {
+
     gContextMan.contexts[i].client = -1;
   }
-  return;
 }
 
 /* ---- BWorld_DeInitContexts__Fv  [@0x8007e460] ---- */

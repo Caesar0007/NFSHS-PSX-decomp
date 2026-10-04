@@ -19,16 +19,15 @@ int AIScript_GetReactionTicksLeft(AIScript_t *script);
 void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7])
 {
   script->data = data;
-  return;
 }
 
 /* ---- AIScript_ClearLastReactionIndex__FP10AIScript_t  [@0x8006f700] ---- */
 void AIScript_ClearLastReactionIndex(AIScript_t *script)
 {
   for (int initLoop = 0; initLoop < 7; initLoop++) {
+
     script->lastReactionIndex[initLoop] = -1;
   }
-  return;
 }
 
 /* ---- AIScript_Startup__FP10AIScript_t  [@0x8006f724] ---- */
@@ -44,50 +43,57 @@ void AIScript_Startup(AIScript_t *script)
 /* ---- AIScript_Cleanup__Fv  [@0x8006f760] ---- */
 void AIScript_Cleanup(void)
 {
-  return;
 }
 
 /* ---- AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni  [@0x8006f768] ---- */
 void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPlayAction playerAction,
                int currentTime64)
 {
+
+
+
+
   if (script->lastActionTime < currentTime64 + -0x500) {
+
     AIScript_ClearLastReactionIndex(script);
   }
   script->lastActionTime = currentTime64;
+
+
+
   if ((script->actionIndex == 7) && ((int)playerAction < (int)script->detectAction)) {
+
+
+
+
     script->detectAction = playerAction;
     script->detectHumCarIndex = humCarIndex;
   }
-  return;
 }
 
+/* MATCH, retail-absent codegen carriers in this byte-PASS source basin:
+ * reactionSeedMask: direct literal 1 adds one instruction, 47 diffs.
+ * noActionIndex: direct literal 7 removes one instruction, 15 diffs.
+ * reactionBitTwo: direct literal 2 retains 90 instructions, eight diffs.
+ * reactionTable: direct (*scriptData) retains 90 instructions, 24 diffs.
+ * storedReactionIndex: direct *lastReactionIndex moves one store, two diffs.
+ * These semantic names are not claimed as literal EA spellings. */
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
   AIScript_tReactionDetails (*scriptData) [7];
-  int go;
-  /* SYM-CODEGEN-CARRIER: reactionSeedMask -- direct literal 1 usage adds one instruction
-     and changes constant/table allocation to 47 diffs. */
   int reactionSeedMask;
-  /* SYM-CODEGEN-CARRIER: noActionIndex -- direct literal 7 stores remove one
-     instruction and change constant allocation/control flow to 15 diffs. */
   int noActionIndex;
-  /* SYM-CODEGEN-CARRIER: reactionBitTwo -- direct literal 2 preserves 90 instructions
-     but changes shift selection and comparison allocation to eight diffs. */
   int reactionBitTwo;
-  int *lastReactionIndex;
-  /* SYM-CODEGEN-CARRIER: reactionTable -- spelling (*scriptData) directly preserves
-     90 instructions but changes table-base/constant allocation to 24 diffs. */
   AIScript_tReactionDetails *reactionTable;
-  /* SYM-CODEGEN-CARRIER: storedReactionIndex -- assigning *lastReactionIndex directly
-     preserves all 90 instructions but moves one store, yielding two diffs. */
   unsigned int storedReactionIndex;
   AIScript_tAIReaction newReaction;
   int newTime;
 
   scriptData = script->data;
   if ((newReaction = script->actionIndex) == 7) {   /* cache actionIndex for the compares */
+    int go;
+    int *lastReactionIndex;
     go = 1;
     if (script->detectAction != 7) {
       script->actionIndex = script->detectAction;
@@ -138,13 +144,10 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 /* ---- AIScript_DoReAction__FP10AIScript_t20AIScript_tAIReaction  [@0x8006f958] ---- */
 int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReaction)
 {
-  int humCarIndex;
-
-  humCarIndex = -1;
+  int humCarIndex = -1;
   if ((script->actionIndex != 7) && ((testReaction & script->reaction) != 0)) {
     humCarIndex = script->actionHumCarIndex;
-  }
-  return humCarIndex;
+  } return humCarIndex;
 }
 
 /* ---- AIScript_GetReactionTicksLeft__FP10AIScript_t  [@0x8006f988] ---- */

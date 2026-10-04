@@ -31,35 +31,36 @@ AIDataRecord_t::AIDataRecord_t(AIDataRecord_WhichRecord_t whichIsThis,char *preB
 /* ---- ___14AIDataRecord_t  AIDataRecord_t::dtor ---- */
 AIDataRecord_t::~AIDataRecord_t()
 {
+
   this->SaveAndPurge();
   this->RemoveRecordFromCollection();
-  return;
 }
 
 /* ---- AddRecordToCollection__14AIDataRecord_t ---- */
 int AIDataRecord_t::AddRecordToCollection()
 {
-
   for (int recordLoop = 0; recordLoop < 0x18; recordLoop++) {
-    if (recordCollection[recordLoop] != (AIDataRecord_t *)0x0) {
-      continue;
+
+    if (recordCollection[recordLoop] == (AIDataRecord_t *)0x0) {
+
+      recordCollection[recordLoop] = this;
+      return 1;
     }
-    recordCollection[recordLoop] = this;
-    return 1;
   }
+
   return 0;
 }
 
 /* ---- RemoveRecordFromCollection__14AIDataRecord_t ---- */
 int AIDataRecord_t::RemoveRecordFromCollection()
 {
-
   for (int recordLoop = 0; recordLoop < 0x18; recordLoop++) {
-    if (recordCollection[recordLoop] != this) {
-      continue;
+
+    if (recordCollection[recordLoop] == this) {
+
+      recordCollection[recordLoop] = (AIDataRecord_t *)0x0;
+      return 1;
     }
-    recordCollection[recordLoop] = (AIDataRecord_t *)0x0;
-    return 1;
   }
   return 0;
 }
@@ -165,21 +166,23 @@ int AIDataRecord_AccTable_t::Get(int speed)
   return (int)*(short *)(this->dataBuffer_ + speed * 2) << 8;
 }
 
-/* ---- Setup__23AIDataRecord_AccTable_t ---- */
+/* ---- Setup__23AIDataRecord_AccTable_t ----
+ * Retail has a short third block over the loop test (+0x1c..+0x28).
+ * An ordinary for loop and two single-assignment, debug-elided acceleration
+ * values preserve 27/27 bytes, the three SYM blocks and all SLD tags.
+ * Their semantic spellings are inferred; SYM has only the named loop local. */
 void AIDataRecord_AccTable_t::Setup()
 {
-  int loop;
-
   this->AIDataRecord_t::Setup();
-  loop = 0;
-loopTop:
-  if (loop < 0x70) {
-    *(short *)(this->dataBuffer_ + loop * 2) =
-        (short)(fixedmult(this->Get(loop),this->scale_) >> 8);
-    loop = loop + 1;
-    goto loopTop;
+  for (int loop = 0; loop < 0x70; loop++) {
+
+
+    const int tableAcceleration = this->Get(loop);
+
+    const int scaledAcceleration = fixedmult(tableAcceleration,this->scale_);
+
+    *(short *)(this->dataBuffer_ + loop * 2) = (short)(scaledAcceleration >> 8);
   }
-  return;
 }
 
 /* ---- __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t  BestLine::ctor ---- */

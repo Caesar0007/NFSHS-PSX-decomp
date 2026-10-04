@@ -308,7 +308,11 @@ Speech::LocationBank *Speech::FindClosestLocationTo(LocationBank *bank,int slice
     return (LocationBank *)0x0;
 }
 
-/* ---- FindLocation__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:624-788] SLD-VERIFIED ---- */
+/* ---- FindLocation__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:624-788] SLD-VERIFIED ----
+ * SOURCE-ONLY REVIEW: advance/offset are absent from retail SYM. Inlining the
+ * first positive-branch advance gave 192/190 instructions and 74 diffs;
+ * const preserved 190/190 but retained an EXTRA debug local. Neither proves
+ * the historical local spelling. See sym-match.md for the open owner audit. */
 void Speech::Speaker::FindLocation(Car_tObj *car)
 
 {
@@ -716,9 +720,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
     }
     isheader = false;
     if (namelen >= 5) {
-      bool extension = this->IsHeader((u_char)p[-4], (u_char)p[-3],
-                                      (u_char)p[-2], (u_char)p[-1],
-                                      '.', 'h', 'd');
+      bool extension = this->IsHeader(p - 4, '.', 'h', 'd');
       __asm__("" : : "r"(extension), "r"(extension));
       if (extension && this->CheckMultiBank(name,id,bn)) {
         isheader = true;
@@ -730,8 +732,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
         data += size;
       }
       else {
-        if (this->IsData((u_char)p[-4], (u_char)p[-3],
-                         (u_char)p[-2], (u_char)p[-1], '.', 'd', 'a')) {
+        if (this->IsData(p - 4, '.', 'd', 'a')) {
           if ((dt < this->fBankCount) && (banknames[dt] != 0) &&
               (strncmp(name,banknames[dt],namelen - 3) == 0)) {
             this->fBankOffset[dt++] = offset;
@@ -895,9 +896,11 @@ int Speech::BankPatch(long bank,Car_tObj *car)
 
 {
   if (bank == this->fStaticBank) {
+
     return 0x15;
   }
   if (bank == this->fBlpClpBank) {
+
     if (car == (Car_tObj *)0) {
       return 0x13;
     }
@@ -1410,13 +1413,10 @@ void Speech::MobileSpeaker::Status()
 void Speech::DispatchSpeaker::ClearPerp(Car_tObj *car)
 
 {
-
   for (int i = 0; i < 2; i++) {
-    if (this->fPerp[i] == car) {
+    if (this->fPerp[i] == car)
       this->fPerp[i] = (Car_tObj *)0x0;
-    }
   }
-  return;
 }
 
 /* ---- KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1964-1969] SLD-VERIFIED ---- */
@@ -1427,21 +1427,17 @@ bool Speech::DispatchSpeaker::KnownPerp(Car_tObj *car)
     if (this->fPerp[i] == car) {
       return 1;
     }
-  }
-  return 0;
+  } return 0;
 }
 
 /* ---- AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1976-1980] SLD-VERIFIED ---- */
 void Speech::DispatchSpeaker::AddPerp(Car_tObj *car)
 
 {
-
   for (int i = 0; i < 2; i++) {
-    if (this->fPerp[i] == (Car_tObj *)0x0) {
+    if (this->fPerp[i] == (Car_tObj *)0x0)
       this->fPerp[i] = car;
-    }
   }
-  return;
 }
 
 /* ---- Report__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1990-2031] SLD-VERIFIED ----
@@ -1705,10 +1701,12 @@ Speech::Speaker *Speech::FindMobile(Car_tObj *carObj)
 Speech::Speaker *Speech::Mobile(Car_tObj *carObj)
 
 {
-  if (Speech::fgSpeech == (Speech *)0x0 ||
-      Speech::fgSpeech->fBankOffset == (long *)0x0)
+  if (Speech::fgSpeech == (Speech *)0x0 || Speech::fgSpeech->fBankOffset == (long *)0x0)
+
     return Speech::fgUndefined;
-  return Speech::fgSpeech->FindMobile(carObj);
+  else
+
+    return Speech::fgSpeech->FindMobile(carObj);
 }
 
 /* ---- CalcMph__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:2256-2257] SLD-VERIFIED ---- */
@@ -1728,17 +1726,16 @@ int Speech::Speaker::CalcMph(Car_tObj *perp)
 void Speech::MobileSpeaker::SetSpeed(Car_tObj *perp)
 
 {
-  if (GameSetup_gData.measurement == 1) {
+  if (GameSetup_gData.measurement == 1)
+  {
     this->SetSpeedType(1);
-    this->fSpeed = MOBILE_SPEAKER_SPEED(perp, 0x39999) < 0
-        ? 0 : MOBILE_SPEAKER_SPEED(perp, 0x39999);
+    this->fSpeed = MOBILE_SPEAKER_SPEED(perp, 0x39999) < 0 ? 0 : MOBILE_SPEAKER_SPEED(perp, 0x39999);
   }
-  else {
+  else
+  {
     this->SetSpeedType(2);
-    this->fSpeed = MOBILE_SPEAKER_SPEED(perp, 0x23ca5) < 0
-        ? 0 : MOBILE_SPEAKER_SPEED(perp, 0x23ca5);
+    this->fSpeed = MOBILE_SPEAKER_SPEED(perp, 0x23ca5) < 0 ? 0 : MOBILE_SPEAKER_SPEED(perp, 0x23ca5);
   }
-  return;
 }
 #undef MOBILE_SPEAKER_SPEED
 
@@ -2117,9 +2114,10 @@ void Speech::MobileSpeaker::Bullhorn()
   /* SYM-OPTIMIZED: carObj -- the inline fCarObj accessor is consumed directly
      by the assignment to Speech::fSpeakerCar. */
   this->MakeSpeaker();
+
+
   SPCHNFS_C_P_BULLHORN_SPEECH(this->Voice());
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  return;
 }
 
 /* ---- Purge__Q26Speech13MobileSpeaker  [SPEECH.CPP:2754-2839] SLD-VERIFIED ---- */

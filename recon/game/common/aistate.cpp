@@ -59,14 +59,7 @@ void AIState_Restart(void) {
 
 /* ---- AIState_CleanUp__Fv  AIState_CleanUp  [AISTATE.CPP:36-37] SLD-VERIFIED ---- */
 
-void AIState_CleanUp(void)
-
-
-
-{
-
-  return;
-
+void AIState_CleanUp(void) {
 }
 
 
@@ -85,16 +78,14 @@ void AIState_Base::StateExecute()
 {
   if ((((this->carObj_->N).active != '\0') && ((this->carObj_->carFlags & 4U) == 0)) &&
 
+
+
+
+
      ((this->carObj_->N).deadTimer == 0)) {
-
     AIScript_ProcessActionsAndReactions(&this->carObj_->script,AI_elapsedTime);
-
   }
-
   this->Execute();
-
-  return;
-
 }
 
 
@@ -106,17 +97,8 @@ void AIState_Base::StateExecute()
 
 /* ---- __12AIState_BaseP8Car_tObj  AIState_Base::ctor  [AISTATE.CPP:73-74] SLD-VERIFIED ---- */
 
-AIState_Base::AIState_Base(Car_tObj *carObj)
-
-
-
-{
-
-
+AIState_Base::AIState_Base(Car_tObj *carObj) {
   this->carObj_ = carObj;
-
-  return;
-
 }
 
 
@@ -136,14 +118,10 @@ void AIState_Normal::Execute()
 
   AISpeeds_CalcDesiredSpeed(this->carObj_);
 
+
   AI_GenericBeginCycle(this->carObj_);
-
   AI_GenericCycle(this->carObj_);
-
   AI_GenericEndCycle(this->carObj_);
-
-  return;
-
 }
 
 
@@ -159,16 +137,9 @@ AIState_Normal::AIState_Normal(Car_tObj *carObj)
   : AIState_Base(carObj)
 {
 
-  (this->carObj_)->targetPos.x =
-      (this->carObj_)->targetPos.y =
-      (this->carObj_)->targetPos.z = 0;
-
+  (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y = (this->carObj_)->targetPos.z = 0;
   (this->carObj_)->targetLatPos = 0;
-
   ((this->carObj_)->N).active = '\x01';
-
-  return;
-
 }
 
 
@@ -238,18 +209,9 @@ void AIState_Idle::Execute()
 
 /* ---- SetIdlePosition__12AIState_Idlei  AIState_Idle::SetIdlePosition  [AISTATE.CPP:154-156] SLD-VERIFIED ---- */
 
-void AIState_Idle::SetIdlePosition(int roadPosition)
-
-
-
-{
-
+void AIState_Idle::SetIdlePosition(int roadPosition) {
   this->roadPosition_ = roadPosition;
-
   this->idleInPlaceFlag_ = 0;
-
-  return;
-
 }
 
 
@@ -492,17 +454,15 @@ void AIState_Chase::SetMurderMode(int murderMode,int murderTicks)
 
 
 {
-
   if (this->murderMode_ == 0) {
 
+
+
+
+
     this->murderMode_ = murderMode;
-
     this->murderEndTime_ = simGlobal.gameTicks + murderTicks;
-
   }
-
-  return;
-
 }
 
 
@@ -594,12 +554,10 @@ void AIState_Chase::DoSlowNitrous()
 
 {
 
+
+
   (this->carObj_)->accNitrous = 0x8000;
-
   (this->carObj_)->speedNitrous = 0xc000;
-
-  return;
-
 }
 
 
@@ -1670,33 +1628,29 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
           matrixtdef *orientation,int maxSpeedKPH,int releaseTime,int endSlice)
   : AIState_Base(carObj)
 {
-
-  this->letGo_ = 0;
-
-  this->startSlice_ = startSlice;
-
   /* MATCH (w13-a5): plain struct assignments -- gcc movstrsi expands the 36-byte matrix
      copy as the oracle's 4-word/iter loop + 1-word tail + end-ptr compare, and the
      12-byte coorddef copies as grouped lw t0-t2 / sw triples (load-3/store-3). */
 
+
+
+
+
+  this->letGo_ = 0;
+  this->startSlice_ = startSlice;
   this->startPosition_ = *position;
-
   this->startOrientation_ = *orientation;
-
   this->startHeading_ = *(coorddef *)((this->startOrientation_).m + 6);
-
   this->maxSpeedMPS_ = maxSpeedKPH * 0x4700;
-
   this->releaseTime_ = releaseTime;
 
   this->targetSlice_ = endSlice;
-
   this->targetPosition_ = *(coorddef *)BWorldSm_slices[endSlice].center;
 
+
+
+
   this->carObj_->carFlags = this->carObj_->carFlags | 0x800;
-
-  return;
-
 }
 
 
@@ -1817,50 +1771,28 @@ void AIState_Offroad::Execute()
 
 
 /* ---- __17AIState_PurgatoryP8Car_tObj  AIState_Purgatory::ctor  [AISTATE.CPP:1001-1017] SLD-VERIFIED ---- */
+/* CORRECTNESS (w13-a5): oracle stores the VALUE of Cars_gList (= Cars_gList[0], the head
+   car) into basisCar -- recon previously stored NULL. lw %lo(Cars_gList) in the oracle. */
 
 AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
   : AIState_NonActive(carObj)
 
-
 {
   int lifeTimer;
-
-
-
-
-
-
-  randtemp = fastRandom * randSeed;
-
-  /* CORRECTNESS (w13-a5): oracle stores the VALUE of Cars_gList (= Cars_gList[0], the head
-     car) into basisCar -- recon previously stored NULL. lw %lo(Cars_gList) in the oracle. */
-
   (this->carObj_)->basisCar = Cars_gList[0];
 
   lifeTimer = AITune_LifeTimer[Cars_gNumTrafficCars];
+  randtemp = fastRandom * randSeed; (this->carObj_)->physicsModelTimer = (lifeTimer * (randtemp >> 8 & 0xffff) >> 0x10) + 1; fastRandom = randtemp & 0xffff;
 
-  (this->carObj_)->physicsModelTimer =
 
-       (lifeTimer * (randtemp >> 8 & 0xffff) >> 0x10) + 1;
+  if ((strcmp((this->carObj_)->carName,"SBUS") == 0) || (strcmp((this->carObj_)->carName,"TBUS") == 0)) {
 
-  fastRandom = randtemp & 0xffff;
-
-  if ((strcmp((this->carObj_)->carName,"SBUS") == 0) ||
-      (strcmp((this->carObj_)->carName,"TBUS") == 0)) {
     this->carObj_->physicsModelTimer = this->carObj_->physicsModelTimer * 5;
-
   }
-
   this->carObj_->AIFlags = this->carObj_->AIFlags | 4;
-
   if (((this->carObj_)->carFlags & 0x10U) != 0) {
-
     AIState_Purgatory_numTrafficCarsInPurgatory = AIState_Purgatory_numTrafficCarsInPurgatory + 1;
-
   }
-
-  return;
-
 }
 
 
@@ -2078,16 +2010,8 @@ void AIState_Purgatory::Execute()
 
 /* ---- StartUp__17AIState_Purgatory  AIState_Purgatory::StartUp  [AISTATE.CPP:1090-1091] SLD-VERIFIED ---- */
 
-void AIState_Purgatory::StartUp(void)
-
-
-
-{
-
+void AIState_Purgatory::StartUp(void) {
   AIState_Purgatory_numTrafficCarsInPurgatory = 0;
-
-  return;
-
 }
 
 
@@ -2102,19 +2026,11 @@ void AIState_Purgatory::StartUp(void)
 AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger)
   : AIState_Base(carObj)
 {
-
   this->path_ = *(trigger_pathPosition_t **)((char *)trigger + 0x3c);
-
   this->numPathPoints_ = *(int *)((char *)trigger + 0x38);
-
   this->pathIndex_ = 0;
-
   this->waitTick_ = 0;
-
   this->carObj_->carFlags = this->carObj_->carFlags | 0x800;
-
-  return;
-
 }
 
 
@@ -2545,17 +2461,10 @@ LAB_800722ec:
 /* ---- __17AIState_GotoSliceP8Car_tObjii  AIState_GotoSlice::ctor  [AISTATE.CPP:1348-1351] SLD-VERIFIED ---- */
 
 AIState_GotoSlice::AIState_GotoSlice(Car_tObj *carObj,int targetSlice,int stopWhenArrivedAtSlice)
-  : AIState_Normal(carObj)
+  : AIState_Normal(carObj),
+    targetSlice_(targetSlice),
+    stopWhenArrivedAtSlice_(stopWhenArrivedAtSlice)
 {
-
-
-
-  this->targetSlice_ = targetSlice;
-
-  this->stopWhenArrivedAtSlice_ = stopWhenArrivedAtSlice;
-
-  return;
-
 }
 
 
@@ -2627,7 +2536,6 @@ void AIState_GotoSlice::Execute()
        cross-jumped shape (oracle: `bltz a3,Lneg [a2=cap]` / `j Ltest [slt v0,a3,a2]` /
        `negu a2,a0; slt v0,a2,a3` / `beqz v0; nop; addu a2,a3,zero; sw a2`).  The previous
        per-arm field-assignment form duplicated the tail (74 vs 70 insns). */
-    {
       /* SYM-CODEGEN-CARRIER: carObj -- the cached object plus one read-only
          reference is the measured minimum dial for retail's a0 cap seat. */
       Car_tObj *carObj = this->carObj_;
@@ -2664,8 +2572,6 @@ void AIState_GotoSlice::Execute()
          identity as inRange (combine folds it, 0 insns); it replaced a read-only
          asm ref fence. */
       ((Car_tObj *)((u_int)carObj | ((u_int)carObj & 3u)))->desiredSpeed = limit;
-
-    }
 
   }
 
@@ -2705,25 +2611,11 @@ int AIState_GotoSlice::InTargetSliceRange(int rangeMeters) {
 AIState_Cruise::AIState_Cruise(Car_tObj *carObj,cruiseMode_t cruiseMode,int speedOrFactor)
   : AIState_Normal(carObj)
 {
-
-
-
-  this->cruiseMode_ = cruiseMode;
-
-  if (cruiseMode == 0) {
-
+  this->cruiseMode_ = cruiseMode; if (cruiseMode == 0) {
     this->cruiseSpeed_ = speedOrFactor;
-
-  }
-
-  else if (cruiseMode == 1) {
-
+  } else if (cruiseMode == 1) {
     this->cruiseFactor_ = speedOrFactor;
-
   }
-
-  return;
-
 }
 
 

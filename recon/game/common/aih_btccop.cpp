@@ -58,16 +58,9 @@ coorddef     AIH_BTCCop_chasePositions[3][6] = { { {0, 0, 720896}, {-524288, 0, 
 /* ---- __14AIHigh_BTC_CopP8Car_tObji  AIHigh_BTC_Cop::ctor  [AIH_BTCCOP.CPP:107-111] SLD-VERIFIED ---- */
 AIHigh_BTC_Cop::AIHigh_BTC_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
-
-
   this->perpTarget_ = (AIHigh_BTC_Perp *)0x0;
-
   this->chaseIndex_ = 0;
-
   this->freezeMode_ = 0;
-
-  return;
-
 }
 
 
@@ -282,15 +275,15 @@ void AIHigh_BTC_Cop::FalseArrest(AIHigh_BTC_Perp *cantArrestMe)
 
 {
 
+
+
+
   if (this->perpTarget_ == cantArrestMe) {
 
+
     this->freezeMode_ = 2;
-
   }
-
-  return;
-
-}
+  return; }
 
 
 
@@ -326,14 +319,11 @@ void AIHigh_BTC_Cop::HudOff()
 
 {
 
+
+
+
   if (this->copIndex_ == 0) {
-
-    Hud_BustedOverlayOff();
-
-  }
-
-  return;
-
+    Hud_BustedOverlayOff(); }
 }
 
 
@@ -1155,17 +1145,11 @@ int AIHigh_BTC_HumanCop::CheckForWingmanRequest()
 
 
 {
-
   if (this->wingmanStatus_ != 1) {
-
     return 0;
-
   }
-
   this->wingmanStatus_ = 4;
-
   return 1;
-
 }
 
 
@@ -1182,19 +1166,15 @@ int AIHigh_BTC_HumanCop::CheckForBlockaderRequest(int *spikeBeltRequest)
 
 
 {
-
   *spikeBeltRequest = 0;
+
 
   if ((u_int)(this->wingmanStatus_ - 2) < 2) {
 
-    if (this->wingmanStatus_ == 3) {
 
+    if (this->wingmanStatus_ == 3)
       *spikeBeltRequest = 1;
-
-    }
-
     this->wingmanStatus_ = 5;
-
     return 1;
 
   }
@@ -1217,23 +1197,20 @@ void AIHigh_BTC_HumanCop::UpdateWingmanRole(Wingman_Role currentRole)
 
 
 {
-
   switch ((int)currentRole) {
   case 0:
+
     this->wingmanStatus_ = 0;
     return;
   case 1:
+
     this->wingmanStatus_ = 4;
     return;
-  case 2:
-  case 3:
+  case 2: case 3:
     this->wingmanStatus_ = 5;
     return;
   default:
-    return;
-  }
-
-}
+    return; } }
 
 
 
@@ -1250,9 +1227,9 @@ void AIHigh_BTC_HumanCop::ClearTrafficToPurgatory()
 
 {
   for (int trafficLoop = 0; trafficLoop < Cars_gNumTrafficCars; trafficLoop++) {
+
     Car_tObj *testTrafficCarObj = Cars_gTrafficCarList[trafficLoop];
     AIHigh_Traffic *testTrafficHigh = (AIHigh_Traffic *)highLevelAIObjs[testTrafficCarObj->carIndex];
-
     testTrafficHigh->SetForcePurgatory(1);
   }
 }
@@ -1272,9 +1249,9 @@ void AIHigh_BTC_HumanCop::ResetClearTrafficToPurgatory()
 
 {
   for (int trafficLoop = 0; trafficLoop < Cars_gNumTrafficCars; trafficLoop++) {
+
     Car_tObj *testTrafficCarObj = Cars_gTrafficCarList[trafficLoop];
     AIHigh_Traffic *testTrafficHigh = (AIHigh_Traffic *)highLevelAIObjs[testTrafficCarObj->carIndex];
-
     testTrafficHigh->SetForcePurgatory(0);
   }
 }
@@ -1293,17 +1270,11 @@ void AIHigh_BTC_HumanCop::SetDesiredSpeed()
 
 
 {
-  if (this->carObj_->RSControl != 0) {
+  if (this->carObj_->RSControl != 0)
+  {
     int curveSpeed = AISpeeds_CalcHumanTopSpeed(this->carObj_);
-    this->carObj_->desiredSpeed =
-        this->RequestedDesiredSpeed() < curveSpeed
-            ? this->RequestedDesiredSpeed() : curveSpeed;
-
-  }
-
-  return;
-
-}
+    this->carObj_->desiredSpeed = this->RequestedDesiredSpeed() < curveSpeed ? this->RequestedDesiredSpeed() : curveSpeed;
+  } }
 
 
 
@@ -1426,11 +1397,13 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 {
   Car_tObj *arrestingHumanCop = arrestingCop;
 
+
+
   if ((arrestingCop->carFlags & 2U) != 0)
     arrestingHumanCop = Cars_gHumanRaceCarList[0];
+
   if (this->copIndex_ == 0 || gameOver != 0)
-    Hud_BustedOverlayOn(simGlobal.gameTicks - this->chaseStartTime_,arrestMe->CarObj()->carInfo->driver,
-                        (void *)(u_int)(gameOver == 0),(short)arrestingHumanCop->carIndex);
+    Hud_BustedOverlayOn(simGlobal.gameTicks - this->chaseStartTime_,arrestMe->CarObj()->carInfo->driver,(void *)(u_int)(gameOver == 0),(short)arrestingHumanCop->carIndex);
 }
 
 
@@ -1443,22 +1416,12 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 /* ---- __18AIHigh_BTC_WingmanP8Car_tObji  AIHigh_BTC_Wingman::ctor  [AIH_BTCCOP.CPP:964-971] SLD-VERIFIED ---- */
 AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex) : AIHigh_BTC_Cop(carObj,copIndex)
 {
-
-
   this->spikeBeltPlaced_ = 0;
-
   this->spikeBeltSlice_ = 0;
-
   this->spikeBeltInterceptReleaseTime_ = 0;
-
   this->currentRole_ = 0;
-
   this->newRole_ = 0;
-
   this->newHumanBoss_ = (AIHigh_BTC_HumanCop *)0x0;
-
-  return;
-
 }
 
 

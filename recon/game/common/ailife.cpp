@@ -58,7 +58,6 @@ void AILife_RCSetSpeeds(Car_tObj *carObj)
 {
   AISpeeds_CalcDesiredSpeed(carObj);
   carObj->currentSpeed = carObj->desiredSpeed;
-  return;
 }
 
 /* ---- AILife_RCPickSliceAndDirection__FP8Car_tObj  [@0x800676e4] ---- */

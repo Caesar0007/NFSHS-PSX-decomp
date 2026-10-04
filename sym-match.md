@@ -8182,3 +8182,1474 @@ Reusable laws from the run (receipts per pin are in the agents' reports, summari
   plain 107-diff form with each PsyQ-era cc1 in C:/Temp/windows-gcc-psx and see whether any rung emits the store+reload
   naturally (a cse difference between 2.8.0/2.8.1/2.95 would decide it); (2) check the 6 regional retail builds for
   the same reload (if a regional lacks it, the source changed, not the compiler).
+
+### AIScript small-function SLD source restoration (2026-10-04)
+
+Four previously byte-PASS functions in `aiscript.cpp` now match their
+complete retail SLD records. `AIScript_Assign` uses implicit void
+fallthrough after the one real store (2/2 instructions), while the
+two-instruction `AIScript_Cleanup` has an empty body. In
+`AIScript_ClearLastReactionIndex`, the loop store belongs one source
+region after the loop header and the redundant final return is
+removed; all 9 instruction tags, loop block lines and end delta match.
+`AIScript_DoReAction` initializes its SYM-named `humCarIndex` to -1
+at declaration and shares the source line between the guarded-body
+close and final return, matching all 12 tags and the block/end lines.
+
+The full `aiscript.cpp` symloop reports BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 7/8 native CLEAN (`run-lrey6vmn`). The sole
+native DIRTY function is `AIScript_ProcessActionsAndReactions`; its
+five behavior-named but retail-absent carrier rows and scope mismatch
+remain explicit. `AIScript_SubmitPlayerAction` also remains SLD-DIFF.
+The refreshed GAME/COMMON board reports 294/1247 strict SLD-exact
+functions, but other concurrent source work means that aggregate is
+not solely attributable to these four seals. No general ASM, dummy
+source operation or compiler-output rewrite was added.
+
+### AIScript_SubmitPlayerAction strict SLD seal (2026-10-04)
+
+Retail places the time-window guard and optional clear call at source
+regions +5/+7, the later action-selection guard at +13, and its two
+stores at +18/+19. The prior source was byte-PASS but compressed those
+real statements into +1/+2/+5/+6/+7 and gave the epilogue a separate
+return line. An SLD-constrained placement of the same operations with
+implicit void fallthrough reproduces every one of the 34 linked
+instruction tags, the +20 root block close and +19 function-end delta.
+Full `aiscript.cpp` symloop remains BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 7/8 native CLEAN (`run-7f76mab2`). This
+supersedes the preceding `SubmitPlayerAction` SLD-DIFF note; only
+`AIScript_ProcessActionsAndReactions` remains both native DIRTY and
+SLD-DIFF in this TU. The refreshed GAME/COMMON board reports
+295/1247 strict SLD-exact functions. Literal historical separator
+text remains unproved; no source-only operation was added.
+
+### AIScript_ProcessActionsAndReactions partial owner recovery (2026-10-04)
+
+Retail SYM places `scriptData` at root, then `go`,
+`lastReactionIndex` and `newReaction` in a guarded child region
+beginning at +0x24, with `newTime` one level deeper at +0x60.
+Moving `go` and `lastReactionIndex` from function root into the
+action-index guard retains the complete 90/90 byte-PASS body and
+restores both named locals' homes/depths; native block count moves
+from one to three. This is not native CLEAN: five behavior-named
+retail-absent carriers remain, `newReaction` and `newTime` are still
+root-owned, and retail has a fourth block.
+
+Three unretained source probes sharpen the remaining problem.
+Declaring `newTime` inside `if (go != 0)` put it at depth 7 and made
+seven scopes; a standalone region around the loop label put it at
+depth 6 with six scopes. Both kept byte-PASS but regressed ownership.
+Changing the guard to a direct `script->actionIndex == 7` and
+declaring `newReaction` inside rotated twelve machine instructions;
+a root `const` snapshot gave the same byte regression. A use-site
+`const reactionSeedMask` kept bytes but retained its EXTRA row and
+added two scopes. Every failed variant was reverted. The final
+`aiscript.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero
+errors and 7/8 native CLEAN (`run-4cs26hot`); the function remains
+SLD-DIFF. No new carrier exemption is claimed.
+
+Follow-up source-attribution cleanup: the five measured codegen-carrier
+receipts were moved above `AIScript_ProcessActionsAndReactions`, out of
+its historical source-line span. The function remains 90/90 byte-PASS;
+full `aiscript.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 7/8 native CLEAN (`run-k5hrvsjf`). The linked SLD
+instruction-tag differences improve 88 -> 84 of 90. Its native end
+delta shortens from +69 to +59 versus retail +88, confirming that the
+remaining missing regions cannot be supplied by reconstruction-note
+comments. The same five EXTRA carriers and `newReaction`/`newTime`
+ownership issues remain explicit. No no-op or compiler-output rewrite
+was introduced.
+
+### AIDataRecord_AccTable_t::Setup loop ownership (2026-10-04)
+
+Retail records `loop` in a function-entry child region rather than
+the root, and a second short block around the loop test at +0x1c..28.
+The reconstruction's top-tested `goto` loop remains necessary in the
+current compiler basin: replacing it with either an ordinary scoped
+`for` or `for(;;)`/break kept 27 instructions but changed six branch/
+delay-slot words. Both were reverted. An ordinary compound around the
+existing setup call, counter and top-tested loop preserves all 27
+retail instructions, section bytes/layout and named `loop` home/depth.
+Full `aidatarecord.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0 and
+PSYLINK zero errors (`run-afi_y5j0`). The function is still native
+DIRTY solely for two versus three scopes; its 18/27 SLD tag differences
+and +15 versus retail +10 end delta are not sealed. The remaining
+condition-only block's original source construct is open; no dummy
+statement, ASM or post-compile rewrite was retained.
+
+### AISpeeds_GetLegalSpeed line tags versus block lifetime (2026-10-04)
+
+The table lookup already had retail source tag +3. Moving the H40
+volatile-load explanation outside the function and placing the
+do/while test with the pointer correction at +7 restores the loop
+tags without changing the byte-required volatile view. The final
+speed load and epilogue are tagged at retail +9. Linked SYM now has
+0/17 instruction-tag differences and the exact +9 function-end
+delta, with 17/17 byte PASS. Full `aispeeds.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0 and PSYLINK zero errors (`run-hcuwuy1x`).
+
+This is not native CLEAN or strict SLD-exact. Retail closes the one
+`speedData` block at offset +0x38, source line +10; native closes it
+one instruction early at +0x34, source line +8. A plain `while`
+retained bytes but regressed six instruction tags. A volatile view
+of only the `speedMPS` field and a debug-elided const speed snapshot
+both retained bytes without moving the block boundary; the snapshot
+also regressed three SLD tags. All were reverted. The open problem
+is the source lifetime of the SYM-named pointer through its final
+load, not the machine-code body. No dummy source statement or
+post-compile rewrite was retained.
+
+### AIHigh_BTC_AIPerp::FindClosestCop native owner seal (2026-10-04)
+
+Retail places the three accumulated closest-car results at root,
+`copLoop` in the function-entry traversal region, and the signed and
+absolute distance values inside the flagged-car branch. The old
+reconstruction declared all six at root. Moving only the three
+region-owned declarations into ordinary lexical compounds leaves the
+64/64 byte-PASS body unchanged and reproduces every named local home,
+depth, order and native block boundary. Compacting reconstruction-only
+blank lines and dropping a redundant final return also shortens its
+source end delta from +66 to +35 without moving code. Full
+`aih_btcperp.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors (`run-ssr48u3g`); this function is now native CLEAN.
+
+It is not strict SLD-exact: retail's end delta is +27, and several
+statement/block line positions still differ. The other 13 native
+DIRTY functions in this 20-function TU were not reclassified or
+hidden. No extra source value, ASM, or compiler-output rewrite was
+introduced.
+
+### KillFile_ReadEntry strict SLD seal (2026-10-04)
+
+Retail tags the pointer advance at +1, the chunk load/store at +3,
+and the object load plus return instructions at +4, while closing
+the one root block at +2. Splitting the real `chunkInd` assignment
+between its lvalue and load expression supplies that source-region
+boundary; implicit void fallthrough leaves the object store in the
+return delay slot. All eight instructions remain byte-PASS, and the
+linked SYM has zero tag differences with exact block/end lines.
+Full `track.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 23/29 native CLEAN (`run-der_sy_g`). GAME/COMMON
+strict SLD coverage rises 295 -> 296 of 1247. No extra local or
+dummy statement was added.
+
+Read-only NFS3 startup audit: `Nfs2_SystemNLibStartUp` stays 25/25
+byte-PASS but has five native scopes versus eight retail scopes.
+Retail's additional scopes cluster at entry and around the inlined
+`new Speech::Speaker` expansion (+0x2c); simple source braces are not
+evidence for the constructor's original inline shape. No source edit
+or native-SYM seal is claimed from that audit.
+
+### Track_SetTrackNumber and KillFile_OpenRead SLD seals (2026-10-04)
+
+`Track_SetTrackNumber` has one masked global store at source +1;
+removing its redundant `return;` retains all four retail instructions
+and makes the instruction tags, block lines and end delta exact.
+`KillFile_OpenRead` already tagged the path-building `sprintf` at
+retail +3. Separating the subsequent real `loadfileadrz` call into
+its +6 source region leaves all 17 instructions and the native local
+record unchanged and makes its linked SLD record exact as well.
+Full `track.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 23/29 native CLEAN (`run-upt1m7wa`). GAME/COMMON
+strict SLD coverage rises 296 -> 298 of 1247. The distinct source
+regions are proven by SLD; literal separator text is not.
+
+The adjacent `Track_AnimateTrackLighting` is a byte-PASS two-word
+no-op but retail gives it a seven-line source span. The binary and
+current reference sources do not identify the skipped or conditional
+historical content, so no blank filler or invented operation was
+added; that SLD item stays explicit.
+
+### Track art-allocation and path helpers: three strict SLD seals (2026-10-04)
+
+Retail `AllocArtResource` tags the ID store at +1, `BWAllocMem` and
+its delay-slot count store at +6, then shape count/file stores and
+epilogue at +8/+9. Separating those existing real statements and
+using implicit void fallthrough preserves all 16 bytes and makes
+its linked tags, root block and end line exact. Both static-buffer
+path helpers place their `sprintf` call at +5 and returned buffer at
++7; their independently measured source regions likewise keep each
+18-word body byte-PASS and strict SLD-exact. Full `track.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and
+23/29 native CLEAN (`run-ksq7wb57`). GAME/COMMON strict SLD
+coverage rises 298 -> 301 of 1247. The line-equivalent spacing does
+not prove the literal historical separator text.
+
+The neighboring `InitArtResources` and `DeInitArtResources` wrappers
+remain SLD-DIFF. Their retail source spans leave eight or more lines
+between already-correctly ordered operations, and no available
+sibling source identifies those intervening contents. They were not
+padded with invented statements or comments.
+
+### Track_GetProperMultiPalShapeIndex strict SLD seal (2026-10-04)
+
+Retail tags both palette-selection comparisons at source +4, the
+matched shape return at +5, the loop update at +6, and the fallback
+return at +7; its loop/root closes are +7/+8. The reconstruction's
+nested pair of `if` statements kept 20/20 bytes but put the first
+comparison at +3 and the loop tail two lines late. A single
+short-circuit guard with the early return's close on its statement
+line reproduces the retail source-region sequence without changing
+the lookup or machine code. The standalone assembler probe still
+attributes one inserted load-delay `nop` to the preceding +2 line,
+but the authoritative linked SYM assigns it to retail +4 and reports
+zero instruction-tag differences with exact block/end lines.
+Full `track.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 23/29 native CLEAN (`run-mn7afk5a`). GAME/COMMON
+strict SLD coverage rises 301 -> 302 of 1247. Literal historical
+spacing remains unproved; no dummy source operation was added.
+
+### BWorldSm_UNormal and UForward strict SLD seals (2026-10-04)
+
+Both accessors first call `Check_Rot` on retail source line +1.
+Retail then attributes the normal-pointer return and epilogue to
++3, but the forward-pointer return and epilogue to +5. Keeping the
+same two real operations in those independently measured regions
+preserves each ten-instruction byte-PASS body and reproduces every
+linked instruction tag, root block line and function-end delta.
+The complete `bworldSm.cpp` symloop is BYTES UNCHANGED, ASPSX
+524/0, PSYLINK zero errors and 28/28 native CLEAN (`run-vjhn6t7m`).
+GAME/COMMON strict SLD coverage rises 302 -> 304 of 1247. The
+line-equivalent placement does not establish the literal historical
+separator text; no dummy operation or post-compiler rewrite was added.
+
+### AudList_PurgeAudio strict SLD seal and LoadAudioFile source gap (2026-10-04)
+
+The old `audedit.cpp` symloop byte reference predated the SYM-owned
+`SimpleMem` tag at retail 0x800557DC. The unchanged current object
+differs by that 12-byte padded `.rodata` prefix and its corresponding
+low-address addend; retail executable bytes confirm the tag. The
+174-byte legacy fingerprint is preserved at
+`scratchpad/audedit_symloop_ref_before_SimpleMem_20261004.text`;
+the fresh reference was made from unchanged source before editing.
+
+`AudList_PurgeAudio` is a guarded single call. Closing the guard on
+the call's source line and using implicit void fallthrough keeps all
+ten machine instructions and makes its linked tags, block close and
+function end exact. `AudList_LoadAudioFile` remains byte-PASS and
+native-CLEAN but not SLD-exact. Its reconstruction-only raw-call
+comment was moved above the function; the first path-formatting
+region now agrees with retail and total tag differences fall from
+17 to 8 of 21. The later `loadfileadrz`/epilogue source region is
+native +5/+6 versus retail +16, with no identified original content
+for the intervening span. No blank filler was added.
+
+Full `audedit.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 2/2 native CLEAN (`run-j9byskbe`). The
+refreshed GAME/COMMON board reports 305/1247 strict SLD-exact
+functions; only `PurgeAudio` is exact within this TU.
+
+### AudioClc_SoundSpeech, InitSource and CalcCarDirection strict SLD seals (2026-10-04)
+
+The `audioclc.cpp` byte reference predated its independently verified
+`SimpleMem\0` retail read-only tag at 0x800556B8. The unchanged fresh
+object differed from the legacy snapshot by exactly that 10-byte tag;
+the old byte and layout references were preserved in `scratchpad` as
+`audioclc_symloop_ref_before_SimpleMem_20261004.text` and its `.json`
+companion before adopting the current unchanged object.
+
+`AudioClc_SoundSpeech` needed only implicit void fallthrough: removing
+its redundant final `return` preserved its 12-instruction PASS and
+aligned all call, epilogue, block and end-line tags. In
+`AudioClc_InitSource`, retail SLD attributed the car-pointer store to
+source line +1, the first negative-one assignment to +2, and the
+second to +3, although instruction scheduling placed the car store
+after those loads. Moving `s->car = car` to the first source statement
+and removing the redundant final `return` retained its 12-instruction
+PASS and made every linked SLD tag, block and end line exact.
+
+`AudioClc_CalcCarDirection` was already a 53-instruction PASS. Its
+multi-line return expression caused GCC to tag the whole computation
+at the final operand's physical source line (+8), while retail tags
+it at +7. Placing the same expression on one line at +7 keeps the
+byte identity and removes all 38 linked tag differences, including
+the block and function-end line mismatch. A first probe that merely
+removed the separator before the multi-line return left all 38
+differences unchanged; no dummy computation or output rewrite was
+retained.
+
+Full `audioclc.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 18/18 native CLEAN (`run-gdk3f7vf`).
+GAME/COMMON strict SLD coverage rises 305 -> 308 of 1247.
+
+### AudioClc_CalcTrackAzimuth strict SLD seal (2026-10-04)
+
+Retail tags the complete first road/view matrix dot product at
+source +3 and the complete second at +4, followed by the mirror
+test at +6, negation at +7, and angle return at +9. The former
+multi-line C expressions made GCC attribute each dot product to
+its last operand line, generating 75 linked tag differences despite
+all 78 instructions already byte-matching. Restoring each full
+expression to one physical source line and preserving the retail
+statement gap before the mirror guard makes all linked tags, the
+block close, and the function end exact. Full `audioclc.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and
+18/18 native CLEAN (`run-v1a2e8_4`). GAME/COMMON strict SLD coverage
+rises 308 -> 309 of 1247.
+
+### AudioClc_CalcAzimuth strict SLD seal (2026-10-04)
+
+Retail assigns the three relative-position stores to source +4/+5/+6,
+the two complete matrix dot products to +8/+9, the mirror guard to
++11, and the final angle calculation to +14. The source had a blank
+line before the position stores and split both expressions over three
+physical lines, producing 88 linked tag differences while its 90
+instructions already byte-matched. Placing the same stores and complete
+expressions in the corresponding retail regions, without changing their
+evaluation order, makes every linked instruction tag, block and end
+line exact. Full `audioclc.cpp` symloop remains BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 18/18 native CLEAN
+(`run-90no7qyc`). GAME/COMMON strict SLD coverage rises 309 -> 310
+of 1247.
+
+### AIHigh_BTC_Cop::HudOff strict SLD seal (2026-10-04)
+
+The 12-instruction byte-PASS body has only a guarded HUD-off call.
+Retail SLD places the `copIndex_` guard at +5, the call and epilogue
+at +6, and the root block close at +7. The prior source kept the
+same behavior but tagged ten instructions too early or late because
+of non-executable line placement and a redundant void return.
+Keeping the real guard and call, using implicit fallthrough and
+placing the one-call block at those measured source regions makes
+every linked instruction tag, block line and +6 function-end delta
+exact. Full `aih_btccop.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 33/33 native CLEAN
+(`run-syx_jjjo`). GAME/COMMON strict SLD coverage rises
+335 -> 336 of 1247. The line-equivalent whitespace is not claimed
+as literal historical formatting.
+
+### AIHigh_Human constructor empty-body seal (2026-10-04)
+
+Retail's constructor has a base-class `AIHigh_Player(carObj)` call,
+derived vtable store, and epilogue, all within a one-line source
+span after the header. The reconstructed explicit empty-line return
+tagged the final five of 13 byte-PASS instructions at +4 instead
+of retail +1. Keeping the base-constructor initializer and spelling
+the truly empty derived body as `{}` on the next source line
+preserves all instructions, makes every linked tag/block/end line
+exact and removes the redundant return. Full `aih_hum.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and
+2/2 native CLEAN (`run-_f32juf5`). GAME/COMMON strict SLD coverage
+rises 336 -> 337 of 1247.
+
+### BTC Cop/Wingman constructor field-order seals (2026-10-04)
+
+`AIHigh_BTC_Cop`'s base-constructor call and derived vtable setup
+were already byte-PASS. Retail SLD tags its three field clears at
++2/+3/+4 and the epilogue at +4; removing the reconstruction's
+interleaved blank lines and redundant void return preserves all
+16 instructions and matches every linked tag, block line and +4
+end delta. Its `AIHigh_BTC_Wingman` subclass has the same pattern
+for six field clears at +2 through +7, with the epilogue on the
+sixth store. The compact six-statement body keeps all 19 matched
+instructions and makes its full SLD record exact.
+Full `aih_btccop.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 33/33 native CLEAN (`run-hdrri9vi`).
+GAME/COMMON strict SLD coverage rises 337 -> 339 of 1247.
+
+### BTC HumanCop::UpdateWingmanRole switch-line seal (2026-10-04)
+
+Retail tags the full switch dispatch at +1, the case-0 return at
++5, and case-1 status/return at +8/+9. The 19-instruction PASS
+source originally placed all 17 emitted tags on different lines.
+Restoring a compact switch entry, the measured case-0/case-1
+statement regions and adjacent `case 2: case 3:` labels makes all
+instruction tags and the root block close exact without changing
+control flow or machine code. The linked function-end delta still
+read +16 until the final default return and two closing braces
+were grouped on source +14; that gives retail's +14 end line while
+keeping the block close +15. Full `aih_btccop.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 33/33 native CLEAN
+(`run-w5y4lgbn`). GAME/COMMON strict SLD coverage rises
+339 -> 340 of 1247. This identifies line-equivalent C++ source
+regions, not unique original brace typography.
+
+### BTC HumanCop::HudOn single-call source-region seal (2026-10-04)
+
+Retail tags the arresting-cop flag test at +5, optional human-car
+replacement at +6, HUD guard at +8 and the complete overlay call
+plus epilogue at +9. The original reconstruction kept the 27
+machine instructions but placed the first two tests early and
+split the six-argument call over two physical lines, giving 25
+linked tag differences. Keeping the SYM-named/semantic pointer
+usage and all argument expressions unchanged, the measured
+statement separation plus a single-line call now matches all
+instruction tags, nested inline block lines and the +9 function
+end. Full `aih_btccop.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 33/33 native CLEAN
+(`run-u38kdtbt`). GAME/COMMON strict SLD coverage rises
+340 -> 341 of 1247. The non-executable separator text is not
+claimed as uniquely historical.
+
+### DispatchSpeaker::KnownPerp compact loop-tail seal (2026-10-04)
+
+Retail SLD tags the loop setup, comparison, and matching early return
+at +1/+2/+3, then attributes the loop update and fallback return to
++5 while closing both loop/root blocks at +6. The source had the
+same first three regions but put the fallback `return 0` on +6.
+Grouping the loop's closing brace and fallback return on the +5
+source line preserves the 12-instruction PASS and makes every linked
+tag, both block lines, and the +5 function-end delta exact. Full
+`speech.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero
+errors and 85/87 native CLEAN (`run-k23fqweq`); its two existing
+dirty functions are unchanged. GAME/COMMON strict SLD coverage rises
+321 -> 322 of 1247. This establishes a line-equivalent region,
+not unique historical brace spacing.
+
+### DispatchSpeaker AddPerp/ClearPerp compact loop bodies (2026-10-04)
+
+Both 12-instruction methods already byte-matched, but the original
+reconstruction's blank function-entry line, braced one-statement
+`if`, and redundant void return shifted all linked SLD tags and
+both block closes. Retail puts loop setup at +1, the comparison
+at +2, the single pointer store at +3, and loop update/epilogue at
++4. Keeping the `for` scope but using an unbraced one-statement
+guard and implicit fallthrough reproduces the full map for both
+methods without changing any instruction or named local. Full
+`speech.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero
+errors and 85/87 native CLEAN (`run-7435ez29`); the existing
+`FindLocation` and `LoadBankHeaders` issues remain. GAME/COMMON
+strict SLD coverage rises 322 -> 324 of 1247.
+
+### Speech::Speaker::FindLocation source-only advance probe (2026-10-04)
+
+Retail SYM names root `slice` and `location` plus later `actual`
+and `distance`, but no `advance` or `offset`; the native report
+still has both EXTRA locals and 104 scopes versus retail's 96.
+The first positive-branch `advance` is used once. Substituting its
+fixed-point expression directly into the slice comparison changed
+the 190-instruction PASS to 192 instructions and 74 detailed diffs,
+including callee-saved-register and frame rearrangement. Making
+that local `const` restored 190/190 bytes but did not debug-elide it:
+the EXTRA `advance` remained, now REG:$4 instead of REG:$3.
+Both experiments were reverted. The unchanged full `speech.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and
+85/87 native CLEAN (`run-ix17nnz5`). This establishes a codegen
+dependency on the value lifetime in this basin, not that the
+source had an `advance` object or that the name is historical.
+Next work should trace the retail inline-call scopes and operand
+lifetimes before removing or renaming any of these source-only
+carriers; all eight excess scopes remain open.
+
+### LoadBankHeaders inline byte-local ownership (2026-10-04)
+
+Retail SYM records an inlined `a/b/c/d` local quartet for both the
+header-extension and data-extension tests. The reconstructed calls
+used the integer-argument `IsHeader`/`IsData` overloads, which passed
+four individual byte loads and could not emit those inline locals.
+`Speech` already had a pointer-form `IsHeader` that reads four bytes
+into named locals. Replacing just the header call with
+`IsHeader(p - 4, '.', 'h', 'd')` preserved 270/270 byte-PASS and
+recovered one missing `a` scope. A matching pointer-form `IsData`
+overload was added in `speech_class.h` and called with `p - 4`;
+it also preserved all 270 bytes and recovered the second inline
+byte-local scope. The full `speech.cpp` object remains unchanged
+under fail-closed symloop (ASPSX 524/0, PSYLINK zero errors,
+85/87 native CLEAN, `run-0uh6ztqu`). This is a recoverable original
+source idiom supported by the retail inline-local records, not a
+post-compiler debug rewrite.
+
+The native report now exposes a different MISSING record, `j`
+REG:$4 at the outer file-processing boundary (+0x15C), while the
+separate zeroing-loop and fallback-search `j` records survive.
+Moving the fallback declaration outward kept bytes but did not
+produce this extra row; adding an unused outer declaration was
+also omitted by GCC. Both were reverted. The six source-only
+allocator carriers and extensive SLD/span differences in
+`LoadBankHeaders` remain open; no dummy `j` was retained.
+IDA's retail register annotations for `sub_800951BC` show the
+bank-name-zeroing loop index in `$a0` immediately before the
+file-processing boundary, with no separate `$a0` search counter
+in its following body; the fallback search uses `$s0`. This
+supports investigating whether the retail second `j` debug row
+is a carried or duplicated lifetime of the zeroing index rather
+than a separate executable loop variable. It is an inference,
+not proof of historical declaration scope.
+
+### MobileSpeaker::Bullhorn strict SLD seal (2026-10-04)
+
+The inline `MakeSpeaker`/`Voice` setup already produced retail's
+13 machine instructions and nested debug blocks. Retail SLD places
+the bullhorn request call at source +6 and `SPCH_PlaySpeech` plus
+the epilogue at +7; the former reconstruction tagged them +4/+5
+and its redundant final `return` tagged the epilogue +6. Separating
+the real calls into the observed source regions and using implicit
+void fallthrough preserves byte-PASS and makes all linked tags,
+block lines and the +7 end delta exact. The intervening non-code
+line contents are not independently recoverable. Full `speech.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and
+85/87 native CLEAN (`run-6mh1usmn`), with its two old dirty functions
+unchanged. GAME/COMMON strict SLD coverage rises 324 -> 325 of 1247.
+
+### Speech::BankPatch strict SLD seal (2026-10-04)
+
+The 15-instruction byte-PASS source already had the retail test and
+return order. Retail SLD places the static-bank test at +1 and its
+return at +3; the second-bank test is +5, the car-null test +7,
+and the final return/epilogue +10, with the root block closing +11.
+Two non-executable source separators before the corresponding return
+and inner test reproduce every linked instruction tag, block line
+and end delta without changing control flow or bytes. Their exact
+historical whitespace/comment content is not known. Full
+`speech.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero
+errors and 85/87 native CLEAN (`run-twrvse_4`). GAME/COMMON strict
+SLD coverage rises 325 -> 326 of 1247.
+
+### Speech::Mobile wrapper strict SLD seal (2026-10-04)
+
+Retail tags the complete null-bank guard at source +1, the
+undefined-speaker return at +3, and the successful `FindMobile`
+return plus epilogue at +6, with the root block closing +7.
+The previous split `||` condition made its seven guard instructions
+inherit +2. A one-line guard with an explicit `else` preserves the
+18-instruction byte-PASS layout; the two real return regions then
+match retail's tags, block line and +6 function-end delta. The
+non-executable separator text is not uniquely recoverable. Full
+`speech.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero
+errors and 85/87 native CLEAN (`run-bntf060d`). GAME/COMMON strict
+SLD coverage rises 328 -> 329 of 1247.
+
+Diablo's annotator also confirmed `AISpeeds_GetLegalSpeed` has
+code-bearing lines 1297/1301/1303 and code-free lines
+1298/1299/1300/1302. Native debug assembly emits its `.bend`
+immediately before the `speedData -= 1` instruction (+0x34), while
+retail places that block end after the decrement (+0x38).
+An untried `for (; speedData++->endSlice < slice; )` spelling kept
+17/17 bytes and all instruction tags but left the same wrong
+block-end address; it was reverted. This further narrows the
+residual to debug-note/lifetime placement, not that loop spelling.
+
+### BWorld_IsSliceInBuildList loop-tail SLD seal (2026-10-04)
+
+The 21-instruction body and all instruction tags already matched
+retail, but the successful early return and loop update were one
+source line early, leaving the child loop block close at +7 instead
+of retail +8. Separating the successful return into its observed
++5 region and placing the fallback return on the loop-closing
+source line preserves every byte, moves the update to +7, and
+matches both block closes at +8 and the function end at +7.
+Full `bworld.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 19/21 native CLEAN (`run-kugnyx57`); its two
+pre-existing EXTRA-local cases remain. GAME/COMMON strict SLD
+coverage rises 326 -> 327 of 1247. The line-equivalent placement
+does not prove the literal historical brace spacing.
+
+### BWorld_InitContexts loop-region seal (2026-10-04)
+
+Retail tags `gContextMan.initialized`/`count` at +3/+4, loop setup
+at +6, the context-client store at +8 and loop update/epilogue at
++9. The first two stores were already exact; separating the loop
+header from both the preceding stores and its body, then using
+implicit void fallthrough, preserves all 14 byte-PASS instructions
+and matches every linked tag, root block line and +9 end delta.
+Full `bworld.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 19/21 native CLEAN (`run-u8u7t_go`); its two
+pre-existing source-only carriers remain. GAME/COMMON strict SLD
+coverage rises 341 -> 342 of 1247. `BWorld_DeInitContexts` was
+already exact and was not edited.
+
+### BWAllocMem call/result source boundary (2026-10-04)
+
+Retail tags the `totalMem` update at +4, `Platform_GetDCTBuffer`
+call at +5 and the epilogue at +6. The old direct `return call(...)`
+kept all 12 instructions matched but attributed the four epilogue
+words to +5. A separate single-assignment `char *const dctBuffer`
+initialized by `Platform_GetDCTBuffer(size,"bworld")`, followed by
+`return dctBuffer`, preserves the 12/12 instruction PASS and the SYM-owned
+function-static `totalMem` record; the compiler debug-elides the
+inferred result value. Linked instruction tags, block lines and
+function end are now exact. `dctBuffer` is a behavior-supported
+semantic name, not a recoverable retail SYM spelling; a distinct
+source value is required in this measured source basin to separate
+the call/return line regions, but literal original syntax remains
+unknown. Full `bworld.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 19/21 native CLEAN (`run-m936ybbs`).
+GAME/COMMON strict SLD coverage rises 342 -> 343 of 1247.
+
+### NormalCache_Init SYM-owned loop declaration and SLD seal (2026-10-04)
+
+Retail SYM places the sole named `i` local in a function-entry child
+block starting at source +2; loop setup is tagged +3, the four cache
+stores +5/+6/+7/+8, and the update/epilogue +9. The former
+`for (int i...)` tied the child owner to +3 and put nine of 15
+instruction tags early. An explicit child compound that owns `i`,
+followed by the ordinary `for (i = 0; i < 16; i++)`, preserves all
+15 matched instructions and reproduces the retail local
+home/depth, both block lines and every linked SLD tag. Implicit
+void fallthrough matches the +9 end delta. Full `bworldSm.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and
+28/28 native CLEAN (`run-b49ze_gr`). GAME/COMMON strict SLD
+coverage rises 343 -> 344 of 1247. The non-executable separator
+inside the loop is a line-equivalent region, not identified original
+comment text.
+
+An unrelated `SimQueue_SetLag` source-shape probe combined its two
+communication-mode tests into `mode == 0 || mode == 1`. GCC folded
+that to 9 instructions with eight detailed diffs versus retail's
+11-instruction two-test branch; it was reverted to 11/11 PASS.
+The retail SLD's long code-free span before the shared store does
+not by itself identify an original macro or disabled-code body.
+
+### AudioClc_SoundOpponentHorn static initializer source span (2026-10-04)
+
+Diablo's read-only annotator showed retail code on source +1,
++58/+60/+61, and +65/+66, with the long +2..+57 region carrying
+no instructions. Retail SYM also records a function-static 50-byte
+`trafficFreqs` array between the horn locals and `iamp`. Initializing
+the SYM-named `source` pointer in its declaration puts the pointer
+setup on +1; presenting the 50 existing array values one per source
+line expands the non-executable declaration region by exactly the
+45 lines needed to place the cartype load at +58. No array value or
+object byte changed. The horn test/store then agree at +60/+61.
+The amplitude source region +65 and SFX call/epilogue +66 are
+reproduced by their measured statement spacing, a single-line call,
+and implicit void fallthrough. All 43 linked instruction tags,
+root-block line and +66 function-end delta now match retail.
+Full `audioclc.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 18/18 native CLEAN (`run-x51oy3b5`).
+GAME/COMMON strict SLD coverage rises 329 -> 330 of 1247.
+The SLD proves the source-line span and code-bearing regions, not
+that EA's literal initializer punctuation used exactly this
+one-value-per-line presentation.
+
+### MobileSpeaker::SetSpeed outer scopes, inline scopes open (2026-10-04)
+
+Dropping the redundant final `return` keeps 75/75 byte-PASS and
+moves the six epilogue instruction tags from native +12 to retail
++9, yielding zero linked instruction-tag differences and the exact
+function-end delta. Both branch opening braces were then placed on
+their own source lines, with the macro arithmetic kept on its
+existing +4/+9 instruction regions. This aligns the two outer
+branch block-open lines at retail +3/+8 without changing bytes or
+instruction tags. The function is still not strict SLD-exact:
+retail records the nested inline `SetSpeedType` scopes at line +1,
+while native records them at each call site (+3/+8). Reformatting
+the inline method definition in `speech_class.h` as a multi-line
+body was byte-PASS but did not move those scope records and was
+reverted. Full `speech.cpp` symloop is BYTES UNCHANGED, ASPSX
+524/0, PSYLINK zero errors and 85/87 native CLEAN (`run-msf0jzx3`).
+The strict GAME/COMMON count remains 326/1247; no dummy scope or
+line directive was added.
+
+### AudioClc_CalcDopplerShiftRatio strict SLD seal (2026-10-04)
+
+Retail SYM names the root locals `cameraPos` (REG), `cameraVel`
+(REG), `vectorToSound` (AUTO), and `relativeVelocity` (REG).
+Its first two source regions (+1/+2) initialize the camera pointers;
+the prior separate declarations delayed those instructions to +6/+7.
+Declaration-time initialization preserves the 115-instruction PASS
+and places both SYM-owned values in their observed source regions.
+The three vector stores then occupy +6/+7/+8, normalization +10,
+the object-velocity guard/expression +14/+15, the camera-velocity
+guard/expression +17/+18, and the final division +20. Putting each
+dot product on one physical source line reproduces the retail
+instruction tags, root block close and function end. All 110 prior
+linked tag differences are gone. The two non-executable source lines
+between the zero initialization and first guard cannot be uniquely
+recovered from SYM/SLD; their current spacing is only a line-region
+placement, not a claim about literal original whitespace or comments.
+Full `audioclc.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 18/18 native CLEAN (`run-w3x3kt82`).
+GAME/COMMON strict SLD coverage rises 310 -> 311 of 1247.
+
+### AudioClc_StartUp source-order and loop-shape seal (2026-10-04)
+
+Retail SYM's only locals are `p` (REG), `c` (REG), and `i` (REG).
+Its SLD puts seven global resets on source +5 through +11, then
+initializes `p`/`c` on +13/+14 and `i` with the first player-loop
+setup on +16. Moving those assignments after the resets and spelling
+the byte-equivalent loop as `for (i = 0; i < 2; i++, p++)` reproduces
+that source order. The player fields/call occupy +18 through +21;
+the communication-mode branches occupy +25/+27/+28 and +32/+33;
+the first loop updates at +35. The second initialization is +36,
+and its single-statement, brace-free `for (i = 0; i < 4; i++, c++)`
+attributes both the call and the increment/test to +37 as retail
+does. Implicit void fallthrough leaves the camera-velocity reset,
+epilogue, root block close and function end at +39/+40. The two
+loop-shape probes and statement reordering kept the 87-instruction
+PASS throughout, clearing all 78 linked SLD differences. The
+non-executable line gaps before the communication-mode branch are
+only source-region placement; SYM/SLD do not identify their literal
+historical comments or whitespace. Full `audioclc.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 18/18 native
+CLEAN (`run-_wa_yhx3`). GAME/COMMON strict SLD coverage rises
+311 -> 312 of 1247.
+
+### AudioClc_HonkHorn statement regions (2026-10-04)
+
+Retail SYM names only `s` (REG) and `i` (REG) in the function's root
+scope. Its SLD attributes loop setup to +8, the car/horn guard to
++10, the four horn stores to +16/+17/+18/+19, and the loop update
+and epilogue to +21. The prior source had the same 24 instructions
+and same statement order, but placed these regions too early by
+four to ten lines. Preserving the actual statements and aligning
+their non-executable source gaps now makes all linked instruction
+tags, block close, and function end exact. SYM/SLD cannot tell
+whether the intervening historical lines were whitespace, comments,
+or inactive preprocessing; no literal original text is claimed and
+no executable filler was added. Full `audioclc.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 18/18 native CLEAN
+(`run-hif1loul`). GAME/COMMON strict SLD coverage rises 312 -> 313
+of 1247.
+
+### AudioClc_SetHorn statement regions; Camera_UpdateTVCam carrier probe (2026-10-04)
+
+`AudioClc_SetHorn` is a 28-instruction PASS with only the retail
+`s`/`i` root locals. Retail SLD places loop setup at +8, the car
+guard at +10, the state guard at +15, stores at +17/+18 and
++22/+23/+24, and the loop update/epilogue at +27. Preserving the
+existing statements and aligning their non-executable source gaps
+clears all 28 linked tag differences and matches the root block
+close and function end. The SYM does not reveal the historical text
+of those gaps; their current whitespace is placement, not a claim
+of original comments or preprocessing. Full `audioclc.cpp` symloop
+is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 18/18
+native CLEAN (`run-m3hw3qha`). GAME/COMMON strict SLD coverage
+rises 313 -> 314 of 1247.
+
+`Camera_UpdateTVCam`'s `clampedHeight` is still an EXTRA REG:$6
+versus retail SYM, which names only `targetDist` and `height` besides
+the two function-static arrays. A direct EA-style `MIN` assignment
+plus lower-zero clamp compiled to 81/83 instructions with 20 diffs;
+reversing its conditional arms gave 80/83 and 19 diffs. A
+single-assignment `const clampedHeight` with a second `MIN` for
+`height` gave 79/83 and 20 diffs. All three experiments were
+reverted; the 83/83 PASS source and absence of a camera.cpp diff
+were reverified. These results do not prove the extra named local
+was historical. Next investigation must reproduce the oracle's
+distinct `$a2` clamp value and `$v0` height path without a debug
+local, likely through the original macro/statement expansion.
+
+### CopSpeak_Play narration temporary probes (2026-10-04)
+
+Retail SYM names `playopts`, `vol`, `azimuth`, and `noise`, but no
+`scaled`. The current `scaled` source is 86/86 byte-PASS and appears
+as EXTRA REG:$3 in the native report. Duplicating its arithmetic
+directly in the `vol` expression gave 87/86 instructions and 17
+diffs. A single-assignment `const scaled` inside a braced `else`
+restored all 86 bytes and removed the EXTRA local, but introduced
+two lexical scope records (native 3 versus retail 1), so it was not
+retained. Hoisting that `const` to the existing root scope kept the
+count at 86 but produced 22 instruction diffs. The original source
+and 86/86 PASS were restored; the remaining angle is an expression
+or macro form that retains the branch-local value without a debug
+local or a new lexical block. The available evidence does not prove
+the historical spelling of that form.
+
+The analogous `AISpeeds_BTCGetGlueFactor` clamp was also tested as
+a single-assignment `const clampedGlueIndex` in its existing block.
+Both nonnegative-first and negative-first conditional expressions
+compiled to 112/111 instructions with 13 diffs, rotating the index
+from `$v1` to `$a0` and changing the inner branch. Both were reverted;
+the original 111/111 PASS is restored. This rules out that simple
+const-ternary source shape, not every macro or compiler-generated
+temporary form.
+
+`AISpeeds_GetGlueFactor` has a different local-identity issue:
+retail SYM records `distance` and `glueIndex` in REG:$3 in each of
+three clamp arms, while the byte-PASS source records `glueIndex`
+in REG:$4. In the first arm, assigning `glueIndex = distance`
+before the clamp moves the computed index into `$v1`, but an
+upper-bound-first guard yields 133/131 instructions and 10 diffs;
+retaining the original inner-test polarity yields 133/131 and 12
+diffs. Both were reverted to 131/131 PASS. The register-home
+observation alone does not prove which live range retail associated
+with the optimized debug name; the next probe should inspect retail
+value flow and GCC's debug binding at the clamp join before
+changing all three arms.
+
+Oracle instruction tracing of the first arm confirms the distinction:
+at offset +0xA4, `$v1` holds the pre-clamp quotient plus ten and is
+tested at +0xA8/+0xAC; the chosen table index is subsequently routed
+through `$a0`. Thus the retail REG:$3 `glueIndex` row cannot simply
+be identified with the selected array subscript in the present C.
+Naming the raw value `glueIndex` and using a nested conditional
+expression as the anonymous subscript compiled to 139/131 with 12
+diffs; it was reverted. The next source search should preserve the
+oracle's lower-bound-first branch/slot layout while making the raw
+value's debug identity and anonymous selected index distinct.
+
+### AudioClc_ResetClosest strict SLD seal (2026-10-04)
+
+Retail SLD places the outer guard at +1, the null-car guard at +3,
+the three channel frees at +5/+6/+7, the siren test and `SirenOff`
+call together at +13, the last two frees at +15/+16, and the source
+reset plus epilogue at +18. Combining the one-statement siren guard
+on its retail line, using implicit void fallthrough, and aligning
+the intervening non-executable source regions preserves all 50
+instructions while clearing 35 linked tag differences. The root
+block close and function end also match. The exact historical
+comments/whitespace in the line gaps are not recoverable from SLD;
+no executable filler or post-compiler rewrite was added. Full
+`audioclc.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 18/18 native CLEAN (`run-21udf4d_`). GAME/COMMON
+strict SLD coverage rises 314 -> 315 of 1247.
+
+### AILife_RCSetSpeeds and AISpeeds_CleanUp strict SLD seals (2026-10-04)
+
+`AILife_RCSetSpeeds`'s call and speed copy already matched retail
+source +1/+2; only its redundant explicit void return tagged the
+four epilogue instructions +3 instead of retail +2. Implicit
+fallthrough preserves the 12-instruction PASS and matches all linked
+tags, block lines and function end. Full `ailife.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 20/20 native
+CLEAN (`run-bd0op_ua`). GAME/COMMON strict SLD coverage rises
+315 -> 316 of 1247.
+
+`AISpeeds_CleanUp` has one real guard, purge call and null store.
+Retail tags those at +3/+5/+6 and attributes the epilogue to the
+store at +6. Preserving the statements, aligning the intervening
+non-executable source regions, and using implicit void fallthrough
+clears all six linked tag differences, including the root block/end
+line mismatch. The body remains 11/11 byte-PASS. Full
+`aispeeds.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 26/29 native CLEAN (`run-8_osoxt5`); its three
+pre-existing dirty functions are unchanged. GAME/COMMON strict SLD
+coverage rises 316 -> 317 of 1247. As elsewhere, SLD determines
+line-equivalent regions, not the literal content of historical
+whitespace/comments.
+
+### AIDataRecord_t destructor strict SLD seal (2026-10-04)
+
+The 22-instruction destructor already byte-matched and was native-SYM
+CLEAN. The linked SLD gave `SaveAndPurge` source +2 and
+`RemoveRecordFromCollection` +3, with the epilogue and function end
+at +3. The previous source placed the first call one line early and
+used a redundant explicit `return`. Removing that return and placing
+the one non-executable separator before the first call makes every
+instruction tag, block line and end delta exact. A first probe put
+the separator between calls and reduced four tag differences to
+two; debug assembly identified the remaining two as the first
+`SaveAndPurge` call, so the separator was moved rather than padded.
+The full `aidatarecord.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 12/20 native CLEAN (`run-xz6254lc`); its
+eight existing dirty functions are unaffected. GAME/COMMON strict
+SLD coverage rises 317 -> 318 of 1247. Literal historical
+whitespace is not asserted.
+
+### AIDataRecord_t collection pair source-shape seals (2026-10-04)
+
+`RemoveRecordFromCollection` and `AddRecordToCollection` were each
+15/15 byte-PASS, but the reconstructed `if (not-match) continue`
+spelling placed the loop setup, successful store and return on the
+wrong SLD lines and gave the child loop scope the wrong start line.
+The ordinary positive-match guard (`if (recordCollection[recordLoop]
+== this)` for removal, null test for addition) compiles to the same
+retail branch and delay slot while placing the store and early return
+inside the owning source block. The line maps then agree exactly:
+loop setup +1, guard +3, store +5, success return +6, loop update
++8; the fallback return is +9 for removal and +10 for addition.
+Both functions now have zero linked instruction-tag differences,
+exact block lines and exact function-end deltas. The remaining
+non-executable separator lines are SLD placement, not identified
+historical comments. Full `aidatarecord.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 12/20 native CLEAN
+(`run-z9epn1me`); the same eight unrelated native-SYM issues remain.
+GAME/COMMON strict SLD coverage rises 318 -> 320 of 1247.
+
+### AccTable::Setup test-scope recovery, SLD still open (2026-10-04)
+
+The prior byte-PASS top-tested loop had only the root and `loop`
+owner blocks; retail has a third short block at function offsets
++0x1C..+0x28, source lines +3..+6. A narrow compound around the
+inverted exit guard alone kept all 27 instructions but GCC elided
+its debug block. A branch-local `const int finished = loop >= 0x70`
+created three byte diffs (28/27) and was rejected. The positive
+`const int continueLoop = loop < 0x70`, tested with an inverted
+conditional exit, preserves 27/27 instructions and causes the
+compiler to emit the exact retail third block. It adds no named
+native-SYM local; `loop` remains in its correct owner/home. This
+is an inferred, debug-elided source-only condition, not a claim of
+the literal EA identifier or syntax. The bare-guard alternative
+and ordinary `for` alternatives did not reproduce both bytes and
+block ownership, but the uniqueness of a source object is not yet
+proved and remains a recovery item.
+
+Grouping the opening compound, named declaration and base setup
+call on the first source line preserves byte/scope equality and
+reduces linked SLD differences from the old 18/27 to 15/27;
+the native function-end delta is still +15 versus retail +10.
+Full `aidatarecord.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 13/20 native CLEAN (`run-s73xp6vn`), an
+improvement from 12/20. GAME/COMMON strict SLD coverage stays
+320/1247. Further source-shape work must reconcile the guard's
+physical line attribution, separate the `Get` and `fixedmult`
+source regions, and shorten the epilogue line span without losing
+the recovered block or any byte-PASS neighbor.
+
+### SimpleMem::ResizeToFit declaration-time initializer seal (2026-10-04)
+
+Retail tags the `freeMem` load at source +1, the `heap` load at +2,
+the clear of `freeMem` at +6 and the `resizememadr` call plus epilogue
+at +7. Initializing the SYM-named `newSize` in its declaration,
+retaining the subtraction as the next statement, and using implicit
+void fallthrough reproduces all 12 linked instruction tags, block
+lines and function-end delta without changing any instruction.
+The non-executable gap before the clear is a line-region placement,
+not a claim about historical whitespace or comments.
+
+The old ignored `symloop` byte reference predated the committed
+`SimpleMem\0` object tag: unchanged source produced a snapshot
+identical except for that exact 10-byte `.rodata` insertion. The
+legacy reference was preserved at
+`scratchpad/simplemem_symloop_ref_before_SimpleMem_20261004.text`,
+and the fresh reference was adopted only from unchanged source
+before applying the edit. Full `simplemem.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 3/3 native CLEAN
+(`run-zfz2wlal`). GAME/COMMON strict SLD coverage rises 320 -> 321
+of 1247.
+
+### Diablo SLD annotator cross-check for NFS4 (2026-10-04)
+
+The read-only `C:\Temp\diablo-psx\psx_decomp\tools\sld_annotate.py`
+accepts NFS4's retail `nfs4-f-v3.txt` SLD records and existing
+splat-style oracle `.s` files. Its six own tests pass. Invoked with
+an explicit `--sym` and `--file BWORLD.CPP`, it assigned all 21
+instructions of `BWorld_IsSliceInBuildList` to the same retail
+source lines as the NFS4 linked probe and identified the two
+code-free lines 851/853. For the still-open `AccTable::Setup`, it
+assigned all 27 instructions and exposed code-free source lines
+411/412/414/416 among retail lines 408..418. In particular, the
+third retail block opens at code-free line 411 and closes at 414;
+the `Get` call is line 413, `fixedmult` line 415, and the store
+line 417. This narrows future source-shape work but does not prove
+which original braces, comments, or temporary produced those gaps.
+
+For NFS4's `asm/nonmatchings/main` paths the annotator cannot infer
+the source TU (`MAIN.CPP` is wrong), so `--file` is required. Its
+run selector groups adjacent records by basename and does not
+preserve a bare 0x8A end-of-run marker; retail NFS4 has repeated
+same-name file-set records (for example COPSPEAK.CPP). Thus it is
+safe as an ad-hoc diagnostic only after checking the selected TU
+run, especially for aliased overlays; NFS4's fail-closed linked
+`sldtree_cmp.py` remains the authority for exactness. No tool was
+ported or changed in this assessment.
+
+### BTC HumanCop traffic-purgatory pair strict SLD seals (2026-10-04)
+
+`ResetClearTrafficToPurgatory` and `ClearTrafficToPurgatory` have
+21/21 and 22/22 byte-PASS bodies, respectively, with the same
+source-scope pattern. Retail tags loop setup at +1, the traffic-car
+load at +3, the derived high-AI lookup and nested inline scopes at
++4, and the loop update/call delay slot plus epilogue at +6.
+The old source placed the two declarations one line early and had
+a non-executable separator before `SetForcePurgatory`. Moving that
+separator to immediately after the loop header preserves the tail
+line while matching every instruction tag, nested block line and
+function-end delta in both methods. Full `aih_btccop.cpp` symloop
+is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 33/33
+native CLEAN (`run-zi4licf8`). GAME/COMMON strict SLD coverage
+rises 330 -> 332 of 1247. The exact historical separator text is
+not recoverable from the line records alone.
+
+### AIHigh_BTC_Cop::FalseArrest instruction-line narrowing (2026-10-04)
+
+The seven-byte-PASS instructions had five linked SLD tag differences:
+retail puts the target guard at +5, the `freezeMode_ = 2` store at
++8, and the shared epilogue at +10. Moving existing non-executable
+source gaps before those real statements and grouping the final
+void return with the source close preserves all bytes and makes
+every instruction tag plus the +10 function-end delta exact.
+The native root block still closes at +11 versus retail +10, so
+this is not a strict SLD seal and GAME/COMMON coverage stays
+332/1247. An early return inside the matching branch made the
+root close exact but shifted the two epilogue tags to +9; it was
+reverted. Full `aih_btccop.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 33/33 native CLEAN
+(`run-twejeenq`). The historical source construct controlling the
+final block-note line remains open; no dummy executable statement
+or output rewrite was introduced.
+
+### BTC HumanCop request-check pair strict SLD seals (2026-10-04)
+
+`CheckForWingmanRequest` has the retail early-return source shape:
+status guard +1, zero return +2, status update +4 and success
+return/epilogue +5. Removing reconstruction-only empty lines
+preserves its nine byte-PASS instructions and makes all linked tags,
+block line and end delta exact.
+
+`CheckForBlockaderRequest` similarly starts with the output reset
+at +1 and outer status test +4. Retail puts its inner comparison
+and one-statement store at +7/+8, status update and success return
+at +9/+10, and the fallback return/epilogue at +14. Restoring an
+unbraced inner `if` and placing only the SLD-required non-code
+regions around the real statements preserves all 17 byte-PASS
+instructions, every linked tag, the root block close and end delta.
+Full `aih_btccop.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 33/33 native CLEAN (`run-t_zcbz3z`).
+GAME/COMMON strict SLD coverage rises 332 -> 334 of 1247.
+
+### BTC HumanCop::SetDesiredSpeed compact branch seal (2026-10-04)
+
+Retail SLD places the RS-control guard at +1, the human top-speed
+call at +3, and the complete desired-speed expression plus epilogue
+at +4. The `RequestedDesiredSpeed()` inline scopes occur at +4/+5,
+while the enclosing branch opens at +3 and the function closes +5.
+The old multi-line ternary and redundant void return tagged 14 of
+24 instructions differently and lengthened the source span to +11.
+Keeping the duplicated calls but expressing the assignment on one
+physical line, placing the branch brace on its own source line,
+and using implicit fallthrough preserves all 24 retail instructions
+and makes every linked tag, block line and +4 function-end delta
+exact. This is a line-equivalent C++ shape, not proof of literal EA
+brace style. Full `aih_btccop.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 33/33 native CLEAN
+(`run-fidl18l8`). GAME/COMMON strict SLD coverage rises 334 -> 335
+of 1247.
+
+### AccTable::Setup ordinary-loop byte/SYM/SLD seal (2026-10-04)
+
+The earlier `AccTable::Setup` top-tested `goto` plus inferred
+`continueLoop` source was a measured intermediate checkpoint, not
+the final reconstruction. Diablo's line annotation identified the
+retail code-free lines 411/412/414/416, separating `Get` (+5),
+`fixedmult` (+7), the store (+9), and increment/epilogue (+10).
+Making those three operations distinct single-assignment source
+statements allowed an ordinary `for (int loop = 0; loop < 0x70;
+loop++)` to compile to the same 27 retail instructions; earlier
+plain-for probes with a nested expression were six diffs and are
+superseded. The for body naturally emits the retail third scope at
++0x1C..+0x28, and the SLD-indicated two non-code lines after its
+header place the block end and all operations at their retail lines.
+There are zero linked instruction-tag differences, exact block lines,
+the +10 function-end delta, and no added native-SYM locals.
+
+`tableAcceleration` and `scaledAcceleration` are precise inferred
+names for the `Get(loop)` result and its fixed-point scaled result;
+both declarations are debug-elided. Retail SYM proves only the
+named `loop` local, not these literal spellings. Their distinct
+source values are codegen-relevant in this basin, but the historical
+identifier tokens and non-executable separator text remain unknown.
+The earlier `continueLoop` carrier and both labels are gone. Full
+`aidatarecord.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 13/20 native CLEAN (`run-es_km0vb`), with
+seven other pre-existing SYM issues open. GAME/COMMON strict SLD
+coverage rises 327 -> 328 of 1247.
+
+### AI generic cycle wrapper SLD seals (2026-10-04)
+
+The three byte-PASS wrapper functions have no retail SYM locals;
+their call order was already correct. Retail tags `AI_GenericBeginCycle`
+calls at +4/+5 and epilogue +5, `AI_GenericEndCycle` calls at
++4/+5/+6 and epilogue +6, and `AI_GenericCycle`'s first five calls
+at +7..+11, followed by avoidance calls at +13/+15 and epilogue
++15. Representing only these measured source regions and using
+implicit void fallthrough retains the respective 10, 13, and 21
+matched instructions. All linked instruction tags, root block
+lines and end deltas are exact. Full `ai.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 40/40 native CLEAN
+(`run-31h46j7f`). GAME/COMMON strict SLD coverage rises
+344 -> 347 of 1247. The code-free prelude/separator line contents
+are not uniquely recoverable from SYM/SLD; no dummy operation or
+post-compiler rewrite was added.
+
+### AI_ClearLaneMerits ordinary-loop carrier removal (2026-10-04)
+
+Retail SYM records only `int o` in a child block starting at source
++3. Its SLD puts loop setup at +2, all three observation clears
+and loop update/epilogue at +3, and both block closes at +4. The
+old byte-PASS body used an explicit one-iteration `do/while`
+with a separately declared counter and spread the ten instruction
+tags across +3..+9. An ordinary `for (int o = 0; o < 1; o++)`
+also compiles to the same ten retail instructions and native local
+home/depth. Placing the unchanged three assignments in their
+shared source region reproduces every linked instruction tag,
+both block lines and the +3 function-end delta. The exact original
+reason for the one-iteration loop and literal line punctuation
+remain unknown; no dummy operation or post-compile rewrite was
+retained. Full `ai.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 40/40 native CLEAN (`run-nnvgyt71`).
+GAME/COMMON strict SLD coverage rises 347 -> 348 of 1247.
+
+### AI_InitAIInfo grouped reset regions (2026-10-04)
+
+Retail SLD groups the three `blockingCars` clears on source +2,
+the three distance clears on +3, the yaw call/store on +4 and the
+desired-lane store plus epilogue on +5. The source already had the
+correct eight operations and 18 matched instructions but spread
+14 instruction tags across too many lines and used a redundant
+void return. Keeping each assignment and its execution order
+unchanged while grouping the two triples into their measured
+source regions preserves byte-PASS and matches every linked tag,
+root block line and +5 end delta. Full `ai.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 40/40 native CLEAN
+(`run-jaijf_63`). GAME/COMMON strict SLD coverage rises
+348 -> 349 of 1247. The line grouping is authoritative; the
+literal original punctuation or use of a macro is not established.
+
+### AI_TargetLane merit-branch SLD seal (2026-10-04)
+
+Retail tags the first lane guard at +1, the left merit update and
+early return at +6, the second guard at +8, and the right merit
+update plus epilogue at +13, with root block close +14. The
+20-instruction PASS source had the same conditions and arithmetic
+but 15 linked line-tag differences. Preserving the operations and
+their order, placing the non-executable branch gaps in the measured
+source regions, and grouping the final close with the right merit
+store reproduces all tags, block line and +13 function end. Explicit
+return trials inside or after the second guard were byte-neutral
+but left the final two epilogue tags at +14, so neither was retained.
+Full `ai.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 40/40 native CLEAN (`run-b429g_ub`). GAME/COMMON
+strict SLD coverage rises 349 -> 350 of 1247. The gap contents
+and literal brace typography are not uniquely recoverable.
+
+### Stats_ClearPosition loop-body SLD seal (2026-10-04)
+
+Retail tags the loop setup at +2, its child scope start +3,
+four position-field stores at +4/+5/+6/+7, and loop update plus
+epilogue at +8. The byte-PASS source had those same operations but
+placed the stores/update one line early and used a redundant void
+return. Moving the non-executable separator before the first store
+and using implicit fallthrough preserves all 16 matched instructions
+and makes every linked tag, both block lines and the +8 end delta
+exact. The historical text of the separator is not recoverable.
+
+The ignored `stats.cpp` symloop reference predated the committed
+retail `SimpleMem\0` tag at 0x800565D8; unchanged current source
+produced a snapshot identical except for that exact ten-byte
+`.rodata` insertion. The legacy reference is preserved at
+`scratchpad/stats_symloop_ref_before_SimpleMem_20261004.text`;
+the fresh reference was adopted from unchanged source before
+the SLD edit was reapplied. Full `stats.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 5/7 native CLEAN
+(`run-1om44nkd`), with two old dirty functions unaffected.
+GAME/COMMON strict SLD coverage rises 350 -> 351 of 1247.
+
+### Stats_GetNumOpponents declaration/loop SLD seal (2026-10-04)
+
+Retail tags setup at +4, the race-position test at +6, the count
+increment at +7, loop update at +8, and final return/epilogue at
++10. The byte-PASS reconstruction had `numCars` declared separately
+from its zero assignment and used a braced one-statement inner guard,
+putting 14 of 21 instruction tags on different lines. Initializing
+the SYM-named `numCars` in its declaration, using an unbraced inner
+test, and placing the real loop/return in the measured source regions
+preserves all 21 instructions and matches every linked tag, block
+line and end delta. Full `stats.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 5/7 native CLEAN
+(`run-p70glibo`); its two existing dirty functions are unaffected.
+GAME/COMMON strict SLD coverage rises 351 -> 352 of 1247.
+
+### Stats_GetPosition declaration and loop-owner seal (2026-10-04)
+
+Retail SLD puts the `carindex` load at +2, the child scope owning
+`i` at +3, loop setup +4, position comparison +6, successful
+`position = i + 1`/break at +9, loop update +11 and final return
+at +13. The earlier 21-instruction PASS source named the right
+locals but separated both root initializations and opened the
+child loop too late, leaving every instruction tag different.
+Initializing `position`/`carindex` at their declarations and
+placing `i` in its measured child owner preserves all 21 matched
+instructions. The compact assignment/break line and
+observed non-executable separators then match every linked tag,
+scope line and +13 end delta. Full `stats.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 5/7 native CLEAN
+(`run-l68u0wtu`), with the two pre-existing dirty functions
+unchanged. GAME/COMMON strict SLD coverage rises 352 -> 353 of
+1247. The code-free separator text is not uniquely known.
+
+### Stats_TrackEndGame race-car loop owner recovery (2026-10-04)
+
+Retail SYM has seven lexical blocks; the reconstruction had six.
+The missing child opens at function offset +0x150 (race-car loop
+test) and closes at +0x1C8 (loop increment), inside the existing
++0x140..+0x1D4 `j` owner. A positive, single-assignment
+`const int inRange = j < Cars_gNumRaceCars` in that `while (1)`
+body, tested with `if (!inRange) break`, preserves all 232 oracle
+instructions, does not emit an EXTRA debug local, and causes GCC
+to record the exact retail seventh block. Full `stats.cpp` symloop
+is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 6/7
+native CLEAN (`run-vgl2zlyd`), improving from 5/7. The remaining
+dirty function is `Stats_TrackStats`, unchanged here. Linked SLD
+tag differences in `TrackEndGame` fall 221 -> 217, but the +65
+native end span still differs from retail +80; no full source seal
+is claimed. An ordinary `for (j = 0; j < Cars_gNumRaceCars; j++)`
+variant compiled to 234 instructions with 60 detailed diffs and
+was reverted. The matched NFS2 PC beta `Stats_TrackEndGame` has a
+different end-game algorithm and does not supply a source name for
+this NFS4 loop predicate. `inRange` is a behavior-supported,
+debug-elided inferred name, not a recovered literal EA spelling.
+
+### Stats_TrackStats sibling-scope owner recovery (2026-10-04)
+
+Retail has 11 blocks: after the odd-tick branch at function offset
++0x30, it opens the main stats body; that block and its `roadSlice`
+child both close at +0x310. A sibling block opens at the same
+address for `i` and the race-position insertion loop. The prior
+source's enclosing `if ((ticks & 1) == 0)` emitted an extra block
+at entry, putting downstream SYM locals one level too deep.
+An equivalent `if ((ticks & 1) != 0) return;` before a scoped body
+preserves all 258 instructions while removing that entry block.
+Closing the first compound after `roadSlice` and opening a sibling
+compound for the SYM-named `i` restores the exact 11-block tree,
+declaration order and every local home/depth; simply moving `i`
+into the first body fixed depths but left 10 scopes and the wrong
+owner, so that intermediate form was superseded.
+
+Full `stats.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 7/7 native CLEAN (`run-nl3jtq9x`). `Stats_TrackStats` remains
+258/258 byte-PASS but not SLD-exact: linked tag differences fell
+from the prior 245 to 181, with native +110 versus retail +112
+function-end lines. A blank source line before the early-return
+guard improved its first tags/end span but worsened aggregate tag
+differences to 219, so it was reverted. No synthetic local, asm,
+post-recompile rewrite or dummy source operation was added; the
+remaining SLD statement-region reconstruction is explicit backlog.
+
+Follow-up SLD source-region round: retail's odd-tick guard is on
+line 163, `gNumSlices` on 170, lap/top-speed test on 174,
+car-flags test on 176 and `rand` on 177. A paired two-line gap
+before `trackSlices = gNumSlices`, one line before the car-flags
+test, and a single-line `MIN(...rand()*3)` expression with the
+adjacent `else` grouped on its source line preserves all 258
+instructions and 11 exact SYM blocks. It makes the first 114
+instruction tags (through function offset +0x1C4) and a second
+30-instruction span exact, reducing total linked tag differences
+from 181 to 107. Native end delta remains +110 versus retail
++112; no full SLD seal is claimed. Final full `stats.cpp` symloop
+is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 7/7
+native CLEAN (`run-nyscg0e0`). The later lap-update region has
+non-monotone statement tags; its code-free line contents are not
+inferred from the matching body alone.
+
+Further race-order source regions: retail opens the sibling `i`
+block at line +71, four lines after the previous body closes.
+Restoring that non-executable boundary makes the race-car loop
+header exact and lowers linked differences from 107 to 98.
+The second `r1/r2/r3/r4` insertion block then showed a five-line
+declaration-to-first-load delay absent from retail: initializing
+those four SYM-named values at their declarations preserves the
+258/258 byte-PASS and 11 exact blocks while matching all its
+instruction tags from +0x3B4 through the loop update at +0x3E4.
+This lowers total differences to 85. Full `stats.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 7/7 native
+CLEAN (`run-g2msk7q8`). `Stats_TrackStats` remains non-exact:
+native epilogue/end line +109 versus retail +112, and several
+earlier non-monotone lap-update tags are unresolved. The retail
+block closes before its later epilogue line, so no tail padding or
+invented return was retained without source-shape evidence.
+
+### AIState_CleanUp empty-body source seal (2026-10-04)
+
+Retail records a one-line empty cleanup body: its only two words
+are `jr ra` and delay-slot `nop`, tagged +1, with block/end line +1.
+The reconstruction's explicit return and extra blank source lines
+left both words at +4. An actually empty body with the opening
+brace on the signature line and closing brace on the next line
+preserves 2/2 byte-PASS and reproduces all linked SLD/block/end
+records. A same-line `{}` body was byte-PASS but tagged both words
++0, so it was not retained. Full `aistate.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 32/42 native CLEAN
+(`run-fnr2bpxw`); ten older source-owner issues remain elsewhere.
+GAME/COMMON strict SLD coverage rises 353 -> 354 of 1247.
+
+### AIState_Normal::Execute four-call SLD seal (2026-10-04)
+
+Retail tags its four calls at +2/+5/+6/+7 and the epilogue on
+the fourth call. The 20-instruction PASS source had the same call
+order but placed the last three calls and epilogue on +4/+6/+8/+10.
+Moving the non-executable separator after `AISpeeds_CalcDesiredSpeed`
+and using implicit void fallthrough preserves every instruction
+and reproduces all linked tags, root block line and +7 end delta.
+Full `aistate.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 32/42 native CLEAN (`run-52t9a4yg`);
+ten older source-owner issues remain elsewhere. GAME/COMMON
+strict SLD coverage rises 354 -> 355 of 1247.
+
+`AIState_Offroad::UnleashIfInRange` remains 30/30 byte-PASS but
+native DIRTY. Retail records `releaseDistanceMeters` REG:$3 and
+three nested blocks plus an inline `this` over the `letGo_` store.
+Initializing the already-named release distance at declaration
+kept bytes but did not emit the missing local row and was reverted.
+An inferred no-argument inline `MarkLetGo()` call also kept the
+target's 30 bytes but emitted an additional out-of-line function in
+the TU, failing the fail-closed byte reference. Both the header
+method and call were reverted. The next source shape must recover
+those inline scopes without a new object body; no compiler-output
+splice or dummy local was retained.
+
+### AIState_Normal and Cruise constructor seals (2026-10-04)
+
+The byte-PASS `AIState_Normal` constructor's base call and vtable
+store were already correct. Retail groups the chained x/y/z target
+clears on +3, the lateral-position clear on +4 and the active-byte
+store plus epilogue on +5. Keeping that chain on one physical
+source line, making the subsequent stores consecutive, and using
+implicit constructor fallthrough preserves all 22 instructions
+and makes its linked tags, block line and +5 end delta exact.
+
+`AIState_Cruise` similarly retains its `AIState_Normal` base
+initializer and 27 matched instructions. Retail attributes the
+mode assignment/first test to +2, the speed store to +3, the
+factor test to +4 and factor store/epilogue to +5. A compact
+body with the same guarded assignments reproduces all linked
+tags and the +5 block/end lines; an extra blank after the brace
+was measured to leave 15 one-line-late tags and was removed.
+Full `aistate.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 32/42 native CLEAN (`run-u63ge0qv`),
+with the ten pre-existing dirty functions unchanged. GAME/COMMON
+strict SLD coverage rises 355 -> 357 of 1247. Exact original
+brace typography is not inferred from equivalent line records.
+
+### AIState_GotoSlice constructor initializer seal (2026-10-04)
+
+The Diablo project's read-only `sld_annotate.py`, pointed at the
+NFS4 retail SYM and the AISTATE.CPP oracle, attributes the base
+constructor/vtable/field stores and epilogue to retail line 1348;
+only the return-value move has line 1351. The previous separate
+field assignments were byte-PASS but placed 9/21 instruction tags
+on later lines. Expressing the two fields as C++ member initializers
+retains 21/21 byte-PASS and makes all linked instruction tags, the
+root block and +3 function end SLD-exact. The full `aistate.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and
+32/42 native CLEAN (`run-_zzrqql0`); the ten prior dirty functions
+remain. GAME/COMMON strict SLD coverage rises 357 -> 358 of 1247.
+The line map supports constructor initialization, not unique
+whitespace or punctuation of the lost source.
+
+### AIState_Base and RovingTraffic constructor SLD seals (2026-10-04)
+
+`AIState_Base` was already 6/6 byte-PASS and SYM-clean, but the
+explicit return and intervening blank lines put the two epilogue
+words at source line +5 instead of retail +1. A compact natural
+constructor body with implicit fallthrough preserves the bytes and
+matches all six instruction tags, root block and +1 end line.
+
+`AIState_RovingTraffic` was 26/26 byte-PASS and SYM-clean, with
+16 instruction-tag differences: the four field assignments and
+final `carFlags` update had one blank line between each source
+statement. Keeping the existing statement order but placing these
+five assignments on consecutive source lines and removing the
+explicit return preserves all 26 instructions. Its linked SLD now
+matches every tag, the root block and +6 end line. Full
+`aistate.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 32/42 native CLEAN (`run-j56n_0rn`); the ten
+pre-existing dirty functions are unchanged. GAME/COMMON strict
+SLD coverage rises 358 -> 360 of 1247 in this round.
+
+### AIState_Offroad constructor SLD seal (2026-10-04)
+
+The 82-instruction byte-PASS constructor was native SYM-clean but
+had 48 retail SLD tag mismatches. Retail puts its first assignment
+on +10, then `letGo_`, `startSlice_`, the position and orientation
+copies, heading, max speed and release time on consecutive source
+lines through +16. `targetSlice_` is +18, the target-position copy
+is +19 and the final car-flags update/epilogue is +24. Moving the
+existing reconstruction note ahead of the assignments and placing
+the statements at those measured line boundaries preserves 82/82
+byte-PASS; the linked SLD now has zero tag differences, an exact
+root block and exact +24 end line. Full `aistate.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 32/42 native
+CLEAN (`run-zoqmd8dx`); the ten prior dirty functions remain.
+GAME/COMMON strict SLD coverage rises 360 -> 361 of 1247.
+SLD cannot distinguish what the original source contained in its
+code-free lines +1 through +9 or +20 through +23; the current
+spacing is a line-map reconstruction, not an assertion of original
+comments or typography.
+
+### AIState_Purgatory constructor source-order and SLD seal (2026-10-04)
+
+The 108-instruction constructor was byte-PASS and native SYM-clean,
+but had 81 instruction-line mismatches and a late block/end line.
+Retail SLD attributes the basis-car assignment to +4, the
+life-timer lookup to +6, random/timer work to +7, the two bus-name
+tests to +10, their guarded multiply to +12, the AI-flags update
+to +14, the car-flags test to +15 and the counter increment plus
+epilogue to +16. Moving the independent basis-car and life-timer
+statements ahead of the random update retained 108/108 byte-PASS.
+The compact statement layout then reproduced all linked tags,
+blocks and +16 end line, without introducing a source-only carrier.
+Full `aistate.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 32/42 native CLEAN (`run-o7sfsfjr`); the ten prior
+dirty functions remain. GAME/COMMON strict SLD coverage rises
+361 -> 362 of 1247. The three random/timer updates sharing +7
+could reflect a retail macro or same-line statements; SLD cannot
+distinguish those source spellings, so no original macro is claimed.
+
+### AISTATE short-method SLD seals (2026-10-04)
+
+Three already-byte-PASS, native-clean methods had only source-line
+placement residuals. `AIState_Purgatory::StartUp` now places its
+global clear and return sequence on retail +1; `AIState_Idle::
+SetIdlePosition` places its two stores on +1/+2; and
+`AIState_Chase::DoSlowNitrous` places its two nitrous stores on
++4/+5. Compact bodies with implicit fallthrough keep all 3/3,
+3/3 and 7/7 instructions respectively, and their linked tags,
+root blocks and end lines are exact. Full `aistate.cpp` symloop
+is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 32/42
+native CLEAN (`run-rwpur41p`), with the same ten dirty functions.
+GAME/COMMON strict SLD coverage rises 362 -> 365 of 1247. The
+code-free lines preceding the first nitrous store are not
+uniquely reconstructible from the SLD alone.
+
+### AIState_Chase carrier and SetMurderMode probes (2026-10-04)
+
+The retail SYM constructor block lists the five argument-register
+copies but no `direction` or `reverseDirCheck` local; native still
+reports both as extras. Reusing the already-dead `nitrousTicks`
+parameter for the direction and condition removed those declarations
+but changed the 66-instruction PASS to 68 native instructions and
+36 detailed diffs. The probe was reverted and the constructor
+re-gated 66/66 PASS. This falsifies that specific parameter reuse,
+not the broader possibility of an original macro/expression form.
+
+`SetMurderMode` remained 11/11 byte-PASS while its SLD tags fell
+from 11 differences to 2 by placing the test at +1 and guarded
+stores at +7/+8, with its block close now at retail +9. The only
+remaining tags are the two epilogue words at native +8 versus
+retail +9. Explicit-return variants either put the epilogue at
++10 and shift the block close, or made the line attribution
+match while moving the block close to +10; neither was retained.
+The current natural brace form is partial, not SLD-exact. Full
+`aistate.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors and 32/42 native CLEAN (`run-9knm7nh2`); GAME/COMMON
+strict SLD coverage remains 365/1247, with nine fewer total tag
+differences in this round.
+
+### GotoSlice::Execute scope ownership repair (2026-10-04)
+
+Retail `Execute__17AIState_GotoSlice` has three SYM blocks: root,
+the stop-when-arrived body, and its distance/cap owner. The native
+source had an additional brace around four codegen-carrier locals,
+giving four blocks. Removing only that extra brace keeps the
+70/70 byte-PASS, ASPSX and linked bytes unchanged, and removes
+the `BLOCKS 4 scopes != 3` native-SYM difference. The four extra
+locals (`carObj`, `desiredSpeed`, `limit`, `inRange`) still need
+source recovery; this is a scope repair, not a CLEAN claim.
+Reusing the SYM-named `cap` for the clamp result instead of the
+extra `limit` shortened the native body to 68 words and produced
+24 detailed diffs, so that experiment was reverted. The full
+`aistate.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK
+zero errors, 32/42 native CLEAN (`run-4484fdcq`). Linked SLD for
+this method remains non-exact (58/70 tag differences; end delta
++97 versus retail +33); the strict GAME/COMMON board remains
+365/1247.
+
+### AIState_Base::StateExecute SLD seal (2026-10-04)
+
+The 34-instruction method was already byte-PASS and native
+SYM-clean. Retail attributes its combined active/car-flag/dead-
+timer condition to line +7, the script-action call to +8 and
+the virtual `Execute` call plus epilogue to +10, with root block
+close +11. The previous source put these at +3/+5/+9/+11.
+Keeping the condition and call semantics while aligning those
+source statement lines and using implicit void fallthrough
+preserves 34/34 byte-PASS and makes the linked SLD tags, root
+block and +10 end line exact. Full `aistate.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 32/42
+native CLEAN (`run-p8i8f0cf`); GAME/COMMON strict SLD coverage
+rises 365 -> 366 of 1247. The SLD does not identify the contents
+of the code-free lines inside the compound condition; their
+current spacing is not claimed as original typography.
+
+### AI_ChooseNewLaneSlack source-order probes (2026-10-04)
+
+`AI_ChooseNewLaneSlack` remains 19/19 byte-PASS but not SLD-exact.
+Moving the random-product update before the personality-table
+assignment, with either direct `randtemp` reuse or a semantic
+`const randomProduct` snapshot, kept 19 instructions yet caused
+20 detailed register/scheduling diffs. Both forms were reverted.
+The retail non-monotone tags (+3 random update, +4 personality
+access) require a different source or compiler scheduling shape;
+the failed reorder does not establish a floor.

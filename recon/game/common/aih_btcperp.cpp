@@ -1075,81 +1075,48 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 
 
 
-/* ---- FindClosestCop__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::FindClosestCop  [AIH_BTCPERP.CPP:582-609] SLD-VERIFIED ---- */
+/* ---- FindClosestCop__17AIHigh_BTC_AIPerp  [AIH_BTCPERP.CPP:582-609]
+ * Native SYM locals/scopes exact; retail SLD statement regions remain open. ---- */
 
 void AIHigh_BTC_AIPerp::FindClosestCop()
-
-
-
 {
   int closestCopInMeters;
   int closestCopInMetersAbs;
   int closestCarIndex;
-  int copLoop;
-  int longMetersBetween;
-  int absLongMetersBetween;
 
-  closestCopInMeters = 0x270f0000;
-
-  closestCopInMetersAbs = 0x270f0000;
-
-  closestCarIndex = -1;
-
-  copLoop = 0;
-
-  while (true) {
-
-    if (Cars_gNumHumanRaceCars <= copLoop) {
-      break;
-    }
-
-    if ((Cars_gHumanRaceCarList[copLoop]->carFlags & 0x200U) != 0) {
-
-      longMetersBetween = AIWorld_ApxSplineDistance(
-          this->carObj_,Cars_gHumanRaceCarList[copLoop]);
-
-      absLongMetersBetween = __builtin_abs(longMetersBetween);
-
-      if (absLongMetersBetween < closestCopInMetersAbs) {
-
-        closestCopInMeters = longMetersBetween;
-
-        closestCopInMetersAbs = absLongMetersBetween;
-
-        closestCarIndex = Cars_gHumanRaceCarList[copLoop]->carIndex;
-
+  {
+    int copLoop;
+    closestCopInMeters = 0x270f0000;
+    closestCopInMetersAbs = 0x270f0000;
+    closestCarIndex = -1;
+    copLoop = 0;
+    while (true) {
+      if (Cars_gNumHumanRaceCars <= copLoop) {
+        break;
       }
-
+      if ((Cars_gHumanRaceCarList[copLoop]->carFlags & 0x200U) != 0) {
+        int longMetersBetween;
+        int absLongMetersBetween;
+        longMetersBetween = AIWorld_ApxSplineDistance(
+            this->carObj_,Cars_gHumanRaceCarList[copLoop]);
+        absLongMetersBetween = __builtin_abs(longMetersBetween);
+        if (absLongMetersBetween < closestCopInMetersAbs) {
+          closestCopInMeters = longMetersBetween;
+          closestCopInMetersAbs = absLongMetersBetween;
+          closestCarIndex = Cars_gHumanRaceCarList[copLoop]->carIndex;
+        }
+      }
+      copLoop = copLoop + 1;
     }
-
-    copLoop = copLoop + 1;
-
   }
-
   if (closestCarIndex == -1) {
-
     this->closestCopCarObj_ = (Car_tObj *)0x0;
-
   }
-
   else {
-
     this->closestCopCarObj_ = Cars_gList[closestCarIndex];
-
     this->closestCopCarDistanceMeters_ = closestCopInMeters;
-
   }
-
-  return;
-
 }
-
-
-
-
-
-
-
 
 /* ---- HighExecute__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::HighExecute  [AIH_BTCPERP.CPP:620-802] SLD-VERIFIED ---- */
 

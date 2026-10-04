@@ -98,7 +98,6 @@ void Track_SetTrackNumber(int tracknum)
 
 {
   gtrackNumber = tracknum & 0xf;
-  return;
 }
 
 /* ---- Track_MakeTrackPathName__FPc  [TRACK.CPP:103-110] SLD-VERIFIED ---- */
@@ -107,7 +106,10 @@ char * Track_MakeTrackPathName(char *ext)
 {
 
   static char strspc[64];   /* @0x8013e300 STAT (.bss) */
+
+
   sprintf(strspc,"%sTr%02d%s",Paths_Paths[6],gtrackNumber,ext);
+
   return strspc;
 }
 
@@ -116,7 +118,11 @@ char * Track_MakeTrackDataPathName(char *ext)
 
 {
   static char strspc[64];   /* @0x8013e340 STAT (.bss) */
+
+
+
   sprintf(strspc,"%sTr%02d%s",Paths_Paths[8],gtrackNumber,ext);
+
   return strspc;
 }
 
@@ -126,10 +132,13 @@ void AllocArtResource(Track_tArtresource *artRes,int numPmx)
 {
   artRes->id = -1;
   artRes->basePmxCount = 0;
+
+
+
   artRes->pPmx = (Draw_tPixMap *)BWAllocMem(numPmx << 4);
+
   artRes->shapeCount = 0;
   artRes->shapeFile = (char *)0x0;
-  return;
 }
 
 /* ---- InitArtResources__Fv  [TRACK.CPP:155-165] SLD-VERIFIED ---- */
@@ -425,11 +434,9 @@ int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
 {
 
   for (int t = 0; t < 0x80; t++) {
-    if (gTempMultiPalInfo[t].origshapeindex == shapeindex) {
-      if (gTempMultiPalInfo[t].palnum == paletteindex) {
-        return (int)gTempMultiPalInfo[t].actualshapeindex;
-      }
-    }
+
+    if (gTempMultiPalInfo[t].origshapeindex == shapeindex && gTempMultiPalInfo[t].palnum == paletteindex) {
+      return (int)gTempMultiPalInfo[t].actualshapeindex; }
   }
   return shapeindex;
 }
@@ -1039,6 +1046,8 @@ char * KillFile_OpenRead(void)
   char pathName [128];
   
   sprintf(pathName,"%s",Track_MakeTrackPathName(".kil"));
+
+
   return (char *)loadfileadrz(pathName,(void *)0x0);
 }
 
@@ -1047,9 +1056,9 @@ void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
 
 {
   filePtr += entryInd * 8;
-  chunkInd = *(int *)(filePtr + 4);
+  chunkInd =
+      *(int *)(filePtr + 4);
   objectInd = *(int *)(filePtr + 8);
-  return;
 }
 
 /* ---- Track_LoadObjectKillData__Fv [retail TRACK.CPP:1742-1821; full SLD attribution open] ---- */

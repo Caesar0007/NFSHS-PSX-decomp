@@ -283,6 +283,13 @@ struct Speech {
                        int dc, int ac) {
         return a == period && b == dc && c == ac && d == 't';
     }
+    inline bool IsData(char *ext, int period, int dc, int ac) {
+        int a = (u_char)ext[0];
+        int b = (u_char)ext[1];
+        int c = (u_char)ext[2];
+        int d = (u_char)ext[3];
+        return a == period && b == dc && c == ac && d == 't';
+    }
     int BankPatch(long bank, Car_tObj *car);
     LocationBank *FindClosestLocationTo(LocationBank *bank, int slice);
     int CalculateBankSize(char *header, CarBankName *bn, long *hoffset, long *hsize);

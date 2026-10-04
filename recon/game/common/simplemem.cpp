@@ -38,13 +38,13 @@ void * SimpleMem::FeignAlloc(int len)
 /* ---- ResizeToFit__9SimpleMem  [SIMPLEMEM.CPP:57-64] SLD-VERIFIED ---- */
 void SimpleMem::ResizeToFit()
 {
-  long newSize;
-
-  newSize = (int)this->freeMem;
+  long newSize = (int)this->freeMem;
   newSize -= (int)this->heap;
+
+
+
   this->freeMem = (u_char *)0x0;
   resizememadr(this->heap,newSize);
-  return;
 }
 
 /* end of simplemem.cpp */

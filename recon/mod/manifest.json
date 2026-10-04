@@ -1,0 +1,68 @@
+{
+  "schema": "nfs4-route-d-manifest-v1",
+  "comment": "Route D = source relink of the game with the additions/overrides below on top of the route C object set. Keys of 'override' are route C object names (build/psyq_off/<name>.obj). The game-mod streaming files are ADDITIVE (TrackMod_* symbols only); the retail entry points are redirected by overriding their callers (milestone 2).",
+  "override": {
+    "recon__game__common__bworld.cpp.obj": "recon/mod/game/common/bworld.cpp",
+    "recon__game__common__bworldSm.cpp.obj": "recon/mod/game/common/bworldSm.cpp",
+    "recon__game__common__chunk.cpp.obj": "recon/mod/game/common/chunk.cpp"
+  },
+  "add_game": [
+    "recon/mod/game/common/track.cpp",
+    "recon/mod/game/common/track_stream.cpp",
+    "recon/mod/game/common/track_stream_io.cpp",
+    "recon/mod/game/common/track_resident_io.cpp",
+    "recon/mod/game/common/chunk_cache.cpp",
+    "recon/mod/game/common/bworldSm_veneer.cpp",
+    "recon/mod/game/common/trackmod_stack.c"
+  ],
+  "add_before_libs": [
+    "recon/mod/syslib/psx/libgpu/font_stub.c",
+    "recon/mod/syslib/psx/libsn/retail_stubs.c",
+    "recon/mod/syslib/psx/libgte/compact_trig.c"
+  ],
+  "stages": {
+    "A": "add_game only (streaming code linked, retail loader still called)",
+    "B": "A + add_before_libs (FONT stub, PC stubs, compact GTE table) ahead of the Sony LIBs",
+    "C": "B + add_before_libs_stage_c (compact libcd core; needs every EVENT/CDCONT export covered or slink pulls the Sony member and reports duplicates)",
+    "F": "B + front_libs (LIBPRESS/LIBCARD/LIBMCRD members linked into the front overlay)"
+  },
+  "add_before_libs_stage_c": [
+    "recon/mod/syslib/psx/libcd/core_api.c",
+    "recon/mod/syslib/psx/libcd/media_api.c",
+    "recon/mod/syslib/psx/libcd/drv_core.c",
+    "recon/mod/syslib/psx/libcd/movie_bridge.c"
+  ],
+  "fixes_before_libs": [
+    "recon/mod/eaclib/psx/eacpsxz/savegp.c",
+    "recon/mod/eaclib/psx/eacpsxz/memstd.c"
+  ],
+  "front_libs": [
+    "build/route_d/libfront/A74.obj",
+    "build/route_d/libfront/A75.obj",
+    "build/route_d/libfront/A76.obj",
+    "build/route_d/libfront/A78.obj",
+    "build/route_d/libfront/A79.obj",
+    "build/route_d/libfront/A80.obj",
+    "build/route_d/libfront/A88.obj",
+    "build/route_d/libfront/A92.obj",
+    "build/route_d/libfront/A93.obj",
+    "build/route_d/libfront/BIOS.obj",
+    "build/route_d/libfront/BUILD.obj",
+    "build/route_d/libfront/C112.obj",
+    "build/route_d/libfront/C171.obj",
+    "build/route_d/libfront/C172.obj",
+    "build/route_d/libfront/C173.obj",
+    "build/route_d/libfront/CARD.obj",
+    "build/route_d/libfront/ENCSPU.obj",
+    "build/route_d/libfront/END.obj",
+    "build/route_d/libfront/FORMAT.obj",
+    "build/route_d/libfront/INIT.obj",
+    "build/route_d/libfront/LIBMCRD.obj",
+    "build/route_d/libfront/LIBPRESS.obj",
+    "build/route_d/libfront/PATCH.obj",
+    "build/route_d/libfront/TABLE.obj",
+    "build/route_d/libfront/USERFUNC.obj",
+    "build/route_d/libfront/VLC.obj",
+    "build/route_d/libfront/VLC_C.obj"
+  ]
+}

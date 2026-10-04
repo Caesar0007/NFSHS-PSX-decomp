@@ -37,6 +37,9 @@ import nfs4_grp as N4
 
 
 DUMMY = 0xCDCDCDCD
+STREAM_HEADER_MAGIC = b"N4SH"
+STREAM_GEOMETRY_MAGIC = b"N4SX"
+STREAM_VERSION = 3
 
 
 def align4(value: int) -> int:
@@ -63,6 +66,153 @@ def group(group_type: int, payload: bytes = b"", count: int = 1) -> bytes:
 
 def container(group_type: int, children: list[bytes]) -> bytes:
     return group(group_type, b"".join(children), len(children))
+
+
+def serialized_children(data: bytes, offset: int = 0):
+    """Yield (type, offset, length) for the direct children of one serialized group."""
+    _typ, length, _dummy, count = struct.unpack_from("<iiIi", data, offset)
+    cursor = offset + 16
+    for _ in range(count):
+        child_type, child_length = struct.unpack_from("<ii", data, cursor)
+        yield child_type, cursor, child_length
+        cursor += child_length
+    if cursor > offset + length:
+        raise ValueError("serialized child exceeds parent")
+
+
+def locate_serialized(data: bytes, group_type: int, offset: int = 0):
+    for child_type, child_offset, child_length in serialized_children(data, offset):
+        if child_type == group_type:
+            return child_offset, child_length
+    return None
+
+
+def chunk_instance_bytes(chunk: bytes) -> int:
+    """Bytes copied by retail single-player Chunk::InstanceGroup into SimpleMem."""
+    total = 0
+    for group_type in (0x03, 0x0B, 0x15, 0x0A, 0x05, 0x06, 0x09):
+        found = locate_serialized(chunk, group_type)
+        if found is not None:
+            total += found[1] - 12
+    geometry = locate_serialized(chunk, 0x17)
+    if geometry is None:
+        raise ValueError("chunk has no geometry group")
+    geometry_offset = geometry[0]
+    for group_type in (0x19, 0x1A, 0x25, 0x18, 0x27, 0x28, 0x29):
+        found = locate_serialized(chunk, group_type, geometry_offset)
+        if found is not None:
+            total += found[1] - 12
+    return total
+
+
+def chunk_visibility_row(chunk: bytes) -> bytes:
+    found = locate_serialized(chunk, 4)
+    values = []
+    if found is not None:
+        offset, _length = found
+        count = struct.unpack_from("<i", chunk, offset + 12)[0]
+        values = list(struct.unpack_from(f"<{count}H", chunk, offset + 16))[:32]
+    values.extend([0x03FF] * (32 - len(values)))
+    return struct.pack("<32H", *values)
+
+
+def build_stream_companions(
+    output_dir: Path,
+    target_stem: str,
+    track_header: bytes,
+    centers: bytes,
+    chunks: list[bytes],
+    persistent: bytes,
+    light_table_group: bytes,
+) -> tuple[Path, Path]:
+    """Write the mod-only resident header and NFS3-style eight-chunk geometry stream."""
+    header_path = output_dir / f"{target_stem}.GRH"
+    stream_path = output_dir / f"{target_stem}.GRX"
+    visibility = b"".join(chunk_visibility_row(chunk) for chunk in chunks)
+    resident = struct.pack(
+        "<4s7I",
+        STREAM_HEADER_MAGIC,
+        STREAM_VERSION,
+        len(chunks),
+        len(track_header),
+        len(centers),
+        len(persistent),
+        len(light_table_group),
+        len(visibility),
+    ) + track_header + centers + persistent + light_table_group + visibility
+    header_path.write_bytes(resident)
+
+    metas = []
+    meta_index = []
+    resident_sizes = [chunk_instance_bytes(chunk) for chunk in chunks]
+    for meta_number, first in enumerate(range(0, len(chunks), 8)):
+        batch = chunks[first:first + 8]
+        table_bytes = 12 + 4 * len(batch)
+        offsets = []
+        payload = bytearray()
+        for chunk in batch:
+            offsets.append(table_bytes + len(payload))
+            payload.extend(chunk)
+            payload.extend(bytes(align4(len(payload)) - len(payload)))
+            meta_index.append(meta_number)
+        size = table_bytes + len(payload)
+        metas.append(
+            struct.pack("<3I", size, len(batch), 0)
+            + struct.pack(f"<{len(offsets)}I", *offsets)
+            + payload
+        )
+
+    fixed = 24 + 4 * len(metas) + 2 * len(chunks) + 4 * len(chunks)
+    fixed_aligned = align4(fixed)
+    meta_offsets = []
+    cursor = fixed_aligned
+    for meta in metas:
+        meta_offsets.append(cursor)
+        cursor += len(meta)
+    stream = bytearray(
+        struct.pack(
+            "<4s5I",
+            STREAM_GEOMETRY_MAGIC,
+            STREAM_VERSION,
+            len(chunks),
+            len(metas),
+            max(map(len, metas), default=0),
+            max(resident_sizes, default=0),
+        )
+    )
+    stream.extend(struct.pack(f"<{len(meta_offsets)}I", *meta_offsets))
+    stream.extend(struct.pack(f"<{len(meta_index)}H", *meta_index))
+    stream.extend(struct.pack(f"<{len(resident_sizes)}I", *resident_sizes))
+    stream.extend(bytes(fixed_aligned - len(stream)))
+    for meta in metas:
+        stream.extend(meta)
+    stream_path.write_bytes(stream)
+
+    # Build-time structural proof: every offset and chunk payload must round-trip.
+    raw = stream_path.read_bytes()
+    magic, version, chunk_count, meta_count, max_meta, max_resident = struct.unpack_from("<4s5I", raw, 0)
+    if (magic, version, chunk_count, meta_count) != (
+        STREAM_GEOMETRY_MAGIC, STREAM_VERSION, len(chunks), len(metas)
+    ):
+        raise ValueError("stream geometry header mismatch")
+    if max_meta != max(map(len, metas), default=0):
+        raise ValueError("stream max-meta mismatch")
+    if max_resident != max(resident_sizes, default=0):
+        raise ValueError("stream max-resident mismatch")
+    read_offsets = struct.unpack_from(f"<{meta_count}I", raw, 24)
+    recovered = []
+    for meta_offset in read_offsets:
+        meta_size, count, zero = struct.unpack_from("<3I", raw, meta_offset)
+        if zero != 0 or meta_size > max_meta:
+            raise ValueError("stream meta header mismatch")
+        chunk_offsets = struct.unpack_from(f"<{count}I", raw, meta_offset + 12)
+        for chunk_offset in chunk_offsets:
+            address = meta_offset + chunk_offset
+            length = struct.unpack_from("<i", raw, address + 4)[0]
+            recovered.append(raw[address:address + length])
+    if recovered != chunks:
+        raise ValueError("stream chunk round-trip mismatch")
+    return header_path, stream_path
 
 
 def rgb555(value: int) -> tuple[int, int, int]:
@@ -172,6 +322,138 @@ def quantize16(colors: collections.Counter[int], limit: int) -> dict[int, int]:
     return mapping
 
 
+
+def psh_shapes(data: bytes) -> list[tuple[int, int, int, int, int, int]]:
+    """(offset, bpp, x, y, words, height) of every image block; x/y in VRAM words from the file word at +12."""
+    out = []
+    count = struct.unpack_from("<i", data, 8)[0]
+    for index in range(count):
+        offset = struct.unpack_from("<i", data, 20 + 8 * index)[0]
+        bpp = data[offset] & 3
+        width, height = struct.unpack_from("<hh", data, offset + 4)
+        pos = struct.unpack_from("<I", data, offset + 12)[0]
+        # NFS4 uploads ceil(width * depth / 16) VRAM words (`Texture_LoadPmx` stride): a 63-pixel 4-bit shape
+        # takes 16 words, not the 15 that NFS3's atlas spacing assumes
+        bits = 4 if bpp == 0 else (8 if bpp == 1 else 16)
+        words = (width * bits + 15) // 16
+        out.append((offset, bpp, pos & 0xFFF, (pos >> 16) & 0xFFF, words, height))
+    return out
+
+
+def psh_set_position(out: bytearray, offset: int, x: int, y: int) -> None:
+    pos = struct.unpack_from("<I", out, offset + 12)[0]
+    pos = (pos & ~0x0FFF0FFF) | (x & 0xFFF) | ((y & 0xFFF) << 16)
+    struct.pack_into("<I", out, offset + 12, pos)
+
+
+ATLAS_LIMIT_WORDS = 768   # the atlas may run to the VRAM edge (256 + 768 = 1024) ...
+REFLECTION_COLUMN = (736, 752)   # ... except the restacked reflection maps at VRAM x 992..1007 (relative 736..751);
+                                 # retail NFS4 atlases stop at 720 and nothing else of NFS4's lives in the top half past 976
+
+
+def repack_atlas(data: bytes, losses: collections.Counter[str]) -> bytes:
+    """Move every shape that reaches past the retail atlas width into free space inside it.
+
+    NFS4 loads the track atlas at VRAM x = 256 with the layout baked into the file; NFS3 atlases are
+    laid out for NFS3's VRAM and Lost Canyons reaches 767 words, i.e. VRAM x 1023 -- across the
+    reflection maps at 992 (and whatever else lives there), so those textures were overwritten after
+    the load: missing rock textures at fixed places (route D user test, 2026-10-04).  A moved shape
+    keeps its pixels; only its atlas position changes, and the quads' UVs are relative to the shape.
+    Placement keeps a 4-bit shape inside one 64-word (256-pixel) texture page column and an 8-bit
+    shape inside a 128-word window starting on a 64-word column, as the GPU's u/v addressing needs."""
+    shapes = psh_shapes(data)
+    def collides(sh):
+        return sh[2] + sh[4] > ATLAS_LIMIT_WORDS or (sh[2] < REFLECTION_COLUMN[1] and sh[2] + sh[4] > REFLECTION_COLUMN[0])
+    overflow = [sh for sh in shapes if collides(sh)]
+    # NFS3 packs 63-pixel shapes 15 words apart; under NFS4's 16-word upload the later shape's first column
+    # lands on the earlier one's last column (Lost Canyons shapes 180/181/189, 179: one column of garbage each,
+    # the "missing" rock textures of the route D user test).  Every shape that overlaps an earlier kept shape moves.
+    kept = []
+    for sh in shapes:
+        if sh in overflow:
+            continue
+        if any(sh[2] < k[2] + k[4] and k[2] < sh[2] + sh[4] and sh[3] < k[3] + k[5] and k[3] < sh[3] + sh[5] for k in kept):
+            overflow.append(sh)
+        else:
+            kept.append(sh)
+    if not overflow:
+        return data
+    out = bytearray(data)
+    occupied = [[False] * 256 for _ in range(ATLAS_LIMIT_WORDS)]
+    def mark(x, y, w, h, value=True):
+        for cx in range(x, min(ATLAS_LIMIT_WORDS, x + w)):
+            col = occupied[cx]
+            for cy in range(y, min(256, y + h)):
+                col[cy] = value
+    for sh in shapes:
+        if sh not in overflow:
+            mark(sh[2], sh[3], sh[4], sh[5])
+    mark(REFLECTION_COLUMN[0], 0, REFLECTION_COLUMN[1] - REFLECTION_COLUMN[0], 256)
+    # CLUT rows: every palette block's VRAM rectangle (16 or 256 words wide, 1 high)
+    count = struct.unpack_from("<i", data, 8)[0]
+    for index in range(count):
+        offset = struct.unpack_from("<i", data, 20 + 8 * index)[0]
+        nxt = int.from_bytes(data[offset + 1:offset + 4], "little")
+        if nxt and data[offset + nxt] & 0xF7 == 0x23:
+            cpos = struct.unpack_from("<I", data, offset + nxt + 12)[0]
+            mark(cpos & 0xFFF, (cpos >> 16) & 0xFFF, 256 if (data[offset] & 3) == 1 else 16, 1)
+    def fits(x, y, w, h):
+        if x + w > ATLAS_LIMIT_WORDS or y + h > 256:
+            return False
+        for cx in range(x, x + w):
+            col = occupied[cx]
+            for cy in range(y, y + h):
+                if col[cy]:
+                    return False
+        return True
+    def page_ok(bpp, x, w):
+        if bpp == 0:
+            return x // 64 == (x + w - 1) // 64
+        if bpp == 1:
+            return (x + w - 1) - (x // 64) * 64 < 128
+        return True
+    moved = 0
+    for sh in sorted(overflow, key=lambda t: (-t[5], -t[4])):
+        offset, bpp, _x, _y, w, h = sh
+        place = None
+        for y in range(0, 256 - h + 1):
+            for x in range(0, ATLAS_LIMIT_WORDS - w + 1):
+                if page_ok(bpp, x, w) and fits(x, y, w, h):
+                    place = (x, y)
+                    break
+            if place:
+                break
+        if place is None:
+            losses["track textures left outside the NFS4 atlas (no free space)"] += 1
+            continue
+        psh_set_position(out, offset, place[0], place[1])
+        mark(place[0], place[1], w, h)
+        moved += 1
+    if moved:
+        losses["track textures moved inside the NFS4 atlas width (NFS3 layout reached past it)"] += moved
+    return bytes(out)
+
+
+def relayout_reflection(data: bytes, losses: collections.Counter[str]) -> bytes:
+    """Stack the reflection maps in a column as NFS4 expects.
+
+    NFS4 loads R.PSH at VRAM x = 992 and its four maps are stacked (x 0, y 0/64/128/192, 32 words
+    wide); NFS3's four 64x64 maps sit in a row 64 words wide, which runs past the 1024-word VRAM
+    edge from 992 (the last two maps land on the display buffers)."""
+    if data[:4] != b"SHPP":
+        return data
+    out = bytearray(data)
+    y = 0
+    moved = 0
+    for offset, bpp, x0, y0, words, height in psh_shapes(data):
+        if (x0, y0) != (0, y):
+            psh_set_position(out, offset, 0, y)
+            moved += 1
+        y += height
+    if moved:
+        losses["reflection maps restacked into NFS4's column layout"] += moved
+    return bytes(out)
+
 def convert_psh(data: bytes, losses: collections.Counter[str]) -> bytes:
     """Re-index the 8-bit shapes of an NFS3 track PSH onto two shared 256-colour palettes.
 
@@ -218,7 +500,24 @@ def convert_psh(data: bytes, losses: collections.Counter[str]) -> bytes:
         losses["8-bit textures re-indexed onto a shared palette (NFS4 has 8 slots)"] += len(members)
         if len(usage) > 256:
             losses["8-bit texture colours merged by that re-indexing"] += len(usage) - len(shared)
-    return bytes(out)
+    # Transparent textures must keep a plain palette.  NFS4 gives every 4-bit shape past the first 12 a
+    # fog-ramped palette unless its name starts with '#'; the ramp turns palette entry 0 (0x0000 = the
+    # GPU's transparent colour) into an opaque fog tint, so NFS3's see-through faces (1x1 "invisible"
+    # textures on rock caps and collision walls) came out as pale triangles (route D user test 2026-10-04).
+    renamed = 0
+    for index in range(count):
+        offset = struct.unpack_from("<i", data, 20 + 8 * index)[0]
+        if data[offset] & 3 != 0 or index < 12:
+            continue
+        nxt = int.from_bytes(data[offset + 1:offset + 4], "little")
+        if not nxt or data[offset + nxt] & 0xF7 != 0x23:
+            continue
+        if struct.unpack_from("<H", out, offset + nxt + 16)[0] == 0 and out[16 + 8 * index] != 0x23:
+            out[16 + 8 * index] = 0x23   # '#'
+            renamed += 1
+    if renamed:
+        losses["transparent textures renamed '#' to keep a plain (unfogged) palette"] += renamed
+    return repack_atlas(bytes(out), losses)
 
 
 @dataclass
@@ -398,8 +697,121 @@ def split_strip_runs(
     return result
 
 
+SLICE_WORLD: list[tuple[int, int, int]] = []   # COL type 0x0F slice centres (16.16 world), set by main()
+
+
+def orient_strip_runs(
+    runs: list[StripRun],
+    vertices: list[tuple[int, int, int, int]],
+    losses: collections.Counter[str],
+    road_point: tuple[int, int, int] = (0, 0, 0),
+) -> list[StripRun]:
+    """Make every strip quad face the road, splitting runs where the NFS3 winding flips.
+
+    NFS4's strip renderer back-face culls every quad (draww.cpp `gte_nclip` on both triangles); NFS3
+    draws a quad from both sides unless its material carries flag 0x40, so NFS3 rock and terrain quads
+    have arbitrary winding.  Quads wound away from a viewer above the road centre were culled by NFS4 and
+    showed the sky through the rocks (route D user test 2026-10-04).  A run keeps shared rows, so the
+    winding can only change per run: runs are split where the orientation changes and a run that faces
+    away has its top and bottom chains swapped (which reverses the winding of every quad in it)."""
+    def cross(a, b):
+        return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+    def sub(a, b):
+        return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
+    def dot(a, b):
+        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+    # "up" = the way the road quad under this slice's road point faces (the nearest quad centroid to the
+    # road point is a road quad; road quads are wound consistently in NFS3)
+    best = None
+    for run in runs:
+        for i in range(run.quad_count):
+            t0, t1, b0, b1 = (vertices[v][:3] for v in (run.top[i], run.top[i + 1], run.bottom[i], run.bottom[i + 1]))
+            c = tuple((t0[k] + t1[k] + b0[k] + b1[k]) // 4 for k in range(3))
+            dist = sum((c[k] - road_point[k]) ** 2 for k in range(3))
+            n = cross(sub(t1, t0), sub(b0, t0))
+            if n[1] != 0 and (best is None or dist < best[0]):
+                best = (dist, n[1])
+    up = 1 if best is None or best[1] > 0 else -1
+    # just above the road under this slice (the chunk centre sits ~600 units above the road and outside tunnels,
+    # which flipped tunnel ceilings when it was used as the viewer)
+    viewer = (road_point[0], road_point[1] + up * 40, road_point[2])
+    out = []
+    flipped = split = 0
+    for run in runs:
+        signs = []
+        for i in range(run.quad_count):
+            t0, t1, b0, b1 = (vertices[v][:3] for v in (run.top[i], run.top[i + 1], run.bottom[i], run.bottom[i + 1]))
+            n = cross(sub(t1, t0), sub(b0, t0))
+            c = tuple((t0[k] + t1[k] + b0[k] + b1[k]) // 4 for k in range(3))
+            if abs(n[1]) > max(abs(n[0]), abs(n[2])):
+                # floor or ceiling: face up when below the viewer, down when above it
+                want = up if viewer[1] > c[1] else -up
+                d = n[1] * want
+            else:
+                # wall: face the road point horizontally
+                d = n[0] * (viewer[0] - c[0]) + n[2] * (viewer[2] - c[2])
+            signs.append(1 if d > 0 else (-1 if d < 0 else 0))
+        # resolve flat quads to their neighbours' orientation
+        for i in range(len(signs)):
+            if signs[i] == 0:
+                signs[i] = next((signs[j] for j in list(range(i - 1, -1, -1)) + list(range(i + 1, len(signs))) if signs[j] != 0), 1)
+        start = 0
+        while start < len(signs):
+            end = start + 1
+            while end < len(signs) and signs[end] == signs[start]:
+                end += 1
+            piece = StripRun(run.first_quad + start, run.materials[start:end], run.surfaces[start:end],
+                             run.top[start:end + 1], run.bottom[start:end + 1])
+            if signs[start] < 0:
+                piece = StripRun(piece.first_quad, piece.materials, piece.surfaces, piece.bottom, piece.top)
+                flipped += end - start
+            out.append(piece)
+            if end < len(signs):
+                split += 1
+            start = end
+    if flipped:
+        losses["quads re-wound to face the road (NFS4 back-face culls strips, NFS3 drew both sides)"] += flipped
+    if split:
+        losses["strip runs split at winding changes"] += split
+    return out
+
+
 def sample_boundaries(count: int, target: int) -> list[int]:
     return [(i * count) // target for i in range(target)] + [count]
+
+
+def material_boundaries(materials: list[int], target: int) -> list[int]:
+    """Split a run of `len(materials)` source quads into `target` output quads along material changes.
+
+    Plain even sampling gave every merged quad the material of its middle source quad, so a small sign
+    quad in the middle of a rock-wall run put the sign texture, stretched, over the whole merged span
+    (Lost Canyons slice 534, route D user test 2026-10-04).  Segments start at every material change;
+    too many segments are reduced by merging the smallest neighbours (same-material pairs first), too
+    few are increased by splitting the largest ones evenly."""
+    count = len(materials)
+    if target >= count:
+        return list(range(count)) + [count]
+    bounds = [0] + [i for i in range(1, count) if materials[i] != materials[i - 1]] + [count]
+    while len(bounds) - 1 > target:
+        best = None
+        for i in range(1, len(bounds) - 1):
+            a = bounds[i] - bounds[i - 1]
+            b = bounds[i + 1] - bounds[i]
+            same = materials[bounds[i - 1]] == materials[bounds[i]]
+            key = (0 if same else 1, a + b)
+            if best is None or key < best[0]:
+                best = (key, i)
+        del bounds[best[1]]
+    while len(bounds) - 1 < target:
+        i = max(range(len(bounds) - 1), key=lambda k: bounds[k + 1] - bounds[k])
+        if bounds[i + 1] - bounds[i] < 2:
+            break
+        bounds.insert(i + 1, (bounds[i] + bounds[i + 1]) // 2)
+    return bounds
+
+
+def dominant(values: list[int]) -> int:
+    return collections.Counter(values).most_common(1)[0][0]
 
 
 def emit_strips(
@@ -445,7 +857,8 @@ def emit_strips(
         for run in runs:
             target = targets[target_index]
             target_index += 1
-            boundaries = sample_boundaries(run.quad_count, target)
+            boundaries = material_boundaries(run.materials, target)
+            target = len(boundaries) - 1
             try:
                 top_start = emit_row(tuple(run.top[i] for i in boundaries))
                 bottom_start = emit_row(tuple(run.bottom[i] for i in boundaries))
@@ -453,9 +866,8 @@ def emit_strips(
                 return None
             chosen_materials = []
             for left, right in zip(boundaries, boundaries[1:]):
-                source_quad = min(run.quad_count - 1, (left + right - 1) // 2)
-                chosen_materials.append(run.materials[source_quad])
-                sim_quads.append(run.surfaces[source_quad])
+                chosen_materials.append(dominant(run.materials[left:right]))
+                sim_quads.append(dominant(run.surfaces[left:right]))
             strip_data += struct.pack("<4B", top_start, bottom_start, target, 4 + 2 * target)
             strip_data += struct.pack("<%dh" % target, *chosen_materials)
             strip_count += 1
@@ -790,7 +1202,12 @@ def convert_chunk(
             # 0x80 = test barriers. Without 0x80 NFS4 never runs its wall collision
             # (`collide.cpp`: `groundSurfaceType & 0x80` gates Newton_TestForUndrivableSurfaces).
             surfaces.append(type5[2 * (first_quad + local) + 1] & 0xCF)
-        slice_runs.append(split_strip_runs(first_quad, quads, materials, surfaces))
+        road_point = (0, 0, 0)
+        first_slice = struct.unpack_from("<H", data, chunk + 0xA)[0]
+        if SLICE_WORLD and first_slice + slice_index < len(SLICE_WORLD):
+            world = SLICE_WORLD[first_slice + slice_index]
+            road_point = tuple((world[k] - center[k]) >> 10 for k in range(3))   # 16.16 world -> chunk-local vertex units
+        slice_runs.append(orient_strip_runs(split_strip_runs(first_quad, quads, materials, surfaces), vertices, losses, road_point))
 
     q5_offset, q5_count = geom["arrays"][5]
     extra_vertices = set()
@@ -938,6 +1355,40 @@ def convert_chunk(
     return container(0x1D, [group(0x1C, meta)] + children_after_meta)
 
 
+# NFS4 `Track_Init` memory model (track.cpp, simplemem.cpp): the GRP is read into a block of
+# `fileSize + 0x9080` bytes, 0x9080 past its start; the per-chunk lists (0x70 + 0x48 + 1 bytes
+# per chunk), the header/centre copies and then a compacted copy of every chunk group are
+# written from the block start, so the writes must stay behind the read cursor. The first chunk
+# is the tightest point. The EA heap is endofcode+8 .. 0x801FC000 = 734,452 bytes, of which about
+# 71 KB is taken by other allocations when the track loads (measured on the 00A checkpoint).
+TRACK_HEAD_START = 0x9080
+NFS4_HEAP = 734452
+NFS4_HEAP_OTHER = 71037
+
+
+def nfs4_load_limits(root: bytes, groups: list[dict]) -> list[str]:
+    chunk_count = struct.unpack_from("<i", root, [g for g in groups if g["type"] == 0x1F][0]["off"] + 16 + 28)[0]
+    first = [g for g in groups if g["type"] == 0x1D and g["depth"] == 1][0]
+    children = [
+        g for g in groups
+        if first["off"] < g["off"] < first["off"] + first["length"] and g["type"] not in N4.CONTAINERS and g["type"] != 0x1C
+    ]
+    writes = chunk_count * (0x70 + 0x48 + 1) + 36 + (12 * chunk_count + 4) + sum(g["length"] - 12 for g in children)
+    reads = TRACK_HEAD_START + 16 + 48 + (12 * chunk_count + 16)
+    warnings = []
+    if writes > reads:
+        warnings.append(
+            f"NFS4 Track_Init will corrupt the file: {writes - reads} bytes of per-chunk lists and first-chunk "
+            f"copies past the 0x9080 head start ({chunk_count} chunks; retail max 136)"
+        )
+    peak = len(root) + TRACK_HEAD_START
+    if peak > NFS4_HEAP - NFS4_HEAP_OTHER:
+        warnings.append(
+            f"NFS4 heap too small: Track_Init needs {peak} bytes, about {NFS4_HEAP - NFS4_HEAP_OTHER} are free"
+        )
+    return warnings
+
+
 def find_source(source_dir: Path, layout: str, extension: str, streamed: bool = False) -> Path:
     prefix = "ZZZTR" if streamed else "ZTR"
     path = source_dir / f"{prefix}{layout}.{extension}"
@@ -953,6 +1404,7 @@ def convert(
     target: int,
     variants: bool,
     cop_difficulty: str = "BEG",
+    streamed: bool = False,
 ) -> Path:
     layout = layout.upper()
     if not re.fullmatch(r"\d\d[A-B]", layout):
@@ -981,6 +1433,9 @@ def convert(
     colors.update(object_colors(object_catalog.definitions))
     light_table, palette_map = build_palette(colors)
     materials, material_count = convert_materials(col_data, collections_)
+    global SLICE_WORLD
+    s_off, _s_len, _s_type, s_count = next(c for c in collections_ if c[2] == 0x0F)
+    SLICE_WORLD = [struct.unpack_from("<3i", col_data, s_off + 8 + 36 * i) for i in range(s_count)]
     slices, slice_count = convert_slices(col_data, collections_)
     object_definitions, object_offsets = convert_object_definitions(
         object_catalog.definitions, palette_map, material_count
@@ -1022,22 +1477,34 @@ def convert(
         (trk.chunkCount + 7) // 8, trk.chunkCount,
     )
     centers = b"".join(struct.pack("<3i", *center) for center in trk.centers)
+    light_table_group = group(0x23, light_table)
     root = container(
         0x1E,
-        [group(0x1F, track_header), group(0x20, centers)] + chunks + [persistent, group(0x23, light_table)],
+        [group(0x1F, track_header), group(0x20, centers)] + chunks + [persistent, light_table_group],
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     target_stem = f"ZTR{target:02d}"
     grp_path = output_dir / f"{target_stem}.GRP"
     grp_path.write_bytes(root)
+    stream_paths = None
+    if streamed:
+        stream_paths = build_stream_companions(
+            output_dir,
+            target_stem,
+            track_header,
+            centers,
+            chunks,
+            persistent,
+            light_table_group,
+        )
 
     source_psh = source_dir / f"ZTR{layout}0.PSH"
     if source_psh.exists():
         (output_dir / f"{target_stem}0.PSH").write_bytes(convert_psh(source_psh.read_bytes(), losses))
     source_reflection = source_dir / f"ZTR{layout}R.PSH"
     if source_reflection.exists():
-        shutil.copyfile(source_reflection, output_dir / f"{target_stem}R.PSH")
+        (output_dir / f"{target_stem}R.PSH").write_bytes(relayout_reflection(source_reflection.read_bytes(), losses))
     convert_env(source_dir / f"ZTR{layout}.DPQ", output_dir / f"{target_stem}.ENV")
     for file_id in range(4):
         (output_dir / f"{target_stem}{file_id:02d}.AUD").write_bytes(
@@ -1060,6 +1527,9 @@ def convert(
     if variants:
         for suffix in ("N", "S", "W"):
             shutil.copyfile(grp_path, output_dir / f"{target_stem}{suffix}.GRP")
+            if stream_paths is not None:
+                shutil.copyfile(stream_paths[0], output_dir / f"{target_stem}{suffix}.GRH")
+                shutil.copyfile(stream_paths[1], output_dir / f"{target_stem}{suffix}.GRX")
             psh = output_dir / f"{target_stem}0.PSH"
             if psh.exists():
                 shutil.copyfile(psh, output_dir / f"{target_stem}{suffix}0.PSH")
@@ -1067,11 +1537,19 @@ def convert(
     parsed_bytes, parsed = N4.parse(grp_path)
     if parsed["errors"] or parsed_bytes != root:
         raise ValueError("generated GRP failed its structural parse")
+    for warning in nfs4_load_limits(root, parsed["groups"]):
+        print("WARNING:", warning)
     print(f"converted NFS3 {layout} -> NFS4 slot {target:02d}: {trk.chunkCount} chunks, {slice_count} slices")
     print(
         f"output: {grp_path} ({len(root)} bytes), materials={material_count}, "
         f"objects={len(object_catalog.definitions)}, lights={len(set(palette_map.values()))}"
     )
+    if stream_paths is not None:
+        print(
+            f"streamed: {stream_paths[0]} ({stream_paths[0].stat().st_size} bytes), "
+            f"{stream_paths[1]} ({stream_paths[1].stat().st_size} bytes), "
+            f"max-meta={max(len(b''.join(chunks[i:i + 8])) for i in range(0, len(chunks), 8))}"
+        )
     if losses:
         print("explicit conversion losses:")
         for name, count in losses.items():
@@ -1079,16 +1557,76 @@ def convert(
     return grp_path
 
 
+def stream_companions_from_grp(grp_path: Path, output_dir: Path) -> tuple[Path, Path]:
+    """GRH/GRX streamed companions from a finished NFS4 GRP (e.g. one written by tools/mod-studio's
+    nfs3convert): the root 0x1E container holds 0x1F header, 0x20 centres, optional 0x30 load padding,
+    the 0x1D chunk containers, the 0x21 persistent container and the 0x23 light table."""
+    data = grp_path.read_bytes()
+    root_type, root_length, _x, root_count = struct.unpack_from("<4i", data, 0)
+    if root_type != 0x1E:
+        raise ValueError(f"{grp_path}: not a GRP root container (type {root_type:#x})")
+    cursor = 16
+    track_header = centers = persistent = light_table_group = None
+    chunks = []
+    for _ in range(root_count):
+        gtype, glength = struct.unpack_from("<2i", data, cursor)
+        blob = data[cursor:cursor + glength]
+        if gtype == 0x1F:
+            track_header = blob[16:]
+        elif gtype == 0x20:
+            centers = blob[16:]
+        elif gtype == 0x1D:
+            chunks.append(blob)
+        elif gtype == 0x21:
+            persistent = blob
+        elif gtype == 0x23:
+            light_table_group = blob
+        cursor += align4(glength)
+    if None in (track_header, centers, persistent, light_table_group) or not chunks:
+        raise ValueError(f"{grp_path}: missing root groups")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return build_stream_companions(output_dir, grp_path.stem.upper(), track_header, centers, chunks, persistent, light_table_group)
+
+
+def repack_psh_file(psh_path: Path, output_path: Path) -> dict:
+    """Apply the atlas repack (NFS4 upload widths, reflection column, VRAM edge) to an existing track PSH."""
+    losses: collections.Counter[str] = collections.Counter()
+    output_path.write_bytes(repack_atlas(psh_path.read_bytes(), losses))
+    return dict(losses)
+
+
 def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] == "--stream-from-grp":
+        # nfs3_to_nfs4.py --stream-from-grp OUT_DIR ZTR06.GRP [ZTR06N.GRP ...]
+        out = Path(sys.argv[2])
+        for grp in sys.argv[3:]:
+            paths = stream_companions_from_grp(Path(grp), out)
+            print("streamed:", ", ".join(f"{p} ({p.stat().st_size} bytes)" for p in paths))
+        return
+    if len(sys.argv) > 1 and sys.argv[1] == "--repack-psh":
+        # nfs3_to_nfs4.py --repack-psh OUT_DIR ZTR060.PSH [...]
+        out = Path(sys.argv[2]); out.mkdir(parents=True, exist_ok=True)
+        for psh in sys.argv[3:]:
+            print(Path(psh).name, repack_psh_file(Path(psh), out / Path(psh).name))
+        return
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source_dir", type=Path, help="directory containing extracted NFS3 track files")
     parser.add_argument("layout", help="NFS3 layout, for example 00A or 04B")
     parser.add_argument("output_dir", type=Path)
     parser.add_argument("--target", required=True, type=int, help="NFS4 track slot (0..10)")
     parser.add_argument("--variants", action="store_true", help="also emit identical N/S/W GRP and PSH variants")
+    parser.add_argument("--streamed", action="store_true", help="also emit mod-only GRH/GRX streamed companions")
     parser.add_argument("--cop", choices=("beg", "exp"), default="beg", help="NFS3 cop-trigger difficulty")
     args = parser.parse_args()
-    convert(args.source_dir, args.layout, args.output_dir, args.target, args.variants, args.cop.upper())
+    convert(
+        args.source_dir,
+        args.layout,
+        args.output_dir,
+        args.target,
+        args.variants,
+        args.cop.upper(),
+        args.streamed,
+    )
 
 
 if __name__ == "__main__":

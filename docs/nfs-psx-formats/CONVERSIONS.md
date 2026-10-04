@@ -11,6 +11,10 @@ synthesized**, validation status, and tool location.
   for those families exist.
 - Example:
   `python tools/nfs3_to_nfs4.py C:\Temp\nfs3_disc 00A output --target 00 --variants`
+- Mod-streaming companions: add `--streamed` to keep the normal fallback GRP and also emit `.GRH`
+  (resident header, centers, persistent data and light table) plus `.GRX` (NFS3-style eight-chunk
+  geometry metas with an offset/index table). Both outputs are structurally round-tripped by the
+  converter before it returns. Runtime consumption belongs to `recon/game-mod`.
 - Preserved / translated: chunk centres and bounds, high-detail road strips, high-detail overlay
   quads, materials and texture indices, vertex lighting (the NFS3 colour word split as the NFS3
   renderers do: bits 10–14 = r, 5–9 = g, 0–4 = b, each `<< 3`; quantized only when a track has more
@@ -68,6 +72,15 @@ synthesized**, validation status, and tool location.
   masked the flags away. They are now preserved (surface 14 stays 14 = NFS4's out-of-range value).
   After the fix: impact at the barrier (speed 27 → 2.5), the car is held on the last drivable quad on
   both sides, height steady, no `offEdge`, no reset.
+- **Size limits (2026-10-04).** NFS3 streams (20 resident chunk slots); NFS4 loads the whole GRP and
+  has two hard limits in `Track_Init` (spec: GRP doc, "Loading and memory limits"): the 0x9080 head
+  start must hold `0xB9` bytes per chunk plus the first chunk's copy (about 185 chunks), and
+  `fileSize + 0x9080` must fit the free EA heap (about 663 KB). The converter warns when either is broken.
+  Boot results: 00A, 02A (154 chunks), 00B (175), 04A (186, 450 B spare) load; 01A (183, 275 B short),
+  01B (212, 800 KB), 04B (216, 767 KB) crash in `Track_Init`. Predicted from the files: 02B, 03A, 03B,
+  05A, 05B, 06A, 07A, 08A load. Merging adjacent chunks under the 256-vertex cap would bring 01A to 154
+  chunks (peak 655 KB, just fits) but 01B/04B only to about 200 and their peak exceeds the heap, so
+  those two need an engine change (larger head start / a streaming loader), not a converter change.
 - Test images: `tools/psx_iso_inject.py <NFS4.IMG> <out.bin> <converted dir>` replaces the slot's
   files in a copy of the retail image (in place or appended, Mode 2 Form 1 EDC/ECC regenerated —
   byte-exact against retail sectors) and writes the `.cue`.

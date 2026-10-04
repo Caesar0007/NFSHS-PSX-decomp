@@ -49,7 +49,7 @@ directly: each b track follows its partner chunk-for-chunk at the start and the 
 nine main tracks: IDs 00–04 and 16, 17, 19, 20 (= 0x10, 0x11, 0x13, 0x14); ID 18 has only a `.QTS`; the bonus
 tracks (05–08, 0x15) have none.
 
-**02B is unreachable as a track ★★★.** No menu entry maps to 0x12. The only 02B file the game ever loads is
+**02B (Coal Harbor, the cut Empire City sibling; name per the user, 2026-10-04) is unreachable as a track ★★★.** No menu entry maps to 0x12. The only 02B file the game ever loads is
 `ZTR02BR.PSH` (reflection maps): `func_80065EB0`, used only for `R.psh`, forces `02b` when the track is Empire
 City (02) and WEATHER (`cfg[0x12]`) is on, i.e. wet-road reflections. Every other loader builds its letter
 from `id >> 4`, so 02B's `.TRK`, `.COL`, `0.PSH`, `.DPQ`, `.HRZ`, `.CLR` and `A.VIV` are never opened.
@@ -122,7 +122,11 @@ The first meta-chunk starts at the next 4-byte boundary after the tables.
 
 ### 1.3 Meta-chunk (8 chunks, streamed) — `func_80079C58` → `func_800C3990`
 A chunk request looks up its meta-chunk, seeks to `StmChunkF[meta]` and reads `MaxMetaChunkSize` bytes into
-the stream buffer (allocated from header +8 in `func_800799A4`).
+the stream buffer (`"StmBuff"`, allocated from header +8 in `func_800799A4`). The same routine sizes the
+resident set: `"Size of Chunk_tChunkList"` = 0x6E0 and `"Size of Chunk_tChunkDat"` = 0x58, i.e. **20 chunk
+slots** (`func_8007A5F0`); each loaded chunk is copied out of the stream buffer, bound (`func_8007A198`) and
+relocated (`func_80079F4C`) into a slot. Track length is therefore not bounded by RAM, unlike NFS4, which keeps
+the whole `.GRP` resident ([NFS4_TRACK_GRP.md](NFS4_TRACK_GRP.md), "Loading and memory limits").
 | Off | Type | Field |
 |-----|------|-------|
 | 0 | u32 | meta-chunk size (file space ends ≤ 3 bytes later: padding) |

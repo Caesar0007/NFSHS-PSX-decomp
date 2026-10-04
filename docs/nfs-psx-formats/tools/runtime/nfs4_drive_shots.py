@@ -7,7 +7,10 @@ CUE = sys.argv[1]; TAG = sys.argv[2]; START = sys.argv[3]   # <image.cue> <check
 os.environ['FF_GDB_RAM_BACKEND'] = 'rsp'
 sys.path.insert(0, RT)
 from gdb_remote import Remote
-PAD_RET, PAD_STATE = 0x800E4310, 0x8013E8A2
+PAD_RET, PAD_STATE = 0x800E4310, 0x8013E8A2   # retail NFS4.EXE
+TICKS = 0x8011E0B0
+if len(sys.argv) > 7:   # relinked image: <PAD_RET> <PAD_STATE> <TICKS> hex (from nfs4_track_probe_map.py's 'resolved:' line)
+    PAD_RET, PAD_STATE, TICKS = (int(x, 16) for x in sys.argv[5:8])
 CROSS, LEFT, RIGHT = 0x4000, 0x0080, 0x0020
 def wait_stop(r, t):
     r.s.settimeout(t)
@@ -35,7 +38,7 @@ try:
         r.packet(f'M{PAD_STATE:x},2:' + struct.pack('<H', 0xFFFF & ~CROSS).hex())
         if frame in shots:
             name = f'{TAG}-{frame}'
-            r.checkpoint(name); print('saved', name, 'ticks', struct.unpack('<I', r.read_memory(0x8011E0B0, 4))[0], flush=True)
+            r.checkpoint(name); print('saved', name, 'ticks', struct.unpack('<I', r.read_memory(TICKS, 4))[0], flush=True)
             r.packet(f'Z0,{PAD_RET:x},4')
 finally:
     try: r.close()

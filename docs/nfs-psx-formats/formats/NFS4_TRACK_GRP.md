@@ -323,6 +323,26 @@ boundPts/chunkboundPts/firstSimSliceInd/chunkInd; every chunk's quadCounts; the 
 the visibility rows including the 64-byte-stride overlap. A full-state checkpoint
 `nfs4_after_track_init` (track 06, day) is saved in the isolated runtime for further probes.
 
+## Loading and memory limits ★★★ (`Track_Init`, `simplemem.cpp`; runtime-verified 2026-10-04)
+The whole GRP is resident; nothing is streamed. `Track_Init` reserves one EA-heap block of
+`fileSize + 0x9080` bytes ("Track_mem"), reads the file 0x9080 bytes past the block start, and then
+allocates from the block start upwards: the per-chunk lists (`0x70` chunk + `0x48` visibility row +
+1 count byte per chunk), copies of the header and the chunk centres, and a compacted "lite" copy of
+every chunk group (`CreateLiteGroup`: 4 bytes + data, 12 bytes less than the serialized group) in file
+order. The writes must stay behind the read cursor; the first chunk is the tightest point, after which
+the lag only grows. Finally `ResizeToFit` shrinks the block to the copied data (the 00A test block is
+405 KB for a 422 KB file). Two limits follow:
+
+| Limit | Rule | Retail | Measured |
+|-------|------|--------|----------|
+| head start | `chunks × 0xB9 + 40 + 12·chunks + lite(chunk 0)` ≤ `0x9080 + 80 + 12·chunks` | ≤ 136 chunks, ≥ 6 KB spare | converted NFS3 04A (186 chunks, 450 B spare) loads; 01A (183 chunks, 275 B short) crashes in `Track_Init` |
+| heap peak | `fileSize + 0x9080` ≤ free EA heap (`endofcode+8 … 0x801FC000` = 734,452 B, about 71 KB taken by other allocations at that moment) | ≤ 489 KB | converted 00B (598 KB peak) loads; 01B / 04B (800 / 767 KB) cannot |
+
+`tools/nfs3_to_nfs4.py` prints a warning when a converted track breaks either rule. NFS3 by contrast
+streams its track: one `MaxMetaChunkSize` buffer (35–53 KB) and 20 resident chunk slots
+(`Chunk_tChunkList` = 0x6E0 bytes = 20 × 0x58-byte `Chunk_tChunkDat`), so its track length is not
+bounded by RAM ([NFS3_TRACK_FILES.md](NFS3_TRACK_FILES.md) §1.3).
+
 ## Open questions
 None that the game reads. Unread by the game (exporter metadata): chunk-meta A and the short at +8,
 quad-block s[0], s[3], s[4], TrackHeader `type`/`version`/`max*`/`metaChunkCount`, slice

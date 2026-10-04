@@ -34,49 +34,47 @@ void Souffle_KillTrackSouffle(void);
 void GetGustWind(Souffle_tISouffle *is)
 
 {
+
   (is->motion).x = random() & 0x3ff;
   (is->motion).z = random() & 0x3ff;
+
   (is->motion).y = (random() & 0x3ff) + 0x7ff;
-  return;
 }
 
 /* ---- GetAngleWind__FP17Souffle_tISouffle  [SOUFFLE.CPP:53-57] SLD-VERIFIED ---- */
 void GetAngleWind(Souffle_tISouffle *is)
 
 {
+
   is->angle = random();
+
   is->aspeed = (random() & 0x7f) - 0x3f;
-  return;
 }
 
-/* ---- MoveAngleWind__FP17Souffle_tISouffle  [SOUFFLE.CPP:61-66] SLD-VERIFIED ---- */
+/* ---- MoveAngleWind__FP17Souffle_tISouffle  [SOUFFLE.CPP:61-66]
+ * 14/16 SLD tags and block lines exact; final epilogue attribution open. ---- */
 void MoveAngleWind(Souffle_tISouffle *is)
 
 {
+
   is->angle = is->angle + is->aspeed;
-  if (is->aspeed < -8) {
-    is->aspeed = is->aspeed + 1;
-    return;
-  }
-  if (8 < is->aspeed) {
-    is->aspeed = is->aspeed + -1;
-  }
-  return;
+
+  if (is->aspeed < -8) { is->aspeed = is->aspeed + 1; return; }
+  if (8 < is->aspeed) is->aspeed = is->aspeed + -1; return;
 }
 
-/* ---- Souffle_Add__FP8coorddefiT0iii  [SOUFFLE.CPP:76-165] SLD-VERIFIED ---- */
+/* ---- Souffle_Add__FP8coorddefiT0iii  [SOUFFLE.CPP:76-165]
+ * Native SYM locals/scopes exact; retail SLD line map still open. ---- */
 Souffle_tISouffle *
 Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int colour)
 
 {
   int inserti;
-  int i;
-  int maxc;
-  coorddef vempty;
-  Souffle_tISouffle *is;
 
   inserti = 0;
   if (gCISouffle == 0x3c) {
+    int i;
+    int maxc;
     i = 1;
     maxc = gISouffle[0].cycle;
     while (i < gCISouffle) {
@@ -92,53 +90,57 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
     gCISouffle = gCISouffle + 1;
   }
 
-  is = gISouffle + inserti;
-  is->source = *soufflept;
-  is->cycle = 0;
-  is->type = type;
-  is->id = inserti;
-  is->ground = ground;
-  is->colour = colour;
+  {
+    coorddef vempty;
+    Souffle_tISouffle *is;
+    is = gISouffle + inserti;
+    is->source = *soufflept;
+    is->cycle = 0;
+    is->type = type;
+    is->id = inserti;
+    is->ground = ground;
+    is->colour = colour;
 
-  if (vec == (coorddef *)0x0) {
-    vec = &vempty;
-    vempty.x = 0;
-    vempty.y = 0;
-    vempty.z = 0;
+    if (vec == (coorddef *)0x0) {
+      vec = &vempty;
+      vempty.x = 0;
+      vempty.y = 0;
+      vempty.z = 0;
+    }
+
+    switch (type) {
+    case 1:
+    case 2:
+    case 3:
+    case 6:
+      GetGustWind(is);
+      is->wind = 1;
+      GetAngleWind(is);
+      break;
+
+    case 4:
+    case 8:
+    case 10:
+    case 12:
+      is->rndpixmap = velVX;
+      /* fall through */
+    case 7:
+    case 9:
+    case 11:
+    case 13:
+    case 14:
+    case 0x101:
+      is->motion.x = vec->x >> 5;
+      is->motion.y = vec->y >> 6;
+      is->motion.z = vec->z >> 5;
+      is->wind = 0;
+      GetAngleWind(is);
+      break;
+    }
+
+    Sfx_Add(is);
+    return is;
   }
-
-  switch (type) {
-  case 1:
-  case 2:
-  case 3:
-  case 6:
-    GetGustWind(is);
-    is->wind = 1;
-    GetAngleWind(is);
-    break;
-
-  case 4:
-  case 8:
-  case 10:
-  case 12:
-    is->rndpixmap = velVX;
-    /* fall through */
-  case 7:
-  case 9:
-  case 11:
-  case 13:
-  case 14:
-  case 0x101:
-    is->motion.x = vec->x >> 5;
-    is->motion.y = vec->y >> 6;
-    is->motion.z = vec->z >> 5;
-    is->wind = 0;
-    GetAngleWind(is);
-    break;
-  }
-
-  Sfx_Add(is);
-  return is;
 }
 
 /* ---- Souffle_DoSouffle__Fv  [SOUFFLE.CPP:176-295] SLD-VERIFIED ---- */
@@ -269,13 +271,13 @@ void Souffle_DoSouffle(void)
   return;
 }
 
-/* ---- Souffle_CircleClip__FP8coorddefT0i  [SOUFFLE.CPP:308-316] SLD-VERIFIED ---- */
+/* ---- Souffle_CircleClip__FP8coorddefT0i  [SOUFFLE.CPP:308-316]
+ * Native SYM locals/scopes exact; compact retail SLD line map still open. ---- */
 int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 
 {
   int dx;
   int dz;
-  int dist;
 
   dx = pt1->x - pt2->x;
   if (dx < 1) {
@@ -285,61 +287,71 @@ int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)
   if (dz < 1) {
     dz = pt2->z - pt1->z;
   }
-  if (dz < dx) {
-    dist = dx + (dz >> 2);
+  {
+    int dist;
+    if (dz < dx) {
+      dist = dx + (dz >> 2);
+    }
+    else {
+      dist = dz + (dx >> 2);
+    }
+    return (u_int)(dist < r);
   }
-  else {
-    dist = dz + (dx >> 2);
-  }
-  return (u_int)(dist < r);
 }
 
-/* ---- Souffle_InsertFacet__FP13DRender_tView  [SOUFFLE.CPP:320-348] SLD-VERIFIED ---- */
+/* ---- Souffle_InsertFacet__FP13DRender_tView  [SOUFFLE.CPP:320-348]
+ * Native SYM locals/scopes exact; retail SLD line map still open. ---- */
 void Souffle_InsertFacet(DRender_tView *Vi)
 
 {
   int i;
-  Souffle_tISouffle *is;
 
-  i = 0;
-  do {
-    if (gCISouffle <= i) {
-      return;
-    }
-    is = gISouffle + i;
-    if (Souffle_CircleClip(&is->source,&Vi->cview.translation,0x320000)) {
-      if (is->type != '\n') {
-        Sfx_Transform(&is->source,&is->trans,&Vi->cview.translation);
-        if (((int)is->trans.vz < __builtin_abs((int)is->trans.vx)) ||
-            (is->type == '\0')) {
-          goto SouffleInsert_iterAdvance;
-        }
+  {
+    i = 0;
+    do {
+      if (gCISouffle <= i) {
+        return;
       }
-      Sfx_BuildSouffleFacet(Vi,is);
-    }
+      Souffle_tISouffle *is = gISouffle + i;
+      if (Souffle_CircleClip(&is->source,&Vi->cview.translation,0x320000)) {
+        if (is->type != '\n') {
+          Sfx_Transform(&is->source,&is->trans,&Vi->cview.translation);
+          if (((int)is->trans.vz < __builtin_abs((int)is->trans.vx)) ||
+              (is->type == '\0')) {
+            goto SouffleInsert_iterAdvance;
+          }
+        }
+        Sfx_BuildSouffleFacet(Vi,is);
+      }
 SouffleInsert_iterAdvance:
-    i = i + 1;
-  } while (true);
+      i = i + 1;
+    } while (true);
+  }
 }
 
-/* ---- Souffle_InitTrackSouffle__Fv  [SOUFFLE.CPP:359-367] SLD-VERIFIED ---- */
+/* ---- Souffle_InitTrackSouffle__Fv  [SOUFFLE.CPP:359-367]
+ * Native SYM and linked SLD exact; all 16 retail instructions preserved. ---- */
 void Souffle_InitTrackSouffle(void)
 
 {
-  gWindDir = 0;
-  gCISouffle = 0;
+
   gTMoveSouffle = SOUFFLE_GAME_TICKS;
+
+  gWindDir = 0;
+
+  gCISouffle = 0;
+
   gISouffle = reservememadr("souffle",0xff0,0);
-  return;
 }
 
-/* ---- Souffle_RestartTrackSouffle__Fv  [SOUFFLE.CPP:373-382] SLD-VERIFIED ---- */
+/* ---- Souffle_RestartTrackSouffle__Fv  [SOUFFLE.CPP:373-382]
+ * Retail statement order restored; full SLD line spacing remains open. ---- */
 void Souffle_RestartTrackSouffle(void)
 
 {
+  gTMoveSouffle = SOUFFLE_GAME_TICKS;
   gWindDir = 0;
   gCISouffle = 0;
-  gTMoveSouffle = SOUFFLE_GAME_TICKS;
   return;
 }
 
@@ -347,11 +359,8 @@ void Souffle_RestartTrackSouffle(void)
 void Souffle_KillTrackSouffle(void)
 
 {
-  if (gISouffle != (Souffle_tISouffle *)0x0) {
-    purgememadr(gISouffle);
-  }
+  if (gISouffle != (Souffle_tISouffle *)0x0) purgememadr(gISouffle);
   gISouffle = (Souffle_tISouffle *)0x0;
-  return;
 }
 
 /* end of souffle.cpp */

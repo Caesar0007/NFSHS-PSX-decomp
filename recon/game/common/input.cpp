@@ -529,7 +529,6 @@ void Input_Fetch(int humanIndex)
 
 {
   SimQueue_GetCurrentInput(humanIndex,&Input_gSim);
-  return;
 }
 
 /* ---- Input_Gear__Fci  [INPUT.CPP:466-479] SLD-VERIFIED ---- */

@@ -7536,3 +7536,553 @@ dialog/answer reorder was byte-PASS in the normal build, but the debug
 lane fails by one instruction even after the committed source is restored;
 the issue needs a fresh baseline/debug-compiler diagnosis before any SYM
 claim. No experimental source from either function was retained.
+
+### Scene_Init implicit fallthrough: strict SLD seal (2026-10-04)
+
+Retail `Scene_Init` attributes its store and return instructions to source
+line +2, closes the root block at +3 and ends the function at +2. The
+reconstruction's explicit `return;` pushed the two epilogue instructions to
++5. Removing it preserves all 5 retail instructions and the existing native
+declaration records. The refreshed `scene.cpp` fail-closed symloop reports
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors (`run-o0j0aqxl`), with
+5/6 native CLEAN; the remaining DIRTY function is
+`Scene_BuildCustomSceneList`. The linked SYM comparison now reports
+`Scene_Init` strict SLD EXACT (0/5 tag differences, matching block lines
+and function-end delta). GAME/COMMON strict coverage rises 261 -> 262
+of 1247 on this refreshed native dump. Literal historical whitespace is
+not inferred from these records.
+
+### SetContext implicit fallthrough: strict SLD seal (2026-10-04)
+
+Retail `SetContext` attributes its one pointer-store statement and the
+two return instructions to source line +1; the root block closes at +2
+and the function-end delta is +1. The explicit `return;` in the old
+source pushed the return instructions and end delta to +2. Removing it
+retains 11/11 byte-PASS instructions and makes every linked instruction
+tag, block line and end delta exact. Full `bworld.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0 and PSYLINK zero errors (`run-540d5mr7`), with
+19/21 native CLEAN; its two pre-existing EXTRA-local issues remain open.
+The refreshed GAME/COMMON strict SLD count is 263/1247. This is a
+source-region restoration, not proof of literal historical whitespace.
+
+### SimQueue_GetCurrentInput: strict SLD seal after stale-reference diagnosis
+
+The existing `simqueue.cpp` byte reference was made on 2026-09-20, before
+the committed 2026-09-21 SYM-owned `SimpleMem` header-tag addition. On
+unchanged source, its `.text` and `.sdata` matched the freshly compiled
+object; its `.rodata` alone lacked `SimpleMem\0`, which is present in the
+retail executable at the TU's recorded 0x800565cc. The old 907-byte
+reference is preserved at
+`scratchpad/simqueue_symloop_ref_before_SimpleMem_20261004.text`; a new
+fail-closed baseline plus layout companion was recorded from unchanged
+source, not from the SLD trial.
+
+Retail attributes all ten `SimQueue_GetCurrentInput` instructions to
+source line +1, closes its block at +2, and ends the function at +1.
+Removing the reconstruction's redundant explicit `return;` now keeps
+10/10 byte PASS and makes every linked SLD tag, block line and end delta
+exact. Full `simqueue.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 8/8 native CLEAN (`run-k8izev72`). The refreshed
+GAME/COMMON strict SLD count rises 263 -> 264 of 1247. This represents
+the retail source region without claiming unique historical syntax.
+
+### BWorld source-only carrier naming and scope probes (2026-10-04)
+
+The two remaining `bworld.cpp` native EXTRA locals have no matching
+retail local rows. Their source names are now role-specific:
+`sceneStartRandom` holds the second `rand()` result used only to compute
+`SceneStartLap`, and `trackSpec` points at `TrackSpec_gSpec` for the fog
+packet fields. These are behavior-supported semantic names, not recovered
+literal EA spellings. Both functions remain detailed PASS (187/187 and
+193/193); full-TU `symloop` is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 19/21 native CLEAN (`run-r694fjds`).
+
+Moving the random local into its use-site nested branch kept 187/187
+instructions but increased native scope count from retail 1 to 5 and
+retained the EXTRA row, so it was reverted. A root `const` pointer
+initialized at declaration changed 10 instructions in
+`BWorld_OnyxBuildFacets`, so it too was reverted. The older direct-field
+and duplicated-random probes are receipted in source. Thus both EXTRA
+records and their literal historical source ownership remain open;
+renaming alone is not a native-SYM seal.
+
+### Input_Fetch and AIScript_Startup strict SLD seals (2026-10-04)
+
+`Input_Fetch`'s explicit `return;` put four epilogue instruction tags
+and its function-end delta at +2, while retail puts both at +1 after
+the single `SimQueue_GetCurrentInput` call. Implicit fallthrough retains
+all 10 instructions and makes its linked tags, block records and end
+delta exact. The legacy `input.cpp` byte reference was 10 bytes shorter
+solely because it lacked the `SimpleMem\0` read-only tag present in the
+unchanged current object and in retail at 0x80055fb8. The 5351-byte old
+reference is preserved at
+`scratchpad/input_symloop_ref_before_SimpleMem_20261004.text`; the fresh
+reference was recorded from unchanged source before the SLD edit. Full
+`input.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors
+(`run-861ytuf9`), 7/8 native CLEAN. `Input_Update`'s six EXTRA locals
+remain open; this is not a whole-TU source seal.
+
+`AIScript_Startup` likewise had four epilogue words tagged +6 instead
+of retail +5 after its final `lastActionTime` store. Removing the
+redundant return retains all 15 instructions and makes the complete
+linked SLD record exact. Full `aiscript.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0 and PSYLINK zero errors (`run-9798um48`), 7/8 native CLEAN.
+GAME/COMMON strict SLD coverage rises 264 -> 266 of 1247 across these
+two changes; neither result asserts unique literal source formatting.
+
+### AIScript reaction-carrier names, without native-SYM exemption
+
+`AIScript_ProcessActionsAndReactions` still has five retail-absent REG
+locals, but its active source no longer calls them `new_var`/`new_var2`
+or `one`/`seven`/`two`. `storedReactionIndex` snapshots the value at
+`lastReactionIndex` before the reaction-index store; `reactionTable`
+is the selected `AIScript_tReactionDetails` row; `reactionSeedMask`,
+`noActionIndex`, and `reactionBitTwo` carry the reused constants 1, 7,
+and 2. The in-source receipts preserve the measured failures of direct
+expressions/literals. The function remains 90/90 byte-PASS, and full
+`aiscript.cpp` symloop is unchanged and link-clean (`run-9798um48`).
+Retail did not record these literal names: they are semantic names from
+observed behavior, not a claim that the five EXTRA records or the
+function's SLD/scope residuals are resolved.
+
+### Scene_BuildCustomSceneList named-local ownership (2026-10-04)
+
+Retail records `slice` in the root region, `se` in the guarded scene
+region beginning at +0x28, and `i` one scope deeper in the traversal.
+The former reconstruction declared all three at root depth. Moving `se`
+into the guarded body and declaring `i` in the `for` initializer restores
+both named locals' native homes and depths without an artificial wrapper
+block. All 40 instructions remain byte-PASS; full `scene.cpp` symloop is
+BYTES UNCHANGED, ASPSX 524/0 and PSYLINK zero errors (`run-ljx2wv1m`).
+The TU remains 5/6 native CLEAN: this function now differs only in block
+count, four native scopes versus six retail scopes. Retail has two
+zero-length nested regions at +0x28 before the loop owner; their source
+construct is not identified. The SLD line map is not sealed (35/40 tags
+still differ, native end delta +18 versus retail +48); no dummy braces
+or blank-line padding were added to imitate unknown historical source.
+
+### TrgSfx_RestartTrgSfx strict SLD seal (2026-10-04)
+
+The old explicit return placed four epilogue instruction tags and the
+function end at source line +3; retail attributes them to the second
+real call at +2. Implicit fallthrough keeps all 10 instructions and
+matches the complete linked instruction-tag, block-line and end-delta
+record. The `trgsfx.cpp` byte reference made before the committed
+`SimpleMem` header-tag addition differed from unchanged source only by
+that 10-byte `.rodata` literal; retail has it at 0x80056724. The old
+4103-byte reference is preserved at
+`scratchpad/trgsfx_symloop_ref_before_SimpleMem_20261004.text`, and a
+fresh baseline was recorded from unchanged source before this edit.
+Full `trgsfx.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors (`run-tnp5at2p`), 9/11 native CLEAN. The two
+other TrgSfx scope mismatches remain open. Refreshed GAME/COMMON
+strict SLD coverage rises 266 -> 267 of 1247.
+
+`AIState_Offroad::UnleashIfInRange` was also probed this round. Moving
+`releaseDistanceMeters` from a root declaration plus assignment to an
+initialized declaration at the call site kept 30/30 byte PASS but did
+not restore its missing native REG:$3 row or any of its four missing
+retail scopes; the trial was reverted. Its nested retail `this` record
+at the final store and the source construct behind it remain unresolved.
+
+### TrgSfx_KillTrgSfx empty hook (2026-10-04)
+
+Retail's `TrgSfx_KillTrgSfx` is a two-instruction no-op with both
+instruction tags, the one block close and function end at header+1.
+Removing the reconstruction's explicit return and leaving an empty
+body produces exactly that linked SLD signature while retaining 2/2
+byte PASS. Full `trgsfx.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors (`run-e0r6r8px`), 9/11 native CLEAN. GAME/COMMON
+strict SLD coverage rises 267 -> 268 of 1247.
+
+The same TU's `TrgSfx_AddCarExtraSfx` remains byte-PASS but not native
+scope-exact: retail owns `dir` inside a zero-length nested region at
+entry, while current source declares it at root. Ordinary movement of
+the declaration into the later statements cannot explain that retail
+ownership without a recovered macro/inline source construct. No
+synthetic empty scope was added; this source-region question remains
+explicitly open.
+
+### Souffle_CircleClip native block/local restoration (2026-10-04)
+
+Retail keeps `dx` and `dz` in the root region, then opens a distance
+region at +0x38 containing `dist` and closes both regions at +0x58.
+The previous source declared all three at root. An ordinary nested
+compound around the distance selection and return places `dist` in
+the retail owner without changing any of its 24 instructions. The
+whole `souffle.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors (`run-g15wsldt`), and the TU now has 8/10 native
+CLEAN; `Souffle_Add` and `Souffle_InsertFacet` retain their separate
+scope residuals.
+
+The old Souffle byte reference differed from unchanged source only by
+the 10-byte `SimpleMem\0` `.rodata` tag, confirmed in retail at
+0x800565d8. Its 2371-byte original is preserved at
+`scratchpad/souffle_symloop_ref_before_SimpleMem_20261004.text`; a fresh
+baseline was recorded from unchanged source before the lexical edit.
+This is a native-SYM improvement, not an SLD seal: all 24 instruction
+tags still differ because the current multi-line source has a +20 end
+delta versus retail +8. No synthetic line padding or output rewrite
+was used.
+
+### Souffle_InsertFacet and Souffle_Add: complete native-SYM TU (2026-10-04)
+
+`Souffle_InsertFacet` retail records `i` in the root, an outer loop
+region beginning at entry, and `is` in a child region beginning at
++0x30 after the loop guard. Moving `is` into the `do` body after the
+guard and enclosing the loop in its ordinary source region reproduces
+all three native scopes and the named local home/depth. The function
+stays 59/59 byte-PASS.
+
+`Souffle_Add` retail records `inserti` in the root, `i/maxc` inside the
+full-pool selection branch, and `vempty/is` in the later construction
+region. Moving the two counters into the `if` body and placing the
+construction operations in one nested compound reproduces its four
+native scopes and named locals. An additional wrapper around the
+selection branch made a fifth scope and over-deepened `i/maxc`; it was
+removed. The final function remains 120/120 byte-PASS.
+
+The final full `souffle.cpp` symloop reports BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors, and 10/10 native CLEAN
+(`run-ftss_z5a`). This supersedes the 8/10 intermediate count above.
+It does not seal SLD: `CircleClip`, `InsertFacet`, and `Add` still have
+retail-vs-native instruction-line differences and end-line deltas.
+Those remain explicit source-region work, not silently covered by the
+native declaration result.
+
+### Souffle track lifecycle statement order (2026-10-04)
+
+Retail SLD in both `Souffle_InitTrackSouffle` and
+`Souffle_RestartTrackSouffle` assigns the timer read/store to an
+earlier source region than the wind and active-count resets, despite
+the scheduled MIPS instructions interleaving the values. The old C++
+listed `gWindDir` and `gCISouffle` before `gTMoveSouffle`. Both bodies
+now assign `gTMoveSouffle = SOUFFLE_GAME_TICKS` first, followed by
+those two resets, matching retail's source statement order. `Init`'s
+redundant explicit return was removed so its epilogue belongs to the
+final `reservememadr` assignment rather than a separate statement.
+The functions remain 16/16 and 7/7 byte-PASS; full `souffle.cpp`
+symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and
+10/10 native CLEAN (`run-57voqsy8`).
+
+This is not an SLD seal. Retail places the four `Init` statements at
+relative lines +2/+4/+6/+8, and the three `Restart` statements at
++5/+7/+9. The current compact source has the corrected order but not
+the intervening source regions. Their historical contents (formatting,
+comments or macro expansion) are not established. The later
+`InitTrackSouffle` line-equivalent layout is documented below;
+`RestartTrackSouffle` remains unsealed.
+
+### Souffle_KillTrackSouffle strict SLD seal (2026-10-04)
+
+Retail assigns the guard and `purgememadr` call to source line +1,
+the null store and return instructions to +2, closes the root block
+at +3, and ends the function at +2. A single-line guarded call plus
+implicit void fallthrough reproduces all ten linked instruction tags,
+block lines and end delta. The 10/10 byte-PASS body and the complete
+`souffle.cpp` byte/layout fingerprint remain unchanged; the full TU
+has 10/10 native CLEAN, ASPSX 524/0 and PSYLINK zero errors
+(`run-8fepx8zr`). Refreshed GAME/COMMON strict SLD coverage rises
+268 -> 269 of 1247. The line map is evidence for this source region,
+not a claim that the literal historical whitespace is uniquely known.
+
+### MoveAngleWind SLD source-region narrowing (2026-10-04)
+
+Retail tags the angle update at +2, the negative-speed guard and its
+early return at +4, and the positive-speed guard/store at +5; the
+root block closes at +6. Grouping each guard with its corresponding
+operation on one source line, with the SLD-indicated separators before
+the first assignment and between the update and guards, preserves all
+16 machine instructions. The linked comparison now matches 14/16
+instruction tags and the root block line exactly; only the two final
+epilogue words inherit native +6 instead of retail +5, and the
+function-end delta remains +6 instead of +5. A `(void)0` return form
+was byte-PASS but did not alter those two tags, so it was reverted.
+Full `souffle.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 10/10 native CLEAN (`run-0t1k4l4p`).
+This is SLD-constrained source placement, not evidence for literal
+historical whitespace or a complete function-level SLD seal.
+
+### GetAngleWind and GetGustWind strict SLD seals (2026-10-04)
+
+Retail `GetAngleWind` tags its two random assignments at relative
+lines +2 and +4 and attributes the epilogue to the second statement.
+Placing those real statements at the SLD-indicated source regions and
+removing the redundant explicit return retains 14/14 byte PASS and
+matches every linked instruction tag, the block line and end delta.
+`GetGustWind` similarly tags x/z on consecutive +2/+3 lines and y plus
+the epilogue at +5. The corresponding source-line grouping with
+implicit fallthrough retains 18/18 byte PASS and makes its complete
+linked SLD record exact. These are line-equivalent source regions, not
+claims of uniquely recovered literal whitespace or comments.
+
+The final `souffle.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 10/10 native CLEAN (`run-mi691lfa`). Refreshed
+GAME/COMMON strict SLD coverage rises 269 -> 271 of 1247. Two other
+`MoveAngleWind` return-path spellings were tried this round: explicit
+returns on both positive-speed paths and an `else return` arm. Both
+were 16/16 byte-PASS but left its two epilogue SLD tags at native +6
+versus retail +5, so both were reverted; that function remains 14/16
+tag-exact with its end-line residual open.
+
+### Souffle_InitTrackSouffle strict SLD seal (2026-10-04)
+
+With the already-verified retail statement order, this function has
+four real operations: timer assignment, wind reset, active-count reset,
+and `reservememadr` assignment. Retail SLD places them at relative
+lines +2/+4/+6/+8 and attributes the epilogue to the final assignment.
+Representing those distinct source regions without dummy operations
+or an explicit return produces 0/16 linked instruction-tag differences,
+matching root-block lines and the +8 function-end delta. The 16-word
+body remains byte-PASS and the complete `souffle.cpp` symloop reports
+BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 10/10 native
+CLEAN (`run-vrvuyda9`). GAME/COMMON strict SLD coverage rises
+271 -> 272 of 1247. This proves a line-equivalent source layout,
+not the literal contents of any historical separator lines.
+
+`Souffle_RestartTrackSouffle` remains open. Retail places its timer,
+wind and count operations at +5/+7/+9 but attributes the epilogue to
++5. Source statement order is restored and byte-PASS; simple spacing
+alone does not explain that epilogue attribution, so no SLD seal is
+claimed for it.
+
+### TrgSfx_AddSkidmark native local/scope restoration (2026-10-04)
+
+Retail places `linvel`, `velXZ`, `slice` and `tireWidth` at root;
+`color` in the long skidmark region beginning at +0x50; `temp` in a
+short child region for intensity/color computation; `value` in the
+active-mark branch; `dx/dz` inside its segment-distance guard; and
+`dist/MaxDist` one level deeper. The former reconstruction declared
+all eleven locals at root and reused `temp` for a later status test.
+Ordinary compounds and use-site declarations now reproduce every
+retail named local home/depth/order and all ten native scopes. The
+later status tests read `gStatusSm[car][wheel]` directly; GCC still
+emits the same load/CSE sequence and no new named local is needed.
+
+`TrgSfx_AddSkidmark` remains 313/313 byte-PASS. The full
+`trgsfx.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0, PSYLINK zero
+errors and 10/11 native CLEAN (`run-_eayrd6j`). Only the separate
+zero-length `dir` scope in `TrgSfx_AddCarExtraSfx` remains DIRTY in
+this TU. `AddSkidmark` is not SLD-exact: instruction-line tags and
+the native +83 versus retail +98 end-line span remain open. The
+native-SYM seal is not used as an exemption from that source-line work.
+
+### TrgSfx_AddCarExtraSfx closes native-SYM TU (2026-10-04)
+
+Retail gives `TrgSfx_AddCarExtraSfx` two nested debug blocks at function
+entry and places stack `dir` in the inner one, even though both blocks
+have zero instruction extent. The wheel/splash helpers show the same
+`coorddef dir` source role inside their guarded regions. An ordinary
+compound around ExtraSfx's real mask/copy/adjust/store/call operations
+gives its `dir` the exact retail owner, home, type and scope tree;
+there is no empty dummy block or escaped out-of-lifetime pointer.
+The function stays 37/37 byte-PASS. Full `trgsfx.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 11/11 native CLEAN
+(`run-eao1gax5`), superseding the 10/11 intermediate count above.
+
+This is not a strict SLD seal: 31/37 instruction tags still differ,
+although the block-line records now match. The native end delta is +8
+versus retail +10; those source-line attribution gaps remain open.
+
+### TrgSfx_AddCarExtraSfx strict SLD seal (2026-10-04)
+
+Retail tags the mask, vector copy, y adjustment, timestamp store and
+`Souffle_Add` call to source regions +2/+5/+6/+8/+10. Placing those
+unchanged real statements at the SLD-indicated lines inside the
+retail-owned `dir` compound, with implicit void fallthrough, keeps
+all 37 machine instructions byte-identical and reproduces all linked
+instruction tags, block lines and the +10 function-end delta.
+The final `trgsfx.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 11/11 native CLEAN (`run-vfdvlrri`).
+GAME/COMMON strict SLD coverage rises 272 -> 273 of 1247. This
+supersedes the preceding intermediate SLD residual; it proves a
+line-equivalent source layout, not the literal historical text of the
+unresolved separator lines.
+
+### TrgSfx_AddCarExtraCheck strict SLD seal (2026-10-04)
+
+Retail tags the car mask at header+2 and every instruction of the
+boolean return expression at +4, while its one block closes at +3.
+An SLD-indicated separator after the opening brace and a multiline
+`return`/expression source region reproduce that map without changing
+the expression or adding code. All 15 instructions remain byte-PASS;
+the linked comparison has zero tag differences and matching block/end
+lines. Full `trgsfx.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 11/11 native CLEAN (`run-0vyh8re9`).
+This is a line-equivalent source restoration, not proof of the literal
+historical whitespace. GAME/COMMON strict SLD coverage rises
+273 -> 274 of 1247.
+
+### TrgSfx_AddCarSfx and AddEnviroEffect strict SLD seals (2026-10-04)
+
+Both guarded Souffle wrappers have the same retail statement regions:
+the masked index at +2, the timing guard at +4, timestamp store at +6,
+and `Souffle_Add` call plus epilogue at +8. The reconstruction had the
+same operations but a compressed +1/+2/+3/+4 line map and redundant
+explicit return. Placing those real statements in the SLD-indicated
+regions with implicit void fallthrough retains 27/27 and 26/26 byte
+PASS respectively. Each now has zero linked instruction-tag differences
+and matching root-block/end lines. Full `trgsfx.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 11/11 native CLEAN
+(`run-nsoo2j61`). GAME/COMMON strict SLD coverage rises
+274 -> 276 of 1247. This verifies line-equivalent source regions, not
+the literal historical separator text; the wheel/splash helpers have
+additional `dir` scopes and are not covered by this wrapper result.
+
+### TrgSfx wheel and splash strict SLD seals (2026-10-04)
+
+The independently checked retail traces of `TrgSfx_AddCarWheelSfx`
+and `TrgSfx_AddCarSplash` both tag the mask, guard, `dir` copy,
+paired x/z scaling, timestamp and Souffle call at relative lines
++2/+4/+6/+7/+9/+11. They also place `dir`'s child block start at
++6 and all three closes at +12. Keeping the real statements in those
+regions, with the `if` brace on its own line, paired scaling on one
+line and implicit void fallthrough, reproduces every instruction tag,
+block line and end delta without adding an operation. The functions
+remain 44/44 and 45/45 byte-PASS. Full `trgsfx.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors and 11/11 native CLEAN
+(`run-at8610ga`). GAME/COMMON strict SLD coverage rises
+276 -> 278 of 1247. This is line-equivalent source placement, not
+a claim that the literal historical separator text is recoverable.
+
+### TrgSfx_CrashCar strict SLD seal (2026-10-04)
+
+Retail tags the smoke timing guard, timestamp, random guard, first
+Souffle call/motion update, and second call/motion update at source
+regions +4/+6/+8/+10/+12/+15/+17. The reconstruction already had
+that semantic statement order. Placing those real operations at the
+SLD-indicated regions with implicit void fallthrough gives zero linked
+tag differences across all 43 byte-PASS instructions, an exact root
+block close at +18 and exact function-end delta +17. Full
+`trgsfx.cpp` symloop remains BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 11/11 native CLEAN (`run-p2bk0fph`).
+GAME/COMMON strict SLD coverage rises 278 -> 279 of 1247. As with
+the neighboring wrappers, this verifies a line-equivalent source
+layout without claiming that the exact historical separator text is
+recoverable.
+
+### TrgSfx_InitTrgSfx strict SLD seal (2026-10-04)
+
+Retail tags the timer initialization at source +1 and the smoke
+timestamp at +3. An initialized `t` declaration reproduces that
+early timer tag while preserving the SYM `i/j/t` local order and all
+54 retail instructions. The nested reset loop's retail line regions
+then run from outer-loop +5 and inner-loop +10 through stores
++13/+14/+16/+18/+19/+20/+21, loop closes +22/+23, delay +25,
+and the communication-mode guard/store plus epilogue +26. Placing
+the unchanged real statements in those regions, with the final guard
+and store on one line and implicit void fallthrough, makes every
+linked instruction tag, the root block close at +27 and the +26 end
+delta exact. Full `trgsfx.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 11/11 native CLEAN
+(`run-cmovve7r`). GAME/COMMON strict SLD coverage rises
+279 -> 280 of 1247. The trace validates source-region placement,
+not the literal content of the historical separator lines.
+
+### GetPlaneY strict SLD seal; Scene_PurgeScene source gap (2026-10-04)
+
+Retail `GetPlaneY` assigns all three plane-normal `fixedmult` calls to
+source line +3, both test-point multiplies and numerator arithmetic to
++8, and `fixeddiv` plus the epilogue to +11. The old single nested
+return expression did not preserve those two later source regions.
+A `const int numerator` source value separates the test-point arithmetic
+from the final divide; GCC elides its native debug row and preserves
+all 42 instructions. Placing the three real statements at the
+SLD-indicated regions yields zero linked tag differences, exact root
+block lines and the +11 end delta. Full `scene.cpp` symloop is BYTES
+UNCHANGED, ASPSX 524/0, PSYLINK zero errors (`run-t6r_wrpg`), with
+5/6 native CLEAN; `Scene_BuildCustomSceneList` remains DIRTY for its
+two unexplained scopes. GAME/COMMON strict SLD coverage rises
+280 -> 281 of 1247. The debug-elided value's semantic role is
+verified, but its literal historical identifier is not.
+
+`Scene_PurgeScene` was also inspected. Retail has a nine-line source
+span between the guarded purge and `Object_ClearCustomObjects` call
+that neither its 13 instructions nor the available sibling sources
+identify. No blank-line filler or invented disabled code was inserted;
+its SLD source-region content remains an explicit backlog item.
+
+### Scene_LoadSceneFile strict SLD seal (2026-10-04)
+
+Retail attributes `Object_ClearCustomObjects` to source +1, the
+archive-path `sprintf`/`FILE_addbigsync` pair to +8/+9, the scene
+filename `sprintf` to +14, the scene pointer reset/load to +18/+19,
+`FILE_delbigsync` to +21 and the epilogue to +26. Moving the first
+call ahead of the root declarations is byte-neutral and retains the
+retail `fname`/`bigFile` native local records. Placing the unchanged
+file operations in those distinct SLD source regions gives 0/36
+linked instruction-tag differences, exact block lines and the +26
+function-end delta. Full `scene.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors (`run-baz5t8pj`), 5/6 native CLEAN;
+`Scene_BuildCustomSceneList` remains the sole native-SYM DIRTY
+function in the TU. GAME/COMMON strict SLD coverage rises
+281 -> 282 of 1247. The line-equivalent layout does not prove the
+literal historical text of its separator regions.
+
+### TextSys native-CLEAN and seven strict SLD functions (2026-10-04)
+
+The fail-closed `textsys.cpp` byte reference was stale after the
+committed SYM-owned removal of the unreferenced `SimpleMem` tag. It
+still contained that 12-byte padded `.rodata` prefix and corresponding
+shifted language-name pointer offsets, whereas unchanged current
+source does not. The 566-byte old reference is preserved at
+`scratchpad/textsys_symloop_ref_before_tag_removal_20261004.text`;
+a fresh reference and layout companion were recorded from unchanged
+source before the edits below.
+
+`TextSys_LoadWords` and `TextSys_UnloadWords` now use implicit void
+fallthrough and an SLD-constrained guarded-purge close, respectively;
+both 10-word bodies have exact instruction tags, block lines and ends.
+The four word-table accessors retain their SYM/NFS2-sourced local names.
+Moving explanatory reconstruction comments outside their function
+bodies restores the +4 address-formation regions for all four. The
+`Word` and `WordFlags` tails are then exact at +5/+6; `WordX` and
+`WordY` place the coordinate load/epilogue at retail +9. All four
+8-word bodies and their block/end records are strict SLD-exact.
+`TextSys_LoadInGame` loses a redundant blank/return source region and
+is likewise strict SLD-exact at 19/19. These seven seals preserve
+all bytes and native local records.
+
+`TextSys_LoadWordsGeneric` is not sealed. Moving two reconstruction
+notes outside its body and reconciling the guarded purge, `sprintf`
+and `loadfileadr` statement regions leaves only five epilogue tags
+at native +10 versus retail +11; its block close already matches +11.
+An explicit return outside the guard moved the block close to +12;
+a return inside kept the epilogue at +10. A compact shared-line return
+gave exact instruction tags but also closed the root at +12. All
+three were byte-PASS but not strict SLD solutions and were reverted.
+The remaining source construct is an explicit backlog item, not an
+exemption.
+
+Final `textsys.cpp` symloop is BYTES UNCHANGED, ASPSX 524/0,
+PSYLINK zero errors and 8/8 native CLEAN (`run-bafuvu86`).
+GAME/COMMON strict SLD coverage rises 282 -> 289 of 1247. No
+compiler-output rewrite, ASM, fabricated local, or dummy operation
+was retained.
+
+### TrgSfx_AddSkidmark SLD body and block-tree restoration (2026-10-04)
+
+The root locals now initialize at their use sites without changing
+the 313-word body or their retail REG homes. The source regions for
+the tire-width choice, color intensity and grouped RGB stores,
+skidpoint translation, status/end guards, first-mark setup, stretch
+and add calls, segment-distance computation, and final stretch/add
+paths have been reconciled against the per-instruction retail SLD.
+In particular, defaulting `MaxDist` to 0xc000 and conditionally
+overriding it to 0x3000 reproduces the retail +64/+65 branch tags;
+an explicit two-arm tire-width assignment gives the back-wheel load
+its separate +7 tag. Ordinary brace placement also matches all ten
+retail block-line records and named local owners.
+
+The linked comparison now has 308/313 exact instruction tags, down
+from 12/313 in the earlier `AddSkidmark` source. The only five
+differences are the common epilogue words at +0x4d0..+0x4e0:
+native line +92 versus retail +98, with the same end-line delta gap.
+An explicit `return;` inside or outside the color region kept the
+bytes but moved outer scope closes away from retail; both trials were
+reverted. No dummy no-op or fabricated label was retained to force
+an epilogue line. Full `trgsfx.cpp` symloop is BYTES UNCHANGED,
+ASPSX 524/0, PSYLINK zero errors and 11/11 native CLEAN
+(`run-z7w93gsy`); `AddSkidmark` itself remains 313/313 byte-PASS.
+This is a nearly complete function-level SYM/SLD representation,
+not a strict SLD seal or proof of literal historical separator text.

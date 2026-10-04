@@ -290,7 +290,6 @@ void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)
 
 {
   *out = *(output + pIndex);
-  return;
 }
 
 /* ---- SimQueue_SetLag__Fv  [SIMQUEUE.CPP:326-407] SLD-VERIFIED ---- */

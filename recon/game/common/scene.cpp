@@ -29,7 +29,6 @@ void Scene_Init(int numObjDefs)
   if (0 < numObjDefs) {
     gGameSceneList = (CSceneList *)0x0;
   }
-  return;
 }
 
 /* ---- Scene_DeInit__Fv  [SCENE.CPP:1029-1030] ----
@@ -50,21 +49,21 @@ void Scene_PurgeScene(void)
   return;
 }
 
-/* ---- Scene_BuildCustomSceneList__Fv  [SCENE.CPP:1059-1107] SLD-VERIFIED ---- */
+/* ---- Scene_BuildCustomSceneList__Fv  [SCENE.CPP:1059-1107]
+ * SYM named-local ownership restored; two retail scopes and SLD lines remain open. ---- */
 int Scene_BuildCustomSceneList(void)
 
 {
   int slice;
-  SceneElem *se;
-  int i;
   
   Object_ClearCustomObjects();
   slice = -1;
   if (gGameSceneList != (CSceneList *)0x0) {
+    SceneElem *se;
     se = (SceneElem *)(gGameSceneList + 1);
     slice = gGameSceneList->slice_;
     Object_customSliceNum = slice;
-    for (i = 0; i < gGameSceneList->numElements_; se++, i++) {
+    for (int i = 0; i < gGameSceneList->numElements_; se++, i++) {
       if (se->type < 3) {
         if (-1 < se->type) {
           Object_AddCustomObject(se,1);
@@ -75,35 +74,55 @@ int Scene_BuildCustomSceneList(void)
   return slice;
 }
 
-/* ---- Scene_LoadSceneFile__Fi  [SCENE.CPP:1111-1137] SLD-VERIFIED ---- */
+/* ---- Scene_LoadSceneFile__Fi  [SCENE.CPP:1111-1137]
+ * Native SYM and linked SLD exact; all 36 retail instructions preserved. ---- */
 void Scene_LoadSceneFile(int sceneFileIndex)
 
 {
+  Object_ClearCustomObjects();
   char fname [128];
   int bigFile;
-  
-  Object_ClearCustomObjects();
   bigFile = 0;
+
+
+
   sprintf(fname,"%sscene.viv",Paths_Paths[6]);
   FILE_addbigsync(fname,(void *)0x10,100,&bigFile);
+
+
+
+
   sprintf(fname,"tr%02d%02d.scn",SCENE_TRACK,sceneFileIndex);
+
+
+
   gGameSceneList = (CSceneList *)0x0;
   gGameSceneList = (CSceneList *)loadfileadr(fname,0);
+
   FILE_delbigsync((char *)bigFile,(void *)0x64);
+
+
+
+
   return;
 }
 
-/* ---- GetPlaneY__FPC8coorddefN20  [SCENE.CPP:1142-1153] SLD-VERIFIED ---- */
+/* ---- GetPlaneY__FPC8coorddefN20  [SCENE.CPP:1142-1153]
+ * Native SYM and linked SLD exact; numerator source value is debug-elided. ---- */
 int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *testPoint)
 
 {
   int D;
 
-  D = -(fixedmult(norm->x,pointOnPlane->x) +
-        fixedmult(norm->y,pointOnPlane->y) +
-        fixedmult(norm->z,pointOnPlane->z));
-  return fixeddiv(-(fixedmult(norm->x,testPoint->x) +
-                    fixedmult(norm->z,testPoint->z) + D),norm->y);
+  D = -(fixedmult(norm->x,pointOnPlane->x) + fixedmult(norm->y,pointOnPlane->y) + fixedmult(norm->z,pointOnPlane->z));
+
+
+
+
+  const int numerator = -(fixedmult(norm->x,testPoint->x) + fixedmult(norm->z,testPoint->z) + D);
+
+
+  return fixeddiv(numerator,norm->y);
 }
 
 /* end of scene.cpp */

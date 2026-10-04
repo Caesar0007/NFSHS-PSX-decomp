@@ -39,7 +39,6 @@ void AIScript_Startup(AIScript_t *script)
   script->reaction = 1;
   AIScript_ClearLastReactionIndex(script);
   script->lastActionTime = 0;
-  return;
 }
 
 /* ---- AIScript_Cleanup__Fv  [@0x8006f760] ---- */
@@ -68,22 +67,22 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
   AIScript_tReactionDetails (*scriptData) [7];
   int go;
-  /* SYM-CODEGEN-CARRIER: one -- direct literal 1 usage adds one instruction
+  /* SYM-CODEGEN-CARRIER: reactionSeedMask -- direct literal 1 usage adds one instruction
      and changes constant/table allocation to 47 diffs. */
-  int one;
-  /* SYM-CODEGEN-CARRIER: seven -- direct literal 7 stores remove one
+  int reactionSeedMask;
+  /* SYM-CODEGEN-CARRIER: noActionIndex -- direct literal 7 stores remove one
      instruction and change constant allocation/control flow to 15 diffs. */
-  int seven;
-  /* SYM-CODEGEN-CARRIER: two -- direct literal 2 preserves 90 instructions
+  int noActionIndex;
+  /* SYM-CODEGEN-CARRIER: reactionBitTwo -- direct literal 2 preserves 90 instructions
      but changes shift selection and comparison allocation to eight diffs. */
-  int two;
+  int reactionBitTwo;
   int *lastReactionIndex;
-  /* SYM-CODEGEN-CARRIER: new_var2 -- spelling (*scriptData) directly preserves
+  /* SYM-CODEGEN-CARRIER: reactionTable -- spelling (*scriptData) directly preserves
      90 instructions but changes table-base/constant allocation to 24 diffs. */
-  AIScript_tReactionDetails *new_var2;
-  /* SYM-CODEGEN-CARRIER: new_var -- assigning *lastReactionIndex directly
+  AIScript_tReactionDetails *reactionTable;
+  /* SYM-CODEGEN-CARRIER: storedReactionIndex -- assigning *lastReactionIndex directly
      preserves all 90 instructions but moves one store, yielding two diffs. */
-  unsigned int new_var;
+  unsigned int storedReactionIndex;
   AIScript_tAIReaction newReaction;
   int newTime;
 
@@ -96,29 +95,29 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
       script->detectAction = 7;
       script->reactionTicksLeft = 0;
       lastReactionIndex = script->lastReactionIndex + script->actionIndex;
-      new_var = *lastReactionIndex;   /* load cached early (oracle order) */
-      one = (script->reaction = 1);   /* reuse the stored 1 (oracle's move t2,t1) */
-      seven = 7;
-      two = 2;
-      script->reactionIndex = new_var;
-      new_var2 = *scriptData;
+      storedReactionIndex = *lastReactionIndex;   /* load cached early (oracle order) */
+      reactionSeedMask = (script->reaction = 1);   /* reuse the stored 1 (oracle's move t2,t1) */
+      noActionIndex = 7;
+      reactionBitTwo = 2;
+      script->reactionIndex = storedReactionIndex;
+      reactionTable = *scriptData;
      loopTop:
       if (go != 0) {
         if ((script->reactionIndex + 1 < 4) &&
-           ((newReaction = one << (unsigned char)new_var2[script->actionIndex].reaction[script->reactionIndex + 1]) != two)) {
+           ((newReaction = reactionSeedMask << (unsigned char)reactionTable[script->actionIndex].reaction[script->reactionIndex + 1]) != reactionBitTwo)) {
           script->reactionIndex = script->reactionIndex + 1;
           do { *lastReactionIndex = *lastReactionIndex + 1; } while (0);  /* block scope nudges gcc's store scheduling to match */
         }
-        newReaction = one << (unsigned char)new_var2[script->actionIndex].reaction[script->reactionIndex];
+        newReaction = reactionSeedMask << (unsigned char)reactionTable[script->actionIndex].reaction[script->reactionIndex];
         script->reaction = script->reaction | newReaction;
-        newTime = (unsigned char)new_var2[script->actionIndex].halfSeconds[script->reactionIndex];
+        newTime = (unsigned char)reactionTable[script->actionIndex].halfSeconds[script->reactionIndex];
         if (newTime != 0) {
           script->reactionTicksLeft = newTime << 4;
           go = 0;
         }
-        if (script->reaction == one) {
-          script->actionIndex = seven;
-          script->detectAction = seven;
+        if (script->reaction == reactionSeedMask) {
+          script->actionIndex = noActionIndex;
+          script->detectAction = noActionIndex;
         }
         goto loopTop;
       }

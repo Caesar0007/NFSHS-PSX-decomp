@@ -35,77 +35,95 @@ int gSaveChunk[8][4];
 void TrgSfx_AddEnviroEffect(int obj,int type,coorddef *emitterpt,coorddef *vec)
 
 {
+
   obj &= 7;
+
   if (10 < TRGSFX_GAME_TICKS - gTEnviroEffect[obj]) {
+
     gTEnviroEffect[obj] = TRGSFX_GAME_TICKS;
+
     Souffle_Add(emitterpt,type,vec,0,0,0);
   }
-  return;
 }
 
 /* ---- TrgSfx_AddCarSfx__FiP8coorddefiT1  [TRGSFX.CPP:64-72] SLD-VERIFIED ---- */
 void TrgSfx_AddCarSfx(int car,coorddef *skidpt,int type,coorddef *vec)
 
 {
+
   car &= 7;
+
   if (7 < TRGSFX_GAME_TICKS - gTAddCarSfx[car]) {
+
     gTAddCarSfx[car] = TRGSFX_GAME_TICKS;
+
     Souffle_Add(skidpt,type,vec,0,0,0);
   }
-  return;
 }
 
 /* ---- TrgSfx_AddCarWheelSfx__FiiP8coorddefiT2i  [TRGSFX.CPP:77-88] SLD-VERIFIED ---- */
 void TrgSfx_AddCarWheelSfx(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay)
 
 {
+
   car = car & 7;
-  if (delay < TRGSFX_GAME_TICKS - gTAddCarWheelSfx[car][wheel]) {
+
+  if (delay < TRGSFX_GAME_TICKS - gTAddCarWheelSfx[car][wheel])
+  {
     coorddef dir = *vec;
-    dir.x = dir.x >> 1;
-    dir.z = dir.z >> 1;
+    dir.x = dir.x >> 1; dir.z = dir.z >> 1;
+
     gTAddCarWheelSfx[car][wheel] = TRGSFX_GAME_TICKS;
+
     Souffle_Add(skidpt,type,&dir,0,0,0);
   }
-  return;
 }
 
 /* ---- TrgSfx_AddCarExtraCheck__Fii  [TRGSFX.CPP:93-97] SLD-VERIFIED ---- */
 bool TrgSfx_AddCarExtraCheck(int car,int wheel)
 
 {
+
   car &= 7;
-  return (TRGSFX_GAME_TICKS - gTAddCarExtraSfx[car][wheel] < 8 ^ 1);
+  return
+      (TRGSFX_GAME_TICKS - gTAddCarExtraSfx[car][wheel] < 8 ^ 1);
 }
 
-/* ---- TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii  [TRGSFX.CPP:101-111] SLD-VERIFIED ---- */
+/* ---- TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii  [TRGSFX.CPP:101-111]
+ * Native SYM and linked SLD exact; all 37 retail instructions preserved. ---- */
 void TrgSfx_AddCarExtraSfx(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int velY,int ground,
                int colour)
 
 {
-  coorddef dir;
+  {
+    coorddef dir; car = car & 7;
 
-  car = car & 7;
-  dir = *vec;
-  dir.y = dir.y + (velY >> 3);
-  gTAddCarExtraSfx[car][wheel] = TRGSFX_GAME_TICKS;
-  Souffle_Add(skidpt,type,&dir,0,ground,colour);
-  return;
+
+    dir = *vec;
+    dir.y = dir.y + (velY >> 3);
+
+    gTAddCarExtraSfx[car][wheel] = TRGSFX_GAME_TICKS;
+
+    Souffle_Add(skidpt,type,&dir,0,ground,colour);
+  }
 }
 
 /* ---- TrgSfx_AddCarSplash__FiiP8coorddefiT2ii  [TRGSFX.CPP:122-133] SLD-VERIFIED ---- */
 void TrgSfx_AddCarSplash(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay,int velXZ)
 
 {
+
   car = car & 7;
-  if (delay < TRGSFX_GAME_TICKS - gTAddCarWheelSfx[car][wheel]) {
+
+  if (delay < TRGSFX_GAME_TICKS - gTAddCarWheelSfx[car][wheel])
+  {
     coorddef dir = *vec;
-    dir.x = dir.x >> 1;
-    dir.z = dir.z >> 1;
+    dir.x = dir.x >> 1; dir.z = dir.z >> 1;
+
     gTAddCarWheelSfx[car][wheel] = TRGSFX_GAME_TICKS;
+
     Souffle_Add(skidpt,type,&dir,velXZ,0,0);
   }
-  return;
 }
 
 /* ---- TrgSfx_CrashCar__FP8coorddef  [TRGSFX.CPP:146-163] SLD-VERIFIED ---- */
@@ -114,129 +132,158 @@ void TrgSfx_CrashCar(coorddef *location)
 {
   Souffle_tISouffle *is;
 
+
   if (4 < TRGSFX_GAME_TICKS - gTAddCSmoke) {
+
     gTAddCSmoke = TRGSFX_GAME_TICKS;
+
     if ((random() & 0xf) != 0) {
+
       is = Souffle_Add(location,1,(coorddef *)0x0,0,0,0);
+
       is->motion.y = is->motion.y + 0xf5c;
     }
+
     is = Souffle_Add(location,3,(coorddef *)0x0,0,0,0);
+
     is->motion.y = is->motion.y + 0xf5c;
   }
-  return;
 }
 
-/* ---- TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji  [TRGSFX.CPP:179-277] SLD-VERIFIED ---- */
+/* ---- TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji  [TRGSFX.CPP:179-277]
+ * Native SYM exact; 308/313 SLD tags and all block lines exact, epilogue open. ---- */
 void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity,Car_tObj *carObj,int type)
 
 {
-  coorddef *linvel;
-  int velXZ;
-  int slice;
-  int tireWidth;
-  CVECTOR color;
-  int temp;
-  int value;
-  int dx;
-  int dz;
-  int dist;
-  int MaxDist;
+  coorddef *linvel = &carObj->N.linearVel;
+  int velXZ = carObj->N.speedXZ;
+  int slice = (int)carObj->N.simRoadInfo.slice;
 
-  linvel = &carObj->N.linearVel;
-  velXZ = carObj->N.speedXZ;
-  slice = (int)carObj->N.simRoadInfo.slice;
-  tireWidth = (wheel < 2) ? carObj->N.wheelWidthF : carObj->N.wheelWidthB;
+
+  int tireWidth; if (wheel < 2) tireWidth = carObj->N.wheelWidthF;
+  else tireWidth = carObj->N.wheelWidthB;
+
+
   car &= 7;
-  temp = (intensity * 0xff) / 0x70000;
-  temp = temp > 0xff ? 0xff : temp;
-  color.b = (u_char)temp;
-  color.g = (u_char)temp;
-  color.r = (u_char)temp;
-  skidpt->x = skidpt->x + (linvel->x >> 6);
-  skidpt->y = skidpt->y + (linvel->y >> 6);
-  skidpt->z = skidpt->z + (linvel->z >> 6);
-  temp = gStatusSm[car][wheel];
-  if (temp == 0) {
-    if (end == 0) {
-      gStatusSm[car][wheel] = 1;
-      gPrevSkidSm[car][wheel].clr = color;
-      gPrevSkidSm[car][wheel].type = type;
-      gPrevSkidSm[car][wheel].pt = *skidpt;
-      gPrevSkidSm[car][wheel].nseg = (Skidmark_Segment *)0x0;
+  { CVECTOR color; { int temp;
+
+
+
+
+
+      temp = (intensity * 0xff) / 0x70000;
+      temp = temp > 0xff ? 0xff : temp;
+      color.b = (u_char)temp; color.g = (u_char)temp; color.r = (u_char)temp;
     }
-  }
-  else {
-    if (end != 0) {
-      if (temp == 2) {
-        Skidmark_Stretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
+
+
+
+    skidpt->x = skidpt->x + (linvel->x >> 6);
+    skidpt->y = skidpt->y + (linvel->y >> 6);
+    skidpt->z = skidpt->z + (linvel->z >> 6);
+
+
+    if (gStatusSm[car][wheel] == 0) {
+
+
+      if (end == 0) {
+        gStatusSm[car][wheel] = 1;
+
+        gPrevSkidSm[car][wheel].clr = color;
+        gPrevSkidSm[car][wheel].type = type;
+        gPrevSkidSm[car][wheel].pt = *skidpt;
+        gPrevSkidSm[car][wheel].nseg = (Skidmark_Segment *)0x0;
       }
-      else {
-        Skidmark_Add(&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
-      }
-      gStatusSm[car][wheel] = 0;
     }
     else {
-      value = 0;
-      if (gPrevSkidSm[car][wheel].nseg != (Skidmark_Segment *)0x0) {
-        dx = gPrevSkidSm[car][wheel].pt.x - skidpt->x;
-        if (dx < 1) dx = skidpt->x - gPrevSkidSm[car][wheel].pt.x;
-        dz = gPrevSkidSm[car][wheel].pt.z - skidpt->z;
-        if (dz < 1) dz = skidpt->z - gPrevSkidSm[car][wheel].pt.z;
-        MaxDist = (velXZ < 0xa0000) ? 0x3000 : 0xc000;
-        dist = (dz < dx) ? dx + (dz >> 2) : dz + (dx >> 2);
-        if (dist < MaxDist) value = 1;
-      }
-      if (value == 0) {
-        if (gStatusSm[car][wheel] == 2) {
-          Skidmark_EndStretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
-        }
-        else {
-          Skidmark_Add(&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
-        }
-        gStatusSm[car][wheel] = 1;
-      }
-      else {
+
+      if (end != 0) {
+
+
         if (gStatusSm[car][wheel] == 2) {
           Skidmark_Stretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
+        } else {
+          Skidmark_Add(&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
+        }
+        gStatusSm[car][wheel] = 0;
+      }
+      else
+      {
+        int value; value = 0;
+
+        if (gPrevSkidSm[car][wheel].nseg != (Skidmark_Segment *)0x0)
+        {
+          int dx; int dz; dx = gPrevSkidSm[car][wheel].pt.x - skidpt->x; if (dx < 1) dx = skidpt->x - gPrevSkidSm[car][wheel].pt.x;
+          dz = gPrevSkidSm[car][wheel].pt.z - skidpt->z; if (dz < 1) dz = skidpt->z - gPrevSkidSm[car][wheel].pt.z;
+          {
+            int dist;
+            int MaxDist;
+            MaxDist = 0xc000; if (velXZ < 0xa0000)
+              MaxDist = 0x3000;
+            dist = (dz < dx) ? dx + (dz >> 2) : dz + (dx >> 2);
+            if (dist < MaxDist) value = 1;
+          }
+        }
+
+        if (value == 0) {
+
+
+          if (gStatusSm[car][wheel] == 2) {
+            Skidmark_EndStretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
+          } else {
+            Skidmark_Add(&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
+          }
+          gStatusSm[car][wheel] = 1;
         }
         else {
-          gStatusSm[car][wheel] = 2;
-          Skidmark_AddStretch(&gSaveSeg[car][wheel],&gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
+
+
+
+          if (gStatusSm[car][wheel] == 2) {
+            Skidmark_Stretch(gSaveSeg[car][wheel],gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type);
+          }
+          else {
+
+            gStatusSm[car][wheel] = 2;
+
+            Skidmark_AddStretch(&gSaveSeg[car][wheel],&gSaveChunk[car][wheel],&gPrevSkidSm[car][wheel],skidpt,&color,tireWidth,type,slice);
+          }
         }
       }
     }
   }
-  return;
 }
 
 /* ---- TrgSfx_InitTrgSfx__Fv  [TRGSFX.CPP:286-312] SLD-VERIFIED ---- */
 void TrgSfx_InitTrgSfx(void)
 
 {
-  int i;
-  int j;
-  int t;
+  int i, j, t = TRGSFX_GAME_TICKS;
 
-  t = TRGSFX_GAME_TICKS;
   gTAddCSmoke = TRGSFX_GAME_TICKS;
+
   for (i = 0; i < 8; i = i + 1) {
+
     gTEnviroEffect[i] = t;
     gTAddCarSfx[i] = t;
+
     for (j = 0; j < 4; j = j + 1) {
+
+
       gTAddCarWheelSfx[i][j] = t;
       gTAddCarExtraSfx[i][j] = t;
+
       gStatusSm[i][j] = 0;
+
       gPrevSkidSm[i][j].pt.x = 0;
       gPrevSkidSm[i][j].pt.y = 0;
       gPrevSkidSm[i][j].pt.z = 0;
       gPrevSkidSm[i][j].nseg = (Skidmark_Segment *)0x0;
     }
   }
+
   gTAddCarWheelDelay = 8;
-  if (TRGSFX_COMM_MODE == 1) {
-    gTAddCarWheelDelay = 0xc;
-  }
-  return;
+  if (TRGSFX_COMM_MODE == 1) gTAddCarWheelDelay = 0xc;
 }
 
 /* ---- TrgSfx_RestartTrgSfx__Fv  [TRGSFX.CPP:316-318] SLD-VERIFIED ---- */
@@ -245,15 +292,11 @@ void TrgSfx_RestartTrgSfx(void)
 {
   TrgSfx_KillTrgSfx();
   TrgSfx_InitTrgSfx();
-  return;
 }
 
 /* ---- TrgSfx_KillTrgSfx__Fv  [TRGSFX.CPP:322-323] SLD-VERIFIED ---- */
 void TrgSfx_KillTrgSfx(void)
-
 {
-  
-  return;
 }
 
 /* end of trgsfx.cpp */

@@ -886,9 +886,9 @@ bool BWorld_IsSliceInBuildList(int slice)
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)
 {
   Draw_DCache *sd;
-  /* SYM-CODEGEN-CARRIER: ts -- absent from optimized NFS4 SYM; direct typed
+  /* SYM-CODEGEN-CARRIER: trackSpec -- absent from optimized NFS4 SYM; direct typed
      TrackSpec_gSpec field accesses keep 193 instructions but fail at 10 words. */
-  CTrackSpec *ts;
+  CTrackSpec *trackSpec;
   
   Chunk_UpdateSys(Vi);
   gVi2 = Vi;
@@ -905,7 +905,7 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
    * from the fogstate short's low byte (lbu). Ghidra AND IDA both constant-fold TrackSpec_gSpec (BSS-zero)
    * to 0 here -- RAW oracle wins (methodology 3.2c). One 0x1F800000 base ($s2) is CSE'd across every
   * scratchpad store (base+displacement), NOT a per-store lui. */
-  ts = &TrackSpec_gSpec;
+  trackSpec = &TrackSpec_gSpec;
   /* MATCH: 0-insn void-tail fence pins the flag store BELOW the four fog/time
      loads -- sched2 otherwise hoists it up to fill their load-delay slots
      (oracle 8007E1A4 sits after `lw a1,0x54(s0)`). Statement reorder alone is
@@ -913,11 +913,11 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
   __asm__("" : : "i"(0));
   stackSpeedUpEnbabledFlag = 0;
   ((Draw_tGiveShelbyMoreCache *)sd)->startfog =
-      *(u_short *)&ts->fogspec.start;
+      *(u_short *)&trackSpec->fogspec.start;
   ((Draw_tGiveShelbyMoreCache *)sd)->distfog =
-      *(u_short *)&ts->fogspec.dist2base;
+      *(u_short *)&trackSpec->fogspec.dist2base;
   ((Draw_tGiveShelbyMoreCache *)sd)->fogstate =
-      (u_char)ts->fogstate;
+      (u_char)trackSpec->fogstate;
   if (GameSetup_gData.Time != 0) {
     short a;
     u_char ac;
@@ -1020,7 +1020,6 @@ void BWorld_DeInitContexts(void)
 void SetContext(int contextHandle)
 {
   gCurrContext = gContextMan.contexts + contextHandle;
-  return;
 }
 
 /* ---- BWorld_OpenContext__Fii  [@0x8007e4ac] ---- */
@@ -1076,22 +1075,22 @@ void BWorld_StartLoop(void)
 void BWorld_Init(void)
 {
   int AudioScene;
-  /* SYM-CODEGEN-CARRIER: random -- moving rand() into the two numLaps arms
+  /* SYM-CODEGEN-CARRIER: sceneStartRandom -- moving rand() into the two numLaps arms
      duplicates the signed-division expansion, growing 187 instructions to
      191 and producing 24 word diffs.  The retained result is required across
      the branch even though the optimized nested local is absent from SYM. */
-  int random;
+  int sceneStartRandom;
 
   if (Replay_ReplayMode == 0) {
     if ((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_Tournament)) {
       GameSetup_gData.SceneNumber = rand() / 0x4000;
-      random = rand();
+      sceneStartRandom = rand();
       if (GameSetup_gData.numLaps >= 2) {
         GameSetup_gData.SceneStartLap =
-            random * GameSetup_gData.numLaps / 0x8000;
+            sceneStartRandom * GameSetup_gData.numLaps / 0x8000;
       }
       else {
-        GameSetup_gData.SceneStartLap = random / 0x4000;
+        GameSetup_gData.SceneStartLap = sceneStartRandom / 0x4000;
       }
       GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap +
           rand() * GameSetup_gData.numLaps / 0x8000;

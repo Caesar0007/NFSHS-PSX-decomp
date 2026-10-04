@@ -3423,44 +3423,24 @@ gte_SetTransMatrix((void *)0x1f800014);
       if ((visList == (short *)0x0) || ((((u_short)visList[objectIndex] >> 0xc ^ 1) & 1) == 0)) {
         objectOffset = offset;
         if (offset == 0) {
-          /* MATCH (w75-a6): 6 -> PASS.  THREE COUPLED PARTS, each measured alone
-             and each load-bearing (a 23B(1) joint cell, not three levers):
+          /* MATCH (w75-a6 -> pure C, DRAW 2026-10-04): THREE COUPLED PARTS, each
+             load-bearing (a joint cell):
              (1) INDEX TEMP FIRST -- `zo` is born ahead of the address;
-             (2) VOID FENCE between the index and the address materialization --
-                 an output-less (volatile) asm is a sched BARRIER (sched.c:1985
-                 ASM_OPERANDS w/ MEM_VOLATILE_P adds a dependence on every prior
-                 set + flush_pending_lists) AND a reorg stop_search_p barrier, so
-                 the `lui` can no longer float above the `lbu` nor be stolen into
-                 the `bnez`'s delay slot -- retail leaves that slot a `nop`;
-             (3) OPACITY LAUNDER on the pointer local -- `g` gets a SECOND SET, so
-                 loop.c's scan_loop never builds a movable for it (a movable needs
-                 n_times_set == 1, loop.c:779).  WITHOUT it the goffsets address is
-                 a loop invariant that loop.c HOISTS to the preheader -- the -dL
-                 dump for this fn reads
-                   `Insn 161: regno 115 (life 3), move-insn savings 2  moved to 521`
-                   `Insn 162: regno 114 (life 2), move-insn forces 161  moved to 523`
-                 (move_movables' gate `threshold*savings*lifetime >= insn_count`,
-                 loop.c:1640, with insn_count 141) -- and in the preheader it loses
-                 its register (all nine callee-saved are taken), so reload
-                 REMATERIALIZES it at the use into a spill-pool scratch.  THAT is
-                 the whole `lui $t0` the w50..w62 receipts below chased as a
-                 "find_free_reg window" / "post-sched1 birth order": the qty was
-                 never in local-alloc's hands at all.  Killing the movable makes it
-                 block-local and local-alloc hands it retail's $v1.
-             DEVICE-REMOVAL RE-TEST (23B(3)), all re-gated at this basin:
-               fence only, no pointer local, no launder .......... 10 (still hoisted)
-               fence + pointer local, no launder ................. 6 (still hoisted)
-               fence + launder, subscript form `g[zo]` ........... 2 (addu operand
-                                                                     order only)
-               fence + launder + index-term-first cast ........... PASS
-             The index-term-first cast is what flips `addu v0,v1,v0` to retail's
-             `addu v0,v0,v1`; the w61-a2 falsification of that same 12D spelling
-             was priced in the OLD (hoisted) basin -- 21E(1) re-pricing. */
+             (2) the address materialization sits in its own do{}while(0): the
+                 NOTE_INSN_LOOP_BEG/END pair is a sched barrier, so the `lui` can no
+                 longer float above the `lbu` nor be stolen into the `bnez` delay slot
+                 (retail leaves that slot a `nop`) -- this replaces the former void
+                 asm fence;
+             (3) `g` gets a SECOND SET (save/dead-set/restore, the W86-D2 idiom) so
+                 loop.c's scan_loop never builds a movable for it (n_times_set == 1,
+                 loop.c:779) -- without it the goffsets address is HOISTED to the
+                 preheader, loses its register and reload rematerializes it into
+                 `$t0` (FAIL 6).  Replaces the former opacity asm launder.
+             The index-term-first cast flips `addu v0,v1,v0` to retail's order. */
           { int zo = objInstance->zoffset; /* SYM-CODEGEN-CARRIER: zo -- index temp is one part of the measured PASS joint cell */
             signed char *g;               /* SYM-CODEGEN-CARRIER: g -- second SET prevents loop.c hoisting; removing it loses PASS */
-            __asm__("" : : "i"(0));
-            g = goffsets;
-            __asm__("" : "=r"(g) : "0"(g));
+            do { g = goffsets; } while (0);
+            { signed char *gg = g; g = 0; g = gg; }
             objectOffset = *(signed char *)(zo + (int)g); }
         }
         /* SYM block-scoping (line70/71 vs 95/107/114, all converging on the shared
@@ -3522,16 +3502,16 @@ gte_SetTransMatrix((void *)0x1f800014);
         }
       animNext:;
       }
-      objInstance = (Trk_SimpleInst *)((int)&objInstance->size + (int)objInstance->size);
-      /* MATCH (w49-a2): zero-insn scheduling fence.  The oracle's loop tail is
-         `lh v0,0(s0); nop; addu s0,s0,v0; j .Ltop; addiu s4,s4,1` -- it PAYS the
-         lh load-delay nop and spends the `j` slot on the counter increment.  Ours
-         hoisted the increment into the lh's delay slot and then had to put the
-         pointer advance in the `j` slot, landing 1 insn SHORT (188 vs 189).  The
-         w48 void-tail fence keeps the increment below the advance (count exact).
-         Falsified first: inc-before-advance, char*-advance, split-temp advance --
-         all byte-identical (sched2 refills the slot every time). */
-      __asm__("" : "=r"(objInstance) : "0"(objInstance));
+      /* MATCH (pure C, DRAW 2026-10-04; replaces the w49/w71 zero-insn opacity asm on
+         the walker): retail's tail is `lh v0; nop; addu walker,walker,v0; j top;
+         addiu idx,idx,1` -- it PAYS the lh load-delay nop and spends the `j` slot on
+         the counter.  Wrapping the advance in do{}while(0) puts a NOTE_INSN_LOOP_BEG/
+         END pair around it, a sched2 barrier that keeps the increment from being
+         hoisted into the lh delay slot; the same edit also restores the walker's
+         retail callee-saved register (the asm's second job). */
+      do {
+        objInstance = (Trk_SimpleInst *)((int)&objInstance->size + (int)objInstance->size);
+      } while (0);
       objectIndex = objectIndex + 1;
     }
   }
@@ -3902,75 +3882,12 @@ gte_SetTransMatrix(transMat);
     objectIndex = 0;
     while (1) {
       if (!(objectIndex < groupNumElements)) break;
-      __asm__("" : : "i"(0));
-      /* MATCH (w75-a6): 16 -> 6, count-EXACT 200/200.  RESIDUAL CLASS (A) BELOW
-         IS HALF-CLOSED: the `offsets` block's two block-local qtys are no longer
-         v0<->v1 swapped -- ours now has retail's address=$v1 / index=$v0 and the
-         only diffs left in the block are the EMISSION SLOTS of the two byte loads.
-         THE DIAL IS NOT BIRTH ORDER (the w74 reading) BUT QTY PRIORITY.  Splitting
-         the index into `zo` and OPACITY-LAUNDERING it (non-volatile, tied, zero
-         insns) puts +2 refs on the index qty, which lifts QTY_CMP_PRI (local-alloc.c
-         :1665, floor_log2(refs)*refs*size/live) above the address qty's, so the
-         index is allocated FIRST and takes $v0 by find_free_reg's ascending scan.
-         POSITION IS LOAD-BEARING: the launder must sit BEFORE the `tc5` load --
-         after it the same device gates 17 @201.
-         WHY NOT A VOLATILE (output-less) FENCE: sched.c:1985 makes a volatile asm
-         depend on every prior set and flush_pending_lists, so every later
-         register-setter gets a REG_DEP_OUTPUT on it while every memory reader gets
-         a plain data dep -- rank_for_schedule's class test (class 2 > class 1) then
-         puts the `lui` AHEAD of the `lbu` unconditionally.  That is exactly what
-         the loop-top void fence does here, and it is why every read-only-fence and
-         barrier-position probe below failed.  A non-volatile tied launder adds the
-         refs WITHOUT the dependence storm.
-         MEASURED THIS WAVE (all re-gated, all reverted unless noted):
-           plain `int zo` split / index-term-first cast / both ......... 16 (no move)
-           pointer local `signed char *g = offsets` (no launder) ....... 70 @200
-              (loop.c hoists it, reload remats it into $t2 -- the same movable
-               mechanism as DrawW_BuildObjectFacets' goffsets, see there)
-           pointer local + opacity launder ............................. 20 @202
-           loop-top fence deleted ..................................... 17 @199
-           loop-top fence -> non-volatile launder on objInstance ....... 16
-           loop-top fence moved after tc5 / after the lookup ........... 17 @201 / 20
-           `zo` + opacity launder AFTER the tc5 load ................... 17 @201
-           `zo` + opacity launder BEFORE the tc5 load (LANDED) ......... 6 @200
-           + laundered pointer local for the address (address-first
-             emission order, retail's) ................................ 5 @201 --
-              ONE LONG: retail fills the `lbu $v0,4($s4)` load-delay slot with the
-              type load, ours emits it after `li $v0,5` and pays a nop.  That basin
-              is the crisper NEXT ANGLE (one sched2 slot from count-exact + PASS
-              modulo class (B)); it is recorded in scratchpad/w75/d10.json.
-           class (B) re-price on BOTH new bases (21E(1)) ............... 44 / 45
-              -- reading `sz` through objCollideBoomInstance still costs, so the
-              deliberate `lh s2,32(s4)` trade below STANDS. */
-      /* ==== W76-A6 (2026-08-23): 6 -> PASS 200/200, ALL residual classes closed.
-         (1) The d10 basin (laundered pointer `g` + laundered `zo`) was ONE nop
-             long: the zo launder is ON THE DATAFLOW PATH (lbu zo -> asm -> addu),
-             so sched2 can never move it out of the zoffset load-delay slot and the
-             zero-byte asm EATS the slot (24D-4).  Every attempt to make the asm
-             depend on the type load (24D-4's named cure) dragged the QI operand
-             into the allocation and minted an `andi 255` / re-colored the block
-             (measured: tc5-before-launder 13, "r"(tc5) 11, "r"(load-expr) 65,
-             "r"((int)load-expr) 11 -- all @201).
-         (2) THE UNMEASURED CELL WINS: g laundered + PLAIN `int zo` split (no zo
-             device at all) = 2 @200/200.  In the g-basin the address qty already
-             has +2 refs from ITS OWN launder, so the index needs no boost; W75's
-             zo launder was only compensating for the address hoist that the g
-             launder now kills at the source (24E-8).  Retail emission order
-             (lui/addiu ; lbu zo ; [slot] lbu type ; addu ; li 5 ; lb) and retail
-             registers (address $v1, index $v0) both come out for free.
-         (3) With (2) landed, the class-(B) `lh s2,32(s4)` trade RE-PRICED (21E-1)
-             and FELL: sz through objCollideBoomInstance costs 44 alone, but with a
-             compensating OUT-OF-LOOP launder on objInstance (after
-             gte_SetTransMatrix, +2 unweighted refs keeping p95 above t1) the whole
-             fn is PASS -- see the two edits below.  Device-removal re-test: minus
-             loop-top fence 1 @199 (the empty-beqz-slot law), minus tail launder
-             45 @199, minus g launder 68 -- all three stay. */
-      { signed char *g; /* SYM-CODEGEN-CARRIER: g -- tied opacity prevents loop.c from hoisting the offsets base */
-        int zo; /* SYM-CODEGEN-CARRIER: zo -- split z-offset index preserves the retail load issue order */
-        g = offsets;
-        __asm__("" : "=r"(g) : "0"(g));
-        zo = objInstance->zoffset;
-        objectOffset = *(signed char *)(zo + (int)g); }
+      /* MATCH (DRAW 2026-10-04): the plain subscript is PASS 200/200 on the current
+         basin.  The former loop-top void fence, the laundered `g` pointer and the
+         split `zo` index (W75/W76 devices) are all stale here -- each removal and the
+         plain form re-gated PASS; the out-of-loop objInstance save/restore below is
+         the device that still carries the basin. */
+      objectOffset = offsets[objInstance->zoffset];
       if ((objInstance->type == 5) || (objInstance->type == 2)) {
         objDef = Track_gObjDefs[objInstance->pad];
         /* MATCH (w71-a1, rule-8): the SYM's `objCollideBoomInstance` ($s2) is a
@@ -4060,19 +3977,16 @@ gte_SetTransMatrix(transMat);
           anim->Draw(Vi,sd,objectOffset);
         }
       }
-      objInstance = (Trk_SimpleInst *)((int)objInstance + (int)objInstance->size);
-      /* MATCH (w71-a1): zero-insn OPACITY fence, doing two jobs at once.
-         (a) SCHEDULING: retail pays the `lh` load-delay nop, advances the walker,
-             and spends the `j` back-edge slot on the counter increment; without a
-             fence sched2 hoists the increment into the lh's delay slot and the
-             tail comes out one insn SHORT.
-         (b) ALLOCNO PRIORITY: it adds +2 REG_N_REFS on `objInstance` and the loop
-             weight doubles them, lifting it above `t1` in allocno_compare so it
-             takes retail's $s4 and t1 falls to $s5 (allocsim --what-if 95:refs=32
-             reproduces exactly that flip).  Paired with the out-of-loop fence at
-             the walker's init, which supplies the odd +2 the in-loop steps cannot
-             (in-loop fences move refs in steps of 2*depth -- w50-a2 law). */
-      __asm__("" : "=r"(objInstance) : "0"(objInstance));
+      /* MATCH (pure C, DRAW 2026-10-04; replaces the w49/w71 zero-insn opacity asm on
+         the walker): retail's tail is `lh v0; nop; addu walker,walker,v0; j top;
+         addiu idx,idx,1` -- it PAYS the lh load-delay nop and spends the `j` slot on
+         the counter.  Wrapping the advance in do{}while(0) puts a NOTE_INSN_LOOP_BEG/
+         END pair around it, a sched2 barrier that keeps the increment from being
+         hoisted into the lh delay slot; the same edit also restores the walker's
+         retail callee-saved register (the asm's second job). */
+      do {
+        objInstance = (Trk_SimpleInst *)((int)objInstance + (int)objInstance->size);
+      } while (0);
       objectIndex = objectIndex + 1;
     }
   }
@@ -4578,12 +4492,6 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     *(int *)0x1f800028 = 0;
 gte_SetTransMatrix(&DW_WORLDMAT);
     for (int objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
-      /* MATCH (source-only aid retirement, 1 -> PASS434): at this exact CFG
-         boundary the empty fence makes reorg reject the fall-through goffsets
-         `lui` as the loop-guard delay-slot filler.  It then copies the taken
-         return target's `addu v0,s7,zero`, including retail's branch retarget.
-         Zero emitted instructions; strict_branch is CLEAN for all 15 words. */
-      __asm__("" : : "i"(0));
       objectOffset = (int)goffsets[objInstance->zoffset];
       type = objInstance->type;
       /* MATCH: oracle is a CASCADE of separate ifs, not one fused ||/&& expression --

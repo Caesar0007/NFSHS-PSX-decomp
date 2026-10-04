@@ -749,8 +749,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
    * ~3)`) -- our `+ shapeIdx * -4` scales by -4 instead, a materially different (and wrong) value
    * feeding carObj->render.sub_otz, the depth-sort key used by DrawC_PrimStop/other OT-link code.
    * This was a genuine rendering-visible bug; both fixes are now APPLIED below. */
-#if defined(__mips__)
-  /* MATCH (w40-a3): this is a POINTER-FORM GTE store macro, not a bare `mfc2` read
+  /* MATCH (w40-a3; DRAW 2026-10-04 now via the lib/psx_gte.h PsyQ macro
+     gte_stszotz, same template text): this is a POINTER-FORM GTE store macro, not a bare `mfc2` read
      into a compiler pseudo -- the oracle @0x800BEDF4 is
        addiu $v0,$s3,0x40 ; mfc2 $t4,$19 ; nop ; sra $t4,$t4,2 ; sw $t4,0($v0)
      i.e. a fixed-$t4 scratch (the EA/PsyQ template family, cf. DRAWC_OTLINK_* above)
@@ -760,14 +760,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
      (`lw $s0,0x40($s3)`) -- with the old `"=r"` form cc1plus kept the value in a
      pseudo and CSE'd the reload away, which was the whole ~17-diff "our compiler
      folds a round-trip retail kept" note. */
-  __asm__ volatile ("mfc2	$12,$19
-	nop
-	sra	$12,$12,2
-	sw	$12,0(%0)"
-                    : : "r"(&sd->sub_otz) : "$12", "memory");
-#else
-  sd->sub_otz = 0;
-#endif
+  gte_stszotz(&sd->sub_otz);
   /* [2026-07-11 consolidation] APPLIED the depth-sort-key fix documented above (correctness
      over byte-match per project policy): shapeIdx (raw SZ3) is scaled >>2 before the store,
      sub_otz_h2 derives from the STORED value (>>1 of that), and the downstream
@@ -4657,10 +4650,13 @@ gte_SetTransMatrix(((char *)sd + 0x14));
        band and none in the giv band. */
     /* Source-recovery queue: direct field input after the flag is 3 diffs
      * at 481/480; before it/no fence gives 7 at 481/480; overlayFlag reuse
-     * gives 24 at 484/480. None proves an original named capture existed. */
+     * gives 24 at 484/480. None proves an original named capture existed.
+     * DRAW 2026-10-04: the former `"r"(tex)` use-fence asm is replaced by the
+     * do{}while(0) around the flag load (its NOTE_INSN_LOOP pair is the same
+     * sched barrier): PASS 480, strict-branch CLEAN.  With the barrier, the
+     * direct-field spelling (no tex) is still 3 @481. */
     int tex = facet->textureIndex;
-      facetFlag = facet->flag;
-      __asm__("" : : "r"(tex));
+      do { facetFlag = facet->flag; } while (0);
       overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[tex] << 0x10) >> 0x10;
     facetMask = facetFlag & 0xfff;
     /* SYM truth: NO `which` at this scope -- the decode MUTATES overlayFlag in
@@ -5122,8 +5118,10 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
          order (each one enabled the next -- textbook lever-order/basin law; three of
          them were FALSIFIED in earlier waves at the PRE-FENCE basin and are listed
          above as negatives.  Those receipts were basin-relative, not wrong-then):
-          (1) a zero-insn USE FENCE `__asm__("" : : "r"(ovs))` immediately after the
-              shift at BOTH sites.  It is the sched ISSUE-POSITION FIXPOINT (w45): the
+          (1) a sched barrier immediately after the shift at BOTH sites -- originally a
+              zero-insn USE FENCE asm, now (DRAW 2026-10-04, pure C) an empty
+              `do { } while (0);` whose NOTE_INSN_LOOP_BEG/END pair is the same sched
+              barrier.  It is the sched ISSUE-POSITION FIXPOINT (w45): the
               `sll` can no longer sink into the bgez delay slot and the `lh facet->flag`
               can no longer float up into the `lhu`'s load-delay slot, so retail's TWO
               missing `nop`s materialise.  295 -> 297 insns, gate 29 -> 31 (the LCS rose
@@ -5131,7 +5129,8 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
           (2) the FRESH SHIFT TEMP `int ovs = (int)(ov << 0x10);` (w46 measured this at
               38/33/38 pre-fence).  Post-fence it lands retail's `lhu v0,0(v0)` (the
               halfword in the address's own dying register) + `sll a0,v0,16`: 31 -> 23.
-          (3) a SECOND zero-insn use fence on `ovs` AFTER the if/else join.  This is the
+          (3) a SECOND zero-insn use fence on `ovs` AFTER the if/else join (site 1
+              only -- DRAW 2026-10-04: site 2's copy is stale, removal PASS).  This is the
               INVERSE (demote) live-length dial: it stretches ovs's range past the join,
               dropping its allocno priority below overlayFlag's, so overlayFlag takes
               $v1 first and ovs falls through the numeric scan to retail's $a0: 23 -> 15.
@@ -5143,9 +5142,9 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
          the facet ref dial -- see the note at the `real_type` assignment. */
         int ovs /* Source-recovery queue: shifted overlay value; the direct
                    conditional hoists array addressing, grows the frame and
-                   is 98 diffs at 302/298. Four existing fences remain open. */ =
+                   is 98 diffs at 302/298. One fence (site-1 join demote) remains open. */ =
             (int)((u_int)(u_short)DrawC_gOverlay[index] << 0x10);
-        __asm__("" : : "r"(ovs));
+        do { } while (0);
         if (facet->flag < 0) {
           overlayFlag = ovs >> 0x18;
         }
@@ -5156,7 +5155,7 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
         __asm__("" : : "r"(ovs));
       if (((((u_int)type) & 0x40) != 0) && ((overlayFlag & 0x40) == 0)) {
         ovs = (int)((u_int)(u_short)DrawC_gOverlay[0x18] << 0x10);
-        __asm__("" : : "r"(ovs));
+        do { } while (0);
         if (facet->flag < 0) {
           overlayFlag = ovs >> 0x18;
         }
@@ -5164,7 +5163,6 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
           overlayFlag = ovs >> 0x10;
           overlayFlag = overlayFlag & 0xff;
         }
-        __asm__("" : : "r"(ovs));
       }
       if ((overlayFlag & 0x81) == 0) continue;
     /* Select the high-byte type only in the overlay path. Emission uses

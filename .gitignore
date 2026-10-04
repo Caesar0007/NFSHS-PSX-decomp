@@ -65,3 +65,6 @@ tools/duckstation/api-runtime/
 /scratchpad/
 /scratch/
 /catalog_drafts/
+
+# user tool, kept out of the repository
+tools/mod-studio/

@@ -8138,3 +8138,23 @@ Reusable laws from the run (receipts per pin are in the agents' reports, summari
 - Open after round 2 (receipts in the agents' reports): dead-value pins the SYM names (SoundCar freq*doppler,
   HumanCop ctor, aiphysic lat clamp) -- the use must vanish only after reload; DrawW_DrawQuad (no retail label:
   live-register mechanism); the reorg steals in camera/clock/cario/bworld; fedialog ticks copy; stattool cse const.
+
+### Round 3 (PHYS only, 2026-10-04): Physics_DoBarrierCheck 12 pins -- 0 removed, receipts
+
+- Causes measured by removing each pin alone: `"+m"(right.x/.y/.z)` = retail STORES right.* and immediately RELOADS
+  them from the stack (vel_b stays in registers); `"r"(centerX/Y)` = centre loads scheduled before linearVel/position;
+  `"r"(positionX/Y/Z)` + 7x slice address = slice-row pointer register (retail v1, ours a0); `"r"(velocityZ)`x13 =
+  vel_b value registers (a3/t0/v1); `"r"(raw1)` = lb order + `collide = diff` copy; `"r"(centerKeep)` = a0/a1 swap.
+  All 12 are downstream of the `right` reload: every single-pin removal lands at 88-130 diffs.
+- Falsified spellings for the reload: mobile-twin plain shape (107), write right through `coorddef *` (88: .y/.z
+  reload, .x still forwarded), read through pointer (110), temp struct copy (113, 367/358 blocks), static inline
+  `SetRight(coorddef *out, ...)` (107), + dot inline over `const coorddef *` (106, 362/358), member inlines on a
+  derived struct (106), inline returning coorddef by value (165-193, extra temp+copy retail lacks), GNU named return
+  value (129-187). do{}while(0)/absorption on the downstream pins 43-98.
+- The "block opens at line 1 = inline expansion" lead is WRONG: every outermost body block in this SYM opens at the
+  function's first instruction with relative line 1 (siblings CalcWheelLockAcc/CalcTractionCircleAcc too); the r1-r3
+  block opens and closes at the same address (block markers hoisted by scheduling), not an inline signature.
+- NEXT angles (untested): RTL dump (-dc/-ds) of the fenced vs plain build to see which insn drops the stored right.*
+  from cse's memory tracking; the oracle's LATER uses of `right` (width-vector block, `normal` copy) reread through an
+  alias the compiler cannot see through (e.g. a `coorddef *` that also points at vel_b -> forces the reload).
+  Best non-passing form (106 diffs) = build/tmp/v/PHYS_physics_round4_best.cpp; harness build/tmp/v/PHYS_db/run.py.

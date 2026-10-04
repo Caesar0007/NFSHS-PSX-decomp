@@ -654,19 +654,18 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
   if (((((Car_tObj *)o1)->carFlags & 4) != 0) && ((o1->collision).collided == 0)) {
     (o1->collision).collided = 2;
   }
-  impulse = fixedmult(
-      ((((Car_tObj *)o0)->carFlags & 4) != 0) &&
-              ((((Car_tObj *)o1)->carFlags & 4) != 0)
-          ? 0x4000
-          : 0x3333,
-      impulse);
-  /* MATCH: zero-insn USE FENCE (sched-issue-position fixpoint).  Without it the
-     `addu s6,v0,zero` that lands the scaled impulse sinks into the load-delay
-     slot of the following `lw t0,196(sp)`; retail issues it straight after the
-     jal's delay slot and nops the load shadow.  Re-tested after P873's
-     parameter restoration: removing this remaining fence is FAIL 3
-     (990/991), so it remains an unresolved source-order reconstruction. */
-  __asm__("" : : "i"(0));
+  /* PHYS 2026-10-04: the do{}while(0) (loop notes bound the schedule) replaces the
+     former void "i"(0) fence after this statement: it keeps retail issuing
+     `addu s6,v0,zero` straight after the jal slot instead of sinking it into the
+     load shadow of the following `lw t0,196(sp)` (no wrapper = 3 diffs @990). */
+  do {
+    impulse = fixedmult(
+        ((((Car_tObj *)o0)->carFlags & 4) != 0) &&
+                ((((Car_tObj *)o1)->carFlags & 4) != 0)
+            ? 0x4000
+            : 0x3333,
+        impulse);
+  } while (0);
   impulseV.x = fixedmult(impulse,normal->x);
   impulseV.y = fixedmult(impulse,normal->y);
   impulseV.z = fixedmult(impulse,normal->z);
@@ -855,8 +854,9 @@ int Collide_DoActualObjectCollisionCheck(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coo
      halves and three physical shared tails: high-velocity normal X/Y/Z, low-velocity
      negation, and return-one.  SYM-CODEGEN-CARRIER: selectedRange; reconstructing those
      funnels plus this shared-tail carrier removed
-     the duplicated arm tests (101 -> 88 -> 20 -> 16 authoritative diffs).  The empty
-     normal fences price p83 refs to 38, yielding retail o0/o1/normal = s1/s2/s0.
+     the duplicated arm tests (101 -> 88 -> 20 -> 16 authoritative diffs).  The extra
+     normal refs (now a nested do{}while(0) depth dial at negateNormal, formerly empty
+     fences) price p83 refs to 38, yielding retail o0/o1/normal = s1/s2/s0.
      A zero-insn boundary after each dotz expression preserves the two retail branch-delay
      nops (16 -> 14, 763/765).  The remaining source build is exactly two symmetric sched1
      clusters; moving the existing dotx/doty normalization blocks and comparison ahead of
@@ -1212,14 +1212,15 @@ otherLowVelocity:
         if (zRange >= 0) goto returnOne;
       }
 negateNormal:
-      normal->x = -normal->x;
-      normal->y = -normal->y;
-      normal->z = -normal->z;
-      __asm__("" : : "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal),
-                   "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal));
-      __asm__("" : : "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal),
-                   "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal));
-      __asm__("" : : "r"(normal));
+      /* PHYS 2026-10-04: the two 10-operand "r"(normal) ref fences are replaced by a
+       triple-nested do{}while(0) -- flow.c weights the refs inside by loop depth,
+       loop.c strips the phony loops (0 insns), which supplies the same extra
+       references on the normal pseudo (765/765; one or two levels = 232 diffs). */
+      do { do { do {
+        normal->x = -normal->x;
+        normal->y = -normal->y;
+        normal->z = -normal->z;
+      } while (0); } while (0); } while (0);
     }
   }
 returnOne:
@@ -1778,7 +1779,7 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
      MATCH (2026-08-13): the retail/SYM statement order initializes closestDist before
      closestPoint.  That deliberately moved the function 39 -> 225 while entering the right
      allocation basin.  allocsim then proved newObj needed +9 refs and the registry index +1;
-     the two tail read-only fences implement those exact zero-insn dials, fixing both saved-reg
+     the old tail read-only fences (both now gone: the registry loop is a plain for-loop) fixed both saved-reg
      webs.  The historical threshold carrier preserved retail's direct slt clamp.
      P862 replaces it with the constant-left maximum expression at SLD 1604;
      no threshold local is needed and the function remains PASS 381/381.
@@ -1930,47 +1931,45 @@ nextObj:
     Physics_TestForBarrierCollision((Car_tObj *)newObj);
   }
   if ((newObj->collision).disableCollisionTimer == 0) {
-    i = 0;
     Collide_gRegistry[Collide_gNumRegistered] = newObj;
-    if (0 < Collide_gNumRegistered) {
-      do {
-        otherObj = Collide_gRegistry[i];
-            /* MATCH: ABS-macro-in-compare (no diff local, per SYM): sum > ((d>0)?d:-d);
-               fold turns -(a-b) into b-a giving the oracle's reversed subu */
+    /* PHYS 2026-10-04: plain for-loop (gcc rotates it to the same guard+do-while);
+       it replaces the old do/while + trailing read-only fence on i and gives retail
+       the s1 counter / s3 registry-walker seats (381/381). */
+    for (i = 0; i < Collide_gNumRegistered; i = i + 1) {
+      otherObj = Collide_gRegistry[i];
+          /* MATCH: ABS-macro-in-compare (no diff local, per SYM): sum > ((d>0)?d:-d);
+             fold turns -(a-b) into b-a giving the oracle's reversed subu */
+      if (newObj->dimensionRadius + otherObj->dimensionRadius >
+      (((newObj->position).z - (otherObj->position).z > 0) ?
+      (newObj->position).z - (otherObj->position).z :
+      -((newObj->position).z - (otherObj->position).z))) {
         if (newObj->dimensionRadius + otherObj->dimensionRadius >
-        (((newObj->position).z - (otherObj->position).z > 0) ?
-        (newObj->position).z - (otherObj->position).z :
-        -((newObj->position).z - (otherObj->position).z))) {
+        (((newObj->position).x - (otherObj->position).x > 0) ?
+        (newObj->position).x - (otherObj->position).x :
+        -((newObj->position).x - (otherObj->position).x))) {
           if (newObj->dimensionRadius + otherObj->dimensionRadius >
-          (((newObj->position).x - (otherObj->position).x > 0) ?
-          (newObj->position).x - (otherObj->position).x :
-          -((newObj->position).x - (otherObj->position).x))) {
-            if (newObj->dimensionRadius + otherObj->dimensionRadius >
-            (((newObj->position).y - (otherObj->position).y > 0) ?
-            (newObj->position).y - (otherObj->position).y :
-            -((newObj->position).y - (otherObj->position).y))) {
-              (newObj->angularVel).x = fixedmult(0x6487e,(newObj->angularVel).x);
-              (newObj->angularVel).y = fixedmult(0x6487e,(newObj->angularVel).y);
-              (newObj->angularVel).z = fixedmult(0x6487e,(newObj->angularVel).z);
-              (otherObj->angularVel).x = fixedmult(0x6487e,(otherObj->angularVel).x);
-              (otherObj->angularVel).y = fixedmult(0x6487e,(otherObj->angularVel).y);
-              (otherObj->angularVel).z = fixedmult(0x6487e,(otherObj->angularVel).z);
-              Collide_CheckForCollisionBetween(newObj,otherObj);
-              (newObj->angularVel).x = fixedmult(0x28be,(newObj->angularVel).x);
-              (newObj->angularVel).y = fixedmult(0x28be,(newObj->angularVel).y);
-              (newObj->angularVel).z = fixedmult(0x28be,(newObj->angularVel).z);
-              (otherObj->angularVel).x = fixedmult(0x28be,(otherObj->angularVel).x);
-              (otherObj->angularVel).y = fixedmult(0x28be,(otherObj->angularVel).y);
-              (otherObj->angularVel).z = fixedmult(0x28be,(otherObj->angularVel).z);
-              Collide_LimitAngularVel(newObj);
-              Collide_LimitAngularVel(otherObj);
-            }
+          (((newObj->position).y - (otherObj->position).y > 0) ?
+          (newObj->position).y - (otherObj->position).y :
+          -((newObj->position).y - (otherObj->position).y))) {
+            (newObj->angularVel).x = fixedmult(0x6487e,(newObj->angularVel).x);
+            (newObj->angularVel).y = fixedmult(0x6487e,(newObj->angularVel).y);
+            (newObj->angularVel).z = fixedmult(0x6487e,(newObj->angularVel).z);
+            (otherObj->angularVel).x = fixedmult(0x6487e,(otherObj->angularVel).x);
+            (otherObj->angularVel).y = fixedmult(0x6487e,(otherObj->angularVel).y);
+            (otherObj->angularVel).z = fixedmult(0x6487e,(otherObj->angularVel).z);
+            Collide_CheckForCollisionBetween(newObj,otherObj);
+            (newObj->angularVel).x = fixedmult(0x28be,(newObj->angularVel).x);
+            (newObj->angularVel).y = fixedmult(0x28be,(newObj->angularVel).y);
+            (newObj->angularVel).z = fixedmult(0x28be,(newObj->angularVel).z);
+            (otherObj->angularVel).x = fixedmult(0x28be,(otherObj->angularVel).x);
+            (otherObj->angularVel).y = fixedmult(0x28be,(otherObj->angularVel).y);
+            (otherObj->angularVel).z = fixedmult(0x28be,(otherObj->angularVel).z);
+            Collide_LimitAngularVel(newObj);
+            Collide_LimitAngularVel(otherObj);
           }
         }
-        i = i + 1;
-      } while (i < Collide_gNumRegistered);
+      }
     }
-    __asm__("" : : "r"(i));
     Collide_gNumRegistered = Collide_gNumRegistered + 1;
   }
   return;

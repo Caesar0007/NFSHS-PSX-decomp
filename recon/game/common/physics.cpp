@@ -1038,8 +1038,8 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
 {
   /* SOURCE-RECOVERY REVIEW: retail records only carObj, not a dot-product local.
      2026-09-28: firstProduct inlines at 86/86 PASS, superseding its old 88/86
-     failure. transformedZ and the existing nine-reference empty fence still
-     need recovery: removing the fence is 32 diffs at 86, the direct full sum
+     failure. transformedZ and its reference dial (formerly a nine-operand empty
+     fence, now the depth dial below) still need recovery: no dial at all is 32 diffs at 86, the direct full sum
      is 35 at 87, and field-by-field accumulation is 49 at 89. These are measured
      source basins, not proof that retail required an extra named source object.
      Earlier qtytrace associated its two webs with p88/p123 and explained the
@@ -1055,17 +1055,21 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
     + ((carObj->N).linearVel.y / 256) * ((carObj->N).shadowMat.m[7] / 256);
   transformedZ +=
        (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[8] / 256);
-  __asm__("" : : "r"(transformedZ), "r"(transformedZ), "r"(transformedZ),
-                  "r"(transformedZ), "r"(transformedZ), "r"(transformedZ),
-                  "r"(transformedZ), "r"(transformedZ), "r"(transformedZ));
-  (carObj->linearVel_ch).z = transformedZ;
-  carObj->wheelSpin = 0;
-  carObj->slide = 0;
-  carObj->frontSkid = 0;
-  carObj->rearSkid = 0;
-  if ((carObj->N).collision.collided == 2) {
-    (carObj->N).collision.collided = 0;
-  }
+  /* PHYS 2026-10-04: the nine-reference empty "r"(transformedZ) fence is replaced by
+     a 4-deep do{}while(0) around the tail: flow.c weights the transformedZ ref (and
+     the tail statements) by loop depth while loop.c strips the phony loops (0 insns).
+     Measured: wrapping only the z store 3-deep 32 diffs, 4..8-deep 2 (store order);
+     the whole tail 3-deep 30, 4- or 5-deep PASS 86/86. */
+  do { do { do { do {
+    (carObj->linearVel_ch).z = transformedZ;
+    carObj->wheelSpin = 0;
+    carObj->slide = 0;
+    carObj->frontSkid = 0;
+    carObj->rearSkid = 0;
+    if ((carObj->N).collision.collided == 2) {
+      (carObj->N).collision.collided = 0;
+    }
+  } while (0); } while (0); } while (0); } while (0);
   return;
 }
 
@@ -1335,8 +1339,11 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
       temp = desiredRpm;
     }
     desiredRpm = temp;
-    __asm__("" : : "i"(0));
-    carObj->revLimit = carObj->revLimit + -1;
+    /* PHYS 2026-10-04: a do{}while(0) (its loop notes bound sched1) replaces the
+       former void "i"(0) asm fence here; removing both is 3 diffs @709. */
+    do {
+      carObj->revLimit = carObj->revLimit + -1;
+    } while (0);
   }
   if ((((carObj->control).gear == '\x01') || ((carObj->control).gearShiftTimer != '\0')) ||
      (powerControl == 0)) {
@@ -1518,10 +1525,11 @@ Phy_CalcAcc_clearWheelSpinExit:
         }
         /* SOURCE-RECOVERY REVIEW: scaledRatio is unrecorded. Whole /256
            product and split quotient forms were10 diffs at710 in this source
-           shape. The existing identity fence is restored; source necessity
-           remains unresolved, not a generic exemption or floor. */
+           shape. PHYS 2026-10-04: the former empty identity asm is replaced by
+           the pure-C absorption identity x & (x | 3) == x (a real RTL insn that
+           cse cannot see through and combine folds back: zero bytes, 710/710). */
         int scaledRatio = ratio;
-        __asm__("" : "=r"(scaledRatio) : "0"(scaledRatio));
+        scaledRatio = scaledRatio & (scaledRatio | 3);
         diffDesiredRpm = diffDesiredRpm >> 8;
         if (scaledRatio < 0) {
           scaledRatio = scaledRatio + 0xff;
@@ -2300,9 +2308,12 @@ void Physics_Real(Car_tObj *carObj)
   carObj->gTransferFront =
       fixedmult((carObj->linearAcc_ch).z,specs->gTransferFactor) + ratio;
   {
-    int Xcomponent =
+    int Xcomponent;
+    do {
+      Xcomponent =
         fixedmult(frontWheel.finalAcc.x - rearWheel.finalAcc.x,
                   specs->accToAlphaRotInertia);
+    } while (0);
     {
       /* RECEIPT (W71-A20): cluster (b) SEALED -- Physics_Real 4 -> PASS 1272/1272,
          the whole TU 22/22.  The residual was NOT a source-shape question (the
@@ -2341,8 +2352,12 @@ void Physics_Real(Car_tObj *carObj)
       /* SYM-CODEGEN-CARRIER: wheelMult.  Fully inlining leftMult-rightMult was
          measured at ten diffs; the named live range is required by W71-A20. */
       int wheelMult;
-      /* SYM-CODEGEN-CARRIER: fz.  Its tied zero-insn conflict must sit inside
-         this live range to seat retail front-z in $a2. */
+      /* SYM-CODEGEN-CARRIER: fz.  PHYS 2026-10-04: its former tied clobber asm
+         ("$2","$3","$5") is replaced by the pure-C absorption identity
+         fz & (fz | 3) (seats retail front-z in $a2; alone 2 diffs) together with
+         the do{}while(0) around the Xcomponent call above, which keeps retail's
+         `addu s0,v0,zero` ahead of the frontWheel.z load -> PASS 1272/1272.
+         The lm identity or deletion in this basin is 10 diffs (lm asm kept). */
       int fz;
       /* SYM-CODEGEN-CARRIER: sumZ.  The phony-loop depth reference is the
          zero-instruction issue-order dial that closes the last schedule slot. */
@@ -2352,7 +2367,7 @@ void Physics_Real(Car_tObj *carObj)
       int lm;
 
       fz = frontWheel.finalAcc.z;
-      __asm__("" : "=r"(fz) : "0"(fz) : "$2", "$3", "$5"); /* seat front-z in $a2 */
+      fz = fz & (fz | 3);
       do {
         sumZ = fz + rearWheel.finalAcc.z;               /* depth ref dial: issue order */
       } while (0);

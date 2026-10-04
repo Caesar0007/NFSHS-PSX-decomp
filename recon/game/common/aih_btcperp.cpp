@@ -1388,9 +1388,11 @@ perpMode_merge:
  * vtable-load form.  WRAP_SLICE keeps the positive raw placement distance in
  * v1 while the signed offset is an unnamed a0 temporary, and repeated inline
  * GetCarObj calls recover the retail return-value copy before the placement
- * call.  One branch-local, pin-free identity fence prevents placementSide's
- * known value from folding away the retail a3-to-t1 copy.  No volatile or
- * register pin is used. */
+ * call.  placementSide = 1 is set at the head of EACH inner arm: post-reload
+ * cse then turns the arm's literal 1s into copies of $a3 (retail's
+ * `addu t1,a3` / `addu s4,a3`) and reorg hoists the two identical heads into
+ * the bnez delay slot.  No asm, volatile or register pin is used. */
+
 
 void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
@@ -1511,9 +1513,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   else {
 
-    placementSide = 1;
-
     if (humanMovement == 0) {
+
+      placementSide = 1;
 
       placementDirection = 0;
 
@@ -1531,9 +1533,10 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     else {
 
+      placementSide = 1;
+
       placementDistance = 0x28;
 
-      __asm__("" : "=r"(placementSide) : "0"(placementSide));
       placementDirection = placementSide;
 
       placementSpeed = PLACEMENTSPEED_SLOW;

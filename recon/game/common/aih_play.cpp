@@ -954,15 +954,9 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
   copGameInfo = copGame + (gameIndex + lapIndex);
 
   pInfo->copGameInfo_ = copGameInfo;
-  /* SYM-CODEGEN-CARRIER: copGameInfoCopy -- retail stores the selected pointer
-     through the inline receiver and then copies it from $v1 to $v0 before the
-     remaining initialization.  Plain C emits 128 rather than 129 instructions
-     with 17 scheduling/allocation diffs.  These guide-authorized empty fences
-     emit no opcodes; they retain the measured GCC source-level dependency. */
-  __asm__ __volatile__("" : : : "memory");
-
-  copGame_t *copGameInfoCopy = copGameInfo;
-  __asm__("" : "=r"(copGameInfoCopy) : "0"(copGameInfoCopy));
+  /* Retail's $v1 -> $v0 copy of the selected pointer is cse forwarding the
+     store above into the later read of the MEMBER copGameInfo_ (levels below):
+     reading through pInfo->copGameInfo_ reproduces it with no carrier/fence. */
 
   pInfo->chaseLevelIndex_ = 0;
 
@@ -980,7 +974,8 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
      retail copGameInfo copy in $v0, levels in $a0, and final sum/store in
      $v1.  Embedding the field read in the assignment produces eight register
      and dataflow diffs at the same 129 instructions. */
-  copLevel_t *levels = copGameInfoCopy->levels;
+  copLevel_t *levels = pInfo->copGameInfo_->levels;
+
 
   pInfo->blockadeDone_ = 0;
 

@@ -297,7 +297,9 @@ if '--assemble' in steps:
     rows = honest_sections(); FRONT = front_objects(rows); HONEST_OBJS = {o for _, _, _, o in rows}
     PADS = retail_pads(rows) if '--no-pads' not in sys.argv and not OFFICIAL else {}
     (WOUT / 'pad8.json').write_text(json.dumps({o: p for o, p in PADS.items()}, indent=0))
-    srcs = sorted([*(ROOT / 'recon').rglob('*.cpp'), *(ROOT / 'recon').rglob('*.c')])
+    srcs = sorted([s for s in (*(ROOT / 'recon').rglob('*.cpp'), *(ROOT / 'recon').rglob('*.c'))
+                   if s.relative_to(ROOT / 'recon').parts[0] not in ('mod', 'game-mod', 'syslib-mod')
+                   and 'tests' not in s.relative_to(ROOT / 'recon').parts[:-1]])   # side trees: not main-build inputs (see build.py RECON_SIDE_TREES)
     nfront = 0; FRONT_LIST = []
     for s in srcs:
         sfile = ROOT / 'build' / (s.relative_to(ROOT).as_posix() + '.s')

@@ -131,7 +131,9 @@ def scan():
     # second backing cell. Match build.py/relink.py's live-source census,
     # rather than treating every surviving cache object as a project input.
     # This changes input selection only; no object or instruction is modified.
-    sources = [*(ROOT / "recon").rglob("*.cpp"), *(ROOT / "recon").rglob("*.c")]
+    sources = [s for s in (*(ROOT / "recon").rglob("*.cpp"), *(ROOT / "recon").rglob("*.c"))
+               if s.relative_to(ROOT / "recon").parts[0] not in ("mod", "game-mod", "syslib-mod")
+               and "tests" not in s.relative_to(ROOT / "recon").parts[:-1]]   # side trees: not main-build inputs (see build.py RECON_SIDE_TREES)
     # Inert DATA that sits in the .text stream (SN-LNK obj blobs, user ruling
     # 2026-09-18: keep as data, place at the retail VA).  Each piece is its own
     # object carrying one name-encoded D_<VA> label, so the text-spine vote

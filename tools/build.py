@@ -169,6 +169,12 @@ def _warn_alt_fallback(rel, ver, fallback):
           file=sys.stderr)
 PY = sys.executable
 RECON = ROOT / "recon"   # vendored reconstruction modules (C++), self-contained types
+# Side trees under recon/ that are NOT part of the main reconstruction (the mod lane builds them on its own route;
+# their TUs redefine main symbols) and per-tree test harnesses.  The main build, gen_ld and the SYM lane skip them.
+RECON_SIDE_TREES = {"mod", "game-mod", "syslib-mod"}
+def is_main_recon(p):
+    parts = p.relative_to(RECON).parts
+    return parts[0] not in RECON_SIDE_TREES and "tests" not in parts[:-1]
 
 TARGET = ROOT / "rom" / "nfs4-f.exe"
 LDSCRIPT = ROOT / "linkers" / "nfs4.ld"
@@ -2192,7 +2198,7 @@ def all_sources():
     """Every compilable TU, in the order the full build visits them."""
     srcs = sorted((ROOT / "src").rglob("*.c"))
     if RECON.exists():
-        srcs += sorted(RECON.rglob("*.cpp")) + sorted(RECON.rglob("*.c"))
+        srcs += [x for x in sorted(RECON.rglob("*.cpp")) + sorted(RECON.rglob("*.c")) if is_main_recon(x)]
     return [x for x in srcs if is_tu(x)]
 
 
@@ -2372,10 +2378,11 @@ def main():
     if RECON.exists():
         print("== compiling vendored reconstruction C++ TUs ==")
         for cpp in sorted(RECON.rglob("*.cpp")):
-            _try(compile_cpp, cpp)
+            if is_main_recon(cpp):
+                _try(compile_cpp, cpp)
         # recon C TUs (modules the retail lib built with CC1PSX, e.g. eacpsxz unhuff.obj)
         for c in sorted(RECON.rglob("*.c")):
-            if is_tu(c):
+            if is_tu(c) and is_main_recon(c):
                 _try(lambda s: compile_c(s, skip_asm), c)
 
     if failures:

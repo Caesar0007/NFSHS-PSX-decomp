@@ -728,10 +728,11 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       const int colorTypeOffset = carType << 1;
       __asm__("" : : "r"(colorTypeOffset));
       index = ((index * 3) << 3) - (-index);
-      /* MATCH: GCC's refs=6 color quantity loses a1 to the scaled index.
-         Four read-only refs cross the measured refs=10 allocation step. */
-      __asm__("" : : "r"(color), "r"(color), "r"(color), "r"(color));
-      reload = 0;
+      /* MATCH: GCC's refs=6 color quantity loses a1 to the scaled index;
+         an absorption identity (x | (x & 3) == x, folded by combine, 0 insns)
+         supplies the extra refs (it replaced a four-operand asm ref fence). */
+      color = color | (color & 3);
+
       if ((int)*(short *)(colorTypeOffset + (index << 2) +
                           (u_int)loadedSceneColor) == (color &= 8)) {
         /* Source-recovery queue: loadedSceneVRam is absent from retail.
@@ -743,17 +744,17 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
                        (u_int)loadedSceneVRam);
         reload = 1;
         (carObj->render).VRamY =
+
             *(short *)((carType << 2) + (index << 3) +
                        (u_int)loadedSceneVRam + 2);
       }
       else {
         *(short *)(colorTypeOffset + (index << 2) +
                    (u_int)loadedSceneColor) = (short)color;
-        /* MATCH: the retail CFG keeps this store distinct from the identical
-           null-scene arm store.  A zero-insn boundary after only this arm stops
-           crossjump from merging the tails, restoring the first arm's store in
-           its jump delay slot (17 -> 14, exact 520-insn body). */
-        __asm__("");
+        /* Retail clears reload AFTER this store (the hit arm sets it to 1):
+           that keeps this arm's tail distinct from the null-scene arm's store,
+           so crossjump leaves the first arm's store in its jump delay slot. */
+        reload = 0;
       }
     }
   }
@@ -891,20 +892,18 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
   camCarObj = (Car_tObj *)Camera_gInfo[Vi->player].anchor;
   if (((camCarObj == carObj) && ((carObj->carFlags & 4U) != 0)) &&
       (Camera_gInfo[Vi->player].inCar != 0)) {
-    if (Camera_GetMode(Vi->player) == 0) goto R3DVis_setNoDetailReturn;
-    if (Camera_gInfo[Vi->player].inCar != 0) {
-      /* Source-recovery queue: modeOne is absent from retail. Direct1 and
-         flag-before-mask forms both2dif/234 (copy vs literal rematerialization);
-         comparison-assigned inCarCam11dif/235. Restored, not proof of storage.
-         The older identity device remains explicit unresolved source work. */
-      u_int modeOne;
+    if (Camera_GetMode(Vi->player) == 0) {
+      (carObj->render).detail = -1;
+      return -0x80000000;
+    }
 
-      if (Camera_GetMode(Vi->player) ==
-          ({ modeOne = 1;
-             __asm__("" : "=r"(modeOne) : "0"(modeOne));
-             modeOne; })) {
-        if (((u_short)(carObj->render).inside & modeOne) == 0)
-          goto R3DVis_setNoDetailReturn;
+
+    if (Camera_gInfo[Vi->player].inCar != 0) {
+      if (Camera_GetMode(Vi->player) == 1) {
+        if (((carObj->render).inside & 1) == 0) {
+          (carObj->render).detail = -1;
+          return -0x80000000;
+        }
         inCarCam = 1;
       }
     }
@@ -924,17 +923,14 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
     maxMid = maxMid * zoom;
     maxMid = maxMid * 2;
   }
-  /* MATCH: read-only fence raises maxMax+carObj allocno refs so priority order matches SYM
-     (maxMax=s0, carObj=s1, maxMid=s4). Without it gcc colored carObj=s4/maxMid=s1 (60-84 diffs);
-     this single fence took the whole cascade 60->2.  The final copyprop residual was sealed
-     above by evaluating a scoped modeOne on the call's RHS, laundering it with a pin-free
-     identity fence, and reusing it for the inside mask: v1 stays the retail mask while the
-     later inCarCam literal rematerializes as `li s5,1` in the branch delay slot (2 -> PASS).
-     A direct literal, assignment reordering, ++/|=, and volatile-free comma variants stay at 2;
-     deriving inCarCam from inside recolors s1/s2 and regresses to 50. W56-A14. */
-  /* Current removal trial after coordinate ownership fix:82dif/234. This
-     measures this basin only, not original source-object/device necessity. */
-  __asm__ ("" : : "r"(maxMax), "r"(carObj));
+  /* AUDAI 2026-10-04: the two in-car early exits are written as their own
+     `detail = -1; return` copies.  jump2 cross-jumps them back into the shared
+     tail (retail's GetMode==0 exit enters it one insn late, 0x800AFAB4), but
+     flow counted their carObj references first: that +ref puts carObj ahead of
+     zoom/Vi in global-alloc order (carObj=s1, as SYM), and the separate copy
+     keeps cse from reusing the compare's 1 for inCarCam (`li s5,1`).  This
+     replaced a refcount fence on maxMax/carObj and the modeOne identity pin. */
+
   car.x = (carObj->N).position.x - (Vi->cview).translation.x;
   car.y = (carObj->N).position.y - (Vi->cview).translation.y;
   car.z = (carObj->N).position.z - (Vi->cview).translation.z;

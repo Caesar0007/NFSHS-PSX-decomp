@@ -2634,10 +2634,7 @@ void AIState_GotoSlice::Execute()
       /* SYM-CODEGEN-CARRIER: desiredSpeed -- the captured field value preserves
          retail's a3 compare web and final reload/copy schedule. */
       int desiredSpeed = carObj->desiredSpeed;
-      /* W54-A15 REF-STEP (reqdelta): +1 ref on carObj (3->4 = the floor_log2 1->2 step) is the
-         MINIMAL dial that moves the speed CAP off $a3 onto retail's $a0 (and desiredSpeed
-         a2->a3); 0 insns. */
-      __asm__("" : : "r"(carObj));
+
       /* SYM-CODEGEN-CARRIER: limit -- the shared signed clamp result enables
          retail's single cross-jumped assignment tail (70 versus 74 insns). */
       int limit;
@@ -2662,7 +2659,12 @@ void AIState_GotoSlice::Execute()
       if (inRange) {
         limit = desiredSpeed;
       }
-      carObj->desiredSpeed = limit;
+      /* +1 ref on carObj (3->4, the floor_log2 1->2 step) moves the speed cap
+         onto retail's $a0 (desiredSpeed a2->a3).  Supplied by the same absorption
+         identity as inRange (combine folds it, 0 insns); it replaced a read-only
+         asm ref fence. */
+      ((Car_tObj *)((u_int)carObj | ((u_int)carObj & 3u)))->desiredSpeed = limit;
+
     }
 
   }

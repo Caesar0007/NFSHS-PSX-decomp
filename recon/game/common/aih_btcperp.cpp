@@ -120,21 +120,12 @@ int AIHigh_BTC_Perp::IsFalseArrest()
   /* SYM whole-function rewrite (w22-a13): SYM @0x8005f798 names ONLY randNum1000(REG v0),
    * carLoop(REG s5), cop(REG a1), xDot(REG s2), zDot(REG s1), and carCopVector (AUTO
    * coorddef, sp+0x10/14/18) -- NO iVar1..iVar5/delta[3] temps exist in the real source.
-   * xDot uses incremental accumulation while zDot remains one expression: this gives the
-   * closest allocator shape found (6 detailed diffs, down from 11). Per-term iVarN temps
-   * still force a substantially worse combine-afterward shape.
-   * w54-a12 SEALED (6 -> PASS 136/136). Three receipts, all needed (each removal re-fails):
-   *  (1) xDot's 2nd/3rd terms are NAMED temps (dotTerm/dotTerm2) issued BEFORE the two
-   *      accumulate statements, so the term-2 value is live across the term-3 call ->
-   *      retail's `addu s0,v0,zero` copy into a callee-saved reg lands in that jal's
-   *      delay slot and `addu s2,s2,s0` sits AFTER the call.
-   *  (2) a VOID FENCE (`__asm__("" : : "i"(0))`, 0 insns, implicitly volatile = scheduling
-   *      barrier -- catalog 05H/w48-a1) before the two `xDot +=` statements pins them
-   *      below the term-3 call; without it sched1/reorg hoists `xDot += dotTerm` into the
-   *      call's delay slot and we come out 1 insn short.
-   *  (3) two more void fences at the HEADS of the `if (xDot < 0)` test and of the join
-   *      block after it -- they defeat reorg's eager-steal into the `bgez`/`negu` delay
-   *      slots (retail leaves `nop` there). Do NOT "simplify" these away. */
+   * AUDAI (2026-10-04): pin-free PASS 136/136.  xDot and zDot are both single
+   * three-term dot-product expressions, and |xDot| is taken INSIDE the arrest test as
+   * `(xDot < 0 ? -xDot : xDot)` rather than by a separate `if (xDot < 0) xDot = -xDot;`
+   * statement.  The conditional expression gives retail's `bgez s2; nop; negu s2` with
+   * the empty slot and the post-call accumulation order; the old statement form needed
+   * three void fences plus the dotTerm/dotTerm2 carriers to reach the same bytes. */
   int randNum1000;
 
   int carLoop;
@@ -144,14 +135,6 @@ int AIHigh_BTC_Perp::IsFalseArrest()
   int xDot;
 
   int zDot;
-
-  /* SYM-CODEGEN-CARRIER: dotTerm -- removing this named second dot-product
-     term loses the retail callee-saved lifetime across the third call. */
-  int dotTerm;
-
-  /* SYM-CODEGEN-CARRIER: dotTerm2 -- the separately born third term is
-     required with `dotTerm` for the retail post-call accumulation order. */
-  int dotTerm2;
 
   coorddef carCopVector;
 
@@ -188,17 +171,12 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
                 ((this->carObj_)->N).position.z;
 
-        xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]);
+        xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) +
 
-        dotTerm = fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]);
+               fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) +
 
-        dotTerm2 = fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
+               fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
 
-        __asm__("" : : "i"(0));
-
-        xDot += dotTerm;
-
-        xDot += dotTerm2;
 
         zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) +
 
@@ -206,17 +184,8 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
                fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
 
-        __asm__("" : : "i"(0));
+        if (((0x30000 < (xDot < 0 ? -xDot : xDot)) || (0x80000 < zDot)) || (zDot < 0)) {
 
-        if (xDot < 0) {
-
-          xDot = -xDot;
-
-        }
-
-        __asm__("" : : "i"(0));
-
-        if (((0x30000 < xDot) || (0x80000 < zDot)) || (zDot < 0)) {
 
           AudioClc_HonkHorn(this->carObj_,2,0x80,0x20);
 

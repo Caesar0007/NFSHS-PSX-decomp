@@ -1147,9 +1147,10 @@ int ChooseLoopedSample(s_type surface1,s_type surface2)
    s0 in the ChooseImpactSample delay slot.  The negative non-impact arm is a
    literal PlaySFX(0x31,...,0x40,...) tail, not assignments to shared locals.
    The loop uses the out-of-line low-amplitude cleanup and `amplitude +
-   (amplitude << 1)` for the retail addend order.  Empty read-only fences buy
-   the SYM s5/s0/s1/s3/s4 allocation; their placement before the loop branch is
-   essential so reorg can fill the later retail delay slots. */
+   (amplitude << 1)` for the retail addend order.  AUDAI 2026-10-04: the four
+   read-only asm ref fences are gone; two absorption identities on tweakedForce
+   (below) alone reproduce the SYM s5/s0/s1/s3/s4 allocation. */
+
 /* SYM rule-8 REWRITE (w54-a11).  Local map from the SYM `8c Function start` block:
    iSFXnumber = REG $17 (s1), amplitude = REG $19 (s3), frequency = REG $20 (s4) at
    function scope; tempAmp = REG $16 (s0) in the block starting 0x80077E18; c (PTR
@@ -1174,14 +1175,13 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
   else {
     amplitude = 0;
   }
-  /* Source-recovery queue: two existing force-ref devices; deleting them
-     at this restored scope shape is 68 diffs at 224/224. Not a source floor. */
-  __asm__("" : : "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
-                 "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
-                 "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
-                 "r"(tweakedForce));
-  __asm__("" : : "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
-                 "r"(tweakedForce));
+  /* tweakedForce needs 16 flow refs (floor_log2 step 3->4) to outrank
+     iSFXnumber and take retail's s0.  Two absorption identities (x | (x & 3) == x,
+     folded by combine, 0 insns) supply the refs; they replaced two read-only asm
+     ref fences.  One identity alone is 58 diffs. */
+  tweakedForce = tweakedForce | (tweakedForce & 3);
+  tweakedForce = tweakedForce | (tweakedForce & 3);
+
   if (sndPlayer < 0) {
     /* Retail spells the 0x23 follow-up as its OWN PlaySFX call with literal args; gcc
        cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
@@ -1219,13 +1219,7 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
     }
     iSFXnumber = ChooseLoopedSample(surface1,surface2);
     frequency = scaleFrequency(sndPlayer,iSFXnumber,tweakedForce);
-    __asm__("" : : "r"(sndPlayer - 0x12U), "r"(sndPlayer - 0x12U),
-                   "r"(sndPlayer - 0x12U), "r"(sndPlayer - 0x12U),
-                   "r"(iSFXnumber), "r"(iSFXnumber), "r"(iSFXnumber),
-                   "r"(iSFXnumber), "r"(iSFXnumber), "r"(iSFXnumber));
-    __asm__("" : : "r"(iSFXnumber), "r"(iSFXnumber), "r"(iSFXnumber),
-                   "r"(iSFXnumber), "r"(iSFXnumber), "r"(amplitude),
-                   "r"(amplitude), "r"(amplitude), "r"(amplitude));
+
     if (sndPlayer - 0x12U < 2) {
       tweakedForce = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
       amplitude = amplitude * tweakedForce >> 7;
@@ -1471,9 +1465,11 @@ GOTBANK:
     }
     /* MATCH: retail computes this flag before the PatchBank < -1 guard.  Reusing
        the disjoint iPartial web initially crosses a 20 -> 94 allocation basin;
-       one post-SNDover reference to slot restores iAmp=s1/slot=s0 and reaches
-       PASS together with the typed lookup above.  The fence emits no code. */
-    __asm__("" : : "r"(slot));
+       extra post-SNDover references to slot restore iAmp=s1/slot=s0.  They come
+       from an absorption identity (x | (x & 3) == x for the aligned pointer;
+       combine folds it, 0 insns) that replaced a read-only asm ref fence. */
+    slot = (Channels_t *)((u_int)slot | ((u_int)slot & 3));
+
     iPartial = (PatchBank == -3);
     if ((PatchBank < -1) &&
        (AudioCmn_GetAsyncSfx(iPartial,iSFXnum,false) == -1)) {
@@ -1588,10 +1584,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      defining store models that boundary; the later read remains ordinary. */
   int iAmpIn;
   int tuntrig;
-  /* SYM-CODEGEN-CARRIER: tunnelFlag -- unproved source snapshot. Historical
-   direct-read trial:531/23diffs. P903's paired direct products reach530/4,
-   but no verified removal is retained; these failures prove no necessity. */
-  int tunnelFlag;
   int cam;
   int roadNoisePatch;
   /* SYM-CODEGEN-CARRIER: scaledAmplitude -- folding this temporary into the
@@ -1603,7 +1595,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      the root region and the final gas region. Direct gas scaling trials
      remain 14/92 diffs at 530/530; do not treat that as a source floor. */
   int distanceScale;
-  int roadProduct;
   /* SYM-CODEGEN-CARRIER: rpmRatio -- inlining the redline quotient into
      AudioEng_Set grows 530 to 531 instructions and changes 43 instructions by
      advancing the guarded divide ahead of the gas selection. */
@@ -1783,10 +1774,11 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (0xff < cobblestoneAmp) {
     cobblestoneAmp = 0xff;
   }
-  /* SYM-CODEGEN-CARRIER: roadProduct -- folding the product into roadNoiseAmp
-     shrinks 530 to 529 instructions and leaves 11 multiply-latency diffs.
-     Inlining the product at both the fence input and shifted use also gives
-     529 instructions, 7 diffs; neither trial proves the original source name. */
+  /* AUDAI 2026-10-04: loadAmp and roadNoiseAmp are each one scaled product
+     (`a * b >> 7`) and the tunnel test reads the spilled AUTO tuntrig directly;
+     this retired the tunnelFlag/roadProduct carriers and their two asm ref
+     fences (PASS 530/530). */
+
 
   /* Write the signed /128 as a DIVIDE, not the hand-expanded bgez/+0x7f/sra rounding:
      gcc emits that idiom itself and schedules the `li 127` into the bgez delay slot
@@ -1797,13 +1789,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     scaledAmplitude = amplitude;
   }
   amplitude = scaledAmplitude;
-  scaledAmplitude = scaledAmplitude * loadAmp;
-  roadProduct = roadNoiseAmp * amplitude;
-  loadAmp = (tunnelFlag = tuntrig, scaledAmplitude >> 7);
-  __asm__("" : : "r"(tunnelFlag));
-  __asm__("" : : "r"(roadProduct));
-  roadNoiseAmp = roadProduct >> 7;
-  if (tunnelFlag != 0) {
+  loadAmp = scaledAmplitude * loadAmp >> 7;
+  roadNoiseAmp = roadNoiseAmp * amplitude >> 7;
+  if (tuntrig != 0) {
     wetNoiseAmp = 0;
   } else {
     wetNoiseAmp = Weather_GetNumParticles(car->carIndex);

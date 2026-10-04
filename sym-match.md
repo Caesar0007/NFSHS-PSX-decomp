@@ -8111,3 +8111,30 @@ Reusable laws from the run (receipts per pin are in the agents' reports, summari
 - Open (receipts): delay-slot steals by reorg that need a real CODE_LABEL (camera 334/684/710, clock, cario, DrawW_DrawQuad);
   the drawc/draww fixed-$t4-$t7 template blocks; aiphysic `%hi/%lo(AIPhysicConfig)`; dead-value pins the SYM names
   (AudioCmn_SoundCar freq*doppler, HumanCop ctor); all 23 hud/hrzsku/flare pins (Hud_Render and Hud_BuildString at 2 diffs).
+
+### Round 2 (same agents, 2026-10-04): +13 pins, laws 14-20
+
+- 14. A zero that only COMBINE can prove (`u_char_var >> 8`, `x & 0x100`) survives cse1/jump2 as a non-constant, so
+  the store-flag fold and the tail merge do not happen, and combine then emits `addu rd,zero,zero` -- retail's copy
+  of a known-zero register (Hud_Render, Hud_RenderHudView). Fails when cse already knows the operand on that path.
+- 15. Retail copying a value right after storing it to a field = read it back THROUGH THE FIELD, not the local
+  (AIHigh_Player ctor: both pins and the carrier gone with plain C).
+- 16. Retail copying a register that holds a constant where we emit `li` = set the literal inside EACH arm; post-reload
+  cse turns the arms' literals into the copies (NewStage placementSide).
+- 17. reorg `relax_delay_slots` reverses a loop-bottom `bne head` that is directly followed by an unlabelled `j X`
+  into `beq X; j head`; only an active instruction or a referenced label between them prevents it
+  (STREAM_cancelrequest). For jump2 to merge a duplicated tail the copy must match the join in scheduled order,
+  counted backwards from the label.
+- 18. combine folds a preheader constant assignment into the loop-motion no-op copy at the loop head, sinking the
+  `li`; only a volatile insn or an unfoldable real use in between stops it (vramfxya).
+- 19. The abs-slot steal (`slt` into a `bgez` slot) cannot be blocked by a label: the target already has two
+  predecessors and reorg copies from threads it does not own; only a live register on the other path or
+  `mostly_true_jump <= 0` (target outside a REAL loop; `do{}while(0)` has no back-edge) blocks it. `find_cross_jump`
+  lowers its match threshold when the tail starts at a code label, so moving a statement cannot split such merges.
+- 20. A `do{}while(0)` wrapper adds loop weight to every pseudo referenced inside: for a pure barrier wrap a
+  NEIGHBOUR that does not mention the value being seated; nested wrappers carry refs and barrier together; five
+  absorption terms on a loop-exit compare add exactly 2 loop-weighted refs each (DrawC_Prim). Wrapping a `const`
+  read turns the unrecorded const into a recorded local (Flare_2DSpike: pin kept for that reason).
+- Open after round 2 (receipts in the agents' reports): dead-value pins the SYM names (SoundCar freq*doppler,
+  HumanCop ctor, aiphysic lat clamp) -- the use must vanish only after reload; DrawW_DrawQuad (no retail label:
+  live-register mechanism); the reorg steals in camera/clock/cario/bworld; fedialog ticks copy; stattool cse const.

@@ -339,7 +339,8 @@ void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
      * emits its constant in retail's first post-guard slot.  Empty input refs
      * reproduce the original macro-expansion quantities and restore the exact
      * s1..s4 order: maskHi x6, then the clutXm/clutYm pair x4.  Both thresholds
-     * are sharp and zero-byte: maskHi x5 or the pair x3 re-gates FAIL14. */
+     * are sharp and zero-byte: maskHi x5 or the pair x3 re-gates FAIL14.
+     * [EAC 2026-10-04: the pair refs now come mostly from the CLUT-tail ORs; see below.] */
     maskLo = ~0xFFFu;
     maskHi = 0xF000FFFFu;
     /* W86-D1 2026-09-02: the FIVE `__asm__("" : : "r"(maskHi))` read-only fences that
@@ -353,9 +354,13 @@ void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
     clutYmasked &= 0xfff;
     clutYm = clutYmasked << 0x10;
     clutYm &= 0xffff0000u;
-    __asm__("" : : "r"(clutXm), "r"(clutYm));
-    __asm__("" : : "r"(clutXm), "r"(clutYm));
-    __asm__("" : : "r"(clutXm), "r"(clutYm));
+    /* EAC 2026-10-04: 4 -> 1 fence.  Three of the four pair refs are now bought in pure C by
+     * the self-absorbing ORs at the CLUT tail (`packed | clutXm | clutXm | clutXm`, likewise
+     * clutYm; combine folds (ior (ior X Y) Y) at zero instructions).  The LAST fence is not a
+     * ref dial: without it the register map stays exact but the LICM-hoisted maskLo `li s4`
+     * sinks to the end of the preheader (2 diffs).  Falsified for that slot: empty do{}while(0)
+     * (2), wrapping the clut chain (16) or its first statement (10), fences=2 + x/y+1 also
+     * PASSes (so the split is 1 fence + 2 extra ORs, or 2 + 1). */
     __asm__("" : : "r"(clutXm), "r"(clutYm));
     clut22p = clut22; /* in-loop variant tested: 36 (the sw is not a movable;
                              * only its addiu hoists) -- stays in the preheader */
@@ -446,8 +451,9 @@ void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
         /* common CLUT tail (0x22/0x23/0x24) -> (clutX,clutY) */
         packed = c[3] & maskLo;
         packed &= maskLo;
-        c[3] = packed | clutXm;
-        c[3] = (c[3] & maskHi & maskHi & maskHi & maskHi) | clutYm;
+        /* repeated `| clutXm` / `| clutYm` are zero-insn REF dials (see the preheader note) -- keep */
+        c[3] = packed | clutXm | clutXm | clutXm;
+        c[3] = (c[3] & maskHi & maskHi & maskHi & maskHi) | clutYm | clutYm | clutYm;
         *(unsigned char *)c = (unsigned char)*c | 8;
         tailX = (unsigned int)clutX & 0xff;
         tailX |= (unsigned int)clutX & 0xff00;

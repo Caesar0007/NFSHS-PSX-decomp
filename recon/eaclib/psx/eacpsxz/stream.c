@@ -682,6 +682,8 @@ static int startnextrequest(int s, unsigned int prio)
  *      `room = roomRaw - 1;` inside the arm, instead of the shared `room = room - 1;`).  With one
  *      variable gcc coalesces both into `subu a1,v0,v1; addiu a1,a1,-1`; the oracle keeps the
  *      subtraction in a scratch (`subu v0,v0,v1; addiu a1,v0,-1`).  6 -> 2.
+ * ==== EAC 2026-10-04: PASS 167/167 pure C -- the readptr/fillptr load order now comes from
+ * making fillCursor single-set (`movedFill` in the wrap path); the w47-a5 fence is gone. ====
  * ==== w47-a5: PASS 167/167.  The RESIDUAL 2 below fell to the w45 USE-FENCE FIXPOINT. ====
  * The diagnosis was exactly right (a sched1 ready-list tie on the two initialising loads) and
  * the conclusion 'fillptr's longer dependency chain wins the ready list regardless of source
@@ -743,12 +745,17 @@ static int restartstream(int s, unsigned int prio)
         /* The +0x40 and +0x48 fields are the read and fill cursors. Retail
          * has no local spellings here; these names identify the proven
          * address roles without asserting original identifier text. */
+        /* MATCH (EAC 2026-10-04, replaces the w47-a5 `"r"(readCursor)` use fence): retail loads
+         * readptr (+0x40) BEFORE fillptr (+0x48).  sched.c's birthing boost (adjust_priority:
+         * a single-set pseudo that becomes live is scheduled closest to its use) favoured the
+         * single-set readCursor while fillCursor, reassigned in the wrap path, was unboosted.
+         * Giving the wrap path its own `movedFill` makes fillCursor single-set too; the tie then
+         * falls to source order and the loads issue in retail order. */
         unsigned int readCursor;
         unsigned int fillCursor;
         int room;
         int roomRaw;
         readCursor = MU(s, 0x40);               /* readptr */
-        __asm__("" : : "r"(readCursor));        /* w47-a5 sched fixpoint: pin this load first */
         fillCursor = MU(s, 0x48);               /* fillptr */
         if (readCursor > fillCursor) {
             room = (readCursor - fillCursor) - 1;
@@ -760,6 +767,7 @@ static int restartstream(int s, unsigned int prio)
             /* not enough tail room -> wrap: move the partial chunk down to bufBase */
             {
                 int moveSize = fillCursor - (int)*(unsigned char **)(s + 0x44);
+                unsigned int movedFill;
                 bb = *(unsigned char **)(s + 0x20);
                 if ((int)(readCursor - (int)bb) < moveSize + 1)
                     goto stall;
@@ -768,10 +776,10 @@ static int restartstream(int s, unsigned int prio)
                 q[0] = -1;                       /* leave a wrap marker behind */
                 q[1] = 8;
                 bb = *(unsigned char **)(s + 0x20);
-                fillCursor = (unsigned int)bb + moveSize;
-                roomRaw = MI(s, 0x40) - fillCursor;
+                movedFill = (unsigned int)bb + moveSize;
+                roomRaw = MI(s, 0x40) - movedFill;
                 MI(s, 0x44) = (int)bb;
-                MI(s, 0x48) = fillCursor;
+                MI(s, 0x48) = movedFill;
                 room = roomRaw - 1;
             }
         }

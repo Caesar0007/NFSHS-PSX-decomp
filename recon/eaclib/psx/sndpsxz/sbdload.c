@@ -30,7 +30,8 @@ extern int iSNDdownloadbank(int bankData, int patchData);   /* @0x8010266C */
  *       OFF there' tension is dissolved from the SOURCE side, with the flag left exactly as wired.
  *   (2) NAMED `-1` CONSTANT ASSIGNED FIRST, then `i`, then the walker base (9 -> 5): retail's
  *       prologue materializes them in the order `li $s6,7 / li $v1,-1 / li $s0,255 / addiu $v0,sp`.
- *   (3) VOID-TAIL FENCE between the anchor copy and the entry guard (5 -> 3) -- see the site.
+ *   (3) VOID-TAIL FENCE between the anchor copy and the entry guard (5 -> 3) -- [EAC 2026-10-04:
+ *       now a do{}while(0)-wrapped `i = 0` ahead of the guard, pure C] -- see the site.
  *   (4) `i++` moved to the END of the increment run (3 -> PASS) -- see the site.
  *   The residual notes below are kept for their measurement history but their CONCLUSIONS are now
  *   superseded: the function matches under the tree's normal flags. */
@@ -81,15 +82,17 @@ extern int iSNDdownloadbank(int bankData, int patchData)
     } while (i >= 0);
 
     anchor = bankData;
-    /* MATCH (w50-a7): VOID-TAIL FENCE `__asm__("" : : "i"(0))` (w48-a1's zero-operand form) between
-     * the anchor copy and the guard.  Retail issues `addu $fp,$s4,$zero` BEFORE `lhu $v0,6($s4)`;
-     * sched1 sinks ours into the `beqz` delay slot (which retail fills with `addu $s0,$zero,$zero`).
-     * The fence is a pure position barrier -- an operand-carrying `"r"(anchor)`/`"r"(bankData)` fence
-     * is much WORSE here (23/27) because it also lengthens a live range; the operand-less form and an
-     * opacity fence on `anchor` both land 5 -> 3. */
-    __asm__("" : : "i"(0));
+    /* MATCH (EAC 2026-10-04, replaces the w50-a7 void-tail `__asm__("" : : "i"(0))` fence):
+     * retail issues `addu $fp,$s4,$zero` BEFORE `lhu $v0,6($s4)` and fills the `beqz` slot with
+     * `addu $s0,$zero,$zero` (i = 0).  Two gcc facts decide it: sched.c's birthing boost
+     * (adjust_priority) parks the single-set `anchor` copy right before the branch, and reorg's
+     * backward scan then steals it.  Hoisting `i = 0` above the guard inside a do{}while(0)
+     * gives the block a loop-note barrier: the copy cannot sink past it, i = 0 lands next to the
+     * branch, and reorg moves i = 0 into the slot.  Falsified: no fence (2), i = 0 hoisted bare
+     * (4, copy still sinks), anchor copy wrapped instead (44, its ref weight re-colors s3..fp),
+     * guard read through `anchor` (2), anchor copy before the clear loop (4). */
+    do { i = 0; } while (0);
     if (*(unsigned short *)(bankData + 6) != 0) {
-        i = 0;
         type4 = 4;
         off2 = 0xc;
         cur2 = bankData;

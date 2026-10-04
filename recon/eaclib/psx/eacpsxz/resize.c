@@ -37,6 +37,7 @@ void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
     int alignpad;
     char * name;
     int tail;
+    unsigned sizetail;
     char *hdr = (char *)userptr - 0x10;                         /* s3 = block header */
     unsigned flags = *(unsigned short *)(hdr + 2);              /* s1 (u_int: avoid a redundant andi 0xffff) */
     char *next = *(char **)(hdr + 8);                           /* s2 = hdr->physnext */
@@ -71,7 +72,9 @@ void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
      * load in the alignpad statement, splitting `size += tail` (6), dropping the `tail` local
      * (29 and 93/94).  Raising it needs `tail` to gain an in-block use, which retail does not
      * have either -- a genuine one-instruction scheduler tie.
-     * ==== w47-a5: PASS 94/94.  The w34-a3 STRONG-floor verdict below is REFUTED. ====
+     * ==== EAC 2026-10-04: PASS 94/94 pure C -- a `sizetail = size + tail` statement ahead of
+     * the align load (see the site) replaces the w47-a5 fence described next. ====
+     * ==== w47-a5: PASS 94/94 (asm fence, now removed).  The w34-a3 STRONG-floor verdict below is REFUTED. ====
      * Its reasoning is entirely correct as far as it goes -- both candidates feed the same join
      * insn, so no reassociation can make the register copy out-prioritise the load.  The error
      * is the implicit premise that the only way to win a ready-list tie is to WIN it.  A
@@ -109,14 +112,20 @@ void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
     /* 3. aligned physical payload needed, clamped to available span */
     name = getblockname(userptr);
     tail = MEM_tailsize(name, flags);
-    __asm__("" : : "r"(tail));   /* w47-a5 sched fixpoint: pin the return copy above the align load */
+    /* MATCH (EAC 2026-10-04, replaces the w47-a5 `"r"(tail)` use fence): retail copies the
+     * MEM_tailsize result (`addu a2,v0,zero`) BEFORE the align load, then fills the load's
+     * delay slot with `addu v0,s0,a2`.  Forming `size + tail` as its own statement ahead of
+     * the load gives the copy an in-block use with an earlier luid, so sched1 issues it first
+     * -- no barrier needed.  Same temp placed after `alignpad` = 2 diffs; a do{}while(0) on
+     * the call (loop-note barrier) = 3 diffs @95. */
+    sizetail = size + tail;
     align = *(int *)((char *)cls + 0x28);
     alignpad = align + 15;                            /* MATCH: its own statement -- inside one
                                                        * expression gcc reassociates the +15 onto
                                                        * (sz+tail) (`addiu v0,v0,15`); the oracle
                                                        * adds it to align (`addiu a0,v1,15`) and
                                                        * keeps align itself live for `negu v1,v1` */
-    size = (int)(((unsigned)(size + tail) + (unsigned)alignpad) & (unsigned)(-align)) - 0x10;
+    size = (int)((sizetail + (unsigned)alignpad) & (unsigned)(-align)) - 0x10;
     avail = (int)(next - hdr) - 0x10;
     if (avail < size) {
         size = avail;                                          /* can't grow past the span */

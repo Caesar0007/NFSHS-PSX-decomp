@@ -495,9 +495,10 @@ done:
       An opacity fence on the walker does that job with no volatile, so `lb` appears for free.
       GENERALIZES: any `*(volatile signed char*)x != 0` near-missing on lb/lbu is this.
    2. cse re-folds symbol+offset back into one %hi(sym+off)/%lo pair even through a pointer local;
-      a fence on the pointer keeps retail's base + 0x44 displacement (14 -> 9).
-   3. A fence on `partner` between its two users restores retail's SECOND `partner*100` scale
-      chain that cse had merged away (9 -> 6, and the count reaches parity).
+      a fence on the pointer kept retail's base + 0x44 displacement (14 -> 9).  [EAC 2026-10-04:
+      superseded by a per-arm `gv = sndgs_v` assignment -- pure C, see the body.]
+   3. A fence on `partner` between its two users restored retail's SECOND `partner*100` scale
+      chain that cse had merged away (9 -> 6).  [Since removed; the dp view alone keeps it.]
    4. UNSIZED VIEW + ARRAY-DECAY POINTER (`int *dp = DAT_801478f4_v;`) moves the (high sym) to the
       join-block head where reorg eager-steals it into the `bne` delay slot and leaves the
       .L800FED5C duplicate (6 -> 2).  `&scalar`, `view[0]` and a plain pointer-to-scalar all fold
@@ -605,29 +606,29 @@ extern void iSNDfreechan(int chan)
             }
 
             {
-                /* MATCH (w50-a7): retail RECOMPUTES `partner * 100` here (FED60 sll/addu/sll/addu)
-                 * instead of reusing the count==2 arm's `partnerOffset`; cse merges the two unless
-                 * `partner` is made opaque between them.  Zero-insn opacity fence => the second
-                 * scale chain reappears AND the `lui %hi(D_801478F4)` gets duplicated into the
-                 * `bne t0,v1` delay slot + the .L800FED5C join like retail.  9 -> 6, count EXACT. */
+                /* MATCH: retail RECOMPUTES `partner * 100` here (FED60 sll/addu/sll/addu) instead
+                 * of reusing the count==2 arm's `partnerOffset`, and duplicates the
+                 * `lui %hi(D_801478F4)` into the `bne t0,v1` delay slot + the .L800FED5C join.
+                 * The array-decay `dp` view below reproduces both (no fence needed).
+                 * MATCH (EAC 2026-10-04, replaces the w50-a7 `gv` identity asm): retail rematerializes
+                 * a FRESH `&sndgs` for the tail -- `lui` stolen into the `bne v1,v0` slot, `%lo` addiu
+                 * duplicated on both incoming paths, then `lw 0x44(v0)`.  Assigning `gv` once in EACH
+                 * arm of the ==1 test gives it two sets in two blocks, so neither cse nor combine can
+                 * re-fold sndgs+0x44 into one %lo pair, and reorg produces exactly retail's split la.
+                 * Falsified: single assignment in the tail (folds), `X | (X & 3)` absorption on gv
+                 * (combine folds, 5 diffs), single assignment before the test (la hoisted into t0, 8). */
                 int *dp = DAT_801478f4_v;
                 int partnerSlot;
+                unsigned char *gv;
                 partnerSlot = partner * 100 + *dp;
-                if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
-                    *(unsigned char *)(partnerSlot + 0xb) = 2;
-                    return;
-                }
-            }
-
-            {
-                /* MATCH (w50-a7): retail materializes a FRESH `&sndgs` for this tail as a SPLIT
-                 * `lui` (stolen into the `bne v1,v0` delay slot) + a `%lo` addiu DUPLICATED on both
-                 * incoming paths, then `lw 0x44(v0)`.  A bare `sndgs_v + 0x44` folds symbol+offset
-                 * into one `lui %hi(sndgs+0x44); lw %lo(...)` pair; a plain pointer local alone
-                 * still folds (T1/T4 = no-op).  The opacity fence makes the base opaque so cse
-                 * cannot re-fold it into the load's %lo and the 0x44 stays a displacement. 14->9. */
-                unsigned char *gv = sndgs_v;
-                __asm__("" : "=r"(gv) : "0"(gv));
+                if (*(signed char *)(partnerSlot + 0xb) == 1) {
+                    gv = sndgs_v;
+                    if (chan == partner) {
+                        *(unsigned char *)(partnerSlot + 0xb) = 2;
+                        return;
+                    }
+                } else
+                    gv = sndgs_v;
                 *(unsigned char *)(slot + 0xb) = 0;
                 *(int *)(slot + 0x10) = *(int *)(gv + 0x44);
             }

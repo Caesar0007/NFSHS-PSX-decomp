@@ -489,7 +489,8 @@ extern int iSNDpsxmalloc(int size)
      *
      * 🟢 W71-A15 2026-08-21 -- 26 -> 12, STILL COUNT-EXACT 127/127.  Clusters (i) and (iv) are
      * GONE: the whole commit block is byte-exact (the three-part recipe is receipted at the
-     * `commit:` label below -- identity launder + depth-3 ref inflator + read position).  The
+     * `commit:` label below; EAC 2026-10-04 replaced that asm recipe with a shared
+     * function-scope `entry` + plain `sndpd` RMW, pure C).  The
      * mechanism is combine_regs' output-to-dying-input tie, which is the SAME mechanism the
      * file's other residuals show, so the surviving 12 is now ONE question in TWO places:
      *   (ii) scan / idx!=0 arm  : ours `addu v1,s3,v0` + its two lhu bases;
@@ -707,6 +708,7 @@ extern int iSNDpsxmalloc(int size)
     unsigned int candidateBlock;
     int          availableBlocks;
     unsigned short count = *(unsigned short *)(base + 0x518);
+    unsigned char *entry;   /* ONE entry pointer for the scan loop AND the commit ($a1 in both) */
 
     if (count >= 0x80)
         return 0;
@@ -733,7 +735,6 @@ nonempty:
         previous = pd + 0x51c;
 scan:
         {
-            unsigned char *entry;
             int scan_off = idx * 4;
             entry = (unsigned char *)((unsigned int)scan_off +
                                       (unsigned int)table);
@@ -814,55 +815,29 @@ scan_done:
     goto commit;
 commit:
     {
-        unsigned short *entry = 0;
         unsigned int entry_off = idx * 4;
         unsigned char *table = sndpd + 0x520;
         unsigned short commit_block;
         unsigned char *commit_base;
-        /* ============================================================================
-         * MATCH (w71-a15, 2026-08-21): 26 -> 12, COUNT-EXACT 127/127, WHOLE COMMIT BLOCK
-         * NOW BYTE-EXACT.  Three cooperating pieces; each was measured alone and in the
-         * pair, and NONE of them lands without the other two (13F lever-order law).
-         *
-         * (1) IDENTITY LAUNDER ON `entry_off`, PLACED AFTER THE ENTRY ADD (26 -> 24).
-         *     Retail forms the entry pointer into a FRESH register (`addu a1,v1,a0`);
-         *     ours tied the sum's dest to the dying byte-offset pseudo (`addu v0,v0,a0`)
-         *     because local-alloc's combine_regs (local-alloc.c:1866) ties an output to
-         *     an input that dies in the same insn.  The zero-insn launder makes the
-         *     pseudo die TWICE (once as the asm's input, once at the add), so
-         *     combine_regs refuses the tie.  🔴 IT MUST HAVE A LATER USE or the asm is
-         *     dead and deleted -- `commit_base`'s `- entry_off + entry_off` supplies it.
-         *     Same lever falsified in scan_done, where `off` has no later use (below).
-         *
-         * (2) DEPTH-3 `do{}while(0)` REF INFLATOR ON THE local_block READ (24 -> 14).
-         *     With (1) the sum is fresh but the block's two short-lived quantities were
-         *     still SWAPPED (ours entry_off=$v0/local_block=$v1, retail the reverse).
-         *     They do not overlap, so this is a SERVING-ORDER question:
-         *     QTY_CMP_PRI = floor_log2(refs)*refs*size/live, and the launder itself
-         *     handed entry_off two extra refs.  flow.c weights refs by loop depth and
-         *     loop.c strips the phony loop, so the wrapper is zero-insn.  Depth ladder
-         *     measured in this basin: 1 -> 26, 2 -> 24, 3 -> 14, 4 -> 14 (3 = cheapest).
-         *
-         * (3) THE READ'S POSITION: BETWEEN THE ENTRY ADD AND THE LAUNDER (14 -> 12).
-         *     Statement position is the sched1 luid dial and it is NOT free to choose:
-         *     read before the add 14 | read between add and launder 12 (kept) |
-         *     read after the launder 24 | read after `commit_base` (its old home) 26.
-         *     At 14 the registers were already retail's but the `addu a1` / `lhu v0`
-         *     pair issued in the wrong order; moving the read one statement later fixes
-         *     the order without disturbing the handout.
-         *
-         * ALSO CLOSED HERE: the two former net-zero `entry_off++/--` and
-         * `commit_block++/--` "reference dials" (W61/W62 fork-corpus receipts) are DEAD
-         * CODE in this repo's gate -- 26 with and without them, i.e. exactly the W64-16A
-         * net-zero-pair adjudication.  Both removed; entry_off's is replaced by (1).
-         * ============================================================================ */
-        entry = (unsigned short *)(table + entry_off);
-        do { do { do { commit_block = (unsigned short)candidateBlock; } while (0); } while (0); } while (0);
-        __asm__("" : "=r"(entry_off) : "0"(entry_off));
-        commit_base = (unsigned char *)
-            ((unsigned int)table - entry_off - 0x520 + entry_off);
-        entry[1] = (short)size;
-        entry[0] = commit_block;
+        /* MATCH (EAC 2026-10-04, replaces the w71-a15 identity launder + depth-3 read
+         * inflator + `- entry_off + entry_off` cancellation; 127/127 PASS, pure C):
+         *  - `entry` is ONE function-scope pointer shared with the scan loop's entry
+         *    (both live in $a1 in retail).  As a multi-block pseudo it is not a local
+         *    quantity, so local-alloc's combine_regs cannot tie the add's output to the
+         *    dying entry_off (the old `addu v1,v1,a0` miss) -- this is what the launder
+         *    imitated by making entry_off "die twice".
+         *  - The local_block read comes BEFORE the entry add with no wrapper: the two
+         *    quantities overlap at local-alloc (local_block wins $v0, entry_off $v1) and
+         *    sched2, now free of the wrapper's loop-note barrier, issues addu before lhu.
+         *  - The count RMW goes through plain `sndpd`; cse's related-value rewrite emits
+         *    retail's `addiu a0,a0,-0x520` off the live table address, and entry_off keeps
+         *    exactly two refs.  The cancelling `- entry_off + entry_off` spelling here was
+         *    12 diffs, read-after-add 8, wrapped read (loop-note barrier) 2. */
+        commit_block = (unsigned short)candidateBlock;
+        entry = table + entry_off;
+        commit_base = sndpd;
+        ((unsigned short *)entry)[1] = (short)size;
+        ((unsigned short *)entry)[0] = commit_block;
         {
             /* MATCH (w61-a19, 40 -> 26 at COUNT-EXACT 127/127): retail computes the RETURN VALUE
              * (`lw v0,16(sp); sll v0,v0,6`) INTERLEAVED with the alloc-count read-modify-write,

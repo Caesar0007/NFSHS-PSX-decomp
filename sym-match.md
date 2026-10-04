@@ -8086,3 +8086,28 @@ ASPSX 524/0, PSYLINK zero errors and 11/11 native CLEAN
 (`run-z7w93gsy`); `AddSkidmark` itself remains 313/313 byte-PASS.
 This is a nearly complete function-level SYM/SLD representation,
 not a strict SLD seal or proof of literal historical separator text.
+
+## asm-removal run (2026-10-04)
+
+Seven agents, one file set each, rule = verify_asm PASS after every edit, no new asm/volatile, no symloop/full gate in
+parallel (orchestrator gated). Result: 77 of 198 empty `__asm__("" ...)` pins in game/frontend/eaclib gone (game 148 ->
+85, frontend 38 -> 34, eaclib 12 -> 4), one `mfc2` block -> gte macro; bytes unchanged everywhere, full gate 2174 CLEAN /
+0 regressions, honest 0 diff. Inventory: docs/asm-inventory.md (generator build/tmp/asm_inventory.py).
+
+Reusable laws from the run (receipts per pin are in the agents' reports, summarised in the hub checkpoint):
+- `do { stmt; } while (0);` is a zero-instruction scheduling barrier (loop notes), replacing `"i"(0)` fences; nested
+  levels add reference weight to the variables inside. A pure-C fence, counted as debt in the inventory.
+- Absorption `x | (x & k)` / `x & (x | k)` adds references at zero bytes (ref-count dial) but is NOT a barrier and
+  cannot extend a live range; it fails on values cse knows (constants, masked bits).
+- The same global address re-materialised at every call site = ONE function-scope pointer local that global-alloc
+  spills (Input_Update: 11 pins -> `devList = Device_gDeviceList`).
+- Writing a shared final store in both if/else arms raises the ref count; gcc re-merges the copies after allocation.
+- A cross-jump tail merge is stopped by moving a statement that runs on both paths to the end of one arm.
+- `if (x < 0) x = -x; if (x > k)` with a void fence between = `(x < 0 ? -x : x)` inside the test.
+- Load/copy order within a block follows assignment count: a variable assigned once and live later is scheduled next
+  to its use; assigning it twice (or giving it an earlier use) pins it earlier.
+- A `"+r"` launder that only fixes a join = compute the value in each arm (cross-jump merges them back).
+- A store-flag fold (`x = 1; if (c) x = 0;` -> one sltu) is blocked by assigning a register copy known to be 0.
+- Open (receipts): delay-slot steals by reorg that need a real CODE_LABEL (camera 334/684/710, clock, cario, DrawW_DrawQuad);
+  the drawc/draww fixed-$t4-$t7 template blocks; aiphysic `%hi/%lo(AIPhysicConfig)`; dead-value pins the SYM names
+  (AudioCmn_SoundCar freq*doppler, HumanCop ctor); all 23 hud/hrzsku/flare pins (Hud_Render and Hud_BuildString at 2 diffs).

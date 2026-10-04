@@ -1808,7 +1808,8 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   /* MATCH (W77-root): PASS 106/106 from the count-exact 2-diff baseline.
      The last residual was the y-divide join's store/sra swap.  Spelling the
      signed adjustment in C, storing barrierVec.z at the join, and expressing
-     only the final shift as a one-instruction source ASM prevents sched2 from
+     only the final shift as a separate statement (round 2: between two
+     do{}while(0) pure-C fences; formerly a one-instruction ASM) prevents sched2 from
      reversing the pair without changing any register allocation. */
   coorddef barrierVec;
   /* Retail owns barrierVec at root, and the other four recorded locals
@@ -1922,16 +1923,20 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   if (ny < 0) {
     yTemp += 0xff;
   }
-  barrierVec.z = t3;
-  /* Last-resort source carrier: the surrounding signed-adjust branch and
-     stack store remain reconstructed C; only retail's final quotient shift is
-     fixed here so the store remains immediately before it. */
-  __asm__("sra %0,%1,8" : "=r"(nyq) : "r"(yTemp));
-  /* W86-D2: the W76-A10 `"r"(ny)` ref fence -> the same pure-C absorption identity. */
-  ny = (int)((unsigned int)ny | ((unsigned int)ny & 3u));   /* W76-A10: divide-copy law carrier for
-                                      the y-divide
-                                      (mints `addu v0,a2,zero`); must sit near the divide
-                                      (deferring past the dot loses the copy, 7 @105) */
+  /* PHYS round 2 (2026-10-04): the hand-written `sra` asm is gone.  Two pure-C fences
+     (do{}while(0) loop-note barriers) replace it: the one around the barrierVec.z store
+     keeps retail [sw t3, sra] order, and the one around the ny absorption identity
+     (W86-D2 divide-copy carrier for the y-divide, which mints `addu v0,a2,zero`) stops
+     sched1 hoisting the linearVel.x load above the shift without adding loop weight to
+     nyq (wrapping the shift itself raised nyq to prio .25 > the first product and swapped
+     their $a0/$a1 seats: 8 diffs). */
+  do {
+    barrierVec.z = t3;
+  } while (0);
+  nyq = yTemp >> 8;
+  do {
+    ny = (int)((unsigned int)ny | ((unsigned int)ny & 3u));
+  } while (0);
   dsum = ({ int p1 = nxq * (newtonObj->linearVel.x / 0x100); __asm__("" : : "i"(0)); p1; }) +
                 nyq * (newtonObj->linearVel.y / 0x100) +
                 (nz2 = *(volatile int *)&normal.z) / 0x100 * (newtonObj->linearVel.z / 0x100);

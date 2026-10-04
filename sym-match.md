@@ -8158,3 +8158,27 @@ Reusable laws from the run (receipts per pin are in the agents' reports, summari
   from cse's memory tracking; the oracle's LATER uses of `right` (width-vector block, `normal` copy) reread through an
   alias the compiler cannot see through (e.g. a `coorddef *` that also points at vel_b -> forces the reload).
   Best non-passing form (106 diffs) = build/tmp/v/PHYS_physics_round4_best.cpp; harness build/tmp/v/PHYS_db/run.py.
+- Round 3b (RTL dumps, build/tmp/v/PHYS_db/rtl/): the right.* reload is decided at CSE1, not reload/sched. Plain build:
+  the `right.x` load (expand insn 150) is deleted by cse1 and the use rewritten to the stored pseudo; HEAD: the `"+m"`
+  fence counts as a write of that MEM so cse1 forgets it and the load survives. Retail: `sw $a1,0x28($sp)` is
+  IMMEDIATELY followed by `lw $a2,0x28($sp)` (0x800A9508/950C) with $a1 dead -> retail's cse1 never recorded the
+  MEM==pseudo equivalence for that store. Pointer-store forms: offset-0 store `(mem (reg p))` is folded to the fp slot
+  and forwarded, non-zero offsets `(mem (plus p k))` are not (fold_rtx does not fold plus-of-plus) -> `coorddef *rp`
+  form = 88 diffs (best, build/tmp/v/PHYS_physics_round5_best.cpp), `int *rp+1` form flips which element forwards.
+  NEXT: enumerate cse_insn's refuse-to-record conditions (gcc 2.8.1 cse.c) + minimal-repro growth bisection.
+- Round 3c (cse.c law, probes p1/p2/l1-l3/q1/q2/rb in build/tmp/v/PHYS_db/): gcc 2.8.1 cse1 forgets remembered
+  struct-field values (-> right.* reload) only on: a struct-member store through an address cse does NOT know
+  (`note_mem_written` nonscalar -> `invalidate_memory` drops every in_struct entry; probe p1 `carObj->x = 0` between
+  the stores and the reads DOES reload right.x/.y), a BLKmode store, a non-const call, or an asm memory clobber (our
+  `"+m"` fences). NOT enough: labels/real branches (p2), cse-folded conditionals (l2/l3), statement order (l1), any
+  `&local` pointer -- `cse_rtx_addr_varies_p` (cse.c 2519-2541) treats `(mem (plus p k))` as FIXED whenever p has a
+  qty_const, so a function-scope `coorddef *v = &vel_b` (rb: 130 diffs, 362/358, v stays in a3 and would be a SYM
+  extra) does not invalidate anything even though the store itself stays unfolded. Mode/address-form mismatch ruled
+  out (identical RTL store/load; plain build forwards). Retail has no store, call or block move between the right
+  stores and the first reload (`sw $a1,0x28($sp)` directly followed by `lw $a2,0x28($sp)`).
+  REQUIREMENT for a C spelling: a store between them whose address cse1 cannot evaluate (no qty_const) but which
+  reload resolves to a plain frame slot and which leaves no register/SYM trace -- not found. NEXT named angles:
+  (1) cc1-rung census for this object only (per-object compiler-VERSION splice is toolchain ID, allowed): compile the
+  plain 107-diff form with each PsyQ-era cc1 in C:/Temp/windows-gcc-psx and see whether any rung emits the store+reload
+  naturally (a cse difference between 2.8.0/2.8.1/2.95 would decide it); (2) check the 6 regional retail builds for
+  the same reload (if a regional lacks it, the source changed, not the compiler).

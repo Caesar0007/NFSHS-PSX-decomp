@@ -1199,21 +1199,18 @@ void tScreenCarSelect::DrawForeground()
         tDrawShapeExtended drawFlags;
         int textColor;
         int fadeVal;
-        /* MATCH W67: IDA's distinct speech-tick fade live ranges are real.
-           The empty early-clobber boundary keeps the subtraction's three
-           simultaneous values in retail `$v0`/`$v1`/`$t0` without emitting
-           instructions, sealing the former eight-diff residual. */
+        /* MATCH (FRONT 2026-10-04): shapeFade is DEFAULT-INITIALISED to 0x80
+           before the two tick tests (retail `li $t0,0x80` in the first bnez
+           delay slot).  The early set keeps shapeFade live across the compare
+           temps in $v0/$v1 and through the call-argument setup, so it lands in
+           retail $t0 with no boundary.  The old if/else-with-goto form needed
+           an early-clobber empty asm and a fadeBase carrier (W67). */
         /* SYM-CODEGEN-CARRIER: shapeFade -- a direct nested conditional in
-           the draw call is FAIL 11 at 558/557 and stores the result via `$v0`.
-           Its explicit early-clobber identity keeps retail's `$t0` value web. */
+           the draw call is FAIL 11 at 558/557 and stores the result via `$v0`. */
         int shapeFade;
         /* SYM-CODEGEN-CARRIER: shapeTicks -- repeated direct member reads are
            FAIL 12 at 559/557, reload the value, and reshape both fade arms. */
         u_long shapeTicks;
-        /* SYM-CODEGEN-CARRIER: fadeBase -- using literal 0x180 directly in
-           the explicit branch form is count-exact FAIL 8 and moves the fade
-           result from retail `$t0` to `$v0`. */
-        int fadeBase;
 
         screenX = 0;
         screenY = 0;
@@ -1240,19 +1237,15 @@ void tScreenCarSelect::DrawForeground()
         drawFlags.tint[0] = 0x551e00;
         drawFlags.custom_shapes = this->fSwapShapes.fShapes;
         shapeTicks = this->fSpeechTicks;
-        if (shapeTicks < 0x101) {
-          shapeFade = 0x80;
-        }
-        else {
+        shapeFade = 0x80;
+        if (shapeTicks >= 0x101) {
           if (shapeTicks >= 0x181) {
             shapeFade = 0;
-            goto DrawFG_fadeDone;
           }
-          fadeBase = 0x180;
-          shapeFade = fadeBase - shapeTicks;
-          __asm__("" : "+&r"(shapeFade) : "r"(shapeTicks), "r"(fadeBase));
+          else {
+            shapeFade = 0x180 - shapeTicks;
+          }
         }
-DrawFG_fadeDone:
         DrawShapeExtended(0xA,0x200,0,0,shapeFade,0,&drawFlags);
         elapsedticks = FE_Ticks() - this->fShowroomTicks;
         while (600 < elapsedticks) {

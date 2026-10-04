@@ -446,10 +446,11 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,l
    FALSIFIED: branch-head identity fence 74; base live through loop 81; forced distinct
    base/cursor webs 68.
    W65: 66 -> PASS (134/134).  Evaluating the knockout flag before materializing dummyCars
-   gives the retail SYM handout k=$a3, numCompetitors=$t0, dummyCars=$t1.  The empty memory
-   reference on fCompetitors[i] raises the strength-reduced cursor from 15 to 16 refs, crossing
-   GCC's floor_log2 priority boundary and assigning cursor=$a1/finalPosition=$a2 with no emitted
-   instruction.  Flat integer address arithmetic preserves both retail add operand orders.  The
+   gives the retail SYM handout k=$a3, numCompetitors=$t0, dummyCars=$t1.  The fPosition
+   store is written in BOTH arms (gcc cross-jumps them back to one store after allocation):
+   the duplicate raises the strength-reduced fCompetitors[i] cursor's ref count across GCC's
+   floor_log2 priority boundary, assigning cursor=$a1/finalPosition=$a2 as retail does
+   (single shared store: 20 diffs).  Flat integer address arithmetic preserves both retail add operand orders.  The
    final ranking loop keeps old-i address formation and a distinct next-i web; its byte cursor
    supplies the retail base-first add and +294 store exactly. */
 void tTournamentManager::UpdateTrackFinishPoints()
@@ -487,15 +488,15 @@ void tTournamentManager::UpdateTrackFinishPoints()
         if ((stats->finalPosition - 1U < 6) && (stats->finalFinishType == 2)) {
           if (stats->finalPosition >= this->fNumRacers) {
             this->fCompetitors[i].fEliminated = 1;
+            this->fCompetitors[i].fPosition = (uchar)stats->finalPosition;
           }
           else {
             this->fCompetitors[i].fPoints = this->fCompetitors[i].fPoints + 1;
+            this->fCompetitors[i].fPosition = (uchar)stats->finalPosition;
           }
-          this->fCompetitors[i].fPosition = (uchar)stats->finalPosition;
         }
         k = k + 1;
       }
-      __asm__("" : : "m"(this->fCompetitors[i]));
     }
     *(long *)&this->fNumRacers = *(long *)&this->fNumRacers + -1;
   }

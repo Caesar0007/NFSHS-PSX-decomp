@@ -215,11 +215,16 @@ void tScreenCongrats::DrawBackground()
       drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);
       if (this->InExtraSpin != 0) {
         this->framenum = (FE_Ticks() - this->InExtraSpinTick) / 6 + 0x15;
-        scale = true;
         if (0x29 < this->framenum) {
           this->InExtraSpin = 0;
           this->framenum = 0x14;
         }
+        /* MATCH (FRONT 2026-10-04): `scale = true` AFTER the clamp (reorg
+           still drops its `li s0,1` into the slt/bnez delay slot).  With it
+           before the clamp, this arm's `framenum = 0x14` tail was identical
+           to the Eliminated arm's clamp tail and cross-jumping merged them
+           (540/541); the old fix was a void asm boundary in that arm. */
+        scale = true;
       }
       else {
         this->framenum = (FE_Ticks() - this->starttick) / 2;
@@ -262,7 +267,6 @@ void tScreenCongrats::DrawBackground()
       if (0x14 < this->framenum) {
         this->framenum = 0x14;
       }
-      __asm__("" : : "i"(0));
     }
     if (scale) {
       ScaleShapeExtended(this->framenum,0x410,0,

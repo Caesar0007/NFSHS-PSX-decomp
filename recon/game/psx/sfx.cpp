@@ -1108,7 +1108,8 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
              mis-coloring.  RETAIL's map needs the mask handed out BEFORE the pixmap
              words, i.e. pri > 2000, i.e. floor_log2(r)*r > 12 at life 60: r=5 gives 10
              (1666), r=6 gives 12 (a TIE), **r=7 gives 14 (2333)**.  A 2-operand read-only
-             fence is exactly +2 refs and zero insns, so the minimal dial is refs 5 -> 7.
+             fence is exactly +2 refs and zero insns, so the minimal dial is refs 5 -> 7
+             (CAMIN 2026-10-04: now supplied in pure C by a redundant `& m`, below).
              PREDICTED-THEN-MEASURED: with `u_int m = 0xffffff;` + `__asm__("" : : "r"(m),
              "r"(m));` the trace reads qty2 refs 7 life 62 pri 2258 and the handout is
              mask->$a1, p2f->$a2, palette->$a2, 0xff000000->$a3 -- retail byte for byte,
@@ -1126,13 +1127,18 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
           prim = (POLY_FT4 *)Render_gPacketPtr;
           prim->tag = prim->tag & 0xff000000 |
                       *(u_int *)(Render_gPalettePtr + sd->otz * 4) & m;
-          __asm__("" : : "r"(m), "r"(m));
           {
             u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr); /* SYM-CODEGEN-CARRIER: ot2 */
             u_int w = *ot2; /* SYM-CODEGEN-CARRIER: w -- lifts OT read before cursor store */
             link = (u_int)prim & m;
             Render_gPacketPtr = (u_char *)prim + 0x28;
-            *ot2 = w & 0xff000000 | link;
+            /* CAMIN 2026-10-04: the +2 m refs that the old 2-operand read-only
+               fence supplied now come from the idempotent re-mask `link & m`
+               (link is already masked; combine folds it to zero bytes, but flow
+               counts the extra m/link references -> refs 5 -> 7, same handout).
+               `prim & m & m` and `... & m & m` on the tag word also PASS; the
+               absorption identity on m/link/prim instead = 36/49/69. */
+            *ot2 = w & 0xff000000 | (link & m);
           }
           }
         }

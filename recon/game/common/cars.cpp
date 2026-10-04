@@ -1763,7 +1763,8 @@ void Cars_InitCar(Car_tObj *carObj,int index)
         p88(handle) refs=4 live=129 -> pri 0.0620 (got $s3)
      file1 spans handle's whole range, so NO live-length dial can flip it (reqdelta's
      other two candidates both need a 12-insn swing that the fixed call order forbids).
-     The only 1-step dial is refs 4->5 on file1: a zero-insn READ-ONLY fence (05C) below.
+     The only 1-step dial is refs 4->5 on file1: an absorption-identity READ below (was a
+     zero-insn read-only asm fence until CAMIN 2026-10-04).
      floor_log2(5)*5/141 = 0.0709 > 0.0620 -> file1 takes $s3, handle $s4 = retail.
      With the regs corrected the two `= 0` prologue inits then had to swap back to
      source order file1-then-handle (the emission order of the `addu sN,s2,zero`
@@ -1784,10 +1785,11 @@ void Cars_InitCar(Car_tObj *carObj,int index)
       sprintf(carFile,"%sSTDR.qda",Paths_Paths[4]);
     }
     file1 = (char *)loadpackadr(carFile,(void *)0x10);
-    /* MATCH: zero-insn read-only fence = +1 REF on file1 (allocno-priority dial, see the
-       header note) -> file1 wins $s3 over handle.  Do NOT delete: it emits no code. */
-    __asm__("" : : "r"(file1));
-    handle = Udff_Opena((char *)0x0,file1,1);
+    /* MATCH: +1 REF on file1 (allocno-priority dial, see the header note) via the
+       absorption identity `X | (X & 3)` == X in the call argument: combine folds it
+       to zero bytes, local-alloc still counts the reference -> file1 wins $s3 over
+       handle.  Do NOT simplify. */
+    handle = Udff_Opena((char *)0x0,(char *)((u_int)file1 | ((u_int)file1 & 3)),1);
     if (carObj->carInfo->carType < 0x1d) {
       sprintf(name,"p%s.dat",GameSetup_gCarNames[0] + carObj->carInfo->carType * 5);
     }

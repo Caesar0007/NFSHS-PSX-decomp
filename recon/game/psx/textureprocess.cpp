@@ -571,7 +571,7 @@ void CV_ColorTracks(int track,int weather,int night)
    * the constant 1 in the three `bne $s3,$s1` night tests -- which requires
    * testing `night` BEFORE `weather` and so contradicts the oracle's
    * track/weather/night compare order at every arm.  Historical measurement;
-   * the post-call read-only fence below supplies the missing source lever. */
+   * the final-call-argument absorption below supplies the missing source lever. */
   /* HISTORICAL STEP (w49-a6, 72 -> 2, count still EXACT 130/130): the receipt above
    * quantified the whole 72-diff residual as ONE allocno_compare razor -- weather
    * (14 refs / 114) .36842 vs contrast (11 refs / 90) .36666 -- and named the exact bar:
@@ -601,20 +601,18 @@ void CV_ColorTracks(int track,int weather,int night)
    * A textual per-fn splice moving the `sw $31,0x28($sp)` line down to just before the `jal`
    * landed PASS historically.  It is no longer wired: user policy forbids
    * post-recompile instruction rewrites, and the source-only receipt follows. */
-  /* MATCH (2026-08-23, raw compiler output, 72 -> PASS 130/130): a plain
-   * `contrast = 0` plus a read-only empty-asm use immediately AFTER memset is
-   * the two-axis lever.  The use emits zero instructions.  It supplies the
-   * extra contrast reference needed for retail's contrast=$s0/weather=$s1
-   * allocation and, because it extends contrast across the call boundary from
-   * the far side, sched2 places `sw $ra,40($sp)` after memset's a0/a1 setup at
-   * the exact retail slot.  Placement is essential: the old do/while depth
-   * wrapper lands raw FAIL 2 and needs the forbidden RA_SINK rewrite; the same
-   * read-only use before memset also lands FAIL 2; identity fences land
-   * count-exact FAIL 4/6/10 by blocking zero-value CSE or delaying the $s0
-   * save/init.  tools/build.py has no textureprocess post-compile rule. */
+  /* CAMIN (2026-10-04): the 2026-08-23 read-only empty-asm use of contrast
+   * after memset is retired.  The missing contrast reference now comes from the
+   * final call argument, spelled with the absorption identity
+   * `contrast | (contrast & 3)` (== contrast; combine folds it to zero bytes,
+   * but local-alloc counts the extra reference, enough to beat weather's
+   * priority and give retail's contrast=$s0 / weather=$s1).  Falsified pure-C
+   * placements (all 72 @130): absorption set/`&`-form after memset (folded:
+   * contrast is a known 0 there), brightness=contrast copies, do/while-wrapped
+   * re-init, memset fill arg = contrast, ternary/else self-assign on the
+   * track-10 arm; contrast=0 after memset = 142 @126. */
   contrast = 0;
   memset(&color,0,4);
-  __asm__("" : : "r"(contrast));
   brightness = 0;
   if (GameSetup_gData[3] == 1) {
     if (((track == 2) && (weather == 1)) && (night == 1)) {
@@ -672,7 +670,7 @@ void CV_ColorTracks(int track,int weather,int night)
   contrast = 0x6800;
   brightness = 0x16;
 CVColor_emitFinal:
-  CV_ProcessWorldColors_FINAL(contrast,&color,brightness);
+  CV_ProcessWorldColors_FINAL(contrast | (contrast & 3),&color,brightness);
   return;
 }
 

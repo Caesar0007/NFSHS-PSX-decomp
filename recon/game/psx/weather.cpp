@@ -1372,8 +1372,15 @@ void Weather_DoSplats
     gCurrentNumSplats = num;
   }
   i = 0;
-  while (i < gCurrentNumSplats) {
-      __asm__("" : : "r"(i));
+  /* CAMIN (2026-10-04): the old read-only `__asm__("" : : "r"(i))` ref fence at
+     the top of the body (lever (2) above) is replaced by a pure-C read-side
+     absorption identity in the loop test: `i | (i & 3)` == i, folded to zero bytes
+     by combine but counted as extra in-loop references to `i` by local-alloc, so
+     i keeps $s1 and q gets $s2.  The same identity in the end-of-list compare also
+     PASSes; in the tick-guard index (120 insns) or CreateSplat arg (116) it costs
+     code.  Natural spellings of the compare/loop (Yoda, -1, +1 ==, >=, for,
+     `>` loop test) all stay at the 14-diff s1/s2 swap. */
+  while ((i | (i & 3)) < gCurrentNumSplats) {
       if (simGlobal.gameTicks >= splats[i].startTick) {
         if (splats[i].startTick + 0x20 < simGlobal.gameTicks) {
           if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {

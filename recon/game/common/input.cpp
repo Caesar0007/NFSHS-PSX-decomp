@@ -128,8 +128,19 @@ void Input_Update(void)
      two mode arms.  Replacing it with the SYM-visible sibling `active[17]` and
      `hactive[17]` arrays emits 855/868 instructions and 101 diffs. */
   char *activeBase;
+  /* SYM-CODEGEN-CARRIER: devList -- CAMIN 2026-10-04.  Retail rematerializes
+     `lui/addiu $t3,Device_gDeviceList` at EVERY dispatch site, including the
+     final interface loop: the signature of ONE function-wide pseudo with a
+     REG_EQUIV constant that global-alloc spills (its live range spans every
+     loop) and reload re-emits per use.  Spelling the table through this single
+     function-scope pointer reproduces that, replacing the five
+     `addressBlocker` pressure pseudos and the interface-loop void fence (11
+     asm pins); direct indexing lets loop.c hoist the final loop's address into
+     a free $s3 (6 diffs). */
+  Input_tDeviceList *devList;
 
   Device_Update();
+  devList = Device_gDeviceList;
 
   {
     /* SYM-CODEGEN-CARRIER: activePtr -- the descending pointer induction keeps
@@ -164,7 +175,7 @@ void Input_Update(void)
     mode = 0;
     for (j = 0; j < 2; j++) {
       if ((*h != 0) &&
-          (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+          (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
         mode = j + 1;
       }
       h++;
@@ -172,19 +183,19 @@ void Input_Update(void)
     Input_gMode[i] = mode;
 
     if (mode == 0) {
-      left = Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8);
+      left = devList[*h & 0xff].devicefunc(*h >> 8);
       h++;
-      right = Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8);
+      right = devList[*h & 0xff].devicefunc(*h >> 8);
       h++;
       r->steering = (char)((right - left) / 2);
-      r->gas = Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8);
+      r->gas = devList[*h & 0xff].devicefunc(*h >> 8);
       h++;
-      r->brake = Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8);
+      r->brake = devList[*h & 0xff].devicefunc(*h >> 8);
       h++;
 
       for (j = 0; j < 2; j++) {
         if ((*h != 0) &&
-            (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+            (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
           r->flags |= (one << j);
         } else {
           r->flags &= ~(one << j);
@@ -219,7 +230,7 @@ void Input_Update(void)
         }
       {
         if (*h != 0) {
-          if (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
+          if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
             Input_gPressTime[i][j]++;
             if (Input_gPressTime[i][j] >= 6) {
               if ((Input_gDBFlags[i] & (one << j)) == 0) {
@@ -245,7 +256,7 @@ void Input_Update(void)
 
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
-          if (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
+          if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
             if ((activeBase[j] != 0) && ((Input_gDBFlags[i] & (one << j)) == 0)) {
               acc = j + 1;
               Input_gDBFlags[i] |= (one << j);
@@ -276,7 +287,7 @@ void Input_Update(void)
           dbFlags = &Input_gDBFlags[i];
           for (k = 0; k < 17; k++) {
             if (*h != 0) {
-              if (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
+              if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
                 *dbFlags |= (one << k);
               } else {
                 *dbFlags &= ~(one << k);
@@ -316,26 +327,26 @@ void Input_Update(void)
         }
       }
 
-      left = Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8);
+      left = devList[*h & 0xff].devicefunc(*h >> 8);
       h++;
-      right = Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8);
+      right = devList[*h & 0xff].devicefunc(*h >> 8);
       h++;
       if ((active[0] != 0) && (active[1] != 0)) {
         r->steering = (char)((right - left) / 2);
       }
       if (active[2] != 0) {
-        r->gas = Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8);
+        r->gas = devList[*h & 0xff].devicefunc(*h >> 8);
       }
       h++;
       if (active[3] != 0) {
-        r->brake = Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8);
+        r->brake = devList[*h & 0xff].devicefunc(*h >> 8);
       }
       h++;
 
       for (j = 0; j < 2; j++) {
         if (active[j + 4] != 0) {
           if ((*h != 0) &&
-              (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+              (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
             r->flags |= (one << j);
           } else {
             r->flags &= ~(one << j);
@@ -365,7 +376,7 @@ void Input_Update(void)
           }
           if (*h != 0) {
             if ((active[j + 6] != 0) &&
-                (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+                (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
               Input_gPressTime[i][j]++;
               if (Input_gPressTime[i][j] >= 6) {
                 if ((Input_gDBFlags[i] & (one << j)) == 0) {
@@ -392,7 +403,7 @@ secondHeldDone:
         for (j = 0; j < 17; j++) {
           if (*h != 0) {
             if ((active[j + 23] != 0) &&
-                (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+                (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
               if (((Input_gDBFlags[i] & (one << j)) == 0) && (activeBase[j] != 0)) {
                 acc = j + 1;
                 Input_gDBFlags[i] |= (one << j);
@@ -416,7 +427,7 @@ secondHeldDone:
       h += (mode - 1) * 17;
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
-          if (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
+          if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
             if ((Input_gDBFlags[i] & (one << j)) == 0) {
               acc = j + 1;
               Input_gDBFlags[i] |= (one << j);
@@ -430,8 +441,10 @@ secondHeldDone:
       h += (2 - mode) * 17;
     }
 
-    r->flags |= (acc << 3);
-    __asm__("" : : "r"(acc));                 /* zero instructions: acc=$s5 */
+    /* CAMIN 2026-10-04: the acc=$s5 ref dial is now the pure-C absorption
+       identity `acc | (acc & 3)` (== acc, folded to zero bytes by combine),
+       replacing a read-only asm fence. */
+    r->flags |= ((acc | (acc & 3)) << 3);
     __asm__("" : "+m"(r->flags));             /* force retail byte reload */
     right = (u_char)r->flags;
     switch (((u_char)right) >> 3) {
@@ -462,44 +475,17 @@ secondHeldDone:
        address lifetime.  Direct iactive indexing shrinks the frame to 176
        bytes, emits 870/868 instructions, and produces 108 diffs. */
     char *interfaceActive;
-    /* SYM-CODEGEN-CARRIER: addressBlocker -- one of five zero-instruction
-       pressure quantities that keep the device-table base in retail's seat.
-       Removing the fifth quantity is count-exact but leaves 6 diffs. */
-    int addressBlocker;
-    /* SYM-CODEGEN-CARRIER: addressBlocker2 -- same measured five-quantity
-       interface-loop allocator dial as `addressBlocker`. */
-    int addressBlocker2;
-    /* SYM-CODEGEN-CARRIER: addressBlocker3 -- same measured five-quantity
-       interface-loop allocator dial as `addressBlocker`. */
-    int addressBlocker3;
-    /* SYM-CODEGEN-CARRIER: addressBlocker4 -- same measured five-quantity
-       interface-loop allocator dial as `addressBlocker`. */
-    int addressBlocker4;
-    /* SYM-CODEGEN-CARRIER: addressBlocker5 -- removing this fifth pressure
-       quantity produced the measured 868/868, 6-diff result above. */
-    int addressBlocker5;
 
     i = 0;
     interfaceActive = iactive;
-    __asm__("" : : "i"(0));                  /* zero-insn scheduling fence */
     left = 1;
-    __asm__("" : "=r"(addressBlocker));
-    __asm__("" : "=r"(addressBlocker2));
-    __asm__("" : "=r"(addressBlocker3));
-    __asm__("" : "=r"(addressBlocker4));
-    __asm__("" : "=r"(addressBlocker5));
     for (; i < 32; i++) {
       if ((interfaceActive[i] != 0) && (*h != 0) &&
-          (Device_gDeviceList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+          (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
         menukeys |= (left << i);
       }
       h++;
     }
-    __asm__("" : : "r"(addressBlocker));
-    __asm__("" : : "r"(addressBlocker2));
-    __asm__("" : : "r"(addressBlocker3));
-    __asm__("" : : "r"(addressBlocker4));
-    __asm__("" : : "r"(addressBlocker5));
   }
 
   Input_gTime += 2;

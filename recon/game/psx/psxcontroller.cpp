@@ -645,7 +645,7 @@ void InGame_SetRamp(void)
          *      only for n_times_set==1, so splitting `hp = hoff + i;` into
          *      `hp = hoff; hp = hp + i;` removes the invariant-address movable
          *      outright.  13 -> 10 (count 99 -> 96).
-         *  (2) IDENTITY LAUNDER on the base (`"=r"/"0"`, zero insns): the %hi
+         *  (2) IDENTITY LAUNDER on the base (now pure-C absorption): the %hi
          *      half was still hoisted; laundering the base pseudo blocks it.
          *      10 -> 9.
          *  (3) USE-ADJACENCY: retail computes &hoff[i] AFTER the three
@@ -666,7 +666,12 @@ void InGame_SetRamp(void)
          * &hoff pseudo. */
 #define INGAME_HOFF_PTR ((int *)(i * 4 + (int)hb))
         { int *hb = hoff; /* SYM-CODEGEN-CARRIER: hb -- blocks the non-retail &hoff loop hoist */
-          __asm__("" : "=r"(hb) : "0"(hb));
+          /* CAMIN 2026-10-04: the old `"=r"(hb) : "0"(hb)` identity launder is
+             now the pure-C absorption identity `X | (X & 3)` == X as a second
+             SET of hb (blocks the &hoff loop hoist the same way; combine folds
+             it to zero bytes).  Same identity folded into the declaration's
+             initializer instead = 17 @99. */
+          hb = (int *)((u_int)hb | ((u_int)hb & 3));
         if (InGame_GetDevice(h[0x4f - *INGAME_HOFF_PTR]) == 1) {
           *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
         }

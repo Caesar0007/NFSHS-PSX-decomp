@@ -362,31 +362,31 @@ lookahead_done:;
   }
   {
     /* MATCH: BWorldSm_slices stays in a2 and the first road sample stays in a0.
-     * The priced, pin-free fence adds six allocator references without instructions,
+     * The absorption identity below adds allocator references without instructions,
      * leaving gNumSlices in a1 and the shifted wrap offset in v0. */
     /* SYM-CODEGEN-CARRIER: slices.  This named base is the priced quantity that
        remains in retail $a2 across both road samples. */
     char *slices = (char *)BWorldSm_slices;
-    /* SYM-CODEGEN-CARRIER: offset.  Reusing dead SYM slice yields 403/402 and
-       loses retail's explicit v0-to-v1 offset copy (three detailed diffs). */
-    int offset;
-    /* SYM-CODEGEN-CARRIER: first.  Six zero-insn references are the measured
-       allocator dial that seats the first road sample in retail $a0. */
+    /* SYM-CODEGEN-CARRIER: first.  Extra zero-byte references (below) are the
+       measured allocator dial that seats the first road sample in retail $a0. */
     int first = ((Trk_NewSlice *)slices)[slice].center[1];
-    __asm__("" : : "r"(first), "r"(first), "r"(first), "r"(first), "r"(first),
-                      "r"(first));
+    /* CAMIN 2026-10-04: the six-operand read-only fence is replaced by one pure-C
+       absorption SET `first = first | (first & 3)` (== first; combine folds it to
+       zero bytes, the extra set/refs give the same allocator seat).  Read-side
+       absorptions in the `first -=` statement instead = 16 diffs. */
+    first = first | (first & 3);
+    /* CAMIN 2026-10-04: per-arm `second` address (cross-jumped back into the
+       join's single addu) replaces the old `offset` carrier + `"+r"(second)`
+       asm launder; retail's addu-before-lui join order follows naturally. */
+    char *second;
     if (lookahead < 1) {
       slice = slice - lookahead;
-      offset = (slice < gNumSlices ? slice : slice - gNumSlices) << 5;
+      second = slices + ((slice < gNumSlices ? slice : slice - gNumSlices) << 5);
     }
     else {
       slice = slice - lookahead;
-      offset = (slice < 0 ? slice + gNumSlices : slice) << 5;
+      second = slices + ((slice < 0 ? slice + gNumSlices : slice) << 5);
     }
-    /* SYM-CODEGEN-CARRIER: second.  Directly folding this address into the load
-       is count-exact but moves its addu, leaving two schedule diffs. */
-    char *second = slices + offset;
-    __asm__("" : "+r"(second));
     first -= ((Trk_NewSlice *)second)->center[1];
     vertigo = first / 3;
   }
@@ -468,7 +468,9 @@ lookahead_done:;
        * second boundary then prevents armPtr from overlapping vertigo; its scoped
        * identity lets reorg place the single `addiu a0,sp,16` in the beq delay
        * slot.  Strict source gate: PASS 402/402; no TEXT_MOVES required. */
-      __asm__("" : "+r"(armPtr));
+      /* CAMIN 2026-10-04: the scoped identity is now the pure-C absorption SET
+         (was a `"+r"(armPtr)` asm launder). */
+      armPtr = (coorddef *)((u_int)armPtr | ((u_int)armPtr & 3));
       transform(armPtr,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
     }
     Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
@@ -762,8 +764,6 @@ void Camera_UpdateHeliCam(int player,int behavior)
           : (0x30000 < vertigo ? 0x30000 : vertigo);
       break;
     }
-    /* MATCH: this boundary blocks the clamp-switch target steals. */
-    __asm__("" : : "i"(0));
     arm.y += vertigo;
   }
   if (Input_gLookBehind[player] != 0) {
@@ -905,9 +905,6 @@ void Camera_UpdateTVCam(int player)
     targetDist = -Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position) >> 4;
   }
   if (lastX[player] != Camera_gInfo[player].position.x) {
-    /* MATCH: void fence at the arm HEAD -- defeats reorg's eager-steal of the lastY
-     * %hi into the beq's delay slot (retail leaves that slot a nop). 0 insns. */
-    __asm__("" : : "i"(0));
     lastX[player] = Camera_gInfo[player].position.x;
     lastY[player] = Camera_gInfo[player].position.y;
   }
@@ -1604,13 +1601,15 @@ void Camera_Update(void)
     anchor = (Car_tObj *)Camera_gInfo[player].anchor;
     if (Camera_gInfo[player].checkcollisions != 0) {
       if (Camera_gInfo[player].tumbling != 0) {
-        /* SYM-CODEGEN-CARRIER: collisionPlayer -- passing player directly
-           preserves 288 instructions but changes four scheduled words. */
-        int collisionPlayer;
-        collisionPlayer = player;
-        __asm__("" : "=r"(collisionPlayer) : "0"(collisionPlayer));
-        Camera_gInfo[player].tumbling--;
-        Camera_UpdateCollisionCam(collisionPlayer);
+        /* SYM-CODEGEN-CARRIER: tumbling -- an explicit load/store of the
+           counter (CAMIN 2026-10-04) lets the `move a0,s3` arg copy issue
+           first, so reorg puts it in the guard's beqz slot and the `sb` in the
+           jal slot like retail.  It replaces the old collisionPlayer identity
+           asm launder; `tumbling--`, `-= 1`, `x = x - 1` and comma-in-argument
+           spellings all leave the move in the jal slot (4 diffs @288). */
+        int tumbling = Camera_gInfo[player].tumbling;
+        Camera_gInfo[player].tumbling = tumbling - 1;
+        Camera_UpdateCollisionCam(player);
         goto LAB_80083584;
       }
       if (anchor->N.orientationToGround.y < 0x8000) {
@@ -1761,7 +1760,9 @@ LAB_80083584:
        * Input_gLookBehind-check + LookBack-call and does NOT correspond to any single PSX mode
        * value -- don't mistake it for a 4-way PSX enum split.
        * ============================================================================ */
-      __asm__("" : "=r"(inCarMask) : "0"(inCarMask), "r"(inCarMask));
+      /* CAMIN 2026-10-04: pure-C absorption identity (second SET of inCarMask,
+         folded to zero bytes by combine) replaces the old identity asm launder. */
+      inCarMask = inCarMask | (inCarMask & 3);
       switch(Camera_gInfo[player].mode) {
       case 0:
       case 1:

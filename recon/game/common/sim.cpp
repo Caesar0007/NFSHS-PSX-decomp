@@ -438,7 +438,7 @@ void Sim_MainGameLoop(void)
           else {
             int i;
             /* SYM-CODEGEN-CARRIER: gameSetup
-               The late address materialization and priced read-only fence
+               The late address materialization and priced absorption-identity ref
                reproduce retail's $s2 web.  Direct/fused GameSetup spellings
                were measured at 11--38 diffs, as receipted below. */
             char *gameSetup;
@@ -451,11 +451,6 @@ void Sim_MainGameLoop(void)
             if (i > (int)(u_int)(replaySetup->commMode == 1))
               goto SimMainLoop_inputDone;
             gameSetup = (char *)&GameSetup_gData;
-            /* MATCH (W59-A14, class 2c): 1-operand read-only fence = +1 ref on gameSetup.
-               allocsim (MATCH 22/23) prices it: pri 0.1578 -> 0.1842 overtakes the
-               call-result pseudo (0.1611), restoring retail's gameSetup=$s2 / result=$s3.
-               Without it the whole web flips s2<->s3 (measured 33 diffs). */
-            __asm__ ("" : : "r"(gameSetup));
 SimMainLoop_inputLoop:
               if ((Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0) &&
                   (Replay_ReplayMode < 2)) {
@@ -468,7 +463,14 @@ SimMainLoop_inputLoop:
                   Input_Interface(i + 0x16,0);
               Sim_CheckForPause(1);
               i++;
-              if (i <= (int)(u_int)(*(int *)(gameSetup + 0xc) == 1))
+              /* MATCH (W59-A14 class 2c; CAMIN 2026-10-04 pure C): +1 ref on gameSetup.
+                 allocsim prices it: pri 0.1578 -> 0.1842 overtakes the call-result
+                 pseudo (0.1611), restoring retail's gameSetup=$s2 / result=$s3; without
+                 it the web flips s2<->s3 (24-33 diffs).  The ref is the absorption
+                 identity `X | (X & 3)` == X on the loop-test base: combine folds it to
+                 zero bytes (was a read-only asm fence; an absorption SET instead = 114). */
+              if (i <= (int)(u_int)(*(int *)((char *)((u_int)gameSetup |
+                                                       ((u_int)gameSetup & 3)) + 0xc) == 1))
                 goto SimMainLoop_inputLoop;
 SimMainLoop_inputDone:
               ;

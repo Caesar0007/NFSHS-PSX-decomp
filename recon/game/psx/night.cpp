@@ -1381,29 +1381,18 @@ void Night_SetEnviroment(DRender_tView *Vi)
     Night_gZDistShift = 0xc;
     /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
      * above the function for the mechanism and the falsification list. */
-    u_char *tgt /* SYM-CODEGEN-CARRIER: tgt -- direct target access is FAIL 6 (68/68) */ =
+    u_char *tgt /* SYM-CODEGEN-CARRIER: tgt -- direct target access is FAIL 8 (68/68) */ =
         (u_char *)Camera_gInfo[Vi->player].target;
-    /* W80 QTY_CMP_PRI dial: five zero-byte refs are the minimal whole-step crossing
-     * for tgt (7/18) over zn2 (3/4); four refs only tie at 0.7500 and stay FAIL.
-     * W86-D2: FOUR of the five zero-byte references are now PURE C -- the ABSORPTION
-     * IDENTITY `X | (X & 3) == X`.  It is a real RTL insn that fold() cannot remove
-     * (variable operand), so cse/loop/flow see it and count the reference, and
-     * `combine` collapses `(ior X (and X K))` back to X at ZERO BYTES.
-     * Measured (whole-TU gate, Night_SetEnviroment, 68/68 count-exact throughout):
-     *   all 5 fences (old baseline) ....................... PASS
-     *   1 fence + 4 absorptions (LANDED) .................. PASS
-     *   0 fences + 1..4 absorptions, every subset (32 cells) .. 8
-     *   0 fences at all ................................... 8
-     * So the FIRST reference must still be the asm one: an absorption also SETS the
-     * carrier, which splits its live range, and with no fence left the split costs
-     * more than the reference buys.  The surviving fence is the irreducible one. */
-    __asm__("" : : "r"(tgt));
+    /* CAMIN (2026-10-04): the W80 asm use-fence and three of the four
+     * absorption identities are now unnecessary.  The named `tgt` load plus ONE
+     * pure-C absorption identity `X | (X & 3) == X` (a real RTL use that combine
+     * folds to zero bytes) gives the pointer qty the reference it needs to win
+     * $v0 over the 0x80 constant; the `zn2` constant local is gone too.
+     * Measured on the current pipeline (68/68 throughout): tgt + 1 absorption +
+     * direct `Night_gZNear = 0x80` PASS; tgt with no absorption FAIL 8; fully
+     * direct target access FAIL 8. */
     tgt = (u_char *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
-    tgt = (u_char *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
-    tgt = (u_char *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
-    int zn2 /* SYM-CODEGEN-CARRIER: zn2 -- direct constant store is FAIL 8 (68/68) */ = 0x80;
-    zn2 = (int)((unsigned int)zn2 | ((unsigned int)zn2 & 3u));
-    Night_gZNear = zn2;
+    Night_gZNear = 0x80;
     if ((tgt[0x447] & 4) != 0) {
       Night_gZDistShift = 0xd;
       Night_gXDistShift = 0xb;

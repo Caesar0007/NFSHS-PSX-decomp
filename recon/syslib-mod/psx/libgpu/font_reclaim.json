@@ -1,0 +1,11 @@
+{
+  "schema": "nfs4-font-reclaim-v1",
+  "total_bytes": 22276,
+  "ranges": [
+    {"name": "fntflush_tail", "va": "800F6D20", "size": 788},
+    {"name": "fntprint_text", "va": "800F7034", "size": 960},
+    {"name": "font_rodata", "va": "80057060", "size": 156},
+    {"name": "font_data", "va": "80135E58", "size": 2960},
+    {"name": "font_bss", "va": "80140454", "size": 17412}
+  ]
+}

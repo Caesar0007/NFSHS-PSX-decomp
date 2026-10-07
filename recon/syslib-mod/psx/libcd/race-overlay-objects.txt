@@ -1,0 +1,15 @@
+# Objects excluded from the race-resident image and restored for frontend/movie use.
+recon/syslib/psx/libcd/iso9660.c
+recon/syslib/psx/libcd/cdread.c
+recon/syslib/psx/libcd/cdread2.c
+recon/syslib/psx/libcd/stcdint.c
+recon/syslib/psx/libcd/CDROM.c
+recon/syslib/psx/libcd/C_002.c
+recon/syslib/psx/libcd/C_003.c
+recon/syslib/psx/libcd/C_004.c
+recon/syslib/psx/libcd/C_005.c
+recon/syslib/psx/libcd/C_007.c
+recon/syslib/psx/libcd/C_008.c
+recon/syslib/psx/libcd/C_009.c
+recon/syslib/psx/libcd/C_010.c
+recon/syslib/psx/libds/DSCB.c

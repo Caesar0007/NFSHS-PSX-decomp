@@ -1,0 +1,17 @@
+{
+  "schema": "nfs4-syslib-race-reclaim-libpress-v1",
+  "total_bytes": 45452,
+  "restore_before": ["Nfs2_CleanUpGameModule", "frontend memory-card access", "STR movie playback"],
+  "includes": ["race_reclaim.json"],
+  "ranges": [
+    {"name": "libpress_rodata", "va": "80057130", "size": 73},
+    {"name": "libpress_vlc_text", "va": "800F7400", "size": 896},
+    {"name": "libpress_text", "va": "800F89C8", "size": 1272},
+    {"name": "libpress_vlc_data", "va": "801369E8", "size": 44},
+    {"name": "libpress_data", "va": "80136AF8", "size": 336},
+    {"name": "libpress_dcl_unused", "va": "80123838", "size": 1024},
+    {"name": "libpress_dcc_unused", "va": "80123C38", "size": 1024},
+    {"name": "libpress_cf_tail_unused", "va": "801327D4", "size": 6244},
+    {"name": "libpress_cf2_unused", "va": "80134038", "size": 2048}
+  ]
+}

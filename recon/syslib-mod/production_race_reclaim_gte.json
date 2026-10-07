@@ -1,0 +1,9 @@
+{
+  "schema": "nfs4-syslib-production-race-reclaim-gte-v1",
+  "total_bytes": 59235,
+  "includes": ["production_race_reclaim.json"],
+  "restore_before": ["Nfs2_CleanUpGameModule", "frontend memory-card access", "STR movie playback"],
+  "ranges": [
+    {"name": "gte_compact_table_tail", "va": "80138A0C", "size": 13076, "allocator": "gte"}
+  ]
+}

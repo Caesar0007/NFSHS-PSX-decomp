@@ -1,0 +1,12 @@
+{
+  "schema": "nfs4-gte-quarter-v1",
+  "source": "C:\\Temp\\nfs4-decomp\\recon\\syslib\\psx\\libgte\\CSTBL.c",
+  "entries": 1025,
+  "bytes": 2050,
+  "original_bytes": 16384,
+  "saving": 14334,
+  "cosine_shift_mismatches": 0,
+  "quarter_rebuild_mismatches": 0,
+  "min": 0,
+  "max": 4096
+}

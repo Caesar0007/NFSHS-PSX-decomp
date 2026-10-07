@@ -1,0 +1,21 @@
+{
+  "schema": "nfs4-syslib-verified-reclaim-v1",
+  "total_bytes": 22788,
+  "ranges": [
+    {"name": "fntflush_tail", "va": "800F6D20", "size": 788},
+    {"name": "fntprint_text", "va": "800F7034", "size": 960},
+    {"name": "font_rodata", "va": "80057060", "size": 156},
+    {"name": "font_data", "va": "80135E58", "size": 2960},
+    {"name": "font_bss", "va": "80140454", "size": 17412},
+    {"name": "pcread_tail", "va": "80106BEC", "size": 184},
+    {"name": "pcopen_tail", "va": "80106CAC", "size": 24},
+    {"name": "pcinit_tail", "va": "80106CCC", "size": 4},
+    {"name": "pccreat_tail", "va": "80106CD8", "size": 24},
+    {"name": "pclseek_tail", "va": "80106D24", "size": 28},
+    {"name": "pcclose_tail", "va": "80106D48", "size": 8},
+    {"name": "pcwrite_tail", "va": "80106D58", "size": 184},
+    {"name": "snread", "va": "8010C708", "size": 24},
+    {"name": "snwrite", "va": "8010C720", "size": 24},
+    {"name": "sndef", "va": "80136CD0", "size": 8}
+  ]
+}

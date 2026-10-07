@@ -1,0 +1,434 @@
+{
+  "schema": "nfs4-syslib-production-race-reclaim-v1",
+  "total_bytes": 46159,
+  "source_gross_bytes": 64120,
+  "reserved_ranges": [
+    {
+      "name": "overlay_loader",
+      "va": "800F6D20",
+      "size": 1745
+    },
+    {
+      "name": "snapshot_alignment_and_work",
+      "va": "80140454",
+      "size": 16216
+    }
+  ],
+  "restore_before": [
+    "Nfs2_CleanUpGameModule",
+    "frontend memory-card access",
+    "STR movie playback"
+  ],
+  "ranges": [
+    {
+      "name": "fntprint_text",
+      "va": "800F73F1",
+      "size": 3
+    },
+    {
+      "name": "font_rodata",
+      "va": "80057060",
+      "size": 156
+    },
+    {
+      "name": "font_data",
+      "va": "80135E58",
+      "size": 2960
+    },
+    {
+      "name": "font_bss",
+      "va": "801443AC",
+      "size": 1196
+    },
+    {
+      "name": "pcread_tail",
+      "va": "80106BEC",
+      "size": 184
+    },
+    {
+      "name": "pcopen_tail",
+      "va": "80106CAC",
+      "size": 24
+    },
+    {
+      "name": "pcinit_tail",
+      "va": "80106CCC",
+      "size": 4
+    },
+    {
+      "name": "pccreat_tail",
+      "va": "80106CD8",
+      "size": 24
+    },
+    {
+      "name": "pclseek_tail",
+      "va": "80106D24",
+      "size": 28
+    },
+    {
+      "name": "pcclose_tail",
+      "va": "80106D48",
+      "size": 8
+    },
+    {
+      "name": "pcwrite_tail",
+      "va": "80106D58",
+      "size": 184
+    },
+    {
+      "name": "snread",
+      "va": "8010C708",
+      "size": 24
+    },
+    {
+      "name": "snwrite",
+      "va": "8010C720",
+      "size": 24
+    },
+    {
+      "name": "sndef",
+      "va": "80136CD0",
+      "size": 8
+    },
+    {
+      "name": "mcrd_rodata",
+      "va": "80057370",
+      "size": 374
+    },
+    {
+      "name": "mcrd_user_rodata",
+      "va": "80057948",
+      "size": 25
+    },
+    {
+      "name": "mcrd_text",
+      "va": "800FAAAC",
+      "size": 6052
+    },
+    {
+      "name": "mcrd_bios_text",
+      "va": "80109550",
+      "size": 1712
+    },
+    {
+      "name": "mcrd_user_text",
+      "va": "80109C00",
+      "size": 264
+    },
+    {
+      "name": "card_info_text",
+      "va": "80109D10",
+      "size": 12
+    },
+    {
+      "name": "card_clear_text",
+      "va": "80109D20",
+      "size": 52
+    },
+    {
+      "name": "card_load_text",
+      "va": "80109D60",
+      "size": 12
+    },
+    {
+      "name": "card_new_text",
+      "va": "8010A090",
+      "size": 12
+    },
+    {
+      "name": "card_write_text",
+      "va": "8010A0A0",
+      "size": 12
+    },
+    {
+      "name": "card_init_text",
+      "va": "8010C784",
+      "size": 204
+    },
+    {
+      "name": "card_init2_text",
+      "va": "8010C9C0",
+      "size": 128
+    },
+    {
+      "name": "card_patch_text",
+      "va": "8010CA40",
+      "size": 352
+    },
+    {
+      "name": "card_start2_text",
+      "va": "8010CBA0",
+      "size": 12
+    },
+    {
+      "name": "card_stop2_text",
+      "va": "8010CBB0",
+      "size": 12
+    },
+    {
+      "name": "card_end_text",
+      "va": "8010CBC0",
+      "size": 128
+    },
+    {
+      "name": "mcrd_data",
+      "va": "80136CB0",
+      "size": 32
+    },
+    {
+      "name": "mcrd_user_data",
+      "va": "8013C2E0",
+      "size": 4
+    },
+    {
+      "name": "card_init_data",
+      "va": "8013C328",
+      "size": 16
+    },
+    {
+      "name": "mcrd_bss",
+      "va": "80147500",
+      "size": 112
+    },
+    {
+      "name": "mcrd_bios_data",
+      "va": "801489EC",
+      "size": 64
+    },
+    {
+      "name": "mcrd_user_bss",
+      "va": "80148A2C",
+      "size": 80
+    },
+    {
+      "name": "card_patch_bss",
+      "va": "80148AC4",
+      "size": 16
+    },
+    {
+      "name": "card_end_bss",
+      "va": "80148AD4",
+      "size": 16
+    },
+    {
+      "name": "libpress_rodata",
+      "va": "80057130",
+      "size": 73
+    },
+    {
+      "name": "libpress_vlc_text",
+      "va": "800F7400",
+      "size": 896
+    },
+    {
+      "name": "libpress_text",
+      "va": "800F89C8",
+      "size": 1272
+    },
+    {
+      "name": "libpress_vlc_data",
+      "va": "801369E8",
+      "size": 44
+    },
+    {
+      "name": "libpress_data",
+      "va": "80136AF8",
+      "size": 336
+    },
+    {
+      "name": "libpress_dcl_unused",
+      "va": "80123838",
+      "size": 1024
+    },
+    {
+      "name": "libpress_dcc_unused",
+      "va": "80123C38",
+      "size": 1024
+    },
+    {
+      "name": "libpress_cf_tail_unused",
+      "va": "801327D4",
+      "size": 6244
+    },
+    {
+      "name": "libpress_cf2_unused",
+      "va": "80134038",
+      "size": 2048
+    },
+    {
+      "name": "stcdint_rodata",
+      "va": "80057110",
+      "size": 32
+    },
+    {
+      "name": "iso9660_rodata",
+      "va": "80057180",
+      "size": 490
+    },
+    {
+      "name": "cdread_rodata",
+      "va": "80057898",
+      "size": 66
+    },
+    {
+      "name": "stcdint_text",
+      "va": "800F7E78",
+      "size": 2800
+    },
+    {
+      "name": "st_clear_ring_text",
+      "va": "800F8968",
+      "size": 96
+    },
+    {
+      "name": "st_unset_ring_text",
+      "va": "800F8EC8",
+      "size": 128
+    },
+    {
+      "name": "cdread2_text",
+      "va": "800F8F48",
+      "size": 164
+    },
+    {
+      "name": "st_set_stream_text",
+      "va": "800F8FF8",
+      "size": 132
+    },
+    {
+      "name": "iso9660_text",
+      "va": "800F9088",
+      "size": 2404
+    },
+    {
+      "name": "st_set_ring_text",
+      "va": "800F99F8",
+      "size": 44
+    },
+    {
+      "name": "st_get_next_text",
+      "va": "800F9A28",
+      "size": 184
+    },
+    {
+      "name": "st_free_ring_text",
+      "va": "800FA994",
+      "size": 172
+    },
+    {
+      "name": "st_init_ring_text",
+      "va": "80108758",
+      "size": 52
+    },
+    {
+      "name": "st_data_ready_text",
+      "va": "80108798",
+      "size": 140
+    },
+    {
+      "name": "ds_callbacks_text",
+      "va": "80108824",
+      "size": 56
+    },
+    {
+      "name": "st_set_mask_text",
+      "va": "8010885C",
+      "size": 28
+    },
+    {
+      "name": "cdread_text",
+      "va": "8010887C",
+      "size": 2048
+    },
+    {
+      "name": "stcdint_data",
+      "va": "80136A98",
+      "size": 80
+    },
+    {
+      "name": "st_clear_ring_data",
+      "va": "80136AE8",
+      "size": 16
+    },
+    {
+      "name": "st_unset_ring_data",
+      "va": "80136C48",
+      "size": 16
+    },
+    {
+      "name": "st_set_stream_data",
+      "va": "80136C58",
+      "size": 16
+    },
+    {
+      "name": "iso9660_data",
+      "va": "80136C68",
+      "size": 16
+    },
+    {
+      "name": "st_set_ring_data",
+      "va": "80136C78",
+      "size": 16
+    },
+    {
+      "name": "st_get_next_data",
+      "va": "80136C88",
+      "size": 16
+    },
+    {
+      "name": "st_free_ring_data",
+      "va": "80136C9C",
+      "size": 16
+    },
+    {
+      "name": "st_init_ring_data",
+      "va": "8013C260",
+      "size": 16
+    },
+    {
+      "name": "st_data_ready_data",
+      "va": "8013C270",
+      "size": 16
+    },
+    {
+      "name": "st_set_mask_data",
+      "va": "8013C280",
+      "size": 16
+    },
+    {
+      "name": "cdread_data",
+      "va": "8013C290",
+      "size": 64
+    },
+    {
+      "name": "st_current_slot_bss",
+      "va": "80144864",
+      "size": 4
+    },
+    {
+      "name": "st_stream_bss",
+      "va": "80144874",
+      "size": 8
+    },
+    {
+      "name": "iso9660_bss",
+      "va": "8014487C",
+      "size": 9216
+    },
+    {
+      "name": "st_ring_bss",
+      "va": "80146C7C",
+      "size": 72
+    },
+    {
+      "name": "st_data_ready_bss",
+      "va": "801489D0",
+      "size": 16
+    },
+    {
+      "name": "ds_callbacks_bss",
+      "va": "801489E0",
+      "size": 12
+    }
+  ]
+}

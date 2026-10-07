@@ -1,0 +1,282 @@
+{
+  "schema": "nfs4-syslib-retired-cd-ranges-v1",
+  "total_bytes": 10562,
+  "ranges": [
+    {
+      "name": "retired_cd_00",
+      "va": "800E8450",
+      "size": 308,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_01",
+      "va": "800E858C",
+      "size": 320,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_02",
+      "va": "800F7788",
+      "size": 8,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_03",
+      "va": "800F7798",
+      "size": 8,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_04",
+      "va": "800F77A8",
+      "size": 4,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_05",
+      "va": "800F77B4",
+      "size": 100,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_06",
+      "va": "800F7820",
+      "size": 24,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_07",
+      "va": "800F7840",
+      "size": 12,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_08",
+      "va": "800F7854",
+      "size": 24,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_09",
+      "va": "800F7874",
+      "size": 24,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_10",
+      "va": "800F7894",
+      "size": 12,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_11",
+      "va": "800F78A8",
+      "size": 12,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_12",
+      "va": "800F78BC",
+      "size": 308,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_13",
+      "va": "800F79F8",
+      "size": 300,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_14",
+      "va": "800F7B2C",
+      "size": 324,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_15",
+      "va": "800F7C78",
+      "size": 24,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_16",
+      "va": "800F7C98",
+      "size": 24,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_17",
+      "va": "800F7CB8",
+      "size": 28,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_18",
+      "va": "800F7CDC",
+      "size": 24,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_19",
+      "va": "800F7CFC",
+      "size": 252,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_20",
+      "va": "800F7E00",
+      "size": 120,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_21",
+      "va": "80107088",
+      "size": 1364,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_22",
+      "va": "801075E4",
+      "size": 632,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_23",
+      "va": "80107864",
+      "size": 704,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_24",
+      "va": "80107B2C",
+      "size": 1028,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_25",
+      "va": "80107F38",
+      "size": 204,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_26",
+      "va": "8010800C",
+      "size": 232,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_27",
+      "va": "801080FC",
+      "size": 68,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_28",
+      "va": "80108148",
+      "size": 472,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_29",
+      "va": "80108328",
+      "size": 352,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_30",
+      "va": "80108490",
+      "size": 248,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_31",
+      "va": "80108590",
+      "size": 228,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_32",
+      "va": "8010867C",
+      "size": 4,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_33",
+      "va": "80108688",
+      "size": 208,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_34",
+      "va": "80109094",
+      "size": 316,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_35",
+      "va": "801092A4",
+      "size": 576,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_36",
+      "va": "80056C18",
+      "size": 22,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_37",
+      "va": "80057100",
+      "size": 5,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_38",
+      "va": "80057638",
+      "size": 608,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_39",
+      "va": "800578E8",
+      "size": 21,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_40",
+      "va": "80057908",
+      "size": 62,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_41",
+      "va": "80136A18",
+      "size": 128,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_42",
+      "va": "8013BF40",
+      "size": 8,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_43",
+      "va": "8013BF6C",
+      "size": 756,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_44",
+      "va": "8013C2D8",
+      "size": 8,
+      "allocator": "cd"
+    },
+    {
+      "name": "retired_cd_45",
+      "va": "8014899C",
+      "size": 48,
+      "allocator": "cd"
+    }
+  ]
+}

@@ -9,14 +9,14 @@ covered functions; not a full source-declaration/carrier/SLD seal):
 |---|---:|---:|
 | FRONTEND/COMMON | 712 | 126 |
 | FRONTEND/PSX | 65 | 20 |
-| GAME/COMMON | 1154 | 93 |
+| GAME/COMMON | 1155 | 92 |
 | GAME/PSX | 289 | 106 |
-| Total | 2220 | 345 |
+| Total | 2221 | 344 |
 
-Current native CLEAN coverage, excluding SLD, is **86.55% (2220/2565)**.
+Current native CLEAN coverage, excluding SLD, is **86.59% (2221/2565)**.
 This counts complete compared function contracts, not individual raw SYM
 records or uniquely recovered original source text. GAME/COMMON is
-**92.54% (1154/1247)**. Historical round counts below remain dated receipts.
+**92.62% (1155/1247)**. Historical round counts below remain dated receipts.
 
 Latest strict native+SLD snapshot (2026-10-08): **583/2565** covered functions,
 including GAME/COMMON **372/1247**, FRONTEND/COMMON168/838,
@@ -11596,3 +11596,76 @@ ASPSX524/0 (one front-overlay object), PSYLINK zero errors. Detailed target
 and strict native+SLD583/2565 remain unchanged. User-authorized commit scope is
 color_types.h, object.cpp and this evidence ledger only; unrelated edits remain
 excluded. This is a verified checkpoint, not completion of the whole goal.
+
+### AIWORLD saved-reference discrepancy resolved by provenance (2026-10-08)
+
+The old reference has no rodata, while the current object has exactly the
+10-byte SimpleMem\0 string. .text2820 bytes and .data320 bytes have identical
+section hashes/layouts before and after; no instruction regression exists.
+Commit b60ec112 added this tag on2026-09-21 as a retail data-ownership fix.
+Independent raw ROM read at0x80055684 returns the same SimpleMem\0 bytes.
+The source/data fix is correct; the reference predates it. Do not delete the
+retail tag to clear the guard, overwrite the saved reference, or relax the
+comparison. This explains the earlier57-consumer gate's sole mismatch.
+
+Fresh detailed verify_asm checks all22 AIWORLD functions PASS. Capture a
+separate diagnostic post-tag ELF baseline in ignored
+scratch/aiworld-posttag-baseline-20261008, without changing symloop_ref.
+Inlining CalculateLaneInfo's two edge arithmetic captures preserves49/49
+and the complete post-tag section/layout snapshot, but worsens relative SLD
+from5/49 to44/49. The NFS2 matched AI_CalculateLaneInfo also retains leftEdge/
+rightEdge as real arithmetic steps; the retail tags distinguish arithmetic
+from subsequent calls. Revert the experiment, rather than assert the source
+names were invented or retain worse attribution. The actual extra source
+extent remains unexplained: function end+151 versus reconstructed+25, with
+only five epilogue-word tags differing. No126-line padding/#line is applied.
+Original disabled/debug source, if any, still requires evidence.
+
+Normal49/49 re-gate and independent complete snapshot after restoration are
+unchanged; the diagnostic full-debug compile is code-identical, native
+ASPSX524/0 and PSYLINK zero errors. AIWORLD remains22/22 native CLEAN and
+21/22 strict SLD exact. These findings close a verification false alarm and
+change the next investigation, not the whole project's completion status.
+The saved reference and source executable behavior are untouched; the full
+source-restoration goal remains active.
+
+### ApproachTargeting capture removal and native exactness (2026-10-08)
+
+Reprice the unrecorded chaseCar after the existing zDistance reuse. Plain
+conditional clamps fail23dif/200 and22dif/201 versus195; a sequenced value-arm
+conditional is26dif/201. A grouped GNU statement-expression assignment passes
+195/195 but adds an unsupported native region, so it is replaced rather than
+used as a scope exemption. Use a scope-free comma expression with actual
+conditional void assignments: initialize zDistance to minSpeed/-minSpeed in
+the appropriate direction arm, optionally replace it with desiredSpeed, then
+assign the real final field. It preserves every195 word without chaseCar or a
+replacement pointer/reference. The false-path void0 represents absence of the
+old conditional assignment, not an extra test or fake use. All field reads,
+comparisons and branch-specific values remain identical; minSpeed comes from
+the existing finite nonnegative threshold set, so its negation is safe.
+
+Also replace the debug-elided currentTick snapshot with the actual global-first
+comparison simGlobal.gameTicks>noTurnAroundEndTime_. This operand order keeps
+the retail global/member load sequence and all195 words. No qualifier, unused
+alias, asm operand, new helper name, flag override or output rewrite remains.
+The existing goto threshold graph and literal original macro/expression spelling
+still require source review; removing two captures is not proof of original text.
+
+Whole-TU run-7gk_obnd:42 functions,34 native CLEAN/8 DIRTY (up from33/9),
+complete byte/layout snapshots unchanged, ASPSX524/0 and PSYLINK zero errors.
+Independently parsed target parameter/local/type/home/depth/order and full
+scope tuples agree exactly. Detailed195/195 PASS, vtable1360 audit and
+whitespace check pass. Full SLD remains188/195 differences, end+175/+76;
+strict583/2565 is unchanged. Native board rises2221/2565 (86.59%) and
+GAME/COMMON1155/1247 (92.62%). The full goal remains incomplete; there is useful
+source/ownership work left beyond this checkpoint.
+
+Final checkpoint gate run-oi3herj1 confirms the restored Donuts body at319/319
+PASS and ApproachTargeting at195/195 PASS. Both direct-field Donuts trials
+(14dif/321 and16dif/323) were reverted; the unrecorded carObj remains explicitly
+in the review queue, without an impossibility claim. All42 TU functions retain
+their complete byte/layout snapshots, with34 native CLEAN/8 DIRTY, ASPSX524/0
+and zero PSYLINK errors. The vtable audit passes across1360 files and
+git diff --check passes. Commit only aistate.cpp and this ledger, excluding
+unrelated user/mod changes and generated artifacts, then push main and pause
+at the user's request. This checkpoint does not seal full source/SLD exactness.

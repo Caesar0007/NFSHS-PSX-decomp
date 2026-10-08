@@ -1086,7 +1086,14 @@ LAB_80070704:
 
 
 
-/* ---- ApproachTargeting__13AIState_Chasei  AIState_Chase::ApproachTargeting  [AISTATE.CPP:637-713] SLD-VERIFIED ---- */
+/* ---- ApproachTargeting__13AIState_Chasei [AISTATE.CPP:637-713;
+ * 195/195 byte PASS and native ownership exact; full source/SLD still open] ---- */
+/* Actual clamp side effects are grouped into the desiredSpeed assignment,
+ * using only the recorded zDistance quantity. Void-arm conditionals avoid
+ * MIN/MAX folding and preserve both branch paths without chaseCar. The
+ * literal original macro/label spelling remains unresolved; no asm/qualifier
+ * or fake use replaces the old pointer capture. The tick comparison spells
+ * the actual global operand first, removing its debug-elided snapshot too. */
 
 void AIState_Chase::ApproachTargeting(int intercept)
 
@@ -1123,9 +1130,7 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
   this->inTargetRegion_ = 0;
 
-  const int currentTick = simGlobal.gameTicks; /* DEBUG-ELIDED: direct test reverses the retail load order (8 diffs). */
-
-  if (this->noTurnAroundEndTime_ < currentTick) {
+  if (simGlobal.gameTicks > this->noTurnAroundEndTime_) {
 
     if (0 < this->longMetersBetween_) {
 
@@ -1237,20 +1242,15 @@ LAB_80070adc:
      REG:$3 quantity for this clamp removes the unrecorded selectedSpeed object
      while preserving all 195 words and the recorded local homes. Literal
      original reuse is not uniquely proved by that register reuse. */
-  Car_tObj *const chaseCar = this->carObj_; /* SOURCE CARRIER: direct member access is 14 diffs/2 reloads; name not in SYM. */
-
-  if (chaseCar->direction == 1) {
-    zDistance = minSpeed;
-    if (chaseCar->desiredSpeed < zDistance) {
-      zDistance = chaseCar->desiredSpeed;
-    }
-  } else {
-    zDistance = -minSpeed;
-    if (zDistance < chaseCar->desiredSpeed) {
-      zDistance = chaseCar->desiredSpeed;
-    }
-  }
-  chaseCar->desiredSpeed = zDistance;
+  this->carObj_->desiredSpeed = (
+      this->carObj_->direction == 1
+        ? (zDistance = minSpeed,
+           this->carObj_->desiredSpeed < zDistance
+             ? (void)(zDistance = this->carObj_->desiredSpeed) : (void)0)
+        : (zDistance = -minSpeed,
+           zDistance < this->carObj_->desiredSpeed
+             ? (void)(zDistance = this->carObj_->desiredSpeed) : (void)0),
+      zDistance);
 
   AI_GenericBeginCycle(this->carObj_);
 
@@ -2276,9 +2276,9 @@ void AIState_Donuts::Execute()
 
 
 
-  /* SYM-CODEGEN-CARRIER: carObj -- absent from retail locals. Its artificial
-   * declaring block has been removed; the capture itself remains unresolved.
-   * Direct member expressions changed 14 instructions and added two reloads. */
+  /* SOURCE-REVIEW-UNRESOLVED: carObj has no retail local record. Current
+   * direct-field form is 14 diffs/321 words versus 319; array-index side-effect
+   * store is 16 diffs/323 words. Both are reverted, not an impossibility proof. */
   Car_tObj *carObj = this->carObj_;
 
     slice = (int)carObj->N.simRoadInfo.slice;

@@ -11,6 +11,10 @@ struct SerializedGroup {
 
     inline void *GetData() { return this + 1; }
     inline int GetNumElements() { return m_num_elements; }
+    /* Inferred total-length getter: retail's material argument has a receiver
+       pair. Its enclosing caller ownership and original spelling remain open;
+       the 16-byte header subtraction belongs to the payload-length argument. */
+    inline int GetLength() { return m_length; }
 
     SerializedGroup *LocateNextGroupType(int type);
     SerializedGroup *LocateGroupType(int type, int index);

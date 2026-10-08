@@ -320,11 +320,11 @@ void TexturesLoadInitial(void)
   }
   if ((gInitialArt.shapeFile = (char *)loadshapeadr((char *)success,(void *)0x0)) !=
       (char *)0x0) {
-    /* Retail has two zero-length nested regions at +0x8c. This count-zero
-     * loop preserves the compiler label/CSE boundary without emitting code;
-     * zero-variable if/for forms moved six instructions. Its optimized-away
-     * index spelling is not recoverable from the retail SYM. The enclosing
-     * region still starts at +0x74 here versus retail +0x84. */
+    /* UNRESOLVED RECONSTRUCTION: this count-zero loop is not recovered source.
+       Retail has an empty inline pair at +0x8c, but ordinary field/address
+       getter substitutions change six rows at107/107 by exposing a different
+       full-address CSE graph. Its real operation/owner still needs recovery;
+       the empty-loop artifact is not accepted as an original-source exemption. */
     {
       int i = 0;
       for (; i < 0; i++) { }
@@ -682,8 +682,9 @@ void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
         while (--count != -1) {
           /* Source-recovery queue: x/y/z are absent from retail. Restored
              ownership keeps40/40, but direct members are37dif/41 and direct
-             halfword-pointer indexing42dif/40. These trials establish no
-             original source-object necessity; no generic exemption applies. */
+             halfword-pointer indexing42dif/40. A comma expression is likewise
+             37dif/41; an aggregate update is101dif/79 with extra frame/copy
+             work. No trial proves original source-object necessity. */
           int x = pts->x;
           int y = pts->y;
           int z = pts->z;
@@ -831,10 +832,7 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
     while (i < count) {
       switch (persistentGroups[i]->m_type) {
       case 2:
-        /* Retail has a receiver pair around this payload-length calculation.
-           Raw proves m_length-16; the original accessor spelling is not yet
-           recovered. Do not add a guessed getter merely to clean the report. */
-        Track_LinkMaterials(persistentGroups[i],persistentGroups[i]->m_length + -0x10,
+        Track_LinkMaterials(persistentGroups[i],persistentGroups[i]->GetLength() - (int)sizeof(SerializedGroup),
                    Track_materials);
         break;
       case 0xf:

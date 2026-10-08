@@ -87,8 +87,9 @@ struct ObjectAnim {
     virtual ~ObjectAnim() {}
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-/* The Finished* classes declare NO constructor: a user-written inline one would get an out-of-line copy (their key
- * function Draw is in object.cpp) and retail has none. */
+/* Finished* constructor spelling/emission remains source-review work.
+ * Explicit public inline bodies (including extern inline) currently emit extra
+ * out-of-line copies and fail the whole-TU byte gate; that is not a source floor. */
 struct ObjectFinishedMultiAnim : public ObjectAnim {
     ~ObjectFinishedMultiAnim() {}
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
@@ -156,6 +157,9 @@ struct SaveSurface {
 struct AIHigh_Traffic : public AIHigh_Base {
     int ignoreCops_, forcePurgatory_;
     SceneElem *accidentData_;
+    /* Retail OBJECT.CPP records the inline receiver and accidentData argument.
+       The setter spelling is inferred; it adds no data or virtual entry. */
+    inline void SetAccidentData(SceneElem *accidentData) { accidentData_ = accidentData; }
     AIHigh_Traffic(Car_tObj *carObj);
     Car_tObj *CheckForCops(int *p);
     AIHigh_Cop *CopCheck(int *p);

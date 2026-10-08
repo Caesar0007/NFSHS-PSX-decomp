@@ -123,24 +123,11 @@ struct tPMenuItem {
     virtual void Draw(bool) = 0;
     bool IsEnabled();
     bool IsDisabled();
+    void Enable(); /* inferred member spelling, also used by sibling tMenuItem */
+    void Disable(); /* inferred member spelling, also used by sibling tMenuItem */
+    unsigned int TextDescription(); /* inferred getter: retail nests this item receiver in the menu getter */
+    void SetTextDescription(unsigned int); /* sibling tMenuItem uses this setter spelling */
 };
-/* SYM-INLINE-FACADE: tPMenu::Initialize's SLD records the inlined tPMenuItem `this` but no named condition result; retail
-   materializes the two compound predicates as int 0/1 values.  NON-member helpers: an inline MEMBER of a class whose
-   key function is in the TU would get an out-of-line copy. */
-static inline int tPMenuItem_IsEnabledAndNavigable(tPMenuItem *item) {
-    int result = false;
-    if (((item->fFlags ^ 1) & 1) != 0) {
-        result = item->IsNavigable() != 0;
-    }
-    return result;
-}
-static inline int tPMenuItem_IsDisabledOrNotNavigable(tPMenuItem *item) {
-    int result = false;
-    if (((item->fFlags & 1) != 0) || (item->IsNavigable() == 0)) {
-        result = true;
-    }
-    return result;
-}
 struct tPMenuItemNonInteractiveText : public tPMenuItem {
     tPMenuItemNonInteractiveText(unsigned int);
     ~tPMenuItemNonInteractiveText();
@@ -186,6 +173,8 @@ struct tPMenuItemGoToMenuButton : public tPMenuItemInteractive {
 };
 struct tPMenuItemCommandButton : public tPMenuItemInteractive {
     tPMenuCommandType fCommand;
+    void SetCommand(tPMenuCommandType); /* inferred setter for the confirmation command */
+    void SetConfirmation(bool); /* inferred: kMPause_CommandConfirmationFlag controls the confirmation path */
     tPMenuItemCommandButton(unsigned int, tPMenuCommandType);
     ~tPMenuItemCommandButton();
     void ProcessInput(tInputKeyType &, tPMenuCommand &);
@@ -210,6 +199,11 @@ struct tPMenu {
     void CheckForDisabled();
     virtual void ProcessInput(tInputKeyType &, tPMenuCommand &);
     virtual void Draw();
+    int CurrentItem(); /* inferred accessor: retail records this at the current-item reads */
+    unsigned int CurrentItemText(); /* inferred getter for the selected item's description */
+    void SetCurrentItem(int); /* inferred setter: retail records the confirmation-menu receiver */
+    void SetHighlight(bool); /* inferred setter: retail records this in both highlight arms */
+    int NumItems(); /* inferred inline count getter: retail records this at both count reads */
     int NumEnabledItems();
     int ItemEnabledNum(int);
 };
@@ -251,5 +245,25 @@ typedef int (*getcode)();
 typedef void (*fontblitbegin)();
 typedef void (*fontblitend)();
 typedef void (*adjustchar)();
+
+/* The inline receiver pairs at NumEnabledItems' two count reads establish
+   a getter on tPMenu. Its spelling is inferred; the interface definition
+   retains the debug scopes without an extra standalone body. */
+#pragma interface
+inline int tPMenu::NumItems() { return fNumItems; }
+inline int tPMenu::CurrentItem() { return fCurrentItem; }
+inline void tPMenu::SetHighlight(bool highlight) { fHighlight = highlight; }
+inline unsigned int tPMenuItem::TextDescription() { return fTextDescription; }
+inline void tPMenuItem::SetTextDescription(unsigned int text) { fTextDescription = text; }
+inline void tPMenuItemCommandButton::SetCommand(tPMenuCommandType command) { fCommand = command; }
+inline void tPMenuItemCommandButton::SetConfirmation(bool confirmation) {
+    if (!confirmation) {
+        fCommand = (tPMenuCommandType)(fCommand & ~kMPause_CommandConfirmationFlag);
+    } else {
+        fCommand = (tPMenuCommandType)(fCommand | kMPause_CommandConfirmationFlag);
+    }
+}
+inline unsigned int tPMenu::CurrentItemText() { return fItemList[fCurrentItem]->TextDescription(); }
+inline void tPMenu::SetCurrentItem(int item) { fCurrentItem = item; }
 
 #endif

@@ -472,11 +472,14 @@ void AIState_Chase::SetMurderMode(int murderMode,int murderTicks)
 
 
 
-/* ---- SetUp__13AIState_Chase  AIState_Chase::SetUp  [AISTATE.CPP:252-282] SLD-VERIFIED ---- */
+/* ---- SetUp__13AIState_Chase  AIState_Chase::SetUp  [retail AISTATE.CPP:252-282; native/byte verified, inline scope starts and SLD open] ---- */
 
-/* retail's SetUp tree holds four inline-call pairs with no recorded variables (one after Update(), three in the
-   next block): the two direction selects and two delay-car reads are inline calls, not open-coded */
-static inline int AIState_SpeedDir(int speed) { return (-1 < speed) ? 1 : -1; }
+/* Retail has four variable-free inline pairs. These helper spellings are
+   inferred from the stores/reads, not surviving retail names. A reference
+   destination and computed delay-car arguments keep their unnamed inputs
+   out of the caller's local list. The second pair's start is still open. */
+static inline void AIState_SetDirection(int &destination, int direction) { destination = direction; }
+static inline int DelayCarSpeedDir(AIDelayCar *d) { return (-1 < d->currentSpeed_) ? 1 : -1; }
 static inline int DelayCarRoadPosition(AIDelayCar *d) { return d->roadPosition_; }
 static inline int DelayCarSlice(AIDelayCar *d) { return d->slice_; }
 
@@ -487,25 +490,17 @@ void AIState_Chase::SetUp()
 {
   coorddef targetCarPosition;
 
-  /* SYM-CODEGEN-CARRIER: dc -- absent from the surviving local records.
-   * Direct `delayCar_` member accesses change 20 instructions and shorten the
-   * body by four because retail keeps this address in a saved register across
-   * Update(). */
-  AIDelayCar *dc;
+  /* MATCH: the computed delay-car helper arguments let GCC retain &delayCar_
+     in s1 across Update() without a named dc capture. The position_ struct
+     copy still reads through this at +40, as the oracle does. */
 
-  /* MATCH (w13-a5): &delayCar_ held in a SAVED reg across the Update() call (lever #16),
-     then SELECTIVE caching -- currentSpeed_/roadPosition_/slice_ read via dc (s1), but the
-     position_ struct copy reads via this (s0 + 40) exactly as the oracle does. */
+  this->delayCar_.Update();
 
-  dc = &this->delayCar_;
-
-  dc->Update();
-
-  this->carDir_ = AIState_SpeedDir((this->carObj_)->currentSpeed);
-  this->targetDir_ = AIState_SpeedDir(dc->currentSpeed_);
-  this->latMetersBetween_ = (this->carObj_)->roadPosition - DelayCarRoadPosition(dc);
+  AIState_SetDirection(this->carDir_, (-1 < this->carObj_->currentSpeed) ? 1 : -1);
+  this->targetDir_ = DelayCarSpeedDir(&this->delayCar_);
+  this->latMetersBetween_ = (this->carObj_)->roadPosition - DelayCarRoadPosition(&this->delayCar_);
   targetCarPosition = (this->delayCar_).position_;
-  this->longMetersBetween_ = AIWorld_SplineDistance(this->carObj_,DelayCarSlice(dc),&targetCarPosition);
+  this->longMetersBetween_ = AIWorld_SplineDistance(this->carObj_,DelayCarSlice(&this->delayCar_),&targetCarPosition);
 
   (this->carObj_)->targetPos.x =
       (this->carObj_)->targetPos.y =
@@ -568,11 +563,12 @@ void AIState_Chase::DoSlowNitrous()
 
 
 /* ---- DoNitrous__13AIState_Chasei  AIState_Chase::DoNitrous  [AISTATE.CPP:296-318] SLD review open ----
- * SOURCE-RECOVERY: early exits retain retail's blez/bnez guards while allowing
+ * SOURCE-RECOVERY: the nitrous rejection and positive slowdown guard retain
+ * retail's blez/bnez graph while allowing
  * GetSlowDownEndTime() to restore the nested inline `this` record. The const
  * tick snapshot preserves retail load order; direct global access is 2 diffs.
- * humanLoop and distanceMeters belong to the guarded traversal, not root.
- * Native nesting is still one level shallow for both; bytes remain 83/83. */
+ * humanLoop and distanceMeters now have retail's depths in the for traversal.
+ * The outer guard starts at +0x30 versus retail +0; bytes remain 83/83. */
 
 void AIState_Chase::DoNitrous(int checkForHumans)
 
@@ -581,18 +577,13 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 {
   if (this->nitrousTicks_ <= 0) return;
   const int currentTick = simGlobal.gameTicks; /* debug-elided source value; no retail local */
-  if (currentTick < this->GetSlowDownEndTime()) return;
+  if (currentTick >= this->GetSlowDownEndTime()) {
 
-  (this->carObj_)->accNitrous = 0x30000;
+    (this->carObj_)->accNitrous = 0x30000;
 
-  (this->carObj_)->speedNitrous = 0x28000;
+    (this->carObj_)->speedNitrous = 0x28000;
 
-  {
-    {
-      int humanLoop;
-      humanLoop = 0;
-
-    while (true) {
+    for (int humanLoop = 0; ; humanLoop++) {
       int distanceMeters;
 
       if (checkForHumans == 0) {
@@ -626,11 +617,8 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
       }
 
-      humanLoop = humanLoop + 1;
-
     }
 
-    }
   }
 
 }
@@ -1245,21 +1233,24 @@ LAB_MIN_A:
 
 LAB_80070adc:
 
-  int selectedSpeed; /* SOURCE CARRIER: retail $v1 clamp; direct ternary is 24 diffs at 199/195; name absent from SYM. */
+  /* Retail zDistance is dead after the geometric distance phase. Reusing its
+     REG:$3 quantity for this clamp removes the unrecorded selectedSpeed object
+     while preserving all 195 words and the recorded local homes. Literal
+     original reuse is not uniquely proved by that register reuse. */
   Car_tObj *const chaseCar = this->carObj_; /* SOURCE CARRIER: direct member access is 14 diffs/2 reloads; name not in SYM. */
 
   if (chaseCar->direction == 1) {
-    selectedSpeed = minSpeed;
-    if (chaseCar->desiredSpeed < selectedSpeed) {
-      selectedSpeed = chaseCar->desiredSpeed;
+    zDistance = minSpeed;
+    if (chaseCar->desiredSpeed < zDistance) {
+      zDistance = chaseCar->desiredSpeed;
     }
   } else {
-    selectedSpeed = -minSpeed;
-    if (selectedSpeed < chaseCar->desiredSpeed) {
-      selectedSpeed = chaseCar->desiredSpeed;
+    zDistance = -minSpeed;
+    if (zDistance < chaseCar->desiredSpeed) {
+      zDistance = chaseCar->desiredSpeed;
     }
   }
-  chaseCar->desiredSpeed = selectedSpeed;
+  chaseCar->desiredSpeed = zDistance;
 
   AI_GenericBeginCycle(this->carObj_);
 
@@ -1660,30 +1651,24 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
 
 
 
-/* ---- UnleashIfInRange__15AIState_OffroadP8Car_tObj  AIState_Offroad::UnleashIfInRange  [AISTATE.CPP:926-936] SLD-VERIFIED ---- */
-/* IDA's retail register annotations expose the original max-threshold expression:
-   a single comparison against a ternary-selected limit. This produces the oracle's
-   branch-delay comparison and two separate 0x140000 materializations (30/30 PASS). */
+/* ---- UnleashIfInRange__15AIState_OffroadP8Car_tObj  AIState_Offroad::UnleashIfInRange  [retail AISTATE.CPP:926-936; native/byte verified, SLD attribution open] ---- */
+/* Retail names the clamped result releaseDistanceMeters in v1. The bound-first
+   in-place conditional preserves the branch-delay comparison and both threshold
+   materializations. Its final store has an inline receiver/body scope pair;
+   MarkLetGo is an inferred setter spelling, not a surviving retail name. */
 
 void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
-
-
-
 {
-  int distanceAbsMeters;
-  int releaseDistanceMeters;
+  int distanceAbsMeters = AIWorld_SplineDistance(this->carObj_,car);
+  distanceAbsMeters = __builtin_abs(distanceAbsMeters);
 
-  distanceAbsMeters = __builtin_abs(AIWorld_SplineDistance(this->carObj_,car));
+  int releaseDistanceMeters = fixedmult((car->N).speedXZ,this->releaseTime_);
 
-  releaseDistanceMeters = fixedmult((car->N).speedXZ,this->releaseTime_);
+  releaseDistanceMeters = (0x140000 <= releaseDistanceMeters) ? releaseDistanceMeters : 0x140000;
 
-  if (distanceAbsMeters <
-      ((releaseDistanceMeters < 0x140000) ? 0x140000 : releaseDistanceMeters)) {
-    this->letGo_ = 1;
+  if (distanceAbsMeters < releaseDistanceMeters) {
+    this->MarkLetGo();
   }
-
-  return;
-
 }
 
 

@@ -8,7 +8,7 @@
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
+static inline int FE_Ticks(void) { return *(volatile int *)&ticks; }
 
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FD0): the unused inline of the
@@ -45,39 +45,19 @@ void MPause_StartPauseMenu(void);
 void MPause_EndPauseMenu(void);
 void MPause_KillMPause(void);
 
-/* Preserve the retail currentItem staging ($v1 -> $a1 in the branch delay slot). */
-static inline int MPause_CurrentItem(tPMenu *menu)
+inline void tPMenuItem::Enable()
 {
-  return menu->fCurrentItem;
-}
-
-static inline void MPause_InitializeMenu(tPMenu *menu)
-{
-  menu->Initialize();
-}
-
-static inline void MPause_EnableItem(tPMenuItem *item)
-{
-  if (item->IsDisabled()) {
+  if (this->IsDisabled()) {
     ChangedEnabling = 1;
-    item->fFlags &= ~1U;
+    this->fFlags &= ~1U;
   }
 }
 
-static inline void MPause_DisableItem(tPMenuItem *item)
+inline void tPMenuItem::Disable()
 {
-  if (item->IsEnabled()) {
+  if (this->IsEnabled()) {
     ChangedEnabling = 1;
-    item->fFlags |= 1;
-  }
-}
-
-static inline void MPause_SetCommandPlayer(tPMenuItemCommandButton *item, int player)
-{
-  if (player == 0) {
-    item->fCommand &= ~0x100;
-  } else {
-    item->fCommand |= 0x100;
+    this->fFlags |= 1;
   }
 }
 
@@ -166,27 +146,27 @@ void MPause_MusicLogic(char active)
     if (wasActive == '\0') {
       AudioMus_AutoVolume(500,AudioCmn_MusicLevel(gMasterMusicLevel));
     }
-    if ((MPause_CurrentItem(gPauseCurrentMenu) == 1) ||
-        (MPause_CurrentItem(gPauseCurrentMenu) == 2)) {
+    if ((gPauseCurrentMenu->CurrentItem() == 1) ||
+        (gPauseCurrentMenu->CurrentItem() == 2)) {
       AudioMus_Volume(AudioCmn_MusicLevel(gMasterMusicLevel));
     }
     testSFX = false;
-    if (gPauseCurrentMenu->fCurrentItem == 3) {
+    if (gPauseCurrentMenu->CurrentItem() == 3) {
       samp = 0x10;
       vol = gMasterSFXLevel;
       testSFX = true;
     }
-    if (gPauseCurrentMenu->fCurrentItem == 4) {
+    if (gPauseCurrentMenu->CurrentItem() == 4) {
       samp = 0x10;
       vol = gMasterFENarrationLevel;
       testSFX = true;
     }
-    if (gPauseCurrentMenu->fCurrentItem == 5) {
+    if (gPauseCurrentMenu->CurrentItem() == 5) {
       samp = 0x10;
       vol = gMasterEngineLevel;
       testSFX = true;
     }
-    if (gPauseCurrentMenu->fCurrentItem == 6) {
+    if (gPauseCurrentMenu->CurrentItem() == 6) {
       samp = 0x10;
       vol = gMasterAmbientLevel;
       testSFX = true;
@@ -199,7 +179,7 @@ void MPause_MusicLogic(char active)
         sndover = SNDover(SFXHandle);
       }
       if ((sndover != 0) && (0xc0 < FE_Ticks() - lastplaytick)) {
-        lastplaytick = *(volatile int *)&ticks;
+        lastplaytick = FE_Ticks();
         SFXHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,samp,0,vol,0x40)
         ;
       }
@@ -223,20 +203,20 @@ void MPause_ControllerLogic(void)
 {
   /* SOURCE-SHAPE RECEIPT: the retail SYM block has no function local here;
      its SLD has the two disable expansions in the line-378 region and the
-     two enable expansions in the line-383 region.  The same TU helpers are
+     two enable expansions in the line-383 region.  The same inline members are
      already used by MPause_StartPauseMenu and preserve the four transient
      $s0 item-address webs byte-for-byte without inventing a retained local. */
   if (PadGetState((u_int)(Device_gPausePortIndex != '\0') << 4) == 2) {
-    MPause_DisableItem(&gPauseMenuDefs->itemControllerShockMode);
-    MPause_DisableItem(&gPauseMenuDefs->itemControllerShockImpact);
+    gPauseMenuDefs->itemControllerShockMode.Disable();
+    gPauseMenuDefs->itemControllerShockImpact.Disable();
   }
   else {
-    MPause_EnableItem(&gPauseMenuDefs->itemControllerShockMode);
-    MPause_EnableItem(&gPauseMenuDefs->itemControllerShockImpact);
+    gPauseMenuDefs->itemControllerShockMode.Enable();
+    gPauseMenuDefs->itemControllerShockImpact.Enable();
   }
 }
 
-/* ---- MPause_Logic__Fv  [MPAUSE.CPP:390-486] SLD-VERIFIED ---- */
+/* ---- MPause_Logic__Fv  [retail SLD MPAUSE.CPP:390-486; reconstruction SLD still differs] ---- */
 int MPause_Logic(void)
 
 {
@@ -245,7 +225,7 @@ int MPause_Logic(void)
   bool debounce;
 
   keyVal = kInput_KeyType_NoKey;
-  debounce = Debounce(gPauseCurrentMenu);
+  debounce = gPauseCurrentMenu->Debounce();
   if (Input_Interface(5,1)) {
     keyVal = kInput_KeyType_Cross;
   }
@@ -279,20 +259,20 @@ int MPause_Logic(void)
          NFS3, NFS4-PC, CPE/MAP, or split-decompiler references.
          ORIGINAL-NAME-UNRESOLVED: oldItem is a descriptive reconstruction
          placeholder, not an accepted original identifier. */
-      const int oldItem = gPauseCurrentMenu->fCurrentItem;
+      const int oldItem = gPauseCurrentMenu->CurrentItem();
       gPauseCurrentMenu->ProcessInput(keyVal,command);
-      /* SYM-CODEGEN-CARRIER: newItem -- a distinct post-call snapshot is
-         required: removing it produces 197/199 instructions and 18 diffs
-         because ItemEnabledNum may clobber the menu state before the second
-         position calculation.  Its original spelling is likewise absent.
+      /* SOURCE-REVIEW: newItem -- the earlier direct-reread trial produced
+         197/199 instructions and 18 diffs. This is a basin-specific receipt,
+         not proof that the original source declared a distinct object or
+         that ItemEnabledNum mutates the menu. Its spelling is absent from SYM.
          ORIGINAL-NAME-UNRESOLVED: newItem remains source-name backlog. */
-      const int newItem = gPauseCurrentMenu->fCurrentItem;
+      const int newItem = gPauseCurrentMenu->CurrentItem();
       if ((short)oldItem != (short)newItem) {
         int start;
         int finish;
 
-        start = ItemEnabledNum(gPauseCurrentMenu,(short)oldItem) * 0xd + 0x6a;
-        finish = ItemEnabledNum(gPauseCurrentMenu,(short)newItem) * 0xd + 0x6a;
+        start = gPauseCurrentMenu->ItemEnabledNum((short)oldItem) * 0xd + 0x6a;
+        finish = gPauseCurrentMenu->ItemEnabledNum((short)newItem) * 0xd + 0x6a;
         kMovingHighlight = start - finish;
         kMovingHighlightDir = (finish - start) / 10;
       }
@@ -317,10 +297,9 @@ MPauseLogic_updateNext:
 MPauseLogic_command:
   if (command.type != kMPause_NoEvent) {
     if ((command.type & kMPause_CommandConfirmationFlag) != 0) {
-      gPauseMenuDefs->itemConfirmTitle.fTextDescription =
-          gPauseCurrentMenu->fItemList[gPauseCurrentMenu->fCurrentItem]->fTextDescription;
-      gPauseMenuDefs->itemConfirmYes.fCommand = command.type & 0xff;
-      gPauseMenuDefs->menuConfirmYesNo.fCurrentItem = 0;
+      gPauseMenuDefs->itemConfirmTitle.SetTextDescription(gPauseCurrentMenu->CurrentItemText());
+      gPauseMenuDefs->itemConfirmYes.SetCommand((tPMenuCommandType)(command.type & 0xff));
+      gPauseMenuDefs->menuConfirmYesNo.SetCurrentItem(0);
       command.type = kMPause_GoToMenu;
       command.nextMenu = &gPauseMenuDefs->menuConfirmYesNo;
     }
@@ -329,14 +308,14 @@ MPauseLogic_command:
     case kMPause_GoToMenu:
       gBackList[gBackDepth++] = gPauseCurrentMenu;
       gPauseCurrentMenu = command.nextMenu;
-      MPause_InitializeMenu(gPauseCurrentMenu);
+      gPauseCurrentMenu->Initialize();
       break;
 
     case kMPause_BackupMenu:
       if (gBackDepth > 0) {
         --gBackDepth;
         gPauseCurrentMenu = gBackList[gBackDepth];
-        MPause_InitializeMenu(gPauseCurrentMenu);
+        gPauseCurrentMenu->Initialize();
       } else {
         command.type = kMPause_Continue;
         return command.type;
@@ -373,16 +352,14 @@ void MPause_Render(void)
   }
 
   if (kMovingHighlight != 0) {
-    gPauseCurrentMenu->fHighlight = 0;
+    gPauseCurrentMenu->SetHighlight(false);
   } else {
-    gPauseCurrentMenu->fHighlight = 1;
+    gPauseCurrentMenu->SetHighlight(true);
   }
 
-  (**(int (**)(...))(((u_int *)gPauseCurrentMenu)[0x14] + 0x24))
-            ((int)((u_int *)gPauseCurrentMenu) +
-             (int)*(short *)(((u_int *)gPauseCurrentMenu)[0x14] + 0x20));
-  numItems = NumEnabledItems(gPauseCurrentMenu);
-  int currentItem = MPause_CurrentItem(gPauseCurrentMenu);
+  gPauseCurrentMenu->Draw();
+  numItems = gPauseCurrentMenu->NumEnabledItems();
+  int currentItem = gPauseCurrentMenu->CurrentItem();
   if (kMovingHighlight != 0) {
     Hud_FBuildF4(1,0x50,
                  (gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd + 0x6a) +
@@ -405,40 +382,40 @@ void MPause_InitMPause(void)
   return;
 }
 
-/* ---- MPause_StartPauseMenu__Fv  [MPAUSE.CPP:548-593] SLD-VERIFIED ---- */
+/* ---- MPause_StartPauseMenu__Fv  [retail SLD MPAUSE.CPP:548-593; reconstruction SLD still differs] ---- */
 void MPause_StartPauseMenu(void)
 
 {
   gPauseCurrentMenu = &gPauseMenuDefs->menuPause;
-  MPause_InitializeMenu(gPauseCurrentMenu);
+  gPauseCurrentMenu->Initialize();
   gBackDepth = 0;
 
   if ((GameSetup_gData.raceType != RaceType_PinkSlips) &&
       (GameSetup_gData.raceType != RaceType_Tournament)) {
-    MPause_EnableItem(&gPauseMenuDefs->itemRestart);
+    gPauseMenuDefs->itemRestart.Enable();
   } else {
-    MPause_DisableItem(&gPauseMenuDefs->itemRestart);
+    gPauseMenuDefs->itemRestart.Disable();
   }
 
   if (GameSetup_gData.raceType == RaceType_PinkSlips) {
-    MPause_EnableItem(&gPauseMenuDefs->itemForfeitRace);
-    MPause_DisableItem(&gPauseMenuDefs->itemQuitRace);
+    gPauseMenuDefs->itemForfeitRace.Enable();
+    gPauseMenuDefs->itemQuitRace.Disable();
   }
   else {
-    MPause_DisableItem(&gPauseMenuDefs->itemForfeitRace);
-    MPause_EnableItem(&gPauseMenuDefs->itemQuitRace);
+    gPauseMenuDefs->itemForfeitRace.Disable();
+    gPauseMenuDefs->itemQuitRace.Enable();
   }
 
-  MPause_EnableItem(&gPauseMenuDefs->itemAudioSettingsMusicVolume);
+  gPauseMenuDefs->itemAudioSettingsMusicVolume.Enable();
 
   if (Replay_ReplayMode >= 2) {
-    MPause_SetCommandPlayer(&gPauseMenuDefs->itemQuitRace, 0);
-    MPause_SetCommandPlayer(&gPauseMenuDefs->itemRestart, 0);
-    MPause_SetCommandPlayer(&gPauseMenuDefs->itemForfeitRace, 0);
+    gPauseMenuDefs->itemQuitRace.SetConfirmation(false);
+    gPauseMenuDefs->itemRestart.SetConfirmation(false);
+    gPauseMenuDefs->itemForfeitRace.SetConfirmation(false);
   } else {
-    MPause_SetCommandPlayer(&gPauseMenuDefs->itemQuitRace, 1);
-    MPause_SetCommandPlayer(&gPauseMenuDefs->itemRestart, 1);
-    MPause_SetCommandPlayer(&gPauseMenuDefs->itemForfeitRace, 1);
+    gPauseMenuDefs->itemQuitRace.SetConfirmation(true);
+    gPauseMenuDefs->itemRestart.SetConfirmation(true);
+    gPauseMenuDefs->itemForfeitRace.SetConfirmation(true);
   }
 }
 

@@ -1589,19 +1589,23 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
 
 
-/* ---- CheckForWipeOut__10AIHigh_Cop  AIHigh_Cop::CheckForWipeOut  [AIH_COP.CPP:845-885] SLD-VERIFIED ---- */
-
-/* retail's CheckForWipeOut tree: the guard level holds two inline-call pairs (one is the game-tick read),
-   one pair sits before the loop (the RAND statement, SLD 861), and the loop is a for-level with hLoop
-   whose body block holds one more pair that is still unidentified */
+/* Retail's guard pair is the car getter plus the remaining timer query,
+   not a GameTicks accessor. The loop pair reads the player's chase-level index. */
 static inline int AI_Rand(void)
 {
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
   return (int)((randtemp >> 8) & 0xffff);
 }
-static inline int GameTicks(void) { return simGlobal.gameTicks; }
+inline int AICop_PerpChaseInfo::RemainingEngagementTime() { return engagementTime_ / 0x10000; }
+inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; }
 
+/* ---- CheckForWipeOut__10AIHigh_Cop [retail AIH_COP.CPP:845-885;
+ * 94/94 byte PASS, native ownership exact, full SLD attribution open] ---- */
+/* Both actual getter pairs permit the direct guard without skipWipeOut.
+ * A conditional-expression store keeps the loop getter pair at its retail
+ * address without an extra if owner. Literal original macro/helper names are
+ * unproven; all named locals and all12 native scope regions match. */
 void AIHigh_Cop::CheckForWipeOut()
 
 
@@ -1613,15 +1617,10 @@ void AIHigh_Cop::CheckForWipeOut()
 
   int thisTargetLevel;
 
-  /* SYM-CODEGEN-CARRIER: skipWipeOut -- SYM does not preserve the spelling
-     of this optimized compound-result quantity. A direct early-return guard
-     compiles to 91 instructions/7 oracle diffs; assigning the disjunction to
-     this native boolean reproduces the retail 94-instruction PASS graph. */
-  bool skipWipeOut;
 
   
 
-  if (this->stateType_ != 4) {
+  if (this->stateType_ != STATE_CHASE) {
 
     return;
 
@@ -1631,13 +1630,11 @@ void AIHigh_Cop::CheckForWipeOut()
      (gameTicks FIRST) makes gcc schedule the D_8011E0B0 load into the load-delay
      gap after `lw carObj_`; the `wipeOutEndTick <= gameTicks` spelling emits a nop
      there instead and rotated the whole a0/a1 band. 25 -> PASS. */
-  skipWipeOut = (this->perpTarget_ == (AIHigh_Player *)0x0) ||
+  if ((this->perpTarget_ == (AIHigh_Player *)0x0) ||
       (((AIHigh_GetCarObj(this->perpTarget_))->carFlags & 8U) == 0) ||
-      (GameTicks() < (this->carObj_)->wipeOutEndTick) ||
-      ((this->perpTarget_->perpChaseInfo_.engagementTime_ / 0x10000) >= 2);
-  if (skipWipeOut) {
+      (simGlobal.gameTicks < (this->carObj_)->wipeOutEndTick) ||
+      (this->perpTarget_->perpChaseInfo_.RemainingEngagementTime() >= 2))
     return;
-  }
 
   /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
      (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
@@ -1647,7 +1644,7 @@ void AIHigh_Cop::CheckForWipeOut()
      `addu $v1,$t1,$a2` lands in its delay slot), 879 = the store, 884 = the bump. */
   randVal = AI_Rand();
   thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
-  for (int hLoop = 0; hLoop < NumHumanRaceCars(); hLoop++) {
+  for (int hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop++) {
 
     Car_tObj *thisPlayerObj;
 
@@ -1659,15 +1656,10 @@ void AIHigh_Cop::CheckForWipeOut()
 
     perTickProb = AI_elapsedTime * 89;
 
-    if (thisTargetLevel < (thisPlayer->perpChaseInfo_).chaseLevelIndex_) {
-
-      if (randVal < perTickProb) {
-
-        (this->carObj_)->wipeOutEndTick = simGlobal.gameTicks + 0x280;
-
-      }
-
-    }
+    (thisTargetLevel < thisPlayer->perpChaseInfo_.GetChaseLevelIndex() &&
+     randVal < perTickProb)
+      ? (void)(this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0x280)
+      : (void)0;
 
   }
   return;

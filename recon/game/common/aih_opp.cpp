@@ -20,13 +20,17 @@ extern "C" int sprintf(char *, const char *, ...);
 extern int          AI_elapsedTime;     /* H24: ai.cpp @0x8013C554 (not in this TU's externs) */
 extern AIHigh_Base *highLevelAIObjs[];  /* H24: @0x8010CD38 (not in this TU's externs) */
 
-inline int AICop_PerpChaseInfo::IsLastChaseLevel()
-{
-  return bestChaseLevelIndex_ == copGameInfo_->numLevels - 1;
-}
+inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; }
+inline int AICop_PerpChaseInfo::BestChaseLevelIndex() { return bestChaseLevelIndex_; }
+inline int AICop_PerpChaseInfo::GetNumLevels() { return copGameInfo_->numLevels; }
 
 
-/* ---- CheckForWipeOut__15AIHigh_Opponent  AIHigh_Opponent::CheckForWipeOut  [AIH_OPP.CPP:38-94] SLD-VERIFIED ---- */
+/* ---- CheckForWipeOut__15AIHigh_Opponent [retail AIH_OPP.CPP:38-94;
+ * 120/120 byte PASS, native/source/SLD recovery still open] ---- */
+/* The historical allocator receipts below are measurements of earlier source
+ * shapes, not proof that an omitted local or a particular device was original.
+ * Current getters/early guards restore all19 scope tuples, but four extra
+ * locals, hLoop ownership, const aliases and remaining fences need recovery. */
 
 /* ==== W63-A12 (51 -> 50, ours 118 / oracle 120).  THE LICM QUESTION IS ANSWERED AND
    THE WHOLE $t-BAND IS NOW RETAIL-EXACT; the residual is ONE named razor.
@@ -273,21 +277,18 @@ inline int AICop_PerpChaseInfo::IsLastChaseLevel()
      - __builtin_abs(*(int *)((char *)carObj_h + 1380)) inlined at the compare
        site 19 @121 (re-confirms W71 inline-the-abs-load falsification).
    Probes: scratchpad/w75/A9_v5.py, A9_v6.py; dumps scratch/rtl/aih_opp.i.{sched,sched2}. */
-/* ORIGINAL-NAME-UNRESOLVED: `numRacers`, `highAIList`, `speedLimit`,
-   `highAIEntryAddress` and `absolutePlayerSpeed` are retained
-   allocation/source-shape objects. NFS4 SYM omits their literal names,
-   but types, member offsets and retail value flow support these semantic
-   roles; none is asserted to be the original identifier spelling. */
+/* UNRESOLVED RECONSTRUCTION: numRacers, highAIList, speedLimit,
+   highAIEntryAddress, playerCurrentSpeed and absolutePlayerSpeed have no
+   corresponding retail caller object. Their roles are inferred from values;
+   failed finite variants do not prove distinct original source objects. */
 
-/* SYM-CODEGEN-CARRIER: numRacers -- its named lifetime makes the loop-bound
+/* UNRESOLVED RECONSTRUCTION: numRacers -- its named lifetime makes the loop-bound
    load a profitable loop.c movable and the zero-op references reproduce
    retail $t3.  Reading NumHumanRaceCars() directly was measured at 30
    diffs and 122 instructions. */
 
-/* DEBUG-ELIDED SOURCE VALUE: lacksActiveCopPursuit -- crime is zero or
-   assigned-cop counts sum to zero. The named const preserves retail's
-   120 instructions; folding this value into the elapsed-time guard emits
-   112 and changes 22 load/compare/branch instructions. */
+/* The old lacksActiveCopPursuit alias is removed: member getters and separate
+   elapsed-time rejection preserve120/120 with its original scope endpoint. */
 
 /* W76-A1 2026-08-24 -- SUPERSEDED BY W85-S1, kept for the mechanism.  It reached
    PASS 120/120 with a `register int speedLimit asm("$5")` + `register int carIndex
@@ -351,7 +352,7 @@ inline int AICop_PerpChaseInfo::IsLastChaseLevel()
    carObj_ itself in one register across the whole function -- write through
    this->carObj_->wipeOutEndTick directly at each site, don't cache carObj_ into a local. */
 
-/* DEBUG-ELIDED SOURCE VALUE: highAIList -- the const base gives an
+/* UNRESOLVED RECONSTRUCTION: highAIList -- the const base gives an
    early allocno but no native local; a loop hoist ties oppFines and
    loses retail $t5. */
 
@@ -403,7 +404,7 @@ inline int AICop_PerpChaseInfo::IsLastChaseLevel()
    Replaces `register int carIndex asm("$2")` + `register int field1380 asm("$3")`
    + a 3-instruction `__asm__("lw/sll/addu")` block. */
 
-/* DEBUG-ELIDED SOURCE VALUE: playerChaseLevelIndex -- the use-site
+/* UNRESOLVED RECONSTRUCTION: playerChaseLevelIndex -- the use-site
    const keeps its load ahead of the branch and avoids two load-delay
    nops. Reading it only in the condition emits 122 instructions and
    four ordered diffs. */
@@ -411,11 +412,9 @@ inline int AICop_PerpChaseInfo::IsLastChaseLevel()
 /* branch 0x800634A0's DELAY SLOT (0x800634A4 $a0=$t2<<2=116*ae) runs before reaching RANDGATE.
    oracle recomputes `AI_elapsedTime*116` FRESH at EACH branch's delay slot (byte-identical
    `sll a0,t2,2` at both 0x800634A4 and 0x800634B4) instead of hoisting ONE shared boolean
-   out of the loop; a plain (non-volatile) read here lets gcc CSE+LICM the whole compare to a
-   single flag computed before the loop even starts. The volatile read defeats that CSE/LICM
-   (real semantic effect: this->AI_elapsedTime is a per-tick global gcc must not treat as
-   provably loop-invariant across this branch merge) and reproduces the oracle's per-branch
-   recompute shape (107->86 diffs measured). */
+   out of the loop. Earlier volatile-read measurements are historical only:
+   the current body has no volatile read and retains the two actual perTickProb
+   assignments. That source shape's original spelling is still unproven. */
 
 /* 🔴 W74-A11: the POST-loop half of the numRacers live range (zero insns).  It does two
    jobs: (1) it is the movable's REGNO_LAST_UID, so the bound load's lifetime spans the
@@ -436,18 +435,17 @@ void AIHigh_Opponent::CheckForWipeOut()
   int oppFines;
   int hLoop;
   int numRacers;
-  oppLevel = this->perpChaseInfo_.chaseLevelIndex_;          /* $t7, unconditional prologue load */
+  oppLevel = this->perpChaseInfo_.GetChaseLevelIndex();          /* $t7, unconditional prologue load */
   oppFines = this->carObj_->stats.numFines;                  /* $t6, unconditional prologue load (via carObj_ = $v1) */
-  if ((Cars_gNumCopCars != 0) &&
-     (simGlobal.gameTicks >=
-      (this->carObj_)->wipeOutEndTick)) {
-    const bool lacksActiveCopPursuit =
-        (this->basicPerpInfo_.crime_ == 0) ||
-        (this->basicPerpInfo_.copsAssigned_[0] +
-         this->basicPerpInfo_.copsAssigned_[1] == 0);
-    if ((!lacksActiveCopPursuit) &&
-       (0x27f < simGlobal.gameTicks -
-                (this->carObj_)->wipeOutEndTick)) {
+  if ((Cars_gNumCopCars == 0) ||
+      (simGlobal.gameTicks < this->carObj_->wipeOutEndTick))
+    return;
+  if ((this->basicPerpInfo_.GetCrime() == CRIME_NONE) ||
+      (this->basicPerpInfo_.CopsAssigned(COP_REGULAR) +
+       this->basicPerpInfo_.CopsAssigned(COP_SUPER) == 0))
+    return;
+  if (simGlobal.gameTicks - this->carObj_->wipeOutEndTick <= 0x27f)
+    return;
       randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; randVal = (int)(randtemp >> 8) & 0xffff;
       perTickProb = AI_elapsedTime * 2 + AI_elapsedTime;          /* $a0 = 3*ae, 0x800633BC-C0 -- scheduled into the mult->mflo latency gap */
       if (randVal < perTickProb) {                                /* 0x800633DC-E8 */
@@ -455,12 +453,12 @@ void AIHigh_Opponent::CheckForWipeOut()
             simGlobal.gameTicks + 0xC0; /* 0x800633EC-F8 */
       }
       hLoop = 0;
-      if (!this->perpChaseInfo_.IsLastChaseLevel())
-      {
+      if (this->perpChaseInfo_.BestChaseLevelIndex() ==
+          this->perpChaseInfo_.GetNumLevels() - 1) return;
         AIHigh_Base **const highAIList = highLevelAIObjs;
         __asm__("" : : "r"(numRacers),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this));
         __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop));
-        for (; hLoop < (numRacers = NumHumanRaceCars()); hLoop = hLoop + 1) {   /* 0x80063450 */
+        for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *thisPlayerObj;
           int speedLimit;
           speedLimit = 0xd0000;
@@ -472,7 +470,7 @@ void AIHigh_Opponent::CheckForWipeOut()
           const int absolutePlayerSpeed = __builtin_abs(playerCurrentSpeed);
           AIHigh_Player *thisPlayer = *(AIHigh_Player **)highAIEntryAddress; /* 0x80063464-84 */
           int          playFines    = thisPlayerObj->stats.numFines;          /* SYM REG $3=$v1, 0x80063488 */
-          const int    playerChaseLevelIndex = thisPlayer->perpChaseInfo_.chaseLevelIndex_; /* 0x8006348C */
+          const int    playerChaseLevelIndex = thisPlayer->perpChaseInfo_.GetChaseLevelIndex(); /* 0x8006348C */
           if (speedLimit < absolutePlayerSpeed) {
             if (playerChaseLevelIndex < 2 && !(oppLevel < 3)) {                /* 0x80063494-A0: skips the fines check */
               perTickProb = AI_elapsedTime * 116;
@@ -486,9 +484,6 @@ void AIHigh_Opponent::CheckForWipeOut()
           }
         }
         __asm__("" : : "r"(numRacers),"r"(numRacers));
-      }
-    }
-  }
 }
 
 

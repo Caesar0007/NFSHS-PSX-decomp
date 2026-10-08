@@ -90,6 +90,7 @@ struct Speech {
 
 struct AITrigger_TriggerManager {
     int numTriggers_, invNumTriggers_;
+    int InvNumTriggers(); /* inferred inverse-count getter, retail records the receiver */
     trigger_t *triggers_[100];
     int checkTime_[100];
     int lastTriggerChecked_[9];

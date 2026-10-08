@@ -75,6 +75,7 @@ struct AIState_Offroad : public AIState_Base {
     AIState_Offroad(Car_tObj *, int, coorddef *, matrixtdef *, int, int, int);
     ~AIState_Offroad();
     void UnleashIfInRange(Car_tObj *);
+    void MarkLetGo(); /* inferred inline setter: retail records this at the letGo_ store */
     void Execute();
 };
 
@@ -146,5 +147,6 @@ struct AIState_Cruise : public AIState_Normal {
    inline debug scope without emitting a non-retail standalone copy. */
 #pragma interface
 inline int AIState_Chase::GetSlowDownEndTime() { return slowDownEndTime_; }
+inline void AIState_Offroad::MarkLetGo() { letGo_ = 1; }
 
 #endif

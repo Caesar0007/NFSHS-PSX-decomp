@@ -1,7 +1,7 @@
 /* game/common/object_externs.h -- cross-TU decls for object.cpp (track-object collision +
  *   custom-object pool + IMass props + ObjectMultiAnim/SignAnim animation classes).
- *   Methods of the 4 anim classes are emitted as free fns (Class_ct/_dt/_Draw) per the
- *   track.obj convention (explicit ctor-on-allocated-memory calls). */
+ *   The animation constructors, destructors and Draw functions are C++ members;
+ *   their original class names determine the emitted method symbols. */
 #ifndef _GAME_COMMON_OBJECT_EXTERNS_H_
 #define _GAME_COMMON_OBJECT_EXTERNS_H_
 #include "object_types.h"
@@ -64,20 +64,20 @@ extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez
 extern void  BWorldSm_SetSlice(int slice, BWorldSm_Pos *pos);
 
 extern "C" {
-int fixedatan(...);
-int fixedmult(...);
-int fixedxformy(...);
-void transform(...);
-void *reservememadr(...);
-int purgememadr(...);
-void blockfill(...);
+int fixedatan(int x, int y); /* eacpsxz/fixdatan.h: signed-word coordinates. */
+int fixedmult(int a, int b); /* EA fixed-point multiply: two signed-word arguments. */
+int fixedxformy(int *out, int angle); /* eacpsxz/fxform.c: nine-word matrix. */
+void transform(int *vec, int *mat, int *out); /* eacpsxz/trnsfrm.h */
+void *reservememadr(char *name, int size, int classid); /* eacpsxz/memstd.h */
+int purgememadr(void *p);
+void blockfill(void *dst, int n, unsigned char val); /* eacpsxz/blkfill.h */
 }
 
 /* ---- vtables for the 4 anim classes (data owned by object.obj) ---- */
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
-extern "C" void fixedxformx(matrixtdef *out, int angle);
+extern "C" int fixedxformx(int *out, int angle); /* actual fxform.c return value */
 extern "C" void reorthogonalize(matrixtdef *m);
 
 #endif /* _GAME_COMMON_OBJECT_EXTERNS_H_ */

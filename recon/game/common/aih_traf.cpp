@@ -112,16 +112,19 @@ AIHigh_Traffic::CopCheck(int *blockade)
 /* (class (b) 2026-09-17) the 12-byte constant is HighExecute's local brace initializer: cc1plus emits it at
    expansion time, BEFORE the vtable batch (retail order D_800551A4 0x800551a4, _vt 0x800551b0). */
 
-/* reencarnate a traffic car at a roving trigger: retail's pair records only `trigger` (the AI object argument is
-   used once and propagated; the car is read inside, after the other arguments) */
+/* UNRESOLVED RECONSTRUCTION: retail records trigger one level shallower and
+   no high parameter. This wrapper still has both mismatches; value-pointer,
+   reference/member and statement-expression trials do not resolve them.
+   The car read must remain late and the operation must remain type5-guarded. */
 static inline void Traffic_ReencarnateAtTrigger(AIHigh_Base *high, trigger_t *trigger)
 {
-  AILife_ReencarnateTrafficByPosition(high->carObj_, *(int *)((char *)trigger + 4), 1,
-                                      *(coorddef **)((char *)trigger + 0x3c),
-                                      (matrixtdef *)((char *)trigger + 0xc));
+  AILife_ReencarnateTrafficByPosition(high->carObj_, trigger->trafficPath.slice, 1,
+                                      &trigger->trafficPath.path->position,
+                                      &trigger->trafficPath.orientation);
 }
 
-/* ---- HighExecute__14AIHigh_Traffic  AIHigh_Traffic::HighExecute  [AIH_TRAF.CPP:129-340] SLD-VERIFIED ---- */
+/* ---- HighExecute__14AIHigh_Traffic [retail AIH_TRAF.CPP:129-340;
+ * 547/547 byte PASS, native/SLD recovery still open] ---- */
 
 void AIHigh_Traffic::HighExecute()
 {
@@ -157,7 +160,7 @@ void AIHigh_Traffic::HighExecute()
           pNewTrigger = CheckForNewTriggers();
           if (pNewTrigger != (trigger_t *)0x0) {
             triggerManagerTraffic->DescribeTrigger(pNewTrigger);
-            if (*(int *)pNewTrigger == 5) {
+            if (pNewTrigger->any.type == 5) {
               this->SetState(new AIState_RovingTraffic(carObj_,pNewTrigger), STATE_ROVING_TRAFFIC);
               Traffic_ReencarnateAtTrigger(this, pNewTrigger);
             }
@@ -287,15 +290,21 @@ AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj) : AIHigh_Base(carObj)
 
 
 
-/* ---- CheckForNewTriggers__14AIHigh_Traffic  AIHigh_Traffic::CheckForNewTriggers  [AIH_TRAF.CPP:353-433] SLD-VERIFIED ---- */
+inline int AIHigh_Base::ExchangeTrafficTriggerCheckSlice(int newSlice) {
+  int temp = lastTrafficTriggerCheckSlice_;
+  lastTrafficTriggerCheckSlice_ = newSlice;
+  return temp;
+}
 
+/* ---- CheckForNewTriggers__14AIHigh_Traffic [retail AIH_TRAF.CPP:353-433;
+ * 149/149 byte PASS, native ownership exact, full SLD attribution open] ---- */
+/* The exchange owns retail this/newSlice/temp; the caller's same-value temp
+ * copy is optimized out, without a second debug object. Both for statements
+ * and the visibility early continue restore the complete retail scope tree.
+ * The helper/caller literal spellings remain unproven original text. */
 trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 {
-  int sortedLoop;
-
-  sortedLoop = NumCars() - 1;
-
-  while (sortedLoop >= 0) {
+  for (int sortedLoop = Cars_gNumCars - 1; sortedLoop >= 0; sortedLoop--) {
     Car_tObj *testCar = Cars_gTotalSortedList[sortedLoop];
 
     if ((testCar->carFlags & 0x204U) != 0) {
@@ -327,23 +336,17 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
         }
       }
 
-      {
-        int newSlice = thisSlice;
-        int temp = thisPlayer->lastTrafficTriggerCheckSlice_;
-        thisPlayer->lastTrafficTriggerCheckSlice_ = newSlice;
-        if (temp < newSlice) {
-          startSlice = temp;
-          endSlice = newSlice;
-        }
-        else {
-          startSlice = newSlice;
-          endSlice = temp;
-        }
+      int temp = thisPlayer->ExchangeTrafficTriggerCheckSlice(thisSlice);
+      if (temp < thisSlice) {
+        startSlice = temp;
+        endSlice = thisSlice;
+      } else {
+        startSlice = thisSlice;
+        endSlice = temp;
       }
 
-      int sliceLoop = startSlice;
-      while ((sliceLoop < endSlice) &&
-             ((endSlice - startSlice) < 0x32)) {
+      for (int sliceLoop = startSlice; (sliceLoop < endSlice) &&
+             ((endSlice - startSlice) < 0x32); sliceLoop++) {
         int triggerHere =
           triggerManagerTraffic->CheckForTriggerAtSlice
             (testCar->carIndex,sliceLoop);
@@ -354,18 +357,16 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
           fastRandom = randtemp & 0xffff;
           int randomValue = (((randtemp >> 8) & 0xffff) * 0x19) >> 0xe;
 
-          if ((AILife_IsSliceInAnyVisibleArea(sliceLoop) ==
-               (Car_tObj *)0x0) &&
-              (randomValue < iRandomChance)) {
+          if (AILife_IsSliceInAnyVisibleArea(sliceLoop) != (Car_tObj *)0x0)
+            continue;
+          if (randomValue < iRandomChance) {
             int unused;
             return triggerManagerTraffic->GetTrigger(triggerHere,&unused);
           }
         }
-        sliceLoop = sliceLoop + 1;
       }
     }
 
-    sortedLoop = sortedLoop - 1;
   }
 
   return (trigger_t *)0x0;

@@ -61,22 +61,17 @@ void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
 /* ---- AIPhysic_RevEngine__FP8Car_tObj  (oracle reloads flywheelRpm 3x -- parity test, the add,
  * and the final clamp-check -- and shifts redLine>>16 IN PLACE inside the parity branch's delay
  * slot, not as a fresh expr in the final compare; carIndex%2 (NOT flywheelRpm) feeds `increase`.
- * MATCH: SYM requires fsize=8/mask=0 while recording only the two REG locals
- * below and no AUTO local.  Removing the otherwise dead two-word declaration
- * changes the exact function by 3 oracle diffs; retain it as an explicit frame-
- * shape carrier until stronger source evidence identifies the original construct. ---- */
+ * Signed increase/2 combines to the same shift because the increment is even;
+ * its deleted bias pseudo leaves retail's unnamed 8-byte frame. No dummy array.
+ * Native SYM/bytes match; complete statement-line attribution remains open. ---- */
 void AIPhysic_RevEngine(Car_tObj *carObj)
 {
   int increase;
-  int redLine;
-  /* SYM-CODEGEN-CARRIER: deadfrm -- measured 3-diff frame-shape carrier;
-   * SYM fsize=8 with no recorded AUTO local. */
-  int deadfrm[2];
+  int redLine = carObj->redLine / 0x10000;
 
-  redLine = carObj->redLine / 0x10000;
   increase = ((carObj->carIndex % 2 + 1) * AIPhysic_elapsedTime) * 0x8c;
   if ((carObj->flywheelRpm & 1) != 0) {
-    increase = -(increase >> 1);
+    increase = -(increase / 2);
     if ((increase & 1) != 0) increase = increase - 1;
   }
   carObj->flywheelRpm = carObj->flywheelRpm + increase;
@@ -1062,171 +1057,184 @@ ret0:
      canonicalization (xori return versus retail's branch/jump return funnel). */
 }
 
+/* SOURCE-REVIEW: cfg -- retail has no such pointer record. Earlier no-pointer
+ * trials failed; that is not proof of an original source object. The remaining
+ * address recipe and its C ownership still require recovery. Lower clamps use
+ * the canonical ealib MAX macro without extra clamp-result locals. */
+/* MATCH (W77-root): PASS 412/412 from 5 @413/412, with no post-compile edit.
+ * The SYM-listed `dir` local carries the first direction load.  Two narrow
+ * source-ASM expressions reproduce retail's non-full-address head: a pinned
+ * s0 `%hi` is separated from the a1 field load by the drag store, so no head
+ * lo_sum exists for CSE to retain.  The ordinary delay-slot pass then selects
+ * `uTurn = 0` for the jal slot.  Completing s0 beside the later simGlobal
+ * load produces retail's load-delay fill and leaves all 412 instructions
+ * exact. */
+/* Rule-8 rewrite w13-a4: SYM 8c block @0x8006B400 (fsize 0x30, mask $803f0000, carObj REGPARM $s1).
+ * Oracle holds &AIPhysicConfig in $s0 across the head calls (cluster 1: latvelcalc_lookahead,
+ * dangle/max_dav, max_dlvel, vel_limit_range, lat/ang factors) -> block-local cfg pointer;
+ * later accesses (dav_to_aa, dlvel_to_clacc, targetVel vel_limit_range, skid_value) are fresh
+ * caller-saved rematerializations -> direct AIPhysicConfig globals.
+ * NEAR-MISS 5 diffs (ours 413 / oracle 412): retail puts `uTurn = 0` (addu s4,zero,zero)
+ * in the AIWorld_CalcFutureLateralVel jal slot and defers the `addiu s0,s0,%lo` that
+ * completes the &AIPhysicConfig address to the simGlobal load-delay slot (oracle idx 31,
+ * SLD 1385); ours swaps the two and nops idx 32.  A pure sched1 ready-list tie.
+ * W59-A3 FALSIFIED (each re-gated): (a) moving `cfg = &AIPhysicConfig;` after the
+ * wipeOutEndTick store -> 9 diffs, breaks the %hi share (lui v1 + addiu s0,v1,0);
+ * (b) same move to just after the if-block -> 9; (c) void-tail fence
+ * __asm__("" : : "i"(0)) between the call and the cfg assign -> 16 (414 insns);
+ * (d) 06A SYM-faithful removal of the whole cfg pointer (the SYM 8c lists 14 INT
+ * locals and NO pointer) with all 14 uses spelled AIPhysicConfig.OOCModel.X -> 9,
+ * gcc still builds an address pseudo but splits it across two regs, so 09K applies
+ * (the SYM-absent local is load-bearing here).  Baseline stands; next lens = qtytrace
+ * sched1 ready-list, not source shape.
+ * W63-A12 re-gated (5 @ 413/412) and FALSIFIED one more shape: ARG-PRECOMPUTE, i.e.
+ * hoisting the call argument into a block-local (`int look = direction *
+ * AIPhysicConfig.latvelcalc_lookahead;`) so that `uTurn = 0;` becomes the LAST
+ * statement before the jal and reorg's simple fill can take it -- INERT (5, byte
+ * identical).  Reading: the two insns retail swaps are both already adjacent to the
+ * call in our RTL; the choice between them is made by sched1's ready list, and no
+ * statement-position change alters which one it releases (consistent with the 3 prior
+ * waves).  This closes the STATEMENT-ORDER axis alongside the already-closed
+ * cfg-placement, void-fence and SYM-purge axes; qtytrace remains the only open lens.
+ * W64-A12 re-gated (5 @ 413/412) and added THREE more closed axes, all re-measured:
+ *   (i)  THE WHOLE FENCE FAMILY between the call and the cfg assignment is one basin:
+ *        void-tail `("" : : "i"(0))`, read-only on currentLatVel / carObj / cfg, and the
+ *        identity fence on cfg ALL give exactly 16 @414 -- byte-identical to each other.
+ *        The +1 insn is a BROKEN CSE (a second `lui` for the simGlobal high appears), and
+ *        the lo_sum still wins the jal slot, so an asm barrier does not even reach it.
+ *   (ii) MOVING THE cfg ASSIGNMENT into retail's own block (after the if-block, after the
+ *        wipeOutEndTick store, or spelled as &AIPhysicConfig.latvelcalc_lookahead) = 9 @413
+ *        in all three: the lo_sum STILL lands in the jal delay slot, only now with a
+ *        separate `lui v1` high (+1 insn).  So the lo_sum is NOT pinned by its statement
+ *        position at all -- something lifts it into the pre-call block regardless.
+ *   (iii) FIVE-WAY STATEMENT PERMUTATION of {drag=0, uTurn=0, the call, cfg=&...} : every
+ *        order that keeps cfg after the call measures exactly 5 (inert); cfg-first = 9,
+ *        drag-after-call = 13.  Nothing changes which of the two callee-saved-writing
+ *        insns ends up adjacent to the jal.
+ * Reading: both candidates write CALLEE-SAVED regs, so sched2 may move either across the
+ * CALL_INSN, and the pick is a ready-list tie at equal (zero) in-block priority.  qtytrace
+ * / a sched2 trace remains the only open lens; source shape is exhausted.
+ * W71-A19 re-gated 5 @413/412 and closed the LUID axis with the mechanism named:
+ * both candidates are POST-CALL insns in our stream (`addu s4,zero,zero` and the
+ * `addiu s0,s0,%lo` whose %hi is CSE-shared with the call ARGUMENT's), and reorg's
+ * backward scan takes whichever sched2 issued first.  Under 14C's descending-luid tie
+ * that is the LATER source statement, so the theory-driven fix is to give `uTurn = 0`
+ * the larger luid.  Measured (each re-gated from 5): cfg between drag and uTurn 9;
+ * cfg first 9; cfg immediately before the call 9; uTurn moved AFTER the call 5;
+ * uTurn LAST (after cfg, both post-call) 5; uTurn FIRST 5.  Every cfg-before-call
+ * order costs the shared %hi (+1 insn, the 9-basin); every uTurn move is byte-inert.
+ * => sched2 is NOT breaking this tie on luid here, and the statement axis is now
+ * closed in both directions.  Next lens unchanged: a -dR (sched2) trace.
+ * W72-A11 re-gated 5 @413/412 and LOCALISED THE +1 EXACTLY (tools/sbs.py, ours idx
+ * 17/22/32 vs oracle 17/31): the extra instruction is ONE nop -- the simGlobal load's
+ * (`lw v0,0(v0)`, oracle idx 30) delay slot.  Retail fills THAT slot with the
+ * `addiu s0,s0,%lo(AIPhysicConfig)` lo_sum and puts `addu s4,zero,zero` (uTurn = 0) in
+ * the jal's slot; ours does the reverse and has nothing left for the load slot.  So the
+ * whole residual is ONE dbr pick: fill_simple_delay_slots' backward scan takes the LAST
+ * insn before the jal, and sched2 issued the lo_sum there where retail issued uTurn's
+ * zero.  Both write callee-saved regs, so either is legal -- there is no correctness
+ * asymmetry to exploit, only the issue order.
+ * FALSIFIED THIS WAVE (each re-gated from 5; scratchpad/W72_A11/v_ooc.py):
+ *   identity fence on `cfg` at its FIRST USE -- i.e. OUTSIDE the W64 "fence family"
+ *     window between the call and the cfg assignment                    INERT 5
+ *   read-only fence on uTurn right after `uTurn = 0;`                         11
+ *   identity fence on uTurn right after `uTurn = 0;`                          13
+ *   decl-with-init `AIPhysic_Config_t *cfg = &AIPhysicConfig;` (12D)           9
+ *   13C LAUNCH-BOOST attempt: adjust_priority raises a readied insn only when
+ *     REG_N_SETS(dest)==1, and uTurn is set TWICE (default + guarded value), so its
+ *     def can never be boosted.  Giving the default its own single-set pseudo
+ *     `{ int z = 0; uTurn = z; }`                                        INERT 5
+ *     (cse folds `z` before flow counts the sets -- the axis is closed, not untried)
+ *   both fences together                                                       13
+ * Reading: every fence placement inside either candidate's window either breaks the
+ * %hi share (+1 insn = the 9/16 basins) or is invisible.  Next lens still -dR; NOTE
+ * the instrumented cc1plus ICEs on aih_cop.cpp but has NOT been tried on aiphysic.cpp
+ * (scratchpad/W72_A11/A11_trace.py runs it and prints the per-fn fidelity table first;
+ * a trace is a receipt only for functions it reproduces byte-identically).
+ *
+ * W74-A10 2026-08-22 -- THE OWNER IS NAMED AND FOUR WAVES OF VERDICTS ARE REFUTED.
+ * It is NOT a sched2 ready-list tie, NOT reorg's luid tie, NOT statement order.
+ * It is cse FOLDING THE ADDRESS MATERIALIZATION, and the RTL dumps prove it end to
+ * end (cc1 -dr/-ds/-dc on build/recon/game/common/aiphysic.cpp.i):
+ *   -dr (post-expand): the ARG expression `AIPhysicConfig.latvelcalc_lookahead`
+ *       expands to insn35 `(set r97 (high sym))` + insn36 `(set r96 (lo_sum r97 sym))`
+ *       and insn40 `(set r99 (mem (r96)))` -- i.e. the ARG materializes a FULL-ADDRESS
+ *       pseudo at the head; and `cfg = &AIPhysicConfig;` expands to ITS OWN fresh pair
+ *       AT ITS OWN SOURCE POSITION (insn85 high + insn86 lo_sum, after the
+ *       wipeOutEndTick store when the statement is moved there = retail's slot).
+ *   -ds/-dc (post-cse): insn40's mem is folded to `(mem (lo_sum r97 sym))` (so the ARG
+ *       no longer needs r96) AND the later pair is rewritten to `(set r95 (r96))`, a
+ *       PLAIN COPY of the head pseudo, which local-alloc then coalesces away.
+ *   => the head lo_sum survives ONLY because cse resurrects it as the cfg value, and it
+ *      is the insn reorg's backward scan finds before the jal.  That is why moving the
+ *      statement is byte-inert (W64/W71 both saw it and mis-attributed it to sched).
+ * PROOF BY DENIAL (flag probe, not a landing): with the cfg statement at retail's
+ * position AND `-fno-cse-follow-jumps -fno-cse-skip-blocks`, the fold dies, the head
+ * lo_sum dies with it, and reorg IMMEDIATELY picks retail's filler:
+ *       jal AIWorld_CalcFutureLateralVel ; move $20,$0      <- retail's jal slot
+ * so the reorg half of the residual is SOLVED the moment the fold is denied.  It is
+ * still +1 overall because the un-folded join block re-materializes its own high
+ * (`lui $2,%hi; addiu $16,$2,%lo`) instead of reusing the head's, and that lui also
+ * clobbers the simGlobal load's dest so sched2 cannot slide the pair into the
+ * load-delay hole.
+ * THE EXACT REMAINING REQUIREMENT (now a one-line statement instead of a lens):
+ *   cse must fold the join block's `(high sym)` into the head's high (so the high spans
+ *   the call, is forced callee-saved, and becomes retail's $s0) while NOT having a
+ *   head `lo_sum` pseudo available to fold the join's `lo_sum` into.  Equivalently:
+ *   THE ARG ACCESS MUST NOT LEAVE A FULL-ADDRESS PSEUDO ALIVE.  Retail's head is
+ *   `lui s0,%hi` + `lw a1,%lo(s0)` only -- no full address -- and its single
+ *   `addiu s0,s0,%lo` at oracle idx 31 is the join block's own lo_sum, in-place tied
+ *   because its high source is the same (call-crossing, hence $s0) quantity.
+ * MEASURED THIS WAVE (each a real gate run from the 5-baseline):
+ *   T1 `cfg = &AIPhysicConfig;` moved after the wipeOutEndTick store ... 9 @413
+ *      (count unchanged; only the head high moves to a temp: `lui v1` + `addiu s0,v1`)
+ *   T2 cfg assigned BEFORE the call + arg spelled `cfg->latvelcalc_lookahead` .. 9 @413
+ *   A1 separate arg pointer `p0 = &AIPhysicConfig;` + 20B opacity launder on p0,
+ *      cfg at retail's slot ......................................... 18 @414
+ *      (the launder makes p0 a REAL full address at the head, +1, and drags the
+ *      prologue saves with it -- the cse-breaker must not cost a head insn)
+ *   baseline + `-fno-cse-follow-jumps` / `-fno-cse-skip-blocks` / both: byte-inert
+ *      (at the BASELINE statement position the fold is INTRA-block, so the flags
+ *      cannot bite -- itself a receipt that the fold, not the position, is the owner).
+ * NEXT NAMED ANGLE (unwalked, cheap to price now): kill the head full-address pseudo
+ * WITHOUT adding a head insn.  The SYM-faithful no-pointer form (W59-A3 (d): 14 direct
+ * `AIPhysicConfig.OOCModel.X` uses, last measured 9 and dismissed) is the candidate to
+ * RE-PRICE under today's mechanism -- its "address pseudo split across two regs" is the
+ * same cse artifact, and the SYM (14 INT locals, NO pointer) says it is what EA wrote;
+ * judge it together with the fold-denial, not alone (21E-1).
+ *
+ * W75-A9 re-gated (5 @413/412) and CLOSED THE MOST OBVIOUS READING OF W74 own
+ * requirement with a clean negative.  W74 states it as "THE ARG ACCESS MUST NOT LEAVE
+ * A FULL-ADDRESS PSEUDO ALIVE"; the mechanism that decides whether an address is
+ * pre-split into (high)+(lo_sum) pseudos at all is mips_check_split /
+ * mips_split_addresses (22A-5), whose user-visible switch is -mno-split-addresses --
+ * and build.py already carries a per-fn vehicle for it (PER_FN_NO_SPLIT_ADDRESSES,
+ * spliced by _apply_fn_splice in the C++ lane).  MEASURED per-fn on this function via
+ * the W61_TABLE env hook: -mno-split-addresses = 18 diffs @414 (WORSE, +1 insn), so
+ * removing the split does not remove the head full-address pseudo in the way retail
+ * needs -- retail STILL splits (lui s0,%hi + lw a1,%lo(s0)); what it lacks is a
+ * separate lo_sum pseudo, which is a cse question, not a split-addresses question.
+ * Also re-measured through the same hook, each byte-identical to the 5-baseline:
+ * PER_FN_FORCE_ADDR (-fforce-addr), PER_FN_NO_THREAD_JUMPS, PER_FN_G8.
+ * => the whole PER-FN FLAG-SPLICE MENU available in the C++ lane is now priced on this
+ * function and none of it reaches the fold.  W74 NEXT NAMED ANGLE (re-price the
+ * SYM-faithful no-pointer form together with fold-denial) remains the untaken step.
+ * Probe: W61_TABLE hook on tools/vprobe.py, see scratchpad/w75/A9_report.md. */
+/* W83-A12 (pin-removal belt): the two `register ... asm("$N")` pins that used to
+   bind these two operands of the three address-materialisation `__asm__` blocks below
+   ($16 for cfg, $5 for latvelcalcLookahead) are GONE.  Measured INERT on the pinned
+   base: deleting both leaves the function byte-identical -- gate PASS 412/412, whole-TU
+   tugate 42/42 both runs, brdist 0/42, slotcheck bad=0.  cc1plus picks $16/$5 for these
+   two operands on its own (the "r" constraints plus the surrounding allocation already
+   force them), so the hard-register bindings were never load-bearing.  Do not re-add. */
+/* SOURCE-REVIEW: latvelcalcLookahead -- this is the source-visible
+ * result of the current address/materialization load recipe. Reusing
+ * SYM's later `desiredAngVel` keeps 412 instructions but changes 130
+ * allocation and arithmetic instructions. This finite trial does not prove
+ * that a separate object or this original spelling was required. */
 /* ---- AIPhysic_OutOfControlPhysics__FP8Car_tObj ---- */
 void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
 {
-  /* SYM-CODEGEN-CARRIER: cfg -- removing the cached configuration base
-   * regresses the exact function by four instructions.  The lower clamps use
-   * the canonical ealib MAX macro and therefore need no SYM-absent locals. */
-  /* MATCH (W77-root): PASS 412/412 from 5 @413/412, with no post-compile edit.
-   * The SYM-listed `dir` local carries the first direction load.  Two narrow
-   * source-ASM expressions reproduce retail's non-full-address head: a pinned
-   * s0 `%hi` is separated from the a1 field load by the drag store, so no head
-   * lo_sum exists for CSE to retain.  The ordinary delay-slot pass then selects
-   * `uTurn = 0` for the jal slot.  Completing s0 beside the later simGlobal
-   * load produces retail's load-delay fill and leaves all 412 instructions
-   * exact. */
-  /* Rule-8 rewrite w13-a4: SYM 8c block @0x8006B400 (fsize 0x30, mask $803f0000, carObj REGPARM $s1).
-   * Oracle holds &AIPhysicConfig in $s0 across the head calls (cluster 1: latvelcalc_lookahead,
-   * dangle/max_dav, max_dlvel, vel_limit_range, lat/ang factors) -> block-local cfg pointer;
-   * later accesses (dav_to_aa, dlvel_to_clacc, targetVel vel_limit_range, skid_value) are fresh
-   * caller-saved rematerializations -> direct AIPhysicConfig globals.
-   * NEAR-MISS 5 diffs (ours 413 / oracle 412): retail puts `uTurn = 0` (addu s4,zero,zero)
-   * in the AIWorld_CalcFutureLateralVel jal slot and defers the `addiu s0,s0,%lo` that
-   * completes the &AIPhysicConfig address to the simGlobal load-delay slot (oracle idx 31,
-   * SLD 1385); ours swaps the two and nops idx 32.  A pure sched1 ready-list tie.
-   * W59-A3 FALSIFIED (each re-gated): (a) moving `cfg = &AIPhysicConfig;` after the
-   * wipeOutEndTick store -> 9 diffs, breaks the %hi share (lui v1 + addiu s0,v1,0);
-   * (b) same move to just after the if-block -> 9; (c) void-tail fence
-   * __asm__("" : : "i"(0)) between the call and the cfg assign -> 16 (414 insns);
-   * (d) 06A SYM-faithful removal of the whole cfg pointer (the SYM 8c lists 14 INT
-   * locals and NO pointer) with all 14 uses spelled AIPhysicConfig.OOCModel.X -> 9,
-   * gcc still builds an address pseudo but splits it across two regs, so 09K applies
-   * (the SYM-absent local is load-bearing here).  Baseline stands; next lens = qtytrace
-   * sched1 ready-list, not source shape.
-   * W63-A12 re-gated (5 @ 413/412) and FALSIFIED one more shape: ARG-PRECOMPUTE, i.e.
-   * hoisting the call argument into a block-local (`int look = direction *
-   * AIPhysicConfig.latvelcalc_lookahead;`) so that `uTurn = 0;` becomes the LAST
-   * statement before the jal and reorg's simple fill can take it -- INERT (5, byte
-   * identical).  Reading: the two insns retail swaps are both already adjacent to the
-   * call in our RTL; the choice between them is made by sched1's ready list, and no
-   * statement-position change alters which one it releases (consistent with the 3 prior
-   * waves).  This closes the STATEMENT-ORDER axis alongside the already-closed
-   * cfg-placement, void-fence and SYM-purge axes; qtytrace remains the only open lens.
-   * W64-A12 re-gated (5 @ 413/412) and added THREE more closed axes, all re-measured:
-   *   (i)  THE WHOLE FENCE FAMILY between the call and the cfg assignment is one basin:
-   *        void-tail `("" : : "i"(0))`, read-only on currentLatVel / carObj / cfg, and the
-   *        identity fence on cfg ALL give exactly 16 @414 -- byte-identical to each other.
-   *        The +1 insn is a BROKEN CSE (a second `lui` for the simGlobal high appears), and
-   *        the lo_sum still wins the jal slot, so an asm barrier does not even reach it.
-   *   (ii) MOVING THE cfg ASSIGNMENT into retail's own block (after the if-block, after the
-   *        wipeOutEndTick store, or spelled as &AIPhysicConfig.latvelcalc_lookahead) = 9 @413
-   *        in all three: the lo_sum STILL lands in the jal delay slot, only now with a
-   *        separate `lui v1` high (+1 insn).  So the lo_sum is NOT pinned by its statement
-   *        position at all -- something lifts it into the pre-call block regardless.
-   *   (iii) FIVE-WAY STATEMENT PERMUTATION of {drag=0, uTurn=0, the call, cfg=&...} : every
-   *        order that keeps cfg after the call measures exactly 5 (inert); cfg-first = 9,
-   *        drag-after-call = 13.  Nothing changes which of the two callee-saved-writing
-   *        insns ends up adjacent to the jal.
-   * Reading: both candidates write CALLEE-SAVED regs, so sched2 may move either across the
-   * CALL_INSN, and the pick is a ready-list tie at equal (zero) in-block priority.  qtytrace
-   * / a sched2 trace remains the only open lens; source shape is exhausted.
-   * W71-A19 re-gated 5 @413/412 and closed the LUID axis with the mechanism named:
-   * both candidates are POST-CALL insns in our stream (`addu s4,zero,zero` and the
-   * `addiu s0,s0,%lo` whose %hi is CSE-shared with the call ARGUMENT's), and reorg's
-   * backward scan takes whichever sched2 issued first.  Under 14C's descending-luid tie
-   * that is the LATER source statement, so the theory-driven fix is to give `uTurn = 0`
-   * the larger luid.  Measured (each re-gated from 5): cfg between drag and uTurn 9;
-   * cfg first 9; cfg immediately before the call 9; uTurn moved AFTER the call 5;
-   * uTurn LAST (after cfg, both post-call) 5; uTurn FIRST 5.  Every cfg-before-call
-   * order costs the shared %hi (+1 insn, the 9-basin); every uTurn move is byte-inert.
-   * => sched2 is NOT breaking this tie on luid here, and the statement axis is now
-   * closed in both directions.  Next lens unchanged: a -dR (sched2) trace.
-   * W72-A11 re-gated 5 @413/412 and LOCALISED THE +1 EXACTLY (tools/sbs.py, ours idx
-   * 17/22/32 vs oracle 17/31): the extra instruction is ONE nop -- the simGlobal load's
-   * (`lw v0,0(v0)`, oracle idx 30) delay slot.  Retail fills THAT slot with the
-   * `addiu s0,s0,%lo(AIPhysicConfig)` lo_sum and puts `addu s4,zero,zero` (uTurn = 0) in
-   * the jal's slot; ours does the reverse and has nothing left for the load slot.  So the
-   * whole residual is ONE dbr pick: fill_simple_delay_slots' backward scan takes the LAST
-   * insn before the jal, and sched2 issued the lo_sum there where retail issued uTurn's
-   * zero.  Both write callee-saved regs, so either is legal -- there is no correctness
-   * asymmetry to exploit, only the issue order.
-   * FALSIFIED THIS WAVE (each re-gated from 5; scratchpad/W72_A11/v_ooc.py):
-   *   identity fence on `cfg` at its FIRST USE -- i.e. OUTSIDE the W64 "fence family"
-   *     window between the call and the cfg assignment                    INERT 5
-   *   read-only fence on uTurn right after `uTurn = 0;`                         11
-   *   identity fence on uTurn right after `uTurn = 0;`                          13
-   *   decl-with-init `AIPhysic_Config_t *cfg = &AIPhysicConfig;` (12D)           9
-   *   13C LAUNCH-BOOST attempt: adjust_priority raises a readied insn only when
-   *     REG_N_SETS(dest)==1, and uTurn is set TWICE (default + guarded value), so its
-   *     def can never be boosted.  Giving the default its own single-set pseudo
-   *     `{ int z = 0; uTurn = z; }`                                        INERT 5
-   *     (cse folds `z` before flow counts the sets -- the axis is closed, not untried)
-   *   both fences together                                                       13
-   * Reading: every fence placement inside either candidate's window either breaks the
-   * %hi share (+1 insn = the 9/16 basins) or is invisible.  Next lens still -dR; NOTE
-   * the instrumented cc1plus ICEs on aih_cop.cpp but has NOT been tried on aiphysic.cpp
-   * (scratchpad/W72_A11/A11_trace.py runs it and prints the per-fn fidelity table first;
-   * a trace is a receipt only for functions it reproduces byte-identically).
-   *
-   * W74-A10 2026-08-22 -- THE OWNER IS NAMED AND FOUR WAVES OF VERDICTS ARE REFUTED.
-   * It is NOT a sched2 ready-list tie, NOT reorg's luid tie, NOT statement order.
-   * It is cse FOLDING THE ADDRESS MATERIALIZATION, and the RTL dumps prove it end to
-   * end (cc1 -dr/-ds/-dc on build/recon/game/common/aiphysic.cpp.i):
-   *   -dr (post-expand): the ARG expression `AIPhysicConfig.latvelcalc_lookahead`
-   *       expands to insn35 `(set r97 (high sym))` + insn36 `(set r96 (lo_sum r97 sym))`
-   *       and insn40 `(set r99 (mem (r96)))` -- i.e. the ARG materializes a FULL-ADDRESS
-   *       pseudo at the head; and `cfg = &AIPhysicConfig;` expands to ITS OWN fresh pair
-   *       AT ITS OWN SOURCE POSITION (insn85 high + insn86 lo_sum, after the
-   *       wipeOutEndTick store when the statement is moved there = retail's slot).
-   *   -ds/-dc (post-cse): insn40's mem is folded to `(mem (lo_sum r97 sym))` (so the ARG
-   *       no longer needs r96) AND the later pair is rewritten to `(set r95 (r96))`, a
-   *       PLAIN COPY of the head pseudo, which local-alloc then coalesces away.
-   *   => the head lo_sum survives ONLY because cse resurrects it as the cfg value, and it
-   *      is the insn reorg's backward scan finds before the jal.  That is why moving the
-   *      statement is byte-inert (W64/W71 both saw it and mis-attributed it to sched).
-   * PROOF BY DENIAL (flag probe, not a landing): with the cfg statement at retail's
-   * position AND `-fno-cse-follow-jumps -fno-cse-skip-blocks`, the fold dies, the head
-   * lo_sum dies with it, and reorg IMMEDIATELY picks retail's filler:
-   *       jal AIWorld_CalcFutureLateralVel ; move $20,$0      <- retail's jal slot
-   * so the reorg half of the residual is SOLVED the moment the fold is denied.  It is
-   * still +1 overall because the un-folded join block re-materializes its own high
-   * (`lui $2,%hi; addiu $16,$2,%lo`) instead of reusing the head's, and that lui also
-   * clobbers the simGlobal load's dest so sched2 cannot slide the pair into the
-   * load-delay hole.
-   * THE EXACT REMAINING REQUIREMENT (now a one-line statement instead of a lens):
-   *   cse must fold the join block's `(high sym)` into the head's high (so the high spans
-   *   the call, is forced callee-saved, and becomes retail's $s0) while NOT having a
-   *   head `lo_sum` pseudo available to fold the join's `lo_sum` into.  Equivalently:
-   *   THE ARG ACCESS MUST NOT LEAVE A FULL-ADDRESS PSEUDO ALIVE.  Retail's head is
-   *   `lui s0,%hi` + `lw a1,%lo(s0)` only -- no full address -- and its single
-   *   `addiu s0,s0,%lo` at oracle idx 31 is the join block's own lo_sum, in-place tied
-   *   because its high source is the same (call-crossing, hence $s0) quantity.
-   * MEASURED THIS WAVE (each a real gate run from the 5-baseline):
-   *   T1 `cfg = &AIPhysicConfig;` moved after the wipeOutEndTick store ... 9 @413
-   *      (count unchanged; only the head high moves to a temp: `lui v1` + `addiu s0,v1`)
-   *   T2 cfg assigned BEFORE the call + arg spelled `cfg->latvelcalc_lookahead` .. 9 @413
-   *   A1 separate arg pointer `p0 = &AIPhysicConfig;` + 20B opacity launder on p0,
-   *      cfg at retail's slot ......................................... 18 @414
-   *      (the launder makes p0 a REAL full address at the head, +1, and drags the
-   *      prologue saves with it -- the cse-breaker must not cost a head insn)
-   *   baseline + `-fno-cse-follow-jumps` / `-fno-cse-skip-blocks` / both: byte-inert
-   *      (at the BASELINE statement position the fold is INTRA-block, so the flags
-   *      cannot bite -- itself a receipt that the fold, not the position, is the owner).
-   * NEXT NAMED ANGLE (unwalked, cheap to price now): kill the head full-address pseudo
-   * WITHOUT adding a head insn.  The SYM-faithful no-pointer form (W59-A3 (d): 14 direct
-   * `AIPhysicConfig.OOCModel.X` uses, last measured 9 and dismissed) is the candidate to
-   * RE-PRICE under today's mechanism -- its "address pseudo split across two regs" is the
-   * same cse artifact, and the SYM (14 INT locals, NO pointer) says it is what EA wrote;
-   * judge it together with the fold-denial, not alone (21E-1).
-   *
-   * W75-A9 re-gated (5 @413/412) and CLOSED THE MOST OBVIOUS READING OF W74 own
-   * requirement with a clean negative.  W74 states it as "THE ARG ACCESS MUST NOT LEAVE
-   * A FULL-ADDRESS PSEUDO ALIVE"; the mechanism that decides whether an address is
-   * pre-split into (high)+(lo_sum) pseudos at all is mips_check_split /
-   * mips_split_addresses (22A-5), whose user-visible switch is -mno-split-addresses --
-   * and build.py already carries a per-fn vehicle for it (PER_FN_NO_SPLIT_ADDRESSES,
-   * spliced by _apply_fn_splice in the C++ lane).  MEASURED per-fn on this function via
-   * the W61_TABLE env hook: -mno-split-addresses = 18 diffs @414 (WORSE, +1 insn), so
-   * removing the split does not remove the head full-address pseudo in the way retail
-   * needs -- retail STILL splits (lui s0,%hi + lw a1,%lo(s0)); what it lacks is a
-   * separate lo_sum pseudo, which is a cse question, not a split-addresses question.
-   * Also re-measured through the same hook, each byte-identical to the 5-baseline:
-   * PER_FN_FORCE_ADDR (-fforce-addr), PER_FN_NO_THREAD_JUMPS, PER_FN_G8.
-   * => the whole PER-FN FLAG-SPLICE MENU available in the C++ lane is now priced on this
-   * function and none of it reaches the fold.  W74 NEXT NAMED ANGLE (re-price the
-   * SYM-faithful no-pointer form together with fold-denial) remains the untaken step.
-   * Probe: W61_TABLE hook on tools/vprobe.py, see scratchpad/w75/A9_report.md. */
   int desiredAngVel;
   int desiredLatVel;
   int currentAngAcc;
@@ -1241,18 +1249,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
   int targetVel;
   int uTurn;
   int currentVel;
-  /* W83-A12 (pin-removal belt): the two `register ... asm("$N")` pins that used to
-     bind these two operands of the three address-materialisation `__asm__` blocks below
-     ($16 for cfg, $5 for latvelcalcLookahead) are GONE.  Measured INERT on the pinned
-     base: deleting both leaves the function byte-identical -- gate PASS 412/412, whole-TU
-     tugate 42/42 both runs, brdist 0/42, slotcheck bad=0.  cc1plus picks $16/$5 for these
-     two operands on its own (the "r" constraints plus the surrounding allocation already
-     force them), so the hard-register bindings were never load-bearing.  Do not re-add. */
   AIPhysic_Config_t *cfg;
-  /* SYM-CODEGEN-CARRIER: latvelcalcLookahead -- this is the source-visible
-   * result of the guide-authorized EA address/materialization load. Reusing
-   * SYM's later `desiredAngVel` keeps 412 instructions but changes 130
-   * allocation and arithmetic instructions by merging disjoint quantities. */
   int latvelcalcLookahead;
 
   dir = carObj->direction;
@@ -1291,7 +1288,8 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
       (carObj->currentSpeed < cfg->OOCModel.vel_limit_range)) {
     maxLatVel = (carObj->speed / 256) * (cfg->OOCModel.lat_vel_limit_factor / 256);
     maxLatVel = __builtin_abs(maxLatVel);
-    desiredLatVel = (desiredLatVel < maxLatVel) ? desiredLatVel : maxLatVel;
+    latVelLimit = (desiredLatVel < maxLatVel) ? desiredLatVel : maxLatVel;
+    desiredLatVel = latVelLimit;
     desiredLatVel = MAX(desiredLatVel,-maxLatVel);
     maxAngVel = (carObj->speed / 256) * (cfg->OOCModel.ang_vel_limit_factor / 256);
     maxAngVel = __builtin_abs(maxAngVel);
@@ -1424,32 +1422,11 @@ int AIPhysic_GetRearEndDamageFactor(Car_tObj *carObj)
     return 0x10000 < totalDamage ? 0x10000 : totalDamage;
 }
 
-/* The retail SYM has no `r` local in AIPhysic_InControlPhysics, while the
- * instruction stream repeatedly has the same three-statement clamp expansion.
- * Keep the expansion in TU-local macros so the source boundary is explicit;
- * the descriptive macro names are not recoverable from the debug data. */
-#define AIPHYSIC_CLAMP_LOWER(value, lower) \
-  { \
-    int r; \
-    r = lower; \
-    if (r < value) r = value; \
-    value = r; \
-  }
-
-#define AIPHYSIC_ADD_FISHTAIL(angle, sign, tick) \
-  { \
-    int r; \
-    r = sign * 0x1e; \
-    angle += r * (0x96 - tick) / 0x32; \
-  }
-
+/* SOURCE-REVIEW: the existing fence keeps this unused clamp's two input
+ * quantities alive. Its original consumer/macro spelling remains unrecovered;
+ * native CLEAN does not establish original source. No macro-local object. */
 #define AIPHYSIC_KEEP_LAT_CLAMP(value, limit) \
-  { \
-    int r; \
-    r = limit; \
-    if (value < limit) r = value; \
-    __asm__("" : : "r" (r), "r" (limit)); \
-  }
+  __asm__("" : : "r" ((value) < (limit) ? (value) : (limit)), "r" (limit))
 
 /* ---- AIPhysic_InControlPhysics__FP8Car_tObj ---- */
 void AIPhysic_InControlPhysics(Car_tObj *carObj)
@@ -1565,7 +1542,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
       signAngle = -1;
     }
     if (0x96 - fishtailtick < 0x32) {
-      AIPHYSIC_ADD_FISHTAIL(angleWRTdesired,signAngle,fishtailtick);
+      angleWRTdesired += (short)(signAngle * 0x1e) * (0x96 - fishtailtick) / 0x32;
     }
     else {
       angleWRTdesired += signAngle * (fishtailtick / 7 + 10);
@@ -1586,13 +1563,13 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   desiredAngVel = -angleWRTdesired * fixedmult(0x80,AIPhysicConfig.ICModel.dangle_to_dav);
   desiredAngVel = (desiredAngVel < AIPhysicConfig.ICModel.max_dav)
       ? desiredAngVel : AIPhysicConfig.ICModel.max_dav;
-  AIPHYSIC_CLAMP_LOWER(desiredAngVel,-AIPhysicConfig.ICModel.max_dav);
+  desiredAngVel = MAX(desiredAngVel,-AIPhysicConfig.ICModel.max_dav);
   desiredLatVel = -((deltaLatPos / 256) * (AIPhysicConfig.ICModel.dlpos_to_dlvel / 256));
   desiredLatVel = (desiredLatVel < AIPhysicConfig.ICModel.max_dlvel)
       ? desiredLatVel : AIPhysicConfig.ICModel.max_dlvel;
-  AIPHYSIC_CLAMP_LOWER(desiredLatVel,-AIPhysicConfig.ICModel.max_dlvel);
+  desiredLatVel = MAX(desiredLatVel,-AIPhysicConfig.ICModel.max_dlvel);
   desiredLatVel = (desiredLatVel < carObj->speed) ? desiredLatVel : carObj->speed;
-  AIPHYSIC_CLAMP_LOWER(desiredLatVel,-carObj->speed);
+  desiredLatVel = MAX(desiredLatVel,-carObj->speed);
   if ((-AIPhysicConfig.ICModel.vel_limit_range < carObj->currentSpeed) &&
       (carObj->currentSpeed < AIPhysicConfig.ICModel.vel_limit_range)) {
     int maxLatVel;
@@ -1603,16 +1580,16 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
     maxAngVel = (carObj->speed / 256) * (AIPhysicConfig.ICModel.ang_vel_limit_factor / 256);
     maxAngVel = __builtin_abs(maxAngVel);
     desiredAngVel = (desiredAngVel < maxAngVel) ? desiredAngVel : maxAngVel;
-    AIPHYSIC_CLAMP_LOWER(desiredAngVel,-maxAngVel);
+    desiredAngVel = MAX(desiredAngVel,-maxAngVel);
   }
   currentAngAcc = -fixedmult((carObj->angularVel_ch).y - desiredAngVel,AIPhysicConfig.ICModel.dav_to_aa);
   currentAngAcc = (currentAngAcc < maxAngularAcceleration)
       ? currentAngAcc : maxAngularAcceleration;
-  AIPHYSIC_CLAMP_LOWER(currentAngAcc,-maxAngularAcceleration);
+  currentAngAcc = MAX(currentAngAcc,-maxAngularAcceleration);
   currentLatAcc = -dir * fixedmult(currentLatVel,dlvel_to_clacc);
   currentLatAcc = (currentLatAcc < maxLateralAcceleration)
       ? currentLatAcc : maxLateralAcceleration;
-  AIPHYSIC_CLAMP_LOWER(currentLatAcc,-maxLateralAcceleration);
+  currentLatAcc = MAX(currentLatAcc,-maxLateralAcceleration);
   if (((desiredSpeed * dir > carObj->currentSpeed * dir) && (carObj->pullOver == 0)) &&
       (carObj->desiredDirection == carObj->direction)) {
     currentLongAcc = AIPhysic_CalcAcceleration(carObj,carObj->currentSpeed);
@@ -1665,20 +1642,20 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   (carObj->angularAcc).y = currentAngAcc;
   (carObj->angularAcc).z = 0;
   return;
-  /* NEAR-MISS 4 diffs, count-exact 557/557 (w17-a7, was 4 from w13-a4): oracle defers
+  /* Historical w17 near-miss: 4 diffs at 557/557, superseded by current PASS.
+     The earlier report observed that oracle defers
      the `gripMultiplier = 0;` materialization into $s0 by COPYING the already-zero $s7
      (from the immediately-preceding `maxAngularAcceleration = 0;`) into the __builtin_abs()
      bgez delay slot; ours materializes a fresh literal directly into $s0 but the gcc
      scheduler instead places it one branch later (the vely-clamp bnez slot) -- same net
      effect, different delay-slot choice. Tried: `gripMultiplier = maxAngularAcceleration;`
      (explicit copy instead of literal 0) and reordering the statement relative to the
-     `vely = angularVel.y` read -- neither moved the scheduler's slot choice. GENUINE
-     scheduling-priority FLOOR (Catalog §F); not source-reachable, no pin. */
+     `vely = angularVel.y` read -- neither moved that basin's slot choice.
+     These finite trials did not establish a source floor. Current byte/native
+     gates pass; the remaining empty fence and full SLD still need recovery. */
 }
 
 #undef AIPHYSIC_KEEP_LAT_CLAMP
-#undef AIPHYSIC_ADD_FISHTAIL
-#undef AIPHYSIC_CLAMP_LOWER
 
 /* ---- AIPhysic_FinishUp__FP8Car_tObj ---- */
 void AIPhysic_FinishUp(Car_tObj *carObj)
@@ -1836,45 +1813,22 @@ void AIPhysic_ProcessCollision(Car_tObj *carObj)
     }
 }
 
-/* ---- AIPhysic_ChangeDirection__FP8Car_tObji  (leaf; flip the 0x6F0 dir flag +1/-1 under window) ----
- * [MATCHED 100% (46/46), pin-free]. The 55-diff "regalloc cascade" was FIVE composed structural
- * levers, none allocator-bound: (1) `__builtin_abs(v)` for the speed clamp; (2) SHORT newDir
- * live-range — set `newDir=1` right before `goto action` (not `int newDir=1;` up top) so it lands
- * in v0 like the oracle, freeing car→a2; (3) FLIP the compare to `sg[1]-0x6F4 > 0x6EC/2` (sub as
- * LEFT operand) so gcc evaluates sg[1] first (matches the oracle's subu operand order); (4) ASSIGN
- * `sg = simGlobal` PER-BLOCK (function-scope `int *sg;` assigned in each block, NOT declared-init
- * once) → gcc rematerializes `&simGlobal` per block, both flowing into the shared action via a3
- * (a declared-init pointer gets GCSE-hoisted to ONE materialization — wrong); (5) read `sg[1]` into
- * a temp AFTER the newDir store so the `dir` store fills its load-delay slot (kills the lone nop). */
+/* AIPhysic_ChangeDirection: retail AIPHYSIC.CPP:2163-2186, 46/46 PASS.
+ * Matched NFS2 source supports the two-arm form and timer-before-time stores.
+ * Native names/homes/scopes match; original statement-line attribution remains open. */
 void AIPhysic_ChangeDirection(Car_tObj *carObj, int time)
 {
-    /* SYM-CODEGEN-CARRIER: sg -- separate per-block pointer assignments force
-       retail's three simGlobal rematerializations to flow through a3; direct
-       global spelling emits 45/46 instructions with nine address/load diffs. */
-    int *sg;
-    if (carObj->driveDirection == -1) {
-        sg = simGlobal;
-        if (sg[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2) {
-            carObj->driveDirection = 1;
-            goto action;
-        }
-    }
-    if (carObj->driveDirection != 1)
-        return;
-    sg = simGlobal;
-    if (!(sg[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2))
-        return;
-    if (__builtin_abs(carObj->currentSpeed) > 0x13FFFF)
-        return;
-    carObj->driveDirection = -1;
-action:
-    {
-        /* SYM-CODEGEN-CARRIER: rampPos -- the snapshot lets retail schedule
-           the direction store into the simGlobal load delay slot; direct
-           member assignment emits 47/46 instructions with three differences. */
-        int rampPos = sg[1];
+    if ((carObj->driveDirection == -1) &&
+        (simGlobal[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2)) {
+        carObj->driveDirection = 1;
+        carObj->driveDirectionTimer = simGlobal[1];
         carObj->driveDirectionReverseTime = time;
-        carObj->driveDirectionTimer = rampPos;
+    } else if ((carObj->driveDirection == 1) &&
+               (simGlobal[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2) &&
+               (__builtin_abs(carObj->currentSpeed) <= 0x13FFFF)) {
+        carObj->driveDirection = -1;
+        carObj->driveDirectionTimer = simGlobal[1];
+        carObj->driveDirectionReverseTime = time;
     }
 }
 

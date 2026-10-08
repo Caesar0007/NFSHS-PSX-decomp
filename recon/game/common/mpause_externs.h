@@ -29,7 +29,6 @@ extern int   AudioCmn_MusicLevel(int masterLevel);                  /* audiocmn.
 extern int   AudioCmn_PlaySound(int bnkID, int a, int b, int c, int d);   /* audiocmn.obj */
 
 /* ---- cross-TU functions (input / system) ---- */
-extern bool  Debounce(void *menu) asm("Debounce__6tPMenu");
 extern int   Input_Interface(int key, int debounce) asm("Input_Interface__FUli");
 extern void  InGame_ResetPSXController(u_int port, int config) asm("InGame_ResetPSXController__Fii");
                                     /* libgpu */
@@ -37,11 +36,6 @@ extern void  TextSys_LoadInGame(int language);                      /* textsys.o
 extern void  TextSys_UnloadWords(void);                             /* textsys.obj */
 extern void  Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char c0, char c1);  /* hud.obj */
 extern void  Hud_RenderPauseBox(int x, int y, int w, int h);       /* hud.obj */
-/* ---- tPMenu / tPMenuItem methods rendered as free fns by Ghidra (PauseMenu.obj) ---- */
-extern int   IsEnabled(int item);
-extern int   IsDisabled(int item);
-extern int   ItemEnabledNum(void *menu, int item) asm("ItemEnabledNum__6tPMenui");     /* dropped-arg Logic site disasm-bound */
-extern int   NumEnabledItems(void *menu) asm("NumEnabledItems__6tPMenu");
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */

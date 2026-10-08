@@ -24,7 +24,15 @@ int          AIHigh_BasicPerp_CopCaughtSpeed[3] = { 728177, 932067, 1165084 };  
 int          AIHigh_BasicPerp_CaughtDistance[3] = { 1966080, 2949120, 3932160 };   /* @0x8010cd8c */
 
 
-/* ---- CheckForCrimes__16AIHigh_BasicPerp  AIHigh_BasicPerp::CheckForCrimes  [AIH_BASICPERP.CPP:43-136] SLD-VERIFIED ---- */
+/* ---- CheckForCrimes__16AIHigh_BasicPerp [retail AIH_BASICPERP.CPP:43-136;
+ * 163/163 byte PASS, native ownership exact, full SLD attribution open] ---- */
+/* One-way sign correction: unsigned x + (reverse ? -2*x : 0) selects x/-x
+ * modulo2^32 without a captured speed object. The first x is expanded before
+ * the condition; CSE reuses it and combine reduces x-2*x to -x. This preserves
+ * retail's common input/sign-result funnel, unlike the direct conditional
+ * field reads (169/163). All seven local records/all11 native regions match.
+ * This spelling is a verified source representation, not uniquely recovered
+ * original macro text; do not silently simplify it without re-gating. */
 
 void AIHigh_BasicPerp::CheckForCrimes()
 
@@ -59,14 +67,9 @@ void AIHigh_BasicPerp::CheckForCrimes()
     crime = CRIME_SPEEDER;
 
   if (AITune_oneWay != 0) {
-    /* SYM-CODEGEN-CARRIER: speed -- this retained value reproduces the retail
-       single load shared by the reverse-track sign test.  Expanding the two
-       field reads compiles to 169 instructions/14 diffs instead of 163/PASS. */
-    /* The conditional switch keeps the retail signed-test funnel without
-       the non-SYM wrongWay result local (direct if: 164 instructions). */
-    int speed = carObj_->currentSpeed;
-    switch (GameSetup_gData.reverseTrack != 0 ?
-            ((u_int)-speed >> 31) : ((u_int)speed >> 31)) {
+    switch (((u_int)carObj_->currentSpeed +
+            (GameSetup_gData.reverseTrack != 0
+             ? -2U * (u_int)carObj_->currentSpeed : 0U)) >> 31) {
     case 0: break;
     default:
       if ((__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
@@ -74,18 +77,19 @@ void AIHigh_BasicPerp::CheckForCrimes()
         crime = CRIME_WRONGSIDE;
     }
   } else {
-    int speed = carObj_->currentSpeed;
-    if ((speed * AITune_driveSide) >= 0) {
-      if (carObj_->laneIndex >= 7)
-        goto crime_checks_done;
-    } else if (carObj_->laneIndex < 7) {
-      goto crime_checks_done;
+    if ((carObj_->currentSpeed * AITune_driveSide) >= 0) {
+      if ((carObj_->laneIndex < 7) &&
+          (__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
+          (crime == CRIME_NONE))
+        crime = CRIME_WRONGSIDE;
+    } else {
+      if ((carObj_->laneIndex >= 7) &&
+          (__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
+          (crime == CRIME_NONE))
+        crime = CRIME_WRONGSIDE;
     }
-    if ((__builtin_abs(speed) > 0x40000) && (crime == CRIME_NONE))
-      crime = CRIME_WRONGSIDE;
   }
 
-crime_checks_done:
   if (simGlobal.gameTicks < 0x200)
     crime = CRIME_NONE;
 
@@ -108,17 +112,14 @@ crime_checks_done:
 
 
 
-/* ---- CheckIfCaught__16AIHigh_BasicPerp  AIHigh_BasicPerp::CheckIfCaught  [AIH_BASICPERP.CPP:180-289] SLD-VERIFIED ----
- * MATCH RECEIPT: SYM lists no barrier-byte/lane temporaries, so the direct
- * Trk_NewSlice::laneCount expressions below replace four decompiler-invented
- * locals and recover retail's $a0/$v1 byte handout.  SLD line 274 is a single
- * abs(xDot) threshold, not a destructive two-statement absolute value.
- * Two zero-insn xDot references buy its refs 6->8 allocator boundary.  Moving
- * xDot=0 to its SLD block then shortens it enough to outrank `this`; eleven
- * loop-weighted `this` references buy p80 refs 43->65, crossing the 64-ref
- * floor_log2 boundary and restoring this=$s3/xDot=$s4.  Fence placement before
- * the barrier branch preserves xDot=0 in its retail delay slot.
- * Measured path: 37 -> 13 -> 4 -> 1 -> PASS (380/380). */
+/* ---- CheckIfCaught__16AIHigh_BasicPerp [retail AIH_BASICPERP.CPP:180-289;
+ * native ownership exact, full SLD attribution open] ----
+ * MATCH: 380/380 instructions without allocation fences. Direct laneCount
+ * expressions replace the old barrier-byte/lane captures. For-owned carLoop,
+ * the complete eligibility guard, and the positive distance/barrier guard
+ * restore all13 local records and all12 retail scope regions. The old fence
+ * necessity receipt no longer describes this source. not_caught is an
+ * inferred shared-fallback label; its literal original spelling is unknown. */
 
 int AIHigh_BasicPerp::CheckIfCaught()
 
@@ -159,11 +160,10 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
     if ((this->carObj_->stats).finishType >= 2) goto not_caught;
 
-      int carLoop;
 
       perpUpright = 0x9999 < this->carObj_->N.orientMat.m[4];
 
-      for (carLoop = 0; ; carLoop = carLoop + 1) {
+      for (int carLoop = 0; ; carLoop = carLoop + 1) {
 
         Car_tObj *cop;
         int diffSpeed;
@@ -183,17 +183,17 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
         if (((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
 
-             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+             (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
 
-              ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
+              ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) &&
 
             ((cop->carFlags & 0x200U) != 0)) ||
 
            ((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
 
-             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
+             (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 &&
 
-              ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))) &&
+              ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) &&
 
             ((cop->carFlags & 0x20U) != 0)))) {
 
@@ -201,29 +201,22 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
         }
 
-        if (validCar == 0) continue;
-
-        if (((((cop->AIFlags & 2U) != 0) && ((cop->N).flightTime == 0)) &&
+        if ((validCar != 0) && (((((cop->AIFlags & 2U) != 0) && ((cop->N).flightTime == 0)) &&
 
             (((cop->N).active != '\0' && ((cop->AIFlags & 4U) == 0)))) &&
 
            ((0x9999 < (cop->N).orientMat.m[4] &&
 
-            (diffSpeed < AIHigh_BasicPerp_MinDeltaSpeed[skill])))) {
+            (diffSpeed < AIHigh_BasicPerp_MinDeltaSpeed[skill])))) &&
+            (__builtin_abs(cop->currentSpeed) <
+              AIHigh_BasicPerp_CopCaughtSpeed[skill]) &&
+            ((cop->N.position.y - carObj_->N.position.y > 0
+                   ? cop->N.position.y - carObj_->N.position.y
+                   : carObj_->N.position.y - cop->N.position.y) <
+              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill])) {
 
           int distanceAbsMeters;
           int barrierInWay;
-
-          if (__builtin_abs(cop->currentSpeed) >=
-              AIHigh_BasicPerp_CopCaughtSpeed[skill]) continue;
-
-          if ((cop->N.position.y - carObj_->N.position.y > 0
-                   ? cop->N.position.y - carObj_->N.position.y
-                   : carObj_->N.position.y - cop->N.position.y) <
-              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill]) {
-          } else {
-            continue;
-          }
 
           distanceAbsMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,cop));
 
@@ -246,14 +239,8 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
           }
 
-          if (AIHigh_BasicPerp_CaughtDistance[skill] <= distanceAbsMeters) continue;
-
-          /* W85-S1 (device clearance): TWO 11-operand zero-insn `"r"(this)` ref-step
-             fences stood here.  Both are DEAD -- removed singly and together, the whole
-             TU re-gates 9/9 PASS byte-identical.  Do not re-add. */
-          if (barrierInWay) continue;
-
-          {
+          if ((distanceAbsMeters < AIHigh_BasicPerp_CaughtDistance[skill]) &&
+              (barrierInWay == 0)) {
           int xDot;
           int zDot;
 
@@ -262,9 +249,9 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
           if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
 
-             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+             (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
 
-              ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
+              ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
 
             coorddef carCopVector;
 
@@ -303,7 +290,6 @@ int AIHigh_BasicPerp::CheckIfCaught()
           if (zDot < 0) continue;
 
           if (0x8ffff < zDot) continue;
-          }
 
           if (this->lastArrestingCop_ == (Car_tObj *)0x0) {
 
@@ -312,6 +298,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
           }
 
           return 1;
+          }
 
         }
 
@@ -714,20 +701,25 @@ void AIHigh_BasicPerp::Clear()
 
 
 
-/* ---- __16AIHigh_BasicPerpP8Car_tObj  AIHigh_BasicPerp::ctor  [AIH_BASICPERP.CPP:419-421] SLD-VERIFIED ---- */
+inline void AICop_BasicPerpInfo::SetCopsAssigned(copType type, int count) {
+  copsAssigned_[type] = count;
+}
+inline void AICop_BasicPerpInfo::ClearCopsAssigned() {
+  SetCopsAssigned((copType)0, 0);
+  SetCopsAssigned((copType)1, 0);
+}
+inline AICop_BasicPerpInfo::AICop_BasicPerpInfo() {
+  ClearCopsAssigned();
+  crime_ = CRIME_NONE;
+}
+
+/* ---- __16AIHigh_BasicPerpP8Car_tObj [retail AIH_BASICPERP.CPP:419-421;
+ * 18/18 byte PASS, native+SLD exact] ---- */
+/* basicPerpInfo_ default construction owns the pre-body inline/reset tree.
+ * The body only clears the high-level state; reset-helper names are inferred. */
 AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj) : AIHigh_Base(carObj)
 {
-
-  (this->basicPerpInfo_).copsAssigned_[0] = 0;
-
-  (this->basicPerpInfo_).copsAssigned_[1] = 0;
-
-  (this->basicPerpInfo_).crime_ = 0;
-
   this->Clear();
-
-  return;
-
 }
 
 

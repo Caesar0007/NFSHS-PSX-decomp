@@ -1,6 +1,6 @@
 /* game/psx/sim.cpp -- RECONSTRUCTED (NFS4 PSX sim engine core / main loop; C++ TU)
  *   8 fns: Sim_StartUp/Restart/CleanUp/FadeInSFX/ProcessSimSchedules/ProcessPause/CheckForPause/MainGameLoop.
- *   GTE-free. Full SYM-locals applied.
+ *   GTE-free. Named SYM locals applied; source-only captures and SLD remain under review.
  */
 #include "sim_types.h"
 #include "sim_externs.h"
@@ -143,24 +143,18 @@ void Sim_CleanUp(void)
 void Sim_FadeInSFX(void)
 
 {
-  if (simGlobal.gameTicks == 0) {
+  if (simGlobal.gameTicks == 0)
+  {
     GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
     gMasterSFXLevel = 0;
-    return;
   }
-  if (simGlobal.gameTicks - 0x11U < 0x40) {
-    if (Replay_ReplayInterface.statsScreen != 0) {
-      gMasterSFXLevel =
-          (GameSetup_gData.userSetting.sfxLevel >> 2) *
-          (simGlobal.gameTicks + -0x10) >> 6;
-    }
-    else {
-      gMasterSFXLevel =
-          GameSetup_gData.userSetting.sfxLevel *
-          (simGlobal.gameTicks + -0x10) >> 6;
-    }
+  else if (simGlobal.gameTicks - 0x11U < 0x40)
+  {
+    if (Replay_ReplayInterface.statsScreen != 0)
+      gMasterSFXLevel = (GameSetup_gData.userSetting.sfxLevel >> 2) * (simGlobal.gameTicks - 0x10) >> 6;
+    else
+      gMasterSFXLevel = GameSetup_gData.userSetting.sfxLevel * (simGlobal.gameTicks - 0x10) >> 6;
   }
-  return;
 }
 
 /* ---- Sim_ProcessSimSchedules__Fv  [SIM.CPP:312-531] SLD-VERIFIED ---- */
@@ -168,8 +162,9 @@ void Sim_FadeInSFX(void)
  * A non-const `char` preload base reproduces retail's $s1 = 0x23 without
  * emitting another local definition; `int` emits a non-retail .def and a
  * literal/const folds to 197 instructions.  Its declaration beside `i` and
- * use as the natural `for` initializer reproduce retail's block starts at
- * +0/+0, +0x7c/+0x7c, +0x8c/+0x8c and first block end at +0xd8. */
+ * use as the current `for` initializer reproduce retail's block starts at
+ * +0/+0, +0x7c/+0x7c, +0x8c/+0x8c and first block end at +0xd8.
+ * This verifies the current representation, not an original source object. */
 void Sim_ProcessSimSchedules(void)
 
 {
@@ -180,10 +175,13 @@ void Sim_ProcessSimSchedules(void)
     if (simGlobal.gameStarted == 0) {
       {
         int i = (u_char)countdown - 1;
-        /* SYM-CODEGEN-CARRIER: firstSfx -- the optimized narrow quantity is
-           required for the exact $s1 invariant, but retail emits no .def.
-           ORIGINAL-NAME-UNRESOLVED: neither its spelling nor its unique
-           narrow integer type is recoverable from the available artifacts. */
+        /* SOURCE-REVIEW-UNRESOLVED: firstSfx has no retail declaration.
+           Current RTL retains a QI constant SET and hoisted zero-extension
+           before combine; an int literal instead folds into addiu and changes
+           loop layout. Byte/short argument truncations leave a mask (9dif/198),
+           widened addition is8dif/197; multiply/shift is8dif/201 with a second
+           induction variable. These failures do not prove a distinct source
+           object or its original name/type. Revisit the pre-combine loop graph. */
         char firstSfx;
         if (i < 0) {
           i = 0;
@@ -317,7 +315,7 @@ void Sim_CheckForPause(int checkInput)
  *        READ-ONLY fence on gameSetup is the priced cure: allocsim MATCH 22/23 says
  *        p195(gameSetup) refs 6 -> 7 raises pri 0.1578 -> 0.1842 past p118 (0.1611) and swaps
  *        the pair back to retail's {gameSetup=$s2, call-result=$s3}.
- *   Falsified on the way (do NOT retry): reading the guard as `GameSetup_gData.commMode`
+ *   Earlier basin-specific trials: reading the guard as `GameSetup_gData.commMode`
  *   (fused %lo form, 38 -- rotates the whole s4..fp band) or as `*(int *)((char *)&G + 0xc)` /
  *   `((int *)&G)[3]` (11 -- gcc CSEs `&G+12` and derives gameSetup as `addiu s2,v1,-12`,
  *   a 3-insn 05F base anchor); an identity fence instead of the read-only fence (same 11).
@@ -346,16 +344,19 @@ void Sim_MainGameLoop(void)
 {
   int lastRealTick;
   int lastGoalTick;
-  /* SYM-CODEGEN-CARRIER: one
+  /* SOURCE-REVIEW-UNRESOLVED: one
      Retail debug data retains no name for this shared constant pseudo.  The
      measured block-local assignment below places `li s0,1` exactly; a
      function-scope initialization moves it to the prologue and regresses by
-     two diffs. */
+     two diffs. Literal comparison/store and the equivalent InBetween increment
+     are69dif/320 in the current basin. A separate source object is not proved. */
   int one;
-  /* SYM-CODEGEN-CARRIER: replaySetup
-     This anonymous GCC CSE address occupies retail $s5.  Removing it makes
-     the function four instructions short and produces 45 diffs; the adjacent
-     W57-A12 receipt documents the allocator alternatives. */
+  /* SOURCE-REVIEW-UNRESOLVED: replaySetup
+     Retail keeps an unnamed address value in $s5. Earlier removal was45dif,
+     four words short; current direct member reads are only3dif/320 versus321:
+     a copy to s2 replaces the late lui/addiu rematerialization. Long-long
+     address and member-base recovery tie3; initializer absorption is89dif.
+     All failed forms are reverted; no distinct source pointer is proved. */
   GameSetup_tData *replaySetup;
 
   quitType = 1;
@@ -388,7 +389,7 @@ void Sim_MainGameLoop(void)
        narrowest scope (immediately after the assignment, 06B). replaySetup is NOT in the SYM
        8c list -- only lastRealTick (REG $0x16=$s6) and lastGoalTick (REG $0x17=$s7) are -- yet
        the oracle DOES park &GameSetup_gData in a callee-saved reg ($s5), i.e. it is a gcc CSE
-       temp, not a source local. Without the fence our band came out one slot LOW
+       temp candidate, not proof against an unrecorded source local. Without the fence our band came out one slot LOW
        (lastRealTick=$s5, lastGoalTick=$s6, replaySetup=$s7); the +1 ref DEMOTES the two SYM
        locals past the address temp so the whole 3-way rotation lands on the SYM map. Measured
        alternatives, all worse: dropping the local entirely (45, ours 4 insns short), fencing
@@ -437,10 +438,12 @@ void Sim_MainGameLoop(void)
           }
           else {
             int i;
-            /* SYM-CODEGEN-CARRIER: gameSetup
+            /* SOURCE-REVIEW-UNRESOLVED: gameSetup
                The late address materialization and priced absorption-identity ref
                reproduce retail's $s2 web.  Direct/fused GameSetup spellings
-               were measured at 11--38 diffs, as receipted below. */
+               were measured at 11--38 diffs in earlier basins. Current ordinary
+               input for-loop/direct-global form is242dif/319; existing replay
+               pointer form is212dif/317. No necessity/original-name claim. */
             char *gameSetup;
 
             i = 0;

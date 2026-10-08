@@ -30,7 +30,12 @@ AIHigh_Base  *highLevelAIObjs[9];   /* @0x8010cd38  (bss(zero)) */
 AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
 
 
-/* ---- AIHigh_StartUp__Fv  AIHigh_StartUp  [AIHIGH.CPP:58-105] SLD-VERIFIED ---- */
+/* ---- AIHigh_StartUp__Fv [retail AIHIGH.CPP:58-105; 234/234 byte PASS,
+ * native/SLD recovery still open] ---- */
+/* Loop-owned car pointers and direct flags need no allocation fence. The
+ * base-first slot-address expression preserves the retail handout at234/234.
+ * newHigh/slot remain explicitly unresolved; no original-object necessity is
+ * inferred from the failed alternate allocation shapes. */
 
 void AIHigh_StartUp(void)
 {
@@ -38,7 +43,6 @@ void AIHigh_StartUp(void)
   int carLoop;
   int copCounter;
   int humanCopCounter;
-  Car_tObj *carObj;
 
   copCounter = 0;
   humanCopCounter = 0;
@@ -46,79 +50,33 @@ void AIHigh_StartUp(void)
   AIState_StartUp();
 
   if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
+      (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
        ((Cars_gNumHumanRaceCars == 2 &&
-         (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-    carLoop = 0;
-    while (carLoop < Cars_gNumCars) {
-      /* SYM-CODEGEN-CARRIER: newHigh -- this is the single source carrier for
-         the result of each reconstructed inline `new` expression.  A natural
-         AIHigh_BTC_Perp -> AIHigh_BTC_HumanPerp constructor chain compiles to
-         231 instructions/3 diffs because the manual-vtable model lets GCC
-         delete the intermediate base vptr store; retaining that store with a
-         read fence gives 236 instructions/12 diffs.  This carrier preserves
-         the exact 234-instruction virtual-class construction sequence. */
+         ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
+    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+      /* UNRESOLVED RECONSTRUCTION: newHigh is absent from retail locals.
+         Direct allocation expressions still need their native construction/
+         allocation shape recovered; current trials are recorded in sym-match. */
       AIHigh_Base *newHigh;
-      /* SYM-CODEGEN-CARRIER: slot -- direct
-         `highLevelAIObjs[carLoop] = newHigh` produces 235 instructions and
-         25 diffs by changing the three-qty local-allocation order. */
+      /* UNRESOLVED RECONSTRUCTION: slot is absent from retail locals.
+         Eliminating this address holder on the current source is237/234,
+         29dif; that does not prove an original pointer object existed. */
       AIHigh_Base **slot;
-      /* SYM-CODEGEN-CARRIER: carFlags -- the retained flags value is part of
-         the measured local-alloc three-qty basin documented below. */
-      u_int carFlags;
-      /* SYM-CODEGEN-CARRIER: copCarFlag -- its two-operand read fence moves
-         refs across the QTY_CMP_PRI floor_log2 step; removing the carrier or
-         either required ref produces the measured eight-diff allocation. */
-      u_int copCarFlag;
-
-      carObj = Cars_gList[carLoop];
-      carFlags = carObj->carFlags;
-      slot = &highLevelAIObjs[carLoop];
-      copCarFlag = carFlags & 0x200U;
-      /* ---- W62-A10 SEAL (was 8 diffs, 234/234, five waves) -------------------------
-         MATCH: the residual was `sll`/`la` swapping $v0<->$v1 in the slot-address
-         computation.  ROOT CAUSE (gcc-2.8 local-alloc.c, read not guessed): this basic
-         block has EXACTLY THREE block-local qtys -- q0 = the `sll carLoop,2`, q1 = the
-         `high`+`lo_sum` pair for &highLevelAIObjs (combine_regs ties them, refs 4+4=8),
-         q2 = the `carFlags & 0x200` test -- and for next_qty == 3 block_alloc does NOT
-         call qsort: it runs the hand-rolled `case 3:` ladder at local-alloc.c:1638-1652,
-         which compares the RAW QTY NUMBERS 0/1/2 instead of the current qty_order[]
-         contents.  With PRI(q1) > PRI(q0) the first EXCHANGE(0,1) is UNDONE by the
-         fall-through `case 2:` EXCHANGE(0,1), so the order collapses back to [q0,q1,q2]
-         unless PRI(q2) > PRI(q1) as well.  Measured: PRI = floor_log2(refs)*refs*size /
-         (qty_death-qty_birth) (local-alloc.c:1727) gave q0=8/8=1.0, q1=24/6=4.0,
-         q2=8/2=4.0 -- q2 TIED q1 exactly, so the sll was allocated first, took $v0 over
-         its whole window, and pushed the la to $v1.
-         FIX (pin-free, zero-byte): give the test qty ONE floor_log2 ref-step.  Naming
-         `copCarFlag` and adding a TWO-OPERAND read-only fence takes its refs 4 -> 8
-         (2 occurrences x loop depth 2, +2 per fence operand), so floor_log2 goes 2 -> 3
-         and PRI(q2) = 24/2 = 12.0 > PRI(q1) = 4.0 > PRI(q0) = 1.0.  Now BOTH exchanges
-         fire, qty_order becomes [q2,q1,q0], the la is allocated before the sll and takes
-         $v0.  234/234 byte-exact.
-         FALSIFIED HERE (all re-gated this session): ONE fence operand -> 8 (refs 6,
-         floor_log2 still 2, PRI 3.0 < 4.0 -- the step is what matters, not the ref);
-         naming copCarFlag with no fence -> 8; the fence pair moved ABOVE the slot
-         statement -> 26 (236 insns: the and is then scheduled before the address and
-         the block order changes); `slot` moved between the carObj and carFlags loads
-         -> 8.  Earlier waves' falsifications (five address spellings byte-identical;
-         naming the BASE costs 58 via LICM; a fence on carLoop -> 77) stand and are
-         explained by the same model: the dial had to land on q2, not on q0/q1.
-         DO NOT "simplify" the second `"r"(copCarFlag)` away -- the operand COUNT is the
-         instrument. ------------------------------------------------------------------ */
-      __asm__("" : : "r"(copCarFlag), "r"(copCarFlag));
-      if (copCarFlag != 0) {
+      Car_tObj *carObj = Cars_gList[carLoop];
+      slot = (AIHigh_Base **)((int)highLevelAIObjs + (carLoop << 2));
+      if ((carObj->carFlags & 0x200U) != 0) {
         newHigh = new AIHigh_BTC_HumanCop(carObj,copCounter++);
       }
-      else if ((carFlags & 4U) != 0) {
+      else if ((carObj->carFlags & 4U) != 0) {
         newHigh = new AIHigh_BTC_HumanPerp(carObj);   /* inline HumanPerp/BTC_Perp ctors: caught_/hudActivated_/originalActivationCop_ */
       }
-      else if ((carFlags & 8U) != 0) {
+      else if ((carObj->carFlags & 8U) != 0) {
         newHigh = new AIHigh_BTC_AIPerp(carObj);
       }
-      else if ((carFlags & 0x10U) != 0) {
+      else if ((carObj->carFlags & 0x10U) != 0) {
         newHigh = new AIHigh_Traffic(carObj);
       }
-      else if ((carFlags & 0x20U) != 0) {
+      else if ((carObj->carFlags & 0x20U) != 0) {
         newHigh = new AIHigh_BTC_Wingman(carObj,copCounter++);
       }
       else {
@@ -128,7 +86,6 @@ void AIHigh_StartUp(void)
       if ((carObj->carFlags & 0x200U) != 0) {
         humanCopCounter = humanCopCounter + 1;
       }
-      carLoop = carLoop + 1;
     }
 
     if (humanCopCounter == 2) {
@@ -145,12 +102,11 @@ void AIHigh_StartUp(void)
     return;
   }
   else {
-    carLoop = 0;
-    copCounter = carLoop;
-    while (carLoop < Cars_gNumCars) {
+    for (carLoop = 0, copCounter = carLoop;
+         carLoop < Cars_gNumCars; carLoop++) {
       AIHigh_Base *newHigh;
 
-      carObj = Cars_gList[carLoop];
+      Car_tObj *carObj = Cars_gList[carLoop];
       if ((carObj->carFlags & 4U) != 0) {
         newHigh = new AIHigh_Human(carObj);
       }
@@ -167,7 +123,6 @@ void AIHigh_StartUp(void)
         newHigh = new AIHigh_None(carObj);
       }
       highLevelAIObjs[carLoop] = newHigh;
-      carLoop = carLoop + 1;
     }
 
     if (0 < copCounter) {
@@ -243,65 +198,24 @@ void AIHigh_CleanUp(void)
 
 
 
-/* ---- AIHigh_Execute__Fv  AIHigh_Execute  [AIHIGH.CPP:134-148] SLD-VERIFIED ---- */
+inline bool AIHigh_Base::SchedulingOff() { return schedulingOff_ != 0; }
 
+/* ---- AIHigh_Execute__Fv [retail AIHIGH.CPP:134-148; native ownership exact,
+ * full SLD attribution open] ---- */
+/* MATCH: 66/66 instructions, both locals/all eight scope regions. Boolean
+ * query plus direct short-circuit recovers the unnamed dispatch-result funnel;
+ * executeNow and the decompiler label are unnecessary. SchedulingOff's literal
+ * original identifier is unproven; this is an inferred semantic query. */
 void AIHigh_Execute(void)
-
-
-
 {
-  {
-  int carLoop;
-
-  /* SYM-CODEGEN-CARRIER: executeNow -- spelling the scheduling test directly as a
-     short-circuit condition produces 61 instructions/33 diffs instead of the
-     exact retail 66; this optimized boolean lifetime is absent from the
-     surviving debug-local records. */
-  bool executeNow;
-
-  carLoop = 0;
-
-  do {
-
-    if (NumCars() <= carLoop) {
-
-      return;
-
-    }
-
-    Car_tObj *carObj;
-    carObj = Cars_gList[carLoop];
-
-    if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0x0) {
-
-      executeNow = false;
-
-      if (highLevelAIObjs[carLoop]->schedulingOff_ == 0) {
-
-        if (Sched_ExecuteCheck(1,0,(carObj->N).distToPlayer,(carObj->N).objID,&AI_time,&AI_elapsedTime,
-                               &AI_iTime,carObj->forceNoSimOptz) != 0) goto LAB_8005b2bc;
-
-      }
-
-      else {
-
-LAB_8005b2bc:
-
-        executeNow = true;
-
-      }
-
-      if (executeNow) {
-
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+    Car_tObj *carObj = Cars_gList[carLoop];
+    if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0) {
+      if (highLevelAIObjs[carLoop]->SchedulingOff() ||
+          (Sched_ExecuteCheck(1,0,carObj->N.distToPlayer,carObj->N.objID,
+             &AI_time,&AI_elapsedTime,&AI_iTime,carObj->forceNoSimOptz) != 0))
         highLevelAIObjs[carLoop]->HighExecute();
-
-      }
-
     }
-    carLoop = carLoop + 1;
-
-  } while( true );
-
   }
 }
 

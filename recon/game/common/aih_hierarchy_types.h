@@ -158,6 +158,7 @@ struct AIDelayCar {
 struct AICop_BasicPerpInfo {
     int copsAssigned_[2];
     crimeType crime_;
+    AICop_BasicPerpInfo(); /* retail BasicPerp constructor records a member-initializer inline tree */
     /* Names inferred from behavior: retail SYM records the inlined scopes,
        not the original inline member identifiers. */
     inline crimeType GetCrime() const { return crime_; }
@@ -166,9 +167,15 @@ struct AICop_BasicPerpInfo {
     inline void AddCop(copType type) { copsAssigned_[type]++; }
     inline void RemoveCop(copType type) { copsAssigned_[type]--; }
     inline int CopsAssigned(copType type) { return copsAssigned_[type]; }
+    /* Inferred reset/setter spellings; retail ClearForNewStage has an outer
+       reset pair containing two nested setter pairs, without extra locals. */
+    void SetCopsAssigned(copType type, int count);
+    void ClearCopsAssigned();
 };
 struct AICop_PerpChaseInfo {
     int engagementTime_;
+    AICop_PerpChaseInfo(); /* retail player ctor has a pre-body chase-info initializer tree */
+    void SetCopGameInfo(copGame_t *copGameInfo); /* candidate initializer boundary from retail copGameInfo receiver records */
     copGame_t *copGameInfo_;
     int chaseLevelIndex_, bestChaseLevelIndex_;
     copLevel_t *chaseLevel_;
@@ -176,10 +183,16 @@ struct AICop_PerpChaseInfo {
     int engagementPercentIncreasePerTick_, copFreeTicks_;
     inline int GetChaseLevelIndex();
     inline int GetNumLevels();
+    int BestChaseLevelIndex(); /* inferred getter for the recorded best-level last-level test */
     inline copLevel_t *GetChaseLevel();
     inline int GetChaseTime();
+    int RemainingEngagementTime(); /* inferred unscaled remaining fixed-point timer, distinct from elapsed GetChaseTime */
     inline int IsLastChaseLevel();
     inline void SetChaseLevel(int level);
+    int ConfiguredEngagementLapTime(); /* inferred timing helpers; caller/receiver structure still under review */
+    void InitializeChaseTimer(int lapTime);
+    void ApplyChaseLapFactor();
+    bool BlockadeDone(); /* inferred completed-blockade query from the retail guard inline pair */
     inline void ResetEngagementTime();
 };
 
@@ -224,6 +237,11 @@ struct AIHigh_Base {
         stateType_ = newStateType;
     }
     inline Car_tObj *CarObj() { return carObj_; }   /* retail pairs record `this` typed AIHigh_Base */
+    /* Inferred inline spelling: retail HighExecute records Base receivers at
+       both schedulingOff_ stores; no standalone name survives in SYM. */
+    void SetSchedulingOff(int off);
+    bool SchedulingOff(); /* inferred query: retail Execute has empty inline receiver scopes */
+    int ExchangeTrafficTriggerCheckSlice(int newSlice); /* inferred exchange; this/newSlice/temp are retail */
 };
 
 /* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,
@@ -364,6 +382,13 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
         WINGMAN_BLOCKADER_ACTIVE = 5
     } wingmanStatus_;
     int needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;
+    void SetNeedPerp(int); /* inferred flag setter: retail records this in ClearForNewStage */
+    int CurrentStage(); /* inferred stage getter: retail records this at the stage read */
+    int InitialDirection(); /* inferred getter for the placement direction */
+    int InitialMovement(); /* inferred getter for the placement movement */
+    bool HasCatchTime(); /* inferred query: HumanCop receiver, timeLeft_ > 5 in retail */
+    int NeedsPerp(); /* inferred lead-cop request query: copIndex_ == 0 ? needPerp_ : 0 */
+    void SetRequestedDesiredSpeed(int); /* inferred setter at the three speed arms */
     AIHigh_BTC_HumanCop(Car_tObj *carObj, int copIndex);
     int FindRandomBarrierFreeArea(int startSlice, int safetyZone, int randomDistance);
     void ReleaseAndStartChase(AIHigh_BTC_Perp *p);

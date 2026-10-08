@@ -74,33 +74,48 @@ inline int AICop_PerpChaseInfo::IsLastChaseLevel()
   return bestChaseLevelIndex_ == copGameInfo_->numLevels - 1;
 }
 
+inline int AICop_PerpChaseInfo::ConfiguredEngagementLapTime()
+{
+  return (GetChaseLevel()->engagementLapFraction * AITune_gRoughLapTime) / 0x10000;
+}
+inline void AICop_PerpChaseInfo::ApplyChaseLapFactor()
+{
+  if (GameSetup_gData.numLaps == 2)
+    engagementPercentIncreasePerTick_ =
+      fixedmult(engagementPercentIncreasePerTick_,0x13333);
+  else if (GameSetup_gData.numLaps == 4)
+    engagementPercentIncreasePerTick_ =
+      fixedmult(engagementPercentIncreasePerTick_,0xa8f5);
+}
+inline void AICop_PerpChaseInfo::InitializeChaseTimer(int lapTime)
+{
+  engagementTime_ = lapTime << 0x15;
+  engagementPercentIncreasePerTick_ = 0x10000 / (lapTime << 5);
+  ApplyChaseLapFactor();
+}
+inline int AICop_PerpChaseInfo::RemainingEngagementTime() { return engagementTime_ / 0x10000; }
 inline void AICop_PerpChaseInfo::SetChaseLevel(int level)
 {
-  int lapTicks;
-
+  /* Candidate source decomposition: computes the same lap value once and
+     removes the old lapTicks debug objects, but its receiver tree is still
+     under review against retail. No literal original helper names are claimed. */
   chaseLevelIndex_ = level;
-  if (bestChaseLevelIndex_ < level) {
+  if (bestChaseLevelIndex_ < level)
     bestChaseLevelIndex_ = level;
-  }
   chaseLevel_ = copGameInfo_->levels + chaseLevelIndex_;
-  lapTicks = (chaseLevel_->engagementLapFraction * AITune_gRoughLapTime) /
-             0x10000;
-  engagementTime_ = lapTicks << 0x15;
-  engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
-  if (GameSetup_gData.numLaps == 2) {
-    engagementPercentIncreasePerTick_ =
-        fixedmult(engagementPercentIncreasePerTick_, 0x13333);
-  }
-  else if (GameSetup_gData.numLaps == 4) {
-    engagementPercentIncreasePerTick_ =
-        fixedmult(engagementPercentIncreasePerTick_, 0xa8f5);
-  }
+  InitializeChaseTimer(ConfiguredEngagementLapTime());
   blockadeDone_ = 0;
 }
 
 
-/* ---- CheckIfABlockadeCanBeSetup__13AIHigh_Player  AIHigh_Player::CheckIfABlockadeCanBeSetup  [AIH_PLAY.CPP:55-170] SLD-VERIFIED ---- */
+inline bool AICop_PerpChaseInfo::BlockadeDone() { return blockadeDone_ != 0; }
 
+/* ---- CheckIfABlockadeCanBeSetup__13AIHigh_Player [retail AIH_PLAY.CPP:55-170;
+ * 225/225 byte PASS, native ownership exact, full SLD attribution open] ---- */
+/* Actual info/cop getters replace chaseInfo/cannotSetup and recover every
+ * receiver. Type-return copies are optimized out without added qualifiers;
+ * the final flags/type guard owns two separate retail regions. Literal helper
+ * and caller-copy spellings are not uniquely proved by this native contract. */
 int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
 
@@ -113,33 +128,16 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
   int ready[2];
   int assigned[2];
   int split;
-  /* SYM-CODEGEN-CARRIER: chaseInfo -- optimized SYM retains the corresponding
-     inlined AICop_PerpChaseInfo `this` receiver in s1 but not its source
-     spelling.  Repeating `this->perpChaseInfo_` removes the s1 CSE and changes
-     31 instructions (222 versus the 225-instruction retail body). */
-  AICop_PerpChaseInfo *chaseInfo;
-  /* SYM-CODEGEN-CARRIER: cannotSetup -- folding this materialized short-circuit
-     result into the return guard changes 16 instructions and emits only 221;
-     SYM and retail prove its lifetime, but do not preserve the source name. */
-  bool cannotSetup;
-
-  chaseInfo = &this->perpChaseInfo_;
-  pLevel = chaseInfo->chaseLevel_;
+  pLevel = this->perpChaseInfo_.GetChaseLevel();
 
   memset(ready,0,sizeof(ready));
   memset(assigned,0,sizeof(assigned));
 
-  cannotSetup = false;
-  split = NumHumanRaceCars() == 2;
-  if ((pLevel->numBlockaders == 0) ||
-      (chaseInfo->blockadeDone_ != 0) ||
-      ((this->basicPerpInfo_.copsAssigned_[0] < pLevel->copChasers[0]) && !split) ||
-      ((this->basicPerpInfo_.copsAssigned_[1] < pLevel->copChasers[1]) && !split)) {
-    cannotSetup = true;
-  }
-  if (cannotSetup) {
+  split = Cars_gNumHumanRaceCars == 2;
+  if ((pLevel->numBlockaders == 0) || this->perpChaseInfo_.BlockadeDone() ||
+      ((basicPerpInfo_.CopsAssigned(COP_REGULAR) < pLevel->copChasers[0]) && !split) ||
+      ((basicPerpInfo_.CopsAssigned(COP_SUPER) < pLevel->copChasers[1]) && !split))
     goto return_false;
-  }
 
   nCopsNeeded[0] = pLevel->copBlockaders[0];
   nCopsNeeded[1] = pLevel->copBlockaders[1];
@@ -148,47 +146,43 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
     AIHigh_Cop *thisCop;
     thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
     if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 0xc) {
-      /* SYM-CODEGEN-CARRIER: type -- the typed snapshots reproduce the
-         repeated inlined AIHigh_BasicCop receiver ranges in SYM.  Direct
-         member indexing changes 55 instructions and emits 228 instead of
-         retail's 225; the enum type itself is fixed by the class record. */
-      copType type = thisCop->type_;
+      copType type = thisCop->Type();
       if (nCopsNeeded[type] > assigned[type]) {
         ready[type] = ready[type] + 1;
         assigned[type] = assigned[type] + 1;
         thisCop->blockade_.mode = 1;
-        thisCop->blockade_.target = this;
+        thisCop->Blockade()->target = this;
       }
     }
   }
 
   if ((nCopsNeeded[0] > assigned[0]) || (nCopsNeeded[1] > assigned[1])) {
-    AIHigh_Cop *thisCop;
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
-      thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
+      AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
       if (((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) &&
-          (thisCop->blockade_.mode != 2)) {
-        copType type = thisCop->type_;
+          (thisCop->BlockadeMode() != 2)) {
+        copType type = thisCop->Type();
         if (nCopsNeeded[type] > assigned[type]) {
           assigned[type] = assigned[type] + 1;
           thisCop->blockade_.mode = 1;
-          thisCop->blockade_.target = this;
+          thisCop->Blockade()->target = this;
         }
       }
     }
   }
 
-  if ((NumHumanRaceCars() != 1) && (nCopsNeeded[1] > assigned[1])) {
+  if ((Cars_gNumHumanRaceCars != 1) && (nCopsNeeded[1] > assigned[1])) {
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
       AIHigh_Cop *thisCop;
       thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
-      if (((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) &&
-          (thisCop->type_ == 0) &&
-          (nCopsNeeded[1] > assigned[1]) &&
-          (assigned[1] == 0)) {
-        assigned[1] = 1;
-        thisCop->blockade_.mode = 4;
-        thisCop->blockade_.target = this;
+      if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) {
+        copType type = thisCop->Type();
+        if ((type == COP_REGULAR) &&
+            (nCopsNeeded[1] > assigned[1]) && (assigned[1] == 0)) {
+          assigned[1] = 1;
+          thisCop->blockade_.mode = 4;
+          thisCop->Blockade()->target = this;
+        }
       }
     }
   }
@@ -648,7 +642,10 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
 
 
-/* ---- CheckForNewLevel__13AIHigh_Playeri  AIHigh_Player::CheckForNewLevel  [AIH_PLAY.CPP:434-511] SLD-VERIFIED ---- */
+/* ---- CheckForNewLevel__13AIHigh_Playeri [retail AIH_PLAY.CPP:434-511;
+ * 184/184 byte PASS, native/source/SLD recovery still open] ---- */
+
+inline int AITrigger_TriggerManager::InvNumTriggers() { return invNumTriggers_; }
 
 void AIHigh_Player::CheckForNewLevel(int force)
 
@@ -678,7 +675,7 @@ void AIHigh_Player::CheckForNewLevel(int force)
     /* SYM-INLINE-LOCAL: level = SetChaseLevel */
     this->perpChaseInfo_.SetChaseLevel(0);
 
-    this->basicPerpInfo_.crime_ = 0;
+    this->basicPerpInfo_.SetCrime(CRIME_NONE);
 
     return;
 
@@ -690,23 +687,22 @@ void AIHigh_Player::CheckForNewLevel(int force)
      source; the former pa_Var1 decompiler alias is not required for codegen. */
   this->CheckForCrimes();
 
-  if (this->basicPerpInfo_.crime_ != 0) {
+  if (this->basicPerpInfo_.GetCrime() != CRIME_NONE) {
 
     if (force == 0) {
 
-      /* SYM-CODEGEN-CARRIER: doIt -- the optimized SYM omits this boolean's
-         source name, but retail materializes its 0/1 value in $a0 and tests it
-         with a second branch.  Folding it into the condition emits 182 rather
-         than 184 instructions and leaves eight authoritative diffs. */
+      /* UNRESOLVED RECONSTRUCTION: doIt has no retail caller record. Current
+         direct/Boolean-query forms lose two result-funnel instructions
+         (8dif/182 versus184); that does not prove an original object existed. */
       bool doIt = false;
 
-      if (this->perpChaseInfo_.engagementTime_ / 0x10000 <= 0) {
+      if (this->perpChaseInfo_.RemainingEngagementTime() <= 0) {
 
         doIt = true;
 
       }
 
-      if (!doIt) goto LAB_8006249c;
+      if (!doIt) goto check_level_changed;
 
     }
 
@@ -726,22 +722,12 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
   }
 
-LAB_8006249c:
-  {
-
-    if (oldChaseLevel == this->perpChaseInfo_.GetChaseLevelIndex()) {
-
-      return;
-
-    }
-
-    this->newTriggerProb_ =
-
-         triggerManagerCops->invNumTriggers_ *
-         this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
-
+/* Semantic fallback label, not a recovered original spelling. */
+check_level_changed:
+  if (oldChaseLevel != this->perpChaseInfo_.GetChaseLevelIndex()) {
+    this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() *
+                           this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
   }
-
   return;
 
 }
@@ -855,7 +841,8 @@ LAB_800625d0:
 
 
 
-/* ---- MaintainAvailableCops__13AIHigh_Player  AIHigh_Player::MaintainAvailableCops  [AIH_PLAY.CPP:669-744] SLD-VERIFIED ---- */
+/* ---- MaintainAvailableCops__13AIHigh_Player [AIH_PLAY.CPP:669-744;
+ * byte PASS, declaration order and full SLD recovery remain open] ---- */
 
 void AIHigh_Player::MaintainAvailableCops()
 {
@@ -913,21 +900,34 @@ void AIHigh_Player::MaintainAvailableCops()
 
 
 
-/* ---- __13AIHigh_PlayerP8Car_tObj  AIHigh_Player::ctor  [AIH_PLAY.CPP:750-762] SLD-VERIFIED ---- */
-AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
+/* Candidate chase-info initializer boundaries: all four old caller captures
+ * are absent at129/129, but the nested stored-pointer home and receiver tree
+ * still differ from retail. No original helper spelling is asserted. */
+static inline copLevel_t *CopGameLevelAt(copGame_t *copGameInfo,int index)
 {
-  int gameIndex;
-  int lapIndex;
+  return copGameInfo->levels + index;
+}
+inline void AICop_PerpChaseInfo::SetCopGameInfo(copGame_t *copGameInfo)
+{
+  copGameInfo_ = copGameInfo;
+  chaseLevelIndex_ = 0;
+  engagementTime_ = 0;
+  bestChaseLevelIndex_ = 0;
+  chaseLevel_ = CopGameLevelAt(copGameInfo_,GetChaseLevelIndex());
+  blockadeDone_ = 0;
+  copFreeTicks_ = 0;
+  totalEngagementPercent_ = 0;
+  engagementPercentIncreasePerTick_ = 0;
+}
+
+inline AICop_PerpChaseInfo::AICop_PerpChaseInfo()
+{
   copGame_t*copGameInfo;
-
-  /* SYM-CODEGEN-CARRIER: pInfo -- the inlined chase-info constructor's retail
-     receiver stays in $a1 across its branch and initialization sequence.
-     Repeating the member expression emits 127 instead of 129 instructions and
-     changes 28 branch/address/store instructions. */
-  AICop_PerpChaseInfo *pInfo;
+  int lapIndex;
+  int gameIndex;
 
 
-  pInfo = &this->perpChaseInfo_;
+
 
   /* w54-a12 (85 -> 67 diffs): SYM's own unused locals gameIndex/lapIndex/copGameInfo ARE
    * the original variables.  The numLaps test must be evaluated BEFORE the commMode branch
@@ -953,77 +953,23 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
 
   copGameInfo = copGame + (gameIndex + lapIndex);
 
-  pInfo->copGameInfo_ = copGameInfo;
-  /* Retail's $v1 -> $v0 copy of the selected pointer is cse forwarding the
-     store above into the later read of the MEMBER copGameInfo_ (levels below):
-     reading through pInfo->copGameInfo_ reproduces it with no carrier/fence. */
+  SetCopGameInfo(copGameInfo);
 
-  pInfo->chaseLevelIndex_ = 0;
+}
 
-  pInfo->engagementTime_ = 0;
-
-  /* SYM-CODEGEN-CARRIER: chaseIndex -- retaining the initialized index before
-     the best-level store schedules retail's load at 0x80062944.  Reading the
-     field only at the final addition moves that load and leaves two ordered
-     instruction diffs. */
-  int chaseIndex = pInfo->chaseLevelIndex_;
-
-  pInfo->bestChaseLevelIndex_ = 0;
-
-  /* SYM-CODEGEN-CARRIER: levels -- separating this early load preserves the
-     retail copGameInfo copy in $v0, levels in $a0, and final sum/store in
-     $v1.  Embedding the field read in the assignment produces eight register
-     and dataflow diffs at the same 129 instructions. */
-  copLevel_t *levels = pInfo->copGameInfo_->levels;
-
-
-  pInfo->blockadeDone_ = 0;
-
-  pInfo->copFreeTicks_ = 0;
-
-  pInfo->totalEngagementPercent_ = 0;
-
-  pInfo->engagementPercentIncreasePerTick_ = 0;
-
-  pInfo->chaseLevel_ = levels + chaseIndex;
-
-  /* MATCH: the named chaseIndex/levels split shortens the copied copGameInfo
-   * lifetime, giving its copy v0, the index v1, and levels a0.  Retail's SLD
-   * statement order also initializes bestChaseLevelIndex_ before levels. */
-
+/* ---- __13AIHigh_PlayerP8Car_tObj [retail AIH_PLAY.CPP:750-762;
+ * 129/129 byte PASS, native/source/SLD recovery still open] ---- */
+AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
+{
   this->numWarnings_ = 0;
 
   this->numBusts_ = 0;
 
-  if (GameSetup_gData.cops == 0) {
-
-    return;
-
-  }
-
-  {
-    /* SYM line 7 begins a fresh AICop_PerpChaseInfo inline receiver in $a1;
-       the direct GetChaseLevel call expresses that boundary without a named
-       decompiler alias. */
-    this->newTriggerProb_ =
-
-         triggerManagerCops->invNumTriggers_ *
-         this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
-
-    /* SYM-CODEGEN-CARRIER: pInfo3 -- the line-12 inline receiver is copied
-       from the line-7 $a1 view into retail $s0 before SetChaseLevel's
-       fixedmult call.  Calling SetChaseLevel through the earlier receiver
-       directly keeps 129 instructions but changes 16 receiver/product
-       instructions. */
-    AICop_PerpChaseInfo *pInfo3 = &this->perpChaseInfo_;
-
-    this->lastTriggerCheckSlice_ =
-        (int)(this->carObj_->N).simRoadInfo.slice;
-
-    /* SYM-INLINE-LOCAL: level = SetChaseLevel */
-    pInfo3->SetChaseLevel(0);
-
-    return;
+  if (GameSetup_gData.cops != 0) {
+    this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() *
+                           this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
+    this->lastTriggerCheckSlice_ = (int)this->carObj_->N.simRoadInfo.slice;
+    this->perpChaseInfo_.SetChaseLevel(0);
   }
 
 }
@@ -1035,7 +981,8 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
 
 
 
-/* ---- HandleCops__13AIHigh_Player  AIHigh_Player::HandleCops  [AIH_PLAY.CPP:808-868] SLD-VERIFIED ---- */
+/* ---- HandleCops__13AIHigh_Player [retail AIH_PLAY.CPP:808-868;
+ * 104/104 byte PASS, native/source/SLD recovery still open] ---- */
 
 void AIHigh_Player::HandleCops()
 
@@ -1043,23 +990,14 @@ void AIHigh_Player::HandleCops()
 
 {
   copLevel_t *pLevel;
-  int ticks;
-  int totalCopsEngaged;
-
-  /* SYM-CODEGEN-CARRIER: pInfo -- the SLD records the corresponding inlined
-     AICop_PerpChaseInfo `this` receivers but not their original helper names.
-     Direct member spelling shrinks 104 to 98 instructions and changes 76
-     frame/allocation/load instructions; the two lexical receivers reproduce
-     the retail $s0/$a1 views. */
-  AICop_PerpChaseInfo *pInfo;
 
 
 
-  pInfo = &this->perpChaseInfo_;
 
-  pLevel = pInfo->chaseLevel_;
+  pLevel = this->perpChaseInfo_.GetChaseLevel();
 
-  if (Cars_gNumCopCars != 0) {
+  if (Cars_gNumCopCars == 0) return;
+
 
     this->MaintainAvailableCops();
 
@@ -1076,16 +1014,18 @@ void AIHigh_Player::HandleCops()
     }
 
     {
+      int ticks;
+      int totalCopsEngaged;
+      /* UNRESOLVED RECONSTRUCTION: pInfo still stands in for an original
+         receiver boundary; candidate timer APIs do not yet preserve its store/reload. */
       AICop_PerpChaseInfo *pInfo = &this->perpChaseInfo_;
-      /* SYM-CODEGEN-CARRIER: prodSlipYawNeg -- directly embedding the product
-         sign in the shift selection yields 102/104 instructions with 44
-         allocation/scheduling diffs. The optimized predicate preserves the
-         retail precomputed sign and subsequent shift-count selection. */
+      /* UNRESOLVED RECONSTRUCTION: this is the reverse-motion bit from
+         currentSpeed*direction, not a yaw quantity. It has no retail local
+         record; direct shift selection is44dif/102 versus104 on this shape. */
       u_int prodSlipYawNeg;
 
       prodSlipYawNeg =
-          (u_int)(*(int *)((char *)this->carObj_ + 1380) *
-                  *(int *)((char *)this->carObj_ + 1364)) >> 31;
+          (u_int)(this->carObj_->currentSpeed * this->carObj_->direction) >> 31;
       ticks = AI_elapsedTime;
       totalCopsEngaged = this->basicPerpInfo_.copsAssigned_[0] +
                          this->basicPerpInfo_.copsAssigned_[1];
@@ -1094,9 +1034,8 @@ void AIHigh_Player::HandleCops()
         if (-2 < pInfo->engagementTime_ / 0x10000) {
           this->perpChaseInfo_.engagementTime_ -=
               ticks << (prodSlipYawNeg ? 0xf : 0x10);
-          if (pInfo->engagementTime_ / 0x10000 <
-              (pInfo->chaseLevel_->engagementLapFraction * AITune_gRoughLapTime /
-               0x10000) * 0x20 - 0x80) {
+          if (pInfo->RemainingEngagementTime() <
+              pInfo->ConfiguredEngagementLapTime() * 0x20 - 0x80) {
             pInfo->totalEngagementPercent_ +=
                 pInfo->engagementPercentIncreasePerTick_ * ticks;
           }
@@ -1111,10 +1050,7 @@ void AIHigh_Player::HandleCops()
 
     this->HandlePullOver();
 
-  }
-
   return;
-
 }
 
 

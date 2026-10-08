@@ -57,25 +57,28 @@ struct AIPhysic_BrakeInfo {
     u_char brakeTable_[128];
     int deceleration_;
 
+    /* Inferred setter spelling: retail records this/distance in an inline
+       parameter region, then sIndex in its body. The computed speed argument
+       has no named retail row; the braking-distance argument does. */
+    inline void SetBrakeDistance(int speed, int distance) {
+        int sIndex = speed / 0x10000;
+        if (sIndex < 0)
+            sIndex = -sIndex;
+        if (!(sIndex < 0x80))
+            sIndex = 0x80;
+        brakeTable_[sIndex] = (u_char)(distance / 0x20000);
+    }
+
     AIPhysic_BrakeInfo(int deceleration)
     {
         int invDeceleration;
-        int brakeTableLoop;
 
         deceleration_ = deceleration;
         invDeceleration = fixeddiv(0x10000, deceleration);
-        brakeTableLoop = 0;
-        while (brakeTableLoop < 0x80) {
-            int distance = brakeTableLoop << 0x10;
+        for (int brakeTableLoop = 0; brakeTableLoop < 0x80; brakeTableLoop++) {
             int brakeDistanceMeters =
-                fixedmult(fixedmult(distance, invDeceleration), distance) / 2;
-            int sIndex = distance / 0x10000;
-            if (sIndex < 0)
-                sIndex = -sIndex;
-            if (!(sIndex < 0x80))
-                sIndex = 0x80;
-            brakeTable_[sIndex] = (u_char)(brakeDistanceMeters / 0x20000);
-            brakeTableLoop = brakeTableLoop + 1;
+                fixedmult(fixedmult(brakeTableLoop << 0x10, invDeceleration), brakeTableLoop << 0x10) / 2;
+            SetBrakeDistance(brakeTableLoop << 0x10, brakeDistanceMeters);
         }
     }
     inline int Deceleration() { return deceleration_; }   /* retail pair (this typed AIPhysic_BrakeInfo) */

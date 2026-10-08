@@ -34,7 +34,7 @@ extern int            gNumSlices;
 extern int       Cars_gNumHumanRaceCars;
 extern int   Cars_gNumAIRaceCars;
 extern int   Udff_GetInt(Udff_tInfo *handle);
-extern int AIPerson_glueTable[];
+extern int AIPerson_glueTable[21]; /* retail SYM: ARY INT, size 84, twenty-one entries */
 extern int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReaction);
 extern int AIWorld_GameOdometer(Car_tObj *carObj);
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */

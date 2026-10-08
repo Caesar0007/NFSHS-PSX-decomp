@@ -7,6 +7,7 @@
 #include "pausemenu_externs.h"
 #include <stddef.h>
 #include <stdarg.h>
+#include "../psx/psyq_prim_macros.h"
 
 /* Retail pausemenu.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -43,15 +44,6 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 }
 
 
-
-/* MATCH + SEMANTICS (W85-S10): retail reads the "disabled" flag as the low BIT of
-   the 32-bit fFlags word (`lw a2,0(this); andi a2,a2,1`).  A plain `fFlags & 1`
-   passed to the `short disabled` parameter lets combine narrow the load to `lhu`
-   (gen_lowpart_for_combine on a non-volatile MEM, combine.c:8998), so the bit is
-   read through a 1-bit bitfield VIEW -- gcc-2.8.0 always reads a bitfield with a
-   full WORD load, which is exactly retail's shape, and needs no volatile. */
-struct tPMenuItemFlagBits { u_int fDisabled : 1; };
-#define PMENU_ITEM_DISABLED(itm) (((tPMenuItemFlagBits *)&(itm)->fFlags)->fDisabled)
 
 /* ---- PauseMenu_MenuTextPositioned  [PAUSEMENU.CPP:87-99] SLD-VERIFIED ---- */
 /* ORIGINAL-NAME-RECOVERED: flags -- the byte-matched NFS2 PC
@@ -339,14 +331,21 @@ tPMenuItemInteractive::~tPMenuItemInteractive() {}
 
 
 
+/* ---- tPMenuItem::IsDisabled [@0x800A86BC] SLD-FLAG:NO_SLD; inline definition and compiler-deferred standalone body ---- */
+/* Retail Draw records the inherited tPMenuItem inline receiver here. Its
+   body is visible only in this TU; the compiler emits the canonical copy
+   in the deferred footer. */
+inline bool tPMenuItem::IsDisabled() { return this->fFlags & 1; }
+
+/* ---- tPMenuItem::IsEnabled [@0x800A86A8] SLD-FLAG:NO_SLD; inline definition and compiler-deferred standalone body ---- */
+inline bool tPMenuItem::IsEnabled() { return (this->fFlags ^ 1) & 1; }
+
 /* ---- tPMenuItemInteractive::Draw  [PAUSEMENU.CPP:311-312] SLD-VERIFIED ---- */
 
 void tPMenuItemInteractive::Draw(bool selected)
 
 {
-  PauseMenu_MenuText((short)this->fTextDescription,selected,this->fFlags & 1
-            );
-  return;
+  PauseMenu_MenuText((short)this->fTextDescription,selected,this->IsDisabled());
 }
 
 
@@ -393,7 +392,11 @@ processed:
 
 
 
-/* ---- tPMenuItemLeftRightChoice::Draw  [PAUSEMENU.CPP:346-369] SLD-VERIFIED ---- */
+/* ---- tPMenuItemLeftRightChoice::Draw  [retail PAUSEMENU.CPP:346-369; native/byte verified, SLD attribution open] ----
+ * The first WordX call is a separate statement before IsDisabled. Putting
+ * both calls in one argument list hoists the flag read across WordX and
+ * changes register allocation; the separate statement retains the retail
+ * call/load order and both canonical inline receiver pairs. */
 
 void tPMenuItemLeftRightChoice::Draw(bool selected)
 
@@ -406,13 +409,13 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
   short textX;
   int y;
 
+  textX = (short)TextSys_WordX(this->fTextDescription);
   PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
-             PMENU_ITEM_DISABLED(this),
-             (short)TextSys_WordX(this->fTextDescription));
+             this->IsDisabled(), textX);
   text = this->fData->TextValue((tPlayer)-1);
   textX = (short)TextSys_WordX((int)text);
   PauseMenu_MenuTextPositioned(text, (short)selected,
-                               PMENU_ITEM_DISABLED(this), textX);
+                               this->IsDisabled(), textX);
   y = gPause_CurrentY;
   if ((selected != 0) && (GameSetup_gData.userSetting.language == 0))
   {
@@ -486,16 +489,9 @@ void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand
 
 PMLeftRtSlide_left:
     if (0 < *this->fData) {
-      /* SYM-CODEGEN-CARRIER: value -- GCC's retained result of the decrement
-         expression; keeping it single-evaluation reproduces retail's v1 clamp. */
-      int value;
-
       gMPauseUpdateNextTime = 1;
-      value = *this->fData - (u_char)this->fMaxVal / 0x1e;
-      if (value < 0) {
-        value = 0;
-      }
-      *this->fData = value;
+      *this->fData = (0 < *this->fData - (u_char)this->fMaxVal / 0x1e)
+          ? *this->fData - (u_char)this->fMaxVal / 0x1e : 0;
       goto PMLeftRtSlide_setPlayed;
     }
     goto PMLeftRtSlide_processed;
@@ -530,7 +526,7 @@ PMLeftRtSlide_playSound:
 
 
 
-/* ---- tPMenuItemLeftRightSlider::Draw  [PAUSEMENU.CPP:498-534] SLD-VERIFIED ---- */
+/* ---- tPMenuItemLeftRightSlider::Draw [retail PAUSEMENU.CPP:498-534; byte verified, packet base/fences and SLD open] ---- */
 
 /*
  * MATCH: the SLD statement order and the three empty allocation fences below
@@ -586,18 +582,15 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
 {
   short x;
   short y;
-  int i;
-  u_long col;
-  int xpos;
 
   x = (short)TextSys_WordX(this->fTextDescription);
   y = gPause_CurrentY;
   PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
-             PMENU_ITEM_DISABLED(this), x);
+             this->IsDisabled(), x);
   y += 4;
-  i = 0;
-  while (i < 15) {
-    col = 0x323232;
+  for (int i = 0; i < 15; i++) {
+    u_long col = 0x323232;
+    int xpos;
     /* 🔴 CORRECTNESS + MATCH (W71-A22): retail computes xpos UNCONDITIONALLY --
        its `addu $fp,$s6,$s7` @800A7AB8 sits in the `beqz $v0,.L800A7AD4` DELAY
        SLOT, so it runs on BOTH paths (methodology S3.1).  The old shape computed
@@ -615,14 +608,11 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
        retail's `addu $fp,$s6,$s7` operand order (`off + x` = 2 diffs).
        This also RETIRES the old `__asm__("" : : "r"(i * 5))` allocation fence --
        the giv now supplies those refs by itself. */
-    {
-      /* SYM-CODEGEN-CARRIER: off -- the direct and two-statement alternatives
-         are measured in the receipt above (5 and 106 diffs respectively),
-         while reversing `x + off` leaves two diffs. This block-local affine
-         quantity is required for retail loop-giv reduction. */
-      int off = i * 5 + 66;
-      xpos = x + off;
-    }
+    /* SYM-CODEGEN-CARRIER: off -- direct/two-statement alternatives are
+       five/106 differences; the value is still source-review work despite
+       being eliminated into the affine loop quantity in native SYM. */
+    int off = i * 5 + 66;
+    xpos = x + off;
     if (i < (*this->fData * 15) / (u_char)this->fMaxVal) {
       col = 0x808080;
       if (selected != 0) {
@@ -630,30 +620,23 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
       }
     }
     if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) {
-      struct PMenuTag {
-        u_int addr : 24;
-        u_int len : 8;
-      };
       POLY_GT4 *prim;
       u_char **packetPtr; /* SYM-CODEGEN-CARRIER: packetPtr -- allocsim-confirmed retail $s4. */
 
       packetPtr = (u_char **)0x1f800004;
       prim = (POLY_GT4 *)*packetPtr;
-      ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
-      ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
+      addPrim(Render_gPalettePtr, prim);
       *packetPtr = (u_char *)(prim + 1);
       Hud_BuildGT4(prim, HudPmx_gShapes + 0x12, x + 53, y + 2, 0xbebe);
 
       prim = (POLY_GT4 *)*packetPtr;
-      ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
-      ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
+      addPrim(Render_gPalettePtr, prim);
       *packetPtr = (u_char *)(prim + 1);
       Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 144, y + 2, 0xbebe);
       __asm__("" : : "r"((int)x), "r"(packetPtr));
     }
     Hud_FBuildF4(0, xpos, y + 2, 3, 5, col, '\0', '\0');
     __asm__("" : : "r"(y), "r"(i));
-    i++;
   }
   Hud_FBuildF4(0, x + 63, y + 1, 79, 7, 0, '\0', '\0');
 }
@@ -790,10 +773,11 @@ void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
 
 {
   tPMenuItem *p;
-  /* SYM-CODEGEN-CARRIER: offset -- retail's $a1 induction is the
-     strength-reduced destination offset.  Recomputing the array index from
-     fNumItems is count-exact but changes sixteen rows and no longer emits the
-     retail induction sequence. */
+  /* SOURCE-REVIEW: offset -- retail's $a1 induction has no named local.
+     Indexing from fNumItems previously changed sixteen rows. An independent
+     element index (typed array or base-first integer address) strength-reduces
+     to a pointer walker: 18/19 instructions, eleven differences. These finite
+     trials do not prove that this byte-offset object existed in the source. */
   int offset;
 
   ap = (void *)((int)ap + 4);
@@ -836,23 +820,21 @@ tPMenu::~tPMenu() {}
 
 
 
-/* ---- tPMenu::Initialize  [PAUSEMENU.CPP:683-695] SLD-VERIFIED ---- */
+/* ---- tPMenu::Initialize [retail PAUSEMENU.CPP:683-695; native/byte verified, SLD attribution open] ----
+ * Canonical flag accessors and the successful-item early return recover the
+ * original receiver/loop ownership without facade item/result captures. */
 
 void tPMenu::Initialize()
 
 {
   this->fCurrentItem = 0;
   this->fHighlight = 1;
-  if (tPMenuItem_IsEnabledAndNavigable(this->fItemList[this->fCurrentItem]) == 0) {
-    while (true) {
-      if (this->fItemList[this->fCurrentItem] == (tPMenuItem *)0x0) {
-        break;
-      }
-      if (tPMenuItem_IsDisabledOrNotNavigable(this->fItemList[this->fCurrentItem]) == 0) {
-        return;
-      }
-      this->fCurrentItem = this->fCurrentItem + 1;
-    }
+  if (this->fItemList[this->fCurrentItem]->IsEnabled() &&
+      (this->fItemList[this->fCurrentItem]->IsNavigable() != 0)) return;
+  while ((this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) &&
+         (this->fItemList[this->fCurrentItem]->IsDisabled() ||
+          (this->fItemList[this->fCurrentItem]->IsNavigable() == 0))) {
+    this->fCurrentItem = this->fCurrentItem + 1;
   }
   return;
 }
@@ -872,25 +854,15 @@ bool tPMenu::Debounce()
 
 
 
-/* ---- tPMenu::CheckForDisabled  [PAUSEMENU.CPP:703-712] SLD-VERIFIED ---- */
+/* ---- tPMenu::CheckForDisabled [retail PAUSEMENU.CPP:703-712; native/byte verified, SLD attribution open] ----
+ * The canonical IsDisabled call preserves the anonymous compound loop result
+ * and its inline receiver without a named disabled predicate. */
 
 void tPMenu::CheckForDisabled()
 
 {
-  /* SYM-CODEGEN-CARRIER: disabled -- retail materializes the compound
-     virtual-result/flag predicate in s1 for the loop backedge; folding it
-     into the while condition removes that saved-register lifetime. */
-  bool disabled;
-
-  while (true) {
-    disabled = false;
-    if ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
-        ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
-      disabled = true;
-    }
-    if (!disabled) {
-      break;
-    }
+  while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
+         this->fItemList[this->fCurrentItem]->IsDisabled()) {
     if (0 < this->fCurrentItem) {
       this->fCurrentItem = this->fCurrentItem + -1;
     }
@@ -909,24 +881,17 @@ void tPMenu::CheckForDisabled()
 
 
 
-/* ---- tPMenu::ProcessInput  [PAUSEMENU.CPP:718-772] SLD-VERIFIED ---- */
+/* ---- tPMenu::ProcessInput [retail PAUSEMENU.CPP:718-772; native/byte verified, SLD attribution open] ----
+ * Canonical flag-query calls make the old predicate captures and allocation
+ * fence unnecessary. The Triangle key update belongs to its switch arm;
+ * GCC shares the store, retaining retail's extended switch scope endpoints. */
 
 void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: disabled -- both navigation loops materialize the
-     virtual-result/flag predicate in the reusable saved command register. */
-  bool disabled;
-
   if (this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) {
     this->fItemList[this->fCurrentItem]->ProcessInput(keyval,command);
   }
-  /* MATCH: read-only zero-insn allocator fence.  The real-CC1PL dump measures
-     `this` at 42 refs / 178 live (priority 1.1798), just below the competing
-     1.2000 allocno.  One operand also lengthens the window to 180 and reaches
-     only 1.1944; two operands produce 44 / 180 (1.2222), restoring retail's
-     this/s0 and command/s1 handout without a pin. */
-  __asm__("" : : "r"(this), "r"(this));
   switch (keyval) {
     case kInput_KeyType_Up:
       AudioCmn_PlayPauseSound(3);
@@ -943,12 +908,8 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
                      (tPMenuItem *)0x0);
           }
         }
-        disabled = false;
-        if ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
-            ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
-          disabled = true;
-        }
-      } while (disabled);
+      } while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
+               this->fItemList[this->fCurrentItem]->IsDisabled());
       keyval = kInput_KeyType_AlreadyProcessed;
       return;
 
@@ -959,12 +920,8 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
         if (this->fItemList[this->fCurrentItem] == (tPMenuItem *)0x0) {
           this->fCurrentItem = 0;
         }
-        disabled = false;
-        if ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
-            ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
-          disabled = true;
-        }
-      } while (disabled);
+      } while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
+               this->fItemList[this->fCurrentItem]->IsDisabled());
       keyval = kInput_KeyType_AlreadyProcessed;
       return;
 
@@ -977,85 +934,78 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
     case kInput_KeyType_Triangle:
       AudioCmn_PlayPauseSound(4);
       command.type = kMPause_BackupMenu;
+      keyval = kInput_KeyType_AlreadyProcessed;
       break;
 
     default:
       return;
   }
-  keyval = kInput_KeyType_AlreadyProcessed;
   return;
 }
 
 
 
-/* ---- tPMenu::Draw  [PAUSEMENU.CPP:783-801] SLD-VERIFIED ---- */
+/* ---- tPMenu::Draw [retail PAUSEMENU.CPP:783-801; native/byte verified, SLD attribution open] ----
+ * Retail owns item in the inner region spanning the body, not at the root.
+ * The canonical IsEnabled expansion restores the three empty inline/binding
+ * regions at the flag test. The exact original region syntax is unresolved. */
 
 void tPMenu::Draw()
 
 {
-  short item;
-  
-  this->CheckForDisabled();
-  gPause_CurrentY = 0x62;
-  this->fItemList[0]->Draw(false);
-  item = 1;
-  gPause_CurrentY = 0x75;
-  while( true ) {
-    if (this->fItemList[item] == (tPMenuItem *)0x0) break;
-    if (((this->fItemList[item]->fFlags ^ 1) & 1) != 0) {
-      if (this->fHighlight != 0) {
-        this->fItemList[item]->Draw((int)item == this->fCurrentItem);
+  {
+    short item;
+
+    this->CheckForDisabled();
+    gPause_CurrentY = 0x62;
+    this->fItemList[0]->Draw(false);
+    item = 1;
+    gPause_CurrentY = 0x75;
+    while (true) {
+      if (this->fItemList[item] == (tPMenuItem *)0x0) break;
+      if (this->fItemList[item]->IsEnabled()) {
+        if (this->fHighlight != 0) {
+          this->fItemList[item]->Draw((int)item == this->fCurrentItem);
+        }
+        else {
+          this->fItemList[item]->Draw(false);
+        }
+        gPause_CurrentY = gPause_CurrentY + 0xd;
       }
-      else {
-        this->fItemList[item]->Draw(false);
-      }
-      gPause_CurrentY = gPause_CurrentY + 0xd;
+      item = item + 1;
     }
-    item = item + 1;
+    return;
   }
-  return;
 }
 
 
 
-/* ---- tPMenu::NumEnabledItems  [PAUSEMENU.CPP:805-814] SLD-VERIFIED ---- */
+/* ---- tPMenu::NumEnabledItems [retail PAUSEMENU.CPP:805-814; native/byte verified, inline block-line attribution open] ---- */
 
 int tPMenu::NumEnabledItems()
 
 {
-  int i;
-  int ret;
+  int ret = this->NumItems();
 
-  ret = this->fNumItems;
-  i = 1;
-  while (true) {
-    if (this->fNumItems < i) {
-      break;
-    }
-    if ((this->fItemList[i]->fFlags & 1) != 0) {
+  for (int i = 1; i <= this->NumItems(); i++)
+  {
+    if (this->fItemList[i]->IsDisabled())
       ret = ret + -1;
-    }
-    i = i + 1;
   }
+
   return ret;
 }
 
-/* ---- tPMenu::ItemEnabledNum  [PAUSEMENU.CPP:818-825] SLD-VERIFIED ---- */
+/* ---- tPMenu::ItemEnabledNum [retail PAUSEMENU.CPP:818-825; native/byte verified, inline block-line attribution open] ---- */
 
 int tPMenu::ItemEnabledNum(int num)
 
 {
-  int i;
-  int ret;
-
-  ret = num;
-  i = 0;
-  while (1) {
-    if (i >= num) break;
-    if ((this->fItemList[i]->fFlags & 1) != 0) {
+  int ret = num;
+  for (int i = 0; i < num; i++)
+  {
+    if (this->fItemList[i]->IsDisabled())
       ret = ret + -1;
-    }
-    i = i + 1;
   }
   return ret;
 }
@@ -1076,26 +1026,6 @@ bool tPMenuItemNonInteractiveText::IsNavigable()
 
 {
   return 0;
-}
-
-
-
-/* ---- tPMenuItem::IsEnabled  [PAUSEMENU.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-bool tPMenuItem::IsEnabled()
-
-{
-  return (this->fFlags ^ 1) & 1;
-}
-
-
-
-/* ---- tPMenuItem::IsDisabled  [PAUSEMENU.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-bool tPMenuItem::IsDisabled()
-
-{
-  return this->fFlags & 1;
 }
 
 

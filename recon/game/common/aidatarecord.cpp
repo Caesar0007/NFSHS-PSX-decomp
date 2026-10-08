@@ -115,36 +115,35 @@ void AIDataRecord_t::CleanUp2(void)
 void AIDataRecord_t::Setup()
 {
   if (this->preAllocatedBuffer_ != (char *)0x0) {
-    this->dataBuffer_ = this->preAllocatedBuffer_;
-    return;
+    this->dataBuffer_ = this->PreAllocatedBuffer();
+  } else if (this->Load() == 0) {
+    this->SetDataBuffer((char *)reservememadr(this->Name(),this->BufferSize(),0));
   }
-  if (this->Load() != 0) {
-    return;
-  }
-  this->dataBuffer_ = reservememadr(this->name_,this->bSize_,0);
-  return;
 }
 
 /* ---- Load__14AIDataRecord_t ---- */
 int AIDataRecord_t::Load()
 {
-  if (this->recordMethod_ == 0) {
-    this->dataBuffer_ = (char *)loadpackadrz(this->name_,(void *)0x0);
+  if (this->RecordMethod() == NORMAL_M) {
+    this->SetDataBuffer((char *)loadpackadrz(this->Name(),(void *)0x0));
   }
-  return (u_int)(this->dataBuffer_ != (char *)0x0);
+  if (this->DataBuffer() != (char *)0x0) {
+    return 1;
+  }
+  return 0;
 }
 
 /* ---- SaveAndPurge__14AIDataRecord_t ---- */
 int AIDataRecord_t::SaveAndPurge()
 {
-  if (this->dataBuffer_ == (char *)0x0) {
-    return 0;
+  if (this->DataBuffer() != (char *)0x0) {
+    if (this->preAllocatedBuffer_ == (char *)0x0) {
+      purgememadr(this->DataBuffer());
+    }
+    this->SetDataBuffer((char *)0x0);
+    return 1;
   }
-  if (this->preAllocatedBuffer_ == (char *)0x0) {
-    purgememadr(this->dataBuffer_);
-  }
-  this->dataBuffer_ = (char *)0x0;
-  return 1;
+  return 0;
 }
 
 /* ---- __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t  AccTable::ctor ---- */
@@ -190,13 +189,12 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   this->bSize_ = this->numElements_ = gNumSlices;
-  if (this->recordMethod_ == 0) {
-    sprintf(this->name_,"%sTr%02d.qbe",Paths_Paths[12],GameSetup_gData.track);
-  }
-  else {
+  if (this->RecordMethod() == NORMAL_M) {
+    sprintf(this->name_,"%sTr%02d.qbe",
+            Paths_Paths[12],GameSetup_gData.track);
+  } else {
     sprintf(this->name_,"%sTr%02d.bes",Paths_Paths[13],GameSetup_gData.track);
   }
-  return;
 }
 
 /* ---- __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t  TrackCurve::ctor ---- */
@@ -204,13 +202,12 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   this->bSize_ = (this->numElements_ = gNumSlices) + 1;
-  if (this->recordMethod_ == 0) {
-    sprintf(this->name_,"%sTr%02d.qcr",Paths_Paths[10],GameSetup_gData.track);
-  }
-  else {
+  if (this->RecordMethod() == NORMAL_M) {
+    sprintf(this->name_,"%sTr%02d.qcr",
+            Paths_Paths[10],GameSetup_gData.track);
+  } else {
     sprintf(this->name_,"%sTr%02d.crv",Paths_Paths[11],GameSetup_gData.track);
   }
-  return;
 }
 
 /* ---- Get__25AIDataRecord_TrackCurve_ti ---- */
@@ -226,7 +223,7 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
 {
   this->numElements_ = 0x100;
   this->bSize_ = 0x100;
-  if (this->recordMethod_ == 0) {
+  if (this->RecordMethod() == NORMAL_M) {
     sprintf(this->name_,"%s%s.qcs",Paths_Paths[4],carName);
   }
   else {
@@ -252,16 +249,9 @@ int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 /* ---- Upgrade__30AIDataRecord_CurveSpeedTable_ti ---- */
 void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 {
-  int curveLoop;
-
-  curveLoop = 0;
-  while (1) {
-    if (curveLoop >= this->numElements_) {
-      return;
-    }
+  for (int curveLoop = 0; curveLoop < this->NumElements(); curveLoop++) {
     this->dataBuffer_[curveLoop] =
         fixedmult(this->Get(curveLoop), handlingUpgrade) / 0x10000;
-    curveLoop++;
   }
 }
 

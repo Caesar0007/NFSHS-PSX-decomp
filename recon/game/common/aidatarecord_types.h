@@ -36,6 +36,15 @@ struct AIDataRecord_t {
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
     AIDataRecord_RecordMethod_t recordMethod_;
+    /* Inferred accessor spellings: retail inline receiver pairs establish
+       these operations, but do not preserve their original identifiers. */
+    inline AIDataRecord_RecordMethod_t RecordMethod() { return recordMethod_; }
+    inline char *Name() { return name_; }
+    inline char *DataBuffer() { return dataBuffer_; }
+    inline char *PreAllocatedBuffer() { return preAllocatedBuffer_; }
+    inline int BufferSize() { return bSize_; }
+    inline int NumElements() { return numElements_; }
+    inline void SetDataBuffer(char *buffer) { dataBuffer_ = buffer; }
     AIDataRecord_t(AIDataRecord_WhichRecord_t which, char *name);
     virtual ~AIDataRecord_t();
     int AddRecordToCollection();

@@ -1746,7 +1746,13 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   return;
 }
 
-/* ---- R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii [retail R3DCAR.CPP:2185-2342; base carrier/source/SLD recovery open] ---- */
+/* ---- R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii [retail R3DCAR.CPP:2185-2342; native/byte verified, original spelling/SLD open] ---- */
+/* MATCH: carType's type-id value is dead once the branch is selected. Reusing
+   its retail INT REG:$16 for the 32-bit shpfiles address keeps all 211 words
+   and the exact named-local/scope records without an sfBase object. Using i
+   instead changes 22 instructions. The old sfBase expression already cast
+   its pointer to int; this moves that conversion into the recorded dead-phase
+   variable. Exact historical reuse is not uniquely proved by these receipts. */
 void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int player)
 
 {
@@ -1768,12 +1774,6 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
     char infilenames [3][15];
     char *shpfiles [3];
     int index;
-    /* Source-recovery queue: sfBase is absent from retail. The selected sfp
-       object and its extra region are retired: base-first integer arithmetic
-       below keeps211/211 without it. Direct stack-array base was12dif/209,
-       indexed second-load/postincrement24dif/209. These failures prove no
-       distinct sfBase source object was required; its spelling remains open. */
-    char **sfBase;
 
     index = 0;
     if (((carObj->render).inside & 1U) != 0) {
@@ -1804,7 +1804,7 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
     }
     CarIO_ReadInCarTextureData(shpfiles[0],carObj,reload,player);
     index = 1;
-    sfBase = shpfiles;
+    carType = (int)shpfiles;
     if (((carObj->render).inside & 1U) != 0) {
       CarIO_ReadInCarTextureData(shpfiles[1],carObj,0x19,player);
       index = 2;
@@ -1812,7 +1812,7 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
     if (reload == 0) {
       reload = 0x91;
     }
-    CarIO_ReadInCarTextureData(*(char **)((int)sfBase + (index << 2)),carObj,reload,player);
+    CarIO_ReadInCarTextureData(*(char **)(carType + (index << 2)),carObj,reload,player);
     (carObj->render).palNum = (short)Texture_palNum;
     DrawSync(0);
     Texture_CarColor =

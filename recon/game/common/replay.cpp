@@ -187,7 +187,11 @@ void Replay_InitReplay(void)
   return;
 }
 
-/* ---- Replay_ResetReplay__Fv  [REPLAY.CPP:202-264] SLD-VERIFIED ---- */
+/* ---- Replay_ResetReplay__Fv  [retail REPLAY.CPP:202-264; native/byte verified, SLD attribution open] ----
+ * Retail declares Replay_ReplayCounter[2]. With that complete array type, the
+ * final indexed loop generates the exact reverse pointer induction without
+ * a named counterSlot. NFS2's matched source also uses an indexed clear.
+ * Native byte/record receipt: sym-match.md, 2026-10-07. */
 void Replay_ResetReplay(void)
 
 {
@@ -201,10 +205,6 @@ void Replay_ResetReplay(void)
    * that index to the oracle's incrementing $s2 cursor and hoists it after the
    * GameSetup/ReplayCamera bases. */
   int i;
-  /* SYM-CODEGEN-CARRIER: counterSlot is the reverse two-counter cursor in $v0.
-   * NFS2-style indexing and a for loop emit 87 vs retail's 86 instructions
-   * (one extra address increment); a changed countdown shape costs 13 diffs. */
-  int *counterSlot;
   if ((u_int)Replay_ReplayMode < 2) {
     for (i = 0; i < 0x6000; i++)
       Replay_ReplayBuffer.buffer[i] = 0;
@@ -235,13 +235,9 @@ void Replay_ResetReplay(void)
       i = i + 1;
     } while (i < 2);
   }
-  i = 1;
-  counterSlot = Replay_ReplayCounter + 1;
-  do {
-    *counterSlot = 0;
-    i = i + -1;
-    counterSlot = counterSlot + -1;
-  } while (-1 < i);
+  for (i = 0; i < 2; i++) {
+    Replay_ReplayCounter[i] = 0;
+  }
   StatsTimer[0] = 0;
   StatsTimer[1] = 0;
   return;

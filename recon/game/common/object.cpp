@@ -1,7 +1,7 @@
 /* game/common/object.cpp -- RECONSTRUCTED (track-object collision + custom-object pool +
  *   IMass scene props + ObjectMultiAnim/SignAnim animation classes; C++ TU, 36 fns).
- *   4 anim classes (: ObjectAnim) emitted as free fns (Class_ct/_dt/_Class_Draw) per
- *   track.obj convention (ctors explicitly called on __builtin_new memory).
+ *   Animation classes derive from ObjectAnim and use real C++ member definitions;
+ *   SYM names/types and native debug scopes remain the reconstruction authority.
  */
 #include "object_types.h"
 #include "object_externs.h"
@@ -115,10 +115,10 @@ void BuildObjCollisionMatrix(int weight,int objAngle,int impactAngle,matrixtdef 
   matrixtdef objAngleMat;
   matrixtdef tmpMat;
   
-  fixedxformy(&objAngleMat,
+  fixedxformy(objAngleMat.m,
               fixedmult(-impactAngle,0x10000 - weight) +
               fixedmult(-objAngle,weight));
-  fixedxformy(&impactMat,impactAngle);
+  fixedxformy(impactMat.m,impactAngle);
   Math_fasttransmult(&objAngleMat,mat,&tmpMat);
   Math_fasttransmult(&tmpMat,&impactMat,mat);
   return;
@@ -158,33 +158,28 @@ FindObjInstanceFromSerialNum(Group *group,int index)
 
 
 
-/* ---- Object_InitCollisionCheckLoop  [OBJECT.CPP:190-243] SLD-VERIFIED ---- */
+/* ---- Object_InitCollisionCheckLoop [OBJECT.CPP:190-243;
+ * 134/134 byte PASS and native ownership exact; full SLD still open] ---- */
+/* Two actual Group getters recover retail's inline regions. Selecting a
+ * pointer before the common chunkIndex load removes altSlice while retaining
+ * base-first address operands. Direct field arms were4dif/134; integer-address
+ * forms were21dif/135. No replacement capture or compiler-output rewrite. */
 void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *objList,int *numObj)
 
 {
   int altChunk;
-  /* SYM-CODEGEN-CARRIER: altSlice -- both direct indexed and pointer-arithmetic
-   * spellings retain 134 instructions but reverse two retail `addu` operand
-   * pairs (four diffs); an integer-address form drops an instruction and gives
-   * 11 diffs.  The cached pointer preserves the exact address-construction
-   * order in both wrap arms. */
-  Trk_NewSlice *altSlice;
 
   if (Track_chunkList[slicePos->chunk].simObjBuf != (Group *)0x0) {
-    objList->numObjects = Track_chunkList[slicePos->chunk].simObjBuf->m_num_elements;
+    objList->numObjects = Track_chunkList[slicePos->chunk].simObjBuf->GetNumElements();
   } else {
     objList->numObjects = 0;
   }
   objList->chunk = (int)slicePos->chunk;
   objList->numObjects2 = 0;
   altChunk = slicePos->slice + 1;
-  if (altChunk < gNumSlices) {
-    altSlice = BWorldSm_slices + altChunk;
-    altChunk = (int)altSlice->chunkIndex;
-  } else {
-    altSlice = BWorldSm_slices + (slicePos->slice - (gNumSlices - 1));
-    altChunk = (int)altSlice->chunkIndex;
-  }
+  altChunk = (int)(altChunk < gNumSlices
+      ? BWorldSm_slices + altChunk
+      : BWorldSm_slices + (slicePos->slice - (gNumSlices - 1)))->chunkIndex;
   if ((altChunk != slicePos->chunk) &&
       (Track_chunkList[altChunk].simObjBuf != (Group *)0x0)) {
     objList->numObjects2 = Track_chunkList[altChunk].simObjBuf->m_num_elements;
@@ -209,7 +204,7 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
     }
   }
   if (Object_customSimObjs != (Group *)0x0) {
-    if (0 < Object_customSimObjs->m_num_elements) {
+    if (0 < Object_customSimObjs->GetNumElements()) {
       if (Math_DistXZ((coorddef *)(BWorldSm_slices + Object_customSliceNum),
                       (coorddef *)(BWorldSm_slices + slicePos->slice)) <= 0xbfffff) {
         *numObj = *numObj + Object_customSimObjs->GetNumElements();
@@ -310,6 +305,11 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
     }
     if (objInstance != (Trk_SimpleInst *)0x0) {
       Trk_ObjectDef *objDef;
+      /* SOURCE-REVIEW-UNRESOLVED: unused constants below reproduce an empty
+       * retail region, not recovered operations or proven source objects.
+       * Lookup getter candidates kept79 words but elided objDef; returning
+       * a slot reference changed10/79, an output reference spilled10/81.
+       * Recover the real source of the empty pair before removing this scaffold. */
       {
         const int extentType = 5;
         {
@@ -385,24 +385,16 @@ ObjectAnim * Object_GetAnim(Trk_SimObject *simObj)
   return gSimObjAnims[simObj->serialNum];
 }
 
-static inline ObjectSignAnim *
-Object_CreateSignAnim(BO_tNewtonObj *N,AnimDef *animDef,
-                      Trk_CollideBoomInst *objInstance,Trk_ObjectDef *objDef,
-                      Trk_SimObject *simObj,ObjectFinishedSignAnim *finishedSign)
-{
-  ObjectSignAnim *signAnim;
-
-  signAnim = (ObjectSignAnim *)__builtin_new(sizeof(ObjectSignAnim));
-  return new(signAnim) ObjectSignAnim(
-      &N->linearVel,
-      fixedatan((N->linearVel).x >> 8,(N->linearVel).z >> 8) >> 8,
-      animDef,objInstance,objDef,simObj,
-      (coorddef *)((N->roadMatrix).m + 3),finishedSign);
-}
 
 
 
-/* ---- Object_CheckCollisionResults  [OBJECT.CPP:455-557] SLD-VERIFIED ---- */
+/* ---- Object_CheckCollisionResults [OBJECT.CPP:455-557;
+ * 166/166 byte PASS; named native records exact, constructor scopes/SLD open] ---- */
+/* Positive status/velocity owners and the inner type switch restore lexical
+ * ownership. Direct construction removes the reconstruction-only factory's
+ * parameter/placement captures; the finished allocation is staged first to
+ * preserve the original heap-call order. Its temporary spellings and the two
+ * missing empty Finished* constructor regions remain explicitly unresolved. */
 int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNewtonObj *N)
 
 {
@@ -420,17 +412,15 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
   type = simObj->type & 0xf;
   switch (type) {
   case 2:
-    if (objStatus != (ObjectAnim *)0x0) {
-      break;
-    }
-    /* BUG FIX (w59-a10 BRANCH-TARGET AUDIT): the two guards used to be one
+    /* BRANCH-TARGET AUDIT: the two old early guards used to be one
        `||`, which gated PASS 166/166 but emitted 06200067 for the vel test
        (retail 06200063) -- ours branched to the epilogue (insn 156, returning
        ret==0) while retail branches to .L800A5550 (insn 152) = the shared
        `ret = 1` block that `case 1` also uses.  Retail returns 1 on vel < 0.
        (Unreachable in practice -- vel is a sum of two __builtin_abs -- but it
        is the retail encoding.) */
-    if (vel < 0) goto Object_ret1;
+    if (objStatus == (ObjectAnim *)0x0) {
+    if (vel >= 0) {
     {
     Chunk *pMChunk;
     Trk_SimpleInst *objInstance;
@@ -453,14 +443,14 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
     else {
       objDef = Track_gObjDefs[objInstance->pad];
     }
-    if (animDef->type != 0) {
-      if (animDef->type != 1) {
-        ret = -1;
-        goto done;
-      }
-      /* SYM-INLINE-THIS: ObjectFinishedMultiAnim::ObjectFinishedMultiAnim
-       * SYM-CODEGEN-CARRIER: finishedMulti -- the allocation result must stay
-       * distinct from the enclosing ObjectMultiAnim construction. */
+    switch (animDef->type) {
+    case 1:
+    {
+      /* SOURCE-REVIEW-UNRESOLVED: finishedMulti/finishedSign are allocation
+       * result temporaries, debug-elided in this graph. Distinct heap objects
+       * and their call order are proved, not distinct original pointer locals
+       * or their literal identifiers. Direct nested Sign construction was
+       *22dif/166; staging first is166/166 without the old factory records. */
       ObjectFinishedMultiAnim *finishedMulti;
 
       finishedMulti = new ObjectFinishedMultiAnim;
@@ -469,49 +459,59 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
                                 (Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,
                                 finishedMulti));
     }
-    else {
+    break;
+    case 0:
+    {
       /* SYM-INLINE-THIS: ObjectFinishedSignAnim */
+      ObjectFinishedSignAnim *finishedSign = new ObjectFinishedSignAnim;
       gSimObjAnims[simObj->serialNum] =
-          Object_CreateSignAnim(N,animDef,
-                                 (Trk_CollideBoomInst *)(void *)objInstance,
-                                 objDef,simObj,new ObjectFinishedSignAnim);
+          new ObjectSignAnim(&N->linearVel,
+              fixedatan(N->linearVel.x >> 8,N->linearVel.z >> 8) >> 8,
+              animDef,(Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,
+              (coorddef *)(N->roadMatrix.m + 3),finishedSign);
+    }
+    break;
     }
     ret = -1;
     }
+    } else ret = 1;
+    break;
+    }
     break;
   case 1:
-  Object_ret1:
     ret = 1;
     break;
   case 3:
     ret = 2;
     break;
   }
- done:
   return ret;
 }
 
-/* ---- Object_InitCustomObjects  [OBJECT.CPP:581-594] SLD-VERIFIED ---- */
+/* The first allocation's empty inline pair has no retained parameter names.
+ * This real allocation wrapper removes the old unused constant objects;
+ * its literal original name/signature remains source-review work. */
+static inline Group *Object_ReservePrimaryPool(char *name,int size,int classid)
+{
+  return (Group *)reservememadr(name,size,classid);
+}
+
+/* ---- Object_InitCustomObjects [OBJECT.CPP:581-594;
+ * 33/33 byte PASS and native ownership exact; full source/SLD review open] ---- */
 
 
 void Object_InitCustomObjects(void)
 
 {
-  {
-    const int customCapacity = 0x400;
-    {
-      const int empty = 0;
-      Object_customObjInst = reservememadr("Custom Objects",customCapacity,empty);
+      Object_customObjInst = Object_ReservePrimaryPool("Custom Objects",0x400,0);
       Object_customObjInst->m_num_elements = 0;
-      Object_customSimObjs = reservememadr("Custom SimObjects",0x400,0);
+      Object_customSimObjs = (Group *)reservememadr("Custom SimObjects",0x400,0);
       Object_customSimObjs->m_num_elements = 0;
       blockfill(Object_customSimObjs + 1,0x3fc,0);
-      Object_customSFXInst = reservememadr("Custom SimObjects",0x400,0);
+      Object_customSFXInst = (Group *)reservememadr("Custom SimObjects",0x400,0);
       Object_customSFXInst->m_num_elements = 0;
       Object_customSliceNum = 0;
       return;
-    }
-  }
 }
 
 
@@ -652,24 +652,17 @@ int Object_FindDefWithThisID(int ID)
 
 
 
-/* ---- Object_AddCustomObject  [OBJECT.CPP:808-1002] SLD-VERIFIED ---- */
+/* ---- Object_AddCustomObject [OBJECT.CPP:808-1002;
+ * 213/213 byte PASS and native ownership exact; full source/SLD still open] ---- */
+/* Real switch/case ownership, merged custom-def guard, and the actual traffic
+ * setter recover all retail locals/scopes. The early traffic-case break owns
+ * the num-cars guard before the search. Pointer-typed zero staging remains
+ * explicitly unresolved below; native exactness is not a source-text seal. */
 void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
 
 {
-  if (objectData->type == 1) {
-    goto traffic_object;
-  }
-  if (objectData->type < 2) {
-    if (objectData->type == 0) {
-      goto custom_object;
-    }
-    goto done;
-  }
-  if (objectData->type == 2) {
-    goto sfx_object;
-  }
-  goto done;
-custom_object:
+  switch (objectData->type) {
+case 0:
     {
       Trk_CollideBoomInst *objBoomInstance;
       int index;
@@ -703,8 +696,8 @@ custom_object:
       if (objBoomInstance->pad >= gPersistObjDef->m_num_elements) {
         objBoomInstance->pad = 0;
       }
-      if ((objectData->committed != 0) && (objectData->visible != 0)) {
-        if (Object_GetObjDefID(objBoomInstance->pad) != objectData->scalar1) {
+      if ((objectData->committed != 0) && (objectData->visible != 0) &&
+          (Object_GetObjDefID(objBoomInstance->pad) != objectData->scalar1)) {
           int newInd;
 
           Object_FindDefWithThisID(objectData->scalar1);
@@ -717,7 +710,6 @@ custom_object:
           else {
             objectData->scalar1 = Object_GetObjDefID(objBoomInstance->pad);
           }
-        }
       }
       Quatern_MatToQuat(&objectData->orient,&quat);
       objBoomInstance->qw = quat.w;
@@ -739,8 +731,8 @@ custom_object:
       }
       Object_customObjInst->m_num_elements++;
     }
-    goto done;
-sfx_object:
+    break;
+case 2:
     {
       Trk_SFX *sfxInstance;
 
@@ -753,8 +745,8 @@ sfx_object:
       sfxInstance->pad = 0;
       Object_customSFXInst->m_num_elements++;
     }
-    goto done;
-traffic_object:
+    break;
+case 1:
     {
       int i;
       Car_tObj *carObj;
@@ -800,8 +792,8 @@ traffic_object:
          Note the literal-guard forms DO add two instructions (214) but the wrong
          ones.  Every route that produces retail's copy also moves the loop counter
          off $a1 (W56-A14) -- 12E's law in the flesh: a dial buys retail's REGISTER
-         or retail's COUNT, never both.  Instrument-only from here (local-alloc
-         copy preference); do not spend more spellings. */
+         or retail's COUNT, never both in that measured basin. Later source
+         ownership must be tested; these failures establish no universal floor. */
       i = 0;
       /* MATCH (W62-A12, 11 -> PASS 213/213, DEVICE-FREE): retail's missing insn
          was `addu a0,a1,zero` in the `bnez` delay slot -- 12D DEAD-PSEUDO STAGING:
@@ -812,9 +804,14 @@ traffic_object:
          re-init `i = 0` must GO: it is exactly the one reference reqdelta prices
          (p188 refs 9 -> 8) that swaps i off $a0 and lets carObj take it.  Land the
          pair or neither -- staging alone is 19-20, dropping the init alone is 11. */
+      /* SOURCE-REVIEW-UNRESOLVED: this pointer-typed zero staging is not
+         established original source. Direct i guard on the restored switch/
+         setter/ownership graph still fails11dif at212/213; it is reverted. */
       carObj = (Car_tObj *)i;
-      if (((objectData->subType == 0) && (Cars_gNumTrafficCars != 0)) &&
-          ((int)carObj < Cars_gNumTrafficCars)) {
+      if (objectData->subType == 0) {
+        if ((Cars_gNumTrafficCars == 0) ||
+            ((int)carObj >= Cars_gNumTrafficCars))
+          break;
         for (; i < Cars_gNumTrafficCars; i++) {
           if (((Cars_gTrafficCarList[i]->carFlags & 0x400U) == 0) &&
               ((int)Cars_gTrafficCarList[i]->render.currentCarType ==
@@ -824,17 +821,15 @@ traffic_object:
         }
         if (i < Cars_gNumTrafficCars) {
           AIHigh_Traffic *aicar;
-          SceneElem *accidentData;
 
           carObj = Cars_gTrafficCarList[i];
           aicar = highLevelAIObjs[carObj->carIndex];
-          accidentData = objectData;
-          aicar->accidentData_ = accidentData;
+          aicar->SetAccidentData(objectData);
         }
       }
     }
-done:
-  return;
+    break;
+  }
 }
 
 /* ---- GetObjMaxDimensions  [OBJECT.CPP:1011-1048] SLD-VERIFIED ---- */
@@ -897,7 +892,7 @@ void Object_InitIMassObjectInfo(void)
     return;
   }
   Object_IMassObjInst =
-       reservememadr("IMObj info",gPersistObjInst->m_num_elements << 5,0)
+       (Object_tIMassObjInfo *)reservememadr("IMObj info",gPersistObjInst->m_num_elements << 5,0)
   ;
   if (Object_IMassObjInst == (Object_tIMassObjInfo *)0x0) {
     return;
@@ -1033,12 +1028,19 @@ ObjectMultiAnim::ObjectMultiAnim(coorddef *impactVel,AnimDef *def,
 
 
 
-/* ---- ObjectMultiAnim::Draw  [OBJECT.CPP:1188-1296] SLD-VERIFIED ----
+/* ---- ObjectMultiAnim::Draw [OBJECT.CPP:1188-1296;
+ * 265/265 byte PASS and native ownership exact; full SLD still open] ----
  * PASS 265/265.  The retail method symbol was previously missing because this
  * was emitted as a flat helper.  SLD scopes recover the 208-byte frame and the
  * animIndex/partCount/objInst allocation; struct copies recover the packed quat
- * and base coordinate bursts.  The short-lived t3 plus targeted volatile matrix
- * destinations preserve retail's three fixedmult-result store schedules. */
+ * and base coordinate bursts. Return4 belongs after the else owner.
+ * SOURCE-REVIEW-UNRESOLVED: the matrix-column expression below uses only the
+ * recorded t1/t2 plus real stores; its literal original macro spelling is not
+ * recovered. GCC evaluates the fixedmult RHS before the LHS comma stores,
+ * keeping all265 words without t3, aliases or volatile. Ordinary third-store-
+ * first statements still fail14dif/265 on this current graph. fixedmult's
+ * canonical implementation is scalar-only, so the expression's allowed LHS/
+ * RHS evaluation-order variation cannot alter any accessed matrix input. */
 int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
@@ -1090,11 +1092,6 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
       {
         int t1;
         int t2;
-        /* SYM-CODEGEN-CARRIER: t3 -- storing the third fixedmult result
-         * directly keeps 265 instructions but moves 14 matrix stores/call
-         * delay slots.  The shared third-result value reproduces retail's
-         * schedule for all three scaled columns. */
-        int t3;
         int sx;
         int sy;
         int sz;
@@ -1104,22 +1101,13 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
         sz = (int)objCollideInstance->sz << 8;
         t1 = fixedmult(RSmatrix.m[0],sx);
         t2 = fixedmult(RSmatrix.m[3],sx);
-        t3 = fixedmult(RSmatrix.m[6],sx);
-        *(int *)&RSmatrix.m[0] = t1;
-        *(int *)&RSmatrix.m[3] = t2;
-        RSmatrix.m[6] = t3;
+        RSmatrix.m[(RSmatrix.m[0] = t1, RSmatrix.m[3] = t2, 6)] = fixedmult(RSmatrix.m[6],sx);
         t1 = fixedmult(RSmatrix.m[1],sy);
         t2 = fixedmult(RSmatrix.m[4],sy);
-        t3 = fixedmult(RSmatrix.m[7],sy);
-        *(int *)&RSmatrix.m[1] = t1;
-        *(int *)&RSmatrix.m[4] = t2;
-        RSmatrix.m[7] = t3;
+        RSmatrix.m[(RSmatrix.m[1] = t1, RSmatrix.m[4] = t2, 7)] = fixedmult(RSmatrix.m[7],sy);
         t1 = fixedmult(RSmatrix.m[2],sz);
         t2 = fixedmult(RSmatrix.m[5],sz);
-        t3 = fixedmult(RSmatrix.m[8],sz);
-        *(int *)&RSmatrix.m[2] = t1;
-        *(int *)&RSmatrix.m[5] = t2;
-        RSmatrix.m[8] = t3;
+        RSmatrix.m[(RSmatrix.m[2] = t1, RSmatrix.m[5] = t2, 8)] = fixedmult(RSmatrix.m[8],sz);
       }
     }
     objInst = (Trk_AnimateBoomInst *)(gPersistObjInst + 1);
@@ -1148,8 +1136,8 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
       animIndex = animIndex + 1;
       objInst = (Trk_AnimateBoomInst *)((char *)objInst + objInst->size);
     }
-    return 4;
   }
+  return 4;
 }
 
 /* ---- ObjectFinishedSignAnim_Draw  [OBJECT.CPP:1302-1304] SLD-VERIFIED ---- */
@@ -1210,9 +1198,9 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
   rotz->y = fixedmult(rotx->z,roty->x) - fixedmult(rotx->x,roty->z);
   rotz->z = fixedmult(rotx->x,roty->y) - fixedmult(rotx->y,roty->x);
   reorthogonalize(&finishedAnim->finalMatrix);
-  fixedxformx(&mat,0x4000);
-  fixedxformy(&objAngleMat,-objectAngle);
-  fixedxformy(&yawMat,this->impactAngle);
+  fixedxformx(mat.m,0x4000);
+  fixedxformy(objAngleMat.m,-objectAngle);
+  fixedxformy(yawMat.m,this->impactAngle);
   Math_fasttransmult(&objAngleMat,&mat,&tmpMat);
   Math_fasttransmult(&tmpMat,&yawMat,&tmpMat);
   Math_fasttransmult(&tmpMat,&finishedAnim->finalMatrix,
@@ -1224,7 +1212,8 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
 
 
 
-/* ---- ObjectSignAnim_Draw  [OBJECT.CPP:1360-1401] SLD-VERIFIED ---- */
+/* ---- ObjectSignAnim_Draw [OBJECT.CPP:1360-1401;
+ * 118/118 byte PASS and native ownership exact; full SLD still open] ---- */
 int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
@@ -1257,8 +1246,8 @@ int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
     cp.z += animcp.z;
     BuildObjCollisionMatrix((frame << 0x10) / numFrames,this->objectAngle,this->impactAngle,&matrix);
     DrawObjectTransform(Vi,sd,&matrix,pObjDef,&cp,offset,-1);
-    return 4;
   }
+  return 4;
 }
 
 /* The object ends with the five IN-CLASS inline destructors (object_types.h), emitted as the deferred-inline batch in

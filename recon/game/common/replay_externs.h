@@ -33,7 +33,7 @@ extern int                numValidCams;              /* 0x8013d3f0 */
 extern int                Replay_ReplayMode;         /* 0x8013d3f4 */
 extern int                Replay_ReplayStorePtr;     /* 0x8013d3f8 */
 extern int                Replay_ReplayGetPtr;       /* 0x8013d3fc */
-extern int                Replay_ReplayCounter[];    /* 0x8013d400; UNSIZED here: retail addresses it absolutely (split, CSE-able) although the -G8 definition lands in .sdata (probe build/psyq/probe/us.i) */
+extern int                Replay_ReplayCounter[2];    /* 0x8013d400; retail SYM: ARY INT, size 8, two elements */
 
 /* ---- camera + slices ---- */
 extern camera_info        Camera_gInfo[];            /* 0x8010f2ac (544B) */

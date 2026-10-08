@@ -488,14 +488,6 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
   return ret;
 }
 
-/* The first allocation's empty inline pair has no retained parameter names.
- * This real allocation wrapper removes the old unused constant objects;
- * its literal original name/signature remains source-review work. */
-static inline Group *Object_ReservePrimaryPool(char *name,int size,int classid)
-{
-  return (Group *)reservememadr(name,size,classid);
-}
-
 /* ---- Object_InitCustomObjects [OBJECT.CPP:581-594;
  * 33/33 byte PASS and native ownership exact; full source/SLD review open] ---- */
 
@@ -503,8 +495,7 @@ static inline Group *Object_ReservePrimaryPool(char *name,int size,int classid)
 void Object_InitCustomObjects(void)
 
 {
-      Object_customObjInst = Object_ReservePrimaryPool("Custom Objects",0x400,0);
-      Object_customObjInst->m_num_elements = 0;
+      (Object_customObjInst = (Group *)reservememadr("Custom Objects",0x400,0))->SetNumElements(0);
       Object_customSimObjs = (Group *)reservememadr("Custom SimObjects",0x400,0);
       Object_customSimObjs->m_num_elements = 0;
       blockfill(Object_customSimObjs + 1,0x3fc,0);

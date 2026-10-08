@@ -30,6 +30,9 @@ struct Group {
     int m_num_elements;
     inline void *GetData() { return this + 1; }
     inline int GetNumElements() { return m_num_elements; }
+    /* Inferred count setter: OBJECT.CPP's first allocation/clear share one
+       caller tag and an empty inline pair; no literal original name survives. */
+    inline void SetNumElements(int numElements) { m_num_elements = numElements; }
 };
 
 #include "shared/Trk_Quad.h"

@@ -11566,3 +11566,33 @@ Pre-commit full reconstruction build `python tools/build.py --skip-asm --no-link
 completed with exit0 and no skipped/failed TUs. The failed setter experiment is
 absent from the source/header. The prepared checkpoint preserves unrelated work;
 normal full compilation supplements the392-function byte/layout/debug/link gate.
+
+### First custom-pool count setter and shared-header checkpoint (2026-10-08)
+
+Object.cpp receives Group through color_types.h, not the separate group_types.h
+definition. Add the nonvirtual SetNumElements operation to the actual consumed
+class and use it on the computed allocation/assignment receiver. Allocation and
+count clear then share the retail caller tag and empty parameter/body pair,
+without a retained this or constant-argument record. Remove the earlier
+Object_ReservePrimaryPool reconstruction-only wrapper. Literal setter spelling
+remains explicitly inferred from the field operation, not asserted original.
+Object_InitCustomObjects stays33/33 and native exact; relative SLD improves
+30/33 ->24/33 tag differences. Full block-line sequence is exact, end+8/+13
+and later initialization grouping remain open. No new capture, fake empty
+block, qualifier, compiler flag or output rewrite.
+
+Actual preprocessed dependency streams identify57 game/common consumers with
+existing references. The broad gate flags only AIWORLD.cpp's byte/layout
+reference (run-b3d6_jt8). Recompile it with the committed color_types.h (setter
+removed): the same mismatch persists (run-h9ckbhh3), and independently parsed
+whole section/layout snapshots before/after removal are IDENTICAL. Thus the
+new setter does not cause that mismatch; the baseline/reference discrepancy
+requires a separate investigation. The reference is not regenerated or relaxed.
+
+Fresh gate for the other56 consumers run-98g0kleq covers1005 functions,
+924 native CLEAN/81 DIRTY, with all full byte/layout snapshots unchanged,
+ASPSX524/0 (one front-overlay object), PSYLINK zero errors. Detailed target
+33/33, vtable1360-file audit and whitespace checks pass. Whole native2220/2565
+and strict native+SLD583/2565 remain unchanged. User-authorized commit scope is
+color_types.h, object.cpp and this evidence ledger only; unrelated edits remain
+excluded. This is a verified checkpoint, not completion of the whole goal.

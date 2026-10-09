@@ -36,11 +36,8 @@ void FETextRender_MenuTextPositionedJustify(short, short, short, short, int, int
     asm("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 void FETextRender_MenuTextPositioned(short, short, short, int, int)
     asm("FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType");
-short * GetTrackList(tTournamentManager * thisobj, short tier, short tournament) asm("GetTrackList__18tTournamentManagerss");
-void GetTrackToRace(tTournamentManager * thisobj, tTrackInfo * track) asm("GetTrackToRace__18tTournamentManagerR10tTrackInfo");
 void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
 void PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
-tTrackInformation * GetTrackByID(tTrackManager * thisobj, short track) asm("GetTrackByID__13tTrackManagers");
 void FeDraw_SetABRMode(int abr);                                /* FeDraw_SetABRMode__Fi */
 
 #endif

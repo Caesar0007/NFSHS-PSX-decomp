@@ -313,7 +313,6 @@ void Movie_DownloadFrame(void)
 
 {
   download[0] = 1;
-  return;
 }
 
 /* lines 308-312: (static data / macros / comments - no emitted code) */
@@ -323,7 +322,6 @@ void Movie_Stop(void)
 
 {
   bStopMovie = 1;
-  return;
 }
 
 /* lines 315-319: (static data / macros / comments - no emitted code) */

@@ -8,18 +8,21 @@
 extern void trap(int code);   /* gcc MIPS div/overflow break helper */
 
 /* ---- cross-TU globals ---- */
-extern int                GameSetup_gData[247];
+extern int                GameSetup_gData[];  /* owner word view, extent not guessed */
 #define PHYSICS_RACE_TYPE GameSetup_gData[0]
 #define PHYSICS_SGGE GameSetup_gData[14]
 #define PHYSICS_TRACK GameSetup_gData[15]
 #define PHYSICS_WEATHER GameSetup_gData[18]
-/* Retail car rows are 180 bytes; N.damage[113] is an existing graph-visible
- * int component at aggregate offset 988, the real Transmission field. */
+/* SOURCE-REVIEW-UNRESOLVED: Transmission belongs to GameSetup carInfo,
+ * owner offset980 plus180*index plus member8, not Newton damage. The
+ * legacy over-indexed proxy is byte-compatible, not restored source. */
 #define PHYSICS_CAR_ROW(index) \
     ((Car_tObj *)((char *)GameSetup_gData + (index) * 180))
 #define PHYSICS_TRANSMISSION_AT(index) (PHYSICS_CAR_ROW(index)->N.damage[113])
-extern int                simGlobal[2];
-#define PHYSICS_GAME_TICKS simGlobal[1]
+struct Sim_tSimGlobalVar;
+extern Sim_tSimGlobalVar simGlobal;
+/* Owner SYM: gameTicks INT@4; retain the caller's opaque type surface. */
+#define PHYSICS_GAME_TICKS (*(int *)((char *)&simGlobal + 4))
 extern int                AITune_driveSide;
 extern int                AIInit_forceHumanHandBrake;
 /* Trk_NewSlice is externally owned and body-opaque in physics.obj. */

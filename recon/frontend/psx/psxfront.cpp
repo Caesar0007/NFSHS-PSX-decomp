@@ -9,10 +9,10 @@
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
-/* The SLD has no declarations for the pre-ABS value, raw shapey copy, or bottom-V
- * copy.  These single-evaluation macro bodies reproduce the exact retail RTL while
- * keeping those macro-private names out of the function's debug-local set.  Their
- * original macro spellings are not recoverable, so the names below are descriptive. */
+/* SOURCE-REVIEW-UNRESOLVED: raw/vraw/vb below are reconstruction-only objects.
+ * Macro expansion does not exempt them from native SYM or original-source review.
+ * Existing failed direct-expression trials are not proof those objects existed;
+ * the remaining caller records and literal original macro spelling stay open. */
 #define PSXFRONT_FADE_ABS(dst,value) { \
   int raw;                              \
   raw = (value);                        \
@@ -39,30 +39,6 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
   (prim)[0x31] = (vh) + vb;                  \
 }
 
-#define PSXFRONT_SCALE_UV(shp,flags,prim,bpp,one,u,v,uw,vh) { \
-  int sw = (byte)(shp)->width;                                  \
-  int sh_ = (byte)(shp)->height;                                \
-  u = (((ushort)(shp)->shapex & 0x3f) << 4) / bpp;              \
-  v = (byte)(shp)->shapey;                                      \
-  if (((flags) & 4U) != 0) {                                    \
-    u = u - one;                                                \
-  }                                                             \
-  uw = u + sw;                                                  \
-  if (((flags) & 2U) != 0) {                                    \
-    v = (byte)(shp)->shapey - one;                              \
-  }                                                             \
-  ((u_char *)prim)[0xd] = v;                                    \
-  ((u_char *)prim)[0x19] = v;                                   \
-  vh = v + sh_;                                                 \
-  ((u_char *)prim)[0xc] = u;                                    \
-  do {                                                          \
-    ((u_char *)prim)[0x18] = uw;                                \
-    ((u_char *)prim)[0x24] = u;                                 \
-    ((u_char *)prim)[0x25] = vh;                                \
-    ((u_char *)prim)[0x30] = uw;                                \
-    ((u_char *)prim)[0x31] = vh;                                \
-  } while (0);                                                  \
-}
 
 /* PSXFront.obj STAT helper.  Keep the recovered source name while preserving
  * the exact retail linkage label for the pointer-form reconstruction. */
@@ -131,12 +107,13 @@ void InitializeSpinningCars(void)
   /* SYM: the ONLY local is `i` (INT).  carData_walk/obj_walk were fabricated -- retail indexes
    * GameSetup_gData.carInfo[i] / gCarObj[i] and loop.c strength-reduces both into givs ($s2 stride
    * 0xB4, $s3 stride 4).  Loop is TOP-tested with a `j` back-edge, not gcc's rotated do-while. */
-  /* `i` is a NESTED-block local (SYM `90 Block start line = 10`, i.e. this `if`
-     body); the non-SYM carrier is declared with it -- w86-S5 */
-  if (rendering3DEnvironmentInitialized == '\0') {
+  /* Retail i belongs to the initialization/instantiation phase at depth2,
+   * closing before PostStartUp. The absent nested test regions remain open. */
+  if (rendering3DEnvironmentInitialized != '\0') return;
+  {
     int i;
-    Car_tObj *carObj; /* SYM-CODEGEN-CARRIER: carObj -- repeated gCarObj[i] access is
-                         measured FAIL 51 and expands retail 95 to 102 instructions */
+    Car_tObj *carObj; /* SOURCE-REVIEW-UNRESOLVED: direct gCarObj[i] still
+                         adds pointer reloads (51dif/102 after region restoration). */
 
     R3DCar_InMenu[0] = 1;
     Platform_ResetDCTBuffer();
@@ -162,6 +139,7 @@ void InitializeSpinningCars(void)
       carObj->N.active = '\x01';
       i = i + 1;
     }
+  }
     R3DCar_PostStartUp();
     gMenuRotate[1] = 0;
     gMenuRotate[0] = 0;
@@ -171,7 +149,6 @@ void InitializeSpinningCars(void)
     DrawC_gMenuLights[0] = 0;
     DrawC_gMenuLightsDirection[0] = 0;
     rendering3DEnvironmentInitialized = '\x01';
-  }
   return;
 }
 
@@ -1041,8 +1018,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
    * arm), with flags&8 as the FALL-THROUGH side. w42-a7. */
   tTexture_ShapeInfo *tShp;
   int color [4];
-  int bright; /* SYM-CODEGEN-CARRIER: bright -- inlining the narrowing expression
-                 is measured FAIL 32 at the same 65-instruction count */
+  int bright; /* SOURCE-REVIEW-UNRESOLVED: anonymous conversion changes allocation. */
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes + index;
@@ -1069,54 +1045,10 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
 /* lines 1085-1088: (static data / macros / comments - no emitted code) */
 
 /* ---- ScaleGouraudShape  (psxfront.cpp:1089, code lines 1089-1138) ---- */
-/* ---- w44-a1: 157 -> 60 (count EXACT 175/175, frame 64 == oracle, brcensus + rove_op CLEAN,
- *      ALL NINE callee-saved registers now oracle-exact; posdiff first-use order IDENTICAL).
- * The three landed levers are commented at their sites (palette-pointer cache / late-born xm1 /
- * 0x20-store-last / batched width+height byte reads).  MECHANISM behind the register landing
- * (measured with tools/rtl_dump.py -dg -dl + tools/prio.py):
- *   block 4 owns THREE call-crossing local quantities -- the width sign-extend, the height
- *   sign-extend and `x-1`.  local_alloc hands out $s0,$s1,$s2 in REVERSE BIRTH ORDER, so retail's
- *   birth order (width-narrow, height-narrow, x-1) yields x-1=$s0, height-narrow=$s1,
- *   width-narrow=$s2 -- and only THEN can global_alloc give `height` $s1 and `width` $s2 (each
- *   dies exactly where its own narrow is born).  Naming `x-1` any earlier makes it born first, the
- *   height narrow takes $s0 (already owned by block 0's `abr`), `height` can no longer share it,
- *   and a 10th live value spills (177 insns, frame 72).  Measured for 8 spellings.
- *   The x-vs-y home is an allocno_compare razor: x 7 refs/99 live = .1414 beats y 7/110 = .1273,
- *   so x took the lower reg; moving the `prim+0x20 = x` store to the END lengthens x past y and
- *   flips the pair to retail's (x=$s6, y=$s5).  One ref less on x does it too, but the only way to
- *   drop that ref is to feed the 0x14 vertex from xm1 -- which re-triggers the early-birth spill.
- * RESIDUAL 60, three clusters:
- *   (a) ~13 diffs: `pal` and the 0xFFFFFF mask hold $a1/$a2 the other way round from retail.
- *       Both are block-0 local quantities; OR-operand swaps measured 58/60/70 (noise, not the
- *       mechanism), prim/pal statement swap = no change.
- *   (b) ~6 diffs: retail feeds BOTH right-edge vertices from $s0 (`addu v0,s0,v0` then
- *       `addu s0,s0,v0`); ours reassociates the inline `(x-1)` at 0x14 into `addiu v0,v0,-1;
- *       addu v0,s6,v0`.  Blocked by the birth-order constraint above.
- *   (c) ~7 diffs: the divide result / u / uw rotate $a1<->$v1 (`mflo a1` vs `mflo v1`) -- the
- *       w43 local_alloc qty birth-order + fresh-dest class, untried here.
- * NEW NAMED ANGLE: (b) and (c) are the SAME dial.  Retail's `x-1` is born late AND used twice, so
- *   it must be born late WITHOUT its def being scheduled up.  Untried lever: make the def's
- *   dependency chain shorter than the two sign-extends' so sched1 leaves it in place -- e.g. feed
- *   the 0x14 vertex from a SECOND named local initialised from xm1 (`xr = xm1;`) so the xm1 def
- *   itself keeps only ONE dependent chain, or split the two right-edge vertices into their own
- *   block scope.  For (a): dump -dl for block 0 and compare the pal/mask quantity lifetimes --
- *   the pair is a two-quantity tie of exactly the kind the w43 birth-order row cracks.
- * 2026-08-02 INLINE SESSION ADDENDA (measured):
- *   - ORACLE FACT: retail's `prim+0x20 = x` store is MID-sequence (call-2's delay slot, between
- *     the 0x16 and 0x22 statements), NOT at the end -- and retail feeds BOTH right-edge vertices
- *     from ONE late-born x-1 in $s0 (`addu v0,s0,v0` @0x14, then in-place `addu s0,s0,v0` @0x2c).
- *   - FALSIFIED x2: full retail statement order (xm1 stmt before 0x14, 0x20 mid) = 177/frame-72
- *     early-birth spill, AND the embedded-def form `fixedmult(..) + (xm1 = x - 1)` = SAME 177 --
- *     cc1 expands the call-free operand FIRST regardless of side (expand_expr saves nothing
- *     across the call), so xm1's addiu always lands pre-call-1 from source.  Retail's late
- *     `addiu s0,s6,-1` (after call 1, after the height sign-extend) is a SCHED1 SINK of a
- *     low-priority def that OUR sched instead hoists as a delay-slot filler => the reachable
- *     dial is sched-pressure around call 1, not statement position.  Block-0 (a) tie measured:
- *     pal p97 4refs/19live=.421 -> $a1, mask p105 3refs/23live=.130 -> $a2; retail needs the
- *     mask FIRST -- mask cannot reach .421 at 3 refs (needs live<=7); pal cannot drop below
- *     mask without losing the cache shape => (a) is priority-inversion territory, permuter or
- *     a 4th mask ref.  Field-reads-before-prim/pal statement order: NEUTRAL (60).
- */
+/* 2026-10-08: retail uw/vh are the input byte extents. Direct endpoint stores
+ * and removal of the nested do/while(0) restore all native locals/scopes while
+ * preserving 175 instructions. No private sw/sh_ objects or UV helper macro.
+ * Literal original source/SLD and the one subtrahend carrier remain unresolved. */
 /* GPU packet: builds POLY_GT4 (stride 0x34, SetPolyGT4); prim=u_char* build cursor, prevPrim=u_char* link word */
 static void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
                int abr)
@@ -1136,8 +1068,8 @@ static void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int 
   char     uw;
   char     vh;
   short    bpp;
-  int      one; /* SYM-CODEGEN-CARRIER: one -- replacing the shared subtrahend with
-                   literals is measured FAIL 31 (176/175), rotating x/y allocation */
+  int      one; /* SOURCE-REVIEW-UNRESOLVED: literal substitution still changes
+                   allocation (123dif/176 after the extent/region restoration). */
 
   prim = (POLY_GT4 *)Render_gPacketPtr;
   width = shp->width;
@@ -1175,9 +1107,26 @@ static void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int 
   *(short *)((u_char *)prim + 0x22) = y + fixedmult(scaley,height);
   *(short *)((u_char *)prim + 0x2c) = (x - one) + fixedmult(scalex,width);
   *(short *)((u_char *)prim + 0x2e) = y + fixedmult(scaley,height);
-  /* The SLD records u/v/uw/vh but not the two batched byte-read temporaries;
-   * the macro-private sw/sh_ expansion preserves their exact load order. */
-  PSXFRONT_SCALE_UV(shp,flags,prim,bpp,one,u,v,uw,vh);
+  /* Retail uw/vh are the byte extents, not captured final UV endpoints.
+   * Direct endpoint stores need no private sw/sh_ or nested do/while wrapper. */
+  uw = (byte)shp->width;
+  vh = (byte)shp->height;
+  u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
+  v = (byte)shp->shapey;
+  if ((flags & 4U) != 0) {
+    u = u - one;
+  }
+  if ((flags & 2U) != 0) {
+    v = (byte)shp->shapey - one;
+  }
+  ((u_char *)prim)[0xd] = v;
+  ((u_char *)prim)[0x19] = v;
+  ((u_char *)prim)[0xc] = u;
+  ((u_char *)prim)[0x18] = u + uw;
+  ((u_char *)prim)[0x24] = u;
+  ((u_char *)prim)[0x25] = v + vh;
+  ((u_char *)prim)[0x30] = u + uw;
+  ((u_char *)prim)[0x31] = v + vh;
   return;
 }
 
@@ -1207,8 +1156,7 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
   int scaley = 0x10000;
   tTexture_ShapeInfo *tShp;
   int color [4];
-  int bright; /* SYM-CODEGEN-CARRIER: bright -- inlining the narrowing expression
-                 is measured FAIL 32 at the same 75-instruction count */
+  int bright; /* SOURCE-REVIEW-UNRESOLVED: anonymous conversion changes allocation. */
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes + index;

@@ -27,13 +27,13 @@
    (p)->x2 = (x), (p)->y2 = (y) + (h), \
    (p)->x3 = (x) + (w), (p)->y3 = (y) + (h))
 
-/* DrawTV's SYM record has one outer scope and no packet-block locals.  These
-   wrappers restore the canonical PsyQ addPrim tag-link expansion together
-   with the packet-cursor bump.  The optimized expansion needs a transient OT
-   tag value, but it is not a DrawTV source local; moving it into the zero-cost
-   inline boundary removes the seven manual reconstruction aliases while
-   preserving the authoritative 815-instruction allocation.  SYM cannot retain
-   the private wrapper/macro spelling, so the two packet sizes remain explicit. */
+/* SOURCE-REVIEW-UNRESOLVED: retail DrawTV has only its root scope, with no packet-link
+   inline parameter/body records. This remaining reconstruction helper preserves bytes
+   but emit extra palette/primitive/packetPtrSlot/rgbMask/paletteTag records.
+   Three other sites now use direct addPrim and packet advance (815 PASS).
+   Moving a capture into an inline helper does not recover original source or
+   explain that extra object. Recover the packet-link expansion without these
+   aliases/pairs; the original helper/macro spelling is not proved. */
 static inline void FETVLinkFT4(u_int *palette,POLY_FT4 *primitive,
                                u_char **packetPtrSlot,u_int rgbMask)
 {
@@ -45,19 +45,6 @@ static inline void FETVLinkFT4(u_int *palette,POLY_FT4 *primitive,
   *packetPtrSlot = (u_char *)primitive + 0x28;
   *palette = paletteTag & 0xff000000 | (u_int)primitive & rgbMask;
 }
-
-static inline void FETVLinkGT4(u_int *palette,POLY_GT4 *primitive,
-                               u_char **packetPtrSlot,u_int rgbMask)
-{
-  u_int paletteTag;
-
-  *(u_int *)primitive =
-       *(u_int *)primitive & 0xff000000 | *palette & rgbMask;
-  paletteTag = *palette;
-  *packetPtrSlot = (u_char *)primitive + 0x34;
-  *palette = paletteTag & 0xff000000 | (u_int)primitive & rgbMask;
-}
-
 
 /* ---- DrawTVLines  [FETV.CPP:25-77] SLD-VERIFIED ---- */
 
@@ -283,15 +270,15 @@ void DrawTV(tTVConfig &tv)
   short fadeTop;
   short fadeBottom;
   u_long tint;
-  short bright;
-  bool do_tint = 1;
+  short bright = tv.destBrightness;
+  bool do_tint;
 
-  bright = tv.destBrightness;
-  tint = tv.tint;
   videoX = tv.x;
   videoY = tv.y;
   videoWidth = tv.w;
   videoHeight = tv.h;
+  tint = tv.tint;
+  do_tint = 1;
   if ((tv.flags & 2) == 0) {
     tint = 0x808080;
     do_tint = 0;
@@ -342,18 +329,18 @@ void DrawTV(tTVConfig &tv)
   }
   if ((tv.flags & 0x10) == 0) {
     if (tv.state != tv_StateOn) {
-      /* SYM-CODEGEN-CARRIER: packetPtrSlot -- spelling the four accesses with
-         Render_gPacketPtr directly measures FAIL 92 (819/815) from this basin;
-         the shared address is required for retail's s7 scratchpad anchor. */
+      /* SOURCE-REVIEW-UNRESOLVED: packetPtrSlot is absent from retail SYM.
+         Direct scratchpad macros after the helper removals leave four address
+         materialization-order differences at 815 words, not a source floor. */
       u_char **packetPtrSlot = (u_char **)0x1f800004;
-      /* SYM-CODEGEN-CARRIER: rgbMask -- the two zero-instruction references
-         are the measured W63/W71 priority price that assigns 0x00ffffff to s4;
-         inlining the literal rotates the function-long saved-register pair. */
+      /* SOURCE-REVIEW-UNRESOLVED: this unrecorded mask and empty ref-count
+         fence still need source recovery. Removing both after three helper
+         expansions remain 72 diffs at 815 words; no necessity is proved. */
       u_int rgbMask = 0xffffff;
       __asm__("" : : "r"(rgbMask), "r"(rgbMask));
-
       texture = (POLY_FT4 *)*packetPtrSlot;
-      FETVLinkFT4((u_int *)Render_gPalettePtr,texture,packetPtrSlot,rgbMask);
+      addPrim(Render_gPalettePtr,texture);
+      *packetPtrSlot = (u_char *)(texture + 1);
       *(u_int *)&texture->r0 =
            (0x40 - (bright >> 1)) * 0x10000 |
            (0x40 - (bright >> 1)) * 0x100 |
@@ -378,30 +365,15 @@ void DrawTV(tTVConfig &tv)
       texture->v1 = noise->shapey;
       texture->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                     (int)noise->depth;
-      {
-        /* SYM-CODEGEN-CARRIER: noiseHeight
-           SYM-CODEGEN-CARRIER: noiseShapeY -- direct byte-cast addition or a
-           zero-local inline accessor keeps the count but changes both retail
-           load/register pairs (DrawTV residual 2 -> 10); an inline two-local
-           helper still leaves 6.  The statement-local pair is the measured
-           compiler scheduling carrier for the required height-before-shapey
-           loads and is absent from the function's sole SYM scope. */
-        u_char noiseHeight;
-        u_char noiseShapeY;
-        noiseShapeY = noise->shapey;
-        noiseHeight = noise->height;
-        texture->v2 = noiseHeight + noiseShapeY;
-      }
+      /* Cast/subtrahend form preserves retail's shapey-v1 then height-v0
+         byte loads without source-only capture locals (2026-10-09, 815 PASS).
+         The final byte store makes this equal to the original byte sum;
+         literal original expression spelling and full SLD remain unproved. */
+      texture->v2 = (u_char)noise->height - (-(u_short)noise->shapey);
       texture->u3 = noise->width +
                     ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                     (int)noise->depth;
-      {
-        u_char noiseHeight;
-        u_char noiseShapeY;
-        noiseShapeY = noise->shapey;
-        noiseHeight = noise->height;
-        texture->v3 = noiseHeight + noiseShapeY;
-      }
+      texture->v3 = (u_char)noise->height - (-(u_short)noise->shapey);
       texture->tpage =
            ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
            ((short)(noise->shapey & 0x100U) >> 4 | 0x60U) |
@@ -427,9 +399,13 @@ void DrawTV(tTVConfig &tv)
           fadeBottom = 0x80;
         }
         reflection = (POLY_GT4 *)*packetPtrSlot;
+        /* SOURCE-REVIEW-UNRESOLVED: this zero-net perturbation is not recovered
+           original source. Removing it after the helper expansions still
+           changes two load-order lines at 815 words (2026-10-09). */
         reflection--;
         reflection++;
-        FETVLinkGT4((u_int *)Render_gPalettePtr,reflection,packetPtrSlot,rgbMask);
+        addPrim(Render_gPalettePtr,reflection);
+        *packetPtrSlot = (u_char *)(reflection + 1);
         *(u_int *)&reflection->r0 = *(u_int *)&reflection->r1 =
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 0x10) |
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 8) |
@@ -518,8 +494,8 @@ void DrawTV(tTVConfig &tv)
           fadeBottom = 0x80;
         }
         texture = (POLY_FT4 *)*packetPtrSlot;
-        FETVLinkGT4((u_int *)Render_gPalettePtr,(POLY_GT4 *)texture,
-                    packetPtrSlot,rgbMask);
+        addPrim(Render_gPalettePtr,(POLY_GT4 *)texture);
+        *packetPtrSlot = (u_char *)((POLY_GT4 *)texture + 1);
         ((u_char *)texture)[3] = 0xc;
         *(u_int *)&((POLY_GT4 *)texture)->r0 = *(u_int *)&((POLY_GT4 *)texture)->r1 =
              (((tint >> 16 & 0xff) * (0x80 - fadeTop) >> 7) << 16) |
@@ -606,7 +582,6 @@ void TurnOffTV(tTVConfig &tv)
 {
   tv.state = tv_TransitionOff;
   tv.destBrightness = 0;
-  return;
 }
 
 

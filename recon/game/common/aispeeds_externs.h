@@ -14,7 +14,7 @@ extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gAIRaceCarList[9];
 extern Car_tObj *Cars_gTotalSortedList[];
 extern char *Paths_Paths[];
-extern int GameSetup_gData[22];
+extern int GameSetup_gData[]; /* external owner word view; no guessed extent */
 #define AISPEEDS_RACE_TYPE GameSetup_gData[0]
 #define AISPEEDS_NUM_LAPS GameSetup_gData[1]
 #define AISPEEDS_SKILL GameSetup_gData[2]

@@ -18,7 +18,7 @@ extern int               gTAddCSmoke;              /* 0x8013d4f4 */
 /* ---- game globals ---- */
 extern int               simGlobal[2];             /* 0x8011e0ac */
 #define TRGSFX_GAME_TICKS simGlobal[1]
-extern int               GameSetup_gData[4];       /* 0x801131ec */
+extern int               GameSetup_gData[];        /* owner word view; extent not guessed */
 #define TRGSFX_COMM_MODE GameSetup_gData[3]
 
 /* ---- helpers (souffle/skidmark/eaclib) ---- */

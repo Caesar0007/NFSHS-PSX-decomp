@@ -19,8 +19,6 @@ void *memcpy(...);
 int purgememadr(...);
 void *reservememadr(...);
 int sprintf(...);
-unsigned int strlen(...);
-int strncmp(...);
 int systemtask(...);
 }
 

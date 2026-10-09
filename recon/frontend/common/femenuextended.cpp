@@ -192,11 +192,7 @@ tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,t
 
 /* ---- tMenuItemGoToMenuNFS4Button::dtor  [FEMENUEXTENDED.CPP:164-164] SLD-VERIFIED ---- */
 
-tMenuItemGoToMenuNFS4Button::~tMenuItemGoToMenuNFS4Button()
-
-{
-  return;
-}
+tMenuItemGoToMenuNFS4Button::~tMenuItemGoToMenuNFS4Button() {}
 
 
 
@@ -287,7 +283,6 @@ void tMenuItemGoToMenuNFS4Button::TransitionOn()
 {
   this->fEnabledTransitionVal = 0;
   this->fTransitionSpeed = 0xc;
-  return;
 }
 
 
@@ -298,7 +293,6 @@ void tMenuItemGoToMenuNFS4Button::TransitionOff()
 
 {
   this->fTransitionSpeed = -0xc;
-  return;
 }
 
 
@@ -352,11 +346,7 @@ tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice(u_int textDescription
 
 /* ---- tMenuItemNFS4LeftRightChoice::dtor  [FEMENUEXTENDED.CPP:258-258] SLD-VERIFIED ---- */
 
-tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice()
-
-{
-  return;
-}
+tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice() {}
 
 
 
@@ -455,7 +445,6 @@ void tMenuItemNFS4LeftRightChoice::TransitionOn()
 {
   this->fEnabledTransitionVal = 0;
   this->fTransitionSpeed = 0xc;
-  return;
 }
 
 
@@ -466,7 +455,6 @@ void tMenuItemNFS4LeftRightChoice::TransitionOff()
 
 {
   this->fTransitionSpeed = -0xc;
-  return;
 }
 
 
@@ -639,20 +627,13 @@ tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
 tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMenu,
               void (*OnButtonPress)(tMenuCommand&),short title)
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
-{
-  
-  return;
-}
+{}
 
 
 
 /* ---- tMenuNFS4::dtor  [FEMENUEXTENDED.CPP:459-459] SLD-VERIFIED ---- */
 
-tMenuNFS4::~tMenuNFS4()
-
-{
-  return;
-}
+tMenuNFS4::~tMenuNFS4() {}
 
 
 
@@ -683,7 +664,6 @@ void tMenuNFS4::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuComma
 
 {
   this->tMenu::ProcessInput(fromPlayer,keyval,command);
-  return;
 }
 
 
@@ -807,11 +787,7 @@ tMenuNFS4TwoPlayer::tMenuNFS4TwoPlayer(u_int flags,tScreen *screenHandler,tMenu 
 
 /* ---- tMenuNFS4TwoPlayer::dtor  [FEMENUEXTENDED.CPP:575-575] SLD-VERIFIED ---- */
 
-tMenuNFS4TwoPlayer::~tMenuNFS4TwoPlayer()
-
-{
-  return;
-}
+tMenuNFS4TwoPlayer::~tMenuNFS4TwoPlayer() {}
 
 
 
@@ -845,11 +821,7 @@ tMenuNFS4Bottom::tMenuNFS4Bottom(u_int flags,tScreen *screenHandler,tMenu *nextM
 
 /* ---- tMenuNFS4Bottom::dtor  [FEMENUEXTENDED.CPP:615-615] SLD-VERIFIED ---- */
 
-tMenuNFS4Bottom::~tMenuNFS4Bottom()
-
-{
-  return;
-}
+tMenuNFS4Bottom::~tMenuNFS4Bottom() {}
 
 
 
@@ -885,18 +857,13 @@ tMenuBlank::tMenuBlank(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu 
   
   this->fNeverAnyEnabled = 1;
   this->VertHelp = 0;
-  return;
 }
 
 
 
 /* ---- tMenuBlank::dtor  [FEMENUEXTENDED.CPP:667-667] SLD-VERIFIED ---- */
 
-tMenuBlank::~tMenuBlank()
-
-{
-  return;
-}
+tMenuBlank::~tMenuBlank() {}
 
 
 
@@ -960,7 +927,6 @@ void tMenuBlank::TransitionOff()
   this->fTransitionDirection = '\b';
   this->fInMenuTransition = 1;
   this->fTransitionVal = -0x70;
-  return;
 }
 
 
@@ -973,7 +939,6 @@ void tMenuBlank::TransitionOn()
   *(signed char *)&this->fTransitionDirection = -8;
   this->fInMenuTransition = 1;
   this->fTransitionVal = 0;
-  return;
 }
 
 
@@ -1011,11 +976,7 @@ tMenuOptions::tMenuOptions(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
 
 /* ---- tMenuOptions::dtor  [FEMENUEXTENDED.CPP:771-771] SLD-VERIFIED ---- */
 
-tMenuOptions::~tMenuOptions()
-
-{
-  return;
-}
+tMenuOptions::~tMenuOptions() {}
 
 
 
@@ -1103,7 +1064,6 @@ void tMenuOptions::TransitionOff()
   this->fInMenuTransition = 1;
   this->fMenuEnterTicks = FE_Ticks();
   AudioCmn_PlayFESFX(0x12);
-  return;
 }
 
 

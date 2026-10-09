@@ -209,16 +209,10 @@ void tScreenCarSelect::Cleanup()
 
 
 /* ---- tScreenCarSelect::DrawOverlay  [SCREENCARSELECT.CPP:334-494] ---- */
-/* MATCH (2026-08-11, 84 -> PASS, exact 551/551): retail reads the
-   menuCarUpgrades item as a full word for the title expression; the shared
-   header's narrow field otherwise lets cc1plus fold it to lhu, so the test
-   read is volatile and width-explicit.  The description guard compares the
-   already-computed `descrItem` with 0xB0 instead of re-reading currentItem;
-   that removes the extra lw and reproduces retail's add/compare chain.
-   In both upgrade loops a read-only yOffset fence buys the QTY reference that
-   places it in $a0, while a named xPos preserves retail's `(40*i + K) + x`
-   expression tree and caller-save handout.  The block-scoped tournamentMoney
-   pseudo reproduces the final DrawMoney call-setup schedule. */
+/* Retail fade is the icon-fade SHORT (0/96), not the transition update value.
+ * Structured clamp arms replace the jump; both old absorption identities are
+ * gone. flags/xPos/money objects, original title staging and full scopes/SLD
+ * remain source review. Failed removals do not prove distinct source objects. */
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
@@ -239,23 +233,19 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   short upgradeTranslate [3] = {2, 3, 1};
   short upgradeIcons [3] = {2, 4, 1};
   
-  if (overlay == (tOverlay *)0x0) {
-    return;
-  }
+  if (overlay != (tOverlay *)0x0) {
   validCar = this->GetCar(carInfo);
   if (overlay->direction != 0) {
-    fade = overlay->transition + overlay->delta * overlay->direction;
-    overlay->transition = fade;
-    if (fade < 1) {
+    overlay->transition = overlay->transition + overlay->delta * overlay->direction;
+    if (overlay->transition < 1) {
       overlay->transition = 0;
+      overlay->direction = 0;
     }
-    else {
-      if (fade < 0x80) goto DrawOvl_transitionPos;
+    else if (0x80 <= overlay->transition) {
       overlay->transition = 0x80;
+      overlay->direction = 0;
     }
-    overlay->direction = 0;
   }
-DrawOvl_transitionPos:
   pos.x = overlay->location[0].x +
           overlay->transition * (overlay->location[1].x - overlay->location[0].x) / 0x80;
   pos.y = overlay->location[0].y +
@@ -304,11 +294,9 @@ DrawOvl_transitionPos:
                              temp.y + 3,1,textState_Selected,textType_FramedInfo)
     ;
     {
-      /* SYM-CODEGEN-CARRIER: tournamentMoney -- direct fMoney argument is
-         measured FAIL6 (551/551), scheduling li a2 after the global load;
-         this materialized value preserves retail's li/load/a3 sequence. */
+      /* SOURCE-REVIEW-UNRESOLVED: value reuse still changes the money-load
+       * issue order (6dif/551 after restoring the actual fade quantity). */
       long tournamentMoney;
-
       tournamentMoney = tournamentManager.fMoney;
       DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 0xd,9,
                  tournamentMoney,0xbebe,0x232323);
@@ -320,31 +308,18 @@ DrawOvl_transitionPos:
     break;
   case 4:
     for (i = 0; i < 3; i = i + 1) {
-      /* SYM-CODEGEN-CARRIER: yOffset -- replacing the materialized value and
-         read-only register fence with a call-site ternary in both loops is
-         measured FAIL210 (547/551); the fence preserves retail's $a0 handout. */
-      int yOffset;
+      /* Retail fade is the SHORT icon-fade argument (0/96), not a Y offset. */
       /* SYM-CODEGEN-CARRIER: flags -- inlining the predicate/0x410 mask in
          both calls is measured FAIL188 with six extra instructions. */
       int flags;
-      /* SYM-CODEGEN-CARRIER: xPos -- inlining both `(40*i + K) + pos.x`
-         expressions is measured FAIL40 (551/551), changing i/a2/t2 handout. */
+      /* SOURCE-REVIEW-UNRESOLVED: direct index-first coordinate expressions
+       * still change allocation (80dif/551 after restoring owner regions). */
       int xPos;
 
-      yOffset = 0;
+      fade = 0;
       if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
-        yOffset = 0x60;
+        fade = 0x60;
       }
-      /* MATCH W86-D3 2026-09-02: the read-only `yOffset` fence that bought the
-         QTY reference for retail's $a0 handout is replaced by a pure-C
-         ABSORPTION inflator.  `yOffset & (yOffset | i)` == yOffset for ANY i
-         (absorption law) -- a semantic no-op whose operand is runtime-unknown
-         to cse, so the AND survives to flow (which counts the extra reference)
-         and combine collapses it at ZERO bytes.  Whole-TU gate 59/59, and the
-         twin loop below takes the same edit (both together also PASS).
-         Measured: either fence removed 74; the absorption against
-         `carInfo.fUpgrades` 22; against the OTHER loop's counter `j` 46. */
-      yOffset &= (yOffset | i);
       drawFlags.tint[0] = 0xbebe;
       flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
       flags |= 0x410;
@@ -352,23 +327,20 @@ DrawOvl_transitionPos:
       DrawShapeExtended(0x62 + i * 10 + (FE_Ticks() >> 4) % 10,
                         flags,
                         pos.x + xPos,pos.y + 6,
-                        yOffset,1,&drawFlags);
+                        fade,1,&drawFlags);
     }
     break;
   case 5:
     if (overlay->transition == 0x80) {
+      int descrItem;
       for (i = 0; i < 3; i = i + 1) {
-        int yOffset;
         int flags;
         int xPos;
 
-        yOffset = 0;
+        fade = 0;
         if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
-          yOffset = 0x60;
+          fade = 0x60;
         }
-        /* MATCH W86-D3 2026-09-02: twin of the fence above -- same pure-C
-           absorption inflator, whole-TU gate 59/59. */
-        yOffset &= (yOffset | i);
         drawFlags.tint[0] = 0xbebe;
         flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
         flags |= 0x410;
@@ -376,7 +348,7 @@ DrawOvl_transitionPos:
         DrawShapeExtended(0x62 + i * 10 + (FE_Ticks() >> 4) % 10,
                           flags,
                           pos.x + xPos,pos.y + 6,
-                          yOffset,1,&drawFlags);
+                          fade,1,&drawFlags);
       }
       temp.y = pos.y + 0x23;
       temp.x = pos.x + 0x1e;
@@ -396,9 +368,6 @@ DrawOvl_transitionPos:
                    pos.x + (pos.w >> 1),pos.y + 0x18,2,
                    textState_Hilighted,textType_FramedInfo);
       }
-      {
-        int descrItem;
-
         descrItem = (short)menuDefs->menuCarUpgrades.fCurrentItem + 0xaf;
         if ((descrItem == 0xb0) &&
             (((signed char)carInfo.fCarID == 0xc) ||
@@ -406,7 +375,6 @@ DrawOvl_transitionPos:
           descrItem = 0x41;
         }
         FETextRender_WordWrap((short)descrItem,temp,textState_Hilighted,textType_PopUpText);
-      }
       text = 0xa0;
       if ((carInfo.fUpgrades &
            upgradeIcons[(short)menuDefs->menuCarUpgrades.fCurrentItem]) == 0) {
@@ -438,6 +406,7 @@ DrawOvl_transitionPos:
   }
   if (overlay->ID != 0) {
     DrawShape_NFS4TransRectangle(pos,1);   /* W58-A1: RECT& decl */
+  }
   }
   return;
 }
@@ -894,12 +863,9 @@ void tScreenCarSelect::DrawVideoWall(short y)
 bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: color -- retail records no caller locals.  Directly
-     assigning the color expression is FAIL 9 at 159/160: it collapses the
-     available/color value split and removes retail's intervening nop.  The
-     separate color byte keeps the exact $v1/$v0 store pair.  The former
-     `count` cache is not required: direct GetNum*Cars comparisons remain PASS. */
-  uchar color;
+  /* Retail has no caller locals. Direct color capture precedes availability
+   * in source; scheduling still emits the availability/color store pair with
+   * the proper load gap. No color or count source object is needed. */
 
   switch(this->fState) {
   case 0:
@@ -913,9 +879,8 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
   case 2:
   case 6:
     carManager.GetStockCar((ushort)(byte)frontEnd.dealerCar,carInfo);
-    color = frontEnd.carColors[0][(signed char)carInfo.fCarID];
+    carInfo.fColor = frontEnd.carColors[0][(signed char)carInfo.fCarID];
     carInfo.fAvailable = '\x01';
-    carInfo.fColor = color;
     break;
   case 7:
     if (frontEnd.carListType == 1) {

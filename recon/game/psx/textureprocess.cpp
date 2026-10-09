@@ -54,44 +54,39 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
   return translucent_flag;
 }
 
-/* ---- TextureProcess_ColorClut__FiiPciii  [TEXTUREPROCESS.CPP:356-410] SLD-FLAG:NONMONO ---- */
+/* ---- TextureProcess_ColorClut__FiiPciii  [TEXTUREPROCESS.CPP:356-410] ----
+ * Three channel-local temp objects and loop ownership match retail SYM.
+ * Indexed newdata stores need no source output walker. The unrecorded spec
+ * pointer and full relative statement-line attribution remain unresolved. */
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
-  int *spec; /* SYM-CODEGEN-CARRIER: spec -- the oracle materializes
-                                  * la $v1,TrackSpec_gSpec ONCE and parks it in
-                                  * $fp across the whole loop (lw 0x10, lbu
-                                  * 0x14/0x15/0x16 off it); direct
-                                  * TrackSpec_gSpec.fogspec.X references emit a
-                                  * fresh fused %hi/%lo per access. */
+  int *spec; /* SOURCE-REVIEW-UNRESOLVED: direct global views change base anchoring. */
   char *sourcedata;
-  short *p; /* SYM-CODEGEN-CARRIER: p -- stack-output walker with load-order role */
   int contrasttemp;
-  int j;
-  u_short color;
-  int r;
-  int g;
-  int b;
-  int temp;
 
   sourcedata = data;
+  {
+  int j;
   j = 0;
   /* MATCH: the contrast read goes through the GLOBAL directly and `spec` is
    * assigned AFTER it -- cse then turns `spec = &TrackSpec_gSpec` into a plain
    * register COPY of the address already materialized for the contrast load
    * (oracle: la $v1,TrackSpec_gSpec; lw 0x10($v1); addu $fp,$v1,$zero).
-   * `p = newdata` must come LAST: its luid decides whether sched1 issues the
-   * addiu before or after the mflo. */
+   * Indexed newdata stores now let the compiler create the output induction. */
   contrasttemp = (TrackSpec_gSpec[4] * level) / (maxlevel + -1);
   spec = TrackSpec_gSpec;
-  p = newdata;
   /* MATCH: exit-in-the-middle -- numentry is re-loaded from its arg slot at the
    * top of every iteration and the back edge is an unconditional `j`. */
   while (1) {
     if (!(j < numentry)) break;
+    u_short color;
+    int r;
+    int g;
+    int b;
     color = *(u_short *)sourcedata;
     if (color == 0) {
-      *p = 0;
+      newdata[j] = 0;
     }
     else {
       b = (color >> 7) & 0xf8;
@@ -100,12 +95,21 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
       /* MATCH: one variable per channel (raw value then clamped result share
        * $s1/$s2/$s0) and the `= 0` default as the if-ARM so it lands in the
        * bltz delay slot. */
+      {
+      int temp;
       temp = r - fixedmult(r - ((CVECTOR *)(spec + 5))->r,contrasttemp);
       if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+      }
+      {
+      int temp;
       temp = g - fixedmult(g - ((CVECTOR *)(spec + 5))->g,contrasttemp);
       if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
+      }
+      {
+      int temp;
       temp = b - fixedmult(b - ((CVECTOR *)(spec + 5))->b,contrasttemp);
       if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
+      }
       if (b < 8) { b = 8; }                          /* keep a minimum blue so the pixel stays visible */
       /* MATCH: narrow each channel to 5 bits as its OWN statement (assigned back
        * into the channel var) before composing -- folding the shift+mask into
@@ -113,11 +117,11 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
       b = (b >> 3) & 0x1f;
       g = (g >> 3) & 0x1f;
       r = (r >> 3) & 0x1f;
-      *p = (short)((color & 0x8000) | (b << 10) | (g << 5) | r);
+      newdata[j] = (short)((color & 0x8000) | (b << 10) | (g << 5) | r);
     }
     sourcedata = sourcedata + 2;
-    p = p + 1;
     j = j + 1;
+  }
   }
   {
     RECT r;                          /* SYM names the blit rect `r`, block-scoped (shadows the loop's int r) */
@@ -237,10 +241,13 @@ void Fog_AddKey(int slice,int distance)
   Fog_gNumKeys = Fog_gNumKeys + 1;
 }
 
-/* ---- Fog_Update__Fi  [TEXTUREPROCESS.CPP:840-884] SLD-VERIFIED ----
- * SYM omits the `slot` cell pointer.  Direct indexed load/store is count-exact but
- * FAIL 4 (81/81), swapping the slice load with the player-index shift; keep the shared
- * cell address as a measured scheduling carrier. */
+/* ---- Fog_Update__Fi  [TEXTUREPROCESS.CPP:840-884] ----
+ * Use retail's final_dist quantity and chained key assignment; neither the
+ * old start value nor the slot-pointer carrier is a retail named local.
+ * nextkey dies after the initial reads; key->next is reloaded for interpolation.
+ * The conditional's computation region and inner wrap region reproduce retail
+ * binding scopes without extra declarations. Original macro spelling is unknown.
+ * Complete source-line attribution remains subject to the SLD comparison. */
 void Fog_Update(int player)
 {
   int currentslice;
@@ -250,30 +257,17 @@ void Fog_Update(int player)
   int diffslice;
   int diffdistance;
   int final_dist;
-  int numslices;
-  int start; /* SYM-CODEGEN-CARRIER: start -- branch-result join keeps the retail
-              * single final TrackSpec_gSpec[6] store; direct per-arm stores are
-              * FAIL 11 (82/81). */
 
-  if (Fog_gNumKeys != 1) {
+  if (Fog_gNumKeys == 1) return;
+  {
     BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
     currentslice = fogslicePos[player].slice;
-    {
-      FogKey **slot /* SYM-CODEGEN-CARRIER: slot -- shared indexed cell keeps the retail load/index issue order */ = &Fog_gCurrentKey[player];
-      key = Fog_FindKey(currentslice,*slot);
-      *slot = key;
-    }
-    /* SYM and split-m2c agree on a named `nextkey` pointer in $v0.  Its source
-     * lifetime ends after the initial slice/distance reads; the interpolation
-     * arm intentionally spells `key->next` again, reproducing retail's later
-     * reload.  `nextslice` is mutated by += numslices.  The interpolating arm is the
-     * FALL-THROUGH (oracle `beq key->distance,next->distance` branches away to
-     * the plain-copy arm).
-     * The two stores below are the source-level arms; gcc cross-jumps their
-     * common destination exactly as seen in retail. */
-    nextslice = (nextkey = key->next)->slice;
-    if (key->distance != nextkey->distance) {
+    Fog_gCurrentKey[player] = (key = Fog_FindKey(currentslice,Fog_gCurrentKey[player]));
+    nextkey = key->next;
+    nextslice = nextkey->slice;
+    final_dist = key->distance != nextkey->distance ? ({
       if (nextslice < key->slice) {
+        int numslices;
         numslices = gNumSlices;
         nextslice = nextslice + numslices;
         if ((-1 < currentslice) && (currentslice < key->slice)) {
@@ -282,14 +276,10 @@ void Fog_Update(int player)
       }
       diffdistance = key->next->distance - key->distance;
       diffslice = nextslice - key->slice;
-      final_dist = ((currentslice - key->slice) * diffdistance) / diffslice;
-      start = key->distance + final_dist;
-    }
-    else {
-      start = key->distance;
-    }
-    TrackSpec_gSpec[6] = start;
+      key->distance + ((currentslice - key->slice) * diffdistance) / diffslice;
+    }) : key->distance;
   }
+  TrackSpec_gSpec[6] = final_dist;
 }
 
 /* ---- Fog_MakeTrackPathName__FPc  [TEXTUREPROCESS.CPP:1015-1022] SLD-VERIFIED ---- */
@@ -302,7 +292,10 @@ char * Fog_MakeTrackPathName(char *ext)
   return fogstrspc;
 }
 
-/* ---- Fog_ReadFogKeys__Fv  [TEXTUREPROCESS.CPP:1026-1078] SLD-VERIFIED ---- */
+/* ---- Fog_ReadFogKeys__Fv  [TEXTUREPROCESS.CPP:1026-1078] ----
+ * The four filename cases retain the retail branch/call order without a
+ * reconstruction-only haveext label. The +200..+212 test region and full
+ * statement-line attribution remain source-restoration work. */
 int Fog_ReadFogKeys(void)
 
 {
@@ -315,22 +308,15 @@ int Fog_ReadFogKeys(void)
    * instruction gate cannot identify a wrong literal, but raw binary bytes
    * and the independent Redec body settle each branch's actual filename.
    * Keep the existing condition/statement order and ordinary string literals. */
-  if (GameSetup_gData[21] != 0) {
-    if (GameSetup_gData[18] != 0) {
-      strspc = Fog_MakeTrackPathName("S.fog");
-      goto haveext;
-    }
-  }
-  if (GameSetup_gData[21] != 0) {
+  if (GameSetup_gData[21] != 0 && GameSetup_gData[18] != 0) {
+    strspc = Fog_MakeTrackPathName("S.fog");
+  } else if (GameSetup_gData[21] != 0) {
     strspc = Fog_MakeTrackPathName("N.fog");
-    goto haveext;
-  }
-  if (GameSetup_gData[18] != 0) {
+  } else if (GameSetup_gData[18] != 0) {
     strspc = Fog_MakeTrackPathName("W.fog");
-    goto haveext;
+  } else {
+    strspc = Fog_MakeTrackPathName(".fog");
   }
-  strspc = Fog_MakeTrackPathName(".fog");
-haveext:
   readmem = (int *)loadfileadr(strspc,0);
   if (readmem == (int *)0x0) {
     return 0;
@@ -341,135 +327,64 @@ haveext:
   }
   /* P886: native476a7c..476aa6 bounds i's loop-local scope, ending before
      purgememadr; i remains the actual INT/REG17 counter, not a new carrier. */
-  {
-    int i;
-    i = 0;
-    /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge, the
-     * `slt` recomputed in the back-edge delay slot) -- a plain `while (i<numkeys)`
-     * rotates into a zero-trip `blez` guard + bottom test. */
-    while (1) {
-      if (!(i < (int)numkeys)) break;
+  for (int i = 0; ; ) {
+    if (i < numkeys) {
       /* MATCH: INDEX form off readmem -- loop.c strength-reduces it to the
        * oracle's unbiased walker (`addu s0,s2,zero` + `lw 4(s0)/lw 8(s0)`);
        * an explicit `p = readmem; p += 2` walker makes gcc pre-bias the base by
        * +8 and use -4/0 displacements. */
       Fog_AddKey(readmem[i * 2 + 1],readmem[i * 2 + 2]);
-      i = i + 1;
-    }
+      i++;
+    } else break;
   }
   purgememadr(readmem);
   return 1;
 }
 
-/* ---- Fog_InitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1082-1119] SLD-VERIFIED ---- */
+/* ---- Fog_InitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1082-1119] ----
+ * Indexed countdown owns retail i. The remaining openval/slice_off and
+ * counter absorption expression are unresolved source-restoration work;
+ * older failed trials do not establish that those objects were original. */
 void Fog_InitFogTriggers(void)
 
 {
-  int *openkey_walk; /* SYM-CODEGEN-CARRIER: openkey_walk -- explicit reverse array walker */
   int num_player;
-  int i;
-  int k;
-  int slice_off; /* SYM-CODEGEN-CARRIER: slice_off -- loop-strength-reduction carrier */
-  int openval; /* SYM-CODEGEN-CARRIER: openval -- LICM-order constant carrier */
-  
+  int slice_off; /* SOURCE-REVIEW-UNRESOLVED: offset handout still differs without this object. */
+  int openval; /* SOURCE-REVIEW-UNRESOLVED: literal store moves the preheader load. */
   openval = 1;
-  i = 0x1f;
-  openkey_walk = openkeys;
-  openkey_walk = openkey_walk + 0x1f;
   Fog_gNumKeys = 0;
   Fog_gHeadKey = (FogKey *)0x0;
-  do {
-    *openkey_walk = openval;
-    i = i + -1;
-    openkey_walk = openkey_walk + -1;
-  } while (-1 < i);
+  for (int i = 0x1f; -1 < i; i--) {
+    openkeys[i] = openval;
+  }
   num_player = Fog_ReadFogKeys();
   if (num_player == 0) {
     Fog_AddKey(0,TrackSpec_gSpec[6]);
   }
   num_player = 1;
-  /* MATCH (w39-a10, 35 -> 4).  Four levers:
-   *  (1) Fog_gCurrentKey is the real two-element pointer array recorded by SYM.
-   *      Under the object's -G8 identity it remains small-data eligible for the
-   *      constant-index stores while Fog_Update retains its runtime index.
-   *  (2) SPLIT the openkeys base init (`p = openkeys; p = p + 0x1f;`): the
-   *      fused `openkeys + 0x1f` folds the +124 into the %lo reloc (2 insns),
-   *      retail emits the discrete third `addiu $v0,$v0,0x7C`.
-   *  (3) `openval = 1;` as a real local: the store value is a LICM-hoisted
-   *      constant, and loop.c appends its hoisted `li` AFTER the preheader
-   *      statements, so ours came out last where retail has it first.
-   *  (4) `slice_off = 0;` before the zero-trip guard, `k = slice_off;` inside
-   *      it, and the counter increment AFTER the call (not before).
-   * w40-a10 (4 -> 2): the residual was NOT an allocno tie -- it was the LOOP
-   * FORM.  A natural rotated `for (k = 0; k < num_player; k++)` with the
-   * byte offset written as the INDEX EXPRESSION `k * 0x84` gets loop.c to
-   * strength-reduce the offset into a giv, and THAT ordering hands the
-   * counter $s0 and the giv $s1 (= retail) plus retail's exact schedule
-   * (`addiu $s0,$s0,1` before the jal, `addiu $s1,$s1,0x84` in the bnez
-   * delay slot).  Every explicit-guard + do-while spelling puts the
-   * FIRST-INITIALIZED variable in $s1 (longer live range -> lower allocno
-   * priority), so the retail `addu $s0,$zero,$zero; addu $s1,$s0,$zero`
-   * init pair is unreachable that way (measured 8/12/14/14/28).
-   * RESIDUAL 2 = the zero-trip GUARD OPCODE: ours `blez $s2`, retail
-   * `beqz $s2`.  gcc's rotation guard IS the duplicated loop-exit test, so
-   * its opcode is fixed by the comparison: signed `k < n` folds to `blez`,
-   * `k != n` folds to `beqz` but then the bottom test is a 1-insn `bne`
-   * (13 diffs), and an UNSIGNED bound gives `beqz` + `sltu` (2 diffs, the
-   * same trade).  A source-level `if (num_player != 0)` around the `for`
-   * keeps BOTH guards (59 vs 57 insns).  Mechanism named; a single-opcode
-   * residual.
-   * w41-a9 (STRONG floor, quantified): retail's block shape IS the explicit
-   * guard + do-while -- `if (num_player != 0) { k = 0; do {...} while
-   * (k < num_player); }` reproduces the oracle's `beqz $s2` guard AND its
-   * `slt/bnez` bottom test exactly, killing this residual.  It costs a hard
-   * $s0<->$s1 allocno rotation (12 diffs, count still 57/57): the counter and
-   * the address giv have IDENTICAL ref counts (7 each, -dl), so the tie is
-   * decided purely by live_length -- giv 9 insns vs counter 10 =>
-   * floor_log2(7)*7/9 = 1.556 beats 1.400, so the giv takes $s0 and the
-   * counter $s1 (retail has them the other way).  The counter's range can
-   * never be the shorter one: the bottom compare READS the counter, so its
-   * live range always ends last, whatever the init/increment order.  Measured
-   * IDENTICAL 12 diffs across 6 spellings (k-init inside/outside the guard,
-   * `0 != n` Yoda guard, explicit `slice_off` walker initialized from `k`
-   * (which literally reproduces retail's `addu $s1,$s0,$zero` init pair),
-   * walker initialized from 0, walker-increment before/after the counter
-   * increment) and across 3 declaration orders (decl order is a no-op here).
-   * Bumping the counter to 8 refs would cross the floor_log2 razor and flip
-   * it, but every extra reference costs an emitted instruction (57 -> 58).
-   * => the `for` form below (2 diffs, wrong guard opcode) is strictly better
-   * than the structurally-faithful form (12 diffs).  Do not re-fight. */
+  /* Fog_gCurrentKey is retail's two-element pointer array. */
   Fog_gCurrentKey[0] = Fog_gHeadKey;
   Fog_gCurrentKey[1] = Fog_gHeadKey;
   if (GameSetup_gData[3] == 1) {
     num_player = 2;
   }
-  fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
-  /* MATCH: plain base+offset off fogslicePos (oracle re-reads the gp-rel
-   * pointer each iteration and does `addu a1,a1,slice_off`). */
-  /* w46-a9 (2 -> PASS): the w41 "STRONG floor" is DEAD.  Its quantification was
-   * right -- the structurally-faithful explicit-guard do-while gives the oracle's
-   * "beqz $s2" guard + "slt/bnez" bottom test but costs a hard $s0<->$s1 rotation
-   * (14 diffs) because counter and address-giv have IDENTICAL ref counts (7/7) and
-   * the counter always lives one insn longer.  What the w41 agent lacked was a
-   * ZERO-BYTE ref inflator: the C absorption `k | (k & 3)` is exactly k, but
-   * supplies a loop-weighted RTL reference before combine removes it. This
-   * pushes the counter across the floor_log2 step into $s0 and the giv $s1.
-   * Body order remains the second dial: identity, call, increment, bump is
-   * PASS; other positions previously measured 4/7/14/15 differences
-   * -- the two 4-diff forms differ only by an "addu a0,zero,zero" / "lw a1,(gp)"
-   * issue-order swap).  Falsifications are BASIN-RELATIVE: the w41 receipt above
-   * is retained as the measurement record, not as a verdict. */
-  if (num_player != 0) {
-    k = 0;
-    slice_off = k;
-    do {
-      k = (int)((u_int)k | ((u_int)k & 3u));
-      BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
-      k = k + 1;
-      slice_off = slice_off + 0x84;
-    } while (k < num_player);
+  {
+    int k;
+    fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
+    /* SOURCE-REVIEW-UNRESOLVED: deleting the counter absorption still swaps
+     * counter/offset homes (12dif/57 after restoring the real setup region).
+     * This is a current failed trial, not proof that the source used an identity. */
+    if (num_player != 0) {
+      k = 0;
+      slice_off = k;
+      do {
+        k = (int)((u_int)k | ((u_int)k & 3u));
+        BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
+        k = k + 1;
+        slice_off = slice_off + 0x84;
+      } while (k < num_player);
+    }
   }
-  slice_off = 0;
   return;
 }
 
@@ -487,7 +402,6 @@ void TextureProcess_Init(void)
 {
   gZDepth = 0x10;
   TP_gZPaletteSystem.numdepthclut = 0;
-  return;
 }
 
 /* ---- CV_ProcessWorldColors_FINAL__FiP7CVECTORs  [TEXTUREPROCESS.CPP:1156-1179] SLD-VERIFIED ---- */

@@ -9,8 +9,10 @@ extern Car_tObj      *Cars_gSortedList[];
 extern Car_tObj *Cars_gLifeBasisCarList[];
 /* AILIFE.SYM does not materialize either large owner type.  Preserve the
  * original addresses and access widths through their source-visible rows. */
-extern int GameSetup_gData[13];
-#define AILIFE_REVERSE_TRACK GameSetup_gData[12]
+struct GameSetup_tData;
+extern GameSetup_tData GameSetup_gData;
+/* Owner SYM: reverseTrack INT@48, without a guessed array extent. */
+#define AILIFE_REVERSE_TRACK (*(int *)((char *)&GameSetup_gData + 48))
 extern u_char (*BWorldSm_slices)[32];
 #define AILIFE_SLICE_CENTER(i) ((coorddef *)&BWorldSm_slices[(i)][0])
 #define AILIFE_SLICE_LANE_COUNT(i) BWorldSm_slices[(i)][0x1d]

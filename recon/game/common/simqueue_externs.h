@@ -4,7 +4,7 @@
 
 /* ---- harvested + SYM ---- */
 /* simqueue.obj uses only words +0x0c and +0x3c8 of the external owner. */
-extern int GameSetup_gData[243];
+extern int GameSetup_gData[]; /* external owner word view; no guessed extent */
 #define SIMQUEUE_COMMMODE GameSetup_gData[3]
 #define SIMQUEUE_NUM_PLAYER_RACE_CARS GameSetup_gData[242]
 

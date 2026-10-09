@@ -483,6 +483,11 @@ static inline int DelayCarSpeedDir(AIDelayCar *d) { return (-1 < d->currentSpeed
 static inline int DelayCarRoadPosition(AIDelayCar *d) { return d->roadPosition_; }
 static inline int DelayCarSlice(AIDelayCar *d) { return d->slice_; }
 
+/* SOURCE-REVIEW-UNRESOLVED: SetUp's second inline pair is +60..+84,
+ * while retail records +84..+84. A raw-speed getter plus caller sign test
+ * preserves 87 words but places the pair at +60..+60. A second direction
+ * setter with a direct speed read is 9 diffs/86 words. Both are reverted;
+ * matching scope counts alone does not identify the original accessor. */
 void AIState_Chase::SetUp()
 
 
@@ -568,7 +573,12 @@ void AIState_Chase::DoSlowNitrous()
  * GetSlowDownEndTime() to restore the nested inline `this` record. The const
  * tick snapshot preserves retail load order; direct global access is 2 diffs.
  * humanLoop and distanceMeters now have retail's depths in the for traversal.
- * The outer guard starts at +0x30 versus retail +0; bytes remain 83/83. */
+ * The outer guard starts at +0x30 versus retail +0; bytes remain 83/83.
+ * Combined direct guards preserve 83 words but move one load (2 diffs).
+ * A negative short-circuit guard with a sequenced tick assignment matches
+ * all retail scope tuples and 83 words, but emits EXTRA currentTick REG:$2.
+ * A nested positive guard matches bytes but adds a scope and moves inline
+ * this to depth 5 versus 3. These probes are reverted, not source proofs. */
 
 void AIState_Chase::DoNitrous(int checkForHumans)
 
@@ -2092,12 +2102,12 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
 
 
-/* ---- Execute__21AIState_RovingTraffic  AIState_RovingTraffic::Execute  [AISTATE.CPP:1172-1224] SLD-VERIFIED ----
- * SOURCE-RECOVERY: the formerly synthetic iVar9/iVar8 hold the signed X/Z
- * relative-position deltas shifted right by 12. In-place shifts lose one/two
- * retail instructions and score 17/38 diffs respectively. Retail SYM has no
- * names for these separate value webs; scaledDistanceX/Z are semantic labels,
- * not claimed original spellings. Keep this receipt outside the line-bearing body. */
+/* ---- Execute__21AIState_RovingTraffic  AIState_RovingTraffic::Execute  [AISTATE.CPP:1172-1224; source/SLD review open] ----
+ * Store all three raw components before shifting X/Z in place: 233/233 PASS,
+ * with no scaledDistanceX/Z captures and exact named homes. Earlier early
+ * shifts lost instructions; fused subtract/shift assignments are 38 diffs
+ * at 231/233. The six missing loop/guard scopes and full SLD remain open.
+ * Exit-in-body for loops preserve the non-rotated oracle without new locals. */
 
 void AIState_RovingTraffic::Execute()
 {
@@ -2106,14 +2116,6 @@ void AIState_RovingTraffic::Execute()
   coorddef centerBack;
   coorddef carRelativeForLatPos;
   coorddef carRelativeForDistance;
-
-  /* SOURCE-RECOVERY CARRIER: signed Z delta shifted by 12;
-     distinct value web required by the 233-word oracle. */
-  int scaledDistanceZ;
-
-  /* SOURCE-RECOVERY CARRIER: signed X delta shifted by 12;
-     distinct value web required by the 233-word oracle. */
-  int scaledDistanceX;
 
     /* W57-A11: SLD gives ONE retail line (1177) for the whole 3-word copy and the oracle
      uses t0/t1/t2 -- that is gcc's movstrsi 12-byte STRUCT ASSIGNMENT, not three per-field
@@ -2142,17 +2144,12 @@ void AIState_RovingTraffic::Execute()
 
   carRelativeForDistance.x = this->carObj_->targetPos.x - this->carObj_->N.position.x;
 
-  scaledDistanceX = carRelativeForDistance.x >> 0xc;
-
   carRelativeForDistance.y = this->carObj_->targetPos.y - this->carObj_->N.position.y;
 
   carRelativeForDistance.z = this->carObj_->targetPos.z - this->carObj_->N.position.z;
 
-  scaledDistanceZ = carRelativeForDistance.z >> 0xc;
-
-  carRelativeForDistance.x = scaledDistanceX;
-
-  carRelativeForDistance.z = scaledDistanceZ;
+  carRelativeForDistance.x >>= 0xc;
+  carRelativeForDistance.z >>= 0xc;
 
   if (carRelativeForDistance.x * carRelativeForDistance.x +
       carRelativeForDistance.z * carRelativeForDistance.z < 10000) {
@@ -2181,19 +2178,15 @@ void AIState_RovingTraffic::Execute()
 
   status = 2;
 
-  search = (this->carObj_)->sortIndex + 1;
+  /* Keep the test in the for body: a condition-bearing loop rotates the
+     oracle's shared top test. This form preserves all 233 instructions but
+     does not yet recover retail's empty scope regions. */
 
-  /* EXIT-IN-THE-MIDDLE (catalog §B row 51/56) -- oracle keeps a single TOP-test
-     block reached both by fallthrough and by an unconditional j back-edge; a
-     natural while(cond){...} gets ROTATED by gcc to a bottom bnez-test. */
-
-  while (true) {
+  for (search = (this->carObj_)->sortIndex + 1; ; search++) {
 
     if (!(search < Cars_gNumCars && (status == 2))) break;
 
     this->CheckIfCarIsNearbyAndStop(Cars_gSortedList[search],status);
-
-    search = search + 1;
 
   }
 
@@ -2201,15 +2194,11 @@ void AIState_RovingTraffic::Execute()
 
     status = 2;
 
-    search = (this->carObj_)->sortIndex + -1;
-
-    while (true) {
+    for (search = (this->carObj_)->sortIndex - 1; ; search--) {
 
       if (!(-1 < search && (status == 2))) break;
 
       this->CheckIfCarIsNearbyAndStop(Cars_gSortedList[search],status);
-
-      search = search + -1;
 
     }
 

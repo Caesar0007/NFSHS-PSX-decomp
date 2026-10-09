@@ -15,8 +15,10 @@ extern void Object_AddCustomObject(SceneElem *elem, int setupSimDataFlag);
 /* ---- paths + setup ---- */
 extern char           *Paths_Paths[];        /* 0x80116468 */
 /* scene.obj's SYM omits the externally owned GameSetup body. */
-extern int GameSetup_gData[16];
-#define SCENE_TRACK GameSetup_gData[15]
+struct GameSetup_tData;
+extern GameSetup_tData GameSetup_gData;
+/* Owner SYM: track INT@60; caller aggregate body remains opaque. */
+#define SCENE_TRACK (*(int *)((char *)&GameSetup_gData + 60))
 
 /* ---- eaclib EACPSXZ: memstd / syncfile / nsync / fixed-point ---- */
 

@@ -47,29 +47,24 @@ static inline int GetTicks(void) { return ticks; }
 void tScreenControllerConfig::SetActuators(int max)
 
 {
-  /* MATCH: direct member updates (rather than decompiler byte temporaries)
-     expose the common timer store and retail branch layout.  The full-width
-     pulse removes a redundant mask; tickValue orders the two independent
-     global-address pseudos exactly as retail. */
+  /* Real timer/actuator sibling arms preserve retail34/34 and scope bounds.
+   * Compute the random comparison before the power-byte source assignment;
+   * scheduling still places that store in the load gap. No pulse/tick alias.
+   * Full original statement-line attribution remains unsealed. */
 
   if (this->fResetShakeTimeOut != 0) {
     this->fResetShakeTimeOut = 0;
     (this->fShaker).time = 0x40;
   }
-  else {
-    if ((this->fShaker).time == '\0') goto SetActuators_clearAndRet;
+  else if ((this->fShaker).time != '\0') {
     (this->fShaker).time = (this->fShaker).time - 1;
   }
   if (*(uchar *)&(this->fShaker).time != '\0') {
-    int tickValue = GetTicks();
-    const uint pulse = Force_rand_256[tickValue >> 2 & 0xff];   /* @0x80043180 lbu Force_rand_256((ticks>>2)&0xff) */
+    (this->fShaker).actuator[0] = (int)(uint)Force_rand_256[GetTicks() >> 2 & 0xff] < max;
     (this->fShaker).actuator[1] = (uchar)max;
-    (this->fShaker).actuator[0] = (int)(uint)pulse < max;
-    return;
-  }
-SetActuators_clearAndRet:
+  } else {
   this->ClearActuators();
-  return;
+  }
 }
 
 /* ---- tScreenControllerConfig::TurnOffShakers  (screencontroller.cpp:70) ---- */
@@ -144,11 +139,9 @@ void Controller_SetRamp(void)
 short tScreenControllerConfig::AnimKeyPoints(bool forward,bool pt)
 
 {
-  short result;
+  short result; /* SOURCE-REVIEW-UNRESOLVED: carrier-free tested funnels are
+                   24/27 words versus retail25; no source-object proof. */
 
-  /* SYM-CODEGEN-CARRIER: result -- SYM has no named local, but this explicit
-     shared return funnel is required for the retail 25-instruction layout;
-     direct returns compile three instructions short and produce 23 diffs. */
   if (this->fCurrentController == '\x02') {
     if (forward != 0) {
       result = 0x14;
@@ -465,9 +458,9 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
   /* MATCH W64 PASS (40->0): keep frame+1 in the call argument, spell the
      flag selects with the retail branch polarity, and lay out the non-art-2
      final draw before the art-2 arrow block. */
-  /* SYM (nfs4-f-v3.txt @0x80043b7c) shows NO locals besides the args and one
-   * fn-scope `drawFlags` (tDrawShapeExtended); a SECOND `drawFlags` + `i` are
-   * declared in a nested block starting at the CurrentlyLoadedArt==2 arm --
+  /* Retail has root drawFlags, an art-2 drawFlags at depth3 and a for-local i
+   * at depth4. Real sibling arms and the loop header preserve all154 words;
+   * full original statement-line attribution remains independently unsealed.
    * everything else (scaleIdx/shapeFlags/shapeX/shapeY/ofs/shakeOff/pX/pY)
    * was Ghidra-fabricated. Rewritten as a literal transcription of the raw
    * oracle: two mutually-exclusive first-draw arms (frame!=0||art==1 vs
@@ -506,37 +499,34 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
   }
   if (this->CurrentlyLoadedArt != 2) {
     DrawShapeExtended(0,fadeleveltop != 0 ? 0x201 : 0x200,0,0,fadeleveltop,0,&drawFlags);
-    return;
-  }
-  {
+  } else {
     tDrawShapeExtended drawFlags;
-    int i;
 
     drawFlags.tint[0] = CalcFadeVal(0xc8c8c8,this->fArrowFade);
-    i = 0x30;
     DrawShapeExtended(0x1a,0x18,0x9e,0x92,0,1,&drawFlags);
     DrawShapeExtended(0x1b,0x18,0x9e,0xa1,0,1,&drawFlags);
     DrawShapeExtended(0x1c,0x18,0x9e,0xac,0,1,&drawFlags);
     DrawShapeExtended(0x1d,0x18,0x9e,0xbb,0,1,&drawFlags);
-    do {
+    for (int i = 0x30; i < 0x36; i++) {
       PSXDrawSquare(drawFlags.tint[0],ArrowLocations[i][2] + -2,ArrowLocations[i][3] + -2,5,3);
-      i = i + 1;
-    } while (i < 0x36);
-    return;
+    }
   }
 }
 
 static inline short ControllerTwistRange(int player)
 {
-  /* The SLD inline block at 0x80044994 owns exactly `player` (INT) and
-     `range` (SHORT).  Keeping the short inside this helper preserves that
-     original source scope without forcing its promoted caller value back
-     through a 16-bit spill/reload. */
-  short range = (short)(gPadinfo.buf[player * 4].data.negcon.twist - 0x80);
+  /* Retail's inline pair owns player INT and range SHORT. Capture the actual
+   * byte before centering so range's REG2 record survives. Literal accessor
+   * spelling and the caller's deeper ownership remain source review. */
+  short range = gPadinfo.buf[player * 4].data.negcon.twist;
+  range -= 0x80;
   return range;
 }
 
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */
+/* 2026-10-09: the short range capture and real animation sibling branches
+ * retain836/836 PASS. Deeper calibration owners and source-only objects are
+ * unresolved; earlier failed shapes do not establish required source storage. */
 /* MATCH: 77 -> 5. `flare_intensity / 4` restores gcc's signed-division bias,
    `__builtin_abs` restores the retail absolute-value branch/copy shape, and
    explicit flare x/Offset temporaries reduce the halo loop to allocation/order
@@ -785,8 +775,7 @@ DrawCtrl_ticksUpdate:
     }
     this->ActualDrawController(this->CalcAnimFrame((int)this->fAnimFadeFrame),
                                fadelevel,fadelevel,0,0);
-    return;
-  }
+  } else {
   if (this->fAnim != 0) {
     if (this->fGotTick == 0) {
       AudioCmn_PlayFESFX(0xf);
@@ -818,8 +807,7 @@ DrawCtrl_ticksUpdate:
       fadelevel = 0x80;
     }
     this->ActualDrawController(this->CalcAnimFrame((int)this->fAnimFrame),0,fadelevel,0,0);
-    return;
-  }
+  } else {
   if ((u_int)((byte)this->fCurrentController - 5) < 2) {
     char frame = 0;
     if (((menuDefs->itemControllerSteeringRange2).fActive != 0) ||
@@ -926,6 +914,8 @@ DrawCtrl_axisDone:
   this->fTextController = '\0';
   this->fArrowFade = 0x80;
   this->fTextTypeOn = 0;
+  }
+  }
   return;
 }
 
@@ -1060,35 +1050,17 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
 void tScreenControllerConfig::DrawBackground()
 
 {
-  /* MATCH (W57, 58->36, count 145->137 EXACT): the SYM 8c block lists only
-     `fade` ($s1), an inlined tOptionsMenu `this` ($a0) and `i` ($s0) -- every
-     other local here was a Ghidra invention costing a callee-saved reg + frame
-     bytes (06A).  animStart/animStop/transDone/trans2 inlined; and the loop's
-     scaleIdx/shapeFlags/shapeX/shapeY were UNINITIALISED READS (real bug) --
-     the oracle's `addiu $a0,$s0,0xA` + three `addu ?,$zero,$zero` shows the
-     call is ScaleShapeExtended(i + 10, 0, 0, 0, fade, 0, NULL). */
+  /* Retail's first read is the existing GetScreenFade inline receiver pair,
+   * not an om pointer object. TransitionIsFinished has canonical BOOL return;
+   * its normalized logical inversion remains an integer XOR to match reorg.
+   * All137 instructions and native locals/scopes agree; full SLD is separate. */
   short fade;
-
-  /* MATCH (36->27): the SYM's inlined tOptionsMenu `this` ($a0) is a real
-     pointer -- the oracle materializes `addiu $a0,$v0,11116` and then reads
-     fScreenFade by DISPLACEMENT `lw $v0,116($a0)`; the folded
-     `menuDefs[0]->menuControllerConfig.fScreenFade` form emits one fused load.
-     Only the fade read goes through it (routing the two TransitionIsFinished
-     calls through `om` too measured 48 @135 insns). */
-  /* MATCH (W64, 27->PASS): TransitionIsFinished is a normalized 0/1 result,
-     but its ABI-neutral declaration is `void *`.  Expressing the `!= true`
-     test as the corresponding integer XOR restores retail's immediate `xori`;
-     a pointer comparison made gcc retain constant 1 in $s1 across calls,
-     displaced `fade` to $s2, and added an unnecessary saved register. */
-  /* SYM-CODEGEN-CARRIER: om -- the W57/W64 oracle receipt above proves this
-     pointer is required to retain retail's displaced fScreenFade load. */
-  tOptionsMenu *om = &menuDefs->menuControllerConfig;
-  fade = (short)(om->fScreenFade >> 1);
+  fade = (short)(menuDefs->menuControllerConfig.GetScreenFade() >> 1);
   if (0x80 < fade) {
     fade = 0x80;
   }
   if ((this->fTransitionedIn == 0) &&
-     (::TransitionIsFinished(&menuDefs->menuControllerConfig) != (void *)0x0)) {
+     (::TransitionIsFinished(&menuDefs->menuControllerConfig) != false)) {
     this->fTransitionedIn = 1;
   }
   if (((fade < 0x81) && (this->fTransitioningIn == 0)) && (this->fCurrentController != '\0')
@@ -1100,10 +1072,9 @@ void tScreenControllerConfig::DrawBackground()
     this->fAnimFadeFrame = this->fAnimFadeStart;
     this->fAnimFadeController = (ushort)(byte)this->fCurrentController;
   }
-  if ((((int)(long)::TransitionIsFinished(&menuDefs->menuControllerConfig) ^ 1) != 0) &&
+  if ((((int)::TransitionIsFinished(&menuDefs->menuControllerConfig) ^ 1) != 0) &&
       (this->fTransitionedIn != 0)) {
-    if (this->fTransitioningOut != 0) goto ForceVbl_drawCtrlCheck;
-    if (this->fCurrentController != '\0') {
+    if ((this->fTransitioningOut == 0) && (this->fCurrentController != '\0')) {
       this->fAnimFade = -1;
       this->fAnimFadeStart = this->AnimKeyPoints(false,1);
       this->fAnimFadeStop = this->AnimKeyPoints(false,0);
@@ -1117,7 +1088,6 @@ void tScreenControllerConfig::DrawBackground()
     this->SetCurrentController(false);
     this->CheckConfigs();
   }
-ForceVbl_drawCtrlCheck:
   if (((this->fAnimFade != 0) || (this->fTransitioningOut == 0)) && (this->fTransitioningIn != 0)) {
     this->DrawController();
   }

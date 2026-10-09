@@ -29,6 +29,7 @@ int random(...);
 void *reservememadr(...);
 int sprintf(...);
 char *strcat(...);
+int strcmp(char *, char *); /* PsyQ4.3 STRINGS.H, before StartUp's comparisons. */
 int systemtask(...);
 }
 

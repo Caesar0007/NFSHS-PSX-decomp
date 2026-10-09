@@ -1,27 +1,468 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-10-08. Current full-debug board: `build/psyq_g/symtree_report.json`.
+Status as of 2026-10-09. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
 Native-only per-directory snapshot after the physics/collision restoration rounds (2565 common
 covered functions; not a full source-declaration/carrier/SLD seal):
 
 | Retail directory | Native CLEAN | Native DIRTY |
 |---|---:|---:|
-| FRONTEND/COMMON | 712 | 126 |
-| FRONTEND/PSX | 65 | 20 |
-| GAME/COMMON | 1155 | 92 |
-| GAME/PSX | 289 | 106 |
-| Total | 2221 | 344 |
+| FRONTEND/COMMON | 720 | 118 |
+| FRONTEND/PSX | 66 | 19 |
+| GAME/COMMON | 1156 | 91 |
+| GAME/PSX | 294 | 101 |
+| Total | 2236 | 329 |
 
-Current native CLEAN coverage, excluding SLD, is **86.59% (2221/2565)**.
+Current native CLEAN coverage, excluding SLD, is **87.17% (2236/2565)**.
 This counts complete compared function contracts, not individual raw SYM
 records or uniquely recovered original source text. GAME/COMMON is
-**92.62% (1155/1247)**. Historical round counts below remain dated receipts.
+**92.70% (1156/1247)**. Historical round counts below remain dated receipts.
 
-Latest strict native+SLD snapshot (2026-10-08): **583/2565** covered functions,
-including GAME/COMMON **372/1247**, FRONTEND/COMMON168/838,
-FRONTEND/PSX4/85 and GAME/PSX39/395. This still does not certify unique
+Latest strict native+SLD snapshot (2026-10-09): **606/2565** covered functions,
+including GAME/COMMON **373/1247**, FRONTEND/COMMON186/838,
+FRONTEND/PSX6/85 and GAME/PSX41/395. This still does not certify unique
 original spelling or completion of source-only carrier review.
+
+2026-10-09 continuation: `TurnOffTV__FR9tTVConfig` now has exact compared
+native and relative SLD contracts after removing only its terminal void
+`return;`. Detailed oracle check remains 4/4 PASS; fresh whole `fetv.cpp`
+gate `run-lrhiwsf5` has unchanged four-section bytes/layout, ASPSX 524 good/0
+bad, PSYLINK zero errors, and 4/5 native CLEAN. SLD has zero tag differences,
+equal block lines, and end delta 2/2. No padding, invented local, asm,
+qualifier, or output rewrite. DrawTV's existing extra locals remain open.
+The accumulated full reconstruction build (`--skip-asm --no-link`) also
+completed without failed TUs; this is compilation proof, not final-image proof.
+
+Two baseline investigations remain unresolved and were not bypassed:
+`fecheats.cpp` freshly compiled bytes disagree with its existing reference
+(`run-j_wnsfad`), so no source or reference change was kept there.
+Three terminal-return removal trials in `femenudefs.cpp` each remain 4/4
+instruction PASS, but the whole-TU debug/normal gate fails (6030 versus 6031
+instructions, `run-yh2uywoq`). All three trials were reverted; the untouched
+source reproduces the same gate failure in `run-i8nn8z7s`. No stale linked
+SLD result is accepted for those trials, and references remain untouched.
+
+2026-10-09 `DrawTV__FR9tTVConfig`: removed both pairs of unrecorded
+`noiseHeight`/`noiseShapeY` byte captures and their declaring regions. The
+actual two stores now use `(u_char)noise->height - (-(u_short)noise->shapey)`.
+The final byte narrowing preserves the sum modulo 256 without named captures;
+this operand/cast graph emits retail's shapey-v1 then height-v0 byte loads.
+Plain direct addition and alternative negated/cast forms were 8 diffs at
+815 words; height-first short casts were 4 load-order differences; staged
+destination assignment/compound addition was 12 diffs at 819 words. None
+of those failed variants remains. Exact original expression text is not proved.
+Independent raw `rom/nfs4-f.exe` reads confirm the four LBU words at
+0x80022758/75c/7c8/7cc. Exhaustive arithmetic checking over all 65,536
+short bit patterns and 256 byte values confirms all 16,777,216 final-byte
+sum results agree. This checks the expression, not an entire-function runtime
+differential or uniqueness of the original source spelling.
+
+Final whole-TU receipt `run-5m5kr4dc`: unchanged four-section bytes/layout,
+ASPSX 524 good/0 bad, PSYLINK zero errors. All five functions remain detailed
+PASS (815/213/132/4/5 instructions). All 13 retail DrawTV root records still
+agree; native locals fall from 41 to 37 and scope pairs from 21 to 19, versus
+retail's 13 locals and one root pair. Removing the first mask ref-count fence
+was 72 diffs at 815 words and was reverted, not declared impossible. Old
+packet/helper/fence necessity comments now explicitly identify unresolved
+source restoration instead of treating helper relocation as a local exemption.
+Native CLEAN stays 2232/2565, strict stays 606/2565; DrawTV still has 770/815
+SLD tag differences and end delta 268 versus 202. Native EXTRA issue rows
+fall 743 to 741 (not a count of unique objects); lexical review locations stay
+862. Full source restoration remains incomplete.
+
+The `femenudefs.cpp` baseline debug mismatch is isolated by per-function
+compiler-stream comparison to `__15tGlobalMenuDefs`: normal 3147 versus
+debug 3146 compiler instruction rows, frame 640 versus 608, and 283 changed
+groups. Every other function's normalized compiler instruction rows agree.
+This explains why callback-local PASS does not satisfy the whole-TU debug
+gate. No code, tool flags, debug records or reference bytes were rewritten.
+
+2026-10-09 `DrawTV` packet-link continuation: replace the first textured
+packet and both reflection helper calls with the ordinary `addPrim` expansion
+and typed packet advance. Canonical PsyQ 4.3 `LIBGPU.H` independently confirms
+the macro's two setaddr/getaddr operations. The existing aggregate-tag macro
+is retained, rather than introducing an unrecorded P_TAG type body. No new
+helper, local name or debug-padding region replaces the removed helper calls;
+the now-unused FETVLinkGT4 definition is deleted. Fresh whole-TU receipt
+`run-nkr0jivl` has unchanged sections/layout, ASPSX 524/0 and zero PSYLINK
+errors. All five detailed functions remain PASS at 815/213/132/4/5 words.
+Retail's 13 DrawTV root records remain exact. Native local records decrease
+37 to 22, and scope pairs decrease 19 to 9; retail has only one root pair.
+
+The second-arm textured packet still needs recovery: direct expansion is two
+LUI scheduling differences at the same count. OR operand reversal fixes that
+address timing but reverses eight load/AND register lines; scalar-pointer
+access adds a reload (13 diffs at 816); shift extraction narrows to LBU and
+changes eight lines; disjoint-bit addition leaves four lines including an
+ADDU instead of OR. These trials were reverted, not declared source floors.
+Removing the first mask/fence still gives 72 diffs at 815 after the expansions;
+direct first-arm scratchpad macros give four address-pair ordering differences;
+moving the old fence later gives nine at 816. Removing the reflection's zero-net
+pointer perturbation gives two packet-load scheduling differences. All failed
+variants are reverted; the remaining helper, aliases, fences and perturbation
+stay explicitly unresolved, not accepted as original source necessities.
+
+Strict coverage stays 606/2565 and native CLEAN stays 2232/2565. The aggregate
+EXTRA-issue count stays 741 because it groups same-named objects; it does not
+show the fifteen individual debug objects removed here. Final repeat gate
+`run-bnbppodl` also passes bytes/layout/ASPSX/link; vtable audit passes all
+1360 files and the seven SLD comparator tests pass. DrawTV SLD is still
+unsealed: the final fresh report has 790/815 tag differences (previous
+round 770), with end delta 269 versus 202. No cosmetic line padding or #line
+rewrites were used to mask that remaining source-attribution work.
+
+2026-10-09 `DrawTV` setup-order review: retail SLD assigns noise acquisition
+to relative line 3, initial brightness to 10, geometry to 13/14/15/16, tint
+to 17 and do_tint setup to 18. The reconstruction instead initialized do_tint
+before brightness/geometry and loaded tint before geometry. Initialize bright
+in its existing declaration, leave do_tint declared there but initialize it
+after the actual geometry and tint assignments. The fresh source tags now
+follow the retail order, with brightness/geometry/tint/do_tint at 11,
+14/15/16/17, 18 and 19 respectively. That one-line displacement and the rest
+of full SLD remain unresolved; no whitespace or #line padding was applied.
+All thirteen root local/type/home/order records remain exact. Detailed DrawTV
+stays 815/815 PASS, with complete sections/layout unchanged, ASPSX 524/0,
+zero PSYLINK errors (`run-np4vx1if`, repeated `run-svar0axg`). This corrects
+actual statement attribution/order, not the aggregate native/strict counts.
+Repricing the last packet helper after this correction still leaves two
+LUI-order lines; explicit aggregate UINT casts are also two lines and a
+disjoint-bit XOR adds a wrong XOR-for-OR instruction. Trials are reverted.
+
+Read-only investigation of the pre-existing `fecheats.cpp` reference mismatch:
+reference serialization is 1935 bytes, current 1951. There are exactly two
+change groups: the 16-byte `SimpleMem`/alignment prefix inserted at serialized
+offset 1640, and the resulting relocation addend byte at offset 39 (0 -> 16).
+The raw retail EXE independently has `SimpleMem` plus padding at 0x80011018.
+The current source already contains the `SimpleMem_ClassName` materialization
+from `simplemem_apply.py`; neither source nor baseline was changed by this
+investigation. The data bytes are real, but the exact unused inline spelling
+and original header ownership still need evidence beyond a byte-layout helper.
+No reference replacement or exemption was made merely to unblock the gate.
+
+2026-10-09 `tPMenuItemLeftRightSlider::ProcessInput`: retail records only
+this/keyval/sound, not the reconstruction's max/value captures. Replace the
+five synthetic PMLeftRtSlide goto labels with a two-case switch whose arms
+both mark the key processed and set sound only when a value actually changes.
+Place `max = (u_char)fMaxVal` in the upper-clamp comparison after the real
+increment expression. The separate value local disappears while all 71 words
+remain exact. Ordinary standalone max initialization with no value was six
+load/copy scheduling diffs; the in-comparison assignment is the verified
+source-level difference. No new local name, fence, qualifier or output rewrite.
+
+Whole pausemenu.cpp receipts `run-e0tfln0f` and final `run-5zdarg47`: unchanged
+complete sections/layout, ASPSX 524/0, PSYLINK zero errors, 58 functions with
+55 native CLEAN and 3 DIRTY. The three retail target records retain their
+original types/homes/depths/order. Detailed neighbors pass: slider ProcessInput
+71, choice ProcessInput 35 and slider Draw 169. Vtable audit passes 1360 files
+and seven SLD checker tests pass. Native EXTRA issue rows fall 741 to 740;
+review-marker locations fall 862 to 861 (neither counts unique source objects).
+
+This is partial source restoration, not an original-text or SLD seal. max is
+still an unrecorded UINT in a2, explicitly SOURCE-REVIEW-UNRESOLVED rather
+than a generic necessity exemption. Its remaining declaration makes the switch
+emit five native regions, versus the former three and retail's single root.
+The target has 69/71 differing SLD tags and end delta 41 versus 27. Full
+native/strict coverage remains 2232/2565 and 606/2565. Removing max as well
+through direct ternaries (including signed/unsigned and INT/LONG casts) gives
+15 diffs at 70 words; two-arm direct stores are 12 or 14 at 71, and a flat
+if/else dispatch is 22 at 69. All failed variants are reverted. These are
+measured source basins, not proof of a distinct original max object or a floor.
+
+2026-10-09 constructor/foreground follow-up: direct fNumItems indexing in
+`tPMenuConstructor` is count-exact at 19, but ten instruction lines differ.
+It recomputes `(count+2)<<2` rather than using retail's independent a1 step.
+The source was restored; its old SOURCE-REVIEW comment is now an explicit
+SOURCE-REVIEW-UNRESOLVED marker, with no claim that offset was original.
+Existing GCC loop.c receipts for the independent-index variant still explain
+the unwanted pointer-walker reduction; this new memory-counter trial is a
+different measured failure, not a reason to stop source recovery.
+
+In `tScreenAudio::DrawForeground`, replace the reconstruction-only MenuDefs
+facade call/raw fade-field read with `menuDefs->menuAudio.GetScreenFade()`.
+Use the same nonvirtual field accessor already present in the recovered
+display/user-name type surface, making it visible in the track-info type
+surface consumed by audio. It adds no storage or virtual slot, and the new
+call still emits retail's receiver-free inline pair and exactly the same
+frame, ordered retail local records and all eight block tuples. The literal
+original accessor spelling is not supplied by SYM and remains an inference;
+this is not a unique-text claim or a solution for the extra fadeCalc.
+
+Combined fresh gate `run-c7ron3ej` covers 69 functions across audio, track-info
+and pausemenu, 61 native CLEAN/8 DIRTY: unchanged complete sections/layout,
+ASPSX 524/0 and PSYLINK zero errors. Track-info's legacy byte reference was
+freshly verified (zero new byte references, no replacement). Detailed audio
+foreground remains 68/68 PASS. Vtable audit passes 1360 files, seven SLD tests
+pass, and diff whitespace checks pass. No source/compiler-output/binary rewrite
+or new asm/volatile/fence was used. Native EXTRA rows remain 740; review-marker
+locations return to 862 because the previously undetected constructor review
+is now explicit, not because another source-only object was added.
+
+The fadeCalc/savedFadeCalc/zero-restore device remains unresolved. Direct
+short ownership is 18 diffs at 68; a structured short clamp is 24 at 68;
+moving the final fade assignment before a for-header loop is 7 at 69. All
+those failed variants were reverted, rather than substituting another device.
+The old in-body necessity paragraph was replaced by an external explicit
+review receipt. Full SLD is not sealed: fresh audio foreground has 60/68 tag
+differences and end delta 30 versus 17. The global native and strict counts
+stay 2232/2565 and 606/2565, and the active restoration goal remains incomplete.
+The broader `python tools/build.py --skip-asm --no-link` check also completed
+successfully after this shared type-surface addition, with no failed TUs.
+This is whole-project compilation proof, not a final linked-image match;
+the 69-function fail-closed/native-link gate supplies the completed byte/layout
+verification scope for this source round.
+
+2026-10-09 `tScreenAudio::DrawBackground` getter/member recovery: replace
+the optionsMenu capture and raw member reads with
+`menuDefs->menuAudio.GetScreenFade()` and `menuDefs->menuAudio.CurrentItem()`.
+The selector returns the existing signed-short interpretation of fCurrentItem;
+its inferred spelling follows the independently restored tPMenu accessor,
+not a name uniquely supplied by retail. Both methods are nonvirtual and add
+no storage/virtual slot. DrawBackground remains 154/154 PASS, optionsMenu
+disappears, and the missing retail inline this row reappears as PTR tOptionsMenu,
+REG:$3, depth2. The first two inline scope groups now exactly reproduce retail's
+0..0 and 84..228 groups, including the nested zero-length 228 records. Regions
+increase from four to nine, approaching retail's eleven rather than manufacturing
+padding regions. The missing pair at 368 remains a real source-recovery task.
+
+Also restore the five Percentage calls as actual
+tMenuItemLeftRightAudioSlider::Percentage members, using the existing SYM-named
+definition in femenuoptions.cpp and its native int result. The type surface now
+declares that real nonvirtual method, and the obsolete asm-label free-function
+alias is removed from screenaudio_externs.h. All nine ordered retail local
+tuples agree when the two remaining unrecorded fadeValue/displayPercent objects
+are excluded; frame312 and mask800f0000 remain exact. This is partial restoration,
+not full native CLEAN, complete source text, or SLD validity.
+
+Fresh combined audio/track-info gate `run-2jk9_feu` (also run-3nhjiqoe and
+run-77b5861f): every section/layout unchanged, ASPSX524/0, PSYLINK zero errors,
+11 functions, 6 native CLEAN/5 DIRTY. Detailed audio background/foreground
+are 154/68 PASS; vtable audit passes1360 files and seven SLD comparator tests
+pass. Native EXTRA issue rows fall740 to739. Review locations stay862 after
+retiring the old false necessity/SLD-exact assertions and explicitly marking
+the remaining percent-to-i coalescing assignment unresolved. Full native/strict
+coverage stays2232/2565 and606/2565. The target still has149/154 SLD tag
+differences and end delta90 versus61; no line padding or #line fix was used.
+
+Further carrier-removal trials were reverted. Direct percent<0 printf selection,
+unsigned/signed cast forms and widened long-long arms leave two tested-register
+differences at154. Reversed -1<percent selection changes allocation/frame
+(41 diffs at155); sign-bit extraction is42 at156. Assigning the selected value
+back to percent still leaves the same two lines. A direct nested static perfade
+clamp in the fourth CalcFadeVal argument is56 diffs at154. These are measured
+source graphs, not proof that either remaining local was original or required.
+No replacement local, fence, volatile, arbitrary scope wrapper or output rewrite
+was retained. The broad whole-project `--skip-asm --no-link` compile also
+completed successfully after the shared method additions, with no failed TUs.
+This supplies compilation coverage beyond the selected byte/native-link gate;
+it is not a whole-game final-image or complete-SLD certificate.
+
+2026-10-09 `tScreenAudio::PlaySound` native contract restored: use the actual
+signed-short CurrentItem accessor in both range tests and the switch, removing
+validItem and its former source-only Boolean funnel. The same ordinary &&
+condition that was short at229 with raw fields now preserves232/232 using
+the getter spelling. Add the inferred IsActive field accessor on the sliding
+widget: its real call, not artificial braces, recovers the three missing first
+scope regions. Restore the remaining status pair with an inferred inline
+FeAudio_SpeechIsBusy getter reading `ginfo.areLoading != 0 ||
+ginfo.soundIsPlaying != 0`. It replaces the short-pointer type pun and still
+emits retail's single LHU; no local object, mask alias, fence or opcode body
+is introduced. Raw EXE word944214f8 at80045c84 and exhaustive65536 byte-pair
+predicate checks independently support the packed-load and status semantics.
+
+Final gate run-cmx1_rf4 (also run-i5zkk3nz and run-qxmgggnh): all sections/
+layout unchanged, ASPSX524/0, PSYLINK zero errors. Audio/track-info cover11
+functions, now7 native CLEAN/4 DIRTY. PlaySound's six ordered local tuples
+and all38 brace/address/depth entries (19 regions) are exactly retail-equal.
+Detailed neighbors audio background/foreground remain154/68 PASS, and
+PlaySound remains232 PASS. Native CLEAN rises2232 to2233/2565, FC716 to717;
+local-contract-clean FC734 to735. Native EXTRA rows fall739 to738.
+
+This is NOT full source/SLD completion: PlaySound has222/232 differing source
+tags and end delta105 versus152. Strict coverage remains606/2565. IsActive
+and FeAudio_SpeechIsBusy have behavior-supported inferred names, not names
+uniquely supplied by SYM; both are now explicit ORIGINAL-NAME-UNRESOLVED
+locations. Review locations are863 (versus862 before the round), because
+name uncertainty is disclosed rather than hidden by native CLEAN. The reusable
+getter/packed-byte receipt is also recorded in the mandatory reconstruction
+methodology memory. The broad `--skip-asm --no-link` compilation after this
+shared accessor addition also completed successfully, with no failed TUs.
+This is compilation proof, not a whole-game linked-image or strict SLD seal.
+
+2026-10-09 `tScreenTrackInfo::ProcessInput` native contract restored: remove
+the unrecorded fee capture and raw definition/entry-fee byte-offset expression.
+Reuse the typed CurrentTourney accessor already present in the tournament
+owner and read its actual fEntranceFee member. Direct money += fee is eight
+load/result-register differences at39; unsigned negative-subtrahend arithmetic
+recovers retail's fee-first, money-second loads without a captured object.
+Separate the Triangle-key action from the current-track guard instead of using
+a comma-expression condition. An inferred CurrentTrack getter recovers all
+scope prefixes through the tourney lookup, bringing the region count3 to9.
+
+The last pair surrounds a mutator, not a money-reference getter: the latter
+is39 PASS but ends that pair at56 instead of140. An AddMoney inline mutator
+gets every block tuple right but creates an extra amount ULONG record in v1.
+An actual SubtractMoney unsigned mutator called with the computed negated fee
+preserves39/39 and removes that unrecorded argument capture. All four ordered
+retail parameter tuples and all22 brace/address/depth entries (11 regions)
+now agree exactly. No const disguise, extra local, fake reference use, scope
+padding or output rewrite was retained. Corresponding long/unsigned-long
+reference access preserves defined target word arithmetic; 100000 random
+and49 boundary word-pair checks independently agree with addition modulo2^32.
+That is an arithmetic receipt, not an entire-function runtime differential.
+
+Final gate run-crelg539 (also run-e4jctere): all audio/track-info sections and
+layouts unchanged, ASPSX524/0, PSYLINK zero errors,11 functions with8 native
+CLEAN/3 DIRTY. Native CLEAN rises2233 to2234/2565, FC717 to718; FC local-contract
+coverage rises735 to736. Native EXTRA issue rows fall738 to737. CurrentTrack,
+CurrentTourney, SubtractMoney and the mutator parameter have behavior-supported
+inferred names, not uniquely recovered inline spellings; three explicit
+original-name review locations are retained. Review locations are865, versus
+863 before this round (disclosing new name uncertainty while removing fee).
+
+The full goal remains incomplete: strict coverage stays606/2565 and the target
+still has37/39 SLD tag differences and end delta8 versus10. No whitespace/#line
+padding was used to mask these. Broader `--skip-asm --no-link` compilation
+following the shared accessor/mutator additions completed successfully with
+no failed TUs. This proves compilation, not whole-game final-image identity.
+Post-build repeat gate run-gkby127v again passes complete sections/layout,
+ASPSX524/0 and PSYLINK0, with vtable audit1360/1360 and seven checker tests
+passing. The previously recorded native contract is current after compilation.
+
+2026-10-09 `tScreenTrackInfo::DrawBackground` native contract restored: put
+i/trackConditions/trackInfo declarations in the retail order, initialize the
+track-list result before rather than inside the for header, and read the current
+track through the restored CurrentTrack accessor. That brings the first-loop
+start from0 to140 and restores the actual selector's zero-length180 pair.
+The state temporary then becomes a direct conditional argument without losing
+162/162 PASS, unlike the older raw-field37-diff trial. Both highlighted and
+screenInfo aliases can also be replaced by their actual enum constants at all
+four justified calls with162 PASS. All four ordered retail local tuples and
+all ten brace/address/depth entries (five regions) now agree exactly.
+
+Also restore trackManager.GetTrackByID and tournamentManager.GetTrackList /
+GetTrackToRace as actual members with their existing SYM-named owner signatures.
+The old explicit-receiver/asm-label free aliases are removed from the private
+extern header; no new virtual slot or storage is added. GetShapeInfo remains
+40 PASS and ProcessInput remains39 PASS. Final combined gate run-09thnz_b
+(also run-tjhfar8j/run-gf861wo9) has unchanged complete sections/layout,
+ASPSX524/0, PSYLINK zero errors,11 functions with9 native CLEAN/2 DIRTY.
+The later rg failure on a nonexistent fetrack.cpp in the first chained
+diagnostic was not a gate failure; independent subsequent gates succeeded.
+
+Native CLEAN rises2234 to2235/2565, FC718 to719, and FC local-contract coverage
+736 to737. Native EXTRA rows fall737 to734; review locations fall865 to863.
+The former four-item blanket identity exemption and outdated reference-price
+claims were retired. trackList is still explicitly source/original-name review:
+it holds the real once-returned pointer across drawing calls, but no caller
+local name is recorded by retail. Native CLEAN does not uniquely prove that
+original pointer spelling or clear its source review. The target still has
+149/162 differing SLD tags and end40 versus34; strict coverage remains606.
+No dummy declaration, fence, const disguise, arbitrary scope padding, #line
+change or compiler-output rewrite was used. Vtable audit1360/1360, seven SLD
+checker tests and whitespace checks pass. The broader no-link compile after
+the method-declaration restoration also completed successfully, with no failed
+TUs. This is compilation proof, not whole-game final-image or full-SLD proof.
+Post-build repeat gate run-3jyhsi49 again passes sections/layout, ASPSX524/0,
+PSYLINK0, vtable audit1360/1360 and all seven checker tests.
+
+2026-10-09 `tScreenTrophyInfo::GetShapeInfo` partial source recovery: the two
+variable-free retail inline pairs are reproduced by the two definition reads
+through an inferred Definition accessor. It returns the actual fDefinition
+pointer with no new storage or virtual slot. Change the frontend tier capture
+from a widened UINT to its actual byte value; native feTier disappears, but
+that debug elision does not certify a distinct original source object or name.
+Remove the artificial capture scope and fuse the staged idx into typed
+fTournaments pointer formation. idx is actually deleted, not renamed or moved
+into a helper. All76 words and all five retail address/depth scope regions
+remain exact, as do every ordered retail-known local/parameter tuple.
+
+Fresh final gate run-bpkxiwzd (also run-l5zg_1v8): complete sections/layout
+unchanged, ASPSX524/0, PSYLINK zero errors; target76 and neighbor298 remain
+detailed PASS. The target still has the extra placement SHORT row, so the TU
+remains0/2 native CLEAN; global native/strict counts stay2235/2565 and606.
+Native EXTRA issue rows fall734 to733, but source-level feTier/currentTourn
+captures remain explicitly unresolved along with placement. Review locations
+are861 versus863 before the round after grouping their named review receipt
+and removing obsolete idx/hack-history claims; this is not a count of uniquely
+restored objects. Definition's literal original spelling is explicitly unknown.
+
+Failed experiments are reverted: direct placement selection using a signed
+getter or split range condition is41 diffs at77 words; raw conditional index
+is27 at73. Removing the frontend tier capture entirely is8 at76; deleting
+the tournament-byte capture is14 at76 (room-first sum) or20 at76 (negative
+subtrahend). An index-first integer address eliminates idx but changes12 lines
+at76; the retained typed-array/comma form instead preserves76 exactly. No const
+disguise, dummy reference, new fence, arbitrary wrapper scope or output rewrite
+is used. The misleading historical postcompile-move instructions were removed
+from source; this target has no corresponding move entry in current build.py.
+The remaining aliases are not declared required from these finite failures.
+
+Full SLD remains unsealed:65/76 tags differ and end18 versus14. Whitespace
+checks, vtable audit1360/1360 and seven checker tests pass. Broader no-link
+compilation after the private type-surface addition completed successfully,
+with no failed TUs. This is compilation proof, not full source/image identity.
+Post-build repeat gate run-8tqbfuu5 again passes complete sections/layout,
+ASPSX524/0 and PSYLINK0; vtable audit1360/1360 and all seven tests also pass.
+
+2026-10-09 `tScreenTrophyInfo::DrawBackground` partial source recovery:
+use the same inferred Definition accessor at both definition reads, remove
+the old staging wrapper, and keep the frontend tier in its actual byte type
+rather than a widened UINT. All nine ordered retail-known local/parameter
+tuples and all14 brace/address/depth entries (seven regions) now agree, with
+298/298 detailed PASS and every section/layout unchanged. Native feTier
+disappears, but the source capture does not: byte debug elision is explicitly
+not an original-object/name clearance. The remaining tournID INT row is still
+unresolved, and tourn/currentTourn/feTier still have named source-review work.
+
+Signed-char tournID changes the load/promotion and global allocation (46 diffs
+at300/298); reuse of the recorded but not-yet-live i produces158 at298. Both
+were reverted. The i trial was a dead-phase/type/home test, not an accepted
+rename of an unrelated carrier merely to hide its name. Old comments claiming
+the current-tournament staging was required are now an explicit review receipt,
+not a generic exemption or a source-floor claim.
+
+Final gate run-35jykl50 (also run-y7uisge2/run-w3szmvjb): ASPSX524/0, PSYLINK
+zero errors, complete byte/layout gate unchanged. Both owner functions remain
+PASS298/76 and the TU remains0/2 native CLEAN; global native/strict counts stay
+2235/2565 and606. EXTRA issue rows fall733 to732. Review-marker locations
+fall861 to858 from replacing four stale carrier comments by one named review
+receipt, not from restoring four original objects. Full SLD is still unsealed:
+the drawer has288/298 differing tags and end90 versus86. Vtable audit1360/1360,
+seven checker tests and whitespace checks pass. This body-only round changes
+no shared header; its completed verification covers the entire owner TU and
+the full native link, not a newly claimed whole-project compile or runtime run.
+
+2026-10-09 finish/commit checkpoint: `tScreenPinkSlipCongrats::CalculatePrizes`
+no longer has the caller's unrecorded player capture. The real two-call inline
+license update takes the computed loser argument, preserves all68 instructions
+and reproduces retail's receiver-free +0..+0 inline pair. Ordered this/carinfo
+types, homes, depths and all six brace/address tuples agree. ReplaceLoserLicense
+and its formal player spelling are explicitly inferred, not recovered names.
+The old direct-two-call failure does not prove that a caller local was required.
+The owner gate run-1l6dllfm has unchanged complete sections/layout; the target
+was rechecked twice after comment cleanup and remains68/68 PASS. No new asm,
+volatile, register pin, dummy use or post-recompile rewrite was introduced.
+
+Final combined exact-path gate run-zxjgm1tz covers32 TUs, including the changed
+bodies and shared-header consumers:730 covered functions,641 native CLEAN,
+89 DIRTY. All four-section bytes/layout and debug/normal code are unchanged;
+ASPSX524 good/0 bad (11 frontend-overlay objects), PSYLINK zero errors.
+The full `python tools/build.py --skip-asm --no-link` reconstruction compile
+also completed with no failed/skipped TUs. This is compilation and native-link
+proof, not a complete final-image/runtime or original-source certificate.
+An initial fragment-only selector also selected unrelated mod TUs and stopped
+at missing references before compiling; exact recon paths fixed the selection.
+No retrospective reference was created or overwritten.
+
+Fresh native snapshot:2236/2565 CLEAN, FRONTEND/COMMON720/838; local-contract
+coverage FC738/838, FP69/85, GC1179/1247, GP300/395. Strict native+SLD stays
+606/2565. Native EXTRA issue rows fall732 to731; lexical review-marker locations
+remain858 (not unique objects). CalculatePrizes still has61/68 differing SLD
+tags, unequal block lines and end delta41 versus23, so it is not SLD sealed.
+Inventory self-test, vtable audit1360/1360, seven SLD comparator tests and
+whitespace checks pass. The checkpoint excludes unrelated audiocmn line-ending
+state, mod edits, untracked/generated files and external memory documents.
+The main restoration goal remains incomplete and is paused at the user's request.
 
 Retail-only functions and incomplete eaclib/syslib data are outside these
 common-function counts. Unrecorded const aliases and inferred inline helper
@@ -11669,3 +12110,1270 @@ and zero PSYLINK errors. The vtable audit passes across1360 files and
 git diff --check passes. Commit only aistate.cpp and this ledger, excluding
 unrelated user/mod changes and generated artifacts, then push main and pause
 at the user's request. This checkpoint does not seal full source/SLD exactness.
+
+### AISTATE guard/accessor scope repricing (2026-10-08, resumed)
+
+Fresh baseline and restored full gate run-fgraqnf0 confirm SetUp87/87,
+DoNitrous83/83, ApproachTargeting195/195 and Donuts319/319 PASS. All42
+TU functions preserve their complete byte/layout snapshots, with34 native
+CLEAN/8 DIRTY, ASPSX524/0 and zero PSYLINK errors. Source experiments below
+are fully reverted; this round does not increase native CLEAN coverage.
+
+DoNitrous differs in only one native scope endpoint: the outer guard starts
+at+48 rather than retail+0. Its recorded locals already match. A combined
+positive guard/direct global comparison is2dif/83; negating the opposite
+comparison and a negative guard with swapped comparison operands retain
+that load-movement difference. A nested positive guard with the original
+const tick snapshot is83/83 but8 scopes versus7, inline this at depth5
+versus3 (run-q_k31o2z). A sequenced tick assignment in the positive guard
+adds xori,84/83 and3 diffs. The negative short-circuit rejection with that
+same assignment and an else body is83/83 and reproduces every retail scope
+tuple, but emits EXTRA currentTick REG:$2 (run-yh8d5xgk). Thus the combined
+guard/else shape and the snapshot's debug identity are separable issues;
+the next angle is compiler expansion of the tick/getter comparison, not
+fabricated empty regions or a generic assertion that a tick object existed.
+
+SetUp's second inferred inline accessor currently spans+60..+84; retail's
+pair is zero-length at+84. Moving its sign selection to the caller while
+making the helper return raw currentSpeed is87/87 and full bytes unchanged
+(run-w8sefjg_), but gives+60..+60, still not the retail pair. A second
+direction setter with direct delayCar currentSpeed is9dif/86 versus87;
+a long-long address round-trip is identical to that failed result. All are
+reverted, including the temporary misleading raw-speed helper definition.
+The four-pair count alone does not prove the original accessor spelling.
+
+Fresh SLD reports after restoration remain DoNitrous72/83 tag differences,
+end+47 versus+22; SetUp82/87, end+43 versus+30. No line padding, fake uses,
+new qualifiers, ASM, compiler flags, reference replacement or post-compile
+rewrites were applied. RovingTraffic's older claim that two extra scaled
+locals were required by the oracle is corrected to explicit unresolved
+review: historical failed in-place shifts do not prove original objects.
+Its old SLD-VERIFIED label is withdrawn; the current native report still
+lists both extras and1 scope versus retail7. No semantic identifier is
+renamed or asserted original, and the whole-source goal remains active.
+
+### RovingTraffic raw-vector staging removes two unsupported locals (2026-10-08)
+
+Reprice Execute__21AIState_RovingTraffic after reviewing the retail records
+and the independent M2C func_80071A68.c body. Its six missing scope regions
+all belong to the search/guard tail, not the earlier vector calculations.
+Moving each loop's initialization/increment into an exit-in-body for header
+preserves233/233 and all whole-TU section/layout bytes (run-j9unp56y), but
+does not recover those six empty regions. Do not add invented inline calls
+or dummy declarations solely to create them.
+
+Fused subtract/shift assignments remove the raw component stores and give
+38dif/231 versus233. Instead store all three raw carRelativeForDistance
+components first, then shift x and z in place, after the z subtraction.
+This retains233/233 and removes both scaledDistanceX/scaledDistanceZ,
+without replacing them with aliases, invented names, qualifiers or fake
+uses. The earlier17/38 early in-place-shift failures were placement-specific,
+not evidence that distinct source objects were required. The independent
+M2C view confirms the raw and shifted frame stores and the value order;
+the actual retail compiler/oracle remains the matching authority.
+
+Final run-4s5147a0 verifies complete TU bytes/layout UNCHANGED, ASPSX524/0,
+zero PSYLINK errors,42 functions34 native CLEAN/8 DIRTY. Independently parsed
+parameter/local name/type/home/depth/order tuples are now exactly retail's
+six rows: this, search, status and the three coorddef objects. The remaining
+native issue is1 scope versus7; this is a partial source-restoration win,
+not a fully SYM/SLD-exact function. Fresh SLD is226/233 tag differences and
+end+96 versus+52. No padding/#line or output rewriting is used. Detailed
+regressions also pass GotoSlice70, SetUp87, DoNitrous83, ApproachTargeting195
+and Donuts319; the vtable1360-file and whitespace audits pass. The whole
+native2221/2565 and strict583/2565 counts remain unchanged.
+
+GotoSlice signed-clamp probes are all reverted: alias-free nested clamps
+30dif/74 versus70; predicate/result selection33dif/83; actual conditional
+limit assignments with no inRange variable18dif/70; reversing their sign
+arms remains18dif/70 with different branch polarity. A single scope-free
+comma/void store, removing both ref-count identities, is18dif/72. The
+count-exact no-predicate form isolates the remaining desiredSpeed/limit/
+anonymous-condition register handout; these measurements are not an
+original-object proof or a reason to retain generic source exemptions.
+The original byte-PASS body is restored and its four extra locals remain
+in the review queue. Only the verified RovingTraffic reduction is retained.
+
+### Clamp allocator diagnostics, without source regressions (2026-10-08)
+
+Camera_UpdateTVCam's assignment-bearing min/max probes do not restore the
+retail anonymous result. Assigning height in both the test and selected arm
+is35dif/88 versus83; assigning only in the test is32dif/87 with TVHeight-first
+MIN and33dif/86 with height-first MIN. Assigning only in the selected arm is
+29dif/84. All are reverted; these are different tests from the earlier pure
+nested MIN/MAX forms, not evidence that clampedHeight was an original name.
+
+BTCGetGlueFactor pointer-selected table access is22dif/113 versus111;
+index-first integer addressing with a pure nested clamp is also22dif/113.
+Max-first nested clamps are24dif/115; staging the max/min in existing glue
+is13dif/110. A real statement-expression clamping glueIndex in place is
+24dif/111, or22dif/111 with index-first address construction. Conditional
+boundary assignments in the ordinary table subscript also give24dif/111.
+All are reverted, and no statement-expression scope is retained or exempted.
+
+The instrumented cc1plus-ecoff diagnostic uses the real AISPEEDS -G8 and
+-fno-implement-inlines identities, plus its documented compatibility flags.
+It exits33 on a later GetScriptFactor internal compiler error: do not claim
+whole-TU fidelity or successful compilation. The earlier completed BTC
+function has an exact114-line normalized compiler instruction stream. Its
+assembled444-byte body differs from the production object only in three
+R_MIPS_26 .text jumps, because preceding function sizes shift its section
+offset by16. Those three jumps have identical function-relative targets
+(offset b8->48,100->198,138->144); every other word and the full relative
+relocation contract agree. This is a diagnostic semantic comparison in
+memory, not an instruction/output rewrite or production reference change.
+
+allocsim reproduces all11 baseline global assignments. Baseline glueIndex
+is p110:a0 (refs4/live6), the unrecorded clamp result is p112:v1 (4/9), and
+glue is p111:a0 (11/13). Baseline p112 has a v1 copy preference, which keeps
+the conflicting p110 out of v1. In the count-exact in-place expression,
+p112 disappears and the table base is global p119 (2/18), not a short-lived
+post-clamp address. p110 becomes v1 (6/10); p111 remains a0 (11/13), with its
+preferences reduced from v1/a0 to a0. The trial's115 compiler instruction
+lines also agree, and its global model again matches11/11. reqdelta prices
+p110:a0/p111:a0 as p110 refs6->1 or p119 refs2->8, within the tested16-step
+range. These numeric dials are diagnostics, not permission for dummy uses,
+fake loops, fences or a source-object exemption. The next source angle must
+recover the anonymous result/copy preference and address lifetime naturally.
+
+Ignored diagnostic artifacts are under scratch/sym_allocator_20261008,
+including baseline/trial .greg/.lreg files and instrument traces. Final normal
+combined gate run-41bqo_i4 covers109 functions across aistate/camera/aispeeds:
+complete bytes/layout UNCHANGED,93 native CLEAN/16 DIRTY, ASPSX524/0,
+PSYLINK zero errors, target83/83 and111/111 PASS. The1360-file vtable audit
+and whitespace checks pass; no camera.cpp or aispeeds.cpp content change is
+retained. The previous verified RovingTraffic reduction remains intact.
+The full source/SYM/SLD objective is still active and incomplete.
+
+### Control caller aggregate declarations restored (2026-10-08)
+
+SUPERSEDED REPRESENTATION: the full-body includes/member-access form below
+passed bytes but added aggregate type records absent from retail control.obj.
+The following caller-visibility correction replaces it; do not treat the
+historical byte gate as a full type-surface certificate.
+
+Control's reconstructed extern header declared simGlobal as int[2], Input_gSim
+as int, and GameSetup_gData as int[12]. Those views hide real owner types and
+member names recoverable from retail SYM: Sim_tSimGlobalVar size24 at record
+345234, Input_tResults size4 at2935a3, and GameSetup_tData size2600 at2874b5.
+Use the existing canonical shared headers and typed extern declarations,
+without allocating any new storage or altering the owning definitions.
+
+Replace the CONTROL_GAME_TICKS/CONTROL_INPUT_*/CONTROL_MIRROR_TRACK surrogate
+macros with actual gameTicks, steering, gas, brake, flags and mirrorTrack
+member accesses. Preserve the signed steering interpretation explicitly with
+(signed char)Input_gSim.steering; the canonical field remains retail's CHAR,
+while this consumer's lb/divide behavior is signed. No new field spelling,
+alias, qualifier, helper, flag or output rewrite is introduced. The complete
+GameSetup leaf providers already arrive through color_types.h; no duplicate
+structure definition or unrelated header edit is needed.
+
+Fresh native control compiler debug records independently give aggregate
+sizes24/4/2600, gameTicks offset4, steering/gas/brake/flags offsets0/1/2/3,
+and mirrorTrack offset44. Control_AI2/2 and Control_Human288/288 remain PASS;
+whole control bytes/layout are UNCHANGED (run-12x785k2 and run-y259_mmp),
+ASPSX524/0, PSYLINK zero errors. Control_Human still has7 regions versus
+retail8 and285/288 SLD tag differences, end+140 versus+197. Its debug-elided
+lights spelling remains unresolved. Do not count this caller type/field fix
+as a full native or SLD function seal; native2221/2565 and strict583/2565
+coverage remain unchanged.
+
+Known repair queue, not an irrecoverable-name exemption: a fresh GAME/COMMON
+extern-header scan still finds18 raw simGlobal/GameSetup_gData array views in
+14 headers: aicop, dashhud, chunk, scene, physics, trgsfx, simqueue, stats,
+aitune, souffle, aitriger, ailife, aiphysic and aispeeds. Audit each consumer's
+typed members/offsets and whole-TU byte/layout/link contract before changing
+it. The owner aggregate records are known; this is recoverable declaration
+debt omitted by the function-contract-only coverage percentage, not absence
+of authoritative types. Raw views must not be treated as fully restored
+source just because their functions pass the normalized instruction gate.
+
+The scope experiments preceding this landing are not retained. Collide's
+for-with-condition expression remains128/128 but adds one region (7/6);
+a real whole-loop expression remains128/128 but loses a region (5/6).
+GetLegalSpeed's reuse of slice for the return value remains17/17 with the
+same early root close and adds two SLD differences. Clock void return-call
+expressions remain43/43 but leave the root at+9c rather than+90 and worsen
+SLD30->34. Flat parity rejection without snapshot/fence is3dif/42 versus43;
+retaining the old fence gives two schedule differences at43, moving it
+before the generic increment is12dif/43, and duplicated increment arms
+are37dif/50. All are reverted; these finite failures are not source floors.
+
+Final regression run-ys6smx_5 covers90 functions in control, clock, collide,
+aispeeds and aistate: complete bytes/layout UNCHANGED,73 native CLEAN/17
+DIRTY, ASPSX524/0 and zero PSYLINK errors. Restored detailed targets are
+Clock43, Collide128 and GetLegalSpeed17 PASS; the1360-file vtable audit and
+git diff --check pass. Clock/collide/aispeeds have no retained content diff.
+Fresh GetLegalSpeed SLD returns to0/17 with end+9 and its existing block
+boundary issue. The earlier RovingTraffic two-local reduction is preserved.
+Only control.cpp/control_externs.h/control_types.h and this evidence ledger
+are added to the current verified work; unrelated user/mod edits stay intact.
+
+### Caller visibility correction and opaque aggregate references (2026-10-08)
+
+The owner record alone does not prove every caller saw the complete type.
+sym_saw_type confirms retail control.obj emits neither Sim_tSimGlobalVar,
+Input_tResults nor GameSetup_tData; aicop/AITUNE/chunk also omit GameSetup's
+body. Therefore the preceding full-body imports made the type surface less
+retail-exact despite unchanged instructions. Withdraw those imports and the
+direct Control member-access representation. Keep canonical Sim/GameSetup
+identities as opaque declarations and use their proven INT field offsets4
+(gameTicks) and44 (mirrorTrack), without inventing caller array extents or
+duplicating foreign aggregate definitions. Existing macro spelling is still
+reconstruction compatibility, not asserted original.
+
+Input's opaque declaration changes address expansion: Control_Human becomes
+282/288 with26 diffs. Restoring its existing four-byte int view recovers288
+while retaining the other two opaque declarations (run-wsk_rlvi). No unused
+Input forward declaration is retained. Owner CHAR/UCHAR offsets0/1/2/3 and
+the signed steering interpretation remain documented; this caller view is
+an explicit recovery item, not a claim that the owner aggregate is an int.
+
+AITUNE and CHUNK now use opaque GameSetup_tData declarations plus the proven
+track INT@60 and commMode INT@12 views. All7 tuning functions and4 chunk
+functions preserve complete object snapshots; detailed getters22/16/16 and
+chunk329/2/2/2 remain PASS. Keep CHUNK_COMMMODE compatibility for the existing
+mod caller; that override compiles independently into ignored
+scratch/opaque_globals_modcheck_20261008 without touching user/mod source.
+The raw-array scan's18 entries decrease to16 across12 headers; that count
+does not include Input's remaining scalar view and is not a completion metric.
+
+AICOP's opaque/offset trial makes StartUp41/43 with10 diffs, although Restart20
+and CleanUp24 stay PASS. It anchors the held pointer at cops+20 rather than
+the retail aggregate base, shifting the track displacement60->40. A word-view
+array cast is identical to that failed result. Both are reverted; the original
+43/20/24 bodies and header contents are restored. No reference was replaced.
+Next investigate address-anchor lifetime, not a blanket import of the owner
+header or an assertion that the guessed sixteen-word interface was original.
+
+Final run-6se08870 covers control/aitune/chunk/aistate:55 functions45 native
+CLEAN/10 DIRTY, complete bytes/layout UNCHANGED, ASPSX524/0, zero PSYLINK
+errors. Independent fresh debug-assembly assertions find no foreign Sim/
+Input/GameSetup tag records in control and no GameSetup tag records in
+AITUNE/chunk, agreeing with the retail visibility check. The1360-file vtable
+audit and whitespace checks pass. Native function coverage and strict SLD
+counts are unchanged; pre-existing scope/local review issues remain. This
+corrects an inadequate prior validation claim and retains only byte-verified,
+caller-visibility-aware declaration changes. The full goal remains active.
+
+### Opaque caller references: scene/lifetime/trigger/physics timing (2026-10-08)
+
+Retail FILE/type-block checks confirm GameSetup_tData is absent from scene,
+AILIFE and simqueue, and Sim_tSimGlobalVar is absent from aitriger, physics,
+stats and TrgSfx. Do not import their full bodies into these callers.
+
+Retained: scene and AILIFE replace guessed int[16]/int[13] declarations with
+opaque GameSetup_tData identities and the proven track INT@60/reverseTrack
+INT@48 views. aitriger and physics replace simGlobal int[2] declarations
+with opaque Sim_tSimGlobalVar identities and gameTicks INT@4. No new type
+body, storage definition, field name, qualifier, helper or compiler flag is
+introduced; compatibility macro spellings remain explicitly not original.
+The isolated source-header consumer scan finds only their reconstruction TUs.
+
+The simqueue replacement is not retained: its complete text/layout gate moves
+while scene/AILIFE/aitriger remain identical. Restore its original two views
+and re-gate all four:44 functions43 native CLEAN/1 DIRTY, complete bytes/layout
+UNCHANGED, ASPSX524/0, PSYLINK zero errors (run-5pnhttw1). The field identities
+commMode@12 and numPlayerRaceCars@968 are known; preserving the whole-object
+address strategy remains a separate source task, not an unknown owner type.
+
+Stats and TrgSfx opaque trials are also reverted. An independent section-hash
+check proves these are real text changes, not the older SimpleMem-reference
+false alarm: stats text4608 has a differing digest at the same size; TrgSfx
+text2456 versus reference2464. Their rodata/data/sdata all match the saved
+references. Physics text20224/rodata76/data176/sdata52 all match, so retain
+only its timing declaration cleanup. No failed object is left in the normal
+build cache and no reference is replaced to hide the discrepancy.
+
+Final run-qxdrjtva covers all seven tested TUs, including the restored queue,
+statistics and trigger-effect bodies:84 functions75 native CLEAN/9 DIRTY,
+complete bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors. Fresh native
+debug-assembly assertions find no foreign aggregate records for the retained
+scene/AILIFE/aitriger/physics declarations. The1360-file vtable and whitespace
+audits pass; the failed three extern headers have no retained content diff.
+The raw-array queue now contains12 declarations across9 headers, plus
+Control's separately tracked four-byte Input view. Native function and strict
+SLD coverage are unchanged: this round improves caller identities without
+claiming complete source text, macro spelling, type-surface or SLD restoration.
+The full goal remains active and the remaining address/copy-lifetime work is
+not classified as a compiler floor.
+
+### External extents and false car-record proxies (2026-10-08)
+
+Retained: remove seven guessed GameSetup word-array bounds from aicop16,
+aispeeds22, simqueue243, stats48, dashHUD274, physics247 and TrgSfx4. These
+callers do not own the2600-byte aggregate; unsized external word views do
+not falsely assert smaller whole-object extents. The views themselves and
+their macro spelling still require source recovery; this is not a replacement
+for canonical aggregate identity or a claim that the owner is an int array.
+All seven complete TU byte/layout snapshots stay unchanged. Small declared
+Sim views are not changed blindly: their size affects address expansion.
+
+More substantive wrong-object debt is now explicit rather than presented as
+an accepted source shape. Dashboard HudSpeed/HudSpeedMult and physics
+Transmission are GameSetup carInfo members, not Car_tObj::N.damage elements.
+Retail records carInfo at980,9 rows of180 bytes, and the component members
+Transmission@8/HudSpeed@112/HudSpeedMult@116. Both caller type streams already
+contain GameSetup_tCarData but not GameSetup_tData. Current legacy proxies
+reach aggregate988/1092/1096 through over-indexed damage arrays. Their bytes
+are correct; their source object/field ownership is not restored.
+
+Direct typed car rows preserve DashHUD_InitHUD's77 words but change8:
+the induction pointer starts at owner+980 and uses112/116 instead of the
+retail aggregate-base pointer with1092/1096 displacements. Index-first and
+long-long address variants leave that same bias. Field-offset byte views
+and pointer-to-member forms instead give36dif/79; a650-word bound/index
+view gives49dif/82. Both complete dashboard/physics gates move for all
+these candidates. Fully revert them; no false type, wrong field replacement,
+attribute, qualifier, new helper, reference change or output rewrite is used
+to clear the gate. The legacy proxies remain marked SOURCE-REVIEW-UNRESOLVED,
+with the known real member contract and a specific induction-anchor task.
+
+A dashboard opaque simGlobal trial also moves the normal text and is reverted.
+AIPHYSIC's existing unsized Sim view is not rewritten across its many uses
+without a separate verified address strategy. These remaining views are not
+proven original merely because they compile or match normalized instructions.
+
+Final run-5nmmqw4r covers all seven extent-cleanup TUs:87 functions76 native
+CLEAN/11 DIRTY, full bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors.
+Detailed DashHUD_InitHUD77/77 re-gates PASS. Fresh debug-assembly checks find
+no foreign GameSetup body in any of those callers. TrgSfx's isolated final
+gate is11/11 native CLEAN with unchanged bytes/layout (run-k5apw__e).
+The1360-file vtable and whitespace audits pass. Native/strict SLD coverage
+counts remain unchanged; the12 raw array-view declarations and Input scalar
+view remain a type/interface review queue even though seven false bounds
+are removed. The full source-restoration goal remains active and incomplete.
+
+### CopSpeak narration distance member and SLD regression repair (2026-10-08)
+
+CopSpeak_Play's raw signed halfword at car+0x8e is not an unnamed field.
+Retail MOS records identify N.distToPlayer as INT at0x8c (0273ad/02794d);
+the fresh compiler type graph independently emits distToPlayer at140.
+Replace both raw reads with r->car->N.distToPlayer>>16. On little-endian
+R3000 this is exactly the signed high-half load, without assuming a noise
+range or changing a declared type. Exhaustive checks cover all65536 high
+half patterns at four low-half values (262144 tests); both forms ignore
+the low half, and the subsequent +32/upper127 clamp agrees too. No new
+field spelling, source variable, cast qualifier, helper or ASM is introduced.
+
+Fresh baseline measurement also exposed a stale SLD-VERIFIED representation:
+the two-line scaled review comment had shifted80/86 instruction tags by one
+line and end+55 versus+54. Compact that review text to one line, rather than
+pad source gaps or add #line. New source remains86/86 PASS and now gives
+0/86 relative SLD differences, exact block-line sequence and end+54/+54.
+Place the distance-member explanation outside the line-bearing function.
+This repairs a verification regression, not a claim to recover unique original
+comment text or the remaining scaled identifier.
+
+The scaled-removal experiments are reverted. Factoring129 first and then
+multiplying the master level is8dif/86; master-first is17dif/87. An unsigned
+32-bit inner factor cast does not alter17dif/87. A64-bit inner factor adds
+an8-byte frame slot and gives44dif/92 (frame64 versus56), so it is not retained.
+Those outcomes isolate evaluation/register ownership and widen-mode costs;
+they do not prove a separate historical source object or a compiler floor.
+
+Whole speech gate run-4uw0uh8p:27 functions25 native CLEAN/2 DIRTY, complete
+bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors. Detailed Play86 and
+Request79 PASS; the1360-file vtable and whitespace audits pass. The two
+native extras remain scaled and queueHeadSnapshot. Raw GAME/COMMON SLD-exact
+coverage rises372->373/1247, but strict native+SLD remains372 and whole strict
+583/2565 because Play is not native CLEAN. Native2221/2565 is unchanged.
+The complete source/SYM/SLD goal remains active; no completion exemption is
+created for either extra local or its original-name backlog.
+Final explanation-outside-body gate run-mior6quh again preserves all27 TU
+function bytes/layouts,25 CLEAN/2 DIRTY and the target's exact SLD contract.
+
+### CopSpeak_Play scaled removal: native and SLD exact (2026-10-08)
+
+Replace the21 signed r->bank pointer reinterpretations with ordinary
+(signed char)r->bank conversions, and the low-byte bnkID read with an
+explicit u_char numeric conversion. These preserve the target sign/byte
+protocol and every whole-TU instruction/layout without aliasing a differently
+typed lvalue. Statement lines are unchanged; no new variable/qualifier is used.
+
+Canonical PsyQ4.3 STRINGS.H supplies strncmp(char*,char*,int) and an int
+strlen result with the intended char* argument. Declare them before the
+inline Speech::CarBankName comparisons, instead of relying on implicit/late
+declarations. Remove speech_externs' conflicting unsigned/variadic placeholders;
+declare strcmp before CopSpeak_StartUp too. The four preprocessed consumers
+are cars, copspeak, nfs3 and speech. Before/after full gates preserve158
+function snapshots and link without errors (baseline run-4kl61n02,
+prototype run-ppo1ax22). No build flag or production compiler is changed.
+
+The diagnostic instrumented compiler initially exits33 in CarBankName::Full
+and, with early strlen declared, at its builtin declaration. The diagnostic
+no-builtin compatibility route then reaches StartUp's undeclared strcmp;
+its proper declaration lets the compiler complete Play before a later
+ShowQueue error. It still exits33: no whole-TU fidelity is claimed. Completed
+Play's86 instruction words, function-relative local jump targets and named
+relocation references agree with the production object. Missing diagnostic
+global definitions are not certified or substituted; all normal objects,
+references and the linked native lane remain untouched. No Request allocator
+fidelity is asserted merely because its normalized compiler text matches.
+
+The decisive local-alloc comparison is block9. Original scaled quantity has
+5refs/8life (priority1.25) in v1, sum4/6 (1.3333) in v0, master2/4 (0.5) in a0.
+An anonymous factor-first multiply-by129 gives the factor3/6 (0.5) in a0
+and master4/10 (0.8) in v1:8dif/86. Explicit repeated shift/add arithmetic
+without narrowing is reassociated and gives17dif/87. Narrowing the repeated
+factor to signed short prevents that early rewrite without changing its
+value. Factor-first then leaves only the multiplication operand order (2dif/86).
+Put the master operand first:86/86 PASS with no scaled declaration, alias,
+replacement source object, fake reference, fence, phony loop or flag override.
+
+Range proof: null-car noise48, or signed high-half distance+32 capped at127,
+gives noise in[-32736,127], hence factor128-(noise>>2) in[97,8312]. It fits
+signed16; both shift/add terms and their sum fit signed32. Exhaustive65536
+distance-high-half patterns plus the null default verify conversion and sum
+identity. The same factors feed the same signed32 master multiplication.
+Final trace quantity p119 has5/8/v1, p1284/6/v0 and p1292/4/a0, recovering
+the actual retail handout through real arithmetic uses, not a synthetic dial.
+
+Final four-consumer gate run-hotr1s_5:158 functions150 native CLEAN/8 DIRTY,
+complete bytes/layout UNCHANGED, ASPSX524/0 and zero PSYLINK errors. Independent
+target tuples match every parameter/local/type/home/depth/order and scope.
+Linked SLD is0/86 with exact block lines and end+54/+54. Play86 and Request79
+re-gate PASS; vtable1360 and whitespace checks pass. COPSPEAK rises25->26/27
+native CLEAN; only Request's queueHeadSnapshot remains native EXTRA there.
+Global native2222/2565 (86.63%), GAME/COMMON1156/1247 (92.70%), strict whole
+584/2565 and strict GAME/COMMON373/1247. Literal historical macro/expression
+spelling remains unproved; native+SLD exactness is not unique original-text
+recovery or completion of the full project goal. The goal remains active.
+
+### 2026-10-08: Fog_Update named-value restoration and review inventory
+
+Fog_Update__Fi remains81/81 PASS. Attach retail final_dist REG:$5 to the
+complete interpolated/copied distance, not merely the interpolation delta;
+remove the unrecorded start local. Outer-destination assignment
+`Fog_gCurrentKey[player] = (key = Fog_FindKey(...))` removes slot while retaining
+the saved address web. Reversing that chain was2dif/81 and is not retained.
+Declare numslices in its real wrap branch and remove the extra outer braces
+after the inactive-key early return. Every named local now matches retail's
+name/type/home/depth/order, including numslices REG:$3 at depth5. No new
+source object, asm, volatile, register pin, fake reference or output rewrite.
+
+Final gate run-wr5jana2: all16 TU functions covered, complete four-section
+bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors,12 native CLEAN/4 DIRTY.
+Fog_Update is NOT sealed: one depth2 region ends+200 rather than retail+292;
+the other scope boundaries match. Source-arm destination stores, both with
+and without the interpolation early return, were6dif/83 versus81 and reverted
+(run-s6m9xvju, run-5q49chdj). Fresh SLD comparison remains64/81 tag differences,
+end+38 versus+44. Detailed Fog_FindKey neighbor remains37/37 PASS. The old
+slot-necessity and SLD-VERIFIED heading claims were withdrawn.
+
+Added read-only tools/source_review_inventory.py with tested trivia masking,
+synthetic-name candidate detection, native local-contract classification and
+directory fixtures. It excludes mod/game-mod/syslib-mod trees and writes only
+an ignored diagnostic JSON; it neither rewrites source/SYM nor certifies input
+freshness. Current covered local contracts: frontend/common731/838,
+frontend/psx68/85, game/common1179/1247, game/psx296/395 (2274/2565 total).
+Native EXTRA rows760; lexical review-marker locations878 across1311 source
+files. Zero lexical synthetic-name candidates is NOT proof of zero source-only
+aliases or full restoration. Native2222/2565 and strict584/2565 remain unchanged.
+
+The saved whole reconstruction compilation `build.py --skip-asm --no-link`
+completed exit0 without skipped TUs before this Fog round. This proves full
+compilation, not a full retail-image or whole-project oracle comparison.
+Final vtable audit passes1360 files; whitespace check passes. Existing unrelated
+user/mod edits and references are preserved. The full restoration goal remains
+active; this checkpoint has not been committed or pushed.
+
+### 2026-10-08: Fog_Update complete native region contract recovered
+
+Follow-up supersedes the preceding unresolved scope endpoint. A conditional
+expression with a real interpolation statement-expression gives the computation
+region+148..+292; its guarded wrap owns numslices. After the inactive-key early
+return, the enclosing active computation region begins+36 and closes BEFORE
+the common TrackSpec destination store at+292. This is a nonempty computation
+region, not dummy scope padding. It yields exactly retail's five scope tuples
+and all ordered named-local/type/home/depth records. No new local or helper
+identifier is introduced. The exact historical macro/statement-expression
+spelling is not uniquely established; no original-text seal is claimed.
+
+Separate nextkey=key->next and nextslice=nextkey->slice follow retail's distinct
+855/856 statement tags, without changing instructions. Explanation belongs in
+the function heading, not amid source statements. Final gate run-68l4ryz8:
+16 functions13 native CLEAN/3 DIRTY, complete sections/layout unchanged,
+ASPSX524/0 and PSYLINK zero errors; target81/81 and FindKey37/37 PASS.
+Independent exact tuple assertions pass. Fog_Update becomes native CLEAN,
+raising GAME/PSX289->290/395 and whole2222->2223/2565 (86.67%).
+
+Remaining SLD is explicit:75/81 relative tag differences, block-line differences
+and function end+31 versus+44. This differs from the previous if-arm form's
+64/81; native ownership is now stronger, while complete statement-line
+restoration still needs evidence. No blank-line/#line padding or rewritten
+debug output is used to clean the report. Strict native+SLD remains584/2565.
+Native EXTRA rows remain760; local-contract2274/2565. Vtable1360 passes.
+All byte-changing arm-store trials were reverted; references and unrelated user
+edits remain intact. Goal active; changes remain uncommitted/unpushed.
+
+### 2026-10-08: Fog_InitFogTriggers walker and real setup regions
+
+Replaced explicit reverse openkey_walk with recorded i's indexed countdown
+`for (int i=0x1f; -1<i; i--) openkeys[i]=openval`. All57 instructions remain
+exact; the compiler supplies the anonymous array-address induction itself.
+The first i now has retail INT REG:$3 depth2. Put k in the actual allocated
+player-position setup region, including reservememadr and initialization:
+its depth2 and both child regions' full address/nesting tuples now equal
+retail (+0..64 and+132..204). No new declaration, empty binding padding,
+asm or compiler-output rewriting. Removed unused terminal slice_off=0.
+
+The function is still DIRTY, not source-restored: openval REG:$4 and slice_off
+REG:$17 remain EXTRA, and retail's second i REG:$3 depth2 remains MISSING.
+No unused duplicate i is fabricated to clean the comparator. Literal1 store
+is2dif/57 (preheader li ordering); reusing num_player is6dif/57 and wrongly
+parks the initial store value in s2. Declaring/initializing i before the global
+clears and using literal1 is also2dif/57. Direct indexed postincrement in the
+guarded do loop is15dif/58; for/exit-in-body trial29dif/60. All rejected source
+forms were reverted. After restoring real regions, removing the older counter
+absorption expression still yields12dif/57 from counter/offset register swaps.
+This is failed-trial evidence, NOT proof any extra object or identity was in
+the original C source. Those tasks remain explicit review work.
+
+Removed stale SLD-VERIFIED, walker-necessity and 'strong floor/do not re-fight'
+claims from the source comments. Historic evidence remains in Git/this ledger;
+current comments identify unresolved items without a generic exemption.
+Final run-qblc75pr covers16 functions,13 native CLEAN/3 DIRTY: complete section
+bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors. Independent region
+tuple assertion passes. InitFogTriggers57, Fog_Update81, FindKey37 detailed
+checks PASS; vtable1360 passes. Init's fresh linked SLD remains52/57 differences,
+block-line differences and end+39 versus+37; original full line text is not
+sealed. Native EXTRA rows760->759; native whole2223/2565 and strict584/2565
+unchanged. References and user edits preserved; goal active, not committed/pushed.
+
+### 2026-10-08: Fog_ReadFogKeys structured filename selection; region investigation
+
+Replace the nested filename selection plus three goto-haveext exits with a
+short-circuit S-case followed by ordinary N/W/default else-if arms. The four
+actual literal strings and calls remain unchanged, and all70 instructions,
+whole-TU section bytes/layout and link gate remain exact. The reconstruction-only
+haveext identifier is gone without introducing another label or carrier.
+An exit-in-body for with positive i<numkeys arm is also70/70 with retail's
+named i REG:$17 at depth2; no inference of literal original loop text is made.
+
+The missing native region is specifically the +200..+212 entry test. Loop
+declaration with negative exit or ordinary test in the for header rotates to
+68 words/26dif; explicit bool conversion does not fix it. GNU test-expression
+forms prevent rotation and pass70 but add unsupported regions (four/five versus
+retail's three). A wrapper around the whole if gives four; a plain nonempty
+brace group is omitted by the compiler and leaves two. These experiments were
+removed, not retained to inflate coverage. The final ordinary positive for
+still has two scopes, so the function stays DIRTY and that task remains open.
+
+Read gcc281.tar.gz's actual cp/parse.y and cp/decl.c directly (the presumed
+extracted/cp paths are absent). Active statement-expression grammar calls
+keep_next_level and constructs/reinserts BIND_EXPR; kept_level_p keeps levels
+with child blocks, explicit keep, names or nontransparent tags. The superficially
+similar primary_no_id grammar without keep_next_level is COMMENTED OUT ('Not
+needed for now'), not an available source lever. This explains why ordinary
+braces and forced statement-expression scopes differ; it does not establish a
+floor or justify fake declarations, flags or altered debug output.
+
+Final run-24000i3d:16 functions13 native CLEAN/3 DIRTY, full bytes/layout
+UNCHANGED, ASPSX524/0, PSYLINK zero errors. Detailed ReadFogKeys70,
+InitFogTriggers57, Fog_Update81 and FindKey37 all PASS; vtable1360 passes.
+ReadFogKeys linked SLD remains64/70 differences, block-line differences and
+end+40 versus+52. Native whole2223/2565, strict584/2565, EXTRA rows759 remain
+unchanged. No whole-source/SLD completion claim; goal active, uncommitted/unpushed.
+
+### 2026-10-08: ColorClut channel quantities, full region ownership and output walker
+
+Retail TextureProcess_ColorClut records three independent INT temp REG:$2
+objects at depth6, not one root temp. Declare each in its real r/g/b interpolation
+and clamp region. Restore j's actual setup/iteration owner and color/r/g/b in
+the loop body. With j initialization kept before contrast calculation, every
+ordered retail local/type/home/depth tuple and every region-address/nesting
+tuple now matches. Moving j initialization to a later for header instead
+changed18 instructions at130 words and was reverted. No dummy variable,
+empty-region padding, asm, volatile, pin or compiler-output rewrite.
+
+After those real owners are restored, indexed newdata[j] in BOTH arms removes
+p and its source initialization/increment while keeping all130 instructions.
+The compiler supplies the anonymous output induction. Earlier p-necessity/
+load-order wording is withdrawn; the original loop spelling is not uniquely
+established by these receipts. The whole native contract is not sealed because
+spec PTR INT REG:$30 is still EXTRA. Direct global unsigned-byte views were
+56dif/128; direct CVECTOR-array views9dif/131 with a+20 hoisted anchor and a
+separate first channel load. Both reverted. The type/global owner check confirms
+CTrackSpec's full264-byte definition and TrackSpec_gSpec record belong to
+TrackSpec.obj, not TextureProcess.obj; don't silently add a foreign completed
+type body here merely to clean the native report. Canonical global/type and
+field-source restoration remain follow-up work, not an exemption for spec.
+
+Final run-7lo_l1qf:16 functions13 native CLEAN/3 DIRTY, full section bytes/layout
+UNCHANGED, ASPSX524/0, PSYLINK zero errors. Independent full tuple comparison
+equals retail after excluding ONLY spec. ColorClut130, Fog_Update81,
+ReadFogKeys70 and InitFogTriggers57 detailed checks PASS; vtable1360 passes.
+ColorClut fresh SLD remains118/130 differences, block-line differences and
+end+70 versus+54. Native EXTRA rows759->758, review-marker locations878->877;
+native whole2223/2565 and strict584/2565 unchanged. All failed source experiments
+reverted; references and unrelated user edits intact. Goal active; uncommitted.
+
+### 2026-10-08: ScaleGouraudShape input extents and real scheduling boundary
+
+Retail uw/vh are CHAR input byte extents in a2/a0, not the final UV endpoints.
+The old private sw/sh_ INT objects occupied those homes while caller uw/vh
+declarations were optimized away; a same-home rename alone was therefore
+insufficient. Assign actual shape width/height low bytes to uw/vh, leave those
+quantities as extents, and form u+uw / v+vh directly in the four endpoint stores.
+Assigning the endpoint back to the char locals was33dif/174; direct stores
+with the old nested do/while(0) were5dif/176 (extra nop and late sums).
+Removing that artificial nested loop lets scheduling fill the retail v-flip
+branch slot and place the height sum before the u store:175/175 PASS. A short
+cast at the stores was neutral and not retained. No new reference fence,
+source object, qualifier, register pin or output rewrite.
+
+Expand the reconstruction-only PSXFRONT_SCALE_UV macro into the actual function
+body. It has no remaining private locals or extra scope; all original names,
+types, homes, depths, ordering and the single root block agree exactly. Byte
+stores of the direct sums equal old narrowed endpoint stores for all65536
+origin/extent byte pairs. The exact original text is not uniquely recovered.
+The independent source-only one subtrahend still requires investigation:
+literal substitution after this restoration is123dif/176 and was reverted.
+Native CLEAN does NOT excuse that carrier or certify a full source seal.
+
+Withdraw stale current-residual/floor commentary and the generic claim that
+macro-private names are absent from debug. Other raw/vraw/vb macro objects
+remain explicit source review, independently scored by native comparison.
+An overly broad declaration-restoration patch briefly put one in the wrong
+neighbor; compilation rejected it, it was corrected, and the final whole-TU
+snapshot proves no neighbor change. Do not accept cached SLD from that failed
+build; the numbers below come from the repaired fresh link.
+
+Final combined run-o8w2va2c covers68 functions58 native CLEAN/10 DIRTY across
+psxfront/copspeak/textureprocess. Complete bytes/layout UNCHANGED, ASPSX524/0
+(one front overlay), PSYLINK zero errors. Independent target local/block tuple
+equality passes. Vtable1360 and whitespace checks pass. Fresh target SLD still
+158/175 differences, block lines differ, end+74 versus+49. FRONTEND/PSX65->66/85,
+whole2223->2224/2565 (86.71%); strict584/2565 unchanged. Native EXTRA758->756,
+local-contract2275/2565; source-only review markers878 remain diagnostic locations.
+
+Other this-round experiments were reverted: ColorClut address-order casts9dif/131,
+alternative contrast view38dif/130; canonical opaque CTrackSpec extern with
+explicit word views27dif/129 in ColorClut although Fog_Update81 and Init57
+passed. Correct global/type/field spelling remains unresolved, not dismissed.
+CopSpeak_Request next reuse25dif/80 and an assignment-address return89dif/78
+also reverted; Request79 and Play86 re-gated PASS. All corresponding owning-TU
+objects are covered by the final combined unchanged gate. References and
+unrelated edits preserved; full goal active, checkpoint uncommitted/unpushed.
+
+### 2026-10-09: four game/movie methods strict native+SLD; legacy refs diagnosed
+
+Inspect six prospective terminal-return methods before editing. ResetTransPrecision4,
+ResetPaletteSharing4, ResetDCTBuffer5, TextureProcess_Init5, Movie_Stop4 and
+Movie_DownloadFrame4 all detailed oracle PASS. Combined symloop stops first on
+missing byte/layout reference metadata, then --ref-only correctly refuses the
+existing differing platform/trsproj snapshots. No target was edited beforehand,
+no reference overwritten, no differing baseline adopted to conceal regressions.
+
+Selected texture/textureprocess/movie references verify after fresh pre-edit
+compile:0 new references recorded,3 existing verified. Remove ONLY terminal
+void returns from ResetPaletteSharing, TextureProcess_Init and the two movie
+methods. All four remain oracle PASS with complete native contracts, SLD0,
+equal block lines and equal end deltas. No added pad/#line/source object,
+qualifier, asm, fake value or output rewrite. Final run-fm0xfypg covers57 TU
+functions41 native CLEAN/16 DIRTY, full sections/layout UNCHANGED, ASPSX524/0
+(front overlay), PSYLINK zero errors. Four-target strict assertions,
+vtable1360 and whitespace pass. Strict601->605/2565: GAME/PSX39->41/395 and
+FRONTEND/PSX4->6/85; FRONTEND/COMMON185/838 and GAME/COMMON373/1247 unchanged.
+Native2232/2565, EXTRA743 and review862 unchanged; full source goal remains open.
+
+Pre-existing reference review (no edits to either TU): trsproj's1207-byte legacy
+stream equals current section serialization with ONLY the10-byte SimpleMem
+rodata payload absent. Platform's599-byte legacy stream differs from the current
+same-sized rodata-absent serialization at four byte positions:15,19,20,215.
+They fall in text instruction immediates+8/+12/+208, covered by actual ELF
+HI16/LO16 bigBuf and LO16 endofcode relocations. The historical stream has zero
+addend bytes where current compiler output has the source addends. Current
+rodata is SimpleMem in both TUs; source comments anchor retail tags at80056AE4
+and80056984 respectively. These are memory-only diagnostic comparisons, not
+rewritten objects or an accepted weakened byte gate. The raw differing refs
+are preserved for future independently justified baseline reconciliation.
+Both CPPs remain Git-clean; their prospective return edits were NOT attempted.
+Goal active; references/user edits intact, checkpoint uncommitted/unpushed.
+
+### 2026-10-09: CreateLicense five pointer removals and native contract restoration
+
+Use the actual no-plate early return after clearing both global plate slots,
+not an else owner spanning the whole routine. This preserves229/229 while
+restoring length/start's depth2 text phase. Test text[i] directly for the space
+guard, then declare letter and ascii in that real glyph body: both belong at
+depth6 in retail order. Root declarations follow i, clutPlate1/2, thePlate,
+shape, clutptr. No duplicated unused declaration or source name invention.
+
+Direct index-first chained word stores through the two global plate pointers
+remove p1/p2 without serializing their may-alias loads. Likewise chained
+Plate1->next=Plate2->next=0x118 and Plate1->width=Plate2->width=0x18 remove
+q1/q2/r1 while preserving both preload/store orders. All five former EXTRA
+source objects are gone, with every ordered retail local/type/home/depth and
+all six region tuples exact. Historical failed reuse/serialization sweeps were
+not proof those separate declarations existed.
+
+The older savedAscii identity boundary is still source-only review. Removing
+it after this region correction is29dif/230 versus229; reverted, not excused
+by native CLEAN or called original. Existing code retains no added asm,
+qualifier, reference fence or post-recompile output rewriting. Withdraw stale
+source headers/body claims of 'required' carrier objects, SLD-VERIFIED and
+instructions to wire PER_FN_TEXT_MOVES: those unsupported production rewrite
+recipes do not belong in restored source. Git retains the historical comments;
+the current heading distinguishes verified state from remaining source work.
+
+Final run-89ytzaqr:11 TU functions10 native CLEAN/1 DIRTY, complete section
+bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors. Detailed Create229,
+Update298, CopyFrom113, CopyTo42 and LicenseCheck39 PASS; independent complete
+target local/block tuples, vtable1360 and whitespace checks pass. The only
+native DIRTY function in cario is CopyToShape's four nibble temporaries; native
+CLEAN functions may still have source-only/SLD review, including savedAscii.
+
+Native GAME/PSX293->294/395, whole2227->2228/2565 (86.86%); EXTRA753->748,
+local-contract2279/2565, diagnostic review locations873->869. Fresh CreateLicense
+SLD still179/229 tag differences, block lines differ, end+91 versus+104. Strict
+584/2565 unchanged: no blank/#line padding or unique original-text/full-source
+seal claimed. References/user edits preserved; goal active, uncommitted/unpushed.
+
+### 2026-10-09: song-menu drawY role and direct short parameters
+
+Retail tInsideBoxSongMenu::Draw drawY INT REG:$21 is the centered base Y,
+not the per-row j*21-40 expression. Restore that actual value/name, remove
+drawBaseY and form the derived offset directly in the DrawOneSong argument.
+All156 instructions and complete TU bytes/layout remain unchanged.
+
+Use `(u_short)slideOffset` directly at the call instead of an unrecorded UINT
+slide object initialized earlier. The compiler still hoists the conversion
+into s6 and now emits retail's slideOffset ARG INT / REG SHORT records. Direct
+w also removes the source-only width alias without changing any instruction.
+Every ordered retail parameter/local/type/home/depth record now agrees after
+excluding only the existing FE pointer and two fadeValue objects. No new
+alias, helper, volatile, asm, identity use or compiler-output rewrite.
+
+Bound-first expression clamps at both fade sites are44dif/160 versus156 and
+were reverted. They were tested as full-int operations, not in-place short
+updates that could change underflow/overflow behavior. Direct frontEnd.FEPlayList
+is2dif/156 because the hoisted anchor absorbs924 and the literal load offset
+becomes0; reverted. Remaining fe/fade source objects and seven native scopes
+versus retail's one stay explicit review. Withdraw stale generic carrier and
+SLD-VERIFIED comments and the mistaken claim that named drawY was the loop giv.
+
+Final run-5joofdxf:83 functions71 native CLEAN/12 DIRTY, complete section
+bytes/layout UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors.
+Detailed Draw156 and DrawOneSong139 PASS; independent retail-record checks,
+vtable1360 and whitespace pass. Native EXTRA748->746; diagnostic review
+locations869->865. Native2228/2565 and strict584/2565 unchanged. Fresh target
+SLD still142/156 tag differences, block lines differ, end+65 versus+43. No
+blank/#line padding or full-source seal claimed. Goal active; uncommitted.
+
+### 2026-10-09: DrawOverlay real icon fade, no identities and structured clamp
+
+Retail fade SHORT REG:$4 depth1 is the fifth DrawShapeExtended argument in
+both upgrade-icon loops:0 or96, not a Y displacement or the early transition
+update. The API signature and raw a0 role settle that ownership. Remove both
+INT yOffset declarations and make the actual root fade hold those values.
+The missing fade record returns at the exact type/home/depth, preserving551/551.
+The early transition update instead directly writes the overlay field; all
+rectangle interpolations retain their actual transition reloads.
+
+After restoring that real short quantity, both older absorption expressions
+`fade &= (fade | i)` can be removed, still551/551. No replacement fake use,
+alias, fence, qualifier or asm. Structured low/high transition clamp arms also
+replace DrawOvl_transitionPos: each endpoint stops direction, while values
+strictly between0 and128 retain motion. GCC merges the endpoint direction
+stores exactly as retail, preserving full branch/instruction layout.
+
+Initial interpolation-fade hypothesis was rejected: a single capture is6dif/551
+because three loads disappear. Repeated assignment expressions/statements pass
+but still leave fade missing in native debug; those forms were superseded by
+the evidence-backed icon role. Reusing dead-phase value for tournament money
+is6dif/551 from li/load issue order and reverted. flags/xPos/tournamentMoney,
+the title snapshot and full receiver/description ownership remain source review;
+they are not proven original by earlier failed trials. Withdraw stale commentary
+claiming a volatile title read and required read-only icon-fade fences.
+
+Final run-ud5l0z6b:56 TU functions47 native CLEAN/9 DIRTY, complete sections/
+layout UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors. Detailed
+target551 PASS, exact fade tuple assertion, vtable1360 and whitespace pass.
+Target still has16 regions versus retail28 and descrItem depth6 versus7.
+Fresh SLD513/551 differences, block lines differ, end+198 versus+160. Native
+EXTRA746->745; diagnostic review locations865->864; native2228/2565 and strict
+584/2565 unchanged. No blank/#line padding or source-completion claim. References
+and unrelated edits preserved; goal active, checkpoint uncommitted/unpushed.
+
+### 2026-10-09: DrawOverlay active owner and description lifetime
+
+Use the real positive overlay!=0 owner, preserving the initialization that
+precedes its test. The native+0 and+100 outer boundaries now match retail and
+every active draw remains skipped for null overlay. All551 instructions,
+complete sections/layout and branch layout remain unchanged. descrItem belongs
+in the existing fully-open upgrade-description body at depth7, not its former
+standalone wrapper: move its declaration there and remove that extra scope.
+Its INT REG:$4 home and retail declaration order remain exact.
+
+Independent checks now match EVERY ordered retail local/type/home/depth record
+after excluding only flags/tournamentMoney/xPos source objects. The complete
+contract still is not CLEAN:17 native regions versus28 retail, and those extra
+objects remain. A direct index-first x coordinate expression after this scope
+repair is80dif/551 and was reverted; no new alias or fake use replaces it.
+No extra empty scope, dummy declaration, asm or compiler-output rewrite.
+
+Final run-yi6ft8fy:56 functions47 native CLEAN/9 DIRTY, full bytes/layout
+UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors. Target551 PASS,
+exact retail-record/outer-bound assertions, vtable1360 and whitespace pass.
+Fresh SLD still519/551 tag differences, block lines differ, end+194 versus+160;
+this differs from the preceding513/551 snapshot and is not a full SLD seal.
+Stronger named ownership is retained without blanks/#line to hide remaining
+source attribution. Native2228/2565, strict584/2565, EXTRA745 and review
+locations864 unchanged. References and user edits preserved; goal active,
+checkpoint uncommitted/unpushed.
+
+### 2026-10-09: eight terminal-void-return artifacts removed; strict coverage601
+
+Seven small transition methods and one base-forwarding ProcessInput were
+native CLEAN but had final instruction/end tags attached to an unnecessary
+explicit void return rather than the last real field update/call. Remove
+only their terminal returns, keeping every actual operation, declaration,
+signature, field/store order and owner scope. This is ordinary implicit
+fallthrough, not added padding, a fake statement or a debug/output rewrite.
+
+Targets and detailed oracle receipts: GoToMenuNFS4Button TransitionOn4/Off3,
+NFS4LeftRightChoice TransitionOn4/Off3, MenuBlank TransitionOn6/Off7,
+MenuOptions TransitionOff15 and MenuNFS4 ProcessInput8. Every target remains
+PASS, every native contract agrees, all instruction tags are exact, all block
+line criteria agree and function-end deltas agree. Seven SLD parser/fail-closed
+regression fixtures pass unchanged; no comparator exemption was added.
+
+Final run-5wrofca4:53 TU functions52 native CLEAN/1 DIRTY, complete section
+bytes/layout UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors. Eight
+individual strict assertions and oracle checks, vtable1360 and whitespace pass.
+Strict593->601/2565, FRONTEND/COMMON177->185/838; other strict directories
+4/85,373/1247,39/395 unchanged. Native2232/2565, EXTRA743 and review862 unchanged.
+Literal historic comment/whitespace text is not uniquely determined; these
+producer-visible source-attribution contracts are verified, not a whole-project
+source seal. References/user edits preserved; goal active, uncommitted/unpushed.
+
+### 2026-10-09: ActualDrawController real art branch and for-local counter
+
+Retail has root drawFlags, a second same-name drawFlags at depth3 and i INT
+REG:$18 at depth4. The old non-art2 early return plus standalone arrow block
+put the latter two at depth2. Use actual art sibling branches with implicit
+fallthrough, then declare i in the arrow for header. All154 instructions and
+complete owning-TU bytes/layout remain unchanged. The compiler retains i's
+original constant-load placement even though source initialization now occurs
+after the four arrow DrawShapeExtended calls; a failed-timing presumption was
+not substituted for testing the natural declaration owner.
+
+Every ordered parameter/local/type/home/depth and all four scope tuples equal
+retail. No synthetic/source-only carrier, fake reference, dummy region, asm,
+qualifier or output rewrite is introduced. The two drawFlags objects are real
+typed shadowing, not merged into one object or assigned invented names.
+
+Final run-0jmfdkt0:21 TU functions15 native CLEAN/6 DIRTY, complete sections/
+layout UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors. Detailed
+Actual154 and DrawController836 PASS; exact complete tuple assertions,
+vtable1360 and whitespace pass. FRONTEND/COMMON712->713/838, whole2228->2229/2565
+(86.90%); local-contract2280/2565; EXTRA745 unchanged. Fresh target SLD remains
+140/154 tag differences, block lines differ, end+57 versus+48. Strict584/2565
+unchanged: this is native/source-owner restoration, not a full line/text seal.
+References/user edits preserved; full goal active, uncommitted/unpushed.
+
+### 2026-10-09: seven real empty destructors strict native+SLD exact
+
+Retail attributes these generated teardown bodies to their empty declaration
+line. Replace only verified no-source-work destructor bodies containing a
+phantom explicit return with ordinary `Class::~Class() {}`. No base destruction,
+virtual state, class storage/layout or compiled behavior is removed: all seven
+generated10-word bodies and whole-TU sections/layout remain unchanged.
+No #line, added blanks, dummy source statement, type/record exemption or
+compiler-output rewriting; this removes source artifacts from empty bodies.
+
+Targets: tMenuNFS4, tMenuBlank, tMenuOptions, tMenuNFS4Bottom,
+tMenuNFS4TwoPlayer, tMenuItemGoToMenuNFS4Button and
+tMenuItemNFS4LeftRightChoice. Every ordered native contract agrees; each is
+SLD0/10 with equal block lines and end+0/+0. Literal original comment/whitespace
+text is not uniquely proved; complete producer-visible attribution is.
+
+Final run-cosl00h_:53 TU functions52 native CLEAN/1 DIRTY, complete bytes/layout
+UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors. Detailed oracle
+checks use the actual ___ destructor spelling: all seven PASS10/10. The first
+_._ CLI attempt returned NO ORACLE, not a verification failure or proof; the
+correct-spelling independent checks supersede it. Both previous constructor
+targets re-gate22/22 and25/25. Full seven-target strict assertions, all7 SLD
+regression fixtures, vtable1360 and whitespace checks pass.
+Strict586->593/2565, FRONTEND/COMMON170->177/838; remaining strict directories
+4/85,373/1247,39/395. Native2232/2565, EXTRA743 and diagnostic review862 unchanged.
+Full goal active; no whole-project source seal. References/user edits preserved,
+checkpoint uncommitted/unpushed.
+
+### 2026-10-09: SetActuators sibling timer arms, no pulse/tick aliases or label
+
+Use active/inactive timer sibling arms with implicit fallthrough, recovering
+the native+52..+120 owner and its zero-length+68 reader scopes. Replace the
+timer-zero goto with the actual nonzero timer decrement condition. All34
+instructions, complete locals and five region tuples match retail, with no
+SetActuators_clearAndRet source label.
+
+Direct Force_rand_256[GetTicks()>>2 &255] removes tickValue and pulse source
+aliases. Keep the random comparison before the maximum-power-byte SOURCE
+assignment: scheduling still issues the power-byte store in the original
+load gap and comparison/result-store sequence. The alternative source order
+is3dif/35 and superseded. No new temporary, fake reference, scope/line padding,
+qualifier, asm or output rewrite. Native CLEAN is not used to exempt aliases.
+
+AnimKeyPoints remains explicitly unresolved: carrier-free ctrl2 ternaries
+plus direct default returns give4dif/27 versus25; default-return conditional
+forms and the parameter-derived false value give3dif/24. All rejected forms
+reverted, its matched SHORT result retained as review, not asserted necessary
+source storage. New evidence narrows the final return/delay-slot difference,
+not an unmatchability verdict.
+
+Final run-_kxqcjvd:21 TU functions16 native CLEAN/5 DIRTY, full sections/layout
+UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors. Detailed SetActuators34,
+AnimKeyPoints25, ActualDraw154 and DrawController836 PASS; complete target
+local/block assertions, vtable1360 and whitespace pass. FRONTEND/COMMON713->714/838,
+whole2229->2230/2565 (86.94%). Local-contract2280/2565 and EXTRA745 unchanged;
+source-only aliases removed are not themselves counted as native EXTRA.
+Fresh target SLD32/34 differences, block lines differ, end+17 versus+18; strict
+584/2565 unchanged. Goal active, references/user edits intact, uncommitted/unpushed.
+
+### 2026-10-09: DrawBackground inline screen fade and canonical BOOL transition
+
+Replace om and its raw fScreenFade read with the existing tOptionsMenu
+GetScreenFade member. It reproduces the displaced load AND actual receiver
+REG:$4 at depth2, plus the variable-free inner body, while removing om. All137
+instructions, every ordered parameter/local/type/home/depth and four declaring
+regions now agree with retail; no new helper, name or source object.
+
+Retail Def50f023 and the owner implementation both prove TransitionIsFinished
+returns BOOL, not the private prototype's void pointer. Correct that declaration
+to bool while preserving the existing member ABI label. Direct !=true and
+cast-to-int !=1 forms are27dif/138 versus137, so retain the genuine normalized
+logical inversion `(int)result ^1`: this is Boolean negation, not a fake identity
+or reference inflator. First comparison uses false rather than a null pointer.
+Only screencontroller.cpp consumes this private extern surface; no shared
+class/type/body/layout change. Exact original accessor spelling and remaining
+member-ABI bridge are not certified by a local name alone.
+
+Replace ForceVbl_drawCtrlCheck with the real non-transitioning/current-controller
+guard. The null-controller/non-transitioning fallthrough remains identical, with
+no added condition outcome, field mutation, alias fence, asm or output rewrite.
+Withdraw stale om-necessity/void-return comments. Complete branch layout stays
+unchanged; compiler-output references are not regenerated to hide differences.
+
+Final run-4ixq5kh0:21 TU functions17 native CLEAN/4 DIRTY, complete section
+bytes/layout UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors.
+Detailed Background137, DrawController836, ActualDraw154 and SetActuators34
+PASS; full target tuple equality, vtable1360 and whitespace pass.
+FRONTEND/COMMON714->715/838, whole2230->2231/2565 (86.98%); EXTRA745->744,
+local-contract2281/2565. Fresh target SLD114/137 differences, block lines differ,
+end+51 versus+44; strict584/2565 unchanged. No blank/#line padding or full-source
+seal; references/user edits preserved, goal active, uncommitted/unpushed.
+
+### 2026-10-09: GetCar direct color source order removes its last local carrier
+
+In dealer cases, assign the actual frontEnd color directly BEFORE the source
+availability assignment. Scheduling still emits retail's color byte load,
+availability store/load gap and color store order. This removes color entirely
+without a replacement source object, cast device, fake reference, qualifier,
+asm or compiler-output rewrite. Earlier direct-read failures only tested a
+different source/store order; they did not prove an explicit color object.
+
+All160 instructions, the complete ordered this/carInfo parameter contracts
+and all six region tuples match retail. There are no caller locals, as retail
+requires. Existing indexed car-manager/name/color-order logic is retained.
+Withdraw source-object-necessity commentary; raw/ref checks, not an invariant
+assumption or claimed compiler floor, establish the retained expression.
+
+Final run-_l9jyhbf:56 TU functions48 native CLEAN/8 DIRTY, full section bytes/
+layout UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors. Detailed
+GetCar160 and DrawOverlay551 PASS, complete target tuple equality, vtable1360
+and whitespace pass. The inventory process was polled to confirmed exit0;
+its temporary lack of output did not trigger a restart.
+FRONTEND/COMMON715->716/838; whole2231->2232/2565 (87.02%); EXTRA744->743,
+local-contract2282/2565, diagnostic review locations863->862. Fresh target SLD
+144/160 differences, block lines differ, end+50 versus+51; strict584/2565
+unchanged. No blank/#line padding or full-source seal. References/user edits
+preserved; goal active, checkpoint uncommitted/unpushed.
+
+### 2026-10-09: two menu constructors strict native+SLD exact
+
+Inspect the native-clean attribution queue rather than only name/scope dirty
+functions. The no-item tMenuNFS4 constructor was22/22 PASS with one generated
+vptr-store tag assigned to a phantom explicit return, end+3 versus retail+1.
+Its body has no source work after base initialization: use the ordinary empty
+constructor body, removing the return and unused body whitespace. All22 words
+remain unchanged, every native contract agrees, SLD0/22, block lines equal,
+end+1/+1. This removes a real source control artifact, not #line or added padding.
+
+The adjacent tMenuBlank constructor was25/25 with the same final explicit-return
+artifact after its two actual member assignments. Remove only that return.
+All25 words remain unchanged, native contract exact, SLD0/25, block lines equal,
+end+4/+4. No invented source declaration, identity, fake scope, helper, asm,
+qualifier or compiler-output rewrite. Exact historic whitespace/comment text
+is still not uniquely determined; full producer-visible attribution is proved.
+
+Final run-r2mi2vh7 covers53 TU functions52 native CLEAN/1 DIRTY with complete
+section bytes/layout UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors.
+Both detailed constructor gates PASS. Fresh whole-dump SLD checks certify
+both targets EXACT, including block/end criteria; all7 SLD parser/fail-closed
+fixture tests, vtable1360 and whitespace checks pass. Native2232/2565 unchanged,
+strict584->586/2565; FRONTEND/COMMON strict168->170/838. Other strict directories
+remain4/85,373/1247,39/395. EXTRA743 and review862 unchanged. This advances the
+actual strict goal, but does not certify the remaining source restoration.
+References/user edits preserved; full goal active, uncommitted/unpushed.
+
+### 2026-10-09: DrawController real short range and animation owners
+
+ControllerTwistRange's existing range declaration was attached to the fused
+byte-minus128 expression and optimized out. Capture the actual twist byte
+into SHORT range, then subtract128. All836 words remain exact and range's
+retail SHORT REG:$2 record returns. All256 byte inputs give[-128,127], so
+the intermediate/final short assignments do not change valid arithmetic.
+Literal accessor spelling and its caller lifetime remain unsealed: native
+range depth10 versus retail9 after the owner restoration below.
+
+Fading and non-fading animation dispatch are actual sibling branches, not
+independent early-return owners. Real else bodies preserve836/836 and recover
+the+1544 parent and fading branch end+1992, with the later animation work
+remaining in the recorded enclosing region. CHAR frame now has retail's
+depth7; INT frame and nested getters still require correction. No added
+variable, empty scope padding, fake predicate, asm or output rewrite.
+
+Further hypotheses were rejected and reverted: controller sibling else alone
+is8dif/836; that plus an earlier getter call35dif/835. Moving halo ii into a
+for header is8dif/836 (initializer/loop-test layout). These receipts do not
+establish floors or original necessity of the remaining named carriers.
+
+Final run-hz2odfza:21 TU functions14 native CLEAN/7 DIRTY, complete section
+bytes/layout UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors.
+Target836 PASS; range name/type/home and byte-bounds assertions, named owner
+boundary checks, vtable1360 and whitespace pass. A first assertion command
+expanded PowerShell's dollar-reg token and was corrected to compare native/
+retail tuples directly; no source/compiler output changed for that diagnostic.
+Native40 regions versus retail56 and extra objects remain. Fresh SLD818/836
+differences, block lines differ, end+365 versus+348. Native2228/2565, strict
+584/2565, EXTRA745 unchanged. No source/SLD completion claim; goal active,
+references/user edits preserved, checkpoint uncommitted/unpushed.
+
+### 2026-10-08: spinning-car phase ownership and brightness-carrier repricing
+
+InitializeSpinningCars' retail i is INT REG:$17 at depth2 in+44..+256,
+ending before R3DCar_PostStartUp. The old positive-if body put it at depth3
+and extended its scope through the final global resets. Use the actual inactive
+early return followed by the initialization/instantiation region, then keep
+PostStartUp and global finalization outside that region. The early return
+still skips ALL finalization when already initialized, exactly as the raw
+branch to+344 requires. No new condition, variable or empty binding padding.
+All95 instructions and complete TU section bytes/layout remain unchanged.
+Independent i tuple and phase bounds assertions pass.
+
+This is partial restoration: carObj REG:$16 is still EXTRA and two nested
+retail regions (+44..256 and+132..144) are still missing. Direct gCarObj[i]
+read/write forms after the real phase correction remain51dif/102 versus95,
+including extra pointer reloads and a different frame. Reverted, not claimed
+as proof a separate source pointer existed. Current comments identify this
+review without the old generic CODEGEN-CARRIER exemption.
+
+Repriced DrawShapeExtended/ScaleShapeExtended bright removal. Direct short
+conversion is32dif at65/75 words. In-place fade mutation is27dif/64 and
+25dif/74. Custom shape selection inside the call argument gives32dif/65/75;
+duplicated adjustment calls in the true/false custom-shape arms are68dif/77
+and82dif/87, not a matching merged-call form. All reverted: the original
+bright values remain visible native EXTRA records and explicit source review,
+not renamed onto the recorded fade parameter or hidden behind const aliases.
+Their CODEGEN-CARRIER comments are replaced with unresolved-review wording.
+
+Final run-4drg1a59:25 functions19 native CLEAN/6 DIRTY, complete bytes/layout
+UNCHANGED, ASPSX524/0 (front overlay), PSYLINK zero errors. Detailed Init95,
+DrawExtended65, ScaleExtended75 and ScaleGouraud175 PASS. Vtable1360 and
+whitespace checks pass. Init fresh SLD remains86/95 tag differences, block
+lines differ, end+47 versus+61. FRONTEND/PSX tag differences4679->4667/5393
+after this source round, strict native+SLD still4/85. Whole native2224/2565,
+strict584/2565 and EXTRA756 unchanged. No whole-source seal; goal active.
+References and unrelated edits preserved, checkpoint uncommitted/unpushed.
+
+### 2026-10-09: LoadBankHeaders for-local records and accessor investigation
+
+Put j and i in their actual for initialization declarations, removing the
+manual outer declaration wrappers. The compiler now emits retail's FIRST TWO
+j INT REG:$4 depth2 records, including the repeated j in the later i scope,
+without a fabricated duplicate declaration. i AUTO:sp-44 depth2 and name/namelen
+REG:$22/$21 depth3 match retail type/home/depth/order. All270 instructions and
+complete speech TU bytes/layout remain unchanged (run-cuggrbrw). The third j
+is still depth11 versus12; an initial all-j assertion correctly rejected it,
+and the retained assertion is explicitly limited to the two restored records.
+
+The function remains DIRTY. Full raw tuple/scope review still finds missing
+receiver/pointer records and mismatched decoder/selection ownership: native21
+regions versus retail24, missing p/this, misplaced a and deeper inline byte
+locals, plus alignment/dataSize/isheader/reserveArg/reserveBytes/reserveCallArg
+EXTRA. Do not mistake symloop's clipped issue preview for the complete list;
+the untruncated symtree_cmp --fn output is the evidence. No comparator was
+weakened or source annotation interpreted as an exemption.
+
+First endian-reader trial with existing ReadBE32 after header+=8 is2dif/270
+(first load0 after advance rather than load8 before advance). Passing header+=8
+as argument is5dif/271; header+8 is19dif/271. Pointer-postincrement helper
+implementation is neutral and reverted. An inferred file-count accessor using
+offset8, including pointer and byte-reference forms, gives18/19dif at270/271;
+it is removed entirely, so no unproven helper name or declaration survives.
+Replacing both entry offset/size byte groups with ReadBE32 calls is221dif/281
+with frame104 versus96; reverted. These failures are source-shape receipts,
+not proof that a distinct source object was required or that recovery is bounded.
+
+Removing the old hsize empty-template fence after the restored loops remains
+16dif/270 (saved-register swaps) and was reverted. Existing zero-template
+allocator ties and reference devices remain explicit source recovery work;
+none were added or claimed original. Replace the generic CODEGEN-CARRIER
+wording with unresolved review, withdrawing the assertion that extension and
+isheader necessarily were distinct source objects. Inline annotations are not
+proof of literal method names, missing pointer roles or matching regions.
+
+Final four-consumer gate run-bgw69a3h: speech/copspeak/cars/nfs3 covers158
+functions150 native CLEAN/8 DIRTY, complete section bytes/layout UNCHANGED,
+ASPSX524/0, PSYLINK zero errors. Detailed target270 PASS. Header accessor trials
+are fully reverted; only the prior verified early prototypes remain there.
+Vtable1360 and whitespace checks pass. Fresh target SLD remains254/270 tag
+differences, block-line differences and end+147 versus+112. Whole native2224/2565,
+strict584/2565, EXTRA756 unchanged. Full goal active; uncommitted/unpushed.
+
+### 2026-10-09: LicenseCheck coordinates, load width and native/source regions
+
+Retail sfx_vx INT REG:$6 and sfx_vy INT REG:$4 are the NEW signed-halfword
+table coordinates. The old reconstruction called those new_sfx_vx/new_sfx_vy,
+used sfx_vx for the anonymous old-coordinate word load in v0, and declared
+sfx_vy unused. Restore the named values and their actual guarded depth3 owner,
+removing both extra new_sfx names. For the old X input, use the full integer
+mask `*license_vx &0x3f`, not a byte cast that narrows the memory access.
+That preserves retail's LW while needing no captured source object. The table
+value's int mask is equivalent to its former byte-mask for all signed16 values;
+high bits cannot contribute to low6. Scalar multiplier4 replaces the decompiler
+character literal without changing code or introducing an identity device.
+
+Ordinary true/false arms with implicit void fallthrough, rather than in-arm and
+terminal explicit returns, recover every native region including the optimized
+zero-length declaring block+40..+40 and parent+0..+148. All ordered parameter/
+local/type/home/depth tuples match retail. Chain U=V=0 in the reset arm: it still
+stores V first then U in JR's delay slot and gives both stores one source tag,
+as retail does. This is a real reset expression, not extra scope/line padding.
+There are no remaining codegen carriers or invented identifiers in this function.
+
+Final run-djvis_je:11 TU functions7 native CLEAN/4 DIRTY, complete section
+bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors. Detailed target39/39
+PASS; neighbor StartUp27, ReStart19, UpdateCarTextureData298 also PASS on the
+same restored source round. Independent complete local/block tuple equality
+and65536 signed16 mask-identity checks pass. Vtable1360 and whitespace pass.
+
+Native GAME/PSX290->291/395, whole2224->2225/2565 (86.74%), EXTRA756->754,
+local-contract2276/2565, review-marker locations878->876. Target SLD improves
+to12/39 differences; first27 word tags agree. Caller-coordinate stores, counter
+advance and reset relative offsets/block lines/end+13 versus+14 remain open.
+The two reset stores now share a tag, but no blanks/comments/#line are fabricated
+to force the remaining offsets. Strict584/2565 unchanged: native CLEAN is not
+complete SLD/source-text recovery. Goal active; checkpoint uncommitted/unpushed.
+
+### 2026-10-09: CopyFromShape rollover value chains and column-loop ownership
+
+Three rollOver declarations already existed but all were optimized out of native
+SYM. Restore each as the USHORT masked-word quantity, then explicitly shift it
+to the consumed nibble. First group: capture lastMask&0xf000, mutate lastMask,
+shift rollOver, then shift/OR lastLastMask. Both row groups: capture current's
+mask, shift current, shift rollOver, then shift/OR next. This keeps all113 words
+and restores all three recorded rollOver REG:$3 identities. Merely delaying the
+shift to the final OR was24dif/113; explicit mutation with next shifted too early
+was16dif/113. Those were superseded by the verified real operation order, not
+by an asm/reference/qualifier or dummy-use dial.
+
+The third rollOver was initially one level too shallow. Use the ordinary column
+`for (; i<columns-1; i++)` instead of while plus body increment: all113 words
+remain exact and the missing +232..+340 owner appears, making the third
+rollOver depth5 and all seven region tuples retail-exact. Every ordered local,
+type, home and depth now matches, including the previously missing records.
+There are no extra source objects or generic carrier exemptions in this function.
+
+Move historical matching explanations out of the executable body into the
+heading; keep source statements separate from reconstruction provenance. Root
+columns/mask use initialized declarations, preserving original order/homes and
+bringing their actual initialization closer to the recorded source tags. A
+mechanical comment move briefly introduced a stray '+'; compilation rejected
+it, it was removed, and only the repaired fresh link is accepted as evidence.
+No cached SLD from that failed build is certified.
+
+Final run-u7t6z1ex:11 TU functions8 native CLEAN/3 DIRTY, complete section
+bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors. Independent exact local/
+region tuple checks pass; capture/shift identity is checked for all65536 input
+words. Detailed CopyFrom113, CopyTo42, LicenseCheck39 and UpdateTexture298
+PASS; vtable1360 and whitespace checks pass. Native GAME/PSX291->292/395,
+whole2225->2226/2565 (86.78%), local-contract2277/2565. EXTRA754 unchanged.
+
+Complete SLD is still open:109/113 word tags differ, block lines differ and
+end+100 versus+84. Source explanation removal is not original comment recovery;
+no blank/#line padding is used to clean the report. Strict584/2565 unchanged.
+References and unrelated user edits preserved; full goal active, uncommitted.
+
+### 2026-10-09: CopyToShape complete ownership; nibble/fence work remains
+
+Replace the mirror i=5/while/body-decrement with the real for initialization
+and increment clause. All42 instructions stay exact, the missing+80..+152
+owner appears, and pixel3 becomes retail's USHORT REG:$3 depth6. Every retail
+parameter/local/type/home/depth/order record and all six scope tuples now match
+after excluding ONLY the four known EXTRA n0/n1/n2/n3. Nonmirror uses the
+ordinary for(i=0;i<6;i++) and h uses an initialized declaration; these likewise
+preserve all42 words and ownership. No dummy local or empty binding padding.
+
+The function stays DIRTY: four nibble source objects and the existing empty
+asm fence are not yet recovered ordinary source. Without the fence, GCC still
+merges two source-advance tail instructions (40 versus42); explicit nonmirror
+continue is the same2dif/40 and is reverted. Carrier-free low-three-term store,
+then shifted pixel3 and destination OR, is51dif/41. Separate destination
+accumulation statements and a final short cast are also51dif/41. All rejected
+forms were reverted; no newly invented alias, reference fence, qualifier,
+unsequenced pixel mutation or post-recompile rewrite is retained.
+
+Withdraw the long stale 'required/strong floor/post-source' comment claims.
+Current source explicitly identifies the four objects and fence as unresolved,
+not proven original. Their names are not hidden with const aliases or treated
+as a generic macro exemption. Native scope restoration is partial progress,
+not a reason to abandon these source-only quantities or call the goal complete.
+
+Final run-xhic0p41:11 TU functions8 native CLEAN/3 DIRTY, complete section
+bytes/layout UNCHANGED, ASPSX524/0, PSYLINK zero errors. Independent final
+retail-local/scope tuple assertions pass with four extras explicitly excluded.
+Detailed CopyTo42, CopyFrom113 and LicenseCheck39 PASS; vtable1360 and whitespace
+checks pass. Fresh SLD still38/42 tag differences, block lines differ, end+39
+versus+27. Whole native2226/2565, strict584/2565 and EXTRA754 unchanged.
+Diagnostic review-marker locations876->874 does not mean the four carriers
+were resolved; it reflects consolidating their explicit comments. References
+and unrelated edits preserved; goal active, checkpoint uncommitted/unpushed.
+
+### 2026-10-09: UpdateCarTextureData shared eligibility owner removes pmx
+
+Retail's texture and palette scopes share the parent+292..+1108, not separate
+loop children. Its actual eligibility rule is initial shape missing OR current
+pixmap flag0x80 enabled. Missing shape must still permit palette handling;
+an existing shape with disabled cache must skip the WHOLE iteration. That
+matches raw shape-null jump to palette+668 and flag-false jump to tail+1108.
+Use that real outer short-circuit OR, then inner shape and palette phases.
+All8 Boolean shape/flag/palette cases agree with the old valid behavior;
+the right flag operand is not evaluated for a missing initial shape.
+
+After the owners are restored, direct index-first pixmap addresses in the flag,
+clut and two license-load call arguments reproduce298/298 without pmx. Every
+ordered parameter/local/type/home/depth record and all ELEVEN scope regions
+match retail. The earlier commentary's21-region count was mistaken; the parser
+and assertions prove11 declaring regions/22 boundary tuples. No new source
+object, label, fake predicate, alias fence, asm, qualifier or output rewrite.
+
+Historical matching measurements belong in the heading, clearly superseded,
+not amid source statements or mislabeled current residuals. Full literal
+original text/global-type completion and all line attribution remain distinct
+requirements; native CLEAN is not their proof.
+
+Final run-5mlbo296:11 TU functions9 native CLEAN/2 DIRTY, complete sections/
+layout UNCHANGED, ASPSX524/0, PSYLINK zero errors. This also preserves the
+existing branch layout. Independent full local/region assertions and eligibility
+truth-table check pass. Detailed Update298, CopyFrom113, CopyTo42 and
+LicenseCheck39 PASS; vtable1360 and whitespace pass.
+
+Native GAME/PSX292->293/395; whole2226->2227/2565 (86.82%); EXTRA754->753,
+local-contract2278/2565, review-marker locations874->873. Fresh SLD remains
+280/298 differences, block lines differ, end+147 versus+131. Strict584/2565
+unchanged; no blank/#line padding or full-source seal claimed. References and
+unrelated edits preserved; full goal active, checkpoint uncommitted/unpushed.

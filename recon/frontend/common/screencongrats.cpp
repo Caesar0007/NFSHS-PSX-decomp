@@ -515,14 +515,23 @@ bool tScreenPinkSlipCongrats::GetCar(tCarInfo &carInfo)
 }
 
 /* ---- tScreenPinkSlipCongrats::CalculatePrizes  (screencongrats.cpp:463) ---- */
+/* ORIGINAL-NAME-UNRESOLVED: ReplaceLoserLicense and its player parameter
+   are inferred spellings, not names recovered from retail SYM. This real
+   two-call update reproduces retail's receiver-free zero-length inline pair
+   with the computed argument below; the caller needs no player capture.
+   MATCH 2026-10-09: CalculatePrizes 68/68 PASS, complete TU sections/layout
+   unchanged (run-1l6dllfm), native locals and blocks exact. Full SLD and
+   literal original helper spelling remain unresolved. */
+static inline void ReplaceLoserLicense(int player)
+{
+  CarIO_CleanUpLicense(player);
+  CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
+}
+
 void tScreenPinkSlipCongrats::CalculatePrizes()
 
 {
-  /* SYM-CODEGEN-CARRIER: player -- SYM omits this source local, but folding
-     the winner-derived value into the two CarIO calls is measured FAIL71
-     (65/68 instructions) and changes the frame/saved-register allocation. */
   tCarInfo carinfo;   /* [SYM] the ONLY 8c-recorded local of this fn (AUTO) */
-  int player;
 
   /* MATCH (W54-A7, from the SYM SLD line map of 0x80048CDC..0x80048DEC):
      retail's statement order is EXACTLY 464 TotalCash / 465 CashAwarded /
@@ -536,9 +545,7 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   this->smallSpinningThing = kSpinningMemCard;
   this->fCarPlayer = 1 - this->fWinner;
 
-  player = 1 - this->fWinner;
-  CarIO_CleanUpLicense(player);
-  CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
+  ReplaceLoserLicense(1 - this->fWinner);
   this->GetCar(carinfo);
   /* @0x80048D74: oracle `lb v1,0xD1(sp)` reads fSpeechCarID as SIGNED (matches its use in a real
    * `==-1` compare below); tCarInfo::fSpeechCarID is a shared-header plain `char` (platform default

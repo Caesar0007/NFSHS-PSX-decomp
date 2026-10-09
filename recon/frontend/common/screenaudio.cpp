@@ -7,6 +7,13 @@
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
+/* ORIGINAL-NAME-UNRESOLVED: inferred status getter for retail's inline pair at +604..628.
+   Its literal original name is not recorded; the two fields belong to ginfo. */
+static inline bool FeAudio_SpeechIsBusy()
+{
+  return ginfo.areLoading != 0 || ginfo.soundIsPlaying != 0;
+}
+
 
 /* Retail screenaudio.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -17,7 +24,7 @@ tScreenAudio *screenAudio;   /* global instance pointer owned by this TU (SYM EX
 void tScreenAudio::PlaySound()
 
 {
-  if (((menuDefs->itemSlidingPlayList).fActive != 0) &&
+  if (menuDefs->itemSlidingPlayList.IsActive() &&
      (this->fPrevSelectedSong != this->fSelectedSong)) {
     AudioMus_StopSong(10);
     AudioMus_PlaySong(this->songlist->song[this->fSelectedSong].filename);
@@ -47,21 +54,14 @@ void tScreenAudio::PlaySound()
     SNDSYS_setopts(&opts);
     this->prevAudioMode = frontEnd.audioMode;
   }
-  /* SYM-CODEGEN-CARRIER: validItem -- fresh -g emits this source-only identity
-     in $v0, while retail SYM has no corresponding row.  The direct && form is
-     FAIL 7 at 229/232; the nameless ternary is FAIL 3 at 229/232.  Retain as
-     an explicit unresolved source-shape carrier, not a claimed retail local. */
-  int validItem = 0;
-  if ((short)(menuDefs->menuAudio).fCurrentItem > 0) {
-    validItem = (short)(menuDefs->menuAudio).fCurrentItem < 6;
-  }
-  if (validItem != 0) {
+  if (menuDefs->menuAudio.CurrentItem() > 0 &&
+      menuDefs->menuAudio.CurrentItem() < 6) {
     int sndover;
     int vol;
     int RepresentativeSound;
 
     sndover = 1;
-    switch ((short)(menuDefs->menuAudio).fCurrentItem) {
+    switch (menuDefs->menuAudio.CurrentItem()) {
     case 1:
       vol = (uint)(byte)frontEnd.sfxVolume;
       RepresentativeSound = 0x1f;
@@ -90,7 +90,7 @@ void tScreenAudio::PlaySound()
     else {
       sndover = SNDover(this->audioTestHandle);
     }
-    if ((sndover != 0) && (*(unsigned short *)&ginfo.areLoading == 0)   /* retail lhu ginfo+0x10: areLoading|soundIsPlaying as one halfword */ &&
+    if ((sndover != 0) && !FeAudio_SpeechIsBusy() &&
         (RepresentativeSound != 0)) {
       int azimuth = 0;
 
@@ -131,24 +131,20 @@ void tScreenAudio::PlaySound()
 }
 
 /* ---- tScreenAudio::DrawForeground  (screenaudio.cpp:195) ---- */
+/* SOURCE-REVIEW-UNRESOLVED: fadeCalc and the savedFadeCalc/zero/restore
+   sequence are not recovered retail locals or proved original source.
+   Direct short ownership was 18 diffs at 68 words; structured short clamps
+   were 24 at 68; placing the final assignment before a for-header loop was
+   7 at 69 (2026-10-09). These failures do not prove a distinct input object.
+   The canonical sibling GetScreenFade accessor reproduces the retail empty
+   inline pair here; its literal original spelling is not recorded by SYM. */
 void tScreenAudio::DrawForeground()
 
 {
-  /* MATCH W64 PASS (60 -> 0, 68 instructions): the retail loop draws shapes 48..51 with fixed
-     flags/coordinates; the decompiler's four uninitialized call arguments
-     were phantom locals.  Keep the clamp result in an int funnel until its
-     final short assignment so gcc reproduces the retail branch graph and
-     48-byte frame.  SYM scopes `i` to the draw loop.  The zero-instruction
-     identity fence invalidates the obsolete fadeCalc value after assigning
-     named `fade`, making the promoted call argument read retail's $s2. */
   short fade;
-  /* SYM-CODEGEN-CARRIER: fadeCalc -- source-only int funnel for retail's
-     clamp allocation.  Assigning the EA MAX/MIN expression directly to fade
-     is FAIL 20 at 64/68; limiting fadeCalc to the clamp block is FAIL 7 at
-     69/68.  Omitting the identity fence is count-exact FAIL 2. */
   int fadeCalc;
 
-  fadeCalc = (MenuDefs()->menuAudio).fScreenFade >> 1;
+  fadeCalc = menuDefs->menuAudio.GetScreenFade() >> 1;
   if ((short)fadeCalc < 0x80) {
     if ((short)fadeCalc <= 0) goto DrawFgAudio_fadeZero;
   }
@@ -177,14 +173,10 @@ DrawFgAudio_fadeDone:
 }
 
 /* ---- tScreenAudio::DrawBackground  (screenaudio.cpp:220) ---- */
-/* MATCH: PASS (154 instructions).  The SYM local budget
-   removes the decompiler's slider/transition/shape temporaries; retail uses
-   direct Percentage calls, a local fade clamp, and the final i+6 shape loop.
-   TransitionIsFinished returns bool (the old void* prototype changed its
-   test).  The duplicated displayPercent assignment makes the selected value
-   a global allocno; jump.c merges the identical arms, while the zero-insn
-   identity fence prevents CSE from folding it back to percent.  That retains
-   retail's `addu a2,s0,zero` followed by `bgez a2`. */
+/* Byte verified at 154 instructions; original source/SLD remains unsealed.
+   The option-menu getter pair now matches retail without optionsMenu.
+   Percentage calls use their real member declarations. The remaining
+   fadeValue/displayPercent carriers are explicitly unresolved below. */
 void tScreenAudio::DrawBackground()
 
 {
@@ -193,36 +185,32 @@ void tScreenAudio::DrawBackground()
   static int perfade = 0x80;        /* [SYM] STAT @0x800528e4 (bg fade accumulator) */
   short fade;
   int percent;
-  /* SYM-CODEGEN-CARRIER: optionsMenu -- direct `menuDefs[0]->menuAudio`
-     access is FAIL7 (153/154); this shared pointer restores retail's two-load
-     base formation and the recorded 154-instruction stream. */
-  tOptionsMenu *optionsMenu;
-  /* SYM-CODEGEN-CARRIER: fadeValue -- clamping `perfade` directly is FAIL20
-     (156/154): retail keeps the clamp in a register and stores it once. */
+  /* SOURCE-REVIEW-UNRESOLVED: fadeValue is unrecorded. The direct static
+     clamp trial is 56 diffs at 154 words after the getter restoration;
+     this is not proof of an original register-local clamp object. */
   int fadeValue;
   
   this->PlaySound();
-  optionsMenu = &menuDefs->menuAudio;
-  fade = (short)(optionsMenu->fScreenFade >> 1);
+  fade = (short)(menuDefs->menuAudio.GetScreenFade() >> 1);
   if (0x80 < fade) {
     fade = 0x80;
   }
   percent = -1;
-  switch((short)optionsMenu->fCurrentItem) {
+  switch(menuDefs->menuAudio.CurrentItem()) {
   case 0:
-    percent = Percentage(&menuDefs->itemMusicVolume);
+    percent = menuDefs->itemMusicVolume.Percentage();
     break;
   case 1:
-    percent = Percentage(&menuDefs->itemSoundEffectsVolume);
+    percent = menuDefs->itemSoundEffectsVolume.Percentage();
     break;
   case 2:
-    percent = Percentage(&menuDefs->itemEngineVolume);
+    percent = menuDefs->itemEngineVolume.Percentage();
     break;
   case 3:
-    percent = Percentage(&menuDefs->itemSpeechVolume);
+    percent = menuDefs->itemSpeechVolume.Percentage();
     break;
   case 4:
-    percent = Percentage(&menuDefs->itemAmbientVolume);
+    percent = menuDefs->itemAmbientVolume.Percentage();
     break;
   default:
     goto DrawBg_noSlider;
@@ -233,10 +221,9 @@ DrawBg_noSlider:
   }
   if ((-1 < percent) || (-1 < lastpercentage)) {
     int ColText;
-    /* SYM-CODEGEN-CARRIER: displayPercent -- using `percent` directly is
-       FAIL2 (154/154), changing retail's `bgez $s0` to `bgez $a2`.  The
-       duplicated assignment plus the permitted identity fence keeps the
-       selected value in retail's global allocno without changing behavior. */
+    /* SOURCE-REVIEW-UNRESOLVED: displayPercent is absent from retail SYM.
+       Direct argument forms still change the tested register or allocation;
+       the duplicated assignment is not a proved original source object. */
     int displayPercent;
     char sBuildOutput [255];
 
@@ -271,9 +258,9 @@ DrawBg_noSlider:
   {
     int i;
 
-    /* SYM has a distinct block-local `i` in $s0.  Keeping the dead outer
-       assignment in the same expression preserves retail's coalescing: both
-       the instruction stream and the -g SLD twin are exact. */
+    /* SOURCE-REVIEW-UNRESOLVED: i is the retail loop local in s0, but the
+       dead percent assignment used to shape its coalescing is not proved
+       original. Byte PASS does not certify full SLD attribution. */
     i = percent = 0;
     do {
       DrawShapeExtended

@@ -51,7 +51,6 @@ void Texture_ResetPaletteSharing(void)
 {
   Texture_gNum4bitPal = 0;
   Texture_gNum8bitPal = 0;
-  return;
 }
 
 /* ---- Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi  [TEXTURE.CPP:90-139] SLD-VERIFIED ---- */

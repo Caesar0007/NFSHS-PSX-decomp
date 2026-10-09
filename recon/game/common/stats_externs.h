@@ -8,7 +8,7 @@ extern "C" int rand(void);
 /* ---- libc + harvested + SYM ---- */
 extern Car_tObj      *Cars_gRaceCarList[];      /* 0x8010fa00 */
 extern Car_tObj * Cars_gHumanRaceCarList[2];
-extern int GameSetup_gData[48];
+extern int GameSetup_gData[]; /* external owner word view; no guessed extent */
 #define STATS_RACE_TYPE GameSetup_gData[0]
 #define STATS_NUM_LAPS GameSetup_gData[1]
 #define STATS_COMMMODE GameSetup_gData[3]

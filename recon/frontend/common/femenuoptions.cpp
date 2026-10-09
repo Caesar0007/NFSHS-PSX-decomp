@@ -1620,36 +1620,24 @@ tInsideBoxSongMenu::~tInsideBoxSongMenu()
 
 
 
-/* ---- tInsideBoxSongMenu::Draw  [FEMENUOPTIONS.CPP:1271-1314] SLD-VERIFIED ---- */
+/* ---- tInsideBoxSongMenu::Draw [FEMENUOPTIONS.CPP:1271-1314] ----
+ * Retail drawY is the centered base, not the derived row offset. Direct
+ * slideOffset/w arguments need no slide/width source aliases. fe and both
+ * fadeValue objects remain source review; full SLD/ownership is unsealed. */
 
 void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short maxheight)
 
 {
-  /* SYM-CODEGEN-CARRIER: drawBaseY
-     SYM-CODEGEN-CARRIER: fadeValue
-     SYM-CODEGEN-CARRIER: fe
-     SYM-CODEGEN-CARRIER: slide
-     SYM-CODEGEN-CARRIER: width
-     MATCH W67: 126 -> PASS.  SYM authenticates j, drawY and song; removing the
-     Ghidra pointer walk, SSA scalar copies, and cached vtable row restores
-     retail's indexed fade loops.  The optimized-only expression carriers place
-     slideOffset/width in IDA's gold $s6/$s4 allocation.  Natural FEPlayList
-     ownership plus index-first address arithmetic preserves `addu v0,v0,fp`,
-     while the right-grouped Y sum reproduces retail's addition chain. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read j, drawY, song; the four non-SYM
-     carriers follow the SYM set. */
+  /* SOURCE-REVIEW-UNRESOLVED: the FE address and int clamp objects still
+   * affect current codegen. Failed removals do not prove original objects. */
   int j;
   int drawY;
   int song;
-  int drawBaseY;
-  u_int slide;
   tfrontEnd *fe;
-  short width;   /* a SHORT local: passed to DrawOneSong(short...) unchanged, so its one conversion stays before drawY's init */
 
-  slide = (u_short)slideOffset;
   
   if (screenAudio->songlist != (AudioMus_tSongList *)0x0) {
-    drawBaseY = (short)y + ((short)maxheight - 0x15 >> 1);
+    drawY = (short)y + ((short)maxheight - 0x15 >> 1);
     j = 0;
     do {
       if (j != 2) {
@@ -1679,10 +1667,7 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
     }
     j = 0;
     fe = &frontEnd;
-    width = w;
     do {
-      /* drawY (below, at its use) is DERIVED from j -- a giv: retail initialises it (-40) AFTER the hoisted argument
-         conversion, which is where loop.c puts a strength-reduced giv, not a separately initialised variable. */
       song = screenAudio->fSelectedSong + j - 2;
       if ((-1 < song) && (song < screenAudio->songlist->numsongs)) {
         if (*(int *)(song * 4 + (int)fe->FEPlayList) != 0) {
@@ -1699,10 +1684,9 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
         }
         /* a real call to a function taking shorts: the conversions the hand-written vtable call spelled out as
            `* 0x10000 >> 0x10` are now the compiler's own argument conversions */
-        drawY = j * 0x15 - 0x28;
         this->DrawOneSong(song,x,
-                   slide + ((u_int)(u_short)this->fMoving + (drawBaseY + drawY)),
-                   width,this->fOnOffFade[j],this->fSelFade[j]);
+                   (u_short)slideOffset + ((u_int)(u_short)this->fMoving + (drawY + (j * 0x15 - 0x28))),
+                   w,this->fOnOffFade[j],this->fSelFade[j]);
       }
       j = j + 1;
     } while (j < 5);

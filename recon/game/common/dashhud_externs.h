@@ -13,11 +13,11 @@ extern void Hud_Kill(void);                                                     
 extern void Hud_PositionMap(void);                                                  /* hud.obj */
 
 /* ---- cross-TU globals ---- */
-/* GameSetup_tData is absent from dashHUD.obj's retail type graph.  The exact
- * shared Car_tObj graph nevertheless provides a real int-array component at
- * +536; over-indexing N.damage to 139/140 gives the retail aggregate
- * 1092/1096 HudSpeed pair while preserving the 180-byte car-row induction. */
-extern int               GameSetup_gData[274];       /* gmesetup.obj */
+/* SOURCE-REVIEW-UNRESOLVED: these are GameSetup carInfo fields, not Newton
+ * damage entries. Owner carInfo@980, 180-byte rows, HudSpeed@112 and
+ * HudSpeedMult@116 give aggregate offsets1092/1096. The legacy proxy below
+ * retains the retail address induction; it is not a correct source object. */
+extern int               GameSetup_gData[];          /* owner word view, extent not guessed */
 #define DASHHUD_RACE_TYPE GameSetup_gData[0]
 #define DASHHUD_NUM_LAPS GameSetup_gData[1]
 #define DASHHUD_COMMMODE GameSetup_gData[3]

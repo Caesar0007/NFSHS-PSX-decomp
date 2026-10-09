@@ -34,6 +34,8 @@ struct tTournamentManager {
     char fPrevBestPlacement;
     u_char fFinishPoints[6], fRanking[6];
     tAwardInformation fAwards;
+    /* ORIGINAL-NAME-UNRESOLVED: inferred receiver-free definition accessor. */
+    tTournamentDefinition *Definition() { return fDefinition; }
 };
 
 /* These menu records are retained by the original screen header even though

@@ -468,7 +468,7 @@ bool tPMenuItemLeftRightSlider::Debounce()
 
 
 
-/* ---- tPMenuItemLeftRightSlider::ProcessInput  [PAUSEMENU.CPP:458-485] SLD-VERIFIED ---- */
+/* ---- tPMenuItemLeftRightSlider::ProcessInput [PAUSEMENU.CPP:458-485; source/SLD review open] ---- */
 
 void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &)
 
@@ -479,45 +479,36 @@ void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand
      in retail SYM. */
   
   sound = false;
-  if (keyval == kInput_KeyType_Left) {
-    goto PMLeftRtSlide_left;
-  }
-  if (keyval == kInput_KeyType_Right) {
-    goto PMLeftRtSlide_right;
-  }
-  goto PMLeftRtSlide_playSound;
-
-PMLeftRtSlide_left:
+  switch (keyval) {
+  case kInput_KeyType_Left:
     if (0 < *this->fData) {
       gMPauseUpdateNextTime = 1;
       *this->fData = (0 < *this->fData - (u_char)this->fMaxVal / 0x1e)
           ? *this->fData - (u_char)this->fMaxVal / 0x1e : 0;
-      goto PMLeftRtSlide_setPlayed;
+      sound = true;
     }
-    goto PMLeftRtSlide_processed;
-PMLeftRtSlide_right:
+    keyval = kInput_KeyType_AlreadyProcessed;
+    break;
+  case kInput_KeyType_Right:
     if (*this->fData < (int)(u_int)(u_char)this->fMaxVal) {
-      /* SYM-CODEGEN-CARRIER: max -- cached upper bound in retail's a2. */
+      /* SOURCE-REVIEW-UNRESOLVED: max is absent from retail SYM. The bound
+         assignment inside the comparison removes the former value capture
+         without changing 71 words. This remaining object still needs recovery. */
       u_int max;
-      /* SYM-CODEGEN-CARRIER: value -- GCC's retained increment result in v1. */
-      int value;
 
       gMPauseUpdateNextTime = 1;
-      value = *this->fData + (u_char)this->fMaxVal / 0x1e;
-      max = (u_char)this->fMaxVal;
-      if (value <= (int)max) {
-        max = value;
+      if (*this->fData + (u_char)this->fMaxVal / 0x1e <=
+          (int)(max = (u_char)this->fMaxVal)) {
+        max = *this->fData + (u_char)this->fMaxVal / 0x1e;
       }
       *this->fData = max;
+      sound = true;
     }
-    else {
-      goto PMLeftRtSlide_processed;
-    }
-PMLeftRtSlide_setPlayed:
-  sound = true;
-PMLeftRtSlide_processed:
-  keyval = kInput_KeyType_AlreadyProcessed;
-PMLeftRtSlide_playSound:
+    keyval = kInput_KeyType_AlreadyProcessed;
+    break;
+  default:
+    break;
+  }
   if (sound) {
     AudioCmn_PlayPauseSound(5);
   }
@@ -767,17 +758,16 @@ void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &
 
 
 
-/* ---- tPMenu::tPMenuConstructor  [PAUSEMENU.CPP:640-659] SLD-VERIFIED ---- */
+/* ---- tPMenu::tPMenuConstructor [PAUSEMENU.CPP:640-659; source/SLD review open] ---- */
 
 void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
 
 {
   tPMenuItem *p;
-  /* SOURCE-REVIEW: offset -- retail's $a1 induction has no named local.
-     Indexing from fNumItems previously changed sixteen rows. An independent
-     element index (typed array or base-first integer address) strength-reduces
-     to a pointer walker: 18/19 instructions, eleven differences. These finite
-     trials do not prove that this byte-offset object existed in the source. */
+  /* SOURCE-REVIEW-UNRESOLVED: offset has no retail local record. Direct
+     fNumItems indexing is 10 diffs at 19 words (2026-10-09); an independent
+     element index is 11 at 18, reduced to a pointer walker by loop.c.
+     These measured choices do not prove an original byte-offset object. */
   int offset;
 
   ap = (void *)((int)ap + 4);

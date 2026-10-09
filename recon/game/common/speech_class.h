@@ -3,6 +3,11 @@
 #ifndef NFS4_GAME_COMMON_SPEECH_CLASS_H
 #define NFS4_GAME_COMMON_SPEECH_CLASS_H
 
+/* PsyQ4.3 STRINGS.H: declare these before the inline name comparisons.
+ * Late/implicit declarations are not a portable C++ interface. */
+extern "C" int strlen(char *);
+extern "C" int strncmp(char *, char *, int);
+
 struct Car_tObj;
 
 #include "shared/SPCHNFSType_POSITION.h"

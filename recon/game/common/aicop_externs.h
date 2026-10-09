@@ -6,7 +6,7 @@
 extern AITrigger_TriggerManager *triggerManagerCops;
 extern Car_tObj           *Cars_gCopCarList[];
 /* AICOP.SYM omits the externally owned 2600-byte GameSetup body. */
-extern int GameSetup_gData[16];
+extern int GameSetup_gData[]; /* external owner word view; no guessed extent */
 #define AICOP_COPS GameSetup_gData[5]
 #define AICOP_TRACK GameSetup_gData[15]
 extern char               *Paths_Paths[];          /* 0x80116468 (paths.obj) */

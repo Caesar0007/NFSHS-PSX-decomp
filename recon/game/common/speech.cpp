@@ -604,16 +604,17 @@ extern "C" {
 void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsize)
 
 {
-  /* SYM-CODEGEN-CARRIER: reserveArg -- persistent literal web required by
+  /* SOURCE-REVIEW-UNRESOLVED: reserveArg -- persistent literal web retained by
      the two reserve calls in the exact saved-register allocation.
-     SYM-CODEGEN-CARRIER: reserveCallArg -- tied short-lived call alias.
-     SYM-CODEGEN-CARRIER: reserveBytes -- tied hsize allocator input.
-     SYM-CODEGEN-CARRIER: alignment -- tied literal 0x10 allocator input.
-     SYM-CODEGEN-CARRIER: dataSize -- tied copy of size forced to retail $v1.
-     SYM-CODEGEN-CARRIER: extension -- the twice-priced suffix result is a
-     distinct retail quantity; folding it into isheader gives 266/270.
-     SYM-CODEGEN-CARRIER: isheader -- retail keeps a separate $s0 accepted-bank
-     flag; merging it with extension removes four instructions.
+     SOURCE-REVIEW-UNRESOLVED: reserveCallArg -- tied short-lived call alias.
+     SOURCE-REVIEW-UNRESOLVED: reserveBytes -- tied hsize allocator input.
+     SOURCE-REVIEW-UNRESOLVED: alignment -- tied literal 0x10 allocator input.
+     SOURCE-REVIEW-UNRESOLVED: dataSize -- tied copy of size forced to retail $v1.
+     SOURCE-REVIEW-UNRESOLVED: extension/isheader -- current suffix-selection
+     shape has an extra accepted-bank flag and empty reference fences. Earlier
+     folding trials changed code, but do not prove distinct source objects.
+     Inline annotations below map known accessor evidence; they do not certify
+     missing receivers, pointer roles, scope bounds or original helper spelling.
      SYM-INLINE-THIS: IsHeader
      SYM-INLINE-LOCAL: a = IsHeader
      SYM-INLINE-LOCAL: b = IsHeader
@@ -649,9 +650,8 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
     int alignment;
 
     long dataSize;
-    /* Price the retail saved-register webs and force the tied size value into
-     * $v1 without emitting an instruction; the duplicate header reads are
-     * intentional allocator inputs. */
+    /* SOURCE-REVIEW-UNRESOLVED: zero-template allocator ties and duplicate
+     * header references are reconstruction devices, not recovered source. */
     __asm__("" : "=r"(dataSize), "=r"(reserveCallArg),
                    "=r"(reserveBytes), "=r"(alignment)
                : "0"(size), "1"(reserveCallArg), "2"(reserveBytes),
@@ -671,20 +671,13 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
     FILE_readsync(this->fFileHandle,hoffset,hdata,hsize,100);
     banknames = (char **)reservememadr(reserveArg,this->fBankCount << 2,0x10);
   }
-  {
-    int j;
-
-    for (j = 0; j < this->fBankCount; j++) {
+    for (int j = 0; j < this->fBankCount; j++) {
         banknames[j] = 0;
         this->fBankOffset[j] = 0;
       }
-  }
   __asm__("" : : "r"(hsize));
-  {
-    int i;
-
     p = c;
-    for (i = 0; i < filecount; i++) {
+    for (int i = 0; i < filecount; i++) {
     char *name;
     int namelen;
     bool isheader;
@@ -756,7 +749,6 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
     p++;
     c++;
     }
-  }
   purgememadr(hdata);
   purgememadr(banknames);
 }

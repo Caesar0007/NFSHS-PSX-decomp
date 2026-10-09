@@ -88,6 +88,18 @@ struct tTournamentManager {
     char fPrevBestPlacement;
     u_char fFinishPoints[6], fRanking[6];
     tAwardInformation fAwards;
+    short *GetTrackList(short tier, short tournament);
+    void GetTrackToRace(tTrackInfo &track);
+    /* ORIGINAL-NAME-UNRESOLVED: inline read of the current-track field. */
+    int CurrentTrack() { return fCurrentTrack; }
+    /* ORIGINAL-NAME-UNRESOLVED: inline money mutator and amount parameter.
+       Unsigned access through the corresponding signed/unsigned type keeps
+       the target's word-width arithmetic defined without another source local. */
+    void SubtractMoney(u_long amount) { (u_long &)fMoney -= amount; }
+    /* ORIGINAL-NAME-UNRESOLVED: same typed accessor used by the tournament owner. */
+    tTourneyInfo *CurrentTourney() {
+        return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
+    }
 };
 
 struct tListIteratorTrack : public tListIteratorIndexed {
@@ -141,6 +153,11 @@ struct tOptionsMenu : public tMenu {
     signed char fTransitionDirection;
     short fPrevItem;
     int fScreenFade, fFirstFrame, fNumFrames;
+    /* Same nonvirtual field accessor as the recovered display/user-name
+       surface. Original inline spelling is not uniquely recorded by SYM. */
+    int GetScreenFade() { return fScreenFade; }
+    /* Inferred inline selector, following tPMenu's CurrentItem spelling. */
+    short CurrentItem() { return (short)fCurrentItem; }
 };
 
 struct tInsideBoxMenu : public tMenu {
@@ -157,6 +174,8 @@ struct tMenuItemSlidingMenu : public tMenuItem {
 
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {
     bool fActive;
+    /* ORIGINAL-NAME-UNRESOLVED: inferred field accessor for the retail activation pair. */
+    bool IsActive() { return fActive; }
 };
 
 struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {};
@@ -170,6 +189,7 @@ struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
     bool fInTransition;
     short fAudioArt;
     int flareextra;
+    int Percentage();
 };
 
 struct tInsideBoxSongMenu : public tInsideBoxMenu {

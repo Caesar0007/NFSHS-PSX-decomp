@@ -6,6 +6,11 @@
 
 #include "shared/Sched_tSchedule.h"
 
+/* Retail does not emit these aggregate bodies in control.obj.
+ * Keep the canonical cross-TU identities opaque in this consumer. */
+struct Sim_tSimGlobalVar;
+struct GameSetup_tData;
+
 
 
 

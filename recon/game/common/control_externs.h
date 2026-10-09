@@ -2,16 +2,19 @@
 #ifndef _GAME_COMMON_CONTROL_EXTERNS_H_
 #define _GAME_COMMON_CONTROL_EXTERNS_H_
 /* ===== globals (all cross-TU; control.obj owns NO data) ===== */
-extern int                simGlobal[2];       /* Sim.obj   (.gameTicks) */
-#define CONTROL_GAME_TICKS simGlobal[1]
+extern Sim_tSimGlobalVar   simGlobal;          /* Sim.obj */
+#define CONTROL_GAME_TICKS (*(int *)((char *)&simGlobal + 4))
 extern int                Cars_gNumAICars;     /* Cars.obj  */
-extern int                Input_gSim;          /* Input.obj (sim controller results) */
+extern int                Input_gSim;          /* Input.obj word view */
+/* Owner SYM: steering CHAR@0, gas/brake/flags UCHAR@1/2/3. */
+/* The opaque aggregate trial changes this caller's address expansion
+ * (26 diffs/282 versus 288); retain the proven four-byte view for review. */
 #define CONTROL_INPUT_STEERING (*(signed char *)&Input_gSim)
 #define CONTROL_INPUT_GAS (((u_char *)&Input_gSim)[1])
 #define CONTROL_INPUT_BRAKE (((u_char *)&Input_gSim)[2])
 #define CONTROL_INPUT_FLAGS (((u_char *)&Input_gSim)[3])
-extern int                GameSetup_gData[12]; /* GameSetup.obj (.mirrorTrack) */
-#define CONTROL_MIRROR_TRACK GameSetup_gData[11]
+extern GameSetup_tData     GameSetup_gData;     /* gmesetup.obj */
+#define CONTROL_MIRROR_TRACK (*(int *)((char *)&GameSetup_gData + 44))
 extern int                HudBustedOverlay;    /* Hud.obj   */
 
 /* ===== free helpers (cfront-mangled in originals; normal C++ linkage) ===== */

@@ -39,7 +39,6 @@ void FETextRender_MenuTextPositionedJustify(short index, short x, short y,
 char * TextSys_Word(int wordnum);
 void FeAudio_systemtask(int x);
 int TextSys_WordY(int wordnum);
-int Percentage(tMenuItemLeftRightAudioSlider * thisobj) asm("Percentage__29tMenuItemLeftRightAudioSlider");
 int AudioMus_PlaySong(char * pattern);
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
 int AudioCmn_PlaySound(int bhandle, int patchNum, int azimuth, int vol, int bend);

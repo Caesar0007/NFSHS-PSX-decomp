@@ -135,7 +135,10 @@ void CarIO_ReStart(void)
   return;
 }
 
-/* ---- CarIO_CopyFromShape__FPsT0iiii  [CARIO.CPP:258-342] SLD-VERIFIED ---- */
+/* ---- CarIO_CopyFromShape__FPsT0iiii  [CARIO.CPP:258-342] ----
+ * Capture the masked word in each retail rollOver, then shift that real value.
+ * The column for-loop owns the nested rotation region. Native locals/scopes
+ * and all113 instructions match; complete source-line attribution is separate. */
 /* SYM @0x800bbff0: fsize 0, mask $00000000 -- a LEAF with NO frame and NO
  * saved registers.  REGPARMs source=$04 dest=$05 w=$06 h=$07, x/y ARG 16/20(sp)
  * copied to REG $18($t8)/$09($t1).  Locals (all REG, no AUTO):
@@ -149,48 +152,45 @@ void CarIO_ReStart(void)
  * reached as dest[0]/dest[i]; the retail $t1 walker is the strength-reduced
  * giv of dest[i].  `mask` is a SIGNED int -- the `== -1` guard must emit
  * li+beq, not the unsigned nor+bnez canonicalization. */
+/* 161 -> 101 (rule-8) -> 63 -> 32 -> 22 (w40-a5), count now EXACT 113/113.
+ * The w39 note ("hand-written rotated guard+do-while 37") measured BOTH shift-only
+ * mask loops at once; taking them SEPARATELY, the FIRST one wants the peeled+rotated
+ * form and the second does NOT:
+ *     mask = mask - 1;
+ *     if (mask != -1) { do { lastMask = lastMask << 4; mask = mask - 1; }
+ *                       while (mask != -1); }
+ * gives retail's `addiu a2,-1; li v0,-1; beq a2,v0,SKIP` peel + the body in the
+ * back-edge DELAY SLOT (`bne a2,v0,LOOP; sll t4,t4,4`) and kills the unsigned
+ * `nor v0,zero,a2; bnez` canonicalization -- that loop is now byte-identical AND
+ * every hoisted-constant register letter (t4/t5/t6/t8/t9) fell into place with it.
+ * Applying the same shape to the SECOND (`current <<= 4`) loop regresses (37,
+ * ours 112) -- retail leaves that one unpeeled with its own fresh `li v0,-1`.
+ * 22 -> 0 PASS (w41-a5, 113/113).  рџЏ† THE "COMMUTATIVE-OPERAND RTL CANONICALIZATION
+ * FLOOR" WAS A COMPOSITE-EXPRESSION ARTIFACT, NOT A FLOOR.  All five `or rd,v1,v0`
+ * (ours) vs `or rd,v0,v1` (oracle) diffs came from writing a read-modify-write as ONE
+ * composite expression -- `X = (X << 4) | rollOver;` / `d = (d & mask) | v;`.  In that
+ * form cc1 builds the IOR from two fresh sub-expressions and RTL canonicalization picks
+ * the operand order (which is why the w40 probe that merely SWAPPED the `|` operands in
+ * the composite measured no change at all -- correct observation, wrong conclusion).
+ * Writing the SAME arithmetic as a compound-assignment PAIR -- `X <<= 4; X |= rollOver;`
+ * / `d &= mask; d |= v;` -- makes the destination a genuine input operand, so it lands
+ * FIRST exactly like retail.  Four splits, each worth exactly 2 diffs, strictly
+ * monotone (8->6->4->2->0).  в‡’ before filing any commutative-operand-order diff as an
+ * RTL floor, check whether the C is a composite expression that should be a
+ * read-modify-write pair.
+ * TWO more, found the same pass: (b) the trailing `current <<= 4` loop DOES take the
+ * peel -- but only the `mask=mask-1; while(mask!=-1){body; mask=mask-1;}` spelling
+ * (22->12); the do-while spelling that won for the FIRST mask loop regresses here (37),
+ * which is what the w40 note measured; (c) inside `if (lastLastMask != 0xffff)` the
+ * oracle emits `lastMask = lastLastMask` BEFORE `columns+1` -- statement order (12->10). */
 void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 
 {
-  int columns;
-  int mask;
+  int columns = w >> 2, mask = w & 3;
   u_short firstMask;
   u_short lastMask;
   u_short lastLastMask;
 
-  /* 161 -> 101 (rule-8) -> 63 -> 32 -> 22 (w40-a5), count now EXACT 113/113.
-   * The w39 note ("hand-written rotated guard+do-while 37") measured BOTH shift-only
-   * mask loops at once; taking them SEPARATELY, the FIRST one wants the peeled+rotated
-   * form and the second does NOT:
-   *     mask = mask - 1;
-   *     if (mask != -1) { do { lastMask = lastMask << 4; mask = mask - 1; }
-   *                       while (mask != -1); }
-   * gives retail's `addiu a2,-1; li v0,-1; beq a2,v0,SKIP` peel + the body in the
-   * back-edge DELAY SLOT (`bne a2,v0,LOOP; sll t4,t4,4`) and kills the unsigned
-   * `nor v0,zero,a2; bnez` canonicalization -- that loop is now byte-identical AND
-   * every hoisted-constant register letter (t4/t5/t6/t8/t9) fell into place with it.
-   * Applying the same shape to the SECOND (`current <<= 4`) loop regresses (37,
-   * ours 112) -- retail leaves that one unpeeled with its own fresh `li v0,-1`.
-   * 22 -> 0 PASS (w41-a5, 113/113).  рџЏ† THE "COMMUTATIVE-OPERAND RTL CANONICALIZATION
-   * FLOOR" WAS A COMPOSITE-EXPRESSION ARTIFACT, NOT A FLOOR.  All five `or rd,v1,v0`
-   * (ours) vs `or rd,v0,v1` (oracle) diffs came from writing a read-modify-write as ONE
-   * composite expression -- `X = (X << 4) | rollOver;` / `d = (d & mask) | v;`.  In that
-   * form cc1 builds the IOR from two fresh sub-expressions and RTL canonicalization picks
-   * the operand order (which is why the w40 probe that merely SWAPPED the `|` operands in
-   * the composite measured no change at all -- correct observation, wrong conclusion).
-   * Writing the SAME arithmetic as a compound-assignment PAIR -- `X <<= 4; X |= rollOver;`
-   * / `d &= mask; d |= v;` -- makes the destination a genuine input operand, so it lands
-   * FIRST exactly like retail.  Four splits, each worth exactly 2 diffs, strictly
-   * monotone (8->6->4->2->0).  в‡’ before filing any commutative-operand-order diff as an
-   * RTL floor, check whether the C is a composite expression that should be a
-   * read-modify-write pair.
-   * TWO more, found the same pass: (b) the trailing `current <<= 4` loop DOES take the
-   * peel -- but only the `mask=mask-1; while(mask!=-1){body; mask=mask-1;}` spelling
-   * (22->12); the do-while spelling that won for the FIRST mask loop regresses here (37),
-   * which is what the w40 note measured; (c) inside `if (lastLastMask != 0xffff)` the
-   * oracle emits `lastMask = lastLastMask` BEFORE `columns+1` -- statement order (12->10). */
-  columns = w >> 2;
-  mask = w & 3;
   if (mask != 0) {
     columns = columns + 1;
   }
@@ -215,8 +215,9 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
     mask = mask - 1;
     if (mask == -1) break;
     firstMask = (firstMask << 4) | 0xf;
-    rollOver = (lastMask & 0xf000) >> 0xc;
+    rollOver = lastMask & 0xf000;
     lastMask = lastMask << 4;
+    rollOver >>= 0xc;
     lastLastMask <<= 4;
     lastLastMask |= rollOver;
   }
@@ -240,15 +241,16 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 
       mask = mask - 1;
       if (mask == -1) break;
-      rollOver = (current & 0xf000) >> 0xc;
-      next <<= 4;
+      rollOver = current & 0xf000;
       current = current << 4;
+      rollOver >>= 0xc;
+      next <<= 4;
       next |= rollOver;
     }
     i = 1;
     dest[0] &= firstMask;
     dest[0] |= current;
-    while (i < columns - 1) {
+    for (; i < columns - 1; i++) {
       mask = x & 3;
       dest[i] = (short)next;
       current = *source;
@@ -259,13 +261,13 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 
         mask = mask - 1;
         if (mask == -1) break;
-        rollOver = (current & 0xf000) >> 0xc;
-        next <<= 4;
+        rollOver = current & 0xf000;
         current = current << 4;
+        rollOver >>= 0xc;
+        next <<= 4;
         next |= rollOver;
       }
       dest[i] |= current;
-      i = i + 1;
     }
     mask = x & 3;
     dest[i] &= lastMask;
@@ -285,150 +287,45 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
   return;
 }
 
-/* ---- CarIO_CopyToShape__FPsT0i  [CARIO.CPP:347-374] SLD-VERIFIED ---- */
+/* ---- CarIO_CopyToShape__FPsT0i  [CARIO.CPP:347-374] ----
+ * The mirror for-loop reproduces retail pixel3 and all six declaring regions.
+ * Nibble carriers/empty fence and full line attribution remain source review. */
 void CarIO_CopyToShape(short *source,short *dest,int mirror)
 
 {
-  /* SYM @0x800bc1b4: fsize 0, mask 0 (leaf).  REGPARMs source=$0a($t2),
-   * dest=$08($t0), mirror=$06($a2).  Only THREE locals, in nested blocks:
-   *   fn block        -> h      REG $0b ($t3)
-   *   outer-loop body -> i      REG $07 ($a3)   [shared by both arms]
-   *   inner mirror    -> pixel3 REG $03 ($v1)   USHORT
-   * There is NO pointer local: the source walkers ($v1 / $t1) are compiler
-   * GIVs of `source[i]`, so the source indexes the array (catalog: SYM has
-   * only i/j => pointers are givs, use index form).  Both loops are
-   * EXIT-IN-THE-MIDDLE so gcc does not rotate/peel them (oracle back-edges
-   * are unconditional `j`), and `h == -1` (not `!= -1`) keeps the signed
-   * `beq h,K` against the loop-hoisted -1 in $t4 instead of the unsigned
-   * `nor`+`bnez` canonicalization.
-   * 51 -> 6 diffs (w39-a5).  (a) was SOLVED: writing the four mirrored nibbles as
-   * four NAMED `int` temps (not one fused expression, and not `u_short` temps --
-   * u_short scored 22, int 18, the fused expression 51) gives gcc four independent
-   * chains to schedule, which is what frees $a0/$a1 and copies BOTH pointer params
-   * out into $t2/$t0 exactly like retail.  The ASSIGNMENT ORDER of the four temps is
-   * then load-bearing: all 24 permutations were measured, n1,n2,n0,n3 = 6 and every
-   * other order 12-22 (the `|` operand order was also swept: n0|n1|n2|n3 is best).
-   * The temps are compiler temps in the SYM (only pixel3 is named) but naming them is
-   * required to reproduce the retail schedule -- see the catalog's "N named value-temps
-   * give the parallel chains" row.
-   * RESIDUAL 6 diffs (ours 40 / oracle 42), TWO 2-insn gaps, both already documented:
-   *  (a) the oracle emits n0 (`andi v0,v1,15; sll v0,v0,12`) FIRST; ours emits it
-   *      third.  All registers match -- pure sched2 placement.
-   *  (b) the two arms' identical `source += 12; j looptop` tails: our gcc CROSS-JUMPS
-   *      them into one, retail kept both copies.  No source spelling reached it;
-   *      moving the statement out of the arms produces exactly our merged form.
-   *      (= the catalog's per-obj "old-gcc never merges identical tails" identity.)
-   * w41-a5 re-probe under the upgraded floor bar: the n0..n3 DECLARATION order is a
-   * separate dial from their assignment order, so all 24 declaration permutations were
-   * swept -- every one measures 6.  Assignment order (24, w39) and `|` operand order
-   * were already swept.  Both remaining items are therefore post-source (sched2
-   * placement + cross-jump depth); STRONG floor at the source level.
-   * w49-a6 re-probe of residual (a) from the 4 basin with the two ZERO-INSN dials that
-   * postdate the receipt above -- the w44 do{}while(0) REF-STEP wrapper and the w45 USE
-   * FENCE: `do{n0=...}while(0)` 9 @43, `do{n1;n2}while(0)` 9 @43 (the wrapper's
-   * LOOP_BEG/END note costs a real insn inside this loop -- the catalog's "NEGATIVE on
-   * straight-line call-free blocks" boundary), fence before n0 18 @44, after n0 12 @44,
-   * n0-first + fence 22 @44.  Every one breaks the exact 42/42 count, so (a) still has
-   * no zero-insn dial.  STRONG floor stands.
-   * ---- w59-a5 (2026-08-14): 4 -> 2, count-exact 42/42.  THE "STRONG FLOOR" WAS AN
-   * ARTEFACT OF SWEEPING THE TWO DIALS SEPARATELY.  w39 swept the 24 ASSIGNMENT orders
-   * (at the fixed `|` order n0|n1|n2|n3) and separately swept the `|` operand order (at
-   * the fixed best assignment order); the JOINT 24 x 24 = 576 sweep
-   * (scratchpad/w59a5/sweep_copytoshape.py) finds a strictly better cell that neither
-   * axis reaches alone:  **assign n0,n1,n2,n3  +  `|` order n0 | n3 | n1 | n2  = 2**
-   * (the w39 cell n1,n2,n0,n3 + n0|n1|n2|n3 reproduces at 4; assign n0,n1,n2,n3 with the
-   * plain `|` order is 16).  With it, retail's whole andi/sll issue order appears verbatim
-   * (`andi v0,v1,15; sll v0,v0,12` FIRST -- residual (a) is GONE) and all four registers
-   * match.  Also swept and NOT better (same harness, sweep_cts2.py, 864 more cells): every
-   * 3-named-temp subset (the 4th term written INLINE in the `|` chain) x its 6 assignment
-   * orders x all 24 `|` orders, and every 2-named-temp subset -- exactly ONE cell reaches
-   * 2 (`named n0/n1/n2, assign n0+n1+n2, or n0|n3|n1|n2`, i.e. the same shape with n3
-   * inline) and nothing beats it.
-   * RESIDUAL 2 (count-exact 42/42): ONE `or` position -- ours ORs the n3 term FIRST
-   * (`or v0,v0,v1` at 32), retail ORs it LAST (at 34, after the n1 and n2 ors).  The
-   * emitted register map, the four value chains and their order are otherwise identical,
-   * so this is the last sched2 ready-tie in the block; the plain left-assoc source order
-   * n0|n1|n2|n3 that would spell it is exactly the cell that costs 16 (it re-schedules
-   * the value chains).  CATALOG CANDIDATE: "sweep dial pairs JOINTLY -- a per-axis
-   * minimum is not a joint minimum" (this fn: 4 -> 2 with zero new devices). */
-  int h;
-
-  h = 0x16;
+  int h = 0x16;
   while (1) {
     int i;
 
     h = h - 1;
     if (h == -1) break;
     if (mirror == 0) {
-      i = 0;
-      do {
+      for (i = 0; i < 6; i++) {
         *dest++ = source[i];
-        i = i + 1;
-      } while (i < 6);
+      }
       source = source + 0xc;
     }
     else {
-      i = 5;
-      while (1) {
+      for (i = 5; ; i--) {
         u_short pixel3;
 
         if (i < 0) break;
-        int n0; /* SYM-CODEGEN-CARRIER: n0 -- named parallel nibble chain; the 576-cell assignment/OR sweep requires all four stages */
-        int n1; /* SYM-CODEGEN-CARRIER: n1 -- named parallel nibble chain */
-        int n2; /* SYM-CODEGEN-CARRIER: n2 -- named parallel nibble chain */
-        int n3; /* SYM-CODEGEN-CARRIER: n3 -- named parallel nibble chain */
+        /* SOURCE-REVIEW-UNRESOLVED: these parallel nibble objects are absent
+         * from retail SYM. Current direct/accumulating forms change allocation;
+         * that is not proof four source declarations were originally present. */
+        int n0, n1, n2, n3;
 
         pixel3 = source[i];
         n0 = (pixel3 & 0xf) << 0xc;
         n1 = (pixel3 & 0xf0) << 4;
         n2 = (pixel3 & 0xf00) >> 4;
-        /* w60-a7 SEAL (2 -> PASS 42/42).  The last residual was ONE `or` position
-         * (ours ORed the n3 term first, retail last) and the plain left-assoc
-         * `n0|n1|n2|n3` that spells retail's or ORDER cost 16 because it rotates
-         * pixel3/n1/n2 one hard reg (ours a1/a0/v1, retail v1/a1/a0).  ROOT CAUSE:
-         * with n3 ORed LAST, `n3 = pixel3 >> 0xc` written as a fresh temp keeps
-         * pixel3's qty alive to the last `or` -> long live range -> low
-         * QTY_CMP_PRI -> allocated late -> $a1.  Writing it as an IN-PLACE MUTATION
-         * of pixel3 followed by a COPY (`pixel3 = pixel3 >> 0xc; n3 = pixel3;`)
-         * ends pixel3's own range at the shift and gives n3 its own short-lived
-         * qty, restoring retail's exact handout AND the plain or order.
-         * Falsified from this basin (all worse): plain-or alone 16; the same with
-         * `(int)pixel3` 16, `(pixel3 & 0xf000) >> 0xc` 16, n3 assigned first 12,
-         * n3 written inline in the `|` chain 16, dropping n3 and using pixel3
-         * directly 16 (BOTH `pixel3 = pixel3 >> 0xc;` and `pixel3 >>= 0xc;` --
-         * the named COPY is load-bearing); read-only fences on pixel3 x1/x2/x3
-         * after n3 15/15/31 (+3 insns), after the load 22, opacity fence on n3 20,
-         * 3-operand fence on n0/n1/n2 22; every parenthesisation of the 4-term `|`
-         * 14-22; accumulator statement forms 43-51 (they drop an insn); `+` for `|`
-         * 20.  (The pre-existing 576-cell assign-order x or-order joint sweep never
-         * reached this cell -- it varied only the two ORDER axes, never the SHAPE
-         * of the n3 term.) */
         pixel3 = pixel3 >> 0xc;
         n3 = pixel3;
         *dest++ = (short)(n0 | n1 | n2 | n3);
-        i = i - 1;
       }
-      /* w46-a9 (6 -> 4, count now EXACT 42/42): residual (b) above -- the two arms'
-       * identical `source += 12; j looptop` tails -- is NOT a per-obj cross_jump
-       * identity.  A zero-operand USE fence is an RTL insn that emits ZERO bytes, so
-       * it breaks the arms' equality for free and retail's duplicated tail returns.
-       * PLACEMENT is the whole dial and it is not the obvious one: the fence must sit
-       * in the ELSE arm BEFORE its `source += 12` (42 insns / 4 diffs).  Measured from
-       * this basin: fence AFTER the then-arm tail 43/7, after the else-arm tail 43/7
-       * (both de-merge but dbr then steals the loop-top `addiu t3,t3,-1` into the `j`
-       * delay slot instead of `addiu t2,t2,24`), before the then-arm tail 40/6 (still
-       * merged).  All 24 n0..n3 ASSIGNMENT orders were re-swept from the new basin
-       * (the w39/w41 sweeps were basin-relative): the original n1,n2,n0,n3 is still
-       * the unique optimum (next best 10, worst 18).  Eight in-loop fence placements
-       * aimed at residual (a) all cost +2 insns (44) -- the n0 sched2 placement needs
-       * a ZERO-insn dial, not a fence inside the loop body.
-       * w50-a6: the one instrument the receipts had NOT tried on residual (a) is the w47
-       * OPACITY/IDENTITY fence (`"=r"(x) : "0"(x)`), a value-numbering barrier and a
-       * different device from the plain use fence swept above.  It is NOT zero-insn here
-       * (each operand is a loop-body value that must be materialized into its own pseudo):
-       * opq(pixel3) 13 @45, opq(n0) 8 @44, opq(n1) 24 @44, opq(n3) 24 @44, opq(n1)+opq(n2)
-       * 24 @44, n0-first + opq(n1) 24 @44.  Every one breaks the exact 42/42 count.
-       * 2026-10-01: now PASS 42/42; removing this fence gives 40/42, and pure-C source/mirror/i identities were worse or neutral. */
+      /* SOURCE-REVIEW-UNRESOLVED: without this existing zero-template fence,
+       * GCC still merges the two source-advance tails (40 versus42 words).
+       * Original source separation remains unrecovered. */
       __asm__("");
       source = source + 0xc;
     }
@@ -436,258 +333,29 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
   return;
 }
 
-/* ---- CarIO_CreateLicense__FPcii  [CARIO.CPP:379-483] SLD-VERIFIED ---- */
-/* SYM @0x800bc25c (fsize 72, mask $80ff0000).  FULL rule-8 rewrite (w39-a5):
- *   REGPARMs text=$17($s7) carType=$05($a1) player=$16($s6)
- *   fn block  -> i REG $12($s2), clutPlate1 REG $14($s4), clutPlate2 REG $15($s5),
- *                thePlate REG $13($s3), shape REG $07($a3), clutptr REG $08($t0)
- *   line-32   -> length REG $11($s1), start REG $10($s0)
- *   line-44   -> letter AUTO 24(sp) char[5], ascii REG $03($v1)
- * TWO REAL BUGS fixed here:
- *  (a) R3DCar_LicenseShapeFile is a `char *` in its OWNER (r3dcar.cpp:44) but was
- *      declared `char []` in cario_externs.h, so both locateshapez calls passed the
- *      ADDRESS OF THE POINTER instead of the buffer (oracle: `lui;lw %lo(sym)` = a
- *      value load, ours emitted `lui;addiu` = address-of).  Extern-type-vs-owner class.
- *  (b) the accent-folding switch was written with SIGNED case labels (-0x40..-0x24)
- *      but `char` is UNSIGNED on this build, so the compare value is 0..255 and NONE
- *      of the cases could ever match -- gcc kept the table (`addiu v1,v1,64;
- *      sltiu v0,v1,29`) but it was unreachable, i.e. accented characters never folded
- *      to their base letter at runtime.  The oracle normalizes against +0xC0
- *      (`addiu a0,a0,-192`), confirming unsigned labels.  Case BODY order is retail's
- *      (n, a, e, i, o, u) -- switch case bodies emit in SOURCE order. */
-/* ---- CarIO_CreateLicense__FPcii  [CARIO.CPP:379-483] SLD-VERIFIED ----
- * 124 -> 104 (w41-a5), count EXACT 229/229.  SYM @0x800bc25c: fsize 72,
- * mask $80ff0000 (ra + s0..s7, no fp) -- both reproduced.  SYM register map:
- *   REGPARM text $17($s7)  carType $05($a1)  player $16($s6)
- *   fn block  i $12($s2), clutPlate1 $14($s4), clutPlate2 $15($s5),
- *             thePlate $13($s3), shape $07($a3), clutptr $08($t0)
- *   line-32   length $11($s1), start $10($s0)
- *   line-44   letter AUTO -0x30, ascii REG $03($v1)
- * THREE changes this pass:
- *  (a) the header-copy loop stores Plate1 BEFORE Plate2 (124 -> 106) and the
- *      0x11800 flag word likewise (106 -> 104).  Ghidra had emitted every
- *      Plate2/Plate1 pair in reverse; the first two pairs are the load-bearing
- *      ones (the clut-copy loop 3 and the width pair 5 both regress or tie).
- *  (b) `void *pShape` deleted -- the SYM's line-44 block names only `letter` and
- *      `ascii`, so pShape was a Ghidra temp; the locateshapez call is inlined at
- *      its single use (diff-neutral, SYM hygiene).
- *  (c) the w40 "$s0<->$s1 find_reg pick" framing is now WRONG: after (a) the
- *      s0/s1 pair matches and a blanket s0<->s1 rename REGRESSES 104 -> 174.
- * RESIDUAL 104, three caller-saved coloring clusters, all count-neutral:
- *   - clutptr: SYM $t0, ours $a2 (and the header-loop giv walker $a2 vs our $a1)
- *   - ascii:   SYM $v1, ours $a2 -- ~20 diffs across the switch and the letter[]
- *     build.  SYM puts `ascii` and `letter` in the SAME block (the one at
- *     800BC478), i.e. inside the non-space guard; three spellings of that
- *     (re-read text[i] in the guard, with/without initializer, decl order) all
- *     measure 99 but at 230 insns -- the extra lbu makes them structurally
- *     WORSE, so the count-exact 104 form is kept.  Wrapping both locals in one
- *     block around the guard is exactly diff-neutral (104, 229) -- so the SYM
- *     block shape is reachable but does not move the coloring.
- *   - the 0x11800/width/CopyToShape tail: t2 vs t4 and a v0/v1/t0 rotation.
- * w42-a5 QUANTIFIED IT (tools/posdiff.py): count EXACT 229/229 and the FIRST-USE
- * register order is identical up to $a3 -- then ours consumes only THREE caller-saved
- * temps (t2 t1 t0) where retail consumes FIVE (t0 t4 t1 t3 t2).  Instruction-for-
- * instruction the tail is the same code; retail simply keeps two more values live in
- * t-registers.  The concrete carrier: retail hoists the THIRD CarIO_CopyFromShape arg
- * (`li $a2,48`) up with $a0/$a1 BEFORE the two 0x11800 read-modify-writes and the two
- * width stores, and holds both plate pointers in $t3/$t2 across them; ours cannot,
- * because $a2 is busy holding CarIO_Plate1[player] there, so `li $a2,48` is emitted
- * last and the plate pointers land in $v0/$v1/$a2.  {$t0,$t1} collapse does NOT reduce
- * this residual (104 -> 104), so it is not the ReadIn reload-pool class.
- * NOTE this is the SAME "retail materializes a constant at the TOP of a straight-line
- * block, tens of insns before its first use" phenomenon that trackspec.cpp's
- * TrackSpec_SetDefault residual is made of (see its note + the -dS receipt there:
- * every insn in such a block has sched priority 1, so gcc-2.8's backward list
- * scheduler falls back on the LUID tie-break = source order, and no C statement order
- * emits a `li` detached from its consumer).  Treat the two together; it looks like a
- * per-object toolchain/identity axis, not two independent function-level ties.
- * ===== w44-a9 DATA POINT FOR THE PER-OBJECT IDENTITY INVESTIGATION (relay to a10) =====
- * SHARPENED: the hoisted material is not one stray constant -- it is the COMPLETE ARG
- * SETUP of the CarIO_CopyFromShape call, sitting ~18 insns before its `jal`, with real
- * body work interleaved AFTER it.  Oracle @ the 0x11800 tail, in order:
- *     lui t4,1 ; ori t4,t4,6144        (0x11800 mask)
- *     addiu a0,a3,16                   <-- CopyFromShape arg0 = shape+0x10
- *     addu  a1,s3,zero                 <-- arg1 = thePlate
- *     li    a2,48                      <-- arg2 = 0x30
- *     sll   t0,s6,2 ; lui/addiu t1 ; addu t1,t0,t1
- *     li    a3,22                      <-- arg3 = 0x16
- *     lw t3,0(t1) ; addu t0,t0,v0 ; lbu v1,0(t3) ; lw t2,0(t0)
- *     or v1,v1,t4 ; sw v1,0(t3) ; lbu v0,0(t2) ; or v0,v0,t4 ; sw v0,0(t2)
- *     lw t0,0(t0) ; lw v1,0(t1) ; li v0,24 ; sh v0,4(v1) ; sh v0,4(t0)
- *     sw zero,16(sp) ; jal CopyFromShape ; sw zero,20(sp)
- * Ours emits the same instructions but with the four arg-setup insns adjacent to the jal
- * (they end up filling the two plate-pointer load-delay slots instead of retail's second
- * pointer load).  THIS IS THE SHARP FORM OF THE QUESTION for a10: in gcc-2.8, call
- * argument-setup insns are chained to their CALL_INSN by SCHED_GROUP_P, so the scheduler
- * moves them WITH the call and can never leave 18 insns of unrelated work between them.
- * Retail's build DID -- i.e. retail's arg values were materialized OUTSIDE the call
- * sequence (low luid, own insns), which is what `expand_call`'s
- * `precompute_register_parameters` does only for args it considers non-trivial.  So the
- * SetDefault "block-head li" and this "pre-call arg block" are ONE mechanism seen twice:
- * retail's cc1 put value materializations at a LOWER luid than ours.
- * ⇒ a10 lanes worth testing with these two exhibits: (1) a per-object flag that changes
- * expand_call's precompute decision; (2) `-fno-defer-pop` / arg-evaluation-order options;
- * (3) whether cc1 2.8.0 precomputes when the call has >4 args (both exhibits' calls have
- * 6 args -- two go on the stack via `sw zero,16(sp)/20(sp)`, which is exactly the case
- * where gcc pre-evaluates register args to avoid clobbering while pushing).
- * w44-a9 also falsified locally: swapping the two `width = 0x18` stores to Plate1-first
- * (104 -> 106); the Plate2-first order stays.
- * ===== w53-a4: THE PRECOMPUTE-ARG LANE IS CLOSED AT THE SOURCE LEVEL (still 78, 229/229).
- * w44-a9 (above) named it and w46 solved the trigger from calls.c: on MIPS -O2 expand_call
- * precomputes a register arg iff its rtx is NOT already a REG and rtx_cost > 2 (i.e. more
- * than one instruction), and the hard-reg `move $aN,...` loads ALWAYS hug the CALL_INSN.
- * All four of this call's register args are cost<=1 (an addiu, a REG, two `li`s), so nothing
- * is precomputed and no source shape can request it.  MEASURED (every variant re-gated,
- * all EXACTLY 78 @ 229/229 unless noted): named locals for the two pointer args; for all
- * four args; all four + a named `flags = 0x11800`; the mask local alone; all five assigned
- * at the top of the block.  cse/copy-prop folds every one of them straight back onto the
- * call (catalog: "N named locals initialized from one expression are copy-propagated to one
- * register").  The w47 OPACITY/IDENTITY FENCE -- the one device that DEFEATS that fold --
- * was then applied to make the pseudos survive: fence on csrc / on cdst / on both = 78
- * (still folded through the fence's own copy), on all four = 77 but 230 insns, i.e. it buys
- * one diff by ADDING an instruction, which fails the count-exact bar.  ⇒ the "18-insn early
- * arg block" is a compiler-side (expand_call) identity, not a statement-shape defect; it
- * belongs with trackspec's TrackSpec_SetDefault exhibit in the per-object identity file,
- * and this note closes the source lane on it.
- * ===== W71-A7 (2026-08-21): 30 STAYS @229/229.  The w64-a14 residual localisation is
- * re-confirmed and the ADDRESS-LOCAL axis (untried before -- w64 only moved the q1/q2
- * VALUE pair) is now falsified too.  Everything re-gated from the 30 basin:
- *   head-block `reload & 0x10` arm: chained `carPixMapCount = ...textureStartIndex =
- *     CarIO_carPixMapCount;` 169 . the two statements swapped 169 (so the CSE order in
- *     that arm is load-bearing and already right).
- *   `i = 0` STATEMENT POSITION (the `addu s2,zero,zero` that retail emits 8 slots later):
- *     before clutPlate2 / after clutPlate1 / after thePlate / last = ALL exactly 30.
- *     The insn is the loop's induction init, placed by the loop preheader, so no
- *     statement position reaches it.  Loop FORM: `for(i=0;i<4;i++)` 37 @230,
- *     `while(1){...;if(i>=4)break;}` 30 -- neither moves it either.
- *   ADDRESS-POINTER locals `shapetbl **pp1/**pp2 = &CarIO_PlateN[player];` (the shape
- *     that would give retail's t0/t1 held across the RMW + the width re-reads): for the
- *     RMW only 30 . for RMW + both re-reads 30 . reads21 variant 30 . re-reads only 30 --
- *     cse folds every one back onto the single address computation.  With a w47 opacity
- *     fence to DEFEAT that fold (count stays exact 229): fence on pp1 38, on pp2 36, on
- *     both 32 -- the address does survive as a pseudo, but it is materialised in the
- *     wrong place and costs diffs.  Named `u_int flags = 0x11800` 30; opacity fence on
- *     q1 38 / on q2 34; RMW order re-sweep reads21/stores21 36, stores12 34.
- *   => nothing new to try from source here; consistent with the w53/w44 expand_call-luid
- *   verdict.  Next taker: the per-object identity lane or the permuter.
- * ===== W72-A15 (2026-08-22): 30 -> 18 @229/229.  THE VALUE-PAIR AXIS WAS *NOT* CLOSED --
- * the w64/w71 "value-pair and address-local axes both closed" verdict was measured on the
- * ANONYMOUS-temp RMW form, and the axis it actually left untried is NAMED TEMPS FOR THE
- * TWO FLAG VALUES + a batched read/store order.  Two additive landings, both count-exact:
- *  (1) BATCHED NAMED RMW TEMPS (30 -> 20).  Writing the 0x11800 read-modify-write pair as
- *      `{u_int f2, f1; f2 = *(u_char*)q2|0x11800; f1 = *(u_char*)q1|0x11800;
- *        *(u_int*)q1 = f1; *(u_int*)q2 = f2;}` with `q2` ASSIGNED BEFORE `q1`.
- *      WHAT IT BUYS: the whole block's REGISTER MAP becomes oracle-exact -- t4 = the
- *      0x11800 mask (was t3), t1 = &CarIO_Plate2[player] (was v1), t0 = &Plate1[player],
- *      t3 = q2, t2 = q1, and the two RMW temps land in the oracle's DISTINCT $v1/$v0
- *      (the anonymous form reuses $v0 for both, because two non-overlapping anonymous
- *      temps are one qty).  Naming them is not enough on its own -- the SEQUENTIAL named
- *      form measures 38 -- the two live ranges must OVERLAP, which only the batched
- *      read order produces.  This is the 15C/16B "N sequential same-shape values want N
- *      DISTINCT block-local temps" law with the overlap requirement made explicit.
- *      FULL 2x2x2x2 SWEEP (decl order x read order x store order x q-assign order, 16
- *      cells): 20 for {q2-first, store q1 first}, 22 for {q2-first, store q2 first},
- *      24 for q1-first store-q1-first -- decl and read order are INERT, the q-assign
- *      order and the store order carry it.
- *  (2) THE WIDTH-BLOCK READ ORDER (20 -> 18), re-priced from the new basin (04Z): the
- *      re-reads must be `r1 = Plate1[player]; r2 = Plate2[player];` with the stores still
- *      `r2->width` first -- which is EXACTLY what the oracle does (`lw t0,0(t0)` [Plate1]
- *      then `lw v1,0(t1)` [Plate2]; `sh v0,4(v1)` then `sh v0,4(t0)`).  The w62 receipt
- *      recorded this same cell as 34 and kept reads21/stores21 -- a textbook basin-
- *      relative falsification: after (1) the ranking inverts (r12s21 18, r21s21 20,
- *      r12s12 22, r21s12 24; a named `int w = 0x18` carrier is 28-31 AND one insn short).
- * FALSIFIED THIS WAVE (all re-gated from the live basin):
- *   - the 21A-5 'm'-OPERAND FENCE on the plate symbols (the brief's named fresh angle):
- *     `__asm__("" : : "m"(CarIO_PlateN[player]))` at six positions -- before the q pair
- *     34/32/36, between the decls and the RMWs 38/38, after the RMWs 41/39 (+1 insn),
- *     before the width block 41/39 (+1 insn), inside it 55.  It does dial the address
- *     allocno, but in the wrong direction here: the plate address is ALREADY in the
- *     oracle's register after (1), so every extra ref only perturbs it.
- *   - read-only "r" fences on f1/f2 (sequential form + a tail fence to force the overlap
- *     without batching): 30/37/39/41 -- the fence's barrier costs more than the overlap
- *     buys, and two of them add an instruction.
- *   - the first `i = 0;` STATEMENT POSITION, re-swept from the 18 basin over all 8 slots
- *     of the allocation block: 22/20/18/18/18/18/18 -- inert from slot 2 on, confirming
- *     the w71 reading (it is the loop preheader's induction init, not a statement).
- *   - reusing q1/q2 for the width re-reads instead of fresh r1/r2: 38 @227 (2 SHORT).
- * RESIDUAL 18, count EXACT 229/229 and now with ZERO register mismatches -- it is purely
- * three sched2 EMISSION-ORDER facts, all of which the -dS/-dR receipts already class as
- * priority-1 ready-list ties:
- *   (a) the CopyFromShape arg `li a3,22` is emitted BEFORE the &Plate2 address block;
- *       retail interleaves the address block between `li a2,48` and `li a3,22`;
- *   (b) the two `addu s2,zero,zero` loop-init zeroings sit ~8 slots earlier than retail's;
- *   (c) our RMW pair is emitted batched (both lbu, both or, both sw) where retail's is
- *       sequential -- but the SEQUENTIAL SOURCE FORM costs the register map (38), i.e.
- *       source order and register map are in direct conflict here, which is the w49/12E
- *       "a dial buys retail's REGISTER or retail's ORDER, never both" boundary.
- * NEXT INSTRUMENT (named, not run): a PER_FN_TEXT_MOVES row is the natural fit -- every
- * word is already correct and only three insns need relocating; that is orchestrator
- * wiring, not a source edit.  Do NOT re-sweep the RMW order, the width order, the i=0
- * position or the 'm'/"r" fences; all four are closed in this basin.
- * ===== W74-A13 (2026-08-23): 18 -> PASS 229/229.  THE w72 "NEXT INSTRUMENT (named,
- * not run)" IS NOW RUN AND VALIDATED: SEVEN PER_FN_TEXT_MOVES ROWS.  w72's reading was
- * exactly right -- every word, every register and the count were already retail's, so
- * the residual was pure sched2 EMISSION ORDER and the line-move engine is the correct
- * tool.  ONE CORRECTION: w72 said "three misplaced insns"; the true minimum is SEVEN
- * moves in TWO windows.  LCS(ours,retail) over the 17-insn 0x11800 block is 11, so 6
- * moves is the provable floor there, and a 7th `move $18,$0` (the FIRST loop-init
- * zeroing) sits ~70 insns earlier in the second reservememadr block -- w72 read its
- * leading -/+ diff pair as part of the same cluster.
- * ROW SPEC (anchors are cc1plus .s text, PRE-maspsx; numeric registers only;
- * label-agnostic; every take AND every after verified count==1 both inside the
- * .ent/.end region AND across the whole TU .s -- collision-proof even if the region
- * scoping ever changes).  Order matters: apply as listed.
- *   M0 take  \tmove\t\$18,\$0\n(?=\tlui\t\$4,[^\n]*\n\taddiu\t\$4,[^\n]*\n\tli\t\$5,528[^\n]*\n)
- *      after \taddu\t\$17,\$17,\$3\n
- *   M1 take  \tli\t\$7,22[^\n]*\n
- *      after \taddu\t\$9,\$8,\$9\n
- *   M2 take  \tmove\t\$18,\$0\n(?=\tsll\t\$8,\$22,2\n)
- *      after \tlbu\t\$2,0\(\$10\)\n
- *   M3 take  \tlw\t\$11,0\(\$9\)\n
- *      after \tla\t\$2,CarIO_Plate1\n(?=\taddu\t\$8,\$8,\$2\n)
- *   M4 take  \tlbu\t\$3,0\(\$11\)\n
- *      after \taddu\t\$8,\$8,\$2\n
- *   M5 take  \tor\t\$3,\$3,\$12\n
- *      after \tlw\t\$10,0\(\$8\)\n
- *   M6 take  \tsw\t\$3,0\(\$11\)\n
- *      after \tor\t\$3,\$3,\$12\n
- * VALIDATION (each re-run twice): verify_asm PASS 229/229; tugate 9/11 -> 10/11 (zero
- * PASS->FAIL; the only remaining FAIL is ReadInCarTextureData); brdist 11 fns, 0
- * branch-offset/count divergence; and the strongest check -- the post-move .s is a
- * PURE PERMUTATION of the pre-move .s (multiset of all 423 region lines identical;
- * differing indices confined to [62..68] and [136..150]; NO .set directive, label,
- * branch or jump line among them), so no delay slot, no .set noreorder region and no
- * branch distance can have changed.  NEW LAW OFFERED: that permutation + no-branch-
- * line + no-.set-line assert is the general PRE-FLIGHT for any TEXT_MOVES row set --
- * it decides 17C's brdist-pairing question statically, before compiling.
- * JSON row file: scratchpad/W74_A13/tm_createlicense.json (probe with
- * W60_TEXT_MOVES_FILE=<file> python tools/vprobe.py).  ORCHESTRATOR: wire into
- * PER_FN_TEXT_MOVES["recon/game/psx/cario.cpp"]["CarIO_CreateLicense__FPcii"] as a NEW
- * rel key (12F: a duplicate rel key in that dict is SILENTLY SHADOWED; cario.cpp has
- * no entry today), then run psyqproof for the production REAL=0 leg.
- * NOT re-swept (closed by w72, still closed): RMW order, width order, i=0 position,
- * the 'm'/"r" fences. */
+/* ---- CarIO_CreateLicense__FPcii [CARIO.CPP:379-483] ----
+ * Retail root order is i, clutPlate1/2, thePlate, shape, clutptr. The no-plate
+ * early return leaves the text phase as a root child; letter/ascii belong to
+ * the non-space glyph body. Index-first chained header stores and chained
+ * next/width assignments need no p1/p2/q1/q2/r1 declarations.
+ * All229 instructions and native local/scope records agree. Historical partial
+ * sweeps do not prove source-object necessity or justify post-compile rewriting.
+ * The existing ASCII identity boundary and full SLD remain source review. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
-  shapetbl *shape;
-  shapetbl *clutptr;
+  int i;
   shapetbl *clutPlate1;
   shapetbl *clutPlate2;
   short *thePlate;
-  shapetbl *q1; /* SYM-CODEGEN-CARRIER: q1 -- first RMW base; reusing the dead SYM clutPlate pair is current FAIL 78/229 */
-  shapetbl *q2; /* SYM-CODEGEN-CARRIER: q2 -- paired preloaded base keeps both aliasable loads ahead of either store */
-  shapetbl *r1; /* SYM-CODEGEN-CARRIER: r1 -- fresh width-store base; reusing q1/q2 is measured FAIL 40 */
-  int i;
+  shapetbl *shape;
+  shapetbl *clutptr;
 
-  /* oracle: `slti a1,carType,22; bnez a1,<big arm>` -- the carType>=0x16
-   * (no-plate) arm is the FALL-THROUGH, so it is the if-BODY and the
-   * plate-building arm is the else. */
   if (carType >= 0x16) {
     CarIO_Plate2[player] = (shapetbl *)0x0;
     CarIO_Plate1[player] = (shapetbl *)0x0;
+    return;
   }
-  else {
     CarIO_Plate1[player] = (shapetbl *)reservememadr("plate1",0x148,0);
     CarIO_Plate2[player] = (shapetbl *)reservememadr("plate2",0x148,0);
     clutPlate1 = CarIO_Plate1[player] + 0xe;
@@ -696,26 +364,9 @@ void CarIO_CreateLicense(char *text,int carType,int player)
     shape = (shapetbl *)locateshapez(R3DCar_LicenseShapeFile,"blnk");
     clutptr = (shapetbl *)((int)shape + (*(int *)shape >> 8));
     i = 0;
-    /* MATCH (w50-a6, 104 -> 78, count stays EXACT 229/229): MAY-ALIAS SERIALIZATION.
-     * Retail issues the TWO `CarIO_PlateN[player]` pointer loads BACK-TO-BACK, then both
-     * address adds, then both stores (`lw v0,0(s1); lw a0,0(s0); addu; addu; sw; sw`).
-     * Ours read plate1, stored through it, and only then read plate2 -- because the store
-     * `*(int *)((char *)Plate1[player] + i*4)` MAY ALIAS the `CarIO_Plate2[]` slot, so
-     * sched_analyze chains the second load behind it and no scheduling lever can reach it
-     * (catalog w46 ALIAS-CHECK rule).  Hoisting both reads into locals removes the chain
-     * and the batch appears.  The STORE order is then a second, independent dial: retail
-     * stores plate2 first (its `sw a1,0(v0)` goes to the s1 = &Plate2 address).  Measured
-     * 2x2: reads12/stores12 86, reads12/stores21 82 (kept), reads21/stores12 100,
-     * reads21/stores21 104 -- i.e. the READ order must stay source order and only the
-     * stores flip.  A bare store swap without the temps is 122 (it swaps the reads too). */
     do {
-      shapetbl *p1; /* SYM-CODEGEN-CARRIER: p1 -- materializes both may-alias plate bases before the chained stores */
-      shapetbl *p2; /* SYM-CODEGEN-CARRIER: p2 -- direct indexed globals serialize the second load and are measured FAIL 122 */
-
-      p1 = CarIO_Plate1[player];
-      p2 = CarIO_Plate2[player];
-      *(int *)((char *)p1 + i * 4) =
-          *(int *)((char *)p2 + i * 4) = ((int *)shape)[i];
+      *(int *)(i * 4 + (int)CarIO_Plate1[player]) =
+          *(int *)(i * 4 + (int)CarIO_Plate2[player]) = ((int *)shape)[i];
       i = i + 1;
     } while (i < 4);
     i = 0;
@@ -723,40 +374,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
       ((int *)clutPlate1)[i] = ((int *)clutPlate2)[i] = ((int *)clutptr)[i];
       i = i + 1;
     } while (i < 0xc);
-    /* MATCH (w50-a6, 82 -> 78): the SAME may-alias serialization one block later --
-     * retail loads both plate pointers (`lw t3,0(t1)` / `lw t2,0(t0)`) before either
-     * flag RMW stores, and again does plate2's RMW first.  Same 2x2 sweep from the 82
-     * basin: reads12/stores12 82, reads21/stores12 82, reads12/stores21 78 (kept).
-     * The two `->width = 0x18` stores below deliberately KEEP their re-reads of
-     * CarIO_PlateN[player] -- retail re-loads both there too (`lw t0,0(t0)`/`lw v1,0(t1)`). */
-    /* w64-a14: the residual-30 diff is now precisely located -- retail materializes
-     * ONE of the two `&CarIO_PlateN[player]` addresses FOUR SLOTS EARLIER than we do
-     * (oracle `sll t0,s6,2; lui t1; addiu t1; addu t1,t0,t1` then a bare `lw t3,0(t1)`
-     * at the RMW; ours emits the whole lui/addiu/addu at the RMW).  The count is
-     * already EXACT (229/229) and the rest is a $t3/$t4 + $v0/$v1 shift that follows
-     * it.  STATEMENT-POSITION AXIS FALSIFIED from the 30 basin: this q1/q2 pair moved
-     * above the clut copy loop 51 @236, above the header copy loop 38 @229, and the
-     * pair's own order swapped 36 @229.  Consistent with the w53-a4 verdict that this
-     * fn's identity is expand_call's precompute/luid choice (catalog w42
-     * "early-constant-at-block-head", -dS shows every insn in the block at priority 1
-     * so NO statement order can produce retail's early materialization). */
-    q2 = CarIO_Plate2[player];
-    q1 = CarIO_Plate1[player];
-    q2->next = 0x118;
-    q1->next = 0x118;
-    /* MATCH (w62-a14, 44 -> 30, count stays EXACT 229/229): the SAME may-alias
-     * serialization a THIRD time, on the two `->width` stores.  The w50-a6 note
-     * below said retail "re-loads both there too" and left the re-reads inline --
-     * but retail issues BOTH re-loads before EITHER `sh` (`lw t0,0(t0); lw v1,0(t1);
-     * li v0,24; sh v0,4(v1); sh v0,4(t0)`), which the inline form cannot do because
-     * the first `sh` may alias the CarIO_PlateN[] slot the second read comes from.
-     * Fresh locals are required: REUSING q1/q2 for the re-read measures 40 in all
-     * four read/store orders, FRESH r1/r2 gives 34/38/34/30 -- the pair must be its
-     * own pseudos.  2x2 from the 44 basin: reads12/stores12 34, reads12/stores21 38,
-     * reads21/stores12 34, reads21/stores21 30 (kept). */
-    r1 = CarIO_Plate1[player];
-    (CarIO_Plate2[player])->width = 0x18;
-    r1->width = 0x18;
+    CarIO_Plate1[player]->next = CarIO_Plate2[player]->next = 0x118;
+    CarIO_Plate1[player]->width = CarIO_Plate2[player]->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
     {
       int length;
@@ -765,11 +384,11 @@ void CarIO_CreateLicense(char *text,int carType,int player)
       length = strlen(text);
       start = 0x18 - length * 3;
       for (i = 0; i < length; i = i + 1) {
-        char ascii;
-
-        ascii = text[i];
-        if (ascii != ' ') {
+        if (text[i] != ' ') {
           char letter [5];
+          char ascii;
+
+          ascii = text[i];
 
           switch(ascii) {
           case 0xd1:
@@ -794,21 +413,9 @@ void CarIO_CreateLicense(char *text,int carType,int player)
           case 0xdc:
             ascii = 'u';
           }
-          /* MATCH (w62-a14, 78 -> 44, count stays EXACT 229/229): THE IDENTITY
-           * LAUNDER on `ascii` at the switch's join (catalog 13B -- a pseudo that
-           * dies twice makes combine_regs refuse, so the value becomes a GLOBAL
-           * allocno assigned by conflict instead of by the local numeric scan).
-           * Retail keeps `ascii` in the SYM's $v1 (REG $03) with the switch's
-           * masked index in $a0; ours had ascii in $a2 and the index in $v1 -- a
-           * ~20-diff rotation across the whole switch, the letter[] build and the
-           * six `li` case bodies.  POSITION is the dial: launder BEFORE the switch
-           * 51 @230, after `letter[0]` 46, doubled 44 (inert), a read-only fence in
-           * the same slot 78 (inert) / before the switch 79 @230, an int-typed
-           * round-trip 79 @230.  Composition-neutral with the block-shape spellings
-           * (ascii+letter in one block 44, decl-with-init 44), which is why the
-           * w41/w42 "SYM block shape is reachable but does not move the coloring"
-           * receipt was right AND the coloring was still source-reachable. */
-          char savedAscii = ascii; ascii = 0; ascii = savedAscii; /* C-only CSE boundary. */
+          /* SOURCE-REVIEW-UNRESOLVED: removing this old identity boundary
+           * still changes the switch allocation (29dif/230 after scope repair). */
+          char savedAscii = ascii; ascii = 0; ascii = savedAscii;
           letter[0] = ascii;
           letter[1] = '\0';
           strcat(letter,"   ");
@@ -826,7 +433,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
       CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate2[player]->data,0);
     }
     purgememadr(thePlate);
-  }
   return;
 }
 
@@ -850,30 +456,28 @@ void CarIO_CleanUpLicense(int player)
   return;
 }
 
-/* ---- CarIO_LicenseCheck__FiPiT1P8Car_tObji  [CARIO.CPP:497-511] SLD-VERIFIED ---- */
+/* ---- CarIO_LicenseCheck__FiPiT1P8Car_tObji  [CARIO.CPP:497-511] ----
+ * sfx_vx/sfx_vy are the new table coordinates. The old X input is an anonymous
+ * word load; mask it as int rather than narrowing the memory access to a byte.
+ * Both source arms fall through, reproducing retail's local/scope contract.
+ * Complete relative line attribution is checked separately. */
 void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *carObj,int plate)
 
 {
-  int new_sfx_vx; /* SYM-CODEGEN-CARRIER: new_sfx_vx -- separates the table value from the old license_vx load; canonical reuse is FAIL 2 */
-  int new_sfx_vy; /* SYM-CODEGEN-CARRIER: new_sfx_vy -- paired table-value staging for the exact load widths */
-  int sfx_vy;
-  int sfx_vx;
-  
   if (((reload & 2U) != 0) && (CarIO_licenseSFX_Count < 0xc)) {
-    new_sfx_vx = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][0];
-    new_sfx_vy = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][1];
-    sfx_vx = *license_vx;
-    (carObj->render).licenseOffsetU[plate] = (((u_char)new_sfx_vx & 0x3f) - ((u_char)sfx_vx & 0x3f)) * '\x04'
-    ;
-    (carObj->render).licenseOffsetV[plate] = (char)new_sfx_vy - (char)*license_vy;
-    *license_vx = new_sfx_vx;
-    *license_vy = new_sfx_vy;
+    int sfx_vx, sfx_vy;
+    sfx_vx = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][0];
+    sfx_vy = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][1];
+    (carObj->render).licenseOffsetU[plate] =
+        ((sfx_vx & 0x3f) - (*license_vx & 0x3f)) * 4;
+    (carObj->render).licenseOffsetV[plate] = (char)sfx_vy - (char)*license_vy;
+    *license_vx = sfx_vx;
+    *license_vy = sfx_vy;
     CarIO_licenseSFX_Count = CarIO_licenseSFX_Count + 1;
-    return;
+  } else {
+    (carObj->render).licenseOffsetU[plate] =
+        (carObj->render).licenseOffsetV[plate] = '\0';
   }
-  (carObj->render).licenseOffsetV[plate] = '\0';
-  (carObj->render).licenseOffsetU[plate] = '\0';
-  return;
 }
 
 /* ---- CarIO_ReadInCarTextureData__FPcP8Car_tObjii  [CARIO.CPP:515-713] SLD-VERIFIED ---- */
@@ -1376,65 +980,65 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
       }
       CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
     }
-    if (palette != 0) {
-      int palIndex;
+      if (palette != 0) {
+        int palIndex;
 
-      palIndex = carPixMapCount;
-      if (palShare != 0) {
-        palIndex = palShare + -1;
-        if (recolor_flag != 0) {
-          (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
-        }
-        palIndex = palIndex + (carObj->render).textureStartIndex;
-      }
-      shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
-      if (shape != (shapetbl *)0x0) {
-        int license;
-        u_short clut;
-        int cx;
-        int cy;
-
-        license = 0;
-        clut = CarIO_carPixMap[palIndex].clut;
-        cx = (clut & 0x3f) << 4;
-        cy = (int)(clut >> 6);
-        if (carType < 0x16) {
-          if (i == CarIO_licensePlate[carType][0]) {
-            int license_vx;
-            int license_vy;
-
-            license_vx = vx + CarIO_licensePlate[carType][1];
-            license_vy = vy + CarIO_licensePlate[carType][2];
-            license = 1;      /* flag-first: keeps `license` call-crossing -> $s0 */
-            CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
-            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,license_vx,license_vy,
-                       cx,cy,&CarIO_carPixMap[carPixMapCount]);
-            CarIO_carPixMap[carPixMapCount].flag = 1;
+        palIndex = carPixMapCount;
+        if (palShare != 0) {
+          palIndex = palShare + -1;
+          if (recolor_flag != 0) {
+            (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
           }
-          else if (i == CarIO_licensePlate[carType][3]) {
-            int license_vx;
-            int license_vy;
+          palIndex = palIndex + (carObj->render).textureStartIndex;
+        }
+        shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
+        if (shape != (shapetbl *)0x0) {
+          int license;
+          u_short clut;
+          int cx;
+          int cy;
 
-            license_vx = vx + CarIO_licensePlate[carType][4];
-            license_vy = vy + CarIO_licensePlate[carType][5];
-            CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
-            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],0x20,license_vx,license_vy,
-                       cx,cy,&CarIO_carPixMap[carPixMapCount]);
-            license = 1;
-            CarIO_carPixMap[carPixMapCount].flag = 2;
+          license = 0;
+          clut = CarIO_carPixMap[palIndex].clut;
+          cx = (clut & 0x3f) << 4;
+          cy = (int)(clut >> 6);
+          if (carType < 0x16) {
+            if (i == CarIO_licensePlate[carType][0]) {
+              int license_vx;
+              int license_vy;
+
+              license_vx = vx + CarIO_licensePlate[carType][1];
+              license_vy = vy + CarIO_licensePlate[carType][2];
+              license = 1;      /* flag-first: keeps `license` call-crossing -> $s0 */
+              CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
+              Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,license_vx,license_vy,
+                         cx,cy,&CarIO_carPixMap[carPixMapCount]);
+              CarIO_carPixMap[carPixMapCount].flag = 1;
+            }
+            else if (i == CarIO_licensePlate[carType][3]) {
+              int license_vx;
+              int license_vy;
+
+              license_vx = vx + CarIO_licensePlate[carType][4];
+              license_vy = vy + CarIO_licensePlate[carType][5];
+              CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
+              Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],0x20,license_vx,license_vy,
+                         cx,cy,&CarIO_carPixMap[carPixMapCount]);
+              license = 1;
+              CarIO_carPixMap[carPixMapCount].flag = 2;
+            }
+          }
+          if (license == 0) {
+            Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy,
+                       &CarIO_carPixMap[carPixMapCount]);
+          }
+          if (i == 0x20) {
+            ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
+          }
+          if (palShare == 0) {
+            CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
           }
         }
-        if (license == 0) {
-          Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy,
-                     &CarIO_carPixMap[carPixMapCount]);
-        }
-        if (i == 0x20) {
-          ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
-        }
-        if (palShare == 0) {
-          CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
-        }
-      }
     }
   }
   if ((reload & 0x80U) != 0) {
@@ -1443,23 +1047,27 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
   return;
 }
 
-/* ---- CarIO_UpdateCarTextureData__FPcP8Car_tObji  [CARIO.CPP:718-849] SLD-VERIFIED ---- */
-void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
-
-{
-  /* SYM @0x800bceb0 (fsize 104, mask $c0ff0000).  FULL rule-8 rewrite (w39-a5):
-   *   fn scope    -> i REG $16($s6), carType/vx/vy/carPixMapCount AUTO
-   *                  (32/36/40/44(sp)), recolor_flag REG $1e($fp)
-   *   loop body   -> shape REG $11($s1), palShare AUTO 48(sp),
-   *                  palette AUTO 52(sp)
-   *   arm blocks  -> license REG $10($s0), clut REG $03($v1),
-   *                  cx REG $13($s3), cy REG $14($s4)
-   *   palette blk -> palIndex REG $10($s0)
-   * There is NO pointer local in the SYM: the retail walkers (s5 = &carPixMap
-   * element, s7 = &CarIO_textureName[i], 60(sp) = &carObj->..palCopyNum[i])
-   * are compiler GIVs, so every access is written in INDEX form (catalog:
-   * "SYM has only i => the pointers are givs").  player (REGPARM $10) is only
-   * ever used as CarIO_PlateN[player], so gcc hoists player*4 to 56(sp).
+/* ---- CarIO_UpdateCarTextureData__FPcP8Car_tObji  [CARIO.CPP:718-849] ----
+ * Missing initial shapes may still need palette handling. Existing shapes
+ * require an enabled cache entry before either phase. This shared eligibility
+ * owner restores the retail scopes and permits direct index-first addresses,
+ * with no pmx source object. Full relative SLD remains independently checked. */
+/* Historical source-ancestor measurements below; current verified body is
+ * 298/298 PASS with exact native locals/regions (2026-10-09), not the old
+ * 25-diff residual. Full source-line attribution remains unresolved.
+ * SYM @0x800bceb0 (fsize 104, mask $c0ff0000). FULL rule-8 rewrite (w39-a5):
+ *   fn scope    -> i REG $16($s6), carType/vx/vy/carPixMapCount AUTO
+ *                  (32/36/40/44(sp)), recolor_flag REG $1e($fp)
+ *   loop body   -> shape REG $11($s1), palShare AUTO 48(sp),
+ *                  palette AUTO 52(sp)
+ *   arm blocks  -> license REG $10($s0), clut REG $03($v1),
+ *                  cx REG $13($s3), cy REG $14($s4)
+ *   palette blk -> palIndex REG $10($s0)
+ * There is NO pointer local in the SYM: the retail walkers (s5 = &carPixMap
+ * element, s7 = &CarIO_textureName[i], 60(sp) = &carObj->..palCopyNum[i])
+ * are compiler GIVs, so every access is written in INDEX form (catalog:
+ * "SYM has only i => the pointers are givs").  player (REGPARM $10) is only
+ * ever used as CarIO_PlateN[player], so gcc hoists player*4 to 56(sp).
  * 459 -> 97 (rule-8 rewrite) -> 27 (palShare ref-count lever, below) -> 25 (w42-a5).
  * (b) IS SOLVED (w42-a5): the `addu a1,v0,s5` / oracle `addu a1,s5,v0` operand order
  * was NOT an unreachable RTL canonicalization -- writing the pmx address with the
@@ -1483,6 +1091,9 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
  *   no_schedule_insns2 Update->139 but breaks 6 currently-PASSing fns           WORSE
  *   no_strength_reduce Update->379, CopyToShape 51->55                          WORSE
  * => cario.obj is a STOCK-FLAG object (only the proven g_value:8 stays). */
+void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
+
+{
   int i;
   int carType;
   int vx;
@@ -1529,23 +1140,16 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
     if (i == 0x14) {
       recolor_flag = 0;
     }
-    if (shape != (shapetbl *)0x0) {
-      Draw_tPixMap *pmx; /* SYM-CODEGEN-CARRIER: pmx -- holds the index-term-first pixmap address */
-
-      /* MATCH: index term FIRST in the address add -- the oracle emits
-       * `addu a1,s5,v0` (scaled index, then the gp-loaded base); the natural
-       * `&CarIO_carPixMap[carPixMapCount]` gives `addu a1,v0,s5` (base first).
-       * Catalog 5.0c commutative-addu-operand-order. */
-      pmx = (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap);
-      if ((pmx->flag & 0x80) == 0) continue;
-      {
+    if (shape == (shapetbl *)0x0 ||
+        ((((Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap))->flag & 0x80) != 0)) {
+      if (shape != (shapetbl *)0x0) {
         int license;
         u_short clut;
         int cx;
         int cy;
 
         license = 0;
-        clut = pmx->clut;
+        clut = ((Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap))->clut;
         cx = (clut & 0x3f) << 4;
         cy = (int)(clut >> 6);
         if (recolor_flag != 0) {
@@ -1556,13 +1160,15 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
             license = 1;
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],recolor_flag,
                        vx + CarIO_licensePlate[carType][1],
-                       vy + CarIO_licensePlate[carType][2],cx,cy,pmx);
+                       vy + CarIO_licensePlate[carType][2],cx,cy,
+                       (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap));
           }
           else if (i == CarIO_licensePlate[carType][3]) {
             license = 1;
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],recolor_flag,
                        vx + CarIO_licensePlate[carType][4],
-                       vy + CarIO_licensePlate[carType][5],cx,cy,pmx);
+                       vy + CarIO_licensePlate[carType][5],cx,cy,
+                       (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap));
           }
         }
         if (license == 0) {
@@ -1574,7 +1180,6 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
         }
         CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
       }
-    }
     if (palette != 0) {
       int palIndex;
 
@@ -1631,6 +1236,7 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
           CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
         }
       }
+    }
     }
   }
   return;

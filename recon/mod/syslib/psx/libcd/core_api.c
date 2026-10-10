@@ -2,7 +2,7 @@
  *
  * This deliberately preserves the ABI consumed by the unmodified EAC cdfs/nfile/stream stack.
  * It is not a byte-matching reconstruction: the goal is smaller resident code and data.  Link it
- * with the original low-level DRV object and with TYPE/toc, and omit the original SYS/event objects.
+ * with drv_core.c and media_api.c, and omit the original SYS/EVENT/TYPE/TOC objects.
  */
 
 typedef unsigned char u_char;
@@ -31,7 +31,8 @@ extern int CD_cbready;
 
 extern void DeliverEvent(unsigned long event, unsigned long spec);
 
-/* These words were owned by EVENT.OBJ in retail. */
+/* EVENT.OBJ owns these words in the fixed-address retail-slot build.  The clean Route-D relink
+ * supplies them from route_d_exports.c so EVENT.OBJ is not extracted alongside compact CdInit. */
 extern int CD_cbread;
 extern int CD_read_dma_mode;
 

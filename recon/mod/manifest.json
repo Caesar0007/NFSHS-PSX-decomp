@@ -4,7 +4,10 @@
   "override": {
     "recon__game__common__bworld.cpp.obj": "recon/mod/game/common/bworld.cpp",
     "recon__game__common__bworldSm.cpp.obj": "recon/mod/game/common/bworldSm.cpp",
-    "recon__game__common__chunk.cpp.obj": "recon/mod/game/common/chunk.cpp"
+    "recon__game__common__chunk.cpp.obj": "recon/mod/game/common/chunk.cpp",
+    "recon__game__common__audiomus.cpp.obj": "recon/mod/game/common/audiomus.cpp",
+    "recon__game__psx__draw.cpp.obj": "recon/mod/game/psx/draw.cpp",
+    "recon__game__psx__platform.cpp.obj": "recon/mod/game/psx/platform.cpp"
   },
   "add_game": [
     "recon/mod/game/common/track.cpp",
@@ -13,7 +16,8 @@
     "recon/mod/game/common/track_resident_io.cpp",
     "recon/mod/game/common/chunk_cache.cpp",
     "recon/mod/game/common/bworldSm_veneer.cpp",
-    "recon/mod/game/common/trackmod_stack.c"
+    "recon/mod/game/common/trackmod_stack.c",
+    "recon/mod/game/common/music_arena.cpp"
   ],
   "add_before_libs": [
     "recon/mod/syslib/psx/libgpu/font_stub.c",
@@ -23,14 +27,15 @@
   "stages": {
     "A": "add_game only (streaming code linked, retail loader still called)",
     "B": "A + add_before_libs (FONT stub, PC stubs, compact GTE table) ahead of the Sony LIBs",
-    "C": "B + add_before_libs_stage_c (compact libcd core; needs every EVENT/CDCONT export covered or slink pulls the Sony member and reports duplicates)",
+    "C": "B + add_before_libs_stage_c (compact libcd core from recon/syslib-mod, verbatim copies incl. route_d_exports.c which owns the two EVENT words so EVENT.obj is not pulled; +3,308 B heap over B)",
     "F": "B + front_libs (LIBPRESS/LIBCARD/LIBMCRD members linked into the front overlay)"
   },
   "add_before_libs_stage_c": [
     "recon/mod/syslib/psx/libcd/core_api.c",
     "recon/mod/syslib/psx/libcd/media_api.c",
     "recon/mod/syslib/psx/libcd/drv_core.c",
-    "recon/mod/syslib/psx/libcd/movie_bridge.c"
+    "recon/mod/syslib/psx/libcd/movie_bridge.c",
+    "recon/mod/syslib/psx/libcd/route_d_exports.c"
   ],
   "fixes_before_libs": [
     "recon/mod/eaclib/psx/eacpsxz/savegp.c",
@@ -64,5 +69,27 @@
     "build/route_d/libfront/USERFUNC.obj",
     "build/route_d/libfront/VLC.obj",
     "build/route_d/libfront/VLC_C.obj"
-  ]
+  ],
+  "tu_flags": {
+    "recon/mod/syslib/psx/libcd/core_api.c": {
+      "cc1_272": true,
+      "g_value": "0"
+    },
+    "recon/mod/syslib/psx/libcd/media_api.c": {
+      "cc1_272": true,
+      "g_value": "0"
+    },
+    "recon/mod/syslib/psx/libcd/drv_core.c": {
+      "cc1_272": true,
+      "g_value": "0"
+    },
+    "recon/mod/syslib/psx/libcd/movie_bridge.c": {
+      "cc1_272": true,
+      "g_value": "0"
+    },
+    "recon/mod/syslib/psx/libcd/route_d_exports.c": {
+      "cc1_272": true,
+      "g_value": "0"
+    }
+  }
 }

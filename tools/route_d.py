@@ -4,7 +4,8 @@
   python tools/route_d.py --stage A|B|C|F [--no-compile] [--no-assemble] [--no-cpe] [--adds-after-libs] [--manifest J]
 
 Inputs : build/psyq_off/        the route C (official lane) objects + nfs4.lnk + front_objs.json
-         recon/mod/manifest.json which objects to override / add / link ahead of the Sony LIBs
+         recon/mod/manifest.json which objects to override / add / link ahead of the Sony LIBs, plus
+                                tu_flags (per-TU compiler lane, e.g. cc1_272 / g_value for the compact libcd)
 Outputs: build/route_d/         a private copy of the lane (the main lane is never written),
                                 nfs4_d.lnk / .cpe / .sym / .map, off_front.bin, disc/NFS4.EXE + FRONT.BIN,
                                 report.json (section sizes, endofcode, heap size, slink messages)
@@ -44,20 +45,39 @@ def run(cmd, **kw):
     return r.stdout + r.stderr
 
 
+def import_build():
+    """tools/build.py imported in-process under the OFFICIAL lane environment, with the manifest's per-TU
+    compiler flags ("tu_flags": {"recon/mod/...": {"cc1_272": true, "g_value": "0"}}) applied to its table.
+    The main build's PER_TU_FLAGS never lists recon/mod TUs, and the mod tree must not edit tools/build.py."""
+    os.environ.update(NFS4_LANE_OFFICIAL='1', NFS4_LANE_OUT=str(OUT.relative_to(ROOT)).replace(BS, '/'))
+    sys.path.insert(0, str(ROOT / 'tools/psyq_pipe')); sys.path.insert(0, str(ROOT / 'tools'))
+    import build
+    for rel, flags in json.load(open(MANIFEST)).get('tu_flags', {}).items():
+        build.PER_TU_FLAGS[rel] = dict(flags)
+    return build
+
+
 def compile_mod():
-    """Compile every recon/mod TU with tools/build.py (gcc 2.8 cc1 -> build/recon/mod/**.s + .o).  The main build
-    skips the recon/ side trees, so they are passed explicitly as --only object paths."""
+    """Compile every recon/mod TU in-process with tools/build.py's compile_c/compile_cpp (-> build/recon/mod/**.s
+    + .o), so the manifest's tu_flags select the compiler lane per TU (the compact libcd TUs are gcc 2.7.2 -G0,
+    the lane syslib-mod verified them under)."""
+    build = import_build()
     srcs = sorted([*(ROOT / 'recon/mod').rglob('*.cpp'), *(ROOT / 'recon/mod').rglob('*.c')])
-    targets = ','.join('build/%s.o' % s.relative_to(ROOT).as_posix() for s in srcs)
-    r = subprocess.run([sys.executable, 'tools/build.py', '--no-link', '--only', targets], cwd=ROOT,
-                       capture_output=True, text=True)
-    out = r.stdout + r.stderr
-    bad = [l for l in out.splitlines() if l.startswith('FAIL') or 'error' in l.lower()]
-    print('compile: %d OK, %d problem lines' % (out.count(chr(10) + 'OK '), len(bad)))
-    for l in bad[:30]:
-        print('   ', l[:200])
-    if bad or r.returncode:
-        print(out[-3000:])
+    ok, bad = 0, []
+    for src in srcs:
+        rel = src.relative_to(ROOT).as_posix()
+        try:
+            if src.suffix == '.cpp':
+                build.compile_cpp(src)
+            else:
+                build.compile_c(src, False)
+            ok += 1
+        except SystemExit as e:
+            bad.append((rel, str(e)))
+    print('compile: %d OK, %d failed' % (ok, len(bad)))
+    for rel, msg in bad[:30]:
+        print('   FAIL', rel, msg[-600:])
+    if bad:
         sys.exit('mod TUs did not compile')
 
 
@@ -67,12 +87,10 @@ def assemble_mod():
     The main lane (psylink_lane.py --assemble) deliberately skips the recon/ side trees since a26eced3, so route D
     drives the same converter itself: import the lane with a no-op step under the OFFICIAL environment and reuse
     its crlf()/sn_text() (dtor-prefix convention, OFFICIAL .lcomm handling) + the same ASPSX command line."""
-    os.environ.update(NFS4_LANE_OFFICIAL='1', NFS4_LANE_OUT=str(OUT.relative_to(ROOT)).replace(BS, '/'))
+    build = import_build()
     saved_argv, sys.argv = sys.argv, ['psylink_lane.py', '--noop']
-    sys.path.insert(0, str(ROOT / 'tools/psyq_pipe')); sys.path.insert(0, str(ROOT / 'tools'))
     try:
         import psylink_lane as lane
-        import build
     finally:
         sys.argv = saved_argv
     srcs = sorted([*(ROOT / 'recon/mod').rglob('*.cpp'), *(ROOT / 'recon/mod').rglob('*.c')])

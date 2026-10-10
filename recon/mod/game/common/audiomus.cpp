@@ -1,0 +1,878 @@
+/* ROUTE D OVERRIDE of recon/game/common/audiomus.cpp -- identical to the reconstruction except the marked
+ * change: a stream underrun no longer kills the music for the rest of the race.  Retail fails with -5,
+ * clears requestsong and the server then returns forever (requestsong < 0).  With a streamed track the CD
+ * also serves chunk reads, so an underrun during a pursuit is possible; the override treats it as an
+ * ordinary song switch (switchsong = 1: purge, re-queue the requested song, wait for the buffer). */
+/* game/common/audiomus.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
+ *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
+ *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
+ *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
+ */
+#include "../../../game/common/audiomus_types.h"
+#include "../../../game/common/audiomus_externs.h"
+
+/* Retail audiomus.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+
+/* ---- audiomus.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
+/* retail audiomus.obj .sdata: AudioMus_g @0x8013c720 precedes the "*-%s" literal of
+ * AudioMus_LoadSongList (0x8013c724, -G8 small literal), so it is initialized (emitted at its
+ * definition), not deferred. */
+AudioMus_tMusicGlobals *AudioMus_g = 0;   /* @0x8013c720 */
+
+
+/* ---- intra-TU forward declarations ---- */
+void AudioMus_RefreshStatus(void);
+int AudioMus_Threshold(void);
+int AudioMus_Buffered(void);
+AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void);
+void AudioMus_SwitchSong(void);
+void AudioMus_Fail(int errorcode);
+extern "C" int TrackMod_musicUnderruns;
+int TrackMod_musicUnderruns;
+extern "C" int TrackMod_MusicClass(void);        /* music_arena.cpp: EA class id of the bigBuf music arena, 0 = heap */
+extern "C" void TrackMod_KillMusicArena(void);
+extern "C" int TrackMod_musicHeapFallbacks;      /* a music block did not fit the arena and went to the heap */
+int TrackMod_musicHeapFallbacks;
+void AudioMus_QueueRequestedSong(void);
+void AudioMus_SetEntry(AudioMus_tSongEntry *info);
+void AudioMus_SetCurrentSongInfo(void);
+int AudioMus_Server(int mode,int ticks);
+void AudioMus_InitGlobals(void);
+void AudioMus_InitDriverGlobals(void);
+void AudioMus_DriverStartUp(int buffersize,int spusize);
+void AudioMus_SysStartUp(int buffersize,int spusize,char *songs);
+void AudioMus_DriverCleanUp(void);
+void AudioMus_SysCleanUp(void);
+void AudioMus_StopSong(int fadeticks);
+void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist);
+void AudioMus_BuildPattern(char *pattern);
+int AudioMus_PlaySong(char *pattern);
+void AudioMus_Volume(int volume);
+void AudioMus_AutoVolume(int fadeticks,int volume);
+
+
+/* ---- AudioMus_RefreshStatus__Fv  [@0x80079ef4] ---- */
+/* The constant-false SimpleMem call retains this object's retail rodata
+   tag without instructions. Its exact original source text is unknown;
+   the active guard and calls below follow retail SLD lines +1/+3/+5/+6/+9. */
+void AudioMus_RefreshStatus(void)
+{
+  if (AudioMus_g->streamhandle >= 0) {
+
+    SNDSTRM_status(AudioMus_g->streamhandle,(int)&AudioMus_g->streamstatus);
+
+    if (0 < (AudioMus_g->streamstatus).outstandingrequests) {
+      SNDSTRM_requeststatus((AudioMus_g->streamstatus).currentrequest,(u_int)&AudioMus_g->requeststatus);
+    }
+  } else {
+    (AudioMus_g->streamstatus).outstandingrequests = 0;
+  }
+}
+
+/* ---- AudioMus_Threshold__Fv  [@0x80079f58] ----
+ * P901: native SYM has no locals or source labels. Separate early-return
+ * statements reproduce its SLD148..159 partition and single empty scope,
+ * without the unrecorded music pointer or reconstructed goto labels.
+ * Combining the final guards changes return branches (4 diffs); combining
+ * only the first two guards preserves code but merges16 native line pairs.
+ * This form preserves all33 words and every branch target. */
+int AudioMus_Threshold(void)
+{
+
+  if (AudioMus_g == 0)
+    return 0;
+  if (AudioMus_g->bigfileheader == 0)
+    return 0;
+  if (AudioMus_g->errorcode != 0)
+    return 0;
+  if (AudioMus_g->switchsong == 2)
+    return AudioMus_g->threshold;
+  if (AudioMus_g->streamstatus.outstandingrequests == 0)
+    return 0;
+  if (AudioMus_g->requeststatus.timetoend <= AudioMus_g->requeststatus.timebuffered)
+    return 0;
+  return AudioMus_g->threshold;
+}
+
+/* ---- AudioMus_Buffered__Fv  [@0x80079fdc] ---- */
+int AudioMus_Buffered(void)
+{
+
+  if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0)
+    return 0;
+  if (AudioMus_g->bigfileheader == (char *)0x0)
+    return 0;
+  if ((AudioMus_g->streamstatus).outstandingrequests == 0)
+    return 0;
+
+  return (AudioMus_g->requeststatus).timebuffered;
+}
+
+/* ---- AudioMus_GetCurrentSong__Fv  [@0x8007a028] ---- */
+AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
+{
+  AudioMus_tCurrentSong*curr;
+  AudioMus_tSongEntry*info;
+
+  /* w30-a7: curr = &AudioMus_g->current cached ONCE (oracle computes it in the null-check
+     branch's delay slot) and reused via small offsets for remaining/index; info = &curr->info
+     is a further in-place bump (+0xC) reused for the title store -- cached sub-field pointer
+     idiom (proven this TU, w28-a6). The errorcode/newswitch checks re-read AudioMus_g-> fresh
+     (oracle re-issues the gp-rel load at each of those, not through a cached AudioMus_g local). */
+  curr = &AudioMus_g->current;
+  if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
+    return (AudioMus_tCurrentSong *)0x0;
+  }
+  curr->remaining = (AudioMus_g->requeststatus).timetoend;
+  /* MATCH (W85-S2, device removal x2) -- THE `? :` MUST BE SPELLED AS A STATEMENT
+     `if / else`, AND THAT ONE CHANGE RETIRES BOTH DEVICES THIS FUNCTION CARRIED:
+       (a) a `volatile`-view read of the AudioMus_g pointer at the switch
+           (`(*(AudioMus_tMusicGlobals *volatile *)&AudioMus_g)->errorcode`), and
+       (b) a w54-a11 identity launder `__asm__("" : "=r"(curr) : "0"(curr))`.
+     MECHANISM: gcc-2.8's cse works per BASIC BLOCK.  Retail re-issues the gp-rel
+     `lw AudioMus_g` after the index store (oracle 8007A06C) because that store sits
+     at a JOIN, so the cached load is not available to the following block.  A COND_EXPR
+     is expanded and re-merged early enough that our build kept ONE live pseudo for
+     `AudioMus_g` across the whole body (45 insns, 2 short, and an a0/v1 swap on every
+     row); the if/else STATEMENT reproduces retail's block split, the re-load, and the
+     a0=curr / v1=g register split -- and with the shape right, `curr + 12` stays
+     curr-based on its own, so the launder is no longer needed either.
+     MEASURED: volatile dropped alone 26 @45/47; volatile dropped + `curr` spelled
+     through a `char *` cast 26 @45/47; if/else + volatile dropped PASS 47/47;
+     if/else + volatile AND launder dropped PASS 47/47 (landed); the same with
+     `info` re-spelled as a char*-bump also PASS (so `info = &curr->info` is free). */
+  if (AudioMus_g->errorcode == 0) {
+    curr->index = AudioMus_g->requestsong + 1;
+  }
+  else {
+    curr->index = AudioMus_g->errorcode;
+  }
+  info = &curr->info;
+  switch (AudioMus_g->errorcode) {
+    case -4:
+      info->title = "BUFFER NOT ALLOCATED";
+      break;
+    case -3:
+      info->title = "STREAM NOT CREATED";
+      break;
+  }
+  if (AudioMus_g->newswitch != 0) {
+    AudioMus_g->newswitch = 0;
+    (AudioMus_g->current).newsong = 1;
+  }
+  else {
+    (AudioMus_g->current).newsong = 0;
+  }
+  return &AudioMus_g->current;
+}
+
+/* ---- AudioMus_SwitchSong__Fv  [@0x8007a0e4] ---- */
+void AudioMus_SwitchSong(void)
+{
+  if (((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->availablesongs != 0)) &&
+     (0 < AudioMus_g->volume)) {
+    AudioMus_tSongEntry *info;
+
+    AudioMus_g->newswitch = 1;
+    AudioMus_g->songname = (char *)0x0;
+    AudioMus_g->errorcode = 0;
+    AudioMus_g->current.remaining = 0;
+    info = &AudioMus_g->current.info;
+    info->length = 0;
+    info->filename = (char *)0x0;
+    info->title = (char *)0x0;
+    info->artist = (char *)0x0;
+    info->label = (char *)0x0;
+    info->notes = (char *)0x0;
+    if ((AudioMus_g->switchsong == 0) && (-1 < AudioMus_g->requestsong)) {
+      SNDSTRM_autovol(AudioMus_g->streamhandle,2000,0);
+      AudioMus_g->fadetime = 1000;
+    }
+    AudioMus_g->requestsong = AudioMus_g->requestsong + 1;
+    if ((Hud_kTurnSongOffNext != 0) ||
+        (AudioMus_g->requestsong >= AudioMus_g->availablesongs)) {
+      Hud_kTurnSongOffNext = 0;
+      AudioMus_g->firstswitch = 0;
+      AudioMus_g->switchsong = -1;
+      AudioMus_g->requestsong = -1;
+    } else {
+      AudioMus_g->switchsong = 1;
+    }
+  }
+}
+
+/* ---- AudioMus_Fail__Fi  [@0x8007a1dc] ---- */
+void AudioMus_Fail(int errorcode)
+{
+  AudioMus_g->errorcode = errorcode;
+
+  if (AudioMus_g->streamstatus.outstandingrequests != 0) {
+
+    SNDSTRM_autovol(AudioMus_g->streamhandle,AudioMus_Buffered(),0);
+    AudioMus_g->fadetime = AudioMus_Buffered();
+  }
+  /* Retail SLD spans twelve non-emitting source lines here.
+   * Their original text is not present in the binary.
+   * The available SYM exposes no named local in this gap.
+   * The oracle exposes no extra branch, store, or call.
+   * This annotation records the source-line interval only.
+   * It does not reconstruct an omitted runtime behavior.
+   * The following state changes remain independently verified.
+   * Source order is newswitch, firstswitch, songname,
+   * switchsong, and requestsong, as the SLD records.
+   * Those assignments begin at relative line twenty.
+   * Original blank, comment, or macro text is unknown.
+   */
+  AudioMus_g->newswitch = 1;
+  AudioMus_g->firstswitch = 0;
+  AudioMus_g->songname = (char *)0x0;
+  AudioMus_g->switchsong = -1;
+  AudioMus_g->requestsong = -1;
+}
+
+/* ---- AudioMus_QueueRequestedSong__Fv  [@0x8007a258] ---- */
+/* Oracle data flow: requesthandle stores SNDSTRM_queuefile's return;
+   failby uses gettick's return plus 0x280, not the switchsong constant.
+   The info pointer is materialized once and reused for all entry fields.
+   SLD places the locate/queue/switch/failby operations on +3/+7/+9/+10,
+   remaining reset on +14, info address on +16, and six fields on +18..+23. */
+void AudioMus_QueueRequestedSong(void)
+{
+  long offset; AudioMus_tSongEntry *info;
+
+  AudioMus_g->songname = locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,(u_char)AudioMus_g->playlist[AudioMus_g->requestsong],&offset,(long *)0x0);
+
+  if (-1 < AudioMus_g->streamhandle) {
+
+    AudioMus_g->requesthandle = SNDSTRM_queuefile(AudioMus_g->streamhandle,0x3e8,AudioMus_g->bigfilename,offset);
+  }
+  AudioMus_g->switchsong = 2;
+  AudioMus_g->failby = gettick() + 0x280;
+
+
+
+  AudioMus_g->current.remaining = 0;
+
+  info = &AudioMus_g->current.info;
+
+  info->length = 0;
+  info->filename = (char *)0x0;
+  info->title = (char *)0x0;
+  info->artist = (char *)0x0;
+  info->label = (char *)0x0;
+  info->notes = (char *)0x0;
+}
+
+/* ---- AudioMus_SetEntry__FP19AudioMus_tSongEntry  [@0x8007a308] ---- */
+/* Retail SYM names exactly `titlechar` ($a1), `havefile` ($a3), and the
+ * nested-block `p` ($a2).  SLD lines 351/354 prove that titlechar is the
+ * buffer index initialized before the filename loop, while repeated `*p`
+ * reads supply the unnamed compiler temporary in $v1.  This natural while
+ * form preserves retail's rotated loop and removes the former synthetic
+ * iVar3 source object. The source-scope entry is now retail line +2 and
+ * the four initializer stores are +1..+4; loop/tail SLD remains partial. */
+void AudioMus_SetEntry(AudioMus_tSongEntry *info)
+{
+  int titlechar, havefile; info->artist = (char *)0x0;
+  { char *p; info->label = (char *)0x0;
+    info->date = (char *)0x0;
+    info->notes = (char *)0x0;
+
+    titlechar = 0;
+    havefile = false;
+
+    p = info->filename; while (*p != '\0') {
+      if (*p == '-') {
+        if (!havefile) {
+          havefile = true;
+          titlechar = 0;
+        }
+        else {
+          info->artist = p + 1;
+          break;
+        }
+      }
+      else if (titlechar < 0x1f) {
+        info->strbuf[titlechar] = *p;
+        titlechar = titlechar + 1;
+      }
+      p = p + 1;
+    }
+  }
+  info->strbuf[titlechar] = '\0';
+  info->title = info->strbuf;
+}
+
+/* ---- AudioMus_SetCurrentSongInfo__Fv  [@0x8007a390] ---- */
+/* Retail SLD attributes the global pointer load, remaining-time store,
+   entry-address calculation, and length store to separate source regions
+   +1/+3/+5/+7. The const `music` snapshot has no retained SYM local;
+   its original private spelling is unknown. */
+void AudioMus_SetCurrentSongInfo(void)
+{
+  AudioMus_tSongEntry *info; AudioMus_tMusicGlobals *const music = AudioMus_g;
+
+  music->current.remaining = music->requeststatus.timetoend;
+
+  info = &music->current.info;
+
+  info->length = music->current.remaining + music->requeststatus.currenttime;
+  info->filename = music->songname;
+
+  AudioMus_SetEntry(info);
+}
+
+/* ---- AudioMus_Server__Fii  [@0x8007a3d0] ---- */
+/* MATCH: PASS 300/300.  SLD maps the complete random-song calculation at
+ * 0x8007A760..0x8007A7F8 to one source line.  Keeping the repeated GetRCnt(0)
+ * ternary directly inside that modulo assignment recreates retail's three
+ * distinct local-allocation webs: counter in v0, first remainder/sum in v1,
+ * and final remainder in v0. */
+int AudioMus_Server(int mode,int ticks)
+{
+  /* P902: native SYM has no ordinary locals. Removing randomRange and
+   * randomMusic TOGETHER recovers the single native random-song expression
+   * with identical code; their former isolated four-diff failures did not
+   * prove separate source objects were required. Structured conditionals
+   * also remove five reconstruction labels; native SLD39/170 becomes39/29.
+   * The positive default-state guard also removes switchMode: it preserves
+   * the CSE path carrying the anonymous constant2 in s0 across the queue call.
+   * The literal/ordinary-switch form alone was300words/16diffs. No ordinary
+   * local remains. The existing done label and residual SLD groups still need
+   * source recovery; no new alias or codegen device is introduced. */
+
+  if (AudioMus_g->bigfileheader == (char *)0x0) goto done;
+  if ((AudioMus_g->bigfilename[0] != '.') && (CdDiskReady(1) == 0x10)) {
+    if (AudioMus_g->errorcode != 0) return 0;
+    AudioMus_g->errorcode = -2;
+    AudioMus_g->newswitch = 1;
+    if (AudioMus_g->requestsong < 0) goto done;
+    SNDSTRM_autovol(AudioMus_g->streamhandle,AudioMus_Buffered(),0);
+    return 0;
+  }
+
+  if (AudioMus_g->errorcode == -2) {
+    if (CdDiskReady(1) != 2) return 0;
+    AudioMus_g->errorcode = -5;
+    if (AudioMus_g->requestsong < 0) goto done;
+    AudioMus_g->newswitch = 1;
+    AudioMus_g->switchsong = 2;
+    AudioMus_g->failby = gettick() + 0x280;
+    goto done;
+  }
+
+  AudioMus_RefreshStatus();
+  if ((AudioMus_Threshold() != 0) && (AudioMus_g->switchsong != 2)) {
+    if (AudioMus_Buffered() < 0x226) {
+      /* route D: recover instead of AudioMus_Fail(-5) */
+      SNDSTRM_autovol(AudioMus_g->streamhandle,AudioMus_Buffered(),0);
+      AudioMus_g->fadetime = 0;
+      AudioMus_g->newswitch = 1;
+      AudioMus_g->switchsong = 1;
+      TrackMod_musicUnderruns++;
+    } else if (AudioMus_Buffered() < 0x5dc) {
+      if (AudioMus_g->greedy == 0) {
+        SNDSTRM_setgreedystate(AudioMus_g->streamhandle,1);
+        AudioMus_g->greedy = 1;
+      }
+    } else {
+      if ((AudioMus_Buffered() >= AudioMus_g->threshold) &&
+          (AudioMus_g->greedy != 0)) {
+        SNDSTRM_setgreedystate(AudioMus_g->streamhandle,0);
+        AudioMus_g->greedy = 0;
+      }
+    }
+  }
+
+  if (AudioMus_g->switchsong != 0) {
+    if (AudioMus_g->switchsong == 2) {
+      if (AudioMus_g->streambuffer == (char *)0x0) {
+        AudioMus_Fail(-4);
+        return 0;
+      }
+      if (AudioMus_g->streamhandle < 0) {
+        AudioMus_Fail(-3);
+        return 0;
+      }
+      if (AudioMus_g->streamstatus.outstandingrequests == 0) return 0;
+      if (AudioMus_g->requeststatus.timebuffered <= AudioMus_g->threshold) goto done;
+      if (AudioMus_g->errorcode == -5) {
+        AudioMus_g->errorcode = 0;
+        SNDSTRM_autovol(AudioMus_g->streamhandle,2000,AudioMus_g->volume);
+      } else {
+        AudioMus_SetCurrentSongInfo();
+        SNDSTRM_autovol(AudioMus_g->streamhandle,2000,AudioMus_g->volume);
+      }
+      AudioMus_g->switchsong = 0;
+    } else if ((AudioMus_g->streamstatus.outstandingrequests == 0) ||
+               (SNDSTRM_getvol(AudioMus_g->streamhandle) == 0)) {
+      if (AudioMus_g->streamhandle >= 0) {
+        SNDSTRM_purge(AudioMus_g->streamhandle);
+      }
+      AudioMus_g->songname = (char *)0x0;
+      if (AudioMus_g->switchsong == 1) {
+        AudioMus_g->fadetime = 0;
+        AudioMus_QueueRequestedSong();
+        AudioMus_g->switchsong = 2;
+
+        AudioMus_g->failby = gettick() + 0x280;
+      } else {
+        AudioMus_g->switchsong = 0;
+      }
+    }
+  } else {
+    if ((AudioMus_g->streamstatus.outstandingrequests != 0) ||
+        (AudioMus_g->requestsong < 0)) return 0;
+    if (AudioMus_g->availablesongs > 1) {
+      if (AudioMus_g->randomize != 0) {
+        AudioMus_g->requestsong =
+            (AudioMus_g->requestsong + 1 +
+            (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % (AudioMus_g->availablesongs - 1)) %
+            AudioMus_g->availablesongs;
+      } else {
+        AudioMus_g->requestsong =
+            (AudioMus_g->requestsong + 1) % AudioMus_g->availablesongs;
+      }
+    }
+    SNDSTRM_vol(AudioMus_g->streamhandle,0);
+    AudioMus_QueueRequestedSong();
+    AudioMus_g->newswitch = 1;
+    AudioMus_g->firstswitch = 1;
+  }
+
+done:
+  return 0;
+}
+
+/* ---- AudioMus_GetSongList__FPci  [@0x8007a880] ---- */
+/* SYM rule-8 REWRITE (w54-a11).  SYM local map: list = REG $17 (s1), song = REG $20 (s4),
+   numsongs = REG $17 (s1, same reg -- its live range ends where list's begins), the two
+   loop counters are SEPARATE block-scope `i`s in DIFFERENT regs (s0 for the counting
+   loop, s2 for the fill loop -- s2 = memtype's reg, reused after memtype dies), size =
+   AUTO -0x28, songname = REG $16 (s0).  Everything else in the old recon (pAVar1/pbVar2/
+   iVar3/pAVar4/iVar5/iVar6/piVar7/info) was fabricated.  Two structural corrections the
+   SLD forces: (a) the AudioMus_g==NULL arm is the OUT-OF-LINE arm (SLD 589-593, at the
+   very END of the function) -- so the test is `if (g != NULL) {...} else {...}`, not the
+   inverted form the old recon used; (b) the counting loop's induction variable starts
+   from numsongs (retail CSEs the shared 0: `addu s0,s1,zero` in the guard's delay slot). */
+AudioMus_tSongList *
+AudioMus_GetSongList(char *pattern,int memtype)
+{
+  AudioMus_tSongList*list;
+  AudioMus_tSongEntry*song;
+  int numsongs;
+
+  numsongs = 0;
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+    {
+      int i;
+
+      for (i = numsongs; i < AudioMus_g->totalsongs; i = i + 1) {
+        if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(long *)0x0,(long *)0x0),
+                     pattern) != 0) {
+          numsongs = numsongs + 1;
+        }
+      }
+    }
+    list = reservememadr("Song List",numsongs << 6 | 8,memtype);
+    song = list->song;
+    list->numsongs = 0;
+    list->currentsong = -1;
+    for (int i = 0; i < AudioMus_g->totalsongs; i = i + 1) {
+      long size;
+      char *songname;
+
+      songname = (char *)locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(long *)0x0,&size);
+      if (wildcard((u_char *)songname,pattern) != 0) {
+        song->filename = songname;
+        AudioMus_SetEntry(song);
+        song->length = (size * 10) / 0xfc;
+        song->index = i;
+        if (songname == AudioMus_g->songname) {
+          list->currentsong = i;
+        }
+        song = song + 1;
+        list->numsongs = list->numsongs + 1;
+      }
+    }
+  }
+  else {
+    list = reservememadr("Song List",8,memtype);
+    list->numsongs = 0;
+    list->currentsong = -1;
+  }
+  return list;
+}
+
+/* ---- AudioMus_InitGlobals__Fv  [@0x8007aa54] ---- */
+void AudioMus_InitGlobals(void)
+{
+  AudioMus_g->bigfileheader = (char *)0x0;
+  AudioMus_g->streambuffer = (char *)0x0;
+  AudioMus_g->streamhandle = -1;
+  AudioMus_g->serveractive = 0;
+  AudioMus_g->driveractive = 0;
+  AudioMus_g->totalsongs = 0;
+}
+
+/* ---- AudioMus_InitDriverGlobals__Fv  [@0x8007aa78] ---- */
+/* Retail SLD puts volume/requestsong on lines +1/+8 despite the scheduler
+   emitting the requestsong constant before the zero stores. The gaps at
+   +11..+13, +15, +17 and +24 are non-emitting source regions; their
+   original comment or macro text cannot be recovered from this image. */
+void AudioMus_InitDriverGlobals(void)
+{
+  AudioMus_tSongEntry*info; AudioMus_g->volume = 0;
+  AudioMus_g->fadetime = 0;
+  AudioMus_g->availablesongs = 0;
+  AudioMus_g->firstswitch = 0;
+  AudioMus_g->newswitch = 0;
+  AudioMus_g->songname = (char *)0x0;
+  AudioMus_g->switchsong = 0;
+  AudioMus_g->requestsong = -1;
+  AudioMus_g->errorcode = 0;
+  AudioMus_g->greedy = 0;
+
+
+
+  (AudioMus_g->current).remaining = 0;
+
+  info = &(AudioMus_g->current).info;
+
+  info->length = 0;
+  info->filename = (char *)0x0;
+  info->title = (char *)0x0;
+  info->artist = (char *)0x0;
+  info->label = (char *)0x0;
+  info->notes = (char *)0x0;
+
+  AudioMus_g->driveractive = 1;
+}
+
+/* ---- AudioMus_DriverStartUp__Fii  [@0x8007aad4] ---- */
+void AudioMus_DriverStartUp(int buffersize,int spusize)
+{
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+    if (AudioMus_g->driveractive == 0) {
+      AudioMus_InitDriverGlobals();
+    }
+    AudioMus_g->threshold = buffersize + spusize >> 5;
+    if (AudioMus_g->streamhandle < 0) {
+      if (AudioMus_g->streambuffer != (char *)0x0) {
+        int chunks;
+        int size;
+        SNDLIMITS sndlimits;
+        SNDPLAYOPTS opts;
+
+        chunks = buffersize / 0x400;
+        size = buffersize + SNDSTRM_overhead(1,chunks);
+        SNDgetlimits(&sndlimits);
+        sndlimits.packetbufsize = spusize;
+        SNDsetlimits(&sndlimits);
+        SNDplaysetdef(&opts);
+        opts.vol = 0;
+        AudioMus_g->streamhandle =
+            SNDSTRM_create((int *)&opts,1,chunks,AudioMus_g->streambuffer,size);
+        if (-1 < AudioMus_g->streamhandle) {
+          SNDSTRM_setgreedylevel(AudioMus_g->streamhandle,0);
+          SNDSTRM_setpriority(AudioMus_g->streamhandle,0xff,5);
+        }
+      }
+    }
+    gMusicHandle = AudioMus_g->streamhandle;
+    if (AudioMus_g->serveractive == 0) {
+      addsystemtask(AudioMus_Server,(void *)0x19,(void *)0x0);
+      AudioMus_g->serveractive = 1;
+    }
+  }
+}
+
+/* ---- AudioMus_SysStartUp__FiiPc  [@0x8007ac18] ---- */
+void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
+{
+  if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
+    /* route D: in a race the three music blocks come from the bigBuf music arena (its own EA memory
+     * class, music_arena.cpp); each falls back to the heap if the arena cannot hold it.  Outside a
+     * race the class is 0 and this is the retail allocation. */
+    int cls = TrackMod_MusicClass();
+    AudioMus_g = reservememadr("Music Globals",0x158,cls);
+    if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0 && cls != 0) {
+      TrackMod_musicHeapFallbacks++;
+      AudioMus_g = reservememadr("Music Globals",0x158,0);
+    }
+    if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+      AudioMus_InitGlobals();
+      AudioMus_g->streambuffer =
+          reservememadr("Music Buffer",
+                        buffersize + SNDSTRM_overhead(0x1,buffersize / 0x400),cls);
+      if (AudioMus_g->streambuffer == (char *)0x0 && cls != 0) {
+        TrackMod_musicHeapFallbacks++;
+        AudioMus_g->streambuffer =
+            reservememadr("Music Buffer",
+                          buffersize + SNDSTRM_overhead(0x1,buffersize / 0x400),0);
+      }
+      AudioMus_DriverStartUp(buffersize,spusize);
+      sprintf(AudioMus_g->bigfilename,"%szzz%s.viv",Paths_Paths[27],songs);
+      AudioMus_g->bigfileheader =
+          (char *)loadbigfileheader(AudioMus_g->bigfilename,(void *)cls);
+      if (AudioMus_g->bigfileheader == (char *)0x0 && cls != 0) {
+        TrackMod_musicHeapFallbacks++;
+        AudioMus_g->bigfileheader =
+            (char *)loadbigfileheader(AudioMus_g->bigfilename,(void *)0x0);
+      }
+      if (AudioMus_g->bigfileheader != (char *)0x0) {
+        AudioMus_g->totalsongs = bigcount(AudioMus_g->bigfileheader);
+      }
+    }
+  }
+  return;
+}
+
+/* ---- AudioMus_DriverCleanUp__Fv  [@0x8007ad10] ---- */
+void AudioMus_DriverCleanUp(void)
+{
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+
+    if (AudioMus_g->serveractive != 0) {
+
+      delsystemtask((int)AudioMus_Server /* @0x8007a3d0 system-task callback */);
+      AudioMus_g->serveractive = 0;
+    }
+    if (-1 < AudioMus_g->streamhandle) {
+
+      SNDSTRM_destroy(AudioMus_g->streamhandle);
+      AudioMus_g->streamhandle = -1;
+    }
+    AudioMus_g->driveractive = 0;
+  }
+}
+
+/* ---- AudioMus_SysCleanUp__Fv  [@0x8007ad8c] ---- */
+void AudioMus_SysCleanUp(void)
+{
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+
+    AudioMus_DriverCleanUp();
+
+    if (AudioMus_g->streambuffer != (char *)0x0) {
+      purgememadr(AudioMus_g->streambuffer);
+    }
+    if (AudioMus_g->bigfileheader != (char *)0x0) {
+      purgememadr(AudioMus_g->bigfileheader);
+    }
+    purgememadr(AudioMus_g);
+    AudioMus_g = (AudioMus_tMusicGlobals *)0x0;
+  }
+  TrackMod_KillMusicArena();   /* route D: the race module is going down; front-end music uses the heap */
+}
+
+/* ---- AudioMus_StopSong__Fi  [@0x8007ae04] ---- */
+void AudioMus_StopSong(int fadeticks)
+{
+  if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (-1 < AudioMus_g->requestsong)) {
+    if (fadeticks == 0) {
+      if (-1 < AudioMus_g->streamhandle) {
+        SNDSTRM_purge(AudioMus_g->streamhandle);
+      }
+      AudioMus_g->fadetime = 0;
+      AudioMus_g->songname = (char *)0x0;
+      AudioMus_g->switchsong = 0;
+    }
+    else {
+      if (AudioMus_g->switchsong == 0) {
+        if (AudioMus_g->streamhandle >= 0) {
+          SNDSTRM_autovol(AudioMus_g->streamhandle,fadeticks,0);
+          AudioMus_g->fadetime = fadeticks;
+        }
+        else {
+          AudioMus_g->fadetime = 0;
+        }
+        AudioMus_g->songname = (char *)0x0;
+      }
+      AudioMus_g->switchsong = -1;
+    }
+    AudioMus_g->requestsong = -1;
+  }
+  return;
+}
+
+/* ---- AudioMus_BuildPlayList__FiPi  [@0x8007aed8] ---- */
+void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist)
+{
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+    AudioMus_g->availablesongs = 0;
+    for (int i = 0; i < numplaylistsongs; i++, playlist++) {
+      if ((-1 < *playlist) && (*playlist < AudioMus_g->totalsongs)) {
+        AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)*playlist;
+        AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
+      }
+    }
+  }
+}
+
+/* ---- AudioMus_BuildPattern__FPc  [@0x8007af60] ---- */
+void AudioMus_BuildPattern(char *pattern)
+{
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+    AudioMus_g->availablesongs = 0;
+    for (int i = 0; (i < AudioMus_g->totalsongs) && (AudioMus_g->availablesongs < 0x20); i++) {
+      if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,
+                                  (long *)0x0,(long *)0x0),pattern) != 0) {
+        AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)i;
+        AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
+      }
+    }
+  }
+}
+
+/* ---- AudioMus_PlaySong__FPc  [@0x8007b030] ---- */
+/* P903: only native pattern/title/newsong remain; all nine native scopes and
+ * SLD statement groups match. Initialize newsong after randomize and use the
+ * actual availablesongs field as the pattern-arm divisor to retain the single
+ * modulo join without a pick local or fence. Repeated GetRCnt calls are real.
+ * Direct divisor-newsong form is 171 words/15 diffs; the paired form is160/PASS.
+ * Original macro/token spellings are not uniquely established by these checks. */
+int AudioMus_PlaySong(char *pattern)
+{
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+    if (pattern != (char *)0x0) {
+      AudioMus_BuildPattern(pattern);
+      if ((AudioMus_g->availablesongs == 0) && (strlen(pattern) < 0x3d)) {
+        char title[128];
+        sprintf(title,"*-%s",pattern);
+        AudioMus_BuildPattern(title);
+      }
+    }
+
+    if (AudioMus_g->volume == 0)
+      return 0;
+    if (AudioMus_g->availablesongs != 0) {
+      AudioMus_g->randomize = 1;
+      int newsong = AudioMus_g->availablesongs;
+      if (newsong == 1) {
+        newsong = 0;
+      }
+      else if (pattern != (char *)0x0) {
+        newsong = (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % AudioMus_g->availablesongs;
+      }
+      else {
+        newsong = (AudioMus_g->requestsong + 1 +
+                    ((GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) %
+                     (newsong - 1))) % newsong;
+      }
+
+      if (AudioMus_g->switchsong != 0) {
+        AudioMus_g->switchsong = 1;
+        AudioMus_g->requestsong = newsong;
+      }
+      else if (AudioMus_g->requestsong >= 0) {
+        SNDSTRM_autovol(AudioMus_g->streamhandle,2000,0);
+        AudioMus_g->fadetime = 2000;
+        AudioMus_g->switchsong = 1;
+        AudioMus_g->requestsong = newsong;
+        AudioMus_g->songname = (char *)0x0;
+      }
+      else {
+        AudioMus_g->fadetime = 0;
+        SNDSTRM_vol(AudioMus_g->streamhandle,0);
+        AudioMus_g->requestsong = newsong;
+        AudioMus_QueueRequestedSong();
+      }
+
+      AudioMus_g->firstswitch = 1;
+      AudioMus_g->errorcode = 0;
+      if (pattern != (char *)0x0) {
+        AudioMus_g->newswitch = 1;
+      }
+    }
+    return AudioMus_g->availablesongs;
+  }
+  else {
+    return 0;
+  }
+}
+
+/* ---- AudioMus_Volume__Fi  [@0x8007b2b0] ---- */
+/* SYM rule-8 REWRITE (w54-a11): the SYM says this fn has exactly TWO named locals --
+   ticksleft (REG $16 = s0) and curvol (REG $4 = a0, declared in a block whose code
+   starts at 0x8007b318 = the SNDSTRM_getvol call).  The old recon had five fabricated
+   temps, DISCARDED SNDSTRM_getvol's return (retail tests it: `blez a0` at 0x8007b324),
+   passed a literal 0 to StopSong where retail passes ticksleft (`addu a0,s0,zero` in
+   the jal's delay slot), and had the two fade arms in the WRONG ORDER (retail's SLD
+   runs 984 ticksleft!=0 as the FALL-THROUGH, 989 as the out-of-line arm). */
+void AudioMus_Volume(int volume)
+{
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+    if (AudioMus_g->volume != volume) {
+      int ticksleft = 0;
+
+      if (volume == 0) {
+        AudioMus_g->volume = 0;
+        AudioMus_StopSong(ticksleft);
+      }
+      else {
+        if ((AudioMus_g->fadetime != 0) && (-1 < AudioMus_g->streamhandle)) {
+          int curvol = SNDSTRM_getvol(AudioMus_g->streamhandle);
+
+          if ((0 < curvol) && (0 < AudioMus_g->volume)) {
+            ticksleft = AudioMus_g->fadetime * curvol / AudioMus_g->volume;
+          }
+        }
+        if (ticksleft != 0) {
+          SNDSTRM_vol(AudioMus_g->streamhandle,(volume * ticksleft) / AudioMus_g->fadetime);
+          SNDSTRM_autovol(AudioMus_g->streamhandle,ticksleft,0);
+        }
+        else {
+          if ((-1 < AudioMus_g->streamhandle) && (AudioMus_g->switchsong != 2)) {
+            SNDSTRM_vol(AudioMus_g->streamhandle,volume);
+          }
+        }
+        if (AudioMus_g->volume == 0) {
+          AudioMus_g->volume = volume;
+          AudioMus_PlaySong((char *)0x0);
+        }
+        else {
+          AudioMus_g->volume = volume;
+        }
+      }
+    }
+  }
+  return;
+}
+
+/* ---- AudioMus_AutoVolume__Fii  [@0x8007b46c] ---- */
+void AudioMus_AutoVolume(int fadeticks,int volume)
+{
+  if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->volume != volume)) {
+    if (volume == 0) {
+      AudioMus_g->volume = 0;
+      AudioMus_StopSong(0);
+    }
+    else {
+      if (AudioMus_g->volume == 0) {
+        AudioMus_g->volume = volume;
+        AudioMus_PlaySong((char *)0x0);
+      }
+      else {
+        AudioMus_g->volume = volume;
+      }
+      if (((AudioMus_g->switchsong != 2) && (AudioMus_g->fadetime == 0)) &&
+         (-1 < AudioMus_g->streamhandle)) {
+        SNDSTRM_autovol(AudioMus_g->streamhandle,fadeticks,volume);
+      }
+    }
+  }
+  return;
+}
+
+/* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
+ * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.
+ * sndpsxz.lib(sst.obj) is pulled right after wildcard.obj and before spvoices.obj -- both asked for by THIS object -- so this
+ * object referenced an sst.obj name; `iSNDstreamcreate` is the only name of that member (tried all 18, real ASPSX record order)
+ * that puts sst.obj, and with it spat2hdr / memcmp / sdpacket, exactly where retail has them.
+ * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
+#include "../../../link_stripped.h"
+extern "C" int iSNDstreamcreate(...);
+LINK_STRIPPED int AudioMus_StrippedStreamCreate(void) { return iSNDstreamcreate(); }

@@ -63,8 +63,9 @@ engine's own trick, cf. `draww.cpp:2193`) for the veneer calls and switches back
 ## State
 - 2026-10-04: tree scaffolded; `tools/route_d.py` builds stage A (streaming code linked, EXE
   1,241,088 B) and stage B (FONT/PC/GTE replacements; heap +19,144 B — the sine table is still
-  pulled by other libgte members, so only FONT counts yet); stage C (compact libcd) is blocked by
-  `EVENT.obj` being pulled for symbols the core does not define (duplicate `CdInit`). Disc tree
+  pulled by other libgte members, so only FONT counts yet); stage C (compact libcd) was blocked by
+  `EVENT.obj` being pulled for symbols the core does not define (duplicate `CdInit`) -- closed
+  2026-10-10, see below. Disc tree
   extracted to `build/cd/nfs4-route-d` (+ mkpsxiso XML). Boot gates: see the table kept below.
 - Runtime probes: `docs/nfs-psx-formats/tools/runtime/nfs4_track_probe_map.py` resolves every
   address from a link MAP, so it works on route D images.
@@ -152,8 +153,59 @@ runtime DuckStation was unlimited for the probes; `EmulationSpeed = 1` now.
   members with `,front` works (`--stage F`, manifest `front_libs`; endofcode 0x80132988, heap
   +90,492 B) but the overlay grows by 86 KB (the 70 KB DCT table is data) and overflows bigBuf, which
   would have to grow by the same amount: net ≈ +4 KB. Kept as a stage for reference, not used.
-- **Real levers left:** stage C libcd compaction (~22 KB, blocked by EVENT.obj / duplicate CdInit),
-  the GTE sine table (4.9 KB, needs compact libgte members), and capping the primitive buffers
+- **Stage C = compact libcd, live (2026-10-10).** `recon/mod/syslib/psx/libcd/` now holds verbatim copies
+  of `recon/syslib-mod/psx/libcd/{core_api,media_api,drv_core,movie_bridge,route_d_exports}.c`
+  (syslib-mod stays canonical; only drv_core.c's `link_stripped.h` include path differs by one `../`).
+  `route_d_exports.c` owns `CD_cbread`/`CD_read_dma_mode`, the two EVENT words core_api references, so
+  slink no longer extracts EVENT.obj and the duplicate `CdInit` is gone. The manifest's new `tu_flags`
+  compiles these five TUs with gcc 2.7.2 at -G0 (the lane syslib-mod verified them under; route_d.py
+  now compiles in-process so per-TU flags apply without touching tools/build.py). Result on top of
+  stage B: endofcode 0x80146CF8 -> 0x8014600C, heap 742,144 -> 745,452 B (+3,308; +11,000 vs retail).
+  Only the resident core shrinks: the movie/ISO/STR/libds members (18.6 KB) stay resident in a source
+  relink -- syslib-mod's bigger number comes from its fixed-address overlay/restore of that group,
+  which route D does not have. Verified: `routed-01B-ms-c` boots, Track_Init completes (7,065 frames),
+  3,000 pad frames of race (11,142 ticks): 59 chunk loads, 0 evictions/failures, music started and
+  stayed clean (errorcode 0, 0 underruns), EA heap 36 KB free in race (the extra heap lands in the
+  chunk pool by the reserve rule, not in free space).
+- ⚠️ `build/route_d/` is shared with `recon/syslib-mod/tools/build_route_d_stage_c.py --syslib-only`
+  (run 2026-10-07): that control link overwrote disc/NFS4.EXE, nfs4_d.map and the CPE with an image
+  that has NO recon/mod content. Always rebuild (`route_d.py --stage C`) before `route_d_disc.py`.
+- **Future integration: movie/ISO/STR/libds group as a second disc overlay (assessed 2026-10-10, not built).**
+  The 14 objects of `recon/syslib-mod/psx/libcd/race-overlay-objects.txt` (iso9660, cdread, cdread2,
+  stcdint, CDROM, C_002..C_010, libds DSCB) total 18,668 B of which 9,216 B is the iso9660 directory
+  cache in BSS and ~9.1 KB is code/rodata; nothing in the race calls them (EAC streams through cdfs.c
+  over the libcd core; syslib-mod's breakpoint census saw zero race entries). Options: (1) `,front`
+  into the front overlay = zero-sum (FRONT.BIN 279,880 B in bigBuf[282,000]); (2) syslib-mod's in-RAM
+  RefPack restore = only needed for a fixed-address patch; (3) **a second SLINK overlay group
+  `over(...) file("movie.bin")` in resident text, reloaded from disc where the engine reloads
+  FRONT.BIN (Nfs2_CleanUpGameModule path) with a guard before STR start / CdSearchFile; BSS re-zeroed
+  on reload; the region becomes race storage (chunk-cache arena slots or the music globals, letting
+  the pool reserve drop).** Needs: link-script group + disc entry (route_d.py / route_d_disc.py),
+  reload hook, EvictAll before the reload if the pool uses the region, and an entry-breakpoint census
+  of every member through race/restart/quit/replay + cold STR playback on the route D image.
+  Expected: ~18.6 KB resident gain for one ~9 KB disc read per return to the front end.
+- **DONE 2026-10-10: race music moved from the EA heap into bigBuf (user idea).** Measured race music =
+  33,100 B of heap (Music Globals 344, Music Buffer 29,980 = 0x6000 ring + 5,404 stream/packet overhead,
+  big-file header 2,704, Song List 8; the 0x14000 SPU packet buffer is in SPU RAM). Implementation, all in
+  recon/mod: `game/common/music_arena.cpp` (TrackMod_InitMusicArena reserves TRACKMOD_MUSIC_ARENA = 0x9000 B
+  from the bigBuf bump arena and makes it EA memory class 2 via creatememclass; TrackMod_KillMusicArena;
+  TrackMod_MusicClass), `game/psx/platform.cpp` override (Platform_InitMemory ends with
+  TrackMod_InitMusicArena -- it must exist before Nfs2_StartUp starts the music, which is BEFORE the first
+  render frame reserves the primitive buffers), `game/psx/draw.cpp` override (AllocatePrimitivesBuffer caps
+  gTotalMem: 0x12000 single player / 0x1C000 split screen instead of 0x1F600 / 0x22500, which is what makes
+  room: measured peaks 51,340 B 1P light, 109,200 B 2P night+weather+HP), `game/common/audiomus.cpp`
+  override (SysStartUp allocates the three blocks with class TrackMod_MusicClass(), each falling back to
+  the heap and counting TrackMod_musicHeapFallbacks; SysCleanUp ends with TrackMod_KillMusicArena so
+  front-end music stays on the heap). Verified on routed-01B-ms-c: music globals 0x80010100 / ring
+  0x80010268 / header 0x80017798 (all in bigBuf), 0 fallbacks, errorcode 0, 1,500-frame drive clean, EA heap
+  free in race 36 KB -> 69 KB, bigBuf still 73 KB unused in 1P (gCurrentMemory 0x80042E68 of 0x80054D10);
+  Restart race OK (ticks reset, 0 failures); Quit Race -> front end: class 0, front-end music on the heap
+  (AudioMus_g 0x8015B5B8) and playing (requestsong 3). Open: the quit sequence logged 176 `meta read`
+  load failures (TrackMod_loadFail[2]) and 8 extra loads during the post-race phase -- streaming pump
+  after the geometry stream closed; not caused by this change, to be looked at. Heavy-load (2P) prim cap
+  not yet user-tested: 0x1C000 leaves ~5 KB over the measured 2P peak.
+- **Real levers left:** the GTE sine table (4.9 KB, needs compact libgte members; syslib-mod's
+  quarter-wave RotMatrix is the candidate), and capping the primitive buffers
   (0x22500 → ~0xD000 each would free ~170 KB of arena for a pool there; untested for overflow).
 - **Music.** `Nfs2_StartUp` (nfs3.cpp:236) starts race music only if `largestunused() > 0xB000` after
   `Sim_StartUp`; the pool's 0x30000 reserve left ~38 KB, so Lost Canyons had no music. Reserve is

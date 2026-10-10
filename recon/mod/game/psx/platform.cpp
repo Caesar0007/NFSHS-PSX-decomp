@@ -1,0 +1,210 @@
+/* recon/mod/game/psx/platform.cpp -- ROUTE D override of recon/game/psx/platform.cpp.
+ *
+ *   Verbatim reconstruction with one addition: Platform_InitMemory (called once per race module,
+ *   Nfs2_GameModuleStartUp) ends by calling TrackMod_InitMusicArena, which reserves the race music
+ *   arena from the bigBuf bump arena just set up (recon/mod/game/common/music_arena.cpp).  The
+ *   arena has to exist before Nfs2_StartUp starts the music, which happens BEFORE the first render
+ *   frame reserves the primitive buffers (Draw_CheckFirstFrameRender), so it cannot live in the
+ *   draw.cpp override; the capped primitive buffers follow it in bigBuf.
+ */
+extern "C" void TrackMod_InitMusicArena(void);
+/* game/psx/platform.cpp -- RECONSTRUCTED (NFS4 PSX platform memory + system init; C++ TU)
+ *   8 fns: Platform_InitMemory (set up bump arena), Platform_ReserveMemory/TempReserveMemory
+ *   (bump alloc), Platform_SysStartUp (PSX boot: heap/eaclib/display/FS/timers), nfs2eacinit
+ *   (eaclib boot), Platform_DebuggerPollHost (stub), Platform_Reset/GetDCTBuffer (DCT scratch). No GTE.
+ */
+#include "../../../game/psx/platform_types.h"
+#include "../../../game/psx/platform_externs.h"
+
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056984).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+/* W67-A4: platform.obj's retail .sdata run 0x8013da9c..0x8013dac0, reproduced
+ * byte-for-byte in DEFINITION ORDER (SYM FILE-record oracle, objruns):
+ *   gSysStartUp, "cdrom:" literal, disablecard, gDctXtraMem(STAT), gLowMemory,
+ *   gHighMemory, gCurrentMemory, gTotalMemory.
+ * gSysStartUp precedes the startup routine.  The remaining owning definitions
+ * follow that routine, so gcc places its ordinary "cdrom:" literal between the
+ * two declaration groups exactly as retail does.  DO NOT RE-SORT. */
+int gSysStartUp = 0;        /* @0x8013da9c */
+
+/* SYM-STORAGE-PROOF (P441): this TU does not own buffers at 0x80054D10,
+   0x80148B0C, or 0x80124038.  The first two are bigBuf + 282000 - 0x80 and endofcode + 8;
+   the third is canonical PsyQ `CF_DVLC`.  Earlier 64-byte harness arrays were
+   fabricated storage at unrelated link addresses and have been removed. */
+
+
+/* ---- Platform_InitMemory__Fv  [PLATFORM.CPP:125-135] SLD-VERIFIED ---- */
+/* SEALED (12/12 PASS): oracle's subu-then-addu = an IN-PLACE mutate of the compiler temp
+ * holding &bigBuf[282000 - 0x80] (m -= tempLow -> sw gTotal; m += tempLow -> gHigh recovery).
+ * MATCH: in-place +=/-= two-step (SS 3.12 #14 family) -- the single-expression forms let cse
+ * reuse the still-live address pseudo and drop the addu.
+ * W76 SYM receipt: SYM names only tempLow.  No-local nested/global forms compile to 11
+ * instructions because CSE proves `(base - low) + low == base`.  An empty tied-output
+ * barrier restores 12 instructions but splits the value at the gTotalMemory store and
+ * produces a complete v0/v1 swap (14 diffs); ref-count dials through the asm operands do
+ * not move that allocation.  Keep the PASS source until an anonymous value can remain
+ * live across the store without adding a debug record. */
+void Platform_InitMemory(void)
+
+{
+  u_int tempLow;
+  u_int m; /* SYM-CODEGEN-CARRIER: m -- required for retail subu/store/addu recovery */
+
+  tempLow = 0x80010080;   /* PSX prog base 0x80010000 + 0x80 EXE-header = low-mem bound; memory-map constant (no data symbol), not a VA to migrate */
+  m = (u_int)&bigBuf[sizeof(bigBuf) - 0x80];
+  m -= tempLow;
+  gTotalMemory = m;
+  m += tempLow;
+  gLowMemory = tempLow;
+  gHighMemory = m;
+  gCurrentMemory = tempLow;
+  TrackMod_InitMusicArena();   /* route D: race music arena = first reservation of the fresh bigBuf arena */
+  return;
+}
+
+/* ---- Platform_ReserveMemory__FiPc  [PLATFORM.CPP:139-156] SLD-VERIFIED ---- */
+/* NEAR-MISS 6 diffs (19/19), was 12 (w39-a4).  Structure now 1:1 with the oracle:
+ *   - round-up-to-4 is gcc-2.8's inline SIGNED /4 (`addiu v0,a0,3; bgez v0,L;
+ *     addu v1,v0,zero; addiu v1,v0,3; L: sra v0,v1,2`), on the IN-PLACE-mutated `size`
+ *     (SYM REGPARM size = $2 = $v0, so `size = size + 3;` is the source form);
+ *   - BRANCH POLARITY: the FAILURE arm is the early return (`if (gTotal < newmem-gLow)
+ *     return 0;`), which makes the success path the fall-through, puts `addu v0,a1,zero`
+ *     (mem) in the `bnez` delay slot and leaves the two `jr ra` tails UNMERGED, exactly
+ *     as the oracle @0x800DC318-0x800DC330.  The old `if (... <= gTotal) {success}` form
+ *     put v0=0 in the slot (that was the documented 12-diff residual (b)).
+ * w45-a3: PASS 19/19 (was 6).  THE LAST LEVER = keep the ROUNDED value in `size` as its
+ * own statement (`size = size + 3; size = (size / 4) * 4;`) instead of consuming the divide
+ * inline in the `newmem` expression.  MECHANISM: expand_divmod's sdiv-by-power-of-2 always
+ * emits `t1 = op0; if (op0 >= 0) goto L; t1 = t1 + 3; L: q = t1 >> 2`.  When the divide is
+ * consumed inline, op0 is a dead anonymous temp, local-alloc's combine_regs coalesces t1
+ * onto it and the `t1 = op0` copy VANISHES -- leaving the bgez delay slot empty (our `nop`).
+ * Assigning the quotient back into the `size` VARIABLE keeps op0's pseudo live across the
+ * guard, the two qtys conflict, combine_regs declines, and the copy survives as retail's
+ * `addu v1,v0,zero` in the bgez delay slot ($v1 = the distinct t1).
+ * NOTE this is the EXACT INVERSE of the sibling Platform_TempReserveMemory lever above --
+ * there the arithmetic must stay ANONYMOUS, here it must stay in the VARIABLE.  The
+ * discriminator is which pseudo retail keeps live, read straight off the delay slot:
+ * empty bgez slot = ours coalesced = give the value a variable home.
+ * Measured this session: rounded-into-size 0, base 6, bias-inline 6, named `n` 6, separate
+ * `rounded` local 6, mem-before-newmem 8, mem-drives-newmem 8, `>>2` instead of `/4` 11 (-3 insns,
+ * drops the guard). */
+char *Platform_ReserveMemory(int size,char *string)
+
+{
+  int newmem; /* SYM-CODEGEN-CARRIER: newmem -- required rounded-address lifetime */
+  char *mem; /* SYM-CODEGEN-CARRIER: mem -- preserves the success-return delay-slot copy */
+
+  size = size + 3;
+  size = (size / 4) * 4;
+  newmem = gCurrentMemory + size;
+  mem = (char *)gCurrentMemory;
+  if ((int)gTotalMemory < newmem - gLowMemory) {
+    return (char *)0x0;
+  }
+  gCurrentMemory = newmem;
+  return mem;
+}
+
+/* ---- Platform_TempReserveMemory__FiPc  [PLATFORM.CPP:161-178] SLD-VERIFIED ---- */
+/* w45-a3: PASS 17/17 (was 7 diffs / 18 insns).  THE LEVER = the address arithmetic
+ * INLINE IN THE `if` CONDITION as an ANONYMOUS temp -- NOT assigned back into `size`.
+ * SYM has NO named locals here, so the anonymous form is also the faithful one.
+ * MECHANISM (gcc-2.8 local-alloc.c/global.c, read this session): assigning the sum back
+ * into `size` keeps ONE pseudo for the variable that spans the div-guard branch -> a
+ * GLOBAL allocno; global_alloc's pass 0 only reuses registers already in `regs_used_so_far`
+ * (`IOR_COMPL_HARD_REG_SET (used, regs_used_so_far)` -- "we never allocate a register for
+ * the first time in pass 0"), so the block-local gLowMemory qty had already taken $a0 from
+ * local_alloc and `size` was pushed off its REGPARM home, rotating the whole function.
+ * Written inline, the sum is a fresh block-local temp, `size` keeps $a0, and cur/low/tot
+ * land in $a2/$a1/$v1 exactly as retail.  OPERAND ORDER is load-bearing: `gCurrentMemory +
+ * size` = PASS, `size + gCurrentMemory` = 2 diffs (addu operand order only).
+ * Measured this session: inline-if curfirst 0, inline-if addfirst 2, `int cur;` + inline-if 0,
+ * low-read-at-top (makes low global too) 8 count-exact, add-first split 18, sub-first split 10,
+ * separate `newmem` local 22, fully-inlined incl. the +3 22, param-untouched `int n` 18.
+ * Prototype re-checked vs the raw oracle: 2 args ($a0 size read at insn 1, $a1 string never
+ * read), returns char* in $v0. */
+char *Platform_TempReserveMemory(int size,char *string)
+
+{
+  size = size + 3;
+  size = (size / 4) * 4;
+  if ((int)gTotalMemory < (gCurrentMemory + size) - gLowMemory) {
+    return (char *)0x0;
+  }
+  return (char *)gCurrentMemory;
+}
+
+/* ---- Platform_SysStartUp__Fv  [PLATFORM.CPP:207-305] SLD-VERIFIED ---- */
+void Platform_SysStartUp(void)
+
+{
+  char *endofcode;
+
+  disablecd = 0;
+  endofcode = ::endofcode + 8;
+  Platform_nfsUserRam = 0x801fc000 - (int)endofcode;   /* 0x801fc000 = PSX RAM top (2MB) - 16KB stack reserve; hardware constant */
+  initmemadr(endofcode,Platform_nfsUserRam);
+  nfs2eacinit();
+  Draw_SetEnvironment(0x200,0xf0,1,0,1,0,0,0);
+  initlinkmode(0,1,1);
+  setdirectory("cdrom:");
+  initlinkmode(0,1000,1);
+  initlinkmode(0,1000,1);
+  gSysStartUp = 1;
+  inittimer(0x80);
+  Paths_StartUp();
+  initasync(0x1e,0x2000,0);
+  return;
+}
+
+/* These definitions follow Platform_SysStartUp in the retail source/section
+   order.  Their explicit zero initializers keep one ordered .sdata run. */
+int disablecard = 0;          /* @0x8013daa8  EXT INT; referenced nowhere in code */
+static char *gDctXtraMem = 0; /* @0x8013daac  SYM: STAT PTR CHAR */
+int gLowMemory = 0;           /* @0x8013dab0 */
+int gHighMemory = 0;          /* @0x8013dab4 */
+int gCurrentMemory = 0;       /* @0x8013dab8 */
+u_int gTotalMemory = 0;       /* @0x8013dabc */
+
+/* ---- Platform_DebuggerPollHost__Fv  [PLATFORM.CPP:326-330] SLD-VERIFIED ---- */
+void Platform_DebuggerPollHost(void)
+
+{
+  return;
+}
+
+/* ---- nfs2eacinit__Fv  [PLATFORM.CPP:369-408] SLD-VERIFIED ---- */
+void nfs2eacinit(void)
+
+{
+  FlushCache();
+  ResetCallback();
+  ResetGraph(3);   /* @0x800ED670 (libgpu); was mislabeled "Eac_vars" -- delay-slot arg=3 */
+  initjoy(2);
+  FILE_init(10,800,0x30);
+  return;
+}
+
+/* ---- Platform_ResetDCTBuffer__Fv  [PLATFORM.CPP:439-440] SLD-VERIFIED ---- */
+void Platform_ResetDCTBuffer(void)
+
+{
+  gDctXtraMem = (char *)CF_DVLC;
+  return;
+}
+
+/* ---- Platform_GetDCTBuffer__FiPc  [PLATFORM.CPP:444-461] SLD-VERIFIED ---- */
+char * Platform_GetDCTBuffer(int size,char *string)
+
+{
+  char *p;
+  
+  p = gDctXtraMem;
+  gDctXtraMem = gDctXtraMem + size;
+  return p;
+}
+
+/* end of platform.cpp */

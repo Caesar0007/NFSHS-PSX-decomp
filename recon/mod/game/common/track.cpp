@@ -21,6 +21,8 @@ extern void Track_Init(char *);
 extern void Track_DeInit(void);
 extern "C" int largestunused(void);
 extern int gFlip;   /* draw.cpp: toggles every rendered frame */
+int AudioMus_Buffered(void);
+int AudioMus_Threshold(void);
 typedef int (*TrackModHeapHookFn)(int);
 extern "C" TrackModHeapHookFn TrackMod_heapHook[4];   /* recon/mod/eaclib/psx/eacpsxz/memstd.c */
 extern "C" int TrackMod_OnHeapPressure(int bytes);
@@ -397,7 +399,8 @@ extern "C" void TrackMod_PrefetchNext(unsigned int currentChunk)
         else if (ownerCount < 4) {
             owners[ownerCount] = currentChunk; ownerSeen[ownerCount] = frame; ownerCount++;
         }
-        if (ownerCount == 1) {
+        if (ownerCount == 1 && !(AudioMus_Threshold() != 0 && AudioMus_Buffered() < AudioMus_Threshold())) {
+            /* the ahead-row prefetch yields the CD to the music stream while its buffer is low */
             ahead = (int)currentChunk + 4;
             if ((unsigned int)ahead >= count)
                 ahead -= (int)count;

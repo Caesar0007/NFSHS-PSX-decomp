@@ -144,33 +144,26 @@ long tCarManager::CheapestCarStockPrice()
    early-return chain (80, wrecks the shared return-staging block). */
 
 long tCarManager::CalcUsedPrice(short garageNumber)
+/* 2026-10-11: return the completed price from the valid-car arm as well as
+   the default path. GCC merges the returns, preserving all67 words and
+   extending the root region through the retail return setup (+f4).
+   Direct signed slot reads need no carID source object. All four compared
+   tuples and the single region agree; full original spelling/SLD and the
+   existing hard-clobber device remain explicitly unresolved. */
 
 {
-  /* Signed one-read slot staging restores retail's lb/-1 guard. */
   long result;
   tCarInfo *carInfo;
-  signed char carID;
 
   result = 0;
   if ((u_int)garageNumber >= this->fNumCars) {
-    carID = (signed char)this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fCarID;
-    if (carID != -1) {
-      /* 🔴🔴 W56-A2 $4-CLOBBER — THE SOLE HARD-REGISTER-CLOBBER FENCE IN THE ENTIRE TREE.
-         RESIDUAL (2 diffs, count-exact 67/67): retail rematerializes `addu a0,s2,zero` (the
-         `this`-arg copy) in the GetCarFromID call's delay slot; OURS emits `nop` because cse
-         proves $a0 still holds `this` (nothing wrote $a0 since entry, no prior call) and DELETES
-         the copy. This is the documented 06E "non-propagated reg-reg copy" instrument-gap class.
-         DIAGNOSIS (W56-A2): NO pin-free spelling exists. Value-fences (read-only `("":: "r"(this))`,
-         identity `("":"=r"(x):"0"(x))`, void-tail) track VALUE equivalence, not register identity —
-         cse still proves $a0==$s2==`this` and drops the copy. Only invalidating $a0's cse entry
-         forces the reload from $s2, and the sole device that does so is a clobber naming $4(=$a0).
-         Falsified source angles (all 2 diffs): local `mgr=this`, `(*this).GetCarFromID`, implicit
-         `GetCarFromID(...)`, fenced pointer local, flat byte-offset reads, early-return chain (80).
-         POLICY: AGENT_GUIDE §4.4 marks this pin-adjacent / user-gated; landed under W56-A2's task
-         mandate (all files cleared) as the SINGLE explicit exception to the pin-free rule. Flagged
-         for orchestrator/user visibility. Removing this fence reverts to FAIL 2 (67/67). */
+    if ((signed char)this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fCarID != -1) {
+      /* SOURCE-REVIEW-UNRESOLVED: this existing user-gated $4 clobber is
+         still2dif/67 when removed after the scope/direct-ID changes. The
+         old assertion that no pin-free source could exist is withdrawn;
+         this measured copy residual is not an original-source certificate. */
       __asm__ __volatile__("" : : : "$4");
-      carInfo = this->GetCarFromID((short)carID);
+      carInfo = this->GetCarFromID((signed char)this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fCarID);
       if (carInfo != (tCarInfo *)0x0) {
         result = carInfo->fPrices[0];
         if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 1) != 0) {
@@ -188,6 +181,7 @@ long tCarManager::CalcUsedPrice(short garageNumber)
         else {
           result = result >> 1;
         }
+        return result;
       }
     }
   }

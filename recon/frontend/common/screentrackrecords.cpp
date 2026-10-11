@@ -8,6 +8,12 @@
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
 
+/* ORIGINAL-NAME-UNRESOLVED: same inferred color lookup used by FEFades;
+   the constant arguments describe the existing selected/bright colors. */
+static inline int TextDefinitionColor(tMenuTextType type, int column) {
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
 
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (its vtables' 8-byte alignment proves the
  * section starts there).  An unused inline leaves exactly that behind: the literal is emitted, the body is not. */
@@ -123,11 +129,7 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
   else {
     this->flare_intensity = this->flareextra / 2;
   }
-  /* MATCH: the oracle STORES then RE-READS flare_intensity here (sw/lw pair).
-     Our cc1 forward-propagates the value and then dead-store-eliminates the
-     first store; a volatile view of the second read restores retail's
-     store->reload (value-preserving codegen device, cf. catalog SF). */
-  this->flare_intensity = (*(int *)&this->flare_intensity + 0x14)
+  this->flare_intensity = (this->flare_intensity + 0x14)
                           * 0x80;
   /* MATCH: explicit if/ELSE -- the `= 9` lands in the `bne` DELAY SLOT after the
      call, so nLapIndicator lives in the caller-saved $a0 the SYM records.  A
@@ -152,36 +154,27 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
 }
 
 /* ---- tScreenTrackRecords::DrawBackground  (screentrackrec.cpp:210) ---- */
+/* 2026-10-11: selected/bright TextDefinitionColor calls reproduce the two
+   missing empty inline pairs, with constant arguments and no parameter rows.
+   All nineteen local/parameter tuples and all nine native regions agree;
+   the complete364-word stream and TU sections/layout remain unchanged.
+   P865's GNU min/max forms retain their measured byte match, but the old
+   attribution of all three +dc pairs to missing clamp helpers is superseded.
+   Getter spelling and the existing widened expressions' literal original
+   syntax/full statement-line attribution remain source-review work. */
 void tScreenTrackRecords::DrawBackground()
 
 {
   char string[50];
   char string2[50];
   int fade;
-  short linefadeval;
-  short maxitem;
-  short boxx;
-  short boxy;
-  short boxw;
-  short midy;
-  short j;
-  int Col;
-  int ColTextSel;
-  int ColTextBright;
-  tTexture_ShapeInfo *shape;
-  int lbx;
-  int tt;
-  tDrawShapeExtended drawflags;
-  /* P865: the seventeen outer locals retain SYM order, with no invented
-     clamp carriers.  Period GNU C++ min/max operators keep comparisons at
-     int width and narrow only the selected result into the recorded shorts.
-     These statements preserve PASS 364/364 and the SLD 216/218/219 clamp
-     groups.  Their exact original spelling is not recovered: SYM also has
-     three empty two-level block pairs at 80042c24 (line 10), still absent
-     from our debug output.  An inlined helper is a hypothesis, not a proven
-     original declaration; the earlier failed helper probes do not settle it. */
-
   fade = (this->fScreenFadeVal * 0x134) / 0x80;
+  short linefadeval, maxitem, boxx, boxy, boxw, midy, j;
+  int Col, ColTextSel, ColTextBright;
+  tTexture_ShapeInfo *shape;
+  int lbx, tt;
+  tDrawShapeExtended drawflags;
+
   /* SYM restoration: tt is the declared $s2 int.  Retail uses that same
      non-overlapping lifetime for this text-fade clamp and later overwrites
      it with the texture tick offset; a separate fadeAmt name is unnecessary. */
@@ -194,8 +187,8 @@ void tScreenTrackRecords::DrawBackground()
   boxw = TextSys_WordX(0x24f) - boxx;
   midy = TextSys_WordY(0x25f);
   Col = 0x232323;
-  ColTextSel = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][4]],(short)tt);
-  ColTextBright = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],(short)tt);
+  ColTextSel = CalcFadeVal(TextDefinitionColor(textType_TrackRecords,4),(short)tt);
+  ColTextBright = CalcFadeVal(TextDefinitionColor(textType_TrackRecords,5),(short)tt);
   this->DrawRecords(maxitem);
   sprintf(string2,TextSys_Word(0x251),Front_GetLapsForType());
   sprintf(string,"%s %s",TextSys_Word((short)Front_GetTrackRaced() + 0xd5),string2);

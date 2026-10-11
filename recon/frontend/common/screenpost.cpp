@@ -16,6 +16,25 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 static inline int FE_Ticks(void) { return ticks; }
 static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
 
+/* ORIGINAL-NAME-UNRESOLVED: inferred definition/count field accessors for
+   the two receiver-free retail pairs at the opening standings phase. */
+static inline tTournamentDefinition *Tournament_Definition() {
+  return tournamentManager.fDefinition;
+}
+static inline int Tournament_NumRacers() {
+  return tournamentManager.fNumRacers;
+}
+
+/* ORIGINAL-NAME-UNRESOLVED: inferred accessor for the retail personality
+   pair. Its j parameter is the nested INT:$19 record, not a caller copy. */
+static inline tPersonalities Tournament_Personality(int j) {
+  return tournamentManager.fCompetitors[j].fPersonality;
+}
+/* ORIGINAL-NAME-UNRESOLVED: same color-table lookup used by FEFades. */
+static inline int TextDefinitionColor(tMenuTextType type, int column) {
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
 
 /* Retail screenpost.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -330,6 +349,14 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
    replacement names.  This recovers SYM ownership and SLD grouping, not proof
    of the lost source's exact expression or macro spelling. */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
+/* 2026-10-11: the personality getter's j parameter restores retail's nested
+   INT:$19/depth4 record. Definition/count/color field reads supply their
+   retail inline pairs; tier and special-event paths do not need the old
+   generic frontend/menu wrappers. All561 words and TU layout are unchanged.
+   SOURCE-REVIEW-UNRESOLVED: numRacers/lastRacer, the debug-elided type source
+   identity, widened expressions and remaining extra track-call pair are
+   not uniquely restored. Inferred getter names are marked at their definitions.
+   Native missing-name recovery does not certify complete source/SLD exactness. */
 void tScreenTournamentStandings::DrawBackground()
 
 {
@@ -365,11 +392,11 @@ void tScreenTournamentStandings::DrawBackground()
   fadeline = fade;
   /* The retail address web reuses the existing SYM `shape` local as the
      short-lived tournament-definition carrier. */
-  shape = (tTexture_ShapeInfo *)tournamentManager.fDefinition;
+  shape = (tTexture_ShapeInfo *)Tournament_Definition();
   tourneyInfo = &((tTournamentDefinition *)shape)->fTournaments[
       ((tTournamentDefinition *)shape)->fTiers[tournamentManager.fTier].fTournOffset +
       tournamentManager.fTournament];
-  numRacers = (short)((short)tournamentManager.fNumRacers +
+  numRacers = (short)((short)Tournament_NumRacers() +
                       (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
   /* SYM records i, not line.  The widened row expression below regenerates
@@ -393,7 +420,7 @@ void tScreenTournamentStandings::DrawBackground()
     FETextRender_FullTextFade(
         fade,
         j == 0 ? PlayerName(0) :
-                 Stattool_GetAINameFromPersonality(tournamentManager.fCompetitors[j].fPersonality),
+                 Stattool_GetAINameFromPersonality(Tournament_Personality(j)),
         (short)TextSys_WordX(0x2f8),(short)TextSys_WordY((int)((long long)i + 0x2fe)),
         type,state,0);
     p = j;
@@ -406,11 +433,11 @@ void tScreenTournamentStandings::DrawBackground()
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
                              (short)TextSys_WordY((int)((long long)i + 0x2fe)),type,state,1);
   }
-  trackManager.GetTrack((short)Front_GetTrackRaced(),trackInfo);
+  trackManager.GetTrack(Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
                            (short)TextSys_WordY(0x2fd),type,textState_Hilighted,2);
-  i = (short)(FrontEnd().tier != '\0' ?
-                TextValue(&MenuDefs()->iteratorSpecialEvent,kPlayerBoth) :
+  i = (short)(frontEnd.tier != '\0' ?
+                TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) :
                 TextValue(&MenuDefs()->iteratorTournament,kPlayerBoth));
   i += 0x13;
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
@@ -434,7 +461,7 @@ void tScreenTournamentStandings::DrawBackground()
   DrawShapeExtended(0x27,0x400,0,-1,this->fScreenFadeVal,0,&drawflags);
   PSXDrawBrightEndLine(0x232323,TextSys_WordX(0x2f6) - 0x96,TextSys_WordY(0x2fd) + 10,
                        300,1,3,fadeline,0x1e);
-  colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fade);
+  colf = CalcFadeVal(TextDefinitionColor(textType_TrackRecords,5),fade);
   colb = CalcFadeVal(0x232323,fade);
   if ((1000 < FE_Ticks() - this->starttick) || (this->fStartCountdownNOW != 0)) {
     if ((0 < this->moneyAwarded) || ((0 < this->moneyDamage || (0 < this->moneyBonus)))) {

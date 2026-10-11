@@ -4,7 +4,11 @@
  *   cheat-check) + data. Member defs; deep tMenuItem/tMenu inheritance; manual _vf dispatch.
  */
 #include "../../lib/nfs4_new.h"
+#define NFS4_FE_CORE_MENUITEM_ISENABLED
+#define NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
 #include "femenuoptions.h"
+#undef NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
+#undef NFS4_FE_CORE_MENUITEM_ISENABLED
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
@@ -528,14 +532,20 @@ feo_done:
 
 
 /* ---- tOptionsMenu::Draw  [FEMENUOPTIONS.CPP:426-456] SYM/SLD-REVIEWED; emitted partitions open (P891 SLD_RECEIPT.md) ---- */
+/* 2026-10-11: the disabled-bit accessors and loop-header tests reproduce
+   all five retail local/parameter tuples and fourteen regions, with129/129
+   PASS and unchanged complete TU bytes/layout. The other exit remains in
+   each loop body, keeping retail's unrotated top-test shape.
+   IsEnabled spelling/negation was22dif/131; direct Boolean negation of the
+   disabled getter6/131; integer-zero tests in body-if form matched bytes
+   but had two surplus scopes and receivers one level too deep. Failed shapes
+   are reverted, not declared source floors. Getter spelling/full SLD is open. */
 
 void tOptionsMenu::Draw()
 
 {
   /* SYM 8c block: locals are `short i` (REG $s1) + the AUTO `tDrawShapeExtended
      drawFlags`; the nested `tMenuItem *this` blocks are INLINED accessors. */
-  /* SYM ORDER (W86-S2): the SYM rows i, drawFlags lead; the two non-SYM
-     carriers follow the SYM set. */
   short i;
   tDrawShapeExtended drawFlags;
 
@@ -543,7 +553,7 @@ void tOptionsMenu::Draw()
   /* MATCH: no local for the head test either — the oracle reuses $v0 for both the
      null test and the flags load (a named ptVar1 parks it in $v1). */
   if ((this->fItemList[this->fCurrentItem] == (tMenuItem *)0x0) ||
-      ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
+      this->fItemList[this->fCurrentItem]->IsDisabled()) {
     this->fCurrentItem = 0;
   }
   /* MATCH: the skip-disabled scans walk `fCurrentItem` (an int field) DIRECTLY —
@@ -554,13 +564,11 @@ void tOptionsMenu::Draw()
   /* MATCH: EXIT-IN-THE-MIDDLE keeps the oracle's TOP-TEST + unconditional `j`
      back-edge (a plain `while (A && B)` gets loop-ROTATED: peeled entry test +
      bottom-test back-edge, +7 insns). */
-  while (1) {
-    if ((this->fItemList[this->fCurrentItem]->fFlags & 1) == 0) break;
+  while ((int)this->fItemList[this->fCurrentItem]->IsDisabled() != 0) {
     if (this->fItemList[this->fCurrentItem + 1] == (tMenuItem *)0x0) break;
     this->fCurrentItem = this->fCurrentItem + 1;
   }
-  while (1) {
-    if ((this->fItemList[this->fCurrentItem]->fFlags & 1) == 0) break;
+  while ((int)this->fItemList[this->fCurrentItem]->IsDisabled() != 0) {
     if (this->fCurrentItem <= 0) break;
     this->fCurrentItem = this->fCurrentItem + -1;
   }

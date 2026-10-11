@@ -1,19 +1,32 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-10-09. Current full-debug board: `build/psyq_g/symtree_report.json`.
+Status as of 2026-10-11. Current full-debug board: `build/psyq_g/symtree_report.json`.
+
+Checkpoint closure (2026-10-11): the frontend restoration rounds below are
+being committed to main at the user's request. The completed combined gate
+run-pw241w3t covers eight TUs and 264 functions (233 native CLEAN,31 DIRTY),
+with unchanged complete section bytes/layout and normal/debug code. Existing
+PASS status is preserved; this is not a full original-source or SLD seal.
+The next FETexture_LoadPmxAtOffset investigation only recorded its unchanged
+pre-edit reference and baseline (run-pkhv3mtc, pipeline PASS); fetexture.cpp
+has no source changes. Resume with the oldptr/newptr CLUT-relocation value
+chains, not the unpack source/destination buffers. Earlier 'uncommitted'
+notes describe the state when those individual rounds were recorded.
+Unrelated tracked edits, generated outputs and untracked user files are
+excluded from this checkpoint. Work pauses after the commit and push.
 
 Native-only per-directory snapshot after the physics/collision restoration rounds (2565 common
 covered functions; not a full source-declaration/carrier/SLD seal):
 
 | Retail directory | Native CLEAN | Native DIRTY |
 |---|---:|---:|
-| FRONTEND/COMMON | 720 | 118 |
+| FRONTEND/COMMON | 725 | 113 |
 | FRONTEND/PSX | 66 | 19 |
 | GAME/COMMON | 1156 | 91 |
 | GAME/PSX | 294 | 101 |
-| Total | 2236 | 329 |
+| Total | 2241 | 324 |
 
-Current native CLEAN coverage, excluding SLD, is **87.17% (2236/2565)**.
+Current native CLEAN coverage, excluding SLD, is **87.37% (2241/2565)**.
 This counts complete compared function contracts, not individual raw SYM
 records or uniquely recovered original source text. GAME/COMMON is
 **92.70% (1156/1247)**. Historical round counts below remain dated receipts.
@@ -22,6 +35,391 @@ Latest strict native+SLD snapshot (2026-10-09): **606/2565** covered functions,
 including GAME/COMMON **373/1247**, FRONTEND/COMMON186/838,
 FRONTEND/PSX6/85 and GAME/PSX41/395. This still does not certify unique
 original spelling or completion of source-only carrier review.
+
+2026-10-11 `tScreenCongrats::GetShapeInfo` native contract restored: replace
+the expanded tournament selection with the existing reconstructed
+CurrentTourney accessor, and the racer-count field read with an inferred
+NumRacers accessor. Retail has receiver-free inline pairs at +0..+0 and
++104..+104 (hex); these real reads reproduce both without wrapper scopes,
+dummy declarations, fences or output rewriting. All nine ordered parameter/
+local type/home/depth tuples and all16 brace/address tuples (eight regions)
+agree exactly. Detailed GetShapeInfo remains150/150 PASS. The method spellings
+are explicitly ORIGINAL-NAME-UNRESOLVED, not claimed uniquely recovered.
+Declarations are gated by the already-existing NFS4_TSCREENCONGRATS_OWNER,
+defined only by this TU; no storage or virtual slot is added elsewhere.
+
+The unrecorded numRanked signed-short snapshot remains source review. A fresh
+direct-bound test after getter recovery still gives100 differences at156/150
+and changes the frame/saved-register map; it was reverted. This measured
+failure does not prove that a named caller object existed in original source.
+The next source-recovery question is the count snapshot's producer/lifetime,
+not a generic carrier exemption or an asserted compiler floor.
+
+Final repeat owner gate run-_lpjt04f (earlier run-pm008lx7/run-ufcsbllr): all
+four-section bytes/layout unchanged, normal/debug code unchanged, ASPSX524
+good/0 bad, PSYLINK zero errors;23 functions,19 native CLEAN/4 DIRTY. Detailed
+prize-calculation neighbors remain29/144/68 PASS. Full reconstruction compile
+`python tools/build.py --skip-asm --no-link` also finishes without failed TUs.
+Vtable audit1364/1364, all seven SLD checker tests, inventory self-test and
+whitespace checks pass. No new asm, volatile, register pin or compiler-output
+rewrite was introduced; unrelated user edits are preserved.
+
+Native CLEAN rises2236 to2237/2565, FC720 to721/838. Local-contract coverage
+and native EXTRA issue rows remain unchanged (FC738/838 and731 rows).
+Review-marker locations increase858 to860 by explicitly marking the two
+inferred accessor names, not by adding two caller objects. Strict native+SLD
+remains606/2565: GetShapeInfo still has125/150 differing tags, unequal block
+lines and end delta69 versus52. Exact native records are not a full SLD,
+runtime, raw-record-completeness or original-source-text certificate. This
+round remains uncommitted; the main restoration goal is active and incomplete.
+
+2026-10-11 ScreenCongrats tournament-call and prize-scope continuation:
+replace both PlayerRanking calls and six GetAwardInformation calls with their
+real tTournamentManager members. SHORT position/result and tAwardInformation&
+signatures agree with FETourn's SYM and owning definitions; two free-function
+asm-label aliases are deleted. Fresh nm output retains the exact retail
+GetAwardInformation__18tTournamentManagerR17tAwardInformation and
+PlayerRanking__18tTournamentManagers undefined symbols. The member declarations
+are nonvirtual and restricted to the existing ScreenCongrats owner macro.
+No class storage or vtable slot changes. GetTrophyName remains an explicit
+foreign-enum interface issue: its symbol encodes tTrophySize, while the retail
+ScreenCongrats object does not emit that enum body. It was not silently changed
+to an int-mangled member or given an invented foreign type definition.
+
+In tScreenTournamentTrophy::CalculatePrizes, CurrentTourney/NumRacers and the
+existing Tournament_Money getter reproduce all three receiver-free inline
+pairs. A signed-short count expression replaces the knockout/ranked aliases
+and the raw halfword pointer view of the INT fNumRacers field. The count is
+still a source-only snapshot with an unresolved original name/producer; debug
+elision is not a clearance. Both artificial staging scopes are removed.
+All five retail-known tuples and all14 brace/address tuples (seven regions)
+now agree; only cashAwarded LONG:$2 and carCXBits ULONG:$4 remain extra rows.
+Detailed output stays144/144 PASS. Reversing the ranking loop is not a safe
+shortcut: PlayerRanking returns zero for absent positions, and original source
+selects the last such fallback position, not the first one in reverse order.
+
+Paired carrier/fence removal was tested on this corrected shape, not dismissed
+from old measurements. Ordinary float assignment leaves2 differences at144;
+putting CX before CY gives10/144, direct cash-award plus float assignment
+still2/144, removing the void fence on that trial still2/144, explicit award
+arms4/144 and a raw word-literal store6/144. None reaches PASS; all are reverted.
+The retained raw word and both existing zero-template fences remain explicit
+source review, not established original syntax or a compiler floor. No new
+asm/volatile/pin/output-rewrite device replaces the removed aliases.
+
+Final owner gate run-5gjzib9i (earlier run-q8elc7l4/run-14ga97mq/run-hq8lakle):
+complete four-section bytes/layout and debug/normal code unchanged, ASPSX524
+good/0 bad, PSYLINK zero errors,23 functions19 native CLEAN/4 DIRTY. Checked
+member-call consumers retain150/144/43/21/38 PASS. The full reconstruction
+no-link build after the conditional member declarations finishes without
+failed TUs; subsequent body-only experiments were reverted and the final owner
+was rebuilt/relinked. Vtable1364/1364, seven SLD tests, inventory self-test and
+whitespace checks pass. Unrelated edits remain untouched.
+
+Native CLEAN stays2237/2565, strict native+SLD606/2565. EXTRA issue rows fall731
+to729. Lexical review-marker locations fall860 to858 after consolidating stale
+necessity comments into precise unresolved receipts, not after uniquely naming
+all source objects. The tournament prize function still has126/144 different
+SLD tags, unequal block lines and end delta86 versus77. Native scope agreement
+and fewer extra records are not full source/SLD completion. These additions and
+the preceding getter round are uncommitted; the complete goal remains active.
+
+2026-10-11 `tScreenTournamentTrophy::DrawCongratsMessage` native contract
+restored: CurrentTourney supplies its missing initial inline pair. Both
+previous-placement predicates use an inferred PreviousPlacement getter with
+the existing signed-byte interpretation. The two getter pairs and their
+enclosing condition region account for the remaining five missing regions;
+the fade reads have no corresponding retail pairs and remain direct.
+All twelve ordered local/parameter type/home/depth tuples and all30 brace/
+address tuples (fifteen regions) now agree. Detailed output remains182/182
+PASS; no caller local, wrapper scope, asm or volatile is added. The private
+nonvirtual getter is owner-conditional and changes no storage or vtable slot.
+Its spelling/return-type source inference remains explicit, not uniquely
+certified original text from receiver-free records.
+
+SLD-guided source arrangement puts RECT declaration/initialization before
+the message data declarations, groups the two char buffers, and places the
+tournament pointer declaration at its actual text-phase use. The long old
+local-map comment moves outside the body. The opening rectangle writes now
+have retail's relative tags2..5 and the initial condition/zero phase agrees.
+Tag differences fall174 to140/182; all native contracts and TU bytes remain
+unchanged. No artificial blank-line padding, #line directive, dummy object or
+post-compile record rewrite is used. This improves actual declaration/statement
+placement, not a certificate of the complete original layout or comment text.
+
+A separate-pointer-assignment spelling was neutral at140 tag differences.
+Moving CurrentTourney to an out-of-class inline definition was likewise neutral
+for this function and added nine differing tags in another caller; both trials
+are reverted. The emitted compiler .s shows the lookup still inherits the
+preceding caller note even though its inline blocks record the call-site line.
+That is a remaining producer/source-shape investigation, not proof that more
+line padding or an invented declaration is needed.
+
+Final repeat gate run-n66ba03_ (earlier run-gr90x331/run-5a4izsdm/run-vzqpceo7):
+four-section bytes/layout and debug/normal code unchanged, ASPSX524 good/0 bad,
+PSYLINK zero errors;23 functions20 native CLEAN/3 DIRTY. Neighbor checks retain
+GetShapeInfo150, tournament prizes144 and pink-slip prizes68 PASS. The full
+reconstruction no-link build finishes without failed TUs after the shared
+header change. Vtable1364/1364, seven SLD checker tests, inventory self-test and
+whitespace checks pass; unrelated user edits are untouched.
+
+Native CLEAN rises2237 to2238/2565, FC721 to722/838. Local-contract coverage
+and native EXTRA rows remain FC738/838 and729. Strict native+SLD remains606;
+this function still has140/182 tag differences, unequal block lines and end
+delta88 versus92. Review-marker locations rise858 to859 because the inferred
+getter is explicitly marked unresolved, not because it adds a caller object.
+The goal remains active/incomplete and all current restoration changes remain
+uncommitted.
+
+2026-10-11 `tScreenCongrats::DrawBackground` scope/source recovery: the
+fallback banner i moves into its real for-header ownership (retail depth4,
+not3). The color lookup at +174 (hex) uses an inferred TextDefinitionColor
+accessor, following the same typed table read used by FEFades/FETextRender.
+Constant type/column arguments leave no parameter rows and reproduce the
+missing +174..+174 inline pair. These are real reads and a real loop, not
+padding scopes or invented locals.
+
+Sequencing the existing tick capture and actual frame clamp inside the spin
+predicate restores its condition-binding region and nested tick-read pair
+depths. All120 brace/address/depth tuples (sixty regions) now agree exactly.
+All fourteen retail-known local/parameter tuples also agree; spinTicks INT:$4
+at depth9 remains the sole extra native row. The source object has NOT been
+cleared merely by correcting its lexical owner. Its spelling/producer and the
+existing void fence remain explicit source review.
+
+Fresh direct-read tests were17dif at540/541; negative-subtrahend first13/540,
+wide quarter division17/540, post-predicate clamp20/539, and captured assignment
+without sequencing17/540. The sequenced existing capture/clamp is541/541 PASS.
+Removing the old fence remains3dif/540, including when scale is sequenced in
+the condition; a meaningful GNU minimum clamp without it is27/544. All failed
+variants are reverted. These receipts supersede the old generic assertion of
+a necessary source capture/constant with no source anchor; no floor is claimed.
+The obsolete cached-vtbl exemption is removed too: this body already uses its
+real virtual call, with no such local.
+
+Final gate run-px_8p9kh (earlier run-7q_f_tt_/run-haeim4h8): complete sections/
+layout and debug/normal code unchanged, ASPSX524 good/0 bad, PSYLINK zero errors,
+23 functions20 native CLEAN/3 DIRTY. DrawBackground541, tournament message182,
+GetShapeInfo150 and tournament prizes144 remain PASS. Vtable1364/1364, seven
+SLD tests, inventory self-test and whitespace checks pass. This body-only round
+does not change a shared header; verification covers the rebuilt complete TU
+and full native link, not a newly claimed whole-project/runtime build.
+
+Native CLEAN stays2238/2565 and strict native+SLD606/2565; EXTRA rows stay729.
+SLD is still unsealed (501/541 different tags, unequal block lines, end181
+versus224). Review-marker locations remain859: stale exemptions were replaced
+by precise unresolved receipts and the inferred getter marker, not by claiming
+unique original text or fewer distinct objects from marker counts. Current
+restoration work remains uncommitted and the complete goal stays active.
+
+2026-10-11 ScreenTrackRecords color/source recovery: both selected/bright
+lookups in DrawBackground now use the inferred TextDefinitionColor accessor,
+matching FEFades/FETextRender's existing typed table lookup. Constant type11
+and columns4/5 introduce no parameter records and supply the two missing
+inline pairs. All nineteen ordered local/parameter type/home/depth tuples and
+all18 brace/address tuples (nine regions) now agree. Detailed code stays364/364
+PASS and this TU rises5/6 to6/6 native CLEAN. The old comment attributing the
+missing regions to unidentified clamp helpers is withdrawn. Getter spelling
+and the existing GNU clamp/widened-expression syntax remain unsealed.
+
+DrawRecords' field is already INT. Replacing its redundant int-pointer view
+with the ordinary typed flare_intensity read preserves120/120 and the complete
+TU sections/layout. Its old volatility claim did not describe the current
+nonvolatile code and is removed; no volatile or new device is introduced.
+
+SLD-guided declaration-phase testing is also retained: fade is declared and
+assigned immediately after the two real string buffers, followed by the same
+recorded locals grouped by type. It preserves their order/homes and364 words
+while restoring the opening calculation's relative line4. A declaration
+initializer inherited the prior note and worsened attribution352/364; it is
+reverted. A separate assignment with grouped buffers was337, and the original
+separate buffer declarations give316, versus338 before the phase change.
+No artificial #line, blank-line padding, dummy declaration or record/output
+rewrite is used. Complete SLD still differs316/364, unequal block lines and
+end delta66 versus80; native CLEAN is not a source-text/SLD certificate.
+
+Final combined gate run-3owmphd7 (earlier run-h_rl8uwj/run-5vvw050c/run-md39lx8h):
+complete section bytes/layout and debug/normal code unchanged, ASPSX524 good/
+0 bad, PSYLINK zero errors;29 functions26 native CLEAN/3 DIRTY across both
+current owner TUs. DrawBackground364 and DrawRecords120 remain detailed PASS.
+Vtable1364/1364, seven SLD checker tests, inventory self-test and whitespace
+checks pass. This body-only round changes no shared header and claims the
+complete rebuilt owners/native link, not a new whole-project/runtime build.
+All unrelated edits are preserved.
+
+Native CLEAN rises2238 to2239/2565, FC722 to723/838. Local-contract coverage
+and native EXTRA rows remain FC738/838 and729; strict native+SLD stays606.
+Review-marker locations rise859 to860 by explicitly marking the inferred
+getter, not by adding a caller object or certifying its name. Current work
+remains uncommitted and the full restoration goal remains active/incomplete.
+
+2026-10-11 ScreenMemcard investigation and ownership recovery: DrawForeground's
+short GNU clamps, including both operand orders, are23dif at38/39; structured
+branches8/39, sequential guarded clamps24/41 and a nested conditional funnel
+13/40. All are reverted. DrawHorizontalLine's direct width argument with a
+widened grouped contribution is21dif at47/48 and is also reverted. Both retain
+their39/48 PASS baseline. Old generic necessity claims for these missing names
+are replaced by precise unresolved source receipts; no compiler floor is asserted.
+
+The separate DrawBackground scope defect is repaired: its initialization i
+belongs to the guarded body at depth5, not an additional depth6 staging block.
+An inferred TextDefinitionColor(6,5) supplies the missing +1d4 empty inline
+pair, using the actual existing color table and constant arguments. ScreenMemcard
+does not define tMenuTextType; the first enum-typed helper trial therefore
+failed compilation, was corrected to its source-visible int parameter, and
+no failed/stale output is accepted. All thirteen retail-known tuples and all30
+brace/address tuples (fifteen regions) now agree. Four geometry aliases remain
+extra; debug-elided w/h and the getter's original spelling also remain review.
+
+Final combined gate run-wlkks3m3 (owner repeat run-616yrogq):43 functions34 native
+CLEAN/9 DIRTY across all three current TUs, complete four-section bytes/layout
+and debug/normal code unchanged, ASPSX524 good/0 bad, PSYLINK zero errors.
+Memory-card background410, foreground39 and horizontal line48 remain detailed
+PASS. Vtable1364/1364, seven SLD tests and whitespace checks pass. This body-only
+round changes no shared header and claims the rebuilt owners/full native link,
+not a new whole-project or runtime build. Unrelated edits remain untouched.
+
+Native CLEAN remains2239/2565, strict606/2565 and EXTRA issue rows729. Lexical
+review markers rise860 to862 because unresolved/inferred information is marked
+explicitly, not because new caller objects were added. SLD remains unsealed:
+background398/410 tag differences, unequal block lines, end135 versus125.
+These ownership improvements do not certify recovered literal source text.
+All current restoration changes are uncommitted; the goal remains active.
+
+2026-10-11 ScreenMain menu/predicate recovery: the two credits-menu comparisons
+now call the existing CurrentMenu accessor with the loaded FEApp receiver.
+The second comparison no longer needs curMenu or its staging scope; both
+retail entry labels remain, preserving the distinct reload paths. Extending
+this spelling into the warning-image item-list tests (both and either getter
+position) gives10dif at820/822 and is reverted. Missing application receivers
+and those source regions remain review rather than being hidden by a new alias.
+
+The movie-start guard is one ordinary compound Boolean expression over
+VIDEO_state, elapsed ticks and StaticImage state. It removes startMovie and
+elapsedTicks while preserving822/822. Both timestamp operands are cast to
+u_long before subtraction, so the target-word wrap arithmetic is defined
+without a signed-overflow intermediate, with identical instructions. Standalone
+direct elapsed comparisons (also widened/negative-first and bool result) were
+10dif/822; combining the predicates changes the actual value graph and matches.
+Old necessary-object claims are deleted, not moved into another helper.
+
+Inlining animationFrame into the draw argument remains22dif/822. A dead-phase
+reuse of the existing SHORT i as an actual animation index is88dif/824 and is
+reverted. No unrelated value is renamed to shapeX/shapeY to hide their home
+mismatches. animationFrame/videoY, their original producer names, the shape
+roles/homes, missing receivers and remaining scope bounds stay explicit backlog.
+
+Final combined gate run-e5egez4i (owner run-640deecw, earlier run-iw5wziju):
+55 functions44 native CLEAN/11 DIRTY across the four current TUs; complete
+section bytes/layout and debug/normal code unchanged, ASPSX524 good/0 bad,
+PSYLINK zero errors. ScreenMain background822 and drop shadow69 remain PASS.
+Vtable1364/1364, seven SLD tests and whitespace checks pass. This body-only
+round does not edit a shared header and claims rebuilt owner/native-link
+verification, not a new whole-project/runtime build. User edits are preserved.
+
+Native CLEAN stays2239/2565 and strict606/2565. EXTRA issue rows fall729 to726
+from the three removed declarations. Review-marker locations fall862 to861
+after withdrawing stale claims and marking the remaining source work precisely;
+they are not unique-object counts. Main background remains native DIRTY with
+53 versus55 regions and unsettled homes/receivers, and SLD differs773/822,
+unequal block lines, end318 versus281. The whole original-source/SLD goal is
+not complete. Current changes remain uncommitted and the goal remains active.
+
+2026-10-11 ScreenPost standings parameter/source recovery: the missing nested
+j is the personality accessor's INT parameter in REG:$19 at depth4, not a
+second caller loop counter. Tournament_Personality(j) reproduces that record
+and the +15c inline pair while reading the same competitor field. Definition/
+count accessors restore the opening pairs, and the color accessor restores
+its read pair. Inferred names are explicitly marked; j's spelling/home/type/
+depth comes from SYM. Direct tier/special-event reads remove the excess generic
+FrontEnd/MenuDefs wrapper pairs; the tournament path retains its real pair.
+All nineteen retail-known tuples now agree. numRacers/lastRacer and18 versus16
+regions remain unsettled; no artificial region forces the desired count.
+
+Front_GetTrackRaced is declared SHORT to match Front.cpp and retail. Bytes
+remain unchanged, and its redundant call-site cast is removed. That correction
+does not explain the residual empty pair near the track-information call, and
+receiver-free regions do not uniquely prove the inferred helper names.
+
+Final combined gate run-d02nkfi9 (owner repeats run-66xwr57m/run-kgzs7c71/
+run-sz0yasz5/run-_2fk9yhu):64 functions52 native CLEAN/12 DIRTY across the five
+current TUs. All sections/layout and debug/normal code unchanged, ASPSX524
+good/0 bad, PSYLINK zero errors. Tournament standings561 and pink-slip265 remain
+detailed PASS. Full reconstruction no-link compilation after the corrected
+declaration has no failed TUs. Vtable1364/1364, seven SLD tests and whitespace
+checks pass. User edits are preserved; no new asm, volatile or output rewrite.
+
+Native CLEAN remains2239/2565, strict606/2565 and EXTRA rows726. Review markers
+rise861 to865 to expose inferred/unsettled information, not new caller aliases.
+Standings still has540/561 differing SLD tags, unequal block lines and end140
+versus148. The two count aliases and excess pair remain explicit source work.
+All current restoration work is uncommitted; the full goal remains active.
+
+2026-10-11 OptionsMenu receiver/control recovery: disabled-item tests use an
+inferred nonvirtual IsDisabled bit accessor, enabled only by this owner's
+OPTIONS_DRAW_ACCESSORS macro. Integer-zero comparisons avoid the older C++
+Boolean-negation lowering. Moving each enabled-item exit to the while header,
+with the other exit left in the body, keeps the unrotated129-word top-test loop
+while putting the two tMenuItem receivers at retail REG:$2/depth3. All five
+ordered local/parameter tuples and all28 brace/address tuples (fourteen regions)
+now agree; Draw__12tOptionsMenu becomes native CLEAN without a new source local,
+storage/vtable slot, asm, volatile, synthetic scope or output rewrite.
+
+IsEnabled/negation is22dif/131; direct Boolean negation of IsDisabled6/131.
+Integer-zero tests in body-if form match129 words but add two regions and move
+both receivers one level too deep. Loop-header tests plus the independent
+body exit match all native contracts; older combined-while rotation failures
+do not exclude this source shape. Getter spelling remains explicitly inferred.
+
+The iterator slider experiment did not land. Its range methods were initially
+unavailable in this owner; enabling the existing header surface matches the
+slider75 words but emits MinValue/MaxValue/Range out-of-line bodies in the
+key-function owner. nm and the complete section/layout guard expose that byte
+change (run-fedkfzps). All slider changes are reverted; no differing reference
+is adopted and no compiler-output pruning hides the added functions.
+
+Full reconstruction no-link compilation after the owner-restricted header
+change finishes without failed TUs. Final combined gate run-x970ig5p covers
+218 functions188 native CLEAN/30 DIRTY across seven current owners, including
+the reverted slider owner. Sections/layout and debug/normal code unchanged,
+ASPSX524 good/0 bad, PSYLINK zero errors. Options129 and iterator slider75 PASS;
+vtable1364/1364, seven SLD tests and whitespace checks pass. User edits preserved.
+
+Native CLEAN rises2239 to2240/2565, FC723 to724/838; local-contract coverage
+FC738 to739. EXTRA rows stay726, strict native+SLD stays606. Review markers
+rise865 to866 to mark the inferred getter, not a new caller object. OptionsMenu
+still has125/129 different tags, unequal block lines and end44 versus30, so
+this is not a full SLD/source-text completion. Current work is uncommitted and
+the complete restoration goal remains active.
+
+2026-10-11 FECars CalcUsedPrice root/source recovery: return the completed
+price from the valid-car arm as well as the unchanged default path. GCC merges
+the returns into the same67-word stream, while the root binding ends at +f4,
+including the return-value setup, instead of the four-byte-earlier native end.
+All four local/parameter tuples and the single root region now match retail;
+the function becomes native CLEAN. Direct signed garage-ID reads also preserve
+all bytes and eliminate the debug-elided carID declaration without a new alias.
+
+The old existing user-gated $4 clobber is NOT solved. Removing it after the
+return change remains2dif/67 (nop versus receiver copy); removing carID at the
+same time is still2/67. The retained fence is restored, not expanded/replaced.
+Its old claim that no pin-free spelling exists is withdrawn in favor of these
+specific current receipts. Native CLEAN and fewer source objects do not make
+that hard-register device original-source-restored or complete the asm work.
+
+Final combined gate run-pw241w3t (owner run-9r7xw9mg):264 functions233 native
+CLEAN/31 DIRTY across eight current owners. Complete sections/layout and
+debug/normal code unchanged, ASPSX524 good/0 bad, PSYLINK zero errors. Price67
+PASS; vtable1364/1364, seven SLD tests and whitespace checks pass. This body-only
+round changes no shared header and claims rebuilt owners/full native link,
+not a new whole-project/runtime compile. Unrelated edits remain untouched.
+
+Native CLEAN rises2240 to2241/2565, FC724 to725/838. Local-contract coverage
+and EXTRA rows stay FC739 and726; strict native+SLD stays606. The price function
+still has46/67 different tags, unequal block lines and end34 versus32.
+Review markers rise866 to867 to flag the remaining device, not a new caller
+object. Getter/producer and literal original syntax remain source work where
+unproved. All current restoration changes are uncommitted; the goal is active.
 
 2026-10-09 continuation: `TurnOffTV__FR9tTVConfig` now has exact compared
 native and relative SLD contracts after removing only its terminal void

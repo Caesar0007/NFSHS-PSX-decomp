@@ -105,6 +105,11 @@ struct tMenuItem {
 #endif
 #ifdef NFS4_FE_CORE_MENUITEM_ISENABLED
     inline bool IsEnabled() { return (fFlags & 1) == 0; }
+#ifdef NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
+    /* ORIGINAL-NAME-UNRESOLVED: inferred bit-test accessor used for the
+       retail disabled-item pairs. No storage or virtual slot is added. */
+    inline bool IsDisabled() { return (fFlags & 1) != 0; }
+#endif
     inline int ButtonImage() { return fButtonImage; }
 #endif
 };

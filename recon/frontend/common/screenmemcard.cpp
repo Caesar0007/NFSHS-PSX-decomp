@@ -14,6 +14,12 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
 
+/* ORIGINAL-NAME-UNRESOLVED: inferred color-table accessor, following
+   FEFades' typed lookup; the memory-card text uses the existing type6/color5. */
+static inline int TextDefinitionColor(int type, int column) {
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
 
 /* P884: use native scalar declarations for the grid/message INTs, the
    CURRENTLYUSINGMEMCARD BOOL and ticks. The layout globals and fMemIcon pointer
@@ -275,11 +281,13 @@ VL_clamped:
 }
 
 /* ---- tScreenMemcard::DrawHorizontalLine  (screenmemcard.cpp:273) ---- */
+/* SOURCE-REVIEW-UNRESOLVED: width, pos, test, shifted and the existing
+   identity fence are not recovered original local objects. A direct width
+   argument with a widened grouped contribution remains21dif at47/48
+   (2026-10-11); no original-object necessity follows from that trial. */
 void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 
 {
-  /* SYM-CODEGEN-CARRIER: width -- folding SLD line 276 into the call is
-     measured FAIL21 (47/48), losing retail's independent width value web. */
   int width;
   /* SYM-CODEGEN-CARRIER: pos -- the short join carrier delays retail's
      gridpos copy into $t0; direct parameter clamping was measured FAIL16. */
@@ -688,6 +696,13 @@ void tScreenMemcard::SetEnablings()
 }
 
 /* ---- tScreenMemcard::DrawBackground  (screenmemcard.cpp:561) ---- */
+/* 2026-10-11: the initialization i belongs directly to the guarded body,
+   not another staging wrapper. TextDefinitionColor supplies the retail
+   +1d4 inline pair. All fifteen native regions and thirteen known local/
+   parameter tuples agree, with410/410 PASS and complete TU bytes unchanged.
+   SOURCE-REVIEW-UNRESOLVED: gouraudX/gouraudY/startX/startY and the debug-elided
+   w/h source identities still need recovery; old failed removals do not prove
+   original named objects. Getter spelling/full SLD remains unsealed. */
 /* W59-A9 2026-08-14 -- THIS FUNCTION IS BYTE-IDENTICAL TO RETAIL.  The former 2-diff
  * gate result was a VERIFY-TOOL RENDERING ARTIFACT of the same family as the
  * methodology's base+offset "fusion wall" correction, on the ORACLE side this
@@ -766,15 +781,13 @@ void tScreenMemcard::DrawBackground()
     this->fMemCardMessageTextSys = 0x27c;
     if ((this->fScreenFadeVal == 0) &&
         (FE_Ticks() - this->fScreenFadeReadyTick > 0x80)) {
+      int i;
       Init_Memcard(true,false);
-      {
-        int i;
-        for (i = 0; i < 0xf; i++) {
-          this->goticon[i] = '\0';
-          this->numicon[i] = '\0';
-          this->numblock[i] = '\0';
-          this->fFadeIcon[i] = 0x80;
-        }
+      for (i = 0; i < 0xf; i++) {
+        this->goticon[i] = '\0';
+        this->numicon[i] = '\0';
+        this->numblock[i] = '\0';
+        this->fFadeIcon[i] = 0x80;
       }
       this->fInitedMemCard = 1;
     }
@@ -785,7 +798,7 @@ void tScreenMemcard::DrawBackground()
   if ((this->fInitedMemCard != 0) && (fadebox != 0x80)) {
     this->DrawMemCardStuff(fTextFade);
   }
-  ColText = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],fTextFade);
+  ColText = CalcFadeVal(TextDefinitionColor(6,5),fTextFade);
   if (this->message != -1) {
     this->fMemCardMessageTextSys = this->message;
   }
@@ -853,11 +866,15 @@ void tScreenMemcard::DrawBackground()
 }
 
 /* ---- tScreenMemcard::DrawForeground  (screenmemcard.cpp:690) ---- */
+/* SOURCE-REVIEW-UNRESOLVED: fade is absent from retail SYM; its precise
+   original producer/name remain unrecovered. GNU signed-short min/max
+   clamps (both operand orders) fail23dif/38 versus39, structured arms8/39,
+   sequential guarded clamps24/41 and the nested conditional funnel13/40
+   (2026-10-11). These source trials are reverted, not a compiler floor or
+   evidence that a distinct named local was present in the lost source. */
 void tScreenMemcard::DrawForeground()
 
 {
-  /* SYM-CODEGEN-CARRIER: fade -- raw retail allocation (IDA $s1; m2c var_a0)
-     keeps this clamped value live across the four DrawShapeExtended calls. */
   int fade;
 
   fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;

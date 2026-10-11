@@ -38,7 +38,7 @@ int FETextRender_FullTextFade(int, char *, short, short,
 int FETextRender_MenuTextPositionedJustifyFade(
     int, short, short, short, short, tMenuTextState, tMenuTextType);
 int AudioCmn_PlayFESFX(int);
-int Front_GetTrackRaced(void);
+short Front_GetTrackRaced(void); /* owning Front.cpp/SYM result type */
 char *Stattool_GetAINameFromPersonality(tPersonalities);
 int tScreen_ProcessInput(tScreen *, tPlayer, tInputKeyType &, tMenuCommand &)
     asm("ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand");

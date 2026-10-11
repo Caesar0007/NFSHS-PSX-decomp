@@ -19,9 +19,7 @@ extern int  showRoomFlag[];
 tCarInfo *GetCarFromID(tCarManager *mgr, short carID) asm("GetCarFromID__11tCarManagers");
 void GetGarageCar(tCarManager *mgr, short garageNumber, tCarInfo *carInfo, short playerNum) asm("GetGarageCar__11tCarManagersR8tCarInfos");
 void GetPinkSlipsCar(tCarManager *mgr, short garageNumber, tCarInfo *carInfo, short playerNum) asm("GetPinkSlipsCar__11tCarManagersR8tCarInfos");
-void GetAwardInformation(tTournamentManager *mgr, tAwardInformation *info) asm("GetAwardInformation__18tTournamentManagerR17tAwardInformation");
 void GetTrophyName(tTournamentManager *mgr, tTourneyInfo *tourn, tTrophySize size, char *buffer, int place) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
-short PlayerRanking(tTournamentManager *mgr, short pos) asm("PlayerRanking__18tTournamentManagers");
 
 /* game C++ helpers + eaclib */
 void  AudioCmn_PlayFESFX(int SFXnum);

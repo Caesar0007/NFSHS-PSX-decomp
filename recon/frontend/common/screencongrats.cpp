@@ -23,6 +23,12 @@ extern tScreenTournamentCongrats *screenTournamentCongrats;
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks[0]; }
 
+/* ORIGINAL-NAME-UNRESOLVED: inferred text-definition color accessor.
+   The same table lookup is used by FEFades and FETextRender. */
+static inline int TextDefinitionColor(tMenuTextType type, int column) {
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
 
 /* Retail screencongrats.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -46,6 +52,14 @@ void tScreenCongrats::Cleanup()
 }
 
 /* ---- tScreenCongrats::GetShapeInfo  (screencongrats.cpp:64) ---- */
+/* 2026-10-11: CurrentTourney and the racer-count field accessor reproduce
+   retail's two receiver-free inline pairs, without added wrappers or locals.
+   All150 instructions, nine ordered local/parameter records and eight regions
+   agree (run-ufcsbllr). Inline spellings/full SLD remain source review.
+   SOURCE-REVIEW-UNRESOLVED: numRanked is an unrecorded signed-short snapshot
+   held across PlayerRanking calls. After accessor recovery, direct repeated
+   bounds still fail100 at156/150 (2026-10-11); that does not prove an original
+   named object. Recover the count snapshot's actual source producer next. */
 void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
                char **swapFileName)
 
@@ -56,13 +70,9 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
      the decompiler's prefix/ranking locals changed statement order and the
      $s4/$s5 allocation.  The trophy test branches away to the switch arm. */
   tTourneyInfo *tourneyInfo;
-  short numRanked; /* SYM-CODEGEN-CARRIER: numRanked -- spelling the bound directly
-                      is measured FAIL 100 (156/150), grows the frame, and rotates
-                      every saved register; this short carrier preserves retail. */
+  short numRanked;
 
-  tourneyInfo = &(tournamentManager.fDefinition)->fTournaments
-      [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
-       tournamentManager.fTournament];
+  tourneyInfo = tournamentManager.CurrentTourney();
   this->fNumSmallSpinShapes = 0;
   this->fNumSpinShapes = 0;
   numPermShapes = this->congratsMessage == kScreenCongrats_Congrats ? 0x2b : 0x16;
@@ -79,7 +89,7 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
     int j;
 
     j = 900;
-    numRanked = (short)((short)tournamentManager.fNumRacers +
+    numRanked = (short)((short)tournamentManager.NumRacers() +
                         (tourneyInfo->fKnockout != '\0'));
     {
       int i;
@@ -87,7 +97,7 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
       i = 1;
       if (0 < numRanked) {
         do {
-          if (PlayerRanking(&tournamentManager,(short)i) == 0) {
+          if (tournamentManager.PlayerRanking((short)i) == 0) {
             j = i;
           }
           i = i + 1;
@@ -135,19 +145,20 @@ bool tScreenCongrats::GetCar(tCarInfo &carInfo)
 }
 
 /* ---- tScreenCongrats::DrawBackground  (screencongrats.cpp:128) ---- */
+/* 2026-10-11: TextDefinitionColor restores the retail color-read pair;
+   the final banner i is a for-header local. Sequencing the actual tick read
+   and frame clamp inside the predicate restores all sixty scope regions,
+   with541/541 PASS and all recorded local homes/depths correct.
+   SOURCE-REVIEW-UNRESOLVED: spinTicks and the existing void fence are not
+   proved original source. Direct reads fail17/540, negative-first13/540,
+   widened quarter division17/540, post-test clamp20/539, and direct assignment
+   in the condition17/540. Fence removal (also with scale in the condition)
+   leaves3/540; a GNU minimum clamp without it is27/544. Failed trials are
+   reverted, not proof of a required named object or a source/compiler floor.
+   Getter spelling and complete original statement-line attribution remain open. */
 void tScreenCongrats::DrawBackground()
 
 {
-  /* MATCH W64 PASS (54 -> 0, 541 instructions).  Retail source shapes recovered here include base-first
-     virtual-thunk arithmetic, explicit stripe defaults, signed division by
-     4 in the subtractive spin timer, and the showroom-flag side effect in DrawCar's
-     brightness argument.  In the regular spin block, the scoped tick value
-     reproduces retail's $a0 lifetime; the void fence prevents speculative
-     delay-slot filling at the block boundary, and the read-only scale fence
-     anchors the $s0 assignment before the timer loads.  Writing the tick field
-     before the enable field lets sched2 produce retail's load/store order.
-     A zero-instruction fence after the eliminated-message clamp prevents GCC
-     from cross-jumping the extra-spin framenum store into that later path. */
   int fJustFadeOff;
   static u_long carRotate = 0;   /* retail: zero static in front.DATA @0x80052940 => written `= 0` */
   tDrawShapeExtended drawFlags;
@@ -155,11 +166,6 @@ void tScreenCongrats::DrawBackground()
   int StripeRGB;
   int bannerframe;
   tDrawShapeExtended drawFlags3;
-  /* SYM-CODEGEN-CARRIER: vtbl -- the retail extended virtual call's implicit
-     dispatch temporary has no SYM source local.  The manual
-     non-virtual ABI model needs this cached row pointer: direct
-     this->_vf[1][1] dispatch is byte-identical, but fails
-     audit_vtable_indexing as unsafe row indexing. */
 
   fJustFadeOff = 0;
   if (this->fTransitionOff != 0) {
@@ -195,7 +201,7 @@ void tScreenCongrats::DrawBackground()
           this->fCountedDown = 1;
         }
       }
-      colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],this->fScreenFadeVal);
+      colf = CalcFadeVal(TextDefinitionColor(textType_TrackRecords,5),this->fScreenFadeVal);
       colb = CalcFadeVal(0x232323,this->fScreenFadeVal);
       FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x317,textState_Hilighted,
                                 textType_TrackRecords);
@@ -229,31 +235,11 @@ void tScreenCongrats::DrawBackground()
       else {
         this->framenum = (FE_Ticks() - this->starttick) / 2;
         if (0x13 < this->framenum) {
-          /* SYM-CODEGEN-CARRIER: spinTicks -- retail records no source local,
-             but the scoped tick copy is required for its reload/value split.
-             Reading FE_Ticks() directly is FAIL 13 (540/541). */
           int spinTicks;
-
-          /* W85-S5: this block carried TWO boundaries -- a void `__asm__("" : :
-             "i"(0))` before `scale = true` and an `__asm__("" : : "r"(scale))`
-             after it.  Measured: they are REDUNDANT WITH EACH OTHER (either one
-             alone holds the TU at 28/28 PASS; both gone = FAIL 3), so the
-             "r"(scale) one is deleted here.
-             What the survivor buys (vdiff of the both-gone build): retail leaves
-             a `nop` in the `bnez` delay slot and materialises `li $v0,20` AFTER
-             the starttick/ticks loads; without a boundary sched2 hoists
-             `li $v0,20` to the head of the block and reorg then steals it into
-             that slot (ours 540 insns / oracle 541).  FALSIFIED pure-C
-             substitutes, each re-gated whole-TU: ticks-read first 3, framenum
-             before the ticks read 20, framenum after the inner `if` 18,
-             starttick hoisted to a block temp 8, `scale = true` last 3,
-             `(short)0x14` cast 3.  The residual is a sched2 placement decision
-             on a constant with no source anchor. */
           __asm__("" : : "i"(0));
           scale = true;
-          spinTicks = FE_Ticks();
-          this->framenum = 0x14;
-          if ((spinTicks - this->starttick / 4) % 0x5dc < 0x2d) {
+          if (((spinTicks = FE_Ticks(), this->framenum = 0x14),
+               spinTicks - this->starttick / 4) % 0x5dc < 0x2d) {
             this->InExtraSpinTick = FE_Ticks();
             this->InExtraSpin = 1;
           }
@@ -341,9 +327,7 @@ void tScreenCongrats::DrawBackground()
     }
   }
   else {
-    int i;
-
-    for (i = 7; i < 0x28; i++) {
+    for (int i = 7; i < 0x28; i++) {
       if ((i % 3) != 0) {
         DrawShapeExtended(bannerframe,0x410,i * 2,0,
                           this->fScreenFadeVal,1,&drawFlags3);
@@ -451,6 +435,8 @@ void tScreenCongrats::Initialize()
    test and the tick read are inlines, and there is no consume flag */
 static inline int SpeechLoading(SPEECHINFO *si) { return *(u_short *)((char *)si + 0x10); }
 static inline long CongratsTicks(void) { return ticks[0]; }
+/* ORIGINAL-NAME-UNRESOLVED: this inferred money getter and tm parameter
+   reproduce the retail receiver-free read pair; their spelling is not recorded. */
 static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
 
 void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand &c)
@@ -620,7 +606,7 @@ bool tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
   if (this->congratsMessage == kScreenCongrats_Congrats) {
     tAwardInformation tInfo;   /* [SYM] AUTO sp+16, block opened at SLD 3 */
 
-    GetAwardInformation(&tournamentManager,&tInfo);
+    tournamentManager.GetAwardInformation(tInfo);
     blockmove(GetCarFromID(&carManager, (u_short)tInfo.fAwardCarModel),&carInfo,0xcc);
     carInfo.fUpgrades = tInfo.fAwardCarUpgrades;
     carInfo.fColor = tInfo.fAwardCarColor;
@@ -633,41 +619,30 @@ bool tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
 }
 
 /* ---- tScreenTournamentTrophy::DrawCongratsMessage  (screencongrats.cpp:555) ---- */
-void tScreenTournamentTrophy::DrawCongratsMessage()
-
-{
-  /* MATCH: locals + block scopes taken VERBATIM from the SYM 8c block
-     (fsize 1456, mask $801f0000 = ra,s0-s4):
-       fn scope  AUTO  r, tInfo, buffer1[500], buffer2[500]
-       blk @567  REG   firstmessage($s2), secondmessage($s3), tourneyInfo($s1)
-       blk @575  REG   placeoffset($s0)
-       blk @626  AUTO  buffer[256](sp+1112), money[64](sp+1368)
-       blk @639  REG   yyy($s0)
-     Ghidra's word/word2/trophyClass are FABRICATED (absent from the SYM) --
-     they cost a 6th saved register ($s5) and 8 bytes of frame. */
+/* 2026-10-11: the tournament and previous-placement getters restore all
+   twelve native local/parameter tuples and fifteen regions, with182/182 PASS.
+   Getter spelling is inferred; complete original text/SLD remains unsealed.
+   Retail starts the rectangle stores at relative lines2..5. Declare r at
+   its initialization phase, and message data at the subsequent text phase;
+   no dummy local, padding region or artificial line directive is needed. */
+void tScreenTournamentTrophy::DrawCongratsMessage() {
   RECT r;
-  tAwardInformation tInfo;
-  char buffer1 [500];
-  char buffer2 [500];
-
   r.x = 0x29;
   r.y = 0x3c;
   r.w = 200;
   r.h = 400;
+  tAwardInformation tInfo;
+  char buffer1 [500], buffer2 [500];
+
   /* MATCH: the non-Congrats message is the ELSE arm (oracle `bnez $v0,.L800491DC`
      branches FORWARD to a block sitting just before the epilogue). */
   if (this->congratsMessage == kScreenCongrats_Congrats) {
-    int firstmessage;
-    int secondmessage;
-    tTourneyInfo *tourneyInfo;
-
+    int firstmessage, secondmessage;
     secondmessage = firstmessage = 0;   /* oracle: `addu s2,zero,zero; addu s3,s2,zero` */
-    tourneyInfo = &(tournamentManager.fDefinition)->fTournaments
-             [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
-              tournamentManager.fTournament];
+    tTourneyInfo *tourneyInfo = tournamentManager.CurrentTourney();
     /* fPrevBestPlacement/fTournamentID are shared-header plain `char` (unsigned by platform
      * default); the oracle reads BOTH signed (`lb`) throughout -- cast at every read site. */
-    if ('\x03' < (signed char)tournamentManager.fPrevBestPlacement) {
+    if ('\x03' < tournamentManager.PreviousPlacement()) {
       int placeoffset;
 
       firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3b3;
@@ -689,7 +664,7 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
               TextSys_Word(placeoffset + 0x3e1));
     }
     if (((this->trophy == kTrophyGold) &&
-        ((signed char)tournamentManager.fPrevBestPlacement != '\x01')) ||
+        (tournamentManager.PreviousPlacement() != '\x01')) ||
        (this->trophy == kTrophyCar)) {
       /* two separate sprintf calls -- gcc cross-jump-merges them into the oracle's
          single `.L800490EC: jal sprintf` with only the $a0 setup per arm. */
@@ -713,7 +688,7 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
       FETextRender_WordWrapTextFade
                 ((int)this->fScreenFadeVal,buffer2,r,textState_Selected,textType_PostGame);
     }
-    GetAwardInformation(&tournamentManager,&tInfo);
+    tournamentManager.GetAwardInformation(tInfo);
     if (tInfo.fAwardCarGarageFull != 0) {
       char buffer [256];
       char money [64];
@@ -741,23 +716,22 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
 }
 
 /* ---- tScreenTournamentTrophy::CalculatePrizes  (screencongrats.cpp:654) ---- */
+/* 2026-10-11: CurrentTourney, NumRacers and Tournament_Money recover the
+   three retail inline pairs. The typed short count expression needs no
+   knockout/ranked aliases or raw halfword pointer view. Both old staging
+   scopes are removed: all seven native regions and recorded local homes
+   agree, while the full144-word stream and complete TU layout remain exact.
+   SOURCE-REVIEW-UNRESOLVED: numRanked is an unrecorded count snapshot; its
+   original producer/name are not uniquely recovered. cashAwarded/carCXBits
+   and the two existing zero-template fences also remain unresolved.
+   After getter recovery, direct float and cash-award expressions, with or
+   without the void fence, leave2dif/144; float-store order gives10/144,
+   explicit cash-award arms4/144 and a raw literal store6/144. Those trials
+   are reverted, not proof that original source required these devices.
+   Native agreement is not a complete original-source or SLD certificate. */
 void tScreenTournamentTrophy::CalculatePrizes()
 
 {
-  /* MATCH (2026-08-12, 115 -> PASS, exact 144/144): rebuilt from the
-     trusted SYM allocation contract (i=$s1, j=$s3, tInfo=sp+0x10,
-     tourneyInfo=$s5, this=$s2) and IDA/SLD control flow.  The decompiler's
-     ranking/numRanked/tourIndex/place locals caused the original whole-body
-     register cascade.  A void boundary after the spinner reset prevents
-     sched2 from hoisting the tournament-money address setup across that
-     store.  The separate m2c body exposed the signed manager halfword as its
-     own working value before the short sum; `ranked` plus a short `numRanked`
-     reproduces retail's `lh` and post-add 16-bit truncation (4 -> 2) without
-     changing allocation.  The final store group needs the 4.0f high half in
-     $a0 before the -7.4f pair while retaining the preceding delay-slot nop:
-     a pin-free identity fence on a block-local raw word plus a zero-insn
-     boundary does that; a short-lived `cashAwarded` working value sinks its
-     store behind both materializations.  No volatile or fixed-register pin. */
   int i;
   int j;
   tAwardInformation tInfo;
@@ -766,30 +740,22 @@ void tScreenTournamentTrophy::CalculatePrizes()
   this->congratsMessage = kScreenCongrats_Eliminated;
   this->trophy = kTrophyNone;
   this->smallSpinningThing = kSpinningMemCard;
-  GetAwardInformation(&tournamentManager,&tInfo);
+  tournamentManager.GetAwardInformation(tInfo);
   j = 900;
   /* @0x800492A8-D4/0x80049380: oracle computes the tourneyInfo (fTournaments[tourIndex]) POINTER
    * ONCE (kept live in s5) and reuses it for BOTH fKnockout checks below (numRanked's ".fKnockout"
    * AND the later `def->fTournaments[tourIndex].fKnockout` re-test) -- one named local matches. */
-  tourneyInfo = &(tournamentManager.fDefinition)->fTournaments[
-      (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
-      tournamentManager.fTournament];
+  tourneyInfo = tournamentManager.CurrentTourney();
   i = 1;
-  {
-    /* SYM-CODEGEN-CARRIER: knockout -- inlining the normalized fKnockout
-       value is FAIL 17 at 145/144 and changes its branch-free value web. */
-    int knockout = !!tourneyInfo->fKnockout;
-    /* SYM-CODEGEN-CARRIER: ranked -- direct use of the manager halfword is
-       count-exact FAIL 2 because GCC changes retail's signed lh to lhu. */
-    int ranked = *(short *)((char *)&tournamentManager + 0x10);
-    if (0 < (short)(ranked + knockout)) {
-      do {
-        if (PlayerRanking(&tournamentManager,(short)i) == 0) {
-          j = i;
-        }
-        i = i + 1;
-      } while (i <= (short)(ranked + knockout));
-    }
+  short numRanked = (short)((short)tournamentManager.NumRacers() +
+                            (tourneyInfo->fKnockout != '\0'));
+  if (0 < numRanked) {
+    do {
+      if (tournamentManager.PlayerRanking((short)i) == 0) {
+        j = i;
+      }
+      i = i + 1;
+    } while (i <= numRanked);
   }
   if (j == 1) goto first_place;
   if (j <= 0) goto eliminated;
@@ -831,28 +797,20 @@ eliminated:
   this->smallSpinningThing = kSpinningNone;
 
 prizes_done:
-  /* W85-S5: a void `__asm__("" : : "i"(0))` boundary stood here.  Measured
-     INERT (TU stays 28/28 PASS without it) -- removed. */
   this->fCarPlayer = 0;
-  this->TotalCash = tournamentManager.fMoney;
+  this->TotalCash = Tournament_Money(tournamentManager);
   if (tInfo.fCompletedGarageFull != 0) {
     this->TotalCash -= tInfo.fCompletedBonusMoney;
   }
-  /* SYM-CODEGEN-CARRIER: cashAwarded -- assigning the ternary directly is
-     count-exact FAIL 2 and hoists the fCarCX high-half materialization. */
   long cashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney;
   __asm__("" : : "i"(0));
-  {
-    /* SYM-CODEGEN-CARRIER: carCXBits -- direct float/raw-field spellings are
-       documented above as FAIL 35/12; this boundary preserves retail's $a0. */
-    unsigned long carCXBits = 0x40800000;
-    __asm__("" : "=r"(carCXBits) : "0"(carCXBits));
-    this->CashAwarded = cashAwarded;
-    this->fCarX = 0x116;
-    this->fCarY = 0x3f;
-    this->fCarCY = -7.4;
-    *(unsigned long *)&this->fCarCX = carCXBits;
-  }
+  unsigned long carCXBits = 0x40800000;
+  __asm__("" : "=r"(carCXBits) : "0"(carCXBits));
+  this->CashAwarded = cashAwarded;
+  this->fCarX = 0x116;
+  this->fCarY = 0x3f;
+  this->fCarCY = -7.4;
+  *(unsigned long *)&this->fCarCX = carCXBits;
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
     this->fCarX = 0x120;
     this->fCarY = 0x49;
@@ -926,7 +884,7 @@ bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
 {
   tAwardInformation tInfo;
   
-  GetAwardInformation(&tournamentManager,&tInfo);
+  tournamentManager.GetAwardInformation(tInfo);
   blockmove(GetCarFromID(&carManager, (u_short)tInfo.fCompletedCar),&carInfo,0xcc);
   return 1;
 }
@@ -936,7 +894,7 @@ void tScreenTournamentCongrats::CalculatePrizes()
 {
   tAwardInformation tInfo;
 
-  GetAwardInformation(&tournamentManager,&tInfo);
+  tournamentManager.GetAwardInformation(tInfo);
   this->tScreenCongrats::CalculatePrizes();
   this->trophy = kTrophyCar;
   this->TotalCash = Tournament_Money(tournamentManager);
@@ -964,7 +922,7 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
   r.h = 400;
   /* oracle's FETextRender_WordWrapText 3rd arg is a LITERAL `li a2,1` (=textState_Selected), not a
    * read of an uninitialized `fade` local (both call sites). */
-  GetAwardInformation(&tournamentManager,&tInfo);
+  tournamentManager.GetAwardInformation(tInfo);
   FETextRender_WordWrapText(TextSys_Word((int)tInfo.fCompletedText),r,
                             textState_Selected,textType_PostGame);
   if (tInfo.fCompletedGarageFull != 0) {

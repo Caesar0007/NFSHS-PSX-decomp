@@ -394,9 +394,12 @@ void tScreenMain::DrawVideoLines()
    disjoint scopes.  Decompiled one-shot aliases for VIDEO results, text,
    async state, warning-loop tint, and the unused TV bound are folded back into
    their owning statements. P863 also folds the packed-tint component into
-   its owning expression. Five marked source-only temporaries and the curMenu
-   cache remain unresolved; their machine value webs do not prove that
-   distinct named objects existed in the lost source. */
+   its owning expression. The curMenu/startMovie/elapsedTicks aliases are now
+   removed by real menu getter calls and one compound movie-start predicate.
+   SOURCE-REVIEW-UNRESOLVED: animationFrame/videoY, the shapeX/shapeY value
+   roles and homes, missing application receivers and remaining scope bounds
+   still need original-source recovery. Machine value webs do not prove that
+   separate named objects existed in the lost source. */
 void tScreenMain::DrawBackground()
 
 {
@@ -431,44 +434,20 @@ void tScreenMain::DrawBackground()
       }
     }
   }
-  /* MATCH/SYM-CFG P135: retail has two entries into the repeated credits-menu
-     test.  A non-credits state branches directly to .L80037B48, reusing the
-     FEApp %hi from the delay slot; a credits state whose first menu test
-     succeeds falls through .L80037B44 and reloads that %hi after the first
-     comparison clobbers $v0.  The explicit labels preserve those distinct
-     edges, while the zero-byte fence prevents GCC from sharing the reload.
-     Detailed verify_asm is PASS 822/822 and strict_branch compares all 54 raw
-     branch words CLEAN; the former structured else entered .L80037B44 from
-     both paths and hid one wrong branch target behind normalized labels.
-     [W85-S5, device removed] The zero-byte fence that used to sit in front of
-     `test_credits_menu:` is GONE.  What it bought is retail's one-instruction
-     landing pad `.L80037B44: lui $v0,%hi(FEApp)` that falls into `.L80037B48`
-     -- the fall-through entry must RELOAD the FEApp %hi because the first
-     comparison's `addiu $v0,$v0,0x39F0` clobbered it, while the branch entry
-     inherits the %hi from the `bne` delay slot.  Without a boundary gcc shares
-     the one materialization across both edges (821 insns vs 822).
-     The pure-C equivalent is simply to READ THE MENU POINTER INTO A NAMED
-     BLOCK LOCAL before the comparison: that gives the second test its own
-     address pseudo, so the %hi is re-materialized on the fall-through edge.
-     FALSIFIED first (each whole-TU re-gated): dropping the fence outright 1;
-     an unsized-array `extern tFEApplication *FEAppSM[] asm("FEApp")` view on
-     the 2nd test 1, on the 1st test 1, on both 1; a redundant
-     `goto test_credits_menu;` immediately before the label 1; the structured
-     `if (A && B) ... else if (C)` form 1; Yoda order on the 2nd compare 13;
-     a fully nested if/else 8. */
+  /* Two entry labels preserve the retail repeated credits-test paths.
+     The real CurrentMenu reads now reproduce the required reload without
+     the old curMenu capture. Historical local/fence necessity claims do not
+     describe this verified source shape (2026-10-11, 822/822 PASS). */
   if (this->fState != kScreenMain_Credits) {
     goto test_credits_menu;
   }
-  if (FEApp->fCurrentMenu[0] != (tMenu *)&MenuDefs()->menuCredits) {
+  if (FEApp->CurrentMenu(0) != (tMenu *)&MenuDefs()->menuCredits) {
     this->SetState(kScreenMain_StaticImage);
     goto credits_state_done;
   }
 test_credits_menu:
-  {
-    tMenu *curMenu = FEApp->fCurrentMenu[0];
-    if (curMenu == (tMenu *)&MenuDefs()->menuCredits) {
-      this->SetState(kScreenMain_Credits);
-    }
+  if (FEApp->CurrentMenu(0) == (tMenu *)&MenuDefs()->menuCredits) {
+    this->SetState(kScreenMain_Credits);
   }
 credits_state_done:
   ::Draw(&CreditManager,this->fState == kScreenMain_Credits);
@@ -558,32 +537,12 @@ credits_state_done:
     }
   }
   else {
-    int startMovie;
-
-    /* Retail materializes the timeout predicate as a value in $s0: zero in
-       VIDEO_state's delay slot, then `sltiu`, xor with the captured constant
-       one, and a separate `beqz`.  Keeping the coordinate and predicate as
-       non-overlapping INT values lets GCC coalesce both retail $s0 lifetimes
-       without the sign extension produced by reusing a SYM SHORT. */
-    /* SYM-CODEGEN-CARRIER: startMovie -- nesting the timeout test directly
-       under VIDEO_state removes the materialized condition and is FAIL 5 at
-       821/822; retail keeps this value in $s0 and tests it separately. */
-    startMovie = 0;
-    if (VIDEO_state(this->hVideo) != 1) {
-      /* MATCH W64-A17: the elapsed-tick subtraction is its OWN named value.
-         Folded into the compare, cc1plus computes it straight into the
-         carrier's register (`subu s0,v1,v0`) and loads `FE_Ticks()` through the
-         shared %hi (`lw v1,0(v0)`); retail keeps it anonymous in $v0 with a
-         SELF-TEMP FE_Ticks() load (`lui v0,0; lw v0,0(v0); lw v1,108(s6);
-         subu v0,v0,v1`).  Naming it splits the two and lands the whole
-         cluster.  Yoda-flipping the compare instead is neutral (11). */
-      /* SYM-CODEGEN-CARRIER: elapsedTicks -- folding this subtraction into
-         the comparison is count-exact FAIL 10 and reverses the retail load
-         destinations before the subtraction. */
-      u_long elapsedTicks = FE_Ticks() - this->fStartTicks;
-      startMovie = (0x280 < elapsedTicks);
-    }
-    if (startMovie && (this->fState == kScreenMain_StaticImage)) {
+    /* One ordinary compound predicate preserves the anonymous Boolean and
+       elapsed-value webs. The old separate-object necessity claims applied
+       to a different source shape; no replacement alias/fence is needed. */
+    if (((VIDEO_state(this->hVideo) != 1) &&
+         (0x280 < ((u_long)FE_Ticks() - (u_long)this->fStartTicks))) &&
+        (this->fState == kScreenMain_StaticImage)) {
       char moviename [80];
       RECT r;
 

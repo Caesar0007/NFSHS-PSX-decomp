@@ -109,6 +109,22 @@ struct tTournamentManager {
     char fPrevBestPlacement;
     u_char fFinishPoints[6], fRanking[6];
     tAwardInformation fAwards;
+#ifdef NFS4_TSCREENCONGRATS_OWNER
+    /* Real nonvirtual methods/signatures from the FETourn SYM and owner. */
+    short PlayerRanking(short);
+    void GetAwardInformation(tAwardInformation &);
+    /* ORIGINAL-NAME-UNRESOLVED: same reconstructed CurrentTourney accessor
+       used by FETourn; retail's inline pair does not retain its spelling. */
+    tTourneyInfo *CurrentTourney() {
+        return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament];
+    }
+    /* ORIGINAL-NAME-UNRESOLVED: inferred accessor spelling for the racer-count
+       field; retail's inline pair does not record the original method name. */
+    int NumRacers() { return fNumRacers; }
+    /* ORIGINAL-NAME-UNRESOLVED: inferred getter for the previous-placement
+       read pairs. Preserve the signed byte value seen in the retail loads. */
+    int PreviousPlacement() { return (signed char)fPrevBestPlacement; }
+#endif
 #ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
     void GetTrackToRace(tTrackInfo &);
 #endif

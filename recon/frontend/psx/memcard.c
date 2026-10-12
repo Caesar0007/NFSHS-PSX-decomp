@@ -749,117 +749,29 @@ int iMCRD_DoFileDelete(int card)
 /* lines 930-970: (static data / macros / comments - no emitted code) */
 
 /* ---- MCRD_handlecardevents  (memcard.c:971, code lines 971-1168) ---- */
+/* 2026-10-12: remove idx, then reprice g/t as a pair. Direct indexed stores
+   with only t remaining were14dif/211; removing g and t left2dif/211 (bReady
+   store before address/timer setup). Putting both stores inside the old
+   wrappers was54/211. Removing ALL four dummy do/while wrappers from BOTH
+   res==0 and res==1 readiness/timer arms instead reproduces211/211 PASS.
+   All six ordered retail local/type/home/depth tuples and root region match;
+   no false struct-base view, source capture, dummy loop or replacement fence
+   remains in this handler. The real status=0x16 shared-tail statements and
+   store order are retained. Older necessity/loop-dial claims were specific to
+   the synthetic source shape, not proof of original declarations/macros.
+   MATCH: keep the existing out-of-line switch order and real status=0x16
+   shared-tail assignments. They preserve retail's merge direction without
+   an asm blocker; final branch-distance checks cover all21 owner functions.
+   Full original text and SLD remain unsealed. */
 int MCRD_handlecardevents(int card)
 
 {
-  /* SYM 8c block (the COMPLETE local set - no others exist in retail):
-   *   card   REGPARM INT   $11 = $s1      status INT           $10 = $s0
-   *   pCI    PTR CARDINFO  $12 = $s2      ret    INT           $03 = $v1
-   *   cmd/res ULONG AUTO   sp-0x18 / sp-0x14
-   * `ret` is the MemCardSync return; `status` is the value the funnel returns. */
-  /* decl order = SYM Def-record order (status, pCI, cmd, res, ret) -- w86-S5 */
   int status;
   CARDINFO *pCI;
   u_long cmd;
   u_long res;
   int ret;
 
-  /* MATCH: ONE result variable + a single tail `return status;` - every retail exit is
-   * `j .L800501B0/B4; addu $v0,$s0,$zero`, i.e. a funnel, never a direct return
-   * literal.  Keeping status in $s0 is also what lets cse reuse the constant 2 as the
-   * shift amount in the res==1 arm (retail's `sllv v0,v0,s0`). */
-  /* ===================== SEALED w46: PASS, 211/211 exact =====================
-   * History 56 -> 2 (w45, below) -> 0 (w46).  The last 2 were the res==1 arm's
-   * `sw a1,0x34(a0)' emitted 5 slots early; the full mechanism + the winning form
-   * live at the `case 1:' site itself.  One-line summary: the do{}while(0) that
-   * supplies that arm's ref dial also drops a NOTE_INSN_LOOP_BEG between the two
-   * stores, and sched.c:2085 makes the first insn after a loop note depend on
-   * EVERYTHING before it -- so the fix was to hoist the tick store's address and
-   * value OUT of the wrapper (leaving the note in front of the store only), with
-   * the address expressed as a struct-cast view so it does not absorb the 0x40
-   * field offset.  Store ORDER is not schedulable at all here (the two stores
-   * may-alias) -- it is exactly source order, so bReady-first is mandatory.
-   * ---------------------------------------------------------------------------
-   * w45 RESULT (kept: it is what got the arm to count-exact 211 and fixed $a0):
-   * 56 -> 2 diffs.  The whole 56 was ONE root cause plus two consequences, all
-   * three cracked by the gcc-2.8 REF/PRIORITY model:
-   *
-   * (1) $a0 HANDOUT (global_alloc).  global.c allocates in descending
-   *     allocno_compare priority = floor_log2(refs)*refs/live_length.  Measured
-   *     off cc1 -dg/-dl (tools/rtl_dump_c.py + tools/prio.py):
-   *        p144 cmd  = 7 refs / 20 live -> 2*7/20 = .700   rank 2  -> took $a0
-   *        p92  base = 4 refs / 22 live -> 2*4/22 = .364   rank 12 -> got $a1
-   *     (&gMemCardInfo base of the res==0 arm).  Retail is the other way round.
-   *     BOUNDARY MATH (the thing to do FIRST): p92 wins iff 4 refs & live <= 11,
-   *     or 5 & <=14, or 6 & <=17, or 7 & <=19, or **8 refs at any live <= 34**
-   *     (the floor_log2 step 2->3).  p144 loses iff 7 refs & live >= 39, or its
-   *     refs fall to <= 3.  cmd's 7 refs and 20-insn range are structural (the
-   *     dispatch + the three `bReady = cmd` stores, which cse rewrites back to
-   *     cmd's reg because cmd==1 is known inside `case 1:`), so the base side is
-   *     the only reachable one.  FIX = the two nested do{}while(0) around the
-   *     res==0 arm (flow.c does REG_N_REFS += loop_depth): base 4 -> 12 refs
-   *     (pri 1.636, rank 0) vs cmd 7 -> 9 (1.350).  DEPTH 3 IS REQUIRED: depth 2
-   *     lifts BOTH to 8 refs and cmd's shorter live range then wins 1.200 vs
-   *     1.091.  (This refutes the w44 note that recorded depth 3 as "wrecks the
-   *     arm, 202 diffs".)                                      56 -> 28
-   * (2) THE SAME DIAL AT THE LOCAL_ALLOC LAYER for the res==1 arm, whose base and
-   *     timerhz are block-local QTYs, not allocnos - local-alloc.c's QTY_CMP_PRI
-   *     is literally the same formula.  One do{}while(0) on the tick store alone
-   *     doubles timerhz past the flr2 step (4 -> 8) while the base only picks up
-   *     its addu ref (5 -> 6).                                 28 -> 16
-   * (3) The 2026-08-02 USE fence at the cmd-switch join was BASIN-RELATIVE
-   *     scaffolding and is now retired (receipt at its old site).  Removing it
-   *     also restored reorg's fill of four `j` delay slots. 16 -> 4
-   * (4) Retail's .L800500D8 trampoline: a ZERO-INSN USE fence on `status` ($s0)
-   *     in an `else` arm of the NONE guard (receipt at that site).   4 -> 2
-   *
-   * ------------- w45's PARKED-2 receipt (SOLVED in w46, kept for the map) -------
-   * Residual was the res==1 arm's `sw a1,0x34($a0)` (bReady) emitted 5 slots EARLY:
-   *     ours    lui/addiu a0 | sw a1,52(a0) | index | lw timerhz | addu | sw v1
-   *     retail  lui/addiu a0 | index | lw timerhz | addu | sw a1,52(a0) | sw v1
-   * Everything else in the arm is byte-identical.  MECHANISM: the do{}while(0)
-   * that supplies (2)'s ref dial puts a NOTE_INSN_LOOP_BEG *between* the two
-   * stores, and that note is a sched2 barrier - the res==0 arm proves the
-   * scheduler WANTS retail's order when it is not fenced off (that arm, wrapped
-   * as one span, matches byte for byte).
-   * MEASURED / FALSIFIED (~180 spellings, all gate-verified, TU-clean):
-   *   - all 24 statement orders x {no wrapper, d2 on tick, d3 on tick, d2 whole
-   *     + d2 inner} -> best 2 (BSTP/SBTP/STBP with the tick wrapper);
-   *   - wrapper spanning BOTH stores at depth 1/2/3 x inner tick depth 0/1/2:
-   *     source order tick-then-bReady reaches the SAME 2 diffs with the barrier
-   *     GONE and the registers right - but then sched2 emits the two stores in
-   *     RTL order (`sw v1` then `sw a1`), the exact mirror of our miss;
-   *     source order bReady-then-tick with a spanning wrapper loses the QTY order
-   *     (14-54 diffs);
-   *   - non-loop ref inflators on timerhz: USE fences 1..4x and a 4-operand asm
-   *     (17-24, each costs an insn), duplicate idempotent tick stores x2/x3/x4
-   *     (14, dse drops the copy AND the ref), `*(&arr[i])` spelling (17);
-   *   - base live-length extenders: `__asm__ "r"(&gMemCardInfo)` at the arm tail
-   *     (14; the address does NOT cse onto the base pseudo, it costs a real
-   *     addiu - measured twice, in both the allocno and the QTY context);
-   *   - 12 interleavings of the three stores/PCI inside and outside the wrapper.
-   * w45's angle (a) -- "the tick-first spanning-wrapper form is ONE sched2
-   * READY-LIST TIE from PASS" -- was WRONG in its diagnosis, and that is the
-   * transferable lesson: the two stores may-alias, so there is NO ready-list tie
-   * to win.  sched_analyze chains them and emission order == source order, full
-   * stop.  Both 2-diff spellings were therefore the SAME single defect seen from
-   * two sides (one had the order right and the position wrong, the other the
-   * position right and the order wrong).  The seal came from keeping bReady-first
-   * (order) and moving the loop NOTE off the path between them (position).  Do not
-   * spend a permuter slot on an "independent-store tie" without first checking
-   * whether the two MEMs alias.
-   * ============================================================================
-   * ORIGINAL SYM/shape receipts (still authoritative, do not regress):
-   *   - ONE result variable + a single tail `return status;` (every retail exit is
-   *     `j .L800501B0/B4; addu $v0,$s0,$zero`, a funnel, never a return literal);
-   *     keeping status in $s0 is also what lets cse reuse the constant 2 as the
-   *     shift amount in the res==1 arm (retail's `sllv v0,v0,s0`).
-   *   - w44 falsifications that remain falsified: named fMemCardInfo_def* base
-   *     local (early/late/for every field); channel read hoisted into a local;
-   *     `bReady = 1` instead of `= cmd` (byte-identical - cse reuses cmd's reg);
-   *     an early cmd read to lengthen its range (folded); cmd dispatch as an
-   *     if/else-if chain (-2 insns); an INVENTED `int st = pCI->status;` local
-   *     (moves the dial but the SYM lists no such local -> rule 8).  */
   status = 0x17;
   pCI = MCRD_getcard(card);
   ret = MemCardSync(0,(long *)&cmd,(long *)&res);
@@ -867,9 +779,6 @@ int MCRD_handlecardevents(int card)
     status = 0x15;
     goto MCRDhandleCard_end;
   }
-  /* MATCH: physical block order - retail lays the ret>0 (cmd/res) half FIRST and
-   * the task switch last; `if (ret <= 0) {...} else {cmd half}` makes the cmd half
-   * the bgtz target and pushes the task switch past it. */
   if (ret <= 0) {
     if (ret == -1) goto MCRDhandleCard_task;
     goto MCRDhandleCard_end;
@@ -880,90 +789,18 @@ int MCRD_handlecardevents(int card)
     case 1:
       switch(res) {
       case 0:
-        /* MATCH (w45): DEPTH-3 REF DIAL -- the two nested do{}while(0) wrappers are a
-         * semantic no-op that exist ONLY to loop-weight this arm's references x3 in
-         * flow.c (REG_N_REFS += loop_depth).  They flip the $a0 caller-save handout:
-         * the &gMemCardInfo base pseudo goes 4 refs/22 live (pri .364, rank 12, lost
-         * $a0 to cmd) -> 12 refs/22 live (pri 1.636, rank 0, TAKES $a0), while cmd
-         * only reaches 9/20 = 1.350 (its other 6 refs are outside the wrapper).
-         * allocno_compare priority = floor_log2(refs)*refs/live_length, so the win
-         * needs the flr2 STEP at 8 refs -- depth 2 gives base 8 (1.091) but ALSO
-         * lifts cmd to 8 (1.200) and loses.  56 -> 28 diffs, count stays 211/211.
-         * (This REFUTES the w44 receipt below, which recorded depth 3 as "wrecks the
-         * arm (202 diffs)" -- that measurement must have wrapped a different span.)
-         * DO NOT "simplify" the wrappers away.
-         * (w45 re-measure from the FINAL basin: ONE wrapper also gates 2 diffs,
-         * but there cmd still OUTRANKS the base (1.200 vs 1.091) and only wins
-         * $a1 through a conflict/preference accident -- the two-wrapper form is
-         * the rank-EXPLAINED one (base rank 0 @1.636, cmd rank 2 @1.350), so it
-         * is the one kept.  Three or four wrappers regress to 54.) */
-        do { do {
         gMemCardInfo.bReady = cmd;
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;
         if (pCI->status == -1) {
           MemCardAccept(gMemCardInfo.channel);
         }
-        /* MATCH (w83-a15): `status = 0x16;` is the LAST statement of THIS arm
-         * and of the `case NONE:` else-arm below -- see the receipt there. */
         status = 0x16;
-        } while (0); } while (0);
         break;
       case 1:
-        /* MATCH (w46 -- THE SEAL, 2 -> 0): three cooperating pieces, all of them
-         * consequences of ONE mechanism -- gcc-2.8 sched.c gives the FIRST insn
-         * after a NOTE_INSN_LOOP_BEG a dependence on EVERY insn before it
-         * (sched.c:2085 `if (loop_notes)' -- a full barrier), while flow.c counts
-         * every ref inside the note pair with loop_depth weight.  The w45 form
-         * needed the ref weight (see below) but paid the barrier BETWEEN the two
-         * stores, which is what emitted `sw a1,0x34(a0)' five slots early.
-         *
-         * (1) SOURCE ORDER bReady-then-tick is MANDATORY and is NOT a scheduling
-         *     choice: the two stores may-alias (same symbol, variable index), so
-         *     sched2 can never swap them -- emission order == RTL order == source
-         *     order.  Measured: every tick-first spelling emits `sw v1' first
-         *     (the exact mirror of the old miss), every bReady-first spelling
-         *     emits `sw a1' first.  8 spanning-wrapper depths x 2 orders confirm.
-         * (2) THE REF DIAL still has to fire, because the two block-local QTYs
-         *     fight for the low register: local-alloc.c's QTY_CMP_PRI =
-         *     floor_log2(refs)*refs*size/(death-birth).  Un-dialled, the base qty
-         *     is the COMBINED {high, lo_sum} pair (local-alloc.c:1444 combine_regs
-         *     ties them because the `high' pseudo dies in the lo_sum insn), so it
-         *     carries 2+3 = 5 refs and outranks the 2-ref timerhz value: base
-         *     takes the lower reg ($v1) and timerhz is pushed to $a0 -- retail is
-         *     $a0 base / $v1 timerhz.  Doubling timerhz's refs crosses the
-         *     floor_log2 step at 4 (flr2 1->2) and inverts the pair.  Hence the
-         *     do{}while(0) at DEPTH 2 (depth 0/1 = 14 diffs; 2, 3 and 4 all seal).
-         * (3) The barrier is made HARMLESS by hoisting BOTH the address and the
-         *     value out of the wrapper, so the only insn the note can pin is the
-         *     tick store itself -- which is last in retail anyway.  `t' hoists the
-         *     timerhz load (without it: 212 insns, 19 diffs); `g' hoists the addu.
-         *     `g' MUST NOT carry the field offset: the natural
-         *     `int *slot = &gMemCardInfo.existencecheckticks[idx]' makes fold
-         *     reassociate base+0x40+idx*4 into (base+0x40) and re-bases BOTH
-         *     stores off it (`addiu a0,a0,64' + `sw a1,-12(a0)', 4 diffs, count
-         *     still exact).  The struct-cast view keeps the pointer at
-         *     base+idx*4 = retail's $v0 and leaves 0x34/0x40 in the two store
-         *     displacements.  g->existencecheckticks[0] IS
-         *     gMemCardInfo.existencecheckticks[card-1], byte for byte.
-         *     (Catalog w13 `struct-cast base+offset displacement' idiom.)
-         * Basin note: decl order of idx/g/t is free (all 3 orders seal); inlining
-         * idx into g seals too.  ~50 further spellings measured this wave, listed
-         * in scratch/w46_a2_receipts.md.  DO NOT `simplify' g back to a plain
-         * &array[idx] pointer, and do not drop either hoist. */
         status = 2;
-        { int idx /* SYM-CODEGEN-CARRIER: idx -- measured address-index hoist for the
-                     exact case-1 store schedule documented above */ = card + -1;
-          fMemCardInfo *g /* SYM-CODEGEN-CARRIER: g -- struct-cast base preserves
-                             the retail +0x34/+0x40 displacements */ =
-              (fMemCardInfo *)((char *)&gMemCardInfo + idx * 4);
-          int t /* SYM-CODEGEN-CARRIER: t -- hoisted timerhz value is required for
-                   the exact local-allocation priority and schedule */ = timerhz;
-        gMemCardInfo.bReady = cmd;
-          do { do {
-          g->existencecheckticks[0] = t;
-          } while (0); } while (0);
+          gMemCardInfo.bReady = cmd;
+          gMemCardInfo.existencecheckticks[card + -1] = timerhz;
         pCI->status = -1;
-        }
         break;
       case 2:
         status = 3;
@@ -1003,26 +840,9 @@ int MCRD_handlecardevents(int card)
       }
       break;
     }
-    /* w45 RETIRED LEVER (kept as a receipt, do NOT re-add): a
-     * `__asm__ volatile("" : : "r"(cmd));` USE fence sat here from 2026-08-02.
-     * It was a cross-jump BLOCKER -- its USE insn made this exit path differ
-     * from the sibling tails so cross_jump could not merge them, which
-     * materialised retail's un-merged 2-insn reorg trampoline and took the
-     * count 209 -> exact 211/211 (at 44 -> 56 diffs).  Once the $a0 handout was
-     * fixed by the ref dials above, the fence became PURE COST: it is a stack
-     * AUTO, so "r"(cmd) emits a real `lw a3,0x10($sp)`, it un-merges the WRONG
-     * tail (the cmd==2/res==4 arm instead of retail's .L800500D8), and it also
-     * suppressed reorg's fill of four `j` delay slots.  MEASURED post-dial:
-     * fence-on-cmd 16 diffs / 211 insns, fence-on-status or -pCI 15 / 210,
-     * NO FENCE 4 diffs / 209.  Removed.  (LEVER-ORDER-DEPENDENCE meta: a
-     * spelling is only falsified inside its basin -- and so is a WINNER.) */
     goto MCRDhandleCard_end;
   }
 MCRDhandleCard_task:
-  /* MATCH: every dispatch here is a real SWITCH with OUT-OF-LINE case bodies
-   * (retail's beq-to-arm ladders); an if/else-if chain inlines each arm and flips
-   * the branches to bne.  res is unsigned, so gcc omits the low bound test on
-   * case 0.  Case bodies emit in SOURCE order = the oracle's block VA order. */
   switch(gMemCardInfo.task) {
   case NONE:
     if (gMemCardInfo.existencecheckticks[card + -1] < 0) {
@@ -1031,24 +851,6 @@ MCRDhandleCard_task:
       if (MemCardExist(gMemCardInfo.channel) == 0) goto MCRDhandleCard_end;
       status = 0x15;
     } else {
-      /* MATCH (w83-a15, REPLACES the w45 zero-insn USE FENCE): a REAL STATEMENT,
-       * and it is the LAST statement of the res==0 arm above as well.  That is
-       * the whole mechanism (catalog 29D-2): `find_cross_jump` needs ONE matching
-       * insn plus a label, and `do_cross_jump` (jump.c:2705) deletes the tail in
-       * the EARLIER stream and plants the surviving label in the LATER one -- so
-       * the later arm keeps retail's shared 2-insn trampoline .L800500D8
-       * (`j <epilogue>; addu $v0,$s0,$zero`) and the earlier arm's branch is
-       * redirected into it.  That is retail's merge DIRECTION.
-       * The fence bought the same COUNT (211/211) with the WRONG merge:
-       * `find_cross_jump` (jump.c:2631) refuses any tail containing a volatile
-       * ASM_OPERANDS, so word 56 targeted the OTHER of the two byte-identical
-       * return funnels -- ours +148 where retail is +94.  verify_asm normalises
-       * branch targets to `T` and wordcmp waives every R_MIPS_26 word, so ONLY
-       * tools/brdist.py sees it.  Do NOT re-add the fence; re-run brdist after
-       * any edit in this arm.  The polarity still matters: the assignment must
-       * hang in an `else` (keeping the guard `bgez`), NOT on an inverted
-       * `if (ticks >= 0) {...}` -- that makes the exit the FALL-THROUGH, flips
-       * the branch to `bltz` and inlines the block. */
       status = 0x16;
     }
     break;
@@ -1239,78 +1041,24 @@ int iMCRD_FormatCard(int card)
 /* lines 1733-1736: (static data / macros / comments - no emitted code) */
 
 /* ---- iMCRD_HandleError  (memcard.c:1737, code lines 1737-1895) ---- */
+/* 2026-10-12 MATCH135/135: first attempt followed by retries gives card the
+   natural source lifetime/reference edge. Reuse the consumed opResult as
+   the retry -1 value: GCC merges the two source call sites to one retail
+   call/backedge and restores card/code homes, without failed or a dummy loop.
+   Per-arm error/readiness stores then merge to the exact shared tail with
+   its global LUI before the error store. scratch_i/tmp_int/gmi/failed and
+   both dummy wrappers are gone. All seven ordered native locals/parameters
+   and both regions agree; whole-TU bytes/layout and branch distances remain
+   exact (run-vd2ngt11). No fence, qualifier, dummy reference, register pin,
+   compiler output rewrite or preprocessor line marker is retained.
+   Earlier20/135 and14/139 source basins were intermediate, not floors.
+   Literal original expression/label spelling and full SLD remain unsealed. */
 int iMCRD_HandleError(int func,int opResult,int card)
 
 {
-  /* decl order = SYM Def-record order at function scope (code, pCI); the three
-     non-SYM carriers follow it -- w86-S5.  numberoftries/result stay in the SYM's
-     nested block (see the note below). */
-  int code;
-  CARDINFO *pCI;
-  int scratch_i; /* SYM-CODEGEN-CARRIER: scratch_i -- distinct case-3/case-6
-                    join value; merging it with tmp_int is measured FAIL 22 */
-  int tmp_int; /* SYM-CODEGEN-CARRIER: tmp_int -- shared switch-arm lasterror
-                  value feeding the loop-depth-protected final store */
-  fMemCardInfo *gmi; /* SYM-CODEGEN-CARRIER: gmi -- per-predecessor base definitions
-                        are required to reuse one retail pseudo at the join */
+  int code = 0;
+  CARDINFO *pCI = MCRD_getcard(card);
 
-  /* MATCH: SYM (8c @0x800504cc) lists FOUR locals - code REG $20($s4), pCI REG $17($s1),
-   * and a NESTED block (90 @0x800505f4 .. 92 @0x80050644, source lines 76-98) holding
-   * numberoftries REG $16($s0) and result REG $3($v1).  numberoftries takes func's own
-   * $s0 because it is block-local and func is dead by then; declaring it at function
-   * scope makes it a global allocno that can never reuse that register.
-   *
-   * RESIDUAL 22 (count EXACT 135/135) = ONE allocno-order inversion: retail gives
-   * $s3 to `card` (SYM REGPARM $0x13) and $s4 to `code` (SYM REG $0x14); we give
-   * $s3 to `code`.  FULLY QUANTIFIED from -dl/-dg (w44):
-   *   allocno_compare priority = floor_log2(refs)*refs/live_length
-   *   ours  code = 2*5/93 = .1075  >  card = 2*4/88 = .0909  -> code allocated first
-   * The whole -dg order (102 84 103 86 83 80 85 104 81 87 82) reproduces exactly, so
-   * the model is confirmed and the razor is: card needs ONE more weighted ref (2*5/88
-   * = .1136), or live_length <= 74, or code must drop to 4 refs / grow past 110 insns.
-   * Retail's ref counts are IDENTICAL to ours (oracle $s3: 1 def + 2 uses, one of them
-   * in the retry loop = 4 weighted; $s4: 1 zero-init + 3 arms + 1 return read = 5), so
-   * the divergence is in live_length or in loop-note placement, not in the source's
-   * reference structure.
-   * PROVEN CARRIER (diagnostic, NOT adopted - it is scaffolding): wrapping the
-   * FormatCard call in a `do { } while (0)` raises its loop depth, giving card the
-   * 5th weighted ref -> the rotation flips and the fn drops to 4 diffs (135/135, the
-   * only residual then being the numberoftries-zero-init position + one delay slot).
-   * FALSIFIED carriers (each measured): while(1)+break / for+break / call-in-condition
-   * / goto-loop loop spellings (all 22, all 135 insns); `register int card` (22);
-   * decl-order per SYM (22); `int code = 0` declarator init (22); duplicate `code = 0`
-   * (22, deleted); code=0 after the getcard call (22); merging scratch_i/tmp_int (22);
-   * un-funnelling the case-3 else arm to `return code` (27 - REFUTES that angle);
-   * a block-local copy of card for the loop (39); purging the `failed` sentinel (52);
-   * swapping the two loop-init statements (54).
-   * NEXT ANGLE: find a zero-instruction 5th `card` reference - the phantom-ref classes
-   * (cse-merged duplicate subexpression, cross-jump-merged duplicate insn) are the only
-   * known ones that add REG_N_REFS without adding an instruction; or shorten card's
-   * live range by 14 insns (it is live in blocks 1-12 and 18-22 per -dl).
-   * RESOLVED (w44): the loop-depth ref dial in the retry loop below supplies the
-   * 5th weighted `card` ref at zero instruction cost - card .1136 > code .1075 ->
-   * card $s3 / code $s4 = SYM-exact.  22 -> 4 diffs (135/135 count-exact).
-   * REMAINING 4 = a SECOND, independent one-rank inversion plus its delay slot:
-   *   failed(sentinel) 3 refs / 16 live -> .1875   vs   pCI 7 refs / 79 live -> .1772
-   * Retail materializes `numberoftries = 0` FIRST (reorg eager-steals the
-   * fall-through's first insn into the `beqz` slot); writing it first in source does
-   * exactly that, but it also shortens the sentinel's live range to 16, which lifts
-   * it above pCI and rotates $s1<->$s2 through the whole function (36 diffs).  The
-   * two are COUPLED: sentinel-first = right registers / wrong slot (4 diffs);
-   * numberoftries-first = right slot / wrong registers (36).
-   * NEXT ANGLE: decouple by promoting pCI to 8 weighted refs (2*8/79 = .2025 >
-   * .1875) with a ZERO-INSN ref inflator (a10's class: a cse-folded re-mask or a
-   * folded re-read of a pCI-based lvalue), or by lengthening the sentinel's live
-   * range to >= 17 WITHOUT moving its materialization (3/17 = .1765 < .1772 - a
-   * ONE-INSN razor).  Falsified for the decoupling: post-loop `result != failed`
-   * (41/132); sentinel hoisted above the confirm call (5/134 - it then lands in the
-   * jalr delay slot instead of the beqz slot); increment-before-call (38); Yoda loop
-   * condition (36); declarator-init permutations x4 (36); decl-order x3 (36-40). */
-  code = 0;
-  pCI = MCRD_getcard(card);
-  /* MATCH: a real switch - the oracle's beq(2)/slti BOUND/beq(1)/beq(3) ladder with
-   * the three arms out-of-line is gcc's balance_case_nodes tree; the equivalent
-   * if/else-if chain inlines each arm and flips every branch to bne. */
   if (opResult != 0) {
     switch (func) {
     case 1:
@@ -1329,129 +1077,76 @@ int iMCRD_HandleError(int func,int opResult,int card)
     goto iMCRDError_return;
   case 1:
     pCI->status = -1;
-    tmp_int = 2;
-    break;
+    pCI->lasterror = 2;
+    gMemCardInfo.bReady = 1;
+    goto iMCRDError_return;
   case 2:
     pCI->status = -4;
-    tmp_int = 3;
-    break;
+    pCI->lasterror = 3;
+    gMemCardInfo.bReady = 1;
+    goto iMCRDError_return;
   case 3:
-    /* MATCH: the accept==0 arm is the IF-BODY (fall-through) - retail's bnez sends
-     * the success arm out-of-line. */
-    /* MATCH (w44, -1 insn): retail reaches gMemCardInfo through ONE pseudo that both
-     * predecessors of the setLastError join define ($s0 in both the case-3 and case-6
-     * arms), so the join's `bReady = 1` store reuses it (`sw $v0,52($s0)`); a direct
-     * `gMemCardInfo.bReady` there rematerializes the address (`lui`) at the join.
-     * Assign the base PER-BLOCK (uninitialized decl + one assignment per arm) - a
-     * function-scope initialized pointer would be GCSE-hoisted to one materialization. */
-    gmi = &gMemCardInfo;
-    if (MemCardAccept(gmi->channel) == 0) {
-      scratch_i = 0x17;
-      goto iMCRDError_setLastError;
+    if (MemCardAccept(gMemCardInfo.channel) == 0) {
+      pCI->lasterror = 0x17;
+      gMemCardInfo.bReady = 1;
+      goto iMCRDError_return;
     }
     else {
-      gmi->task = LOAD_CARD;
-      gmi->bReady = 0;
+      gMemCardInfo.task = LOAD_CARD;
+      gMemCardInfo.bReady = 0;
       goto iMCRDError_return;
     }
   case 4:
     if (func == 2) {
       if (gMemCardInfo.ConfirmFormatProc() != 0) {
-        /* MATCH: SYM nested block - numberoftries/result live only here. */
         int numberoftries;
         int result;
-        int failed;   /* SYM-CODEGEN-CARRIER: failed -- removing this named sentinel
-                       * is measured FAIL 52.  MATCH: the -1 sentinel loop.c hoists out of the retry test.
-                       * As a bare literal it becomes a short-lived hoisted allocno
-                       * whose priority (3 refs / 16 insns) beats pCI's and steals
-                       * $s1; naming it lengthens its live range so pCI wins $s1 and
-                       * the sentinel shares opResult's dead $s2, as retail does. */
-
-        numberoftries = 0;   /* MATCH: written FIRST so reorg eager-steals it into the
-                              * beqz delay slot (retail's pick); the register coupling
-                              * this used to break is resolved by the pCI depth dial at
-                              * the lasterror join below. */
-        failed = -1;
-        /* MATCH: the retry test is the loop CONDITION, not an in-body early return -
-         * retail's `bne result,sentinel` short-circuits straight to the success block
-         * (the -1 sentinel is loop-invariant, hoisted into a saved reg), and the
-         * loop-exhausted path is decided by a SECOND `result == -1` compare after the
-         * loop against a freshly materialized -1.  An in-body `if (result != -1)
-         * return 6;` drops that second compare entirely (census beq 3v4).
-         * Success is the FALL-THROUGH of that second compare (retail `beq` sends the
-         * exhausted path out-of-line, physically AFTER the success block). */
-        do {
-          /* MATCH (w44, 22 -> 4): LOOP-DEPTH REF DIAL.  REG_N_REFS is loop-depth
-           * weighted, so this inner scope doubles the weight of the refs inside it
-           * at ZERO instruction cost.  It is the one dial that reconciles retail's
-           * own register map with allocno_compare: `card` reaches 5 weighted refs
-           * (2*5/88 = .1136) and finally outranks `code` (2*5/93 = .1075), so card
-           * takes $s3 and code $s4 exactly as the SYM says (REGPARM $0x13 / REG
-           * $0x14).  Without it the whole card/code pair is rotated (18 diff lines).
-           * Remove this scope to fall back to the honest 22-diff form. */
-          do {
-            result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
-          } while (0);
-          /* MATCH (4 -> seal attempt): the success exit is an in-body GOTO PAST the
-           * post-loop compare, so retail's `bne result,sentinel` lands on the success
-           * block's `lui` and LABELS it - reorg then cannot steal that lui into the
-           * `beq` delay slot (nop stays), while the post-loop -1 materialization is
-           * stolen into the loop-back bnez slot.  A plain loop-condition exit lands
-           * ON the compare, leaves the lui unlabeled, and reorg fills the wrong slot. */
-          if (result != failed) goto iMCRDError_formatOK;
+        numberoftries = 0;
+        opResult = -1;
+        result = iMCRD_FormatCard(card);
+        for (;;) {
+          if (result != opResult) goto iMCRDError_formatOK;
           numberoftries = numberoftries + 1;
-        } while (numberoftries < 3);
+          if (numberoftries >= 3) break;
+          result = iMCRD_FormatCard(card);
+        }
         if (result != -1) {
-          /* MATCH: label INSIDE the if-block - keeps retail's polarity (beq sends the
-           * ==-1 exhausted path to the out-of-line fail arm, success = fall-through). */
 iMCRDError_formatOK:
           gMemCardInfo.task = WRITE_FILE;
           return 6;
         }
         pCI->status = -2;
-        tmp_int = 7;
-        break;
+        pCI->lasterror = 7;
+        gMemCardInfo.bReady = 1;
+        goto iMCRDError_return;
       }
     }
     pCI->status = -2;
-    tmp_int = 5;
-    break;
+    pCI->lasterror = 5;
+    gMemCardInfo.bReady = 1;
+    goto iMCRDError_return;
   case 5:
-    tmp_int = 0x13;
-    break;
+    pCI->lasterror = 0x13;
+    gMemCardInfo.bReady = 1;
+    goto iMCRDError_return;
   case 6:
-    gmi = &gMemCardInfo;
-    if (gmi->ConfirmOverwriteProc() != 0) {
-      MemCardDeleteFile(gmi->channel,gmi->fileinfo.name);
-      gmi->task = WRITE_FILE;
+    if (gMemCardInfo.ConfirmOverwriteProc() != 0) {
+      MemCardDeleteFile(gMemCardInfo.channel,gMemCardInfo.fileinfo.name);
+      gMemCardInfo.task = WRITE_FILE;
       return 0x15;
     }
-    scratch_i = 0xe;
-iMCRDError_setLastError:
-    /* MATCH (w44, -12): `goto iMCRDError_return` NOT `return code` - retail has ONE
-     * return-value materialization (`addu $v0,$s4,$zero`) in the shared exit block,
-     * reached by `j` from here; an in-block `return code` emits a second copy AND
-     * pushes the lasterror/bReady stores off retail's $v0 onto $v1. */
-    pCI->lasterror = scratch_i;
-    gmi->bReady = 1;
+    pCI->lasterror = 0xe;
+    gMemCardInfo.bReady = 1;
     goto iMCRDError_return;
   case 7:
-    tmp_int = 0x14;
-    break;
+    pCI->lasterror = 0x14;
+    gMemCardInfo.bReady = 1;
+    goto iMCRDError_return;
   default:
-    tmp_int = 0x17;
+    pCI->lasterror = 0x17;
+    gMemCardInfo.bReady = 1;
   }
-  /* MATCH: LOOP-DEPTH REF DIAL #2 (zero-insn) - doubles the weight of this pCI ref so
-   * pCI reaches 8 weighted refs (2*8/79 = .2025) and outranks the loop sentinel
-   * (.1875) even when `numberoftries = 0` is written first (which shortens the
-   * sentinel's live range to 16).  Decouples the slot-pick from the $s1/$s2 rotation
-   * (removing it rotates $s1/$s2 through the whole fn: 34 diffs). */
-  do {
-    pCI->lasterror = tmp_int;
-    gMemCardInfo.bReady = 1;   /* MATCH: inside the wrapper - the LOOP barrier at the
-                                * edge would otherwise pin its address lui BELOW the
-                                * lasterror store (retail hoists it above, 2 diffs). */
-  } while (0);
+
 iMCRDError_return:
   return code;
 }
@@ -1468,19 +1163,27 @@ int iMCRD_DefaultCBProc1(void)
 /* lines 1900-2062: (static data / macros / comments - no emitted code) */
 
 /* ---- ascii2sjis  (memcard.c:2063, code lines 2063-2096) [static] ---- */
+/* 2026-10-12 SOURCE-REVIEW-UNRESOLVED: base/pk remain unsupported source
+   objects. Direct UINT index22dif/72; USHORT subtotal5dif/71 (retail's
+   guard widening disappears); sjis_code staging53/73; direct base-first
+   integer address15/73; widened base guard/direct array20/72. Explicit
+   byte masks and unsigned-positive guards did not fix the5/71 subtotal.
+   All failed bodies are reverted, with no const disguise, new qualifier,
+   dummy use, register dial or compiler-output rewrite.
+   Native C combine/lreg/greg receipts under scratch/rtl_a5/ascii2sjis_
+   {direct,capture}_20261012.* show capture insn132 zero-extends QI r84
+   into SI r109 before guard134; the near direct form deletes that extension
+   and guard134 reads a SI subreg of QI r84. This is a specific widening/
+   combine ownership question, not proof that either named capture existed.
+   Literal original text and full SLD remain open. */
 static short ascii2sjis(u_char ascii_code)
 
 {
-  /* SYM 8c block: sjis_code USHORT $3($v1), stmp UCHAR $3($v1), stmp2 UCHAR $5($a1).
-   * `base`/`pk` are compiler temps in retail (no SYM record) - kept as C locals only
-   * because the exact statement split is load-bearing (see the MATCH notes below). */
   u_short sjis_code;
   u_char stmp;
   u_char stmp2;
-  u_int base; /* SYM-CODEGEN-CARRIER: base -- required statement-split/index chain;
-                 the direct spellings are measured 4/14 diffs above */
-  u_short *pk; /* SYM-CODEGEN-CARRIER: pk -- earlier-born table-base quantity is
-                  required for retail's $v0/$v1 local allocation */
+  u_int base;
+  u_short *pk;
 
   stmp = 0;
   stmp2 = stmp;                 /* MATCH: oracle's addu a1,v1,zero = stmp2 inits from stmp's zero */
@@ -1517,23 +1220,6 @@ static short ascii2sjis(u_char ascii_code)
   /* MATCH: stmp2!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the
    * ascii_table arm; the inverted (stmp2==0 first) shape emits bnez. */
   if (stmp2 != 0) {
-    /* MATCH (block-15 local_alloc, -dl/-dg receipts): TWO ingredients, both needed.
-     * (a) the table base is materialized into its own pointer local BEFORE the
-     *     +0x1f computation.  local-alloc's qty_compare_1 sorts LONGER-LIVED first
-     *     and breaks ties by qty number (later-born wins); born first, pk's qty is
-     *     strictly longer, so it sorts ahead and takes the lower hard reg $v0,
-     *     leaving $v1 for the index chain = the oracle.  Materializing it AFTER the
-     *     +0x1f (or `ascii_k_table[...]` directly) ties the two qtys, the later-born
-     *     chain wins, and the whole 7-insn block comes out $v0<->$v1 swapped (14).
-     * (b) the load is an ARRAY INDEX off pk, so the addu gets a FRESH dest that
-     *     local-alloc's combine_regs unifies with the DYING index chain
-     *     (addu $v1,$v1,$v0; lhu $v1,0($v1) - dest reuses the address reg).
-     *     A pointer MUTATION `pk = pk + idx` makes pk itself the addu dest
-     *     (insn 152 `(set (reg/v 86) (plus (reg 114) ...))`) -> addu $v0,$v1,$v0
-     *     and lhu $v1,0($v0) instead (4 diffs).
-     * Falsified on the way: &-taken element, idx*2 + (int)base int-casts, compound
-     * +=, byte-base (char*) cast, index into sjis_code itself, hoisted idx local,
-     * volatile deref - each either stays at 4/14 or costs a 73rd insn. */
     pk = ascii_k_table;
     base = stmp2;
     base = base + 0x1f;

@@ -20,12 +20,12 @@ int play_movie(char movie);
 extern CdlFILE  fp;            /* 0x80052a34 */
 extern char    *movienames[5]; /* 0x800529d8 */
 extern short    movieframes[5];/* 0x800529ec */
-extern int      movie24bit[5]; /* 0x800529f8 */
+extern bool     movie24bit[5]; /* 0x800529f8; SYM ARY BOOL, 20 bytes */
 extern short    movieheight[5];/* 0x80052a0c */
 extern short    moviewidth[5]; /* 0x80052a18 */
 extern short    user_exit;     /* 0x80052a2c */
 extern char     skip_all;      /* 0x80052a2e */
 extern char     gPlayerNum;    /* 0x80052a2f */
-extern short    download[];    /* 0x80052a30 (unsized array: force base-reg materialization, not $at macro) */
+extern short    download;      /* 0x80052a30; SYM scalar SHORT */
 
 #endif

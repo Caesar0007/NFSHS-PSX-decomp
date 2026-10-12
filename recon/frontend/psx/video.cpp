@@ -31,6 +31,14 @@ extern int ticks_a[] asm("ticks");
 /* lines 1-61: file header, #includes, static data, macros (no symbols emitted) */
 
 /* ---- VIDEO_create  (video.cpp:62, code lines 62-102) ---- */
+/* 2026-10-11 source review: remove the unsupported MDEC binding wrapper;
+   retail has only the root region. The existing hzp timer-rate address
+   capture remains SOURCE-REVIEW-UNRESOLVED, even if debug elides its row.
+   On this corrected shape direct array/dereference reads give6dif/94,
+   scalar and sequenced-comma scalar reads4dif/94: retail uses v1 for the
+   address while those forms use v0/a0. These measured failures do not prove
+   a pointer object existed in original source. No replacement fence/pin,
+   qualifier, dummy use or post-compile rewrite is introduced. */
 int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
 
 {
@@ -54,19 +62,11 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   vid->streambuffer = (char *)reservememadr("streambuffer",streambuffersize,memtype);
   vid->videotap = (long)STREAM_create(2,2,2,vid->streambuffer,streambuffersize);
   STREAM_setfilter(vid->videotap,1,0xffff,0x4353,2);
-  {
-    extern int screenbpp[];
-    extern int timerhz[];
-    /* MATCH: reaching timerhz through a pointer local makes its address a plain
-       schedulable pseudo instead of an in-struct array MEM: retail materializes the
-       %hi in a SEPARATE scratch ($v1) and issues the load BEFORE the mdechandle
-       store, which still holds the call result in $v0.  A direct timerhz[0] read
-       sinks below the store and then self-temps into $a0. */
-    int *hzp /* SYM-CODEGEN-CARRIER: hzp -- the direct timerhz read sinks past the
-                mdechandle store and changes retail scheduling, as measured above */ = timerhz;
-    vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
-    vid->displaytimeincr = fixeddiv(fixedmult(*hzp << 0x10,0xa0000),fps);
-  }
+  extern int screenbpp[];
+  extern int timerhz[];
+  int *hzp = timerhz;
+  vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
+  vid->displaytimeincr = fixeddiv(fixedmult(*hzp << 0x10,0xa0000),fps);
   vid->state = VIDEOSTATE_IDLE;
   return (int)vid;
 }

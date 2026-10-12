@@ -4,10 +4,9 @@
  *   Field names : SYM-authentic MDECSTRUCT layout incl. nested RECT framerect/striprect.
  *   Linkage     : initmdec/restoremdec/mdec/mdecdone = extern "C" (unmangled in SYM);
  *                 mdecreset/MDECCompleteHandler = normal C++ (cfront-mangled in SYM).
- *   Locals      : SYM-EXACT -- the SYM's only named locals in this TU are `mdec`
+ *   Locals      : retail's only named locals in this TU are `mdec`
  *                 (initmdec/restoremdec/mdec/MDECCompleteHandler) and `timeout` (mdec).
- *                 initmdec additionally keeps four NON-SYM codegen carriers
- *                 (area/stripsize/stride/bufsize), each with a measured cost below;
+ *                 initmdec's stripsize source capture remains unresolved;
  *                 every other Ghidra temp (buf/hs/mode/drawsync/nextx) was folded away.
  *                 Magic 0x4345444d='MDEC'.
  */
@@ -30,22 +29,22 @@ static inline int FE_Ticks(void) { return ticks; }
 /* lines 1-91: file header, #includes, static data (DECDCTTAB), macros (no symbols) */
 
 /* ---- initmdec  (mdec.cpp:92, code lines 92-145) ---- */
+/* 2026-10-12: ordinary signed /256 replaces area plus its explicit sign
+   bias; ordinary /16 and frame-width-before-height source order remove stride.
+   Repeated bpp*0x1e0+stripsize call arguments then remove bufsize,101/101
+   PASS with all five native local/parameter tuples and the root region exact.
+   SOURCE-REVIEW-UNRESOLVED: stripsize is still a source-only capture, not
+   certified original by debug elision. Fully expanding both size arguments,
+   including nested allocation/clear, is119dif/104; restore the measured best.
+   Direct stride division after height was7dif/102; correcting statement order
+   makes it101 PASS. No added asm, qualifier, dummy use, alias or output rewrite.
+   Old independent carrier-necessity claims applied to a different source
+   shape; original spelling/full SLD remain unsealed. */
 int initmdec(int width,int height,int bpp,int memtype)
 
 {
-  /* SYM 8c records exactly ONE local here: mdec (REG $18, MDECSTRUCT*).  It is
-     declared first, per SYM order; the four below have NO SYM record and are
-     kept only as measured codegen carriers (w86-S5 re-ordering, gate unchanged). */
   struct MDECSTRUCT *mdec;
-  int area; /* SYM-CODEGEN-CARRIER: area -- folding it into stripsize is measured
-               FAIL 22 at the same 101-instruction count */
-  int stripsize; /* SYM-CODEGEN-CARRIER: stripsize -- folding into bufsize is
-                    measured FAIL 6 (101/101) from chain scheduling alone */
-  /* strip buffer is assigned directly; SYM records no `buf` local. */
-  int stride; /* SYM-CODEGEN-CARRIER: stride -- reusing area rotates both divide
-                 chains and is measured FAIL 16 at the same 101-instruction count */
-  int bufsize; /* SYM-CODEGEN-CARRIER: bufsize -- reusing stripsize is count-exact
-                    but forces the RMW operand order and is measured FAIL 2 */
+  int stripsize;
 
   mdec = (struct MDECSTRUCT *)reservememadr("MDECstruct",0x2c,memtype);
   blockclear(mdec,0x2c);
@@ -54,33 +53,19 @@ int initmdec(int width,int height,int bpp,int memtype)
     DecDCTReset(0);
     DecDCToutCallback(MDECCompleteHandler);
   }
-  area = ((width + 0xfU) & 0xfffffff0) * ((height + 0xfU) & 0xfffffff0);
   mdec->width = width;
   mdec->height = height;
   mdec->bpp = bpp;
-  if (area < 0) {
-    area = area + 0xff;
-  }
-  /* MATCH: the strip-buffer term is its OWN statement (lower luid) so sched1 issues the
-     area chain before the bpp chain, while the sum keeps `bpp*0x1e0` as addu operand 1.
-     A one-expression form gets the two independent chains in the opposite order; folding
-     the term back into `area`/`bufsize` makes the add an in-place RMW (addu s0,s0,s1). */
-  stripsize = (area >> 8) * 0x300;
-  bufsize = bpp * 0x1e0 + stripsize;
-  mdec->stripbuf = (u_long *)reservememadr("MDEC buffers",bufsize,memtype);
-  /* assignment performed at allocation */
-  blockclear(mdec->stripbuf,bufsize);
-  stride = width * bpp;
+  stripsize = ((int)(((width + 0xfU) & 0xfffffff0) * ((height + 0xfU) & 0xfffffff0)) / 256) * 0x300;
+  mdec->stripbuf = (u_long *)reservememadr("MDEC buffers",bpp * 0x1e0 + stripsize,memtype);
+  blockclear(mdec->stripbuf,bpp * 0x1e0 + stripsize);
   mdec->striprect.w = (short)bpp;
   mdec->vlcbuf = (u_long *)((int)mdec->stripbuf + bpp * 0x1e0);
-  if (stride < 0) {
-    stride = stride + 0xf;
-  }
+  mdec->framerect.w = (short)((width * bpp) / 16);
   mdec->framerect.h = (short)height;
   /* MATCH: no `hs` local in the SYM -- retail narrows `height` IN PLACE, so the
      sign-extended value lands back in height's own register (oracle $s3). */
   height = (short)height;
-  mdec->framerect.w = (short)(stride >> 4);
   mdec->striprect.h = (short)height;
   mdec->striprectsize =
        ((int)mdec->striprect.w * height) / 2;

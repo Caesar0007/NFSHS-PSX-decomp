@@ -9,20 +9,10 @@
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
-/* SOURCE-REVIEW-UNRESOLVED: raw/vraw/vb below are reconstruction-only objects.
+/* SOURCE-REVIEW-UNRESOLVED: vraw/vb below are reconstruction-only objects.
  * Macro expansion does not exempt them from native SYM or original-source review.
  * Existing failed direct-expression trials are not proof those objects existed;
  * the remaining caller records and literal original macro spelling stay open. */
-#define PSXFRONT_FADE_ABS(dst,value) { \
-  int raw;                              \
-  raw = (value);                        \
-  (dst) = raw;                          \
-  if (raw * 0x10000 < 0) {              \
-    (dst) = -raw;                       \
-  }                                     \
-  (dst) = (dst) << 1;                   \
-}
-
 #define PSXFRONT_INIT_V(shp,flags,v) {       \
   int vraw;                                  \
   vraw = (byte)(shp)->shapey;                \
@@ -101,19 +91,20 @@ void PSXFront_FreeDrawMemory(void)
 /* lines 160-162: (static data / macros / comments - no emitted code) */
 
 /* ---- InitializeSpinningCars  (psxfront.cpp:163, code lines 163-224) ---- */
+/* 2026-10-12 SOURCE-REVIEW-UNRESOLVED: the for-scoped counter and explicit
+   exit reproduce95/95 and i INT:s1 depth2, adding the real +84..+90
+   declaring region missing from the old while/block shape. There are now
+   three regions versus retail's four; one enclosing owner is still missing.
+   carObj remains an unsupported source capture, now local to each iteration;
+   direct gCarObj reads still give51dif at102/95. The exit label is an
+   inferred source spelling, not a recovered retail identifier.
+   For-header increments/ordinary breaks rotate the loop (5dif/94); a
+   positive init guard is95 PASS but moves i to depth3. Failed variants are
+   reverted, not source floors. Original producer/full SLD remain open. */
 void InitializeSpinningCars(void)
 
 {
-  /* SYM: the ONLY local is `i` (INT).  carData_walk/obj_walk were fabricated -- retail indexes
-   * GameSetup_gData.carInfo[i] / gCarObj[i] and loop.c strength-reduces both into givs ($s2 stride
-   * 0xB4, $s3 stride 4).  Loop is TOP-tested with a `j` back-edge, not gcc's rotated do-while. */
-  /* Retail i belongs to the initialization/instantiation phase at depth2,
-   * closing before PostStartUp. The absent nested test regions remain open. */
   if (rendering3DEnvironmentInitialized != '\0') return;
-  {
-    int i;
-    Car_tObj *carObj; /* SOURCE-REVIEW-UNRESOLVED: direct gCarObj[i] still
-                         adds pointer reloads (51dif/102 after region restoration). */
 
     R3DCar_InMenu[0] = 1;
     Platform_ResetDCTBuffer();
@@ -125,9 +116,9 @@ void InitializeSpinningCars(void)
     DrawC_ReadeMapData();
     Fe3D_InitShowroom();
     GameSetup_gData.Weather = 0;
-    i = 0;
-    while (1) {
-      if (2 <= i) break;
+    for (int i = 0; ; ) {
+      Car_tObj *carObj;
+      if (2 <= i) goto spinning_cars_initialized;
       carObj = (Car_tObj *)reservememadr("carObj",0x8dc,0);
       gCarObj[i] = carObj;
       blockclear(carObj,0x8dc);
@@ -139,7 +130,7 @@ void InitializeSpinningCars(void)
       carObj->N.active = '\x01';
       i = i + 1;
     }
-  }
+spinning_cars_initialized:
     R3DCar_PostStartUp();
     gMenuRotate[1] = 0;
     gMenuRotate[0] = 0;
@@ -224,11 +215,15 @@ void CleanupSpinningCarsMenu(void)
 /* lines 300-303: (static data / macros / comments - no emitted code) */
 
 /* ---- DoTitleScreen  (psxfront.cpp:304, code lines 304-356) ---- */
+/* 2026-10-12: the failed-load guard belongs AFTER the artfilename load-only
+   region, not inside it. Moving that guard preserves64/64 PASS and complete
+   TU bytes/layout while reproducing all three ordered local records and
+   the three retail declaring regions (two nested ends collapse to +28).
+   Existing-file and failed-load behavior and linked branch words are
+   unchanged. Native exactness is not a full SLD/original-syntax certificate. */
 void DoTitleScreen(void)
 
 {
-  /* decl order = SYM Def-record order (tempShp2, fileName); `artfilename` is a
-     NESTED-block local (SYM `90 Block start line = 9`) -- w86-S5 */
   shapetbl *tempShp2;
   char fileName [48];
 
@@ -240,9 +235,9 @@ void DoTitleScreen(void)
     sprintf(fileName,STR_FRMT,Paths_Paths[0x20],artfilename);
     creditShapeFile = (char *)loadshapeadr(fileName,(void *)0x0);
     systemtask(0);
-    if (creditShapeFile == (char *)0x0) {
-      return;
-    }
+  }
+  if (creditShapeFile == (char *)0x0) {
+    return;
   }
   tempShp2 = (shapetbl *)locateshapez(creditShapeFile,(void *)"back");
   Quick_DD(1,0,1);
@@ -380,18 +375,20 @@ void Init_PSX_FrontEnd(void)
 /* lines 784-838: (static data / macros / comments - no emitted code) */
 
 /* ---- AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended  (psxfront.cpp:839, code lines 839-922) ---- */
+/* 2026-10-12: assign each distance to its recorded short fade value before
+   testing/negating, then unsigned-shift the doubled value. This removes both
+   raw objects and their macro binding regions with203/203 PASS. Retail's
+   bit15 test and low16-bit result do not require a separate named INT source
+   value: the old in-body necessity claim was false on this source shape.
+   All15 ordered local/type/home/depth records and eight regions are exact.
+   Builtin short abs was44dif/203, reusing ftop/fbot as INT distance stages
+   70/203, multiply-by-two14/205. Failed forms are reverted, not floors.
+   Unsigned shifts retain the low-bit arithmetic without negative-left-shift
+   undefined behavior. Original full syntax/SLD still needs source review. */
 static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,int bright,int *color,
                tDrawShapeExtended *extra)
 
 {
-  /* SYM 8c block lists exactly FIVE locals: fadetop/fadebottom (SHORT), i (SHORT),
-   * fbot/ftop (INT) -- plus the REG copies of the stack params bright/color/extra.
-   * The former recon carried 9 fabricated temps (adjY/cHi/cMid/cLo/cB/cG/fadeC1/fadeC2/shpAddr).
-   * 🔴 `shpAddr` was NEVER ASSIGNED and every shape-field read went through it (wild reads); the
-   * oracle's `addu $t0,$a0,$zero` is the tShp REGPARM copy -- all 0x1N($t0) reads are tShp fields. */
-  /* SYM BLOCK STRUCTURE (90/92 records): fadetop($a3)/fadebottom($a0) at function block start;
-   * `i`($t0) declared in the block at 0x8004E0CC (the 0x80 arm); fbot($v0)/ftop($a1) declared in
-   * the block at 0x8004E178 (the 0x40 arm).  Block-local scope is the allocno-CLASS lever (w41 §A). */
   short fadetop;
   short fadebottom;
 
@@ -429,16 +426,16 @@ static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags
   else if ((*flags & 0x40U) != 0) {
     int fbot;
     int ftop;
-    /* the abs runs on the INT (ftop/fbot); only the DOUBLED value lands in the short fade var --
-     * that is why the oracle's `sll v0,a3,1` carries no sign-extension of the source (w42-a7). */
-    PSXFRONT_FADE_ABS
-      (fadetop,((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1);
+    fadetop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
+    if (fadetop < 0) fadetop = -fadetop;
+    fadetop = (uint)fadetop << 1;
     if (0x80 < fadetop) {
       fadetop = 0x80;
     }
-    PSXFRONT_FADE_ABS
-      (fadebottom,((uint)(ushort)extra->flip_axis -
-                   ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1);
+    fadebottom = ((uint)(ushort)extra->flip_axis -
+                   ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
+    if (fadebottom < 0) fadebottom = -fadebottom;
+    fadebottom = (uint)fadebottom << 1;
     if (0x80 < fadebottom) {
       fadebottom = 0x80;
     }
@@ -1009,6 +1006,16 @@ static void DrawFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *col
 /* lines 995-1059: (static data / macros / comments - no emitted code) */
 
 /* ---- DrawShapeExtended  (psxfront.cpp:1060, code lines 1060-1084) ---- */
+/* 2026-10-12 brightness SOURCE-REVIEW-UNRESOLVED: direct short and direct
+   multiply/shift arguments both give32dif/65; fade parameter reuse27/64;
+   duplicate branch calls68/77; first-argument shape-selection32/65.
+   Native compiler RTL shows capture r88=t1 created before the custom-shape
+   branch (insn64), while the direct form creates its subtraction in v0
+   after that branch (insn91), freeing index to coalesce with incoming a0.
+   Traces: scratch/rtl/psxfront_bright_{direct,capture}_20261012.greg/lreg.
+   These are measured pipeline observations, not proof of an original named
+   capture or a source floor. Restore PASS; next angle is source evaluation
+   order/anonymous quantity lifetime, without const disguises or fake uses. */
 void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawShapeExtended *extra)
 
 {
@@ -1018,7 +1025,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
    * arm), with flags&8 as the FALL-THROUGH side. w42-a7. */
   tTexture_ShapeInfo *tShp;
   int color [4];
-  int bright; /* SOURCE-REVIEW-UNRESOLVED: anonymous conversion changes allocation. */
+  int bright; /* SOURCE-REVIEW-UNRESOLVED: unnamed retail brightness producer. */
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes + index;
@@ -1145,6 +1152,13 @@ static void ScaleFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int sca
 /* lines 1147-1204: (static data / macros / comments - no emitted code) */
 
 /* ---- ScaleShapeExtended  (psxfront.cpp:1205, code lines 1205-1230) ---- */
+/* 2026-10-12 brightness SOURCE-REVIEW-UNRESOLVED: same direct-argument
+   lifetime change as DrawShapeExtended,32dif/75; parameter reuse25/74;
+   duplicate calls82/87; first-argument selection32/75. Capture r90=t0
+   is born at insn72, direct subtraction at99. It loses one global allocno
+   (9 to8) and lets index use a0 instead of retail t1. Saved normal-compiler
+   greg/lreg/sched receipts accompany the draw twin. Failed forms reverted;
+   absence from SYM still requires original source producer recovery. */
 void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawShapeExtended *extra)
 
 {
@@ -1156,7 +1170,7 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
   int scaley = 0x10000;
   tTexture_ShapeInfo *tShp;
   int color [4];
-  int bright; /* SOURCE-REVIEW-UNRESOLVED: anonymous conversion changes allocation. */
+  int bright; /* SOURCE-REVIEW-UNRESOLVED: unnamed retail brightness producer. */
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes + index;

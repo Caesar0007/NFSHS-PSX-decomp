@@ -3,30 +3,24 @@
  *   2 functions; LoadPmx is a thin wrapper over LoadPmxAtOffset(f,index,dest,0,0).
  *   dest is tTexture_ShapeInfo*; the type:8 / next:24 bitfields appear as field_0x9 /
  *   *(uint*)&field_0xc in the decompiler -> mapped to the named bitfields here.
- *   Most locals carry the project's earlier deep-inspection names; remaining iVar/uVar
- *   are decompiler scratch temps. C++ linkage (mangled in SYM, not extern "C").
+ *   Local names/types/homes and regions agree with retail SYM. Full original
+ *   expression spelling and SLD attribution remain unsealed. C++ linkage.
  */
 #include "fetexture.h"
 #include "fetexture_externs.h"
 
-/* lines 1-22: file header, #includes, static data, macros (no symbols emitted) */
-
 /* ---- FETexture_LoadPmxAtOffset  (fetexture.cpp:23, code lines 23-115) ---- */
+/* 2026-10-11: oldptr/newptr belong to the CLUT relocation after unpack,
+   not the source/destination buffers passed to unpack. Retail records both
+   in v0; raw +a8..+c0 loads the old header offset, adds shpptr, subtracts
+   unpacked, then inserts the relocated offset. Direct unpack arguments plus
+   these actual value chains retain174/174 PASS and restore all15 ordered
+   local/type/home/depth tuples and five regions. Wrapper remains9/9 PASS.
+   Whole-TU native check run-8hvanqzg has unchanged bytes/layout and2/2 CLEAN.
+   Full SLD and literal original spelling are not certified by native CLEAN. */
 void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yoffset,int xoffset)
 
 {
-  /* SYM 8c: fsize 88, mask $807f0000 (ra,s6..s0).  REGPARM f($a0) index($a1)
-   * dest($s3) yoffset($s5); ARG xoffset @+0x10 copied to REG $s6.  Locals are
-   * EXACTLY: shpptr(shapetbl* $s2) old_shape(shapetbl AUTO -0x40 = sp+0x18)
-   * bpp(int $a0) xclut(AUTO sp+0x30) yclut(AUTO sp+0x34) unpacked(shapetbl* $s1)
-   * + block-scoped is_compressed(char $s4) and oldptr(char*)/newptr(int).
-   * Ghidra's savedHdr0..4 are ONE `shapetbl old_shape` struct copy (the oracle's
-   * 4-word + 1-word movstrsi block, save AND restore); ts1[20]/ts2..ts5/tc6/
-   * loc_48/shapeData/decompBuf/clutmode/hdrflags/uploadResult were fictions.
-   * Declaration ORDER below = the SYM Def-record order (w86-S5; the user's own
-   * closed game/psx series proves SYM record order == source decl order --
-   * cf. Device_Analog min/max/v, CarIO_CopyFromShape columns/mask/*Mask).
-   * Was emitted reversed here; re-ordered, gate unchanged at 2/2 PASS. */
   shapetbl *shpptr;
   shapetbl old_shape;
   int bpp;
@@ -45,15 +39,14 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
       char *oldptr;
       int newptr;
 
-      oldptr = (char *)shpptr + 0x10;
-      unpacked = (shapetbl *)reservememadr("unpacked",unpacksize(oldptr) + 0x10,0);
+      unpacked = (shapetbl *)reservememadr("unpacked",unpacksize((char *)shpptr + 0x10) + 0x10,0);
       blockmove(shpptr,unpacked,0x10);
-      newptr = (int)unpacked + 0x10;
-      unpack(oldptr,(void *)newptr);
+      unpack((char *)shpptr + 0x10,(void *)((int)unpacked + 0x10));
       *(char *)unpacked = *(char *)unpacked & 0x7f;
+      oldptr = (char *)shpptr + (*(int *)shpptr >> 8);
+      newptr = (int)oldptr - (int)unpacked;
       *(u_int *)unpacked =
-           (u_int)*(u_char *)unpacked |
-           ((int)shpptr + (*(int *)shpptr >> 8) - (int)unpacked) * 0x100;
+           (u_int)*(u_char *)unpacked | newptr * 0x100;
     }
     else {
       unpacked = shpptr;
@@ -87,8 +80,6 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
   }
   return;
 }
-
-/* lines 116-124: (static data / macros / comments - no emitted code) */
 
 /* ---- FETexture_LoadPmx  (fetexture.cpp:125, code lines 125-126) ---- */
 void FETexture_LoadPmx(char *f,int index,tTexture_ShapeInfo *dest)

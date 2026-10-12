@@ -149,6 +149,31 @@ def base_section(s):
 COMM_RE = re.compile(rb'\.(l?comm)\s+(\S+?)\s*,\s*(\d+)')
 
 
+def aspsx_output_ok(result, obj):
+    """Require a fresh SN object; distinguish a measured warning-only exit.
+
+    ASPSX 2.77 returns 2 for its AT/noat warnings despite producing a valid
+    LNK2 object. Accept ONLY that known warning, never a crash/error/unknown
+    warning or missing/empty/non-SN output. Full linking still validates the
+    object's records. Receipt/backup: build/nc12/, 2026-10-12.
+    """
+    if not obj.is_file() or obj.stat().st_size < 4:
+        return False
+    with obj.open('rb') as stream:
+        if stream.read(4) != b'LNK\x02':
+            return False
+    if result.returncode == 0:
+        return True
+    if result.returncode != 2:
+        return False
+    output = result.stdout + result.stderr
+    known = 'Use of AT register without noat set'
+    if known not in output or re.search(r'\b(?:error|fatal|exception)\b|memory could not|instruction at', output, re.I):
+        return False
+    return all(known in line for line in output.splitlines()
+               if re.search(r'\bwarning\b', line, re.I))
+
+
 def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
     out = []
     lines = src.read_bytes().replace(b'\r\n', b'\n').split(b'\n')
@@ -293,7 +318,7 @@ def objname(rel):
 
 
 if '--assemble' in steps:
-    ok = bad = 0; fails = []
+    ok = bad = 0; fails = []; warnings = []
     rows = honest_sections(); FRONT = front_objects(rows); HONEST_OBJS = {o for _, _, _, o in rows}
     PADS = retail_pads(rows) if '--no-pads' not in sys.argv and not OFFICIAL else {}
     (WOUT / 'pad8.json').write_text(json.dumps({o: p for o, p in PADS.items()}, indent=0))
@@ -311,8 +336,11 @@ if '--assemble' in steps:
             continue
         rel = s.relative_to(ROOT).as_posix()
         if ONLY and not any(f in rel for f in ONLY):
-            if (OUT / objname(rel)).is_file():
+            cached_obj = OUT / objname(rel)
+            if cached_obj.is_file() and cached_obj.stat().st_size > 0:
                 ok += 1
+            elif cached_obj.is_file():
+                bad += 1; fails.append((rel, ['Cached ASPSX object is empty']))
             continue
         g = str(build.per_tu_flags(s.resolve()).get('g_value', build.G_VALUE))
         bo = 'build/' + rel + '.o'
@@ -331,10 +359,19 @@ if '--assemble' in steps:
         if obj.exists():
             obj.unlink()
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=str(ROOT))
-        if obj.is_file():
+        # ASPSX 2.77 can crash after creating an empty .obj (native COMMON
+        # probe, 2026-10-12). Existence alone must never count as assembly
+        # success. Backup: build/diagnostics/nativecommon_full_20261012/
+        # psylink_lane_before_nonempty_guard.py; no output rewriting here.
+        if aspsx_output_ok(r, obj):
             ok += 1
+            if r.returncode:
+                warnings.append((rel, (r.stdout + r.stderr).strip().splitlines()))
         else:
-            bad += 1; fails.append((rel, (r.stdout + r.stderr).strip().splitlines()[:2]))
+            detail = (r.stdout + r.stderr).strip().splitlines()[:2]
+            if not detail:
+                detail = ['ASPSX rc=%d; missing or empty fresh object' % r.returncode]
+            bad += 1; fails.append((rel, detail))
     # bigbuf.obj / address.obj are real TUs now (recon/frontend/psx/bigbuf.c = 282000-byte reservation, address.c = the two
     # overlay boundary words); drop the placeholders an earlier run left behind.
     for n in ('bigbuf.obj', 'address.obj'):
@@ -344,6 +381,11 @@ if '--assemble' in steps:
     if not ONLY:                       # a per-file run sees only its own files
         (OUT / 'front_objs.json').write_text(json.dumps(FRONT_LIST, indent=0))
     (WOUT / 'assemble_fails.json').write_text(json.dumps(fails, indent=0))
+    (WOUT / 'assemble_warnings.json').write_text(json.dumps(warnings, indent=0))
+    if warnings:
+        print('ASPSX warning-only outputs: %d (recorded in assemble_warnings.json)' % len(warnings))
+    if bad:
+        sys.exit(1)                 # do not link or compare failed/empty objects
 
 
 def build_link_order():

@@ -10,8 +10,14 @@
 extern short    user_exit;
 extern char     skip_all;
 extern char     gPlayerNum;
-extern short    download[];
+extern short    download;
 #include "movie.h"
+
+/* Canonical PsyQ4.3 LIBGPU.H104-105 rectangle initializer. */
+#ifndef setRECT
+#define setRECT(r,_x,_y,_w,_h) \
+  (r)->x = (_x), (r)->y = (_y), (r)->w = (_w), (r)->h = (_h)
+#endif
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80012748): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
@@ -21,7 +27,7 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
  * the five initialized tables first, then the two zero statics, then the deferred run) ---- */
 char  *movienames[5]  = { "NFS4TITL.XA", "DEMO1AV.XA", "DEMO2AV.XA", "DEMO3AV.XA", "EADOLBY.XA" };
 short  movieframes[5] = { 1358, 456, 444, 480, 120 };
-int    movie24bit[5]  = { 1, 1, 1, 1, 1 };
+bool   movie24bit[5]  = { 1, 1, 1, 1, 1 }; /* SYM EXT ARY BOOL, 20 bytes */
 short  movieheight[5] = { 240, 240, 240, 240, 240 };
 short  moviewidth[5]  = { 640, 640, 640, 640, 640 };
 
@@ -33,7 +39,7 @@ static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFun
 static void strCallback(void);
 static int strNextVlc(DECENV *dec);
 static u_long *strNext(DECENV *dec);
-static void strSync(DECENV *dec,int mode);
+static void strSync(DECENV *dec,int);
 static void strKickCD(CdlLOC *loc);
 
 /* ---- Movie.obj STAT (file-local) globals ---- */
@@ -42,28 +48,28 @@ static void strKickCD(CdlLOC *loc);
  * attribute (catalog §I-addendum; the -G4 default would put every <=4-byte scalar in sbss). */
 /* Retail keeps these two in front.DATA (0x80052a24 width = 0, 0x80052a28
  * height = 0): initialized (zero) statics, emitted here in .data (-G0 TU). */
-static int     width_d asm("width") __attribute__((section(".data"))) = 0;     /* 0x80052a24 */
-static int     height_d asm("height") __attribute__((section(".data"))) = 0;   /* 0x80052a28 */
+static int     width __attribute__((section(".data"))) = 0;     /* 0x80052a24; SYM STAT INT */
+static int     height __attribute__((section(".data"))) = 0;   /* 0x80052a28; SYM STAT INT */
 /* deferred (zero) EXT run, in the pinned declaration order */
 short    user_exit;      /* 0x80052a2c */
 char     skip_all;       /* 0x80052a2e */
 char     gPlayerNum;     /* 0x80052a2f */
-short    download[1];    /* 0x80052a30 */
+short    download;       /* 0x80052a30; SYM EXT SHORT, scalar */
 CdlFILE  fp;             /* 0x80052a34 */
-static CdlLOC  loc_d asm("loc") __attribute__((section(".bss")));   /* 0x80052cf8 */
+static CdlLOC  loc __attribute__((section(".bss")));   /* 0x80052cf8 */
 extern CdlLOC  loc_v[] asm("loc");   /* unsized view: forces base materialization */
 extern int     StCdIntrFlag_v[] asm("StCdIntrFlag");
 extern short   user_exit_v[] asm("user_exit");
 #define user_exit user_exit_v[0]  /* unsized view (see MATCH note below) */
 #define StCdIntrFlag StCdIntrFlag_v[0]
-static short     PPWTop_d asm("PPWTop") __attribute__((section(".bss")));    /* 0x80052cfc */
-static short     PPWBottom_d asm("PPWBottom") __attribute__((section(".bss"))); /* 0x80052cfe */
-static short     gMode_d asm("gMode") __attribute__((section(".bss")));     /* 0x80052d00 */
-static bool    gIsRGB24_d asm("gIsRGB24") __attribute__((section(".bss")));  /* 0x80052d04; SYM BOOL.  Accesses use the int-shaped unsized carrier below. */
-static short     gMovieHeight_d asm("gMovieHeight") __attribute__((section(".bss")));/* 0x80052d08 */
-static short     gMovieWidth_d asm("gMovieWidth") __attribute__((section(".bss")));/* 0x80052d0a */
-static u_long  gMovieFrame_d asm("gMovieFrame") __attribute__((section(".bss")));/* 0x80052d0c */
-static u_long  gEndFrame_d asm("gEndFrame") __attribute__((section(".bss")));  /* 0x80052d10 */
+static short     PPWTop __attribute__((section(".bss")));    /* 0x80052cfc; SYM STAT SHORT */
+static short     PPWBottom __attribute__((section(".bss"))); /* 0x80052cfe; SYM STAT SHORT */
+static short     gMode __attribute__((section(".bss")));     /* 0x80052d00 */
+static bool    gIsRGB24 __attribute__((section(".bss")));  /* 0x80052d04; SYM BOOL.  Accesses use the int-shaped unsized carrier below. */
+static short     gMovieHeight __attribute__((section(".bss"))); /* 0x80052d08; SYM STAT SHORT */
+static short     gMovieWidth __attribute__((section(".bss")));/* 0x80052d0a */
+static u_long  gMovieFrame __attribute__((section(".bss")));/* 0x80052d0c */
+static u_long  gEndFrame __attribute__((section(".bss")));  /* 0x80052d10 */
 extern int width_v[] asm("width");
 #define gWidth width_v[0]
 extern int height_v[] asm("height");
@@ -91,10 +97,10 @@ extern u_long  gEndFrame_v[]   asm("gEndFrame");
  * what retail's aspsx build shows everywhere in this TU.  (catalog E/§3.12 #5.)
  * MATCH: four INDEPENDENT statics -- the oracle gives each its own %hi/%lo pair
  * (D_80052D14/18/1C/20); an array made gcc hoist one base + use displacements. */
-static bool    bMovieLoaded_d asm("bMovieLoaded") __attribute__((section(".bss"))); /* 0x80052d14; SYM BOOL */
-static bool    bStopMovie_d   asm("bStopMovie") __attribute__((section(".bss")));   /* 0x80052d18; SYM BOOL */
-static int     bRewindMovie_d asm("bRewindMovie") __attribute__((section(".bss"))); /* 0x80052d1c */
-static int     isFirstSlice_d asm("isFirstSlice") __attribute__((section(".bss"))); /* 0x80052d20 */
+static bool    bMovieLoaded __attribute__((section(".bss"))); /* 0x80052d14; SYM BOOL */
+static bool    bStopMovie __attribute__((section(".bss")));   /* 0x80052d18; SYM BOOL */
+static int     bRewindMovie __attribute__((section(".bss"))); /* 0x80052d1c */
+static int     isFirstSlice __attribute__((section(".bss"))); /* 0x80052d20 */
 /* MATCH: unsized-array views onto the same four symbols -- the scalar form emits the
  * `sw $r,sym` ASSEMBLER MACRO ($at), the unsized-array form emits gcc's own lui+sw. */
 extern int     bMovieLoaded_v[] asm("bMovieLoaded");
@@ -110,10 +116,10 @@ extern int     isFirstSlice_v[] asm("isFirstSlice");
  * deferred end-of-file .lcomm and land after sect_buff); 8-aligned like the
  * retail .lcomm placement (0x80052d24 pad, 0x80052d28 dec). */
 static DECENV  dec __attribute__((section(".bss"), aligned(8)));   /* 0x80052d28 */
-static u_long  *vlcbuf0_d asm("vlcbuf0") __attribute__((section(".bss")));   /* 0x80052d58 (.bss=absolute, not .sbss) */
-static u_long  *vlcbuf1_d asm("vlcbuf1") __attribute__((section(".bss")));   /* 0x80052d5c */
-static u_short *imgbuf_d asm("imgbuf") __attribute__((section(".bss")));   /* 0x80052d60 */
-static u_long  *sect_buff_d asm("sect_buff") __attribute__((section(".bss")));   /* 0x80052d64 */
+static u_long  *vlcbuf0 __attribute__((section(".bss")));   /* 0x80052d58; SYM STAT PTR ULONG */
+static u_long  *vlcbuf1 __attribute__((section(".bss")));   /* 0x80052d5c; SYM STAT PTR ULONG */
+static u_short *imgbuf __attribute__((section(".bss")));   /* 0x80052d60; SYM STAT PTR USHORT */
+static u_long  *sect_buff __attribute__((section(".bss")));   /* 0x80052d64 */
 
 /* MATCH: unsized-array VIEWS onto the same storage (asm-label aliases).  Reading the
  * scalar form folds the %hi into the dest arg reg (self-temp `lui a0; lw a0,0(a0)`);
@@ -150,7 +156,7 @@ void Movie_Init(char movie)
   gEndFrame = 0;
   bMovieLoaded = 0;
   settrans(0);
-  download[0] = 0;
+  download = 0;
   vlcbuf0 = (u_long *)reservememadr("vlcbuf0",0x28000,0x10);
   vlcbuf1 = (u_long *)reservememadr("vlcbuf1",0x28000,0x10);
   imgbuf_v[0] = (u_short *)reservememadr
@@ -198,6 +204,7 @@ void Movie_DeInit(void)
 /* lines 201-205: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_SetDecodeOffset  (movie.cpp:206, code lines 206-212) ---- */
+#undef gMovieHeight
 void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
 
 {
@@ -207,7 +214,7 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   /* pointer-arithmetic element access, no RECT* temps (the SYM has none) */
 
   /* MATCH: PER-SITE storage view -- read gMovieHeight through the SCALAR static
-   * (`_d`), not the unsized `_v[]` view.  The view's split %hi/%lo lowering is
+   * (real STAT owner), not the unsized `_v[]` view.  The view's split %hi/%lo lowering is
    * schedulable and cc1 sinks the load past the `addiu s0,a0,8`; the scalar
    * macro form is unschedulable and issues where retail has it.  (Same symbol
    * uses the view form in strNext/Movie_Init -- both spellings are correct,
@@ -216,8 +223,8 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   dec.rect->y = y0;
   (dec.rect + 1)->x = x1;
   (dec.rect + 1)->y = y1;
-  dec.rect->h = gMovieHeight_d;
-  (dec.rect + 1)->h = gMovieHeight_d;
+  dec.rect->h = gMovieHeight;
+  (dec.rect + 1)->h = gMovieHeight;
   dec.rect->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
   (dec.rect + 1)->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
   ClearImage(dec.rect,'\0','\0','\0');
@@ -225,6 +232,7 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   DrawSync(0);
   return;
 }
+#define gMovieHeight gMovieHeight_v[0]
 
 /* lines 213-217: (static data / macros / comments - no emitted code) */
 
@@ -238,7 +246,7 @@ void Movie_Load(char movie)
   bMovieLoaded = 0;
   bRewindMovie = 0;
   bStopMovie = 0;
-  download[0] = 0;
+  download = 0;
   isFirstSlice = 1;
   ResetCallback();
   sprintf(gFEFileName,"\\MOVIES\\%s;1",movienames[(u_char)movie]);
@@ -274,30 +282,18 @@ void Movie_Load(char movie)
 /* lines 283-286: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_NextFrame  (movie.cpp:287, code lines 287-299) ---- */
+/* 2026-10-12 MATCH77/77: final signed /2 recovers retail's32-byte frame
+   without deadfrm[2] or a dummy use. The low-word numerator is divisible
+   by16; signed halving and arithmetic >>1 agree. No source local remains,
+   and full native records/root agree. Keep ratio/count operations intact;
+   instruction order is not source order. Full SLD/literal text remain open. */
 int Movie_NextFrame(void)
 
 {
-  /* MATCH: SYM says fsize=32 with mask s0+ra and NO named locals -- the oracle's frame
-   * carries 8 bytes of never-referenced slack that our expression shape does not
-   * allocate; a dead 2-word local restores the exact frame + sp displacements. */
-  int deadfrm[2]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
-                     carrier changes the SYM-proven 32-byte frame and stack offsets */
-  /* MATCH: the oracle parks &dec in a callee-saved register (addiu s0,v0,%lo) and
-   * reaches every field by displacement -- a real pointer local reproduces it. */
-  (void)deadfrm;
-
   DecDCTin(dec.vlcbuf[dec.vlcid],(int)gMode);
   DecDCTinSync(1);
-  /* MATCH: the `h-1; if(<0) h+14; >>4` sequence Ghidra shows is gcc's own signed /16
-   * guard -- it is a plain `(h - 1) / 16`, not a hand-written clamp, and writing it
-   * that way puts the slice.h load where the oracle has it (after the 2nd divide). */
-  DecDCTout
-            ((u_long *)dec.imgbuf,
-             ((((dec.slice.w + -1) / (((int)PPWTop << 4) / (int)PPWBottom) + 1) *
-               (((int)PPWTop << 4) / (int)PPWBottom)) << 4) *
-             ((dec.slice.h + -1) / 0x10 + 1) >> 1);
-  /* MATCH: the error arm is the OUT-OF-LINE branch target in the oracle (bltz skips
-   * to it) and the success arm falls through -- write it in that polarity. */
+  DecDCTout((u_long *)dec.imgbuf,
+            (((((dec.slice.w + -1) / (((int)PPWTop << 4) / (int)PPWBottom) + 1) * (((int)PPWTop << 4) / (int)PPWBottom)) << 4) * ((dec.slice.h + -1) / 0x10 + 1)) / 2);
   if (strNextVlc(&dec) < 0) {
     return -1;
   }
@@ -312,7 +308,7 @@ int Movie_NextFrame(void)
 void Movie_DownloadFrame(void)
 
 {
-  download[0] = 1;
+  download = 1;
 }
 
 /* lines 308-312: (static data / macros / comments - no emitted code) */
@@ -337,6 +333,16 @@ bool Movie_Finished(void)
 /* lines 322-326: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_Play  (movie.cpp:327, code lines 327-406) ---- */
+/* 2026-10-12 SOURCE-REVIEW-UNRESOLVED: dispRect and deadfrm remain
+   unsupported source objects. Removing the array gives132 words but
+   frame168 versus retail184 (28 offset/frame differences); changing the
+   width double from shift to multiplication is neutral there. Recorded
+   joyval selector reuse32/132 and pointer-phase reuse65/129 fail, reverted.
+   DISPENV20/DRAWENV92 match retail/canonical types; do not enlarge types
+   or add padding to force this frame. Frame-only source/RTL receipts are
+   in scratch/rtl/Movie_Play_frame168_20261012.i/.lreg; compiler dumps are
+   diagnostic, not a byte oracle. Older necessity claims below are not
+   proof of original objects or a source floor. Passing body restored. */
 int Movie_Play(char movie)
 
 {
@@ -386,7 +392,7 @@ int Movie_Play(char movie)
       FntFlush(-1);
     }
     Movie_DownloadFrame();
-    download[0] = 1;
+    download = 1;
     PAD_update();
     /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
      * unmasked in a register); per-local u_short narrowing emitted two. */
@@ -425,54 +431,43 @@ int play_movie(char movie)
 /* lines 413-419: (static data / macros / comments - no emitted code) */
 
 /* ---- strSetDefDecEnv  (movie.cpp:420, code lines 420-428) ---- */
+/* 2026-10-12 MATCH35/35, native+SLD EXACT: source buffer/state stores are
+   retail relative lines1-6, followed by canonical PsyQ setRECT grouping at8.
+   GCC hoists the ratio and batches loads even though geometry is last in
+   source, without mh/vb0/vb1/img/bottom/top. Only dec and the zero-length root
+   region remain in native SYM; all35 instruction tags, block lines and end
+   delta8 agree without padding, line directives or artificial statements.
+   no helper scope, capture, fence, qualifier or output rewrite is introduced.
+   The old all-array-view/read-order 'unique zero' claims were basin-relative,
+   not source proof. vlcbuf0/1/imgbuf declarations now use their real STAT
+   pointer names/types without redundant asm-name aliases. Their pre-existing
+   native BSS VA offset is not certified retail-exact by this rename.
+   Other helpers' macro views are restored immediately after this body.
+   This matches the covered native+SLD contract, not uniquely original text.
+   Remaining source aliases and global layout are separate open work. */
+#undef PPWTop
+#undef PPWBottom
+#undef vlcbuf0
+#undef vlcbuf1
+#undef gMovieHeight
 static void strSetDefDecEnv(DECENV *dec)
 
 {
-  short mh; /* SYM-CODEGEN-CARRIER: mh -- direct late gMovieHeight access is measured
-               FAIL 7 (36/35); this early read restores retail scheduling */
-  u_long *vb0; /* SYM-CODEGEN-CARRIER: vb0 -- the measured 16-view/24-read-order
-                  search requires this early vlcbuf0 read for the retail schedule */
-  u_long *vb1; /* SYM-CODEGEN-CARRIER: vb1 -- the measured 16-view/24-read-order
-                  search requires this early vlcbuf1 read for the retail schedule */
-  u_short *img; /* SYM-CODEGEN-CARRIER: img -- the measured view/order search requires
-                   this early imgbuf read for the retail batched-lui schedule */
-  int bottom; /* SYM-CODEGEN-CARRIER: bottom -- direct PPWBottom access is measured
-                 FAIL 48 (35/35), changing the entire scheduled instruction order */
-  int top; /* SYM-CODEGEN-CARRIER: top -- direct PPWTop access is measured FAIL 47
-              (36/35), changing division placement and register allocation */
-  
-  /* MATCH (w44): the READ order and the STORE order must BOTH be
-   * vlcbuf0, vlcbuf1, imgbuf, gMovieHeight -- i.e. the four fields written in
-   * declaration order of DECENV (vlcbuf[0], vlcbuf[1], imgbuf, slice.h), which is
-   * simply what a 1998 programmer writes.  Every read goes through the UNSIZED-ARRAY
-   * VIEW (`_v[]`), uniformly: that is cc1's schedulable %hi/%lo split, so sched can
-   * batch the three `lui`s ahead of their loads exactly as retail does, while the
-   * scalar (`_d`) spelling emits the UNSCHEDULABLE `lw $r,sym` assembler macro whose
-   * halves can never separate.  With the coupled orders sched1 lands the oracle's
-   * shape byte-for-byte (3 batched luis, 3 loads, then vlcbuf0's own lui/lw pair).
-   * The earlier 4-diff residual came from de-coupling the two orders: the previous
-   * form pinned the READS with scalars but then no lui could hoist.  Exhaustively
-   * measured: 16 scalar/view masks x 24 read orders on the real TU (best 4), and
-   * 24 read orders x 24 store orders all-views in a standalone cc1 harness -- this
-   * is the unique zero. */
-  vb0 = vlcbuf0;
-  vb1 = vlcbuf1;
-  img = imgbuf_v[0];
-  mh = gMovieHeight;
-  top = (int)PPWTop;
-  bottom = (int)PPWBottom;
+  dec->vlcbuf[0] = vlcbuf0;
+  dec->vlcbuf[1] = vlcbuf1;
   dec->vlcid = 0;
+  dec->imgbuf = imgbuf;
   dec->rectid = 0;
   dec->isdone = 0;
-  (dec->slice).x = 0;
-  (dec->slice).y = 0;
-  dec->vlcbuf[0] = vb0;
-  dec->vlcbuf[1] = vb1;
-  dec->imgbuf = img;
-  (dec->slice).h = mh;
-  (dec->slice).w = (short)((top << 4) / bottom);
-  return;
+  setRECT(&dec->slice,0,0,((int)PPWTop << 4) / (int)PPWBottom,
+          gMovieHeight);
 }
+
+#define PPWTop PPWTop_v[0]
+#define PPWBottom PPWBottom_v[0]
+#define vlcbuf0 vlcbuf0_v[0]
+#define vlcbuf1 vlcbuf1_v[0]
+#define gMovieHeight gMovieHeight_v[0]
 
 /* lines 429-432: (static data / macros / comments - no emitted code) */
 
@@ -494,8 +489,9 @@ static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFun
 /* lines 446-449: (static data / macros / comments - no emitted code) */
 
 /* ---- strCallback  (movie.cpp:450, code lines 450-488) ---- */
-/* retail's strCallback opens with an inline-call pair (+000..+038): the RGB24 CD-interrupt check is an
-   inline, not open-coded */
+/* SOURCE-REVIEW-UNRESOLVED: this inferred inline spelling has the right
+   region count but its inner begin is+0, not retail+18. Do not certify its
+   original form/name from the pair count alone. */
 static inline void strCdCheck(void)
 {
   if ((gIsRGB24 != 0) && (StCdIntrFlag != 0)) {
@@ -507,15 +503,17 @@ static inline void strCdCheck(void)
 static void strCallback(void)
 
 {
-  int rem; /* SYM-CODEGEN-CARRIER: rem -- repeating the remainder expression is
-              measured FAIL 86 (207/191), duplicating division and rotating registers */
-  /* MATCH: SYM fsize=32 with mask s0+ra -- 8 bytes of never-referenced frame slack. */
-  int deadfrm[2]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
-                     carrier changes the SYM-proven 32-byte frame and stack offsets */
+  /* 2026-10-12: final signed /2 instead of >>1 recovers the retail32-byte
+     frame without deadfrm,191/191 PASS. The numerator is a multiple of16,
+     so target low-word halving agrees. No dummy object/use or output rewrite.
+     SOURCE-REVIEW-UNRESOLVED: rem remains an unsupported source capture;
+     repeated private-scalar expressions were78dif/207, moving flag reset
+     after the coordinate update45/192. Failed forms are reverted. Inline
+     scope ownership and full SLD remain open; array removal is not a seal. */
+  int rem;
 
-  (void)deadfrm;
   strCdCheck();
-  if (download[0] != 0) {
+  if (download != 0) {
     LoadImage(&dec.slice,(u_long *)dec.imgbuf);
   }
   /* MATCH: the slice.x advance is written INSIDE each arm (the oracle joins only after
@@ -539,7 +537,7 @@ strCallback_inlinedJoin:
               ((u_long *)dec.imgbuf,
                ((((dec.slice.w + -1) / (((int)PPWTop << 4) / (int)PPWBottom) + 1) *
                  (((int)PPWTop << 4) / (int)PPWBottom)) << 4) *
-               ((dec.slice.h + -1) / 0x10 + 1) >> 1);
+               ((dec.slice.h + -1) / 0x10 + 1) / 2);
   }
   else {
     /* MATCH: the `dec.isdone = 1` store must come BEFORE the rectid store in the
@@ -588,32 +586,32 @@ found:
 /* lines 519-536: (static data / macros / comments - no emitted code) */
 
 /* ---- strNext  (movie.cpp:537, code lines 537-600) ---- */
+/* 2026-10-12 MATCH130/130: chained height stores from owning height remove
+   mh; one chained quotient from owning width/PPWTop/PPWBottom removes wt
+   and bottom. Direct StGetNext testing removes st on this corrected shape.
+   A pointer-to-long-long-to-pointer width-view access removes wp while
+   preserving the sector-height load slot (plain dereference3dif/131).
+   This cast preserves the target pointer's bits; its literal original
+   spelling remains unproven. All five ordered local/parameter records and
+   three regions match, with no capture, fence, qualifier or output rewrite.
+   PPWTop/Bottom real static names replace _d asm-name aliases; their native
+   BSS addresses remain the pre-existing24-byte-below-retail layout backlog.
+   Macro suppression is local to this function; preserve existing array views
+   at its first ratio read and restore them for subsequent helpers.
+   Original labels/expression spelling and full SLD remain unsealed. */
+#undef PPWTop
+#undef PPWBottom
 static u_long * strNext(DECENV *dec)
 
 {
-  /* decl order = SYM Def-record order: fn scope is addr(AUTO -0x18),
-     sector(AUTO -0x14), cnt(REG $s0); `rect` is a NESTED-block local (SYM
-     `90 Block start line = 50`) and is declared in that block below.  The five
-     non-SYM carriers follow the SYM set -- w86-S5, gate unchanged. */
   u_long *addr;
   CDSECTOR *sector;
   int cnt;
-  u_long st; /* SYM-CODEGEN-CARRIER: st -- direct StGetNext testing is measured
-                FAIL 5 (131/130), moving the loop decrement across the call setup */
-  short mh; /* SYM-CODEGEN-CARRIER: mh -- repeating the gHeight reads is measured
-               FAIL 22 (134/130), duplicating loads and changing division allocation */
-  int bottom; /* SYM-CODEGEN-CARRIER: bottom -- repeating PPWBottom is measured
-                 FAIL 46 (144/130), duplicating loads/divides and rotating operands */
-  int wt; /* SYM-CODEGEN-CARRIER: wt -- repeating gWidth*PPWTop is measured FAIL 42
-             (150/130), duplicating the multiply/divide chain */
-  int *wp; /* SYM-CODEGEN-CARRIER: wp -- direct gWidth and scalar-view spellings are
-              each measured one instruction long; this pointer preserves alias/schedule */
 
   cnt = 50000;
   while( true ) {
-    st = StGetNext((u_long *)&addr,(u_long *)&sector);
+    if (StGetNext((u_long *)&addr,(u_long *)&sector) == 0) break;
     cnt = cnt + -1;
-    if (st == 0) break;
     if (cnt == 0) {
       return (u_long *)0x0;
     }
@@ -638,69 +636,52 @@ rewind:
 setframe:
   gMovieFrame = sector->frameCount;
 framedone:
-  /* MATCH: reach gWidth through a POINTER LOCAL, in BOTH the test and the store.
-   * (a) it anchors %hi(width) in the callee-saved reg the oracle keeps across the
-   *     ClearImage call (`lui s0,%hi(width)` at the head of this block, `%lo` in
-   *     both displacements);
-   * (b) `*wp` is a plain indirect MEM, not an ARRAY_REF, so gcc-2.8's
-   *     true_dependence no longer makes it may-alias `sector->height` -- the height
-   *     `lhu` then schedules into the width `lhu`'s load-delay slot and reuses the
-   *     dying sector register, exactly as retail (the direct `gWidth = ...` form
-   *     leaves a `nop` there and is 1 insn long).
-   * The scalar `width_d` spelling also unblocks the alias but loses the shared %hi
-   * (assembler macro -> its own `lui $at`), so it stays 1 insn long too. */
-  wp = width_v;
-  if ((*wp != (u_int)sector->width) || (gHeight != (u_int)sector->height)) {
+  if ((*(int *)(long long)width_v != (u_int)sector->width) || (gHeight != (u_int)sector->height)) {
     RECT rect;   /* SYM `90 Block start line = 50` scopes rect to THIS block */
 
     rect.x = 0;
     rect.y = 0;
     rect.h = 0x1e0;
-    rect.w = (short)((PPWTop * 0x280) / (int)PPWBottom);
+    rect.w = (short)((PPWTop_v[0] * 0x280) / (int)PPWBottom_v[0]);
     ClearImage(&rect,'\0','\0','\0');
-    *wp = (int)sector->width;
+    *(int *)(long long)width_v = (int)sector->width;
     gHeight = (int)sector->height;
   }
-  wt = gWidth * PPWTop;
-  bottom = (int)PPWBottom;
-  mh = (short)gHeight;
-  dec->rect[1].h = (short)gHeight;
-  dec->rect[0].h = mh;
-  (dec->slice).h = mh;
-  dec->rect[1].w = (short)(wt / bottom);
-  dec->rect[0].w = (short)(wt / bottom);
+  dec->rect[0].w = dec->rect[1].w = (short)((width * PPWTop) / (int)PPWBottom);
+  (dec->slice).h = dec->rect[0].h = dec->rect[1].h = (short)height;
   return addr;
 }
+
+#define PPWTop PPWTop_v[0]
+#define PPWBottom PPWBottom_v[0]
 
 /* lines 601-603: (static data / macros / comments - no emitted code) */
 
 /* ---- strSync  (movie.cpp:604, code lines 604-621) ---- */
-static void strSync(DECENV *dec,int mode)
+/* 2026-10-12 MATCH44/44: keep the unused second INT required by the
+   mangled ...i signature unnamed; retail records no name/home for it.
+   Read the real owning static height at the timeout's coordinate store.
+   That scalar source view lets GCC retain retail's invariant /2 calculation
+   without a viewOff capture. The external unsized view's old direct-expression
+   failure was not proof that a named offset existed. Only dec and cnt remain;
+   native records/root, complete TU bytes/layout and branch distances match.
+   width/height declarations also use their actual SYM names without asm-name
+   aliases. Existing volatile cnt is retained, not introduced or expanded;
+   full qualifier/original expression spelling and SLD remain source review. */
+static void strSync(DECENV *dec,int)
 
 {
-  /* SYM-CODEGEN-CARRIER: mode -- the mangled `...i` proves the optimized-away
-   * second int parameter; canonical PsyQ STR sample sources name it `mode`. */
-  /* decl order = SYM Def-record order: the SYM's ONLY local here is
-     `cnt` (AUTO -8, ULONG); the non-SYM carrier follows it -- w86-S5.
-     MATCH: the spin counter lives in a STACK SLOT and is re-loaded/stored on every
-     iteration (sw/lw 0(sp)) -- a plain register local can never reproduce that. */
   volatile u_long cnt;
-  int viewOff; /* SYM-CODEGEN-CARRIER: viewOff -- direct loop use is measured
-                  FAIL 50 (44/44), losing retail loop-invariant hoisting/allocation */
 
   cnt = 0x800000;
   if (dec->isdone == 0) {
-    /* MATCH: the /2 is loop-invariant in the oracle. */
-    viewOff = (0xf0 - gHeight) / 2;
     do {
       cnt = cnt - 1;
       if (cnt == 0) {
         dec->isdone = 1;
         dec->rectid = (u_int)(dec->rectid == 0);
         (dec->slice).x = dec->rect[dec->rectid].x;
-        /* MATCH: the second access RE-READS dec->rectid from memory (the oracle emits a
-         * 2nd lw 0x20 + sll) -- a cached local gets store-forwarded away. */
-        (dec->slice).y = dec->rect[dec->rectid].y + (short)viewOff;
+        (dec->slice).y = dec->rect[dec->rectid].y + (short)((0xf0 - height) / 2);
       }
     } while (dec->isdone == 0);
   }

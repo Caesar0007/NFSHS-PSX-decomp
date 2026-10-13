@@ -4,7 +4,7 @@
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
 #include "aitune_types.h"
-#include "AITUNE_externs.h"
+#include "aitune_externs.h"
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055678): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */

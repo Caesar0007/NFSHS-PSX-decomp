@@ -91,6 +91,11 @@ struct tMenuItem {
     virtual void TransitionOn();
     virtual bool TransitionIsFinished();
     virtual void UpdateTransition(bool);
+#ifdef NFS4_FEMENUDEFS_SURFACE
+    // Inferred getter/setter spellings; no added storage or virtual slots.
+    inline unsigned int GetFlags() { return fFlags; }
+    inline void SetFlags(unsigned int flags) { fFlags = flags; }
+#endif
 #ifdef NFS4_FE_CORE_SCREENCARSELECT_METHODS
     inline void SetTextDescription(unsigned int text) {
         fTextDescription = text;
@@ -164,6 +169,8 @@ struct tCarManager {
     long PurchaseUpgrade(short, short, short);
     tCarInfo *GetCarFromID(short);
     void SetCarAvailable(tCarModels, bool);
+    void AddToPinkSlipsList(short, short, short);
+    void AddUpgradesToPinkSlipsList(short, short, short);
 #endif
 #ifdef NFS4_FRONT_SURFACE
     short GetClassList(int, short, tCarModels *)

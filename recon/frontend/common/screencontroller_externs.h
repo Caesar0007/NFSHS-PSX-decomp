@@ -15,7 +15,7 @@ int CalcFadeVal(int col1, int col2, int f1, int f2);  /* 4-arg overload */
 void trap(int code);
 extern "C" int textpixels(char *str);
 extern tFEApplication *FEApp;
-extern tPadModuleState gPadinfo;        /* pad-info (84B, SYM anon .63fake tag = tPadModuleState) */
+#include "shared/pad_module_globals.h"
 extern int  mappings[3][13][3];         /* PSX->FE key mappings */
 /* menu helpers + Pad actuator (dumped overloads wrong-class/const; real call types per this TU) */
 void SetMenu(tMenuItemSlidingMenu *thisobj, bool i, void *menu) asm("SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu");

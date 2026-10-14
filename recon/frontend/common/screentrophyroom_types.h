@@ -43,18 +43,11 @@ enum tMenuCommandType {
 
 #include "screentrophyroom.h"
 
-/* Foreign singleton tags are absent; expose only the priced members. */
+/* Remaining foreign menu view needs owning-SYM source restoration. */
 struct ScreenTrophyRoom_GlobalMenuDefsCodegenView {
     char _beforeMenuTrophyInfo[0x200];
     tMenuBlank menuTrophyInfo;
 };
 #define tGlobalMenuDefs ScreenTrophyRoom_GlobalMenuDefsCodegenView
-
-struct ScreenTrophyRoom_PadCodegenView {
-    int initialized;
-    PAD_COMMON buf[8];
-    char stateBytes[16];
-};
-#define tPadModuleState ScreenTrophyRoom_PadCodegenView
 
 #endif

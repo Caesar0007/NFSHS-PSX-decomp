@@ -45,67 +45,19 @@ void Init_Memcard(bool, bool);   /* SYM Def class EXT type FCN */
 short LoadGame(short, bool, bool);
 char *PlayerName(int);   /* SYM Def class EXT type FCN */
 bool SaveGame(short);   /* SYM: Def class EXT type FCN bool @0x80034988 */
-int SavePinkSlipsCarsWithErrorDialogs(short, short, short);
+#include "shared/PinkSlipsErrorCode.h"
+PinkSlipsErrorCode SavePinkSlipsCarsWithErrorDialogs(short, short, short);
 void StatChk_ClearNewRecords(void);   /* SYM Def class EXT type FCN */
 bool StatChk_IsRecordLapTime(Car_tStats *, short, short *);   /* SYM Def class EXT type FCN */
 short StatChk_IsTopTime(Car_tStats *, short);   /* SYM Def class EXT type FCN */
 void StatChk_SaveRecordLapTime(Car_tStats *, short, short);   /* SYM Def class EXT type FCN */
 void StatChk_SaveTopTime(Car_tStats *, short);   /* SYM Def class EXT type FCN */
 char *TextSys_Word(int);   /* SYM Def class EXT type FCN */
-int __builtin_delete(...);
-tDialogYesNo *tDialogYesNo_ctor(...);
-extern "C" tInsideBoxLeftRightSlider *tInsideBoxLeftRightSlider_ctor(...) __asm__("__25tInsideBoxLeftRightSliderUiP13tListIterator");  /* real ctor symbol */
-tInsideBoxLeftRightSlider *tInsideBoxLeftRightSlider_dtor(...);
-tInsideBoxMenu *tInsideBoxMenu_ctor(...);
-tInsideBoxMenu *tInsideBoxMenu_dtor(...);
-tInsideBoxSongMenu *tInsideBoxSongMenu_ctor(...);
-tInsideBoxSongMenu *tInsideBoxSongMenu_dtor(...);
-tInsideBoxTwoWaySlider *tInsideBoxTwoWaySlider_ctor(...);
-tInsideBoxTwoWaySlider *tInsideBoxTwoWaySlider_dtor(...);
-extern "C" tListIteratorCarColor *tListIteratorCarColor_ctor(...) __asm__("__21tListIteratorCarColorPcN21iP11tCarManager");  /* real ctor symbol */
-tListIteratorCarColor *tListIteratorCarColor_dtor(...);
-extern "C" tListIteratorCar *tListIteratorCar_ctor(...) __asm__("__16tListIteratorCarPcP11tCarManager");  /* real ctor symbol */
-tListIteratorCar *tListIteratorCar_dtor(...);
-extern "C" tListIteratorIndexed *tListIteratorIndexed_ctor(...) __asm__("__20tListIteratorIndexedPsPcT2");  /* real ctor symbol */
-tListIteratorIndexed *tListIteratorIndexed_dtor(...);
-extern "C" tListIteratorRangeIndexed *tListIteratorRangeIndexed_ctor(...) __asm__("__25tListIteratorRangeIndexedccPcT3");  /* real ctor symbol */
-tListIteratorRangeIndexed *tListIteratorRangeIndexed_dtor(...);
-extern "C" tListIteratorRange *tListIteratorRange_ctor(...) __asm__("__18tListIteratorRangeccPc");  /* real ctor symbol */
-tListIteratorRange *tListIteratorRange_dtor(...);
-extern "C" tListIteratorTournament *tListIteratorTournament_ctor(...) __asm__("__23tListIteratorTournamentPcP18tTournamentManager");  /* real ctor symbol */
-tListIteratorTournament *tListIteratorTournament_dtor(...);
-extern "C" tListIteratorTrack *tListIteratorTrack_ctor(...) __asm__("__18tListIteratorTrackPcT1P13tTrackManager");  /* real ctor symbol */
-tListIteratorTrack *tListIteratorTrack_dtor(...);
-extern "C" tListIterator *tListIterator_ctor(...) __asm__("__13tListIteratorPsPc");  /* real ctor symbol */
-tListIterator *tListIterator_dtor(...);
-tMenuBlank *tMenuBlank_ctor(...);
-tMenuBlank *tMenuBlank_dtor(...);
-tMenuItemGoToMenuButton *tMenuItemGoToMenuButton_ctor(...);
-tMenuItemGoToMenuButton *tMenuItemGoToMenuButton_dtor(...);
-tMenuItemGoToMenuNFS4Button *tMenuItemGoToMenuNFS4Button_ctor(...);
-tMenuItemGoToMenuNFS4Button *tMenuItemGoToMenuNFS4Button_dtor(...);
-tMenuItemLeftRightAudioSlider *tMenuItemLeftRightAudioSlider_ctor(...);
-tMenuItemLeftRightAudioSlider *tMenuItemLeftRightAudioSlider_dtor(...);
-tMenuItemLeftRightChoice *tMenuItemLeftRightChoice_ctor(...);
-tMenuItemLeftRightChoice *tMenuItemLeftRightChoice_dtor(...);
-tMenuItemLeftRightFade *tMenuItemLeftRightFade_ctor(...);
-tMenuItemNFS4LeftRightChoice *tMenuItemNFS4LeftRightChoice_ctor(...);
-tMenuItemNFS4LeftRightChoice *tMenuItemNFS4LeftRightChoice_dtor(...);
-tMenuItemSlidingMenu *tMenuItemSlidingMenu_ctor(...);
-tMenuItemSlidingMenu *tMenuItemSlidingMenu_dtor(...);
-tMenuItem *tMenuItem_dtor(...);
-tMenuNFS4Bottom *tMenuNFS4Bottom_ctor(...);
-tMenuNFS4Bottom *tMenuNFS4Bottom_dtor(...);
-tMenuNFS4TwoPlayer *tMenuNFS4TwoPlayer_ctor(...);
-tMenuNFS4TwoPlayer *tMenuNFS4TwoPlayer_dtor(...);
-tMenuNFS4 *tMenuNFS4_ctor(...);
-tMenuNFS4 *tMenuNFS4_dtor(...);
-tMenuOptions *tMenuOptions_ctor(...);
-tMenuOptions *tMenuOptions_dtor(...);
-tOptionsMenu *tOptionsMenu_ctor(...);
-tOptionsMenu *tOptionsMenu_dtor(...);
-tScreen *tScreen_dtor(...);
-tUserNameMenuItem *tUserNameMenuItem_ctor(...);
+void __builtin_delete(void *deleteMe);   /* retail2b4db7 / NEW.CPP: void, PTR VOID */
+/* Real C++ type-surface declarations supply all constructors/destructors.
+   Removed 53 unused generated variadic stubs, including nine asm aliases;
+   these were reconstruction artifacts, not retail source APIs. */
+
 extern bool CURRENTLYUSINGMEMCARD;
 extern Car_tStats Cars_gNewCarStatsList[];   /* was stale scalar int; owner cars.cpp
                                      Car_tStats Cars_gNewCarStatsList[9] (array of value structs) --
@@ -117,7 +69,7 @@ extern GameSetup_tData GameSetup_gData;
 extern bool MEMCARD_INITIALIZED;
 
 
-extern tPadModuleState gPadinfo;
+#include "shared/pad_module_globals.h"
 extern tScreenAudio *screenAudio;
 extern tScreenBeTheCopCongrats *screenBeTheCopCongrats;
 extern tScreenCarSelectDuel *screenCarSelectDuel;

@@ -134,6 +134,10 @@ struct tScreenBeTheCopCongrats;
 struct tScreenTournamentCongrats;
 struct tScreenPinkSlipCongrats : public tScreenCongrats {
     short fWinner;
+#ifdef NFS4_SCREENCONGRATS_FEMENUDEFS_SURFACE
+    /* Inferred getter spelling; retail retains this receiver in register3. */
+    inline short Winner() { return fWinner; }
+#endif
     tScreenPinkSlipCongrats();
     void DrawCongratsMessage();
     bool GetCar(tCarInfo &);

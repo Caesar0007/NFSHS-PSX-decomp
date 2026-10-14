@@ -30,16 +30,7 @@ typedef enum MANAGERTASK {
     DELETE_FILE = 4
 } MANAGERTASK;
 
-typedef enum PinkSlipsErrorCode {
-    PinkSlipsNoError = 0,
-    PinkSlipsError_NotOriginalCard = 1,
-    PinkSlipsError_LoadFailed = 2,
-    PinkSlipsError_SaveFailed = 3,
-    PinkSlipsError_CardNotFound = 4,
-    PinkSlipsError_NotFormatted = 5,
-    PinkSlipsError_CardFull = 6,
-    numPinkSlipsErrors = 7
-} PinkSlipsErrorCode;
+#include "shared/PinkSlipsErrorCode.h"
 
 #include "shared/TCB.h"
 #include "shared/EXEC.h"
@@ -96,14 +87,7 @@ typedef MCRDFILE_def MCRDFILE;
 typedef MCRDOPTS_def MCRDOPTS;
 typedef void (*MemCB)(long cmds, long rslt); /* PsyQ 4.3 <libmcrd.h> */
 
-/* Foreign objects are exposed only through the fields this owner accesses. */
-struct FEMemcard_PadCodegenView {
-    int initialized;
-    PAD_COMMON buf[8];
-    char stateBytes[16];
-};
-#define tPadModuleState FEMemcard_PadCodegenView
-
+/* Remaining foreign views need owning-SYM source restoration. */
 struct FEMemcard_MemCardInfoCodegenView {
     char _beforeReady[0x34];
     int bReady;

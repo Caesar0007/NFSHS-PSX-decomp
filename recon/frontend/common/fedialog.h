@@ -29,6 +29,11 @@ struct tDialogBase : public tScreen {
     static tDialogBase *GetTopMostDialog();
     inline bool IsVisible() { return currentlyOn != 0; }
     inline tDialogBase *SetPosition(short, short, tPlayer);
+#ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
+    /* Inferred two-call position/player spelling; no original names survive. */
+    inline tDialogBase *SetPosition(short, short);
+    inline void SetSpecificPlayer(short);
+#endif
 };
 
 struct tDialogHelp : public tDialogBase {
@@ -50,10 +55,22 @@ struct tDialogMessageString : public tDialogBase {
     void Draw();
     char *string;
     bool Centerit;
-    inline tDialogMessageString *SetString(char *text) {
-        string = text;
+    inline tDialogMessageString *SetString(char *mess) {
+        string = mess;
         return this;
     }
+#ifdef NFS4_FEMENUDEFS_SURFACE
+    /* Inferred word-ID overload: retail SaveGame holds this across the word
+       lookup. The operation/receiver are verified; literal original signature
+       and cross-owner visibility are not uniquely recovered. */
+    inline tDialogMessageString *SetString(int);
+#endif
+#ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
+    /* ORIGINAL-SIGNATURE-UNRESOLVED: owner-local inferred display overloads;
+     * their actual expansions are validated against retail receiver scopes. */
+    inline void Display(char *text);
+    inline void Display(int word);
+#endif
     tDialogMessageString();
 };
 
@@ -116,7 +133,13 @@ struct tDialogYesNoMem : public tDialogYesNo {
 struct tDialogYesNoTri : public tDialogYesNo {
     /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    /* FEMenuDefs' retail expansion has only the implicit constructor's
+       parameter region, not an explicit empty-body region. Other owner
+       surfaces retain the previous definition: global removal changes eight
+       TU objects. Original cross-TU body visibility remains under review. */
+#ifndef NFS4_FEMENUDEFS_SURFACE
     inline tDialogYesNoTri() {}
+#endif
 };
 
 #endif

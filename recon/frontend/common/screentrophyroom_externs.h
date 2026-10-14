@@ -9,7 +9,7 @@ extern tTournamentManager tournamentManager;
 extern tGlobalMenuDefs   *menuDefs;
 extern int                ticks;
 extern tTexture_ShapeInfo *gCurrentShapes;
-extern tPadModuleState    gPadinfo;
+#include "shared/pad_module_globals.h"
 
 /* --- data owned by ScreenTrophyRoom.obj (EXT linkage) --- */
 tScreenTrophyRoom *screenTrophyRoom;                 /* EXT @0x80052060 (runtime-set) */

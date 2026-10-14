@@ -14,14 +14,12 @@ extern "C" int sprintf(char *, const char *, ...);
    symbol/relocation. */
 extern "C" void *memcpy_call(void *dst, const void *src, int n) __asm__("memcpy");
 
-/* MATCH (w35-a10): both are STRONG DATA symbols in front_data.data.s and every
-   oracle reaches them absolutely (0 %gp_rel uses tree-wide).  A TU-owned
-   tentative def makes NewBestLap small-common -> .sbss -> %gp_rel; the
-   unsized-array asm-label view keeps %hi an RTL pseudo (catalog wave-13). */
-extern int A_NewRecords[] __asm__("NewRecords");
-extern int A_NewBestLap[] __asm__("NewBestLap");
-#define NewRecords  A_NewRecords
-#define NewBestLap  A_NewBestLap[0]
+/* Retail records71db85/71dba4 declare BOOL[8] and scalar BOOL; the matching
+   definitions below already own those exact objects. The old int[] alias
+   views and asm labels were reconstruction-only,not original data shapes.
+   This TU's existing-G0 identity preserves their absolute addressing. */
+extern bool NewRecords[8];
+extern bool NewBestLap;
 
 /* ---- StatChk_IsRecordLapTime  (statchk.cpp:50) ---- */
 bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)
@@ -104,13 +102,13 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
 {
   /* W86-S4: the four real locals are now in the SYM's own `8c` order
      (RecordHolder AUTO sp+16, DummyRaceResult AUTO sp+40, TrackRecords REG $17
-     s1, carInfo REG $18 s2); the codegen carrier below is quarantined last.
+     s1, carInfo REG $18 s2); the unresolved value capture follows.
      Re-gated PASS. */
   tRecordBuffer RecordHolder;
   tRecordBuffer DummyRaceResult;
   tRecordBuffer *TrackRecords;
   tCarInfo *carInfo;
-  int newBestLap;   /* SYM-CODEGEN-CARRIER -- see the note at its use */
+  int newBestLap;
 
   carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nBestCarIndex].carType);
   /* MATCH: the != pair range-folds to the oracle's UNSIGNED sltiu(x-7,2);
@@ -131,11 +129,11 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
     strcpy(DummyRaceResult.sName,PlayerName((int)nBestCarIndex));
     memcpy_call(TrackRecords,&DummyRaceResult,0x14);
     blockmove(TrackRecords,Stats_gTrackRecords + Front_GetTrackRaced() * 0x11,0x154);
-    /* SYM-CODEGEN-CARRIER: newBestLap -- not a recorded source local, but
-       spelling this as `NewBestLap = 1` is FAIL6 (100/100): retail loads the
-       address into $v1 and 1 into $v0, while the direct lvalue reverses those
-       registers.  Materializing the value reproduces the retail allocation.
-       W86-S4 re-priced this in the SYM-ordered basin: still exactly 6. */
+    /* SOURCE-REVIEW-UNRESOLVED: newBestLap is absent from retail locals.
+       With the corrected scalar BOOL declaration,direct true6dif/100 and
+       compound |=true8dif/102 were restored. Retail loads1 into v1 and
+       the address into v0;direct assignment reverses them. This is not
+       proof of a distinct source object or original spelling. */
     newBestLap = 1;
     NewBestLap = newBestLap;
     purgememadr(TrackRecords);
@@ -430,6 +428,19 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * (all re-gated PASS): uBulkUnit/uBulkSz/uCopySz decls dropped and both
  * derived sizes spelled inline (`uRecSz * 8`, `uRecSz`).
  * Harness: scratchpad/A18/stt_v1.json + stt_clean2.json + probe.py. */
+/* 2026-10-13 recorded-value recovery: discard strcpy's returned sName
+ * pointer instead of assigning/casting it to the recorded tCarInfo* carInfo.
+ * That overwritten value is never consumed before the next car lookup;
+ * the compiler already deleted its assignment. Removing the false type/
+ * value handoff is416/416 PASS with the original locals/homes/scopes intact.
+ * No new object, qualifier, asm, helper or output rewrite. Source-only
+ * record-size production and full SLD are still separate recovery work. */
+/* SOURCE-REVIEW-UNRESOLVED: uRecSz is an unrecorded record-size producer,
+ * not an original-object/name exemption. Prior literal126dif/412, typed
+ * copy-source indexing26/416 and widened byte-offset136/428 are restored.
+ * Early declaration/init and an early explicit assignment both preserve
+ *416/416, but worsen SLD374/416 to396/397; LI20 still follows later tags.
+ * Those relocations are restored. Producer/name and full SLD remain open. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -449,10 +460,10 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   tRecordBuffer *RecordHolders;
   tCarInfo *carInfo;
   int topPlacements [2];
-  /* SYM-CODEGEN-CARRIER: uRecSz -- retail records no source local, but one
-     function-wide record-size variable is required to preserve the three
-     separate constant rematerializations and shift chains.  Spelling
-     sizeof(tRecordBuffer) directly is FAIL 126 (412/416). */
+  /* SOURCE-REVIEW-UNRESOLVED: unrecorded record-size capture. Its known
+     sizeof(tRecordBuffer) value does not prove an original source object.
+     Prior literal-size trial126dif/412; typed copy-source indexing26/416,
+     widened byte-offset multiply136/428. All failures restored. */
   unsigned int uRecSz;
 
   uRecSz = sizeof(tRecordBuffer);
@@ -527,8 +538,8 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
                 break;
               }
             }
-            carInfo = (tCarInfo *)strcpy(DummyRaceResult.sName,
-                                        PlayerName((int)nRankCarTotalTimes[nCar]));
+            strcpy(DummyRaceResult.sName,
+                   PlayerName((int)nRankCarTotalTimes[nCar]));
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
             memcpy_call(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
             for (k = 0; k < 8; k = k + 1) {
@@ -579,7 +590,5 @@ void StatChk_ClearNewRecords(void)
 
 /* end of statchk.cpp */
 
-#undef NewRecords
-#undef NewBestLap
 bool NewRecords[8];   /* @0x80052978; SYM EXT BOOL[8] */
 bool NewBestLap;      /* @0x80052998; SYM EXT BOOL */

@@ -4,7 +4,7 @@
 #include "fedialog_types.h"
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
-extern tPadModuleState gPadinfo;
+#include "shared/pad_module_globals.h"
 /* Address-visible view: several retail routines schedule %hi(ticks)
    independently of the load; a scalar extern collapses it into a macro. */
 extern int ticks[];
@@ -21,11 +21,11 @@ void  AudioCmn_PlayFESFX(int);  void AudioCmn_PlayFESFXVol(int,int);
 extern tTexture_ShapeInfo *gHelpShapes;  extern tPlayer gMenu_SubMenuPlayer;
 void  FETextRender_FullTextRGB(char*,short,short,int,char,short);
 void  FETextRender_Title(short);
-void  FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool);
+int   FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool); /* retail INT */
 int   CalcTextFadeSelToHi(int, short, short);  int CalcTextFadeUnselToSel(int, short, short);
 extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenheight;
 extern int gFlip;  extern int Draw_gPlayer1View;
-void *Draw_GetDRAWENV(int,int);
+DRAWENV *Draw_GetDRAWENV(int,int); /* retail FCN PTR STRUCT DRAWENV */
 /* FEDialog-specific helpers */
 void  DrawShape_SubtractNFS4RectEdges(RECT &);  void DrawShape_NFS4RoundRectangle(...);
 void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_upper(char*);
@@ -35,7 +35,9 @@ void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_uppe
 void  Font_SetBlitter(void (*)(int,int,void *,int,int,struct charactertbl *,int));
 void  Font_ReSetBlitter();
 void  FontUpsideDownBlit(int,int,void *,int,int,struct charactertbl *,int);
-int CalcOnOffFade(...);  extern int screenwidth;
+/* No CalcOnOffFade reference in FEDialog: removed its incorrect variadic
+ * declaration rather than introduce an unsupported text-enum body here. */
+extern int screenwidth;
 void  FETextRender_MenuTextPositionedJustify(short,short,short,short,int,int);
 void FeTools_DrawPSXButton(u_char,u_short,int,int);
 void FETextRender_SetABR(int,bool);

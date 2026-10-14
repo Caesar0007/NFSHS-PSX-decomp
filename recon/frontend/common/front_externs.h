@@ -10,15 +10,15 @@ int PadInfoMode(int, int, int);
 int PadSetMainMode(int, int, int);
 int FILE_addbigsync(...);
 void FILE_delbigsync(...);
-void PAD_update(...);
+void PAD_update(void);   /* retail775400 and pad.obj's argument-free server */
 void blockmove(...);
 void initlinkmode(...);
-int largestunused(...);
+int largestunused(void);   /* memstd.c; matched NFS2 largestunused(void) */
 int purgememadr(...);
-int rand(...);
+int rand(void);   /* canonical PsyQ4.3 RAND.H */
 void resizememadr(...);
 void seedrandom(int);
-void timedwait(...);
+void timedwait(int);   /* timer.c and matched NFS2 timedwait(int count) */
 }
 extern int          ticks;
 extern tfrontEnd    frontEnd;
@@ -131,7 +131,7 @@ extern int gMasterFENarrationLevel[];
 extern int gMasterMusicLevel[];
 extern int gMasterSFXLevel[];
 extern int gPSXMemCardFull;
-extern tPadModuleState gPadinfo;
+#include "shared/pad_module_globals.h"
 extern int gUseFrontend;
 extern int mappings[3][13][3];
 extern bool memCardReadOK;

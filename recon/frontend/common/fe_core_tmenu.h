@@ -28,6 +28,13 @@ struct tMenu {
     virtual bool IsSubMenu();
     virtual void Draw();
     virtual void UpdateTransition();
+#ifdef NFS4_FEMENUDEFS_SURFACE
+    // Inferred setter spelling: retail records child PTR tMenu in three
+    // constructor inline pairs; the raw stores target fChildMenu.
+    inline void SetChildMenu(tMenu *child) { fChildMenu = child; }
+    // Inferred tail setter, tested against retail's receiver-free inline pairs.
+    inline void SetVerticalHelp(short help) { VertHelp = help; }
+#endif
 #ifdef NFS4_FE_CORE_FEDIALOG_METHODS
 #ifndef NFS4_FE_CORE_FEMENU_METHODS
     short GetNumberEnabledItems();

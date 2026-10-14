@@ -57,13 +57,8 @@ struct FEMenuDefs_ScreenTrophyRoomCodegenView {
 #define tScreenTrophyRoom FEMenuDefs_ScreenTrophyRoomCodegenView
 #endif
 
-/* The linked owner uses these foreign aggregates only through the priced
- * fields below and does not retain their completed tags. */
-struct FEMenuDefs_PadCodegenView {
-    int initialized;
-    PAD_COMMON buf[8];
-};
-#define tPadModuleState FEMenuDefs_PadCodegenView
+/* SOURCE-REVIEW-UNRESOLVED: remaining foreign aggregate views are partial
+ * reconstructions, not certified original types or generic review exemptions. */
 
 #ifndef NFS4_FEMENUDEFS_NO_GAMESETUP_VIEW
 struct FEMenuDefs_GameSetupCodegenView {
@@ -169,7 +164,6 @@ struct tFEApplication {
     int speechToPlay[2];
     inline tDialogMessageString *MessagePopup() { return &messagePopup; }
     inline tPlayer CurrentPlayer() { return fPlayer; }
-    inline void DisplayMessage(int word);
     void Redraw();
 };
 #endif

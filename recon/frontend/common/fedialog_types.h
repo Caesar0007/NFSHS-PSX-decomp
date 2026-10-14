@@ -80,16 +80,6 @@ struct tFEApplication {
 };
 #endif
 
-/* pad.obj's completed aggregate tag is absent from FEDialog.obj. */
-#ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
-struct FEDialog_PadCodegenView {
-    int initialized;
-    PAD_COMMON buf[8];
-    char stateBytes[16];
-};
-#define tPadModuleState FEDialog_PadCodegenView
-#endif
-
 struct tGlobalMenuDefs;
 struct tDrawShapeExtended;
 struct charactertbl;

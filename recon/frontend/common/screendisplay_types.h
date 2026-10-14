@@ -347,8 +347,13 @@ struct tInsideBoxMenu : public tMenu {
                    void (*)(tMenuCommand &), short, tMenuItem *, ...);
     /* non-variadic form for derived classes (tInsideBoxSongMenu): retail's SongMenu ctor calls the tMenu ctor
      * directly and stores only its own table, i.e. this one is inline */
-    tInsideBoxMenu(unsigned int f, tScreen *s, tMenu *n, tMenu *o, void (*fn)(tMenuCommand &), short t)
-        : tMenu(f, s, n, o, fn, t) {}
+    /* Retail SongMenu's expanded constructor records these exact parameter
+       names at depth1 in registers8/9; they are not caller locals o/fn.
+       The other spellings follow the recorded variadic overload's argument
+       roles; their literal inline spellings are absent from optimized SYM. */
+    tInsideBoxMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu,
+                   void (*OnButtonPress)(tMenuCommand &), short title)
+        : tMenu(flags, screenHandler, nextMenu, optionsMenu, OnButtonPress, title) {}
     ~tInsideBoxMenu();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     virtual void Draw(short, short, short, short, short);

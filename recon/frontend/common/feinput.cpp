@@ -5,9 +5,9 @@
  */
 #include "feinput.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
+/* gettick is the EA name in retail SYM/MAP at800E8220 and the matched NFS2 timer.
+   This local inline expansion is reconstructed; original header spelling is unproved. */
+static inline int gettick(void) { return ticks; }
 
 
 /* ---- FEInput.obj-OWNED data -- DEFINED here (self-contained; real NFS4.EXE bytes). ---- */
@@ -18,8 +18,8 @@ static int debounce[2];     /* @0x80052b60; SYM STAT INT[2] */
 
 /* ---- FEInput_VerifyControllerValues  [FEINPUT.CPP:28-38] SLD-VERIFIED ---- */
 /* Retail SLD separates the no-pad and controller-ID guards on +1/+5,
-   then the reset call on +9. The +10 epilogue tag remains one line later
-   than GCC's natural empty tail; no artificial source value is retained. */
+   then the reset call on +9. A real unconditional return on that source
+   line preserves the root block and gives the epilogue/end retail's +10. */
 
 void FEInput_VerifyControllerValues(int controller)
 
@@ -32,16 +32,16 @@ void FEInput_VerifyControllerValues(int controller)
 
 
 
-      Front_ResetPSXController(controller,0);
+      Front_ResetPSXController(controller,0); return;
 }
 
 
 
-/* ---- FEInput_GetNoDebounceKey  [FEINPUT.CPP:44-142] SLD-VERIFIED ---- */
+/* ---- FEInput_GetNoDebounceKey [FEINPUT.CPP:44-142] SOURCE/SLD REVIEW OPEN ---- */
 /* MATCH: PASS (159 insns), improved from 38 diffs @147/159.
    The SLD fixes the negCon source order as twist-high, twist-low, buttonII, buttonI
    (lines 122/125/129/132); restoring that order moves every case block into retail
-   order.  The compiler-eliminated `result` pseudo and
+   order.  The reconstruction's unresolved `result` carrier and
    the shared comparison funnels
    preserve retail's branch normalisers instead of folding them to xori/sltu.
    `return_one` gives buttonI and the final PAD-state test the shared constant target;
@@ -58,8 +58,8 @@ int FEInput_GetNoDebounceKey(int key,int controller)
   char *analogs;
   int result;
 
-  /* SYM-CODEGEN-CARRIER: result -- absent from the optimized SYM local list,
-     but required by the byte-exact shared comparison/return funnels below. */
+  /* SOURCE-REVIEW-UNRESOLVED: retail has no result local; native emits REG:$2.
+     These funnels are a current byte match, not proof this object was original. */
 
   PAD_update();
   if (gPadinfo.buf[controller * 4].nopad != '\0') {
@@ -150,22 +150,22 @@ return_one:
 
 
 
-/* ---- FEInput_GetDebounceKey  [FEINPUT.CPP:146-179] SLD-VERIFIED ---- */
+/* ---- FEInput_GetDebounceKey [FEINPUT.CPP:146-179] NATIVE CLEAN; SLD OPEN ---- */
 
 int FEInput_GetDebounceKey(int key,int controller)
 
 {
   /* SYM (nfs4-f-v3.txt @0x80023B74): key REGPARM $16, controller REGPARM $17,
      and exactly ONE named local -- `int tick` REG $4 (a0), declared at the top of
-     the block starting at 0x80023BB8 (the `lw FE_Ticks()`) and running to 0x80023C38.
-     The oracle reads `FE_Ticks()` ONCE into that local; the old body re-read the global
+     the block starting at 0x80023BB8 (the tick load) and running to 0x80023C38.
+     The oracle reads ticks ONCE through an inline pair; the old body re-read the global
      at every use.  Branch polarity: the debounce SET path and the debounce CLEAR
      path are both laid out OUT OF LINE after the tick block (oracle `beqz` to
      .L80023C38 / .L80023C50), so both guards must be written as the taken-branch
      case with the tick block falling through. */
   if (FEInput_GetNoDebounceKey(key,controller) != 0) {
     if ((debounce[controller] & key) != 0) {
-      int tick = FE_Ticks();
+      int tick = gettick();
 
       if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (key == 0x40)) {
         if (nextTick == 0) {
@@ -178,18 +178,20 @@ int FEInput_GetDebounceKey(int key,int controller)
         return 1;
       }
       return 0;
+    } else {
+      debounce[controller] = debounce[controller] | key;
+      nextTick = 0;
+      return 1;
     }
-    debounce[controller] = debounce[controller] | key;
-    nextTick = 0;
-    return 1;
+  } else {
+    debounce[controller] = debounce[controller] & ~key;
+    return 0;
   }
-  debounce[controller] = debounce[controller] & ~key;
-  return 0;
 }
 
 
 
-/* ---- FEInput_GetKeyFromPlayer  [FEINPUT.CPP:214-319] SLD-VERIFIED ---- */
+/* ---- FEInput_GetKeyFromPlayer [FEINPUT.CPP:214-319] NATIVE CLEAN; SLD OPEN ---- */
 tInputKeyType
 FEInput_GetKeyFromPlayer(tPlayer player,long debounce)
 

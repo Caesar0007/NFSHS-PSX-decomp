@@ -91,6 +91,10 @@ struct tVideoWall {
     short fIcon, fIconFrames, fIconX, fIconY;
     bool fUpdated;
 
+    /* ORIGINAL-NAME-UNRESOLVED: inferred getter spelling for retail's
+     * receiver-free inline pair at the transition-direction read. */
+    short TransitionDirection() { return fTransitionDirection; }
+
     void Initialize(tTVConfig *, tTexture_ShapeInfo *, short, short, short *, short);
     void UpdateImages();
     void SetAvailableText(short, short, short);
@@ -243,15 +247,7 @@ struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
 };
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
-/* pad.obj's aggregate tag is absent from ScreenCarSelect.obj; only buf[0]
- * is required by this owner. */
-struct ScreenCarSelect_PadCodegenView {
-    int initialized;
-    PAD_COMMON buf[8];
-};
-#define tPadModuleState ScreenCarSelect_PadCodegenView
-
-/* The foreign menu singleton is retained only through these member offsets. */
+/* Remaining foreign menu view needs owning-SYM source restoration. */
 struct ScreenCarSelect_GlobalMenuDefsCodegenView {
     char _beforeIteratorCar1[0x116c];
     tListIteratorCar iteratorCar1;

@@ -119,7 +119,6 @@ struct tFEApplication {
     inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
     inline tDialogMessageString *MessagePopup() { return &messagePopup; }
     inline tPlayer CurrentPlayer() { return fPlayer; }
-    inline void DisplayMessage(int word);
     void Redraw();
     tFEApplication();
     ~tFEApplication();
@@ -136,20 +135,13 @@ struct tFEApplication {
     tAppCommand RunFrontEnd();
 };
 
-/* These three external singletons have no completed tags in FEApp.obj.  The
- * views expose only fields read by this owner at their exact retail offsets. */
+/* These remaining foreign singleton views are unresolved source models.
+ * Owning SYM types/fields must be restored, not exempted by matching offsets. */
 struct FeApp_GameSetupCodegenView {
     int _beforeReplayMode[9];
     int replayMode;
 };
 #define GameSetup_tData FeApp_GameSetupCodegenView
-
-struct FeApp_PadCodegenView {
-    int initialized;
-    PAD_COMMON buf[8];
-    char stateBytes[16];
-};
-#define tPadModuleState FeApp_PadCodegenView
 
 struct FeApp_GlobalMenuDefsCodegenView {
     tMenuItemGoToMenuNFS4Button itemMainOnePlayerRace;

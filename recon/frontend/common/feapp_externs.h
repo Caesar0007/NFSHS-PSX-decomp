@@ -20,7 +20,15 @@ extern tScreenUserName  *screenUserName;
 extern GameSetup_tData   GameSetup_gData;
 extern Car_tStats         Cars_gNewCarStatsList[];   /* was stale scalar int; owner cars.cpp
                                      Car_tStats Cars_gNewCarStatsList[9] (array of value structs) */
-extern tPadModuleState   gPadinfo;
+/* pad.obj's anonymous .63fake:84 bytes, state .62fake elements:2 bytes.
+ * Known owner fields restored; exact original FEApp header visibility is open. */
+extern struct {
+    int initialized;
+    PAD_COMMON buf[8];
+    struct {
+        u_char bActive, time;
+    } state[8];
+} gPadinfo;
 extern char              bigBuf[];
 extern int               Cars_gNumRaceCars;
 extern int               screenheight, ticks, gFlip, Draw_gPlayer1View, Draw_gDoVSync;
@@ -40,7 +48,7 @@ void FeAudio_systemtask(int);
 
 /* draw / render */
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended *);
-void *Draw_GetDRAWENV(int, int);
+DRAWENV *Draw_GetDRAWENV(int, int); /* retail FCN PTR STRUCT DRAWENV */
 void  Draw_StartFrameRender(void);
 void  Draw_StopFrameRender(void);
 void  Draw_StartRenderingView(int view);

@@ -76,19 +76,12 @@ struct tScreenControllerConfig : public tScreen {
     tScreenControllerConfig();
 };
 
-/* These external singleton tags are absent from ScreenController.obj. */
+/* Remaining foreign singleton views need owning-SYM source restoration. */
 struct ScreenController_FEApplicationCodegenView {
     char _beforeInputPlayer[557];
     char fInputPlayer;
 };
 #define tFEApplication ScreenController_FEApplicationCodegenView
-
-struct ScreenController_PadCodegenView {
-    int initialized;
-    PAD_COMMON buf[8];
-    char stateBytes[16];
-};
-#define tPadModuleState ScreenController_PadCodegenView
 
 struct ScreenController_GlobalMenuDefsCodegenView {
     char _beforeItemControllerSettings[0x2b28];

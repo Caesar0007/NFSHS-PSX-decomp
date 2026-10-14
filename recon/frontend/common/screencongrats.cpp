@@ -336,7 +336,7 @@ void tScreenCongrats::DrawBackground()
   }
   if ((this->trophy == kTrophyCar) && (this->fGotCar != 0)) {
     DrawCar(this->fCarInfo,this->fCarX,this->fCarY,this->fCarCX,this->fCarCY,
-            (showRoomFlag[0] = 0, -0x80),true,carRotate,(tPlayer)this->fCarPlayer);
+            (showRoomFlag = 0, -0x80),true,carRotate,(tPlayer)this->fCarPlayer);
   }
   return;
 }
@@ -350,26 +350,31 @@ void tScreenCongrats::DrawForeground()
 }
 
 /* ---- tScreenCongrats::CalculatePrizes  (screencongrats.cpp:365) ---- */
+/* SOURCE-REVIEW-UNRESOLVED: retail records only this. carCXBits/carCYBits,
+ * both read-only empty asm fences and both volatile stores remain reconstruction
+ * devices, NOT recovered original locals/qualifiers or evidence of necessity.
+ * 2026-10-12 baseline29/29 PASS: typed direct float fields35dif/30 words;
+ * raw literal stores12/29 (early CX store and sequenced message/CY expression
+ * still12); nonvolatile Y/CY6/29 (swapping their source order also6).
+ * Removing the first fence alone2/29, strictly CX-LUI versus CY-LUI ordering;
+ * signed CX/CY constants likewise2. Widened CX constant8/31, duplicated real
+ * branch-local CX stores12/31. These failed candidates were reverted, not
+ * treated as a compiler/source floor. Next: inspect independent ready-list/
+ * memory-dependence causes and authentic float/word-store producer spelling.
+ * The old claim that no extra local was used contradicted the actual source
+ * and native EXTRA carCXBits record; it is withdrawn. Match is preserved,
+ * but this function is not source-restored or native-contract CLEAN.
+ * Actual CC1PLPSX RTL receipts: build/nc12/prize_rtl baseline/no_first_fence.
+ * Both empty output-less asms are asm_operands/v (implicitly volatile), so
+ * the first is a scheduling boundary, not merely an inert extra reference.
+ * Baseline scheduler insn15 has ref_count17 (scheduler dependencies, not17
+ * source value reads); its ready-list tail is
+ * 114/15/13 at T-19/20/21. Without it, CY's split pair112/113 precedes CX13;
+ * the final handout still uses a1, leaving two order-only differences.
+ * Do not transfer a register-priority-only recipe to this scheduling case. */
 void tScreenCongrats::CalculatePrizes()
 
 {
-  /* SYM-CODEGEN-CARRIER: carCYBits
-     SYM-CODEGEN-CARRIER: carCXBits
-     The function SYM records only `this`; these are semantic names for the
-     two raw float-constant quantities required by retail allocation, not
-     claims of recoverable source-local names.  Direct float assignments are
-     FAIL 35 at 30/29 because `this` is copied to $a1; direct raw field writes
-     without the quantities are FAIL 12 at 29/29.  Keeping fCarCX live through
-     the tail restores `this`=$a0, fCarCX=$a1, and fCarCY=$v1 and remains the
-     best measured shape at exact 29/29 with four scheduling-only diffs.
-     [SOURCE PASS 2026-08-26, 4->0, 29/29] Declare `carCXBits`, consume it at
-     a zero-byte source boundary, and only then declare `carCYBits`; this keeps
-     the CX `lui` at instruction zero instead of allowing the CY pair to win
-     the ready list.  Volatile lvalues on exactly fCarY/fCarCY preserve retail's
-     adjacent Y-before-CY stores.  Declaration swapping and comma staging were
-     neutral at FAIL 4; the bounded store ordering alone reached FAIL 2, and a
-     redundant fCarCX store was FAIL 6.  No hard register, emitted asm, extra
-     local, or post-compilation modification is used. */
   const unsigned long carCXBits = 0x40800000;
   __asm__("" : : "r"(carCXBits));
   const unsigned long carCYBits = 0xc0eccccd;

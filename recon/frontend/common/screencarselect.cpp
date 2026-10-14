@@ -4,6 +4,11 @@
  */
 #include "screencarselect.h"
 
+/* Canonical PsyQ 4.3 LIBGPU.H:104. Retail SLD groups each rectangle setup
+ * into one statement; this owner does not import the vendor GPU header. */
+#define setRECT(r, _x, _y, _w, _h) \
+    (r)->x = (_x),(r)->y = (_y),(r)->w = (_w),(r)->h = (_h)
+
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tFEApplication * App(void) { return FEApp; }
 
@@ -17,6 +22,12 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks[0]; }
 static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
+/* ORIGINAL-NAME-UNRESOLVED: the same inferred money getter used by the
+ * congratulations/postgame callers; retail supplies its receiver-free pair. */
+static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
+/* ORIGINAL-NAME-UNRESOLVED: inferred selector spelling. Retail emits an
+ * empty inline pair at each of these menu-selection reads. */
+static inline int Menu_CurrentItem(tMenu &menu) { return menu.fCurrentItem; }
 /* `ticks` is VSync-ISR state: each read is a real load */
 static inline int VSyncTicks(void) { return *(volatile int *)&ticks[0]; }
 static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
@@ -24,6 +35,9 @@ static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
 static inline u_char FrontEnd_PinkSlipsCar(int player) { return frontEnd.pinkSlipsCar[player]; }
 static inline char *Text_WaitingForPlayer(void) { return TextSys_Word(0x2a8); }
 static inline void Dialog_SetString(tDialogBase *dialog, char *string) { ((tDialogBackUpOnly *)dialog)->string = string; }
+/* ORIGINAL-NAME-UNRESOLVED: same inferred readiness getter as FEMenuDefs.
+ * Retail's receiver-free pair supplies its source ownership, not its name. */
+static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFullyOpen ^ 1) == 0; }
 
 
 /* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
@@ -45,6 +59,31 @@ inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player)
   OffsetY = y;
   specificPlayer = (short)player;
   return this;
+}
+
+inline tDialogBase *tDialogBase::SetPosition(short x, short y)
+{
+  OffsetX = x;
+  OffsetY = y;
+  return this;
+}
+
+inline void tDialogBase::SetSpecificPlayer(short player)
+{
+  specificPlayer = player;
+}
+
+/* Inferred overloads: receiver ownership is authoritative, spelling is not. */
+inline void tDialogMessageString::Display(char *text)
+{
+  string = text;
+  tDialogBase::Display();
+}
+
+inline void tDialogMessageString::Display(int word)
+{
+  string = TextSys_Word(word);
+  tDialogBase::Display();
 }
 
 /* SYM-INLINE reconstruction (original identifier/declaration site unavailable):
@@ -211,20 +250,30 @@ void tScreenCarSelect::Cleanup()
 /* ---- tScreenCarSelect::DrawOverlay  [SCREENCARSELECT.CPP:334-494] ---- */
 /* Retail fade is the icon-fade SHORT (0/96), not the transition update value.
  * Structured clamp arms replace the jump; both old absorption identities are
- * gone. flags/xPos/money objects, original title staging and full scopes/SLD
- * remain source review. Failed removals do not prove distinct source objects. */
+ * gone. Money/selector getters and the conditional price selection recover
+ * every retail scope boundary at 551/551 PASS. Their names are inferred.
+ * The recorded j is reused for the 0x410/0x411 icon flags (fits SHORT), then
+ * reinitialized for the later stat-clear loop; its native home remains $a0.
+ * This removes both flags objects, but does not uniquely prove the original
+ * reuse spelling. Direct flags/coordinate arguments are 138dif/557; reused
+ * LONG value for flags is 103dif/552. Both xPos objects are also gone:
+ * negative-subtrahend coordinate arguments preserve all551 words and every
+ * native name/type/home/scope tuple, without a substitute object or fence.
+ * i is 0..2 here, so neither the offset nor its negation can overflow.
+ * The canonical PsyQ setRECT macro recovers retail's three single-line
+ * rectangle initialization groups without changing any instruction.
+ * Other measured coordinate routes:
+ * direct coordinates (both orders) are 80dif/551, reused SHORT text 90/555,
+ * reused INT moneyColor 104/551, LONG value 173/552, temp.x 180/557,
+ * widened multiply/add 224/577. No failed route proves an original object.
+ * Full SLD and literal original accessor/reuse spelling remain unresolved. */
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
-
-  /* [SYM] 8c decl order: pos, temp, carInfo, fade, i, j, drawFlags, text,
-     value, validCar, moneyColor, upgradeTranslate, upgradeIcons */
   RECT pos;
   RECT temp;
   tCarInfo carInfo;
-  short fade;
-  short i;
-  short j;
+  short fade, i, j;
   tDrawShapeExtended drawFlags;
   short text;
   long value;
@@ -233,7 +282,9 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   short upgradeTranslate [3] = {2, 3, 1};
   short upgradeIcons [3] = {2, 4, 1};
   
-  if (overlay != (tOverlay *)0x0) {
+  if (overlay != (tOverlay *)0x0)
+  {
+
   validCar = this->GetCar(carInfo);
   if (overlay->direction != 0) {
     overlay->transition = overlay->transition + overlay->delta * overlay->direction;
@@ -263,10 +314,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   case 1:
   case 2:
   case 3:
-    temp.h = 0x17;
-    temp.x = pos.x + 0xf;
-    temp.y = pos.y + pos.h + -0x1e;
-    temp.w = pos.w + -0x1e;
+    setRECT(&temp,pos.x + 0xf,pos.y + pos.h - 0x1e,pos.w - 0x1e,0x17);
     if (validCar != 0) {
       FETextRender_MenuTextPositionedJustify((signed char)carInfo.fCarID + 0x121,temp.x + temp.w + -0xc,pos.y + 2,1,textState_Selected,
                  textType_FramedInfo);
@@ -274,16 +322,10 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
     text = overlay->ID == 2 ? 0x8d : overlay->ID == 3 ? 0x8e : 0x8c;
     if (validCar != 0) {
       moneyColor = 0xbebe;
-      if (overlay->ID == 2) {
-        value = carInfo.fPrices[0];
-      }
-      else if (overlay->ID == 3) {
-        value = carInfo.fPrices
-                    [upgradeTranslate[(short)menuDefs->menuCarUpgrades.fCurrentItem]];
-      }
-      else {
-        value = carManager.CalcUsedPrice((ushort)(byte)frontEnd.sellerCar);
-      }
+      value = overlay->ID == 2 ? carInfo.fPrices[0] :
+              overlay->ID == 3 ?
+              carInfo.fPrices[upgradeTranslate[(short)Menu_CurrentItem(menuDefs->menuCarUpgrades)]] :
+              carManager.CalcUsedPrice((ushort)(byte)frontEnd.sellerCar);
     }
     else {
       moneyColor = 0x232323;
@@ -293,14 +335,8 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
     FETextRender_MenuTextPositionedJustify(text,temp.x + (temp.w >> 1),
                              temp.y + 3,1,textState_Selected,textType_FramedInfo)
     ;
-    {
-      /* SOURCE-REVIEW-UNRESOLVED: value reuse still changes the money-load
-       * issue order (6dif/551 after restoring the actual fade quantity). */
-      long tournamentMoney;
-      tournamentMoney = tournamentManager.fMoney;
-      DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 0xd,9,
-                 tournamentMoney,0xbebe,0x232323);
-    }
+    DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 0xd,9,
+              Tournament_Money(tournamentManager),0xbebe,0x232323);
     FETextRender_MenuTextPositionedJustify(0x7b,temp.x + (temp.w >> 1),
                             temp.y + 0xd,1,textState_Selected,textType_FramedInfo);
     DrawShape_NFS4Rectangle(temp);   /* W58-A1: RECT& decl */
@@ -308,25 +344,16 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
     break;
   case 4:
     for (i = 0; i < 3; i = i + 1) {
-      /* Retail fade is the SHORT icon-fade argument (0/96), not a Y offset. */
-      /* SYM-CODEGEN-CARRIER: flags -- inlining the predicate/0x410 mask in
-         both calls is measured FAIL188 with six extra instructions. */
-      int flags;
-      /* SOURCE-REVIEW-UNRESOLVED: direct index-first coordinate expressions
-       * still change allocation (80dif/551 after restoring owner regions). */
-      int xPos;
-
       fade = 0;
       if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
         fade = 0x60;
       }
       drawFlags.tint[0] = 0xbebe;
-      flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
-      flags |= 0x410;
-      xPos = i * 0x28 + 0x21;
+      j = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
+      j |= 0x410;
       DrawShapeExtended(0x62 + i * 10 + (FE_Ticks() >> 4) % 10,
-                        flags,
-                        pos.x + xPos,pos.y + 6,
+                        j,
+                        pos.x - (-(i * 0x28 + 0x21)),pos.y + 6,
                         fade,1,&drawFlags);
     }
     break;
@@ -334,41 +361,25 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
     if (overlay->transition == 0x80) {
       int descrItem;
       for (i = 0; i < 3; i = i + 1) {
-        int flags;
-        int xPos;
 
         fade = 0;
         if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
           fade = 0x60;
         }
         drawFlags.tint[0] = 0xbebe;
-        flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
-        flags |= 0x410;
-        xPos = i * 0x28 + 0x85;
+        j = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
+        j |= 0x410;
         DrawShapeExtended(0x62 + i * 10 + (FE_Ticks() >> 4) % 10,
-                          flags,
-                          pos.x + xPos,pos.y + 6,
+                          j,
+                          pos.x - (-(i * 0x28 + 0x85)),pos.y + 6,
                           fade,1,&drawFlags);
       }
-      temp.y = pos.y + 0x23;
-      temp.x = pos.x + 0x1e;
-      temp.w = pos.w + -0x3c;
-      temp.h = pos.h + -0x4b;
-      /* [W85-S5, volatile removed] This argument used to be spelled
-         `*(volatile int *)&menuDefs->menuCarUpgrades.fCurrentItem + 0x96`.
-         What the volatile bought is the FULL-WORD load retail uses; a plain
-         read narrows to `lhu`.  An honest named `int` local holding the field
-         reproduces it with no volatile (whole-TU 59/59 PASS).  FALSIFIED:
-         a plain `*(int *)&` cast 2; the direct field read 2. */
-      {
-        const int curItem = menuDefs->menuCarUpgrades.fCurrentItem;
-
+      setRECT(&temp,pos.x + 0x1e,pos.y + 0x23,pos.w - 0x3c,pos.h - 0x4b);
         FETextRender_MenuTextPositionedJustify
-                  (curItem + 0x96,
+                  (Menu_CurrentItem(menuDefs->menuCarUpgrades) + 0x96,
                    pos.x + (pos.w >> 1),pos.y + 0x18,2,
                    textState_Hilighted,textType_FramedInfo);
-      }
-        descrItem = (short)menuDefs->menuCarUpgrades.fCurrentItem + 0xaf;
+        descrItem = (short)Menu_CurrentItem(menuDefs->menuCarUpgrades) + 0xaf;
         if ((descrItem == 0xb0) &&
             (((signed char)carInfo.fCarID == 0xc) ||
              ((signed char)carInfo.fCarID == 10))) {
@@ -377,7 +388,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
         FETextRender_WordWrap((short)descrItem,temp,textState_Hilighted,textType_PopUpText);
       text = 0xa0;
       if ((carInfo.fUpgrades &
-           upgradeIcons[(short)menuDefs->menuCarUpgrades.fCurrentItem]) == 0) {
+           upgradeIcons[(short)Menu_CurrentItem(menuDefs->menuCarUpgrades)]) == 0) {
         text = 0x9e;
         if (gPadinfo.buf[0].ID == '#') {
           text = 0x9f;
@@ -387,10 +398,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
                  textType_FramedInfo);
     }
     if ((0x42 < pos.w) && (0x32 < pos.h)) {
-      temp.w = pos.w + -0x1e;
-      temp.h = pos.h + -0x19;
-      temp.x = pos.x + 0xf;
-      temp.y = pos.y + 0x14;
+      setRECT(&temp,pos.x + 0xf,pos.y + 0x14,pos.w - 0x1e,pos.h - 0x19);
       DrawShape_NFS4Rectangle(temp);   /* W58-A1: RECT& decl */
     }
     break;
@@ -950,26 +958,30 @@ void tScreenCarSelect::UpdateBrightness(short i)
 
 
 /* ---- tScreenCarSelect::DrawBackground  [SCREENCARSELECT.CPP:966-993] ---- */
+/* 2026-10-12: the empty retail inline pair at+76 reads the video-wall
+ * transition direction. The inferred TransitionDirection accessor recovers
+ * it without a local capture; its name is not supplied by the pair. All
+ * local/type/home/depth and20 scope boundary tuples match at76/76 PASS.
+ * The old canUpload necessity marker described an already-removed capture;
+ * no such object is present or reintroduced. Ordinary statement layout after
+ * removing stale in-body commentary improves SLD72->16 differing tags; the
+ * GetCar/load/conditional upload/brightness phase is exact. The fade/draw
+ * phase remains seven source lines earlier than retail after its untagged
+ * gap; no unexplained padding/comments are invented to seal that tail.
+ * End23/27 and full block-line attribution/original text remain open. */
 void tScreenCarSelect::DrawBackground()
-
 {
-  /* SYM/PASS: the recorded caller local is only carInfo.  Flattened slots
-     13/10 and the direct brightness conditional remove valid/vtbl/bright;
-     GetPlayer restores the nested tFEApplication receiver. */
-  /* SYM-CODEGEN-CARRIER: canUpload -- retail records no caller local here,
-     but folding this predicate directly into the if is FAIL7 (75/76): it
-     removes retail's boolean materialization/nop and reverses the final branch.
-     The identifier is not recoverable; this semantic spelling documents the
-     exact source-level allocation carrier. */
   tCarInfo carInfo;
 
-  if (this->GetCar(carInfo) != 0) {
+  if (this->GetCar(carInfo) != 0)
+  {
     ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-    if (((this->fSwapShapes.fFile != (char *)0x0) &&
-                (this->fVideoWall[0].fTransitionDirection != -1) &&
-                /* SYM-INLINE-THIS: GetPlayer */
-                (gCarObj[FEAppB[0]->GetPlayer()]->async_handle == 0) &&
-                (0x80 < FE_Ticks() - this->fFadeTicks[0]))) {
+
+    if ((this->fSwapShapes.fFile != (char *)0x0) &&
+        (this->fVideoWall[0].TransitionDirection() != -1) &&
+        (gCarObj[FEAppB[0]->GetPlayer()]->async_handle == 0) &&
+        (0x80 < FE_Ticks() - this->fFadeTicks[0]))
+    {
       this->tScreen::UploadSwapShapes(0xb);
       TurnOn(this->fVideoWall);
       if (this->fBrightness[0] == this->fDestBrightness[0]) {
@@ -1018,6 +1030,17 @@ void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
    preheader.  The sole residual is fadeVal's $v0 versus SYM/retail $t0.
    Separate shape-fade storage, register spelling, join fences, a named flags
    pointer, and a default-first clamp funnel were neutral or worse (8/8/13/22). */
+/* SOURCE-REVIEW:557/557 PASS after restoring the real showroom else owner.
+ * All original named locals have their retail homes/depths. fadeVal is the
+ * shape fade in t0, not an extra named text-fade argument: direct CalcFadeVal
+ * arguments remove the latter handoff and direct fSpeechTicks reads remove
+ * shapeTicks. CurrentMenu/GetPlayer supply both actual application receivers.
+ * currentItemValue/validCarValue, overlayDirection, textBase, the absorption
+ * expression and the existing fence remain unresolved, not original-source
+ * exemptions. Combined removal was16dif/555; removing the fence with staged
+ * pointers was18/557; direct overlay direction7/556. Direct text-ID routes:
+ * negative-subtrahend6/557, unsigned-base2/557, textID accumulation134/557.
+ * All failed/neutral code candidates were restored. No compiler floor claimed. */
 void tScreenCarSelect::DrawForeground()
 
 {
@@ -1027,30 +1050,13 @@ void tScreenCarSelect::DrawForeground()
   tMenuItem *currentItem;
   /* SYM: validCar (REG BOOL) closes the 8c fn-scope set */
   bool validCar;
-  /* SYM-CODEGEN-CARRIER: currentItemValue -- using only the SYM-visible
-     `currentItem` is FAIL 11 at 556/557 and collapses retail's `$s0`->$s2
-     handoff, rotating the shared -2 mask into the wrong saved register. */
   tMenuItem *currentItemValue;
-  /* SYM-CODEGEN-CARRIER: validCarValue -- assigning the virtual-call result
-     directly to `validCar` is count-exact FAIL 14 and moves retail's `$v0`
-     ->`$s5` handoff ahead of menu-flag initialization. */
   bool validCarValue;
-  /* SYM-CODEGEN-CARRIER: overlayDirection -- a direct literal store is
-     FAIL 7 at 556/557 and loses retail's loop-invariant `$t0 = 1`. */
   int overlayDirection;
   
-  currentItemValue = App()->fCurrentMenu[0]->fItemList[App()->fCurrentMenu[0]->fCurrentItem];
+  currentItemValue = FEApp->CurrentMenu(kPlayerOne)->fItemList[
+                     FEApp->CurrentMenu(kPlayerOne)->fCurrentItem];
   validCarValue = this->GetCar(carInfo);
-  /* MATCH W86-D3 2026-09-02: the identity launder that kept `currentItem` and
-     `currentItemValue` in two registers (gcc otherwise copy-propagates one into
-     the other -- the "old-gcc no-copy-prop" identity, W85-S5) is replaced by a
-     pure-C ABSORPTION copy.  `v & (v | q)` == v for ANY q (absorption law), so
-     the value is unchanged, but it is a DIFFERENT expression, so cse cannot
-     record currentItem == currentItemValue; combine collapses the AND/OR pair
-     at ZERO bytes.  Whole-TU gate 59/59; plain removal is 2 (count-exact
-     557/557, `bne s0` vs retail `bne s2`).  Also PASS: the OR spelling, the
-     same absorption against `FEApp`, and absorbing currentItemValue in place
-     before a plain copy. */
   currentItem = (tMenuItem *)((int)currentItemValue & ((int)currentItemValue | (int)menuDefs));
   validCar = validCarValue;
   bShowStats = false;
@@ -1129,10 +1135,10 @@ void tScreenCarSelect::DrawForeground()
     this->DrawOverlay(this->fCurrentOverlays[i]);
   }
       if (validCar == 0) {
-        *(signed char *)&carInfo.fCarID = -1;
+        carInfo.fCarID = -1;
       }
       this->UpdateVideoWall(carInfo);
-      if (gCarObj[(byte)App()->fPlayer]->async_handle != 0) {
+      if (gCarObj[FEApp->GetPlayer()]->async_handle != 0) {
         this->SetBrightness(0,0);
         TurnOff(this->fVideoWall);
         this->fFadeTicks[0] = FE_Ticks();
@@ -1143,17 +1149,14 @@ void tScreenCarSelect::DrawForeground()
         this->fCameraRotation = this->fCameraRotation + 3;
         DrawCar(carInfo,0x13a,0x54,4.0,-7.5,
                    (char)this->fBrightness[0],true,this->fCameraRotation,kPlayerOne);
-        goto DrawFG_afterCarRender;
       }
-      {
+      else {
         int screenX;
         int screenY;
         int camRot;
         int cameraY;
         int cameraZ;
         int textID;
-        /* SYM-CODEGEN-CARRIER: textBase -- folding the 996 base into the full
-           text ID is count-exact FAIL 2 and associates it with the wrong arm. */
         int textBase;
         u_long textTicks;
         long elapsedticks;
@@ -1164,18 +1167,6 @@ void tScreenCarSelect::DrawForeground()
         tDrawShapeExtended drawFlags;
         int textColor;
         int fadeVal;
-        /* MATCH (FRONT 2026-10-04): shapeFade is DEFAULT-INITIALISED to 0x80
-           before the two tick tests (retail `li $t0,0x80` in the first bnez
-           delay slot).  The early set keeps shapeFade live across the compare
-           temps in $v0/$v1 and through the call-argument setup, so it lands in
-           retail $t0 with no boundary.  The old if/else-with-goto form needed
-           an early-clobber empty asm and a fadeBase carrier (W67). */
-        /* SYM-CODEGEN-CARRIER: shapeFade -- a direct nested conditional in
-           the draw call is FAIL 11 at 558/557 and stores the result via `$v0`. */
-        int shapeFade;
-        /* SYM-CODEGEN-CARRIER: shapeTicks -- repeated direct member reads are
-           FAIL 12 at 559/557, reload the value, and reshape both fade arms. */
-        u_long shapeTicks;
 
         screenX = 0;
         screenY = 0;
@@ -1189,29 +1180,26 @@ void tScreenCarSelect::DrawForeground()
           textTicks = elapsedticks - ((elapsedticks >> 9) << 9);
           textColor = kRGBVals[(byte)textDefinitions[TextSys_WordFlags((short)textID)][4]];
           if (textTicks < 0x80) {
-            fadeVal = 0x80 - textTicks;
-            textColor = CalcFadeVal(textColor,fadeVal);
+            textColor = CalcFadeVal(textColor,0x80 - textTicks);
           }
           else if (0x200 - textTicks < 0x80) {
-            fadeVal = textTicks - 0x180;
-            textColor = CalcFadeVal(textColor,fadeVal);
+            textColor = CalcFadeVal(textColor,textTicks - 0x180);
           }
           FETextRender_FullTextRGB(TextSys_Word(textID),(short)TextSys_WordX(textID),
                                   (short)TextSys_WordY(textID),textColor,'\0',0);
         }
         drawFlags.tint[0] = 0x551e00;
         drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-        shapeTicks = this->fSpeechTicks;
-        shapeFade = 0x80;
-        if (shapeTicks >= 0x101) {
-          if (shapeTicks >= 0x181) {
-            shapeFade = 0;
+        fadeVal = 0x80;
+        if (this->fSpeechTicks >= 0x101) {
+          if (this->fSpeechTicks >= 0x181) {
+            fadeVal = 0;
           }
           else {
-            shapeFade = 0x180 - shapeTicks;
+            fadeVal = 0x180 - this->fSpeechTicks;
           }
         }
-        DrawShapeExtended(0xA,0x200,0,0,shapeFade,0,&drawFlags);
+        DrawShapeExtended(0xA,0x200,0,0,fadeVal,0,&drawFlags);
         elapsedticks = FE_Ticks() - this->fShowroomTicks;
         while (600 < elapsedticks) {
           this->fShowroomTicks = this->fShowroomTicks + 600;
@@ -1260,7 +1248,6 @@ void tScreenCarSelect::DrawForeground()
           ;
         }
       }
-DrawFG_afterCarRender:
       if (((gCarObj[0]->async_handle == 0) && (this->fBrightness[0] == this->fDestBrightness[0])) &&
          ((this->fBrightness[0] == 0 && (0x80 < FE_Ticks() - this->fFadeTicks[0])))) {
         this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
@@ -1524,15 +1511,17 @@ void tScreenCarSelectDuel::UpdateOpponentVideoWall(tCarInfo &carInfo)
 
 
 /* ---- tScreenCarSelectDuel::DrawBackground  [SCREENCARSELECT.CPP:1471-1607] ---- */
-/* MATCH: 154 -> 0 diffs.  The SYM local set is authoritative: both cars use
-   the single stack tCarInfo, drenv/daprim keep their typed PSY-Q forms, and
-   validCar is the vcall BOOL.  The two readiness tests need BOOL destinations
-   fed by block-local elapsed expressions; byte temporaries add `andi 255`,
-   while direct combined conditions perturb the surrounding allocation.
-   Source-only SYM cleanup (2026-08-26) folds the opponent-credit and repeated
-   brightness values directly, and canonical flattened vtable slots 16/13/12/10
-   remove all three decompiler dispatch aliases while preserving exact retail
-   delta calls and passing the safe-index audit. */
+/* 2026-10-12 MATCH414/414, native CLEAN: the two readiness predicates use
+ * the actual TransitionDirection getter, async state and elapsed expression
+ * directly, without p1Ready/p2Ready or either elapsed capture. Their former
+ * direct-form failures were relative to the incomplete getter/source regions.
+ * For both fade-in checks, async completion owns the outer region and the
+ * brightness/equality/elapsed condition belongs to its inner body. All seven
+ * ordered local/parameter tuples and all70 scope boundary tuples match retail.
+ * Nesting after brightness equality was also byte-exact, but its two regions
+ * began20 bytes too late; placing that equality in the inner test fixes them.
+ * No new helper, local, qualifier, fence, fake region or output rewrite.
+ * SOURCE-REVIEW: complete SLD/original getter/expression spelling is unsealed. */
 void tScreenCarSelectDuel::DrawBackground()
 
 {
@@ -1543,13 +1532,6 @@ void tScreenCarSelectDuel::DrawBackground()
   DR_AREA *daprim;
   RECT temp;
   bool validCar;
-  /* SYM-CODEGEN-CARRIER: p2Ready -- nesting the player-two readiness body
-     directly is count-exact FAIL 16 and loses retail's held opponent-shape
-     base plus explicit BOOL branch web. */
-  BOOL p2Ready;
-  /* SYM-CODEGEN-CARRIER: p1Ready -- nesting the player-one readiness body
-     directly is FAIL 7 at 413/414 and changes retail's explicit BOOL branch. */
-  BOOL p1Ready;
   
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   daprim = (DR_AREA *)Render_gPacketPtr;
@@ -1572,17 +1554,10 @@ void tScreenCarSelectDuel::DrawBackground()
   carInfo.fColor = carInfo.fColorOrder[carInfo.fDefaultColor];
   this->UpdateOpponentVideoWall(carInfo);
   ::IsShapeFileLoaded((tScreen *)this,&this->fOpponentShapes);
-  p2Ready = false;
-  if ((((this->fOpponentShapes).fFile != (char *)0x0) &&
-      (this->fVideoWall[1].fTransitionDirection != -1)) &&
-     (gCarObj[1]->async_handle == 0)) {
-    /* SYM-CODEGEN-CARRIER: elapsed -- folding both block-local elapsed-time
-       values into their comparisons is count-exact FAIL 20 and reverses each
-       retail load/subtract destination web. */
-    int elapsed = FE_Ticks() - this->fFadeTicks[1];
-    p2Ready = 0x80 < elapsed;
-  }
-  if ((bool)p2Ready) {
+  if ((this->fOpponentShapes.fFile != (char *)0x0) &&
+      (this->fVideoWall[1].TransitionDirection() != -1) &&
+      (gCarObj[1]->async_handle == 0) &&
+      (0x80 < FE_Ticks() - this->fFadeTicks[1])) {
     this->tScreen::UploadShapes(this->fOpponentShapes,0,0x41,5,0);
     this->fOpponentTVsInitialized = 0;
     TurnOn(this->fVideoWall + 1);
@@ -1601,11 +1576,12 @@ void tScreenCarSelectDuel::DrawBackground()
   showRoomFlag = 0;
   DrawCar(carInfo,0x116,0xb8,1.7,-9.9,(char)this->fBrightness[1],false,
              this->fCameraRotation,kPlayerTwo);
-  if (((gCarObj[1]->async_handle == 0) &&
-      (this->fBrightness[1] == this->fDestBrightness[1])) &&
-     ((this->fBrightness[1] == 0 && (0x80 < FE_Ticks() - this->fFadeTicks[1])))) {
-    this->SetBrightness(0x80,1);
-    TurnOn(this->fVideoWall + 1);
+  if (gCarObj[1]->async_handle == 0) {
+    if ((this->fBrightness[1] == this->fDestBrightness[1]) &&
+        (this->fBrightness[1] == 0) && (0x80 < FE_Ticks() - this->fFadeTicks[1])) {
+      this->SetBrightness(0x80,1);
+      TurnOn(this->fVideoWall + 1);
+    }
   }
   this->DrawOpponentVideoWall(0x69);
   daprim = (DR_AREA *)Render_gPacketPtr;
@@ -1643,23 +1619,19 @@ void tScreenCarSelectDuel::DrawBackground()
   showRoomFlag = 0;
   DrawCar(carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
              this->fCameraRotation,kPlayerOne);
-  if ((((gCarObj[0]->async_handle == 0) &&
-       (this->fBrightness[0] == this->fDestBrightness[0])) &&
-      (this->fBrightness[0] == 0)) &&
-     (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
-    this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
-    TurnOn(this->fVideoWall);
+  if (gCarObj[0]->async_handle == 0) {
+    if ((this->fBrightness[0] == this->fDestBrightness[0]) &&
+        (this->fBrightness[0] == 0) && (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
+      this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
+      TurnOn(this->fVideoWall);
+    }
   }
   if (validCar != 0) {
     ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-    p1Ready = false;
-    if (((this->fSwapShapes.fFile != (char *)0x0) &&
-        (this->fVideoWall[0].fTransitionDirection != -1)) &&
-       (gCarObj[0]->async_handle == 0)) {
-      int elapsed = FE_Ticks() - this->fFadeTicks[0];
-      p1Ready = 0x80 < elapsed;
-    }
-    if ((bool)p1Ready) {
+    if ((this->fSwapShapes.fFile != (char *)0x0) &&
+        (this->fVideoWall[0].TransitionDirection() != -1) &&
+        (gCarObj[0]->async_handle == 0) &&
+        (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
       this->tScreen::UploadSwapShapes(5);
       TurnOn(this->fVideoWall);
       if (this->fDestBrightness[0] == this->fBrightness[0]) {
@@ -1772,6 +1744,11 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 /* ---- tScreenCarSelectTwoPlayer::DrawVideoWall  [SCREENCARSELECT.CPP:1668-1701] ---- */
 /* MATCH 2026-08-03 (18->PASS): the unsized FEApp view keeps %hi(FEApp)
    live while reloading the pointer value at each access, as in retail. */
+/* 2026-10-12 MATCH104/104, native CLEAN: loaded-shapes and not-yet-initialized
+ * TV tests are nested source conditions, not one && binding region. Restoring
+ * them places both actual FEApp receivers at retail depth6 and reproduces all
+ *18 scope boundary tuples. No helper, dummy region or replacement carrier.
+ * Complete instruction-line attribution/original text remains unsealed. */
 void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
 
 {
@@ -1787,13 +1764,14 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
                (int)this->fScreenFadeVal,0,(tDrawShapeExtended *)0x0);
     i = i + 1;
   } while (i < 0xc);
-  if (((this->fSwapShapes.fFlags & 1) != 0) &&
-     (this->fTVsInitialized == 0)) {
-    this->fVideoWall->SetOffset(6,(FEApp->GetPlayer() != 0) ? 0x69 : 0);
-    SetAvailableText(this->fVideoWall,0xf8,0x10e,
-        (FEApp->GetPlayer() != 0) ? 0x96 : 0x2d);
-    UpdateImages(this->fVideoWall);
-    this->fTVsInitialized = 1;
+  if ((this->fSwapShapes.fFlags & 1) != 0) {
+    if (this->fTVsInitialized == 0) {
+      this->fVideoWall->SetOffset(6,(FEApp->GetPlayer() != 0) ? 0x69 : 0);
+      SetAvailableText(this->fVideoWall,0xf8,0x10e,
+          (FEApp->GetPlayer() != 0) ? 0x96 : 0x2d);
+      UpdateImages(this->fVideoWall);
+      this->fTVsInitialized = 1;
+    }
   }
   if ((0 < this->fScreenFadeVal) &&
      (this->fTransitionOff != 0)) {
@@ -1870,147 +1848,96 @@ void tScreenCarSelectTwoPlayer::TurnOffVideoWall()
    FEApp-> access across this whole function (3+ uses spanning several
    calls); the plain scalar extern compiles to the unschedulable
    `lw $r,sym` macro and gets rematerialized at each use instead. */
+/* SOURCE-REVIEW:342/342 PASS with only retail's named objects. Restored all
+ * GetPlayer receiver expansions and the transition-direction getter. Direct
+ * predicates/arguments then remove elapsed/uploadReady/uploadY and both player
+ * captures. Real carInfo.fCarID replaces the signed-ID union alias. Repricing
+ * loading after the complete upload rewrite also removes that capture with
+ * zero branch divergence; older jump-graph necessity claims were basin-specific.
+ * All local/type/home/depth tuples match. Three empty zero-address scopes from
+ * the retail prefix remain unidentified; do not manufacture a no-op producer.
+ * Complete SLD/original getter and expression spelling remain unsealed. */
 void tScreenCarSelectTwoPlayer::DrawBackground()
 
 {
   /* [SYM] 8c decl order: r, carInfo, carY, drenv, daprim, temp */
   RECT r;
-  union {
-    tCarInfo carInfo;
-    signed char signedCarID;
-  }; /* SYM-CARRIER: carInfo (AUTO -248; union alias is codegen-only) */
+  tCarInfo carInfo;
   short carY;
   DRAWENV *drenv;
   DR_AREA *daprim;
   RECT temp;
-  /* SYM-CODEGEN-CARRIER: vtbl -- direct this->_vf[1][slot] indexing is
-     byte-identical, but is structurally unsafe for the pointer-to-row type and
-     fails the repository vtable-index audit.  This typed dispatch carrier
-     preserves the retail delta-call shape without inventing a helper symbol. */
-  /* SYM-CODEGEN-CARRIER: elapsed -- folding the elapsed-time expression into
-     the comparison is count-exact FAIL 10 and reverses the retail
-     load/subtract destination web. */
-  int elapsed;
-  /* SYM-CODEGEN-CARRIER: uploadY -- folding the player-dependent ordinate
-     into UploadShapes is count-exact FAIL 6 and moves `li a3,65` relative to
-     the receiver setup. */
-  short uploadY;
-  /* SYM-CODEGEN-CARRIER: uploadReady -- nesting the readiness body directly
-     is FAIL 24 at 338/342, losing four retail instructions and the held
-     shape-file base. */
-  BOOL uploadReady;
   
   carY = 0x4f;
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   daprim = (DR_AREA *)Render_gPacketPtr;
-  temp.x = 0;
-  temp.y = *(short *)((char *)drenv + 2);
-  temp.w = 0x200;
-  temp.h = (short)screenheight;
+  setRECT(&temp,0,drenv->clip.y,0x200,(short)screenheight);
   ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
   Render_gPacketPtr = (u_char *)daprim + 0xc;
   ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
   r.x = 0x122;
   r.y = 0x19;
-  if (FEAppB[0]->fPlayer == '\x01') {
+  if (FEAppB[0]->GetPlayer() == kPlayerTwo) {
     r.y = 0x82;
   }
   r.w = 200;
   r.h = 0xc;
   if (this->GetCar(carInfo) != 0) {
     r.y = 0x14;
-    if (FEAppB[0]->fPlayer == '\x01') {
+    if (FEAppB[0]->GetPlayer() == kPlayerTwo) {
       carY = 0xb8;
       r.y = 0x80;
     }
     this->fCameraRotation = this->fCameraRotation + 3;
     DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,r,0);   /* W58-A1: RECT& decl */
     this->UpdateVideoWall(carInfo);
-    /* MATCH (w83-a15): NAMING one of the two async_handle reads is a ZERO-INSN
-       JUMP-GRAPH dial (catalog 26G-3).  `rtx_equal_for_thread_p' (jump.c:4599)
-       refuses the equivalence as soon as REG_USERVAR_P holds on EITHER compared
-       pseudo, so with BOTH reads anonymous jump.c THREADS this beqz past the
-       second test's re-load: branch word 106 lands +20 where retail is +8.
-       Naming exactly ONE side blocks it (naming BOTH re-enables it -- the
-       REGNO clause runs first).  Byte-identical with the name on the `== 0'
-       test instead (measured: same object, per-symbol md5).
-       INVISIBLE to verify_asm (branch targets normalise to `T') and to wordcmp
-       (R_MIPS_26 waived) -- tools/brdist.py is the only witness. */
-    /* SYM-CODEGEN-CARRIER: loading -- one named async-handle read blocks an
-       otherwise incorrect jump-threading equivalence; see the receipt above. */
-    int loading = gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle;
-    if (loading != 0) {
+    if (gCarObj[FEAppB[0]->GetPlayer()]->async_handle != 0) {
       this->SetBrightness(0,0);
       this->fFadeTicks[0] = FE_Ticks();
     }
-    if (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0) {
+    if (gCarObj[FEAppB[0]->GetPlayer()]->async_handle == 0) {
       if (((this->fBrightness[0] == this->fDestBrightness[0]) &&
            (this->fBrightness[0] == 0)) &&
           (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
         this->SetBrightness(carInfo.fAvailable != '\0' ? 0x80 : 0x20,0);
         TurnOn(this->fVideoWall);
       }
-      /* w83-a15: the w45 void fence that stood here is DELETED, and its receipt
-         was a BASIN verdict (catalog 29A0-5 device-masking).  The fence is what
-         BLOCKED reorg's `relax_delay_slots'/`redundant_insn' redirect --
-         `resource_conflicts_p' (reorg.c:726) short-circuits on res->volatil --
-         so retail's four inner branches could never be advanced past the
-         redundant `addu a0,s0,zero' at .L8003E718 (branch words 130/132/139/143,
-         each ours exactly one instruction short of retail).  With the fence in,
-         the `loading' naming above reads as nearly inert (5 -> 3); fence OUT
-         alone costs a nop; the PAIR is REAL 0 / brdist 0 / 342 == 342.
-         Do not re-add it without re-running tools/brdist.py. */
     }
     this->UpdateBrightness(0);
     showRoomFlag = 0;
-    /* SYM-CODEGEN-CARRIER: player -- passing fPlayer directly is count-exact
-       FAIL 24 in this arm and count-exact FAIL 20 in the alternate arm; the
-       two scoped materializations preserve the retail argument register web. */
-    tPlayer player = (tPlayer)(byte)FEAppB[0]->fPlayer;
     DrawCar(carInfo,0x116,carY,1.7,-9.9,(char)this->fBrightness[0],false,
-               this->fCameraRotation,player);
+               this->fCameraRotation,FEAppB[0]->GetPlayer());
   }
   else {
-    signedCarID = -1;
+    carInfo.fCarID = -1;
     this->UpdateVideoWall(carInfo);
     showRoomFlag = 0;
-    tPlayer player = (tPlayer)(byte)FEAppB[0]->fPlayer;
     DrawCar(carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
-               this->fCameraRotation,player);
+               this->fCameraRotation,FEAppB[0]->GetPlayer());
     this->TurnOffVideoWall()
     ;
   }
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  uploadReady = false;
   if (((this->fSwapShapes.fFile != (char *)0x0) &&
-     (this->fVideoWall[0].fTransitionDirection != -1)) &&
-     (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0)) {
-    elapsed = FE_Ticks() - this->fFadeTicks[0];
-    uploadReady = 0x80 < elapsed;
-  }
-  if (uploadReady) {
-    uploadY = 0;
-    if (FEAppB[0]->fPlayer == '\x01') {
-      uploadY = 0x41;
-    }
-    this->tScreen::UploadShapes(this->fSwapShapes,0,uploadY,5,0);
+     (this->fVideoWall[0].TransitionDirection() != -1)) &&
+     (gCarObj[FEAppB[0]->GetPlayer()]->async_handle == 0) &&
+     (0x80 < FE_Ticks() - this->fFadeTicks[0])) {
+    this->tScreen::UploadShapes(this->fSwapShapes,0,
+                               FEAppB[0]->GetPlayer() == kPlayerTwo ? 0x41 : 0,5,0);
     TurnOn(this->fVideoWall);
     if (this->fDestBrightness[0] == this->fBrightness[0]) {
       this->SetBrightness(carInfo.fAvailable != '\0' ? 0x80 : 0x20,0);
     }
   }
   r.y = 0;
-  if (FEAppB[0]->fPlayer == '\x01') {
+  if (FEAppB[0]->GetPlayer() == kPlayerTwo) {
     r.y = 0x69;
   }
   this->DrawVideoWall(r.y);
   this->SetDialog();
-  temp.x = 0;
-  temp.y = *(short *)((char *)drenv + 2);
-  temp.w = 0x200;
-  temp.h = (short)(screenheight / 2);
-  if (FEAppB[0]->fPlayer == '\x01') {
+  setRECT(&temp,0,drenv->clip.y,0x200,(short)(screenheight / 2));
+  if (FEAppB[0]->GetPlayer() == kPlayerTwo) {
     temp.y = temp.y + temp.h;
   }
   daprim = (DR_AREA *)Render_gPacketPtr;
@@ -2074,7 +2001,7 @@ void tScreenCarSelectTwoPlayer::SetDialog()
   if (FEApp->waitingForOtherPlayer[player] != 0) {
     Dialog_SetString(this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c, (tPlayer)(short)player),
       (sprintf(WaitingString,Text_WaitingForPlayer(),PlayerName(1 - player)), WaitingString));
-    this->CarDialog.Display();
+    this->CarDialog.tDialogBase::Display();
   }
   else {
     this->CarDialog.Hide();
@@ -2186,37 +2113,22 @@ void tScreenPinkSlipsCarSelect::DrawBackground()
 
 
 /* ---- tScreenPinkSlipsCarSelect::DoMemCardStuff  [SCREENCARSELECT.CPP:1958-2061] ---- */
-/* MATCH: 83 -> 0 diffs.  The SYM budget has only player/card plus the scoped
-   load result; removing the decompiler's duplicate player/card identities
-   restores $s3/$s1.  CURRENTLYUSINGMEMCARD is a 32-bit BOOL (`lw`, not `lbu`).
-   The explicit xor-ready edge preserves retail's dialog branch and the named
-   PinkSlipsScreenState store lets sched2 fill the first Redraw delay slot.
-   Separate result pointer/value temporaries reproduce the shared outcome store;
-   the default arm's block-local base pointer fixes its %hi/%lo/index order. */
+/* SOURCE-REVIEW: 198/198 PASS with only retail's player/card and scoped ret.
+ * Dialog_FullyOpen restores the missing readiness pair without the invented
+ * ready label. Direct pCI and PinkSlipsScreenState accesses remove cardInfo,
+ * pinkState, resultState, resultStatePtr and stateBase; GCC merges the actual
+ * outcome stores itself. Old separate-carrier necessity claims are withdrawn.
+ * The readiness else-if owns the wait phase through +224; independent guards
+ * matched code but ended +196. Positive nested readiness was six differences.
+ * Negative card selection `player != kPlayerOne ? 5 : 1` preserves the real
+ * branch polarity and retail's single initializer line; reversed arms were
+ * four differences at198 words. No original literal spelling is certified.
+ * The getter name is inferred; original spelling/full SLD remain unsealed. */
 void tScreenPinkSlipsCarSelect::DoMemCardStuff()
 
 {
-  /* Reliable SYM does not name these optimized-away source identities:
-     SYM-CODEGEN-CARRIER: cardInfo
-     SYM-CODEGEN-CARRIER: resultState
-     SYM-CODEGEN-CARRIER: resultStatePtr
-     SYM-CODEGEN-CARRIER: pinkState
-     SYM-CODEGEN-CARRIER: stateBase */
-  /* [SYM] 8c decl order at fn scope: player, card (`ret` is block-scoped
-     to the load arm opened at SLD 39). */
-  int player;
-  int card;
-  CARDINFO_def *cardInfo;
-  PinkSlipsCarSelectState resultState;
-  PinkSlipsCarSelectState *resultStatePtr;
-  PinkSlipsCarSelectState *pinkState;
-  
-  /* SYM-INLINE-THIS: GetPlayer */
-  player = FEApp->GetPlayer();
-  card = 1;
-  if (player != kPlayerOne) {
-    card = 5;
-  }
+  int player = FEApp->GetPlayer();
+  int card = player != kPlayerOne ? 5 : 1;
   if (this->fExitingScreen != 0) {
     return;
   }
@@ -2229,28 +2141,24 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
   if (PinkSlipsScreenState[1] == CardCurrentlyLoading) {
     return;
   }
-  pinkState = PinkSlipsScreenState + player;
-  if (*pinkState == CardLoadedFine) {
+  if (PinkSlipsScreenState[player] == CardLoadedFine) {
     return;
   }
-  if ((this->CarDialog.fFullyOpen ^ 1) == 0) {
-    goto DoMC_dialogReady;
+  if (!Dialog_FullyOpen((tDialogBase *)&this->CarDialog)) {
+    this->waitfordialog = 0;
+    return;
   }
-  this->waitfordialog = 0;
-  return;
-DoMC_dialogReady:
-  if (this->waitfordialog < 5) {
+  else if (this->waitfordialog < 5) {
     this->waitfordialog = this->waitfordialog + 1;
     return;
   }
-  if (*pinkState != CardCurrentlyLoading) {
+  if (PinkSlipsScreenState[player] != CardCurrentlyLoading) {
     MCRD_handlecardevents(card);
-    cardInfo = MCRD_getcard(card);
-    this->pCI = cardInfo;
-    if (cardInfo->status == -1) {
-      *pinkState = NoCardInserted;
+    this->pCI = MCRD_getcard(card);
+    if (this->pCI->status == -1) {
+      PinkSlipsScreenState[player] = NoCardInserted;
     }
-    else if ((CURRENTLYUSINGMEMCARD == 0) && (*pinkState == NoCardInserted)) {
+    else if ((CURRENTLYUSINGMEMCARD == 0) && (PinkSlipsScreenState[player] == NoCardInserted)) {
       int ret;   /* [SYM] REG $v1, block opened at SLD 39 */
 
       PinkSlipsScreenState[player] = CardCurrentlyLoading;
@@ -2261,39 +2169,31 @@ DoMC_dialogReady:
         carManager.GetNumPinkSlipsCars((ushort)player);
         carManager.CheapestCarStockPrice();
         if (carManager.GetNumPinkSlipsCars((ushort)player) == 0x20) {
-          *pinkState = TooManyCars;
+          PinkSlipsScreenState[player] = TooManyCars;
           goto DoMC_pinkSlipsIter;
         }
         if ((1 < carManager.GetNumPinkSlipsCars((ushort)player)) ||
            ((carManager.GetNumPinkSlipsCars((ushort)player) == 1) &&
             (frontEnd.pinkSlipsCash[player] >= carManager.CheapestCarStockPrice()))) {
-          resultStatePtr = PinkSlipsScreenState + player;
-          resultState = CardLoadedFine;
+          PinkSlipsScreenState[player] = CardLoadedFine;
         }
         else {
-          resultStatePtr = PinkSlipsScreenState + player;
-          resultState = NotEnoughCars;
+          PinkSlipsScreenState[player] = NotEnoughCars;
         }
       }
       else {
         switch (ret) {
         case 1:
-          *pinkState = CardFailed;
+          PinkSlipsScreenState[player] = CardFailed;
           goto DoMC_pinkSlipsIter;
         case 2:
-          *pinkState = CardFailedUnformatted;
+          PinkSlipsScreenState[player] = CardFailedUnformatted;
           goto DoMC_pinkSlipsIter;
-        default: {
-          PinkSlipsCarSelectState *stateBase;
-
-          stateBase = PinkSlipsScreenState;
-          resultStatePtr = stateBase + player;
-          resultState = CardFailedNotFound;
+        default:
+          PinkSlipsScreenState[player] = CardFailedNotFound;
           break;
         }
-        }
       }
-      *resultStatePtr = resultState;
     }
   }
 DoMC_pinkSlipsIter:
@@ -2359,27 +2259,33 @@ void tScreenPinkSlipsCarSelect::Cleanup()
 /* MATCH W63/P92 PASS (37 -> 0, 164/164 instructions).  The raw CFG/SLD puts the
    CardLoadedFine message arm first and branches to the ready-player Hide arm;
    it also places the shared card-failure tail before the three loading cases.
-   Retail SYM records one caller local, `player` in $s0; the repeated dialog
-   aliases below represent its inline tDialogMessageString `this` scopes. */
+   Retail SYM records one caller local, `player` in $s0. Direct FEApp getter
+   ownership and the ordinary waiting if/else recover the application receiver
+   and +204..+340 region. Its waiting-string dlg alias is removed at164/164.
+   Per-case Display(word) overload calls restore all eight actual dialog this
+   records and remove the remaining three dlg objects and wordnum. All named
+   local/type/home/depth tuples now match retail. Inferred position/player
+   methods supply both initial pairs without an extra enum parameter record.
+   No new storage, fake reference, asm or qualifier is used. Every scope tuple
+   matches after a common break OUTSIDE the no-card if/else, with the real
+   fCardFailed clear kept only in the failed-card arm. That source structure
+   restores the caller end +428 without altering the merged store/call stream.
+   RTL of the earlier body put parent note335 after jump333/barrier334; the
+   inline end notes327/330 move before calls while that parent stayed late.
+   Return/early-break, explicit endpoint goto and short word-ID parameter were
+   byte-neutral but did not fix it; all those diagnostic variants were reverted.
+   Original method names/signatures and full SLD remain explicitly unsealed. */
 void tScreenPinkSlipsCarSelect::SetDialog()
 
 {
-  /* [SYM] `player` (REG $s0) is the fn's sole 8c record; the carrier follows. */
   int player;
-  /* SYM-CODEGEN-CARRIER: wordnum -- retail lists no durable caller local for
-     this selector.  Each definition feeds TextSys_Word in $a0 and dies there;
-     duplicated selector-free arms are count-exact FAIL 2 (the final store uses
-     $s0 instead of retail $a0).  Reusing one selector across the disjoint card
-     and loading funnels is PASS and does not join their RTL lifetimes.  Neither
-     SYM nor the binary can distinguish this optimized local from a macro temp. */
-  int wordnum;
   
   /* SYM: `player` is the sole caller local ($s0).  SetPosition reconstructs the
      line-2100 inline tDialogBase receiver and its three retail halfword stores. */
   /* SYM-INLINE-THIS: GetPlayer */
-  player = App()->GetPlayer();
-  this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c,
-                              (tPlayer)player);
+  player = FEApp->GetPlayer();
+  this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c)
+                 ->SetSpecificPlayer((short)player);
   /* MATCH: the Hide+return block is OUT OF LINE -- the oracle's `bnez fExitingScreen`
      branches TO it and it sits physically right after the switch dispatch (`jr v0`),
      i.e. it IS the first case body.  Keeping it inline as the if-body flips the
@@ -2402,19 +2308,15 @@ switchD_8003f3b4_caseD_7:
     ((tDialogBase *)&this->CarDialog)->Hide();
     return;
   case CardLoadedFine:
-    if ((App()->waitingForOtherPlayer[player] != 0) ||
+    if ((FEApp->waitingForOtherPlayer[player] != 0) ||
         (PinkSlipsScreenState[1 - player] != CardLoadedFine)) {
       /* P866: both references are the module's SYM WaitingString buffer. */
       sprintf(WaitingString,TextSys_Word(0x2a8),PlayerName(1 - player));
-      {
-        /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
-        tDialogBackUpOnly *dlg = &this->CarDialog;
-        dlg->SetString(WaitingString)->tDialogBase::Display();
-      }
-      this->fStartCheckTick = 0;
-      goto SetDlg_cardOkReturn;
+      this->CarDialog.Display(WaitingString);
     }
-    ((tDialogBase *)&this->CarDialog)->Hide();
+    else {
+      ((tDialogBase *)&this->CarDialog)->Hide();
+    }
     this->fStartCheckTick = 0;
     goto SetDlg_cardOkReturn;
   case NoCardInserted:
@@ -2422,57 +2324,47 @@ switchD_8003f3b4_caseD_7:
       if (this->fStartCheckTick == 0) {
         this->fStartCheckTick = FE_Ticks();
       }
-      wordnum = player + 0x2ab;
-      if (799 < FE_Ticks() - this->fStartCheckTick) {
-        wordnum = player + 0x2a9;
+      this->CarDialog.Display(FE_Ticks() - this->fStartCheckTick <= 799 ?
+                              player + 0x2ab : player + 0x2a9);
+    }
+    else {
+      if (this->fStartCheckTick == 0) {
+        this->fStartCheckTick = FE_Ticks();
       }
-      {
-        /* SYM-CODEGEN-CARRIER: dlg -- the inline receiver must be born before
-           TextSys_Word to occupy retail $s0 and fill the call delay slot. */
-        tDialogBackUpOnly *dlg = &this->CarDialog;
-        dlg->SetString(TextSys_Word(wordnum))->tDialogBase::Display();
+      if (FE_Ticks() - this->fStartCheckTick < 0x385) {
+        return;
       }
-      return;
+      this->fStartCheckTick = 0;
+      this->fCardFailed = 0;
     }
-    if (this->fStartCheckTick == 0) {
-      this->fStartCheckTick = FE_Ticks();
-    }
-    if (FE_Ticks() - this->fStartCheckTick < 0x385) {
-      return;
-    }
-    this->fStartCheckTick = 0;
-    goto SetDlg_cardOkReturn;
+    break;
   case CardFailedNotFound:
-    wordnum = player + 0x2af;
-    goto SetDlg_cardFailed;
+    this->CarDialog.Display(player + 0x2af);
+    this->fCardFailed = 1;
+    this->fStartCheckTick = 0;
+    return;
   case CardFailedUnformatted:
-    wordnum = player + 0x2b1;
-    goto SetDlg_cardFailed;
+    this->CarDialog.Display(player + 0x2b1);
+    this->fCardFailed = 1;
+    this->fStartCheckTick = 0;
+    return;
   case CardFailed:
-    wordnum = player + 0x2ad;
-SetDlg_cardFailed:
-    {
-      /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
-      tDialogBackUpOnly *dlg = &this->CarDialog;
-      dlg->SetString(TextSys_Word(wordnum))->tDialogBase::Display();
-    }
+    this->CarDialog.Display(player + 0x2ad);
     this->fCardFailed = 1;
     this->fStartCheckTick = 0;
     return;
   case NotEnoughCars:
-    wordnum = player + 0x32d;
-    goto SetDlg_loadingWord;
+    this->CarDialog.Display(player + 0x32d);
+    this->fStartCheckTick = 0;
+    this->fCardFailed = 0;
+    return;
   case TooManyCars:
-    wordnum = player + 0x32f;
-    goto SetDlg_loadingWord;
+    this->CarDialog.Display(player + 0x32f);
+    this->fStartCheckTick = 0;
+    this->fCardFailed = 0;
+    return;
   case CardCurrentlyLoading:
-    wordnum = player + 0x280;
-SetDlg_loadingWord:
-    {
-      /* The shared selector remains block-local in RTL across this funnel. */
-      tDialogBackUpOnly *dlg = &this->CarDialog;
-      dlg->SetString(TextSys_Word(wordnum))->tDialogBase::Display();
-    }
+    this->CarDialog.Display(player + 0x280);
     this->fStartCheckTick = 0;
 SetDlg_cardOkReturn:
     this->fCardFailed = 0;

@@ -13,7 +13,7 @@ extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 /* (gFE_congratsCarRot is NOT extern: SYM marks it STAT carRotate = DrawBackground-local static) */
 extern int  R3DCar_aSyncLoading;
-extern int  showRoomFlag[];
+extern bool showRoomFlag; /* fe3dmenu.obj SYM EXT BOOL, scalar */
 
 /* external methods declared free-form (mgr/mgr2 = the implicit this) */
 tCarInfo *GetCarFromID(tCarManager *mgr, short carID) asm("GetCarFromID__11tCarManagers");

@@ -587,9 +587,9 @@ void Front_ResetPSXAnalogs(int player)
    do{}while(0) ref dials 8 / 156, a dead `&&label` 112 @238, the named-0x7f
    carrier 8 (inert; cse folds it), and the `newControl` spellings 10 / 28.
    Full field in scratchpad/w83/A10_receipt.md sec.5 (41 measured cells).
-   COST: two `int` declarations the SYM's 8c block does not list (it names only
-   newControl $v0 and type $v1).  That is a source fiction, but a pure-C one --
-   and it replaces six methodology-3.13-forbidden register pins.
+   SOURCE-REVIEW-UNRESOLVED: two unrecorded int declarations remain; retail
+   names only newControl $v0 and type $v1. Pure C and pin removal do not prove
+   these objects existed. Their true producer/return ownership still needs recovery.
 
    ===== W85-S3 (2026-09-02): THE LAST THREE __asm__ DEVICES IN THIS FUNCTION ARE
    GONE; it is now 100% pure C and still PASS 222/222.  Three independent finds:
@@ -632,24 +632,24 @@ int GetPSXPadValue(int value,int player)
 {
   int newControl;
   int type;
-  /* SYM-CODEGEN-CARRIER: acc1
-     SYM-CODEGEN-CARRIER: acc2
+  /* SOURCE-REVIEW-UNRESOLVED: acc1
+     SOURCE-REVIEW-UNRESOLVED: acc2
      One accumulator per cross-jump trio.
      Function scope is load-bearing (see the MATCH note above): it makes each a
      GLOBAL allocno, which is what puts them in retail's $a2/$a1 and lets every
-     OR write them in place.  The SYM lists only newControl/type. */
+     OR write them in place. This normal-code receipt is not source-object proof. */
   int acc1;
   int acc2;
   
   PAD_update();
   {
-    int padBase = (int)&gPadinfo;
+    int padBase = (int)&gPadinfo;   /* SOURCE-REVIEW-UNRESOLVED: no retail object row */
     type = padBase + (player << 5);
   }
-  if (((tPadModuleState *)type)->buf[0].nopad != '\0') {
+  if (((__typeof__(gPadinfo) *)type)->buf[0].nopad != '\0') {
     goto GetPSXPadValue_noPad;
   }
-  type = ((tPadModuleState *)type)->buf[0].ID;
+  type = ((__typeof__(gPadinfo) *)type)->buf[0].ID;
   goto GetPSXPadValue_gotType;
 GetPSXPadValue_noPad:
   type = 0;
@@ -660,7 +660,7 @@ GetPSXPadValue_gotType:
   case 0x73:
     switch (value) {
     case 0x800000:
-      /* SYM-CODEGEN-CARRIER: acc2 -- W72-A8 G4 arm; retail SYM records only
+      /* SOURCE-REVIEW-UNRESOLVED: acc2 -- W72-A8 G4 arm; retail SYM records only
          newControl/type.  W85-S3: this arm used to be a BLOCK-LOCAL `acc` plus a
          `__asm__("" : : "i"(0) : "$2","$3")` hard-register denial.  The fn-scope
          `acc2` carrier in stepwise `|=` form (identical to the six sibling arms)
@@ -711,7 +711,7 @@ GetPSXPadValue_gotType:
   case 0x23:
     switch (value) {
     case 0x800000:
-      /* SYM-CODEGEN-CARRIER: acc2 -- the twin of the 0x53/0x800000 arm above;
+      /* SOURCE-REVIEW-UNRESOLVED: acc2 -- twin of the 0x53/0x800000 arm above;
          they share retail's .L8002744C tail and MUST be converted as a pair
          (W85-S3: device-free stepwise `|=` on the fn-scope carrier). */
       acc2 = player << 0x1e;

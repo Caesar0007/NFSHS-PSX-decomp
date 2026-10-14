@@ -14,7 +14,7 @@ extern char        *Paths_Paths[];
 extern tTrackManager  trackManager;
 extern tCarManager    carManager;
 extern tTournamentManager tournamentManager;
-extern tPadModuleState gPadinfo;
+#include "shared/pad_module_globals.h"
 extern fMemCardInfo_def gMemCardInfo;
 extern tScreenMemcard *screenMemcard;
 /* TRUE TYPE = the array object (was `int *`; W62-A17).  Every oracle reference in

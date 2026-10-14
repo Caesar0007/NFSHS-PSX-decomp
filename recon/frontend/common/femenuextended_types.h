@@ -210,7 +210,6 @@ typedef tRecordBuffer tSaveRecords[187];
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
-struct tPadModuleState;
 struct tGlobalMenuDefs;
 struct charactertbl;
 

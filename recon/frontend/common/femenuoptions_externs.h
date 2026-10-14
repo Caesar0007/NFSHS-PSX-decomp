@@ -9,7 +9,7 @@ extern "C" int SetDrawMode(DR_MODE *, int, int, int, int);
 extern "C" int SetDrawArea(DR_AREA *, RECT *);
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
-extern tPadModuleState gPadinfo;
+#include "shared/pad_module_globals.h"
 extern int ticks;   /* @0x8013dcac; scalar owned by vars.c */
 extern int PulsateYellow;
 extern short MENUUSERNAME_STARTY;   /* @0x800529b2 ScreenUserName.obj-owned (cross-TU) */
@@ -34,7 +34,7 @@ int CalcFadeVal(int,int,int);  int CalcFadeVal(int,int,int,int);
 void FETextRender_FullTextRGB(char*,short,short,int,char,short);
 void FETextRender_FullText(char*,short,short,tMenuTextType,tMenuTextState,short);
 void FETextRender_Title(short);  void FETextRender_SetABR(int,bool);
-void FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool);
+int FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool); /* retail INT */
 int CalcTextFadeSelToHi(tMenuTextType, short, short)
     asm("CalcTextFadeSelToHi__F13tMenuTextTypess");
 int CalcTextFadeUnselToSel(tMenuTextType, short, short)
@@ -49,7 +49,7 @@ void DrawShapeFlat(int,int,int,int,int);
 extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenheight;
 int  GetHelpText(tScreenControllerConfig*) asm("GetHelpText__23tScreenControllerConfig");
 extern char ginfo[256];  extern int gFlip;  extern int Draw_gPlayer1View;
-void *Draw_GetDRAWENV(int,int);
+DRAWENV *Draw_GetDRAWENV(int,int); /* retail FCN PTR STRUCT DRAWENV */
 int  TextSys_WordFlags(int);
 void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char*);
 void FeMenuOptions_drawLeftFlareOut(int,int,int);  void FeAudio_AsyncPlaySpeech(int, int);
@@ -57,6 +57,6 @@ bool FECheat_ActivateBonusByCode(char*);
 /* W58-A1 (08A phantom fix): CalcOnOffFade__F13tMenuTextTypesssRiT4 -- (tMenuTextType,
  * short,short,short,int&,int&); T4 = a repeat of param 4 (0-based) = int&.  The old
  * `(...)` decl mangled both call sites as CalcOnOffFade__Fe (never links). */
-int CalcOnOffFade(tMenuTextType, short, short, short, int &, int &)
+void CalcOnOffFade(tMenuTextType, short, short, short, int &, int &)
     asm("CalcOnOffFade__F13tMenuTextTypesssRiT4");
 #endif

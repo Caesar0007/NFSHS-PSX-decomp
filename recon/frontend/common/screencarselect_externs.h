@@ -16,8 +16,9 @@ extern int                ticks[];
 extern char              *Paths_Paths[];
 extern int                kRGBVals[28];
 extern char               textDefinitions[14][6];
-extern tPadModuleState    gPadinfo;
-extern int                screenheight, showRoomFlag, gFlip, gStopCommentaryNow;
+#include "shared/pad_module_globals.h"
+extern int                screenheight, gFlip, gStopCommentaryNow;
+extern bool               showRoomFlag; /* fe3dmenu.obj SYM EXT BOOL */
 extern int                gShowroomLights[];   /* store-[] lever: cc1 materialises addr in a genreg (sw $0,%lo($v0)) not $at */
 extern int gMenuRotate[2];
 extern u_long             gCameraRotation;
@@ -149,7 +150,7 @@ char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
  * site; the typed form keeps them float.  gCView is a real DRender_tView (render.cpp),
  * not an int* -- the W56-A1 "caller passes int**" note is fixed here at the decl. */
 void  Draw_MenuRenderingView(Car_tObj *, DRender_tView *, int, int, int, unsigned long, int, float, float, int, int);
-extern void *Draw_gPlayer1View;   /* int def in render.cpp */
+extern int Draw_gPlayer1View; /* retail EXT INT at 0x8013d3cc */
 
 
 /* re-added (varargs; one per line to avoid shared-line breakage) */
@@ -163,7 +164,7 @@ void  FETextRender_MenuTextPositioned(short, short, short,
 void  Init_Memcard(bool, bool);
  void  SetLicensePlate(void);
 extern "C" CARDINFO_def *MCRD_getcard(int);
-void *Draw_GetDRAWENV(int, int);
+DRAWENV *Draw_GetDRAWENV(int, int); /* retail FCN PTR STRUCT DRAWENV */
 extern "C" int fixedmult(int, int);
 extern "C" int fixeddiv(int, int);
 extern "C" int gettick(void);

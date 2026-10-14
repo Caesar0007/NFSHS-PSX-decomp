@@ -217,14 +217,18 @@ done:
 
 
 /* ---- tMenuItemGoToMenuButtonFade::UpdateTransition  [FEMENUOPTIONS.CPP:195-199] SLD-VERIFIED ---- */
+/* 2026-10-12: period GCC min/max operators replace the three unrecorded
+   clamp snapshots here and in four sibling transitions, preserving31 words
+   at each site. The audio-slider variant preserves19 and UpdatefOpenHeight26.
+   GCC2.8.1 cp/lex.c:4200 and expr.c:6519 implement these real expressions.
+   Original macro/operator spelling is not uniquely recovered. This is not
+   ISO C++ syntax; a modern portability lane needs a semantic translation,
+   independently tested rather than silently changing the matching lane. */
 
 void tMenuItemGoToMenuButtonFade::UpdateTransition(bool selected)
 
 {
-  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
-  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
-  const int fadeValue = highClamped < 0 ? 0 : highClamped;
-  this->fFadeVal = (short)fadeValue;
+  this->fFadeVal = (short)((((int)this->fFadeVal + (int)this->fFadeDir) <? 0x80) >? 0);
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -300,10 +304,7 @@ bool tMenuItemLeftRightFade::TransitionIsFinished()
 void tMenuItemLeftRightFade::UpdateTransition(bool selected)
 
 {
-  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
-  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
-  const int fadeValue = highClamped < 0 ? 0 : highClamped;
-  this->fFadeVal = (short)fadeValue;
+  this->fFadeVal = (short)((((int)this->fFadeVal + (int)this->fFadeDir) <? 0x80) >? 0);
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -438,13 +439,18 @@ bool tOptionsMenu::TransitionIsFinished()
 
 
 /* ---- tOptionsMenu::UpdateTransition  [FEMENUOPTIONS.CPP:364-422] SLD-VERIFIED ---- */
+/* 2026-10-12: direct fItemList[i] test/dispatch in both scan arms removes
+   the unrecorded citem and explicit call-join label at172/172. GCC merges
+   those real calls to retail's shared dispatch. No second pointer object,
+   replacement alias or producer pair is needed. The older shared-capture
+   necessity claim is withdrawn. Positive forward post-test and backward
+   dispatch/fade else-if also remove all remaining gotos at172/172 and all
+   actual branch distances. Original spelling/full SLD remain open. */
 
 void tOptionsMenu::UpdateTransition()
 
 {
-  /* SYM-CODEGEN-CARRIER: citem
-   * SYM-CODEGEN-CARRIER: item
-   * SYM 8c block: the ONLY source local is `short i` (REG $s0); every other Ghidra temp
+  /* SYM 8c block: the ONLY source local is `short i` (REG $s0); every other Ghidra temp
      (iVar2/pa_Var3/iVar4/ptVar5/bVar6/sVar7) was a fabrication.  SLD segmentation:
      367 fInMenuTransition / 369 fTransitionDirection / 371 fScreenFade>0 /
      374 clamp-to-0 / 379-380 forward TransitionIsFinished scan / 383-385 goto the
@@ -452,7 +458,6 @@ void tOptionsMenu::UpdateTransition()
      403-405 shared call / 407-411 fade-in clamp / 418-419 the not-transitioning
      item loop / 422 the menu's own vtable[7] call. */
   short i;
-  tMenuItem *citem;
 
   if (this->fInMenuTransition != 0) {
     /* MATCH: `char` is UNSIGNED on this build -> a plain `< 0` folds to false and
@@ -469,7 +474,7 @@ void tOptionsMenu::UpdateTransition()
            the backward scan below — an explicit head guard, an exit-in-the-middle
            `while`, then a post-test.  With the plain `for`, gcc routes the ZERO-TRIP
            guard to the loop-exit block (which then re-tests the same null item and
-           falls through to feo_done); retail's guard branches STRAIGHT to feo_done
+           falls through to the final call); retail's guard branches STRAIGHT to that call
            (branch word 5: ours +23 vs retail +135).  Same 172 instructions either
            way — only the routing differs.  Falsified alternatives (both also clean
            + PASS 172, less 1998-natural): guard + do{}while; an explicit
@@ -480,11 +485,10 @@ void tOptionsMenu::UpdateTransition()
             i++;
             if (this->fItemList[i] == 0) break;
           }
-          citem = this->fItemList[i];
-          if (citem == 0) goto feo_done;
-          goto feo_callUpdate;
+          if (this->fItemList[i] != 0) {
+            this->fItemList[i]->UpdateTransition(0);
+          }
         }
-        goto feo_done;
       }
     }
     else {
@@ -496,19 +500,11 @@ void tOptionsMenu::UpdateTransition()
           i = i - 1;
           if (i == -1) break;
         }
-        if (i != -1) {
-          /* MATCH: BOTH paths that reach the shared UpdateTransition call load the
-             item into the SAME variable first, so gcc cross-jump-merges from the
-             `lw _vf` (oracle .L8001C9E8) instead of from the index computation —
-             which also lets the backward path reuse the `(short)i` extend the
-             `i != -1` guard already produced (`sra v1,..` / `sll v0,v1,2`). */
-          citem = this->fItemList[i];
-feo_callUpdate:
-          citem->UpdateTransition(0);
-          goto feo_done;
-        }
       }
-      if (this->fScreenFade < 0x228) {
+      if (i != -1) {
+        this->fItemList[i]->UpdateTransition(0);
+      }
+      else if (this->fScreenFade < 0x228) {
         this->fScreenFade = this->fScreenFade + *(signed char *)&this->fTransitionDirection;
         if (0x228 < this->fScreenFade) {
           this->fScreenFade = 0x228;
@@ -524,7 +520,6 @@ feo_callUpdate:
          this->fInMenuTransition == 0 && (int)i == this->fCurrentItem);
     }
   }
-feo_done:
   this->TransitionIsFinished();
   return;
 }
@@ -808,10 +803,7 @@ bool tMenuItemSlidingMenu::TransitionIsFinished()
 void tMenuItemSlidingMenu::UpdateTransition(bool selected)
 
 {
-  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
-  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
-  const int fadeValue = highClamped < 0 ? 0 : highClamped;
-  this->fFadeVal = (short)fadeValue;
+  this->fFadeVal = (short)((((int)this->fFadeVal + (int)this->fFadeDir) <? 0x80) >? 0);
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -843,150 +835,69 @@ void tMenuItemSlidingMenu::Draw(bool selected)
 
 
 /* ---- tMenuItemSlidingMenu::UpdatefOpenHeight  [FEMENUOPTIONS.CPP:711-769] SLD-VERIFIED ---- */
+/* 2026-10-12: real period GCC min/max expressions remove all nine local
+   capture declarations (including two fadeOut objects) and the old lim
+   absorption identity at136/136. Direct fFadeVal reads and the two actual
+   fade-in stores allow GCC to recover the shared clamp without newFade.
+   The old carrier/fence necessity claims were basin-specific. No new
+   qualifier,asm,helper,artificial use or compiler-output rewrite is needed.
+   The close subtraction stays inside its positive-height guard; the final
+   fade choice tests currMenu after its real assignment. Ordinary else-if
+   selection and independent selected/unselected guards also replace all
+   synthetic jumps and early-return funnels without changing136 words.
+   Complete native ownership/SLD and raw-link checks are separate receipts;
+   literal original macro/operator spelling remains unproven. */
 
 void tMenuItemSlidingMenu::UpdatefOpenHeight(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: closeH
-   * SYM-CODEGEN-CARRIER: cur
-   * SYM-CODEGEN-CARRIER: fade
-   * SYM-CODEGEN-CARRIER: fadeOut
-   * SYM-CODEGEN-CARRIER: lim
-   * SYM-CODEGEN-CARRIER: newFade
-   * SYM-CODEGEN-CARRIER: shrinkH
-   * SYM-CODEGEN-CARRIER: slide
-   * The no-local SYM block and the per-path allocation receipts below prove
-   * these are compiler expression destinations, not source-scope locals. */
-  /* MATCH: PASS 136/136.  SYM: fsize 0 / mask 0 / no named locals.  Retail's
-     two fade-in paths feed one shared clamp with two compiler temporaries:
-     the first computes newFade from the existing fade value in $v1, while the
-     second reloads fFadeVal into $v0 and forms newFade in $v1.  The explicit
-     feo_fadeInClamp join preserves that asymmetric allocation and the retail
-     delay-slot fills.  The guarded fadeOut scope and four read-only lim refs
-     independently recover the other two clamp allocations. */
-  int fade;
-  int newFade;
-
   this->fClosing = 0;
   if (this->fOpenHeight == 0) {
     this->fSlideOffset = this->fHeight + (this->fHeight >> 1);
   }
-  /* MATCH: the subtraction lives INSIDE the guard (oracle `blez v0` with the
-     `addiu v0,v0,-4` IN its delay slot, IN PLACE on the loaded field); hoisting
-     it above the test — a comma-expression condition — keeps the loaded value
-     live and forces every clamp onto a second register. */
   if ((this->nextMenu != this->currMenu) && (0 < this->fOpenHeight))
   {
-    int closeH = this->fOpenHeight + -4;
-    if (closeH < 0) {
-      closeH = 0;
-    }
-    this->fOpenHeight = (short)closeH;
+    this->fOpenHeight = (short)(((int)this->fOpenHeight - 4) >? 0);
     this->fClosing = 1;
-    goto UpdfOpenH_currMenuCheck;
   }
-  if (this->nextMenu == (tInsideBoxMenu *)0x0) {
-    fade = (int)this->fFadeVal;
-    if (0x7f < fade) goto feo_fadeCheck;
-    if (this->fInTransition != 0) goto UpdfOpenH_currMenuCheck;
-    newFade = fade + 0x28;
-    goto feo_fadeInClamp;
+  else if ((this->nextMenu == (tInsideBoxMenu *)0x0) && ((int)this->fFadeVal < 0x80)) {
+    if (this->fInTransition == 0) {
+      this->fFadeVal = (short)(((int)this->fFadeVal + 0x28) <? 0x80);
+    }
+  }
+  else if (((0 < (int)this->fFadeVal) && (this->currMenu == (tInsideBoxMenu *)0x0)) &&
+           (this->nextMenu != (tInsideBoxMenu *)0x0)) {
+    if (this->fInTransition == 0) {
+      this->fFadeVal = (short)(((int)this->fFadeVal - 0x28) >? 0);
+    }
+    if (this->fTransitioningOut == 0) {
+      this->currMenu = this->nextMenu;
+    }
   }
   else {
-    fade = (int)this->fFadeVal;
-feo_fadeCheck:
-    if (((0 < fade) && (this->currMenu == (tInsideBoxMenu *)0x0)) &&
-       (this->nextMenu != (tInsideBoxMenu *)0x0)) {
-      if (this->fInTransition == 0) {
-        int fadeOut = fade + -0x28;
-        if (fadeOut < 0) {
-          fadeOut = 0;
-        }
-        this->fFadeVal = (short)fadeOut;
-      }
-      if (this->fTransitioningOut == 0) {
-        this->currMenu = this->nextMenu;
-      }
-      goto UpdfOpenH_currMenuCheck;
-    }
     this->currMenu = this->nextMenu;
-    if ((this->fTransitioningOut != 0) || (this->fInTransition != 0)) goto UpdfOpenH_currMenuCheck;
-    /* MATCH: test the JUST-STORED `currMenu` (identical value here) — gcc
-       store-forwards it (`beqz v1`), where re-reading `nextMenu` across the
-       may-aliasing store costs a reload. */
-    if (this->currMenu != (tInsideBoxMenu *)0x0) {
-      int fadeOut = this->fFadeVal + -0x28;
-      if (fadeOut < 0) {
-        fadeOut = 0;
+    if ((this->fTransitioningOut == 0) && (this->fInTransition == 0)) {
+      if (this->currMenu != (tInsideBoxMenu *)0x0) {
+        this->fFadeVal = (short)(((int)this->fFadeVal - 0x28) >? 0);
       }
-      this->fFadeVal = (short)fadeOut;
-      goto UpdfOpenH_currMenuCheck;
+      else {
+        this->fFadeVal = (short)(((int)this->fFadeVal + 0x28) <? 0x80);
+      }
     }
   }
-  /* MATCH: this second path must omit the otherwise redundant `fade` reload.
-     Assigning the member expression directly to newFade gives oracle
-     `lh v0,44; addiu v1,v0,40`; the explicit join above keeps the first path's
-     `addiu v1,v1,40` and shared clamp rather than inverting its branch. */
-  newFade = (int)this->fFadeVal + 0x28;
-feo_fadeInClamp:
-  if (0x80 < newFade) {
-    newFade = 0x80;
-  }
-  this->fFadeVal = (short)newFade;
-UpdfOpenH_currMenuCheck:
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
-    if (selected != 0) {
-      if (this->fClosing == 0) {
-        /* MATCH: plain if/else with the store in BOTH arms — gcc cross-jump-merges
-           them into the oracle's single `sh v1,40(a0)` and lets `fHeight` load
-           STRAIGHT into the merge register (a `short lim` pre-read forces an
-           `addu v1,a3,zero` copy and flips the two loads' order). */
-        /* MATCH: cur/lim as two int temps, the clamp merged into `lim` so both arms
-           share ONE `sh` (oracle `addu v1,a2,zero; sh v1,40`).  Four read-only
-           lim refs buy the exact local-allocation handout: cur=$a2, lim=$v1. */
-        int cur = this->fOpenHeight;
-        int lim = this->fHeight;
-        if (cur < lim) {
-          cur = cur + 4;
-          if (cur < lim) {
-            lim = cur;
-          }
-          /* MATCH W86-D3 2026-09-02: the four read-only `lim` refs that bought
-             the local-allocation handout (cur=$a2, lim=$v1) are now bought in
-             PURE C by an ABSORPTION inflator.  `lim & (lim | cur)` == lim for
-             ANY value of cur (absorption law), so it is a semantic no-op, but
-             cur is runtime-unknown to cse, so the AND survives to flow (which
-             counts the extra `lim` reference) and combine collapses it again
-             at ZERO bytes.  Measured this wave, whole-TU gate: fence removed
-             14 diffs; `int limM = -1; lim &= limM;` x1..x7 and `lim |= limZ`
-             x1..x6 all 14 (a constant mask is const-propagated away by cse
-             BEFORE flow counts it); the absorption forms
-             `lim &= (lim | cur)` / `lim |= (lim & cur)` / the same against the
-             `selected` parameter, at x1/x2/x4, ALL PASS 92/92. */
-          lim &= (lim | cur);
-          this->fOpenHeight = (short)lim;
-        }
-        else {
-          int slide = this->fSlideOffset + -6;
-          if (slide < 0) {
-            slide = 0;
-          }
-          this->fSlideOffset = (short)slide;
-        }
+    if ((selected != 0) && (this->fClosing == 0)) {
+      if ((int)this->fOpenHeight < (int)this->fHeight) {
+        this->fOpenHeight = (short)((int)this->fHeight <? ((int)this->fOpenHeight + 4));
       }
-      if (selected != 0) {
-        return;
+      else {
+        this->fSlideOffset = (short)(((int)this->fSlideOffset - 6) >? 0);
       }
     }
-    if (0 < this->fOpenHeight) {
-      int shrinkH = this->fOpenHeight + -4;
-      if (shrinkH < 0) {
-        shrinkH = 0;
-      }
-      this->fOpenHeight = (short)shrinkH;
+    if ((selected == 0) && (0 < this->fOpenHeight)) {
+      this->fOpenHeight = (short)(((int)this->fOpenHeight - 4) >? 0);
     }
   }
-  return;
 }
 
 
@@ -1031,16 +942,13 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     int drawX;
     int drawY;
 
-    /* SYM-CODEGEN-CARRIER: drawX
-       SYM-CODEGEN-CARRIER: drawY
-       MATCH: these two merged call arguments expose compiler-managed values
-       visible in retail SSA without changing the SYM source-local contract.
-       Direct drawX spelling is 63 diffs and one instruction short; a ternary
-       drawY spelling is 47 diffs and five instructions long.  The read-only
-       address fence crosses p127's 3->4 ref step so GCC hands &drawFlags and
-       the shared x+width value to $s0/$s1, as recorded by retail.  Former
-       aliases `right`, `draw`, and `drawFlagsPtr` were independently removed
-       with the function remaining PASS. */
+    /* SOURCE-REVIEW-UNRESOLVED: drawX/drawY are EXTRA native locals, not
+       recovered source names. The old address-fence explanation is stale:
+       there is no such fence in this function. Earlier direct-X63/400 and
+       ternary-Y47/406 trials do not prove distinct source objects. Current
+       duplicated Y-dependent calls139/420; X with width+10 as one subtrahend
+       60/399. Both restored. The original argument producer still needs
+       recovery; no carrier exemption or source-object floor is claimed. */
     width = fPlayList ? 0xdc : (int)this->fWidth;
     drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
     drawY = y + -2;
@@ -1171,9 +1079,6 @@ void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
 void tMenuItemSlidingActivated::UpdatefOpenHeight(bool)
 
 {
-  /* Two const clamp stages retain the retail 26-instruction dataflow while
-     emitting no extra SYM local; their names are semantic, not original. */
-
   /* MATCH: store IN each branch (gcc cross-jump-merges the two `sh`s back into
      the oracle's single join store); a shared `sVar1` temp costs an extra reg
      + copy. */
@@ -1188,15 +1093,12 @@ void tMenuItemSlidingActivated::UpdatefOpenHeight(bool)
      The limit is ONE natural expression (same spelling as TransitionOn): the
      hand-split `<<0x10` intermediate minted an extra named pseudo, which pushed
      the sum off `$v1` and forced a return funnel for uVar3. */
-  const int heightLimit = (int)this->fHeight + ((int)this->fHeight >> 1);
-  const int boundedSlideHeight = (int)this->fSlideOffset < heightLimit
-      ? (int)this->fSlideOffset : heightLimit;
   /* MATCH (06A): retail DROPS the result — there is no `return`; $v0 is left
      holding the `slt` of the clamp test incidentally.  An explicit
      `return uVar3;` funnels it through a second register (`addu a2,v0,zero`
      + `addu v0,a2,zero`). */
-  const int clampedSlideHeight = boundedSlideHeight < 0 ? 0 : boundedSlideHeight;
-  this->fSlideOffset = (short)clampedSlideHeight;
+  this->fSlideOffset = (short)(
+      (((int)this->fHeight + ((int)this->fHeight >> 1)) <? (int)this->fSlideOffset) >? 0);
 }
 
 
@@ -1270,10 +1172,7 @@ void tMenuItemSlidingActivated::UpdateTransition(bool selected)
    * constant-false call keeps the string and adds no code. */
   if (0) textpixels("SimpleMem");
 
-  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
-  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
-  const int fadeValue = highClamped < 0 ? 0 : highClamped;
-  this->fFadeVal = (short)fadeValue;
+  this->fFadeVal = (short)((((int)this->fFadeVal + (int)this->fFadeDir) <? 0x80) >? 0);
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -1572,27 +1471,16 @@ bool tMenuItemLeftRightAudioSlider::TransitionIsFinished()
 
 
 /* ---- tMenuItemLeftRightAudioSlider::UpdateTransition  [FEMENUOPTIONS.CPP:1234-1236] SLD-VERIFIED ---- */
-
+/* 2026-10-12: GCC's native min/max expression keeps the promoted sum and
+   both branch clamps anonymous. All19 instructions remain exact without
+   the retail-absent fadeValue object. <?/>? are the period GCC C++ operators,
+   not assembly or replacement storage. Native params/scopes and all19 SLD
+   tags, block lines and end delta2 now agree. Exact original macro spelling
+   is not uniquely recovered by that contract. */
 void tMenuItemLeftRightAudioSlider::UpdateTransition(bool selected)
-
 {
-  /* SYM-CODEGEN-CARRIER: fadeValue (semantic name, not recovered) -- one signed promoted sum is required for
-   * retail's 19-insn clamp. Field-in-place is FAIL 21 / 24; the two-stage
-   * const clamp matching five siblings is FAIL 9 at 20/19. A GNU statement
-   * expression is byte-PASS but emits an extra `value` local and an extra
-   * lexical block, so it does not improve source fidelity. */
-  int fadeValue;
-
-  fadeValue = (int)this->fFadeVal + (int)this->fFadeDir;
-  if (0x80 < fadeValue) {
-    fadeValue = 0x80;
-  }
-  if (fadeValue < 0) {
-    fadeValue = 0;
-  }
-  this->fFadeVal = (short)fadeValue;
+  this->fFadeVal = (short)((((int)this->fFadeVal + (int)this->fFadeDir) <? 0x80) >? 0);
   this->tMenuItem::UpdateTransition(selected);
-  return;
 }
 
 
@@ -1630,18 +1518,18 @@ tInsideBoxSongMenu::~tInsideBoxSongMenu()
 
 /* ---- tInsideBoxSongMenu::Draw [FEMENUOPTIONS.CPP:1271-1314] ----
  * Retail drawY is the centered base, not the derived row offset. Direct
- * slideOffset/w arguments need no slide/width source aliases. fe and both
- * fadeValue objects remain source review; full SLD/ownership is unsealed. */
+ * slideOffset/w arguments need no slide/width source aliases. Period GCC
+ * min/max expressions remove both fadeValue captures at156/156. Repricing
+ * the ordinary FEPlayList array access AFTER those removals eliminates fe
+ * too; its earlier2-difference result was basin-specific. All native local
+ * and scope records now agree. Original spelling/full SLD remain unsealed. */
 
 void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short maxheight)
 
 {
-  /* SOURCE-REVIEW-UNRESOLVED: the FE address and int clamp objects still
-   * affect current codegen. Failed removals do not prove original objects. */
   int j;
   int drawY;
   int song;
-  tfrontEnd *fe;
 
   
   if (screenAudio->songlist != (AudioMus_tSongList *)0x0) {
@@ -1649,21 +1537,11 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
     j = 0;
     do {
       if (j != 2) {
-        int fadeValue = this->fSelFade[j] - 8;
-        if (fadeValue < 0) {
-          fadeValue = 0;
-        }
-        this->fSelFade[j] = (short)fadeValue;
+        this->fSelFade[j] = (short)(((int)this->fSelFade[j] - 8) >? 0);
       }
       j = j + 1;
     } while (j < 5);
-    {
-      int fadeValue = this->fSelFade[2] + 8;
-      if (0x80 < fadeValue) {
-        fadeValue = 0x80;
-      }
-      this->fSelFade[2] = (short)fadeValue;
-    }
+    this->fSelFade[2] = (short)(((int)this->fSelFade[2] + 8) <? 0x80);
     if (this->fMoving != 0) {
       this->fMoving = (u_short)this->fMoving + (u_short)this->fMovingDir * 2;
       if ((this->fMovingDir < 0) && (this->fMoving < 0)) {
@@ -1674,11 +1552,10 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
       }
     }
     j = 0;
-    fe = &frontEnd;
     do {
       song = screenAudio->fSelectedSong + j - 2;
       if ((-1 < song) && (song < screenAudio->songlist->numsongs)) {
-        if (*(int *)(song * 4 + (int)fe->FEPlayList) != 0) {
+        if (frontEnd.FEPlayList[song] != 0) {
           this->fOnOffFade[j] += 0x20;
         }
         else {
@@ -1841,7 +1718,8 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool)
      ($s5: `lui;lw;addiu +960`), not the array base re-indexed per use;
      (b) ONE tDrawShapeExtended AUTO (the 2nd cost 32 frame bytes);
      (c) no return funnel — $v0 is the last stack arg, incidental;
-     (d) `y` is an int MUTATED in place by -3 (`addiu s0,s0,-3`) and reused;
+     (d) the final y-3 quantity reuses a now-dead register, not necessarily
+     a mutated source variable;
      (e) SYM records inner `tCol` and outer `drawFlags` at the same AUTO -56.
      Declaring drawFlags after the inner block lets gcc reuse that slot. */
   /* SYM ORDER: shape, Col, ColText precede the AUTO drawFlags/tCol slots;
@@ -1849,11 +1727,11 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool)
   tTexture_ShapeInfo *shape;
   int Col;
   int ColText;
-  /* SYM-CODEGEN-CARRIER: x -- parameter mutation leaves 34 diffs; retaining
-     only y leaves 24.  Its independent pseudo is required by retail. */
+  /* SOURCE-REVIEW-UNRESOLVED: x -- absent from retail. Earlier parameter
+     mutation34dif and y-only24dif do not prove a separate source object. */
   int x;
-  /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves 28 diffs.  With both
-     values exposed, GCC reproduces the exact 129-insn saved-register map. */
+  /* SOURCE-REVIEW-UNRESOLVED: y -- absent from retail. Earlier x-only28dif
+     does not certify the original producer/name; current129 words match. */
   int y;
 
   x = TextSys_WordX(this->fTextDescription) + ox;
@@ -1880,7 +1758,7 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool)
                             (int)this->fFadeVal);
   DrawShapeExtended(0xa,0x18,(short)x + 0x83,(short)y,0,1,&drawFlags);
   DrawShapeExtended(0xb,0x18,(short)x + 0xa1,(short)y,0,1,&drawFlags);
-  /* MATCH: const use-site w optimizes out of SYM while keeping the
+  /* SOURCE-REVIEW-UNRESOLVED: const use-site w optimizes out of SYM while keeping the
      subtraction UN-reassociated. Inline, gcc rewrites it as
      `(x + 0xb0) - width`; this value preserves retail's
      `addiu a2,a2,-176; subu a2,s1,a2`. */
@@ -2121,35 +1999,31 @@ char GetCurrentStickRange2(int player)
 
 
 /* ---- tInsideBoxTwoWaySlider::Calibrate  [FEMENUOPTIONS.CPP:1595-1678] SLD-VERIFIED ---- */
+/* 2026-10-12: three direct INT maximum-to-zero expressions remove the
+   case1 byte funnels and case2 analog-byte funnel at200/200. Direct FEApp
+   and screenControllerConfig argument reads also remove app/screen, without
+   changing the early retail load order or adding a producer/scope. The two
+   other byte funnels,minimum,padInfo/padBase still require source recovery;
+   failed trials below do not certify original objects or names. */
 
 void tInsideBoxTwoWaySlider::Calibrate()
 
 {
   int range;
   int player;
-  /* SYM-CODEGEN-CARRIER: padInfo
-     SYM-CODEGEN-CARRIER: padBase
-     SYM-CODEGEN-CARRIER: screen
-     SYM-CODEGEN-CARRIER: app
-     The trusted block names only range/player. These typed expression carriers
-     preserve retail's screen/a0, app/v1, pad-base and indexed-pad lifetimes;
-     their semantic reconstruction names are not claimed as original. */
-  tPadModuleState *padInfo;
-  tPadModuleState *padBase;
-  tScreenControllerConfig *screen;
-  tFEApplication *app;
+  /* SOURCE-REVIEW-UNRESOLVED: padInfo/padBase are not retail locals. Direct
+     typed pad indexing210/200 and direct base expressions10dif/200 are
+     reverted; the original address producer still needs recovery. */
+  __typeof__(gPadinfo) *padInfo;
+  __typeof__(gPadinfo) *padBase;
 
-  /* MATCH: separate typed assignments preserve the retail global-pointer load
-     order without volatile, then expose gPadinfo before reading the player. */
-  screen = screenControllerConfig[0];
-  app = FEApp;
   /* MATCH: SYM declares GetCurrentStickRange{,2} as CHAR; their nonnegative
      ABS/MAX expressions need no callee-side mask, and the caller's explicit
      u_char cast yields the oracle's `andi a1,v0,255` after each jal. */
   padBase = &gPadinfo;
-  player = (u_char)app->fInputPlayer;
-  padInfo = (tPadModuleState *)((char *)padBase + player * 0x20);
-  fHelpText = GetHelpText(screen);
+  player = (u_char)FEApp->fInputPlayer;
+  padInfo = (__typeof__(gPadinfo) *)((char *)padBase + player * 0x20);
+  fHelpText = GetHelpText(screenControllerConfig[0]);
   switch (this->fType) {
   case 0:
     if (padInfo->buf[0].ID == '#') {
@@ -2170,38 +2044,25 @@ void tInsideBoxTwoWaySlider::Calibrate()
     break;
   case 1:
     if (padInfo->buf[0].ID == '#') {
-      /* SYM-CODEGEN-CARRIER: value
-         The repeated branch-local narrow destination preserves retail's
-         sign-test/zero-select/store sequence; SYM retains no original name. */
-      char value;
-
       range = padInfo->buf[0].data.negcon.twist;
       range = (range < 0x80) ? 0x80 - range : range - 0x80;
       if ((u_char)frontEnd.steeringRange[player] - 10 < range) {
         range = (u_char)frontEnd.steeringRange[player] - 10;
       }
-      value = (char)range;
-      if (range < 0) {
-        value = 0;
-      }
-      frontEnd.deadSpot[player] = value;
+      frontEnd.deadSpot[player] = (char)(range >? 0);
     }
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
-      char value;
-
       range = (u_char)GetCurrentStickRange(player);
       if ((u_char)frontEnd.J1MAX[player] - 10 < range) {
         range = (u_char)frontEnd.J1MAX[player] - 10;
       }
-      value = (char)range;
-      if (range < 0) {
-        value = 0;
-      }
-      frontEnd.J1MIN[player] = value;
+      frontEnd.J1MIN[player] = (char)(range >? 0);
     }
     break;
   case 2:
     if (padInfo->buf[0].ID == '#') {
+      /* SOURCE-REVIEW-UNRESOLVED: direct maximum moves the global base
+         into the range load-delay slot; it is not a source-object proof. */
       char value;
 
       range = padInfo->buf[0].data.negcon.buttonI;
@@ -2212,26 +2073,19 @@ void tInsideBoxTwoWaySlider::Calibrate()
       frontEnd.ImaxRange[player] = value;
     }
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
-      char value;
-
       range = (u_char)GetCurrentStickRange2(player);
       if (range < (u_char)frontEnd.J2MIN[player] + 10) {
         range = (u_char)frontEnd.J2MIN[player] + 10;
       }
       frontEnd.J2MAX[player] = (char)range;
-      value = (char)range;
-      if (range < 0) {
-        value = 0;
-      }
-      frontEnd.J2MAX[player] = value;
+      frontEnd.J2MAX[player] = (char)(range >? 0);
     }
     break;
   case 3:
     if (padInfo->buf[0].ID == '#') {
-      /* SYM-CODEGEN-CARRIER: minimum
-         MATCH: the bound is an int carrier.  GCC can then share literal 10
-         between the comparison and fallback value, selecting retail's
-         `li; slt` pair instead of `slti` followed by a late `li`. */
+      /* SOURCE-REVIEW-UNRESOLVED: minimum is not recorded. A direct bound-
+         first maximum17dif/201 and duplicated byte stores10dif/204 still
+         miss retail's shared10/comparison funnel; neither proves a local. */
       int minimum;
 
       range = padInfo->buf[0].data.negcon.buttonII;
@@ -2872,10 +2726,7 @@ bool tUserNameMenuItem::TransitionIsFinished()
 void tUserNameMenuItem::UpdateTransition(bool selected)
 
 {
-  const int nextFade = (int)this->fFadeVal + (int)this->fFadeDir;
-  const int highClamped = 0x80 < nextFade ? 0x80 : nextFade;
-  const int fadeValue = highClamped < 0 ? 0 : highClamped;
-  this->fFadeVal = (short)fadeValue;
+  this->fFadeVal = (short)((((int)this->fFadeVal + (int)this->fFadeDir) <? 0x80) >? 0);
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
@@ -2884,23 +2735,28 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
 
 
 /* ---- tMemoryCardMenuItem::Draw  [FEMENUOPTIONS.CPP:2048-2085] SLD-VERIFIED ---- */
+/* 2026-10-12: the existing disabled-state getter restores the missing
+   tMenuItem receiver pair. Real per-arm field updates remove nextEnableValue
+   and the volatile store cast at150/150; GCC still emits one shared store
+   and the retail signed/unsigned reloads. Direct signed tests remove sv;
+   direct duplicated slide predicates remove the debug-elided less capture.
+   Older barrier/carrier necessity claims are withdrawn,not exemptions.
+   v and its unsigned field view remain explicit source recovery work.
+   Literal getter/clamp spelling and complete SLD remain unproved. */
 
 void tMemoryCardMenuItem::Draw(bool)
 
 {
   /* Retail ABI bool is unnamed while the mangled signature keeps it. */
-  /* SOURCE-RECOVERY CARRIER: nextEnableValue
-   * SYM-CODEGEN-CARRIER: v
-   * SYM-CODEGEN-CARRIER: sv
-   * SYM-CODEGEN-CARRIER: less
-   * These are the caller-saved expression results described by the measured
-   * load/clamp receipts below; none consumes a SYM local or saved register. */
+  /* SOURCE-REVIEW-UNRESOLVED: v is an EXTRA native local,not an original
+     name. Direct field conditional22dif/150 and independent low/high
+     selection10dif/152 were restored;those failures do not prove a source
+     object. The unsigned field view and exact clamp producer remain open. */
   /* SYM 8c local list (the allocation budget, 06A): fEnableFade $10=s0,
      fEnableSlide $13=s3, x $14=s4, y $16=s6, ColText $11=s1, Col $10=s0,
-     tCol AUTO -0x38, fWidth $10=s0, shape $11=s1.  Everything else here is a
-     caller-saved temp the oracle keeps in $v0/$v1/$a0 (no saved-reg cost). */
+     tCol AUTO -0x38, fWidth $10=s0, shape $11=s1. */
   /* SYM ORDER (W86-S2): the 8c Def rows read fEnableFade, fEnableSlide, x, y,
-     ColText, Col, tCol, fWidth, shape; the four non-SYM carriers follow. */
+     ColText, Col, tCol, fWidth, shape;only unresolved v follows. */
   int fEnableFade;
   int fEnableSlide;
   int x;
@@ -2910,40 +2766,23 @@ void tMemoryCardMenuItem::Draw(bool)
   tDrawShapeExtended tCol;
   int fWidth;
   tTexture_ShapeInfo *shape;
-  short nextEnableValue;
   int v;
-  int sv;
-  int less;
 
   /* MATCH: test `(fFlags & 1) != 0` -> oracle `andi;beqz` (branch-when-clear to the
      +8 arm, -8 in the fall-through), not the `== 0` -> `bnez` polarity. */
-  if ((this->fFlags & 1) != 0) {
-    nextEnableValue = this->fEnableVal + -8;
+  if ((int)this->IsDisabled() != 0) {
+    this->fEnableVal = this->fEnableVal - 8;
   }
   else {
-    nextEnableValue = this->fEnableVal + 8;
+    this->fEnableVal = this->fEnableVal + 8;
   }
-  /* W85-S3 (2026-09-02): the volatile STORE barrier below is KEPT and re-certified.
-     Removing it costs 29 diffs (5 back when the now-deleted `"r"(sv)` fence was still
-     present).  Falsified this wave: plain store 29; the two reads sourced from sVar2
-     instead of memory 29; a do{}while(0) dial on the store 29; the volatile moved from
-     the store onto the two READS 7 (best alternative, still not exact -- exactly the
-     lhu + sll/sra degradation the note below predicts).  It is a genuine store->reload
-     barrier (methodology 3.12 #13 family), not a coloring crutch.
-     MATCH: the oracle RE-READS fEnableVal from memory for the clamp -- `lh a0`
-     (SIGNED, the compare operand) FIRST, then `lhu v1` (the pass-through default).
-     The barrier that stops cse store-forwarding must sit on the STORE, not on the
-     reads: a volatile MEM also blocks combine, so a `volatile signed short` READ
-     degrades to lhu + sll/sra (and the u_short read to lhu + andi 0xffff). */
-  *(volatile short *)&this->fEnableVal = nextEnableValue;
-  sv = this->fEnableVal;
+  /* Preserve the independent upper comparison and nested zero selection;
+     combined tests may be folded and lose the retail256 test. */
   v = *(u_short *)&this->fEnableVal;
-  /* NESTED, not `&&`: gcc's fold_truthop merges `(sv<0x100) && (sv<1)` into the
-     single `sv<1` test and the oracle's `slti 256` branch disappears. */
-  if (sv < 0x100) {
-    if (sv < 1) goto fEnableZero;
+  if (this->fEnableVal < 0x100) {
+    if (this->fEnableVal < 1) goto fEnableZero;
   }
-  if (0x100 < sv) {
+  if (0x100 < this->fEnableVal) {
     v = 0x100;
   }
   goto fEnableStore;
@@ -2951,7 +2790,7 @@ fEnableZero:
   v = 0;
 fEnableStore:
   this->fEnableVal = (short)v;
-  v = (signed short)v;   /* oracle sll 16 / sra 16 of the just-stored value */
+  v = (signed short)v;
   /* H-W57: fEnableFade (SYM $10=s0) was MISSING entirely -- retail derives a
      SECOND fade from fEnableVal and feeds it to both CalcFadeVal calls; the recon
      passed fSelFade there instead (a real behavioural bug). */
@@ -2962,14 +2801,12 @@ fEnableStore:
   if (fEnableFade < 0) {
     fEnableFade = 0;
   }
-  /* MATCH: PASS (150 insns).  This is the duplicated EA clamp predicate rather
-     than a simplified clamp.  The zero-insn opacity fence stops jump.c proving
-     the second `less` test from the outer arm; inverted inner arms then retain
-     retail's `bnez`/`s3=v` delay slot and otherwise dead `li s3,128`. */
-  less = v < 0x80;
-  if (less) {
+  /* The duplicated predicate retains retail's bnez/copy delay slot and
+     secondary128 literal,with no opacity fence or less capture. Exact
+     original macro spelling is still unproven. */
+  if (v < 0x80) {
     if (0 < v) {
-      if (!less) {
+      if (0x80 <= v) {
         fEnableSlide = 0x80;
       }
       else {
@@ -2983,12 +2820,6 @@ fEnableStore:
   else {
     fEnableSlide = 0x80;
   }
-  /* W85-S3: the `__asm__("" : : "r"(sv))` 05C read-only fence that used to sit
-     here ("extends sv's live range past v's death so local_alloc hands v the lower
-     reg") is DELETED -- it is completely INERT; the whole TU gates 92/92 with and
-     without it.  NOTE the interaction: with the fence present, dropping the
-     `*(volatile short *)&this->fEnableVal` store barrier above cost 5 diffs; without
-     it, 29.  The store barrier itself is kept (see its own note). */
   if ((this->fFadeVal != 0x80) && (this->fEnableVal != 0)) {
     fEnableFade = 0x80 - fEnableFade;
     x = TextSys_WordX(this->fTextDescription);

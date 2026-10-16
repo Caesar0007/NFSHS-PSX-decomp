@@ -23,7 +23,7 @@ extern int  iSPCH_ChooseSamples(VoxChoice *choice, int maxToPick, VoxPhrase *phr
 extern int  iSPCH_SampleLength(VoxChoice *choice);                        /* @0x80100C5C */
 extern int  iSPCH_ConvertTime(int samples);                          /* @0x80100CC4 */
 extern int  iSPCH_SentenceLength(VoxSentence *sentence);                      /* @0x80100D20 */
-extern void iSPCH_OrderSentences(VoxEvent *event, int outOrder); /* @0x80100D94 */
+extern void iSPCH_OrderSentences(VoxEvent *event, unsigned char *outOrder); /* @0x80100D94 */
 extern unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs);    /* @0x80100EE0 */
 extern int  iSPCH_ShortRuleStatus(VoxSentence *sentence, int mode);           /* @0x80100F24 */
 extern int  iSPCH_SentenceGetChoices(VoxSentence *sentence, int paramTable, unsigned int ruleByte1, unsigned int ruleByte2, int filterMode); /* @0x80100F8C */

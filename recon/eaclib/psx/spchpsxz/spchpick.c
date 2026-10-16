@@ -335,102 +335,42 @@ int iSPCH_SentenceLength(VoxSentence *sentence)
     return iSPCH_ConvertTime(total);
 }
 
-/* iSPCH_OrderSentences @0x80100D94 : produce a weighted-random play order of `event`'s phrases into outOrder. */
-void iSPCH_OrderSentences(VoxEvent *event, int outOrder)
+/* iSPCH_OrderSentences @0x80100D94 : weighted-random play order of `event`'s sentences into outOrder.
+ *   Each sentence's weight is the first byte of its record; sentences are drawn without replacement
+ *   in proportion to weight, then the zero-weight ones are appended in table order. */
+void iSPCH_OrderSentences(VoxEvent *event, unsigned char *outOrder)
 {
-    /* MATCH + CORRECTNESS (w31-a4): (1) VOID -- the oracle epilogue never sets $v0 and the sole
-     * caller (ChooseSentence) ignores it; the old `unsigned char *last` return chain was invented
-     * (+2 insns, phantom stores).  (2) REAL BUG FIXED: phase 3 (append zero-weight entries) must
-     * CONTINUE `i` -- the oracle keeps appending at outOrder+s1 after the weighted picks; the old
-     * recon reset i=0 and overwrote the ordered list.  (3) weights[j] accessed directly (oracle
-     * recomputes the weights+j address per use; no pointer temp).  (4) one function-scope j reused
-     * as the PHASE-1 counter, phase-2 scan index and phase-3 loop counter (oracle reuses s0 for
-     * all three; `i` is born at phase 2).  (5) phase-2 scan = while(j<n){...break;...} -- do-while
-     * and for(;;) shapes get header-peeled (+4).
-     * residual 12 (85/83): (a) phase-1 `p` coalesces with $v0 (oracle copies it to a0, addu
-     * a0,v0,zero, because its sb-address temp takes v0) -- ours-1-shorter receiver-reuse class;
-     * (b) SOLVED in w33-a9 -- see the scan loop below.
-     * RESIDUAL 9 (82/83) is (a) alone: retail copies GetOffset16's return into $a0
-     * (`addu a0,v0,zero`) and addresses both `*p` reads off $a0, while ours reuses $v0
-     * directly and is 1 insn SHORTER.  That is the catalog's "ours-1-shorter receiver/
-     * base-reg reuse" class = PERMUTER multi-basin, NOT a floor.  Source levers falsified
-     * in w33-a9 (all 9 diffs / 82 insns, no movement): j++ before vs after the total
-     * accumulation, a named byte temp for the first read, the p[0] index form, an
-     * int-typed address local, and p hoisted to function scope.
-     * w34-a9: three more falsified (all 9 diffs / 82 insns, byte-identical output) --
-     * a second named alias `q = p` used for the store read (the catalog's cse
-     * double-evaluation shape), the `p[0]` index form on BOTH reads, and moving
-     * `j = j + 1` after the total accumulation.  The oracle's `addu a0,v0,zero` is a
-     * genuine local-alloc rotation (retail {p:$a0, byte:$v1, addr:$v0} vs ours
-     * {p:$v0, byte:$a0, addr:$v1}), not a missing evaluation.
-     * 🏆 w47-a2 SEALED (9 -> PASS 83/83).  NEW ANGLE "ONE C89 FUNCTION-SCOPE CURSOR ACROSS
-     * BOTH LOOPS": every falsified lever above kept `p` declared INSIDE a loop body, so it
-     * is a BLOCK-LOCAL quantity -- and being a copy of the call's return value it carries a
-     * qty_phys_copy_sugg of $v0, which local_alloc honours in its FIRST (suggestion) pass;
-     * the block's other temps are then pushed onto $a0/$v1 and the copy retail emits has
-     * nowhere to come from (ours 1 insn shorter).  Declaring ONE `unsigned char *p;` at
-     * FUNCTION scope and assigning it in BOTH the phase-1 and the phase-3 loop makes the
-     * pseudo span two basic blocks => REG_BASIC_BLOCK == -1 => local_alloc ignores it
-     * entirely; the block temps take $v0/$v1 and global_alloc homes the cursor in $a0,
-     * materializing retail's `addu a0,v0,zero` and the whole 3-way rotation at once.
-     * (This is also the more faithful shape: C89 puts every declaration at the top of the
-     * function, and the two loops walk the same table.)  RULE: an "ours-1-shorter, oracle
-     * copies the call result into a fresh register" residual on a per-loop pointer = the
-     * original shared ONE function-scope variable with another loop -- check the sibling
-     * loops before filing a local-alloc rotation. */
     unsigned char  weights[104];
-    unsigned int   n = event->numSentences;
+    unsigned char *p;
+    int            n = event->numSentences;
+    int            i, j;
     int            total = 0;
-    int            j = 0;
-    int            i;
-    unsigned char *p;   /* MATCH: ONE function-scope cursor shared with phase 3 -- see below */
-    if (n != 0) {
-        do {
-            p = iSPCH_GetOffset16(event, event->sentenceOffs, j);
-            weights[j] = *p;
-            j = j + 1;
-            total = total + (int)(unsigned int)*p;
-        } while (j < (int)n);
+
+    for (j = 0; j < n; j++) {
+        p = iSPCH_GetOffset16(event, event->sentenceOffs, j);
+        weights[j] = *p;
+        total += *p;
     }
+
     i = 0;
-    if (0 < total) {
-        do {
-            int r = iSPCH_Rand(total);
-            j = 0;
-            if (n != 0) {
-                /* MATCH (w33-a9, 12 -> 9): the scan is an INFINITE loop with TWO in-body
-                 * breaks -- `while (1) { ...; if (r<0) break; j++; if (!(j<n)) break; }`.
-                 * `while (j<n)` emits a rotation guard (slt/beqz, +3 insns) because cc1
-                 * cannot prove 0<(int)n from n!=0; `for(;;)` with the bound test written
-                 * as `j>=n` / `n<=j` makes loop.c PEEL the first iteration (+5, 87 insns).
-                 * Only the negated `!(j < n)` bottom test reproduces the oracle's
-                 * straight-in body with the exit at the back edge -- the whole scan block
-                 * is now byte-identical. */
-                while (1) {
-                    r = r - (int)(unsigned int)weights[j];
-                    if (r < 0)
-                        break;
-                    j = j + 1;
-                    if (!(j < (int)n))
-                        break;
-                }
-            }
-            *(char *)(outOrder + i) = (char)j;
-            i = i + 1;
-            total = total - (int)(unsigned int)weights[j];
-            weights[j] = 0;
-        } while (0 < total);
+    while (total > 0) {
+        int r = iSPCH_Rand(total);
+
+        for (j = 0; j < n; j++) {
+            r -= weights[j];
+            if (r < 0)
+                break;
+        }
+
+        outOrder[i++] = j;
+        total -= weights[j];
+        weights[j] = 0;
     }
-    j = 0;
-    if (n != 0) {
-        do {
-            p = iSPCH_GetOffset16(event, event->sentenceOffs, j);
-            if (*p == '\0') {
-                *(char *)(outOrder + i) = (char)j;
-                i = i + 1;
-            }
-            j = j + 1;
-        } while (j < (int)n);
+
+    for (j = 0; j < n; j++) {
+        p = iSPCH_GetOffset16(event, event->sentenceOffs, j);
+        if (*p == 0)
+            outOrder[i++] = j;
     }
 }
 
@@ -982,7 +922,7 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                  * The old recon reused useLen for both, which both mis-typed the argument
                  * and pinned useLen into a callee-saved reg for the whole function. */
                 ruleBits = iSPCH_GetRuleSettings(event, (int *)eventArgs, &ruleTestFlags);
-                iSPCH_OrderSentences(event, (int)sentenceOrder);
+                iSPCH_OrderSentences(event, sentenceOrder);
                 {
                     unsigned int n = event->numSentences;
                     result = -1;

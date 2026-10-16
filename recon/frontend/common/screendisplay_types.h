@@ -136,8 +136,23 @@ struct tTournamentManager {
 #endif
 #ifdef NFS4_FEMENUDEFS_SURFACE
     void StartNewTournament(unsigned char, unsigned char);
+    /* Inferred overload/signature/parameter spellings of the known query:
+       explicit frontend selection, not the manager's cached selection.
+       Retail inline records verify the operation, not its literal name. */
+    inline tTourneyInfo *CurrentTourney(unsigned char tier, unsigned char tournament) {
+        return &fDefinition->fTournaments[fDefinition->fTiers[tier].fTournOffset + tournament];
+    }
+    /* Inferred getter spelling; the retail initial money-read inline pair
+       retains no method name. No storage or virtual slot is added. */
+    inline long GetMoney() { return fMoney; }
+    /* Original inline name/signature not uniquely recovered. Mutator spelling
+       follows the track-info reconstruction; retail here records LONG amount
+       in the parameter scope. No storage or virtual slot is added. */
+    inline void SubtractMoney(long amount) {
+        (u_long &)fMoney -= (u_long)amount;
+    }
     void GetAwardInformation(tAwardInformation &);
-    bool IsTournamentFinished();
+    short IsTournamentFinished(); /* retail EXT5c91d6: FCN SHORT */
 #endif
 #ifdef NFS4_FRONT_SURFACE
     short AdvanceToNextTrack();
@@ -203,8 +218,7 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
 struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf)
-        : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) {
-    }
+        : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) {}
     void Draw(int, int, bool) {}
     bool TransitionIsFinished() { return true; }
 #endif
@@ -212,8 +226,7 @@ struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d)
-        : tMenuItemLeftRightChoice(t, d) {
-    }
+        : tMenuItemLeftRightChoice(t, d) {}
     void Draw(int, int, bool);
 #endif
 };
@@ -222,9 +235,8 @@ struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {
     short fOnOffFade;
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d)
-        : tMenuItemLeftRightChoice(t, d) {
-        fOnOffFade = 0x80;
-    }
+        : tMenuItemLeftRightChoice(t, d)
+    { fOnOffFade = 0x80; }
     void TransitionOn();
     void Draw(int, int, bool);
 #endif
@@ -300,19 +312,9 @@ struct tMenuOptions : public tMenuNFS4 {
 #endif
 };
 
-struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
-    short fFadeVal, fFadeDir;
-    bool fInTransition;
-    int flareextra;
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    tMenuItemLeftRightFade(unsigned int, tListIterator *);
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition(bool);
-    void MyLeftRightDraw(int, int);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 1
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
 struct tOptionsMenu : public tMenu {
     bool fInMenuTransition;
@@ -382,46 +384,17 @@ struct tMenuItemSlidingMenu : public tMenuItem {
 #endif
 };
 
-struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {
-    bool fActive;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuItemSlidingActivated(unsigned int a, short b, short c, short d, short e, bool f)
-        : tMenuItemSlidingMenu(a, b, c, d, e, f) {
-    }
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    virtual void UpdatefOpenHeight(bool);
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition(bool);
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 2
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
-struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuItemDisplayLeftRightChoice(unsigned int t, tListIterator *d)
-        : tMenuItemLeftRightFade(t, d) {
-    }
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    void Draw(int, int, bool);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 3
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
-struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {
-    short fOnFade;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuItemOnOffLeftRightChoice(unsigned int t, tListIterator *d)
-        : tMenuItemLeftRightFade(t, d) {
-    }
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    void TransitionOn();
-    void Draw(int, int, bool);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 4
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
 struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
     short fFadeVal, fFadeDir;
@@ -453,16 +426,9 @@ struct tInsideBoxSongMenu : public tInsideBoxMenu {
 #endif
 };
 
-struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuItemControllerLeftRightChoice(unsigned int t, tListIterator *d)
-        : tMenuItemLeftRightFade(t, d) {
-    }
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    void Draw(int, int, bool);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 5
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     tInsideBoxLeftRightSlider(unsigned int, tListIterator *);
@@ -483,71 +449,22 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
 #endif
 };
 
-struct tUserNameMenuItem : public tMenuItem {
-    char *fData;
-    short fMaxStringLength, fCurrentColumn, fCurrentRow;
-    char fRowList[10][9];
-    short fPlayer, fFadeVal, fFadeDir;
-    bool fInTransition;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    inline void SetUserNameData(short player, char *data) {
-        fPlayer = player;
-        fMaxStringLength = 7;
-        fCurrentRow = 0;
-        fCurrentColumn = 0;
-        fData = data;
-    }
-    inline void SetPostGameNameData(short player, char *data) {
-        fPlayer = player;
-        fData = data;
-        fMaxStringLength = 7;
-        fCurrentRow = 0;
-        fCurrentColumn = 0;
-    }
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    tUserNameMenuItem(unsigned int);
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void Draw(bool);
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition(bool);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 6
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
-struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
-    short fFadeVal, fFadeDir;
-    bool fInTransition;
-    signed short fEnableVal;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMenuItemGoToMenuButtonFade(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
-        : tMenuItemGoToMenuButton(t, m, f) {}
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    void UpdateTransition(bool);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 7
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
-struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tMemoryCardMenuItem(unsigned int t, tMenu *m, void (*f)(tMenuCommand &))
-        : tMenuItemGoToMenuButtonFade(t, m, f) {
-    }
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    void Draw(bool);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 8
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m,
                                      void (*f)(tMenuCommand &), int ff, int nf)
-        : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) {
-    }
+        : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) {}
     /* in-class inlines are emitted in REVERSE declaration order (retail: TIF, Draw(iib), Draw(b), then the dtor) */
     void Draw(bool) {}
     void Draw(int, int, bool) {}
@@ -555,16 +472,9 @@ struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {
 #endif
 };
 
-struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d)
-        : tInsideBoxLeftRightSlider(t, d) {
-    }
-#endif
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 9
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
 typedef enum tTVState {
     tv_StateOff = 0,

@@ -36,11 +36,21 @@ dis = subprocess.run([OBJD, '-d', '-r', '-z', str(obj)], capture_output=True, te
 
 def ours_branches(fn):
     """[(index, distance_in_insns)] for our object's branches inside fn."""
+    # 2026-10-16: full-debug GCC emits LM<n> labels inside real functions.
+    # Match verify_asm's boundary policy, not objdump's presentation chunks:
+    # LM labels and their separating blank lines do not end the function.
+    # Retail-declared interior alabels likewise remain inside its span.
+    # Backup: build/nc12/globalmenu_sketch_review_20261016/brdist-before.py.
+    interior = g['_oracle_alabels'](fn)
     lab = g['_resolve'](fn)
     body, on = [], False
     for ln in dis.splitlines():
         m = re.match(r'^([0-9a-f]{8}) <(.+)>:', ln)
         if m:
+            if on and (m.group(2) in interior or g['_compiler_debug_label'](m.group(2))):
+                continue
+            if on:
+                break
             on = (m.group(2) == lab)
             continue
         if not on:
@@ -48,8 +58,6 @@ def ours_branches(fn):
         m = re.match(r'^\s*([0-9a-f]+):\t[0-9a-f ]+\t(.*)$', ln)
         if m:
             body.append((int(m.group(1), 16), m.group(2).split(';')[0].strip()))
-        elif ln.strip() == '':
-            on = False
     out = []
     for i, (a, t) in enumerate(body):
         if BR.match(t):
@@ -111,7 +119,8 @@ def oracle_branches(fn):
     return [(i, (labels[t] - i) if (t and t in labels) else None) for i, t in brs]
 
 
-fns = sorted({m.group(2) for m in (re.match(r'^([0-9a-f]{8}) <(.+)>:', l) for l in dis.splitlines()) if m})
+fns = sorted({m.group(2) for m in (re.match(r'^([0-9a-f]{8}) <(.+)>:', l) for l in dis.splitlines())
+              if m and not g['_compiler_debug_label'](m.group(2))})
 bad = 0
 for fn in fns:
     e = oracle_branches(fn)

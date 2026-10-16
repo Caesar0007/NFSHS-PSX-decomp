@@ -1,4 +1,68 @@
-# SYM match — making the source agree with the retail `NFS4.SYM`
+# SYM match вЂ” making the source agree with the retail `NFS4.SYM`
+
+2026-10-16 LoadGame follow-up closed for requested checkpoint/pause.
+
+No new production edit:13valid native input-only alternatives (plus one
+rejected constructor-parse input) were compared with the passing baseline.
+Removing tMenuCommand() restores the retail sibling path but frame200 becomes
+192;truth/short/unsigned/mask tests,real SetString/SetChoices call shapes,
+value-initialization,switch and inverted-else forms did not recover the8bytes.
+These are compiler-stream diagnostics,not authoritative detailed diff scores.
+No substitute object,identity,qualifier or output rewrite was introduced.
+Receipts:build/nc12/loadgame_source_20261016/probe.py/probe-proof.json.
+LoadGame remains38PASS with its explicitly unresolved old temporary;the menu
+constructor fix below is preserved. Requested commit/push checkpoint excludes
+unrelated pending source/tool changes;full restoration goal is not complete.
+
+2026-10-16 GlobalMenuDefs: native full-debug PASS without initializer dials.
+
+Community fork https://decomp.me/scratch/rRFXZ (edgbla,parent IznxY) supplied
+a useful cleaned source/context,not a byte-oracle receipt. Its target equals
+our retail constructor;remote score remains98.80%. Independent native controls
+identify the transferable combination: remove eight pure-address statement
+expressions and the unused garageCarItem capture;retain compact inline bodies;
+compile the WHOLE owner with retail full-debug input-g. No-debug cleaned input
+remains different. Header compaction alone does not fix it;clean source with
+the old multiline inlines still gives debug608. No arbitrary dummy statements.
+
+The native compact/clean/g instruction stream AND assembler controls equal the
+old passing normal stream exactly,including frame640. Both exported free-setter
+and existing real-member setter forms agree. Production keeps real members,
+NOT A1_ names. Eight inline bodies retain their operations;exact original
+formatting is not uniquely established. No line padding,fake scope/local/use,
+new asm,volatile,pin,instruction/object/SYM rewrite or comparator relaxation.
+
+tools/build.py documents debug_g and selects it only for FEMenuDefs as an
+authentic whole-TU input. Retail has full local/block/SLD records;normal/debug
+preprocessed inputs are identical and both now use-g. Existing maspsx already
+accepts those SN debug directives:no new output transformation. Source/header/
+tool backups and negative controls:build/nc12/globalmenu_sketch_review_20261016.
+Four new flag-command tests preserve other flags and prevent duplicate-g.
+
+Official SOURCE-ONLY:constructor3207/3207 and all59primary functions PASS.
+All18actual shared-header consumers retain identical compiled sections/layout;
+17whole ELFs identical(FEMenuDefs gains debug symbols). Combined native gate
+run-i5qzrqfk passes unchanged bytes/full-debug,ASPSX524/0,PSYLINK0errors and full
+selected-record coverage. Its legacy primary subset is405functions351CLEAN/
+54DIRTY,not complete source proof. The existing screenusername byte reference
+equals its frozen PRE-EDIT ELF;only its absent layout companion was adopted
+after that independent check. NO existing byte/differing layout reference reset.
+
+Constructor frame/mask,all40ordered local/type/home/owner records and all105
+unpruned scope regions now match retail. FEMenuDefs65/66declaration/scope PASS;
+only LoadGame's pre-existing lexical-owner difference remains. Constructor
+relativeSLD still differs2286/3207tags,end314/847;block-line tuples agree. This
+is actual carrier/frame/ownership recovery,NOT complete SLD or literal original
+source. Other owners retain explicit residuals;cached unselected whole-project
+summaries are not fresh certificates. The full objective remains incomplete.
+
+Full-g exposed a brdist presentation bug:LM<n> labels/blank lines truncated
+function bodies and inflated its census728. It now follows verify_asm's debug/
+interior-label boundaries;real next functions still stop collection and actual
+distance differences remain visible(five new tests). Corrected check66functions,
+0branch-distance/count divergences. Vtable1366PASS;all101tool testsPASS.
+Final-proof.json,owner-final.json and frozen raw native dump retain evidence.
+No commit/push requested in this round;unrelated edits preserved;goal active.
 
 Status as of 2026-10-14. Current full-debug board: `build/psyq_g/symtree_report.json`.
 

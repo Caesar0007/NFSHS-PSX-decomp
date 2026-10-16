@@ -307,6 +307,11 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #   "cc1plus_ver"         -> select one available retail C++ compiler for
 #                           the entire TU, including its debug twin. Fail if
 #                           unavailable; never silently fall back or splice.
+#   "debug_g"             -> request retail full debug on the entire C++ TU.
+#                           Some old GCC CSE decisions count debug NOTE nodes.
+#                           Preserve those inputs, not manufactured source
+#                           scopes or rewritten compiler output. Require full
+#                           byte/layout, debug-twin and native-SYM receipts.
 #   "no_thread_jumps"     -> disable jump threading for a whole C++ TU.
 #                           This is an input option, not a branch rewrite;
 #                           require full-TU instruction/branch/byte receipts.
@@ -317,7 +322,12 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 PER_TU_FLAGS = {
     "recon/frontend/common/screentracks.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
     "recon/frontend/common/fedialog.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
-    "recon/frontend/common/femenudefs.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
+    # 2026-10-16: retail FEMenuDefs has full local/block/SLD debug records.
+    # With compact inline bodies and no initializer shapers, the native -g
+    # stream reproduces the passing 640-byte frame. Apply to the WHOLE TU,
+    # not one function. No post-compile rewrite. Backups/controls:
+    # build/nc12/globalmenu_sketch_review_20261016/{build-before.py,probe.py}.
+    "recon/frontend/common/femenudefs.cpp": {"no_implement_inlines": True, "debug_g": True},
     "recon/frontend/common/femenuoptions.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
     # P905: ordinary primate COMMON globals must remain public when lowered
     # into their native .sbss run. This preserves compiler-declared binding,
@@ -2051,6 +2061,10 @@ def compile_cpp(src: Path) -> Path:
     if r.returncode:
         sys.exit(f"[cpp++] {rel}\n{r.stderr}")
     cc1pl_flags = ["-quiet", "-O2", f"-G{tu_g_value}"]
+    if tu_flags.get("debug_g"):
+        # Original compiler input; maspsx already handles SN debug directives.
+        # The full-debug measurement lane must see the same invocation.
+        cc1pl_flags.append("-g")
     if tu_flags.get("no_delayed_branch"):
         cc1pl_flags.append("-fno-delayed-branch")
     if tu_flags.get("no_thread_jumps"):

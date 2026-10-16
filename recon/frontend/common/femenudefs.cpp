@@ -20,12 +20,6 @@ inline tDialogMessageString *tDialogMessageString::SetString(int word)
   return this;
 }
 
-inline void tDialogMessageString::Display(int word)
-{
-  string = TextSys_Word(word);
-  tDialogBase::Display();
-}
-
 /* ---- FEMenuDefs.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
 /* tBlankMenuItemGoToMenuNFS4Button_vtable @0x800114d8 + tBlankMenuItemNFS4LeftRightChoice_vtable @0x80011530:
    real __vtbl_ptr_type[11] defs live in game/common/vtables_tmenu.cpp; declared extern via femenudefs_externs.h. */
@@ -707,45 +701,34 @@ bool GenericMenuSaveGame(int showdialog)
    [ghidra-meta] section: front.text */
 
 /* [SYM 2026-08-16] retail `Def class EXT type FCN BOOL` @0x8002cabc;
-   the SYM also names the result local `REG BOOL ret`. */
+   the SYM also names the result local `REG BOOL ret`.
+   [2026-10-15] Actual SetString/SetChoices/Run calls remove dlgThis.
+   Initialize ret before constructing YesNoDialog in the same lexical owner;
+   assigning it after construction was two schedule differences at50 words.
+   Explicit else preserves retail's outer binding endpoint. All four ordered
+   declaration/home/type/owner records and all native scope pairs match;
+   all200 linked bytes are exact. Full SLD remains unresolved (42/50 tags,
+   end delta17 versus20); this is not a literal-original-text certificate. */
 bool PinkSlipsPreSave(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: dlgThis -- SYM records the inlined derived-constructor
-     `this` in $s0, not a caller local.  The restored inline constructor owns
-     the vptr store, but direct-object spelling for the later fields is still
-     count-exact FAIL 8 (50/50), with all four stores using $sp instead of $s0.
-     Carrying that optimized receiver lifetime remains exact PASS 50/50. */
-  tDialogYesNoTri *dlgThis;
-
-  /* Keep the default result outside the dialog's lifetime but assign it before
-     entering the nested scope. GCC then fills the cheater branch delay with
-     `li s1,1`; the automatic destructor handles both exits. */
   if ((FECheat_IsTheUserACryBabyCheater() ^ 1) != 0) {
-    bool ret;
+    bool ret = true;
+    tDialogYesNoTri YesNoDialog;
     int answer;
-
-    ret = true;
-    {
-      tDialogYesNoTri YesNoDialog;
-
-      dlgThis = &YesNoDialog;
-      dlgThis->string =
-           TextSys_Word(0x273);
-      dlgThis->yesnowords[0] = 0x321;
-      dlgThis->yesnowords[1] = 0x322;
-      dlgThis->fDefault = 0;
-      answer = ((tDialogInteractive *)dlgThis)->Run();
-      if (answer == 1) {
-        ret = GenericMenuSaveGame(1);
-      }
-      else if (answer == -1) {
-        return false;
-      }
+    YesNoDialog.SetString(TextSys_Word(0x273));
+    YesNoDialog.SetChoices(0x321,0x322,0);
+    answer = YesNoDialog.Run();
+    if (answer == 1) {
+      ret = GenericMenuSaveGame(1);
+    }
+    else if (answer == -1) {
+      return false;
     }
     return ret;
   }
-  return true;
+  else
+    return true;
 }
 
 
@@ -837,12 +820,6 @@ void MenuExtended_GoToBestOfFive(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToRace(tMenuCommand &command)
-
-{
-  tDialogMessageString *popUp;
-  tCarInfo carInfo;
-
   /* [W57-A1 rewrite] The oracle materializes the word id STRAIGHT INTO $a0 in each guard's
      branch delay slot (`li a0,170/241/242/243`) and cross-jump-merges four IDENTICAL
      `string = TextSys_Word(K); Display(popUp); command.type = 0; return;` tails -- so retail
@@ -856,48 +833,53 @@ void MenuExtended_GoToRace(tMenuCommand &command)
      tFEApplication receiver and the four SetString calls restore its four
      nested dialog receivers.  Direct call-result tests eliminate uVar2;
      dlgThis, ptVar1, pcVar3, and wordnum were decompiler residue.  Optimized
-     SYM does not preserve the private MessagePopup identifier. */
+     SYM does not preserve the private MessagePopup identifier.
+     2026-10-15: nested real guards recover all27 retail scope pairs and
+     named owners. The declared short count results need no decompiler-style
+     unsigned shift test; direct comparisons retain87PASS. Full SLD is open. */
+
+void MenuExtended_GoToRace(tMenuCommand &command)
+
+{
+  tDialogMessageString *popUp;
+  tCarInfo carInfo;
   command.type = kMenu_Command_StartRace;
-  /* SYM-INLINE-THIS: MessagePopup */
   popUp = FEApp->MessagePopup();
-  if (((frontEnd.carListType == '\x01') &&
-      ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) <= 0)) &&
-     ((frontEnd.raceType != RaceType_HotPursuit) && (frontEnd.raceType != RaceType_PinkSlips))) {
-    /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xaa));
-    ((tDialogBase *)popUp)->Display();
-    command.type = kMenu_Command_None;
-    return;
+  if (frontEnd.carListType == '\x01') {
+    if ((carManager.GetNumOwnedCars(0) <= 0) &&
+        (frontEnd.raceType != RaceType_HotPursuit) &&
+        (frontEnd.raceType != RaceType_PinkSlips)) {
+      popUp->SetString(TextSys_Word(0xaa));
+      popUp->tDialogBase::Display();
+      command.type = kMenu_Command_None;
+      return;
+    }
   }
-  if ((frontEnd.raceType == RaceType_Tournament) &&
-     ((int)((uint)carManager.GetNumTourneyCars(0) << 0x10) < 1)) {
-    /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xf1));
-    ((tDialogBase *)popUp)->Display();
-    command.type = kMenu_Command_None;
-    return;
+  if (frontEnd.raceType == RaceType_Tournament) {
+    if (carManager.GetNumTourneyCars(0) < 1) {
+      popUp->SetString(TextSys_Word(0xf1));
+      popUp->tDialogBase::Display();
+      command.type = kMenu_Command_None;
+      return;
+    }
   }
-  if ((frontEnd.raceType == RaceType_HotPursuit) &&
-     (carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo),
-      carInfo.fPursuitAvailable == '\x00')) {
-    /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xf2));
-    ((tDialogBase *)popUp)->Display();
-    command.type = kMenu_Command_None;
-    return;
+  if (frontEnd.raceType == RaceType_HotPursuit) {
+    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
+    if (carInfo.fPursuitAvailable == '\x00') {
+      popUp->SetString(TextSys_Word(0xf2));
+      popUp->tDialogBase::Display();
+      command.type = kMenu_Command_None;
+      return;
+    }
   }
-  if (frontEnd.carListType != '\x00') {
-    return;
+  if (frontEnd.carListType == '\x00') {
+    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
+    if (carInfo.fAvailable == '\x00') {
+      popUp->SetString(TextSys_Word(0xf3));
+      popUp->tDialogBase::Display();
+      command.type = kMenu_Command_None;
+    }
   }
-  carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
-  if (carInfo.fAvailable != '\x00') {
-    return;
-  }
-  /* SYM-INLINE-THIS: SetString */
-  popUp->SetString(TextSys_Word(0xf3));
-  ((tDialogBase *)popUp)->Display();
-  command.type = kMenu_Command_None;
-  return;
 }
 
 
@@ -910,12 +892,6 @@ void MenuExtended_GoToRace(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
-
-{
-  tDialogMessageString *popUp;
-  tCarInfo carInfo;
-
   /* [W57-A1 rewrite] Same shape as the twin GoToRace: the oracle drops the `wordnum` funnel
      (which needed 2 extra callee-saved regs -- ours 6 s-regs/frame 256 vs 4/248) and instead
      materializes `li a0,K` in each guard's delay slot, cross-jump-merging four identical
@@ -925,47 +901,49 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
      command/popUp/carInfo.  MessagePopup, three SetString calls, and two
      CurrentPlayer reads account for every nested receiver; direct call-result
      testing removes uVar2 and the remaining four decompiler identities.  The
-     two inferred tFEApplication helper names are descriptive, not token-exact. */
+     two inferred tFEApplication helper names are descriptive, not token-exact.
+     2026-10-15: separate car-list/availability/pursuit guards recover all25
+     retail scope pairs and named owners. Direct short-result comparison
+     retains83PASS without the unsigned-shift transcription. Full SLD is open. */
+
+void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
+
+{
+  tDialogMessageString *popUp;
+  tCarInfo carInfo;
   command.type = kMenu_Command_Start2PlayerRace;
-  /* SYM-INLINE-THIS: MessagePopup */
   popUp = FEApp->MessagePopup();
   if (frontEnd.raceType == RaceType_PinkSlips) {
     return;
   }
-  if (((frontEnd.carListType == '\x01') &&
-      ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) <= 0)) &&
-     (frontEnd.raceType != RaceType_HotPursuit)) {
-    /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xaa));
-    ((tDialogBase *)popUp)->Display();
-    command.type = kMenu_Command_None;
-    return;
+  if (frontEnd.carListType == '\x01') {
+    if ((carManager.GetNumOwnedCars(0) <= 0) &&
+        (frontEnd.raceType != RaceType_HotPursuit)) {
+      popUp->SetString(TextSys_Word(0xaa));
+      popUp->tDialogBase::Display();
+      command.type = kMenu_Command_None;
+      return;
+    }
   }
-  /* SYM-INLINE-THIS: CurrentPlayer */
-  if ((frontEnd.carListType == '\x00') &&
-     (carManager.GetStockCar(
-          (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo),
-      carInfo.fAvailable == '\x00')) {
-    /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xf3));
-    ((tDialogBase *)popUp)->Display();
-    command.type = kMenu_Command_None;
-    return;
+  if (frontEnd.carListType == '\x00') {
+    carManager.GetStockCar(
+        (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
+    if (carInfo.fAvailable == '\x00') {
+      popUp->SetString(TextSys_Word(0xf3));
+      popUp->tDialogBase::Display();
+      command.type = kMenu_Command_None;
+      return;
+    }
   }
-  if (frontEnd.raceType != RaceType_HotPursuit) {
-    return;
+  if (frontEnd.raceType == RaceType_HotPursuit) {
+    carManager.GetStockCar(
+        (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
+    if (carInfo.fPursuitAvailable == '\x00') {
+      popUp->SetString(TextSys_Word(0xf2));
+      popUp->tDialogBase::Display();
+      command.type = kMenu_Command_None;
+    }
   }
-  /* SYM-INLINE-THIS: CurrentPlayer */
-  carManager.GetStockCar(
-      (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
-  if (carInfo.fPursuitAvailable != '\x00') {
-    return;
-  }
-  /* SYM-INLINE-THIS: SetString */
-  popUp->SetString(TextSys_Word(0xf2));
-  ((tDialogBase *)popUp)->Display();
-  command.type = kMenu_Command_None;
-  return;
 }
 
 
@@ -982,60 +960,36 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
    command in s3, tourn in s2, amount in v1, stack popUp, and the receivers
    inlined from DisplayMessage/SetString.  Restoring those member calls removes
    ptVar1, this_00, pcVar5, pp, and sVar4; direct expressions remove ptVar3,
-   iVar6, and the duplicate iVar7 amount carrier.  The four explicitly marked
-   source-only webs retain the exact allocation/schedule with measured proof. */
+   iVar6, and the duplicate iVar7 amount carrier. The earlier allocation
+   workarounds are superseded by the verified2026-10-15 source query below. */
 /* P878: the corrected scalar menuDefs declaration makes the ordinary final
-   command stores exact; no additional menus alias is needed. Other marked
-   webs, fences and nested inline-local ownership remain review work. */
-/* P879: amount belongs to the nested post-sound debit, not the initial guard.
-   The success-first Run arm restores its native REG3/collapsed-PC placement.
-   One native inline-body scope and its original helper spelling remain open. */
+   command stores exact; no additional menus alias is needed. */
+/* 2026-10-15: amount is the expanded LONG debit parameter, not a caller local.
+   SubtractMoney restores its parameter/body pair; the explicit affordability
+   else restores popUp/amount depths and endpoints at90PASS. Literal inline
+   spelling remains inferred. The parameterized CurrentTourney/GetMoney queries
+   now remove all four caller aliases and both fences at90PASS; all32 retail
+   scope pairs and six named declaration owners match. Full SLD is open. */
 
 void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
 
 {
   tTourneyInfo *tourn;
-  /* SYM-CODEGEN-CARRIER: selectedTourney -- folding into the SYM `tourn`
-     web is count-exact FAIL 6; fencing `tourn` directly is FAIL 22. */
-  tTourneyInfo *selectedTourney;
-  /* SYM-CODEGEN-CARRIER: manager -- direct global access is count-exact FAIL 18. */
-  tTournamentManager *manager;
-  /* SYM-CODEGEN-CARRIER: frontEndBase -- initializing only the use carrier
-     directly from frontEnd is count-exact FAIL 18. */
-  tfrontEnd *const frontEndBase = &frontEnd;
-  /* SYM-CODEGEN-CARRIER: frontEndState -- folding this copy into frontEndBase
-     is count-exact FAIL 2, moving one address completion. */
-  tfrontEnd *frontEndState;
-
-  manager = &tournamentManager;
-  frontEndState = frontEndBase;
-  __asm__("" : : "r"(manager), "r"(manager), "r"(manager), "r"(manager),
-          "r"(manager), "r"(manager));
-  frontEndState->tier = '\0';
-  tourn = &manager->fDefinition->fTournaments[
-      (uint)manager->fDefinition->fTiers[0].fTournOffset +
-      (uint)(byte)frontEndState->tournament];
+  frontEnd.tier = '\0';
+  tourn = tournamentManager.CurrentTourney(0,frontEnd.tournament);
   if (0 < tourn->fEntranceFee) {
-    selectedTourney = tourn;
-
-    __asm__("" : "+r" (selectedTourney));
-    if (manager->fMoney < tourn->fEntranceFee) {
-      /* SYM-INLINE-THIS: DisplayMessage */
-      FEApp->MessagePopup()->Display(0xf6);
+    if (tourn->fEntranceFee > tournamentManager.GetMoney()) {
+      FEApp->MessagePopup()->SetString(0xf6)->tDialogBase::Display();
       return;
     }
-    {
+    else {
       tDialogYesNo popUp;
 
-      /* SYM-INLINE-THIS: SetString */
       popUp.SetString(TextSys_Word(0xf7));
       popUp.SetChoices(0x322,0x321,0);
       if (popUp.Run() != 0) {
         AudioCmn_PlayFESFX(0x1a);
-        {
-          long amount = selectedTourney->fEntranceFee;
-          manager->fMoney -= amount;
-        }
+        tournamentManager.SubtractMoney(tourn->fEntranceFee);
       } else {
         return;
       }
@@ -1043,7 +997,7 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
   }
   tournamentManager.StartNewTournament(0,frontEnd.tournament);
   command.type = kMenu_Command_GoToMenu;
-  command.nextMenu = (tMenu *)&menuDefs->menuTrackInfo;
+  command.nextMenu = &menuDefs->menuTrackInfo;
   return;
 }
 
@@ -1060,56 +1014,36 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
 /* MATCH/SYM (2026-08-26): exact PASS 91/91.  Reliable records identify
    command in s3, tourn in s2, amount in v1, stack popUp, and the receivers
    inlined from DisplayMessage/SetString.  Restored member calls and direct
-   expressions remove eight decompiler identities; the three marked source-only
-   webs retain retail allocation/scheduling with measured proof. */
+   expressions remove eight decompiler identities; the earlier allocation
+   workarounds are superseded by the verified2026-10-15 source query below. */
 /* P878: ordinary final command stores now match with the corrected scalar
    menuDefs interface. The former menus carrier and its obsolete failure
-   receipt are removed; other source-shape/inline ownership debt remains. */
-/* P879: the nested amount and success-first Run arm recover the native LONG
-   REG3 and collapsed cancellation-PC scope. The lost inline-body shell/name
-   and other source-only carriers are still explicit restoration work. */
+   receipt are removed. */
+/* 2026-10-15: the money mutator/explicit else recover amount's LONG REG3
+   parameter/body pair and popUp's retail depth/endpoints at91PASS. Literal
+   inline spelling remains inferred. Parameterized CurrentTourney/GetMoney
+   remove the three caller aliases and both fences at91PASS; all32 retail
+   scope pairs and six named declaration owners match. Full SLD remains open. */
 
 void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
 
 {
   tTourneyInfo *tourn;
-  /* SYM-CODEGEN-CARRIER: selectedTourney -- folding into the SYM `tourn`
-     web is count-exact FAIL 6. */
-  tTourneyInfo *selectedTourney;
-  /* SYM-CODEGEN-CARRIER: manager -- direct global access is count-exact FAIL 18. */
-  tTournamentManager *manager;
-  /* SYM-CODEGEN-CARRIER: frontEndState -- direct frontEnd fields are
-     count-exact FAIL 4, moving the address pair. */
-  tfrontEnd *frontEndState;
-
-  frontEndState = &frontEnd;
-  manager = &tournamentManager;
-  __asm__("" : : "r"(frontEndState), "r"(manager), "r"(manager), "r"(manager),
-          "r"(manager), "r"(manager), "r"(manager));
-  frontEndState->tier = '\x01';
-  tourn = &manager->fDefinition->fTournaments[
-      (uint)manager->fDefinition->fTiers[1].fTournOffset +
-      (uint)(byte)frontEndState->specialevent];
+  frontEnd.tier = '\x01';
+  tourn = tournamentManager.CurrentTourney(1,frontEnd.specialevent);
   if (0 < tourn->fEntranceFee) {
-    selectedTourney = tourn;
-    __asm__("" : "+r" (selectedTourney));
-    if (manager->fMoney < tourn->fEntranceFee) {
-      /* SYM-INLINE-THIS: DisplayMessage */
-      FEApp->MessagePopup()->Display(0xf6);
+    if (tourn->fEntranceFee > tournamentManager.GetMoney()) {
+      FEApp->MessagePopup()->SetString(0xf6)->tDialogBase::Display();
       return;
     }
-    {
+    else {
       tDialogYesNo popUp;
 
-      /* SYM-INLINE-THIS: SetString */
       popUp.SetString(TextSys_Word(0xf7));
       popUp.SetChoices(0x321,0x322,0);
       if (popUp.Run() != 0) {
         AudioCmn_PlayFESFX(0x1a);
-        {
-          long amount = selectedTourney->fEntranceFee;
-          manager->fMoney -= amount;
-        }
+        tournamentManager.SubtractMoney(tourn->fEntranceFee);
       } else {
         return;
       }
@@ -1117,7 +1051,7 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
   }
   tournamentManager.StartNewTournament(1,frontEnd.specialevent);
   command.type = kMenu_Command_GoToMenu;
-  command.nextMenu = (tMenu *)&menuDefs->menuTrackInfo;
+  command.nextMenu = &menuDefs->menuTrackInfo;
   return;
 }
 
@@ -1319,47 +1253,36 @@ void MenuExtended_SetHotPursuit(tMenuCommand &)
    inline restores the line-811 receiver shape.  No asm, volatile, added caller local, or
    post-compilation modification is used. MATCH: 86/86. */
 
-void MenuExtended_SellCar(tMenuCommand &command)
+/* [2026-10-15] The retail initial money-read pair permits the field getter:
+   ordinary money assignment/accumulation now match without comma staging.
+   Credit uses SubtractMoney on the unsigned negated sale result. Getter
+   spelling remains inferred. The unnamed callback parameter and implicit
+   fallthrough remove unrecorded metadata. Chained SetString/base Display
+   preserves the retail inline endpoint; all22 scope pairs and named owners
+   match. Full SLD/literal original source text remain unresolved. */
+void MenuExtended_SellCar(tMenuCommand &)
 
 {
-  /* SYM-ABI-PARAM: command -- required by the retail `FR12tMenuCommand`
-     linkage identity; optimized away before the SYM parameter records. */
   long money;
-
-  /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call and block-scoped
-     popUp into the `if (bVar1)` (see AskTheUserToSaveTheGame's note for why).
-     [BUG FIX 2026-07-27, 56->53] Same DOUBLE-DESTRUCTION bug as the other tDialogYesNo/
-     tDialogYesNoTri locals in this file: dropped the manual `tScreen_dtor((tScreen*)&popUp,2)`
-     that was firing alongside popUp's own auto-invoked destructor.
-     [W56-A3 2026-08-09, 53->32] messagePopup anchor: routed `(ptVar2->messagePopup).string` store
-     through the `this_00 = &FEApp->messagePopup` anchor (reused for the Display arg), + `pp=&popUp`
-     mixed anchor on the yesnowords stores. RESIDUAL 32 = the `(1<sVar3) || (lVar5 <= sum)` OR
-     materializes the `<=` as `slt;xori 1;beqz` where the oracle branches directly (`slt;bnez`,
-     the w43 (x^1)/boolean-branch class), + a saved-reg-count/frame delta (ours 208/4-sreg vs
-     oracle 200/3-sreg) -- coloring, allocsim/qtytrace class. */
-  money = (money = tournamentManager.fMoney,
-           money + carManager.CalcUsedPrice(
-                       (ushort)(byte)frontEnd.garageCar[0]));
+  money = tournamentManager.GetMoney();
+  money += carManager.CalcUsedPrice((ushort)(byte)frontEnd.garageCar[0]);
   if ((carManager.GetNumOwnedCars(kPlayerOne) > 1) ||
       (money >= carManager.CheapestCarStockPrice())) {
     tDialogYesNo popUp;
 
-    /* SYM-INLINE-THIS: SetString */
     popUp.SetString(TextSys_Word(0xa5));
     popUp.SetChoices(0x321,0x322,0);
     if (popUp.Run() != 0) {
-      tournamentManager.fMoney +=
-          carManager.SellCar((ushort)(byte)frontEnd.sellerCar,0);
+      tournamentManager.SubtractMoney(
+          -(u_long)carManager.SellCar((ushort)(byte)frontEnd.sellerCar,0));
       menuDefs->iteratorSellerCar.Decrement(kPlayerOne);
       menuDefs->iteratorSellerCar.Increment(kPlayerOne);
       AudioCmn_PlayFESFX(0x1a);
     }
   }
   else {
-    /* SYM-INLINE-THIS: DisplayMessage */
-    FEApp->MessagePopup()->Display(0xa9);
+    FEApp->MessagePopup()->SetString(0xa9)->tDialogBase::Display();
   }
-  return;
 }
 
 
@@ -1405,99 +1328,53 @@ void MenuExtended_SellCar(tMenuCommand &command)
    with it, exactly as retail.  Measured: tail-only 47, fence-only 12, no-fence 12,
    BOTH -> PASS 85/85. */
 
-void MenuExtended_BuyCar(tMenuCommand &command)
+/* [2026-10-15] The historical anchor/fence necessity claims above are
+   superseded on the restored method-call source: MessagePopup, Display,
+   SetString and SetChoices remove dialogAnchor, pp and the absorption identity
+   together at85PASS. Ordinary if/else fallthrough restores recorded receiver
+   depths. The unused callback parameter has no retail declaration record;
+   leave it unnamed without changing the real reference signature.
+   The GetMoney/SubtractMoney operations and split text/base Display now
+   recover all27 retail scope pairs and all named declaration owners, still
+   85PASS. Getter/mutator literal spellings remain inferred; full SLD is open. */
+void MenuExtended_BuyCar(tMenuCommand &)
 
 {
-  /* SYM-ABI-PARAM: command -- required by the retail `FR12tMenuCommand`
-     linkage identity; optimized away before the SYM parameter records. */
   tCarInfo carInfo;
   tDialogMessageString *popUp;
-  /* SYM-CODEGEN-CARRIER: dialogAnchor -- replacing the second popup anchor with
-     source-level `FEApp->DisplayMessage` is FAIL 32 at 87/85 and rotates the
-     saved-register/global-base web.  Retail requires this independent anchor. */
-  tDialogMessageString *dialogAnchor;
-
-  /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&yesNo)` manual call and block-scoped
-     yesNo into the inner `if` (see AskTheUserToSaveTheGame's note for why).
-     [BUG FIX 2026-07-27, 44->41] Same DOUBLE-DESTRUCTION bug: dropped the manual
-     `tScreen_dtor((tScreen*)&yesNo,2)` firing alongside yesNo's own auto-invoked destructor.
-     [W56-A3 2026-08-09, 41->14] messagePopup ANCHOR bug + popUp mixed-anchor: both message
-     stores went through `(ptVar1->messagePopup).string` (recomputing FEApp+44 each time) while
-     `dialogAnchor = &FEApp->messagePopup` was computed-but-underused; routing both stores through
-     dialogAnchor (reused for the two paths + the shared Display) reproduces the oracle's held +44
-     anchor (w42). Plus `pp=&yesNo` on the two yesnowords stores only (the PurchaseUpgrade mixed
-     popUp anchor). RESIDUAL 14 = oracle keeps dialogAnchor in TWO callee-saved regs (`addu s1,s0,zero`)
-     across the yesNo Run, using s1 for the message-path stores, + the two independent compare
-     loads (fMoney 20 / price) issued in swapped order -- the coloring/sched-tie class (4.6). */
-  dialogAnchor = &FEApp->messagePopup;
+  popUp = FEApp->MessagePopup();
   carManager.GetStockCar((ushort)(byte)frontEnd.dealerCar,carInfo);
-  /* MATCH W86-D3 2026-09-02: the opacity fence that used to hold `popUp` apart
-     from `dialogAnchor` (cse otherwise copy-propagates one into the other and the
-     two-anchor split vanishes) is replaced by a pure-C ABSORPTION copy.
-     `dialogAnchor & (dialogAnchor | &carManager)` == dialogAnchor for ANY second operand
-     (absorption law), so the value is identical, but it is a DIFFERENT
-     expression, so cse cannot record popUp == dialogAnchor -- the same equality
-     kill the fence bought -- and combine collapses the pair at ZERO bytes.
-     Whole-TU gate 66/66.  Measured: fence dropped 12; the same absorption
-     against `&carInfo` (as an assignment to popUp, as an OR-form, or applied
-     to dialogAnchor before the copy) 24; a dead `dialogAnchor |= 0` reassignment 12. */
-  popUp = (tDialogMessageString *)((int)dialogAnchor & ((int)dialogAnchor | (int)&carManager));
   if (carManager.GetNumOwnedCars(0) < 0x20) {
-    if (tournamentManager.fMoney >= carInfo.fPrices[0]) {
+    if (tournamentManager.GetMoney() >= carInfo.fPrices[0]) {
       tDialogYesNo yesNo;
-      /* SYM-CODEGEN-CARRIER: pp -- direct `yesNo.yesnowords` stores are
-         count-exact FAIL 4 and use two sp-relative stores instead of retail's
-         held `$s0` object-base stores. */
-      tDialogYesNo *pp = &yesNo;
-
-      yesNo.string =
-           TextSys_Word(0xa4);
-      pp->yesnowords[0] = 0x321;
-      pp->yesnowords[1] = 0x322;
-      yesNo.fDefault = 0;
-      if (((tDialogInteractive *)&yesNo)->Run() != 0) {
-        tournamentManager.fMoney -= carManager.PurchaseCar(
+      yesNo.SetString(TextSys_Word(0xa4));
+      yesNo.SetChoices(0x321,0x322,0);
+      if (yesNo.Run() != 0) {
+        tournamentManager.SubtractMoney(carManager.PurchaseCar(
             (short)carInfo.fCarID,
-            (ushort)(byte)frontEnd.carColors[0][carInfo.fCarID],0);
+            (ushort)(byte)frontEnd.carColors[0][carInfo.fCarID],0));
         AudioCmn_PlayFESFX(0x1a);
       }
-      return;
     }
-    AudioCmn_PlayFESFX(10);
-    dialogAnchor->string = TextSys_Word(0xa7);
-    ((tDialogBase *)dialogAnchor)->Display();
-    return;
+    else {
+      AudioCmn_PlayFESFX(10);
+      popUp->SetString(0xa7)->tDialogBase::Display();
+    }
   }
-  popUp->string = TextSys_Word(0x4b);
-  ((tDialogBase *)popUp)->Display();
-  return;
+  else {
+    popUp->SetString(0x4b)->tDialogBase::Display();
+  }
 }
 
 
 
 /* ---- MenuExtended_PurchaseUpgrade  [FEMENUDEFS.CPP:854-877] ---- */
 
-static inline int MenuExtended_CannotPurchaseUpgrade(long money, long *price)
-{
-  return money < *price;
-}
-
-static inline int MenuExtended_UpgradePriceIndex(int priceIndex)
-{
-  return ++priceIndex;
-}
-
 /* Decoded Phase 83: MenuExtended_PurchaseUpgrade(int upgradeIdx) - shared core purchase logic
    called by PurchaseUpgrade1/2/3 wrappers (320 B, 3 callers). Validates cash, debits, applies
    upgrade modifier to current car.
    
    [ghidra-meta] section: front.text */
-
-void MenuExtended_PurchaseUpgrade(int upgradeNumber)
-
-{
-  tCarInfo carInfo;
-  int upgradeFlag;
 
   /* NEAR-MISS (2026-07-11): dropped the eager `ptVar1 = FEApp` cache -> FEApp now loaded
      lazily only in the not-enough-money branch (matches oracle's `lw s0,%lo(FEApp)(v0)` there),
@@ -1538,33 +1415,34 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      Passing `(fMoney, pricePointer)` then forms the indexed stack address before the manager
      address, while the inlined predicate loads fMoney before dereferencing the price pointer.
      This is pure C++, without asm, volatile, register pins or output rewrites.
-     SOURCE-REVIEW-UNRESOLVED (2026-10-14): native SYM does retain the helper
-     parameters priceIndex/money/price, absent from retail. Their source producer
-     still needs recovery; normal PASS does not certify these helper objects.
-     Real SetString/SetChoices and MessagePopup()->Display calls now replace the
-     synthetic word helper and DisplayMessage wrapper. The receiver record is
-     restored, but declaration ownership/scopes and full SLD are not sealed. */
+     2026-10-15 supersedes the old helper necessity claim: price <= GetMoney()
+     with an ordinary upgradeNumber+1 subscript and the real money mutator
+     preserves80PASS, without either helper or its three extra parameters.
+     Chained SetString/base Display restores text setup independently of display.
+     Literal getter spellings/full SLD remain unresolved. */
+
+void MenuExtended_PurchaseUpgrade(int upgradeNumber)
+
+{
+  tCarInfo carInfo;
+  int upgradeFlag;
   upgradeFlag = 1 << (upgradeNumber);
   carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
   if ((carInfo.fUpgrades & upgradeFlag) == 0) {
-    if (!MenuExtended_CannotPurchaseUpgrade(
-            tournamentManager.fMoney,
-            &carInfo.fPrices[
-                MenuExtended_UpgradePriceIndex(upgradeNumber)])) {
+    if (carInfo.fPrices[upgradeNumber + 1] <= tournamentManager.GetMoney()) {
       tDialogYesNo popUp;
 
       popUp.SetString(TextSys_Word(0xa6));
       popUp.SetChoices(0x321,0x322,0);
-      if (((tDialogInteractive *)&popUp)->Run() != 0) {
-        tournamentManager.fMoney = tournamentManager.fMoney -
+      if (popUp.Run() != 0) {
+        tournamentManager.SubtractMoney(
             carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0],
-                                       (short)upgradeFlag,0);
+                                       (short)upgradeFlag,0));
         AudioCmn_PlayFESFX(0x1a);
       }
     }
     else {
-      /* SYM-INLINE-THIS: DisplayMessage */
-      FEApp->MessagePopup()->Display(0xa8);
+      FEApp->MessagePopup()->SetString(0xa8)->tDialogBase::Display();
     }
   }
   return;
@@ -1703,14 +1581,20 @@ void GenericMenuLoadGame(int player)
    [ghidra-meta] section: front.text
    
    [SYM restoration 2026-08-26, PASS 38/38] The `FR12tMenuCommand` linkage proves
-   the callback's reference parameter, while the missing REGPARM record proves
-   that its source spelling was unnamed.  The early-return guard keeps the sole
+   the callback's reference parameter; the missing REGPARM record does not
+   recover its original source spelling. The early-return guard keeps the sole
    SYM AUTO (`tDialogYesNo AreYouSure`, 168 bytes at sp+16) in function scope but
    constructs it only on the enabled path.  `SetChoices` reconstructs the SYM's
    inlined tDialogYesNo receiver in s0; the original private helper identifier is
    not recoverable.  Consuming Run directly removes the decompiler-invented result
-   local.  The anonymous eight-byte frame receipt is documented at its statement.
-   Focused verify_asm and the independent -g/SLD twin are both exact. */
+   local.
+   SOURCE-REVIEW-UNRESOLVED (2026-10-15): tMenuCommand() is an unproved
+   frame-padding temporary, not recovered original source. It supplies8 bytes
+   and one extra native scope absent from retail. Removing it with ordinary
+   dialog methods or an actual IsDisabled member guard preserves38 words but
+   shortens frame200to192 (12 differences). Failed probes restored; the real
+   slot producer still needs recovery. Normal PASS is not a native/SLD seal,
+   and no substitute dummy object, zero identity or fake use is justified. */
 
 void MenuExtended_LoadGame(tMenuCommand &)
 {
@@ -1842,9 +1726,11 @@ static bool MenuExtended_DidUserWinBeTheCop(void)
    preserves its receiver type and store but not the private helper identifier.
    Direct per-case nextMenu assignments remove the decompiler's synthetic menu
    pointer and let gcc cross-jump their identical store/return tails exactly as
-   retail did.  The case order 2 / 6 / 1 and case-1 fallthrough preserve the
-   balance_case_nodes tree and SLD statement order.  verify_asm and the -g/SLD
-   twin are exact, with no caller locals beyond the SYM budget. */
+   retail did. The case order2/6/1 and case-1 fallthrough preserve dispatch.
+   2026-10-15: an explicit case2 if/else with break recovers both receiver
+   owners and all10 retail scope pairs at64PASS. Retail EXT5c91d6 returns
+   SHORT, not BOOL: correct the owner-specific import and use its real type.
+   Native declaration/tree exactness is not complete SLD/source-text proof. */
 
 void MenuExtended_PostGameMenu(tMenuCommand &command)
 
@@ -1853,15 +1739,16 @@ void MenuExtended_PostGameMenu(tMenuCommand &command)
   command.type = kMenu_Command_GoToMenuOneWay;
   switch (frontEnd.raceType) {
   case 2:
-    if ((short)tournamentManager.IsTournamentFinished() != 0) {
+    if (tournamentManager.IsTournamentFinished() != 0) {
       command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuTournamentFinished;
       /* SYM-INLINE-THIS: SetDrawMoney */
       screenTournamentStandings->SetDrawMoney();
-      return;
     }
-    command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuTournamentStandings;
-    screenTournamentStandings3item->SetDrawMoney();
-    return;
+    else {
+      command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuTournamentStandings;
+      screenTournamentStandings3item->SetDrawMoney();
+    }
+    break;
   case 6:
     command.nextMenu = (tMenu *)&menuDefs->menuPinkSlipStandings;
     return;
@@ -2243,24 +2130,21 @@ void MenuExtended_SetExpert(tMenuCommand &)
    store order. P880 removes the remaining dialog carrier through the existing
    inline setup boundary; raw direct field stores alone did not preserve it. */
 
+/* 2026-10-15: ordinary void fallthrough removes the extra destructor contour
+   at36PASS; no scope wrapper or replacement variable is required. */
 void MenuExtended_ExitTourney(tMenuCommand &command)
 
 {
-  /* P880: existing inline operations recover native this REG16 without an
-     extra caller pointer. PASS36/exact-g; original inline spellings and the
-     combined constructor/setup SLD boundary remain unresolved. */
   tDialogYesNo AreYouSure;
-
   AreYouSure.SetChoices(0x321,0x322,0);
   AreYouSure.SetString(TextSys_Word(0x9d));
   if (AreYouSure.Run() != 0) {
-    command.nextMenu = (tMenu *)&menuDefs->menuMain;
+    command.nextMenu = &menuDefs->menuMain;
     command.type = kMenu_Command_GoToMenuOneWay;
   }
   else {
     command.type = kMenu_Command_None;
   }
-  return;
 }
 
 
@@ -2295,43 +2179,33 @@ void MenuExtended_ExitTourney(tMenuCommand &command)
    same goto shape also suppresses LICM for THAT address (oracle materializes `addiu s2,sp,184`
    once, pre-loop).  So: LICM off for the global, on (manually) for the frame address. */
 
+/* [2026-10-15] Real for-loop and dialog SetString remove msg at76PASS.
+   Retail's player belongs to the for region, not a caller-level counter.
+   Implicit void fallthrough removes the extra destructor contour. The older
+   goto/hand-hoisted-address necessity claim above was source-shape-relative;
+   no artificial scope, new helper name or replacement pointer is required. */
 void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
 
 {
-  /* P879: the final command stores no longer require a menuDefsBase alias. */
-  /* SYM 8c Def-record order: AreYouSure, string, player; the measured codegen
-     carriers follow the SYM set. */
   tDialogYesNo AreYouSure;
-  /* P880: existing inline choice/string operations replace dlgThis and keep
-     native this REG16. The independent msg/loop-scope debt is unchanged. */
-  /* SYM-CODEGEN-CARRIER: msg -- direct `string` use is count-exact FAIL 20
-     and births the frame address inside the loop instead of pre-loop `$s2`. */
-  char *msg;
   
   AreYouSure.SetChoices(0x321,0x322,0);
   AreYouSure.SetString(TextSys_Word(0x9d));
   if (AreYouSure.Run() != 0) {
     char string [80];
-    int player;
 
     Init_Memcard(false,1);
-    player = 0;
-    msg = string;
-  nextPlayer:
-    if (player < 2) {
-      sprintf(msg,TextSys_Word(0x297),PlayerName(player),player + 1);
-      (FEApp->NoInputMemCardDialog).string = msg;
+    for (int player = 0; player < 2; player++) {
+      sprintf(string,TextSys_Word(0x297),PlayerName(player),player + 1);
+      FEApp->NoInputMemCardDialog.SetString(string);
       SavePinkSlipsCarsWithErrorDialogs((short)player,1,-1);
-      player = player + 1;
-      goto nextPlayer;
     }
     DeInit_Memcard();
-    ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
+    FEApp->NoInputMemCardDialog.tDialogBase::Hide();
     command.type = kMenu_Command_GoToMenuOneWay;
-    command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuMain;
+    command.nextMenu = &menuDefs->menuMain;
     frontEnd.raceType = '\0';
   }
-  return;
 }
 
 
@@ -2853,7 +2727,7 @@ winCase:
    surrounding menu members.  Keeping those members in the initializer list fixes
    the complete 254-call sequence (the old body deferred them all until the end),
    including three wrong destination objects. Retail records a 640-byte frame;
-   normal matches it, but full debug still produces 608 and needs source recovery. */
+   the full-debug source restoration is documented at the constructor body below. */
 
 tGlobalMenuDefs::tGlobalMenuDefs()
  : itemMainOnePlayerRace(0x5b, (tMenu*)&menuOnePlayer, (void (*)(tMenuCommand&))MenuExtended_SetOnePlayer, 0x1e, 10)   /* +0x0 tMenuItemGoToMenuNFS4Button */
@@ -2924,25 +2798,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemTrackDirection(0xcc, (tListIterator *)&iteratorTrackDirection)   /* +0xEC0 tMenuItemOptionsLeftRightChoice */
  , itemTrackMirrored(0xcd, (tListIterator *)&iteratorTrackMirrored)   /* +0xEE0 tMenuItemOptionsTwoItemChoice */
  , itemTimeOfDay(0xce, (tListIterator *)&iteratorTimeOfDay)   /* +0xF04 tMenuItemOptionsTwoItemChoice */
-   /* [W76-A1 2026-08-23] Historical normal-only CSE-FLUSH NOTE DIAL receipt.
-      SOURCE-REVIEW-UNRESOLVED: these five pure-address groups are count shapers,
-      not recovered original producers; current full debug differs from retail.
-      Each depth-1 statement-expression adds 4 NOTE_INSN_BLOCK notes + 1 cse-deleted
-      value copy = 5 RTL chain objects and ZERO machine insns (insn count 3215
-      unchanged).  cse.c:8620-8645 counts EVERY chain rtx (insns AND notes) toward
-      its per-1001-object hash-table flush (catalog 24C-1), so these 25 objects at
-      chain ordinals ~1002-1063 shift where the flush boundaries land: gate
-      1138 -> 932 (-206; reg-blind structure 200 -> 134), and the itemGoToDuelBuyCar
-      -1 def becomes FRESH (own `li`, no longer cse-forwarded to menuTrackOptions'
-      -1 from ~330 objects earlier).  Measured cell shape (w76 probe, 40+ variants):
-      the 3 item-init sites + exactly TWO menuTrackOptions args, depth 1: any 2 MTO
-      args work (932 x4 subsets); singles inert (1138); depth 2 = 2800; 1 or 3 MTO
-      args = 2251/2331; more sites/depths anywhere = 1497..5641 (chaotic).  Full map
-      + falsifications -> scratchpad/w76/A1_report.md. */
- , itemWeather(0xcf, (tListIterator *)({ &iteratorWeather; }))   /* +0xF28 tMenuItemOptionsTwoItemChoice */
- , itemTraffic(0xd0, (tListIterator *)({ &iteratorTraffic; }))   /* +0xF4C tMenuItemOptionsTwoItemChoice */
- , itemLocalSpeech(0xd2, ({ &iteratorLocalSpeech; }))   /* +0xF70 tMenuItemOptionsTwoItemChoice */
- , menuTrackOptions(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb9, -1, (tMenuItem *)&itemLaps, ({ &itemTrackDirection; }), ({ &itemTrackMirrored; }), &itemTimeOfDay, &itemWeather, &itemTraffic, &itemLocalSpeech, 0)   /* +0xF94 tMenuOptions */
+
+ , itemWeather(0xcf, (tListIterator *)&iteratorWeather)   /* +0xF28 tMenuItemOptionsTwoItemChoice */
+ , itemTraffic(0xd0, (tListIterator *)&iteratorTraffic)   /* +0xF4C tMenuItemOptionsTwoItemChoice */
+ , itemLocalSpeech(0xd2, &iteratorLocalSpeech)   /* +0xF70 tMenuItemOptionsTwoItemChoice */
+ , menuTrackOptions(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb9, -1, (tMenuItem *)&itemLaps, &itemTrackDirection, &itemTrackMirrored, &itemTimeOfDay, &itemWeather, &itemTraffic, &itemLocalSpeech, 0)   /* +0xF94 tMenuOptions */
  , menuTrackRecordsItem(0, (tMenu *)0x0, 0, -1, -1)   /* +0x1018 tBlankMenuItemGoToMenuNFS4Button */
  , menuTrackRecords(0x1000, (tScreen *)screenTrackRecords, (tMenu *)0x0, (tMenu *)0x0, 0, 0xd4, 1, 10, (tMenuItem *)0x0)   /* +0x1044 tOptionsMenu */
  , itemTrackInfoContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToGarage, 0x21, 10)   /* +0x10C4 tMenuItemGoToMenuNFS4Button */
@@ -2953,56 +2813,12 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemCar(0x92, (tListIterator *)&iteratorCar1, 0x1c, 10)   /* +0x11D4 tMenuItemNFS4LeftRightChoice */
  , itemColor(0x120, (tListIterator *)&iteratorColor, 0x26, 10)   /* +0x11FC tMenuItemNFS4LeftRightChoice */
  , itemShowcase(0x112, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToShowroom, 0x30, 10)   /* +0x1224 tMenuItemGoToMenuNFS4Button */
- , menuSingleCarSelect(({ tMenuItem *garageCarItem = &itemGarageCar; (void)garageCarItem; 0x1a00; }), (tScreen *)screenCarSelect, (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0xba, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
+ , menuSingleCarSelect(0x1a00, (tScreen *)screenCarSelect, (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0xba, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
 
  , iteratorGarageCar(frontEnd.garageCar, &carManager)   /* +0x12CC tListIteratorCar */
  , itemGarageCar(0x92, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
  , itemCarDealer(0x74, (tMenu*)&menuGoToCarDealer, 0, 0x3a, 10)   /* +0x1310 tMenuItemGoToMenuNFS4Button */
  , itemUpgradeCar(0x91, (tMenu *)0x0, MenuExtended_GoToUpgrades, 0x44, 10)   /* +0x133C tMenuItemGoToMenuNFS4Button */
-   /* [W82-A3] Historical normal-only +1-REF receipt on &itemGarageCar (this+0x12E8)
-
-      lives on menuSingleCarSelect's FIRST argument, three members above, and it is
-
-      now PURE C -- a named pointer local inside the argument's statement
-
-      expression, with an explicit (void) use. Semantically unused; it supplies
-
-      the extra reference that raises &itemGarageCar past &menuCarOptions
-
-      (this+0x20D8) in the allocno order, so $fp holds the member retail holds.
-
-      Do not delete it (gate 0 -> 1967) and do not drop the `(void)` use (0 -> 2):
-
-      flow removes an unreferenced address local before REG_N_REFS is taken.
-
-      SOURCE-REVIEW-UNRESOLVED: garageCarItem has no retail source-object proof.
-
-      HISTORY / why the asm went away.  W72-A6 introduced this as a read-only
-
-      __asm__("" : : "r"(&itemGarageCar)) fence and W74-A6 moved it; both were
-
-      priced in basins that no longer exist.  An output-less asm is VOLATILE, hence
-
-      a sched1 barrier (catalog 24D-3/24D-4), and that barrier -- not the extra ref
-
-      -- was what held the constructor at 196 diffs: it welded shut the load-delay
-
-      slot at ours 1073 and knocked the reload spill pool out of phase for 105
-
-      instructions.  The pure-C carrier buys the SAME +1 ref with NO barrier:
-
-      196 -> 14 diffs on its own.  Measured alternatives at this site (gate diffs):
-
-      asm "r" fence 196 | asm "m" fence 2397 @3208 | tied-output launder 197 @3206 |
-
-      no carrier 1979 @3208 | (void)&itemGarageCar 16 | named pointer + (void) 14.
-
-      W74-A6's in-source "DO NOT SIMPLIFY IT AWAY AND DO NOT MOVE IT" is retired:
-
-      its OPERAND claim survives, its SPELLING and POSITION claims do not.
-
-      The last 14 diffs were the tail: see the SetFilter order note below. */
-
  , menuCarGarage(0x1a00, (tScreen *)screenCarSelect, (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemGarageCar, &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
  , menuPostCarGarage(0x1a00, (tScreen *)screenCarSelect, (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
  , iteratorOpponentCar(&frontEnd.oppCar, &carManager)   /* +0x1460 tListIteratorCar */
@@ -3103,20 +2919,10 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemDisplayMap(0x1e1, (tListIterator *)&iteratorDisplayMap)   /* +0x2928 tMenuItemDisplayLeftRightChoice */
  , itemDisplayOpponentID(0x1e2, (tListIterator *)&iteratorDisplayOpponentID)   /* +0x2954 tMenuItemDisplayLeftRightChoice */
  , itemDisplayTime(0x1e3, (tListIterator *)&iteratorDisplayTime)   /* +0x2980 tMenuItemOnOffLeftRightChoice */
-   /* [W79 2026-08-26] Historical normal-build CSE receipt, not source proof.
-      SOURCE-REVIEW-UNRESOLVED: these pure-address groups are codegen shapers.
-      Current full debug changes frame640 to608; recover real source producers.
-      They move GCC 2.8.1's 1001-object hash-table flush one iterator earlier,
-      so the controller block creates the retail FEApp high anchor in $s0.
-      That denies $s0 to the member-address pseudos, restores the six retail
-      spills and the 640-byte frame, and permits all eight controller iterators
-      below to use their natural `&FEApp->fInputPlayer` source spelling.  The
-      old read-only FEApp fences promoted a full pointer pseudo at every site,
-      emitted eight extra instructions (3223 total), and are intentionally
-      removed.  Count/site/depth are load-bearing; re-price before changing. */
- , itemDisplayPosition(0x1e6, (tListIterator *)({ &iteratorDisplayPosition; }))   /* +0x29B0 tMenuItemOnOffLeftRightChoice */
- , itemDisplayLapNumber(0x1e7, (tListIterator *)({ &iteratorDisplayLapNumber; }))   /* +0x29E0 tMenuItemOnOffLeftRightChoice */
- , itemDisplaySplitTime(0x1e4, ({ &iteratorDisplaySplitTime; }))   /* +0x2A10 tMenuItemDisplayLeftRightChoice */
+
+ , itemDisplayPosition(0x1e6, (tListIterator *)&iteratorDisplayPosition)   /* +0x29B0 tMenuItemOnOffLeftRightChoice */
+ , itemDisplayLapNumber(0x1e7, (tListIterator *)&iteratorDisplayLapNumber)   /* +0x29E0 tMenuItemOnOffLeftRightChoice */
+ , itemDisplaySplitTime(0x1e4, &iteratorDisplaySplitTime)   /* +0x2A10 tMenuItemDisplayLeftRightChoice */
  , itemDisplaySplitDisplay(0x1e5, (tListIterator *)&iteratorDisplaySplitDisplay)   /* +0x2A3C tMenuItemDisplayLeftRightChoice */
  , menuDisplayOptions(0x1020, (tScreen *)screenDisplay, (tMenu *)0x0, (tMenu *)0x0, 0, 0x1dd, 1, 10, (tMenuItem *)&itemDisplaySpeedometer, &itemDisplayMap, &itemDisplayOpponentID, &itemDisplayTime, &itemDisplaySplitTime, &itemDisplaySplitDisplay, &itemDisplayPosition, &itemDisplayLapNumber, 0)   /* +0x2A68 tOptionsMenu */
  , iteratorControllerConfigSelected(SelectListControllerConfig, frontEnd.controlConfig, &FEApp->fInputPlayer)   /* +0x2AE8 tListIteratorIndexed */
@@ -3127,9 +2933,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemControllerShockMode(0x20e, (tListIterator *)&iteratorControllerShockMode)   /* +0x2C00 tInsideBoxControllerLeftRightSlider */
  , iteratorControllerShockImpact('\0', '\x7f', frontEnd.shockImpact, &FEApp->fInputPlayer)   /* +0x2C28 tListIteratorRangeIndexed */
  , itemControllerShockImpact(0x20f, (tListIterator *)&iteratorControllerShockImpact)   /* +0x2C3C tInsideBoxControllerLeftRightSlider */
-   /* The W72/W74 FEApp fence dial is superseded by the source-only W79 CSE
-      boundary above.  Keep these eight arguments natural: adding a read-only
-      pointer fence recreates the redundant full-address pseudo and instruction. */
+
  , iteratorControllerSteeringRange1('\0', '\x7f', frontEnd.J1MAX, &FEApp->fInputPlayer)   /* +0x2C64 tListIteratorRangeIndexed */
  , itemControllerSteeringRange1(0x211, (tListIterator *)&iteratorControllerSteeringRange1, 0)   /* +0x2C78 tInsideBoxTwoWaySlider */
  , iteratorControllerDeadSpot1('\0', '\x7f', frontEnd.J1MIN, &FEApp->fInputPlayer)   /* +0x2CA8 */
@@ -3184,7 +2988,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
      Retail's body contains three child pairs plus thirteen receiver-free pairs.
      Member field updates reproduce that entire body tree without pointer locals.
      The helper spellings remain inferred, not uniquely recovered original text;
-     nine initializer-only shaping regions and the debug frame remain unresolved. */
+     initializer shaping regions are removed; full debug is the retail build input. */
   menuPlayerOneCarSelect.SetChildMenu(&menuPlayerTwoCarSelect);
   menuPlayerOneGarage.SetChildMenu(&menuPlayerTwoGarage);
   menuPlayerOnePinkSlipCarSelect.SetChildMenu(&menuPlayerTwoPinkSlipCarSelect);
@@ -3231,17 +3035,16 @@ tGlobalMenuDefs::tGlobalMenuDefs()
      Their spellings are inferred from recorded fields and update behavior;
      identical optimized bytes/scopes do not certify unique original text.
      The old W72 plain-store failure (~950 diffs) did not test this producer tree.
-     Normal still has a 640-byte frame; full debug remains 608. No frame pad,
+     Native full-debug now preserves the retail 640-byte frame. No frame pad,
      launder, dummy use or replacement pointer object has been added here.
-     Initializer expression shapers and garageCarItem still need source recovery;
-     this tail improvement is not a full constructor SYM/SLD seal. */
+     Initializer expression shapers and garageCarItem are removed. Literal
+     original spelling and full relative SLD still require verification. */
   menuMemory.SetVerticalHelp(0);
   menuUserName.SetVerticalHelp(0);
   menuTrackRecords.SetVerticalHelp(1);
   /* [2026-08-24] Zero-insn tail scheduling boundary: 874 -> 872 diffs in the
      current constructor basin, with the instruction count unchanged at 3223. */
   menuTrophyInfo.SetVerticalHelp(0);
-  return;
 }
 
 

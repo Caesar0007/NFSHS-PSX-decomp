@@ -275,9 +275,7 @@ void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values)
                 case 0:
                 case 3:
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
-                        int **valuesSlot = &values;
-                        int *valuesNow = *valuesSlot;
-                        gSentenceRuleSet(event->id, ruleByte, valuesNow[paramIdx], (int)valuesNow);
+                        gSentenceRuleSet(event->id, ruleByte, values[paramIdx]);
                     }
                     break;
                 case 1:

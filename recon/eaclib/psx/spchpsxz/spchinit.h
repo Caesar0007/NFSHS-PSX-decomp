@@ -21,7 +21,8 @@ extern SPCHAllocFn gMemAlloc;                                          /* @0x801
 extern SPCHFreeFn  gMemFree;                                           /* @0x801370AC */
 extern SPCHSampleRequestFn gSampleRequest;                             /* @0x80137094 */
 extern int  (*gSentenceRuleTest)(unsigned int, unsigned int, int);     /* @0x80137098 */
-extern void (*gSentenceRuleSet)(unsigned int, unsigned int, int, int); /* @0x8013709C */
+extern void (*gSentenceRuleSet)(unsigned int, unsigned int, int);      /* @0x8013709C: 3 args, like gSentenceRuleTest --
+                                                                         $a3 is an ordinary temp/reload register at both call sites */
 
 extern void *iSPCH_MemAlloc(int numBytes, char *tag);                   /* @0x800EB5A4 */
 extern void iSPCH_MemFree(void *block);                                        /* @0x800EB5D4 */

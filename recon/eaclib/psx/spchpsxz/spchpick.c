@@ -960,161 +960,44 @@ int iSPCH_SentenceMakeChoice(VoxSentence *sentence, int mode)
 }
 
 /* iSPCH_ConstantRuleSet @0x801013BC : fire gSentenceRuleSet for each phrase's constant (type != 0xf) rules.
- * ARITY (w32-a10 prototype audit, R3): TWO args, not three.  The sole call site (iSPCH_PlayChosen
- * @0x801016F4) sets a0/a1 only and leaves a bare `nop` in the jal delay slot; the callee never reads an
- * incoming $a2.  The old 3rd param `val` was a decompiler phantom kept alive by a `(void)val;` plus a
- * 2-arg fn-ptr cast at the call site -- both removed.  Diff-neutral (10 before and after), PlayChosen
- * still PASS. */
+ * The callback takes THREE arguments (spchinit.h): retail's `li $a3,1` is just the register the
+ * shift constant lands in (`sllv $a2,$a3,$a2` in the jalr delay slot), not a fourth argument. */
 void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
 {
-    if (gSentenceRuleSet != 0) {
-        int n = VoxSentence_GetNumPhrases(sentence);
-        int table = 0;
-        if (0 < n) {
-            unsigned char *pickBase = ispch_gPickSamples;
-            VoxChoice *choice = ispch_gChoice;
-            do {
+    int n;
+    int table;
+
+    if (!gSentenceRuleSet)
+        return;
+
+    n = VoxSentence_GetNumPhrases(sentence);
+
+    for (table = 0; table < n; table++) {
+        VoxChoice *choice;
+        VoxPhrase *phrase;
+        int j;
+
+        choice = &ispch_gChoice[table];
+        phrase = iSPCH_GetOffset8(sentence, sentence->phraseOffs, table);
+
+        for (j = 0; j < 4; j++) {
+            int ruleType = phrase->nibbles[j] >> 4;
+            if (ruleType != 0xf) {
                 int rid;
-                int j;
-                int ruleEntry;
-                VoxPhrase *phrase;
-                phrase = iSPCH_GetOffset8(sentence, sentence->phraseOffs, table);
-                j = 0;
-                do {
-                    int ruleType = phrase->nibbles[j] >> 4;
-                    if (ruleType != 0xf) {
-                        int tmp[4];
-                        int r;
-                        int callRid;
-                        unsigned int one;
-                        unsigned char *cycle;
-                        rid = iSPCH_GetRuleID(event, ruleType);
-   /* MATCH: was int[3] (too small -- oracle's frame reserves the
-                                       * full 16 bytes and reads byte [0xc+j], i.e. tmp[3]'s bytes,
-                                       * the same "cycle byte array" field iSPCH_MatchSample reads at
-                                       * sample+i+0xc). */
-                        r = iSPCH_UnPackSample(gVoxBanks[choice->bankId],
-                                                   (unsigned int)*(unsigned char *)
-                                                       ((int)choice->pick + (int)pickBase), tmp);
-                        callRid = rid;
-                        rid = 0;
-                        /* residual 10 (83/83, exact insn parity): register-pair coloring wall.
-                         * ours colors tmp-byte-addr->v0 then reuses v0 for the reloaded
-                         * gSentenceRuleSet callee address, shift-constant 1->v1; oracle colors
-                         * tmp-byte-addr->v1 (leaving v0 free to materialize the callee address
-                         * EARLY) and shift-constant 1->a3. Tried: named locals for the shift
-                         * value, the callee fn ptr, and the byte address (each alone and
-                         * combined), decl-order swap of tmp/r/rid -- all no-change or worse
-                         * (16/29). No ABI anchor differs (call uses a0/a1/a2 only, a3 free in
-                         * both); pure gcc CSE/coloring granularity -- accept.
-                         * w34-a9 MECHANISM (new, still not source-reachable): the
-                         * coloring is DOWNSTREAM of WHEN the gSentenceRuleSet
-                         * fn-pointer address is materialized.  Retail emits
-                         * `lui $v0,%hi(gSentenceRuleSet)` BEFORE the tmp-byte `lbu`,
-                         * so the callee-address pseudo's live range OVERLAPS the
-                         * byte-address temp and three distinct registers are needed
-                         * ($v1 addr / $a3 one / $v0 callee).  Ours emits the `lui`
-                         * AFTER the `lbu`, so the callee pseudo is born after the
-                         * addr temp dies and both reuse $v0, freeing $v1 for the
-                         * shift constant.  Falsified attempts to move the
-                         * materialization earlier: declaring gSentenceRuleSet as an
-                         * unsized array + `gSentenceRuleSet[0](...)` (26 diffs -- it
-                         * also breaks the function's ENTRY gate, which retail loads
-                         * with the SCALAR self-temp `lui v0; lw v0,0(v0)`), and an
-                         * `extern ... gSentenceRuleSet_v[] asm("gSentenceRuleSet")`
-                         * array VIEW used only at the call site (18 diffs).
-                         * w49-a9 (still 10; the FENCE family does NOT reach it -- 8 more forms
-                         * falsified, all measured):  a named callee local `SentenceRuleSetFn f =
-                         * gSentenceRuleSet; f(...)` is diff-NEUTRAL (10) -- it does not move the
-                         * `lui`.  A w45 USE fence on that local (`__asm__("" : : "r"(f))`) and 1/2/3
-                         * w47 OPACITY fences on it all cost 30: the fence turns `f` into a
-                         * cross-block allocno and rotates the two loop counters s0<->s1, which is
-                         * strictly worse than the 2-register residual.  A named cycle-byte pointer
-                         * `unsigned char *cyc = (unsigned char *)tmp + 0xc;` with 1 opacity fence =
-                         * 11 at 84 insns (it splits `addu v0,sp,s1` into `addiu v0,sp,28; addu
-                         * v0,v0,s1`), with 2 = 25.  MECHANISM RESTATED so the next pass attacks the
-                         * right number: this is a LOCAL-ALLOC qty question, not a scheduling one --
-                         * the `lui` is a register BIRTH (sched1 LAUNCH_PRIORITY pins it directly
-                         * above its `lw`), so it can only float up in sched2, and it cannot because
-                         * the tmp-byte address temp still owns $v0 until the `lbu` (anti-dep).
-                         * Retail has THREE live qtys there (high $v0 / addr $v1 / one $a3); we have
-                         * two plus a reuse.  The reachable target is therefore "get the addr temp
-                         * OFF $v0" (QTY_CMP_PRI on the block-0 qtys), NOT "move the lui".
-                         * w50-a9 2026-08-09: the QTY_CMP_PRI target was attacked with the ZERO-COST
-                         * REF INFLATORS (catalog w44 #2/#3 -- the family that cracked
-                         * iSPCH_BankMemAlloc this wave), on the theory that lifting the CALLEE
-                         * address pseudo's weighted refs would make it win $v0 and push the addr
-                         * temp to $v1 (retail's assignment).  FALSIFIED, all at 83/83:
-                         *   `do{}while(0)` wrapper on the gSentenceRuleSet call statement, depth 1
-                         *   and depth 2 = 24;  with the shift byte hoisted OUT of the wrapper into
-                         *   its own named local (so only the callee address is lifted), depth 2 and
-                         *   depth 3 = 24.  The wrapper's NOTE_INSN_LOOP_BEG is a sched2 barrier
-                         *   (w45) and it re-orders the whole arm long before the qty ranking
-                         *   matters -- on a single call statement the inflator is never free.
-                         * Diff-NEUTRAL (10, recorded so they are not re-run): hoisting the shift
-                         * byte into a named `sh` local on its own; an opacity fence on `r` (the
-                         * iSPCH_UnPackSample return) placed before the `if (r != 0)` test, aimed at
-                         * killing r's $v0 copy preference so the addr temp cannot inherit the reg.
-                         * The addr temp's $v0 is therefore NOT inherited from the call's return
-                         * preference; it is a plain first-free-register pick, and the only untried
-                         * instrument left is the -dl qty table itself (qtytrace) -- not another
-                        * source shape. */
-                        /* MATCH (2026-08-13, 6 -> PASS 83/83): the successful route deliberately
-                         * steps through a larger allocator basin.  Declaring rid before j wins
-                         * their equal-priority birth-order tie; callRid plus the dead rid=0 set
-                         * ends rid's live range without emitting a second copy.  The loop-carried
-                         * one=1/one=0 pair prevents LICM and gives retail's single `li a3,1` web.
-                         * The zero-net cycle weighting keeps the byte address in v1.  Treating
-                         * gSentenceRuleSet as its real callback SLOT, then naming the slot pointer
-                         * and loaded callee in one-level phony loops, keeps the callback address in
-                         * v0 at zero instruction cost.  The volatile halfword read is the C-level
-                         * scheduling boundary that keeps it before the callback load, preserving
-                         * retail's load-delay nop.  At that checkpoint a final count/register-exact
-                         * 4-diff sched2 permutation remained; the source-only receipt below now
-                         * closes it.  None of these allocation/scheduling dials is redundant. */
-                        /* MATCH (2026-08-26, source-only 4 -> PASS 83/83): `one` belongs
-                         * inside the successful arm, after the zero-net cycle adjustment.
-                         * That statement boundary lets reorg keep callRid's a1 copy in the
-                         * beqz delay slot and issue the tmp-byte address before `li a3,1`.
-                         * No post-cc1 text relocation is required. */
-                        if (r != 0) {
-                            void (**setRule)(int, int, int, int);
-                            void (*callee)(int, int, int, int);
-                            unsigned int eventIdArg;
-                            unsigned int bit;
-                            cycle = (unsigned char *)(j + (int)tmp - 0x10);
-                            one = 1;
-                            do {
-                                setRule = &gSentenceRuleSet;
-                            } while (0);
-                            /* W85-S9: this `volatile` halfword read RESISTS removal and is KEPT.
-                             * It is the sched2 barrier that holds retail's issue order
-                             * `lui %hi(gSentenceRuleSet); lhu $a0,0($s6); lbu $a2,0x1C($v1);
-                             *  lw %lo(...); nop; jalr` (0x8010149C-0x801014B0).  Without it sched2
-                             * sinks the `lhu` into the `lw`'s load-delay shadow and the oracle's
-                             * `nop` disappears: 3 diffs at 82/83 insns.  Falsified this wave, every
-                             * one still 3 @82/83 unless noted: plain `*(unsigned short *)sentence`,
-                             * `sentence[0]` with the cast, an `(int)` cast without the `unsigned`,
-                             * a named `unsigned short` temp, a trailing `do{}while(0)` boundary,
-                             * and the read hoisted above `one = 1`; wrapping the read itself in a
-                             * depth-1 or depth-2 `do{}while(0)` rotates the callee-saved file
-                             * instead (17 @82/83); moving `callee = *setRule` above the shift is
-                             * 9 @84/83 and dropping the phony loop on it is 14 @85/83. */
-                            eventIdArg =
-                                (int)(unsigned int)*(volatile unsigned short *)event;
-                            bit = one << cycle[0x1c];
-                            do {
-                                callee = *setRule;
-                            } while (0);
-                            callee( eventIdArg, callRid, bit, one);
-                        }
-                        one = 0;
-                    }
-                    j++;
-                } while (j < 4);
-                table++;
-                choice++;
-            } while (table < n);
+                VoxBank *bank;
+                int sampleIdx;
+                VoxSample tmp;
+
+                rid = iSPCH_GetRuleID(event, ruleType);
+                bank = gVoxBanks[choice->bankId];
+                sampleIdx = ispch_gPickSamples[choice->pick];
+
+                if (iSPCH_UnPackSample(bank, sampleIdx, &tmp)) {
+                    unsigned int bit;
+                    bit = 1 << tmp.cycle[j];
+                    gSentenceRuleSet(event->id, rid, bit);
+                }
+            }
         }
     }
 }

@@ -1,30 +1,8 @@
-/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
- * W52-A8 GCC-LADDER: SPCHPSXZ identity = gcc-2.8.0 + maspsx (the DEFAULT lane).
- * UNCHANGED source; forced-2.8.0 = CONTROL.
- *
- *   lane            iSPCH_ConstantRuleSet
- *   default         10 (83/83)
- *   2.6.0           42 (83/83)
- *   2.6.3           42 (83/83)
- *   2.7.2-970404    26 (83/83)
- *   2.7.2           42 (83/83)
- *   2.8.0 CONTROL   26 (83/83)
- *   2.8.1           26 (83/83)
- *   2.91.66        103 (82/83)
- *   2.95.2         117 (86/83)
- *
- * READING: every rung is worse, and the ROUTE alone costs 16 (10 -> 26 at the same
- * compiler) -- this TU wants maspsx, not the GNU-as reorder route.  Compiler-version axis
- * closed.  (git status was checked first: spchpick.c had NO uncommitted user work at
- * W52-A8 dispatch, so it was safe to gate.)
- */
-/* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 21/27 PASS ***
- *   Remaining FAILs after wave 33: iSPCH_MatchSample(22,67/65),
- *   iSPCH_ConstantRuleSet(10,83/83), iSPCH_OrderSentences(9,82/83),
- *   iSPCH_SentenceGetChoices(7,81/80), iSPCH_SentenceMakeChoice(7,44/43),
- *   iSPCH_IterateChoice(4,44/44).
+/* eaclib/psx/spchpsxz/spchpick.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 27/27 PASS ***
  *   Source obj : nfs4\eaclib\psx\spchpick.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
- *   27 fns @[0x8010077C .. 0x801018F4].  The sentence/sample PICKER -- the top of the speech pipeline: takes
+ *   Toolchain  : gcc-2.8.0 + maspsx (the default lane), library-wide -G0 (tools/build.py PER_TU_FLAGS).
+ *   27 fns @[0x8010077C .. 0x801018F4], plus the object's own static copies of the shared Vox
+ *   accessors @0x80100710.. .  The sentence/sample PICKER -- the top of the speech pipeline: takes
  *   a chosen event, picks a sentence template that passes its rules, chooses matching samples per phrase,
  *   randomises/orders them, and issues sample-load requests via the gSampleRequest callback.
  *   Ghidra nfs4-f.exe.c (spchpick) + disasm-v3 (authoritative for arg flow) + IDA sigs.
@@ -32,31 +10,21 @@
  *   Choice record `ispch_gChoice` = short[6] per phrase (stride 0xc): [0]bankIdx [1]subBank [2]nChosen
  *     [3]pickBase [4]curPick.  ispch_gPickSamples = byte[] of chosen sample indices.
  *   Ghidra-isms resolved: many in_v0 = dropped VoxSentence_GetNumPhrases/GetShortRule/OneChosen returns;
- *   iSPCH_MatchSample's `GetMatchValue(sample,i)` return is the match value (its raw-byte read is dead);
+ *   iSPCH_MatchSample calls GetMatchValue(phraseTemplate, i), and the raw byte nibbles[i] read next
+ *   to it is the live paramTable selector (lowNib), not a dead load;
  *   ChooseSamples' MatchSample call passes the bank PTR (Ghidra's (int)sVar2 cast was a mis-decode);
  *   ChooseSentence's dropped-arg calls recovered from disasm; SetPreLoadTicks' `this` is the tick value.
+ *
+ *   BSS run @0x8014843C (0x138 bytes, VAs past t_addr+t_size => pure zero-init, no file bytes),
+ *   owned by spchpick.obj -- the sole referencer of all four objects:
+ *     gSentenceChoice    @0x8014843C  64  (+ interior label DAT_80148448 @+0xC)
+ *     ispch_gPickSamples @0x8014847C 100
+ *     gChooseShort       @0x801484E0   4  (referenced by nothing in the recon; defined so the
+ *                                          object's .bss reproduces the run instead of a hole)
+ *     ispch_gChoice      @0x801484E4 144
+ *   It ends exactly where spktplay.obj's sndpps begins.  Defined by the file-scope asm block
+ *   below; the C views stay `extern` in spchpick.h.
  */
-
-/* ======================== W65-A6 DATA-MAT: the spchpsxz BSS run @0x8014843C ================
- * gSentenceChoice / ispch_gPickSamples / ispch_gChoice were extern-only tree-wide (7+10+16 =
- * 33 reloc-referenced undefined sites), plus the undefined `DAT_80148448`, which is not a
- * separate object at all -- it is gSentenceChoice+0xC (retiring one more `DAT_` seal-criterion
- * #3 violation).  VAs > t_addr+t_size (0x8013E000) => pure zero-init BSS, no file bytes.
- * The run is exactly accounted, 0x80148574 (sndpps) - 0x8014843C = 0x138 = 64 + 100 + 4 + 144:
- *   gSentenceChoice    @0x8014843C  64  (+ interior DAT_80148448 @+0xC)
- *   ispch_gPickSamples @0x8014847C 100
- *   gChooseShort       @0x801484E0   4  (retail-named in configs/symbol_addrs.txt, referenced
- *                                        by nothing in the recon -- materialized anyway so the
- *                                        object's .bss reproduces the run instead of a hole)
- *   ispch_gChoice      @0x801484E4 144
- * OWNERSHIP: spchpick.obj -- it is the SOLE referencer of all four (HIGH confidence), and the
- * run is contiguous from gSentenceChoice through ispch_gChoice, ending exactly where
- * spktplay.obj's sndpps begins.
- * DEVICE = file-scope asm .bss definition, keeping every C view `extern` UNSIZED -- the decls
- * below record that shape as load-bearing ("unsized-array -> separate-temp addr load"), and
- * gChooseShort/DAT_80148448 are <= -G4 (a C tentative def would go LOCAL to .sbss via maspsx
- * and flip addressing).  Byte-neutral by construction: 27/27 PASS unchanged.
- * Receipts: scratchpad/w65a6/RECEIPTS.md */
 
 #include "../eaclib_types.h"
 #include "spch_types.h"
@@ -122,184 +90,47 @@ __asm__("\t.globl\tgSentenceChoice\n\t.globl\tDAT_80148448\n\t.globl\tispch_gPic
         "gChooseShort:\n\t.space\t4\n"
         "ispch_gChoice:\n\t.space\t144\n\t.text");
 
-/* 2026-09-02 pseudo-array retirement: every one-word global below was declared as an UNSIZED
- * ARRAY and read as sym[0] -- the pre--G0 device that forced the split `lui %hi`+`lw %lo`
- * address pair (a plain scalar extern went to the gp-relative/assembler-macro form, which is
- * ineligible for delay slots).  Under the library-wide -G0 (build.py PER_TU_FLAGS, 2026-08-31)
- * the plain scalars compile to the identical split pairs; converted and re-verified 27/27 PASS. */
-/* Four arguments, matching spchrule.c and retail's live $a3 at both callback sites. */
+/* The shared one-word globals are plain scalar externs in the per-TU headers (spchinit.h,
+ * spchevnt.h, spchbank.h); under -G0 they compile to retail's split `lui %hi` + `lw %lo` pairs. */
 
-/* iSPCH_MatchSample @0x8010077C : does the unpacked `sample`'s cycle byte at each index match the
- *   phraseTemplate's per-index match value / paramTable-looked-up nibble?  `bankIdx` (a0) is a
- *   genuinely UNUSED first argument (confirmed vs raw: MatchSample never saves/reads a0 anywhere;
- *   the real registers are a1=sample a2=phraseTemplate a3=paramTable -- see iSPCH_ChooseSamples'
- *   call site, which passes (bankIdx, &tmp, phraseTemplate, paramTable), and iSPCH_GetPhraseBank's
- *   `paramTable` param for the shared nibble-lookup-table semantics).  MATCH: lowNib is a RAW BYTE
- *   read *(phraseTemplate+i+4), computed and ANDed in the GetMatchValue jal's delay slot (so it's the
- *   PRE-CALL value, not derived from the call's return -- the earlier recon wrongly took lowNib from
- *   matchVal's low nibble AND wrongly read count/cycleByte off the swapped bank/sample roles). */
-/* MATCH (w32-a9, 28 -> 22 diffs): the IDA register annotation for sub_8010077C names retail's
- * locals and exposes a SIXTH one our recon had inlined: `v10 // $v0` = a plain int cursor
- * initialised to `sample + i` and RE-COMPUTED at the BOTTOM of the loop (`v10 = a2 + v9`), with
- * the cycle byte read as `*(v10 + 12)`.  Spelling that cursor out (instead of addressing
- * `sample + i + 0xc` at the top) lands sample/phraseTemplate/paramTable in retail's s6/s5/s7 and
- * fixes the whole address-forming block.  Retail's other four are {lowNib:s0, i:s1, bit:s2,
- * result:s3, count:s4}.
- * RESIDUAL 22 (67/65) = ours' loop pass still hoists the shift constant `1` of `bit = 1u <<
- * cycleByte` into a NINTH callee-saved register ($s7 here), which pushes paramTable into $fp and
- * adds the fp save/restore pair (the 2-insn gap); retail rematerializes `li v1,1` per iteration
- * and gets by on s0-s7.  Same move_movables class as iSPCH_SentenceGetChoices' `li -2`, but here
- * there is no compare to fold the constant into.
- * w33-a9 NEW RESULT -- the hoist IS source-killable without a goto loop: splitting the shift into
- * two statements over the SAME variable (`bit = 1; bit = bit << cycleByte;`) makes `bit` a pseudo
- * that is MODIFIED in the loop, so move_movables has no invariant to move.  That form reaches
- * EXACT 65/65 parity with the prologue, the whole param set (sample s6 / phraseTemplate s5 /
- * paramTable s7) and the epilogue BYTE-IDENTICAL -- no fp, no extra li.  NOT KEPT: the split
- * doubles bit's ref count, and the only residual becomes a 3-way rotation of the block locals,
- * 32 diffs vs the baseline's 22.  cc1 -dg/-dl numbers for the split form (priority =
- * floor_log2(refs)*refs/live_length): bit 10/15 = 2.00 -> s0, lowNib 6/8 = 1.50 -> s1,
- * i 13/28 = 1.39 -> s2, result 9/32 = 0.84 -> s3, count 5/33 = 0.30 -> s4; retail needs
- * lowNib > i > bit > result > count, i.e. bit's priority must land inside (0.84, 1.39) --
- * 7 refs at length 15, or 10 refs at length 22-35.  Falsified attempts at that: bit defined
- * before the cycleByte range guard, bit declared after lowNib, the shift hoisted out of the
- * inner block (all 32/65).  This is now a 1-parameter permuter target on the SPLIT form, not
- * the 40-diff goto form banked in w31.
- * w34-a9 NEW DATA on the SPLIT form (still 32 diffs / EXACT 65 insns, not kept):
- * hoisting the `bit = 1u;` half to the TOP of the loop body (before the cycleByte
- * load, shift left where it was) lengthens bit's live range 15 -> 19 insns at the
- * same 10 refs -- prio 3*10/19 = 1.58, still above i's 1.39.  Measured cc1 -dl/-dg
- * for that form: bit(r91) 10/19 -> $s0, lowNib(r94) 6/8 = 1.50 -> $s1, i(r89) 13/28
- * = 1.39 -> $s2, result(r87) 9/31 = 0.87 -> $s3, count(r84) 5/33 = 0.30 -> $s4;
- * retail needs lowNib > i > bit > result > count, i.e. bit's prio in (0.87, 1.39)
- * => at 10 refs its live length must reach 22-35 (we now have 19, need +3 more), or
- * its refs must drop to 6-7 (2*7/15 = 0.93; every ref is in-loop so they move in
- * steps of 2 and 6 refs at length 15 gives 0.80, just under).  Also falsified this
- * wave: `bit = (unsigned)(result + 1) << cycleByte` (cc1 const-folds result==0 there,
- * 22/67 unsplit and 32/65 split -- identical to the plain literal), and a shared
- * `one` variable carrying BOTH the shift base and `result = 1` (set twice in the
- * loop, the lever that cracked iSPCH_SentenceGetChoices) -- cse folds the second
- * `one = 1` away so the movable comes back, 38 diffs / 67 insns with $fp.  Also falsified this wave: `1u << (cycleByte & 0x1f)`
- * (23/68), lowNib declared first (38/67), a named `one` local (22/67, still hoisted),
- * `(result + 1) << cycleByte` (22/67, cc1 folds result to 0).
- * 🏆 w47-a2 SEALED 6 -> PASS (65/65) -- the residual `p` web was NOT toolchain identity.
- * NEW ANGLE "REORG EAGER-STEAL DUPLICATE MASQUERADES AS A PREHEADER INIT": the oracle's
- * `addu $v0,$s6,$s1` at 0x801007D4 (before the loop label) and the identical insn in the
- * back-branch delay slot at 0x8010084C are ONE source statement -- reorg stole the loop's
- * FIRST insn into the back branch's slot, retargeted the loop label past it and left the
- * loop-entry copy in the preheader.  So retail computes the cursor at the TOP OF THE LOOP
- * BODY (`int p = sample + i;` as the body's first declaration), NOT as a pre-loop init plus
- * a bottom update: with the pre-loop init cc1 const-props the just-assigned `i = 0` and
- * emits `addu $v1,$s6,$zero` (the 6-diff residual, plus the $v1-vs-$v0 coloring that
- * followed from it).  RULE: when the SAME insn appears in the preheader and in the
- * back-branch delay slot, it is one loop-top statement, not two. */
+/* iSPCH_MatchSample @0x8010077C : does the unpacked `sample` match the phrase template?  For every
+ *   index i < count the sample's cycle bit must be set both in the template's matchValues[i] and,
+ *   when nibbles[i] selects one, in that paramTable word.  `bankIdx` is unused. */
 int iSPCH_MatchSample(int bankIdx, VoxSample *sample, VoxPhrase *phraseTemplate, int paramTable)
 {
-    /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
-     * a GOTO-loop body (label `loop:` + `if (i<count) goto loop;` instead of do-while) reaches
-     * EXACT insn parity 65/65 -- it stops gcc's loop pass from hoisting the shift constant `1`
-     * out of the loop (`li s6,1` + a 9th saved reg fp in the do-while form; the oracle
-     * rematerializes `li v1,1` per iteration) and lands sample->s6/template->s5/paramTable->s7
-     * exactly.  The residual is then a pure 5-local allocno rotation: ours
-     * {i:s0,result:s1,lowNib:s2,count:s3,bit:s4} vs oracle {lowNib:s0,i:s1,bit:s2,result:s3,
-     * count:s4}.  cc1 -dl data: i 7refs/27len(.52) > result 6/31(.39) > lowNib 3/8(.375) >
-     * count 4/32(.25) >= bit 3/12(.25) reproduces ours exactly (priority ~ floor_log2(refs)*
-     * refs/len); the oracle order needs lowNib ~4refs and bit len ~7 -- no faithful source
-     * shape found that moves those counts (bit two-stmt split self-shifts s0,s0 vs oracle's
-     * li v1,1;sllv s2,v1,a0 temp split; lowNib &=-split would self-andi s0,s0 vs oracle
-     * andi s0,v0).  Diff counts: goto form 42, baseline 28 (alignment luck) -> reverted. */
     int count = phraseTemplate->count;
     int result = 1;
-    if (count < 5)
-        goto valid_count;
-    result = 0;
-    goto done;
-valid_count:
-    {
-        int i = 0;
-    if (0 < count) {
-        /* MATCH (w34-a9, 22 -> 15 diffs, 67 -> 66 insns): `bit` is a LOOP-CARRIED
-         * pseudo re-armed to 1 at the bottom of every iteration instead of a fresh
-         * `1u << cycleByte` per iteration.  Two effects, both needed:
-         *  (1) it is SET TWICE inside the loop (here and by the shift), so loop.c's
-         *      move_movables has no invariant `li 1` to hoist -- the hoist is what
-         *      burned a NINTH callee-saved register ($fp) and the +2-insn save/restore
-         *      pair in the old form;
-         *  (2) the re-arm sits BEFORE the `i` increment, which stretches bit's live
-         *      range across the back edge to 25 insns at 11 refs -- allocno priority
-         *      floor_log2(11)*11/25 = 1.320, which finally drops bit BELOW `i` (1.345)
-         *      and above `result` (0.844).  That reproduces retail's whole callee-saved
-         *      assignment exactly: lowNib $s0, i $s1, bit $s2, result $s3, count $s4
-         *      (the 5-way rotation w31/w33 filed as an allocno_compare identity).
-         * The re-arm is written `bit = (unsigned int)result` rather than `bit = 1u`
-         * on purpose: on the only path that reaches it `result` IS 1 (result == 0
-         * exits on the next line), but cc1 cannot prove that, so it does not fold the
-         * value into the following `i = i + 1` -- spelling the literal there makes gcc
-         * emit `addu s1,s1,s2` (i += bit) instead of retail's `addiu s1,s1,1` and
-         * costs 2 diffs (17 instead of 15).  Same family as the catalog's `^ zero`
-         * runtime-zero device: value-preserving, purely a codegen fence.
-         * RESIDUAL 15 (66/65): (a) the one extra insn is the pre-loop re-arm -- retail
-         * simply never hoisted the constant, so it needs no carried copy at all; and
-         * (b) the loop-head `p` init folds to `addu v1,s6,zero` for us because cc1
-         * const-propagates the just-assigned `i = 0`, where retail keeps
-         * `addu v0,s6,s1`.  Both are the toolchain-identity residue, not shape.
-         * Falsified: re-arm after the increment (24-insn range, prio 1.375, 27 diffs);
-         * re-arm between the guard and the `p` update (27); re-arm at the loop TOP
-         * (= the w33 split form, range 19, prio 1.58/2.00, 32 diffs at exact 65/65);
-         * `(result + 1)` and a shared `one` variable for both `1` constants (both
-         * const-folded, hoist returns).
-         * w35-a4 NEW BEST CHARACTERISATION (measured, NOT kept -- 32 diffs vs this form's 15):
-         * the w35 DEAD-SET CARRIER kills the `li 1` hoist cleanly and reaches EXACT 65/65 with
-         * retail's instruction stream, leaving ONE allocno swap.  Form:
-         *     unsigned int one = 1;            (at the top of the loop body)
-         *     ... unsigned int bit = one << cycleByte; ...
-         *     one = 0;                         (dead; loop.c sees set_in_loop != 1 so it cannot
-         *                                       hoist the `li 1`, and flow deletes the store free)
-         * cc1 -dl/-dg for it: i(r89) 13 refs/28 = 3*13/28 = 1.393 -> $s0, lowNib(r94) 6/9 =
-         * 2*6/9 = 1.333 -> $s1, bit $s2, result 9/33 = 0.818 -> $s3, count 5/33 = 0.303 -> $s4.
-         * Retail is lowNib $s0 / i $s1 with the other three ALREADY correct, so the whole 32 is
-         * ONE adjacent pair: lowNib's priority must exceed 1.393 (6 refs at live length <= 8, or
-         * 7-8 refs at 9).  Falsified for that: hoisting `int i = 0;` to function scope to
-         * lengthen i's range (27 diffs but 66 insns -- the early `move` costs an instruction),
-         * and sinking lowNib's def inside the GetMatchValue guard to shorten its range (74/63 --
-         * the byte load moves out of the jal delay slot entirely).  This is now a 1-parameter
-         * permuter target on the DEAD-SET form (a strictly better base than the w33 split form,
-         * which needed the same window but also had bit mis-ranked).
-         * 2026-07-27 inline (15 -> 6 @65/65 EXACT): the dead-set form IS the winner once TWO
-         * ordering levers land on top of it: (1) `bit = one << cycleByte` computed BEFORE
-         * lowNib's def (shaves the one insn out of lowNib's live range that the w35 analysis
-         * said it needed -- lowNib now outranks i and takes $s0); (2) `one = 1` declared
-         * INSIDE the inner block, after the cycleByte guard (matches retail's li-after-beqz
-         * and gives cycleByte the earlier caller-saved reg: sllv $s2,$v1,$a0 exact).  The
-         * loop-carried re-arm `bit = result` is GONE -- the carrier replaces it.
-         * RESIDUAL 6 = ONE web: the pre-loop `p = sample + i` folds (cc1 const-props i=0 ->
-         * `addu v1,s6,zero`; retail keeps `addu v0,s6,s1`) and p colors $v1-vs-$v0 at both
-         * its sites.  i=0 hoisted to fn top: 13 @66 (prologue move) -- reverted.  The
-         * freechan EBB-boundary lever does not reach it (the use is an addu, not a compare,
-         * and the branch distance is too short for cse's path limit). */
-        do {
+
+    if (count > 4)
+        result = 0;
+    else {
+        int i;
+
+        for (i = 0; i < count; i++) {
             unsigned int bit;
             unsigned int cycleByte = sample->cycle[i];
+            int lowNib;
+
             result = 0;
-            if (0x1f < cycleByte)
-                goto done;
-            {
-                int lowNib;
-                unsigned int one = 1;
-                bit = one << cycleByte;
-                lowNib = phraseTemplate->nibbles[i] & 0xf;
-                one = 0;
-                if ((bit & (unsigned int)iSPCH_GetMatchValue(phraseTemplate, i)) != 0 &&
-                    (lowNib == 0 ||
-                     (bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0))
+
+            if (cycleByte > 0x1f)
+                break;
+
+            bit = 1 << cycleByte;
+            lowNib = phraseTemplate->nibbles[i] & 0xf;
+
+            if ((bit & (unsigned int)iSPCH_GetMatchValue(phraseTemplate, i)) != 0) {
+                if (lowNib == 0)
+                    result = 1;
+                else if ((bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0)
                     result = 1;
             }
-            i = i + 1;
+
             if (result == 0)
-                goto done;
-        } while (i < count);
+                break;
+        }
     }
-    }
-done:
+
     return result;
 }
 

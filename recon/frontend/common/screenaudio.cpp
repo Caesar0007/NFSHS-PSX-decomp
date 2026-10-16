@@ -7,6 +7,13 @@
 /* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
 static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
+/* Inferred spelling shared with FEFADES: retail has an empty inline pair
+ * around this same colour lookup. Both arguments here are constants. */
+static inline int TextDefinitionColor(tMenuTextType type, int column)
+{
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
 /* ORIGINAL-NAME-UNRESOLVED: inferred status getter for retail's inline pair at +604..628.
    Its literal original name is not recorded; the two fields belong to ginfo. */
 static inline bool FeAudio_SpeechIsBusy()
@@ -173,10 +180,11 @@ DrawFgAudio_fadeDone:
 }
 
 /* ---- tScreenAudio::DrawBackground  (screenaudio.cpp:220) ---- */
-/* Byte verified at 154 instructions; original source/SLD remains unsealed.
-   The option-menu getter pair now matches retail without optionsMenu.
-   Percentage calls use their real member declarations. The remaining
-   fadeValue/displayPercent carriers are explicitly unresolved below. */
+/* 154-word PASS; native declarations and all11 scope regions match retail.
+   The real colour-table query restores the missing inline pair. A signed
+   minimum/maximum update removes fadeValue; a normal counted loop makes the
+   direct percent argument match without displayPercent or a dead assignment.
+   Query spelling and full SLD attribution remain explicitly unsealed. */
 void tScreenAudio::DrawBackground()
 
 {
@@ -185,10 +193,6 @@ void tScreenAudio::DrawBackground()
   static int perfade = 0x80;        /* [SYM] STAT @0x800528e4 (bg fade accumulator) */
   short fade;
   int percent;
-  /* SOURCE-REVIEW-UNRESOLVED: fadeValue is unrecorded. The direct static
-     clamp trial is 56 diffs at 154 words after the getter restoration;
-     this is not proof of an original register-local clamp object. */
-  int fadeValue;
   
   this->PlaySound();
   fade = (short)(menuDefs->menuAudio.GetScreenFade() >> 1);
@@ -221,10 +225,6 @@ DrawBg_noSlider:
   }
   if ((-1 < percent) || (-1 < lastpercentage)) {
     int ColText;
-    /* SOURCE-REVIEW-UNRESOLVED: displayPercent is absent from retail SYM.
-       Direct argument forms still change the tested register or allocation;
-       the duplicated assignment is not a proved original source object. */
-    int displayPercent;
     char sBuildOutput [255];
 
     if ((percent == -1) ||
@@ -234,40 +234,18 @@ DrawBg_noSlider:
     else {
       perfade = perfade + -4;
     }
-    fadeValue = perfade;
-    if (0x80 < fadeValue) {
-      fadeValue = 0x80;
-    }
-    if (fadeValue < 0) {
-      fadeValue = 0;
-    }
-    perfade = fadeValue;
-    ColText = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],0,(int)fade,fadeValue);
-    if (percent < 0) {
-      displayPercent = percent;
-    }
-    else {
-      displayPercent = percent;
-    }
-    sprintf(sBuildOutput,"%d%%",displayPercent < 0 ? lastpercentage : displayPercent);
+    perfade = (perfade <? 0x80) >? 0;
+    ColText = CalcFadeVal(TextDefinitionColor(textType_Options,5),0,(int)fade,perfade);
+    sprintf(sBuildOutput,"%d%%",percent >= 0 ? percent : lastpercentage);
     if (perfade != 0x80) {
       FETextRender_FullTextRGB(sBuildOutput,(short)TextSys_WordX(0x1dc),
                                (short)TextSys_WordY(0x1dc),ColText,'\0',1);
     }
   }
-  {
-    int i;
-
-    /* SOURCE-REVIEW-UNRESOLVED: i is the retail loop local in s0, but the
-       dead percent assignment used to shape its coalescing is not proved
-       original. Byte PASS does not certify full SLD attribution. */
-    i = percent = 0;
-    do {
-      DrawShapeExtended
-                (i + 6,1,0,0,(int)fade,0,
-                 (tDrawShapeExtended *)0x0);
-      i = i + 1;
-    } while (i < 0x20);
+  for (int i = 0; i < 0x20; i++) {
+    DrawShapeExtended
+              (i + 6,1,0,0,(int)fade,0,
+               (tDrawShapeExtended *)0x0);
   }
   return;
 }

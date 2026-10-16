@@ -8,6 +8,11 @@ current. No compiler output or post-recompile instruction rewriting occurs.
 Unlike symtree_cmp.py, this checks instruction-line tags, block-line records,
 and the function-end line delta. The per-word tag lookup follows sldprobe.py:
 each instruction inherits the most recent SLD line event at or before its VA.
+
+2026-10-15: include MND84 word-sized increments, previously silently skipped.
+This decodes an existing record; it does not normalize away real line offsets.
+Expose entry/header deltas to diagnose producer/source-layout differences.
+Backup: build/nc12/sldtree_cmp_before_word_events_20261015.py.
 """
 
 import argparse
@@ -31,13 +36,17 @@ BLOCK_LINE = re.compile(r"line = (\d+)")
 END_LINE = re.compile(r"\bline\s+(\d+)")
 
 
-def parse_dump(path):
-    """Read function bounds/line records and the linked SLD event table."""
-    funcs = {}
+def parse_dump_records(path):
+    """Preserve every occurrence for independently owner-paired copy audits.
+
+    2026-10-15: do not coalesce duplicate symbols here. The legacy wrapper
+    below still marks ambiguous names; no ordinal/address pairing across dumps.
+    Backup: build/nc12/sldtree_cmp_before_copy_sld_20261015.py.
+    """
+    funcs = []
     events = {}
     current = None
     header = False
-    duplicates = []
     with open(path, errors="replace") as stream:
         for line in stream:
             m = REC.match(line)
@@ -53,19 +62,16 @@ def parse_dump(path):
                             if name.startswith("___"):
                                 name = "_._" + name[3:]
                             current["name"] = name
-                            if name in funcs:
-                                duplicates.append(name)
-                            else:
-                                funcs[name] = current
                 continue
             address, kind, body = int(m.group(1), 16), m.group(2).lower(), m.group(3)
-            if kind in ("80", "82", "86", "88"):
+            if kind in ("80", "82", "84", "86", "88"):
                 sld = LINE.search(body)
                 if sld:
                     events[address] = int(next(value for value in sld.groups() if value))
             if kind == "8c":
                 current = {"start": address, "end": None, "end_line": None,
                            "hdr": {}, "blocks": []}
+                funcs.append(current)
                 header = True
             elif current is not None and kind == "8e":
                 current["end"] = address
@@ -78,7 +84,22 @@ def parse_dump(path):
                 current["blocks"].append((kind, address - current["start"],
                                           int(block.group(1)) if block else None))
     keys = sorted(events)
-    return funcs, keys, events, sorted(set(duplicates))
+    return funcs, keys, events
+
+
+def parse_dump(path):
+    """Legacy symbol-only view: retain first candidate, flag EVERY duplicate."""
+    records, keys, events = parse_dump_records(path)
+    funcs, duplicates = {}, set()
+    for record in records:
+        name = record.get('name')
+        if not name:
+            continue
+        if name in funcs:
+            duplicates.add(name)
+        else:
+            funcs[name] = record
+    return funcs, keys, events, sorted(duplicates)
 
 
 def end_delta(fn):
@@ -91,7 +112,10 @@ def end_delta(fn):
 
 def directory_of(file_name):
     normalized = file_name.replace("/", "\\").upper()
-    match = re.search(r"\\(GAME|FRONTEND)\\(COMMON|PSX)\\", normalized)
+    while "\\\\" in normalized:
+        normalized = normalized.replace("\\\\", "\\")
+    # SDK/library reports cover only records actually present in retail SYM.
+    match = re.search(r"\\(GAME|FRONTEND|EACLIB|SYSLIB)\\(COMMON|PSX)\\", normalized)
     return "/".join(match.groups()) if match else "OTHER"
 
 
@@ -132,6 +156,11 @@ def compare_function(native, retail, native_keys, native_events,
         result["status"] = "NO_FUNCTION_SLD_EVENT"
         return result
     n_header, r_header = int(native["hdr"]["line"]), int(retail["hdr"]["line"])
+    n_entry = line_at(native_keys, native_events, n_start)
+    r_entry = line_at(retail_keys, retail_events, r_start)
+    result.update(native_entry_line=n_entry, retail_entry_line=r_entry,
+                  native_entry_delta=n_entry-n_header if n_entry is not None else None,
+                  retail_entry_delta=r_entry-r_header if r_entry is not None else None)
     diffs = 0
     for word in range(r_words):
         n_line = line_at(native_keys, native_events, n_start + word * 4)

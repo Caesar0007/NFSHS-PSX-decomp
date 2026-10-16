@@ -809,6 +809,13 @@ void Physics_AutoShift(Car_tObj *carObj)
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): retail brake region has outer+140..+1a4
+ * and inner+158..+198 (SLD1099/1103/1110/1115),without named locals there.
+ * Whole conditional GNU expression502PASS emits only the outer; expression
+ * as true arm502PASS emits an extra inner and ends+190,not+198. Both reverted.
+ * Do not pad scopes or add a dummy name to clean the report. Actual original
+ * producer/source spelling remains unresolved,not a source floor.
+ */
 /* ---- Physics_RampCarControlValues__FP8Car_tObj  [PHYSICS.CPP:1044-1278] SLD/scope review open ---- */
 void Physics_RampCarControlValues(Car_tObj *carObj)
 
@@ -1032,6 +1039,12 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): without the old local/depth reference device,
+ * direct grouped sum35diff/87;third-product-first40/88;two-stage field
+ * accumulation36/88;widened direct sum35/87. All reverted to86PASS. These
+ * are named measured basins,not original-object necessity proof. Old fake
+ * loops/local remain explicitly unresolved source debt,no new device added.
+ */
 /* ---- Physics_FixEngineRpm__FP8Car_tObj  [PHYSICS.CPP:1287-1307] source/SLD review open ---- */
 void Physics_FixEngineRpm(Car_tObj *carObj)
 

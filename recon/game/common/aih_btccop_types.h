@@ -178,7 +178,6 @@ struct AIDelayCar {
     int deltaMeters_, slice_;
     coorddef deltaPosition_, position_;
     int deltaRoadPosition_, roadPosition_, laneIndex_, currentSpeed_;
-    AIDelayCar() {}
     AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
     void SetNewTargetCar(Car_tObj *targetCar);
     void Update();
@@ -198,9 +197,9 @@ struct AICop_PerpChaseInfo {
     int engagementPercentIncreasePerTick_, copFreeTicks_;
 };
 
-#include "aistate_classes.h"
+#include "aistate.h"
 
-/* AIState_Idle's empty inline ctor lives HERE, not in aistate_classes.h: aistate.obj (Idle's key-function
+/* AIState_Idle's empty inline ctor lives HERE, not in aistate.h: aistate.obj (Idle's key-function
    TU) carries no out-of-line copy, which cc1plus 2.8 would emit for any inline member it can see. */
 inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}
 inline AIState_Idle::AIState_Idle(Car_tObj *carObj, int idleInPlace) : AIState_Base(carObj) {

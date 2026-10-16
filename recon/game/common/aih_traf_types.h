@@ -1,37 +1,18 @@
-/* aih_traf.obj's exact three-definition delta over the shared AI hierarchy. */
+/* aih_traf.obj owner types; Cop/Traffic use canonical AIHIGH.H definitions. */
 #ifndef NFS4_GAME_COMMON_AIH_TRAF_TYPES_H
 #define NFS4_GAME_COMMON_AIH_TRAF_TYPES_H
 
 #include "aih_hierarchy_types.h"
 
-struct AIHigh_Cop : public AIHigh_BasicCop {
-    AIHigh_Player *perpTarget_;
-    int forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_;
-    int aggressionLevel_;
-    AIHigh_Cop(Car_tObj *carObj, int idx);
-    void SetTuningLevers();
-    void HighExecute();
-    int CheckForNeedyPlayers();
-    void CheckForWipeOut();
-    int CheckForNewTarget();
-    void AssignToPlayer(AIHigh_Player *p);
-    int GetCheckChasePosition(coorddef *pt);
-    trigger_t *CheckForNewTriggers();
-    inline AIHigh_Player *PerpTarget() { return perpTarget_; }   /* retail pair (this typed AIHigh_Cop) */
-};
+#define NFS4_AIHIGH_TYPE_PART 1
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
 
-struct AIHigh_Traffic : public AIHigh_Base {
-    int ignoreCops_, forcePurgatory_;
-    SceneElem *accidentData_;
-    AIHigh_Traffic(Car_tObj *carObj);
-    Car_tObj *CheckForCops(int *p);
-    AIHigh_Cop *CopCheck(int *p);
-    void HighExecute();
-    trigger_t *CheckForNewTriggers();
-    inline int ForcePurgatory() { return forcePurgatory_; }   /* retail pair (this typed AIHigh_Traffic) */
-};
+#define NFS4_AIHIGH_TYPE_PART 2
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
 
-#include "aistate_classes.h"
+#include "aistate.h"
 
 
 /* Exact foreign header definitions used by this owner but omitted by its

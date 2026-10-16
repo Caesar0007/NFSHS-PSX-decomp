@@ -883,6 +883,17 @@ void SetCameraZoom(int player,int targetDist)
   SetGeomScreen(Camera_gGeomScreen);
 }
 
+/* SOURCE REVIEW (2026-10-13): clampedHeight remains unresolved,not original-
+ * object proof. Direct in-place upper clamp/conditional lower20diff/79;
+ * nested GNU MIN/MAX27/80; repeated bound-first clamp29/84; height-first
+ * expanded form27/80; mutation inside lower test35/88. All reverted to83PASS.
+ * Paired actual CC1PLPSX -O2 -G8 probes saved in build/nc12/camera_tv_
+ * {staged,expanded}_probe.i with RTL/loop/local/global dumps and assembly.
+ * Staged has12global candidates,heightp82=v0 and resultp83=a2; expanded has
+ *15,heightp82=a0 plus three additional candidates. This is a changed source
+ * graph,not merely one register handout or proof an extra object existed.
+ * No new alias/helper/asm/pin/volatile,fake use,flag or output rewrite retained.
+ */
 /* ---- Camera_UpdateTVCam__Fi  [@0x80081e48] ----
  * Retail owns two distinct fn-static int[2] arrays, lastX and lastY.
  * Typed lastX[player]/lastY[player] lets GCC build the scaled byte-index
@@ -894,9 +905,7 @@ void Camera_UpdateTVCam(int player)
   static int lastY[2];
   int targetDist;
   int height;
-  /* SOURCE-RECOVERY CARRIER: the anonymous MAX/MIN result lives in $a2;
-     direct in-place height/max forms were 20 diffs at 79/83 in this basin. */
-  int clampedHeight;
+  int clampedHeight; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct clamp paths are measured,not original-object proof. */
 
   if (0 < Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position)) {
     targetDist = Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position) >> 4;
@@ -2477,10 +2486,19 @@ void Camera_SetMode(int cviewP,int mode)
 }
 
 /* ---- Camera_NextMode__Fi  [@0x8008581c] ---- */
+/* 2026-10-13 source review: canonical -O2 -G8 RTL/CSE pairs show the
+ * baseline raw HI-mode value produced before both exit guards, reused by
+ * the signed test and later unsigned range. Direct field use instead keeps
+ * zero_extend(MEM:HI) after the guards:12dif/239 versus237. A direct switch
+ * gives30dif/247; mask-based range gives22dif/237 (ANDI instead of retail's
+ * early LHU); corresponding signed/unsigned lvalue casts give25dif/240.
+ * All restored. Saved inputs/dumps: build/nc12/camera_mode_range_*
+ * _20261013. Recover the early unsigned-value producer, not just an
+ * allocator dial or a newly invented accessor/temporary. */
 void Camera_NextMode(int cviewP)
 {
-  /* The const alias preserves the retail signed range test without a debug
-     local; direct field use changes 12 instructions. */
+  /* SOURCE-REVIEW-UNRESOLVED: unrecorded early unsigned-mode capture.
+     Its inferred name/debug elision does not prove an original object. */
   const u_short modeForRange = (u_short)Camera_gInfo[cviewP].mode;
   if ((Camera_gInfo[cviewP].mode == 0xe) || (Camera_gInfo[cviewP].modechange != 0))
     return;

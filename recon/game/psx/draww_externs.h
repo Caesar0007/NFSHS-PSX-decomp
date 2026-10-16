@@ -32,7 +32,7 @@ void xformy(matrixtdef *, int);
 /* DrawW.obj omits these foreign owners from its own debug graph.  Their
  * canonical owner records and exact linked declarations are retained here. */
 
-extern Trk_AnimateInst * Anim_gInstanceFromIndex[8];
+extern Trk_AnimateInst * Anim_gInstanceFromIndex[32]; /* retail EXT: 128 bytes, dims 1 32 */
 extern Car_tObj * BW_gCopCarObj;
 extern Trk_NewSlice *BWorldSm_slices;
 extern int BWorld_gChunkCount;
@@ -92,7 +92,7 @@ extern Sim_tSimGlobalVar simGlobal;
 // [owned->defined in draww.cpp] extern int stackSpeedUpEnbabledFlag;
 // [owned->defined in draww.cpp] extern int trk0[9][2];
 // [owned->defined in draww.cpp] extern int trk4[10][2];
-extern void Anim_GetRotPos(Trk_AnimateInst *, int, int, coorddef *, matrixtdef *);
+extern int Anim_GetRotPos(Trk_AnimateInst *, int, int, coorddef *, matrixtdef *); /* retail INT */
 extern bool BWorld_IsSliceInBuildList(int);
 extern void Flare_Halo2(DRender_tView *, int, int, coorddef *, coorddef *, struct Draw_FlareCache *);
 extern void Math_fasttransmult(matrixtdef *, matrixtdef *, matrixtdef *);

@@ -1,8 +1,9 @@
-/* frontend/common/weather.cpp -- RECONSTRUCTED (NFS4 PSX particle weather; C++ TU)
+/* game/psx/weather.cpp -- RECONSTRUCTED (NFS4 PSX particle weather; C++ TU)
  *   25 free fns Weather_*: snow/rain/splat particle system. State machine (density/intensity),
  *   GTE-transformed particle rendering. GTE COP2 ops via PsyQ libgte macros (weather_externs.h).
  */
 #include "weather_types.h"
+#include "psyq_prim_macros.h"
 
 /* Retail weather.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -229,6 +230,16 @@ void Weather_InitRain(void)
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): actual for initialization owns i/setup values;
+ * ySize is in the real iteration body. All six retail scope markers now
+ * match,including outer begin+000 and inner+02c..+04c. Direct loop-exit test
+ * removes result at69/69 PASS; old result-var necessity claim is superseded.
+ * Direct setup field/literal remains15diff/66 and was reverted. Two setup
+ * captures remain explicitly unresolved,not certified original objects by
+ * their current codegen. No fake use/scope,qualifier or replacement fence.
+ * The empty ySize==0 statement is removed too; modulo expansion retains
+ * the exact retail divide guard without a reconstruction-only empty test.
+ */
 /* ---- Weather_InitSplats__Fv  [WEATHER.CPP:182-191] SLD-VERIFIED ----
  * NEAR-MISS 7 diffs (68/69 insns, down from 11): moving `splat_i = 0` to be the FIRST statement
  * (before gs/commModeNetwork) fixed the callee-saved SAVE ORDER (oracle inits+saves $s2 first, as
@@ -246,25 +257,18 @@ void Weather_InitSplats(void)
 
 {
 
-  int ySize;
   int i;
-  int result; /* SYM-CODEGEN-CARRIER: result -- required by the measured exit-in-the-middle no-rotation loop */
-  GameSetup_tData *gameSetup; /* SYM-CODEGEN-CARRIER: gameSetup -- direct field access is part of the measured FAIL 10 form */
-  int commModeNetwork; /* SYM-CODEGEN-CARRIER: commModeNetwork -- direct literal comparison is part of the measured FAIL 15 form */
+  GameSetup_tData *gameSetup; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct field form15diff/66 on current for owner,not original-object proof. */
+  int commModeNetwork; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original loop comparison-constant producer remains unknown. */
 
-  i = 0;
-  gameSetup = &GameSetup_gData;
-  commModeNetwork = 1;
-  while (true) {
-    result = i < 0x13;
-    if (result == 0) break;
+  for (i = 0, gameSetup = &GameSetup_gData, commModeNetwork = 1;;) {
+    int ySize;
+    if (!(i < 0x13)) break;
     ySize = 0xf0;
     if (gameSetup->commMode == commModeNetwork) {
       ySize = 0x78;
     }
     Weather_gSplatInfo[i].pos.vx = (short)((u_int)random() % 320);
-    if (ySize == 0) {
-    }
     Weather_gSplatInfo[i].pos.vy = (short)((u_int)random() % ySize);
     Weather_gSplatInfo[i].startTick = (u_int)random() % 300;
     i = i + 1;
@@ -433,6 +437,10 @@ void Weather_InitStateControls(void)
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): i belongs to the active-weather body,not root.
+ * All original tuples and six address/depth scope markers match unfiltered
+ * at31/31 PASS. Native CLEAN is not a full SLD/original-text seal.
+ */
 /* ---- Weather_Restart__Fv  [WEATHER.CPP:391-402] SLD-VERIFIED ----
  * SEALED (was NEAR-MISS 18 diffs, ours 33/oracle 31): the two Weather_gLastProcessTime[N]=
  * simGlobal.gameTicks stores were emitting absolute lui/addiu addressing off ONE shared base
@@ -444,9 +452,9 @@ void Weather_InitStateControls(void)
 void Weather_Restart(void)
 
 {
-  int i;
   
   if (GameSetup_gData.Weather != 0) {
+    int i;
     if (GameSetup_gData.commMode != 1) {
       Weather_InitStateControls();
     }
@@ -461,6 +469,22 @@ void Weather_Restart(void)
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): active-weather body owns i at depth3; actual
+ * particle-initialization phase owns sv at depth4,ending before the clear
+ * phase. All eight retail scope markers now match at211/211 PASS. Both
+ * direct matrix-copy forms remain84diff/211 and were reverted,not declared
+ * source-impossible. Follow-up chained aggregate assignment removes both
+ * root matrix-base captures at211PASS,all original records/scopes exact;
+ * no fake use/scope,qualifier,asm/pin/volatile or output rewrite added.
+ * Three empty width/height/length zero tests are removed; actual remainder
+ * expressions still generate identical divide guards and complete bytes.
+ * Integer-address copies90/211; one retained alias with indexed destination
+ *85/212; dereferenced destination84/211. All failed forms reverted. The
+ * natural chain preserves copying Camera into matrix0,then reading that
+ * just-written matrix into matrix1. Old pointer-necessity claims below are
+ * historical,not original-object proof or live exemptions. Native CLEAN
+ * still does not prove exact literal original source/full SLD attribution.
+ */
 /* ---- Weather_Init__Fv  [WEATHER.CPP:414-496] SLD-VERIFIED ----
  * NEXT LEVER (w38-a8, measured but NOT applied -- needs a coordinated data-mat pass):
  * the dominant residual here is gp-rel-vs-absolute.  The oracle reaches the four
@@ -479,10 +503,6 @@ void Weather_Restart(void)
 void Weather_Init(void)
 
 {
-  matrixtdef *secondCamMatDest; /* SYM-CODEGEN-CARRIER: secondCamMatDest -- second destination-base evaluation supplies retail's required register copy */
-  matrixtdef *firstCamMatDest; /* SYM-CODEGEN-CARRIER: firstCamMatDest -- first aggregate-copy base preserves the measured movstrsi scratch pool */
-  int i;
-  SVECTOR *sv;
   
   /* P878: use the initialized SYM CWeatherSpec pointer consistently for all
      type reads. This emits retail's shared HI base and second LO type load
@@ -498,6 +518,7 @@ void Weather_Init(void)
    * remains PASS 211/211. */
   Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
   if (GameSetup_gData.Weather != 0) {
+    int i;
     Weather_gType = Weather_gTrackSpec->type;
     if (Weather_gTrackSpec->type == 1) {
       Weather_InitRain();
@@ -545,29 +566,23 @@ void Weather_Init(void)
      * a register COPY).  One shared local is 1 insn short and shifts the whole
      * movstrsi scratch pool down a register (t1-t4 vs the oracle's t2-t5): 85 diffs.
      * Two locals => 211/211 count-exact and the entire block byte-matches (12 diffs). */
-    firstCamMatDest = prevCamMat;
-    secondCamMatDest = prevCamMat;
     /* One source cursor serves both aggregate reads; retail materializes
        Camera_gInfo once and keeps the member offsets on the MEM operands. */
     prevCamPos[1] = Camera_gInfo[0].position;
     prevCamPos[0] = prevCamPos[1];
-    firstCamMatDest[0] = Camera_gInfo[0].rotation;
-    secondCamMatDest[1] = firstCamMatDest[0];
+    prevCamMat[1] = prevCamMat[0] = Camera_gInfo[0].rotation;
+    {
+    SVECTOR *sv;
     sv = Weather_gPos;
     i = 0x97;
     do {
       i = i + -1;
-      if ((int)Weather_gSys.width == 0) {
-      }
       sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-      if ((int)Weather_gSys.height == 0) {
-      }
       sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);
-      if ((int)Weather_gSys.length == 0) {
-      }
       sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);
       sv = sv + 1;
     } while (i != -1);
+    }
     i = 0;
     do {
       Weather_gWasDrawn[i] = '\0';
@@ -623,10 +638,17 @@ void Weather_DeInit(void)
  * the tail block; local_alloc then hands each block $v0/$v1/$a0 and `next` falls to $a1,
  * exactly like retail.  (Decl-ORDER permutations of the fn-scope set are all no-ops --
  * the lever is block SCOPE, i.e. local-vs-global allocno class, not ordering.) */
+/* SOURCE REVIEW (2026-10-13): direct gte_ldv0(s+1) and subsequent s+=1
+ * remove next at49/49 PASS. Actual vector-result read/write phase owns the
+ * loop r0/r1/r2 atdepth3; tail writeback owns its own r0/r1/r2 atdepth2.
+ * All ten original ordered tuples and eight scope markers match unfiltered.
+ * The intermediate for variant matched code/depth but wrong endpoints and
+ * is not retained. No new helper,alias,fence,qualifier or fake use. Native
+ * CLEAN is not literal original source or complete SLD attribution proof.
+ */
 void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
   VECTOR tv;
-  SVECTOR *next; /* SYM-CODEGEN-CARRIER: next -- carries the retail $a1 loop successor */
 
   Weather_SetMatrix(m);
   gte_ldv0(s);
@@ -636,20 +658,21 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
   while (true) {
     n = n + -1;
     if (n == -1) break;
+    gte_ldv0(s + 1);
+    gte_mvmva(1,0,0,0,0);
+    {
     int r0;
     int r1;
     int r2;
-    next = s + 1;
-    gte_ldv0(next);
-    gte_mvmva(1,0,0,0,0);
     r0 = tv.vx;
     r1 = tv.vy;
     r2 = tv.vz;
     s->vx = (short)r0;
     s->vy = (short)r1;
     s->vz = (short)r2;
+    }
     gte_stlvnl(&tv);
-    s = next;
+    s = s + 1;
   }
   {
     int r0;
@@ -678,72 +701,54 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
  *  4. COMPARE OPERAND ORDER = evaluation order: the oracle loads `pt->vX` BEFORE the
  *     Weather_gSys field, so the tests must be spelled `pt->vx > Weather_gSys.width`
  *     (not `width < pt->vx`).  That was the last 6 diffs -> PASS 223/223. */
+/* SOURCE REVIEW (2026-10-13): twelve empty zero-test statements are removed;
+ * real modulo/divide expressions still emit identical retail guards. On that
+ * cleaned source,direct random() removes the old rnd capture at223/223 PASS.
+ * Natural Weather_gSys.zfar/2 also replaces the hand-expanded sign-extension
+ * chain at223PASS. The old direct77diff/222 claim was basin-specific,not
+ * original-object proof. No new object,alias,fence,qualifier,flag or output
+ * rewrite. Complete native contract remains exact; full SLD/text still open.
+ */
 short Weather_CheckAndResetParticles(SVECTOR *pt)
 
 {
-  u_int rnd; /* SYM-CODEGEN-CARRIER: rnd -- preserves random() before zfar/2; direct modulo is FAIL 77 (222/223) */
   short flag;
   
   flag = 0;
   if ((int)pt->vx > (int)Weather_gSys.width) {
     pt->vx = (short)(-Weather_gSys.width + 0x40);
-    if ((int)Weather_gSys.height == 0) {
-    }
     pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
-    if ((int)Weather_gSys.length == 0) {
-    }
     pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
     flag = 1;
   }
   else if ((int)pt->vx < -(int)Weather_gSys.width) {
     pt->vx = Weather_gSys.width + -0x40;
-    if ((int)Weather_gSys.height == 0) {
-    }
     pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
-    if ((int)Weather_gSys.length == 0) {
-    }
     pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
     flag = 2;
   }
   if (pt->vz > Weather_gSys.zfar) {
     pt->vz = Weather_gSys.znear + 0x40;
-    if ((int)Weather_gSys.width == 0) {
-    }
     pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    if ((int)Weather_gSys.height == 0) {
-    }
     pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
     flag = 3;
   }
   else if ((int)pt->vz < (int)Weather_gSys.znear) {
     flag = 4;
-    rnd = random();
     pt->vz = Weather_gSys.znear +
-             (short)(rnd % (u_int)(((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x10) / 2));
-    if ((int)Weather_gSys.width == 0) {
-    }
+             (short)((u_int)random() % (u_int)(Weather_gSys.zfar / 2));
     pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    if ((int)Weather_gSys.height == 0) {
-    }
     pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
   }
   if (pt->vy > Weather_gSys.top) {
     pt->vy = Weather_gSys.bottom + 0x40;
-    if ((int)Weather_gSys.width == 0) {
-    }
     pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    if ((int)Weather_gSys.length == 0) {
-    }
     pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
     flag = 5;
   }
   else if ((int)pt->vy < (int)Weather_gSys.bottom) {
     pt->vy = Weather_gSys.top + -0x40;
-    if ((int)Weather_gSys.width == 0) {
-    }
     pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    if ((int)Weather_gSys.length == 0) {
-    }
     pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
     flag = 6;
   }
@@ -823,22 +828,35 @@ void Weather_QuickReOrthogonalize
  *      the middle two in the OPPOSITE order to the source here, so the source order that
  *      yields retail's vx,vz,vy emission is vx,vy,vz (18 -> 0; pure a1<->a2 / v0<->v1
  *      swap on the result.vy/result.vz pair). */
+/* SOURCE REVIEW (2026-10-13): cp names current camera translation in a0,
+ * not the previous-position destination. Direct destination assignment
+ * removes tr and restores cp's true value/type/home. Three real calculation
+ * regions own their own temp_vector/result; particle iteration owns pt.
+ * The turbulence array is declared after initial rotation/translation/wind
+ * setup. Compiler reuse naturally preserves all original AUTO slots and
+ * frame264; the old shared-carrier/pt-alias necessity claim was basin-specific.
+ * ALL21ordered records and ALL18scope markers equal retail unfiltered at
+ *251PASS. No fake alias/region/use,new name,asm/pin/volatile,flag or output
+ * rewrite. Native CLEAN does not establish literal original text/full SLD.
+ * The old debug-elided reset snapshot still needs original-source review.
+ * Two-arm call/writeback forms,including inverted condition polarity,both
+ *47diff/260 versus251 and reverted. No new original-object necessity claim.
+ */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
-  /* SYM-CARRIER: pt -- retail aliases this inner-loop name onto temp_vector's
-     stack slot. A literal second SVECTOR makes cc1plus grow the frame and
-     regresses this function from PASS to 56 diffs, so the shared carrier stays. */
   int n;
   matrixtdef matdiff;
   matrixtdef orthoMat;
   SVECTOR velocity_vector_change;
   SVECTOR total_vector_change;
-  SVECTOR temp_vector;
-  VECTOR result;
-  SVECTOR Weather_gTransformedRandomVelocityVectors [12];
 
   /* re-orthogonalize the camera matrix, build the frame-to-frame difference matrix, and transform
      every particle by it so the whole field rotates rigidly with the camera */
+  {
+  {
+  SVECTOR temp_vector;
+  VECTOR result;
+  coorddef *cp;
   Weather_QuickReOrthogonalize(&Vi->cview.mrotationInvRaw,&orthoMat);
   Math_fasttransmult(&prevCamMat[Vi->player],&orthoMat,&matdiff);
   transpose(&orthoMat,&prevCamMat[Vi->player]);
@@ -846,17 +864,14 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   Weather_SetMatrix(&Vi->cview.mrotationInvRaw);
 
   /* camera translation delta since last frame, rotated into camera space -> total_vector_change */
-  {
-    coorddef *cp;
-    coorddef *tr /* SYM-CODEGEN-CARRIER: tr -- shared translation base; direct field/source use is FAIL 22 (251/251) */ = &Vi->cview.translation;
+    cp = &Vi->cview.translation;
 
     temp_vector.vx = (short)((Vi->cview.translation.x - prevCamPos[Vi->player].x) / 0x400);
-    temp_vector.vy = (short)((tr->y - prevCamPos[Vi->player].y) / 0x400);
-    temp_vector.vz = (short)((tr->z - prevCamPos[Vi->player].z) / 0x400);
+    temp_vector.vy = (short)((cp->y - prevCamPos[Vi->player].y) / 0x400);
+    temp_vector.vz = (short)((cp->z - prevCamPos[Vi->player].z) / 0x400);
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
-    cp = &prevCamPos[Vi->player];
-    *cp = *tr;
+    prevCamPos[Vi->player] = *cp;
     gte_stlvnl(&result);
     total_vector_change.vx = -(short)result.vx;
     total_vector_change.vy = -(short)result.vy;
@@ -865,6 +880,8 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 
   /* wind/gravity velocity, rotated into camera space; folded into total_vector_change */
   {
+    SVECTOR temp_vector;
+    VECTOR result;
     SVECTOR *vel = &Weather_gSys.velocity;
 
     temp_vector.vx = vel->vx;
@@ -880,12 +897,16 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
     total_vector_change.vy = total_vector_change.vy + velocity_vector_change.vy;
     total_vector_change.vz = total_vector_change.vz + velocity_vector_change.vz;
   }
+  }
+  SVECTOR Weather_gTransformedRandomVelocityVectors [12];
 
   /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
   {
     n = 0;
     while (1) {
       if (12 <= n) break;
+      SVECTOR temp_vector;
+      VECTOR result;
       temp_vector.vx = (signed char)Weather_gRandomVelocityVectors[n][0];
       temp_vector.vy = (signed char)Weather_gRandomVelocityVectors[n][1];
       temp_vector.vz = (signed char)Weather_gRandomVelocityVectors[n][2];
@@ -903,24 +924,24 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   {
     SVECTOR *tv;
     long n;
-    short reset; /* SYM-CODEGEN-CARRIER: reset -- holds the call result across the retail writeback and pointer increment */
+    short reset; /* SOURCE-REVIEW-UNRESOLVED: absent from retail despite debug elision; actual returned reset flag is captured before writeback. */
 
     tv = wpt;
-    n = 0;
-    while (1) {
+    for (n = 0;;) {
       if (num <= n) break;
-      temp_vector.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx +
+      SVECTOR pt;
+      pt.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx +
               (tv->vx + total_vector_change.vx);
-      temp_vector.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy +
+      pt.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy +
               (tv->vy + total_vector_change.vy);
-      temp_vector.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz +
+      pt.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz +
               (tv->vz + total_vector_change.vz);
-      reset = Weather_CheckAndResetParticles(&temp_vector);
       /* MATCH: the oracle writes vx+vy as ONE aligned word (lw 0x70(sp); sw 0(s2))
        * then vz as a halfword -- a COORD16/6-byte struct assign compiles to the
        * align-2 lwl/lwr/swl/swr soup instead, so the word pun is the faithful form. */
-      *(long *)&tv->vx = *(long *)&temp_vector.vx;
-      tv->vz = temp_vector.vz;
+      reset = Weather_CheckAndResetParticles(&pt);
+      *(long *)&tv->vx = *(long *)&pt.vx;
+      tv->vz = pt.vz;
       tv = tv + 1;
       if (reset != 0) {
         wd[n] = 0;
@@ -937,16 +958,19 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
  * `((int)pt & 4)` mask is emitted BEFORE the `la` of gWeatherPixmap, retail after.
  * The palette-before-bump order lever (which took CreateSplat 40 -> 6) was already
  * measured NEGATIVE here in w40. */
+/* SOURCE REVIEW (2026-10-13): actual projection/emission region owns prim,
+ * texture-fetch region pmx,and word-copy region l0..l3 (depth2/3/4).
+ * Canonical PsyQ addPrim and typed prim+1 advancement remove pal,next,palw,
+ * addr24 and the staging region,still108/108 PASS. P_TAG.len replaces the
+ * raw byte+3 write. All eight ordered tuples/eight scope markers equal
+ * retail unfiltered; existing SDK macro header is unmodified. No invented
+ * helper/object,asm/pin/volatile,fake use/scope,flag or output rewrite added.
+ * Old split/RMW necessity claims below are historical receipts,not live
+ * exemptions. Full SLD/original spelling remains independently unsealed.
+ */
 void Weather_CreateSnow(SVECTOR *pt)
 {
   SVECTOR gv [4];
-  POLY_FT4 *prim;
-  Draw_tPixMap *pmx;
-  u_int *pal; /* SYM-CODEGEN-CARRIER: pal -- CSE carrier for the palette cursor value */
-  unsigned long l0;
-  unsigned long l1;
-  unsigned long l2;
-  unsigned long l3;
 
   /* build the 4 corners of the snowflake quad (the packed SVECTOR[4] copies the compiler emitted
      as lwl/lwr/swl/swr unaligned word moves -- here in their faithful struct-assignment form) */
@@ -959,11 +983,13 @@ void Weather_CreateSnow(SVECTOR *pt)
   gv[3].vy = gv[2].vy;
 
   /* project corners 0..2 with the GTE, link a POLY_FT4 into the ordering table */
+  {
+  POLY_FT4 *prim;
   gte_ldv3(&gv[0],&gv[1],&gv[2]);
   gte_rtpt();
   prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
-  pal = (u_int *)RENDER_PALETTEPTR_ADDR;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
+  addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
+  RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
   /* w46-a9 (10 -> PASS): residual (a) above is the SAME shape that cracked
    * Weather_CreateSplat this wave -- the fused `PTR = prim + 0x28;` statement lets
    * gcc hoist the `addiu` ABOVE the header-merge store, so the bump gets a fresh
@@ -979,14 +1005,7 @@ void Weather_CreateSnow(SVECTOR *pt)
    * RETIRED.  Re-measured after removal: this function and the whole TU stay
    * 25/25 PASS -- dials (2) split bump + (3) split palette RMW carry the match on
    * their own, so the fence was scaffolding left over from the pre-split basin. */
-  {
-    u_char *next = (u_char *)prim + 0x28; /* SYM-CODEGEN-CARRIER: next -- split packet bump */
-    u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
-    RENDER_PACKETPTR_ADDR = next;
-    u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
-    *pal = palw & 0xff000000 | (addr24 & 0xffffff);
-  }
-  *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
+  ((P_TAG *)prim)->len = 9;                                  /* OT tag length (9 words) */
   gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
 
   /* project the 4th corner, set colour+code, copy the per-vertex texture coords from the pixmap */
@@ -1001,7 +1020,14 @@ void Weather_CreateSnow(SVECTOR *pt)
    * (`char *wp = ...;` hoisted base and a named `m` + hoisted base also PASS; a named
    * `m` alone, the reversed `((int)pt&4) + (char*)tbl` addition, and a bare fence all
    * stay at 2.) */
+  {
+  Draw_tPixMap *pmx;
   pmx = gWeatherPixmap[((int)pt & 4) >> 2];
+  {
+  unsigned long l0;
+  unsigned long l1;
+  unsigned long l2;
+  unsigned long l3;
   l0 = *(u_int *)pmx;
   l1 = *(u_int *)((char *)pmx + 4);
   l2 = *(u_int *)((char *)pmx + 8);
@@ -1010,6 +1036,9 @@ void Weather_CreateSnow(SVECTOR *pt)
   *(u_int *)&prim->u1 = l1;
   *(u_int *)&prim->u2 = l2;
   *(u_int *)&prim->u3 = l3;
+  }
+  }
+  }
 }
 
 /* ---- Weather_CreateRain__FP7SVECTORP7DVECTORPc  [WEATHER.CPP:967-1005] SLD-VERIFIED ---- */
@@ -1044,25 +1073,17 @@ void Weather_CreateSnow(SVECTOR *pt)
  * CreateSplat/CreateSnow recipe applies unchanged.  Untried: hoisting the whole
  * prim/pal/header/bump group ABOVE the `if (*wd)` (retail's `prim` is one pseudo across
  * both arms per the register evidence: `$t2` throughout). */
-void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
-{
-  LINE_G2 *prim;
-  SVECTOR gv;
-  int nx;
-  int ny;
-
-  gv = *pt0;
-  if (*wd != '\0') {
-    /* have a previous screen position -> draw the motion-blur streak from it to the current point */
-    nx = pt1->vx;
-    ny = pt1->vy;
-    gte_ldv0(&gv);
-    gte_rtps();
-    prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
-    {
-      u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR; /* SYM-CODEGEN-CARRIER: pal */
-      *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-      /* MATCH (w49-a10, 16 -> PASS): the CreateSnow/CreateSplat packet-emission
+/* SOURCE REVIEW (2026-10-13): previous-position arm owns nx/ny atdepth3.
+ * Canonical addPrim/typed prim+1/P_TAG.len4 replace both tag-staging groups,
+ * removing two pal,two palw,and two redundant addr24 captures at113PASS.
+ * ALL7ordered tuples and ALL6scope markers match retail unfiltered. SDK
+ * header unmodified; no new alias/helper/asm/pin/volatile/fake use or region.
+ * Full SLD/original-text matching remains separate from native CLEAN.
+ */
+/* Historical split-tag receipt, formerly repeated in both rain arms.
+ * Superseded by canonical addPrim; original payload retained below.
+ */
+/* MATCH (w49-a10, 16 -> PASS): the CreateSnow/CreateSplat packet-emission
        * recipe, minus the fence.  The palette RMW is SPLIT (read `palw` FIRST) and
        * the packet-cursor store is placed BETWEEN the palette read and the addr24
        * mask -- that is where retail issues `sw $v1,0($a3)`, and it also frees the
@@ -1072,14 +1093,24 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
        * CreateSnow's `__asm__ __volatile__("")` fence and/or its split `next`
        * local costs 8 diffs here -- they pin the 0x402020 constant's lui/ori below
        * the header store, where retail hoists it above the whole group. */
-      {
-        u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
-        RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;
-        u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
-        *pal = palw & 0xff000000 | (addr24 & 0xffffff);
-      }
-    }
-    *((char *)prim + 3) = 4;                       /* OT tag length (4 words) */
+void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
+{
+  LINE_G2 *prim;
+  SVECTOR gv;
+
+  gv = *pt0;
+  if (*wd != '\0') {
+    int nx;
+    int ny;
+    /* have a previous screen position -> draw the motion-blur streak from it to the current point */
+    nx = pt1->vx;
+    ny = pt1->vy;
+    gte_ldv0(&gv);
+    gte_rtps();
+    prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
+    addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
+    RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
+    ((P_TAG *)prim)->len = 4;                       /* OT tag length (4 words) */
     *(u_int *)&prim->r0 = 0x52000000;              /* rgb0=0, code=0x52 (LINE_G2) */
     *(u_int *)&prim->r1 = 0x402020;                /* r1=0x20,g1=0x20,b1=0x40 */
     gte_stsxy(&prim->x1);                          /* current projected pos -> streak end */
@@ -1091,27 +1122,9 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     gte_ldv0(&gv);
     gte_rtps();
     prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
-    {
-      u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR; /* SYM-CODEGEN-CARRIER: pal */
-      *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-      /* MATCH (w49-a10, 16 -> PASS): the CreateSnow/CreateSplat packet-emission
-       * recipe, minus the fence.  The palette RMW is SPLIT (read `palw` FIRST) and
-       * the packet-cursor store is placed BETWEEN the palette read and the addr24
-       * mask -- that is where retail issues `sw $v1,0($a3)`, and it also frees the
-       * dying merge temp ($v1) for the bump instead of taking a fresh register.
-       * The final `or` must be spelled palw-term FIRST (`palw & 0xff000000 |
-       * (addr24 & 0xffffff)`) to land the result in retail's $v0.  NOTE: adding
-       * CreateSnow's `__asm__ __volatile__("")` fence and/or its split `next`
-       * local costs 8 diffs here -- they pin the 0x402020 constant's lui/ori below
-       * the header store, where retail hoists it above the whole group. */
-      {
-        u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
-        RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;
-        u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
-        *pal = palw & 0xff000000 | (addr24 & 0xffffff);
-      }
-    }
-    *((char *)prim + 3) = 4;
+    addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
+    RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
+    ((P_TAG *)prim)->len = 4;
     *(u_int *)&prim->r0 = 0x52000000;
     *(u_int *)&prim->r1 = 0x402020;
     gte_stsxy(&prim->x1);
@@ -1129,9 +1142,20 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
  * uv_pack/pkt_addr24/tpage_pack/color_pack/splat_glyph/splat_size) which pinned the whole
  * caller-saved file.  `splatTick` is MUTATED IN PLACE by the >>3 (oracle `sra $v1,$v1,3`
  * over its own register), and the quad corners are written as direct field expressions so
- * gcc CSEs `vy + splatTick` the way retail did.  `tp3` is not a retail local -- it is our
- * scratchpad-literal modelling of Render_gPalettePtr (a real variable in retail, so gcc
- * CSE'd its load); keep it. */
+ * gcc CSEs `vy + splatTick` the way retail did. The older tp3 capture has since
+ * been removed by canonical tag operations; it was not original-object proof. */
+/* SOURCE REVIEW (2026-10-13): canonical addPrim/prim+1/P_TAG.len9 remove
+ * tp3,next,palw,addr24 at74PASS. Actual typed pixmap word reads remove pmx.
+ * Direct RGB expression followed by the later sh declaration removes col;
+ * sh remains explicitly unresolved,not a source-object necessity exemption.
+ * Direct shift2diff/74; reversed scalar RGB2/74,forward RGB6/74,widened RGB
+ * 2/74,col-only2/74; later splatTick declaration and inline shift assignment
+ * also2/74. All unsuccessful variants reverted. No new fence/qualifier.
+ * Real vy center update followed by top/bottom derivation removes two old
+ * cancellation identities at74PASS. Bare topY=vy shortcut32diff/72. All
+ * original tuples/homes/order and four scope markers agree after filtering
+ * only sh; native CLEAN/full SLD/literal original spelling not claimed.
+ */
 void Weather_CreateSplat
                (Weather_tSplatInfo *splat)
 
@@ -1141,13 +1165,12 @@ void Weather_CreateSplat
   POLY_FT4 *prim;
   int size;
   int splatTick;
-  u_char *tp3; /* SYM-CODEGEN-CARRIER: tp3 -- scratchpad palette-pointer model */
 
   prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
-  tp3 = RENDER_PALETTEPTR_ADDR;
   vx = (splat->pos).vx;
   vy = (splat->pos).vy;
-  prim->tag = prim->tag & 0xff000000 | *(u_int *)tp3 & 0xffffff;
+  addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
+  RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
   /* MATCH: the palette write-back BEFORE the cursor bump.  With the bump 2nd (the
    * Ghidra order) gcc issues `addiu/sw` ahead of the tag store (64 diffs); with it
    * 3rd the scheduler interleaves it into the palette merge exactly like retail. */
@@ -1164,16 +1187,7 @@ void Weather_CreateSplat
    * ---- W85-S4 DEVICE PURITY: dial (3) is RETIRED.  Removing the fence leaves the
    * function and the whole TU at 25/25 PASS -- the two SPLITS (1)+(2) already pin
    * the addiu; the fence was redundant scaffolding from the pre-split basin. */
-  {
-    u_char *next = (u_char *)prim + 0x28; /* SYM-CODEGEN-CARRIER: next -- split packet bump */
-    {
-      u_int palw = *(u_int *)tp3; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
-      u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
-      RENDER_PACKETPTR_ADDR = next;
-      *(u_int *)tp3 = palw & 0xff000000 | (addr24 & 0xffffff);
-    }
-  }
-  *((char *)prim + 3) = 9;
+  ((P_TAG *)prim)->len = 9;
   prim->code = 0x2e;
   size = 0x12;
   if (((splat->pos).vx & 1U) != 0) {
@@ -1190,32 +1204,28 @@ void Weather_CreateSplat
    * stream, so sched2's ready-list tie breaks retail's way at zero instructions.
    * Re-measured from this basin with the fence gone: this form PASS; store-before-
    * shift with no temp 2; `(u_char)(-0x80 - splatTick*4)` inline + shift after 2. */
-  {
-    int col = -0x80 - splatTick * 4; /* SYM-CODEGEN-CARRIER: col -- wins the retail shift tie */
-    int sh = splatTick >> 3;         /* SYM-CODEGEN-CARRIER: sh  -- ditto, must be declared AFTER col */
-    prim->r0 = prim->g0 = prim->b0 = (u_char)col;
-    splatTick = sh;
-  }
+  prim->r0 = prim->g0 = prim->b0 = (u_char)(-0x80 - splatTick * 4);
+  int sh = splatTick >> 3; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct shift still2diff/74,not original-object proof. */
+  splatTick = sh;
+  vy = vy + splatTick;
   prim->x0 = vx - splatTick;
-  prim->y0 = vy + splatTick - splatTick;
+  prim->y0 = vy - splatTick;
   prim->x1 = vx + size + splatTick;
-  prim->y1 = vy + splatTick - splatTick;
+  prim->y1 = vy - splatTick;
   prim->x2 = vx - splatTick;
-  prim->y2 = vy + splatTick + size + splatTick * 2;
+  prim->y2 = vy + size + splatTick * 2;
   prim->x3 = vx + size + splatTick;
-  prim->y3 = vy + splatTick + size + splatTick * 2;
+  prim->y3 = vy + size + splatTick * 2;
   {
-    Draw_tPixMap *pmx; /* SYM-CODEGEN-CARRIER: pmx -- pixmap word-copy base */
     u_long l0;
     u_long l1;
     u_long l2;
     u_long l3;
 
-    pmx = gWeatherPixmap[2];
-    l0 = *(u_int *)pmx;
-    l1 = *(u_int *)((char *)pmx + 4);
-    l2 = *(u_int *)((char *)pmx + 8);
-    l3 = *(u_int *)((char *)pmx + 0xc);
+    l0 = *(u_int *)&gWeatherPixmap[2]->u0;
+    l1 = *(u_int *)&gWeatherPixmap[2]->u1;
+    l2 = *(u_int *)&gWeatherPixmap[2]->u2;
+    l3 = *(u_int *)&gWeatherPixmap[2]->u3;
     *(u_int *)&prim->u0 = l0;
     *(u_int *)&prim->u1 = l1;
     *(u_int *)&prim->u2 = l2;
@@ -1465,26 +1475,25 @@ void Weather_DoSplats
  * `player` (50), do{}while(0) depth wrapper on the three server-array reads (50), the same
  * wrapper on just the first read (50), reversing the three reads to wd/wprevpt/wpt (36,
  * neutral -- re-confirms the w41 measurement in the new basin), fence on `wpt` (56). */
-void Weather_DoWeather(DRender_tView *Vi)
-{
-  SVECTOR *wpt;
-  DVECTOR *wprevpt;
-  char *wd;
-  int player;
-  /* Initialized function-statics: emitted into .sdata when this function is
+/* SOURCE REVIEW (2026-10-13): canonical addPrim/typed DR_MODE advancement
+ * remove pal,next,palw,addr24 at197PASS; unused mode is removed too. A real
+ * zero-particle early return keeps the remaining work at root ownership.
+ * Cleanup owns i atdepth3; actual draw-mode emission owns prim atdepth2.
+ * Root n is declared first,matching retail order. Direct prevLookBehind
+ * element reads/stores then remove plb at197PASS without a launder/fence.
+ * ALL12ordered tuples and ALL8scope markers match retail unfiltered. Old
+ * pointer/fence/split necessity receipts below are historical,not live
+ * exemptions. No new helper,alias,qualifier,asm/pin/volatile,fake use/region,
+ * compiler flag or output rewrite. Full SLD/original text remains unsealed.
+ */
+/* Historical DoWeather body receipts, moved outside executable source
+ * on 2026-10-13. Payloads retained verbatim; old carrier/fence/flag theories
+ * do not establish original objects or full SLD/source restoration.
+ */
+/* Initialized function-statics: emitted into .sdata when this function is
    * compiled = retail's two anonymous -1 pairs D_8013DBB4 / D_8013DBBC. */
-  static int prevLookBehind[2] = {-1, -1}; /* SYM STAT ARY INT[2], record offset 0x14 */
-  static int prevCameraMode[2] = {-1, -1}; /* SYM STAT ARY INT[2], record offset 0x1c */
-  int ab;
-  int clean_up;
-  int i;
-  int n;
-  int mode; /* SYM-CODEGEN-CARRIER: mode -- staged Camera_GetMode result */
-  DR_MODE *prim;
-  int *plb; /* SYM-CODEGEN-CARRIER: plb -- laundered prevLookBehind slot */
-  u_int *pal; /* SYM-CODEGEN-CARRIER: pal -- palette cursor CSE value */
 
-  /* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
+/* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
      this function's GLOBAL handout 25/25 EXACTLY, so none of the residual is a global
      allocno tie and reqdelta has no dial to offer.  Every diff is a swap between two
      BLOCK-LOCAL qtys that local-alloc.c (not global.c) hands out:
@@ -1497,7 +1506,8 @@ void Weather_DoWeather(DRender_tView *Vi)
      catalog's named 06E instrument gap ("local-alloc QTY handouts, outside allocsim's
      model") and needs tools/qtytrace.py against an INSTRUMENTED cc1 to dial.  Do not
      spend more source-shape guesses here until that instrument exists. */
-  /* MATCH (w60-a6): 36 -> 30, count still EXACT 197/197.  The w55 verdict above ("do not
+
+/* MATCH (w60-a6): 36 -> 30, count still EXACT 197/197.  The w55 verdict above ("do not
      spend more source-shape guesses until qtytrace exists") is HALF-refuted: the $a0<->$a1
      swap on the base/scaled-index pair at :1505-1507 IS reachable with a plain ref dial --
      a zero-insn read-only fence on `player` placed AFTER the three array reads (+1 ref,
@@ -1515,7 +1525,8 @@ void Weather_DoWeather(DRender_tView *Vi)
      $v1 -- a scheduler hoist of a ready `li`, and the named-constant device pays an insn for
      it; (b) the $v1<->$a1 swap on the `ab` load / prevLookBehind address (w55 blocks 5-8),
      untouched by this fence and still the 06E local-alloc-QTY instrument gap. */
-  /* MATCH (w61-a14, 2026-08-15): 30 -> 18, count still EXACT 197/197.  The w55 'do not
+
+/* MATCH (w61-a14, 2026-08-15): 30 -> 18, count still EXACT 197/197.  The w55 'do not
      spend more source-shape guesses until qtytrace exists' verdict is now FULLY refuted --
      the w55 blocks-5-8 $v1<->$a1 swap (the `ab` load vs the prevLookBehind address, filed
      as the 06E local-alloc-QTY instrument gap) IS source-reachable:
@@ -1534,7 +1545,8 @@ void Weather_DoWeather(DRender_tView *Vi)
      the Camera_GetMode result still resists (a tied launder shares the register, so it
      cannot manufacture a copy; that residual + the head `li a2,1` scheduler hoist are the
      whole remaining 18).  From the 20 basin an `ab` fence is neutral again (20). */
-  /* ---- MATCH (w63-a13, 2026-08-15): 18 -> 6 diffs, count still EXACT 197/197.  BOTH of
+
+/* ---- MATCH (w63-a13, 2026-08-15): 18 -> 6 diffs, count still EXACT 197/197.  BOTH of
      the w61 "whole remaining 18" clusters are now cracked, and neither needed the qtytrace
      instrument the w55 verdict demanded.
      (1) THE Camera_GetMode COPY -- see the 12D staging receipt at its call site below
@@ -1572,7 +1584,8 @@ void Weather_DoWeather(DRender_tView *Vi)
            methodology 3.15 / catalog E.
        (B) 89-92: `sll s0,s2,2` emitted one slot AFTER the `lui/addiu` pair where retail
            has it one slot BEFORE -- the surviving half of the w41 tie (2). */
-  /* ===== 🏆 w64-a13 (2026-08-15): CLUSTER (B) IS SOLVED -- **6 -> 4, count still EXACT
+
+/* ===== 🏆 w64-a13 (2026-08-15): CLUSTER (B) IS SOLVED -- **6 -> 4, count still EXACT
    * 197/197**, via ONE PER_FN_TEXT_MOVES row (the 12F/15D pure-line-relocation class).
    * Probe-verified TWICE with tools/vprobe.py + W60_TEXT_MOVES_FILE; the row file is kept
    * at scratchpad/w64a13/tm_weather.json.
@@ -1614,7 +1627,8 @@ void Weather_DoWeather(DRender_tView *Vi)
    * the directive (junk at end of line).  An offset-free array view keeps the split
    * (schedulable) form, so the macro route needs a symbol AT the field address, which
    * does not exist.  Cluster (A) stays the named sched1-hoist angle. */
-  /* ===== W71-A5 (2026-08-21): CLUSTER (A) IS 4 -> 2, count still EXACT 197/197.
+
+/* ===== W71-A5 (2026-08-21): CLUSTER (A) IS 4 -> 2, count still EXACT 197/197.
    * The w67-a7 verdict ("the macro-form device is UNREACHABLE for a struct FIELD on
    * this lane") was right about the ASM-LABEL route and wrong about the class: the
    * offset belongs in the C SUBSCRIPT, not in the label.  A 4-byte SCALAR view
@@ -1638,7 +1652,8 @@ void Weather_DoWeather(DRender_tView *Vi)
    * NAMED NEXT ANGLE (out of source reach): PER_FN_POST_MASPSX_MOVES (the mechanism
    * 13E/19A already spec'd for _padInitDirSeq) -- TEXT_MOVES runs PRE-maspsx and can
    * only move the single macro LINE, which drags the `lui` down with it. */
-  /* ===== W72-A14 (2026-08-22): **PASS 197/197, BOTH LANES** -- 2 -> 0.  The W71-A5
+
+/* ===== W72-A14 (2026-08-22): **PASS 197/197, BOTH LANES** -- 2 -> 0.  The W71-A5
    * "out of source reach / needs PER_FN_POST_MASPSX_MOVES" verdict is REFUTED, and the
    * refutation is a clean 21E-1 RE-PRICE: the w63 cm-POSITION table was measured in the
    * SPLIT-view basin and the w71 re-sweep in the MACRO-view basin, but the winning cell
@@ -1691,37 +1706,21 @@ void Weather_DoWeather(DRender_tView *Vi)
    * `.extern GameSetup_gData` at all (the scalar view's doubled `.extern GameSetup_gData,4`
    * next to the real `,2600` is gone), so the dual-lane `.extern`-size hazard the W71
    * device carried is retired rather than merely tolerated. */
-  player = Vi->player;
-  wpt = Weather_gPServer[player];
-  wprevpt = Weather_gPrevPServer[player];
-  /* W80 source-only: load through an explicit DrawnServer slot pointer.  This prices
+
+/* W80 source-only: load through an explicit DrawnServer slot pointer.  This prices
      the local against the scaled-index quantity and restores retail's a0/a1 handout. */
-  wd = *(Weather_gDrawnServer + player);
-  /* The canonical typed declaration makes the direct guard byte-exact; the former
+
+/* The canonical typed declaration makes the direct guard byte-exact; the former
      staged `cm` and `one` codegen carriers are not required. */
-  if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
-    timechange = simGlobal.gameTicks;
-    if (Weather_gSnowTrack == 0) {
-      Weather_ChangeIntensityBasedOnTime();
-    }
-    Weather_ChangeDensityBasedOnTime();
-  }
-  if (Weather_gSys.num[0] != 0) {
-    /* force a wasDrawn-clear when the look-behind state or the camera mode just changed */
-    ab = Input_gLookBehind[player];
-    /* w50-a10 shipped an OPACITY FENCE here (`__asm__("" : "=r"(ab) : "0"(ab))`,
+
+/* w50-a10 shipped an OPACITY FENCE here (`__asm__("" : "=r"(ab) : "0"(ab))`,
      * 40->36) to keep `ab` in a caller-saved arg reg and load it before building
      * the prevLookBehind[] address.
      * ---- W85-S4 DEVICE PURITY: RETIRED.  The later w63-a13 dead-pseudo staging
      * rewrite of this block subsumed it -- removing the fence leaves this function
      * and the whole TU at 25/25 PASS (re-measured, count still EXACT 197/197). */
-    plb = &prevLookBehind[player];
-    clean_up = 0;
-    if (ab != *plb) {
-      clean_up = ab == 1;
-    }
-    *plb = ab;
-    /* MATCH (w63-a13, 18 -> 12, count still EXACT 197/197): THE 12D DEAD-PSEUDO STAGING
+
+/* MATCH (w63-a13, 18 -> 12, count still EXACT 197/197): THE 12D DEAD-PSEUDO STAGING
      * LAW, and the SYM is the proof.  The `8c` block lists exactly
      * {n,wpt,wprevpt,wd,player,ab,clean_up,i,prim} -- there is NO `mode` local, and
      * retail carries the Camera_GetMode result in $a1, which is `ab`'s own register.
@@ -1732,12 +1731,74 @@ void Weather_DoWeather(DRender_tView *Vi)
      * copy-through-local 96 @199 . w50 fence on mode 49 @198 . w61 fence 39 @198 and
      * identity launder 39 @198, all rejected on count).  12D's rule reads exactly:
      * "do NOT add a variable -- find the EXISTING variable that owns that register". */
+
+/* Source-level identity: use the real file-static array.  Its known
+       eight-byte size is above -G4, so this runtime index stays absolute while
+       the constant-index sites above remain gp-relative. */
+
+/* emit one snow/rain primitive per particle.
+     * MATCH: INDEX form `wpt[n]` / `wprevpt[n]`, NOT an in-place `wpt++` walk.  The SYM
+     * `8c` block lists exactly {n,wpt,wprevpt,wd,player,ab,clean_up,i,prim} -- there are NO
+     * cursor locals -- so the oracle's preheader `addu s0,s6,zero` / `addu s2,s7,zero` +
+     * `addiu s0,s0,8` / `addiu s2,s2,4` are loop.c GIVs strength-reduced out of the index
+     * form.  In-place `wpt++` gives the loop's refs to wpt itself and mis-colors the whole
+     * saved-reg file; a hand-written cursor pair reproduces the insns but not the coloring. */
+
+/* MATCH: bump the cursor off the ALREADY-LOADED `prim`, not by re-reading the
+     * scratchpad slot -- the oracle has `addiu v1,a0,12; sw v1,0(t3)` (2 insns) where a
+     * re-read spelling emits lw+addiu+sw (3). */
+
+/* MATCH: palette write-back BEFORE the cursor bump (same order lever as
+     * Weather_CreateSplat) -- the scheduler then interleaves the bump into the
+     * palette merge like retail. */
+
+/* w46-a9 (46 -> 42): the CreateSplat/CreateSnow packet-emission recipe, partially.
+     * The cursor bump is SPLIT into a value statement and its store, the palette RMW is
+     * SPLIT (read first), and the cursor store is placed BETWEEN the palette read and the
+     * addr24 mask.  Measured here: this form 42 · with a leading zero-byte fence 48 ·
+     * fence + store after the mask 48 · fence + store last 52 · fence only 52 · split
+     * bump without the palette split 46/46.  Unlike the two sibling emitters a fence is
+     * NEGATIVE here (this tail sits at the end of a 197-insn function whose residual is a
+     * whole-function allocno permutation, so the barrier costs more than it buys). */
+
+void Weather_DoWeather(DRender_tView *Vi)
+{
+  int n;
+  SVECTOR *wpt;
+  DVECTOR *wprevpt;
+  char *wd;
+  int player;
+  static int prevLookBehind[2] = {-1, -1}; /* SYM STAT ARY INT[2], record offset 0x14 */
+  static int prevCameraMode[2] = {-1, -1}; /* SYM STAT ARY INT[2], record offset 0x1c */
+  int ab;
+  int clean_up;
+
+  player = Vi->player;
+  wpt = Weather_gPServer[player];
+  wprevpt = Weather_gPrevPServer[player];
+  wd = *(Weather_gDrawnServer + player);
+  if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
+    timechange = simGlobal.gameTicks;
+    if (Weather_gSnowTrack == 0) {
+      Weather_ChangeIntensityBasedOnTime();
+    }
+    Weather_ChangeDensityBasedOnTime();
+  }
+  if (Weather_gSys.num[0] == 0) return;
+    /* force a wasDrawn-clear when the look-behind state or the camera mode just changed */
+    ab = Input_gLookBehind[player];
+    clean_up = 0;
+    if (ab != prevLookBehind[player]) {
+      clean_up = ab == 1;
+    }
+    prevLookBehind[player] = ab;
     ab = Camera_GetMode(player);
     if (ab != prevCameraMode[player]) {
       clean_up = 1;
     }
     prevCameraMode[player] = ab;
     if (clean_up != 0) {
+      int i;
       i = 0;
       if (0 < Weather_gSys.num[player]) {
         do {
@@ -1746,9 +1807,6 @@ void Weather_DoWeather(DRender_tView *Vi)
         } while (i < Weather_gSys.num[player]);
       }
     }
-    /* Source-level identity: use the real file-static array.  Its known
-       eight-byte size is above -G4, so this runtime index stays absolute while
-       the constant-index sites above remain gp-relative. */
     if (1 < simGlobal.gameTicks - Weather_gLastProcessTime[player]) {
       Weather_gLastProcessTime[player] = simGlobal.gameTicks;
       Weather_ProcessParticles(Vi,Weather_gSys.num[player],wpt,wd);
@@ -1757,13 +1815,6 @@ void Weather_DoWeather(DRender_tView *Vi)
     if (Camera_gInfo[player].inCar) {
       Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServer[player]);
     }
-    /* emit one snow/rain primitive per particle.
-     * MATCH: INDEX form `wpt[n]` / `wprevpt[n]`, NOT an in-place `wpt++` walk.  The SYM
-     * `8c` block lists exactly {n,wpt,wprevpt,wd,player,ab,clean_up,i,prim} -- there are NO
-     * cursor locals -- so the oracle's preheader `addu s0,s6,zero` / `addu s2,s7,zero` +
-     * `addiu s0,s0,8` / `addiu s2,s2,4` are loop.c GIVs strength-reduced out of the index
-     * form.  In-place `wpt++` gives the loop's refs to wpt itself and mis-colors the whole
-     * saved-reg file; a hand-written cursor pair reproduces the insns but not the coloring. */
     n = 0;
     if (0 < Weather_gSys.num[player]) {
       do {
@@ -1777,30 +1828,11 @@ void Weather_DoWeather(DRender_tView *Vi)
       } while (n < Weather_gSys.num[player]);
     }
     /* tail: link a DR_MODE primitive into the OT to reset the texture page */
-    prim = (DR_MODE *)RENDER_PACKETPTR_ADDR;
-    pal = (u_int *)RENDER_PALETTEPTR_ADDR;
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-    /* MATCH: bump the cursor off the ALREADY-LOADED `prim`, not by re-reading the
-     * scratchpad slot -- the oracle has `addiu v1,a0,12; sw v1,0(t3)` (2 insns) where a
-     * re-read spelling emits lw+addiu+sw (3). */
-    /* MATCH: palette write-back BEFORE the cursor bump (same order lever as
-     * Weather_CreateSplat) -- the scheduler then interleaves the bump into the
-     * palette merge like retail. */
-    /* w46-a9 (46 -> 42): the CreateSplat/CreateSnow packet-emission recipe, partially.
-     * The cursor bump is SPLIT into a value statement and its store, the palette RMW is
-     * SPLIT (read first), and the cursor store is placed BETWEEN the palette read and the
-     * addr24 mask.  Measured here: this form 42 · with a leading zero-byte fence 48 ·
-     * fence + store after the mask 48 · fence + store last 52 · fence only 52 · split
-     * bump without the palette split 46/46.  Unlike the two sibling emitters a fence is
-     * NEGATIVE here (this tail sits at the end of a 197-insn function whose residual is a
-     * whole-function allocno permutation, so the barrier costs more than it buys). */
     {
-      u_char *next = (u_char *)prim + 0xc; /* SYM-CODEGEN-CARRIER: next -- split DR_MODE bump */
-      u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
-      RENDER_PACKETPTR_ADDR = next;
-      u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
-      *pal = palw & 0xff000000 | (addr24 & 0xffffff);
-    }
+    DR_MODE *prim;
+    prim = (DR_MODE *)RENDER_PACKETPTR_ADDR;
+    addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
+    RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }
 }

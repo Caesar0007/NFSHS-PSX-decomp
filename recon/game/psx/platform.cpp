@@ -41,7 +41,7 @@ void Platform_InitMemory(void)
 
 {
   u_int tempLow;
-  u_int m; /* SYM-CODEGEN-CARRIER: m -- required for retail subu/store/addu recovery */
+  u_int m; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; prior variants are not object-necessity proof. */
 
   tempLow = 0x80010080;   /* PSX prog base 0x80010000 + 0x80 EXE-header = low-mem bound; memory-map constant (no data symbol), not a VA to migrate */
   m = (u_int)&bigBuf[sizeof(bigBuf) - 0x80];
@@ -54,7 +54,15 @@ void Platform_InitMemory(void)
   return;
 }
 
-/* ---- Platform_ReserveMemory__FiPc  [PLATFORM.CPP:139-156] SLD-VERIFIED ---- */
+/* ---- Platform_ReserveMemory__FiPc  [PLATFORM.CPP:139-156] SLD map, not full SLD-exact ---- */
+/* 2026-10-13: direct actual-global bounds expression plus gCurrentMemory+=size
+ * removes newmem at19/19 PASS. No replacement alias,qualifier,asm or output
+ * rewrite. mem remains source review despite debug elision. Returning the
+ * updated pointer minus size removes it but22diff/19 (size live-range rotates
+ * the divide guard); restore mem only. Missing retail inline regions remain
+ * producer recovery work,not empty scoping to satisfy counts.
+ * InitMemory m-removal signed/unsigned widening and chained-global stores
+ * all15diff/11 versus12; restore its original body. No new device retained. */
 /* NEAR-MISS 6 diffs (19/19), was 12 (w39-a4).  Structure now 1:1 with the oracle:
  *   - round-up-to-4 is gcc-2.8's inline SIGNED /4 (`addiu v0,a0,3; bgez v0,L;
  *     addu v1,v0,zero; addiu v1,v0,3; L: sra v0,v1,2`), on the IN-PLACE-mutated `size`
@@ -83,17 +91,15 @@ void Platform_InitMemory(void)
 char *Platform_ReserveMemory(int size,char *string)
 
 {
-  int newmem; /* SYM-CODEGEN-CARRIER: newmem -- required rounded-address lifetime */
-  char *mem; /* SYM-CODEGEN-CARRIER: mem -- preserves the success-return delay-slot copy */
+  char *mem; /* SOURCE-REVIEW-UNRESOLVED: absent from retail, even when debug-elided. */
 
   size = size + 3;
   size = (size / 4) * 4;
-  newmem = gCurrentMemory + size;
   mem = (char *)gCurrentMemory;
-  if ((int)gTotalMemory < newmem - gLowMemory) {
+  if ((int)gTotalMemory < (gCurrentMemory + size) - gLowMemory) {
     return (char *)0x0;
   }
-  gCurrentMemory = newmem;
+  gCurrentMemory += size;
   return mem;
 }
 

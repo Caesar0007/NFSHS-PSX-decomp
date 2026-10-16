@@ -40,7 +40,15 @@ short    gClutDepth[256][16];
 FogKey   Fog_gBuf[32];
 int      openkeys[32];
 
-/* ---- TextureProcess_TransColorCheck__FPci  [TEXTUREPROCESS.CPP:47-62] SLD-VERIFIED ---- */
+/* ---- TextureProcess_TransColorCheck__FPci  [TEXTUREPROCESS.CPP:47-62] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: color is a debug-elided source capture, not
+ * a proven original name/object. Retail's +12..+24 emitted scope covers
+ * decrement/test/nop, NOT the palette load. Native-backed GCC2.8.1 GDB
+ * shows color's VAR_DECL keeps the body block but stays unallocated p84;
+ * sdbout omits that row. This is block provenance, not object necessity.
+ * Exit-in-body without color is13word PASS but loses the scope; genuine
+ * GNU expression groups add unsupported scopes (even at byte PASS).
+ * Original producer/spelling and SLD remain open; no padding kept. */
 int TextureProcess_TransColorCheck(char *data,int numentry)
 {
   int translucent_flag;
@@ -58,6 +66,14 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
  * Three channel-local temp objects and loop ownership match retail SYM.
  * Indexed newdata stores need no source output walker. The unrecorded spec
  * pointer and full relative statement-line attribution remain unresolved. */
+/* 2026-10-13 field recovery: owner CTrackSpec.fogspec is CFogSpec at+16;
+ * its color is CVECTOR+4 and start is INT+8. Use the already-visible
+ * CFogSpec color fields here and start in the fog routines, not isolated
+ * color/word interpretations. All five reads/writes preserve retail bytes.
+ * Completed foreign CTrackSpec remains absent. Opaque array-ref/pointer
+ * views and direct contrast-member load bias the anchor to+16:27dif/129;
+ * assigning spec first is15dif/129. All failed forms restored. Canonical
+ * external identity, spec's original producer and full SLD remain open. */
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
@@ -97,17 +113,17 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
        * bltz delay slot. */
       {
       int temp;
-      temp = r - fixedmult(r - ((CVECTOR *)(spec + 5))->r,contrasttemp);
+      temp = r - fixedmult(r - ((CFogSpec *)(spec + 4))->color.r,contrasttemp);
       if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
       }
       {
       int temp;
-      temp = g - fixedmult(g - ((CVECTOR *)(spec + 5))->g,contrasttemp);
+      temp = g - fixedmult(g - ((CFogSpec *)(spec + 4))->color.g,contrasttemp);
       if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
       }
       {
       int temp;
-      temp = b - fixedmult(b - ((CVECTOR *)(spec + 5))->b,contrasttemp);
+      temp = b - fixedmult(b - ((CFogSpec *)(spec + 4))->color.b,contrasttemp);
       if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
       }
       if (b < 8) { b = 8; }                          /* keep a minimum blue so the pixel stays visible */
@@ -279,7 +295,7 @@ void Fog_Update(int player)
       key->distance + ((currentslice - key->slice) * diffdistance) / diffslice;
     }) : key->distance;
   }
-  TrackSpec_gSpec[6] = final_dist;
+  ((CFogSpec *)(TrackSpec_gSpec + 4))->start = final_dist;
 }
 
 /* ---- Fog_MakeTrackPathName__FPc  [TEXTUREPROCESS.CPP:1015-1022] SLD-VERIFIED ---- */
@@ -342,14 +358,22 @@ int Fog_ReadFogKeys(void)
 }
 
 /* ---- Fog_InitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1082-1119] ----
- * Indexed countdown owns retail i. The remaining openval/slice_off and
- * counter absorption expression are unresolved source-restoration work;
- * older failed trials do not establish that those objects were original. */
+ * Indexed countdown owns retail's first i. Ordinary typed player-position
+ * indexing removes slice_off and the counter absorption identity. openval
+ * and retail's missing second i still require original-source recovery. */
+/* 2026-10-13: consume Fog_ReadFogKeys' success directly; it is not a
+ * player count. A natural for(k=0;k<num_player;k++) with typed fogslicePos+k
+ * gives57/57 and preserves k in s0, without slice_off or a fake identity.
+ * A guarded do form/prefix increment/index-first byte address are12dif/57;
+ * retaining the old outer nonzero guard around for adds2words (59).
+ * Remove that duplicate guard, not an allocation fence. sizeof(BWorldSm_Pos)
+ * supplies the verified132byte allocation stride. The literal first-loop
+ * store still2dif/57, including a grouped real reset/for initializer, and
+ * is restored. openval/original second-i producer and full SLD remain open. */
 void Fog_InitFogTriggers(void)
 
 {
   int num_player;
-  int slice_off; /* SOURCE-REVIEW-UNRESOLVED: offset handout still differs without this object. */
   int openval; /* SOURCE-REVIEW-UNRESOLVED: literal store moves the preheader load. */
   openval = 1;
   Fog_gNumKeys = 0;
@@ -357,9 +381,8 @@ void Fog_InitFogTriggers(void)
   for (int i = 0x1f; -1 < i; i--) {
     openkeys[i] = openval;
   }
-  num_player = Fog_ReadFogKeys();
-  if (num_player == 0) {
-    Fog_AddKey(0,TrackSpec_gSpec[6]);
+  if (Fog_ReadFogKeys() == 0) {
+    Fog_AddKey(0,((CFogSpec *)(TrackSpec_gSpec + 4))->start);
   }
   num_player = 1;
   /* Fog_gCurrentKey is retail's two-element pointer array. */
@@ -370,19 +393,9 @@ void Fog_InitFogTriggers(void)
   }
   {
     int k;
-    fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
-    /* SOURCE-REVIEW-UNRESOLVED: deleting the counter absorption still swaps
-     * counter/offset homes (12dif/57 after restoring the real setup region).
-     * This is a current failed trial, not proof that the source used an identity. */
-    if (num_player != 0) {
-      k = 0;
-      slice_off = k;
-      do {
-        k = (int)((u_int)k | ((u_int)k & 3u));
-        BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
-        k = k + 1;
-        slice_off = slice_off + 0x84;
-      } while (k < num_player);
+    fogslicePos = reservememadr("fog pos",num_player * sizeof(BWorldSm_Pos),0);
+    for (k = 0; k < num_player; k++) {
+      BWorldSm_SetSlice(0,fogslicePos + k);
     }
   }
   return;

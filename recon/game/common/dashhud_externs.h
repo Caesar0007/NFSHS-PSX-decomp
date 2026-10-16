@@ -32,7 +32,14 @@ extern int               Camera_gInfo[];             /* camera.obj */
 #define DASHHUD_CAMERA_ANCHOR(player) \
     (*(BO_tNewtonObj **)((char *)Camera_gInfo + (player) * 272))
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
-extern int               simGlobal[2];               /* sim.obj */
-#define DASHHUD_GAME_TICKS simGlobal[1]
+/* sim.obj owns Sim_tSimGlobalVar (24 bytes), with INT gameTicks at +4.
+ * Retail dashHUD.obj emits no body for that type. Keep the canonical
+ * aggregate identity opaque here. An array reference preserves the retail
+ * address expansion; the byte-pointer view gives six ordering differences
+ * in HUDCalc at 176/176 (2026-10-13). This access macro/cast is reconstruction
+ * compatibility and its original source spelling remains unresolved. */
+struct Sim_tSimGlobalVar;
+extern Sim_tSimGlobalVar simGlobal;
+#define DASHHUD_GAME_TICKS ((int (&)[])simGlobal)[1]
 
 #endif /* DASHHUD_EXTERNS_H */

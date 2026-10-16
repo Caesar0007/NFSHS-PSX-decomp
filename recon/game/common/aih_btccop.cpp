@@ -41,14 +41,11 @@ extern "C" int sprintf(char *, const char *, ...);
 extern int AI_elapsedTime;   /* H19: ai.cpp @0x8013C554 (not in this TU's externs) */
 extern char gBlockadeTypes[5];
 
-/* ---- aih_btccop.obj-owned .data statics (8-byte run @0x8013c560, byte-exact vs NFS4.EXE = {0,1}) ---- */
+/* aih_btccop.obj .sdata opens with lastInputRequestTick_=0 @8013c560 and
+ * UpdateAndCheckTimeLeft's initialized function-static sayLose=true @8013c564.
+ * Retail's STAT numeric value4 is the object-relative small-data offset. */
 /* SYM/MAP: _19AIHigh_BTC_HumanCop.lastInputRequestTick_. */
 int AIHigh_BTC_HumanCop::lastInputRequestTick_ = 0;   /* @0x8013c560 */
-/* anonymous file-static toggle (no SYM name) immediately following; image value 1 (engaged). */
-/* SYM-GLOBAL-CARRIER: AIH_BTCCop_freezeToggle_8013c564
-   The retail load/stores and initialized word at 0x8013c564 prove this object,
-   but neither SYM nor MAP retains its original source identifier. */
-int   AIH_BTCCop_freezeToggle_8013c564 = 1;               /* @0x8013c564 */
 
 /* ---- aih_btccop.obj-owned globals (.bss zero) ---- */
 int          AIH_BTC_Cop_1HC1HP_StageTimes[3] = { 60, 60, 60 };   /* @0x8010cd98 */
@@ -432,7 +429,12 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh
 
 
 
-/* ---- FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii  AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea  [AIH_BTCCOP.CPP:379-392] SLD-VERIFIED ---- */
+/* ---- FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii  [AIH_BTCCOP.CPP:379-392] ---- */
+/* 2026-10-12 MATCH116/116: the recorded newOffset holds the doubled random
+ * fraction, then the signed offset. No separate doubledFraction object is
+ * necessary. Ordered native local/type/home/depth and scope tuples agree;
+ * complete SLD/literal original staging spelling remains source-review work.
+ * No const alias, qualifier, fence or output rewrite replaces the capture. */
 
 int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone,int randomDistance)
 
@@ -448,13 +450,9 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
   fastRandom = randtemp & 0xffff;
 
-  /* SYM-CODEGEN-CARRIER: doubledFraction -- absent from retail debug locals,
-   * but direct expression folding produces 4 oracle diffs. */
-  int doubledFraction;
+  newOffset = (randtemp >> 8 & 0xffff) * 2;
 
-  doubledFraction = (randtemp >> 8 & 0xffff) * 2;
-
-  newOffset = (int)((u_int)(randomDistance * doubledFraction) >> 0x10) - randomDistance;
+  newOffset = (int)((u_int)(randomDistance * newOffset) >> 0x10) - randomDistance;
 
   if (0 <= newOffset) {
 
@@ -908,61 +906,56 @@ LAB_8005d8d8:
 
 
 
-/* ---- UpdateAndCheckTimeLeft__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft  [AIH_BTCCOP.CPP:624-650] SLD-VERIFIED ---- */
+/* ---- UpdateAndCheckTimeLeft__19AIHigh_BTC_HumanCop  [AIH_BTCCOP.CPP:624-650] ---- */
+/* 2026-10-12 MATCH69/69: sayLose is the actual initialized BOOL at8013c564,
+ * tested before Lose(), cleared after that call, and rearmed on timeout.
+ * Restoring its function-static declaration removes the invented file-global
+ * freezeToggle and the unused/discarded-BSS placeholder. Native STAT BOOL
+ * value4 matches retail, and all33 common TU functions/10840 linked raw bytes
+ * plus both8 initialized sdata bytes are retail-identical. Three unlinked
+ * GPREL16 addends change0->4 when the relocation names the local .sdata base;
+ * the ignored byte reference was archived and refreshed only after this
+ * independent link proof (build/nc12/ref_archive_sayLose). No compiled code/
+ * data is rewritten and no fixture change excuses a linked-byte difference.
+ * 2026-10-12 native+SLD EXACT69 words: all instruction tags, block lines and
+ * end26/26 match. The unbraced single-call HUD arms and ordinary Allman-style
+ * conditional blocks recover the statement groups; the source separator
+ * between the independent speech-latch and endgame phases matches retail's
+ * untagged gap. Historical comments/blank runs were removed from the body,
+ * not replaced by fake statements, line directives or arbitrary filler.
+ * SOURCE-REVIEW: matching this complete covered contract does not uniquely
+ * certify the original literal spelling/comments or the rest of the project. */
 
 void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
-
-
-
 {
-  static bool sayLose LINK_STRIPPED_BSS;   /* never referenced; retail has its debug record but no label = no storage (see link_stripped.h) */
+  static bool sayLose = true;
 
-  if ((this->freezeMode_ != 3) && (this->freezeMode_ != 1)) {
-
-    this->timeLeft_ = this->timeLeft_ - AI_elapsedTime;   /* H19: subtraction dropped (m2c self-assign fold); oracle 0x8005D9E8-FC timeLeft_ -= AI_elapsedTime */
-
+  if ((this->freezeMode_ != 3) && (this->freezeMode_ != 1))
+  {
+    this->timeLeft_ = this->timeLeft_ - AI_elapsedTime;
   }
 
-  /* MATCH: TWO calls in source — gcc tail-merges them into one jal + per-arm arg setup
-     (a0=carInfo+0x5C self-add in then-arm; a0=0/a1=a0-copy zeros in else; shared sltiu in the jal slot) */
-  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
-
-    Hud_BTC_Update(AIHigh_GetCarObj(this->perpTarget_)->carInfo->driver,this->timeLeft_,
-                   (void *)(u_int)((this->carObj_)->RSControl == 0));
-
-  }
-
-  else {
-
+  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0)
+    Hud_BTC_Update(AIHigh_GetCarObj(this->perpTarget_)->carInfo->driver,this->timeLeft_,(void *)(u_int)((this->carObj_)->RSControl == 0));
+  else
     Hud_BTC_Update((char *)0x0,0,(void *)(u_int)((this->carObj_)->RSControl == 0));
 
-  }
-
-  if (this->timeLeft_ < 0) {
-
-    if (AIH_BTCCop_freezeToggle_8013c564 != 0) {
+  if (this->timeLeft_ < 0)
+  {
+    if (sayLose != 0)
+    {
       Speech::Mobile(this->carObj_)->Lose();
-
-      AIH_BTCCop_freezeToggle_8013c564 = 0;
-
+      sayLose = false;
     }
 
-    if (this->timeLeft_ < -0xa0) {
-
-      AIH_BTCCop_freezeToggle_8013c564 = 1;  /* MATCH: gp-store first materializes the shared 1 (li v1,1) before the lui */
-
+    if (this->timeLeft_ < -0xa0)
+    {
+      sayLose = true;
       simVar.endSimGame = 1;
-
       this->HudOn(this->perpTarget_,1,
-
-                 this->carObj_);
-
+                  this->carObj_);
     }
-
   }
-
-  return;
-
 }
 
 
@@ -1895,7 +1888,14 @@ int AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode()
 
 
 
-/* ---- SetupWingman__18AIHigh_BTC_WingmanP19AIHigh_BTC_HumanCop  AIHigh_BTC_Wingman::SetupWingman  [AIH_BTCCOP.CPP:1334-1346] SLD-VERIFIED ---- */
+/* ---- SetupWingman__18AIHigh_BTC_WingmanP19AIHigh_BTC_HumanCop  [AIH_BTCCOP.CPP:1334-1346] ---- */
+/* 2026-10-12 MATCH79/79: directly widen the actual multiply then narrow its
+ * result to int, eliminating sideTimes28. Both signs are assigned +/-1, so
+ * every reachable product is +/-28 with no overflow/truncation difference.
+ * Ordinary direct multiplication is six register differences at79 words;
+ * the widened form preserves side/perpSide's retail homes and all native
+ * local/scope records without another object or fence. Its literal original
+ * cast/expression spelling and full SLD are not uniquely proved by PASS. */
 
 void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
@@ -1930,14 +1930,7 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   }
 
-  /* SYM-CODEGEN-CARRIER: sideTimes28 -- preserving the scaled side as a
-   * distinct expression value keeps the retail side/perpSide register handout;
-   * both direct product associations produce six register diffs. */
-  int sideTimes28;
-
-  sideTimes28 = side * 0x1c;
-
-  perpSide = perpSide * sideTimes28;
+  perpSide = (int)((long long)perpSide * (side * 0x1c));
 
   if (perpSide >= 0) {
 

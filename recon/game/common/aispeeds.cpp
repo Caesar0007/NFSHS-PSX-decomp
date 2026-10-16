@@ -456,9 +456,12 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
       } else {
         int glueIndex;
         int glue;
-        /* UNRESOLVED: retail SYM has no clampedGlueIndex record. Direct
+        /* SOURCE-REVIEW-UNRESOLVED: retail SYM has no clampedGlueIndex record. Direct
          * conditional-expression and glue-reuse alternatives change code;
-         * this remains a recovery task, not a proven compiler limit. */
+         * this remains a recovery task, not a proven compiler limit.
+         * 2026-10-13: branch-local table loads are 18 differences at 115/111;
+         * selected short/unsigned-short index casts are 23 at 110/111 and
+         * 25 at 112/111. All reverted; no distinct original object proved. */
         int clampedGlueIndex;
         glueIndex = closestHumanDistance / 0x3c0000 + 10;
         if (0 <= glueIndex) {

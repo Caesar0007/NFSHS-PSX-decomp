@@ -72,15 +72,26 @@ void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): repeating the real signed axis differences
+ * removes d at107/107 PASS, without abs folding or a replacement object.
+ * Source declaration order returnsm/NewChunk now agrees with retail too.
+ * nseg is still unresolved: direct sum4diff/107 before and after d removal;
+ * unsigned negative-subtrahend form4/107; mutating newsegs62/107. All failed
+ * forms reverted. The old named-local necessity claim below is a historical
+ * basin receipt,not proof an original source object existed. Current only
+ * native extra is nseg; complete SLD/original text remains separately open.
+ * Follow-up: NewChunk count-to-Boolean phase32/107; widened sum4/107;
+ * conditional0/1 expression4/107. All reverted; names alone do not establish
+ * correct value ownership or matching,so the unresolved nseg remains.
+ */
 /* ---- Skidmark_CheckChunk__FP8coorddefii  [SKIDMARK.CPP:115-151] SLD-VERIFIED ---- */
 Skidmark_Chunk *
 Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 
 {
-  int NewChunk;
-  int d; /* SYM-CODEGEN-CARRIER: d -- preserves separate signed axis compare arms */
-  int nseg; /* SYM-CODEGEN-CARRIER: nseg -- required for the in-place segment sum */
   Skidmark_Chunk *returnsm;
+  int NewChunk;
+  int nseg; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct sum4diff/107 after d removal,not original-object proof. */
 
   returnsm = gSm + gUseSm;
   /* MATCH (w39-a10): the segment total must be a NAMED local MUTATED IN PLACE
@@ -98,18 +109,21 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
      0xFFFFF limit and does a SEPARATE `slt 0xFFFFF,<diff>` in EACH arm
      (`blez a1,.L800DEA48` + a duplicated `lui/ori 0xFFFFF`), i.e. the source is a
      two-comparison ternary per axis, not an abs-then-compare. */
-  d = (returnsm->cp).x - skidpt->x;
-  if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->x - (returnsm->cp).x)) {
+  if ((0 < (returnsm->cp).x - skidpt->x) ?
+      (0xfffff < (returnsm->cp).x - skidpt->x) :
+      (0xfffff < skidpt->x - (returnsm->cp).x)) {
     NewChunk = true;
   }
   else {
-    d = (returnsm->cp).y - skidpt->y;
-    if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->y - (returnsm->cp).y)) {
+    if ((0 < (returnsm->cp).y - skidpt->y) ?
+        (0xfffff < (returnsm->cp).y - skidpt->y) :
+        (0xfffff < skidpt->y - (returnsm->cp).y)) {
       NewChunk = true;
     }
     else {
-      d = (returnsm->cp).z - skidpt->z;
-      if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->z - (returnsm->cp).z)) {
+      if ((0 < (returnsm->cp).z - skidpt->z) ?
+          (0xfffff < (returnsm->cp).z - skidpt->z) :
+          (0xfffff < skidpt->z - (returnsm->cp).z)) {
         NewChunk = true;
       }
     }

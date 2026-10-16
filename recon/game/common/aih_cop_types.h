@@ -1,4 +1,4 @@
-/* aih_cop.obj's exact owner delta over the shared AI hierarchy. */
+/* aih_cop.obj owner types; AIHigh_Cop uses the canonical AIHIGH.H definition. */
 #ifndef NFS4_GAME_COMMON_AIH_COP_TYPES_H
 #define NFS4_GAME_COMMON_AIH_COP_TYPES_H
 
@@ -11,22 +11,11 @@
 
 
 
-struct AIHigh_Cop : public AIHigh_BasicCop {
-    AIHigh_Player *perpTarget_;
-    int forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_;
-    int aggressionLevel_;
-    AIHigh_Cop(Car_tObj *carObj, int idx);
-    void SetTuningLevers();
-    void HighExecute();
-    int CheckForNeedyPlayers();
-    void CheckForWipeOut();
-    int CheckForNewTarget();
-    void AssignToPlayer(AIHigh_Player *p);
-    int GetCheckChasePosition(coorddef *pt);
-    trigger_t *CheckForNewTriggers();
-};
+#define NFS4_AIHIGH_TYPE_PART 1
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
 
-#include "aistate_classes.h"
+#include "aistate.h"
 
 
 

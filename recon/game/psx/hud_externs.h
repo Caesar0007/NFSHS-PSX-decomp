@@ -73,7 +73,7 @@ extern Sim_tSimGlobalVar simGlobal;
 extern camera_info Camera_gInfo[2];
 extern dashhud_info DashHUD_gInfo;
 extern int            Input_gLookBehind[2];
-extern tPadModuleState gPadinfo; /* 0x8013e89c */
+#include "shared/pad_module_globals.h"
 extern tBTCPerpInfo BTCPerpInfo[2][10]; /* 0x80120bc0 */
 
 /* ---- PsyQ libgpu primitive helpers ---- */
@@ -83,8 +83,11 @@ extern tBTCPerpInfo BTCPerpInfo[2][10]; /* 0x80120bc0 */
 /* ---- eaclib memstd ---- */
 
 /* ---- font / textsys ---- */
-extern int   Font_GetUVWH(char c, int *u, int *v, int *w, int *h, int *yo);
-extern int   Font_Getcharacter(int c);
+extern void  Font_GetUVWH(char c, int *u, int *v, int *w, int *h, int *yo); /* retail VOID */
+/* Font owns the eleven-byte charactertbl body; HUD's surviving graph omits
+ * it. Keep the actual return identity opaque in this consumer. */
+struct charactertbl;
+extern charactertbl *Font_Getcharacter(int c); /* retail PTR STRUCT charactertbl */
 extern void  Font_TextColor(int idx);
 extern void  Font_TextXY(char *s, int x, int y);
 extern char *TextSys_Word(int id);
@@ -99,8 +102,8 @@ extern void  Draw_StopRenderingView(int id);
 extern void  Flare_2DHalo(int a, int b, int c, int d, int e);
 extern int   Stats_GetPosition(Car_tObj *car);
 extern int   Input_WingCommandMode(int player);
-extern int   DashHUD_CheckWrongWay(int player);
-extern int   DashHUD_HUDCalc(int player);
+extern void  DashHUD_CheckWrongWay(int player); /* retail VOID */
+extern void  DashHUD_HUDCalc(int player);       /* retail VOID */
 extern void  CopSpeak_Debug(void);
 extern int   AudioMus_Buffered(void);
 extern AudioMus_tCurrentSong *AudioMus_GetCurrentSong(void);

@@ -89,7 +89,10 @@ void Font_SetABR(int abr)
   font_abr = abr;
   /* Canonical PsyQ GetTPage y argument. Const use-site expression leaves no
      extra SYM local and preserves the 18-instruction match; direct argument
-     substitution swaps a2/a3 (six diffs). Original local spelling is unknown. */
+     substitution swaps a2/a3 (six diffs). Original local spelling is unknown.
+     2026-10-13 direct 64-bit shift36/52 gives17dif/23; casting the widened
+     shift4 back to target int before shift20 gives6dif/18. Both restored;
+     y remains unresolved source-only staging despite native debug elision. */
   const int y = (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 20;
   font_currentTPage =
        GetTPage(*(u_char *)(*(int *)((u_char *)&(currentfont) + 136)) & 3,abr,
@@ -281,6 +284,20 @@ Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
   return (charactertbl *)0x0;
 }
 /* ---- Font_Getcharacter__Fi  [FONT.CPP:286-299] SLD-VERIFIED ---- */
+/* SOURCE-REVIEW-UNRESOLVED: retail base CHAR* is the table pointer in s2,
+   not the header address currently named base/s3. characterTableBase is
+   debug-elided but still a source capture,not an original-name exemption.
+   Direct word/pointer array views retain35 words and a held s3 header
+   address,but bias it to+132 (table/count offsets0/-16),leaving14dif/35.
+   Those recipes are restored;recover the whole-header anchor without a
+   fake variable/use/qualifier rather than merely swapping variable names.
+   2026-10-13 paired canonical CC1PLPSX -dr/-dL/-dl/-dg probes show the
+   direct form already expands currentfont+132 in initial RTL; later CSE
+   shares that anchor for count at -16. This is not solely a register-
+   allocation difference. Reusing base from header to table with a direct
+   global count read gives38dif/33 versus35; restored. Saved paired inputs
+   and phase dumps: build/nc12/font_getcharacter_{baseline,direct}_20261013.
+   The missing original header access representation remains unresolved. */
 charactertbl * Font_Getcharacter(int targetindex)
 
 {
@@ -341,15 +358,21 @@ void Font_ReSetBlitter(void)
  * group and the load carry the same MEM_IN_STRUCT_P flag.  Untried; the plain sized-[1]
  * SCALAR view above being exactly neutral is consistent with the flag, not the size, being
  * the operative bit. */
+/* 2026-10-13 source review: remove unrecorded fontShape/abr_val snapshots
+ * using actual header-field and font_abr reads at27/27. Native still DIRTY
+ * for base;decoded-coordinate arg3 staging also remains unrecorded source
+ * work despite debug elision. Direct header anchor13dif/28 before and
+ *16dif/27 after snapshot removal;arg3 direct/widened forms6dif/27 alter
+ * word-load destination/shift order. All failed trials restored. Literal
+ * macro/producer syntax and full SLD unsealed;no new object/name/helper,
+ * asm/volatile/pin/qualifier or compiler-output rewrite retained. */
 void Font_SwitchFont(char *f1)
 
 {
-  u_char *base; /* SYM-CODEGEN-CARRIER: base -- anchors the MEM_IN_STRUCT_P store view */
+  u_char *base; /* SOURCE-REVIEW-UNRESOLVED: unrecorded whole-header anchor;direct forms13/16dif at28/27. */
 
   setfont(f1);
   base = (u_char *)&currentfont;
-  u_char *const fontShape = *(u_char **)(base + 136);
-  const int abr_val = font_abr;
   /* w46-a8 SEAL (2 -> PASS, 27/27).  THE MEM_IN_STRUCT_P STORE VIEW, and it is the STORE
      side alone that is the operative bit -- font_abr is untouched.  Writing the three
      currentfont zero stores through a STRUCT type sets MEM_IN_STRUCT_P on them, which
@@ -367,9 +390,9 @@ void Font_SwitchFont(char *f1)
     ((DR_MODE *)(base + 0x94))->code[0] = 0;
     ((DR_MODE *)(base + 0x94))->code[1] = 0;
   }
-  int arg3 = (*(int *)(fontShape + 0xc) << 4) >> 0x14; /* SYM-CODEGEN-CARRIER: arg3 */
-  font_currentTPage = GetTPage(*(u_char *)fontShape & 3,abr_val,
-                              (*(int *)(fontShape + 0xc) << 0x14) >> 0x14,
+  int arg3 = (*(int *)(*(u_char **)(base + 136) + 0xc) << 4) >> 0x14; /* SOURCE-REVIEW-UNRESOLVED: unrecorded decoded-coordinate staging. */
+  font_currentTPage = GetTPage(**(u_char **)(base + 136) & 3,font_abr,
+                              (*(int *)(*(u_char **)(base + 136) + 0xc) << 0x14) >> 0x14,
                               arg3);
   gFontSpaceWidth = Font_Getcharacter(0x20)->advance;
   return;
@@ -400,6 +423,15 @@ void Font_ExitFromGame(void)
  * are plain index-form `for`s -- the oracle's `addu a0,s0,s2` / `addiu s1,s1,4`
  * walkers are gcc strength reduction, not source pointers.
  */
+/* 2026-10-13 source review: the unrecorded hdr capture is unnecessary.
+ * Widen both signed target-word addresses for subtraction, then take the
+ * target int result:117/117 PASS with no new object or debug region.
+ * Direct char-pointer difference folds the offset into the loaded shape
+ * (six diffs at117); the widened form keeps f1-16 as the subtrahend.
+ * Signed 32-bit addresses differ by at most2^32-1, so the 64-bit subtraction
+ * cannot overflow; the final target int takes the same low32 result.
+ * This removes a source-only object, not a claim of uniquely recovered
+ * cast syntax. Full relative SLD still requires restoration. */
 int Font_LoadFont(char *f1,int x,int y,char in_game)
 
 {
@@ -427,11 +459,7 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   }
   Font_ReSetBlitter();
   Font_SwitchFont(f1);
-  /* MATCH: a const use-site header base keeps `f1 - 0x10` intact while GCC
-   * omits its debug local.  Inlining it reassociates the constant into
-   * `addiu a1,a1,16; subu a1,a1,a0` instead of retail's separate subexpression. */
-  char *const hdr = f1 - 0x10;
-  resizememadr(f1,(*(int *)((u_char *)&(currentfont) + 136)) - (int)hdr);
+  resizememadr(f1,(int)((long long)(int)*(char **)(currentfont + 136) - (long long)(int)(f1 - 0x10)));
   Font_TextTint(0x808080);
   Font_TextColor(2);
   return y + shp->height;
@@ -465,11 +493,11 @@ void Font_TextXY(char *string,int x,int y)
   char *str;
   charactertbl *ch;
   int code;
-  u_char *cfbase; /* SYM-CODEGEN-CARRIER: cfbase -- direct currentfont uses add 2 insns/52 diffs */
+  u_char *cfbase; /* SOURCE-REVIEW-UNRESOLVED: unrecorded whole-header view;word-array24dif/88 on this basin. */
 
   str = string;
   code = -1;
-  cfbase = (u_char *)&(currentfont);
+  cfbase = (u_char *)&currentfont;
   while (code != 0) {
     code = *(u_char *)str;
     str = str + 1;

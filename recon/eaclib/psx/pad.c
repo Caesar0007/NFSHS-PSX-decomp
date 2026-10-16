@@ -9,8 +9,13 @@
  *                 PAD_convert = class STAT -> file-local static (not exported).
  *   pad.c = EXACTLY 5 functions filling 0x800E40E8-0x800E4318. Inter-fn line gaps are
  *   static data / macros / comments, NOT hidden functions. Original EA source is not public.
- *   LOCAL NAMES: only PAD_update's 'i' is SYM-authentic (REG $t0 loop index); all other local
- *   names across all 5 fns are SEMANTIC reconstructions (debug info preserved no other locals).
+ *   2026-10-15: all five functions match through ONE GCC2.7.2 compilation,
+ *   without function-body splicing or instruction rewrites. Explicit full-debug
+ *   C coverage now checks their native declarations/owners, not just bytes.
+ *   Historical FLOOR/TEXT_MOVES proposals below are superseded; do not apply them.
+ *   LOCAL NAMES: PAD_update's 'i' is recovered (REG $t0). The remaining active
+ *   snapshot is debug-elided and still source-review-unresolved, not certified
+ *   as an original variable merely because normal/native matching succeeds.
  */
 
 #include "pad_types.h"
@@ -517,30 +522,15 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
    NOTE for the next reader: the row-(3) position delta is the 2.7.2 rung's own sched2
    choice, not a second defect -- retail emits `move $t0,$0; la $a0; addu $a2,$a0,-1;
    move $a3,$0`, the rung emits the two zeros adjacent. */
+/* 2026-10-15: real typed array indexing and byte post-increment replace btnOff,
+   pt/pa and debCount at66PASS; loop.c generates the required walkers itself.
+   SOURCE-REVIEW-UNRESOLVED: active snapshots the pad state across a byte write.
+   Repeating the predicate instead was43dif/77words and was reverted. That
+   failure is not proof of a uniquely original variable or identifier. */
 void PAD_update(void)
 {
-  /* MATCH (2026-08-26, strict source-only 6 -> PASS 66/66): the original
-     typed two-pad loop is the missing loop.c shape.  `Padglobal[i]` and
-     `gPadinfo.buf + i * 4` let the authentic 2.7.2 compiler eliminate the
-     first loop's counter and create the retail s2/s1/s0 GIVs; the prior
-     byte-offset reconstruction made `off` a real s0 BIV and emitted its save
-     first.  In loop 2, explicit byte walkers initialized between `i` and
-     `btnOff` reproduce retail's preheader order (t0, a0/a2, then fresh a3=0)
-     and its a0/a2 increment pair.  No post-cc1 moves or rewrites are used.
-     SYM-CODEGEN-CARRIER: btnOff
-     SYM-CODEGEN-CARRIER: active
-     SYM-CODEGEN-CARRIER: debCount
-     SYM-CODEGEN-CARRIER: pt
-     SYM-CODEGEN-CARRIER: pa
-     The SLD/compiler-ladder receipt above proves these expression carriers:
-     retail records only i, while removing btnOff or restoring an index loop
-     changes the retail GIV/address form. */
   int i;
-  int btnOff;
   int active;
-  u_int debCount;
-  u_char *pt;
-  u_char *pa;
 
   for (i = 0; i < 2; i++) {
     if (Padglobal[i].nopad != 0) {
@@ -551,16 +541,12 @@ void PAD_update(void)
       blockfill(gPadinfo.buf + i * 4 + 1, 0x18, 0xff);
     }
   }
-  for (i = 0, pt = &gPadinfo.state[0].time, pa = pt - 1, btnOff = 0;
-       i < 8;
-       pt += 2, pa += 2, i++, btnOff += 8) {
-    active = (((u_char *)gPadinfo.buf)[btnOff] == 0);
-    if (active != *pa) {
-      debCount = *pt;
-      *pt = debCount + 1;
-      if (debCount > 5) {
-        *pa = active;
-        *pt = 0;
+  for (i = 0; i < 8; i++) {
+    active = (gPadinfo.buf[i].nopad == 0);
+    if (active != gPadinfo.state[i].bActive) {
+      if (gPadinfo.state[i].time++ > 5) {
+        gPadinfo.state[i].bActive = active;
+        gPadinfo.state[i].time = 0;
       }
     }
   }

@@ -47,6 +47,7 @@ from collections import defaultdict
 from pathlib import Path
 from source_data_owners import SOURCE_DATA_OWNERS, oracle_only_objects, validate_source_data_owners, source_auxiliary_windows
 from source_zero_owners import SOURCE_ZERO_OWNERS, validate_source_zero_owners, oracle_only_zero_objects
+from build import is_main_recon, is_tu
 
 ROOT = Path(__file__).resolve().parents[1]      # tools/ -> repo root (16F!)
 LD = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe"
@@ -123,6 +124,16 @@ SYMRE = re.compile(r"^([0-9a-f]{8})\s(.{7})\s+(\S+)\s+([0-9a-f]{8})\s(.*)$")
 SECRE = re.compile(r"^\s*\d+\s+(\S+)\s+([0-9a-f]{8})\s+")
 
 
+def production_recon_sources():
+    # 2026-10-16: use the build's declared roles for EVERY reconstruction
+    # census, including NOBITS/VA aliases below. A source's existence does
+    # not make its stale side-tree or #included-source object a link input.
+    # Backup: build/nc12/remaining_checkpoint_20261016/gen_ld-before.py.
+    return sorted(p for p in (*(ROOT / "recon").rglob("*.cpp"),
+                              *(ROOT / "recon").rglob("*.c"))
+                  if is_main_recon(p) and is_tu(p))
+
+
 def scan():
     """fresh {obj: {syms:[{off,sec,name}], secs:{}}} census of build/recon
     (the shape scratchpad/w66a4/scan.py produced, minus the reloc dump the
@@ -131,9 +142,7 @@ def scan():
     # second backing cell. Match build.py/relink.py's live-source census,
     # rather than treating every surviving cache object as a project input.
     # This changes input selection only; no object or instruction is modified.
-    sources = [s for s in (*(ROOT / "recon").rglob("*.cpp"), *(ROOT / "recon").rglob("*.c"))
-               if s.relative_to(ROOT / "recon").parts[0] not in ("mod", "game-mod", "syslib-mod")
-               and "tests" not in s.relative_to(ROOT / "recon").parts[:-1]]   # side trees: not main-build inputs (see build.py RECON_SIDE_TREES)
+    sources = production_recon_sources()
     # Inert DATA that sits in the .text stream (SN-LNK obj blobs, user ruling
     # 2026-09-18: keep as data, place at the retail VA).  Each piece is its own
     # object carrying one name-encoded D_<VA> label, so the text-spine vote
@@ -799,7 +808,7 @@ def main():
     # name IS the retail base.  Left to the catch-all they land wherever the
     # cursor is (_que at 0x8013ea64 instead of 0x8013ec00).
     va_bss = []
-    for s in [*Path(ROOT / "recon").rglob("*.cpp"), *Path(ROOT / "recon").rglob("*.c")]:
+    for s in production_recon_sources():
         o = ROOT / "build" / (s.relative_to(ROOT).as_posix() + ".o")
         if not o.is_file():
             continue
@@ -827,7 +836,7 @@ def main():
     va_named_objs = sorted((ROOT / "build" / "asm" / "data").glob("*.s.o"))
     # ...and the recon TUs' own VA-named cells (e.g. stagpat.c's DAT_801371cc, the
     # unnamed key-group counter of stagpat.obj's .data).
-    for s in [*Path(ROOT / "recon").rglob("*.cpp"), *Path(ROOT / "recon").rglob("*.c")]:
+    for s in production_recon_sources():
         o = ROOT / "build" / (s.relative_to(ROOT).as_posix() + ".o")
         if o.is_file():
             va_named_objs.append(o)

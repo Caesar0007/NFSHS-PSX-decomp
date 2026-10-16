@@ -3,6 +3,7 @@
  */
 #include "../../lib/nfs4_new.h"
 #include "screencontroller.h"
+#include "screencontroller_externs.h"
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */

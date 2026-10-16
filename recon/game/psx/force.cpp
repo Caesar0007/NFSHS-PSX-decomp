@@ -31,7 +31,7 @@ void Force_HitSign(Car_tObj *car);
 void Force_HitWall(int impulse);
 
 
-/* ---- Force_Vbl__Fv  [FORCE.CPP:61-98] SLD-VERIFIED ----
+/* ---- Force_Vbl__Fv  [FORCE.CPP:61-98] SLD source map, not full SLD-exact ----
  * w38-a9 full rewrite from the SLD line map + raw oracle.  SYM says the ONLY
  * locals are `i` ($s2, outer block) and, in the LOOP block, `padnum` ($s1) +
  * `padstate` ($v1) -- there is NO pointer local, so `Force_g[i]` is indexed and
@@ -67,19 +67,37 @@ void Force_HitWall(int impulse);
  * the u_char destination and emits `li $a2,-1` where retail has `li $a2,0xFF`; the if-form
  * also lands the 255 default in the `beqz` delay slot and shares ONE clamp block between
  * the two arms, exactly like the oracle's .L800CAB3C.
- * HONESTY NOTE: the SYM lists only `i`/`padnum`/`padstate` as named locals, so retail's
- * source had NO `f` and no `actuator1`; both are matching devices standing in for the giv
- * retail's cc1 derived from the indexed form and for its anonymous clamp temp.  The
- * emitted instruction stream is byte-identical either way. */
+ * HONESTY NOTE: SYM lists only `i`/`padnum`/`padstate`; `f` and `actuator1`
+ * are unrecorded matching devices for the walker and clamp. Absence from SYM
+ * alone does not prove which literal source expression retail used. The
+ * current body passes; the previously tried indexed spelling did not.
+ * 2026-10-13 SOURCE-REVIEW-UNRESOLVED: neither absent name is exempt.
+ * Direct bound-first clamps remove actuator1 but produce li a2,-1 instead
+ * of retail's li a2,255 (2 diffs at 138 words), even with widened conditional
+ * arms. GNU minimum in either operand order, including widened operands,
+ * changes scheduling/registers (64 diffs at 138). Restore the passing body;
+ * direct if/else stores were 27 diffs /145 words (extra loop/base work).
+ * Follow-up: current direct indexed fields and index-first struct views
+ * both 23 diffs /143 words. An index-first actuator-only address is
+ * unchanged; widened actuator address is 30 diffs /146, frame48 vs40.
+ * Actual CC1PLPSX -O2 -G8 .loop dumps show three reduced givs in the
+ * indexed graph versus one with the captured pointer. In particular,
+ * the actuator argument has a separate Force_g+6 invariant base; fields
+ * use Force_g. GCC 2.8.1 loop.c combine_givs_p only combines identical
+ * add/mult terms for DEST_REG givs; its address-expression alternative
+ * requires DEST_ADDR. Paired full inputs/dumps: build/nc12/
+ * force_{indexfirst,pointer}_probe.i.*. This is a measured compiler
+ * explanation of those trials, not proof of an original pointer object.
+ * These receipts apply only to this source basin, not an original-source floor. */
 void Force_Vbl(void)
 
 {
 
   for (int i = 0; i < 2; i = i + 1) {
-    Force_tGlobal *f; /* SYM-CODEGEN-CARRIER: f -- models retail's +8 loop walker */
+    Force_tGlobal *f; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; indexed producer still needs recovery. */
     int padnum;
     int padstate;
-    int actuator1; /* SYM-CODEGEN-CARRIER: actuator1 -- preserves the shared 0xff clamp block */
+    int actuator1; /* SOURCE-REVIEW-UNRESOLVED: absent from retail SYM; clamp receipts above. */
 
     f = &Force_g[i];
     padnum = i << 4;
@@ -124,7 +142,7 @@ void Force_Vbl(void)
   Force_gTick = Force_gTick + 1;
 }
 
-/* ---- Force_Update__FP8Car_tObj  [FORCE.CPP:105-223] SLD-VERIFIED ----
+/* ---- Force_Update__FP8Car_tObj  [FORCE.CPP:105-223] SLD source map, not full SLD-exact ----
  * w38-a9: 432 -> 326 diffs.  The SYM declares a real `Force_tGlobal *f` ($s6) which
  * the recon had declared but left UNWIRED (every access went through the indexed
  * `Force_g[carIndex]`, costing a re-materialized base + index at each site).  Wiring
@@ -178,7 +196,7 @@ void Force_Vbl(void)
  *      second `fixedmult` call. The pre-call clamp needs an int-valued result
  *      (`0xa0000 < v0 ? 0xa0000 : v0`) so it acts on the arg-register copy
  *      (`addu $a0,$s4,$zero; lui $v0,10; slt; lui $a0,10`) rather than mutating
- *      v0. A use-site const preserves those bytes without a debug local.
+ *      v0. The original landing used a const capture, removed below.
  *      Guard polarity is `!= 0` (body = fall-through).
  *      141 -> 130.
  *  (5) the surface clamps ARE the both-arms-assign ternary
@@ -194,19 +212,36 @@ void Force_Vbl(void)
  *      does it -- a hand-rolled `if (t < 0) t = -t;` temp, or an `ABS()`-style macro that
  *      expands to a ternary, both put the load first and lose.  (methodology 5.0c:
  *      `__builtin_abs` inlines on BOTH cc1 2.7.2 and 2.8.0; bare `abs()` emits a `jal`.)
- *      45 -> PASS. */
+ *      45 -> PASS.
+ * 2026-10-13: remove both unrecorded clamped captures using direct GNU C++
+ * minima at fixedmult's actual arguments: 278/278 PASS. Direct conditional
+ * arguments were 116 diffs jointly, 100 for front alone, 22 for rear alone,
+ * all at 278 words; those failures did not establish object necessity.
+ * Named root declarations follow retail's order. In this new expression
+ * graph, typed GameSetup_gData.controllerData.shockMode/shockImpact reads
+ * also match 278 and remove controller plus its raw +96 byte view.
+ * No new alias, qualifier, fence, pin or output rewriting. Literal original
+ * minimum spelling and remaining lexical/SLD ownership are not certified.
+ * Follow-up: channel<0/impactmultiplier guard owns force/shock/time BEFORE
+ * the nested surface exclusions, as retail's +294 begin and IDA's two
+ * predicate groups show. Splitting those real guards preserves 278 words
+ * and gives exactly all 13 local tuples /21 scope markers. No dummy scope.
+ * An upfront force-clamp assignment was 60 diffs /282 words (frame72 vs64);
+ * replacing the surface-selection goto with per-case zero stores was 48
+ * diffs /278 words. Both are reverted. The surviving label denotes the
+ * actual audio-loop destination; its semantic spelling is not recovered
+ * from SYM. Native CLEAN does not establish complete SLD/original text. */
 void Force_Update(Car_tObj *car)
 
 {
   Force_tGlobal *f;
   int skids;
   int impacts;
-  GameSetup_tControllerData *controller; /* SYM-CODEGEN-CARRIER: controller -- direct casts are 11 diffs, 279/278 */
+  int frontmultiplier;
+  int rearmultiplier;
   int impactmultiplier;
   int v0;
   int v1;
-  int frontmultiplier;
-  int rearmultiplier;
   
   if (1U < (u_int)car->carIndex) {
     return;
@@ -218,9 +253,8 @@ void Force_Update(Car_tObj *car)
     f->time = '\0';
     return;
   }
-  controller = (GameSetup_tControllerData *)&GameSetup_gData;
-  skids = *(int *)((char *)&controller->shockMode[car->carIndex] + 96);
-  impacts = *(int *)((char *)&controller->shockImpact[car->carIndex] + 96);
+  skids = GameSetup_gData.controllerData.shockMode[car->carIndex];
+  impacts = GameSetup_gData.controllerData.shockImpact[car->carIndex];
   if (skids != 0) {
     frontmultiplier = (skids + 0x10) * 0x2da6;
   }
@@ -281,45 +315,44 @@ ForceUpd_audioRevLoop:
       else if (car->audio[c].channel == 0x14) {
         v1 = v1 > car->audio[c].force * 2 ? v1 : car->audio[c].force * 2;
       }
-      else if ((((car->audio[c].channel < 0) && (impactmultiplier != 0)) &&
-                (car->audio[c].surface1 != 10)) && (car->audio[c].surface1 != 8)) {
+      else if ((car->audio[c].channel < 0) && (impactmultiplier != 0)) {
         int force;
         int shock;
         int time;
 
-        if (0x28000 < car->audio[c].force) {
-          force = 0x28000;
-          if ((fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000 < 0x61) {
-            time = (fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000;
+        if ((car->audio[c].surface1 != 10) && (car->audio[c].surface1 != 8)) {
+          if (0x28000 < car->audio[c].force) {
+            force = 0x28000;
+            if ((fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000 < 0x61) {
+              time = (fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000;
+            }
+            else {
+              time = 0x60;
+            }
           }
           else {
-            time = 0x60;
+            force = car->audio[c].force;
+            time = 0x20;
           }
-        }
-        else {
-          force = car->audio[c].force;
-          time = 0x20;
-        }
-        shock = fixedmult(force,impactmultiplier) / 0x10000;
-        if (((int)(u_int)f->jolt < shock) || ((int)(u_int)f->time < time)) {
-          f->fade = (u_char)(time >> 1);
-          f->time = (u_char)time;
-          f->jolt = (u_char)shock;
+          shock = fixedmult(force,impactmultiplier) / 0x10000;
+          if (((int)(u_int)f->jolt < shock) || ((int)(u_int)f->time < time)) {
+            f->fade = (u_char)(time >> 1);
+            f->time = (u_char)time;
+            f->jolt = (u_char)shock;
+          }
         }
       }
       c = c + -1;
     }
   }
   if (frontmultiplier != 0) {
-    const int clamped = 0xa0000 < v0 ? 0xa0000 : v0;
-    v0 = fixedmult(clamped,frontmultiplier) / 0x10000;
+    v0 = fixedmult(0xa0000 <? v0,frontmultiplier) / 0x10000;
   }
   else {
     v0 = 0;
   }
   if (rearmultiplier != 0) {
-    const int clamped = 0xf0000 < v1 ? 0xf0000 : v1;
-    v1 = fixedmult(clamped,rearmultiplier) / 0x10000;
+    v1 = fixedmult(0xf0000 <? v1,rearmultiplier) / 0x10000;
   }
   else {
     v1 = 0;

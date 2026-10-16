@@ -112,6 +112,16 @@ def run_stage(name, command, run_dir, env=None):
     return result.stdout
 
 
+def selected_owner_coverage(native, sources):
+    # 2026-10-15: also count header-defined/duplicate copies belonging to the
+    # freshly compiled TUs. Basename-only summaries omitted AIHigh_Human's
+    # header-owned destructor. Never relax/reset byte or layout references.
+    # Backup: build/nc12/symloop_before_tu_owner_coverage_20261015.py.
+    from retail_sym import txt
+    from tu_owner_coverage import from_dumps
+    return from_dumps(native, txt(), sources)
+
+
 def run_gate(args):
     sources = select_sources(args.fragments)
     rels = [s.relative_to(ROOT).as_posix() for s in sources]
@@ -199,8 +209,13 @@ def run_gate(args):
            or row.get('file') != expected[name]['hdr']['file'] for name, row in mine.items()):
         raise GateError('Malformed function comparison report')
     dirty = {name: row for name, row in mine.items() if row['issues']}
+    coverage = selected_owner_coverage(lane / 'nfs4_sym.txt', rels)
+    (run_dir / 'owner_coverage.json').write_text(json.dumps(coverage, indent=2)+'\n')
+    if not coverage['coverage_complete']:
+        raise GateError('Incomplete/ambiguous selected TU owner coverage; see '+str(run_dir))
     result = dict(pipeline_pass=True, bytes_unchanged=True, debug_code_unchanged=True,
-                  sources=rels, compared=len(mine), clean=len(mine)-len(dirty), dirty=len(dirty))
+                  sources=rels, compared=len(mine), clean=len(mine)-len(dirty), dirty=len(dirty),
+                  primary_source_summary_only=True, owner_coverage=coverage)
     (run_dir / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
     # Delay this legacy success token: old callers match stdout, not return
     # codes. DIRTY is a valid comparison, never a source-completion claim.
@@ -208,7 +223,17 @@ def run_gate(args):
     for line in lane_stdout.splitlines():
         if line.startswith(('ASPSX ok', 'PSYLINK:')):
             print(' ', line[:150])
-    print('SYM  : %d functions, %d CLEAN, %d DIRTY' % (len(mine), len(mine)-len(dirty), len(dirty)))
+    print('SYM  : %d functions, %d CLEAN, %d DIRTY (primary-source subset)' % (len(mine), len(mine)-len(dirty), len(dirty)))
+    for unit, row in coverage['units'].items():
+        print('OWNERS: %s %d/%d records, %d non-primary; declaration ownership %s%s' %
+              (unit, row['compared'], row['retail_records'], row['non_primary_source_records'], row['declaration_statuses'],
+               ' (available retail SDK records only)' if row['partial'] else ''))
+        # Full empty-region and line receipts are distinct from the legacy
+        # primary-source CLEAN count and declaration ownership above.
+        # Backup: build/nc12/symloop_before_scope_receipts_20261015.py.
+        print('REGIONS/SLD: %s regions %s; SLD %s; combined %s' %
+              (unit, row.get('scope_region_statuses', {}), row.get('sld_statuses', {}),
+               row.get('declaration_scope_sld_statuses', {})))
     if not args.quiet:
         for name, row in sorted(dirty.items()):
             print('   %-52s %s' % (name[:52], '; '.join(row['issues'])[:170]))

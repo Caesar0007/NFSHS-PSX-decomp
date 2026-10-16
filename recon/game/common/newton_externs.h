@@ -19,8 +19,8 @@ extern int   BWorldSm_FindClosestTriangleRez(coorddef *c, BWorldSm_Pos *pos, int
 extern int   BWorldSm_FindEdgeOff(coorddef *c, BWorldSm_Pos *a, BWorldSm_Pos *b, int *edge);
 extern void  BWorldSm_SetSlice(int slice, BWorldSm_Pos *pos);
 extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
-extern void *BWorldSm_UNormal(BWorldSm_Pos *pos);
-extern void *BWorldSm_UForward(BWorldSm_Pos *pos);
+extern coorddef *BWorldSm_UNormal(BWorldSm_Pos *pos);  /* retail PTR STRUCT coorddef */
+extern coorddef *BWorldSm_UForward(BWorldSm_Pos *pos); /* retail PTR STRUCT coorddef */
 extern int   BWorld_CheckChunkVisible(BWorldSm_Pos *a, BWorldSm_Pos *b);
 /* Owner-derived bworldSm type: SYM1cec71..1cedc3, 32 bytes. Newton's
  * surviving type stream does not preserve this foreign body; original header

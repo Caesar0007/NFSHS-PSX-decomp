@@ -95,17 +95,13 @@ trueResult:
   return 1;
 }
 
-/* ---- Input_Update__Fv  [INPUT.CPP:104-430] SLD-VERIFIED ----
- * MATCH RECEIPT: the retail SLD statement order and IDA register map reduced the
- * authoritative residual from 28 to 16: h/r/i/one/menukeys/activeBase initialization,
- * the inner dbFlags pointer, and the post-flags memory reread are source-shape fixes.
- * The interface loop's table-address hoist needs all five zero-insn pressure blockers
- * below (four leaves 18); the void fence restores interfaceActive/left scheduling.
- * One post-use acc reference keeps acc=$s5 and one=$s6, allowing the same `one` value
- * to feed the second active fill and player-count comparison.  Measured path:
- * 28 -> 24 -> 20 -> 18 -> 16 -> 12 -> 10 -> PASS (868/868).
- * qtytrace's instrumented C++ compilers are not byte-faithful for this function, so
- * their QTY handouts were rejected; detailed verify_asm/vdiff is the authority. */
+/* ---- Input_Update__Fv [INPUT.CPP:104-430; byte868 PASS,source/SLD unsealed] ----
+ * Historical matching dials are not original-source evidence. The five
+ * address blockers,interface void fence and dbFlags capture are now removed;
+ * their former necessity claims are stale. Remaining pointer/value captures,
+ * one,acc absorption and the flags read/write fence need source recovery.
+ * Actual compiler dumps/oracle bytes remain authoritative; the instrumented
+ * C++ lane was not byte-faithful for this function's old allocation basin. */
 void Input_Update(void)
 
 {
@@ -124,9 +120,11 @@ void Input_Update(void)
   int right;
   char iactive[32];
   char hactive[17];
-  /* SYM-CODEGEN-CARRIER: activeBase -- retail reuses one pointer across the
-     two mode arms.  Replacing it with the SYM-visible sibling `active[17]` and
-     `hactive[17]` arrays emits 855/868 instructions and 101 diffs. */
+  /* SOURCE-REVIEW-UNRESOLVED: activeBase is not a retail source name/object.
+     Retail instead owns separate active/hactive CHAR[17] arrays at the same
+     AUTO-136 slot in the two mode arms. Direct named-array forms101dif/855;
+     scoped arrays plus per-arm pointer assignment156dif/878 spills i.
+     Both restored,not proof that original source required this capture. */
   char *activeBase;
   /* SYM-CODEGEN-CARRIER: devList -- CAMIN 2026-10-04.  Retail rematerializes
      `lui/addiu $t3,Device_gDeviceList` at EVERY dispatch site, including the
@@ -143,13 +141,11 @@ void Input_Update(void)
   devList = Device_gDeviceList;
 
   {
-    /* SYM-CODEGEN-CARRIER: activePtr -- the descending pointer induction keeps
-       retail's address computation and delay-slot store.  Indexing iactive by
-       `i` is count-exact but changes 100 instructions downstream. */
+    /* SOURCE-REVIEW-UNRESOLVED: these initial-fill objects are not retail
+       locals. Direct byte literal2dif/868;indexed for/do100dif/868 in the
+       current scope-corrected basin. Both were restored,not certified as
+       a distinct original source object/producer. */
     char *activePtr;
-    /* SYM-CODEGEN-CARRIER: activeValue -- staging the initial fill byte fixes
-       the position of its `li v1,1`; a direct literal is count-exact but leaves
-       2 scheduling diffs. */
     char activeValue;
 
     activeValue = 1;
@@ -277,20 +273,17 @@ void Input_Update(void)
       }
 
       {
-        int k;
-        /* SYM-CODEGEN-CARRIER: dbFlags -- retaining the per-player address
-           stages the inner-loop base at retail's boundary.  Direct indexing
-           is count-exact but moves one zeroing instruction (2 diffs). */
-        u_long *dbFlags;
-
-        for (int m = 0; m < 2; m++) {
-          dbFlags = &Input_gDBFlags[i];
+        /* Retail owns k and m at the same depth7. Both declarations now
+           belong to the outer for binding. k's home still differs (s0 vs
+           a0);this is not complete local recovery. Direct global indexing
+           below removes dbFlags at868/868 after restoring that scope. */
+        for (int k, m = 0; m < 2; m++) {
           for (k = 0; k < 17; k++) {
             if (*h != 0) {
               if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
-                *dbFlags |= (one << k);
+                Input_gDBFlags[i] |= (one << k);
               } else {
-                *dbFlags &= ~(one << k);
+                Input_gDBFlags[i] &= ~(one << k);
               }
             }
             h++;
@@ -521,16 +514,16 @@ void Input_Fetch(int humanIndex)
 char Input_Gear(char currentGear,int numGears)
 
 {
-  if (Input_gSim.flags >> 3 == 1) {
-    if ((int)(u_int)currentGear < numGears + -1) {
+  if (Input_gSim.flags >> 3 == 1)
+  {
+    if ((int)(u_int)currentGear < numGears + -1)
       currentGear = currentGear + 1;
-    }
     return currentGear;
   }
-  if (Input_gSim.flags >> 3 == 2) {
-    if (currentGear != 0) {
+  if (Input_gSim.flags >> 3 == 2)
+  {
+    if (currentGear != 0)
       currentGear = currentGear - 1;
-    }
     return currentGear;
   }
   return currentGear;

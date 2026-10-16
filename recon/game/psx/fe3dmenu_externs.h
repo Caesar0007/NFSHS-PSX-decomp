@@ -32,9 +32,9 @@ extern u_long   gWSavePtr_v[]                 asm("gWSavePtr");
 #define R3DCar_InMenu             (R3DCar_InMenu_v[0])
 #define generic128HzClock         (generic128HzClock_v[0])
 #define stackSpeedUpEnbabledFlag  (stackSpeedUpEnbabledFlag_v[0])
-/* showRoomFlag_v, gMenuRotate, Fe3D_spotVertex, Fe3D_lightsVertex: DEFINED in fe3dmenu.cpp (their first
+/* showRoomFlag, gMenuRotate, Fe3D_spotVertex, Fe3D_lightsVertex: DEFINED in fe3dmenu.cpp (their first
    declaration fixes the emission order of the object's data) */
-#define showRoomFlag              (showRoomFlag_v[0])
+extern bool showRoomFlag;
 #define gWSavePtr                 (gWSavePtr_v[0])
 
 /* PsyQ / EA fixed-point + matrix math */

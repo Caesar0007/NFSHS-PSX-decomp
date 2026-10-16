@@ -1,13 +1,9 @@
-/* tPadModuleState -- the one definition of this type, shared by 2 headers (moved verbatim by
-   tools/psyq_pipe/dedup_types.py; every former copy now includes this file at the same place). */
+/* Retired reconstruction-only tag; retail pad.obj uses anonymous .63fake.
+ * Keep the legacy include path, but expose only the known anonymous object.
+ * No tPadModuleState typedef/class is invented as a compatibility alias.
+ */
 #ifndef NFS4_SHARED_TPADMODULESTATE_H
 #define NFS4_SHARED_TPADMODULESTATE_H
 
-struct tPadModuleState {
-    int initialized;
-    PAD_COMMON buf[8];
-    struct {
-        char bActive, time;
-    } state[8];
-};
+#include "pad_module_globals.h"
 #endif

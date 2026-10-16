@@ -87,7 +87,7 @@ extern void  DrawC_ShowroomPrims(matrixtdef *m, coorddef *t, Draw_CarCache *sd);
 extern void  DrawC_SpotPrims(matrixtdef *m, coorddef *t, Draw_CarCache *sd);
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);
 extern void  Newton_CalcRealShadowCoordinates(Car_tObj *carObj, int gameTicks);
-extern void *Platform_TempReserveMemory(int size, char *tag);
+extern char *Platform_TempReserveMemory(int size, char *tag); /* retail PTR CHAR */
 extern int   Risk_ReadNextValue(char **scan);
 extern void  Texture_ProcessPaletteCopy(Texture_pal8bit *pal, int a, int b);
 extern void  TrsProj_TransformProjectVertex(matrixtdef *m, coorddef *t, int n, coorddef *s, Draw_tVertex *v);

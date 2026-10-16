@@ -138,7 +138,6 @@ struct AIDelayCar {
     int deltaMeters_, slice_;
     coorddef deltaPosition_, position_;
     int deltaRoadPosition_, roadPosition_, laneIndex_, currentSpeed_;
-    AIDelayCar() {}
     AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
     void SetNewTargetCar(Car_tObj *targetCar);
     void Update();
@@ -176,6 +175,7 @@ struct AICop_PerpChaseInfo {
     int engagementTime_;
     AICop_PerpChaseInfo(); /* retail player ctor has a pre-body chase-info initializer tree */
     void SetCopGameInfo(copGame_t *copGameInfo); /* candidate initializer boundary from retail copGameInfo receiver records */
+    void ResetForCopGame(copGame_t *copGameInfo); /* inferred nested initialization mutator */
     copGame_t *copGameInfo_;
     int chaseLevelIndex_, bestChaseLevelIndex_;
     copLevel_t *chaseLevel_;
@@ -184,35 +184,29 @@ struct AICop_PerpChaseInfo {
     inline int GetChaseLevelIndex();
     inline int GetNumLevels();
     int BestChaseLevelIndex(); /* inferred getter for the recorded best-level last-level test */
+    copGame_t *GetCopGameInfo(); /* inferred field accessor; no class storage or virtual slot */
     inline copLevel_t *GetChaseLevel();
     inline int GetChaseTime();
-    int RemainingEngagementTime(); /* inferred unscaled remaining fixed-point timer, distinct from elapsed GetChaseTime */
+    int RemainingEngagementTime(); /* inferred unscaled remaining fixed-point timer; GetChaseTime is the configured duration */
     inline int IsLastChaseLevel();
     inline void SetChaseLevel(int level);
     int ConfiguredEngagementLapTime(); /* inferred timing helpers; caller/receiver structure still under review */
     void InitializeChaseTimer(int lapTime);
-    void ApplyChaseLapFactor();
     bool BlockadeDone(); /* inferred completed-blockade query from the retail guard inline pair */
     inline void ResetEngagementTime();
+    /* Inferred update spelling; retail retains the receiver/ticks/count inline
+       boundary but no standalone linkage name for this operation. */
+    void AdvanceEngagement(int ticks, int totalCopsEngaged, int movingBackwards);
 };
 
-#include "aistate_classes.h"
+#include "aistate.h"
 
-/* AIState_Idle's empty inline ctor lives HERE, not in aistate_classes.h: aistate.obj (Idle's key-function
+/* AIState_Idle's empty inline ctor lives HERE, not in aistate.h: aistate.obj (Idle's key-function
    TU) carries no out-of-line copy, which cc1plus 2.8 would emit for any inline member it can see. */
 inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}
 inline AIState_Idle::AIState_Idle(Car_tObj *carObj, int idleInPlace) : AIState_Base(carObj) {
     idleInPlaceFlag_ = idleInPlace;
 }
-
-/* aihigh.obj-local all-inline classes.  Declared HERE (AIState_None right after the AIState family,
-   AIHigh_None right after AIHigh_Base) because cc1plus 2.8 emits a TU's vtable batch in REVERSE
-   declaration order: retail aihigh .rdata = [BTC_Perp][None][Base][AIState_None][AIState_Base]. */
-struct AIState_None : public AIState_Base {
-    AIState_None(Car_tObj *carObj) : AIState_Base(carObj) {}
-    ~AIState_None() {}
-    void Execute() {}
-};
 
 struct AIHigh_Base {
     Car_tObj *carObj_;
@@ -257,156 +251,6 @@ static inline void AIHigh_SetState(AIHigh_Base *high, AIState_Base *newState, st
 }
 static inline Car_tObj *AIHigh_GetCarObj(AIHigh_Base *high) { return high->carObj_; }
 
-struct AIHigh_None : public AIHigh_Base {
-    AIHigh_None(Car_tObj *carObj) : AIHigh_Base(carObj) {}
-    void HighExecute() {}
-};
-
-struct AIHigh_BasicPerp : public AIHigh_Base {
-    enum {
-        PULLOVER_NONE = 0,
-        PULLOVER_WARNING = 1,
-        PULLOVER_BUST = 2,
-        PULLOVER_EOG = 3
-    } pullOverMode_;
-    struct { int copIndex, carIndex; } positionVSCopList_[6];
-    int copVSPositionList_[6];
-    int beatingTicksLeft_, lastPullOverTime_;
-    Car_tObj *lastArrestingCop_;
-    AICop_BasicPerpInfo basicPerpInfo_;
-    int AddChaser(int a, int b, copType ct);
-    void RemoveChaser(int a, int b, copType ct);
-    int CheckChaserPosition(int a, int b);
-    AIHigh_BasicPerp(Car_tObj *carObj);
-    ~AIHigh_BasicPerp() {}
-    virtual void CheckForCrimes();
-    int CheckIfCaught();
-    void RemoveCloseCops();
-    void Clear();
-};
-
-struct AIHigh_Player : public AIHigh_BasicPerp {
-    int numWarnings_, numBusts_, newTriggerProb_, lastTriggerCheckSlice_;
-    AICop_PerpChaseInfo perpChaseInfo_;
-    AIHigh_Player(Car_tObj *carObj);
-    ~AIHigh_Player() {}
-    void HandleCops();
-    int CheckIfABlockadeCanBeSetup();
-    void SetupBlockade();
-    void CheckForNewLevel(int level);
-    void HandleSpeech();
-    void MaintainAvailableCops();
-    void CleanupBlockaders(int a);
-    void HandlePullOver();
-    inline copLevel_t *ChaseLevel() { return perpChaseInfo_.chaseLevel_; }   /* retail pairs (this typed AIHigh_Player) */
-    inline int LastPullOverTime() { return lastPullOverTime_; }
-};
-
-struct AIHigh_BTC_HumanCop;
-struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
-    int caught_, hudActivated_;
-    AIHigh_BTC_HumanCop *originalActivationCop_;
-    AIHigh_BTC_Perp(Car_tObj *carObj) : AIHigh_BasicPerp(carObj) {
-        caught_ = 1; hudActivated_ = 0; originalActivationCop_ = (AIHigh_BTC_HumanCop *)0;   /* retail StartUp: HumanPerp vptr stored LAST (cross-jumped with the None path) */
-    }
-    void ReleaseCops();
-    void HandleCops();
-    int IsFalseArrest();
-    int CheckForControlsPressed();
-    void HandlePullOver();
-    void NotifyCopsOfArrest();
-    void NotifyCopsOfArrestComplete();
-    void NotifyCopsOfFalseArrest();
-    void NotifyHumanCopsOfArrestHud();
-    void ClearForNewStage(AIHigh_BTC_HumanCop *cop);
-    AIHigh_BTC_HumanCop *CheckForActivation();
-};
-
-#include "shared/blockade_t.h"
-
-
-
-
-
-
-
-struct AIHigh_BasicCop : public AIHigh_Base {
-    copType type_;
-    int copIndex_;
-    blockade_t blockade_;
-    AIHigh_tDriveAwayMode driveAway_;
-#ifdef NFS4_AIH_BASICPERP_INLINE_SCOPE
-    inline void SetDriveAway(AIHigh_tDriveAwayMode mode) { driveAway_ = mode; }
-#else
-    void SetDriveAway(AIHigh_tDriveAwayMode mode);
-#endif
-    AIHigh_BasicCop(Car_tObj *carObj, int idx);
-    void CheckSpikeBelt();
-    void SetupBlockadeElements(blockade_t *blockade);
-    void HandleBlockadeSpeech();
-    int ShouldIPerformCutOffBlock(int a, Car_tObj *carObj);
-    inline blockadeMode_t BlockadeMode() { return blockade_.mode; }   /* retail pairs (this typed AIHigh_BasicCop) */
-    inline blockade_t *Blockade() { return &blockade_; }
-    inline copType Type() { return type_; }
-};
-
-struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
-    AIHigh_BTC_Perp *perpTarget_;
-    int chaseIndex_;
-    enum {
-        FREEZE_NONE = 0,
-        FREEZE_NEWPERP_ROVE = 1,
-        FREEZE_NEWPERP_DONE = 2,
-        FREEZE_ARREST = 3,
-        FREEZE_ARRESTDONE = 4
-    } freezeMode_;
-    AIHigh_BTC_Cop(Car_tObj *carObj, int copIndex);
-    void AssignToPlayer(AIHigh_BTC_Perp *target);
-    int GetCheckChasePosition(coorddef *pos);
-    int CheckForNewTarget();
-    void StartArrest(AIHigh_BTC_Perp *p);
-    void FinishArrest(AIHigh_BTC_Perp *p);
-    void FalseArrest(AIHigh_BTC_Perp *p);
-    virtual void FreezeAndEndChase();
-    void HudOff();
-};
-
-struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
-    int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
-    enum {
-        WINGMAN_NONE = 0,
-        WINGMAN_WINGMAN_REQUEST = 1,
-        WINGMAN_BLOCKADER_REQUEST = 2,
-        WINGMAN_BLOCKADER_SPIKEBELT_REQUEST = 3,
-        WINGMAN_WINGMAN_ACTIVE = 4,
-        WINGMAN_BLOCKADER_ACTIVE = 5
-    } wingmanStatus_;
-    int needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;
-    void SetNeedPerp(int); /* inferred flag setter: retail records this in ClearForNewStage */
-    int CurrentStage(); /* inferred stage getter: retail records this at the stage read */
-    int InitialDirection(); /* inferred getter for the placement direction */
-    int InitialMovement(); /* inferred getter for the placement movement */
-    bool HasCatchTime(); /* inferred query: HumanCop receiver, timeLeft_ > 5 in retail */
-    int NeedsPerp(); /* inferred lead-cop request query: copIndex_ == 0 ? needPerp_ : 0 */
-    void SetRequestedDesiredSpeed(int); /* inferred setter at the three speed arms */
-    AIHigh_BTC_HumanCop(Car_tObj *carObj, int copIndex);
-    int FindRandomBarrierFreeArea(int startSlice, int safetyZone, int randomDistance);
-    void ReleaseAndStartChase(AIHigh_BTC_Perp *p);
-    void FreezeAndEndChase();
-    void CheckConditionWithCop0();
-    void NewStage(int copSlice, int direction, int movement);
-    void UpdateAndCheckTimeLeft();
-    void UpdateFreezeModeAndPullOverMode();
-    void RequestWingman();
-    void RequestBlockader(int spikeBeltRequest);
-    int CheckForWingmanRequest();
-    int CheckForBlockaderRequest(int *spikeBeltRequest);
-    void UpdateWingmanRole(Wingman_Role currentRole);
-    void ClearTrafficToPurgatory();
-    void ResetClearTrafficToPurgatory();
-    void SetDesiredSpeed();
-    void HighExecute();
-    void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
-};
+#include "aihigh.h"
 
 #endif

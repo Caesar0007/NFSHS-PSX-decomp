@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.16)
+project(nfs4_eac_port LANGUAGES C)
+
+add_library(nfs4_eac_port STATIC eaclib/eac_port.c eaclib/shape_sine_port.c)
+target_include_directories(nfs4_eac_port PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_features(nfs4_eac_port PUBLIC c_std_11)
+set_target_properties(nfs4_eac_port PROPERTIES C_EXTENSIONS OFF)
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(nfs4_eac_port PRIVATE -Wall -Wextra -Wconversion -Werror -pedantic)
+elseif(MSVC)
+    target_compile_options(nfs4_eac_port PRIVATE /W4 /WX)
+endif()
+
+# Deliberately separate from the endian-independent, runtime-verified port API.
+option(NFS4_BUILD_PSX_MATCH "Build ordinary-C PSX matching variants" OFF)
+if(NFS4_BUILD_PSX_MATCH)
+    add_library(nfs4_psx_match STATIC psx_match/shapecount.c psx_match/null_result.c)
+    target_include_directories(nfs4_psx_match PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_compile_features(nfs4_psx_match PUBLIC c_std_11)
+    set_target_properties(nfs4_psx_match PROPERTIES C_EXTENSIONS OFF)
+endif()

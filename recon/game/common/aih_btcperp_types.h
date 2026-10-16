@@ -56,13 +56,6 @@ struct ObjectFinishedSignAnim : public ObjectAnim {
     Trk_CollideBoomInst *objCollideInstance;
 };
 
-struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
-    AIHigh_BTC_HumanPerp(Car_tObj *carObj);
-    ~AIHigh_BTC_HumanPerp() {}
-    void NewStage(AIHigh_BTC_HumanCop *cop);
-    void HighExecute();
-};
-
 struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
     __typeof__(PERPMODE_CRUISE) perpMode_;
     int creationTime_, madeContactTime_, timeUntilContact_, escapeDuration_;
@@ -78,7 +71,7 @@ struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
     void NewStage(AIHigh_BTC_HumanCop *cop);
 };
 
-#include "aistate_classes.h"
+#include "aistate.h"
 
 
 #include "shared/SPCHNFSType_POSITION.h"

@@ -13,16 +13,10 @@ typedef enum AIHigh_CopGameType_t {
 } AIHigh_CopGameType_t;
 
 
-#include "aistate_classes.h"
+#include "aistate.h"
 
 /* Exact foreign class layouts needed by placement construction in this TU;
    their completed tags are omitted by AIHIGH.OBJ's linked debug graph. */
-struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
-    AIHigh_BTC_HumanPerp(Car_tObj *carObj);
-    ~AIHigh_BTC_HumanPerp() {}
-    void NewStage(AIHigh_BTC_HumanCop *cop);
-    void HighExecute();
-};
 /* defined only for aihigh (its sole user): aih_btcperp.obj, HumanPerp's key TU, has no copy */
 inline AIHigh_BTC_HumanPerp::AIHigh_BTC_HumanPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj) {}
 struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
@@ -50,30 +44,12 @@ struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
     void SetupWingman(AIHigh_BTC_HumanCop *humanCop);
     void SetupBlockader(AIHigh_BTC_HumanCop *humanCop, int spikeBeltRequest);
 };
-struct AIHigh_Traffic : public AIHigh_Base {
-    void HighExecute();
-    int ignoreCops_, forcePurgatory_;
-    SceneElem *accidentData_;
-    AIHigh_Traffic(Car_tObj *carObj);
-};
-struct AIHigh_Human : public AIHigh_Player {
-    void HighExecute();
-    AIHigh_Human(Car_tObj *carObj);
-};
-struct AIHigh_Opponent : public AIHigh_Player {
-    void HighExecute();
-    AIHigh_tAttackMode attackMode_;
-    Car_tObj *lastHumanHitter_;
-    int hitCount_, attackTicksLeft_;
-    AIHigh_Opponent(Car_tObj *carObj);
-};
-struct AIHigh_Cop : public AIHigh_BasicCop {
-    void HighExecute();
-    AIHigh_Player *perpTarget_;
-    int forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_;
-    int aggressionLevel_;
-    AIHigh_Cop(Car_tObj *carObj, int idx);
-};
+#define NFS4_AIHIGH_TYPE_PART 2
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
+#define NFS4_AIHIGH_TYPE_PART 1
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
 
 #include "shared/GameSetup_tData.h"
 

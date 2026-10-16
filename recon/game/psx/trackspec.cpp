@@ -417,14 +417,28 @@ void read(char **handle,void *buf,int bytes)
  * TU): g_value 8 = NO-OP (this TU owns only 4-byte scalars, all already %gp_rel),
  * no_strength_reduce / no_split_addresses / no_schedule_insns / no_schedule_insns2
  * all neutral-or-worse -- see the SetDefault note. */
+/* 2026-10-12: header belongs in the successful-load guard (retail depth3),
+   not at function scope. Original currentpos/startpos/str declaration order
+   is restored at63/63 without changing their stack/register homes. filebuf
+   still needs source recovery:direct startpos copy and assignment-in-test
+   each28dif/59,frame112 vs retail120. Those failures are not an object floor.
+   trk is an unrecorded source capture too;SLD proves the fetch statement,
+   not that exact original variable/name. Full SLD remains unsealed. */
+/* 2026-10-13: caller fixed arguments now agree with canonical PsyQ sprintf
+ * and the EA owners; loadfileadr's integer address return matches nsync.
+ * Repriced source-only captures after these contract corrections: currentpos
+ * null-test plus direct startpos/base ownership still28dif/59 vs63/frame120.
+ * Direct track argument, including the same-field integer address view, is
+ * still2dif/63. All trials restored. No bound/floor or original-object proof
+ * is implied; retail EA types are incomplete, so owner agreement is partial
+ * evidence, not a full signature/SYM seal. */
 void TrackSpec_Read(int spec_num)
 
 {
-  char *filebuf; /* SYM-CODEGEN-CARRIER: filebuf -- models retail's uncoalesced call-result copy */
+  char *currentpos;
   char *startpos;
   char str [64];
-  CTrackSpecHeader header;
-  char *currentpos;
+  char *filebuf; /* SOURCE-REVIEW-UNRESOLVED: absent from retail locals. */
   /* w41-a5: the track fetch is its OWN source statement, not an inline sprintf arg.
    * SLD PROOF: 800E17E8 (`lui $v0,%hi(GameSetup_gData)`) carries source line 148 while
    * every other insn of the call setup (800E17DC/17EC/1804) carries line 151 -- the
@@ -433,7 +447,7 @@ void TrackSpec_Read(int spec_num)
    * and the lui lands in the oracle's slot.  CAVEAT: the SYM's block list for this fn
    * names only currentpos/startpos/str -- no `trk` -- so the name is ours; the STATEMENT
    * is SLD-attested. */
-  int trk = GameSetup_gData.track; /* SYM-CODEGEN-CARRIER: trk -- SLD-attested hoisted fetch */
+  int trk = GameSetup_gData.track; /* SOURCE-REVIEW-UNRESOLVED: SLD supports the fetch statement, not this original object/name. */
 
   sprintf(str,"%sTr%02d.bin",Paths_Paths[6],trk);
   /* w41-a5: `currentpos` (an AUTO -- its address goes to read()) takes the RAW
@@ -446,6 +460,8 @@ void TrackSpec_Read(int spec_num)
   filebuf = currentpos;
   startpos = filebuf;
   if (filebuf != (char *)0x0) {
+    CTrackSpecHeader header;
+
     TrackSpec_gPrevSpec = TrackSpec_gCurrentSpec = spec_num;
     read(&currentpos,&header,8);
     if (spec_num >= header.num_spec) {

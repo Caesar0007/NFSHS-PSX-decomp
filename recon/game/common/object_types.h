@@ -154,17 +154,8 @@ struct SaveSurface {
     void RestoreAll();
 };
 
-struct AIHigh_Traffic : public AIHigh_Base {
-    int ignoreCops_, forcePurgatory_;
-    SceneElem *accidentData_;
-    /* Retail OBJECT.CPP records the inline receiver and accidentData argument.
-       The setter spelling is inferred; it adds no data or virtual entry. */
-    inline void SetAccidentData(SceneElem *accidentData) { accidentData_ = accidentData; }
-    AIHigh_Traffic(Car_tObj *carObj);
-    Car_tObj *CheckForCops(int *p);
-    AIHigh_Cop *CopCheck(int *p);
-    void HighExecute();
-    trigger_t *CheckForNewTriggers();
-};
+#define NFS4_AIHIGH_TYPE_PART 2
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
 
 #endif

@@ -114,7 +114,11 @@ class PipelineTests(unittest.TestCase):
 
     def invoke(self,args=None):
         out=io.StringIO();err=io.StringIO()
-        with patch.object(loop,'retail_functions',return_value=self.retail),patch.object(loop.subprocess,'run',side_effect=self.fake_run),contextlib.redirect_stdout(out),contextlib.redirect_stderr(err):
+        # Fake subprocess fixtures do not contain a real SYM dump. Test this
+        # dependency separately; a controlled coverage failure must still
+        # suppress the success token and preserve the original references.
+        coverage=dict(coverage_complete=self.mode!='owner_coverage_failure',units={})
+        with patch.object(loop,'retail_functions',return_value=self.retail),patch.object(loop,'selected_owner_coverage',return_value=coverage),patch.object(loop.subprocess,'run',side_effect=self.fake_run),contextlib.redirect_stdout(out),contextlib.redirect_stderr(err):
             rc=loop.main(args if args is not None else [self.rel])
         RESULTS.append(dict(test=self.id().split('.')[-1],mode=self.mode,returncode=rc,stages=list(self.calls),stdout=out.getvalue(),stderr=err.getvalue()))
         return rc,out.getvalue(),err.getvalue()
@@ -162,7 +166,7 @@ class PipelineTests(unittest.TestCase):
         modes=['normal_exit','bytes_moved','section_layout_moved','stale_normal_object','missing_normal_assembly','invalid_elf',
             'debug_exit','stale_debug_assembly','stale_debug_report','debug_failed_report','debug_code_diff','debug_unknown_code','debug_no_s','debug_wrong_tu',
             'lane_exit','stale_sn_object','missing_nfs4.cpe','missing_nfs4.sym','missing_nfs4.map','missing_nfs4_sym.txt','assembler_failed','link_failed',
-            'compare_exit','stale_board','missing_function','malformed_row','malformed_issues']
+            'compare_exit','stale_board','missing_function','malformed_row','malformed_issues','owner_coverage_failure']
         for mode in modes:
             with self.subTest(mode=mode):
                 # Every case gets its own filesystem and stale-artifact set.

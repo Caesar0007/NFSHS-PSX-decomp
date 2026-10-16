@@ -34,7 +34,7 @@ extern tReplayCameraModes Replay_ReplayCamera[2]; /* SYM32A86B:32 bytes */
 extern tReplayInterface Replay_ReplayInterface;
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);
 extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
-extern void *BWorldSm_UNormal(BWorldSm_Pos *pos);
+extern coorddef *BWorldSm_UNormal(BWorldSm_Pos *pos); /* retail PTR STRUCT coorddef */
 extern void Replay_ReplayFindClosestCamera(int player,int slice);
 extern void TrsProj_SetProjection(int cx,int cy,int w,int h);
 extern void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi);

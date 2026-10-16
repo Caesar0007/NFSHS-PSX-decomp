@@ -14,11 +14,11 @@
  * last string in retail, the SDK object goes on with "StoreImage2" and "MoveImage2").  Such a literal is spelled as a named
  * array in a discarded input section. */
 #define LINK_STRIPPED_RODATA __attribute__((section(".rodata.strip")))
-/* Uninitialised storage retail does not have: a function-static that is declared and never referenced.  Evidence
- * (scratchpad/psyq_pipe/stat_small.py): every uninitialised function-static of the game has a retail `name.NN` label
- * (12 of 12: strspc, resethud, corrPt, lastX ...); aih_btccop's `sayLose`, the only one no code touches, has a debug
- * record and NO label -- no storage was allocated for it. */
-#define LINK_STRIPPED_BSS __attribute__((section(".bss.strip")))
+/* 2026-10-12: removed the unused LINK_STRIPPED_BSS exemption. Its sayLose
+ * example was misidentified: retail's STAT BOOL value4 names the initialized
+ * function-static loss-announcement flag at8013c564, not a storage-less dummy.
+ * The real static declaration preserves all linked bytes and the exact record.
+ * Absence of a compact label alone is not proof that storage was discarded. */
 /* A Sony HAND-ASSEMBLY routine the final link removed: the SDK object's own instruction lines, in `.text.strip`. */
 #define ASM_LINK_STRIPPED(name, body)                                          \
     __asm__("\t.section .text.strip,\"ax\",@progbits\n\t.set\tnoreorder\n\t.set noreorder\n" /* tab form = for maspsx (consumed), space form = for gas */ \

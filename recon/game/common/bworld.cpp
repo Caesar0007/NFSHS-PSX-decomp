@@ -72,7 +72,7 @@ void UpdateContext(DRender_tView *Vi,int contextHandle)
   }
   BWorldSm_FindClosestQuadRez(&Vi->cview.translation,&gCurrContext->slicePos,1);
   if ((signed char)(gCurrContext->slicePos).offEdge != '\0') {
-    int unused;   /* unused: retail emits this then-block with no record */
+    int unused; /* SOURCE-REVIEW-UNRESOLVED: dummy declaration,not proven original; bounded retry loop preserves46words but drops both nested retail regions. */
     FindAbsClosestSliceCrude(&Vi->cview.translation,&gCurrContext->slicePos);
     BWorldSm_FindClosestQuadRez(&Vi->cview.translation,&gCurrContext->slicePos,1);
   }
@@ -391,7 +391,15 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
  * computation) rides on this same root cause. Same floor class as
  * BWorld_OpenContext/BWorld_InitSpikeBelt above. ACCEPT (with the real bug fixed). */
 /* PASS: ternary-selected slice pointers, packed byte counts, flat 32-short rows,
- * and a separate count-- reproduce the retail source and allocation shape. */
+ * and a separate count-- reproduce the retail instructions/allocation shape. */
+/* 2026-10-13 source review: removing forward-index capture gives18dif/80;
+ * both captures gives22dif/80; backward alone gives4dif/80, distributing
+ * -2 to a late -64 instead of reusing the tested index. Reverse pointer
+ * subtraction gives6dif/82; widening the index remains4dif/80, widening
+ * byte scaling gives96dif/92. Reusing testChunkIndBwd for both phases gives
+ *63dif/79, not a faithful recorded-value repair. All restored; recover the
+ * real preliminary-index producer rather than treating const/debug elision
+ * or these bounded failures as proof of a required original source object. */
 int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest)
 {
   int sourceChunkInd;
@@ -405,9 +413,9 @@ int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePos
   if (slicePosSource == slicePosTest) {
     return 1;
   }
-  /* Retail's testChunkIndFwd/Bwd are the resulting chunk IDs ($t3/$v1),
-     not these preliminary slice indices. Const expression aliases emit no
-     extra debug locals; sliceIndexFwd/Bwd are inferred role names. */
+  /* SOURCE-REVIEW-UNRESOLVED: retail testChunkIndFwd/Bwd name final chunk
+     IDs ($t3/$v1), not these preliminary indices. Both aliases have inferred
+     names; debug elision does not certify their original source objects. */
   const int sliceIndexFwd = slicePosTest->slice + 2;
   testChunkIndFwd = (u_short)(sliceIndexFwd < gNumSlices
       ? BWorldSm_slices + sliceIndexFwd
@@ -882,23 +890,26 @@ bool BWorld_IsSliceInBuildList(int slice)
   } return 0;
 }
 
+/* SOURCE REVIEW (2026-10-13): direct typed fog fields10diff/193; paired
+ * removal of the old empty fence12/193. Both reverted. Changed struct-base
+ * anchors and load/flag-store ordering need further source investigation;
+ * trackSpec and the old fence are not original-object/source proof.
+ */
 /* ---- BWorld_OnyxBuildFacets__FP13DRender_tView  [@0x8007e0f4] ---- */
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)
 {
   Draw_DCache *sd;
-  /* SYM-CODEGEN-CARRIER: trackSpec -- absent from optimized NFS4 SYM; direct typed
-     TrackSpec_gSpec field accesses keep 193 instructions but fail at 10 words. */
-  CTrackSpec *trackSpec;
+  CTrackSpec *trackSpec; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct fog reads10diff/193,not original-object proof. */
   
   Chunk_UpdateSys(Vi);
   gVi2 = Vi;
-  gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
+  gWSavePtr = SetSp(0x1f8003fc);
   stackSpeedUpEnbabledFlag = 1;
   SetupBuildMatrices(gVi2,(Draw_DCache *)0x1f800000);
   DrawW_WorldSetUpMatrix(&gWorldMat,(MATRIX *)0x1f800014);
   BWorld_gChunkCount = SetupChunkBuildList(gVi2);
   sd = (Draw_DCache *)0x1f800000;
-  gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+  gWSavePtr = SetSp(gWSavePtr);
   /* @0x8007E17C-1F4: the Onyx scratchpad (Draw_tGiveShelbyMoreCache @0x1F800000) gets the fog + night
    * params. startfog/distfog@+0xDC/+0xDE come from TrackSpec_gSpec's INT fog fields read as HALFWORDS
    * (lhu) [the 0xDC/0xDE slots are also read back as Skid_gScratchPos1/2 in draww.cpp]; fogstate@+0x10E
@@ -936,17 +947,17 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
     ((Draw_tGiveShelbyMoreCache *)sd)->night_DrawLightning = cc;
     ((Draw_tGiveShelbyMoreCache *)sd)->night_LightningType = dc;
   }
-  gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
+  gWSavePtr = SetSp(0x1f8003fc);
   stackSpeedUpEnbabledFlag = 1;
   DrawW_DoTrough(Vi,(tBuildEntry *)BWorld_gChunkBuildList);
-  gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+  gWSavePtr = SetSp(gWSavePtr);
   stackSpeedUpEnbabledFlag = 0;
   if (GameSetup_gData.track == 0 && GameSetup_gData.Weather == 1) goto NO_LINES;
   {
-    gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
+    gWSavePtr = SetSp(0x1f8003fc);
     stackSpeedUpEnbabledFlag = 1;
     DrawW_DoLines(Vi,(tBuildEntry *)BWorld_gChunkBuildList,sd);
-    gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+    gWSavePtr = SetSp(gWSavePtr);
     stackSpeedUpEnbabledFlag = 0;
   }
 NO_LINES:
@@ -988,7 +999,10 @@ NO_LINES:
 
 /* ---- BWAllocMem__Fl  [@0x8007e3f8] ----
  * SLD separates the allocator call (+5) from its return (+6). The const
- * dctBuffer value is debug-elided; its semantic name is inferred, not SYM. */
+ * dctBuffer value is debug-elided; its semantic name is inferred, not SYM.
+ * SOURCE-REVIEW-UNRESOLVED: direct return remains12word PASS/native CLEAN
+ * but loses four retail +6 epilogue tags and end6 (becomes5). Restored;
+ * producer/original-name recovery remains open, not a debug exemption. */
 char * BWAllocMem(long size)
 {
   /* SYM records this as BWAllocMem's function-local STAT at 0x8013c760. */
@@ -1075,15 +1089,15 @@ void BWorld_StartLoop(void)
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): direct single rand draw with conditional
+ * multiplier44diff/181 vs187,then reverted. sceneStartRandom remains
+ * explicitly unresolved,not required/proven original from this failure.
+ */
 /* ---- BWorld_Init__Fv  [@0x8007e5c8] ---- */
 void BWorld_Init(void)
 {
   int AudioScene;
-  /* SYM-CODEGEN-CARRIER: sceneStartRandom -- moving rand() into the two numLaps arms
-     duplicates the signed-division expansion, growing 187 instructions to
-     191 and producing 24 word diffs.  The retained result is required across
-     the branch even though the optimized nested local is absent from SYM. */
-  int sceneStartRandom;
+  int sceneStartRandom; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original rand-result producer remains unknown. */
 
   if (Replay_ReplayMode == 0) {
     if ((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_Tournament)) {

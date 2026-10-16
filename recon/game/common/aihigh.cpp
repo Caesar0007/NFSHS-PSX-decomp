@@ -2,7 +2,7 @@
  *   14 fns: AIHigh_StartUp/Restart1/Restart2/CleanUp/Execute free orchestrators + AIHigh_Base
  *   ctor/dtor + cfront weak comdat fragments (AIHigh_None HighExecute/dtor, AIState_None
  *   Execute/dtor, AIState_Base TestForRelease/dtor, AIHigh_BTC_Perp dtor [also in sibling objs]).
- *   Composition-modeled inheritance (_base_ members); manual _vf vtable. Faithful C++ (option A).
+ *   Real C++ inheritance/virtual members in the recovered AI class headers.
  *   NOT original; SYM-faithful, recompilable. vs disasm-v2.
  */
 #include "../../lib/nfs4_new.h"
@@ -31,21 +31,18 @@ AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
 
 
 /* ---- AIHigh_StartUp__Fv [retail AIHIGH.CPP:58-105; 234/234 byte PASS,
- * native/SLD recovery still open] ---- */
-/* Loop-owned car pointers and direct flags need no allocation fence. The
- * base-first slot-address expression preserves the retail handout at234/234.
- * newHigh/slot remain explicitly unresolved; no original-object necessity is
- * inferred from the failed alternate allocation shapes. */
+ * native declarations/scopes exact; full SLD attribution still open] ---- */
+/* Conditional new expressions preserve234/234 with neither newHigh nor slot.
+ * GCC determines the common base pointer from the derived alternatives; no
+ * explicit per-arm casts or caller-side result/address objects are needed.
+ * Leaving the final new uncast also restores both AIHigh_None inline regions;
+ * ordinary fallthrough restores the outer selection endpoint. All nine retail
+ * declaration records and sixteen scope regions agree; full SLD remains open.
+ * Older failed conditional/capture-removal probes were source-shape-specific. */
 
 void AIHigh_StartUp(void)
 {
-
-  int carLoop;
-  int copCounter;
-  int humanCopCounter;
-
-  copCounter = 0;
-  humanCopCounter = 0;
+  int carLoop, copCounter = 0, humanCopCounter = 0;
 
   AIState_StartUp();
 
@@ -54,35 +51,13 @@ void AIHigh_StartUp(void)
        ((Cars_gNumHumanRaceCars == 2 &&
          ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
     for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-      /* UNRESOLVED RECONSTRUCTION: newHigh is absent from retail locals.
-         Direct allocation expressions still need their native construction/
-         allocation shape recovered; current trials are recorded in sym-match. */
-      AIHigh_Base *newHigh;
-      /* UNRESOLVED RECONSTRUCTION: slot is absent from retail locals.
-         Eliminating this address holder on the current source is237/234,
-         29dif; that does not prove an original pointer object existed. */
-      AIHigh_Base **slot;
       Car_tObj *carObj = Cars_gList[carLoop];
-      slot = (AIHigh_Base **)((int)highLevelAIObjs + (carLoop << 2));
-      if ((carObj->carFlags & 0x200U) != 0) {
-        newHigh = new AIHigh_BTC_HumanCop(carObj,copCounter++);
-      }
-      else if ((carObj->carFlags & 4U) != 0) {
-        newHigh = new AIHigh_BTC_HumanPerp(carObj);   /* inline HumanPerp/BTC_Perp ctors: caught_/hudActivated_/originalActivationCop_ */
-      }
-      else if ((carObj->carFlags & 8U) != 0) {
-        newHigh = new AIHigh_BTC_AIPerp(carObj);
-      }
-      else if ((carObj->carFlags & 0x10U) != 0) {
-        newHigh = new AIHigh_Traffic(carObj);
-      }
-      else if ((carObj->carFlags & 0x20U) != 0) {
-        newHigh = new AIHigh_BTC_Wingman(carObj,copCounter++);
-      }
-      else {
-        newHigh = new AIHigh_None(carObj);
-      }
-      *slot = newHigh;
+      highLevelAIObjs[carLoop] = (carObj->carFlags & 0x200U) != 0 ? new AIHigh_BTC_HumanCop(carObj,copCounter++) :
+              (carObj->carFlags & 4U) != 0 ? new AIHigh_BTC_HumanPerp(carObj) :
+              (carObj->carFlags & 8U) != 0 ? new AIHigh_BTC_AIPerp(carObj) :
+              (carObj->carFlags & 0x10U) != 0 ? new AIHigh_Traffic(carObj) :
+              (carObj->carFlags & 0x20U) != 0 ? new AIHigh_BTC_Wingman(carObj,copCounter++) :
+              new AIHigh_None(carObj);
       if ((carObj->carFlags & 0x200U) != 0) {
         humanCopCounter = humanCopCounter + 1;
       }
@@ -99,30 +74,16 @@ void AIHigh_StartUp(void)
       }
     }
     AIHigh_CopGameType = COP_GAME_BTC_1HC;
-    return;
   }
   else {
     for (carLoop = 0, copCounter = carLoop;
          carLoop < Cars_gNumCars; carLoop++) {
-      AIHigh_Base *newHigh;
-
       Car_tObj *carObj = Cars_gList[carLoop];
-      if ((carObj->carFlags & 4U) != 0) {
-        newHigh = new AIHigh_Human(carObj);
-      }
-      else if ((carObj->carFlags & 8U) != 0) {
-        newHigh = new AIHigh_Opponent(carObj);
-      }
-      else if ((carObj->carFlags & 0x10U) != 0) {
-        newHigh = new AIHigh_Traffic(carObj);
-      }
-      else if ((carObj->carFlags & 0x20U) != 0) {
-        newHigh = new AIHigh_Cop(carObj,copCounter++);
-      }
-      else {
-        newHigh = new AIHigh_None(carObj);
-      }
-      highLevelAIObjs[carLoop] = newHigh;
+      highLevelAIObjs[carLoop] = (carObj->carFlags & 4U) != 0 ? new AIHigh_Human(carObj) :
+                               (carObj->carFlags & 8U) != 0 ? new AIHigh_Opponent(carObj) :
+                               (carObj->carFlags & 0x10U) != 0 ? new AIHigh_Traffic(carObj) :
+                               (carObj->carFlags & 0x20U) != 0 ? new AIHigh_Cop(carObj,copCounter++) :
+                               new AIHigh_None(carObj);
     }
 
     if (0 < copCounter) {

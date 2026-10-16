@@ -17,6 +17,8 @@
 #define textState_Hilighted 2
 #define tMenuTextType int
 #define textType_ScreenInfo 4
+/* Retail tMenuTextType enumerator; retain the owner surface's existing form. */
+#define textType_Options 6
 
 #include "shared/AudioMus_tSongEntry.h"
 #include "shared/AudioMus_tSongList.h"

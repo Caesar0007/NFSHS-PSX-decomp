@@ -42,6 +42,18 @@ void OptionsBarThing(int x,int y,int w,int h)
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): masked width can be written directly in both
+ * OptionsBarThing/RenderPauseBox arguments at349/349 PASS. The old w2 object
+ * and its zero-length declaring region are removed; the historical named-
+ * carrier receipt below is superseded, not proof of an original variable.
+ * All12 original ordered local/type/home/depth tuples and six scope markers
+ * match retail after filtering only the still-unresolved titleX/titleY.
+ * Those two absent objects are not excused by old direct-form failures.
+ * SYM field offsets also restore actual carInfo->driver, carFlags and
+ * stats.finalFinishType/finalTotalTime/finalBestLap accesses at349/349.
+ * Whole linked raw-byte proof is required in addition to normalized PASS.
+ * Historical SLD-VERIFIED headings do not establish full native SLD exactness.
+ */
 /* ---- RaceSummary__Fv  [OVERLAYS.CPP:53-158] SLD-VERIFIED ---- */
 /* w41-a4: 287 -> 65 diffs (348 ours / 349 oracle), frame layout byte-identical to the SYM.
  * FOUR levers, in the order they landed (each is a separate commit with its receipt):
@@ -119,8 +131,8 @@ void RaceSummary(void)
   short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H;
   short HUD_STATS_POS_Y;
-  int titleY; /* SYM-CODEGEN-CARRIER: titleY -- direct HUD_STATS_POS_Y-derived expressions are FAIL 87 (344/349) */
-  int titleX; /* SYM-CODEGEN-CARRIER: titleX -- direct title-coordinate spelling is FAIL 79 (350/349) */
+  int titleY; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; old direct failures do not prove this original object/name. */
+  int titleX; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original title-coordinate producer remains unknown. */
 
   HUD_STATS_POS_X = 8;
   if (GameSetup_gData.numLaps == 1) {
@@ -184,9 +196,9 @@ void RaceSummary(void)
       sprintf(string,"%d",pos);
       Font_TextXY(string,colpos | 1,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       Font_TextColor(3);
-      sprintf(string,"%s",(char *)(*(int *)((int)Cars_gRaceCarList[i] + 0x288) + 0x5c));
+      sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
       Font_TextXY(string,colname,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
-      if ((*(u_int *)((int)Cars_gRaceCarList[i] + 0x260) & 4) != 0) {
+      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
         Font_TextColor(3);
       }
       else {
@@ -201,16 +213,16 @@ void RaceSummary(void)
                (Cars_gRaceCarList[i]->stats.finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
-      else if (*(int *)((int)Cars_gRaceCarList[i] + 0x3cc) == 2) {
-        Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3d4),string);
+      else if (Cars_gRaceCarList[i]->stats.finalFinishType == 2) {
+        Hud_ParseTime(Cars_gRaceCarList[i]->stats.finalTotalTime,string);
       }
       else {
         sprintf(string,TextSys_Word(0x35));
       }
       Font_TextXY(string,coltime,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       if (GameSetup_gData.numLaps != 1) {
-        if (*(int *)((int)Cars_gRaceCarList[i] + 0x3e8) != 0) {
-          Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
+        if (Cars_gRaceCarList[i]->stats.finalBestLap != 0) {
+          Hud_ParseTime(Cars_gRaceCarList[i]->stats.finalBestLap,string);
         }
         else {
           Hud_ParseTime(0,string);
@@ -219,7 +231,6 @@ void RaceSummary(void)
       }
     }
   }
-  {
   /* w46-a8 SEAL (5 -> PASS, 349/349).  THE `& 0xffff` NAMED CARRIER.  Retail reloads the
      SIZE_W AUTO through the shared scratch and COPIES it into the callee-saved carrier
      (`lhu $t0,72(sp); addu $s2,$t0,$zero`) where every `(u_short)` spelling let reload fold
@@ -233,14 +244,54 @@ void RaceSummary(void)
      carrier = 6 (the volatile asm invalidates memory in cse, so the carrier cannot be CSE'd
      onto the fence's load -- that is WHY the w45 fence angle could not be walked into place),
      statement-expression fence inside arg 3 = 6, fence on POS_Y too = 7 (350 insns). */
-  int w2 /* SYM-CODEGEN-CARRIER: w2 -- named masked-width result preserves retail's lhu-plus-copy pair */ =
-      HUD_STATS_SIZE_W & 0xffff;
-  OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,w2,(int)HUD_STATS_SIZE_H);
-  Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,w2,(int)HUD_STATS_SIZE_H);
-  }
+  OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W & 0xffff,(int)HUD_STATS_SIZE_H);
+  Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W & 0xffff,(int)HUD_STATS_SIZE_H);
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): actual per-player for ownership replaces the
+ * while/test and head-only colmid block. All six retail scope markers now
+ * agree (+1e8/+214 begins, +6d0/+6e0 ends) at475/475 PASS; colmid is owned
+ * by the entire iteration, not only its initial title phase. No fake region.
+ * Direct col1 after that repair4diff/473; repeated rows10diff/475; literal
+ * one10diff/475. All unsuccessful bodies reverted, with no replacement
+ * fences/aliases/qualifiers. Those failures do not prove original objects.
+ * Current recorded extras sizeH16/titleX/titleY/one/pitch and debug-elided
+ * colX/colInset/rowInset remain source-review work, not exemptions.
+ * Follow-up: retail position/width/height statement order is now475PASS.
+ * Direct initial height plus one-lap height-=12 removes rows at475PASS;
+ * narrowing the two equivalent heights to SHORT preserves the same low16
+ * bits. Old repeated-expression10diff did not prove a row capture existed.
+ * Literal one still10diff/475 after this removal and is restored.
+ * Shifted-height review on this corrected source: direct SHORT reads34diff/
+ * 475 with frame176,not the older86-diff result. Removing one jointly44/475.
+ * Literal copies of the full shift chains235/482 with frame168. All reverted.
+ * Paired actual CC1PLPSX -O2 -G8 dumps in build/nc12/racestat_{direct,shifted}_
+ * height_probe.i retain RTL/loop/local/global allocation and final assembly.
+ * Both have49 global candidates and spill registers9/64/65/66. Direct
+ * constant-one p395 is a global candidate allocated s0; shifted p389 is not
+ * in its global candidate list/dispositions. This tracks changed constant
+ * reuse across later row tests,not proof the shifted-height object existed.
+ * Next inspect those loop/CSE lifetimes before repeating source casts.
+ * Follow-up: shifted loopUID313..1295 has361 real insns. Direct loop314..
+ * 1298 has362. Direct height SI promotion is movableUID380/381 (p212/p211,
+ * sll16/sra16); shifted has onlyUID379 (p207,sra16 from already-shifted p89).
+ * Shifted constant-oneUID518,p249,life48,savings4 moves to1383; corresponding
+ * directUID521,p255,life48,savings4 is not desirable. Its later matched p395
+ * thus remains and receives s0. GCC loop.c:1640 tests threshold*savings*life
+ * against insn_count;1913 reduces threshold by3 after each moved quantity.
+ * Extra promotion movement is a concrete candidate for the threshold change;
+ * actual threshold values are not printed,so no instrumented numeric proof
+ * or original-object necessity is claimed. Direct-height+inner while34/475
+ * neutral; first coordinate select as full calls87/480; both115/484. All
+ * reverted. Next target is the extra movable promotion,not blind reg dials.
+ * Direct-height expression follow-up: negative-subtrahend-first44/475
+ * (two spill slots exchange plus the previous34 differences); grouped
+ * height+POS_Y minuend151/474. Both reverted; no original-object proof.
+ * Typed stats.finalNumWarnings/finalNumFines restore retail MOS+74/+78
+ * reads inside Car_tObj.stats+34c, preserving475 instructions.
+ * Native local coverage and exact scopes alone do not seal full SLD/text.
+ */
 /* ---- RaceStatistics__Fv  [OVERLAYS.CPP:165-321] SLD-VERIFIED ---- */
 /* w41-a4: 296 -> 94 diffs (471 ours / 475 oracle), frame 168 -> 176 == SYM fsize.
  * Levers: (1) the decl-order spill-slot model (see the decl block below); (2) the lap
@@ -466,47 +517,11 @@ void RaceSummary(void)
  * Thus the old claim that the unnamed stack gaps required five source declarations
  * is refuted; they are reload spills.  The nine remaining non-SYM names carry explicit
  * current-basin receipts at their declarations and stay queued for source elimination. */
-void RaceStatistics(void)
-
-{
-  short i;
-  short j;
-  short col1;
-  short col2;
-  short colX; /* SYM-CODEGEN-CARRIER: colX -- cross-call split preserves retail's add/copy pair; direct col1 forms lose it */
-  char string [40];
-  short HUD_STATS_POS_X;
-  short HUD_STATS_SIZE_W;
-  short HUD_STATS_SIZE_H;
-  short HUD_STATS_POS_Y;
-  /* SYM records only the five named AUTO objects: string@sp+0x20, POS_X@0x48,
-     SIZE_W@0x50, SIZE_H@0x58, POS_Y@0x60 and HOTPURSUIT_Y@0x70.  The intervening
-     words are reload spills, not source declarations: deleting posy/posyL/barH/
-     barH8/halfH preserves the 176-byte retail frame and improves 70 -> 54. */
-  int rows; /* SYM-CODEGEN-CARRIER: rows -- keeps the shared lap-row product
-               across both height assignments.  Repeating the natural source
-               expression is count-exact but FAIL 10 at 475/475; this staged
-               value is PASS and reproduces retail's reused product. */
-  int sizeH16; /* SYM-CODEGEN-CARRIER: sizeH16 -- direct HUD_STATS_SIZE_H uses are FAIL 86 at 475/475 */
-  int titleX; /* SYM-CODEGEN-CARRIER: titleX -- direct title-coordinate form is FAIL 135 at 468/475 */
-  int titleY; /* SYM-CODEGEN-CARRIER: titleY -- direct HUD_STATS_POS_Y form is FAIL 88 at 469/475 */
-  /* W74-A12: the three head carriers (see the MATCH block at their assignments).
-     `one` and `pitch` are the two named constants retail held in locals (w63/w64
-     reading); `nh` is the numHumanRaceCars read hoisted ABOVE the `one` fence so
-     sched1 can still issue its load before the SIZE_H arithmetic, exactly like
-     retail (oracle insns 17-18 sit between the numLaps load and `addiu a0,a2,1`). */
-  int one; /* SYM-CODEGEN-CARRIER: one -- natural direct head trio is FAIL 86 at 473/475 */
-  int pitch; /* SYM-CODEGEN-CARRIER: pitch -- nonconstant multiplier plus fence preserves retail mult/mflo */
-  /* W72-A13: the two fold-escape carriers of the per-player loop head; see the MATCH
-     block at their assignments.  They are compiler-visible VAR_DECLs on purpose -- an
-     integer literal there is TREE_CONSTANT and fold rewrites the subtraction. */
-  int colInset; /* SYM-CODEGEN-CARRIER: colInset -- literal +2 triggers the wrong fold/reload-pool rotation */
-  int rowInset; /* SYM-CODEGEN-CARRIER: rowInset -- literal +0x13 must be escaped with colInset; single escapes are FAIL 214/215 */
-
-  pitch = 0x96;
-  rows = (GameSetup_gData.numLaps + 1) * 0xc;
-  HUD_STATS_SIZE_H = rows + 0x28;
-  /* ===== MATCH (W74-A12, 2026-08-22/23): 77 -> 71 @474/475.  THE HEAD CLUSTER IS
+/* Historical RaceStatistics body receipts, moved outside executable source
+ * on 2026-10-13. Payloads retained verbatim; no original-object/SLD seal is
+ * implied by the older matching theories or failed-variant claims.
+ */
+/* ===== MATCH (W74-A12, 2026-08-22/23): 77 -> 71 @474/475.  THE HEAD CLUSTER IS
      PARTLY SOLVED and the w49/w63/w64 "named constants" reading is VINDICATED -- what
      every earlier wave was missing is that the SET is `one` + `pitch` (NOT pitch alone,
      and NOT pitch+centre), and that the pitch fence belongs BELOW the numLaps==1 arm,
@@ -556,23 +571,8 @@ void RaceStatistics(void)
      all ten saves first; (3) 4 diffs = the fp<->s1 pair; (4) 2 diffs = `li t1,52` vs
      retail's kept `addiu a0,a0,28` (the `rows` lever, which costs 2 elsewhere here);
      (5) 2 diffs = the col1 copy. */
-  /* w40-a4 OPEN (mult 0 vs 1): the oracle hoists `li $a1,0x96` to insn 4 and does a REAL
-     `mult $v1,$a1` @0x800DA020; ours synth_mult's 150 as (n*75)<<1 and then CSEs the n*75
-     into POS_X below.  A named `int pitch = 0x96;` local DOES produce the mult (RTL: a
-     non-CONST_INT operand at expand time, cse const-props the 0x96 afterwards) and moves
-     the insn count 457->462 of 475, but costs LCS 296->311 and contradicts the SYM local
-     list -- not adopted.  Falsified as multiplier forms: operand swap, decimal spelling,
-     statement order vs POS_X. */
-  /* w49-a10: RE-FALSIFIED on the current basin (94 diffs, ours 471 / oracle 475).  The
-     `int pitch = 0x96;` block-local still produces the real mult but scores 139 (worse
-     than 94), so it stays rejected.  ALSO NEW: the retail SLD line order is POS_X (174),
-     SIZE_W (175), SIZE_H (176), `if (numLaps == 1)` (177), SIZE_H (178) -- i.e. retail
-     assigns POS_X BEFORE SIZE_W and SIZE_H, the reverse of this file.  All five
-     permutations of the three statements were gated: CBA/BCA/BAC = 126 (and 8 insns
-     short), CAB/ACB = 94 (identical to the current ABC).  Statement order is therefore
-     NOT the lever for the synth-mult-vs-mult split; the shift chain for 0x4b is shared
-     into 0x96 regardless of which statement expands first. */
-  /* ---- w63-a13 (2026-08-15): 94 STAYS @471/475.  NEW READING OF THE PROLOGUE -- retail
+
+/* ---- w63-a13 (2026-08-15): 94 STAYS @471/475.  NEW READING OF THE PROLOGUE -- retail
      does not name ONE constant, it names THREE, and every earlier wave probed only the
      first: `addiu $a1,$zero,0x96` (insn 4), `addiu $s7,$zero,0xA0` (insn 6) and
      `addiu $s2,$zero,1` (insn 8).  $s7 is the POS_X centre (`subu s4,s7,v1` = 0xA0 - n*75)
@@ -598,7 +598,8 @@ void RaceStatistics(void)
      rotation is very likely a consequence of WHERE the three initialisers sit, not an
      independent tie.  Sweep their statement positions (the w45 stmtclimb family) before
      touching anything else. */
-  /* ---- w64-a13 (2026-08-15): 94 KEPT @471/475, but the w63 "THREE NAMED CONSTANTS"
+
+/* ---- w64-a13 (2026-08-15): 94 KEPT @471/475, but the w63 "THREE NAMED CONSTANTS"
    * reading is CORRECTED and a COUNT-EXACT 475/475 basin is now banked with the census
    * down from five opcodes to TWO.  Repro: scratchpad/w64a13/rprobe{3,4,5,6}.py +
    * apply.py (variants `pf_below` 102, `pf_rows` 102, `ip` = pf_rows + in-place titleX
@@ -649,10 +650,55 @@ void RaceStatistics(void)
    *     in the birth position -- pin the `li 160` into the prologue group and the live
    *     dial comes for free.  Do NOT re-probe spellings of the three constants; that axis
    *     is closed in both waves. */
-  HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
-  one = 1;
-  HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch;
-  /* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
+
+/* MATCH (W72-A13, 94 -> 77 and the WHOLE per-player loop head now byte-exact):
+         BOTH subtractions in this block are `A - (B + K)`, and gcc-2.8's fold
+         (fold-const.c:4349, the `associate:` arg1-split branch) rewrites EVERY such tree
+         with a TREE_CONSTANT K into `(A - K) - B` -- retail folded NEITHER.  The escape is
+         the same one that sealed Hud_BTCStats: give K a MUTABLE LOCAL so split_tree()
+         returns 0, then let RTL cse const-prop it back into the `addiu` (the `li` dies, so
+         the escape is free).  The assignment MUST sit in this block for cse to reach it.
+         The two sites are ONE defect and must be fixed TOGETHER: escaping only the colmid
+         `+2` leaves `(int)col2` merged into the arg register `$a1`, which frees `$t0`, and
+         reload's order_regs_for_reload (reload1.c:3937 -- unused call-used regs in ASCENDING
+         regno order) then renames the whole function's spill scratch `$t1`->`$t0` (+120
+         diffs).  With both escaped, `(int)col2` gets its own `$t0` exactly like retail and
+         the scratch stays `$t1`.  Measured: colmid-only 215, height-only 214, BOTH 77. */
+
+/* SYM records only the five named AUTO objects: string@sp+0x20, POS_X@0x48,
+     SIZE_W@0x50, SIZE_H@0x58, POS_Y@0x60 and HOTPURSUIT_Y@0x70.  The intervening
+     words are reload spills, not source declarations: deleting posy/posyL/barH/
+     barH8/halfH preserves the 176-byte retail frame and improves 70 -> 54. */
+
+/* W74-A12: the three head carriers (see the MATCH block at their assignments).
+     `one` and `pitch` are the two named constants retail held in locals (w63/w64
+     reading); `nh` is the numHumanRaceCars read hoisted ABOVE the `one` fence so
+     sched1 can still issue its load before the SIZE_H arithmetic, exactly like
+     retail (oracle insns 17-18 sit between the numLaps load and `addiu a0,a2,1`). */
+
+/* W72-A13: the two fold-escape carriers of the per-player loop head; see the MATCH
+     block at their assignments.  They are compiler-visible VAR_DECLs on purpose -- an
+     integer literal there is TREE_CONSTANT and fold rewrites the subtraction. */
+
+/* w40-a4 OPEN (mult 0 vs 1): the oracle hoists `li $a1,0x96` to insn 4 and does a REAL
+     `mult $v1,$a1` @0x800DA020; ours synth_mult's 150 as (n*75)<<1 and then CSEs the n*75
+     into POS_X below.  A named `int pitch = 0x96;` local DOES produce the mult (RTL: a
+     non-CONST_INT operand at expand time, cse const-props the 0x96 afterwards) and moves
+     the insn count 457->462 of 475, but costs LCS 296->311 and contradicts the SYM local
+     list -- not adopted.  Falsified as multiplier forms: operand swap, decimal spelling,
+     statement order vs POS_X. */
+
+/* w49-a10: RE-FALSIFIED on the current basin (94 diffs, ours 471 / oracle 475).  The
+     `int pitch = 0x96;` block-local still produces the real mult but scores 139 (worse
+     than 94), so it stays rejected.  ALSO NEW: the retail SLD line order is POS_X (174),
+     SIZE_W (175), SIZE_H (176), `if (numLaps == 1)` (177), SIZE_H (178) -- i.e. retail
+     assigns POS_X BEFORE SIZE_W and SIZE_H, the reverse of this file.  All five
+     permutations of the three statements were gated: CBA/BCA/BAC = 126 (and 8 insns
+     short), CAB/ACB = 94 (identical to the current ABC).  Statement order is therefore
+     NOT the lever for the synth-mult-vs-mult split; the shift chain for 0x4b is shared
+     into 0x96 regardless of which statement expands first. */
+
+/* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
      `addiu $a0,$a0,0x1C` off the SAME (numLaps+1)*12 product) -- it is not the folded
      constant 0x34 that the old spelling used.
      w41-a4 OPEN (banked, receipts): with THIS spelling cse still const-folds the arm
@@ -661,21 +707,15 @@ void RaceStatistics(void)
      (`addiu $a1,$a1,0x1C; sh` == oracle `addiu $a0,$a0,0x1C; sh`) -- retail kept the
      product live in a local.  Insn count unchanged 459/475 but LCS 230->236, so land
      it TOGETHER with the head register rotation (ours s1/s4/s7/s2 vs oracle s4/s7/s2/s3). */
-  if (GameSetup_gData.numLaps == one) {
-    HUD_STATS_SIZE_H = rows + 0x1c;
-  }
-  /* W74-A12: the `pitch` availability fence lives HERE, one basic block below its
+
+/* W74-A12: the `pitch` availability fence lives HERE, one basic block below its
      assignment -- see the MATCH block above.  It is zero-insn and pin-free; it exists
      so `pitch` is still a live pseudo at the `mult` (giving retail's `li $a1,150` +
      `mult $v1,$a1`) WITHOUT its implicit-volatile barrier landing inside block 0, where
      it would fence the `Cars_gNumHumanRaceCars` load out of the head schedule.  Moving
      it up to the assignment costs 2 diffs; deleting it costs 12. */
-  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
-    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
-  }
-  sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
-  HUD_STATS_POS_Y = (short)(0x78 - (sizeH16 >> 0x11));
-  /* MATCH (W76-A13, 71 @474 -> 70 @475/475 COUNT-EXACT, the col1 2-diff cluster SOLVED):
+
+/* MATCH (W76-A13, 71 @474 -> 70 @475/475 COUNT-EXACT, the col1 2-diff cluster SOLVED):
      retail's `addiu v1,s4,10; addu s6,v1,zero` is a CROSS-CALL COMBINE REFUSAL, proven
      from the SLD: the add carries SLD:186 (BEFORE the titleX calls) and the copy SLD:198
      (AFTER them).  combine.c:936-941 refuses any merge whose i2 sits before the last
@@ -686,6 +726,51 @@ void RaceStatistics(void)
      col1 assigned after HUD_STATS_HOTPURSUIT_Y); a single `col1 = POS_X + 0xa;` in ANY
      position merges (both halves on one side of the calls) -- that is why every
      w41..w75 col1-temp cell failed to mint the copy (they were all call-adjacent). */
+
+/* CORRECTNESS (w39-a4): the Y arg is ((titleY + 0x11) * 0x10000 >> 0x10)-4, NOT (-halfH)-4.  Raw oracle
+           @0x800DA2D0 `addiu $a2,$s3,-0x4` with $s3 = ((titleY + 0x11) * 0x10000 >> 0x10). */
+
+/* NOT `a && b`: the oracle keeps two separate compares off ONE load
+       (`beq $v0,1` @0x800DA2E0 then `blez $v0` @0x800DA2EC); the &&-form lets gcc
+       range-fold them into a single `slti v0,v0,2`. */
+
+/* colour is an inline ternary (oracle puts `li $a0,3` in the `beq` delay slot
+             @0x800DA33C and falls into `li $a0,4`); there is no `color` local in the SYM. */
+
+void RaceStatistics(void)
+
+{
+  short i;
+  short j;
+  short col1;
+  short col2;
+  short colX; /* SOURCE-REVIEW-UNRESOLVED: debug-elided; direct col1 after owner repair is4diff/473,not original-object proof. */
+  char string [40];
+  short HUD_STATS_POS_X;
+  short HUD_STATS_SIZE_W;
+  short HUD_STATS_SIZE_H;
+  short HUD_STATS_POS_Y;
+  int sizeH16; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original shifted-height producer remains unknown. */
+  int titleX; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; old direct-form failure is not original-object proof. */
+  int titleY; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original title-coordinate producer remains unknown. */
+  int one; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; literal guard10diff/475 on current owners,not original-object proof. */
+  int pitch; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; constant register use does not establish a named original multiplier. */
+  int colInset; /* SOURCE-REVIEW-UNRESOLVED: debug-elided fold escape; original column-inset producer remains unknown. */
+  int rowInset; /* SOURCE-REVIEW-UNRESOLVED: debug-elided fold escape; original row-inset producer remains unknown. */
+
+  pitch = 0x96;
+  HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
+  one = 1;
+  HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch;
+  HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
+  if (GameSetup_gData.numLaps == one) {
+    HUD_STATS_SIZE_H -= 0xc;
+  }
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
+  }
+  sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
+  HUD_STATS_POS_Y = (short)(0x78 - (sizeH16 >> 0x11));
   colX = HUD_STATS_POS_X + 0xa;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
   titleY = 0x76 - (sizeH16 >> 0x11);
@@ -703,26 +788,10 @@ void RaceStatistics(void)
   if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
-  i = 0;
-  while (1) {
-    if (Cars_gNumHumanRaceCars <= (int)i) break;
-    {
+  for (i = 0; (int)i < Cars_gNumHumanRaceCars; i = i + 1) {
       /* SYM: `colmid` is a BLOCK-scoped REG $s2, declared inside the per-player loop. */
       int colmid;
 
-      /* MATCH (W72-A13, 94 -> 77 and the WHOLE per-player loop head now byte-exact):
-         BOTH subtractions in this block are `A - (B + K)`, and gcc-2.8's fold
-         (fold-const.c:4349, the `associate:` arg1-split branch) rewrites EVERY such tree
-         with a TREE_CONSTANT K into `(A - K) - B` -- retail folded NEITHER.  The escape is
-         the same one that sealed Hud_BTCStats: give K a MUTABLE LOCAL so split_tree()
-         returns 0, then let RTL cse const-prop it back into the `addiu` (the `li` dies, so
-         the escape is free).  The assignment MUST sit in this block for cse to reach it.
-         The two sites are ONE defect and must be fixed TOGETHER: escaping only the colmid
-         `+2` leaves `(int)col2` merged into the arg register `$a1`, which frees `$t0`, and
-         reload's order_regs_for_reload (reload1.c:3937 -- unused call-used regs in ASCENDING
-         regno order) then renames the whole function's spill scratch `$t1`->`$t0` (+120
-         diffs).  With both escaped, `(int)col2` gets its own `$t0` exactly like retail and
-         the scratch stays `$t1`.  Measured: colmid-only 215, height-only 214, BOTH 77. */
       colInset = 2;
       colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + colInset);
       rowInset = 0x13;
@@ -734,19 +803,11 @@ void RaceStatistics(void)
       if (2 < StatsTimer[1]) {
         Font_TextColor(3);
         sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
-        /* CORRECTNESS (w39-a4): the Y arg is ((titleY + 0x11) * 0x10000 >> 0x10)-4, NOT (-halfH)-4.  Raw oracle
-           @0x800DA2D0 `addiu $a2,$s3,-0x4` with $s3 = ((titleY + 0x11) * 0x10000 >> 0x10). */
         Font_TextXY(string,colmid,((titleY + 0x11) * 0x10000 >> 0x10) + -4);
       }
-    }
-    /* NOT `a && b`: the oracle keeps two separate compares off ONE load
-       (`beq $v0,1` @0x800DA2E0 then `blez $v0` @0x800DA2EC); the &&-form lets gcc
-       range-fold them into a single `slti v0,v0,2`. */
     if (GameSetup_gData.numLaps != 1) {
      for (j = 0; (int)j < GameSetup_gData.numLaps; j = j + 1) {
         if ((int)j * 2 + 4 < StatsTimer[1]) {
-          /* colour is an inline ternary (oracle puts `li $a0,3` in the `beq` delay slot
-             @0x800DA33C and falls into `li $a0,4`); there is no `color` local in the SYM. */
           if (((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) &&
               ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] ==
                (Cars_gHumanRaceCarList[i]->stats).finalBestLap)) {
@@ -796,26 +857,48 @@ void RaceStatistics(void)
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 1);
-        sprintf(string,"%d",*(int *)((int)Cars_gHumanRaceCarList[i] + 0x3c0));
+        sprintf(string,"%d",Cars_gHumanRaceCarList[i]->stats.finalNumWarnings);
         Font_TextXY(string,col2 + 5,HUD_STATS_HOTPURSUIT_Y + 1);
       }
       if (GameSetup_gData.numLaps * 2 + 8 < StatsTimer[1]) {
         sprintf(string,TextSys_Word(0x3f));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 0xd);
-        sprintf(string,"%d",*(int *)((int)Cars_gHumanRaceCarList[i] + 0x3c4));
+        sprintf(string,"%d",Cars_gHumanRaceCarList[i]->stats.finalNumFines);
         Font_TextXY(string,col2 + 5,HUD_STATS_HOTPURSUIT_Y + 0xd);
       }
     }
     col1 = col1 + 0x96;
     col2 = col2 + 0x96;
-    i = i + 1;
   }
   OptionsBarThing(HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
   Hud_RenderPauseBox(HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
   return;
 }
 
+/* SOURCE REVIEW (2026-10-13): the older matching receipts below do not prove
+ * sizeH or postgameInset existed as distinct original source objects. Both
+ * remain unresolved; debug elision of postgameInset is not an exemption.
+ * Paired actual CC1PLPSX -O2 -G8 RTL/loop/local/global dumps are preserved in
+ * build/nc12/btc_height_{baseline,direct}_probe.i and their dump companions.
+ * The relevant vertical-rule loop is baseline UID591..683 (38 real insns),
+ * not the later UID760..1059 perp loop. Direct height is UID586..680 (40).
+ * Baseline promotes short height p91 into named SI p97 before the loop;
+ * invariant y offset is p273. Allocation gives p97=s2 and p273=s1.
+ * Direct height instead promotes p91 into anonymous p277 after y offset
+ * p271 has been hoisted. Allocation gives p277=s1 and p271=s2. This is a
+ * changed expansion/hoisting graph, not proof a source capture is necessary.
+ * Measured on restored473-word PASS: direct SHORT and (long) height18/473;
+ * widened height203/478; widened inset211/488; widened/truncated y offset
+ * 30/479; unsigned literal inset6/473; unsigned negative-first18/475.
+ * Additional direct-height paths retaining mutable inset: negated whole sum
+ * 21/476; negative-subtrahend-first13/474; separate inset subtraction43/470.
+ * All failed bodies reverted. No new asm, qualifier, helper, artificial use,
+ * compiler flag or output rewrite retained. Next investigate the real
+ * height-producing statement graph/SLD before further allocation dials.
+ * Whole overlay detailed56/349/475/473/139 PASS and branch gate5/5 exact.
+ * The historical SLD-VERIFIED heading is not a full native-SLD seal claim.
+ */
 /* ---- Hud_BTCStats__Fsb  [OVERLAYS.CPP:326-441] SLD-VERIFIED ---- */
 /* w40-a4: 379 -> 49 diffs (472 ours / 473 oracle), frame now 168 == SYM fsize.
  * 🔑 The +8 frame slot (worth ~30 diffs on its own, via every sp displacement) is decided
@@ -1099,8 +1182,8 @@ void Hud_BTCStats(short player,bool postgame)
   short HUD_STATS_TITLE_START_X;
   short HUD_STATS_TITLE_START_Y;
   short HUD_STATS_TEXT_START_Y;
-  int sizeH; /* SYM-CODEGEN-CARRIER: sizeH -- hoisted minuend fixes the retail s1/s2 expression roles */
-  int postgameInset; /* SYM-CODEGEN-CARRIER: postgameInset -- mutable in-loop constant escapes fold while CSE restores addiu 8 */
+  int sizeH; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; current direct forms are receipted,not original-object proof. */
+  int postgameInset; /* SOURCE-REVIEW-UNRESOLVED: absent from retail despite debug elision; inset producer remains unknown. */
 
   chasinghuman = 0;
   showname = 0;
@@ -1322,17 +1405,24 @@ void Hud_BTCStats(short player,bool postgame)
  * REUSABLE LEVER: the sized asm-label array view is the general "make a scalar-global
  * store ALIAS a pointer-based struct load" instrument -- the mirror image of the w43
  * pointer-local-defeats-true_dependence row, which un-aliases in the other direction. */
-/* 2026-09-22: replaces the invented label D_8010FA4C (= &Cars_gHumanRaceCarList[1]).  The .L800DAF88 join reads element
-   [1] through its OWN `lui/lw %lo(Cars_gHumanRaceCarList+4)`: a pointer-taking inline gets the element address as a
-   constant ADDR_EXPR, so at thread_jumps time this test is (mem (reg)) while the earlier one is (mem (plus base 4)) --
-   jump.c cannot equate them, the join keeps two predecessors and the commMode re-test survives (see the note above). */
-static inline u_int Hud_StatsCarFlags(Car_tObj **car) { return (*car)->carFlags; }
+/* SOURCE REVIEW (2026-10-13): the earlier pointer-taking Hud_StatsCarFlags
+ * inline is no longer needed. Actual typed *(Cars_gHumanRaceCarList+1)
+ * access preserves all139 instructions and branch targets without its three
+ * extra debug regions; retail has only the root block. The invented helper
+ * and its parameter are removed, not replaced by another wrapper or alias.
+ * Value-first conditional clamp assignment (timer<=10000 ? timer : 10000)
+ * removes the unrecorded t object in both branches at139/139 PASS. Bound-first
+ * conditional was20diff/139 and reverted. The old in-place15-diff receipt
+ * did not establish a separate original source result object.
+ * Native ordered locals and two scope markers exactly match retail; complete
+ * SLD/original literal spelling still need independent verification. The
+ * historical SLD-VERIFIED heading is not a full native-SLD seal claim.
+ */
 
 void Hud_RenderStatsView(void)
 
 {
   int screen;
-  int t; /* SYM-CODEGEN-CARRIER: t -- distinct clamped result produces the two retail global stores; in-place clamp is FAIL 15 */
 
   screen = simGlobal.gameTicks >> 9 & 1;
   /* Block order + branch polarity transcribed from the oracle CFG (0x800DAE94..0x800DAFE8):
@@ -1357,7 +1447,7 @@ HudStats_check200B:
   if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
   if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
 HudStats_secondCar:
-  if ((Hud_StatsCarFlags(&Cars_gHumanRaceCarList[1]) & 0x200U) == 0) goto HudStats_finalize;
+  if (((*(Cars_gHumanRaceCarList + 1))->carFlags & 0x200U) == 0) goto HudStats_finalize;
   if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
   if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
   screen = 1;
@@ -1373,11 +1463,7 @@ HudStats_finalize:
        base (probe build/psyq/probe/st2.i fD vs fF-fH). */
     StatsTimer[0] = StatsTimer[0] + 1;
     StatsTimer[1] = 0;
-    t = StatsTimer[0];
-    if (10000 < t) {
-      t = 10000;
-    }
-    StatsTimer[0] = t;
+    StatsTimer[0] = StatsTimer[0] <= 10000 ? StatsTimer[0] : 10000;
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
       RaceSummary();
     }
@@ -1391,11 +1477,7 @@ HudStats_finalize:
   else {
     StatsTimer[1] = StatsTimer[1] + 1;
     StatsTimer[0] = 0;
-    t = StatsTimer[1];
-    if (10000 < t) {
-      t = 10000;
-    }
-    StatsTimer[1] = t;
+    StatsTimer[1] = StatsTimer[1] <= 10000 ? StatsTimer[1] : 10000;
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
       RaceStatistics();
     }

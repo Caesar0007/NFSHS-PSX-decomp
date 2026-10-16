@@ -761,10 +761,3 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 
 /* end of aih_opp.cpp */
-
-/* Retail restores the shared BasicPerp dispatch table before the implicit
-   base destruction.  Expressing it as the actual member destructor supplies
-   C++'s implicit `this` and eliminates the synthetic free-function receiver. */
-AIHigh_Opponent::~AIHigh_Opponent()
-{
-}

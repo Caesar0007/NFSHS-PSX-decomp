@@ -1,10 +1,10 @@
 #include "sim_types.h"
-/* sim_externs.h -- extern decls for game/psx/sim.cpp (NFS4 PSX sim engine core). */
+/* sim_externs.h -- extern decls for game/common/sim.cpp (NFS4 PSX sim engine core). */
 #ifndef SIM_EXTERNS_H
 #define SIM_EXTERNS_H
 
 /* ---- libc + harvested + SYM free-fns/globals ---- */
-extern Car_tObj * Cars_gHumanRaceCarList[2];
+extern Car_tObj * Cars_gHumanRaceCarList[9]; /* retail EXT: 36 bytes, dims 1 9 */
 extern GameSetup_tData GameSetup_gData;
 extern Sim_tSimGlobalVar simGlobal;                /* 0x8011e0ac */
 extern Sim_tSimSystemVar simVar;
@@ -38,10 +38,10 @@ extern void AIInit_Reset2(void);
 extern void AIInit_StartUp1(void);
 extern void AIInit_StartUp2(void);
 extern void AudioClc_SoundCars(void);
-extern void AudioCmn_GetAsyncSfx(int, int, bool);
+extern int AudioCmn_GetAsyncSfx(int, int, bool); /* retail INT */
 extern void AudioCmn_Init(void);
 extern void AudioCmn_Pause(void);
-extern void AudioCmn_PlaySound(int, int, int, int, int);
+extern int AudioCmn_PlaySound(int, int, int, int, int); /* retail INT */
 extern void AudioCmn_UnPause(void);
 extern void AudioCmn_UnPauseAndQuit(void);
 extern void AudioCmn_UnPauseAndRestart(void);

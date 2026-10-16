@@ -41,7 +41,7 @@ extern void  AudioClc_SndError(int code);   /* W55-A2 (class-3): dropped the syn
                                             * one; a default silently licenses a 0-arg call
                                             * that would emit a bogus `li a0,0`. */
 extern int   AudioCmn_GetAsyncSfx(int a, int b, bool c);
-extern int   AudioCmn_LoadAsyncSfx(int a, int b, void *buf, int n);
+extern void  AudioCmn_LoadAsyncSfx(int a, int b, void *buf, int n); /* retail VOID */
 extern int   AudioMus_Buffered(void);
 extern int   AudioMus_Threshold(void);
 

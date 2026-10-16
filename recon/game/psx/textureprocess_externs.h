@@ -5,8 +5,11 @@
 #include "textureprocess_types.h"
 
 /* ---- globals (SYM Globals.jsonl) ---- */
-/* Foreign-owner storage views.  The retail object does not emit the completed
- * GameSetup_tData/CTrackSpec tags, so keep only the int-addressable ABI here. */
+/* SOURCE-REVIEW-UNRESOLVED: these are legacy foreign-object word views,
+ * not actual array identities. Retail owns TrackSpec_gSpec as CTrackSpec264.
+ * This TU omits its completed body; opaque aggregate/reference/pointer views
+ * still alter ColorClut anchoring (27dif/129). Do not treat visibility or
+ * the passing word ABI as an original-declaration exemption. */
 extern int                GameSetup_gData[];     /* 0x801131ec */
 extern int                TrackSpec_gSpec[];     /* 0x8012327c */
 extern char              *Paths_Paths[50];       /* 0x80116468 */

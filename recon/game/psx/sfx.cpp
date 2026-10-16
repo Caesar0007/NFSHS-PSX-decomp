@@ -5,14 +5,16 @@
  */
 #include "sfx_types.h"
 #include "sfx_externs.h"
+#include "psyq_prim_macros.h"
 
-/* ---- Sfx_Transform__FP8coorddefP7SVECTORT0  [SFX.CPP:40-75] SLD-VERIFIED ---- */
+/* ---- Sfx_Transform__FP8coorddefP7SVECTORT0 [SFX.CPP:40-75]
+ * 2026-10-13: actual matrix-setup region owns ident at depth2. All original
+ * tuples and scope markers agree,85/85 PASS; full SLD remains separate work. */
 void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
 
 {
   SVECTOR pt;
   VECTOR campt32;
-  MATRIX ident;
 
   TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
   pt.vx = (short)((worldpt->x - t->x) >> 10);
@@ -24,6 +26,8 @@ void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
   campt->vx = (short)campt32.vx;
   campt->vy = (short)campt32.vy;
   campt->vz = (short)campt32.vz;
+  {
+  MATRIX ident;
   ident.m[0][0] = 0x1000; ident.m[1][1] = 0x1000; ident.m[2][2] = 0x1000;
   ident.m[1][0] = 0; ident.m[2][0] = 0;
   ident.m[0][1] = 0; ident.m[2][1] = 0;
@@ -31,22 +35,18 @@ void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
   ident.t[0] = 0; ident.t[1] = 0; ident.t[2] = 0;
   gte_SetRotMatrix(&ident);
   gte_SetTransMatrix(&ident);
+  }
   return;
 }
 
-/* ---- Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap  [SFX.CPP:106-114] SLD-VERIFIED ---- */
-/* NEAR-MISS 3 diffs (114/115): oracle has `nop; lui v1,%hi(gSMokePixmap)` (nop in bnez delay
- * slot, lui after). Ours hoists lui v1 into the delay slot instead. Instruction scheduling
- * floor (bnez delay slot filled differently by gcc-2.8.0 -O2). ACCEPT. */
-void Sfx_BuildSmokeFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap *cpixmap)
-
+/* [INFERRED PSX spelling] NFS2 PC SYM names this operation Sfx_BuildRotatedFacet.
+ * NFS4's empty inline pair gives the actual is/dSouffle/radius argument region
+ * and sina/cosa body region. No new storage or separately emitted function. */
+static inline void Sfx_BuildRotatedFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,int radius)
 {
-  int radius;
   int cosa;
   int sina;
-  int iclut;
 
-  radius = (0x1f - (u_char)is->cycle) * 4 + 0x26;
   cosa = fixedmult(fastintcos(is->angle),radius);
   sina = fixedmult(fastintsin(is->angle),radius);
   dSouffle->v0.vx = is->trans.vx - (short)sina;
@@ -61,26 +61,48 @@ void Sfx_BuildSmokeFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap
   dSouffle->v3.vx = is->trans.vx - (short)cosa;
   dSouffle->v3.vy = is->trans.vy - (short)sina;
   dSouffle->v3.vz = is->trans.vz;
+}
+
+/* ---- Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap
+ * [SFX.CPP:106-114] 2026-10-13 baseline/final115/115 PASS. Actual rotated
+ * helper recovers is/dSouffle/radius REG parameters in the inline outer
+ * region and sina/cosa in its body; real palette phase owns iclut.
+ * All nine ordered local tuples/eight scope markers equal retail without
+ * filtering. The inline compiler reverses its body declaration list:
+ * source cosa/sina yields the recorded sina/cosa. No new storage or code
+ * symbol,alias,fence,pin,qualifier or output rewrite. NFS2 PC provides
+ * the helper spelling,not unique PSX textual proof. Full SLD stays open. */
+void Sfx_BuildSmokeFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap *cpixmap)
+{
+  Sfx_BuildRotatedFacet(is,dSouffle,(0x1f - (u_char)is->cycle) * 4 + 0x26);
+  {
+  int iclut;
   iclut = (int)(0x1f - (u_char)is->cycle) >> 1;
   if (iclut >= 0x10) {
     iclut = 0xf;
   }
   dSouffle->pmx = *gSMokePixmap[is->rndpixmap];
   dSouffle->pmx.clut = cpixmap->clut + (short)iclut;
+  }
   return;
 }
 
-/* ---- Sfx_ThickenXZ__FP7SVECTORP8coorddefN21  [SFX.CPP:163-191] SLD-VERIFIED ---- */
+/* ---- Sfx_ThickenXZ__FP7SVECTORP8coorddefN21 [SFX.CPP:163-191]
+ * 2026-10-13: angle belongs to the trig setup,ending after pxp/pzp are
+ * computed. Real declaring region reproduces the depth2/zero-offset scope
+ * contract at110/110 PASS. No dummy statement or variable. SLD still open. */
 void Sfx_ThickenXZ(SVECTOR *d,coorddef *pt1,coorddef *pt2,coorddef *cp)
 
 {
   int pxp;
   int pzp;
+  {
   int angle;
 
   angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
   pxp = fixedmult(0xe666,-fastintcos(angle)) >> 1;
   pzp = fixedmult(0xe666,fastintsin(angle)) >> 1;
+  }
   d[1].vx = (short)((pt1->x + pxp) - cp->x >> 10);
   d[1].vy = (short)(pt1->y - cp->y >> 10);
   d[1].vz = (short)((pt1->z + pzp) - cp->z >> 10);
@@ -112,6 +134,16 @@ void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_t
 }
 
 /* ---- Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache  [SFX.CPP:306-363] SLD-VERIFIED ----
+ * 2026-10-13 baseline/final126/126. Actual invalid-capacity/OT early returns
+ * remove extraneous declaring owners. UV-copy l0/l1/l2/l3 and texture-page
+ * tpage belong in separate real regions,depth2. Canonical PsyQ addPrim with
+ * the actual index-first OT address removes addr24/ot2/w and their tail
+ * region; ordinary typed prim+1 update still lands in the retail read/write
+ * gap. P_TAG.len replaces raw byte+3. All12 ordered original local tuples
+ * and six scope markers match UNFILTERED; no extra source objects,alias,
+ * qualifier,asm/pin or output rewriting. The long historical failed RMW
+ * recipes below are old-basin evidence,not capture exemptions or floors.
+ * Native CLEAN does not establish original macro spelling or full SLD.
  * This TU's original obj (SFX.CPP) reaches Render_gPacketPtr/Render_gPalettePtr via their FIXED
  * scratchpad storage address (0x1F800004 / 0x1F800000) rather than the linked symbol -- oracle
  * shows literal `lui;lw 0x1F800004`/`0x1F800000` loads, not a %hi/%lo(Render_gPacketPtr) reloc.
@@ -178,11 +210,8 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
 
 {
   POLY_FT4 *prim;
-  u_long addr24; /* SYM-CODEGEN-CARRIER: addr24 -- keeps the PASS OT-link qty split */
-  u_long l0,l1,l2,l3;
-  u_short tpage;
 
-  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+  if (!(sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr)) return;
     gte_ldv0(pt);
     gte_rtps();
     prim = (POLY_FT4 *)Render_gPacketPtr;
@@ -202,8 +231,10 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
     gte_avsz4();
     gte_stotz(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
     sd->otz = (sd->otz >> 1) + offset;
-    if ((-1 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
-      *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
+    if (!((-1 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3))) return;
+      ((P_TAG *)prim)->len = 9;   /* OT length, distinct from prim->code. */
+      {
+      u_long l0,l1,l2,l3;
       l0 = *(u_int *)&pmx->u0;
       l1 = *(u_int *)&pmx->u1;
       l2 = *(u_int *)&pmx->u2;
@@ -212,6 +243,9 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
       *(u_int *)&prim->u1 = l1;
       *(u_int *)&prim->u2 = l2;
       *(u_int *)&prim->u3 = l3;
+      }
+      {
+      u_short tpage;
       tpage = pmx->tpage;
       if ((mode & 1U) != 0) {
         ChangeTPage(&tpage,2);
@@ -220,6 +254,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
         ChangeTPage(&tpage,1);
       }
       prim->tpage = tpage;
+      }
       /* MATCH (w49-a4, 38 -> 26, count-exact 126/126): the expanded P_TAG
          read-mask/or/write at THIS site only.  The explicit expansion is byte-identical
          and avoids inventing an Sfx_tTag record absent from the retail SYM.  Measured at
@@ -285,8 +320,6 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
  *   no new shape (its OT tails are single-instance and don't carry this tie).  The one
  *   untried instrument remains the -dl/-dg allocno dump on this block. */
       prim = (POLY_FT4 *)Render_gPacketPtr;
-      prim->tag = prim->tag & 0xff000000 |
-                  *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
       /* ---- w60-a7 SEAL (26 -> PASS 126/126).  The multi-wave "four-constant
        * rotation STRONG floor" fell to the -dl/-dg + instrumented-cc1plus qty
        * trace, which named the mechanism exactly.  LAB FIDELITY FIRST: this fn
@@ -338,13 +371,8 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
        * "the one untried instrument remains the -dl/-dg allocno dump" note --
        * the dump was the instrument, and the answer was a JOINT dial pair
        * (the same joint-sweep law that cracked CarIO_CopyToShape this wave). */
-      { u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr); /* SYM-CODEGEN-CARRIER: ot2 */
-      u_int w = *ot2; /* SYM-CODEGEN-CARRIER: w -- keeps the retail OT read/bump/write schedule */
-      addr24 = (u_int)prim & 0xffffff;
-      Render_gPacketPtr = (u_char *)prim + 0x28;
-      *ot2 = w & 0xff000000 | addr24; }
-    }
-  }
+      addPrim((u_int *)(sd->otz * 4 + (int)Render_gPalettePtr),prim);
+      Render_gPacketPtr = (u_char *)(prim + 1);
   return;
 }
 
@@ -355,7 +383,6 @@ static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sf
 {
   coorddef invertedm;
   SVECTOR ptrans;
-  int dx;
 
   invertedm = is->motion;
   Math_NormalizeVector(&invertedm);
@@ -366,10 +393,9 @@ static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sf
   if (ptrans.vz < 0x40) {
     return 1;
   }
-  dx = ptrans.vx - is->trans.vx;
   /* oracle `blez v0,.L800DD924` => the dx>0 arm is the FALL-THROUGH, so the
      positive test must be written first. */
-  if ((0 < dx) ? (dx < 0x20) : (is->trans.vx - ptrans.vx < 0x20)) {
+  if ((0 < ptrans.vx - is->trans.vx) ? (ptrans.vx - is->trans.vx < 0x20) : (is->trans.vx - ptrans.vx < 0x20)) {
     /* the clamped endpoint is measured from is->trans.vx, NOT from ptrans.vx --
        oracle `lhu $v1,0x30($s2)` feeds both `addiu $v0,$v1,0x20` and
        `addiu $v0,$v1,-0x20` before `sh $v0,0x58($sp)`. */
@@ -431,11 +457,13 @@ static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sf
 static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,int mode,
                                         CVECTOR color,Sfx_tCache *sd)
 {
-  int scale;
   SVECTOR dest[4];
   coorddef pt[2];
-  SVECTOR *dp;
+  int scale;
 
+  {
+    POLY_FT4 *prim;
+    VECTOR check;
   pt[0] = is->motion;
   Math_NormalizeVector(&pt[0]);
   pt[1] = is->source;
@@ -443,29 +471,27 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
   pt[0].x = pt[1].x - (pt[0].x * scale >> 4);
   pt[0].y = pt[1].y - (pt[0].y * scale >> 4);
   pt[0].z = pt[1].z - (pt[0].z * scale >> 4);
-  dp = &dest[0];
-  Sfx_ThickenXZ(dp,&pt[0],&pt[1],&Vi->cview.translation);
+  Sfx_ThickenXZ(dest,&pt[0],&pt[1],&Vi->cview.translation);
   TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
-  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-    VECTOR check;
-    POLY_FT4 *prim;
+  if (!(sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr)) return;
 
     gte_ldv0(&dest[1]);
     gte_rtps();
     prim = (POLY_FT4 *)Render_gPacketPtr;
     gte_stlvnl(&check);
-    if (check.vz >= 0x20) {
+    if (!(check.vz >= 0x20)) return;
       gte_stsxy(&prim->x1);
-      gte_ldv3(dp,&dest[2],&dest[3]);
+      gte_ldv3(&dest[0],&dest[2],&dest[3]);
       gte_rtpt();
       *(u_long *)&prim->r0 = *(u_long *)&color;
       gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
       gte_avsz4();
       gte_stotz(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
       sd->otz = (sd->otz >> 1) + 0x32;
-      if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-        u_long l3,l2,l1,l0;
+      if (!((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3))) return;
+      {
         Draw_tPixMap *pmx;
+        u_long l0,l1,l2,l3;
 
         *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
         pmx = gSparkHPixmap[6 - (u_char)is->cycle];
@@ -597,23 +623,14 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
              fixed for free by naming the statement, and the fence then costs real diffs.
              (Here it also masked the delay-slot fill for three waves.) */
         prim = (POLY_FT4 *)Render_gPacketPtr;
-        prim->tag = prim->tag & 0xff000000 |
-                    *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        {
-          u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
-          u_int lnk;
-          u_int w = *ot2;
           /* W72-A14: `lnk` as its OWN statement, BEFORE the cursor bump, is what
              completes the 3-way cross-jump merge at retail's .L800DE610 AND frees the
              `lw a0,20(s3)` load-delay slot for the bump.  Do NOT inline it back into the
              store expression, and do NOT re-add the W71 "m"-operand fence here -- both
              are measured above. */
-          lnk = (u_int)prim & 0xffffff;
-          Render_gPacketPtr = (u_char *)prim + 0x28;
-          *ot2 = w & 0xff000000 | lnk;
-        }
+        addPrim((u_int *)(sd->otz * 4 + (int)Render_gPalettePtr),prim);
+        Render_gPacketPtr = (u_char *)(prim + 1);
       }
-    }
   }
 }
 
@@ -843,21 +860,27 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
   sfxsouffle dSouffle;
   Sfx_tCache *sd;
 
-  /* The retail SYM emits these names for the two static-inline helper expansions
-     below. Their declarations remain in those helpers so cc1plus preserves the
-     exact inline frame and register lifetimes recorded by the oracle. */
-  /* SYM-CARRIER: check */
-  /* SYM-CARRIER: dest */
-  /* SYM-CARRIER: invertedm */
-  /* SYM-CARRIER: l0 */
-  /* SYM-CARRIER: l1 */
-  /* SYM-CARRIER: l2 */
-  /* SYM-CARRIER: l3 */
-  /* SYM-CARRIER: pmx */
-  /* SYM-CARRIER: pt */
-  /* SYM-CARRIER: ptrans */
-  /* SYM-CARRIER: scale */
-  /* SYM-CARRIER: tpage */
+  /* 2026-10-13: five actual rotated-facet calls recover retail's inline
+     is/dSouffle/radius and sina/cosa owners. Their operation/name evidence
+     is described at Sfx_BuildRotatedFacet; PSX spelling remains inferred.
+     Five ds aliases and the extra case6 radius snapshot are unnecessary.
+     Leaf capacity/OT early exits restore its pmx/l0/l1/l2/l3 copy region;
+     typed ULONG values replace p0f..p3f,not merely cosmetic renaming.
+     Canonical addPrim removes leaf link/m/ot2/w and redundant re-mask.
+     All steps938/938 PASS,without new aliases/helpers/fences/qualifiers
+     or compiler-output rewrites. Historical necessity claims below refer
+     to old graphs; they are not generic carrier exemptions or floors.
+     Follow-up: actual repeated delta comparison removes spark dx. Direct
+     dest addresses remove ribbon dp; GTE asm inputs use &dest[0],not the
+     array name rejected by old cc1plus constraints. Projection check/prim
+     belong to its real setup region; negative capacity/depth/OT exits
+     remove wrong guard owners. Canonical addPrim removes ribbon lnk/ot2/w.
+     Source dest/pt/scale and prim/check declaring orders yield retail's
+     reversed inline list,with AUTO offsets unchanged. The projection
+     region starts before setup,not after its capacity test. All71 ordered
+     tuples and56 scope markers now agree UNFILTERED,938PASS,no captures.
+     No new helper,qualifier,asm/pin or output rewrite. Native CLEAN is not
+     literal original helper/statement spelling or full SLD/source proof. */
 
   sd = (Sfx_tCache *)0x1f800000;   /* oracle: literal scratchpad address, not %hi/%lo(Sfx_gCache) */
   switch((u_char)is->type) {
@@ -893,112 +916,24 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     Sfx_BuildRibbonFacet(Vi,is,1,color,sd);
     break;
   case 6:
-    {
-      int radius;
-      int cosa;
-      int sina;
-      sfxsouffle *ds; /* SYM-CODEGEN-CARRIER: ds -- register-base view required for retail vertex stores */
-
-      radius = 0x88 - (u_char)is->cycle;
-      cosa = fixedmult(fastintcos(is->angle),radius);
-      sina = fixedmult(fastintsin(is->angle),radius);
-      ds = &dSouffle;
-      ds->v0.vx = is->trans.vx - (short)sina;
-      ds->v0.vy = is->trans.vy + (short)cosa;
-      ds->v0.vz = is->trans.vz;
-      ds->v1.vx = is->trans.vx + (short)cosa;
-      ds->v1.vy = is->trans.vy + (short)sina;
-      ds->v1.vz = is->trans.vz;
-      ds->v2.vx = is->trans.vx + (short)sina;
-      ds->v2.vy = is->trans.vy - (short)cosa;
-      ds->v2.vz = is->trans.vz;
-      ds->v3.vx = is->trans.vx - (short)cosa;
-      ds->v3.vy = is->trans.vy - (short)sina;
-      ds->v3.vz = is->trans.vz;
-      Sfx_BuildFastDisolveFacet(is,ds,gSMokePixmap[is->rndpixmap],gDirtPalette);
-      Sfx_AdditivePrim(&ds->pmx,&dSouffle.v0,0,0xf,sd);
-    }
+      Sfx_BuildRotatedFacet(is,&dSouffle,0x88 - (u_char)is->cycle);
+      Sfx_BuildFastDisolveFacet(is,&dSouffle,gSMokePixmap[is->rndpixmap],gDirtPalette);
+      Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,0,0xf,sd);
     break;
   case 7:
-    {
-      int radius;
-      int cosa;
-      int sina;
-      sfxsouffle *ds;
-
-      radius = (8 - (u_char)is->cycle) * 4 + 0x19;
-      cosa = fixedmult(fastintcos(is->angle),radius);
-      sina = fixedmult(fastintsin(is->angle),radius);
-      ds = &dSouffle;
-      ds->v0.vx = is->trans.vx - (short)sina;
-      ds->v0.vy = is->trans.vy + (short)cosa;
-      ds->v0.vz = is->trans.vz;
-      ds->v1.vx = is->trans.vx + (short)cosa;
-      ds->v1.vy = is->trans.vy + (short)sina;
-      ds->v1.vz = is->trans.vz;
-      ds->v2.vx = is->trans.vx + (short)sina;
-      ds->v2.vy = is->trans.vy - (short)cosa;
-      ds->v2.vz = is->trans.vz;
-      ds->v3.vx = is->trans.vx - (short)cosa;
-      ds->v3.vy = is->trans.vy - (short)sina;
-      ds->v3.vz = is->trans.vz;
-      Sfx_BuildFastDisolveFacet(is,ds,gGravelPixmap[is->rndpixmap],gGrassPalette);
-      Sfx_AdditivePrim(&ds->pmx,&dSouffle.v0,0,0xf,sd);
-    }
+      Sfx_BuildRotatedFacet(is,&dSouffle,(8 - (u_char)is->cycle) * 4 + 0x19);
+      Sfx_BuildFastDisolveFacet(is,&dSouffle,gGravelPixmap[is->rndpixmap],gGrassPalette);
+      Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,0,0xf,sd);
     break;
   case 9:
-    {
-      int radius;
-      int cosa;
-      int sina;
-      sfxsouffle *ds;
-
-      radius = (8 - (u_char)is->cycle) * 4 + 0x19;
-      cosa = fixedmult(fastintcos(is->angle),radius);
-      sina = fixedmult(fastintsin(is->angle),radius);
-      ds = &dSouffle;
-      ds->v0.vx = is->trans.vx - (short)sina;
-      ds->v0.vy = is->trans.vy + (short)cosa;
-      ds->v0.vz = is->trans.vz;
-      ds->v1.vx = is->trans.vx + (short)cosa;
-      ds->v1.vy = is->trans.vy + (short)sina;
-      ds->v1.vz = is->trans.vz;
-      ds->v2.vx = is->trans.vx + (short)sina;
-      ds->v2.vy = is->trans.vy - (short)cosa;
-      ds->v2.vz = is->trans.vz;
-      ds->v3.vx = is->trans.vx - (short)cosa;
-      ds->v3.vy = is->trans.vy - (short)sina;
-      ds->v3.vz = is->trans.vz;
-      Sfx_BuildFastDisolveFacet(is,ds,gGravelPixmap[is->rndpixmap],gSnowPalette);
-      Sfx_AdditivePrim(&ds->pmx,&dSouffle.v0,0,0xf,sd);
-    }
+      Sfx_BuildRotatedFacet(is,&dSouffle,(8 - (u_char)is->cycle) * 4 + 0x19);
+      Sfx_BuildFastDisolveFacet(is,&dSouffle,gGravelPixmap[is->rndpixmap],gSnowPalette);
+      Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,0,0xf,sd);
     break;
   case 11:
-    {
-      int radius;
-      int cosa;
-      int sina;
-      sfxsouffle *ds;
-
-      radius = (8 - (u_char)is->cycle) * 4 + 0xc;
-      cosa = fixedmult(fastintcos(is->angle),radius);
-      sina = fixedmult(fastintsin(is->angle),radius);
-      ds = &dSouffle;
-      ds->v0.vx = is->trans.vx - (short)sina;
-      ds->v0.vy = is->trans.vy + (short)cosa;
-      ds->v0.vz = is->trans.vz;
-      ds->v1.vx = is->trans.vx + (short)cosa;
-      ds->v1.vy = is->trans.vy + (short)sina;
-      ds->v1.vz = is->trans.vz;
-      ds->v2.vx = is->trans.vx + (short)sina;
-      ds->v2.vy = is->trans.vy - (short)cosa;
-      ds->v2.vz = is->trans.vz;
-      ds->v3.vx = is->trans.vx - (short)cosa;
-      ds->v3.vy = is->trans.vy - (short)sina;
-      ds->v3.vz = is->trans.vz;
-      Sfx_BuildFastDisolveFacet(is,ds,gSMokePixmap[is->rndpixmap],gSnowPalette);
-      Sfx_AdditivePrim(&ds->pmx,&dSouffle.v0,0,0xf,sd);
-    }
+      Sfx_BuildRotatedFacet(is,&dSouffle,(8 - (u_char)is->cycle) * 4 + 0xc);
+      Sfx_BuildFastDisolveFacet(is,&dSouffle,gSMokePixmap[is->rndpixmap],gSnowPalette);
+      Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,0,0xf,sd);
     break;
   case 8:
     *(u_long *)&gcolor = 0x2e301818;
@@ -1006,33 +941,11 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     break;
   case 13:
   case 14:
+    Sfx_BuildRotatedFacet(is,&dSouffle,6);
     {
-      int cosa;
-      int sina;
-      sfxsouffle *ds;
       POLY_FT4 *prim;
       SVECTOR *pt;
-      u_int p0f; /* SYM-CODEGEN-CARRIER: p0f -- instrumented allocation-trace pixmap word */
-      u_int p1f; /* SYM-CODEGEN-CARRIER: p1f -- instrumented allocation-trace pixmap word */
-      u_int p2f; /* SYM-CODEGEN-CARRIER: p2f -- instrumented allocation-trace pixmap word */
-      u_int p3f; /* SYM-CODEGEN-CARRIER: p3f -- instrumented allocation-trace pixmap word */
-      int link; /* SYM-CODEGEN-CARRIER: link -- retail OT-link staging value */
 
-      cosa = fixedmult(fastintcos(is->angle),6);
-      sina = fixedmult(fastintsin(is->angle),6);
-      ds = &dSouffle;
-      ds->v0.vx = is->trans.vx - (short)sina;
-      ds->v0.vy = is->trans.vy + (short)cosa;
-      ds->v0.vz = is->trans.vz;
-      ds->v1.vx = is->trans.vx + (short)cosa;
-      ds->v1.vy = is->trans.vy + (short)sina;
-      ds->v1.vz = is->trans.vz;
-      ds->v2.vx = is->trans.vx + (short)sina;
-      ds->v2.vy = is->trans.vy - (short)cosa;
-      ds->v2.vz = is->trans.vz;
-      ds->v3.vx = is->trans.vx - (short)cosa;
-      ds->v3.vy = is->trans.vy - (short)sina;
-      ds->v3.vz = is->trans.vz;
       /* MATCH (W72-A14): the last 6 diffs were the gte_ldv0 base -- ours `addiu $v0,$sp,
          40`, retail `addiu $a0,$sp,40`.  The SYM settles it: this block's `8c` list is
          {prim $8, **pt $4**} nested inside {is $12, dSouffle $4}, i.e. retail HAD a real
@@ -1047,8 +960,8 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
          `pt` declared but assigned inside the guard.  An in-place dead-pointer mutate
          (`ds = (sfxsouffle *)&ds->v0`) ALSO reaches PASS but invents a variable the SYM
          does not have; the `pt` form is the faithful one and is what is kept. */
-      pt = &ds->v0;
-      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+      pt = &dSouffle.v0;
+      if (!(sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr)) break;
         gte_ldv0(pt);
         gte_rtps();
         prim = (POLY_FT4 *)Render_gPacketPtr;
@@ -1060,16 +973,20 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
         gte_avsz4();
         gte_stotz(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
         sd->otz = (sd->otz >> 1) + 0xf;
-        if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-          *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-          p0f = *(u_int *)&gLeafPixmap->u0;
-          p1f = *(u_int *)&gLeafPixmap->u1;
-          p2f = *(u_int *)&gLeafPixmap->u2;
-          p3f = *(u_int *)&gLeafPixmap->u3;
-          *(u_int *)&prim->u0 = p0f;
-          *(u_int *)&prim->u1 = p1f;
-          *(u_int *)&prim->u2 = p2f;
-          *(u_int *)&prim->u3 = p3f;
+        if (!((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3))) break;
+          ((P_TAG *)prim)->len = 9;   /* OT length, distinct from command. */
+          {
+          Draw_tPixMap *pmx = gLeafPixmap;
+          u_long l0,l1,l2,l3;
+          l0 = *(u_int *)&pmx->u0;
+          l1 = *(u_int *)&pmx->u1;
+          l2 = *(u_int *)&pmx->u2;
+          l3 = *(u_int *)&pmx->u3;
+          *(u_int *)&prim->u0 = l0;
+          *(u_int *)&prim->u1 = l1;
+          *(u_int *)&prim->u2 = l2;
+          *(u_int *)&prim->u3 = l3;
+          }
           /* MATCH (W71-A7): the case-13/14 OT tail, now retail-SHAPED.  Two changes,
              and NEITHER works without the ribbon helper's cross-jump de-merger (see the
              long W71-A7 note there) -- on their own each one just triggers the ~19-insn
@@ -1122,27 +1039,15 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
              THRESHOLD, not a ramp -- 2 operands already clears floor_log2's step, so buy
              the cheapest).  The W71 falsification list above stands: none of those
              spellings changes REFS, which is why every one of them was inert. */
-          {
-          u_int m = 0xffffff; /* SYM-CODEGEN-CARRIER: m -- measured qty ref-step mask */
           prim = (POLY_FT4 *)Render_gPacketPtr;
-          prim->tag = prim->tag & 0xff000000 |
-                      *(u_int *)(Render_gPalettePtr + sd->otz * 4) & m;
-          {
-            u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr); /* SYM-CODEGEN-CARRIER: ot2 */
-            u_int w = *ot2; /* SYM-CODEGEN-CARRIER: w -- lifts OT read before cursor store */
-            link = (u_int)prim & m;
-            Render_gPacketPtr = (u_char *)prim + 0x28;
             /* CAMIN 2026-10-04: the +2 m refs that the old 2-operand read-only
                fence supplied now come from the idempotent re-mask `link & m`
                (link is already masked; combine folds it to zero bytes, but flow
                counts the extra m/link references -> refs 5 -> 7, same handout).
                `prim & m & m` and `... & m & m` on the tag word also PASS; the
                absorption identity on m/link/prim instead = 36/49/69. */
-            *ot2 = w & 0xff000000 | (link & m);
-          }
-          }
-        }
-      }
+          addPrim((u_int *)(sd->otz * 4 + (int)Render_gPalettePtr),prim);
+          Render_gPacketPtr = (u_char *)(prim + 1);
     }
     break;
   }

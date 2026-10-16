@@ -15,7 +15,7 @@ extern Sim_tSimSystemVar simVar;
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
 extern int             Input_gHandler[];        /* 0x80113c14  per-control packed input descriptor */
 extern int gUseFrontend;
-extern tPadModuleState   gPadinfo;
+#include "shared/pad_module_globals.h"
 extern tfrontEnd         frontEnd;
 
 extern "C" {

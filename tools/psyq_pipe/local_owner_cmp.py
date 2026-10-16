@@ -7,19 +7,111 @@ the lexical child path. These are debug declaration regions, NOT runtime
 live ranges. No source, compiler output, SYM, or reference is rewritten.
 
 This supplements, never replaces, bytes/link, declaration/type, whole-tree and
-SLD checks. A matching subset is not whole-project coverage. Incomplete or
-duplicate function records cannot receive an ownership PASS.
+SLD checks. A matching subset is not whole-project coverage. Incomplete records
+and duplicate names in the legacy symbol-only view cannot receive a PASS.
+
+2026-10-15: expose every parsed record for the separate duplicate-copy audit.
+The legacy symbol-only API still rejects duplicate names. Paired retail FILE
+anchors and unique native SLD compilation units are provenance, never a reason
+to discard a copy. Backup: build/nc12/local_owner_cmp_before_copy_audit_20261015.py.
 """
 import argparse
+import ast
+import hashlib
 import json
 import re
 from pathlib import Path
 
 from symtree_parse import REC, DEF
+from sldtree_cmp import directory_of
 
 
-def parse_owners(path):
-    functions, current, header = {}, None, False
+def unit_name(path):
+    name = path.replace('\\', '/').rsplit('/', 1)[-1].lower()
+    for suffix in ('.cpp', '.cxx', '.obj', '.c', '.o'):
+        if name.endswith(suffix):
+            return name[:-len(suffix)]
+    return None
+
+
+def _recon_key(path):
+    value = re.sub(r'/+', '/', str(path).replace('\\', '/')).lower()
+    if value.startswith('recon/'):
+        return value
+    marker = '/recon/'
+    return 'recon/' + value.rsplit(marker, 1)[1] if marker in value else None
+
+
+def _source_path(root, key):
+    """Resolve recorded Windows case on other hosts; never escape this tree."""
+    if not key or key.startswith(('recon/mod/', 'recon/game-mod/', 'recon/syslib-mod/')):
+        return None
+    current = root
+    for part in key.split('/'):
+        matches = [p for p in current.iterdir() if p.name.lower() == part]
+        if len(matches) != 1:
+            return None
+        current = matches[0]
+    return current if current.is_file() and current.resolve().is_relative_to((root/'recon').resolve()) else None
+
+
+def _included_sld_owner(sources, root=None):
+    """Independently prove a multi-file SLD compilation group, or decline it.
+
+    2026-10-16: Speech.obj includes SPCHEVNT.C. Native PsyQ has no paired FILE
+    records here, so a unique SLD filename alone loses that entire TU. Use the
+    build's literal INCLUDED_SOURCES role declaration AND a direct include
+    edge, not function names, addresses, record order or contract similarity.
+    Backup: build/nc12/game_common_refresh_20261016/local_owner_cmp_before_include_groups.py.
+    Unknown graphs, multiple roots and conflicting FILE anchors stay invalid.
+    """
+    root = Path(root) if root is not None else Path(__file__).resolve().parents[2]
+    try:
+        manifest = root/'tools/build.py'
+        data = manifest.read_bytes()
+        tree = ast.parse(data.decode('utf-8'))
+        declarations = [node.value for node in tree.body if isinstance(node, ast.Assign)
+                        and any(isinstance(t, ast.Name) and t.id == 'INCLUDED_SOURCES' for t in node.targets)]
+        if len(declarations) != 1:
+            return None, None
+        declared = ast.literal_eval(declarations[0])
+        if not isinstance(declared, (set, frozenset)) or not all(isinstance(p, str) for p in declared):
+            return None, None
+        included = {_recon_key(p) for p in declared}
+        keys = [_recon_key(p) for p in sources]
+        if None in keys or len(set(keys)) != len(keys):
+            return None, None
+        roots = [p for p in keys if p not in included]
+        if len(roots) != 1 or len(keys) < 2:
+            return None, None
+        primary = roots[0]
+        files = {key: _source_path(root, key) for key in keys}
+        if not all(files.values()):
+            return None, None
+        text = files[primary].read_text(encoding='utf-8').replace('\\\r\n', '').replace('\\\n', '')
+        trivia = re.compile(r'("(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\')|/\*.*?\*/|//[^\r\n]*', re.S)
+        text = trivia.sub(lambda m: m.group() if m.group(1) else re.sub(r'[^\r\n]', ' ', m.group()), text)
+        targets = set()
+        for match in re.finditer(r'^\s*#\s*include\s+"([^"\r\n]+)"', text, re.M):
+            target = (files[primary].parent/match[1]).resolve()
+            if target.is_relative_to((root/'recon').resolve()):
+                targets.add(target)
+        helpers = sorted(key for key in keys if key != primary)
+        if any(key not in included or files[key].resolve() not in targets for key in helpers):
+            return None, None
+        evidence = dict(kind='declared_included_source_group', primary_source=primary,
+                        included_sources=helpers, manifest='tools/build.py:INCLUDED_SOURCES',
+                        manifest_sha256=hashlib.sha256(data).hexdigest(),
+                        source_sha256={key: hashlib.sha256(files[key].read_bytes()).hexdigest() for key in keys})
+        return unit_name(primary), evidence
+    except (OSError, ValueError, TypeError, SyntaxError):
+        return None, None
+
+
+def parse_owner_records(path, *, source_root=None):
+    """Preserve all function occurrences; do not coalesce repeated symbols."""
+    functions, current, header = [], None, False
+    pending_sources, active_sources, file_unit = set(), (), None
     for line in Path(path).read_text(errors='replace').splitlines():
         record = REC.match(line)
         if not record:
@@ -34,16 +126,33 @@ def parse_owners(path):
                         if name.startswith('___'):
                             name = '_._' + name[3:]
                         current['name'] = name
-                        if name in functions:
-                            functions[name]['errors'].append('duplicate function record')
-                        else:
-                            functions[name] = current
             continue
         address, kind, payload = int(record[1], 16), record[2], record[3]
+        if kind == '88':
+            source = re.search(r'of file (.*)', payload)
+            if source and source[1].lower().endswith(('.cpp', '.cxx', '.c')):
+                pending_sources.add(source[1])
+        elif kind == '8a':
+            active_sources = tuple(sorted(pending_sources))
+            pending_sources.clear()
+        elif kind in ('94', '96') and current is None:
+            definition = DEF.search(payload)
+            if definition and definition[1] == 'FILE':
+                name = definition[5].lower()
+                if file_unit is None:
+                    file_unit = dict(name=name, closed=False, valid=True)
+                elif file_unit['name'] == name:
+                    file_unit['closed'] = True
+                    file_unit = None
+                else:
+                    file_unit['valid'] = False
+                    file_unit = dict(name=name, closed=False, valid=True)
         if kind == '8c':
             if current is not None:
                 current['errors'].append('missing function end')
-            current = dict(start=address, end=None, hdr={}, locals=[], errors=[])
+            current = dict(start=address, end=None, hdr={}, locals=[], errors=[],
+                           _file_unit=file_unit, _sld_sources=active_sources)
+            functions.append(current)
             current['root'] = dict(start=0, end=None, path=[], children=0)
             current['stack'] = [current['root']]
             header = True
@@ -88,11 +197,45 @@ def parse_owners(path):
             header = False
     if current is not None:
         current['errors'].append('missing function end')
-    for function in functions.values():
+    source_owners = {}
+    for function in functions:
+        if not function.get('name'):
+            function['errors'].append('missing function name')
+        unit, sources = function.pop('_file_unit'), function.pop('_sld_sources')
+        # FILE provenance is trusted only after its matching closing record.
+        # Never choose a source merely by VA order or occurrence number.
+        file_owner = unit_name(unit['name']) if unit and unit['valid'] and unit['closed'] else None
+        if sources not in source_owners:
+            source_owners[sources] = ((unit_name(sources[0]), None) if len(sources) == 1 else
+                                     _included_sld_owner(sources, source_root) if sources else (None, None))
+        source_owner, include_evidence = source_owners[sources]
+        owner = file_owner or source_owner
+        if unit and (not unit['valid'] or not unit['closed']):
+            owner = None
+        if file_owner and source_owner and file_owner != source_owner:
+            owner = None
+        function['provenance'] = dict(unit=owner, file_owner=file_owner,
+                                      sld_sources=list(sources))
+        if include_evidence is not None:
+            function['provenance']['sld_include_evidence'] = include_evidence
         for local in function['locals']:
             owner = local['owner']
             local['owner'] = {key: owner[key] for key in ('start', 'end', 'path')}
         del function['stack'], function['root']
+    return functions
+
+
+def parse_owners(path):
+    """Legacy symbol-only view: duplicate symbols remain fail-closed."""
+    functions = {}
+    for function in parse_owner_records(path):
+        name = function.get('name')
+        if name is None:
+            continue
+        if name in functions:
+            functions[name]['errors'].append('duplicate function record')
+        else:
+            functions[name] = function
     return functions
 
 
@@ -132,9 +275,10 @@ def main():
                          for status in ('PASS', 'DIFF', 'INVALID')}
     report['directories'] = {}
     for result in report['functions'].values():
-        file = (result['retail_file'] or '').replace('/', '\\')
-        match = re.search(r'\\(GAME|FRONTEND)\\(COMMON|PSX)\\', file, re.I)
-        directory = '/'.join(match.groups()).upper() if match else 'OTHER'
+        # 2026-10-15: same explicit path classification as SLD, including
+        # available EACLIB/SYSLIB records, never inferred from symbol names.
+        # Backup: build/nc12/local_owner_cmp_before_sdk_dirs_20261015.py.
+        directory = directory_of(result['retail_file'] or '')
         counts = report['directories'].setdefault(directory, {'PASS': 0, 'DIFF': 0, 'INVALID': 0})
         counts[result['status']] += 1
     Path(args.report).write_text(json.dumps(report, indent=2))

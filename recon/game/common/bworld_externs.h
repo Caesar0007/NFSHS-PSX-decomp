@@ -35,7 +35,7 @@ extern int            gNumSlices;
 extern CTrackSpec TrackSpec_gSpec;
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 extern u_char *Track_gInViewCount;     /* = Alloc(...), indexed */
-extern int Loading_UpdateLoadingScreen(int);
+extern void Loading_UpdateLoadingScreen(int);
 extern int Night_gLightningType;
 extern int Night_gXDistShift;
 extern int Night_gZDistShift;
@@ -73,10 +73,13 @@ int Anim_InitSystem(char *trackName);
 void Anim_Restart(void);
 void AudList_LoadAudioFile(int AudioFileIndex);
 extern "C" {
-void *SetSp(...);
-void transpose(...);
-int xformy(...);
-int rand(...);
+/* LIBAPI.H (4.3) and the reconstructed TRNSPOS/XFORM owners supply these
+   actual signatures; none is variadic. SetSp exchanges target-word values. */
+unsigned long SetSp(unsigned long stack_pointer);
+void transpose(matrixtdef *src, matrixtdef *dst);
+void xformy(matrixtdef *out, int angle);
+/* PsyQ 4.3 COFF/INCLUDE/RAND.H: no arguments, not an ellipsis function. */
+int rand(void);
 }
 
 #endif /* _GAME_COMMON_BWORLD_EXTERNS_H_ */

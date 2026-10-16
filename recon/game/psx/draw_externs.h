@@ -22,7 +22,7 @@ extern char *Draw_gMaxPrim;
 extern int Draw_gNumView;
 extern int gLoop;
 extern int gTotalMem;
-extern void *Platform_ReserveMemory(int, char *);
+extern char *Platform_ReserveMemory(int, char *); /* retail PTR CHAR */
 extern void Texture_Vramcf(shapetbl *, int, int, int, int);
 
 extern "C" u_long *ClearOTagR(...);

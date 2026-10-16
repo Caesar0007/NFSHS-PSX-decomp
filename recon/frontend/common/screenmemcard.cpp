@@ -339,6 +339,15 @@ HL_clamped:
 }
 
 /* ---- tScreenMemcard::PlaceIcons  (screenmemcard.cpp:282) ---- */
+/* 2026-10-15: real for-loop/FE_Ticks query remove tickPtr and recover the
+   retail seven-region tree at213PASS. The comma expression sequences the
+   actual yy copy before the clock read; loading numIcons afterwards gives
+   the retail address register/schedule. Both values are genuinely consumed.
+   SOURCE-REVIEW-UNRESOLVED: computedY/animFrame/tickFrame/nfs4Icon/numIcons and
+   the existing divisor fence still need original producer recovery. Native
+   debug elision does not certify a distinct source object or its spelling.
+   Fence/divisor removal now measures4dif/213, not the old64dif/217 basin.
+   Full SLD and literal source are unsealed; no replacement alias/fence added. */
 void tScreenMemcard::PlaceIcons(register int i,int fadeval)
 
 {
@@ -346,16 +355,9 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
   short yy;
   short computedY;
   int j;
-  /* SYM-CODEGEN-CARRIER: animFrame -- recomputing the remainder only in the
-     icon-table arm is FAIL 93 at 214/213 and moves the div across the branch. */
   int animFrame;
 
-  {
-  j = 0;
-  while (1) {
-    if (j >= (int)(uint)this->numblock[i]) {
-      break;
-    }
+  for (j = 0; j < (int)(uint)this->numblock[i]; j++) {
     if ((((int)this->cursorPosition / 3) & 1U) == 0) {
       xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX +
            MEMCARD_DELTAX * (short)((int)this->cursorPosition % 3);
@@ -366,37 +368,11 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     }
     computedY = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
             (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY);
-    /* SYM-CODEGEN-CARRIER: nfs4Icon -- direct member comparison is FAIL 3 at
-       214/213, loading the member beside the div instead of before yy. */
     int nfs4Icon = this->theNFS4icon;
-    /* SYM-CODEGEN-CARRIER: tickFrame -- folding the shifted tick load into
-       the remainder expression is count-exact FAIL 18 and rotates its web. */
     int tickFrame;
-    /* SYM-CODEGEN-CARRIER: numIcons -- direct member use even through the
-       same read-only fence is FAIL 64 at 217/213 and rotates saved homes. */
     int numIcons;
-    /* SYM-CODEGEN-CARRIER: tickPtr -- direct `ticks` is count-exact FAIL 2,
-       placing its address high half one instruction after retail. */
-    int *tickPtr = &ticks;
-    /* Retail's named `yy` is the $s0 value surviving the calls. `computedY`
-       models the earlier $a3 expression; direct reuse collapses their copy
-       and moves the tick-address high half (count-exact FAIL 2). */
-    yy = computedY;
-    /* MATCH (73 -> 4 -> 2 -> PASS, 213/213): the natural signed-short
-       coordinate expressions and sum-before-limit spelling establish the
-       retail homes.  Naming the NFS4 icon and modulo divisor, then pricing the
-       divisor with the empty read-only fence, restores the $a0 comparison and
-       remainder webs. `yy` plus its zero-insn identity boundary preserves
-       retail's real $a3->$s0 copy for the coordinate that survives the calls.
-       Crucially, the honest `ticks` base pointer is born before that boundary:
-       split-address scheduling emits `%hi(ticks)`, the saved-Y copy, and then
-       folds `%lo(ticks)` into the load, exactly matching retail.  Direct
-       `ticks` left the hi half one slot late (2); forcing the pointer through a
-       fence materialized an extra address copy/add (4); laundering tickValue
-       rotated the division and icon webs (21).  This is a genuine runtime div
-       with the oracle's divide guards, because numicon[i] is instance data. */
+    tickFrame = (yy = computedY, FE_Ticks() >> 4);
     numIcons = this->numicon[i];
-    tickFrame = *tickPtr >> 4;
     __asm__("" : : "r"(numIcons));
     animFrame = tickFrame % numIcons;
     if (i == nfs4Icon) {
@@ -424,8 +400,6 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
                  MEMCARD_DELTAY + 1);
     }
     this->cursorPosition = this->cursorPosition + 1;
-    j = j + 1;
-  }
   }
   return;
 }

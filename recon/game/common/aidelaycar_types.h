@@ -18,7 +18,6 @@ struct AIDelayCar {
     coorddef deltaPosition_, position_;
     int deltaRoadPosition_, roadPosition_, laneIndex_, currentSpeed_;
 
-    AIDelayCar() {}
     AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
     void SetNewTargetCar(Car_tObj *targetCar);
     void Update();

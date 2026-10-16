@@ -1,0 +1,5 @@
+/build/
+/evidence/
+/assembly_inventory.json
+/verification/*.json
+__pycache__/

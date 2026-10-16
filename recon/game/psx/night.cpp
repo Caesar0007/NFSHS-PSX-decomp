@@ -1367,6 +1367,17 @@ void Night_RestartNightDriving(void)
  * RO then identity 8 . identity after the store 8 . split decl + identity 6 . identity on
  * zn2 + an RO fence on tgt 2 . RO fence on tgt only 2 . identity launder on tgt 8.
  * => This conclusion is superseded by the W80 qtytrace source-level PASS above. */
+/* 2026-10-13 SYM field/type restoration: Car_tObj.control is at0x43c;
+ * Car_tControl.lights is CHAR at+0xb. Retail LBU+0x447 is that field,
+ * not an unnamed byte in a generic buffer. Typed Car_tObj target/member
+ * access is68/68 with all other sections unchanged. No type/header/import
+ * or target object layout change is needed; this graph already has Car_tObj.
+ * tgt and the pre-existing absorption identity remain unresolved source
+ * devices, not original-object evidence. Named or anonymous typed direct
+ * reads without identity give8dif/68; compare-to4 also8dif/68. Sequencing
+ * the real ZNear update within the mask operand gives11dif/69, restored.
+ * Literal producer spelling/full SLD still require recovery; no new fence,
+ * qualifier, object/name or compiler-output rewrite was retained. */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
@@ -1381,8 +1392,8 @@ void Night_SetEnviroment(DRender_tView *Vi)
     Night_gZDistShift = 0xc;
     /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
      * above the function for the mechanism and the falsification list. */
-    u_char *tgt /* SYM-CODEGEN-CARRIER: tgt -- direct target access is FAIL 8 (68/68) */ =
-        (u_char *)Camera_gInfo[Vi->player].target;
+    Car_tObj *tgt /* SOURCE-REVIEW-UNRESOLVED: absent from retail; inferred target role is not original-object proof. */ =
+        (Car_tObj *)Camera_gInfo[Vi->player].target;
     /* CAMIN (2026-10-04): the W80 asm use-fence and three of the four
      * absorption identities are now unnecessary.  The named `tgt` load plus ONE
      * pure-C absorption identity `X | (X & 3) == X` (a real RTL use that combine
@@ -1391,9 +1402,9 @@ void Night_SetEnviroment(DRender_tView *Vi)
      * Measured on the current pipeline (68/68 throughout): tgt + 1 absorption +
      * direct `Night_gZNear = 0x80` PASS; tgt with no absorption FAIL 8; fully
      * direct target access FAIL 8. */
-    tgt = (u_char *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
+    tgt = (Car_tObj *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
     Night_gZNear = 0x80;
-    if ((tgt[0x447] & 4) != 0) {
+    if ((tgt->control.lights & 4) != 0) {
       Night_gZDistShift = 0xd;
       Night_gXDistShift = 0xb;
     }

@@ -1,4 +1,4 @@
-/* game/psx/stats.cpp -- RECONSTRUCTED (NFS4 PSX race statistics; C++ TU)
+/* game/common/stats.cpp -- RECONSTRUCTED (NFS4 PSX race statistics; C++ TU)
  *   7 fns: Stats_DoPlayerGlue/ClearPosition/GetPosition/GetNumOpponents/TrackStats/
  *   ExtrapolateOpponentTimes/TrackEndGame. GTE-free. Full SYM-locals applied.
  */
@@ -469,8 +469,12 @@ void Stats_ExtrapolateOpponentTimes(int type)
  * PASS 232/232; all seven Stats functions and their branch targets retained.
  * Opposite MIN order: 234 instructions /142 diff lines; two-store override:
  * 223/95. Earlier device experiments are preserved in the scratch backup.
- * The debug-elided inRange condition inside the j loop supplies retail's
- * otherwise missing child scope; its literal historical name is unknown.
+ * SOURCE-REVIEW-UNRESOLVED: the debug-elided inRange condition inside the
+ * j loop supplies retail's otherwise missing child scope. A positive bounds
+ * guard without this object is also 232/232 PASS (2026-10-13), but omits
+ * the retail +150..+1c8 child region. The capture is not proved necessary
+ * by code generation; its original name and the region's producer remain
+ * unresolved. Negative-break for/do forms are 60 differences at234/232.
  * Remaining SLD details are tracked in sym-match.md. */
 void Stats_TrackEndGame(void)
 {

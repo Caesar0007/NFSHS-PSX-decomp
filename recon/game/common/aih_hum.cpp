@@ -50,19 +50,6 @@ AIHigh_Human::AIHigh_Human(Car_tObj *carObj) : AIHigh_Player(carObj)
 
 
 
-/* ---- _._12AIHigh_Human  AIHigh_Human::dtor  [AIH_HUM.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-AIHigh_Human::~AIHigh_Human()
-
-
-
-{
-
-
-
-  return;
-
-}
 
 
 

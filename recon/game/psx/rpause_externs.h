@@ -3,7 +3,7 @@
 #define _GAME_PSX_RPAUSE_EXTERNS_H_
 
 /* ---- globals ---- */
-extern Draw_tView Draw_gView[5];
+extern Draw_tView Draw_gView[10]; /* retail EXT: 2000 bytes, dims 1 10 */
 extern dflip      gEnviro[2];
 extern int        Draw_gPlayer1View;     /* 0x8013d3cc */
 /* Zero-storage scalar views of render.obj's RECT fields.  Retail rpause.obj

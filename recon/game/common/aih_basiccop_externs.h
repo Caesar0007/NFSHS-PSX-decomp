@@ -22,8 +22,8 @@ extern int Object_FindDefWithThisID(int ID);
 extern int Object_GetObjDefID(int index);
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
 extern void  BWorldSm_SetSlice(int slice, BWorldSm_Pos *pos);
-extern void *BWorldSm_UForward(BWorldSm_Pos *pos);
-extern void *BWorldSm_UNormal(BWorldSm_Pos *pos);
+extern coorddef *BWorldSm_UForward(BWorldSm_Pos *pos); /* retail PTR STRUCT coorddef */
+extern coorddef *BWorldSm_UNormal(BWorldSm_Pos *pos);  /* retail PTR STRUCT coorddef */
 extern void BWorld_InitSpikeBelt(void);
 extern void Object_AddCustomObject(SceneElem *elem, int setupSimDataFlag);
 extern void Object_ClearCustomObjects(void);

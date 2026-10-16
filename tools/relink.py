@@ -39,6 +39,7 @@ from collections import defaultdict
 from pathlib import Path
 from source_data_owners import oracle_only_objects, validate_source_data_owners
 from source_zero_owners import oracle_only_zero_objects, validate_source_zero_owners
+from build import is_main_recon, is_tu
 
 ROOT = Path(__file__).resolve().parents[1]      # tools/ -> repo root
 MIPS = Path(r"C:/Tools/mips-ps1/mips/bin")
@@ -48,7 +49,8 @@ OBJDUMP = str(MIPS / "mipsel-none-elf-objdump.exe")
 OUTDIR = ROOT / "build" / "relink"
 
 # build subtrees that are NOT part of any link (printed, never silently skipped)
-EXCLUDED = ("diffsrc", "scratch", "scratchpad", "pbuild", "relink")
+EXCLUDED = ("diffsrc", "scratch", "scratchpad", "pbuild", "relink",
+            "recon/mod", "recon/game-mod", "recon/syslib-mod")
 LANES = {"recon": ("recon", "asm"), "src": ("src", "asm")}
 PLACEHOLDER = re.compile(r"(?:func|D|DAT|lbl|jtbl)_([0-9A-Fa-f]{8})$")
 LINK_METADATA = (
@@ -84,8 +86,16 @@ def lane_objects(lane):
     # that still have an owning source file.
     sources = []
     if lane == "recon":
-        sources += sorted((ROOT / "recon").rglob("*.cpp"))
-        sources += sorted((ROOT / "recon").rglob("*.c"))
+        # 2026-10-16: live files can still be OUTSIDE the main build. Reuse
+        # its actual role predicates: side-tree experiments/test programs are
+        # not production inputs, nor is #included SPCHEVNT.C an independent
+        # TU. Stale objects for those files caused 289 false REAL duplicates.
+        # No symbols are suppressed within a genuine main-build object.
+        # Backup: build/nc12/remaining_checkpoint_20261016/relink-before.py.
+        sources += sorted(p for p in (ROOT / "recon").rglob("*.cpp")
+                          if is_main_recon(p) and is_tu(p))
+        sources += sorted(p for p in (ROOT / "recon").rglob("*.c")
+                          if is_main_recon(p) and is_tu(p))
     else:
         sources += sorted((ROOT / "src").rglob("*.c"))
     sources += sorted((ROOT / "asm").glob("*.s"))

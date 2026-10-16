@@ -702,10 +702,13 @@ void CopSpeak_Skip(void)
 int CopSpeak_Request(CopSpeak_tRequest *r)
 
 {
-  /* SOURCE-RECOVERY CARRIER: queueHeadSnapshot -- retail keeps the old head
+  /* SOURCE-REVIEW-UNRESOLVED: queueHeadSnapshot -- retail keeps the old head
    * in $a3 for the slot and return, then reloads the global for advancement.
    * next remains the retail-named $v1 successor; the snapshot's literal
-   * source spelling and debug-elided representation are unresolved. */
+   * source spelling and debug representation are unresolved. Reassigning
+   * next after the request stores, even with the initial successor spelled
+   * as a conditional expression, is 25 differences at 80/79 instructions
+   * (2026-10-13). That failure is not proof of an original extra object. */
   int next;
   CopSpeak_tBank *bank;  /* SYM: Def class REG $5 (a1) PTR CopSpeak_tBank name bank */
 

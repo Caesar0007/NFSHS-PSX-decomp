@@ -196,7 +196,10 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
     /* Source-recovery queue: retail records only pcnt, not emptyPalNum.
        Literal stores under the restored scope graph remain two scheduling
        differences at211/211 (do/while, local-for and index-first address).
-       This unresolved byte-preserving snapshot proves no original object. */
+       This unresolved byte-preserving snapshot proves no original object.
+       2026-10-13: predecrement condition and allocation in pcnt's block
+       also give two differences at211/211; counter initialization before
+       allocation gives ten at211/211 and moves pcnt to s0. All reverted. */
     int emptyPalNum;
     emptyPalNum = -1;
     for (pcnt = 0x7f; pcnt >= 0; pcnt--) {

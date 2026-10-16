@@ -94,6 +94,60 @@ class SldTreeCompareTests(unittest.TestCase):
 
     def test_directory(self):
         self.assertEqual(directory_of(r"C:\nfs4\FRONTEND\PSX\FRONT.CPP"), "FRONTEND/PSX")
+        self.assertEqual(directory_of(r"D:\nfs4\EACLIB\PSX\PAD.C"), "EACLIB/PSX")
+        self.assertEqual(directory_of("C:/nfs4/SYSLIB/PSX/libc/file.c"), "SYSLIB/PSX")
+        self.assertEqual(directory_of(r"C:\\recon\\game\\common\\a.cpp"), "GAME/COMMON")
+        self.assertEqual(directory_of("PAD.C"), "OTHER")
+        self.assertEqual(directory_of(r"C:\lib\psx\unknown.c"), "OTHER")
+
+    def test_word_increment_is_decoded(self):
+        native_text = fixture(0x80001000, 200, 500, 202).replace(
+            '80 Inc SLD linenum (to 500)', '84 Inc SLD linenum by word 300 (to 500)')
+        retail_text = fixture(0x80002000, 100, 400, 102).replace(
+            '80 Inc SLD linenum (to 400)', '84 Inc SLD linenum by word 300 (to 400)')
+        native, nk, ne, _ = self.parse(native_text)
+        retail, rk, re, _ = self.parse(retail_text)
+        self.assertEqual(ne[0x80001004], 500)
+        self.assertEqual(compare_function(native['fn'], retail['fn'], nk, ne, rk, re)['status'], 'EXACT')
+
+    def test_changed_word_increment_is_not_hidden(self):
+        nt = fixture(0x80001000, 200, 501, 202).replace(
+            '80 Inc SLD linenum (to 501)', '84 Inc SLD linenum by word 301 (to 501)')
+        rt = fixture(0x80002000, 100, 400, 102)
+        native, nk, ne, _ = self.parse(nt)
+        retail, rk, re, _ = self.parse(rt)
+        result = compare_function(native['fn'], retail['fn'], nk, ne, rk, re)
+        self.assertEqual((result['status'], result['tag_diffs']), ('DIFF', 1))
+
+    def entry_word(self, base, header, kind='84'):
+        text = fixture(base, header, header+1, header+2)
+        text = text.replace('000000: $%08x' % base, '000000: $%08x' % (base-4))
+        text = text.replace('000003: $%08x 80 Inc SLD linenum (to %d)' % (base+4, header+1),
+                            '000003: $%08x %s Inc SLD linenum by word 310 (to %d)' % (base, kind, header))
+        return text
+
+    def test_only_entry_word_event_is_real_coverage(self):
+        native, nk, ne, _ = self.parse(self.entry_word(0x80001000, 200))
+        retail, rk, re, _ = self.parse(self.entry_word(0x80002000, 100))
+        result = compare_function(native['fn'], retail['fn'], nk, ne, rk, re)
+        self.assertEqual(result['status'], 'EXACT')
+        self.assertEqual(result['native_entry_delta'], 0)
+
+    def test_unknown_record_cannot_fake_coverage(self):
+        native, nk, ne, _ = self.parse(self.entry_word(0x80001000, 200, '85'))
+        retail, rk, re, _ = self.parse(self.entry_word(0x80002000, 100))
+        self.assertEqual(compare_function(native['fn'], retail['fn'], nk, ne, rk, re)['status'],
+                         'NO_FUNCTION_SLD_EVENT')
+
+    def test_real_entry_header_offset_remains_a_difference(self):
+        nt = fixture(0x80001000, 200, 200, 202)
+        rt = fixture(0x80002000, 300, 279, 302).replace(
+            '88 Set SLD to line 300', '88 Set SLD to line 279')
+        native, nk, ne, _ = self.parse(nt)
+        retail, rk, re, _ = self.parse(rt)
+        result = compare_function(native['fn'], retail['fn'], nk, ne, rk, re)
+        self.assertEqual(result['status'], 'DIFF')
+        self.assertEqual(result['retail_entry_delta'], -21)
 
 
 if __name__ == "__main__":

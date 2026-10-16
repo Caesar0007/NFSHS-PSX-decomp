@@ -1,23 +1,11 @@
-/* aih_opp.obj's two-definition delta over the shared AI hierarchy graph. */
+/* aih_opp.cpp foreign views; the actual Opponent class is in aihigh.h. */
 #ifndef NFS4_GAME_COMMON_AIH_OPP_TYPES_H
 #define NFS4_GAME_COMMON_AIH_OPP_TYPES_H
 
 #include "aih_hierarchy_types.h"
 
-#include "aistate_classes.h"
+#include "aistate.h"
 
-
-struct AIHigh_Opponent : public AIHigh_Player {
-    AIHigh_tAttackMode attackMode_;
-    Car_tObj *lastHumanHitter_;
-    int hitCount_, attackTicksLeft_;
-    AIHigh_Opponent(Car_tObj *carObj);
-    ~AIHigh_Opponent();
-    void CheckForWipeOut();
-    int DoRearEnder();
-    void HighExecute();
-    int DoProvokedAttack();
-};
 
 /* Canonical foreign aggregates used by this translation unit. */
 #include "shared/GameSetup_tData.h"

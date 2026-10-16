@@ -11,9 +11,12 @@ extern int             TrackSpec_gCurrentSpec;   /* 0x8013db94 */
 extern int             TrackSpec_gMaxSpec;       /* 0x8013db98 */
 extern char           *Paths_Paths[50];          /* 0x80116468 */
 
-extern "C" int sprintf(...);
-extern "C" void *loadfileadr(...);
-extern "C" int purgememadr(...);
+/* sprintf's fixed prefix is canonical PsyQ4.3 STDIO.H. The EA signatures
+ * agree with the nsync/memstd owners; surviving retail SYM does not supply
+ * their complete types, so owner consistency is not a retail-type seal. */
+extern "C" int sprintf(char *buffer, char *fmt, ...);
+extern "C" int loadfileadr(char *name, int memclass);
+extern "C" int purgememadr(void *p);
 
 /* track-spec selection table (weather*2+night -> spec index) @0x80056AD4: MATERIALIZED as the
  * local `int spec[4] = {0,1,2,3}` in TrackSpec_Load (rodata->stack aggregate copy; image-verified).

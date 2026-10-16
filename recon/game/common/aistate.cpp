@@ -221,121 +221,41 @@ void AIState_Idle::SetIdlePosition(int roadPosition) {
 
 
 
-/* ---- __13AIState_ChaseP8Car_tObjT1P8coorddefiiiii  AIState_Chase::ctor  [AISTATE.CPP:180-201] SLD-VERIFIED ---- */
-/* W62-A9: SEALED 11 -> PASS 66/66 (psyqproof REAL=0 RELOP=0).  The standing
-   "pure coloring floor" verdict below was WRONG.  TWO levers, each inert alone:
-   (1) THE -G-THRESHOLD GATE-GLOBAL LEVER (new, generalises).  A 4-byte `extern int`
-       is at-or-under the -G4 small-data threshold, so cc1plus emits the single
-       UNSCHEDULABLE assembler macro `lw $2,D_8011321C`; the retail oracle has the
-       SPLIT `lui %hi` (hoisted into the store block) + `lw %lo` pair, which only a
-       symbol ABOVE the threshold produces.  Declaring it `extern int D_8011321C[]`
-       (3.12 #5 unsized array => unknown size => never small-data) restores the split,
-       kills the load-delay `nop` (67 -> 66, count-exact) and lets the `lui` hoist.
-       SYMPTOM TO GREP FOR: ours `lw rD,SYM` plus a nop where retail has `lui`..`lw`.
-       Alone: 13 diffs (WORSE than the 11 baseline -- it must be paired).
-   (2) The both-arms-assign TERNARY for the reverseDirCheck select -- exactly the
-       shape the ai.cpp sibling AI_HandleTrafficHonking already uses.  It frees $v0
-       (the gate value dies at the branch) so the nor/xori land in $v0 like retail
-       instead of $a0.  Alone: 16 diffs.  Together: PASS.
-   Also PASSing (equivalent, not landed): the if/else both-arms form; the ternary
-   with the gate read into a named `rev` first; an in-place `(int)this->carObj_`
-   receiver cast; a read-only fence on `rev`.  FALSIFIED at 11-20 (pre-landing
-   basin, listed so nobody re-fights them): gate-read-first alone, inverted default,
-   per-arm field re-read, identity launder on `direction`, read-only fence on
-   `direction`, named receiver pointer, block-local reverseDirCheck (13A block
-   anchor -- INERT here), and the unsized array WITHOUT the ternary. */
-/* HISTORICAL, superseded by the receipt above:
-   WALL (register-coloring near-miss, insn count now EXACT 66/66; was 8 SHORT before the
-   reverseDirCheck fix below): two independent saved-reg swaps remain vs the oracle --
-   (carObj<->delayTime) and (relPosition<->nitrousTicks) -- both are short/long-lived params
-   that gcc-2.x's global allocator ties differently than the oracle build; every statement
-   placement/caching variant tried leaves the same two swaps. Pure §A coloring floor,
-   documented near-miss. */
-
-/* P907: these standalone-array receipts are historical. The existing
- * GameSetup_tData view permits a direct member with identical code/branches;
- * no type or helper is added. Original per-TU type visibility remains open. */
-/* D_8011321C == GameSetup_gData.reverseTrack -- standalone-symbol form, same precedent as
- * ai.cpp AI_HandleTrafficHonking / aiinit.cpp AIInit_RestartAICar / hud.cpp Hud_NextPlayer. */
-/* W62-A9: declared an UNSIZED ARRAY on purpose -- see the ctor receipt below.
-   A 4-byte `extern int` is at-or-under the -G4 small-data threshold, so cc1plus
-   emits the single UNSCHEDULABLE assembler macro `lw $2,D_8011321C`; retail's
-   split `lui %hi` + `lw %lo` pair proves this object saw the symbol as ABOVE the
-   threshold.  The unsized `[]` restores that (unknown size => never small-data). */
+/* ---- __13AIState_ChaseP8Car_tObjT1P8coorddefiiiii [AISTATE.CPP:180-201] ---- */
+/* 2026-10-16: real member initialization and the sibling AI direction comparison
+ * remove placement-new, reverseDirCheck and direction without changing any
+ * normal-object byte. Retail has fourteen parameter records and one root
+ * region, no caller locals or inline allocation/default-constructor pairs.
+ * Old carrier/placement necessity claims were shape-specific; prior source
+ * and receipts survive in build/nc12/aistate_before_chase_member_init_20261016.cpp.
+ * One epilogue instruction tag and the closing block's line remain unsealed;
+ * do not add line padding or claim that native declaration PASS recovers text. */
 
 AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relPosition,
-
           int nitrousTicks,int nitrousMinForeDistance,int nitrousMinAftDistance,int aggressionLevel,
-
           int delayTime)
-  : AIState_Base(carObj)
+  : AIState_Base(carObj),
+    delayCar_(carObj,targetCar,delayTime)
 {
-
-  /* SYM-CODEGEN-CARRIER: reverseDirCheck -- absent from the surviving local
-   * records. Folding it into the identical-arm condition lets GCC delete the
-   * five-instruction test, producing a 61-insn body instead of retail's 66. */
-  int reverseDirCheck;
-
-
-  /* MATCH: delayCar_ constructed via placement-new IN THE BODY (after the _vf store) --
-     the oracle schedules the _vf store into the AIDelayCar ctor's arg setup, which is
-     only reachable when the member ctor call FOLLOWS the store (init-list form calls it
-     before any body stmt). AIDelayCar() default ctor is empty inline -> no extra code. */
-
-  new ((AIDelayCar *)&this->delayCar_) AIDelayCar(carObj,targetCar,delayTime);
-
   this->nitrousTicks_ = nitrousTicks;
 
   this->SetTarget(targetCar,relPosition);
-
   (this->carObj_)->accNitrous = 0x10000;
-
   (this->carObj_)->speedNitrous = 0x10000;
-
   this->nitrousMinForeDistance_ = nitrousMinForeDistance;
-
   this->nitrousMinAftDistance_ = nitrousMinAftDistance;
-
   this->aggressionLevel_ = aggressionLevel;
-
   this->slowDownEndTime_ = 0;
-
-  /* tail-merged identical arms (catalog SSD): oracle computes the honk-check idiom (exact same
-     shape as AI_HandleTrafficHonking, recon/game/common/ai.cpp:1208-1211) purely as a branch
-     CONDITION whose two arms both reset noTurnAroundEndTime_ to 0 -- gcc2.8's cross-jump pass
-     merges the byte-identical arm bodies into ONE shared store, but the branch test (and the
-     nor/xori computing it) survives because branch removal is a separate optimization gcc
-     doesn't perform here.
-     FLOOR (w30-a2, 11 diffs/67 vs 66 insns): shape CONFIRMED -- the oracle loads
-     carObj_->direction into ONE register and reuses it for BOTH the nor(~direction) and the
-     xori(direction^1), which is why this block caches it in a local `direction` instead of
-     re-reading `(this->carObj_)->direction` twice (that re-read version was the pre-w30-a2
-     shape and produced the SAME diff count with an extra dead load); the residual now is
-     purely which physical register (v0/v1 vs the oracle's v1/v0, with the D_8011321C address
-     lui interleaved differently) the allocator/scheduler picks -- a coin-flip already covered
-     by the "declaration-scope/order noise" class, not a missing/wrong construct. */
+  if (this->carObj_->direction != (GameSetup_gData.reverseTrack == 0 ? 1 : -1))
   {
-    /* SYM-CODEGEN-CARRIER: direction -- absent from the surviving outer-local
-     * records. Re-reading the field in the ternary changes 16 instructions
-     * and adds eight load/delay instructions. */
-    int direction = (this->carObj_)->direction;
-    reverseDirCheck = (GameSetup_gData.reverseTrack == 0) ? (direction ^ 1) : ~direction;
-  }
-
-  if (reverseDirCheck) {
-
     this->noTurnAroundEndTime_ = 0;
-
-  } else {
-
-    this->noTurnAroundEndTime_ = 0;
-
   }
-
+  else
+  {
+    this->noTurnAroundEndTime_ = 0;
+  }
   this->barrierTicks32_ = 0;
-
   return;
-
 }
 
 
@@ -567,27 +487,21 @@ void AIState_Chase::DoSlowNitrous()
 
 
 
-/* ---- DoNitrous__13AIState_Chasei  AIState_Chase::DoNitrous  [AISTATE.CPP:296-318] SLD review open ----
- * SOURCE-RECOVERY: the nitrous rejection and positive slowdown guard retain
- * retail's blez/bnez graph while allowing
- * GetSlowDownEndTime() to restore the nested inline `this` record. The const
- * tick snapshot preserves retail load order; direct global access is 2 diffs.
- * humanLoop and distanceMeters now have retail's depths in the for traversal.
- * The outer guard starts at +0x30 versus retail +0; bytes remain 83/83.
- * Combined direct guards preserve 83 words but move one load (2 diffs).
- * A negative short-circuit guard with a sequenced tick assignment matches
- * all retail scope tuples and 83 words, but emits EXTRA currentTick REG:$2.
- * A nested positive guard matches bytes but adds a scope and moves inline
- * this to depth 5 versus 3. These probes are reverted, not source proofs. */
+/* ---- DoNitrous__13AIState_Chasei [AISTATE.CPP:296-318;83-word PASS,
+ * native declarations/scopes exact; full SLD remains open] ----
+ * The real integer timer predicate removes the unrecorded currentTick capture
+ * while retaining tick-before-deadline loads and the inline Chase receiver.
+ * IsSlowingDown's name/signature are inferred from that operation, not a
+ * surviving method symbol. A bool-returning version was3dif/84; the direct
+ * two-operand comparison was2dif/83 due to inline expansion/load ordering.
+ * No reference fence, dummy use, qualifier or output rewrite is required. */
 
 void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
 {
-  if (this->nitrousTicks_ <= 0) return;
-  const int currentTick = simGlobal.gameTicks; /* debug-elided source value; no retail local */
-  if (currentTick >= this->GetSlowDownEndTime()) {
+  if (this->nitrousTicks_ > 0 && !this->IsSlowingDown()) {
 
     (this->carObj_)->accNitrous = 0x30000;
 
@@ -640,12 +554,14 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
-/* ---- Execute__13AIState_Chase  AIState_Chase::Execute  [AISTATE.CPP:327-401] SLD-VERIFIED ----
+/* ---- Execute__13AIState_Chase [AISTATE.CPP:327-401;93-word PASS,
+ * native declarations/scopes exact; full SLD remains open] ----
  * SOURCE-RECOVERY: the short-circuit far test retains retail's 93-word branch
  * graph without a named lmAbs local or its two extra native scopes. The
- * inferred inline slow-down getter restores the nested `this` record; a
- * const tick snapshot preserves the retail global-load-first schedule.
- * Exact original accessor spelling and relative SLD lines remain open. */
+ * integer timer predicate preserves the global-load-first schedule without
+ * a captured currentTick. The operation is real; its IsSlowingDown spelling
+ * and signature are inferred, not recovered from a standalone retail symbol.
+ * Exact original source text and relative SLD attribution remain open. */
 
 void AIState_Chase::Execute()
 
@@ -707,8 +623,7 @@ LAB_80070244:
 
 LAB_800702a0:
 
-  const int currentTick = simGlobal.gameTicks;
-  if (currentTick < this->GetSlowDownEndTime()) {
+  if (this->IsSlowingDown()) {
 
     this->DoSlowNitrous();
 
@@ -833,7 +748,19 @@ int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
 
 
 
-/* ---- CloseTargeting__13AIState_Chase  AIState_Chase::CloseTargeting  [AISTATE.CPP:462-632] SLD-VERIFIED ---- */
+/* ---- CloseTargeting__13AIState_Chase [AISTATE.CPP:462-632; source/SLD recovery open] ---- */
+/* 2026-10-16: three actual speed-getter calls in one conditional expression
+ * restore retail's three receiver-free inline pairs. The positive force-long
+ * guard restores superSlowDown's depth and removes the old jump label, with
+ * the entire normal ELF unchanged. A missing sibling region still changes
+ * its owner path; t and full SLD remain unresolved. Road-position getters
+ * and signed bound-first clamps now remove all four lateral carriers and
+ * both fences without changing any normal-object byte.
+ * Historical measurements below are not original-source/object exemptions. */
+
+/* Inferred accessor spelling: the surviving inline records do not name it. */
+inline int AIDelayCar::GetCurrentSpeed() { return currentSpeed_; }
+inline int AIDelayCar::GetRoadPosition() { return roadPosition_; }
 
 void AIState_Chase::CloseTargeting()
 {
@@ -920,10 +847,8 @@ void AIState_Chase::CloseTargeting()
     forceLongAction = -2;
   }
 
-  desiredSpeed = (this->delayCar_).currentSpeed_;
-  if (desiredSpeed < 1) {
-    desiredSpeed = -desiredSpeed;
-  }
+  desiredSpeed = this->delayCar_.GetCurrentSpeed() > 0
+      ? this->delayCar_.GetCurrentSpeed() : -this->delayCar_.GetCurrentSpeed();
 
   if ((longPos < longTarget) || (forceLongAction == 1)) {
     desiredSpeed = fixedmult(desiredSpeed,0x16666);
@@ -934,7 +859,7 @@ void AIState_Chase::CloseTargeting()
     desiredSpeed = fixedmult(desiredSpeed,this->CalculateCloseTargettingAheadSlowDownFactor());
   }
   else {
-    if (forceLongAction != -2) goto LAB_80070704;
+    if (forceLongAction == -2)
     {
       int superSlowDown;
       if (this->aggressionLevel_ != 0) {
@@ -950,14 +875,15 @@ void AIState_Chase::CloseTargeting()
     }
   }
 
-LAB_80070704:
   AISpeeds_CalcDesiredSpeed(this->carObj_);
 
   (this->carObj_)->desiredSpeed = __builtin_abs((this->carObj_)->desiredSpeed);
 
   {
-    /* SYM-CODEGEN-CARRIER: t -- direct in-place MIN/MAX updates remove two
-       instructions and produce 16 diffs (298/300). */
+    /* SOURCE-REVIEW-UNRESOLVED: t has no retail caller-local record. After
+       restoring the speed getter, direct clamp forms still differ (22/300,
+       split assignment13/299, void-arm products121/305). Those finite
+       failures do not prove that an original source object was required. */
     int t = (this->carObj_)->desiredSpeed;
     if (desiredSpeed < t) {
       t = desiredSpeed;
@@ -976,108 +902,32 @@ LAB_80070704:
   if (doLatAction) {
     int targettingStrength;
     int targetLanePosition;
-    /* NEAR-MISS 78 diffs, count-exact 300/300 (W59-A3 re-gated).  SYM 8c block
-     * @0x8007078c (retail line 603) declares EXACTLY these two locals:
-     * targettingStrength = REG $8 = t0 and targetLanePosition = REG $4 = a0 -- the two
-     * registers the tail diff wants (ours parks them in a3 / v1).  latOffset and
-     * slicePtr are Ghidra-invented (06A).  The residual is one uniform saved/caller band
-     * rotation running from the first mflo (t0 vs t1) to the two preferredLateralPosition
-     * stores.  W59-A3 FALSIFIED: rewriting BOTH clamps in the 09A/5.0c both-arms-assign
-     * ternary form (targetLanePosition = (latOffset < targetLanePosition) ?
-     * targetLanePosition : latOffset; and the MIN twin) -- which is what the oracle's
-     * two extra `addu a0,<tmp>,zero` copies and the SLD 623/624 one-line-per-clamp
-     * grouping suggest -- ADDS 3 insns (303/300) and goes 78 -> 89.  The override form
-     * is the count-exact one; next lens = the SYM-ordered priority fence (08D) on
-     * targetLanePosition/targettingStrength, or qtytrace.
-     * W59-A3 also FALSIFIED against the W59-A11 mobile twin (sub_51F8B4): (a) the EA
-     * MIN/MAX-macro shape (fresh block temp, if/else, both arms assigning, per-arm
-     * args) on both clamps -> 80 diffs / 304 insns; (b) the mobile ladder shape for
-     * longPos/bigLongPos (`>= low` guard with a nested no-else inner if and the -1 in
-     * the else, dir*longMetersBetween_ and dimension.z recomputed at every use, no
-     * hoisted t/z temps) -> 94 diffs.  The PSX oracle keeps our if/else-if ladder and
-     * the in-place clamp override; the mobile port diverged here.
-     * W61-A12 READ THE RESIDUAL (78 diffs, count-exact 300/300, no probe spent):
-     * it is NOT a spill-slot permutation (zero sp-offset diffs, so the W61-A1
-     * declaration-order/frame law does not apply here) and NOT one uniform swap.
-     * The band rotation starts at the FIRST mflo of the function (ours t0, retail
-     * t1) -- i.e. retail already has one more t-register committed there -- and the
-     * only STRUCTURAL divergence is in `targetLanePosition = delayCar_.roadPosition_
-     * + latOffset * dir`: retail completes the sum EAGERLY (`lw v0,76(s1); mult;
-     * lw v0,56(s1); mflo t1; addu a0,v0,t1`, oracle 239-244) while ours defers the
-     * mflo and the add past the whole slicePtr limit block (ours 240-258).  Land the
-     * eager-sum shape first (a named temp for the product, or the sum split so the
-     * roadPosition_ load sits between the mult and the mflo) and re-read the band;
-     * the t0/t1 base of the rotation is downstream of who owns the first multiply. */
+    /* Retail has only these two lateral locals. The three getter call sites
+       reproduce its guarded inline groups; their original name is unknown.
+       Previous staged-offset/fence necessity claims were source-shape-specific;
+       the prior body is backed up in build/nc12/aistate_before_lateral_getters_20261016.cpp. */
 
     targettingStrength = 0xf0000;
     if (this->murderMode_ != 0) {
       targettingStrength = 0x1e0000;
-      targetLanePosition = (this->delayCar_).roadPosition_;
+      targetLanePosition = this->delayCar_.GetRoadPosition();
     }
     else {
-      /* SYM-CODEGEN-CARRIER: latOffset -- reusing targetLanePosition for the
-         selected offset preserves 300 instructions but changes eight words. */
-      int latOffset;
-
-      /* W63-A12 SEAL (15 -> PASS 300/300, psyqproof REAL=0).  Retail fills the
-       * `beqz $s6` (forceLatAction) delay slot with `lui $v1,0x60000` -- i.e. the
-       * bias constant is materialized as its OWN insn in the same basic block, just
-       * before the branch, where reorg's simple fill can take it.  Written inline as
-       * `dimension.x + 0x60000` cc1 folds the lui into the arm and emits it AFTER the
-       * targetCar_ load, leaving the slot to a nop (the whole 15-diff residual, 301 vs
-       * 300).  The cure is the DoRearEnder pair: an ASSIGNED local (never
-       * decl-with-init -- that is const-propagated straight back) plus a zero-insn
-       * OPACITY/IDENTITY fence `__asm__("" : "=r"(x) : "0"(x))` to stop cse folding it.
-       * 🔴 PLACEMENT IS THE WHOLE LEVER: with the fence BETWEEN the assignment and the
-       * branch it lands 15 -> 3 but the slot STAYS a nop -- an asm is a reorg backward-
-       * scan barrier (catalog 06B HARD BOUNDARY), so it walls the lui off from its own
-       * delay slot.  Moving the fence BELOW the if/else keeps the pseudo real (cse
-       * still cannot fold across it) while leaving the lui as the last insn before the
-       * branch => reorg fills the slot => PASS.  General rule: when an opacity fence is
-       * used to mint a constant for a DELAY SLOT, the fence must sit AFTER the consumer,
-       * never between the def and the branch. */
-      /* SYM-CODEGEN-CARRIER: latBias -- inlining 0x60000 produces 15 diffs
-         and one extra instruction (301/300); its empty fence emits no code. */
-      int latBias;
-      latBias = 0x60000;
       if (forceLatAction != 0) {
-        latOffset = (this->targetCar_->N).dimension.x + latBias;
+        targetLanePosition = this->delayCar_.GetRoadPosition() +
+            ((this->targetCar_->N).dimension.x + 0x60000) * dir;
       }
       else {
-        latOffset = (this->relPosition_).x;
+        targetLanePosition = this->delayCar_.GetRoadPosition() + this->relPosition_.x * dir;
       }
-      __asm__("" : "=r"(latBias) : "0"(latBias));
-      targetLanePosition = (this->delayCar_).roadPosition_ + latOffset * dir;
-      /* W62-A9 EAGER-SUM BARRIER: retail completes this sum inside the mult
-       * latency (`lw v0,76; mult; lw v0,56; mflo t1; addu a0,v0,t1`); without
-       * the barrier sched1 hoists the whole slicePtr chain into that window and
-       * defers the mflo/add past it, which rotated the entire t/caller band
-       * (targettingStrength a3 instead of t0).  78 -> 59 on its own. */
-      __asm__("" : : "i"(0));
 
-      /* W62-A9 CLAMP FUNNEL (SYM 8c: retail declares ONLY targettingStrength ($8=t0)
-       * and targetLanePosition ($4=a0) -- latOffset/slicePtr are Ghidra-invented, so
-       * each clamp used a FRESH block temp and copied BACK into targetLanePosition.
-       * That is what mints retail's two `addu a0,<tmp>,zero` funnel copies.  The
-       * `<< 0xf` spelling (not `* 0x8000`) keeps the shift on the FIRST factor --
-       * with `* 0x8000` gcc reassociates it onto the other operand and swaps the
-       * mult's operand registers.  59 -> 27 (funnel) -> 15 (shift form). */
-      {
-        /* SYM-CODEGEN-CARRIER: limit -- direct in-place MAX/MIN clamps lose
-           one instruction and produce 43 and seven diffs respectively. */
-        int limit = -(((u_int)BWorldSm_slices[(this->carObj_)->N.simRoadInfo.slice].avgPavedWidthLf << 0xf) * (u_int)(BWorldSm_slices[(this->carObj_)->N.simRoadInfo.slice].laneCount >> 4));
-        if (limit < targetLanePosition) {
-          limit = targetLanePosition;
-        }
-        targetLanePosition = limit;
-      }
-      {
-        int limit = ((u_int)BWorldSm_slices[(this->carObj_)->N.simRoadInfo.slice].avgPavedWidthRt << 0xf) * (u_int)(BWorldSm_slices[(this->carObj_)->N.simRoadInfo.slice].laneCount & 0xf);
-        if (targetLanePosition < limit) {
-          limit = targetLanePosition;
-        }
-        targetLanePosition = limit;
-      }
+      /* Bounds are unsigned byte-field products, but retail compares signed.
+         Cast the bounded products to int
+         and evaluate each bound first; no source-only limit object is needed. */
+      targetLanePosition = -(int)(((u_int)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].avgPavedWidthLf << 15) *
+          (u_int)(BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].laneCount >> 4)) >? targetLanePosition;
+      targetLanePosition = (int)(((u_int)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].avgPavedWidthRt << 15) *
+          (u_int)(BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].laneCount & 15)) <? targetLanePosition;
     }
 
     (this->carObj_)->preferredLateralPosition = targetLanePosition;
@@ -1797,20 +1647,13 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
 
 
-/* ---- _._17AIState_Purgatory  AIState_Purgatory::dtor  [AISTATE.CPP:1021-1041] SLD-VERIFIED ---- */
-/* The owner graph now exposes the real member destructor; GCC supplies its
-   implicit receiver and in-charge deletion sequence.
-   WALL (register-coloring near-miss) -- same root symptom as the AIState_Offroad dtor (see
-   its WALL comment): oracle copies pThis a0->a3 up front (this fn's bigger body needs a3 not
-   a2, one more caller-saved reg already in play), ours keeps pThis in a0. Same gcc-2.x
-   allocator coin-flip; documented near-miss.
-   [w30-a2 re-gate, baselines moved per wave-30 note 1: now 14 diffs/72 insns, both sides --
-   someone closed most of the original 79-diff gap since this comment was written; comment
-   left/updated rather than deleted since the residual symptom is unchanged. FLOOR confirmed
-   again this session: the `iVar2 = Cars_gNumCars-1` reverse-scan loop index lands in a2 (ours)
-   vs a0 (oracle) -- a0 is free right after the `pThis` a0->a3 copy on both sides, oracle's
-   allocator just prefers the lowest-numbered free temp, ours doesn't; same coin-flip class,
-   not a shape bug. */
+/* ---- _._17AIState_Purgatory [AISTATE.CPP:1021-1041; 72-word byte PASS,
+ * original source/ownership/SLD still unresolved] ---- */
+/* 2026-10-16: a real while(1) search with an exit-at-top test regenerates
+ * retail's unrotated index loop, removing both pointer captures and the old
+ * absorption identity. Ordinary for/while-condition forms were71words; the
+ * for(;;) spelling also differs under this old C++ frontend. No source-text
+ * uniqueness or full SLD seal is claimed; see the native receipt in sym-match.md. */
 
 AIState_Purgatory::~AIState_Purgatory()
 
@@ -1819,14 +1662,6 @@ AIState_Purgatory::~AIState_Purgatory()
 {
   int search;
   Car_tObj*test;
-
-  /* SOURCE-RECOVERY CARRIER: sortedCarCursor -- reusing sortedList as the scan cursor
-     loses one instruction and produces 15 diffs (71/72). */
-  Car_tObj **sortedCarCursor;
-  /* SYM-CODEGEN-CARRIER: sortedList -- direct Cars_gSortedList addition
-     preserves 72 instructions but changes the final ready-list pair. */
-  Car_tObj **sortedList;
-
 
   (this->carObj_->collision).resetTimer = 0;
 
@@ -1842,85 +1677,16 @@ AIState_Purgatory::~AIState_Purgatory()
 
   this->carObj_->desiredDirection = this->carObj_->direction = 1;
 
-  /* W54-A15 / LAW 05A: the SLD puts the whole loop header (index init, the sortedList base
-   * materialization, the scaled-index add and the `bltz` test) on retail line 1034 -- i.e.
-   * AFTER the line-1031 direction/desiredDirection stores; our loop-init statements sat
-   * BEFORE them, which flipped the sll-vs-la ready-list order.  The read-only fence is a
-   * 0-insn +1 ref on search (5->6 = the floor_log2 step), the MINIMAL reqdelta dial that
-   * swaps search/ppCVar3 onto retail's $a0/$a2 (ours had them reversed).
-   * HISTORICAL RESIDUAL 2 diffs (72/72): the `sll v1,a0,2` scheduled before
-   * the &Cars_gSortedList base (lui/addiu) in ours, after it in retail -- a pure
-   * sched1 ready-list tie.  W56-A16 FALSIFIED: `&Cars_gSortedList[iVar2]`
-   * index-form is BYTE-IDENTICAL to the `+iVar2` pointer-form (no change);
-   * moving the fence above the ppCVar3 assign regresses (19 diffs).  §4.6
-   * qtytrace gap -- not source-reachable.  W59-A3 also FALSIFIED the 09I CAST-INT
-   * ARRAY SUBSCRIPT device on this site: both `(Car_tObj**)((iVar2<<2)+(int)Cars_gSortedList)`
-   * and the operand-swapped `((int)Cars_gSortedList+(iVar2<<2))` are byte-identical to
-   * the pointer form (still 2 diffs) -- address-block-order pinning does not reach a
-   * sll-vs-la ready-list tie.
-   * W60-A8 r2 showed the SPLIT-INIT (`ppCVar3 = Cars_gSortedList;` then
-   * `ppCVar3 = ppCVar3 + iVar2;`) DOES flip the sll/la order to retail's, but floats
-   * the whole address block above the line-1031 stores and drops a load-delay nop
-   * (15 diffs / 71 insns).  W61-A12 then falsified the obvious completion -- pinning
-   * the block's POSITION with a void-tail barrier so the split cannot float:
-   * `__asm__("" : : "i"(0))` before the loop init + split -> 21 / 71; the barrier
-   * placed between iVar2 and the split -> 19 / 71; the barrier ALONE (no split,
-   * baseline shape) -> 24 / 72.  The barrier moves the block itself instead of
-   * anchoring it, so a scheduling-barrier device cannot buy the position back.
-   * What is needed is a statement-local, NON-barrier ready-list dial.
-   * W62-A9: the SOURCE axis is now CLOSED and the fn is SOLVED by a
-   * PER_FN_TEXT_MOVES row (probe-verified PASS 72/72, whole-TU 51/52; the
-   * EXTRA={} control on the same probe reproduces 2).  ORCHESTRATOR SPEC --
-   * a new key inside the "recon/game/common/aistate.cpp" entry of
-   * PER_FN_TEXT_MOVES (that file key does not exist yet; create it).  The exact
-   * python row is in scratchpad/w62a9/spec_purg.py -- copy it from there, it is
-   * regex-escaped: take = the sll of $3 from $4 by 2, after = the addiu of $2
-   * carrying %lo(Cars_gSortedList) with a trailing-comment tail.  Both anchors
-   * are unique inside the .ent/.end region (12F).
-   * WHY no source form reaches it (mechanism, now named): the base is an
-   * ARRAY, so `Cars_gSortedList + i` folds to PLUS(MULT, ADDR) -- the address
-   * is TREE_CONSTANT and is canonicalised to operand 2, so expand ALWAYS emits
-   * the sll first; retail's order needs the ADDR as operand 1.  W62-A9 ALSO
-   * FALSIFIED (on top of the earlier index/cast/barrier lists): the plain
-   * `iVar2 + Cars_gSortedList` operand swap (2, inert); a 13B IDENTITY-LAUNDER
-   * on a `Car_tObj **base` local (19/71); the launder without the ref fence
-   * (19/71); split-init plus a launder on ppCVar3 (19/71).  Every split form
-   * loses the load-delay nop (71 insns, not 72).
-   * W78-root SOURCE PASS 72/72: comma-stage the base assignment into the
-   * correctly typed `Car_tObj **sortedList` local inside the final pointer
-   * expression.  This preserves the count/allocation and changes expand's
-   * operand birth order just enough to emit the retail lui/addiu before sll.
-   * No post-cc1 relocation is required. */
-  search = Cars_gNumCars + -1;
-
-  sortedCarCursor = (sortedList = Cars_gSortedList, sortedList + search);
-
-  /* W86-D2: read-only ref fence -> pure-C ABSORPTION IDENTITY `X | (X & 3) == X`.
-     A real RTL insn (both operands are the same VARIABLE, so fold() keeps it) that
-     cse/loop/flow see -- the reference is counted and `search` gets a second SET --
-     and combine folds `(ior X (and X K))` back to X, so no byte is emitted.
-     Ladder (whole-TU gate, AIState_Purgatory dtor): fence removed 14 | one
-     absorption PASS | 2 or 4 absorptions PASS | `X & (X | 3)` PASS. */
-  search = (int)((unsigned int)search | ((unsigned int)search & 3u));
-
-LOOP_800716DC:
-
-  if (-1 < search) {
-
-    test = *sortedCarCursor;
-
-    sortedCarCursor = sortedCarCursor + -1;
-
-    if ((test->carFlags & 0x100U) == 0) {
-
-      search = search + -1;
-
-      goto LOOP_800716DC;
-
+  search = Cars_gNumCars - 1;
+  while (1) {
+    if (search < 0)
+      break;
+    test = Cars_gSortedList[search];
+    if ((test->carFlags & 0x100U) != 0) {
+      this->carObj_->basisCar = test;
+      break;
     }
-
-    (this->carObj_)->basisCar = test;
-
+    --search;
   }
 
 
@@ -2102,6 +1868,12 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
 
 
+/* 2026-10-13 loop-owner review: ordinary condition-bearing for loops are
+ * 47 differences at234/233; testing status first is26 at227/233. Positive
+ * bounds guards inside the existing exit-in-body loops are233/233 PASS,
+ * but still emit only the root region (retail has seven). All bodies
+ * restored. Control-flow equivalence does not identify the missing source
+ * region producers; no dummy declarations or padding scopes retained. */
 /* ---- Execute__21AIState_RovingTraffic  AIState_RovingTraffic::Execute  [AISTATE.CPP:1172-1224; source/SLD review open] ----
  * Store all three raw components before shifting X/Z in place: 233/233 PASS,
  * with no scaledDistanceX/Z captures and exact named homes. Earlier early
@@ -2244,12 +2016,13 @@ AIState_Donuts::~AIState_Donuts()
 
 
 
-/* ---- Execute__14AIState_Donuts  AIState_Donuts::Execute  [AISTATE.CPP:1256-1334] SLD-VERIFIED ---- */
-/* PASS (319 insns): IDA's retail register annotations and the SYM SLD line trace
-   recovered the real locals, scopes, and statement boundaries.  The candidate
-   fence must precede the copy so the copy fills the jump delay slot; spelling
-   the slice-table access as an integer byte address gives forwardSlice/result
-   v0 and the table base v1, matching retail's allocation. */
+/* ---- Execute__14AIState_Donuts  AIState_Donuts::Execute  [AISTATE.CPP:1256-1334; source/SLD review open] ---- */
+/* 2026-10-16: branch-local chained direction stores cross-jump to retail's
+   one tail, without an unrecorded carObj alias. A post-join direct store
+   reloads the car pointer (321words); a scalar ternary has one extra copy
+   (320words). Native compiler pass receipts identify these distinct graphs.
+   No caller temporary, asm, qualifier or fake reference is needed here;
+   full scope/SLD restoration is checked separately, not implied by319PASS. */
 
 void AIState_Donuts::Execute()
 
@@ -2265,31 +2038,24 @@ void AIState_Donuts::Execute()
 
 
 
-  /* SOURCE-REVIEW-UNRESOLVED: carObj has no retail local record. Current
-   * direct-field form is 14 diffs/321 words versus 319; array-index side-effect
-   * store is 16 diffs/323 words. Both are reverted, not an impossibility proof. */
-  Car_tObj *carObj = this->carObj_;
-
-    slice = (int)carObj->N.simRoadInfo.slice;
+    slice = (int)this->carObj_->N.simRoadInfo.slice;
 
     forwardDot =
-        (carObj->N.orientMat.m[6] / 256) * (carObj->N.roadMatrix.m[6] / 256) +
-        (carObj->N.orientMat.m[7] / 256) * (carObj->N.roadMatrix.m[7] / 256) +
-        (carObj->N.orientMat.m[8] / 256) * (carObj->N.roadMatrix.m[8] / 256);
+        (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) +
+        (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
+        (this->carObj_->N.orientMat.m[8] / 256) * (this->carObj_->N.roadMatrix.m[8] / 256);
 
     if (forwardDot > 0) {
 
-      forwardDot = 1;
+      this->carObj_->desiredDirection = this->carObj_->direction = 1;
 
     }
 
     else {
 
-      forwardDot = -1;
+      this->carObj_->desiredDirection = this->carObj_->direction = -1;
 
     }
-
-    carObj->desiredDirection = carObj->direction = forwardDot;
 
   if ((this->donutMode_ == 1) || (this->donutMode_ == 3)) {
 
@@ -2448,7 +2214,11 @@ AIState_GotoSlice::AIState_GotoSlice(Car_tObj *carObj,int targetSlice,int stopWh
 
 
 
-/* ---- Execute__17AIState_GotoSlice  AIState_GotoSlice::Execute  [AISTATE.CPP:1355-1388] SLD-VERIFIED ---- */
+/* ---- Execute__17AIState_GotoSlice [AISTATE.CPP:1355-1388; source/SLD review open] ---- */
+/* 2026-10-16: per-arm field stores with the positive arm returning let GCC
+   cross-jump the signed clamp into one tail. The previous post-join direct
+   ternary was68words; this removes the final unrecorded speed capture at70.
+   Native owner/SLD receipts are separate from instruction equality. */
 
 void AIState_GotoSlice::Execute()
 
@@ -2505,47 +2275,13 @@ void AIState_GotoSlice::Execute()
 
     }
 
-    /* W54-A15: retail's two signed arms each build a LIMIT (a2) and a boolean (v0) and then
-       share ONE tail `if (inRange) limit = speed; carObj->desiredSpeed = limit;` -- the
-       cross-jumped shape (oracle: `bltz a3,Lneg [a2=cap]` / `j Ltest [slt v0,a3,a2]` /
-       `negu a2,a0; slt v0,a2,a3` / `beqz v0; nop; addu a2,a3,zero; sw a2`).  The previous
-       per-arm field-assignment form duplicated the tail (74 vs 70 insns). */
-      /* SYM-CODEGEN-CARRIER: carObj -- the cached object plus one read-only
-         reference is the measured minimum dial for retail's a0 cap seat. */
-      Car_tObj *carObj = this->carObj_;
-      /* SYM-CODEGEN-CARRIER: desiredSpeed -- the captured field value preserves
-         retail's a3 compare web and final reload/copy schedule. */
-      int desiredSpeed = carObj->desiredSpeed;
-
-      /* SYM-CODEGEN-CARRIER: limit -- the shared signed clamp result enables
-         retail's single cross-jumped assignment tail (70 versus 74 insns). */
-      int limit;
-      /* SYM-CODEGEN-CARRIER: inRange -- the shared predicate and measured +1
-         reference rotate desiredSpeed/limit/predicate onto a3/a2/v0. */
-      int inRange;
-
-      if (desiredSpeed >= 0) {
-        limit = cap;
-        inRange = desiredSpeed < limit;
-      } else {
-        limit = -cap;
-        inRange = limit < desiredSpeed;
-      }
-      /* W54-A15 REF-STEP #2 (reqdelta): +1 ref on inRange (3->4 floor_log2 step) rotates the
-         desiredSpeed/limit/inRange trio onto retail's $a3/$a2/$v0; 0 insns.
-         W86-D2: the step is now supplied in PURE C by the ABSORPTION IDENTITY
-         `X | (X & 3) == X` -- real RTL for cse/loop/flow, folded by combine, zero
-         bytes.  Ladder (whole-TU gate, AIState_GotoSlice::Execute): fence removed 18 |
-         one absorption PASS | 2 or 4 PASS | `X & (X | 3)` PASS. */
-      inRange = (int)((unsigned int)inRange | ((unsigned int)inRange & 3u));
-      if (inRange) {
-        limit = desiredSpeed;
-      }
-      /* +1 ref on carObj (3->4, the floor_log2 1->2 step) moves the speed cap
-         onto retail's $a0 (desiredSpeed a2->a3).  Supplied by the same absorption
-         identity as inRange (combine folds it, 0 insns); it replaced a read-only
-         asm ref fence. */
-      ((Car_tObj *)((u_int)carObj | ((u_int)carObj & 3u)))->desiredSpeed = limit;
+    if (this->carObj_->desiredSpeed >= 0) {
+      this->carObj_->desiredSpeed = this->carObj_->desiredSpeed < cap
+          ? this->carObj_->desiredSpeed : cap;
+      return;
+    }
+    this->carObj_->desiredSpeed = this->carObj_->desiredSpeed > -cap
+        ? this->carObj_->desiredSpeed : -cap;
 
   }
 

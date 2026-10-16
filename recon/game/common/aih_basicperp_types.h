@@ -21,20 +21,9 @@ typedef enum forceFocus_t {
 
 
 
-struct AIHigh_Cop : public AIHigh_BasicCop {
-    AIHigh_Player *perpTarget_;
-    int forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_;
-    int aggressionLevel_;
-    AIHigh_Cop(Car_tObj *carObj, int idx);
-    void SetTuningLevers();
-    void HighExecute();
-    int CheckForNeedyPlayers();
-    void CheckForWipeOut();
-    int CheckForNewTarget();
-    void AssignToPlayer(AIHigh_Player *p);
-    int GetCheckChasePosition(coorddef *pt);
-    trigger_t *CheckForNewTriggers();
-};
+#define NFS4_AIHIGH_TYPE_PART 1
+#include "aihigh.h"
+#undef NFS4_AIHIGH_TYPE_PART
 
 #include "shared/SPCHNFSType_POSITION.h"
 #include "shared/SPCHNFSType_DISTANCE.h"

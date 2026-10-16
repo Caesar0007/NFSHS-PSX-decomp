@@ -9,6 +9,20 @@
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
 
+/* Explicit frontend selection, not the manager's cached tier/tournament.
+   Same inferred lookup spelling as the trophy-room reconstruction; original
+   inline name/signature/parameter spellings are not uniquely supplied by SYM. */
+static inline tTourneyInfo *TourneyInTier(byte tier, byte tournament)
+{
+  return tournamentManager.fDefinition->fTournaments +
+      (tournament + tournamentManager.fDefinition->fTiers[tier].fTournOffset);
+}
+
+/* Inferred value-query spelling (the other owner surface uses GetMoney).
+   Restores the second empty pair at +84 without new records or code.
+   The original inline name/signature is not supplied by retail SYM. */
+static inline long TourneyMoney(void) { return tournamentManager.fMoney; }
+
 
 /* Retail screentournselect.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -40,47 +54,23 @@ tScreenTournSelect::~tScreenTournSelect()
 
 
 /* ---- tScreenTournSelect::GetShapeInfo  [SCREENTOURNSELECT.CPP:69-87] ---- */
-/* retail's GetShapeInfo ends in a zero-length inline-call pair: the swap-file name comes from a getter */
-static inline char *SwapFileName(void) { return gSwapFileName; }
 
+/* MATCH51: no caller-side selection/address objects. The real output
+   assignments in the manager argument keep numSwapShapes live through the
+   selection lookup, reproducing the t1 copy and original load/store order.
+   This source grouping and the query spelling are inferred, not recovered
+   literal macro text. Full SLD attribution remains open. */
 void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
-  /* MATCH (W68, 22 -> PASS; SLD 79/81/82/84/86/87): retain the front-end
-     base and precompute the trophy pointer before the output stores.  This
-     preserves numSwapShapes in $t1 and schedules the retail branch delays;
-     gSwapFileName's address remains in $s0 across the call. */
-  /* SYM-CODEGEN-CARRIER: useSpecial -- folding the if/else selection into
-     the tournament index is measured FAIL60 (51/51), changing the entire
-     early allocation and branch schedule. */
-  byte useSpecial;
-  /* SYM-CODEGEN-CARRIER: fe -- direct frontEnd member reads are measured
-     FAIL3 (52/51), reloading the base for tier instead of retaining it. */
-  tfrontEnd *fe;
-  /* SYM-CODEGEN-CARRIER: trophyTourn -- folding the tournament lookup into
-     GetTrophyName is measured FAIL19 (50/51), moving output stores across the
-     lookup and losing retail's precomputed pointer web. */
-  tTourneyInfo *trophyTourn;
-
-  /* MATCH: an if/ELSE (both arms load) - the oracle jumps over the else arm;
-     a default+override form emits no `j`. */
-  fe = &frontEnd;
-  if (fe->tier != '\0') {
-    useSpecial = fe->specialevent;
-  }
-  else {
-    useSpecial = fe->tournament;
-  }
-  trophyTourn = (tournamentManager.fDefinition)->fTournaments +
-                ((uint)useSpecial +
-                 (uint)(tournamentManager.fDefinition)
-                     ->fTiers[(byte)fe->tier].fTournOffset);
-  numPermShapes = 0x40;
-  numSwapShapes = 0x20;
-  *permFileName = "ztourn";
-  GetTrophyName(&tournamentManager,trophyTourn,ts_Medium,gSwapFileName,-1);
-  *swapFileName = SwapFileName();
+  GetTrophyName((numPermShapes = 0x40,
+                numSwapShapes = 0x20,
+                *permFileName = "ztourn", &tournamentManager),
+      TourneyInTier((byte)frontEnd.tier,
+          (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament)),
+      ts_Medium,gSwapFileName,-1);
+  *swapFileName = gSwapFileName;
   return;
 }
 
@@ -91,23 +81,11 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
 void tScreenTournSelect::Initialize()
 
 {
-  /* MATCH (W68, 62 -> PASS): keep the VIDEO_create result full-width by
-     assigning hVideo inside VIDEO_spoolfile's first argument; `i` is only the
-     authenticated short TV-loop counter.  Retail's special/tournament choice
-     is a real if/else and reuses one frontEnd base.  The trophy lookup uses an
-     index-first typed byte address, preserving `addu v0,v0,a0`; fTVTicks reads
-     the full-width ISR counter directly instead of truncating through `i`. */
-  /* SYM-CODEGEN-CARRIER: useSpecial -- folding the if/else into the trophy
-     index is measured FAIL35 with one missing instruction (145/146), changing
-     the selection branch and subsequent index allocation. */
-  byte useSpecial;
-  /* SYM-CODEGEN-CARRIER: fe -- direct frontEnd member reads are measured
-     FAIL7 with one extra instruction (147/146), reloading the tier base. */
-  tfrontEnd *fe;
-  /* SYM-CODEGEN-CARRIER: tvIdx -- recomputing `i * 2 + j` at each access is
-     measured FAIL112 with twelve extra instructions (158/146), changing the
-     saved-register set and the whole loop allocation. */
-  int tvIdx;
+  /* MATCH146: keep the full VIDEO_create result in hVideo. Real counted TV
+     loops and a common indexed InitTV argument need no tvIdx capture. The
+     byte-parameter trophy query preserves the frontend selection/address
+     web without useSpecial or fe. All five retail records and region pairs
+     agree; query spelling and full SLD still require original-source review. */
   short i;
   short j;
   RECT r;
@@ -130,33 +108,18 @@ void tScreenTournSelect::Initialize()
   i = 0;
   VIDEO_startplayback(this->hVideo);
   this->fFrame = 0;
-  do {
-    j = 0;
-    do {
-      tvIdx = i * 2 + j;
-      InitTV(this->trophyTV + tvIdx,this->fPermShapes.fShapes,0);
-      this->trophyTV[tvIdx].y = j * 0x25 + 0x8e;
-      j = j + 1;
-      this->trophyTV[tvIdx].w = 0x4c;
-      this->trophyTV[tvIdx].x = i * 0x4c + 0xa5;
-      this->trophyTV[tvIdx].h = 0x25;
-      this->trophyTV[tvIdx].flags |= 0x30;
-    } while (j < 2);
-    i = i + 1;
-  } while (i < 2);
-  fe = &frontEnd;
-  if (fe->tier != '\0') {
-    useSpecial = fe->specialevent;
+  for (; i < 2; i++) {
+    for (j = 0; j < 2; j++) {
+      InitTV(&this->trophyTV[i * 2 + j],this->fPermShapes.fShapes,0);
+      this->trophyTV[i * 2 + j].y = j * 0x25 + 0x8e;
+      this->trophyTV[i * 2 + j].w = 0x4c;
+      this->trophyTV[i * 2 + j].x = i * 0x4c + 0xa5;
+      this->trophyTV[i * 2 + j].h = 0x25;
+      this->trophyTV[i * 2 + j].flags |= 0x30;
+    }
   }
-  else {
-    useSpecial = fe->tournament;
-  }
-  this->fPreviousTrophy =
-       ((tTourneyInfo *)
-        (((uint)useSpecial +
-          (uint)(tournamentManager.fDefinition)->fTiers[(byte)fe->tier].fTournOffset) *
-             sizeof(tTourneyInfo) +
-         (int)(tournamentManager.fDefinition)->fTournaments))->fTrophyID;
+  this->fPreviousTrophy = TourneyInTier((byte)frontEnd.tier,
+      (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament))->fTrophyID;
   this->fTransitionDirection = 1;
   this->fTVTicks = FE_Ticks();
   return;
@@ -266,6 +229,10 @@ void tScreenTournSelect::DrawVideoWall()
 
 
 /* ---- tScreenTournSelect::DrawBackground  [SCREENTOURNSELECT.CPP:230-380] ---- */
+/* MATCH415: the shared inferred tournament lookup needs neither fe nor
+   tournament. Keep the signed-short index conversion in each TV ARRAY_REF:
+   direct uncast indexing was 54 diffs/413 words, but the narrowed expression
+   preserves 415/415 without tvIdx. Other captures and full SLD remain open. */
 void tScreenTournSelect::DrawBackground()
 
 {
@@ -273,46 +240,32 @@ void tScreenTournSelect::DrawBackground()
   char buffer [64];
   short i;
   short j;
-  /* SYM-CODEGEN-CARRIER: tvIdx -- repeating `j + i * 4` at each field is
-     FAIL 54 at 413/415 and rotates every invariant/coordinate value web. */
-  short tvIdx;
   RECT r;
   tTourneyInfo *tourn;
   int YellowCol;
   int DarkGreyCol;
   int GreyCol;
-  /* SYM-CODEGEN-CARRIER: number -- direct fMoney use is FAIL 9 at 414/415;
-     retail keeps the early value in `$s1` across the label-render call. */
+  /* SOURCE-REVIEW-UNRESOLVED: number is absent from retail. A direct money
+     query argument, including a sequenced label-render/X argument, is
+     9 diffs/414 versus415: the load moves beyond the label and coordinate
+     calls. Retain this unresolved snapshot, not a claim it was original. */
   long number;
-  /* SYM-CODEGEN-CARRIER: descriptionText -- deriving the pointer back from
-     `j` is FAIL 9 at 416/415 and destroys retail's delay-slot subtraction. */
+  /* SOURCE-REVIEW-UNRESOLVED: descriptionText is absent from retail.
+     Deriving its word index from j with a sequenced i reset is9dif/416;
+     direct TextSys_Word(i) plus final for initialization is11dif/414.
+     Neither establishes that a distinct source object was required. */
   char *descriptionText;
   short shapeY;
   /* SYM-CODEGEN-CARRIER: shapeX -- repeating literal 0x200 is FAIL 43 at
      410/415; retail retains the signed-short coordinate in `$s6`. */
   short shapeX;
   u_long movieRGB;
-  /* SYM-CODEGEN-CARRIER: tournament -- embedding the tier selection into
-     the definition index is count-exact FAIL 60 and reshapes the prologue
-     plus every early tournament-definition value web. */
-  byte tournament;
-  /* SYM-CODEGEN-CARRIER: fe -- direct `frontEnd` member spellings are FAIL 3
-     at 416/415 and materialize a redundant address high half. */
-  tfrontEnd *fe = &frontEnd;
-
-  if (fe->tier != 0) {
-    tournament = fe->specialevent;
-  }
-  else {
-    tournament = fe->tournament;
-  }
-  tourn = &tournamentManager.fDefinition->fTournaments
-            [tournament +
-             tournamentManager.fDefinition->fTiers[(byte)fe->tier].fTournOffset];
+  tourn = TourneyInTier((byte)frontEnd.tier,
+      (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament));
   YellowCol = CalcFadeVal(0xbebe,this->fScreenFadeVal);
   DarkGreyCol = CalcFadeVal(0x232323,this->fScreenFadeVal);
   GreyCol = CalcFadeVal(0x505050,this->fScreenFadeVal);
-  number = tournamentManager.fMoney;
+  number = TourneyMoney();
   FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x7b,textState_Selected,textType_ScreenInfo);
   DrawMoney(TextSys_WordX(0x7b) + 0x8c,TextSys_WordY(0x7b) + 9,6,
             number,YellowCol,DarkGreyCol);
@@ -348,22 +301,21 @@ void tScreenTournSelect::DrawBackground()
   do {
     j = 0;
     do {
-      tvIdx = (short)(j + i * 4);
-      this->tvConfigs[tvIdx].x = j * 0x50 + 0xa5;
-      this->tvConfigs[tvIdx].w = 0x50;
-      this->tvConfigs[tvIdx].h = 0x30;
-      this->tvConfigs[tvIdx].y = i * 0x30 + 0x29;
-      this->tvConfigs[tvIdx].u = j * 0x14;
-      this->tvConfigs[tvIdx].uw = 0x14;
-      this->tvConfigs[tvIdx].v = i * 0x28;
-      this->tvConfigs[tvIdx].vh = 0x28;
-      this->tvConfigs[tvIdx].tpage = GetTPage(2,0,shapeX,shapeY);
-      this->tvConfigs[tvIdx].state = tv_StateOn;
-      this->tvConfigs[tvIdx].clut = 0;
-      this->tvConfigs[tvIdx].flags = 0x22;
-      this->tvConfigs[tvIdx].tint = movieRGB;
-      this->tvConfigs[tvIdx].destBrightness = 0x80;
-      this->tvConfigs[tvIdx].transition = 0x80;
+      this->tvConfigs[(short)(j + i * 4)].x = j * 0x50 + 0xa5;
+      this->tvConfigs[(short)(j + i * 4)].w = 0x50;
+      this->tvConfigs[(short)(j + i * 4)].h = 0x30;
+      this->tvConfigs[(short)(j + i * 4)].y = i * 0x30 + 0x29;
+      this->tvConfigs[(short)(j + i * 4)].u = j * 0x14;
+      this->tvConfigs[(short)(j + i * 4)].uw = 0x14;
+      this->tvConfigs[(short)(j + i * 4)].v = i * 0x28;
+      this->tvConfigs[(short)(j + i * 4)].vh = 0x28;
+      this->tvConfigs[(short)(j + i * 4)].tpage = GetTPage(2,0,shapeX,shapeY);
+      this->tvConfigs[(short)(j + i * 4)].state = tv_StateOn;
+      this->tvConfigs[(short)(j + i * 4)].clut = 0;
+      this->tvConfigs[(short)(j + i * 4)].flags = 0x22;
+      this->tvConfigs[(short)(j + i * 4)].tint = movieRGB;
+      this->tvConfigs[(short)(j + i * 4)].destBrightness = 0x80;
+      this->tvConfigs[(short)(j + i * 4)].transition = 0x80;
       j++;
     } while (j < 4);
     i++;

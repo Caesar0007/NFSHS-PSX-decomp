@@ -568,21 +568,7 @@ void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand
  * 2 @169; with `x + off` **PASS**.
  */
 
-void tPMenuItemLeftRightSlider::Draw(bool selected)
-
-{
-  short x;
-  short y;
-
-  x = (short)TextSys_WordX(this->fTextDescription);
-  y = gPause_CurrentY;
-  PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
-             this->IsDisabled(), x);
-  y += 4;
-  for (int i = 0; i < 15; i++) {
-    u_long col = 0x323232;
-    int xpos;
-    /* 🔴 CORRECTNESS + MATCH (W71-A22): retail computes xpos UNCONDITIONALLY --
+/* 🔴 CORRECTNESS + MATCH (W71-A22): retail computes xpos UNCONDITIONALLY --
        its `addu $fp,$s6,$s7` @800A7AB8 sits in the `beqz $v0,.L800A7AD4` DELAY
        SLOT, so it runs on BOTH paths (methodology S3.1).  The old shape computed
        it only inside the `if`, so every UNFILLED slider segment (the arm the
@@ -599,9 +585,35 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
        retail's `addu $fp,$s6,$s7` operand order (`off + x` = 2 diffs).
        This also RETIRES the old `__asm__("" : : "r"(i * 5))` allocation fence --
        the giv now supplies those refs by itself. */
-    /* SYM-CODEGEN-CARRIER: off -- direct/two-statement alternatives are
-       five/106 differences; the value is still source-review work despite
-       being eliminated into the affine loop quantity in native SYM. */
+
+/* SOURCE-REVIEW-UNRESOLVED: off is not a recovered original name.
+       2026-10-13: a value-returning expression removes this object at
+       169/169 PASS, but adds an absent zero-length region at +98 hex.
+       Nested assignment is106dif/169; widened arithmetic174/175;
+       short narrowing8/171; unsigned/long expressions98/169;
+       x-first staged addition164/173. All failed contracts reverted.
+       Byte failures do not prove a distinct original offset object. */
+
+/* SOURCE-REVIEW-UNRESOLVED: packetPtr names the scratch cursor cell
+       * at 1f800004, absent from retail's local records. Its s4 handout is
+       * allocation evidence, not original-object/name proof. An array
+       * reference view with the existing fence's same address value gives
+       * 34dif/171; postfix cursor acquisition114/173. Both reverted. */
+
+void tPMenuItemLeftRightSlider::Draw(bool selected)
+
+{
+  short x;
+  short y;
+
+  x = (short)TextSys_WordX(this->fTextDescription);
+  y = gPause_CurrentY;
+  PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
+             this->IsDisabled(), x);
+  y += 4;
+  for (int i = 0; i < 15; i++) {
+    u_long col = 0x323232;
+    int xpos;
     int off = i * 5 + 66;
     xpos = x + off;
     if (i < (*this->fData * 15) / (u_char)this->fMaxVal) {
@@ -612,7 +624,7 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
     }
     if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) {
       POLY_GT4 *prim;
-      u_char **packetPtr; /* SYM-CODEGEN-CARRIER: packetPtr -- allocsim-confirmed retail $s4. */
+      u_char **packetPtr;
 
       packetPtr = (u_char **)0x1f800004;
       prim = (POLY_GT4 *)*packetPtr;

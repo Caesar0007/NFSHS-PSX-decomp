@@ -76,10 +76,11 @@ struct AIDelayCar {
     int deltaMeters_, slice_;
     coorddef deltaPosition_, position_;
     int deltaRoadPosition_, roadPosition_, laneIndex_, currentSpeed_;
-    AIDelayCar() {}
     AIDelayCar(Car_tObj *basisCar, Car_tObj *targetCar, int delayFactor);
     void SetNewTargetCar(Car_tObj *targetCar);
     void Update();
+    int GetCurrentSpeed(); /* inferred field getter; retail CloseTargeting has three receiver-free inline pairs */
+    int GetRoadPosition(); /* inferred getter for the three lateral-arm inline expansions */
 };
 
 typedef enum cruiseMode_t {
@@ -88,7 +89,7 @@ typedef enum cruiseMode_t {
     CRUISE_ATTRAFFICSPEED = 2
 } cruiseMode_t;
 
-#include "aistate_classes.h"
+#include "aistate.h"
 
 #include "shared/kernpair.h"
 typedef kernpair KERN;

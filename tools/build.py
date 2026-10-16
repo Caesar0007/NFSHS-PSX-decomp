@@ -470,7 +470,10 @@ PER_TU_FLAGS = {
     "recon/game/common/aidelaycar.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/aih_basiccop.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/aih_cop.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
-    "recon/game/common/aih_hum.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
+    # 2026-10-16: Human's implicit virtual destructor needs the native2.8.1
+    # frontend/linkage identity; tested as a whole TU, never a function splice.
+    # Backup: build/nc12/opp_linkage_gdb_20261015/build-before-human.py.
+    "recon/game/common/aih_hum.cpp": {"cc1plus_ver": "2.8.1-sn"},
     "recon/game/common/aiinit.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/aiperson.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
     "recon/game/common/aiphysic.cpp": {"no_implement_inlines": True},   # AI-NII 2026-09-26: inline members of AI classes have no out-of-line copies in retail
@@ -489,12 +492,22 @@ PER_TU_FLAGS = {
     # w67-a8 batch2-safe: gate-improve at -G8 with sdata=0 (no own small data, so
     # cannot shift the .sdata layout / break SOURCE_DATA_OWNERS; pure gp-relative
     # addressing-mode change toward retail).
-    "recon/game/common/aih_btcperp.cpp":    {"g_value": "8"},  # +9  # AI-NII: NOT set -- carries retail inline virtual dtor copies
+    # 2026-10-16: native 2.8.1 implicit HumanPerp destructor restores retail
+    # base-owned scopes AND external linkage; 2.8.0 makes it LOCAL instead.
+    # Complete normal TU ELF equals the prior explicit-dtor reconstruction.
+    # All-consumer/native receipts: build/nc12/ai_humanperp_implicit_20261016.
+    # Backup: build/nc12/ai_humanperp_implicit_20261016/build-before.py.
+    "recon/game/common/aih_btcperp.cpp":    {"g_value": "8", "cc1plus_ver": "2.8.1-sn"},  # AI-NII: NOT set -- carries retail inline virtual dtor copies
     "recon/game/common/aih_traf.cpp":       {"g_value": "8", "no_implement_inlines": True},  # +1
     "recon/game/common/aih_basicperp.cpp":  {"g_value": "8"},  # AI-NII: NOT set -- carries retail inline virtual dtor copies
     "recon/game/psx/fe3dmenu.cpp":          {"g_value": "0"},  # 2026-09-19: its 4-byte publics showRoomFlag/gShowroomLights are retail front.data, not small data
     "recon/game/common/aih_play.cpp":       {"g_value": "8", "no_implement_inlines": True},  # class (b) 2026-09-17: its 5-byte literal is retail .sdata 0x8013c568 (data row), not .rodata
-    "recon/game/common/aih_opp.cpp":        {"g_value": "8", "no_implement_inlines": True},
+    # 2026-10-16: native2.8.1 emits the implicit virtual destructor with retail
+    # EXT linkage/scopes. All6 detailed targets PASS; all allocated bytes,
+    # layout, symbol semantics and relocations equal the previous normal ELF.
+    # No function splice. Receipts: build/nc12/opp_linkage_gdb_20261015;
+    # backup: build/nc12/build_before_opp_compiler_identity_20261016.py.
+    "recon/game/common/aih_opp.cpp":        {"g_value": "8", "cc1plus_ver": "2.8.1-sn"},
     "recon/game/common/control.cpp":        {"g_value": "8"},  # +1
     # w67-a10: fragment-member TU -G8 via surgical residual re-cut (its -G8
     # small-data literals move out of the adjacent residual blob r20_post, which
@@ -786,7 +799,11 @@ PER_TU_FLAGS = {
     # sight) plus the unfused `la` into a callee-saved reg in padinit /
     # PAD_restore / PAD_state. Whole-TU sweep with the flag: 5/5 functions
     # improve or hold (see the per-fn table in recon/eaclib/psx/pad.c).
-    "recon/eaclib/psx/pad.c":               {"no_split_addresses": True},
+    # 2026-10-15: one authentic 2.7.2 compilation matches ALL five functions.
+    # Retire the four-function assembly splice below; no generated instruction
+    # stream needs replacing. Text/BSS/layout and resolved relocations are
+    # independently checked. Backup: build/nc12/build_before_pad_whole_compiler_20261015.py.
+    "recon/eaclib/psx/pad.c":               {"no_split_addresses": True, "cc1_ver": "2.7.2"},
     # 2026-09-03 FLAG RETIRED (user's indexed-form seal): whole-TU -fforce-addr
     # (the W82-root device) is GONE.  iSPCH_InitEventQueue now PASSes 29/29
     # source-only -- the indexed `gVoxEvents.slots[i].field` walk makes loop.c
@@ -1629,14 +1646,8 @@ PER_FN_CC1_VER_SPLICE = {
     # PsyQ 4.4 binary).  Both fns are certified PsyQ 4.3 VENDOR-OBJECT
     # identities (REAL=0 vs libgpu.lib(FONT.OBJ)) -- Sony's build, not our
     # source.  (no FONT.c entry)
-    # W74-A19: PAD_update wants 2.7.2 codegen for its constant remat while the
-    # TU stays 2.8.0. W80-root: per-function normal-route ladder probes show
-    # that 2.6.0/2.6.3/2.7.2 all emit the retail padinit, PAD_restore, and
-    # PAD_state epilogues exactly. Select the already-established 2.7.2 object
-    # identity: all five pad.c functions are source-only PASS, reproduced 2x.
-    "recon/eaclib/psx/pad.c": {
-        "2.7.2": {"padinit", "PAD_restore", "PAD_state", "PAD_update"},
-    },
+    # 2026-10-15: PAD's former four-function entry is retired. Its whole-TU
+    # 2.7.2 identity now lives in PER_TU_FLAGS, with no function-body splicing.
     # W80-root: PADENTRY remains a normal maspsx TU, but these three public
     # wrappers carry the older Sony compiler's return-epilogue identity.  The
     # complete ladder gives PASS on 2.6.0, 2.6.3, 2.7.2, and 2.7.2-970404;

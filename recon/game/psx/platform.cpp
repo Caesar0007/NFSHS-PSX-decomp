@@ -57,7 +57,7 @@ void Platform_InitMemory(void)
 /* ---- Platform_ReserveMemory__FiPc  [PLATFORM.CPP:139-156] SLD map, not full SLD-exact ---- */
 /* 2026-10-13: direct actual-global bounds expression plus gCurrentMemory+=size
  * removes newmem at19/19 PASS. No replacement alias,qualifier,asm or output
- * rewrite. mem remains source review despite debug elision. Returning the
+ * rewrite. The historical mem capture still needed source review. Returning the
  * updated pointer minus size removes it but22diff/19 (size live-range rotates
  * the divide guard); restore mem only. Missing retail inline regions remain
  * producer recovery work,not empty scoping to satisfy counts.
@@ -88,19 +88,22 @@ void Platform_InitMemory(void)
  * Measured this session: rounded-into-size 0, base 6, bias-inline 6, named `n` 6, separate
  * `rounded` local 6, mem-before-newmem 8, mem-drives-newmem 8, `>>2` instead of `/4` 11 (-3 insns,
  * drops the guard). */
+/* INFERRED DEAD-PHASE REUSE: retail records string as a char pointer in a1.
+ * Its incoming label is never read before that register holds the allocation
+ * cursor. Reuse the provided by-value parameter only after the failure check,
+ * not a new mem object. Register reuse does not prove this literal spelling;
+ * the missing scope/SLD producers and source-return structure stay in review. */
 char *Platform_ReserveMemory(int size,char *string)
 
 {
-  char *mem; /* SOURCE-REVIEW-UNRESOLVED: absent from retail, even when debug-elided. */
-
   size = size + 3;
   size = (size / 4) * 4;
-  mem = (char *)gCurrentMemory;
   if ((int)gTotalMemory < (gCurrentMemory + size) - gLowMemory) {
     return (char *)0x0;
   }
+  string = (char *)gCurrentMemory;
   gCurrentMemory += size;
-  return mem;
+  return string;
 }
 
 /* ---- Platform_TempReserveMemory__FiPc  [PLATFORM.CPP:161-178] SLD-VERIFIED ---- */

@@ -1,5 +1,184 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
+2026-10-18 verified remaining-work checkpoint; commit/push then pause requested.
+
+Integrated origin/main through f7ad7810 before verification. Its five newer
+speech-library/tool commits do not overlap the ten pending source/ledger files.
+The pending checkpoint contains the canonical menu and pause-menu header-owner
+repairs, ordinary Speech C++ public API restoration, and Platform's documented
+dead-phase parameter reuse. Generated outputs, diagnostic scripts, runtime
+captures, side projects, tool backups and unrelated untracked work are excluded.
+
+Fresh strict full build (--skip-asm, NFS4_STRICT=1) succeeds with no skipped or
+failed translation units. All175 normal/full-debug owners produce identical
+code. Native ASPSX and PSYLINK complete successfully; the full native comparison
+covers2551/2551 supplied function records across148owners. The27 compiled owners
+without supplied function records remain explicitly uncertified by that check.
+All previous PASS declaration/scope statuses and strict EXACT seals are retained;
+the five menu and four pause-menu gains described below survive together.
+
+Fresh detailed SOURCE-ONLY gates cover948functions across33 implementation TUs,
+including all affected header consumers and the updated remote spchpick/spchrule
+owners. Every selected function PASSes; all selected C++ branch/count checks have
+zero divergence. The34th selected TU, spchdata.c, is data-only, not a missing
+function gate. The diagnostic initially assumed a scaffold for every selected TU
+and stopped at that absent scaffold AFTER completing native checks. Its corrected
+explicit data-owner handling does not skip any function; full build and actual
+linked-data/foreign-ownership checks cover that owner. No production tool changed.
+
+Retained consumers match the frozen accepted object fingerprints. Pause-menu
+and Platform match pre-edit compiled sections/layouts. Platform_ReserveMemory
+removes the unrecorded mem object by reusing the recorded char-pointer parameter
+string after its incoming label is dead and the bounds test succeeds. Its19words
+and all eight owner functions remain PASS; native declarations improve to7PASS/
+1DIFF. Physical register reuse supports this candidate but does NOT uniquely
+prove original spelling. Six region contracts PASS/two DIFF; all eight complete
+SLD contracts remain incomplete. InitMemory's m, missing allocator scope/SLD
+producers, and the system-info Group carrier remain unresolved source work.
+Capacity-helper, direct-return, initialization and opaque-system-info probes
+are diagnostic only; no invented helper, type, alias, flag or scope is adopted.
+
+All105 pipeline tests PASS; vtable audit1366files PASS; source-policy PASS.
+Standing relink754objects has0REALduplicates/0hidden phantoms;724historical
+blob-class overlaps remain separately classified, not source duplicates.
+Canonical final link has zero undefined names/truncated relocations. Actual
+retail comparison gives299819/299819 RECON words identical, with zero masked
+RECON overlap mismatches and zero foreign-label ownership errors. Retail blob
+passthrough is excluded from that reconstruction score;212image words remain
+uncovered. This is not a claim of whole-project original-source/SYM completion.
+
+Full logs, fresh native dump, coverage, negative harness attempt, detailed gates
+and final-proof.json: build/nc12/final_checkpoint_20261018 (ignored). Earlier
+round receipts below remain historical; their uncommitted status is superseded
+by this requested checkpoint. No generated linker/source/object/SYM rewrite,
+register pin, volatile, new asm, reference reset or comparator relaxation.
+Pause the still-incomplete original-source goal after successful push.
+
+2026-10-18 Speech public C++ interface restored;virtual-default origin still open.
+
+SPEECH.CPP and its supplied manglings prove ordinary C++ free signatures for
+Speech_AllocateRAM(long,char*),Speech_PurgeRAM(char*),Speech_HandleRequest(four
+longs),and Speech_Server(). Their definitions now use those signatures directly,
+not extern-C linkage plus four assembler-name aliases. The public speech.h now
+includes the actual shared class declaration and those four typed free APIs.
+Removed66stale encoded-name free declarations for real nested-class members,
+including manually exposed constructor/destructor ABI facades. Real member
+names/types are supplied by Speech's class,not fabricated duplicate free APIs.
+The shared header's scalar prerequisite comment now correctly includes u_char.
+
+Fresh independent consumer probe compiles the public header with basic PsyQ
+scalars. All four natural C++ import names match actual production definitions;
+the three additional static/vtable references also resolve in that owner.
+Actual ld-r of probe+production succeeds with no extra unresolved references.
+All10affected consumer ELFs are byte-identical to their frozen pre-edit objects,
+not only their text. All155Speech functions pass detailed SOURCE-ONLY gates;
+branch155/0divergences,vtable1366PASS,source-policy PASS,105tool testsPASS.
+
+Native run-2trj48t1 passes immutable byte/layout refs,normal/full-g equality,
+ASPSX524/0 and PSYLINK0;complete155/155ownership includes53includedC builders
+and15header-attributed bodies. All previous declaration/region/strict-SLD
+statuses are preserved:153PASS/2DIFF declarations/regions and21EXACT/134INCOMPLETE
+combined. The public-interface/alias repair does NOT fix the15default-body
+header mismatches and is not counted as any new strict-SLD seal.
+
+The larger source experiment was explicitly rejected/restored:retail header
+line order plus reverse emitted order supports in-class Speaker virtual
+defaults. Putting the15unchanged defaults into SPEECH.H retains nine consumer
+layouts but makes Speech omit120text bytes/all15definitions,leaving vtable
+targets undefined under current -fno-implement-inlines. GCC2.8.1 cp/decl2.c's
+import_export_decl/DECL_THIS_INLINE condition explains this current combination,
+not the literal original mechanism. Input-only -fno-default-inline leaves those
+bodies missing;enabling implementation gives209functions versus155,including
+54unsupported copies. Neither flag is adopted. Correct source/interface
+visibility/emission still needs recovery,not a floor or a reversed-header trick
+to make a filename-only diagnostic green. The entire bad in-class branch and
+consumer results remain under ignored artifacts;the declaration fragment was
+restored byte-for-byte. No generated code/object/SYM or reference was rewritten.
+
+The initial public-header probe lacked u_char and was corrected as a diagnostic
+fixture,not by inventing a production type. Its first four-import-only assertion
+also rejected the real class/vtable references;the final proof validates all
+seven explicitly against production,then checks actual relocatable linking.
+Evidence/backups/unfiltered native dump and final proof:
+build/nc12/speech_default_virtuals_20261018. No new helper object,pin,volatile,
+pragma or production compiler flag. Prior menu/pause-menu header seals remain;
+whole source-restoration objective active/incomplete. Changes are uncommitted.
+Final combined standing link remains0REALduplicates/0hidden phantoms;canonical
+real link compares299819/299819reconstructed words equal to retail,with zero
+masked reconstruction mismatch and zero foreign-label ownership errors.
+
+2026-10-18 pause-menu inline owners:four further strict SLD seals.
+
+Retail PAUSEMENU.H115/116 records IsDisabled/IsEnabled in that adjacent order.
+Their unchanged out-of-class inline bodies now live in pausemenu.h,not CPP.
+The CPP includes that header at the prior visibility boundary;this preserves
+deferred body order but is explicitly NOT a recovered literal include graph.
+No new source object,qualifier,pragma,flag,asm or line directive is introduced.
+
+Both standalone predicates become strict declaration/scope/relative-SLD EXACT.
+Two callers also seal:NumEnabledItems and ItemEnabledNum. Raw MND block records
+show why:the nested predicate regions formerly carried line1;after using the
+actual header owner,they carry caller-relative lines6and5,respectively,exactly
+as retail. Instruction tags and code bytes were already equal. This is a
+measured inline-definition-source effect on block-line attribution,not a manual
+line adjustment or claim that a declaration-only audit proved source recovery.
+
+Fresh native run-499qzxts passes immutable bytes/layout,normal/full-g,ASPSX524/0,
+PSYLINK0 and complete60/60record ownership. Prior declaration/region statuses
+and all existing strict seals are preserved. PauseMenu strict EXACT43->47/60;
+declarations57PASS/3DIFF,regions59PASS/1DIFF. Remaining13SLD differences and
+source-only carriers are still open;no full owner/project completion claim.
+All60functions pass detailed SOURCE-ONLY verify_asm;compiled sections/layout
+equal the frozen pre-edit object. Branch60/0divergences,vtable1366PASS and
+105tool testsPASS. The initial proof expected only two gains and correctly
+stopped on the additional two;unfiltered old/new/retail block records establish
+the four-gain result. No comparator,source statement or reference was changed
+to obtain that result. Backups/raw dump/full proof:
+build/nc12/pausemenu_header_20261018. Together with the canonical menu-header
+round below,this restores nine strict covered-function contracts. Full goal
+active/incomplete;unrelated files preserved;these changes remain uncommitted.
+Final combined standing link:0REALduplicates/0hidden phantoms. Canonical real
+link still gives HONEST RECON299819/299819identical words,zero masked mismatch
+and zero foreign-label ownership errors. No generated linker change is retained.
+
+2026-10-18 canonical menu helper headers:five strict SLD seals,no byte changes.
+
+Retail records place tBlankMenuItemGoToMenuNFS4Button's inline bodies/dtor in
+FEMENUOPTIONS.H and tBlankMenuItemNFS4LeftRightChoice's in FEMENUEXTENDED.H.
+Moved those actual definitions out of screendisplay_types.h into their recorded
+headers,verbatim. Existing part-selection include scaffolding preserves each
+owner's declaration order;its identifiers are explicitly reconstruction glue,
+not claimed original macros. No #line/path rewriting or comparator relaxation.
+
+Fresh dependency discovery finds19actual consumers. All compiled sections and
+layouts remain identical;18whole ELFs identical. FEMenuDefs changes debug-only
+metadata,not instructions,data or storage. All508registered functions across
+those19TUs pass detailed SOURCE-ONLY verify_asm. TransformVector's shortened
+scaffold name is routed through the verifier's EXISTING explicit mangled-name
+mapping;the initial wrong-selector failure was retained,not dropped from scope.
+
+Native run-meva7p2k passes immutable byte/layout refs,normal/full-g equality,
+ASPSX524/0 and PSYLINK0. Full selected ownership covers508/508records. Every
+previous declaration/scope status is preserved and no prior strict EXACT is
+lost. All seven header filenames now agree. Five empty Draw/true-return helper
+bodies become fully strict declaration/scope/relative-SLD EXACT:three on
+tBlankMenuItemGoToMenuNFS4Button and two on tBlankMenuItemNFS4LeftRightChoice.
+FEMenuDefs strict EXACT7->12 of66;its declaration/region status stays65PASS/1DIFF.
+
+The two implicit dtors still have function-end line differences;their recorded
+end lines extend into the deferred-emission caller context,not the short header
+body. Header ownership is repaired,not those remaining source-line producers.
+Constructor3207PASS,frame640 and all40local/105scope records stay preserved;
+LoadGame's pre-existing unproved temporary/scope remains unresolved. No false
+full-constructor,full-directory or whole-project SLD/source-text seal claim.
+
+Branch check66functions/0divergences,vtable1366PASS,source-policy PASS and
+105tool testsPASS. Raw native dump,unfiltered owner report,pre-edit header/object
+backups,negative selector attempt and final proof are retained under
+build/nc12/menu_header_owners_20261018. No asm,volatile,pin,new source local,
+dummy statement,output rewrite,flag override or reference reset. The broader
+goal remains active/incomplete;unrelated files are untouched.
+
 2026-10-16 remaining-project checkpoint: exhaustive build/code checks before push.
 
 User requested all remaining verified project work committed,generated/unrelated

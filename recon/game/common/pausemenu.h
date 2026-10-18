@@ -10,6 +10,11 @@ void PauseMenu_FullText(char *sMenuText, short x, short flags, short color);   /
 void PauseMenu_MenuTextPositioned(short index, short selected, short disabled, short x);   /* :87 */
 void PauseMenu_MenuText(short index, bool selected, bool disabled);   /* :103 */
 
-/* Header-attributed inline methods are declared on tPMenuItem in nfs4_types.h. */
+/* The including owner supplies tPMenuItem's declaration. Retail PAUSEMENU.H
+ * lines115/116 contain these adjacent definitions in this order; both the
+ * expanded uses and compiler-deferred standalone copies belong to this file.
+ * No class storage, virtual slot, qualifier or source object is added. */
+inline bool tPMenuItem::IsDisabled() { return this->fFlags & 1; }
+inline bool tPMenuItem::IsEnabled() { return (this->fFlags ^ 1) & 1; }
 
 #endif /* _GAME_COMMON_PAUSEMENU_H_ */

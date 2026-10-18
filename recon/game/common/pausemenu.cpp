@@ -331,14 +331,10 @@ tPMenuItemInteractive::~tPMenuItemInteractive() {}
 
 
 
-/* ---- tPMenuItem::IsDisabled [@0x800A86BC] SLD-FLAG:NO_SLD; inline definition and compiler-deferred standalone body ---- */
-/* Retail Draw records the inherited tPMenuItem inline receiver here. Its
-   body is visible only in this TU; the compiler emits the canonical copy
-   in the deferred footer. */
-inline bool tPMenuItem::IsDisabled() { return this->fFlags & 1; }
-
-/* ---- tPMenuItem::IsEnabled [@0x800A86A8] SLD-FLAG:NO_SLD; inline definition and compiler-deferred standalone body ---- */
-inline bool tPMenuItem::IsEnabled() { return (this->fFlags ^ 1) & 1; }
+/* Retail attributes the adjacent predicate definitions to PAUSEMENU.H.
+ * Include their real owner here to preserve the existing definition visibility
+ * and deferred-body order; this is not a recovered literal include graph. */
+#include "pausemenu.h"
 
 /* ---- tPMenuItemInteractive::Draw  [PAUSEMENU.CPP:311-312] SLD-VERIFIED ---- */
 

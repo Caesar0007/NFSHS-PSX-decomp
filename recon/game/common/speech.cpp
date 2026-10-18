@@ -1,11 +1,12 @@
 /* game/common/speech.cpp -- RECONSTRUCTED (NFS4 PSX cop speech/dispatch engine; C++ TU)
- *   101 fns across 7 classes (Speech + Speaker/MobileSpeaker/DispatchSpeaker hierarchy +
- *   CarBank/CarBankName/LocationBank helpers) + 4 free C entry points (Speech_AllocateRAM__FlPc/
+ *   102 owner-side fns across 7 classes (Speech + Speaker/MobileSpeaker/DispatchSpeaker hierarchy +
+ *   CarBank/CarBankName/LocationBank helpers) + 4 free C++ entry points (Speech_AllocateRAM__FlPc/
  *   PurgeRAM/HandleRequest/Server). Retail nested-class linkage is retained by
- *   the exact owner declarations in speech_types.h. Virtual dispatch via _vf[31]. GTE-free.
+ *   the exact owner declarations in speech_types.h. Compiler-owned virtual dispatch. GTE-free.
  */
 #include "speech_types.h"
 #include "speech_externs.h"
+#include "speech.h"
 
 #define SPCHEVNT_IN_SPEECH_OBJ 1
 extern "C" {
@@ -100,15 +101,8 @@ Speech_tMobileVoiceAttr     Speech_gCopAttr[9] = {   /* @0x80111e5c : {voice, pi
     { 1, 0 }, { 2, 0 }, { 4, 0 }, { 1, 5 }, { 2, 5 }, { 4, 5 }, { 1, -5 }, { 2, -5 }, { 4, -5 }
 };
 
-/* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
-extern "C" {
-char *Speech_AllocateRAM(long numBytes,char *message) asm("Speech_AllocateRAM__FlPc");
-void Speech_PurgeRAM(char *memPtr) asm("Speech_PurgeRAM__FPc");
-long Speech_HandleRequest(long bank,long localoffset,long size,long event)
-  asm("Speech_HandleRequest__Fllll");
-void Speech_Server(void) asm("Speech_Server__Fv");
-
-
+/* Real C++ signatures from SPEECH.CPP produce the supplied retail manglings
+ * directly. No C-linkage wrapper or assembler-name alias is needed. */
 /* ---- Speech_AllocateRAM__FlPc  [SPEECH.CPP:169-170] SLD-VERIFIED ---- */
 char *Speech_AllocateRAM(long numBytes,char *message)
 
@@ -132,8 +126,6 @@ long Speech_HandleRequest(long bank,long localoffset,long size,long event)
 }
 
 /* ---- SetCar__Q26Speech11CarBankNamei  [SPEECH.CPP:234-246] SLD-VERIFIED ---- */
-} /* extern "C" */
-
 void Speech::CarBankName::SetCar(int carIndex)
 
 {
@@ -1086,8 +1078,6 @@ void Speech::Speaker::Promote()
 }
 
 /* ---- Speech_Server__Fv  [SPEECH.CPP:1539-1540] SLD-VERIFIED ---- */
-extern "C" {
-
 void Speech_Server(void)
 
 {
@@ -1095,8 +1085,6 @@ void Speech_Server(void)
 }
 
 /* ---- SetDelayedStatus__6SpeechPQ26Speech7Speakeri  [SPEECH.CPP:1546-1548] SLD-VERIFIED ---- */
-} /* extern "C" */
-
 void Speech::SetDelayedStatus(Speaker *sub,int delay)
 
 {
@@ -2287,107 +2275,114 @@ int Speech::DispatchSpeaker::StatusCount()
   return this->fStatusCount;
 }
 
-/* base Speech::Speaker virtual not separately reconstructed (vtable-only ref, surfaced by #75
- * data-materialization); faithful from nfs4-f.exe @0x80099364 = { jr $ra; addiu $v0,$zero,0 }
- * W60-A9: moved here from the file tail to restore retail VA emission order (tu_order_audit
- * inversion: 0x80099364 sits between StatusCount__...DispatchSpeaker and FindClosestLocationTo). */
+/* SOURCE-OWNER-UNRESOLVED: retail attributes these defaults to SPEECH.H,
+ * not this CPP. Their reversed definition list is a byte-matched reconstruction,
+ * not accepted original-source order. Header declaration order and emitted
+ * reverse order support in-class defaults, but the measured source/flag
+ * combination suppresses all15 such bodies under -fno-implement-inlines.
+ * Disabling default inlining does not restore them; enabling implementation
+ * instead emits209 functions versus155 (54 unsupported copies). No flag
+ * change or extra body is retained. The actual inline/interface visibility
+ * mechanism still needs recovery; this is not a source floor. Do not reverse
+ * physical header definitions merely to satisfy a filename-only diagnostic.
+ * Controls/backups: build/nc12/speech_default_virtuals_20261018. */
 Speech::CallSignBank *Speech::Speaker::CallSign()   /* @0x80099364  CallSign__Q26Speech7Speaker -> NULL */
 {
   return (CallSignBank *)0;
 }
 
-/* ---- FindClosestLocationTo__Q26Speech7Speakeri  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- FindClosestLocationTo__Q26Speech7Speakeri [retail SPEECH.H:366-367; source owner unresolved] ---- */
 Speech::LocationBank *Speech::Speaker::FindClosestLocationTo(int slice)
 
 {
   return (LocationBank *)0x0;
 }
 
-/* ---- GetCarBank__Q26Speech7Speakeri  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- GetCarBank__Q26Speech7Speakeri [retail SPEECH.H:362-363; source owner unresolved] ---- */
 Speech::CarBank *Speech::Speaker::GetCarBank(int carIndex)
 
 {
   return (CarBank *)0x0;
 }
 
-/* ---- Perp__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- Perp__Q26Speech7Speaker [retail SPEECH.H:338; source owner unresolved] ---- */
 Car_tObj *Speech::Speaker::Perp()
 
 {
   return (Car_tObj *)0x0;
 }
 
-/* ---- ReActivate__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- ReActivate__Q26Speech7Speaker [retail SPEECH.H:337; source owner unresolved] ---- */
 void Speech::Speaker::ReActivate()
 
 {
   return;
 }
 
-/* ---- CarObj__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- CarObj__Q26Speech7Speaker [retail SPEECH.H:336; source owner unresolved] ---- */
 Car_tObj *Speech::Speaker::CarObj()
 
 {
   return (Car_tObj *)0x0;
 }
 
-/* ---- DistToPerp__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- DistToPerp__Q26Speech7Speaker [retail SPEECH.H:335; source owner unresolved] ---- */
 int Speech::Speaker::DistToPerp()
 
 {
   return 0x3e80000;
 }
 
-/* ---- PurgeStatusSub__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- PurgeStatusSub__Q26Speech7Speaker [retail SPEECH.H:334; source owner unresolved] ---- */
 void Speech::Speaker::PurgeStatusSub()
 
 {
   return;
 }
 
-/* ---- StatusSub__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- StatusSub__Q26Speech7Speaker [retail SPEECH.H:333; source owner unresolved] ---- */
 Speech::Speaker *Speech::Speaker::StatusSub()
 
 {
   return (Speaker *)0x0;
 }
 
-/* ---- StatusCount__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- StatusCount__Q26Speech7Speaker [retail SPEECH.H:332; source owner unresolved] ---- */
 int Speech::Speaker::StatusCount()
 
 {
   return 0;
 }
 
-/* ---- IsSuper__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- IsSuper__Q26Speech7Speaker [retail SPEECH.H:331; source owner unresolved] ---- */
 bool Speech::Speaker::IsSuper()
 
 {
   return false;
 }
 
-/* ---- ClearPerp__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- ClearPerp__Q26Speech7SpeakerP8Car_tObj [retail SPEECH.H:329; source owner unresolved] ---- */
 void Speech::Speaker::ClearPerp(Car_tObj *car)
 
 {
   return;
 }
 
-/* ---- KnownPerp__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- KnownPerp__Q26Speech7SpeakerP8Car_tObj [retail SPEECH.H:328; source owner unresolved] ---- */
 bool Speech::Speaker::KnownPerp(Car_tObj *car)
 
 {
   return false;
 }
 
-/* ---- Unit__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- Unit__Q26Speech7Speaker [retail SPEECH.H:323; source owner unresolved] ---- */
 int Speech::Speaker::Unit()
 
 {
   return 0;
 }
 
-/* ---- Status__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- Status__Q26Speech7Speaker [retail SPEECH.H:264; source owner unresolved] ---- */
 void Speech::Speaker::Status()
 
 {

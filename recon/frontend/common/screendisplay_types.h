@@ -215,14 +215,9 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
 #endif
 };
 
-struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf)
-        : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) {}
-    void Draw(int, int, bool) {}
-    bool TransitionIsFinished() { return true; }
-#endif
-};
+#define NFS4_FEMENUEXTENDED_TYPE_PART 1
+#include "femenuextended.h"
+#undef NFS4_FEMENUEXTENDED_TYPE_PART
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {
 #ifdef NFS4_FEMENUDEFS_SURFACE
     tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d)
@@ -460,17 +455,9 @@ struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
 #define NFS4_FEMENUOPTIONS_TYPE_PART 8
 #include "femenuoptions.h"
 #undef NFS4_FEMENUOPTIONS_TYPE_PART
-struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m,
-                                     void (*f)(tMenuCommand &), int ff, int nf)
-        : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) {}
-    /* in-class inlines are emitted in REVERSE declaration order (retail: TIF, Draw(iib), Draw(b), then the dtor) */
-    void Draw(bool) {}
-    void Draw(int, int, bool) {}
-    bool TransitionIsFinished() { return true; }
-#endif
-};
+#define NFS4_FEMENUOPTIONS_TYPE_PART 10
+#include "femenuoptions.h"
+#undef NFS4_FEMENUOPTIONS_TYPE_PART
 
 #define NFS4_FEMENUOPTIONS_TYPE_PART 9
 #include "femenuoptions.h"

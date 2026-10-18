@@ -142,6 +142,21 @@ struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 };
+#elif NFS4_FEMENUOPTIONS_TYPE_PART == 10
+/* Retail SLD names FEMENUOPTIONS.H for these inline bodies and implicit
+ * destructor. Keep the definition in that real owner, not a type-surface
+ * header. The part selector only preserves the existing declaration order. */
+struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {
+#ifdef NFS4_FEMENUDEFS_SURFACE
+    tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m,
+                                     void (*f)(tMenuCommand &), int ff, int nf)
+        : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) {}
+    /* in-class inlines are emitted in REVERSE declaration order (retail: TIF, Draw(iib), Draw(b), then the dtor) */
+    void Draw(bool) {}
+    void Draw(int, int, bool) {}
+    bool TransitionIsFinished() { return true; }
+#endif
+};
 #else
 #error Unknown FEMENUOPTIONS.H type part
 #endif

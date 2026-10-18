@@ -1,5 +1,5 @@
 /* game/common/speech_class.h -- class Speech (SPEECH.CPP) with its nested classes, shared by every surface that
- * constructs it or names its static members.  Needs only u_long and an (incomplete) Car_tObj. */
+ * constructs it or names its static members. Needs u_long, u_char and an (incomplete) Car_tObj. */
 #ifndef NFS4_GAME_COMMON_SPEECH_CLASS_H
 #define NFS4_GAME_COMMON_SPEECH_CLASS_H
 

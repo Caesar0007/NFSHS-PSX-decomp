@@ -8,7 +8,7 @@ extern VoxSlotsStruct gVoxEvents;   /* @0x80148060 the 16-slot queue + its heade
 extern int gPreLoadTicks;           /* @0x80148044 */
 extern VoxEventDat *gEventDats[4];  /* @0x80148048 the 4 bound event-data blobs */
 extern int gVoxInGame[2];           /* @0x80148058; [1] is retail's gRepeatCount */
-extern int gReparm;                 /* @0x801370A0 optional re-parameterize hook slot */
+extern SPCHReparamFn gReparm;        /* @0x801370A0 optional re-parameterize callback */
 
 extern VoxEvent *iSPCH_SearchEventDat(VoxEventDat *dat, unsigned int eventID); /* @0x800E6EC4 */
 extern VoxEvent *iSPCH_FindEvent(unsigned int eventID);               /* @0x800E6F4C */

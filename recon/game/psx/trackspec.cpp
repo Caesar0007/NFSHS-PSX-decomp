@@ -254,20 +254,14 @@ int TrackSpec_gPrevSpec;
  * => the two ready-list DRAIN positions are unmoved by every remaining zero-insn
  * device; the +-1-RTL-insn / permuter route named by w49-a6 stands unchanged.
  * at 4; the next instrument would be a -dl qty dump on the store block, not more spellings. */
-void TrackSpec_SetDefault(CTrackSpec *spec)
-
-{
-  /* SYM @0x800e1544: fsize 0, mask $00000000 (LEAF, no frame).  spec =
+/* SYM @0x800e1544: fsize 0, mask $00000000 (LEAF, no frame).  spec =
    * REGPARM $05 ($a1) -- retail copies the incoming $a0 out and keeps $a1 as
    * the record base for the whole body.  The ONLY named locals are
    * i REG $06 ($a2) and j REG $03 ($v1); the retail sky-loop walker ($a0) and
    * the i*4 term ($a3) are compiler GIVs, so both loops are written in INDEX
    * form and the invented Ghidra temps (bVar1/pCVar5/iVar3/iVar7/local_a0__1)
    * are deleted (catalog: SYM has only i/j => the pointers are givs). */
-  int i;
-  int j;
-
-  /* MATCH (w59-a6): WHOLE-BODY REWRITE IN THE SLD STATEMENT ORDER (catalog 05A/06A).
+/* MATCH (w59-a6): WHOLE-BODY REWRITE IN THE SLD STATEMENT ORDER (catalog 05A/06A).
    * `tools/diffsrc.py` + the SYM SLD stream give retail's real statement list for
    * TRACKSPEC.CPP:44-113 -- the recon carried Ghidra's EMISSION order (weatherstate
    * after skystate, dist2base before weatherspec.type, nightstate just before the ring
@@ -281,6 +275,11 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
    * `GameSetup_gData.Weather/Time` straight into the record (one line each, the store
    * scheduled far from the load), so the locals were a reconstruction artifact whose
    * merged live range was what pushed `spec` off $a1 in the first place. */
+void TrackSpec_SetDefault(CTrackSpec *spec)
+
+{
+  int i, j;
+
   spec->fogstate = 0;                                       /* SLD 47 */
   spec->weatherstate = (short)GameSetup_gData.Weather;      /* SLD 48 */
   spec->horizonstate = 1;                                   /* SLD 49 */
@@ -347,10 +346,7 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   (spec->worldcolorspec).worldB = 0;
   (spec->worldcolorspec).type = 0;
   (spec->worldcolorspec).contrast = 0x4ccc;
-  (spec->worldcolorspec).contrast_color.r = 0x80;
-  (spec->worldcolorspec).contrast_color.g = 0x80;
-  (spec->worldcolorspec).contrast_color.b = 0x80;
-  return;
+  (spec->worldcolorspec).contrast_color.r = 0x80; (spec->worldcolorspec).contrast_color.g = 0x80; (spec->worldcolorspec).contrast_color.b = 0x80;
 }
 
 /* ---- TrackSpec_SetUp__Fv  [TRACKSPEC.CPP:119-121] SLD-VERIFIED ---- */
@@ -359,27 +355,23 @@ void TrackSpec_SetUp(void)
 {
   GameSetup_gData.Time = (int)TrackSpec_gSpec.nightstate;
   GameSetup_gData.Weather = (int)TrackSpec_gSpec.weatherstate;
-  return;
 }
 
-/* ---- read__FPPcPvi  [TRACKSPEC.CPP:127-139] SLD-VERIFIED ---- */
+/* ---- read__FPPcPvi [TRACKSPEC.CPP:127-139; full SLD still open] ---- */
+/* 2026-10-18: retail owns i in the for-initializer region, not at root.
+ * Keep source/dest as the recorded root pointers; no extra wrapper scope. */
 void read(char **handle,void *buf,int bytes)
 
 {
   char *source;
   char *dest;
-  int i;
 
   source = *handle;
   dest = (char *)buf;
-  i = 0;
-  if (i < bytes) {
-    do {
-      *dest = *source;
-      source = source + 1;
-      i = i + 1;
-      dest = dest + 1;
-    } while (i < bytes);
+  for (int i = 0; i < bytes; i++) {
+    *dest = *source;
+    source = source + 1;
+    dest = dest + 1;
   }
   *handle = source;
   return;
@@ -432,41 +424,31 @@ void read(char **handle,void *buf,int bytes)
  * still2dif/63. All trials restored. No bound/floor or original-object proof
  * is implied; retail EA types are incomplete, so owner agreement is partial
  * evidence, not a full signature/SYM seal. */
+/* 2026-10-18: startpos = currentpos = loadfileadr(...) retains the inner
+ * assignment result and matches63/63 without filebuf. Simple copy chains in
+ * the other order shrink the frame120->112; they did not prove that an extra
+ * source object existed. GCC2.8.1 expr.c expand_assignment/store_expr's
+ * want_value path distinguishes a consumed assignment from a standalone one.
+ * trk still needs source recovery; a separate SLD tag does not uniquely prove
+ * a separate source statement or object. Full SLD remains open. */
 void TrackSpec_Read(int spec_num)
 
 {
   char *currentpos;
   char *startpos;
   char str [64];
-  char *filebuf; /* SOURCE-REVIEW-UNRESOLVED: absent from retail locals. */
-  /* w41-a5: the track fetch is its OWN source statement, not an inline sprintf arg.
-   * SLD PROOF: 800E17E8 (`lui $v0,%hi(GameSetup_gData)`) carries source line 148 while
-   * every other insn of the call setup (800E17DC/17EC/1804) carries line 151 -- the
-   * sprintf line.  Inline, cc1 gives the a1 `lui %hi(fmt)` the earlier luid and sched1
-   * issues it one slot too soon (the last 2 diffs).  Hoisted, the ready-list tie flips
-   * and the lui lands in the oracle's slot.  CAVEAT: the SYM's block list for this fn
-   * names only currentpos/startpos/str -- no `trk` -- so the name is ours; the STATEMENT
-   * is SLD-attested. */
-  int trk = GameSetup_gData.track; /* SOURCE-REVIEW-UNRESOLVED: SLD supports the fetch statement, not this original object/name. */
+  int trk = GameSetup_gData.track; /* SOURCE-REVIEW-UNRESOLVED: fetch line known; original object/name unproven. */
 
   sprintf(str,"%sTr%02d.bin",Paths_Paths[6],trk);
-  /* w41-a5: `currentpos` (an AUTO -- its address goes to read()) takes the RAW
-   * call result; `filebuf` is then READ BACK from it.  cse forwards the just-stored
-   * register, so the read-back becomes retail's `addu s0,v0,zero` copy while the
-   * delay-slot store keeps the raw `$v0` (`sw v0,0x58(sp)`) -- the third
-   * uncoalesced copy the w40 note could not name.  Assigning currentpos FROM
-   * filebuf instead stores the copy (`sw s0,...`). */
-  currentpos = (char *)loadfileadr(str,0);
-  filebuf = currentpos;
-  startpos = filebuf;
-  if (filebuf != (char *)0x0) {
+  startpos = currentpos = (char *)loadfileadr(str,0);
+  if (currentpos != (char *)0x0) {
     CTrackSpecHeader header;
 
     TrackSpec_gPrevSpec = TrackSpec_gCurrentSpec = spec_num;
     read(&currentpos,&header,8);
     if (spec_num >= header.num_spec) {
       TrackSpec_SetDefault(&TrackSpec_gSpec);
-      purgememadr(filebuf);
+      purgememadr(startpos);
     }
     else {
       TrackSpec_gMaxSpec = header.num_spec + 1;
@@ -484,9 +466,7 @@ void TrackSpec_Load(int weather,int night)
 
 {
   int spec [2] [2] = { { 0, 1 }, { 2, 3 } };   /* @0x80056ad4 rodata template -> stack copy */
-  
   TrackSpec_Read(spec[weather][night]);
-  return;
 }
 
 /* end of trackspec.cpp */

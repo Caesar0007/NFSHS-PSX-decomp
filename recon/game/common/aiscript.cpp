@@ -77,7 +77,20 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
  * reactionBitTwo: direct literal 2 retains 90 instructions, eight diffs.
  * reactionTable: direct (*scriptData) retains 90 instructions, 24 diffs.
  * storedReactionIndex: direct *lastReactionIndex moves one store, two diffs.
- * These semantic names are not claimed as literal EA spellings. */
+ * These semantic names are not claimed as literal EA spellings, nor do the
+ * failed forms prove that distinct original source objects were required.
+ * SOURCE REVIEW: the one-iteration do below still changes store scheduling;
+ * it is not a recovered original loop. Removing it on the restored owners
+ * changes compiler scheduling and has not passed the byte gate.
+ *
+ * 2026-10-19: the combined action/detection guard and real processing while
+ * restore every supplied declaration's type/home/depth/full owner and all four
+ * declaring regions. newReaction belongs beside go/lastReactionIndex, and
+ * newTime belongs in the processing loop. No setup-value capture of the
+ * initial actionIndex is needed. The five extra carriers above and complete
+ * SLD attribution remain unresolved; native declaration CLEAN is not claimed.
+ * The cached index precedes the reaction initialization; reactionSeedMask
+ * currently preserves the latter store's shared constant value. */
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
@@ -87,50 +100,46 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
   int reactionBitTwo;
   AIScript_tReactionDetails *reactionTable;
   unsigned int storedReactionIndex;
-  AIScript_tAIReaction newReaction;
-  int newTime;
 
   scriptData = script->data;
-  if ((newReaction = script->actionIndex) == 7) {   /* cache actionIndex for the compares */
+  if (script->actionIndex == 7 && script->detectAction != 7) {
     int go;
     int *lastReactionIndex;
+    AIScript_tAIReaction newReaction;
     go = 1;
-    if (script->detectAction != 7) {
-      script->actionIndex = script->detectAction;
-      script->actionHumCarIndex = script->detectHumCarIndex;
-      script->detectAction = 7;
-      script->reactionTicksLeft = 0;
-      lastReactionIndex = script->lastReactionIndex + script->actionIndex;
-      storedReactionIndex = *lastReactionIndex;   /* load cached early (oracle order) */
-      reactionSeedMask = (script->reaction = 1);   /* reuse the stored 1 (oracle's move t2,t1) */
-      noActionIndex = 7;
-      reactionBitTwo = 2;
-      script->reactionIndex = storedReactionIndex;
-      reactionTable = *scriptData;
-     loopTop:
-      if (go != 0) {
-        if ((script->reactionIndex + 1 < 4) &&
-           ((newReaction = reactionSeedMask << (unsigned char)reactionTable[script->actionIndex].reaction[script->reactionIndex + 1]) != reactionBitTwo)) {
-          script->reactionIndex = script->reactionIndex + 1;
-          do { *lastReactionIndex = *lastReactionIndex + 1; } while (0);  /* block scope nudges gcc's store scheduling to match */
-        }
-        newReaction = reactionSeedMask << (unsigned char)reactionTable[script->actionIndex].reaction[script->reactionIndex];
-        script->reaction = script->reaction | newReaction;
-        newTime = (unsigned char)reactionTable[script->actionIndex].halfSeconds[script->reactionIndex];
-        if (newTime != 0) {
-          script->reactionTicksLeft = newTime << 4;
-          go = 0;
-        }
-        if (script->reaction == reactionSeedMask) {
-          script->actionIndex = noActionIndex;
-          script->detectAction = noActionIndex;
-        }
-        goto loopTop;
+    script->actionIndex = script->detectAction;
+    script->actionHumCarIndex = script->detectHumCarIndex;
+    script->detectAction = 7;
+    script->reactionTicksLeft = 0;
+    lastReactionIndex = script->lastReactionIndex + script->actionIndex;
+    storedReactionIndex = *lastReactionIndex;
+    reactionSeedMask = (script->reaction = 1);
+    noActionIndex = 7;
+    reactionBitTwo = 2;
+    script->reactionIndex = storedReactionIndex;
+    reactionTable = *scriptData;
+    while (go != 0) {
+      int newTime;
+      if ((script->reactionIndex + 1 < 4) &&
+          ((newReaction = reactionSeedMask << (unsigned char)reactionTable[script->actionIndex].reaction[script->reactionIndex + 1]) != reactionBitTwo)) {
+        script->reactionIndex = script->reactionIndex + 1;
+        do { *lastReactionIndex = *lastReactionIndex + 1; } while (0);
+      }
+      newReaction = reactionSeedMask << (unsigned char)reactionTable[script->actionIndex].reaction[script->reactionIndex];
+      script->reaction = script->reaction | newReaction;
+      newTime = (unsigned char)reactionTable[script->actionIndex].halfSeconds[script->reactionIndex];
+      if (newTime != 0) {
+        script->reactionTicksLeft = newTime << 4;
+        go = 0;
+      }
+      if (script->reaction == reactionSeedMask) {
+        script->actionIndex = noActionIndex;
+        script->detectAction = noActionIndex;
       }
     }
-    if (script->actionIndex == 7) {
-      return;
-    }
+  }
+  if (script->actionIndex == 7) {
+    return;
   }
   if (script->reactionTicksLeft <= 0) {
     script->actionIndex = 7;

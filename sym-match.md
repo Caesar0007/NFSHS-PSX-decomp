@@ -1,5 +1,1390 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
+Newest dated receipts below are authoritative only for their verified scope.
+Older snapshot tables and open-case lists later in this file are historical,
+not a current work queue. Native declaration cleanliness is not full source
+restoration; do not hide an unresolved carrier behind a new name or add dummy
+objects/uses merely to reproduce an empty debug region.
+
+2026-10-19 AUDIOENG9/9 native declarations/regions; Update asm and Startup aliases removed.
+
+Fresh AUDIOENG baseline:9/9byte-PASS functions,7/9native declaration PASS,
+7/9region PASS,2strictEXACT. Update366words and StartUp376words were measured
+before any source edit. Whole-TU backups and initial native owner coverage
+are retained;per-TU compiler identity remains the stock C++ lane,-G8,without
+a no-implement-inlines override. No compiler/object-identity dial is changed.
+
+Update's player belongs to a real for-initializer,not the old function-root
+declaration plus infinite do/return reconstruction. Pending queue and fresh
+clock tests become one short-circuit guard. Keep the original earlier tick
+sample for tick+2,but compare g->tick to the second gettick result directly:
+n is the supplied channel counter,not a clock-result capture. Both channel
+loops are ordinary counted for loops. SNDPLAYOPTS and left/right azimuths
+belong inside the valid-patch/nonzero-volume playback body,not outside the loop.
+
+All9Update declarations now match full ordered type/size/home/depth/owner/path,
+and all15regions are retail-exact. Delete its empty asm with five artificial
+memory operands(two vol,three delay refs). The49input matrix includes baselines
+and overlapping control forms:direct-clock combined guards match without the
+aid;the n=gettick capture variants do not all do so. Code-exact while-loop
+variants with the wrong playback-local depth are NOT retained. The old claims
+that counted for loops intrinsically rotate/peel incorrectly or that those
+reference operands are required are superseded on this restored source shape.
+
+The four GNU-only >?/<?volume clamps become ordinary conditional expressions.
+Use A>=B?A:B for max and A<=B?A:B for min to preserve GCC's equality-selected
+operand order. All17input controls(including the baseline and inverted forms)
+preserve the compiler stream. Both signed-byte reload semantics and the later
+SNDvol signed read remain unchanged. No replacement helper,source object,
+qualifier,register pin,neutral identity or asm is introduced.
+
+StartUp's handle belongs inside the real header-success if. Its shadowed
+file-entry i is a for-initializer,with size/offset/name in that loop body and
+pdata in the actual bank arm. Successful bank+cruise+load conditions share
+one positive guard owning current and both processing phases. The two real
+c-owning sibling blocks use bounded while loops,not additional unproved
+binding wrappers. These changes restore all26supplied declaration tuples
+and all23region tuples. Supplementary provided-only checks were used during
+experiments,not to relax the actual native comparator.
+
+Both inferred chanbase source objects are finally removed. Compute chan from
+the actual g->chan array field,with its base widened for the used addition,
+the element offset still signed word-sized,and the completed address narrowed
+to the PSX pointer word:
+(AudioEng_tChanAttr *)(int)((long long)(int)g->chan+i*(int)sizeof(AudioEng_tChanAttr)).
+This keeps the independent field-base address web without naming an original
+source object that retail does not record. The aliases disappear from code
+and native records;StartUp is now declaration PASS,not an EXTRA-filtered subset.
+
+The28address controls demonstrate site/width specificity:plain SI-only field
+addresses do not match;widening index multiplication also changes code. The
+accepted base-only-widened/signed-word-offset form preserves the full stream
+when either or both aliases are removed. It is ordinary target-specific C++
+address arithmetic,not an output rewrite or a dummy expression. Original
+literal cast/macro spelling is not uniquely certified. Arithmetic checks cover
+160112target-word address cases and131072signed-byte clamp cases;these are
+formula checks,NOT runtime emulator results or a generic host-pointer guarantee.
+
+AUDIOENG source now contains no inline asm,volatile or GNU min/max operators.
+Known remaining source-name/producer review:CleanUp's inferred player index.
+Its PC twin supports the index role,not unique original source object/name
+recovery. Keep an explicit SOURCE-REVIEW-UNRESOLVED heading even though its
+native contract is CLEAN. Source-review marker locations move2->1because
+the two actual chanbase objects are removed;locations are not unique objects.
+No literal/source-context certificate is inferred from an elided local row.
+
+Final run-vor9jcwt covers211/211records across nine selected owners:sections/
+layout and normal/full-g code UNCHANGED,ASPSX524/0,PSYLINK0. AUDIOENG9/9
+declaration and9/9region PASS;all9native local lists equal retail in full,
+including repeated/shadowed names. All previous declaration PASS,region PASS
+and strict EXACT seals survive. Selected declarations202/211,regions206/211,
+strictEXACT61/211are scoped counts,not whole-project source completion.
+
+Full AUDIOENG SLD remains open:Update350->355/366tag differences,end194->160
+versus retail188;StartUp349->339/376,end207->193versus retail176;CleanUp
+48/56unchanged,end33->27versus retail22. The two server-registration wrappers
+remain strictEXACT;the other seven functions remain SLD-DIFF. Historical W55
+and provenance explanations are kept outside executable bodies,explicitly
+superseded where necessary. No blank/#line padding cleans these residuals.
+
+All211fresh detailed SOURCE-ONLY functions PASS;all nine branch checks have
+zero divergence;all nine whole normal ELF objects equal frozen baselines.
+All105pipeline tests,vtable1366,source-only policy,relink,canonical final link,
+overlap and foreign-label guards PASS. Actual linked RECON299819/299819words
+match raw retail,zero masked mismatch bytes and zero foreign-label errors.
+No references,comparators,build flags or post-compiler instructions are changed.
+
+Diagnostic/orchestration errors were not treated as source failures or success:
+after a display-helper collision,the actual patched file was inspected before
+verification. A copied proof script's escaped regex was corrected and the full
+checks rerun to completion. Only completed final-proof.json is the certificate.
+Backups,a verified CPP copy,initial/phase owner reports,all source controls,
+raw logs,the native dump,owner-final.json and final-proof.json are under ignored
+build/nc12/audioeng_update_source_20261019. HEAD remains04558fbb on main;
+verified source/ledger work is uncommitted/unpushed. Unrelated user files are
+preserved. Full original-source/SYM/SLD restoration remains the active goal.
+
+2026-10-19 AIPerson_SetPersonalityPointers: strict declaration/scope/SLD EXACT.
+
+Fresh AIPERSON baseline covers8/8records,all declaration/region PASS,but only
+Cleanup is strictEXACT. SetPersonalityPointers is25/25word PASS with21SLD tag
+differences,end9versus retail5,and unequal block lines. Retail's real source
+groups put loop initialization/test at+1,the carObj initializer at+3,the call
+at+4,and the loop-close/epilogue group at+5. The existing reconstruction splits
+declaration from initialization and adds an unnecessary final void return.
+
+Use an ordinary declaration initializer for the supplied carObj and implicit
+void fallthrough. The function/loop braces and those real statements now follow
+the recorded grouping,without blank padding,#line,dummy operations or another
+source object. Actual fresh native comparison reports strictEXACT:all25word
+tags,entry delta,all block lines and end+5 match. All supplied declarations
+and the six ordered scope-boundary tuples remain exact. No ASM or qualifier
+is introduced. This is a per-function contract seal,not a whole-source claim.
+
+The harder LoadPersonalityData carrier was investigated first and remains
+unresolved,not renamed or hidden. Its ordinary direct-field-store alternatives
+can retain the80-byte frame and all named local homes yet change the full
+compiler stream. The old generic claim that the source object is necessary
+for that frame is therefore withdrawn. Thirty-three diagnostic inputs include
+controls,overlapping target/update forms and duplicates,not33independent
+algorithms;no changed form matches the complete compiler stream.
+
+GCC expr.c7116onward documents call preexpansion for a complex MODIFY_EXPR
+left side. Actual record-population comma/pointer/statement-expression lvalue
+trials were priced against it. The valid changed forms fail code;one proposed
+statement-result lvalue is rejected by the compiler and is not a candidate.
+The comma-lvalue trial also tags its final read and store together,unlike the
+retail GetInt at151and final copCollisionFirmness store at182(header121).
+The return-value staging/source producer still needs recovery. These controls
+do NOT prove every possible C form was exhausted or certify a distinct original
+object/name. No failed source,alias,helper,qualifier or identity is retained.
+
+Move the historical reconstruction explanation out of that function body,
+replace it with the explicit SOURCE-REVIEW-UNRESOLVED heading,and keep the
+existing inferred copCollisionFirmness source object visibly queued. The
+existing source_review_inventory regex independently sees one old carrier
+location become one unresolved location;the name/object is NOT certified or
+dropped from the inventory by changing a marker. review-marker-proof.json
+records this. The carrier-free Grid loop source-grouping control also stays
+diagnostic-only;unrecovered loop-end attribution is not supplied by padding.
+
+Final run-kjao6ii2 covers202/202records across the previous seven owners plus
+AIPERSON:section bytes/layout and normal/full-g code unchanged,ASPSX524/0,
+PSYLINK0. AIPERSON stays8/8declaration and region PASS;strictEXACT1->2/8.
+All previous native declaration PASS,region PASS and strict EXACT contracts
+are preserved. In this expanded scope,declaration PASS is193/202and strict
+EXACT59/202. Those are selected-owner counts,not whole-project completion.
+LoadPersonalityData still has198/209tag differences,end55versus retail77
+(previous58);moving provenance commentary is not presented as an SLD seal.
+
+All202fresh detailed SOURCE-ONLY functions PASS;all eight branch checks have
+zero divergence,and eight whole normal ELF objects equal frozen baselines.
+All105pipeline tests,vtable1366,source-only policy,relink,canonical final link,
+overlap and foreign-label guards PASS. Actual linked RECON299819/299819words
+match raw retail,with zero masked mismatch bytes and zero foreign-label errors.
+No compiler flag,reference,comparator or post-compiler output is changed.
+
+Backups,source-input controls,pre-edit native owner coverage,the final native
+dump,owner-final.json,all raw checks and completed final-proof.json are in
+ignored build/nc12/aiperson_loader_source_20261019. HEAD remains04558fbb on
+main;verified source/ledger work is uncommitted/unpushed. Unrelated user files
+are preserved. Full source/SYM/SLD restoration remains the active objective.
+
+2026-10-19 AudioCmn_SFX: every supplied owner and region restored; identities removed.
+
+Fresh baseline AudioCmn_SFX is224/224 SOURCE-ONLY PASS,but tempAmp owns
++200..308instead of+200..260,and c is depth7rather than9. The native region
+list has10regions versus retail12. The matched NFS2 AudioCmn_SFX source gives
+the real three-way impact/zero-force/active-loop branch pattern;retail NFS4
+scope starts also show paired+420and+488 owners,not the reconstruction's
+negative-force early return followed by unguarded positive work.
+
+Restore the ordinary if(sndPlayer<0)/else-if(tweakedForce<1)/else structure.
+The active loop-sound PlaySFX call belongs inside its actual positive arm.
+Negative impact sample handling becomes if/else-if/else without the redundant
+per-arm early returns. Keep ChooseImpactSample's assignment in the first
+condition,as required by its supplied owner. The function ends by ordinary
+void fallthrough. No empty scope,extra guard,fake declaration or guessed
+helper is used to manufacture the missing regions.
+
+Every one of the13ordered supplied parameter/local records is now exact in
+name,type,size,home,depth and complete owner/path. Root locals keep+0..856;
+tempAmp becomes depth5,+200..260; c becomes depth9,+608..720. All12region
+tuples match retail,including negative owner closes+408and active owners
+closing+856. The actual native comparator reports declaration PASS and region
+PASS,without excluding any extra record. This is not just a depth-only check.
+
+Delete BOTH neutral tweakedForce|(tweakedForce&3) assignments. The function
+now has no asm,volatile,neutral identity,extra source local or fabricated
+identifier. Historical reference-budget necessity comments are superseded.
+Importantly,independent controls show deletion of either/both identities is
+already instruction/control-exact on the fresh OLD source shape. Their
+removal does NOT require or prove a causal dependency on the branch rewrite;
+the rewrite independently restores ownership. The57input matrix includes
+these controls and combinations,not57independent algorithms. Only the actual
+retained source was certified by the full native/link gates.
+
+An additional PlaySFX round stays diagnostic-only. Its whole source remains
+316/316PASS and unchanged. A carrier-free voice-handle form removes the
+chbase/slot/r source objects and uses the supplied iPartial for the playback
+result,but plain async-bank predicates still differ in five compiler rows and
+branch controls:retail materializes the flag before the bank guard,whereas
+the trial materializes it afterwards and uses a different scratch register.
+Equivalent range/wide-comparison forms do not solve that whole graph. Reusing
+the already-existing byte bankNum for the related async bank index also fails;
+it is not renamed to hide an unrelated flag or certified original from debug
+elision. Removing PlaySFX's old slot identity alone changes37compiler rows.
+These are NOT detailed verify_asm diff counts or source-necessity proofs.
+No failed PlaySFX form,qualifier,new alias or helper is retained.
+
+Final combined run-nf37i5ti covers194/194records across seven owners,with
+section bytes/layout and normal/full-g code UNCHANGED,ASPSX524/0,PSYLINK0.
+AUDIOCMN declaration PASS45->46/48;region PASS46->47/48. Selected combined
+declaration PASS184->185/194,strictEXACT remains57. Every prior native
+declaration PASS,region PASS and strict EXACT contract survives. AUDIOCMN's
+two declaration misses are now PlaySFX and SoundCar;neither is reclassified
+as a source-object exemption. SFX is native-contract CLEAN,not a full text seal.
+
+Full SLD remains212/224word-tag differences,unequal block lines,end74versus
+retail119(previous84). The audio-enable statement tags near entry still read
++5versus retail+27; both actual entry/header deltas are0. Original statement
+context remains unrecovered. No blank/#line padding or invented
+commentary is inserted to clean an attribution score. Original literal syntax
+and complete source/SLD reconstruction remain distinct open requirements.
+
+All194fresh detailed SOURCE-ONLY functions PASS,all seven branch checks have
+zero divergence,and seven complete normal ELF objects equal frozen baselines.
+All105pipeline tests,vtable1366,source-only policy,relink,canonical final link,
+overlap and foreign-label guards PASS. Actual RECON299819/299819words match
+raw retail,with zero masked mismatch bytes and zero foreign-label errors.
+No compiler flag,reference,comparator or post-compiler output is changed.
+
+Backups,57-input source controls,32PlaySFX diagnostic controls,the fresh native
+dump,owner-final.json,all raw verification logs and completed final-proof.json
+are in ignored build/nc12/audiocmn_sfx_source_20261019. HEAD remains04558fbb
+on main;verified source/ledger work remains uncommitted/unpushed. Unrelated
+user files are preserved. The complete original-source/SYM/SLD goal is active.
+
+2026-10-19 SoundCar: real allocator spills replace both forced address views.
+
+Remove the two *(int*)&iAmpIn defining-store views and the corresponding
+*(int*)&tuntrig view. The assignments now use the actual supplied int locals
+directly. Changing only tuntrig swaps the stack homes and changes four compiler
+rows; changing iAmpIn alone or BOTH together preserves the full stream. The
+paired source is retained:real allocator spills reproduce iAmpIn AUTO sp-52
+and tuntrig AUTO sp-48,without an invented pointer,qualifier,reference fence,
+source object or forced address-taking expression. SoundCar remains530/530PASS.
+
+This is supported by actual stock-compiler expand/local/global RTL receipts,
+not an assertion that AUTO inherently means address-taken. In this pinned input,
+iAmpIn begins as REG/v:SI101 at insns105/134 after the two fixeddiv results;
+tuntrig begins as REG/v:SI102 at insn247 after TunnelFlagSm. They participate
+in the allocator graph; the final compiler emits the supplied stack homes.
+The preprocessed function contains no address take of either local, and the
+trace compile's entire instruction stream and branch controls equal the normal
+stock output. Pseudo/insn numbers are input-specific,not universal register rules.
+natural-spill-proof.json pins the exact input and final records; .rtl/.lreg/.greg
+are saved alongside it. The traces do not uniquely certify original literal text.
+
+The owner's math declarations also become real fixeddiv(int,int) and
+fixedmult(int,int) prototypes,not variadic placeholders. The eacpsxz helper
+interfaces and retail bodies agree on two signed-word operands in a0/a1.
+No unavailable original parameter names are invented in these declarations.
+audiocmn_externs.h has one source consumer,AUDIOCMN;its pre-edit backup is
+retained with this round. No central libfns header or other owner is changed.
+Fresh normal/full-g builds after this private-header edit preserve all bytes
+and native contracts. These are supported boundary signatures,not a claim of
+complete retail SDK SYM coverage or recovered literal SDK header spelling.
+
+Every one of SoundCar's28supplied ordered declaration/owner tuples and both
+declaring regions remain exact. distanceScale is still the sole native EXTRA;
+rpmRatio remains an unresolved debug-elided source object, and the old
+freq*doppler empty asm remains open. No generic exemption reclassifies them.
+
+Distance-producer trials include real squared-distance/coefficient phases,
+ordinary signed divides, equivalent signed narrowing/widening and numerator
+forms. Reprice the25phase controls again after the spill/prototype cleanup:
+none of the changed forms preserves the whole compiler stream. The closest
+staged CurCarGasLevel form keeps438compiler rows but changes six positions:
+multiply operand order,early product destination,moved bias/shift and branch
+layout. Those are compiler-stream comparisons,NOT detailed verify_asm scores
+or proof of an original-object necessity. The source is not replaced by a
+failed form,an unrelated renamed local,an identity or a post-compiler rewrite.
+
+Final run-ww9zrdqt covers194/194records across the seven current owners:
+complete section bytes/layout and normal/full-g code UNCHANGED,ASPSX524/0,
+PSYLINK0. All earlier native declaration PASS,region PASS and strict EXACT
+contracts survive. Selected native declarations remain184/194PASS with57strict
+EXACT; AUDIOCMN remains45/48declaration PASS and46/48region PASS. Full SLD is
+still unsealed:SoundCar516/530tag differences (previous513),end272versus
+retail282(previous274),unequal block lines. Removing the old reconstruction
+spill commentary is not a full attribution-score win; no padding/#line is used.
+
+All194fresh detailed SOURCE-ONLY functions PASS,all seven branch checks have
+zero divergence,and seven whole normal ELF objects equal frozen baselines.
+All105pipeline tests,vtable1366,source-only policy,relink,canonical final link,
+overlap and foreign-label guards PASS. Actual linked RECON299819/299819words
+match raw retail,with zero masked mismatch bytes and zero foreign-label errors.
+No compiler flag,reference,comparator or output rewrite is changed.
+
+Backups,source-control inputs,after_homes reprice,stock compiler traces,
+native-final-sym.txt,owner-final.json and completed final-proof.json are under
+ignored build/nc12/audiocmn_distance_source_20261019. HEAD remains04558fbb on
+main;source and ledger work remain uncommitted/unpushed. Unrelated user files
+are preserved. The full original-source/declaration/SLD objective stays active.
+
+2026-10-19 SoundCar: scaledAmplitude and attenuation removed without a byte change.
+
+Fresh baseline AudioCmn_SoundCar is530/530 SOURCE-ONLY PASS. It has three
+EXTRA native rows:scaledAmplitude,attenuation,distanceScale. rpmRatio is also
+an unresolved source object despite its debug elision. All supplied locals and
+the root/final-gas regions already match; the task is actual source recovery,
+not hiding those extras behind another name, qualifier, macro or const alias.
+
+The amplitude maximum is now assigned directly to amplitude:
+amplitude>amplitude*(freq+0x28)/128 ? amplitude : amplitude*(freq+0x28)/128.
+This strict greater-than/arm order removes scaledAmplitude and preserves the
+anonymous product/result in v1 and provided amplitude in a2. The later loadAmp
+multiply uses amplitude directly. The mathematically equivalent selected
+operand/strictness orders are not all compiler-equivalent. Of49diagnostic
+inputs including baseline, six changed forms match:two selector spellings,
+each with three real consumer forms. Reversing multiply operands in the product
+does not preserve the stream. These counts include controls,not49independent
+algorithms or detailed instruction-diff scores.
+
+GCC2.8.1 source explains the successful spelling:fold-const.c's conditional
+fold around5631..5680 places the equality-selected operand first in MIN/MAX
+for C++ lvalue semantics. Strict GT swaps the comparison operands in MAX_EXPR;
+GE retains them. expr.c6519..6589 expands operand1 first and gives operand0
+the selected target before falling back to compare/branch. Thus numerical
+equivalence is not equivalent expansion/allocation. This supports the source
+lever; it does not uniquely recover a historical EA macro name.
+
+Reprice attenuation on that source graph. Each camera arm now stores its real
+fixeddiv(...)/65536 result directly through the existing iAmpIn address view.
+The road-noise quantity is selected directly as
+(abs(z)-0xd8000>=0) ? (abs(z)-0xd8000)>>15 :0. This removes attenuation's
+first divide-result capture AND its later threshold-value reuse. Both producers
+matter:the isolated first-producer change still differs. No extra temporary,
+reference fence, qualifier or output rewrite replaces the removed object.
+
+All28supplied parameter/local records (including cardir's two recorded homes)
+still match full ordered name/type/size/home/depth/owner/path. The sole remaining
+native EXTRA is distanceScale. rpmRatio remains an unproved debug-elided source
+object, and the old freq*doppler empty asm remains unresolved. The iAmpIn/tuntrig
+address views and literal original context are not certified by this removal.
+The function remains declaration DIFF/strict INCOMPLETE,not fully source-restored.
+
+Remaining-producer trials do not match:ordinary distance-product divides,
+signed widening after the product, direct rpm quotient call arguments with
+five real gas-select shapes, and duplicate call branches with equivalent signed
+numerators. No failed form is retained. These finite compiler-input trials
+do not establish an original-object necessity or a compiler floor. There are
+no new invented variable names or generic exemptions in the retained changes.
+
+Final combined run-9wlnriqb covers194/194records in seven owners:the prior
+AIScript/AISpeeds/camera/trackspec/texture set plus AIPHYSIC and AUDIOCMN.
+Normal/full-g code and complete sections/layout remain unchanged,ASPSX524/0,
+PSYLINK0. All previous native declaration PASS,region PASS and strict EXACT
+rows survive. Selected native declarations remain184/194PASS,with57strict
+EXACT; the SoundCar EXTRA count falls3to1 without masking the remaining row.
+Fresh SLD is still513/530tag differences (before516),end274versus retail282
+(before299); block lines remain unequal. No blank or #line padding is added.
+
+All194detailed SOURCE-ONLY functions PASS; all seven branch-distance checks
+have zero divergence. Seven complete normal ELF objects equal their frozen
+pre-edit baselines. All105pipeline tests,vtable1366,source-only policy,relink,
+canonical final link and overlap/foreign guards pass. Actual linked RECON is
+299819/299819words identical to raw retail,zero masked mismatch bytes and zero
+foreign-label errors. Source arithmetic checks cover9,895,936amplitude/frequency
+pairs and10,012signed-divide values; these are NOT runtime emulator tests.
+
+Separate read-only AIPHYSIC diagnostics kept both production functions untouched.
+OutOfControlPhysics still412/412PASS with its three old address-assembly
+fragments/cfg/latvelcalcLookahead unresolved. The corrected57-input diagnostic
+excludes late cfg assignments paired with an earlier cfg read:those would read
+an uninitialized pointer and are not valid candidates. Direct global/pointer
+field, operand-order and placement trials do not preserve its whole stream.
+CalculateGear still65/65PASS;37ordinary selection/loop/return controls retain
+the root-end issue even where code matches. No failed source or flag change
+is kept. Receipts:build/nc12/aiphysic_direct_source_20261019 (ignored).
+
+SoundCar backups,diagnostic inputs,all raw checks,the native dump,owner-final.json
+and completed final-proof.json:build/nc12/audiocmn_amplitude_source_20261019
+(ignored). HEAD remains04558fbb on main; verified source/ledger work remains
+uncommitted/unpushed. Unrelated user files are preserved. Full original-source,
+complete declaration coverage and SLD restoration remain active requirements.
+
+2026-10-19 AIScript processing: complete supplied local owners and all regions restored.
+
+Fresh baseline AIScript_ProcessActionsAndReactions is90/90 SOURCE-ONLY PASS,
+but newReaction/newTime are root-owned and the setup/processing regions do not
+match retail. The original goto/if processing loop becomes a real while(go).
+Combine actionIndex==7 and detectAction!=7 into the actual setup eligibility
+guard, with the no-action return check after it. That also removes the initial
+newReaction=actionIndex capture and the mechanical loopTop label. No additional
+source object, helper, type, qualifier, asm, dummy use or scope padding is added.
+
+newReaction now belongs beside go/lastReactionIndex; newTime belongs to the
+processing loop. Every one of the SEVEN supplied ordered parameter/local tuples
+matches in full name/type/size/home/depth/owner/path. The four declaring regions
+are retail-exact: root+0..352, parent+0..300, setup+36..300 and processing
++96..288. This is not obtained by filtering the comparator: five EXTRA rows
+remain, so the strict function still reports declaration DIFF/INCOMPLETE.
+
+The intermediate negative-detection goto plus while matched bytes and newTime,
+but left the setup owner+20..316 instead of+36..300. It is superseded by the
+combined real eligibility guard; no new noAction label remains. Moving go into
+the nested detection arm instead adds unsupported binding levels. Ordinary
+positive/negative tick-tail spellings and initialization positions do not all
+share codegen; only whole-stream/branch-control matches were considered.
+
+The five unresolved source quantities are reactionSeedMask,noActionIndex,
+reactionBitTwo,reactionTable,storedReactionIndex. The existing one-iteration
+do/while store-scheduling device also remains explicitly unresolved. Removing
+these individually or jointly, ordinary increment forms, enum/corresponding
+integer casts, typed/index-first table expressions and actual store-expression
+alternatives did not preserve the complete compiler stream on this restored
+owner shape. These finite failures do NOT certify distinct original objects,
+the literal original macro spelling, or a source floor. No failed trial is kept.
+An early stored-index trial through newReaction was diagnostic only, not proof
+that the supplied reaction variable originally owned the unrelated index.
+
+Final combined run-p2ploznx covers104/104records in AIScript,AISpeeds,camera,
+trackspec,texture: sections/layout and normal/full-g code UNCHANGED,ASPSX524/0,
+PSYLINK0. AIScript stays7/8declaration PASS and7strictEXACT; region PASS moves
+7/8to8/8. All prior native declarations,regions and strict seals survive.
+All104detailed SOURCE-ONLY functions PASS, branch checks29/0,38/0,5/0,24/0,8/0,
+and five complete normal ELF objects equal their frozen pre-edit baselines.
+
+All105pipeline tests,vtable1366,source policy,relink and fresh canonical link
+PASS. Actual linked RECON299819/299819words match raw retail,zero masked
+overlap mismatch bytes and zero foreign-label errors. No compiler-output,
+reference snapshot, comparator or build-policy rewrite is involved. The final
+checker initially looked for the legacy AIScript stub under src/game/common;
+it was corrected to the actual src/aiscript.c and rerun to completion. This
+diagnostic-path error was not a source/build failure or a skipped function.
+
+Full SLD remains open and is not presented as a score win: target word-tag
+differences84->90/90,end59->55versus retail88,block lines unequal. The lexical
+ownership improvement is independently proven; original line context and the
+five extra objects still require recovery. Historical reconstruction comments
+are kept in the heading, not used as line padding in the function. No blank
+padding or fabricated #line context is added to clean an attribution report.
+
+Receipts,failed diagnostic inputs,backups,native-final-sym.txt,owner-final.json,
+raw checks and completed final-proof.json are under ignored
+build/nc12/aiscript_source_20261019. HEAD remains04558fbb on main; this source
+and the previous verified source-restoration work remain uncommitted/unpushed.
+Unrelated user files are preserved; the complete source/SYM/SLD goal is active.
+
+2026-10-19 Camera_Update: real loop/flag owners and one shared current-camera address.
+
+Two branch-local bitsInfo objects become one current-camera address assigned
+once in the actual player loop body. Removing the extra anchor wrapper restores
+anchor's complete supplied owner+50..+438,path[0,0,0]. The orientation check
+is the real collision-counter else path: the nonzero-counter path already
+jumps to shared flag work,so it never executes orientation selection. With
+the branch-local flag pointer scopes gone,flagMode's complete supplied owner
++1d8..+308,path[0,0,0,1,0],depth5 is restored too. No original name is invented;
+bitsInfo is the existing inferred name and its remaining source object is
+still explicitly unproved,not an accepted debug-elision exemption.
+
+The actual native records independently match player,anchor and flagMode in
+full type/home/depth/owner/order. direction retains the supplied type,home,
+depth9 and start+c0,but end+128versus retail+c0 and the extra sibling path
+remain wrong. inCarMask,tumbling and modeBits remain three native EXTRA rows;
+one bitsInfo and isInCar are also unrecorded source objects. The existing mask
+absorption remains unresolved. Nothing is renamed or reclassified to hide this
+work. The strict function remains declaration/region DIFF,not source-restored.
+
+Direct word/address indexing forms canonicalize to a different loop/address
+graph; all21nonbaseline trials change code. Sharing the pointer before or
+after anchor assignment preserves code; merely merging declarations while
+keeping separate branch assignments does not. The10-input shared-pointer
+matrix includes baseline. Counter and value-producing direction trials that
+match code but add incorrect scopes/depth are not kept. Direct decrements
+still change three schedule positions; safe post-decrement tests add real
+control differences. None proves a distinct original counter local is needed.
+
+Word-update and Boolean conversion probes are retained only as diagnostic
+inputs. Ordinary direct Boolean-to-bit insertion creates a branch/constant
+insertion where retail uses SLTI/SLL,so it is not merely a register-handout
+problem. Casting/arithmetically normalizing it,staged memory updates,bitfields
+and cleared-bit insertion alternatives did not preserve the whole stream.
+No failed form,asm,volatile,helper/type/name,neutral identity,fake use,compiler
+flag,reference reset,comparator relaxation or post-compiler rewrite is added.
+The primary camera_info type records confirm CHAR fields at bit3a0(modechange)
+and3bb(inCar); their declarations are not changed to int to force word access.
+
+Fresh combined native run-vl8ertqo covers96/96records in AISpeeds,camera,
+trackspec,texture:bytes/layout and normal/full-g code unchanged,ASPSX524/0,
+PSYLINK0. Camera_Update remains288/288 detailed SOURCE-ONLY PASS. Regions
+fall15to12versus retail11; all prior PASS and strict seals survive. The14/14
+verified dispatch call/exit same-line relationships remain correct. Absolute
+SLD remains276/288tag differences,end99versus retail125,unequal block lines;
+no padding or fabricated context is added. Camera stays36/38declaration/region
+PASS and9strictEXACT/29INCOMPLETE. The full source/SYM/SLD goal remains open.
+
+Completed final-proof.json verifies all96detailed SOURCE-ONLY functions PASS,
+branches29/0,38/0,5/0,24/0,and all four complete normal ELFs byte-identical to
+their frozen pre-edit objects. All105pipeline tests,vtable1366,source policy,
+standing relink and fresh canonical final link PASS. Actual linked RECON is
+299819/299819words identical to raw retail,zero masked overlap mismatch bytes
+and zero foreign-label ownership errors. Backups,input controls,native dump,
+owner-final.json and final-proof.json:build/nc12/camera_update_flags_source_20261019
+(ignored). HEAD remains04558fbb; source/ledger work is uncommitted/unpushed,
+and unrelated user work is preserved.
+
+Additional mask-source check in the same round:19inputs (including baseline
+and its duplicate) test real complement-mask bit insertion and conditional
+set/clear operations. None of the changed forms matches. Removing only the
+absorption keeps260compiler rows but changes nine positions; those are not
+detailed verify_asm scores. The original absorption and its inCarMask source
+object remain unresolved,not certified by these failures. No trial is retained
+and the completed source/native/byte/link receipt above remains current.
+
+2026-10-19 Camera_Update: remove both unrecorded walks and recover dispatch line groups.
+
+The loop bound now uses Camera_gInfo[0].splitscreen directly. The orientation
+dot reads x/y/z through the actual coorddef view of the rotation row at
+Camera_gInfo[player].rotation.m[6]. cameraBase and rotationBase disappear,
+including the fictitious camera_info array whose base was72bytes inside the
+real object. The compiler still creates both retail walks. Both source objects
+were debug-elided before; that was not proof they existed in original source.
+No replacement local/helper/type/qualifier,asm,neutral identity,fake reference,
+compiler flag or output rewrite is added. All288words remain SOURCE-ONLY PASS.
+
+The144-input loop/owner/mask/flag matrix has four exact candidates including
+baseline; the retained candidate only removes the two walks. Wider scope,
+counter and flag changes are not retained. Owner probes distinguish ordinary
+else and Boolean statement-expression producers,but neither constitutes a
+complete supplied contract. Removing tumbling from the current form preserves
+compiler row count but changes three schedule positions. The mask absorption,
+inCarMask,tumbling,two bitsInfo objects,isInCar and modeBits remain explicitly
+unresolved source tasks,not original-object or generic carrier exemptions.
+Camera_Update remains native declaration/region DIFF; every existing local
+and region difference is unchanged by the retained pointer cleanup.
+
+Eight reconstruction-only annotations,including the PC mode cross-map and
+older codegen receipts,are preserved above the function instead of distorting
+its executable-body source lines. Only comments/whitespace move in that step;
+an explicit token-equality check and independent normal/debug/linked checks
+preserve the code. This is not certified as a global SLD-score win: pointer
+cleanup gave271/288tag differences,annotation relocation274,and the final
+dispatch grouping276 (initial whole-function baseline277). The function end
+delta changes259(initial),239(pointer cleanup),136(notes moved),103(final)
+versus retail125. No blank padding or invented source context bridges that gap.
+
+The dispatch grouping has its own directly verified SLD improvement. Retail
+assigns each helper call and explicit exit jump to the same source line; our
+former separate break lines did not. The15handler source groups now preserve
+all19case labels and code tokens while grouping each call/break. Raw oracle
+instruction offsets plus actual native/retail SLD events prove14/14call/exit
+pairs share a line,versus0/14before; the last CopCam2 falls through and has no
+such explicit exit jump. dispatch-proof.json retains that relationship check.
+Absolute line tags,block lines,names of unrecovered macros and the complete
+source text remain unsealed; no comparator rule was weakened.
+
+Final combined native run-23p3q9vn covers96/96records in AISpeeds,camera,
+trackspec,texture:bytes/layout and normal/full-g code unchanged,ASPSX524/0,
+PSYLINK0. All prior declaration/region PASS and strict seals survive. Camera
+remains36/38declaration/region PASS,9strictEXACT/29INCOMPLETE. Evidence/backups,
+input controls,native dump/owner-final.json and final-proof.json:
+build/nc12/camera_update_source_20261019 (ignored). Earlier annotation/dispatch
+receipts are frozen separately so the final report does not overwrite their
+distinct SLD evidence. Full source/SYM/SLD restoration remains active/incomplete.
+
+The spline wrap investigation also repriced49real per-arm store/adjustment
+forms and25structured control/consumer forms on its current no-base-object
+source; no candidate matches. The count-exact whole-expression closest input
+differs in positive/negative arm layout (BGEZ versus retail BLTZ),not merely a
+uniform register swap. Its stock compiler RTL/combine/local/global dumps and
+closest-proof.json are in build/nc12/camera_spline_results_source_20261019.
+No failed form is retained and no distinct-original-local necessity is claimed.
+
+Completed final-proof.json verifies96detailed SOURCE-ONLY functions PASS,
+branches29/0,38/0,5/0,24/0,and all four whole normal ELFs byte-identical to
+their frozen pre-edit objects. All105pipeline tests,vtable1366,source policy,
+standing relink and fresh canonical final link PASS. Actual linked RECON
+remains299819/299819words identical to raw retail,zero masked overlap mismatch
+bytes and zero foreign-label ownership errors. HEAD remains04558fbb; source/
+ledger changes are uncommitted/unpushed and unrelated user work is preserved.
+
+2026-10-19 spline circular-distance and row-view recovery removes halfSlices and rotBase.
+
+Replacing only halfSlices's comparison operands failed earlier,but restoring
+the complete sliceDist assignment succeeds: compare gNumSlices/2 with the
+positive-first absolute slice difference,then select the wrapped or direct
+distance. The anonymous half-track result and supplied final sliceDist home
+both emerge without a named halfSlices object. Two source candidates plus
+baseline match among33whole-distance inputs; the reversed sign/abs builtin/staged-value
+forms are different graphs. The signed-short input difference fits INT,so its
+negation does not introduce the INT_MIN issue. No original distance-macro
+name is invented.20000bounded positive-track arithmetic cases agree.
+
+The real three-integer rotation row can be read through the existing coorddef
+view of &Camera_gInfo[player].rotation.m[6]. x/y/z feed the corresponding three
+fixedmult calls in the original left-associated sum. This preserves the +72
+base derivation and eliminates rotBase and its zero-length declaring region.
+Shared types already define coorddef as int x,y,z and matrixtdef as int m[9];
+no type/layout is changed. Six row-view forms plus baseline match in31stock
+compiler inputs; plain scalar m[6..8] access still does not. Right association
+or staged direction accumulation also does not reproduce the stream. These
+are measured source-graph distinctions,not proof of the unique original cast
+or a mandate for a permanent named base. The older "rotBase must exist"
+allocation account was basin-specific and is superseded by this source form.
+
+Both changes together remain351/351 detailed SOURCE-ONLY PASS. Fresh combined
+native run-8egd7hbt covers96/96records in AISpeeds,camera,trackspec,texture:
+bytes/layout and normal/full-g code unchanged,ASPSX524/0,PSYLINK0. All ten
+supplied spline records still independently equal retail,including complete
+type/home/depth/owner tuples and order. Only two newSlice records remain EXTRA.
+Strict comparison remains DIFF (regions9versus retail6),not exempted by the
+matching supplied subset. Camera remains36/38declaration/region PASS and all
+prior PASS/strict seals survive. Relative SLD improves327to318/351word-tag
+differences,end118to98versus retail100,but remains incomplete with unequal
+block lines. No padding is added to bridge the two-line end difference.
+
+The two short wrap-result captures are still unresolved.97per-arm cast-result
+controls,193whole-expression controls on the no-half source,and73corresponding
+signed/unsigned lvalue-view controls each match baseline only. They isolate
+the unsigned value load/signed comparison/converted result handoff but do
+not prove that a distinct original local was necessary. No failed form or
+invented spelling is retained; future work must recover this real producer.
+No asm,volatile,new helper/type/name,neutral identity,fake use,compiler flag,
+reference reset,comparator relaxation or post-compiler rewrite is introduced.
+
+Evidence/backups/source inputs/raw native dump/owner-final.json/final proof:
+build/nc12/camera_spline_wrap_source_20261019 (ignored). The complete source/
+SYM/SLD objective remains active/incomplete; changes are uncommitted/unpushed.
+
+Completed final-proof.json verifies96detailed SOURCE-ONLY functions PASS,
+branches29/0,38/0,5/0,24/0,and all four whole normal ELFs byte-identical to
+their frozen pre-edit objects. All105pipeline tests,vtable1366,source policy,
+standing relink and fresh canonical final link PASS. Actual linked RECON
+remains299819/299819words identical to raw retail,zero masked overlap mismatch
+bytes and zero foreign-label ownership errors. HEAD remains04558fbb; no
+generated tracked output or unrelated user work is changed by this round.
+
+2026-10-19 spline phases: supplied owners restored; two extra captures removed, four remain.
+
+Camera_UpdateSplineCam now uses a negative paused/between guard and two real
+calculation regions. sliceDist/numSlice end with the position-selection phase
+at+360,instead of incorrectly covering the velocity and final-position phases
+through+554. splineVel/nextVel own the sibling+360..+474 region. relativeVel
+has its supplied depth3,+3cc..+474 owner. Declaring it before the nextVel
+conditional instead moved its debug start to+360; the final declaration
+belongs after the vector differences,before normalization,and GCC moves its
+begin note to the selected-copy block at+3cc. No dummy scope or use is added.
+
+The bound-first min expression numSlice=8<(numSlice+1)?8:(numSlice+1) removes
+the unrecorded d selector and its extra scope while preserving the anonymous
+a2 clamp result/call-crossing named s2 step. Other equivalent predicate/arm
+orders did not produce that graph. The112controlled phase/half/clamp inputs
+have four exact stream/control candidates including baseline. Typed nextVel
+indexing through BWorldSm_slices[(slice+1<gNumSlices)?slice+1:0].center removes
+nextSliceIdx without changing the required reload/copy order; two of eight
+direct-index/address forms match. No new object/name/helper,qualifier,asm,
+neutral identity,fake reference,compiler flag or output rewrite is introduced.
+
+All ten supplied spline parameter/local records now individually match the
+retail records,including full type/home/depth/declaring-owner tuples and order.
+This supplemental by-name identity check does NOT weaken the strict comparator:
+the whole function stays DIFF because halfSlices,rotBase and two newSlice
+records remain EXTRA. Their unresolved names/objects are kept explicit in
+source and backlog,not renamed or certified as original. Regions fall11to10
+versus retail6. Direct half/comparison,rotation-address and signed/unsigned
+field-result trials that change the stream are not retained; none proves a
+distinct original source object is required. Further work must recover those
+four producers,not hide them behind const or another generic exemption.
+
+Detailed SOURCE-ONLY verification remains351/351PASS. Fresh combined native
+run-5n58htb1 covers96/96records across AISpeeds,camera,trackspec,texture with
+bytes/layout and normal/full-g code unchanged,ASPSX524/0,PSYLINK0. Every prior
+declaration/region PASS and strict seal survives. Camera remains36/38on the
+strict declaration/region axis; all ten supplied spline owners being correct
+does not make its four extra records acceptable. Full SLD remains open:
+341to327/351word-tag differences,end166to118versus retail100,unequal block
+lines. Reconstruction-only body comments were moved/removed as part of the
+source cleanup; no line padding,#line or fabricated context is retained.
+
+20001defined step/clamp values and327680index arithmetic cases agree; negative
+or otherwise invalid array dereferences are not exercised or certified. These
+are arithmetic checks,not a runtime-emulator differential. Evidence/backups,
+source controls,raw native dump/owner-final.json and final-proof.json:
+build/nc12/camera_spline_source_20261019 (ignored). Strict source/SYM/SLD
+completion remains open; all current changes remain uncommitted/unpushed.
+
+Completed final-proof.json also confirms all96detailed SOURCE-ONLY functions
+PASS,branches29/0,38/0,5/0,24/0,and all four complete normal ELFs byte-identical
+to their frozen pre-edit objects. All105pipeline tests,vtable1366,source policy,
+standing relink and canonical final link PASS. Actual linked RECON remains
+299819/299819words identical to raw retail,zero masked overlap mismatch bytes
+and zero foreign-label ownership errors. No reference reset or comparator
+change. HEAD remains04558fbb; unrelated user work and generated tracked files
+are unchanged by this round.
+
+2026-10-19 TailCam: ten source captures, four empty asm fences and two absorption identities removed.
+
+Camera_UpdateTailCam now uses the actual reverse/wrongway XOR selection,
+direct approximate horizontal speed expression,and typed wrapped road samples
+with the supplied vertigo accumulator. Direct arm.y+=vertigo,Input_gLookBehind
+access and &arm transform arguments make the staged armY/lookBehindBase/armPtr
+chain unnecessary too. The two absorption SETs (first|first&3 and the pointer
+equivalent) are removed, not renamed or treated as original source. Combining
+the transition/assigned-length predicate restores scale's supplied depth and
+actual owner. Every behavior/divisor/clamp constant and side-effecting call
+sequence remains TailCam's own; helicopter-specific replay/fallback logic is
+not copied into this function.
+
+The ten eliminated source names are rev,flip,z,ax,slices,first,second,armY,
+lookBehindBase,armPtr. Eight had native extra-local records; flip/armY were
+already debug-elided but still unresolved source captures. All four actual
+empty asm expressions disappear. The resulting function contains only its
+retail-named parameters/locals and no asm,volatile,substitute helper/name,
+dummy use,neutral identity,compiler flag or output rewrite. The detailed
+older allocation/fence receipts remain recoverable in04558fbb and the frozen
+pre-edit source,not asserted as current original-source requirements.
+
+A63-input controlled compiler matrix varies reverse,speed,road,arm-access
+and scope graphs independently and in combination;47inputs including baseline
+preserve the complete stream/controls. Address choices duplicate inputs when
+the arm-access change is disabled; these are not63independent original-source
+proofs. Both complete forms match,and the ordinary typed Input access is kept.
+SOURCE-ONLY verify_asm is402/402PASS. Branch offsets/counts and whole-ELF
+identity are independently checked rather than inferred from that matrix.
+
+Fresh combined native run-7i0xgah9 covers96/96records in AISpeeds,camera,
+trackspec,texture:bytes/layout and normal/full-g code unchanged,ASPSX524/0,
+PSYLINK0. TailCam now has zero declaration differences,all14supplied parameter/
+local records,and exactly the three retail region pairs. Regions fall11to3;
+scale retains s0 with its correct depth3 owner and+588..+5cc bounds. Camera
+advances35to36/38declaration and region PASS; only UpdateSplineCam and Update
+remain DIRTY on that axis. All previous PASS and strict seals survive.
+
+This does not certify literal original text or full SLD. TailCam remains
+392/402word-tag differences,unequal block lines,end117versus retail103.
+Strict camera remains9EXACT/29INCOMPLETE. No line padding or fabricated source
+context is introduced.10000bounded arithmetic checks preserve the removed
+integer/pointer identities and signed/3 result dataflow; this is not a whole-
+function emulator differential. Exact machine output and actual native SYM
+provide the independent target evidence. Full project completion remains open.
+
+Evidence/backups,source controls,raw native dump and final proof:
+build/nc12/camera_tail_source_20261019 (ignored). Source and ledger changes
+remain uncommitted/unpushed; unrelated user work is preserved.
+
+Completed final-proof.json confirms96detailed SOURCE-ONLY functions PASS,
+branches29/0,38/0,5/0,24/0,and all four complete normal ELFs byte-identical
+to the frozen pre-edit objects. All105pipeline tests,vtable1366,source policy,
+standing relink and fresh canonical link PASS. Actual linked RECON remains
+299819/299819words identical to raw retail,zero masked overlap mismatch bytes
+and zero foreign-label ownership errors. No reference reset,comparator change
+or generated tracked output change. HEAD remains04558fbb; complete source/SYM/
+SLD restoration remains active/incomplete.
+
+2026-10-19 helicopter is now native declaration/region CLEAN, with no source-only captures or asm.
+
+Camera_UpdateHeliCam's second road sample uses the typed BWorldSm_slices
+subscript with the complete lookahead-dependent wrap expression. No second
+pointer, byte-address view or extra declaring wrapper is required. The later
+mutation of slice was dead after selecting that sample; the real slice local
+still has its supplied v1 home.71controlled inputs include typed/pointer/
+integer-address loads, per-arm versus shared/conditional indexes and operand
+order.13inputs including baseline preserve the compiler stream/controls.
+The retained typed conditional subscript is sufficient without a new macro
+name or source object. Literal original wrap spelling remains unproven.
+
+The final rev capture and reverse-selection empty asm disappear together:
+lookahead=(GameSetup_gData.reverseTrack^(anchor->wrongway>0))?3:-3.
+XORwith0 leaves the reverse value; XORwith1 is zero exactly when reverse==1,
+which is precisely the old two-arm selection. GCC builds the retail branch
+tree and single shared reverseTrack load directly. Both XOR operand orders
+are exact stock-compiler candidates; direct fence deletion, nested conditionals,
+duplicated tests and staged work-value forms are not. No fake use, neutral
+identity, source scope, qualifier, replacement fence, register pin, compiler
+flag or post-compiler rewrite is added. Keeping the same branch tree does
+not require keeping the reconstruction's original branch syntax.
+
+Detailed SOURCE-ONLY verification remains443/443PASS. Fresh combined native
+run-mya6zujk covers96/96records in AISpeeds,camera,trackspec,texture with bytes/
+layout and normal/full-g code unchanged,ASPSX524/0,PSYLINK0. Heli now has zero
+declaration differences: all provided locals/types/homes/order/owners and all
+three region pairs agree, including scale's actual child path. Camera advances
+34to35/38declaration and region PASS; every earlier PASS and strict seal survives.
+The function's actual body has NO unrecorded captures and NO asm or volatile.
+Together with the preceding speed-expression round, six extra local records
+and all three empty asm fences have been removed from this function.
+
+This is not a full SLD/original-text seal. Heli retains433/443word-tag
+differences,unequal block lines,end140versus retail116. Strict camera remains
+9EXACT/29INCOMPLETE. No line padding or fabricated source context is used
+to hide that work.231348valid road-wrap cases and10035signed reverse/wrongway
+pairs preserve consumed indexes/choices; these are arithmetic-domain checks,
+not a runtime-emulator differential. Original helper/macro spellings are not
+invented or certified from native CLEAN.
+
+Evidence/source controls/backups/raw native dump/final proof:
+build/nc12/camera_heli_road_source_20261018 (ignored; investigation began
+before the local date changed). The full original-source/SYM/SLD objective
+remains active/incomplete; source and ledger changes remain uncommitted.
+
+Completed final-proof.json verifies all96detailed SOURCE-ONLY functions PASS,
+branches29/0,38/0,5/0,24/0,and all four whole normal ELFs byte-identical to
+their frozen pre-edit objects. All105pipeline tests,vtable1366,source policy,
+standing relink and canonical final link PASS. Actual linked RECON remains
+299819/299819words identical to raw retail,zero masked overlap mismatch bytes
+and zero foreign-label ownership errors. No reference reset or comparator
+relaxation. HEAD remains04558fbb; no generated tracked files or unrelated
+user edits are included or altered.
+
+2026-10-18 helicopter speed expressions remove four locals and two empty asm fences.
+
+Camera_UpdateHeliCam now assigns the approximate horizontal speed directly
+to rate and fallback:abs(x)>abs(z) ? abs(x)+(abs(z)>>2) : abs(z)+(abs(x)>>2),
+using __builtin_abs for the existing compiler's real inline operation. Both
+phase-local z/ax objects and their absolute-normalization asm boundaries are
+removed. The now-declaration-free fallback wrapper is also removed. The
+matched NFS2 Camera_UpdateHeliCam2 independently uses this same approximate
+speed expression and fallback role; its different behavior/constants are
+not substituted for NFS4. No new name/helper/macro/qualifier,neutral identity,
+fake reference,register pin,compiler flag or output rewrite is introduced.
+
+The comparison's operand order matters: the retained abs(x)>abs(z) selects
+the same arm as the old z<ax, but produces the right GCC expression graph
+without separate source objects. Complete SOURCE-ONLY verification is
+443/443PASS, not a normalized compiler-row estimate. Both original fields
+and actual rate/fallback consumers retain their roles.10025edge/random
+velocity pairs with defined signed32 absolute values/sums agree. This is
+bounded arithmetic evidence, not a runtime-emulator proof or an assertion
+about abs(INT_MIN), which was already undefined in the old signed source.
+
+The initial385-input source probe falsely reported every candidate nonexact
+because its borrowed diagnostic reader normalized $L labels but not GCC's
+GAS1f/1b labels. The best difference was solely bgez $3,@73 versus bgez $3,1f,
+with identical stream length and controls. Actual detailed verify_asm then
+proved PASS. The scratch reader now resolves numeric local targets to their
+real instruction-row positions; the rerun has55exact inputs including
+baseline (not55unique original-source proofs). The initial report is retained
+as unhandled_numeric_labels_probe-proof.json and is not failure authority.
+No production verifier/comparator/compiler output was changed or relaxed.
+
+Fresh combined native run-n5nsae0i covers96/96records across AISpeeds,camera,
+trackspec,texture:bytes/layout and normal/full-g code unchanged,ASPSX524/0,
+PSYLINK0. Every prior declaration/region PASS and strict seal survives. Heli
+declaring regions fall8to5 versus retail3; its four z/ax records disappear,
+and every supplied root local retains its actual type/home/order. The two
+remaining source-only objects are rev and second; scale's supplied home and
+boundaries remain correct but its child path is shifted by those extra owners.
+The reverse-selection asm fence remains a source-restoration task, not an
+original-source certificate. Full SLD remains433/443tag differences,end188
+versus retail116,unequal block lines. No line padding or invented context is
+used to turn these incomplete contracts green. Module declaration coverage
+remains34/38 and strict9EXACT; do not confuse source-object reduction with a
+new whole-function native CLEAN/SLD seal.
+
+Evidence/backups/corrected input matrix/raw native dump and final proof:
+build/nc12/camera_heli_source_20261018 (ignored). Full source/SYM/SLD goal
+remains active/incomplete; current source/ledger changes are uncommitted.
+
+Completed final-proof.json confirms all96detailed SOURCE-ONLY functions PASS,
+branches29/0,38/0,5/0,24/0,and all four whole normal ELFs byte-identical to
+their frozen pre-edit objects. All105pipeline tests,vtable1366,source policy,
+standing relink and canonical link PASS. Actual linked RECON remains
+299819/299819identical to raw retail,zero masked overlap mismatch bytes and
+zero foreign-label ownership errors. HEAD remains04558fbb; no generated
+tracked output or unrelated user work is included or changed by this round.
+
+2026-10-18 Camera_NextMode: remove the unrecorded modeForRange capture.
+
+The two real mode tests, mode==11 || mode==12, reproduce the complete237word
+retail stream with no const snapshot. GCC fold-const.c's fold_range_test and
+build_range_check merge comparison ranges and build the unsigned test. The
+source-level comparison form preserves the early LH/LHU graph that the old
+explicit promoted unsigned-subtraction form lost. That earlier12diff/239
+result was a spelling/graph-specific failure, not evidence that a distinct
+original modeForRange object was required. No substitute object/name/helper,
+qualifier, asm, fake use, compiler flag or output rewrite is introduced.
+
+The original exit guards and root/flagMode owners remain intact. The266
+stock-compiler input controls include casts, range predicates and branch
+ownership;105inputs match stream/controls (including baseline, not105unique
+original-source proofs). Positive-owner forms add two unsupported scopes and
+are not retained. The ordinary early-return plus signed-field equality pair
+is sufficient. All65536possible16bit field values agree with the old unsigned
+range predicate. This is exhaustive predicate equivalence, not an emulator
+differential or proof of the literal original comparison spelling. IDA, M2C
+and raw retail confirm the two loads, guard order and shared range; matched
+NFS2 NextMode differs materially and is not substituted for this function.
+
+Fresh combined native run-dymcncv0 covers96/96records across AISpeeds,camera,
+trackspec,texture, with immutable bytes/layout and normal/full-g code unchanged,
+ASPSX524/0 and PSYLINK0. Every prior declaration/region PASS and strict seal is
+preserved. Camera remains34/38declaration and34/38region PASS,9strictEXACT;
+NextMode's actual names/homes/order and all region boundaries match. SLD still
+has232/237word-tag differences,unequal block lines,end54/retail65. Source
+capture removal is real progress, not a claim that native CLEAN seals SLD.
+
+All96detailed SOURCE-ONLY functions PASS; branch29/0,38/0,5/0,24/0; all four
+whole normal ELFs equal their frozen pre-edit objects. All105pipeline tests,
+vtable1366,source policy and standing relink PASS. Fresh canonical linked
+RECON299819/299819words are identical to raw retail,zero masked overlaps and
+zero foreign-label ownership errors. No reference reset or comparator change.
+Backups,source controls,raw native dump,owner-final.json and final-proof.json:
+build/nc12/camera_next_mode_source_20261018 (ignored).
+
+The stale PulloverCam gameTicks carrier comment was also corrected: the code
+already reads simGlobal.gameTicks directly and declares no such snapshot.
+This removes an inaccurate generic carrier claim, not another source object.
+That comment/indent-only cleanup preserves physical line counts; fresh full-g
+compiler output is byte-for-byte identical to the output used by the native
+gate, so no debug record/SLD input changed. HEAD remains04558fbb; all current
+source/ledger changes are uncommitted/unpushed,unrelated work remains intact,
+and the complete original-source/SYM/SLD objective stays active/incomplete.
+
+2026-10-18 typed traffic-random selector; tuning producer remains explicit review.
+
+AISpeeds_SetTrafficSpeedRandomFactor now uses its supplied INT[4]
+randomSpeedMultipliers as an array, after the actual state update
+fastRandom=(randtemp=fastRandom*randSeed)&0xffff. The indexed read is
+randomSpeedMultipliers[(randtemp>>8)&3]. This removes the integer stack-address
+view and duplicate product expression without a new local, name, macro, fence,
+qualifier or compiler flag. Retail SLD assigns the RNG calculation/state writes
+to1412 and the table selection/field store to1414. The compiler schedules the
+table load before the state stores in both source forms; execution order was
+not a reason to retain the old source statement order. Matched NFS2 AI sources
+and Speech::Reset independently support the same sequenced RNG arithmetic,
+but do not establish NFS4's literal original macro name.
+
+Controlled stock-compiler inputs include ordinary state-first statements,
+comma/chained updates, typed subscripts and sequenced subscript expressions.
+The three state-first forms match the complete compiler stream/controls;
+changing multiplication operand order in the sequenced subscript does not.
+The retained form is ordinary source with the actual global assignments,
+not an elided carrier or statement-expression scope. Native declaration and
+region contracts remain PASS. Relative SLD is NOT sealed:30/31tags still
+differ, though end delta is now5 rather than16 (retail6). The real statement
+groups/order are restored; no line padding or fabricated source context is
+added to conceal the remaining one-line attribution offset.
+
+ReadTuningInfo was freshly161/161PASS before investigation. Its earlier
+distanceMaintainTime name is NOT supplied by SYM. The empty+58..+64 region
+spans the loop guard and ends before the timing read; it does not prove a
+named timing object. Direct-read/ordinary/preincrement/not-equal loop trials
+rotate or otherwise change the stream. Call/value GNU-expression trials
+keep the stream but add an unsupported second scope. None is landed. The
+postincrement direct/field-stage controls contain a duplicate generated input;
+do not count them as independent evidence. The comment now records this as
+an unresolved original-producer/name question, not an accepted timing-local
+exemption or a proof that no other source form exists.
+
+Fresh combined native run-3ablci2q covers96/96records in AISpeeds,camera,
+trackspec,texture: bytes/layout and normal/full-g code unchanged,ASPSX524/0,
+PSYLINK0. All prior declaration/region PASS and strict seals survive; AISpeeds
+remains29/29declaration and29/29region PASS,11strictEXACT/18INCOMPLETE.
+All96detailed SOURCE-ONLY functions PASS, branches29/0,38/0,5/0,24/0;
+all four whole normal ELFs remain byte-identical to their frozen pre-edit
+objects. Evidence/input controls/backups:build/nc12/aispeeds_random_source_20261018
+and build/nc12/aispeeds_tuning_source_20261018 (ignored). The full source/SYM/SLD
+goal remains active/incomplete; changes are uncommitted/unpushed.
+
+The completed final-proof.json also freezes105passing pipeline tests,vtable1366,
+source-only policy,green standing relink (zero REAL duplicates/hidden phantoms),
+and a fresh canonical link:299819/299819RECONwords identical to raw retail,
+zero masked overlap mismatches and zero foreign-label ownership errors.
+11026product cases and10000state/seed pairs agree for the typed index and RNG
+state arithmetic; these are bounded arithmetic checks, not a runtime-emulator
+differential. No reference reset, comparator relaxation or generated tracked
+output change occurred. HEAD remains04558fbb; unrelated work is preserved.
+
+2026-10-18 pack-glue value roles close AISpeeds declaration and region coverage.
+
+AISpeeds_GetGlueFactor's three moved glueIndex records reflected incorrect
+source quantities, not merely names in inconvenient registers. The old
+distance already held the divided/biased index and glueIndex held the clipped
+table key. Retail records both in v1; raw SUBU supplies the distance there,
+then the division/+10 overwrites it with the index. SLD separates the subtraction
+(1003/1012/1022) from the scaling/clipping (1005/1014/1024). The matched NFS2
+AI_GetGlueFactor also distinguishes raw sliceDiff from iTempIndex; that is
+cross-version role evidence, not NFS4's byte oracle or replacement names.
+
+Restore each real distance=leadAI-leadHuman assignment, then
+glueIndex=distance/0x3c0000+10, then the assigned piecewise0..20 clamp before
+the table lookup. Every131word remains identical, with both distance and
+glueIndex now in their supplied v1 homes in all three actual sibling scopes.
+All64source-input controls use the real per-TU -O2/-G8/no-implement-inlines
+recipe; four exact stream/control candidates use the assigned index. No name
+is invented, no original field is renamed to conceal a carrier, and no new
+object/helper/qualifier/asm/fake use/flag or output rewrite is introduced.
+
+Final combined native run-jgn457kb covers96/96records across AISpeeds,camera,
+trackspec,texture. Immutable bytes/layout and normal/full-g code are unchanged;
+ASPSX524/0, PSYLINK0. AISpeeds is now29/29PASS for declarations/ownership AND
+every region boundary; all prior native PASS and strict seals survive. This
+does NOT close the whole source goal: AISpeeds strict remains11EXACT/18INCOMPLETE.
+GetGlueFactor still120/131SLD word-tag differences,block lines differ,and
+end+61/retail+72. Source-only/inferred-name reviews, including the earlier
+ReadTuningInfo timing-local producer/spelling, remain distinct from these
+declaration counts. No padding or fabricated source context is added to clean
+the remaining SLD differences.
+
+All96 detailed SOURCE-ONLY functions PASS; branch29/0,38/0,5/0,24/0. All four
+whole normal ELFs remain byte-identical to their pre-edit objects. AISpeeds
+SHA256 staysbd44358fef1c735074cd9cb2a42daa20745a952dbcf86c6c286183c5efd3edbd.
+10009signed-delta edge/random cases preserve the consumed table key and0..20
+bounds; this is not a runtime differential or a claim about overflowing host
+subtraction. All105tool tests,vtable1366,source policy,standing relink and
+canonical final link PASS. Actual linked RECON299819/299819words match retail,
+zero masked overlap mismatch/foreign-label ownership errors. No reference reset
+or comparator relaxation. Evidence/backups/raw native dump/final-proof.json:
+build/nc12/aispeeds_pack_glue_source_20261018 (ignored). HEAD remains04558fbb;
+source/ledger changes are uncommitted/unpushed,unrelated work is preserved,
+and the full original-source/SYM/SLD objective remains active/incomplete.
+
+2026-10-18 AISpeeds: real index clamp; ordinary search removes volatile and seals SLD.
+
+AISpeeds_BTCGetGlueFactor now assigns the piecewise 0..20 clamp back to the
+provided glueIndex before its actual table lookup. All111words, frame48,
+named homes/order/owners and every region boundary agree without the extra
+clampedGlueIndex object. Composed min/max trees and direct subscript contexts
+were not the same compiler graph. On the correct compiler recipe,512composed
+variants did not match;128piecewise variants produced four exact stream/
+control candidates, all using the assigned real index. No new helper/macro
+name, substitute local, qualifier, asm, neutral identity or flag was introduced.
+The module's copied AIScript/8-function heading is corrected to its actual
+29-function speed/glue/curve-control ownership.
+
+The initial exploratory matrix omitted the TU's existing
+-fno-implement-inlines option. Its results are retained separately and are not
+authority. It was rerun with the real option and a baseline stream/control
+assertion against stock production output before accepting any candidate.
+Production compiler flags/tools/references were never changed. Counts in the
+input matrices are compiler diagnostics, not verify_asm instruction-diff scores.
+
+AISpeeds_GetLegalSpeed exposed a different issue: the decompiled post-test
+increment plus source decrement was only imitating the retail pre-test search.
+Ordinary while(speedData->endSlice<slice) speedData++ produces the final -4
+exit correction in compiler output even though the source has no decrement.
+The source now loads speedMPS directly, with NO volatile cast. All17words are
+identical. The real speedData owner extends to+56, not+52, and the complete
+declaration/scope/relative-SLD contract is strict EXACT: all17word tags, block
+lines and end+9 agree. No artificial source padding or region is needed.
+Literal while-versus-for spelling is not uniquely established by that result.
+
+Separate/consumed decrements, parameter reuse, post-step and register-keyword
+input controls did not remove the fold on the old traversal. A retained-code
+consumed-decrement experiment kept the bad scope and added one SLD mismatch;
+it was fully reverted. The correct plain pre-test traversal succeeds in five
+ordinary loop forms. This is source-loop recovery, not proof of an original
+volatile property or a compiler floor. The first preprocessed probe fixture
+accidentally used a macro name after expansion; it was corrected to use the
+actual initializer expression before any results were accepted.
+
+Final native run-glbf1nqg covers96/96records across the four selected TUs, with
+unchanged immutable bytes/layout, normal/full-g equality, ASPSX524/0 and
+PSYLINK0. AISpeeds declarations26->28PASS/29, regions28->29PASS/29 and strict
+10->11EXACT/29. The remaining declaration review is AISpeeds_GetGlueFactor.
+BTC glue's full SLD is still open (102/111word tags differ,end+56/retail+53).
+The broader18incomplete AISpeeds SLD contracts and source-only review queue
+are not hidden by the native declaration counts. Every previous declaration/
+region PASS and strict seal in aispeeds,camera,trackspec,texture is preserved.
+
+All96 detailed SOURCE-ONLY functions and branch29/0,38/0,5/0,24/0 PASS. All
+four normal ELFs are byte-identical to their pre-edit objects. AISpeeds SHA256:
+bd44358fef1c735074cd9cb2a42daa20745a952dbcf86c6c286183c5efd3edbd.
+10008signed-index edge/random cases preserve the consumed clamp key in0..20;
+27bounded terminating table searches preserve the selected record/value.
+These are semantic checks, not full runtime or literal-source uniqueness
+claims. All105tool tests,vtable1366,source policy,standing relink and canonical
+final link PASS. Actual linked RECON remains299819/299819identical words,
+zero masked overlap mismatch and zero foreign-label ownership errors.
+Evidence/backups/raw native dump/final-proof.json:
+build/nc12/aispeeds_glue_source_20261018 and
+build/nc12/aispeeds_legal_source_20261018 (ignored). No reference reset,
+comparator relaxation or output rewrite. Changes remain uncommitted/unpushed;
+unrelated files preserved; whole-project source-restoration goal stays active.
+
+2026-10-18 TV-camera clamp destination restores height without an extra capture.
+
+Camera_UpdateTVCam's actual height is fixedmult's int result in v0. Assign the
+nested bound-first upper clamp and zero lower clamp BACK TO height, then use
+height in position.y. That source form removes clampedHeight and preserves
+every83word, frame40/mask, both actual fn-static lastX/lastY arrays and every
+named home/owner record. Its complete region tree also matches. No replacement
+alias/helper/object, const disguise, qualifier, asm, neutral identity or output
+rewrite is introduced. Earlier direct-position and staged clamp misses did
+not prove a separate source object was necessary.
+
+The controlled source-input matrix has321cases (baseline plus320). Four exact
+compiler-stream/control candidates use the assigned height destination and
+the matching upper/lower operand/arm orders. The same bound-first expression
+used directly in the position addition is NOT identical; merely staging the
+upper clamp is not identical either. Exact candidate inputs/full compiler
+outputs and per-case source/metadata are retained; failed compiler-row counts
+are diagnostics, not authoritative verify_asm scores. Stock CC1PLPSX -O2 -G8
+was used, without changing production flags or assigning registers.
+
+GCC2.8.1 fold-const.c around5631..5731 preserves operand order when forming
+min/max from C++ conditional lvalues; expr.c6519..6589 explicitly uses the
+original target and expands the operands in an ordered way. These support
+destination/operand-order as real source levers, not a claimed unique account
+of every allocator decision. The actual proof is the stock compiler plus
+native/byte/link gates. NFS2's matched TV-camera body is different and was
+not blindly transplanted; its MIN/MAX definitions are cross-version context,
+not proof of NFS4's literal macro spelling. The retained code stays explicit.
+
+Final combined native run-e1ksmazx: immutable bytes/layout unchanged, normal/
+full-g code identical, ASPSX524/0, PSYLINK0 and complete67/67owner records.
+Camera declarations33->34PASS/38; TV-camera declarations and regions now PASS.
+Camera regions remain34/38PASS and strict remains9EXACT/29INCOMPLETE. Target
+SLD is still76/83word-tag differences,end+22/retail+18: not a full source-text
+or SLD seal. All previous native declaration/region PASS and strict seals in
+camera,trackspec and texture survive, including both new track/spec seals.
+
+All67 detailed SOURCE-ONLY functions PASS; branch38/0,5/0,24/0. All three normal
+ELFs remain byte-identical to their pre-edit objects. Camera SHA256 is
+2643faccc832a1dee34f5e28c96ddaeaba49ad8d6d2f3ce92c7916545cd18437.
+The consumed clamp output agrees on121signed-int boundary pairs plus10000
+deterministic random pairs (including negative upper bounds); that is an
+arithmetic check, not a runtime differential or unique source-text proof.
+All105tool tests,vtable1366,source policy,standing relink and canonical final
+link PASS. Actual linked RECON299819/299819words match retail,zero masked
+overlap mismatch and zero foreign-label ownership errors. No reference reset
+or comparator relaxation. Evidence/backups/raw native dump/final-proof.json:
+build/nc12/camera_tv_source_20261018 (ignored). Changes remain uncommitted/
+unpushed; unrelated work preserved; full original-source goal stays active.
+
+2026-10-18 track/spec: consumed assignment result removes filebuf; two strict SLD seals.
+
+The byte-copy helper's i belongs to a for-initializer child, not the function
+root. Ordinary for(int i=0;i<bytes;i++) with the existing real source/dest
+pointer operations preserves12words and restores its exact named owner and
+every region boundary. No empty wrapper block or invented counter was added.
+
+TrackSpec_Read no longer needs filebuf. The right-associative source chain
+startpos=currentpos=(char*)loadfileadr(str,0), followed by the currentpos null
+test, reproduces all63words, frame120, the raw-v0 AUTO store and both real
+startpos purge uses. Standalone pointer-copy forms and the reverse assignment
+chain were shorter/frame112; those failures did not prove an extra source
+object. The consumed inner assignment is a different expression graph.
+GCC2.8.1 expr.c expand_assignment/store_expr (want_value, around3134 and7176)
+supports preserving an assignment result when an enclosing assignment needs
+it. Stock compiler input controls and full native/byte gates supply the actual
+receipts; no asm, artificial reference or surrogate alias was required.
+
+TrackSpec_SetUp and TrackSpec_Load now use ordinary implicit void fallthrough,
+not an explicit trailing return. Load's actual table initializer and its call
+are adjacent rather than separated by an empty line. These source forms
+restore every relative instruction tag, block line and function-end line in
+both functions. They become strict declaration/scope/SLD EXACT, preserving
+all9and24words. No #line, path rewrite, fake statement or added line padding.
+
+TrackSpec_SetDefault's reconstruction-only body commentary now precedes the
+definition, not its executable statements. Its two same-type counters use one
+real declaration group; the last contrast-color triplet is grouped like the
+other recorded color operations, with implicit void fallthrough. All142words
+stay exact; mismatched word tags fall141->66/142 and end+69matches retail+69.
+Block-line and remaining statement/loop-context differences still prevent a
+strict seal. No blanks or fabricated source/preprocessor context are inserted
+to hide those differences. Literal original spelling/comments remain unproved.
+
+The source-only trk capture in TrackSpec_Read remains explicitly unresolved,
+even though the optimizer emits no extra declaration record. A separate SLD
+tag proves a fetch line, not uniquely a separate named object or statement.
+Direct inline field arguments and ordinary multiline-call variants remain
+compiler-stream different on the retained chained-assignment shape. Those
+diagnostics are not claimed as authoritative instruction-diff scores or an
+unmatchable floor. No new alias, meaningless use or qualifier is retained.
+
+Final combined native run-yar_9d97: unchanged immutable bytes/layout, matching
+normal/full-g code, ASPSX524/0, PSYLINK0, complete29/29owner records. Trackspec
+declarations3->5PASS/5, regions4->5PASS/5, strict0->2EXACT/5. All previously
+PASS declaration/region and strict contracts survive, including the texture
+round (22/24declarations,23/24regions,4strict EXACT). Read helper still5/12SLD
+tag differences; loader49/63differences,end+26/retail+55. These are not full
+directory or whole-project source-restoration completion claims.
+
+All29 detailed SOURCE-ONLY functions PASS; branch5/0and24/0,105tool tests,
+vtable1366,source policy,standing relink and canonical final link PASS. Both
+whole normal ELFs are byte-identical to their pre-edit objects. Actual linked
+RECON299819/299819words match retail,zero masked overlap mismatch and zero
+foreign-label ownership errors. Backups, input probes, raw native dump and
+final-proof.json: build/nc12/trackspec_source_20261018 (ignored). Source/ledger
+remain uncommitted/unpushed; unrelated files preserved; main goal active.
+
+2026-10-18 Vramf: four captures removed; original frame producer still unresolved.
+
+Texture_Vramf now computes its signed pixel-word rounding directly as
+(shp->width*shapedepth(shp)+15)/16. Repeated unsigned type-field predicates
+replace kind; the actual type flag stores use shp->type|=8. The final signed
+next-field conditional and byte-pointer addition replace nextshp without an
+integer pointer round-trip. rowpix/rowround/kind/nextshp are all gone, with
+every107word preserved. Direct if-arm assignment to shp loses a compiler row;
+the conditional expression retains the real a0-to-s0 funnel. No new helper,
+local, qualifier, fake use, asm or output rewrite is introduced.
+
+The remaining deadfrm[4] is explicitly an EXISTING artificial frame filler,
+not accepted original source and not exempted from review. Retail provides
+only RECT r at sp-64; native now differs solely by deadfrm AUTOsp-56,size16.
+Every supplied parameter and r record, frame80/mask and root region matches.
+Deleting the filler on the clean expression shape gives frame64 and changes
+frame-dependent rows; the real source/temporary producer for16bytes is still
+to be recovered. Ordinary signed division alone does not generate that gap.
+Actual RECT compound-literal assignment is accepted by the compiler and
+generates frame72 plus extra copying instructions, not a match. These are
+source-input diagnostics, not proof of an unmatchable floor. No new padding,
+attribute, unused declaration, neutral identity or dummy argument is adopted.
+
+The first texture-arm shapex store also remains a raw-word view requiring
+source review. Repricing real typed shapex after removing the four captures
+still hoists another saved register and adds two compiler rows. Typed type
+flag stores and next accesses DO match and are retained. Historical body
+commentary was moved into a short provenance heading; no original comment
+text or full SLD restoration is claimed. Original full backups are retained.
+
+Input matrix and field/aggregate controls: build/nc12/texture_vramf_source_20261018.
+The first frame extractor incorrectly looked after .frame's region and stopped;
+it was corrected to read the actual .ent/.frame span, not patched output.
+Stock compiler local/global/reload RTL dumps (-dl/-dg/-dr) of the no-padding
+candidate are retained there for the next source-producer investigation.
+Its HI/LO-class reload diagnostics must not be mistaken for evidence of16bytes
+of scalar stack spills. GCC2.8.1 function.c's temporary-slot lifetime discussion
+is relevant to future actual aggregate/macro producers, not license for fake
+statement-expression scope or unused storage just to obtain the frame.
+
+Final native run-24s2h2c1 passes unchanged immutable bytes/layout, normal/full-g,
+ASPSX524/0, PSYLINK0 and complete24/24owner coverage. Vramf remains declaration
+DIFF solely for the explicit filler; regions PASS. Texture counts stay22/24
+declaration PASS,23/24regions PASS,4strict EXACT/20INCOMPLETE. Vramf SLD still
+93/107word tags differ,end+37/retail+51. No comparator filter/relaxation or
+reference reset masks those open discrepancies.
+
+All24 detailed SOURCE-ONLY functions and branch24/0 PASS;105tool tests,vtable
+1366,source policy,standing relink and canonical real link PASS. The whole
+normal ELF remains byte-identical to the original pre-round object. Actual
+linked RECON299819/299819words match retail,zero masked reconstruction overlap
+mismatch and zero foreign-label ownership errors. Evidence/raw native dump/
+final-proof.json remain ignored under the directory above. Changes remain
+uncommitted/unpushed; unrelated files preserved; full source-restoration goal
+continues, with no declaration-clean or whole-project completion claim.
+
+2026-10-18 LoadPmx real bitfield restoration; menu-local recovery remains partial.
+
+Texture_LoadPmx's unrecorded fl captured word+12 bit0x4000 solely to stop
+single-bit extraction folding. Ordinary if(shpptr->transposed) rotated=1;
+else rotated=0 reproduces all272words with the real supplied bitfield and no
+fl, raw-offset view or artificial declaring block. Direct Boolean assignment,
+typed extraction alone and mutating rotated through the mask were compiler-
+stream different; true/false arms (also typed) were identical. Rejected input
+variants stay diagnostic. The real local/type/home/owner list and every native
+region now match, including clutptr/bwidthclut's formerly displaced child path.
+No original source spelling or full SLD certificate is inferred from this.
+
+Texture_LoadMenuTexture root order is name[255] then shpfile. Its five supplied
+pmx objects now exist in their actual successive load/store phases, replacing
+the unused root declaration; these are restored original names, not invented
+aliases. Their types, sizes, homes (four s2, final s1), depth2 and+48..+48 owner
+bounds all match. The early already-loaded return keeps those bodies at root
+sibling level; every109word remains identical. The full native audit correctly
+stays DIFF: one empty first sibling region is still missing, shifting each
+pmx's child index by one. That exact remaining mismatch is asserted in the
+diagnostic proof, NOT filtered out of production comparison or marked PASS.
+
+First-region probes distinguish source from audit appearance: a sixth pmx
+before the first call introduces an extra supplied-nowhere local. Defining it
+after that call elides its row while retaining the empty region, but that is
+not enough to establish the original first producer. Neither candidate is
+adopted. Likewise no dummy declaration, const disguise or empty padding scope
+is inserted. Canonical decompiler views confirm all six loads/stores but do
+not identify that optimized region; current sibling-source search supplies
+no matching original macro. Recover its actual producer in a future round,
+not an invented first-variable exemption. Literal load-macro text remains open.
+
+Final native run-xfyt3lle: bytes/layout unchanged, normal/full-g code identical,
+ASPSX524/0, PSYLINK0 and24/24owner records. Texture declarations21->22PASS/24,
+regions22->23PASS/24; all prior PASS/strict seals preserved. Combined strict
+is still4EXACT/20INCOMPLETE. LoadPmx257/272word tags differ,end+156/retail+129;
+menu-loader92/109tags differ,end+39/retail+33. No line-padding or false SLD seal.
+
+All24 detailed SOURCE-ONLY functions and branch24/0 pass;105tool tests,vtable
+1366,source policy,standing relink and canonical final link pass. Whole normal
+ELF remains byte-identical to the original pre-round object. Actual linked
+RECON299819/299819words match retail,zero masked overlap mismatch/foreign-label
+ownership errors. No new asm,volatile,pin,flag override,output rewrite,reference
+reset or comparator relaxation. Remaining declaration reviews: menu-loader's
+first region and Texture_Vramf's source captures/frame filler; full SLD remains
+broader unfinished work. Evidence/backups: build/nc12/texture_loadpmx_source_20261018
+and build/nc12/texture_loadmenu_source_20261018 (ignored). Uncommitted/unpushed;
+unrelated files preserved; whole-project source-restoration goal stays active.
+
+2026-10-18 continued texture round: real loop/correction owners remove six more captures.
+
+Texture_CheckForSharedPalette's retail list contains separate i/j/indata/
+checkdata objects for both palette arms, not one root set. A for-initializer
+i with body-local j/indata/checkdata reproduces their actual homes, order,
+depths and owner boundaries. Literal8/128 lengths and the real global palette
+counts then replace count/num without changing77words. Ordinary inner for
+loops match too; inner4/inner8/done4/done8 labels are gone. Earlier flat-set
+allocation/rotation failures were not necessity proof for those objects or
+labels. Positive outer-guard/other loop trials were input-only, not retained.
+
+Texture_Vramcf needs only root rowbytes and guarded RECT r/int height/char* s.
+Use the actual signed rowbytes calculation, direct source offset and y+height
+coordinates, and r.w=(rowbytes>>1)-1. That removes h/rowall/off/ybot while
+preserving every90word, frame and named home. Replacing the in-arm early
+return plus fallback call with ordinary if/else also restores the exact full
+region tree, including the declaring block+132..+132 and parent+0..+312.
+The zero-length optimized region is not evidence for empty/artificial source;
+no fake scope or dummy declaration was introduced. Signed division/unsigned
+shift alternatives change the compiler stream and were not retained. These
+input-row diagnostics are not reported as authoritative instruction diffs.
+
+Final native run-sz5wlum2: immutable bytes/layout unchanged, normal/full-g code
+identical, ASPSX524/0, PSYLINK0; complete24/24owner records. Palette sharing and
+Vramcf both now PASS exact local ownership AND every region boundary. With the
+preceding two repairs, texture declarations17->21PASS/24 and regions18->22PASS/
+24. No previous declaration/region PASS or strict EXACT regressed. The entire
+normal ELF is byte-identical to the pre-round object, SHA256
+a75af226f8c669547e0e1b466b3468d4537b728e485533c35ce4a825502aedf8.
+
+All24 detailed SOURCE-ONLY functions PASS; branch24/0,105tool tests,vtable1366,
+source policy and standing relink pass. Canonical real linked reconstruction
+is still299819/299819identical words,zero masked overlap mismatch and zero
+foreign-label ownership errors. No asm,volatile,pin,flag override,output rewrite,
+reference reset, comparator relaxation or invented replacement name is used.
+
+Strict SLD is NOT complete: palette-sharing62/77word tags differ,end+40/retail
++49; Vramcf65/90tags differ,end+29/retail+39. Combined strict remains4EXACT/
+20INCOMPLETE. Remaining texture declaration reviews are Texture_LoadPmx,
+Texture_LoadMenuTexture and Texture_Vramf; their existing PASS code is preserved.
+Backups/input probes/raw dumps/final proof: build/nc12/texture_palette_source_20261018
+and build/nc12/texture_vramcf_source_20261018 (ignored). Source/ledger changes
+remain uncommitted/unpushed; unrelated files preserved; full goal active.
+
+2026-10-18 resumed: texture declaration owners unlock four carrier removals.
+
+Texture_GetTranslucencyMode retail owns USHORT abr in the 'k' branch at depth4,
+not function scope. Moving that actual declaration into the branch preserves
+all30instructions and restores every named/type/home/owner record plus all
+eight region boundaries. Historical matching commentary now precedes the
+function rather than contaminating its executable-body line attribution.
+
+Texture_InitMenuClut retail records two separate x/y pairs, in sibling regions
++0..+148 and+148..+240. Restore those real phase owners and declaration order.
+Direct actual gFreePal4/gFreePal8 indexing removes pal4/pal8, including a duplicate
+pal8 assignment. After the real local structure is restored, the ordinary
+coordinate expression ((y+offset)<<6)|(((x+512)>>4)&63) also matches, removing
+clut and cbase without a replacement object, qualifier, asm or fake use.
+The expression is the canonical PsyQ4.3 LIBGPU.H getClut expansion; literal
+original macro spelling is not uniquely proved. Ordinary for loops preserve
+the exact64word stream and both real x/y owners. No invented identifier remains
+in this function. All524 generated CLUT entries agree with the old sequence;
+every value fits signed16 and all coordinate arithmetic stays within int.
+
+The input-only controls explain why old direct-expression failures were not
+source-object necessity proof. Twenty coordinate/loop combinations on the
+repaired phase-owner structure have identical compiler streams/controls and
+only the four supplied x/y debug records. On the earlier flattened declarations,
+the direct expressions changed allocation/preheader order. Compiler-row counts
+in those probes are diagnostics, NOT authoritative verify_asm diff scores.
+
+Final fresh native run-2s4jv5y6: immutable bytes/layout unchanged, normal/full-g
+code identical, ASPSX524/0, PSYLINK0 and complete24/24 owner-record coverage.
+Texture declarations17->19PASS/24, regions18->20PASS/24; no previous PASS or
+strict EXACT lost. Whole-TU detailed SOURCE-ONLY24/24PASS and branch24/0.
+All105 pipeline tests, vtable1366, source policy and standing relink pass.
+Actual canonical linked RECON remains299819/299819 identical words, with zero
+masked reconstruction mismatch and zero foreign-label ownership errors.
+
+Full SLD is explicitly unfinished: GetTranslucencyMode27/30word tags differ,
+end+16/retail+18; InitMenuClut62/64tags differ,end+29/retail+33. Combined strict
+EXACT remains4/24, not a full original-source seal. No line padding, #line,
+output rewrite, flag override, comparator relaxation or reference reset.
+Backups, probes, raw native dump, all gates and final-proof.json are ignored
+under build/nc12/texture_abr_scope_20261018. Source/ledger changes remain
+uncommitted; unrelated work is preserved; the main goal is active/incomplete.
+
 2026-10-18 verified remaining-work checkpoint; commit/push then pause requested.
 
 Integrated origin/main through f7ad7810 before verification. Its five newer

@@ -1,5 +1,5 @@
 /* game/psx/texture.cpp -- RECONSTRUCTED (NFS4 PSX texture/palette/CLUT/PMX loading; C++ TU)
- *   26 fns (Texture_ + FETexture_): palette sharing, CLUT alloc, PMX texture load, VRAM blit. No GTE.
+ *   24 fns (Texture_): palette sharing, CLUT alloc, PMX texture load, VRAM blit. No GTE.
  */
 #include "texture_types.h"
 #include "texture_externs.h"
@@ -53,73 +53,52 @@ void Texture_ResetPaletteSharing(void)
   Texture_gNum8bitPal = 0;
 }
 
-/* ---- Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi  [TEXTURE.CPP:90-139] SLD-VERIFIED ---- */
+/* ---- Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi [TEXTURE.CPP:90-139; full SLD open] ---- */
+/* 2026-10-18: retail records a separate for-local i and body-local j/indata/
+ * checkdata in each palette arm. Restoring those actual owners lets ordinary
+ * compare loops use the literal palette lengths and real global counts;
+ * no count/num capture or mechanical goto label is needed. Earlier flat-set
+ * allocation/rotation misses do not establish source-object necessity. */
 int Texture_CheckForSharedPalette(int test,char *data,Draw_tPixMap *pmx,int bpp)
 
 {
-  int i;
-  int j;
-  int count;             /* SYM-CODEGEN-CARRIER: count -- a NAMED entry-count local -- gcc propagates the
-                          * literal into the inner `slti` but keeps the register
-                          * for the `beq j,count` full-match test (oracle $t4). */
-  int num; /* SYM-CODEGEN-CARRIER: num -- direct global bounds swap $t3/$t4 (16 diffs) */
-  int *indata;
-  int *checkdata;
-
   if (test == 0) {
     return 0;
   }
-  /* MATCH: `i = 0` lives INSIDE each arm -- gcc then knows i==0 at the
-   * strength-reduction giv init and emits a bare `lw t2,%gp_rel(table)` instead
-   * of `base + i*4`; it still cross-jumps the two zeroings into the bpp branch's
-   * delay slot exactly like the oracle. */
   if (bpp != 0) {
-    i = 0;
-    count = 0x80;
-    num = Texture_gNum8bitPal;
-    while (1) {
-      if (!(i < num)) break;
+    for (int i = 0; i < Texture_gNum8bitPal; i++) {
+      int j;
+      int *indata;
+      int *checkdata;
+
       indata = (int *)data;
-      /* MATCH: INDEX form Texture_gPalette8bit[i] (not a walked `pal` pointer) --
-       * loop.c strength-reduces it to the oracle's walking $t2 AND the extra `i`
-       * references lift i's allocno above it (oracle i=$t1, walker=$t2). */
       checkdata = (int *)Texture_gPalette8bit[i];
       j = 0;
-      /* MATCH: explicit goto-loop -- a `do { if(..) break; j++; } while(j<N)`
-       * gets rotated by gcc into an entry-jump + top increment/test; the label
-       * form reproduces the oracle's body/increment/bottom-test topology.
-       * Compare operand order is load order: *indata first. */
-inner8:
-      if (*indata++ != *checkdata++) goto done8;
-      j = j + 1;
-      if (j < 0x80) goto inner8;
-done8:
-      if (j == count) {
+      for (; j < 0x80; j++) {
+        if (*indata++ != *checkdata++) break;
+      }
+      if (j == 0x80) {
         *pmx = *Texture_gP8bitPmx[i];
         return 1;
       }
-      i = i + 1;
     }
   }
   else {
-    i = 0;
-    count = 8;
-    num = Texture_gNum4bitPal;
-    while (1) {
-      if (!(i < num)) break;
+    for (int i = 0; i < Texture_gNum4bitPal; i++) {
+      int j;
+      int *indata;
+      int *checkdata;
+
       indata = (int *)data;
       checkdata = (int *)Texture_gPalette4bit[i];
       j = 0;
-inner4:
-      if (*indata++ != *checkdata++) goto done4;
-      j = j + 1;
-      if (j < 8) goto inner4;
-done4:
-      if (j == count) {
+      for (; j < 8; j++) {
+        if (*indata++ != *checkdata++) break;
+      }
+      if (j == 8) {
         *pmx = *Texture_gP4bitPmx[i];
         return 1;
       }
-      i = i + 1;
     }
   }
   return 0;
@@ -328,158 +307,99 @@ void Texture_LoadImage(RECT *imgrect,u_long *p)
   return;
 }
 
-/* ---- Texture_Vramf__FP8shapetbliiii  [TEXTURE.CPP:406-457] SLD-VERIFIED ---- */
+/* ---- Texture_Vramf__FP8shapetbliiii [TEXTURE.CPP:406-457; full source/SYM/SLD open] ---- */
+/* 2026-10-18: direct signed division, real type/next fields and conditional
+ * link selection remove rowpix/rowround/kind/nextshp without changing107words.
+ * Keep the separate range predicates and two source calls: GCC merges their
+ * actual call site. Historical full probes/backups: build/nc12/texture_vramf_source_20261018.
+ * SOURCE-REVIEW-UNRESOLVED: deadfrm is an existing artificial frame filler,
+ * not a recovered source object. Without it the frame is64, not retail80.
+ * Ordinary division alone does not recover the16bytes; actual RECT aggregate
+ * assignment gives72 plus extra instructions. Recover the real producer.
+ * The first shapex raw-word view also remains a source-shape question: typed
+ * assignment after these capture removals still hoists another saved register
+ * and adds two compiler rows. No fake-use/qualifier/asm replacement is added. */
 void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
 
 {
-  int rowpix; /* SYM-CODEGEN-CARRIER: rowpix -- preserves the signed row-rounding sequence */
-  int rowround; /* SYM-CODEGEN-CARRIER: rowround -- in-place rounded row width */
-  u_int kind; /* SYM-CODEGEN-CARRIER: kind -- unsigned range-test carrier */
-  shapetbl *nextshp; /* SYM-CODEGEN-CARRIER: nextshp -- list advance funnels through a temp that is
-                          * then copied into shp (oracle: addu a0,...; addu s0,a0). */
   RECT r;
-  int deadfrm[4]; /* SYM-CODEGEN-CARRIER: deadfrm -- SYM says fsize=80 with `r` the ONLY named AUTO
-                          * (at -0x40 => sp+0x10) and mask=$80ff0000 (ra + s0-s7,
-                          * NO $fp).  16 bytes of gcc temp space sit above `r`;
-                          * this filler reproduces the frame size. */
+  int deadfrm[4]; /* SOURCE-REVIEW-UNRESOLVED: artificial padding, absent from retail. */
 
   if (shp != (shapetbl *)0x0) {
     do {
-      kind = *(u_char *)shp & 0xf7;
-      /* MATCH: the TEX arm is the fall-through and is emitted FIRST (the oracle
-       * hoists (y&0xfff)<<16 into $s7 BEFORE (cluty&0xfff)<<16 into $s6, which
-       * follows the RTL order of the two arm bodies); the CLUT body sits
-       * out-of-line at the beq target.  The three range tests must be SEPARATE
-       * nested ifs -- as one `&&` chain gcc folds `0x3f<kind && kind<0x44`
-       * into `(u)(kind-0x40) < 4` and drops the `0x22<kind` test entirely.
-       * The LoadImage call is written in BOTH arms; gcc cross-jumps only the
-       * `jal` itself, matching the oracle's per-arm a0/a1 setup. */
-      if (kind != 0x23) {
-        if (0x22 < kind) { if (kind < 0x44) { if (0x3f < kind) {
-          /* MATCH: two real BITFIELD assignments (lw / and ~0xfff / or x&0xfff /
-           * and 0xf000ffff / or (y&0xfff)<<16 / sw), NOT one fused
-           * `word & 0xf000f000 | ...` expression which collapses to a single
-           * `and`.
-           * MATCH (w40-a10, 18 -> PASS): the shapex write must be spelled as the
-           * RAW-WORD read-modify-write; only the shapey write stays a bitfield
-           * assignment.  MECHANISM, read off cc1's own `-dL` loop dump
-           * (`Loop from 30 to 264: 84 real insns`): with BOTH as bitfield
-           * assignments the RTL for `shp->shapex = x` is
-           *   andi r95,x,0xfff / lw r96,12(shp) / and r97,r96,r98 / ior r97,r95
-           * so the `x & 0xfff` movable has life 4 and loop.c logs
-           *   `Insn 63: regno 95 (life 4), savings 1  moved to 279`
-           * -- it hoists it into $fp, costing the extra `sw fp`/`lw fp` pair
-           * (109 vs 107) and shifting every frame offset.  Retail's loop.c
-           * refused it, exactly as ours refuses the IDENTICAL clutx movable one
-           * arm later (`Insn 163: regno 114 (life 4), savings 1 not desirable`)
-           * and the second 0xf000ffff constant (`Insn 79 ... not desirable`
-           * where the first, `Insn 67`, with the same life/savings, moved) --
-           * i.e. the cost model is STATEFUL and we sit one movable over retail's
-           * budget edge.  Writing the shapex store as `word = (word &
-           * 0xfffff000) | (x & 0xfff)` makes gcc evaluate the `|`'s LEFT operand
-           * first, so the andi lands immediately before its use (life 1) and
-           * loop.c declines it -- the same disposition retail's build reached.
-           * Byte-identical merged sequence either way (`lw / andi / and $s2 /
-           * or / and $a1 / or $s7 / sw`).  Falsified: bitfield-store order swap
-           * (35 diffs, and it inverts which mask is hoisted), flag-store first
-           * (32), r.x/r.y first (24), a block-local `xf` copy (18), an explicit
-           * `(x & 0xfff)` cast (18), raw-word RMW for shapey too (66) or for
-           * shapey only (68). */
-          *(u_int *)((char *)shp + 0xc) =
-              (*(u_int *)((char *)shp + 0xc) & 0xfffff000) | (x & 0xfff);
-          shp->shapey = y;
-          *(u_char *)shp = *(u_char *)shp | 8;
-          r.x = (short)x;
-          r.y = (short)y;
-          rowpix = shp->width * shapedepth(shp);
-          rowround = rowpix + 0xf;
-          if (rowround < 0) {
-            rowround = rowpix + 0x1e;
+      if (((u_int)shp->type & 0xf7) != 0x23) {
+        if (0x22 < ((u_int)shp->type & 0xf7)) {
+          if (((u_int)shp->type & 0xf7) < 0x44) {
+            if (0x3f < ((u_int)shp->type & 0xf7)) {
+              *(u_int *)((char *)shp + 0xc) =
+                  (*(u_int *)((char *)shp + 0xc) & 0xfffff000) | (x & 0xfff);
+              shp->shapey = y;
+              shp->type |= 8;
+              r.x = (short)x;
+              r.y = (short)y;
+              r.w = (short)((shp->width * shapedepth(shp) + 15) / 16);
+              r.h = shp->height;
+              Texture_LoadImage(&r,(u_long *)&shp->data);
+            }
           }
-          r.w = (short)(rowround >> 4);
-          r.h = shp->height;
-          Texture_LoadImage(&r,(u_long *)&shp->data);
-        } } }
+        }
       }
       else if (-1 < clutx) {
         shp->shapex = clutx;
         shp->shapey = cluty;
-        *(u_char *)shp = *(u_char *)shp | 8;
+        shp->type |= 8;
         r.x = (short)clutx;
         r.y = (short)cluty;
         r.w = shp->width;
         r.h = 1;
         Texture_LoadImage(&r,(u_long *)&shp->data);
       }
-      if ((*(u_int *)shp & 0xffffff00) != 0) {
-        nextshp = (shapetbl *)((int)shp + ((int)*(u_int *)shp >> 8));
-      }
-      else {
-        nextshp = (shapetbl *)0x0;
-      }
-      shp = nextshp;
+      shp = (shp->next != 0) ? (shapetbl *)((char *)shp + shp->next) : (shapetbl *)0;
     } while (shp != (shapetbl *)0x0);
   }
   return;
 }
 
-/* ---- Texture_Vramcf__FP8shapetbliiii  [TEXTURE.CPP:468-507] SLD-VERIFIED ---- */
+/* ---- Texture_Vramcf__FP8shapetbliiii [TEXTURE.CPP:468-507; full SLD open] ---- */
+/* 2026-10-18: retail owns rowbytes at the root and r/height/s in the guarded
+ * correction body. Direct byte-row and coordinate expressions remove the
+ * unrecorded h/rowall/off/ybot captures. Keep arithmetic right shifts: signed
+ * division or an unsigned shift changes the measured compiler stream. */
 void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
 
 {
-  char*s;
   int rowbytes;
-  int height;
-  int h; /* SYM-CODEGEN-CARRIER: h -- preserves the signed height copy */
-  int rowall; /* SYM-CODEGEN-CARRIER: rowall -- masked row width reused by both paths */
-  int off; /* SYM-CODEGEN-CARRIER: off -- shared row-tail byte offset */
-  short ybot; /* SYM-CODEGEN-CARRIER: ybot -- shared bottom-row coordinate */
-  RECT r;
 
-  /* MATCH: mask INTO rowall (ONE statement) -- the oracle parks the MASKED value
-   * in the callee-saved reg and derives BOTH rowbytes and r.w from it. */
-  rowall = (shp->width * shapedepth(shp) + 0xf) & 0xfffffff0;
-  rowbytes = (int)rowall >> 3;
-  /* MATCH: the odd/simple case is the BRANCH TARGET (beqz/bnez skip forward) and
-   * the two-blit path is the FALL-THROUGH, with a SECOND textual Vramf call laid
-   * out after it -- an `if (simple) {...} else {...}` inverts both. */
-  if ((rowbytes & 2) != 0) {
-    height = (u_short)shp->height;
-    if ((height & 1) == 0) {
-      h = (short)height;
-      off = (h + -1) * rowbytes;
-      /* MATCH: ONE base pointer (&shp->data + off) reused as s-2 / s+2 -- the
-       * SYM names it `s`; separate (char*)shp + 0xe/0x12 + off forms build two
-       * independent addu chains. */
-      s = &shp->data + off;
-      ybot = y + h;
-      r.y = ybot + -2;
-      r.x = (short)x;
-      r.w = 1;
-      r.h = 2;
-      LoadImage(&r,(u_long *)(s + -2));
-      r.x = (short)x + 1;
-      r.y = ybot + -1;
-      r.w = ((int)rowall >> 4) + -1;
-      r.h = 1;
-      LoadImage(&r,(u_long *)(s + 2));
-      shp->height = shp->height + -1;
-      Texture_Vramf(shp,x,y,clutx,cluty);
-      shp->height = h;
-      return;
-    }
+  rowbytes = ((shp->width * shapedepth(shp) + 15) & ~15) >> 3;
+  if (((rowbytes & 2) != 0) && (((u_short)shp->height & 1) == 0)) {
+    RECT r;
+    int height;
+    char *s;
+
+    height = (short)shp->height;
+    s = &shp->data + (height - 1) * rowbytes;
+    r.y = y + height - 2;
+    r.x = (short)x;
+    r.w = 1;
+    r.h = 2;
+    LoadImage(&r,(u_long *)(s - 2));
+    r.x = (short)x + 1;
+    r.y = y + height - 1;
+    r.w = (rowbytes >> 1) - 1;
+    r.h = 1;
+    LoadImage(&r,(u_long *)(s + 2));
+    shp->height = shp->height - 1;
+    Texture_Vramf(shp,x,y,clutx,cluty);
+    shp->height = height;
   }
-  Texture_Vramf(shp,x,y,clutx,cluty);
+  else {
+    Texture_Vramf(shp,x,y,clutx,cluty);
+  }
   return;
 }
 
-/* ---- Texture_GetTranslucencyMode__FP8shapetbl  [TEXTURE.CPP:514-532] SLD-VERIFIED ---- */
-int Texture_GetTranslucencyMode(shapetbl *shp)
-
-{
-  u_short abr;
-
-  /* MATCH (w40-a10, 4 -> PASS): `return 0` must be the loop's POST-EXIT
+/* ---- Texture_GetTranslucencyMode__FP8shapetbl [TEXTURE.CPP:514-532; full SLD still open] ---- */
+/* MATCH (w40-a10, 4 -> PASS): `return 0` must be the loop's POST-EXIT
    * fall-through (`if (shp == 0) break;` + a trailing `return 0;`), NOT an
    * inline early-return inside the guard.  Written inline, gcc's post-reload
    * cross-jump pass merges the two `jr ra` tails (`move v0,0; jr ra` and the
@@ -496,9 +416,17 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
    * return): jump-opt splits it into the oracle's own `bne v0,a3,.L800DFF10;
    * jr ra; addiu v0,2` tail.  Explicit two-return spellings measured
    * 14/16/19. */
+/* 2026-10-18: retail owns USHORT abr in the 'k' branch, not at function
+ * scope. Its actual declaration restores all local/type/home/owner records
+ * and the full eight-boundary region tree without changing any of30words.
+ * Exact original spelling and complete SLD attribution remain unsealed. */
+int Texture_GetTranslucencyMode(shapetbl *shp)
+
+{
   while( true ) {
     if (shp == (shapetbl *)0x0) break;
     if (*(char *)shp == 'k') {
+      u_short abr;
       abr = (u_short)shp->width >> 5 & 3;
       if (abr == 3) { abr = 2; }
       return abr;
@@ -514,6 +442,10 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
 }
 
 /* ---- Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap  [TEXTURE.CPP:538-667] SLD-FLAG:NONMONO ---- */
+/* 2026-10-18: the real transposed bitfield with ordinary true/false assignment
+ * arms reproduces the masked-word/Boolean sequence without an fl capture or
+ * byte-offset view. Direct Boolean assignment and reusing rotated as the mask
+ * do not produce the same compiler stream on this shape. Full SLD is open. */
 void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_tPixMap *pmx)
 
 {
@@ -556,11 +488,12 @@ void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_t
     if (((ctrl & 8U) != 0) && (bpp_real != 0)) {
       bpp = 0;
     }
-    /* MATCH: the masked word goes through its OWN temp before the != 0 test --
-     * a direct `(word & 0x4000) != 0` lets gcc fold the single-bit test into
-     * `srl 14; andi 1`; the temp keeps the oracle's `andi 0x4000; sltu zero,v0`. */
-    { int fl = *(u_int *)((char *)shpptr + 0xc) & 0x4000; /* SYM-CODEGEN-CARRIER: fl -- blocks single-bit fold */
-      rotated = (fl != 0); }
+    if (shpptr->transposed) {
+      rotated = 1;
+    }
+    else {
+      rotated = 0;
+    }
     if (rx == -1) {
       x = 0;
       y = 0xa0;
@@ -727,59 +660,43 @@ void Texture_InitTrackTexture(void)
   return;
 }
 
-/* ---- Texture_InitMenuClut__Fv  [TEXTURE.CPP:743-776] SLD-VERIFIED ---- */
+/* ---- Texture_InitMenuClut__Fv [TEXTURE.CPP:743-776; full SLD still open] ---- */
+/* 2026-10-18: retail records separate x/y objects in these two initialization
+ * regions. Restore those owners before pricing the coordinate expression:
+ * canonical PsyQ getClut(x,y) = (y<<6)|((x>>4)&0x3f) then matches without
+ * pal4/pal8, clut or cbase. Earlier direct-expression misses were specific
+ * to the flattened local set. Literal macro spelling/full SLD remain open. */
 void Texture_InitMenuClut(void)
 
 {
-  short *pal4; /* SYM-CODEGEN-CARRIER: pal4 -- loop pointer base */
-  short *pal8; /* SYM-CODEGEN-CARRIER: pal8 -- second-loop pointer base */
-  u_short clut; /* SYM-CODEGEN-CARRIER: clut -- in-place CLUT sequence value */
-  int cbase; /* SYM-CODEGEN-CARRIER: cbase -- source-hoisted loop invariant */
-  int y;
-  int x;
-  
-  gFreePal4 = reservememadr("4 bits cluts",0x300,0);
-  gFreePal8 = reservememadr("8 bits cluts",0x1180,0);
-  pal4 = gFreePal4;
-  /* MATCH: no `idx` temp (read/increment the counter global in place) and
-   * `pal8 = gFreePal8` loaded once BEFORE the SECOND loop, not inside the first
-   * one -- the misplaced load forced an extra `addu t2,v0,zero` copy of the
-   * reservememadr result (40 -> 14 diffs).
-   * PASS (w39-a10, was 14).  The last three insns came from:
-   *  (a) counter POST-INCREMENT `palN[gNbFreePalN++] = ...` (14 -> 10): puts
-   *      `addiu v1,v1,1` before `addu v0,v0,t1` and frees the counter load's
-   *      delay slot for `y++`;
-   *  (b) inner loop as `for (clut = K; y < N; y++)` with `y = 0` on its own
-   *      line before it (10 -> 4);
-   *  (c) SOURCE-HOISTED `cbase = (u_short)(x + 0x200 >> 4) & 0x3f;` as its own
-   *      statement BEFORE the clut init (4 -> 0).  loop.c appends its hoisted
-   *      copy of an in-expression invariant AFTER the preheader statements, so
-   *      the `li a1,<clut>` came out ahead of the andi chain; retail has the
-   *      andi chain first, which only a real source-level hoist reproduces. */
-  x = 0;
-  gNbFreePal4 = 0;
-  do {
-    y = 0;
-    cbase = (u_short)(x + 0x200 >> 4) & 0x3f;
-    for (clut = 0x7a00; y < 0x18; y++) {
-      pal4[gNbFreePal4++] = clut | cbase;
-      clut = clut + 0x40;
+  {
+    int x;
+    int y;
+
+    gFreePal4 = reservememadr("4 bits cluts",0x300,0);
+    gFreePal8 = reservememadr("8 bits cluts",0x1180,0);
+    x = 0;
+    gNbFreePal4 = 0;
+    for (; x < 0x100; x += 0x10) {
+      y = 0;
+      for (; y < 0x18; y++) {
+        gFreePal4[gNbFreePal4++] = ((y + 0x1e8) << 6) | (((x + 0x200) >> 4) & 0x3f);
+      }
     }
-    x = x + 0x10;
-  } while (x < 0x100);
-  pal8 = gFreePal8;
-  pal8 = gFreePal8;
-  x = 0;
-  gNbFreePal8 = 0;
-  do {
-    y = 0;
-    cbase = (u_short)(x + 0x200 >> 4) & 0x3f;
-    for (clut = 0x5700; y < 0x8c; y++) {
-      pal8[gNbFreePal8++] = clut | cbase;
-      clut = clut + 0x40;
+  }
+  {
+    int x;
+    int y;
+
+    x = 0;
+    gNbFreePal8 = 0;
+    for (; x < 0x100; x += 0x100) {
+      y = 0;
+      for (; y < 0x8c; y++) {
+        gFreePal8[gNbFreePal8++] = ((y + 0x15c) << 6) | (((x + 0x200) >> 4) & 0x3f);
+      }
     }
-    x = x + 0x100;
-  } while (x < 0x100);
+  }
   return;
 }
 
@@ -814,32 +731,52 @@ void Texture_CleanupMenuTexture(void)
   return;
 }
 
-/* ---- Texture_LoadMenuTexture__Fv  [TEXTURE.CPP:811-844] SLD-VERIFIED ---- */
+/* ---- Texture_LoadMenuTexture__Fv [TEXTURE.CPP:811-844; full SYM/SLD still open] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: retail supplies these five pmx locals, preceded
+ * by one empty optimized sibling region. Their names/types/homes/depths and
+ * real call/store uses are restored here; that first region's producer remains
+ * unknown. No extra first pmx, dummy declaration or empty padding block is
+ * added to make the child paths match. Exact original load-macro text is open. */
 void Texture_LoadMenuTexture(void)
 
 {
-  Draw_tPixMap *pmx;
-  char *shpfile;
   char name [255];
+  char *shpfile;
 
-  if (gMenuPixmap[0] == (Draw_tPixMap *)0x0) {
-    sprintf(name,"%sshow.psh",Paths_Paths[0x19]);
-    shpfile = (char *)loadfileadr(name,0);
-    Texture_ResetPaletteSharing();
-    Texture_LoadPmx(shpfile,"show",0,0x380,0x180,-1,-1,gMenuPixmapAlloc);
-    gMenuPixmap[0] = gMenuPixmapAlloc;
-    Texture_LoadPmx(shpfile,"shad",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 1);
-    gMenuPixmap[1] = gMenuPixmapAlloc + 1;
-    Texture_LoadPmx(shpfile,"lgt3",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 2);
-    gMenuPixmap[3] = gMenuPixmapAlloc + 2;
-    Texture_LoadPmx(shpfile,"lgta",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 3);
-    gMenuPixmap[4] = gMenuPixmapAlloc + 3;
-    Texture_LoadPmx(shpfile,"lgtb",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 4);
-    gMenuPixmap[5] = gMenuPixmapAlloc + 4;
-    Texture_LoadPmx(shpfile,"lgtc",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 5);
-    gMenuPixmap[6] = gMenuPixmapAlloc + 5;
-    purgememadr(shpfile);
+  if (gMenuPixmap[0] != (Draw_tPixMap *)0x0) {
+    return;
   }
+  sprintf(name,"%sshow.psh",Paths_Paths[0x19]);
+  shpfile = (char *)loadfileadr(name,0);
+  Texture_ResetPaletteSharing();
+  Texture_LoadPmx(shpfile,"show",0,0x380,0x180,-1,-1,gMenuPixmapAlloc);
+  gMenuPixmap[0] = gMenuPixmapAlloc;
+  {
+    Draw_tPixMap *pmx = gMenuPixmapAlloc + 1;
+    Texture_LoadPmx(shpfile,"shad",0,0x380,0x180,-1,-1,pmx);
+    gMenuPixmap[1] = pmx;
+  }
+  {
+    Draw_tPixMap *pmx = gMenuPixmapAlloc + 2;
+    Texture_LoadPmx(shpfile,"lgt3",0,0x380,0x180,-1,-1,pmx);
+    gMenuPixmap[3] = pmx;
+  }
+  {
+    Draw_tPixMap *pmx = gMenuPixmapAlloc + 3;
+    Texture_LoadPmx(shpfile,"lgta",0,0x380,0x180,-1,-1,pmx);
+    gMenuPixmap[4] = pmx;
+  }
+  {
+    Draw_tPixMap *pmx = gMenuPixmapAlloc + 4;
+    Texture_LoadPmx(shpfile,"lgtb",0,0x380,0x180,-1,-1,pmx);
+    gMenuPixmap[5] = pmx;
+  }
+  {
+    Draw_tPixMap *pmx = gMenuPixmapAlloc + 5;
+    Texture_LoadPmx(shpfile,"lgtc",0,0x380,0x180,-1,-1,pmx);
+    gMenuPixmap[6] = pmx;
+  }
+  purgememadr(shpfile);
   return;
 }
 

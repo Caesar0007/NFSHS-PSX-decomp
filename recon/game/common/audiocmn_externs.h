@@ -26,8 +26,10 @@ int SNDplay(...);
 void SNDplaysetdef(...);
 int SNDstop(...);
 void SNDvol(...);
-int fixeddiv(...);
-int fixedmult(...);
+/* Same two signed-word inputs as eacpsxz/fixddiv.h and fixdmult.h.
+ * The retail bodies consume a0/a1; these are not variadic functions. */
+int fixeddiv(int, int);
+int fixedmult(int, int);
 int gettick(...);
 void *memcpy(...);
 int purgememadr(...);

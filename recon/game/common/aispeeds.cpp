@@ -1,5 +1,5 @@
-/* game/common/aispeeds.cpp -- RECONSTRUCTED (NFS4 AI action/reaction scripting; 8 free AIScript_* fns).
- *   Player-action submission + reaction-table processing. SYM-v3 locals; vs disasm-v2.txt.
+/* game/common/aispeeds.cpp -- RECONSTRUCTED (NFS4 AI speed/glue/curve control; 29 functions).
+ *   SYM-v3 locals and retail assembly are the reconstruction authorities.
  *   NOT original source; SYM-faithful, recompilable C++.
  */
 #include "aispeeds_types.h"
@@ -95,12 +95,15 @@ void AISpeeds_StartUp(void)
 }
 
 /* ---- AISpeeds_ReadTuningInfo__Fv  [@0x8006d5ec] ---- */
-/* SYM recovery: the for-declarations restore repeated slotLoop/trackLoop
- * records; the first loop's optimized-away timing local restores its empty
- * retail scope at +0x58..+0x64. distanceMaintainTime is an inferred role name,
- * not a surviving retail spelling. Native frames/locals/scopes agree and
- * all 161 instructions remain PASS; relative SLD line positions remain open.
- * Receipt: scratchpad/sym_aispeeds_tuning_20260922/scope_receipt.json. */
+/* SYM recovery: for-declarations restore repeated slotLoop/trackLoop records.
+ * SOURCE REVIEW: distanceMaintainTime is an earlier inferred name, not a
+ * supplied retail local. The empty +0x58..+0x64 region covers the loop GUARD,
+ * ending before the timing read; it does not establish a named timing object.
+ * Removing it lets GCC rotate the loop and changes code. Call/value statement
+ * expressions retain the stream but add an unsupported second scope. Neither
+ * result proves the original producer or spelling. Keep the existing matched
+ * form pending recovery, not as an exemption from the source-restoration goal.
+ * Controls: build/nc12/aispeeds_tuning_source_20261018. SLD remains open. */
 void AISpeeds_ReadTuningInfo(void)
 {
   char filename[110];
@@ -410,13 +413,19 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_BTCGetGlueFactor__FP8Car_tObj  [@0x8006e09c] ---- */
+/* 2026-10-18: assign the piecewise 0..20 clamp back to the provided glueIndex
+ * before indexing the real table. This retains111words without the unrecorded
+ * clampedGlueIndex object. Composed min/max and direct-subscript shapes are
+ * not equivalent compiler graphs; their failures do not prove another object.
+ * Literal macro spelling and complete SLD attribution remain unresolved.
+ * Controls/backups: build/nc12/aispeeds_glue_source_20261018. */
 int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
 {
   /* Native loop scopes recovered without an asm fence: the excluded-car
    * early return and for-declared humanLoop preserve all 111 instructions.
    * The default-first nested if/else restores all remaining native scope
-   * boundaries and glue/glueIndex depths (run-3js278sh). The unrecorded clamp
-   * result and relative source-line/SLD attribution remain unresolved. */
+   * boundaries and glue/glueIndex depths (run-3js278sh). Relative source-line/
+   * SLD attribution remains unresolved. */
   int closestHumanDistance;
   Car_tObj *closestHumanCarObj;
 
@@ -456,21 +465,9 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
       } else {
         int glueIndex;
         int glue;
-        /* SOURCE-REVIEW-UNRESOLVED: retail SYM has no clampedGlueIndex record. Direct
-         * conditional-expression and glue-reuse alternatives change code;
-         * this remains a recovery task, not a proven compiler limit.
-         * 2026-10-13: branch-local table loads are 18 differences at 115/111;
-         * selected short/unsigned-short index casts are 23 at 110/111 and
-         * 25 at 112/111. All reverted; no distinct original object proved. */
-        int clampedGlueIndex;
         glueIndex = closestHumanDistance / 0x3c0000 + 10;
-        if (0 <= glueIndex) {
-          if (glueIndex < 0x15) clampedGlueIndex = glueIndex;
-          else clampedGlueIndex = 0x14;
-        } else {
-          clampedGlueIndex = 0;
-        }
-        glue = AIPerson_glueTable[clampedGlueIndex];
+        glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
+        glue = AIPerson_glueTable[glueIndex];
         if (glue < 0x10000) {
           glue = fixedmult(0x10000 - glue,carObj->btcGlueModifier);
           glue = 0x10000 - glue;
@@ -607,6 +604,12 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_GetGlueFactor__FP8Car_tObj  [@0x8006e68c] ---- */
+/* 2026-10-18: distance is the raw odometer difference; glueIndex is the
+ * subsequently scaled/clamped index. Retail records both successive values
+ * in v1. Keeping the division inside distance had named the wrong quantity
+ * and put glueIndex in a0. These real phases plus the assigned piecewise
+ * clamp preserve131words. Full SLD and literal macro spelling remain open.
+ * Controls: build/nc12/aispeeds_pack_glue_source_20261018. */
 int AISpeeds_GetGlueFactor(Car_tObj *carObj)
 {
   int leadHumanRacerOdometer;
@@ -628,16 +631,9 @@ int AISpeeds_GetGlueFactor(Car_tObj *carObj)
     int distance;
     int glueIndex;
 
-    distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
-    if (0 <= distance) {
-      glueIndex = 0x14;
-      if (distance < 0x15) {
-        glueIndex = distance;
-      }
-    }
-    else {
-      glueIndex = 0;
-    }
+    distance = leadAIRacerOdometer - leadHumanRacerOdometer;
+    glueIndex = distance / 0x3c0000 + 10;
+    glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x10000;
   }
@@ -645,13 +641,9 @@ int AISpeeds_GetGlueFactor(Car_tObj *carObj)
     int distance;
     int glueIndex;
 
-    distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
-    if (0 <= distance) {
-      if (distance < 0x15) glueIndex = distance;
-      else glueIndex = 0x14;
-    } else {
-      glueIndex = 0;
-    }
+    distance = leadAIRacerOdometer - leadHumanRacerOdometer;
+    glueIndex = distance / 0x3c0000 + 10;
+    glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x10000;
   }
@@ -659,13 +651,9 @@ int AISpeeds_GetGlueFactor(Car_tObj *carObj)
     int distance;
     int glueIndex;
 
-    distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
-    if (0 <= distance) {
-      if (distance < 0x15) glueIndex = distance;
-      else glueIndex = 0x14;
-    } else {
-      glueIndex = 0;
-    }
+    distance = leadAIRacerOdometer - leadHumanRacerOdometer;
+    glueIndex = distance / 0x3c0000 + 10;
+    glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x8000;
     if (AISPEEDS_RACE_TYPE != RaceType_Id3) {
@@ -844,10 +832,11 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
   return desired * carObj->direction;
 }
 
-/* MATCH: the volatile view on the final load is a CODEGEN DEVICE, not
- * a hardware/IRQ property. Without it GCC folds the prior pointer
- * decrement into lhu -2(v1), losing retail's addiu v1,-4 plus lhu
- * 2(v1) pair (three detailed diffs); see §3.13/H40. */
+/* 2026-10-18: ordinary pre-test traversal produces retail's speculative
+ * increment and compiler-generated exit correction. The old post-test plus
+ * source decrement needed an unjustified volatile view to imitate that code.
+ * No source decrement or qualifier remains. Controls/backups:
+ * build/nc12/aispeeds_legal_source_20261018. */
 /* ---- AISpeeds_GetLegalSpeed__Fi  [@0x8006ed0c] ---- */
 int AISpeeds_GetLegalSpeed(int slice)
 {
@@ -856,10 +845,10 @@ int AISpeeds_GetLegalSpeed(int slice)
   speedData = AISpeeds_TrackSpeeds[AISPEEDS_TRACK];
 
 
-  do {
-  } while (speedData++->endSlice < slice); speedData = speedData - 1;
+  while (speedData->endSlice < slice)
+    speedData++;
 
-  return (u_int)((volatile speedData_t *)speedData)->speedMPS << 8;
+  return (u_int)speedData->speedMPS << 8;
 
 }
 
@@ -940,24 +929,20 @@ int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_SetTrafficSpeedRandomFactor__FP8Car_tObj  [@0x8006ef28] ---- */
+/* The supplied local is one INT[4] array, initialized from the retail rodata
+ * template. Typed subscripting after the real fast-RNG state update reproduces
+ * the loads and final field store without an integer stack-address view or a
+ * second evaluation in source. Retail SLD places the RNG calculation/update
+ * before the table selection; scheduling moves the table load ahead of the
+ * state stores. No original RNG macro name is claimed. Controls:
+ * build/nc12/aispeeds_random_source_20261018. */
 void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
 {
-  /* H53: SYM (nfs4-f-v3.txt @0x8006ef28, fsize=16) has exactly ONE stack object, a 4-int array,
-   * randomSpeedMultipliers -- the recon had a DUPLICATE unused array (dead, same bug class as
-   * the "duplicate 112-byte Ghidra buffer" documented elsewhere in this file) inflating the
-   * frame to 32 bytes. Removed the dead twin. The oracle ALSO loads the 4 constants from a
-   * static .rodata template (D_800554E0) and copies them onto the stack -- an aggregate
-   * initializer list reproduces that "template + copy" codegen; 4 separate assignment
-   * statements do not. The register-only raw/factor temporaries keep the table load before
-   * the required randtemp/fastRandom writes, matching the retail instruction schedule. */
   int randomSpeedMultipliers[4] = {0x10000, 0xe666, 0xcccc, 0xb333};
 
-  carObj->trafficSpeedRandomizingFactor =
-      *(int *)((int)randomSpeedMultipliers +
-               ((fastRandom * randSeed) >> 6 & 0xc)   /* retail loads fastRandom (0x8013d0fc) first, then randSeed */);
-  randtemp = randSeed * fastRandom;
-  fastRandom = randtemp & 0xffff;
-  return;
+  fastRandom = (randtemp = fastRandom * randSeed) & 0xffff;
+
+  carObj->trafficSpeedRandomizingFactor = randomSpeedMultipliers[(randtemp >> 8) & 3];
 }
 
 /* ---- AISpeeds_MaintainLeaderBoard__Fv  [@0x8006efa4] ---- */

@@ -1149,7 +1149,15 @@ int ChooseLoopedSample(s_type surface1,s_type surface2)
    The loop uses the out-of-line low-amplitude cleanup and `amplitude +
    (amplitude << 1)` for the retail addend order.  AUDAI 2026-10-04: the four
    read-only asm ref fences are gone; two absorption identities on tweakedForce
-   (below) alone reproduce the SYM s5/s0/s1/s3/s4 allocation. */
+   then reproduced the SYM s5/s0/s1/s3/s4 allocation.
+   2026-10-19: those identities are now removed too. Restore the real three-way
+   impact/zero-force/active-loop branch and keep the active final PlaySFX in
+   its actual arm. Structured negative sample arms need no early returns.
+   This preserves all 224 words without a fence, qualifier or neutral identity;
+   the older reference-budget necessity claim applied to a different source
+   checkpoint. Independent fresh-baseline controls already make either/both
+   identities inert; their removal does not require the branch rewrite.
+   Original literal syntax and complete SLD still require recovery. */
 
 /* SYM rule-8 REWRITE (w54-a11).  Local map from the SYM `8c Function start` block:
    iSFXnumber = REG $17 (s1), amplitude = REG $19 (s3), frequency = REG $20 (s4) at
@@ -1175,20 +1183,12 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
   else {
     amplitude = 0;
   }
-  /* tweakedForce needs 16 flow refs (floor_log2 step 3->4) to outrank
-     iSFXnumber and take retail's s0.  Two absorption identities (x | (x & 3) == x,
-     folded by combine, 0 insns) supply the refs; they replaced two read-only asm
-     ref fences.  One identity alone is 58 diffs. */
-  tweakedForce = tweakedForce | (tweakedForce & 3);
-  tweakedForce = tweakedForce | (tweakedForce & 3);
-
   if (sndPlayer < 0) {
     /* Retail spells the 0x23 follow-up as its OWN PlaySFX call with literal args; gcc
        cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
        late because it stores tempAmp instead of amplitude into 0x10(sp). */
     tweakedForce = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
     if ((iSFXnumber = ChooseImpactSample(tweakedForce,surface1,surface2)) == 0x1f) {
-      /* Retail owns tempAmp here at depth5; its exact endpoint remains open. */
       int tempAmp;
       tempAmp = ((amplitude * tweakedForce) / 0x7f) * 2;
       if (0x7f < tempAmp) {
@@ -1196,27 +1196,26 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
       }
       AudioCmn_PlaySFX(0x31,0x1f,0x40,0x10000,amplitude,azimuth);
       AudioCmn_PlaySFX(0x31,0x23,0x40,0x10000,tempAmp,azimuth);
-      return;
     }
-    if (iSFXnumber == 0x12) {
+    else if (iSFXnumber == 0x12) {
       AudioCmn_PlaySound(gSndBnk[3].bnkID,0x12,azimuth,0x7f,0x40);
       AudioCmn_PlaySound(gSndBnk[3].bnkID,0x16,azimuth,0x7f,0x40);
       AudioCmn_PlaySound(gSndBnk[3].bnkID,0x23,azimuth,amplitude,0x40);
+    }
+    else {
+      AudioCmn_PlaySFX(0x31,iSFXnumber,0x40,0x10000,amplitude,azimuth);
+    }
+  }
+  else if (tweakedForce < 1) {
+    freeVoiceChannel(sndPlayer);
+    if (1 < sndPlayer - 0x12U) {
       return;
     }
-    AudioCmn_PlaySFX(0x31,iSFXnumber,0x40,0x10000,amplitude,azimuth);
+    freeVoiceChannel(sndPlayer + 4);
+    Cars_gList[sndPlayer - 0x12U]->audioDamageScrape = 0;
     return;
   }
   else {
-    if (tweakedForce < 1) {
-      freeVoiceChannel(sndPlayer);
-      if (1 < sndPlayer - 0x12U) {
-        return;
-      }
-      freeVoiceChannel(sndPlayer + 4);
-      Cars_gList[sndPlayer - 0x12U]->audioDamageScrape = 0;
-      return;
-    }
     iSFXnumber = ChooseLoopedSample(surface1,surface2);
     frequency = scaleFrequency(sndPlayer,iSFXnumber,tweakedForce);
 
@@ -1242,9 +1241,8 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
     if ((iSFXnumber == 0x2c) && (frequency = frequency + -0x3c, frequency < 0)) {
       frequency = 0;
     }
+    AudioCmn_PlaySFX(sndPlayer,iSFXnumber,frequency,0x10000,amplitude,azimuth);
   }
-  AudioCmn_PlaySFX(sndPlayer,iSFXnumber,frequency,0x10000,amplitude,azimuth);
-  return;
 }
 
 /* ---- freeVoiceChannel__Fi  [@0x800780d0] ---- */
@@ -1556,6 +1554,23 @@ LAB_8007887c:
 }
 
 /* ---- AudioCmn_SoundCar__FP8Car_tObjiiiiiii  [@0x800788bc] ---- */
+/* 2026-10-19: the amplitude max select needs no scaledAmplitude source object.
+ * Keep amplitude FIRST in the strict greater-than comparison and true arm;
+ * GCC's MAX_EXPR operand order preserves the anonymous v1 product/result and
+ * amplitude's supplied a2 home. All 530 words match. Reversed operands and
+ * the alternate strictness/arm combinations are not interchangeable here.
+ * Split branch-local fixeddiv stores and the direct nonnegative road-noise
+ * selection also remove attenuation, including its later threshold-value
+ * reuse. The two output
+ * producers must be tested together: removing just the first capture changes
+ * scheduling. distanceScale, the debug-elided rpmRatio and the remaining
+ * frequency-product empty asm are still source-review work. This does not
+ * certify a literal original macro name or full SLD restoration. */
+/* 2026-10-19 follow-up: ordinary iAmpIn/tuntrig assignments reproduce the
+ * supplied AUTO homes at sp-52/sp-48 through natural allocator spills. No
+ * address-taking store view is needed. Remove both together: changing only
+ * tuntrig swaps those homes; the paired change preserves every 530 word and
+ * every provided local record. Full source/SLD recovery remains open. */
 /* MATCH P903: direct gas-ramp array expressions remove currentGas, previousGas,
    gasDelta and rampedGas, together with their two empty-asm references. Rising
    stores remain branch-local; the falling step is the existing MIN idiom.
@@ -1580,16 +1595,10 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int wetNoiseAmp;
   int roadNoiseFreq;
   int wetNoiseFreq;
-  /* SLD places iAmpIn in the frame rather than a saved register.  The explicit
-     defining store models that boundary; the later read remains ordinary. */
   int iAmpIn;
   int tuntrig;
   int cam;
   int roadNoisePatch;
-  /* SYM-CODEGEN-CARRIER: scaledAmplitude -- folding this temporary into the
-     SYM-named `amplitude` preserves count but changes 14 instructions around the
-     clamp and multiply handoff. */
-  int scaledAmplitude;
   /* Source-recovery queue: these arithmetic objects remain unproved, but
      their artificial private scopes are removed. Native retail has only
      the root region and the final gas region. Direct gas scaling trials
@@ -1603,32 +1612,14 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   AudioCmn_CheckState(car);
   if (!AudioCmn_kAudioOn)
     return;
-  /* SYM-CODEGEN-CARRIER: attenuation -- direct signed `/ 0x10000` grows 530 to
-     531 instructions with seven diffs; splitting the subsequent speed-noise phase
-     into another local preserves count but changes ten register-allocation sites. */
-  int attenuation;
-
   if (Camera_gInfo[car->carIndex].mode == 0xc) {
-    attenuation = fixeddiv(0x10000000,dst + 0x10000);
+    iAmpIn = fixeddiv(0x10000000,dst + 0x10000) / 0x10000;
   }
   else {
-    attenuation = fixeddiv(0x8000000,dst + 0x20000);
+    iAmpIn = fixeddiv(0x8000000,dst + 0x20000) / 0x10000;
   }
-  /* Reconstruct the compiler's signed / 0x10000 rounding before the stack spill. */
-  if (attenuation < 0) {
-    attenuation = attenuation + 0xffff;
-  }
-  *(int *)&iAmpIn = attenuation >> 0x10;
-  attenuation = -0xd8000;
-  /* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
-     alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
-  /* SYM: roadNoiseAmp is REG $s1, live from here through the camera-mode selector
-     and later amplitude clamp. */
-  roadNoiseAmp = 0;
-  attenuation = __builtin_abs((car->linearVel_ch).z) + attenuation;
-  if (-1 < attenuation) {
-    roadNoiseAmp = attenuation >> 0xf;
-  }
+  roadNoiseAmp = (__builtin_abs((car->linearVel_ch).z) - 0xd8000 >= 0) ?
+      (__builtin_abs((car->linearVel_ch).z) - 0xd8000) >> 0xf : 0;
   /* SYM: CurCarGasLevel is REG $s0, live from here through the fixedmult-based
      self-referencing scale below; blowout doubles it in place. */
   CurCarGasLevel = __builtin_abs((car->linearVel_ch).z) >> 0xf;
@@ -1658,7 +1649,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      (blowout override + case-7 check) -- split from iVar12 which is reused for 3
      unrelated short-lived values later in the function. */
   roadSurface = (car->N).driveSurfaceType;
-  *(int *)&tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
+  tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
   if (tuntrig != 0) {
     if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
       fReverbLevel = (char)((100 < (u_char)fReverbLevel + 10) ?
@@ -1784,12 +1775,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      gcc emits that idiom itself and schedules the `li 127` into the bgez delay slot
      exactly like retail (151->145). */
   loadAmp = 0x7f;
-  scaledAmplitude = amplitude * (freq + 0x28) / 128;
-  if (scaledAmplitude < amplitude) {
-    scaledAmplitude = amplitude;
-  }
-  amplitude = scaledAmplitude;
-  loadAmp = scaledAmplitude * loadAmp >> 7;
+  amplitude = (amplitude > amplitude * (freq + 0x28) / 128) ?
+      amplitude : amplitude * (freq + 0x28) / 128;
+  loadAmp = amplitude * loadAmp >> 7;
   roadNoiseAmp = roadNoiseAmp * amplitude >> 7;
   if (tuntrig != 0) {
     wetNoiseAmp = 0;

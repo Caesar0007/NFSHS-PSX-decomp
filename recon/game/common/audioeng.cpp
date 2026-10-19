@@ -104,107 +104,101 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
 
 /* ---- AudioEng_Update__Fv  [@0x8007b824] ---- */
 /* P873: native SLD381/383 and 418/420 each hold one complete volume clamp.
- * GNU max/min expressions keep the signed-byte value promoted to int through
+ * Min/max lowering keeps the signed-byte value promoted to int through
  * the +/-2 adjustment, then store at each arm's tail. This removes the extra
  * rampedVolume local while preserving the retail signed reload for SNDvol;
- * PASS366. Existing loop-head allocation operands below are unchanged. */
+ * PASS366. The old loop-head allocation operands were subsequently removed
+ * in the 2026-10-19 ownership reconstruction below. */
+/* Historical W55 receipt retained for provenance; its loop-shape and reference
+ * requirements are superseded by the 2026-10-19 source ownership reconstruction. */
+/* MATCH (w55-a12 + 2026-08-11, 28 -> 26 -> PASS 366/366): retail's
+ * second channel loop is UN-rotated -- `slti;beqz;nop` at the loop head
+ * and an unconditional `j` back-edge with the increment in its slot.
+ * `for (;;) { if (n >= 16) break; ... }` lets gcc-2.8 prove n==0 on
+ * entry, peel the first test and rotate the loop (test at the bottom,
+ * 2 insns short).  The `while (1) { if (!(n < 16)) break; ... }`
+ * spelling reproduces retail's top-test + j back-edge.  The remaining
+ * 26 were only the three induction variables colored in the wrong
+ * order.  allocsim priced the generated walks at n=p98 refs29/live237,
+ * delay=p573 refs20/live159 and vol=p578 refs17/live158.  Empty memory
+ * operands at the LOOP HEAD buy the weighted refs without emitting
+ * loads: vol x2 + delay x3 gives retail delay=$s4, vol=$s5, n=$s6.
+ * Placement is essential: the identical operand set at the loop tail
+ * reached 8 diffs but retained the wrong base-copy chain and moved the
+ * s0+=12 increment; at the head both schedules match exactly. */
+/* 2026-10-19: player is the real for-initializer object; pending-queue and
+ * fresh-clock tests share one guard. n is only a channel counter, not a clock
+ * result capture. Both channel loops are counted for loops. Playback options
+ * and azimuths belong to the active valid-patch/nonzero-volume body.
+ * This source form preserves all 366 words without the old empty memory-ref
+ * asm. Ordinary conditional clamps use >= for max and <= for min, preserving
+ * GCC's equality-selected operand order without GNU-only >?/<? operators.
+ * Complete original spelling and SLD attribution are not certified. */
 void AudioEng_Update(void)
 {
-  int player;
-  
-  player = 0;
-  do {
+  for (int player = 0; player < 2; player++) {
     AudioEng_t *g;
     int n;
     AudioEng_tState *s;
     int tick;
 
-    if (1 < player) {
-      return;
-    }
     g = AudioEng_g[player];
     if (g == (AudioEng_t *)0x0) {
       return;
     }
     s = g->queue + (u_char)g->plypos;
     tick = gettick();
-    if (g->plypos != g->setpos) {
-      n = gettick();
-      if (g->tick < n) {
-        g->tick = tick + 2;
-        for (n = 0; n < 16; n++) {
-          if ((signed char)g->chan[n].patchnum >= 0) {
-            u_long vol;
+    if (g->plypos != g->setpos && g->tick < gettick()) {
+      g->tick = tick + 2;
+      for (n = 0; n < 16; n++) {
+        if ((signed char)g->chan[n].patchnum >= 0) {
+          u_long vol;
 
-            if ((s->esp >= g->chan[n].min) && (s->esp < g->chan[n].max)) {
-              vol = (signed char)g->chan[n].xlate[s->esp - g->chan[n].min];
+          if ((s->esp >= g->chan[n].min) && (s->esp < g->chan[n].max)) {
+            vol = (signed char)g->chan[n].xlate[s->esp - g->chan[n].min];
+          }
+          else {
+            vol = 0;
+          }
+          if (vol != 0) {
+            if (n < 8) {
+              vol *= Xfade[128 - s->gas];
             }
             else {
-              vol = 0;
+              vol *= Xfade[s->gas];
             }
-            if (vol != 0) {
-              if (n < 8) {
-                vol *= Xfade[128 - s->gas];
+            if ((signed char)g->chan[n].patchnum >= 64) {
+              if (s->sep != 0) {
+                vol *= (Xfade[128 - s->exh] * 47) >> 6;
               }
               else {
-                vol *= Xfade[s->gas];
-              }
-              if ((signed char)g->chan[n].patchnum >= 64) {
-                if (s->sep != 0) {
-                  vol *= (Xfade[128 - s->exh] * 47) >> 6;
-                }
-                else {
-                  vol *= Xfade[128 - s->exh];
-                }
-              }
-              else {
-                vol *= Xfade[s->exh];
+                vol *= Xfade[128 - s->exh];
               }
             }
-            vol *= s->vol;
-            vol >>= 21;
-            if (vol >= 128) {
-              vol = 127;
+            else {
+              vol *= Xfade[s->exh];
             }
-            g->vol[n] = vol;
-            g->azi = s->azi;
-            g->sep = s->sep;
-            g->dop = s->dop;
           }
+          vol *= s->vol;
+          vol >>= 21;
+          if (vol >= 128) {
+            vol = 127;
+          }
+          g->vol[n] = vol;
+          g->azi = s->azi;
+          g->sep = s->sep;
+          g->dop = s->dop;
         }
-        g->plypos = g->plypos + 1U & 0xf;
       }
-    }
-    {
-      SNDPLAYOPTS playopts;
-      u_short leftazim;
-      u_short rightazim;
+      g->plypos = g->plypos + 1U & 0xf;
 
-      n = 0;
-      /* MATCH (w55-a12 + 2026-08-11, 28 -> 26 -> PASS 366/366): retail's
-       * second channel loop is UN-rotated -- `slti;beqz;nop` at the loop head
-       * and an unconditional `j` back-edge with the increment in its slot.
-       * `for (;;) { if (n >= 16) break; ... }` lets gcc-2.8 prove n==0 on
-       * entry, peel the first test and rotate the loop (test at the bottom,
-       * 2 insns short).  The `while (1) { if (!(n < 16)) break; ... }`
-       * spelling reproduces retail's top-test + j back-edge.  The remaining
-       * 26 were only the three induction variables colored in the wrong
-       * order.  allocsim priced the generated walks at n=p98 refs29/live237,
-       * delay=p573 refs20/live159 and vol=p578 refs17/live158.  Empty memory
-       * operands at the LOOP HEAD buy the weighted refs without emitting
-       * loads: vol x2 + delay x3 gives retail delay=$s4, vol=$s5, n=$s6.
-       * Placement is essential: the identical operand set at the loop tail
-       * reached 8 diffs but retained the wrong base-copy chain and moved the
-       * s0+=12 increment; at the head both schedules match exactly. */
-      while (1) {
-        if (!(n < 16)) {
-          break;
-        }
-        __asm__("" : : "m"(g->vol[n]), "m"(g->vol[n]),
-                         "m"(g->delay[n]), "m"(g->delay[n]),
-                         "m"(g->delay[n]));
-        if ((signed char)g->chan[n].patchnum >= 0) {
-          if (g->vol[n] != 0) {
+    }
+    for (n = 0; n < 16; n++) {
+      if ((signed char)g->chan[n].patchnum >= 0) {
+        if (g->vol[n] != 0) {
+          SNDPLAYOPTS playopts;
+          u_short leftazim;
+          u_short rightazim;
           if ((signed char)g->chan[n].patchnum >= 64) {
             leftazim = g->azi - g->sep;
             rightazim = g->azi + g->sep;
@@ -230,16 +224,16 @@ void AudioEng_Update(void)
           }
           else {
             if ((g->sep == 0) || ((signed char)g->chan[n].patchnum < 64) ||
-                (g->right[n].handle != -1)) {
+              (g->right[n].handle != -1)) {
               if ((signed char)g->left[n].vol != g->vol[n]) {
                 if (g->vol[n] < (signed char)g->left[n].vol) {
-                  g->left[n].vol = ((signed char)g->left[n].vol - 2) >? g->vol[n];
+                g->left[n].vol = (((signed char)g->left[n].vol - 2) >= g->vol[n] ? ((signed char)g->left[n].vol - 2) : g->vol[n]);
                 }
                 else {
-                  g->left[n].vol = ((signed char)g->left[n].vol + 2) <? g->vol[n];
+                g->left[n].vol = (((signed char)g->left[n].vol + 2) <= g->vol[n] ? ((signed char)g->left[n].vol + 2) : g->vol[n]);
                 }
                 SNDvol(g->left[n].handle,
-                       (signed char)g->left[n].vol);
+                  (signed char)g->left[n].vol);
               }
             }
             if (g->left[n].azim != leftazim) {
@@ -264,13 +258,13 @@ void AudioEng_Update(void)
               else {
                 if ((signed char)g->right[n].vol != g->vol[n]) {
                   if (g->vol[n] < (signed char)g->right[n].vol) {
-                    g->right[n].vol = ((signed char)g->right[n].vol - 2) >? g->vol[n];
+                    g->right[n].vol = (((signed char)g->right[n].vol - 2) >= g->vol[n] ? ((signed char)g->right[n].vol - 2) : g->vol[n]);
                   }
                   else {
-                    g->right[n].vol = ((signed char)g->right[n].vol + 2) <? g->vol[n];
+                    g->right[n].vol = (((signed char)g->right[n].vol + 2) <= g->vol[n] ? ((signed char)g->right[n].vol + 2) : g->vol[n]);
                   }
                   SNDvol(g->right[n].handle,
-                         (signed char)g->right[n].vol);
+                    (signed char)g->right[n].vol);
                 }
                 if (g->right[n].azim != rightazim) {
                   SND3dpos(g->right[n].handle, rightazim, 0);
@@ -286,23 +280,21 @@ void AudioEng_Update(void)
               SNDstop(g->right[n].handle);
               g->right[n].handle = -1;
               g->delay[n] = 2;
-              }
-          }
-        }
-          else if (g->left[n].handle != -1) {
-            SNDstop(g->left[n].handle);
-            if (g->right[n].handle != -1) {
-              SNDstop(g->right[n].handle);
             }
-            g->left[n].handle = -1;
-            g->right[n].handle = -1;
           }
         }
-        n++;
+        else if (g->left[n].handle != -1) {
+          SNDstop(g->left[n].handle);
+          if (g->right[n].handle != -1) {
+            SNDstop(g->right[n].handle);
+          }
+          g->left[n].handle = -1;
+          g->right[n].handle = -1;
+        }
       }
+
     }
-    player = player + 1;
-  } while( true );
+  }
 }
 
 /* ---- AudioEng_LoadDef__FPcT0illPP13AudioEng_tDef  [@0x8007bddc] ---- */
@@ -316,6 +308,15 @@ void AudioEng_LoadDef(char *filename,char *name,int handle,long offset,long size
 }
 
 /* ---- AudioEng_StartUp__FiPc  [@0x8007be54] ---- */
+/* 2026-10-19: the file handle belongs inside the header-success guard and
+ * the file-entry i is a for-initializer. Successful bank/definition loading
+ * owns current and the two c-scoped bounded processing loops.
+ * Both inferred chanbase objects are removed: widen the actual channel-field
+ * base, add the signed word-sized element offset, then narrow the full address
+ * to the PSX pointer word. All 376 words match without an address-holder local.
+ * Plain SI-only addresses and widened index multiplication do not share this
+ * codegen. Exact original cast/macro spelling and full SLD remain unproved;
+ * the older 374/376 direct-field failure was not a source-object necessity. */
 int AudioEng_StartUp(int player,char *carname)
 {
   AudioEng_tDef *cruisedef;
@@ -327,7 +328,7 @@ int AudioEng_StartUp(int player,char *carname)
   char filename[64];
   AudioEng_t *g;
   char *header;
-  
+
   if (1 < (u_int)player) {
     return 0;
   }
@@ -382,67 +383,50 @@ int AudioEng_StartUp(int player,char *carname)
     }
     header = (char *)loadbigfileheader(filename,(void *)16);
   }
-  {
+  if (header != (char *)0x0) {
     int handle;
+    FILE_opensync(filename,1,100,&handle);
 
-    if (header != (char *)0x0) {
-      FILE_opensync(filename,1,100,&handle);
-      {
-        int i;
 
-        for (i = 0; i < bigcount(header); i++) {
-          long size;
-          long offset;
-          char *name;
+    for (int i = 0; i < bigcount(header); i++) {
+      long size;
+      long offset;
+      char *name;
 
-          name = (char *)locatebigentry(header,(char *)0x0,i,&offset,&size);
-          if ((wildcard((u_char *)name,"*.bnk") != 0) && !bankloaded) {
-            char *pdata;
+      name = (char *)locatebigentry(header,(char *)0x0,i,&offset,&size);
+      if ((wildcard((u_char *)name,"*.bnk") != 0) && !bankloaded) {
+        char *pdata;
 
-            pdata = (char *)reservememadr(name,size,16);
-            if (pdata != (char *)0x0) {
-              bankloaded = 1;
-              FILE_readsync(handle,offset,pdata,size,100);
-              spu = AudioCmn_AddBank(name,size,pdata,player);
-              g->bhandle = (char)gSndBnk[player].bnkID;
-            }
-          }
-          else if ((wildcard((u_char *)name,"*.ltb") != 0) &&
-                   (loaddef == (AudioEng_tDef *)0x0)) {
-            AudioEng_LoadDef(filename,name,handle,offset,size,&loaddef);
-          }
-          else if ((wildcard((u_char *)name,"*.ctb") != 0) &&
-                   (cruisedef == (AudioEng_tDef *)0x0)) {
-            AudioEng_LoadDef(filename,name,handle,offset,size,&cruisedef);
-          }
+        pdata = (char *)reservememadr(name,size,16);
+        if (pdata != (char *)0x0) {
+          bankloaded = 1;
+          FILE_readsync(handle,offset,pdata,size,100);
+          spu = AudioCmn_AddBank(name,size,pdata,player);
+          g->bhandle = (char)gSndBnk[player].bnkID;
         }
       }
-      FILE_closesync(handle,100);
-      purgememadr(header);
+      else if ((wildcard((u_char *)name,"*.ltb") != 0) &&
+        (loaddef == (AudioEng_tDef *)0x0)) {
+        AudioEng_LoadDef(filename,name,handle,offset,size,&loaddef);
+      }
+      else if ((wildcard((u_char *)name,"*.ctb") != 0) &&
+        (cruisedef == (AudioEng_tDef *)0x0)) {
+        AudioEng_LoadDef(filename,name,handle,offset,size,&cruisedef);
+      }
     }
+
+    FILE_closesync(handle,100);
+    purgememadr(header);
+
   }
-  if (!bankloaded) {
-    return spu;
-  }
-  if (cruisedef == (AudioEng_tDef *)0x0) {
-    return spu;
-  }
-  if (loaddef == (AudioEng_tDef *)0x0) {
-    return spu;
-  }
-  {
+  if (bankloaded && cruisedef != (AudioEng_tDef *)0x0 && loaddef != (AudioEng_tDef *)0x0) {
     char *current;
     {
-      /* SYM-CODEGEN-CARRIER: chanbase -- two block-local channel-array base
-         webs shared by their inner loops.  Direct `g->chan + i` expressions
-         emit 374/376 and rotate 100 instructions; retaining the bases restores
-         retail's saved-register allocation and exact pointer increments. */
-      AudioEng_tChanAttr *chanbase;
+
       int c;
 
       c = 0;
-      chanbase = g->chan;
-      for (; c < 2; c++) {
+      while (c < 2) {
         AudioEng_tDef *ed;
 
         if (c != 0) {
@@ -458,24 +442,24 @@ int AudioEng_StartUp(int player,char *carname)
               int j;
 
               ed->pvoltable[i] =
-                  (AudioEng_tTable *)((char *)&ed->pvoltable[i] +
-                                      (int)ed->pvoltable[i]);
+              (AudioEng_tTable *)((char *)&ed->pvoltable[i] +
+                (int)ed->pvoltable[i]);
               ed->pbendtable[i] =
-                  (AudioEng_tTable *)((char *)&ed->pbendtable[i] +
-                                      (int)ed->pbendtable[i]);
-              chan = chanbase + i;
+              (AudioEng_tTable *)((char *)&ed->pbendtable[i] +
+                (int)ed->pbendtable[i]);
+              chan = (AudioEng_tChanAttr *)(int)((long long)(int)g->chan + i * (int)sizeof(AudioEng_tChanAttr));
               if (c != 0) {
                 chan += 8;
               }
               chan->patchnum = ed->patchnum[i];
               j = 0;
               while ((j < 512) &&
-                     ((signed char)ed->pvoltable[i]->xlate[j] == 0)) {
+                ((signed char)ed->pvoltable[i]->xlate[j] == 0)) {
                 j++;
               }
               chan->min = j;
               while ((j < 512) &&
-                     ((signed char)ed->pvoltable[i]->xlate[j] != 0)) {
+                ((signed char)ed->pvoltable[i]->xlate[j] != 0)) {
                 j++;
               }
               chan->max = j;
@@ -484,17 +468,17 @@ int AudioEng_StartUp(int player,char *carname)
             ed->resolved = 1;
           }
         }
+
+        c++;
       }
     }
     {
-      AudioEng_tChanAttr *chanbase;
       int c;
 
       current = g->tables =
-          (char *)reservememadr("Engine Tables",tablesize,0);
+      (char *)reservememadr("Engine Tables",tablesize,0);
       c = 0;
-      chanbase = g->chan;
-      for (; c < 2; c++) {
+      while (c < 2) {
         AudioEng_tDef *ed;
 
         if (c != 0) {
@@ -506,7 +490,7 @@ int AudioEng_StartUp(int player,char *carname)
         for (i = 0; i < 8; i++) {
           AudioEng_tChanAttr *chan;
 
-          chan = chanbase + i;
+          chan = (AudioEng_tChanAttr *)(int)((long long)(int)g->chan + i * (int)sizeof(AudioEng_tChanAttr));
           if (c != 0) {
             chan += 8;
           }
@@ -519,10 +503,13 @@ int AudioEng_StartUp(int player,char *carname)
             current += size;
           }
         }
+
+        c++;
       }
     }
     purgememadr(loaddef);
     purgememadr(cruisedef);
+
   }
   return spu;
 }
@@ -569,14 +556,14 @@ void AudioEng_Resume(void)
 }
 
 /* ---- AudioEng_CleanUp__Fv  [@0x8007c534] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: player is an inferred two-engine index, not a
+ * supplied PSX local. The confirmed PC twin's explicit player argument supports
+ * that role, not a unique original identifier or distinct source-object need.
+ * The indexed loop is 56/56 PASS and replaced three older base/current/handle
+ * aliases. Retail retains the table walk in s3 and base in s5 with no named
+ * index record. Native CLEAN does not certify this source producer/spelling. */
 void AudioEng_CleanUp(void)
 {
-  /* SYM-CODEGEN-CARRIER: player -- the PSX retail loop advances through the
-   * two AudioEng_g entries in s3 while retaining the table base in s5.  The
-   * optimized local has no SYM record, but the confirmed PC twin performs
-   * the same teardown once per explicit player argument.  An indexed
-   * two-player loop reproduces the exact 56 instructions; the previous
-   * base/current/noHandle reconstruction required three unrecorded aliases. */
   int player;
 
   for (player = 0; player < 2; player++) {

@@ -79,24 +79,25 @@ void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex)
 }
 
 /* ---- AIPerson_SetPersonalityPointers__Fv  [@0x80068afc] ---- */
-void AIPerson_SetPersonalityPointers(void)
-{
-
-  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-    Car_tObj *carObj;
-
-    carObj = Cars_gList[carLoop];
+/* Retail statement offsets: loop +1, pointer initializer +3, call +4.
+ * The ordinary initializer and void fallthrough need no source padding. */
+void AIPerson_SetPersonalityPointers(void) {
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++)
+  {
+    Car_tObj *carObj = Cars_gList[carLoop];
     AIPerson_SetPersonality(carObj,carObj->personalityIndex);
   }
-  return;
 }
 
 /* ---- AIPerson_LoadPersonalityData__FP10Udff_tInfo  [@0x80068b60] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: copCollisionFirmness is an inferred final-read name, not a
+ * supplied local. Retail tags the last GetInt at151 and final field store
+ * at182: the staged producer still needs recovery. Direct stores retain the
+ * 80-byte frame on today's source but change the stream, so the historical
+ * frame-necessity claim is withdrawn. Neither those failures nor debug elision
+ * prove a distinct original object or this identifier. No generic exemption. */
 void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
 {
-  /* SYM-CODEGEN-CARRIER: copCollisionFirmness -- no retail debug name survives for this final read,
-   * but keeping it distinct reproduces the 80-byte frame and saved-register
-   * allocation; assigning Udff_GetInt directly removes three instructions. */
   int copCollisionFirmness;
   Udff_GetInt(handle);
 

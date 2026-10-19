@@ -16,11 +16,16 @@
  *   RefPack  0x10FB/0x11FB/0x90FB/0x91FB
  *   Huffman  0x30FB/0x32FB/0x34FB
  *   BTree    0x46FB/0x47FB          */
-extern long unrefpack(void *src, void *dst, int reverse);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "eaclib/psx/eacpsxz/getm.h"
+#include "eaclib/psx/eacpsxz/eac_codec.h"
+#ifdef __cplusplus
+}
+#endif
 extern long unhuff(void *src, void *dst, int reverse);
-extern long unbtree(void *src, void *dst);  /* 2 args -- see recon/eaclib/psx/eacpsxz/unbtree.c
-                                             * and its oracle (@0x800F55B4 never reads $a2). */
-extern long getm(void *p, int n);           /* read n-byte big-endian field */
 
 /* ---- unpackz  [UNPACK.C:59-101] SLD-VERIFIED ----
  * Oracle shape (w38): a RESULT FUNNEL (`len` in $a2, zeroed in the guard's delay

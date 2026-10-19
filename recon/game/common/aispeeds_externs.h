@@ -48,10 +48,11 @@ int AIWorld_ApxSplineDistance(int sliceA, Car_tObj *b);
 int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
 extern "C" int AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve_t *self, int slice)
     asm("Get__25AIDataRecord_TrackCurve_ti");
-extern "C" int fixeddiv(...);
-extern "C" int fixedmult(...);
-extern "C" int purgememadr(...);
-extern "C" void *reservememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
 extern "C" int sprintf(...);
 
 #endif /* _GAME_COMMON_AISPEEDS_EXTERNS_H_ */

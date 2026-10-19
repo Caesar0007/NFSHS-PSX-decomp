@@ -14,11 +14,13 @@ extern void  Font_LoadFont(char *buf, int w, int h, char flag);                /
 extern void  Font_GetUVWH(char ch, int *u, int *v, int *w, int *h, int *yo);  /* font.obj */
 extern int   Texture_LoadPmx(char *a, char *b, int c, int d, int e, int f, int g, Draw_tPixMap *pm);  /* texture.obj */
 extern void  Texture_ResetPaletteSharing(void);                                /* texture.obj */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-shapetbl *locateshape(char *shapeFile, char *shapeName);
-void *loadfileadr(char *filename, int memory_class);
-char *loadfileadrz(char *filename, int flag);
-int purgememadr(void *ptr);
+#include "eaclib/psx/eacpsxz/locatshp.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
+extern "C" {
 int sprintf(char *buffer, const char *format, ...);
 }
 

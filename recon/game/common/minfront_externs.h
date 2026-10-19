@@ -2,6 +2,8 @@
 #ifndef MINFRONT_EXTERNS_H
 #define MINFRONT_EXTERNS_H
 extern char bigBuf[];
-extern "C" void *reservememadr(char *name, int size, int alignment);
-extern "C" void resizememadr(void *mem, int size);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+}
 #endif

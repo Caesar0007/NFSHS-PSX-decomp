@@ -25,11 +25,12 @@ extern int   TextureProcess_DepthColorCluts(char *data, int numentry);
 extern "C" unsigned short GetClut(...);
 extern "C" int GetTPage(...);
 extern "C" int LoadImage(...);
-extern "C" void *loadfileadr(...);
-extern "C" void *locateshapez(...);
-extern "C" int purgememadr(...);
-extern "C" void *reservememadr(...);
-extern "C" int shapedepth(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_shape.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
 extern "C" int sprintf(...);
 
 #endif /* TEXTURE_EXTERNS_H */

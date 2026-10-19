@@ -17,11 +17,14 @@ extern int  Input_gHandler[];                     /* input.obj @0x80113C14 [184]
 extern int  gMasterMusicLevel, gMasterSFXLevel, gMasterEngineLevel,
              gMasterAmbientLevel, gMasterFENarrationLevel;   /* audiocmn.obj */
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/timer.h"
+}
 extern "C" {
 u_short PAD_state(int);
 void PAD_update(...);
-int purgememadr(...);
-void timedwait(...);
 }
 
 #endif /* GMESETUP_EXTERNS_H */

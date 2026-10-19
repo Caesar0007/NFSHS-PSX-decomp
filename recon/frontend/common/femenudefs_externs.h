@@ -5,7 +5,10 @@
 
 extern "C" int sprintf(char *, const char *, ...);
 
-extern int          ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern tfrontEnd    frontEnd;
 extern tFEApplication *FEApp;
 extern tGlobalMenuDefs *menuDefs;

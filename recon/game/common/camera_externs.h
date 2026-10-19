@@ -46,20 +46,18 @@ int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt, BWorldSm_Pos *slicePos, 
  /* @0x800EAD98 eaclib arccos, verify #148 */
  /* @0x800EADBC eaclib: out-args *sin/*cos dropped by Ghidra, verify #148 */
 void Math_NormalizeVector(coorddef *v);
-extern "C" int fixedmult(int, int);
-extern "C" int fixeddiv(int, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/fxform.h"
+#include "eaclib/psx/eacpsxz/trnspos.h"
+}
 extern "C" int memset(...);
 extern "C" void transform(...);
-extern "C" void transpose(...);
  /* eaclib trnsfrm, verify #148 */
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
 extern "C" void SetGeomScreen(long h);
-extern "C" void fixedxformx(matrixtdef *out, int angle);
-extern "C" void fixedxformy(matrixtdef *out, int angle);
-extern "C" void fixedxformz(matrixtdef *out, int angle);
-extern "C" int intarccos(int x);
-extern "C" void intsincos(int angle, int *psin, int *pcos);
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

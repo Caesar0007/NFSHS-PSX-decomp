@@ -8,6 +8,9 @@
 extern int            gNumSlices;
 extern int AIWorld_LaneIndex(int slice,int position);
 int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
-extern "C" int fixedmult(int a, int b);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+}
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

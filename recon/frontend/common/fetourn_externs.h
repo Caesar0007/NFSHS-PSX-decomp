@@ -4,7 +4,13 @@
 #include "fetourn_types.h"
 
 /* ===== globals ===== */
-extern int          ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern tfrontEnd    frontEnd;
 extern char        *Paths_Paths[];
 extern tTournamentManager tournamentManager;
@@ -33,13 +39,8 @@ bool  FECheat_IsCheatEnabled(int) asm("FECheat_IsCheatEnabled__F10tCheatCode");
  * nfs4_types.h.  Byte-neutral: `this` rides $a0 exactly like the old explicit ptr. */
 
 extern "C" {
-void blockmove(...);
-int fixedmult(...);
-void *loadfileadr(...);
-int purgememadr(...);
 void qsort(...);
 int rand(...);
-void *reservememadr(...);
 int sprintf(...);
 }
 

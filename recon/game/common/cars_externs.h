@@ -4,16 +4,15 @@
 #define _GAME_COMMON_CARS_EXTERNS_H_
 #include "cars_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int fixeddiv(...);
-int fixedmult(...);
-char *loadfileadrz(...);
-void *loadpackadr(...);
-void *locatebig(...);
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/random.h"
+}
+extern "C" {
 void *memset(...);
-int purgememadr(...);
-int random(...);
-void *reservememadr(...);
 int sprintf(...);
 char *strcpy(...);
 }

@@ -19,10 +19,10 @@
  * fills the bne slot with the i-- (the +1 on the match path is its compensation);
  * the tail re-derives entry i by index (sll/addu) and checks entry[0] too. */
 
-void *locateshape(void *shapefile, int *namekey)   /* @0x800EB110 */
+void *locateshape(void *shapefile, char *namekey)   /* @0x800EB110 */
 {
     char *sf  = (char *)shapefile;
-    int  name = *namekey;
+    int  name = *(int *)namekey;
     int  i    = *(int *)(sf + 8);                       /* directory count */
     char *p;
     if (i == 0)
@@ -49,10 +49,10 @@ notfound:
     return 0;
 }
 
-void *locateshapez(void *shapefile, int *namekey)  /* @0x800EB170 (identical to locateshape) */
+void *locateshapez(void *shapefile, char *namekey)  /* @0x800EB170 (identical to locateshape) */
 {
     char *sf  = (char *)shapefile;
-    int  name = *namekey;
+    int  name = *(int *)namekey;
     int  i    = *(int *)(sf + 8);
     char *p;
     if (i == 0)

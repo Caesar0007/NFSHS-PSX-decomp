@@ -2,7 +2,10 @@
  * Harvested from sibling *_externs.h + aiperson.cpp defs + the asm oracle. */
 #ifndef _GAME_COMMON_AIPERSON_EXTERNS_H_
 #define _GAME_COMMON_AIPERSON_EXTERNS_H_
-extern "C" int fixedmult(int a, int b);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+}
 extern "C" int sprintf(char *buffer, const char *format, ...);
 extern "C" char *strcpy(char *destination, const char *source);
 

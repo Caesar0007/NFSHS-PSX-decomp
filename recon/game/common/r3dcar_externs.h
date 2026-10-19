@@ -11,30 +11,17 @@
 extern "C" long DrawSync(...);
 extern "C" long VectorNormalS(...);
 extern "C" void *SetSp(...);
-extern "C" unsigned int asyncloadfile(...);
-extern "C" void blockmove(...);
-extern "C" int filesize(...);
-extern "C" int fixedatan(...);
-extern "C" int fixeddiv(...);
-extern "C" int fixedmult(...);
-extern "C" int fixedsqrt(...);
-extern "C" void fixedxformx(...);
-extern "C" int fixedxformy(...);
-extern "C" void fixedxformz(...);
-extern "C" char *getasyncreadadr(...);
-extern "C" int getasyncreadstatus(...);
-extern "C" void *loadfileadr(...);
-extern "C" void *loadfileatadr(...);
-extern "C" char *locatebig(void *bigfile, char *name);
-extern "C" void *locatebigentry(...);
-extern "C" int purgememadr(...);
-extern "C" void *reservememadr(...);
-extern "C" void resizememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/eac_matrix.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+}
 extern "C" int sprintf(...);
 extern "C" char *strcat(...);
 extern "C" char *strcpy(...);
-extern "C" int systemtask(...);
-extern "C" void transform(...);
 
 extern "C" void trap(int code);                  /* gcc MIPS div-by-zero/overflow break helper */
 

@@ -1541,10 +1541,10 @@ extern "C" int Newton_OptzRotxform(
   absz = __builtin_abs(az);
   *reOrthoNeeded = 0;
   *cumulatedRot += absx + absy + absz;
-  fixedxformy(&my,ay);
+  fixedxformy(my.m,ay);
   changed = absy > 19;
   if (absx > 13) {
-    fixedxformx(&mx,ax);
+    fixedxformx(mx.m,ax);
     Math_fasttransmult(&mx,&my,&mt);
     changed = 1;
   }
@@ -1552,7 +1552,7 @@ extern "C" int Newton_OptzRotxform(
     mt = my;
   }
   if (absz > 13) {
-    fixedxformz(&mz,az);
+    fixedxformz(mz.m,az);
     Math_fasttransmult(&mt,&mz,m);
     changed = 1;
   }
@@ -1579,7 +1579,7 @@ extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
       Math_fasttransmult(&newtonObj->orientMat,&m,&newtonObj->orientMat);
       newtonObj->reOrthoCounter--;
       if ((newtonObj->reOrthoCounter == 0) || (reOrthoNeeded != 0)) {
-        reorthogonalize(&newtonObj->orientMat);
+        reorthogonalize(newtonObj->orientMat.m);
         newtonObj->reOrthoCounter = 0x20;
         newtonObj->cumulatedRot = 0;
       }
@@ -1604,7 +1604,7 @@ extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
                             &reOrthoNeeded,0x2000,&newtonObj->cumulatedRot)) {
       Math_fasttransmult(&newtonObj->orientMat,&m,&newtonObj->orientMat);
       if ((reOrthoNeeded != 0) || (--newtonObj->reOrthoCounter == 0)) {
-        reorthogonalize(&newtonObj->orientMat);
+        reorthogonalize(newtonObj->orientMat.m);
         newtonObj->reOrthoCounter = 0x40;
         newtonObj->cumulatedRot = 0;
       }

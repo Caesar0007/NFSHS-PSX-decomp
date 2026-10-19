@@ -9,7 +9,10 @@ extern tTournamentManager tournamentManager;
 extern tScreenTrophyRoom *screenTrophyRoom;
 extern int                kRGBVals[28];
 extern char               textDefinitions[14][6];
-extern int                ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 
 /* --- data owned by ScreenTrophyInfo.obj (EXT linkage) --- */
 /* 🔴 DO NOT RE-SORT (17B EXTERN-ORDER LAW).  A TU-owned TENTATIVE definition is

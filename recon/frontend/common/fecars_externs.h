@@ -26,11 +26,12 @@ bool FECheat_IsCheatEnabled(int)
     __asm__("FECheat_IsCheatEnabled__F10tCheatCode");
 extern char *Paths_Paths[];
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void blockmove(...);
-void *loadfileadr(...);
-int purgememadr(...);
-void *reservememadr(...);
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
+extern "C" {
 int sprintf(...);
 }
 

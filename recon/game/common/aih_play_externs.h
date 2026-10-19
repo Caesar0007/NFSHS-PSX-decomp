@@ -35,6 +35,9 @@ extern void Stats_ExtrapolateOpponentTimes(int);
 int AIWorld_ApxSplineDistance(Car_tObj *carObj, int slice);
 /* AITrigger_TriggerManager::CheckForClosestTriggerOfType/GetTrigger now C++ members (aitriger.obj) -- flat externs removed */
 void  trap(int code);
-extern "C" int fixedmult(int, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+}
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

@@ -12,12 +12,12 @@ extern void Quatern_VecInterpolate(coorddef *cp0,coorddef *cp1,int weight,coordd
 extern void __builtin_vec_delete(void *deleteMe);
 extern void __builtin_delete(void *deleteMe);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void blockmove(void *source, void *destination, int size);
-int filesize(char *filename);
-void *loadfileadrz(char *filename, void *destination);
-void *locatebig(void *archive, char *filename);
-int purgememadr(void *ptr);
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+}
+extern "C" {
 int sprintf(char *buffer, const char *format, ...);
 char *strstr(const char *haystack, const char *needle);
 }

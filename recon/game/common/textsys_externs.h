@@ -3,10 +3,13 @@
 #define TEXTSYS_EXTERNS_H
 
 /* ---- libc + harvested + SYM ---- */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
 extern "C" {
 int sprintf(char *buffer, const char *format, ...);
-void *loadfileadr(char *filename, int memory_class);
-int purgememadr(void *ptr);
 }
 
 extern char       *Paths_Paths[];

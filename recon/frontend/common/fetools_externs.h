@@ -19,9 +19,12 @@ int   Font_LoadFont(char *data, int a, int b, char c);
 int   Font_DeInit(void);
 char *TextSys_Word(int id);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-char *loadfileadrz(...);
-int purgememadr(...);
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
+extern "C" {
 int sprintf(...);
 unsigned int strlen(...);
 }

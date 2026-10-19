@@ -6,31 +6,23 @@
 #define COPSPEAK_EXTERNS_H
 
 /* Narrow eaclib/libc boundary used by this owner. */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int FILE_closesync(...);
-int FILE_completeop(...);
-int FILE_opensync(...);
-int FILE_operror(...);
-int FILE_opstatus(...);
-int FILE_read(...);
-int FILE_readsync(...);
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/random.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+}
+extern "C" {
 int SNDover(...);
 int SNDplay(...);
 void SNDplaysetdef(...);
 int SNDstop(...);
 int SNDtimeremaining(...);
 void SNDvol(...);
-int bigcount(...);
-int loadbigfileheader(...);
-void *locatebigentry(...);
-void *locatebigentryz(...);
-int purgememadr(...);
-int random(...);
-void *reservememadr(...);
 int sprintf(...);
 char *strcat(...);
 int strcmp(char *, char *); /* PsyQ4.3 STRINGS.H, before StartUp's comparisons. */
-int systemtask(...);
 }
 
 /* ---- audio (audiocmn/audioclc/audiomus.obj) ---- */

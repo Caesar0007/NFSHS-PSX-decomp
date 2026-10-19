@@ -6,10 +6,15 @@
 
 extern int gMasterMusicLevel;            /* game audio global */
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/cdfs.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/primate.h"
+}
 extern "C" {
 extern int StCdIntrFlag;                 /* PsyQ libcd interrupt flag */
 int ClearImage(RECT *rect, u_char r, u_char g, u_char b);
-int CD_Restart(int startSector);
 int CdControl(u_char com, u_char * param, u_char * result);
 int CdControlB(u_char com, u_char * param, u_char * result);
 void * CdDataCallback(void * func);
@@ -31,13 +36,10 @@ void PAD_update(void);
 void Platform_ResetDCTBuffer(void) asm("Platform_ResetDCTBuffer__Fv");
 DISPENV *PutDispEnv(DISPENV *env);
 DRAWENV *PutDrawEnv(DRAWENV *env);
-int purgememadr(void *ptr);
-void *reservememadr(const char *name, int size, int memory_class);
 void ResetCallback(void);
 DISPENV *SetDefDispEnv(DISPENV *env, int x, int y, int w, int h);
 DRAWENV *SetDefDrawEnv(DRAWENV *env, int x, int y, int w, int h);
 void SetDispMask(int mask);
-void settrans(int on);
 int SNDcdvol(int vol);
 int sprintf(char *dst, const char *format, ...);
 void StCdInterrupt(void);

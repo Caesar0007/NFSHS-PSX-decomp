@@ -72,12 +72,14 @@ extern void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n);
 int Anim_InitSystem(char *trackName);
 void Anim_Restart(void);
 void AudList_LoadAudioFile(int AudioFileIndex);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_matrix.h"
+}
 extern "C" {
 /* LIBAPI.H (4.3) and the reconstructed TRNSPOS/XFORM owners supply these
    actual signatures; none is variadic. SetSp exchanges target-word values. */
 unsigned long SetSp(unsigned long stack_pointer);
-void transpose(matrixtdef *src, matrixtdef *dst);
-void xformy(matrixtdef *out, int angle);
 /* PsyQ 4.3 COFF/INCLUDE/RAND.H: no arguments, not an ellipsis function. */
 int rand(void);
 }

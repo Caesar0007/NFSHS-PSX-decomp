@@ -71,14 +71,13 @@ extern void  Flare_InitLensFlare(void);
 extern void  Draw_SetViewColor(int view, int r, int g, int b);
 extern void  Texture_CloneUVPmx(Draw_tPixMap *dst, int flag, Draw_tPixMap *src);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int random(void);
-void seedrandom(int seed);
-void *reservememadr(const char *name, int size, int flags);
-int purgememadr(void *p);
-int fixedsin(int angle);
-int fixedcos(int angle);
-int fixedmult(int a, int b);
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/random.h"
+}
+extern "C" {
 void *memset(void *dst, int value, int size);
 void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 void SetGeomScreen(int h);

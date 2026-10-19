@@ -7,7 +7,12 @@
 extern tfrontEnd          frontEnd;
 extern tTournamentManager tournamentManager;
 extern tGlobalMenuDefs   *menuDefs;
-extern int                ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern tTexture_ShapeInfo *gCurrentShapes;
 #include "shared/pad_module_globals.h"
 
@@ -44,8 +49,6 @@ int   CalcFadeVal(int rgb, int amount);
 void  FETextRender_FullTextRGB(char *s, short x, short y, int rgb, char a, short b);
 
 extern "C" {
-int purgememadr(void *);
-int systemtask(int);
 }
 
 #endif

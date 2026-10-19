@@ -38,8 +38,10 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int slice);
 int AIWorld_ApxSplineDistance(int slice, Car_tObj *b);
 void  trap(int code);
-extern "C" int fixedmult(int, int);
-extern "C" int fixeddiv(int, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+}
 /* AITrigger_TriggerManager::DescribeTrigger/CheckForTriggerAtSlice/GetTrigger now C++ members (aitriger.obj) -- flat externs removed */
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps

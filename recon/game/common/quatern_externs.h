@@ -5,10 +5,13 @@
 #ifndef QUATERN_EXTERNS_H
 #define QUATERN_EXTERNS_H
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int fixeddiv(int numerator, int denominator);
-int fixedmult(int a, int b);
-int fixedsqrt(int value);
+#include "eaclib/psx/eacpsxz/fixddiv.h"
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/fixdsqrt.h"
+}
+extern "C" {
 }
 
 #endif

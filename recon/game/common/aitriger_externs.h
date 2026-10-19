@@ -7,7 +7,10 @@ extern Sim_tSimGlobalVar simGlobal;
 /* Owner SYM: gameTicks INT@4; the caller does not emit its body. */
 #define AITRIGGER_GAME_TICKS (*(int *)((char *)&simGlobal + 4))
 
-extern "C" int fixeddiv(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixddiv.h"
+}
 extern "C" void qsort(...);
 
 #endif /* _GAME_COMMON_aitriger_EXTERNS_H_ */

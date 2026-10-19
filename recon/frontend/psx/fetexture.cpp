@@ -57,7 +57,7 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
       dest->clutID = yclut << 6 | xclut >> 4 & 0x3f;
     }
     old_shape = *unpacked;
-    vramfxya(unpacked,unpacked->shapex + xoffset,unpacked->shapey + yoffset,xclut,yclut);
+    vramfxya((unsigned int *)unpacked,unpacked->shapex + xoffset,unpacked->shapey + yoffset,xclut,yclut);
     dest->shpptr = shpptr;
     dest->type = *(u_char *)unpacked;
     dest->next = *(u_int *)unpacked >> 8;   /* next:24 bitfield */
@@ -67,7 +67,7 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
     dest->centery = unpacked->centery;
     dest->shapex = unpacked->shapex;
     dest->shapey = unpacked->shapey;
-    dest->depth = shapedepth(unpacked);
+    dest->depth = shapedepth((unsigned char *)unpacked);
     dest->tpage = ((u_char)dest->type & 3) << 7 | (short)(dest->shapey & 0x100U) >> 4 |
                   (ushort)(((ushort)dest->shapex & 0x3ff) >> 6) | (dest->shapey & 0x200U) << 2;
     dest->clut = GetClut((dest->clutID & 0x3fU) << 4,dest->clutID >> 6);

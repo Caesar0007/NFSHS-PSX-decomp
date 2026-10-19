@@ -22,11 +22,11 @@ extern GameSetup_tData GameSetup_gData;
 extern void  TrsProj_SetPsxMatrix(matrixtdef *m, coorddef *trans);
 extern void  Math_NormalizeVector(coorddef *v);
 extern void  ChangeTPage(u_short *tpage, int abr);
-extern "C" int fastintcos(...);
-extern "C" int fastintsin(...);
-extern "C" int fixedmult(...);
-extern "C" int intatan(...);
-extern "C" int random(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/random.h"
+}
 
 /* ---- GTE (COP2) macros: the real canonical PsyQ inline-asm forms come from psx_gte.h
  *      (included above). The former no-op stubs here SHADOWED them and made every GTE

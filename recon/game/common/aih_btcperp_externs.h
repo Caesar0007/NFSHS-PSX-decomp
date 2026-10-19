@@ -31,7 +31,9 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 void AILife_PlaceCarAtLocation(Car_tObj *c, int rot);
 void AILife_PlaceCarAtLocation(Car_tObj *c, int slice, int lat, int dir, int spd, int rot);
 void AudioClc_HonkHorn(Car_tObj *carObj, int a, int b, int c);
-extern "C" int fixedmult(int, int);
-extern "C" int fixeddiv(int, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+}
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

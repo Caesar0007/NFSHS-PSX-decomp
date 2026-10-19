@@ -12,11 +12,12 @@ void Input_Store(void);
 void Input_Update(void);
 
 /* ---- EAC root-counter timer chain (EAC_timerproc = void(*)(void)) ---- */
-extern "C" int addtimer(void (*proc)(void));
-extern "C" int deltimer(void (*proc)(void));
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/addtimer.h"
+#include "eaclib/psx/eacpsxz/savegp.h"
+}
 
 /* ---- eaclib gp save/restore ---- */
-extern "C" void savegp(u_int *ctx);
-extern "C" void restoregp(u_int saved);
 
 #endif /* _GAME_COMMON_CLOCK_EXTERNS_H_ */

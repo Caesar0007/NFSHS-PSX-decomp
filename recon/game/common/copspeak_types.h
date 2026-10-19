@@ -52,7 +52,7 @@
 
 
 
-struct CopSpeak_tFileIndex { long offset, size; };
+struct CopSpeak_tFileIndex { int offset; unsigned int size; };
 struct CopSpeak_tBankHeader { int id; u_char ver; };
 struct CopSpeak_tBank {
     int FileHandle, FileOpen;

@@ -242,7 +242,7 @@ void DoTitleScreen(void)
   tempShp2 = (shapetbl *)locateshapez(creditShapeFile,(void *)"back");
   Quick_DD(1,0,1);
   settrans(0);
-  movfxya(tempShp2,0,0);
+  movfxya((unsigned char *)tempShp2,0,0);
   settrans(1);
   Quick_DD(0,1,0);
   purgememadr(creditShapeFile);

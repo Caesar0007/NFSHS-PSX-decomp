@@ -3,22 +3,19 @@
 #define _GAME_COMMON_NFS3_EXTERNS_H_
 #include "nfs3_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-unsigned int asyncloadfileat(char *, char *);
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/eac_shape.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+}
+extern "C" {
 int ClearImage(RECT *, u_char, u_char, u_char);
 long DrawSync(long);
-int getasyncreadstatus(unsigned int);
-void initlinkmode(int, int, int);
-void *loadfileadr(char *, int);
-void movfxya(void *, int, int);
-int purgememadr(char *);
-void settrans(int);
 void SetVideoMode(int);
-void *shapepointer(void *, int);
 int sprintf(char *, const char *, ...);
 char *strcpy(char *, char *);
-int systemtask(int);
-int largestunused(void);
 int FECheat_ActivateBonus__F10tCheatCode(int);
 int Front_Menu__F21tFront_ProcessingType(int);
 }

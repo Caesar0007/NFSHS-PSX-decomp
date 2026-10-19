@@ -3,12 +3,14 @@
 #ifndef _GAME_COMMON_AIINIT_EXTERNS_H_
 #define _GAME_COMMON_AIINIT_EXTERNS_H_
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int fixedmult(...);
-int loadfileadrz(...);
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
+extern "C" {
 void *memset(...);
-int purgememadr(...);
-int rdiv(...);
 int sprintf(...);
 }
 

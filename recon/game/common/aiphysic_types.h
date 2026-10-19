@@ -50,8 +50,10 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t {
 };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 
-extern "C" int fixeddiv(...);
-extern "C" int fixedmult(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+}
 
 struct AIPhysic_BrakeInfo {
     u_char brakeTable_[128];

@@ -16,14 +16,13 @@ extern char             GameSetup_gPersonalityNames[15][8];
 /* game C++ helpers + PsyQ/eaclib (cfront-mangled / C; normal C++ linkage) */
 void  s_lower(char *string);
 char *TextSys_Word(int wordnum);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void blockclear(...);
-void blockmove(...);
-int filesize(...);
-int loadfileatadrz(...);
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
+extern "C" {
 void *memcpy(...);
-int purgememadr(...);
-void *reservememadr(...);
 char *strcpy(...);
 }
 

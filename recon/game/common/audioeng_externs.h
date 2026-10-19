@@ -3,28 +3,24 @@
 #ifndef _GAME_COMMON_AUDIOENG_EXTERNS_H_
 #define _GAME_COMMON_AUDIOENG_EXTERNS_H_
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int FILE_closesync(...);
-int FILE_opensync(...);
-int FILE_readsync(...);
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/timer.h"
+}
+extern "C" {
 int SND3dpos(...);
 int SNDpitchmult(...);
 int SNDplay(...);
 void SNDplaysetdef(...);
 int SNDstop(...);
 void SNDvol(...);
-int bigcount(...);
-int fixedmult(...);
-int gettick(...);
 short *iSNDserveradd100hzclient(...);
 int iSNDserverremove100hzclient(...);
-int loadbigfileheader(...);
-void *locatebigentry(...);
 void *memcpy(...);
-int purgememadr(...);
-void *reservememadr(...);
 int sprintf(...);
-int wildcard(...);
 }
 
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */

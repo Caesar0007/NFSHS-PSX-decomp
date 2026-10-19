@@ -4,7 +4,12 @@
 #include "fecredits_types.h"
 
 /* ===== globals ===== */
-extern int          ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern tfrontEnd    frontEnd;
 extern char        *Paths_Paths[];
 extern tScreenMain *screenMain;            /* EXT PTR @0x80051E58 */
@@ -33,10 +38,6 @@ bool  FECheat_IsCheatEnabled(int)
     __asm__("FECheat_IsCheatEnabled__F10tCheatCode");
 
 extern "C" {
-int filesize(...);
-int loadfileatadrz(...);
-int purgememadr(...);
-void *reservememadr(...);
 int sprintf(...);
 char *strchr(...);
 char *strcpy(...);

@@ -3,6 +3,13 @@
 #ifndef _GAME_COMMON_AUDIOMUS_EXTERNS_H_
 #define _GAME_COMMON_AUDIOMUS_EXTERNS_H_
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+#include "eaclib/psx/eacpsxz/timer.h"
+}
 extern "C" {
 int CdDiskReady(...);
 int GetRCnt(...);
@@ -22,17 +29,8 @@ int SNDSTRM_vol(...);
 int SNDgetlimits(...);
 void SNDplaysetdef(...);
 int SNDsetlimits(...);
-int addsystemtask(...);
-int bigcount(...);
-int delsystemtask(...);
-int gettick(...);
-int loadbigfileheader(...);
-void *locatebigentry(...);
-int purgememadr(...);
-void *reservememadr(...);
 int sprintf(...);
 unsigned int strlen(...);
-int wildcard(...);
 }
 
 extern bool Hud_kTurnSongOffNext;

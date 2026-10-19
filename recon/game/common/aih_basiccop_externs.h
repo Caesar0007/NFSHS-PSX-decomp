@@ -27,11 +27,14 @@ extern coorddef *BWorldSm_UNormal(BWorldSm_Pos *pos);  /* retail PTR STRUCT coor
 extern void BWorld_InitSpikeBelt(void);
 extern void Object_AddCustomObject(SceneElem *elem, int setupSimDataFlag);
 extern void Object_ClearCustomObjects(void);
-extern "C" int fixedmult(int, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/trnspos.h"
+}
 extern "C" void __builtin_delete(void *);
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
-extern "C" void transpose(matrixtdef *src, matrixtdef *dst);
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

@@ -10,6 +10,9 @@ extern char          *BWorldSm_slices;
 extern int                AITune_driveSide;
 extern int            gNumSlices;
 extern int Newton_CalculateSliceYaw(int slice);
-extern "C" int fixedmult(int a, int b);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+}
 
 #endif /* _GAME_COMMON_AIWORLD_EXTERNS_H_ */

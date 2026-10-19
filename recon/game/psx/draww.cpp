@@ -4519,7 +4519,7 @@ gte_SetTransMatrix(&DW_WORLDMAT);
       DW_SCRATCH->offsubdivid = 0x400;
       light = -1;
       if ((objInstance->flags & 1) != 0) {
-        fixedxformy(&matrix,
+        fixedxformy(matrix.m,
                     fixedatan(objInstance->x - (Vi->cview).translation.x,
                               objInstance->z - (Vi->cview).translation.z));
         if (type == 9) {

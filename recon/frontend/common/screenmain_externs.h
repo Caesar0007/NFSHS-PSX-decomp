@@ -10,7 +10,10 @@ extern "C" int GetTPage(...);
 extern "C" int ClearImage(...);
 extern "C" long DrawSync(...);
 extern "C" int gettick(void);
-extern "C" int purgememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
 
 /* ===== globals ===== */
 extern tfrontEnd          frontEnd;

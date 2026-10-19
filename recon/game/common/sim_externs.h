@@ -96,9 +96,12 @@ extern int unPauseDelay;
 extern int skipRender;
 extern int quitType;
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/systask.h"
+}
 extern "C" {
 void *SetSp(...);
-int systemtask(...);
 }
 
 #endif

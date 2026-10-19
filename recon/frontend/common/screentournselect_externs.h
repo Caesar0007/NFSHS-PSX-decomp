@@ -7,7 +7,11 @@
 extern tfrontEnd          frontEnd;
 extern tTournamentManager tournamentManager;
 extern tGlobalMenuDefs   *menuDefs;
-extern int                ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern char              *Paths_Paths[];
 
 /* --- data owned by ScreenTournSelect.obj --- */
@@ -63,7 +67,6 @@ extern "C" {
 int ClearImage(RECT *, u_char, u_char, u_char);
 long DrawSync(long);
 unsigned short GetTPage(int, int, int, int);
-int purgememadr(void *);
 int sprintf(char *, const char *, ...);
 }
 

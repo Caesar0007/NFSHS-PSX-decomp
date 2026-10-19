@@ -16,6 +16,15 @@ extern "C" int elapsedticks(void);
 /* Exact pruned runtime boundary used by PSXFront.obj.  Keep the original
  * return types and old-style varargs forms: they are part of GCC 2.8's call
  * expression and allocation behavior even though C linkage fixes the label. */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/addtimer.h"
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/eac_shape.h"
+#include "eaclib/psx/eacpsxz/nasync.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+}
 extern "C" {
 long DrawSync(...);
 unsigned short GetClut(...);
@@ -25,22 +34,8 @@ void SetPolyGT4(...);
 void SetSemiTrans(...);
 void InitGeom(...);
 void PAD_update(void);
-int addtimer(...);
-unsigned int asyncloadfileat(...);
-void blockclear(...);
-int deltimer(...);
-int fixedmult(...);
-int getasyncreadstatus(...);
-void initlinkmode(...);
-int loadshapeadr(...);
-void *locateshapez(...);
-void movfxya(...);
-int purgememadr(...);
-void *reservememadr(...);
-void settrans(...);
 int sprintf(...);
 char *strcpy(...);
-int systemtask(...);
 }
 
 void AudioCmn_LoadFESamples(void);

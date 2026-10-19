@@ -9,7 +9,14 @@
 #include "font_types.h"
 
 extern unsigned char currentfont[];      /* font-state blob @ 0x80135ba0 */
-extern FONTFILECHAR *getcharacter(int code);   /* eaclib EACPSXZ glyph-info lookup */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "eaclib/psx/eacpsxz/textfor.h"
+#ifdef __cplusplus
+}
+#endif
 
 /* ---- textnpixels  [TEXTPIX.C:61-98] SLD-VERIFIED ---- */
 int textnpixels(char *str, int n)

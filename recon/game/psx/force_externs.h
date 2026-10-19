@@ -26,7 +26,9 @@ extern "C" void VSyncCallback(...);
 extern "C" int PadGetState(int);
 extern "C" void PadSetAct(int, unsigned char *, int);
 extern "C" int PadSetActAlign(int, unsigned char *);
-extern "C" int fixeddiv(...);
-extern "C" int fixedmult(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+}
 
 #endif

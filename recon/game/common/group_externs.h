@@ -4,6 +4,9 @@
 #ifndef GROUP_EXTERNS_H
 #define GROUP_EXTERNS_H
 
-extern "C" void blockmove(void *source, void *destination, int size);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/blkmov.h"
+}
 
 #endif /* GROUP_EXTERNS_H */

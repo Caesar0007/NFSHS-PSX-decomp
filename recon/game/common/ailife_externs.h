@@ -45,8 +45,11 @@ void AIInit_ClearAICar(Car_tObj *carObj);
 void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj);
 void AI_ChooseNewLaneSlack(Car_tObj *carObj);
 extern "C" void *SetSp(...);
-extern "C" int fixedmult(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/xform.h"
+}
 extern "C" void *memset(...);
-extern "C" int xformy(...);
 
 #endif /* _GAME_COMMON_AILIFE_EXTERNS_H_ */

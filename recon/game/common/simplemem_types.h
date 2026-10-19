@@ -5,7 +5,10 @@
 
 #include "game_common_min_types.h"
 
-extern "C" int purgememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
 
 struct SimpleMem {
     void *heap;

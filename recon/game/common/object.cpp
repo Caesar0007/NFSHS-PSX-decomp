@@ -1188,7 +1188,7 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
   rotz->x = fixedmult(rotx->y,roty->z) - fixedmult(rotx->z,roty->y);
   rotz->y = fixedmult(rotx->z,roty->x) - fixedmult(rotx->x,roty->z);
   rotz->z = fixedmult(rotx->x,roty->y) - fixedmult(rotx->y,roty->x);
-  reorthogonalize(&finishedAnim->finalMatrix);
+  reorthogonalize(finishedAnim->finalMatrix.m);
   fixedxformx(mat.m,0x4000);
   fixedxformy(objAngleMat.m,-objectAngle);
   fixedxformy(yawMat.m,this->impactAngle);

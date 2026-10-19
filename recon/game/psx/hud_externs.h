@@ -114,7 +114,12 @@ extern void  Hud_RenderStatsView(void);   /* defined in overlays.cpp */
 extern void  Hud_BTCStats(short player, bool flag);   /* defined in overlays.cpp -- HIDDEN-PHANTOM FIX (w14-a2): was `char` (mangles __Fsc, LINK MISMATCH vs the real __Fsb def) */
 
 /* ---- module-scope statics / cross-module globals (Ghidra-recovered names) ---- */
-extern int            ticks;                 /* global frame tick */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern int trap_unused;
 extern int trap_unused;
 extern void           trap(int code);        /* HW/debug trap */
@@ -181,10 +186,6 @@ void SetPolyG4(POLY_G4 *packet);
 u_short PAD_state(int padID);
 int ccos(int angle);
 int csin(int angle);
-int fixedmult(int a, int b);
-void fixedsincos(int angle, int *sine, int *cosine);
-int purgememadr(void *ptr);
-void *reservememadr(const char *name, int size, int flags);
 int sprintf(char *buffer, const char *format, ...);
 unsigned int strlen(const char *string);
 }

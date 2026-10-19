@@ -15,8 +15,11 @@ extern char           *Paths_Paths[50];          /* 0x80116468 */
  * agree with the nsync/memstd owners; surviving retail SYM does not supply
  * their complete types, so owner consistency is not a retail-type seal. */
 extern "C" int sprintf(char *buffer, char *fmt, ...);
-extern "C" int loadfileadr(char *name, int memclass);
-extern "C" int purgememadr(void *p);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
 
 /* track-spec selection table (weather*2+night -> spec index) @0x80056AD4: MATERIALIZED as the
  * local `int spec[4] = {0,1,2,3}` in TrackSpec_Load (rodata->stack aggregate copy; image-verified).

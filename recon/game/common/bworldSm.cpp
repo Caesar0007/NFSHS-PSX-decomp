@@ -931,7 +931,7 @@ void Check_Rot(BWorldSm_Pos *slicePos)
         coorddef *forward = &slicePos->forward;
         coorddef *normal = &slicePos->normal;
         *forward = vecZ;
-        crossproduct(&vecZ,&vecX,normal);
+        crossproduct(&vecZ.x,&vecX.x,&normal->x);
         Math_NormalizeVector(normal);
         if (normal->y > 0xffff) {
           normal->y = 0xfff9;

@@ -12,16 +12,16 @@ extern void gte_lwc2(int reg, int data);   /* value-form load (draww calls pendi
 /* Narrow declarations formerly supplied by libfns.h.  Keeping them here
  * preserves DrawW.obj's own SYM type graph instead of importing unrelated SDK
  * and game declarations into the translation unit. */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/eac_matrix.h"
+}
 extern "C" {
 void SetTexWindow(void *, void *);
 void *SetSp(void *);
 void SetFarColor(int, int, int);
 void SetFogNear(int, int);
-void transform(void *, void *, void *);
-int fixedatan(int, int);
-int fixedmult(int, int);
-void fixedxformy(matrixtdef *, int);
-void xformy(matrixtdef *, int);
 }
 
 /* ---- PsyQ libgte / libgpu ---- */

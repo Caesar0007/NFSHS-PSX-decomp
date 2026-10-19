@@ -3,18 +3,21 @@
 #define _FE_SCREENS_SCREENTRACKS_EXTERNS_H_
 #include "screentracks_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern "C" {
 int ClearImage(RECT *, u_char, u_char, u_char);
 long DrawSync(long);
 int sprintf(char *, const char *, ...);
 int GetTPage(int, int, int, int);
-int purgememadr(void *);
 }
 
 /* --- globals --- */
 extern tfrontEnd          frontEnd;
 /* P891: scalar vars.obj cell (NFS4 019199 @8013DCAC); NFS2 13bb6c records INT. */
-extern int                ticks;
 extern tTrackManager      trackManager;
 extern tGlobalMenuDefs   *menuDefs;
 extern tFEApplication    *FEApp;

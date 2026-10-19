@@ -73,7 +73,7 @@ void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int desth
   prim->r0 = -0x80 - fFade;
   prim->g0 = -0x80 - fFade;
   prim->b0 = -0x80 - fFade;
-  prim->clut = shapetoclutid((u_char *)icon);
+  prim->clut = shapetoclutid((unsigned int *)icon);
   prim->tpage = (stype & 3) << 7 |
                 (sposy & 0x100) >> 4 |
                 (sposx & 0x3ff) >> 6 |
@@ -179,7 +179,7 @@ void tScreenMemcard::LoadIcon(int filenum)
               __asm__("" : :
                       "r"(i * 0xc0), "r"(i * 0xc0), "r"(i * 0xc0));
               if (((*fMemIcon)[filenum][i][0] & 0xf7U) == 0x40) {
-                vramfxya((*fMemIcon)[filenum][i],i * 0x11 + 900,
+                vramfxya((unsigned int *)(*fMemIcon)[filenum][i],i * 0x11 + 900,
                          filenum * 0x11,clutx,cluty);
               }
               i = i + 1;

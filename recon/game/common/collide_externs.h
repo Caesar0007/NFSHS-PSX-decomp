@@ -36,8 +36,9 @@ int  Force_IsForceOn(Car_tObj *car);
 void Force_HitSign(Car_tObj *car);
 int  BWorldSm_FindClosestSlice(coorddef *pt, BWorldSm_Pos *slicePos);
 
-extern "C" int fixedmult(...);
-extern "C" int fixedsqrt(...);
-extern "C" int rdiv(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+}
 
 #endif /* _GAME_COMMON_COLLIDE_EXTERNS_H_ */

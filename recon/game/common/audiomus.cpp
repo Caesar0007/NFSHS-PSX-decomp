@@ -229,9 +229,9 @@ void AudioMus_Fail(int errorcode)
    remaining reset on +14, info address on +16, and six fields on +18..+23. */
 void AudioMus_QueueRequestedSong(void)
 {
-  long offset; AudioMus_tSongEntry *info;
+  int offset; AudioMus_tSongEntry *info;
 
-  AudioMus_g->songname = locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,(u_char)AudioMus_g->playlist[AudioMus_g->requestsong],&offset,(long *)0x0);
+  AudioMus_g->songname = locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,(u_char)AudioMus_g->playlist[AudioMus_g->requestsong],&offset,(unsigned int *)0x0);
 
   if (-1 < AudioMus_g->streamhandle) {
 
@@ -454,7 +454,7 @@ AudioMus_GetSongList(char *pattern,int memtype)
       int i;
 
       for (i = numsongs; i < AudioMus_g->totalsongs; i = i + 1) {
-        if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(long *)0x0,(long *)0x0),
+        if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(int *)0x0,(unsigned int *)0x0),
                      pattern) != 0) {
           numsongs = numsongs + 1;
         }
@@ -468,7 +468,7 @@ AudioMus_GetSongList(char *pattern,int memtype)
       long size;
       char *songname;
 
-      songname = (char *)locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(long *)0x0,&size);
+      songname = (char *)locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(int *)0x0,(unsigned int *)&size);
       if (wildcard((u_char *)songname,pattern) != 0) {
         song->filename = songname;
         AudioMus_SetEntry(song);
@@ -683,7 +683,7 @@ void AudioMus_BuildPattern(char *pattern)
     AudioMus_g->availablesongs = 0;
     for (int i = 0; (i < AudioMus_g->totalsongs) && (AudioMus_g->availablesongs < 0x20); i++) {
       if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,
-                                  (long *)0x0,(long *)0x0),pattern) != 0) {
+                                  (int *)0x0,(unsigned int *)0x0),pattern) != 0) {
         AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)i;
         AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
       }

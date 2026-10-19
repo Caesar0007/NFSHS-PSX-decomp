@@ -42,9 +42,11 @@ extern char     *R3DCar_LicenseShapeFile;      /* OWNER r3dcar.cpp:44 defines a
                                                 * POINTER; the old `char []` decl made
                                                 * both locateshapez calls pass &ptr. */
 
-extern "C" void *locateshapez(...);
-extern "C" int purgememadr(...);
-extern "C" void *reservememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/locatshp.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
 extern "C" char *strcat(...);
 extern "C" unsigned int strlen(...);
 

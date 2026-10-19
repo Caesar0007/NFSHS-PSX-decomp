@@ -4,9 +4,10 @@
 #define _GAME_COMMON_AUDIOCLC_EXTERNS_H_
 #include "audioclc_types.h"
 
-extern "C" int fixeddiv(...);
-extern "C" int fixedmult(...);
-extern "C" int intatan(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+}
 
 extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */

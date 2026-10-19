@@ -3,18 +3,18 @@
 #define _FE_SCREENS_SCREENMEMCARD_EXTERNS_H_
 #include "screenmemcard_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void blockclear(...);
-int purgememadr(...);
-void *reservememadr(...);
-int shapetoclutid(...);
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/eac_shape.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
+extern "C" {
 int sprintf(...);
-int systemtask(...);
-void vramfxya(...);
 }
 
 extern tfrontEnd   frontEnd;
-extern int  ticks;
 extern bool CURRENTLYUSINGMEMCARD;
 int CalcFadeVal(int col1, int col2, int amount);
 int CalcFadeVal(int col1, int amount);   /* 2-arg overload */

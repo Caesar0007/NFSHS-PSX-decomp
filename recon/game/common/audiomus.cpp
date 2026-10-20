@@ -567,7 +567,7 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
     }
     gMusicHandle = AudioMus_g->streamhandle;
     if (AudioMus_g->serveractive == 0) {
-      addsystemtask(AudioMus_Server,(void *)0x19,(void *)0x0);
+      addsystemtask((unsigned int (*)(int,int))AudioMus_Server,0x19,0);
       AudioMus_g->serveractive = 1;
     }
   }
@@ -602,7 +602,7 @@ void AudioMus_DriverCleanUp(void)
 
     if (AudioMus_g->serveractive != 0) {
 
-      delsystemtask((int)AudioMus_Server /* @0x8007a3d0 system-task callback */);
+      delsystemtask((unsigned int (*)(int,int))AudioMus_Server);
       AudioMus_g->serveractive = 0;
     }
     if (-1 < AudioMus_g->streamhandle) {

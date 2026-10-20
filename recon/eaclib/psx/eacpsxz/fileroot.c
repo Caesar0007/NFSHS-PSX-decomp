@@ -77,7 +77,6 @@ extern int PCopen(char *name, int mode, int a2);              /* @0x80106CA4 */
 extern int PCcreat(char *name, int a1);                       /* @0x80106CD0 */
 
 /* ---- system glue + string helpers ---- */
-extern int  readfile_systask(void);                           /* below */
 // FIXME STRINGS.H
 extern char *strchr(const char *s, int c);                   /* @0x800F6214 */
 extern char *strncpy(char *d, const char *s, int n);          /* @0x800F6104 */
@@ -266,7 +265,7 @@ int readfile(int handle, int dest, int offset, int len)
 
 /* readfile_systask @0x800F3F80 : execute a queued PC-host read (PClseek + PCread) and complete the FILE op
  *   (success when the full length was read).  Registered as a periodic task by initfileio. */
-int readfile_systask(void)
+unsigned int readfile_systask(int arg1, int arg2)
 {
     int sr;
     FROOT_enterCS(sr);

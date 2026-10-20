@@ -28,7 +28,8 @@
 
 /* file-local functions (retail SYM: local labels) */
 static void synccallback(int op, int type, SyncCtrl *c);
-static int syncblockio(int fd, int buf, int offset, int len, int cbarg, int (*iofn)(int, int, int, int, int, struct SyncCtrl *));
+static int syncblockio(int fd, int buf, int offset, int len, int cbarg,
+                       unsigned int (*iofn)(void *, unsigned int, unsigned int, int, unsigned int, unsigned int));
 /* eaclib/psx/eacpsxz/syncfile.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/1 ***
  *   obj nfs4\eaclib\psx\syncfile.obj ; EACPSXZ.LIB (xlsx col12 / SYM v3 FILE record line 357483).
  *   8 fns @[0x800EA6CC .. 0x800EAAC4]: synchronous (blocking) wrappers over the asynchronous FILE_* API
@@ -51,8 +52,8 @@ static int syncblockio(int fd, int buf, int offset, int len, int cbarg, int (*io
 
 /* --- async FILE_* API (nfile.obj) --- */
 
- int  syncblockio(int fd, int buf, int offset, int len, int cbarg,
-                        int (*iofn)(int, int, int, int, int, struct SyncCtrl *)); /* @0x800EA7E8 */
+int syncblockio(int fd, int buf, int offset, int len, int cbarg,
+                unsigned int (*iofn)(void *, unsigned int, unsigned int, int, unsigned int, unsigned int)); /* @0x800EA7E8 */
 
 /* synccallback @0x800EA6CC : async completion -- on a successful chunk, advance the control block and, if more
  *   remains, re-issue the next chunk; otherwise mark the transfer finished.
@@ -206,7 +207,9 @@ static void synccallback(int op, int type, SyncCtrl *c)
                 c->chunk = 0x2000;
             else
                 c->chunk = *(volatile int *)&c->remain;
-            r = c->iofn(c->fd, c->buf, c->offset, c->chunk, c->cbarg, c);
+            r = c->iofn((void *)(unsigned int)c->fd, (unsigned int)c->buf,
+                        (unsigned int)c->offset, c->chunk, (unsigned int)c->cbarg,
+                        (unsigned int)c);
             c->op = r;                              /* sw in the jalr-test branch delay slot */
             if (r != 0) {
                 FILE_callbackop((unsigned int)r, (void *)synccallback);
@@ -226,7 +229,7 @@ static void synccallback(int op, int type, SyncCtrl *c)
 
 /* syncblockio @0x800EA7E8 : run a chunked blocking transfer of `len` bytes via `iofn`; returns bytes moved. */
 static int syncblockio(int fd, int buf, int offset, int len, int cbarg,
-                       int (*iofn)(int, int, int, int, int, struct SyncCtrl *))
+                       unsigned int (*iofn)(void *, unsigned int, unsigned int, int, unsigned int, unsigned int))
 {
     SyncCtrl c;
     int firstchunk;
@@ -262,7 +265,9 @@ static int syncblockio(int fd, int buf, int offset, int len, int cbarg,
     c.iofn = iofn;
     if (firstchunk > 0x2000)
         c.chunk = 0x2000;
-    c.op = iofn(fd, buf, c.offset, c.chunk, cbarg, &c);
+    c.op = (int)iofn((void *)(unsigned int)fd, (unsigned int)buf,
+                     (unsigned int)c.offset, c.chunk, (unsigned int)cbarg,
+                     (unsigned int)&c);
     if (c.op != 0) {
         FILE_callbackop((unsigned int)c.op, (void *)synccallback);
         while ((c.remain != 0) || (c.op != 0))
@@ -287,9 +292,9 @@ int FILE_opensync(char *name, int a2, int a3, int *out)
 }
 
 /* FILE_readsync @0x800EA920 : blocking read (chunked via syncblockio + FILE_read). */
-void FILE_readsync(int fd, int buf, int offset, int len, int cbarg)
+void FILE_readsync(int fd, int offset, void *buf, int len, int cbarg)
 {
-    syncblockio(fd, buf, offset, len, cbarg, FILE_read);
+    syncblockio(fd, offset, (int)(unsigned int)buf, len, cbarg, FILE_read);
 }
 
 /* FILE_closesync @0x800EA950 : blocking close.
@@ -298,7 +303,7 @@ void FILE_readsync(int fd, int buf, int offset, int len, int cbarg)
 int FILE_closesync(int fd, int a2)
 {
     int result = 0;
-    unsigned int op = FILE_close(fd, a2, result);
+    unsigned int op = FILE_close((void *)(unsigned int)fd, a2, result);
     if (op != 0) {
         FILE_waitop(op);
         result = (int)FILE_completeop(op);
@@ -310,7 +315,7 @@ int FILE_closesync(int fd, int a2)
 int FILE_sizesync(int fd, int a2)
 {
     int result = 0;
-    unsigned int op = FILE_size(fd, a2, result);
+    unsigned int op = FILE_size((void *)(unsigned int)fd, a2, result);
     if (op != 0) {
         FILE_waitop(op);
         result = (int)FILE_completeop(op);

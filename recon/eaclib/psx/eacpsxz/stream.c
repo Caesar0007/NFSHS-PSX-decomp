@@ -44,9 +44,9 @@ static int queuerequest(int s, int req);
 static int freerequest(int s, int req);
 static unsigned int filterchunk(int s, int chunk);
 static int parsechunks(int s);
-static void opencallback(int a0, int a1, int s);
-static void closecallback(int a0, int a1, int s);
-static int readcallback(int a0, int a1, int s);
+static void opencallback(unsigned int a0, int a1, int s);
+static void closecallback(unsigned int a0, int a1, int s);
+static int readcallback(unsigned int a0, int a1, int s);
 static int startnextrequest(int s, unsigned int prio);
 static int restartstream(int s, unsigned int prio);
 /* eaclib/psx/eacpsxz/stream.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 32/32 ***
@@ -133,7 +133,7 @@ static inline void STREAM_leaveCS(int sr) { (void)sr; }
 #define MU(p,o) (*(unsigned int*)((p)+(o)))
 
 /* ---- internal forward decls (mutually recursive) ---- */
-static int  locaterequest(int s, unsigned int reqid);                         /* @0x800FC4E4; trusted
+static int *locaterequest(int s, unsigned int reqid);                         /* @0x800FC4E4; trusted
     compact SYM name. This is unrelated to nasync.c's file-static locaterequest @0x800F0BF4; duplicate
     static names in separate translation units are valid. Gate this body with locaterequest@800FC4E4
     so tools/verify_asm.py selects the address-disambiguated oracle file. */
@@ -255,9 +255,9 @@ static int queuerequest(int s, int req)
 
 /* locaterequest : map a request id back to its slot, validating the slot index (low byte),
  *   the full id, and that the slot is in use.  Returns the request pointer or 0.
- * MATCH: separate guard returns plus the empty one-shot boundary preserve the shared failure tail
- * while preventing gcc from folding the final active-slot test into a branch-to-success. */
-static int locaterequest(int s, unsigned int reqid)
+ * MATCH: distinct guard returns preserve the shared failure tail and keep the active-slot test
+ * separate from the range and ID checks. */
+static int *locaterequest(int s, unsigned int reqid)
 {
     unsigned int *req;
     if (MI(s, 0xc) <= (int)(reqid & 0xff))     /* slot index out of range */
@@ -265,10 +265,9 @@ static int locaterequest(int s, unsigned int reqid)
     req = (unsigned int *)(MI(s, 8) + (reqid & 0xff) * 100);
     if (reqid != req[0])
         return 0;
-    do { } while (0);
     if (req[1] == 0)
         return 0;
-    return (int)req;
+    return (int *)req;
 }
 
 /* freerequest @0x800FC548 : unlink a request from the active queue and push it onto the freelist.
@@ -417,7 +416,7 @@ malformed:
 
 /* opencallback @0x800FC810 : nfile open-op completion (stream object arrives in $a2 = udata).  Stash the
  *   opened file handle (+0x9C); if valid, kick the stream's fill engine. */
-static void opencallback(int a0, int a1, int s)
+static void opencallback(unsigned int a0, int a1, int s)
 {
     unsigned int h;
     (void)a0; (void)a1;
@@ -429,7 +428,7 @@ static void opencallback(int a0, int a1, int s)
 
 /* closecallback @0x800FC850 : nfile close-op completion -> immediately open the next file (its name was
  *   already copied to +0x5C) and arm opencallback. */
-static void closecallback(int a0, int a1, int s)
+static void closecallback(unsigned int a0, int a1, int s)
 {
     unsigned int op;
     (void)a0; (void)a1;
@@ -437,7 +436,7 @@ static void closecallback(int a0, int a1, int s)
     op = FILE_open((char *)(s + 0x5c), 1, MU(s, 0x30), (unsigned int)s);
     MU(s, 0xa4) = op;
     if (op != 0)
-        FILE_callbackop(op, (void (*)(int, int))opencallback);
+        FILE_callbackop(op, opencallback);
 }
 
 /* readcallback @0x800FC8A8 : nfile read-op completion (stream object in $a2).  Advances the read
@@ -455,7 +454,7 @@ static void closecallback(int a0, int a1, int s)
  * it to `bvar1` first and then overwriting `bvar1` with the comparison reproduces retail exactly.
  * Side effect (and the reason the swap looked global): the extra two references raise bvar1's
  * allocno priority above reqcur's, so bvar1 takes $s1 and reqcur $s2 as in retail. */
-static int readcallback(int a0, int a1, int s)
+static int readcallback(unsigned int a0, int a1, int s)
 {
     /* No retail local names survive here. completionValue first holds the
      * candidate byte total, then the completion flag; bytesRead advances
@@ -605,14 +604,14 @@ static int startnextrequest(int s, unsigned int prio)
                     unsigned int op = FILE_open((char *)name, 1, prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
                     if (op != 0)
-                        return (int)((unsigned int (*)(unsigned int, void (*)(int, int)))FILE_callbackop)(op, (void (*)(int, int))opencallback);
+                        return (int)((unsigned int (*)(unsigned int, void (*)(unsigned int, int, int)))FILE_callbackop)(op, opencallback);
                     return;                      /* MATCH: valueless (see the void note above) */
                 }
                 {                                /* close the open file first */
                     unsigned int op = FILE_close((void *)MU(s, 0x9c), prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
                     if (op != 0)
-                        return (int)((unsigned int (*)(unsigned int, void (*)(int, int)))FILE_callbackop)(op, (void (*)(int, int))closecallback);
+                        return (int)((unsigned int (*)(unsigned int, void (*)(unsigned int, int, int)))FILE_callbackop)(op, closecallback);
                     return;                      /* MATCH: valueless (see the void note above) */
                 }
             }
@@ -810,7 +809,7 @@ have_room:
                                     MI(s, 0xa8), prio, (unsigned int)s);
         MU(s, 0xa4) = op;
         if (op != 0)
-            op = ((unsigned int (*)(unsigned int, void (*)(int, int)))FILE_callbackop)(op, (void (*)(int, int))readcallback);
+            op = ((unsigned int (*)(unsigned int, void (*)(unsigned int, int, int)))FILE_callbackop)(op, (void (*)(unsigned int, int, int))readcallback);
         return op;
     }
 }
@@ -818,12 +817,11 @@ have_room:
 /* STREAM_overhead @0x800FCDE0 : bytes of bookkeeping a stream of this shape needs (excluding the ring). */
 int STREAM_overhead(int numReq, int numFilters, int numConsumers)
 {
-    /* MATCH: separate request/filter terms plus the empty one-shot boundary keep gcc from
-     * reassociating +0xac into the request accumulator; the constant stays on the oracle's v1
-     * filter term and the consumer term fills the return delay slot. */
+    /* MATCH: separate request/filter terms keep gcc from reassociating +0xac into the request
+     * accumulator; the constant stays on the oracle's v1 filter term and the consumer term fills
+     * the return delay slot. */
     int result = numReq * 100;
     int filters = numFilters * 0xc + 0xac;
-    do { } while (0);
     result = result + filters;
     return result + numConsumers * 0x10;
 }
@@ -890,7 +888,7 @@ int STREAM_overhead(int numReq, int numFilters, int numConsumers)
  * missing device is the same one named on nfile.c reservehandle and trnsmult.c: a zero-insn,
  * NON-BARRIER value-numbering breaker.  (The `volatile` here is a pre-existing matching device
  * from w34-a2, not introduced by this wave; every attempt to remove it is worse.) */
-int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize)
+int STREAM_create(int numReq, int numFilters, int numConsumers, void *objbuf, int bufsize)
 {
     int over, base, i, off;
 
@@ -907,9 +905,9 @@ int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int 
         return 0;
 
     MI(objbuf, 0x00) = STRM_MAGIC;
-    MI(objbuf, 0x04) = allocmutex();
-    MI(objbuf, 0x08) = objbuf + 0xac;                          /* reqArray */
-    MI(objbuf, 0x24) = objbuf + bufsize;                       /* bufEnd */
+    MI(objbuf, 0x04) = (int)allocmutex();
+    MI(objbuf, 0x08) = (int)(unsigned int)(objbuf + 0xac);    /* reqArray address */
+    MI(objbuf, 0x24) = (int)(unsigned int)(objbuf + bufsize); /* bufEnd address */
     MI(objbuf, 0x2c) = 0x96;
     MI(objbuf, 0x0c) = numReq;
     MI(objbuf, 0x14) = numFilters;
@@ -1025,7 +1023,7 @@ int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int 
              * oracle's `sll a0,a1,4`), not off `(i-1) * 0x10` after the increment, which loop.c
              * strength-reduces into a walking `v1 += 16` plus a +16/-16 fixup pair. */
             int *c = (int *)(MI(objbuf, 0x18) + i * 0x10);
-            c[0] = objbuf;
+            c[0] = (int)(unsigned int)objbuf;
             c[1] = i + 1;                                      /* 1-based consumer id */
             c[2] = 0;
             i++;
@@ -1086,7 +1084,7 @@ void STREAM_destroy(int s)
     {
         int obj = out[0];
         MI(obj, 0) = 0;                                /* invalidate magic */
-        freemutex(MI(obj, 4));
+        freemutex((void *)(unsigned int)MI(obj, 4));
     }
     FILE_closesync(MI(out[0], 0x9c), 100);
 }
@@ -1176,7 +1174,7 @@ unsigned int STREAM_queuefile(int s, char *name, int off, int len)
 
 /* STREAM_queuemem @0x800FD428 : queue a read of `len` bytes from a memory image.  If `ptr` is null, the
  *   source is a chained block list walked to the `len`-th node.  Returns the request id. */
-unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
+unsigned int STREAM_queuemem(int s, void *blocklist, void *ptr, int len)
 {
     int out[2];
     int *req;
@@ -1200,7 +1198,7 @@ unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
                                                    * stores (a1/a0 set first, last store in the jal slot) */
         int sobj = out[0];
         req[4] = 1;                               /* type = memory */
-        req[0x15] = blocklist;                    /* mem source base */
+        req[0x15] = (int)(unsigned int)blocklist; /* mem source base address */
         req[0x16] = (int)ptr;
         req[0x17] = len;
         queuerequest(sobj, r);
@@ -1276,7 +1274,7 @@ int STREAM_cancelrequest(int s, int reqid)
     int out[2];
     int ret;
     int valid;
-    int req;
+    char *req;
     int *s4, *s6, *s7;
     int sr;
 
@@ -1285,7 +1283,7 @@ int STREAM_cancelrequest(int s, int reqid)
         return valid;
 
     sr = STREAM_enterCS();
-    req = locaterequest(out[0], reqid);
+    req = (char *)locaterequest(out[0], reqid);
     /* MATCH: the oracle's block order is test-chain -> freerequest -> `ret=1` join -> the ACTIVE
      * block (the nested if/else spelling lays the `ret=1` join AFTER both active arms instead). */
     if (req == 0)
@@ -1294,7 +1292,7 @@ int STREAM_cancelrequest(int s, int reqid)
         goto notactive;
     if (MI(req, 4) != 1)
         goto active;
-    freerequest(out[0], req);                        /* queued -> just drop it */
+    freerequest(out[0], (int)(unsigned int)req);     /* queued -> just drop it */
 notactive:
     ret = 1;
     goto reclaim;
@@ -1307,7 +1305,7 @@ active:                                              /* active (not merely queue
         int sobj0 = out[0];
         MI(req, 4) = 4;                             /* mark cancelled (reuses the compare's `4`) */
         s7 = *(int **)(sobj0 + 0x40);               /* readptr */
-        if (req == MI(sobj0, 0x4c))
+        if (req == (char *)(unsigned int)MI(sobj0, 0x4c))
             s4 = s7;
         else
             s4 = *(int **)(req + 0x60);              /* this request's start fill */
@@ -1550,7 +1548,7 @@ void STREAM_kill(int s)
  *   second `return chunk` -- it is gcc's delayed-branch TARGET-STEAL of the shared return
  *   materialization; spelling an explicit early `return chunk;` instead flips the branch to
  *   `bgtz`+`j` (+2).  Keep the single trailing `return chunk;`. */
-int STREAM_get(int consumer)
+void *STREAM_get(int consumer)
 {
     int out[2];
     int cons, chunk;
@@ -1590,7 +1588,7 @@ int STREAM_get(int consumer)
             MI(out[1], 0xc) = (int)p;
         }
     }
-    return chunk;
+    return (void *)(unsigned int)chunk;
 }
 
 /* STREAM_release @0x800FDAD0 : release a chunk previously obtained from STREAM_get, freeing its ring
@@ -1604,7 +1602,7 @@ int STREAM_get(int consumer)
  *   documented dead-2nd-param call. (2) the `state==2` wasstall test was wrongly materialized as a 0/1
  *   C bool tested twice; the oracle caches the RAW state word and re-tests `state==2` against the SAME
  *   li-2 constant twice (never forms a boolean) -- same idiom as decbufferusage's greedy-state test. */
-void STREAM_release(int s, int chunk)
+void STREAM_release(int s, void *chunk)
 {
     int out[2];
     if (validatehandle(s, &out[0], &out[1]) != 0)

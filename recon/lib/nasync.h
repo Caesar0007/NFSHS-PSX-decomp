@@ -19,13 +19,13 @@ typedef struct AsyncReq {
     struct AsyncReq *next; /* +0x04 free/call-queue link                                                */
     int bytesread;         /* +0x08 bytes transferred so far (0 == not started; getasyncreadstatus)     */
     int status;            /* +0x0C 0 == active; 1 == cancel-requested; 2 == cancelled                  */
-    int buffer;            /* +0x10 result buffer addr (1 == "allocate by size" sentinel until alloc'd) */
-    int callback;          /* +0x14 optional user completion callback fn ptr (0 == poll-only)           */
+    void *buffer;          /* +0x10 result buffer (address 1 == "allocate by size" sentinel until alloc'd) */
+    void (*callback)(int); /* +0x14 optional user completion callback (0 == poll-only)                    */
     int fileop;            /* +0x18 in-flight FILE op id (FILE_completeop'd in each callback)            */
     int handle;            /* +0x1C FILE handle from FILE_open                                          */
     int offset;            /* +0x20 file read offset cursor                                             */
     int arg24;             /* +0x24 reservememadr mem-class (file load) / remaining size (segment load) */
-    int dest;              /* +0x28 memory destination cursor                                           */
+    unsigned char *dest;   /* +0x28 memory destination cursor                                           */
 } AsyncReq;                /* 0x2C */
 
 /* ---- a FIFO queue of requests : {head, tail} (8 bytes) ---- */

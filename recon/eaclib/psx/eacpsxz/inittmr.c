@@ -47,10 +47,10 @@ extern void StartRCnt(int spec);
  * inittmr.obj in that order for platform.obj's setdirectory / initmemadr / inittimer -- so initmemadr lives in meminit.obj,
  * which its name says too (tools/psyq_pipe/slink_pullsim.py). */
 
-/* inittimer @0x800F41F0 : install (once) the RCnt event + restore hook, then arm the counter for `hz` Hz. */
+/* inittimer @0x800F41F0 : install (once) the RCnt event + restore hook, then arm the counter for `hz` Hz; void API. */
 int timerflag = 0;   /* @0x8013DD4C: initialized; the "RAM" literal in front of it (0x8013DD48) is meminit.obj's, the previous object in link order */
 
-int inittimer(int hz)
+void inittimer(int hz)
 {
     if (hz == 0)
         hz = 100;
@@ -60,7 +60,7 @@ int inittimer(int hz)
         timerevent = OpenEvent(0xf2000002, 2, 0x1000, (int *)tmrint);
         EnableEvent(timerevent);
         timerflag = 1;
-        addexit((int)restoretimer);
+        addexit(restoretimer);
     }
     initgp();
     timerhz = hz;
@@ -69,9 +69,8 @@ int inittimer(int hz)
     StartRCnt(0xf2000002);
     ExitCriticalSection();
     resettick();
-    /* MATCH: addexit() returns nothing (its oracle never sets $v0 on the exit path), and the
-     * oracle tail-calls it -- inittimer's own result is whatever $v0 happens to hold.  Falling
-     * off the end reproduces that; an explicit `return 0;` adds the `li $v0,0` retail lacks. */
+    /* MATCH: the void function falls off the end; an explicit value return adds instructions absent
+     * from the oracle. */
     addexit(restoretimer);
 }
 

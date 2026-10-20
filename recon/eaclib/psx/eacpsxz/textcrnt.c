@@ -7,10 +7,10 @@
 #include "textcrnt.h"
 
 /* putm @0x800F30AC : write `val` as `n` bytes big-endian into dst[0..n). */
-void putm(int dst, unsigned int val, int n)
+void putm(void *dst, unsigned int val, int n)
 {
     int            i = n - 1;
-    unsigned char *p = (unsigned char *)(dst + i);
+    unsigned char *p = (unsigned char *)dst + i;
     for (; -1 < i; i = i - 1) {
         *p = (unsigned char)val;
         val = val >> 8;

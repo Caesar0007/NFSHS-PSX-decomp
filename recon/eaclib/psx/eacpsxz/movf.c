@@ -182,13 +182,13 @@ extern int   currentwindow[];  /* @0x801486E4 : GPU window block -- draw-origin 
                                 * reads here), clip @+0x18..0x24.  ONE struct base like fastmovf. */
 
 /* movfxya @0x800F0738 : draw shape at (x,y).  $v0 incidental -- no explicit return (oracle). */
-int movfxya(unsigned char *shape, int x, int y)
+void movfxya(unsigned char *shape, int x, int y)
 {
     int depth = shapedepth(shape);
 
     if ((*shape & 8) != 0) {                          /* in VRAM: paths (b)/(c); (a) = else at END */
       if (((*shape & 3) == 2) && ((semitrans & 2) == 0)) {   /* (b) */
-        fastmovfxya((int)shape, x, y);
+        fastmovfxya(shape, x, y);
       } else {                                        /* (c) tile into GPU rects */
         int yRow, vCoord, vc, rowH, rowH2, vPage;
         int yPos;

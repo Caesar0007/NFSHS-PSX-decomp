@@ -195,7 +195,7 @@ int FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf)
     if (disablecd == 0) {                                          /* CD backend enabled */
         char *iomem = (char *)gFileMgr.handlearray + gFileMgr.handlecount * 0x4C;     /* io mem after handles */
         unsigned int r = CD_Init(gFileMgr.handlecount, memsize, iomem,
-                        (void (*)(int))iFILE_CommandCompleteCallback);   /* asm: sltiu (unsigned compare) */
+                        iFILE_CommandCompleteCallback);   /* asm: sltiu (unsigned compare) */
         disablecd = (r < 1) ? 1 : 0;                              /* disable CD if init failed */
     }
     initfileio();
@@ -1093,14 +1093,15 @@ unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
  *   command queue (iFILE_ExecCommand), and return fn's result.  The manager's +0x08 word (idmask) is
  *   saved and restored around the call -- a net no-op as written (the intermediate write is overwritten).
  *   The return value is fn's result, captured in ExecCommand's branch delay slot ($s0=$v0) before the
- *   call clobbers $v0; the 2nd arg is unused. */
-int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
+ *   call clobbers $v0; the 2nd arg is unused.  `a4` is a pointer context at the API boundary, narrowed
+ *   to the legacy 32-bit callback word at the indirect call. */
+int FILE_atomic(int (*fn)(int, int), int unused, int a3, void *a4)
 {
     int saved = gFileMgr.idmask;     /* mgr+0x08 */
     int result;
     (void)unused;
     gFileMgr.idmask = a3;            /* asm: sw $a0,8(s0) in the jalr delay slot ($a0==a3, fn's 1st arg) */
-    result = fn(a3, a4);
+    result = fn(a3, (int)(unsigned int)a4);
     gFileMgr.idmask = saved;         /* restore */
     iFILE_ExecCommand((void *)0);
     return result;
@@ -1386,7 +1387,7 @@ int gFileOpSeq = 0;   /* @0x8013DC50: retail has it in INITIALISED small data (.
  *   Resolves the final status of the in-flight op (mgr.curop): a pending cancel -> -1 (cancelled), else
  *   result==0 -> -2 (device fail), result!=0 -> 1 (ok).  Clears mgr.curop, fires the op's completion callback
  *   (id, status, param) bracketed by mgr.cbpending, then dispatches the next command if nothing nested. */
-int iFILE_CommandCompleteCallback(int result)
+void iFILE_CommandCompleteCallback(int result)
 {
     FileOp *cmd = gFileMgr.curop;
     if (cmd == 0)

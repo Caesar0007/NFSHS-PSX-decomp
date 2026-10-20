@@ -1,13 +1,12 @@
 {
-  "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
   "custom_make": "python",
   "custom_args": [
     "tools/build.py",
     "--skip-asm",
     "--only"
   ],
-  "build_target": false,
   "build_base": true,
+  "build_target": false,
   "watch_patterns": [
     "*.c",
     "*.cpp",
@@ -1232,8 +1231,8 @@
       },
       "symbol_mappings": {
         "VoxSentence_GetNumPhrases_8010B100": "VoxSentence_GetNumPhrases",
-        "iSPCH_GetOffset8_8010B10C": "iSPCH_GetOffset8",
-        "iSPCH_GetOffset16_8010B124": "iSPCH_GetOffset16"
+        "iSPCH_GetOffset16_8010B124": "iSPCH_GetOffset16",
+        "iSPCH_GetOffset8_8010B10C": "iSPCH_GetOffset8"
       }
     },
     {
@@ -1723,11 +1722,11 @@
         "source_path": "recon/game/common/aih_btcperp.cpp"
       },
       "symbol_mappings": {
-        "___15AIHigh_BTC_Perp_80061348": "___15AIHigh_BTC_Perp",
         "Execute__17AIState_NonActive_80061370": "Execute__17AIState_NonActive",
-        "___17AIState_NonActive_80061378": "___17AIState_NonActive",
         "TestForRelease__12AIState_Base_800613C4": "TestForRelease__12AIState_Base",
-        "___12AIState_Base_800613CC": "___12AIState_Base"
+        "___12AIState_Base_800613CC": "___12AIState_Base",
+        "___15AIHigh_BTC_Perp_80061348": "___15AIHigh_BTC_Perp",
+        "___17AIState_NonActive_80061378": "___17AIState_NonActive"
       }
     },
     {
@@ -1835,9 +1834,9 @@
       },
       "symbol_mappings": {
         "Execute__17AIState_NonActive_80072750": "Execute__17AIState_NonActive",
-        "___17AIState_NonActive_80072758": "___17AIState_NonActive",
         "TestForRelease__12AIState_Base_80072830": "TestForRelease__12AIState_Base",
-        "___12AIState_Base_80072838": "___12AIState_Base"
+        "___12AIState_Base_80072838": "___12AIState_Base",
+        "___17AIState_NonActive_80072758": "___17AIState_NonActive"
       }
     },
     {

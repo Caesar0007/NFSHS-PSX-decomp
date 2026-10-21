@@ -6,7 +6,10 @@
 extern "C" int sprintf(char *, const char *, ...);
 
 extern tfrontEnd   frontEnd;
-extern int  ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern tTournamentManager tournamentManager;
 extern tTrackManager      trackManager;
 extern short SelectListTrackDirection[], SelectListOffOn[];

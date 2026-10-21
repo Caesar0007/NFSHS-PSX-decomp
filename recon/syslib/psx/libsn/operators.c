@@ -3,8 +3,14 @@
  *   `operator new`/`new[]` -> reservememadr(0, size, 0); `operator delete`/`delete[]` -> purgememadr.
  *   GCC 2.x lowers new/delete to these __builtin_* entry points. */
 
-extern void *reservememadr(int mode, unsigned size, int align); /* SN heap @0x800E533C */
-extern void  purgememadr(void *p);                              /* SN heap @0x800E5540 */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "eaclib/psx/eacpsxz/memstd.h"
+#ifdef __cplusplus
+}
+#endif
 
 /* NOTE: the four __builtin_* allocator hooks are canonically defined in
  * game/common/new.cpp (same VAs @0x800A3D5C/D84/DAC/DCC).  Disabled here to

@@ -50,6 +50,9 @@ void FETextRender_WordWrapTextRGB(char*, RECT&, int);
 int  FEInput_GetKeyFromPlayer(tPlayer, long);
 extern int CURRENTPLAYER;
 extern "C" int MCRD_handlecardevents(int);  extern "C" CARDINFO_def *MCRD_getcard(int);
-extern "C" void blockmove(void *, void *, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/blkmov.h"
+}
 extern "C" void PAD_update(void);
 #endif

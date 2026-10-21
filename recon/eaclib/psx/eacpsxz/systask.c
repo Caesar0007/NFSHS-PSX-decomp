@@ -33,7 +33,9 @@ typedef struct SYSTEM_TASK_SUB {
     int busy;
 } SYSTEM_TASK_SUB;
 
-static SYSTEM_TASK_SUB systemtasksubs[16];
+#define SYSTEM_TASK_COUNT 16
+
+static SYSTEM_TASK_SUB systemtasksubs[SYSTEM_TASK_COUNT];
 
 /* addsystemtask @0x800E6AF4 : register a periodic task (or update its slot).  VOID (w32-a10 prototype
  *   audit): the tail `lw v0,gp; addiu v0,-1; sw v0,gp` is the re-entrancy counter's own decrement temp,
@@ -43,9 +45,10 @@ static SYSTEM_TASK_SUB systemtasksubs[16];
  *   Slot pick: an exact fn match always wins its slot; otherwise the first free slot — but when called
  *   re-entrantly (count>0 at entry) the first `count` free slots are skipped (count is decremented per
  *   skipped free slot, a plain register copy — only the +1/-1 bracket touches the global). */
-void addsystemtask(int taskFn, int period, int delay)
+void addsystemtask(unsigned int (*taskFn)(int, int), int period, int delay)
 {
-    int  fn;
+    int  i;
+    unsigned int (*fn)(int, int);
     int  found;
     int  count;
     int *slot;
@@ -54,19 +57,19 @@ void addsystemtask(int taskFn, int period, int delay)
                                                 * INDEX-FORM loop below is what keeps this copy alive
                                                 * (a pointer-walk loop lets fn stay in $a0, no copy) */
     found = -1;
-    taskFn = 0;
+    i = 0;
     count = systemtasklock;                    /* old value kept in a reg across the scan */
     systemtasklock = count + 1;                /* re-entrancy bracket: ++ at entry, -- at exit */
     slot  = (int *)systemtasksubs;
-    for (; taskFn < 0x10; taskFn++) {
-        if (slot[taskFn * 4] == fn) {          /* MATCH: index form (strength-reduces to the oracle's
+    for (; i < SYSTEM_TASK_COUNT; i++) {
+        if (slot[i * 4] == (int)fn) {          /* MATCH: index form (strength-reduces to the oracle's
                                                 * t0 walker) -- do NOT rewrite as *slot/slot+=4 */
-            found = taskFn;                    /* exact match -> (re)use this slot */
-        } else if (slot[taskFn * 4] == 0 && found == -1) {
+            found = i;                    /* exact match -> (re)use this slot */
+        } else if (slot[i * 4] == 0 && found == -1) {
             if (count != 0)                    /* MATCH: != polarity -> beqz to the shared found=i block */
                 count--;                       /* skip `count` free slots when re-entrant */
             else
-                found = taskFn;                /* first non-skipped free slot */
+                found = i;                /* first non-skipped free slot */
         }
     }
     if (found != -1) {
@@ -83,7 +86,7 @@ void addsystemtask(int taskFn, int period, int delay)
          *      Reusing `found` merges the two: its refs go 9 -> 14, and the $v1 preference the
          *      pointer carries becomes FOUND's preference.  Hence the `(int)`/`(int *)` casts --
          *      they are the only way to keep one C variable across the index->pointer change.
-         *  (b) the deadline temp reuses `taskFn` (the loop counter i), NOT `count`.  The libticks
+         *  (b) the deadline temp reuses `i` (the loop counter), NOT `count`.  The libticks
          *      load is locally allocated to $a0, and whichever variable receives `libticks+delay`
          *      inherits a preference for $a0 -- that is retail's i-in-$a0.  With `count` as the
          *      temp (w31/w32 shape) the preference landed on count and the pair swapped.
@@ -93,20 +96,20 @@ void addsystemtask(int taskFn, int period, int delay)
          *      the `lui/addiu` pair (catalog: join-block fresh materialization + operand order). */
         int *base = (int *)systemtasksubs;
         found  = (int)((found * 4) + base);    /* slot pointer, in found's own register */
-        taskFn = libticks + delay;             /* MATCH: libticks read AT its use inside the if */
-        ((int *)found)[0] = fn;
+        i = libticks + delay;             /* MATCH: libticks read AT its use inside the if */
+        ((int *)found)[0] = (int)fn;
         ((int *)found)[1] = period;
         ((int *)found)[3] = 0;
-        ((int *)found)[2] = taskFn;
+        ((int *)found)[2] = i;
     }
-    systemtasklock = systemtasklock - 1;
+    systemtasklock--;
 }
 
 /* delsystemtask @0x800E6BA8 : remove the task whose fn matches.  PASS (w31-a5).
  * The apparent return value in decompiler output is incidental: every known caller discards it,
  * and the oracle has no return-value funnel (void signature).
  * MATCH levers (both load-bearing):
- *   (1) `for (; i < 0x10; i++)` with the break test in the body -- a do/while form makes gcc
+ *   (1) `for (; i < SYSTEM_TASK_COUNT; i++)` with the break test in the body -- a do/while form makes gcc
  *       PEEL the first `*slot == fn` check out of the loop and rotate the break test to the
  *       back edge (+5 insns); the for-form (entry test provably true at i=0) compiles to the
  *       oracle's straight do-while with the `i<16` back-edge and the break jumping to the
@@ -114,18 +117,19 @@ void addsystemtask(int taskFn, int period, int delay)
  *   (2) the array-to-`int *` base conversion is kept explicit.  It gives the
  *       oracle's separate-temp address materialization (`lui v0; addiu a2,v0`)
  *       while preserving the recovered `SYSTEM_TASK_SUB[16]` definition. */
-void delsystemtask(int fn)
+void delsystemtask(unsigned int (*taskFn)(int, int))
 {
+    unsigned int (*fn)(int, int) = taskFn;
     int  i    = 0;
-    int *base = systemtasksubs;
+    int *base = (int *)systemtasksubs;
     int *slot = base;
-    for (; i < 0x10; i++) {
-        if (*slot == fn)
+    for (; i < SYSTEM_TASK_COUNT; i++) {
+        if (*slot == (int)fn)
             break;
-        slot = slot + 4;
+        slot += 4;
     }
-    if (i < 0x10) {
-        if (base[i * 4] == fn)
+    if (i < SYSTEM_TASK_COUNT) {
+        if (base[i * 4] == (int)fn)
             base[i * 4] = 0;
     }
 }
@@ -167,7 +171,7 @@ unsigned int systemtask(int arg1)
         }
         i++;
         p++;
-        if (i < 0x10) goto next;
+        if (i < SYSTEM_TASK_COUNT) goto next;
     }
     return result;
 }

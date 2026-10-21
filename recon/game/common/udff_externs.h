@@ -3,11 +3,13 @@
 #define UDFF_EXTERNS_H
 
 /* ---- libc + harvested eaclib ---- */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-char *loadfileadrz(char *name, void *destination);
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
+extern "C" {
 void *memcpy(void *destination, const void *source, unsigned int size);
-int purgememadr(void *ptr);
-void *reservememadr(const char *name, int size, int memory_class);
 }
 
 #endif

@@ -2,7 +2,11 @@
 #ifndef _GAME_COMMON_AIPHYSIC_EXTERNS_H_
 #define _GAME_COMMON_AIPHYSIC_EXTERNS_H_
 
-extern "C" int fixedmult(int, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/trnspos.h"
+}
 int AIScript_DoReAction(AIScript_t *script, AIScript_tAIReaction testReaction);
 void AIPhysic_ChangeDirection(Car_tObj *car, int dir);
 void AIPhysic_HandleDirection(Car_tObj *car);
@@ -69,10 +73,6 @@ void   AIPhysic_CheckForGripReduction(Car_tObj *carObj);
 void   AIPhysic_InitCar(Car_tObj *carObj);
 
 /* external callees */
-extern "C" int  fixeddiv(int, int);
-extern "C" int  rdiv(int, int);   /* same fn as fixeddiv @0x800E4404 (SYM alias) — declare both */
-extern "C" int  intatan(int, int);
-extern "C" void transpose(matrixtdef *src, matrixtdef *dst);
 int  Sched_ExecuteCheck(int a, int b, int dist, int objID, int *t, int *et, int *it, int forceNoSimOptz);
 void AIWorld_CalcSpeed(Car_tObj *carObj);
 int  AIWorld_CalcLateralVelocity(Car_tObj *carObj);

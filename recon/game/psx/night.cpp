@@ -1082,10 +1082,10 @@ void Night_InitNightDriving(void)
     mem = (char *)loadshapeadr(name,(void *)0x0);
     blockmove(mem,nightfile,filesize(name));
     purgememadr(mem);
-    /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.c: `void *locateshape(void
-       *shapefile,int *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
+    /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.h: `void *locateshape(void
+       *shapefile, char *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
        a phantom read of the stale blockmove size. */
-    mem = (char *)locateshape(nightfile,(int *)"nght");
+    mem = (char *)locateshape(nightfile,"nght");
     Night_gNightTbl = mem + 0x10;
     Night_InitPlayerHeadLightColor(0);
     if (GameSetup_gData.cops != 0) {

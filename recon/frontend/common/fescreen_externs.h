@@ -28,12 +28,16 @@ struct FEScreen_DrawViewCodegenView {
 #define textType_ScreenInfo 4
 
 /* ===== globals ===== */
-extern int            ticks;                       /* @0x8013dcac; scalar owned by vars.c */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nasync.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern char          *Paths_Paths[];
 extern int            Draw_gPlayer1View;             /* @0x8013d3cc */
 extern Draw_tView     Draw_gView[];                  /* @0x8011ec54 */
 extern dflip          gEnviro[2];                    /* @0x8011f424 */
-extern int            screenheight;
 extern tTexture_ShapeInfo *gCurrentShapes;           /* @0x800517cc */
 
 /* ===== statics owned by FEScreen.obj ===== */
@@ -63,13 +67,6 @@ void  FeAudio_systemtask(int);
 
 /* ===== libc / libgpu / libetc ===== */
 extern "C" {
-unsigned int asyncloadfile(char *name, void *memclass);
-unsigned int asyncloadfileat(char *name, char *destination);
-void cancelasyncload(unsigned int handle);
-char *getasyncreadadr(unsigned int handle);
-int getasyncreadstatus(unsigned int handle);
-int purgememadr(void *address);
-void *reservememadr(char *name, int size, int memclass);
 int sprintf(char *buffer, const char *format, ...);
 int DrawSync(int mode);
 int VSync(int mode);

@@ -61,7 +61,7 @@ int reorthogonalize(int *M)   /* @0x800F02E4 */
     mtx mtm, mt, A, S, acc;
     register int it, k;
     for (it = 0; it < 4; it++) {
-        transpose(M, mt.m);                            /* mt  = M^T            */
+        transpose((matrixtdef *)M, &mt);              /* mt  = M^T            */
         transmult(mt.m, M, mtm.m);                /* mtm = M^T M          */
         submatrix(mtm.m, (int *)identitymatrix, A.m);  /* A   = M^T M - I      */
         S = *(mtx *)identitymatrix;

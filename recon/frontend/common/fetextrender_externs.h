@@ -23,8 +23,11 @@ extern "C" int textpixels(char *s);  char *TextSys_Word(int id);  int TextSys_Wo
 void  s_lower(char *s);
 void  PSXDrawTransSquare(int color, int x, int y, int w, int h, short abe);
 void  FeDraw_SetABRMode(int abr);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void blockmove(...);
+#include "eaclib/psx/eacpsxz/blkmov.h"
+}
+extern "C" {
 int sprintf(...);
 char *strcpy(...);
 unsigned int strlen(...);

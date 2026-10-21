@@ -129,7 +129,6 @@ void CopSpeak_Stop(void);
 void CopSpeak_Cancel(void);
 void CopSpeak_SilenceCop(Car_tObj *car, int playerIndex);
 void AudioMus_StopSong(int fadeticks);
-void systemtask(int taskFlag) asm("systemtask");
 extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
 extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
 /* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused

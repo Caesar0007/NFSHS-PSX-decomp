@@ -27,7 +27,10 @@ extern void  Skidmark_Add(tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int
 extern void  Skidmark_AddStretch(Skidmark_Segment **save, int *savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type, int slice);
 extern void  Skidmark_Stretch(Skidmark_Segment *save, int savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type);
 extern void  Skidmark_EndStretch(Skidmark_Segment *save, int savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type);
-extern "C" int random(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/random.h"
+}
 
 /* ---- this module (forward decls for intra-TU calls) ---- */
 extern void TrgSfx_InitTrgSfx(void);

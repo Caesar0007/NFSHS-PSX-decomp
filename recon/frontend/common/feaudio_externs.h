@@ -23,13 +23,14 @@ extern int         gMasterFENarrationLevel, gMasterMusicLevel, gStopCommentaryNo
 /* free functions (SNDPSXZ.LIB + nsync + CRT; sigs inferred from call sites) */
 void   AudioMus_Volume(int);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void   asyncidle(...);
-int    asyncloadsegment(...);
-int    getasyncreadstatus(...);
-int    purgememadr(...);
-void  *reservememadr(...);
-void   setasyncfile(...);
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nasync.h"
+#include "eaclib/psx/eacpsxz/nullfunc.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+}
+extern "C" {
 void   SNDautovol(...);
 int    SNDbankadd(...);
 void   SNDbankheadercopy(...);
@@ -42,7 +43,6 @@ int    sprintf(...);
 int    strcmp(...);
 char  *strcpy(...);
 char  *strncpy(...);
-int    systemtask(...);
 }
 
 /* same-TU forward decls (called before defined) */

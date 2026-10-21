@@ -36,11 +36,14 @@ extern void      Texture_MenuReleaseClutId(short id);
 extern void      Texture_Vramf(shapetbl *s, int x, int y, int w, int h);
 
 /* ---- eaclib (EACPSXZ) text/mem helpers ---- */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-extern unsigned int geti(void *p, char nbytes);  /* read n-byte field */
-extern void         setfont(int fontId);
-extern void         waitdraw(void);
-extern void        *resizememadr(void *ptr, int size);
+#include "eaclib/psx/eacpsxz/getm.h"
+#include "eaclib/psx/eacpsxz/primate.h"
+#include "eaclib/psx/eacpsxz/resize.h"
+#include "eaclib/psx/eacpsxz/textset.h"
+}
+extern "C" {
 }
 
 #endif

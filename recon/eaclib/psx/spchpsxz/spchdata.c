@@ -23,7 +23,7 @@ extern int gLastTick;
 SPCHSampleRequestFn gSampleRequest = 0;                                   /* @0x80137094 */
 int  (*gSentenceRuleTest)(unsigned int, unsigned int, int) = 0;           /* @0x80137098 */
 void (*gSentenceRuleSet)(unsigned int, unsigned int, int) = 0;            /* @0x8013709C */
-int gReparm = 0;                                                          /* @0x801370A0 */
+SPCHReparamFn gReparm = 0;                                               /* @0x801370A0 */
 int gTrace = 0;                                                           /* @0x801370A4 */
 SPCHAllocFn gMemAlloc = 0;                                                /* @0x801370A8 */
 SPCHFreeFn  gMemFree = 0;                                                 /* @0x801370AC */

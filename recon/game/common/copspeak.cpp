@@ -506,7 +506,7 @@ void CopSpeak_StartUp(void)
     }
 
     purgememadr(header);
-    bank->FileOpen = FILE_opensync(filename,1,100,bank);
+    bank->FileOpen = FILE_opensync(filename,1,100,&bank->FileHandle);
   }
 
   CopSpeak_gNumTrackSfx = 0;
@@ -532,7 +532,7 @@ void CopSpeak_StartUp(void)
       }
     }
     purgememadr(header);
-    bank->FileOpen = FILE_opensync(filename,1,100,bank);
+    bank->FileOpen = FILE_opensync(filename,1,100,&bank->FileHandle);
   }
 
   switch (GameSetup_gData.userSetting.language) {
@@ -550,8 +550,8 @@ void CopSpeak_StartUp(void)
   header = (char *)loadbigfileheader(filename,(void *)0x10);
   if (header != (char *)0x0) {
     CopSpeak_tBank *bank = &Copspeak_gBank[2];
-    long offset;
-    long size;
+    int offset;
+    unsigned int size;
 
     if ((locatebigentryz(header,"oneshots.txt",0,&offset,&size) != (void *)0x0) &&
         (size != 0)) {
@@ -561,7 +561,7 @@ void CopSpeak_StartUp(void)
       int i;
       char *name;
 
-      bank->FileOpen = FILE_opensync(filename,1,100,bank);
+      bank->FileOpen = FILE_opensync(filename,1,100,&bank->FileHandle);
       FILE_readsync(bank->FileHandle,offset,(int)list,size,100);
       p = list;
       quoted = 0;

@@ -39,10 +39,12 @@ extern Draw_tPixMap    *gFlarePixmap[3];          /* 0x80112b88 */
 
 /* ---- PsyQ libgpu / libgte + eaclib + helpers ---- */
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int random(void);
-int fixedatan(int y, int x);
-int isqrt(int value);
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/random.h"
+}
+extern "C" {
 long VectorNormal(VECTOR *input, VECTOR *output);
 MATRIX *RotMatrixZ(long angle, MATRIX *matrix);
 void SetDrawMode(DR_MODE *packet, int dfe, int dtd, int tpage, RECT *window);

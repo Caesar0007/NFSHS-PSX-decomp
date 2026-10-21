@@ -440,7 +440,7 @@ int AudioEng_StartUp(int player,char *carname)
       long offset;
       char *name;
 
-      name = (char *)locatebigentry(header,(char *)0x0,i,&offset,&size);
+      name = (char *)locatebigentry(header,(char *)0x0,i,(int *)&offset,(unsigned int *)&size);
 
       if ((wildcard((u_char *)name,"*.bnk") != 0) && !bankloaded)
       {

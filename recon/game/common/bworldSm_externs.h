@@ -11,7 +11,12 @@ extern int  xzsquaredist32(coorddef *, coorddef *);
 extern int BWorld_gChunkBuildList[];
 int  Math_DistXZ(coorddef *a, coorddef *b);
 void Math_NormalizeVector(coorddef *v);
-extern "C" void crossproduct(coorddef *a, coorddef *b, coorddef *out);
-extern "C" int fixedmult(int a, int b);
+extern "C" {
+#include "eaclib/psx/eacpsxz/crossprd.h"
+}
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+}
 
 #endif /* _GAME_COMMON_BWORLDSM_EXTERNS_H_ */

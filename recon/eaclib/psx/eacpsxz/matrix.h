@@ -6,7 +6,7 @@
 /* 36-byte matrix as a STRUCT: the oracle's 4-word/iter copy loops (+1-word tail, end-ptr
  * compare vs base+0x20) are gcc's movstrsi block-move expansion of STRUCT ASSIGNMENTS --
  * per-element copy loops do NOT emit this shape. */
-typedef struct { int m[9]; } mtx;
+typedef matrixtdef mtx;
 
 extern int identitymatrix[9];
 

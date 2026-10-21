@@ -8,7 +8,10 @@ extern tTournamentManager tournamentManager;
 extern tTrackManager trackManager;
 extern tGlobalMenuDefs *menuDefs;
 /* P892: vars.obj scalar at NFS4 019199/8013DCAC; NFS2 13bb6c records INT. */
-extern int ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern int kRGBVals[28];
 extern char textDefinitions[14][6];
 /* P885: SYM56d925 is one PTR cell; the pointed-to shapes are the array. */

@@ -6,6 +6,28 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-21 main integration and commit checkpoint.
+
+Commit63744c78 records the verified25-file source/SLD restoration above the
+old021dd767 base. origin/main advanced by five commits through16e5c561 while
+that work was in progress. Merge those commits without replacing history.
+Resolve four overlapping files by retaining the restored R3DCAR source scopes/
+control flow and canonical PsyQ sprintf signature, while adopting main's owner
+library headers and its typed matrix-member call arguments. Keep AudioEng's
+retail LONG size/offset locals; use explicit same-word argument views for the
+canonical locatebigentry prototype, rather than changing their SYM types.
+
+Both full SOURCE-ONLY reconstruction and strict expected/oracle builds complete
+without failed/skipped TUs. build/nc12/merge_main_20261021_proof.json records
+fresh489/489 detailed/branch PASS, all489 pre-merge local/frame/scope/SLD tuples
+unchanged, all148 strict and112 absolute seals preserved, and no previously
+matching named-type record lost. Separately compare all21 whole normal ELFs
+and complete native CPE to the prior checkpoint: all remain byte-identical.
+Tests105, vtable1368, policy/relink/canonical/overlap/foreign checks pass;
+actual linked RECON remains299819/299819 identical words. Generated build
+diagnostics and unrelated untracked files are excluded from the commit.
+These integration checks do not complete the broader original-source goal.
+
 2026-10-21 BWORLD: two more complete SLD contracts; carrier controls stay open.
 
 The Onyx round was verified progress. This follow-up examines actual remaining

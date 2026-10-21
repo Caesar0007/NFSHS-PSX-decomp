@@ -1,6 +1,8 @@
 #ifndef _SPCH_TYPES_H_
 #define _SPCH_TYPES_H_
 
+typedef int (*SPCHReparamFn)(int index, unsigned int *eventArgs);
+
 /* VoxBank: one speech sample bank blob (layout recovered by access census across
  * spchbank/spchpick/spchsamp, 2026-09-04 -- the lib's SYM is bare, so every field
  * below is evidenced by at least one read/write site, most by several TUs). */
@@ -25,7 +27,7 @@ typedef struct {
     unsigned short priority;      /* +0x4 slot eviction + winner choice */
     unsigned char  numSentences;  /* +0x6 OrderSentences/ChooseSentence bound; also sizes the rule data */
     signed char    numRules;      /* +0x7 2-byte rules {idByte, type<<4|paramIdx} start at +0xc+2*numSentences (iSPCH_GetRuleDataAddr) */
-    unsigned char  _unk8;         /* +0x8 (no read sites found) */
+    signed char    repeatLimit;   /* +0x8 maximum repeats for iSPCH_RepeatEvent; <= 0 disables repeats */
     signed char    acceptProb;    /* +0x9 accept probability; 'd' tags the kept-event class */
     unsigned char  flags;         /* +0xa bit0 = filter-length, bit2 = keep-till-expires */
     unsigned char  _unkB;         /* +0xb (no read sites found) */

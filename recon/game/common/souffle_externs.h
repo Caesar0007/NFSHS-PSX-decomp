@@ -20,11 +20,11 @@ extern int gCISouffle;
 extern int gTMoveSouffle;
 extern int gWindDir;
 
-extern "C" int random(...);
-extern "C" int fastintcos(...);
-extern "C" int fastintsin(...);
-extern "C" int fixedmult(...);
-extern "C" void *reservememadr(...);
-extern "C" int purgememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/random.h"
+}
 
 #endif

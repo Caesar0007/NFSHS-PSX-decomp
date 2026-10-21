@@ -65,12 +65,7 @@ struct CRVECTOR4 {
 typedef struct CRVECTOR4 CRVECTOR4;
 #endif
 
-struct RECT {
-    short x, y, w, h;
-};
-#ifndef __cplusplus
-typedef struct RECT RECT;
-#endif
+#include "shared/RECT.h"
 
 struct DR_ENV {
     unsigned long tag;
@@ -140,7 +135,7 @@ typedef unsigned int size_t;
 typedef unsigned char  u_char;
 typedef unsigned short u_short;
 typedef unsigned int   u_int;
-typedef unsigned long  u_long;
+#include "shared/u_long.h"
 typedef unsigned short ushort;
 #ifdef NFS4_EA_PSX_INCOMPLETE_PHYSADR
 /* Some retail owners retain only the public pointer typedef.  Keep the SDK's

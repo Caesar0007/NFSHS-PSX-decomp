@@ -5,7 +5,7 @@
     python tools/symfn.py --all                 # every function, address order -> build/sym/symfn_all.txt
 
 Prints, from the retail SYM dump (tools/retail_sym.py makes it from rom/NFS4.SYM):
-  * where: source file, first/last line, address range, frame (fsize, saved-register mask, mask offset);
+  * where: source file, first/last line, address range, return type (from the matching EXT/STAT record), frame (fsize, saved-register mask, mask offset);
   * scopes and locals: the block tree with ABSOLUTE line numbers (the SYM stores block lines relative to the
     function's first line) and the address each block opens/closes at; every parameter and local is printed
     inside the block that declares it -- storage class, home (register or sp offset), type, name;
@@ -68,6 +68,33 @@ def function_block(lines, fn, start_index=0):
     return None, None
 
 
+SYM_DEF = re.compile(r'Def2? class (EXT|STAT) type (.+?) size (\d+)(?: dims (\d+(?: \d+)*))?(?: tag (\S*))? name (\S+)$')
+
+
+def function_return_types(lines):
+    """Return {(address, name): return type} from function EXT/STAT records."""
+    result = {}
+    for ln in lines:
+        m = REC.match(ln)
+        if not m:
+            continue
+        d = SYM_DEF.match(m.group(3))
+        if not d:
+            continue
+        cls, typ, _size, dims, tag, name = d.groups()
+        if cls not in ('EXT', 'STAT') or not typ.startswith('FCN '):
+            continue
+        # In a SYM function record, FCN is the function-type constructor; the
+        # remainder describes its result (e.g. FCN INT or FCN PTR STRUCT).
+        typ = typ[4:]
+        if tag:
+            typ += ' ' + tag
+        if dims and dims.split()[0] != '0':
+            typ += ''.join('[%s]' % n for n in dims.split()[1:])
+        result[(int(m.group(1), 16), name)] = typ or 'unknown'
+    return result
+
+
 _SLD = None
 
 
@@ -127,7 +154,7 @@ def annotate(img, syms, start, lo, hi, fn_lo, fn_hi):
     return out
 
 
-def show(fn, lines, img, syms, with_code, start_index=0):
+def show(fn, lines, img, syms, with_code, start_index=0, return_types=None):
     hdr, recs = function_block(lines, fn, start_index)
     if hdr is None:
         print('%s: not in the SYM' % fn); return
@@ -138,6 +165,10 @@ def show(fn, lines, img, syms, with_code, start_index=0):
     eline = re.search(r'line (\d+)', end_rec.group(3))
     print('== %s' % fn)
     print('   %s : lines %s..%s   %08X..%08X (%d bytes)' % (hdr.get('file', '?'), fline, eline.group(1) if eline else '?', start, end, end - start))
+    if return_types is None:
+        return_types = function_return_types(lines)
+    ret_type = return_types.get((start, fn))
+    print('   return type: %s' % (ret_type if ret_type else 'not recorded'))
     print('   frame %s bytes, saved mask %s, mask offset %s, return reg %s' % (hdr.get('fsize'), hdr.get('mask'), hdr.get('maskoffs'), hdr.get('retreg')))
 
     # locals INSIDE the scope that owns them: a variable declared in a nested block (a `for (int i ...)`
@@ -188,6 +219,7 @@ def show(fn, lines, img, syms, with_code, start_index=0):
 def main():
     with_code = '--no-code' not in sys.argv
     lines = load_sym()
+    return_types = function_return_types(lines)
     img = None
     for cand in (ROOT / 'rom' / 'nfs4-f.exe', ROOT / 'build' / 'full_link' / 'nfs4.exe'):
         if cand.is_file():
@@ -213,7 +245,7 @@ def main():
             for _, j, name in blocks:
                 buf = io.StringIO()
                 with contextlib.redirect_stdout(buf):
-                    show(name, lines, img, syms, with_code, start_index=j)   # by index: same-named statics stay apart
+                    show(name, lines, img, syms, with_code, start_index=j, return_types=return_types)   # by index: same-named statics stay apart
                 f.write(nl + '=' * 110 + nl + buf.getvalue())
         print('wrote %s: %d functions, %d bytes' % (path, len(blocks), path.stat().st_size))
         return
@@ -222,7 +254,7 @@ def main():
     if not args:
         sys.exit(__doc__)
     for fn in args:
-        show(fn, lines, img, syms, with_code)
+        show(fn, lines, img, syms, with_code, return_types=return_types)
         print()
 
 

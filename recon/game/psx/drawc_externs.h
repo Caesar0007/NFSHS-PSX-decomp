@@ -81,19 +81,21 @@ extern Draw_tPixMap *gShadowPixmap[2];
 extern Draw_tPixMap *gShadowPixmap0 asm("gShadowPixmap");
 extern int gShowroomLights;  /* TODO type-refine */
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+#include "eaclib/psx/eacpsxz/timer.h"
+#include "eaclib/psx/eacpsxz/trnsfrm.h"
+}
 extern "C" {
 u_long *ClearOTagR(u_long *ot, int n);
 long DrawSync(long mode);
-int gettick(void);
-void *loadfileadr(char *name, int flags);
-int purgememadr(void *ptr);
-void *reservememadr(const char *name, int size, int flags);
 MATRIX *RotMatrix(SVECTOR *r, MATRIX *m);
 void SetDrawMode(DR_MODE *packet, int dfe, int dtd, int tpage, RECT *window);
 int sprintf(char *buffer, const char *format, ...);
 char *strcat(char *destination, const char *source);
 char *strcpy(char *destination, const char *source);
-void transform(void *source, void *matrix, void *destination);
 }
 
 #endif

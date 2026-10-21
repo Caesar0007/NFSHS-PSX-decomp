@@ -15,6 +15,11 @@ extern void AudioMus_SysCleanUp(void);
 extern void AudioMus_SysStartUp(int, int, char *);
 
 /* ---- C runtime / eaclib sound and memory boundary ---- */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
 extern "C" {
 int SNDSYS_getopts(...);
 void SNDSYS_init(...);
@@ -25,10 +30,6 @@ int SNDbankadd(...);
 void SNDbankheadercopy(...);
 int SNDbankheadersize(...);
 int SNDbankremove(...);
-int filesize(...);
-char *loadfileadrz(...);
-int purgememadr(...);
-void *reservememadr(...);
 char *strcat(...);
 char *strcpy(...);
 }

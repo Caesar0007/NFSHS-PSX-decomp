@@ -4,7 +4,12 @@
 #define _FRONTEND_PSX_MDEC_EXTERNS_H_
 #include "mdec_types.h"
 
-extern int timerhz;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 /* MATCH: unsized asm-label view of `ticks` -- a bare scalar extern compiles to the
    unschedulable `lw $r,sym` assembler macro (no %hi pseudo, so no CSE); the array
    view restores cc1's own %hi/%lo split so the base survives in a callee-saved reg
@@ -26,9 +31,5 @@ void DecDCTout(u_long *buf, long size);
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
 extern "C" int DrawSync(int mode);
 extern "C" int LoadImage(RECT *rect, u_long *p);
-extern "C" void blockclear(void *dst, int n);
-extern "C" int purgememadr(void *ptr);
-extern "C" void *reservememadr(const char *name, int size, int memory_class);
-extern "C" int systemtask(int);
 
 #endif

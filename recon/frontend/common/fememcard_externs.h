@@ -7,7 +7,16 @@
 /* P884: relocate the existing volatile polling qualification to the genuine
    scalar word. The SYM ticks record is untyped and does not establish CV; this preserves
    the existing IRQ polling semantics, not a proved original keyword choice. */
-extern volatile int ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/addtimer.h"
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/crc.h"
+#include "eaclib/psx/eacpsxz/eac_shape.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+#include "eaclib/psx/eacpsxz/timer.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern tfrontEnd    frontEnd;
 extern tFEApplication *FEApp;   /* P885: native SYM4b4f01 is one PTR STRUCT. */
 extern char        *Paths_Paths[];
@@ -66,19 +75,9 @@ void UpdateMusic(tFEApplication*) asm("UpdateMusic__14tFEApplication");
 extern "C" {
 int VSync(...);
 void PAD_restore(...);
-int addtimer(...);
-void blockclear(...);
-void blockmove(...);
-unsigned long crc16(...);
-int deltimer(...);
-int loadshapeadr(...);
 void padinit(...);
-int purgememadr(...);
 int rand(...);
-void *shapepointer(...);
 int sprintf(...);
-int systemtask(...);
-void timedwait(...);
 
 int   MCRD_handlecardevents(int);
 void  MCRD_savefile(int, MCRDFILE_def*);

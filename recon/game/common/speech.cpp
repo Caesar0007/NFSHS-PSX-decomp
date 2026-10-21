@@ -519,7 +519,7 @@ int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *h
 
   bcount = 0;
   bsize = 0;
-  if (locatebigentry(header,"j:eventdat\\event.dat",0,&offset,(int)&size) != 0) {
+  if (locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size) != 0) {
     int filecount;
     char *c;
 
@@ -631,7 +631,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
   id = 0;
   dt = 0;
   data = (char *)this->fBankOffset + this->fBankCount * 4;
-  locatebigentry(header,"j:eventdat\\event.dat",0,&offset,(int)&size);
+  locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size);
   FILE_readsync(this->fFileHandle,offset,data,size,100);
   SPCH_ResolveData((VoxEventDat *)data);
   c = header + 0x10;

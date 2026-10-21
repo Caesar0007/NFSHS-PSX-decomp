@@ -50,9 +50,12 @@ int   TextSys_WordX(int wordnum);
 int   TextSys_WordY(int wordnum);
 void  trap(int code);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/blkmov.h"
+}
 extern "C" {
 u_short PAD_state(int padID);
-void blockmove(void *source, void *destination, int size);
 int sprintf(char *buffer, const char *format, ...);
 }
 

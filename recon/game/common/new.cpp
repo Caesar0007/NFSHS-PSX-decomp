@@ -2,9 +2,11 @@
  *   4 fns -> eaclib EACPSXZ reservememadr / purgememadr). */
 #include "game_common_min_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void *reservememadr(char *name, int size, int memory_class);
-int purgememadr(void *ptr);
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
+extern "C" {
 }
 
 /* new.obj-owned allocator state (SYM EXT PTR CHAR @0x8013d26c). */

@@ -21,11 +21,12 @@ short Front_GetTrackRaced(void);
 char *PlayerName(int player);
 tCarInfo *GetCarFromSimID(tCarManager *mgr, short carID) asm("GetCarFromSimID__11tCarManagers");   /* tCarManager:: method (external) */
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void blockmove(...);
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+}
+extern "C" {
 void *memset(...);
-int purgememadr(...);
-void *reservememadr(...);
 char *strcpy(...);
 }
 

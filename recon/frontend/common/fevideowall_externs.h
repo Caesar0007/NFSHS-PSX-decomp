@@ -3,7 +3,10 @@
 #define _FE_FEVIDEOWALL_EXTERNS_H_
 #include "fevideowall_types.h"
 
-extern int ticks; /* @0x8013dcac; scalar owned by vars.c */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 
 /* TV tiles (FETv) */
 void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short) asm("InitTV__FR9tTVConfigP18tTexture_ShapeInfos");

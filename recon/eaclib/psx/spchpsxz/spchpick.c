@@ -96,7 +96,7 @@ __asm__("\t.globl\tgSentenceChoice\n\t.globl\tDAT_80148448\n\t.globl\tispch_gPic
 /* iSPCH_MatchSample @0x8010077C : does the unpacked `sample` match the phrase template?  For every
  *   index i < count the sample's cycle bit must be set both in the template's matchValues[i] and,
  *   when nibbles[i] selects one, in that paramTable word.  `bankIdx` is unused. */
-int iSPCH_MatchSample(int bankIdx, VoxSample *sample, VoxPhrase *phraseTemplate, int paramTable)
+int iSPCH_MatchSample(int bankIdx, VoxSample *sample, VoxPhrase *phraseTemplate, int *paramTable)
 {
     int count = phraseTemplate->count;
     int result = 1;
@@ -122,7 +122,7 @@ int iSPCH_MatchSample(int bankIdx, VoxSample *sample, VoxPhrase *phraseTemplate,
             if ((bit & (unsigned int)iSPCH_GetMatchValue(phraseTemplate, i)) != 0) {
                 if (lowNib == 0)
                     result = 1;
-                else if ((bit & (unsigned int)*(int *)(lowNib * 4 + paramTable)) != 0)
+                else if ((bit & (unsigned int)paramTable[lowNib]) != 0)
                     result = 1;
             }
 
@@ -136,7 +136,7 @@ int iSPCH_MatchSample(int bankIdx, VoxSample *sample, VoxPhrase *phraseTemplate,
 
 /* iSPCH_GetPhraseBank @0x80100880 : resolve a phrase template's bank choice (fixed / by-param / sub-bank)
  *   into outChoice[0..1].  Returns 0 on success, nonzero (sign of ~choice) on failure. */
-unsigned int iSPCH_GetPhraseBank(VoxPhrase *phraseTemplate, int paramTable, VoxChoice *outChoice)
+unsigned int iSPCH_GetPhraseBank(VoxPhrase *phraseTemplate, int *paramTable, VoxChoice *outChoice)
 {
     unsigned short wanted = phraseTemplate->bankId;
     unsigned int   flags  = phraseTemplate->modeParam;
@@ -157,7 +157,7 @@ byFind:   /* MATCH: byFind block laid out FIRST (oracle .L8DC precedes byParam .
     outChoice->bankId = (short)choice;
     goto done;
 byParam:
-    choice = *(int *)(param * 4 + paramTable);
+    choice = *(int *)(param * 4 + (int)paramTable); /* MATCH: keep offset-first addu operand order. */
     if (-1 < choice) {
         int voxBase = (int)gVoxBanks;   /* MATCH: separate-temp load (lui v0; lw v1) */
         if ((unsigned int)**(unsigned short **)(choice * 4 + voxBase) != (unsigned int)wanted)
@@ -169,7 +169,7 @@ bySub:
     {
         int *pv;
         choice = iSPCH_FindBank(wanted);
-        pv = (int *)(param * 4 + paramTable);
+        pv = (int *)(param * 4 + (int)paramTable);
         if (iSPCH_TestSubBankBounds(choice, *pv))   /* MATCH: success = fall-through, -1 arm out-of-line */
             outChoice->subBank = (short)*pv;
         else
@@ -244,11 +244,10 @@ unsigned int iSPCH_SampleExists(VoxChoice *choice, VoxBank *bank, int sampleIdx)
 
 /* iSPCH_ChooseSamples @0x80100B4C : collect up to `maxToPick` matching sample indices for `choice` into the
  *   pick pool, returning the count chosen. */
-/* W85-S9 (device purity): `phraseTemplate` / `unused` used to be declared `volatile int`
- * parameters.  The qualifier was INERT here -- dropping it holds PASS 68/68 exactly.  (An
- * addressable spelling `int *p = &phraseTemplate;` in the loop body is NOT equivalent: it costs
- * a frame pointer + the incoming home slots, 22 diffs / 72 insns.) */
-int iSPCH_ChooseSamples(VoxChoice *choice, int maxToPick, VoxPhrase *phraseTemplate, int unused)
+/* The fourth argument is the event-parameter table used by MatchSample (not an unused scalar).
+ * Earlier volatile spellings of the table and phrase pointer were unnecessary; the plain typed
+ * pointers below retain the byte-exact output. */
+int iSPCH_ChooseSamples(VoxChoice *choice, int maxToPick, VoxPhrase *phraseTemplate, int *paramTable)
 {
     int       bankIdx;
     VoxBank  *bank;
@@ -267,7 +266,7 @@ int iSPCH_ChooseSamples(VoxChoice *choice, int maxToPick, VoxPhrase *phraseTempl
         VoxSample tmp;
 
         if (iSPCH_UnPackSample(bank, sampleIdx, &tmp) &&
-            iSPCH_MatchSample(bankIdx, &tmp, phraseTemplate, unused)) {
+            iSPCH_MatchSample(bankIdx, &tmp, phraseTemplate, paramTable)) {
             if (iSPCH_SampleExists(choice, bank, (int)sampleIdx)) {
                 ispch_gPickSamples[pickPos] = sampleIdx;
                 pickPos++;
@@ -375,11 +374,11 @@ void iSPCH_OrderSentences(VoxEvent *event, unsigned char *outOrder)
 }
 
 /* iSPCH_RepeatEvent @0x80100EE0 : whether this in-game event may repeat (under its repeat limit). */
-unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs)
+int iSPCH_RepeatEvent(VoxEvent *event)
 {
-    unsigned int result = 1;
-    if ((unsigned int)*eventArgs == (unsigned int)gVoxInGame[0] && 0 < (signed char)eventArgs[4])
-        result = (unsigned int)(gVoxInGame[1] < (signed char)eventArgs[4]);   /* [1] == gRepeatCount */
+    int result = 1;
+    if (event->id == gVoxInGame[0] && 0 < event->repeatLimit)
+        result = gVoxInGame[1] < event->repeatLimit;   /* [1] == gRepeatCount */
     return result;
 }
 
@@ -408,7 +407,7 @@ end:
  *   (NOT paramTable/ruleByte1); GetPhraseBank's 2nd arg is `paramTable` (NOT filterMode); and
  *   ChooseSamples' last two args are `(int)phraseTemplate, paramTable` (NOT filterMode, 0) -- the
  *   earlier recon's "0/filterMode" both came from reading the WRONG incoming register. */
-int iSPCH_SentenceGetChoices(VoxSentence *sentence, int paramTable, unsigned int ruleByte1,
+int iSPCH_SentenceGetChoices(VoxSentence *sentence, int *paramTable, unsigned int ruleByte1,
                                         unsigned int ruleByte2, int filterMode)
 {
     /* MATCH (w31-a4, 54->?): single result funnel (`fail:` block laid between the rule checks and
@@ -439,61 +438,12 @@ choose:
                 outChoice->firstPick = (short)picked;
                 phraseTemplate = iSPCH_GetOffset8(sentence, sentence->phraseOffs, table);
                 if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
-                    /* MATCH (w34-a9, 7 -> 1 diff): the compare constant is carried by a
-                     * loop-body local `mark` that is SET TWICE in the loop (-2 for the test,
-                     * then -1 for the failure store).  Two sets => loop.c's set_in_loop != 1
-                     * => the `li -2` is NOT a movable, so it stays in the loop and fills the
-                     * `lh`'s load-delay slot exactly like retail (`lh v1,0(s0); li v0,-2;
-                     * bne v1,v0`).  This is the general cure for the move_movables constant
-                     * hoist when the cost model (threshold*savings*lifetime >= insn_count)
-                     * cannot be beaten: give the constant a VARIABLE that the loop rewrites.
-                     * A single-set named local, a volatile local, `(int)` casts and Yoda order
-                     * all leave the hoist in place (all 13 diffs / 83 insns, +fp save/restore).
-                     * RESIDUAL 1 (79/80): gcc cross-jumps our mismatch tail (`result = 0;
-                     * goto out;`) into the `fail:` block, so the `bne` targets .L80101008 with
-                     * `li s4,-1` in its delay slot instead of retail's direct
-                     * `bne ... .L8010109C` + duplicated `addu s4,zero,zero` in the slot.
-                     * That is the known eaclib "retail never merges identical tails" identity
-                     * (catalog wave-6 "no reliable anti-merge lever").  Falsified here:
-                     * `return 0;` and `result = 0; return result;` (both 3 diffs / 81 insns,
-                     * the block lands in $v0 not $s4); inverting the test so the -1 arm is the
-                     * if-body (31 diffs).
-                     * HISTORY (w32-a9, 17 -> 11 diffs, 83 -> 81 insns): the fail test was written
-                     * `*outChoice + 2 != 0` rather than `*outChoice != -2`.  Retail's compare IS
-                     * `lh v1; li v0,-2; bne v1,v0` (the li also filling the lh load-delay slot),
-                     * but as a plain loop-invariant constant our cc1's move_movables hoists that
-                     * `li -2` into a NINTH callee-saved register ($fp): +li, +fp save/restore, and
-                     * a knock-on reschedule of the `li s4,1` result init (retail gets by on s0-s7).
-                     * `(int)` casts, Yoda order and a named load temp all leave the motion in
-                     * place; folding the constant into the compare removes the movable entirely.
-                     * RESIDUAL 7 (81/80) = this compare alone: ours `lh v0; nop; addiu v0,v0,2;
-                     * bnez` (4) vs retail `lh v1; li v0,-2; bne v1,v0` (3, the li filling the lh
-                     * load-delay slot).  w33-a9 also tried the catalog's cure A: a label+goto loop
-                     * DOES kill move_movables, and goto-loop + `!= -2` reaches EXACT 80/80 parity
-                     * -- but at 34 diffs (the un-strength-reduced walker re-colors the whole body),
-                     * so it is not kept.  What is still missing is a source form that keeps the
-                     * reduced loop AND leaves the `li -2` in the block.
-                     * 🏆 w47-a2 SEALED 1 -> PASS (80/80).  NEW ANGLE "PRE-SET THE DEFAULT BEFORE
-                     * THE TEST": the residual was NOT the eaclib never-merges-tails identity.  The
-                     * early-out arm (`if (mismatch) { result = 0; goto out; }`) is a BLOCK whose
-                     * body is byte-identical to the `fail:` block, so jump.c cross-jumps it away,
-                     * the bne then targets `fail:` -- and because that shared block re-sets s4,
-                     * reorg is free to fill the slot from the FALL-THROUGH (`li s4,-1`) instead.
-                     * Writing the default assignment BEFORE the test (`result = 0; if (match)
-                     * { result = -1; *outChoice = result; } goto out;`) leaves NO arm to merge: the
-                     * `result = 0` insn simply PRECEDES the branch, so fill_simple_delay_slots'
-                     * backward scan (which skips over -- but does not stop at -- the conflicting
-                     * `lh`/`li -2` compare feeders) moves it into the bne's delay slot and the
-                     * branch goes straight to the shared epilogue, +1 insn = retail's 80.
-                     * RULE: an oracle branch whose delay slot holds a store the fall-through
-                     * immediately overwrites is a DEFAULT ASSIGNED BEFORE THE TEST, never an
-                     * early-out arm. */
-                    int mark = -2;
+                    /* Start with the ordinary failure result.  The -2 bank sentinel is normalized
+                     * to -1 before returning the more specific failure code. */
                     result = 0;
-                    if (outChoice->bankId == (short)mark) {
-                        mark = -1;
-                        result = mark;
-                        outChoice->bankId = (short)result;
+                    if (outChoice->bankId == -2) {
+                        result = -1;
+                        outChoice->bankId = -1;
                     }
                     goto out;
                 }
@@ -774,7 +724,7 @@ void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
 }
 
 /* iSPCH_MakeSampleRequests @0x80101508 : issue gSampleRequest for each chosen sample; returns total time. */
-int iSPCH_MakeSampleRequests(VoxSentence *sentence, int paramTable)
+int iSPCH_MakeSampleRequests(VoxSentence *sentence, int eventId)
 {
     int samples = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
@@ -800,7 +750,7 @@ int iSPCH_MakeSampleRequests(VoxSentence *sentence, int paramTable)
                 if (sub != -1)
                     spuAddr = spuAddr + sub * stride;
                 samples = samples + tmp.length;
-                gSampleRequest((int)choice->bankId, spuAddr, tmp.length, paramTable);
+                gSampleRequest((int)choice->bankId, spuAddr, tmp.length, eventId);
                 /* MATCH (w32-a9, 23 -> 3 diffs): the -dL "savings-1 lone lui not desirable"
                  * verdict was a CONSEQUENCE of the then-current gp-relative SCALAR form, not a
                  * cost-model identity.  The unsized-array device (catalog SSE / SSE#5) made cc1
@@ -891,7 +841,7 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
     VoxEvent     *event = iSPCH_FindEvent(*eventArgs);
     int           result = 0;
     if (event != 0) {
-        if (iSPCH_RepeatEvent((unsigned short *)event) != 0) {
+        if (iSPCH_RepeatEvent(event) != 0) {
             unsigned int filterMode;
             unsigned int filterFlag;
 
@@ -957,7 +907,7 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                             if ((int)n <= table)
                                 goto out;
                             sentence = iSPCH_GetOffset16(event, event->sentenceOffs, (int)table);
-                            r = iSPCH_SentenceGetChoices(sentence, (int)eventArgs, ruleBits,
+                            r = iSPCH_SentenceGetChoices(sentence, (int *)eventArgs, ruleBits,
                                                          (unsigned int)(unsigned char)ruleTestFlags, (int)filterMode);
                             if (0 < r) {
                                 result = iSPCH_SentenceMakeChoice(sentence, (int)filterMode);

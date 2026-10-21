@@ -23,7 +23,7 @@ extern void iFILE_addbigopencallback(unsigned int id, int status, int *node);   
 extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int datatype, unsigned int param);   /* @0x800EC858 */
 extern void iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd);   /* @0x800EC980 */
 extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3);   /* @0x800EC9AC */
-extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4);   /* @0x800ECB40 */
-extern int iFILE_CommandCompleteCallback(int result);   /* @0x800ED020 */
+extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, void *a4);   /* @0x800ECB40 */
+extern void iFILE_CommandCompleteCallback(int result);   /* @0x800ED020 */
 
 #endif

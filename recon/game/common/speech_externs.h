@@ -5,21 +5,19 @@
 #define SPEECH_EXTERNS_H
 
 /* Narrow eaclib/libc boundary used by this owner. */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int FILE_closesync(...);
-int FILE_opensync(...);
-int FILE_readsync(...);
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+#include "eaclib/psx/eacpsxz/timer.h"
+}
+extern "C" {
 int SNDstop(...);
 void *SetSp(...);
-int fixedmult(...);
-int gettick(...);
-int loadbigfileheader(...);
-void *locatebigentry(...);
 void *memcpy(...);
-int purgememadr(...);
-void *reservememadr(...);
 int sprintf(...);
-int systemtask(...);
 }
 
 /* ---- speech-event trigger fns: SPCHEVNT.C is #included into speech.cpp (it is part of Speech.obj), real prototypes there ---- */

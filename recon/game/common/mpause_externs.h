@@ -16,7 +16,10 @@ extern int   gMasterMusicLevel, gMasterSFXLevel, gMasterEngineLevel,
 extern int   Replay_ReplayMode;           /* replay.obj */
 extern char  Device_gPausePortIndex;      /* device.obj */
 extern SndBnk_t gSndBnk[7];
-extern int   ticks;                       /* sys frame counter (EXT 0x8013dcac) */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern bool  ChangedEnabling;             /* PauseMenu.obj (SYM EXT BOOL 0x8013d2ec) */
 extern GameSetup_tData GameSetup_gData;
 

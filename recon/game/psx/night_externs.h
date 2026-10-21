@@ -57,14 +57,14 @@ extern void  Hrz_CalculateLightning(void);
 extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern int   Camera_GetMode(int player);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void blockmove(void *source, void *destination, int size);
-int filesize(char *filename);
-void *loadshapeadr(char *filename, void *destination);
-void *locateshape(void *shapefile, int *namekey);
-int purgememadr(void *ptr);
-int random(void);
-void *reservememadr(const char *name, int size, int flags);
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/eac_shape.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+#include "eaclib/psx/eacpsxz/random.h"
+}
+extern "C" {
 int sprintf(char *buffer, const char *format, ...);
 }
 

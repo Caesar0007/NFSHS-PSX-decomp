@@ -22,13 +22,12 @@
 extern int GameSetup_gData[];                  /* 0x801131ec */
 extern void  Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid);   /* DrawW: queue skid render */
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int   intatan(int dx, int dz);
-int   fastintcos(int angle);
-int   fastintsin(int angle);
-int   fixedmult(int a, int b);
-void *reservememadr(const char *name, int size, int memory_class);
-int   purgememadr(void *ptr);
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
+extern "C" {
 }
 
 /* ---- this module (forward decls for intra-TU calls) ---- */

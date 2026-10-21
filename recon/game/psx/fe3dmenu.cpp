@@ -94,8 +94,8 @@ void CameraLookAt(matrixtdef *mat,coorddef *camPoint)
   fwdVec.y = -camPoint->y;
   fwdVec.z = -camPoint->z;
   Math_NormalizeVector(&fwdVec);
-  crossproduct(&upVec,&fwdVec,&rightVec);
-  crossproduct(&fwdVec,&rightVec,&upVec);
+  crossproduct(&upVec.x,&fwdVec.x,&rightVec.x);
+  crossproduct(&fwdVec.x,&rightVec.x,&upVec.x);
   mat->m[0] = rightVec.x;
   mat->m[1] = rightVec.y;
   mat->m[2] = rightVec.z;
@@ -147,13 +147,13 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
       targetPos.y = (int)(camY * 65536.0f);
       targetPos.z = (int)(camZ * 65536.0f);
       CameraLookAt(&temp1,&targetPos);
-      fixedxformy(&temp2,camRot << 6);
+      fixedxformy(temp2.m,camRot << 6);
       Math_fasttransmult(&temp1,&temp2,&temp);
       camZ = camZ + camY / 2.5;
       camY = 0.0f;
     }
     else {
-      fixedxformy(&temp,camRot << 6);
+      fixedxformy(temp.m,camRot << 6);
     }
     {
       matrixtdef correct;

@@ -31,7 +31,7 @@ extern char *strcat(char *dst, const char *src);   /* syslib C21 */
 char *shapeext = ".psh";
 
 /* loadshapeadr @0x800F1C3C : load shape `filename` (default-extending it), returns loadpackadr's result. */
-int loadshapeadr(char *filename, void *arg2)
+void *loadshapeadr(char *filename, int memclass)
 {
     char  buf[128];
     char *p;
@@ -49,5 +49,5 @@ int loadshapeadr(char *filename, void *arg2)
     if (*p != '.')
         strcat(buf, shapeext);                      /* append the default extension */
 done:
-    return loadpackadr(buf, arg2);
+    return loadpackadr(buf, memclass);
 }

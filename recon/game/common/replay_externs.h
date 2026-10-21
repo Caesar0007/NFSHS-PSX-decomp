@@ -6,10 +6,11 @@
 #define REPLAY_EXTERNS_H
 
 extern "C" void *memcpy(...);
-extern "C" int FILE_addbigsync(...);
-extern "C" void FILE_delbigsync(...);
-extern "C" char *loadfileadrz(...);
-extern "C" int purgememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+}
 extern "C" int sprintf(...);
 
 /* ---- replay state globals ----

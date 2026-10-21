@@ -2,6 +2,9 @@
 #ifndef SIMPLEMEM_EXTERNS_H
 #define SIMPLEMEM_EXTERNS_H
 
-extern "C" void resizememadr(void *ptr, int size);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/resize.h"
+}
 
 #endif

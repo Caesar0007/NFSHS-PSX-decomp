@@ -136,7 +136,7 @@
 #include "blkfill.h"
 
 /* file-local functions (retail SYM: local labels) */
-static int CD_systaskfunc(void);
+static unsigned int CD_systaskfunc(int arg1, int arg2);
 static void CD_timerfunc(void);
 static void CdReadyHandler(unsigned char intr, unsigned char *result);
 static int dircompare(const void *a, const void *b);
@@ -289,7 +289,7 @@ static inline int rd_le32(const unsigned char *q)
 /* CD_systaskfunc @0x800F9AE8 : disc-swap recovery system task.  Polls CdDiskReady; on a stable disc
  *   (or a timed-out error) it resets the drive, re-arms the read mode + CdReadyHandler, and resumes the
  *   in-flight transfer if one was pending. */
-static int CD_systaskfunc(void)
+static unsigned int CD_systaskfunc(int arg1, int arg2)
 {
     unsigned char result[8];
     unsigned char pos[8];
@@ -350,7 +350,7 @@ static int CD_systaskfunc(void)
                                               call) and reuses it for cachedSector/remLen/ringIdx/
                                               timeout below, instead of re-deriving the address
                                               per field access. */
-        delsystemtask((void *)CD_systaskfunc);   /* remove ourselves */
+        delsystemtask(CD_systaskfunc);   /* remove ourselves */
         CdReset(0);
         mode[0] = 0xA0;
         CdControlB(0x0E, mode, result);
@@ -364,12 +364,11 @@ static int CD_systaskfunc(void)
         if (ctx->remLen > 0) {            /* a transfer was in progress -> resume it */
             ctx->ringIdx = 0;
             ctx->timeout = timerhz[0] * 6;
-            /* ONE-ARGUMENT call at this site (methodology-§3.12 #18, isolated fn-ptr cast):
-             * the oracle's `jal addtimer` here sets ONLY $a0 -- $a1 is left stale even though a
-             * `jal CdReadyCallback` clobbered it two calls earlier, so no second argument was
-             * passed.  (CD_Read's site genuinely passes `dest`, which already lives in $a1
-             * there, so the shared 2-arg declaration stays correct for it.) */
-            ((void (*)(void *))addtimer)((void *)CD_timerfunc);
+            /* ONE-ARGUMENT call at this site: the oracle's `jal addtimer` sets ONLY $a0 -- $a1
+             * is left stale even though `CdReadyCallback` clobbered it two calls earlier, so no
+             * second argument was passed.  (CD_Read's site genuinely passes `dest`, which already
+             * lives in $a1 there, so the shared addtimer declaration stays one-argument.) */
+            addtimer(CD_timerfunc);
         }
     }
     return 0;
@@ -382,9 +381,9 @@ static void CD_timerfunc(void)
     if (CD_timeout != 0) {
         CD_timeout = CD_timeout - 1;
         if (CD_timeout == 0) {
-            addsystemtask((void *)CD_systaskfunc, 0, 0);
+            addsystemtask(CD_systaskfunc, 0, 0);
             CD_timeout = 0;
-            ((void (*)(void *))deltimer)((void *)CD_timerfunc);
+            deltimer(CD_timerfunc);
         }
     }
 }
@@ -422,8 +421,8 @@ static void CdReadyHandler(unsigned char intr, unsigned char *result)
     done = 0;
 
     if ((*result & 0x10) != 0) {          /* shell open / hard error -> hand off to the recovery task */
-        ((void (*)(void *))deltimer)((void *)CD_timerfunc);
-        addsystemtask((void *)CD_systaskfunc, 0, 0);
+        deltimer(CD_timerfunc);
+        addsystemtask(CD_systaskfunc, 0, 0);
         return;
     }
 
@@ -501,7 +500,7 @@ cdrh_doneTest:
             CD_info &= ~1;
             CD_timeout = 0;
             CD_lastSector = CD_cachedSector;
-            ((void (*)(void *))deltimer)((void *)CD_timerfunc);
+            deltimer(CD_timerfunc);
             if (CD_completionCallback != 0) {
                 /* methodology-§3.12 lever #16 (hold-global-addr-across-call): the oracle parks
                  * &g_currentthread in a CALLEE-SAVED reg ($s0) across savegp/the callback/restoregp
@@ -697,7 +696,7 @@ int CD_Init(int maxOpen, int numEntries, void *buffer, void (*callback)(int))
 
     qsort(CD_dirEntryArray, CD_dirEntryCount, 0x14, dircompare);
     CD_completionCallback = callback;     /* ctx+0x30 */
-    addexit((void *)CD_Restore);
+    addexit(CD_Restore);
     return CD_dirEntryCount;
 }
 
@@ -861,7 +860,7 @@ int CD_Read(int dev, int dest, int offset, int len)
             int gpctx[2];
             CD_timeout = 0;
             CD_info &= ~2;
-            ((void (*)(void *))deltimer)((void *)CD_timerfunc);
+            deltimer(CD_timerfunc);
             if (CD_completionCallback != 0) {
                 savegp(gpctx);
                 CD_completionCallback(1);

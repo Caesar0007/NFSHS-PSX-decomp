@@ -51,8 +51,11 @@ extern int   AIWorld_IsDriveableLaneInSliceRange(int slice, int lookAhead, int r
 extern void  Cars_DoGravityEffectsOnAcc(Car_tObj *car, int n);
 extern int   Udff_GetInt(Udff_tInfo *handle);
 extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
-extern "C" int fixedmult(int a, int b);
-extern "C" int fixeddiv(int a, int b);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/trnspos.h"
+}
 
 /* ---- physics.obj-owned state (SYM Globals) ---- */
 extern int      roadSurfaceFrictionCoeff[10];
@@ -71,8 +74,5 @@ extern int      physics_bblipInit[8];
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
-extern "C" int fixedatan(int y, int x);
-extern "C" int rdiv(int a, int b);
-extern "C" void transpose(matrixtdef *src, matrixtdef *dst);
 
 #endif

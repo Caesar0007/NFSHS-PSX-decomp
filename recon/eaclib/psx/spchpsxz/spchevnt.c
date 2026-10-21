@@ -483,7 +483,7 @@ int SPCH_ChooseSpeech(void)
                     int rc;
                     
                     do {
-                        rc = ((int (*)(int, unsigned int *))gReparm)(i, eventArgs);
+                        rc = gReparm(i, eventArgs);
                         if (-1 < rc)
                             result = iSPCH_ChooseSentence(eventArgs);
                         i++;

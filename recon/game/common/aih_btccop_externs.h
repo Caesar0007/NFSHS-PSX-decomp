@@ -58,8 +58,10 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 void AILife_PlaceCarAtLocation(Car_tObj *c, int rot);
 void AILife_PlaceCarAtLocation(Car_tObj *c, int slice, int lat, int dir, int spd, int rot);
 extern "C" void *memset(void *, int, unsigned int);
-extern "C" int fixeddiv(int, int);
-extern "C" int fixedmult(int, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+}
 extern "C" int SetSp(int);
 extern "C" void __builtin_delete(void *);
 

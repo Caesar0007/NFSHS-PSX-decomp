@@ -337,7 +337,7 @@ void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
               shp->type |= 8;
               r.x = (short)x;
               r.y = (short)y;
-              r.w = (short)((shp->width * shapedepth(shp) + 15) / 16);
+              r.w = (short)((shp->width * shapedepth((unsigned char *)shp) + 15) / 16);
               r.h = shp->height;
               Texture_LoadImage(&r,(u_long *)&shp->data);
             }
@@ -370,7 +370,7 @@ void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
 {
   int rowbytes;
 
-  rowbytes = ((shp->width * shapedepth(shp) + 15) & ~15) >> 3;
+  rowbytes = ((shp->width * shapedepth((unsigned char *)shp) + 15) & ~15) >> 3;
   if (((rowbytes & 2) != 0) && (((u_short)shp->height & 1) == 0)) {
     RECT r;
     int height;

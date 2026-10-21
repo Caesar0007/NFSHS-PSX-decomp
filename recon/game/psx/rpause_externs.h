@@ -16,12 +16,15 @@ extern int        gFlip;                 /* 0x8013d7b4 */
 /* ---- PSX::Draw / libgpu / libetc / eaclib helpers ---- */
 extern DRAWENV *Draw_GetDRAWENV(int view, int buf);
 extern void     Draw_StartFrameRender(void);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/systask.h"
+}
 extern "C" {
 void DrawOTag(u_long *p);
 long DrawSync(long mode);
 int MoveImage(RECT *rect, int x, int y);
 DISPENV *PutDispEnv(DISPENV *env);
-int systemtask(int taskFlag);
 int VSync(int mode);
 }
 

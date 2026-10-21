@@ -3,16 +3,18 @@
 #ifndef _GAME_COMMON_AUDIOTRK_EXTERNS_H_
 #define _GAME_COMMON_AUDIOTRK_EXTERNS_H_
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/random.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+#include "eaclib/psx/eacpsxz/timer.h"
+}
 extern "C" {
 int SNDmemlargestunused(...);
 int SNDover(...);
-int fixedmult(...);
-int gettick(...);
 u_short PAD_state(int padID);
-int purgememadr(...);
-int random(...);
-void *reservememadr(...);
-int systemtask(...);
 }
 
 extern CAudioList *gGameAudioList;

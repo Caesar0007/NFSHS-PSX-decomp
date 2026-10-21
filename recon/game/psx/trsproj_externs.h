@@ -14,6 +14,9 @@ extern long              Camera_gGeomScreen;    /* 0x8013c7dc */
 extern GameSetup_tData   GameSetup_gData;
 
 /* ---- eaclib transform (fixed-point matrix*vector; func_800EAED8) ---- */
-extern "C" void transform(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/trnsfrm.h"
+}
 
 #endif /* TRSPROJ_EXTERNS_H */

@@ -3,15 +3,17 @@
 #define _FE_SCREENS_SCREENTRACKREC_EXTERNS_H_
 #include "screentrackrecords_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-void *reservememadr(char *, int, int);
-int purgememadr(void *);
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
+extern "C" {
 int sprintf(char *, const char *, ...);
 }
 
 extern tfrontEnd   frontEnd;
 /* P892: vars.obj scalar at NFS4 019199/8013DCAC; NFS2 13bb6c records INT. */
-extern int  ticks;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 /* P885: SYM56d925 is one PTR cell; retain the real shape-element index. */

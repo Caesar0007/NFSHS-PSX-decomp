@@ -210,9 +210,9 @@ unsigned char iSPCH_GetRuleSettings(VoxEvent *event, int *values, char *out)
 }
 
 /* iSPCH_CheckSentenceRules @0x8010B58C : 1 if (rule[+2] ^ testVal) masked by rule[+1] and ~clearMask is 0. */
-unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr)
+unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, VoxSentence *sentence)
 {
-    unsigned int active = (unsigned int)*(unsigned char *)(rulePtr + 1) & ~(unsigned int)clearMask;
-    unsigned int delta  = (unsigned int)*(unsigned char *)(rulePtr + 2) ^ (unsigned int)testVal;
+    unsigned int active = (unsigned int)((unsigned char *)sentence)[1] & ~(unsigned int)clearMask;
+    unsigned int delta  = (unsigned int)((unsigned char *)sentence)[2] ^ (unsigned int)testVal;
     return (unsigned int)((delta & active) == 0);
 }

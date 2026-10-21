@@ -3,14 +3,17 @@
 #define _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
 #include "femenuoptions_types.h"
 extern "C" int sprintf(char *, const char *, ...);
-extern "C" int purgememadr(void *);
 extern "C" int GetTPage(int, int, int, int);
 extern "C" int SetDrawMode(DR_MODE *, int, int, int, int);
 extern "C" int SetDrawArea(DR_AREA *, RECT *);
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 #include "shared/pad_module_globals.h"
-extern int ticks;   /* @0x8013dcac; scalar owned by vars.c */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern int PulsateYellow;
 extern short MENUUSERNAME_STARTY;   /* @0x800529b2 ScreenUserName.obj-owned (cross-TU) */
 extern char *Paths_Paths[];

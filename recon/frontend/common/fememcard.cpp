@@ -85,11 +85,11 @@ static void ChecksumData(tMemCardData *memCardData)
 
 {
   memCardData->fSize = 0x14ac;
-  memCardData->frontEndCRC = crc16(&memCardData->frontEnd,0x450);
-  memCardData->carInfoCRC = crc16(&memCardData->carInfo,0xe0);
-  memCardData->trackInfoCRC = crc16(&memCardData->trackInfo,0x10);
-  memCardData->tournamentCRC = crc16(&memCardData->tournament,0xb0);
-  memCardData->recordsCRC = crc16(memCardData->records,0xe9c);
+  memCardData->frontEndCRC = crc16((unsigned char *)&memCardData->frontEnd,0x450);
+  memCardData->carInfoCRC = crc16((unsigned char *)&memCardData->carInfo,0xe0);
+  memCardData->trackInfoCRC = crc16((unsigned char *)&memCardData->trackInfo,0x10);
+  memCardData->tournamentCRC = crc16((unsigned char *)&memCardData->tournament,0xb0);
+  memCardData->recordsCRC = crc16((unsigned char *)memCardData->records,0xe9c);
   return;
 }
 
@@ -106,11 +106,11 @@ static bool VerifySuccessfulRead(tMemCardData *memCardData)
      the stored bool in each beq delay slot (andi s0,s0,1 = the fold of `1 & result` on the equal path
      -- BITWISE &, not &&: && normalizes via sltu) then clears on fall-through; a plain
      `if (x != crc) result = false;` chain emits no andi and mis-colors s0/s1. */
-  result = memCardData->frontEndCRC == crc16(&memCardData->frontEnd,0x450);
-  result = (memCardData->carInfoCRC == crc16(&memCardData->carInfo,0xe0)) & result;
-  result = (memCardData->trackInfoCRC == crc16(&memCardData->trackInfo,0x10)) & result;
-  result = (memCardData->tournamentCRC == crc16(&memCardData->tournament,0xb0)) & result;
-  result = (memCardData->recordsCRC == crc16(memCardData->records,0xe9c)) & result;
+  result = memCardData->frontEndCRC == crc16((unsigned char *)&memCardData->frontEnd,0x450);
+  result = (memCardData->carInfoCRC == crc16((unsigned char *)&memCardData->carInfo,0xe0)) & result;
+  result = (memCardData->trackInfoCRC == crc16((unsigned char *)&memCardData->trackInfo,0x10)) & result;
+  result = (memCardData->tournamentCRC == crc16((unsigned char *)&memCardData->tournament,0xb0)) & result;
+  result = (memCardData->recordsCRC == crc16((unsigned char *)memCardData->records,0xe9c)) & result;
   result = (memCardData->fSize == 0x14ac) & result;
   return result;
 }

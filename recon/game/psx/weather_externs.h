@@ -61,13 +61,15 @@ extern Draw_tPixMap *gWeatherPixmap[3];            /* 0x80112b7c  snow/rain spri
 extern int          Input_gLookBehind[2];          /* 0x8013d230 */
 // [owned->file-static in weather.cpp] int timechange; /* 0x8013de4c */
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int fixedmult(...);
-int purgememadr(...);
-int random(...);
-void *reservememadr(...);
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/random.h"
+#include "eaclib/psx/eacpsxz/trnspos.h"
+}
+extern "C" {
 void SetDrawMode(...);
-void transpose(...);
 }
 
 #endif /* WEATHER_EXTERNS_H */

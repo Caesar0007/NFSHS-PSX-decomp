@@ -33,12 +33,12 @@ extern void  nfs2eacinit(void);
 
 extern "C" void ResetCallback(...);
 extern "C" void FlushCache(...);
-extern "C" void FILE_init(...);
-extern "C" void initasync(...);
-extern "C" void initjoy(...);
-extern "C" void initlinkmode(...);
-extern "C" void initmemadr(...);
-extern "C" void inittimer(...);
-extern "C" void setdirectory(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/inittmr.h"
+#include "eaclib/psx/eacpsxz/joystkn.h"
+#include "eaclib/psx/eacpsxz/primate.h"
+}
 
 #endif

@@ -38,9 +38,9 @@ extern int currentwindow[];  /* @0x801486E4 : GPU window block -- draw-origin X/
                               * the former six DAT_801486xx externs were its fields. */
 
 
-/* fastmovfxya @0x80106084 : clip + single-move blit of shape at (x,y).  Returns the OT head it linked behind
- *   (old nextprim), or the last clip delta if fully clipped away. */
-int fastmovfxya(int shape, int x, int y)
+/* fastmovfxya @0x80106084 : clip + single-move blit of shape at (x,y).  The oracle computes no return value;
+ *   $v0 is incidental on exit. */
+void fastmovfxya(unsigned char *shape, int x, int y)
 {
     int   w = *(short *)(shape + 4);
     unsigned int packed = *(unsigned int *)(shape + 0xc);

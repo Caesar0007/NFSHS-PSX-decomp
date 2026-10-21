@@ -83,10 +83,13 @@ void MenuExtended_PostGameMenu(tMenuCommand &command);  /* SYM `Def class EXT ty
 void play_movie(int) asm("play_movie__Fc");
 
 /* CRT */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
 extern "C" {
 int sprintf(char *, const char *, ...);
 void *memset(void *, int, int);
-int largestunused(void);
 void SetDrawArea(DR_AREA *, RECT *);
 }
 

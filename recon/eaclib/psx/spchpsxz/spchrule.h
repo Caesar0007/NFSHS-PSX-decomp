@@ -7,6 +7,6 @@ extern int  iSPCH_SentenceUsesParm(VoxSentence *sentence, unsigned int paramIdx)
 extern int  iSPCH_GetRuleID(VoxEvent *event, int index);                       /* @0x8010B220 : rule id, or -1 */
 extern void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values); /* @0x8010B294 */
 extern unsigned char iSPCH_GetRuleSettings(VoxEvent *event, int *values, char *out); /* @0x8010B3CC */
-extern unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr); /* @0x8010B58C */
+extern unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, VoxSentence *sentence); /* @0x8010B58C */
 
 #endif

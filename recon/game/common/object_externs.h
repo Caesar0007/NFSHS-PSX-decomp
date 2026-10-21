@@ -63,21 +63,16 @@ extern int   DrawW_GetAnimationTime(Trk_AnimateInst *animInst);
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);   /* bworldsm.obj */
 extern void  BWorldSm_SetSlice(int slice, BWorldSm_Pos *pos);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int fixedatan(int x, int y); /* eacpsxz/fixdatan.h: signed-word coordinates. */
-int fixedmult(int a, int b); /* EA fixed-point multiply: two signed-word arguments. */
-int fixedxformy(int *out, int angle); /* eacpsxz/fxform.c: nine-word matrix. */
-void transform(int *vec, int *mat, int *out); /* eacpsxz/trnsfrm.h */
-void *reservememadr(char *name, int size, int classid); /* eacpsxz/memstd.h */
-int purgememadr(void *p);
-void blockfill(void *dst, int n, unsigned char val); /* eacpsxz/blkfill.h */
+#include "eaclib/psx/eacpsxz/eac_mem.h"
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/eac_matrix.h"
 }
 
 /* ---- vtables for the 4 anim classes (data owned by object.obj) ---- */
 
 /* Prototypes for callees this TU used to call undeclared: CC1PLPSX 2.8.0 accepts the implicit `int f(...)` but wraps
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
-extern "C" int fixedxformx(int *out, int angle); /* actual fxform.c return value */
-extern "C" void reorthogonalize(matrixtdef *m);
 
 #endif /* _GAME_COMMON_OBJECT_EXTERNS_H_ */

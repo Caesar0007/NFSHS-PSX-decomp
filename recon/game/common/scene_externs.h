@@ -23,12 +23,12 @@ extern GameSetup_tData GameSetup_gData;
 /* ---- eaclib EACPSXZ: memstd / syncfile / nsync / fixed-point ---- */
 
 /* ---- syslib libc ---- */
-extern "C" int purgememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+}
 extern "C" int sprintf(...);
-extern "C" int FILE_addbigsync(...);
-extern "C" void FILE_delbigsync(...);
-extern "C" void *loadfileadr(...);
-extern "C" int fixedmult(...);
-extern "C" int fixeddiv(...);
 
 #endif

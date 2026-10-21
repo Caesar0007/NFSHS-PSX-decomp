@@ -41,15 +41,14 @@ extern bool showRoomFlag;
 void Math_NormalizeVector(coorddef *);
 void Math_fasttransmult(matrixtdef *, matrixtdef *, matrixtdef *);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/eac_matrix.h"
+#include "eaclib/psx/eacpsxz/sinfunc.h"
+}
 extern "C" {
 int   csin(int angle);
 int   ccos(int angle);
-int   fastintsin(int angle);
-int   fastintcos(int angle);
-void  crossproduct(coorddef *a, coorddef *b, coorddef *result);
-int   fixedxformy(matrixtdef *matrix, int angle);
-void  transpose(matrixtdef *source, matrixtdef *destination);
-void  transform(int *source, int *matrix, int *destination);
 void *SetSp(void *stack_pointer);
 }
 

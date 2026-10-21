@@ -4,7 +4,10 @@
 #include "screendisplay_types.h"
 
 extern tfrontEnd   frontEnd;
-extern int  ticks;
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern tGlobalMenuDefs *menuDefs;
 /* (gFE_bgIndex/gFE_bgFadeVal are NOT globals: SYM STAT = DrawBackground-local statics
    lastpercentage/perfade @0x800528e0/e4 -- Ghidra mis-named them. Defined in the .cpp.) */

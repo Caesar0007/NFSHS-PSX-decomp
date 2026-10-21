@@ -4,20 +4,17 @@
 
 #include "track_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdsqrt.h"
+#include "eaclib/psx/eacpsxz/eac_shape.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
 extern "C" {
 int sprintf(char *, const char *, ...);
-void *reservememadr(...);
-int purgememadr(...);
 int DrawSync(...);
-int shapecount(...);
-void *shapepointer(...);
-void shapename(...);
 int atoi(...);
-void *loadshapeadr(...);
-int filesize(...);
-void *loadfileatadr(...);
-void *loadfileadrz(...);
-int fixedsqrt(...);
 }
 
 void *__builtin_new(unsigned int);

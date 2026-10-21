@@ -41,14 +41,16 @@ extern void  Texture_GetClutId(int id, int *cx, int *cy);
 extern void  BWorldSm_SetSlice(int slice, BWorldSm_Pos *pos);
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nsync.h"
+}
 extern "C" {
 long  DrawSync(long mode);
 int   LoadImage(RECT *rect, u_long *data);
-int   fixedmult(int a, int b);
 int   sprintf(char *buffer, const char *format, ...);
-void *loadfileadr(char *name, int flags);
-int   purgememadr(void *ptr);
-void *reservememadr(const char *name, int size, int memory_class);
 void *memset(void *dst, int value, size_t size);
 }
 

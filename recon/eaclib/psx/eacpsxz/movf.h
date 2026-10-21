@@ -3,6 +3,6 @@
 
 #include "eac_types.h"
 
-extern int movfxya(unsigned char *shape, int x, int y);   /* @0x800F0738 */
+extern void movfxya(unsigned char *shape, int x, int y);   /* @0x800F0738 */
 
 #endif

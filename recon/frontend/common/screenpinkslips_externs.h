@@ -3,12 +3,16 @@
 #define _FE_SCREENS_SCREENPINKSLIPS_EXTERNS_H_
 #include "screenpinkslips_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
 extern "C" {
 int GetTPage(int, int, int, int);
 int sprintf(char *, const char *, ...);
 int ClearImage(RECT *, u_char, u_char, u_char);
 long DrawSync(long);
-int purgememadr(void *);
 }
 
 /* ===== globals ===== */
@@ -16,7 +20,6 @@ extern tfrontEnd          frontEnd;
 extern tTrackManager      trackManager;
 extern tGlobalMenuDefs   *menuDefs;
 extern tFEApplication    *FEApp;
-extern int                ticks;
 extern char              *Paths_Paths[];
 
 /* ===== statics owned by ScreenPinkSlips.obj ===== */

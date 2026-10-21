@@ -3,7 +3,12 @@
 #define DRAW_EXTERNS_H
 
 /* ---- PsyQ libgpu/libgte/eaclib ---- */
-extern int timerhz;  /* global tick-rate (used as value: timerhz>>1) */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/timer.h"
+#include "eaclib/psx/eacpsxz/vars.h"
+}
   /* DR_ENV pkt + env (2-arg libgpu form) */
 
 /* ---- harvested from sealed *_externs.h ---- */
@@ -36,8 +41,5 @@ extern "C" void SetDispMask(...);
 extern "C" void SetDrawEnv(...);
 extern "C" void InitGeom(...);
 extern "C" int VSync(...);
-extern "C" int purgememadr(...);
-extern "C" void *reservememadr(...);
-extern "C" void timedwait(...);
 
 #endif

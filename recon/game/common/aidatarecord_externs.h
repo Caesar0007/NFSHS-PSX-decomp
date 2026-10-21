@@ -31,10 +31,12 @@ extern Car_tObj *Cars_gHumanRaceCarList[9];   /* cars.obj; [0]+0x240 = car name 
 /* sprintf format strings — named rodata symbols (NOT inline literals, which would
  * land in this object's .rodata; the original references them at these addresses) */
 
-extern "C" void *reservememadr(...);
-extern "C" void *loadpackadrz(...);
-extern "C" int purgememadr(...);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nloadpk.h"
+}
 extern "C" int sprintf(...);
-extern "C" int fixedmult(...);
 
 #endif /* _GAME_COMMON_AIDATARECORD_EXTERNS_H_ */

@@ -105,9 +105,9 @@ void EulerToMat(matrixtdef *m,int ax,int ay,int az)
   matrixtdef mz;
   matrixtdef mt;
 
-  fixedxformx(&mx,ax);
-  fixedxformy(&my,ay);
-  fixedxformz(&mz,az);
+  fixedxformx(mx.m,ax);
+  fixedxformy(my.m,ay);
+  fixedxformz(mz.m,az);
   Math_fasttransmult(&mz,&my,&mt);
   Math_fasttransmult(&mt,&mx,m);
   /* MATCH: mt is DEAD after the 2nd fasttransmult - oracle stages the old row1 (m[3..5])
@@ -1507,8 +1507,8 @@ void Camera_PitchAndRoll(int player)
 
 
 
-  fixedxformz((int)&m1,(int *)anchor->render.bodyRoll);
-  fixedxformx((int)&m2,(int *)(pitch | Camera_gInfo[player].pitch));
+  fixedxformz(m1.m,anchor->render.bodyRoll);
+  fixedxformx(m2.m,pitch | Camera_gInfo[player].pitch);
   Math_fasttransmult(&m1,&m2,&m3);
 
 

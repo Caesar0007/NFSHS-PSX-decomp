@@ -70,14 +70,14 @@ __asm__("\t.globl\tsndss\n\t.globl\tsndStreamMap\n\t.section\t.bss\n\t.align\t2\
         "sndStreamMap:\n\t.space\t4\n\t.text");
 
 /* ---- stream.obj ring (the layer below; already reconstructed) ---- */
-extern void         STREAM_release(int strm, int chunk);
-extern int          STREAM_get(int consumer);
+extern void         STREAM_release(int strm, void *chunk);
+extern void        *STREAM_get(int consumer);
 extern int          STREAM_gettable(int strm);
 extern int          STREAM_state(int strm);
 extern int          STREAM_buffersize(int strm);
-extern int          STREAM_create(int nReq, int nFilt, int nCons, int objbuf, int bufsize);
+extern int          STREAM_create(int nReq, int nFilt, int nCons, void *objbuf, int bufsize);
 extern unsigned int STREAM_queuefile(int strm, char *name, int off, int len);
-extern unsigned int STREAM_queuemem(int strm, int blocklist, void *ptr, int len);
+extern unsigned int STREAM_queuemem(int strm, void *blocklist, void *ptr, int len);
 
 /* ---- SNDPKTPLAY packet player (spktplay.obj) ---- */
 extern int  SNDPKTPLAY_start(int pktplay, int rate, int fmt, int *params);
@@ -236,7 +236,7 @@ extern void iSNDstreamreleasecallback(int sample)
     int chunk = *(int *)(sample - 4);
     int slot  = *(unsigned char *)chunk;
     int S     = sndss[slot];
-    STREAM_release(MI(S, 4), chunk);
+    STREAM_release(MI(S, 4), (void *)(unsigned int)chunk);
     /* MATCH (17/17): the true sndss[] declaration fills the chunk-load delay slot with its address. */
 }
 
@@ -288,7 +288,7 @@ extern int iSNDstreamparseheader(int S, int data)
 
     iSNDpatchtohdr((short *)(data + 0xc), (int *)(S + 0x20), (int *)(S + 0x38), &outsize);
     MVI(req, 0x18) = outsize;
-    STREAM_release(MI(S, 4), data);
+    STREAM_release(MI(S, 4), (void *)(unsigned int)data);
     MVI(req, 0x18) = ((MVI(req, 0x18) + 0x1b) / 0x1c) * 0x1c;    /* round up to 0x1C */
     MVI(req, 0x10) = iSNDplatformcalcdatarate((void *)(S + 0x20));
 
@@ -325,7 +325,7 @@ formatsame:
 extern int iSNDstreamparsenumchunks(int S, int data)
 {
     int req;
-    STREAM_release(MI(S, 4), data);
+    STREAM_release(MI(S, 4), (void *)(unsigned int)data);
     req = (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c + MI(S, 0);
     MI(req, 0x24) = *(int *)(data + 0xc);
     return 1;
@@ -524,7 +524,7 @@ extern int iSNDstreamparsedata(int S, int chunk)
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
 extern int iSNDstreamparseend(int S, int chunk)
 {
-    STREAM_release(MI(S, 4), chunk);
+    STREAM_release(MI(S, 4), (void *)(unsigned int)chunk);
     MB(S, 0x17) = MB(S, 0x17) + 1;
     return 1;
 }
@@ -543,7 +543,7 @@ extern int iSNDstreamparsechunk(int S, int chunk)
     } else if (tag == 0x6c434353) {                      /* 'SCCl' */
         ret = iSNDstreamparsenumchunks(S, chunk);
     } else {
-        STREAM_release(MI(S, 4), chunk);                 /* unknown -> drop */
+        STREAM_release(MI(S, 4), (void *)(unsigned int)chunk);                 /* unknown -> drop */
     }
     return ret;
 }
@@ -626,7 +626,7 @@ extern void iSNDstreamhotroddatachunks(void)
                          * this file). Cast the fn-ptr to a 1-arg signature at THIS call site only
                          * (§3.11/D "dropped call arg"); the 3-arg extern decl stays for any other
                          * caller in the codebase that DOES pass buf/len. */
-                        chunk = STREAM_get(MI(S, 4));
+                        chunk = (int)(unsigned int)STREAM_get(MI(S, 4));
                         if (chunk != 0) {
                             int bytes = *(int *)(chunk + 4);
                             total += bytes;
@@ -693,7 +693,7 @@ extern void iSNDstreamservice(void)
                     int chunk;
                     n--;
                     /* MATCH: only $a0 set at this call site too (§3.11/D dropped call arg). */
-                    chunk = STREAM_get(MI(S, 4));
+                    chunk = (int)(unsigned int)STREAM_get(MI(S, 4));
                     if (chunk != 0)
                         r = iSNDstreamparsechunk(S, chunk);
                     if (r == 0)
@@ -805,7 +805,7 @@ found:
         *(volatile unsigned char *)(S + 0x18) = 1;   /* volatile: keeps the sb out of the j slot
                                                       * so the tail's li -1 gets target-stolen (W31) */
     } else {                                             /* own ring */
-        MI(S, 4)    = STREAM_create(numReq + 1, 1, 1, objbuf, memrem);
+        MI(S, 4)    = STREAM_create(numReq + 1, 1, 1, (void *)(unsigned int)objbuf, memrem);
         *(volatile unsigned char *)(S + 0x18) = 0;
         SNDSTRM_setgreedylevel(MI(S, 4), STREAM_buffersize(MI(S, 4)) / 3);
     }
@@ -870,7 +870,7 @@ extern int iSNDstreamqueue(unsigned int s, int name, char *filename, int off, in
     if (mode == 0)
         MVI(req, 0) = STREAM_queuefile(MI(p, 4), filename, off, 0x6c454353);
     else if (mode == 1)
-        MVI(req, 0) = STREAM_queuemem(MI(p, 4), (int)filename, 0, 0x6c454353);
+        MVI(req, 0) = STREAM_queuemem(MI(p, 4), filename, 0, 0x6c454353);
     else
         MVI(req, 0) = off;
 

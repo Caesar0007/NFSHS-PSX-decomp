@@ -3,7 +3,9 @@
 
 #include "eac_types.h"
 
-extern void *locateshape (void *shapefile, int *namekey);   /* @0x800EB110 */
-extern void *locateshapez(void *shapefile, int *namekey);   /* @0x800EB170 */
+
+extern void *locateshape (void *shapefile, char *namekey);   /* @0x800EB110 */
+extern void *locateshapez(void *shapefile, char *namekey);   /* @0x800EB170 */
+
 
 #endif

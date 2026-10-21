@@ -22,6 +22,9 @@ extern int AITune_oneWay;
 extern int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1);
 int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int slice);   /* AIWorld_ApxSplineDistance__FP8Car_tObji -- CheckChaserPosition's call site (raw oracle @0x8005C008) */
-extern "C" int fixedmult(int, int);
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+extern "C" {
+#include "eaclib/psx/eacpsxz/fixdmult.h"
+}
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

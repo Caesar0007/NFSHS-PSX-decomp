@@ -4,19 +4,15 @@
 #define _GAME_COMMON_CARS_EXTERNS_H_
 #include "cars_types.h"
 
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int fixeddiv(...);
-int fixedmult(...);
-/* Two fixed input words follow the PSX loader implementations. The existing
- * loadfileadrz char* result is this consumer's address view, not a proven
- * original SDK return spelling (the generic atomic wrapper uses int). */
-char *loadfileadrz(char *name, int memclass);
-void *loadpackadr(char *name, int memclass);
-char *locatebig(void *buf, char *name);
+#include "eaclib/psx/eacpsxz/eac_math.h"
+#include "eaclib/psx/eacpsxz/eac_file.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/random.h"
+}
+extern "C" {
 void *memset(...);
-int purgememadr(...);
-int random(...);
-void *reservememadr(...);
 int sprintf(...);
 char *strcpy(...);
 }

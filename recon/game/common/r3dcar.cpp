@@ -1208,11 +1208,11 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       if (rightHandDrive != 0) {
         roll = -roll;
       }
-      fixedxformz(&bodyMat,(carObj->render).bodyRoll);
-      fixedxformx(&matP,(carObj->render).bodyPitch + 100);
+      fixedxformz(bodyMat.m,(carObj->render).bodyRoll);
+      fixedxformx(matP.m,(carObj->render).bodyPitch + 100);
       Math_fasttransmult(&bodyMat,&matP,&bodyMat);
       Math_fasttransmult(&bodyMat,&(carObj->N).orientMat,&bodyMat);
-      fixedxformz(&bodyIMat,roll);
+      fixedxformz(bodyIMat.m,roll);
       Math_fasttransmult(&bodyIMat,&matP,&bodyIMat);
       Math_fasttransmult(&bodyIMat,&insideMat,&insideMat);
       Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
@@ -1222,8 +1222,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   }
   else {
     matrixtdef matP; /* SYM blk 174 @sp+0xf0 (reuses car/pos slot -- dead by this point) */
-    fixedxformz(&bodyMat,(carObj->render).bodyRoll);
-    fixedxformx(&matP,(carObj->render).bodyPitch);
+    fixedxformz(bodyMat.m,(carObj->render).bodyRoll);
+    fixedxformx(matP.m,(carObj->render).bodyPitch);
     Math_fasttransmult(&bodyMat,&matP,&bodyMat);
     Math_fasttransmult(&bodyMat,&(carObj->N).orientMat,&bodyMat);
     Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
@@ -1298,7 +1298,7 @@ R_ICFt_wheelspinRpmCalc:
       steeringAngle =
           fixeddiv(steeringAngle << 0x10,fixedmult((carObj->linearVel_ch).z,0x888)) / 0x10000;
     }
-    fixedxformy(&steerMat,steeringAngle << 5);
+    fixedxformy(steerMat.m,steeringAngle << 5);
   }
   {
     if (((carObj->control).desiredBrakeLevel != '\0') &&
@@ -1549,13 +1549,13 @@ R_ICFt_postVisibility:
       if (carType == 0x1c) {
         switch (i) {
         case 0x1f:
-          fixedxformy(&tmpMat,(carObj->N).wheelRot[0]);
+          fixedxformy(tmpMat.m,(carObj->N).wheelRot[0]);
           Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
           Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
               (matrixtdef *)((int)R3DCar_orientMat + 0x45c));
           break;
         case 0x23:
-          fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
+          fixedxformx(tmpMat.m,(carObj->N).wheelRot[1]);
           Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
           Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
               (matrixtdef *)((int)R3DCar_orientMat + 0x4ec));
@@ -1575,7 +1575,7 @@ R_ICFt_postVisibility:
        residual or a source-restoration certificate. */
         switch(i) {
         case 0x2f:
-          fixedxformx(&tmpMat,(carObj->N).wheelRot[0]);
+          fixedxformx(tmpMat.m,(carObj->N).wheelRot[0]);
           Math_fasttransmult(&tmpMat,&steerMat,&tmpMat);
           Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
           Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
@@ -1590,7 +1590,7 @@ R_ICFt_postVisibility:
               (int *)((int)R3DCar_orientMat + i * 0x24));
           break;
         case 0x35:
-          fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
+          fixedxformx(tmpMat.m,(carObj->N).wheelRot[1]);
           Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
           Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
               (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
@@ -1600,7 +1600,7 @@ R_ICFt_postVisibility:
               (int *)((int)R3DCar_orientMat + i * 0x24));
           break;
         case 0x37:
-          fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
+          fixedxformx(tmpMat.m,(carObj->N).wheelRot[1]);
           Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
           Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
               (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
@@ -1620,7 +1620,7 @@ R_ICFt_postVisibility:
             if (rightHandDrive != 0) {
               steeringAngle = -steeringAngle;
             }
-            fixedxformz(&tmpMat,steeringAngle * -0x38);
+            fixedxformz(tmpMat.m,steeringAngle * -0x38);
             Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
             Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
                 (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
@@ -1637,8 +1637,8 @@ R_ICFt_postVisibility:
             if (rightHandDrive != 0) {
               roll = -roll;
             }
-            fixedxformz(&matR,roll);
-            fixedxformx(&matP,pitch);
+            fixedxformz(matR.m,roll);
+            fixedxformx(matP.m,pitch);
             Math_fasttransmult(&matR,&matP,&tmpMat);
             Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
             Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
@@ -1659,11 +1659,11 @@ R_ICFt_postVisibility:
             if (i == 0x27) {
               maxAngleFactor = 0xc;
             }
-            fixedxformx(&matX,steeringAngle * maxAngleFactor);
+            fixedxformx(matX.m,steeringAngle * maxAngleFactor);
             if (0 < steeringAngle) {
               steeringAngle = -steeringAngle;
             }
-            fixedxformy(&matY,steeringAngle * (maxAngleFactor >> 1));
+            fixedxformy(matY.m,steeringAngle * (maxAngleFactor >> 1));
             Math_fasttransmult(&matX,&matY,&tmpMat);
             Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
             Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),

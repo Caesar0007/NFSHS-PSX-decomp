@@ -4,9 +4,11 @@
 #define SCHEDULE_EXTERNS_H
 
 /* ---- eaclib EACPSXZ memstd allocator ---- */
+/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
-int purgememadr(void *ptr);
-void *reservememadr(const char *name, int size, int memory_class);
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
+extern "C" {
 }
 
 /* ---- sim global (provides .gameTicks tick counter) ---- */

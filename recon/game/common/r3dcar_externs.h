@@ -1,13 +1,13 @@
 /* r3dcar_externs.h -- extern decls for game/common/r3dcar.cpp (NFS4 PSX 3D car renderer).
- *   Types live in r3dcar_types.h; this header declares the cross-TU globals/functions
- *   referenced by r3dcar.cpp plus this TU's own R3DCar_* state (extern for syntax-check).
+ *   Types live in r3dcar_types.h; cross-TU declarations are collected here.
+ *   This TU's owned state is defined with its SYM shapes in r3dcar.cpp.
  */
 #ifndef R3DCAR_EXTERNS_H
 #define R3DCAR_EXTERNS_H
 
-/* Exact pruned subset of libfns.h used by this owner. Keeping the retail
- * return types/varargs boundary preserves call-expression code generation
- * without importing libfns.h's project-wide nfs4_types.h surface. */
+/* Pruned C-linkage boundary declarations, without libfns.h's project-wide
+ * type surface. sprintf below uses the canonical PsyQ4.3 STDIO.H signature;
+ * do not treat the remaining reconstructed boundaries as verified prototypes. */
 extern "C" long DrawSync(...);
 extern "C" long VectorNormalS(...);
 extern "C" void *SetSp(...);
@@ -30,7 +30,7 @@ extern "C" void *locatebigentry(...);
 extern "C" int purgememadr(...);
 extern "C" void *reservememadr(...);
 extern "C" void resizememadr(...);
-extern "C" int sprintf(...);
+extern "C" int sprintf(char *buffer, char *fmt, ...); /* PsyQ4.3 STDIO.H:35 */
 extern "C" char *strcat(...);
 extern "C" char *strcpy(...);
 extern "C" int systemtask(...);
@@ -92,38 +92,8 @@ extern int   Risk_ReadNextValue(char **scan);
 extern void  Texture_ProcessPaletteCopy(Texture_pal8bit *pal, int a, int b);
 extern void  TrsProj_TransformProjectVertex(matrixtdef *m, coorddef *t, int n, coorddef *s, Draw_tVertex *v);
 
-/* ---- R3DCar_* TU-owned state (sizes from SYM Globals; types inferred from access) ---- */
-// [owned->defined in r3dcar.cpp] extern char               R3DCar_ObjectInfo[58][6];          /* 344B: per-obj [type,flags,...] rows */
-// [owned->defined in r3dcar.cpp] extern short              R3DCar_Suspension[10];             /* 20B: wheel index per suspended obj */
-// [owned->defined in r3dcar.cpp] extern char               R3DCar_FlareOverlayIndex[12];      /* 12B */
-// [owned->defined in r3dcar.cpp] extern char               R3DCar_ForceDriveSide[28];         /* 28B: -1 = auto from track */
-// [owned->defined in r3dcar.cpp] extern char               R3DCar_CopIndex[16][2];            /* 32B: [carType-0x16][country] -> letter idx */
-// [owned->defined in r3dcar.cpp] extern char               R3DCar_ObjectVisible[60];          /* 60B: 0x39 obj visibility flags */
-// [owned->defined in r3dcar.cpp] extern Draw_tVertex       R3DCar_center;                     /* 8B */
-// [owned->defined in r3dcar.cpp] extern Draw_tVertex       R3DCar_shadowVertex[4];            /* 32B */
-// [owned->defined in r3dcar.cpp] extern Transformer_zScene *R3DCar_LoadedScenePointer[2][50]; /* 400B */
-// [owned->defined in r3dcar.cpp] extern char               R3DCar_LoadedSceneCounter[2][50];  /* 100B */
-// [owned->defined in r3dcar.cpp] extern signed char        R3DCar_LoadedSceneCountry[52];     /* 52B: signed sentinel -1 (§3.12 #9 char-unsigned-default) */
-// [owned->defined in r3dcar.cpp] extern short              R3DCar_LoadedSceneColor[2][50];    /* 200B */
-// [owned->defined in r3dcar.cpp] extern short              R3DCar_LoadedSceneVRam[2][50][2];  /* 400B: [color][carType][x,y] */
-// [owned->defined in r3dcar.cpp] extern int                R3DCar_PositionZ[9];               /* 36B */
-// [owned->defined in r3dcar.cpp] extern u_long            *R3DCar_subOtStart[2][2];           /* 16B: [flip][menu] */
-// [owned->defined in r3dcar.cpp] extern R3DCar_tEnvMapInfo  R3DCar_EnvMapInfo[28];            /* 448B */
-// [owned->defined in r3dcar.cpp] extern void              *R3DCar_InsertCarFacet_jt[];        /* visibility-switch jump table */
-// [owned->defined in r3dcar.cpp] extern int                R3DCar_InMenu;
-// [owned->defined in r3dcar.cpp] extern int                R3DCar_aSyncLoading;
-// [owned->defined in r3dcar.cpp] extern matrixtdef        *R3DCar_orientMat;
-// [owned->defined in r3dcar.cpp] extern coorddef          *R3DCar_position;
-// [owned->defined in r3dcar.cpp] extern int                R3DCar_shadowFlag;
-// [owned->defined in r3dcar.cpp] extern CVECTOR            R3DCar_shadowColour;
-// [owned->defined in r3dcar.cpp] extern CVECTOR            R3DCar_eMapColour;
-// [owned->defined in r3dcar.cpp] extern int                R3DCar_yawCam;
-// [owned->defined in r3dcar.cpp] extern int                R3DCar_Clock;
-// [owned->defined in r3dcar.cpp] extern int                R3DCar_ClockLast;
-// [owned->defined in r3dcar.cpp] extern char              *R3DCar_BigFile;
-// [owned->defined in r3dcar.cpp] extern char              *R3DCar_LicenseShapeFile;
-// [owned->defined in r3dcar.cpp] extern u_long            *R3DCar_subOt;
-// [owned->defined in r3dcar.cpp] extern int                R3DCar_rightHandDrive;
-/* R3DCar_gFacetScratch DEFINED in r3dcar.cpp (lost-symbol, not in SYM) */
+/* TU-owned definitions belong in r3dcar.cpp, not duplicated here. Historical
+ * inferred array shapes and the removed fake facet-scratch/jump-table globals
+ * are not declarations or recovery authorities; the source keeps their history. */
 
 #endif

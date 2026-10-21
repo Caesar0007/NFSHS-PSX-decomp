@@ -1,5 +1,5 @@
 /* game/common/bworld.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
- *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
+ *   bworld.obj (GAME\COMMON\bworld.cpp) = 21 native-debug-covered functions: road geometry build/render
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
@@ -57,6 +57,7 @@ void BWorld_Init(void);
 
 
 /* ---- xzsquaredist32__FP8coorddefT0  [@0x8007d5c4] ---- */
+#line 126 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int xzsquaredist32(coorddef *c1,coorddef *c2)
 {
   return (((c2->x - c1->x >> 0xc) * (c2->x - c1->x >> 0xc)) >> 6) +
@@ -64,6 +65,7 @@ int xzsquaredist32(coorddef *c1,coorddef *c2)
 }
 
 /* ---- UpdateContext__FP13DRender_tViewi  [@0x8007d608] ---- */
+#line 139 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void UpdateContext(DRender_tView *Vi,int contextHandle)
 {
   SetContext(contextHandle);
@@ -83,6 +85,7 @@ void UpdateContext(DRender_tView *Vi,int contextHandle)
 }
 
 /* ---- BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group  [@0x8007d6c0] ---- */
+#line 227 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
 {
   int i;
@@ -138,27 +141,33 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
   }
 }
 
+/* MATCH: retail's zero-store phase precedes the two minimum initializers.
+ * Ordinary anchored layout reproduces all43 tags and every supplied region;
+ * the existing for-owned i is retained. A separate counter block changes the
+ * scope tree even when bytes agree. Literal original text remains unproven. */
 /* ---- BWorld_InitSpikeBelt__Fv  [@0x8007d818] ---- */
+#line 323 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_InitSpikeBelt(void)
 {
-  int leastDist;
-  int leastDistInd;
+  int leastDist; int leastDistInd; gSpikeBelt = 0;
+  gSpikeBeltSlice = 0;
+  gSpikeBeltChunk = 0;
+
+
+
+
 
   leastDist = 0x7fffffff;
   leastDistInd = -1;
-  gSpikeBelt = 0;
-  gSpikeBeltSlice = 0;
-  gSpikeBeltChunk = 0;
+
   for (int i = 0; i < Chunk_numLight; i = i + 1) {
     int dist;
+    dist = (0x80 - (u_int)Chunk_lightTable[i].r) * (0x80 - (u_int)Chunk_lightTable[i].r) + (0x80 - (u_int)Chunk_lightTable[i].g) * (0x80 - (u_int)Chunk_lightTable[i].g) + (0x80 - (u_int)Chunk_lightTable[i].b) * (0x80 - (u_int)Chunk_lightTable[i].b);
 
-    dist = (0x80 - (u_int)Chunk_lightTable[i].r) *
-               (0x80 - (u_int)Chunk_lightTable[i].r) +
-           (0x80 - (u_int)Chunk_lightTable[i].g) *
-               (0x80 - (u_int)Chunk_lightTable[i].g) +
-           (0x80 - (u_int)Chunk_lightTable[i].b) *
-               (0x80 - (u_int)Chunk_lightTable[i].b);
+
+
     if (dist < leastDist) {
+
       leastDist = dist;
       leastDistInd = i;
     }
@@ -167,6 +176,7 @@ void BWorld_InitSpikeBelt(void)
 }
 
 /* ---- BWorld_SetSpikeBelt__Fiii  [@0x8007d8c4] ---- */
+#line 351 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_SetSpikeBelt(int slice,int x,int width)
 {
   gSpikeBelt = 1;
@@ -177,6 +187,7 @@ void BWorld_SetSpikeBelt(int slice,int x,int width)
 }
 
 /* ---- BWorld_GetSpikeBelt__FPiN20  [@0x8007d8f8] ---- */
+#line 362 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
 {
   if (gSpikeBelt == 1) {
@@ -242,6 +253,7 @@ int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
  * and gCopMat: ours processes m[4] before m[7], retail m[7] before m[4].  Direct
  * assignments, reordered locals/definitions, aliasing and volatile-load probes
  * were neutral; disabling sched2 regressed to 38 diffs. */
+#line 392 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
 {
   if ((Vi->id == Draw_gPlayer1View) || (Vi->id == Draw_gPlayer2View)) {
@@ -400,6 +412,7 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
  *63dif/79, not a faithful recorded-value repair. All restored; recover the
  * real preliminary-index producer rather than treating const/debug elision
  * or these bounded failures as proof of a required original source object. */
+#line 589 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest)
 {
   int sourceChunkInd;
@@ -452,6 +465,7 @@ visible_check:
 }
 
 /* ---- GetRezIndex__Fi  [@0x8007dd54] ---- */
+#line 656 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int GetRezIndex(int dist)
 {
   return (gCurrContext->lowDetailDistSq < dist ^ 1) << 2;
@@ -462,6 +476,7 @@ int GetRezIndex(int dist)
  * and IDA register annotations established the 144-byte frame and saved-register
  * allocation.  The indexed chunkViewList reads preserve the source shape needed
  * for GCC to strength-reduce the retail walker without a post-compile rewrite. */
+#line 675 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int SetupChunkBuildList(DRender_tView *Vi)
 {
   /* ORIGINAL-NAME-RECOVERED: chunkViewList -- matched NFS2 bworld.c uses this
@@ -879,6 +894,7 @@ int SetupChunkBuildList(DRender_tView *Vi)
  * address into retail's $v1 induction.  The condition and loop bound retain
  * two textual BWorld_gChunkCount uses; GCC materializes the value in $v0 and
  * copies it to long-lived $a2 in the guard's delay slot. */
+#line 846 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 bool BWorld_IsSliceInBuildList(int slice)
 {
   int chunk = slice / 8;
@@ -890,102 +906,165 @@ bool BWorld_IsSliceInBuildList(int slice)
   } return 0;
 }
 
-/* SOURCE REVIEW (2026-10-13): direct typed fog fields10diff/193; paired
- * removal of the old empty fence12/193. Both reverted. Changed struct-base
- * anchors and load/flag-store ordering need further source investigation;
- * trackSpec and the old fence are not original-object/source proof.
- */
+/* MATCH: numeric fog-field narrowing removes the old empty assembly fence.
+ * The seven completed-type aliases belong to their shared headers; their
+ * restoration also permits anonymous typed reads without losing supplied
+ * typedef copies. No separate trackSpec source object is needed here.
+ * Retail SLD groups the real stack/cache updates and owns each loop counter.
+ * All193 word tags, block/end coordinates and supplied locals now match;
+ * literal original macro/comment text is not uniquely proved by that seal. */
 /* ---- BWorld_OnyxBuildFacets__FP13DRender_tView  [@0x8007e0f4] ---- */
+#line 905 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)
 {
   Draw_DCache *sd;
-  CTrackSpec *trackSpec; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct fog reads10diff/193,not original-object proof. */
-  
+
+
+
+
+
+
   Chunk_UpdateSys(Vi);
+
+
+
+
   gVi2 = Vi;
-  gWSavePtr = SetSp(0x1f8003fc);
-  stackSpeedUpEnbabledFlag = 1;
+  gWSavePtr = SetSp(0x1f8003fc); stackSpeedUpEnbabledFlag = 1;
+
   SetupBuildMatrices(gVi2,(Draw_DCache *)0x1f800000);
   DrawW_WorldSetUpMatrix(&gWorldMat,(MATRIX *)0x1f800014);
-  BWorld_gChunkCount = SetupChunkBuildList(gVi2);
-  sd = (Draw_DCache *)0x1f800000;
-  gWSavePtr = SetSp(gWSavePtr);
-  /* @0x8007E17C-1F4: the Onyx scratchpad (Draw_tGiveShelbyMoreCache @0x1F800000) gets the fog + night
-   * params. startfog/distfog@+0xDC/+0xDE come from TrackSpec_gSpec's INT fog fields read as HALFWORDS
-   * (lhu) [the 0xDC/0xDE slots are also read back as Skid_gScratchPos1/2 in draww.cpp]; fogstate@+0x10E
-   * from the fogstate short's low byte (lbu). Ghidra AND IDA both constant-fold TrackSpec_gSpec (BSS-zero)
-   * to 0 here -- RAW oracle wins (methodology 3.2c). One 0x1F800000 base ($s2) is CSE'd across every
-  * scratchpad store (base+displacement), NOT a per-store lui. */
-  trackSpec = &TrackSpec_gSpec;
-  /* MATCH: 0-insn void-tail fence pins the flag store BELOW the four fog/time
-     loads -- sched2 otherwise hoists it up to fill their load-delay slots
-     (oracle 8007E1A4 sits after `lw a1,0x54(s0)`). Statement reorder alone is
-     inert here (3 positions probed, all 4 diffs). */
-  __asm__("" : : "i"(0));
-  stackSpeedUpEnbabledFlag = 0;
-  ((Draw_tGiveShelbyMoreCache *)sd)->startfog =
-      *(u_short *)&trackSpec->fogspec.start;
-  ((Draw_tGiveShelbyMoreCache *)sd)->distfog =
-      *(u_short *)&trackSpec->fogspec.dist2base;
-  ((Draw_tGiveShelbyMoreCache *)sd)->fogstate =
-      (u_char)trackSpec->fogstate;
-  if (GameSetup_gData.Time != 0) {
-    short a;
-    u_char ac;
-    u_char bc;
-    u_char cc;
-    u_char dc;
 
+
+
+
+  BWorld_gChunkCount = SetupChunkBuildList(gVi2); sd = (Draw_DCache *)0x1f800000;
+
+  gWSavePtr = SetSp(gWSavePtr); stackSpeedUpEnbabledFlag = 0;
+
+
+  ((Draw_tGiveShelbyMoreCache *)sd)->startfog = (u_short)TrackSpec_gSpec.fogspec.start;
+  ((Draw_tGiveShelbyMoreCache *)sd)->distfog = (u_short)TrackSpec_gSpec.fogspec.dist2base;
+  ((Draw_tGiveShelbyMoreCache *)sd)->fogstate = (u_char)TrackSpec_gSpec.fogstate;
+
+
+  if (GameSetup_gData.Time != 0)
+  { short a; u_char ac; u_char bc; u_char cc; u_char dc;
     a = (short)Night_gZNear;
     ac = (u_char)Night_gXDistShift;
     bc = (u_char)Night_gZDistShift;
     cc = (u_char)Night_gDrawLightning;
     dc = (u_char)Night_gLightningType;
+
+
     ((Draw_tGiveShelbyMoreCache *)sd)->night_ZNear = a;
     ((Draw_tGiveShelbyMoreCache *)sd)->night_XDistShift = ac;
     ((Draw_tGiveShelbyMoreCache *)sd)->night_ZDistShift = bc;
     ((Draw_tGiveShelbyMoreCache *)sd)->night_DrawLightning = cc;
-    ((Draw_tGiveShelbyMoreCache *)sd)->night_LightningType = dc;
-  }
-  gWSavePtr = SetSp(0x1f8003fc);
-  stackSpeedUpEnbabledFlag = 1;
+    ((Draw_tGiveShelbyMoreCache *)sd)->night_LightningType = dc; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  gWSavePtr = SetSp(0x1f8003fc); stackSpeedUpEnbabledFlag = 1;
   DrawW_DoTrough(Vi,(tBuildEntry *)BWorld_gChunkBuildList);
-  gWSavePtr = SetSp(gWSavePtr);
-  stackSpeedUpEnbabledFlag = 0;
-  if (GameSetup_gData.track == 0 && GameSetup_gData.Weather == 1) goto NO_LINES;
-  {
-    gWSavePtr = SetSp(0x1f8003fc);
-    stackSpeedUpEnbabledFlag = 1;
+  gWSavePtr = SetSp(gWSavePtr); stackSpeedUpEnbabledFlag = 0;
+
+
+
+
+
+  if (GameSetup_gData.track != 0 || GameSetup_gData.Weather != 1) {
+
+
+    gWSavePtr = SetSp(0x1f8003fc); stackSpeedUpEnbabledFlag = 1;
+
     DrawW_DoLines(Vi,(tBuildEntry *)BWorld_gChunkBuildList,sd);
-    gWSavePtr = SetSp(gWSavePtr);
-    stackSpeedUpEnbabledFlag = 0;
+
+
+    gWSavePtr = SetSp(gWSavePtr); stackSpeedUpEnbabledFlag = 0;
   }
-NO_LINES:
-  if (gSpikeBelt != 0) {
-    for (int buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
-      if (((tBuildEntry *)BWorld_gChunkBuildList)[buildInd].chunkInd == gSpikeBeltChunk) {
-        DrawW_BuildSpikeBelt(Vi,gSpikeBeltWidth,sd);
-      }
-    }
+
+  if (gSpikeBelt != 0) { { int buildInd = 0;
+
+    while (buildInd < BWorld_gChunkCount) {
+
+    if (((tBuildEntry *)BWorld_gChunkBuildList)[buildInd].chunkInd == gSpikeBeltChunk) {
+      DrawW_BuildSpikeBelt(Vi,gSpikeBeltWidth,sd);
+    } buildInd = buildInd + 1; } }
+
   }
-  if (GameSetup_gData.commMode == 0) {
+
+
+
+
+
+
+
+  if (GameSetup_gData.commMode == 0)
+  {
+
     for (int buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
-      Chunk *chunkPtr;
-      int chunkInd;
+      Chunk *chunkPtr; int chunkInd;
 
       chunkInd = ((tBuildEntry *)BWorld_gChunkBuildList)[buildInd].chunkInd;
+
       chunkPtr = Track_chunkList + chunkInd;
+
       if (chunkPtr->sfxBuf != (Group *)0x0) {
+
+
         BWorld_BuildGlareEffects(Vi,sd,chunkPtr->sfxBuf);
       }
     }
+
   }
-  if ((Object_customSFXInst != (Group *)0x0) &&
-      (BWorld_IsSliceInBuildList(Object_customSliceNum) != 0)) {
-    BWorld_BuildGlareEffects(Vi,sd,Object_customSFXInst);
+
+  if (Object_customSFXInst != (Group *)0x0) {
+
+
+    if (BWorld_IsSliceInBuildList(Object_customSliceNum) != 0) {
+
+      BWorld_BuildGlareEffects(Vi,sd,Object_customSFXInst);
+    }
   }
+
+
+
+
+
+
+
+
+
+
   DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
+
+
+
   DrawW_DoObjects(Vi,(tBuildEntry *)BWorld_gChunkBuildList);
+
+
+
+
+
+
+
+
+
+
+
+
   return;
 }
 
@@ -1003,6 +1082,7 @@ NO_LINES:
  * SOURCE-REVIEW-UNRESOLVED: direct return remains12word PASS/native CLEAN
  * but loses four retail +6 epilogue tags and end6 (becomes5). Restored;
  * producer/original-name recovery remains open, not a debug exemption. */
+#line 1106 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 char * BWAllocMem(long size)
 {
   /* SYM records this as BWAllocMem's function-local STAT at 0x8013c760. */
@@ -1014,6 +1094,7 @@ char * BWAllocMem(long size)
 }
 
 /* ---- BWorld_InitContexts__Fv  [@0x8007e428] ---- */
+#line 1145 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_InitContexts(void)
 {
   int i;
@@ -1028,6 +1109,7 @@ void BWorld_InitContexts(void)
 }
 
 /* ---- BWorld_DeInitContexts__Fv  [@0x8007e460] ---- */
+#line 1164 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_DeInitContexts(void)
 {
 
@@ -1035,37 +1117,55 @@ void BWorld_DeInitContexts(void)
 }
 
 /* ---- SetContext__Fi  [@0x8007e480] ---- */
+#line 1177 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void SetContext(int contextHandle)
 {
   gCurrContext = gContextMan.contexts + contextHandle;
 }
 
+/* MATCH: unchanged switch/field/return tokens, ordinary anchored layout.
+ * The first break shares the last store's source line; all46 instruction
+ * tags and block/end coordinates now agree. No source-only object added. */
 /* ---- BWorld_OpenContext__Fii  [@0x8007e4ac] ---- */
+#line 1188 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int BWorld_OpenContext(int contextType,int client)
 {
   BW_tContext *context;
 
   context = gContextMan.contexts + gContextMan.count;
   context->slicePos.slice = 0;
-  context->client = client;
-  switch (contextType) {
+
+
+  context->client = client; switch (contextType) {
     case 0:
+
       context->chunkFarZClipSq = 0xcea40;
       context->polyFarZClipSq = 640000;
+
       context->lineFarZClipSq = 0x4c90;
-      context->lowDetailDistSq = 0xe100;
-      break;
+
+
+      context->lowDetailDistSq = 0xe100; break;
+
     case 1:
       context->chunkFarZClipSq = 0x52210;
       context->polyFarZClipSq = 0x44944;
+
       context->lineFarZClipSq = 10000;
       context->lowDetailDistSq = 0x8d04;
       break;
+
+
+
+
   }
+
+
   return gContextMan.count++;
 }
 
 /* ---- BWorld_Restart__Fv  [@0x8007e564] ---- */
+#line 1231 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_Restart(void)
 {
   {
@@ -1084,94 +1184,120 @@ void BWorld_Restart(void)
 }
 
 /* ---- BWorld_StartLoop__Fv  [@0x8007e5c0] ---- */
+#line 1260 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_StartLoop(void)
 {
   return;
 }
 
-/* SOURCE REVIEW (2026-10-13): direct single rand draw with conditional
- * multiplier44diff/181 vs187,then reverted. sceneStartRandom remains
- * explicitly unresolved,not required/proven original from this failure.
- */
+/* MATCH: the bound-first maximum (2 > numLaps ? 2 : numLaps) removes the
+ * unrecorded random-word capture with all187 words/whole normal ELF unchanged.
+ * Value-first factor and destination-staging controls differ; their failures
+ * did not prove a distinct original source object. Retail-derived ordinary
+ * layout now matches all187 word tags, block lines and the function end;
+ * this does not uniquely prove the literal original macro/comment text. */
 /* ---- BWorld_Init__Fv  [@0x8007e5c8] ---- */
+#line 1279 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_Init(void)
 {
   int AudioScene;
-  int sceneStartRandom; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original rand-result producer remains unknown. */
-
   if (Replay_ReplayMode == 0) {
+
     if ((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_Tournament)) {
+
+
       GameSetup_gData.SceneNumber = rand() / 0x4000;
-      sceneStartRandom = rand();
-      if (GameSetup_gData.numLaps >= 2) {
-        GameSetup_gData.SceneStartLap =
-            sceneStartRandom * GameSetup_gData.numLaps / 0x8000;
-      }
-      else {
-        GameSetup_gData.SceneStartLap = sceneStartRandom / 0x4000;
-      }
-      GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap +
-          rand() * GameSetup_gData.numLaps / 0x8000;
+      GameSetup_gData.SceneStartLap = rand() * (2 > GameSetup_gData.numLaps ? 2 : GameSetup_gData.numLaps) / 0x8000;
+      GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap + rand() * GameSetup_gData.numLaps / 0x8000;
+
+
       if (GameSetup_gData.SceneStartLap == GameSetup_gData.SceneEndLap) {
         GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap + 1;
       }
+
       if (GameSetup_gData.Weather != 0) {
+
         GameSetup_gData.SceneNumber = GameSetup_gData.SceneNumber + 10;
         GameSetup_gData.SceneEndLap = GameSetup_gData.SceneEndLap + 5;
-      }
-      else if (GameSetup_gData.trafficDensity != 0) {
+
+
+      } else if (GameSetup_gData.trafficDensity != 0) {
         GameSetup_gData.SceneNumber = GameSetup_gData.SceneNumber + 0x14;
       }
       SceneLoaded = 0;
     }
+
+
+
+
     else {
+
       GameSetup_gData.SceneNumber = 99;
       GameSetup_gData.SceneStartLap = 99;
       GameSetup_gData.SceneEndLap = 99;
     }
   }
+
   Object_InitStatus();
+
+
+
   Track_SetTrackNumber(GameSetup_gData.track);
+
+
   BWorld_InitContexts();
   if (GameSetup_gData.commMode == 1) {
+
     BWorld_OpenContext(1,0);
     BWorld_OpenContext(1,1);
-  }
-  else {
+  } else {
+
     BWorld_OpenContext(0,0);
   }
   SetContext(0);
-  if (GameSetup_gData.Time != 0) {
-    if (GameSetup_gData.Weather != 0) {
-      Track_Init(Track_MakeTrackPathName("S.grp"));
-    }
-    else {
-      Track_Init(Track_MakeTrackPathName("N.grp"));
-    }
-  }
+
+
+  if (GameSetup_gData.Time != 0) { if (GameSetup_gData.Weather != 0) {
+    Track_Init(Track_MakeTrackPathName("S.grp"));
+  } else {
+    Track_Init(Track_MakeTrackPathName("N.grp")); } }
   else if (GameSetup_gData.Weather != 0) {
     Track_Init(Track_MakeTrackPathName("W.grp"));
-  }
-  else {
+  } else {
     Track_Init(Track_MakeTrackPathName(".grp"));
   }
+
+
   Object_InitCustomObjects();
+
   Object_InitIMassObjectInfo();
+
+
+
   if (gPersistObjDef != (Group *)0x0) {
     Scene_Init(gPersistObjDef->m_num_elements);
   }
   Loading_UpdateLoadingScreen(5);
+
   Anim_InitSystem(Track_MakeTrackDataPathName(""));
-  if (((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_HotPursuit)) &&
-     (GameSetup_gData.raceType != RaceType_Id5)) {
+
+
+
+  if (((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_HotPursuit)) && (GameSetup_gData.raceType != RaceType_Id5)) {
+
     Scene_LoadSceneFile(GameSetup_gData.SceneNumber);
   }
+
+
   AudioScene = (u_int)(GameSetup_gData.Time != 0);
+
   if (GameSetup_gData.Weather != 0) {
     AudioScene = AudioScene + 2;
   }
   AudList_LoadAudioFile(AudioScene);
+
   BWorld_InitSpikeBelt();
+
   return;
 }
 
@@ -1184,6 +1310,7 @@ void Object_DeInitCustomObjects(void);
 void AudList_PurgeAudio(void);
 void Anim_DeInitSystem(void);
 
+#line 1388 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_DeInit(void)
 {
   Object_KillStatus();

@@ -3,7 +3,8 @@
 #ifndef NFS4_SHARED_CSKYSPEC_H
 #define NFS4_SHARED_CSKYSPEC_H
 
-struct CSkySpec {
+/* Retail TPDEF records retain the explicit completed-type alias too. */
+typedef struct CSkySpec {
     int type, flags;
     CVECTOR frontcolors[5], backcolors[5], clearcolor;
     int sunAngleInSky, sunHeightInSky, moonAngleInSky, moonHeightInSky;
@@ -14,5 +15,5 @@ struct CSkySpec {
     int yoffset;
     char cloudIndices[5][4];
     int ringAngles[5];
-};
+} CSkySpec;
 #endif

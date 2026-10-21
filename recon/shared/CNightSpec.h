@@ -3,5 +3,6 @@
 #ifndef NFS4_SHARED_CNIGHTSPEC_H
 #define NFS4_SHARED_CNIGHTSPEC_H
 
-struct CNightSpec { CVECTOR nightcolor; };
+/* Retail TPDEF records retain the explicit completed-type alias too. */
+typedef struct CNightSpec { CVECTOR nightcolor; } CNightSpec;
 #endif

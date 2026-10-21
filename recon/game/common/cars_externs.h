@@ -7,9 +7,12 @@
 extern "C" {
 int fixeddiv(...);
 int fixedmult(...);
-char *loadfileadrz(...);
-void *loadpackadr(...);
-void *locatebig(...);
+/* Two fixed input words follow the PSX loader implementations. The existing
+ * loadfileadrz char* result is this consumer's address view, not a proven
+ * original SDK return spelling (the generic atomic wrapper uses int). */
+char *loadfileadrz(char *name, int memclass);
+void *loadpackadr(char *name, int memclass);
+char *locatebig(void *buf, char *name);
 void *memset(...);
 int purgememadr(...);
 int random(...);
@@ -48,11 +51,13 @@ extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj);
 extern void Force_StartUp(void);
 extern void Force_Update(Car_tObj *car);
-extern void Newton_ApplyTheLawOfGravity(Car_tObj *newtonObj) asm("Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj");
-extern void Newton_InitBaseNewtonObj(u_int *newtonObj,u_int index,int mass,u_int moInertia,int dimX, int dimY,int dimZ) asm("Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii");
-extern void Newton_QDUpdateRot32Hz(int newtonObj) asm("Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj");
-extern void Newton_QDUpdateRot64Hz(int newtonObj) asm("Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj");
-extern void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj) asm("Newton_QDUpdateVel__FP13BO_tNewtonObj");
+/* Retail NEWTON.CPP parameters and GCC manglings agree on these signatures.
+ * Ordinary C++ linkage now generates the retail names without asm aliases. */
+extern void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj);
+extern void Newton_InitBaseNewtonObj(BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,int dimX,int dimY,int dimZ);
+extern void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj);
+extern void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj);
+extern void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj);
 extern void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction);
 extern void Newton_UpdateRoadInfo(BO_tNewtonObj *n);
 extern void Object_ClearCustomObjects(void);

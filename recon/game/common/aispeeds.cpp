@@ -1,6 +1,8 @@
 /* game/common/aispeeds.cpp -- RECONSTRUCTED (NFS4 AI speed/glue/curve control; 29 functions).
  *   SYM-v3 locals and retail assembly are the reconstruction authorities.
  *   NOT original source; SYM-faithful, recompilable C++.
+ *   Function anchors restore supplied identities/headers; internal SLD is
+ *   still independently checked and is not implied by an anchor.
  */
 #include "aispeeds_types.h"
 #include "aispeeds_externs.h"
@@ -86,24 +88,37 @@ int AISpeeds_GetUpgradeTopSpeedMult(int carIndex);
 
 
 /* ---- AISpeeds_StartUp__Fv  [@0x8006d5b4] ---- */
+#line 206 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_StartUp(void)
 {
   AISpeeds_WeatherMultFactors =
-       reservememadr("aiwther",0x104,0);
-  AISpeeds_ReadTuningInfo();
-  return;
+
+
+
+
+
+  reservememadr("aiwther",0x104,0);
+  AISpeeds_ReadTuningInfo(); return;
 }
 
 /* ---- AISpeeds_ReadTuningInfo__Fv  [@0x8006d5ec] ---- */
 /* SYM recovery: for-declarations restore repeated slotLoop/trackLoop records.
- * SOURCE REVIEW: distanceMaintainTime is an earlier inferred name, not a
- * supplied retail local. The empty +0x58..+0x64 region covers the loop GUARD,
- * ending before the timing read; it does not establish a named timing object.
- * Removing it lets GCC rotate the loop and changes code. Call/value statement
- * expressions retain the stream but add an unsupported second scope. Neither
- * result proves the original producer or spelling. Keep the existing matched
- * form pending recovery, not as an exemption from the source-restoration goal.
- * Controls: build/nc12/aispeeds_tuning_source_20261018. SLD remains open. */
+ * SOURCE-REVIEW-UNRESOLVED: the local spelling fallBackRandomTime is inferred
+ * from the supplied destination field, not a recovered identifier. Its value
+ * is now the FOURTH read: retail separates that read at240 from fixeddiv at242.
+ * The first read/store share237 and do not need the former distance capture.
+ * Multiline nested calls do not reproduce the two statement groups; one real
+ * file-value local does, without a new declaration-only scope dial. The ordinary
+ * counted for and all supplied declaration/region contracts remain byte-exact.
+ * Keep original spelling distinct from the recovered value/statement producer.
+ * Controls: build/nc12/aispeeds_tuning_source_20261018 and
+ * build/nc12/aispeeds_sld_20261020. Full absolute SLD is now exact; see
+ * build/nc12/aispeeds_layout_20261020/final-proof.json (run-o89layrf).
+ * Original identifier spelling remains unresolved, not exempted by SLD. */
+/* SYM identifies the selected model as `carType` (s3) and the nested
+     * iteration variable as `carModelLoop` (s0). Keeping those scopes distinct
+     * places the s0 zero-initialization in the oracle's branch delay slot. */
+#line 219 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_ReadTuningInfo(void)
 {
   char filename[110];
@@ -113,72 +128,105 @@ void AISpeeds_ReadTuningInfo(void)
   sprintf(filename,"%stuning.bin",Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   Udff_GetInt(handle);
-  for (int slotLoop = 0; ; ) {
-    int distanceMaintainTime;
-    if (6 <= slotLoop) break;
-    distanceMaintainTime = Udff_GetInt(handle);
-    CaravanInfo[slotLoop].distanceMaintainTime32 = distanceMaintainTime << 5;
+
+
+
+
+
+
+  for (int slotLoop = 0; slotLoop < 6; slotLoop++) {
+    int fallBackRandomTime;
+
+    CaravanInfo[slotLoop].distanceMaintainTime32 = Udff_GetInt(handle) << 5;
     CaravanInfo[slotLoop].minDistanceMeters = Udff_GetInt(handle);
     CaravanInfo[slotLoop].maxDistanceMeters = Udff_GetInt(handle);
+    fallBackRandomTime = Udff_GetInt(handle);
     CaravanInfo[slotLoop].fallBackRandomTime_TickPercent =
-        fixeddiv(0x10000,Udff_GetInt(handle) << 0x15);
-    slotLoop = slotLoop + 1;
+    fixeddiv(0x10000,fallBackRandomTime << 0x15);
+
+
+
+
+
+
+
+
+
+
+
   }
-  if ((AISPEEDS_RACE_TYPE == RaceType_SingleRace) && (0 < Cars_gNumAIRaceCars)) {
+
+
+  if ((GameSetup_gData.raceType == RaceType_SingleRace) && (0 < Cars_gNumAIRaceCars))
+  {
     int skillMult[3];
-    /* SYM identifies the selected model as `carType` (s3) and the nested
-     * iteration variable as `carModelLoop` (s0). Keeping those scopes distinct
-     * places the s0 zero-initialization in the oracle's branch delay slot. */
     int carType;
-    carType = *(*(int **)((char *)Cars_gAIRaceCarList[0] + 0x288));  /* @0x5D6C8 disasm-v2 */
-    {
-      int carModelLoop;
-      carModelLoop = 0;
-      do {
+    carType = Cars_gAIRaceCarList[0]->carInfo->carType; { int carModelLoop;
+      carModelLoop = 0; do {
+
         skillMult[0] = Udff_GetInt(handle);
         skillMult[1] = Udff_GetInt(handle);
         skillMult[2] = Udff_GetInt(handle);
         if (carModelLoop == carType) {
-          AISPEEDS_TOURNAMENT_MULTIPLIER = skillMult[AISPEEDS_SKILL];
-        }
-        carModelLoop = carModelLoop + 1;
-      } while (carModelLoop < 0x16);
+          GameSetup_gData.tournamentMultiplier = skillMult[GameSetup_gData.skill]; }
+        carModelLoop = carModelLoop + 1; } while (carModelLoop < 0x16);
     }
   }
-  else {
+  else
+  {
+
     for (int carModelLoop = 0; carModelLoop < 0x16; carModelLoop = carModelLoop + 1) {
+
       Udff_GetInt(handle);
       Udff_GetInt(handle);
       Udff_GetInt(handle);
     }
   }
+
+
+
+
+
   AISpeeds_trackAndNightMult = 0;
   for (int trackLoop = 0; trackLoop < 0xc; trackLoop = trackLoop + 1) {
-    int trackMult;
-    int nightMult;
+    int trackMult; int nightMult;
     Udff_GetInt(handle);
     trackMult = Udff_GetInt(handle);
     nightMult = Udff_GetInt(handle);
-    if (AISPEEDS_TIME == 0) {
+
+
+
+    if (GameSetup_gData.Time == 0) {
       nightMult = 0x10000;
     }
-    if (trackLoop == AISPEEDS_TRACK) {
+    if (trackLoop == GameSetup_gData.track) {
+
       AISpeeds_trackAndNightMult = fixedmult(trackMult,nightMult);
     }
   }
+
+
+
+
   weatherRamp = Udff_GetInt(handle);
-  for (int curveLoop = 0; curveLoop < 0x41; curveLoop = curveLoop + 1) {
-    AISpeeds_WeatherMultFactors[curveLoop] =
-        0x10000 - (weatherRamp * curveLoop) / 0x40;
-  }
+
+  for (int curveLoop = 0; curveLoop < 0x41; curveLoop = curveLoop + 1) { AISpeeds_WeatherMultFactors[curveLoop] =
+    0x10000 - (weatherRamp * curveLoop) / 0x40; }
+
+
+
+
+
   Udff_GetBuffer(handle,(char *)&engineUpgrade,0x10);
   Udff_GetBuffer(handle,(char *)&suspensionUpgrade,0x10);
   Udff_GetBuffer(handle,(char *)&aeroUpgrade,0x10);
-  Udff_Close(handle);
-  return;
+
+
+  Udff_Close(handle); return;
 }
 
 /* ---- AISpeeds_CleanUp__Fv  [@0x8006d870] ---- */
+#line 325 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_CleanUp(void)
 {
 
@@ -191,12 +239,13 @@ void AISpeeds_CleanUp(void)
 }
 
 /* ---- AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars__FP8Car_tObj  [@0x8006d89c] ---- */
+#line 346 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(Car_tObj *carObj)
 {
   int leadIndex = Cars_gNumAIRaceCars - carObj->AISlot;
   int f_crappyFrameRateCompensatingSpeedup;
 
-  if ((1 < Cars_gNumAIRaceCars) && (AISPEEDS_RACE_TYPE != RaceType_HotPursuit) && (simGlobal.gameTicks < 0x780) && (Cars_gNumHumanRaceCars == 1) && ((*(u_short *)((char *)Cars_gHumanRaceCarList[0] + 6)) < (carObj->N).totalSlice))
+  if ((1 < Cars_gNumAIRaceCars) && (GameSetup_gData.raceType != RaceType_HotPursuit) && (simGlobal.gameTicks < 0x780) && (Cars_gNumHumanRaceCars == 1) && ((Cars_gHumanRaceCarList[0]->N.totalSlice) < (carObj->N).totalSlice))
   {
     return (f_crappyFrameRateCompensatingSpeedup = leadIndex * 0x3333) + 0x10000;
   }
@@ -211,6 +260,7 @@ int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRend
 }
 
 /* ---- AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi  [@0x8006d938] ---- */
+#line 376 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
 {
   int topSpeed;
@@ -224,75 +274,156 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   int f_crappyFrameRateCompensatingSpeedup;
   int f_caravan;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   topSpeed = AISpeeds_CalcOpponentCurveSpeed(carObj);
+
+
+
+
+
   if (carObj->fallBehindCar != (Car_tObj *)0x0) {
+
     f_glue = 0x10000;
   }
-  else if (((AISPEEDS_RACE_TYPE == RaceType_HotPursuit) || (AISPEEDS_RACE_TYPE == RaceType_Id5)) &&
-     ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
-      ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
+  else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 ||
+  ((Cars_gNumHumanRaceCars == 2 && (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) != 0)))))) {
     f_glue = AISpeeds_BTCGetGlueFactor(carObj);
-  }
-  else {
+  } else {
     f_glue = AISpeeds_GetGlueFactor(carObj);
   }
-  f_script = AISpeeds_GetScriptFactor(carObj);
-  f_nitrous = carObj->speedNitrous;
-  f_damage = AISpeeds_GetDamageFactor(carObj);
-  if (AISPEEDS_RACE_TYPE == RaceType_HotPursuit) goto useDefaultCaravan;
-  if (Cars_gNumAIRaceCars < 2) goto useDefaultCaravan;
-  f_caravan = AISpeeds_GetCaravanFactor(carObj);
-  goto haveCaravan;
-useDefaultCaravan:
-  f_caravan = 0x10000;
-haveCaravan:
-  f_unfettered =
-      (f_nitrous / 256) *
-      (((AISpeeds_trackAndNightMult / 256) *
-        (((f_caravan / 256) *
-          (((AISPEEDS_TOURNAMENT_MULTIPLIER / 256) *
-            (f_glue / 256)) / 256)) / 256)) / 256);
 
+
+
+  f_script = AISpeeds_GetScriptFactor(carObj);
+
+
+
+
+  f_nitrous = carObj->speedNitrous;
+
+
+
+
+  f_damage = AISpeeds_GetDamageFactor(carObj);
+
+
+
+
+  if (GameSetup_gData.raceType != RaceType_HotPursuit && Cars_gNumAIRaceCars >= 2)
+  f_caravan = AISpeeds_GetCaravanFactor(carObj);
+  else
+  f_caravan = 0x10000;
+  f_unfettered =
+  (f_nitrous / 256) *
+  (((AISpeeds_trackAndNightMult / 256) *
+  (((f_caravan / 256) *
+  (((GameSetup_gData.tournamentMultiplier / 256) *
+
+
+
+
+
+
+
+
+
+
+
+  (f_glue / 256)) / 256)) / 256)) / 256);
   f_final =
-      (f_unfettered / 256) *
-      (((f_damage / 256) * (f_script / 256)) / 256);
-  if ((AISPEEDS_RACE_TYPE != RaceType_HotPursuit) && ((carObj->N).totalSlice < 0x96)) {
-    f_unfettered = fixedmult(
-        (0x10000 - f_unfettered) * (u_int)(carObj->N).totalSlice,0x1b4);
-    f_unfettered = 0x10000 - f_unfettered;
-    if ((carObj->N).totalSlice < 0x96) {
-      f_final = fixedmult((0x10000 - f_final) * (u_int)(carObj->N).totalSlice,0x1b4);
-      f_final = 0x10000 - f_final;
+  (f_unfettered / 256) *
+  (((f_damage / 256) * (f_script / 256)) / 256);
+
+
+
+
+
+
+
+
+
+
+  if (GameSetup_gData.raceType != RaceType_HotPursuit) {
+
+    if ((carObj->N).totalSlice < 0x96) { f_unfettered = fixedmult( (0x10000 - f_unfettered) * (u_int)(carObj->N).totalSlice,0x1b4); f_unfettered = 0x10000 - f_unfettered; }
+    if ((carObj->N).totalSlice < 0x96) { f_final = fixedmult((0x10000 - f_final) * (u_int)(carObj->N).totalSlice,0x1b4); f_final = 0x10000 - f_final;
     }
   }
-  f_crappyFrameRateCompensatingSpeedup = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj);
-  if (f_crappyFrameRateCompensatingSpeedup != 0x10000) {
+
+  f_crappyFrameRateCompensatingSpeedup = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj); if (f_crappyFrameRateCompensatingSpeedup != 0x10000) {
     f_unfettered =
-        (f_unfettered / 256) * (f_crappyFrameRateCompensatingSpeedup / 256);
-    f_final =
-        (f_final / 256) * (f_crappyFrameRateCompensatingSpeedup / 256);
-  }
-  f_final = AISpeeds_LimitGlueMultiplier(carObj,f_final);
-  carObj->aiGlue = f_final;
-  f_unfettered = AISpeeds_LimitGlueMultiplier(carObj,f_unfettered);
-  if (0x10000 < carObj->aiGlue) {
-    (carObj->N).gravityMult = carObj->aiGlue;
-  }
-  else {
-    (carObj->N).gravityMult = 0x10000;
+    (f_unfettered / 256) * (f_crappyFrameRateCompensatingSpeedup / 256); f_final =
+    (f_final / 256) * (f_crappyFrameRateCompensatingSpeedup / 256);
   }
 
+
+
+
+
+
+  f_final = AISpeeds_LimitGlueMultiplier(carObj,f_final); carObj->aiGlue = f_final;
+  f_unfettered = AISpeeds_LimitGlueMultiplier(carObj,f_unfettered);
+
+
+
+
+
+
+  if (0x10000 < carObj->aiGlue) {
+    (carObj->N).gravityMult = carObj->aiGlue;
+  } else {
+    (carObj->N).gravityMult = 0x10000;
+  }
   newDesired = (topSpeed / 256) * (carObj->aiGlue / 256);
   *unFetteredDesiredSpeed = (topSpeed / 256) * (f_unfettered / 256);
   if ((((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) &&
-     (((AISPEEDS_RACE_TYPE != RaceType_HotPursuit && (AISPEEDS_RACE_TYPE != RaceType_Id5)) ||
-      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
-       ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
-    int metersPastFinish;
-    int latLeft;
-    int latRight;
-    int totalSortIndex;
+  (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
+  ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) == 0 &&
 
+
+  ((Cars_gNumHumanRaceCars != 2 || (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) == 0)))))))) {
+    int metersPastFinish; int latLeft; int latRight; int totalSortIndex;
     metersPastFinish = AIWorld_ApxSplineDistance(carObj,0);
     totalSortIndex = 0;
     metersPastFinish = __builtin_abs(metersPastFinish);
@@ -302,40 +433,67 @@ haveCaravan:
     while (totalSortIndex < Cars_gNumCars) {
 
       if (Cars_gTotalSortedList[totalSortIndex] == carObj) {
-
-        break;
-
-      }
-
+        break; }
       totalSortIndex++;
-
     }
 
     if (totalSortIndex * 0x280000 <= metersPastFinish) {
       if ((latLeft <
-           (int)-((AISPEEDS_SLICE_WIDTH_LF(carObj->N.simRoadInfo.slice) << 15) *
-                  (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) >> 4))) ||
-          ((int)((AISPEEDS_SLICE_WIDTH_RT(carObj->N.simRoadInfo.slice) << 15) *
-                 (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) & 0xf)) < latLeft) ||
-          (latRight <
-           (int)-((AISPEEDS_SLICE_WIDTH_LF(carObj->N.simRoadInfo.slice) << 15) *
-                  (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) >> 4))) ||
-          ((int)((AISPEEDS_SLICE_WIDTH_RT(carObj->N.simRoadInfo.slice) << 15) *
-                 (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) & 0xf)) < latRight) ||
-          (0x1900000 < metersPastFinish)) {
+      (int)-((AISPEEDS_SLICE_WIDTH_LF(carObj->N.simRoadInfo.slice) << 15) * (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) >> 4))) || ((int)((AISPEEDS_SLICE_WIDTH_RT(carObj->N.simRoadInfo.slice) << 15) * (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) & 0xf)) < latLeft) || (latRight < (int)-((AISPEEDS_SLICE_WIDTH_LF(carObj->N.simRoadInfo.slice) << 15) * (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) >> 4))) || ((int)((AISPEEDS_SLICE_WIDTH_RT(carObj->N.simRoadInfo.slice) << 15) * (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) & 0xf)) < latRight) ||
+      (0x1900000 < metersPastFinish)) {
         newDesired = 0;
-      }
-      else {
+      } else {
         newDesired = 0x11c71c;
       }
     }
   }
-LAB_8006de40:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   *unFetteredDesiredSpeed = *unFetteredDesiredSpeed * carObj->direction;
+
   return newDesired * carObj->direction;
 }
 
 /* ---- AISpeeds_NeedToSlowDownForCurve__FP8Car_tObjiii  [@0x8006de90] ---- */
+#line 624 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int currentSpeed,int futureCurveSpeed)
 {
   if (currentSpeed < futureCurveSpeed)
@@ -355,6 +513,7 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
 }
 
 /* ---- AISpeeds_CalcOpponentCurveSpeed__FP8Car_tObj  [@0x8006df34] ---- */
+#line 643 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 {
   int speedHere = __builtin_abs(carObj->currentSpeed);
@@ -398,7 +557,7 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 
 
     curveSpeed = (carObj->curveSpeedTable)->Get(curve);
-    if (AISPEEDS_WEATHER != 0) curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve / 4]);
+    if (GameSetup_gData.Weather != 0) curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve / 4]);
 
     if (scanMetersDistanceInt == 0 || AISpeeds_NeedToSlowDownForCurve(carObj,scanMetersDistanceInt << 0x10,speedHere,curveSpeed) != 0)
     {
@@ -419,69 +578,84 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
  * not equivalent compiler graphs; their failures do not prove another object.
  * Literal macro spelling and complete SLD attribution remain unresolved.
  * Controls/backups: build/nc12/aispeeds_glue_source_20261018. */
-int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
-{
-  /* Native loop scopes recovered without an asm fence: the excluded-car
+/* Native loop scopes recovered without an asm fence: the excluded-car
    * early return and for-declared humanLoop preserve all 111 instructions.
    * The default-first nested if/else restores all remaining native scope
-   * boundaries and glue/glueIndex depths (run-3js278sh). Relative source-line/
-   * SLD attribution remains unresolved. */
-  int closestHumanDistance;
-  Car_tObj *closestHumanCarObj;
-
-  closestHumanDistance = 0x270f0000;
-  closestHumanCarObj = (Car_tObj *)0x0;
-  if ((carObj->carFlags & 0x20U) != 0) return 0x10000;
-    /* H44 (wave-21, same class as GetPrevAICar's H43): the SYM has NO pointer-walk local here
+   * boundaries and glue/glueIndex depths (run-3js278sh). Full absolute SLD
+   * now agrees too (run-o89layrf); literal source spelling is not certified. */
+/* H44 (wave-21, same class as GetPrevAICar's H43): the SYM has NO pointer-walk local here
      * (no ppCVarN entry) -- the oracle's $s1-incrementing walk over Cars_gHumanRaceCarList is
      * pure gcc strength-reduction from real array indexing. A hand-rolled pointer local forces
      * the walk into a NAMED register, backwards vs the oracle's synthetic-pointer/named-counter
      * split (§3.12 #1). Also: humanLoop/copCar/longMetersBetween are SYM-BLOCK-SCOPED (nested
      * blocks @0x8006e0d8/0x8006e0e4/0x8006e118), not function-scope -- reproduced as nested
      * declarations (SYM block scopes are load-bearing for gcc-2.8 pseudo-numbering). */
-    for (int humanLoop = 0; humanLoop < Cars_gNumHumanRaceCars; humanLoop = humanLoop + 1) {
-      Car_tObj *copCar;
-      copCar = Cars_gHumanRaceCarList[humanLoop];
-      if ((copCar->carFlags & 0x200U) != 0) {
-        int longMetersBetween;
-        longMetersBetween = AIWorld_ApxSplineDistance(carObj,copCar);
-        if (__builtin_abs(longMetersBetween) <
-            __builtin_abs(closestHumanDistance)) {
-          closestHumanDistance = longMetersBetween;
-          closestHumanCarObj = copCar;
-        }
-      }
-    }
-    /* H57: the oracle computes closestHumanDistance*carObj->direction EARLY (scheduled into the
+/* H57: the oracle computes closestHumanDistance*carObj->direction EARLY (scheduled into the
      * RSControl-check's delay slot), regardless of whether the early-return is taken -- a
      * dead-on-one-path speculative computation. Materializing it here (source-level) instead of
      * inline inside the later `/0x3c0000+10` expression reproduces that scheduling. */
-    closestHumanDistance = closestHumanDistance * carObj->direction;
-    if (closestHumanCarObj->RSControl != 0) {
-      return 0x10000;
-    } else {
-      if (closestHumanCarObj->currentSpeed + 0x9ffffU <= 0x13fffe) {
-        return 0x10000;
-      } else {
-        int glueIndex;
-        int glue;
-        glueIndex = closestHumanDistance / 0x3c0000 + 10;
-        glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
-        glue = AIPerson_glueTable[glueIndex];
-        if (glue < 0x10000) {
-          glue = fixedmult(0x10000 - glue,carObj->btcGlueModifier);
-          glue = 0x10000 - glue;
-        }
-        if (glue < 0x6666) {
-          glue = 0x6666;
-        }
-        glue = fixedmult(glue,carObj->speedFactor);
-        return glue;
+#line 707 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
+int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
+{ int closestHumanDistance; Car_tObj *closestHumanCarObj;
+  closestHumanDistance = 0x270f0000;
+  closestHumanCarObj = (Car_tObj *)0x0;
+
+
+  if ((carObj->carFlags & 0x20U) != 0) return 0x10000;
+
+
+
+
+  for (int humanLoop = 0; humanLoop < Cars_gNumHumanRaceCars; humanLoop = humanLoop + 1) {
+    Car_tObj *copCar;
+    copCar = Cars_gHumanRaceCarList[humanLoop];
+    if ((copCar->carFlags & 0x200U) != 0)
+    {
+      int longMetersBetween; longMetersBetween = AIWorld_ApxSplineDistance(carObj,copCar); if (__builtin_abs(longMetersBetween) <
+      __builtin_abs(closestHumanDistance)) {
+
+        closestHumanDistance = longMetersBetween;
+        closestHumanCarObj = copCar;
       }
     }
+  }
+
+
+
+
+
+  closestHumanDistance = closestHumanDistance * carObj->direction;
+
+  if (closestHumanCarObj->RSControl != 0) {
+    return 0x10000;
+  } else
+
+  { if (closestHumanCarObj->currentSpeed + 0x9ffffU <= 0x13fffe) {
+
+      return 0x10000;
+    } else
+
+    {
+      int glueIndex;
+      int glue;
+
+      glueIndex = closestHumanDistance / 0x3c0000 + 10; glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
+      glue = AIPerson_glueTable[glueIndex];
+
+      if (glue < 0x10000) {
+
+        glue = fixedmult(0x10000 - glue,carObj->btcGlueModifier); glue = 0x10000 - glue;
+      }
+      if (glue < 0x6666) { glue = 0x6666;
+      }
+      glue = fixedmult(glue,carObj->speedFactor);
+      return glue;
+    }
+  }
 }
 
 /* ---- AISpeeds_GetNextAICar__FP8Car_tObj  [@0x8006e258] ---- */
+#line 772 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 Car_tObj * AISpeeds_GetNextAICar(Car_tObj *carObj)
 {
   return carObj->nextAIRacer;
@@ -490,6 +664,7 @@ Car_tObj * AISpeeds_GetNextAICar(Car_tObj *carObj)
 /* ---- AISpeeds_GetPrevAICar__FP8Car_tObj  [@0x8006e264] ---- */
 /* Native carLoop belongs to the for scope. Array indexing leaves the
  * stride pointer to GCC rather than introducing a non-native pointer local. */
+#line 777 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
 {
   Car_tObj *prevCar;
@@ -513,93 +688,181 @@ Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
 /* Native SYM scopes: the default-first selection recovers the retail nested
  * if/else binding levels; the acquisition guards own tempRandom/prevAICar.
  * Receipt: symloop run-d_3m40a7, all sections unchanged, native records CLEAN.
- * Relative source-line/SLD attribution remains a separate, unsealed check. */
-int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
-{
-  int slot;   /* SYM: REG INT slot */
-  Car_tObj*nextAICar;
-  int f_caravan;
-
-  slot = carObj->AISlot;
-  nextAICar = AISpeeds_GetNextAICar(carObj);
-  if (carObj->fallBehindCar != (Car_tObj *)0x0) {
-    f_caravan = 0xe666;
-    if (carObj->fallBehindCar->AISlot < (int)slot) {
-      carObj->fallBehindCar = (Car_tObj *)0x0;
-    }
-  } else {
-    if (!((nextAICar != (Car_tObj *)0x0) &&
-        (nextAICar->fallBehindCar == (Car_tObj *)0x0) &&
-        (0xd6491 < nextAICar->speed) &&
-        !(nextAICar->desiredSpeed * carObj->direction <
-          (nextAICar->originalDesiredSpeed * carObj->direction / 256) * 0xb3))) {
-      f_caravan = 0x10000;
-      if (nextAICar->fallBehindCar == carObj) {
-        f_caravan = 0x11999;
-      }
-    } else {
-      int leaderIsThisManyMetersAhead;   /* SYM name, block-scoped @0x8006e3c8 line=61 */
-      leaderIsThisManyMetersAhead = AIWorld_GameOdometer(nextAICar) - AIWorld_GameOdometer(carObj);
-      if (carObj->caravanFollowBehindDistanceMeters + 0xa0000 < leaderIsThisManyMetersAhead) {
-        f_caravan = 0x13333;
-        if (carObj->caravanFollowBehindDistanceMeters + 0x3e80000 < leaderIsThisManyMetersAhead) {
-          f_caravan = 0x18000;
-        }
-      }
-      else if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0xa0000) {
-        f_caravan = 0xcccc;
-        if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0x3e80000) {
-          f_caravan = 0x9999;
-        }
-      }
-      else {
-        f_caravan = 0x10000;
-      }
-    }
-  }
-  if (CaravanInfo[slot].distanceMaintainTime32 != 0) {
-    carObj->caravanTimer = carObj->caravanTimer - AI_elapsedTime;
-  }
-  if (carObj->caravanTimer < 0) {
-    randtemp = fastRandom * randSeed;
-    fastRandom = randtemp & 0xffff;
-    carObj->caravanTimer =
-         CaravanInfo[slot].distanceMaintainTime32 / 2 +
-         ((CaravanInfo[slot].distanceMaintainTime32 / 2) *
-          ((randtemp & 0xffff00) >> 8) >> 0x10);
-    randtemp = fastRandom * randSeed;
-    fastRandom = randtemp & 0xffff;
-    carObj->caravanFollowBehindDistanceMeters =
-         (CaravanInfo[slot].minDistanceMeters +
-         ((CaravanInfo[slot].maxDistanceMeters - CaravanInfo[slot].minDistanceMeters) *
-          ((randtemp & 0xffff00) >> 8) >> 0x10)) * 0x10000;
-  }
-  if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&
-      ((int)(u_int)(carObj->N).totalSlice < AISPEEDS_NUM_LAPS * gNumSlices + -0x14d)) &&
-     ((1U < (u_int)slot || (leaderBoard.leadRacer != Cars_gHumanRaceCarList[0])))) {
-    u_int tempRandom;
-    /* H36 (wave-21 real bug): oracle @0x8006e5b4-0x8006e638 continues past the fastRandom
+ * The real distance-store/scale phases and explicit high-distance funnel
+ * now also reproduce all absolute SLD tags/block lines (run-o89layrf).
+ * Original literal source spelling is not uniquely certified. */
+/* SYM: REG INT slot */
+/* SYM name, block-scoped @0x8006e3c8 line=61 */
+/* H36 (wave-21 real bug): oracle @0x8006e5b4-0x8006e638 continues past the fastRandom
      * re-seed with a stochastic "pick up a fall-behind car" roll gated by
      * CaravanInfo[slot].fallBackRandomTime_TickPercent * AI_elapsedTime, then calls
      * AISpeeds_GetPrevAICar and (if found) writes it into carObj->fallBehindCar. This whole
      * tail was previously dropped -- carObj->fallBehindCar could never be (re)acquired via
      * this path, a real gameplay bug (SYM locals tempRandom/prevAICar, block lines 133-142). */
-    randtemp = fastRandom * randSeed;
-    fastRandom = randtemp & 0xffff;
-    tempRandom = (randtemp >> 8) & 0xffff;
+#line 807 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
+int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
+{
+  int slot;
+  Car_tObj*nextAICar;
+  int f_caravan;
+
+  slot = carObj->AISlot;
+
+
+
+
+  nextAICar = AISpeeds_GetNextAICar(carObj);
+
+
+
+
+
+
+
+  if (carObj->fallBehindCar != (Car_tObj *)0x0) {
+    f_caravan = 0xe666;
+
+
+
+
+
+    if (carObj->fallBehindCar->AISlot < (int)slot) {
+
+      carObj->fallBehindCar = (Car_tObj *)0x0;
+    }
+  }
+
+
+
+
+
+  else { if (!((nextAICar != (Car_tObj *)0x0) && (nextAICar->fallBehindCar == (Car_tObj *)0x0) && (0xd6491 < nextAICar->speed) && !(nextAICar->desiredSpeed * carObj->direction <
+
+
+
+    (nextAICar->originalDesiredSpeed * carObj->direction / 256) * 0xb3))) {
+      f_caravan = 0x10000;
+      if (nextAICar->fallBehindCar == carObj) {
+
+
+
+
+
+
+
+
+        f_caravan = 0x11999;
+      }
+    }
+
+
+
+
+
+
+
+    else {
+      int leaderIsThisManyMetersAhead;
+
+      leaderIsThisManyMetersAhead = AIWorld_GameOdometer(nextAICar) - AIWorld_GameOdometer(carObj);
+
+
+      if (carObj->caravanFollowBehindDistanceMeters + 0xa0000 < leaderIsThisManyMetersAhead) {
+
+        if (carObj->caravanFollowBehindDistanceMeters + 0x3e80000 < leaderIsThisManyMetersAhead) {
+          f_caravan = 0x18000;
+        } else {
+          f_caravan = 0x13333;
+        }
+      }
+
+
+
+
+      else if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0xa0000) {
+        f_caravan = 0xcccc;
+        if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0x3e80000) {
+
+
+          f_caravan = 0x9999;
+        }
+      }
+      else {
+
+
+
+        f_caravan = 0x10000;
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  if (CaravanInfo[slot].distanceMaintainTime32 != 0) {
+    carObj->caravanTimer = carObj->caravanTimer - AI_elapsedTime; }
+  if (carObj->caravanTimer < 0) {
+
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; carObj->caravanTimer = CaravanInfo[slot].distanceMaintainTime32 / 2 + ((CaravanInfo[slot].distanceMaintainTime32 / 2) * ((randtemp & 0xffff00) >> 8) >> 0x10);
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; carObj->caravanFollowBehindDistanceMeters = (CaravanInfo[slot].minDistanceMeters + ((CaravanInfo[slot].maxDistanceMeters - CaravanInfo[slot].minDistanceMeters) * ((randtemp & 0xffff00) >> 8) >> 0x10));
+    carObj->caravanFollowBehindDistanceMeters *= 0x10000;
+  }
+
+
+
+
+
+
+
+
+
+
+  if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&   ((int)(u_int)(carObj->N).totalSlice < GameSetup_gData.numLaps * gNumSlices + -0x14d)) &&
+
+
+
+
+  ((1U < (u_int)slot || (leaderBoard.leadRacer != Cars_gHumanRaceCarList[0]))))
+  { u_int tempRandom;
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; tempRandom = (randtemp >> 8) & 0xffff;
     if (((nextAICar == (Car_tObj *)0x0) || (nextAICar->fallBehindCar == (Car_tObj *)0x0)) &&
-        (tempRandom < CaravanInfo[slot].fallBackRandomTime_TickPercent * (u_int)AI_elapsedTime)) {
-      Car_tObj *prevAICar;
+
+    (tempRandom < CaravanInfo[slot].fallBackRandomTime_TickPercent * (u_int)AI_elapsedTime))
+    { Car_tObj *prevAICar;
       prevAICar = AISpeeds_GetPrevAICar(carObj);
       if (prevAICar != (Car_tObj *)0x0) {
+
         carObj->fallBehindCar = prevAICar;
       }
     }
   }
   if (((nextAICar != (Car_tObj *)0x0) && (nextAICar->damageMult < carObj->damageMult + -0x1999)) &&
-     (nextAICar->fallBehindCar == (Car_tObj *)0x0)) {
+
+
+
+
+
+
+
+  (nextAICar->fallBehindCar == (Car_tObj *)0x0)) {
+
+
     nextAICar->fallBehindCar = carObj;
   }
+
+
+
+
   return f_caravan;
 }
 
@@ -610,97 +873,111 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
  * and put glueIndex in a0. These real phases plus the assigned piecewise
  * clamp preserve131words. Full SLD and literal macro spelling remain open.
  * Controls: build/nc12/aispeeds_pack_glue_source_20261018. */
+#line 979 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetGlueFactor(Car_tObj *carObj)
 {
   int leadHumanRacerOdometer;
-  int leadAIRacerOdometer;
-  int lastAIRacerOdometer;
-  int glue;
-  int leadSpeed;
-  int packPositionGlueModifier;
-
-  packPositionGlueModifier = 0x10000;
+  int leadAIRacerOdometer; int lastAIRacerOdometer; int glue; int leadSpeed; int packPositionGlueModifier; packPositionGlueModifier = 0x10000;
   leadHumanRacerOdometer = AIWorld_GameOdometer(leaderBoard.leadHumanRacer);
   leadAIRacerOdometer = AIWorld_GameOdometer(leaderBoard.leadAIRacer);
   lastAIRacerOdometer = AIWorld_GameOdometer(leaderBoard.lastAIRacer);
-  leadSpeed = __builtin_abs((leaderBoard.leadHumanRacer)->currentSpeed);
+
+
+
+
+
+  leadSpeed = (leaderBoard.leadHumanRacer)->currentSpeed;
+  leadSpeed = __builtin_abs(leadSpeed);
+
+
   if (leadSpeed < 0xa0000) {
+
     glue = 0x10000;
   }
-  else if (leadHumanRacerOdometer < lastAIRacerOdometer) {
-    int distance;
-    int glueIndex;
 
+  else if (leadHumanRacerOdometer < lastAIRacerOdometer)
+  { int distance;
+    int glueIndex;
     distance = leadAIRacerOdometer - leadHumanRacerOdometer;
-    glueIndex = distance / 0x3c0000 + 10;
-    glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
+
+    glueIndex = distance / 0x3c0000 + 10; glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x10000;
   }
-  else if (leadAIRacerOdometer < leadHumanRacerOdometer) {
-    int distance;
-    int glueIndex;
 
+  else if (leadAIRacerOdometer < leadHumanRacerOdometer)
+  { int distance; int glueIndex;
     distance = leadAIRacerOdometer - leadHumanRacerOdometer;
-    glueIndex = distance / 0x3c0000 + 10;
-    glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
+
+    glueIndex = distance / 0x3c0000 + 10; glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x10000;
   }
-  else {
-    int distance;
-    int glueIndex;
+  else
 
+
+  { int distance; int glueIndex;
     distance = leadAIRacerOdometer - leadHumanRacerOdometer;
-    glueIndex = distance / 0x3c0000 + 10;
-    glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
+
+    glueIndex = distance / 0x3c0000 + 10; glueIndex = glueIndex < 0 ? 0 : (20 < glueIndex ? 20 : glueIndex);
     glue = AIPerson_glueTable[glueIndex];
-    packPositionGlueModifier = 0x8000;
-    if (AISPEEDS_RACE_TYPE != RaceType_Id3) {
+    if (GameSetup_gData.raceType != RaceType_Id3) {
       packPositionGlueModifier = 0xe666;
+    } else {
+      packPositionGlueModifier = 0x8000;
     }
   }
 
-  leadAIRacerOdometer = AIWorld_GameOdometer(carObj);
-  if ((leadAIRacerOdometer < leadHumanRacerOdometer + 0x3c0000) && (glue < 0x10000)) {
+
+
+
+
+  leadAIRacerOdometer = AIWorld_GameOdometer(carObj); if ((leadAIRacerOdometer < leadHumanRacerOdometer + 0x3c0000) && (glue < 0x10000)) {
     glue = 0x10000;
   }
+
+
+
   if (0x10000 < glue) {
+
     glue = fixedmult(glue - 0x10000,packPositionGlueModifier) + 0x10000;
   }
   else {
     glue = 0x10000 -
-           fixedmult(0x10000 - glue,packPositionGlueModifier);
+    fixedmult(0x10000 - glue,packPositionGlueModifier);
   }
+
   return glue;
 }
 
 /* ---- AISpeeds_GetDamageFactor__FP8Car_tObj  [@0x8006e898] ---- */
+#line 1121 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetDamageFactor(Car_tObj *carObj)
 {
-  carObj->damageMult = 0;
-  carObj->damageMult =
-      (carObj->N).damage[0] + (carObj->N).damage[1] +
-      (carObj->N).damage[2] + (carObj->N).damage[3] +
-      (carObj->N).damage[4] + (carObj->N).damage[5] +
-      (carObj->N).damage[6] + (carObj->N).damage[7];
-  if (((AISPEEDS_RACE_TYPE == RaceType_HotPursuit) || (AISPEEDS_RACE_TYPE == RaceType_Id5)) &&
-     ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
-      ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
+  carObj->damageMult = 0; carObj->damageMult = (carObj->N).damage[0] + (carObj->N).damage[1] + (carObj->N).damage[2] + (carObj->N).damage[3] + (carObj->N).damage[4] + (carObj->N).damage[5] +
+  (carObj->N).damage[6] + (carObj->N).damage[7];
+  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 ||
+
+  ((Cars_gNumHumanRaceCars == 2 && (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) != 0)))))) {
     carObj->damageMult = fixedmult(carObj->damageMult,0x147);
-  }
-  else {
+  } else {
     carObj->damageMult = fixedmult(carObj->damageMult,0x48);
   }
   carObj->damageMult =
-      0x10000 - *(int *)((char *)carObj + 0x778);
+
+  0x10000 - carObj->damageMult;
+
+
   carObj->damageMult = MAX(0x8000,carObj->damageMult);
+
   return carObj->damageMult;
 }
 
 /* ---- AISpeeds_LimitGlueMultiplier__FP8Car_tObji  [@0x8006e9b0] ---- */
 /* Native scan scopes follow an in-range early return. The former extra
  * return used as an allocation dial is unnecessary in this source shape. */
+#line 1148 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_LimitGlueMultiplier(Car_tObj *carObj,int f_final)
 {
   int bestDistanceAbsMeters;
@@ -740,6 +1017,7 @@ int AISpeeds_LimitGlueMultiplier(Car_tObj *carObj,int f_final)
 /* ---- AISpeeds_CalcCopTopSpeed__FP8Car_tObj  [@0x8006eaa4] ---- */
 /* Native newDesired carries the final scaled speed before direction is applied.
  * SLD1239/1248 separates that result from the return expression. */
+#line 1195 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
 {
   int topSpeed;
@@ -797,38 +1075,46 @@ int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_CalcTrafficTopSpeed__FP8Car_tObj  [@0x8006eb6c] ---- */
-int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
-{
-  /* H56: `desired` is the saved-register accumulator. The arm-local conditional
+/* H56: `desired` is the saved-register accumulator. The arm-local conditional
    * expressions intentionally evaluate CalculateOncomingCarSpeed in the condition
    * and false arm; spelling this as a hoisted temporary loses seven oracle insns.
    * Separate randomization scale locals and a named minimum restore the arithmetic/
    * clamp shape. Expressing the reverse-track test as a direction comparison also
    * preserves the oracle's shared boolean normalization (full 104/104 match). */
+#line 1256 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
+int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
+{
   int desired;
-
   desired = AISpeeds_GetLegalSpeed((int)(carObj->N).simRoadInfo.slice);
   desired = fixedmult(desired,0xc000);
-  if (((AISPEEDS_RACE_TYPE == RaceType_HotPursuit) || (AISPEEDS_RACE_TYPE == RaceType_Id5)) &&
-     ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
-      ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-    if (carObj->direction != (*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x554))) {
-      desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
-          ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
+  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && ((((Cars_gHumanRaceCarList[0]->carFlags) & 0x200) != 0 ||
+  ((Cars_gNumHumanRaceCars == 2 && (((Cars_gHumanRaceCarList[1]->carFlags) & 0x200) != 0)))))) {
+
+    if (carObj->direction != (Cars_gHumanRaceCarList[0]->direction)) { desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
+      ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
     }
   }
   else {
     if (carObj->direction !=
-        ((AISPEEDS_REVERSE_TRACK != 0) ? -1 : 1)) {
-      desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
-          ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
+    ((GameSetup_gData.reverseTrack != 0) ? -1 : 1)) { desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
+      ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
     }
   }
   if ((carObj->carFlags & 0x10U) != 0) {
+
     desired = AISpeeds_RandomizeTrafficSpeed(carObj,desired);
     desired = (desired / 256) * (carObj->speedFactor / 256);
   }
+
   desired = MAX(desired,0x8e38e);
+
+
+
+
+
+
+
+
   return desired * carObj->direction;
 }
 
@@ -838,11 +1124,12 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
  * No source decrement or qualifier remains. Controls/backups:
  * build/nc12/aispeeds_legal_source_20261018. */
 /* ---- AISpeeds_GetLegalSpeed__Fi  [@0x8006ed0c] ---- */
+#line 1293 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetLegalSpeed(int slice)
 {
   speedData_t *speedData;   /* SYM-v3: single REG local 'speedData_t *speedData' -- no separate scratch */
 
-  speedData = AISpeeds_TrackSpeeds[AISPEEDS_TRACK];
+  speedData = AISpeeds_TrackSpeeds[GameSetup_gData.track];
 
 
   while (speedData->endSlice < slice)
@@ -855,6 +1142,7 @@ int AISpeeds_GetLegalSpeed(int slice)
 /* ---- AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji  [@0x8006ed50] ---- */
 /* Native newsafe is the resulting speed in a1, not the factor loaded into a0.
  * Plain signed division preserves retail's rounding on the nonpositive path. */
+#line 1311 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
 {
   int newsafe;
@@ -882,50 +1170,57 @@ int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
 }
 
 /* ---- AISpeeds_CalcDesiredSpeed__FP8Car_tObj  [@0x8006eddc] ---- */
-void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj)
-{
-  carObj->desiredSpeed = 0;
-  if ((carObj->carFlags & 8) != 0) {   /* H44: if/else ARM ORDER controls beqz/bnez polarity -- oracle's
+/* H44: if/else ARM ORDER controls beqz/bnez polarity -- oracle's
                              * `beqz` skips straight to the Opponent-case block (this is the
                              * FALL-THROUGH/true arm, not the else); the previous `==0`-first
                              * form emitted the inverted `bnez`. */
+/* H44 (cont.): same arm-order/polarity fix at the 2nd level */
+/* Cop is the fall-through arm (oracle beqz-skips-to-Traffic) */
+#line 1347 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
+void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj)
+{
+  carObj->desiredSpeed = 0;
+
+  if ((carObj->carFlags & 8) != 0) {
     carObj->desiredSpeed =
-        AISpeeds_CalcOpponentTopSpeed(carObj,&carObj->originalDesiredSpeed);
+    AISpeeds_CalcOpponentTopSpeed(carObj,&carObj->originalDesiredSpeed);
   }
-  else if ((carObj->carFlags & 0x20) != 0) {   /* H44 (cont.): same arm-order/polarity fix at the 2nd level */
-    if ((carObj->AIFlags & 2U) != 0) {   /* Cop is the fall-through arm (oracle beqz-skips-to-Traffic) */
+  else if ((carObj->carFlags & 0x20) != 0) {
+
+    if ((carObj->AIFlags & 2U) != 0) {
       carObj->desiredSpeed = AISpeeds_CalcCopTopSpeed(carObj);
-    }
-    else {
-      carObj->desiredSpeed = AISpeeds_CalcTrafficTopSpeed(carObj);
-    }
+    } else {
+      carObj->desiredSpeed = AISpeeds_CalcTrafficTopSpeed(carObj); }
     carObj->originalDesiredSpeed = carObj->desiredSpeed;
-  }
-  else {
+  } else {
     if ((carObj->carFlags & 0x10) != 0) {
+
       carObj->desiredSpeed = AISpeeds_CalcTrafficTopSpeed(carObj);
-      carObj->originalDesiredSpeed = carObj->desiredSpeed;
-    }
-  }
-  return;
-}
+      carObj->originalDesiredSpeed = carObj->desiredSpeed; } } return; }
 
 /* ---- AISpeeds_CalculateOncomingCarSpeed__FP8Car_tObj  [@0x8006ee80] ---- */
-int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
-{
-  /* SYM names the single local playerSpeed in $a0. The SLD trace places the
+/* SYM names the single local playerSpeed in $a0. The SLD trace places the
    * complete threshold selection on one source line; the nested conditional
    * expression produces retail's out-of-line constant blocks and shared return.
    * __builtin_abs preserves the retail abs macro, and the complemented final
    * test selects the same fall-through constant block as the oracle. */
+#line 1383 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
+int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
+{
   int playerSpeed;
+
+
 
   playerSpeed = __builtin_abs(carObj->basisCar->currentSpeed);
   return playerSpeed < 0xd5555 ? 0x1638e3 :
-         playerSpeed < 0x1aaaaa ? 0xd5555 :
-         playerSpeed < 0x280000 ? 0x8e38e :
-         playerSpeed < 0x378e38 ? 0x471c7 :
-         !(0x471c70 < playerSpeed) ? 0x238e3 : 0x2c51e;
+  playerSpeed < 0x1aaaaa ? 0xd5555 :
+  playerSpeed < 0x280000 ? 0x8e38e :
+  playerSpeed < 0x378e38 ? 0x471c7 :
+
+
+
+
+  !(0x471c70 < playerSpeed) ? 0x238e3 : 0x2c51e;
 }
 
 /* ---- AISpeeds_SetTrafficSpeedRandomFactor__FP8Car_tObj  [@0x8006ef28] ---- */
@@ -934,20 +1229,34 @@ int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
  * the loads and final field store without an integer stack-address view or a
  * second evaluation in source. Retail SLD places the RNG calculation/update
  * before the table selection; scheduling moves the table load ahead of the
- * state stores. No original RNG macro name is claimed. Controls:
- * build/nc12/aispeeds_random_source_20261018. */
+ * state stores. The producer computes the COMPLETE 0..3 index, not just a
+ * high-word snapshot still masked by the consumer. That distinction preserves
+ * the producer's first shift through GCC combine (retail1412 versus1414).
+ * SOURCE-REVIEW-UNRESOLVED: randomSpeedIndex's spelling, int type and const qualifier
+ * are inferred, not supplied original declarations. This is a real immutable
+ * index used by the lookup, not a fake use or an otherwise-unused carrier.
+ * Plain int preserves bytes/producer but emits an extra REG; a narrow local
+ * loses that record but puts the shift back on the consumer. Const lookup
+ * results do not fix the producer either. No original RNG macro is claimed.
+ * Controls: build/nc12/aispeeds_random_source_20261018 and
+ * build/nc12/aispeeds_layout_20261020/rng-index-controls.json; full native CPE,
+ * supplied declarations and regions agree for the immutable-index model.
+ * Native/Sld agreement does not uniquely certify its original literal syntax. */
+#line 1407 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
 {
+
   int randomSpeedMultipliers[4] = {0x10000, 0xe666, 0xcccc, 0xb333};
 
-  fastRandom = (randtemp = fastRandom * randSeed) & 0xffff;
-
-  carObj->trafficSpeedRandomizingFactor = randomSpeedMultipliers[(randtemp >> 8) & 3];
+  const int randomSpeedIndex =
+      ((fastRandom = (randtemp = fastRandom * randSeed) & 0xffff), ((randtemp >> 8) & 3));
+  carObj->trafficSpeedRandomizingFactor = randomSpeedMultipliers[randomSpeedIndex];
 }
 
 /* ---- AISpeeds_MaintainLeaderBoard__Fv  [@0x8006efa4] ---- */
 /* Native carLoop owns the scan scope; test belongs to each iteration.
  * Keep the explicit head break and AISlot post-increment for retail's edges. */
+#line 1420 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_MaintainLeaderBoard(void)
 {
   int slot = 0; Car_tObj *lastAI;
@@ -987,142 +1296,158 @@ void AISpeeds_MaintainLeaderBoard(void)
   return; }
 
 /* ---- AISpeeds_GetScriptFactor__FP8Car_tObj  [@0x8006f0a4] ---- */
+#line 1470 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetScriptFactor(Car_tObj *carObj)
 {
   if (AIScript_DoReAction(&carObj->script,4) != -1) {
+
     return 0x18000;
   }
   if (AIScript_DoReAction(&carObj->script,0x10) != -1) {
     return 0x8000;
   }
+
+
+
   return 0x10000;
 }
 
 /* ---- AISpeeds_GetUpgradeAccMult__Fi  [@0x8006f10c] ---- */
+/* @0x8006F150 $a1=*(&engineUpgrade)[+0]=accMult (H36) */
+/* @0x8006F178 $a1=*(&suspensionUpgrade)[+0] */
+/* @0x8006F1A0 $a1=*(&aeroUpgrade)[+0] */
+#line 1491 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetUpgradeAccMult(int carIndex)
-{
-  Car_tObj*carObj;
-  int accMult;
-
+{ Car_tObj*carObj; int accMult;
   carObj = Cars_gList[carIndex];
   accMult = 0x10000;
   if (carObj->carInfo->EngineMods == 1) {
-    accMult = fixedmult(0x10000,engineUpgrade.accMult);   /* @0x8006F150 $a1=*(&engineUpgrade)[+0]=accMult (H36) */
-  }
+    accMult = fixedmult(0x10000,engineUpgrade.accMult); }
   if (carObj->carInfo->WeightTransfer == 1) {
-    accMult = fixedmult(accMult,suspensionUpgrade.accMult);   /* @0x8006F178 $a1=*(&suspensionUpgrade)[+0] */
-  }
+    accMult = fixedmult(accMult,suspensionUpgrade.accMult); }
   if (carObj->carInfo->GroundEffects == 1) {
-    accMult = fixedmult(accMult,aeroUpgrade.accMult);   /* @0x8006F1A0 $a1=*(&aeroUpgrade)[+0] */
-  }
+    accMult = fixedmult(accMult,aeroUpgrade.accMult); }
   return accMult;
 }
 
 /* ---- AISpeeds_GetUpgradeBrakeMult__Fi  [@0x8006f1c8] ---- */
+/* @0x8006F20C $a1=*(&lbl_8010DCE4)=engineUpgrade[+4]=brakeMult (H37) */
+/* @0x8006F234 $a1=*(&lbl_8010DCF4)=suspensionUpgrade[+4] */
+/* @0x8006F25C $a1=*(&lbl_8010DD04)=aeroUpgrade[+4] */
+#line 1506 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetUpgradeBrakeMult(int carIndex)
-{
-  Car_tObj*carObj;
-  int brakeMult;
-
+{ Car_tObj*carObj; int brakeMult;
   carObj = Cars_gList[carIndex];
   brakeMult = 0x10000;
   if (carObj->carInfo->EngineMods == 1) {
-    brakeMult = fixedmult(0x10000,engineUpgrade.brakeMult);   /* @0x8006F20C $a1=*(&lbl_8010DCE4)=engineUpgrade[+4]=brakeMult (H37) */
-  }
+    brakeMult = fixedmult(0x10000,engineUpgrade.brakeMult); }
   if (carObj->carInfo->WeightTransfer == 1) {
-    brakeMult = fixedmult(brakeMult,suspensionUpgrade.brakeMult);   /* @0x8006F234 $a1=*(&lbl_8010DCF4)=suspensionUpgrade[+4] */
-  }
+    brakeMult = fixedmult(brakeMult,suspensionUpgrade.brakeMult); }
   if (carObj->carInfo->GroundEffects == 1) {
-    brakeMult = fixedmult(brakeMult,aeroUpgrade.brakeMult);   /* @0x8006F25C $a1=*(&lbl_8010DD04)=aeroUpgrade[+4] */
-  }
+    brakeMult = fixedmult(brakeMult,aeroUpgrade.brakeMult); }
   return brakeMult;
 }
 
 /* ---- AISpeeds_GetUpgradeHandlingMult__Fi  [@0x8006f284] ---- */
+/* @0x8006F2C8 $a1=*(&lbl_8010DCE8)=engineUpgrade[+8]=handlingMult (H38) */
+/* @0x8006F2F0 $a1=*(&lbl_8010DCF8)=suspensionUpgrade[+8] */
+/* @0x8006F318 $a1=*(&lbl_8010DD08)=aeroUpgrade[+8] */
+#line 1520 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetUpgradeHandlingMult(int carIndex)
-{
-  Car_tObj*carObj;
-  int handlingMult;
-
+{ Car_tObj*carObj; int handlingMult;
   carObj = Cars_gList[carIndex];
   handlingMult = 0x10000;
   if (carObj->carInfo->EngineMods == 1) {
-    handlingMult = fixedmult(0x10000,engineUpgrade.handlingMult);   /* @0x8006F2C8 $a1=*(&lbl_8010DCE8)=engineUpgrade[+8]=handlingMult (H38) */
-  }
+    handlingMult = fixedmult(0x10000,engineUpgrade.handlingMult); }
   if (carObj->carInfo->WeightTransfer == 1) {
-    handlingMult = fixedmult(handlingMult,suspensionUpgrade.handlingMult);   /* @0x8006F2F0 $a1=*(&lbl_8010DCF8)=suspensionUpgrade[+8] */
-  }
+    handlingMult = fixedmult(handlingMult,suspensionUpgrade.handlingMult); }
   if (carObj->carInfo->GroundEffects == 1) {
-    handlingMult = fixedmult(handlingMult,aeroUpgrade.handlingMult);   /* @0x8006F318 $a1=*(&lbl_8010DD08)=aeroUpgrade[+8] */
-  }
+    handlingMult = fixedmult(handlingMult,aeroUpgrade.handlingMult); }
   return handlingMult;
 }
 
 /* ---- AISpeeds_GetUpgradeTopSpeedMult__Fi  [@0x8006f340] ---- */
+/* @0x8006F384 $a1=*(&lbl_8010DCEC)=engineUpgrade[+0xC]=topSpeedMult (H39) */
+/* @0x8006F3AC $a1=*(&lbl_8010DCFC)=suspensionUpgrade[+0xC] */
+/* @0x8006F3D4 $a1=*(&lbl_8010DD0C)=aeroUpgrade[+0xC] */
+#line 1534 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetUpgradeTopSpeedMult(int carIndex)
-{
-  Car_tObj*carObj;
-  int topSpeedMult;
-
+{ Car_tObj*carObj; int topSpeedMult;
   carObj = Cars_gList[carIndex];
   topSpeedMult = 0x10000;
   if (carObj->carInfo->EngineMods == 1) {
-    topSpeedMult = fixedmult(0x10000,engineUpgrade.topSpeedMult);   /* @0x8006F384 $a1=*(&lbl_8010DCEC)=engineUpgrade[+0xC]=topSpeedMult (H39) */
-  }
+    topSpeedMult = fixedmult(0x10000,engineUpgrade.topSpeedMult); }
   if (carObj->carInfo->WeightTransfer == 1) {
-    topSpeedMult = fixedmult(topSpeedMult,suspensionUpgrade.topSpeedMult);   /* @0x8006F3AC $a1=*(&lbl_8010DCFC)=suspensionUpgrade[+0xC] */
-  }
+    topSpeedMult = fixedmult(topSpeedMult,suspensionUpgrade.topSpeedMult); }
   if (carObj->carInfo->GroundEffects == 1) {
-    topSpeedMult = fixedmult(topSpeedMult,aeroUpgrade.topSpeedMult);   /* @0x8006F3D4 $a1=*(&lbl_8010DD0C)=aeroUpgrade[+0xC] */
-  }
+    topSpeedMult = fixedmult(topSpeedMult,aeroUpgrade.topSpeedMult); }
   return topSpeedMult;
 }
 
 /* ---- AISpeeds_CalcHumanTopSpeed__FP8Car_tObj  [@0x8006f3fc] ---- RECONSTRUCTED 2026-06-12
- *  (Ghidra @NFS4.EXE.c:49318). Thin wrapper over CalcHumanCurveSpeed. */
+ *  (Ghidra @NFS4.EXE.c:49318). Thin wrapper over CalcHumanCurveSpeed.
+ *  SOURCE-REVIEW-UNRESOLVED: topSpeed is an inferred spelling for the debug-elided return
+ *  value; retail separately tags the call and the return (1557/1559). */
+#line 1550 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcHumanTopSpeed(Car_tObj *carObj)
 {
-  return AISpeeds_CalcHumanCurveSpeed(carObj);
+
+
+
+
+
+  int topSpeed = AISpeeds_CalcHumanCurveSpeed(carObj);
+
+  return topSpeed;
 }
 /* ---- AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj  [@0x8006f41c] ---- RECONSTRUCTED 2026-06-12
  *  (Ghidra @NFS4.EXE.c:49330). Skipped from the AISPEEDS pass. Looks ahead up to 5 slices in the
  *  car's direction, takes the max track-curve value, scales (0x1a666 in 16.16), clamps to 0xff,
- *  and maps through the car's curve-speed table. Unrolled exactly as in the binary. */
+ *  and maps through the car's curve-speed table. Unrolled exactly as in the binary.
+ *  SOURCE-REVIEW-UNRESOLVED: final tightestCurve reuse is inferred, not uniquely recovered:
+ *  its old index is dead, and retail separately tags lookup/return (1603/1605).
+ *  A distinct debug-elided result also matches; no original extra name is known. */
+#line 1564 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
 {
-  int sliceHere = (int)carObj->N.simRoadInfo.slice;
-  int sliceAhead, curveAhead, tightestCurve;
 
-  sliceAhead = sliceHere;
+
+
+  int sliceHere = (int)carObj->N.simRoadInfo.slice;
+  int sliceAhead, curveAhead, tightestCurve; sliceAhead = sliceHere;
   if (gNumSlices <= sliceAhead) sliceAhead = sliceHere - gNumSlices;
   tightestCurve = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead);
+
 
   sliceAhead = WRAP_SLICE(carObj->direction * 4,sliceHere);
   curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead);
   if (tightestCurve < curveAhead)
-    tightestCurve = curveAhead;
+  tightestCurve = curveAhead;
 
   sliceAhead = WRAP_SLICE(carObj->direction * 8,sliceHere);
   curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead);
   if (tightestCurve < curveAhead)
-    tightestCurve = curveAhead;
+  tightestCurve = curveAhead;
 
   sliceAhead = WRAP_SLICE(carObj->direction * 0xc,sliceHere);
   curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead);
   if (tightestCurve < curveAhead)
-    tightestCurve = curveAhead;
+  tightestCurve = curveAhead;
 
   sliceAhead = WRAP_SLICE(carObj->direction * 0x10,sliceHere);
   curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead);
   if (tightestCurve < curveAhead)
-    tightestCurve = curveAhead;
+  tightestCurve = curveAhead;
 
   sliceAhead = WRAP_SLICE(carObj->direction * 0x14,sliceHere);
   curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead);
   if (tightestCurve < curveAhead)
-    tightestCurve = curveAhead;
+  tightestCurve = curveAhead;
+
 
   tightestCurve = (tightestCurve * 0x1a666) / 0x10000;
   if (0xff < tightestCurve) tightestCurve = 0xff;
-  return carObj->curveSpeedTable->Get(tightestCurve);
+  tightestCurve = carObj->curveSpeedTable->Get(tightestCurve);
+
+  return tightestCurve;
 }

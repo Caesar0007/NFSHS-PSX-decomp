@@ -5,6 +5,11 @@
 #define NFS4_OWNER_DEFINES_UDFF_TYPES
 #include "color_types.h"
 
+/* The canonical 2600-byte SYM-owned GameSetup aggregate, also used by AIPERSON.
+ * Replace the import's false int[] type; original per-TU header/debug visibility
+ * remains a separate audit question, not an excuse to misdeclare the object. */
+#include "shared/GameSetup_tData.h"
+
 #define RaceType_SingleRace 0
 #define RaceType_HotPursuit 1
 #define RaceType_Id3 3

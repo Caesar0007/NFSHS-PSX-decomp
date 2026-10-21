@@ -142,6 +142,7 @@ extern int gMusicHandle;
 
 
 /* ---- AudioCmn_MusicLevel__Fi  [@0x80076420] ---- */
+#line 277 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_MusicLevel(int level)
 {
   if (0x56 <= level) { return (((level + -0x55) * 7) / 2 + 0x55) * 0x46 >> 7; } return level * 0x46 >> 7;
@@ -150,12 +151,14 @@ int AudioCmn_MusicLevel(int level)
 /* ---- AudioCmn_GetTrackRecordLapTime__Fv  [@0x80076480] ---- */
 /* The field return is byte-PASS; retail SLD separates its address setup
    from the value load/return across source lines +4 and +6. */
+#line 282 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_GetTrackRecordLapTime(void)
 {
   return GameSetup_gData.userSetting.bestlap;
 }
 
 /* ---- AudioCmn_InitThunder__Fv  [@0x80076490] ---- */
+#line 302 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_InitThunder(void)
 {
   AudioCmn_ThunderAmp = 0;
@@ -164,6 +167,7 @@ void AudioCmn_InitThunder(void)
 }
 
 /* ---- AudioCmn_PlayThunder__Fii  [@0x800764a4] ---- */
+#line 309 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayThunder(int intensity,int azimuth)
 {
   if (AudioCmn_ThunderAmp < intensity) {
@@ -175,6 +179,7 @@ void AudioCmn_PlayThunder(int intensity,int azimuth)
 }
 
 /* ---- AudioCmn_UpdateThunder__Fv  [@0x800764d0] ---- */
+#line 319 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_UpdateThunder(void)
 {
   if ((0 < AudioCmn_ThunderAmp) &&
@@ -192,6 +197,12 @@ void AudioCmn_UpdateThunder(void)
 }
 
 /* ---- AudioCmn_InitAsyncSfx__Fv  [@0x8007657c] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: inRange has no supplied local record. Direct
+ * break/ordinary for forms shorten14 to13 words; a positive if/else keeps
+ * the complete normal ELF but drops the test-region directives. Genuine
+ * value-expression tests keep bytes but emit extra regions. These controls
+ * do not uniquely establish the original predicate object or syntax. */
+#line 453 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_InitAsyncSfx(void)
 {
   for (int i = 0; ; ) {
@@ -205,6 +216,7 @@ void AudioCmn_InitAsyncSfx(void)
 }
 
 /* ---- AudioCmn_RemoveAsyncSfx__Fi  [@0x800765b4] ---- */
+#line 466 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_RemoveAsyncSfx(int slot)
 {
   AudioCmn_tAsyncSfxSlot *s = &AudioCmn_gSfxSlot[slot];
@@ -230,6 +242,7 @@ void AudioCmn_RemoveAsyncSfx(int slot)
 }
 
 /* ---- AudioCmn_DeInitAsyncSfx__Fv  [@0x8007663c] ---- */
+#line 492 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_DeInitAsyncSfx(void)
 {
   for (int i = 0; i < 0x20; i++) {
@@ -240,9 +253,13 @@ void AudioCmn_DeInitAsyncSfx(void)
 /* SYM (nfs4-f-v3.txt @0x80076674): named locals `oldest`=$s0, `ticks`=$v1, `i`=$a3 (outer
    loop) / $a1 (inner loop, same source name `i`, fresh block scope). Rewritten with array
    indexing (matches the SYM's plain "i" loop var, not a pointer-walk) instead of a
-   pAVar2/pAVar2++ struct-pointer walk. Const per-iteration slot snapshots
-   preserve the byte stream while restoring both retail loop-body scopes;
-   the second `i` has its own nested search scope. */
+   pAVar2/pAVar2++ struct-pointer walk. The second `i` has its own nested
+   search scope.
+   SOURCE-REVIEW-UNRESOLVED: both const slot aliases have no supplied rows.
+   Joint direct indexing preserves the entire normal ELF, but removes the
+   two iteration-body region directives. The tested for rewrites change code.
+   The aliases preserve scope evidence, not proof of original source objects. */
+#line 500 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_RemoveOldestAsyncSfx(int bank)
 {
   int oldest;
@@ -285,6 +302,7 @@ int AudioCmn_RemoveOldestAsyncSfx(int bank)
 }
 
 /* ---- AudioCmn_LoadAsyncSfx__FiiPvi  [@0x8007675c] ---- */
+#line 533 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 {
   /* retail audiocmn.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800556c4) ahead of
@@ -336,6 +354,7 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 }
 
 /* ---- AudioCmn_GetAsyncSfx__Fiib  [@0x80076900] ---- */
+#line 619 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly)
 {
   /* SYM rule-8: fn-scope slot(s0) + AUTO r; loop1 = top-test goto loop (slti;beqz + j back)
@@ -389,6 +408,7 @@ FILL:
 }
 
 /* ---- AudioCmn_Init__Fv  [@0x80076a74] ---- */
+#line 677 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_Init(void)
 {
   int j;
@@ -467,6 +487,7 @@ void AudioCmn_Init(void)
  *  SNDstop arg restored; carInfo[] loop de-garbled; music-buffer wait is the direct
  *  SLD-scoped compound while. MATCH: 66 -> PASS, ours/oracle 214.) */
 
+#line 747 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_Reset(void)
 
 {
@@ -613,6 +634,7 @@ void AudioCmn_Reset(void)
 
 /* ---- AudioCmn_DeInit__Fv  [@0x80076f44] ---- */
 
+#line 909 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_DeInit(void)
 
 {
@@ -671,6 +693,7 @@ void AudioCmn_DeInit(void)
 
 
 /* ---- AudioCmn_SetLevels__Fv  [@0x8007701c] ---- */
+#line 941 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_SetLevels(void)
 {
   if (Replay_ReplayInterface.statsScreen != 0) {
@@ -680,6 +703,7 @@ void AudioCmn_SetLevels(void)
 }
 
 /* ---- AudioCmn_GetTimePhrase__Fi  [@0x8007706c] ---- */
+#line 954 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_GetTimePhrase(int time)
 {
   int seconds = time >= 0 ? (time >> 6) : ((time - 1) >> 6);
@@ -723,6 +747,7 @@ int AudioCmn_GetTimePhrase(int time)
  * gtotallaptimes expressions then gives PASS 415/415.  The former -G4 residual
  * and its diagnostic TEXT_MOVES recipe are obsolete under the no-postcompile
  * policy. */
+#line 993 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_CheckState(Car_tObj *car)
 {
   /* Native local homes and all 13 scope regions are restored, with 415/415
@@ -899,6 +924,7 @@ void AudioCmn_CheckState(Car_tObj *car)
 }
 
 /* ---- AudioCmn_LoadFESamples__Fv  [@0x80077738] ---- */
+#line 1200 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_LoadFESamples(void)
 {
   char filename[100];
@@ -913,16 +939,17 @@ char *AudioCmn_LanguageName[7] = { /* @0x8010e774 */
 };
 
 /* ---- AudioCmn_LoadGameSamples__Fv  [@0x8007777c] ---- */
+#line 1213 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_LoadGameSamples(void)
 {
   char filename[100];
 
 
 
-  AudioEng_StartUp(0,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[0].carType * 5);
+  AudioEng_StartUp(0,GameSetup_gCarNames[GameSetup_gData.carInfo[0].carType]);
 
   if (GameSetup_gData.commMode == 1) {
-    AudioEng_StartUp(1,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[1].carType * 5);
+    AudioEng_StartUp(1,GameSetup_gCarNames[GameSetup_gData.carInfo[1].carType]);
   }
   AudioEng_StartServer();
 
@@ -944,6 +971,7 @@ void AudioCmn_LoadGameSamples(void)
 }
 
 /* ---- AudioCmn_InitChannelArray__Fv  [@0x800778b0] ---- */
+#line 1243 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_InitChannelArray(void)
 {
   int i;
@@ -959,6 +987,7 @@ void AudioCmn_InitChannelArray(void)
 }
 
 /* ---- scaleFrequency__Fiii  [@0x800778e8] ---- */
+#line 1258 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
 {
   int scaledFreq;
@@ -993,6 +1022,7 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
    (still using the same never-written `lastImpactSample` static, so behavior is unchanged --
    this is a byte-fidelity fix, not a gameplay fix) by routing every candidate through
    `iSFXnum` and an anti-repeat block per half of the switch instead of an early `return`. */
+#line 1295 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 {
   /* Retail bytes confirm the nonzero initializer at .sdata+0x84. */
@@ -1095,6 +1125,7 @@ int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 }
 
 /* ---- ChooseLoopedSample__F6s_typeT0  [@0x80077c94] ---- */
+#line 1427 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int ChooseLoopedSample(s_type surface1,s_type surface2)
 {
   int SFXnum;
@@ -1167,6 +1198,7 @@ int ChooseLoopedSample(s_type surface1,s_type surface2)
    Everything else the old recon declared (iVar1..iVar4, pCVar5, uVar6, vol) was
    fabricated.  BUG FIX: the retail entry guard on AudioCmn_kAudioOn (SLD 1485,
    0x80077D58/0x80077D84) was missing entirely. */
+#line 1456 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce,int Distsq,
                int azimuth)
 {
@@ -1246,6 +1278,7 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
 }
 
 /* ---- freeVoiceChannel__Fi  [@0x800780d0] ---- */
+#line 1579 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void freeVoiceChannel(int sndPlayer)
 {
   if (AudioCmn_kAudioOn != 0) {
@@ -1270,6 +1303,7 @@ void freeVoiceChannel(int sndPlayer)
    pitchmult/use3dpos/azimuth (stack garbage) -- a real behavior bug (ours compiled to only
    50 insns vs the oracle's 152: almost the entire field-setup body was eliminated). Fixed by
    writing through the real struct so every field store's address escapes via &playopts. */
+#line 1614 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler)
 {
   int shandle;
@@ -1376,12 +1410,22 @@ int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int
 }
 
 /* ---- AudioCmn_PlaySound__Fiiiii  [@0x800783a0] ---- */
+#line 1715 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlaySound(int bhandle,int patchNum,int azimuth,int vol,int bend)
 {
+
+
+
+
+
+
+
+
   return AudioCmn_PlayDoppleredSound(bhandle,patchNum,azimuth,vol,bend,0x10000);
 }
 
 /* ---- AudioCmn_PlaySFX__Fiiiiii  [@0x800783cc] ---- */
+#line 1730 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlaySFX(int sndPlayer,int iSFXnum,int iFreqIn,int iDopplerIn,int iAmpIn,int azimuth)
 {
   /* SYM rule-8: sndPlayer=s4 iSFXnum=s3 iFreqIn=s5 iDopplerIn=fp, iAmpIn ARG->s1(iAmp),
@@ -1578,6 +1622,7 @@ LAB_8007887c:
    homes, all530 words and every branch remain unchanged; SLD37/319 ->37/261.
    Three older empty-asm sites and six unproved locals remain below. Their
    existence is not proof of original source objects or a matching floor. */
+#line 1906 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
                int cardir)
 {
@@ -1855,6 +1900,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
 }
 
 /* ---- AudioCmn_TrafficSFX__Fiiiiiiii  [@0x80079104] ---- */
+#line 2192 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int azimuth,int relvel,int dir)
 {
   /* MATCH P903: native 19311c..1932ab has only iAmpIn, player and
@@ -1915,6 +1961,7 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
 }
 
 /* ---- AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii  [@0x80079390] ---- */
+#line 2243 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int force,int Distsq,int azimuth)
 {
   int iAmpIn;
@@ -1939,6 +1986,7 @@ void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int f
 }
 
 /* ---- AudioCmn_PlayerHornOn__Fiiiii  [@0x80079444] ---- */
+#line 2274 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int doppler)
 {
   int iAmpIn;
@@ -1974,6 +2022,7 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
 }
 
 /* ---- AudioCmn_PlayerHornOff__Fi  [@0x80079548] ---- */
+#line 2304 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlayerHornOff(int carIndex)
 {
   int player;
@@ -2003,12 +2052,14 @@ LAB_800795e8:
 }
 
 /* ---- AudioCmn_PlayFESFX__Fi  [@0x80079604] ---- */
+#line 2326 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayFESFX(int SFXnum)
 {
   AudioCmn_PlayFESFXVol(SFXnum,0x7f);
 }
 
 /* ---- AudioCmn_PlayFESFXVol__Fii  [@0x80079624] ---- */
+#line 2331 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayFESFXVol(int SFXnum,int vol)
 {
   SNDPLAYOPTS playopts;
@@ -2036,60 +2087,61 @@ void AudioCmn_PlayFESFXVol(int SFXnum,int vol)
 }
 
 /* ---- AudioCmn_PlayWrongWaySFX__Fv  [@0x800796ac] ---- */
+#line 2369 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayWrongWaySFX(void)
 {
   AudioCmn_PlaySound(gSndBnk[3].bnkID,0x10,0,0x7f,0x40);
 }
 
 /* ---- AudioCmn_PlayPauseSound__Fi  [@0x800796e4] ---- */
+#line 2374 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayPauseSound(int patch)
 {
   AudioCmn_gCursorSndHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,patch,0,0x7f,0x40);
 }
 
 /* ---- quickSirenOn__Fi  [@0x8007971c] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: patch names the real selected sample value;
+ * retail retains no local row for it. Its separate selection/call SLD groups
+ * do not uniquely prove the original object or spelling. Direct conditional
+ * call arguments change code; that failure alone is not a necessity proof. */
+#line 2411 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void quickSirenOn(int sirennum)
 {
-  int patch;
-  
-  patch = 8;
-  if ((sirennum & 1U) != 0) {
-    patch = 6;
-  }
-  gaChannel[sirennum + 0x2b].Partial =
-      AudioCmn_PlaySound(gSndBnk[3].bnkID,patch,0x40,0,sirenCurrentPitch[sirennum]);
-  return;
+  int patch = 8; if ((sirennum & 1U) != 0) patch = 6;
+  gaChannel[sirennum + 0x2b].Partial = AudioCmn_PlaySound(gSndBnk[3].bnkID,patch,0x40,0,sirenCurrentPitch[sirennum]);
 }
 
 /* ---- SuperCopSirenOn__Fi  [@0x80079790] ---- */
+#line 2417 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void SuperCopSirenOn(int sirennum)
 {
-  gaChannel[sirennum + 0x2b].Partial =
-      AudioCmn_PlaySound(gSndBnk[3].bnkID,9,0x40,0,sirenCurrentPitch[sirennum]);
-  return;
+  gaChannel[sirennum + 0x2b].Partial = AudioCmn_PlaySound(gSndBnk[3].bnkID,9,0x40,0,sirenCurrentPitch[sirennum]);
 }
 
 /* ---- SirenOn__Fii  [@0x800797f8] ---- */
+#line 2422 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void SirenOn(int sirennum,int supercop)
 {
   if (bSirenOn[sirennum] == 0) {
     bSirenOn[sirennum] = 1;
     if (supercop != 0) {
+
       quickSirenActive[sirennum] = 1;
       sirenCount[sirennum] = -1;
       SuperCopSirenOn(sirennum);
     }
     else {
+
       quickSirenActive[sirennum] = 1;
       sirenCount[sirennum] = gQuickSirenCount;
       quickSirenOn(sirennum);
-      gQuickSirenCount = gQuickSirenCount + 1;
-    }
-  }
-  return;
+      gQuickSirenCount = gQuickSirenCount + 1; } } return;
+
 }
 
 /* ---- SirenOff__Fi  [@0x800798a0] ---- */
+#line 2441 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void SirenOff(int sirennum)
 {
   bSirenOn[sirennum] = 0;
@@ -2103,6 +2155,7 @@ void SirenOff(int sirennum)
 }
 
 /* ---- UpdateSiren__Fiiiii  [@0x8007995c] ---- */
+#line 2453 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
 {
   /* SYM rule-8: params sirennum=s1 amp=s2 dop=s5 azimuth=s4, supercop ARG->REG s0;
@@ -2155,6 +2208,7 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
   return;
 }
 /* ---- AudioCmn_Pause__Fv  [@0x80079b60] ---- */
+#line 2510 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_Pause(void)
 {
 
@@ -2178,6 +2232,7 @@ void AudioCmn_Pause(void)
 /* ---- AudioCmn_UnPause__Fv  [@0x80079c18] ---- */
 /* Retail performs the music-level calculation directly, without a call
    or the non-SYM inline-helper parameter previously used here. */
+#line 2532 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_UnPause(void)
 {
 
@@ -2191,6 +2246,7 @@ void AudioCmn_UnPause(void)
 }
 
 /* ---- AudioCmn_UnPauseAndQuit__Fv  [@0x80079ca4] ---- */
+#line 2545 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_UnPauseAndQuit(void)
 {
   int i;
@@ -2222,6 +2278,7 @@ void AudioCmn_UnPauseAndQuit(void)
 }
 
 /* ---- AudioCmn_UnPauseAndRestart__Fv  [@0x80079d8c] ---- */
+#line 2576 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_UnPauseAndRestart(void)
 {
   int i;
@@ -2257,6 +2314,7 @@ void AudioCmn_UnPauseAndRestart(void)
 }
 
 /* ---- AudioCmn_InitReverb__Fv  [@0x80079e88] ---- */
+#line 2611 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_InitReverb(void)
 {
 
@@ -2268,6 +2326,7 @@ void AudioCmn_InitReverb(void)
 
 /* ---- AudioCmn_ReverbOff__Fv  [@0x80079ecc] ---- */
 
+#line 2629 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_ReverbOff(void)
 
 {

@@ -3,5 +3,6 @@
 #ifndef NFS4_SHARED_CWEATHERSPEC_H
 #define NFS4_SHARED_CWEATHERSPEC_H
 
-struct CWeatherSpec { int type, intensity_limit; };
+/* Retail TPDEF records retain the explicit completed-type alias too. */
+typedef struct CWeatherSpec { int type, intensity_limit; } CWeatherSpec;
 #endif

@@ -3,8 +3,9 @@
 #ifndef NFS4_SHARED_CDEPTHCUESPEC_H
 #define NFS4_SHARED_CDEPTHCUESPEC_H
 
-struct CDepthCueSpec {
+/* Retail TPDEF records retain the explicit completed-type alias too. */
+typedef struct CDepthCueSpec {
     CVECTOR color;
     int distance;
-};
+} CDepthCueSpec;
 #endif

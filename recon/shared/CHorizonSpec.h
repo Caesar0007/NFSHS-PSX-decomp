@@ -3,9 +3,10 @@
 #ifndef NFS4_SHARED_CHORIZONSPEC_H
 #define NFS4_SHARED_CHORIZONSPEC_H
 
-struct CHorizonSpec {
+/* Retail TPDEF records retain the explicit completed-type alias too. */
+typedef struct CHorizonSpec {
     int mirror, angle, yoffset, height;
     CVECTOR frontColor[2], backColor[2];
     char ringPMX[16];
-};
+} CHorizonSpec;
 #endif

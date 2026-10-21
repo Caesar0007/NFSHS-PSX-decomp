@@ -3,9 +3,10 @@
 #ifndef NFS4_SHARED_CFOGSPEC_H
 #define NFS4_SHARED_CFOGSPEC_H
 
-struct CFogSpec {
+/* Retail TPDEF records retain the explicit completed-type alias too. */
+typedef struct CFogSpec {
     int contrast;
     CVECTOR color;
     int start, dist2base;
-};
+} CFogSpec;
 #endif

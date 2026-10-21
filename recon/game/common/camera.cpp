@@ -97,6 +97,7 @@ void Camera_ResetRelPos(int bitMask);
 
 
 /* ---- EulerToMat__FP10matrixtdefiii  [@0x8008060c] ---- */
+#line 481 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void EulerToMat(matrixtdef *m,int ax,int ay,int az)
 {
   matrixtdef mx;
@@ -124,6 +125,7 @@ void EulerToMat(matrixtdef *m,int ax,int ay,int az)
 }
 
 /* ---- Camera_SetCamera__FP13DRender_tView  [@0x80080704] ---- */
+#line 612 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetCamera(DRender_tView *cview)
 {
   Camera_GetViewInfo(cview->player,&cview->cview,cview->id);
@@ -132,6 +134,7 @@ void Camera_SetCamera(DRender_tView *cview)
 }
 
 /* ---- Camera_LookBack__FP10matrixtdefT0  [@0x8008073c] ---- */
+#line 661 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)
 {
   tgt->m[0] = -src->m[0];
@@ -147,6 +150,7 @@ void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)
 }
 
 /* ---- Camera_TunnelLimit__FiPi  [@0x800807c4] ---- */
+#line 683 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_TunnelLimit(int player,int *armheight)
 {
   if (BWorldSm_TunnelFlagSm(&Camera_gInfo[player].slicePos) ||
@@ -173,6 +177,7 @@ void Camera_TunnelLimit(int player,int *armheight)
 }
 
 /* ---- Camera_UpdateCollisionCam__Fi  [@0x8008090c] ---- */
+#line 726 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCollisionCam(int player)
 {
   coorddef arm = {0, 0x30000, -0xa0000};   /* SYM: AUTO; braced init -> rodata template D_800558A4 copy */
@@ -209,6 +214,7 @@ void Camera_UpdateCollisionCam(int player)
 }
 
 /* ---- Camera_UpdateSimpleCam__Fi  [@0x80080ac8] ---- */
+#line 790 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateSimpleCam(int player)
 {
   coorddef arm, newarm;
@@ -227,6 +233,7 @@ void Camera_UpdateSimpleCam(int player)
 }
 
 /* ---- Camera_UpdateBumperCam__Fi  [@0x80080bac] ---- */
+#line 807 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateBumperCam(int player)
 {
   coorddef arm;        /* SYM: AUTO @0x10 */
@@ -270,6 +277,7 @@ void Camera_UpdateBumperCam(int player)
  * Detailed allocation/fence experiments in revision04558fbb are historical,
  * not original-source requirements. Controls:build/nc12/camera_tail_source_20261019.
  * Byte, local and region contracts are re-gated; literal text/full SLD is open. */
+#line 843 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateTailCam(int player,int behavior)
 {
   coorddef arm;
@@ -474,6 +482,7 @@ void Camera_UpdateTailCam(int player,int behavior)
  * all empty asm fences from this function. The older fence/alias requirements
  * above are historical, not current source necessities. See
  * build/nc12/camera_heli_road_source_20261018; literal original text/SLD is open. */
+#line 949 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateHeliCam(int player,int behavior)
 {
   coorddef arm;      /* SYM: AUTO @0x10 */
@@ -618,6 +627,7 @@ void Camera_UpdateHeliCam(int player,int behavior)
 }
 
 /* ---- Camera_UpdateCircleCam__Fi  [@0x80081ab8] ---- */
+#line 1068 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCircleCam(int player)
 {
   coorddef src;
@@ -664,6 +674,7 @@ void Camera_UpdateCircleCam(int player)
  * value across both stores and tests without a named `gs` carrier.
  * The final 68/68 bytes and whole Camera TU are unchanged; original macro
  * spelling and complete SLD statement lines remain unproved. */
+#line 1115 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void SetCameraZoom(int player,int targetDist)
 {
 
@@ -697,6 +708,7 @@ void SetCameraZoom(int player,int targetDist)
  * Typed lastX[player]/lastY[player] lets GCC build the scaled byte-index
  * quantity anonymously; the old named lastIndex was native-SYM EXTRA.
  * The older Ghidra placeholder collapsed lastY into lastX (H43). */
+#line 1135 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateTVCam(int player)
 {
   static int lastX[2];
@@ -724,6 +736,7 @@ void Camera_UpdateTVCam(int player)
 }
 
 /* ---- Camera_UpdateAnimCam__Fi  [@0x80081f94] ---- */
+#line 1202 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateAnimCam(int player)
 {
   coorddef animPos;    /* SYM: AUTO */
@@ -792,6 +805,7 @@ void Camera_UpdateAnimCam(int player)
 }
 
 /* ---- Camera_UpdateFinishCam__Fi  [@0x80082254] ---- */
+#line 1282 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateFinishCam(int player)
 {
   coorddef finishPos;    /* SYM: AUTO @0x10 */
@@ -824,6 +838,7 @@ void Camera_UpdateFinishCam(int player)
 }
 
 /* ---- Camera_UpdateBlimpCam__Fi  [@0x8008237c] ---- */
+#line 1349 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateBlimpCam(int player)
 {
   coorddef arm, oldarm;
@@ -846,6 +861,7 @@ void Camera_UpdateBlimpCam(int player)
 }
 
 /* ---- Camera_SetSplineCam__Fi  [@0x800824c0] ---- */
+#line 1394 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetSplineCam(int player)
 {
   Car_tObj *anchor;
@@ -889,250 +905,128 @@ void Camera_SetSplineCam(int player)
 }
 
 /* ---- Camera_UpdateSplineCam__Fi  [@0x800826c0] ----
- * NEAR-MISS 61, ours 350 / oracle 351 (ONE short).  W60-A9 triaged four clusters
- * and confirmed (via rage-racer steer_car_to_track_line.c:187-193) that the source
- * SHAPE is right, so the residual is allocation/scheduling only.
- * W61-A11 adds the ground truth the next attempt needs:
- *  - SYM seats (VA 800826c0): anchor=REG $20 s4 | change=$6 a2 | sliceDist=$5 a1 |
- *    numSlice=$18 **s2** | direction=$16 s0 | relativeVel=$17 s1; cameraVel AUTO
- *    -0x50, splineVel -0x40, nextVel -0x30.  Ours puts numSlice in $v1 -- that is
- *    cluster 2 (insns 96-118) and it is a SEAT question, not a spelling one.
- *  - allocsim MATCHES 30/30 (order-vs-dump IDENTICAL) on this fn, and the
- *    instrumented cc1plus reproduces it BYTE-IDENTICALLY, so both the global
- *    (tools/allocsim.py + reqdelta.py) and the local-alloc qty layer
- *    (tools/qtytrace.py on scratchpad/w61a11/cam2b.trace.txt) are open here.
- *    p394 = &Camera_gInfo[player] (refs 13 live 95 pri 0.4105) currently owns $s2.
- *  - cluster 1 (insns 34-63) is a $v1<->$a0 role swap PLUS the position of
- *    `lh ,140(a0)`: retail issues the camera slice load BETWEEN the /2 chain's
- *    `addu` and `sra`, ours before the whole chain.
- *  - cluster 3 (insns 123-137) is where retail's extra insn lives: it builds a NEW
- *    base (`addu s1,v0,v1` + `addiu v1,v1,-72`) and loads 0/4/8($s1) where ours
- *    uses 72/76/80($s3).  W60-A9 falsified an early base-pointer hoist for the
- *    rotation dot (135@352) and a two-pointer form (256@351), so the +72/-72 object
- *    is NOT the rotation matrix -- identify it before re-trying.
- * The W61-A11 HeliCam seal in this same TU is the template: read the losing qty's
- * QTY_CMP_PRI off the trace and buy the seat with a floor_log2 REF-STEP (a
- * zero-insn read-only fence), sweeping the fence POSITION as a separate dial.
- * W61-A11 FALSIFIED (all INERT at 61 @350/351, do not re-sweep blind): a read-only
- * fence on `numSlice` after its camSpeedTable assignment | after the `change` if |
- * two operands there | on `direction` after its clamp | on `numSlice` before the
- * direction block.  The contested pseudos here are GLOBAL allocnos (allocsim rank
- * 16 for the &Camera_gInfo[player] base), so the priced dial is
- * `tools/reqdelta.py --want` on those allocnos, not a blind local-alloc ref-step.
- * W61-A11 also checked the W61-A1 SPILL-SLOT/declaration-order law here: the sp
- * offset SETS are identical ours-vs-oracle (0 ours-only, 0 oracle-only), so the
- * frame map already matches and that law does not apply.
- * W62-A11 LANDED 61 -> 55 (@350/351).  THE LEVER = 13A BLOCK-LOCAL ANCHOR on
- * `direction`: wrap its clamp in a block, compute into a block-local `d` that
- * DIES there, and assign `direction = d;`.  `d` becomes a local qty and takes $a2
- * (retail's `li a2,8` / `addu a2,v1,zero`), while `direction` stays the
- * call-crossing global allocno in $s2 -- and the assignment materialises as
- * retail's `addu s2,a2,zero` IN THE FIRST fixedmult DELAY SLOT, which is the
- * insn we were short there.  A ternary instead 66 @349 (one MORE short).
- * W62-A11 falsified for cluster 3: `int *rot = &Camera_gInfo[player].rotation.m[6]`
- * with rot[0..2] 135 @352 (+ the d carrier 136 @353) -- the +72/-72 object still
- * is NOT reachable by naming the rotation row.
- * W62-A11 PRICED cluster 2 AND CLOSED IT AS STRUCTURE-BOUND: with allocsim
- * MATCHING 29/29 on the landed source, our numSlice is global allocno p98
- * (refs 9, live 29, calls 0, pri 0.9310, rank 3) and it takes $v1 as the second
- * free register of find_reg's plain ascending scan.  `reqdelta --want p98=s2`
- * reports NO single-dial and NO two-dial (refs x live, +-40) solution -- retail's
- * $s2 is the 9th free register, so per the 13A UNREACHABILITY TRIAGE no priority
- * dial can reach it.  The remaining axis is `calls`: a pseudo with calls>0 is
- * scanned against call_used_reg_set and starts at $s0.  MEASURED (all much
- * WORSE, do not retry): a read-only fence on numSlice placed AFTER the fixedmult
- * block 171 @352 | after the linearVel if 171 @352 | two operands 187 @352 |
- * the same on sliceDist 163 @350.  Buying calls_crossed with a fence costs real
- * insns (the value must survive the call), so the calls dial needs a SOURCE use
- * of numSlice after the calls, not a fence -- that is the next named angle.
- *
- * W71-A21 LANDED 13 -> 8 @349/351.  Clusters 1 and 2 are GONE (the earlier waves
- * closed them); the whole residual is now cluster 3 alone, the +72/-72 object.
- * THE LEVER THAT LANDED = the splineVel/nextSlice STATEMENT ORDER SWAP in the
- * second inner block (see the MATCH note there): the anonymous global read must
- * PRECEDE the named-cursor assignment, which recovers retail's `addu v1,a1,zero`
- * copy AND the `lui/lw` before `lh ,140(s2)`.
- * CLUSTER 3 RE-PRICED FROM THE 8-BASIN -- the +72 object IS reachable, and it IS
- * the rotation row, but only with the SYMBOL-CONSTANT spelling, and it costs a
- * head recolor:
- *   `int *rotRow = (int *)((int)&Camera_gInfo[0].rotation.m[6] + player*272);`
- *   + rotRow[0..2]  ......................................... 32 @351 (COUNT EXACT)
- *      -> reproduces retail EXACTLY here: `lui v1,%hi(Camera_gInfo+72); addiu v1;
- *         addu s1,v0,v1; addiu v1,v1,-72; addu s3,v0,v1; lw a0,0/4/8(s1)`.
- *         The residual is ONE contiguous head block: {player<<4} ours $v1 vs
- *         retail $a0, {numSlice+1 carrier `d`} ours $a0 vs retail $v1, and the
- *         symbol reg ours $v0 vs retail $v1 -- i.e. the extra `rotRow` pseudo
- *         re-colors the guard head (the catalog's any-new-pseudo-recolors-head
- *         trap), NOT a structural miss.
- *   `int *rotRow = &Camera_gInfo[0].rotation.m[6] + player*68;` ....... 32 @351 (same)
- *   `int *rotRow = &Camera_gInfo[player].rotation.m[6];` ..... 41 @352 / 46 @351
- *      -> WRONG constant: gcc folds this to `&(...).rotation` (+48) and then a
- *         SEPARATE +24, so it emits `addiu v0,v0,-48` + a walking `addiu s1,s1,24`.
- *         This is why W62-A11's "the +72/-72 object is NOT the rotation matrix"
- *         reading was wrong -- it IS the rotation row; the ARRAY_REF just does not
- *         fold into the symbol constant, only a `&arr[0].f.m[k] + i*sizeof` does.
- *   inline (macro/no named variable, so the temp stays anonymous like retail's
- *   un-SYM'd $s1) ................................... 173 @352  (far worse)
- *   d-block reshapes from the 32-basin: `int d = numSlice+1; if (d>=9) d = 8;` 34,
- *   explicit if/else 32 -- neither moves the head pair.
- * => NAMED ANGLE (W71): cluster 3 is a 3-pseudo HEAD COLORING problem in the
- * 32-basin ({player<<4}=$a0, {d}=$v1, {sym}=$v1), not an address-shape problem.
- *
- * W72-A12 SEALED -- PASS 351/351.  The head recolour was NOT a priority dial; it
- * is 100% DOWNSTREAM of the pre-sched EXPAND ORDER of the two address chains, and
- * the fix is a SECOND named base pointer.  The full mechanism, receipted:
- *   1. In the 32-basin every insn of both chains has INSN_PRIORITY 1 (gcc-2.8
- *      sched.c priority(): `prev_priority = priority(x) + insn_cost - 1`, and all
- *      MIPS ALU latencies are 1), so rank_for_schedule falls through to
- *      INSN_LUID -- sched1 CANNOT reorder them.  The emitted order is therefore
- *      exactly fold()'s operand canonicalisation: an ADDR_EXPR of a static is
- *      TREE_CONSTANT, so fold puts it SECOND in the PLUS and expand_expr emits
- *      the `player*272` chain (uid 402/403) BEFORE the `high`/`lo_sum` pair
- *      (404/405).
- *   2. local-alloc then hands the registers out by QTY_CMP_PRI
- *      (floor_log2(refs)*refs*size / (death-birth)):
- *        Q_A {player*17, <<4}   refs 5, birth 0, death 6 -> 16666
- *        Q_B {high, lo_sum, -72} refs 7, birth 2, death 6 -> 35000   (Q_B first)
- *      so Q_B took $v0 and Q_A took $v1.  Retail's order (sym pair FIRST) gives
- *      Q_B birth 0 life 6 = 23333 and Q_A birth 2 life 4 = 25000 -- Q_A first,
- *      $v0, and Q_B $v1.  THAT is retail's handout.
- *   3. The global head swap is a knock-on of (2): with Q_A(p268)=$v1, global.c
- *      set_preference gives p258 {player<<4} a hard-reg preference for $v1
- *      (insn 402 is `set p268 <- plus(p258,p80)` and p268 is already renumbered
- *      by local-alloc).  find_reg's pass-0 `regs_someone_prefers` then denies
- *      $v1 to the CONFLICTING p263 {numSlice+1} -- and $v0 is already a HARD
- *      conflict for both -- so p263 falls to $a0 and p258 keeps $v1.  Flip
- *      p268 to $v0 and the preference becomes the (useless) $v0, p263 takes
- *      $v1 in pass 0 and p258 takes $a0.  One local-alloc decision, five regs.
- *   THE LEVER: give the symbol its own LIVE named base pointer, so it is a plain
- *   pseudo (not TREE_CONSTANT) at fold time and is expanded FIRST:
- *        int *rotBase = &Camera_gInfo[0].rotation.m[6];
- *        int *rotRow  = rotBase + player * 68;
- *   MEASURED, all real gate runs from the 32-basin:
- *     rotBase + player*68 (two DISTINCT variables) .............. PASS 351/351
- *     rotBase then (int)rotBase + player*272 ................... PASS 351/351
- *     ONE variable reassigned (`rotRow = &..m[6]; rotRow += n`) . 33 @352
- *       -> the base pseudo DIES into the add, so cse loses the related_value
- *          that turns `Camera_gInfo+72` into retail's `addiu v1,v1,-72`; gcc
- *          re-materialises `Camera_gInfo` with a second lui/addiu (+1 insn).
- *          A DISTINCT rotBase stays live and the -72 survives.
- *     `int *rotBase = Camera_gInfo[0].rotation.m; rotBase + player*68 + 6` 21 @352
- *     `camera_info *cam = Camera_gInfo; cam[player].rotation.m[6..8]` .. 8 @349
- *   FALSIFIED here (do not retry): operand order flip `player*272 + (int)&sym`
- *   (fold canonicalises, byte-identical 32); a read-only ref fence on a named
- *   `int off = player*272` at ANY operand count 1..10 and at either position --
- *   always 39 @352, because the asm stops reorg's backward scan and costs the
- *   first fixedmult's delay-slot fill (`addu s2,a2,zero` -> nop), while the
- *   ref dial itself never reached Q_A. */
-/* 2026-10-19: the real position/velocity phases own their supplied locals.
- * Bound-first min removes d; typed wrapped nextVel indexing removes nextSliceIdx.
- * Complete circular-distance assignment removes halfSlices; the typed row
- * coordinate view removes rotBase. Both newSlice captures remain SOURCE REVIEW.
- * Controls:build/nc12/camera_spline_wrap_source_20261019; full SLD remains open. */
+ * MATCH: supplied value roles and native owners, with no wrap-result locals.
+ * The direct wrap expression already used by Camera_SetSplineCam also preserves
+ * this complete TU's normal ELF and native CPE. Use the actual signed slice
+ * field and full gNumSlices operands; the final short destination supplies
+ * narrowing. Both invented newSlice objects disappear without a new variable,
+ * qualifier, fence or identity. All supplied local/type/home/scope tuples agree.
+ * This supersedes the old near-miss/unreachable and distinct-base-necessity
+ * claims: earlier source repairs already removed d, halfSlices, nextSliceIdx
+ * and rotBase. Their historical experiments are retained in git history and
+ * the referenced build/nc12 camera_spline* receipt directories.
+ * Controls/native proof: build/nc12/camera_joint_source_20261020.
+ * Complete absolute SLD now agrees too: run-q08hw8ry checks every word tag,
+ * filename/header/end and block line. Literal original source text and the
+ * complete TU type-preamble remain separate, not uniquely certified claims. */
+#line 1443 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateSplineCam(int player)
-{
-  Car_tObj *anchor;
-  coorddef cameraVel;
-  int change;
+{ Car_tObj *anchor; coorddef cameraVel; int change;
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
   change = 0;
-  if (!(((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) && InBetween == 0)) return;
-  {
-    int sliceDist;
-    int numSlice;
-    sliceDist = (gNumSlices / 2 < ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) > 0 ? (anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) : -(anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice)))
-        ? gNumSlices - ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) > 0 ? (anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) : -(anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice))
-        : ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) > 0 ? (anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) : -(anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice));
 
-    numSlice = (0x10000 -
-        camSpeedTable[(u_char)Camera_gInfo[player].splineMode]) * 0xf >> 0x10;
+
+
+  if (!(((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) && InBetween == 0)) return;
+
+
+
+  { int sliceDist; int numSlice; sliceDist = (gNumSlices / 2 < ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) > 0 ? (anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) : -(anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice))) ? gNumSlices - ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) > 0 ? (anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) : -(anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice))
+    : ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) > 0 ? (anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) : -(anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice)); numSlice = (0x10000 -
+    camSpeedTable[(u_char)Camera_gInfo[player].splineMode]) * 0xf >> 0x10;
     if ((numSlice + 2 < sliceDist) &&
-        (camSpeedTable[(u_char)Camera_gInfo[player].splineMode] < 0x10000)) {
+
+    (camSpeedTable[(u_char)Camera_gInfo[player].splineMode] < 0x10000)) {
       change = 1;
     }
 
-    if ((change != 0) && (Replay_ReplayCamera[player].defaultCamera == 0)) {
-      int direction;
-
+    if ((change != 0) && (Replay_ReplayCamera[player].defaultCamera == 0))
+    { int direction;
       numSlice = 8 < (numSlice + 1) ? 8 : (numSlice + 1);
-
       direction = fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->x,
-                            Camera_gInfo[player].anchor->roadMatrix.m[6]) +
-                  fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->y,
-                            Camera_gInfo[player].anchor->roadMatrix.m[7]) +
-                  fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->z,
-                            Camera_gInfo[player].anchor->roadMatrix.m[8]);
+      Camera_gInfo[player].anchor->roadMatrix.m[6]) +
+      fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->y, Camera_gInfo[player].anchor->roadMatrix.m[7]) + fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->z,
+      Camera_gInfo[player].anchor->roadMatrix.m[8]);
+
       if (direction < 0) {
-        numSlice = -numSlice;
-      }
+        numSlice = -numSlice; }
       if (anchor->linearVel_ch.z < 0) {
         numSlice = -numSlice;
       }
-      if (numSlice >= 0) {
 
-        short newSlice = anchor->N.simRoadInfo.slice + numSlice;
-        if ((short)anchor->N.simRoadInfo.slice + numSlice >= gNumSlices) {
-          newSlice -= (u_short)gNumSlices;
-        }
-        Camera_gInfo[player].slicePos.slice = newSlice;
-      } else {
-        short newSlice = anchor->N.simRoadInfo.slice + numSlice;
-        if ((short)anchor->N.simRoadInfo.slice + numSlice < 0) {
-          newSlice = (u_short)gNumSlices + newSlice;
-        }
-        Camera_gInfo[player].slicePos.slice = newSlice;
-      }
-      Camera_gInfo[player].position =
-          *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      if (numSlice >= 0) { Camera_gInfo[player].slicePos.slice = (gNumSlices <= anchor->N.simRoadInfo.slice + numSlice) ? anchor->N.simRoadInfo.slice + numSlice - gNumSlices : anchor->N.simRoadInfo.slice + numSlice; } else { Camera_gInfo[player].slicePos.slice = (anchor->N.simRoadInfo.slice + numSlice < 0) ? anchor->N.simRoadInfo.slice + numSlice + gNumSlices : anchor->N.simRoadInfo.slice + numSlice; } Camera_gInfo[player].position =
+      *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
       BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,
-                                  &Camera_gInfo[player].slicePos,1);
+
+      &Camera_gInfo[player].slicePos,1);
     } else {
       BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,
-                                  &Camera_gInfo[player].slicePos,1);
+
+
+
+      &Camera_gInfo[player].slicePos,1);
     }
   }
-  {
-    coorddef splineVel;
-    coorddef nextVel;
+
+
+  { coorddef splineVel; coorddef nextVel;
 
     splineVel = *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
     nextVel = *(coorddef *)(BWorldSm_slices[((Camera_gInfo[player].slicePos.slice + 1) < gNumSlices ? (Camera_gInfo[player].slicePos.slice + 1) : 0)].center);
-    splineVel.x = nextVel.x - splineVel.x;
-    splineVel.y = nextVel.y - splineVel.y;
-    splineVel.z = nextVel.z - splineVel.z;
-    {
-      int relativeVel;
+
+
+    splineVel.x = nextVel.x - splineVel.x; splineVel.y = nextVel.y - splineVel.y; splineVel.z = nextVel.z - splineVel.z; { int relativeVel;
       Math_NormalizeVector(&splineVel);
       relativeVel = fixedmult(anchor->N.linearVel.x,splineVel.x) +
-                    fixedmult(anchor->N.linearVel.y,splineVel.y) +
-                    fixedmult(anchor->N.linearVel.z,splineVel.z);
+      fixedmult(anchor->N.linearVel.y,splineVel.y) +
+
+      fixedmult(anchor->N.linearVel.z,splineVel.z);
+
       if ((GameSetup_gData.sgge & 4U) != 0) {
         relativeVel = fixedmult(relativeVel,0xcccc);
-      }
-      relativeVel = fixedmult(relativeVel,
-          camSpeedTable[(u_char)Camera_gInfo[player].splineMode]);
-      cameraVel.x = fixedmult(relativeVel,splineVel.x);
-      cameraVel.y = fixedmult(relativeVel,splineVel.y);
-      cameraVel.z = fixedmult(relativeVel,splineVel.z);
+      } relativeVel = fixedmult(relativeVel,
+      camSpeedTable[(u_char)Camera_gInfo[player].splineMode]);
+
+      cameraVel.x = fixedmult(relativeVel,splineVel.x); cameraVel.y = fixedmult(relativeVel,splineVel.y); cameraVel.z = fixedmult(relativeVel,splineVel.z);
     }
   }
+
 
   Camera_gInfo[player].position.x += cameraVel.x >> 6;
   Camera_gInfo[player].position.y += cameraVel.y >> 6;
   Camera_gInfo[player].position.z += cameraVel.z >> 6;
   SetCameraZoom(player,
-      Math_Dist3D(&Camera_gInfo[player].target->position,
-                  &Camera_gInfo[player].position) > 0 ?
-      Math_Dist3D(&Camera_gInfo[player].target->position,
-                  &Camera_gInfo[player].position) >> 4 :
-      -Math_Dist3D(&Camera_gInfo[player].target->position,
-                   &Camera_gInfo[player].position) >> 4);
-  return;
+  Math_Dist3D(&Camera_gInfo[player].target->position,
+  &Camera_gInfo[player].position) > 0 ?
+  Math_Dist3D(&Camera_gInfo[player].target->position,
+  &Camera_gInfo[player].position) >> 4 :
+  -Math_Dist3D(&Camera_gInfo[player].target->position,
+
+
+
+
+
+  &Camera_gInfo[player].position) >> 4); return;
 }
 
 /* ---- Camera_IslandProfile__FUs  [@0x80082c3c] ---- */
 /* MATCH: u_short locals + mutated param; masks (andi 0xFFFF) appear lazily
  * at compares; plain while yields the top and bottom loop tests. */
+#line 1552 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 int Camera_IslandProfile(u_short before)
 {
   u_short after;   /* SYM: REG after USHORT */
@@ -1159,6 +1053,7 @@ int Camera_IslandProfile(u_short before)
 }
 
 /* ---- Camera_UpdatePulloverCam__Fi  [@0x80082c94] ---- */
+#line 1578 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdatePulloverCam(int player)
 {
   /* MATCH (PASS/223): direct Camera_gInfo[player] expressions rematerialize the
@@ -1230,6 +1125,7 @@ void Camera_UpdatePulloverCam(int player)
 }
 
 /* ---- Camera_UpdateCopCam1__Fi  [@0x80083010] ---- */
+#line 1707 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCopCam1(int player)
 {
   coorddef vec;
@@ -1250,6 +1146,7 @@ void Camera_UpdateCopCam1(int player)
 }
 
 /* ---- Camera_UpdateCopCam2__Fi  [@0x800831a8] ---- */
+#line 1726 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCopCam2(int player)
 {
   coorddef dirVec;
@@ -1268,6 +1165,7 @@ void Camera_UpdateCopCam2(int player)
 }
 
 /* ---- Camera_UpdateBTCopCam__Fi  [@0x800832b0] ---- */
+#line 1740 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateBTCopCam(int player)
 {
   /* MATCH: real switch (binary-tree dispatch); focusOnAICar RE-READ per line (lb x2, no cache) */
@@ -1298,36 +1196,22 @@ void Camera_UpdateBTCopCam(int player)
 }
 
 /* ---- Camera_Update__Fv  [@0x800833d8] ---- */
-/* 2026-10-19: typed global loop bounds and the actual coordinate row replace
- * cameraBase/rotationBase, including the fictitious camera_info array at +72.
- * The compiler creates both retail walks without those source objects.
- * Counter/flag captures and the mask absorption remain SOURCE REVIEW, not
- * original-source requirements. The older allocation receipts are in04558fbb.
- * One current-camera address now serves both flag paths, with anchor in the
- * real loop body and orientation selection in the collision-counter else.
- * bitsInfo itself remains unrecorded SOURCE REVIEW, not an original-name seal.
- * Controls:build/nc12/camera_update_flags_source_20261019; full SLD remains open. */
-/* Historical reconstruction notes for Camera_Update, retained outside its
- * executable source body. They are not original comments or proof that the
- * remaining captures/identity were present in the original source. */
-/* SOURCE REVIEW: inCarMask is unrecorded. The previous literal-mask trial
-     changed44words in its basin; that does not establish an original object. */
-
-/* SYM-CODEGEN-CARRIER: tumbling -- an explicit load/store of the
-           counter (CAMIN 2026-10-04) lets the `move a0,s3` arg copy issue
-           first, so reorg puts it in the guard's beqz slot and the `sb` in the
-           jal slot like retail.  It replaces the old collisionPlayer identity
-           asm launder; `tumbling--`, `-= 1`, `x = x - 1` and comma-in-argument
-           spellings all leave the move in the jal slot (4 diffs @288). */
-
-/* SYM-CODEGEN-CARRIER: bitsInfo -- direct indexed bit-word access
-           adds eight instructions and produces 64 diffs (296/288). */
-
-/* SYM-CODEGEN-CARRIER: isInCar -- natural bitfield assignments add
-           two instructions and leave 16 diffs in their best ordering. */
-
-/* SYM-CODEGEN-CARRIER: modeBits -- the single-word bitfield update
-           is required for retail's 288-instruction combined mask/store. */
+/* Source recovery, 2026-10-20: real forced-camera paths own their flag stores
+ * and early continues. GCC merges those stores back to the original shared
+ * machine tail, but their real source uses also replace the former mask
+ * capture/absorption identity. With that source structure, an ordinary counter
+ * decrement no longer needs the unrecorded tumbling capture. No replacement
+ * variable, type change, fence, asm or fake reference is added.
+ * Source-control and native CPE proofs: build/nc12/camera_counter_source_20261020.
+ *
+ * SOURCE-REVIEW-UNRESOLVED: bitsInfo, isInCar, modeBits remain unrecorded
+ * source values/aliases. The required packed-state behavior is known, but
+ * failed direct forms do not prove that these original source objects existed.
+ * The direction owner's retail zero-length range/nested bindings also remain
+ * unsealed; code-exact initializers did not fix it, a value-expression model
+ * is one level short, and speculative inline helpers changed code. Do not
+ * pad scopes or claim those models recovered the original inline source.
+ * Earlier single-carrier necessity claims are superseded, not exemptions. */
 
 /* ============================================================================
        * PC MODE-ENUM DECODE (w30-a8, 2026-07-26) -- pcmap/map_a6.txt flagged this as the
@@ -1410,9 +1294,6 @@ void Camera_UpdateBTCopCam(int player)
        * value -- don't mistake it for a 4-way PSX enum split.
        * ============================================================================ */
 
-/* CAMIN 2026-10-04: pure-C absorption identity (second SET of inCarMask,
-         folded to zero bytes by combine) replaces the old identity asm launder. */
-
 /* MATCH (W65-A3, calltarget): the SimpleCam group is emitted LAST of this
        * run, not first -- the oracle's jal order is Circle, Spline, TV, Blimp,
        * Anim, Simple, CopCam1 (case BODIES emit in SOURCE order, catalog D).
@@ -1421,14 +1302,12 @@ void Camera_UpdateBTCopCam(int player)
        * here is also the natural 1998 shape -- the group is placed where its
        * LAST label (0xf) belongs. */
 
+#line 1776 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_Update(void)
 {
-  unsigned int inCarMask;
   int player;
 
-  player = 0;
-  inCarMask = 0xf7ffffff;
-  for (; player <= Camera_gInfo[0].splitscreen;
+  for (player = 0; player <= Camera_gInfo[0].splitscreen;
        player++) {
     Car_tObj *anchor;
     camera_info *bitsInfo;
@@ -1437,10 +1316,11 @@ void Camera_Update(void)
     anchor = (Car_tObj *)Camera_gInfo[player].anchor;
     if (Camera_gInfo[player].checkcollisions != 0) {
       if (Camera_gInfo[player].tumbling != 0) {
-        int tumbling = Camera_gInfo[player].tumbling;
-        Camera_gInfo[player].tumbling = tumbling - 1;
+        Camera_gInfo[player].tumbling -= 1;
         Camera_UpdateCollisionCam(player);
-        goto LAB_80083584;
+        *(unsigned int *)((char *)bitsInfo + 116) =
+            (*(unsigned int *)((char *)bitsInfo + 116) & (~(1U << 27))) | 1;
+        continue;
       }
       else if (anchor->N.orientationToGround.y < 0x8000) {
         int direction;
@@ -1456,24 +1336,26 @@ void Camera_Update(void)
         Camera_gInfo[player].tumbling = 100;
       }
     }
-LAB_80083500:
       if (((anchor->carFlags & 1U) != 0) && (anchor->stats.finishType == 2)) {
         Camera_UpdateFinishCam(player);
-        goto LAB_80083584;
+        *(unsigned int *)((char *)bitsInfo + 116) =
+            (*(unsigned int *)((char *)bitsInfo + 116) & (~(1U << 27))) | 1;
+        continue;
       }
       if (0 < (int)Camera_gInfo[player].forceFocus) {
         Camera_UpdateBTCopCam(player);
-        goto LAB_80083584;
+        *(unsigned int *)((char *)bitsInfo + 116) =
+            (*(unsigned int *)((char *)bitsInfo + 116) & (~(1U << 27))) | 1;
+        continue;
       }
       if ((Cars_gHumanRaceCarList[player]->pullOver != 0) &&
           (Cars_gHumanRaceCarList[player]->stats.finishType != 3)) {
         Camera_UpdatePulloverCam(player);
-LAB_80083584:
         {
         *(unsigned int *)((char *)bitsInfo + 116) =
-            (*(unsigned int *)((char *)bitsInfo + 116) & inCarMask) | 1;
+            (*(unsigned int *)((char *)bitsInfo + 116) & (~(1U << 27))) | 1;
         }
-        goto LAB_80083810;
+        continue;
       }
       if (Camera_gInfo[player].modechange != 0) {
         camera_flags *flagMode;
@@ -1488,7 +1370,7 @@ LAB_80083584:
         Camera_gInfo[player].noLookBack = flagMode->noLookBack;
         Camera_gInfo[player].checkcollisions = flagMode->checkcollisions;
         modeBits = *(unsigned int *)((char *)bitsInfo + 116);
-        modeBits &= inCarMask;
+        modeBits &= (~(1U << 27));
         isInCar = bitsInfo->mode < 2;
         modeBits |= (unsigned int)isInCar << 27;
         modeBits &= ~1U;
@@ -1500,7 +1382,6 @@ LAB_80083584:
           Replay_ReplayFindClosestCamera(player,(int)(Camera_gInfo[player].anchor->simRoadInfo).slice);
         }
       }
-      inCarMask = inCarMask | (inCarMask & 3);
       switch(Camera_gInfo[player].mode) {
       case 0: case 1: Camera_UpdateBumperCam(player); break;
       case 2: Camera_UpdateTailCam(player,0); break;
@@ -1518,13 +1399,11 @@ LAB_80083584:
       case 0x10: Camera_UpdateCopCam1(player); break;
       case 0x11: case 0x12: Camera_UpdateCopCam2(player);
       }
-    goto LAB_80083810;
-LAB_80083810:
-    ;
   }
 }
 
 /* ---- Camera_Init__Fv  [@0x80083858] ---- */
+#line 1911 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_Init(void)
 {
   int splitScreen;
@@ -1597,6 +1476,7 @@ void Camera_Init(void)
 /* ---- Camera_Kill__Fv  [@0x80083bec] ---- */
 /* Indexing Camera_gInfo lets GCC strength-reduce the 0x110 stride while
  * retaining the retail animHandle displacement; pointer-walk changes it. */
+#line 2000 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_Kill(void)
 {
   int i; int splitScreen = GameSetup_gData.commMode == 1;
@@ -1610,6 +1490,7 @@ void Camera_Kill(void)
 }
 
 /* ---- Camera_PitchAndRoll__Fi  [@0x80083c74] ---- */
+#line 2012 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_PitchAndRoll(int player)
 {
   matrixtdef m1, m2, m3; Car_tObj *anchor; int pitch;
@@ -1637,6 +1518,7 @@ void Camera_PitchAndRoll(int player)
 }
 
 /* ---- Camera_TooSteep__FiP12BWorldSm_Pos  [@0x80083d28] ---- */
+#line 2038 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
 {
   BWorldSm_Pos *slicePos2;  /* SYM: REG (anchor+8, addiu s0,s0,8 in the 1st jal slot) */
@@ -1670,6 +1552,7 @@ int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
 }
 
 /* ---- Camera_CheckWallCollisions__FiP8coorddef  [@0x80083e98] ---- */
+#line 2072 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_CheckWallCollisions(int player,coorddef *pos)
 {
   BWorldSm_Pos slicePos;    /* SYM: AUTO @-0x118 */
@@ -1855,6 +1738,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
 }
 
 /* ---- Camera_SetAboveGround__FiP8coorddef  [@0x8008480c] ---- */
+#line 2218 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetAboveGround(int player,coorddef *pos)
 {
   BWorldSm_Pos *slicePos = &Camera_gInfo[player].slicePos;
@@ -1872,6 +1756,7 @@ void Camera_SetAboveGround(int player,coorddef *pos)
 }
 
 /* ---- Camera_AcquireTarget__FiP8coorddefT1P10matrixtdefi  [@0x80084898] ---- */
+#line 2238 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *rot,int hirez)
 {
   coorddef upvector = {0, 0x10000, 0};
@@ -1924,6 +1809,7 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
 }
 
 /* ---- Camera_OpponentLookBehind__FiP8coorddefi  [@0x80084c34] ---- */
+#line 2289 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_OpponentLookBehind(int player,coorddef *pos,int reset)
 {
   coorddef oppVector;
@@ -2001,6 +1887,7 @@ afterOpponents:
 }
 
 /* ---- Camera_GetViewInfo__FiP17DRender_tCalcViewi  [@0x80085008] ---- */
+#line 2355 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
 {
   if (Camera_gInfo[cviewP].jostling != 0) {
@@ -2065,6 +1952,7 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
 }
 
 /* ---- Camera_GetAudioViewInfo__FiP17DRender_tCalcViewPP8coorddef  [@0x8008533c] ---- */
+#line 2481 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel)
 {
   if (*(int *)((cviewP << 2) + (int)Input_gLookBehind) == 0) {
@@ -2115,6 +2003,7 @@ void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel
 }
 
 /* ---- Camera_GetMode__Fi  [@0x80085568] ---- */
+#line 2546 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 int Camera_GetMode(int cviewP)
 {
 
@@ -2135,6 +2024,7 @@ int Camera_GetMode(int cviewP)
 }
 
 /* ---- Camera_SetMode__Fii  [@0x80085608] ---- */
+#line 2565 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetMode(int cviewP,int mode)
 {
   InBetween = 0;
@@ -2182,6 +2072,7 @@ void Camera_SetMode(int cviewP,int mode)
  * No new name, qualifier, helper, fence or output rewrite is required.
  * Controls: build/nc12/camera_next_mode_source_20261018. Literal original
  * predicate spelling and complete SLD attribution remain unsealed. */
+#line 2621 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_NextMode(int cviewP)
 {
   if ((Camera_gInfo[cviewP].mode == 0xe) || (Camera_gInfo[cviewP].modechange != 0))
@@ -2240,6 +2131,7 @@ void Camera_NextMode(int cviewP)
 }
 
 /* ---- Camera_ReplayUpdate__FiP15Camera_tCamSlot  [@0x80085bd0] ---- */
+#line 2689 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
 {
 
@@ -2264,6 +2156,7 @@ void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
 }
 
 /* ---- Camera_ResetRelPos__Fi  [@0x80085cd4] ---- */
+#line 2712 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_ResetRelPos(int bitMask)
 {
   if ((bitMask & 1U) != 0) {

@@ -87,6 +87,35 @@ it does not always *enforce* it — pick the enforcement device afterwards.
 Helpers exist in session scratchpads (`sldmap.py`, `sldview.py`, `w54a6_sld.py`
 variants) — trivially re-derivable from `tools/diffsrc.py`.
 
+#### SLD source coordinates — user authorization 2026-10-20
+
+Use one per-function `#line N "C:/nfs4/.../FILE.CPP"` anchor with the exact
+retail source identity. `N` applies to the following source line: when the
+compiler records the opening brace as the function header, anchor the preceding
+signature one line earlier. Derive both values from retail SYM, never guess.
+Restore in-body SLD with ordinary statement placement, spacing and comments;
+do not add executable placeholders. This supersedes earlier blanket advice
+against line-coordinate anchors/padding for this explicitly authorized purpose.
+Do not manufacture a full-source restoration claim from coordinate equality.
+
+Re-gate each TU: normal and full-debug bytes/layout, all functions and branch
+distances, native declaration owners and empty regions, and every SLD tag,
+block line and function end. Check absolute header/end/filename coordinates
+separately: the existing SLD comparator primarily checks header-relative tags.
+Keep all previous PASS/EXACT seals; never change references or weaken comparison.
+Do not insert per-statement `#line` overrides to conceal unresolved source
+grouping or ownership. Original literal source text and missing/extra source
+objects remain separate review obligations, even after every debug tag agrees.
+
+Freshness warning (2026-10-20): not every symloop run regenerates the broad
+`build/psyq_g/sldtree_report.json`. Check its inputs/timestamp before combining
+it with current declaration results. Regenerate that derived comparison with
+`tools/psyq_pipe/sldtree_cmp.py` against the current native dump and unchanged
+retail dump; never refresh retail references to hide a difference. The source
+review inventory does not certify whole-tree source freshness, and its legacy
+EXTRA worklist can collapse duplicate local names. Use complete owner-aware
+declaration tuples when counting source objects or claiming a local fix.
+
 ### 4.2 THE SYM 8c BLOCK — Law 06A: "the local list is the allocation budget"
 Trusted SYM: `C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt`.
 Every fn's `8c Function start` block gives named locals + their `REG $N`/`AUTO`
@@ -190,7 +219,238 @@ they are receipted, not floors, and spelling sweeps there are wasted budget.
 
 ---
 
+### 4.8 RE2 GCC/GDB observers (user-authorized helper, 2026-10-20)
+
+Reference tools live in `C:/Temp/re2-clean/tools/gcc_gdb_probe.py`,
+`build_gcc_debug_host.ps1`, and `gcc970404_gdb_probe.py`. Reuse their read-only
+breakpoint/phase-snapshot method, not RE2's compiler identity or build flags.
+NFS4's stock CC1PLPSX lacks debugger symbols; an alternate symbol-bearing GCC
+is diagnostic only. Keep its executable, rebuilt debug objects and outputs in
+an isolated ignored build directory, preserving all shared source/build tools.
+Require observed/unobserved output equality, record the exact executable and
+input hashes, and independently confirm relevant findings on the selected
+stock compiler (its RTL dump flags are useful). A near compiler's trace is not
+a native byte/SYM acceptance certificate. Never assign compiler state/RTL in
+GDB or rewrite generated instructions/debug records.
+
+Example receipt: `build/nc12/aispeeds_layout_20261020/gdb-host/report.json`.
+It identifies traffic RNG source-line transfer in combine, not the scheduler;
+stock RTL independently confirms it. The alternate compiler uses a different
+address pseudo, explicitly recorded rather than silently declared identical.
+The follow-up source repair computes the complete two-bit index before its
+lookup, instead of capturing a word still masked at use. This seals29/29
+AISPEEDS absolute SLD contracts with unchanged code. The selected immutable
+index's spelling/type/qualification remain explicit source-review items;
+do not generalize this into a rule to add const aliases merely to hide rows.
+Final receipt: `build/nc12/aispeeds_rng_index_20261020/final-proof.json`.
+
+AISCRIPT follow-up: the alternate host can fail outside GDB. Preserve that
+failure and do not call its standalone observer check validated. A separate
+GDB-only control/probe comparison, with both raw target bodies independently
+equal to selected stock CC1PLPSX, bounds the diagnostic observation; it does
+not replace stock source/native acceptance. Receipt:
+`build/nc12/aiscript_table_source_20261020/gdb-only-proof.json`.
+That investigation exposed a first-scheduling/constant-availability interaction.
+Removing a table alias or literal carriers individually failed, but removing
+all four together preserved the complete normal ELF and native CPE. The
+one-iteration do then became removable too. Real bounds/flag/test stages and
+ordinary layout seal8/8 AISCRIPT function contracts. Do not turn earlier
+single-carrier failures into exemptions, or manufacture replacement objects.
+
+Frame-observation follow-up (2026-10-21):
+`build/nc12/audiocmn_partial_source_20261021/texture-frame/frame-observer-proof.json`
+adds an isolated DWARF `function.c` object to the diagnostic host. Its read-only
+`assign_stack_local` observer records mode/size/alignment, before/after frame
+offsets and caller frames. Texture_Vramf's explicit deadfrm allocation is16bytes
+from expand_decl; a separate4-byte alter_reg/reload spill is a diagnostic-host
+effect. The host emits109words versus selected stock107. Both standalone
+controls fail with ICE/exit33, while debugger control/probe output agrees.
+Record those failures and do not treat this as standalone or stock-equivalent
+validation. Selected-stock isolated/full-TU target equality is checked separately.
+Canonical shapetbl member records are exact; the tested narrowing casts do not
+recover the missing source frame producer. No padding/type/output workaround
+is adopted. Use this observer to locate allocation origins, not to infer that
+an absent retail object must exist or that the artificial frame is a floor.
+
+R3DCAR owner-preservation receipt (2026-10-21):
+`build/nc12/r3dcar_carriers_20261021/final-proof.json`. A direct lower-clamp
+conditional removes limit with unchanged whole ELF/native CPE, every prior
+correct owner tuple and all region boundaries. A mask/shift bit argument removes
+lightOff byte-identically but loses supplied empty regions and disrupts nine
+correct owner tuples; it is NOT adopted. The natural high-half field shift was
+initially rejected by region count, but the case-scope follow-up below proves
+those four removed regions non-retail and adopts it. Inspect complete ordered
+owner paths and empty regions after each source removal, not just names/homes
+or normal bytes. A formerly dirty function can still contain correct evidence
+that must not be discarded. Its partial line map remains explicitly open.
+
+R3DCAR matrix follow-up (2026-10-21):
+`build/nc12/r3dcar_matrix_source_20261021/final-proof.json`. Real nested
+matrix-work and visible-object ownership restores nine more complete local
+tuples (25->34/43), while all43 supplied names/types/homes/depths/starts/paths
+agree. Only nine case endpoints remain different. Five one-iteration priority
+loops, fourteen gotos and two matrix labels are removed with unchanged whole
+ELF/native CPE. An ordinary if/else plus duplicate real default call merges to
+the retail tail; the switch supplies its own redundant outer range test.
+Both flat and scoped loop-removal controls pass: attribute the owner repair to
+the real scopes, not an unsupported claim that they alone unlocked the loops.
+All prior correct owner/region tuples survive; exact region tuples27->40.
+This is partial source restoration, not a complete target SLD/text certificate.
+
+R3DCAR case endpoint/correction receipt (2026-10-21):
+`build/nc12/r3dcar_case_scopes_20261021/final-proof.json` and
+`scheduler-notes-proof.json`. Put switch-level break AFTER the case's local
+declaration block. Stock RTL shows the end note before the branch instead of
+after its barrier; first scheduling prepends it to the relevant basic block
+(sched.c unlink_notes/note_list). This restores all nine remaining endpoints,
+making43/43 supplied complete local tuples exact with unchanged code.
+An identity audit also shows positionStep's four regions are unexpected, not
+supplied; canonical z>>16 removes that carrier/raw halfword view safely. All43
+remaining native region tuples match retail; eight retail regions are missing.
+Compare complete paths/ranges, not cardinality: the earlier count-only rejection
+was wrong. Keep lightOff's genuine regions and all correct prior evidence.
+Four EXTRA objects and full line attribution remain open; do not call this a
+complete function source/SYM seal or insert padding to manufacture missing scopes.
+
+R3DCAR Boolean/source-funnel follow-up (2026-10-21):
+`build/nc12/r3dcar_remaining_source_20261021/final-proof.json` and
+`boolean-origin-proof.json`. Ordinary if/else1/0 cop_flag assignment removes
+copIndex: stock .rtl gives an anonymous condition reg, allocated v0, whereas
+direct assignment makes the subtraction use the cop_flag/s6 user-variable
+pseudo. Same comparison, different source construct; the temporary machine
+quantity is not proof of a distinct source object. An inverted outer guard in
+the second visibility loop keeps its brake arm out of line and removes that
+lightFlags plus three gotos/labels. All43 supplied tuples and all43 native region
+tuples remain exact/unchanged; only lightOff and the first lightFlags remain
+EXTRA (the earlier four-object checkpoint is superseded). Eight retail regions
+and full line attribution remain open. Legacy EXTRA counts collapse repeated
+local names: use full owner tuples, not issue-row deltas, to count removals.
+
+CARS scope follow-up (2026-10-21):
+`build/nc12/cars_tire_scopes_20261021/final-proof.json`. Combining each real
+splash short-circuit guard and removing each redundant leaf-effect declaration
+brace pair restores20 complete local owner tuples. All43 supplied tire-effect
+local tuples and37 region tuples now equal retail; twelve unexpected regions
+disappear, with whole normal ELF/native CPE unchanged. Do not move same-name
+vectors to root scope or infer ownership from register/stack home alone.
+All33 CARS function headers/filenames also have retail-derived per-function
+anchors;14 prior relative seals now have absolute word/file/block/end proofs.
+Their relative seal count did not increase. Existing visibility/skid one-shot
+loops and full tire-effect statement-line/macro spelling remain unresolved:
+direct/ordinary-if/joint controls fail and are not adopted. No new fence,
+qualifier, fake use or artificial region is introduced.
+
+CARS post-collision follow-up (2026-10-21):
+`build/nc12/cars_postcollision_source_20261021/final-proof.json`.
+Height-before-bodyRoll-copy order removes absRoll and rideOffsetVal jointly.
+Repricing direct division and the bound-first upper-clamp conditional on that
+basin then removes roundedGV and clampCond. Earlier isolated failures did not
+prove original objects. Structured short-path return also removes two gotos.
+All154 words, whole ELF/native CPE, real locals/owners and all region tuples
+are preserved. CARS now33/33 declaration-owner PASS. Ordinary anchored source
+layout restores all target block/end lines and reduces word-tag differences
+149->7, NOT zero. The value-producing height block has actual recorded work,
+not a dummy scope; original macro/expression spelling remains review work.
+Selected-stock stock-line-proof.json shows outer1720 before inner1717/18/19
+in initial RTL, with no subsequent1720 restore. Investigate frontend location
+handling before blaming assembler scheduling; preserve all seven residuals
+and do not rewrite generated debug records. Real-variable/field staging and
+clamp-only value-block controls fail and are not retained.
+
+BWORLD RNG follow-up (2026-10-21):
+`build/nc12/bworld_rng_source_20261021/final-proof.json`. Bound-first maximum
+`rand() * (2 > numLaps ? 2 : numLaps) /32768` removes sceneStartRandom with
+whole normal ELF/native CPE unchanged. Nine ordinary factor/staging/call/divisor
+controls calibrate against stock; the other spellings fail. Do not generalize
+the earlier value-first181/187 failure into a source-object requirement.
+PsyQ4.3 RAND_MAX32767 bounds the multiplication-by2 equivalence; all32768
+outputs are checked and the n>=2 product remains the same. AudioScene and all
+prior correct owner/region tuples survive.21 source anchors add six absolute
+certificates for already-relative-exact functions, not six new relative seals.
+The initializer's full SLD/original macro spelling and Onyx's carrier/fence
+remain open; the broader board is not a whole-source completion certificate.
+
+BWORLD initializer SLD seal (2026-10-21):
+`build/nc12/bworld_init_sld_20261021/final-proof.json`. After the real RNG
+carrier is removed, ordinary anchored layout seals every187 instruction tag,
+absolute filename/header, block line and function end, with unchanged tokens,
+literals, whole ELF/native CPE and supplied owner tuples. Nested Time/Weather
+conditions really share1338; the actual return is1379, not1378. The common
+track-loader call inherits the final source arm1345 after GCC tail merging.
+Do not replace this with per-statement directives, new scopes/objects, fake
+uses or generated-note changes. Blank gaps restore known source coordinates,
+not unknown original comments. This is one new strict/absolute function
+contract; literal macro text and the rest of the module/project remain open.
+
+BWORLD fog fence/type-preservation follow-up (2026-10-21):
+`build/nc12/bworld_fog_source_20261021/final-proof.json`. Actual INT-to-u_short
+field value casts remove the old empty assembly fence at193/193, with whole
+ELF/native CPE and every prior owner/region/type-tag multiset unchanged. Pointer-
+free versions ALSO pass code/locals, but lose seven supplied typedef copies;
+they are NOT adopted. type-regression-proof.json records the exact loss and
+unchanged negative-control CPE. Keep the unresolved real-type producer visible,
+not as a source-object exemption, and do not insert dummy typedefs/objects or
+weaken the type guard. The accepted result retains trackSpec while removing
+the fence and two byte-punning reads; no original-object removal is claimed.
+BWORLD has20/21 owner and21/21 region PASS, not a whole-source seal. Source
+cast/load shape can make a formerly required fence unnecessary, but metadata
+must be checked beyond the newly clean function-local report.
+
+Shared track-type producer correction (2026-10-21):
+`build/nc12/bworld_typedef_source_20261021/checkpoint-proof.json` supersedes
+the fog round's retained-pointer workaround. Seven shared plain structs lacked
+their retained completed-type typedef declarations. Forward-only aliases do
+not emit the missing copies; `typedef struct Name { members } Name;` does.
+The same deficit across11 consumer TUs establishes the shared producer:70
+missing retail record copies are recovered, all77 full named type bodies/
+tag/typedef contracts agree, every prior correct type record survives and two
+unprovided duplicates disappear. No member/layout/storage change is involved.
+Onyx can then lose trackSpec at193/193 with every supplied local/scope/type
+preserved. Do not infer a distinct source object merely because its use emits
+otherwise missing type records; investigate the common header/type producer.
+Both full build routes and489 detailed/branch gates pass; all21 normal ELFs/
+native CPE and prior145 strict/109 absolute contracts survive.145 includes24
+existing seals in newly checked units, not24 new source restorations. Onyx's
+full SLD/literal text and the rest of the main goal remain open.
+
+BWORLD Onyx absolute SLD follow-up (2026-10-21):
+`build/nc12/bworld_onyx_sld_20261021/final-proof.json` supersedes the preceding
+Onyx line-map backlog, not its original-literal-text uncertainty. One function
+anchor905/brace906 and ordinary layout restore193/193 line/file tags, all20
+block records and end1055. The spike loop has initial condition987 and real
+increment/backedge991. A while inside the existing counter-owned work region
+recovers those distinct tags; the old for header left four on987 even after
+moving its increment. No new object or fake region is involved. Positive line
+guard removes NO_LINES/goto; nested custom guards recover their separate lines.
+All11 supplied local tuples, all489 selected local/region/frame tuples, other488
+complete SLD maps, global type records and seven shared headers are preserved.
+Fresh run-5qrekzpl,489 detailed/branch PASS, all21 whole normal ELFs/native CPE
+unchanged; all prior145strict/109absolute survive, now146/110. Tests105,
+vtable1366, policy/relink/canonical/raw299819/299819/overlap/foreign checks pass.
+No per-statement #line, asm, volatile, fake use, new name or output rewrite.
+GAME/COMMON broad strict418/1247 and BWORLD8/21 are partial-project snapshots,
+not literal-original-source or whole-tree completion certificates.
+
 ## 5. HARD RULES
+
+BWORLD phase-order/layout follow-up (2026-10-21):
+`build/nc12/bworld_source_followup_20261021/final-proof.json`. InitSpikeBelt's
+zero stores precede its minimum initializers in retail source order, despite
+the compiler hoisting constants earlier in execution. Keep the original for-
+owned counter: a separate declaring block creates an extra native region even
+with identical bytes, and while controls misplace/add regions. Ordinary layout
+then seals43 tags/six block records/end348 with all owners preserved.
+OpenContext's unchanged switch tokens seal46 tags/two block records/end1221;
+the first break must share1205 with its last store. All489 detailed/branch
+gates pass, all21 whole normal ELFs/native CPE and previous146strict/110absolute
+contracts survive, now148/112. BWORLD10/21 strict; the full goal stays open.
+The same round's eleven allocator-return and24 visibility-index controls are
+negative, not source-object exemptions. Ten return forms keep bytes but lose
+the exact call/return tag split or region contract; direct punctuation changes
+move both groups (cp/parse.y RETURN expr action emits the completed-statement
+line before expanding the return). No visibility control keeps the full stream.
+No failed experiment lands, no original carrier necessity is proved, and no
+literal-original-text claim follows from the two new SLD certificates.
 
 1. **NO register-asm pins** (`register … asm("$N")`) — fence dials replace them.
    A hard-reg *clobber* fence is pin-adjacent and needs user sign-off.

@@ -1,6 +1,8 @@
 /* game/common/aiperson.cpp -- RECONSTRUCTED (NFS4 AI personality/script/glue loader; 8 free AIPerson_* fns).
  *   Per-car personality assignment + .bin table loaders. SYM-faithful, recompilable C++.
  *   NOT original source. SYM-owned globals are defined in this TU.
+ *   Function anchors and spacing reproduce retail SYM/SLD source coordinates;
+ *   they do not certify literal original text or resolve the source-review queue.
  */
 #include "aiperson_types.h"
 #include "aiperson_externs.h"
@@ -53,34 +55,60 @@ void AIPerson_Cleanup(void);
  * reduces the two indexed arrays to the retail $a1/$a2 cursors and schedules the $a0
  * counter initialization into the entry `blez` delay slot.  The former pointer-carrier
  * reconstruction needed a false `int` return type to obtain that schedule. */
+#line 30 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_LoadGridAndSetPersonalityIndexes(void)
 {
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++)
+  {
+    Cars_gList[carLoop]->personalityIndex = GameSetup_gData.carInfo[carLoop].Personality;
 
-  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-    Cars_gList[carLoop]->personalityIndex =
-        GameSetup_gData.carInfo[carLoop].Personality;
+
+
+
   }
-  return;
 }
 
 /* ---- AIPerson_SetPersonality__FP8Car_tObji  [@0x80068a34] ---- */
 /* P872: native SYM 2874e4 is CHAR[15][8]. Select the original name row
  * directly instead of expressing the same address through row zero. PASS50. */
+#line 78 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex)
 {
   if ((carObj->carFlags & 4U) == 0) {
     strcpy(carObj->carInfo->driver,GameSetup_gPersonalityNames[personalityIndex]);
   }
   personalityIndex = personalityIndex % 5;
+
+
+
+
+
   carObj->personalityIndex = personalityIndex;
+
+
   carObj->personality = AIPerson_PersonalityData + personalityIndex;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   AIScript_Assign(&carObj->script,AIPerson_ScriptData + personalityIndex);
-  return;
 }
 
 /* ---- AIPerson_SetPersonalityPointers__Fv  [@0x80068afc] ---- */
 /* Retail statement offsets: loop +1, pointer initializer +3, call +4.
  * The ordinary initializer and void fallthrough need no source padding. */
+#line 112 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_SetPersonalityPointers(void) {
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++)
   {
@@ -96,24 +124,24 @@ void AIPerson_SetPersonalityPointers(void) {
  * 80-byte frame on today's source but change the stream, so the historical
  * frame-necessity claim is withdrawn. Neither those failures nor debug elision
  * prove a distinct original object or this identifier. No generic exemption. */
+#line 120 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
 {
   int copCollisionFirmness;
+
   Udff_GetInt(handle);
 
+
+
+
   for (int perLoop = 0; perLoop < 9; perLoop++) {
-    int blockingDistance;
-    int cutOffDistance;
-    int lookAhead;
-    int swervyness;
-    int braking;
-    int roadRage;
-    int fishtailControl;
-    int wipeOutFreq;
-    int corneringAbility;
-    int bestLineAbility;
-    int rearEndingTendency;
-    int aggression;
+    int blockingDistance; int cutOffDistance;
+    int lookAhead; int swervyness;
+    int braking; int roadRage;
+    int fishtailControl; int wipeOutFreq;
+    int corneringAbility; int bestLineAbility;
+    int rearEndingTendency; int aggression;
+
 
     blockingDistance = Udff_GetInt(handle);
     cutOffDistance = Udff_GetInt(handle);
@@ -129,6 +157,8 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
     rearEndingTendency = Udff_GetInt(handle);
     aggression = Udff_GetInt(handle);
     copCollisionFirmness = Udff_GetInt(handle);
+
+
     AIPerson_PersonalityData[perLoop].blockMaxDistance = AIPerson_blockMaxDistance[blockingDistance];
     AIPerson_PersonalityData[perLoop].blockMinDistance = AIPerson_blockMinDistance[cutOffDistance];
     AIPerson_PersonalityData[perLoop].oncomingLookAhead = AIPerson_oncomingLookAhead[lookAhead];
@@ -141,101 +171,172 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
     AIPerson_PersonalityData[perLoop].attackActivationHits = AIPerson_attackActivationHits[roadRage];
     AIPerson_PersonalityData[perLoop].attackTime = AIPerson_attackTimes[roadRage];
     AIPerson_PersonalityData[perLoop].fishtailAngle = AIPerson_fishtailAngles[fishtailControl];
+
+
+
+
+
     AIPerson_PersonalityData[perLoop].minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[wipeOutFreq + GameSetup_gData.Weather];
     AIPerson_PersonalityData[perLoop].randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[wipeOutFreq + GameSetup_gData.Weather];
+
     AIPerson_PersonalityData[perLoop].gripLossProbPerSecond = AIPerson_gripLossProbPerSecond[corneringAbility];
     AIPerson_PersonalityData[perLoop].gripLossMinFactor = AIPerson_gripLossMinFactor[corneringAbility];
     AIPerson_PersonalityData[perLoop].gripLossRecoveryPerTick = AIPerson_gripLossRecoveryPerTick[corneringAbility];
+
     AIPerson_PersonalityData[perLoop].bestLineAbility = AIPerson_bestLineAbilities[bestLineAbility];
     AIPerson_PersonalityData[perLoop].rearBumpProbMask = AIPerson_rearEndProbMask[rearEndingTendency];
     AIPerson_PersonalityData[perLoop].smackProbMask = AIPerson_smackProbMask[aggression];
-    AIPerson_PersonalityData[perLoop].copCollisionFirmness = copCollisionFirmness;
-  }
-  return;
-}
 
+    AIPerson_PersonalityData[perLoop].copCollisionFirmness = copCollisionFirmness;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  }
+}
 /* ---- AIPerson_LoadScriptData__FP10Udff_tInfo  [@0x80068ea4] ---- */
+#line 207 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_LoadScriptData(Udff_tInfo *handle)
 {
+
+
   Udff_GetInt(handle);
+
+
+
+
+
   for (int perLoop = 0; perLoop < 9; perLoop++) {
+
+
+
+
+
+
+
     for (int actionLoop = 0; actionLoop < 7; actionLoop++) {
-      {
-        int reactionLoop;
 
-        for (reactionLoop = 0; reactionLoop < 4; reactionLoop++) {
-          AIPerson_ScriptData[perLoop][actionLoop].reaction[reactionLoop] =
-              (char)Udff_GetInt(handle);
-          AIPerson_ScriptData[perLoop][actionLoop].halfSeconds[reactionLoop] =
-              (char)Udff_GetInt(handle);
-        }
-      }
+
+
+
+
+
+
+
+      { int reactionLoop; for (reactionLoop = 0; reactionLoop < 4; reactionLoop++) {
+
+          AIPerson_ScriptData[perLoop][actionLoop].reaction[reactionLoop] = (char)Udff_GetInt(handle);
+          AIPerson_ScriptData[perLoop][actionLoop].halfSeconds[reactionLoop] = (char)Udff_GetInt(handle);
+
+
+
+
+
+
+
+        } }
     }
-  }
-  return;
-}
 
+
+  }
+}
 /* ---- AIPerson_LoadGlue__FP10Udff_tInfo  [@0x80068f80] ---- */
+#line 448 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_LoadGlue(Udff_tInfo *handle)
 {
-  Udff_GetInt(handle);
-  Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
-  if ((Cars_gNumCopCars != 0) &&
-     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
-      (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 &&
-       ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))))) {
-    int glueLoop;
-    for (glueLoop = 0; glueLoop < 0x15; glueLoop++) {
-      if (0x10000 < AIPerson_glueTable[glueLoop]) {
-        AIPerson_glueTable[glueLoop] =
-            fixedmult(AIPerson_glueTable[glueLoop],0x12666);
-      }
-      else if (AIPerson_glueTable[glueLoop] < 0x10000) {
-        AIPerson_glueTable[glueLoop] =
-            fixedmult(AIPerson_glueTable[glueLoop],0xd999);
-      }
-    }
-  }
-  return;
-}
 
+
+  Udff_GetInt(handle);
+
+  Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
+
+  if ((Cars_gNumCopCars != 0) && (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 && ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0))))))))
+  {
+    int glueLoop;
+
+
+
+    for (glueLoop = 0; glueLoop < 0x15; glueLoop++)
+    {
+      if (0x10000 < AIPerson_glueTable[glueLoop]) {
+        AIPerson_glueTable[glueLoop] = fixedmult(AIPerson_glueTable[glueLoop],0x12666);
+      } else if (AIPerson_glueTable[glueLoop] < 0x10000) {
+        AIPerson_glueTable[glueLoop] = fixedmult(AIPerson_glueTable[glueLoop],0xd999);
+      }
+
+    } }
+}
 /* ---- AIPerson_Startup__Fv  [@0x8006908c] ---- */
 /* P872: five retail format literals replace synthetic address-only externs;
  * all 75 emitted rodata bytes match 80055354..8005539e. Both former
  * D_80116470 reads are Paths_Paths[2], not independent source globals.
  * PASS105/exact-g; raw relocation targets and string bytes checked separately. */
+#line 487 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_Startup(void)
 {
   Udff_tInfo *handle;
   char filename[110];
 
+
+
   AIPerson_LoadGridAndSetPersonalityIndexes();
+
   sprintf(filename,"%sprsonal.bin",Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadPersonalityData(handle);
   Udff_Close(handle);
+
   sprintf(filename,"%sscripts.bin",Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadScriptData(handle);
   Udff_Close(handle);
-  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-     (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
-      ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
+
+
+
+
+
+
+
+
+  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
+
     sprintf(filename,"%sbtcglue.bin",Paths_Paths[2]);
   }
+
+
+
+
+
+
   else if (((u_int)GameSetup_gData.raceType < RaceType_Tournament) && (Cars_gNumAIRaceCars == 1)) {
+
     sprintf(filename,"%shhglue.bin",Paths_Paths[2]);
   }
+
   else {
     sprintf(filename,"%sglue.bin",Paths_Paths[2]);
   }
+
+
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadGlue(handle);
   Udff_Close(handle);
+
   AIPerson_SetPersonalityPointers();
-  return;
 }
 
 /* ---- AIPerson_Cleanup__Fv  [@0x80069230] ---- */
+#line 541 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_Cleanup(void) {
 }

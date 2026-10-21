@@ -14,15 +14,7 @@ extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gAIRaceCarList[9];
 extern Car_tObj *Cars_gTotalSortedList[];
 extern char *Paths_Paths[];
-extern int GameSetup_gData[]; /* external owner word view; no guessed extent */
-#define AISPEEDS_RACE_TYPE GameSetup_gData[0]
-#define AISPEEDS_NUM_LAPS GameSetup_gData[1]
-#define AISPEEDS_SKILL GameSetup_gData[2]
-#define AISPEEDS_TOURNAMENT_MULTIPLIER GameSetup_gData[4]
-#define AISPEEDS_REVERSE_TRACK GameSetup_gData[12]
-#define AISPEEDS_TRACK GameSetup_gData[15]
-#define AISPEEDS_WEATHER GameSetup_gData[18]
-#define AISPEEDS_TIME GameSetup_gData[21]
+extern GameSetup_tData GameSetup_gData; /* SYM: STRUCT, 2600 bytes; gmesetup.obj */
 extern Sim_tSimGlobalVar simGlobal;
 extern u_char (*BWorldSm_slices)[32];
 #define AISPEEDS_SLICE_LANE_COUNT(i) BWorldSm_slices[(i)][0x1d]
@@ -48,8 +40,10 @@ int AIWorld_ApxSplineDistance(int sliceA, Car_tObj *b);
 int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
 extern "C" int AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve_t *self, int slice)
     asm("Get__25AIDataRecord_TrackCurve_ti");
-extern "C" int fixeddiv(...);
-extern "C" int fixedmult(...);
+/* Canonical eacpsxz/fixddiv.h and fixdmult.h: two signed-word inputs,
+ * not variadic APIs. Keep C linkage and do not invent parameter names. */
+extern "C" int fixeddiv(int, int);
+extern "C" int fixedmult(int, int);
 extern "C" int purgememadr(...);
 extern "C" void *reservememadr(...);
 extern "C" int sprintf(...);

@@ -3,9 +3,10 @@
 #ifndef NFS4_SHARED_CWORLDCOLOR_H
 #define NFS4_SHARED_CWORLDCOLOR_H
 
-struct CWorldColor {
+/* Retail TPDEF records retain the explicit completed-type alias too. */
+typedef struct CWorldColor {
     int contrast;
     CVECTOR contrast_color;
     short worldR, worldG, worldB, type;
-};
+} CWorldColor;
 #endif

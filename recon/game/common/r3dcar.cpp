@@ -583,15 +583,16 @@ char * R3DCar_LoadFileAdr(char *name)
   return buf;
 }
 
-/* ---- R3DCar_GetCarName__FPcii [retail R3DCAR.CPP:1145-1154; SLD recovery open] ---- */
-/* A const snapshot holds the cop index across sprintf without creating the
-   source-only REG local from the former mutable copIdx. The object remains
-   37/37 byte-exact and its native local/scope records now match retail. */
+/* ---- R3DCar_GetCarName__FPcii [@0x800aee98; retail R3DCAR.CPP:1145-1154; SLD open] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: copIdx is an unrecorded source snapshot, not an
+   original declaration proved by native cleanliness. Direct range/mutation
+   forms still change the normal ELF, including with canonical table access;
+   that does not establish the original name, qualification or object. */
 void R3DCar_GetCarName(char *filename,int carType,int country)
 
 {
   const u_int copIdx = carType - 0x16U;
-  sprintf(filename,"zz%s",GameSetup_gCarNames[0] + carType * 5);
+  sprintf(filename,"zz%s",GameSetup_gCarNames[carType]);
   if (copIdx < 6) {
     int index;
     index = R3DCar_CopIndex[copIdx][country];
@@ -1038,7 +1039,27 @@ void R3DCar_MATRIX3DT_Copy(int *from,int *to)
   return;
 }
 
-/* ---- R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView  [R3DCAR.CPP:1546-2181] SLD-VERIFIED ---- */
+/* ---- R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView [R3DCAR.CPP:1546-2181; full source/SYM/SLD open] ---- */
+/* MATCH 2026-10-21: the value-first lower-clamp conditional needs no limit
+ * local. It preserves the whole normal ELF and native CPE, all previously
+ * correct local-owner tuples and every region boundary. Reversed >=/<=
+ * selection arms are not interchangeable under this compiler. Other source
+ * carriers, matrix ownership and full line attribution remain unresolved. */
+/* MATCH 2026-10-21: real matrix-work/visible-object scopes and the two
+ * ordinary car-type switches recover nine additional supplied owner tuples.
+ * The switch's own range check needs no explicit visibility-index guard.
+ * Five one-iteration priority wrappers, fourteen gotos and their two matrix
+ * labels are gone with unchanged whole normal ELF/native CPE. */
+/* MATCH 2026-10-21: closing the three declaration scopes before their case
+ * breaks restores all nine remaining local endpoints. All43 supplied local
+ * tuples now match. The canonical velocity-field shift also removes
+ * positionStep and its four non-retail regions, with the whole ELF unchanged.
+ * Two source carriers and eight missing empty regions remain unresolved. */
+/* MATCH 2026-10-21: explicit if/else cop_flag assignments produce the retail
+ * anonymous v0 range operand without copIndex. The inverted second visibility
+ * guard preserves the out-of-line brake arm without its lightFlags object or
+ * three test-funnel labels/gotos. All43 supplied tuples and every correctly
+ * matched region remain unchanged; literal source/SLD recovery is still open. */
 void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 {
@@ -1056,10 +1077,6 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   int countryFlag;
   int rightHandDrive;
   int cop_flag;          /* SYM fn REG s6 */
-  /* SYM-CODEGEN-CARRIER: copIndex -- the scheduled carType-0x16 value must
-     remain distinct until cop_flag is formed; using the subtraction directly
-     coalesces it with $s6 and costs 23 diffs.  Optimized SYM has no local row. */
-  int copIndex;
 
   rightHandDrive = 0;
   rideHeight = (carObj->render).rideHeight;
@@ -1076,18 +1093,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   if (GameSetup_gData.mirrorTrack != 0) {
     rightHandDrive = rightHandDrive ^ 1;
   }
-  copIndex = carType - 0x16;
-  /* MATCH: keep the scheduled carType-0x16 value live across the mirror
-     branch as a distinct quantity.  The direct expression coalesces it into
-     cop_flag/$s6 and leaves 23 diffs; this tied empty fence originally gave 22.
-     Moving the copIndex source assignment after the mirror branch lets GCC
-     hoist it back into that branch's delay slot without conflicting with the
-     detail load, giving retail's copIndex=$v0/detail=$v1 and taking 20 -> 12;
-     the wheel changes below subsequently take the whole function to 9.
-     A named detail temp, removing this fence, and 1/2/4 read-only copIndex
-     ref steps were byte-neutral; moving cop_flag after the guard regressed. */
   R3DCar_rightHandDrive = rightHandDrive;
-  cop_flag = (u_int)copIndex < 6; /* SYM: cop_flag REG s6 (int, not a spilled bool) */
+  if (carType >= 0x16 && carType < 0x1c) cop_flag = 1;
+  else cop_flag = 0; /* SYM: cop_flag REG s6 (int, not a spilled bool) */
   if ((carObj->render).detail < 0) {
     return;
   }
@@ -1127,9 +1135,12 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       (carObj->render).signalLight[0] = 0;
       (carObj->render).signalLight[1] = 0;
       if (((carObj->control).lights & 2U) == 0) {
-        /* SYM-CODEGEN-CARRIER: lightOff -- the optimized SYM has no row for
-           this bit snapshot.  Passing the comparison directly emits 1145/1144
-           and 7 diffs (`andi/sltiu` instead of retail's shift/xori sequence). */
+        /* SOURCE-REVIEW-UNRESOLVED: lightOff has no supplied row. The direct
+           equality changed code, but explicit mask/shift/xor now preserves
+           the whole ELF. That removal drops eight retail region levels and
+           disrupts nine previously correct local-owner tuples. Recover their
+           real source producer; neither byte identity nor this alias proves
+           a distinct original object. */
         u_int lightOff;
 
         lightOff = (u_int)(carObj->control).lights & 4U;
@@ -1177,47 +1188,37 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
           car.z / 0x100 * ((carObj->N).orientMat.m[8] / 0x100);
   R3DCar_yawCam = 0x1000 - (fixedatan(pos.x,pos.z) >> 4);
   }
-  /* SYM blk 134/142/152 (if-arm) vs blk 174 (else-arm): bodyIMat/matP are BLOCK-SCOPED to the
-     if-arm only (sp+0x110/sp+0x138); the else-arm's matP is a SEPARATE local reusing the
-     car/pos slot (sp+0xf0) -- SYM-VERIFIED, replaces the earlier tmpMat.m+8 pointer-math bug
-     (m1 aliased into the 36-byte car/pos region, which the oracle never does: it uses a real
-     36-byte bodyIMat local at sp+0x110). */
+  /* SYM blk152: bodyIMat/matP/roll belong to matrix work after the insideMat
+     copy/reflection, not the entire outer if arm. The separate else-arm matP
+     reuses the dead car/pos slot (sp+0xf0); bodyIMat/matP use sp+0x110/0x138.
+     Native optimized region endpoints need not span every physical call
+     that uses those source objects. Full literal source text remains open. */
   if (carType < 0x1c) {
-    matrixtdef bodyIMat; /* SYM blk 152 @sp+0x110 */
-    matrixtdef matP;     /* SYM blk 152 @sp+0x138 */
-    int roll;            /* SYM blk 152 REG s3 -- live across the bodyMat calls */
     R3DCar_MATRIX3DT_Copy((carObj->N).orientMat.m,insideMat.m);
     if (rightHandDrive != 0) {
       insideMat.m[0] = -insideMat.m[0];
       insideMat.m[1] = -insideMat.m[1];
       insideMat.m[2] = -insideMat.m[2];
     }
-    /* MATCH: stripped depth raises roll's GCC flow priority without runtime code. */
-    do {
-    do {
+    {
+      matrixtdef bodyIMat; /* SYM blk 152 @sp+0x110 */
+      matrixtdef matP;     /* SYM blk 152 @sp+0x138 */
+      int roll;            /* SYM blk 152 REG s3 -- live across the bodyMat calls */
       roll = (carObj->render).bodyRoll;
       if (rightHandDrive != 0) {
         roll = -roll;
       }
-    } while (0);
-    } while (0);
-    fixedxformz(&bodyMat,(carObj->render).bodyRoll);
-    fixedxformx(&matP,(carObj->render).bodyPitch + 100);
-    Math_fasttransmult(&bodyMat,&matP,&bodyMat);
-    Math_fasttransmult(&bodyMat,&(carObj->N).orientMat,&bodyMat);
-    fixedxformz(&bodyIMat,roll);
-    Math_fasttransmult(&bodyIMat,&matP,&bodyIMat);
-    /* MATCH: three stripped depth levels cross the matrix-base ref-step (14 refs),
-       so it takes s4 before the long-lived car pointer and naturally leaves carObj in s5. */
-    do {
-    do {
-    do {
+      fixedxformz(&bodyMat,(carObj->render).bodyRoll);
+      fixedxformx(&matP,(carObj->render).bodyPitch + 100);
+      Math_fasttransmult(&bodyMat,&matP,&bodyMat);
+      Math_fasttransmult(&bodyMat,&(carObj->N).orientMat,&bodyMat);
+      fixedxformz(&bodyIMat,roll);
+      Math_fasttransmult(&bodyIMat,&matP,&bodyIMat);
       Math_fasttransmult(&bodyIMat,&insideMat,&insideMat);
       Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
       Math_fasttransmult(&insideMat,(matrixtdef *)((int)Vi + 0x44),&orientIMat);
-    } while (0);
-    } while (0);
-    } while (0);
+
+    }
   }
   else {
     matrixtdef matP; /* SYM blk 174 @sp+0xf0 (reuses car/pos slot -- dead by this point) */
@@ -1312,10 +1313,11 @@ R_ICFt_wheelspinRpmCalc:
   if (carType < 0x1c) {
     for (; i < 0x39; i = i + 1) {
       short code;   /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
-      /* SYM-CODEGEN-CARRIER: lightFlags -- this semantic replacement for the
-         old `uVar8` keeps the shared switch-case test funnels.  Duplicating the
-         field tests directly remains 1144/1144 but costs 18 control-flow and
-         load-order diffs; optimized SYM has no row for the funnel value. */
+      /* SOURCE-REVIEW-UNRESOLVED: lightFlags is absent from retail. Direct,
+         early-break, conditional and shared-zero forms still place the shared
+         bit test in a different block on the current source. That is not proof
+         a distinct original object existed; recover the common-test producer
+         without a replacement alias or generic naming exemption. */
       u_int lightFlags;
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
       switch((short)(code - 2)) {
@@ -1437,39 +1439,39 @@ switchD_800b03ec_caseD_8: ;   /* empty stmt: gcc2.7.2 rejects label before '}' *
         break;
       }
 R_ICFt_postSwitchVis:
-      if (i - 6U < 6) {
+
         /* #148: restored to source-level switch(i). The compiler emitted a 6-entry jumptable
          * @0x80056470 for indices 6..11 -> {6,7:0x800b05f4(A) 8,9:0x800b0600(B) 10,11:0x800b0648(C)};
          * Ghidra rendered it as switch-on-target-VA against an (empty) recovered jt array, which broke
          * the dispatch. Index->body mapping read from nfs4-f.exe rodata. */
-        switch (i) {
-        case 6: case 7:
-          if (((carObj->render).damageParts & 0x18U) != 0) {
-            code = 0;
-          }
-          break;
-        case 8: case 9:
-          if (((carObj->render).damageParts & 4U) != 0) {
-            int damage;   /* SYM blk 362 REG v0 -- DamageSpoiler byte read ONCE */
-            damage = R3DCar_DamageSpoiler[carType];   /* @0x800B0620 lbu DamageSpoiler(carType) */
-            if (((carObj->render).upgradeFlags & 4U) != 0) {
-              code = damage & 1;
-            }
-            else {
-              code = damage & 0x80;
-            }
-            if (code != 0) {
-              code = 0xb;
-            }
-          }
-          goto R_ICFt_postVisibility;
-        case 10: case 11:
-          if (((carObj->render).damageParts & 4U) != 0) {
-            code = 0;
-          }
-          break;
+      switch (i) {
+      case 6: case 7:
+        if (((carObj->render).damageParts & 0x18U) != 0) {
+          code = 0;
         }
+        break;
+      case 8: case 9:
+        if (((carObj->render).damageParts & 4U) != 0) {
+          int damage;   /* SYM blk 362 REG v0 -- DamageSpoiler byte read ONCE */
+          damage = R3DCar_DamageSpoiler[carType];   /* @0x800B0620 lbu DamageSpoiler(carType) */
+          if (((carObj->render).upgradeFlags & 4U) != 0) {
+            code = damage & 1;
+          }
+          else {
+            code = damage & 0x80;
+          }
+          if (code != 0) {
+            code = 0xb;
+          }
+        }
+        goto R_ICFt_postVisibility;
+      case 10: case 11:
+        if (((carObj->render).damageParts & 4U) != 0) {
+          code = 0;
+        }
+        break;
       }
+
 R_ICFt_postVisibility:
       R3DCar_ObjectVisible[i] = code;
     }
@@ -1477,31 +1479,19 @@ R_ICFt_postVisibility:
   else {
     for (i = 0; i < 0x39; i = i + 1) {
       short code;   /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
-      u_int lightFlags;
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
-      /* MATCH: oracle layout L800B06B8..L800B0700 -- 0x12 arm OUT-OF-LINE at end,
-         <0x13 / 0x16 arms inline, ONE shared zero-test funnel */
-      if (code == 0x12) goto R_ICFt_loop2Brake;
-      if (code < 0x13) {
-        if (code != 1) {
-          code = 0;
-        }
+      /* MATCH: the inverted guard keeps the brake arm out of line without
+         a shared lightFlags source object or jumps into the test funnel.
+         Retail's shared test remains @0x800b06f4. */
+      if (code != 0x12) {
+        if (code < 0x13) {
+          if (code != 1) code = 0;
+        } else if (code == 0x16) {
+          if (((u_short)(carObj->render).headLight & 0x11U) == 0) code = 0;
+        } else code = 0;
+      } else {
+        if ((carObj->render).brakeLight == 0) code = 0;
       }
-      else if (code == 0x16) {
-        lightFlags = (u_short)(carObj->render).headLight & 0x11;
-        goto cfLbl2;
-      }
-      else {
-        code = 0;
-      }
-      goto R_ICFt_loop2Post;
-R_ICFt_loop2Brake:
-      lightFlags = (u_int)(carObj->render).brakeLight;
-cfLbl2:   /* @0x800b06f4  (-f-build goto label) */
-      if (lightFlags == 0) {
-        code = 0;
-      }
-R_ICFt_loop2Post:
       if ((carType == 0x1c) && (i == 0x20)) {
         code = 1;
       }
@@ -1512,194 +1502,183 @@ R_ICFt_loop2Post:
   parent.x = (obj->translation).x;
   parent.y = (obj->translation).y;
   parent.z = (obj->translation).z;
-  {
-  matrixtdef tmpMat;   /* SYM blk 428 @ff08 (sibling of region2/3 block -> slot merges) */
-  coorddef translation;/* SYM blk 428 @ff30 */
-  coorddef tmp;        /* SYM blk 428 @ff40 */
+
   for (i = 0; i < 0x39; i = i + 1) {
-    int suspensionOffset;   /* SYM blk 428 REG a0 */
     obj = R3DCar_LoadedScenePointer[countryFlag][carType]->obj[i];
-    if ((obj->numFacet == 0) || (R3DCar_ObjectVisible[i] == '\0'))
-    goto R_ICFt_matrixCopyDone;
+    if ((obj->numFacet != 0) && (R3DCar_ObjectVisible[i] != '\0')) {
+      matrixtdef tmpMat;   /* SYM blk 428 @ff08 (sibling of region2/3 block -> slot merges) */
+      coorddef translation;/* SYM blk 428 @ff30 */
+      coorddef tmp;        /* SYM blk 428 @ff40 */
+      int suspensionOffset;   /* SYM blk 428 REG a0 */
     /* MATCH: arm order per oracle -- suspension arm INLINE, rideHeight arm out-of-line */
-    if (0x2e < i) {
-      int index;            /* SYM blk 437 REG v1 */
-      /* SYM-CODEGEN-CARRIER: limit -- the lower clamp must select into a
-         distinct pseudo before copying back to suspensionOffset.  A direct
-         else-if clamp emits 1142/1144 instructions and 12 diffs. */
-      int limit;
-      index = R3DCar_Suspension[i + -0x2f];
-      suspensionOffset = carObj->wheel[index].impactCompression;
-      if (0 < suspensionOffset) {
-        if (0x1eb8 < suspensionOffset) {
-          suspensionOffset = 0x1eb8;
+      if (0x2e < i) {
+        int index;            /* SYM blk 437 REG v1 */
+        index = R3DCar_Suspension[i + -0x2f];
+        suspensionOffset = carObj->wheel[index].impactCompression;
+        if (0 < suspensionOffset) {
+          if (0x1eb8 < suspensionOffset) {
+            suspensionOffset = 0x1eb8;
+          }
+        }
+        else {
+          suspensionOffset = suspensionOffset < -0x1eb8 ? -0x1eb8 : suspensionOffset;
         }
       }
       else {
-        limit = -0x1eb8;
-        if (-0x1eb9 < suspensionOffset) {
-          limit = suspensionOffset;
-        }
-        suspensionOffset = limit;
+        suspensionOffset = rideHeight - (carObj->render).currentHeight;
       }
-    }
-    else {
-      suspensionOffset = rideHeight - (carObj->render).currentHeight;
-    }
-    tmp.x = (obj->translation).x - parent.x;
-    tmp.y = ((obj->translation).y - parent.y) - suspensionOffset;
-    tmp.z = (obj->translation).z - parent.z;
-    if (i < 0x2f) {
-      if ((carType < 0x1c) && (0x22 < i) && (i < 0x29)) {
-        transform(&tmp.x,insideMat.m,&translation.x);
+      tmp.x = (obj->translation).x - parent.x;
+      tmp.y = ((obj->translation).y - parent.y) - suspensionOffset;
+      tmp.z = (obj->translation).z - parent.z;
+      if (i < 0x2f) {
+        if ((carType < 0x1c) && (0x22 < i) && (i < 0x29)) {
+          transform(&tmp.x,insideMat.m,&translation.x);
+        }
+        else {
+          transform(&tmp.x,bodyMat.m,&translation.x);
+        }
       }
       else {
-        transform(&tmp.x,bodyMat.m,&translation.x);
+        transform(&tmp.x,(carObj->N).orientMat.m,&translation.x);
       }
-    }
-    else {
-      transform(&tmp.x,(carObj->N).orientMat.m,&translation.x);
-    }
-    tmp.x = ((carObj->N).position.x + translation.x) - *(int *)((int)Vi + 8);
-    tmp.y = ((carObj->N).position.y + translation.y) - *(int *)((int)Vi + 0xc);
-    tmp.z = ((carObj->N).position.z + translation.z) - *(int *)((int)Vi + 0x10);
-    transform(&tmp.x,((matrixtdef *)((int)Vi + 0x44))->m,
-              (int *)((int)R3DCar_position + i * 0xc));
-    if (carType == 0x1c) {
-      switch (i) {
-      case 0x1f:
-        fixedxformy(&tmpMat,(carObj->N).wheelRot[0]);
-        Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
-        Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
-                           (matrixtdef *)((int)R3DCar_orientMat + 0x45c));
-        break;
-      case 0x23:
-        fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
-        Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
-        Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
-                           (matrixtdef *)((int)R3DCar_orientMat + 0x4ec));
-        break;
-      default:
-        goto switchD_800b0a34_caseD_29;
+      tmp.x = ((carObj->N).position.x + translation.x) - *(int *)((int)Vi + 8);
+      tmp.y = ((carObj->N).position.y + translation.y) - *(int *)((int)Vi + 0xc);
+      tmp.z = ((carObj->N).position.z + translation.z) - *(int *)((int)Vi + 0x10);
+      transform(&tmp.x,((matrixtdef *)((int)Vi + 0x44))->m,
+          (int *)((int)R3DCar_position + i * 0xc));
+      if (carType == 0x1c) {
+        switch (i) {
+        case 0x1f:
+          fixedxformy(&tmpMat,(carObj->N).wheelRot[0]);
+          Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
+          Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+              (matrixtdef *)((int)R3DCar_orientMat + 0x45c));
+          break;
+        case 0x23:
+          fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
+          Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
+          Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+              (matrixtdef *)((int)R3DCar_orientMat + 0x4ec));
+          break;
+        default:
+          R3DCar_MATRIX3DT_Copy(orientMat.m,
+              (int *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        }
       }
-      goto R_ICFt_matrixCopyDone;
-    }
+      else {
+
     /* MATCH: case bodies in ORACLE physical order (jlabels 800B0A3C..800B0BD0):
        0x2f, 0x30-34, 0x35, 0x36, 0x37, 0x38, 0x23/24, 0x25, 0x26, 0x27/28 + shared tails, default */
-    /* NEAR-MISS (current 9-diff floor): this final table needs the explicit
-       $v0 `lui/addiu/addu/lw`
-       address form while earlier tables in the same function need maspsx's
-       fused $at form.  Selector copy is neutral; tied selector is 23 and a
-       pre-switch empty boundary regresses 9 -> 11.  The other residual is
-       only `li $t1,2` two slots late in the otherwise exact wheel preheader.
-       This is a per-site jtbl-fusion angle plus a pure line relocation, not a
-       whole-TU or whole-function assembler setting. */
-    switch(i) {
-    case 0x2f:
-      fixedxformx(&tmpMat,(carObj->N).wheelRot[0]);
-      Math_fasttransmult(&tmpMat,&steerMat,&tmpMat);
-      Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
-      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
-                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    case 0x30:
-    case 0x31:
-    case 0x32:
-    case 0x33:
-    case 0x34:
-      R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x69c))->m,
-                            (int *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    case 0x35:
-      fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
-      Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
-      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
-                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    case 0x36:
-      R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x774))->m,
-                            (int *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    case 0x37:
-      fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
-      Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
-      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
-                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    case 0x38:
-      R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x7bc))->m,
-                            (int *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    case 0x23:
-    case 0x24:
-      R3DCar_MATRIX3DT_Copy(orientIMat.m,
-                            (int *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    case 0x25: {
-      int steeringAngle;      /* SYM blk 546 REG v0 */
-      steeringAngle = (carObj->control).steering;
-      if (rightHandDrive != 0) {
-        steeringAngle = -steeringAngle;
-      }
-      fixedxformz(&tmpMat,steeringAngle * -0x38);
-      Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
-      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
-                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    }
-    case 0x26: {
-      matrixtdef matR;         /* SYM blk 558 @ff60 -- block-scoped to THIS case only (sibling
+    /* The selected lane already reproduces these mixed retail switch sites.
+       The historical nine-difference jump-table diagnosis is not a current
+       residual or a source-restoration certificate. */
+        switch(i) {
+        case 0x2f:
+          fixedxformx(&tmpMat,(carObj->N).wheelRot[0]);
+          Math_fasttransmult(&tmpMat,&steerMat,&tmpMat);
+          Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
+          Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+              (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        case 0x30:
+        case 0x31:
+        case 0x32:
+        case 0x33:
+        case 0x34:
+          R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x69c))->m,
+              (int *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        case 0x35:
+          fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
+          Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
+          Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+              (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        case 0x36:
+          R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x774))->m,
+              (int *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        case 0x37:
+          fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
+          Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
+          Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+              (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        case 0x38:
+          R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x7bc))->m,
+              (int *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        case 0x23:
+        case 0x24:
+          R3DCar_MATRIX3DT_Copy(orientIMat.m,
+              (int *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        case 0x25: {
+            int steeringAngle;      /* SYM blk 546 REG v0 */
+            steeringAngle = (carObj->control).steering;
+            if (rightHandDrive != 0) {
+              steeringAngle = -steeringAngle;
+            }
+            fixedxformz(&tmpMat,steeringAngle * -0x38);
+            Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
+            Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+          }
+          break;
+        case 0x26: {
+            matrixtdef matR;         /* SYM blk 558 @ff60 -- block-scoped to THIS case only (sibling
                                    of blk 576's matX/matY; oracle reuses these stack slots) */
-      matrixtdef matP;         /* SYM blk 558 @ff88 */
-      int roll;               /* SYM blk 558 REG a1 */
-      int pitch;              /* SYM blk 558 REG s1 */
-      roll = (carObj->render).bodyRoll * 3 >> 1;
-      pitch = (carObj->render).bodyPitch << 3;
-      if (rightHandDrive != 0) {
-        roll = -roll;
+            matrixtdef matP;         /* SYM blk 558 @ff88 */
+            int roll;               /* SYM blk 558 REG a1 */
+            int pitch;              /* SYM blk 558 REG s1 */
+            roll = (carObj->render).bodyRoll * 3 >> 1;
+            pitch = (carObj->render).bodyPitch << 3;
+            if (rightHandDrive != 0) {
+              roll = -roll;
+            }
+            fixedxformz(&matR,roll);
+            fixedxformx(&matP,pitch);
+            Math_fasttransmult(&matR,&matP,&tmpMat);
+            Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
+            Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+          }
+          break;
+        case 0x27:
+        case 0x28: {
+            matrixtdef matX;         /* SYM blk 576 @ff50 -- block-scoped to THIS case only */
+            matrixtdef matY;         /* SYM blk 576 @ff78 */
+            int maxAngleFactor;     /* SYM blk 576 REG s1 */
+            int steeringAngle;      /* SYM blk 576 REG s0 */
+            steeringAngle = (carObj->control).steering;
+            maxAngleFactor = -0xc;
+            if (rightHandDrive != 0) {
+              steeringAngle = -steeringAngle;
+            }
+            if (i == 0x27) {
+              maxAngleFactor = 0xc;
+            }
+            fixedxformx(&matX,steeringAngle * maxAngleFactor);
+            if (0 < steeringAngle) {
+              steeringAngle = -steeringAngle;
+            }
+            fixedxformy(&matY,steeringAngle * (maxAngleFactor >> 1));
+            Math_fasttransmult(&matX,&matY,&tmpMat);
+            Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
+            Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+          }
+          break;
+        default:
+          R3DCar_MATRIX3DT_Copy(orientMat.m,
+              (int *)((int)R3DCar_orientMat + i * 0x24));
+          break;
+        }
       }
-      fixedxformz(&matR,roll);
-      fixedxformx(&matP,pitch);
-      Math_fasttransmult(&matR,&matP,&tmpMat);
-      Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
-      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
-                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
     }
-    case 0x27:
-    case 0x28: {
-      matrixtdef matX;         /* SYM blk 576 @ff50 -- block-scoped to THIS case only */
-      matrixtdef matY;         /* SYM blk 576 @ff78 */
-      int maxAngleFactor;     /* SYM blk 576 REG s1 */
-      int steeringAngle;      /* SYM blk 576 REG s0 */
-      steeringAngle = (carObj->control).steering;
-      maxAngleFactor = -0xc;
-      if (rightHandDrive != 0) {
-        steeringAngle = -steeringAngle;
-      }
-      if (i == 0x27) {
-        maxAngleFactor = 0xc;
-      }
-      fixedxformx(&matX,steeringAngle * maxAngleFactor);
-      if (0 < steeringAngle) {
-        steeringAngle = -steeringAngle;
-      }
-      fixedxformy(&matY,steeringAngle * (maxAngleFactor >> 1));
-      Math_fasttransmult(&matX,&matY,&tmpMat);
-      Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
-      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
-                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    }
-    default:
-switchD_800b0a34_caseD_29:
-      R3DCar_MATRIX3DT_Copy(orientMat.m,
-                            (int *)((int)R3DCar_orientMat + i * 0x24));
-      goto R_ICFt_matrixCopyDone;
-    }
-R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
-  }
+
   TrsProj_TransformProjectVertex((matrixtdef *)((int)Vi + 0x44),(coorddef *)((int)Vi + 0x38),1,&(carObj->N).position,
              &R3DCar_center);
   if ((R3DCar_shadowColour.r != '\0') && ((carObj->N).simOptz == '\0')) {
@@ -1713,13 +1692,7 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
     if (Replay_ReplayMode != 2) {
-      /* SYM-CODEGEN-CARRIER: positionStep -- the explicit signed snapshot
-         preserves retail's `lh`; using the load directly in the modulo-16-bit
-         store is count-exact but folds it to `lhu` (2 diffs). */
-      int positionStep;
-      positionStep = *(signed short *)((int)&(carObj->linearVel_ch).z + 2);
-      (carObj->N).positionXZ =
-           (carObj->N).positionXZ + positionStep;
+      (carObj->N).positionXZ += (carObj->linearVel_ch).z >> 16;
     }
     else {
       (carObj->N).positionXZ =
@@ -2092,7 +2065,7 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
         else {
           (carObj->render).inside = (carObj->render).inside | 0x10;
         }
-        sprintf(filename,"zz%s",GameSetup_gCarNames[0] + carType * 5);
+        sprintf(filename,"zz%s",GameSetup_gCarNames[carType]);
         if (cop_flag != 0) {
           int index;  /* SYM blk 247 REG a3 */
           index = (u_char)R3DCar_CopIndex[carType + -0x16][carObj->carInfo->Country];
@@ -2180,7 +2153,7 @@ R_ICFtMenu_bigFileCheck:
     }
     countryFlag = (int)((u_char)(carObj->render).currentCountry >> 7);
     (carObj->render).inside = (carObj->render).inside >> 4;
-    sprintf(filename,"zz%s",GameSetup_gCarNames[0] + carType * 5);
+    sprintf(filename,"zz%s",GameSetup_gCarNames[carType]);
     if (cop_flag != 0) {
       int index;  /* SYM blk 372 REG a3 */
       index = (u_char)R3DCar_CopIndex[carType + -0x16]

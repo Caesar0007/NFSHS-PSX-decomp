@@ -1,4 +1,6 @@
-/* aiphysic.obj's exact source-visible delta over the shared color graph. */
+/* aiphysic.obj source-visible types over the shared color graph.
+ * Sim_tSimGlobalVar's canonical body is retained by other retail TUs; this
+ * TU's original debug visibility is still unproved, not an exact-tagset claim. */
 #ifndef NFS4_GAME_COMMON_AIPHYSIC_TYPES_H
 #define NFS4_GAME_COMMON_AIPHYSIC_TYPES_H
 
@@ -26,6 +28,7 @@
 #define RaceType_Id5 5
 
 #include "shared/Sched_tSchedule.h"
+#include "shared/Sim_tSimGlobalVar.h"
 
 
 

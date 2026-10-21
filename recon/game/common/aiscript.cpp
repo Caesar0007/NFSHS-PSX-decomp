@@ -16,12 +16,14 @@ int AIScript_GetReactionTicksLeft(AIScript_t *script);
 
 
 /* ---- AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails  [@0x8006f6f8] ---- */
+#line 5 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7])
 {
   script->data = data;
 }
 
 /* ---- AIScript_ClearLastReactionIndex__FP10AIScript_t  [@0x8006f700] ---- */
+#line 10 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_ClearLastReactionIndex(AIScript_t *script)
 {
   for (int initLoop = 0; initLoop < 7; initLoop++) {
@@ -31,6 +33,7 @@ void AIScript_ClearLastReactionIndex(AIScript_t *script)
 }
 
 /* ---- AIScript_Startup__FP10AIScript_t  [@0x8006f724] ---- */
+#line 17 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_Startup(AIScript_t *script)
 {
   script->actionIndex = 7;
@@ -41,11 +44,13 @@ void AIScript_Startup(AIScript_t *script)
 }
 
 /* ---- AIScript_Cleanup__Fv  [@0x8006f760] ---- */
+#line 26 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_Cleanup(void)
 {
 }
 
 /* ---- AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni  [@0x8006f768] ---- */
+#line 29 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPlayAction playerAction,
                int currentTime64)
 {
@@ -71,86 +76,116 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
   }
 }
 
-/* MATCH, retail-absent codegen carriers in this byte-PASS source basin:
- * reactionSeedMask: direct literal 1 adds one instruction, 47 diffs.
- * noActionIndex: direct literal 7 removes one instruction, 15 diffs.
- * reactionBitTwo: direct literal 2 retains 90 instructions, eight diffs.
- * reactionTable: direct (*scriptData) retains 90 instructions, 24 diffs.
- * storedReactionIndex: direct *lastReactionIndex moves one store, two diffs.
- * These semantic names are not claimed as literal EA spellings, nor do the
- * failed forms prove that distinct original source objects were required.
- * SOURCE REVIEW: the one-iteration do below still changes store scheduling;
- * it is not a recovered original loop. Removing it on the restored owners
- * changes compiler scheduling and has not passed the byte gate.
- *
- * 2026-10-19: the combined action/detection guard and real processing while
- * restore every supplied declaration's type/home/depth/full owner and all four
- * declaring regions. newReaction belongs beside go/lastReactionIndex, and
- * newTime belongs in the processing loop. No setup-value capture of the
- * initial actionIndex is needed. The five extra carriers above and complete
- * SLD attribution remain unresolved; native declaration CLEAN is not claimed.
- * The cached index precedes the reaction initialization; reactionSeedMask
- * currently preserves the latter store's shared constant value. */
+/* Native source recovery, 2026-10-20: only supplied declarations remain.
+ * The direct initial-index assignment precedes reaction initialization. Read
+ * the actual scriptData array and use the supplied reaction/action enums,
+ * removing all four former literal/table carriers together. Once those are
+ * gone, an ordinary lastReactionIndex increment also removes the one-iteration
+ * do wrapper with no byte change. Their individual failures were interactions,
+ * not evidence of original source objects or a required synthetic loop.
+ * Both whole normal ELF and native CPE are identical; every supplied local's
+ * type/home/owner and all scope regions agree. Isolated controls and stock RTL
+ * plus stock-target-equal GDB-only observations are preserved under
+ * build/nc12/aiscript_table_source_20261020 (the standalone host is unstable).
+ * Separate the real bounds check, flag producer and END test. Ordinary layout
+ * then reproduces all absolute SLD tags, block lines and the function end:
+ * combined native run-k3ppevh8, all8 AISCRIPT contracts exact. This does not
+ * uniquely certify original literal text or every type-preamble record. */
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
+#line 54 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
   AIScript_tReactionDetails (*scriptData) [7];
-  int reactionSeedMask;
-  int noActionIndex;
-  int reactionBitTwo;
-  AIScript_tReactionDetails *reactionTable;
-  unsigned int storedReactionIndex;
 
   scriptData = script->data;
-  if (script->actionIndex == 7 && script->detectAction != 7) {
-    int go;
+
+
+  if (script->actionIndex == 7 && script->detectAction != 7)
+  { int go;
     int *lastReactionIndex;
     AIScript_tAIReaction newReaction;
     go = 1;
+
+
+
+
     script->actionIndex = script->detectAction;
     script->actionHumCarIndex = script->detectHumCarIndex;
     script->detectAction = 7;
     script->reactionTicksLeft = 0;
+
     lastReactionIndex = script->lastReactionIndex + script->actionIndex;
-    storedReactionIndex = *lastReactionIndex;
-    reactionSeedMask = (script->reaction = 1);
-    noActionIndex = 7;
-    reactionBitTwo = 2;
-    script->reactionIndex = storedReactionIndex;
-    reactionTable = *scriptData;
+
+    script->reactionIndex = *lastReactionIndex;
+
+    script->reaction = AISCRIPT_AIREACTION_INIT;
+
+
+
     while (go != 0) {
       int newTime;
-      if ((script->reactionIndex + 1 < 4) &&
-          ((newReaction = reactionSeedMask << (unsigned char)reactionTable[script->actionIndex].reaction[script->reactionIndex + 1]) != reactionBitTwo)) {
-        script->reactionIndex = script->reactionIndex + 1;
-        do { *lastReactionIndex = *lastReactionIndex + 1; } while (0);
+
+
+
+
+      if (script->reactionIndex + 1 < 4) {
+
+
+        newReaction = AISCRIPT_AIREACTION_INIT << (unsigned char)(*scriptData)[script->actionIndex].reaction[script->reactionIndex + 1];
+
+
+        if (newReaction != AISCRIPT_AIREACTION_END) {
+
+          script->reactionIndex = script->reactionIndex + 1;
+          *lastReactionIndex = *lastReactionIndex + 1;
+        }
       }
-      newReaction = reactionSeedMask << (unsigned char)reactionTable[script->actionIndex].reaction[script->reactionIndex];
+
+
+      newReaction = AISCRIPT_AIREACTION_INIT << (unsigned char)(*scriptData)[script->actionIndex].reaction[script->reactionIndex];
+
       script->reaction = script->reaction | newReaction;
-      newTime = (unsigned char)reactionTable[script->actionIndex].halfSeconds[script->reactionIndex];
+      newTime = (unsigned char)(*scriptData)[script->actionIndex].halfSeconds[script->reactionIndex];
+
+
       if (newTime != 0) {
+
         script->reactionTicksLeft = newTime << 4;
         go = 0;
       }
-      if (script->reaction == reactionSeedMask) {
-        script->actionIndex = noActionIndex;
-        script->detectAction = noActionIndex;
+
+      if (script->reaction == AISCRIPT_AIREACTION_INIT) {
+
+        script->actionIndex = AISCRIPT_PLAYACTION_SENTINAL;
+        script->detectAction = AISCRIPT_PLAYACTION_SENTINAL;
       }
     }
   }
+
+
   if (script->actionIndex == 7) {
     return;
   }
+
+
+
+
+
   if (script->reactionTicksLeft <= 0) {
-    script->actionIndex = 7;
-    script->detectAction = 7;
+
+
+
+
+    script->actionIndex = 7; script->detectAction = 7;
     return;
   }
-  script->reactionTicksLeft = script->reactionTicksLeft - elapsedTicks;
-  return;
-}
+
+
+
+  script->reactionTicksLeft = script->reactionTicksLeft - elapsedTicks; return; }
 
 /* ---- AIScript_DoReAction__FP10AIScript_t20AIScript_tAIReaction  [@0x8006f958] ---- */
+#line 148 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReaction)
 {
   int humCarIndex = -1;
@@ -160,6 +195,7 @@ int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReaction)
 }
 
 /* ---- AIScript_GetReactionTicksLeft__FP10AIScript_t  [@0x8006f988] ---- */
+#line 156 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 int AIScript_GetReactionTicksLeft(AIScript_t *script)
 {
   if (script->actionIndex != 7) {

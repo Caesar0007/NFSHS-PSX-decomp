@@ -33,7 +33,7 @@ extern Trk_NewSlice *BWorldSm_slices; /* SYM1d937e */
 extern int                AIPhysic_iTime;              /* @0x8013c594 */
 extern int                AIPhysic_time;               /* @0x8013c598 */
 extern int AIPhysic_elapsedTime;                       /* @0x8013c59c */
-extern int simGlobal[];        /* @0x8011E0AC */
+extern Sim_tSimGlobalVar simGlobal; /* @0x8011E0AC; canonical 24-byte sim.obj state */
 extern u_int fastRandom;       /* @0x8013D0FC; SYM UINT */
 extern u_int randtemp;         /* @0x8013D100; SYM UINT */
 extern u_int randSeed;         /* @0x8013D104; SYM UINT */

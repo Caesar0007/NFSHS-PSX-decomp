@@ -25,8 +25,9 @@ int AIPhysic_iTime;                 /* @0x8013c594 */
 
 /* ============================================================================
  * PORTED from run-tree (game/common/aiphysic.cpp) — 17 new definitions.
- * Minimal decomp-type adaptations only: simGlobal.gameTicks→simGlobal[1],
- * simGlobal.gameStarted→simGlobal[0], (char*) casts for personality byte-arith.
+ * Canonical Sim_tSimGlobalVar and gameStarted/gameTicks accesses restored
+ * 2026-10-21; the former int[] decompilation shortcut is removed. Personality
+ * byte-arithmetic casts remain separate source-review work.
  * ========================================================================== */
 
 /* ---- AIPhysic_StopCar__FP8Car_tObjii  (oracle STAGGERS each fixedmult store into the NEXT
@@ -432,12 +433,12 @@ void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
 {
     if ((carObj->carFlags & 8) == 0)
         return;
-    if (simGlobal[1] <= carObj->wipeOutStartTick)
+    if (simGlobal.gameTicks <= carObj->wipeOutStartTick)
         return;
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xFFFF;
     carObj->wipeOutStartTick =
-        simGlobal[1] + carObj->personality->minimumBetweenWipeoutTicks +
+        simGlobal.gameTicks + carObj->personality->minimumBetweenWipeoutTicks +
         (int)((unsigned int)(unsigned short)(randtemp >> 8) &
               carObj->personality->randomBetweenWipeoutTicks);
 }
@@ -466,7 +467,7 @@ void AIPhysic_Main(Car_tObj *carObj)
   if ((carObj->N).active == '\0') {
     return;
   }
-  if (simGlobal[0] != 1) {
+  if (simGlobal.gameStarted != 1) {
     AIPhysic_RevEngine(carObj);
     return;
   }
@@ -566,10 +567,10 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
     carObj->rampDesiredLatPos = carObj->roadPosition;
     carObj->AIFlags = carObj->AIFlags & 0xffffffef;
   }
-  if (((carObj->carFlags & 8U) != 0) && (simGlobal[1] > carObj->wipeOutStartTick)) {
+  if (((carObj->carFlags & 8U) != 0) && (simGlobal.gameTicks > carObj->wipeOutStartTick)) {
     int curve = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,(int)(carObj->N).simRoadInfo.slice);
     if ((0x1e < curve) && (0x1638e3 < carObj->speed)) {
-      carObj->wipeOutEndTick = simGlobal[1] + 0x180;
+      carObj->wipeOutEndTick = simGlobal.gameTicks + 0x180;
     }
   }
   AIPhysic_SimplePhysics_LongVel(carObj);
@@ -631,7 +632,7 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
   if (carObj->pullOver != 0) {
     carObj->desiredSpeed = 0;
   }
-  if (simGlobal[1] < carObj->wipeOutEndTick) {
+  if (simGlobal.gameTicks < carObj->wipeOutEndTick) {
     carObj->desiredSpeed = carObj->desiredSpeed / 4;
   }
   if (carObj->direction == -1) {
@@ -770,12 +771,12 @@ void AIPhysic_CoolPhysics(Car_tObj *carObj)
     AIPhysic_FinishUp(carObj);
 }
 
-/* ---- AIPhysic_HandleDirection__FP8Car_tObj  (register-only; D_8011E0B0 == &simGlobal[1]) ----
+/* ---- AIPhysic_HandleDirection__FP8Car_tObj  (register-only; D_8011E0B0 == &simGlobal.gameTicks) ----
  * [MATCHED 100% (58/58), pin-free]. The lone residual `lui v0,%hi` (a reorg delay-slot fill on
  * the D_8011E0B0 address materialization) was NOT a reorg wall — it was the scalar-vs-array shape:
  * declaring D_8011E0B0 as an UNSIZED ARRAY (`extern int D_8011E0B0[]`, access `[0] - 0x18`) changed
  * the address-materialization so gcc duplicates the `%hi` into the `bgtz` delay slot exactly as the
- * oracle (§3.12#5; same lever that fixed HandleWipeoutTimer). D_8011E0B0 == &simGlobal[1]. */
+ * oracle (§3.12#5; same lever that fixed HandleWipeoutTimer). D_8011E0B0 == &simGlobal.gameTicks. */
 void AIPhysic_HandleDirection(Car_tObj *carObj)
 {
     if (carObj->driveDirection != -1)
@@ -788,11 +789,11 @@ void AIPhysic_HandleDirection(Car_tObj *carObj)
         goto setRamp;
     goto afterRamp;
 setRamp:
-    carObj->driveDirectionTimer = simGlobal[1] - 0x18;
+    carObj->driveDirectionTimer = simGlobal.gameTicks - 0x18;
 afterRamp:
-    if (carObj->driveDirectionReverseTime < simGlobal[1] - carObj->driveDirectionTimer) {
+    if (carObj->driveDirectionReverseTime < simGlobal.gameTicks - carObj->driveDirectionTimer) {
         carObj->driveDirection = 1;
-        carObj->driveDirectionTimer = simGlobal[1];
+        carObj->driveDirectionTimer = simGlobal.gameTicks;
     }
     if (0x140000 < carObj->desiredSpeed)
         carObj->desiredSpeed = 0x140000;
@@ -1012,7 +1013,7 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
      branchy if(x<0)x=-x forms split the block and mis-schedule (w11-a8) */
   futureBend = AIWorld_CalcRoadBend(carObj,carObj->direction << 3);
   futureBend = __builtin_abs(futureBend);
-  if (simGlobal[1] < carObj->wipeOutEndTick) {
+  if (simGlobal.gameTicks < carObj->wipeOutEndTick) {
     return (0x2ffff < __builtin_abs(carObj->currentSpeed)) ^ 1;
   }
   if ((__builtin_abs(carObj->aCarWRTDesired) < 0x74) && (carObj->driveDirection != -1)) {
@@ -1270,7 +1271,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
     uTurn = carObj->driveDirection != -1;
   }
   {
-    dir = simGlobal[1];
+    dir = simGlobal.gameTicks;
     __asm__("addiu %0,%0,%%lo(AIPhysicConfig)" : "+r"(cfg));
     carObj->wipeOutEndTick = dir;
   }
@@ -1483,18 +1484,18 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   gripMultiplier = fixedmult((carObj->linearVel_ch).z,0x62);
   gripMultiplier = fixedmult(gripMultiplier + 0x10000,carObj->gripFactor);
   if ((carObj->carFlags & 8U) != 0) {
-    if (simGlobal[1] > carObj->wipeOutStartTick) {
+    if (simGlobal.gameTicks > carObj->wipeOutStartTick) {
       if ((1000 < __builtin_abs((carObj->N).angularVel.y)) && (0x1638e3 < carObj->speed)) {
-        carObj->wipeOutEndTick = simGlobal[1] + 0x180;
+        carObj->wipeOutEndTick = simGlobal.gameTicks + 0x180;
       }
     }
   }
-  lastCollisionTickDiff = simGlobal[1] - (carObj->N).collision.lastTime;
+  lastCollisionTickDiff = simGlobal.gameTicks - (carObj->N).collision.lastTime;
   if ((AIScript_DoReAction(&carObj->script,(AIScript_tAIReaction)0x800) != -1) ||
-      (simGlobal[1] < carObj->wipeOutEndTick)) {
+      (simGlobal.gameTicks < carObj->wipeOutEndTick)) {
     int vely;
-    if (simGlobal[1] - (carObj->N).collision.lastTime < 0x40) {
-      carObj->wipeOutEndTick = simGlobal[1];
+    if (simGlobal.gameTicks - (carObj->N).collision.lastTime < 0x40) {
+      carObj->wipeOutEndTick = simGlobal.gameTicks;
     }
     maxAngularAcceleration = 0;
     vely = (carObj->N).angularVel.y;
@@ -1533,12 +1534,12 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   }
   angleWRTdesired = carObj->aCarWRTDesired;
   desiredSpeed = carObj->desiredSpeed;
-  if (carObj->AIFishtailEndTick > simGlobal[1]) {
+  if (carObj->AIFishtailEndTick > simGlobal.gameTicks) {
     int fishtailtick;
     int signAngle;
     signAngle = 1;
-    fishtailtick = carObj->AIFishtailEndTick - simGlobal[1];
-    if ((simGlobal[1] / 0x28 & 1U) != 0) {
+    fishtailtick = carObj->AIFishtailEndTick - simGlobal.gameTicks;
+    if ((simGlobal.gameTicks / 0x28 & 1U) != 0) {
       signAngle = -1;
     }
     if (0x96 - fishtailtick < 0x32) {
@@ -1557,7 +1558,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
         (__builtin_abs(angleWRTdesired) << 0x10 >
          (0x10000 - AIPhysic_GetRearEndDamageFactor(carObj)) * 0x14 +
          (*(int *)((char *)carObj->personality + 0x2c) - 0x14) * 0x10000)) {
-      carObj->AIFishtailEndTick = simGlobal[1] + 0x96;
+      carObj->AIFishtailEndTick = simGlobal.gameTicks + 0x96;
     }
   }
   desiredAngVel = -angleWRTdesired * fixedmult(0x80,AIPhysicConfig.ICModel.dangle_to_dav);
@@ -1819,15 +1820,15 @@ void AIPhysic_ProcessCollision(Car_tObj *carObj)
 void AIPhysic_ChangeDirection(Car_tObj *carObj, int time)
 {
     if ((carObj->driveDirection == -1) &&
-        (simGlobal[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2)) {
+        (simGlobal.gameTicks - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2)) {
         carObj->driveDirection = 1;
-        carObj->driveDirectionTimer = simGlobal[1];
+        carObj->driveDirectionTimer = simGlobal.gameTicks;
         carObj->driveDirectionReverseTime = time;
     } else if ((carObj->driveDirection == 1) &&
-               (simGlobal[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2) &&
+               (simGlobal.gameTicks - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2) &&
                (__builtin_abs(carObj->currentSpeed) <= 0x13FFFF)) {
         carObj->driveDirection = -1;
-        carObj->driveDirectionTimer = simGlobal[1];
+        carObj->driveDirectionTimer = simGlobal.gameTicks;
         carObj->driveDirectionReverseTime = time;
     }
 }
@@ -1838,7 +1839,7 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
   if (carObj->gripFactor < 0x10000) {
     carObj->gripFactor +=
         AIPhysic_elapsedTime * carObj->personality->gripLossRecoveryPerTick;
-    if (((simGlobal[1] - (carObj->N).collision.lastTime < 0x40) &&
+    if (((simGlobal.gameTicks - (carObj->N).collision.lastTime < 0x40) &&
          ((carObj->N).collision.lastOtherObj == (BO_tNewtonObj *)0x0)) ||
         (carObj->personality->gripLossMinFactor +
              ((0x10000 - carObj->personality->gripLossMinFactor) / 4) <

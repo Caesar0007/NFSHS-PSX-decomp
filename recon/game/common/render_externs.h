@@ -1,13 +1,16 @@
-/* render_externs.h -- extern decls for game/psx/render.cpp (NFS4 PSX render orchestration). */
+/* render_externs.h -- extern decls for game/common/render.cpp (NFS4 PSX render orchestration). */
 #ifndef RENDER_EXTERNS_H
 #define RENDER_EXTERNS_H
 
-extern "C" int DrawSync(...);
-extern "C" int GetTPage(...);
-extern "C" void SetDrawMode(...);
-extern "C" void SetDrawStp(...);
-extern "C" void *SetSp(...);
-extern "C" int StoreImage(...);
+/* Canonical PsyQ 4.3 LIBGPU.H:722/737/744/766/770 and LIBAPI.H:83.
+ * Fixed SDK interfaces; SetSp exchanges unsigned stack-address words.
+ * Baseline backup/evidence: build/nc12/render_sdk_prototypes_20261022. */
+extern "C" int DrawSync(int mode);
+extern "C" u_short GetTPage(int tp,int abr,int x,int y);
+extern "C" void SetDrawMode(DR_MODE *p,int dfe,int dtd,int tpage,RECT *tw);
+extern "C" void SetDrawStp(DR_STP *p,int pbw);
+extern "C" unsigned long SetSp(unsigned long);
+extern "C" int StoreImage(RECT *rect,u_long *p);
 
 /* ---- render globals ---- */
 // [owned->defined in render.cpp] extern DRender_tView   gCView;                 /* 0x... (DRender_tView, 140B) */

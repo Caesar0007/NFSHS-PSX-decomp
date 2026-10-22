@@ -7,6 +7,16 @@
 #include "psyq_prim_macros.h"
 #include "psyq_prim_macros.h"
 
+/* PsyQ4.3 LIBGPU.H:236/238/241/253/316. These TU-local SDK macros
+ * initialize a textured quad and enable its genuine semi-transparency bit.
+ * Canonical spelling is supported; unique original call spelling is not. */
+#define setlen(p,_len) (((P_TAG *)(p))->len = (u_char)(_len))
+#define setcode(p,_code) (((P_TAG *)(p))->code = (u_char)(_code))
+#define getcode(p) (u_char)(((P_TAG *)(p))->code)
+#define setPolyFT4(p) setlen(p,9),setcode(p,0x2c)
+#define setSemiTrans(p,abe) \
+  ((abe)?setcode(p,getcode(p)|0x02):setcode(p,getcode(p)&~0x02))
+
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800568A8): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
@@ -83,34 +93,39 @@ void Hrz_BuildHorizon(DRender_tView *Vi);
  * Matched NFS2 PC Horizon_InterpolateLineSCoords independently has this shape.
  * No pv, reference-fence replacement, or artificial index identity is needed
  * by the recovered source; byte/scope checks are recorded in p914_horizon. */
+#line 127 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *percentage,int n,int bPercentageArray)
 {
   int i;
 
   if (bPercentageArray) {
+
     for (i = 0; i < n; i++) {
+
       sc->vx = s0->vx + *percentage * (s1->vx - s0->vx) / 65536;
       sc->vy = s0->vy + *percentage * (s1->vy - s0->vy) / 65536;
+
       percentage++;
       s0++;
       s1++;
       sc++;
-    }
-  }
-  else {
+    } } else {
+
+
+
     int p = *percentage;
 
     for (i = 0; i < n; i++) {
+
       sc->vx = s0->vx + p * (s1->vx - s0->vx) / 65536;
       sc->vy = s0->vy + p * (s1->vy - s0->vy) / 65536;
+
       s0++;
       s1++;
       sc++;
-    }
-  }
-}
+    } } }
 
-/* ---- Sky_InitStars__Fv  [HRZSKU.CPP:185-211] SLD-VERIFIED ----
+/* ---- Sky_InitStars__Fv  [HRZSKU.CPP:185-211] SLD-CHECK-REQUIRED ----
  * NEAR-MISS 50 diffs (120/122, improved from 106 baseline). THREE stacked fixes, all
  * SYM-evidenced (`nfs4-f-v3.txt` @40dd10, nested nested block `radius/height/latAngle/
  * heightAngle/starBright` inside the loop body, `oldSeed`=LONG/`i`=INT outside):
@@ -136,59 +151,52 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
  * `height` for the vz value) gives the oracle's `sh $v0,0(v1)` / `sh $v0,4(s0)` direct
  * stores, its re-load of starPosInSky after the intervening call, and the 6-register
  * frame exactly.  Floor claim RETRACTED. */
+/* Current receipt: sampling and masking are one real angle assignment.
+ * The historical two-assignment form preserved code but not the supplied
+ * loop-local block-end line. This is not a required temporary/source floor.
+ * See build/nc12/hrz_stars_layout_20261022; literal original text is unproved. */
+#line 183 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Sky_InitStars(void)
 
 {
-  if (starPosInSky == (SVECTOR *)0x0) {
-    long oldSeed;
-    int i;
-
+  if (starPosInSky == (SVECTOR *)0x0)
+  { long oldSeed; int i;
     oldSeed = random();
     seedrandom(Sky_gTrackSpec->starRandomSeed);
     starPosInSky = (SVECTOR *)reservememadr("stars",Sky_gTrackSpec->numStars << 3,0);
     starColors = (u_long *)reservememadr("starCols",Sky_gTrackSpec->numStars << 2,0);
-    for (i = 0; i < Sky_gTrackSpec->numStars; i = i + 1) {
-      int radius;
-      int height;
-      int latAngle;
-      int heightAngle;
-      int starBright;
 
-      latAngle = random();
-      latAngle = latAngle & 0xffff;
-      heightAngle = Sky_gTrackSpec->starAngleLow +
-                    (u_int)random() % (Sky_gTrackSpec->starAngleHigh - Sky_gTrackSpec->starAngleLow);
-      height = fixedsin(heightAngle);
-      height = fixedmult(height,1000);
-      radius = fixedcos(heightAngle);
-      radius = fixedmult(radius,1000);
+
+
+    for (i = 0; i < Sky_gTrackSpec->numStars; i = i + 1)
+    {
+      int radius; int height; int latAngle; int heightAngle; int starBright;
+      latAngle = random() & 0xffff;
+      heightAngle = Sky_gTrackSpec->starAngleLow + (u_int)random() % (Sky_gTrackSpec->starAngleHigh - Sky_gTrackSpec->starAngleLow);
+
+
+      height = fixedsin(heightAngle); height = fixedmult(height,1000);
+      radius = fixedcos(heightAngle); radius = fixedmult(radius,1000);
+
       starPosInSky[i].vx = (short)fixedmult(fixedsin(latAngle),radius);
       starPosInSky[i].vy = (short)height;
       starPosInSky[i].vz = (short)fixedmult(fixedcos(latAngle),radius);
-      starBright = random();
-      starBright = Sky_gTrackSpec->starBrightMin +
-                   (u_int)starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);
+      starBright = random(); starBright = Sky_gTrackSpec->starBrightMin + (u_int)starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);
       starColors[i] = starBright * 0x10000 | starBright * 0x100 | starBright;
     }
-    seedrandom(oldSeed);
-  }
-  return;
-}
+    seedrandom(oldSeed); } return; }
 
 /* ---- Sky_KillStars__Fv  [HRZSKU.CPP:216-222] SLD-VERIFIED ---- */
+#line 214 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Sky_KillStars(void)
 
 {
   if (starPosInSky != (SVECTOR *)0x0) {
-    purgememadr(starPosInSky);
-  }
+    purgememadr(starPosInSky); }
   if (starColors != (u_long *)0x0) {
-    purgememadr(starColors);
-  }
+    purgememadr(starColors); }
   starPosInSky = (SVECTOR *)0x0;
-  starColors = (u_long *)0x0;
-  return;
-}
+  starColors = (u_long *)0x0; return; }
 
 /* ---- Hrz_InitSkyColor__Fv  [HRZSKU.CPP:227-252] SLD-VERIFIED ----
  * SEALED 87/87 PASS (wave-13; was a 102-diff "accepted floor"). FOUR stacked levers, all
@@ -211,6 +219,7 @@ void Sky_KillStars(void)
  * with identical bytes. All 87 relative instruction SLD tags, block-line
  * fields and local/frame/scope contracts now agree with retail. Original
  * comments/whitespace are not claimed uniquely recovered. */
+#line 226 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_InitSkyColor(void)
 {
   int i, j, k;
@@ -240,7 +249,7 @@ void Hrz_InitSkyColor(void)
   }
 }
 
-/* ---- Hrz_InitSky__Fv  [HRZSKU.CPP:257-332] SLD-VERIFIED ----
+/* ---- Hrz_InitSky__Fv  [HRZSKU.CPP:257-332] SLD-CHECK-REQUIRED ----
  * NEAR-MISS 16 diffs, COUNT-EXACT 209/209 (wave-13; was 189). Levers that landed:
  * (1) per-field SVECTOR split (defs banner above) turned every sun/moon field store into
  * the oracle's 1-insn %gp_rel sh; (2) KEY: struct-typed per-field PUNS (SUNPOS_VX etc.,
@@ -293,45 +302,63 @@ void Hrz_InitSkyColor(void)
  * historical allocation notes above/below used the opposite source names.
  * Declaration order is preserved. Existing fence operands retain their value
  * order; removing that fence and full SLD restoration remain separate work. */
-void Hrz_InitSky(void)
-
-{
-  int i;
-  int j;
-  int k;
-  int angle;
-  int height;
-  int radius;
-
-  SUNPOS_VX = (short)fixedmult(fixedcos(Sky_gTrackSpec->sunAngleInSky),1000);
-  SUNPOS_VZ = (short)fixedmult(fixedsin(Sky_gTrackSpec->sunAngleInSky),1000);
-  SUNPOS_VY =
-       (short)TrackSpec_gSpec.skyspec.sunHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
-  MOONPOS_VX = (short)fixedmult(fixedcos(Sky_gTrackSpec->moonAngleInSky),1000);
-  MOONPOS_VZ = (short)fixedmult(fixedsin(Sky_gTrackSpec->moonAngleInSky),1000);
-  MOONPOS_VY =
-       (short)TrackSpec_gSpec.skyspec.moonHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
-  /* MATCH: duplicated SetViewColor calls (comm arm calls P1 then P2; else arm P1 only) --
+/* MATCH: duplicated SetViewColor calls (comm arm calls P1 then P2; else arm P1 only) --
      gcc cross-jump merges the two P1-tails into the oracle's shared lbu/jal block; a
      select-variable form (`v = P1; if(comm) {call; v = P2;} call(v)`) caches the view in
      a temp the oracle doesn't have. */
-  if (GameSetup_gData.commMode == 1) {
-    Draw_SetViewColor(Draw_gPlayer1View,(u_int)(Sky_gTrackSpec->clearcolor).r,
-               (u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
-    Draw_SetViewColor(Draw_gPlayer2View,(u_int)(Sky_gTrackSpec->clearcolor).r,
-               (u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
-  }
-  else {
-    Draw_SetViewColor(Draw_gPlayer1View,(u_int)(Sky_gTrackSpec->clearcolor).r,
-               (u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
-  }
-  i = 0;
-  k = 0;
-  do {
-    if ((Sky_gTrackSpec->flags & 0x80U) != 0) {
-      /* MATCH: height= duplicated in BOTH arms; gcc cross-jumps the common
+/* MATCH: height= duplicated in BOTH arms; gcc cross-jumps the common
          fixedsin/fixedmult tails, leaving the per-arm a0 setup (ringAngles[i]
          re-read straight into $a0 here vs addu a0,s0 in the else arm). */
+/* SOURCE-RECOVERY-UNRESOLVED: this fence is not proved original.
+       * Retail height=s4, radius=s5, k=s6; legacy notes used old names.
+       * No-fence control:209 words, eight raw word differences (height/k).
+       * Stock lreg: k=p82 has19 refs/100 live; height=p84 has7/32;
+       * radius=p85 has10/43. Fence:19/101,10/33,13/44 respectively.
+       * Those measurements do not prove an original source device/object.
+       * Loop/index/coordinate/cloud/trig controls here are negative only.
+       * Structured color/flare control removes the invented label below.
+       * Keep all six supplied locals and correct ownership in a real fix.
+       * No dummy reads, fake scopes, pins or blanket impossibility claims.
+       * Code PASS alone is not full source/SLD restoration.
+       * Receipts: build/nc12/hrz_sky_source_20261022.
+       * Fence removal and full statement-line restoration remain open.
+       */
+#line 255 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+void Hrz_InitSky(void)
+
+{
+  int i; int j; int k; int angle; int height; int radius;
+
+
+  SUNPOS_VX = (short)fixedmult(fixedcos(Sky_gTrackSpec->sunAngleInSky),1000);
+  SUNPOS_VZ = (short)fixedmult(fixedsin(Sky_gTrackSpec->sunAngleInSky),1000);
+  SUNPOS_VY = (short)TrackSpec_gSpec.skyspec.sunHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
+
+  MOONPOS_VX = (short)fixedmult(fixedcos(Sky_gTrackSpec->moonAngleInSky),1000);
+  MOONPOS_VZ = (short)fixedmult(fixedsin(Sky_gTrackSpec->moonAngleInSky),1000);
+  MOONPOS_VY = (short)TrackSpec_gSpec.skyspec.moonHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
+
+
+  if (GameSetup_gData.commMode == 1) {
+
+    Draw_SetViewColor(Draw_gPlayer1View,(u_int)(Sky_gTrackSpec->clearcolor).r,(u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
+    Draw_SetViewColor(Draw_gPlayer2View,(u_int)(Sky_gTrackSpec->clearcolor).r,(u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
+  }
+  else {
+
+    Draw_SetViewColor(Draw_gPlayer1View,(u_int)(Sky_gTrackSpec->clearcolor).r,(u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
+  }
+
+
+  i = 0;
+  k = 0; do {
+
+
+
+
+
+    if ((Sky_gTrackSpec->flags & 0x80U) != 0) {
+
       radius = fixedmult(fixedcos(Sky_gTrackSpec->ringAngles[i]),1000);
       height = fixedmult(fixedsin(Sky_gTrackSpec->ringAngles[i]),1000);
     }
@@ -340,59 +367,41 @@ void Hrz_InitSky(void)
         angle = i << 0xb;
       }
       else {
-        angle = i << 0xc;
-      }
-      radius = fixedmult(fixedcos(angle),1000);
+
+
+
+        angle = i << 0xc; } radius = fixedmult(fixedcos(angle),1000);
       height = fixedmult(fixedsin(angle),1000);
     }
-    j = 0;
-    do {
-      /* MATCH (w50-a5, the seal): ZERO-INSN READ-ONLY REF FENCE at the HEAD of the
-         inner-loop body.  Residual was the recorded k<->radius $s4/$s6 allocno tie.
-         -dg/allocsim: p82(k) 19refs/100live pri .7600 > p84(height) 10/43 .6977 >
-         p85(radius) 7/32 .4375, but retail wants radius=$s4, height=$s5, k=$s6 -- a
-         FULL reversal, so BOTH rivals must be lifted above k (reqdelta 2-pseudo search:
-         p84 refs->11/12 AND p85 refs->9 is the cheapest handout-exact delta; k's own
-         refs/live dials were already falsified in w39/w46).  flow.c weights REG_N_REFS
-         by loop_depth, so one read-only asm use at depth 3 buys +3 refs per operand at
-         ZERO instructions: radius 7->10 (.9375), height 10->13 (.9070), both now above
-         k (.7600) and still under i's .9411 so $s3 is unchanged.  POSITION is
-         load-bearing (the fence is also a sched/reorg barrier -- w45): walking it
-         statement-by-statement through this body measures 3/6/4/4/8/15/11/5 diffs at
-         positions 1..8 and 0 HERE -- at the body head it precedes every schedulable
-         insn, so it steals nothing.  Do NOT move, merge, or "simplify" it away. */
+
+    j = 0; do {
       __asm__ ("" : : "r"(radius), "r"(height));
-      angle = j * 0x1000;
-      j = j + 1;
-      angle = angle - Sky_gTrackSpec->sunAngleInSky;
-      angle = angle + 0x4000;
+      angle = j * 0x1000; angle = angle - Sky_gTrackSpec->sunAngleInSky; angle = angle + 0x4000;
       gSkyMesh[k].vx = (short)fixedmult(fixedsin(angle),radius);
       gSkyMesh[k].vy = (short)Sky_gTrackSpec->yoffset + (short)height;
       gSkyMesh[k].vz = (short)fixedmult(fixedcos(angle),radius);
-      k = k + 1;
-    } while (j < 0x11);
-    i = i + 1;
-  } while (i < 5);
+
+
+
+
+      j = j + 1; k = k + 1; } while (j < 0x11);
+    i = i + 1; } while (i < 5);
+
+
   if (Sky_gTrackSpec->type == 1) {
-    i = 0;
-    k = 0;
-    do {
-      j = 0;
-      do {
-        gSkyPixmapIndex[k] = Sky_gTrackSpec->cloudIndices[i][j % 4] + 8;
-        j = j + 1;
-        k = k + 1;
-      } while (j < 0x10);
-      i = i + 1;
-    } while (i < 4);
-    if ((Sky_gTrackSpec->type == 1) && ((Sky_gTrackSpec->flags & 0x20U) == 0))
-    goto HrzInitSky_initLensFlare;
-  }
-  Hrz_InitSkyColor();
-HrzInitSky_initLensFlare:
-  Flare_InitLensFlare();
-  return;
-}
+
+    i = 0; k = 0; do {
+
+      j = 0; do {
+        gSkyPixmapIndex[k] = Sky_gTrackSpec->cloudIndices[i][j % 4] + 8; j = j + 1; k = k + 1; } while (j < 0x10);
+      i = i + 1; } while (i < 4);
+
+
+
+    if ((Sky_gTrackSpec->type != 1) || ((Sky_gTrackSpec->flags & 0x20U) != 0))
+      Hrz_InitSkyColor(); } else { Hrz_InitSkyColor(); }
+
+  Flare_InitLensFlare(); return; }
 
 /* ---- Hrz_Init2DRing__Fv  [HRZSKU.CPP:337-414] SLD-VERIFIED ----
  * wave-13 FULL rule-8 rewrite from SYM @40e105 + oracle trace. SYM truth: fn-scope
@@ -414,103 +423,128 @@ HrzInitSky_initLensFlare:
  * onto the stack (40dif/191,frame104vs96). By-value maximum helper is
  * 3dif/186; assignment-funnel/GNU-max versions25dif/186. Remove all trial
  * helpers; no invented name, fake use or empty scope retained. These are
- * source-basin receipts, not a floor or proof of original producer identity. */
+ * source-basin receipts, not a floor or proof of original producer identity.
+ * 2026-10-22: ordinary source layout restores all185 word/file tags, all12
+ * emitted block coordinates and end414; four retail scope records are still
+ * missing. The height-query inline controls preserve code but add six records,
+ * not the required four; no trial helper is adopted. Receipt:
+ * build/nc12/hrz_ring_source_20261022. No full function SYM seal claimed. */
+#line 335 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_Init2DRing(void)
 
 {
   int i;
   int angle;
 
-  i = 0;
-  do {
+
+  i = 0; do {
+
     angle = i * 0x1000 + Hrz_gTrackSpec->angle;
+
+
     gRngCoordTop[i].vx = (short)fixedmult(fixedsin(angle),32000);
     gRngCoordTop[i].vy = 0;
     gRngCoordTop[i].vz = (short)fixedmult(fixedcos(angle),32000);
-    i = i + 1;
-  } while (i < 0x11);
+    i = i + 1; } while (i < 0x11);
+
+
   {
     int nMaxPmxHeight_InPixels;
     int pnPmxHeight_InPixels [16];
 
     nMaxPmxHeight_InPixels = 1;
-    i = 0;
-    while (true) {
-      if (!(i < 0x10)) break;
+
+
+    i = 0; while (true) { if (!(i < 0x10)) break;
+
+
       gpPmx[i] = gHorizonPixmap[(u_char)Hrz_gTrackSpec->ringPMX[i] & 7];
+
+
+
       pnPmxHeight_InPixels[i] = gpPmx[i]->v2 - gpPmx[i]->v1;
+
       if (nMaxPmxHeight_InPixels < pnPmxHeight_InPixels[i]) {
-        nMaxPmxHeight_InPixels = pnPmxHeight_InPixels[i];
-      }
-      i = i + 1;
-    }
-    i = 0;
-    do {
-      gfxPmxHeightPercentage[i] = (pnPmxHeight_InPixels[i] << 0x10) / nMaxPmxHeight_InPixels;
-      i = i + 1;
-    } while (i < 0x10);
-  }
+        nMaxPmxHeight_InPixels = pnPmxHeight_InPixels[i]; }
+      i = i + 1; }
+
+
+    i = 0; do {
+      gfxPmxHeightPercentage[i] = (pnPmxHeight_InPixels[i] << 0x10) / nMaxPmxHeight_InPixels; i = i + 1; } while (i < 0x10); }
+
+
+
+
   for (int level = 0; level < 2; level = level + 1) {
-        CVECTOR cur_bk;
-        CVECTOR cur_fr;
-        CVECTOR rounddiff;
+    CVECTOR cur_bk;
+    CVECTOR cur_fr;
+    CVECTOR rounddiff;
+    cur_bk = Hrz_gTrackSpec->backColor[level];
+    cur_fr = Hrz_gTrackSpec->frontColor[level];
 
-        cur_bk = Hrz_gTrackSpec->backColor[level];
-        cur_fr = Hrz_gTrackSpec->frontColor[level];
-        for (i = 0; i < 0x10; i = i + 1) {
-            int j;
+    for (i = 0; i < 0x10; i = i + 1) {
+      int j;
 
-            j = i;
-            if (8 < i) j = 0x10 - i;
-            rounddiff.r = (u_char)((cur_bk.r - cur_fr.r) / 8);
-            rounddiff.g = (u_char)((cur_bk.g - cur_fr.g) / 8);
-            rounddiff.b = (u_char)((cur_bk.b - cur_fr.b) / 8);
-            gHrzRingColor[level][i].r = cur_fr.r + rounddiff.r * j;
-            gHrzRingColor[level][i].g = cur_fr.g + rounddiff.g * j;
-            gHrzRingColor[level][i].b = cur_fr.b + rounddiff.b * j;
-        }
-        gHrzRingColor[level][16] = gHrzRingColor[level][0];
+      j = i; if (8 < i)
+        j = 0x10 - i;
+
+      rounddiff.r = (u_char)((cur_bk.r - cur_fr.r) / 8);
+      rounddiff.g = (u_char)((cur_bk.g - cur_fr.g) / 8);
+      rounddiff.b = (u_char)((cur_bk.b - cur_fr.b) / 8);
+
+      gHrzRingColor[level][i].r = cur_fr.r + rounddiff.r * j;
+      gHrzRingColor[level][i].g = cur_fr.g + rounddiff.g * j;
+      gHrzRingColor[level][i].b = cur_fr.b + rounddiff.b * j;
+
+
+
+
+    }
+
+    gHrzRingColor[level][16] = gHrzRingColor[level][0];
+
   }
   Hrz_InitSky();
-  *(u_long *)&Hrz_gSaveCol[1] = *(u_long *)&Sky_gTrackSpec->frontcolors[0];
-  return;
-}
+
+
+
+
+  *(u_long *)&Hrz_gSaveCol[1] = *(u_long *)&Sky_gTrackSpec->frontcolors[0]; return; }
 
 /* ---- Hrz_GetHorizonPixMap__FP12Draw_tPixMap  [HRZSKU.CPP:419-428] SLD-VERIFIED ---- */
+#line 417 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_GetHorizonPixMap(Draw_tPixMap *p)
 
 {
   int i;
 
-  i = 0xb;
-  do {
-    gHorizonPixmap[i] = p + i;
-    i = i - 1;
-  } while (-1 < i);
-  i = 0;
-  do {
+  i = 0xb; do {
+    gHorizonPixmap[i] = p + i; i = i - 1; } while (-1 < i);
+  i = 0; do {
+
     Texture_CloneUVPmx(gHorizonPixmap[i + 8],0,&gHorizonExtraSkyPixmaps[i]);
     gHorizonPixmap[i + 12] = &gHorizonExtraSkyPixmaps[i];
-    i = i + 1;
-  } while (i < 4);
-  return;
-}
+    i = i + 1; } while (i < 4); return; }
 
 /* ---- Hrz_InitHorizon__Fv  [HRZSKU.CPP:432-443] SLD-VERIFIED ---- */
+#line 430 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_InitHorizon(void)
 
 {
   Hrz_gTrackSpec = &TrackSpec_gSpec.horizonspec;
   Sky_gTrackSpec = &TrackSpec_gSpec.skyspec;
+
+
+
   gRngCoordTop = (SVECTOR *)reservememadr("gRngCoordTop",0x88,0);
+
   Hrz_Init2DRing();
+
   if ((TrackSpec_gSpec.skyspec.flags & 0x10U) != 0) {
-    Sky_InitStars();
-  }
-  return;
-}
+    Sky_InitStars(); } return; }
 
 /* ---- Hrz_KillHorizon__Fv  [HRZSKU.CPP:447-450] SLD-VERIFIED ---- */
+#line 445 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_KillHorizon(void)
 
 {
@@ -530,6 +564,7 @@ void Hrz_KillHorizon(void)
  * dispatch = a REAL `switch(type)` (gcc balanced tree beq1/slti2/beqz0/beq2/beq3 with
  * arms out-of-line in ASCENDING case order + cross-jumped pmxIndex sb tail); the earlier
  * if/else-if chain inlined the ==1 arm + flipped polarities (57 diffs). SEALED 134/134. */
+#line 781 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_LightningAddFork(signed char direction,signed char column,signed char row)
 
 {
@@ -537,45 +572,44 @@ void Hrz_LightningAddFork(signed char direction,signed char column,signed char r
   tHrz_LightningFork *fork;
 
   if (row == 0) {
-    type = 3;
-  }
+    type = 3; }
   else if (row < 3) {
-    type = (u_int)random() % 3;
-  }
-  else {
-    type = 2;
-  }
+    type = (u_int)random() % 3; }
+  else { type = 2; }
+
+
   fork = gHrz_Lightning.forks + gHrz_Lightning.numForks;
+
   gHrz_Lightning.numForks = gHrz_Lightning.numForks + 1;
+
   fork->pos.vx = column * 0xf;
   fork->pos.vy = row * 0xf;
+
   switch (type) {
+
   case 0:
     Hrz_LightningAddFork(direction,column + direction,row + 1);
     fork->pmxIndex = (random() & 1) + 2;
     break;
   case 1:
-    row = row + 1;
-    Hrz_LightningAddFork(-1,column + -1,row);
+    row = row + 1; Hrz_LightningAddFork(-1,column + -1,row);
     Hrz_LightningAddFork(1,column + 1,row);
-    fork->pmxIndex = 6;
-    break;
+
+    fork->pmxIndex = 6; break;
   case 2:
     fork->pmxIndex = (random() & 1) + 4;
     break;
   case 3:
     direction = 1 - (random() & 1) * 2;
     Hrz_LightningAddFork(direction,column + direction,row + 1);
-    fork->pmxIndex = random() & 1;
-    break;
-  }
+    fork->pmxIndex = random() & 1; break; }
+
+
   if (direction < 0) {
-    fork->pmxIndex = fork->pmxIndex + 8;
-  }
-  return;
-}
+    fork->pmxIndex = fork->pmxIndex + 8; } return; }
 
 /* ---- Hrz_CalculateLightning__Fv  [HRZSKU.CPP:826-829] SLD-VERIFIED ---- */
+#line 824 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_CalculateLightning(void)
 
 {
@@ -604,46 +638,41 @@ void Hrz_CalculateLightning(void)
  * not evidence that original source required those objects. No new fence,
  * pin, qualifier or post-compile rewrite. All nine original local tuples
  * and four scope markers now agree UNFILTERED; native contract CLEAN.
- * SDK spellings are canonical, but the precise original EA macro/statement
- * producer remains unproved. Full SLD still differs66/76 tags/end33vs23;
- * block-line records agree. No #line/blank padding to fabricate a seal. */
+ * 2026-10-22: full covered declaration/scope/absolute-SLD contract restored.
+ * Canonical setPolyFT4 then setSemiTrans supply actual init837/flag839;
+ * one chained RGB assignment supplies842. The genuine UV-copy region and
+ * all four named word stages share856, without a new helper or fake scope.
+ * Packet acquisition/link/advance share836. All76 words remain unchanged.
+ * The exact original EA macro/copy spelling and P_TAG producer are unproved;
+ * this does not turn canonical SDK semantics into a literal-source claim.
+ * Receipt: build/nc12/hrz_lightning_layout_20261022. */
+#line 831 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
 
 {
   POLY_FT4 *prim;
 
-  prim = (POLY_FT4 *)Render_gPacketPtr;
-  addPrim((u_int *)(sd->otz * 4 + (int)Render_gPalettePtr),prim);
-  Render_gPacketPtr = (u_char *)(prim + 1);
-  ((P_TAG *)prim)->len = 9;
-  prim->code = 0x2e;
-  prim->b0 = bright;
-  prim->g0 = bright;
-  prim->r0 = bright;
+  prim = (POLY_FT4 *)Render_gPacketPtr; addPrim((u_int *)(sd->otz * 4 + (int)Render_gPalettePtr),prim); Render_gPacketPtr = (u_char *)(prim + 1);
+  setPolyFT4(prim);
+
+  setSemiTrans(prim,1);
+
+
+  prim->r0 = prim->g0 = prim->b0 = bright;
+
   prim->x0 = pt->vx;
   prim->y0 = pt->vy;
+
   prim->x2 = pt->vx;
   prim->y2 = pt->vy + 0x10;
+
   prim->x1 = pt->vx + 0x10;
   prim->y1 = pt->vy;
+
   prim->x3 = pt->vx + 0x10;
   prim->y3 = pt->vy + 0x10;
-  {
-    u_long l0;
-    u_long l1;
-    u_long l2;
-    u_long l3;
-    l0 = *(u_long *)&gLightningPixmap[(u_char)type]->u0;
-    l1 = *(u_long *)&gLightningPixmap[(u_char)type]->u1;
-    l2 = *(u_long *)&gLightningPixmap[(u_char)type]->u2;
-    l3 = *(u_long *)&gLightningPixmap[(u_char)type]->u3;
-    *(u_long *)&prim->u0 = l0;
-    *(u_long *)&prim->u1 = l1;
-    *(u_long *)&prim->u2 = l2;
-    *(u_long *)&prim->u3 = l3;
-  }
-  return;
-}
+
+  { u_long l0; u_long l1; u_long l2; u_long l3; l0 = *(u_long *)&gLightningPixmap[(u_char)type]->u0; l1 = *(u_long *)&gLightningPixmap[(u_char)type]->u1; l2 = *(u_long *)&gLightningPixmap[(u_char)type]->u2; l3 = *(u_long *)&gLightningPixmap[(u_char)type]->u3; *(u_long *)&prim->u0 = l0; *(u_long *)&prim->u1 = l1; *(u_long *)&prim->u2 = l2; *(u_long *)&prim->u3 = l3; } return; }
 
 /* ---- Hrz_SetLightingPosInSky__FP13DRender_tView  [HRZSKU.CPP:862-867] SLD-VERIFIED ----
  * SEALED 68/68 PASS (wave-13; was a 103-diff "accepted floor"). THREE stacked levers:
@@ -655,52 +684,57 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
  * shows NO named local (Vi + forwardVec only), so the random value is an anonymous temp:
  * an inline call keeps it in $v0 (multu v0,s0; subu v0,v0,v1 in place, no `addu a1,v0`
  * copy) and the field load takes the dead Vi param's $a0. A named uVar1 (any variant)
- * costs the copy + a reg. (3) vy's `+8000` must bind to (fy>>2); see the in-body MATCH
- * comment (association barrier). */
+ * costs the copy + a reg. (3) vy's +8000 binds to (forwardVec.y>>2) before
+ * the existing unsigned sum. The explicit conversion remains; no new fence.
+ * 2026-10-22: all68 word/file tags, local/scopes and end867 now match. */
+#line 860 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_SetLightingPosInSky(DRender_tView *Vi)
 
-{
-  coorddef forwardVec;
-
+{ coorddef forwardVec;
   forwardVec = *(coorddef *)&(Vi->cview).mrotation.m[6];
+
   Hrz_gLightningPosInSky.vx = (forwardVec.x >> 2) + (int)((u_int)random() % 8000) + -4000;
-  /* MATCH: (u_int) cast on (fy>>2)+8000 = association barrier (fold otherwise re-attaches
-     the constant to the mod term); value-identical, the sh store truncates to 16 bits */
   Hrz_gLightningPosInSky.vy = (int)((u_int)((forwardVec.y >> 2) + 8000) + (u_int)random() % 3000);
-  Hrz_gLightningPosInSky.vz = (forwardVec.z >> 2) + (int)((u_int)random() % 8000) + -4000;
-  return;
-}
+  Hrz_gLightningPosInSky.vz = (forwardVec.z >> 2) + (int)((u_int)random() % 8000) + -4000; return; }
 
 /* ---- Hrz_BuildForkLightning__FP11Draw_DCache  [HRZSKU.CPP:872-898] SLD-VERIFIED ----
  * SEALED (71/71 PASS). MATCH: plain `for (i=0; i < (u_char)numForks; i++)` WITHOUT the outer
  * numForks!=0 guard (the rotated for-test subsumes it; the guarded do-while made the reorg
  * pass steal the loop-head `andi` into the back-edge slot instead of the oracle's
- * `addiu a0,sp,0x10` &pos rematerialization). */
+ * `addiu a0,sp,0x10` &pos rematerialization).
+ * 2026-10-22: inactive early return877 plus implicit active fallthrough
+ * recovers root block end897 and epilogue/end898 together, all71 words
+ * unchanged. A positive guard with explicit/implicit tail return matches
+ * code but not both line facts. No new region/object or note rewrite. */
+#line 870 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_BuildForkLightning(Draw_DCache *sd)
 
 {
-  char i;   /* retail SYM: CHAR */
+  char i;
   tHrz_LightningFork *fork;
-  DVECTOR pos;
-  DVECTOR screenPos;
-  coorddef trans;
+  DVECTOR pos; DVECTOR screenPos; coorddef trans;
 
-  if (0 < gHrz_Lightning.brightness) {
+  if (gHrz_Lightning.brightness <= 0) return;
+
+
     sd->otz = Draw_gViewOtSize + -2;
+
+
     memset(&trans,0,0xc);
     HrzSetPsxTranslation(&trans);
     gte_ldv0(&Hrz_gLightningPosInSky);
     gte_rtps();
     gte_stsxy2(&screenPos);
+
     for (i = 0; i < (u_char)gHrz_Lightning.numForks; i = i + 1) {
+
       fork = &gHrz_Lightning.forks[i];
       pos.vx = fork->pos.vx + screenPos.vx;
       pos.vy = fork->pos.vy + screenPos.vy;
       Hrz_TextureQuad(&pos,fork->pmxIndex,(char)gHrz_Lightning.brightness,sd);
     }
+
     gHrz_Lightning.brightness = gHrz_Lightning.brightness + -0x10;
-  }
-  return;
 }
 
 /* ---- Hrz_LightningFlicker__Fi  [HRZSKU.CPP:901-954] SLD map, not full SLD-exact ----
@@ -719,35 +753,63 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
  * from each loop body; the capture is already initialized before its loop.
  * This measures those expression graphs, NOT distinct original-object
  * necessity. No replacement const, fence or fake use; col stays unresolved. */
+#line 899 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_LightningFlicker(int on)
 
 {
   u_int col; /* UNRESOLVED: absent from retail SYM; not proven necessary. */
-  if (on != 0) {
+  if (on != 0)
+  {
     int i;
+
+
+
+
     if (on == 1) {
+
+
+
+
+
       if (Night_gShowForks == '\0') {
+
+
         *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xffc0c0;
-        col = 0xffc0c0;
-        for (i = 0x54; -1 < i; i = i - 1) {
-          *(u_int *)&gSkyColor[i] = col;
-        }
-      }
+
+        col = 0xffc0c0; for (i = 0x54; -1 < i; i = i - 1) {
+          *(u_int *)&gSkyColor[i] = col; } }
     }
+
+
+
+
+
+
+
+
+
+
+
     else if (Night_gShowForks == '\0') {
+
       *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xc02828;
-      col = 0xc02828;
-      for (i = 0x54; -1 < i; i = i - 1) {
-        *(u_int *)&gSkyColor[i] = col;
-      }
-    }
-  }
+
+      col = 0xc02828; for (i = 0x54; -1 < i; i = i - 1) {
+        *(u_int *)&gSkyColor[i] = col; } } }
+
+
+
+
+
+
+
+
+
+
+
   else {
     *(u_int *)&Sky_gTrackSpec->frontcolors[0] = *(u_int *)&Hrz_gSaveCol[1];
-    Hrz_InitSkyColor();
-  }
-  return;
-}
+    Hrz_InitSkyColor(); } return; }
 
 /* ---- HrzSetPsxMatrix__FP10matrixtdef  [HRZSKU.CPP:982-1017] SLD-VERIFIED ----
  * ---- w53-a5 (2026-08-09): 62 @52/56 re-gated on the SHIPPED 3-block form; the
@@ -1116,6 +1178,7 @@ void Hrz_LightningFlicker(int on)
  * NEXT TAKER: the .lreg post-sched1 insn order (tools/rtl_dump.py -dl) or the instrumented
  * cc1 [sched_pick] trace -- NOT more spellings (that axis is closed in two basins now).
  * Harness: scratchpad/W74_A4/probe.py + gen_hm{,2}.py (e_hm_p*, e_hm2_q*). */
+#line 981 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1209,6 +1272,7 @@ void HrzSetPsxMatrix(matrixtdef *m)
 }
 
 /* ---- HrzSetPsxTranslation__FP8coorddef  [HRZSKU.CPP:1021-1028] SLD-VERIFIED ---- */
+#line 1020 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void HrzSetPsxTranslation(coorddef *t)
 {
   MATRIX mpsx;
@@ -1221,6 +1285,7 @@ void HrzSetPsxTranslation(coorddef *t)
 }
 
 /* ---- Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR  [HRZSKU.CPP:1032-1045] SLD-VERIFIED ---- */
+#line 1031 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_RotProj16(int n, SVECTOR *s, int *z, DVECTOR *p)
 {
   for (n = n - 1; n != -1; n--) {
@@ -1246,6 +1311,7 @@ void Hrz_RotProj16(int n, SVECTOR *s, int *z, DVECTOR *p)
  * All three original local tuples and two scope markers now agree without
  * filtering. Native CLEAN does not establish the original allocation-macro
  * spelling or complete SLD. No new pin, fence, qualifier or output rewrite. */
+#line 1048 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_SetDitheringPrim(int dither,int otz)
 
 {
@@ -1263,8 +1329,8 @@ void Hrz_SetDitheringPrim(int dither,int otz)
  * the actual iteration via continue, rather than owning the emission tree.
  * All five prim/pmx depths then match (13->7,11->5). A real for iteration
  * with the measured bound exit restores all24 retail scope markers. The
- * HrzSky_finishQuads label names that actual destination semantically;
- * its literal spelling is not recovered from SYM.
+ * Ordinary break now supplies the actual bound exit without an invented
+ * source LABEL. Typed clipW/clipH reads need no raw byte-offset view.
  * Direct ULONG-array color reads/stores plus typed prim+1 cursor updates
  * remove both c0 objects. Actual index-first addPrim expressions retain
  * the end-of-OT base and -2 displacement,removing all three slot objects.
@@ -1614,6 +1680,7 @@ void Hrz_SetDitheringPrim(int dither,int otz)
 /* MATCH (W74-A4, 229 -> 228 and the count back to EXACT 458/458): the
                  colour-load / bump / colour-store split, see the GT4 block above. */
 
+#line 1059 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_BuildSky(void)
 {
   DVECTOR *pSkyMesh;
@@ -1706,22 +1773,22 @@ void Hrz_BuildSky(void)
   }
 
   for (i = 0; ; i = i + 1) {
-    if (!(i < 0x40)) goto HrzSky_finishQuads;
+    if (!(i < 0x40)) break;
       int temp;
 
       temp = i * 0x11 / 0x10;
       if (!((pSkyZ[temp + 17] != 0 || pSkyZ[temp + 18] != 0) ||
           (pSkyZ[temp + 1] != 0 || pSkyZ[temp] != 0))) continue;
-      if (!((pSkyMesh[temp + 17].vx <= (short)*(u_short *)((char *)sd + 0x10) ||
-             pSkyMesh[temp + 18].vx <= (short)*(u_short *)((char *)sd + 0x10)) ||
-            (pSkyMesh[temp + 1].vx <= (short)*(u_short *)((char *)sd + 0x10) ||
-             pSkyMesh[temp].vx <= (short)*(u_short *)((char *)sd + 0x10)))) continue;
+      if (!((pSkyMesh[temp + 17].vx <= sd->head.clipW ||
+             pSkyMesh[temp + 18].vx <= sd->head.clipW) ||
+            (pSkyMesh[temp + 1].vx <= sd->head.clipW ||
+             pSkyMesh[temp].vx <= sd->head.clipW))) continue;
       if (!(((-1 < pSkyMesh[temp + 17].vx) || (-1 < pSkyMesh[temp + 18].vx) ||
                (-1 < pSkyMesh[temp + 1].vx)  || (-1 < pSkyMesh[temp].vx)) &&
-              (((pSkyMesh[temp + 17].vy <= (short)*(u_short *)((char *)sd + 0x12)) ||
-                (pSkyMesh[temp + 18].vy <= (short)*(u_short *)((char *)sd + 0x12)) ||
-                (pSkyMesh[temp + 1].vy  <= (short)*(u_short *)((char *)sd + 0x12)) ||
-                (pSkyMesh[temp].vy      <= (short)*(u_short *)((char *)sd + 0x12))) &&
+              (((pSkyMesh[temp + 17].vy <= sd->head.clipH) ||
+                (pSkyMesh[temp + 18].vy <= sd->head.clipH) ||
+                (pSkyMesh[temp + 1].vy  <= sd->head.clipH) ||
+                (pSkyMesh[temp].vy      <= sd->head.clipH)) &&
                ((-1 < pSkyMesh[temp + 17].vy) || (-1 < pSkyMesh[temp + 18].vy) ||
                 (-1 < pSkyMesh[temp + 1].vy)  || (-1 < pSkyMesh[temp].vy))))) continue;
             if (Sky_gTrackSpec->type == 1) {
@@ -1794,7 +1861,7 @@ void Hrz_BuildSky(void)
               *(u_long *)&prim->x3 = *(u_long *)&pSkyMesh[temp + 1];
             }
   }
-HrzSky_finishQuads:
+
   if ((Sky_gTrackSpec->flags & 0x40U) != 0) {
     Hrz_SetDitheringPrim(1,Draw_gViewOtSize + -2);
   }
@@ -1815,6 +1882,7 @@ HrzSky_finishQuads:
  * chain, block-scoped locals, pal-preload: -dL shows it moved regardless (likely
  * cse_around_loop, not movables). Downstream a1/v0 pair swap rides on it. Floor-ish;
  * permuter candidate. */
+#line 1282 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Sky_RenderStars(Draw_SkyCache *sd,int otz)
 
 {
@@ -2307,6 +2375,7 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  *             volatile fence is the only thing that holds the order.
  * Harness: scratchpad/w75/{probe,posmis,sbsdump}.py + e_{a,b,c,d,f,g,h,i,j,k,l}*.py. */
 
+#line 1336 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
@@ -2319,8 +2388,8 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
   /* 2026-10-13 SOURCE-REVIEW-UNRESOLVED, not generic carrier exemptions:
      cw/ch, pp and c1 remain source
      review, including debug-elided objects. Their historical failed variants
-     did not prove distinct original-object necessity. Existing i/cw/ch/pp
-     empty asm and the empty do/while device also remain recovery work.
+     did not prove distinct original-object necessity. Existing cw/ch/pp
+     empty asm remain recovery work; i asm and the empty loop are removed.
      farCoord, shape_visible/shape_idx, both fo offsets, and q with its
      absorption identity are now removed at473/473 PASS. Typed coordinate
      reads, indexed delta loops and MidBot/PmxLeft accesses need no such
@@ -2328,7 +2397,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
      Moving mpts alone was112dif/473; completing actual visibility exits and
      emission ownership restored473PASS. mpts depth2->5 and right/prim/pmx
      depth4->6 now agree; this is a paired source-lifetime recovery, not padding.
-     HrzHorizon_nextSegment is an explicitly semantic increment destination.
+     The old increment label is replaced by the real for/continue owner.
      q deletion uses actual typed coordinates, not another zero identity.
      Direct packet/first-color replacement72dif/475; retaining pp but removing
      c1 leaves5dif/474. Joint SDK tag/mask removal still72dif/475. Restore only
@@ -2422,15 +2491,15 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     updown[0].vz = ((SVECTOR *)(farI * 8 + (int)gRngCoordTop))->vz;
     updown[1].vx = ((SVECTOR *)(farI * 8 + (int)gRngCoordTop))->vx;
     updown[1].vy = (short)Hrz_gTrackSpec->yoffset;
-    /* MATCH (W72-A4, -22): ZERO-INSN LIVE-RANGE fence that demotes the nested `i`.  The
-       max-search loop's three globals price floor_log2(refs)*refs*4/live as
-       nested i 108/L > zval 56/L > Zmax 40/L, so ours served i first and it took
-       $a0; retail's order is zval=$a0, Zmax=$a1, i=$a3.  Extending i's live
-       range past the loop drops it below both rivals.  POSITION is the whole dial (the
-       plateau is exactly this updown[] region: one statement earlier = 99, one later = 63,
-       at the second loop's `i = 0` = 164); operand COUNT is inert (1/2/3 all 58).
-       DO NOT DELETE. */
-    __asm__("" : : "r"(i));
+    /* 2026-10-22: the historical i ref fence is unnecessary on the
+         current source graph, including the raw-field control. It is removed.
+         Receipt: build/nc12/hrz_horizon_carriers_20261022. */
+
+
+
+
+
+
     updown[1].vz = ((SVECTOR *)(farI * 8 + (int)gRngCoordTop))->vz;
     {
       /* SYM block line=55 (nested in line=30): a single {p_,s_} scope REUSED for both
@@ -2442,19 +2511,19 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       gte_ldv0(&p_);
       gte_rtps();
       gte_stsxy2((DVECTOR *)&s_);
-      *(long *)&temp2d[1] = s_;   /* MATCH: word copy (a DVECTOR assign = align-1 lwl/lwr quad) */
-      /* MATCH (W74-A4, part of 25 -> 22 and the count back to EXACT): a zero-insn
-         barrier stops sched1 SINKING the `sw v0,60(sp)` write-back past the second
-         transform's movstrsi copy.  Retail stores it immediately after its load and pays
-         the load-delay nop; ours filled that slot and came out one insn short.
-         PURE-C FENCE (HUDFX r2): empty do/while(0) wrapper (was a void asm fence);
-         wrapping the store itself instead is 3 diffs @472. */
-      do { } while (0);
+      memcpy(&temp2d[1],&s_,sizeof(s_));   /* MATCH: word copy (a DVECTOR assign = align-1 lwl/lwr quad) */
+      /* 2026-10-22: genuine memcpy of s_ replaces the raw cast store.
+         Its normal inline copy needs no empty do/while barrier. */
+
+
+
+
+
       p_ = updown[0];
       gte_ldv0(&p_);
       gte_rtps();
       gte_stsxy2((DVECTOR *)&s_);
-      *(long *)&temp2d[0] = s_;   /* MATCH: word copy, see above */
+      memcpy(&temp2d[0],&s_,sizeof(s_));   /* MATCH: word copy, see above */
     }
     /* BUG FIX (round 2 diagnosis, now applied): each loop computes its OWN dx/dy delta ONCE
        from its own temp2d[] entry against a freshly-read posA[farI] baseline -- not a shared
@@ -2484,14 +2553,14 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
              gfxPmxHeightPercentage,0x10,1);
   Horizon_InterpolateLineSCoords((DVECTOR *)((int)hsd + 0xe0),(DVECTOR *)((int)hsd + 0x5c),(DVECTOR *)((int)hsd + 0x18),
              gfxPmxHeightPercentage,0x10,1);
-  {
+
     /* SYM block line=107/114/115: mpts[4] -- reuses the stack space freed by updown/temp2d
        above (both blocks are DISJOINT in the oracle's frame layout). */
-    i = 0;
-    if (TrackSpec_gSpec.horizonstate != 0) {
+  i = 0;
+  if (TrackSpec_gSpec.horizonstate != 0) {
       /* SYM block line=142: right/prim/pmx -- nested one level deeper again. */
 
-      u_char **pp;
+    u_char **pp;
       /* MATCH (W72-A4, -12 with its fence below): the 24-bit OT mask as a NAMED local.
          Naming it alone is neutral (96) and the identity-launder form is worse (102); it
          only pays together with the one-operand read-only fence at its last use, which
@@ -2501,13 +2570,13 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
          sched2 LUID tie-break.  Their POSITION relative to the hoisted invariants is a
          sched1 fixpoint: fences either side, decl-with-init and moving them above `m24`
          all measured inert. */
-      /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge with the
-         counter increment in its delay slot) -- a `for` rotates to a bottom-tested
-         do-while (slti/bnez), which the oracle does not have. */
-      while (true) {
-        if (!(i < 0x10)) break;
+    /* 2026-10-22: ordinary for/continue keeps all473 words and removes
+       the invented increment LABEL. Its real for owner replaces the old
+       redundant manual owner; retail region identities improve8->9/10. */
+    for (;
+         i < 0x10; i = i + 1) {
         DVECTOR mpts [4];
-        if (!(15999 < hsd->vertexTop[i] || 15999 < hsd->vertexTop[i + 1])) goto HrzHorizon_nextSegment;
+        if (!(15999 < hsd->vertexTop[i] || 15999 < hsd->vertexTop[i + 1])) continue;
           mpts[0] = hsd->scptPmxLeft[i];
           mpts[1] = hsd->scptPmxRight[i];
           mpts[2] = hsd->scptMidBot[i + 1];
@@ -2528,7 +2597,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                still exists at combine time, and the declaration must sit INSIDE clause 1
                (the oracle's read is at .L800D16E0, the target clause-1's OR chain jumps
                to).  DO NOT hoist it above the `if`, and do NOT re-flatten the chain. */
-            if (!(mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0)) goto HrzHorizon_nextSegment;
+            if (!(mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0)) continue;
             {
             int cw = *(u_short *)0x1f800010;
             /* MATCH (W75-A8, part of 20 -> 14 and the clipW nop KILLED): the extra
@@ -2542,9 +2611,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                Priced with the clipH twin below: this half alone is 17 @472 (count short). */
             __asm__("" : "=r"(cw) : "0"(cw), "r"((int)mpts[0].vx));
             if (!((short)cw >= mpts[0].vx || (short)cw >= mpts[1].vx ||
-                 (short)cw >= mpts[2].vx || (short)cw >= mpts[3].vx)) goto HrzHorizon_nextSegment;
+                 (short)cw >= mpts[2].vx || (short)cw >= mpts[3].vx)) continue;
             }
-            if (!(mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0)) goto HrzHorizon_nextSegment;
+            if (!(mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0)) continue;
             {
             /* MATCH (W75-A8, the other half of 20 -> 14): the clipH read is the SAME
                shape as the clipW one above -- a fresh `lui 0x1F80` + `lhu` + an UNFUSED
@@ -2560,7 +2629,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
             int ch = *(u_short *)0x1f800012;
             __asm__("" : "=r"(ch) : "0"(ch), "r"((int)mpts[0].vy));
             if (!((short)ch >= mpts[0].vy || (short)ch >= mpts[1].vy ||
-                 (short)ch >= mpts[2].vy || (short)ch >= mpts[3].vy)) goto HrzHorizon_nextSegment;
+                 (short)ch >= mpts[2].vy || (short)ch >= mpts[3].vy)) continue;
             }
             {
               DVECTOR right;
@@ -2610,27 +2679,27 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    sw v0,0(a2); sw v1,4(s0)`) -- splitting the load out of the store is
                    what lets the bump land there.  After this the whole packet block is
                    byte-identical to the oracle bar the two RMW load-order lines. */
-                const u_int c1 = ((u_int *)gHrzRingColor[1])[i];
-                *pp = (u_char *)prim + 0x34;
-                *(u_int *)((u_char *)prim + 4) = c1;
-                *(u_int *)((u_char *)prim + 0x10) = ((u_int *)gHrzRingColor[1])[i + 1];
-                *(u_int *)((u_char *)prim + 0x1c) = ((u_int *)gHrzRingColor[0])[i];
-                *(u_int *)((u_char *)prim + 0x28) = ((u_int *)gHrzRingColor[0])[i + 1];
+                const u_int c1 = *(u_int *)&gHrzRingColor[1][i];
+                *pp = (u_char *)(prim + 1);
+                *(u_int *)&prim->r0 = c1;
+                *(u_int *)&prim->r1 = *(u_int *)&gHrzRingColor[1][i + 1];
+                *(u_int *)&prim->r2 = *(u_int *)&gHrzRingColor[0][i];
+                *(u_int *)&prim->r3 = *(u_int *)&gHrzRingColor[0][i + 1];
                 SetPolyGT4(prim);
-                *(u_int *)((u_char *)prim + 0xc) = *(u_int *)pmx;
-                *(u_int *)((u_char *)prim + 0x18) = ((u_int *)pmx)[1];
-                *(u_int *)((u_char *)prim + 0x24) = ((u_int *)pmx)[2];
-                *(u_int *)((u_char *)prim + 0x30) = ((u_int *)pmx)[3];
+                *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
+                *(u_int *)&prim->u1 = *(u_int *)&pmx->u1;
+                *(u_int *)&prim->u2 = *(u_int *)&pmx->u2;
+                *(u_int *)&prim->u3 = *(u_int *)&pmx->u3;
                 /* MATCH: arm-swap (catalog §A) -- m2c shows the branch condition as the
                    DIRECT ">=8" form (fall-through arm is >=8, not <8); the inverted-and-swap
                    compiles with the SAME polarity/inline-arm layout the oracle uses. */
                 if (8 <= (u_char)Hrz_gTrackSpec->ringPMX[i]) {
                   /* MATCH: WORD copy -- a DVECTOR struct assignment emits the align-1
                      lwl/lwr+swl/swr quad; the oracle does one lw/sw pair. */
-                  *(u_int *)((u_char *)prim + 8) = *(u_int *)&right;
-                  *(u_int *)((u_char *)prim + 0x14) = *(u_int *)&hsd->scptPmxLeft[i];
-                  *(u_int *)((u_char *)prim + 0x20) = *(u_int *)&hsd->scptMidBot[i + 1];
-                  *(u_int *)((u_char *)prim + 0x2c) = *(u_int *)&hsd->scptMidBot[i];
+                  *(u_int *)&prim->x0 = *(u_int *)&right;
+                  *(u_int *)&prim->x1 = *(u_int *)&hsd->scptPmxLeft[i];
+                  *(u_int *)&prim->x2 = *(u_int *)&hsd->scptMidBot[i + 1];
+                  *(u_int *)&prim->x3 = *(u_int *)&hsd->scptMidBot[i];
                 }
                 else {
                   /* MATCH (W75-A8, 14 -> 12): INDEX-FIRST int sum (12D law) -- the oracle
@@ -2643,18 +2712,18 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                      combine folds the identity away at zero bytes.  Ladder (whole-TU gate,
                      Hrz_BuildHorizon): device removed 48 | one absorption PASS | 2/4 PASS |
                      `X & (X | 3)` PASS. */
-                  *(u_int *)((u_char *)prim + 8) = *(u_int *)&hsd->scptPmxLeft[i];
-                  *(u_int *)((u_char *)prim + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */
-                  *(u_int *)((u_char *)prim + 0x20) = *(u_int *)&hsd->scptMidBot[i];
-                  *(u_int *)((u_char *)prim + 0x2c) = *(u_int *)&hsd->scptMidBot[i + 1];
+                  *(u_int *)&prim->x0 = *(u_int *)&hsd->scptPmxLeft[i];
+                  *(u_int *)&prim->x1 = *(u_int *)&right;   /* MATCH: word copy, see above */
+                  *(u_int *)&prim->x2 = *(u_int *)&hsd->scptMidBot[i];
+                  *(u_int *)&prim->x3 = *(u_int *)&hsd->scptMidBot[i + 1];
                 }
               }
             }
-HrzHorizon_nextSegment:
-        i = i + 1;
-      }
+
     }
+
   }
+
   if ((Night_gLightning != 0) && (Night_gShowForks != '\0')) {
     Hrz_BuildForkLightning((Draw_DCache *)&Render_gPalettePtr);
   }

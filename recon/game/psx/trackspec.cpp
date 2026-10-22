@@ -16,7 +16,10 @@ int TrackSpec_gMaxSpec;
 int TrackSpec_gPrevSpec;
 
 
-/* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-VERIFIED ----
+/* Historical matching experiments below are preserved as history, not current
+ * compiler floors or proof that an unrecorded source object is required.
+ * Recheck complete native SYM/SLD; original literal macro text remains unproved. */
+/* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-CHECK-REQUIRED ----
  * 228 -> 195 -> 193 (w39/w40) -> 24 (w41-a5), COUNT NOW EXACT 142/142.
  * THE w40 "STRONG FLOOR" RECEIPT BELOW IS REFUTED.  It diagnosed the ~90-line
  * base-register divergence (spec in $a0 for us, $a1 for retail) as an unreachable
@@ -275,6 +278,7 @@ int TrackSpec_gPrevSpec;
    * `GameSetup_gData.Weather/Time` straight into the record (one line each, the store
    * scheduled far from the load), so the locals were a reconstruction artifact whose
    * merged live range was what pushed `spec` off $a1 in the first place. */
+#line 42 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void TrackSpec_SetDefault(CTrackSpec *spec)
 
 {
@@ -304,22 +308,23 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   (spec->horizonspec).backColor[0].r = 0x80; (spec->horizonspec).backColor[0].g = 0x80; (spec->horizonspec).backColor[0].b = 0x80;     /* SLD 68 */
   (spec->horizonspec).backColor[1].r = 0x80; (spec->horizonspec).backColor[1].g = 0x80; (spec->horizonspec).backColor[1].b = 0x80;     /* SLD 69 */
   for (i = 0; i < 0x10; i = i + 1) {                        /* SLD 70 */
-    (spec->horizonspec).ringPMX[i] = (char)((i < 8) ? i : (0x17 - i));
-  }
+    (spec->horizonspec).ringPMX[i] = (char)((i < 8) ? i : (0x17 - i)); }
+
+
   (spec->skyspec).type = 0;                                 /* SLD 74 */
   (spec->skyspec).flags = 4;                                /* SLD 75 */
+
   for (i = 0; i < 5; i = i + 1) {                           /* SLD 77 */
-    (spec->skyspec).frontcolors[i].r = '2';
-    (spec->skyspec).frontcolors[i].g = '2';
-    (spec->skyspec).frontcolors[i].b = 'F';
-    (spec->skyspec).backcolors[i].r = '2';
-    (spec->skyspec).backcolors[i].g = '2';
-    (spec->skyspec).backcolors[i].b = 'F';
+
+    (spec->skyspec).frontcolors[i].r = '2';     (spec->skyspec).frontcolors[i].g = '2';     (spec->skyspec).frontcolors[i].b = 'F';
+    (spec->skyspec).backcolors[i].r = '2';     (spec->skyspec).backcolors[i].g = '2';     (spec->skyspec).backcolors[i].b = 'F';
     for (j = 0; j < 4; j = j + 1) {
+
       (spec->skyspec).cloudIndices[i][j] = '\0';
     }
     (spec->skyspec).ringAngles[i] = i << 0xc;
   }
+
   (spec->skyspec).clearcolor.r = '\b'; (spec->skyspec).clearcolor.g = '\x10'; (spec->skyspec).clearcolor.b = '\b';  /* SLD 88 */
   (spec->skyspec).sunAngleInSky = -0x1848;                  /* SLD 89 */
   (spec->skyspec).sunHeightInSky = 0xee;                    /* SLD 90 */
@@ -336,30 +341,29 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   (spec->skyspec).sunHaloColor.r = '\x19'; (spec->skyspec).sunHaloColor.g = '\n'; (spec->skyspec).sunHaloColor.b = '\0'; /* SLD 101 */
   (spec->skyspec).yoffset = 0;                              /* SLD 102 */
 
+
   (spec->nightspec).nightcolor.r = '\b'; (spec->nightspec).nightcolor.g = '\x10'; (spec->nightspec).nightcolor.b = '\x10';  /* SLD 105 */
 
   (spec->depthcuespec).color.r = 0x80; (spec->depthcuespec).color.g = 0x80; (spec->depthcuespec).color.b = 0x80;  /* SLD 107 */
   (spec->depthcuespec).distance = 0x44;                     /* SLD 108 */
 
-  (spec->worldcolorspec).worldR = 0;
-  (spec->worldcolorspec).worldG = 0;
-  (spec->worldcolorspec).worldB = 0;
+  (spec->worldcolorspec).worldR = 0;   (spec->worldcolorspec).worldG = 0;   (spec->worldcolorspec).worldB = 0;
   (spec->worldcolorspec).type = 0;
   (spec->worldcolorspec).contrast = 0x4ccc;
-  (spec->worldcolorspec).contrast_color.r = 0x80; (spec->worldcolorspec).contrast_color.g = 0x80; (spec->worldcolorspec).contrast_color.b = 0x80;
-}
+  (spec->worldcolorspec).contrast_color.r = 0x80; (spec->worldcolorspec).contrast_color.g = 0x80; (spec->worldcolorspec).contrast_color.b = 0x80; }
 
-/* ---- TrackSpec_SetUp__Fv  [TRACKSPEC.CPP:119-121] SLD-VERIFIED ---- */
+/* ---- TrackSpec_SetUp__Fv  [TRACKSPEC.CPP:119-121] SLD-CHECK-REQUIRED ---- */
+#line 117 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void TrackSpec_SetUp(void)
 
 {
   GameSetup_gData.Time = (int)TrackSpec_gSpec.nightstate;
-  GameSetup_gData.Weather = (int)TrackSpec_gSpec.weatherstate;
-}
+  GameSetup_gData.Weather = (int)TrackSpec_gSpec.weatherstate; }
 
 /* ---- read__FPPcPvi [TRACKSPEC.CPP:127-139; full SLD still open] ---- */
 /* 2026-10-18: retail owns i in the for-initializer region, not at root.
  * Keep source/dest as the recorded root pointers; no extra wrapper scope. */
+#line 125 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void read(char **handle,void *buf,int bytes)
 
 {
@@ -368,16 +372,15 @@ void read(char **handle,void *buf,int bytes)
 
   source = *handle;
   dest = (char *)buf;
-  for (int i = 0; i < bytes; i++) {
-    *dest = *source;
-    source = source + 1;
-    dest = dest + 1;
-  }
-  *handle = source;
-  return;
-}
 
-/* ---- TrackSpec_Read__Fi  [TRACKSPEC.CPP:145-200] SLD-VERIFIED ----
+  for (int i = 0; i < bytes; i++) {
+
+    *dest = *source; source = source + 1;
+    dest = dest + 1; }
+
+  *handle = source; return; }
+
+/* ---- TrackSpec_Read__Fi  [TRACKSPEC.CPP:145-200] SLD-CHECK-REQUIRED ----
  * NEAR-MISS 26 diffs (ours 59 / oracle 63), was 32.
  * MATCH (w38-a10): ARM ORDER -- the oracle's `slt v0,s2,v1; bnez v0,.L800E186C`
  * makes the SetDefault arm the FALL-THROUGH and the parse arm the branch target,
@@ -431,42 +434,72 @@ void read(char **handle,void *buf,int bytes)
  * want_value path distinguishes a consumed assignment from a standalone one.
  * trk still needs source recovery; a separate SLD tag does not uniquely prove
  * a separate source statement or object. Full SLD remains open. */
+#line 143 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void TrackSpec_Read(int spec_num)
 
 {
-  char *currentpos;
-  char *startpos;
-  char str [64];
+  char *currentpos; char *startpos; char str [64];
+
   int trk = GameSetup_gData.track; /* SOURCE-REVIEW-UNRESOLVED: fetch line known; original object/name unproven. */
 
+
   sprintf(str,"%sTr%02d.bin",Paths_Paths[6],trk);
+
   startpos = currentpos = (char *)loadfileadr(str,0);
-  if (currentpos != (char *)0x0) {
+
+
+  if (currentpos != (char *)0x0)
+  {
     CTrackSpecHeader header;
 
     TrackSpec_gPrevSpec = TrackSpec_gCurrentSpec = spec_num;
+
     read(&currentpos,&header,8);
+
+
+
+
     if (spec_num >= header.num_spec) {
+
+
       TrackSpec_SetDefault(&TrackSpec_gSpec);
+
       purgememadr(startpos);
     }
+
     else {
       TrackSpec_gMaxSpec = header.num_spec + 1;
+
       currentpos = currentpos + spec_num * 0x108;
+
       read(&currentpos,&TrackSpec_gSpec,0x108);
+
       TrackSpec_SetUp();
-      purgememadr(startpos);
-    }
-  }
-  return;
+
+      purgememadr(startpos); } return; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
-/* ---- TrackSpec_Load__Fii  [TRACKSPEC.CPP:205-207] SLD-VERIFIED ---- */
+/* ---- TrackSpec_Load__Fii  [TRACKSPEC.CPP:205-207] SLD-CHECK-REQUIRED ---- */
+#line 203 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void TrackSpec_Load(int weather,int night)
 
 {
   int spec [2] [2] = { { 0, 1 }, { 2, 3 } };   /* @0x80056ad4 rodata template -> stack copy */
-  TrackSpec_Read(spec[weather][night]);
-}
+  TrackSpec_Read(spec[weather][night]); }
 
 /* end of trackspec.cpp */

@@ -433,6 +433,264 @@ not literal-original-source or whole-tree completion certificates.
 
 ## 5. HARD RULES
 
+Data-loader count/source/SLD receipt (2026-10-22):
+`build/nc12/r3dcar_data_loaders_sld_20261021/final-proof.json` and phase-proof.json.
+Keep original ScaneData/base pointer roles and names. Real env for init901
+seals46. Track count=selected index+1, while(i--!=0) consumes actual inclusive
+rows, sealing58; no dummy identity/name is added. Stock initial RTL lowers
+entry jump932 to bottom consumption; jump optimization clones test at932,
+CSE folds count/consumption, combine retains final addition's932. All code
+unchanged. Fused-for four-tag regression was reverted. Risk parser is SYM
+FCN INT, not M2C's caller-inferred s8. All104 tags/four blocks/eight locals
+match, all489 gates/21 ELFs/CPE and prior167strict/133absolute survive;
+now169/135. No extra object, qualifier, scope/use, device, flag or output rewrite.
+Literal loop syntax and the wider source-restoration goal remain unproved.
+
+Car-list VLA/source/SLD receipt (2026-10-21):
+`build/nc12/r3dcar_list_sld_20261021/final-proof.json` and phase-proof.json.
+Preserve two distinct runtime sort arrays, FP30/frame64, all shadowing local
+owners and implicit void fallthrough. M2C collapses the VLA stack addresses;
+do NOT unify buffers or add a return/cleanup region. ClockLast3430 before
+Clock3431 restores source order; first scheduling reverses stores with tags
+retained. Stock RTL has two initial dynamic-stack subtractions; later counts
+also include the fixed prologue. Raw SetSp reads only a0, not M2C's stale
+matrix constant in a1. All301 tags/34 blocks/14 locals match, all489 code/
+branch gates/21 ELFs/CPE and prior166strict/132absolute survive; now167/133.
+No new object, qualifier, scope/use, device, flag or output rewrite. Literal
+macro text and the wider original-source restoration remain unproved/open.
+
+MenuFacetII brightness/empty-transfer/source receipt (2026-10-21):
+`build/nc12/r3dcar_menu_facet2_sld_20261021/final-proof.json` and phase-proof.json.
+Remove the invented label/two jumps into no-op arms; no supplied region is lost.
+Actual two-arm lightAvg assignment tags half3290/copy3291 while leaving the
+INT input parameter unchanged. Stock first scheduling hoists copy3291 toward
+the prologue; it was not proof of entry-time source initialization. Ordinary
+real guard grouping/layout seals266 tags,26 blocks,18 locals and end3395.
+Preserve SYM INT locals, not M2C's narrowed flag temps. All489 code/branch
+gates,21 ELFs/CPE and prior165strict/131absolute survive, now166/132. No new
+object, qualifier, fake scope/use, device, flag or output rewrite. Original
+literal syntax and the full source-restoration goal remain open.
+
+FacetII light-role/guard/source receipt (2026-10-21):
+`build/nc12/r3dcar_facet2_source_20261021/final-proof.json` and phase-proof.json.
+Ordinary wet-road guards remove the invented label/two gotos. Isolated later
+light reuse fails; coupling real callback-to-field/mask phases with the actual
+later RGB read into provided light preserves the entire ELF. REG:$2 alone
+never proved that light belonged to the earlier callback quantity. Stock RTL
+has two early field writes, combine reduces them to one, and the real later
+read is3135. Dump .s equals native compile. No hidden temp, cast disguise,
+qualifier or fence is needed. Actual source/guard layout seals379 tags,24 blocks,
+25 locals and end3270. All489 code/branch gates,21 ELFs/CPE and prior164strict/
+130absolute survive; now165/131. Native-clean ownership is not unique original
+text: retire the earlier phase-role claim, preserve full wider-goal review.
+
+Visibility ordinary-return/source/SLD receipt (2026-10-21):
+`build/nc12/r3dcar_visibility_sld_20261021/final-proof.json` and phase-proof.json.
+Six return controls and16 guard/order combinations preserve the whole ELF;
+remove the invented rejection label and two gotos, not rename them. True
+car/flag1423 and inCar/mode1425/1431 groups plus zoom/zero and corner-store
+source ordering restore all234 tags, four blocks,12 supplied locals and
+end1511. Stock RTL shows nine real detail stores through sched2, five after
+jump2/delay fill: ordinary returns recover the shared tail without a device.
+The real x/z work region optimizes to+720..+720; don't fabricate an empty
+block from that address. All489 code/branch gates,21 ELFs/CPE and prior163
+strict/129absolute survive, now164/130. No new object/qualifier/asm, fake use,
+scope, flag or output rewrite. Native CLEAN/SLD equality does not establish
+literal original text or complete the wider source-restoration goal.
+
+Geometry loader source/SLD receipt (2026-10-21):
+`build/nc12/r3dcar_geometry_sld_20261021/final-proof.json` and phase-proof.json.
+ReadInCarData322 restores late offset648 WITH actual for(i=0)650 and real
+vt.vz sum814/shift815. Offset alone fails; paired initialization and vector
+phases preserve the whole ELF/CPE. All322 tags,18 blocks and20 supplied local
+tuples match. Stock initial RTL through combine keeps offset after locatebig;
+first scheduling hoists it before the call, retaining source648. Dump .s is
+byte-identical to native compile. Do not sort source by execution order or
+invent an early carrier/fence. Canonical LIBGTE.H confirms two VectorNormalS
+arguments; M2C's extra geometry temps are not parameters or original locals.
+All489 code/branch gates and prior162strict/128absolute survive, now163/129.
+No new object, qualifier, scope, device, flag or output rewrite; literal macro
+syntax and the wider source-restoration goal remain open.
+
+Palette/menu cleanup source-order receipt (2026-10-21):
+`build/nc12/r3dcar_palette_sld_20261021/final-proof.json` and phase-proof.json.
+ChangeTrafficColor58 is whitespace-only. Menu cleanup80 restores actual source
+newCarType1085 BEFORE currentCarType1086, while retaining the binary's opposite
+store order. Stock initial RTL/combine preserve source order; first scheduling
+reverses it. Dump-flag .s equals native compile exactly; no output rewrite.
+Async condition1089/opening brace1090 independently supply instruction/owner
+notes; same for success1100/open1101. All14 block records/tags/locals match.
+Do not manufacture backwards statement anchors or a new scope. All489 code/
+branch gates,21 ELFs/CPE and prior160strict/126absolute survive, now162/128.
+M2C's second purgememadr argument is stale a1, not a real parameter. No new
+object, qualifier, device or flag; literal source text/full goal remain open.
+
+Renderer startup-group SLD seals (2026-10-21):
+`build/nc12/r3dcar_startup_sld_20261021/final-proof.json`. Whitespace-only
+layout under existing anchors seals StartUp52, PostStartUp57, Restart30 and
+CleanUp90:229 words,183 tag differences removed. Complete local/region/frame/
+type facts and other485 SLD maps survive; all489 code/branch gates,21 ELFs/CPE
+and prior156strict/122absolute survive, now160/126. Preserve real loop/guard
+source phases rather than arranging statements by execution order. StartUp's
+real name-array region optimizes to+108/450; don't fabricate an empty scope.
+M2C's fourth reservememadr argument is stale a3=-1 from loop setup; raw fresh
+arguments and the three-parameter allocator settle arity. No new object,
+scope, device, qualifier, compiler flag or output rewrite. Literal original
+macro/comment text and the wider goal remain unproved/open, not exempted.
+
+Menu texture full SLD follow-up (2026-10-21):
+`build/nc12/r3dcar_menu_sld_20261021/final-proof.json`. After the real array/
+cursor correction, whitespace-only layout under the existing anchor seals all
+211 word/file tags, eight block records, twelve local tuples and end2342.
+Outer condition2222 and opening brace2223 independently supply instruction
+and owner coordinates. The real locate loop shares2263; first read/post-call
+increment2288, optional2291 and final2295 preserve correct source phases.
+U-offset stores inherit later conditional-slot tags, not their textual lines.
+Keep token/literal identity, not per-statement anchors or manufactured work.
+All489 code/branch gates,21 ELFs/CPE and prior155strict/121absolute survive;
+now156/122. No original macro/comment text claim follows from tag equality.
+The wider module's three dirty functions and full project obligations remain.
+
+Menu texture array/cursor source correction (2026-10-21):
+`build/nc12/r3dcar_menu_array_source_20261021/final-proof.json`. Restore actual
+shpfiles[index] and keep carType a car type, removing its integer-address reuse.
+Initialize the cursor before the first read but increment AFTER the call;
+argument postincrement was near, with the wrong argument/slot timing. Six
+ordinary after-increment controls preserve the whole ELF;56 other controls
+fail. Slots remain[0,1] or[0,1,2]. All211 words, complete locals/regions/frame,
+489 code/branch gates,21 ELFs/CPE and155strict/121absolute seals survive.
+No source object/count removal is claimed: this fixes a value role/pointer pun.
+SLD remains190/211different, end2274vs2342. Shared hard-register reuse does not
+prove an original source-variable reuse. No new object/qualifier/asm, fake use,
+scope, compiler flag or output rewrite; literal original spelling remains open.
+
+Headlights/loader SLD follow-up (2026-10-21):
+`build/nc12/r3dcar_lights_sld_20261021/final-proof.json`. Whitespace-only source
+seals HeadLightOn24 and Off21, now155strict/121absolute, with489 code/branch
+PASS, all21 ELFs/CPE and complete prior local/scope/type contracts unchanged.
+LoadFileAdr improves15->2tag differences, NOT exact. Stock initial RTL already
+tags filesize/reserve both1138 (retail1137/1138); -dr output is byte-identical
+to native compile .s. The real inner value-block control preserves code but
+adds a non-retail region and five wrong tags; reverted, not a source remedy.
+Do not add a size dummy or statement anchor to conceal that producer question.
+M2C drops filesize's real incoming name argument; raw a0 is forwarded, so keep
+the correct one-arg source. No new device, object, qualifier or output rewrite.
+
+Three small renderer SLD seals (2026-10-21):
+`build/nc12/r3dcar_small_sld_20261021/final-proof.json`. Whitespace-only layout
+under existing per-function anchors seals DeInstantiate3DCar15words (1047/48),
+MATRIX3DT_Copy10words (all1541) and Showroom20words (3405/06). Full-TU token
+proof includes literals/directives; all489 code/branch gates,21 ELFs/CPE,
+complete local/region/frame/type facts and prior150strict/116absolute survive;
+now153/119. No literal original macro/comment claim follows from shared tags.
+Updated M2C's s32-pointer +=4 is double-scaled relative to raw addiu4 BYTES;
+keep typed +1, not a blindly copied decompiler stride. No new object/fence,
+qualifier, per-statement anchor, fake scope or generated-output rewrite.
+
+Constructor real-array/cursor follow-up (2026-10-21):
+`build/nc12/r3dcar_shape_source_20261021/final-proof.json`. Zero-based first
+consumption shpfiles[index++] plus the actual color-setting carObj arguments
+remove shape and shpfile without a substitute object/pun. Plain typed indexing
+alone reverses two adds; integer-address forms disturb scheduling. The real
+cursor source shape preserves the whole ELF/CPE and all520 words. Native locals
+22->20 with every other complete tuple intact, supplied17; legacy EXTRA464->462.
+All489 code/branch gates and150strict/116absolute seals survive. One previously
+incorrect block-end line changes215->218 at+1608 (retail180); disclose it, not a
+constructor SLD seal. Other488 maps/regions/types and seven headers survive.
+Old color references/identity are repriced and still unresolved, not exemptions.
+No fake use, new name/qualifier, asm/volatile or generated-output rewrite.
+
+Constructor acquisition-argument source receipt (2026-10-21):
+`build/nc12/r3dcar_instantiate_source_20261021/final-proof.json` and
+phase-proof.json. Directly nesting locatebig AFTER a separate color store is
+not equivalent to the old source phases for codegen. Put the real color store
+in the real carObj argument while passing the nested acquisition as data:
+selected stock emits acquisition -> color store -> texture load, all520 words
+and the whole normal ELF unchanged, without textureData. Both argument values
+and the assignment are real program work: no dummy operand, zero identity,
+source alias or scope is added. Stock RTL/calls.c and the MIPS argument area
+provide the bounded explanation; do not generalize a C++ argument-order rule.
+All489 code/branch gates,21 whole ELFs/native CPE, native local/scope/type facts,
+previously correct target tags and150strict/116absolute seals survive. The
+removed variable was debug-elided, so legacy EXTRA counts do not decrease.
+Four generic carrier labels are retired/replaced with explicit unresolved
+producer work; the color aliases/fences/identity are not proved original by
+failed direct controls and remain visible. No whole-constructor seal is claimed.
+
+R3DCAR dimensions full SLD receipt (2026-10-21):
+`build/nc12/r3dcar_dimensions_sld_20261021/final-proof.json`. Ordinary layout
+under anchor956/header958 seals330 absolute word/file tags, ten block records,
+end1041 and twelve complete provided local tuples, with every executable token
+unchanged. Both vertex passes, min/max source phases, wheel fields and radii
+have separate retail lines; respect source phases rather than scheduled opcode
+order or delay-slot tags. No fake declaration, scope, use, qualifier or output
+rewrite is required. Literal original macro/comment text remains unproved.
+Updated M2C adds stale arg3/second sqrt arguments and mis-types a full pointer
+as s16. Raw/SYM and actual one-input fixedsqrt settle that; halfword DATA loads
+do not imply a halfword POINTER. Keep correct source arity/types, not artifacts.
+All489 detailed/branch gates,21 whole ELFs/native CPE and prior149strict/
+115absolute contracts survive; now150/116, R3DCAR3/27 strict. Remaining native
+differences/captures are not hidden by this function's seal. Full goal stays open.
+
+R3DCAR anchor-calibration receipt (2026-10-21):
+`build/nc12/r3dcar_anchors_20261021/final-proof.json` and anchors.json. Derive
+the signature-to-native-header distance from the actual source/current native
+record before anchoring it to retail. This unit has25 distance2 definitions,
+one split pointer return at distance3, and one one-line definition at distance0.
+A universal header-minus-one rule is wrong.27 source anchors recover27 exact
+filenames/headers with unchanged code/literals/body layout and relative SLD.
+Two EXISTING relative contracts (GetFileName23words, InsertCarFacetZ8words)
+gain full absolute certificates:113->115; strict selection stays149. The other
+25 internal SLD maps are not sealed. Fourteen old unqualified SLD-VERIFIED
+labels are replaced by a comparison requirement, not by new green claims.
+All489 code/branch gates,21 whole normal ELFs/native CPE, prior local/scope/
+type contracts and seals survive. M2C omits unchanged incoming/forwarded args
+in both small bodies; raw/SYM/callee use settles arity, not that omission.
+The same round's13 cop-name source controls fail and are not adopted; neither
+an early predicate nor duplicate calls proves a replacement original object.
+Keep copIdx and the other producer questions explicitly unresolved, no floor.
+
+Chunk-list ownership and remaining producer receipt (2026-10-21):
+`build/nc12/bworld_buildlist_sld_20261021/final-proof.json`. A for within the
+old manual viewInd block adds an unwanted level; removing that manual block
+and letting the for own viewInd preserves all203 words and eleven provided
+local tuples. Its body ends824 before increment825, restoring all six block
+records. Split genuine cull phases and move chunkPtr's source assignment to
+750 before translation work; typed build-array stores need no redundant cast.
+SLD improves191differences->one, not zero. The remaining +4 HIGH tag is688
+versus677. Read-only calibrated GDB snapshots and independent selected-stock
+RTL show its source785 address hoisted by loop optimization to688, not a
+scheduler defect. Standalone/control/observed outputs agree, and this target's
+diagnostic instruction stream equals stock; do not generalize that to a whole-
+compiler identity or rewrite output. No unproven early alias is added.
+All489 code/branch gates,21 whole normal ELFs/native CPE, prior149strict/113
+absolute seals and all local/scope/type contracts survive. No target strict
+seal is claimed. chunkViewList's source-object producer remains explicit review.
+The glare round's same-count while/work-expression candidate is a negative
+control: it preserves bytes/locals but shifts genuine region addresses. It was
+reverted exactly and re-gated before further work. Record full identity, not
+just count, before accepting object removal. BWORLD remains11/21 strict.
+
+BWORLD matrix source/SLD receipt (2026-10-21):
+`build/nc12/bworld_matrices_sld_20261021/final-proof.json`. Reprice the old
+asymmetric-load-order claim: three night/cop loads followed by three stores,
+using the existing provided t1/t2/t3, preserve the entire stock normal ELF.
+Ordinary per-function-anchored layout seals181 word/file tags,28 block records,
+all21 provided local tuples and end575. FOR owner515 versus initialization516
+requires independent statement attribution: cp/parse.y4023 explicitly supports
+compound for initialization. Its real `i=-1` statement supplies that note
+without a new object or debug region. Merely splitting the expression header
+keeps its init on515; moving all of it to516 moves one block record. Neither
+partial layout is a full seal. Literal original macro/syntax remains unproved.
+Read-only RE2-style GDB control/observed and standalone outputs agree; the
+alternate host target differs from stock and is not the byte/SYM authority.
+Selected-stock isolated target independently equals full-TU instructions after
+diagnostic-only private-symbol serial normalization; no output is rewritten.
+All489 detailed/branch gates,21 whole ELFs/native CPE, prior148strict/112absolute
+seals and all local/region/type contracts survive; now149/113, BWORLD11/21.
+Tests105/vtable1368/link/raw299819/299819 remain green. No fake use/scope,
+new name/qualifier, asm/volatile, compiler flag or post-compile rewrite.
+
 BWORLD phase-order/layout follow-up (2026-10-21):
 `build/nc12/bworld_source_followup_20261021/final-proof.json`. InitSpikeBelt's
 zero stores precede its minimum initializers in retail source order, despite
@@ -483,6 +741,42 @@ literal-original-text claim follows from the two new SLD certificates.
    follow-up steps before judging the path, and only land the branch when its
    final verified result beats the previous authoritative best; otherwise
    unwind it cleanly.
+
+### Source-exit and real-tail note provenance (2026-10-22)
+
+Do not infer a missing named temporary solely from split SLD tags. TrackSpec_Read
+already had its end200 note in stock initial RTL, but first scheduling dropped
+it. A real return after successful work on184 preserves it through the final
+epilogue while all three block ends remain184. A top-level return200 had extended
+the root block incorrectly. No new object or scope is needed. Receipt:
+`build/nc12/trackspec_loader_exit_20261022/phase-proof.json`; all63 words and
+complete covered local/region/absolute-SLD facts match. trk's source-object/name
+remains unresolved despite this seal; direct read controls still change bytes.
+
+Render_Render's load483 versus jump/filled-argument489 likewise needs no view
+capture: genuine per-arm HUD/debug/frame-stop work plus its early return489
+is merged by stock jump2 into the one surviving tail. Calls remain duplicated
+through sched2, then become one each. The normal ELF/CPE, all80 instructions,
+parameter/regions and complete native non-SLD record stream are unchanged;
+all retail SLD tags now agree. Return488 is a byte-identical negative line
+control. Receipt: `build/nc12/render_pause_tail_20261022/phase-proof.json`.
+No added runtime work, new variable, fake use/scope, fence or output rewrite.
+Erased-copy literal coordinates/spelling are NOT uniquely proved by that seal.
+All489 selected detailed/branch checks and prior contracts survive; this is
+not a whole-project source-restoration certificate or a universal source idiom.
+
+Sampling-expression/source-note receipt (2026-10-22):
+`build/nc12/hrz_stars_layout_20261022/phase-proof.json`. Sky_InitStars already
+had the right seven locals/address scopes. Separate `latAngle=random();` and
+`latAngle&=0xffff;` preserved code but left its optimized block-end marker before
+source198 (relative11). One genuine `latAngle=random()&0xffff;` puts the198 note
+before that SAME marker (relative14), matching retail without a new block,
+temporary, qualifier or fake operation. All122 words and full covered SYM/SLD
+facts match. A cast variant also matches, so literal spelling is not uniquely
+proved; don't turn this into a universal fusion rule. Stock .s/owner/raw-record
+receipts are authoritative. The ANDI in the next RNG call's delay slot still
+uses the previous call's result. Never copy optimized debug endpoints into
+impossible C lexical lifetimes or invent aliases outside an artificial scope.
 
 ## 6. HAZARDS (all have fired; all cost real time)
 

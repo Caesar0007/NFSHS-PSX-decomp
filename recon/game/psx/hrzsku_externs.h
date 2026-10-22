@@ -39,7 +39,8 @@ extern void           trap(int c);
 // [owned->defined in hrzsku.cpp] extern CVECTOR        Hrz_gSaveCol[];
 // [owned->defined in hrzsku.cpp] extern SVECTOR        Hrz_gLightningPosInSky;
 // [owned->defined in hrzsku.cpp] extern char           gSkyPixmapIndex[];
-extern int            gSkyPixmapIndex_dummy;
+/* Removed reconstruction-only gSkyPixmapIndex_dummy: no source use or SYM
+ * record. Evidence/baseline: build/nc12/hrz_sky_layout_20261022. */
 
 /* ---- pixmaps ---- */
 // [owned->defined in hrzsku.cpp] extern Draw_tPixMap   gHorizonPixmap[8];
@@ -69,7 +70,8 @@ extern void  Flare_Sun(SVECTOR *v, Draw_FlareCache *fc);
 extern void  Flare_Moon(SVECTOR *v, Draw_FlareCache *fc);
 extern void  Flare_InitLensFlare(void);
 extern void  Draw_SetViewColor(int view, int r, int g, int b);
-extern void  Texture_CloneUVPmx(Draw_tPixMap *dst, int flag, Draw_tPixMap *src);
+/* Retail Texture_CloneUVPmx parameter records46c1e0..46c212. */
+extern void  Texture_CloneUVPmx(Draw_tPixMap *pmx, int mode, Draw_tPixMap *rpmx);
 
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
@@ -79,6 +81,9 @@ extern "C" {
 }
 extern "C" {
 void *memset(void *dst, int value, int size);
+/* Byte-copy contract: PsyQ4.3 MEMORY.H provides unsigned-int size_t;
+ * GCC cp/decl.c registers this standard C builtin signature. */
+void *memcpy(void *, const void *, unsigned int);
 void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 void SetGeomScreen(int h);
 void SetPolyGT4(POLY_GT4 *p);

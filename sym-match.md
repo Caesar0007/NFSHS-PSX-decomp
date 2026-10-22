@@ -6,6 +6,2717 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-22 commit/pause checkpoint and terminal compiler inspection.
+
+This checkpoint contains the verified source/SLD work described below in
+AGENT_GUIDE.md, bworld.cpp, r3dcar.cpp, render.cpp, trackspec.cpp, hrzsku.cpp
+and their changed extern headers. Older dated notes saying uncommitted
+describe their state when recorded, not a requirement to leave the changes
+outside this checkpoint. The full source-restoration goal is NOT completed.
+Current selected proof is build/nc12/hrz_sky_exit_20261022/final-proof.json:
+489 SOURCE-ONLY detailed/branch PASS,207strict/185absolute contracts,
+all21 normal ELFs/native CPE preserved and raw299819/299819 identical.
+Source hrzsku.cpp SHA256329feea943f55764acd6a4879d8bcc1feb7120dd5dc7bbf3b993bbe0bc96b313;
+native SYM19fd912548e2b2671957e402cfd7a80788752ddf256da3d02bacb9a7a547e735.
+Untracked/generated outputs and unrelated user files are excluded from git.
+Final commit verification: build/nc12/commit_checkpoint_20261022/checkpoint-proof.json.
+Both full routes (strict SOURCE-ONLY reconstruction and expected/oracle
+builds) pass with zero skipped units. All21 rebuilt checkpoint ELF hashes
+still equal the489 detailed/branch PASS receipt. Tests105, vtable1368,
+policy/relink/canonical-link/raw299819/299819/overlap/foreign/whitespace
+checks pass. Source and native-SYM hashes above remain unchanged.
+
+Close the current read-only compiler investigation without landing a failed
+experiment. build/nc12/hrz_horizon_clip_20261022/stock-phases-proof.json pins
+the selected stock compiler and baseline/held/literal inputs; -da output
+is byte-identical to ordinary compiler .s for all controls. In Horizon's
+direct literal-field candidate, combine folds a halfword load plus extension
+to sign_extend:SI(mem/s:HI(const_int528482320/322)), yielding LH. The
+successful typed sky source retains an HI register and separate sign-extension
+shifts. Whole-body opcode delta (candidate minus baseline): LH+2,LHU-2,
+SLL-2,SRA-2,ADDIU+1,ADDU+1,NOP-1, giving470 versus473words. This is an
+observed pre-allocation divergence, not a claimed allocator floor or proof
+of an original cw/ch object. Source/address/value-sharing provenance still
+needs attribution; no compiler output or RTL is changed.
+Next work should trace why the successful sky HI value survives, comparing
+CSE uses/basic-block/memory graphs before dialing allocation. No further
+source edit was made during this inspection. The user requested commit/push
+to main and a pause after the checkpoint; resume only on a new request.
+
+2026-10-22 HRZSKU sky: ordinary loop break; eight primary clipping-field reads.
+
+Hrz_BuildSky remains458/458 SOURCE-ONLY PASS after replacing its bound-exit
+goto with ordinary break and removing HrzSky_finishQuads. That invented
+source LABEL is absent from retail; do not preserve or rename it merely
+because the older regular-local report was CLEAN. Four width and four height
+reads now use sd->head.clipW/clipH instead of byte offsets through unsigned-
+short pointers followed by casts. No new capture, helper, qualifier or scope
+is introduced, and the header's old semantic-label direction is retired.
+
+Primary HRZSKU type records give Draw_DCache.head at0, Draw_tCacheHeader
+size20, clipW SHORT at16 and clipH SHORT at18. field-proof.json independently
+checks those records and all65536 halfword bit patterns: the old cast and
+direct signed-short field have the same value. This is a type/value model,
+not a runtime-emulation claim. Four stock source controls (baseline, break
+alone, typed reads alone, both together) preserve the complete normal ELF.
+No shared type/header or data layout is changed.
+
+All23 full local tuples, all24 scope markers, every458 word/file tag and
+header/end remain unchanged. Full SLD is still446 tag differences and
+end1244 versus retail1277; no full function seal is claimed. The source fix
+applies actual recoverable type/control information while retaining all
+previously correct evidence, not manufacturing a clean line-map report.
+Original packet/allocation macro spelling and the wider source goal stay open.
+
+Receipts: build/nc12/hrz_sky_exit_20261022. token-proof.json limits code
+changes to the one break/label deletion and eight clip reads, preserving
+all other tokens/literals/directives and physical line counts. The immutable
+before.i and probe-prefixed variants prevent diagnostic input collisions.
+phase-proof.json pins selected compiler/input/dump hashes, verifies full
+native .s identity, and keeps every variable .def and block row unchanged.
+record-proof.json checks274669 remaining ordered non-SLD records and
+continuations unchanged. The sole deleted record is the unprovided source
+LABEL at native800d10cc; all other names/types/globals/frames/owners/block
+lines/headers/ends/payloads/real addresses/order survive. No output/reference
+is rewritten. M2C func_800D0A38.c cross-checks clipping and emission phases,
+not its spurious unaligned32-bit clipping loads, GTE move rendering, stale
+arguments or merged-tail cursor inference; raw opcodes/primary types win.
+
+Follow-up evidence, not a second source landing:
+build/nc12/hrz_horizon_clip_20261022/clip-probe-proof.json. The now-typed sky
+reads emit LHU followed by SLL/SRA with NO clip-capture/fence. Thus the same
+selected compiler demonstrably reaches that pattern in genuine source.
+Reprice Horizon's two captured clip tests without adding objects: held-cache
+versus three literal typed views, each with bound-first, point-first and two
+De Morgan rejection forms. All16 controls fail whole-ELF equality:471words
+for the held view,470 for literal views, versus473. None is adopted; these
+do not prove an original cw/ch object, a mandatory qualifier or a floor.
+Further work should trace actual CSE/address/extension provenance against
+the successful same-TU sky reference rather than infer impossibility from
+those spellings. The verified sky source/hash stays unchanged by the probes.
+
+Isolated run-ldwymooi and combined run-5r6qgxi_; final-proof.json:489 detailed
+SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE unchanged,
+all489 local/region/frame and complete existing SLD facts, full type multisets
+and seven shared headers preserved. All207strict/185absolute contracts
+survive with no new strict seal. Tests105/vtable1368/policy/relink/canonical/
+raw299819/299819/overlap/foreign/fresh reports/whitespace pass. Selected21-TU
+scope and existing filename-case policy, not whole-tree freshness or literal
+original-source proof. No new asm/volatile/object/fake use/scope/tool flag
+or post-compile rewrite. Restoration goal remains active; work uncommitted.
+
+2026-10-22 HRZSKU horizon: restore real for/continue ownership; delete one invented LABEL.
+
+Hrz_BuildHorizon stays473/473 SOURCE-ONLY PASS after removing the invented
+HrzHorizon_nextSegment label and all five gotos into its shared increment.
+An ordinary for owns the counter increment and all rejection paths use
+continue. Keep i's real initialization before the horizon-state guard.
+Remove the redundant manual wrapper around that guard; the real C++ for
+binding now supplies the correct nested ownership. Eight selected-stock
+controls, including exit-in-body/condition-loop variants with/without that
+wrapper, preserve the entire normal ELF. The historical blanket claim that
+for must rotate this loop is retired, not treated as a source restriction.
+No replacement name, object, helper, qualifier, asm or fake scope is added.
+
+Scope identity, not count, establishes the gain. Both versions have14 native
+regions, but the non-retail +644..+1640 path[0,1,0] becomes retail's
++736..+1640 at that SAME path. Exact supplied address/depth/path matches
+increase8->9 of10, with no previously correct region lost. Five unexpected
+native regions and one missing retail region still remain. All18 previously
+correct complete supplied local tuples survive unchanged; right/prim/pmx's
+three owner-path mismatches remain. The only changed native variable owner
+is unprovided pp: depth4/path[0,1,0,0] ->depth3/path[0,1,0], same range,
+type/home and relative declaration order. This does NOT prove pp was an
+original object. Its pending recovery and the other clip/color devices stay.
+
+Keep every one of the473 existing word/file tags, function header/end and
+all physical source-line counts. Splitting the real for condition across
+the old loop/test lines preserves attribution without per-statement #line
+or executable placeholders. The exact target block event model separately
+checks the new binding, its source lines and the body end before increment.
+No full target SLD seal follows:461 tag differences and end-delta365 versus
+retail219 remain, and native locals still24 versus retail21. The ordinary
+loop improves recoverable source/control/ownership, not the code diff score.
+
+Receipts: build/nc12/hrz_horizon_control_20261022. token-proof.json limits
+code changes to the real loop/continues, label deletion and redundant-owner
+removal. control-proof.json checks the exact region replacement, zero loss
+of any previously correct supplied tuple/region, and the sole pp-owner
+change. record-proof.json checks274642 remaining ordered non-SLD records/
+continuations unmodified; all28 target block events are checked independently
+against the exact planned model. The only deleted record is the source
+LABEL at native800d1928, absent from retail. No other name/type/field/global,
+header/end/payload/real address or relative declaration order changes. File-
+position prefixes are offsets, not addresses; no actual dump/reference or
+compiler output is edited. This round intentionally changes the native
+dump, unlike the preceding complete-byte-identity checkpoint.
+
+phase-proof.json pins compiler/input/dump hashes and full native .s identity;
+the one source LABEL .def disappears, all variable .def rows stay exact.
+A color-probe diagnostic initially reused the baseline input filename.
+Recover the before input from the preceding accepted receipt, checking its
+exact saved SHA256 ec7f124cfc46491d7dc8c46ac977759f9fd9506c9be409cdb729540550f1b854
+against the original loop receipt; production source/native outputs were
+unaffected. Both probe families now use distinct loop-/color- prefixes and
+the before input is separately pinned. All eight loop controls are rerun.
+color-copy-proof.json also reprices c1 removal on the real-loop graph:
+direct stores474words, byte/word/unsigned-long memcpy controls476 and the
+all-color versions487. Reject all those changes; the successful earlier
+projection-result memcpy is not a universal packet-copy recipe or evidence
+that an unrecorded color object must exist. No new exemption is created.
+
+Final isolated run-qnucfmd0 and combined run-xjh6ser0; final-proof.json:489
+detailed SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE
+unchanged, all other488 local/region/frame and complete SLD facts, full type
+multisets and seven shared headers preserved. All207strict/185absolute
+contracts survive, with no new strict function seal claimed. Tests105/
+vtable1368/policy/relink/canonical/raw299819/299819/overlap/foreign/fresh
+reports/whitespace pass. M2C func_800D131C.c cross-checks actual loop/data/
+packet phases, not its inferred source labels, split stack words or stale
+arguments. Selected21-TU scope and existing filename-case policy only;
+no whole-tree freshness/literal-original-text claim. Full restoration stays
+active; these changes remain uncommitted.
+
+2026-10-22 HRZSKU horizon: remove i fence/empty-loop barrier; restore real copy/field source.
+
+Hrz_BuildHorizon remains473/473 SOURCE-ONLY PASS. Remove its empty i ref
+assembly and the empty do/while(0) scheduling device. The former is already
+unnecessary on the current RAW-field source control: do not attribute its
+removal to the new typed fields or infer an original i lifetime requirement
+from an old allocator receipt. Replace the two packed s_-to-temp2d cast
+stores with genuine standard memcpy of sizeof(s_), four bytes on this target.
+Those copies preserve the complete normal ELF without the empty loop.
+No new source variable, helper, scope, use, qualifier, asm or volatile is added.
+The supplied p_/s_ declarations and the actual down-then-up transforms stay.
+Removing the loop alone remains472words; struct-assignment and alternate
+cast-copy controls do not reproduce473. These are bounded controls, not a
+source-impossibility claim or permission to keep the artificial loop forever.
+
+Twenty-five raw field/row/stride access spellings become their supplied typed
+forms:16 POLY_GT4 packed RGB/UV/XY accesses, four actual CVECTOR ring-array
+element reads, four Draw_tPixMap UV-word reads, and the typed prim+1 cursor
+advance. Primary HRZSKU retail MOS records independently supply all offsets,
+POLY_GT4 size52, Draw_tPixMap size16, CVECTOR size4 and ring dimensions[2][17].
+Keep the packed four-byte accesses at named fields: a scalar r0/u0/x0 store
+would omit the other channels, CLUT/TPAGE or Y component. No type/member,
+object extent, data layout or shared header definition is changed.
+
+Add an unnamed standard C memcpy prototype in the TU's existing C-linkage
+extern block. PsyQ4.3 MEMORY.H provides the memory API and unsigned-int
+size_t; GCC cp/decl.c5153-5157/5284 registers void*(void*,const void*,size_t)
+as the ordinary memcpy builtin. No source __builtin intrinsic is needed,
+and selected stock emits no out-of-line memcpy call. The header's only real
+consumer is hrzsku.cpp; camera.cpp mentions its name only in a comment.
+No invented parameter name or native declaration record is introduced.
+
+Receipts: build/nc12/hrz_horizon_carriers_20261022. source-probe-proof.json
+prices whole normal ELFs, including raw independent i-fence removal and real
+plain/builtin byte-copy controls. The raw count includes zero words with
+objdump -dz. field-proof.json checks primary MOS offsets/sizes/array shape;
+token-proof.json limits all changes to these25 accesses, two real copies,
+two device deletions, the explicit memcpy prototype and comment/trivia fixes.
+All physical source-line counts survive. Obsolete in-body must-keep/barrier
+directions are retired without moving statement coordinates.
+
+phase-proof.json pins selected stock compiler/input/dump hashes and full
+native .s identity. All variable .def rows and block records are identical.
+Deleting the empty loop consumes four fewer private compiler-label IDs:
+the existing source LABEL HrzHorizon_nextSegment binds $L271->$L267 in .s,
+not a different value or name. Its resolved native LABEL remains800d1928;
+no .s/RTL/debug record is rewritten or broadly filtered to hide that change.
+record-proof.json requires the ENTIRE raw native SYM dump byte-identical,
+including every SLD record and file-position prefix, not only regular locals
+or the274671 non-SLD records/continuations. This is equality to the prior
+native build, NOT a claim that the native dump already equals retail.
+
+The first-color c1 capture, pp alias/identity and cw/ch clip devices remain
+pending source recovery, including debug-elided objects and the semantic
+increment label. Reprice c1/pp after the accepted copy/field changes: removal
+controls are474/475/476words and are rejected, without new exemptions or
+claims that those original objects must have existed. M2C func_800D131C.c
+cross-checks real copies/packet phases; its split stack objects, MFC2/SWC2
+rendering and stale extra SetPolyGT4 arguments are not naming/type/arity
+authority. Full target ownership and SLD remain unresolved:461 tag differences
+and end-delta365 versus219 are unchanged. No new strict function seal claimed.
+
+Final isolated run-6mqx574i and fresh combined run-_jv5c4fl; final-proof.json:
+489 detailed SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE
+unchanged, every selected local/region/frame/type and complete SLD fact
+preserved. Entire native SYM hash remains6b0999e854800f91349e2c31de0d21cc1c8929a6914718d63a236a62f8ed4618.
+All207strict/185absolute contracts survive, with no new count gain. Tests105/
+vtable1368/policy/relink/canonical/raw299819/299819/overlap/foreign/fresh
+reports/whitespace pass. Final source/prototype/comment/whitespace state is
+freshly gated; no generated outputs or unrelated files are added to git.
+Selected21-TU scope and existing filename-case policy, not whole-tree source
+freshness or literal original-source proof. Remaining restoration goal stays
+active and changes remain uncommitted.
+
+2026-10-22 HRZSKU lightning: four full covered contracts; real SDK initialization/exit source recovered.
+
+Hrz_LightningAddFork134, Hrz_TextureQuad76, Hrz_SetLightingPosInSky68 and
+Hrz_BuildForkLightning71 now have complete covered declaration/region/
+absolute-SLD contracts. All349 instruction/file tags, ten block records,
+headers783/833/862/872, ends822/856/867/898 and22 supplied local/parameter
+tuples agree with retail. The instruction-line differences110/66/65/63
+fall to zero,304 in total. These named declarations already existed with
+correct homes/scopes; do not report invented local-removal or naming gains.
+
+The textured quad now uses canonical PsyQ4.3 setPolyFT4 on837 followed by
+setSemiTrans on839. Five TU-local macro definitions are token-identical to
+LIBGPU.H236/238/241/253/316; no shared header or new helper/type is added.
+They perform actual length/code initialization and enable the real0x02 bit,
+not a dummy operation or scheduling fence. Selected-stock initial RTL has
+code44 initialization; CSE folds the following enable to46, and combine
+removes44. The final length9/code0x2e stores, entire normal ELF and native
+CPE remain unchanged. Canonical semantics and the split source phases are
+supported; unique original macro call spelling is not proved. The existing
+P_TAG backing-type producer remains an explicit review item, not made
+original by using canonical macros.
+
+One genuine chained RGB assignment replaces three staged assignments,
+preserving b/g/r store order while attributing all three to842. The canonical
+SDK setRGB0 comma order changes the normal ELF and is rejected; a shared
+retail source line is NOT proof that this particular SDK macro was used.
+A reverse comma control also preserves bytes, so chain syntax is not unique.
+Actual packet acquisition/link/advance share836, while the supplied l0..l3
+UV-word work stays in its real existing region and shares856. No inferred
+UV helper or fake scope is introduced; original EA copy/macro spelling still
+requires source review. Existing absolute anchors are retained, with ordinary
+statement layout and no per-statement directives.
+
+BuildForkLightning needs an inactive early return877 and implicit active
+fallthrough after brightness897. This preserves both the retail block-end
+line897 and epilogue/end898. Seven genuine guard/exit controls preserve
+the entire normal ELF: the positive-guard return898 variants make the block
+end898 too; implicit/active-return897 variants lose the epilogue898 note.
+Only the tested early-out implicit form reproduces both facts together.
+No variable, label, fake use, empty region, compiler-state assignment or
+generated-note rewrite is involved. Stock phase/assembly controls preserve
+all declaration rows and independently validate final native .s identity.
+
+AddFork retains the genuine three signed-byte parameters, root type/fork,
+recursive type dispatch, row mutation and final direction test. SetLighting
+retains forwardVec's real matrix-row copy863 and the three random/position
+phases865/866/867, including the existing unsigned y-sum grouping. M2C
+func_800D01B0.c/0404.c/0534.c/0644.c cross-check the actual operations, not
+their inferred signatures: its fourth AddFork argument and random arguments
+are stale registers, not source parameters; split stack words and its GTE
+rendering do not replace supplied structs/canonical GTE macros.
+
+Receipts: build/nc12/hrz_lightning_layout_20261022. token-proof.json permits
+only the primary SDK macros/init, real RGB chain/early exit and layout;
+every remaining C++ token/literal/directive survives. rgb-probe-proof.json,
+exit-probe-proof.json and phase-proof.json retain stock controls and compiler/
+input/dump hashes. record-proof.json checks274671 ordered non-SLD records/
+continuations; only six planned block/function-end line fields change. All
+remaining names/types/globals/payloads/addresses/order are unchanged.
+
+Final isolated run-i3yuiiub and combined run-s92m3qa6; final-proof.json:489
+detailed SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE
+unchanged, all489 local/region/frame tuples, other485 complete SLD maps,
+full type multisets and seven shared headers preserved. Prior203strict/
+181absolute survive; now207/185. HRZSKU14/22 strict,15/22 SLD-component
+exact; LightningFlicker's extra col and the ring's four missing region
+records remain explicit. Tests105/vtable1368/policy/relink/canonical/raw
+299819/299819/overlap/foreign/fresh reports/whitespace pass. Selected21-TU
+scope and existing Windows filename-case policy only, not full-tree source
+freshness or raw character-for-character filename equality. No new asm,
+volatile, source object/qualifier, fake scope/use, tool flag or post-compile
+rewrite. Literal original text and the full project goal remain unproved;
+work is uncommitted.
+
+2026-10-22 HRZSKU ring:185 word/file tags restored; four scope records remain missing.
+
+Hrz_Init2DRing retains its provided nine local/parameter tuples, disjoint
+height-array/color-vector work areas,96-byte frame and all185 instructions.
+Ordinary source layout under the existing measured anchor/header337 reduces
+181 instruction-line differences to zero, restores all twelve EMITTED block
+line coordinates and end414. Keep source phases342/344/347/349/350 for the
+geometry;360/363/367/369/370/371 for the selected-pixmap height scan;
+374/375 for height percentages;380/384/385/387/390/391/393-399/404/406/408
+for the actual two-level color interpolation;409 for sky setup and414 for
+the aligned save-color copy/exit. No executable token or literal is changed.
+The signed /8 channel differences remain signed divisions, not shifts.
+
+This is NOT a complete function SYM/SLD contract: retail still has two empty
+nested regions +128..+248 and +156..+232, corresponding to four missing
+block records. All existing address/depth/owner tuples survive; no artificial
+empty scopes are inserted to conceal the producer question. The private
+pixel-height inline-query controls preserve the entire normal ELF, but add
+SIX block records rather than the required four. Neither the plain-load nor
+computed-assignment argument control supports adopting that inferred helper.
+Those are bounded negative controls, not proof of an original helper, source
+object, name, or an unreachable source shape. No trial helper is retained.
+
+Receipts: build/nc12/hrz_ring_source_20261022. token-proof.json checks all
+C++ tokens/literals/directives unchanged. phase-proof.json pins the selected
+stock compiler/input, preserves every target .def row and proves dump-flag
+assembly identical to native compilation. record-proof.json checks274671
+ordered non-SLD records/continuations; only twelve planned block/end line
+fields change. All remaining names/types/payloads/addresses/order survive.
+height-inline-proof.json keeps the rejected producer controls explicitly.
+M2C func_800CFD80.c independently confirms the actual height/max/percentage,
+color and sky phases; its split stack bytes, narrowed pointer guesses, stale
+sky arguments and typed +=4 renderings are not source/type/arity authority.
+
+Isolated run-58nea_ij and combined run-tzj9fzo0; final-proof.json:489 detailed
+SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE unchanged,
+all489 local/region/frame tuples, other488 complete SLD maps, full type
+multisets and seven shared headers preserved. All203strict/181absolute
+contracts survive, with no new strict seal claimed. Tests105/vtable1368/
+policy/relink/canonical/raw299819/299819/overlap/foreign/fresh reports and
+whitespace pass. Selected21-TU scope and existing Windows filename-identity
+case policy only; not whole-tree freshness or raw character-for-character
+filename equality. No new object, qualifier, scope, fake use, asm/volatile,
+tool flag or post-compile rewrite. Full source restoration remains active;
+this work is uncommitted.
+
+2026-10-22 HRZSKU stars: combined sampling expression restores the real block-line producer.
+
+Sky_InitStars now matches all122 retail word/file tags, ten block records,
+header185/end211 and all seven supplied locals with full types/homes/owners.
+The current pre-round report already had correct local/address ownership;
+no local rename or declaration-recovery gain is claimed. Restore seed capture188,
+seed setup189, allocations190/191, loop check195, sample/mask198, height-angle
+range199, vertical/radial scaling202/203, XYZ205/206/207, brightness208,
+packed color209, step210 and seed restoration/exit211 with ordinary layout.
+Keep oldSeed LONG and the recorded INT geometry locals, not M2C's narrowed
+s16 guesses. Unsigned remainder operations retain the actual compiler divu
+guards; no manual trap call is inserted.
+
+One real expression change is necessary to reproduce the remaining supplied
+block-line fact: latAngle = random() & 0xffff, not a raw random assignment to
+latAngle followed by another assignment masking it. Both call random once and
+produce the same low16-bit angle; whole normal ELF/native CPE are identical.
+No source object is removed or added: this removes an artificial assignment
+stage and gives the provided angle variable its masked value directly.
+
+Controlled stock output proves the distinction. With two assignments, the
+existing loop-local end marker precedes source198, so it carries relative11
+(195). With the combined sample it follows source198, carrying relative14,
+exactly retail. All seven declaration records and all other block records in
+that control are unchanged; the complete generated .s equals native compile.
+GCC final.c's high_block_linenum model explains why record ordering matters;
+the selected-stock receipts, not a near compiler or source reading alone, are
+the acceptance evidence. The ANDI still occupies the NEXT random call's delay
+slot, before that call executes, and therefore masks the first sample.
+
+Do not fabricate a short C scope ending before the real geometry work merely
+because optimized debug endpoints are early. The genuine locals stay in the
+for body. Moving declaration initialization alone and splitting the loop header
+preserve code but do not fix this marker. A u_short sampling cast also reproduces
+it; literal original spelling is not uniquely proved. No neutral initializer or
+unnecessary alternative brightness rewrite is adopted. The historical separate-
+assignment recipe is marked historical instead of retained as an exemption.
+
+Receipts: build/nc12/hrz_stars_layout_20261022. token-proof.json permits only
+the fused sampling assignment plus ordinary layout/trivia; all remaining C++
+tokens/literals/directives survive. phase-proof.json calibrates before/after
+source198/end-marker ordering, unchanged declarations and native .s identity.
+record-proof.json checks274671 ordered non-SLD records/continuations: only nine
+planned block/function-end line fields change. Every other payload/name/type,
+address, header and record order is preserved; no output/reference is rewritten.
+M2C func_800CF6B4.c independently shows the masked first sample and actual
+geometry/color call sequence, without providing authority for its s16 types.
+
+Isolated run-9k6g4ivk and combined run-uphjgn6i; final-proof.json:489 detailed
+SOURCE-ONLY/branch-count PASS; all21 whole normal ELFs/native CPE unchanged;
+all489 local/region/frame tuples, other488 complete SLD maps, full type multisets
+and seven shared headers preserved. Prior202strict/180absolute survive; now
+203/181. HRZSKU is10/22 strict and11/22 SLD-component exact; LightningFlicker's
+extra col still prevents a strict seal. Tests105/vtable1368/policy/relink/
+canonical/raw299819/299819/overlap/foreign/fresh reports/whitespace pass.
+Selected21-TU scope and existing Windows filename-case policy, not whole-tree
+source freshness or character-for-character raw-filename equality.
+No new asm/volatile, object, qualifier, fake use/scope, tool flag or post-compile
+rewrite. Remaining source/carrier reviews and the full goal stay active.
+Changes remain uncommitted.
+
+2026-10-22 HRZSKU: four more full contracts; LightningFlicker SLD exact but extra col retained.
+
+Ordinary layout under the existing measured anchors restores full covered
+declaration/region/absolute-SLD contracts for Horizon_InterpolateLineSCoords80
+words (header128/end156), Sky_KillStars17 (216/222), Hrz_GetHorizonPixMap45
+(419/428), Hrz_InitHorizon27 (432/443):169 words. No executable token or literal
+changes. Preserve the interpolation's real else-local p (INT/a0) inside the
+region opened142, loaded146, with its for148 and component stores150/151;
+the array-percentage arm instead reads both components135/136 and advances
+percentage138. Signed division remains /65536, not a negative-rounding-changing
+shift. Pointer increments keep their actual typed byte strides.
+
+The pixmap setup uses initial counter/loop422, descending assignments423,
+second initialization424, clone426, destination-reference store427 and step/
+exit428. Its ranges remain twelve source pixmaps plus four extra clones into
+slots12..15. Star teardown retains the two genuine conditional frees and only
+then its pointer clears221/222. Horizon setup keeps its real specification
+pointers433/434, allocation438, ring440 and optional stars442/443. All supplied
+locals, types, homes, ownership and frame facts are unchanged.
+
+LightningFlicker55 also has every emitted word/file tag, six block records,
+header901/end954 now equal retail: guard903/opening brace904 independently
+attribute the on-body's i scope; mode910, fork test916, global color919,
+fill setup921/body922; alternate fork935/color937/setup939/body940;
+restore953 and color-init/exit954. However native still contains EXTRA
+col UINT/REG6 at root, while retail provides only on and the nested i. It is
+not debug-elided, not renamed/requalified away, and NOT a full function-level
+SYM seal. The ordered native local tuples intentionally retain that miss.
+
+Receipts: build/nc12/hrz_more_layout_20261022. token-proof.json checks every
+C++ token/literal/directive unchanged. phase-proof.json pins the selected
+stock compiler/input, proves the whole -g -da assembly byte-identical to native
+compilation and explicitly requires col's REG6 declaration still visible.
+record-proof.json checks274671 ordered non-SLD records/continuations; only16
+planned block/function-end line fields change. All remaining addresses, types,
+locals/globals, payloads and order survive; no output/reference is rewritten.
+
+Reprice col removal privately: direct literal loops retain55 words but change
+only scheduling of the color LUI/ORI versus counter initialization (six raw
+positional words). Packed-field/typed-CVECTOR copies, alternate address terms,
+reverse-loop forms, switch/short-circuit guards and shared counter initialization
+do not preserve the whole normal ELF. A fresh direct-literal recheck uses the
+accepted grouped source, not its old map, and also fails. None is adopted.
+These are bounded negative controls, not proof an original col object existed
+or that a source-only repair is impossible. No const disguise, fence or pin is
+introduced to suppress the unmatched name.
+
+M2C func_800CF574.c confirms interpolation arithmetic; func_800D0064.c confirms
+the actual texture-copy calls/offsets. Their inferred pointer +=4/-=4 renderings
+are raw BYTE strides, not permission to multiply the reconstruction's typed
+increments by four. Keep DVECTOR and pointer-table strides from SYM/raw bytes.
+No decompiler temporaries or absolute program-address literals are imported.
+
+Isolated run-1e3xcjfo and combined run-vavp_n5l; final-proof.json:489 detailed
+SOURCE-ONLY/branch-count PASS; all21 whole normal ELFs/native CPE unchanged;
+all489 local/region/frame tuples, other484 complete SLD maps, full type
+multisets and seven shared headers preserved. Prior198strict/176absolute
+survive; now202/180. HRZSKU has10/22 exact SLD COMPONENTS but only9/22 strict
+declaration+region+SLD contracts. Do not add LightningFlicker to the latter.
+Tests105/vtable1368/policy/relink/canonical/raw299819/299819/overlap/foreign/
+fresh reports/whitespace pass. Selected21-TU scope, not full source freshness.
+The existing path-case policy/distinction remains disclosed; no new asm,
+volatile, object, qualifier, scope, fake use, tool flag or post-recompile rewrite.
+col, the earlier reference fence and remaining source/SLD reviews stay open.
+The full restoration goal remains active; changes are uncommitted.
+
+2026-10-22 HRZSKU: complete InitSky209 SLD,22 measured function identities, header cleanup.
+
+Calibrate all22 real definitions against before-native headers, not a universal
+offset rule: six have signature-to-header distance1, sixteen distance2. Add
+one retail-identity anchor per function using C:/nfs4/GAME/PSX/HRZSKU.CPP.
+All22 headers/file identities now agree. Other21 body maps keep their complete
+before-header-relative tags, block coordinates and function-end deltas; these
+start anchors do NOT seal their remaining internal source-layout differences.
+
+Hrz_InitSky alone gains a new complete covered contract: header257/end332,
+all209 word/file tags, both block records and six supplied INT locals/homes/
+owners. Preserve i,j,k,angle,height,radius. Move the REAL inner j increment
+after all three coordinate stores, alongside k on315, rather than following
+M2C's machine-order rendering near the early angle calculation. Selected-stock
+scheduling still executes the increment early but retains source315. Whole
+normal ELF remains identical. Both scalar field phases and loop source phases
+now agree: sun261/262/263, moon265/266/267; view colors272/273/277; ring/angle
+selection288/290/291/294/301/302; mesh init305, angle307, XYZ308/309/310,
+counter/backedge315/316; cloud init321/323, writes/backedge324/325;
+color guard329/call330, flare/exit332. No per-statement #line is used.
+
+Move only existing reconstruction/history comments outside the function anchor.
+Original comment/macro text and unobservable statement coordinates are not
+recovered by padding claims: ordinary layout restores known emitted records.
+M2C func_800CFA3C.c confirms real operations but guesses s16 products/locals;
+retail supplies INT height/radius. Keep those types and the actual math-call
+contracts instead of importing narrowed decompiler guesses or execution order.
+
+Remove unused gSkyPixmapIndex_dummy from the caller header: only that header
+declared it, no reconstruction use or retail/native SYM record exists, and git
+748f1f5f traces it to the bulk reconstruction import. Correct Texture_CloneUVPmx
+formal names to the provided pmx/mode/rpmx slots (46c1e0..46c212), not reversed
+dst/flag/src. These are callee-identity corrections, not unique proof of lost
+caller-header text. Neither declaration correction changes the ABI or storage.
+
+Receipts: build/nc12/hrz_sky_layout_20261022. anchors.json records the measured
+offsets; token-proof.json permits only those anchors, the genuine j increment
+relocation, two header corrections and trivia. No other executable token/literal
+changes. counter-proof.json calibrates both forms against the whole normal ELF.
+phase-proof.json pins stock compiler/input and proves full -g -da assembly equals
+native compilation, including the actually scheduled j/k increments'315 notes.
+record-proof.json checks274671 ordered non-SLD records/continuations: only67
+planned HRZ header/file/block/end source-coordinate fields change. Every other
+payload, name, address, type and record order survives. Native ASPSX still writes
+NFS4 versus retail nfs4 directory casing; the existing Windows filename-identity
+policy is disclosed, not character-for-character raw-filename equality.
+
+Isolated run-flzj0k2u, combined run-3gmp07li and final-proof.json:489 detailed
+SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE unchanged;
+all489 local/region/frame facts, all other488 relative SLD contracts, full type
+multisets and seven shared headers preserved. Prior197strict/171absolute survive;
+now198/176. Four EXISTING relative seals gain absolute identities:
+HrzSetPsxTranslation, Hrz_CalculateLightning, Hrz_InitSkyColor, Hrz_KillHorizon.
+Only InitSky is a new relative seal: HRZSKU5/22, not22/22. Tests105/vtable1368/
+policy/relink/canonical/raw299819/299819/overlap/foreign/fresh reports/whitespace
+pass. This is selected21-TU verification, not whole-tree source freshness.
+
+The old empty reference fence is unchanged, explicitly unresolved and NOT
+proved original by matching SLD. Reprice it after the real counter/layout repair:
+fence-reprice-proof.json still has209 words but eight changed raw instruction
+words and a different whole ELF; no removal is adopted. No new asm/volatile,
+object, qualifier, fake scope/use, tool flag or output/reference rewrite.
+Seventeen other HRZ body maps, the source-device recovery, raw path casing,
+and the wider restoration goal remain open. Changes remain uncommitted.
+
+2026-10-22 HRZSKU InitSky: remove an invented goto and its extra raw SYM LABEL.
+
+Replace HrzInitSky_initLensFlare and its goto by ordinary conditional color
+updates in the real mode arms, followed by the actual common flare call.
+Keep the initial type test and later re-read distinct; after cloud writes,
+type/flags still decide color exactly as before. A64-case branch/read trace
+includes differing initial/later type values; it is bounded control evidence,
+not a full runtime differential. No new object, name, predicate capture or
+replacement scope is added. The extra color-call spelling represents real
+mutually exclusive work; stock merges it, not an additional runtime call.
+
+Retail lists exactly i,j,k,angle,height,radius and no user LABEL in this
+function. Native had an extra94 Def class LABEL type NULL size0 named
+HrzInitSky_initLensFlare. record-proof.json removes exactly that unprovided
+record and preserves ALL274671 other ordered non-SLD records/continuations,
+payloads, addresses, types, globals/locals, headers and block/end fields.
+Every209-word instruction tag remains unchanged as well, as do the whole
+normal ELF and native CPE. This is a raw-record/source cleanup, not a claim
+that InitSky's still-incomplete retail SLD layout is now sealed.
+
+Receipts: build/nc12/hrz_sky_source_20261022. source_contract.py permits only
+the real branch rewrite and removal of the invented label/goto, preserving
+all other executable tokens/literals/directives and the physical line count.
+The old unconditional SLD-VERIFIED label and do-not-simplify fence exemption
+are replaced by an explicit unresolved source-review note, at the same source
+coordinates. The existing empty fence itself is unchanged, NOT recovered or
+proved original. This checkpoint does not claim asm removal.
+
+Fresh source-only controls reprice removing it on the actual current -G8 TU:
+plain C remains209 words but changes eight raw positional instruction words,
+a height/k swap; radius retains s5. Ordinary mesh loops, post-increment indices,
+short-coordinate sum/birth forms, separate real coordinate updates, cloud-grid
+indices and staged trig-value chains are negative. Structured color and early-
+flare tails BOTH preserve the whole normal ELF with the old fence, but neither
+alone removes the fence. No failed input is adopted or classified as a floor.
+
+Selected-stock -dgl receipts identify root p82=k, p84=height, p85=radius.
+No-fence refs/live are19/100,7/32,10/43 with registers20/22/21. With the old
+fence they are19/101,10/33,13/44 with registers22/20/21. The historic source
+notes had reversed the height/radius roles and older residual counts. Current
+source comments use the actual supplied roles instead of repeating those claims.
+Dump-flag normal assembly matches the calibrated controls; -g -dr assembly
+matches actual native compilation. No simulated or debugger state is assigned.
+
+Isolated run-4vo1hg9y and combined run-zaytsri3; final-proof.json:489 detailed
+SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE unchanged,
+all489 local/region/frame/SLD contracts, full type multisets and seven shared
+headers preserved. Prior197strict/171absolute retained. Tests105, vtable1368,
+policy/relink/canonical/raw299819/299819, overlap/foreign, fresh reports and
+whitespace pass. Selected21-TU scope, not whole-project source freshness.
+No new asm/volatile, pin, qualifier, fake scope/use, tool flag or output rewrite.
+Fence recovery and full InitSky statement-line layout remain active work.
+
+Concrete next header review, NOT an unknowable-source backlog: hrzsku_externs.h
+still has header-only gSkyPixmapIndex_dummy (no project use or retail SYM name)
+and Texture_CloneUVPmx(dst,flag,src), unlike its supplied pmx/mode/rpmx slots.
+Those were inspected but not edited in this verified source-body checkpoint.
+The full restoration goal stays active; all changes remain uncommitted.
+
+2026-10-22 GENERICPMX caller declarations:13 retail parameter slots and canonical SDK prefix.
+
+genericpmx_externs.h still used placeholder names for three game-owned APIs.
+Copy the provided owning-callee parameter identities, not invented descriptive
+replacements: ChangeTPage(tpage,nabr); Texture_CloneUVPmx(pmx,mode,rpmx);
+Texture_LoadPmx(f,n,ctrl,rx,ry,cx,cy,pmx). Raw records3c1349..3c135c,
+46c1e0..46c212 and46bf1f..46bf8f supply all13 formal slots. The later REG
+continuations for ry/pmx are not additional parameters. This restores consistent
+caller declarations from callee evidence; it does NOT prove the exact spelling
+of an otherwise unrecorded original caller-header declaration.
+
+Restore sprintf's canonical PsyQ4.3 STDIO.H:35 fixed prefix as well:
+int sprintf(char *buffer,char *fmt,...), inside the existing C-linkage block.
+The old const char *format declaration was not the documented interface.
+No game-function argument type/count, symbol linkage, runtime call or body is
+changed. In particular ry is the placement coordinate, NOT a height argument;
+the caller's unprovided pmx_height capture is kept visibly unresolved, not
+renamed to ry and treated as solved. Only genericpmx.cpp imports this header.
+
+Receipts: build/nc12/genericpmx_contracts_20261022. token-proof.json parses
+the actual owning retail parameter records and checks the actual SDK prototype;
+it permits only these four declaration changes and requires the caller CPP to
+remain byte-identical. phase-proof.json checks the selected stock compiler and
+the actual TU's -G8 identity (its eight-byte pointer arrays must stay small-data),
+with full -g -dr assembly byte-identical to native compilation. No build flag,
+tool, instruction, native debug record or retail reference is changed.
+
+Reprice the source carrier on those corrected declarations: direct ry literals
+produce579 versus593 target words and fail whole-ELF identity; the variant is
+not adopted. Separately, build/nc12/render_tag_reprice_20261022 repeats type-free
+tag removal on the NOW fully restored renderer source, not its old basin.
+Full-word masks, typed tag-member masks, high-byte preservation and shift-mask
+forms all fail whole-normal-ELF identity, with a byte-identical baseline control.
+No candidate is written into reconstruction code. These negatives do not prove
+that Render_PTag or pmx_height was an original source construct or a floor.
+
+Isolated run-21__z7yn and combined run-b4ttzvm4: complete native SYM dump is
+BYTE-IDENTICAL to the prior checkpoint, including all source-line records.
+Final final-proof.json:489 detailed SOURCE-ONLY/branch-count PASS; all21 whole
+normal ELFs/native CPE unchanged; all489 local/region/frame/SLD contracts,
+full named-type multisets and seven shared headers preserved. Prior197strict/
+171absolute retained; no new function-level seal or native match-count gain
+is claimed for caller parameter names, which are not emitted as callee locals.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign,
+fresh reports and whitespace pass. Selected21-TU scope, not whole-project source
+freshness or completion. GENERICPMX remains SLD-incomplete despite its historical
+unqualified source label. Its carrier and body source-producer review stay open.
+No asm/volatile, new source object, qualifier, fake scope/use or output rewrite.
+Changes remain uncommitted; the full restoration goal is still active.
+
+2026-10-22 RENDER pause dispatcher: real per-arm frame completion resolves the final two tags.
+
+Render_Render now matches all80 retail word/file tags, header417/end525,
+both block records and its sole pause parameter tuple. Do not infer a hidden
+view temporary from the split load483 versus jump/argument-one489 tags. Put
+the actual HUD/debug/frame-stop work in the split-screen arm before its real
+early exit489; keep the common tail for the single-screen arm. Work still runs
+once per completed frame on either path. No object, name, predicate, scope,
+padding operation or assembly fence is introduced.
+
+Selected-stock initial RTL contains two copies of each genuine finish call;
+they remain distinct through both scheduling passes. jump2 tail merging reduces
+each pair to one, preserving source512/514/516 on the surviving tail. The
+second-view load remains483 while the transfer and its filled argument slot
+carry489. A return488 control preserves every byte/region but moves the transfer
+tag to488, independently identifying the exit-coordinate lever. The whole
+normal ELF and native CPE remain byte-identical. NFS2 PC Render_Render's per-arm
+frame completion is a style cross-check, not proof of the exact NFS4 spelling.
+
+The erased true-arm copy's literal call coordinates cannot be uniquely read
+from the surviving retail SLD. The reconstruction uses ordinary consecutive
+statements before489 and marks that uncertainty; do NOT claim recovery of
+unobservable original comment/macro text from the emitted tag seal alone.
+This is real branch-local program work, not dummy calls or a fake codegen use.
+
+Receipts: build/nc12/render_pause_tail_20261022. token-proof.json permits only
+three real split-arm finish calls plus its exit; all other C++ tokens/literals/
+directives survive. Its81 gating cases retain the same logical call trace;
+that bounded model is NOT a full runtime differential. phase-proof.json pins
+compiler/input, identifies jump2's two-to-one call merge and proves the entire
+dump-flag .s equals native compilation. record-proof.json preserves ALL274672
+ordered non-SLD records/continuations, without any planned-field exception.
+No local, global, type, owner, header, block/end field or record order changes.
+
+Isolated run-awu58sjf and combined run-al4segce: RENDER23/23 and TRACKSPEC5/5
+covered function-level declaration/region/SLD contracts. TRACKSPEC still has
+its disclosed raw filename-case discrepancy; source reviews remain separate.
+Final final-proof.json:489 detailed SOURCE-ONLY/branch-count PASS; all21 whole
+normal ELFs/native CPE unchanged; all489 local/region/frame tuples, other488
+complete SLD maps, full type multisets and seven shared headers preserved.
+Prior196strict/170absolute survive; now197/171. Tests105, vtable1368, policy/
+relink/canonical/raw299819/299819, overlap/foreign, fresh reports and whitespace
+pass. Selected21-TU scope, not whole-tree source freshness or full completion.
+
+The preceding loader-exit receipt and this receipt resolve both old SLD work
+items. They do not resolve trk's original object/name, Render_PTag's unprovided
+global producer, raw native path casing or erased source-text uncertainty.
+No new asm/volatile, pin, qualifier, carrier, fake scope/use, tool flag or
+post-recompile rewrite. Full restoration goal stays active; uncommitted.
+
+2026-10-22 TRACKSPEC loader: guarded exit resolves all seven epilogue tags without a new object.
+
+The preceding loader partial is superseded by this real source-control repair.
+Return after the successful-load branch's actual if/else work, on184, while
+letting the null-load path fall through to the function end200. No new condition,
+object, name, qualifier, scope or runtime work is added. All63 words, six block
+records, five complete supplied tuples, frame120/mask and header145/end200 now
+match. TRACKSPEC5/5 covered function-level declaration/region/SLD contracts,
+subject to the already disclosed Windows filename-identity/casing distinction.
+The unprovided trk source capture/name is NOT resolved by this function seal.
+
+Selected-stock -g -da traces show line200 already exists in initial RTL for both
+sources. The old source retains it through combine, but FIRST scheduling drops
+it; the guarded-exit source retains it through sched/reload/jump2/delay filling.
+All three block ends remain184, unlike the old top-level return200 control.
+The generated .s exactly equals native compilation; no note is edited.
+Private nonnull-return and default-arm-return controls both retain code/blocks
+and the200 epilogue, while parse-arm-only return does not. The source spelling
+is not uniquely recovered merely because multiple genuine exits reproduce it.
+
+Receipts: build/nc12/trackspec_loader_exit_20261022. source_contract.py permits
+only that one guarded return. record-proof.json compares274672 ordered non-SLD
+records/continuations: exactly one function-end field184->200 changes; every
+other payload, address, local/global/type/header/block field and order survives.
+Reprice capture removal on the new source: direct/member-address/record-pointer/
+int-value reads each retain63 words but differ in three raw instruction words;
+none preserves the whole ELF and none is adopted. This is not proof that the
+original had a named capture or that other source shapes cannot remove it.
+
+Isolated run-kpow4aad, combined run-yp_oes23 and final-proof.json:489 detailed
+SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE unchanged,
+all local/region/frame/type facts and other488 complete SLD maps preserved.
+Prior195strict/169absolute survive; now196/170. Tests105/vtable1368/policy/
+relink/canonical/raw299819/299819/overlap/foreign and fresh reports pass.
+This remains selected21-TU verification, not a whole-project source certificate.
+
+case-producer-proof.json traces lowercase nfs4 in compiler/assembler INPUT to
+uppercase NFS4 in the untouched ASPSX2.77 OBJECT, before PSYLINK or dumpsym.
+Raw retail SYM contains lowercase nfs4. Canonical kit and selected Win32 ASPSX
+have identical SHA256/version2.77. The private2.56 control rejects this input's
+%hi/%lo syntax; DOS2.72D fails A20/XMS initialization. Neither supplies a usable
+whole-object identity alternative. No assembler is replaced, output rewritten,
+or comparison weakened to hide the remaining raw filename-casing difference.
+trk, native raw path casing and the wider source-restoration goal remain open.
+All changes are uncommitted.
+
+2026-10-22 TRACKSPEC: five measured source anchors, four absolute contracts, loader partial.
+
+Measure each actual signature-to-native-header distance before anchoring it;
+all five here are2. Restore the retail C:/nfs4/GAME/PSX/TRACKSPEC.CPP identity
+with anchors42/117/125/143/203. All five headers now have the correct source
+line. Ordinary source layout gives full covered declaration/region/word/block/
+end contracts for SetDefault142 words (44/113), SetUp9 (119/121), read12
+(127/139), Load24 (205/207):187 words. SetUp/Load were already relative-exact;
+do NOT count their new absolute coordinates as two new relative restorations.
+SetDefault/read supply the two new strict relative seals. TRACKSPEC4/5 strict.
+
+Preserve all original i/j, spec, handle/source/dest and spec-table declarations.
+Real ring initialization70/body/backedge71 and sky initialization77, front RGB79,
+back RGB80, j initialization81, cloud store83/backedge84, ring85/backedge86
+recover their distinct source phases. Group actual RGB component stores rather
+than inserting placeholders or overriding per-statement locations. Byte-copy
+source acquisition131, for134, read/write/source advance136, loop/destination
+advance137 and handle completion139 also retain their genuine for-owned i.
+
+TrackSpec_Read recovers all three complete declaring-region pairs, all supplied
+locals/homes/order, its absolute header145, and56/63 instruction tags. Its
+legacy trk capture/name remains unprovided by retail and unresolved. Removing
+the old redundant explicit void return makes all block lines exact through184,
+but the epilogue/end remain184 versus retail200 (seven tags). Keeping that
+return on200 fixes those tags but incorrectly extends the root block to200.
+Do not conceal that tradeoff or call the loader fully SLD-exact.
+
+Private explicit-real-work-block controls are negative: root-declared trk
+preserves the whole normal ELF but adds two non-retail regions (eight versus
+six block records); direct track in that extra block also changes bytes.
+Neither is adopted and neither proves an original capture object was required.
+The next loader investigation must recover the real scope/end producer together
+with capture removal, not pad scopes or rename trk as if it were recovered.
+
+Receipts: build/nc12/trackspec_layout_20261022. token-proof.json permits only
+five measured anchors, ordinary whitespace/comments and deletion of that one
+redundant return; every other executable token and literal is unchanged.
+Four old unqualified SLD-VERIFIED labels are retired; older matching/floor
+experiments are explicitly history, not present source-object exemptions.
+phase-proof.json pins selected-stock compiler/input and proves -g -dr assembly
+byte-identical to native compilation. scope-controls.json retains the rejected
+scope candidates. relative-preservation.json independently retains EVERY old
+correct target word tag, not only previously whole-function-exact contracts.
+
+record-proof.json checks274672 ordered non-SLD records/continuations: only21
+planned function-header/file/block/end source fields change; all other record
+payloads, addresses, types and order survive. One raw textual discrepancy is
+explicit: native driver records C:\NFS4\... versus retail header C:\nfs4\....
+The source anchors use the retail spelling. Existing absolute gates compare
+Windows filename identity; the record receipt separately checks the literal
+native spelling. These are NOT character-for-character raw-header matches.
+No actual dump/reference is rewritten; native path-case production remains an
+explicit raw-record review item, not a hidden canonicalization claim.
+
+Fresh isolated run-5fmfmzqz and combined run-arf6719q preserve code. Final
+final-proof.json:489 detailed SOURCE-ONLY/branch-count PASS; all21 whole normal
+ELFs/native CPE unchanged; all489 local/region/frame tuples, other484 complete
+SLD maps, full type multisets and seven shared headers preserved. Prior193strict/
+165absolute survive; now195/169 under the existing filename-identity policy.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign,
+fresh SLD/inventory and whitespace gates pass. Selected21-TU scope, not a full
+project source-freshness certificate. No asm/volatile, qualifier, new object,
+fake scope/use, compiler flag or post-recompile rewrite is added.
+
+M2C read confirms three real inputs and byte strides. M2C Load's eight apparent
+Read arguments and Read's two apparent SetDefault arguments include stale
+registers/stack-copy data: keep retail SYM/raw one-argument signatures. Do not
+replace the real stack spec[2][2] table by decompiler temporary words.
+Renderer's two tags, Render_PTag, trk, loader epilogue and native path casing
+remain open; literal original syntax and the full goal are not proved. All
+changes remain uncommitted.
+
+2026-10-22 RENDER: five more covered SYM/absolute SLD seals; pause source order corrected.
+
+Restore InitTrackRender46 words (header563/end596), RestartTrackRender18
+(600/608), InitTrackRenderPostSim11 (612/619), Render_RenderDebugView2
+(332/354) and FlareThing67 (535/555):144 words, all supplied local tuples,
+absolute file/header/end coordinates and complete block records now match.
+FlareThing's if condition544 and opening brace545 are distinct source owners;
+keep RECT rec inside that real body. Rectangle writes547/548/549/550, image
+capture552, flag clear553 and loop increment555 recover the real phases.
+The empty debug-view function needs implicit void fallthrough, not the old
+explicit return that supplied a non-retail block-end line. No scope is added.
+
+Render_Render80 also improves78->2 differing instruction tags, with its block
+and function-end lines now exact. Restore actual pause-rectangle source order
+x439,y440,width441,height442, rather than copying execution order. Whole normal
+ELF remains byte-identical. Selected-stock initial RTL, first scheduling and
+global-allocation dumps retain x/y/width/height (store UIDs33/39/47/55).
+SECOND scheduling moves width ahead of x/y (47/33/39/55), while preserving
+the correct source notes. The dump-flag .s equals native compilation exactly;
+no debugger state, RTL, instructions or debug output is rewritten.
+
+The remaining pause-renderer discrepancy is precise: +0xf8 jump and +0xfc
+argument-one setup inherit483, versus retail489. The preceding second-view
+load at+0xf4 correctly carries483. Three ordinary argument/callee line-break
+controls move that load to489 too, and do NOT solve the split; none is adopted.
+Stock phase counts show three RenderPlayerView calls through sched2 and two
+after jump2 tail merging. This locates the transformation without proving its
+missing source producer. Do not add a speculative view capture, dummy statement,
+per-statement #line, goto or assembly fence merely to manufacture the two tags.
+M2C func_800B34A8.c preserves the actual pause guards/common calls. IDA's body
+folds some of those guards and guesses an int return; retail SYM/SLD and raw
+control flow remain authoritative over those decompiler artifacts.
+
+Receipts: build/nc12/render_remaining_sld_20261022. source_contract.py allows
+only the real three-store reorder and deletion of the redundant null-function
+return; all other executable tokens/literals/directives stay unchanged.
+phase-proof.json and scheduling-provenance.json pin stock compiler/input/dumps
+and prove the pass attribution above. call-layout-controls.json preserves the
+negative controls. record-proof.json checks274672 ordered non-SLD records and
+continuations: only14 planned block/function-end source-line fields change.
+All other addresses, types, local/global payloads and record order survive.
+
+Isolated run-ma60jmyf and combined run-w8hoah72: RENDER23/23 declaration and
+region PASS,22/23 strict (previously17/23). Final final-proof.json:489 detailed
+SOURCE-ONLY/branch-count PASS; all21 whole normal ELFs/native CPE unchanged;
+all489 local/region/frame tuples, other483 complete SLD maps, full named-type
+multisets and seven shared headers preserved. All prior188strict/160absolute
+contracts survive; now193/165. Tests105, vtable1368, policy/relink/canonical/
+raw299819/299819, overlap/foreign, fresh SLD/inventory and whitespace gates pass.
+These are selected21-TU checks, not whole-project source-freshness/completion.
+
+Render_Render's two tags and Render_PTag's unprovided global producer/name
+remain active investigations, not compiler floors or carrier exemptions.
+No new name/object, asm/volatile, qualifier, fake scope/use, compiler flag or
+post-recompile rewrite is added. Literal original text and the wider project
+restoration goal remain unproved/open. Changes are uncommitted.
+
+2026-10-22 RENDER: nine sequencer functions gain full covered SYM/absolute SLD contracts.
+
+Read the retail instruction tags, complete local owners and block/end records
+before changing source layout. Preserve all C++ tokens, literals and existing
+per-function anchors. Ordinary statement grouping and whitespace recover:
+CreatePlayerViews59 words (header92/end124), CreatePauseMenuViews19 (140/145),
+CreateViews14 (151/163), StartRenderingWorldView31 (169/209), RenderWorld41
+(223/255), RenderPlayerView19 (270/280), StartFrameRender16 (359/371),
+StopFrameRender8 (375/379), RenderPauseMenuView22 (393/407). Total229 words.
+No declaration, source object, qualifier, branch or scope is added or removed.
+
+Split-view creation calls belong to100/105 and single-view creation to115;
+the second-view disable and real exit share124. Keep the real player/comm-mode
+guard rather than manufacturing declaration scopes to move the block endpoint.
+The renderer's actual stack exchanges use SetSp at232/234,237/239,249/251,
+with real work between each pair. Preserve the SDK unsigned-word prototype and
+retail int savesp restored in the preceding checkpoint. Frame setup calls keep
+their separate361/363/365/369/371 source phases. Pause rendering saves and clears
+gFlip together on404, stops the view406 and restores gFlip/exits407. These are
+source groupings, not post-compile scheduling or debug-record modifications.
+
+Receipts: build/nc12/render_sequencers_sld_20261022. token-proof.json checks
+every C++ token/literal/directive unchanged. phase-proof.json pins the selected
+stock compiler and preprocessed input, proves its -g -dr output byte-identical
+to the native compilation and independently records all RenderWorld call tags.
+Isolated run-xbpg7nl0 and combined run-75ozg_dg: RENDER23/23 declaration/region
+PASS and17/23 strict, previously8/23. All229 word/file tags,18 block records,
+absolute headers/ends and supplied owner tuples match. record-proof.json checks
+274672 ordered non-SLD records/continuations: only nine planned function-end
+lines and CreatePlayerViews' block-end line change; all other payloads, values,
+addresses, types, local/global records and order are preserved.
+
+Final final-proof.json:489 detailed SOURCE-ONLY and branch/count PASS, all21
+whole normal ELFs/native CPE unchanged; all489 local/region/frame contracts,
+the other480 complete SLD maps, full named-type multisets and seven shared
+headers preserved. All prior179strict/151absolute survive; now188/160.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign,
+fresh global SLD/source-review reports and whitespace gates pass. This remains
+a selected21-TU verification, not a whole-tree source-freshness certificate.
+
+Remaining six renderer SLD work items are Render_Render (78 differing word
+tags), FlareThing (30), InitTrackRender (44), RestartTrackRender (14),
+InitTrackRenderPostSim (9), and Render_RenderDebugView (2 plus a block line).
+These are unfinished investigations, not proven compiler floors or unknowable
+source. Render_PTag's unprovided global producer/name also remains unresolved.
+Exact original comment/macro spelling and untagged statement coordinates are
+not uniquely proved by matched SLD; the wider restoration goal stays active.
+No new asm/volatile, fake use/scope, carrier, tool flag or output/reference
+rewrite. All changes remain uncommitted.
+
+2026-10-22 RENDER: six canonical SDK function declarations restored.
+
+Replace all six SDK ellipsis declarations in render_externs.h with the exact
+PsyQ4.3 interfaces from PSX43/psx/include/LIBGPU.H:722/737/744/766/770 and
+LIBAPI.H:83: DrawSync, StoreImage, GetTPage, SetDrawMode, SetDrawStp and SetSp.
+GetTPage returns u_short, not int; its caller no longer needs the artificial
+nested unsigned/halfword result casts. SetDrawMode has five parameters.
+SetSp takes and returns unsigned long address words, NOT void pointers.
+Keep retail's int savesp and express its three genuine scratch-stack exchange
+pairs with explicit u_long argument casts; no new source object is introduced.
+Only render.cpp includes this TU-local extern header; no shared type changes.
+
+Receipts: build/nc12/render_sdk_prototypes_20261022. token-proof.json checks
+all six declarations against the actual canonical header tokens, permits only
+the six stack-argument casts and removal of redundant GetTPage result casts,
+and preserves every other caller token/literal/directive. Header SHA256 values
+are pinned. Raw ROM SetSp at800e44ac is03a01021/03e00008/0080e821: one a0
+word input and old sp in v0, with stack replacement in the return delay slot.
+The SDK header, not that raw word transfer alone, establishes unsigned long.
+An int-return GetTPage control also emits identical bytes: byte equality does
+not justify adopting its wrong documented source return type; it is rejected.
+
+Selected-stock phase-proof.json checks -g -dr assembly byte-identical to native
+compilation. Isolated accepted run-ath5n4ix and combined run-qp0j8blb preserve
+the COMPLETE native SYM dump byte-for-byte, not merely selected local counts.
+Final final-proof.json:489 detailed SOURCE-ONLY/branch-count PASS, all21 whole
+normal ELFs and native CPE unchanged, all489 local/region/frame/SLD contracts,
+full named-type multisets and seven shared headers unchanged. Prior179strict/
+151absolute contracts survive; no additional SLD seal is claimed this round.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign
+and whitespace gates pass. No compiler/debug/instruction/reference rewrite,
+new asm/volatile, pin, source alias, qualifier, fake use or scope is added.
+
+This completes the SDK-prototype review proposed in the prior depth receipt.
+Render_PTag's unprovided global producer/name, remaining body source/SLD maps
+and the full project restoration goal stay open. Changes remain uncommitted.
+LoadFileAdr's retail block records only name and buf, both char* in register16;
+no size identifier is supplied. Do not add or label a size local as original
+merely because it is debug-elided and byte-compatible; its producer remains
+unresolved pending further source evidence or an explicit naming decision.
+
+2026-10-22 RENDER depth-of-field: complete120-word covered SYM/absolute SLD layout.
+
+Read all120 retail source tags, all eight block records, frame48/mask800f0000
+and the supplied prim POLY_F4*/a2, stp_prim DR_STP*/a0 and dr_mode DR_MODE*/s0
+owners. Their address ranges/depths/types/homes remain unchanged. Preserve
+the early failed-mode return, not an added enclosing declaration scope.
+Move only the existing historical allocation comment outside the function
+anchor; ordinary whitespace now places the real mode guard803, first stamp
+test806/call807 and second test809/call810. No executable token changes.
+
+The existing real primitive blocks and SDK operations supply allocation/link/
+advance816, format817, semi-transparency818, XY819 and RGB820; STP setup826/
+call827; mode setup833 and nested page/mode call834. End836 is restored.
+Native optimized scope records remain faithful even where a nonempty source
+block emits a zero-length address region. Do not replace these genuine typed
+owners by fabricated empty blocks or infer that their pointer values are dead
+from debug endpoints alone. All120 word/file tags and block lines now match.
+
+Receipts: build/nc12/render_depth_sld_20261022. token-proof.json verifies every
+C++ token/literal/directive unchanged. phase-proof.json pins selected-stock
+compiler/input/source hashes and checks the entire -g -da assembly equals
+native compile. The hoisted SetDrawStp enable argument still carries its real
+call line827, even while executing in the earlier primitive sequence. The
+large historical comment is evidence/history, not original source text or a
+present allocator-floor exemption. One whitespace preview put mode setup at834
+instead of833; removing one blank line corrected the plan before native gating.
+
+Isolated run-nrm6zqk8 and combined run-p8pxxyd8 seal header790/end836,
+all120 tags, eight block records and three complete tuples:115 differences->0,
+old end849->836. record-proof.json preserves274672 ordered non-SLD records/
+continuations except exactly eight planned target block/end line fields.
+Every other value/address/type/global/local/header and record order survives.
+No record, compiler output, reference or instruction is rewritten.
+
+Final final-proof.json:489 detailed SOURCE-ONLY/branch-count PASS, all21 whole
+normal ELFs/native CPE unchanged, all489 local/region/frame contracts and
+other488 full SLD maps preserved. Full named-type multisets and seven shared
+headers unchanged. Prior178strict/150absolute survive; now179/151. RENDER8/23
+covered-record strict, all23 declaration/region PASS. Tests105, vtable1368,
+policy/relink/canonical/raw299819/299819, overlap/foreign and whitespace pass.
+No new asm/volatile, pin, alias, qualifier, scope, use, tool or compiler flag.
+Render_PTag's unprovided global producer/name remains open; source literal
+macro/comment recovery and the full project goal remain active, uncommitted.
+
+Concrete next SDK-header review: render_externs.h still uses ellipsis forms
+for GetTPage, SetDrawMode and SetDrawStp. Canonical LIBGPU.H supplies
+u_short GetTPage(int,int,int,int), void SetDrawMode(DR_MODE*,int,int,int,RECT*)
+and void SetDrawStp(DR_STP*,int). These are known-source candidates, not
+accepted changes in this layout-only checkpoint; price return/argument ABI
+effects and keep all PASS/native contracts before adoption.
+
+2026-10-22 RENDER StampImage: complete SDK/source/absolute SLD contract87.
+
+Read every retail instruction tag and all five supplied parameter/local tuples,
+the four block records and updated M2C func_800B38A8.c. Preserve xo/depth as
+SYM INT parameters; M2C's s16 arg0 inference is not authoritative arity/type
+evidence. The real root ft4_p/frame and for-owned i keep their types, homes,
+depths, address ranges, frame0 and mask. No new temporary is introduced.
+
+Retail groups UV stores on740, all rectangle coordinates741, RGB742 and page
+selection743, despite the machine's XY-edge stores preceding UV. Restore
+canonical SDK setUVWH then setXYWH, not flat decompiler store order. Define
+those actual documented interfaces plus setPolyFT4/getTPage from canonical
+LIBGPU.H. Header setup is setPolyFT4 on737 followed by setSemiTrans(...,1)
+on738, rather than a hardcoded combined0x2e opcode. SDK flags yield the same
+code. Acquire/link/advance are real operations grouped on735; addPrim precedes
+packet advance in source, with unchanged native execution order. No fake use.
+
+getTPage(2,0,pageX,0x100) supplies the actual16-bit texture/ABR0/y256 fields:
+the constants reduce to0x110, matching the old expression and raw ORI.
+Coordinate/page algebra is checked over25620 bounded xo/frame/tile cases;
+this is not a whole-function runtime differential. Macro signatures and exact
+selected implementations are checked against actual SDK interfaces. Original
+literal NFS4 macro choice (WH versus another equivalent spelling) is not
+uniquely proved by tag equality; no original comment text is reconstructed.
+
+Private controls test real UV/XY/header/link designs. Eight nonbaseline
+legacy-or-UV-before-XY controls preserve the entire normal ELF; all four
+XY-before-UV controls fail whole-ELF equality and are not adopted. The selected
+SDK source also preserves the whole ELF. source_contract.py permits only the
+four SDK definitions and this exact measured StampImage body; all other
+source tokens/literals/directives and existing macro bodies are unchanged.
+Ordinary layout restores the first frame guard715, selection716/718, x guard
+720/zero721, for732, operations735/737/738/740..743 and loop/return/end769.
+No per-statement anchor, new scope, qualifier, object, flag or dummy statement.
+
+Stock phase-proof.json pins CC1PLPSX/input/source hashes and confirms its entire
+-g -da assembly equals native compile. Initial RTL has UV before XY; that
+order survives first scheduling and global allocation. The SECOND scheduler
+moves the two XY-edge stores earlier, retaining741 versus UV740. An initial
+diagnostic assumed first scheduling and failed; it was corrected to the
+observed second pass, not by modifying source/reference/acceptance results.
+The redundant header code-byte store count goes2->1 at flow after the genuine
+SDK setup/enable sequence. No instruction, compiler state or note is rewritten.
+
+Receipts: build/nc12/render_stamp_sld_20261022. Isolated run-wkk_zhma and
+combined run-kax7yu4x seal all87 absolute word/file tags, all four block
+records, header711/end769 and all five complete tuples:86 differences->0,
+old end758->769. record-proof.json preserves274672 ordered non-SLD records/
+continuations except exactly four intended fields: loop start18->22,
+loop end47->59, root end48->59 and function end758->769. Every other type,
+global, local, value/address/kind and record order survives without a rewrite.
+
+final-proof.json certifies489 detailed SOURCE-ONLY/branch-count PASS, all21
+whole normal ELFs/native CPE unchanged, every local/region/frame tuple and
+other488 full SLD maps preserved, all named-type multisets and seven shared
+headers unchanged. Prior177strict/149absolute survive, now178/150; RENDER7/23
+relative/absolute covered-record contracts, all23 declaration/region PASS.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign
+and whitespace pass. Render_PTag's unprovided global name/producer remains
+explicitly open; these SDK operations do not exempt it. Sixteen other render
+maps and the full project goal remain active; this checkpoint is uncommitted.
+
+2026-10-22 RENDER primitive interfaces: canonical SDK names/arity, unchanged complete SYM.
+
+Replace the seven reconstruction-specific RENDER_* macro definitions/call
+spellings with the documented PsyQ4.3 interfaces: setlen/setaddr/setcode,
+getcode/getaddr, addPrim, setPolyF4, setSemiTrans, setXY4 and setRGB0. Their
+names AND formal parameter names/counts are checked against actual canonical
+LIBGPU.H, including setXY4's nine args and setRGB0's four. In particular,
+replace the hardwired one-argument semi-transparency wrapper by the real
+setSemiTrans(prim,1) call. Its1 is the actual enable flag, not a fake operand.
+The SDK's enable/disable semantics preserve all other code bits;1024 byte/
+flag model cases cover all256 codes and flags-1/0/1/2. This is a macro-contract
+model, not a new whole-function runtime differential or proof of unused paths.
+
+StampImage's actual OT reads/writes and length update now use setaddr/getaddr/
+setlen without fusing them across the real Render_gPacketPtr advancement.
+The first link call stays on the old completed-assignment source line, with
+ordinary whitespace preserving the old two-line extent. InsertDepthOfField
+uses addPrim/setPolyF4/setSemiTrans/setXY4/setRGB0 at its existing sites.
+No source object, helper function, type or qualifier is added. Source-level
+API restoration does not imply literal original NFS4 macro text is uniquely
+recoverable: those macro names are SDK-source evidence, not SYM name records.
+
+The implementations deliberately still use the existing Render_PTag view.
+That unprovided global type/name/producer remains explicit review work; SDK
+call names do not canonize it or hide its unmatched records. No new P_TAG
+typedef, type filter, fake alias, scope, use or compiler setting is introduced.
+Source macros are ordinary expressions; no asm or volatile is added.
+
+Receipts: build/nc12/render_sdk_macro_source_20261022. token-proof.json checks
+the ten exact implementations, SDK signatures and only their actual call-site
+replacements; every other source token/literal/directive is fixed. SDK header,
+selected-stock compiler, source and input hashes are pinned. phase-proof.json
+confirms complete -g -dr assembly equals native compile. Isolated run-9ymk759h
+and combined run-ghxyq4bm have a byte-identical COMPLETE native SYM dump and
+CPE, not merely equal issue counts. Thus every record, ordering, source file,
+header/word/block/end line, local, type and global survives without a rewrite.
+
+Final final-proof.json:489 detailed SOURCE-ONLY/branch-count PASS; all21 normal
+ELFs/native CPE and every489 local/region/frame/full-SLD contract unchanged.
+All named-type multisets, seven shared headers and177strict/149absolute seals
+survive. Tests105, vtable1368, policy/relink/canonical/raw299819/299819,
+overlap/foreign and whitespace pass. No new SLD seal or type/name recovery is
+claimed for the global tag view. Main source-restoration goal remains active;
+this verified source-interface checkpoint is uncommitted.
+
+2026-10-22 RENDER calibrated source anchors:23 headers/files restored, six absolute seals.
+
+Read all23 owning retail/native function records and derive each signature-
+to-native-header distance from the actual source, not the comment labels.
+Every definition in this TU measures distance2; that is a measured property
+of these23 definitions, not a universal header-minus-two rule. Apply one
+per-function anchor with the exact retail C:/nfs4/GAME/COMMON/RENDER.CPP
+identity and header minus its measured distance. No statement-level anchors,
+body reflow, new placeholder, qualifier, object or executable use is added.
+
+Source body text is byte-for-byte identical after removing only those23
+directives. All23 relative instruction-line maps, block lines and end deltas
+are preserved, including17 still-incomplete internal layouts. All absolute
+headers/filenames now agree. Six PRE-EXISTING relative contracts now gain
+complete absolute word/file/block/end certificates: InitBlurMode26,
+InitLibRender8, InitPauseMenu8, KillPauseMenu8, KillTrackRender26 and
+StopRenderingWorldView8 (84 words). These are six newly qualified absolute
+contracts, NOT six new relative restorations or23 completed source functions.
+The global tag-view/type producer and literal macro/label text remain open.
+
+Receipts: build/nc12/render_anchors_20261022/anchors.json and final-proof.json.
+The manifest pins every old physical signature/header, derived anchor, owning
+retail header and file. Isolated run-6hgxb8wk and combined run-gopwzv94
+confirm23/23 declaration/region contracts and unchanged6/23 relative strict.
+Checked union177strict is unchanged; absolute143->149. Every earlier seal
+and every complete local/region/frame tuple survives. Other466 full source
+maps remain unchanged; all global named-type multisets and seven shared
+headers also survive, including the preceding StampTag removal.
+
+Final gates:489 detailed SOURCE-ONLY/branch-count PASS, all21 whole normal
+ELFs and the complete native CPE byte-identical. Tests105, vtable1368,
+policy/relink/canonical/raw299819/299819, overlap/foreign and whitespace pass.
+No tool, compiler flag, asm/volatile, pin, output or reference rewrite; no
+new source-name inference. The seventeen internal RENDER maps and broader
+source-restoration obligations stay active. This checkpoint is uncommitted.
+
+2026-10-22 RENDER StampImage: remove an unprovided local type, without new records.
+
+Fresh SOURCE-ONLY baseline verifies all23 render functions, including
+StampImage87 and InsertDepthOfField120. Retail StampImage supplies xo/depth,
+POLY_FT4* ft4_p, frame and for-owned i; it supplies no StampTag type. Native
+had a four-byte StampTag structure/field body plus two typedef copies. The
+canonical PsyQ4.3 LIBGPU.H:382..385 P_TAG definition confirms the tag-word
+prefix: unsigned addr24, len8, followed by primitive RGB/code. Actual source
+header and hash are pinned in phase-proof.json, not inferred from a decompiler.
+
+Remove the local StampTag declaration, use the already-present tag view at its
+three actual address accesses, and replace the raw byte+3 length poke with its
+len=9 field. No source variable/object/storage is removed or introduced; this
+is a type/source-expression correction. All87 instructions and the entire
+normal ELF remain byte-identical. Existing lines are preserved, so every
+before/after function header, word/file tag, block line and end also survives.
+
+The larger cleanup was tested, not silently adopted: replacing both invented
+tag types by canonical anonymous P_TAG preserves code but emits two additional
+type records absent from retail RENDER.CPP. A type-free tag-word/mask form
+changes the normal ELF. Neither is kept or filtered out of generated SYM.
+Only the independently verified StampTag removal is accepted. Render_PTag's
+name and original producer remain explicitly unresolved in source; its layout
+equivalence to SDK P_TAG is not an original-name or type-record exemption.
+No fake qualifier, alias, wrapper scope or output/debug rewrite is used.
+
+The TU's misleading six-function header now states23. Twenty-two unqualified
+SLD-VERIFIED comment labels become SLD-CHECK-REQUIRED: the native board has
+only six relative contracts, not23 absolute source restorations. The old
+InsertDepthOfField allocation/source-invariance verdict is marked historical
+and explicitly not an exemption; its current strict code gate is120PASS.
+All these comment edits preserve line counts and every executable token.
+
+Receipts: build/nc12/render_psyq_tag_source_20261022. source_contract.py permits
+only the local type removal, three existing-view casts and len field change;
+every other code token/literal/directive is fixed. type-proof.json compares
+the entire ordered native record stream, preserving every VA/kind/payload,
+function/local/frame/region/SLD/global/type fact except exactly six compiler-
+removed records: STRTAG StampTag, its addr/len FIELD rows and EOS, and its two
+TPDEF copies. Those are three named-type records; no new type record is added,
+no retail-supplied type is removed, and all other TU type multisets survive.
+No dump is rewritten; only dump byte-position prefixes are representation-
+independently compared. There is no manual type filter or reference refresh.
+
+Isolated accepted run-50z3aiep and combined run-6arhg4vn preserve all23 render
+declaration/region contracts and all489 selected contracts. final-proof.json
+certifies489 detailed SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native
+CPE unchanged, all489 complete line/block/end tuples and local/region/frame
+facts preserved, every177strict/143absolute seal retained, and seven shared
+headers unchanged. Tests105, vtable1368, policy/relink/canonical/raw299819/
+299819, overlap/foreign and whitespace pass. No shared header, tool, flag,
+asm/volatile, pin, output or reference is changed. Named-type/source progress
+is not a new full-SLD seal or complete render type graph. Main goal remains
+active; the global tag-view and wider restoration backlog stay open, uncommitted.
+
+2026-10-22 BWORLD build-list row investigation: no production experiment adopted.
+
+Fresh selected-stock baseline SetupChunkBuildList is203 words. Retail names
+Vi, chunkInd, chunkCount, totalVisChunks, viewInd and the six body locals,
+but not chunkViewList. Read all supplied homes/owners, current typed32-short
+row, all203 raw words and updated M2C func_8007DD74.c. The unrecorded name is
+supported specifically by NFS2 BuildFacets' PTR SHORT parameter and
+BWorld_SoundTrack's local, including their NFS2 SYM rows; it is NOT a recovered
+NFS4 SetupChunkBuildList local name or a matching NFS2 function declaration.
+
+build/nc12/bworld_buildlist_row_source_20261022/probe-proof.json tests six
+ordinary no-row-object forms: canonical row, flat typed, three byte/index
+orders and explicit typed row. They all change .text, not merely symbol
+metadata. Five grow203->230 words; the flat form grows203->229. Their
+generated target references to Track_gInViewList increase1->4 and to
+gCurrContext3->6. All other measured loaded data sections remain identical.
+An initial size-summary assertion assumed all six were230; inspection caught
+the229 flat case, the saved probe now records every actual target size, and
+all six were rerun before reporting. No candidate is adopted.
+
+The retail s3 row value survives the calls and advances through the chosen
+row; repeatedly re-reading live globals is not the same generated program.
+GCC2.8.1 loop.c invariant_p rejects ordinary memory as loop-invariant when a
+call sets unknown_address_altered, consistent with these measured stock
+reloads. This explains the tested failures, not a universal compiler identity
+or floor. It establishes a retained machine-value role, NOT the unique
+original C object, declaration form, name, helper signature or macro syntax.
+Do not turn it into a generic source-object exemption or add const/volatile
+disguises, hidden attributes, a pointer pun through an unrelated supplied
+local, or a new alias merely to force the wanted debug note.
+
+The remaining high-address tag is still688 versus retail677. Four real
+counter-initialization forms (combined/separate declaration initialization,
+for-chained initialization and independent zero view initializer) preserve
+the whole normal ELF but leave that tag688. Three real comma for-initializers
+move the actual count/row/zero setup under a for starting677, retaining actual
+view initialization/condition688; these also preserve the whole ELF and leave
+the inspected tag688. They do not fix the producer. No full native/SLD
+acceptance is claimed for these private neutral controls and none is kept.
+The next unresolved evidence question is the real early address producer,
+not counter declaration spelling; no statement-level anchor or dummy use.
+
+Only the in-source review comment is updated with this narrower evidence.
+checkpoint.py verifies every C++ token/literal/directive unchanged, fresh
+21-function BWORLD SOURCE-ONLY and branch/count PASS, all21 normal ELF hashes
+unchanged, and the COMPLETE native dump/CPE byte-identical to the preceding
+177strict/143absolute checkpoint. Therefore its previously checked489 code
+contracts and all prior seals are preserved by artifact identity; this round
+does not claim a fresh489-function rerun or a new strict function seal.
+BWORLD stays19/21 covered-record strict. Both row-name/declaration recovery
+and the one line tag remain open. No code change, object removal, workaround,
+tool/flag/output/reference rewrite is adopted. Main goal active, uncommitted.
+
+2026-10-22 BWORLD context/restart covered-record layout seals; source dummies OPEN.
+
+Do NOT interpret these two new native/SLD seals as recovery of their existing
+unrecorded int unused declarations. They remain explicitly unresolved in
+source; Restart's old generic empty-region justification is replaced with
+that obligation. No new variable/name, GNU work expression or scope wrapper
+is adopted. token-proof.json verifies every C++ token/literal/directive
+unchanged, including both dummy declarations. Only ordinary layout and an
+explicit review comment differ. The full original-source goal stays open.
+
+Before layout, private controls under build/nc12/bworld_empty_scope_source_20261022
+compare real call/conditional/work forms. Plain UpdateContext if and comma
+forms preserve the whole normal ELF but have two debug block records rather
+than retail six. The tested GNU work forms have four/eight/ten, not six;
+none is accepted. Restart's plain/ordinary compound call preserves bytes but
+has two records versus four. A GNU expression around the actual first call
+has the same four zero-ordinal records as the dummy control. This is a bounded
+compiler diagnostic, NOT independent proof of the original source producer,
+macro or an original object/name. It is not adopted merely to conceal the
+unresolved obligation. No full native acceptance is claimed for private probes.
+
+Accepted UpdateContext46 restores SetContext143, context test145/store146,
+first closest-quad call202, off-edge test204/open205, actual fallback208 and
+retry209, chunk test213 and real chunk assignment/return/end216. All46 word/
+file tags, six block records, two parameter tuples, frame32/save mask and
+absolute header140/end216 match;40 tag differences->0. The source gap preserves
+known coordinates, not reconstructed unknown PC conditional text/comments.
+Raw LH of slice and LB of offEdge remain correctly typed; M2C's broad integer
+rendering does not override those real field widths or the real third arg1.
+
+Restart23 retains the actual call/store sequence: kill1233, init1234,
+context1235, spike1237, animation1239, SceneLoaded1242, custom objects1243,
+DoVSync1247 and world restart/return1250. Compacting the EXISTING dummy block
+and first call onto1233 changes no token or object. All23 tags, four existing
+zero-length block records, header1232 and end1250 match;21 differences->0.
+Empty scoped source remains an explicit producer question, not an exemption.
+
+Receipts: build/nc12/bworld_context_restart_sld_20261022. phase-proof.json pins
+selected stock compiler/input/source hashes and confirms its full -g -dr
+assembly equals native compile. record-proof.json preserves274678 ordered
+non-SLD records/continuations, including globals/types, except the seven
+planned source-coordinate fields: five UpdateContext block lines, its end
+and Restart's end. Dump positions are not VAs; no dump/reference is rewritten.
+No stored/type/scope-address fact changes. The whole normal ELF also remains
+byte-identical, with the preceding checkpoint's audited import order retained.
+
+Isolated run-yfzyfh3g and combined run-lgdiapwb give BWORLD19/21 covered-record
+strict and unchanged21/21 declaration/region PASS. Checked union175->177
+strict and141->143 absolute, all prior seals preserved. Final final-proof.json
+certifies489 detailed SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/
+native CPE unchanged, every local/region/frame tuple preserved, other487 full
+SLD maps unchanged, named-type multisets and seven shared headers unchanged.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign
+and whitespace pass. No tool/flag, asm/volatile, pin, output or reference change.
+Both dummy producers and the remaining two BWORLD SLD cases stay active;
+these changes are uncommitted, not full project/source completion.
+
+2026-10-22 BWORLD visibility full source-order/absolute SLD follow-up.
+
+This supersedes the prior78/80/637 line-map backlog, not the literal original
+macro/label-text uncertainty. With both captures already gone, ordinary
+if/else1/0 result selection replaces the decompiler XOR return. All seven
+selection/predicate controls preserve the normal ELF. The real comparison
+belongs on640, true return641 and false return643: initial RTL contains the
+conditional, first jump optimization folds it, and the separate return phase
+supplies the retail643 epilogue/root-end notes without a result variable.
+
+Restore chunkViewList initialization608 BEFORE count read611, as retail
+notes require. Stock RTL through combine preserves that source order; first
+scheduling reverses the global references into the unchanged machine order,
+keeping their608/611 tags. Group actual count decrement/zero/loop entry on612,
+chunk read614, first test615/flag617/count+guard622, second test626/flag628/
+count+guard633 and decrement/backedge634. Both real lookups share their
+respective604/605 statement lines. The same-pointer guard600 and final
+result-selection640..643 complete all80 absolute word/file tags, both block
+records and all nine supplied tuples. Source header590 and end643 now agree.
+No new object, scope, name, qualifier, device or statement-level anchor.
+
+Important whole-ELF diagnostic correction: base-before-count controls were
+initially rejected by byte identity, but comparison shows their COMPLETE
+normal instruction assembly is unchanged. Only the adjacent .extern order
+of Track_gInViewList/Track_gInViewCount differs. Do not infer a code floor
+from this. object-proof.json strictly permits ONLY the two GLOBAL/UNDEF
+symbol rows68/69 swapping, their adjacent string order and eight relocation
+symbol-index substitutions. Every ELF/section header, loaded byte, storage
+size/alignment, ordered symbol-resolved relocation target/addend and every
+other raw metadata byte agrees. No object is modified. No comparator/tool,
+retail reference or byte reference is changed. This is a precisely measured
+metadata-order exception, NOT permission to ignore general object differences,
+defined-symbol/data ordering, bad offsets or wrong relocation targets.
+
+The native debug audit is independently stronger than a name/count check:
+record-proof.json compares274678 ordered non-SLD records/continuations from
+the complete existing dump. Every VA/kind/payload, global, type, local and
+order survives, except this target's intentional root-end48->54 and function
+end637->643 fields. Dump file positions and the empty EOF position are not
+VAs or record payloads; only those position prefixes are omitted in comparison.
+No dump is rewritten. Unrelated SLD maps are checked independently too.
+
+Receipts: build/nc12/bworld_visibility_sld_20261022. phase-proof.json pins
+selected-stock compiler/input/source hashes and checks its full -g -da
+assembly equals native compile. token-proof.json permits ONLY the real
+base/count source-order repair and if/else result selection; every other
+code token/literal/directive is fixed. Initial line-print diagnostic failed
+PowerShell quoting without changing files; direct native comparison then
+confirmed the first source candidate exact. The record diagnostic initially
+reported only the dump's trailing EOF byte position; corrected its position
+handling explicitly, not any semantic record or reference.
+
+Isolated run-d9yrvgsg and combined run-03hw6vnq seal all80 tags:78 differences
+->0, end637->643. BWORLD now17/21 strict, unchanged21/21 declaration/region
+PASS. Checked union174->175 strict and140->141 absolute; all previous seals
+survive. The four remaining BWORLD cases and full project obligations stay
+active. Literal original expression/macro/label spelling remains unproved.
+
+Final final-proof.json certifies489 detailed SOURCE-ONLY/branch-count PASS,
+every ordered local/region/frame tuple and prior seal preserved, other488 full
+SLD maps unchanged, full named-type record multisets and seven shared headers
+unchanged. Twenty normal ELFs remain byte-identical; BWORLD differs ONLY by
+the exact audited two-import order change. All21 loaded bytes/storage/resolved
+relocations and the complete native CPE are unchanged. Tests105, vtable1368,
+policy/relink/canonical/raw299819/299819, overlap/foreign and whitespace pass.
+No new asm/volatile, pin, alias, dummy use/scope, tool/flag, output or reference
+rewrite. Main goal stays active; this verified checkpoint is uncommitted.
+
+2026-10-22 BWORLD visibility: remove both unrecorded preliminary-index captures.
+
+BWorld_CheckChunkVisible supplies the two pointer parameters and seven root
+locals, including final chunk IDs testChunkIndFwd in t3 and testChunkIndBwd
+in v1. It does not supply sliceIndexFwd/sliceIndexBwd. Read every provided
+tuple, the two root records, all80 raw words and updated M2C func_8007DC14.c;
+IDA/Redec omit or corrupt some wrapping/base information, so do not blindly
+transcribe their pointer expressions or invented locals. The 32-byte stride
+and actual chunkIndex byte field at+0x1c are independently fixed by raw/types.
+
+Earlier direct typed-pointer forms distribute an adjusted constant index into
+an unadjusted index scale plus64/-64. Explicit shifts fix that no-wrap
+grouping, but using integer/byte shifts for BOTH arms still fails: the wrap
+arithmetic can reuse index-minus-count instead of retaining count-minus-two
+and the original slice operand. Keep the wrap arms as genuine typed slice
+arithmetic and make ONLY the no-wrap arms byte offsets of the adjusted index.
+All24 all-shift/negative forms fail whole-ELF equality;21 mixed controls
+(forward/backward/both and signed/unsigned/base/operand variants) preserve it.
+Both captures can be removed together, not replaced or renamed.
+
+Selected source uses (int)((u_int)(slice +/-2)<<5) as the actual no-wrap
+byte offset. This avoids a negative signed shift and restores the signed
+target-word offset, rather than adding a qualifier/disguised alias. Every
+signed-short input and nine slice-count values are checked:1,310,720 offset
+comparisons match the old arithmetic, including negative indices as algebra.
+This is an offset model, NOT a claim of valid dereferences for every input,
+a whole-function runtime differential, or portable original literal syntax.
+
+Compiler explanation: GCC2.8.1 cp/typeck.c pointer_int_sum at3915 explicitly
+separates a constant term before element-size multiplication. It explains the
+naive typed-pointer failure; it is not proof that the selected 2.8.0 executable
+is byte-identical to that source. phase-proof.json independently pins stock
+compiler/input/source hashes, confirms the accepted count-minus-two wrap
+grouping versus the failed all-shift control, and checks the entire -g -da
+assembly equals native compile. No compiler state or generated note/code
+is changed. The unsigned mixed-probe label initially failed to select the
+unsigned expression; corrected the harness and reran EVERY mixed control
+before adoption. Final probe-proof.json contains those actual reruns.
+
+Ignored receipts: build/nc12/bworld_visibility_shift_20261022. token-proof.json
+allows only the two actual lookup replacements; other code/literals/directives
+are fixed. Both source declarations disappear, while native still has exactly
+the same nine complete parameter/local tuples and the same root region/frame.
+They were debug-elided already: no reduction in legacy native EXTRA462 is
+claimed. The obsolete branch-floor/ACCEPT comment is retired, including its
+incorrect claim that an int-cast pointer addition is scaled by sizeof.
+
+SLD remains explicitly incomplete:78/80 tag differences, root end637 versus
+retail643, unchanged prior two correct backedge tags. The ten-line replacement
+keeps all other body coordinates. Three early-guard do/while/for controls
+preserve bytes, but are not needed/adopted. All six positive-work-guard
+controls and three direct-return controls fail whole-ELF equality. The
+positive guard moves the true-result setup from entry branch slot to final
+return slot; do not adopt it merely to make a plausible source layout. The
+remaining loop/goto spelling and full statement-note producer stay open.
+
+Isolated run-4v0i41k5 and combined run-d_55p8rb preserve21/21 BWORLD
+declaration/region contracts,16/21 strict and checked union174strict/140absolute.
+These are partial-directory snapshots, not full source-restoration claims.
+
+Final final-proof.json certifies489 detailed SOURCE-ONLY/branch-count PASS,
+all21 whole normal ELFs and native CPE unchanged, every ordered local/region/
+frame tuple preserved, other488 full line/block/end maps unchanged, both prior
+correct target tags and its region/end coordinates preserved. Full named-type
+record multisets, seven shared headers and all174strict/140absolute seals
+survive. Tests105, vtable1368, policy/relink/canonical/raw299819/299819,
+overlap/foreign and whitespace checks pass. No new asm/volatile, pin, dummy
+use/scope, object/name, tool/flag or output/reference rewrite. Two genuine
+source-only captures removed; full project goal remains active, uncommitted.
+
+2026-10-22 BWORLD search ownership and distance statement follow-up.
+
+The glare dummy is NOT required merely to reproduce its code. In
+build/nc12/bworld_search_scope_20261022/probe-proof.json, three ordinary
+no-dummy infinite-while/positive-body controls reproduce the entire normal
+ELF, including all86 target instructions. They avoid the exit-test duplication
+seen in the previous clean for control. However their compiled debug output
+has26 block records versus retail30: two supplied regions are missing.
+They are rejected, not accepted source repairs. This supersedes any inference
+that all ordinary no-dummy loop designs necessarily change code bytes.
+
+The real-body work-expression control also preserves the entire normal ELF
+and30 debug block records, but the start/end instruction ordinals differ from
+the baseline's supplied regions. A count match is not a region identity match.
+Those saved GAS ordinals are diagnostic, not native word offsets; no full
+native acceptance is claimed for a rejected private control. candidate-review.json
+records the distinction. Other actual search/result-expression forms fail
+whole-ELF equality. None is adopted, and no empty wrapper, replacement dummy,
+qualifier, fake identity/use or inferred object name is added.
+
+The source comment at the existing unused pt1 now states the accurate bounded
+result: clean byte-identical source exists, but the real binding/loop producer
+and its supplied endpoints still need recovery. The comment stays four lines,
+preserving the target's current SLD map. The supplied pt1 is instead the real
+Halo2 argument's separate+232..+232 owner; do not merge those scopes merely
+because their identifiers coincide. NFS4 PC mapping map_a6.txt explicitly
+classifies BuildGlareEffects as PSX-only; no PC body was found by that name.
+That search does not prove the original PSX macro/inline producer unavailable.
+
+Accepted distance change is whitespace only. xzsquaredist32 supplies only
+c1/c2 PTR coorddef in a0/a1, frame0, root+0 lines127..128 and end128. All17
+retail words carry128. Matched NFS2 bworld/xzsquaredist32.c confirms the same
+two squared, shifted coordinate-difference terms; updated M2C creates two
+temporary names, but retail supplies neither. Keep the expression and do not
+introduce those captures. Put the complete existing return on128, restoring
+all17 tags, both block records and end128; old completed-return129 disappears.
+No original literal macro/comment text is uniquely recovered by this layout.
+
+phase-proof.json pins the selected stock CC1PLPSX/input/source hashes. Before
+emits129/129 notes and root end relative3; after emits128/128 and relative2.
+Its full -g -dr assembly equals the native compile byte-for-byte. No output
+or debug record is rewritten. token-proof.json checks every C++ token, literal
+and directive unchanged, including glare; only layout and the review comment
+differ. Isolated run-osvf091g and combined run-9tj26txi give BWORLD16/21
+strict, unchanged21/21 declaration/region PASS. The checked union gains
+173->174 strict and139->140 absolute seals; its five remaining BWORLD cases
+and every unresolved carrier remain open. This is not full source restoration.
+
+Final final-proof.json certifies489 detailed SOURCE-ONLY/branch-count PASS,
+all21 whole normal ELFs/native CPE unchanged, every ordered local/region/frame
+tuple and prior seal preserved, other488 full line/block/end maps unchanged,
+full named-type record multisets and seven shared header hashes unchanged.
+Tests105, vtable1368, policy/relink/canonical-link/raw299819/299819, overlap/
+foreign and whitespace checks pass. No source object is removed or added in
+this accepted checkpoint. No new asm/volatile, flag, tool, output or reference
+rewrite. The wider goal stays active; changes remain uncommitted.
+
+2026-10-22 BWORLD result selection: native branchless code from ordinary if/else.
+
+GetRezIndex's decompiler-style XOR/shift return is unnecessary. Read the
+retail dist INT REGPARM:a0, frame0, root+0/line657..660, all eight words and
+end665. NFS2 matched bworld/GetRezIndex.c independently uses ordinary
+if/else result selection, but its thresholds and three return values differ:
+reuse the design, not those constants. NFS4 returns0 for dist above the
+low-detail squared bound and4 otherwise, as raw words and updated M2C
+func_8007DD54.c agree. All eight ordinary selection/predicate controls
+preserve the whole normal ELF; no result local or inferred name is needed.
+
+The accepted if/else has its real condition on660, zero return661 and four
+return665. Stock initial RTL contains the actual conditional, both result
+assignments and separate notes. First jump optimization replaces the branch
+with a store-flag form; combine supplies the shift. Final selected-stock
+assembly has notes660 for the six core words and665 for return/slot/end,
+with root end relative4. Its entire -g -da assembly equals native compile
+byte-for-byte. Do not infer literal source XOR/shift merely from the final
+branchless instructions, or copy NFS2's different return values.
+
+Ignored receipts: build/nc12/bworld_glare_recovery_20261022 (directory also
+holds the rejected glare probes below). phase-proof.json pins exact stock
+compiler/input/source hashes. token-proof.json permits ONLY the real
+GetRezIndex result-selection repair; all other C++ tokens/literals/directives,
+including glare's unresolved dummy declaration, remain unchanged. Isolated
+run-d1wzy8gp and combined run-3fvaotbr restore all eight absolute tags, two
+block records, supplied parameter tuple and end665: eight differences->0.
+BWORLD strict15/21, declaration/region21/21; checked union173strict/139absolute
+versus172/138. Literal original syntax and the full project goal remain open.
+
+Final final-proof.json certifies489 detailed SOURCE-ONLY/branch-count PASS,
+all21 whole normal ELFs and native CPE unchanged, complete local/region/frame
+tuples, other488 full line/block/end maps, named-type record multisets and
+seven shared headers preserved. Every prior strict/absolute seal survives.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign
+and whitespace checks pass. No new asm/volatile, pin, qualifier, fake use,
+scope, compiler flag, tool/output/reference rewrite or inferred local name.
+The main goal stays active; this scoped checkpoint remains uncommitted.
+
+Glare source investigation, NOT an accepted object-removal/exemption: compare
+the complete supplied pt1 owner at+232..+232 (the real Halo2 argument region)
+against the reconstruction's separate unused inner-search declaration.
+The latter is not supplied. Forty fresh controls combine outer i initialization
+(before/acquisition/count/for) with type-test, mask-order, operand-order and
+found-flag initialization changes. Eight retained-dummy controls preserve
+the whole ELF; none of20 no-dummy controls does. None is adopted, and these
+bounded failures do not prove an original object, spelling or qualification.
+
+glare-phase-proof.json now localizes the negative result on the selected stock
+compiler: both initial RTL controls have seven conditional nodes; the first
+jump dump has seven with the dummy and eight without, plus one LOOP_VTOP only
+in the clean control. This precedes local/global allocation. The final clean
+stream has an entry test/rotated inner loop and different saved-register roles.
+GCC2.8.1 jump.c duplicate_loop_exit_test explicitly refuses BLOCK_BEG/END notes
+and emits LOOP_VTOP, consistent with the observed phase change. That source
+comparison is explanatory evidence, not a GDB-observed stock call stack or
+whole-compiler identity claim. Next angle is the real source binding/loop-test
+producer and its supplied region endpoints, not a register pin, fake scope,
+replacement unused declaration, renamed dummy or an allocator-floor exemption.
+
+2026-10-22 BWORLD cleanup/accessors: three complete source/absolute SLD contracts.
+
+Read the raw GetSpikeBelt/StartLoop/DeInit records, all43 words, updated M2C
+func_8007D8F8.c/func_8007E5C0.c/func_8007E8B4.c and selected-stock notes.
+GetSpikeBelt retains slice/x/width as PTR INT parameters in a0/a1/a2, no
+locals, and exactly the same success/failure stores and returns. Ordinary
+layout places success stores366/367/368 and return369; the three failure
+stores share373 and return374. All18 tags, both block records and end374
+match, removing14 tag differences. No chained-assignment or object is added.
+
+StartLoop's retail root starts AND ends at+0/line1261, while its two return
+instructions and function end carry1270. Remove the reconstruction's explicit
+return and retain ordinary implicit void fallthrough. This restores the empty
+root's line and both tags, without inventing work, a local or an empty wrapper.
+The updated independent M2C body is also empty; that is compatible evidence,
+not unique proof of original text or any stripped conditional compilation.
+
+DeInit preserves every real cleanup call and SceneLoaded store in sequence.
+Actual call phases1392/1393/1395/1396/1397/1402, store1405 and calls1408/1410
+now have retail coordinates. Layout alone left the four epilogue tags and
+function end on1410: it was not a complete seal. The genuine final void return
+on1412 supplies their separate source phase, leaving the optimized root
+region at+0/line1389 exactly as retail records it. All23 tags/two block
+records/end1412 match;21 tag differences removed. This is not a synthetic
+statement-level anchor, dummy use, new variable, fence or generated-note fix.
+
+Ignored receipt directory: build/nc12/bworld_cleanup_sld_20261022. Stock
+phase-proof.json pins CC1PLPSX/input/source hashes and confirms the entire
+-g -dr assembly equals the native compile byte-for-byte. token-proof.json
+permits only the two real void-return changes; every other C++ token,
+literal and directive is unchanged. First run-9ze7ct8v has the partial
+DeInit result; run-7wsx69up and combined run-8jt6kjx3 have all three exact.
+BWORLD is now14/21 strict with21/21 declaration/region PASS; the checked
+union is172 strict/138 absolute versus169/135. Complete project source
+restoration and the seven remaining BWORLD functions stay open, not exempted.
+
+Final final-proof.json certifies all489 detailed SOURCE-ONLY/branch-count
+PASS, all21 whole normal ELFs and the complete native CPE unchanged, all489
+ordered local/region/frame contracts preserved, the other486 full line/block/
+end maps unchanged, all prior seals retained, full named-type record multisets
+and seven shared header hashes unchanged. Tests105, vtable1368, policy/relink/
+canonical-link/raw299819/299819, overlap/foreign and whitespace checks pass.
+No shared header, tool, compiler option, output or retail reference is changed.
+This is a scoped verified checkpoint, not a whole-tree freshness certificate;
+the main goal remains active and these changes remain uncommitted.
+
+LoadFileAdr evidence clarification, not an original-local recovery: retail
+records name and buf only (both PTR CHAR in s0), not an integer file-size
+local. build/nc12/r3dcar_file_note_source_20261022/probe-proof.json shows
+that a deliberately named diagnostic size temporary can be debug-elided
+while preserving the whole normal ELF and splitting the call notes. This
+does NOT establish that an original source variable existed, recover its
+identifier, or constitute full native acceptance of that diagnostic source.
+No inferred size name is added to production; its two SLD residuals remain.
+Likewise the12 ordinary typed/flat color-role controls under
+r3dcar_color_roles_20261022 fail whole-normal-ELF equality and do not justify
+the constructor's old aliases/fences as original objects. None is adopted.
+
+2026-10-22 R3DCAR data loaders: two complete source/absolute SLD contracts.
+
+This round's ignored receipts remain under r3dcar_data_loaders_sld_20261021
+(started before the date rollover). Read both whole functions, all four
+provided locals apiece, both root block pairs, raw words and updated M2C
+func_800AE5B0.c/func_800AE668.c. Preserve original ScaneData spelling, the
+separate mutable parser cursor and owned RenderingFileData base, name[256],
+INT counters and real field types. Do not rename the game functions' R3DCcar
+typo or invent a table walker absent from SYM.
+
+ReadeMapData restores real for initialization901 and body operations903/904/
+906/907, tail908, filename895/load+cursor896 and purge/return/end911. Five
+nonbaseline ordinary data-loop controls preserve the entire normal ELF; a
+late do form also matches bytes but is not necessary. The for with existing
+root i is natural and adds no declaration/scope. All46 tags, two block records
+and four complete tuples match,41 differences->0; old end904->911.
+
+ReadTrackShadow initially reached one remaining tag: final selector addition
+was931, retail932. A fused for-initializer kept code but worsened the map to
+four differences (three tail tags moved to932); it was reverted exactly.
+Do not conceal this with statement-level anchors or a dummy no-op. Reframe
+i as the real inclusive number of records to consume: initialize selected
+record index+1, then while(i-- !=0) read the six real fields. The increment
+is the actual inclusive row count and the decrement is the real per-condition
+consumption, not an allocation identity or fake use. Body i values and final
+i=-1 equal the former index-down-to-minus-one loop. A1025-selector bounded
+model checks complete body sequences, six reads per row and final i, including
+the zero-row case. It is not claimed as a whole-function runtime differential.
+
+Five countdown controls measure operationally real designs: post-count,
+pre-count, for-count and guarded do preserve the whole ELF; post-sentinel
+without the real inclusive count does not. Choose count consumption. The
+filename/load+cursor phases925/926, index arithmetic931, consumption932,
+shadow RGB934..936, environment RGB938..940 and purge/return/end944 then
+match all58 words, two block records and four supplied tuples. Differences
+54->0, old end938->944. Source names/types/homes/ranges remain identical.
+
+Stock phase-proof.json exposes why the final addition gets932. Initial RTL
+has the real count+1 on931, an entry jump932, and the consumption test at the
+loop bottom. First jump optimization clones that consumption into the entry
+test with932; CSE folds initial count and consumption to a copy, then combine
+folds the final selector addition into that copy, retaining932. The resulting
+instructions are identical to baseline, including the tail decrement940.
+The initial diagnostic wrongly expected the decrement itself at932 in initial
+RTL; corrected to observe actual loop lowering (not a comparator/source change).
+Complete -da .s equals native compile byte-for-byte, with compiler/input/source
+hashes pinned. No generated instruction/note/reference is rewritten.
+
+Risk_ReadNextValue is FCN INT in retail SYM (2267a4), even though M2C infers
+s8 in the byte-color caller. Keep its INT API and the existing explicit UCHAR
+field conversions; caller store width does not establish callee return type.
+The two pointers have real distinct roles: parser advances ScaneData through
+char**, while the unchanged owned base is passed to purge. Do not merge them.
+Source contract permits only the two real loop/counter repairs and ordinary
+layout/comments; all other tokens/literals/directives fixed,32 coordinates
+checked. A stale header-comment edit target was rejected before any files were
+changed; retry used the actual current heading, with no worktree overwrite.
+
+Final isolated run-6xz08ixc and combined run-k7ftglem seal104 word/file tags,
+four block records and eight complete tuples. Both prior headers886/917 are
+exact; ends911/944 restored. build/nc12/r3dcar_data_loaders_sld_20261021/
+final-proof.json certifies489 detailed SOURCE-ONLY/branch-count PASS, all21
+normal ELFs/native CPE identical, complete local/region/frame facts, other487
+full SLD maps, named-type records and seven shared headers unchanged. Prior167
+strict/133absolute survive; now169/135, R3DCAR22/27 strict and unchanged24/27
+declaration/region PASS. Tests105, vtable1368, policy/relink/canonical/raw
+299819/299819, overlap/foreign and whitespace pass. No new object/qualifier/
+asm/volatile, fake use/scope, flag or tool/output/reference rewrite. EXTRA462
+and GAME/COMMON strict441/1247 remain partial snapshots. Literal original
+syntax/full project restoration stay unproved; goal active, uncommitted.
+
+2026-10-21 R3DCAR car-list insertion: VLA-safe complete301-word SLD contract.
+
+Read the whole InsertAllListFacet source, all14 supplied tuples,34 block
+records, raw tags and updated M2C func_800B2BF8.c. Keep BOTH runtime-sized
+sort_min[Cars_gNumCars] and sort_max[Cars_gNumCars]. Retail supplies distinct
+PTR ARY INT names in s7/s6 with runtime dimension0, frame pointer30/fixed
+frame64; M2C loses dynamic-stack modeling and renders both through &sp10.
+Do not unify the buffers or replace them with guessed fixed-size/padding data.
+All real shadowing carObj declarations and nested sort/j/size owners remain
+their provided names, types, homes and lexical regions, including sub_otSize's
+optimized zero-length+840 region. No new source object or fake scope is added.
+
+The only executable source change restores ClockLast=genericClock+6 on3430
+before Clock=1 on3431, as retail tags require. Full-normal-ELF control proves
+the source-order correction preserves code. Stock initial RTL through combine
+keeps that order; first scheduling reverses the stores, preserving the two
+source tags. phase-proof.json also records two initial dynamic stack
+subtractions. Its entire -da .s equals the native compile with exact compiler/
+input/source hashes. Later total SP-subtraction counts include the generated
+fixed prologue too; don't mistake those for a third source VLA. No state/RTL/
+instruction/debug-record rewrite is used.
+
+Ordinary layout under the existing3414 anchor/header3416 restores actual stack
+switch/enable3424, player3426/clock3428..3433, first loop3437, car3439,
+visibility3441, resets3443/3444, sort range3446..3448 and loop3449. Sort init
+3451/outer3453, visible test3455/open3456, car3457 and inner3461; paired car/
+distance/size3463..3466, overlap3468 and link3470/count3471 precede actual
+min/max3473/3474, inner end3476, sort increment3479 and outer end3480.
+Sub-OT selection3482/loop3484, visible3486/open3487, car3488, margins3490/3491,
+ownership3493/open3494 and size3495 retain every supplied scope coordinate;
+real depth fields3497/3498/3505/3506, zero arm3509..3511 and loop3516 follow.
+
+Screen matrix coefficient COLUMN triplets share3519/3520/3521, preserving
+the exact existing assignment order, with translations3524/3525/3526. Stack
+restore/disable share3528. Final loop3531/car3533, switch/enable3536, depth
+draw3539, restore/disable3541 and full facet draw3549 precede end3551. Shared
+stack-flag/call and coefficient tags are consistent with macro expansion, not
+unique proof of original macro text. Preserve implicit void fallthrough;
+do not reintroduce the older explicit return's extra VLA cleanup region.
+
+Raw SetSp is three instructions: return old sp, jr ra, set sp from a0 in the
+slot. It consumes only ONE argument. M2C's second restore argument0x1000 is a
+stale matrix constant in a1, not an API parameter. Its typed pointer +=4 loops
+and shared stack pseudo are likewise not literal original array source. No
+SDK asm is inserted or rewritten. The source-token guard permits only the
+two real clock phases and comments/whitespace;79 planned coordinates checked.
+A pre-existing two-space blank line was newly reported as an added diff after
+hunk re-alignment; remove only its spaces, retaining its source line number.
+
+Initial run-xlmw7u32 and final combined run-pag5oon3 seal all301 absolute
+word/file tags,34 full block records,14 complete tuples and header3416/end3551.
+Differences274/301->0, old end3516->3551. Literal original syntax remains
+unproved. build/nc12/r3dcar_list_sld_20261021/final-proof.json certifies489
+detailed SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native CPE identical,
+all local/region/frame facts, other488 full SLD maps, named-type records and
+seven shared headers unchanged. Prior166 strict/132absolute survive; now167/
+133, R3DCAR20/27 strict and unchanged24/27 declaration/region PASS. Tests105,
+vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign and
+whitespace pass. No new qualifier/asm/volatile, fake use, flag or tool/output/
+reference rewrite. EXTRA462 and GAME/COMMON strict439/1247 remain partial
+snapshots. The full source-restoration goal is active; uncommitted/unpushed.
+
+2026-10-21 R3DCAR MenuFacetII: empty-transfer removal and266-word SLD seal.
+
+Read the whole InsertCarFacetMenuII source, all18 supplied tuples,26 block
+records, raw instruction tags and updated M2C func_800B2760.c. Its invented
+R_ICFtMenuII_block43 label sits in an empty else arm; both jumps merely join
+the common final envmap test. Remove the jumps, label and no-op arms instead
+of preserving them as source scaffolding. Five nonbaseline source controls,
+including combined upper/lower real guards, preserve the entire normal ELF.
+The deleted empty arms were not producers of any supplied scope: all26 full
+region records and every local owner survive. No dummy block/statement is added.
+
+Retail's brightness halves on3290 but its plain input copy is tagged3291,
+despite executing in the prologue. Restore the genuine two-arm value funnel:
+if menu-bit80 lightAvg=light>>1, otherwise lightAvg=light. This keeps the
+provided INT light parameter unmodified in REGPARM:$5 and lightAvg in REG:$6,
+without a new temporary or refcount device. Twelve measured brightness/real-
+guard combinations preserve the full normal ELF. Select the two-arm variant,
+split recessed range/test3312/3313, and split cop-range/type tests3342/3344.
+Do not force an early source assignment merely because its copy executes early.
+
+Stock phase-proof.json preserves true3290/false3291 assignment notes in initial
+RTL; first scheduling hoists the copy ahead of the conditional while retaining
+3291. The -da diagnostic's entire .s equals the native compile byte-for-byte,
+with compiler/source/input hashes pinned. This is selected-stock observation,
+not an alternate/GDB byte oracle or a compiler-state/output rewrite.
+
+Ordinary per-function-anchored layout restores type3277, country3279, drive3281,
+overlay3283, cache3288, brightness3290/3291 and color3293. Detail condition3295/
+opening3296 independently supply instruction/owner markers; setup3297 and
+loop3299 precede object3301/visible3303/valid3305/open3306. Envmap3309/offset3310,
+recessed3312/3313, mirror3315..3318, type3321/3322/open3323, cop owners3328..
+3330/data3331..3338, signal3340 and type3342/3344 retain their supplied tree.
+Menu mask3348, depth3350 and halo3355 precede the ordinary envmap branch:
+type3358, mask3360, special object3362, combined lower guard3365, adjustment
+3367/menu negation3368, final high-bit negation3372, depth3378 and menu call3383.
+Mirror reset3387/loop3389, stop3391, shadow test/call3393 and end3395 complete
+it. Root/outer owners correctly end3393, not at a fabricated padding statement.
+
+Source contract whitelists only these real guard/value repairs plus ordinary
+layout/comments; every outside token/literal/directive is fixed,75 planned
+coordinates checked. The143360-case bounded envmap/offset model covers all
+signed-byte flag values plus type/object/offset/menu classes;14 brightness
+edge cases cover signed input and both arms. Neither is claimed as a whole
+runtime differential. Keep INT type/envmap/index from SYM, not M2C's narrowed
+s16/s8 temporaries: masks such as0x8080/0x80 do not justify narrowing original
+locals or adding new drawEnvmap/maskFlag copies. Real call arguments/callees
+and field widths are unchanged; no new source object/name/qualifier appears.
+
+Initial run-56dxrfpp and final combined run-5rk9kfi1 certify all266 absolute
+word/file tags,26 block records,18 complete supplied tuples and header3273/
+end3395. Differences243/266->0, old end3402->3395. Literal original macro/
+comment syntax remains unproved. build/nc12/r3dcar_menu_facet2_sld_20261021/
+final-proof.json certifies489 detailed SOURCE-ONLY/branch-count PASS, all21
+normal ELFs/native CPE identical, complete local/region/frame facts, other488
+full SLD maps, global named-type records and seven shared headers unchanged.
+All165 strict/131absolute survive; now166/132, R3DCAR19/27 strict and unchanged
+24/27 declaration/region PASS. Tests105, vtable1368, policy/relink/canonical/
+raw299819/299819, overlap/foreign and whitespace pass. No asm/volatile, fake
+use, flag or tool/reference/output rewrite. EXTRA462 unchanged; a label/arm
+repair is not a native-local removal. GAME/COMMON strict438/1247 is a partial
+snapshot, not whole-source completion. Full goal active; uncommitted/unpushed.
+
+2026-10-21 R3DCAR FacetII: light-role correction, guard cleanup and379-word seal.
+
+Inspect the entire InsertCarFacetII source, all25 supplied local/parameter
+tuples,24 block records, raw tags and updated M2C func_800B2174.c. Reprice its
+invented R_ICFtII_setQuadLight label. Ordinary wet-road guards preserve the
+entire normal renderer ELF individually/jointly, as does the conditional-value
+control. Select the ordinary positive guards; remove the label and two gotos,
+not rename or replace them with a dummy predicate. The144-case bounded
+reflection model covers air/time/comm/wet predicate classes and output values;
+it is not a whole-function runtime differential.
+
+Retail requires actual inAir3107 then reflect initialization3108, callback3123
+and mask3124, plus a distinct packed field read3135 before channel extraction
+3137..3139. Simply extending the existing light callback capture to that later
+read changes registers; staging the channel variables separately also narrows
+word loads to bytes and changes allocation. These failed controls are NOT
+proof of an original hidden object or permanent floor.
+
+The coupled source correction is ordinary field work: write the callback
+result to render.light, mask that same field, then AFTER the optional headlight
+call load render.light into the provided INT light for RGB extraction. There
+is no new source object, qualifier, alias or reference device. The two early
+field statements preserve all code; the later light owns the full-word value
+used by all three channels, with its supplied REG:$2 home. This supersedes the
+earlier role explanation that attached that record to the first masked
+callback result. A matching hard-register home alone had not proved which
+source phase used the original local. The new representation meets the full
+code/local/scope/line contract without importing M2C's anonymous packed temp;
+literal historical syntax is still not uniquely established.
+
+Sixteen real phase controls measure late reflection initialization, callback
+mask split, later packed-local reuse and recessed-light guard grouping. Eight
+preserve the whole ELF, eight with isolated packed-local reuse fail. Five
+separate RGB-local/cast alternatives also fail. Three of four coupled ownership
+controls preserve the entire ELF; choose the unqualified two-field-statement
+form. Stock phase-proof.json records two initial field stores, reduced to one
+by combine, and the later actual field read on3135. Its complete -da .s equals
+the native compile byte-for-byte; compiler/input/source hashes are pinned.
+No compiler-state, instruction, debug-note or reference rewrite is used.
+
+Ordinary per-function-anchored layout restores type3097/country3099/drive3101/
+overlay3103; air3107/reflection3108..3119, field3123/3124 and detail guard3126.
+Night guard/call3133, packed read3135/RGB3137..3139, average3141/clamp3142,
+cache color3149, setup/negative return3151 and loop3153. Object3155/visibility
+3157, valid test3159/open3160, envmap3163/offset3164, recessed range3166 and
+actual recessed test/negation3167, mirror3169..3172 and visible type3175/3176
+follow. Nested type/cop owners3177/3178/3182/3183/3184 and real data work3185..
+3202 retain every supplied owner endpoint. Clip branch3204..3240, mirror reset
+3243/loop3245, stop3251, shadow3253, RGB3260..3262/color3265 and calls3267/3268
+complete the routine; root owner ends3268, function end3270. No empty region
+is fabricated; split braces/real guarded statements supply distinct coordinates.
+
+M2C's shadow calls carry a stale third RGB argument. Raw callees and SYM's
+two-pointer signatures settle the unchanged two real arguments. Its generated
+table/stride/mixer temps are not original declarations. Source contract checks
+105 planned coordinates and permits only the measured real phase/guard changes
+plus comments/whitespace; all outside tokens/literals/directives are unchanged.
+
+Initial run-6xalh979 and final combined run-sullm06c seal all379 word/file tags,
+all24 blocks,25 complete supplied tuples, header3091/end3270. Differences
+367/379->0, old end3255->3270. build/nc12/r3dcar_facet2_source_20261021/
+final-proof.json certifies489 detailed SOURCE-ONLY/branch-count PASS, all21
+normal ELFs/native CPE identical, complete local/region/frame facts, other488
+full SLD maps, global named-type records and seven headers unchanged. Prior164
+strict/130absolute survive; now165/131, R3DCAR18/27 strict, unchanged24/27
+declaration/region PASS. Tests105, vtable1368, policy/relink/canonical/raw
+299819/299819, overlap/foreign and whitespace checks pass. No new asm/volatile,
+flag or tool/output rewrite. Legacy EXTRA462 is unchanged: this is a real
+value-role/label repair, not a removed native local. GAME/COMMON strict437/1247
+remains a partial snapshot. Full source-restoration goal active; uncommitted.
+
+2026-10-21 R3DCAR visibility: ordinary returns and complete234-word SLD seal.
+
+Reprice the reconstruction-only R3DVis_setNoDetailReturn label before polishing
+its old layout. All six selected-stock ordinary early-return controls preserve
+the entire normal renderer ELF, independently and jointly for inactive/range
+rejections. Select the ordinary detail=-1;return form at both real failure
+sites, remove both gotos and the invented label. These are actual failure
+paths, not extra dead calls/references or an allocation dial. An older comment
+that required jumping into the shared tail is superseded by measured controls,
+not retained as an original-label exemption. No replacement label/name appears.
+
+Read all12 supplied local records, all four block records, raw word tags and
+updated M2C func_800AF74C.c. Retail groups the camera's car/flag predicate on
+1423, in-car/mode-zero on1425 and in-car/mode-one on1431. Restore those genuine
+short-circuit groups: first outer predicate has only car/flag, each mode arm
+has its real inCar test. This preserves the second read after the first call;
+do not assume Camera_GetMode is pure. A512-case bounded guard model checks
+return/selection/call count, including post-first-call inCar changes. This is
+not claimed as a whole-function runtime differential.
+
+Retail also puts zoom1411 before inCarCam=0 on1412, and carPos[1].z1491
+before carPos[2].x1492. Restore these independent source phases. Sixteen
+controls measure every combination of ordinary returns, initialization order,
+guard grouping and corner-store order: all keep the complete normal ELF.
+The source guard whitelists only those real changes plus whitespace/comments;
+the body equals the measured all-four positive input and every outside token/
+literal/directive is fixed. A diagnostic token check initially included GNU
+cpp's automatic #1462 coordinate-resync marker after a long comment; code-
+token comparison ignores only that standard metadata in memory. It rewrites
+no compiler file/reference and does not relax native SLD-coordinate gates.
+
+Stock phase-proof.json records nine initial detail stores (five real rejection
+copies plus four nonnegative states), still nine through sched2, then five
+after jump2 and delay filling. The ordinary returns merge into the identical
+shared machine tail without a source goto, fence, qualifier or dummy use.
+The -da diagnostic .s is byte-identical to the native compile, with compiler/
+source/input hashes pinned. This is stock pass evidence, not an alternate/GDB
+compiler byte oracle or a generated-instruction/debug-record rewrite.
+
+Ordinary anchored layout then restores inactive1441, bounds1450, replay1452,
+scaled bound pairs1459/1460, relative car1463..1465, transforms1467/1468,
+range1470, carZ1476, detail guards1478/1479. The real x/z region starts with
+the actual first coordinate copies1481/1482; dimensions1485/1486 and corner
+work1488..1495 precede tests1503, rejection1505/1506, in-car detail1509 and
+return/end1511. Its optimized x/z scope remains+720..+720, with both supplied
+line markers1481: no empty/artificial source region is added. M2C's first
+Camera_GetMode has a stale second bitfield argument; SYM's __Fi signature,
+one-parameter definition and raw callee use settle the unchanged single arg.
+
+Initial run-hsqr70pr and final combined run-st1z9v08 certify234/234 absolute
+word/file tags, four block records,12 complete local tuples and header1405/
+end1511. Tag differences188/234->0, old end1516->1511. Original literal
+macro/label/comment syntax is not uniquely established by these contracts.
+build/nc12/r3dcar_visibility_sld_20261021/final-proof.json certifies489 detailed
+SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native CPE identical, every
+local/region/frame fact, other488 full SLD maps, global named-type records and
+seven headers preserved. Prior163 strict/129 absolute survive; now164/130,
+R3DCAR17/27 strict, unchanged24/27 declaration/region PASS. Tests105, vtable1368,
+policy/relink/canonical/raw299819/299819, overlap/foreign and whitespace pass.
+No new object, asm/volatile, flag or tool/reference/output rewrite. EXTRA462
+is unchanged: retiring an invented label is not a native EXTRA-local removal.
+GAME/COMMON strict436/1247 remains a partial snapshot, not whole-source
+completion. Full goal remains active; this checkpoint is uncommitted/unpushed.
+
+2026-10-21 R3DCAR geometry loader: complete322-word source/absolute SLD seal.
+
+Read the entire ReadInCarData source,20 supplied local/parameter records,
+all18 block records, raw per-word tags and updated M2C func_800AE0A8.c.
+The old reconstruction initialized offset/i before file-query calls and fused
+the z sum/shift. Retail instead attributes offset648, for initialization650,
+the real vt.vz addition814 and its shift815. Restore those actual source
+phases, not extra objects or per-statement anchors. offset now follows ride/
+upgrade fields; i=0 belongs in the existing for initializer. Use vt.vz itself
+for the separate addition then shift, with no new variable or synthetic use.
+
+Eight frozen-input selected-stock controls measure all combinations. Moving
+offset alone fails whole-ELF equality, as does offset plus split-z without the
+for initializer. The paired late-offset/for-init form preserves the entire
+normal renderer ELF; adding the real z-field split preserves it too. Five
+nonbaseline forms are positive, two negative. Never infer source-object or
+early-initialization necessity from the isolated offset failure. The signed
+SHORT+SHORT sum is[-65536,65534], within target INT before the existing shift;
+splitting its store adds no overflow or intervening observer.
+
+Selected-stock phase-proof.json records offset648 AFTER locatebig609 in initial
+RTL, CSE, loop and combine. First scheduling hoists the actual initialization
+ahead of that call, retaining its source tag. It also confirms distinct real
+vector-field statement notes814/815. The -da dump's complete .s equals native
+compile output byte-for-byte, with compiler/input/source hashes recorded.
+Do not interpret early machine instructions as early source statements or add
+an alias/fence to emulate the scheduling. No compiler state/output is rewritten.
+
+Ordinary layout beneath the existing577 anchor/header580 restores all remaining
+phases: filename600/601, locate609, entry611, reserve612/copy613, type617,
+scales620/621, height643/644, offset648/outer loop650, object654/656,
+translations673/674, vertex679/692/694/695. Normal eligibility724/open725,
+normal allocation726/728/729, real translation region798 and offsets801..803,
+inner loop805, VECTOR/SVECTOR work812..831, scale835..839, product841,
+bias842/shift843, clamps847/848, difference850, outputs852..854 and loop855.
+Facet test860, pointer866, offset867, outer loop869, return/end881 complete it.
+Source-token whitelist permits only those real initialization/vector changes
+and comments/whitespace;22883 final full-TU tokens and89 coordinates checked.
+
+All twenty original names/types/homes/depths/owner ranges and paths match,
+including nm_vx SHORT REG:$6 and the real depth7/depth9 normal-work groups.
+No missing scope is fabricated and no original local is hidden or renamed.
+M2C's second VectorNormalS is rendered with four arguments from stale geometry
+temps; canonical PsyQ4.3 LIBGTE.H:427 declares long VectorNormalS(VECTOR*,
+SVECTOR*), and raw argument use agrees. Keep the correct two-argument calls.
+M2C's compiler-created stack constant/pointer quantities are not original named
+objects. Preserve the existing /65 operations, not its literal reciprocal
+captures. Original literal macro/comment syntax remains unproved.
+
+Initial run-6ib5yscv and final combined run-z1hm2fpd seal all322 absolute
+word/file tags, all18 block records,20 complete supplied tuples and header580/
+end881. Tag differences310/322->0, old end696->881. No new name, qualifier,
+asm/volatile, fake use/scope or flag is involved.
+build/nc12/r3dcar_geometry_sld_20261021/final-proof.json certifies489 detailed
+SOURCE-ONLY/branch-count PASS, all21 whole normal ELFs/native CPE identical,
+all489 local/region/frame facts, other488 complete SLD maps, global named-type
+records and seven headers unchanged. Prior162 strict/128 absolute survive;
+now163/129, R3DCAR16/27 strict, unchanged24/27 declaration/region PASS.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/foreign
+and whitespace checks pass. No tool/reference/output rewrite. GAME/COMMON
+strict435/1247 and EXTRA462 remain partial snapshots, not whole-tree/source
+completion. Full original-source review goal remains active; uncommitted.
+
+2026-10-21 R3DCAR palette/menu cleanup: two complete source/SLD contracts.
+
+Continue after the startup-group seals. ChangeTrafficColor58words is a
+whitespace-only layout repair: palCopy guard389, index mask391, color392,
+change guard394, sync401, type guard403, color/copy405/407 and409/411, else
+color414/copy416, final field store/return419 and end420. All58 word/file tags,
+two block records and complete supplied local tuples agree. Differences48->0;
+old end410->420. No code token, object, qualifier, scope or device changes.
+
+DeInstantiate3DCarMenu80words required actual source-order recovery, not just
+spacing. Retail assigns newCarType1085 before currentCarType1086 even though
+the binary's current-type store executes first. Restore those two independent
+real field assignments to the supplied source order. Every instruction and
+normal ELF/native CPE remains identical. Do not sort statements by execution
+order or manufacture backwards per-statement anchors to preserve the wrong
+source order. token-proof.json whitelists ONLY this two-statement commutation;
+all other22876 full-TU tokens/literals/directives are unchanged, with50 planned
+source-coordinate checks. No replacement local or source-value trick is used.
+
+Selected-stock phase-proof.json records newCarType(0x8be)1085 then
+currentCarType(0x8bc)1086 in initial RTL AND combine, with the first scheduling
+snapshot reversing the stores while preserving their individual note origins.
+The -da diagnostic's complete assembly equals the native compile byte-for-byte;
+compiler/input/source hashes are pinned. This is direct stock pass evidence,
+not an alternate/GDB compiler byte oracle or a generated-output rewrite.
+
+Other real phases: type capture1055, bounds1056/open1057, country1058,
+counter1060, zero test1062, purge1064/clear1065, release1080. Async guard1089
+and opening brace1090 independently supply instruction/owner coordinates;
+status poll1093/task1095, success condition1100/open1101, data acquisition1102,
+null/purge1104, handle clear1107/loading state1108, palette guard/purge1112
+and final clear/return/end1113. Initial run-k0xqc_ic already had every word tag
+exact but one owner marker on1089 rather than1090. Splitting the EXISTING
+brace onto1090 fixes it, with no new region or token. All14 block records,
+all80 word/file tags and complete supplied locals then match. Differences72->0;
+old end1089->1113. Original literal macro/comment text remains unproved.
+
+Read both current M2C bodies and raw. The menu cleanup's first purgememadr
+shows a spurious second country*25 argument from stale a1 after address work.
+Raw caller/callee and memstd.c's int purgememadr(void*) establish one argument;
+do not import the decompiler's temporary pointers or phantom call parameter.
+No actual field width, buffer ownership, condition/async behavior or call
+argument changes; the verified source-order repair preserves binary behavior.
+
+Final isolated run-1gzwjmct and combined run-ehu_l64y certify both contracts.
+build/nc12/r3dcar_palette_sld_20261021/final-proof.json certifies489 detailed
+SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native CPE identical, complete
+local/region/frame facts, other487 full SLD maps, global named-type records
+and seven shared headers unchanged. All160 strict/126 absolute seals survive;
+now162/128, R3DCAR15/27 strict and unchanged24/27 declaration/region PASS.
+The138 instructions lose120 tag differences. Tests105, vtable1368, policy,
+relink/canonical/raw299819/299819, overlap/foreign and whitespace checks pass.
+No tool/reference/output rewrite or compiler flag change. GAME/COMMON strict
+434/1247 and EXTRA462 remain partial snapshots, not whole-source completion.
+Full source-object/name/scope/SLD recovery stays active; uncommitted/unpushed.
+
+2026-10-21 R3DCAR startup group: four more complete native/absolute SLD seals.
+
+Continue the renderer source recovery after the menu seal. Whitespace/comment
+layout alone restores StartUp52words, PostStartUp57, Restart30 and CleanUp90.
+No executable token, literal, directive, source object, control flow, scope,
+qualifier, asm/volatile or compiler flag changes. token-proof.json compares
+all22876 full-TU tokens and72 explicit coordinates from line-plan.json. The
+existing real loops remain their existing source forms, not dummy wrappers.
+
+StartUp: initialization/preheader427, both pointer clears429, both counter
+clears430, country432, both color initializers434 and increment/test435.
+Orient allocation450 and position454 precede sprintf460 and load461. Its real
+name array's zero-length optimized scope retains the supplied+108 line450;
+do not insert a fake name region or derive physical source lifetime from that
+optimized address alone. Function/header/end424/461 and all four block records
+are exact. Tag differences32/52->0; old end444 is corrected to461.
+
+PostStartUp: outer test468, constant seed470, actual in-place product471,
+else475, clamp477, allocations483/484, guarded allocations488/489. Keep the
+constant-seeded multiply source shape rather than synth_mult rewriting; only
+its source coordinates changed. All57 tags, two block records and end489
+are exact; tag differences54->0 and old end488->489. Original literal macro/
+comment spelling remains unproved despite complete line-record equality.
+
+Restart: retain its real indexed for/header498, carObj500, resets502/503,
+Time guard504, night stores506/507, signal stores510/511 and damage/loop
+increment/backedge/return/end514. These correctly supply the body owner's
+end510 and loop/root ends514. All30 tags, six blocks and supplied local owners
+match;17 tag differences->0, old end512->514. No replacement counter/source
+object or gratuitous scope is introduced after the earlier carrier removal.
+
+CleanUp: initialization/preheader521, the two real guarded release phases
+523..527 and529..533, increment/test535. Orient551/clear553, position555/
+clear556, license559/clear560, sub-OT guards563/564 and clears565; optional
+menu guard567, releases569/570 and clears/return/end571. Shared condition/call
+lines retain statement groupings despite execution reordering or delay-slot
+tags. All90 tags/two blocks match;80 differences->0, old end566->571.
+
+Read all four current M2C bodies and reconcile with raw. StartUp's first
+reservememadr is shown with a fourth -1 argument only because loop setup leaves
+a3=-1. The actual caller freshly supplies a0/a1/a2, and the existing allocator
+at800E533C (memstd.c) has three arguments. Do not add the stale a3 or import
+M2C's scaled-pointer/decompiler captures. Existing arity, widths, source arrays,
+counter roles, allocation/release order and field effects remain unchanged.
+
+Initial run-4_bcv504 and final combined run-p0a6v4n6 certify all four complete
+native/absolute SLD contracts. The229 instructions lose183 tag differences.
+build/nc12/r3dcar_startup_sld_20261021/final-proof.json certifies489 detailed
+SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native CPE unchanged, complete
+local/region/frame tuples, other485 full SLD maps, global named-type records
+and seven shared-header hashes preserved. All156 strict/122 absolute seals
+survive; now160/126, R3DCAR13/27 strict and unchanged24/27 declaration/region
+PASS. Tests105, vtable1368, policy/relink/canonical/raw299819/299819, overlap/
+foreign and whitespace checks pass. No build tools or generated/reference data
+rewritten. GAME/COMMON strict432/1247 and EXTRA462 are partial snapshots, not
+whole-tree/source-text completion. Remaining objects, names, scope/layout and
+literal-source recovery remain in the full active goal. Uncommitted/unpushed.
+
+2026-10-21 R3DCAR menu texture loader: complete211-word absolute SLD contract.
+
+After restoring the real typed array/cursor, keep every executable token and
+restore the function's internal source layout under its existing2183 anchor/
+header2185. No new source name, declaration, scope, guard, call, qualifier,
+asm/volatile, statement anchor or compiler flag. token-proof.json compares all
+22876 full-TU tokens including literals/directives, and checks60 explicit source
+coordinates against line-plan.json. Only ordinary spacing/comments differ.
+
+Retail source phases: carType2188, GetCarName2190, release guard/call2192;
+palCopy guard/allocation2215, DrawSync2218, palNum2220, outer condition2222
+and opening brace2223. Separate the latter two real lines: the inner supplied
+owner starts2223, while the conditional's instructions belong2222. Filename
+selection/advances share2240/2241, optional inside2244/2246, light/dark selection
+2253/2255/2260. The complete real locate loop is on2263. Shared statement tags
+are consistent with compact/macro source, not unique proof of its original text.
+
+Texture offsets2285/2286 precede the reload test2287; the U store executes in
+that branch's slot and inherits2287. First read/real post-call increment share
+2288; optional guard2289 and read/increment2291; reload guard2294 and final
+read2295. The optimized inner declaration region ends there, not at the later
+physical arm brace. Palette count2297, sync2300, color/copy2302/2304 and
+2306/2308 follow. Else opens2310; strcpy2314, strcat2315, locate2321, offsets
+2324/2325, reload arms2326/2327, read2328, palette count2330, sync2332 and
+color/copy2334/2336. Final purge/return/end share2342. Source phases, not raw
+execution order, settle note ownership across scheduling/delay slots/tail merge.
+
+Initial run-p416ujyu and final run-ndcuf0ny seal211/211 absolute word/file tags,
+all eight block records, twelve complete supplied local tuples, header2185/
+end2342. Differences190/211->0 and end2274->2342; no unknown original source
+object is invented to achieve them. Previous M2C/raw reconciliation remains
+valid, with unchanged real call arguments, three-pointer array and slot sequence.
+Literal macro/comment spelling and the rest of the source remain unproved.
+
+build/nc12/r3dcar_menu_sld_20261021/final-proof.json certifies489 detailed
+SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native CPE byte-identical,
+complete local/region/frame facts, other488 full SLD maps, named-type record
+multisets and seven shared-header hashes preserved. All155 strict/121 absolute
+seals survive; now156/122, R3DCAR9/27 strict. Module declaration/region coverage
+remains24/27; three larger differences are still explicit. Tests105, vtable1368,
+policy/relink/canonical/raw299819/299819, overlap/foreign and whitespace checks
+pass. No tool/output/reference rewrites. Fresh GAME/COMMON strict428/1247 and
+legacy EXTRA462 remain partial-project snapshots, not full original-source
+completion/freshness certificates. Remaining carriers, inferred original names
+and source/SLD deficits stay in the full active goal. Uncommitted/unpushed.
+
+2026-10-21 R3DCAR menu texture loader: restore carType's role and typed array.
+
+The constructor's real-array success warrants repricing its menu sibling, not
+copying that sibling's older integer-address workaround as original source.
+Read the complete owning SYM: root carType is INT REG:$16; guarded shpfiles is
+ARY PTR CHAR[3], index INT REG:$19, with i and infilenames[3][15]. The later
+hard-register reuse does not prove that carType held a pointer in source.
+The prior source assigned carType=(int)shpfiles and used scaled integer address
+arithmetic in the final call; remove both, not merely rename them.
+
+Use actual shpfiles[index] in all three texture reads. Initialize index=0 just
+before the first read, increment it as a separate statement AFTER that call,
+then consume/increment it in the optional inside arm. The last call uses the
+resulting real array index. With inside false the slots remain[0,1]; with true
+they remain[0,1,2], always within three supplied pointers. No new local, cast,
+qualifier, fake use, fence or artificial scope is introduced. carType now stays
+an actual car type, rather than carrying an integerized address into a later
+phase. No distinct original source object or unknown historical name is claimed.
+
+Fifty-six negative selected-stock controls cover direct typed/integer array
+forms, independent optional-cursor changes, before-call postincrement/relative
+index variants and real initialization positions. The before-call cursor basin
+has the correct array/base instructions but different first-call arg/increment
+timing. Separating the actual increment after the call produces six positive
+whole-normal-ELF controls, across three real initialization positions and two
+optional-slot forms. Select the local call/after-increment/full-cursor form.
+cursor-proof.json hash-pins compiler/source/input, checks both bounded slot
+sequences and proves its full target assembly/nop stream identical to baseline.
+Private labels are normalized only for that diagnostic; outputs are untouched.
+An earlier scripted anchor-count assertion hit the duplicated else-arm text;
+it was corrected to select the first real texture branch before experiments.
+
+Updated M2C func_800B0DB0.c independently shows the three-pointer stack array,
+slot0, optional slot1 and final indexed slot1/2. Its typed pointer +=4 rendering
+must be interpreted against raw byte stride4, not copied as quadruple elements.
+Raw800B0F48..800B0FBC confirms the first index=1 in the call slot, optional=2,
+all four real call arguments and the anonymous sp+0x50 base. Correct source
+counter ordering lets GCC reproduce this without assigning an address to the
+recorded car-type variable; a shared physical register alone proves no reuse.
+
+Initial run-3n4spkmw and final combined run-8rl5xh9w preserve211/211 words,
+all complete target local tuples/region addresses/lines and prior correct SLD
+tags. build/nc12/r3dcar_menu_array_source_20261021/final-proof.json certifies489
+detailed SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native CPE identical,
+all489 local/region/frame facts, other488 complete line/block/end maps, global
+named-type records and seven shared headers unchanged. All155 strict/121
+absolute seals survive. Tests105, vtable1368, policy/relink/canonical/raw
+299819/299819/overlap/foreign and whitespace checks pass. No build/compiler
+flag or post-recompile rewrite. Source guard allows only these real traversal
+changes and comments. The existing genuine else-arm shpfile is retained.
+
+This restores a source value role, not a native EXTRA-row removal or new SLD
+seal: EXTRA462, strict counts and module24/27 declaration/region and8/27 strict
+remain unchanged. Menu loader still has190/211 tag differences and end2274
+versus retail2342. Original literal spelling/full layout, the three larger
+dirty renderer functions and all remaining project source obligations stay open.
+The full goal is active; this verified checkpoint is uncommitted/unpushed.
+
+2026-10-21 R3DCAR: both headlights fully SLD-exact; loader's two tags remain.
+
+Continue beyond the preceding three small seals without inventing source
+objects to force a report green. The headlight functions retain every token:
+On's first store1517, tail test/store1518, bit8 test/store1520 and final
+bit128 test/store/return/end1521; Off's brake store1526, outer guard1527,
+mask1529, bit8 test/store1531 and final test/store/return/end1532. Ordinary
+whitespace under their existing per-function anchors restores every word tag,
+block line, header/file and end. Differences19/24->0 and11/21->0 respectively.
+No literal original macro or single-line spelling is uniquely established.
+
+LoadFileAdr is a partial improvement15/18->2/18: reserve1138, load1139 and
+return/end1141 agree, but the nested filesize call's two words inherit1138
+instead of retail1137. Do not call this a full seal. Selected stock -dr initial
+RTL already gives both filesize and reserve1138, proving the line deficit is
+present before scheduling. Its complete diagnostic .s equals the native
+compile input byte-for-byte; stock-note-proof.json hash-pins compiler/input/
+source and records the actual three call records, including forwarded name.
+GCC cp/parse.y's expression-statement action emits the completed statement's
+line; expr.c's captured RTL handling explains why a value block changes notes.
+These are bounded compiler observations, not an alternate-host byte oracle.
+
+The real filesize value-block control (run-v0jyc711) keeps bytes but creates an
+unexpected zero-length region and five tag differences. It is reverted exactly;
+the final source has no such region. No invented size local, qualifier, fake
+use, per-statement #line or debug-output rewrite is used to hide the unresolved
+original separate-note producer. Updated M2C drops the incoming name argument
+to filesize; raw shows a0 forwarded unchanged into that call. Existing one-arg
+source is correct. The two headlight M2C bodies/raw agree with existing widths,
+masks, branch behavior and real field stores; their decompiler captures are
+not imported. All22887 full-TU tokens/literals/directives remain identical to
+the prior accepted source (token-proof.json), only comments/whitespace differ.
+
+Final run-uuot_vlf and
+build/nc12/r3dcar_lights_sld_20261021/final-proof.json certify489 detailed
+SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native CPE unchanged, complete
+local/region/frame tuples, named-type records and seven headers preserved.
+Every previously correct target tag and other486 complete SLD maps survive.
+All153 prior strict/119 absolute seals survive; now155/121, R3DCAR8/27 strict
+and unchanged24/27 declaration/region PASS. Tests105, vtable1368, policy,
+relink/canonical/raw299819/299819, overlap/foreign and whitespace checks pass.
+Fresh GAME/COMMON strict427/1247 remains a partial snapshot, not a whole-tree
+source certificate. EXTRA462 unchanged; constructor/GetCarName/renderer
+captures, device removal and other source/SLD obligations remain active work.
+No tools/header/compiler-flag change or post-recompile rewrite. Uncommitted.
+
+2026-10-21 R3DCAR: three additional complete absolute SYM/SLD contracts.
+
+Keep the accepted constructor source removal. Restore three small functions'
+internal line layout beneath their existing retail-derived per-function anchors:
+DeInstantiate3DCar15words, MATRIX3DT_Copy10words and Showroom20words. No code
+token, literal, declaration, control flow, scope or directive changes. Independent
+token-proof.json compares all22887 full-TU tokens, including quoted literals
+and directives; only comments/inter-token whitespace differ. This is source
+coordinate recovery, not proof of original comments or macro spellings.
+
+DeInstantiate's real conditional/purge share1047 and its clear/return/end share
+1048 under header1046. Matrix copy's work/return/end share1541 under header1538;
+retail assigns every instruction to1541, consistent with but not uniquely proving
+a macro/single-line original. Showroom's genuine calls are3405 and3406, with
+end3406 under header3399. No per-statement #line or dummy work is introduced.
+Word-tag differences respectively7/15,9/10,15/20 all become zero; complete
+block/address/line records, filenames, headers and ends match retail too.
+
+Read all three updated M2C bodies and reconcile raw instructions. The matrix
+M2C declares s32 pointers but prints +=4; raw addiu advances each address FOUR
+BYTES, so the existing typed from+1/to+1 is correct. Nine words are copied by
+the8..-1 loop. Do not blindly introduce quadruple pointer scaling. Purge's
+null check/clear and both showroom calls' three actual arguments agree with
+raw. Existing source types and complete ordered local records remain intact.
+
+Initial run-dx5hiaav and final combined run-2jzo4ydn confirm the three contracts.
+build/nc12/r3dcar_small_sld_20261021/final-proof.json certifies489 detailed
+SOURCE-ONLY/branch-count PASS, all21 normal ELFs/native CPE byte-identical,
+all489 complete local/region/frame tuples, global named-type records and seven
+shared-header hashes preserved. Other486 full line/block/end maps are unchanged.
+All prior150 strict/116 absolute seals survive; now153/119, R3DCAR6/27 strict.
+Module declaration/region coverage remains24/27: three larger dirty functions
+are not hidden or excused. Tests105, vtable1368, policy/relink/canonical link,
+raw299819/299819, overlap/foreign and whitespace checks pass.
+
+Fresh broad GAME/COMMON strict425/1247 is a partial snapshot, not whole-tree
+source freshness or original-text completion. The462 legacy EXTRA rows and
+constructor's remaining objects/fences/identity/layout stay explicit work.
+No new asm, volatile, qualifier, source name, artificial scope, compiler flag,
+build-tool edit or generated-output rewrite. Full goal active; uncommitted.
+
+2026-10-21 R3DCAR constructor: remove shape/shpfile through the real array cursor.
+
+The textureData round is retained. Reprice the remaining texture captures with
+the actual supplied shpfiles[4] and index, not a replacement base/const alias.
+Start the consuming cursor at zero after CreateLicense and pass its first
+element as shpfiles[index++]. The optional inside texture advances that same
+cursor; the final two calls use shpfiles[index] and its real increment. Put
+each real Texture_CarColor assignment in the real carObj argument, retaining
+data acquisition before the color store without a separate shape capture.
+The same array elements, flags, object arguments and observable writes survive.
+
+Thirty-two initial normal-source controls compile but fail whole-ELF equality;
+the ordinary typed array reverses two addu operands, while integer-address
+forms alter load/store scheduling. Of eight follow-up cursor controls, both
+typed-array/object-argument forms (zero/postincrement or one/relative-first)
+preserve the complete normal ELF. Select zero/postincrement. These are real
+cursor/array operations, not fake references, replacement objects or padding.
+Reprice the two old empty reference fences and absorption identity on this
+basin: their individual/joint removals still fail and are not adopted. They
+remain unresolved source work, not original-source exemptions or floors.
+
+Final run-hjub0esb and
+build/nc12/r3dcar_shape_source_20261021/final-proof.json certify489 detailed
+SOURCE-ONLY and branch/count PASS, all21 whole normal ELFs/native CPE identical,
+all supplied local/region/frame/type facts preserved and seven shared headers
+unchanged. The ONLY native local changes remove shape and shpfile:22->20,
+against17 retail tuples. Every other complete ordered local tuple survives.
+Legacy EXTRA rows decrease464->462; this is partial original-object recovery,
+not a whole-constructor declaration/SLD seal. Its three native extra color/
+address objects remain; R3DCAR stays24/27 declaration/region and3/27 strict.
+
+All previously correct constructor word tags survive, as do its header/end
+and region addresses/paths. One already-incorrect end-block line at+1608
+changes215->218; retail is180. This is explicitly NOT an SLD improvement or
+full target seal. All other488 complete SLD maps and all150 strict/116 absolute
+contracts survive. Tests105, vtable1368, policy/relink/canonical link, raw
+299819/299819 words, overlap/foreign and whitespace checks pass. Stock compiler
+and source/input hashes plus the complete target assembly/nop comparison are
+in assembly-proof.json; only private labels are normalized diagnostically.
+GCC calls.c register-parameter precomputation explains the bounded argument
+staging, not a portable C++ evaluation-order promise. No output is rewritten.
+No new asm, volatile, qualifier, source name or compiler/build flag is added.
+Original literal syntax and the full project goal remain open; uncommitted.
+
+2026-10-21 R3DCAR constructor: retire the unrecorded textureData capture.
+
+The dimensions round was verified progress. Inspect the remaining constructor
+facts rather than treating its generic carrier labels as source declarations.
+Retail supplies17 constructor local/parameter tuples; the current native dump
+has22. The textureData source variable itself was already debug-elided, so its
+removal is a real source-restoration improvement not visible as an EXTRA-row
+decrease. The other array/address/shape captures and devices remain unresolved.
+
+Sixteen non-baseline selected-stock controls test actual acquisition/color/load
+phases, independent/joint reference-device removal, direct/typed color/VRam
+tables and paired staging forms. The old direct inline-after-color form changes
+code, but BOTH real object-argument and flags-argument color staging preserve
+the whole normal renderer ELF. Select the object argument representation:
+CarIO_ReadInCarTextureData receives the nested locatebig result, then the real
+color-setting comma expression yielding carObj, plus unchanged reload/player
+arguments. It adds no variable, qualifier, reference use, scope or zero identity.
+The global color assignment and object argument both do their original work.
+The three-line source extent is retained so following statements keep their
+existing coordinates. No per-statement #line or generated-output edit is used.
+
+Fresh run-jdf6fats confirms520/520 byte/layout stability, identical native local
+tuples and region addresses, and loss of no previously correct instruction tag.
+The positive result is not a reason to retain the early color devices: reprice
+them singly/jointly on this basin too. Those controls still change the whole
+normal ELF and are not adopted. Neither failure proves original source storage.
+Remove four generic SYM-CODEGEN-CARRIER labels: textureData is retired; the
+other three labels become explicit SOURCE-REVIEW-UNRESOLVED items. Mark the
+empty color reference and absorption identity as unresolved too, not MATCH
+source exemptions. Both pre-existing empty fences remain visible work, not new
+instruments or claimed original code. No substitute capture/name is introduced.
+
+Selected-stock phase-proof.json hash-pins CC1PLPSX and records initial RTL for
+both original and new full-TU inputs. The last locatebig acquisition precedes
+the actual Texture_CarColor store, which precedes the four-argument texture
+loader in BOTH cases. The call records show the16-byte argument area. GCC
+calls.c1327..1372's argument precomputation/expansion and the MIPS register-
+argument area explain why a nested acquisition differs from a separate
+color-before-inline statement. This is a calibrated compiler/source receipt,
+not a language-wide evaluation-order promise or an output rewrite.
+
+Read the full updated M2C func_800AEF2C.c, then raw800AF62C..800AF658 for this
+path: acquisition, returned pointer forwarded to a0, carObj/flags setup,
+color-field load/mask/store and texture call all agree. Owning SYM and the
+canonical APIs settle types/arity. Literal original macro/argument spelling is
+not uniquely established, but a distinct named textureData object is unnecessary
+for every retained code/debug fact; it is removed rather than renamed or hidden.
+
+Final combined run-ng32z6qe and
+build/nc12/r3dcar_instantiate_source_20261021/final-proof.json certify489/489
+detailed SOURCE-ONLY and branch/count PASS, all21 whole normal ELFs/native CPE
+unchanged, all489 native local/region/frame tuples and global named-type record
+multisets preserved, shared headers unchanged and other488 full SLD maps intact.
+All target block/end coordinates and previously correct target word tags survive.
+Prior150 strict/116 absolute certificates remain exact, including dimensions.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign
+and whitespace checks pass. The source guard allows only this real call-phase
+rewrite plus comments. No header/build/compiler-flag or post-recompile rewrite.
+
+The constructor is NOT a full native/SLD/source seal. Its old three module
+declaration/region misses remain, as do150/116 strict/absolute counts and the
+464 legacy EXTRA rows. The remaining aliases, two empty fences, absorption
+device and unsealed source layout remain active work, not permanent floors or
+new exemptions. This source-restoration checkpoint is uncommitted/unpushed.
+
+2026-10-21 R3DCAR car dimensions: complete330-word native/absolute SLD match.
+
+The27-anchor round was verified progress. Restore the already byte-matched
+CalcCarDimensions routine's actual internal source coordinates under its one
+956 anchor/header958. No executable token changes: preserve all twelve supplied
+local/parameter declarations, their types and order, the existing object-test
+continue, body/wheel bounds, signed divisions, minimum/maximum expressions,
+branch polarity, field offsets, widths and both fixedsqrt calls.
+
+Ordinary layout assigns minp963/964/965 and maxp967/968/969; outer loop971,
+object975/test977, body guard979, vertex loop981..990, min axes983..985 and
+max axes987..989. Wheel phases are993..1022: initializers995/996/998/999,
+loop1001..1008, min1003/1004, max1006/1007, rear/front tests1010/1017,
+positions1012/1013 and1019/1020, widths1015/1022. The outer increment is1025,
+dimensions1030..1032, special length1034 and radii1039/1041. Some instructions
+execute in a different order or inherit a branch/call's delay-slot tag; do not
+reorder source from disassembly alone or force each instruction's own location.
+The original ternary/MIN/MAX macro and comment spelling is not uniquely proved.
+
+Native run-7p4jyt7j first confirms all330 word tags, all ten block records and
+function end1041 equal retail. Final combined run-t_mk7_ao and
+build/nc12/r3dcar_dimensions_sld_20261021/final-proof.json independently certify
+all330 absolute word/file tags, header958/end1041, all ten line/address/path
+block records and all twelve complete supplied local tuples. Tag differences
+282/330->0. Body and wheel locals keep their genuine depth3/depth5 ownership;
+no variable, qualifier, artificial scope, fake use, asm, volatile or per-statement
+directive is introduced. No original-source-object removal is claimed.
+
+Read the full updated M2C func_800AE750.c and reconcile it with raw assembly.
+Its fourth incoming argument/second fixedsqrt argument are stale-register
+artifacts: the owning SYM proves three parameters and the actual fixedsqrt
+implementation consumes only a0 (the owner header agrees). Its inferred s16
+pointer in the max-wheel phase is also wrong: raw800AEA40 forms a full-width
+a3 pointer, then800AEA44/800AEA80 perform halfword DATA loads through it.
+Do not truncate the pointer or add an argument to copy that decompiler output.
+The correct existing typed source is retained, with no semantic/body rewrite.
+
+Regression489/489 detailed SOURCE-ONLY and all branch/count gates PASS.
+All21 whole normal ELFs and native CPE remain byte-identical; all489 local/
+region/frame tuples, other488 complete SLD maps, global named-type record
+multisets and seven shared-header hashes survive. The source-token guard
+proves comments/whitespace only. Prior149 strict/115 absolute seals survive;
+this target adds one of each, now150/116. Tests105, vtable1368, source policy,
+relink, canonical link, raw299819/299819 words, overlap, foreign and whitespace
+checks pass. No shared header, compiler flag, build tool or output rewrite.
+
+R3DCAR is now3/27 strict, with its unchanged24/27 declaration-owner/region
+PASS; the other three differences remain visible. Broad GAME/COMMON strict
+422/1247 is a scoped snapshot, not whole-tree freshness/source completion.
+The464 legacy EXTRA rows and all other original-source/producer/name recovery
+obligations remain in the full active goal. This new round is uncommitted.
+
+2026-10-21 R3DCAR:27 authoritative function anchors; two absolute certificates.
+
+The chunk-list round was verified progress. Re-read its complete raw owning
+SYM function block: it does not contain a hidden buildList local. The early
+address producer remains open; no speculative alias is added. Separately
+reprice GetCarName's unrecorded copIdx on current stock:13 non-baseline controls
+test direct/current subtraction, actual cop-name row-base mappings, early
+bool/int predicates (with/without const), and two genuine range-first shared-
+prefix call shapes. None preserves the whole normal ELF. Early predicates grow
+the frame32->40 and retain an extra saved value; duplicate formatting paths do
+not merge into retail's single37-word body. No replacement Boolean, offset
+alias, modified table base or control-flow candidate lands. These are bounded
+controls, not proof of an original object, qualifier/name or a source floor.
+Evidence remains under build/nc12/r3dcar_name_capture_20261021.
+
+Restore the recoverable source identity across the whole27-function R3DCAR
+unit. Derive each signature/header distance from current native SYM and the
+actual source, then anchor its signature so the new native defining header
+equals retail. Do not assume signature and header are one line apart:25
+definitions have distance2, the split Transformer_zScene* return has distance3,
+and the one-line InsertCarFacetZ has distance0. anchors.json records every
+source position, observed distance, retail header and exact file identity.
+Each function receives one #line directive, with no per-statement override.
+Replace14 unqualified SLD-VERIFIED comments with an explicit requirement to
+consult the native comparison. Removing those labels is not a new function seal.
+Executable tokens, literals and all in-body whitespace remain exactly unchanged.
+
+Fresh run-7pmr8kny confirms27/27 byte/layout stability and unchanged24/27
+declaration-owner and region PASS, with two relative strict contracts. Combined
+run-kqv43ry3 and build/nc12/r3dcar_anchors_20261021/final-proof.json independently
+certify all27 retail filename/header coordinates and preservation of every
+function's header-relative word tags, block lines and end. Thus the existing
+GetFileName23-word and InsertCarFacetZ8-word relative contracts now also match
+all absolute word/file/header/block/end coordinates. Absolute certificates
+113->115; selected strict contracts remain149, NOT176 or151. The other25
+functions' internal SLD remains incomplete, and the three old declaration/
+region differences remain visible. No source-only object is removed or renamed.
+
+Cross-check the two newly absolute bodies against their full updated M2C
+files and raw assembly. M2C drops GetFileName's unchanged incoming strcpy
+source argument and the wrapper's two forwarded arguments. Raw callee/register
+use and the owning SYM signatures prove those real arguments; do not change
+correct source arity to imitate that decompiler omission. No bodies, calls,
+offsets, source objects, types, qualifiers, asm, volatile or build flags change.
+
+Full regression489/489 detailed SOURCE-ONLY and branch/count PASS; all21 whole
+normal ELF objects/native CPE, all489 local/region/frame tuples, other462
+absolute SLD maps, global named-type multisets and shared-header hashes stay
+unchanged. Every previous149 strict and113 absolute certificate survives.
+Tests105, vtable1368, source policy, relink, canonical link, raw299819/299819,
+overlap, foreign and whitespace checks pass. Source-validation strips exactly
+the27 added directives and reverses only the14 comment labels, then requires
+exact original text equality; it does not weaken the native/retail comparator.
+No new full-tree build-route rerun is claimed for this isolated CPP edit.
+
+Directory snapshots are not whole-tree freshness/completion certificates.
+The unresolved R3DCAR captures/regions/statements, the chunk-list address tag,
+all other source-only/synthetic names and full source-restoration obligations
+remain in the active goal. The new anchors/receipts remain uncommitted/unpushed.
+
+2026-10-21 chunk-build-list source layout:191 tag differences reduced to one.
+
+The previous matrix-builder round was verified progress. First reprice the
+glare search's unrecorded unused pt1 against current stock:17 genuine search/
+initialization/control-flow variants, including plain removal, inverse guards,
+continue/break/while/compound initialization, real comparison/work expressions
+and used labels. Four alternatives preserve the whole normal ELF. Comparison
+and for-body expression forms add supplied-incompatible regions. The while-body
+work expression preserves the30-record count and every supplied local tuple,
+but its empty-region starts shift160->172 and172->184, and an end216->212.
+Native run-w91ngrrc therefore is NOT adopted. Restore the exact saved source
+bytes, then fresh run-7i28q3vf restores21/21 declaration/region PASS and all11
+existing BWORLD strict contracts. The pointer remains an explicit unresolved
+source-object problem, not excused by a count-only match or a bounded floor.
+Controls and the complete negative native receipt stay under
+build/nc12/bworld_glare_source_20261021 and its named symloop run. No invented
+label, value expression or failed code shape is retained in the glare function.
+
+Continue with SetupChunkBuildList's203-word retail source phases. Keep the
+675 function anchor/header676 and use ordinary statement/layout restoration.
+Split the real distance740 and visibility744 guards; put chunkPtr's assignment
+at750 before translation756/757/758; separate side-plane tests770 from near-
+plane tests776. Preserve original Boolean logic, data widths, calls and flag
+masks. Use the actual typed BWorld_gChunkBuildList array at all six stores,
+removing redundant casts; no alias/source object is added. Restore all known
+785/807..824 store phases, loop increment825 and return/end843.
+
+A for inside the OLD extra outer counter block had been one scope too deep.
+That does not rule out a genuine counter-owned for. Remove the separate manual
+viewInd block and declare the provided viewInd in the for initialization. All
+203 words and all11 complete supplied tuples remain identical, while the body
+ends at824 BEFORE the825 increment, fixing the last block-line discrepancy.
+Real pretest-do/increment-condition controls also preserve bytes and the six
+block records, but are not needed or adopted. No dummy scope/local/use,
+qualifier, asm/volatile, invented name or build/output rewrite is introduced.
+The retained row pointer chunkViewList has the matched NFS2 row-walker name;
+NFS4 supplies no local record proving that distinct object. Its producer stays
+explicitly under SOURCE-REVIEW-UNRESOLVED, not hidden behind debug elision.
+
+Only one source tag remains: function offset+4, the BWorld_gChunkBuildList HIGH
+instruction, is688 versus retail677. The existing array-index source first
+produces that address at785; loop optimization hoists it to preheader688.
+Use read-only RE2-style GDB phase snapshots with the symbol-bearing diagnostic
+host, independently calibrating -mgas/-msplit-addresses for this target only.
+Standalone/control/observed exit0, full assembly equality under observation,
+and diagnostic/selected-stock/full-TU target instruction equality all pass.
+Stock .rtl/.loop dumps independently confirm785->688; neither scheduling nor
+register allocation creates the discrepancy. The near compiler is not a
+whole-project byte/SYM oracle and no flags are transplanted into the real build.
+observer-proof.json and stock-line-proof.json retain hashes, full phase records
+and bounded provenance. Investigate the original early address producer next;
+do not add an unproven pointer alias or force debug records merely to seal it.
+
+Fresh final combined run-r4sg8fpx and
+build/nc12/bworld_buildlist_sld_20261021/final-proof.json certify202/203 exact
+absolute word tags, all6 block records, header/end843 and all11 local tuples.
+Differences191->1, with no previously correct target word tag lost. This is
+explicitly NOT a complete target SLD seal, and no new strict count is claimed.
+Full updated M2C func_8007DD74.c and raw203-word assembly independently agree
+on calls/arity, culling, array/member offsets, masks, increments and return.
+Original literal macro/comment text is not uniquely proved by this layout.
+
+All489 detailed SOURCE-ONLY and branch/count gates PASS. All21 whole normal
+ELFs/native CPE, all489 local/region/frame tuples, other488 full SLD maps,
+global named-type multisets and shared-header hashes stay unchanged. Previous
+149 strict/113 absolute certificates survive, including the matrix seal.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign
+and whitespace checks pass. Broad BWORLD strict11/21, declaration/region21/21
+and GAME/COMMON strict421/1247 remain unchanged; they are not whole-tree source
+freshness/completion certificates. Remaining source objects/names/producers
+and line maps stay in the active full goal. This round is uncommitted/unpushed.
+
+2026-10-21 BWORLD matrix builder: recover phases and seal all181 SLD tags.
+
+Continue from pushed main f7ca2eac. SetupBuildMatrices already passes181 words
+and its21 provided local/type/home/depth/path/range tuples; the stale16-diff
+CURRENT comment is historical, not a live residual. Retail SLD gives three
+matrix loads followed by their three stores, with the same recorded t1/t2/t3
+objects reused across rows. Test the night and cop load-before-store phases
+separately and together against the selected stock compiler. All three controls
+preserve the entire normal BWORLD ELF. Restore that natural source order in
+both groups; no captured value, inferred name, cast, qualifier or fence is added.
+
+Under the one existing #line392 anchor, ordinary layout reproduces the known
+449/450/452 context selection,465..486 world-matrix phases,495..508 night
+matrix work,516..549 cop search and558..575 cop-matrix tail. Keep every real
+local/scope. The diff conditional's two real arms share540, and the real
+cop_angle update and xformy call share561. The defining header remains393 and
+the end575. No per-statement coordinate override or generated-note rewrite.
+
+The remaining initializer exposes a distinct parser contract: retail's loop
+owner starts515, while i=-1 is tagged516. Splitting the ordinary expression
+initializer across lines keeps its instruction on the FOR keyword's515 note.
+Putting the whole header on516 fixes that instruction but moves one block
+record to516. Neither intermediate form is accepted as the complete seal.
+Read GCC2.8.1 cp/parse.y's FOR action and for.init.statement production4023:
+the expression arm expands without a new statement line note; the compiler
+also explicitly supports a compound initialization statement. Use that actual
+counter initialization as `for ({ i=-1; } condition; increment)`, with FOR on515
+and its real assignment on516. It executes once before the first test, adds
+no source object and naturally emits no extra debug region. This is the
+compiler's compound-for-initializer extension, not an empty loop, dummy block,
+new helper or value-producing statement-expression placeholder. The exact
+original macro/initializer spelling is not uniquely established by these facts.
+
+Adapt RE2's read-only GCC/GDB observation method in an isolated directory.
+observer-proof.json records standalone/control/observed exit0 and identical
+full assembly for the same diagnostic executable/input, with input/compiler/
+observer/source hashes. The line-note calls come from yyparse; terminal575
+also comes from expand_function_end. Initial raw isolated-stock comparison
+differs only in the two cop_angle private-symbol serial suffixes (.22/.10).
+After explicitly spelling-only normalization in the diagnostic comparator,
+selected-stock isolated instructions equal the real full-TU stock instructions.
+No compiler output is modified. The diagnostic compiler's target instruction
+stream itself differs from stock: its trace is a producer receipt, NOT the
+native byte/SYM oracle. Retain the earlier expression-initializer snapshot in
+for-expression-observer/ and the stock controls/RTL alongside the final trace.
+
+Fresh native run-ipqc5i5q first confirms the complete target; final combined
+run-hi76k677 and build/nc12/bworld_matrices_sld_20261021/final-proof.json certify
+all181 absolute line/file tags, all28 block records, function end575 and all21
+provided local tuples equal retail. Tag differences175/181->0. Independently
+cross-check the full updated M2C func_8007D940.c and raw181-word oracle for
+call arities, matrix signs/offsets, gates, nearest-cop selection and returns.
+Literal source comments/macros/whitespace remain unproved by coordinate equality.
+
+All489 detailed SOURCE-ONLY and branch/count checks pass. All21 normal ELF
+objects, native CPE,489 local/region/frame tuples, other488 full SLD maps,
+global named-type record multisets and seven shared-header hashes are unchanged.
+Every previous148 strict/112 absolute contract survives; now149/113. Tests105,
+vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/whitespace
+checks pass. No shared header or build tool changes; no new full-build rerun
+claim is needed for this isolated CPP edit. Updated broad snapshot shows
+BWORLD11/21 strict and21/21 declaration-owner/region PASS; GAME/COMMON strict
+421/1247. It is not a whole-tree source-completion/freshness certificate.
+Other source-only objects, naming and unsealed layouts remain in the full goal.
+This new round is uncommitted/unpushed.
+
 2026-10-21 main integration and commit checkpoint.
 
 Commit63744c78 records the verified25-file source/SLD restoration above the

@@ -9,6 +9,9 @@
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
+/* EA sibling source uses this exact ABS body. Its argument re-evaluation is
+ * intentional here; builtin abs would not preserve the distance-call sites. */
+#define ABS(a) (((a) > 0) ? (a) : -(a))
 
 
 /* ---- camera.obj-owned globals ---- */
@@ -176,41 +179,72 @@ void Camera_TunnelLimit(int player,int *armheight)
   return;
 }
 
-/* ---- Camera_UpdateCollisionCam__Fi  [@0x8008090c] ---- */
+/* ---- Camera_UpdateCollisionCam__Fi  [@0x8008090c] ----
+ * Preserve the literal arm, real z negation, oldarm struct copy and independent
+ * coordinate/flag work. Source/native proof: camera_collision_layout_20261023. */
 #line 726 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCollisionCam(int player)
 {
-  coorddef arm = {0, 0x30000, -0xa0000};   /* SYM: AUTO; braced init -> rodata template D_800558A4 copy */
-  coorddef newarm;   /* SYM: AUTO */
-  coorddef oldarm;   /* SYM: AUTO */
 
-  if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
-     (InBetween == 0)) {
+  coorddef arm = {0, 0x30000, -0xa0000};
+  coorddef newarm;
+  coorddef oldarm;
+
+
+
+
+  if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) && (InBetween == 0)) {
+
+
+
     if (Camera_gInfo[player].direction != 0) {
-      arm.z = -arm.z;   /* MATCH: negate, not a 0xA0000 re-store */
+      arm.z = -arm.z;
     }
-    transform(&arm,((Camera_gInfo[player].anchor)->roadMatrix).m,&newarm);
+
+    transform((int *)&arm,((Camera_gInfo[player].anchor)->roadMatrix).m,(int *)&newarm);
     Camera_TunnelLimit(player,&newarm.y);
-    oldarm = Camera_gInfo[player].relpos;   /* MATCH: struct copy -> grouped t0-t2 load/store */
+
+
+    oldarm = Camera_gInfo[player].relpos;
+
+
+
     Camera_gInfo[player].relpos.x = oldarm.x + fixedmult(newarm.x - oldarm.x,0x51e);
+
     Camera_gInfo[player].relpos.y = oldarm.y + fixedmult(newarm.y - oldarm.y,0x51e);
+
     Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,0x51e);
-    /* here the oracle keeps ONE cached anchor for all three lines (no re-load) */
+
+
+
     Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + Camera_gInfo[player].relpos.x;
+
     Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + Camera_gInfo[player].relpos.y;
+
     Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + Camera_gInfo[player].relpos.z;
+
+
+
+
+
+
+
+
+
+
+
+
+
     if (Camera_gInfo[player].tumbling == 0) {
       Camera_gInfo[player].intransition = 0x32;
     }
-    /* MATCH: real bitfield assignments; pitch=1 FIRST (ori 2 precedes the and -5) */
+
     Camera_gInfo[player].pitch = 1;
     Camera_gInfo[player].jostling = 0;
     Camera_gInfo[player].tracking = 1;
     Camera_gInfo[player].checkwalls = 1;
     Camera_gInfo[player].noLookBack = 1;
-    Camera_gInfo[player].checkcollisions = 1;
-  }
-  return;
+    Camera_gInfo[player].checkcollisions = 1; } return;
 }
 
 /* ---- Camera_UpdateSimpleCam__Fi  [@0x80080ac8] ---- */
@@ -232,42 +266,40 @@ void Camera_UpdateSimpleCam(int player)
                   &Camera_gInfo[player].rotation);
 }
 
-/* ---- Camera_UpdateBumperCam__Fi  [@0x80080bac] ---- */
+/* ---- Camera_UpdateBumperCam__Fi  [@0x80080bac] ----
+ * The supplied lookingBehind is one short-circuit Boolean value. All seven
+ * Input_gLookBehind reads in this TU use the actual INT[2] array without an
+ * integer-address view. Source/native proof: camera_bumper_layout_20261023. */
 #line 807 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateBumperCam(int player)
 {
-  coorddef arm;        /* SYM: AUTO @0x10 */
-  coorddef newarm;     /* SYM: AUTO @0x20 */
-  int lookingBehind;   /* SYM: REG ($s1) */
-
-  lookingBehind = 0;
+  coorddef arm, newarm; int lookingBehind;
   arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
-  if (Camera_gInfo[player].noLookBack == 0) {
-    lookingBehind = *(int *)((player << 2) + (int)Input_gLookBehind) != 0;
-  }
+
+  lookingBehind = (Camera_gInfo[player].noLookBack == 0) && (Input_gLookBehind[player] != 0);
+
+
+
   if (lookingBehind) {
-    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
-    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    Camera_gInfo[player].audioPos.y = Camera_gInfo[player].anchor->position.y + newarm.y;
-    Camera_gInfo[player].audioPos.z = Camera_gInfo[player].anchor->position.z + newarm.z;
+
+
+    transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
+    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x; Camera_gInfo[player].audioPos.y = Camera_gInfo[player].anchor->position.y + newarm.y; Camera_gInfo[player].audioPos.z = Camera_gInfo[player].anchor->position.z + newarm.z;
+
     arm.z = -arm.z;
   }
-  transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+
+
+  transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
   Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
   Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y;
   Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + newarm.z;
+
+
   if (lookingBehind) {
-    Camera_LookBack(&Camera_gInfo[player].anchor->orientMat,&Camera_gInfo[player].rotation);
-  }
-  else {
-    /* MATCH: plain struct assignment -> gcc movstrsi unrolled copy (9 words).
-     * W85-S10: the old `*(BO_tNewtonObj *volatile *)&...anchor` view claimed to
-     * force a FRESH anchor re-load; measured device-free -- removing the
-     * volatile holds camera.cpp at 38/38 PASS, so it was a codegen crutch. */
-    Camera_gInfo[player].rotation = Camera_gInfo[player].anchor->orientMat;
-  }
-  return;
-}
+    Camera_LookBack(&Camera_gInfo[player].anchor->orientMat,&Camera_gInfo[player].rotation); }
+
+  else { Camera_gInfo[player].rotation = Camera_gInfo[player].anchor->orientMat; } return; }
 
 /* ---- Camera_UpdateTailCam__Fii  [@0x80080d84] ---- */
 /* 2026-10-19: direct reverse/wrongway selection, approximate-speed expressions
@@ -323,8 +355,8 @@ void Camera_UpdateTailCam(int player,int behavior)
     rate = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
         : (maxrate < rate ? maxrate : rate);
   }
-  if (*(int *)((player << 2) + (int)Input_gLookBehind) != 0) {
-    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
+  if (Input_gLookBehind[player] != 0) {
+    transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
   }
   slice = (int)((Camera_gInfo[player].anchor)->simRoadInfo).slice;
   if (0 <= lookahead) {
@@ -359,19 +391,19 @@ void Camera_UpdateTailCam(int player,int behavior)
   }
   arm.y += vertigo;
   if (Input_gLookBehind[player] != 0) {
-    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
     Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
     Camera_gInfo[player].audioPos.y = (Camera_gInfo[player].anchor->position).y + newarm.y;
     Camera_gInfo[player].audioPos.z = (Camera_gInfo[player].anchor->position).z + newarm.z;
     arm.z = -arm.z;
-    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
     Camera_TunnelLimit(player,&newarm.y);
     Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
     Camera_gInfo[player].position.y = (Camera_gInfo[player].anchor->position).y + newarm.y;
     Camera_gInfo[player].position.z = (Camera_gInfo[player].anchor->position).z + newarm.z;
     return;
   }
-  transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+  transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
   Camera_TunnelLimit(player,&newarm.y);
   oldarm = Camera_gInfo[player].relpos;
   if (Camera_gInfo[player].intransition != 0) {
@@ -399,6 +431,9 @@ void Camera_UpdateTailCam(int player,int behavior)
 }
 
 /* ---- Camera_UpdateHeliCam__Fii  [@0x800813cc] ----
+ * Current source receipt: camera_bumper_layout_20261023 verifies all seven
+ * typed Input array reads. W59's integer-address device below
+ * describes an older graph, not a current source requirement.
  * MATCH (187 -> 72): TailCam's priced road-sample/source-shape idiom preserves
  * BWorldSm_slices in a2 and the first sample in a0; reusing SYM's `fallback`
  * through /2 and the clamp switch keeps the retail a0 funnel. Direct anchor
@@ -533,8 +568,8 @@ void Camera_UpdateHeliCam(int player,int behavior)
   if (1 < Replay_ReplayMode) {
     rate = 0x28F;
   }
-  if (*(int *)((player << 2) + (int)Input_gLookBehind) != 0) {
-    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
+  if (Input_gLookBehind[player] != 0) {
+    transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
   }
   /* heli fallback: pull the camera back by |velocity|/20, clamped to 0x20000 */
   fallback = __builtin_abs(anchor->linearVel_ch.x) > __builtin_abs(anchor->linearVel_ch.z)
@@ -579,14 +614,14 @@ void Camera_UpdateHeliCam(int player,int behavior)
   arm.y += vertigo;
   if (Input_gLookBehind[player] != 0) {
     /* audio (look-behind) arm FIRST in VA order */
-    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
     Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
     Camera_gInfo[player].audioPos.y =
         ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + newarm.y;
     Camera_gInfo[player].audioPos.z =
         ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + newarm.z;
     arm.z = -arm.z;
-    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
     Camera_TunnelLimit(player,&newarm.y);
     Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
     Camera_gInfo[player].position.y =
@@ -595,7 +630,7 @@ void Camera_UpdateHeliCam(int player,int behavior)
         ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + newarm.z;
     return;
   }
-  transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+  transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
   Camera_TunnelLimit(player,&newarm.y);
   oldarm = Camera_gInfo[player].relpos;   /* MATCH: struct copy -> grouped t0-t2 load/store */
   if (Camera_gInfo[player].intransition != 0) {
@@ -660,7 +695,7 @@ void Camera_UpdateCircleCam(int player)
   }
   /* SYM has scoped h0/h1/ang but no hval or persistent Camera_tInfo pointer.
    * Direct src.y arms let gcc create the retail $s0 base only after their merge. */
-  transform(&src,(Camera_gInfo[player].anchor->orientMat).m,&des);
+  transform((int *)&src,(Camera_gInfo[player].anchor->orientMat).m,(int *)&des);
   Camera_TunnelLimit(player,&des.y);
   Camera_gInfo[player].position.x = (Camera_gInfo[player].anchor->position).x + des.x;
   Camera_gInfo[player].position.y = (Camera_gInfo[player].anchor->position).y + des.y;
@@ -701,7 +736,8 @@ void SetCameraZoom(int player,int targetDist)
  * reproduces83words without clampedHeight. Earlier direct-position/in-place
  * variants described different source graphs, not source-object necessity.
  * Source-input controls: build/nc12/camera_tv_source_20261018. Four equivalent
- * conditional forms match; literal original macro spelling/full SLD is open.
+ * conditional forms match; literal original clamp macro spelling remains open.
+ * Absolute source/SLD proof: build/nc12/camera_tv_layout_20261023.
  * No new helper, source object, qualifier, asm, fake use or flag is introduced. */
 /* ---- Camera_UpdateTVCam__Fi  [@0x80081e48] ----
  * Retail owns two distinct fn-static int[2] arrays, lastX and lastY.
@@ -715,25 +751,20 @@ void Camera_UpdateTVCam(int player)
   static int lastY[2];
   int targetDist;
   int height;
+  targetDist = ABS(Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position)) >> 4;
 
-  if (0 < Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position)) {
-    targetDist = Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position) >> 4;
-  }
-  else {
-    targetDist = -Math_Dist3D(&(Camera_gInfo[player].target)->position,&Camera_gInfo[player].position) >> 4;
-  }
+
   if (lastX[player] != Camera_gInfo[player].position.x) {
+
     lastX[player] = Camera_gInfo[player].position.x;
     lastY[player] = Camera_gInfo[player].position.y;
   }
   height = fixedmult(Camera_gInfo[player].TVHeight >> 2,targetDist + -0x4000);
-  height = (Camera_gInfo[player].TVHeight < height ? Camera_gInfo[player].TVHeight : height) < 0
-      ? 0 : (Camera_gInfo[player].TVHeight < height ? Camera_gInfo[player].TVHeight : height);
-  Camera_gInfo[player].position.y =
-      lastY[player] + height;
-  SetCameraZoom(player,targetDist);
-  return;
-}
+  height = (Camera_gInfo[player].TVHeight < height ? Camera_gInfo[player].TVHeight : height) < 0 ? 0 : (Camera_gInfo[player].TVHeight < height ? Camera_gInfo[player].TVHeight : height);
+  Camera_gInfo[player].position.y = lastY[player] + height;
+
+
+  SetCameraZoom(player,targetDist); }
 
 /* ---- Camera_UpdateAnimCam__Fi  [@0x80081f94] ---- */
 #line 1202 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
@@ -793,7 +824,7 @@ void Camera_UpdateAnimCam(int player)
     Camera_gInfo[player].rotation = animRot;
   }
   else {
-    transform(&animPos,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    transform((int *)&animPos,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
     Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
     /* MATCH: oracle re-loads anchor for the y/z pair */
     Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y;
@@ -804,38 +835,76 @@ void Camera_UpdateAnimCam(int player)
   return;
 }
 
-/* ---- Camera_UpdateFinishCam__Fi  [@0x80082254] ---- */
+/* ---- Camera_UpdateFinishCam__Fi  [@0x80082254] ----
+ * Primary animation/vector/matrix groups and six real flag writes follow the
+ * retail coordinates; unknown original comments/disabled text are not invented.
+ * Source/native receipt: build/nc12/camera_finish_layout_20261023. */
 #line 1282 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateFinishCam(int player)
 {
-  coorddef finishPos;    /* SYM: AUTO @0x10 */
-  coorddef newarm;       /* SYM: AUTO @0x20 */
-  matrixtdef finishRot;  /* SYM: AUTO @0x30 */
+  coorddef finishPos;
+  coorddef newarm;
+  matrixtdef finishRot;
+
+
 
   if ((signed char)Camera_gInfo[player].animHandle == -1) {
     Camera_gInfo[player].animHandle = (char)Anim_Handle(1);
   }
-  if (Camera_AnimGetTimedAnimPosRot(
-          Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle),
-          &finishPos,&finishRot) < 1) {
+
+  if (Camera_AnimGetTimedAnimPosRot(Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle),&finishPos,&finishRot) < 1) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     Anim_GetLastAnimPosRot(1,6,&finishPos,&finishRot);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   transform((int *)&finishPos,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
-  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
-  Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y;
-  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + newarm.z;
-  Math_fasttransmult(&finishRot,&Camera_gInfo[player].anchor->orientMat,
-                     &Camera_gInfo[player].rotation);
-  /* MATCH: six real bitfield assignments - 3 clears stay separate ands (-3/-5/-9),
-   * 3 sets combine-fold into one ori 0x70; single lw/sw RMW via CSE */
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x; Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y; Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + newarm.z;
+
+
+  Math_fasttransmult(&finishRot,&Camera_gInfo[player].anchor->orientMat,&Camera_gInfo[player].rotation);
+
+
   Camera_gInfo[player].pitch = 0;
   Camera_gInfo[player].jostling = 0;
   Camera_gInfo[player].tracking = 0;
   Camera_gInfo[player].checkwalls = 1;
   Camera_gInfo[player].noLookBack = 1;
-  Camera_gInfo[player].checkcollisions = 1;
-  return;
-}
+  Camera_gInfo[player].checkcollisions = 1; }
 
 /* ---- Camera_UpdateBlimpCam__Fi  [@0x8008237c] ---- */
 #line 1349 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
@@ -1145,24 +1214,22 @@ void Camera_UpdateCopCam1(int player)
   Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z - vec.x + vec.z;
 }
 
-/* ---- Camera_UpdateCopCam2__Fi  [@0x800831a8] ---- */
+/* ---- Camera_UpdateCopCam2__Fi  [@0x800831a8] ----
+ * Retail groups the signed /4 components on1730/31/32 and normalization on1733.
+ * The last real position write and implicit void fallthrough share1736.
+ * Native/source proof: build/nc12/camera_cop2_layout_20261023. */
 #line 1726 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCopCam2(int player)
 {
   coorddef dirVec;
 
-  dirVec.x = (Camera_gInfo[player].target->position.x -
-              Camera_gInfo[player].anchor->position.x) / 4;
-  dirVec.y = (Camera_gInfo[player].target->position.y -
-              Camera_gInfo[player].anchor->position.y) / 4;
-  dirVec.z = (Camera_gInfo[player].target->position.z -
-              Camera_gInfo[player].anchor->position.z) / 4;
+  dirVec.x = (Camera_gInfo[player].target->position.x - Camera_gInfo[player].anchor->position.x) / 4;
+  dirVec.y = (Camera_gInfo[player].target->position.y - Camera_gInfo[player].anchor->position.y) / 4;
+  dirVec.z = (Camera_gInfo[player].target->position.z - Camera_gInfo[player].anchor->position.z) / 4;
   Math_NormalizeVector(&dirVec);
   Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + dirVec.x * -2;
   Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + 0x13333;
-  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + dirVec.z * -2;
-  return;
-}
+  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + dirVec.z * -2; }
 
 /* ---- Camera_UpdateBTCopCam__Fi  [@0x800832b0] ---- */
 #line 1740 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
@@ -1204,13 +1271,15 @@ void Camera_UpdateBTCopCam(int player)
  * variable, type change, fence, asm or fake reference is added.
  * Source-control and native CPE proofs: build/nc12/camera_counter_source_20261020.
  *
- * SOURCE-REVIEW-UNRESOLVED: bitsInfo, isInCar, modeBits remain unrecorded
- * source values/aliases. The required packed-state behavior is known, but
- * failed direct forms do not prove that these original source objects existed.
- * The direction owner's retail zero-length range/nested bindings also remain
- * unsealed; code-exact initializers did not fix it, a value-expression model
- * is one level short, and speculative inline helpers changed code. Do not
- * pad scopes or claim those models recovered the original inline source.
+ * 2026-10-23: bitsInfo/isInCar/modeBits are removed by the actual supplied
+ * inCar/modechange bitfield assignments, including real forced-path stores.
+ * Earlier direct failures described other source graphs, not original-object
+ * necessity. All288 word/file tags and end1902 now agree with retail.
+ * The direction owner is now retail-exact: separate actual dot/Boolean value
+ * phases, with the scalar-value expression on1816, preserve all288 tags and
+ * all22 block records. Earlier owner-only models lost eight tags and were
+ * rejected. No empty scope/helper identity or literal macro spelling is claimed.
+ * Receipt: build/nc12/camera_direction_owner_20261023/final-proof.json.
  * Earlier single-carrier necessity claims are superseded, not exemptions. */
 
 /* ============================================================================
@@ -1307,82 +1376,105 @@ void Camera_Update(void)
 {
   int player;
 
-  for (player = 0; player <= Camera_gInfo[0].splitscreen;
-       player++) {
-    Car_tObj *anchor;
-    camera_info *bitsInfo;
-    bitsInfo = &Camera_gInfo[player];
 
+  for (player = 0; player <= Camera_gInfo[0].splitscreen; player++) {
+    Car_tObj *anchor;
     anchor = (Car_tObj *)Camera_gInfo[player].anchor;
-    if (Camera_gInfo[player].checkcollisions != 0) {
-      if (Camera_gInfo[player].tumbling != 0) {
+
+
+
+
+
+
+
+
+
+
+
+    if (Camera_gInfo[player].checkcollisions != 0)
+    {
+
+      if (Camera_gInfo[player].tumbling != 0)
+      {
         Camera_gInfo[player].tumbling -= 1;
         Camera_UpdateCollisionCam(player);
-        *(unsigned int *)((char *)bitsInfo + 116) =
-            (*(unsigned int *)((char *)bitsInfo + 116) & (~(1U << 27))) | 1;
+        Camera_gInfo[player].inCar = 0;
+        Camera_gInfo[player].modechange = 1;
         continue;
       }
-      else if (anchor->N.orientationToGround.y < 0x8000) {
-        int direction;
 
-        direction =
-            fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->x,
-                      anchor->N.roadMatrix.m[6]) +
-            fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->y,
-                      ((Car_tObj *)Camera_gInfo[player].anchor)->N.roadMatrix.m[7]) +
-            fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->z,
-                      ((Car_tObj *)Camera_gInfo[player].anchor)->N.roadMatrix.m[8]);
-        Camera_gInfo[player].direction = direction < 0;
+
+      if (anchor->N.orientationToGround.y < 0x8000)
+      {
+
+        Camera_gInfo[player].direction = ({
+          ({
+            int direction;
+            direction = fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->x, anchor->N.roadMatrix.m[6]) + fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->y, ((Car_tObj *)Camera_gInfo[player].anchor)->N.roadMatrix.m[7]) + fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->z, ((Car_tObj *)Camera_gInfo[player].anchor)->N.roadMatrix.m[8]);
+
+            direction; }) < 0; });
+
+
+
         Camera_gInfo[player].tumbling = 100;
       }
     }
-      if (((anchor->carFlags & 1U) != 0) && (anchor->stats.finishType == 2)) {
-        Camera_UpdateFinishCam(player);
-        *(unsigned int *)((char *)bitsInfo + 116) =
-            (*(unsigned int *)((char *)bitsInfo + 116) & (~(1U << 27))) | 1;
-        continue;
-      }
-      if (0 < (int)Camera_gInfo[player].forceFocus) {
-        Camera_UpdateBTCopCam(player);
-        *(unsigned int *)((char *)bitsInfo + 116) =
-            (*(unsigned int *)((char *)bitsInfo + 116) & (~(1U << 27))) | 1;
-        continue;
-      }
-      if ((Cars_gHumanRaceCarList[player]->pullOver != 0) &&
-          (Cars_gHumanRaceCarList[player]->stats.finishType != 3)) {
-        Camera_UpdatePulloverCam(player);
-        {
-        *(unsigned int *)((char *)bitsInfo + 116) =
-            (*(unsigned int *)((char *)bitsInfo + 116) & (~(1U << 27))) | 1;
-        }
-        continue;
-      }
-      if (Camera_gInfo[player].modechange != 0) {
-        camera_flags *flagMode;
-        int isInCar;
-        unsigned int modeBits;
 
-        flagMode = &Camera_gFlags[Camera_gInfo[player].mode];
-        Camera_gInfo[player].pitch = flagMode->pitch;
-        Camera_gInfo[player].jostling = flagMode->jostling;
-        Camera_gInfo[player].tracking = flagMode->tracking;
-        Camera_gInfo[player].checkwalls = flagMode->checkwalls;
-        Camera_gInfo[player].noLookBack = flagMode->noLookBack;
-        Camera_gInfo[player].checkcollisions = flagMode->checkcollisions;
-        modeBits = *(unsigned int *)((char *)bitsInfo + 116);
-        modeBits &= (~(1U << 27));
-        isInCar = bitsInfo->mode < 2;
-        modeBits |= (unsigned int)isInCar << 27;
-        modeBits &= ~1U;
-        *(unsigned int *)((char *)bitsInfo + 116) = modeBits;
-        Camera_gInfo[player].anchor = &Cars_gHumanRaceCarList[player]->N;
-        Camera_gInfo[player].target = &Cars_gHumanRaceCarList[player]->N;
-        if ((1 < Replay_ReplayMode) &&
-            (Replay_ReplayCamera[player].cameraMode == 0x13)) {
-          Replay_ReplayFindClosestCamera(player,(int)(Camera_gInfo[player].anchor->simRoadInfo).slice);
-        }
+
+    if (((anchor->carFlags & 1U) != 0) && (anchor->stats.finishType == 2))
+    {
+      Camera_UpdateFinishCam(player);
+      Camera_gInfo[player].inCar = 0;
+      Camera_gInfo[player].modechange = 1;
+      continue;
+    }
+
+
+    if (0 < (int)Camera_gInfo[player].forceFocus) {
+
+      Camera_UpdateBTCopCam(player);
+      Camera_gInfo[player].inCar = 0;
+      Camera_gInfo[player].modechange = 1;
+      continue;
+    }
+
+
+    if ((Cars_gHumanRaceCarList[player]->pullOver != 0) && (Cars_gHumanRaceCarList[player]->stats.finishType != 3))
+    {
+      Camera_UpdatePulloverCam(player);
+      Camera_gInfo[player].inCar = 0;
+      Camera_gInfo[player].modechange = 1;
+      continue;
+    }
+
+
+    if (Camera_gInfo[player].modechange != 0)
+    { camera_flags *flagMode;
+      flagMode = &Camera_gFlags[Camera_gInfo[player].mode];
+
+      Camera_gInfo[player].pitch = flagMode->pitch;
+      Camera_gInfo[player].jostling = flagMode->jostling;
+      Camera_gInfo[player].tracking = flagMode->tracking;
+      Camera_gInfo[player].checkwalls = flagMode->checkwalls;
+      Camera_gInfo[player].noLookBack = flagMode->noLookBack;
+      Camera_gInfo[player].checkcollisions = flagMode->checkcollisions;
+      Camera_gInfo[player].inCar = Camera_gInfo[player].mode < 2;
+
+      Camera_gInfo[player].modechange = 0;
+
+
+      Camera_gInfo[player].anchor = &Cars_gHumanRaceCarList[player]->N;
+      Camera_gInfo[player].target = &Cars_gHumanRaceCarList[player]->N;
+
+
+      if ((1 < Replay_ReplayMode) && (Replay_ReplayCamera[player].cameraMode == 0x13)) {
+        Replay_ReplayFindClosestCamera(player,(int)(Camera_gInfo[player].anchor->simRoadInfo).slice);
       }
-      switch(Camera_gInfo[player].mode) {
+    }
+
+    switch(Camera_gInfo[player].mode) {
+
+
       case 0: case 1: Camera_UpdateBumperCam(player); break;
       case 2: Camera_UpdateTailCam(player,0); break;
       case 3: Camera_UpdateTailCam(player,1); break;
@@ -1390,17 +1482,23 @@ void Camera_Update(void)
       case 5: Camera_UpdateHeliCam(player,0); break;
       case 6: Camera_UpdateHeliCam(player,1); break;
       case 7: Camera_UpdateHeliCam(player,2); break;
+
+
+
       case 10: Camera_UpdateCircleCam(player); break;
       case 0xb: Camera_UpdateSplineCam(player); break;
       case 0xc: Camera_UpdateTVCam(player); break;
       case 0xd: Camera_UpdateBlimpCam(player); break;
       case 0xe: Camera_UpdateAnimCam(player); break;
       case 8: case 9: case 0xf: Camera_UpdateSimpleCam(player); break;
+
+
       case 0x10: Camera_UpdateCopCam1(player); break;
+
       case 0x11: case 0x12: Camera_UpdateCopCam2(player);
-      }
-  }
-}
+      break; }
+
+  } }
 
 /* ---- Camera_Init__Fv  [@0x80083858] ---- */
 #line 1911 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
@@ -1575,7 +1673,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   slicePos = Camera_gInfo[player].slicePos;
   /* MATCH: reuse camAngle so this loop index and its strength-reduced pointer take retail s1/s0. */
   for (camAngle = 0; camAngle < 3; camAngle++) {
-    transform(feeler3 + camAngle,Camera_gInfo[player].anchor->orientMat.m,&triVec);
+    transform((int *)(feeler3 + camAngle),Camera_gInfo[player].anchor->orientMat.m,(int *)&triVec);
     triPnt.x = pos->x + triVec.x;
     triPnt.y = pos->y + triVec.y;
     triPnt.z = pos->z + triVec.z;
@@ -1909,7 +2007,7 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
     Camera_AcquireTarget(cviewP,gCop1Target + cviewP,&cview->translation,&Camera_gInfo[cviewP].rotation,1);
   }
   if (Camera_gInfo[cviewP].noLookBack == 0) {
-    if (*(int *)((cviewP << 2) + (int)Input_gLookBehind) != 0) {
+    if (Input_gLookBehind[cviewP] != 0) {
       Camera_OpponentLookBehind(cviewP,&cview->translation,0);
     }
     else {
@@ -1946,7 +2044,7 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
     tmp.x = -cview->translation.x;
     tmp.y = -cview->translation.y;
     tmp.z = -cview->translation.z;
-    transform(&tmp,cview->mrotationInv.m,&cview->translationInv);
+    transform((int *)&tmp,cview->mrotationInv.m,(int *)&cview->translationInv);
   }
   return;
 }
@@ -1955,7 +2053,7 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
 #line 2481 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel)
 {
-  if (*(int *)((cviewP << 2) + (int)Input_gLookBehind) == 0) {
+  if (Input_gLookBehind[cviewP] == 0) {
     cview->translation = Camera_gInfo[cviewP].position;
     cview->mrotation = Camera_gInfo[cviewP].rotation;
   }

@@ -6,6 +6,809 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-23 bumper camera: real Boolean and typed input array, full covered SYM/SLD seal.
+
+Camera_UpdateBumperCam remains118/118 SOURCE-ONLY PASS. All118 absolute
+instruction line/file tags (102differences->0), both scope records, header808
+and end835 agree with retail. Restore the real short-circuit lookingBehind
+Boolean instead of default initialization plus a leaf if. The arm copy is810,
+Boolean812, guarded transform819, three audio writes820, z-negation822,
+second transform826, position writes827..829, look-back832/833 and ordinary
+36-byte matrix assignment/fallthrough835. No source object or fake use is added.
+All FOUR complete primary local/type/home/owner tuples and frame72/mask801f0000
+remain unchanged and retail-exact. Plain struct assignment and the three-pointer
+transform API are preserved; decompiler stack fragments/stale arguments are not
+imported as new source declarations.
+
+Remove all FIVE remaining integer-address casts at actual Input_gLookBehind
+reads: three player sites and two cviewP sites. All SEVEN actual reads now use
+the supplied INT[2] array directly. Retail records8bytes at8013d230, and the
+private declaration retains its real dimension2, not an unsized workaround.
+Independent controls for each site and all-five together preserve the whole
+camera ELF. The short-circuit model preserves both0/1 result and suppression
+of the input read when noLookBack is set; no expanded index domain or runtime
+differential certificate is claimed. The old Heli address-device commentary
+is explicitly historical, not a requirement on the current graph.
+
+Proof: build/nc12/camera_bumper_layout_20261023/final-proof.json,
+source-proof.json, record-proof.json, field-proof.json and phase-proof.json;
+native run-w62880lv. The ordered guard checks274662 non-SLD records and allows
+only target block-end32->28 and function-end840->835 payload changes. All other
+488 complete SLD maps and all local/region/frame/static/global/type facts are
+preserved, including the other functions whose array reads changed. All prior
+217strict/195absolute contracts survive, now218/196; Camera has16/38 strict
+contracts and38/38 declaration-owner/region PASS. The remaining22 line maps
+and literal original-source questions are still open, not compiler floors.
+
+All489 selected detailed/branch checks across21 TUs PASS; all21 whole normal
+ELFs/native CPE unchanged. Tests105, vtable1368, policy/relink/canonical link,
+raw299819/299819 RECON words, overlap/foreign/whitespace checks pass. Selected
+stock -g -da output equals the full native compiler input, with no instruction,
+debug-record, assembler or compiler-state rewrite. Both transform headers and
+seven shared track headers remain hash-identical to the prior checkpoints.
+camera.cpp SHA256ec878b0c6396b9f388b2e39be2f8f13ad37924beee25dd8aa0f21812316eae57;
+native SYM7ed8c7208304c7ac945f9dac08988710eb4d939b3b4559e4e393b57bdcf66cfa.
+Horizon clipping's cw/ch/fences and CARS' seven-tag case remain unresolved;
+no failed experiment is retained. This checkpoint includes the earlier verified
+Horizon source/layout and camera restorations described below; it does not
+complete the whole-project goal. Generated and unrelated user files are excluded.
+
+2026-10-23 collision camera: all covered source/SLD facts restored, identical C++ tokens.
+
+Camera_UpdateCollisionCam remains111/111 SOURCE-ONLY PASS. All111 absolute
+instruction line/file tags (106differences->0), both scope records, header727
+and end788 agree with retail. Every C++ token, literal and existing function
+anchor is unchanged; only actual statement placement/comments change. The
+source preserves the literal arm initialization729, real direction/z-negation
+740/41, transform744, tunnel limit745, oldarm struct copy748, independent
+smoothing752/54/56 and position760/62/64, transition778/79 and six typed flag
+writes782..787. The existing return shares787 with the guard's end; the actual
+function close/epilogue is788. No return, test, store or value is added/removed.
+
+Read rom/nfs4-f.exe at the actual initializer template VA800558a4: its three
+INT words are0,0x30000,-0xa0000, exactly the12-byte braced coorddef initializer.
+All FOUR supplied complete tuples (player plus arm/newarm/oldarm), frame80/
+mask80030000, storage and region addresses remain unchanged/retail-exact.
+The typed three-pointer transform API is preserved; M2C func_8008090C.c's
+fourth argument is the stale initializer a3, not a new callee input. No cached
+anchor or decompiler stack scalar is invented to model anonymous quantities.
+
+Proof: build/nc12/camera_collision_layout_20261023/final-proof.json,
+source-proof.json, record-proof.json, field-proof.json and phase-proof.json;
+native run-6_dkg7je. All489 selected detailed/branch gates across21 TUs PASS;
+all21 whole normal ELFs/native CPE unchanged. All prior216strict/194absolute
+contracts survive, now217/195. Camera has15/38 strict contracts, all38
+declaration-owner/region contracts PASS;23 other line maps/review duties remain.
+The ordered guard checks274662 non-SLD records and allows only target block-
+end32->61 and function-end759->788 payload changes. Other488 SLD maps and all
+local/region/frame/type/static/global facts survive. Both typed transform
+headers remain hash-identical to their preceding verified checkpoint.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/
+whitespace checks pass; stock -g -da output equals native compiler input.
+camera.cpp SHA2569487288597195efc0c04ce125626de1524518b9b493214eebc4e84f19379c0e1;
+native SYMaf988446efbb155a5d22c2861078a397bc2212ded469f77b3aaee73101eee92d.
+No new name/object/scope/qualifier/asm, fake use, build/parser change or output
+rewrite is introduced. Literal original comments/macro spelling and the full
+project goal remain open; this is a covered-function seal, not full source
+completion. Horizon clipping and CARS' seven-tag case remain explicit. Changes
+are verified/uncommitted; unrelated and generated files remain preserved/excluded.
+
+2026-10-23 finish camera: complete covered contract and a real transform prototype repair.
+
+Camera_UpdateFinishCam remains74/74 SOURCE-ONLY PASS. All74 absolute word/file
+tags (68differences->0), both scope records, header1283 and end1346 now agree
+with retail. The animation test/acquisition is1290/91, timed-pose request1294,
+fallback1309, transform1334, three actual position writes1335, matrix product
+1338 and six supplied flag writes1341..1346. Remove only the redundant final
+void return; the last flag update/implicit fallthrough shares1346. Source
+gaps preserve known coordinates, not invented comments or disabled code.
+All FOUR original complete local tuples and frame112/mask800f0000 are intact:
+finishPos/newarm are12-byte coorddef objects and finishRot is36-byte matrixtdef.
+
+The private camera_externs.h had a genuinely incomplete `transform(...)`
+declaration. Adopt the existing eaclib/psx/eacpsxz/trnsfrm.h within its C-linkage
+include group: three INT-pointer inputs vec/mat/out. The complete raw routine
+saves a0/a1/a2, reads three vector/nine matrix INT words, writes three output
+INT words, and does not consume an incoming fourth argument. All17 camera
+calls now use that real prototype;15 formerly untyped coordinate-buffer call
+sites get explicit INT-pointer views. Already-correct casts remain unchanged.
+The feeler cast is AFTER pointer addition, preserving the12-byte vector
+stride. No const/restrict/volatile, temporary, helper or ABI-changing conversion
+is added. This private header has exactly one direct consumer, camera.cpp;
+all38 camera functions and the entire normal ELF stay byte-identical.
+This is a raw/header-backed library ABI repair, not a full eaclib-SYM claim.
+
+Proof: build/nc12/camera_finish_layout_20261023/final-proof.json, source-proof.json,
+record-proof.json, field-proof.json and phase-proof.json; native run-9s624q4l.
+All489 selected detailed/branch checks across21 TUs PASS, all21 whole normal
+ELFs/native CPE unchanged. Prior215strict/193absolute contracts survive,
+now216/194. Camera has14/38 strict contracts; all38 declaration-owner/region
+contracts PASS, while24 other line maps/review obligations remain. The ordered
+guard checks274662 non-SLD records and permits only target block-end14->52
+and function-end1310->1346 payload changes. Every other local/owner/frame/type/
+static/global record and other488 SLD maps survives, including the functions
+containing the15 call sites touched only by explicit pointer views. The private and
+library headers are hash-guarded and their token changes checked separately.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/
+whitespace checks pass; stock -g -da output equals the native compiler input.
+camera.cpp SHA25645236d74bc9b89cd680a5f8d1c09cf9fcd34bf2668694325c2ebb95bd3d9060c;
+private header e247ba333bf7ba965095e702a1db89a2c90d1af8df30aaff8efad83c71303c12;
+native SYMabdb459ca0f059a91c42c5b5c47930239f0123b35c3e6a99d0db52de7af6c8e6.
+No build/parser/assembler/debug/instruction rewrite or source-only carrier is
+introduced. Literal original source text and the full project goal remain
+unproved/open. Horizon clipping/CARS' seven-tag case remain explicit. Verified
+changes are uncommitted; unrelated/generated files are preserved/excluded.
+
+2026-10-23 TV camera: reference-supported ABS and complete covered SYM/SLD contract.
+
+Camera_UpdateTVCam remains83/83 SOURCE-ONLY PASS. Restore the exact ABS macro
+body independently present in C:/Temp/nfs2-clean/pc-beta/match/nfs2.h:
+`(((a) > 0) ? (a) : -(a))`. Its deliberate argument re-evaluation preserves
+the three physical Math_Dist3D sites/two calls on each taken path. Do not
+replace it by builtin abs, cache the distance or assume a pure/one-evaluation
+substitution. The former explicit three-call branch and this actual macro
+preserve the complete normal ELF. The sibling MIN/MAX clamp bodies do NOT:
+88words/80 raw differences; neither those nor a new clamp object is adopted.
+The existing verified clamp expression remains unchanged. This is a reference-
+supported source reconstruction, not unique proof of NFS4's literal macro text.
+
+Ordinary source grouping restores all83 absolute instruction line/file tags
+(76differences->0), both scope records and end1154: distance1141, cached-X
+test1144, separate lastX/lastY writes1146/47, fixed height1149, clamp1150,
+position1151 and real zoom/implicit void fallthrough1154. Remove only the
+redundant final explicit return. All FIVE complete original local/static
+tuples remain unchanged and retail-exact, including two distinct function-
+static INT[2] arrays of8bytes each, their storage/owners, and frame40/mask800f0000.
+M2C func_80081E48.c's stale third SetCameraZoom argument is not imported:
+the raw two fresh arguments, callee use and actual two-argument signature agree.
+
+Proof: build/nc12/camera_tv_layout_20261023/final-proof.json, source-proof.json,
+record-proof.json, field-proof.json and phase-proof.json; native run-cd_f_jbf.
+All489 selected detailed/branch checks across21 TUs PASS; all21 whole normal
+ELFs and the complete native CPE are unchanged. Prior214strict/192absolute
+contracts survive, now215/193. Camera has13/38 strict contracts, with all38
+declaration-owner and region contracts PASS;25 other line maps/review duties
+remain. The ordered guard checks274662 non-SLD records and allows only target
+block-end22->19 and function-end1158->1154 payload changes. Other488 complete
+SLD maps and all local/region/frame/type/body/header facts survive. Tests105,
+vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/whitespace
+checks pass; selected-stock -g -da output equals the native compiler input.
+camera.cpp SHA256690c418b0dd12fafb0c1a382fe2141eb10a39552334919ca9ee00fdb85b44bf8;
+native SYM59be17ea74b76c3c8f0077d5d5601caf97af97ef223bee8f2faf740687b6b633.
+No new C object, helper function, scope, qualifier, asm, fake use, build/parser
+wiring or emitted-output rewrite is introduced. Horizon clipping and CARS'
+seven-tag value-producer case remain open. Full goal active; verified changes
+are uncommitted and unrelated/generated files remain preserved/excluded.
+
+2026-10-23 CopCam2: complete covered source/SLD contract, unchanged machine code.
+
+Camera_UpdateCopCam2 remains66/66 SOURCE-ONLY PASS. Ordinary source placement
+restores all66 absolute instruction line/file tags (63differences->0), both
+block records and end1736. The signed /4 X/Y/Z assignments occupy1730/31/32,
+NormalizeVector1733, then the actual position stores1734/35/36. Remove the
+redundant final void return and let the last real store/implicit fallthrough
+share1736. No other executable token, operand, literal or function anchor is
+changed. Both supplied complete player/dirVec tuples, all region addresses
+and frame40/mask80010000 remain unchanged and retail-exact. The source's
+stale Camera_Update owner-backlog comment is corrected using its prior proof.
+
+Primary coorddef is12bytes with three INT components; keep the real signed
+division, not a shift that would round negative differences incorrectly.
+The raw caller/callee and M2C func_800831A8.c agree on one pointer argument
+to Math_NormalizeVector. No stack-scalar splitting, new object/name/scope,
+qualifier, asm, fake use or emitted-output rewrite is introduced. Exact
+original whitespace/macro/comment text is not uniquely proved by this seal.
+
+Proof: build/nc12/camera_cop2_layout_20261023/final-proof.json, source-proof.json,
+record-proof.json, field-proof.json and phase-proof.json; native run-mupdej1n.
+All489 selected detailed/branch checks across21 TUs PASS; all21 whole normal
+ELFs/native CPE unchanged. All prior213strict/191absolute contracts survive,
+now214/192. Camera has12/38 strict contracts, with38/38 declaration-owner and
+region PASS;26 other line maps/source-review obligations remain. The ordered
+guard checks274662 non-SLD records and allows only the target block-end9->6
+and function-end1740->1736 payload changes. Other488 SLD maps, every local/
+region/frame tuple, global named-type copies/bodies and shared headers survive.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/
+whitespace checks pass; stock -g -da output equals the native compiler input.
+camera.cpp SHA256b6ce2bc9d74c74d075139f83e1899ad422851cfbc8cd08878985d2ceebaf1a0d;
+native SYMca4c8a2dd400a076c760d6d35946fb2a980385520d1439d5c1b4173cda7b1c94.
+
+Car_DoPostCollisionStuff's seven1719->1720 tag differences remain open at
+154/154 PASS. Isolated controls in cars_height_return_20261023/closed-proof.json
+do NOT alter production: recorded whole-height updates remain two raw word
+differences, other Yoffset updates five, and partial-height field stages need
+an extra store (155words). Three ordinary/value-expression controls preserve
+normal code but are NOT full native/SLD-certified and are not adopted. Do not
+count code-only equality as the missing source-producer solution or infer a
+floor. Its two local tuples and all supplied scope/end facts remain intact.
+Horizon's clipping work likewise remains explicit, not hidden by the camera
+seals. Full goal active; verified source is uncommitted and unrelated/generated
+files are preserved/excluded.
+
+2026-10-23 Camera_Update: complete covered declaration/owner/SLD contract restored.
+
+Camera_Update remains288/288 SOURCE-ONLY PASS and now matches all FOUR supplied
+complete local/type/home/owner tuples, all22 block address/line records, every
+288 instruction line/file tag, header1777 and end1902. direction is still one
+INT in s0, but its retail owner+192..+192 is restored from+192..+296, at the
+same depth9/path. Camera has38/38 declaration-owner and38/38 region PASS;
+strict combined contracts10->11/38. This is not full Camera source restoration:
+27 other line maps and source-review obligations remain unsealed.
+
+The source change is real computation/selection, not an empty debug wrapper.
+The tumbling branch already unconditionally continues; the orientation test
+can therefore be an independent if within the collision guard. Separate
+value-producing dot and Boolean phases contain the actual three fixedmult
+calls, the supplied direction object, and its real signed comparison. Return
+the scalar value on1816, after its computation1814. GCC's cached RTL_EXPR and
+BIND_EXPR handling yields the supplied zero-address regions despite real work
+inside those lexical regions; do not transcribe them as empty C braces.
+No new source name, object, helper, qualifier, asm, fake use/predicate or
+output rewrite is introduced. All dot operands/calls and other executable
+tokens/literals/function anchors remain unchanged. Literal original macro
+spelling is not uniquely proved; expanded actual value work is retained.
+
+The first owner-exact candidate was NOT accepted: it moved eight previously
+correct comparison/bitfield tags1816->1814. Those facts are preserved in the
+ignored owner-only snapshot. Returning the actual scalar on its own1816 line
+restores those eight tags without changing tokens or scope records. Adjacent
+1815/1817 controls still miss eight tags; line-only success is independently
+checked against scope/owner facts. Inferred free/member helper controls do
+not preserve code and are not added to the shared header. Some earlier
+debug controls crash ASPSX; their failures remain recorded, not counted PASS.
+
+Original DUMPOBJ under the vendored DOS runner independently decodes the real
+ASPSX block records. The older psyq_extract reader silently stops early on
+this full-debug format; that partial parse was rejected. No project parser,
+comparator, native debug record or reference was edited to hide this issue.
+Selected-stock -g -da assembly equals the native compiler input byte-for-byte.
+GCC2.8.1 source is explanatory only; the selected compiler/native bytes and
+original vendor decoder supply the acceptance evidence.
+
+Proof: build/nc12/camera_direction_owner_20261023/final-proof.json,
+source-proof.json, record-proof.json, field-proof.json and phase-proof.json;
+native run-pull7rl4. All489 selected detailed/branch checks across21 TUs pass;
+all21 whole normal ELFs and complete native CPE are unchanged. Previous212
+strict/190absolute contracts survive, now213/191. Other488 complete local/
+region/frame/SLD facts, global named-type records/bodies and shared headers
+are preserved. The ordered raw guard checks274640 other non-SLD records;
+only the independently modeled target block records change. Tests105,
+vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/whitespace
+checks pass. No current assembler/compiler/build-tool wiring is changed.
+Source camera.cpp SHA2567b32f3283da17f1eb6089ea5f8f24e37ddf2cd6e2faf2f87f7ddb93281e05339;
+native SYMe5659f88ac4f1e25f0ddeb72d6699e7af0a3e6e10bd5cda65a0dd81fee2731ad.
+Horizon remains473/473 PASS at its prior0f62f3b5... source checkpoint; its cw/ch
+and clipping devices remain open. The full project goal stays active. Changes
+are verified but uncommitted; unrelated and generated files remain excluded.
+
+2026-10-23 renderer continuation: whole-object option and real-coordinate controls.
+
+Horizon remains473/473, InitSky209/209 and LightningFlicker55/55 SOURCE-ONLY
+PASS on unchanged production C++. No production compiler flag or build-tool
+change is made. build/nc12/hrz_clip_flags_20261023/final-proof.json closes75
+whole-object option graphs (five source inputs,15 option sets). None of the
+capture-free inputs preserves all22 function bodies/the whole ELF. Force-addr
+and no-peephole are byte-neutral on the current fenced baseline but do not
+repair direct bounds reads. Other tested force-memory, CSE-path, rerun-CSE,
+expensive-optimization, strength, split-address and scheduling settings also
+fail the whole-object requirement. This bounds only the tested settings and
+current source graphs, not the uniquely original historical invocation.
+
+Related real-value work is kept isolated:91 no-fence height-narrowing and
+coordinate-accumulation graphs in hrz_coordinate_conversion_20261023 fail
+whole-ELF equality. Narrowing a result, narrowing the existing INT later,
+and separate real short-field accumulation do not remove InitSky's fence
+at the required stream. No cast-only workaround is retained or declared
+necessary, and the original named height/radius/k roles are not changed.
+
+hrz_fill_consumption_20261023 has28 negative source graphs across countdown,
+pre/post-consumption, real for-increment fill work and dead-parameter reuse.
+Only the supplied i is used in the capture-free loop trials. Pre-consumption
+and increment-work forms still miss by six words at55instructions; replacing
+col by actual later on assignments is56words and rejected, not represented
+as a recovered parameter role. No counter/capture/qualifier/fence is added.
+These are trials including duplicate graphs, not unique source-basin counts.
+
+All failed candidates remain outside production. Fresh detailed targets and
+all22 renderer branch/count checks pass; all21 normal ELF hashes and native
+SYM/CPE match the prior489 detailed/branch regression receipt exactly, thereby
+preserving the previous212strict/190absolute contracts. Whitespace passes.
+Clipping cw/ch, InitSky's fence, Flicker's col and ring's scope producer remain
+open; no compiler floor or distinct-source-object necessity is inferred.
+The next useful clipping question is the genuine pre-combine value/work
+producer, not further option/cast/countdown spelling sweeps. Artificial
+stores, dummy uses/scopes and generated-output rewrites are not remedies.
+
+2026-10-23 Horizon clipping follow-up: new capture-free basin and real assembler checks.
+
+Production C++ remains unchanged and Hrz_BuildHorizon remains473/473 PASS.
+New isolated sign-propagation controls reach a capture-free473-word basin:
+`(int)((u_short)bound ^ 0x8000) - 0x8000` gives the required signed16 value
+for every65536 input words, but is six raw instruction differences, NOT PASS.
+Two former delay-slot NOPs become bias loads; each SLL/SRA pair becomes
+XORI/ADDU. All other467 target words agree. It is not adopted or presented as
+the original literal source. Other arithmetic/wide controls and whole clip-
+chain/for/positive-depth/comma-copy owner forms also fail. There are148 trials
+across four manifests, including named-capture controls and duplicate graphs;
+this is not148 unique basins, a floor, or proof that cw/ch were original.
+
+An independent real-ASPSX2.77 assay assembles the untouched selected compiler
+outputs for baseline, literal fields, held fields and XOR-bias. Every
+nonrelocated word agrees with its GNU/maspsx counterpart; respective word
+counts473/470/471/473 agree too, excluding only verified zero section padding.
+ASPSX SHA25660a72cc29aa556cd45db1224669583e0e00ecb7b19ecc2efa5da63a6e1598bbb.
+Thus the measured literal LH versus retail LHU/shifts discrepancy is not an
+unmodeled real-assembler expansion in these controls. No compiler/assembler
+input, emitted instruction, native debug record or object is rewritten.
+
+Read rom/nfs4-f.exe directly: both literal cache-bound sequences are genuine
+LHU/SLL16/SRA16 at800d16e4 and800d1780, supplied SLD1470/1474. A syntactic
+scan within parsed retail-SYM function spans finds87 nearby LHU/shift-pair
+candidates; only these two also have an IMMEDIATELY PRECEDING LUI resolving a
+scratchpad address. This limited pattern census does NOT certify every data
+flow or unnamed function and does not establish a tool-expanded template.
+NFS2's Horizon_QuadInView reference uses ordinary four-stage rejection;
+canonical PsyQ LIBETC.H supplies getScratchAddr as address arithmetic, not a
+signed-bound fetch implementation. No helper name or assembly is invented.
+
+Receipts: build/nc12/hrz_clip_conversion_20261023/receipt-proof.json,
+native-assembler-proof.json, raw-census.json and validation-proof.json.
+Fresh489 detailed/branch PASS across21 TUs, all21 whole normal ELFs/native
+SYM/CPE unchanged, raw299819/299819; tests105, vtable1368, policy, both links,
+overlap/foreign/whitespace pass. All473 native word/file tags remain exact;
+native23 versus retail21 local tuples and12 versus10 regions remain open.
+Previous212strict/190absolute seals survive. Clipping's true source value/
+address producer remains unresolved; no failed candidate is retained, no
+source-object necessity is claimed, and the full goal remains active.
+
+2026-10-23 Horizon clipping continuation: bounded source controls and allocator cause.
+
+Re-gated Hrz_BuildHorizon at473/473 SOURCE-ONLY PASS before probing. Production
+camera.cpp and hrzsku.cpp are unchanged by this round; no failed experiment,
+new qualifier, object, helper, fence, pin or generated-output rewrite lands.
+The two cw/ch objects, their existing identities and incorrect owner paths
+remain explicitly unresolved. All473 instruction/file tags remain correct;
+this is NOT a new source/SYM seal or proof that either object/fence is needed.
+
+Isolated controls in build/nc12/hrz_clip_shapes_20261023 test26 guard/conversion
+forms and40 actual field/address/positive-owner forms. Nested reject tests,
+positive combined acceptance, byte/head-array/field-address views, reversed
+integer address terms and wide pointer arithmetic do not recover the whole
+normal ELF. Held bounds remain471words; literal bounds470. Fourteen additional
+wide-conversion codegen controls also fail; they are NOT certified equivalent
+source candidates (the unsigned16-to-wide sign32 control is deliberately not
+signed16 narrowing). No wide-shift/multiply/cancellation workaround is adopted.
+Three baseline controls reproduce the current whole ELF exactly. Some source
+spellings produce identical graphs; these counts are trials, not unique basins.
+
+New selected-stock -da and allocsim evidence explains the s6/s5 divergence.
+For all FOUR observed graphs, plain/dump assembly agrees byte-for-byte and
+all25 global handouts match the model. hsd is p83: baseline22refs/live578,
+priority1522, gets s6; direct-held26refs/live574, priority1811, gets s5.
+The next-point byte-offset induction quantity has9refs, priorities1764/1788,
+and correspondingly gets s5/s6. The extra two loop-weighted bound references
+reverse that ordering; it is not an unexplained allocator tie. Literal-only
+reads retain hsd in s6 but fold to LH; mixed first-literal/later-held reads
+produce extra physical loads and475words. Neither an allocator-only dial nor
+guard polarity/address spelling solves the missing source value/address
+producer on these graphs. Do not buy the priority with fake references or
+invent a region merely to match the retail tree. GCC cse.c find_best_addr and
+combine.c's disjoint-bits PLUS-to-IOR rule are inspected without modifying
+compiler state, flags, source tools or emitted instructions/debug records.
+
+M2C func_800D131C.c confirms the four clipping stages and actual signed
+comparisons after unsigned halfword loads, not the existence of named original
+bound objects. Its s32-pointer +=4 and stale trailing SetPolyGT4 arguments
+are not imported as source strides/signatures. Retail SYM still supplies no
+cw/ch records or clipping inline pairs. Next investigate a genuine producer
+for the unsigned load followed by shared signed comparisons, rather than
+repeat these guard/cast/address families or call the remaining work a floor.
+
+Receipts: probe-proof.json, address-proof.json, extension-proof.json,
+phase-proof.json, findings-proof.json and validation-proof.json in that round.
+Fresh regression validation:489 detailed/branch PASS across21 TUs; all21 whole
+normal ELFs, native SYM e3d57dc9... and native CPE f38b1480... unchanged.
+Prior212strict/190absolute contracts remain supported by unchanged production
+sources/native records. Tests105, vtable1368, policy, real/canonical link,
+raw299819/299819, overlap and foreign-label checks pass. This is a bounded
+diagnostic advance, not a clipping fix or full-project completion. Earlier
+verified uncommitted source changes and unrelated user files are preserved.
+
+2026-10-23 CAMERA updater: three aliases removed; real packed-state fields restored.
+
+Camera_Update remains288/288 SOURCE-ONLY PASS after removing bitsInfo, isInCar
+and modeBits. Four forced-camera paths now write the supplied inCar=0 and
+modechange=1 fields; normal mode initialization writes inCar=(mode<2) then
+modechange=0. No field/type/header layout is changed. Retail camera_info is
+272bytes, mode is signed SHORT at112, and its CHAR bitfields are bit0/bit27
+of the word at116. The signed-mode/flag model checks all65536 input modes and
+all relevant old-flag combinations while preserving the other bits. Those
+word masks are compiler output of the actual bitfields, not proof of original
+source-only snapshot variables. Four ordinary source controls retain the whole
+normal ELF; different successful conditional spellings do not uniquely prove
+the original literal text.
+
+Ordinary anchored source layout and the real last switch-case break restore
+all288 absolute instruction line/file tags (277differences->0), end1902 and
+the case/for-body source endpoint1900. All22 scope ADDRESS events and every
+retained local/type/home/owner/frame tuple stay unchanged. Correct block-line
+events improve2->18/22 with no previous correct fact lost. Direction's range
+still ends296 instead of192, with four misplaced marker events; that producer
+remains active work and this function is NOT strict SYM/SLD exact. The unused
+pullover-only wrapper is also removed, not replaced by a fabricated scope.
+
+Native locals5->4 by removing modeBits REG:$4. bitsInfo and isInCar were
+debug-elided source objects and are removed too; all four remaining declaration
+names/types/homes match the supplied set, but direction's owner is unsealed.
+The raw-record audit catches one camera_info TPDEF copy disappearing as well:
+before3, after2, RETAIL2. It was an unprovided third copy, not lost supplied
+type information. The exact ordered deletion and all other type-copy/body
+multisets are checked; no blanket duplicate filtering or typedef/header patch
+is used to hide the change. The complete camera_info body remains unchanged.
+
+Proof: build/nc12/camera_flags_source_20261023/final-proof.json, source-proof.json,
+record-proof.json, field-proof.json and phase-proof.json; native run-9nd63uvg.
+All489 selected detailed/branch checks PASS, all21 whole normal ELFs/native
+CPE unchanged, all previous212strict/190absolute contracts retained. Other488
+complete SLD maps and all retained local/region/frame facts survive. Global
+named types differ only by that one proved unprovided camera_info copy.
+Seven shared headers plus camera_info.h are hash-guarded unchanged. Tests105,
+vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/whitespace
+checks pass; selected-stock -da .s equals the complete native compile.
+Source camera.cpp SHA2563a7f87b15a11ed5ce47a07e2d08d1ae5968f213b06dba5ae82d2ae82c5a0a821;
+native SYMe3d57dc9bf4dbda26526afc64d19d1452b28826b65e84f6370df1ae9683d313c.
+M2C func_800833D8.c's stale third fixedmult argument is not imported: the
+actual fixedmult routine reads only a0/a1. Real dispatch/call targets and
+branch layout are preserved by full-object and real-link checks.
+
+InitSky's fence was investigated without a production change. Fresh baseline
+209words matches; removing the fence leaves209words with eight raw register
+differences. The stock allocator model validates all16 global handouts. Fifteen
+real value/conversion forms fail full-ELF equality;248 real branch-staging/loop
+graphs have no complete six-variable retail handout;40 real grid/index forms
+also fail whole-ELF equality. Their models are calibrated, plain/dump outputs
+agree, and exact "void Hrz_InitSky()" selection avoids the similarly prefixed
+InitSkyColor function. Evidence: build/nc12/hrz_init_fence_20261023/diagnostic-proof.json.
+This is a bounded source-family rejection, NOT a fence-necessity or compiler-
+floor claim. No dummy reference, qualifier, copy or arithmetic identity lands.
+Renderer source stays at the previous0f62f3b5... checkpoint. The full goal stays
+active; verified changes are uncommitted and unrelated/generated files excluded.
+
+2026-10-23 HRZSKU matrix: full covered source/SLD contract, unchanged tokens.
+
+HrzSetPsxMatrix remains56/56 SOURCE-ONLY PASS;55 instruction-tag differences
+become0. Every absolute word/file tag, all ten scope records,15 local/parameter
+owners, header982 and end1017 match retail. Only ordinary layout changes:
+the reused t1/t2/t3 block follows994..1011; each real supplied r0/r1/r2 group
+shares its original1013/1014/1015 row coordinate. All C++ tokens, literals and
+directives are unchanged. No macro name, source object, empty scope, fake use,
+qualifier, asm, compiler flag or generated-debug rewrite is introduced.
+Original literal row-macro spelling is unproved; expanded real work is kept
+instead of inventing a helper identity. Historical closed-axis/floor claims
+are explicitly superseded, not retained as generic source exemptions.
+
+Primary HRZSKU types give MATRIX32bytes with SHORT[3][3] rotation and LONG[3]
+translation at20, and matrixtdef36bytes with INT[9]. Existing field/index
+roles and both AUTO objects remain unchanged. M2C's narrow s16 pair-load
+rendering is not copied: the actual SDK loads32-bit words containing pairs
+of rotation coefficients before CTC2; narrowing them would lose coefficients.
+
+Proof: build/nc12/hrz_matrix_layout_20261023/final-proof.json, source-proof.json,
+record-proof.json, field-proof.json and phase-proof.json; native run-c7gcvfx4.
+All489 selected detailed/branch checks PASS; all21 normal ELFs/native CPE
+unchanged. All prior contracts survive: selected211->212 strict,189->190
+absolute; HRZSKU18->19/22 strict,19->20/22 SLD-component exact. Other488
+complete SLD maps, every local/region-address/frame fact, global named types
+and seven shared header hashes are preserved. Ordered raw records differ only
+at the independently checked function-end payload1070->1017 (plus SLD events).
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/
+whitespace checks pass; selected-stock -da .s equals the full native compile.
+Source SHA2560f62f3b5a19680524d7134ed783b524251694844cde6f578efaca9fbc7438ca7;
+native SYMab750dfac5b31376c1baf23cb95e34b090af2ce8039fe07062770fe42be610b7.
+
+Ring recovery was revisited without changing production. The raw retail
+records truly contain four variable-free missing markers (+128/22,+156/24,
++232/34,+248/35), not an overlooked counter declaration. Four real for-loop
+controls in build/nc12/hrz_ring_for_20261023/probe-proof.json fail code; shadow
+counter forms add an unprovided i record and only two extra markers rather
+than the required four. In/out-of-class pixel-height method controls in
+build/nc12/hrz_ring_method_20261023/probe-proof.json preserve the whole normal
+ELF and emit no receiver rows, but still add SIX markers instead of FOUR.
+None is adopted and no shared header is edited. NFS2 PC's matched
+Hrz_Init2DRing.c has the geometry loop but not this PSX height-buffer phase;
+it does not determine the missing producer. These are bounded negative
+controls, not proof of an original extra object or a compiler floor.
+
+The remaining HRZSKU strict misses are ring's scope producer, Flicker's col,
+and Horizon's cw/ch/scopes; InitSky's existing fence is also still source
+review work despite its native seal. Full-project restoration stays active.
+Verified source is uncommitted; unrelated/generated files stay excluded.
+
+2026-10-23 HRZSKU projection/dithering/stars: three full covered contracts.
+
+Hrz_RotProj16(17words), Hrz_SetDitheringPrim(34) and Sky_RenderStars(111)
+remain SOURCE-ONLY PASS and now match all162 absolute word/file tags, their
+six scope markers,17 supplied local/parameter owners and true function ends.
+Instruction-tag differences14/28/104 become0/0/0. Selected strict208->211 and
+absolute186->189; HRZSKU15->18/22 strict,16->19/22 SLD-component exact. This
+does not certify unique literal source text or complete the wider project.
+
+Projection replaces the generic register-number spelling with the EXISTING
+canonical gte_stlvnl2(z). PsyQ4.3 INLINE_C.H1130 stores MAC3 data register27; the
+different gte_stsz stores SZ3 register19. The local canonical macro already
+exists in recon/lib/psx_gte.h; that header is unchanged. No hardware/general
+assembly implementation or qualifier is added. Ordinary real loop increment/
+tail coordinates restore1032..1045, rather than manufacturing note records.
+
+Dithering's real acquire/link/advance statements share1053 and its actual
+SetDrawMode/return ends1055. Stars has four independent real clip statements
+at1317..1320, ordinary allocation advance/addPrim at1323, canonical setTile1
+at1327, and primary TILE_1.r0/x0 word views. Both TILE_1 and DR_MODE have the
+supplied12-byte sizes; typed prim+1 replaces the remaining byte stride.
+The packed XY copy includes BOTH SHORT coordinates; no narrowed X-only read
+is imported from M2C. M2C's s32-pointer+0xc cursor rendering is also not copied
+as a48-byte advance. The explicit converted vector expression remains:
+replacing its tests by scnt.vy fails a separate normal-ELF control, not proof
+of a missing source capture. No variable, fake scope/use/loop, asm or output
+rewrite is added. Old star scheduling/floor claims are retired as superseded.
+
+Proof: build/nc12/hrz_small_sld_20261023/final-proof.json, source-proof.json,
+record-proof.json, field-proof.json and phase-proof.json; native run-yx2enf0g.
+All489 selected detailed/branch checks PASS; all21 whole normal ELFs/native
+CPE remain unchanged. Every previous full contract survives, as do all named
+local/type/home/owner/frame/region-address facts, other486 complete SLD maps,
+global named type bodies and seven shared headers. The ordered raw guard
+allows only the modeled target block-line and three function-end changes.
+Tests105, vtable1368, policy/relink/canonical/raw299819/299819/overlap/foreign/
+whitespace checks pass. Selected-stock -da .s is byte-identical to the native
+compile. Seven star-source controls retain the complete normal ELF; the one
+typed-scnt.vy control does not and is not adopted. Primary setTile1/setlen/
+setcode definitions match the canonical SDK token-for-token.
+Source SHA2561a7eea9fe3cd46bddb8a4262b5062d6c5204256ca05aa99300130afc49e76289;
+native SYM032af1c63e59f68fb7cca9964580880305f1e294619ba3b640b0eec1858b7da1.
+
+The four remaining HRZSKU strict misses are matrix statement lines, ring's
+missing scope events, LightningFlicker's col, and Horizon's cw/ch/scopes.
+InitSky's existing fence remains source-review work despite its native seal.
+These remain active recovery obligations, not generic carrier exemptions or
+compiler floors. Verified changes are uncommitted; unrelated/generated files
+remain excluded from the project checkpoint.
+
+2026-10-23 HRZSKU Sky: full covered SYM/SLD source contract restored.
+
+Hrz_BuildSky remains458/458 SOURCE-ONLY PASS and now matches every458 absolute
+instruction line/file tag, all24 block records and header1060/end1277. All23
+ordered local/type/home/depth/owner tuples are unchanged and retail-exact.
+This adds one strict/absolute certificate: selected207->208 strict and185->186
+absolute, HRZSKU14->15/22 strict (16/22 SLD-component exact). Literal original
+macro/comment text is not uniquely proved; this is not full-project completion.
+
+The source correction is substantive, not per-statement line overrides. Five
+actual rejection stages replace compound Boolean conditions: four nested
+tests reject an entirely invisible/offscreen quad, preserving short-circuit
+order and the same compiled control flow. Their separate statements supply
+retail1175..1195 instead of attributing each compound group to one final line.
+Real RTPT/RTPS work, pointer increments and tail returns keep their proper
+coordinates. Gradient allocation advances the real cursor before linking;
+three canonical PsyQ tag macros replace independent tag writes. Eight raw
+UV address views now use supplied Draw_tPixMap.u0/u1/u2/u3 members.
+
+PsyQ4.3 COFF/INCLUDE/LIBGPU.H supplies setlen/setcode and setPolyFT4/G4/GT4;
+all five local definitions are token-exact with that primary SDK source.
+The shared compiler/build/header data layouts are untouched. All five normal
+source controls (baseline, rejection-only, allocation-only, fields/tags-only,
+combined) preserve the COMPLETE ELF, not just a normalized target count.
+No new source object, qualifier, asm, fake use/scope/loop or output rewrite.
+Original allocation macro spelling remains unproved; explicit real statements
+are kept instead of inventing an original helper name. Historical device/
+allocation-necessity claims are explicitly superseded, not new exemptions.
+
+Proof: build/nc12/hrz_sky_layout_20261023/final-proof.json, source-proof.json,
+record-proof.json, field-proof.json and phase-proof.json; native run-i6dtc1kh.
+All489 selected detailed/branch checks pass, all21 whole normal ELFs and native
+CPE stay unchanged. Other488 full SLD maps, all local/region-address/frame
+contracts, global named type bodies and seven shared headers survive. The
+ordered non-SLD guard checks274640 other records, allowing only modeled target
+block-line changes and end1244->1277. Tests105, vtable1368, source policy,
+real/canonical link, raw299819/299819, overlap/foreign/whitespace checks pass.
+Selected-stock -da output is byte-identical to the native compile's full .s.
+Source SHA256c53b7897cdf390c486e10eb2b4dcc1cb5b3848b2548b66754650f9b8e9c2c7cf;
+native SYM2ff92b71e555edc8eca72353ec1bbfb4f7a6faa0c6ebcfe0ec331a91fd986316.
+
+Independent M2C func_800D0A38.c is checked against raw code, not copied blindly:
+its extra dithering arguments are stale registers, its width/height word-load
+types are wrong for the actual halfword loads, and block_43's advanced-cursor
+tail alias would write the next packet rather than the preserved prim. Keep
+the true two-argument call, signed SHORT fields and original primitive base.
+
+LightningFlicker's separate col recovery remains active. The twenty new
+carrier-free loop/initializer/reverse-index controls in
+build/nc12/hrz_flicker_source_20261023/{probe-proof,reverse-proof}.json fail;
+none changes production source. The literal55-word basin still has six raw
+positional word differences (not a new authoritative normalized diff count).
+No original-object necessity, renamed/const substitute or compiler floor is
+claimed. Remaining Horizon cw/ch work and the broader review queue stay open.
+Verified changes are uncommitted; unrelated/generated files stay excluded.
+
+2026-10-23 HRZSKU Horizon: recover allocation phase; remove pp/c1/pointer fence.
+
+The actual packet is acquired, its real cursor advanced, THEN linked with
+canonical addPrim. Its first packed color comes directly from the real color
+row array. This removes pp, c1 and the old empty pointer-identity asm without
+another local, qualifier, fake use, macro helper or output rewrite. All473
+normal words and the entire normal ELF/native CPE remain unchanged. The two
+remaining first-color instruction tags now read1495, not1493: every473 absolute
+line/file tag, header1338 and end1557 agrees with retail. This is an instruction-
+SLD seal, NOT a full function/SYM seal while cw/ch and their scopes remain.
+
+Selected-stock loop receipts explain the paired fix rather than declaring a
+carrier necessary. Array read plus scalar cursor removes the false memory
+dependency, but cursor advance AFTER linking leaves the address life24 and
+loop.c moves it to1298, spilling/reloading atsp+84 (475words). Advancing the
+real cursor BEFORE linking gives life4, recorded as "not desirable" to move;
+the address remains local and the complete473-word stream returns. Six natural
+capture-free allocation/color controls preserve the whole ELF, so literal
+macro spelling is still not uniquely proved. Earlier isolated failures and
+the latest40 failed controls applied to other source graphs, not an original-
+object exemption. Loop RTL is observed only; no compiler state/output changes.
+
+Native locals24->23 by removing only the unprovided pp REG:$6 row. c1 was
+debug-elided but was a real source review item and is removed too. Every other
+complete local/type/home/owner/frame tuple is preserved. Two unprovided scope
+pairs disappear (1212/149 and1292/154 to1620/184); all20 supplied block-line
+events survive. The only target extras now are cw/ch and their two declaring
+scopes. Their ordinary held/literal-field controls were repriced after this
+landing:471/470words, not473; none is retained and no floor is claimed.
+
+Proof: build/nc12/hrz_horizon_cursor_20261023/final-proof.json, source-proof.json,
+record-proof.json, field-proof.json, phase-proof.json and clip-reprice-proof.json.
+Fresh combined native run-z8qlx8gn;489 SOURCE-ONLY detailed/branch checks PASS,
+all21 whole normal ELFs/native CPE unchanged, all prior207strict/185absolute
+contracts preserved. Other488 full SLD maps, global named types and seven
+shared headers survive. The ordered raw native record guard checks274640
+other rows while modeling precisely the pp and four scope-marker deletions.
+Tests105, vtable1368, source policy, real/canonical link, raw299819/299819,
+overlap/foreign/whitespace checks pass. Full original-source restoration stays
+open; this target's aggregate strict/SYM status is still incomplete.
+Source SHA256e6bcd1d976fe8ee08bd555c6be2d4b1c56d091c5b379593b76bd23b0f99ba0ff;
+native SYMec997adafdbbb3b141f318d6d80ed276ae74f139c3ab70e70a5505d282ef5e33.
+Changes remain uncommitted; no unrelated user/generated files are included.
+
+2026-10-23 HRZSKU Horizon: primary geometry arrays and bounded alias tracing.
+
+Thirteen raw address views are replaced by supplied source structure: nine
+cache argument/cursor references use vertexTop/scptMidBot/scptTop/scptPmxLeft/
+scptPmxRight, and four scaled SVECTOR pointer reads use gRngCoordTop[farI].
+The two second-point interpolation arguments are actual element[1] addresses,
+not guessed byte strides. Primary HRZSKU records supply all four17-element
+DVECTOR arrays (4-byte elements),18 INT vertexTop entries and the8-byte SVECTOR
+vx/vz offsets0/4. No type/member/layout, storage, variable or qualifier changes.
+All six normal source controls preserve the whole ELF, including the ordinary
+farI index; older mandatory index-first-integer-address claims are repriced,
+not carried forward as source-object exemptions.
+
+Proof: build/nc12/hrz_horizon_geometry_20261023/final-proof.json, field-proof.json,
+source-proof.json and probe-proof.json; combined native run-s67f0xxf.
+All489 selected SOURCE-ONLY detailed/branch checks pass, all21 whole normal
+ELFs and native CPE are unchanged, and the COMPLETE native SYM dump is byte-
+identical to the preceding source-layout checkpoint. Thus every existing
+local/type/home/owner/frame/scope/SLD fact and207strict/185absolute contracts
+survive, including Horizon's471/473 matching tags,20 supplied block-line
+events and end1557. Tests105, vtable1368, source policy, real/canonical link,
+raw299819/299819, overlap/foreign/whitespace checks pass. This is not a full
+Horizon or project source seal; cw/ch/pp/c1 and excess/missing scopes remain.
+Source SHA25619cfffaf9cd408a74f347335efbd8e83ce501e92da5f770b7e16d6056d513a7f;
+native SYM remains9be89871bd653c69d6f3a102c151d3ba089a586d89c4ec27ef5db87aff023cd2.
+
+The first-color investigation now has a specific dependency/placement split:
+build/nc12/hrz_horizon_color_20261023/dependence-model-proof.json plus
+sched-calibration-proof.json. Read-only diagnostic GDB finds a true dependency
+from the cursor store to a direct color read (MEM_IN_STRUCT=0). A real word-
+array read together with the raw scalar scratchpad cursor removes THAT edge
+(read MEM_IN_STRUCT=1, fixed scalar write); both tag-store dependencies remain.
+Selected stock then emits the desired early color load, but hoists the cursor
+address and spills/reloads it atsp+84, giving475words versus473. No version of
+the40 tested source alternatives passes, so none is adopted. Next trace the
+genuine cursor-address/loop-invariant producer, not add a fence or fake use.
+
+Standalone/control/observed outputs agree for the three validated diagnostic
+controls; selected-stock dump/plain outputs agree independently. The diagnostic
+compiler is NOT byte-equivalent to stock. The separate literal typed-cell host
+control reports ICE33 standalone and SIGSEGV in debugger runs; its dependency
+observation is unvalidated and is not generalized to stock/source impossibility.
+No compiler state, RTL, assembly, SYM or reference is rewritten.
+
+Fresh broad source/SLD inventory outputs are diagnostic snapshots only;
+source-review-inventory.json still reports462 legacy EXTRA rows and597 lexical
+review-marker locations (not unique objects). These do not prove original
+objects or whole-tree source freshness, and are not exempted by this partial
+21-TU native refresh. The full goal remains open. Changes are uncommitted.
+
+2026-10-23 HRZSKU Horizon: retail statement initialization/order and SLD layout.
+
+Hrz_BuildHorizon's instruction-line differences decrease461->2 at unchanged
+473/473 SOURCE-ONLY PASS. The same fxOverlapPercentage/hsd/hrz_projchange
+objects are initialized in their actual retail source phases; hsd follows the
+real memset at1341 and starts at1347, rather than the old blanket preamble.
+Ordinary layout under the unchanged per-function anchor restores the geometry,
+clipping, packet/UV/coordinate and tail statement lines. The actual if braces
+at1451/1536 separately restore their source owner notes. All20 supplied ordered
+block-line events and the real end1557 now agree. No per-statement #line,
+new local, declaring region, qualifier, fake use or assembly is introduced.
+
+Only the first-color address/load words at+0x55c/+0x560 remain tagged1493
+instead of1495. c1 still precedes the cursor advance in reconstructed source;
+retail's tags put the color later, despite its earlier scheduled load. This
+is an unresolved source/macro/alias producer, not an original-object proof
+or a reason to manufacture backwards line directives. cw/ch/pp/c1 and their
+existing identities remain explicitly unsealed. All named owner paths and
+scope address events are preserved; the scope TREE still has excess/missing
+regions, even though its20 supplied line-marker events now match.
+
+Proof: build/nc12/hrz_horizon_layout_20261023/final-proof.json, source-proof.json,
+record-proof.json, phase-proof.json; combined native run-zgwu78kh. All489 selected
+detailed/branch checks pass, all21 whole normal ELFs/native CPE are unchanged,
+and all prior207strict/185absolute contracts survive. Other488 full SLD maps,
+all ordered native non-SLD records except the independently modeled target
+scope-line/end changes, every local/type/home/owner/frame tuple, global named
+type bodies and seven shared headers are preserved. Tests105, vtable1368,
+source policy/relink/canonical/raw299819/299819/overlap/foreign checks pass.
+Selected-stock -da output equals the native compile's complete assembly.
+Source SHA2563e5ea90c3ab73aeb806cc6d63837dee98a803f8b558f3279c3cc6626e0b1c582;
+native SYM9be89871bd653c69d6f3a102c151d3ba089a586d89c4ec27ef5db87aff023cd2.
+
+Packet controls in build/nc12/hrz_horizon_packet_20261023/packet-probe-proof.json
+test27 real sequencing/direct-cell alternatives plus a byte-identical baseline.
+None is adopted: direct first-color forms are474words, joint literal-cell forms
+474 and held-cell forms472; memcpy argument forms do not solve the graph.
+Raw positional counts overstate the direct failure because one extra instruction
+shifts the suffix. Compare the actual local stream and investigate sched.c's
+true_dependence/memrefs_conflict_p and genuine memory/source shape next; no new
+fence, const disguise or synthetic capture is justified by these controls.
+This is a partial source/SLD improvement, not a strict Horizon/full-project seal.
+Changes remain uncommitted; the full source-restoration goal remains active.
+
+2026-10-23 HRZSKU clipping: primary field reads and read-only combine tracing.
+
+Hrz_BuildHorizon's two retained width/height captures now read the retail
+Draw_HorizonCache.head.clipW/clipH fields through the literal scratchpad
+cache, rather than dereferencing raw halfword pointers at0x1f800010/12.
+Both fields are primary SHORT members at16/18 of the20-byte header at0.
+The existing u_short-to-INT capture conversion is explicit; all65536 bit
+patterns preserve its value. This restores two field accesses, NOT the
+original capture producer: cw/ch, their existing identities, pp/c1 and full
+Horizon source/SLD attribution remain unresolved. No new asm, qualifier,
+helper, scope, local or compiler-output rewrite is added.
+
+Fresh proof: build/nc12/hrz_horizon_clip_20261023/final-proof.json and native
+run-en78m_19. All489 selected SOURCE-ONLY detailed/branch checks pass;
+all21 whole normal ELFs, the complete raw native SYM dump and native CPE
+are byte-identical. The207strict/185absolute contracts are unchanged.
+Tests105, vtable1368, source policy, real/canonical link, raw299819/299819,
+overlap, foreign-label and whitespace checks pass. Scope is the existing
+21-TU selection, not a new whole-project source-exact certificate.
+Source hrzsku.cpp SHA256f3f0cc16264c8c3aacfc5a449ca426ff95bd30e3079c8581a914f15da3be1c9e;
+native SYM remains19fd912548e2b2671957e402cfd7a80788752ddf256da3d02bacb9a7a547e735.
+
+trace-findings.json/observer-proof.json narrow the open producer question.
+Read-only GDB control/observed/standalone outputs agree. For both Sky and
+the direct-held-cache Horizon control, the diagnostic compiler attempts a
+combined signed load using MEM(IOR(base,16/18)); recognition returns-1.
+GCC combine.c:3845-3854 converts addition of disjoint known bits to IOR.
+The literal-cache control instead recognizes a signed load from the constant
+address. Selected-stock phase hashes independently preserve the HI/shift
+versus fused-LH distinction. The diagnostic full-target instruction text
+differs from stock by one instruction in both controls; it is NOT a byte
+oracle. No compiler state, generated assembly, RTL or debug records changed.
+
+This supersedes the old claim that a named laundered INT is necessary for
+any expression to emit LHU plus shifts. Direct held-cache fields already do
+so, but remain471words versus473 with different address reuse/allocation;
+literal direct fields remain470. Next investigate the genuine address/value
+sharing producer, not a new fence or a renamed/elided substitute capture.
+Failed capture-removal controls are not adopted. This verified source change
+is uncommitted after the user's resume; the earlier checkpoint remains on main.
+
 2026-10-22 commit/pause checkpoint and terminal compiler inspection.
 
 This checkpoint contains the verified source/SLD work described below in

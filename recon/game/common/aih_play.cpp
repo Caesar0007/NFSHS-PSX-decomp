@@ -1,9 +1,8 @@
-/* game/common/aih_play.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
- *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/
- *   RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
- *   Composition-modeled inheritance (_base_ members); manual _vf vtable dispatch (8-byte
- *   __vtbl_ptr_type entries); deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
- *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
+/* game/common/aih_play.cpp -- reconstructed AIH_PLAY.OBJ player AI.
+ * Nine source-defined AIHigh_Player methods plus its header-owned destructor;
+ * ten supplied function records, not the unrelated AISTATE module's52 functions.
+ * Source names/types/owners and source coordinates are checked separately from
+ * byte matching. Original inline spellings and unresolved producers remain open.
  */
 #include "../../lib/nfs4_new.h"
 #include "aih_play_types.h"
@@ -71,10 +70,10 @@ inline copGame_t *AICop_PerpChaseInfo::GetCopGameInfo()
   return copGameInfo_;
 }
 
-inline copLevel_t *AICop_PerpChaseInfo::GetChaseLevel()
-{
-  return chaseLevel_;
-}
+
+
+
+
 
 inline int AICop_PerpChaseInfo::GetChaseTime()
 {
@@ -106,7 +105,7 @@ inline void AICop_PerpChaseInfo::ResetEngagementTime()
 {
   InitializeChaseTimer(ConfiguredEngagementLapTime());
 }
-inline int AICop_PerpChaseInfo::RemainingEngagementTime() { return engagementTime_ / 0x10000; }
+/* The shared timer query is defined with its class interface. */
 inline void AICop_PerpChaseInfo::SetChaseLevel(int level)
 {
   /* Inferred timer boundaries are checked against the supplied receiver tree;
@@ -120,7 +119,7 @@ inline void AICop_PerpChaseInfo::SetChaseLevel(int level)
 }
 
 
-inline bool AICop_PerpChaseInfo::BlockadeDone() { return blockadeDone_ != 0; }
+
 
 /* ---- CheckIfABlockadeCanBeSetup__13AIHigh_Player [retail AIH_PLAY.CPP:55-170;
  * 225/225 byte PASS, native ownership exact, full SLD attribution open] ---- */
@@ -128,6 +127,7 @@ inline bool AICop_PerpChaseInfo::BlockadeDone() { return blockadeDone_ != 0; }
  * receiver. Type-return copies are optimized out without added qualifiers;
  * the final flags/type guard owns two separate retail regions. Literal helper
  * and caller-copy spellings are not uniquely proved by this native contract. */
+#line 51 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
 
@@ -225,6 +225,7 @@ return_false:
  * no original-object necessity is claimed. Receipts:
  * build/nc12/setup_blockade_source_20261016 and setup_wrap_source_20261016. */
 
+#line 180 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::SetupBlockade()
 
 
@@ -616,6 +617,7 @@ void AIHigh_Player::SetupBlockade()
 
 inline int AITrigger_TriggerManager::InvNumTriggers() { return invNumTriggers_; }
 
+#line 432 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::CheckForNewLevel(int force)
 
 {
@@ -708,8 +710,9 @@ check_level_changed:
 
 
 
-/* ---- HandleSpeech__13AIHigh_Player  AIHigh_Player::HandleSpeech  [AIH_PLAY.CPP:517-663] SLD-VERIFIED ---- */
+/* ---- HandleSpeech__13AIHigh_Player [AIH_PLAY.CPP:517-663; body SLD recovery open] ---- */
 
+#line 513 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::HandleSpeech()
 
 
@@ -818,6 +821,7 @@ LAB_800625d0:
    bindings; no invented list-pointer object is needed. The third-loop source
    capture and literal original spelling remain unsealed, not exempted. */
 
+#line 668 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::MaintainAvailableCops()
 {
   int need[2];
@@ -936,6 +940,7 @@ inline AICop_PerpChaseInfo::AICop_PerpChaseInfo()
 
 /* ---- __13AIHigh_PlayerP8Car_tObj [retail AIH_PLAY.CPP:750-762;
  * 129/129 byte PASS, supplied declarations/regions exact; full SLD open] ---- */
+#line 750 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
 {
   this->numWarnings_ = 0;
@@ -966,8 +971,8 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
    are inferred spellings. Split decrement stores preserve the actual retail
    store/reload; a shared conditional decrement was5dif/103 instead of104.
    Original literal interface spelling and full SLD remain unsealed. */
-inline void AICop_PerpChaseInfo::AdvanceEngagement(int ticks, int totalCopsEngaged,
-                                                int movingBackwards)
+inline void AICop_PerpChaseInfo::AdvanceEngagement(int ticks, int movingBackwards,
+                                                int totalCopsEngaged)
 {
   if (0 < totalCopsEngaged) {
     copFreeTicks_ = 0;
@@ -988,6 +993,18 @@ inline void AICop_PerpChaseInfo::AdvanceEngagement(int ticks, int totalCopsEngag
   }
 }
 
+/* HandleCops__13AIHigh_Player @0x80062AC4: covered native SYM/SLD contract.
+ * All104 word/file tags,20 regions and9 supplied local tuples agree.
+ * Keep ticks first; movingBackwards precedes totalCopsEngaged in this
+ * matching arrangement. The original position of the debug-elided argument
+ * is not uniquely supplied: two tested arrangements preserve all facts.
+ * The shared remaining-time query prevents main-file definition locations
+ * from poisoning nested timer regions. Implicit void fallthrough keeps the
+ * retail root .bend48 while the function epilogue/end remains868.
+ * No new variable, asm/volatile, fake use/scope or output rewrite is used.
+ * Literal original inline names/header arrangement remain unproved.
+ * Receipts: build/nc12/player_handlecops_sld_20261024. */
+#line 804 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::HandleCops()
 
 
@@ -995,39 +1012,63 @@ void AIHigh_Player::HandleCops()
 {
   copLevel_t *pLevel;
 
-
-
-
   pLevel = this->perpChaseInfo_.GetChaseLevel();
+
+
 
   if (Cars_gNumCopCars == 0) return;
 
 
-    this->MaintainAvailableCops();
 
-    if (this->CheckIfABlockadeCanBeSetup()) {
 
-      this->SetupBlockade();
 
-    }
 
-    if (pLevel->numBlockaders == 0) {
+  this->MaintainAvailableCops();
 
-      this->CleanupBlockaders(0);
 
-    }
 
-    this->perpChaseInfo_.AdvanceEngagement(
-        AI_elapsedTime,
-        this->basicPerpInfo_.CopsAssigned(COP_REGULAR) +
-            this->basicPerpInfo_.CopsAssigned(COP_SUPER),
-        (u_int)(this->carObj_->currentSpeed * this->carObj_->direction) >> 31);
 
-    this->CheckForNewLevel(0);
 
-    this->HandlePullOver();
+  if (this->CheckIfABlockadeCanBeSetup()) {
+    this->SetupBlockade();
+  }
 
-  return;
+
+
+
+  if (pLevel->numBlockaders == 0) {
+    this->CleanupBlockaders(0);
+  }
+
+
+
+
+
+  this->perpChaseInfo_.AdvanceEngagement(AI_elapsedTime,(u_int)(this->carObj_->currentSpeed * this->carObj_->direction) >> 31,this->basicPerpInfo_.CopsAssigned(COP_REGULAR) + this->basicPerpInfo_.CopsAssigned(COP_SUPER));
+
+
+
+
+
+  this->CheckForNewLevel(0);
+
+
+
+
+
+  this->HandlePullOver();
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -1037,26 +1078,42 @@ void AIHigh_Player::HandleCops()
 
 
 
-/* ---- CleanupBlockaders__13AIHigh_Playeri  AIHigh_Player::CleanupBlockaders  [AIH_PLAY.CPP:871-902] SLD-VERIFIED ---- */
+/* ---- CleanupBlockaders__13AIHigh_Playeri [AIH_PLAY.CPP:871-902; compare native SLD] ---- */
 
+#line 870 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 {
   int clearWaitingBlockaders = 0;
-  if ((0 < (this->carObj_->stats).numArrests) ||
-      (1 < (this->carObj_->stats).finishType) || (forceClearAll != 0)) {
+
+  if ((0 < (this->carObj_->stats).numArrests) || (1 < (this->carObj_->stats).finishType) || (forceClearAll != 0)) {
+
     clearWaitingBlockaders = 1;
   }
+
   for (int copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
+
     AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
     blockade_t *blockade = thisCop->Blockade();
-    if (((blockade->mode == 1) || (blockade->mode == 4) ||
-         ((blockade->mode == 2) && clearWaitingBlockaders)) &&
-        (blockade->target == this)) {
+
+
+
+
+
+
+
+
+
+
+    if (((blockade->mode == 1) || (blockade->mode == 4) || ((blockade->mode == 2) && clearWaitingBlockaders)) && (blockade->target == this)) {
+
+
+
+
+
       blockade->mode = (blockadeMode_t)0;
       thisCop->AssignToPlayer((AIHigh_Player *)0x0);
     }
-  }
-}
+  } }
 
 
 
@@ -1072,6 +1129,7 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
  * Receipt: build/nc12/pullover_source_20261016. Full relative SLD and literal
  * original inline spellings remain unsealed; no source-object exemption. */
 
+#line 905 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::HandlePullOver()
 {
   if (this->pullOverMode_ != 0) {

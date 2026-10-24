@@ -8,10 +8,13 @@
 extern "C" {
 #include "eaclib/psx/eacpsxz/fixdsqrt.h"
 #include "eaclib/psx/eacpsxz/eac_shape.h"
-#include "eaclib/psx/eacpsxz/memstd.h"
+/* Allocator entry points are declared by SimpleMem's public interface.
+ * Do not expose MemBlock/MemClass implementation bodies to track.obj; its
+ * retail type stream contains neither. simplemem_ctor_restore_20261023. */
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
 extern "C" {
+void *memcpy(void *, const void *, unsigned int);
 int sprintf(char *, const char *, ...);
 int DrawSync(...);
 int atoi(...);

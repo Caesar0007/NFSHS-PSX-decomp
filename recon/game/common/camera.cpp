@@ -99,7 +99,9 @@ void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr);
 void Camera_ResetRelPos(int bitMask);
 
 
-/* ---- EulerToMat__FP10matrixtdefiii  [@0x8008060c] ---- */
+/* ---- EulerToMat__FP10matrixtdefiii  [@0x8008060c] ----
+ * Preserve the supplied mx/my/mz/mt objects, axis builders and matrix products.
+ * Three final field groups reuse mt. Source/SLD: camera_euler_view_layout_20261023. */
 #line 481 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void EulerToMat(matrixtdef *m,int ax,int ay,int az)
 {
@@ -108,48 +110,85 @@ void EulerToMat(matrixtdef *m,int ax,int ay,int az)
   matrixtdef mz;
   matrixtdef mt;
 
+
   fixedxformx(mx.m,ax);
   fixedxformy(my.m,ay);
   fixedxformz(mz.m,az);
   Math_fasttransmult(&mz,&my,&mt);
   Math_fasttransmult(&mt,&mx,m);
-  /* MATCH: mt is DEAD after the 2nd fasttransmult - oracle stages the old row1 (m[3..5])
-     through mt's now-free stack slots, not fresh registers. */
-  mt.m[0] = m->m[3];
-  mt.m[1] = m->m[4];
-  mt.m[2] = m->m[5];
-  m->m[3] = -m->m[6];
-  m->m[4] = -m->m[7];
-  m->m[5] = -m->m[8];
-  m->m[6] = mt.m[0];
-  m->m[7] = mt.m[1];
-  m->m[8] = mt.m[2];
-  return;
+
+  mt.m[0] = m->m[3]; mt.m[1] = m->m[4]; mt.m[2] = m->m[5];
+  m->m[3] = -m->m[6]; m->m[4] = -m->m[7]; m->m[5] = -m->m[8];
+  m->m[6] = mt.m[0]; m->m[7] = mt.m[1]; m->m[8] = mt.m[2]; return;
 }
 
-/* ---- Camera_SetCamera__FP13DRender_tView  [@0x80080704] ---- */
+/* ---- Camera_SetCamera__FP13DRender_tView  [@0x80080704] ----
+ * The real view query630 precedes environment setup647. Unknown intervening
+ * original text is not invented. Source/SLD: camera_euler_view_layout_20261023. */
 #line 612 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetCamera(DRender_tView *cview)
 {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   Camera_GetViewInfo(cview->player,&cview->cview,cview->id);
-  TrsProj_SetViewTrsProjEnviro(cview);
-  return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  TrsProj_SetViewTrsProjEnviro(cview); return;
 }
 
-/* ---- Camera_LookBack__FP10matrixtdefT0  [@0x8008073c] ---- */
+/* ---- Camera_LookBack__FP10matrixtdefT0  [@0x8008073c] ----
+ * Preserve the two negated matrix triples and unchanged middle triple. Source/SLD
+ * proof: camera_lookback_layout_20261023; no temporary matrix or helper needed. */
 #line 661 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)
 {
+
+
+
+
+
   tgt->m[0] = -src->m[0];
   tgt->m[1] = -src->m[1];
   tgt->m[2] = -src->m[2];
+
+
   tgt->m[3] = src->m[3];
   tgt->m[4] = src->m[4];
   tgt->m[5] = src->m[5];
+
+
   tgt->m[6] = -src->m[6];
   tgt->m[7] = -src->m[7];
-  tgt->m[8] = -src->m[8];
-  return;
+  tgt->m[8] = -src->m[8]; return;
+
 }
 
 /* ---- Camera_TunnelLimit__FiPi  [@0x800807c4] ---- */
@@ -661,30 +700,37 @@ void Camera_UpdateHeliCam(int player,int behavior)
   return;
 }
 
-/* ---- Camera_UpdateCircleCam__Fi  [@0x80081ab8] ---- */
+/* ---- Camera_UpdateCircleCam__Fi  [@0x80081ab8] ----
+ * The angle update and trig query are separate real source phases. Supplied
+ * h0/h1/ang retain their interpolation scope; no hval or cached Camera_tInfo
+ * source object is introduced. Source/SLD: camera_circle_layout_20261023. */
 #line 1068 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCircleCam(int player)
 {
-  coorddef src;
-  coorddef des;
-  int sin;
-  int cos;
+  coorddef src; coorddef des;
+  int sin; int cos;
   int circle_height[3] = { 0x10000, 0x20000, 0x30000 };
 
-  if (!(((((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
-      (InBetween == 0)) && (simVar.pauseSim == 0))))
+
+
+  if (!(((((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) && (InBetween == 0)) && (simVar.pauseSim == 0))))
     return;
-  intsincos((int)++Camera_gInfo[player].circleAngle,&sin,&cos);
+
+
+  ++Camera_gInfo[player].circleAngle;
+
+
+  intsincos((int)Camera_gInfo[player].circleAngle,&sin,&cos);
   src.x = fixedmult(0x48000,cos);
   src.z = fixedmult(0x60000,sin);
+
+
   if (((int)Camera_gInfo[player].circleAngle + 0x100U & 0x1ff) == 0) {
     Camera_gInfo[player].circleCounter = Camera_gInfo[player].circleCounter + 1;
   }
-  if ((((int)Camera_gInfo[player].circleAngle - 0x80) & 0x1ff) < 0x80) {
-    int h0;
-    int h1;
-    int ang;
 
+  if ((((int)Camera_gInfo[player].circleAngle - 0x80) & 0x1ff) < 0x80)
+  { int h0; int h1; int ang;
     h0 = circle_height[Camera_gInfo[player].circleCounter % 3];
     h1 = circle_height[(Camera_gInfo[player].circleCounter + 1) % 3];
     ang = ((int)Camera_gInfo[player].circleAngle - 0x80) & 0x7f;
@@ -693,43 +739,41 @@ void Camera_UpdateCircleCam(int player)
   else {
     src.y = circle_height[Camera_gInfo[player].circleCounter % 3];
   }
-  /* SYM has scoped h0/h1/ang but no hval or persistent Camera_tInfo pointer.
-   * Direct src.y arms let gcc create the retail $s0 base only after their merge. */
+
   transform((int *)&src,(Camera_gInfo[player].anchor->orientMat).m,(int *)&des);
   Camera_TunnelLimit(player,&des.y);
+
+
   Camera_gInfo[player].position.x = (Camera_gInfo[player].anchor->position).x + des.x;
   Camera_gInfo[player].position.y = (Camera_gInfo[player].anchor->position).y + des.y;
-  Camera_gInfo[player].position.z = (Camera_gInfo[player].anchor->position).z + des.z;
-  return;
+  Camera_gInfo[player].position.z = (Camera_gInfo[player].anchor->position).z + des.z; return;
 }
 
 /* ---- SetCameraZoom__Fii  [@0x80081d38] ----
  * Retail SYM has no local. A single in-place global clamp was 19 diffs at
  * 67/68; repeating the pure zoom expression lets GCC CSE the same machine
  * value across both stores and tests without a named `gs` carrier.
- * The final 68/68 bytes and whole Camera TU are unchanged; original macro
- * spelling and complete SLD statement lines remain unproved. */
+ * Original macro spelling remains unproved. Ordinary source grouping restores
+ * the covered SLD contract; receipt: camera_zoom_layout_20261023. */
 #line 1115 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void SetCameraZoom(int player,int targetDist)
 {
 
   if (Camera_gInfo[player].splitscreen != 0) {
     Camera_gGeomScreen = 0xbe;
-  }
-  else if (0x3000 < targetDist) {
+  } else if (0x3000 < targetDist) {
+
     if (Camera_gInfo[player].zooming == 1) {
       Camera_gGeomScreen = targetDist * 0xbe / 0x3000;
-    }
-    else if (Camera_gInfo[player].zooming == 2) {
+    } else if (Camera_gInfo[player].zooming == 2) {
+
       Camera_gGeomScreen = targetDist * 0xbe / 0x3000;
+
       if (0x4b0 < targetDist * 0xbe / 0x3000) {
-        Camera_gGeomScreen = ((6000 - targetDist * 0xbe / 0x3000) >> 2) < 0x2ee
-            ? 0x2ee : ((6000 - targetDist * 0xbe / 0x3000) >> 2);
+        Camera_gGeomScreen = ((6000 - targetDist * 0xbe / 0x3000) >> 2) < 0x2ee ? 0x2ee : ((6000 - targetDist * 0xbe / 0x3000) >> 2);
       }
-    }
-  }
-  SetGeomScreen(Camera_gGeomScreen);
-}
+    } }
+  SetGeomScreen(Camera_gGeomScreen); }
 
 /* 2026-10-18: assign the nested clamp to the actual height variable before
  * using it in position.y. That destination plus bound-first upper selection
@@ -1121,77 +1165,125 @@ int Camera_IslandProfile(u_short before)
   return 0;
 }
 
-/* ---- Camera_UpdatePulloverCam__Fi  [@0x80082c94] ---- */
+/* ---- Camera_UpdatePulloverCam__Fi  [@0x80082c94] ----
+ * Preserve the five supplied vectors and road-frame cross-product ySign in s0
+ * across the profile call. No camera base/info/slice/profile/tick capture is
+ * needed on this source graph. The profile/sign XOR and its shared normalization
+ * retain the original branch words; no new Boolean source object is introduced.
+ * Literal expression spelling is not unique. Source/SLD: camera_pullover_layout_20261023. */
 #line 1578 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdatePulloverCam(int player)
 {
-  /* MATCH (PASS/223): direct Camera_gInfo[player] expressions rematerialize the
-   * base at retail's access sites.  Earlier staged cameraBase/cameraInfo aliases
-   * were unnecessary once the full expression chain was restored. */
-  coorddef sCenter;   /* SYM: AUTO @0x10 */
-  coorddef sForward;  /* SYM: AUTO @0x20 */
-  coorddef sRight;    /* SYM: AUTO @0x30 */
-  coorddef sccVec;    /* SYM: AUTO @0x40 */
-  coorddef newarm;    /* SYM: AUTO @0x50 */
-  int ySign;          /* SYM: REG */
+  coorddef sCenter;
+  coorddef sForward;
+  coorddef sRight;
+  coorddef sccVec;
+  coorddef newarm;
+  int ySign;
 
-  if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
-     (InBetween == 0)) {
-    /* The tick comparison reads simGlobal.gameTicks directly; no gameTicks
-       snapshot object or recovered local spelling is asserted here. */
 
-    SetGeomScreen(0xbe);
-    /* MATCH: separate tick/index values keep Camera_gInfo[player] itself in s1. */
-    if ((simGlobal.gameTicks) < Camera_gInfo[player].POInhibitor) {
-      Camera_UpdateCopCam2(player);
-      return;
-    }
-    /* MATCH: full slice expression REMATERIALIZED per access (no cached slice ptr) */
-    sCenter = *((coorddef *)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].center);
-    sForward.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[0]) << 9;
-    sForward.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[1]) << 9;
-    sForward.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[2]) << 9;
-    sccVec.x = Camera_gInfo[player].anchor->position.x - sCenter.x;
-    sccVec.y = Camera_gInfo[player].anchor->position.y - sCenter.y;
-    sccVec.z = Camera_gInfo[player].anchor->position.z - sCenter.z;
-    sRight.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[0]) << 0xb;
-    sRight.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[1]) << 0xb;
-    sRight.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[2]) << 0xb;
-    ySign = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
-    /* Retail's ySign is the y component of the road-frame cross product,
-     * held in s0 across the profile call, not the Boolean result in v0.
-     * XOR the anonymous profile with the sign mask, then normalize the shared
-     * result. This preserves the bgez skip of two instructions and the sltu
-     * on both paths; moving normalization into the arm changed a branch word.
-     * No side/profile capture is needed (run-b_4ty6c4, 223/223 PASS). Exact
-     * expression spelling and complete SLD attribution remain unsealed. */
-    if ((Camera_IslandProfile(BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].pavedProfile) ^
-         ((ySign < 0) ? 1 : 0)) != 0) {
-      sRight.x = -sRight.x;
-      sRight.y = -sRight.y;
-      sRight.z = -sRight.z;
-    }
-    newarm.y = 0x60000;
-    Camera_TunnelLimit(player,&newarm.y);
-    newarm.x = sCenter.x + sRight.x;
-    newarm.y = newarm.y + (sCenter.y + sRight.y);
-    newarm.z = sCenter.z + sRight.z;
-    Camera_gInfo[player].position.x =
-         Camera_gInfo[player].position.x + fixedmult(newarm.x - Camera_gInfo[player].position.x,0x7ae);
-    Camera_gInfo[player].position.y =
-         Camera_gInfo[player].position.y + fixedmult(newarm.y - Camera_gInfo[player].position.y,0x7ae);
-    Camera_gInfo[player].position.z =
-         Camera_gInfo[player].position.z + fixedmult(newarm.z - Camera_gInfo[player].position.z,0x7ae);
-    /* MATCH: real bitfield assignments (m2c: (x & ~2 & ~4) | 0x78) */
-    Camera_gInfo[player].pitch = 0;
-    Camera_gInfo[player].jostling = 0;
-    Camera_gInfo[player].tracking = 1;
-    Camera_gInfo[player].checkwalls = 1;
-    Camera_gInfo[player].noLookBack = 1;
-    Camera_gInfo[player].checkcollisions = 1;
-  }
+
+
+  if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) && (InBetween == 0)) {
+
+
+
+  SetGeomScreen(0xbe);
+
+
+  if ((simGlobal.gameTicks) < Camera_gInfo[player].POInhibitor) {
+
+  Camera_UpdateCopCam2(player);
   return;
-}
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  sCenter = *((coorddef *)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].center);
+
+  sForward.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[0]) << 9;
+  sForward.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[1]) << 9;
+  sForward.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[2]) << 9;
+
+  sccVec.x = Camera_gInfo[player].anchor->position.x - sCenter.x; sccVec.y = Camera_gInfo[player].anchor->position.y - sCenter.y; sccVec.z = Camera_gInfo[player].anchor->position.z - sCenter.z;
+
+  sRight.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[0]) << 0xb;
+  sRight.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[1]) << 0xb;
+  sRight.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[2]) << 0xb;
+
+
+  ySign = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
+
+
+  if ((Camera_IslandProfile(BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].pavedProfile) ^ ((ySign < 0) ? 1 : 0)) != 0) {
+
+
+  sRight.x = -sRight.x;
+  sRight.y = -sRight.y;
+  sRight.z = -sRight.z;
+  }
+
+
+  newarm.y = 0x60000;
+  Camera_TunnelLimit(player,&newarm.y);
+  newarm.x = sCenter.x + sRight.x;
+  newarm.y = newarm.y + (sCenter.y + sRight.y);
+  newarm.z = sCenter.z + sRight.z;
+
+
+  Camera_gInfo[player].position.x = Camera_gInfo[player].position.x + fixedmult(newarm.x - Camera_gInfo[player].position.x,0x7ae);
+  Camera_gInfo[player].position.y = Camera_gInfo[player].position.y + fixedmult(newarm.y - Camera_gInfo[player].position.y,0x7ae);
+  Camera_gInfo[player].position.z = Camera_gInfo[player].position.z + fixedmult(newarm.z - Camera_gInfo[player].position.z,0x7ae);
+
+
+
+  Camera_gInfo[player].pitch = 0;
+  Camera_gInfo[player].jostling = 0;
+  Camera_gInfo[player].tracking = 1;
+  Camera_gInfo[player].checkwalls = 1;
+  Camera_gInfo[player].noLookBack = 1;
+  Camera_gInfo[player].checkcollisions = 1; } return;
+  }
 
 /* ---- Camera_UpdateCopCam1__Fi  [@0x80083010] ---- */
 #line 1707 "C:/nfs4/GAME/COMMON/CAMERA.CPP"

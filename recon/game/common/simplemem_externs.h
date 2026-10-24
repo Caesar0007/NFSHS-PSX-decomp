@@ -2,9 +2,11 @@
 #ifndef SIMPLEMEM_EXTERNS_H
 #define SIMPLEMEM_EXTERNS_H
 
-/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+/* Exact resize.h entry-point type only. The allocator owner does not use
+ * eac_types.h's transform structures, which are absent from its retail type
+ * surface. Source/native receipt: simplemem_ctor_restore_20261023. */
 extern "C" {
-#include "eaclib/psx/eacpsxz/resize.h"
+void *resizememadr(void *userptr, int newsize);
 }
 
 #endif

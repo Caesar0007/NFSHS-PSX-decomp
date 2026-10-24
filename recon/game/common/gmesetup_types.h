@@ -1,11 +1,11 @@
-/* gmesetup.obj's exact source-visible delta over the shared color graph. */
+/* gmesetup.obj source-visible types; full supplied type-copy/order audit remains open. */
 #ifndef NFS4_GAME_COMMON_GMESETUP_TYPES_H
 #define NFS4_GAME_COMMON_GMESETUP_TYPES_H
 
 #include "color_types.h"
 
 #ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS
-struct FEI_tList { int v; int *p; };
+#include "shared/FEI_tList.h"
 
 #include "shared/Input_tDeviceList.h"
 

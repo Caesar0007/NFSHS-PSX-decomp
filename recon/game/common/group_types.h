@@ -1,4 +1,4 @@
-/* Group.obj's exact source-visible type surface. */
+/* Group.obj source-visible types; full supplied type-copy/order audit remains open. */
 #ifndef NFS4_GAME_COMMON_GROUP_TYPES_H
 #define NFS4_GAME_COMMON_GROUP_TYPES_H
 
@@ -11,10 +11,10 @@ struct SerializedGroup {
 
     inline void *GetData() { return this + 1; }
     inline int GetNumElements() { return m_num_elements; }
-    /* Inferred total-length getter: retail's material argument has a receiver
-       pair. Its enclosing caller ownership and original spelling remain open;
-       the 16-byte header subtraction belongs to the payload-length argument. */
-    inline int GetLength() { return m_length; }
+    /* Inferred payload-byte getter: retail SLD assigns the header subtraction
+       to this operation, before the caller's entry-count conversion. The
+       original accessor spelling is not supplied by the inline records. */
+    inline int GetDataLength() { return m_length - sizeof(SerializedGroup); }
 
     SerializedGroup *LocateNextGroupType(int type);
     SerializedGroup *LocateGroupType(int type, int index);

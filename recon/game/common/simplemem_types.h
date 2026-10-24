@@ -5,15 +5,31 @@
 
 #include "game_common_min_types.h"
 
-/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+/* Declaration-only allocator interface: exact memstd.h function types, without
+ * importing its MemBlock/MemClass implementation or unrelated transform types
+ * into the SimpleMem/Group/Chunk debug surface. Retail does not supply those
+ * foreign bodies here. Source/native receipt: simplemem_ctor_restore_20261023. */
 extern "C" {
-#include "eaclib/psx/eacpsxz/memstd.h"
+void *reservememadr(char *name, int size, int classid);
+int purgememadr(void *p);
 }
 
 struct SimpleMem {
     void *heap;
     void *freeMem;
     int freeMemSize;
+
+    /* Track_Init's inline size tuple and raw allocation recover this ctor.
+     * The constant allocation-label formal's spelling is inferred; no default
+     * label/overload or original identity for the separate string holder is
+     * asserted. Source/native receipt: simplemem_ctor_restore_20261023. */
+    SimpleMem(int size, char *label)
+    {
+        heap = reservememadr(label,size,0);
+        freeMem = heap;
+        if (heap == 0) size = 0;
+        freeMemSize = size;
+    }
 
     void *Alloc(int len, int feign);
     void *FeignAlloc(int len);

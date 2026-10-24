@@ -1,10 +1,10 @@
-/* copGame_t -- the one definition of this type, shared by 4 headers (moved verbatim by
-   tools/psyq_pipe/dedup_types.py; every former copy now includes this file at the same place). */
+/* copGame_t -- shared complete-type alias supplied by retail SYM.
+   Field layout is unchanged; complete header/type-copy order remains under review. */
 #ifndef NFS4_SHARED_COPGAME_T_H
 #define NFS4_SHARED_COPGAME_T_H
 
-struct copGame_t {
+typedef struct copGame_t {
     int numLevels;
     copLevel_t *levels;
-};
+} copGame_t;
 #endif

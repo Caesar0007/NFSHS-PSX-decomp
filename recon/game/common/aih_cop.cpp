@@ -1597,7 +1597,7 @@ static inline int AI_Rand(void)
   fastRandom = randtemp & 0xffff;
   return (int)((randtemp >> 8) & 0xffff);
 }
-inline int AICop_PerpChaseInfo::RemainingEngagementTime() { return engagementTime_ / 0x10000; }
+/* The shared timer query is defined with its class interface. */
 inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; }
 
 /* ---- CheckForWipeOut__10AIHigh_Cop [retail AIH_COP.CPP:845-885;

@@ -196,7 +196,7 @@ struct AICop_PerpChaseInfo {
     inline void ResetEngagementTime();
     /* Inferred update spelling; retail retains the receiver/ticks/count inline
        boundary but no standalone linkage name for this operation. */
-    void AdvanceEngagement(int ticks, int totalCopsEngaged, int movingBackwards);
+    void AdvanceEngagement(int ticks, int movingBackwards, int totalCopsEngaged);
 };
 
 #include "aistate.h"
@@ -252,5 +252,12 @@ static inline void AIHigh_SetState(AIHigh_Base *high, AIState_Base *newState, st
 static inline Car_tObj *AIHigh_GetCarObj(AIHigh_Base *high) { return high->carObj_; }
 
 #include "aihigh.h"
+
+/* Shared field-query definitions. Keep them out of class: selected-stock
+ * debug emission differs for in-class bodies. The literal original accessor
+ * spellings/header arrangement are not uniquely supplied by retail SYM. */
+inline copLevel_t *AICop_PerpChaseInfo::GetChaseLevel() { return chaseLevel_; }
+inline bool AICop_PerpChaseInfo::BlockadeDone() { return blockadeDone_ != 0; }
+inline int AICop_PerpChaseInfo::RemainingEngagementTime() { return engagementTime_ / 0x10000; }
 
 #endif

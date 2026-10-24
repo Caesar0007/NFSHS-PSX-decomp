@@ -1,12 +1,13 @@
 /* group_externs.h -- cross-TU decls for game/common/group.cpp (NFS4 SerializedGroup container).
- *   Types (SerializedGroup, SimpleMem) live in nfs4_types.h. The 6 SerializedGroup methods are
- *   emitted as free fns w/ explicit int `this` (object.obj convention); cross-TU callees below. */
+ *   SerializedGroup/SimpleMem are declared by group_types.h. The six container
+ *   methods are real C++ members; only the external byte mover is declared here. */
 #ifndef GROUP_EXTERNS_H
 #define GROUP_EXTERNS_H
 
-/* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
+/* Exact blkmov.h public signature, without its unrelated eac_types.h transform
+ * bodies: retail group.obj contains none. simplemem_ctor_restore_20261023. */
 extern "C" {
-#include "eaclib/psx/eacpsxz/blkmov.h"
+void blockmove(void *src, void *dst, int n);
 }
 
 #endif /* GROUP_EXTERNS_H */

@@ -1,4 +1,4 @@
-/* Track.obj's exact source-visible type surface reconstructed from SYM. */
+/* Track.obj source-visible types; full supplied type-copy/order audit remains open. */
 #ifndef NFS4_GAME_COMMON_TRACK_TYPES_H
 #define NFS4_GAME_COMMON_TRACK_TYPES_H
 

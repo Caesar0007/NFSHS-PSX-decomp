@@ -93,14 +93,16 @@ void Track_LoadObjectKillData(void);
 /* SaveSurface::Save / ::RestoreAll are members (struct SaveSurface) -> ss->Save(...) */
 
 
-/* ---- Track_SetTrackNumber__Fi  [TRACK.CPP:95-96] SLD-VERIFIED ---- */
+/* ---- Track_SetTrackNumber__Fi  [TRACK.CPP:95-96] full SLD attribution requires native comparison ---- */
+#line 93 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_SetTrackNumber(int tracknum)
 
 {
   gtrackNumber = tracknum & 0xf;
 }
 
-/* ---- Track_MakeTrackPathName__FPc  [TRACK.CPP:103-110] SLD-VERIFIED ---- */
+/* ---- Track_MakeTrackPathName__FPc  [TRACK.CPP:103-110] full SLD attribution requires native comparison ---- */
+#line 101 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 char * Track_MakeTrackPathName(char *ext)
 
 {
@@ -113,7 +115,8 @@ char * Track_MakeTrackPathName(char *ext)
   return strspc;
 }
 
-/* ---- Track_MakeTrackDataPathName__FPc  [TRACK.CPP:114-121] SLD-VERIFIED ---- */
+/* ---- Track_MakeTrackDataPathName__FPc  [TRACK.CPP:114-121] full SLD attribution requires native comparison ---- */
+#line 112 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 char * Track_MakeTrackDataPathName(char *ext)
 
 {
@@ -126,7 +129,8 @@ char * Track_MakeTrackDataPathName(char *ext)
   return strspc;
 }
 
-/* ---- AllocArtResource__FP18Track_tArtresourcei  [TRACK.CPP:142-151] SLD-VERIFIED ---- */
+/* ---- AllocArtResource__FP18Track_tArtresourcei  [TRACK.CPP:142-151] full SLD attribution requires native comparison ---- */
+#line 140 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void AllocArtResource(Track_tArtresource *artRes,int numPmx)
 
 {
@@ -141,7 +145,8 @@ void AllocArtResource(Track_tArtresource *artRes,int numPmx)
   artRes->shapeFile = (char *)0x0;
 }
 
-/* ---- InitArtResources__Fv  [TRACK.CPP:155-165] SLD-VERIFIED ---- */
+/* ---- InitArtResources__Fv  [TRACK.CPP:155-165] full SLD attribution requires native comparison ---- */
+#line 153 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void InitArtResources(void)
 
 {
@@ -150,7 +155,8 @@ void InitArtResources(void)
   return;
 }
 
-/* ---- DeInitArtResources__Fv  [TRACK.CPP:176-192] SLD-VERIFIED ---- */
+/* ---- DeInitArtResources__Fv  [TRACK.CPP:176-192] full SLD attribution requires native comparison ---- */
+#line 174 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void DeInitArtResources(void)
 
 {
@@ -159,125 +165,164 @@ void DeInitArtResources(void)
   return;
 }
 
-/* ---- LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii [retail TRACK.CPP:225-359; carrier/source/SLD recovery open] ---- */
+/* ---- LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii [TRACK.CPP:225-359] ----
+ * All211 word/file tags,19 regions and header/end match retail; supplied
+ * locals retain their complete owners. This is not a full declaration seal:
+ * emptyPalNum remains one unsupported INT REG record. Direct literal stores
+ * still exchange two constant loads at211/211, including after this source
+ * order/layout correction. Failed ordinary loop/address/root controls are
+ * isolated in build/nc12/track_palette_source_20261024, not adopted.
+ * SourceRecoveryUnresolved: multiPalCount is the palette-entry count, advancing
+ * only for ! shapes, independently of shape i and mipmapcounter. Its semantic
+ * spelling and whether the original source used this named count, a pointer
+ * or a macro-produced induction value are not supplied by optimized SYM.
+ * No distinct original-object necessity is claimed from strength reduction.
+ * emptyPalNum's original producer remains unresolved too, not exempted by the
+ * failed literal controls. The SimpleMem literal/header type order is open.
+ * Retail source initializes recolor_flag231 BEFORE cluttype235; stock still
+ * schedules the clut load first. No new asm/volatile, fake use/scope or output
+ * rewrite is introduced. Literal original macro/comment text is unproved. */
+#line 223 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,int x,int y)
 
 {
-  int i;
-  shapetbl *shape;
-  Draw_tPixMap *pPmx;
-  int recolor_flag;
-  int cluttype;
-  int mipmapcounter;
-  /* SYM-CODEGEN-CARRIER: multiPalCount
-     The retail debug block has no user name for the $s2 induction value.  A
-     typed entry count is the natural aggregate source shape; GCC strength
-     reduces it to the exact retail byte offset (`$s2 += 8`).  The prior raw
-     byte-offset casts were decompiler residue, while the original identifier
-     cannot be recovered uniquely from SYM or code. */
-  int multiPalCount;
+  int i; shapetbl *shape; Draw_tPixMap *pPmx; int recolor_flag; int cluttype; int mipmapcounter; int multiPalCount;
 
   pPmx = pmxList;
-  cluttype = -1;
-  recolor_flag = 0;
-  gTempMipMapInfo = (Track_MipMap *)0x0;
-  if (TrackSpec_gSpec.fogstate != 0) {
 
+
+  recolor_flag = 0;
+
+
+
+  cluttype = -1;
+  gTempMipMapInfo = (Track_MipMap *)0x0;
+
+  if (TrackSpec_gSpec.fogstate != 0)
+  {
     cluttype = -3;
+
     gTempMipMapInfo = reservememadr("mipmapinf",0x180,0x10);
-    for (int cnt = 0; cnt < 0x20; cnt = cnt + 1) {
-      *(int *)gTempMipMapInfo[cnt].code = -1;
-    }
+
+    for (int cnt = 0; cnt < 0x20; cnt = cnt + 1) { *(int *)gTempMipMapInfo[cnt].code = -1; }
   }
+
 
   gTempMultiPalInfo = reservememadr("mpalinfo",0x400,0x10);
-  {
-    int pcnt;
-    /* Source-recovery queue: retail records only pcnt, not emptyPalNum.
-       Literal stores under the restored scope graph remain two scheduling
-       differences at211/211 (do/while, local-for and index-first address).
-       This unresolved byte-preserving snapshot proves no original object.
-       2026-10-13: predecrement condition and allocation in pcnt's block
-       also give two differences at211/211; counter initialization before
-       allocation gives ten at211/211 and moves pcnt to s0. All reverted. */
-    int emptyPalNum;
-    emptyPalNum = -1;
-    for (pcnt = 0x7f; pcnt >= 0; pcnt--) {
-      gTempMultiPalInfo[pcnt].palnum = emptyPalNum;
-    }
+  { int pcnt; int emptyPalNum;
+    emptyPalNum = -1; for (pcnt = 0x7f; pcnt >= 0; pcnt--) { gTempMultiPalInfo[pcnt].palnum = emptyPalNum; }
   }
-
   DrawSync(0);
-  mipmapcounter = 0;
-  multiPalCount = 0;
 
+
+  mipmapcounter = 0;
+
+
+
+  multiPalCount = 0;
   for (i = 0; i < shapecount(shapefile); i++) {
-    char name[4];
-    int tempclut;
+    char name[4]; int tempclut;
 
     shape = (shapetbl *)shapepointer(shapefile,i);
     if (shape == (shapetbl *)0x0) continue;
-      shapename(shapefile,i,name);
-      tempclut = cluttype;
-      if ((i < 0xc) || ((shape->type & 3) == 1) || (name[0] == '#')) {
-        tempclut = -1;
-      }
 
-      Texture_LoadPmx((char *)0x0,(char *)shape,loadFlags | recolor_flag | 2,
-                      x,y,tempclut,tempclut,pPmx);
 
-      if (name[0] == '!') {
-        int palnum;
 
-        gTempMultiPalInfo[multiPalCount].charcode[0] = name[1];
-        gTempMultiPalInfo[multiPalCount].charcode[1] = name[2];
-        palnum = atoi(name + 3);
-        gTempMultiPalInfo[multiPalCount].palnum = palnum;
-        gTempMultiPalInfo[multiPalCount].actualshapeindex = i;
-        if (palnum != 0) {
-          for (int j = 0; j < 0x80; j = j + 1) {
-            if ((gTempMultiPalInfo[j].charcode[0] == (u_char)name[1]) &&
-                (gTempMultiPalInfo[j].charcode[1] == (u_char)name[2]) &&
-                (gTempMultiPalInfo[j].palnum == 0)) {
-              gTempMultiPalInfo[multiPalCount].origshapeindex =
-                  gTempMultiPalInfo[j].origshapeindex;
-              break;
-            }
-          }
-        }
-        else {
-          gTempMultiPalInfo[multiPalCount].origshapeindex = i;
-        }
-        multiPalCount = multiPalCount + 1;
-      }
+    shapename(shapefile,i,name);
 
-      if ((TrackSpec_gSpec.fogstate != 0) && (name[0] == 'Z')) {
-        short icode[2];
 
-        icode[0] = (u_char)name[2];
-        icode[1] = (u_char)name[3];
-        if ((name[1] == 'R') && ((shape->type & 3) == 1)) {
-          gTempMipMapInfo[mipmapcounter].code[0] = icode[0];
-          gTempMipMapInfo[mipmapcounter].code[1] = (u_char)name[3];
-          gTempMipMapInfo[mipmapcounter].shapeParentIndex = i;
-          gTempMipMapInfo[mipmapcounter].mipMapIndex = i;
-          mipmapcounter = mipmapcounter + 1;
-        }
-        else if (name[1] == 'Z') {
-          for (int j = 0; j < 0x20; j = j + 1) {
-            if ((icode[0] == gTempMipMapInfo[j].code[0]) &&
-                (icode[1] == gTempMipMapInfo[j].code[1])) {
-              gTempMipMapInfo[j].mipMapIndex = i;
-                break;
-            }
+    tempclut = cluttype;
+    if ((i < 0xc) || ((shape->type & 3) == 1) || (name[0] == '#')) {
+      tempclut = -1;
+    }
+    Texture_LoadPmx((char *)0x0,(char *)shape,loadFlags | recolor_flag | 2,x,y,tempclut,tempclut,pPmx);
+
+
+    if (name[0] == '!')
+    {
+      int palnum;
+
+      gTempMultiPalInfo[multiPalCount].charcode[0] = name[1];
+      gTempMultiPalInfo[multiPalCount].charcode[1] = name[2];
+
+      palnum = atoi(name + 3);
+      gTempMultiPalInfo[multiPalCount].palnum = palnum;
+
+
+
+      gTempMultiPalInfo[multiPalCount].actualshapeindex = i;
+
+      if (palnum != 0)
+      {
+
+        for (int j = 0; j < 0x80; j = j + 1) {
+
+
+          if ((gTempMultiPalInfo[j].charcode[0] == (u_char)name[1]) && (gTempMultiPalInfo[j].charcode[1] == (u_char)name[2]) && (gTempMultiPalInfo[j].palnum == 0)) {
+
+
+            gTempMultiPalInfo[multiPalCount].origshapeindex = gTempMultiPalInfo[j].origshapeindex;
+            break;
           }
         }
       }
-      pPmx = pPmx + 1;
-  }
-}
+      else { gTempMultiPalInfo[multiPalCount].origshapeindex = i; }
 
-/* ---- LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii  [TRACK.CPP:375-394] SLD-VERIFIED ---- */
+      multiPalCount = multiPalCount + 1;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    if ((TrackSpec_gSpec.fogstate != 0) && (name[0] == 'Z'))
+    {
+      short icode[2];
+
+
+      icode[0] = (u_char)name[2];
+      icode[1] = (u_char)name[3];
+
+
+      if ((name[1] == 'R') && ((shape->type & 3) == 1)) {
+
+
+
+        gTempMipMapInfo[mipmapcounter].code[0] = icode[0];
+        gTempMipMapInfo[mipmapcounter].code[1] = (u_char)name[3];
+        gTempMipMapInfo[mipmapcounter].shapeParentIndex = i;
+        gTempMipMapInfo[mipmapcounter].mipMapIndex = i;
+        mipmapcounter = mipmapcounter + 1;
+
+
+      }
+      else if (name[1] == 'Z')
+      {
+
+        for (int j = 0; j < 0x20; j = j + 1) {
+
+
+          if ((icode[0] == gTempMipMapInfo[j].code[0]) && (icode[1] == gTempMipMapInfo[j].code[1])) {
+
+
+            gTempMipMapInfo[j].mipMapIndex = i;
+            break;
+          }
+        }
+      } }
+
+    pPmx = pPmx + 1;
+  } }
+
+/* ---- LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii  [TRACK.CPP:375-394] full SLD attribution requires native comparison ---- */
+#line 373 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int y)
 
 {
@@ -299,9 +344,10 @@ void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int
   return;
 }
 
-/* ---- TexturesLoadInitial__Fv  [TRACK.CPP:405-465] SLD-VERIFIED ---- */
+/* ---- TexturesLoadInitial__Fv  [TRACK.CPP:405-465] full SLD attribution requires native comparison ---- */
 /* MATCH: retail SYM exposes only `success` ($v0) and the scoped `tmpShapes`
    ($s0); branch-local calls preserve the shared path-builder tail. */
+#line 403 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void TexturesLoadInitial(void)
 
 {
@@ -360,78 +406,47 @@ void TexturesLoadInitial(void)
   return;
 }
 
-/* ---- Track_AnimateTextures__Fv  [TRACK.CPP:491-517] SLD-VERIFIED ---- */
+/* ---- Track_AnimateTextures__Fv [TRACK.CPP:491-517] covered native/SYM/absolute SLD PASS; original offset spellings remain open ---- */
+/* SourceRecoveryUnresolved: uvOffset/frameOffset are semantic names for the
+ * real per-arm single-evaluation offsets. Optimized SYM does not supply their
+ * original identifiers or primitive spelling; int/short frame stages both
+ * reproduce the retail code. No generic carrier-necessity exemption applies.
+ * The supplied controlPtr/controlCount/pmx and all covered native/SLD facts
+ * agree. Five reconstruction pointer/constant captures and the goto are gone.
+ * Receipts: build/nc12/track_animation_source_20261024. */
+#line 489 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_AnimateTextures(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: uvOffset -- repeating the semantic rate expression
-     at the four UV stores expands four checked divide/remainder sequences:
-     183/102 instructions and 87 diffs.  This single-evaluation carrier is
-     required, but optimized SYM cannot recover its original source spelling. */
-  char uvOffset;
-  /* SYM-CODEGEN-CARRIER: pmxIndexPtr -- using only semantic `controlPtr`
-     fields shortens the function to 101/102 instructions and produces 51
-     diffs; even a direct `controlPtr->matPtr` substitution alone is
-     count-exact with 2 diffs (`lw 12($a3)` versus retail's equivalent
-     `lw 2($a2)`).  The cursor preserves retail's strength-reduced $a2 walk. */
-  short *pmxIndexPtr;
-  Track_tMaterialController *controlPtr;
-  int controlCount;
-  /* SYM-CODEGEN-CARRIER: simPtr -- direct `simGlobal.gameTicks` accesses
-     shorten the function to 101/102 instructions and produce 19 diffs;
-     the explicit base is retail's loop-invariant $t1 address. */
-  Sim_tSimGlobalVar *simPtr;
-  /* SYM-CODEGEN-CARRIER: artPtr -- direct `gInitialArt.pPmx` is count-exact
-     but produces 14 diffs; this base preserves retail's loop-invariant $t2
-     address and the exact constant/register ordering. */
-  Track_tArtresource *artPtr;
-  /* SYM-CODEGEN-CARRIER: negOne -- the optimized SYM has no source local,
-     but a direct `-1` compare is count-exact with 4 diffs: gcc materializes
-     the literal in $v0 instead of retail's loop sentinel in $t4. */
-  int negOne;
-  /* SYM-CODEGEN-CARRIER: typeEnvMap -- spelling 0x80 directly shortens the
-     function to 101/102 instructions and produces 9 diffs; the carrier keeps
-     the two loop constants live in retail's $t4/$t3 pair. */
-  int typeEnvMap;
+  Track_tMaterialController *controlPtr = Track_gMatController;
+  int controlCount = Track_gControllerCount;
 
-  negOne = -1;
-  typeEnvMap = 0x80;
-  simPtr = &simGlobal;
-  artPtr = &gInitialArt;
-  controlPtr = Track_gMatController;
-  pmxIndexPtr = &controlPtr->pmxIndex;
-  controlCount = Track_gControllerCount;
-TrkAnimTex_loopTest:
-  controlCount = controlCount + -1;
-  if (controlCount != negOne) {
-    if (controlPtr->type == typeEnvMap) {
-      Draw_tPixMap *pmx;
+  while (--controlCount != -1) {
 
-      uvOffset = (char)((simPtr->gameTicks /
-                         (int)*(u_char *)((int)pmxIndexPtr + -1)) %
-                        (int)*(u_char *)(pmxIndexPtr + -4));
-      pmx = artPtr->pPmx +
-            (*(Track_tMaterial **)(pmxIndexPtr + 1))->pmxIndex;
-      pmx->v0 = *(u_char *)(pmxIndexPtr + -3) + uvOffset;
-      pmx->v1 = *(u_char *)((int)pmxIndexPtr + -5) + uvOffset;
-      pmx->v2 = *(u_char *)(pmxIndexPtr + -2) + uvOffset;
-      pmx->v3 = *(u_char *)((int)pmxIndexPtr + -3) + uvOffset;
+    if (controlPtr->type == 0x80)
+    { Draw_tPixMap *pmx;
+      char uvOffset = (char)((simGlobal.gameTicks / (int)controlPtr->interval) % (int)controlPtr->textureMax);
+      pmx = gInitialArt.pPmx + controlPtr->matPtr->pmxIndex;
+
+      pmx->v0 = controlPtr->uv0 + uvOffset;
+      pmx->v1 = controlPtr->uv1 + uvOffset;
+      pmx->v2 = controlPtr->uv2 + uvOffset;
+      pmx->v3 = controlPtr->uv3 + uvOffset;
     }
-    else if (controlPtr->type == 4) {
-      (*(Track_tMaterial **)(pmxIndexPtr + 1))->pmxIndex =
-           *pmxIndexPtr +
-           (short)((simPtr->gameTicks /
-                    (int)*(u_char *)((int)pmxIndexPtr + -1)) %
-                   (int)*(u_char *)(pmxIndexPtr + -1));
-    }
-    pmxIndexPtr = pmxIndexPtr + 8;
-    controlPtr = controlPtr + 1;
-    goto TrkAnimTex_loopTest;
-  }
-  return;
-}
 
-/* ---- Track_GetProperMultiPalShapeIndex__Fii  [TRACK.CPP:525-532] SLD-VERIFIED ---- */
+    else { if (controlPtr->type == 4)
+    {
+
+      int frameOffset = (simGlobal.gameTicks / (int)controlPtr->interval) % (int)(u_char)controlPtr->textureCount;
+
+      controlPtr->matPtr->pmxIndex = controlPtr->pmxIndex + frameOffset;
+    } }
+
+
+    controlPtr = controlPtr + 1; } return; }
+
+/* ---- Track_GetProperMultiPalShapeIndex__Fii  [TRACK.CPP:525-532] full SLD attribution requires native comparison ---- */
+#line 523 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
 
 {
@@ -444,44 +459,46 @@ int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
   return shapeindex;
 }
 
-/* ---- Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1  [TRACK.CPP:538-571] SLD-VERIFIED ---- */
+/* ---- Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1 [TRACK.CPP:538-571] covered native/SYM/absolute SLD PASS; original text unproved ---- */
+#line 536 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap *outputPmx)
 
 {
-  int pmxProcessCount;
+
+  int pmxProcessCount = 0;
+
   Draw_tPixMap newPmx [4];
 
-  pmxProcessCount = 0;
   newPmx[0] = *inputPmx;
+
   if ((uvFlag & 0x10U) != 0) {
+
     Texture_CloneUVPmx(&newPmx[0],0,&newPmx[1]);
     pmxProcessCount = 1;
   }
-  if ((uvFlag & 0x40U) != 0) {
-    Texture_CloneUVPmx(&newPmx[pmxProcessCount],1,
-                       &newPmx[pmxProcessCount + 1]);
-    pmxProcessCount = pmxProcessCount + 1;
-  }
-  if ((uvFlag & 0xeU) != 0) {
-    if ((uvFlag & 2U) != 0) {
-      Texture_CloneUVPmx(&newPmx[pmxProcessCount],2,
-                         &newPmx[pmxProcessCount + 1]);
-    }
-    else if ((uvFlag & 4U) != 0) {
-      Texture_CloneUVPmx(&newPmx[pmxProcessCount],3,
-                         &newPmx[pmxProcessCount + 1]);
-    }
-    else if ((uvFlag & 8U) != 0) {
-      Texture_CloneUVPmx(&newPmx[pmxProcessCount],4,
-                         &newPmx[pmxProcessCount + 1]);
-    }
-    pmxProcessCount = pmxProcessCount + 1;
-  }
-  *outputPmx = newPmx[pmxProcessCount];
-  return;
-}
 
-/* ---- Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource [retail TRACK.CPP:577-626; full SLD attribution open] ---- */
+  if ((uvFlag & 0x40U) != 0) {
+
+    Texture_CloneUVPmx(&newPmx[pmxProcessCount],1,&newPmx[pmxProcessCount + 1]);
+    pmxProcessCount = pmxProcessCount + 1;
+  }
+
+  if ((uvFlag & 0xeU) != 0) {
+
+
+    if ((uvFlag & 2U) != 0) {
+      Texture_CloneUVPmx(&newPmx[pmxProcessCount],2,&newPmx[pmxProcessCount + 1]); }
+    else if ((uvFlag & 4U) != 0) {
+      Texture_CloneUVPmx(&newPmx[pmxProcessCount],3,&newPmx[pmxProcessCount + 1]); }
+    else if ((uvFlag & 8U) != 0) {
+      Texture_CloneUVPmx(&newPmx[pmxProcessCount],4,&newPmx[pmxProcessCount + 1]); }
+    pmxProcessCount = pmxProcessCount + 1;
+  }
+
+
+  *outputPmx = newPmx[pmxProcessCount]; return; }
+
+/* ---- Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource [TRACK.CPP:577-626] covered native/SYM/absolute SLD PASS; original text unproved ---- */
 /* void 
    Track_AssociateSingleMaterial(Trk_Material
    * inputMat, Track_tMaterial * outputMat, Track_tArtresource * art)
@@ -501,243 +518,337 @@ void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap 
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md.
    
-   [Locals 2026-05-09] Locals renamed via deep-body inspection. Track_AssociateSingleMaterial - bind
-   one Trk_Material to its Track_tMaterial entry + Track_tArtresource (364B). Walks the inputMat's
-   animFrame[] entries (animCount loop, anim_iter index): for each anim frame, resolves shapeIndex
-   via art lookup → shapeData_p (Draw_tPixMap from the art atlas); applies uvFlag via
-   Track_ProcessFlipAndUVFlags into outputMat's per-frame pixmap slot. originalPmx (16B local)
-   preserves the unflipped reference pixmap for rollback. Used during scene/track init to bake
-   material bindings + UV permutation flags so render time has zero conditional branches per
-   material.
+   [Source review 2026-10-23] SYM supplies all three parameters and the actual animCount,
+   originalPmx and two arm-local shapeIndex records. This binds one serialized material to
+   its output entry/art resource. The loop processes at least one shape, using textureCount
+   for further animation shapes. The UV arm copies an atlas pixmap into originalPmx, then
+   processes it into art->pPmx[art->pmxCount] and advances that real destination count.
+   The first frame supplies outputMat->pmxIndex; the plain arm uses the resolved shape index.
+   Earlier animFrame/anim_iter/shapeData_p and rollback descriptions were unsupported;
+   they are not supplied fields/locals or operations in this body. Original text remains open.
    
    [2026-09-28] Two real shapeIndex declarations belong to separate UV arms;
    originalPmx belongs only to the processing arm. Root animCount and the
    for binding now reproduce all six native scopes. No generic-name exemption;
-   literal original source spelling and full SLD remain unsealed. */
+   literal original source spelling remains unsealed; covered SLD is exact. */
 
+#line 575 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_AssociateSingleMaterial(Trk_Material *inputMat,Track_tMaterial *outputMat,Track_tArtresource *art)
 
 {
   int animCount;
 
+
   outputMat->flag = inputMat->flag;
-  for (animCount = 0;
-       animCount < 1 || animCount < (int)(u_int)(u_char)inputMat->textureCount;
-       animCount++) {
-    if ((inputMat->uvFlag & 0x5e) != 0) {
+
+
+
+
+  for (animCount = 0; animCount < 1 || animCount < (int)(u_int)(u_char)inputMat->textureCount; animCount++) {
+
+
+
+
+
+
+    if ((inputMat->uvFlag & 0x5e) != 0)
+    {
       Draw_tPixMap originalPmx;
       int shapeIndex;
       shapeIndex = (int)inputMat->shapeIndex;
+
       if ((inputMat->flag & 2) != 0) {
+
         shapeIndex = Track_GetProperMultiPalShapeIndex(shapeIndex,(u_int)inputMat->interval);
       }
+
+
       originalPmx = art->pPmx[shapeIndex + animCount];
+
       Track_ProcessFlipAndUVFlags((u_int)inputMat->uvFlag,&originalPmx,art->pPmx + art->pmxCount);
+
       if (animCount == 0) {
         outputMat->pmxIndex = (short)art->pmxCount;
       }
       art->pmxCount = art->pmxCount + 1;
     }
+
     else {
-      int shapeIndex;
-      shapeIndex = (int)inputMat->shapeIndex;
+      int shapeIndex; shapeIndex = (int)inputMat->shapeIndex;
       if ((inputMat->flag & 2) != 0) {
+
         shapeIndex = Track_GetProperMultiPalShapeIndex(shapeIndex,(u_int)inputMat->interval);
       }
+
+
       if (animCount == 0) {
         outputMat->pmxIndex = (short)shapeIndex;
       }
-    }
-  }
-  return;
-}
+    } } return; }
 
-/* ---- Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial [retail TRACK.CPP:688-848; full SLD attribution open] ---- */
+/* ---- Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial [TRACK.CPP:688-848] covered native/SYM/absolute SLD PASS;241 words unchanged ---- */
+/* Keep the supplied UCHAR flag/uvFlag fields and the original packed LHU read;
+ * the exact original macro/cast spelling is not supplied. length/sizeof retains
+ * the unsigned size arithmetic visible in retail's multiply-high division.
+ * Source reset pairs707/710 and847/848 are not their scheduled store order.
+ * All15 supplied owner tuples and21 regions agree; no source capture is added.
+ * Receipts: build/nc12/track_link_material_sld_20261024. */
+#line 686 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matList)
 
 {
   Trk_Material *mats;
 
   if (group != (SerializedGroup *)0x0) {
-    int matCount;
-    int i;
-    int controlIndex;
+    int matCount; int i; int controlIndex;
+
+
 
     matCount = length / sizeof(Trk_Material);
-    /* Retail retains the SerializedGroup receiver at depth4 for GetData;
-       bare payload arithmetic loses that real inline pair. */
+
+
+
+
     mats = (Trk_Material *)group->GetData();
-    Track_gControllerCount = 0;
+
+
+
+
+
     gInitialArt.pmxCount = gInitialArt.basePmxCount;
 
+
+    Track_gControllerCount = 0;
+
+
     for (i = 0; i < matCount; i = i + 1) {
+
       if ((*(u_short *)&mats[i].flag & 0x84) != 0) {
         Track_gControllerCount = Track_gControllerCount + 1;
-      }
-    }
+      } }
+
+
+
+
 
     if (Track_gControllerCount != 0) {
-      Track_gMatController =
-           (Track_tMaterialController *)BWAllocMem(Track_gControllerCount << 4);
+
+
+
+
+      Track_gMatController = (Track_tMaterialController *)BWAllocMem(Track_gControllerCount << 4);
     }
 
-    /* MATCH: SLD has no input/output walker locals.  Indexed source lets loop.c
-     * derive retail's +10/+4 walkers while preserving mats/matList identities. */
+
+
     for (i = 0, controlIndex = 0; i < matCount; i = i + 1) {
+
+
       Track_AssociateSingleMaterial(&mats[i],&matList[i],&gInitialArt);
 
+
+
+
+
+
+
+
+
+
+
+
       if ((mats[i].flag & 4) != 0) {
-        Track_gMatController[controlIndex].type = mats[i].flag;
-        Track_gMatController[controlIndex].interval = mats[i].interval;
-        Track_gMatController[controlIndex].textureCount = mats[i].textureCount;
-        Track_gMatController[controlIndex].pmxIndex = matList[i].pmxIndex;
-        Track_gMatController[controlIndex].matPtr = &matList[i];
-        controlIndex = controlIndex + 1;
-      }
-      else if ((mats[i].flag & 0x80) != 0) {
-        Draw_tPixMap *pmx;
-        int d;
+
 
         Track_gMatController[controlIndex].type = mats[i].flag;
-        if (mats[i].interval == 0) {
-          mats[i].interval = 1;
-        }
+
         Track_gMatController[controlIndex].interval = mats[i].interval;
+
         Track_gMatController[controlIndex].textureCount = mats[i].textureCount;
+
         Track_gMatController[controlIndex].pmxIndex = matList[i].pmxIndex;
+
+        Track_gMatController[controlIndex].matPtr = &matList[i];
+
+        controlIndex = controlIndex + 1;
+      }
+
+      else if ((mats[i].flag & 0x80) != 0)
+      {
+        Draw_tPixMap *pmx; int d;
+        Track_gMatController[controlIndex].type = mats[i].flag;
+
+        if (mats[i].interval == 0) { mats[i].interval = 1; }
+        Track_gMatController[controlIndex].interval = mats[i].interval;
+
+
+        Track_gMatController[controlIndex].textureCount = mats[i].textureCount;
+
+        Track_gMatController[controlIndex].pmxIndex = matList[i].pmxIndex;
+
         Track_gMatController[controlIndex].matPtr = &matList[i];
 
         pmx = gInitialArt.pPmx + matList[i].pmxIndex;
+
         Track_gMatController[controlIndex].uv0 = pmx->v0;
         Track_gMatController[controlIndex].uv1 = pmx->v1;
         Track_gMatController[controlIndex].uv2 = pmx->v2;
         Track_gMatController[controlIndex].uv3 = pmx->v3;
+
         d = pmx->v3 - pmx->v0;
-        if (d < 0) {
-          d = -d;
-        }
+        if (d < 0) { d = -d; }
         Track_gMatController[controlIndex].textureMax = d + 1;
+
         controlIndex = controlIndex + 1;
+
       }
 
-      if (TrackSpec_gSpec.fogstate != 0) {
+      if (TrackSpec_gSpec.fogstate != 0)
+      {
 
         for (int mm = 0; mm < 0x20; mm = mm + 1) {
-          if (*(int *)gTempMipMapInfo[mm].code != -1) {
-            int shapeIndex;
 
-            shapeIndex = gTempMipMapInfo[mm].shapeParentIndex;
-            if (shapeIndex == mats[i].shapeIndex) {
-              int mipmap_offset;
 
-              mipmap_offset = gTempMipMapInfo[mm].mipMapIndex;
+          if (*(int *)gTempMipMapInfo[mm].code != -1)
+          {
+            int shapeIndex; shapeIndex = gTempMipMapInfo[mm].shapeParentIndex;
+            if (shapeIndex == mats[i].shapeIndex)
+            {
+              int mipmap_offset; mipmap_offset = gTempMipMapInfo[mm].mipMapIndex;
+
               matList[i].flag = matList[i].flag | 8;
               mipmap_offset = mipmap_offset - shapeIndex;
-              if (mats[i].shapeIndex != matList[i].pmxIndex) {
-                Draw_tPixMap originalPmx;
-                int shapeIndex;
+              if (mats[i].shapeIndex != matList[i].pmxIndex)
+              {
+                Draw_tPixMap originalPmx; int shapeIndex;
 
                 shapeIndex = mats[i].shapeIndex + mipmap_offset;
+
                 originalPmx = gInitialArt.pPmx[shapeIndex];
-                Track_ProcessFlipAndUVFlags(mats[i].uvFlag,&originalPmx,
-                           gInitialArt.pPmx + gInitialArt.pmxCount);
+
+                Track_ProcessFlipAndUVFlags(mats[i].uvFlag,&originalPmx,gInitialArt.pPmx + gInitialArt.pmxCount);
+
                 gInitialArt.pmxCount = gInitialArt.pmxCount + 1;
+
                 matList[i].mipmap_offset = 1;
               }
               else {
-                matList[i].mipmap_offset = mipmap_offset;
-              }
+                matList[i].mipmap_offset = mipmap_offset; }
             }
           }
+
+
         }
+
       }
     }
 
-    if (gTempMipMapInfo != (Track_MipMap *)0x0) {
-      purgememadr(gTempMipMapInfo);
-    }
-    purgememadr(gTempMultiPalInfo);
-    gInitialArt.shapeFile = (char *)0x0;
-    gInitialArt.pmxCount = gInitialArt.shapeCount;
-  }
-  return;
-}
 
-/* ---- ReduceObjectPrecision__FP5GroupT0i [retail TRACK.CPP:963-1004; carrier/source/SLD recovery open] ---- */
+    if (gTempMipMapInfo != (Track_MipMap *)0x0) {
+      purgememadr(gTempMipMapInfo); }
+
+
+    purgememadr(gTempMultiPalInfo);
+
+
+
+
+
+
+    gInitialArt.pmxCount = gInitialArt.shapeCount;
+    gInitialArt.shapeFile = (char *)0x0; } return; }
+
+/* ---- ReduceObjectPrecision__FP5GroupT0i [TRACK.CPP:963-1004] covered native/SYM/absolute SLD PASS;40 words unchanged ---- */
+/* SourceRecoveryUnresolved: x/y/z semantically name the actual shifted16-bit
+ * component results. Their original identifiers/macro syntax are absent from
+ * optimized SYM. Computed short stages match the three load/shift source lines;
+ * int/long controls retain unprovided debug locals. No const/volatile hiding.
+ * The inline receiver is the payload getter, not the count read; preserve
+ * count968 before GetData969. All9 supplied tuples/eight regions agree.
+ * Receipts: build/nc12/track_reduce_source_20261024. */
+#line 961 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
 
 {
-  int count;
-  Trk_SimpleInst *inst;
-
+  int count; Trk_SimpleInst *inst;
   if (instGroup == (Group *)0x0) return;
-    inst = (Trk_SimpleInst *)(instGroup + 1);
-    /* SYM-INLINE-THIS: GetNumElements -- retail SLD line 6 records the
-       Group receiver at 0x800ba264 for this exact member expansion. */
-    count = instGroup->GetNumElements();
-    while (--count != -1) {
-      if (defGroup != (Group *)0x0) {
-        Trk_ObjectDef *objDef = Track_gObjDefs[inst->pad];
-        {
-        int count = objDef->vertexCount;
-        CCOORD16 *pts = (CCOORD16 *)(objDef + 1);
+
+
+  count = instGroup->m_num_elements;
+  inst = (Trk_SimpleInst *)instGroup->GetData();
+
+  while (--count != -1) {
+
+    if (defGroup != (Group *)0x0)
+    {
+
+      Trk_ObjectDef *objDef = Track_gObjDefs[inst->pad];
+
+      {
+        int count; CCOORD16 *pts;
+
+
+
+        pts = (CCOORD16 *)(objDef + 1);
+        count = objDef->vertexCount;
 
         while (--count != -1) {
-          /* Source-recovery queue: x/y/z are absent from retail. Restored
-             ownership keeps40/40, but direct members are37dif/41 and direct
-             halfword-pointer indexing42dif/40. A comma expression is likewise
-             37dif/41; an aggregate update is101dif/79 with extra frame/copy
-             work. No trial proves original source-object necessity. */
-          int x = pts->x;
-          int y = pts->y;
-          int z = pts->z;
-          x >>= bits;
-          y >>= bits;
-          z >>= bits;
+
+
+
+          short x = pts->x >> bits;
+          short y = pts->y >> bits;
+          short z = pts->z >> bits;
+
           pts->x = x;
           pts->y = y;
           pts->z = z;
-          pts++;
-        }
-        }
+
+          pts++; }
       }
-      inst = (Trk_SimpleInst *)((int)&inst->size + (int)inst->size);
     }
-}
 
-/* ---- InvalidatePersistentCollideBoomObjects__FP5GroupT0  [TRACK.CPP:1012-1026] SLD-VERIFIED ---- */
-void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
-
-{
-  int count;
-  Trk_SimpleInst * inst;
-  
-  if ((instGroup == (Group *)0x0) || (defGroup == (Group *)0x0)) return;
-  /* SYM-INLINE-THIS: GetNumElements -- retail SLD line 6 records the
-     Group receiver at 0x800ba30c for this count load. */
-  count = instGroup->GetNumElements();
-  inst = (Trk_SimpleInst *)(instGroup + 1);
-  while (--count != -1) {
-    if (Track_gObjDefs[inst->pad]->id != -1) {
-      inst->type = 0;
-    }
-    inst = (Trk_SimpleInst *)((int)inst + (int)inst->size);
+    inst = (Trk_SimpleInst *)((int)&inst->size + (int)inst->size);
   }
 }
 
-/* ---- CalcObjectBoundingSphere__FP5GroupT0 [retail TRACK.CPP:1064-1125; full SLD attribution open] ---- */
+/* ---- InvalidatePersistentCollideBoomObjects__FP5GroupT0 [TRACK.CPP:1012-1026] covered native/SYM/absolute SLD PASS;27 words unchanged ---- */
+/* Existing receiver evidence identifies a payload expansion after the actual
+ * direct count read1017, not a uniquely named count accessor. Getter spelling
+ * is not supplied. Receipts: build/nc12/track_sphere_sld_20261024. */
+#line 1010 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
+
+{
+  int count; Trk_SimpleInst *inst;
+  if ((instGroup == (Group *)0x0) || (defGroup == (Group *)0x0)) return;
+
+
+  count = instGroup->m_num_elements;
+  inst = (Trk_SimpleInst *)instGroup->GetData();
+
+  while (--count != -1) {
+
+    if (Track_gObjDefs[inst->pad]->id != -1) {
+      inst->type = 0;
+    } inst = (Trk_SimpleInst *)((int)inst + (int)inst->size); }
+
+}
+
+/* ---- CalcObjectBoundingSphere__FP5GroupT0 [TRACK.CPP:1064-1125] covered native/SYM/absolute SLD PASS;152 words unchanged ---- */
+/* Source point/count setup1083/1084, count/radius1103/1104 and group-count/
+ * output-pointer advance1123/1124 precede scheduling. Keep all supplied names,
+ * the real centroid/radius work region and the single source diff expression;
+ * no unique original macro text is claimed. No new source capture is needed.
+ * Receipts: build/nc12/track_sphere_sld_20261024. */
+#line 1062 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
 
 {
-  Trk_ObjectDef * objDef;
+  Trk_ObjectDef *objDef;
   tBoundingSphere *bSphere;
   int objCount;
 
-  /* SYM-INLINE-THIS: GetData -- retail's first line-1 inline scope retains
-     the boundingSphereGroup receiver in $s3.  The immediately following
-     empty line-1 scope pair is GetNumElements: its defGroup receiver was
-     optimized without a materialized `this` record.  The $s3 receiver also
-     feeds the final group count update. */
   bSphere = (tBoundingSphere *)boundingSphereGroup->GetData();
   objCount = defGroup->GetNumElements();
 
@@ -747,55 +858,60 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
     coorddef cp;
     int radius;
 
+
     objDef = Track_gObjDefs[i];
-    ptCount = objDef->vertexCount;
+
+
+
     pts = (CCOORD16 *)(objDef + 1);
+    ptCount = objDef->vertexCount;
     cp.x = cp.y = cp.z = 0;
+
     while (--ptCount != -1) {
+
       cp.x = cp.x + pts->x;
       cp.y = cp.y + pts->y;
       cp.z = cp.z + pts->z;
-      pts = pts + 1;
+
+      pts = pts + 1; }
+
+    { cp.x = cp.x / objDef->vertexCount;
+      cp.y = cp.y / objDef->vertexCount;
+      cp.z = cp.z / objDef->vertexCount;
+
+
+
+
+      pts = (CCOORD16 *)(objDef + 1);
+      ptCount = objDef->vertexCount;
+      radius = 0;
+      while (--ptCount != -1) {
+        int diff;
+        diff = (((cp.x - pts->x) >> 6) * ((cp.x - pts->x) >> 6)) + (((cp.y - pts->y) >> 6) * ((cp.y - pts->y) >> 6)) + (((cp.z - pts->z) >> 6) * ((cp.z - pts->z) >> 6));
+        if (radius < diff) {
+          radius = diff; }
+
+        pts = pts + 1; }
+
     }
 
-    {
-    cp.x = cp.x / objDef->vertexCount;
-    cp.y = cp.y / objDef->vertexCount;
-    cp.z = cp.z / objDef->vertexCount;
-
-    pts = (CCOORD16 *)(objDef + 1);
-    radius = 0;
-    ptCount = objDef->vertexCount;
-    while (--ptCount != -1) {
-      int diff;
-
-      /* SYM retains only `diff` in this block.  Spell the three squared
-       * coordinate deltas as one expression (the recoverable macro-expanded
-       * shape); GCC CSEs each repeated delta exactly into retail's $v0 web. */
-      diff = (((cp.x - pts->x) >> 6) * ((cp.x - pts->x) >> 6)) +
-             (((cp.y - pts->y) >> 6) * ((cp.y - pts->y) >> 6)) +
-             (((cp.z - pts->z) >> 6) * ((cp.z - pts->z) >> 6));
-      if (radius < diff) {
-        radius = diff;
-      }
-      pts = pts + 1;
-    }
-    }
 
     bSphere->cp.x = (short)cp.x;
     bSphere->cp.y = (short)cp.y;
     bSphere->cp.z = (short)cp.z;
     bSphere->radius = (short)((u_int)fixedsqrt(radius << 10) >> 7);
-    bSphere = bSphere + 1;
+
+
+
     boundingSphereGroup->m_num_elements = boundingSphereGroup->m_num_elements + 1;
-  }
-  return;
-}
+    bSphere = bSphere + 1;
+  } return; }
 
 /* ---- CalcObjDefPtrs__Fv [retail TRACK.CPP:1179-1188] ----
  * The single offset cursor, one-line loop close and separate final pointer
  * assignment reproduce all 25 relative SLD tags, native scopes/locals and
  * the retail function-end line delta. Literal local spellings remain inferred. */
+#line 1177 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void CalcObjDefPtrs(void)
 
 {
@@ -809,203 +925,295 @@ void CalcObjDefPtrs(void)
   Trk_ObjectDef **objDefs = (Trk_ObjectDef **)gObjDefOffsetsGroup->GetData();
   Track_gObjDefs = objDefs; }
 
-/* ---- Track_InitPersistentData__FP15SerializedGroup [retail TRACK.CPP:1212-1292; accessor/source/SLD recovery open] ---- */
+/* ---- Track_InitPersistentData__FP15SerializedGroup [TRACK.CPP:1212-1292] ----
+ * The actual material-call case work owns the supplied inline receiver at
+ * depth7/path[0,1,0,0,0,0,0], not the old depth6. All6 supplied complete local
+ * tuples now agree, at unchanged119 words/whole ELF/native CPE. The case's
+ * declaring block ends before its switch-level break.
+ * Partial SLD/source recovery:109/119 word/file tags agree;15 native regions
+ * versus22 supplied. Seven real source producers remain unidentified around
+ * case8/default. Ten epilogue tags/end remain1290 versus1292. An explicit
+ * final return matches tags but adds a NON-retail+436 cleanup region, so it
+ * is rejected. Split call punctuation instead moves two real call tags wrong.
+ * No fake scope/empty helper is inserted to conceal those missing producers.
+ * No new object, asm/volatile, qualifier or output rewrite is introduced.
+ * Receipts: build/nc12/track_persistent_source_20261024. Original macro/getter
+ * text and the complete function source/SLD contract remain open. */
+#line 1210 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_InitPersistentData(SerializedGroup *perGroup)
 
 {
-  SerializedGroup *persistentGroups[perGroup->m_num_elements];
-  int count;
+  SerializedGroup *persistentGroups[perGroup->m_num_elements]; int count;
+
+
 
   gObjDefOffsetsGroup = (Group *)0x0;
-
-  {
-    int i;
+  { int i;
 
     for (i = 0; i < perGroup->m_num_elements; i = i + 1) {
-      persistentGroups[i] = perGroup->LocateGroupNum(i);
-    }
+      persistentGroups[i] = perGroup->LocateGroupNum(i); }
   }
-
   perGroup->LocateGroupType(8,0);
-  count = perGroup->m_num_elements;
-
+  count =
+    perGroup->m_num_elements;
   {
-    int i = 0;
 
-    while (i < count) {
-      switch (persistentGroups[i]->m_type) {
-      case 2:
-        Track_LinkMaterials(persistentGroups[i],persistentGroups[i]->GetLength() - (int)sizeof(SerializedGroup),
+
+    int i = 0; while (i < count)
+    {
+      switch (persistentGroups[i]->m_type)
+      {
+
+      case 2: {
+        Track_LinkMaterials(persistentGroups[i],persistentGroups[i]->GetDataLength(),
                    Track_materials);
+
+
+
+
+
+
+      }
         break;
+
+
       case 0xf:
         BWorldSm_Init(persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem));
+
+
         break;
+
+
       case 0x24:
-        gPersistMidgroundObjInst =
-             persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+        gPersistMidgroundObjInst = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+
+
         break;
+
+
       case 7:
-        gPersistObjInst =
-             persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+        gPersistObjInst = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+
+
         break;
+
       case 8:
         gPersistObjDef =
              persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
-        break;
-      case 0x26:
-        gObjDefOffsetsGroup =
-             persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
-      default: break;
-      }
-      i = i + 1;
-    }
-  }
 
+
+        break;
+
+
+      case 0x26:
+        gObjDefOffsetsGroup = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+
+
+      default: break;
+
+
+
+
+      }
+      i = i + 1; }
+  }
   if (gObjDefOffsetsGroup != (Group *)0x0) {
+
+
     CalcObjDefPtrs();
   }
 }
 
-/* ---- Track_Init__FPc  [TRACK.CPP:1312-1475] SLD-VERIFIED ---- */
+/* ---- Track_Init__FPc [TRACK.CPP:1312-1475] covered native locals/regions/absolute SLD PASS; literal source spelling not certified ---- */
+/* Real SimpleMem construction below owns the supplied inline size parameter.
+     No this_00/loadBuf source alias or mirrored caller-size value is retained.
+     Receipt: build/nc12/simplemem_ctor_restore_20261023. */
+/* A real for-owned i plus the literal fill removes the old tu3 capture.
+     The isolated counter change was two differences; repricing the mask on
+     that basin preserves the entire normal ELF without a replacement object.
+     Receipt: build/nc12/track_init_getters_20261023. */
+/* Typed output indexing then removes the old header snapshot too. The
+     earlier direct-read failure applied to a different counter/cursor shape;
+     no replacement alias or instruction-level device is needed here.
+     Receipt: build/nc12/track_init_getters_20261023. */
+/* The real counter scopes make typed destination indexing byte-exact.
+         Both old cursor declarations and the header snapshot are unnecessary.
+         Receipt: build/nc12/track_init_getters_20261023. */
+/* The staged payload lookup and standard copy follow retail1363/1365.
+ * lightData is a semantic name for the optimizer-elided payload pointer; its
+ * original identifier is not supplied by SYM. No const/fence or fake use is
+ * added. Proof: build/nc12/track_init_layout_20261023. */
+#line 1310 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_Init(char *tempName)
 
 {
-  SerializedGroup * trackGroup;
-  SerializedGroup * chunkGroup;
-  int trackFileSize;
-  int size;
-  SerializedGroup * group;
-  /* SYM-CODEGEN-CARRIER: this_00 -- this is the receiver of Track_Init's
-     SYM-proven inline SimpleMem constructor expansion. The closest natural
-     constructor spelling changes the size/object allocation and is 4 diffs
-     away (285 versus retail's 283 instructions). */
-  SimpleMem *this_00;
-  /* SYM-CODEGEN-CARRIER: loadBuf -- this constructor-result quantity feeds
-     both initial pointer members and the null test; keeping the expanded
-     value flow is the byte-exact representation of the unnamed inline body. */
-  void *loadBuf;
-  short *visList;
-  int j;
-  int srcDataInd;
-  int count;
-  Chunk *chunkDat;
-  int i;
-  SerializedGroup *nextChunkGroup;
-  SerializedGroup *persistentGroup;
-  char trackName [128];
-  /* SYM-CODEGEN-CARRIER: tu3 -- hoisting the 0x3ff fill value before the
-     chunk loop preserves retail's saved-register lifetime and load schedule;
-     spelling the literal at the store keeps 283 instructions but moves the
-     load across the loop preheader (2 diffs). */
-  u_short tu3;
-  /* SYM-CODEGEN-CARRIER: tT33 -- this block-local Track_header snapshot takes
-     retail's $t2 and fixes the earlier 0x400-byte movstrsi scratch pool at
-     $t3-$t6. Direct global access keeps 283 instructions but produces 54
-     diffs beginning in that generated copy sequence. */
-  TrackHeader *tT33;
+  char trackName [128]; SerializedGroup * trackGroup; SerializedGroup * chunkGroup;
+  int trackFileSize; SerializedGroup *persistentGroup;
 
   Track_gSaveSurface = (SaveSurface *)0x0;
   Track_gObjDefs = (Trk_ObjectDef **)0x0;
+
   sprintf(trackName,"%s",tempName);
   trackFileSize = filesize(tempName);
+
+
+
+
+
+
   Chunk_lightTable = reservememadr("lighttbl",0x404,0);
+
+
   TextureProcess_Init();
-  size = trackFileSize + 0x9080;
   InitArtResources();
   TexturesLoadInitial();
-  this_00 = __builtin_new(sizeof(SimpleMem));
-  loadBuf = reservememadr("Track_mem",size,0);
-  this_00->heap = loadBuf;
-  this_00->freeMem = loadBuf;
-  if (this_00->heap == (void *)0x0) {
-    size = 0;
-  }
-  this_00->freeMemSize = size;
-  Track_mem = this_00;
-  trackGroup = (SerializedGroup *)loadfileatadr(
-      trackName,(void *)((int)Track_mem->FeignAlloc(trackFileSize) + 0x9080));
-  Track_header = (TrackHeader *)((int)trackGroup->LocateCreateGroupType(0x1f,Track_mem,0) + 4);
-  Chunk_chunkCenters =
-      (coorddef *)((int)trackGroup->LocateCreateGroupType(0x20,Track_mem,0) + 4);
-  {
-    struct LightTableData {
-      CVECTOR data[0x100];
-    };
 
-    *(LightTableData *)Chunk_lightTable =
-        *(LightTableData *)((int)trackGroup->LocateGroupType(0x23,0) + 0x10);
-  }
+
+  Track_mem = new SimpleMem(trackFileSize + 0x9080,"Track_mem");
+  trackGroup = (SerializedGroup *)loadfileatadr(
+
+
+      trackName,(void *)((int)Track_mem->FeignAlloc(trackFileSize) + 0x9080));
+
+
+
+
+
+
+
+
+
+  Track_header = (TrackHeader *)trackGroup->LocateCreateGroupType(0x1f,Track_mem,0)->GetData();
+
+
+
+
+
+
+
+
+  Chunk_chunkCenters =
+      (coorddef *)trackGroup->LocateCreateGroupType(0x20,Track_mem,0)->GetData();
+
+
+
+  char *lightData = (char *)trackGroup->LocateGroupType(0x23,0)->GetData();
+
+  memcpy(Chunk_lightTable,lightData,sizeof(*Chunk_lightTable) * 0x100);
   Chunk_numLight =
-      (trackGroup->LocateGroupType(0x23,0)->m_length - 0x10U) >> 2;
+      trackGroup->LocateGroupType(0x23,0)->GetDataLength() / sizeof(*Chunk_lightTable);
+
+
+
+
+
+
+
+
+
   Track_gInViewList = (short (*)[32])(Track_mem)->Alloc(Track_header->chunkCount * 0x48,0);
   Track_gInViewCount = (u_char *)(Track_mem)->Alloc(Track_header->chunkCount,0);
+
+
   Track_chunkList = (Track_mem)->Alloc(Track_header->chunkCount * 0x70,0);
+
   Chunk_Init();
+
+
   persistentGroup = trackGroup->LocateGroupType(0x21,0);
+
+
+
+
   chunkGroup = trackGroup->LocateGroupType(0x1d,0);
-  i = 0;
-  tu3 = 0x3ff;
-  while (i < Track_header->chunkCount) {
+
+
+  for (int i = 0; i < Track_header->chunkCount; i = i + 1) {
+    Chunk *chunkDat; SerializedGroup *nextChunkGroup; SerializedGroup *group; short *visList; int count;
+
+
+
     chunkDat = Track_chunkList + i;
+
     nextChunkGroup = (SerializedGroup *)0x0;
     if (i < Track_header->chunkCount + -1) {
       nextChunkGroup = chunkGroup->LocateNextGroupType(0x1d);
     }
+
+
+
+
+
+
+
+
+
     chunkDat->InstanceGroup(chunkGroup,Track_mem);
-    group = chunkGroup->LocateGroupType(4,0);
+
+
+
+
+
+
+    group =
+      chunkGroup->LocateGroupType(4,0);
+
     count = group->m_num_elements;
-    visList = (short *)(group + 1);
+    visList = (short *)group->GetData();
     if (0x24 < count) {
-      count = 0x24;
-    }
+
+
+      count = 0x24; } { int srcDataInd; int j;
     srcDataInd = 0;
     j = 0;
-    if (0 < count) {
-      /* SYM-CODEGEN-CARRIER: dest -- retail keeps the accepted-entry output
-         cursor as a loop-carried pointer. Replacing this cursor with
-         Track_gInViewList[i][j] adds one instruction and produces 21 diffs. */
-      short *dest;
 
-      tT33 = Track_header;
-      dest = (short *)((i << 6) + (int)Track_gInViewList);
 
-      do {
-        if ((int)((u_short)visList[srcDataInd] & 0x3ff) < tT33->chunkCount) {
-          *dest = visList[srcDataInd];
-          dest = dest + 1;
-          j = j + 1;
-        }
-        srcDataInd = srcDataInd + 1;
-      } while (srcDataInd < count);
-    }
+
+    if (0 < count) { do {
+
+
+        if ((int)((u_short)visList[srcDataInd] & 0x3ff) < Track_header->chunkCount) {
+          Track_gInViewList[i][j] = visList[srcDataInd]; j = j + 1; }
+        srcDataInd = srcDataInd + 1; } while (srcDataInd < count); }
+
     *(u_char *)((char *)Track_gInViewCount + i) = (u_char)j;
-    if (j < 0x24) {
-      short *dest = (short *)(j * 2 + ((i << 6) + (int)Track_gInViewList));
 
-      do {
-        *dest = tu3;
-        j = j + 1;
-        dest = dest + 1;
-      } while (j < 0x24);
+
+
+
+    if (j < 0x24) { do {
+        Track_gInViewList[i][j] = 0x3ff; j = j + 1; } while (j < 0x24); }
     }
+
+
+
     chunkGroup = nextChunkGroup;
-    i = i + 1;
   }
+
+
   Track_InitPersistentData(persistentGroup);
+
   (Track_mem)->ResizeToFit();
   Track_MakeTrackPathName(".grp");
+
+
   gPersistObjDefBoundingSpheres =
-       reservememadr("bsphere",gPersistObjDef->m_num_elements << 3 | 4,0);
+       reservememadr("bsphere",gPersistObjDef->GetNumElements() << 3 | 4,0);
   CalcObjectBoundingSphere(gPersistObjDef,gPersistObjDefBoundingSpheres);
+
   ReduceObjectPrecision(gPersistMidgroundObjInst,gPersistObjDef,2);
+
   InvalidatePersistentCollideBoomObjects(gPersistObjInst,gPersistObjDef);
+
   Track_gSaveSurface = new SaveSurface(0x30);
-  Track_LoadObjectKillData();
-  return;
+
+
+
+  Track_LoadObjectKillData(); return;
 }
 
-/* ---- Track_DeInit__Fv  [TRACK.CPP:1492-1533] SLD-VERIFIED ---- */
+/* ---- Track_DeInit__Fv  [TRACK.CPP:1492-1533] full SLD attribution requires native comparison ---- */
+#line 1490 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_DeInit(void)
 
 {
@@ -1033,14 +1241,16 @@ void Track_DeInit(void)
   return;
 }
 
-/* ---- Track_AnimateTrackLighting__Fv  [TRACK.CPP:1537-1544] SLD-VERIFIED ---- */
+/* ---- Track_AnimateTrackLighting__Fv  [TRACK.CPP:1537-1544] full SLD attribution requires native comparison ---- */
+#line 1535 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_AnimateTrackLighting(void)
 
 {
   return;
 }
 
-/* ---- KillFile_OpenRead__Fv  [TRACK.CPP:1720-1726] SLD-VERIFIED ---- */
+/* ---- KillFile_OpenRead__Fv  [TRACK.CPP:1720-1726] full SLD attribution requires native comparison ---- */
+#line 1718 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 char * KillFile_OpenRead(void)
 
 {
@@ -1052,7 +1262,8 @@ char * KillFile_OpenRead(void)
   return (char *)loadfileadrz(pathName,(void *)0x0);
 }
 
-/* ---- KillFile_ReadEntry__FPciRiT2  [TRACK.CPP:1732-1736] SLD-VERIFIED ---- */
+/* ---- KillFile_ReadEntry__FPciRiT2  [TRACK.CPP:1732-1736] full SLD attribution requires native comparison ---- */
+#line 1730 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
 
 {
@@ -1063,6 +1274,7 @@ void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
 }
 
 /* ---- Track_LoadObjectKillData__Fv [retail TRACK.CPP:1742-1821; full SLD attribution open] ---- */
+#line 1740 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_LoadObjectKillData(void)
 
 {
@@ -1135,7 +1347,8 @@ void Track_LoadObjectKillData(void)
   return;
 }
 
-/* ---- Save  [TRACK.CPP:1831-1850] SLD-VERIFIED ---- */
+/* ---- Save  [TRACK.CPP:1831-1850] full SLD attribution requires native comparison ---- */
+#line 1829 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void SaveSurface::Save(Trk_NewSimQuad *simQuad)
 
 {
@@ -1148,7 +1361,7 @@ void SaveSurface::Save(Trk_NewSimQuad *simQuad)
   return;
 }
 
-/* ---- SaveSurface  [TRACK.CPP:1855-1858] SLD-VERIFIED ---- */
+/* ---- SaveSurface  [TRACK.CPP:1855-1858] full SLD attribution requires native comparison ---- */
 /* SaveSurface * __11SaveSurfacei(SaveSurface * pThis, int numEntries)
    
    GCC compiler-emitted helper / runtime support (gcc-helper).
@@ -1167,6 +1380,7 @@ void SaveSurface::Save(Trk_NewSimQuad *simQuad)
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
+#line 1853 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 SaveSurface::SaveSurface(int numEntries)
 
 {
@@ -1175,7 +1389,7 @@ SaveSurface::SaveSurface(int numEntries)
   fStack = (tSaveSurface *)reservememadr("Surface Save",numEntries << 3,0);
 }
 
-/* ---- ~SaveSurface  [TRACK.CPP:1864-1865] SLD-VERIFIED ---- */
+/* ---- ~SaveSurface  [TRACK.CPP:1864-1865] full SLD attribution requires native comparison ---- */
 /* void _._11SaveSurface(SaveSurface * pThis, int __in_chrg)
    
    PsyQ-style internal helper (uncategorized) (psyq-internal).
@@ -1193,6 +1407,7 @@ SaveSurface::SaveSurface(int numEntries)
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
+#line 1862 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 SaveSurface::~SaveSurface()
 
 {
@@ -1200,6 +1415,7 @@ SaveSurface::~SaveSurface()
 }
 
 /* ---- RestoreAll [retail TRACK.CPP:1871-1879; full SLD attribution open] ---- */
+#line 1869 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void SaveSurface::RestoreAll()
 
 {

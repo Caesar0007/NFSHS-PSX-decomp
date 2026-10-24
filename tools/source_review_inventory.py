@@ -4,6 +4,19 @@
 locations. Never edits source, compiler output, SYM records or references.
 Const/debug-elided aliases and original spelling require separate review;
 absence of a lexical hit is not proof that a TU has no synthetic objects.
+
+2026-10-23: also report the known reconstruction-only SimpleMem string
+holder and the existing SOURCE-RECOVERY-UNRESOLVED marker family. Authentic
+bytes/native-local cleanliness do not prove original producer identity and
+must not make either source-review obligation invisible.
+Backup: build/nc12/simplemem_source_producer_20261023/
+source_review_inventory_before_20261023.py. This remains read-only diagnostic
+reporting: no source/compiler/SYM/reference or matching-policy rewrite.
+
+2026-10-24: recognize the existing CamelCase SourceRecoveryUnresolved spelling
+as well. Missing this variant hid explicit unresolved source obligations.
+Backup: build/nc12/track_animation_source_20261024/
+source_review_inventory_before_camel.py. This changes reporting only.
 """
 import argparse
 from collections import Counter
@@ -21,7 +34,16 @@ SYNTHETIC = re.compile(
     r'|(?:var|temp)_(?:[avst]\d+|f\d+|ra|sp|fp)(?:_\d+)?)\b')
 REVIEW = re.compile(
     r'SYM-CODEGEN-CARRIER|SOURCE-RECOVERY CARRIER|SOURCE-REVIEW-UNRESOLVED'
+    r'|SOURCE-RECOVERY-UNRESOLVED'
+    r'|\bSourceRecoveryUnresolved\b'
     r'|ORIGINAL-NAME-UNRESOLVED|DEBUG-ELIDED SOURCE VALUE|SOURCE-RECOVERY REVIEW')
+# The legacy simplemem_* materializers generated this exact uncalled holder.
+# Flag its definition, not comments/strings, prototypes or invocations. This
+# known-producer check is deliberately not claimed to find every unnamed or
+# debug-elided source mechanism, nor to establish its original header identity.
+UNRESOLVED_STRING_PRODUCER = re.compile(
+    r'\bstatic\s+inline\s+const\s+char\s*\*\s*SimpleMem_ClassName'
+    r'\s*\(\s*void\s*\)(?=\s*\{)')
 
 
 def mask_trivia(text):
@@ -80,7 +102,8 @@ def inventory(native_path, sld_path):
         files[source_group(rel)] += 1
         code = mask_trivia(text)
         for kind, pattern, content in [('synthetic_identifier', SYNTHETIC, code),
-                                       ('review_marker', REVIEW, text)]:
+                                       ('review_marker', REVIEW, text),
+                                       ('unresolved_string_producer', UNRESOLVED_STRING_PRODUCER, code)]:
             for match in pattern.finditer(content):
                 locations.append({"kind": kind, "file": rel,
                                   "line": content.count('\n', 0, match.start()) + 1,
@@ -95,6 +118,7 @@ def inventory(native_path, sld_path):
             "Local contract excludes FRAME/BLOCKS/SLD and global/type-body records.",
             "Lexical candidates and review-marker occurrences are not distinct unresolved source objects.",
             "Const aliases, original macro spelling and unnamed producer mechanisms need independent inspection.",
+            "Known string-producer hits are review candidates, not proof of original function/header identity or an exhaustive producer audit.",
             "eaclib/syslib lexical locations are included, but incomplete retail records are not whole-library coverage."],
         "directories": {k: dict(v) for k, v in sorted(directories.items())},
         "source_files_scanned": dict(sorted(files.items())),
@@ -108,12 +132,24 @@ def self_test():
     masked = mask_trivia(value)
     assert masked.count('\n') == value.count('\n')
     assert [m.group() for m in SYNTHETIC.finditer(masked)] == ['iVar1', 'temp_v0_2']
+    holder = 'static inline const char *SimpleMem_ClassName(void)'
+    fixture = ('/* ' + holder + '{return 0;} */\n'
+               'const char *quoted="' + holder + '";\n'
+               + holder + ';\n' + holder + '{return "SimpleMem";}\n'
+               'void call(){SimpleMem_ClassName();}')
+    code = mask_trivia(fixture)
+    hits = list(UNRESOLVED_STRING_PRODUCER.finditer(code))
+    assert len(hits) == 1 and code.count('\n', 0, hits[0].start()) + 1 == 4
+    assert REVIEW.findall('SOURCE-RECOVERY-UNRESOLVED SOURCE-REVIEW-UNRESOLVED') == [
+        'SOURCE-RECOVERY-UNRESOLVED', 'SOURCE-REVIEW-UNRESOLVED']
+    assert REVIEW.findall('SourceRecoveryUnresolved: original name unknown') == ['SourceRecoveryUnresolved']
+    assert not REVIEW.search('SourceRecoveryResolved SourceRecoveryUnresolvedCount')
     assert local_contract_clean(['BLOCKS 1 scopes != 2', 'FRAME fsize differs'])
     for kind in LOCAL_ISSUES:
         assert not local_contract_clean([kind + ' fixture'])
     assert directory(r'C:\nfs4\GAME\COMMON\TEST.CPP') == 'GAME/COMMON'
     assert directory(r'C:\nfs4\syslib\TEST.C') == 'OTHER/PARTIAL'
-    print('PASS: trivia masking, synthetic candidates, local-contract criteria and directory fixtures')
+    print('PASS: trivia masking, synthetic and string-producer candidates, local-contract criteria and directory fixtures')
 
 
 def main():

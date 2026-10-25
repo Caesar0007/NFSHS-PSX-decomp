@@ -109,7 +109,7 @@ void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
           if (instGroup->GetNumElements() <= index)
             break;
           while (index--) {
-            inst = (Trk_SimpleInst *)((int)inst + (int)inst->size);
+            inst = (Trk_SimpleInst *)((char *)inst + inst->size);
           }
         }
         if (inst != (Trk_SimpleInst *)0x0 && inst->type == '\x05')
@@ -161,7 +161,7 @@ void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
           break;
 
         size = size + (int)inst->size;
-        inst = (Trk_SimpleInst *)((int)inst + (int)inst->size);
+        inst = (Trk_SimpleInst *)((char *)inst + inst->size);
         i = i + 1;
       }
       this->objInstanceBuf = (chunkGroup)->CreateLiteGroupDataSize(instGroup, mem, size);

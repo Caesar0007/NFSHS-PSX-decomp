@@ -7,9 +7,9 @@
 #include "group_types.h"
 #include "group_externs.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FC4).  The retail SYM shows the
- * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
- * (tools/psyq_pipe/simplemem_bysym.py). */
+/* SourceRecoveryUnresolved: reconstruction-only emitter for retail's unreferenced
+ * SimpleMem tag. Its original source/header producer is NOT established by SYM;
+ * this helper name is not supplied or exempted as a recovered inline function. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 
@@ -20,7 +20,7 @@ SerializedGroup * SerializedGroup::LocateNextGroupType(int type)
 {
   SerializedGroup *group;
 
-  group = (SerializedGroup *)((int)this + this->m_length);
+  group = (SerializedGroup *)((char *)this + this->m_length);
 
   if (group->m_type != type) {
     return (SerializedGroup *)0x0;
@@ -67,7 +67,7 @@ SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
 
       group->m_length += 4 - (group->m_length & 3);
     }
-    group = (SerializedGroup *)((int)group + group->m_length); }
+    group = (SerializedGroup *)((char *)group + group->m_length); }
 
 
 

@@ -49,10 +49,11 @@ extern GameSetup_tData GameSetup_gData;
 extern u_char (* Night_gCopColor[2])[256][8];
 extern u_char (* Night_gCurrentNightColor)[256][16];   /* matches owner def night.cpp @0x8013da48 (was stale u_char***) */
 extern char * Night_gNightTbl;
-/* P915: compatible incomplete outer array; native owner remains [2].
- * DrawW's original caller-bound spelling is absent from its SYM. This ordinary
- * interface preserves native address materialization without a false bound. */
-extern u_char (* Night_gWeatherLightingTable[])[256];
+/* Retail owner supplies two pointers to 256-byte tables (8 bytes total).
+ * This complete compatible declaration pairs with Night_NightCalc's restored
+ * source roles/guards; original caller-bound spelling is not uniquely supplied.
+ * Source/native and unchanged-code receipts: night_source_20261025. */
+extern u_char (* Night_gWeatherLightingTable[2])[256];
 extern Group * Object_customObjInst;
 extern Group * Object_customSimObjs;
 extern CTrackSpec TrackSpec_gSpec;

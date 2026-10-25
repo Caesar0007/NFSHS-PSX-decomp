@@ -145,25 +145,53 @@ void AllocArtResource(Track_tArtresource *artRes,int numPmx)
   artRes->shapeFile = (char *)0x0;
 }
 
-/* ---- InitArtResources__Fv  [TRACK.CPP:155-165] full SLD attribution requires native comparison ---- */
+/* ---- InitArtResources__Fv [TRACK.CPP:155-165] supplied SYM/SLD contract exact ---- */
+/* 2026-10-25: supplied frame/local/block/absolute word-file/header/end
+   contract verified at unchanged whole normal ELF/native CPE.
+   No new object, fake use/scope, asm/volatile or output rewrite.
+   Literal original source/comment text is not uniquely proved.
+   Receipts: build/nc12/track_teardown_source_20261025. */
 #line 153 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void InitArtResources(void)
 
 {
   AllocArtResource(&gInitialArt,0x352);
-  Track_materials = (Track_tMaterial *)BWAllocMem(0xd48);
-  return;
-}
 
-/* ---- DeInitArtResources__Fv  [TRACK.CPP:176-192] full SLD attribution requires native comparison ---- */
+
+
+
+
+
+
+
+  Track_materials = (Track_tMaterial *)BWAllocMem(0xd48); }
+
+/* ---- DeInitArtResources__Fv [TRACK.CPP:176-192] supplied SYM/SLD contract exact ---- */
+/* 2026-10-25: supplied frame/local/block/absolute word-file/header/end
+   contract verified at unchanged whole normal ELF/native CPE.
+   No new object, fake use/scope, asm/volatile or output rewrite.
+   Literal original source/comment text is not uniquely proved.
+   Receipts: build/nc12/track_teardown_source_20261025. */
 #line 174 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void DeInitArtResources(void)
 
 {
+
+
+
   gInitialArt.pPmx = (Draw_tPixMap *)0x0;
-  Chunk_DeInit();
-  return;
-}
+
+
+
+
+
+
+
+
+
+
+
+  Chunk_DeInit(); }
 
 /* ---- LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii [TRACK.CPP:225-359] ----
  * All211 word/file tags,19 regions and header/end match retail; supplied
@@ -321,90 +349,113 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
     pPmx = pPmx + 1;
   } }
 
-/* ---- LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii  [TRACK.CPP:375-394] full SLD attribution requires native comparison ---- */
+/* ---- LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii [TRACK.CPP:375-394] supplied SYM/SLD contract exact ---- */
+/* 2026-10-25: supplied frame/local/block/absolute word-file/header/end
+   contract verified at unchanged whole normal ELF/native CPE. Env-map i initializes from0, not recolor_flag.
+   No new object, fake use/scope, asm/volatile or output rewrite.
+   Literal original source/comment text is not uniquely proved.
+   Receipts: build/nc12/track_teardown_source_20261025. */
 #line 373 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int y)
 
 {
   int i;
   shapetbl *shape;
-  Draw_tPixMap *pPmx;
-  int recolor_flag;
+  Draw_tPixMap *pPmx = pmxList;
 
-  pPmx = pmxList;
-  recolor_flag = 0;
-  i = recolor_flag;
-  for (; i < (int)shapecount(shapefile); i++) {
+
+  int recolor_flag = 0;
+
+
+
+
+
+  for (i = 0; i < (int)shapecount(shapefile); i++) {
+
     shape = (shapetbl *)shapepointer(shapefile,i);
     if (shape != (shapetbl *)0x0) {
+
       Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag | 0x42,x,y,-1,-1,pPmx);
       pPmx = pPmx + 1;
-    }
-  }
-  return;
-}
+} } }
 
-/* ---- TexturesLoadInitial__Fv  [TRACK.CPP:405-465] full SLD attribution requires native comparison ---- */
+/* ---- TexturesLoadInitial__Fv [TRACK.CPP:405-465] supplied SYM/SLD contract exact; literal producer identity remains open ---- */
 /* MATCH: retail SYM exposes only `success` ($v0) and the scoped `tmpShapes`
    ($s0); branch-local calls preserve the shared path-builder tail. */
+/* 2026-10-25 coupled source recovery: success holds the actual shape-load
+   result, not the filename. Real palette initialization/file acquisition in
+   the shapecount argument replaces the synthetic zero-count loop and i.
+   All107 word/file tags,10 block records,2 local owners and header405/end465
+   match, with whole normal ELF/native CPE unchanged. No new object, guessed
+   helper name, dummy use/test, asm, volatile or empty-region padding.
+   SourceRecoveryUnresolved: the original inline/macro/header identity for
+   this receiver-free argument-work producer is not supplied by anonymous
+   retail regions. Its expanded spelling is not a unique-original-text claim.
+   Receipts: build/nc12/track_textures_source_20261025. */
 #line 403 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void TexturesLoadInitial(void)
 
 {
   int success;
 
-  if (GameSetup_gData.Time != 0) {
-    if (GameSetup_gData.Weather != 0) {
-      success = (int)Track_MakeTrackPathName("S0.psh");
-    }
-    else {
-      success = (int)Track_MakeTrackPathName("N0.psh");
-    }
+
+
+  if (GameSetup_gData.Time != 0) { if (GameSetup_gData.Weather != 0) {
+      success = (int)(gInitialArt.shapeFile = (char *)loadshapeadr(Track_MakeTrackPathName("S0.psh"),(void *)0x0));
+    } else {
+      success = (int)(gInitialArt.shapeFile = (char *)loadshapeadr(Track_MakeTrackPathName("N0.psh"),(void *)0x0));
+  } } else if (GameSetup_gData.Weather != 0) {
+    success = (int)(gInitialArt.shapeFile = (char *)loadshapeadr(Track_MakeTrackPathName("W0.psh"),(void *)0x0));
+  } else {
+    success = (int)(gInitialArt.shapeFile = (char *)loadshapeadr(Track_MakeTrackPathName("0.psh"),(void *)0x0));
   }
-  else if (GameSetup_gData.Weather != 0) {
-    success = (int)Track_MakeTrackPathName("W0.psh");
-  }
-  else {
-    success = (int)Track_MakeTrackPathName("0.psh");
-  }
-  if ((gInitialArt.shapeFile = (char *)loadshapeadr((char *)success,(void *)0x0)) !=
-      (char *)0x0) {
-    /* UNRESOLVED RECONSTRUCTION: this count-zero loop is not recovered source.
-       Retail has an empty inline pair at +0x8c, but ordinary field/address
-       getter substitutions change six rows at107/107 by exposing a different
-       full-address CSE graph. Its real operation/owner still needs recovery;
-       the empty-loop artifact is not accepted as an original-source exemption. */
-    {
-      int i = 0;
-      for (; i < 0; i++) { }
-    }
-    Texture_ResetPaletteSharing();
-    gInitialArt.shapeCount = (int)shapecount(gInitialArt.shapeFile);
+  if (success)
+  {
+    gInitialArt.shapeCount = (int)shapecount((
+    { Texture_ResetPaletteSharing();
+
+      gInitialArt.shapeFile; }));
+
     LoadShapesAndMakePmx(gInitialArt.shapeFile,gInitialArt.pPmx,0x40,0x100,0);
+
+
+
+
     gInitialArt.pPmx[gInitialArt.shapeCount] = *gSpikeBeltPixmap;
     gInitialArt.shapeCount = gInitialArt.shapeCount + 1;
+
+
+
     gInitialArt.pmxCount = gInitialArt.shapeCount;
     gInitialArt.basePmxCount = gInitialArt.shapeCount;
     purgememadr(gInitialArt.shapeFile);
   }
+
   else {
-    do {
-                    /* WARNING: Do nothing block with infinite loop */
-    } while( true );
-  }
+
+    for (;;) { } }
+
+
+
+
   Hrz_GetHorizonPixMap(gInitialArt.pPmx);
   {
     char *tmpShapes;
 
-    tmpShapes = (char *)loadshapeadr(Track_MakeTrackPathName("r.psh"),(void *)0x0);
-    if (tmpShapes != (char *)0x0) {
+
+
+
+    tmpShapes = (char *)loadshapeadr(Track_MakeTrackPathName("r.psh"),(void *)0x0); if (tmpShapes != (char *)0x0) {
+
+
+
+
+
       Texture_ResetPaletteSharing();
+
       LoadShapesAndMakePmx_EnvMap(tmpShapes,Track_gReflectionMaps,0x3e0,0);
-      purgememadr(tmpShapes);
-    }
-  }
-  return;
-}
+
+      purgememadr(tmpShapes); } } }
 
 /* ---- Track_AnimateTextures__Fv [TRACK.CPP:491-517] covered native/SYM/absolute SLD PASS; original offset spellings remain open ---- */
 /* SourceRecoveryUnresolved: uvOffset/frameOffset are semantic names for the
@@ -926,6 +977,8 @@ void CalcObjDefPtrs(void)
   Track_gObjDefs = objDefs; }
 
 /* ---- Track_InitPersistentData__FP15SerializedGroup [TRACK.CPP:1212-1292] ----
+ * Historical 2026-10-24 receipt; the diagnostics follow-up below supersedes
+ * its seven-region/tail backlog, not its original-literal-text uncertainty.
  * The actual material-call case work owns the supplied inline receiver at
  * depth7/path[0,1,0,0,0,0,0], not the old depth6. All6 supplied complete local
  * tuples now agree, at unchanged119 words/whole ELF/native CPE. The case's
@@ -939,6 +992,19 @@ void CalcObjDefPtrs(void)
  * No new object, asm/volatile, qualifier or output rewrite is introduced.
  * Receipts: build/nc12/track_persistent_source_20261024. Original macro/getter
  * text and the complete function source/SLD contract remain open. */
+/* 2026-10-25 persistent diagnostics/control source recovery: mobile raw
+   bytes confirm the two elements-count prints, actual Group count getter,
+   format bytes, offsets-case break and final Done persist print. Disabled
+   logging arguments recover the missing inline regions. The real case break
+   and for-owned counter recover the final region/statement endpoint split.
+   All119 word/file tags,44 block records,6 local-owner tuples and frame/
+   header1212/end1292 agree, with normal ELF/native CPE unchanged. No dummy
+   variable/test, invented helper, artificial return/scope, asm or volatile.
+   SourceRecoveryUnresolved: original PSX disabled-print macro/header identity
+   is not uniquely supplied. This function-local printf expansion records the
+   release behavior, not a libc/SDK ABI change or unique original header text.
+   Receipts: build/nc12/track_persistent_source_20261025. */
+#define printf (void)
 #line 1210 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_InitPersistentData(SerializedGroup *perGroup)
 
@@ -955,18 +1021,18 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
   }
   perGroup->LocateGroupType(8,0);
   count =
-    perGroup->m_num_elements;
+  perGroup->m_num_elements;
+
+
+
+  for (int i = 0; i < count; i = i + 1)
   {
-
-
-    int i = 0; while (i < count)
+    switch (persistentGroups[i]->m_type)
     {
-      switch (persistentGroups[i]->m_type)
-      {
 
       case 2: {
         Track_LinkMaterials(persistentGroups[i],persistentGroups[i]->GetDataLength(),
-                   Track_materials);
+        Track_materials);
 
 
 
@@ -974,55 +1040,57 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
 
 
       }
-        break;
+      break;
 
 
       case 0xf:
-        BWorldSm_Init(persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem));
+      BWorldSm_Init(persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem));
 
 
-        break;
+      break;
 
 
       case 0x24:
-        gPersistMidgroundObjInst = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+      gPersistMidgroundObjInst = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
 
 
-        break;
+      break;
 
 
       case 7:
-        gPersistObjInst = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+      gPersistObjInst = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
 
 
-        break;
+      break;
 
       case 8:
-        gPersistObjDef =
-             persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
-
-
-        break;
-
-
-      case 0x26:
-        gObjDefOffsetsGroup = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
-
-
-      default: break;
-
-
-
+      {
+        gPersistObjDef = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem); printf("gPersistObjDef(%x) elements(%d)\n",gPersistObjDef,gPersistObjDef->GetNumElements());
 
       }
-      i = i + 1; }
+      break;
+
+
+      case 0x26: {
+        gObjDefOffsetsGroup = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
+        printf("gObjDefOffsetsGroup(%x) elements(%d)\n",gObjDefOffsetsGroup,gObjDefOffsetsGroup->GetNumElements());
+      }
+      break;
+      default:
+      printf("Unrecognized group!!!!!\n");
+
+      break;
+    }
   }
+
   if (gObjDefOffsetsGroup != (Group *)0x0) {
 
 
     CalcObjDefPtrs();
-  }
+  } else printf("ERROR!!!!!! misssing object def offsets.\n");
+  printf("Done persist\n");
 }
+#undef printf
 
 /* ---- Track_Init__FPc [TRACK.CPP:1312-1475] covered native locals/regions/absolute SLD PASS; literal source spelling not certified ---- */
 /* Real SimpleMem construction below owns the supplied inline size parameter.
@@ -1212,41 +1280,74 @@ void Track_Init(char *tempName)
   Track_LoadObjectKillData(); return;
 }
 
-/* ---- Track_DeInit__Fv  [TRACK.CPP:1492-1533] full SLD attribution requires native comparison ---- */
+/* ---- Track_DeInit__Fv [TRACK.CPP:1492-1533] supplied SYM/SLD contract exact ---- */
+/* 2026-10-25: supplied frame/local/block/absolute word-file/header/end
+   contract verified at unchanged whole normal ELF/native CPE.
+   No new object, fake use/scope, asm/volatile or output rewrite.
+   Literal original source/comment text is not uniquely proved.
+   Receipts: build/nc12/track_teardown_source_20261025. */
 #line 1490 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_DeInit(void)
 
 {
   delete Track_mem;
+
+
   if (Track_gSaveSurface != (SaveSurface *)0x0) {
+
     delete Track_gSaveSurface;
     Track_gSaveSurface = (SaveSurface *)0x0;
   }
+
   if (gInitialArt.shapeFile != (char *)0x0) {
+
+
+
+
     gInitialArt.shapeFile = (char *)0x0;
   }
+
   BWorldSm_DeInit();
+
   DeInitArtResources();
+
   if (Chunk_lightTable != (CVECTOR *)0x0) {
+
     purgememadr(Chunk_lightTable);
     Chunk_lightTable = (CVECTOR *)0x0;
   }
+
+
+
+
+
+
+
+
   if (gPersistObjDefBoundingSpheres != (Group *)0x0) {
-    purgememadr(gPersistObjDefBoundingSpheres);
-  }
+    purgememadr(gPersistObjDefBoundingSpheres); }
   gPersistObjDefBoundingSpheres = (Group *)0x0;
+
   gPersistMidgroundObjInst = (Group *)0x0;
   gPersistObjInst = (Group *)0x0;
-  gPersistObjDef = (Group *)0x0;
-  return;
-}
+  gPersistObjDef = (Group *)0x0; return; }
 
-/* ---- Track_AnimateTrackLighting__Fv  [TRACK.CPP:1537-1544] full SLD attribution requires native comparison ---- */
+/* ---- Track_AnimateTrackLighting__Fv [TRACK.CPP:1537-1544] supplied SYM/SLD contract exact ---- */
+/* 2026-10-25: supplied frame/local/block/absolute word-file/header/end
+   contract verified at unchanged whole normal ELF/native CPE.
+   No new object, fake use/scope, asm/volatile or output rewrite.
+   Literal original source/comment text is not uniquely proved.
+   Receipts: build/nc12/track_teardown_source_20261025. */
 #line 1535 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_AnimateTrackLighting(void)
 
 {
-  return;
+
+
+
+
+
+
 }
 
 /* ---- KillFile_OpenRead__Fv  [TRACK.CPP:1720-1726] full SLD attribution requires native comparison ---- */
@@ -1273,92 +1374,136 @@ void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
   objectInd = *(int *)(filePtr + 8);
 }
 
-/* ---- Track_LoadObjectKillData__Fv [retail TRACK.CPP:1742-1821; full SLD attribution open] ---- */
+/* ---- Track_LoadObjectKillData__Fv [retail TRACK.CPP:1742-1821; supplied SYM/SLD contract exact] ---- */
+/* 2026-10-25 loader source/layout:86 absolute word/file tags,16 complete
+   local-owner tuples,38 block records and header1742/end1821 match retail.
+   The actual pointer advance precedes index increment; a real null-group
+   else/continue preserves distinct arm/selection endpoints. No new object,
+   asm, volatile, placeholder or artificial scope. Historical notes follow;
+   literal original macro/comment text is not uniquely proved.
+   Receipts: build/nc12/track_kill_source_20261025. */
+/* Retail orders the depth6 GetData receiver before the depth7
+         GetNumElements bounds-check receiver. The invalid-index continue
+         avoids an extra owning if level for index/simGroup and descendants.
+         All19 native scopes match; original text/full SLD remain open. */
+
+/* SYM-INLINE-THIS: GetData
+             * SYM-INLINE-THIS: GetNumElements
+             * Retail SLD line 44 records both inline receivers together at
+             * 0x800bae84, matching these two Group member calls. */
 #line 1740 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_LoadObjectKillData(void)
 
 {
-  char *filePtr;
-  int chunkInd;
-  int objInd;
+  char *filePtr; int chunkInd; int objInd;
+
+
 
   filePtr = KillFile_OpenRead();
   if (filePtr == (char *)0x0) return;
+
+
+
+
   for (int i = 0; i < *(int *)filePtr; i = i + 1) {
-    Chunk *chunkDat;
-    Group *group;
-
+    Chunk *chunkDat; Group *group;
     KillFile_ReadEntry(filePtr,i,chunkInd,objInd);
+
+
+
+
+
     chunkDat = Track_chunkList + chunkInd;
+
     group = chunkDat->objInstanceBuf;
-    if (group != (Group *)0x0) {
+
+    if (group != (Group *)0x0)
+    {
       Trk_SimpleInst *inst;
+      inst = (Trk_SimpleInst *)group->GetData();
+      if (objInd >= group->GetNumElements()) continue;
+      { int index;
 
-      /* Retail orders the depth6 GetData receiver before the depth7
-         GetNumElements bounds-check receiver. The invalid-index continue
-         avoids an extra owning if level for index/simGroup and descendants.
-         All19 native scopes match; original text/full SLD remain open. */
-        inst = (Trk_SimpleInst *)group->GetData();
-        if (objInd >= group->GetNumElements()) continue;
 
-        {
-          int index;
 
-          index = 0;
-          while (index < objInd) {
-            index = index + 1;
-            inst = (Trk_SimpleInst *)((char *)inst + inst->size);
-          }
-        }
 
-        {
-          Group *simGroup;
 
-          simGroup = chunkDat->simObjBuf;
-          if (simGroup != (Group *)0x0) {
-            Trk_SimObject *simObjs;
-            int numElements;
+        index = 0;
+        while (index < objInd) {
 
-            /* SYM-INLINE-THIS: GetData
-             * SYM-INLINE-THIS: GetNumElements
-             * Retail SLD line 44 records both inline receivers together at
-             * 0x800bae84, matching these two Group member calls. */
-            simObjs = (Trk_SimObject *)simGroup->GetData();
-            numElements = simGroup->GetNumElements();
+          inst = (Trk_SimpleInst *)((char *)inst + inst->size);
+          index = index + 1;
+      } }
 
-            {
-              int j;
+      {
+        Group *simGroup; simGroup = chunkDat->simObjBuf;
+        if (simGroup != (Group *)0x0) {
+          Trk_SimObject *simObjs; int numElements;
 
-              j = 0;
-              while (j < numElements) {
-                if (Math_DistXZ((coorddef *)&simObjs[j],
-                                (coorddef *)&inst->x) < 0x1999) {
-                  simObjs[j].type = 0x10;
-                }
-                j = j + 1;
+          simObjs = (Trk_SimObject *)simGroup->GetData(); numElements = simGroup->GetNumElements();
+
+          { int j;
+
+            j = 0;
+            while (j < numElements) {
+
+              if (Math_DistXZ((coorddef *)&simObjs[j], (coorddef *)&inst->x) < 0x1999) {
+
+
+                simObjs[j].type = 0x10;
               }
-            }
-          }
-        }
-        inst->type = inst->type | 0x80;
+
+
+              j = j + 1;
+      } } } }
+
+
+
+
+
+
+      inst->type = inst->type | 0x80;
     }
+
+
+    else continue;
+
+
   }
+
   purgememadr(filePtr);
   return;
 }
 
-/* ---- Save  [TRACK.CPP:1831-1850] full SLD attribution requires native comparison ---- */
+/* ---- Save [TRACK.CPP:1831-1850] supplied SYM/SLD contract exact ---- */
+/* 2026-10-25: supplied fCount/fMaxCount/fStack and tSaveSurface members
+   replace raw this-relative short/int/byte casts. Preserve retail's actual
+   equality boundary: reject only fCount > fMaxCount, then test simQuad.
+   All25 words, both local/parameter owners,2 block records and complete
+   absolute SLD/header1831/end1850 agree; whole ELF/native CPE unchanged.
+   Receipts: build/nc12/track_surface_source_20261025. */
 #line 1829 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void SaveSurface::Save(Trk_NewSimQuad *simQuad)
 
 {
+  if (fCount > fMaxCount) return;
 
-  if (((int)*((short *)this) <= (int)((short *)this)[1]) && (simQuad != (Trk_NewSimQuad *)0x0)) {
-    *(Trk_NewSimQuad **)(*((short *)this) * 8 + *(int *)(((short *)this) + 2)) = simQuad;
-    *(u_char *)(*((short *)this) * 8 + *(int *)(((short *)this) + 2) + 4) = simQuad->surface;
-    *((short *)this) = *((short *)this) + 1;
+
+
+
+
+
+
+  if (simQuad != (Trk_NewSimQuad *)0x0) {
+
+    fStack[fCount].fSimQuad = simQuad;
+    fStack[fCount].fSurface = simQuad->surface;
+    fCount = fCount + 1;
   }
-  return;
+
+
+
+
 }
 
 /* ---- SaveSurface  [TRACK.CPP:1855-1858] full SLD attribution requires native comparison ---- */
@@ -1414,26 +1559,24 @@ SaveSurface::~SaveSurface()
   purgememadr(fStack);
 }
 
-/* ---- RestoreAll [retail TRACK.CPP:1871-1879; full SLD attribution open] ---- */
+/* ---- RestoreAll [retail TRACK.CPP:1871-1879; supplied SYM/SLD contract exact] ---- */
+/* 2026-10-25: real for-owned i ends before the final fCount clear.
+   The delayed clear's instruction address alone did not prove lexical
+   ownership. All27 words,2 supplied local/parameter tuples,4 block records
+   and absolute SLD/header1871/end1879 agree; whole ELF/native CPE unchanged.
+   No fake scope, new object, asm/volatile or output rewrite is introduced.
+   Receipts: build/nc12/track_surface_source_20261025. */
 #line 1869 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void SaveSurface::RestoreAll()
 
 {
-  {
-  int i;
+  for (int i = 0; i < fCount; i = i + 1) {
 
-  i = 0;
-  if (0 < this->fCount) {
-    do {
-      (this->fStack[i].fSimQuad)->surface = this->fStack[i].fSurface;
-      this->fStack[i].fSimQuad = (Trk_NewSimQuad *)0x0;
-      this->fStack[i].fSurface = '\0';
-      i = i + 1;
-    } while (i < this->fCount);
+    fStack[i].fSimQuad->surface = fStack[i].fSurface;
+    fStack[i].fSimQuad = (Trk_NewSimQuad *)0x0;
+    fStack[i].fSurface = '\0';
   }
-  this->fCount = 0;
-  }
-  return;
-}
+
+  fCount = 0; }
 
 /* end of track.cpp */

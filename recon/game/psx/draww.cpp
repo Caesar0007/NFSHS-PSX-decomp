@@ -84,7 +84,7 @@ void DrawW_DivVertice(Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2);
 void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv);
 void DrawW_SetUpSubdividFacet(int face,Draw_tGiveShelbyMoreCache *sd);
 void Night_NightCopCalc(VECTOR *v,short *idx);
-/* w45-a6 RECEIPT -- residual 2 (count-exact 57/57).  The ONLY diff is the position
+/* Historical w45-a6 controls, superseded 2026-10-25: real index/guards/[2] remove the workaround.
  * of `lbu v0,269(a2)` (sd->night_LightningType): the oracle issues it BEFORE the
  * lui/addiu %hi/%lo split of Night_gWeatherLightingTable, we issue it between the
  * two halves.  Both fill the same load-delay slot; it is a sched luid tie.
@@ -345,10 +345,11 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd);
 void DepthCue_Init(void);
 
 
-/* ---- DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:235-282] SLD-VERIFIED ---- */
+/* ---- DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:235-282] covered SLD requires native comparison ---- */
 /* Canonical PsyQ P_TAG carrier from psyq_prim_macros.h. */
 #define DrawW_PTag P_TAG
 
+#line 232 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2,Draw_SVertex *v3,
                Draw_tGiveShelbyMoreCache *sd)
 
@@ -378,7 +379,8 @@ void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
   return;
 }
 
-/* ---- DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:316-357] SLD-VERIFIED ---- */
+/* ---- DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:316-357] covered SLD requires native comparison ---- */
+#line 313 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2,
                Draw_tGiveShelbyMoreCache *sd)
 
@@ -407,7 +409,8 @@ void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
   return;
 }
 
-/* ---- DrawW_DivVertice__FP12Draw_SVertexN20  [DRAWW.CPP:387-398] SLD-VERIFIED ---- */
+/* ---- DrawW_DivVertice__FP12Draw_SVertexN20  [DRAWW.CPP:387-398] covered SLD requires native comparison ---- */
+#line 385 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DivVertice(Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2)
 
 {
@@ -422,7 +425,8 @@ void DrawW_DivVertice(Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2)
   return;
 }
 
-/* ---- DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31  [DRAWW.CPP:402-418] SLD-VERIFIED ---- */
+/* ---- DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31  [DRAWW.CPP:402-418] covered SLD requires native comparison ---- */
+#line 399 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2,
               Draw_SVertex *v3)
 
@@ -473,7 +477,7 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
   return 3;
 }
 
-/* ---- DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss  [DRAWW.CPP:425-590] SLD-VERIFIED ----
+/* ---- DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss  [DRAWW.CPP:425-590] covered SLD requires native comparison ----
  * MATCH (2026-07-10 SYM-structure rewrite, 3.8b): the SYM 8c block is the variable map --
  *   r_div ($s0, fn-scope) = &gDiv held across the CalcSubdivision call; midpoints are REAL
  *   Draw_SVertex* locals v4($s3) v5($s5) v6($s7) v7($s6) v8(AUTO 0x48) in the line-28 block;
@@ -519,6 +523,7 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
  * minimal +1-ref / -1-live delta; for (b) the natural zero-insn inflator is one more
  * reference to `prim` (e.g. reading back a field of the just-linked prim) which also
  * lengthens its range across the call and forces the callee-saved home + the copy. */
+#line 422 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Draw_SVertex *v1,
                Draw_SVertex *v2,Draw_SVertex *v3,short n,short subDivide)
 
@@ -1046,7 +1051,8 @@ DrawWSubdiv_edgedone:
   }
 }
 
-/* ---- DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR  [DRAWW.CPP:593-606] SLD-VERIFIED ---- */
+/* ---- DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR  [DRAWW.CPP:593-606] covered SLD requires native comparison ---- */
+#line 591 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
 
 {
@@ -1075,7 +1081,8 @@ void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
   return;
 }
 
-/* ---- DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:612-696] SLD-VERIFIED ---- */
+/* ---- DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:612-696] covered SLD requires native comparison ---- */
+#line 610 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_SetUpSubdividFacet(int face,Draw_tGiveShelbyMoreCache *sd)
 
 {
@@ -1215,7 +1222,8 @@ DrW_SubSetup_callSubdiv:
   return;
 }
 
-/* ---- Night_NightCopCalc__FP6VECTORPs  [DRAWW.CPP:711-744] SLD-VERIFIED ---- */
+/* ---- Night_NightCopCalc__FP6VECTORPs  [DRAWW.CPP:711-744] covered SLD requires native comparison ---- */
+#line 709 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void Night_NightCopCalc(VECTOR *v,short *idx)
 
 {
@@ -1270,11 +1278,16 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
   return;
 }
 
-/* ---- Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:750-788] SLD-VERIFIED ---- */
-void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
-
-{
-  /* PARTIAL MATCH / STRUCTURAL FIX, RESIDUAL REGRESSED NUMERICALLY (2026-07-04, was 75
+/* ---- Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:750-788] covered SLD requires native comparison ---- */
+/* MATCH/source recovery 2026-10-25: root index is the real final night-table
+ * value in a0, not an unused placeholder or the lightning type. Correct guard
+ * ownership plus the known two-entry weather table removes lt and both artificial
+ * loops. All57 words/frame,10 complete locals and full absolute SLD agree.
+ * Caller-bound spelling is not uniquely original; [2] matches the known owner.
+ * ELF code/data/relocations are unchanged; three undefined-symbol IDs reorder.
+ * Source/native receipts: build/nc12/night_source_20261025. Historical controls
+ * below are superseded, not source-object necessity or compiler-floor claims. */
+/* PARTIAL MATCH / STRUCTURAL FIX, RESIDUAL REGRESSED NUMERICALLY (2026-07-04, was 75
      diffs 66-vs-57 insns -> now 77 diffs, STILL 66-vs-57 insns): SYM (nfs4-f-v3.txt
      @0x800C5FB8) names FOUR outer-scope locals -- `z`(v->vz), `index`(unused/optimized-
      out at this opt level), `znear`(night_ZNear), `zfar` -- and nests `x`/`xdist` one
@@ -1306,16 +1319,8 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
      per the raw oracle (§1 authority: raw wins for delay-slot behavior) even though the
      diff count is numerically worse than the prior (structurally wrong) version;
      candidate for permuter or accept as the faithful-but-not-yet-coloring-matched form. */
-  int z;
-  int index;
-  int znear;
-  int zfar;
 
-  z = v->vz;
-  znear = (int)sd->night_ZNear;
-  zfar = znear + (1 << (sd->night_ZDistShift + 6));
-  if (sd->night_DrawLightning != '\0') {
-    /* MATCH (w50-a2; pure-C fence DRAW 2026-10-04): the lui/addiu that materializes
+/* MATCH (w50-a2; pure-C fence DRAW 2026-10-04): the lui/addiu that materializes
        &Night_gWeatherLightingTable must issue AFTER the `lbu $v0,269($a2)` index load,
        and the index must win $v0 (address $v1).  The former identity-launder asm on
        `lt` did both.  Its replacement: the index load inside TWO nested do{}while(0)
@@ -1325,38 +1330,56 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
        swaps v0/v1 (21 diffs @58); absorption `lt|(lt&1)` at the use lets the lui float
        back above the lbu (2 diffs); FALSIFIED earlier: plain split (2), use-only fence
        (21 @58), void fence (2), index-first cast, row pointer, u_char/short/u_int lt. */
-    int lt;
-    do { do { lt = sd->night_LightningType; } while (0); } while (0);
-    *idx = (u_short)(*Night_gWeatherLightingTable[lt])[*idx];
-  }
-  if (znear < z) {
-    if (z < zfar) {
-      int x;
-      int xdist;
 
-      x = v->vx;
-      xdist = 1 << (sd->night_XDistShift + 5);
-      if (-xdist < x) {
-        if (x < xdist) {
-          int lookup;
-
-          /* MATCH: oracle SELF-MUTATES z/x in place (subu a3,a3,t0 in the beqz delay
+/* MATCH: oracle SELF-MUTATES z/x in place (subu a3,a3,t0 in the beqz delay
              slot / addu a0,a0,v1 / srav in place) and derefs Night_gCurrentNightColor
              ONCE (u_char (*)[256][16]: base + *idx*16 + byte). */
-          z = z - znear;
-          x = x + xdist;
-          x = x >> sd->night_XDistShift;
-          z = z >> sd->night_ZDistShift;
-          lookup = (z << 6) + x;
-          *idx = (u_short)(*Night_gCurrentNightColor)[*idx][(u_char)Night_gNightTbl[lookup]];
-        }
-      }
-    }
-  }
-  return;
-}
 
-/* ---- DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32  [DRAWW.CPP:802-894] SLD-VERIFIED ---- */
+#line 748 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
+
+{
+  int z; int index; int znear; int zfar;
+
+  z = v->vz;
+
+
+
+  znear = (int)sd->night_ZNear;
+  zfar = znear + (1 << (sd->night_ZDistShift + 6));
+
+  if (sd->night_DrawLightning != '\0') {
+    *idx = (u_short)(*Night_gWeatherLightingTable[sd->night_LightningType])[*idx];
+  }
+
+  if (znear < z && z < zfar)
+  {
+    int x; int xdist;
+
+    xdist = 1 << (sd->night_XDistShift + 5);
+
+    x = v->vx;
+
+    if (-xdist < x && x < xdist)
+    {
+      int lookup;
+
+      z = z - znear;
+
+      z = z >> sd->night_ZDistShift;
+
+      x = x + xdist;
+
+      x = x >> sd->night_XDistShift;
+
+
+      lookup = (z << 6) + x;
+      index = (u_char)Night_gNightTbl[lookup];
+
+      *idx = (u_short)(*Night_gCurrentNightColor)[*idx][index]; } } return; }
+
+/* ---- DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32  [DRAWW.CPP:802-894] covered SLD requires native comparison ---- */
+#line 800 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 *vt0,CCOORD16 *vt1,
                CCOORD16 *vt2,CCOORD16 *vt3)
 {
@@ -1494,7 +1517,8 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
    instruction (catalog SS.A "live-range-lengthening read"), or find the remaining
    4-insn excess (596 vs 592) that inflates sd's span.  Do NOT grind the caller-saved
    permutations before this flips -- they are downstream of it.
-   ---- DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad  [DRAWW.CPP:930-1297] SLD-VERIFIED ---- */
+   ---- DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad  [DRAWW.CPP:930-1297] covered SLD requires native comparison ---- */
+#line 928 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
 
 {
@@ -2244,7 +2268,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
   return;
 }
 
-/* ---- DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:1302-1324] SLD-VERIFIED ---- */
+/* ---- DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:1302-1324] covered SLD requires native comparison ---- */
+#line 1300 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
 
 {
@@ -2284,11 +2309,16 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
   return;
 }
 
-/* ---- DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:1331-1375] SLD-VERIFIED ---- */
-void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
-
-{
-  /* MATCH: SYM (nfs4-f-v3.txt @0x800C6EB8) names `r0`,`r1` sharing ONE register ($v0) and
+/* ---- DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:1331-1375] covered SLD requires native comparison ---- */
+/* MATCH/partial source recovery 2026-10-25: real strip/quad work lifetimes and
+ * endpoint calculations1357..1360 restore all9 supplied complete tuples,
+ * including r1 (previously absent), with all58 words/frame/branches unchanged.
+ * All58 instruction tags agree; one packet block-end line and EXTRA pMaterial
+ * remain unresolved. No distinct original cursor object/name is proved.
+ * Historical allocation/scheduler controls below describe earlier basins,
+ * not current source-object exemptions or compiler floors.
+ * Receipts: build/nc12/draww_strip_source_20261025. */
+/* MATCH: SYM (nfs4-f-v3.txt @0x800C6EB8) names `r0`,`r1` sharing ONE register ($v0) and
      `r2`,`r3` sharing ANOTHER ($v1) in the innermost block -- i.e. topVert/iquad is loaded
      ONCE into r0, reused for BOTH aPoints[1]=r0 and aPoints[0]=r0+1 (assigned to r1); same
      for botVert into r2/r3 -> aPoints[2]=r2, aPoints[3]=r3=r2+1. The previous version
@@ -2307,50 +2337,62 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
      consumer sb lands in the jal delay slot = longest path), oracle keeps it after
      `r1=r0+1`. 4 load/add placement variants all converge to the same 2; late-loading
      botVert regresses (+nop). Scheduler-priority artifact -> permuter candidate. */
-  int r0;
-  int r1;
-  int r2;
-  int r3;
-  int iquad;
-  int numQuads;
+
+/* Historical material-cursor control; not an original-object exemption -- dedicated +4 halfword cursor is required for the retail inner-loop addressing/allocation */
+
+/* in-place increment (r0 dead after); r1 takes the result */
+
+#line 1329 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
+
+{
   Trk_NewStrip *stripPtr;
-  u_short *pMaterial; /* SYM-CODEGEN-CARRIER: pMaterial -- dedicated +4 halfword cursor is required for the retail inner-loop addressing/allocation */
-  Trk_Quad newQuad;
+
+
+
+  sd->doublelayer = 1;
 
   stripPtr = sd->stripPtr;
-  sd->doublelayer = 1;
-  while( true ) {
-    sd->numStrips = sd->numStrips + -1;
-    iquad = 0;
-    if (sd->numStrips == -1) break;
-    numQuads = (int)(u_int)(u_char)stripPtr->quadCount;
-    pMaterial = (u_short *)((char *)stripPtr + 4);
-    while (true) {
-      if (numQuads <= iquad) break;
-      if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
-        newQuad.material = *pMaterial;
-        r0 = stripPtr->topVert;
-        r2 = stripPtr->botVert;
-        r0 = r0 + iquad;
-        newQuad.aPoints[1] = (u_char)r0;
-        r0 = r0 + 1;   /* in-place increment (r0 dead after); r1 takes the result */
-        r1 = r0;
-        r2 = r2 + iquad;
-        newQuad.aPoints[2] = (u_char)r2;
-        r3 = r2 + 1;
-        newQuad.aPoints[0] = (u_char)r1;
-        newQuad.aPoints[3] = (u_char)r3;
-        DrawW_DrawQuad(sd,&newQuad);
-      }
-      pMaterial = pMaterial + 1;
-      iquad = iquad + 1;
-    }
-    stripPtr = (Trk_NewStrip *)(&stripPtr->topVert + (u_char)stripPtr->size);
-  }
-  return;
-}
 
-/* ---- DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry  [DRAWW.CPP:1390-1654] SLD-VERIFIED ---- */
+  while (true) { int numQuads; sd->numStrips = sd->numStrips + -1; if (sd->numStrips == -1) break;
+
+
+
+    numQuads = (int)(u_int)(u_char)stripPtr->quadCount;
+    { int iquad = 0; u_short *pMaterial = (u_short *)(stripPtr + 1); /* SourceRecoveryUnresolved: named cursor/producer is unprovided; packet block-end line also remains open. */ while (true) { if (numQuads <= iquad) break;
+
+
+      if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr)
+      {
+        Trk_Quad newQuad; int r0; int r1; int r2; int r3;
+
+
+
+
+        newQuad.material = *pMaterial;
+
+        r0 = stripPtr->topVert + iquad;
+        r1 = r0 + 1;
+        r2 = stripPtr->botVert + iquad;
+        r3 = r2 + 1;
+
+        newQuad.aPoints[1] = (u_char)r0;
+        newQuad.aPoints[0] = (u_char)r1;
+        newQuad.aPoints[2] = (u_char)r2;
+        newQuad.aPoints[3] = (u_char)r3;
+
+        DrawW_DrawQuad(sd,&newQuad); }
+
+
+
+
+
+      pMaterial = pMaterial + 1; iquad = iquad + 1; }
+    }
+    stripPtr = (Trk_NewStrip *)(&stripPtr->topVert + (u_char)stripPtr->size); } return; }
+
+/* ---- DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry  [DRAWW.CPP:1390-1654] covered SLD requires native comparison ---- */
+#line 1388 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 {
@@ -2923,7 +2965,8 @@ DrawWTrough_setStateCallHigh:
   }
 }
 
-/* ---- DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX  [DRAWW.CPP:1663-1670] SLD-VERIFIED ---- */
+/* ---- DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX  [DRAWW.CPP:1663-1670] covered SLD requires native comparison ---- */
+#line 1661 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat)
 
 {
@@ -2973,7 +3016,8 @@ gte_SetRotMatrix(mat);
   return;
 }
 
-/* ---- DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX  [DRAWW.CPP:1674-1684] SLD-VERIFIED ---- */
+/* ---- DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX  [DRAWW.CPP:1674-1684] covered SLD requires native comparison ---- */
+#line 1672 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_WorldSetUpTranslation(coorddef *t,MATRIX *mat)
 
 {
@@ -2991,7 +3035,8 @@ gte_SetTransMatrix(mat);
   return;
 }
 
-/* ---- DrawW_ResetAnimationTimer__Fv  [DRAWW.CPP:1698-1700] SLD-VERIFIED ---- */
+/* ---- DrawW_ResetAnimationTimer__Fv  [DRAWW.CPP:1698-1700] covered SLD requires native comparison ---- */
+#line 1697 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_ResetAnimationTimer(void)
 {
   for (int i = 0xb; i >= 0; i--) {
@@ -3006,42 +3051,83 @@ void DrawW_ResetAnimationTimer(void)
  * This operand order matches NFS2's nfs2.h MIN expansion; the original macro
  * invocation is not uniquely known. All 33 words, three native scopes and
  * the complete SLD partition match without the old result/tick carriers. */
+#line 1703 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 {
-  int track;
-  track = GameSetup_gData.track;
+  int track = GameSetup_gData.track;
+
+
+
+
+
   if (((animInst->objectIndex == 0) || (track == 3)) || (track == 7)) {
     return simGlobal.gameTicks;
   }
-  else {
-    int maxTick;
+  else { int maxTick;
     maxTick = (animInst->count - 2) * (int)animInst->interval;
     return ((maxTick > animation_timer[animInst->objectIndex - 1]) ? animation_timer[animInst->objectIndex - 1] : maxTick);
   }
 }
 
-/* ---- DrawW_SetAnimationTime__FP15Trk_AnimateInstPii  [DRAWW.CPP:1721-1779] SLD-VERIFIED ---- */
+/* ---- DrawW_SetAnimationTime__FP15Trk_AnimateInstPii  [DRAWW.CPP:1721-1779] covered SLD requires native comparison ---- */
+#line 1720 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
 {
-  int objIndex;
+  int objIndex = animInst->objectIndex - 1;
 
-  objIndex = animInst->objectIndex - 1;
-  if (0xf00 < animation_timer[objIndex]) {
+
+  if (0xf00 < animation_timer[objIndex])
+  {
+
     for (int i = 0; i < Cars_gNumHumanRaceCars; i++) {
+
       int slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
+
       if ((slice < (table + objIndex * 2)[0]) || ((table + objIndex * 2)[1] < slice)) {
+
         animation_timer[objIndex] = 0;
       }
+
+
+
     }
   }
-  else {
-    if (0 < animation_timer[objIndex]) {
+
+  else { if (0 < animation_timer[objIndex]) {
+
       animation_timer[objIndex] = animation_timer[objIndex] + 1;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     else {
+
       for (int i = 0; i < Cars_gNumHumanRaceCars; i++) {
+
         int slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
+
         if (((table + objIndex * 2)[0] <= slice) && (slice <= (table + objIndex * 2)[1])) {
+
+
+
+
           animation_timer[objIndex] = animation_timer[objIndex] + 1;
         }
       }
@@ -3049,37 +3135,42 @@ void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
   }
 }
 
-/* ---- DrawW_DoObjectAnimations__Fv  [DRAWW.CPP:1784-1805] SLD-VERIFIED ---- */
+/* ---- DrawW_DoObjectAnimations__Fv  [DRAWW.CPP:1784-1805] covered SLD requires native comparison ---- */
+#line 1783 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoObjectAnimations(void)
 {
-  int track;
+  int track = GameSetup_gData.track;
   int *trackPtr;
 
-  track = GameSetup_gData.track;
+
   if (track == 0) {
     trackPtr = trk0[0];
-  }
-  else {
-    if (track != 4) {
-      return;
-    }
+  } else { if (track != 4) { return; }
     trackPtr = trk4[0];
   }
+
+
+
   {
     int time = simGlobal.gameTicks;
     for (int i = 0; i < 0x10; i++) {
+
       if (Anim_gInstanceFromIndex[i]->objectIndex != '\0') {
-        DrawW_SetAnimationTime(Anim_gInstanceFromIndex[i],trackPtr,time);
-      }
+        DrawW_SetAnimationTime(Anim_gInstanceFromIndex[i],trackPtr,time); }
     }
   }
 }
 
-/* ---- DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo  [DRAWW.CPP:1909-2048] SLD-VERIFIED ---- */
-int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
-
-{
-  /* rule-8 SYM rewrite (w44-a7): SYM 8c block @0x800C78A8 names EVERY local and
+/* ---- DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo [DRAWW.CPP:1909-2048] partial source/SYM restoration; full SLD open ---- */
+/* MATCH/source recovery 2026-10-25: real for ownership plus success/skip work
+ * reproduces all189 words/frame168 with no oi/zo/g/gg, dead-set/restore or
+ * one-iteration note-fence loop. Supplied complete tuples13->16/18; cp/pt2
+ * owners, animType and three unprovided labels remain open. Prior local/
+ * address-path region/type facts survive. The header/source anchors below
+ * restore known coordinates, not literal original text. Selected-stock and
+ * native receipts: build/nc12/draww_spill_origin_20261025.
+ * Historical controls below describe earlier basins, not source exemptions. */
+/* rule-8 SYM rewrite (w44-a7): SYM 8c block @0x800C78A8 names EVERY local and
      fixes both the register map and the AUTO SLOT ORDER:
        Vi REGPARM $0x17=$s7 · gObjInfo REGPARM $5=$a1
        sd $0x1e=$fp · objInstance $0x10=$s0 · objDef $0x11=$s1 · totalCount $0x15=$s5
@@ -3091,25 +3182,40 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      slots the pseudos in the order the decls are reached, w41): the old order
      (groupNumElements, visList, offset, doFrustumClip) put gObjInfo->offset at
      112(sp) and visList at 108(sp) where the oracle has 108/116. */
-  Draw_DCache *sd;                 /* $fp   -- the 0x1F800000 scratchpad cache */
-  Trk_SimpleInst *objInstance;     /* $s0 */
-  Trk_ObjectDef *objDef;           /* $s1 */
-  int totalCount;                  /* $s5 */
-  Group *group;                    /* $v0 */
-  int groupNumElements;            /* AUTO -0x40 -> 104(sp) */
-  int offset;                      /* AUTO -0x3c -> 108(sp) */
-  int doFrustumClip;               /* AUTO -0x38 -> 112(sp) */
-  int zClipSq;                     /* $s6 */
-  short *visList;                  /* AUTO -0x34 -> 116(sp) */
-  int objectIndex;                 /* $s4 (SYM block line 16) */
-  int objectOffset;                /* $s2 (SYM block line 25) */
-  matrixtdef matrix;               /* AUTO -0x88 -> 32(sp) */
-  coorddef cp;                     /* AUTO -0x60 -> 72(sp) */
-  coorddef pt2;                    /* AUTO -0x50 -> 88(sp) */
-  int animType;                    /* SYM-CODEGEN-CARRIER: animType -- direct field tests are FAIL 2 (189/189; sltiu vs retail slti) */
 
-  
-  /* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
+/* $fp   -- the 0x1F800000 scratchpad cache */
+
+/* $s0 */
+
+/* $s1 */
+
+/* $s5 */
+
+/* $v0 */
+
+/* AUTO -0x40 -> 104(sp) */
+
+/* AUTO -0x3c -> 108(sp) */
+
+/* AUTO -0x38 -> 112(sp) */
+
+/* $s6 */
+
+/* AUTO -0x34 -> 116(sp) */
+
+/* objectIndex belongs to the nonempty group work region below. */
+
+/* $s2 (SYM block line 25) */
+
+/* AUTO -0x88 -> 32(sp) */
+
+/* AUTO -0x60 -> 72(sp) */
+
+/* AUTO -0x50 -> 88(sp) */
+
+/* SourceRecoveryUnresolved: unprovided dispatch capture; direct-field failure does not prove an original object. */
+
+/* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
    * (Draw_DCache*, REG $0x1e == $fp) in the FUNCTION-scope block and the oracle
    * materializes it in the prologue (`lui $fp,0x1F80`) BEFORE the zero-count
    * `beqz $v0`, reaching the GTE translation vector as `sw $zero,0x28($fp)`
@@ -3124,7 +3230,8 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
    * rematerialized per use and the whole file rotates.  The lever that would land
    * this is one that RAISES sd's ref count or SHORTENS Vi's range, not the
    * declaration move; do not re-try the move on its own. */
-  /* RECEIPT (w45-a5) -- ROOT CAUSE ISOLATED AND THE w41 DIAGNOSIS CORRECTED.
+
+/* RECEIPT (w45-a5) -- ROOT CAUSE ISOLATED AND THE w41 DIAGNOSIS CORRECTED.
      Re-gated baseline 130 (ours 193 / oracle 189 = +4 EXACTLY).
      `sd` IS NOT AN ALLOCNO AT ALL -- it never reaches the register allocator.
      -dg (tools/rtl_dump.py -> scratch/rtl/draww.i.greg) prints
@@ -3179,7 +3286,8 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
           allocno holding 0x1F800000 whose priority lands LAST (it must take
           $fp, i.e. rank 9 of 9), pushing Vi from $fp up to $s7.  Everything
           else in the table is already the oracle's set. */
-  /* ================= RECEIPT (w46-a6) -- 130 -> 68, COUNT-EXACT 189/189 =======
+
+/* ================= RECEIPT (w46-a6) -- 130 -> 68, COUNT-EXACT 189/189 =======
      THE w45 "sd is not an allocno" DIAGNOSIS IS NOW MOOT -- IT FIXED ITSELF.
      `sd` DOES get $fp (`lui $s8,0x1f80` in our prologue, `sw $zero,40($s8)`,
      `move $v0,$s8` at the SetTransMatrix arg) the moment the callee-saved pool
@@ -3377,38 +3485,24 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      dial that keeps the address pair BELOW the index load in the pre-allocation
      chain -- read the -dS ready lists for this block first.
      ============================================================================ */
-  totalCount = 0;
-  group = gObjInfo->objInstanceBuf;
-  /* W86-D2: identity launder -> PURE-C save/dead-set/restore (zero insns, no asm).
-     `objInstance = 0;` alone BEFORE the real assignment does NOT work (34); the
-     working shape is real-value first, then the dead set, then the restore. */
-  objInstance = (Trk_SimpleInst *)(group + 1);
-  { Trk_SimpleInst *oi = objInstance; objInstance = 0; objInstance = oi; }
-  groupNumElements = group->m_num_elements;
-  sd = (Draw_DCache *)&Render_gPalettePtr;
-  /* MATCH (w46-a6): the zero-count arm RETURNS instead of assigning the
+
+/* Historical resolved device: oi/save/dead-set/restore was not original work.
+     The real for/success/skip shape below removes it without new operations.
+     See build/nc12/draww_spill_origin_20261025 for the verified replacement. */
+
+/* MATCH (w46-a6): the zero-count arm RETURNS instead of assigning the
    * accumulator -- one fewer REG_N_REF on `totalCount` drops its allocno
    * below `objectIndex` (.2519 -> .2290 vs .2347), which is exactly the
    * reqdelta the s3/s4/s5 3-cycle needs. */
-  if (groupNumElements == 0) {
-    return 0;
-  }
-  {
-    offset = gObjInfo->offset;
-    doFrustumClip = gObjInfo->doFrustumClip;
-    zClipSq = gObjInfo->zClipSq;
-    visList = gObjInfo->visList;
-    /* SYM: block-scoped REG local `sd` (Draw_DCache*, $fp) -- the scratchpad cache
+
+/* SYM: block-scoped REG local `sd` (Draw_DCache*, $fp) -- the scratchpad cache
        cursor cast ONCE here, not re-cast at every call site (used below at every
        ObjectClipped/DrawObjectSimple/DrawObjectTransform/Flare_Halo2 call). The
        world matrix itself is a SEPARATE scratchpad literal (0x1F800014, matches
        sd->matB's own address -- Draw_DCache.matB @+0x14) forced into its own
        register by the gte_SetTransMatrix() call argument. */
-    ((MATRIX *)0x1f800014)->t[2] = 0;
-    ((MATRIX *)0x1f800014)->t[1] = 0;
-    (sd->matB).t[0] = 0;
-gte_SetTransMatrix((void *)0x1f800014);
-    /* MATCH (w49-a2, 68 -> 34): the oracle's loop is UN-ROTATED -- the test sits at
+
+/* MATCH (w49-a2, 68 -> 34): the oracle's loop is UN-ROTATED -- the test sits at
        the loop TOP (.L800C7954 `lw t0,0x68(sp); slt v0,s4,t0; beqz v0,exit`) and the
        back-edge is an unconditional `j` whose DELAY SLOT carries `addiu s4,s4,1`.
        A `for (i=0;i<n;i++)` rotates (zero-trip guard + bottom test) and can never
@@ -3416,13 +3510,8 @@ gte_SetTransMatrix((void *)0x1f800014);
        does (catalog par.B -- the same lever DrawW_StripDraw_High in this TU uses).
        SLD confirms the increment is its OWN trailing statement: the objInstance
        advance is line 2045 and the `j`+`addiu s4,s4,1` pair is line 2046. */
-    objectIndex = 0;
-    while (1) {
-      if (!(objectIndex < groupNumElements)) break;
-      if ((visList == (short *)0x0) || ((((u_short)visList[objectIndex] >> 0xc ^ 1) & 1) == 0)) {
-        objectOffset = offset;
-        if (offset == 0) {
-          /* MATCH (w75-a6 -> pure C, DRAW 2026-10-04): THREE COUPLED PARTS, each
+
+/* MATCH (w75-a6 -> pure C, DRAW 2026-10-04): THREE COUPLED PARTS, each
              load-bearing (a joint cell):
              (1) INDEX TEMP FIRST -- `zo` is born ahead of the address;
              (2) the address materialization sits in its own do{}while(0): the
@@ -3436,88 +3525,129 @@ gte_SetTransMatrix((void *)0x1f800014);
                  preheader, loses its register and reload rematerializes it into
                  `$t0` (FAIL 6).  Replaces the former opacity asm launder.
              The index-term-first cast flips `addu v0,v1,v0` to retail's order. */
-          { int zo = objInstance->zoffset; /* SYM-CODEGEN-CARRIER: zo -- index temp is one part of the measured PASS joint cell */
-            signed char *g;               /* SYM-CODEGEN-CARRIER: g -- second SET prevents loop.c hoisting; removing it loses PASS */
-            do { g = goffsets; } while (0);
-            { signed char *gg = g; g = 0; g = gg; }
-            objectOffset = *(signed char *)(zo + (int)g); }
-        }
-        /* SYM block-scoping (line70/71 vs 95/107/114, all converging on the shared
-           loop-tail at line124/132) + the oracle's flat forward-beq compare chain
-           (==1 / <2-skip / ==3 / ==7 / skip) with BOTH case bodies pushed OUT OF LINE
-           after the chain -- neither a plain if/else-if (inlines case1) nor a switch
-           (gcc picks a range-check lowering for {1,3,7}) reproduces this; an explicit
-           goto dispatch matches the oracle's actual block layout 1:1. */
-        animType = objInstance->type;
-        if (animType == 1) goto animCase1;
-        if (animType < 2) goto animNext;
-        if ((animType == 3) || (animType == 7)) goto animCase37;
-        goto animNext;
-      animCase1:
-        objDef = Track_gObjDefs[objInstance->pad];
-        /* MATCH (w46-a6): the oracle has NO materialized boolean here -- every
+
+/* Historical resolved device: zo is removed by the real dispatch/success source shape below. */
+
+/* Historical resolved devices: g/gg and the artificial loop/dead set are removed below. */
+
+/* SourceRecoveryUnresolved: these labels/capture are not proved original.
+           Stock switch controls with an unproved extra skipped case reproduce
+           all189 words and remove zo/g/gg, but not the complete retail scopes.
+           Zero and minus-one cases are byte/debug indistinguishable; neither is
+           established as original. Do not infer goto/carrier necessity from
+           the ordinary three-case failure. See draww_source_dispatch_20261025. */
+
+/* MATCH (w46-a6): the oracle has NO materialized boolean here -- every
          * guard branches DIRECTLY to the shared loop tail (`beqz $t0,.L800C7A24`
          * @0x800C7A08 with an ARG SETUP in its delay slot, `bnez $v0,.L800C7B54`,
          * `beq $s6,$t0,.L800C7A44`, `beqz $v0,.L800C7B54`).  The `&&`/`||`
          * compound form made cc1plus build the flag in a callee-saved reg
          * (`move s2,zero` / `li s2,1` / `beqz s2`) = +2 insns AND it stole the
          * delay slot the oracle fills with `addu $a0,$s7,$zero`. */
-        if (doFrustumClip != 0) {
-          if (ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
-                            (Draw_tGiveShelbyMoreCache *)sd) != 0) goto animNext;
-        }
-        if (zClipSq != -1) {
-          if (zClipSq <= xzsquaredist32((coorddef *)&objInstance->x,
-                                        &(Vi->cview).translation)) goto animNext;
-        }
-        /* MATCH (w46-a6): retail accumulates the RETURN VALUE directly --
+
+/* MATCH (w46-a6): retail accumulates the RETURN VALUE directly --
          * `jal DrawObjectSimple; j .L800C7B54; addu $s5,$s5,$v0` -- it never
          * writes it back into `objectOffset` (SYM $s2, which stays the INPUT
          * arg, `sw $s2,0x10($sp)`).  Round-tripping it through objectOffset
          * added 2 loop-weighted refs per call site to that allocno. */
-        totalCount = totalCount + DrawObjectSimple(Vi,sd,objDef,
-                           (coorddef *)&objInstance->x,objectOffset);
-        goto animNext;
-      animCase37:
-        Anim_GetRotPos((Trk_AnimateInst *)objInstance,1,
-                       DrawW_GetAnimationTime((Trk_AnimateInst *)objInstance),&cp,&matrix);
-        /* MATCH (w49-a2): the SYM's fn-scope `objDef` ($s1) is REUSED here -- the
+
+/* MATCH (w49-a2): the SYM's fn-scope `objDef` ($s1) is REUSED here -- the
            oracle loads the shape argument into that same $s1 (`lw s1,0(v0)`), not an
            anonymous temp.  Placed BEFORE the zClipSq guard on purpose: the SLD puts
            retail's copy INSIDE the guard (line 2015), but that shortens objDef's live
            range to 24 and it then outranks objInstance for $s0 (40 diffs vs 22 here) --
            see the head receipt, residual class (A). */
-        if ((zClipSq == -1) ||
-           (xzsquaredist32(&cp,&(Vi->cview).translation) < zClipSq)) {
-          objDef = Track_gObjDefs[objInstance->pad];
-          totalCount = totalCount + DrawObjectTransform(Vi,sd,&matrix,
-                             objDef,&cp,objectOffset,-1);
-          if ((objInstance->flags & 2) != 0) {
-            pt2.x = cp.x + matrix.m[6] * -0x10;
-            pt2.y = cp.y + matrix.m[7] * -0x10;
-            pt2.z = cp.z + matrix.m[8] * -0x10;
-            Flare_Halo2(Vi,-1,0x1e,&cp,&pt2,(Draw_FlareCache *)sd);
-          }
-        }
-      animNext:;
-      }
-      /* MATCH (pure C, DRAW 2026-10-04; replaces the w49/w71 zero-insn opacity asm on
+
+/* MATCH (pure C, DRAW 2026-10-04; replaces the w49/w71 zero-insn opacity asm on
          the walker): retail's tail is `lh v0; nop; addu walker,walker,v0; j top;
          addiu idx,idx,1` -- it PAYS the lh load-delay nop and spends the `j` slot on
          the counter.  Wrapping the advance in do{}while(0) puts a NOTE_INSN_LOOP_BEG/
          END pair around it, a sched2 barrier that keeps the increment from being
          hoisted into the lh delay slot; the same edit also restores the walker's
          retail callee-saved register (the asm's second job). */
-      do {
-        objInstance = (Trk_SimpleInst *)((int)&objInstance->size + (int)objInstance->size);
-      } while (0);
-      objectIndex = objectIndex + 1;
+
+#line 1908 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
+{
+  Draw_DCache *sd;
+  Trk_SimpleInst *objInstance;
+  Trk_ObjectDef *objDef;
+  int totalCount;
+  int animType; /* SourceRecoveryUnresolved: dispatch capture and existing animCase1/animCase37/animNext label identities are unprovided. */
+  Group *group;
+  int groupNumElements;
+  int offset;
+  int doFrustumClip;
+  int zClipSq;
+  short *visList;
+  totalCount = 0;
+  group = gObjInfo->objInstanceBuf;
+  objInstance = (Trk_SimpleInst *)group->GetData();
+  groupNumElements = group->m_num_elements;
+  sd = (Draw_DCache *)&Render_gPalettePtr;
+  if (groupNumElements == 0) return 0;
+  offset = gObjInfo->offset;
+  doFrustumClip = gObjInfo->doFrustumClip;
+  zClipSq = gObjInfo->zClipSq;
+  visList = gObjInfo->visList;
+  ((MATRIX *)0x1f800014)->t[2] = 0;
+  ((MATRIX *)0x1f800014)->t[1] = 0;
+  (sd->matB).t[0] = 0;
+  gte_SetTransMatrix((void *)0x1f800014);
+  for (int objectIndex = 0; ; objectIndex = objectIndex + 1) {
+    int objectOffset;
+    matrixtdef matrix;
+    if (!(objectIndex < groupNumElements)) break;
+    if (visList != 0 && ((((u_short)visList[objectIndex] >> 12 ^ 1) & 1) != 0)) {
+      objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue;
     }
+    objectOffset = offset;
+    if (offset == 0) objectOffset = goffsets[objInstance->zoffset];
+    animType = objInstance->type;
+    if (animType == 1) goto animCase1;
+    if (animType < 2) goto animNext;
+    if (animType == 3 || animType == 7) goto animCase37;
+    goto animNext;
+    animCase1:
+
+      objDef = Track_gObjDefs[objInstance->pad];
+      if (doFrustumClip != 0 && ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,(Draw_tGiveShelbyMoreCache *)sd) != 0) {
+        objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue;
+      }
+      if (zClipSq != -1 && zClipSq <= xzsquaredist32((coorddef *)&objInstance->x,&(Vi->cview).translation)) {
+        objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue;
+      }
+      totalCount += DrawObjectSimple(Vi,sd,objDef,(coorddef *)&objInstance->x,objectOffset);
+      goto animNext;
+    animCase37:
+
+      {
+        coorddef cp;
+        Anim_GetRotPos((Trk_AnimateInst *)objInstance,1,DrawW_GetAnimationTime((Trk_AnimateInst *)objInstance),&cp,&matrix);
+        if (zClipSq == -1 || xzsquaredist32(&cp,&(Vi->cview).translation) < zClipSq) {
+          objDef = Track_gObjDefs[objInstance->pad];
+          totalCount += DrawObjectTransform(Vi,sd,&matrix,objDef,&cp,objectOffset,-1);
+          if ((objInstance->flags & 2) != 0) {
+            coorddef pt2;
+            pt2.x = cp.x + matrix.m[6] * -16;
+            pt2.y = cp.y + matrix.m[7] * -16;
+            pt2.z = cp.z + matrix.m[8] * -16;
+            Flare_Halo2(Vi,-1,30,&cp,&pt2,(Draw_FlareCache *)sd);
+          }
+        } else {
+
+          objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue;
+        }
+
+      }
+    animNext:;
+    objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size);
   }
   return totalCount;
 }
 
-/* ---- DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi  [DRAWW.CPP:2054-2151] SLD-VERIFIED ---- */
+/* ---- DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi  [DRAWW.CPP:2054-2151] covered SLD requires native comparison ---- */
+#line 2052 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObject *simObjs,Group *group,int zClipSq)
 
 {
@@ -3992,7 +4122,8 @@ gte_SetTransMatrix(transMat);
   return totalCount;
 }
 
-/* ---- DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis  [DRAWW.CPP:2156-2241] SLD-VERIFIED ---- */
+/* ---- DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis  [DRAWW.CPP:2156-2241] covered SLD requires native comparison ---- */
+#line 2153 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk_ObjectDef *objDef,
               coorddef *pCp,int offset,short light)
 
@@ -4128,7 +4259,8 @@ gte_SetTransMatrix(m);
   return (u_int)objDef->quadCount;
 }
 
-/* ---- DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi  [DRAWW.CPP:2261-2334] SLD-VERIFIED ---- */
+/* ---- DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi  [DRAWW.CPP:2261-2334] covered SLD requires native comparison ---- */
+#line 2259 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coorddef *pCp,int offsetArg)
 
 {
@@ -4296,7 +4428,8 @@ gte_SetTransMatrix(m);
  * EVERY statement of the body (scratchpad/w55a9_fencesweep.py, each position gated).  No
  * position beats the 42 @434/434 baseline (best alternatives 46 @436).  The sched-fixpoint
  * device is CLOSED here; the residual is coloring, not a barrier problem. */
-/* ---- DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo  [DRAWW.CPP:2346-2649] SLD-VERIFIED ---- */
+/* ---- DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo  [DRAWW.CPP:2346-2649] covered SLD requires native comparison ---- */
+#line 2344 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
 {
@@ -4724,7 +4857,8 @@ DrawWChunkFacets_groupNext:
   return totalCount;
 }
 
-/* ---- ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:2660-2709] SLD-VERIFIED ---- */
+/* ---- ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:2660-2709] covered SLD requires native comparison ---- */
+#line 2658 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreCache *sd)
 
 {
@@ -4801,7 +4935,8 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
  * ⇒ the barrier axis is closed; item (1) is the split-address ready-list tie (same class as
  * DrawC_NightHeadlight's residual 4) and item (2) wants the `-1` as its own late statement
  * (the lever that took DrawC_PrimStart 60 -> 54 this wave) -- untried here. */
-/* ---- DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry  [DRAWW.CPP:2717-2864] SLD-VERIFIED ---- */
+/* ---- DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry  [DRAWW.CPP:2717-2864] covered SLD requires native comparison ---- */
+#line 2715 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 {
@@ -5098,7 +5233,8 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
   return;
 }
 
-/* ---- Draw_CircleClip__FP8coorddefT0i  [DRAWW.CPP:2888-2896] SLD-VERIFIED ---- */
+/* ---- Draw_CircleClip__FP8coorddefT0i  [DRAWW.CPP:2888-2896] covered SLD requires native comparison ---- */
+#line 2887 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 {
   int dx;
@@ -5135,7 +5271,8 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
    w45 §B/F "the unsized asm-label view KILLS a LICM address hoist"). */
 extern short gClutDepth_v[] __asm__("gClutDepth");
 
-/* ---- Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark  [DRAWW.CPP:2900-3038] SLD-VERIFIED ---- */
+/* ---- Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark  [DRAWW.CPP:2900-3038] covered SLD requires native comparison ---- */
+#line 2898 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 
 {
@@ -5961,7 +6098,8 @@ gte_swc2(0x7,otz94);
   }
 }
 
-/* ---- DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:3049-3103] SLD-VERIFIED ---- */
+/* ---- DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:3049-3103] covered SLD requires native comparison ---- */
+#line 3047 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache *sd)
 
 {
@@ -6079,7 +6217,7 @@ DrW_SubSetupLine_callSubdiv:
    vertex copy used by DrawW_OnyxLinePrim -- lw/lw/sw/sw, not the align-2 movstrsi. */
 #define ONYX_COPYVT(d,s)  { int t1, t2;  t1 = ((int *)(s))[0];  t2 = ((int *)(s))[1];                             ((int *)(d))[0] = t1;  ((int *)(d))[1] = t2; }
 
-/* ---- DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:3108-3330] SLD-VERIFIED ----
+/* ---- DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:3108-3330] covered SLD requires native comparison ----
    REWRITTEN 2026-07-31 (w38-a2) from the SYM 8c block + raw oracle.  The prior body was
    Ghidra soup (~50 fabricated locals) and carried FOUR behavioural bugs (see below).
    SYM ground truth (nfs4-f-v3.txt @0x800C98B8, fsize 120, mask 0xc0ff0000):
@@ -6110,6 +6248,7 @@ DrW_SubSetupLine_callSubdiv:
    the pmx->prim copy is the SYM's load-4/store-4 l0..l3 group; `if (nightFlags)` has the
    NIGHT arm as the fall-through (oracle `beqz -> .L800C9E14` = the dpcs arm is out of
    line); the stack-speedup `if` likewise has the speedup arm as fall-through. ---- */
+#line 3106 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw_tGiveShelbyMoreCache *sd)
 
 {
@@ -6477,11 +6616,17 @@ loopbot:
   }
 }
 
-/* ---- DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16  [DRAWW.CPP:3344-3392] SLD-VERIFIED ---- */
-void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShelbyMoreCache *sd,COORD16 *trans)
-
-{
-  /* MATCH (2026-07-11, rule-8 SYM rewrite, 88==88 insn-exact -> coloring pass): SYM
+/* ---- DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16  [DRAWW.CPP:3344-3392] covered SLD requires native comparison ---- */
+/* MATCH/partial source recovery 2026-10-25: GetData on vertexBuf and the real
+ * for loop restore all20 supplied complete owner tuples (previously12/20).
+ * All88 absolute word/file tags, region/frame/header/end facts now match.
+ * Native still has EXTRA rn: its address value is real but neither a distinct
+ * original source object nor its identifier is established. Direct controls
+ * remain87 words; this is an open producer problem, NOT a compiler floor.
+ * slice correctly owns firstSimSliceInd in s2; do not relabel rn as slice.
+ * Historical controls below are superseded, not source-object exemptions.
+ * Receipts: build/nc12/draww_center_lines_20261025. */
+/* MATCH (2026-07-11, rule-8 SYM rewrite, 88==88 insn-exact -> coloring pass): SYM
      VA 800ca0a4 names this exact local set at fn scope (i, pts3d, lineQuad, slice,
      tx, ty, tz, wpts) -- pts3d/wpts replace the old pCVar20+psVar19 TWO-pointer
      scheme with array-indexed CCOORD16 struct-field stores off ONE base (pts3d[0].f
@@ -6495,26 +6640,8 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
      an additional source alias. chunkDat->firstSimSliceInd has NO separate SYM
      name -- it's a loop-invariant load the compiler CSEs into $s2 on its own; giving
      it an explicit local (the old sVar3) is unnecessary and is dropped. */
-  int i;
-  CCOORD16 *pts3d;
-  Trk_Line *lineQuad;
-  int slice;
-  short tx;
-  short ty;
-  short tz;
-  CCOORD16 *wpts;
 
-  pts3d = gVertex3d;
-  lineQuad = (Trk_Line *)(group + 1);
-  i = 0;
-  slice = chunkDat->firstSimSliceInd;
-  tx = trans->x;
-  ty = trans->y;
-  tz = trans->z;
-  wpts = (CCOORD16 *)(chunkDat->vertexBuf + 1);
-  while (i < group->m_num_elements << 1) {
-    i = i + 2;
-    /* MATCH (w45-a5) -- PASS 88/88.  Four cooperating levers, in this order:
+/* MATCH (w45-a5) -- PASS 88/88.  Four cooperating levers, in this order:
        (1) RULE-8: SYM VA 800ca0f8 block declares EXACTLY seven inner names --
            `pts` (PTR CCOORD16, reg $6=$a2) and six SHORTs x($3=$v1) y($4=$a0)
            z($5=$a1) wx($8=$t0) wy($9=$t1) wz($7=$a3).  The old `pCoord` +
@@ -6542,46 +6669,71 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
            the oracle wants the scaled index first (`addu v0,v0,s1`); the
            explicit `(T*)((i << 5) + (int)base)` cast form delivers it
            (methodology 5.0c commutative-addu lever).  2 -> PASS. */
-    CCOORD16 *pts;
-    char *rn; /* SYM-CODEGEN-CARRIER: rn -- direct right[0..2] is 29 diffs and one instruction short */
-    short x;
-    short y;
-    short z;
-    short wx;
-    short wy;
-    short wz;
 
-    pts = wpts + (u_int)lineQuad->firstPoint;
-    rn = ((Trk_NewSlice *)(((slice + (u_int)lineQuad->slice) << 5) + (int)BWorldSm_slices))->right;
-    wx = (signed char)rn[0] >> 3;
-    wy = (signed char)rn[1] >> 3;
-    wz = (signed char)rn[2] >> 3;
-    x = pts->x;
-    y = pts->y;
-    z = pts->z;
-    /* MATCH: the oracle walks pts3d with TWO +8 bumps per iteration (one per vertex,
+/* Historical rn control; not an original-object exemption -- direct right[0..2] is 29 diffs and one instruction short */
+
+/* MATCH: the oracle walks pts3d with TWO +8 bumps per iteration (one per vertex,
        `addiu t3,t3,8` mid-body and again at the tail) and splits the stores across a
        base/base+6 giv pair -- the index form pts3d[0]/pts3d[1] + a single +16 bump
        collapses that to one walker.  Operand order `t + (v +/- n)` matches the oracle's
        `addu v1,v1,t0; addu v1,t8,v1` (vertex value first, translation last). */
+
+#line 3342 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShelbyMoreCache *sd,COORD16 *trans)
+
+{
+  int i; CCOORD16 *pts3d; Trk_Line *lineQuad; int slice;
+  short tx; short ty; short tz; CCOORD16 *wpts;
+  pts3d = gVertex3d;
+  lineQuad = (Trk_Line *)(group + 1);
+  slice = chunkDat->firstSimSliceInd;
+
+
+
+  tx = trans->x; ty = trans->y; tz = trans->z;
+
+  wpts = (CCOORD16 *)chunkDat->vertexBuf->GetData();
+
+
+  for (i = 0; i < group->m_num_elements << 1; i = i + 2) {
+    CCOORD16 *pts; char *rn; /* SourceRecoveryUnresolved: right-normal address producer/name is unprovided; no distinct original object is proved. */ short x; short y; short z; short wx; short wy; short wz;
+    pts = wpts + (u_int)lineQuad->firstPoint;
+
+
+
+    x = pts->x;
+    y = pts->y;
+    z = pts->z;
+    rn = ((Trk_NewSlice *)(((slice + (u_int)lineQuad->slice) << 5) + (int)BWorldSm_slices))->right; wx = (signed char)rn[0] >> 3;
+    wy = (signed char)rn[1] >> 3;
+    wz = (signed char)rn[2] >> 3;
+
     pts3d->x = tx + (x - wx);
     pts3d->y = ty + (y - wy);
     pts3d->z = tz + (z - wz);
     pts3d->light = pts->light;
+
     pts3d = pts3d + 1;
+
     pts3d->x = tx + (x + wx);
     pts3d->y = ty + (y + wy);
     pts3d->z = tz + (z + wz);
     pts3d->light = pts->light;
     pts3d = pts3d + 1;
+
     lineQuad = lineQuad + 1;
   }
+
+
+
+
   lineQuad = (Trk_Line *)(group + 1);
-  DrawW_OnyxLinePrim(gVertex3d,lineQuad,group->m_num_elements,sd);
-  return;
+
+  DrawW_OnyxLinePrim(gVertex3d,lineQuad,group->m_num_elements,sd); return;
 }
 
-/* ---- DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache  [DRAWW.CPP:3396-3467] SLD-VERIFIED ---- */
+/* ---- DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache  [DRAWW.CPP:3396-3467] covered SLD requires native comparison ---- */
+#line 3394 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 
 {
@@ -6770,7 +6922,8 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
   return;
 }
 
-/* ---- DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache  [DRAWW.CPP:3692-3815] SLD-VERIFIED ---- */
+/* ---- DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache  [DRAWW.CPP:3692-3815] covered SLD requires native comparison ---- */
+#line 3690 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
 
 {
@@ -7150,7 +7303,8 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   return;
 }
 
-/* ---- DepthCue_Init__Fv  [DRAWW.CPP:3830-3834] SLD-VERIFIED ---- */
+/* ---- DepthCue_Init__Fv  [DRAWW.CPP:3830-3834] covered SLD requires native comparison ---- */
+#line 3828 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DepthCue_Init(void)
 
 {

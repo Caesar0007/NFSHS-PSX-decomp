@@ -35,7 +35,7 @@ void * SimpleMem::Alloc(int len,int feign)
 
   if (feign == 0) {
 
-    this->freeMem = (u_char *)((int)ret + len);
+    this->freeMem = (u_char *)ret + len;
     this->freeMemSize = this->freeMemSize - len;
   }
 

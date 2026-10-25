@@ -1168,118 +1168,26 @@ returnNormalZ:
 }
 
 /* ---- Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2  [@0x80090144] ---- */
-#line 1038 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
-int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
-{
-  /* RULE-8 rewrite from SYM 8c block @0x80090144 (fsize=176 mask=$c0ff0000 = ra+fp+s0..s7) +
+/* 2026-10-25 statement-layout follow-up: all1164 absolute instruction/file
+   tags and header1039/end1272 agree; all24 supplied local owners remain exact.
+   Real for-initialization and vector statement groups preserve the normal ELF
+   and native CPE. Three missing regions, five region-end lines, rpx/rpz and
+   the existing fence remain unresolved. No original-literal-text seal.
+   Historical experiments below are not proof of original source necessity.
+   Receipts: build/nc12/collision_vertices_resume_20261025. */
+/* RULE-8 rewrite from SYM 8c block @0x80090144 (fsize=176 mask=$c0ff0000 = ra+fp+s0..s7) +
      m2c pregen + raw oracle.  SYM facts wired in: numbackoffsteps is a REAL REG local ($fp)
      holding 0x20 (Ghidra folded it to a literal); collisionHappened and useVelocity share $16
      (useVelocity=1 doubles as the collision flag path); `temp` redeclared in TWO sibling blocks
      (fresh pseudo each); relativeUnit/maxrv/maxrp/inverseRelativeVelocityLength live in the
-     line-94 block.  Loop = top-test label-goto (TEST: if(cond){...goto TEST;}), exit both by
+     line-94 block.  A real counted for owns the relativePosition body; exit both by
      count and by DoActual()==0 (return staged in the beqz delay).  Inline signed /256 idiom
      house style throughout. */
-  int collisionHappened;
-  int ctr;
-  int numbackoffsteps;
-  coorddef backoff0;
-  coorddef backoff1;
 
-  collisionHappened = 0;
-  basisDots[0] = ((o0->orientMat).m[0] / 256) * ((o1->orientMat).m[0] / 256) +
-                 ((o0->orientMat).m[1] / 256) * ((o1->orientMat).m[1] / 256) +
-                 ((o0->orientMat).m[2] / 256) * ((o1->orientMat).m[2] / 256);
-  basisDots[1] = ((o0->orientMat).m[0] / 256) * ((o1->orientMat).m[3] / 256) +
-                 ((o0->orientMat).m[1] / 256) * ((o1->orientMat).m[4] / 256) +
-                 ((o0->orientMat).m[2] / 256) * ((o1->orientMat).m[5] / 256);
-  basisDots[2] = ((o0->orientMat).m[0] / 256) * ((o1->orientMat).m[6] / 256) +
-                 ((o0->orientMat).m[1] / 256) * ((o1->orientMat).m[7] / 256) +
-                 ((o0->orientMat).m[2] / 256) * ((o1->orientMat).m[8] / 256);
-  basisDots[3] = ((o0->orientMat).m[3] / 256) * ((o1->orientMat).m[0] / 256) +
-                 ((o0->orientMat).m[4] / 256) * ((o1->orientMat).m[1] / 256) +
-                 ((o0->orientMat).m[5] / 256) * ((o1->orientMat).m[2] / 256);
-  basisDots[4] = ((o0->orientMat).m[3] / 256) * ((o1->orientMat).m[3] / 256) +
-                 ((o0->orientMat).m[4] / 256) * ((o1->orientMat).m[4] / 256) +
-                 ((o0->orientMat).m[5] / 256) * ((o1->orientMat).m[5] / 256);
-  basisDots[5] = ((o0->orientMat).m[3] / 256) * ((o1->orientMat).m[6] / 256) +
-                 ((o0->orientMat).m[4] / 256) * ((o1->orientMat).m[7] / 256) +
-                 ((o0->orientMat).m[5] / 256) * ((o1->orientMat).m[8] / 256);
-  basisDots[6] = ((o0->orientMat).m[6] / 256) * ((o1->orientMat).m[0] / 256) +
-                 ((o0->orientMat).m[7] / 256) * ((o1->orientMat).m[1] / 256) +
-                 ((o0->orientMat).m[8] / 256) * ((o1->orientMat).m[2] / 256);
-  basisDots[7] = ((o0->orientMat).m[6] / 256) * ((o1->orientMat).m[3] / 256) +
-                 ((o0->orientMat).m[7] / 256) * ((o1->orientMat).m[4] / 256) +
-                 ((o0->orientMat).m[8] / 256) * ((o1->orientMat).m[5] / 256);
-  basisDots[8] = ((o0->orientMat).m[6] / 256) * ((o1->orientMat).m[6] / 256) +
-                 ((o0->orientMat).m[7] / 256) * ((o1->orientMat).m[7] / 256) +
-                 ((o0->orientMat).m[8] / 256) * ((o1->orientMat).m[8] / 256);
-  scaledBasisDots[0] = (basisDots[0] / 256) * ((o1->dimension).x / 256);
-  scaledBasisDots[1] = (basisDots[1] / 256) * ((o1->dimension).y / 256);
-  scaledBasisDots[2] = (basisDots[2] / 256) * ((o1->dimension).z / 256);
-  scaledBasisDots[3] = (basisDots[3] / 256) * ((o1->dimension).x / 256);
-  scaledBasisDots[4] = (basisDots[4] / 256) * ((o1->dimension).y / 256);
-  scaledBasisDots[5] = (basisDots[5] / 256) * ((o1->dimension).z / 256);
-  scaledBasisDots[6] = (basisDots[6] / 256) * ((o1->dimension).x / 256);
-  scaledBasisDots[7] = (basisDots[7] / 256) * ((o1->dimension).y / 256);
-  scaledBasisDots[8] = (basisDots[8] / 256) * ((o1->dimension).z / 256);
-  scaledBasisDotsOther[0] = (basisDots[0] / 256) * ((o0->dimension).x / 256);
-  scaledBasisDotsOther[1] = (basisDots[1] / 256) * ((o0->dimension).x / 256);
-  scaledBasisDotsOther[2] = (basisDots[2] / 256) * ((o0->dimension).x / 256);
-  scaledBasisDotsOther[3] = (basisDots[3] / 256) * ((o0->dimension).y / 256);
-  scaledBasisDotsOther[4] = (basisDots[4] / 256) * ((o0->dimension).y / 256);
-  scaledBasisDotsOther[5] = (basisDots[5] / 256) * ((o0->dimension).y / 256);
-  scaledBasisDotsOther[6] = (basisDots[6] / 256) * ((o0->dimension).z / 256);
-  scaledBasisDotsOther[7] = (basisDots[7] / 256) * ((o0->dimension).z / 256);
-  scaledBasisDotsOther[8] = (basisDots[8] / 256) * ((o0->dimension).z / 256);
-  numbackoffsteps = 0x20;
-  ctr = 0;
-  /* MATCH: real while + exit-in-the-middle (NOT a goto-TEST loop) - gcc loop notes enable the
-     LIM hoists the oracle has (&basisDotRelative -> s4/s6, &relativeVelocity spill to sp+0x80);
-     a goto-formed loop skips loop.c entirely and re-materializes per-iteration */
-  while (true) {
-    if (numbackoffsteps <= ctr) break;
-    {
-      coorddef relativePosition;
+/* MATCH: for restores all24 supplied owners at1164-word PASS. Extra rpx/rpz,
+     the old fence, missing scopes and complete SLD remain source-recovery work. */
 
-      relativePosition.x = (o1->position).x - (o0->position).x;
-      relativePosition.y = (o1->position).y - (o0->position).y;
-      relativePosition.z = (o1->position).z - (o0->position).z;
-      basisDotRelative[0] = ((o0->orientMat).m[0] / 256) * (relativePosition.x / 256) +
-                            ((o0->orientMat).m[1] / 256) * (relativePosition.y / 256) +
-                            ((o0->orientMat).m[2] / 256) * (relativePosition.z / 256);
-      basisDotRelative[1] = ((o0->orientMat).m[3] / 256) * (relativePosition.x / 256) +
-                            ((o0->orientMat).m[4] / 256) * (relativePosition.y / 256) +
-                            ((o0->orientMat).m[5] / 256) * (relativePosition.z / 256);
-      basisDotRelative[2] = ((o0->orientMat).m[6] / 256) * (relativePosition.x / 256) +
-                            ((o0->orientMat).m[7] / 256) * (relativePosition.y / 256) +
-                            ((o0->orientMat).m[8] / 256) * (relativePosition.z / 256);
-      basisDotRelative[3] = ((o1->orientMat).m[0] / 256) * (relativePosition.x / 256) +
-                            ((o1->orientMat).m[1] / 256) * (relativePosition.y / 256) +
-                            ((o1->orientMat).m[2] / 256) * (relativePosition.z / 256);
-      basisDotRelative[4] = ((o1->orientMat).m[3] / 256) * (relativePosition.x / 256) +
-                            ((o1->orientMat).m[4] / 256) * (relativePosition.y / 256) +
-                            ((o1->orientMat).m[5] / 256) * (relativePosition.z / 256);
-      basisDotRelative[5] = ((o1->orientMat).m[6] / 256) * (relativePosition.x / 256) +
-                            ((o1->orientMat).m[7] / 256) * (relativePosition.y / 256) +
-                            ((o1->orientMat).m[8] / 256) * (relativePosition.z / 256);
-      if (Collide_DoActualObjectCollisionCheck(o0,o1,p,normal) == 0) break;
-      if (collisionHappened == 0) {
-          coorddef relativeVelocity;
-          int useVelocity;
-          coorddef relativeUnit;
-          int maxrv;
-          int maxrp;
-          int inverseRelativeVelocityLength;
-
-          useVelocity = 0;
-          relativeVelocity.x = (o0->linearVel).x - (o1->linearVel).x;
-          inverseRelativeVelocityLength = 0;
-          relativeVelocity.y = (o0->linearVel).y - (o1->linearVel).y;
-          relativeVelocity.z = (o0->linearVel).z - (o1->linearVel).z;
-          maxrv = (relativeVelocity.x / 256) * (relativeVelocity.x / 256) +
-                  (relativeVelocity.z / 256) * (relativeVelocity.z / 256);
-          if (0x0E100000 < maxrv) {
-            /* MATCH INVESTIGATION (2026-08-13): SLD puts both component loads on
+/* MATCH INVESTIGATION (2026-08-13): SLD puts both component loads on
                line 1149 and the divide/square copies on 1151.  Keeping rp.x alive
                after its divide reaches the exact 1164-instruction basin (15 -> 8).
                The residual is retail's `lw a0,48; lw a2,56; addu v0,a0` versus our
@@ -1436,125 +1344,261 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
                de-coalesced by ONE zero-insn read-only fence placed past ANY branch the
                source already emits -- a /256, a clamp, a guard.  Look for an existing
                block boundary before concluding a copy is unreachable. */
-            /* SYM-CODEGEN-CARRIER: rpx -- allocator proof and alternatives are
-               recorded immediately above. */
-            /* SYM-CODEGEN-CARRIER: rpz -- paired retail load/copy carrier. */
-            int rpx = relativePosition.x, rpz = relativePosition.z;
 
-            maxrp = rpx;
-            maxrp /= 256;
-            /* MATCH: zero-insn fence in the POST-divide basic block.  It makes rpx
+/* SYM-CODEGEN-CARRIER: rpx -- allocator proof and alternatives are
+               recorded immediately above. */
+
+/* SYM-CODEGEN-CARRIER: rpz -- paired retail load/copy carrier. */
+
+/* MATCH: zero-insn fence in the POST-divide basic block.  It makes rpx
                multi-block so combine_regs cannot fold retail's X copy, and the "a1"
                clobber pushes the live z carrier off $5 onto retail's $a2.  Deleting
                either half costs 4 and 4 diffs respectively. */
-            __asm__("" : : "r"(rpx) : "a1");
-            maxrv = rpz;   /* dead maxrv IS retail's z carrier (SYM: maxrv = REG $3) */
-            maxrp = maxrp * maxrp + (maxrv / 256) * (maxrv / 256);
-            if (maxrp < 0xCCC) {
-              int temp;
 
-              temp = Math_VectorLength(&relativeVelocity) / 2;
-              inverseRelativeVelocityLength = 0x10000;
-              /* MATCH: rdiv arm duplicated inline (cross-jump merges it into the sibling copy,
+/* dead maxrv IS retail's z carrier (SYM: maxrv = REG $3) */
+
+/* MATCH: rdiv arm duplicated inline (cross-jump merges it into the sibling copy,
                  stopping at the inverted branch sense = oracle bnez->1008); m2c's goto block_270
                  is that merge artifact */
-              if (temp != 0) {
-                inverseRelativeVelocityLength = rdiv(0x8000, temp);
-                useVelocity = 1;
-              } else {
-                useVelocity = 1;
-              }
-            } else {
-              int dot;
-              coorddef velocityUnit;
-              coorddef positionUnit;
 
-              velocityUnit = relativeVelocity;
-              Math_NormalizeVector(&velocityUnit);
-              positionUnit = relativePosition;
-              Math_NormalizeShortVector(&positionUnit);
-              dot = (velocityUnit.x / 256) * (positionUnit.x / 256) +
-                    (velocityUnit.y / 256) * (positionUnit.y / 256) +
-                    (velocityUnit.z / 256) * (positionUnit.z / 256);
-              if (0xD999 < dot) {
-                int temp;
-
-                temp = Math_VectorLength(&relativeVelocity) / 2;
-                /* MATCH: 0x10000 as the ELSE arm - dbr steals the lui into the beqz delay
+/* MATCH: 0x10000 as the ELSE arm - dbr steals the lui into the beqz delay
                    slot (safe both paths); a pre-set form lets sched hoist it into the CALL
                    slot instead (oracle jal slot = nop) */
-                if (temp != 0) {
-                  inverseRelativeVelocityLength = rdiv(0x8000, temp);
-                } else {
-                  inverseRelativeVelocityLength = 0x10000;
-                }
-                useVelocity = 1;
-              }
-            }
-          }
-          if (useVelocity != 0) {
-            if (o0->objID >= 0x200) {
-              backoff0.x = 0;
-              backoff0.y = 0;
-              backoff0.z = 0;
-            } else {
-              backoff0.x = fixedmult(-inverseRelativeVelocityLength,(o0->linearVel).x);
-              backoff0.y = fixedmult(-inverseRelativeVelocityLength,(o0->linearVel).y);
-              backoff0.z = fixedmult(-inverseRelativeVelocityLength,(o0->linearVel).z);
-              backoff0.x = backoff0.x >> 5;
-              backoff0.y = backoff0.y >> 5;
-              backoff0.z = backoff0.z >> 5;
-            }
-            if (o1->objID >= 0x200) {
-              backoff1.x = 0;
-              backoff1.y = 0;
-              backoff1.z = 0;
-            } else {
-              backoff1.x = fixedmult(-inverseRelativeVelocityLength,(o1->linearVel).x);
-              backoff1.y = fixedmult(-inverseRelativeVelocityLength,(o1->linearVel).y);
-              backoff1.z = fixedmult(-inverseRelativeVelocityLength,(o1->linearVel).z);
-              backoff1.x = backoff1.x >> 5;
-              backoff1.y = backoff1.y >> 5;
-              backoff1.z = backoff1.z >> 5;
-            }
-          } else {
-            int totalMass;
-            int r0;
-            int r1;
+#line 1038 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
+int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
+{
 
-            relativeUnit = relativePosition;
-            Math_NormalizeShortVector(&relativeUnit);
-            totalMass = o0->mass + o1->mass;
-            r1 = rdiv(o0->mass, totalMass);
-            r0 = rdiv(o1->mass, totalMass);
-            backoff0.x = (-((relativeUnit.x * (r0 / 4)) / 16384)) >> 5;
-            backoff0.y = (-((relativeUnit.y * (r0 / 4)) / 16384)) >> 5;
-            backoff0.z = (-((relativeUnit.z * (r0 / 4)) / 16384)) >> 5;
-            backoff1.x = ((relativeUnit.x * (r1 / 4)) / 16384) >> 5;
-            backoff1.y = ((relativeUnit.y * (r1 / 4)) / 16384) >> 5;
-            backoff1.z = ((relativeUnit.z * (r1 / 4)) / 16384) >> 5;
-            if (o0->objID >= 0x200) {
-              backoff1.x = backoff1.x / 2;
-              backoff1.y = backoff1.y / 2;
-              backoff1.z = backoff1.z / 2;
-            }
-            if (o1->objID >= 0x200) {
-              backoff0.x = backoff0.x / 2;
-              backoff0.y = backoff0.y / 2;
-              backoff0.z = backoff0.z / 2;
-            }
-          }
-          collisionHappened = 1;
+  int collisionHappened;
+  int ctr;
+  int numbackoffsteps;
+  coorddef backoff0;
+  coorddef backoff1;
+
+
+
+  collisionHappened = 0;
+
+
+
+  basisDots[0] = ((o0->orientMat).m[0] / 256) * ((o1->orientMat).m[0] / 256) + ((o0->orientMat).m[1] / 256) * ((o1->orientMat).m[1] / 256) + ((o0->orientMat).m[2] / 256) * ((o1->orientMat).m[2] / 256);
+
+  basisDots[1] = ((o0->orientMat).m[0] / 256) * ((o1->orientMat).m[3] / 256) + ((o0->orientMat).m[1] / 256) * ((o1->orientMat).m[4] / 256) + ((o0->orientMat).m[2] / 256) * ((o1->orientMat).m[5] / 256);
+
+  basisDots[2] = ((o0->orientMat).m[0] / 256) * ((o1->orientMat).m[6] / 256) + ((o0->orientMat).m[1] / 256) * ((o1->orientMat).m[7] / 256) + ((o0->orientMat).m[2] / 256) * ((o1->orientMat).m[8] / 256);
+
+
+  basisDots[3] = ((o0->orientMat).m[3] / 256) * ((o1->orientMat).m[0] / 256) + ((o0->orientMat).m[4] / 256) * ((o1->orientMat).m[1] / 256) + ((o0->orientMat).m[5] / 256) * ((o1->orientMat).m[2] / 256);
+
+  basisDots[4] = ((o0->orientMat).m[3] / 256) * ((o1->orientMat).m[3] / 256) + ((o0->orientMat).m[4] / 256) * ((o1->orientMat).m[4] / 256) + ((o0->orientMat).m[5] / 256) * ((o1->orientMat).m[5] / 256);
+
+  basisDots[5] = ((o0->orientMat).m[3] / 256) * ((o1->orientMat).m[6] / 256) + ((o0->orientMat).m[4] / 256) * ((o1->orientMat).m[7] / 256) + ((o0->orientMat).m[5] / 256) * ((o1->orientMat).m[8] / 256);
+
+
+  basisDots[6] = ((o0->orientMat).m[6] / 256) * ((o1->orientMat).m[0] / 256) + ((o0->orientMat).m[7] / 256) * ((o1->orientMat).m[1] / 256) + ((o0->orientMat).m[8] / 256) * ((o1->orientMat).m[2] / 256);
+
+  basisDots[7] = ((o0->orientMat).m[6] / 256) * ((o1->orientMat).m[3] / 256) + ((o0->orientMat).m[7] / 256) * ((o1->orientMat).m[4] / 256) + ((o0->orientMat).m[8] / 256) * ((o1->orientMat).m[5] / 256);
+
+  basisDots[8] = ((o0->orientMat).m[6] / 256) * ((o1->orientMat).m[6] / 256) + ((o0->orientMat).m[7] / 256) * ((o1->orientMat).m[7] / 256) + ((o0->orientMat).m[8] / 256) * ((o1->orientMat).m[8] / 256);
+
+
+
+
+
+  scaledBasisDots[0] = (basisDots[0] / 256) * ((o1->dimension).x / 256);
+  scaledBasisDots[1] = (basisDots[1] / 256) * ((o1->dimension).y / 256);
+  scaledBasisDots[2] = (basisDots[2] / 256) * ((o1->dimension).z / 256);
+
+  scaledBasisDots[3] = (basisDots[3] / 256) * ((o1->dimension).x / 256);
+  scaledBasisDots[4] = (basisDots[4] / 256) * ((o1->dimension).y / 256);
+  scaledBasisDots[5] = (basisDots[5] / 256) * ((o1->dimension).z / 256);
+
+  scaledBasisDots[6] = (basisDots[6] / 256) * ((o1->dimension).x / 256);
+  scaledBasisDots[7] = (basisDots[7] / 256) * ((o1->dimension).y / 256);
+  scaledBasisDots[8] = (basisDots[8] / 256) * ((o1->dimension).z / 256);
+
+
+
+
+  scaledBasisDotsOther[0] = (basisDots[0] / 256) * ((o0->dimension).x / 256);
+  scaledBasisDotsOther[1] = (basisDots[1] / 256) * ((o0->dimension).x / 256);
+  scaledBasisDotsOther[2] = (basisDots[2] / 256) * ((o0->dimension).x / 256);
+
+  scaledBasisDotsOther[3] = (basisDots[3] / 256) * ((o0->dimension).y / 256);
+  scaledBasisDotsOther[4] = (basisDots[4] / 256) * ((o0->dimension).y / 256);
+  scaledBasisDotsOther[5] = (basisDots[5] / 256) * ((o0->dimension).y / 256);
+
+  scaledBasisDotsOther[6] = (basisDots[6] / 256) * ((o0->dimension).z / 256);
+  scaledBasisDotsOther[7] = (basisDots[7] / 256) * ((o0->dimension).z / 256);
+  scaledBasisDotsOther[8] = (basisDots[8] / 256) * ((o0->dimension).z / 256);
+  for ({
+    numbackoffsteps = 0x20;
+
+    ctr = 0; } ctr < numbackoffsteps; ctr = ctr + 1)
+  {
+    coorddef relativePosition;
+
+
+    relativePosition.x = (o1->position).x - (o0->position).x; relativePosition.y = (o1->position).y - (o0->position).y; relativePosition.z = (o1->position).z - (o0->position).z;
+
+    basisDotRelative[0] = ((o0->orientMat).m[0] / 256) * (relativePosition.x / 256) + ((o0->orientMat).m[1] / 256) * (relativePosition.y / 256) + ((o0->orientMat).m[2] / 256) * (relativePosition.z / 256);
+    basisDotRelative[1] = ((o0->orientMat).m[3] / 256) * (relativePosition.x / 256) + ((o0->orientMat).m[4] / 256) * (relativePosition.y / 256) + ((o0->orientMat).m[5] / 256) * (relativePosition.z / 256);
+    basisDotRelative[2] = ((o0->orientMat).m[6] / 256) * (relativePosition.x / 256) + ((o0->orientMat).m[7] / 256) * (relativePosition.y / 256) + ((o0->orientMat).m[8] / 256) * (relativePosition.z / 256);
+
+    basisDotRelative[3] = ((o1->orientMat).m[0] / 256) * (relativePosition.x / 256) + ((o1->orientMat).m[1] / 256) * (relativePosition.y / 256) + ((o1->orientMat).m[2] / 256) * (relativePosition.z / 256);
+    basisDotRelative[4] = ((o1->orientMat).m[3] / 256) * (relativePosition.x / 256) + ((o1->orientMat).m[4] / 256) * (relativePosition.y / 256) + ((o1->orientMat).m[5] / 256) * (relativePosition.z / 256);
+    basisDotRelative[5] = ((o1->orientMat).m[6] / 256) * (relativePosition.x / 256) + ((o1->orientMat).m[7] / 256) * (relativePosition.y / 256) + ((o1->orientMat).m[8] / 256) * (relativePosition.z / 256);
+
+
+    if (Collide_DoActualObjectCollisionCheck(o0,o1,p,normal) == 0) break;
+
+
+
+
+
+
+
+
+    if (collisionHappened == 0)
+    {
+      coorddef relativeVelocity;
+      int useVelocity;
+      coorddef relativeUnit;
+      int maxrv;
+      int maxrp;
+      int inverseRelativeVelocityLength;
+      useVelocity = 0;
+      inverseRelativeVelocityLength = 0;
+
+      relativeVelocity.x = (o0->linearVel).x - (o1->linearVel).x; relativeVelocity.y = (o0->linearVel).y - (o1->linearVel).y; relativeVelocity.z = (o0->linearVel).z - (o1->linearVel).z;
+
+
+      maxrv = (relativeVelocity.x / 256) * (relativeVelocity.x / 256) + (relativeVelocity.z / 256) * (relativeVelocity.z / 256);
+      if (
+      0x0E100000 < maxrv)
+      {
+        int rpx = relativePosition.x, rpz = relativePosition.z;
+
+        maxrp = rpx; maxrp /= 256; __asm__("" : : "r"(rpx) : "a1"); maxrv = rpz; maxrp = maxrp * maxrp + (maxrv / 256) * (maxrv / 256);
+        if (
+
+        maxrp < 0xCCC)
+        {
+          int temp;
+          temp = Math_VectorLength(&relativeVelocity) / 2;
+          inverseRelativeVelocityLength = 0x10000; if (temp != 0) {
+
+            inverseRelativeVelocityLength = rdiv(0x8000, temp);
+            useVelocity = 1;
+          } else { useVelocity = 1; }
         }
-      (o0->position).x = (o0->position).x + backoff0.x;
-      (o0->position).y = (o0->position).y + backoff0.y;
-      (o0->position).z = (o0->position).z + backoff0.z;
-      (o1->position).x = (o1->position).x + backoff1.x;
-      (o1->position).y = (o1->position).y + backoff1.y;
-      (o1->position).z = (o1->position).z + backoff1.z;
-      ctr = ctr + 1;
+        else
+        {
+
+          int dot; coorddef velocityUnit; coorddef positionUnit;
+
+          velocityUnit = relativeVelocity;
+          Math_NormalizeVector(&velocityUnit);
+
+          positionUnit = relativePosition;
+          Math_NormalizeShortVector(&positionUnit);
+
+          dot = (velocityUnit.x / 256) * (positionUnit.x / 256) + (velocityUnit.y / 256) * (positionUnit.y / 256) + (velocityUnit.z / 256) * (positionUnit.z / 256);
+          if (
+          0xD999 < dot)
+          {
+            int temp;
+            temp = Math_VectorLength(&relativeVelocity) / 2;
+            if (temp != 0) {
+              inverseRelativeVelocityLength = rdiv(0x8000, temp);
+            } else {
+              inverseRelativeVelocityLength = 0x10000;
+            } useVelocity = 1;
+          }
+
+
+
+
+
+
+
+
+
+      } }
+
+
+
+
+      if (useVelocity != 0)
+      {
+        if (o0->objID >= 0x200)
+        {
+          backoff0.x = 0;
+          backoff0.y = 0;
+          backoff0.z = 0;
+        }
+        else
+        {
+          backoff0.x = fixedmult(-inverseRelativeVelocityLength,(o0->linearVel).x); backoff0.y = fixedmult(-inverseRelativeVelocityLength,(o0->linearVel).y); backoff0.z = fixedmult(-inverseRelativeVelocityLength,(o0->linearVel).z);
+          backoff0.x = backoff0.x >> 5;
+          backoff0.y = backoff0.y >> 5;
+          backoff0.z = backoff0.z >> 5;
+        }
+
+        if (o1->objID >= 0x200)
+        {
+          backoff1.x = 0;
+          backoff1.y = 0;
+          backoff1.z = 0;
+        }
+        else
+        {
+          backoff1.x = fixedmult(-inverseRelativeVelocityLength,(o1->linearVel).x); backoff1.y = fixedmult(-inverseRelativeVelocityLength,(o1->linearVel).y); backoff1.z = fixedmult(-inverseRelativeVelocityLength,(o1->linearVel).z);
+          backoff1.x = backoff1.x >> 5;
+          backoff1.y = backoff1.y >> 5;
+          backoff1.z = backoff1.z >> 5;
+        }
+      }
+      else
+      {
+
+        int totalMass; int r0; int r1;
+
+        relativeUnit = relativePosition;
+        Math_NormalizeShortVector(&relativeUnit);
+
+        totalMass = o0->mass + o1->mass;
+        r1 = rdiv(o0->mass, totalMass);
+        r0 = rdiv(o1->mass, totalMass);
+
+        backoff0.x = (-((relativeUnit.x * (r0 / 4)) / 16384)) >> 5;
+        backoff0.y = (-((relativeUnit.y * (r0 / 4)) / 16384)) >> 5;
+        backoff0.z = (-((relativeUnit.z * (r0 / 4)) / 16384)) >> 5;
+
+        backoff1.x = ((relativeUnit.x * (r1 / 4)) / 16384) >> 5;
+        backoff1.y = ((relativeUnit.y * (r1 / 4)) / 16384) >> 5;
+        backoff1.z = ((relativeUnit.z * (r1 / 4)) / 16384) >> 5;
+
+        if (o0->objID >= 0x200)
+        {
+          backoff1.x = backoff1.x / 2;
+          backoff1.y = backoff1.y / 2;
+          backoff1.z = backoff1.z / 2;
+        }
+        if (o1->objID >= 0x200)
+        {
+          backoff0.x = backoff0.x / 2;
+          backoff0.y = backoff0.y / 2;
+          backoff0.z = backoff0.z / 2;
+      } }
+
+
+      collisionHappened = 1;
     }
+
+    (o0->position).x = (o0->position).x + backoff0.x; (o0->position).y = (o0->position).y + backoff0.y; (o0->position).z = (o0->position).z + backoff0.z;
+    (o1->position).x = (o1->position).x + backoff1.x; (o1->position).y = (o1->position).y + backoff1.y; (o1->position).z = (o1->position).z + backoff1.z;
   }
+
   return collisionHappened;
 }
 

@@ -2,6 +2,18 @@
  "_doc": "Functions retail's final link removed (unreferenced). See recon/link_stripped.h; checked by tools/link_stripped_check.py.",
  "functions": [
   {
+   "object": "build/recon/game/common/object.cpp.o",
+   "function": "__23ObjectFinishedMultiAnim",
+   "source": "recon/game/common/object_types.h",
+   "evidence": "Empty inline constructor restores the supplied Object_CheckCollisionResults body region at +404/line521. Unannotated stock C++ output contains a 20-byte standalone copy with no retail address. Original SLINK Beta3 /strip reports exactly this and the finished-sign constructor as uncalled, removes40bytes total, and preserves every previously kept function and the complete loaded image. Source section annotation models only that independently verified linker decision; no instruction or debug field is patched. Receipt: build/nc12/object_ctor_strip_20261026/probe-proof.json."
+  },
+  {
+   "object": "build/recon/game/common/object.cpp.o",
+   "function": "__22ObjectFinishedSignAnim",
+   "source": "recon/game/common/object_types.h",
+   "evidence": "Empty inline constructor restores the supplied Object_CheckCollisionResults body region at +476/line528. Original SLINK Beta3 /strip removes its unreferenced 20-byte standalone copy together with __23ObjectFinishedMultiAnim, preserving the complete loaded image and kept-function set. No supplied function is hidden or compiler output patched. Receipt: build/nc12/object_ctor_strip_20261026/probe-proof.json."
+  },
+  {
    "object": "build/recon/syslib/psx/libcd/cdcont.c.o",
    "function": "CdLastCom",
    "sdk": "LIBCD/CdLastCom",

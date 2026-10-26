@@ -2,6 +2,8 @@
 #ifndef NFS4_GAME_COMMON_OBJECT_TYPES_H
 #define NFS4_GAME_COMMON_OBJECT_TYPES_H
 
+#include "link_stripped.h"
+
 #define NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 #include "sim_types.h"
 #undef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
@@ -84,16 +86,23 @@ struct Chunk {
 struct ObjectAnim {
     /* Retail derived-ctor SYM has the empty inline base-construction scope. */
     ObjectAnim() {}
+#line 53 "C:/nfs4/GAME/COMMON/OBJECT.H"
     virtual ~ObjectAnim() {}
+#line 88 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
     virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-/* Finished* constructor spelling/emission remains source-review work.
- * Explicit public inline bodies (including extern inline) currently emit extra
- * out-of-line copies and fail the whole-TU byte gate; that is not a source floor. */
+/* Empty Finished* constructor bodies supply retail's inline body regions.
+ * Original SLINK /strip removes their two unreferenced standalone copies.
+ * LINK_STRIPPED models that linker decision, not an instruction rewrite.
+ * Proof: build/nc12/object_ctor_strip_20261026/probe-proof.json. */
 struct ObjectFinishedMultiAnim : public ObjectAnim {
+    ObjectFinishedMultiAnim() LINK_STRIPPED;
+#line 61 "C:/nfs4/GAME/COMMON/OBJECT.H"
     ~ObjectFinishedMultiAnim() {}
+#line 95 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
+inline ObjectFinishedMultiAnim::ObjectFinishedMultiAnim() {}
 struct ObjectMultiAnim : public ObjectAnim {
     coorddef impactVel;
     Trk_SimObject *simObj;
@@ -105,16 +114,24 @@ struct ObjectMultiAnim : public ObjectAnim {
     ObjectFinishedMultiAnim *finishedAnim;
     ObjectMultiAnim(coorddef *, AnimDef *, Trk_CollideBoomInst *,
                     Trk_ObjectDef *, Trk_SimObject *, ObjectFinishedMultiAnim *);
-    ~ObjectMultiAnim() { delete script; if (finishedAnim) delete finishedAnim; }
+#line 84 "C:/nfs4/GAME/COMMON/OBJECT.H"
+    ~ObjectMultiAnim() {
+        delete script;
+        if (finishedAnim) delete finishedAnim; }
+#line 109 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
     int Draw(DRender_tView *, Draw_DCache *, int);
 };
 struct ObjectFinishedSignAnim : public ObjectAnim {
+    ObjectFinishedSignAnim() LINK_STRIPPED;
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
+#line 101 "C:/nfs4/GAME/COMMON/OBJECT.H"
     ~ObjectFinishedSignAnim() {}
+#line 116 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
+inline ObjectFinishedSignAnim::ObjectFinishedSignAnim() {}
 struct ObjectSignAnim : public ObjectAnim {
     coorddef impactVel;
     Trk_SimObject *simObj;
@@ -127,7 +144,11 @@ struct ObjectSignAnim : public ObjectAnim {
     ObjectSignAnim(coorddef *, int, AnimDef *, Trk_CollideBoomInst *,
                    Trk_ObjectDef *, Trk_SimObject *, coorddef *,
                    ObjectFinishedSignAnim *);
-    ~ObjectSignAnim() { delete script; if (finishedAnim) delete finishedAnim; }
+#line 124 "C:/nfs4/GAME/COMMON/OBJECT.H"
+    ~ObjectSignAnim() {
+        delete script;
+        if (finishedAnim) delete finishedAnim; }
+#line 131 "C:/Temp/nfs4-decomp/recon/game/common/object_types.h"
     int Draw(DRender_tView *, Draw_DCache *, int);
 };
 

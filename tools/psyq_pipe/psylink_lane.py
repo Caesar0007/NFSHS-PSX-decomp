@@ -174,6 +174,40 @@ def aspsx_output_ok(result, obj):
                if re.search(r'\bwarning\b', line, re.I))
 
 
+def sdb_function_declaration_symbol(line):
+    """Identify a compiler function declaration, never a pointer/local/type row.
+
+    2026-10-26: a retained destructor's .def can precede the .text directive
+    after a LINK_STRIPPED constructor. Its ownership is the declared function,
+    not the previously active section. Preserve kept declarations byte-for-byte;
+    no instruction or declaration payload is rewritten. DT_FCN is the first
+    COFF derived-type layer (bits4..5), including pointer-returning constructors.
+    Backup/real-SLINK /strip proof: build/nc12/object_ctor_strip_20261026/.
+    """
+    name = re.match(rb'^\s*\.def\s+([^\s;]+);', line)
+    value = re.search(rb'\.val\s+([^\s;]+);', line)
+    storage = re.search(rb'\.scl\s+([0-9]+);', line)
+    kind = re.search(rb'\.type\s+(0x[0-9a-fA-F]+|[0-9]+);', line)
+    if not all((name, value, storage, kind)) or name[1] != value[1]:
+        return None
+    if int(storage[1]) not in (2, 3) or (int(kind[1], 0) >> 4) & 3 != 2:
+        return None
+    return name[1]
+
+
+def source_discarded_symbols(lines):
+    """Source-selected discarded section labels, not a guessed function list."""
+    discarded, section = set(), None
+    for line in lines:
+        base = base_section(re.sub(rb'\s*#.*$', b'', line.strip()))
+        if base is not None:
+            section = base
+        label = re.match(rb'^([\w.$]+):\s*$', line.strip())
+        if section == b'strip.text' and label:
+            discarded.add(label[1])
+    return discarded
+
+
 def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
     out = []
     lines = src.read_bytes().replace(b'\r\n', b'\n').split(b'\n')
@@ -207,9 +241,20 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
         m = ALIAS_RE.match(ln)
         if m:
             aliases[m.group(2)].append(m.group(1))
+    # Zero-byte declarations belong to their declared function. The existing
+    # non-official lane projects source LINK_STRIPPED sections out for PSYLINK;
+    # OFFICIAL keeps all bodies/declarations for the real linker to strip.
+    # Do not let that projection lose a following KEPT function's declaration.
+    discarded_symbols = source_discarded_symbols(lines) if not OFFICIAL else set()
     stripping = False
     for ln in lines:
         s = ln.strip()
+        if not OFFICIAL:
+            declared_function = sdb_function_declaration_symbol(ln)
+            if declared_function is not None:
+                if declared_function not in discarded_symbols:
+                    out.append(ln)
+                continue
         if ALIAS_RE.match(ln):
             continue
         m = re.match(rb'^(\w+):$', s)

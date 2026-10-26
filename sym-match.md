@@ -6,6 +6,1326 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-26 Copspeak archive-index member restoration:two supplied LONG fields corrected;all other raw SYM/SLD records and code preserved.
+
+Retail CopSpeak_tFileIndex supplies offset LONG at0 and size LONG at4 in an
+8-byte struct. Restore both actual header members from INT/UINT to long.
+The four existing file-entry calls use explicit int*/unsigned-int* word-output
+views to retain the current locatbig.h ABI;no replacement object,alias,storage,
+new name,asm,volatile,API change or compiler-output rewrite is introduced.
+Original EA API/cast spelling remains unproved:these views document the current
+target's32-bit boundary,not a claim of uniquely recovered literal source.
+
+The119 actual normal/debug CPP inputs identify Copspeak as the sole completed-
+definition consumer. Fresh whole-TU native linking changes exactly TWO ordered
+MOS type payloads,INT/UINT->LONG,now retail-exact. Every other raw record,
+including the complete SLD stream,all function/header/frame/block/end/local
+owner facts,global/type/storage rows and prior319 covered contracts survives.
+The local-only legacy TYPE0 count never covered this member omission;do not
+report its unchanged2357 CLEAN/213 DIRTY as a full member/source certificate.
+
+Fresh run-052mr4is:all27 detailed SOURCE-ONLY/branch checks PASS,both full
+builds have no failed/skipped TUs,all119 whole normal ELFs/native CPE are
+unchanged,and fresh preprocessing equals actual normal/debug inputs for all
+119 units.135 tests,83 stripped validations,vtable1370,source policy,both
+links,raw299819/299819,overlap/foreign/inventory and whitespace checks PASS.
+The preceding disk-full failure's truncated native outputs were independently
+rebuilt before editing;the regenerated baseline exactly matched the previous
+verified dump/CPE hashes. No damaged or stale output is accepted as evidence.
+
+CopSpeak_Request's queueHeadSnapshot,RadioStaticActive's two remaining loop-
+transfer tags and the wider source/ownership/SLD backlog remain explicitly
+unresolved. No new relative/absolute function seal or goal completion is
+claimed. Receipts:build/nc12/copspeak_index_type_20261026/{consumers,
+probe-proof,final-proof}.json and verify.py;source/header/native backups are
+kept there. Verified checkpoint prepared for commit/push and requested pause.
+
+2026-10-26 Copspeak radio-static partial layout repair:84->2 wrong word tags,all14 block records/end252 exact;queue-capture investigation remains open.
+
+One missing ordinary source line before RadioStaticActive's real numpatches
+initializer shifted its body. Restore that line under the existing208 function
+anchor;do not add an executable placeholder or a statement-level override.
+All92 instructions and complete local-owner tuples are unchanged. Incorrect
+word tags84->2,all14 block records now equal retail and function end251->252
+is correct. Every previously correct target tag survives. Remaining offsets
+288/292 are245 versus retail246:the error arm's LOOP BACK JUMP/test after
+AudioClc_SndError,not the error call itself. The call's280/284 tags245 already
+match. Keep SLD-PARTIAL;no new strict/absolute contract is claimed.
+
+Negative controls explain why the two tags are not patched with a fake exit.
+Splitting the actual error call moves its correct call tags to246 and loses
+three correct block records. A real continue after it makes all92 word tags
+match,but extends bhandle/playopts owners from+280 to+296 and changes three
+block records:NOT adopted. A local do/break error funnel changes code/scopes;
+removing the empty error braces still leaves the two backedge tags. No source
+or compiler floor is inferred. Recover the real loop-transfer/note producer
+while preserving both named-object lifetimes and all existing correct facts.
+
+CopSpeak_Request's unprovided queueHeadSnapshot is NOT removed or renamed.
+Fresh actual source/retail locals and raw79-word instructions were compared.
+Ordinary next reuse after the copy is79words/eight +/-diff lines:it changes
+next's provided v1 home to a1 and returns the later head reload rather than
+the initial cached a3 quantity. Reuse before the copy is80words/25diff lines;
+before bank work is79/12 with next in a3 rather than v1. Additional genuine
+successor initializations,return/comma/index-assignment forms,wrap/postincrement
+algorithms and error funnels all fail. The register keyword is neutral in the
+tested closest graph and no storage hint is retained. Address-of aggregate
+assignment creates a32-byte temporary on selected GCC and fails;memcpy return
+forms also fail. These are graph-specific negative receipts,not proof of a
+required original named capture or authority to hide it behind a const/type
+view,rename it to an unrelated supplied object,or introduce asm/volatile.
+
+The wider FIELD audit found an independent actual omission:CopSpeak_tRequest
+and CopSpeak_tBank member graphs match retail,but CopSpeak_tFileIndex.offset/
+size are supplied LONG/LONG while the current header uses INT/UINT. This is
+outside the legacy local-only TYPE0 metric. The119 actual CPP inputs show only
+Copspeak consumes the completed index definition(other include paths suppress
+it). A private LONG/LONG correction with word-output views at the four existing
+locator calls preserves the entire normal ELF/native CPE. Coupled closest
+capture-removal graphs still fail,so the type repair is not a capture exemption.
+The shared header/callers are NOT changed by this private preflight. Next step
+is the authoritative member correction and complete raw/consumer regression,
+not an invented alias or relaxed local/type comparison.
+
+Fresh run-b1oe_l6i:all27 retained detailed SOURCE-ONLY and branch gates PASS;
+both full builds have no failed/skipped TUs. All119 whole normal ELFs/native
+CPE and319 prior covered contracts survive. Every complete local-owner tuple,
+non-target function word/file/frame/block/end record and ordered non-SLD row
+outside the target is preserved. Fresh119 CPP inputs equal actual normal/debug
+inputs;only Copspeak changes. Selected stock before/after plain/-da/actual
+complete assembly equality passes.135 tests,83 stripped validations,vtable1370,
+policy,both links,raw299819/299819,overlap/foreign/inventory and whitespace PASS.
+No failed experiment lands. Main goal active;changes uncommitted/unpushed.
+Receipts:build/nc12/copspeak_static_source_20261026/{probe-proof,
+before-logical-source,phase-proof,final-proof}.json;queue controls/diagnosis in
+build/nc12/copspeak_queue_source_20261026/;index preflight and consumer list in
+build/nc12/copspeak_index_type_20261026/{probe-proof,consumers}.json.
+
+2026-10-26 Audiomus/Copspeak source identities restored:50 calibrated function anchors;290->319 absolute covered contracts,with every relative map preserved.
+
+Restore the original supplied source file/header coordinates for all23 retained
+Audiomus and27 Copspeak functions. Derive each anchor from the actual previous
+signature-to-native-header distance and retail header,not a universal minus-one
+guess. Copspeak has distance1/2 definitions. The earlier read-only plan measured
+GetSongList's NAME line,not its split return declaration:anchor the whole
+declaration at546,then function name547/brace548,so no directive splits its
+return type from its name. All50 new file/header identities agree with retail.
+No anchor/original-coordinate certificate is invented for the existing stripped
+AudioMus reference holder,whose name/body remain explicitly unresolved.
+
+The function bodies,executable tokens and literals are unchanged. Complete
+local-owner tuples,frames,masks,all50 previous header-relative word/block/end
+maps and all other function occurrences/maps survive. The50 ordered strictly
+INTERIOR SLD event sequences preserve their offsets,relative lines and encodings
+including repetitions,with only the supplied source identity changing. Ordered
+non-SLD globals/type/storage/other-function records and all target label rows
+are identical. Entry/end raw-event ownership remains a separate obligation.
+
+Ten existing Audiomus relative contracts and19 existing Copspeak relative
+contracts now have full absolute header/file/word/block/end plus local-owner
+proofs. Prior290 absolute contracts survive;now319. New relative body maps ZERO:
+Audiomus remains10/23 and Copspeak19/27 covered. Their remaining13/8 line maps,
+the existing Copspeak declaration miss,unprovided source captures and original
+literal macro/comment/API spellings remain open. Retire all27 unqualified
+Copspeak SLD-VERIFIED labels:19 become COVERED-SLD-PASS with an explicit
+record-field scope definition,and8 become SLD-PARTIAL. Correct Audiomus's
+unrelated copied BWORLD header description and obsolete constant-false-call
+comment;the SimpleMem producer remains unresolved,not silently legitimized.
+Same-line-count comment edits leave the exact preprocessed debug inputs intact.
+
+Fresh run-rudvrjgy:50 retained detailed SOURCE-ONLY functions PASS and the
+51-entry branch census has zero divergence(the extra is the existing unknown
+reference holder,NOT a native function-source seal). Both full builds have no
+skipped/failed TUs. All119 entire normal ELFs/native CPE are unchanged;fresh119
+CPP inputs equal actual normal/debug inputs,only these two TUs change. Selected
+stock before/after plain/-da/actual complete assembly equality passes.135 tests,
+83 stripped validations,vtable1370,policy,both links,raw299819/299819,
+overlap/foreign/inventory and whitespace PASS. No per-statement anchor,new asm,
+volatile,name,source object,qualifier,flag,reference or generated-output rewrite.
+
+The wider diagnostics were regenerated from the current hash-bound native dump.
+Legacy2357 CLEAN/213 DIRTY and relative-SLD directory counts are unchanged;
+this round recovers absolute source identities,not29 newly matched bodies.
+The319-function ordered raw interior cohort is24 EMPTY,31 nonempty
+INTERIOR_EXACT and264 DIFF. Covered word/record-field certificates do NOT imply
+raw retail event equality or uniquely recovered original text. Main goal active;
+changes uncommitted/unpushed. Receipts:build/nc12/audio_source_anchors_20261026/
+{anchor-calibration,candidate-contracts,interior-preservation-proof,
+comment-scope-proof,phase-proof,final-proof}.json;current-nfs4_sym.txt,
+symtree_report.json,sldtree-report.json,source-review-inventory.json and
+current-record-audit.json in the same directory.
+
+2026-10-26 audio LONG locals restored:three supplied primitive types corrected;original EA interface spelling remains explicit review.
+
+Retail supplies AudioMus_QueueRequestedSong's offset as LONG and the guarded
+CopSpeak_StartUp offset/size as LONG/LONG. Restore those existing names with
+long declarations,not an alias,new temporary or renamed substitute. Current
+locatbig.h still declares int*/unsigned-int* output slots. Use explicit views
+only at those actual API calls,as the existing GetSongList long-size output
+already does;the API header and implementation are not altered. Selected
+stock compilation proves int,unsigned-int,long and pointers are4bytes. A
+wrong8-byte-long negative control fails compilation. The library's real
+offset/size work is a full32-bit getm result or zero stored through each slot.
+Both private caller trials preserve their entire normal objects/native CPE
+and restore ALL complete provided local-owner tuples,not just name/type counts.
+
+This is a selected-PSX-ABI repair,not proof of portable host aliasing rules or
+literal original cast/header spelling. NFS2's matched locator uses unsigned
+word output declarations;that reconstructed sibling does not establish NFS4's
+original API types. Keep the authentic EA declaration/caller-boundary question
+open rather than changing a shared interface speculatively or claiming that
+the new casts are recovered original text. No fake use,source object,asm,
+volatile,scope device,reference modification or compiler-output rewrite.
+
+Fresh native run-km3pvea1 retains both modules'50 native function records.
+The full ordered raw-record comparison allows exactly THREE primitive type
+payload replacements(INT/UINT->LONG),in the two named functions,and nothing
+else. All other locals/owners,globals,type bodies,source identities,word/file
+maps,blocks,end lines and the entire ordered SLD event stream are unchanged.
+The target locals now equal retail in every complete tuple. Audiomus23/23
+declaration-owner and region PASS;Copspeak26/27 declaration-owner and27/27
+region PASS,with its unrelated pre-existing declaration miss retained.
+The legacy2570-common-name comparison changes2355->2357 CLEAN,215->213 DIRTY
+and TYPE2->0 functions. This does not prove every raw/source type exact:that
+comparator's duplicate/global/type-body/owner limitations still apply.
+All relative SLD maps are preserved;no new absolute source contract is issued.
+
+The branch census also exposes one existing unprovided AudioMus reference
+holder,AudioMus_StrippedStreamCreate,beside the50 retained functions. Its
+source comment now explicitly says SOURCE-RECOVERY-UNRESOLVED:original name/
+body not retained. The library-pull reference receipt is not a recovered
+function body or a byte/source certificate for that placeholder. Its code
+and the native dump are unchanged by this same-line-count comment correction.
+The lexical inventory now sees590 markers instead of589,not a newly invented
+source object;112 known string producers and414 native EXTRA rows remain.
+
+Receipts:build/nc12/audio_long_type_20261026/{probe-proof,phase-proof,final-proof}.json;
+current-nfs4_sym.txt,symtree_report.json,sldtree-report.json and
+source-review-inventory.json in that directory. The read-only
+next-anchor-calibration.json derives all23 Audiomus and27 Copspeak signature/
+header distances from their actual current records. Those anchors have NOT
+been applied in this round;Copspeak has both distance1 and distance2,so do not
+guess a universal minus-one rule. All50 retained detailed SOURCE-ONLY checks
+and the51-entry branch census have zero divergence;the extra census entry is
+the existing unprovided reference holder,NOT an additional native source seal.
+Both full builds have no failed/skipped TUs. All119 whole normal ELFs/native
+CPE and all290 older covered contracts survive. Fresh119 CPP inputs equal
+actual normal/debug inputs;only these two callers change.135 tests,83 stripped
+validations,vtable1370,policy,both links,raw299819/299819,overlap/foreign/
+inventory and whitespace PASS. The unchanged locator callees also re-gate
+locatebigentryz111/111 and locatebigentry9/9. The ordered290-function interior
+cohort remains24 EMPTY,30 nonempty INTERIOR_EXACT,236 DIFF;no raw-retail
+equality or original-API certificate follows. Main goal active;uncommitted/unpushed.
+
+2026-10-26 extended-animation header producer:two missing supplied typedef copies recovered,with every other raw record preserved.
+
+Trk_AnimateBoomInst's completed-type typedef is supplied by retail in both
+ANIM and OBJECT. Restore it around the existing16-byte struct definition in
+the shared header,using the provided identifier and unchanged members. All119
+actual consumer inputs identify exactly those two consumers. Each changes
+from2 to3 typedef copies,now3/3 retail-exact;both complete member graphs were
+already exact and remain unchanged. No dummy local use,new identity,layout,
+storage,qualifier,helper or operation is added to manufacture these records.
+
+Fresh run-asb0d_31:all55 retained functions and57-function branch census PASS,
+including the two existing discarded OBJECT constructors in that census.
+The complete ordered raw native dump comparison,INCLUDING every SLD event,
+allows exactly two insertions of the supplied16-byte TPDEF record and NO
+other added/deleted/changed payload. All function occurrences,complete local
+owner tuples,word/file/block/end records and all290 existing covered contracts
+are preserved. This is before/after raw preservation,NOT raw equality to retail.
+Both full build routes have no failed/skipped TUs. All119 entire normal ELFs
+and native CPE are unchanged. Fresh119 CPP inputs equal actual normal/debug
+inputs;exactly ANIM and OBJECT change. Selected stock before/after plain/-da/
+actual assembly equality passes for both.135 tests,83 stripped validations,
+vtable1370,policy,both links,raw299819/299819,overlap/foreign/inventory and
+whitespace PASS. No compiler/output/reference/comparison rewriting is involved.
+
+The broader diagnostics were regenerated from a hash-bound copy of the current
+native dump,not an older sldtree snapshot. The legacy2570-common-name report
+has2355 CLEAN/215 DIRTY,including153 functions with EXTRA and33 with MISSING
+issues. The lexical inventory has589 review-marker locations,112 known
+unresolved string producers and414 native EXTRA issue rows. These are NOT
+distinct object counts or exhaustive source certificates;const/debug-elided
+objects and duplicate owner identities require the stronger individual audits.
+The inventory intentionally retains source_freshness_certified=false. Its
+legacy per-directory local/relative-SLD summaries are diagnostics,not proof
+of full original names,absolute coordinates,raw events,globals or every record.
+
+Two functions carry the three explicit primitive-type review items:
+AudioMus_QueueRequestedSong offset INT versus supplied LONG;CopSpeak_StartUp
+offset INT and size UINT versus supplied LONG. A private stock-compiler trial
+of the first declaration fails at locatebigentry's existing int* output
+parameter in recon/eaclib/psx/eacpsxz/locatbig.h. The live audio sources and
+that interface are unchanged. Investigate the authentic EA file-entry API/
+caller type boundary;do not silently waive the supplied LONG,alter references,
+or introduce a pointer cast merely to erase the diagnostic without evidence.
+Failed trial input/compiler log:build/nc12/audio_long_type_20261026/cases/.
+
+SimpleMem's unproved producer also remains open. Additional isolated selected-
+stock controls show #pragma interface reduces the tested unused constructors'
+named SimpleMem type definitions in debug assembly to2,but not0. A default
+argument alone still emits no literal;null fallback/overload forms emit it
+with those type definitions. These controls do not uniquely establish an
+original constructor,header directive or helper name,and are not adopted.
+Receipt:build/nc12/simplemem_interface_20261026/probe-proof.json.
+
+Main receipt:build/nc12/shared_boom_type_20261026/{final-proof,phase-proof}.json;
+current-nfs4_sym.txt,symtree_report.json,sldtree-report.json,
+source-review-inventory.json and current-record-audit.json in that directory.
+The latter290-function ordered interior cohort remains24 EMPTY,30 nonempty
+INTERIOR_EXACT,236 DIFF;entry/end ownership is separately unproved. Main goal
+active/incomplete;changes uncommitted/unpushed.
+
+2026-10-26 Group-based AnimScript constructor:ordinary pretested loop and real source phases;40 wrong word tags removed,289->290 covered contracts.
+
+Replace the separate decrement/guard/do-while sequence with the real
+pretested while(--numElems!=-1) walk. Keep the original numElems,objInstance,i
+objects and variable-size byte advance;no replacement object,name,qualifier,
+helper or fake work. Three ordinary countdown shapes preserve the entire
+normal ELF/native CPE and all complete local-owner tuples. Both separate
+declarations and real declaration initializers also reproduce the final full
+contract,so literal original punctuation/declaration spelling is not proved.
+The retained form restores an ordinary while without a staging guard/do.
+
+Retail SLD establishes numElems's count read487 BEFORE objInstance's pointer
+setup488,despite their opposite scheduled order in the binary. Allocation491,
+initial counter/pretest493,type/boom selection495,slot store/increment496 and
+byte advance/backedge497 are distinct genuine phases. Tick/flag stores500/501
+and return503 complete all51 word/file tags,root block501 and function end503.
+The previous source had40 wrong word tags and block/end discrepancies. All
+provided parameter/local names,types,homes,depths and owner ranges match.
+No per-statement anchor,asm,volatile,new cast device,reference change or output
+rewrite is introduced. Selected stock before/after plain/-da/actual full
+assembly equality passes;4097 nonnegative countdown cases agree,including
+the zero-count path and final-1 sentinel. This finite model supplements,not
+replaces,the authoritative code/branch/image/native-SYM checks.
+
+Fresh native run-u21vvqtj:ANIM8/18 covered contracts,all18 declaration-owner
+and region PASS. Every previous289 covered contract survives;the new absolute
+and relative constructor contract brings the cohort to290. The ordered raw
+interior audit still reports236 DIFF,30 nonempty INTERIOR_EXACT,24 EMPTY;
+the constructor itself has14 native versus18 retail interior records. Its
+covered word/record-field equality is NOT full raw SLD event/boundary equality
+or unique recovered original text. Raw producer/unknown-name obligations stay
+open. Additional frame-info declaration grouping,array-output,assignment,
+conditional-interval and difference controls still fail and are not retained;
+do not promote their exact line maps over failed code/local-home gates.
+Receipts:build/nc12/anim_constructor_loop_20261026/{probe-proof,layout-proof,
+phase-proof,current-record-audit,final-proof}.json;additional frame controls:
+build/nc12/anim_frame_layout_20261026/repriced-proof.json.
+All18 fresh detailed SOURCE-ONLY and branch gates
+PASS;both full builds have no failed/skipped TUs. All119 whole normal ELFs/
+native CPE and all previous289 covered contracts survive. Full owner tuples,
+other-function word/file records and the ordered raw stream outside the one
+constructor are unchanged. Fresh119 CPP inputs equal actual normal/debug
+inputs;only ANIM changes.135 tests,83 stripped validations,vtable1370,policy,
+both links,raw299819/299819,overlap/foreign/inventory and whitespace PASS.
+Main goal active;uncommitted/unpushed.
+
+2026-10-26 ANIM provided record layouts applied;unprovided time capture investigated without a replacement identity.
+
+Anim_InitSystem and the Group-based AnimScript constructor now advance the
+real objInstance byte pointer by its supplied signed-short size member,not
+integer arithmetic through the address of size. This is a variable-size record
+walk:do not substitute sizeof(header) for the byte size stored in each record.
+LastRotPos,GetRotPos and GetPos advance past the supplied12-byte Trk_AnimateInst
+header with animInst+1. GetRotPos's extended-header arm advances past the real
+16-byte Trk_AnimateBoomInst instead of a raw0x10 offset. Anim_tFrame's supplied
+size20 remains the frame stride. Six expression sites in five functions are
+restored to their real types;no new object,name,member,qualifier,scope or helper.
+
+Primary retail records independently confirm sizes12/16/20 and signed-short
+size@0 in both instance headers. Private selected-stock compilation preserves
+the entire normal ELF,CPE,SYM and textual dump byte-for-byte. Fresh native
+run-343hrav5 also preserves the entire SYM/dump,all18 declaration-owner/region
+contracts and every existing SLD fact. ANIM remains7/18 covered contracts;
+the wider absolute cohort stays289. This round corrects source forms,not a
+previously failing instruction or a missing type/declaration count.
+
+Remaining GetTimedAnimPosRot(index,pt,mat) source review:retail supplies only
+this/index/pt/mat and the guarded tmp. The current const time snapshot has no
+provided name or debug row. Nine direct-argument arithmetic/address controls
+all retain62 instructions but fail five instructions (ten +/-diff lines);
+three genuine success/failure control-flow alternatives fail as well. None
+is adopted,renamed to a supplied local,or granted a generic source exemption.
+Selected-stock plain/-da output equality holds for both baseline and direct
+graphs. Initial RTL already moves the simGlobal HIGH producer from before
+to after the instance-slot address work;the discrepancy predates scheduling.
+Stock lreg bindings and full phase fragments are saved. The original GCC281
+calls.c register-argument precomputation loop is supporting compiler-source
+evidence,not proof of selected binary/source identity or a required named temp.
+Next work:recover the original expression/precomputation producer and original
+spelling without a fabricated local,qualifier,scope,asm or output rewrite.
+
+GetAnimFrameInfo's separate538 division/539 remainder/541 frame output/542
+count output phases remain open. Explicit ticks stages match those line/block
+records but fail code and named homes;the single-expression layout control
+keeps the whole ELF/locals but leaves16 wrong tags and one block-end line.
+Load-split,dividend-only,output-memory and interval-test controls also fail;
+none is retained. Per-word agreement alone is not a native source acceptance.
+Receipts:build/nc12/anim_timed_source_20261026/{probe-proof,control-proof,
+phase-proof,diagnosis-proof}.json;build/nc12/anim_frame_layout_20261026/
+probe-proof.json;build/nc12/anim_record_walk_20261026/{probe-proof,
+layout-proof,final-proof}.json. All18 fresh detailed SOURCE-ONLY and branch
+gates PASS. Both full builds have no skipped/failed TUs;all119 whole normal
+ELFs and accepted native CPE are unchanged. Fresh119 CPP inputs equal actual
+normal/debug inputs;only ANIM changes. Every prior289 covered contract and
+every raw native record survives byte-for-byte.135 tests,83 stripped-function
+validations,vtable1370,policy,both links,raw299819/299819,overlap/foreign/
+inventory and whitespace PASS. Main goal active;uncommitted/unpushed.
+
+2026-10-26 ANIM small source-layout follow-up:three additional covered maps,50 wrong word tags removed across59 instructions.
+
+Under the existing calibrated function anchors,ordinary source layout restores
+SetAnimAttrib2,AnimScript(int)27 and Anim_GetLastRotPos30. The setter's genuine
+return shares514 with its store;the constructor's allocation/slot/tick/flag/
+return phases are462/463/465/466/468;last-position index/quaternion/coordinate/
+conversion/return phases are268/269/270/272/274. No executable token,literal,
+comment,source object,scope,qualifier,asm or volatile is added or removed.
+Hash-bound old/current preprocessed executable tokens agree. Mixed physical
+line endings prevent claiming reconstruction of the prior literal file bytes;
+the token proof and current source hashes are recorded separately.
+
+Fresh native run-9usj0jgp preserves code and all18 complete declaration-owner
+and region contracts;ANIM full covered word/block/end/header/file maps4->7/18.
+The three new contracts extend the prior286 cohort to289. Private DeInitSystem
+layout control is NOT adopted:despite equal code,it leaves12 wrong word tags
+and incorrect block/end lines. Its partial result is not an exact certificate.
+The source-layout trial cannot uniquely recover original comments or punctuation.
+
+The separate289-function ordered raw interior audit still reports235 DIFF,
+30 nonempty INTERIOR_EXACT and24 EMPTY_INTERIOR. The constructor has10 native
+versus13 retail interior records,and LastRotPos9 versus11;the setter has no
+interior events. Thus full covered per-word/record-field agreement is NOT raw
+SLD event equality,entry/end ownership proof or literal original-source recovery.
+All18 fresh detailed SOURCE-ONLY and branch gates PASS. Both complete builds
+have no failed/skipped TUs;all119 whole normal ELFs and native CPE are unchanged.
+All prior286 covered contracts,complete local owners and ordered raw records
+outside the three target functions survive. Fresh119 CPP inputs equal actual
+normal/debug inputs;only ANIM changes. Selected-stock actual/plain/-da assembly
+equality also passes.135 tests,83 stripped validations,vtable1370,policy,both
+links,raw299819/299819,overlap/foreign/inventory and whitespace checks PASS.
+Receipts:build/nc12/anim_small_layout_20261026/{final-proof,probe-proof,
+source-proof,current-record-audit}.json. Main goal active;uncommitted/unpushed.
+
+2026-10-26 shared animation type producer and GetStatus source correction:16 missing provided type copies recovered;282->286 absolute covered contracts.
+
+Restore the completed-type typedef around the existing Trk_AnimateInst struct
+definition,with its supplied name,12-byte layout and unchanged members. Across
+17 consumers,this emits17 provided header copies. Remove GetStatus's unprovided
+const instance pointer snapshot at the same time:the real direct slot test
+preserves code and removes its obsolete local-use type copy. ANIM remains at
+the exact10/10 copies;the net recovery is16 missing records,not17. All17 full
+member graphs remain retail-exact. Twelve consumers still lack one additional
+copy each;do not add unused aliases or objects merely to pad those counts.
+
+Restore all18 ANIM function source identities using calibrated per-function
+anchors. Anchoring only GetStatus produced a mixed physical/original source
+group and correctly failed owner coverage in run-mxok44a2;that partial result
+is not accepted and the parser was not weakened. The complete source-identity
+repair passes owner coverage in run-v4946g4g. All18 previous relative word,
+block and end maps survive. Four existing relative contracts gain absolute
+header/file/word/block/end certificates:Anim_FreeHandle,Anim_GetAnim,
+AnimScript::GetStatus and the two-argument GetTimedAnimPosRot overload.
+Absolute covered count282->286;new relative seals ZERO,ANIM still4/18.
+
+All376 retained detailed SOURCE-ONLY function gates across17 consumers PASS;
+the378-function branch census includes two existing discarded constructors
+and has zero divergence. All119 entire normal ELFs and accepted native CPE
+are unchanged. Fresh119 preprocessed inputs equal actual normal/debug inputs;
+exactly17 consumers change. Complete local-owner tuples survive globally.
+Outside the explicit ANIM coordinate restoration,the ordered raw record guard
+permits only17 supplied header typedef insertions and one obsolete local-use
+copy deletion;all other global/type/storage/other-function records are identical.
+Selected actual compiler/flags/plain/-da output equality passes before/after
+for all17,including whole-TU PsyQ4.4 for AIH_BTCPERP. Both full build routes
+have no skipped/failed TUs.135 tests,83 stripped-function validations,vtable
+1370,policy,both links,raw299819/299819,overlap/foreign/inventory and whitespace
+checks PASS. No new name/helper,asm,volatile,qualifier,scope device,compiler
+flag,per-statement anchor,reference change or generated-output rewrite.
+
+The separate ordered raw SLD interior audit of these286 covered functions
+reports30 nonempty INTERIOR_EXACT,23 EMPTY_INTERIOR and233 DIFF. These are
+selected-function interior counts,not whole-project coverage;entry/end event
+ownership is not certified. Word-map/record-field certificates must not be
+presented as raw-event or literal original-source equality. Wider source,
+missing type-producer and raw SLD obligations remain open. Current source,
+119 object,shared header,native image and audit-input hash bindings were
+independently rechecked after the verifier completed.
+Receipts:build/nc12/shared_animate_type_20261026/{final-proof,phase-proof,
+raw-record-proof,producer-review-proof,anim-anchor-calibration,
+full-build-proof,current-record-audit}.json. Main goal active;changes
+uncommitted/unpushed.
+
+2026-10-26 IMass initialization/motion source restoration:two complete covered local/region/word maps,178 exact word tags;280->282 covered contracts.
+
+InitIMassObjectInfo67 restores an ordinary pretested while over the real
+objIndex/objInst locals,without the decompiler's separate positive-count
+guard/do-while sequence. Advance objInst as a byte pointer using its provided
+signed-short size field,instead of integer address arithmetic through &size.
+The input header is12bytes but records are traversed by THEIR size,not by
+sizeof(header). Allocate the output array using sizeof(Object_tIMassObjInfo):
+primary SYM size32,dimension@4,lastPos@16,lastTick@28. This expresses the real
+output-record contract rather than a raw shift5,and compiles identically.
+Null-group/allocation failure paths are unchanged;the real allocation/test
+share1063 and the genuine local work scope begins there. Pointer acquisition
+is1069,pretest1071,type selection1073,the counter1084 and byte advance1085.
+Implicit void fallthrough preserves both block ends1085 and function end1088.
+
+All67 words,complete local tuples,region paths/addresses/lines,absolute header/
+file and function end agree with retail. The ordinary for control ALSO keeps
+the entire ELF and locals,but moves seven backedge tags and two block-end
+lines1085->1086;not adopted. Integer/field-byte while controls also reproduce
+the covered facts,so literal original loop/pointer punctuation is not uniquely
+proved. The chosen while/sizeof/byte walk uses real supplied types and work,
+not a new capture,alias,qualifier,scope pad or reference-count device.
+
+GetIMassObjectMotion111 retains only the provided timeDiff/objTime work locals
+and original cpoint/orientMat/velocity roles. Ordinary source phases1122/1125,
+shared subtraction/test1127,component divisions1130/1131/1132,zero outputs
+1136/1137/1138 and cache writes1142/1143 restore every word/file tag,both full
+regions,header1117 and end1143. No variable-role reuse or new source object.
+Its94 prior wrong word tags and Init's55 are now ZERO,149->0 total;all178
+instructions and the complete normal object remain byte-identical.
+
+Fresh run-xnh1jgi_:OBJECT23/37 complete covered contracts,37/37 declaration-
+owner and region PASS,all32 legacy primary CLEAN. Two new absolute certificates
+are added;all280 older certificates and every prior partial contract survive,
+now282. All37 retained detailed SOURCE-ONLY gates PASS;the39-function branch
+census includes the two existing discarded constructors,zero divergence.
+All119 entire normal ELFs and accepted native CPE are unchanged. Fresh119 CPP
+inputs equal actual normal/debug inputs;118 other source/input hashes survive.
+Every other native function occurrence/word/file map and the entire ordered
+raw global/type/storage/other-function stream are identical. Selected-stock
+plain/-da/actual debug output equality passes before/after.135tests,all83
+linker-stripped validations,vtable1370,policy,both links,raw299819/299819,
+overlap/foreign/inventory and whitespace PASS. No asm/volatile,new name/helper,
+flag,statement anchor,reference change or generated-output rewrite is introduced.
+
+These are covered record-field/word-map certificates,NOT complete raw SLD-
+stream,global-type-order,literal original text or whole-project source claims.
+The zero-width/boundary/native-producer backlog,unproved pointer spellings,
+GetPoints constants,radius's four tags and other unresolved work remain open.
+Receipts:build/nc12/object_imass_source_20261026/{final-proof,phase-proof,
+probe-proof,layout-proof,baseline-proof}.json. Main goal active;changes
+uncommitted/unpushed.
+
+2026-10-26 collision-data supplied fields applied;radius statement/region map54->4 differences without a speculative variable-role rewrite.
+
+Replace whole-object coordinate views with the provided Trk_SimObject.point[3]
+array in GetRadiusCollisionData and GetPointsCollisionData. In the latter,
+replace raw `objInstance[1].y+3` byte access by the supplied extended-instance
+boomIndex,and point the quaternion view at the supplied qx member rather than
+untyped objInstance+1. Primary retail member records confirm point[3]@0,
+boomIndex@35,and qx/qy/qz/qw@20/22/24/26; tQuat x/y/z/w are0/2/4/6. In
+particular qx,NOT qw,is the correct start. The existing type5 guard selects
+the extended instance,consistent with the already matched creator's36-byte
+Trk_CollideBoomInst layout. No invented field,object,qualifier or operation.
+All normal ELF bytes,including the two existing discarded constructor copies,
+are unchanged. No type/global record or other-function metadata changes.
+
+Radius's actual source layout restores both guards,animation work,pointer/radius
+outputs and return:all8 complete provided local-owner tuples,all5 full region
+tuples,header304/end330 and63/67 word tags agree. Source differences54->4,
+not zero. Remaining offsets116/144/148/152 are322 versus retail320 in the
+nested Find call;the consuming Anim_GetPos call belongs on322. Every prior
+correct word tag/region/type/local/global fact survives;this function receives
+NO new strict/absolute certificate. All280 previous covered contracts survive.
+
+Two diagnostic alternatives illustrate why metadata cleanliness is not the
+whole goal. A genuine value-producing Find expression region keeps code but
+adds unsupported regions and leaves9 wrong tags;not adopted. Reusing objList
+to hold the returned instance between the two calls reproduces every word/
+local/region/header/end record,with the whole ELF unchanged. It is nevertheless
+NOT adopted:objList's REGPARM:$2 already follows from the initial incoming-
+argument swap,and Find's later return also usesv0. Register reuse plus two
+SLD stages does not uniquely establish a later source-variable ownership or
+justify casting an Object_tSimObjList pointer into an animation instance merely
+to obtain a seal. The original staging/macro spelling remains real review work,
+not a claimed compiler floor or a reason to invent a new capture name.
+
+GetPoints' two unused extentType/clearFlag constants remain explicitly flagged
+scaffolding. A new TABLE-level pointer/reference getter assay preserves79
+instructions,the recorded objDef and all other provided owners plus the two
+region addresses;the old ELEMENT-result getter had elided objDef. This opens
+a distinct producer angle,not a proof of the original helper name/purpose or
+full source-line/global-record validity. The pair's retail353 coordinate also
+precedes the table-read358 coordinate. Checked NFS2 matched C and NFS4 PC-map
+references provide no authoritative spelling;no diagnostic helper is added to
+the project. Two canonical PsyQ4.3 ASSERT.H controls also fail whole-object
+equality and are not applied. The old universal getter wording is narrowed in
+the five-line source comment,with exact actual CPP input-byte equality proved.
+
+Fresh run-f9j8q3je:37 retained detailed SOURCE-ONLY PASS;39-function branch
+census includes the two existing linker-stripped constructors,zero divergence.
+All119 complete normal ELFs and accepted native CPE are unchanged;fresh119
+CPP inputs equal actual normal/debug inputs and118 unrelated source/input
+hashes survive. All other native function occurrences/word-file maps and the
+entire ordered raw global/type/storage/other-function stream are identical.
+Selected-stock plain/-da/actual debug output equality passes before/after.
+135tests,all83 linker-stripped validations,vtable1370,policy,both links,
+raw299819/299819,overlap,foreign-label,inventory and whitespace PASS. No new
+asm/volatile,name,helper,scope padding,flag,reference change or output rewrite.
+This is partial source/field restoration,not whole source/SYM/SLD completion.
+
+Receipts:build/nc12/object_radius_source_20261026/{final-proof,field-proof,
+field-layout-proof,call-phase-proof,phase-proof,baseline-proof}.json and
+object_points_producers_20261026/probe-proof.json. Source/backend naming,
+raw SLD serialization,boundary attribution and all previous backlog stay open.
+Main goal active;changes uncommitted/unpushed.
+
+2026-10-26 Finished-animation constructors/source emission resolved with authentic linker stripping;CheckCollisionResults covered local/region/word contract exact,279->280 covered contracts.
+
+The two missing empty body regions were not an instruction-allocation limit.
+Write ordinary explicit empty FinishedMulti/FinishedSign constructors. Stock
+C++ emits their correct inline body regions AND two20-byte standalone copies.
+The original build's SLINK /strip,not a compiler flag or output patch,removes
+those copies. A controlled assay assembles ALL code from unannotated ordinary
+C++,protects the other520 input files and37 existing OBJECT functions,and
+lets real SLINK perform static coverage stripping. statcov lists exactly
+__22ObjectFinishedSignAnim and __23ObjectFinishedMultiAnim as uncalled,total40
+bytes. No function is added/removed in the final kept set;the complete loaded
+bytes AND coverage equal the same-input SLINK baseline. The caller's full
+40 block records equal retail. This supplies the missing producer evidence,
+superseding the earlier failed suppression-flag/access/inline-emission routes.
+
+Use the existing project LINK_STRIPPED model on constructor PROTOTYPES,with
+ordinary out-of-class inline empty definitions in object_types.h. Two evidence-
+backed entries in linkers/link_stripped.json make the source-only GNU linker
+discard the same unreferenced copies. Both names have no retail address.
+This is a documented target-build section annotation,not an instruction
+implementation or proof of literal original header placement/access spelling.
+No asm,volatile,pin,dummy use,source helper name or artificial body region is
+introduced. Source constructor names derive from the supplied original classes.
+
+The compatibility test exposed an existing PSYLINK-bridge ownership bug:
+CC1 can emit a KEPT destructor .def before .text resumes after a discarded
+constructor section. The old section-only projection incorrectly swallowed
+that retained declaration. Back up psylink_lane.py before changing it,then
+identify function declarations by their original name/value,storage class and
+COFF function-derived type. Keep retained declarations byte-for-byte;omit only
+declarations owned by source-selected discarded symbols. OFFICIAL still keeps
+every body/declaration for real SLINK to strip. No declaration field value,
+instruction operand or generated record is rewritten to a desired value.
+Five new production-AST regressions cover constructor pointer-return types,
+kept declarations before the section switch,local/function-pointer negatives,
+ordinary no-strip inputs and unmodified official-lane retention. Protected
+tool/source/config backups:build/nc12/object_ctor_strip_20261026/before/.
+
+All original normal OBJECT text/rodata/data/sdata/BSS/reginfo payloads are
+byte-identical,as are every old symbol meaning,kept relocation and all37 old
+procedure descriptors. The only new executable payload is40bytes in the two
+validated discarded constructor bodies,with their two descriptors/relocations.
+The old entire OBJECT ELF is independently reproduced from its saved exact
+CPP input and hash-checked before comparison. Thus the entire OBJECT ELF hash
+is EXPECTED to change;the118 OTHER complete normal ELFs remain hash-identical.
+The honest final GNU link remains299819/299819 RECON words exact,with zero
+masked mismatch bytes or foreign labels. Accepted native CPE SHA is unchanged.
+
+Fresh run-aprmaen9:all32 primary OBJECT functions CLEAN;37/37 declaration-owner
+and37/37 region PASS. CheckCollisionResults has all13 provided complete local
+tuples,all20 complete region tuples,all166 absolute word/file tags,header455
+and end557 exact. OBJECT now21/37 combined covered contracts,not whole-source
+completion. Every older279 covered contract survives;one is added,now280.
+All37 retained detailed SOURCE-ONLY gates PASS;the39-function branch census
+includes the two validated discarded copies and reports zero divergence.
+Both full reconstruction/oracle builds PASS with no failed/skipped TUs.
+Fresh119 CPP inputs equal actual normal/debug inputs;all118 unrelated source/
+input hashes survive. Selected-stock plain/-da/actual debug assemblies agree
+before/after.135 tool tests,vtable1370,policy,both links,overlap/foreign,
+inventory,whitespace and all83 listed linker-stripped validations PASS.
+
+Every other native function occurrence/frame/local/region/word/file fact is
+unchanged. Ordered raw global/type/storage records differ ONLY by moving two
+existing ObjectFinishedMultiAnim and two ObjectFinishedSignAnim TPDEF use
+copies from the caller interface run to the real header-constructor producer.
+No payload/copy is added or deleted:both class counts stay6 versus retail6.
+The exact three ordered insert/delete operations are guarded;no generic type
+filter is used. Global type-emission ordering/literal original formatting is
+still separate review,not inferred exact merely from those equal counts.
+
+Reprice the unprovided finishedMulti/finishedSign allocation captures on the
+correct constructor basin:direct nested Multi,Sign,and joint forms are14,22
+and36 normalized diff lines at166 words,respectively. They are not applied.
+Their original pointer-local names/necessity remain explicit recovery work,
+not debug-elision exemptions or a source floor. Constructor recovery also
+does not fix raw SLD serialization:the current280-function cohort still has
+22 empty interiors,29 nonempty exact interiors and229 DIFF with the stricter
+record audit. The producer/boundary/raw-filename/library-coverage backlog
+from the preceding round remains open. No whole-project SYM/source seal.
+
+Receipts:build/nc12/object_ctor_strip_20261026/{final-proof,probe-proof,
+retained-sections-proof,full-build-proof,nested-new-proof,current-record-audit,
+phase-proof,baseline-proof}.json;linked/statcov.txt records the original-strip
+decision. Main goal active;changes uncommitted/unpushed.
+
+2026-10-26 CheckCollisionResults existing-region lines repaired;new strict SLD-record audit exposes a producer/coverage gap hidden by per-word checks.
+
+GCC2.8.1 cp/parse.y emits a source note for BREAK. cp/pt.c do_poplevel does
+NOT emit a new note for a closing brace. final.c records high_block_linenum,
+the maximum emitted line since the latest block begin,at block ends. This
+explains why moving braces alone left three ends530 instead of534. Selected
+stock RTL/final assembly independently confirm the mechanism: the genuine
+default dispatch exit emits534 before three .bend80 directives,then539 before
+the next instruction. Plain/-da/actual debug output equality holds before/after.
+
+Spell out the inner switch's EXISTING unsupported-animation default exit at534.
+This adds no selector value,operation,source object or debug region. All166
+instructions and their line/file tags,13 complete provided local-owner tuples,
+header455/end557,normal OBJECT ELF and native CPE remain unchanged. All18
+existing complete region path/address/start-line/end-line tuples now agree
+with retail. Only the two supplied empty constructor-body regions remain
+missing; the function is still not fully SYM/SLD exact. A duplicate unreachable
+break also reproduces the notes but is rejected,not reconstructed. The literal
+original default spelling is not uniquely proved; keep that uncertainty visible
+rather than claiming recovery of original text from a green measurement.
+
+Fresh run-83f3ekts and37 detailed SOURCE-ONLY/branch gates PASS. All119 normal
+objects/native CPE,all279 previously covered absolute contracts,every other
+function occurrence/map and ordered raw global/type/storage records survive.
+Fresh119 CPP inputs equal actual normal/debug inputs;all118 other source/input
+hashes survive. No new asm,volatile,qualifier,scope,variable/helper name,
+statement anchor,production compiler/linker flag or output rewrite is added.
+No new complete function certificate is counted:the two constructor bodies
+and finished-pointer original-name review remain open.
+
+IMPORTANT COVERAGE CORRECTION:per-word tags are NOT every SLD record. Retail
+has four records at target+600:530,530,534,539. The current PSYLINK measurement
+dump retains only539,despite selected compiler assembly containing the534
+note. Original vendor DUMPOBJ,run under the existing DOS runner,shows530/534/
+539 ALREADY PRESENT in the unmodified ASPSX object. All37 object word maps are
+calibrated against the linked native dump before using that evidence. A private
+same-input PSYLINK2.73 control reproduces the current CPE/parsed functions;
+SLINK Beta3 retains530/534/539. Thus PSYLINK coalescing is directly observed,
+not a source-code mandate to invent more statements. The additional retail
+duplicate530 still needs source/producer investigation. No object/SYM record
+is patched and no reference is refreshed to make streams agree.
+
+New versioned read-only tool:tools/psyq_pipe/sld_records_cmp.py. It retains
+ordered same-address/repeated records,full filename semantics and raw payload
+encodings; it distinguishes nonempty exact,empty-interior,semantic-only exact,
+DIFF,missing/invalid coverage and ambiguous names. It never pairs duplicate
+function names arbitrarily. Entry/end-address event ownership is explicitly
+NOT covered,so none of these statuses proves full-function/project exactness.
+No existing comparator is weakened. Thirteen new regressions include the case
+where the last per-word line is equal but an intermediate/repeated record is
+missing. The full tool suite now passes130 tests. There was no predecessor
+file to back up; existing production build/measurement tools are unchanged.
+
+Current common-name interior audit:2570 selected names,2246 DIFF,290 empty
+interiors,29 nonempty INTERIOR_EXACT and5 ambiguous names. These are record-
+sequence results,NOT code-match percentages or a full raw-SYM coverage claim.
+The report includes per-directory counts. EACLIB contributes only5 retained
+functions; absent retail library/debug/data records are not silently certified.
+Within the279 prior covered-contract cohort plus this partial target,the
+PSYLINK report is22 empty/29 exact/229 DIFF. A private SLINK assay is22 empty/
+27 exact/231 DIFF:preserving more notes does not by itself recover every source
+statement or make the whole project exact. The279 older contracts remain valid
+ONLY for their explicitly checked word/header/file/block/end/local fields,
+not for all zero-width records or literal original source.
+
+SLINK is NOT substituted into the accepted gate. Its private CPE differs at36
+loaded bytes across33 words despite identical parsed function records by
+name/address and preserved279 covered contracts. CPE framing/order also differ;
+neither raw SHA nor final loaded image is claimed identical. First differences
+include Platform_SysStartUp's address materialization and SDK small-data
+accesses; diagnosis is not replaced by rewriting instructions. This producer/
+link-layout discrepancy and boundary-event attribution are explicit next
+backlog items. Both accepted links/raw299819/299819 remain green under the
+unchanged accepted pipeline;vtable1370,policy,overlap,foreign/inventory and
+whitespace also pass. The goal remains active; changes uncommitted/unpushed.
+
+Reproduce the new fail-closed audit after refreshing native inputs:
+
+    python tools/psyq_pipe/sld_records_cmp.py --report build/psyq_g/sld_records_report.json --require-exact
+
+An exit1 is expected while record differences remain. For the exact measured
+cohorts and source/producer bindings see build/nc12/object_block_notes_20261026/
+{final-proof,block-note-phase-proof,region-proof,object-event-proof,
+linker-identity-proof,linker-preservation-proof,record-audit-all-common,
+record-audit-psylink,record-audit-slink3b}.json and linker-word-differences.json.
+The raw filename-casing,full source/global/data/SLD restoration obligations and
+all other prior review work remain open; these results do not narrow the goal.
+
+2026-10-26 CheckCollisionResults result/case/owner repair:166/166 instruction tags exact,two wrong scope endpoints recovered,all13 provided local tuples preserved;function remains explicitly incomplete.
+
+Restore the outer switch's source case order1/2/3,the existing-animation arm's
+real ret=0 fallback,and allocation-case breaks INSIDE their work blocks.
+These are actual result/control-flow paths,not empty region padding or new
+source objects. Zero still initializes ret for the outer default; the explicit
+case2 false arm defines that case's unchanged result. The negative-velocity
+path still returns1 rather than the old normalized-PASS/incorrect-branch trap.
+Move ret=-1 after the named collision-work block,retaining the actual locals'
+provided ownership; the block is real work,not a manufactured scope.
+
+Two previously wrong region endpoints become retail-exact:the status
+conditional200..608->200..616,and the first allocation case404..404->404..476.
+Every prior correct region-address tuple survives. All18 existing complete
+path/start/end-address tuples now match retail,with no unexpected region.
+All13 ordered name/type/home/size/dimension/depth/full-owner tuples remain
+exact. The original allocation order,all166 instructions,the complete normal
+OBJECT ELF and native CPE are unchanged. Case order alone moves TWO status
+endpoints to616,losing an existing correct tuple; it is NOT accepted alone.
+The actual zero-result arm plus common outer break recovers the proper split.
+Likewise the first case break placement is essential to its proper endpoint.
+
+Retail source phases also recover velocity458 BEFORE initial result462,
+lookup473,status474,type475,outer switch477/478,positive guards484/487,
+named work493..534,and allocation sources521/522 and528/529. The result
+phases539/541/549 and final return557 retain the correct shared tails.
+Ordinary source layout under the existing function anchor reduces155/166
+word-tag differences toZERO. Every instruction's absolute line/file tag,
+header455 and function end557 agree,without statement #line overrides.
+Selected-stock plain/-da/actual debug assembly equality is verified on both
+source states; no compiler state or generated note/instruction is rewritten.
+
+This is NOT a complete function source/SYM/SLD certificate. Two empty
+Finished* constructor-body regions at404..404/line521 and476..476/line528
+are still missing. Three enclosing block-end line records remain530 versus
+retail534,even though their addresses/paths are correct.15/18 existing full
+region tuples agree. Split call semicolon/closing-token controls recover a
+completion line but wrongly move26 instruction tags529->530; not adopted.
+No empty default case,useless assignment,fake condition,alias,scope or new
+asm/volatile is added to manufacture those missing records. finishedMulti/
+finishedSign remain explicitly unproved original spellings despite debug
+elision; neither heap identity/order nor current byte PASS proves them.
+
+Constructor emission was checked against GCC2.8.1 cp/decl2.c and method.c:
+explicit private/public constructor bodies add the two unwanted standalone
+constructor symbols. The isolated no-implement-inlines controls remove those
+copies but also remove ALL FIVE required destructor definitions and the base
+vtable; rejected. Parenthesized construction is neutral,not a fix. No header
+pragma/access hack,production flag/tool change or post-compile rewrite lands.
+The source/emission producer remains open,not an accepted source floor.
+
+Fresh run-udpmze3v:OBJECT31/32 legacy primary CLEAN,37/37 declaration-owner
+PASS,36/37 region PASS and20/37 complete covered metadata contracts. All37
+detailed SOURCE-ONLY/branch gates PASS. All119 complete normal ELFs/native
+CPE are unchanged; fresh119 CPP outputs equal actual normal/debug inputs,
+and all118 other source/input hashes survive. Every other native function
+occurrence/line map and the complete ordered raw global/type/storage/other-
+function stream are identical. All279 prior absolute certificates survive;
+NONE is added for this incomplete target.117tests,vtable1370,policy,both
+links,raw299819/299819,overlap,foreign-label,inventory and whitespace PASS.
+Receipts:build/nc12/object_constructors_source_20261026/{final-proof,
+phase-proof,region-proof,closing-proof,case-break-proof,status-exit-proof,
+probe-proof,baseline-proof}.json. Full goal active; changes uncommitted/unpushed.
+
+2026-10-26 GetObjMaxDimensions real consuming loop/source seal:94/94 words,all provided owners and full absolute SYM/SLD exact;278->279 validated contracts.
+
+Replace the decompiler-shaped separate decrement/guard/do-while sequence with
+the actual vertex-consuming `while (vertCount-- != 0)` loop. The existing
+provided vertCount,pts,minDim/maxDim and objDef retain all complete type/home/
+dimension/depth/owner tuples; there is no new counter,alias,scope or fake use.
+All94 instructions,the complete normal OBJECT ELF and native CPE are unchanged.
+For every vertexCount0..255 the loop consumes the same vertices and ends with
+vertCount=-1,including the empty input. No asm,volatile,qualifier,flag or output
+rewrite is needed. Existing typed CCOORD16 extrema and eight-byte stride remain.
+
+Restore actual source phases:objDef1018,both clear calls1019,count/pointer1020,
+consuming test1024,three bounds groups1026..1039,pointer advance1041 and final
+dimensions1046/1047/1048. Every94 word/file tag,the four block records and
+function end1048 now agree with retail. Ordinary for controls preserve code
+but tag three backedge words1042 rather than1041; they are not adopted.
+A pre-decrement/-1 while control also matches,so literal original syntax is
+not uniquely proved. The consuming while is a no-extra-object faithful source
+form,not a claim that an SLD seal recovers unknown comments or macro spelling.
+
+Fresh run-zuxz78sn:OBJECT20/37 complete covered SYM/SLD contracts,37/37 provided
+declaration-owner PASS,36/37 region PASS. All37 detailed SOURCE-ONLY/branch gates
+PASS. All119 normal ELFs/native CPE and every earlier278 absolute contract are
+unchanged/preserved. Fresh119 source preprocessing equals actual normal/debug
+inputs; all118 other source/input hashes agree with the prior checkpoint.
+Every other native function occurrence/word map and the complete ordered raw
+global/type/storage/other-function stream are identical. Selected-stock plain,
+observed(-da) and actual debug assemblies agree before/after.117tests,vtable1370,
+policy,both links,raw299819/299819,overlap,foreign-label,inventory and whitespace
+PASS. Receipts:build/nc12/object_dimensions_source_20261026/{final-proof,
+phase-proof,probe-proof,baseline-proof}.json. No full-project completion claim;
+the main goal stays active and these changes remain uncommitted/unpushed.
+
+The same round also re-investigates AddCustomObject's artificial pointer-zero
+staging rather than accepting the old near-miss explanations.30 guard/loop,
+56 real reject-path/loop,12 invariant-condition and4 declaration controls were
+tested without asm,volatile,new names or dummy operations. None reproduces the
+complete normal ELF; none is landed. Natural counter-only pretests are212words/
+11diff lines; actual duplicate reject-path increments give214/29,not a source
+repair by themselves. Overall measured basins range212..221 words and11..77
+normalized diff lines; these are bounded controls,not a universal impossibility
+claim. The current byte-PASS staging remains explicitly unresolved.
+
+Stock -da outputs equal ordinary compilation in the staged,natural212 and
+duplicate-increment214 basins. The global allocator model reproduces16/16
+staged and15/15 natural handouts. Staging makes p157 a global quantity with
+4refs/8live/a0; natural source leaves that pointer local and uses v0 later.
+The real i quantity p156 changes9refs/28live to10refs/26live. This is concrete
+producer/allocation evidence,not proof of an original pointer-through-zero
+operation or a local-allocator-only verdict. The next source investigation
+must account for the anonymous guard copy AND the later real carObj home,
+without fake pointer uses. Stock dumps/model/control receipts and all failed
+sources are isolated under build/nc12/object_traffic_source_20261026/.
+
+2026-10-26 OBJECT source identities/accessor layout:37 correct filenames/headers,19 new complete covered absolute SYM/SLD contracts;259->278 validated contracts,all previous code PASS preserved.
+
+All32 primary OBJECT.CPP definitions now have independently calibrated retail
+per-function source anchors; the five inline destructors use their actual
+OBJECT.H source identities and original53/61/84/101/124 header coordinates.
+The two nonempty destructor bodies put their real deletes on separate source
+lines,restoring both complete word maps,block-line records and ends86/126.
+Every destructor now has a complete covered metadata contract,not merely an
+equal region count or an unchanged instruction stream.
+
+Remove the unprovided Group_Data inline wrapper at BOTH remaining callers,
+using the existing Group::GetData member instead. FindObjInstanceFromSerialNum
+and GetSimObj restore all28/53 instruction tags,all block/end coordinates and
+complete ordered local/type/home/owner tuples through ordinary source layout.
+GetSimObj's base assignment followed by actual index advancement preserves
+the original register allocation; the fused base-plus-index control changes
+two instructions and is not adopted. No fake use,scope,alias,qualifier,helper
+name,asm,volatile,statement anchor or generated-output rewrite is introduced.
+
+Ten already-relative-exact primary functions gain absolute proofs,the two
+accessor callers gain full maps,and five header destructors gain full maps.
+Whitespace-only source layout then seals InitCustomObjects33 words/end594
+and ClearCustomObjects52 words/end635. The actual traffic/cop loops keep their
+existing shared i owner; the RestoreAll call belongs on635 after its634 test.
+No control-flow,token,literal,scope or source object changes in this follow-up.
+That makes19 new contracts,259->278. All37 source filenames/headers agree;
+the other18 OBJECT functions are NOT full metadata/source seals. Declaration
+ownership remains37/37 PASS,region36/37 PASS; CheckCollisionResults still
+lacks two supplied constructor regions and its staged allocation identifiers
+are not proved original. GetPointsCollisionData's fake constants/empty pair,
+AddCustomObject's zero staging and the SimpleMem_ClassName helper remain
+explicit source-recovery obligations,not accepted original-code exemptions.
+
+Removing the wrapper also removes exactly one excess Group TPDEF use-copy:
+OBJECT9->8 versus retail7. The raw guard permits only that exact deletion
+outside the37 independently checked function records; every other ordered
+raw global/type/storage/other-function record survives. GNU destructor ___
+spellings are identified explicitly,not hidden by a generic raw-record filter.
+All36 supplied function export/return-type records and six audited member
+graphs agree. OBJECT still has7 Trk_SimpleInst copies versus retail9; those
+two missing producer copies remain open,no dummy declarations added to pad it.
+
+Fresh native run-gsgz_cpc:normal/debug code and native CPE UNCHANGED,ASPSX524/0,
+PSYLINK0. All37 detailed SOURCE-ONLY/branch gates pass. All119 complete normal
+ELFs are unchanged; fresh119 preprocessor outputs equal actual normal/debug
+inputs,and all118 other source/input hashes are unchanged. Selected-stock
+plain/-da/actual debug output equality holds before and after. All259 earlier
+absolute contracts and every previous partial renderer/local/scope fact survive.
+Both full reconstruction and oracle builds pass with no failed/skipped TUs
+after the header repair; the subsequent two whitespace-only follow-ups have
+fresh whole-TU normal/debug,complete-object,branch,link and native guards.
+117tests,vtable1370,policy,both links,raw299819/299819,overlap,foreign-label,
+inventory and whitespace checks PASS. Whole-project original source and full
+SYM/SLD exactness remain unproved. Receipts:
+build/nc12/object_source_audit_20261026/{final-proof,phase-proof,baseline-proof,
+helper-layout-proof,sim-phase-proof,small-layout-proof,return-record-proof}.json.
+Changes remain uncommitted/unpushed; the main source-restoration goal is active.
+
+2026-10-26 custom-object real loop/source owners restored:all21 supplied tuples and20 region addresses exact; fake oi/buildResult/skipObject/one-shot loop removed. Shared Trk_SimpleInst typedef producer repaired across four consumers.
+
+Retail's matrix/objectOffset body endpoints extend through the record-pointer
+advance,+140..+740,while objectIndex's for owner ends+748. The prior structured
+seed incorrectly put pointer advance in the for step,ending body locals+728.
+Put actual record advance in the body,and execute that same necessary advance
+before rejecting with continue. GCC keeps both real source paths through global
+allocation and then shares them in jump2. The normal object and native CPE are
+byte-identical to the prior verified source; all200 instructions remain PASS,
+including the former missing load-delay nop and retail s4/s5 allocation.
+No fake reference,register pin,barrier,extra case,net-zero operation or newly
+invented name is needed. This replaces the save/dead-set/restore oi device,
+buildResult and skipObject captures,and the artificial one-shot tail loop.
+The previously removed anim remains absent. Only transMat remains an extra
+native local; the unprovided t3 still exists in source despite debug elision.
+
+The selected-stock allocator model matches17/17 handouts both before/after.
+reqdelta priced a walker ref step27->32 or t1 live35->46 for the isolated
+199-word seed's inversion. Actual necessary duplicate-path work gives walker
+refs27->33 and live136->139,priority0.7941->1.1870,above t1's unchanged1.0285.
+The walker becomes s4 and t1 s5. A model-only31/32 counterfactual confirms that
+threshold; no compiler state or generated instruction/debug record is changed.
+Both plain/-da normal outputs equal actual stock compile assembly. Phase
+receipts show two size loads through rtl,cse,flow,lreg,greg,sched2,and one after
+jump2/dbr. This is real control/data-flow work merged late,not a dummy liveness
+dial or a claim that a source identifier must exist because one old seed failed.
+
+All21 supplied complete name/type/home/size/dimension/depth/owner-range/path
+tuples now match,up from11; all20 region kind/address/path identities agree.
+Alias preparation on2082 before objDef2083 restores the supplied conditional
+start line without changing any word tag. Every prior correct instruction tag
+survives,still199/200 exact. Two facts remain: count load+64 is2057 versus2058,
+and conditional end+728 is2135 versus2143. Real unsupported-type advance/
+continue controls fix the latter line but shorten objCollideBoomInstance's
+owner to+664; they are NOT adopted. Mere brace moves do not fix it. Only actual
+retail-supported switch cases2/5 were tested; those particular forms change
+code/scopes and are rejected,not a proof against every possible switch shape.
+No empty statement/else,padding scope,fake condition or statement anchor hides
+either remaining coordinate. Full native/SYM/SLD/source exactness is unproved.
+
+There is a genuine no-name third-result alternative: put real t1/t2 matrix
+stores in the pointer-valued LHS of the third-result assignment. Stock evaluates
+the fixedmult RHS before that LHS's address side effects,holding its result
+without t3. It preserves all200 words and supplied owners/region addresses.
+Unlike an ordinary comma LHS,INDIRECT_REF avoids cp/typeck.c's rewrite that
+pushes those stores before the RHS. However the expression combines seven
+previously separate supplied line tags; it is retained as an isolated control,
+NOT landed at the expense of the199 correct tags. The remaining t3/transMat
+identities are therefore explicit source-recovery work,not necessary-object
+exemptions or floors. No new asm/volatile,qualifier or helper is introduced.
+
+Removing fake oi also removes its Trk_SimpleInst local-use TPDEF copy. The shared
+header was missing its real completed-type alias: CHUNK and TRACK each lacked
+one copy,and OBJECT lacked three,while oi masked the missing DRAWW producer.
+Restore `typedef struct Trk_SimpleInst { supplied fields } Trk_SimpleInst;` in
+the actual shared definition,without changing fields,layout,storage or ABI.
+Fresh per-TU counts: CHUNK3->4(retail4),TRACK4->5(retail5),OBJECT6->7(retail9),
+DRAWW5->5(retail5,one real header copy replaces the fake local-use copy).
+OBJECT's remaining two missing copies stay explicit backlog. All four complete
+struct-tag/member/EOS bodies exactly equal retail. The raw guard permits only
+the four exact header-alias insertions and the explicit custom local-type-use
+suffix reorder/removal arising from restored scopes. Every other ordered raw
+global/type/storage/other-function row is identical; there is no generic type
+filter,reference edit or production-comparator weakening. Literal old header
+formatting and global type-use-order completion are not inferred from counts.
+
+Fresh native run-pn1_vy2n covers100 primary retail functions plus5 non-primary
+header records in OBJECT. Detailed SOURCE-ONLY and branch gates pass105 total:
+CHUNK4,OBJECT37,TRACK29,DRAWW35. Six existing native `_._` destructor spellings
+use their canonical existing `___` oracle filenames; no symbol/reference is
+renamed. Both full normal/reconstruction and expected/oracle builds PASS with
+no skipped/failed TUs. All119 complete normal ELFs and native CPE are unchanged.
+Fresh119 CPP bytes equal actual normal/debug inputs; exactly the four header
+consumers change,all118 other raw .cpp source hashes remain unchanged. Actual
+before/after plain/-da debug outputs agree in all four consumers using their
+real G4/G8 identities.259 strict contracts and every prior partial renderer
+contract survive; all other native function occurrences/owners/word-file maps
+are identical,and target LABEL records remain absent.117tests,vtable1370,
+policy,both links,raw299819/299819,overlap,foreign-label,inventory and whitespace
+PASS. DRAWW region PASS21->22,but full strict count remains4 there; no false
+strict certificate is added. Earlier814-function regression remains preserved,
+not freshly rerun. Current receipts:
+build/nc12/shared_simpleinst_type_20261026/{final-proof,phase-proof,
+allocator-proof,model-comparison-proof,tail-phase-proof,baseline-proof}.json.
+Isolated source/line controls remain under draww_custom_source_20261025 and
+draww_custom_loop_20261025. Verified changes remain uncommitted/unpushed;
+the full original-source/SYM/SLD restoration goal stays active and incomplete.
+
+2026-10-25 custom-object accessor/member/call source repair:10->11/21 complete supplied tuples,anim removed,186->1 word-tag differences; structured allocation basin remains diagnostic.
+
+GetNumElements on the actual group count restores the supplied Group::this
+REG:$7 tuple at depth2,+0..+0,path[0,0] and its inline pair. All10 earlier
+correct complete supplied tuples survive,and all21 supplied name/home/type/
+size/dimension vectors agree; the remaining10 failures are ownership/lifetime
+facts,not a license to rename locals. Direct Object_GetAnim(...)->Draw(...)
+removes the unprovided anim receiver capture with exactly the same virtual
+call,adjustment,argument setup and normal object. The added supplied this and
+removed unprovided anim leave23 native local rows unchanged overall; do not
+use a row-count delta alone to judge this repair. Native's two extra names
+remain transMat and skipObject. buildResult,t3,oi still exist in source despite
+debug elision and remain explicit source-recovery obligations.
+
+Both animation-index reads now use the supplied Trk_CollideBoomInst::simIndex
+member instead of raw byte+0x22 views. The actual record walk uses char-pointer
+byte arithmetic plus the signed size field,not pointer-to-int truncation.
+These changes jointly preserve the complete normal ELF and native CPE. The
+existing one-shot tail loop and oi save/dead-set/restore are not newly added
+or excused: their producer identities still require recovery. Generic carrier
+and floor exemptions are withdrawn; historical measurements remain outside the
+anchored body and are explicitly superseded. No invented helper or identifier.
+
+Ordinary layout under the existing anchor restores199/200 absolute word/file
+tags,frame/header/end2054..2151. Count read is STILL2057 versus retail2058.
+Every previously correct tag is preserved. Separate/split/member/declaration-
+initializer count-call controls leave that same discrepancy; moving the actual
+data-pointer preparation additionally damages its correct2054 tag and is not
+adopted. GetData controls add an instruction/copy even with real declaration
+initialization; do not silently replace the accessor or claim unique original
+getter spelling from this one partial inline contract. No statement #line,
+dummy use,extra qualifier or generated-note rewrite hides the remaining tag.
+Quat copy2103,conversion2104,scale loads2108..2110 and each real row's calls/
+stores2111..2128 follow retail source phases. Preserve the source-vs-scheduled
+store distinction; previous comments contradicted each other about third-call
+ordering. The raw nine-call sequence and actual delay slots arbitrate it.
+
+The isolated full source-shaped for/continue rewrite removes the fake save/
+restore,buildResult,skipObject and old loop wrapper,but is NOT a landing:199
+words/45 normalized diff lines versus200 retail. It has the objInstance/t1
+s4/s5 inversion plus the missing tail load-delay nop,and its complete owner
+contract is also not exact. Third-result elimination alone is count-exact but
+changes the first two row store schedules.12 real row-order/save controls and
+36 exit/step/final-store controls do not solve the structured basin; the36
+forms remain byte-equivalent at199/45. Keep these receipts as a new basin,not
+a source/allocator floor. Selected-stock -da output equals the seed's plain
+normal compile; its .greg is saved. Next: validate the global handout with
+allocsim/reqdelta for the s4/s5 inversion,and independently trace the genuine
+tail lifetime. Do not keep sweeping equivalent step punctuation or add a fake
+reference/barrier to price the register seat.
+
+Final native run-xv_2c4p8:35 fresh detailed SOURCE-ONLY code/branch PASS;all119
+normal ELFs/native CPE unchanged,118 other source/input hashes and weather
+header unchanged.259 strict contracts and all prior partial renderer contracts
+survive. Every other native function occurrence/owner/map and the complete
+ordered global/type/storage/other-function raw stream are identical. Group
+and ObjectAnim TU type-copy counts are unchanged; no metadata exception is
+needed in this round. Target LABEL records remain absent.117tests,vtable1370,
+policy,both links,raw299819/299819,overlap,foreign-label,inventory and whitespace
+PASS. Actual/plain/-da debug assembly equality holds before/after. Earlier814
+regression remains preserved,not freshly rerun. Receipts under
+build/nc12/draww_custom_source_20261025/{final-proof,phase-proof,normal-proof,
+native-proof,scale-proof,seed-proof,seed-refine-proof,seed-stock-phase-proof,
+layout-proof,count-line-proof,data-phase-proof,data-getter-proof,
+raw-type-difference}.json. No new asm/volatile,name/helper,qualifier,compiler
+override,reference change or post-compile rewrite. Uncommitted/unpushed;full
+restoration goal remains active and incomplete.
+
+2026-10-25 matrix-capture origin traced to frontend address expansion,not an allocation floor; anonymous byte-matching forms rejected for extra regions.
+
+Selected-stock baseline/direct -da observations equal their plain debug outputs;
+the baseline also equals the actual native compile assembly. In initial RTL,
+Simple's existing m has a separate reg/v pointer,with zero stores m+28,m+24,
+sd+40. Removing m already produces sd+48,sd+44,sd+40 in initial RTL. CSE,
+combine and final allocation retain that distinction. Do not price this as a
+local-allocator handout or assert that combine first created the mismatch.
+GCC2.8.1 cp/typeck.c build_indirect_ref cancels matching *& expressions;
+expr.c get_inner_reference accumulates nested member/array bit offsets,while
+its INDIRECT_REF expansion expands the pointer address separately. These
+source paths explain the observed early address shape; selected stock RTL,
+not the alternate source revision alone,is the actual phase authority.
+
+There is now a concrete anonymous-source control: replacing each m use with
+the real value expression ({ &sd->matB; }) removes the unprovided local and
+preserves all189 words,the complete normal ELF,native CPE and8/8 supplied
+locals/all instruction tags. But its three address evaluations produce14
+native region records versus6 supplied. Restricting it to the two store bases
+also preserves bytes but still produces12 records. Both are rejected,not
+landed or used to claim a strict function. One-store variants repair only one
+store and leave two normalized diff lines. Thus the variable NAME is not a
+necessity proof; an anonymous expression can reach the desired address shape,
+but its debug-region producer is wrong. No new helper/name or scope exemption.
+
+Declaration-free pointer-to-member,static/reinterpret/void/width/array casts
+and genuine comma/zero-work controls do not solve both store anchors. The
+real-zero comma controls repair at most one store. A lvalue-block spelling is
+rejected by this compiler; preserve the failed invocation rather than calling
+it tested code. No fake conditional,zero identity,qualifier disguise,padding
+scope,compiler flag or generated-note rewrite is adopted. Next work is actual
+frontend address-construction/source-macro provenance,not a floor verdict.
+
+Production source remains byte-for-byte at the preceding verified checkpoint;
+all119 normal objects and native CPE hashes are unchanged.35 detailed renderer
+gates and branch distances were freshly rechecked;259 strict contracts and
+the preceding full native/source-input proof remain protected. This is new
+diagnostic evidence,not another code/source/SYM seal or a full regression rerun.
+Receipts: build/nc12/draww_matrix_origin_20261025/{diagnostic-proof,normal-proof,
+zero-store-RTL-proof,native-proof,form-proof}.json. Full goal remains active.
+
+2026-10-25 DrawObjectSimple/Transform real cache fields,parameters and vector phases restored:26 native local rows removed,all21 supplied tuples and403 word/file tags exact; three matrix captures remain open.
+
+Use the supplied Draw_tGiveShelbyMoreCache fields rather than indexing an
+unrelated second Draw_DCache and punning its head/matrix members. Retail MOS
+records explicitly give vertices:e0/CCOORD16*,quadCount:e7/UCHAR,quads:e8/void*,
+offset:ec/INT,materials:f0/Track_tMaterial*,trans:f4/COORD16,nightFlags:106/CHAR,
+zeroGTETransFlag:107/CHAR. The actual vertex/quad calculation still uses the
+four-byte Trk_ObjectDef header and eight-byte vertex stride; no offset was
+accepted from a relocation-normalized gate alone. M2C's per-function bodies
+and raw store widths independently confirm all of these cache displacements.
+The existing word clear across trans.x/y and halfword trans.z clear remain
+actual bounded field work, not separate invented overlapping globals.
+
+Negative-first real subtraction removes21 vector captures: Simple's six
+target/cop posX/Y/Z and six per-arm tX/Y/Z,plus Transform's six target/cop
+posX/Y/Z and three tX/Y/Z. Both functions can then use gNight_renderNight
+directly after the real typed-field repair, removing both drawResult captures.
+After restoring the supplied statement phases, direct vertexCount expressions
+remove both isCullable captures, and the real materials assignment on2165
+removes shapeDef_p. Old independent failures were basin-specific, not original
+object proofs. Joint direct controls from the old source fail; several natural
+forms become exact only after the real cache/statement graph is corrected.
+
+Simple's offsetArg identifier and separate offset local disappear: the actual
+parameter is the supplied offset. Stock naturally emits its required ARG:sp+16
+and REG:$21 records at depth0. No dummy self-assignment, address take, qualifier
+or parameter-register pin is needed. Actual tmp/tmp2 belong inside the night
+arm at depth3,+120..+520,path[0,0,0],not function root. All8 supplied complete
+tuples now match; native23->9 rows,only m EXTRA. Transform retains all13 earlier
+correct complete tuples; native27->15 rows,only the two distinct m captures
+EXTRA. The combined native count is50->24,not a misleading unique-name count;
+the offset parameter's two correct records are compiler-produced,not two new
+source objects. All supplied block records are also present with exact values,
+but Simple has2 extra region records and Transform8,induced by the remaining
+matrix captures/bindings. Neither is a complete function SYM/SLD seal.
+
+Retail SLD fixes actual source phases,not optimized execution order. Simple
+vertices2262/materials2263 precede quadCount2265,quad address2266,offset2267
+and flags2273; Transform vertices2160,quadCount2162,quad address2163,offset2164
+and real materials2165 precede flags2173. Direct count computation at those
+source sites removes its source object without moving any instruction. Vector
+components retain individual tags before transform/translation calls. The actual
+matrix zeroing plus unchanged GTE invocation share2300,2198 and2239 respectively.
+All189+214 absolute word/file tags,frames,headers and ends2334/2241 agree under
+the existing two per-function anchors. Do not add statement anchors or claim
+that unknown original macro/comment spellings are recovered from these maps.
+
+The full raw guard initially caught a deleted Track_tMaterial TPDEF copy. That
+is NOT a supplied-type regression: unchanged retail's DRAWW.CPP has1 such copy,
+previous native had5,and current native4. The original required copy and every
+other ordered raw row survive. The ignored receipt requires exactly that one
+identical excess-record deletion at its original raw index,plus TU-scoped
+before/after/retail counts; it does not filter arbitrary typedef differences.
+An explicit material-pointer cast does not restore the removed local-use copy.
+A completed shared typedef adds an unprovided duplicate at the type definition
+and is NOT adopted. Do not restore a fake local merely to preserve excess
+metadata. Three remaining excess Track_tMaterial copies in this TU stay audit
+work. Production comparators and retail references are unchanged.
+
+SourceRecoveryUnresolved: the three m captures and their producer identities
+remain unprovided. Direct/word-width/array-base controls still change two matrix
+store anchors per site (Simple four normalized diff lines,Transform eight),
+even after repricing the repaired phases and removing the other captures.
+No original object or compiler floor follows. Keep these sites visible rather
+than adding a const/reference disguise, helper, padding binding or asm fence.
+Historical generic carrier/floor/splice claims are explicitly superseded outside
+the source bodies; no post-recompile rewrite is used or requested.
+
+Final native run-rxvfo2oj:35 fresh detailed SOURCE-ONLY code/branch PASS,all119
+normal ELFs/native CPE unchanged,118 other source/input hashes and weather
+header unchanged.259 strict contracts and all prior partial renderer contracts
+survive. Every other native function occurrence/owner/map is unchanged; target
+LABEL records remain absent.117tests,vtable1370,policy,both links,raw299819/
+299819,overlap,foreign-label,inventory and whitespace PASS. Selected-stock
+plain/-da/actual debug assembly equality holds before/after. Earlier814-function
+regression is preserved,not freshly rerun. Receipts under
+build/nc12/draww_object_vectors_20261025/{final-proof,phase-proof,normal-proof,
+field-proof,refine-proof,native-proof,layout-proof,reprice-proof,matrix-proof,
+type-producer-proof}.json. No new asm/volatile,name/helper,qualifier,dummy use,
+compiler override,output rewrite or shared-header change. This round remains
+verified/uncommitted/unpushed; the full restoration goal stays active.
+
+2026-10-25 DrawW_DoLines nine captures removed and199 absolute word/file tags restored; two matrix captures and native ownership/regions remain unresolved.
+
+Negative-first subtraction expresses real vector work without the six posX/
+posY/posZ captures or tx/ty/tz. For the night target and cop, write
+tmp.axis=-target.position.axis+view.translation.axis; for chunk translation,
+trans.axis=(short)(-view.translation.axis+pChunkCp->axis>>10). Selected stock
+still emits the same SUBU operands, pointer-chase stalls and final stores.
+All199 normal instructions, the complete ELF and native CPE remain unchanged.
+Plain left-minus-right controls are not equivalent for this compiler's issue
+order: six direct target expressions lose three words; direct chunk expressions
+retain the count but change six normalized diff lines. Their failure never
+proved that distinct source capture objects existed. The negative-first form
+is a target-compiler source lever, not uniquely recovered literal macro text.
+
+Native local rows drop23->14. Retail supplies12; only the original unprovided
+m/m2 remain EXTRA, with the same types/homes but changed binding paths after
+the capture blocks disappear. Repeated posX/Y/Z names are counted separately
+by their original full owner records, not collapsed to three report rows.
+All previously correct complete supplied local tuples survive. The remaining
+declaration/region mismatches are explicit, including the manual loop binding,
+matrix regions, deeper owners and pChunkCp's early supplied endpoint. Native
+CLEAN and strict-function counts do NOT rise merely because nine names vanish.
+
+Respect retail source phases: doublelayer3397 precedes count3399, while matrix
+zeroing/GTE work is one3401 group and loop initialization/control is3403.
+geomRez3408 precedes test3410 and chunkDat3412. Group acquisition/null test3415
+and enable bits3418 are separate nested tests with an unbraced outer arm,
+not the earlier compound &&. Only the split form recovers all three null-test
+tags without changing code. The actual tmp vector reads3430..3432 and3444..3446
+precede their transform3438/3448 and translation3440/3449 calls. Matrix reset
+is3451; chunk center3454, component work3456..3458,draw3462 and exit3467.
+Ordinary layout under the existing per-function anchor now matches every199
+absolute instruction/file tag and frame/header/end. This is NOT complete SLD:
+block ownership/end coordinates still differ. No per-statement anchor or padding
+operation is used. Supplied nightFlags replaces three integer/raw byte views
+at the verified cache offset0x106, with no new type, name, storage or instruction.
+
+Both original GTE macro invocations remain. Direct matrix fields, word/byte/
+vector views, zero-store order/chaining and integer-address controls still
+change the sd/buildList allocation or matrix store bases. Repricing them after
+the actual split-guard/layout correction and the typed nightFlags restoration
+does not remove either capture byte-exactly. These failed controls establish
+neither an original m/m2 source object nor a compiler floor. Ordinary for-owned
+counter and guarded work-region controls are also retained as diagnostics, not
+landed just to alter a depth/count. Old generic codegen-carrier exemptions are
+withdrawn and the historical measurements are explicitly superseded outside
+the repaired anchored body. No const disguise, new helper, fake use, new asm/
+volatile, register pin, compiler override or generated-output rewrite is added.
+
+Final native run-455ys6u1:35 fresh detailed SOURCE-ONLY code/branch PASS,all119
+normal ELFs/native CPE unchanged,118 other source/input hashes and weather
+header unchanged.259 strict seals, the prior DoObjects ten-local/222-tag
+partial contract and every other native function occurrence/owner/SLD survive;
+the ordered raw global/type/storage/other-function stream is unchanged.117
+tests,vtable1370,policy,both links,raw299819/299819,overlap,foreign-label,
+inventory and whitespace PASS. Selected-stock plain/-da/actual debug assemblies
+agree before/after. Earlier814-function regression is preserved,not freshly
+rerun. No new strict certificate; full goal active. Receipts under
+build/nc12/draww_lines_source_20261025/{final-proof,phase-proof,normal-proof,
+native-proof,matrix-proof,matrix-reprice-proof,typed-matrix-reprice-proof,
+layout-proof}.json. This round remains verified/uncommitted/unpushed.
+
+2026-10-25 DrawW_DoObjects real loop/inline/statement restoration:6->10/10 supplied local tuples,extra c removed,222 word/file tags exact; eight supplied region records remain open.
+
+The four per-entry names chunkDat,simObjs,chunkInd,geomRez belong to the real
+loop body, not the enableBits arm. Moving their declarations restores their
+complete supplied type/home/depth/+116..+408/path tuples while preserving the
+six previously correct tuples. The first unsigned thisChunkInd-1 range test
+needs no c capture or statement expression on this current source/toolchain:
+ordinary direct arithmetic preserves the whole normal ELF and native CPE.
+All eight scope/range controls were byte-identical. Earlier claims that this
+capture or an opacity barrier was required were basin-specific, not evidence
+that a distinct original source object existed. Retain old measurements as
+explicitly superseded history outside the anchored body, not exemptions.
+
+Use the existing Group::GetNumElements at the custom-object guard instead of
+the raw m_num_elements read. It restores the supplied +788 inline pair and
+its +768 enclosing guard without a new helper or parameter row. The real
+for owns buildInd; its body ends at +408/2793 before the increment/backedge
+2800, with the for owner ending +420/2800. Both actual-condition and
+exit-in-body for controls preserve bytes/tags/owners; prefer the ordinary
+condition. This removes the old manually wrapped while and fixes the last
+present block-line mismatch. Native has exactly the ten supplied local rows,
+no extra name, but that is NOT a complete function SYM/SLD certificate.
+
+Retail source phases independently settle currentChunk2721 before count2722,
+gVi2727 after scratch-cache setup2719, and geomRez2745 before chunkDat2746
+and simObjs2747. The midground visibility address belongs2844, before its
+field stores2845..2849, despite the opposite scheduled instruction order.
+First SetSp/flag work2763,draw2765,restore2767 are genuine same-line stages;
+the two later groups use2832..2834 and2851..2853. The range chain is2823,
+custom guard2862 and actual draw/return2864. Ordinary layout under the one
+existing anchor recovers all222 absolute instruction/file tags, frame/header/
+end and all12 present block records. No statement anchors or fake work.
+
+Still missing are eight supplied region records in the special-instance
+phase: starts +300/2777 and three +348/2778, ends two +348/2778 and two
++408/2793. Their source producer is NOT established. A separately nested
+weather guard alone does not reproduce them. Do not fabricate an inline,
+assert/log call, unused value or empty block merely to imitate these pairs.
+The old native20-vs-retail20 block cardinality was misleading: extra bindings
+around c and wrong declaration owners did not represent these supplied
+regions. Current native12/retail20 is an explicit identity-based residual,
+not a regression hidden by count or a claim that the function is now strict.
+Literal original macros and the visibility-buffer declaration remain review
+work; the supplied names themselves are original SYM names, not inventions.
+
+Final native run-povb0gtd:35 fresh detailed SOURCE-ONLY code/branch PASS;
+DrawW declaration-owner PASS19->20,legacy CLEAN19/35 unchanged because full
+scope matching is still incomplete. All119 normal ELFs,118 other source/input
+hashes,weather header,native CPE,259 strict contracts and every other native
+function occurrence/owner/SLD/raw global/type/storage stream survive. Prior
+renderer partial contracts and BuildObjectFacets's three unprovided LABELs
+are preserved, not silently repaired.117tests,vtable1370,policy,both links,
+raw299819/299819,overlap,foreign-label,inventory and whitespace gates PASS.
+Selected-stock plain/-da/actual debug assemblies agree before and after.
+Earlier814-function regression is preserved, not freshly rerun. No new asm,
+volatile,qualifier,name/helper,dummy use,padding scope,compiler flag or output
+rewrite; production comparators/references/memory are untouched. Receipts:
+build/nc12/draww_objects_source_20261025/{final-proof,phase-proof,normal-proof,
+native-proof,shape-proof,layout-proof,loop-proof}.json. This round remains
+uncommitted/unpushed; the full restoration goal is active and incomplete.
+
 2026-10-25 strip renderer real endpoint stages/ownership restored:2->9/9 supplied tuples,58 instruction tags exact; material cursor and one block line remain open.
 
 DrawW_StripDraw_High's supplied r0,r1,r2,r3 are original SYM identifiers, not

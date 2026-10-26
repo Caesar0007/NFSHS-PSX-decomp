@@ -1,6 +1,6 @@
 /* game/common/copspeak.cpp -- RECONSTRUCTED (NFS4 PSX cop-radio speech/SFX system; C++ TU)
  *   27 free fns (CopSpeak_*): radio static, request queue, async SFX load/play, server pump.
- *   Full SYM-locals applied. GTE-free.
+ *   COVERED-SLD-PASS covers word/header/file/block/end/local fields, not raw events or original text.
  */
 #include "copspeak_types.h"
 #include "copspeak_externs.h"
@@ -68,7 +68,8 @@ void CopSpeak_ShowQueue(void);
 void CopSpeak_Debug(void);
 
 
-/* ---- CopSpeak_RadioStaticInit__Fv  [COPSPEAK.CPP:198-203] SLD-VERIFIED ---- */
+/* ---- CopSpeak_RadioStaticInit__Fv  [COPSPEAK.CPP:198-203] COVERED-SLD-PASS ---- */
+#line 196 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_RadioStaticInit(void)
 
 {
@@ -79,10 +80,12 @@ void CopSpeak_RadioStaticInit(void)
   }
 }
 
-/* ---- CopSpeak_RadioStaticActive__Fi  [COPSPEAK.CPP:210-252] SLD-VERIFIED ---- */
+/* ---- CopSpeak_RadioStaticActive__Fi  [COPSPEAK.CPP:210-252] SLD-PARTIAL ---- */
+#line 208 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_RadioStaticActive(int noise)
 
 {
+
 
 
 
@@ -126,7 +129,8 @@ void CopSpeak_RadioStaticActive(int noise)
   }
 }
 
-/* ---- CopSpeak_RadioStaticSquelch__Fv  [COPSPEAK.CPP:259-267] SLD-VERIFIED ---- */
+/* ---- CopSpeak_RadioStaticSquelch__Fv  [COPSPEAK.CPP:259-267] COVERED-SLD-PASS ---- */
+#line 257 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_RadioStaticSquelch(void)
 
 {
@@ -140,7 +144,8 @@ void CopSpeak_RadioStaticSquelch(void)
   }
 }
 
-/* ---- CopSpeak_InitRequest__FP17CopSpeak_tRequest  [COPSPEAK.CPP:276-285] SLD-VERIFIED ---- */
+/* ---- CopSpeak_InitRequest__FP17CopSpeak_tRequest  [COPSPEAK.CPP:276-285] COVERED-SLD-PASS ---- */
+#line 274 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_InitRequest(CopSpeak_tRequest *r)
 
 {
@@ -155,7 +160,8 @@ void CopSpeak_InitRequest(CopSpeak_tRequest *r)
   r->noise = '\0';
 }
 
-/* ---- CopSpeak_SilenceCop__FP8Car_tObji  [COPSPEAK.CPP:295-306] SLD-VERIFIED ---- */
+/* ---- CopSpeak_SilenceCop__FP8Car_tObji  [COPSPEAK.CPP:295-306] COVERED-SLD-PASS ---- */
+#line 293 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_SilenceCop(Car_tObj *car,int playerIndex)
 
 {
@@ -176,7 +182,8 @@ silence:
  * 307-311 source-line gap here; exact TU/storage attribution is still open. */
 static char Copspeak_gTimeString[16]; /* @0x8013E0B0 */
 
-/* ---- CopSpeak_Alloc__FP17CopSpeak_tRequest  [COPSPEAK.CPP:312-337] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Alloc__FP17CopSpeak_tRequest  [COPSPEAK.CPP:312-337] COVERED-SLD-PASS ---- */
+#line 310 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Alloc(CopSpeak_tRequest *r)
 
 {
@@ -206,7 +213,8 @@ void CopSpeak_Alloc(CopSpeak_tRequest *r)
 
   r->buffer = 0xffffffff; }
 
-/* ---- CopSpeak_Free__FP17CopSpeak_tRequest  [COPSPEAK.CPP:344-361] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Free__FP17CopSpeak_tRequest  [COPSPEAK.CPP:344-361] COVERED-SLD-PASS ---- */
+#line 342 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Free(CopSpeak_tRequest *r)
 
 {
@@ -228,11 +236,12 @@ void CopSpeak_Free(CopSpeak_tRequest *r)
     r->buffer = 0xffffffff;
   } }
 
-/* ---- CopSpeak_ReadyNextRequest__Fv  [COPSPEAK.CPP:367-533] SLD-VERIFIED ---- */
+/* ---- CopSpeak_ReadyNextRequest__Fv  [COPSPEAK.CPP:367-533] SLD-PARTIAL ---- */
 /* The direct `ok` guard and a const hasSfx snapshot reproduce retail's
  * +0xb4..+0x1d8 and +0xbc..+0xe8 nested scope offsets without named
  * extra locals or changes to the 156-byte-matched instruction stream.
  * `hasSfx` is a semantic reconstruction label, not original spelling. */
+#line 365 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_ReadyNextRequest(void)
 
 {
@@ -303,7 +312,8 @@ void CopSpeak_ReadyNextRequest(void)
   return;
 }
 
-/* ---- CopSpeak_Cancel__Fv  [COPSPEAK.CPP:539-574] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Cancel__Fv  [COPSPEAK.CPP:539-574] COVERED-SLD-PASS ---- */
+#line 537 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Cancel(void)
 
 {
@@ -343,14 +353,16 @@ void CopSpeak_Cancel(void)
   CopSpeak_gBufferStart = 0;
   CopSpeak_gBufferEnd = 0x7ffc; }
 
-/* ---- CopSpeak_Stop__Fv  [COPSPEAK.CPP:582-583] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Stop__Fv  [COPSPEAK.CPP:582-583] COVERED-SLD-PASS ---- */
+#line 580 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Stop(void)
 
 {
   CopSpeak_Cancel();
 }
 
-/* ---- CopSpeak_CleanUp__Fv  [COPSPEAK.CPP:592-620] SLD-VERIFIED ---- */
+/* ---- CopSpeak_CleanUp__Fv  [COPSPEAK.CPP:592-620] COVERED-SLD-PASS ---- */
+#line 590 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_CleanUp(void)
 
 {
@@ -383,7 +395,8 @@ void CopSpeak_CleanUp(void)
 
     CopSpeak_gBuffer = (char *)0; } }
 
-/* ---- CopSpeak_InitVars__Fv  [COPSPEAK.CPP:628-649] SLD-VERIFIED ---- */
+/* ---- CopSpeak_InitVars__Fv  [COPSPEAK.CPP:628-649] COVERED-SLD-PASS ---- */
+#line 626 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_InitVars(void)
 
 {
@@ -410,7 +423,8 @@ void CopSpeak_InitVars(void)
   CopSpeak_InitRequest(&CopSpeak_gCurrent);
 }
 
-/* ---- CopSpeak_DirectRequest__FillP8Car_tObjPc  [COPSPEAK.CPP:656-675] SLD-VERIFIED ---- */
+/* ---- CopSpeak_DirectRequest__FillP8Car_tObjPc  [COPSPEAK.CPP:656-675] COVERED-SLD-PASS ---- */
+#line 654 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_DirectRequest(int filehandle,long offset,long size,Car_tObj *car,char *name)
 
 {
@@ -436,7 +450,8 @@ void CopSpeak_DirectRequest(int filehandle,long offset,long size,Car_tObj *car,c
   }
 }
 
-/* ---- CopSpeak_GenericBankRequest__FiP8Car_tObj  [COPSPEAK.CPP:682-695] SLD-VERIFIED ---- */
+/* ---- CopSpeak_GenericBankRequest__FiP8Car_tObj  [COPSPEAK.CPP:682-695] COVERED-SLD-PASS ---- */
+#line 680 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)
 
 {
@@ -456,7 +471,8 @@ void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)
   }
 }
 
-/* ---- CopSpeak_StartUp__Fv  [COPSPEAK.CPP:709-878] SLD-VERIFIED ---- */
+/* ---- CopSpeak_StartUp__Fv  [COPSPEAK.CPP:709-878] SLD-PARTIAL ---- */
+#line 707 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_StartUp(void)
 
 {
@@ -485,8 +501,8 @@ void CopSpeak_StartUp(void)
       int i;
 
       for (i = 0; i < 1; i++) {
-        if (locatebigentryz(header,Generic[i],0,&bank->Index[i].offset,
-                            &bank->Index[i].size) == (void *)0x0) {
+        if (locatebigentryz(header,Generic[i],0,(int *)&bank->Index[i].offset,
+                            (unsigned int *)&bank->Index[i].size) == (void *)0x0) {
           bank->Index[i].offset = 0;
           bank->Index[i].size = 0;
         }
@@ -498,8 +514,8 @@ void CopSpeak_StartUp(void)
       char *timbre[2] = {"lden","ldex"};
 
       sprintf(bankname,"%.4s%.4s.bnk",GameSetup_gCarNames + i / 2,timbre[i % 2]);
-      if (locatebigentryz(header,bankname,0,&bank->Index[i + 1].offset,
-                          &bank->Index[i + 1].size) == (void *)0x0) {
+      if (locatebigentryz(header,bankname,0,(int *)&bank->Index[i + 1].offset,
+                          (unsigned int *)&bank->Index[i + 1].size) == (void *)0x0) {
         bank->Index[i + 1].offset = 0;
         bank->Index[i + 1].size = 0;
       }
@@ -527,8 +543,8 @@ void CopSpeak_StartUp(void)
       int i;
 
       for (i = 0; i < bank->Count; i++) {
-        locatebigentry(header,(char *)0x0,i,&bank->Index[i].offset,
-                       &bank->Index[i].size);
+        locatebigentry(header,(char *)0x0,i,(int *)&bank->Index[i].offset,
+                       (unsigned int *)&bank->Index[i].size);
       }
     }
     purgememadr(header);
@@ -550,10 +566,10 @@ void CopSpeak_StartUp(void)
   header = (char *)loadbigfileheader(filename,(void *)0x10);
   if (header != (char *)0x0) {
     CopSpeak_tBank *bank = &Copspeak_gBank[2];
-    int offset;
-    unsigned int size;
-
-    if ((locatebigentryz(header,"oneshots.txt",0,&offset,&size) != (void *)0x0) &&
+    long offset;
+    long size;
+    /* Retail LONG outputs; casts retain the current locatbig.h 32-bit ABI. */
+    if ((locatebigentryz(header,"oneshots.txt",0,(int *)&offset,(unsigned int *)&size) != (void *)0x0) &&
         (size != 0)) {
       char *list = (char *)reservememadr("copspeak temp",size,0x10);
       char *p;
@@ -587,8 +603,8 @@ void CopSpeak_StartUp(void)
           }
           else {
             *p = '\0';
-            if (locatebigentryz(header,name,0,&bank->Index[i].offset,
-                                &bank->Index[i].size) == (void *)0x0) {
+            if (locatebigentryz(header,name,0,(int *)&bank->Index[i].offset,
+                                (unsigned int *)&bank->Index[i].size) == (void *)0x0) {
               bank->Index[i].size = 0;
             }
             i++;
@@ -604,7 +620,8 @@ void CopSpeak_StartUp(void)
   return;
 }
 
-/* ---- CopSpeak_GetEnginePatch__Fii  [COPSPEAK.CPP:885-891] SLD-VERIFIED ---- */
+/* ---- CopSpeak_GetEnginePatch__Fii  [COPSPEAK.CPP:885-891] COVERED-SLD-PASS ---- */
+#line 883 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 int CopSpeak_GetEnginePatch(int type,int timbre)
 
 {
@@ -619,7 +636,8 @@ int CopSpeak_GetEnginePatch(int type,int timbre)
 /* distToPlayer is the recorded INT at Newton offset0x8c. Its signed high
  * half is the old lh at0x8e; use the actual field and arithmetic shift.
  * 86/86 bytes and relative SLD exact; no scaled source object is needed. */
-/* ---- CopSpeak_Play__FP17CopSpeak_tRequesti  [COPSPEAK.CPP:920-974] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Play__FP17CopSpeak_tRequesti  [COPSPEAK.CPP:920-974] COVERED-SLD-PASS ---- */
+#line 918 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 int CopSpeak_Play(CopSpeak_tRequest *r,int handle)
 
 {
@@ -679,7 +697,8 @@ int CopSpeak_Play(CopSpeak_tRequest *r,int handle)
   return SNDplay(&playopts);
 }
 
-/* ---- CopSpeak_Skip__Fv  [COPSPEAK.CPP:1028-1042] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Skip__Fv  [COPSPEAK.CPP:1028-1042] COVERED-SLD-PASS ---- */
+#line 1027 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Skip(void)
 {
   CopSpeak_tRequest *r; r = &CopSpeak_gQueue[CopSpeak_gQueueLoad];
@@ -698,7 +717,8 @@ void CopSpeak_Skip(void)
   return;
 }
 
-/* ---- CopSpeak_Request__FP17CopSpeak_tRequest  [COPSPEAK.CPP:1051-1089] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Request__FP17CopSpeak_tRequest  [COPSPEAK.CPP:1051-1089] SLD-PARTIAL ---- */
+#line 1049 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 int CopSpeak_Request(CopSpeak_tRequest *r)
 
 {
@@ -739,7 +759,8 @@ int CopSpeak_Request(CopSpeak_tRequest *r)
   return queueHeadSnapshot;
 }
 
-/* ---- CopSpeak_BankVolume__FP17CopSpeak_tRequest  [COPSPEAK.CPP:1095-1099] SLD-VERIFIED ---- */
+/* ---- CopSpeak_BankVolume__FP17CopSpeak_tRequest  [COPSPEAK.CPP:1095-1099] COVERED-SLD-PASS ---- */
+#line 1093 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 int CopSpeak_BankVolume(CopSpeak_tRequest *r)
 
 {
@@ -749,7 +770,8 @@ int CopSpeak_BankVolume(CopSpeak_tRequest *r)
   return gMasterAmbientLevel;
 }
 
-/* ---- CopSpeak_LoadNextRequest__Fv  [COPSPEAK.CPP:1115-1185] SLD-VERIFIED ---- */
+/* ---- CopSpeak_LoadNextRequest__Fv  [COPSPEAK.CPP:1115-1185] COVERED-SLD-PASS ---- */
+#line 1113 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_LoadNextRequest(void)
 
 {
@@ -824,10 +846,11 @@ void CopSpeak_LoadNextRequest(void)
   }
 }
 
-/* ---- CopSpeak_PlayNextRequest__Fv  [COPSPEAK.CPP:1191-1238] SLD-VERIFIED ---- */
+/* ---- CopSpeak_PlayNextRequest__Fv  [COPSPEAK.CPP:1191-1238] SLD-PARTIAL ---- */
 /* 2026-10-01: branch-local wraparound updates replace the non-SYM `next`.
  * GCC merges the two update tails into the retail 71-instruction body;
  * the target's named locals and root scope now match retail. */
+#line 1189 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_PlayNextRequest(void)
 
 {
@@ -859,16 +882,18 @@ void CopSpeak_PlayNextRequest(void)
   return;
 }
 
-/* ---- CopSpeak_Flush__Fv  [COPSPEAK.CPP:1257-1259] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Flush__Fv  [COPSPEAK.CPP:1257-1259] COVERED-SLD-PASS ---- */
 /* P879: the signed bank field permits the native direct store (li -1,
    sb +30) without an unrecorded request pointer or per-use address cast. */
+#line 1255 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Flush(void)
 
 {
   for (int i = CopSpeak_gQueuePlay; i != CopSpeak_gQueueHead;
        i = i < 0x3f ? i + 1 : 0) { CopSpeak_gQueue[i].bank = -1; } }
 
-/* ---- CopSpeak_Server__Fv  [COPSPEAK.CPP:1271-1353] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Server__Fv  [COPSPEAK.CPP:1271-1353] SLD-PARTIAL ---- */
+#line 1269 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Server(void)
 
 {
@@ -957,7 +982,8 @@ void CopSpeak_Server(void)
   return;
 }
 
-/* ---- CopSpeak_SfxQueued__Fv  [COPSPEAK.CPP:1359-1369] SLD-VERIFIED ---- */
+/* ---- CopSpeak_SfxQueued__Fv  [COPSPEAK.CPP:1359-1369] SLD-PARTIAL ---- */
+#line 1357 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 int CopSpeak_SfxQueued(void)
 
 {
@@ -976,7 +1002,8 @@ int CopSpeak_SfxQueued(void)
   return count;
 }
 
-/* ---- CopSpeak_ShowQueue__Fv  [COPSPEAK.CPP:1377-1404] SLD-VERIFIED ---- */
+/* ---- CopSpeak_ShowQueue__Fv  [COPSPEAK.CPP:1377-1404] SLD-PARTIAL ---- */
+#line 1375 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_ShowQueue(void)
 
 {
@@ -1016,7 +1043,8 @@ void CopSpeak_ShowQueue(void)
   return;
 }
 
-/* ---- CopSpeak_Debug__Fv  [COPSPEAK.CPP:1509-1510] SLD-VERIFIED ---- */
+/* ---- CopSpeak_Debug__Fv  [COPSPEAK.CPP:1509-1510] COVERED-SLD-PASS ---- */
+#line 1507 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 void CopSpeak_Debug(void)
 
 {

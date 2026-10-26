@@ -18,6 +18,7 @@ Trk_AnimateInst *animScripts[10];   /* @0x8010e24c  (bss(zero)) */
 
 
 /* ---- Anim_Restart  [@0x80073a94] ---- */
+#line 82 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void Anim_Restart(void)
 {
   for (int i = 0; i < 32; i++) {
@@ -30,6 +31,7 @@ void Anim_Restart(void)
 }
 
 /* ---- Anim_InitSystem  [@0x80073b1c] ---- */
+#line 106 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_InitSystem(char *trackName)
 {
 
@@ -70,14 +72,15 @@ int Anim_InitSystem(char *trackName)
             (objInstance->objectIndex != 0)) {
           Anim_gInstanceFromIndex[objInstance->objectIndex] = objInstance;
         }
-        objInstance = (Trk_AnimateInst *)((int)&objInstance->size +
-                                          (int)objInstance->size);
+        objInstance = (Trk_AnimateInst *)((char *)objInstance +
+                                          objInstance->size);
     }
   }
   return 0;
 }
 
 /* ---- Anim_DeInitSystem  [@0x80073cb0] ---- */
+#line 210 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void Anim_DeInitSystem(void)
 {
   int i;
@@ -90,6 +93,7 @@ void Anim_DeInitSystem(void)
 }
 
 /* ---- Anim_Handle  [@0x80073ce8] ---- */
+#line 230 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_Handle(int num)
 {
   int handle;
@@ -103,6 +107,7 @@ int Anim_Handle(int num)
 }
 
 /* ---- Anim_FreeHandle  [@0x80073d6c] ---- */
+#line 243 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_FreeHandle(int handle)
 {
   delete animSlots[handle];
@@ -111,27 +116,33 @@ int Anim_FreeHandle(int handle)
 }
 
 /* ---- Anim_GetAnim  [@0x80073dec] ---- */
+#line 250 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 AnimScript * Anim_GetAnim(int handle)
 {
   return animSlots[handle];
 }
 
 /* ---- Anim_GetLastRotPos  [@0x80073e08] ---- */
+#line 260 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)
 {
   Anim_tFrame *animFrames;
   int animInd;
   tQuat q;
 
-  animFrames = (Anim_tFrame *)((char *)animInst + 0xc);
+  animFrames = (Anim_tFrame *)(animInst + 1);
+
   animInd = animInst->count - 1;
   q = *(tQuat *)&animFrames[animInd].qx;
   *pt = *(coorddef *)&animFrames[animInd].x;
+
   Quatern_QuatToMat(&q,mat);
+
   return;
 }
 
 /* ---- Anim_GetLastAnimPosRot  [@0x80073e80] ---- */
+#line 283 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 {
   Anim_GetLastRotPos(animScripts[animNum],pt,mat);
@@ -152,6 +163,7 @@ int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 }
 
 /* ---- Anim_GetRotPos  [@0x80073f18] ---- */
+#line 303 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,matrixtdef *mat)
 {
   Anim_tFrame *animFrames;
@@ -165,10 +177,10 @@ int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,ma
   int interval;
 
   if ((animInst->type == '\x03') || (animInst->type == '\a')) {
-    animFrames = (Anim_tFrame *)((char *)animInst + 0xc);
+    animFrames = (Anim_tFrame *)(animInst + 1);
   }
   else {
-    animFrames = (Anim_tFrame *)((char *)animInst + 0x10);
+    animFrames = (Anim_tFrame *)((Trk_AnimateBoomInst *)animInst + 1);
   }
   if ((u_int)((u_short)animInst->interval - 1) < 400) {
     interval = (int)animInst->interval;
@@ -194,6 +206,7 @@ int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,ma
 }
 
 /* ---- Anim_GetPos  [@0x8007412c] ---- */
+#line 366 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *animTicks,
               int *animLength)
 {
@@ -204,7 +217,7 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
   coorddef objcp1;
   int interval;
 
-  animFrames = (Anim_tFrame *)((char *)animInst + 0xc);
+  animFrames = (Anim_tFrame *)(animInst + 1);
   if ((u_int)((u_short)animInst->interval - 1) < 400) {
     interval = (int)animInst->interval;
   }
@@ -232,16 +245,21 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
 }
 
 /* ---- AnimScript::AnimScript  [@0x80074360] ---- */
+#line 459 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 AnimScript::AnimScript(int num)
 {
+
   this->inst = new Trk_AnimateInst *[1];
   *this->inst = animScripts[num];
+
   this->baseTicks = simGlobal.gameTicks;
   this->flags = 6;
+
   return;
 }
 
 /* ---- AnimScript::AnimScript  [@0x800743cc] ---- */
+#line 471 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 AnimScript::AnimScript(int num,int numParts)
 {
   this->inst = new Trk_AnimateInst *[numParts];
@@ -253,40 +271,37 @@ AnimScript::AnimScript(int num,int numParts)
 }
 
 /* ---- AnimScript::AnimScript  [@0x80074468] ---- */
+#line 484 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
 {
-  int numElems;
-  Trk_AnimateBoomInst *objInstance;
-  int i;
-
-  objInstance = (Trk_AnimateBoomInst *)(instanceGroup + 1);
+  int numElems; Trk_AnimateBoomInst *objInstance; int i;
   numElems = instanceGroup->m_num_elements;
+  objInstance = (Trk_AnimateBoomInst *)(instanceGroup + 1);
+
+
   this->inst = new Trk_AnimateInst *[numParts];
-  i = 0;
-  numElems = numElems - 1;
-  if (numElems != -1) {
-    do {
-      if (((u_int)objInstance->type == type) && ((u_int)objInstance->boomIndex == boomIndex)) {
-        this->inst[i] = (Trk_AnimateInst *)objInstance;
-        i = i + 1;
-      }
-      objInstance = (Trk_AnimateBoomInst *)((int)&objInstance->size + (int)objInstance->size);
-      numElems = numElems - 1;
-    } while (numElems != -1);
-  }
+
+  i = 0; while (--numElems != -1) {
+
+    if (((u_int)objInstance->type == type) && ((u_int)objInstance->boomIndex == boomIndex)) {
+      this->inst[i] = (Trk_AnimateInst *)objInstance; i = i + 1;
+    } objInstance = (Trk_AnimateBoomInst *)((char *)objInstance + objInstance->size); }
+
+
   this->baseTicks = simGlobal.gameTicks;
   this->flags = 6;
-  return;
-}
+
+  return; }
 
 /* ---- AnimScript::SetAnimAttrib  [@0x80074534] ---- */
+#line 512 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void AnimScript::SetAnimAttrib(int flags)
 {
-  this->flags = flags;
-  return;
+  this->flags = flags; return;
 }
 
 /* ---- AnimScript::GetAnimFrameInfo  [@0x8007453c] ---- */
+#line 522 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
 {
   Trk_AnimateInst *animInst;
@@ -307,12 +322,14 @@ void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
 }
 
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x800745f8] ---- */
+#line 552 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)
 {
   return this->GetTimedAnimPosRot(0,pt,mat);
 }
 
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x80074624] ---- */
+#line 563 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 {
   if (this->GetStatus() != 1) {
@@ -341,10 +358,11 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 }
 
 /* ---- AnimScript::GetStatus  [@0x8007471c] ---- */
+#line 598 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int AnimScript::GetStatus()
 {
-  Trk_AnimateInst *const instance = *this->inst;
-  if (instance != (Trk_AnimateInst *)0x0) {
+  if (*this->inst != (Trk_AnimateInst *)0x0) {
+
     return 1; }
   return 0;
 }

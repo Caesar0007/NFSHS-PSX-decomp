@@ -8,7 +8,7 @@
 
 /* Retail object.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-static inline void *Group_Data(Group *group) { return group + 1; }
+
 extern "C" int sprintf(char *, const char *, ...);
 
 
@@ -65,9 +65,10 @@ int Object_GetNumIMassObjects(void);
 void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions);
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity);
 
-/* ---- CalcObjYawAngle  [OBJECT.CPP:69-74] SLD-VERIFIED ---- */
+/* ---- CalcObjYawAngle  [OBJECT.CPP:69-74] covered SLD requires native comparison ---- */
 
 
+#line 67 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int CalcObjYawAngle(CCOORD16 *pts)
 
 {
@@ -77,7 +78,8 @@ int CalcObjYawAngle(CCOORD16 *pts)
 
 
 
-/* ---- CalcObjExtentPoints  [OBJECT.CPP:78-98] SLD-VERIFIED ---- */
+/* ---- CalcObjExtentPoints  [OBJECT.CPP:78-98] covered SLD requires native comparison ---- */
+#line 76 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *quat)
 
 {
@@ -105,9 +107,10 @@ void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *q
   return;
 }
 
-/* ---- BuildObjCollisionMatrix  [OBJECT.CPP:121-140] SLD-VERIFIED ---- */
+/* ---- BuildObjCollisionMatrix  [OBJECT.CPP:121-140] covered SLD requires native comparison ---- */
 
 
+#line 119 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void BuildObjCollisionMatrix(int weight,int objAngle,int impactAngle,matrixtdef *mat)
 
 {
@@ -126,9 +129,10 @@ void BuildObjCollisionMatrix(int weight,int objAngle,int impactAngle,matrixtdef 
 
 
 
-/* ---- FindObjInstanceFromSerialNum  [OBJECT.CPP:144-176] SLD-VERIFIED ---- */
+/* ---- FindObjInstanceFromSerialNum  [OBJECT.CPP:144-176] covered SLD requires native comparison ---- */
 
 
+#line 142 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 Trk_SimpleInst *
 FindObjInstanceFromSerialNum(Group *group,int index)
 {
@@ -137,24 +141,33 @@ FindObjInstanceFromSerialNum(Group *group,int index)
   if ((u_int)(index - 126) < 2) {
     return (Trk_SimpleInst *)0x0;
   }
-  if ((index & 0x80) != 0) {
-    index &= ~0x80;
-    if (index >= Object_customObjInst->GetNumElements()) {
-      return (Trk_SimpleInst *)0x0;
-    }
-    objInstance = (Trk_SimpleInst *)Group_Data(Object_customObjInst);
+  if ((index & 0x80) != 0)
+  {
+    index &= ~0x80; if (index >= Object_customObjInst->GetNumElements()) {
+
+
+
+
+
+      return (Trk_SimpleInst *)0x0; }
+
+    objInstance = (Trk_SimpleInst *)Object_customObjInst->GetData();
   }
   else {
     if (index >= group->GetNumElements()) {
-      return (Trk_SimpleInst *)0x0;
-    }
-    objInstance = (Trk_SimpleInst *)group->GetData();
-  }
+
+
+
+
+      return (Trk_SimpleInst *)0x0; }
+
+    objInstance = (Trk_SimpleInst *)group->GetData(); }
+
+
   while (index-- != 0) {
-    objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size);
-  }
-  return objInstance;
-}
+    objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); }
+
+  return objInstance; }
 
 
 
@@ -164,6 +177,7 @@ FindObjInstanceFromSerialNum(Group *group,int index)
  * pointer before the common chunkIndex load removes altSlice while retaining
  * base-first address operands. Direct field arms were4dif/134; integer-address
  * forms were21dif/135. No replacement capture or compiler-output rewrite. */
+#line 188 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *objList,int *numObj)
 
 {
@@ -214,77 +228,95 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
   return;
 }
 
-/* ---- GetSimObj  [OBJECT.CPP:256-290] SLD-VERIFIED ---- */
+/* ---- GetSimObj  [OBJECT.CPP:256-290] covered SLD requires native comparison ---- */
 
 
+#line 254 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 Trk_SimObject *
 GetSimObj(int objIndex,Object_tSimObjList *objList,int *chunk)
 {
-  Trk_SimObject *simObj;
-  int index;
+  Trk_SimObject *simObj; simObj = (Trk_SimObject *)0x0;
+  int index; index = objIndex;
 
-  index = objIndex;
-  simObj = (Trk_SimObject *)0x0;
-  if (index >= objList->numObjects + objList->numObjects2) {
+  if (index >= objList->numObjects + objList->numObjects2)
+  {
+
     index = index - objList->numObjects - objList->numObjects2;
-    simObj = (Trk_SimObject *)Object_customSimObjs->GetData();
+
+
+    simObj = (Trk_SimObject *)Object_customSimObjs->GetData(); simObj += index;
+
     *chunk = -1;
-    return simObj + index;
-  }
-  else {
+    return simObj;
+
+  } else {
+
     *chunk = objList->chunk;
+
     if (objList->numObjects <= index) {
+
       index = index - objList->numObjects;
-      *chunk = objList->chunk2;
-    }
-    if (Track_chunkList[*chunk].simObjBuf != (Group *)0x0) {
-      simObj = (Trk_SimObject *)Group_Data(Track_chunkList[*chunk].simObjBuf);
+      *chunk = objList->chunk2; }
+
+
+    if (Track_chunkList[*chunk].simObjBuf != (Group *)0x0)
+    { simObj = (Trk_SimObject *)Track_chunkList[*chunk].simObjBuf->GetData();
+
       simObj += index;
+
       if (simObj->type == '\x10') {
-        simObj = (Trk_SimObject *)0x0;
-      }
-    }
-  }
-  return simObj;
-}
+        simObj = (Trk_SimObject *)0x0; }
+    } }
+
+  return simObj; }
 
 
 
-/* ---- Object_GetRadiusCollisionData  [OBJECT.CPP:304-330] SLD-VERIFIED ---- */
+/* ---- Object_GetRadiusCollisionData [OBJECT.CPP:304-330;
+ * 67/67 byte PASS; supplied locals/regions/header/end exact,4 word tags open.] ---- */
+/* Real point[3] is the coordinate prefix. Separate Find/Anim source phases
+ * still need recovery; reusing objList reproduces all tags but its later value
+ * ownership is unproved,so that diagnostic is not reconstructed.
+ * Receipt: build/nc12/object_radius_source_20261026/final-proof.json. */
 
 
+#line 302 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int Object_GetRadiusCollisionData(Object_tSimObjList *objList,int objIndex,coorddef *pos,int *radius)
 
 {
-  Trk_SimObject *simObj;
-  int chunk;
-  
+  Trk_SimObject *simObj; int chunk;
+
+
   simObj = GetSimObj(objIndex,objList,&chunk);
-  if (simObj != (Trk_SimObject *)0x0) {
-    if (((simObj->type & 0x80) != 0) && (gSimObjAnims[simObj->serialNum] == (ObjectAnim *)0x0)) {
-      int dummy;
-      Chunk *pMChunk;
+
+
+
+  if (simObj != (Trk_SimObject *)0x0)
+  {
+
+    if (((simObj->type & 0x80) != 0) && (gSimObjAnims[simObj->serialNum] == (ObjectAnim *)0x0))
+    {
+      int dummy; Chunk *pMChunk;
 
       pMChunk = Track_chunkList + chunk;
-      Anim_GetPos((Trk_AnimateInst *)
-                      FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,
-                                                   (u_int)simObj->instIndex),
-                  1,simGlobal.gameTicks,(coorddef *)simObj,&dummy,&dummy);
+      Anim_GetPos((Trk_AnimateInst *)FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,(u_int)simObj->instIndex),
+
+                  1,simGlobal.gameTicks,(coorddef *)simObj->point,&dummy,&dummy);
     }
-    *pos = *(coorddef *)simObj;
+
+    *pos = *(coorddef *)simObj->point;
     *radius = (int)simObj->radius << 7;
-  }
-  else {
-    *radius = 0;
-  }
-  return 0;
-}
+  } else {
+    *radius = 0; }
+
+  return 0; }
 
 
 
-/* ---- Object_GetPointsCollisionData  [OBJECT.CPP:336-381] SLD-VERIFIED ---- */
+/* ---- Object_GetPointsCollisionData  [OBJECT.CPP:336-381] covered SLD requires native comparison ---- */
 
 
+#line 334 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int *numPoints,coorddef *resultPoints)
 
 {
@@ -305,11 +337,11 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
     }
     if (objInstance != (Trk_SimpleInst *)0x0) {
       Trk_ObjectDef *objDef;
-      /* SOURCE-REVIEW-UNRESOLVED: unused constants below reproduce an empty
-       * retail region, not recovered operations or proven source objects.
-       * Lookup getter candidates kept79 words but elided objDef; returning
-       * a slot reference changed10/79, an output reference spilled10/81.
-       * Recover the real source of the empty pair before removing this scaffold. */
+      /* SOURCE-REVIEW-UNRESOLVED: these constants are not recovered objects.
+       * Element-result getters elide objDef. Table-level getter trials keep
+       * 79 words,local owners and pair addresses,but their name/purpose is open.
+       * No inferred helper or assertion control is adopted as original source.
+       * Recover the actual producer before replacing this scope scaffold. */
       {
         const int extentType = 5;
         {
@@ -318,19 +350,19 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
       }
       objDef = Track_gObjDefs[objInstance->pad];
       if ((objInstance->type == '\x05') &&
-          (*(char *)((int)&objInstance[1].y + 3) == '\0')) {
-        CalcObjExtentPoints((coorddef *)simObj,(CCOORD16 *)(objDef + 1),
-                            resultPoints,(tQuat *)(objInstance + 1));
+          (((Trk_CollideBoomInst *)(void *)objInstance)->boomIndex == 0)) {
+        CalcObjExtentPoints((coorddef *)simObj->point,(CCOORD16 *)(objDef + 1),
+                            resultPoints,(tQuat *)&((Trk_CollideBoomInst *)(void *)objInstance)->qx);
         *numPoints = 3;
       }
       else {
-        *resultPoints = *(coorddef *)simObj;
+        *resultPoints = *(coorddef *)simObj->point;
         *numPoints = 1;
       }
     }
     else {
       *numPoints = 1;
-      *resultPoints = *(coorddef *)simObj;
+      *resultPoints = *(coorddef *)simObj->point;
     }
   }
   else {
@@ -341,9 +373,10 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
 
 
 
-/* ---- Object_InitStatus  [OBJECT.CPP:398-404] SLD-VERIFIED ---- */
+/* ---- Object_InitStatus  [OBJECT.CPP:398-404] covered SLD requires native comparison ---- */
 
 
+#line 396 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_InitStatus(void)
 
 {
@@ -357,9 +390,10 @@ void Object_InitStatus(void)
 
 
 
-/* ---- Object_KillStatus  [OBJECT.CPP:408-415] SLD-VERIFIED ---- */
+/* ---- Object_KillStatus  [OBJECT.CPP:408-415] covered SLD requires native comparison ---- */
 
 
+#line 406 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_KillStatus(void)
 
 {
@@ -374,9 +408,10 @@ void Object_KillStatus(void)
 
 
 
-/* ---- Object_GetAnim  [OBJECT.CPP:427-430] SLD-VERIFIED ---- */
+/* ---- Object_GetAnim  [OBJECT.CPP:427-430] covered SLD requires native comparison ---- */
 
 
+#line 425 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 ObjectAnim * Object_GetAnim(Trk_SimObject *simObj)
 
 {
@@ -389,127 +424,154 @@ ObjectAnim * Object_GetAnim(Trk_SimObject *simObj)
 
 
 /* ---- Object_CheckCollisionResults [OBJECT.CPP:455-557;
- * 166/166 byte PASS; named native records exact, constructor scopes/SLD open] ---- */
-/* Positive status/velocity owners and the inner type switch restore lexical
- * ownership. Direct construction removes the reconstruction-only factory's
- * parameter/placement captures; the finished allocation is staged first to
- * preserve the original heap-call order. Its temporary spellings and the two
- * missing empty Finished* constructor regions remain explicitly unresolved. */
+ * 166/166 byte PASS; all instruction tags and supplied local owners exact.
+ * All supplied local/region/word-line contracts exact; raw SLD stream review open.] ---- */
+/* Retail region/line evidence recovers outer case order 1/2/3, the real zero
+ * status fallback, and case-local exits. The negative-velocity path still
+ * returns 1; branch targets are independently checked. Finished allocations
+ * precede their consuming allocations. finishedMulti/finishedSign remain
+ * unproved original pointer-local spellings despite debug elision; no source
+ * object/name exemption follows from the heap order or byte PASS.
+ * The explicit default exits the existing unsupported-animation path; it
+ * reproduces the supplied completion note without a new selector or operation.
+ * Original default-vs-redundant-break spelling is not uniquely proved; the
+ * unreachable duplicate-break control is rejected, not reconstructed.
+ * Receipt: build/nc12/object_block_notes_20261026/final-proof.json. */
+#line 453 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNewtonObj *N)
 
 {
-  Trk_SimObject *simObj;
-  ObjectAnim *objStatus;
-  int vel;
-  int chunk;
-  int type;
-  int ret;
+  Trk_SimObject *simObj; ObjectAnim *objStatus; int vel; int chunk; int type; int ret;
+
+  vel = (__builtin_abs((N->linearVel).x) + __builtin_abs((N->linearVel).z)) >> 16;
+
+
 
   ret = 0;
-  vel = (__builtin_abs((N->linearVel).x) + __builtin_abs((N->linearVel).z)) >> 16;
+
+
+
+
+
+
+
+
+
+
   simObj = GetSimObj(objIndex,objList,&chunk);
   objStatus = gSimObjAnims[simObj->serialNum];
   type = simObj->type & 0xf;
-  switch (type) {
-  case 2:
-    /* BRANCH-TARGET AUDIT: the two old early guards used to be one
-       `||`, which gated PASS 166/166 but emitted 06200067 for the vel test
-       (retail 06200063) -- ours branched to the epilogue (insn 156, returning
-       ret==0) while retail branches to .L800A5550 (insn 152) = the shared
-       `ret = 1` block that `case 1` also uses.  Retail returns 1 on vel < 0.
-       (Unreachable in practice -- vel is a sum of two __builtin_abs -- but it
-       is the retail encoding.) */
-    if (objStatus == (ObjectAnim *)0x0) {
-    if (vel >= 0) {
-    {
-    Chunk *pMChunk;
-    Trk_SimpleInst *objInstance;
-    Trk_ObjectDef *objDef;
-    AnimDef *animDef;
 
-    pMChunk = Track_chunkList + chunk;
-    objInstance = (Trk_SimpleInst *)
-         FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,(int)simObj->instIndex);
-    if (objInstance->type == '\x06') {
-      animDef = gAnimDefs + *(u_char *)((int)&objInstance->y + 1);
-    }
-    else {
-      animDef = gAnimDefs +
-          ((Trk_CollideBoomInst *)(void *)objInstance)->boomIndex;
-    }
-    if (animDef->animIndex != 0) {
-      objDef = (Trk_ObjectDef *)(gPersistObjDef + 1);
-    }
-    else {
-      objDef = Track_gObjDefs[objInstance->pad];
-    }
-    switch (animDef->type) {
-    case 1:
-    {
-      /* SOURCE-REVIEW-UNRESOLVED: finishedMulti/finishedSign are allocation
-       * result temporaries, debug-elided in this graph. Distinct heap objects
-       * and their call order are proved, not distinct original pointer locals
-       * or their literal identifiers. Direct nested Sign construction was
-       *22dif/166; staging first is166/166 without the old factory records. */
-      ObjectFinishedMultiAnim *finishedMulti;
+  switch (type)
+  {
 
-      finishedMulti = new ObjectFinishedMultiAnim;
-      gSimObjAnims[simObj->serialNum] =
-          (new ObjectMultiAnim(&N->linearVel,animDef,
-                                (Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,
-                                finishedMulti));
-    }
-    break;
-    case 0:
-    {
-      /* SYM-INLINE-THIS: ObjectFinishedSignAnim */
-      ObjectFinishedSignAnim *finishedSign = new ObjectFinishedSignAnim;
-      gSimObjAnims[simObj->serialNum] =
-          new ObjectSignAnim(&N->linearVel,
-              fixedatan(N->linearVel.x >> 8,N->linearVel.z >> 8) >> 8,
-              animDef,(Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,
-              (coorddef *)(N->roadMatrix.m + 3),finishedSign);
-    }
-    break;
-    }
-    ret = -1;
-    }
-    } else ret = 1;
-    break;
-    }
-    break;
   case 1:
-    ret = 1;
+    ret = 1; break;
+  case 2:
+
+    if (objStatus == (ObjectAnim *)0x0)
+    {
+
+      if (vel >= 0)
+      {
+
+
+
+
+        {
+          Chunk *pMChunk; Trk_SimpleInst *objInstance;
+          Trk_ObjectDef *objDef; AnimDef *animDef;
+          pMChunk = Track_chunkList + chunk;
+
+
+
+
+          objInstance = (Trk_SimpleInst *)FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,(int)simObj->instIndex);
+
+
+          if (objInstance->type == '\x06') {
+            animDef = gAnimDefs + *(u_char *)((int)&objInstance->y + 1);
+          } else {
+            animDef = gAnimDefs + ((Trk_CollideBoomInst *)(void *)objInstance)->boomIndex; }
+          if (animDef->animIndex != 0) {
+
+            objDef = (Trk_ObjectDef *)(gPersistObjDef + 1);
+          } else {
+
+            objDef = Track_gObjDefs[objInstance->pad]; }
+
+
+
+          switch (animDef->type)
+          {
+          case 1:
+            { ObjectFinishedMultiAnim *finishedMulti;
+              finishedMulti = new ObjectFinishedMultiAnim;
+              gSimObjAnims[simObj->serialNum] = (new ObjectMultiAnim(&N->linearVel,animDef,(Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,finishedMulti));
+              break; }
+
+
+          case 0:
+            {
+              ObjectFinishedSignAnim *finishedSign = new ObjectFinishedSignAnim;
+              gSimObjAnims[simObj->serialNum] = new ObjectSignAnim(&N->linearVel,fixedatan(N->linearVel.x >> 8,N->linearVel.z >> 8) >> 8,animDef,(Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,(coorddef *)(N->roadMatrix.m + 3),finishedSign);
+              break;
+
+            }
+          default:
+            break;
+          } }
+
+
+
+        ret = -1; }
+
+      else ret = 1; }
+
+    else ret = 0;
     break;
+
+
+
   case 3:
     ret = 2;
+
+
+
     break;
   }
-  return ret;
-}
+
+
+  return ret; }
 
 /* ---- Object_InitCustomObjects [OBJECT.CPP:581-594;
  * 33/33 byte PASS and native ownership exact; full source/SLD review open] ---- */
 
 
+#line 579 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_InitCustomObjects(void)
 
 {
-      (Object_customObjInst = (Group *)reservememadr("Custom Objects",0x400,0))->SetNumElements(0);
-      Object_customSimObjs = (Group *)reservememadr("Custom SimObjects",0x400,0);
-      Object_customSimObjs->m_num_elements = 0;
-      blockfill(Object_customSimObjs + 1,0x3fc,0);
-      Object_customSFXInst = (Group *)reservememadr("Custom SimObjects",0x400,0);
-      Object_customSFXInst->m_num_elements = 0;
-      Object_customSliceNum = 0;
-      return;
-}
+  (Object_customObjInst = (Group *)reservememadr("Custom Objects",0x400,0))->SetNumElements(0);
 
 
 
-/* ---- Object_DeInitCustomObjects  [OBJECT.CPP:600-610] SLD-VERIFIED ---- */
+  Object_customSimObjs = (Group *)reservememadr("Custom SimObjects",0x400,0);
+  Object_customSimObjs->m_num_elements = 0;
+
+  blockfill(Object_customSimObjs + 1,0x3fc,0);
+
+  Object_customSFXInst = (Group *)reservememadr("Custom SimObjects",0x400,0);
+
+  Object_customSFXInst->m_num_elements = 0;
+  Object_customSliceNum = 0; return; }
 
 
+
+/* ---- Object_DeInitCustomObjects  [OBJECT.CPP:600-610] covered SLD requires native comparison ---- */
+
+
+#line 598 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_DeInitCustomObjects(void)
 
 {
@@ -527,35 +589,37 @@ void Object_DeInitCustomObjects(void)
 
 
 
-/* ---- Object_ClearCustomObjects  [OBJECT.CPP:616-635] SLD-VERIFIED ---- */
+/* ---- Object_ClearCustomObjects  [OBJECT.CPP:616-635] covered SLD requires native comparison ---- */
 
 
+#line 614 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_ClearCustomObjects(void)
 
-{
-  {
-    int i;
-    Object_customObjInst->m_num_elements = 0;
-    Object_customSimObjs->m_num_elements = 0;
-    Object_customSFXInst->m_num_elements = 0;
-    for (i = 0; i < Cars_gNumTrafficCars; i++) {
-      Cars_gTrafficCarList[i]->carFlags =
-          Cars_gTrafficCarList[i]->carFlags & 0xfffffbff;
-    }
-    for (i = 0; i < Cars_gNumCopCars; i++) {
-      Cars_gCopCarList[i]->carFlags =
-          Cars_gCopCarList[i]->carFlags & 0xfffffbff;
-    }
-  }
+{ { int i;
+  Object_customObjInst->m_num_elements = 0;
+  Object_customSimObjs->m_num_elements = 0;
+  Object_customSFXInst->m_num_elements = 0;
+
+
+
+
+
+
+
+
+  for (i = 0; i < Cars_gNumTrafficCars; i++) {
+    Cars_gTrafficCarList[i]->carFlags = Cars_gTrafficCarList[i]->carFlags & 0xfffffbff; }
+
+  for (i = 0; i < Cars_gNumCopCars; i++) {
+    Cars_gCopCarList[i]->carFlags = Cars_gCopCarList[i]->carFlags & 0xfffffbff; } }
+
   if (Track_gSaveSurface != (SaveSurface *)0x0) {
-    (Track_gSaveSurface)->RestoreAll();
-  }
-  return;
-}
+    (Track_gSaveSurface)->RestoreAll(); } return; }
 
 
 
-/* ---- SetCautionSurface  [OBJECT.CPP:648-657] SLD-VERIFIED ---- */
+/* ---- SetCautionSurface  [OBJECT.CPP:648-657] covered SLD requires native comparison ---- */
+#line 646 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)
 
 {
@@ -568,9 +632,10 @@ void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)
   return;
 }
 
-/* ---- Object_AddCustomSimObject  [OBJECT.CPP:668-718] SLD-VERIFIED ---- */
+/* ---- Object_AddCustomSimObject  [OBJECT.CPP:668-718] covered SLD requires native comparison ---- */
 
 
+#line 666 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
 
 {
@@ -612,9 +677,10 @@ int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
 
 
 
-/* ---- Object_GetObjDefID  [OBJECT.CPP:785-790] SLD-VERIFIED ---- */
+/* ---- Object_GetObjDefID  [OBJECT.CPP:785-790] covered SLD requires native comparison ---- */
 
 
+#line 783 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int Object_GetObjDefID(int index)
 
 {
@@ -627,9 +693,10 @@ int Object_GetObjDefID(int index)
 
 
 
-/* ---- Object_FindDefWithThisID  [OBJECT.CPP:794-800] SLD-VERIFIED ---- */
+/* ---- Object_FindDefWithThisID  [OBJECT.CPP:794-800] covered SLD requires native comparison ---- */
 
 
+#line 792 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int Object_FindDefWithThisID(int ID)
 
 {
@@ -649,6 +716,7 @@ int Object_FindDefWithThisID(int ID)
  * setter recover all retail locals/scopes. The early traffic-case break owns
  * the num-cars guard before the search. Pointer-typed zero staging remains
  * explicitly unresolved below; native exactness is not a source-text seal. */
+#line 806 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
 
 {
@@ -823,103 +891,96 @@ case 1:
   }
 }
 
-/* ---- GetObjMaxDimensions  [OBJECT.CPP:1011-1048] SLD-VERIFIED ---- */
+/* ---- GetObjMaxDimensions  [OBJECT.CPP:1011-1048] covered SLD requires native comparison ---- */
+#line 1009 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,coorddef *dimensions)
 
-{
-  {
-    Trk_ObjectDef *objDef;
-    CCOORD16 minDim;
-    CCOORD16 maxDim;
-    int vertCount;
-    CCOORD16 *pts;
+{ {
+  Trk_ObjectDef *objDef;
+  CCOORD16 minDim;
+  CCOORD16 maxDim;
+  int vertCount;
+  CCOORD16 *pts;
 
-    objDef = pObjDefs[objInstance->pad];
-    memset(&minDim,0,8);
-    memset(&maxDim,0,8);
-    vertCount = (int)objDef->vertexCount;
-    pts = (CCOORD16 *)(objDef + 1);
-    vertCount = vertCount + -1;
-    if (vertCount != -1) {
-      do {
-        if (pts->x > maxDim.x) {
-          maxDim.x = pts->x;
-        }
-        else if (pts->x < minDim.x) {
-          minDim.x = pts->x;
-        }
-        if (pts->y > maxDim.y) {
-          maxDim.y = pts->y;
-        }
-        else if (pts->y < minDim.y) {
-          minDim.y = pts->y;
-        }
-        if (pts->z > maxDim.z) {
-          maxDim.z = pts->z;
-        }
-        else if (pts->z < minDim.z) {
-          minDim.z = pts->z;
-        }
-        pts = pts + 1;
-        vertCount = vertCount + -1;
-      } while (vertCount != -1);
-    }
-    dimensions->x = ((int)maxDim.x - (int)minDim.x) * 0x200;
-    dimensions->y = ((int)maxDim.y - (int)minDim.y) * 0x200;
-    dimensions->z = ((int)maxDim.z - (int)minDim.z) * 0x200;
-    return;
+  objDef = pObjDefs[objInstance->pad];
+  memset(&minDim,0,8); memset(&maxDim,0,8);
+  vertCount = (int)objDef->vertexCount; pts = (CCOORD16 *)(objDef + 1);
+
+
+
+  while (vertCount-- != 0) {
+
+    if (pts->x > maxDim.x) {
+      maxDim.x = pts->x; }
+    else if (pts->x < minDim.x) {
+      minDim.x = pts->x; }
+
+    if (pts->y > maxDim.y) {
+      maxDim.y = pts->y; }
+    else if (pts->y < minDim.y) {
+      minDim.y = pts->y; }
+
+    if (pts->z > maxDim.z) {
+      maxDim.z = pts->z; }
+    else if (pts->z < minDim.z) {
+      minDim.z = pts->z; }
+
+    pts = pts + 1;
   }
-}
-
-/* ---- Object_InitIMassObjectInfo  [OBJECT.CPP:1055-1088] SLD-VERIFIED ---- */
 
 
+
+  dimensions->x = ((int)maxDim.x - (int)minDim.x) * 0x200;
+  dimensions->y = ((int)maxDim.y - (int)minDim.y) * 0x200;
+  dimensions->z = ((int)maxDim.z - (int)minDim.z) * 0x200; return; } }
+
+/* ---- Object_InitIMassObjectInfo  [OBJECT.CPP:1055-1088] covered SLD requires native comparison ---- */
+
+
+#line 1053 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_InitIMassObjectInfo(void)
 
 {
   gNumIMassObjects = 0;
   Object_IMassObjInst = (Object_tIMassObjInfo *)0x0;
-  if ((gPersistObjInst == (Group *)0x0) || (gPersistObjDef == (Group *)0x0)) {
-    return;
-  }
-  Object_IMassObjInst =
-       (Object_tIMassObjInfo *)reservememadr("IMObj info",gPersistObjInst->m_num_elements << 5,0)
-  ;
-  if (Object_IMassObjInst == (Object_tIMassObjInfo *)0x0) {
-    return;
-  }
-  {
+
+  if ((gPersistObjInst == (Group *)0x0) || (gPersistObjDef == (Group *)0x0)) return;
+
+
+
+  if ((Object_IMassObjInst = (Object_tIMassObjInfo *)reservememadr("IMObj info",gPersistObjInst->m_num_elements * sizeof(Object_tIMassObjInfo),0)) == (Object_tIMassObjInfo *)0x0) return; {
     int objIndex;
     Trk_AnimateInst *objInst;
+
     objIndex = 0;
+
     objInst = (Trk_AnimateInst *)(gPersistObjInst + 1);
-    if (0 < gPersistObjInst->m_num_elements) {
-      do {
-        if (objInst->type == '\a') {
-          Object_IMassObjInst[gNumIMassObjects].animInst =
-              (Trk_AnimateInst *)objInst;
-          GetObjMaxDimensions(Track_gObjDefs,(Trk_SimpleInst *)objInst,
-              &Object_IMassObjInst[gNumIMassObjects].dimension);
-          Object_IMassObjInst[gNumIMassObjects].lastPos.x = 0;
-          Object_IMassObjInst[gNumIMassObjects].lastPos.y = 0;
-          Object_IMassObjInst[gNumIMassObjects].lastPos.z = 0;
-          Object_IMassObjInst[gNumIMassObjects].lastTick = 0;
-          gNumIMassObjects = gNumIMassObjects + 1;
-        }
-        objIndex = objIndex + 1;
-        objInst =
-            (Trk_AnimateInst *)((int)&objInst->size + (int)objInst->size);
-      } while (objIndex < gPersistObjInst->m_num_elements);
-    }
-  }
-  return;
+
+    while (objIndex < gPersistObjInst->m_num_elements) {
+
+      if (objInst->type == '\a') {
+
+        Object_IMassObjInst[gNumIMassObjects].animInst = (Trk_AnimateInst *)objInst;
+        GetObjMaxDimensions(Track_gObjDefs,(Trk_SimpleInst *)objInst,&Object_IMassObjInst[gNumIMassObjects].dimension);
+        Object_IMassObjInst[gNumIMassObjects].lastPos.x = 0;
+        Object_IMassObjInst[gNumIMassObjects].lastPos.y = 0;
+        Object_IMassObjInst[gNumIMassObjects].lastPos.z = 0;
+        Object_IMassObjInst[gNumIMassObjects].lastTick = 0;
+        gNumIMassObjects = gNumIMassObjects + 1;
+      }
+
+      objIndex = objIndex + 1;
+      objInst = (Trk_AnimateInst *)((char *)objInst + objInst->size);
+    } }
+
 }
 
 
 
-/* ---- Object_DeInitIMassObjectInfo  [OBJECT.CPP:1093-1095] SLD-VERIFIED ---- */
+/* ---- Object_DeInitIMassObjectInfo  [OBJECT.CPP:1093-1095] covered SLD requires native comparison ---- */
 
 
+#line 1091 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_DeInitIMassObjectInfo(void)
 
 {
@@ -930,9 +991,10 @@ void Object_DeInitIMassObjectInfo(void)
 
 
 
-/* ---- Object_GetNumIMassObjects  [OBJECT.CPP:1101-1102] SLD-VERIFIED ---- */
+/* ---- Object_GetNumIMassObjects  [OBJECT.CPP:1101-1102] covered SLD requires native comparison ---- */
 
 
+#line 1099 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int Object_GetNumIMassObjects(void)
 
 {
@@ -941,9 +1003,10 @@ int Object_GetNumIMassObjects(void)
 
 
 
-/* ---- Object_GetIMassObjectDimensions  [OBJECT.CPP:1108-1111] SLD-VERIFIED ---- */
+/* ---- Object_GetIMassObjectDimensions  [OBJECT.CPP:1108-1111] covered SLD requires native comparison ---- */
 
 
+#line 1106 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions)
 
 {
@@ -954,35 +1017,41 @@ void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions)
 
 
 
-/* ---- Object_GetIMassObjectMotion  [OBJECT.CPP:1117-1143] SLD-VERIFIED ---- */
+/* ---- Object_GetIMassObjectMotion  [OBJECT.CPP:1117-1143] covered SLD requires native comparison ---- */
+#line 1115 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity)
 
-{
-  {
-    int timeDiff;
-    int objTime;
+{ {
+  int timeDiff;
+  int objTime;
 
-    objTime = DrawW_GetAnimationTime(Object_IMassObjInst[objIndex].animInst);
-    Anim_GetRotPos(Object_IMassObjInst[objIndex].animInst,1,objTime,cpoint,orientMat);
-    timeDiff = objTime - Object_IMassObjInst[objIndex].lastTick;
-    if (0 < timeDiff) {
-      velocity->x = (cpoint->x - Object_IMassObjInst[objIndex].lastPos.x) / timeDiff << 6;
-      velocity->y = (cpoint->y - Object_IMassObjInst[objIndex].lastPos.y) / timeDiff << 6;
-      velocity->z = (cpoint->z - Object_IMassObjInst[objIndex].lastPos.z) / timeDiff << 6;
-    }
-    else {
-      velocity->x = 0;
-      velocity->y = 0;
-      velocity->z = 0;
-    }
-    Object_IMassObjInst[objIndex].lastPos = *cpoint;
-    Object_IMassObjInst[objIndex].lastTick = objTime;
-    return;
-  }
-}
 
-/* ---- ObjectFinishedMultiAnim_Draw  [OBJECT.CPP:1160-1161] SLD-VERIFIED ---- */
+  objTime = DrawW_GetAnimationTime(Object_IMassObjInst[objIndex].animInst);
 
+
+  Anim_GetRotPos(Object_IMassObjInst[objIndex].animInst,1,objTime,cpoint,orientMat);
+
+  timeDiff = objTime - Object_IMassObjInst[objIndex].lastTick; if (0 < timeDiff) {
+
+
+    velocity->x = (cpoint->x - Object_IMassObjInst[objIndex].lastPos.x) / timeDiff << 6;
+    velocity->y = (cpoint->y - Object_IMassObjInst[objIndex].lastPos.y) / timeDiff << 6;
+    velocity->z = (cpoint->z - Object_IMassObjInst[objIndex].lastPos.z) / timeDiff << 6;
+  } else {
+
+
+    velocity->x = 0;
+    velocity->y = 0;
+    velocity->z = 0; }
+
+
+
+  Object_IMassObjInst[objIndex].lastPos = *cpoint;
+  Object_IMassObjInst[objIndex].lastTick = objTime; return; } }
+
+/* ---- ObjectFinishedMultiAnim_Draw  [OBJECT.CPP:1160-1161] covered SLD requires native comparison ---- */
+
+#line 1158 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int ObjectFinishedMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
@@ -991,7 +1060,8 @@ int ObjectFinishedMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 
 
-/* ---- ObjectMultiAnim_ct  [OBJECT.CPP:1165-1183] SLD-VERIFIED ---- */
+/* ---- ObjectMultiAnim_ct  [OBJECT.CPP:1165-1183] covered SLD requires native comparison ---- */
+#line 1161 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 ObjectMultiAnim::ObjectMultiAnim(coorddef *impactVel,AnimDef *def,
           Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj,
           ObjectFinishedMultiAnim *finishedAnim)
@@ -1032,6 +1102,7 @@ ObjectMultiAnim::ObjectMultiAnim(coorddef *impactVel,AnimDef *def,
  * first statements still fail14dif/265 on this current graph. fixedmult's
  * canonical implementation is scalar-only, so the expression's allowed LHS/
  * RHS evaluation-order variation cannot alter any accessed matrix input. */
+#line 1186 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
@@ -1131,8 +1202,9 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
   return 4;
 }
 
-/* ---- ObjectFinishedSignAnim_Draw  [OBJECT.CPP:1302-1304] SLD-VERIFIED ---- */
+/* ---- ObjectFinishedSignAnim_Draw  [OBJECT.CPP:1302-1304] covered SLD requires native comparison ---- */
 
+#line 1300 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int ObjectFinishedSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
@@ -1144,7 +1216,8 @@ int ObjectFinishedSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 
 
-/* ---- ObjectSignAnim_ct  [OBJECT.CPP:1308-1354] SLD-VERIFIED ---- */
+/* ---- ObjectSignAnim_ct  [OBJECT.CPP:1308-1354] covered SLD requires native comparison ---- */
+#line 1304 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
           Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj,
           coorddef *roadNormal,ObjectFinishedSignAnim *finishedAnim)
@@ -1205,6 +1278,7 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
 
 /* ---- ObjectSignAnim_Draw [OBJECT.CPP:1360-1401;
  * 118/118 byte PASS and native ownership exact; full SLD still open] ---- */
+#line 1358 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {

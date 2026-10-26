@@ -3647,11 +3647,9 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 }
 
 /* ---- DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi  [DRAWW.CPP:2054-2151] covered SLD requires native comparison ---- */
-#line 2052 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObject *simObjs,Group *group,int zClipSq)
-
-{
-  /* RE-GATE (w44-a7): 120 diffs, ours 192 / oracle 200 -- we are EIGHT INSNS
+/* Superseded historical custom-renderer matching controls. Failed older
+ * direct forms do not prove original captures or permit a compiler floor. */
+/* RE-GATE (w44-a7): 120 diffs, ours 192 / oracle 200 -- we are EIGHT INSNS
      SHORT (worklist said 84).  TRIAGE (tools/posdiff.py): alpha-renamed LCS
      121/200, structural residual 79, and the first-use order is oracle-identical
      except for one adjacent swap (ours ... a0 a2 a1 v0 t4 ...  vs oracle
@@ -3698,7 +3696,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      declaration sequence, and let the three ARG params stay memory-resident
      (reference the parameter directly at each use instead of caching it in a
      local -- catalog w22: "different register CLASS, not a different sN"). */
-  /* RECEIPT (w45-a5) -- PARKED at 120 (ours 192 / oracle 200, EIGHT SHORT).
+/* RECEIPT (w45-a5) -- PARKED at 120 (ours 192 / oracle 200, EIGHT SHORT).
      PROLOGUE DIFFED BYTE-FOR-BYTE (tools/ourdis.py vs the oracle .s) and the two
      are IDENTICAL for 14 instructions -- same frame (-0x80), same `addiu $s4,
      $a3,4`, same nine callee-saved saves at the same offsets, same `sw $a0,
@@ -3727,7 +3725,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      flag/count assignment CALL-CROSSING by moving it above the first jal, which
      is the exact w40 ReadIn 344->186 device).  Gate on the appearance of
      `sw $a1,0x84($sp)` in tools/ourdis.py output, not on the LCS. */
-  /* ================= RECEIPT (w46-a6) -- PARKED at 120 (ours 192 / oracle 200),
+/* ================= RECEIPT (w46-a6) -- PARKED at 120 (ours 192 / oracle 200),
      BUT THE MISSING ALLOCNO IS NOW NAMED AND COUNTED. =========================
      The w45 receipt was right that this is the w40 ARG-SPILL class; what it could
      not say is WHICH pseudo retail has that we lack.  allocsim on our object
@@ -3906,8 +3904,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
            and 64 in the post-(5) basin; with a compensating out-of-loop fence 29).
      (the old class (C) -- the fixedmult store order -- is CLOSED by lever (6).)
      ============================================================================ */
-
-  /* ---- rule-8 SYM rewrite (w71-a1). The SYM 8c block @0x800C7B9C names EVERY
+/* ---- rule-8 SYM rewrite (w71-a1). The SYM 8c block @0x800C7B9C names EVERY
      local; the ~20 fabricated Ghidra temps are gone and the SYM's own set is
      materialized verbatim (see the w46-a6 receipt above for the full listing):
         objInstance $0x14=s4 · objDef $0x1e=fp · totalCount/groupNumElements AUTO
@@ -3916,33 +3913,18 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
         quat AUTO · t1 $0x15=s5 · t2 $0x13=s3 · sx/sy/sz $0x10/$0x11/$0x12
      = NINE callee-saved allocnos (mask $c0ff0000), which is exactly the pool
      that pushes the `sd` ARG back out to its incoming stack home. */
-  Trk_CollideBoomInst * objCollideBoomInstance;
-  int buildResult; /* SYM-CODEGEN-CARRIER: buildResult -- folding the distance call into the guard is current FAIL 8/204 */
-  MATRIX *transMat; /* SYM-CODEGEN-CARRIER: transMat -- shared matB base drops sd refs 11->9 and reproduces the retail ARG spill */
-  int sx;
-  int sy;
-  int sz;
-  int t2;
-  int t3; /* SYM-CODEGEN-CARRIER: t3 -- third fixedmult result must remain live until the retail matrix-store slot */
-  Trk_SimpleInst *objInstance;
-  int t1;
-  int objectOffset;
-  int objectIndex;
-  Trk_ObjectDef *objDef;
-  matrixtdef matrix;
-  tQuat quat;
-  int totalCount;
-  int groupNumElements;
-  int skipObject; /* SYM-CODEGEN-CARRIER: skipObject -- direct accept-condition form is current FAIL 146/196 and changes the frame */
-  /* SYM (rule-8, nfs4-f-v3.txt:191805): `offsets` is a FUNCTION-SCOPE STATIC of
+/* SYM-CODEGEN-CARRIER: buildResult -- folding the distance call into the guard is current FAIL 8/204 */
+/* SYM-CODEGEN-CARRIER: transMat -- shared matB base drops sd refs 11->9 and reproduces the retail ARG spill */
+/* SYM-CODEGEN-CARRIER: t3 -- third fixedmult result must remain live until the retail matrix-store slot */
+/* SYM-CODEGEN-CARRIER: skipObject -- direct accept-condition form is current FAIL 146/196 and changes the frame */
+/* SYM (rule-8, nfs4-f-v3.txt:191805): `offsets` is a FUNCTION-SCOPE STATIC of
      THIS function (`96 Def2 class STAT type ARY CHAR size 8 dims 1 8`, recorded
      inside this fn's 8c block; unlike the file-scope static `goffsets` it has no
      symbol-table entry at all).  `signed char` because the oracle reads it with
      `lb` @0x800C7C3C and entry 4 is -1 -- plain `char` is UNSIGNED on this build,
      which read it as +255 (a real z-offset bug). */
-  static signed char offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 */
-
-  /* w53-a1 LANDED (120 -> 110, still ours 192 / oracle 200): the element
+/* @0x8013D828 */
+/* w53-a1 LANDED (120 -> 110, still ours 192 / oracle 200): the element
      count was carried by a FABRICATED `iVar6` while the SYM's own AUTO
      `groupNumElements` sat DECLARED-BUT-UNUSED right after `totalCount`.
      Deleting the fake decl and renaming every use to the SYM local fixes the
@@ -3954,13 +3936,10 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      not the statement order) and merely MOVING the `int iVar6;` decl next to
      `totalCount` while keeping the fake name (120).  The remaining 10-insn
      head gap is unchanged and is still the w46-a6 ARG-SPILL vacancy below. */
-  objInstance = (Trk_SimpleInst *)(group + 1);
-  totalCount = 0;
-  groupNumElements = group->m_num_elements;
-  /* MATCH (2026-08-01): the oracle's guard is `bnez` INTO the loop with the empty
+/* MATCH (2026-08-01): the oracle's guard is `bnez` INTO the loop with the empty
    * group as the FALL-THROUGH `j <epilogue>; [ds] addu $v0,$zero,$zero` -- the
    * non-empty case is the branch TARGET, not the else arm. */
-  /* MATCH (w41-a2, partial): the oracle's guard is an EARLY RETURN --
+/* MATCH (w41-a2, partial): the oracle's guard is an EARLY RETURN --
    * `lw $a3,0($a3); bnez $a3,.L800C7BF4; [ds] sw $a3,0x54($sp); j <epilogue>;
    * [ds] addu $v0,$zero,$zero` -- so the empty-group case falls through into a
    * `return 0` that shares the epilogue.  Writing it as `if (count == 0) return 0;`
@@ -3971,17 +3950,13 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
    * (`lw $t0,0x84($sp); addiu $v0,$t0,0x14`) for the matB zeroing, while ours keeps
    * sd live in $s5 -- the same ARG-SPILL-pressure gap as Draw_kCtrlSkidmark.  The
    * polarity is downstream of that, not an independent arm-order choice. */
-  if (groupNumElements == 0) {
-    return 0;
-  }
-  {
-    /* MATCH (2026-07-11, correctness bug): gte_SetTransMatrix was reading a
+/* MATCH (2026-07-11, correctness bug): gte_SetTransMatrix was reading a
        fabricated/wrong global (CF_DVLC -- a video-buffer symbol, completely
        unrelated) instead of the just-zeroed sd->matB the oracle loads (`lw
        t0,132(sp); addiu v0,t0,20` = &sd->matB, ctc2 t4/t5/t6,5/6/7). This would
        have fed garbage into the GTE's rotation-matrix control regs for every
        custom-object draw. */
-    /* MATCH (w71-a1): retail reloads the SPILLED `sd` ARG ONCE here
+/* MATCH (w71-a1): retail reloads the SPILLED `sd` ARG ONCE here
        (`lw t0,132(sp); nop; addiu v0,t0,20`) and drives the two upper
        translation words off that `&sd->matB` pointer (`sw zero,28(v0)`,
        `sw zero,24(v0)`) while t[0] goes through the base (`sw zero,40(t0)`).
@@ -3989,37 +3964,25 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
        from 11 to 9, which is what pushes it below objDef/objectIndex in
        allocno_compare and back out to its incoming stack home (allocsim
        --what-if 81:refs=9 reproduces exactly that handout). */
-    transMat = &sd->matB;
-    transMat->t[2] = 0;
-    transMat->t[1] = 0;
-    (sd->matB).t[0] = 0;
-gte_SetTransMatrix(transMat);
-    /* W76-A6: zero-insn OUT-OF-LOOP opacity launder on the walker -- +2
+/* W76-A6: zero-insn OUT-OF-LOOP opacity launder on the walker -- +2
        unweighted REG_N_REFS on objInstance so it stays above t1 in
        allocno_compare now that sz reads through objCollideBoomInstance
        (which re-inflates p85 by one loop-weighted ref).  Position matters:
        at the head block (before groupNumElements) it costs the guard
        polarity / a store slot (3 @199); here, inside the guarded body
        (24D-6), it is free and the fn is PASS 200/200. */
-    /* W86-D2: identity launder -> PURE-C save/dead-set/restore (zero insns, no asm). */
-    { Trk_SimpleInst *oi = objInstance; objInstance = 0; objInstance = oi; }
-    /* MATCH (w71-a1): the oracle's element loop is UN-ROTATED -- the test sits at
+/* W86-D2: identity launder -> PURE-C save/dead-set/restore (zero insns, no asm). */
+/* MATCH (w71-a1): the oracle's element loop is UN-ROTATED -- the test sits at
        the loop TOP (`lw t1,84(sp); nop; slt v0,s7,t1; beqz v0,exit`) and the
        back-edge is an unconditional `j` whose DELAY SLOT carries `addiu s7,s7,1`
        AFTER the `addu s4,s4,v0` walker advance (which pays its own `lh` load-delay
        nop).  Same shape + zero-insn void fence as DrawW_BuildObjectFacets. */
-    objectIndex = 0;
-    while (1) {
-      if (!(objectIndex < groupNumElements)) break;
-      /* MATCH (DRAW 2026-10-04): the plain subscript is PASS 200/200 on the current
+/* MATCH (DRAW 2026-10-04): the plain subscript is PASS 200/200 on the current
          basin.  The former loop-top void fence, the laundered `g` pointer and the
          split `zo` index (W75/W76 devices) are all stale here -- each removal and the
          plain form re-gated PASS; the out-of-loop objInstance save/restore below is
          the device that still carries the basin. */
-      objectOffset = offsets[objInstance->zoffset];
-      if ((objInstance->type == 5) || (objInstance->type == 2)) {
-        objDef = Track_gObjDefs[objInstance->pad];
-        /* MATCH (w71-a1, rule-8): the SYM's `objCollideBoomInstance` ($s2) is a
+/* MATCH (w71-a1, rule-8): the SYM's `objCollideBoomInstance` ($s2) is a
            SECOND walker aliasing objInstance -- retail materializes it with
            `addu $s2,$s4,$zero` in THIS `beq`'s delay slot @0x800C7C88 and then
            reads the quaternion (+0x14) and the sx/sy/sz blends (+0x1c/+0x1e/+0x20)
@@ -4027,19 +3990,7 @@ gte_SetTransMatrix(transMat);
            recon fused both into one fabricated `groupBase_p` int, so one of the
            nine SYM allocnos never existed and `sd` kept the vacant register
            instead of falling back to its incoming ARG home. */
-        objCollideBoomInstance = (Trk_CollideBoomInst *)objInstance;
-        if ((objInstance->type == 2) ||
-           (Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]) == 0)) {
-          buildResult = xzsquaredist32((coorddef *)&objInstance->x,&(Vi->cview).translation);
-          skipObject = 0;
-          if ((zClipSq <= buildResult) ||
-             ((objInstance->type == 2 &&
-              (ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
-                             (Draw_tGiveShelbyMoreCache *)sd) != 0)))) {
-            skipObject = 1;
-          }
-          if (skipObject == 0) {
-            /* MATCH (2026-07-11, rule-8/movstrsi): the oracle disasm shows a genuine
+/* MATCH (2026-07-11, rule-8/movstrsi): the oracle disasm shows a genuine
                UNALIGNED 8-byte struct copy here (`lwl/lwr` from $s2+0x14 into a temp,
                `swl/swr` into the stack `quat` local) -- groupBase_p is a variable-
                length-record walking pointer (Trk_SimpleInst 20B / Trk_CollideBoomInst
@@ -4051,23 +4002,18 @@ gte_SetTransMatrix(transMat);
                "movstrsi disease", methodology 3d/§catalog-row-303).  The canonical
                tQuat copy from the short-member address retains that unaligned
                movstrsi path and reproduces the oracle exactly. */
-            quat = *(tQuat *)&objCollideBoomInstance->qx;
-            Quatern_QuatToMat(&quat,&matrix);
-            sx = (int)objCollideBoomInstance->sx << 8;
-            sy = (int)objCollideBoomInstance->sy << 8;
-            /* MATCH (W76-A6, retiring the w71-a1 trade): retail reads ALL of
+/* MATCH (W76-A6, retiring the w71-a1 trade): retail reads ALL of
                quat/sx/sy/sz through $s2 (`lh s2,32(s2)`), and in the g-basin the
                p85 ref-inflation is paid for by the out-of-loop objInstance launder
                after gte_SetTransMatrix (+2 unweighted refs keep p95 above t1) --
                the old one-diff `lh s2,32(s4)` trade is gone and the fn is PASS. */
-            sz = (int)objCollideBoomInstance->sz << 8;
-            /* MATCH (w62-a2): retail STORES the two saved results BEFORE the
+/* MATCH (w62-a2): retail STORES the two saved results BEFORE the
              * third fixedmult call of each row -- `sw s5,32(sp); sw s3,44(sp);
              * jal fixedmult; [ds] sw v0,56(sp)`.  Calling m[6]/m[7]/m[8] first
              * (the old order) emits the two stores after the call instead.
              * 110 -> 105 (count 192 -> 189; the 11-insn deficit is the
              * still-open ARG-SPILL/second-walker gap receipted above). */
-            /* MATCH (w71-a1, rule-8): the SYM 8c block declares TWO int REG locals
+/* MATCH (w71-a1, rule-8): the SYM 8c block declares TWO int REG locals
              * here -- `t1` ($0x15 = $s5) and `t2` ($0x13 = $s3) -- and retail keeps
              * BOTH results live ACROSS the row's third fixedmult call:
              *   jal fixedmult; addu s5,v0,zero   (t1 = m[0]*sx)
@@ -4077,58 +4023,133 @@ gte_SetTransMatrix(transMat);
              * Writing the two stores BEFORE the m[6] call (the w62 order) lets the
              * SECOND result go straight from $v0 into its stack slot -- one insn
              * short per row and only ONE of the two temps ever gets a register. */
-            t1 = fixedmult(matrix.m[0],sx);
-            t2 = fixedmult(matrix.m[3],sx);
-            t3 = fixedmult(matrix.m[6],sx);
-            matrix.m[0] = t1;
-            matrix.m[3] = t2;
-            matrix.m[6] = t3;
-            t1 = fixedmult(matrix.m[1],sy);
-            t2 = fixedmult(matrix.m[4],sy);
-            t3 = fixedmult(matrix.m[7],sy);
-            matrix.m[1] = t1;
-            matrix.m[4] = t2;
-            matrix.m[7] = t3;
-            t1 = fixedmult(matrix.m[2],sz);
-            t2 = fixedmult(matrix.m[5],sz);
-            t3 = fixedmult(matrix.m[8],sz);
-            matrix.m[2] = t1;
-            matrix.m[5] = t2;
-            matrix.m[8] = t3;
-            totalCount = totalCount +
-                         DrawObjectTransform(Vi,sd,&matrix,objDef,
-                               (coorddef *)&objInstance->x,objectOffset,-1);
-          }
-        }
-        else {
-          ObjectAnim *anim; /* SYM-CODEGEN-CARRIER: anim -- single-evaluation virtual-dispatch receiver; SYM omits optimized arm locals */
-          anim = Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]);
-          anim->Draw(Vi,sd,objectOffset);
-        }
-      }
-      /* MATCH (pure C, DRAW 2026-10-04; replaces the w49/w71 zero-insn opacity asm on
+/* SYM-CODEGEN-CARRIER: anim -- single-evaluation virtual-dispatch receiver; SYM omits optimized arm locals */
+/* MATCH (pure C, DRAW 2026-10-04; replaces the w49/w71 zero-insn opacity asm on
          the walker): retail's tail is `lh v0; nop; addu walker,walker,v0; j top;
          addiu idx,idx,1` -- it PAYS the lh load-delay nop and spends the `j` slot on
          the counter.  Wrapping the advance in do{}while(0) puts a NOTE_INSN_LOOP_BEG/
          END pair around it, a sched2 barrier that keeps the increment from being
          hoisted into the lh delay slot; the same edit also restores the walker's
          retail callee-saved register (the asm's second job). */
-      do {
-        objInstance = (Trk_SimpleInst *)((int)objInstance + (int)objInstance->size);
-      } while (0);
-      objectIndex = objectIndex + 1;
+/* MATCH / source-owner recovery 2026-10-26: all21 supplied complete local
+ * tuples and every region address/path agree. Keep the real record advance
+ * inside the declaration-owning for body and before rejecting with continue.
+ * GCC merges the actual duplicate work to the retail tail; no fake save/dead-
+ * set/restore,buildResult,skipObject,anim or one-shot loop is required.
+ * SourceRecoveryUnresolved: transMat and the debug-elided t3 are not supplied
+ * original identities. One count-load tag and one conditional end line remain
+ * different; this is not a strict whole-function/source certificate.
+ * The completed Trk_SimpleInst typedef restores the genuine shared producer
+ * formerly masked here by oi. No new variable/helper,asm/volatile,qualifier,
+ * padding scope,compiler flag or generated-output rewrite is introduced.
+ * Receipt: build/nc12/shared_simpleinst_type_20261026/final-proof.json. */
+#line 2052 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObject *simObjs,Group *group,int zClipSq)
+
+{ Trk_SimpleInst *objInstance; Trk_ObjectDef *objDef; int totalCount; int groupNumElements; MATRIX *transMat; int t3; objInstance = (Trk_SimpleInst *)(group + 1);
+  static signed char offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };
+
+  totalCount = 0;
+  groupNumElements = group->GetNumElements();
+
+
+
+
+
+
+
+  if (groupNumElements == 0)
+    return 0;
+
+  transMat = &sd->matB; transMat->t[2] = 0; transMat->t[1] = 0; sd->matB.t[0] = 0; gte_SetTransMatrix(transMat);
+
+
+
+  for (int objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
+    matrixtdef matrix; int objectOffset;
+
+
+    objectOffset = offsets[objInstance->zoffset];
+
+
+    if (objInstance->type == 5 || objInstance->type == 2)
+    { Trk_CollideBoomInst *objCollideBoomInstance;
+      objCollideBoomInstance = (Trk_CollideBoomInst *)objInstance;
+      objDef = Track_gObjDefs[objInstance->pad];
+
+
+
+
+      if (objInstance->type == 2 || Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex) == 0)
+      { tQuat quat;
+
+
+
+        if (zClipSq <= xzsquaredist32((coorddef *)&objInstance->x,&Vi->cview.translation) || (objInstance->type == 2 && ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,(Draw_tGiveShelbyMoreCache *)sd) != 0)) { objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue; }
+
+
+
+
+
+
+
+
+
+        { quat = *(tQuat *)&objCollideBoomInstance->qx;
+          Quatern_QuatToMat(&quat,&matrix);
+          int t1; int t2; int sx; int sy; int sz;
+
+
+          sx = (int)objCollideBoomInstance->sx << 8;
+          sy = (int)objCollideBoomInstance->sy << 8;
+          sz = (int)objCollideBoomInstance->sz << 8;
+          t1 = fixedmult(matrix.m[0],sx);
+          t2 = fixedmult(matrix.m[3],sx);
+          t3 = fixedmult(matrix.m[6],sx);
+          matrix.m[0] = t1;
+          matrix.m[3] = t2;
+          matrix.m[6] = t3;
+          t1 = fixedmult(matrix.m[1],sy);
+          t2 = fixedmult(matrix.m[4],sy);
+          t3 = fixedmult(matrix.m[7],sy);
+          matrix.m[1] = t1;
+          matrix.m[4] = t2;
+          matrix.m[7] = t3;
+          t1 = fixedmult(matrix.m[2],sz);
+          t2 = fixedmult(matrix.m[5],sz);
+          t3 = fixedmult(matrix.m[8],sz);
+          matrix.m[2] = t1;
+          matrix.m[5] = t2;
+          matrix.m[8] = t3; }
+
+
+        totalCount += DrawObjectTransform(Vi,sd,&matrix,objDef,(coorddef *)&objInstance->x,objectOffset,-1);
+
+      } else {
+
+        Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex)->Draw(Vi,sd,objectOffset);
+      }
     }
+
+
+
+
+
+
+
+
+
+
+    objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size);
   }
-  return totalCount;
-}
+
+  return totalCount; }
 
 /* ---- DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis  [DRAWW.CPP:2156-2241] covered SLD requires native comparison ---- */
-#line 2153 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk_ObjectDef *objDef,
-              coorddef *pCp,int offset,short light)
-
-{
-  /* MATCH (2026-07-11, 125 -> 96 diffs; insns EXACT 214==214): the pair
+/* Superseded historical DrawObjectTransform matching controls. The source audit below
+ * removes the old vector/count/result/material captures; failed old controls
+ * are not source-object exemptions, compiler floors or permission to splice. */
+/* MATCH (2026-07-11, 125 -> 96 diffs; insns EXACT 214==214): the pair
      `sd[1].head.clipW = (u_short)offset; sd[1].head.clipH = *(u_short*)((u_char*)
      &offset+2);` was a BOGUS byte-split reconstruction of a single 32-bit store --
      clipW/clipH are adjacent `short` fields (nfs4_types.h +0x10/+0x12) spanning
@@ -4157,8 +4178,7 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
      DrawW_DoLines lever -- OVERSHOOTS to 217/191 instead of landing exact 214, so
      reverted both times; not a straight port here. RESIDUAL 88 = this pointer-
      chase deficit + further register-coloring cascade. */
-  matrixtdef mattemp;
-  /* 🏆 SOURCE-ONLY PASS (2026-08-26): the w50/w51 alias basin was one
+/* 🏆 SOURCE-ONLY PASS (2026-08-26): the w50/w51 alias basin was one
      statement position short of its solution.  Keep the incoming stack arg as
      `offsetArg`, but initialize the real `offset` local immediately AFTER the
      Track_materials store below.  That exact LUID gives the reload enough
@@ -4167,13 +4187,10 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
      either one statement earlier or to the clip store returns to FAIL5/FAIL8.
      Strict source-only gate: PASS 189/189; strict-branch CLEAN (4 words).
      This supersedes the obsolete textual-splice recommendation above. */
-  coorddef tmp;
-  coorddef tmp2;
-  int isCullable;  /* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 4/214 */
-  Track_tMaterial *shapeDef_p; /* SYM-CODEGEN-CARRIER: shapeDef_p -- both direct Track_materials placements are current FAIL 12/214 */
-  int drawResult;  /* SYM-CODEGEN-CARRIER: drawResult -- direct gNight_renderNight guard is current FAIL 10/214 */
-
-  /* w46-a7 RECEIPT -- 5 diffs, ours 190 / oracle 189 (the +1 is a load-delay `nop`).
+/* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 4/214 */
+/* SYM-CODEGEN-CARRIER: shapeDef_p -- both direct Track_materials placements are current FAIL 12/214 */
+/* SYM-CODEGEN-CARRIER: drawResult -- direct gNight_renderNight guard is current FAIL 10/214 */
+/* w46-a7 RECEIPT -- 5 diffs, ours 190 / oracle 189 (the +1 is a load-delay `nop`).
      PROLOGUE PARAM-COPY SINK (the same named class as DrawW_DoLines in this TU):
      the 5th parameter `offset` arrives in the stack arg slot; retail loads it with
      `lw s5,96(sp)` at insn 16, using it to FILL the load-delay slot after
@@ -4194,83 +4211,124 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
      a longer tail, or shorten the chain of whatever currently outranks it) and the
      load sinks to the delay slot on its own.  Read the two candidates' priorities
      off cc1 -dR (sched2) for this fn before touching source. */
-  sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
-  *(u_char *)((int)&sd[1].head.cprim.MPrimPtr + 3) = objDef->quadCount;
-  isCullable = objDef->vertexCount;
-  shapeDef_p = Track_materials;
-  *(u_char *)((int)sd[1].matB.t + 2) = 0;
-  drawResult = gNight_renderNight;
-  *(int *)&sd[1].head.clipW = offset;
-  sd[1].head.mirror = (int)(objDef + ((u_int)isCullable * 2 + 1));
-  *(Track_tMaterial **)sd[1].matB.m[0] = shapeDef_p;
-  if (drawResult != 0) {
-    *(u_char *)((int)sd[1].matB.t + 2) = 4;
+/* SYM-CODEGEN-CARRIER: posX -- split target-position loads preserve the retail pointer chase */
+/* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */
+/* SYM-CODEGEN-CARRIER: posZ -- direct three-axis source previously expands to 217/214 instructions */
+/* SYM-CODEGEN-CARRIER: m -- shared inline-helper name; fully direct matB bases are current FAIL 4/214 */
+/* SYM-CODEGEN-CARRIER: tX -- split view-translation loads preserve retail issue order */
+/* SYM-CODEGEN-CARRIER: tY -- y-axis member of the measured split-load shape */
+/* SYM-CODEGEN-CARRIER: tZ -- folding the three axes belongs to the prior 217/214 instruction basin */
+/* MATCH / partial source recovery 2026-10-25: all supplied local tuples and
+ * every instruction/file tag now agree. Use the supplied cache overlay fields,
+ * actual negative-first vector expressions and direct count/result/material
+ * work, not unprovided captures. No new helper or invented identifier.
+ * SourceRecoveryUnresolved: the existing matrix-pointer m captures and their
+ * extra regions remain unprovided. Do not infer original objects from failed
+ * direct-address controls. This is not a full strict function certificate.
+ * Existing GTE macro calls are retained, with no new asm/volatile or rewrite.
+ * Receipt: build/nc12/draww_object_vectors_20261025/final-proof.json. */
+#line 2153 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk_ObjectDef *objDef,
+              coorddef *pCp,int offset,short light)
+
+{ matrixtdef mattemp; coorddef tmp; coorddef tmp2;
+
+
+
+  ((Draw_tGiveShelbyMoreCache *)sd)->vertices = (CCOORD16 *)(objDef + 1);
+
+  ((Draw_tGiveShelbyMoreCache *)sd)->quadCount = objDef->quadCount;
+  ((Draw_tGiveShelbyMoreCache *)sd)->quads = (void *)(objDef + ((u_int)(objDef->vertexCount) * 2 + 1));
+  ((Draw_tGiveShelbyMoreCache *)sd)->offset = offset;
+  ((Draw_tGiveShelbyMoreCache *)sd)->materials = Track_materials;
+
+
+
+
+
+
+
+  ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 0;
+  if (gNight_renderNight != 0)
+  {
+    ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 4;
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
-      *(u_char *)((int)sd[1].matB.t + 2) = 5;
-    }
-    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; /* SYM-CODEGEN-CARRIER: posX -- split target-position loads preserve the retail pointer chase */ tmp.x = pCp->x - posX; }
-    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */ tmp.y = pCp->y - posY; }
-    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis source previously expands to 217/214 instructions */ tmp.z = pCp->z - posZ; }
+      ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 5; }
+
+
+    tmp.x = -(((Camera_gInfo[Vi->player].target)->position).x) + pCp->x;
+    tmp.y = -(((Camera_gInfo[Vi->player].target)->position).y) + pCp->y;
+    tmp.z = -(((Camera_gInfo[Vi->player].target)->position).z) + pCp->z;
+
+
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
     if (BW_gCopCarObj != (Car_tObj *)0x0) {
-      *(u_char *)((int)sd[1].matB.t + 2) = *(u_char *)((int)sd[1].matB.t + 2) | 2;
-      { int posX = (BW_gCopCarObj->N).position.x; tmp.x = pCp->x - posX; }
-      { int posY = (BW_gCopCarObj->N).position.y; tmp.y = pCp->y - posY; }
-      { int posZ = (BW_gCopCarObj->N).position.z; tmp.z = pCp->z - posZ; }
+
+      ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags | 2;
+
+      tmp.x = -((BW_gCopCarObj->N).position.x) + pCp->x;
+      tmp.y = -((BW_gCopCarObj->N).position.y) + pCp->y;
+      tmp.z = -((BW_gCopCarObj->N).position.z) + pCp->z;
       transform(&tmp.x,gCopMat.m,&tmp2.x);
-      DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
-    }
-    {
-      MATRIX *m = (MATRIX *)&(sd->matB); /* SYM-CODEGEN-CARRIER: m -- shared inline-helper name; fully direct matB bases are current FAIL 4/214 */
-      m->t[2] = 0;
-      m->t[1] = 0;
-      (sd->matB).t[0] = 0;
-gte_SetTransMatrix(m);
-    }
-  }
-  { int tX = (Vi->cview).translation.x; /* SYM-CODEGEN-CARRIER: tX -- split view-translation loads preserve retail issue order */ tmp.x = pCp->x - tX; }
-  { int tY = (Vi->cview).translation.y; /* SYM-CODEGEN-CARRIER: tY -- y-axis member of the measured split-load shape */ tmp.y = pCp->y - tY; }
-  { int tZ = (Vi->cview).translation.z; /* SYM-CODEGEN-CARRIER: tZ -- folding the three axes belongs to the prior 217/214 instruction basin */ tmp.z = pCp->z - tZ; }
+      DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop); }
+
+    { MATRIX *m = (MATRIX *)&sd->matB; m->t[2] = 0; m->t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(m); } }
+
+
+  tmp.x = -((Vi->cview).translation.x) + pCp->x;
+  tmp.y = -((Vi->cview).translation.y) + pCp->y;
+  tmp.z = -((Vi->cview).translation.z) + pCp->z;
+
   TrsProj_SetPsxTransZero();
   TrsProj_TransPt(&tmp,&tmp2);
+
   if (offset == -1) {
-    *(int *)&sd[1].head.clipW = Draw_gMidGroundOtz;
+
+
+    ((Draw_tGiveShelbyMoreCache *)sd)->offset = Draw_gMidGroundOtz;
     tmp2.x = tmp2.x >> 2;
     tmp2.y = tmp2.y >> 2;
     tmp2.z = tmp2.z >> 2;
   }
-  *(u_int *)(sd[1].matB.m[0] + 2) = 0;
-  sd[1].matB.m[1][1] = 0;
+
+
+  *(u_int *)&((Draw_tGiveShelbyMoreCache *)sd)->trans.x = 0; ((Draw_tGiveShelbyMoreCache *)sd)->trans.z = 0;
+
+
+
   Math_fasttransmult(matrix,&gWorldMat,&mattemp);
-  {
-    MATRIX *m = (MATRIX *)&sd->matB;
-    DrawW_WorldSetUpMatrix(&mattemp,m);
+  { MATRIX *m = (MATRIX *)&sd->matB; DrawW_WorldSetUpMatrix(&mattemp,m);
     DrawW_WorldSetUpTranslation(&tmp2,m);
-    *(u_char *)((int)sd[1].matB.t + 3) = 0;
-    sd->light = light;
-    DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache *)sd);
+
+
+
+
+
+    ((Draw_tGiveShelbyMoreCache *)sd)->zeroGTETransFlag = 0;
+
+
+
+    sd->light = light; DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache *)sd);
+
+
+
     DrawW_WorldSetUpMatrix(&gWorldMat,m);
-    m->t[2] = 0;
-    m->t[1] = 0;
-    (sd->matB).t[0] = 0;
-gte_SetTransMatrix(m);
-  }
-  return (u_int)objDef->quadCount;
-}
+    m->t[2] = 0; m->t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(m); }
+
+  return (u_int)objDef->quadCount; }
 
 /* ---- DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi  [DRAWW.CPP:2261-2334] covered SLD requires native comparison ---- */
-#line 2259 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coorddef *pCp,int offsetArg)
-
-{
-  /* SYM-CODEGEN-CARRIER: offsetArg -- retail names both the stack argument and
+/* Superseded historical DrawObjectSimple matching controls. The source audit below
+ * removes the old vector/count/result/material captures; failed old controls
+ * are not source-object exemptions, compiler floors or permission to splice. */
+/* SYM-CODEGEN-CARRIER: offsetArg -- retail names both the stack argument and
      GCC's promoted register copy `offset`.  The authentic single-name source
      compiles to FAIL 5 at 190/189 because this cc1plus leaves the stack reload
      in the prologue and pays a load-delay nop.  This explicit two-name carrier
      compiles PASS189 by sinking that reload; keep the spelling discrepancy
      visible until a source-only single-name expression reproduces the schedule. */
-  /* MATCH (2026-07-11, 97 -> 76 diffs; insns EXACT 189==189): same bogus
+/* MATCH (2026-07-11, 97 -> 76 diffs; insns EXACT 189==189): same bogus
      byte-split bug as the sibling DrawObjectTransform above -- `sd[1].head.clipW
      = (u_short)offset; sd[1].head.clipH = *(u_short*)((u_char*)&offset+2);`
      replaced a single aligned word store `*(int*)&sd[1].head.clipW = offset;`
@@ -4346,7 +4404,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
      already wired in tools/build.py.  NAMED LANE CANDIDATE: sink `sw s5,68(sp)` to
      retail insn 11 and `lw s5,96(sp)` into the lbu load-delay slot at 17, which also
      deletes the nop and lands the count. */
-  /* w53-a1 RE-GATE: 5 diffs, ours 190 / oracle 189, UNCHANGED.  The w51-a10
+/* w53-a1 RE-GATE: 5 diffs, ours 190 / oracle 189, UNCHANGED.  The w51-a10
      diagnosis is re-confirmed against the current object: the only residual is
      the 5th (STACK) argument's assign_parms reload -- ours emits
      `sw s5,68(sp); lw s5,96(sp)` as insns 5-6 and pays a `nop` at insn 17,
@@ -4362,67 +4420,108 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
              `nop` that follows it)
      -> count 189 == 189 and the fn PASSes.  I am not permitted to edit
      tools/*.py, so this stays a named lane, not a landing. */
-  coorddef tmp;
-  coorddef tmp2;
-  int isCullable; /* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 8/189 */
-  int drawResult; /* SYM-CODEGEN-CARRIER: drawResult -- direct gNight_renderNight guard is current FAIL 6/189 */
-  int offset; /* SYM-CODEGEN-CARRIER: stack-argument alias; placement is load-bearing */
-
-  /* MATCH: SYM 0x800c8214 shows ONLY tmp/tmp2 (+REG offset) as locals; u_char
+/* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 8/189 */
+/* SYM-CODEGEN-CARRIER: drawResult -- direct gNight_renderNight guard is current FAIL 6/189 */
+/* SYM-CODEGEN-CARRIER: stack-argument alias; placement is load-bearing */
+/* MATCH: SYM 0x800c8214 shows ONLY tmp/tmp2 (+REG offset) as locals; u_char
      isCullable had emitted a bogus `andi 255` (retyped int), and the mirror
      expression now groups (cnt*2+1) before the base add per the oracle
      `sll;addiu 4;addu`. */
-  sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
-  *(Track_tMaterial **)sd[1].matB.m[0] = Track_materials;
-  offset = offsetArg;
-  *(u_char *)((int)&sd[1].head.cprim.MPrimPtr + 3) = objDef->quadCount;
-  isCullable = objDef->vertexCount;
-  *(u_char *)((int)sd[1].matB.t + 2) = 0;
-  drawResult = gNight_renderNight;
-  *(int *)&sd[1].head.clipW = offset;
-  sd[1].head.mirror = (int)(objDef + ((u_int)isCullable * 2 + 1));
-  if (drawResult != 0) {
-    *(u_char *)((int)sd[1].matB.t + 2) = 4;
+/* SYM-CODEGEN-CARRIER: posX -- split target-position load preserves the retail pointer chase */
+/* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */
+/* SYM-CODEGEN-CARRIER: posZ -- direct three-axis expressions are current FAIL 38/185 */
+/* SYM-CODEGEN-CARRIER: m -- mixed base/direct matB lvalues keep retail's store bases; fully direct form is FAIL 4/189 */
+/* SYM-CODEGEN-CARRIER: tX -- split load fixes the clip-store issue position */
+/* SYM-CODEGEN-CARRIER: tY -- y-axis member of the same source statement split */
+/* SYM-CODEGEN-CARRIER: tZ -- folding all six loads is current FAIL 12/189 */
+/* MATCH / partial source recovery 2026-10-25: all supplied local tuples and
+ * every instruction/file tag now agree. Use the supplied cache overlay fields,
+ * actual negative-first vector expressions and direct count/result/material
+ * work, not unprovided captures. No new helper or invented identifier.
+ * SourceRecoveryUnresolved: the existing matrix-pointer m captures and their
+ * extra regions remain unprovided. Do not infer original objects from failed
+ * direct-address controls. This is not a full strict function certificate.
+ * Original offset is the actual parameter, not an offsetArg/local alias.
+ * tmp/tmp2 belong to the night-rendering arm, not function root.
+ * Existing GTE macro calls are retained, with no new asm/volatile or rewrite.
+ * Receipt: build/nc12/draww_object_vectors_20261025/final-proof.json. */
+#line 2259 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coorddef *pCp,int offset)
+
+{
+  ((Draw_tGiveShelbyMoreCache *)sd)->vertices = (CCOORD16 *)(objDef + 1);
+  ((Draw_tGiveShelbyMoreCache *)sd)->materials = Track_materials;
+
+  ((Draw_tGiveShelbyMoreCache *)sd)->quadCount = objDef->quadCount;
+  ((Draw_tGiveShelbyMoreCache *)sd)->quads = (void *)(objDef + ((u_int)(objDef->vertexCount) * 2 + 1));
+  ((Draw_tGiveShelbyMoreCache *)sd)->offset = offset;
+
+
+
+
+
+  ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 0;
+  if (gNight_renderNight != 0)
+  { coorddef tmp; coorddef tmp2;
+    ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 4;
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
-      *(u_char *)((int)sd[1].matB.t + 2) = 5;
-    }
-    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; /* SYM-CODEGEN-CARRIER: posX -- split target-position load preserves the retail pointer chase */ tmp.x = (Vi->cview).translation.x - posX; }
-    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */ tmp.y = (Vi->cview).translation.y - posY; }
-    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis expressions are current FAIL 38/185 */ tmp.z = (Vi->cview).translation.z - posZ; }
+      ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 5; }
+
+
+
+    tmp.x = -(((Camera_gInfo[Vi->player].target)->position).x) + (Vi->cview).translation.x;
+    tmp.y = -(((Camera_gInfo[Vi->player].target)->position).y) + (Vi->cview).translation.y;
+    tmp.z = -(((Camera_gInfo[Vi->player].target)->position).z) + (Vi->cview).translation.z;
+
+
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
     if (BW_gCopCarObj != (Car_tObj *)0x0) {
-      *(u_char *)((int)sd[1].matB.t + 2) = *(u_char *)((int)sd[1].matB.t + 2) | 2;
-      { int posX = (BW_gCopCarObj->N).position.x; tmp.x = (Vi->cview).translation.x - posX; }
-      { int posY = (BW_gCopCarObj->N).position.y; tmp.y = (Vi->cview).translation.y - posY; }
-      { int posZ = (BW_gCopCarObj->N).position.z; tmp.z = (Vi->cview).translation.z - posZ; }
+
+      ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags | 2;
+
+      tmp.x = -((BW_gCopCarObj->N).position.x) + (Vi->cview).translation.x;
+      tmp.y = -((BW_gCopCarObj->N).position.y) + (Vi->cview).translation.y;
+      tmp.z = -((BW_gCopCarObj->N).position.z) + (Vi->cview).translation.z;
+
       transform(&tmp.x,gCopMat.m,&tmp2.x);
-      DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
-    }
-    {
-      MATRIX *m = (MATRIX *)&(sd->matB); /* SYM-CODEGEN-CARRIER: m -- mixed base/direct matB lvalues keep retail's store bases; fully direct form is FAIL 4/189 */
-      m->t[2] = 0;
-      m->t[1] = 0;
-      (sd->matB).t[0] = 0;
-gte_SetTransMatrix(m);
-    }
-  }
+      DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop); }
+
+    { MATRIX *m = (MATRIX *)&sd->matB; m->t[2] = 0; m->t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(m); } }
+
+
   if (offset == -1) {
-    *(int *)&sd[1].head.clipW = Draw_gMidGroundOtz;
-    { int tX = (Vi->cview).translation.x; /* SYM-CODEGEN-CARRIER: tX -- split load fixes the clip-store issue position */ sd[1].matB.m[0][2] = (short)(pCp->x - tX >> 0xc); }
-    { int tY = (Vi->cview).translation.y; /* SYM-CODEGEN-CARRIER: tY -- y-axis member of the same source statement split */ sd[1].matB.m[1][0] = (short)(pCp->y - tY >> 0xc); }
-    { int tZ = (Vi->cview).translation.z; /* SYM-CODEGEN-CARRIER: tZ -- folding all six loads is current FAIL 12/189 */ sd[1].matB.m[1][1] = (short)(pCp->z - tZ >> 0xc); }
+
+    ((Draw_tGiveShelbyMoreCache *)sd)->offset = Draw_gMidGroundOtz;
+
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.x = (short)(-((Vi->cview).translation.x) + pCp->x >> 0xc);
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.y = (short)(-((Vi->cview).translation.y) + pCp->y >> 0xc);
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.z = (short)(-((Vi->cview).translation.z) + pCp->z >> 0xc);
+
+  } else {
+
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.x = (short)(-((Vi->cview).translation.x) + pCp->x >> 10);
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.y = (short)(-((Vi->cview).translation.y) + pCp->y >> 10);
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.z = (short)(-((Vi->cview).translation.z) + pCp->z >> 10);
   }
-  else {
-    { int tX = (Vi->cview).translation.x; sd[1].matB.m[0][2] = (short)(pCp->x - tX >> 10); }
-    { int tY = (Vi->cview).translation.y; sd[1].matB.m[1][0] = (short)(pCp->y - tY >> 10); }
-    { int tZ = (Vi->cview).translation.z; sd[1].matB.m[1][1] = (short)(pCp->z - tZ >> 10); }
-  }
-  *(u_char *)((int)sd[1].matB.t + 3) = 1;
+
+
+
+
+
+
+
+
+  ((Draw_tGiveShelbyMoreCache *)sd)->zeroGTETransFlag = 1;
   sd->light = -1;
+
+
   DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache *)sd);
-  return (u_int)objDef->quadCount;
-}
+
+
+
+
+  return (u_int)objDef->quadCount; }
 
 /* w55-a9 NEGATIVE: the w48 zero-insn VOID fence `__asm__("" : : "i"(0))` was swept over
  * EVERY statement of the body (scratchpad/w55a9_fencesweep.py, each position gated).  No
@@ -4936,11 +5035,10 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
  * DrawC_NightHeadlight's residual 4) and item (2) wants the `-1` as its own late statement
  * (the lever that took DrawC_PrimStart 60 -> 54 this wave) -- untried here. */
 /* ---- DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry  [DRAWW.CPP:2717-2864] covered SLD requires native comparison ---- */
-#line 2715 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
-
-{
-  /* MATCH (2026-07-11 FABLE-1): full SYM-driven rewrite (rule 8 was never applied
+/* Historical matching controls, superseded by the 2026-10-25 source audit.
+ * Their old diff counts and object-necessity/floor claims do not describe the
+ * current PASS body. Retained for provenance, not as source-object exemptions. */
+/* MATCH (2026-07-11 FABLE-1): full SYM-driven rewrite (rule 8 was never applied
      to this fn) -- the SYM's REAL local set for this fn is exactly {sd, chunkCount
      (AUTO/stack!), buildInd, chunkDat, simObjs, chunkInd, geomRez, thisChunkInd};
      the prior draft invented Ghidra-artifact temps (iVar2/iVar5/iVar6/pCVar3/
@@ -4956,10 +5054,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
      `pCVar3` re-index); (3) `simObjs` is likewise computed ONCE per iteration
      (right after chunkDat) and reused for BOTH DrawW_Build*Facets calls, not
      recomputed per-branch. */
-  Draw_DCache *sd;
-  int thisChunkInd;
-  int chunkCount;
-  /* ================= W72-A1 (2026-08-22): 30 -> PASS 222/222 =================
+/* ================= W72-A1 (2026-08-22): 30 -> PASS 222/222 =================
      Four landings, three of them one general law each.
        (1) THE ALIAS-DEPENDENCE DIAL, applied to the scratchpad cache (30 -> 10).
            Every `*(short *)((char *)sd + 0xNN)` cast store is a PLAIN MEM: gcc's
@@ -5003,9 +5098,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
            measured and exactly ONE gates PASS: doublelayer, objInstanceBuf,
            simObjs, doFrustumClip.
      ============================================================================ */
-  gVi = Vi;
-  sd = (Draw_DCache *)&Render_gPalettePtr;
-  /* w49-a2 FALSIFIED (residual 30, count-exact 222/222): all four statement
+/* w49-a2 FALSIFIED (residual 30, count-exact 222/222): all four statement
      orders of {chunkCount, thisChunkInd, the &gInitialArt store} gate
      BYTE-IDENTICALLY -- sched2 re-orders them freely.  The SLD says retail's
      source order is thisChunkInd(2721), chunkCount(2722), gInitialArt(2730),
@@ -5016,7 +5109,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
      the oracle's $a1.  That uniform ours-earlier signature is the sched2
      ready-list DRAIN class, not a source order -- next instrument is a
      zero-insn fence WALK (w45 grammar) or -dR. */
-  /* w50-a2: THE FENCE WALK IS FALSIFIED for the entry block.  A zero-insn void
+/* w50-a2: THE FENCE WALK IS FALSIFIED for the entry block.  A zero-insn void
      fence `__asm__("" : : "i"(0))` was walked through all six statement slots of
      the prologue (before/after gVi=Vi, sd=, chunkCount=, thisChunkInd=,
      &gInitialArt store, and at the loop block head): 60 / 62 / 62 / 90 / 60 / 60
@@ -5026,24 +5119,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
      (a) the RANGE-CHAIN rematerialization at the second track guard (the dial is
      WHERE 0x1F800000 is materialized, not the chunkM1 temp -- see below), and
      (b) -dR (sched2) traces to read the drain order directly. */
-  chunkCount = BWorld_gChunkCount;
-  thisChunkInd = gCurrContext->currentChunk;
-  ((Draw_tGiveShelbyMoreCache *)sd)->artInfo = &gInitialArt;
-  {
-  int buildInd;
-  buildInd = 0;
-  while (1) {
-    if (chunkCount <= buildInd) break;
-    if (((u_int)buildList[buildInd].enableBits & 2U) != 0) {
-      Chunk *chunkDat;
-      Trk_SimObject *simObjs;
-      int chunkInd;
-      int geomRez;
-      chunkInd = buildList[buildInd].chunkInd;
-      chunkDat = Track_chunkList + chunkInd;
-      simObjs = (Trk_SimObject *)(chunkDat->simObjBuf + 1);
-      geomRez = (int)*(signed char *)&buildList[buildInd].geomRez;
-      /* MATCH (w40-a2): TWO cooperating fixes, must land together.
+/* MATCH (w40-a2): TWO cooperating fixes, must land together.
          (1) `(signed char)` cast -> the oracle's `lb $a1,0x2($s2)` (`char` is UNSIGNED on
              this build, so the plain field read emitted `lbu`; the previous
              `*(volatile signed char*)` form kept the giv down but cost `lbu+sll+sra`).
@@ -5055,48 +5131,17 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
              role. Index form reduces onto the single +0 walker the oracle uses.
          Also dropped the `volatile` on the enableBits test (scaffolding that is a no-op
          under the index form). 59 -> 45 diffs, insns 225 -> 223 (oracle 222). */
-      if (chunkDat->objInstanceBuf != (Group *)0x0) {
-        sd->doublelayer = 1;
-        /* MATCH (w72-a1): the sched2 LUID tie -- retail's simObjs store lands
+/* MATCH (w72-a1): the sched2 LUID tie -- retail's simObjs store lands
            AFTER the objInstanceBuf load + the doFrustumClip sltiu (source order
            doublelayer / objInstanceBuf / simObjs / doFrustumClip).  All 24
            permutations measured; this is the only PASS. */
-        gChunkObjInfo.objInstanceBuf = chunkDat->objInstanceBuf;
-        gChunkObjInfo.simObjs = simObjs;
-        gChunkObjInfo.doFrustumClip = (int)(geomRez == 4);
-        gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-        stackSpeedUpEnbabledFlag = 1;
-        DrawW_BuildChunkObjectFacets(gVi,&gChunkObjInfo);
-        gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-        stackSpeedUpEnbabledFlag = 0;
-      }
-      if (((GameSetup_gData.Time == 0) && (GameSetup_gData.Weather == 0)) &&
-         (chunkDat->objSpecialInstanceBuf != (Group *)0x0)) {
-        ((Draw_tGiveShelbyMoreCache *)sd)->offsubdivid = 0x400;
-        sd->doublelayer = 0;
-        gChunkObjInfo.visList = (short *)0x0;
-        gChunkObjInfo.simObjs = simObjs;
-        gChunkObjInfo.objInstanceBuf = chunkDat->objSpecialInstanceBuf;
-        gChunkObjInfo.zClipSq = -1;
-        gChunkObjInfo.offset = 0x32;
-        gChunkObjInfo.doFrustumClip = 1;
-        DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
-      }
-    }
-    buildInd = buildInd + 1;
-  }
-  }
-  {
-  sd->doublelayer = 0;
-  /* BUG FIXED (2026-07-11 consolidation, correctness over byte-match per project policy):
+/* BUG FIXED (2026-07-11 consolidation, correctness over byte-match per project policy):
      oracle stores 0x400 here, not 0 -- the loop-exit branch's DELAY SLOT unconditionally
      re-materializes `addiu v0,zero,0x400` (B9548; delay slots execute on BOTH paths, §3.1),
      and that same v0 is stored at B9678 `sh v0,0x148(s6)`. The wave-7 `=0` reading misread
      the slot as the slt result. Costs one extra `li` vs `$zero` (+~15 fuzzy diffs) --
      accepted; this value feeds DrawW_BuildCustomObjectFacets via the scratchpad field. */
-  *(short *)((char *)sd + 0x148) = 0x400;
-  if (gPersistObjInst != (Group *)0x0) {
-    /* w46-a7 RECEIPT -- 30 diffs, count-EXACT 222/222, 4 tiny independent clusters
+/* w46-a7 RECEIPT -- 30 diffs, count-EXACT 222/222, 4 tiny independent clusters
        (chunkdiff: 10 insns total).  The one worth naming:
          RANGE-CHAIN REMATERIALIZATION -- the shared `chunkM1` temp below is CSE'd
          into a live register ($a0) that spans BOTH track-guard chains, so our second
@@ -5114,7 +5159,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        free.  Remaining clusters: an early store-order pair (`sw a0,0(gp)` vs
        `sw t0,24(sp)` + the `lw s5,136(v1)` position) and one `v1`-vs-`a1` operand on
        an `xori ...,4`. */
-    /* w53-a1 RE-GATE + FALSIFICATIONS (30 diffs, count-EXACT 222/222; posdiff
+/* w53-a1 RE-GATE + FALSIFICATIONS (30 diffs, count-EXACT 222/222; posdiff
        first-use order is ORACLE-IDENTICAL, structural residual 15).  The w46-a7
        "NEW NAMED ANGLE" (move the 0x1F800000 materialisation into the second
        guard chain) was attacked from the OTHER side -- free `$a0` by killing the
@@ -5167,31 +5212,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        chains, and the only untried instrument is a -dS/-dR + cse dump on the
        30-diff basin.  ⚠️ lab fidelity for THIS fn is IDENTICAL per w62-a2, so the
        instrumented cc1plus is quotable. */
-    if (((GameSetup_gData.track != 4) ||
-        (((0x27 < ({ u_int c = thisChunkInd - 1U;  c; }) && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&
-       ((GameSetup_gData.track != 0 ||
-        (((0x34 < (u_int)(thisChunkInd - 1U) && (0x1b < thisChunkInd - 0x44U)) && (0x13 < thisChunkInd - 0x6cU)))))) {
-      gChunkObjInfo.objInstanceBuf = gPersistObjInst;
-      gChunkObjInfo.simObjs = (Trk_SimObject *)0x0;
-      gChunkObjInfo.offset = 0x7d;
-      gChunkObjInfo.doFrustumClip = 1;
-      gChunkObjInfo.zClipSq = gCurrContext->polyFarZClipSq;
-      gChunkObjInfo.visList = (short *)0x0;
-      gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-      stackSpeedUpEnbabledFlag = 1;
-      DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
-      gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-      stackSpeedUpEnbabledFlag = 0;
-    }
-  }
-  }
-  if (gPersistMidgroundObjInst != (Group *)0x0) {
-    gChunkObjInfo.simObjs = (Trk_SimObject *)0x0;
-    gChunkObjInfo.objInstanceBuf = gPersistMidgroundObjInst;
-    gChunkObjInfo.zClipSq = -1;
-    gChunkObjInfo.offset = -1;
-    gChunkObjInfo.doFrustumClip = 1;
-    /* MATCH+BUG (2026-07-11 FABLE-1): Track_gInViewList is declared `short **`
+/* MATCH+BUG (2026-07-11 FABLE-1): Track_gInViewList is declared `short **`
        (array of pointers) so `Track_gInViewList[iVar6]` double-derefs (index by
        stride 4, then load a pointer) -- oracle instead loads the GLOBAL'S OWN
        pointer VALUE once and does byte-address math with a 64-byte (0x40) row
@@ -5202,7 +5223,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        with a 64-byte-per-chunk row stride, not an array of row pointers. Can't
        fix the extern's declared type here (decl-only change, out of scope for
        this pass) -- reproduce the true addressing via a body-local cast instead. */
-    /* NEAR-MISS FLOOR (76 diffs, w9-a10 2026-07-11): traced the raw oracle prologue
+/* NEAR-MISS FLOOR (76 diffs, w9-a10 2026-07-11): traced the raw oracle prologue
        instruction-by-instruction -- it's a WHOLESALE callee-saved-register ROLE SHIFT,
        not a structural gap: oracle allocates {s2:buildList, s4:buildInd, s6:sd-scratchpad-
        base, s7:hi(gChunkObjInfo)-reused-for-fused-%lo(sym+off)-stores, s1:&gChunkObjInfo,
@@ -5219,19 +5240,168 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        whether gcc dual-materializes is an allocator/scheduler heuristic decision (which
        field stores get batched under the same hi-part) not controlled by source shape.
        Not source-reachable within this pass's scope; accept as a genuine allocator floor. */
+/* MATCH / partial source recovery 2026-10-25: all 222 instruction/file tags
+ * and all 10 supplied complete local tuples agree. The per-entry declarations
+ * belong to the loop body, not the enableBits arm. Direct unsigned range tests
+ * remove the unprovided c capture and its expression scope. The real Group
+ * GetNumElements call restores the final inline pair without a new helper.
+ * The real for owns buildInd and closes its work scope before the increment.
+ * SourceRecoveryUnresolved: eight earlier supplied region records are missing;
+ * this is not a strict SYM/SLD seal.
+ * Original macro spelling and the flat visibility-buffer declaration remain
+ * source-review work. No new asm, volatile, dummy use or statement anchor.
+ * Receipt: build/nc12/draww_objects_source_20261025/final-proof.json. */
+#line 2715 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
+
+{
+  Draw_DCache *sd; int thisChunkInd; int chunkCount;
+  sd = (Draw_DCache *)&Render_gPalettePtr;
+
+  thisChunkInd = gCurrContext->currentChunk;
+  chunkCount = BWorld_gChunkCount;
+
+
+
+
+  gVi = Vi;
+
+
+  ((Draw_tGiveShelbyMoreCache *)sd)->artInfo = &gInitialArt;
+
+  for (int buildInd = 0; buildInd < chunkCount; buildInd = buildInd + 1) { Chunk *chunkDat; Trk_SimObject *simObjs; int chunkInd; int geomRez;
+
+
+
+
+
+
+    if (((u_int)buildList[buildInd].enableBits & 2U) != 0) {
+
+
+
+
+      chunkInd = buildList[buildInd].chunkInd;
+      geomRez = (int)*(signed char *)&buildList[buildInd].geomRez;
+      chunkDat = Track_chunkList + chunkInd;
+      simObjs = (Trk_SimObject *)(chunkDat->simObjBuf + 1);
+
+
+      if (chunkDat->objInstanceBuf != (Group *)0x0) {
+
+        sd->doublelayer = 1;
+
+
+        gChunkObjInfo.objInstanceBuf = chunkDat->objInstanceBuf;
+        gChunkObjInfo.simObjs = simObjs;
+        gChunkObjInfo.doFrustumClip = (int)(geomRez == 4);
+
+
+
+
+
+        gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
+
+        DrawW_BuildChunkObjectFacets(gVi,&gChunkObjInfo);
+
+        gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
+      }
+
+
+
+
+
+
+
+
+      if (((GameSetup_gData.Time == 0) && (GameSetup_gData.Weather == 0)) && (chunkDat->objSpecialInstanceBuf != (Group *)0x0)) {
+
+
+
+
+        ((Draw_tGiveShelbyMoreCache *)sd)->offsubdivid = 0x400;
+        sd->doublelayer = 0;
+
+
+
+        gChunkObjInfo.visList = (short *)0x0;
+        gChunkObjInfo.simObjs = simObjs;
+        gChunkObjInfo.objInstanceBuf = chunkDat->objSpecialInstanceBuf;
+        gChunkObjInfo.zClipSq = -1;
+        gChunkObjInfo.offset = 0x32;
+        gChunkObjInfo.doFrustumClip = 1;
+        DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
+      }
+    }
+
+
+
+
+  }
+
+
+
+  { sd->doublelayer = 0;
+  *(short *)((char *)sd + 0x148) = 0x400;
+
+
+
+
+  if (gPersistObjInst != (Group *)0x0) {
+
+
+
+
+
+
+
+
+
+
+
+
+    if (((GameSetup_gData.track != 4) || (((0x27 < (u_int)(thisChunkInd - 1U) && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) && ((GameSetup_gData.track != 0 || (((0x34 < (u_int)(thisChunkInd - 1U) && (0x1b < thisChunkInd - 0x44U)) && (0x13 < thisChunkInd - 0x6cU)))))) {
+
+      gChunkObjInfo.objInstanceBuf = gPersistObjInst;
+      gChunkObjInfo.simObjs = (Trk_SimObject *)0x0;
+      gChunkObjInfo.offset = 0x7d;
+      gChunkObjInfo.doFrustumClip = 1;
+      gChunkObjInfo.zClipSq = gCurrContext->polyFarZClipSq;
+      gChunkObjInfo.visList = (short *)0x0;
+
+      gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
+      DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
+      gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
+    }
+  } }
+
+
+
+
+
+  if (gPersistMidgroundObjInst != (Group *)0x0) {
+
     gChunkObjInfo.visList = (short *)((char *)Track_gInViewList + thisChunkInd * 0x40);
-    gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-    stackSpeedUpEnbabledFlag = 1;
+    gChunkObjInfo.simObjs = (Trk_SimObject *)0x0;
+    gChunkObjInfo.objInstanceBuf = gPersistMidgroundObjInst;
+    gChunkObjInfo.zClipSq = -1;
+    gChunkObjInfo.offset = -1;
+    gChunkObjInfo.doFrustumClip = 1;
+
+    gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
     DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
-    gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-    stackSpeedUpEnbabledFlag = 0;
+    gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
   }
-  if ((Object_customObjInst != (Group *)0x0) && (0 < Object_customObjInst->m_num_elements)) {
-    DrawW_BuildCustomObjectFacets(Vi,sd,(Trk_SimObject *)(Object_customSimObjs + 1),
-               Object_customObjInst,gCurrContext->polyFarZClipSq);
-  }
-  return;
-}
+
+
+
+
+
+
+
+  if ((Object_customObjInst != (Group *)0x0) && (0 < Object_customObjInst->GetNumElements())) {
+
+    DrawW_BuildCustomObjectFacets(Vi,sd,(Trk_SimObject *)(Object_customSimObjs + 1),Object_customObjInst,gCurrContext->polyFarZClipSq); } return; }
 
 /* ---- Draw_CircleClip__FP8coorddefT0i  [DRAWW.CPP:2888-2896] covered SLD requires native comparison ---- */
 #line 2887 "C:/nfs4/GAME/PSX/DRAWW.CPP"
@@ -6733,21 +6903,18 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
 }
 
 /* ---- DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache  [DRAWW.CPP:3396-3467] covered SLD requires native comparison ---- */
-#line 3394 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
-
-{
-  /* Source-only identities retained only where the oracle proves their
-     statement/allocation role; they are not asserted SYM locals:
-     SYM-CODEGEN-CARRIER: m -- mixed matB lvalues are the measured exact GTE-base shape.
-     SYM-CODEGEN-CARRIER: m2 -- the in-loop sibling requires the same mixed-base shape.
-     SYM-CODEGEN-CARRIER: posX -- completing the target-pointer chase as its own statement preserves retail's load-delay stall.
-     SYM-CODEGEN-CARRIER: posY -- y-axis instance of the independently measured pointer-chase split.
-     SYM-CODEGEN-CARRIER: posZ -- z-axis instance of the independently measured pointer-chase split.
-     SYM-CODEGEN-CARRIER: tx -- direct final subtraction is FAIL 6 at 199/199 because the translation load moves.
-     SYM-CODEGEN-CARRIER: ty -- y-axis scheduling identity in that same current falsification.
-     SYM-CODEGEN-CARRIER: tz -- z-axis scheduling identity in that same current falsification. */
-  /* MATCH (2026-07-11, 79 -> 52 diffs; insns now EXACT 199==199): the tmp.x/y/z
+/* Superseded historical DoLines matching/source controls. The nine vector
+ * captures are now removed; failed matrix trials do not establish objects. */
+/* SourceRecoveryUnresolved: m/m2 are still unprovided matrix-pointer
+     captures, not proved original by the old direct-field failures.
+     Nine positional/translation captures are removed by negative-first real
+     subtraction expressions (2026-10-25), preserving all 199 instructions.
+     Their former scheduling/object-necessity claims below are historical.
+     Full owner/region/SLD restoration remains open; no new name or device. */
+/* Historical carrier classification, superseded by the source audit:
+     m/m2 still need producer recovery; positional/translation captures no
+     longer exist. Do not interpret the following old measurements as floors. */
+/* MATCH (2026-07-11, 79 -> 52 diffs; insns now EXACT 199==199): the tmp.x/y/z
      computations `(Vi->cview).translation.N - ((Camera_gInfo[Vi->player].target)->
      position).N` (and the BW_gCopCarObj sibling block) are a genuine TWO-LEVEL
      POINTER CHASE (target ptr deref, then ->position.N) -- the oracle pays a real
@@ -6830,97 +6997,92 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
      54" -- true in ITS basin (both net-zero pairs, no alias); the index form only
      wins once the pairs are gone.  The same instrument still applies to
      DrawObjectSimple's `lw s5,96(sp)`. */
-  int chunkCount;
+/* MATCH: mixed-lvalue matB rebasing (see above) */
+/* MATCH / partial source recovery 2026-10-25: six posX/Y/Z captures and
+ * tx/ty/tz disappear in negative-first real subtraction expressions. All199
+ * instruction/file tags match, with frame/header/end and normal bytes intact.
+ * Separate null and enable-bit tests recover their distinct source phases.
+ * The supplied nightFlags member replaces the raw byte view at offset0x106.
+ * SourceRecoveryUnresolved: m/m2 remain unprovided, and supplied declaration
+ * ownership/regions are not complete. Their older necessity claims below are
+ * historical only. Do not add a qualifier, dummy use, helper or padding scope
+ * to erase those review items. Existing SDK GTE macro calls are unchanged.
+ * Receipt: build/nc12/draww_lines_source_20261025/final-proof.json. */
+#line 3394 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 
-  chunkCount = BWorld_gChunkCount;
+{
   sd->doublelayer = 0;
-  {
-    MATRIX *m = (MATRIX *)&sd->matB;  /* MATCH: mixed-lvalue matB rebasing (see above) */
-    m->t[2] = 0;
-    m->t[1] = 0;
-    (sd->matB).t[0] = 0;
-    gte_SetTransMatrix(m);
-  }
-  {
-    int buildInd;
-    for (buildInd = 0; buildInd < chunkCount; buildInd = buildInd + 1) {
-      Chunk *chunkDat;
-      int geomRez;
-      geomRez = (signed char)buildList[buildInd].geomRez;
-      if (geomRez == 4) {
-        chunkDat = Track_chunkList + buildList[buildInd].chunkInd;
-        Group *group = chunkDat->lineBuf;
-        if ((group != (Group *)0x0) && ((buildList[buildInd].enableBits & 4U) != 0)) {
-          COORD16 trans;
-          if (gNight_renderNight != 0) {
-            coorddef tmp;
-            coorddef tmp2;
-            geomRez = *(u_char *)((int)sd[1].matB.t + 2);
-            *(u_char *)((int)sd[1].matB.t + 2) = geomRez | 4;
-            if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
-              *(u_char *)((int)sd[1].matB.t + 2) = geomRez | 5;
-            }
-            {
-              int posX = ((Camera_gInfo[Vi->player].target)->position).x;
-              tmp.x = (Vi->cview).translation.x - posX;
-            }
-            {
-              int posY = ((Camera_gInfo[Vi->player].target)->position).y;
-              tmp.y = (Vi->cview).translation.y - posY;
-            }
-            {
-              int posZ = ((Camera_gInfo[Vi->player].target)->position).z;
-              tmp.z = (Vi->cview).translation.z - posZ;
-            }
-            transform(&tmp.x,gNightMat.m,&tmp2.x);
-            DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
-            if (BW_gCopCarObj != (Car_tObj *)0x0) {
-              {
-                int posX = (BW_gCopCarObj->N).position.x;
-                tmp.x = (Vi->cview).translation.x - posX;
-              }
-              {
-                int posY = (BW_gCopCarObj->N).position.y;
-                tmp.y = (Vi->cview).translation.y - posY;
-              }
-              {
-                int posZ = (BW_gCopCarObj->N).position.z;
-                tmp.z = (Vi->cview).translation.z - posZ;
-              }
-              transform(&tmp.x,gCopMat.m,&tmp2.x);
-              DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
-            }
-            {
-              MATRIX *m2 = (MATRIX *)&sd->matB;
-              m2->t[2] = 0;
-              m2->t[1] = 0;
-              (sd->matB).t[0] = 0;
-              gte_SetTransMatrix(m2);
-            }
-          }
-          {
-            coorddef *pChunkCp;
-            pChunkCp = Chunk_chunkCenters + buildList[buildInd].chunkInd;
-            {
-              int tx = (Vi->cview).translation.x;
-              trans.x = (short)(pChunkCp->x - tx >> 10);
-            }
-            {
-              int ty = (Vi->cview).translation.y;
-              trans.y = (short)(pChunkCp->y - ty >> 10);
-            }
-            {
-              int tz = (Vi->cview).translation.z;
-              trans.z = (short)(pChunkCp->z - tz >> 10);
-            }
-            DrawW_BuildChunkCenterLineFacets(chunkDat,group,(Draw_tGiveShelbyMoreCache *)sd,&trans);
-          }
-        }
-      }
-    }
-  }
-  return;
-}
+  int chunkCount;
+  chunkCount = BWorld_gChunkCount;
+
+  { MATRIX *m = (MATRIX *)&sd->matB; m->t[2] = 0; m->t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(m); }
+
+  { int buildInd; for (buildInd = 0; buildInd < chunkCount; buildInd = buildInd + 1) {
+    Chunk *chunkDat;
+    int geomRez;
+
+
+    geomRez = (signed char)buildList[buildInd].geomRez;
+
+    if (geomRez == 4)
+    {
+      chunkDat = Track_chunkList + buildList[buildInd].chunkInd;
+
+
+      Group *group = chunkDat->lineBuf; if (group != (Group *)0x0)
+
+
+        if ((buildList[buildInd].enableBits & 4U) != 0)
+      { COORD16 trans;
+
+        if (gNight_renderNight != 0)
+        { coorddef tmp; coorddef tmp2;
+
+
+          geomRez = ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags; ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = geomRez | 4;
+          if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
+            ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = geomRez | 5; }
+
+
+          tmp.x = -(((Camera_gInfo[Vi->player].target)->position).x) + (Vi->cview).translation.x;
+          tmp.y = -(((Camera_gInfo[Vi->player].target)->position).y) + (Vi->cview).translation.y;
+          tmp.z = -(((Camera_gInfo[Vi->player].target)->position).z) + (Vi->cview).translation.z;
+
+
+
+
+
+          transform(&tmp.x,gNightMat.m,&tmp2.x);
+
+          DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
+          if (BW_gCopCarObj != (Car_tObj *)0x0) {
+
+
+            tmp.x = -((BW_gCopCarObj->N).position.x) + (Vi->cview).translation.x;
+            tmp.y = -((BW_gCopCarObj->N).position.y) + (Vi->cview).translation.y;
+            tmp.z = -((BW_gCopCarObj->N).position.z) + (Vi->cview).translation.z;
+
+            transform(&tmp.x,gCopMat.m,&tmp2.x);
+            DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop); }
+
+          { MATRIX *m2 = (MATRIX *)&sd->matB; m2->t[2] = 0; m2->t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(m2); } }
+
+        { coorddef *pChunkCp;
+          pChunkCp = Chunk_chunkCenters + buildList[buildInd].chunkInd;
+
+          trans.x = (short)(-((Vi->cview).translation.x) + pChunkCp->x >> 10);
+          trans.y = (short)(-((Vi->cview).translation.y) + pChunkCp->y >> 10);
+          trans.z = (short)(-((Vi->cview).translation.z) + pChunkCp->z >> 10);
+
+
+
+          DrawW_BuildChunkCenterLineFacets(chunkDat,group,(Draw_tGiveShelbyMoreCache *)sd,&trans); }
+
+
+
+
+      } } } } return; }
 
 /* ---- DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache  [DRAWW.CPP:3692-3815] covered SLD requires native comparison ---- */
 #line 3690 "C:/nfs4/GAME/PSX/DRAWW.CPP"

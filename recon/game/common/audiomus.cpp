@@ -51,10 +51,10 @@ void AudioMus_RefreshStatus(void)
 {
   if (AudioMus_g->streamhandle >= 0) {
 
-    SNDSTRM_status(AudioMus_g->streamhandle,(int)&AudioMus_g->streamstatus);
+    SNDSTRM_status(AudioMus_g->streamhandle,&AudioMus_g->streamstatus);
 
     if (0 < (AudioMus_g->streamstatus).outstandingrequests) {
-      SNDSTRM_requeststatus((AudioMus_g->streamstatus).currentrequest,(u_int)&AudioMus_g->requeststatus);
+      SNDSTRM_requeststatus((AudioMus_g->streamstatus).currentrequest,&AudioMus_g->requeststatus);
     }
   } else {
     (AudioMus_g->streamstatus).outstandingrequests = 0;
@@ -572,7 +572,7 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
         SNDplaysetdef(&opts);
         opts.vol = 0;
         AudioMus_g->streamhandle =
-            SNDSTRM_create((int *)&opts,1,chunks,AudioMus_g->streambuffer,size);
+            SNDSTRM_create(&opts,1,chunks,AudioMus_g->streambuffer,size);
         if (-1 < AudioMus_g->streamhandle) {
           SNDSTRM_setgreedylevel(AudioMus_g->streamhandle,0);
           SNDSTRM_setpriority(AudioMus_g->streamhandle,0xff,5);
@@ -592,16 +592,16 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
 void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
 {
   if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
-    AudioMus_g = reservememadr("Music Globals",0x158,0);
+    AudioMus_g = (AudioMus_tMusicGlobals *)reservememadr("Music Globals",0x158,0);
     if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
       AudioMus_InitGlobals();
       AudioMus_g->streambuffer =
-          reservememadr("Music Buffer",
+          (char*)reservememadr("Music Buffer",
                         buffersize + SNDSTRM_overhead(0x1,buffersize / 0x400),0);
       AudioMus_DriverStartUp(buffersize,spusize);
       sprintf(AudioMus_g->bigfilename,"%szzz%s.viv",Paths_Paths[27],songs);
       AudioMus_g->bigfileheader =
-          (char *)loadbigfileheader(AudioMus_g->bigfilename,(void *)0x0);
+          (char *)loadbigfileheader(AudioMus_g->bigfilename,0x0);
       if (AudioMus_g->bigfileheader != (char *)0x0) {
         AudioMus_g->totalsongs = bigcount(AudioMus_g->bigfileheader);
       }

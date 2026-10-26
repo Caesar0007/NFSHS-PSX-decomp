@@ -8,15 +8,13 @@
  *   iSNDpsxfree it asked for a DMA-queue name of sdma.obj -- the asynchronous SPU transfer its name promises.
  *   Function names and bodies are NOT retained anywhere; the names below are the natural ones for the member and are
  *   INFERRED.  What is evidence is the reference chain -- it is what puts the members in the retail order. */
+#include "sdasync.h"
+#include "sdma.h"
+#include "sdmemman.h"
 #include "../../../link_stripped.h"
 
-/* ---- the surviving function (moved verbatim from sdata.c) ---- */
-extern void iSNDpsxfree(int ptr);   /* sdmemman */
-
-extern void iSNDplatformfree(int ptr);   /* @0x800FE594 */
-
 /* iSNDplatformfree @0x800FE594 : free the SPU block at `ptr`. */
-extern void iSNDplatformfree(int ptr)
+void iSNDplatformfree(unsigned char *ptr)
 {
     iSNDpsxfree(ptr);
 }
@@ -25,5 +23,4 @@ extern void iSNDplatformfree(int ptr)
 /* WHICH sdma.obj name: ASPSX writes this member's reference records in hash order, and retail pulls sdmemman.obj (iSNDpsxfree)
  * BEFORE sdma.obj -- that rules out iSNDdmqueue and iSNDdmservice (they sort ahead of iSNDpsxfree) and leaves iSNDdmcallback,
  * iSNDdmqueuesplit, iSNDdmcomplete, iSNDdmtransfer.  The transfer entry is the natural one for an async download. */
-extern int iSNDdmtransfer();
-LINK_STRIPPED int iSNDplatformasync(int a, int b, int c) { return iSNDdmtransfer(a, b, c); }
+LINK_STRIPPED int iSNDplatformasync(int a, int b, int c) { iSNDdmtransfer(); return 0; }

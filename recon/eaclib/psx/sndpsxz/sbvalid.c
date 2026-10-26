@@ -4,22 +4,24 @@
  *
  *   Bank table @ sndgs[0x26], 0xc-byte entries: +0x00 data ptr (0 == empty), +0x08 load state (0 == ready).
  */
-
-extern int sndgs[];
-
-extern int iSNDvalidbank(int bank_id);   /* @0x800FE6BC */
+#include "sbvalid.h"
+#include "sdata.h"
+#include "sndserverpriv.h"
+#include "sndbankpriv.h"
 
 /* iSNDvalidbank @0x800FE6BC : 0 if the bank is loaded and ready, -8 if out of range / empty, -0x12 if it
  *   is still loading. */
-extern int iSNDvalidbank(int bank_id)
+int iSNDvalidbank(int bank_id)
 {
-    int *bank;
-    if (bank_id < 0 || (int)(unsigned int)(unsigned short)sndgs[3] <= bank_id)
+    struct SndBankTableEntry *bank;
+    if (bank_id < 0 || ((struct SndGlobalServerStateView *)sndgs)->bank_count <= bank_id)
         return -8;
-    bank = (int *)(bank_id * 0xc + sndgs[0x26]);
-    if (bank[0] == 0)
+    /* Keep the pointer field typed; the 32-bit sum is only the exact retail byte-address schedule. */
+    bank = (struct SndBankTableEntry *)(bank_id * sizeof(struct SndBankTableEntry) +
+        (unsigned int)((struct SndGlobalServerStateView *)sndgs)->bank_table);
+    if (!bank->data_block)
         return -8;
-    if ((signed char)bank[2] != 0)
+    if (bank->load_state.s)
         return -0x12;
     return 0;
 }

@@ -3,26 +3,26 @@
  *   2 fns @[0x8010BF80 .. 0x8010BFA4].  SPU IRQ-enable mask (bit 0x40 of SPUCNT @ ctrl+0x1aa).
  *   Ghidra nfs4-f.exe.c (sdspuirq).
  */
+#include "sdspuirq.h"
+#include "slib.h"
+#include "snd_state.h"
+#include "sndspuregpriv.h"
 
-extern unsigned char sndpd[];   /* EA sound-driver state base @0x80147918 */
-#define SNDPD_CTRLREG (*(int *)(sndpd + 0x514))
-
-extern int iSNDpsxenablespuirq(void);    /* @0x8010BF80 */
 
 /* iSNDpsxenablespuirq @0x8010BF80 : set the SPU IRQ-enable bit in SPUCNT.  Returns the new SPUCNT value
  *   (the RMW result lands in $v0 and the store fills nothing -> v0 survives as the return; oracle keeps the
  *   base ptr in $v1 and the value in $v0). */
-extern int iSNDpsxenablespuirq(void)
+int iSNDpsxenablespuirq(void)
 {
-    unsigned short v = *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) | 0x40;
-    *(volatile unsigned short *)(SNDPD_CTRLREG + 0x1aa) = v;
+    unsigned short v = *(unsigned short *)((unsigned char *)((struct SndSpuRegisterBasesStateView *)sndpd)->registers.control_base + 0x1aa) | 0x40;
+    *(volatile unsigned short *)((unsigned char *)((struct SndSpuRegisterBasesStateView *)sndpd)->registers.control_base + 0x1aa) = v;
     return v;
 }
 
 /* iSNDpsxdisablespuirq @0x8010BFA4 : clear the SPU IRQ-enable bit in SPUCNT. */
-extern int iSNDpsxdisablespuirq(void)
+int iSNDpsxdisablespuirq(void)
 {
-    unsigned short v = *(unsigned short *)(SNDPD_CTRLREG + 0x1aa) & 0xffbf;
-    *(volatile unsigned short *)(SNDPD_CTRLREG + 0x1aa) = v;
+    unsigned short v = *(unsigned short *)((unsigned char *)((struct SndSpuRegisterBasesStateView *)sndpd)->registers.control_base + 0x1aa) & 0xffbf;
+    *(volatile unsigned short *)((unsigned char *)((struct SndSpuRegisterBasesStateView *)sndpd)->registers.control_base + 0x1aa) = v;
     return v;
 }

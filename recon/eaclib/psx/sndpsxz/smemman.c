@@ -32,21 +32,10 @@
 
 /* {block,size} free-list entry -- 2-byte alignment is LOAD-BEARING (struct assignment on an
  * align-2 4-byte struct = the oracle's lwl/lwr+swl/swr unaligned word copy). */
-typedef struct SndMemEnt {
-    unsigned short blk, sz;
-} SndMemEnt;
-
-typedef struct SNDMemState {
-    int            base;                /* +0x00 pool byte address */
-    unsigned short count;               /* +0x04 live allocation count */
-    unsigned short poolWords;           /* +0x06 pool size in words */
-    int            highWater;           /* +0x08 high-water mark */
-    SndMemEnt      entries[128];         /* +0x0c sorted allocation table */
-} SNDMemState;
-extern SNDMemState sndmm;
 /* W65-A6 DATA-MAT: `sndmm` was extern-only tree-wide (13 reloc-referenced undefined sites).
  * Retail: .bss @0x80148780 (VA > t_addr+t_size 0x8013E000 => no file bytes, pure zero-init).
- * smemman.obj owns it (sole referencer besides its own asm-label alias `sndmm_b`).
+ * smemman.obj owns it. The former `sndmm_b` asm-label view was removed after replacing its uses with
+ * explicit byte offsets from `(unsigned char *)&sndmm`; the owner and storage symbol remain `sndmm`.
  * Size = sizeof(SNDMemState) = 524, the oracle-derived struct above; the VA delta to the next
  * known symbol (drv.c's D_8014899C @0x8014899C) is 540, so 16 trailing bytes of that gap are
  * unattributed -- recorded, not invented.
@@ -54,27 +43,18 @@ extern SNDMemState sndmm;
  * identical to the existing extern declaration, so nothing about address materialization can
  * move, and 524 > the TU's -G4 so maspsx routes it to `.section .bss` + `.globl` (a `.comm`
  * of size <= -G would land in `.sbss` as a LOCAL symbol and fix nothing).  4/4 PASS unchanged. */
+#include "smemman.h"
+
 SNDMemState sndmm;                  /* @0x80148780 [BSS] definition */
-/* UNSIZED-ARRAY VIEW of the same storage (asm-label alias): an unsized `unsigned char[]`
- * makes gcc materialize each `sndmm_b + K` as the FUSED high(sym+K)/lo_sum pair, so the two
- * distinct table bases (+8 and +0xC, splat D_80148788 / D_8014878C) cannot share one hoisted
- * `lui %hi(sndmm)`. */
-extern unsigned char sndmm_b[] __asm__("sndmm");
+/* Current exact form uses explicit byte offsets from the typed `sndmm` object; the former
+ * unsized-array `sndmm_b[] __asm__("sndmm")` view was removed. The strict gate confirms this
+ * ordinary C spelling retains the required object-code schedule in iSNDmalloc (135/135). */
 
-#define DAT_80148784 (sndmm.count)
 #define DAT_80148786 (sndmm.poolWords)
-#define DAT_80148788 (sndmm.highWater)
-#define DAT_8014878c (sndmm.entries[0].blk)
-extern void           trap(unsigned int code);
-
-extern void iSNDmemconstrain(int *block, int *size);   /* @0x801061A8 */
-extern int *iSNDmeminit(int membase, int memsize);     /* @0x801061D4 */
-extern unsigned int iSNDmemrestore(void);              /* @0x801061F4 */
-extern int  iSNDmalloc(int size);                      /* @0x80106238 */
 
 /* iSNDmemconstrain @0x801061A8 : clamp a candidate [block, size] so block+size stays within the pool top.
  *   Its true contract is void; the subtraction left in v0 on the clamp path is incidental. */
-extern void iSNDmemconstrain(int *block, int *size)
+void iSNDmemconstrain(int *block, int *size)
 {
     unsigned int top = (unsigned short)DAT_80148786;
     int start = *block;
@@ -83,29 +63,29 @@ extern void iSNDmemconstrain(int *block, int *size)
 }
 
 /* iSNDmeminit @0x801061D4 : (re)initialise the pool over `memsize` bytes at `membase`. */
-extern int *iSNDmeminit(int membase, int memsize)
+SNDMemState *iSNDmeminit(void *membase, int memsize)
 {
-    char *mm;
+    SNDMemState *mm;
     sndmm.base = membase;
-    mm = (char *)&sndmm;
-    *(short *)(mm + 4) = 0;
-    *(short *)(mm + 6) = (short)(memsize >> 2);
-    *(int *)(mm + 8) = 0;
-    return (int *)mm;
+    mm = &sndmm;
+    mm->count = 0;
+    mm->poolWords = (unsigned short)(memsize >> 2);
+    mm->highWater = 0;
+    return mm;
 }
 
 /* iSNDmemrestore @0x801061F4 : return pool utilisation percent = high_water*100/poolsize.
  *   The unsigned divide auto-emits the BREAK 0x1c00 div-by-zero guard (oracle 0x80106228),
- *   so the trap only fires when the pool was never initialised (poolsize==0). */
-extern unsigned int iSNDmemrestore(void)
+ *   so the compiler-generated BREAK fires only when the pool was never initialised (poolsize==0). */
+unsigned int iSNDmemrestore(void)
 {
     /* high-water (+8) and poolsize (+6) are fields of the sndmm struct @0x80148780; read both off the
      * single `&sndmm` base (lui;addiu materialized once, CSE'd) to match the oracle's `lw 8(a0)/lhu 6(a0)`
      * rather than two separate absolute DAT_ loads. */
-    char          *mm = (char *)&sndmm;
-    int            hw = *(int *)(mm + 8);
-    unsigned short ps = *(unsigned short *)(mm + 6);
-    return (unsigned int)(hw * 100) / (unsigned int)ps;
+    SNDMemState   *mm = &sndmm;
+    int            hw = mm->highWater;
+    unsigned short ps = mm->poolWords;
+    return (hw * 100) / (unsigned int)ps;
 }
 
 /* iSNDmalloc @0x80106238 : first-fit allocate `size` bytes (rounded to words) from the sndmm pool,
@@ -187,11 +167,10 @@ extern unsigned int iSNDmemrestore(void)
  *       pointer's register for `&sndmm` (`addiu $a1,$v1,-0xC`), not a fresh temp.  Re-assigning the
  *       `entry` variable instead of introducing `cb` makes the ENTIRE commit block byte-exact,
  *       including the oracle's load-delay `nop` after `lhu $v0,4($a1)`.
- *   Supporting shape change: `sndmm_b[]`, an unsized-array asm-label VIEW of the same storage, so
- *   the +8 and +0xC bases lower to the FUSED `high(sym+K)` RTL (three distinct high expressions in
- *   `-dl`) instead of one shareable `high(sndmm)`; codegen-neutral on its own but it is what lets
- *   levers (2)/(3) land.  Post-scan index-first (same lever as (2)) moved its base into the oracle's
- *   $v1 and its limit read onto that base (`lhu $v0,-2($v1)`), diff-neutral, shape-correct.
+ *   Earlier experiments used `sndmm_b[] __asm__("sndmm")` as a separate array view. In the current
+ *   exact source that alias is removed: `(unsigned char *)&sndmm + 8` and `+ 0xc` produce the same
+ *   required 135/135 object code. Post-scan index-first (same lever as (2)) moved its base into the
+ *   oracle's $v1 and its limit read onto that base (`lhu $v0,-2($v1)`), diff-neutral, shape-correct.
  * RESIDUAL = 2 instructions + the $v0/$v1 mirror inside the two remaining blocks:
  *   (a) `addiu $a0,$sp,0x10` DUPLICATED into the entry-guard delay slot -- the same reorg steal as
  *       (2), but in the post-scan block the first instruction is the sched1-hoisted call-arg setup
@@ -285,7 +264,7 @@ extern unsigned int iSNDmemrestore(void)
  *   temps that cse folded, so they never crossed it).
  *   Next angle: a zero-insn dial that lowers whatever pseudo currently occupies $v0 in that block
  *   rather than lengthening `j` (i.e. reach the fresh dest without paying for j's live range). */
-extern int iSNDmalloc(int size)
+void *iSNDmalloc(int size)
 {
     /* MATCH (w31-a2, from the raw oracle -- same shape family as iSNDpsxmalloc but with THREE
      * separate iSNDmemconstrain call sites (gcc merges none of them: the empty arm and the
@@ -300,33 +279,33 @@ extern int iSNDmalloc(int size)
     unsigned short *pv;
     unsigned char  *tab;
     unsigned char  *mm;
-    unsigned char  *base = (unsigned char *)&sndmm;
-    unsigned short  count = *(unsigned short *)(base + 4);
+    SNDMemState    *base = &sndmm;
+    unsigned short  count = base->count;
 
     i = 0;
     if (count >= 0x80)
-        goto fail;
+        return 0;
     size += 3;
     size >>= 2;
-    if (count == 0) {
+    if (!count) {
         block = 0;
-        available = *(unsigned short *)(base + 6);
+        available = base->poolWords;
         iSNDmemconstrain(&block, &available);
         if (size <= available)
             goto commit;
-        goto fail;
+        return 0;
     }
-    if (i < (int)*(unsigned short *)(base + 4)) {
-        tab = base + 0xc;
-        prev = (unsigned short *)(base + 8);
-        mm = base;
-        do {
+    if (i < base->count) {
+        tab = (unsigned char *)base + 0xc;
+        prev = (unsigned short *)((unsigned char *)base + 8);
+        mm = (unsigned char *)base;
+        for (; i < *(unsigned short *)(mm + 4); i++, j = 0) {
             /* the byte offset goes through the MULTIPLY-SET `j` so gcc loop.c never sees a giv
              * (keeps the oracle's per-iteration sll+addu, no strength-reduced walking pointer);
              * index term FIRST in the adds (commutative-order lever). */
             j = i << 2;
             entry = (unsigned short *)(j + (int)tab);
-            if (i == 0) {
+            if (!i) {
                 /* MATCH (w50-a7): LOAD BEFORE STORE in this arm (the opposite of the note in the
                  * `i != 0` arm below, which is about a may-aliasing store).  Retail emits
                  * `lhu $v0,0($a1); sw $zero,0x10($sp)`; writing `block = 0;` first put the store
@@ -345,8 +324,8 @@ extern int iSNDmalloc(int size)
                  * add so combine_regs cannot tie the sum's dest to the dying offset pseudo; the add
                  * takes retail's FRESH dest ($a2) instead of mutating the offset reg in place. */
                 {
-                    int b = (int)pv[0] + (int)pv[1];
-                    int a = (int)*entry - b;
+                    int b = pv[0] + pv[1];
+                    int a = *entry - b;
                     block = b;
                     available = a;
                 }
@@ -364,13 +343,11 @@ extern int iSNDmalloc(int size)
                 }
                 goto commit;
             }
-            i++;
             /* DEAD-SET CARRIER (W35 lever): `j` is now single-set in the loop once the shift
              * counter moved to `k`, which would let loop.c classify it as a giv and strength-
              * reduce the per-iteration sll+addu into a walking pointer.  This dead store keeps
              * set_in_loop != 1 (loop.c counts it) and flow deletes it for free. */
-            j = 0;
-        } while (i < (int)*(unsigned short *)(mm + 4));
+        }
     }
     {
         /* post-loop tail: fresh block-locals re-materialize the FUSED sndmm+8 symbol (oracle
@@ -398,14 +375,14 @@ extern int iSNDmalloc(int size)
          * a distinct opaque 4th qty `q` from `"=r"(q):"0"(j)` (26 -- the 3-QTY-LAW probe), an
          * unused entry-value temp (6).  DO NOT re-split `pv` into a tail-local. */
         j = i << 2;
-        pb = (unsigned short *)(sndmm_b + 8);
+        pb = (unsigned short *)((unsigned char *)&sndmm + 8);
         pv = (unsigned short *)(j + (int)pb);
         /* MATCH (w50-a7): THIRD use fence, the same lever as the loop's `pv` add one block up --
          * keep `j` live PAST the add so the sum takes retail's FRESH `$a2` (`addu $a2,$v0,$v1`)
          * instead of mutating the offset register in place (`addu $a2,$a2,$v1`).  16 -> 8.
          * Fencing the SUM instead of `j` (or both) is 30 -- it is the OFFSET that must survive. */
-        block = (int)pv[0] + (int)pv[1];
-        available = (int)pb[-1] - block;
+        block = pv[0] + pv[1];
+        available = pb[-1] - block;
     }
     iSNDmemconstrain(&block, &available);
     if (available < size)
@@ -416,9 +393,9 @@ commit:
         /* fused sndmm+0xC table symbol (oracle D_8014878C); the state base is recovered by
          * subtracting 0xC from it, and the pool pointer is read at -0xC off the SAME symbol. */
         int off = i << 2;
-        unsigned char *tabsym = sndmm_b + 0xc;
+        unsigned char *tabsym = (unsigned char *)&sndmm + 0xc;
         unsigned char *cb;
-        int addr;
+        unsigned char *addr;
         entry = (unsigned short *)(off + (int)tabsym);
         entry[1] = (unsigned short)size;
         entry[0] = (unsigned short)block;
@@ -427,7 +404,7 @@ commit:
         entry = (unsigned short *)(tabsym - 0xc);
         cb = (unsigned char *)entry;
         *(unsigned short *)(cb + 4) += 1;
-        addr = *(int *)(tabsym - 0xc) + block * 4;
+        addr = *(unsigned char **)(tabsym - 0xc) + block * 4;
         if (*(int *)(cb + 8) < block + size)
             *(int *)(cb + 8) = block + size;
         return addr;

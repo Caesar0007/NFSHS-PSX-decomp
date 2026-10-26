@@ -36,24 +36,33 @@
  *   vs disasm-v3 L299099..300132 (authoritative -- Ghidra mangled 6 fns: lwl/lwr unaligned format
  *   copies in parseheader/service, dropped register args in parsedata/hotrod/create/queue).
  *
- *   ===== stream object S (one slot, sndss[0]) =====
- *     +0x00 packetsArray (request stride 0x2C)   +0x04 STREAM handle (stream.obj)
- *     +0x08 SNDPKTPLAY_start result (-1 idle)    +0x0C SNDPKTPLAY handle
- *     +0x10 request-id counter (+=0x100)         +0x14(b) state (0/1=playing/2=needs-restart)
- *     +0x15(b) maxReq   +0x16(b) curReqCount   +0x17(b) parseIdx   +0x18(b) extStreamFlag
- *     +0x1C..0x37 LOCKED format (rate word @+0x1C, 0x14-byte header @+0x24)
- *     +0x1E(b) numChannels  +0x2F(b) interleaved-flag
- *     +0x20..0x4B CURRENT format (rate @+0x20, header @+0x38)   +0x4C..0x5C priority/params [5 words]
+ *   ===== stream object S (one slot, sndss[0], size 0x60) =====
+ *     +0x00 requests (SndStreamReq[...])   +0x04 stream_handle   +0x08 start_result
+ *     +0x0C packet_player   +0x10 request_counter   +0x14..+0x18 state/capacity/count/index/external flag
+ *     +0x1C locked_rate   +0x20 current_rate   (each a 4-byte SNDSAMPLEFORMAT)
+ *     +0x24 locked_header   +0x38 current_header   +0x4C start_params (SNDPLAYOPTS)
+ *     locked_rate.channels @+0x1E   locked_header.use3dpos @+0x2F
  *   ===== request (0x2C) =====
- *     +0x00 STREAM req id   +0x04 full id (counter|slot)   +0x08 submit-overflow   +0x0C submit handle
- *     +0x10 data rate   +0x14 bytes consumed   +0x18 total size (round-up 0x1C)   +0x1C remaining
- *     +0x20 submitted count   +0x24 num chunks   +0x28(short) name
+ *     +0x00 STREAM request token   +0x04 full id (counter|slot)
+ *     +0x08 first submitted packet id   +0x0C latest submitted packet id
+ *     +0x10 data rate   +0x14 bytes consumed   +0x18 total size (rounded to 0x1C)   +0x1C remaining
+ *     +0x20 submitted count   +0x24 num chunks   +0x28(short) hold threshold/name arg   +0x2A padding
  */
+#include "sdata.h"
+#include "sndserverpriv.h"
+#include "../eacpsxz/stream.h"
+#include "sdpacket.h"
+#include "ssysserv.h"
+#include "sstsetgl.h"
+#include "spat2hdr.h"
+#include "spvoices.h"
+#include "spktplay.h"
+#include "sserver.h"
+#include "sst.h"
+#include "sstpriv.h"
+#include "sndpacketpriv.h"
+#include "sndcrtpriv.h"
 
-/* ---- globals ---- */
-extern int sndss[];                     /* @0x8013EA80 -- single stream slot (loops are `<1`) */
-extern int sndgs[];                      /* SND global state: (char)sndgs[0xf]=init, sndgs[0x22]=destroyall hook */
-extern unsigned char sndStreamMap[];     /* @0x8013EA84 (=sndss+4): pktplay-handle -> stream slot */
 /* W65-A6 DATA-MAT (BSS run @0x8013EA80, 8 bytes, ends exactly at gFileDevice @0x8013EA88):
  *   sndss @0x8013EA80 size 4   +   sndStreamMap @0x8013EA84 size 4.
  * `sndss` was extern-only tree-wide (24 reloc-referenced undefined sites).  The old
@@ -65,123 +74,34 @@ extern unsigned char sndStreamMap[];     /* @0x8013EA84 (=sndss+4): pktplay-hand
  * would make them LOCAL (not fixing the link) AND flip cc1 to gp-relative addressing.  The
  * oracle has ZERO `%gp_rel(sndss)`/`%gp_rel(sndStreamMap)` sites, so retail addressed them
  * absolutely -- the C view must therefore stay `extern` (byte-neutral by construction). */
-__asm__("\t.globl\tsndss\n\t.globl\tsndStreamMap\n\t.section\t.bss\n\t.align\t2\n"
-        "sndss:\n\t.space\t4\n"
-        "sndStreamMap:\n\t.space\t4\n\t.text");
+SndStream *sndss[1] __attribute__((section(".bss"))) = { 0 };
+unsigned char sndStreamMap[4] __attribute__((section(".bss"))) = { 0 };
 
-/* ---- stream.obj ring (the layer below; already reconstructed) ---- */
-extern void         STREAM_release(int strm, void *chunk);
-extern void        *STREAM_get(int consumer);
-extern int          STREAM_gettable(int strm);
-extern int          STREAM_state(int strm);
-extern int          STREAM_buffersize(int strm);
-extern int          STREAM_create(int nReq, int nFilt, int nCons, void *objbuf, int bufsize);
-extern unsigned int STREAM_queuefile(int strm, char *name, int off, int len);
-extern unsigned int STREAM_queuemem(int strm, void *blocklist, void *ptr, int len);
-
-/* ---- SNDPKTPLAY packet player (spktplay.obj) ---- */
-extern int  SNDPKTPLAY_start(int pktplay, int rate, int fmt, int *params);
-extern int  SNDPKTPLAY_submit(int pktplay, void *desc);
-extern int  SNDPKTPLAY_submitspace(int pktplay);
-extern int  SNDPKTPLAY_framesoutstanding(int pktplay);
-extern void SNDPKTPLAY_stop(int pktplay);
-extern int  SNDPKTPLAY_overhead(int arg);
-extern int  SNDPKTPLAY_create(int buf, int size, void *relcb, void *notifycb);
-
-/* ---- other SND helpers ---- */
-extern int  iSNDpatchtohdr(short *src, int *rateDst, int *fmtDst, int *outSize); /* spat2hdr */
-extern int  iSNDplatformcalcdatarate(void *rate);                                /* sdpacket  */
-extern void iSNDenteraudio(void);                                                /* sserver   */
-extern void iSNDleaveaudio(void);
-extern void iSNDserveraddclient(void *cb);                                       /* ssysserv  */
-extern void SNDSTRM_setgreedylevel(int strm, int lvl);                           /* sstsetgl  */
-extern int  SNDSTRM_destroy(int s);                                              /* spvoices  */
-extern int  SNDSTRM_purge(int s);
-extern int  memcmp(const void *a, const void *b, int n);
-extern void *memcpy(void *d, const void *s, int n);
-
+/* ---- SNDPKTPLAY packet-player declarations come from the owner header spktplay.h. ---- */
 /* ---- internal forward decls (mutually recursive) ---- */
-extern int  iSNDstreamdestroyall(void);                       /* @0x800E8C14 */
-extern int  iSNDstreamgetstreamptr(int idx);                  /* @0x800E8C48 */
-extern void iSNDstreamremoverequest(unsigned int reqid);      /* @0x800E8C64 */
-extern void iSNDstreamreleasecallback(int sample);            /* @0x800E8D90 */
-extern void iSNDstreamnotifycallback(int handle, unsigned int bytes); /* @0x800E8DD4 */
-extern int  iSNDstreamparseheader(int S, int data);           /* @0x800E8E9C */
-extern int  iSNDstreamparsenumchunks(int S, int data);        /* @0x800E9044 */
-extern int  iSNDstreamparsedata(int S, int chunk);            /* @0x800E90AC (oracle: always returns 1) */
-extern int  iSNDstreamparseend(int S, int chunk);             /* @0x800E9230 */
-extern int  iSNDstreamparsechunk(int S, int chunk);           /* @0x800E9270 */
-extern int  iSNDstreamisheld(int S);                          /* @0x800E9318 */
-extern void iSNDstreamhotroddatachunks(void);                 /* @0x800E9438 */
-extern void iSNDstreamservice(void);                          /* @0x800E9590 */
-extern int  iSNDstreamnumcreated(void);                       /* @0x800E96F8 */
-
-/* byte-offset accessors on an object held as an int address */
-#define MI(p,o)  (*(int*)((p)+(o)))
-#define MB(p,o)  (*(unsigned char*)((p)+(o)))
-#define MSB(p,o) (*(signed char*)((p)+(o)))
-#define MH(p,o)  (*(short*)((p)+(o)))
-/* MVI: volatile int field -- for a request/stream struct field the platform-callback layer touches
- * asynchronously; forces the oracle's repeated fresh re-reads (no CSE across statements). */
-#define MVI(p,o) (*(volatile int*)((p)+(o)))
-
-/* Retained sound-header records elsewhere in NFS4.SYM provide these exact public
- * layouts.  SNDSAMPLEFORMAT is byte-packed in the EA sound ABI; aggregate
- * assignment therefore emits the retail unaligned-safe lwl/lwr + swl/swr copy. */
-typedef struct SNDSAMPLEFORMAT {
-    unsigned short samplerate;
-    unsigned char channels, samplerep;
-} __attribute__((packed)) SNDSAMPLEFORMAT;
-
-typedef struct SNDPLAYOPTS {
-    int patnum;
-    char bhandle, keynum, velocity, pan, vol, bend, fxlevel0, use3dpos;
-    unsigned short pitchmult, timemult, azimuth;
-    short elevation;
-} SNDPLAYOPTS;
-
-/* SST.OBJ's private type graph is stripped.  The matching NFS3/NFS4-PC
- * streamer uses this same 0x2c request record and preserves the field roles;
- * the PSX instruction stream independently fixes every offset and the size. */
-typedef struct SndStreamReq {
-    void *source;
-    int request_tag;
-    int firstqid;
-    int qid;
-    int rate;
-    int played;
-    int hdr;
-    int total;
-    int count;
-    int expected;
-    short underrun;
-    short pad2a;
-} SndStreamReq;
 
 /* ====================================================================================== */
 
 /* iSNDstreamdestroyall @0x800E8C14 : destroy every stream (addexit/shutdown hook). */
-extern int iSNDstreamdestroyall(void)
+int iSNDstreamdestroyall(void)
 {
-    int s = 0;
-    do {
+    int s;
+    for (s = 0; s < 1; s++)
         SNDSTRM_destroy(s);
-        s = s + 1;
-    } while (s < 1);
     return 0;
 }
 
 /* iSNDstreamgetstreamptr @0x800E8C48 : map a stream index to its object (only index 0 exists). */
-extern int iSNDstreamgetstreamptr(int idx)
+SndStream *iSNDstreamgetstreamptr(int idx)
 {
-    if (idx != 0)
+    if (idx)
         return 0;
     return sndss[0]; /* MATCH (7/7): array storage plus the negative guard preserves both return tails. */
 }
 
 /* iSNDstreamremoverequest @0x800E8C64 : drop the request whose id == `reqid` from a stream's packet
  *   array, compacting the remaining requests down and fixing up parseIdx/curReqCount. */
-extern void iSNDstreamremoverequest(unsigned int reqid)
+void iSNDstreamremoverequest(unsigned int reqid)
 {
     /* struct-assignment (not a memcpy() call) for the compaction copy below -- oracle expands it
      * inline as a manual 4-word+3-word unrolled load/store (this build's memcpy() is a genuine
@@ -190,84 +110,79 @@ extern void iSNDstreamremoverequest(unsigned int reqid)
      * destination indices. Keeping the compacted index and loop index as function-scope ints gives
      * the oracle's shared-zero register allocation; fresh volatile field reads preserve its exact
      * load order and scheduling. MATCH (75/75). */
-    int *base = sndss;
-    int  S       = base[reqid & 0xff];
+    SndStream **base = sndss;
+    SndStream *S     = base[reqid & 0xff];
     int  newidx  = 0;            /* write index (compacted) */
     int  i       = 0;
 
-    if (0 < (int)((unsigned)MB(S, 0x16) << 0x18)) {     /* curReqCount > 0 (signed) */
+    if (0 < (int)((unsigned)S->current_count << 0x18)) {     /* curReqCount > 0 (signed) */
         int rd = 0, wr = 0;
         do {
-            int *src = (int *)(MVI(S, 0) + rd);          /* MATCH: oracle re-reads packetsArray
+            SndStreamReq *src = (SndStreamReq *)((int)(unsigned int)((volatile SndStream *)S)->requests + rd);          /* MATCH: oracle re-reads packetsArray
                         * (S+0) FRESH every loop iteration (and again for the compaction dest below)
                         * rather than caching it once -- same volatile-reread lever as the other
                         * fields in this file. */
-            if (src[1] != (int)reqid) {                 /* keep this request */
-                if ((((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) == i)  /* MATCH:
+            if (src->request_id != reqid) {                 /* keep this request */
+                if ((((int)(((volatile SndStream *)S)->parse_index) << 24) >> 24) == i)  /* MATCH:
                         * literal shift-chain, not the MSB macro's plain cast (same lever as
                         * iSNDstreamparsenumchunks/isheld/etc -- forces the oracle's lbu+sll+sra
                         * instead of a single lb) -- parseIdx pointed at it -> retarget */
-                    MB(S, 0x17) = newidx;
-                *(SndStreamReq *)(wr + MVI(S, 0)) = *(SndStreamReq *)src;
-                wr += 0x2c;
-                newidx = newidx + 1;
+                    S->parse_index = newidx;
+                *(SndStreamReq *)(wr + (int)(unsigned int)((volatile SndStream *)S)->requests) = *src;
+                wr += sizeof(SndStreamReq);
+                newidx += 1;
             }
-            rd += 0x2c;
+            rd += sizeof(SndStreamReq);
             i++;
-        } while (i < (((int)(*(volatile unsigned char *)(S + 0x16)) << 24) >> 24));
+        } while (i < (((int)(((volatile SndStream *)S)->current_count) << 24) >> 24));
     }
-    *(volatile unsigned char *)(S + 0x16) =
-        *(volatile unsigned char *)(S + 0x16) - 1;        /* curReqCount-- */
-    if ((int)((unsigned)*(volatile unsigned char *)(S + 0x17) << 0x18) >
-        (int)((unsigned)*(volatile unsigned char *)(S + 0x16) << 0x18)) {  /* MATCH: oracle re-reads
+    ((volatile SndStream *)S)->current_count =
+        ((volatile SndStream *)S)->current_count - 1;        /* curReqCount-- */
+    if ((int)((unsigned)((volatile SndStream *)S)->parse_index << 0x18) >
+        (int)((unsigned)((volatile SndStream *)S)->current_count << 0x18)) {  /* MATCH: oracle re-reads
                         * BOTH bytes fresh from memory for this compare (not the just-decremented/
                         * loop value still in a register); parseIdx (0x17) is evaluated FIRST. */
-        int ret = *(volatile unsigned char *)(S + 0x17) - 1;  /* MATCH: parseIdx reloaded AGAIN here,
+        int ret = ((volatile SndStream *)S)->parse_index - 1;  /* MATCH: parseIdx reloaded AGAIN here,
                         * not reused from the compare above. */
-        MB(S, 0x17) = (unsigned char)ret;
+        S->parse_index = (unsigned char)ret;
     }
 }
 
 /* iSNDstreamreleasecallback @0x800E8D90 : SNDPKTPLAY release hook -- a finished sample buffer carries a
  *   back-pointer to its chunk 4 bytes ahead; the chunk's first word holds the request id whose low byte
  *   is the stream slot.  Free the chunk back to that stream's ring. */
-extern void iSNDstreamreleasecallback(int sample)
+void iSNDstreamreleasecallback(unsigned char *sample)
 {
-    int chunk = *(int *)(sample - 4);
-    int slot  = *(unsigned char *)chunk;
-    int S     = sndss[slot];
-    STREAM_release(MI(S, 4), (void *)(unsigned int)chunk);
+    unsigned char *chunk = *(unsigned char **)(sample - 4);
+    int slot  = *chunk;
+    SndStream *S = sndss[slot];
+    STREAM_release(S->stream_handle, chunk);
     /* MATCH (17/17): the true sndss[] declaration fills the chunk-load delay slot with its address. */
 }
 
 /* iSNDstreamnotifycallback @0x800E8DD4 : SNDPKTPLAY play-progress hook.  `bytes` were just played on
  *   `handle`; credit them to the head request's consumed/remaining counters, and when a request is fully
  *   played out remove it.  Overflow rolls into the next request. */
-extern void iSNDstreamnotifycallback(int handle, unsigned int bytes)
+void iSNDstreamnotifycallback(int handle, unsigned int bytes)
 {
-    int *base = sndss;
-    int S = base[*(signed char *)((char *)base + handle + 4)]; /* oracle lb @0x800e8df0 sign-extends */
+    SndStream **base = sndss;
+    SndStream *S = base[*(signed char *)((char *)base + handle + 4)]; /* oracle lb @0x800e8df0 sign-extends */
     unsigned int over = 0;                              /* MATCH: initialized ONCE before the loop
                                                           * (oracle sets $s0=0 right after the byte
                                                           * load, before the array-index scaling) */
     for (;;) {
-        int req  = MI(S, 0);                            /* head request */
-        if ((unsigned int)MVI(req, 0x1c) < bytes) {     /* more than remains in this request */
-            over  = bytes - MVI(req, 0x1c);              /* MATCH: fresh re-read (volatile) */
-            bytes = bytes - over;
+        SndStreamReq *req = S->requests; /* head request */
+        if (((volatile SndStreamReq *)req)->remaining_bytes < bytes) {     /* more than remains in this request */
+            over  = bytes - ((volatile SndStreamReq *)req)->remaining_bytes;              /* MATCH: fresh re-read (volatile) */
+            bytes -= over;
         }
-        MVI(req, 0x14) = MVI(req, 0x14) + bytes;         /* consumed += */
-        MVI(req, 0x1c) = MVI(req, 0x1c) - bytes;         /* remaining -= */
-        if ((unsigned int)MVI(req, 0x14) < (unsigned int)MVI(req, 0x18))   /* consumed < totalSize ->
-                                                          * skip the remove (goto-skip avoids an
-                                                          * xori vs the `<=`-negated form); MATCH:
-                                                          * fresh re-read of consumed, not the value
-                                                          * just stored above */
-            goto notdone;
-        iSNDstreamremoverequest(MVI(req, 4));
-    notdone:
+        ((volatile SndStreamReq *)req)->bytes_consumed = ((volatile SndStreamReq *)req)->bytes_consumed + bytes;         /* consumed += */
+        ((volatile SndStreamReq *)req)->remaining_bytes = ((volatile SndStreamReq *)req)->remaining_bytes - bytes;         /* remaining -= */
+        if ((unsigned int)((volatile SndStreamReq *)req)->bytes_consumed >=
+            (unsigned int)((volatile SndStreamReq *)req)->total_size)
+            iSNDstreamremoverequest(((volatile SndStreamReq *)req)->request_id);
         bytes = over;
-        if (bytes == 0)                                 /* MATCH: exit-in-the-middle -- prevents
+        if (!bytes)                                 /* MATCH: exit-in-the-middle -- prevents
                                                           * the do-while bottom-test rotation */
             break;
         over = 0;
@@ -281,60 +196,54 @@ extern void iSNDstreamnotifycallback(int handle, unsigned int bytes)
 /* iSNDstreamparseheader @0x800E8E9C : 'SChl' chunk -- decode the audio header (rate/format) via
  *   iSNDpatchtohdr, compute the data rate, and lock the format on first sight (a mid-stream change errors
  *   to state 2).  Once locked, (re)start the packet player. */
-extern int iSNDstreamparseheader(int S, int data)
+int iSNDstreamparseheader(SndStream *S, SndStreamChunkHeaderPrefix *data)
 {
-    int req = MI(S, 0) + (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c;
+    SndStreamReq *req = S->requests + (signed char)((volatile SndStream *)S)->parse_index;
     int outsize;
 
-    iSNDpatchtohdr((short *)(data + 0xc), (int *)(S + 0x20), (int *)(S + 0x38), &outsize);
-    MVI(req, 0x18) = outsize;
-    STREAM_release(MI(S, 4), (void *)(unsigned int)data);
-    MVI(req, 0x18) = ((MVI(req, 0x18) + 0x1b) / 0x1c) * 0x1c;    /* round up to 0x1C */
-    MVI(req, 0x10) = iSNDplatformcalcdatarate((void *)(S + 0x20));
+    iSNDpatchtohdr((unsigned char *)data + 0xc, &S->current_rate, &S->current_header.attributes, &outsize);
+    ((volatile SndStreamReq *)req)->total_size = outsize;
+    STREAM_release(S->stream_handle, (unsigned char *)data);
+    ((volatile SndStreamReq *)req)->total_size = ((((volatile SndStreamReq *)req)->total_size + 0x1b) / 0x1c) * 0x1c;    /* round up to 0x1C */
+    ((volatile SndStreamReq *)req)->data_rate = iSNDplatformcalcdatarate(&S->current_rate);
 
-    if (memcmp((void *)(S + 0x1c), (void *)(S + 0x20), 4) != 0)
-        goto formatdiffers;
-    if (memcmp((void *)(S + 0x24), (void *)(S + 0x38), 0x14) == 0)
-        goto formatsame;
-formatdiffers:
-    if (*(unsigned short *)(S + 0x1c) != 0) {        /* already locked -> illegal change */
-        *(volatile unsigned char *)(S + 0x14) = 2;
-        return 0;
+    if (memcmp(&S->locked_rate, &S->current_rate, sizeof(SNDSAMPLEFORMAT)) ||
+        memcmp(&S->locked_header, &S->current_header, sizeof(SndPatchAttributes))) {
+        if (S->locked_rate.samplerate) {    /* already locked -> illegal change */
+            ((volatile SndStream *)S)->state = 2;
+            return 0;
+        }
+        S->locked_rate = S->current_rate;
+        S->locked_header = S->current_header;
     }
-    /* MATCH (106/106): packed assignment emits the unaligned-safe lwl/lwr+swl/swr rate copy;
-     * the five-word header assignment expands as the oracle's load-4/store-4 then trailing
-     * load/store sequence. The volatile error-state byte keeps its store ahead of the return jump. */
-    *(SNDSAMPLEFORMAT *)(S + 0x1c) = *(SNDSAMPLEFORMAT *)(S + 0x20);
-    *(SNDPLAYOPTS *)(S + 0x24) = *(SNDPLAYOPTS *)(S + 0x38);
-formatsame:
-    if ((((int)(*(volatile unsigned char *)(S + 0x14)) << 24) >> 24) != 1) {  /* MATCH: shift-chain,
+    if ((((int)(((volatile SndStream *)S)->state) << 24) >> 24) != 1) {  /* MATCH: shift-chain,
                         * not the MB macro's plain compare -- not yet playing -> start */
-        MI(S, 0x08) = SNDPKTPLAY_start(MI(S, 0xc), S + 0x1c, S + 0x24, (int *)(S + 0x4c));
-        MB(S, 0x14) = 1;
+        S->start_result = SNDPKTPLAY_start(S->packet_player, &S->locked_rate,
+                                         &S->locked_header,
+                                         &S->start_params);
+        S->state = 1;
     }
     return 0;
 }
 
 /* iSNDstreamparsenumchunks @0x800E9044 : 'SCCl' chunk -- record the stream's chunk count.
- * MATCH: parseIdx (+0x17) needs the LITERAL oracle shift-chain `((u8<<24)>>24)`, not the `MSB` macro's
- * `*(signed char*)` cast -- plain `(signed char)`/`(int)(signed char)` both compile to a bare `lb` and
- * gcc-2.8.0 collapses even the manual shift-chain right back to `lb` UNLESS the byte read is `volatile`
- * (blocks that specific reassociation, forcing the oracle's `lbu;sll24;sra24`). Also: the scaled-index
- * term must come FIRST in the `+ MI(S,0)` addition (index-first commutative-addu tie-break, matching
- * `addu v0,v0,v1` not `addu v1,v1,v0`). */
-extern int iSNDstreamparsenumchunks(int S, int data)
+ * MATCH: preserve the oracle's sign-extension shift-chain for parse_index and scaled-index-first
+ * address-sum order. `req` is a SndStreamReq * and the member is accessed directly. A natural typed
+ * pointer-add candidate compiled to the same count but reversed the addu destination/source roles
+ * (4 ASM diffs); this target-specific address formation is retained for exact codegen. */
+int iSNDstreamparsenumchunks(SndStream *S, SndStreamChunkHeaderPrefix *data)
 {
-    int req;
-    STREAM_release(MI(S, 4), (void *)(unsigned int)data);
-    req = (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c + MI(S, 0);
-    MI(req, 0x24) = *(int *)(data + 0xc);
+    SndStreamReq *req;
+    STREAM_release(S->stream_handle, (unsigned char *)data);
+    req = (SndStreamReq *)((((int)(((volatile SndStream *)S)->parse_index) << 24) >> 24) * (int)sizeof(SndStreamReq) + (int)(unsigned int)S->requests);
+    req->num_chunks = data->value.chunk_count;
     return 1;
 }
 
 /* iSNDstreamparsedata @0x800E90AC : 'SCDl' chunk -- build the per-channel sample descriptor (flat or
  *   interleaved per the format), stamp the chunk with its owning request id (for the release hook), and
  *   submit it to the packet player. */
-extern int iSNDstreamparsedata(int S, int chunk)
+int iSNDstreamparsedata(SndStream *S, SndStreamChunkHeaderPrefix *chunk)
 {
     /* MATCH (oracle re-traced in full, incl. delay slots -- was untouched, 123 diffs):
      * -- the `datalen` local is SPILLED to the stack at fn entry and only reread once, at the
@@ -346,17 +255,17 @@ extern int iSNDstreamparsedata(int S, int chunk)
      *    off a pointer that itself gets `+=4`'d in the loop-back branch's delay slot (so it runs
      *    on every iteration, unconditionally) -- i.e. a genuine C `dp++` in the loop, not an
      *    index-form `desc[3+i]` (that folds gcc's IV to base=desc+3/disp=0, not base=desc/disp=0xc).
-     * -- oracle re-reads MB(S,0x1e) (numCh) FRESH every loop iteration for the exit test (separate
+     * -- oracle re-reads `locked_rate.channels` FRESH every loop iteration for the exit test (separate
      *    lbu each time) though the zero-guard + interleaved end-pointer calc use ONE read before
-     *    the loop -- reproduced with a bare (non-cached) MB() in the loop condition.
+     *    the loop -- reproduced with a direct member read in the loop condition.
      * -- interleaved case walks a SEPARATE pointer `off` over the offset table and adds it to an
      *    END-of-table base (`chunk+0x10+numCh*4`) computed ONCE, not `off[i]` index form. */
     int step;
-    int desc[8];
+    SndPacketSubmitFrameView desc;
     int i;
-    int flatPtr;
+    unsigned char *flatPtr;
 
-    desc[1] = *(int *)(chunk + 0xc);                     /* stash datalen in an unused desc slot --
+    desc.fields.data_size = chunk->value.data_size;                     /* stash datalen in an unused desc slot --
                                                            * gcc doesn't naturally spill a plain local
                                                            * across the loops (register free the whole
                                                            * time); the oracle's stack round-trip through
@@ -364,61 +273,58 @@ extern int iSNDstreamparsedata(int S, int chunk)
                                                            * reproduces via a real store to desc[1]. */
 
     step = 0;
-    if (MB(S, 0x2f) == 0) {                              /* flat: every channel reads chunk+0x10 */
-        int flatBase;
+    if (!S->locked_header.attributes.use3dpos) {                              /* flat: every channel reads chunk+0x10 */
+        unsigned char *flatBase;
         /* The one-trip wrapper is instruction-free, but gives gcc's flow pass the retail
          * reference weight for flatBase; this fixes its preheader/IV allocation (13 -> 9). */
         do {
-            flatBase = chunk + 0x10;
+            flatBase = (unsigned char *)chunk + 0x10;
         } while (0);
         i = step;
-        if (i < (int)MB(S, 0x1e)) {
+        if (i < S->locked_rate.channels) {
             int *dp;
             flatPtr = flatBase;
             /* Keep the seed source live past its copy without emitting code.  Otherwise
              * cc1 copy-propagates flatPtr back into flatBase and deletes retail's a3->a2 move. */
-            if (flatBase != 0)
-                dp = desc;
+            if (flatBase)
+                dp = desc.words;
             else
-                dp = desc;                              /* MATCH: base ptr materialized ONLY here --
+                dp = desc.words;                              /* MATCH: base ptr materialized ONLY here --
                                                            * oracle's `v1=sp+0x10` sits AFTER the
                                                            * numCh!=0 guard, not hoisted to fn scope. */
             do {
-                dp[3] = flatPtr + flatBase - flatBase;   /* zero-net use extends flatBase into loop */
+                ((SndPacketSubmitFrameView *)dp)->fields.channel_data[0] = (unsigned char *)(unsigned int)((int)(unsigned int)flatPtr + (int)(unsigned int)flatBase - (int)(unsigned int)flatBase);   /* zero-net use extends flatBase into loop */
                 flatPtr += step;
                 dp++;
-            } while ((int)MB(S, 0x1e) > ++i);
+            } while (S->locked_rate.channels > ++i);
         }
     } else {                                             /* interleaved: per-channel offset table */
-        int *off = (int *)(chunk + 0x10);
-        int base = (int)off + MB(S, 0x1e) * 4;
+        int *off = (int *)((unsigned char *)chunk + 0x10);
+        unsigned char *base = (unsigned char *)off + S->locked_rate.channels * 4;
         i = 0;
-        if (i < (int)MB(S, 0x1e)) {
-            int *dp = desc;
-            do {
-                dp[3] = base + *off;
-                off++;
-                i++;
-                dp++;
-            } while (i < MB(S, 0x1e));
+        if (i < S->locked_rate.channels) {
+            int *dp = desc.words;
+            for (; i < S->locked_rate.channels; off++, i++, dp++) {
+                ((SndPacketSubmitFrameView *)dp)->fields.channel_data[0] = base + *off;
+            }
         }
     }
 
-    flatPtr = desc[3];
-    desc[1] = ((desc[1] + 0x1b) / 0x1c) * 0x1c;          /* round up to 0x1C -- reload of the spill */
+    flatPtr = desc.fields.channel_data[0];
+    desc.fields.data_size = ((desc.fields.data_size + 0x1b) / 0x1c) * 0x1c;          /* round up to 0x1C -- reload of the spill */
     {
-        int req = MI(S, 0) + (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c;
-        *(int *)(flatPtr - 4) = chunk;                   /* back-ptr just before the first sample */
-        *(int *)chunk = MI(req, 4);                      /* request id -> chunk[0] */
-        MVI(req, 0x1c) = MVI(req, 0x1c) + desc[1];       /* remaining += */
-        MVI(req, 0x20) = MVI(req, 0x20) + 1;             /* submitted++ */
-        MVI(req, 0x0c) = SNDPKTPLAY_submit(MI(S, 0xc), (void *)desc);
-        if (MVI(req, 8) < 0)
-            MI(req, 8) = MI(req, 0xc);
+        SndStreamReq *req = S->requests + (signed char)((volatile SndStream *)S)->parse_index;
+        *(unsigned char **)(flatPtr - 4) = (unsigned char *)chunk; /* back-ptr just before the first sample */
+        *(int *)chunk = req->request_id;                      /* request id -> chunk[0] */
+        ((volatile SndStreamReq *)req)->remaining_bytes = ((volatile SndStreamReq *)req)->remaining_bytes + desc.fields.data_size;       /* remaining += */
+        ((volatile SndStreamReq *)req)->submitted = ((volatile SndStreamReq *)req)->submitted + 1;             /* submitted++ */
+        ((volatile SndStreamReq *)req)->qid = SNDPKTPLAY_submit(S->packet_player, (void *)&desc);
+        if (((volatile SndStreamReq *)req)->firstqid < 0)
+            req->firstqid = ((SndStreamReq *)req)->qid;
     }
     return 1;
 }
-/* near-miss (123->9 diffs, ours 98 / oracle 97 insns). MVI (volatile) on the 4 request-field
+/* near-miss (123->9 diffs, ours 98 / oracle 97 insns). Volatile qualification on the 4 request-field
  * read/writes was needed to stop gcc from interleaving the 0x1c/0x20/0xc/8 field updates (oracle
  * does each field's read-op-write as one clean sequential block). The flat loop's explicit
  * `flatBase + offset` form preserves the oracle's separate zero-step induction register (`t1`) while
@@ -482,7 +388,7 @@ extern int iSNDstreamparsedata(int S, int chunk)
  * must not be re-quoted).  A SECOND CONSUMER IS NOT REQUIRED: it is enough for the opacity fence to
  * redefine the SOURCE *after* the copy, which blocks copy-prop from forwarding it into the copy's
  * later uses.  On the walking-pointer seed form:
- *     int ptr;  ...  int *dp = desc;
+ *     int ptr;  ...  int *dp = desc.words;
  *     ptr = flatBase;
  *     __asm__("" : "=r"(flatBase) : "0"(flatBase));   <-- redefines the SOURCE, 0 insns
  *     do { dp[3] = ptr; ptr += step; dp++; } while (...);
@@ -522,61 +428,61 @@ extern int iSNDstreamparsedata(int S, int chunk)
  * latency slot and emits the store through a2 without any fence, extra instruction, or asm. */
 
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
-extern int iSNDstreamparseend(int S, int chunk)
+int iSNDstreamparseend(SndStream *S, unsigned char *chunk)
 {
-    STREAM_release(MI(S, 4), (void *)(unsigned int)chunk);
-    MB(S, 0x17) = MB(S, 0x17) + 1;
+    STREAM_release(S->stream_handle, chunk);
+    S->parse_index = S->parse_index + 1;
     return 1;
 }
 
 /* iSNDstreamparsechunk @0x800E9270 : dispatch a chunk by its tag. */
-extern int iSNDstreamparsechunk(int S, int chunk)
+int iSNDstreamparsechunk(SndStream *S, unsigned char *chunk)
 {
     int tag = *(int *)chunk;
     int ret = 1;
     if (tag == 0x6c444353) {                             /* 'SCDl' */
-        ret = iSNDstreamparsedata(S, chunk);
+        ret = iSNDstreamparsedata(S, (SndStreamChunkHeaderPrefix *)chunk);
     } else if (tag == 0x6c484353) {                      /* 'SChl' */
-        ret = iSNDstreamparseheader(S, chunk);
+        ret = iSNDstreamparseheader(S, (SndStreamChunkHeaderPrefix *)chunk);
     } else if (tag == 0x6c454353) {                      /* 'SCEl' */
         ret = iSNDstreamparseend(S, chunk);
     } else if (tag == 0x6c434353) {                      /* 'SCCl' */
-        ret = iSNDstreamparsenumchunks(S, chunk);
+        ret = iSNDstreamparsenumchunks(S, (SndStreamChunkHeaderPrefix *)chunk);
     } else {
-        STREAM_release(MI(S, 4), (void *)(unsigned int)chunk);                 /* unknown -> drop */
+        STREAM_release(S->stream_handle, chunk);                 /* unknown -> drop */
     }
     return ret;
 }
 
 /* iSNDstreamisheld @0x800E9318 : true if the stream should hold (not feed more) because the ring buffer
  *   has run low relative to the data rate -- prevents starving the player on a slow disc. */
-extern int iSNDstreamisheld(int S)
+int iSNDstreamisheld(SndStream *S)
 {
-    int req = MI(S, 0) + (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c;
+    SndStreamReq *req = S->requests + (signed char)((volatile SndStream *)S)->parse_index;
 
-    if (MI(req, 0x10) == 0)                              /* data rate unknown -> not held */
+    if (!req->data_rate)                              /* data rate unknown -> not held */
         return 0;
-    if ((((int)(*(volatile unsigned short *)(req + 0x28)) << 16) >> 16) < 0)  /* held threshold negative -> held */
+    if (((volatile SndStreamReq *)req)->hold_threshold < 0)  /* held threshold negative -> held */
         return 1;
-    if ((((int)(*(volatile unsigned short *)(req + 0x28)) << 16) >> 16) == 0)  /* no threshold -> not held */
+    if (!((volatile SndStreamReq *)req)->hold_threshold)  /* no threshold -> not held */
         return 0;
 
     {
-        unsigned int avail = STREAM_gettable(MI(S, 4));
-        unsigned int thresh;
-        if (4000000 < avail)
+        unsigned int avail = STREAM_gettable(S->stream_handle);
+        int thresh;
+        if (avail > 4000000)
             avail = 4000000;
-        thresh = (unsigned int)((((int)(*(volatile unsigned short *)(req + 0x28)) << 16) >> 16));
+        thresh = ((volatile SndStreamReq *)req)->hold_threshold;
         /* MATCH (disasm-v4 trace, 9->0 diffs): keep the clear-threshold block physically before
          * the state check.  The true comparison branches forward to `check_state`; state==2 then
          * branches backward into the shared clear block, while state!=2 falls through with 1. */
-        if (avail * 1000 / (unsigned int)MI(req, 0x10) < thresh)
+        if (avail * 1000 / req->data_rate < thresh)
             goto check_state;
 clear_threshold:
-        MH(req, 0x28) = 0;
+        req->hold_threshold = 0;
         return 0;
 check_state:
-        if (STREAM_state(MI(S, 4)) == 2)
+        if (STREAM_state(S->stream_handle) == 2)
             goto clear_threshold;
         return 1;
     }
@@ -585,52 +491,52 @@ check_state:
 /* iSNDstreamhotroddatachunks @0x800E9438 : opportunistically pull and submit pending data chunks (up to
  *   ~0x4000 bytes total) for any playing, non-held stream that has player space -- keeps the buffer fed
  *   ahead of demand. */
-extern void iSNDstreamhotroddatachunks(void)
+void iSNDstreamhotroddatachunks(void)
 {
     int total = 0;
     int slot  = 0;
-    int *p    = sndss;
+    SndStream **p = sndss;
     do {
         /* MATCH: the zero-iteration guard scope below is behavior-neutral, but gives GCC
          * the oracle's saved-register coloring for S and the later availability value. */
-        int S = *p;
-        if (S == 0)
+        SndStream *S = *p;
+        if (!S)
             goto next;
         do {
-            if (MB(S, 0x16) == 0)
+            if (!S->current_count)
                 goto next;
-            if ((((int)(*(volatile unsigned char *)(S + 0x14)) << 24) >> 24) != 1)
+            if ((((int)(((volatile SndStream *)S)->state) << 24) >> 24) != 1)
                 goto next;
-            if (iSNDstreamisheld(S) != 0)
+            if (iSNDstreamisheld(S))
                 goto next;
         } while (0);
         {
-            int req = MI(S, 0) + (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c;
-            if (MI(req, 0x24) == 0)                          /* numChunks -- MATCH: split guards,
+            SndStreamReq *req = S->requests + (signed char)((volatile SndStream *)S)->parse_index;
+            if (!req->num_chunks)                          /* numChunks -- MATCH: split guards,
                         * not an `&&` (oracle branches per-condition straight to `next`, not via a
                         * combined boolean -- same &&-chain->goto lever as the rest of this fn). */
                 goto next;
-            if (MI(req, 0x20) == 0)                          /* submitted */
+            if (!req->submitted)                          /* submitted */
                 goto next;
             {
-                int avail = MVI(req, 0x24) - MVI(req, 0x20); /* MATCH: volatile -- oracle RELOADS
+                int avail = ((volatile SndStreamReq *)req)->num_chunks - ((volatile SndStreamReq *)req)->submitted; /* MATCH: volatile -- oracle RELOADS
                             * both fields fresh here rather than reusing the guards' loaded values. */
-                int space = SNDPKTPLAY_submitspace(MI(S, 0xc));
-                int n = (avail < space) ? avail : space;
-                if (0 < n) {
+                int space = SNDPKTPLAY_submitspace(S->packet_player);
+                int n = avail < space ? avail : space;
+                if (n > 0) {
                     do {
-                        int chunk;
+                        unsigned char *chunk;
                         n--;
                         /* MATCH: oracle sets ONLY $a0 for this call -- $a1/$a2 are stale, never
                          * loaded (`jal STREAM_get` with no arg-2/3 setup at either call site in
                          * this file). Cast the fn-ptr to a 1-arg signature at THIS call site only
                          * (§3.11/D "dropped call arg"); the 3-arg extern decl stays for any other
                          * caller in the codebase that DOES pass buf/len. */
-                        chunk = (int)(unsigned int)STREAM_get(MI(S, 4));
-                        if (chunk != 0) {
+                        chunk = (unsigned char *)STREAM_get(S->stream_handle);
+                        if (chunk) {
                             int bytes = *(int *)(chunk + 4);
                             total += bytes;
-                            iSNDstreamparsedata(S, chunk);
+                            iSNDstreamparsedata(S, (SndStreamChunkHeaderPrefix *)chunk);
                         }
                     } while (0 < n && total < 0x4000);
                 }
@@ -645,7 +551,7 @@ extern void iSNDstreamhotroddatachunks(void)
  * (1) the `numChunks!=0 && submitted!=0` guard must be TWO split goto-checks, not an `&&` --
  * same &&-chain->goto lever already used for the other guards in this fn (oracle branches
  * per-condition straight to `next`; a combined `&&` boolean materializes via `sltu`, wrong shape).
- * (2) `avail=MI(req,0x24)-MI(req,0x20)` needed `volatile` (MVI) -- the oracle RELOADS both fields
+ * (2) `num_chunks-submitted` needs volatile member reads -- the oracle RELOADS both fields
  * fresh for this calc instead of reusing the guard's just-loaded values (2 loads -> 4, matches).
  * wave-22 (46->30): the prior wave's fix #3 for `total += bytes` was WRONG -- it claimed deferring
  * the accumulate to AFTER `iSNDstreamparsedata()` was the MATCH, but the permuter (base score 215,
@@ -659,51 +565,51 @@ extern void iSNDstreamhotroddatachunks(void)
 /* iSNDstreamservice @0x800E9590 : per-tick service.  For each active stream: restart the player if it
  *   flagged a format change (state 2), then, unless held, drain chunks from the ring through
  *   iSNDstreamparsechunk into the player. */
-extern void iSNDstreamservice(void)
+void iSNDstreamservice(void)
 {
     int slot;
-    int *p;
+    SndStream **p;
 
     iSNDenteraudio();
     slot = 0;
     p    = sndss;
-    do {
-        int S = *p;
-        if (S != 0 && MB(S, 0x16) != 0) {                /* curReqCount != 0 */
-            if ((((int)(*(volatile unsigned char *)(S + 0x14)) << 24) >> 24) == 2) {  /* needs restart */
-                if (0 < SNDPKTPLAY_framesoutstanding(MI(S, 0xc)))
-                    goto next;
-                *(SNDSAMPLEFORMAT *)(S + 0x1c) = *(SNDSAMPLEFORMAT *)(S + 0x20);
-                SNDPKTPLAY_stop(MI(S, 0xc));
-                MI(S, 0x08) = SNDPKTPLAY_start(MI(S, 0xc), S + 0x1c, S + 0x24, (int *)(S + 0x4c));
-                MB(S, 0x14) = 1;
+    for (; slot < 1; slot++, p++) {
+        SndStream *S = *p;
+        if (S && S->current_count) {                /* curReqCount != 0 */
+            if ((((int)(((volatile SndStream *)S)->state) << 24) >> 24) == 2) {  /* needs restart */
+                if (0 < SNDPKTPLAY_framesoutstanding(S->packet_player))
+                    continue;
+                S->locked_rate = S->current_rate;
+                SNDPKTPLAY_stop(S->packet_player);
+                S->start_result = SNDPKTPLAY_start(S->packet_player, &S->locked_rate,
+                                         &S->locked_header,
+                                         &S->start_params);
+                S->state = 1;
             }
-            if (iSNDstreamisheld(S) == 0) {
+            if (!(iSNDstreamisheld(S))) {
                 int n, r;
-                if ((((int)(*(volatile unsigned char *)(S + 0x14)) << 24) >> 24) == 1) {
-                    n = SNDPKTPLAY_submitspace(MI(S, 0xc));
-                    if (n == 0)
-                        goto next;
+                if ((((int)(((volatile SndStream *)S)->state) << 24) >> 24) == 1) {
+                    n = SNDPKTPLAY_submitspace(S->packet_player);
+                    if (!n)
+                        continue;
                     r = 0;
                 } else {
                     n = 10;
                 }
                 r = 0;
                 do {
-                    int chunk;
+                    unsigned char *chunk;
                     n--;
                     /* MATCH: only $a0 set at this call site too (§3.11/D dropped call arg). */
-                    chunk = (int)(unsigned int)STREAM_get(MI(S, 4));
-                    if (chunk != 0)
+                    chunk = (unsigned char *)STREAM_get(S->stream_handle);
+                    if (chunk)
                         r = iSNDstreamparsechunk(S, chunk);
-                    if (r == 0)
+                    if (!r)
                         break;
-                } while (0 < n);
+                } while (n > 0);
             }
         }
-    next:
-        slot++; p++;
-    } while (slot < 1);
+    }
     iSNDleaveaudio();
 }
 /* near-miss floor (37->26->18->14 diffs, ours 88 / oracle 90 insns; real fixes kept per verify-or-revert
@@ -715,12 +621,12 @@ extern void iSNDstreamservice(void)
  * caller-saved v0/v1 swap in the following state test. */
 
 /* iSNDstreamnumcreated @0x800E96F8 : count the live streams. */
-extern int iSNDstreamnumcreated(void)
+int iSNDstreamnumcreated(void)
 {
     int count = 0;
     int slot;
     for (slot = 0; slot < 1; slot++) {
-        if (sndss[slot] != 0)
+        if (sndss[slot])
             count++;
     }
     return count;       /* MATCH (14/14): true sndss[] storage gives the oracle's split address. */
@@ -736,26 +642,28 @@ extern int iSNDstreamnumcreated(void)
  *     search loop's beqz delay slot; a separate `alloc` local let gcc coalesce `objbuf` straight into
  *     $a3 and copy-propagate `S = objbuf` into ONE pseudo (`addu s1,a3,zero`, 1 insn short -- the
  *     residual this file previously filed as an unreachable dead-copy class).  Re-using the PARAM as
- *     the running cursor (`objbuf = S + 0x60; ... objbuf += reqBytes; ...`) makes it a pseudo that is
+ *     the running cursor (`objbuf = S + sizeof(SndStream); ... objbuf += reqBytes; ...`) makes it a pseudo that is
  *     both live across the calls (-> callee-saved $s2, hence the prologue copy) and reassigned after
  *     the `S = objbuf` read (-> the copy cannot be propagated away).  This is what EA wrote: C lets a
  *     parameter be reassigned, and the whole carve walks the caller's buffer forward in place.
  * (b) `i = 0;` must be written BEFORE `pp = sndss;` -- the oracle emits `addu a1,zero,zero` ahead of
  *     the sndss `lui/addiu`; the `for (i = 0; ...)` init form put it after. */
-extern int iSNDstreamcreate(int *priority, int numReq, int pktArg, int objbuf,
+int iSNDstreamcreate(SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf,
                                 int memsize, int extHandle, int extFlag)
 {
     int i, slot;
-    int S, memrem, reqBytes, oh, pktbuf;
+    SndStream *S;
+    int memrem, reqBytes, oh;
+    char *pktbuf;
 
     memrem = memsize;                                    /* W31: cache the stack param FIRST -- the
                                                           * oracle loads 80(sp) into $s3 in the
                                                           * prologue and mutates it in place */
-    if (*(signed char *)&sndgs[0xf] == 0)                /* SND not initialised */
+    if (!((struct SndGlobalServerStateView *)sndgs)->initialized)                /* SND not initialised */
         return -10;
 
     {
-        int *pp;
+        SndStream **pp;
         i = 0;
         pp = sndss;
         for (; i < 1; i++, pp++) {                  /* find a free slot (real search loop in the
@@ -771,132 +679,117 @@ extern int iSNDstreamcreate(int *priority, int numReq, int pktArg, int objbuf,
     return -9;                                           /* no free slot */
 found:
     slot     = i;
-    S        = objbuf;
-    objbuf   = S + 0x60;                                 /* after the 0x60-byte stream header; from here
+    S        = (SndStream *)objbuf;
+    objbuf   = (char *)S + sizeof(SndStream);                                 /* after sizeof(SndStream); from here
                                                           * on `objbuf` IS the allocation cursor (see the
                                                           * header note (a) -- do NOT reintroduce a
                                                           * separate `alloc` local, it costs the oracle's
                                                           * prologue `addu s2,a3,zero` + the `addu s1,s2`
                                                           * copy in the search loop's beqz delay slot). */
     memrem  -= 0x60;
-    reqBytes = numReq * 0x2c;
-    MI(S, 0) = objbuf;                                    /* packetsArray */
+    reqBytes = numReq * (int)sizeof(SndStreamReq);
+    S->requests = (SndStreamReq *)objbuf;                                    /* packetsArray */
     objbuf += reqBytes; memrem -= reqBytes;
 
     oh     = SNDPKTPLAY_overhead(pktArg);
     pktbuf = objbuf;
     objbuf += oh; memrem -= oh;
     oh     = SNDPKTPLAY_overhead(pktArg);
-    MVI(S, 0xc) = SNDPKTPLAY_create(pktbuf, oh,
-                  (void *)iSNDstreamreleasecallback, (void *)iSNDstreamnotifycallback);
-    if (MVI(S, 0xc) < 0)
-        return MVI(S, 0xc);
+    ((volatile SndStream *)S)->packet_player = SNDPKTPLAY_create(pktbuf, oh,
+                  iSNDstreamreleasecallback, iSNDstreamnotifycallback);
+    if (((volatile SndStream *)S)->packet_player < 0)
+        return ((volatile SndStream *)S)->packet_player;
     /* W31: the oracle addresses the handle->slot map THROUGH sndss (sb slot,4(sndss+handle) --
      * literal displacement 4, one symbol; sndStreamMap is the +4 tail of the same block), with the
      * base REMATERIALIZED here (5.0c per-block assign), not CSE-shared with the search loop's. */
     {
         unsigned char *map;
         map = (unsigned char *)sndss;
-        map[MVI(S, 0xc) + 4] = (unsigned char)slot;      /* handle -> slot (delay slot) */
+        map[((volatile SndStream *)S)->packet_player + 4] = (unsigned char)slot;      /* handle -> slot (delay slot) */
     }
 
-    if (extFlag != 0) {                                  /* external ring */
-        MI(S, 4)    = extHandle;
-        *(volatile unsigned char *)(S + 0x18) = 1;   /* volatile: keeps the sb out of the j slot
+    if (extFlag) {                                  /* external ring */
+        S->stream_handle    = extHandle;
+        ((volatile SndStream *)S)->external_stream = 1;   /* volatile: keeps the sb out of the j slot
                                                       * so the tail's li -1 gets target-stolen (W31) */
     } else {                                             /* own ring */
-        MI(S, 4)    = STREAM_create(numReq + 1, 1, 1, (void *)(unsigned int)objbuf, memrem);
-        *(volatile unsigned char *)(S + 0x18) = 0;
-        SNDSTRM_setgreedylevel(MI(S, 4), STREAM_buffersize(MI(S, 4)) / 3);
+        S->stream_handle    = STREAM_create(numReq + 1, 1, 1, objbuf, memrem);
+        ((volatile SndStream *)S)->external_stream = 0;
+        SNDSTRM_setgreedylevel(S->stream_handle, STREAM_buffersize(S->stream_handle) / 3);
     }
-    MI(S, 0x10) = 0;
-    MI(S, 0x08) = -1;
-    MB(S, 0x15) = (unsigned char)numReq;
-    *(SNDPLAYOPTS *)(S + 0x4c) = *(SNDPLAYOPTS *)priority; /* W31: ONE 20-byte struct assignment -- the
+    S->request_counter = 0;
+    S->start_result = -1;
+    S->max_requests = (unsigned char)numReq;
+    S->start_params = *priority; /* W31: ONE 20-byte struct assignment -- the
                         * movstrsi block move emits the 4-word t-reg batch PLUS the trailing 5th word
                         * (tail lw t1/sw 0x5C) itself; a four-word copy plus separate word mis-schedules
                         * the tail. */
 
-    if (iSNDstreamnumcreated() == 0) {                   /* first stream -> register the service hook */
-        iSNDserveraddclient((void *)iSNDstreamservice);
-        sndgs[0x22] = (int)iSNDstreamdestroyall;
+    if (!(iSNDstreamnumcreated())) {                   /* first stream -> register the service hook */
+        iSNDserveraddclient(iSNDstreamservice);
+        ((struct SndGlobalLifecycleHookView *)sndgs)->stream_destroy_all_hook = iSNDstreamdestroyall;
     }
     sndss[slot] = S;
     SNDSTRM_purge(slot);
     return slot;
 }
-/* near-miss (109->100->53 diffs, ours 139 / oracle 144 insns). LEVER (older pass): the free-slot
- * search really is a LOOP in the oracle (a1 counter, `addiu a1,a1,1; blez a1,T`) even though this
- * build only has ONE stream slot -- the `for(slot=0;slot<1;slot++){ if(...)goto found; } return -9;`
- * idiom (matching numcreated/hotroddatachunks/service) is oracle-evidenced.
- * wave-22 (100->53): two real fixes, both MVI/struct-block levers already proven elsewhere in this
- * file: (1) `pktplay` was cached in a local across the `MI(S,0xc)=pktplay; if(pktplay<0)return
- * pktplay;` sequence -- the oracle genuinely RE-READS S+0xc from memory 3x (branch test / return
- * value / post-branch use for the sndStreamMap store) -- fixed by dropping the local entirely and
- * using `MVI(S,0xc)` (volatile) at each of the 3 sites. (2) the `priority[0..4]` copy is a 4-word
- * STRUCT-ASSIGNMENT block (`Prio4{int w[4];}` at S+0x4c) + one separate trailing word at S+0x5c
- * (also MVI'd) -- same struct-copy lever as removerequest's compaction / parseheader's Hdr4, NOT 5
- * uniform per-word copies. Tried and REVERTED (worse): expressing `sndStreamMap[pktplay]=slot` via
- * `MB((int)&sndss+pktplay,4)` to match the oracle's literal `&sndss+4` relocation reuse (87->96,
- * reverted -- unlike notifycallback's now-matching shared-base form, create's longer live ranges
- * rematerialize the address); moving `S=objbuf` inside the search loop's body to mimic the oracle's delay-slot
- * placement (53->55, reverted). Residual (53 diffs) is now PURE REGISTER COLORING across the whole
- * prologue (fp/s6/s7/s2/s3/s1/s4/a1 vs which callee-saved reg the oracle picks for
- * priority/pktArg/extFlag/objbuf/memsize/S/slot) plus 2 minor RTL scheduler quirks (a delay-slot-fill
- * swap around the extFlag branch's `MB(S,0x18)=1`/return-value-prep, and an address-hoist-into-
- * branch-delay-slot for `&sndss` before the final `(&sndss)[slot]=S` store) -- same reload/coloring
- * tie-break floor class as numcreated/hotroddatachunks/service; permuter candidate. */
+/* Exact-match notes for iSNDstreamcreate: the request array and player fields are named in
+ * SndStream/SndStreamReq, the +0x4C parameter block is SNDPLAYOPTS, and objbuf remains the reassigned
+ * byte cursor. Initialize the stream-table search index before materializing sndss for the retail
+ * register schedule. In iSNDstreamqueue, req is now a typed request pointer; current_count retains
+ * its existing sign-extended byte interpretation when selecting the request slot. */
 
 /* iSNDstreamqueue @0x800E9970 : queue a sound on a stream -- from a file, a memory image, or an
  *   already-built STREAM request id.  Fills a fresh packet slot, stamps a unique id, and returns it.
  *   `mode`: 0=file (filename/off), 1=memory (filename=block), other=pre-built id (off). */
-extern int iSNDstreamqueue(unsigned int s, int name, char *filename, int off, int mode)
+int iSNDstreamqueue(unsigned int s, int name, char *filename, int off, int mode)
 {
-    int p, req;
+    SndStream *p;
+    SndStreamReq *req;
 
-    if (*(signed char *)&sndgs[0xf] == 0)
+    if (!((struct SndGlobalServerStateView *)sndgs)->initialized)
         return -10;
     p = iSNDstreamgetstreamptr(s);
-    if (p == 0)
+    if (!p)
         return -8;
 
     iSNDenteraudio();
-    if (!((int)((unsigned)MB(p, 0x16) << 0x18) < (int)((unsigned)MB(p, 0x15) << 0x18))) {  /* no room */
+    if (!((int)((unsigned)p->current_count << 0x18) < (int)((unsigned)p->max_requests << 0x18))) {  /* no room */
         iSNDleaveaudio();
         return -0xd;
     }
 
-    req = MI(p, 0) + (((int)(*(volatile unsigned char *)(p + 0x16)) << 24) >> 24) * 0x2c;
-    if (mode == 0)
-        MVI(req, 0) = STREAM_queuefile(MI(p, 4), filename, off, 0x6c454353);
+    req = p->requests + (signed char)((volatile SndStream *)p)->current_count;
+    if (!mode)
+        ((volatile SndStreamReq *)req)->stream_request_id = STREAM_queuefile(p->stream_handle, filename, off, 0x6c454353);
     else if (mode == 1)
-        MVI(req, 0) = STREAM_queuemem(MI(p, 4), filename, 0, 0x6c454353);
+        ((volatile SndStreamReq *)req)->stream_request_id = STREAM_queuemem(p->stream_handle, filename, 0, 0x6c454353);
     else
-        MVI(req, 0) = off;
+        ((volatile SndStreamReq *)req)->stream_request_id = off;
 
-    if (MI(req, 0) == 0) {
+    if (!req->stream_request_id) {
         iSNDleaveaudio();
         return -1;
     }
 
-    MVI(p, 0x10) = MVI(p, 0x10) + 0x100;         /* bump the id counter */
-    if (MVI(p, 0x10) < 0)                        /* near-miss residual: oracle leaves this bgez's
+    ((volatile SndStream *)p)->request_counter = ((volatile SndStream *)p)->request_counter + 0x100;         /* bump the id counter */
+    if (((volatile SndStream *)p)->request_counter < 0)                        /* near-miss residual: oracle leaves this bgez's
                                                    * delay slot a plain nop (store happens BEFORE
                                                    * the branch); ours schedules the store INTO the
                                                    * delay slot. Tried named `newid` temp: no change
                                                    * -- scheduler-fill floor (same class as the
                                                    * lui-scratch/lwl-lwr floors documented above). */
-        MVI(p, 0x10) = 0;
-    MVI(req, 4)  = MVI(p, 0x10) | (int)s;        /* full id = counter | slot */
-    *(volatile short *)(req + 0x28) = (short)name;
-    MB(p, 0x16) = MB(p, 0x16) + 1;               /* curReqCount++ */
-    MI(req, 0x10) = 0;
-    MI(req, 8)    = -1;
-    MI(req, 0xc)  = -1;
-    MI(req, 0x14) = 0;
-    MI(req, 0x1c) = 0;
-    MI(req, 0x20) = 0;
-    MVI(req, 0x24) = 0;
+        ((volatile SndStream *)p)->request_counter = 0;
+    ((volatile SndStreamReq *)req)->request_id = ((volatile SndStream *)p)->request_counter | s;        /* full id = counter | slot */
+    ((volatile SndStreamReq *)req)->hold_threshold = name;
+    p->current_count = p->current_count + 1;               /* curReqCount++ */
+    req->data_rate = 0;
+    req->firstqid    = -1;
+    req->qid  = -1;
+    req->bytes_consumed = 0;
+    req->remaining_bytes = 0;
+    req->submitted = 0;
+    ((volatile SndStreamReq *)req)->num_chunks = 0;
     iSNDleaveaudio();
-    return MI(req, 4);
+    return req->request_id;
 }

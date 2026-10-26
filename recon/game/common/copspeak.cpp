@@ -484,7 +484,7 @@ void CopSpeak_StartUp(void)
   CopSpeak_InitVars();
   CopSpeak_RadioStaticInit();
   sprintf(filename,"%szzzwzzz.viv",Paths_Paths[0x1c]);
-  header = (char *)loadbigfileheader(filename,(void *)0x10);
+  header = (char *)loadbigfileheader(filename,0x10);
   if (header != (char *)0x0) {
     CopSpeak_tBank *bank = &Copspeak_gBank[1];
     char *Generic[1];
@@ -528,10 +528,10 @@ void CopSpeak_StartUp(void)
   CopSpeak_gNumTrackSfx = 0;
   sprintf(filename,"%szzzw%s.viv",Paths_Paths[0x1c],
              GameSetup_gTrackNames + GameSetup_gData.track);
-  header = (char *)loadbigfileheader(filename,(void *)0x10);
+  header = (char *)loadbigfileheader(filename,0x10);
   if (header == (char *)0x0) {
     sprintf(filename,"%szzzwcst.viv",Paths_Paths[0x1c]);
-    header = (char *)loadbigfileheader(filename,(void *)0x10);
+    header = (char *)loadbigfileheader(filename,0x10);
   }
   if (header != (char *)0x0) {
     CopSpeak_tBank *bank = &Copspeak_gBank[0];
@@ -563,7 +563,7 @@ void CopSpeak_StartUp(void)
     break;
   }
   sprintf(filename,"%szzzx%s.viv",Paths_Paths[0x1d],SpeechLanguage);
-  header = (char *)loadbigfileheader(filename,(void *)0x10);
+  header = (char *)loadbigfileheader(filename,0x10);
   if (header != (char *)0x0) {
     CopSpeak_tBank *bank = &Copspeak_gBank[2];
     long offset;

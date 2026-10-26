@@ -18,14 +18,14 @@ extern "C" {
 int SND3dpos(...);
 void SNDSTRM_setpriority(...);
 void SNDautovol(...);
-int SNDbankadd(...);
+int SNDbankadd(int *bank_out, void *bank_data);
 void SNDbankheadercopy(...);
 int SNDbankheadersize(...);
-int SNDbankremove(...);
+void SNDbankremove(...);
 int SNDfxinitbus(...);
 int SNDfxmasterlevel(...);
 int SNDmastervol(...);
-int SNDmemlargestunused(...);
+int SNDmemlargestunused(unsigned char **out);
 int SNDover(...);
 int SNDpan(...);
 int SNDpitchbend(...);

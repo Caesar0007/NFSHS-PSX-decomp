@@ -393,7 +393,7 @@ int AudioTrk_PreLoad(void)
   int vz;
   int tick;
   bool loaded;
-  int check;
+  unsigned char *check;
   int numelems;
 
   if (gGameAudioList == (CAudioList *)0x0)

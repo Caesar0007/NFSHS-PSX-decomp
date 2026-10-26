@@ -13,21 +13,10 @@
  * `volatile` in this file was measured individually or as a group and is load-bearing
  * (MMIO, or state the oracle provably re-reads) -- do not strip them.  Receipt:
  * scratchpad/w85/S8_receipt.md. */
-
-
-extern int iSNDgettag(int *cursor, unsigned int *outId, int *outVal, int *outPtr);  /* sgettag  */
-extern int iSNDpsxmalloc(int size);                                                 /* sdmemman */
-extern void iSNDpsxfree(void *p);                                                   /* sdmemman */
-extern int iSNDdmqueuesplit(int dst_spu, unsigned int src_ram, int len, int prio); /* sdma */
-extern int iSNDdmcomplete(int handle);                                              /* sdma */
-
-extern int iSNDplatformresolve(int cursor, int bank, int patch);     /* @0x8010B75C */
-extern int iSNDplatformremove(int cursor, int *patch);               /* @0x8010B958 */
-
-struct SNDResolveEntry {
-    int offset;
-    int spu;
-};
+#include "sdma.h"
+#include "sdresolv.h"
+#include "sgettag.h"
+#include "sdmemman.h"
 
 /* iSNDplatformresolve @0x8010B75C : load a patch's sample into SPU RAM (unless already resolved), recording
  *   the SPU address in the 0x8a field and the resolve table.  Returns 7 / -6 (out of SPU memory).
@@ -88,33 +77,35 @@ struct SNDResolveEntry {
  *   3. STATEMENT ORDER `scan = cur + 1;` BEFORE `idx++;` -- independent-chain issue order is fixed
  *      by luid (catalog w43); with `idx++` first the two tail addiu's come out swapped (4 diffs).
  */
-extern int iSNDplatformresolve(int cursor, int bank, int patch)
+int iSNDplatformresolve(unsigned char *cursor, unsigned char *bankData, struct SNDResolveEntry *patch)
 {
     unsigned int  id;
-    int           val, ptr;
+    int           val;
+    unsigned char *ptr;
     int           size = 0;
     int           count = 1;
     int           offset = size;
-    int          *spuField = (int *)size; /* the 0x8a field that receives the SPU address */
+    unsigned char **spuField = (unsigned char **)size; /* 0x8a stores an SPU byte address */
     int           idx = size;
-    int           blocks, scale, buf, dma;
-    int          *e;
+    int           blocks, scale, dma;
+    unsigned char *buf;
+    struct SNDResolveEntry *e;
     struct SNDResolveEntry *scan;
     struct SNDResolveEntry *cur;
     int           end;
 
-    while (iSNDgettag(&cursor, &id, &val, &ptr) != 0 && id != 0xfe) {
+    while (iSNDgettag(&cursor, &id, &val, &ptr) && id != 0xfe) {
         if (id == 0x80)      { /* no-op tag */ }
         else if (id == 0x88) offset   = val;
-        else if (id == 0x8a) spuField = (int *)ptr;
+        else if (id == 0x8a) spuField = (unsigned char **)ptr;
         else if (id == 0x82) count    = val;
         else if (id == 0x85) size     = val;
     }
-    if (bank != 0) {
-        e = (int *)(idx * 8 + patch);               /* find an existing resolve for this offset */
-        if (*(int *)e != -1) {
+    if (bankData) {
+        e = (struct SNDResolveEntry *)(idx * 8 + (unsigned int)patch); /* find an existing resolve for this offset; exact register order */
+        if (e->offset != -1) {
             end = -1;
-            scan = (struct SNDResolveEntry *)e;
+            scan = e;
             do {
                 /* MATCH (W86-D1 2026-09-02 -- PURE C, replaces the former zero-insn identity
                  * fence).  `cur = scan;` is a plain register copy, so cse.c's `make_regs_eqv`
@@ -133,58 +124,59 @@ extern int iSNDplatformresolve(int cursor, int bank, int patch)
                           ((unsigned int)scan | ((unsigned int)scan & 3u));
                 if (*(int *)&cur->offset == offset)
                     goto found;
-                scan = cur + 1;
+                scan = &cur[1];
                 idx++;
             } while (*(int *)&cur[1].offset != end);
         }
 checked:
-        if (*spuField != 0)
+        if (*spuField)
             return 7;                              /* already resolved */
         blocks = size / 0x1c;
         if (size != blocks * 0x1c)
-            blocks = blocks + 1;
+            blocks += 1;
         scale = count << 4;
-        blocks = blocks * scale;
+        blocks *= scale;
         buf = iSNDpsxmalloc(blocks);
-        if (buf == 0)
+        if (!buf)
             return -6;
         goto resolve;
 found:
         *spuField = scan->spu;
         goto checked;
 resolve:
-        dma = iSNDdmqueuesplit(bank + offset, (unsigned int)buf, blocks, 1);
+        dma = iSNDdmqueuesplit((const unsigned char *)(bankData + offset), buf, blocks, 1);
         *spuField = buf;
-        *(int *)(idx * 8 + patch) = offset;
-        *(int *)(idx * 8 + patch + 4) = buf;
-        do { } while (iSNDdmcomplete(dma) == 0);
+        patch[idx].offset = offset;
+        patch[idx].spu = buf;
+        do { } while (!(iSNDdmcomplete(dma)));
     }
     return 7;
 }
 
 /* iSNDplatformremove @0x8010B958 : release a patch's resolved SPU data -- record it in the remove table and
  *   free the SPU block. */
-extern int iSNDplatformremove(int cursor, int *patch)
+int iSNDplatformremove(unsigned char *cursor, struct SNDRemoveEntry *patch)
 {
     unsigned int  id;
-    int           val, ptr;
-    int          *spuField = 0;
+    int           val;
+    unsigned char *ptr;
+    unsigned char **spuField = 0;
     int           i;
 
-    while (iSNDgettag(&cursor, &id, &val, &ptr) != 0 && id != 0xfe) {
+    while (iSNDgettag(&cursor, &id, &val, &ptr) && id != 0xfe) {
         if (id == 0x8a)
-            spuField = (int *)ptr;
+            spuField = (unsigned char **)ptr;
     }
     i = 0;
-    if (*patch != -1) {
+    if (patch[0].spu_address != (unsigned char *)-1) {
         do {
-            if (patch[i * 2] == *spuField)    /* already removed */
+            if (patch[i].spu_address == *spuField)    /* already removed */
                 return 0;
             i++;
-        } while (patch[i * 2] != -1);
+        } while (patch[i].spu_address != (unsigned char *)-1);
     }
-    patch[i * 2] = *spuField;
-    if (*spuField != 0)
-        iSNDpsxfree((void *)*spuField);
+    patch[i].spu_address = *spuField;
+    if (*spuField)
+        iSNDpsxfree(*spuField);
     return 0;
 }

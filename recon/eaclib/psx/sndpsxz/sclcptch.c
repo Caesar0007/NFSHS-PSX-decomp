@@ -3,14 +3,16 @@
  *   2 fns @[0x80101900 .. 0x801019BC].  Pitch calculation (cents/detune -> SPU pitch).
  *   Ghidra nfs4-f.exe.c L166180..166251.
  */
+#include "sclcptch.h"
+#include "sdata.h"
+#include "sndserverpriv.h"
+#include "sndchpriv.h"
 
-extern int            sndgs[];
 /* ONE 256-byte cents curve table `sndcents` @0x801370C4 (read lbu).  The two paths share it:
  *   idx>=0 -> sndcents[idx]      (lbu 0(base))
  *   idx<0  -> sndcents[idx+256]  (lbu 0x100(base); idx is clamped to -255..-1, so this stays inside the table)
  * Using one symbol reproduces the oracle's single-base load (the +256 folds to a 0x100 displacement);
  * two separate symbols force a 2nd `lui;addiu` base materialization. */
-extern unsigned char  sndcents[];
 unsigned char sndcents[256] = {  /* @0x801370C4 : the 2^(x/256) cents curve.  (The old [512] spelling carried a COPY of
                                    * stagpat.obj's snddefaultenvelope + key counter, libc _ctype_ and the head of asintbl.) */
     0x00, 0x01, 0x02, 0x02, 0x03, 0x04, 0x04, 0x05, 0x06, 0x07, 0x07, 0x08, 0x09, 0x09, 0x0a, 0x0b,
@@ -31,16 +33,14 @@ unsigned char sndcents[256] = {  /* @0x801370C4 : the 2^(x/256) cents curve.  (T
     0xeb, 0xec, 0xee, 0xef, 0xf0, 0xf2, 0xf3, 0xf5, 0xf6, 0xf7, 0xf9, 0xfa, 0xfb, 0xfd, 0xfe, 0xff
 };
 
-extern int iSNDdetunetolinear(int detune);     /* @0x80101900 */
-
 /* iSNDdetunetolinear @0x80101900 : convert a detune value in cents (0x4B0 = 1200 cents = one octave) to a
  *   12.12 linear pitch multiplier, octave-folding then interpolating the fractional cents through a curve
  *   table. */
-extern int iSNDdetunetolinear(int detune)
+int iSNDdetunetolinear(int detune)
 {
     int mul = 0x1000;
     int idx;
-    for (; 0x4af < detune; detune -= 0x4b0)        /* octave up */
+    for (; detune > 0x4af; detune -= 0x4b0)        /* octave up */
         mul = mul << 1;
     for (; detune < -0x4af; detune += 0x4b0)       /* octave down */
         mul = mul >> 1;
@@ -57,30 +57,31 @@ extern int iSNDdetunetolinear(int detune)
 /* iSNDcalcpitch @0x801019BC : recompute a voice's SPU pitch from its base note + modulation sources
  *   (envelope @+0x4C / LFO @+0x54), caching the linear multiplier at +0x5E and the final SPU pitch at
  *   +0x62. */
-extern int iSNDcalcpitch(int note)
+int iSNDcalcpitch(int note)
 {
-    int          v = sndgs[0x25] + note * 100;
+    SndChannel *pool = ((struct SndGlobalServerStateView *)sndgs)->play_records;
+    SndChannel *v = &pool[note];
     int          pitch;
     int          c;                               /* envelope byte; the per-load (signed char) casts emit `lb`
                                                    * (sign-extend once), and `int c` avoids re-extending on use */
 
-    if (*(unsigned short *)(v + 0x5e) == 0) {      /* not yet cached -> compute the linear multiplier (lhu) */
-        int cents = (int)*(short *)(v + 0x5c);
-        if (*(short *)(v + 0x5a) != 0) {           /* envelope-driven detune */
-            if (*(int *)(v + 0x4c) != 0)           /* != polarity -> oracle's beqz fall-through */
-                c = *(signed char *)(*(int *)(v + 0x4c) + (int)*(signed char *)(v + 0x2f));
+    if (!v->linear_pitch_cache) {      /* not yet cached -> compute the linear multiplier (lhu) */
+        int cents = v->base_detune;
+        if (v->envelope_detune_depth) {           /* envelope-driven detune */
+            if (v->detune_curve)           /* != polarity -> oracle's beqz fall-through */
+                c = *(signed char *)(v->detune_curve + v->bend);
             else
-                c = *(signed char *)(v + 0x2f);    /* +0x2f detune read signed (lb) */
-            cents += ((c - 0x40) * (int)*(short *)(v + 0x5a) >> 6);
+                c = v->bend;    /* +0x2f detune read signed (lb) */
+            cents += (c - 0x40) * v->envelope_detune_depth >> 6;
         }
-        if (*(int *)(v + 0x54) != 0) {             /* LFO-driven detune */
-            cents += ((*(signed char *)(*(int *)(v + 0x54) + (unsigned)*(unsigned char *)(v + 0x3b)) - 0x40) *
-                      (int)*(short *)(v + 0x58) >> 6);
+        if (v->pitch_lfo_table) {             /* LFO-driven detune */
+            cents += (*(signed char *)(v->pitch_lfo_table + (unsigned)v->pitch_lfo_phase) - 0x40) *
+                      v->pitch_lfo_depth >> 6;
         }
         pitch = iSNDdetunetolinear(cents);
-        *(short *)(v + 0x5e) = (short)pitch;
+        v->linear_pitch_cache = (short)pitch;
     }
-    pitch = (int)((unsigned)*(unsigned short *)(v + 0x5e) * (unsigned)*(unsigned short *)(v + 0x60)) >> 0xc;
-    *(short *)(v + 0x62) = (short)pitch;            /* final SPU pitch */
+    pitch = (int)((unsigned)v->linear_pitch_cache * (unsigned)v->base_pitch) >> 0xc;
+    v->spu_pitch = (short)pitch;            /* final SPU pitch */
     return pitch;
 }

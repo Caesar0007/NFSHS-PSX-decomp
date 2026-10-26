@@ -11,24 +11,27 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/timer.h"
 }
 extern "C" {
+struct SNDSTREAMSTATUS;
+struct SNDREQUESTSTATUS;
+struct SNDPLAYOPTS;
 int CdDiskReady(...);
 int GetRCnt(...);
 int SNDSTRM_autovol(...);
-int SNDSTRM_create(...);
+int SNDSTRM_create(struct SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf, int memsize);
 int SNDSTRM_destroy(...);
 int SNDSTRM_getvol(...);
 int SNDSTRM_overhead(...);
 int SNDSTRM_purge(...);
 int SNDSTRM_queuefile(...);
-int SNDSTRM_requeststatus(...);
+int SNDSTRM_requeststatus(unsigned int reqTag, struct SNDREQUESTSTATUS *status);
 void SNDSTRM_setgreedylevel(...);
 void SNDSTRM_setgreedystate(...);
 void SNDSTRM_setpriority(...);
-int SNDSTRM_status(...);
+int SNDSTRM_status(int tag, struct SNDSTREAMSTATUS *status);
 int SNDSTRM_vol(...);
-int SNDgetlimits(...);
+int SNDgetlimits(void *opts);
 void SNDplaysetdef(...);
-int SNDsetlimits(...);
+int SNDsetlimits(void *opts);
 int sprintf(...);
 unsigned int strlen(...);
 }

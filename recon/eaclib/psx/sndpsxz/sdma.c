@@ -1,64 +1,23 @@
-/* eaclib/psx/sndpsxz/sdma.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 5/6 PASS ***
+/* eaclib/psx/sndpsxz/sdma.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 6/6 PASS ***
  *   Source obj : nfs4\eaclib\psx\sdma.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
- *   6 fns @[0x8010A880 .. 0x8010AE6C].  RAM->SPU DMA queue -- up to 10 pending transfers serviced by
+ *   6 fns @[0x8010A880 .. 0x8010AE6C]. RAM->SPU DMA queue -- up to 10 pending transfers serviced by
  *   priority, driven from the SPU IRQ / per-tick service.  Ghidra nfs4-f.exe.c (sdma) + disasm-v3 for the
- *   args Ghidra dropped: iSNDdmqueue is 5-ARG (dst_spu,src_ram,len,prio,flag) and iSNDdmqueuesplit forwards
- *   (dst,src,chunk,prio,0) advancing both dst+src per 4 KB chunk (Ghidra showed only the 1-arg call).
+ *   args Ghidra dropped: iSNDdmqueue is 5-ARG (ram_source,spu_address,len,prio,flag) and iSNDdmqueuesplit forwards
+ *   (ram_source,spu_address,chunk,prio,0), advancing both addresses per 4 KB chunk (Ghidra showed only the 1-arg call).
  *
  *   DMA QUEUE entry (DAT_80147928, 0x14 stride, 10 slots):
- *     +0x00 handle(int, 0==free)  +0x04 dst_spu(int)  +0x08 src_ram>>3(u16)  +0x0a len/64(u8)
+ *     +0x00 handle(int, 0==free)  +0x04 RAM source pointer  +0x08 SPU address>>3(u16)  +0x0a len/64(u8)
  *     +0x0b priority(u8)  +0x0c flag(u8)  +0x10 deadline(int, = sndgs[0x11]+0xf)
  *   State: DAT_80147920 handle counter, DAT_80147924 in-flight count, DAT_80147925 active slot,
  *          DAT_80147926 busy flag, DAT_80147919 pre-load guard (shared with sdpacket).
  */
-
-extern int            sndgs[];
-extern unsigned char  sndpd[];              /* voice/queue state base @0x80147918 (shared) -- UNSIZED
-                                              * array: forces the oracle's `lui;addiu &sndpd; op N(base)`
-                                              * base+offset shape instead of folding each field into its
-                                              * own absolute symbol (same lever as spatkey.c). ALL the
-                                              * DMA-queue state below is really `sndpd+offset`, confirmed
-                                              * byte-for-byte from the raw oracle (e.g. iSNDdmcallback's
-                                              * `lbu v1,0xD(a0)` where a0=sndpd -- NOT a separately
-                                              * materialized DAT_80147925 symbol). */
-#define SNDPD_PRELOAD    (*(unsigned char *)(sndpd + 0x1))    /* pre-load guard (shared w/ sdpacket) */
-#define SNDPD_HANDLEID   (*(int *)(sndpd + 0x8))              /* rolling DMA handle id */
-#define SNDPD_INFLIGHT   (*(signed char *)(sndpd + 0xC))      /* in-flight transfer count */
-#define SNDPD_ACTIVESLOT (*(signed char *)(sndpd + 0xD))      /* active queue slot index (SIGNED) */
-#define SNDPD_BUSY       (*(unsigned char *)(sndpd + 0xE))    /* DMA-busy flag */
-/* DMA QUEUE entry (sndpd+0x10, 0x14 stride, 10 slots):
- *   +0x00 handle(int,0==free) +0x04 dst_spu(int) +0x08 src_ram>>3(u16) +0x0a len/64(u8)
- *   +0x0b priority(u8) +0x0c flag(u8) +0x10 deadline(int) */
-#define SNDPD_Q_HANDLE(off)   (*(int *)(sndpd + 0x10 + (off)))
-#define SNDPD_Q_DSTSPU(off)   (*(int *)(sndpd + 0x14 + (off)))
-#define SNDPD_Q_SRCHI(off)    (*(unsigned short *)(sndpd + 0x18 + (off)))
-#define SNDPD_Q_LEN64(off)    (*(unsigned char *)(sndpd + 0x1A + (off)))
-#define SNDPD_Q_PRIO(off)     (*(unsigned char *)(sndpd + 0x1B + (off)))
-#define SNDPD_Q_FLAG(off)     (*(unsigned char *)(sndpd + 0x1C + (off)))
-#define SNDPD_Q_DEADLINE(off) (*(int *)(sndpd + 0x20 + (off)))
-#define SNDPD_CTRLREG    (*(int *)(sndpd + 0x514))            /* SPU control reg base (address) */
-struct SNDDmaEntry {
-    volatile int handle;
-    int dstSpu;
-    unsigned short srcHi;
-    unsigned char len64;
-    volatile unsigned char priority;
-    unsigned char flag;
-    unsigned char pad[3];
-    volatile int deadline;
-};
-extern unsigned int  *DAT_80147e14;         /* DMA4 ctrl reg ptr  */
-extern unsigned int  *DAT_80147e18;         /* DMA4 MADR reg ptr  */
-extern unsigned int  *DAT_80147e1c;         /* DMA4 BCR  reg ptr  */
-extern unsigned int  *DAT_80147e20;         /* DMA4 CHCR reg ptr  */
-extern void (*gPreLoadTicks)(void);         /* pre-load tick hook @0x80148040 */
-
-extern void iSNDdmtransfer(void);                                              /* @0x8010A880 */
-extern void iSNDdmcallback(void);                                              /* @0x8010AA64 */
-extern void iSNDdmservice(void);                                               /* @0x8010AC20 */
-extern int  iSNDdmqueue(int dst_spu, unsigned int src_ram, int len,
-                            int prio, int flag);                                    /* @0x8010ACA0 */
-extern int  iSNDdmqueuesplit(int dst_spu, unsigned int src_ram, int len, int prio);
+#include "sdata.h"
+#include "sdma.h"
+#include "slib.h"
+#include "snd_state.h"
+#include "sndspuregpriv.h"
+#include "sndhookpriv.h"
+#include "snddmapriv.h"
 
 /* cop0 Status read/write -- the queue mutations run with interrupts masked on target (host: plain).
  * The callback uses one explicit CP0 transaction macro because the R3000 Status write requires three
@@ -87,7 +46,7 @@ static inline void wr_sr(unsigned int s) { g_sr = s; }
 #endif
 
 /* iSNDdmtransfer @0x8010A880 : pick the highest-priority queued transfer and kick the SPU-write DMA for it. */
-extern void iSNDdmtransfer(void)
+void iSNDdmtransfer(void)
 {
     unsigned int sr;
     int i;
@@ -120,7 +79,7 @@ extern void iSNDdmtransfer(void)
      *      in-place `sll v0,v0,24; sra v0,v0,24` exactly like the oracle.  (Same lever the sibling
      *      sdpacket.c iSNDpacketgetirq needed in w31.) */
     pd = sndpd;
-    inflight = *(volatile unsigned char *)(pd + 0xc);
+    inflight = ((struct SndDmaQueueStateView *)pd)->in_flight_count.v;
     MASK_INTERRUPTS_SR(sr);
     inflightValue = (int)((unsigned)inflight << 0x18);
     bestHandle = 0xffffffff;
@@ -129,68 +88,67 @@ extern void iSNDdmtransfer(void)
         return;
     }
     bestPrio = 0;
-    pd[0xe] = 1;
+    ((struct SndDmaQueueStateView *)pd)->transfer_busy.plain = 1;
     i = bestPrio;
     scanBase = pd;
-    scanEntry = (struct SNDDmaEntry *)(scanBase + 0x10);
-    do {
-        if (scanEntry->handle != 0) {                     /* active entry */
+    scanEntry = ((struct SndDmaQueueEntriesView *)scanBase)->entries;
+    for (; i < 10; i++, scanEntry++) {
+        if (scanEntry->handle) {                     /* active entry */
             if (bestPrio < scanEntry->priority) {
-                scanBase[0xd] = (signed char)i;
+                ((struct SndDmaQueueStateView *)scanBase)->active_slot.plain = (signed char)i;
                 bestHandle = scanEntry->handle;
                 bestPrio = scanEntry->priority;
             } else if (scanEntry->priority == bestPrio &&
                        (unsigned)scanEntry->handle < bestHandle) {
-                scanBase[0xd] = (signed char)i;
+                ((struct SndDmaQueueStateView *)scanBase)->active_slot.plain = (signed char)i;
                 bestHandle = scanEntry->handle;
             }
         }
-        i++;
-        scanEntry++;
-    } while (i < 10);
+    }
 
     {
         unsigned char *tailBase = sndpd;
-        int qbase;
+        unsigned char *qbase;
         activeEntry = (struct SNDDmaEntry *)
-            (((((int)*(volatile unsigned char *)(tailBase + 0xd)) << 24) >> 24) * 0x14
-             + (qbase = (int)tailBase + 0x10));
-        if (activeEntry->flag != 0) {
-            void (*hook)(void) = *(void (**)(void))(tailBase + 0x728);
-            *(volatile unsigned char *)(tailBase + 1) = 1;
-            if (hook != 0)
+            (((((int)((struct SndDmaQueueStateView *)tailBase)->active_slot.v) << 24) >> 24) * (int)sizeof(struct SNDDmaEntry)
+             + (int)(unsigned int)(qbase = tailBase + 0x10));
+        if (activeEntry->flag) {
+            void (*hook)(void) = ((struct SndDriverHookStateView *)tailBase)->hooks.preload;
+            ((struct SndDmaQueueStateView *)tailBase)->callback_guard.v = 1;
+            if (hook)
                 (*hook)();
         }
     }
     {
-        int gsAddr = (int)sndgs;
+        unsigned char *gsAddr = (unsigned char *)sndgs;
         unsigned char *hwBase = sndpd;
-        int ctrl;
+        unsigned char *ctrl;
         volatile unsigned int *dpcr;
         activeEntry->deadline = *(volatile int *)(gsAddr + 0x44) + 0xf;
-        ctrl = *(volatile int *)(hwBase + 0x514);
-        *(volatile unsigned short *)(ctrl + 0x1a6) = activeEntry->srcHi;
-        ctrl = *(volatile int *)(hwBase + 0x514);
+        ctrl = *(unsigned char * volatile *)&((struct SndSpuRegisterBasesStateView *)hwBase)->registers.control_base;
+        *(volatile unsigned short *)(ctrl + 0x1a6) = activeEntry->spu_address_8;
+        ctrl = *(unsigned char * volatile *)&((struct SndSpuRegisterBasesStateView *)hwBase)->registers.control_base;
         *(volatile unsigned short *)(ctrl + 0x1aa) =
             *(volatile unsigned short *)(ctrl + 0x1aa) & 0xffcf | 0x20;
-        dpcr = *(volatile unsigned int **)(hwBase + 0x4fc);
+        dpcr = ((struct SndSpuRegisterBasesStateView *)hwBase)->registers.address_4fc;
         *dpcr = *dpcr & 0xf0ffffff | 0x20000000;
-        *(volatile unsigned int *)(*(volatile int *)(hwBase + 0x500)) = activeEntry->dstSpu;
-        *(volatile unsigned int *)(*(volatile int *)(hwBase + 0x504)) =
+        *(((struct SndSpuRegisterBasesStateView *)hwBase)->registers.dma4_madr) = (unsigned int)activeEntry->ram_source;
+        *(((struct SndSpuRegisterBasesStateView *)hwBase)->registers.dma4_bcr) =
             (unsigned int)activeEntry->len64 << 0x10 | 0x10;
-        *(volatile unsigned int *)(*(volatile int *)(hwBase + 0x508)) = 0x1000201;
+        *(((struct SndSpuRegisterBasesStateView *)hwBase)->registers.dma4_chcr) = 0x1000201;
     }
     wr_sr(sr);
 }
 
 /* iSNDdmcallback @0x8010AA64 : DMA-done handler -- settle SPUCNT, retire the active entry, fire the next. */
-extern void iSNDdmcallback(void)
+void iSNDdmcallback(void)
 {
     unsigned int sr;
     volatile int i;
     volatile int mult = 13;
     signed char slot;
-    int active, ctrl, wait;
+    int active, wait;
+    unsigned char *ctrl;
     unsigned char *pd;
     void (*hook)(void);
 
@@ -212,17 +170,17 @@ extern void iSNDdmcallback(void)
      * Falsified at 14 (all 111/111): block-local base alone; + a do{}while(0) wrapper on the
      * masked store; + a named mask temp.  Wrapping the whole block collapses it (106/111, 21). */
     {
-        int base = (int)sndpd;
-        int c;                       /* the 4th qty -- see above; do not fold back into ctrl */
-        c = *(volatile int *)(base + 0x514);
+        unsigned char *base = sndpd;
+        unsigned char *c;   /* the 4th qty -- see above; do not fold back into ctrl */
+        c = (unsigned char *)((struct SndSpuRegisterBasesStateView *)base)->registers.control_base;
         *(volatile unsigned short *)(c + 0x1aa) =
             *(volatile unsigned short *)(c + 0x1aa) & 0xffcf;
-        ctrl = *(volatile int *)(base + 0x514);
+        ctrl = (unsigned char *)((struct SndSpuRegisterBasesStateView *)base)->registers.control_base;
     }
     wait = 0;
     while ((*(volatile unsigned short *)(ctrl + 0x1aa) & 0x30) != 0) {
         wait++;
-        if (4000 < wait)
+        if (wait > 4000)
             break;
     }
     /* NOTE (superseded by the w50-a8 block above): `wait` used to carry the sndpd base through both
@@ -237,22 +195,22 @@ extern void iSNDdmcallback(void)
      * sequence explicitly.  Detailed residual: 4 diffs, 111/111 instructions (only the initial
      * sndpd lui/addiu temporary coalescing differs). */
     pd = sndpd;
-    slot = *(volatile unsigned char *)(pd + 0xd);
-    active = *(volatile int *)(pd + 0x10 + slot * 0x14);
+    slot = ((struct SndDmaQueueStateView *)pd)->active_slot.v;
+    active = ((struct SndDmaQueueEntriesView *)pd)->entries[slot].handle;
     MASK_INTERRUPTS_SR(sr);
-    if (active != 0) {        /* active entry present */
-        if (*(volatile unsigned char *)(pd + 1) != 0) {
-            hook = *(void (**)(void))(pd + 0x728);
-            *(volatile unsigned char *)(pd + 1) = 0;
-            if (hook != 0)
+    if (active) {        /* active entry present */
+        if (((struct SndDmaQueueStateView *)pd)->callback_guard.v) {
+            hook = ((struct SndDriverHookStateView *)pd)->hooks.preload;
+            ((struct SndDmaQueueStateView *)pd)->callback_guard.v = 0;
+            if (hook)
                 (*hook)();
         }
         pd = sndpd;
-        slot = *(volatile unsigned char *)(pd + 0xd);
-        *(int *)(pd + 0x10 + slot * 0x14) = 0;      /* free the slot */
-        *(unsigned char *)(pd + 0xc) = *(unsigned char *)(pd + 0xc) - 1;
-        if ((int)((unsigned)*(volatile unsigned char *)(pd + 0xc) << 0x18) < 1) { /* queue now empty */
-            *(volatile unsigned char *)(pd + 0xe) = 0;
+        slot = ((struct SndDmaQueueStateView *)pd)->active_slot.v;
+        ((struct SndDmaQueueEntriesView *)pd)->entries[slot].handle = 0; /* free the slot */
+        ((struct SndDmaQueueStateView *)pd)->in_flight_count.plain = ((struct SndDmaQueueStateView *)pd)->in_flight_count.plain - 1;
+        if ((int)((unsigned)((struct SndDmaQueueStateView *)pd)->in_flight_count.v << 0x18) < 1) { /* queue now empty */
+            ((struct SndDmaQueueStateView *)pd)->transfer_busy.v = 0;
             wr_sr(sr);
             return;
         }
@@ -262,48 +220,50 @@ extern void iSNDdmcallback(void)
 }
 
 /* iSNDdmservice @0x8010AC20 : per-tick pump -- start a transfer if idle, or complete one past its deadline. */
-extern void iSNDdmservice(void)
+void iSNDdmservice(void)
 {
     unsigned char *pd = sndpd;
-    if (*(unsigned char *)(pd + 0xe) == 0)
+    if (!((struct SndDmaQueueStateView *)pd)->transfer_busy.plain)
         iSNDdmtransfer();
     else {
         int *gs = sndgs;
-        int slot = ((int)*(volatile unsigned char *)(pd + 0xd) << 24) >> 24;
-        int *entry = (int *)(pd + slot * 0x14);
+        int slot = ((int)((struct SndDmaQueueStateView *)pd)->active_slot.v << 24) >> 24;
+        /* `entry` is the byte cursor at the slot-relative state base; the record view begins at +0x10. */
+        unsigned char *entry = pd + slot * (int)sizeof(struct SNDDmaEntry);
         /* MATCH: the volatile clock read keeps &sndgs materialized and, named before deadline,
          * fills the oracle's latency window with the two loads in their original order. */
-        unsigned int now = (unsigned int)*(volatile int *)&gs[0x11];
-        unsigned int deadline = (unsigned int)*(int *)((char *)entry + 0x20);
+        unsigned int now = *(volatile int *)&gs[0x11];
+        unsigned int deadline = ((struct SNDDmaEntry *)(entry + 0x10))->deadline;
         if (deadline <= now)
             iSNDdmcallback();
     }
 }
 
 /* iSNDdmqueue @0x8010ACA0 : enqueue a RAM->SPU transfer (len rounded to 64 bytes), returning its handle (or
- *   0 if the 10-slot queue is full).  The five arguments are full ABI words; the queue stores only the
- *   low bytes of prio/flag. Reusing the saved Status value and walking sndpd+0x10 fixes the earlier
+ *   0 if the 10-slot queue is full). Arg1 is the RAM byte-source pointer; arg2 is the SPU byte address
+ *   stored in address/8 units. The five arguments are full ABI words; the queue stores only the low
+ *   bytes of prio/flag. Reusing the saved Status value and walking sndpd+0x10 fixes the earlier
  *   critical-section and split-storage bugs. Snapshotting the new handle before the verified interrupt-mask
  *   sequence preserves the oracle's load and all three COP0 hazard slots (39->28 detailed diffs). */
-extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int flag)
+int iSNDdmqueue(const unsigned char *ram_source, unsigned char *spu_address, int len, int prio, int flag)
 {
     int queuedFlag = flag;
     int i;
     volatile int *raw;
-    volatile int *ent;
+    volatile struct SNDDmaEntry *ent;
     unsigned char *pd;
     unsigned int sr;
     int handleSnapshot;
 
-    if ((len & 0x3f) != 0)
-        len = len + 0x40;
+    if (len & 0x3f)
+        len += 0x40;
 
     raw = (volatile int *)sndpd;
-    raw[2] = raw[2] + 1;
-    handleSnapshot = raw[2];
+    ((struct SndDmaQueueStateView *)raw)->next_handle = ((struct SndDmaQueueStateView *)raw)->next_handle + 1;
+    handleSnapshot = ((struct SndDmaQueueStateView *)raw)->next_handle;
     MASK_INTERRUPTS_SR(sr);
-    if (handleSnapshot == 0)
-        raw[2] = 1;
+    if (!handleSnapshot)
+        ((struct SndDmaQueueStateView *)raw)->next_handle = 1;
 
     /* MATCH (w34-a5, 5->0 PASS).  The w31/w33 "no-copy-prop identity" residual was NOT an identity
      * -- it took THREE cooperating source facts, and the w33 negative results were all measured with
@@ -327,25 +287,24 @@ extern int iSNDdmqueue(int dst_spu, unsigned int src_ram, int len, int prio, int
      * stays volatile so the entry stores are not scheduler-sunk. */
     i = 0;
     pd = (unsigned char *)raw;
-    ent = (volatile int *)(pd + 0x10);
+    ent = (volatile struct SNDDmaEntry *)(pd + 0x10);
 scan:
-    if (*ent != 0)
-        goto occupied;
-    *(volatile unsigned char *)(pd + 0xc) = *(volatile unsigned char *)(pd + 0xc) + 1;
-    handleSnapshot = *(volatile int *)(pd + 8);
-    ent[1] = dst_spu;
-    ent[0] = handleSnapshot;
-    *(volatile unsigned short *)((unsigned char *)ent + 8) = (unsigned short)(src_ram >> 3);
-    ((volatile unsigned char *)ent)[0xa] = (unsigned char)(len >> 6);
-    ((volatile unsigned char *)ent)[0xb] = (unsigned char)prio;
-    ((volatile unsigned char *)ent)[0xc] = (unsigned char)queuedFlag;
-    wr_sr(sr);
-    iSNDdmservice();
-    return *(volatile int *)(pd + 8);
-occupied:
+    if (!ent->handle) {
+        ((struct SndDmaQueueStateView *)pd)->in_flight_count.v = ((struct SndDmaQueueStateView *)pd)->in_flight_count.v + 1;
+        handleSnapshot = ((struct SndDmaQueueStateView *)pd)->next_handle;
+        ent->ram_source = ram_source;
+        ent->handle = handleSnapshot;
+        ent->spu_address_8 = (unsigned short)((unsigned int)spu_address >> 3);
+        ent->len64 = (unsigned char)(len >> 6);
+        ent->priority = (unsigned char)prio;
+        ent->flag = (unsigned char)queuedFlag;
+        wr_sr(sr);
+        iSNDdmservice();
+        return ((struct SndDmaQueueStateView *)pd)->next_handle;
+    }
     i++;
     if (i < 10) {
-        ent = (volatile int *)((unsigned char *)ent + 0x14);
+        ent++;
         goto scan;
     }
     wr_sr(sr);
@@ -353,12 +312,13 @@ occupied:
 }
 
 /* iSNDdmqueuesplit @0x8010AD94 : enqueue a large transfer as 4 KB chunks, draining the queue when it backs
- *   up (>3 in flight).  Returns the last chunk's handle. MATCH (54/54): signed queue depth, strict
- *   4 KB chunk selection, raw integer priority and the pre-tested service loop all follow the oracle. */
-extern int iSNDdmqueuesplit(int dst_spu, unsigned int src_ram, int len, int prio)
+ *   up (>3 in flight). The RAM source advances bytewise; the SPU address remains a scalar device address.
+ *   Returns the last chunk's handle. MATCH (54/54): signed queue depth, strict 4 KB chunk selection,
+ *   raw integer priority and the pre-tested service loop all follow the oracle. */
+int iSNDdmqueuesplit(const unsigned char *ram_source, unsigned char *spu_address, int len, int prio)
 {
     int r = 0, chunk;
-    if (0 < len) {
+    if (len > 0) {
         unsigned char *pd = sndpd;
         int slots = 10;
         for (;;) {
@@ -366,15 +326,15 @@ extern int iSNDdmqueuesplit(int dst_spu, unsigned int src_ram, int len, int prio
             if (len < chunk)
                 chunk = len;
             for (;;) {
-                int inflight = ((int)*(volatile unsigned char *)(pd + 0xc) << 24) >> 24;
+                int inflight = ((int)((struct SndDmaQueueStateView *)pd)->in_flight_count.v << 24) >> 24;
                 if (7 <= slots - inflight)
                     break;
                 iSNDdmservice();
             }
-            r = iSNDdmqueue(dst_spu, src_ram, chunk, prio, 0);
-            dst_spu += chunk;
+            r = iSNDdmqueue(ram_source, spu_address, chunk, prio, 0);
+            ram_source += chunk;
             len -= chunk;
-            src_ram += chunk;
+            spu_address += chunk;
             if (len <= 0)
                 return r;
         }
@@ -384,28 +344,18 @@ extern int iSNDdmqueuesplit(int dst_spu, unsigned int src_ram, int len, int prio
 
 /* iSNDdmcomplete @0x8010AE6C : has the transfer with handle `handle` finished?  Services the queue, then
  *   scans for the handle -- returns 0 if still pending, 1 if done/absent. */
-extern int iSNDdmcomplete(int handle)
+int iSNDdmcomplete(int handle)
 {
     int i, result;
     unsigned char *base;
     iSNDdmservice();
     base = sndpd;
     i = 0;
-    if (0 < (int)((unsigned)base[0xc] << 0x18))
-        goto scan;
-    result = 1;
-    goto done;
-found:
-    result = 0;
-    goto done;
-scan:
-    do {
-        if (*(int *)(base + 0x10) == handle)
-            goto found;
-        i++;
-        base += 0x14;
-    } while (i < 10);
-    result = 1;
-done:
-    return result;
+    if (!(0 < (int)((unsigned)((struct SndDmaQueueStateView *)base)->in_flight_count.plain << 0x18)))
+        return 1;
+    for (; i < 10; i++) {
+        if (((struct SndDmaQueueEntriesView *)base)->entries[i].handle == handle)
+            return 0;
+    }
+    return 1;
 }

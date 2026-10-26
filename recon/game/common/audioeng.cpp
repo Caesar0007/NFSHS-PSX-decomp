@@ -418,7 +418,7 @@ int AudioEng_StartUp(int player,char *carname)
   } else {
     sprintf(filename,"%s%seng.viv",Paths_Paths[28],carname);
   }
-  header = (char *)loadbigfileheader(filename,(void *)16);
+  header = (char *)loadbigfileheader(filename,16);
 
   if (header == (char *)0x0) {
 
@@ -426,7 +426,7 @@ int AudioEng_StartUp(int player,char *carname)
       sprintf(filename,"%sp993ens.viv",Paths_Paths[28]);
     } else {
       sprintf(filename,"%sp993eng.viv",Paths_Paths[28]); }
-    header = (char *)loadbigfileheader(filename,(void *)16);
+    header = (char *)loadbigfileheader(filename,16);
   }
 
   if (header != (char *)0x0)

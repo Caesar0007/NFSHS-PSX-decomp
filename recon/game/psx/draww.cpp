@@ -363,7 +363,7 @@ void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
      -- not one flat fn-scope temp set.  Restored; gate-verified. */
   /* MATCH: field-fusion + load-4/store-4 (see GT3).  POLY_GT4 stores v2 in slot 3 (+0x28)
      and v3 in slot 2 (+0x1C) -- the screen-quad vertex order. */
-  *(u_char *)((int)&prim->tag + 3) = 0xc;
+  ((u_char *)&prim->tag)[3] = 0xc;
   { long a,b,c,d;
     a = *(u_int *)&v0->r;  b = *(u_int *)&v1->r;  c = *(u_int *)&v2->r;  d = *(u_int *)&v3->r;
     *(u_int *)&prim->r0 = a;  *(u_int *)&prim->r1 = b;  *(u_int *)&prim->r3 = c;  *(u_int *)&prim->r2 = d; }
@@ -374,9 +374,8 @@ void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
     a = *(u_short *)&v0->u;  b = *(u_short *)&v1->u;  c = *(u_short *)&v2->u;  d = *(u_short *)&v3->u;
     *(u_short *)&prim->u0 = a;  *(u_short *)&prim->u1 = b;  *(u_short *)&prim->u3 = c;  *(u_short *)&prim->u2 = d; }
   { u_char a;  u_short b, c;
-    a = (sd->GT4Prim).code;  b = (sd->GT4Prim).tpage;  c = (sd->GT4Prim).clut;
+    a = sd->GT4Prim.code;  b = sd->GT4Prim.tpage;  c = sd->GT4Prim.clut;
     prim->code = a;  prim->tpage = b;  prim->clut = c; }
-  return;
 }
 
 /* ---- DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:316-357] covered SLD requires native comparison ---- */
@@ -393,7 +392,7 @@ void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
      32-bit word (v+0xC), XY as one word (v+0x8), UV as one halfword (v+0x6).  Loading all
      three vertices into SEPARATE temps before storing avoids the load-delay nop that
      `lw v0;nop;sw v0` (single-reg reuse) emits per copy. */
-  *(u_char *)((int)&prim->tag + 3) = 9;
+  ((u_char *)&prim->tag)[3] = 9;
   { long a,b,c;
     a = *(u_int *)&v0->r;  b = *(u_int *)&v1->r;  c = *(u_int *)&v2->r;
     *(u_int *)&prim->r0 = a;  *(u_int *)&prim->r1 = b;  *(u_int *)&prim->r2 = c; }
@@ -404,9 +403,8 @@ void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
     a = *(u_short *)&v0->u;  b = *(u_short *)&v1->u;  c = *(u_short *)&v2->u;
     *(u_short *)&prim->u0 = a;  *(u_short *)&prim->u1 = b;  *(u_short *)&prim->u2 = c; }
   { u_char a;  u_short b, c;
-    a = (sd->GT4Prim).code;  b = (sd->GT4Prim).tpage;  c = (sd->GT4Prim).clut;
+    a = sd->GT4Prim.code;  b = sd->GT4Prim.tpage;  c = sd->GT4Prim.clut;
     prim->code = a;  prim->tpage = b;  prim->clut = c; }
-  return;
 }
 
 /* ---- DrawW_DivVertice__FP12Draw_SVertexN20  [DRAWW.CPP:387-398] covered SLD requires native comparison ---- */
@@ -414,15 +412,14 @@ void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
 void DrawW_DivVertice(Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2)
 
 {
-  v0->vx = (short)((int)v1->vx + (int)v2->vx + 1 >> 1);
-  v0->vy = (short)((int)v1->vy + (int)v2->vy + 1 >> 1);
-  v0->vz = (short)((int)v1->vz + (int)v2->vz + 1 >> 1);
-  v0->u = (u_char)((int)((u_int)v1->u + (u_int)v2->u + 1) >> 1);
-  v0->v = (u_char)((int)((u_int)v1->v + (u_int)v2->v + 1) >> 1);
-  v0->r = (u_char)((int)((u_int)v1->r + (u_int)v2->r) >> 1);
-  v0->g = (u_char)((int)((u_int)v1->g + (u_int)v2->g) >> 1);
-  v0->b = (u_char)((int)((u_int)v1->b + (u_int)v2->b) >> 1);
-  return;
+  v0->vx = ((v1->vx + v2->vx + 1) >> 1);
+  v0->vy = ((v1->vy + v2->vy + 1) >> 1);
+  v0->vz = ((v1->vz + v2->vz + 1) >> 1);
+  v0->u = ((v1->u + v2->u + 1) >> 1);
+  v0->v = ((v1->v + v2->v + 1) >> 1);
+  v0->r = ((v1->r + v2->r) >> 1);
+  v0->g = ((v1->g + v2->g) >> 1);
+  v0->b = ((v1->b + v2->b) >> 1);
 }
 
 /* ---- DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31  [DRAWW.CPP:402-418] covered SLD requires native comparison ---- */
@@ -450,10 +447,10 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
   int z2;
   int z3;
 
-  z0 = (int)v0->vz;
-  z1 = (int)v1->vz;
-  z2 = (int)v2->vz;
-  z3 = (int)v3->vz;
+  z0 = v0->vz;
+  z1 = v1->vz;
+  z2 = v2->vz;
+  z3 = v3->vz;
   /* z0 is the running minimum (retail's z0 is REG $a1, the min funnel) */
   if (z1 < z0) {
     z0 = z1;
@@ -464,7 +461,7 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
   if (z3 < z0) {
     z0 = z3;
   }
-  z0 = z0 + sd->offsubdivid;
+  z0 += sd->offsubdivid;
   if (0x800 < z0) {
     return 0;
   }
@@ -536,21 +533,21 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
      receipt block below.  35 @587 (one SHORT) -> 26 @588 COUNT-EXACT. */
   Draw_SVertex *v4;   /* SYM: REG $s3 -- shared with the leaf POLY_GT4 *prim */
 
-  if ((((v0->dvx > (sd->head).clipW) && ((sd->head).clipW < v1->dvx)) && ((sd->head).clipW < v2->dvx)) &&
-      ((sd->head).clipW < v3->dvx)) {
+  if (v0->dvx > (sd->head).clipW && (sd->head).clipW < v1->dvx &&
+      (sd->head).clipW < v2->dvx && (sd->head).clipW < v3->dvx) {
     return;
   }
-  if (((v0->dvx < 0) && (v1->dvx < 0)) && ((v2->dvx < 0 && (v3->dvx < 0)))) {
+  if (v0->dvx < 0 && v1->dvx < 0 && v2->dvx < 0 && v3->dvx < 0) {
     return;
   }
-  if ((((v0->dvy > (sd->head).clipH) && ((sd->head).clipH < v1->dvy)) &&
-      (((sd->head).clipH < v2->dvy && ((sd->head).clipH < v3->dvy))))) {
+  if (v0->dvy > (sd->head).clipH && (sd->head).clipH < v1->dvy &&
+      (sd->head).clipH < v2->dvy && (sd->head).clipH < v3->dvy) {
     return;
   }
-  if ((((v0->dvy < 0) && (v1->dvy < 0)) && (v2->dvy < 0)) && (v3->dvy < 0)) {
+  if (v0->dvy < 0 && v1->dvy < 0 && v2->dvy < 0 && v3->dvy < 0) {
     return;
   }
-  if (((v0->vz < 0) && (v1->vz < 0)) && ((v2->vz < 0 && (v3->vz < 0)))) {
+  if (v0->vz < 0 && v1->vz < 0 && v2->vz < 0 && v3->vz < 0) {
     return;
   }
   r_div = &gDiv;
@@ -903,11 +900,11 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
         v8->a = 0;
       }
     }
-    if (sd->doublelayer != 0) {
+    if (sd->doublelayer) {
       POLY_GT3 *prim;   /* SYM: REG $a0 */
       int otz;          /* SYM: REG $s0 (r_div dead by here) */
 
-      (sd->GT4Prim).code = (sd->GT4Prim).code & 0xf7;
+      sd->GT4Prim.code &= 0xf7;
       otz = sd->otz + 8;
       if (v0->a) goto DrawWSubdiv_edge1;
       if (v1->a) goto DrawWSubdiv_edge2;
@@ -916,9 +913,9 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
         POLY_GT3 *prim;   /* block-local (inline-helper scope) */
         prim = (POLY_GT3 *)Render_gPacketPtr;
         ((DrawW_PTag *)prim)->addr =
-          ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_long)prim;
+          ((DrawW_PTag *)(Render_gPalettePtr + otz * 4))->addr;
+        Render_gPacketPtr = (u_char *)&prim[1];
+        ((DrawW_PTag *)(Render_gPalettePtr + otz * 4))->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v0,v1,v4,sd);
       }
 DrawWSubdiv_edge1:
@@ -929,9 +926,9 @@ DrawWSubdiv_edge1:
         POLY_GT3 *prim;   /* block-local (inline-helper scope) */
         prim = (POLY_GT3 *)Render_gPacketPtr;
         ((DrawW_PTag *)prim)->addr =
-          ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_long)prim;
+          ((DrawW_PTag *)(Render_gPalettePtr + otz * 4))->addr;
+        Render_gPacketPtr = (u_char *)&prim[1];
+        ((DrawW_PTag *)(Render_gPalettePtr + otz * 4))->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v1,v2,v5,sd);
       }
 DrawWSubdiv_edge2:
@@ -942,9 +939,9 @@ DrawWSubdiv_edge2:
         POLY_GT3 *prim;   /* block-local (inline-helper scope) */
         prim = (POLY_GT3 *)Render_gPacketPtr;
         ((DrawW_PTag *)prim)->addr =
-          ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_long)prim;
+          ((DrawW_PTag *)(Render_gPalettePtr + otz * 4))->addr;
+        Render_gPacketPtr = (u_char *)&prim[1];
+        ((DrawW_PTag *)(Render_gPalettePtr + otz * 4))->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v2,v3,v6,sd);
       }
 DrawWSubdiv_edge3:
@@ -955,9 +952,9 @@ DrawWSubdiv_edge3:
         POLY_GT3 *prim;   /* block-local (inline-helper scope) */
         prim = (POLY_GT3 *)Render_gPacketPtr;
         ((DrawW_PTag *)prim)->addr =
-          ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_long)prim;
+          ((DrawW_PTag *)(Render_gPalettePtr + otz * 4))->addr;
+        Render_gPacketPtr = (u_char *)&prim[1];
+        ((DrawW_PTag *)(Render_gPalettePtr + otz * 4))->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v3,v0,v7,sd);
       }
 DrawWSubdiv_edgedone:
@@ -1073,12 +1070,12 @@ void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
   y = dv->vy;
   z = dv->vz;
   x <<= 2;
-  y <<= 0x12;
+  y <<= 18;
   z <<= 2;
   temp = y | (x & 0xffffU);
   *(u_int *)&v->vx = temp;
-  v->vz = (short)z;
-  return;
+  v->vz = z;
+
 }
 
 /* ---- DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:612-696] covered SLD requires native comparison ---- */
@@ -1134,25 +1131,25 @@ void DrawW_SetUpSubdividFacet(int face,Draw_tGiveShelbyMoreCache *sd)
     *(long *)&v2->dvx = t2;
     *(long *)&v3->dvx = t3;
   }
-  if ((sd->tVn0).vz < 0x140) {
-gte_ldv0(((char *)sd + 0x14c));
+  if (sd->tVn0.vz < 0x140) {
+gte_ldv0(&v0->vx);
     gte_rtps();
-gte_swc2(0xe,((char *)sd + 0x154));
+gte_swc2(0xe,&v0->dvx);
   }
-  if ((sd->tVn1).vz < 0x140) {
-gte_ldv0(((char *)sd + 0x15c));
+  if (sd->tVn1.vz < 0x140) {
+gte_ldv0(&v1->vx);
     gte_rtps();
-gte_swc2(0xe,((char *)sd + 0x164));
+gte_swc2(0xe,&v1->dvx);
   }
-  if ((sd->tVn2).vz < 0x140) {
-gte_ldv0(((char *)sd + 0x16c));
+  if (sd->tVn2.vz < 0x140) {
+gte_ldv0(&v2->vx);
     gte_rtps();
-gte_swc2(0xe,((char *)sd + 0x174));
+gte_swc2(0xe,&v2->dvx);
   }
-  if ((sd->tVn3).vz < 0x140) {
-gte_ldv0(((char *)sd + 0x17c));
+  if (sd->tVn3.vz < 0x140) {
+gte_ldv0(&v3->vx);
     gte_rtps();
-gte_swc2(0xe,((char *)sd + 0x184));
+gte_swc2(0xe,&v3->dvx);
   }
   {
     int t0;
@@ -1184,42 +1181,44 @@ gte_swc2(0xe,((char *)sd + 0x184));
     *(short *)&v2->u = u3;
     *(short *)&v3->u = u2;
   }
-  v0->a = '\0';
-  if (v0->dvx < 0x3e9) {
-    if ((((1000 < v0->dvy) || (v0->dvx < -1000)) || (v0->dvy < -1000)) || (v0->vz < 0x65))
-    goto DrW_SubSetup_v0Alpha;
+  v0->a = 0;
+  if (v0->dvx < 1001) {
+    if (1000 < v0->dvy || v0->dvx < -1000 ||
+        v0->dvy < -1000 || v0->vz < 101)
+      goto DrW_SubSetup_v0Alpha;
   }
   else {
 DrW_SubSetup_v0Alpha:
-    v0->a = '\x01';
+    v0->a = 1;
   }
-  v1->a = '\0';
-  if (v1->dvx < 0x3e9) {
-    if (((1000 < v1->dvy) || (v1->dvx < -1000)) || ((v1->dvy < -1000 || (v1->vz < 0x65))))
-    goto DrW_SubSetup_v1Alpha;
+  v1->a = 0;
+  if (v1->dvx < 1001) {
+    if (1000 < v1->dvy || v1->dvx < -1000 ||
+        v1->dvy < -1000 || v1->vz < 101)
+      goto DrW_SubSetup_v1Alpha;
   }
   else {
 DrW_SubSetup_v1Alpha:
-    v1->a = '\x01';
+    v1->a = 1;
   }
-  v2->a = '\0';
-  if (v2->dvx < 0x3e9) {
-    if (((1000 < v2->dvy) || (v2->dvx < -1000)) || ((v2->dvy < -1000 || (v2->vz < 0x65))))
-    goto DrW_SubSetup_v2Alpha;
+  v2->a = 0;
+  if (v2->dvx < 1001) {
+    if (1000 < v2->dvy || v2->dvx < -1000 ||
+        v2->dvy < -1000 || v2->vz < 101)
+      goto DrW_SubSetup_v2Alpha;
   }
   else {
 DrW_SubSetup_v2Alpha:
-    v2->a = '\x01';
+    v2->a = 1;
   }
-  v3->a = '\0';
-  if (v3->dvx < 0x3e9) {
-    if ((((v3->dvy < 0x3e9) && (-0x3e9 < v3->dvx)) && (-0x3e9 < v3->dvy)) && (100 < v3->vz))
+  v3->a = 0;
+  if (v3->dvx < 1001 && v3->dvy < 1001 && -1001 < v3->dvx &&
+      -1001 < v3->dvy && 100 < v3->vz)
     goto DrW_SubSetup_callSubdiv;
-  }
-  v3->a = '\x01';
+  v3->a = 1;
 DrW_SubSetup_callSubdiv:
-  DrawW_SubdividFacet(sd,0,v0,v1,v2,v3,0,(u_short)(face == 0));
-  return;
+  DrawW_SubdividFacet(sd,0,v0,v1,v2,v3,0,face == 0);
+
 }
 
 /* ---- Night_NightCopCalc__FP6VECTORPs  [DRAWW.CPP:711-744] covered SLD requires native comparison ---- */
@@ -1271,11 +1270,11 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
          `lbu a1; sra a1,a1,1` is index's pseudo morphing into the byte. Do NOT
          "clean up" into an anonymous subexpression (re-colors to srl v1 + 18 diffs). */
       index = (u_char)Night_gNightTbl[(z << 6) + x];
-      lookup = (*coplookuptbl)[(short)*idx][index >> 1];
-      *idx = (u_short)lookup;
+      lookup = (*coplookuptbl)[*idx][index >> 1];
+      *idx = lookup;
     }
   }
-  return;
+
 }
 
 /* ---- Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:750-788] covered SLD requires native comparison ---- */
@@ -1339,22 +1338,26 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
 void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
 
 {
-  int z; int index; int znear; int zfar;
+  int z;
+  int index;
+  int znear;
+  int zfar;
 
   z = v->vz;
 
 
 
-  znear = (int)sd->night_ZNear;
+  znear = sd->night_ZNear;
   zfar = znear + (1 << (sd->night_ZDistShift + 6));
 
-  if (sd->night_DrawLightning != '\0') {
-    *idx = (u_short)(*Night_gWeatherLightingTable[sd->night_LightningType])[*idx];
+  if (sd->night_DrawLightning) {
+    *idx = (*Night_gWeatherLightingTable[sd->night_LightningType])[*idx];
   }
 
   if (znear < z && z < zfar)
   {
-    int x; int xdist;
+    int x;
+    int xdist;
 
     xdist = 1 << (sd->night_XDistShift + 5);
 
@@ -1376,7 +1379,7 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
       lookup = (z << 6) + x;
       index = (u_char)Night_gNightTbl[lookup];
 
-      *idx = (u_short)(*Night_gCurrentNightColor)[*idx][index]; } } return; }
+      *idx = (*Night_gCurrentNightColor)[*idx][index]; } } }
 
 /* ---- DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32  [DRAWW.CPP:802-894] covered SLD requires native comparison ---- */
 #line 800 "C:/nfs4/GAME/PSX/DRAWW.CPP"
@@ -1394,7 +1397,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
   long color;
 
   if (sd->light == -1) {
-    if ((sd->nightFlags & 1U) != 0) {
+    if (sd->nightFlags & 1U) {
       gte_SetRotMatrix(&sd->matNight);
       gte_SetTransMatrix(&sd->matNight);
       gte_ldv0(vt0);
@@ -1414,7 +1417,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       gte_stlvnl(&temp0);
       Night_NightCalc(&temp0, &vt3->light, sd);
     }
-    if ((sd->nightFlags & 2U) != 0) {
+    if (sd->nightFlags & 2U) {
       gte_SetRotMatrix(&sd->matCop);
       gte_SetTransMatrix(&sd->matCop);
       gte_ldv0(vt0);
@@ -1473,7 +1476,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
        diffs @279/279, every offset shifted).  Retail's single -0x30 slot is
        only reproducible with ONE variable, so `temp0` carries all three roles
        here; the SYM names are recorded in this comment instead. */
-    if ((sd->nightFlags & 1U) != 0) {
+    if (sd->nightFlags & 1U) {
       /* SYM-CARRIER: tempnight -- `temp0` must carry this disjoint inline role;
          a second VECTOR grows the frame and regresses PASS to 44 diffs. */
       gte_SetRotMatrix(&sd->matNight);
@@ -1483,7 +1486,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       gte_stlvnl(&temp0);
       Night_NightCalc(&temp0, &sd->light, sd);
     }
-    if ((sd->nightFlags & 2U) != 0) {
+    if (sd->nightFlags & 2U) {
       /* SYM-CARRIER: tempcop -- same measured shared-slot constraint as tempnight. */
       gte_SetRotMatrix(&sd->matCop);
       gte_SetTransMatrix(&sd->matCop);
@@ -1500,7 +1503,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
   *(u_long *)&prim->r3 = color;
   gte_SetRotMatrix(&sd->matB);
   gte_SetTransMatrix(&sd->matB);
-  return;
+
 }
 
 /* OPEN RESIDUAL (2026-08-01, w39-a2): after the rule-8 SYM rewrite (643->404) the
@@ -1522,10 +1525,6 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
 void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
 
 {
-  long * dp0;
-  long * dp1;
-  long * dp2;
-  int newIndex;
   CCOORD16 *geomVertices;
   POLY_GT4 *prim;
   CCOORD16 vt0;
@@ -1581,7 +1580,7 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   
      THE THREE-PART MECHANISM (each part measured on its own):
        1. RETAIL ARM ORDER + NO TOP DEFAULT --
-            if (doSubdivision != 0) { prim = &sd->GT4Prim; }
+            if (doSubdivision) { prim = &sd->GT4Prim; }
             else { prim = cprim.PrimPtr; <OT-link asm> }
           alone this is the long-known 197 (the p141/p80 $s0<->$s1 flip).
        2. VOID FENCE AT THE THEN-ARM HEAD -- `__asm__("" : : "i"(0));` as the
@@ -1618,7 +1617,7 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
          too (the w45 DEPTH-ASYMMETRY trap), so it moves AWAY from the razor.
        * prim's live cannot be stretched instead: an early (uninitialised) read
          fence at the function head is a NO-OP (194 at 1/2/3 fences), and fences
-         placed just before the `if (doSubdivision != 0)` block add ZERO live
+         placed just before the `if (doSubdivision)` block add ZERO live
          length (prim's natural death is already there).  Fences at the function
          TAIL do work (live 114 -> 192, prio.py-verified) and with sd at 87 refs
          that basin gates **6 count-EXACT 592/592** -- residual = ONLY
@@ -1670,7 +1669,7 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
     u_char c;
     u_char d;
 
-    t2 = *(u_char *)((char *)inQuad + 3);
+    t2 = inQuad->aPoints[1];
     geomVertices = sd->vertices;
     /* ===================== W86-D2 ABSORPTION (device removal) =====================
      * This one statement replaces the 66 `__asm__("" : : "r"(sd))` fences that used
@@ -1691,7 +1690,7 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
      *         ours `addu t4,a1,zero` before `addu s0,a0,zero`, retail after)
      *     after `t2 = *(u_char *)(inQuad+3)` ............ 2
      *     HERE, after `geomVertices = sd->vertices` ..... PASS 592/592   <- landed
-     *     after `tx = (sd->trans).x` ................... PASS (equivalent)
+     *     after `tx = sd->trans.x` ................... PASS (equivalent)
      *     function tail ................................ 194 (dead code, see below)
      *   An absorption on `inQuad` instead of `sd` is inert (194); adding one on
      *   `inQuad` alongside this one re-breaks the prologue order (2).
@@ -1702,12 +1701,12 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
      * CANNOT fold but combine CAN, i.e. exactly this absorption shape.
      * `X & (X | 3)` is equivalent (also PASS at this site). */
     sd = (Draw_tGiveShelbyMoreCache *)((unsigned int)sd | ((unsigned int)sd & 3u));
-    tx = (sd->trans).x;
-    ty = (sd->trans).y;
-    a = *(u_char *)((char *)inQuad + 2);
-    c = *(u_char *)((char *)inQuad + 4);
-    d = *(u_char *)((char *)inQuad + 5);
-    tz = (sd->trans).z;
+    tx = sd->trans.x;
+    ty = sd->trans.y;
+    a = inQuad->aPoints[0];
+    c = inQuad->aPoints[2];
+    d = inQuad->aPoints[3];
+    tz = sd->trans.z;
 
     z = (int *)(geomVertices + t2);
     t1 = z[0];
@@ -1733,7 +1732,7 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
     vt1.x = t1;
     vt1.y = t3;
     vt1.z = t2;
-    gte_stlvnl(((char *)sd + 0x98));
+    gte_stlvnl(&sd->tVn0);
     gte_swc2(0xe,&dvxy0);
     gte_ldv0((int *)(&vt1));
     z = (int *)(geomVertices + d);
@@ -1748,7 +1747,7 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
     vt2.x = t1;
     vt2.y = t3;
     vt2.z = t2;
-    gte_stlvnl(((char *)sd + 0xa8));
+    gte_stlvnl(&sd->tVn1);
     gte_ldv0((int *)(&vt2));
     z = (int *)(geomVertices + c);
     gte_rtps_b();
@@ -1762,11 +1761,11 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
     vt3.x = t1;
     vt3.y = t3;
     vt3.z = t2;
-    gte_stlvnl(((char *)sd + 0xb8));
+    gte_stlvnl(&sd->tVn2);
     gte_ldv0((int *)(&vt3));
   }
   gte_rtps();
-gte_stlvnl(((char *)sd + 0xc8));
+gte_stlvnl(&sd->tVn3);
   if (((((((sd->tVn3).vx <= (sd->tVn3).vz) || ((sd->tVn0).vx <= (sd->tVn0).vz)) ||
         ((sd->tVn1).vx <= (sd->tVn1).vz)) || ((sd->tVn2).vx <= (sd->tVn2).vz)) &&
       (((-(sd->tVn3).vx <= (sd->tVn3).vz || (-(sd->tVn0).vx <= (sd->tVn0).vz)) ||
@@ -1782,19 +1781,19 @@ gte_stlvnl(((char *)sd + 0xc8));
     int doSubdivision;
     int face;
     gte_avsz4_b();
-    currentQuadMat = sd->materials + *((short *)inQuad);
+    currentQuadMat = sd->materials + inQuad->material;
     flag = currentQuadMat->flag;
-gte_swc2(0x7,((char *)sd + 0x94));
+gte_swc2(0x7,&sd->otz);
     face = flag >> 3 & 2;
 gte_stsxy3(&dvxy1,&dvxy3,&dvxy2);
     /* MATCH (2026-08-01): SYM names this `doSubdivision`, REG $21 = $s5, type INT
      * -- NOT the u_char it used to be (a u_char forced `andi rN,s5,255` before each
      * of its three tests; the oracle branches straight off `slti $s5,$v0,0xC8`). */
     doSubdivision = sd->otz < 200;
-    if ((face == 0) && (doSubdivision == 0)) {
+    if (face == 0 && doSubdivision == 0) {
       gte_nclip_b();
 gte_swc2(0x18,&bfct);
-      if ((sd->head).mirror == 1) {
+      if (sd->head.mirror == 1) {
         bfct = -bfct;
       }
       if (bfct < 0) {
@@ -1806,7 +1805,7 @@ gte_swc2(0x18,&bfct);
         gte_ldsxy3(dvxy0,dvxy1,dvxy2);
         gte_nclip();
 gte_swc2(0x18,&bfct);
-        if ((sd->head).mirror == 1) {
+        if (sd->head.mirror == 1) {
           bfct = -bfct;
         }
         if (bfct < 0) {
@@ -1817,9 +1816,9 @@ gte_swc2(0x18,&bfct);
 gte_swc2(0x8,&depthcue);
     primPtr = (int)sd->artInfo->pPmx;
     workPmx = (Draw_tPixMap *)(primPtr + currentQuadMat->pmxIndex * 0x10);
-    if ((((flag & 8) != 0) && (sd->fogstate != '\0')) && ((int)sd->startfog <= sd->otz)) {
+    if ((flag & 8) && sd->fogstate && sd->startfog <= sd->otz) {
       workPmx = (Draw_tPixMap *)(primPtr +
-        ((int)currentQuadMat->pmxIndex + (u_int)*(u_char *)&currentQuadMat->mipmap_offset) * 0x10);
+        (currentQuadMat->pmxIndex + (u_int)*(u_char *)&currentQuadMat->mipmap_offset) * 0x10);
     }
     /* MATCH (2026-08-01, re-opened -- the w7-era note that the if/else "regressed"
      * was measured on top of the old iVarN vertex block and is now stale).  SYM names
@@ -1845,8 +1844,8 @@ gte_swc2(0x8,&depthcue);
     else {
       sd->otz = save_pre_otz + sd->offset;
     }
-    if ((0 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
-      if ((flag & 0x80) != 0) {
+    if (sd->otz > 0 && sd->otz <= Draw_gViewOtSize - 3) {
+      if (flag & 0x80) {
         /* MATCH (w40-a2): same shape the SECOND (flag&0x80) block below already uses --
          * the oracle loads the scratchpad PALETTE cursor exactly ONCE (`lui t0,0x1F80;
          * lw t0,0(t0)`) and drives both OT-slot computations off that register, while
@@ -1860,7 +1859,7 @@ gte_swc2(0x8,&depthcue);
         r.x = 0;
         r.y = 0;
         ((DrawW_PTag *)aprim)->addr = ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr;
-        Render_gPacketPtr = (u_char *)aprim + 0xc;
+        Render_gPacketPtr = (u_char *)&aprim[1];
         ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr = (u_long)aprim;
         SetTexWindow(aprim,&r);
       }
@@ -1871,7 +1870,7 @@ gte_swc2(0x8,&depthcue);
        *     j     .L800C6A38            ; else-arm ...
        *      addiu $s1,$s0,0x110        ; ... prim = &sd->GT4Prim, in the j slot
        *   .L800C6A00: lw $s1,0x4($s0)   ; prim = cprim.PrimPtr, then the OT-link
-       * i.e.  if (doSubdivision != 0) prim = &sd->GT4Prim;
+       * i.e.  if (doSubdivision) prim = &sd->GT4Prim;
        *       else { prim = cprim.PrimPtr; OT-link; }
        * MEASURED (this wave, both with the nightFlags + cursor-defer fixes in):
        *     if/else form           : gate 282, posdiff structural residual  52
@@ -2021,7 +2020,7 @@ gte_swc2(0x8,&depthcue);
        * p141 24refs/114live = .8421 vs p80 62/848 = .3656).
        * WHAT NOBODY TRIED: make the TOP DEFAULT THE OTHER VALUE.
        *     prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;   <- at the top
-       *     if (doSubdivision != 0) prim = &sd->GT4Prim;   <- real then-arm
+       *     if (doSubdivision) prim = &sd->GT4Prim;   <- real then-arm
        *     else { OT-link }                               <- no assignment
        * The default is now LIVE on the else path, so cse cannot delete it
        * (live 359, p141 pri .268 < sd .3656 -> sd keeps $s0, prim $s1 = the SYM)
@@ -2047,7 +2046,7 @@ gte_swc2(0x8,&depthcue);
        * two-assignment if/else shape.  The empty then-arm fence preserves its jump and
        * delay-slot assignment; the exact sd allocation threshold is documented at the
        * tail receipt (65 refs FAIL194, 66 refs PASS). */
-      if (doSubdivision != 0) {
+      if (doSubdivision) {
         __asm__("" : : "i"(0));
         prim = &sd->GT4Prim;
       }
@@ -2114,7 +2113,7 @@ gte_swc2(0x8,&depthcue);
        * oracle: with the depth-cue block as the out-of-line arm gcc cross-jump-merges
        * part of its two colour tails.  The polarity is downstream of that merge, not a
        * free arm-order choice -- do not re-try before the merge is killed. */
-      if (sd->nightFlags != '\0') {
+      if (sd->nightFlags) {
         DrawW_NightColorCalc(sd,prim,&vt0,&vt1,&vt2,&vt3);
       }
       else {
@@ -2169,7 +2168,7 @@ gte_strgb(&color);
           *(long *)&prim->r3 = color;
         }
       }
-      *(u_char *)((int)&prim->tag + 3) = 0xc;
+      ((u_char *)&prim->tag)[3] = 0xc;
       prim->code = *(u_char *)&workPmx->flag | 0x3c;
       /* MATCH (2026-07-11): u0/v0/clut (and the u1/v1/tpage, u2/v2/pad2,
        * u3/v3/pad3 siblings) are 4 CONTIGUOUS bytes in POLY_GT4 (nfs4_types.h
@@ -2193,21 +2192,21 @@ gte_strgb(&color);
       }
       if (prim->clut == 0xffff) {
         int depth_index;
-        depth_index = (save_pre_otz - sd->startfog) * 0x10 >> ((int)sd->distfog);
+        depth_index = (save_pre_otz - sd->startfog) * 0x10 >> sd->distfog;
         if (depth_index < 0) {
           depth_index = 0;
         }
-        else if (0xf < depth_index) {
+        else if (depth_index > 15) {
           depth_index = 0xf;
         }
         prim->clut = gClutDepth[workPmx->pad2][depth_index];
       }
-      if (doSubdivision != 0) {
+      if (doSubdivision) {
         int zeroTransFlag;
         zeroTransFlag = sd->zeroGTETransFlag;
-gte_SetRotMatrix(((char *)sd + 0x74));
+gte_SetRotMatrix(&sd->identMat);
         if (zeroTransFlag == 0) {
-gte_SetTransMatrix(((char *)sd + 0x74));
+gte_SetTransMatrix(&sd->identMat);
         }
         /* MATCH: oracle `beqz flag -> else` = the SPEEDUP arm is the fall-through, and it
          * stores gWSavePtr BEFORE clearing the flag (`sw v0,%gp_rel(gWSavePtr); sw zero,
@@ -2222,12 +2221,12 @@ gte_SetTransMatrix(((char *)sd + 0x74));
         else {
           DrawW_SetUpSubdividFacet(face,sd);
         }
-gte_SetRotMatrix(((char *)sd + 0x14));
+gte_SetRotMatrix(&sd->matB);
         if (zeroTransFlag == 0) {
-gte_SetTransMatrix(((char *)sd + 0x14));
+gte_SetTransMatrix(&sd->matB);
         }
       }
-      if ((flag & 0x80) != 0) {
+      if (flag & 0x80) {
         /* MATCH: the oracle reads the two scratchpad cursors INSIDE the guard (single
          * use site); hoisting them above the `andi 0x80` test costs 5 unconditional
          * insns the oracle never pays. */
@@ -2235,16 +2234,16 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         int dU;
         int dV;
         RECT r;
-        dU = (u_int)workPmx->u3 - (u_int)workPmx->u0;
+        dU = (int)workPmx->u3 - (int)workPmx->u0;
         if (dU < 0) {
           dU = -dU;
         }
-        dV = (u_int)workPmx->v3 - (u_int)workPmx->v0;
+        dV = (int)workPmx->v3 - (int)workPmx->v0;
         if (dV < 0) {
           dV = -dV;
         }
-        r.w = (short)dU + 1;
-        r.h = (short)dV + 1;
+        r.w = dU + 1;
+        r.h = dV + 1;
         r.x = 0;
         r.y = 0;
         aprim = (DR_TWIN *)Render_gPacketPtr;
@@ -2253,7 +2252,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
          * per-use `Render_gPacketPtr` / `Render_gPalettePtr` re-reads cost 5 extra
          * scratchpad loads. */
         ((DrawW_PTag *)aprim)->addr = ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr;
-        Render_gPacketPtr = (u_char *)aprim + 0xc;
+        Render_gPacketPtr = (u_char *)&aprim[1];
         ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr = (u_long)aprim;
         SetTexWindow(aprim,&r);
       }
@@ -2265,7 +2264,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
    * dead ground for a dial anyway (`sd` is dead after the last guard, so any pure-C
    * chain placed here is deleted as dead code before flow ever counts a reference --
    * measured on the allocno table, refs stayed 122 for chains of 2..30). */
-  return;
+
 }
 
 /* ---- DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:1302-1324] covered SLD requires native comparison ---- */
@@ -2296,17 +2295,17 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
 
   numQuads = sd->quadCount;
   pquad = (Trk_Quad *)sd->quads;
-  numQuads = numQuads - 1;
+  --numQuads;
   if (numQuads != -1) {
     do {
-      if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
+      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
         DrawW_DrawQuad(sd,pquad);
-        pquad = pquad + 1;
+        pquad++;
       }
-      numQuads = numQuads - 1;
+      --numQuads;
     } while (numQuads != -1);   /* the loop-invariant -1 is what retail parks in $s3 (no local in the SYM) */
   }
-  return;
+
 }
 
 /* ---- DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:1331-1375] covered SLD requires native comparison ---- */
@@ -2338,7 +2337,9 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
      `r1=r0+1`. 4 load/add placement variants all converge to the same 2; late-loading
      botVert regresses (+nop). Scheduler-priority artifact -> permuter candidate. */
 
-/* Historical material-cursor control; not an original-object exemption -- dedicated +4 halfword cursor is required for the retail inner-loop addressing/allocation */
+  /* Full-build follow-up (2026-10-27): restore the independent `pMaterial`
+     cursor and `iquad` increment. The indexed form folded pointer advancement
+     into the load displacement; it did not combine the two source updates. */
 
 /* in-place increment (r0 dead after); r1 takes the result */
 
@@ -2354,15 +2355,15 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 
   stripPtr = sd->stripPtr;
 
-  while (true) { int numQuads; sd->numStrips = sd->numStrips + -1; if (sd->numStrips == -1) break;
+  while (true) { int numQuads; --sd->numStrips; if (sd->numStrips == -1) break;
 
 
 
-    numQuads = (int)(u_int)(u_char)stripPtr->quadCount;
-    { int iquad = 0; u_short *pMaterial = (u_short *)(stripPtr + 1); /* SourceRecoveryUnresolved: named cursor/producer is unprovided; packet block-end line also remains open. */ while (true) { if (numQuads <= iquad) break;
+    numQuads = (u_char)stripPtr->quadCount;
+    { int iquad = 0; u_short *pMaterial = (u_short *)(stripPtr + 1); while (true) { if (numQuads <= iquad) break;
 
 
-      if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr)
+      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr)
       {
         Trk_Quad newQuad; int r0; int r1; int r2; int r3;
 
@@ -2376,10 +2377,10 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
         r2 = stripPtr->botVert + iquad;
         r3 = r2 + 1;
 
-        newQuad.aPoints[1] = (u_char)r0;
-        newQuad.aPoints[0] = (u_char)r1;
-        newQuad.aPoints[2] = (u_char)r2;
-        newQuad.aPoints[3] = (u_char)r3;
+        newQuad.aPoints[1] = r0;
+        newQuad.aPoints[0] = r1;
+        newQuad.aPoints[2] = r2;
+        newQuad.aPoints[3] = r3;
 
         DrawW_DrawQuad(sd,&newQuad); }
 
@@ -2389,7 +2390,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 
       pMaterial = pMaterial + 1; iquad = iquad + 1; }
     }
-    stripPtr = (Trk_NewStrip *)(&stripPtr->topVert + (u_char)stripPtr->size); } return; }
+    stripPtr = (Trk_NewStrip *)((u_char *)stripPtr + (u_char)stripPtr->size); } }
 
 /* ---- DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry  [DRAWW.CPP:1390-1654] covered SLD requires native comparison ---- */
 #line 1388 "C:/nfs4/GAME/PSX/DRAWW.CPP"
@@ -2527,7 +2528,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
            required: the arm's `goto DrawWTrough_setStateCallHigh` would otherwise
            cross the initializations (gcc-2.8 hard error).
        (2) THE FOUR `li 125` SCRATCHES (39 -> 11).  loop.c's combine_movables merged
-           the four `sd->offset = 0x7d` constant sets into ONE loop-invariant pseudo
+           the four `sd->offset = 125` constant sets into ONE loop-invariant pseudo
            and hoisted it to the preheader; it then lost its register and reload
            rematerialized `li 125` into whatever scratch was free at each site
            ($a3/$t0/$t1/$t2) -- retail has `li $v0,125` at all four.  An OPACITY
@@ -2663,8 +2664,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
   /* MATCH (w78-a7): the indexed for-loop lets loop.c build retail's walking
      buildList GIV in the preheader.  The literal 1 below is likewise hoisted
      there without inventing a non-SYM local. */
-  for (; buildInd < chunkCount; buildInd = buildInd + 1) {
-    if ((buildList[buildInd].enableBits & 1U) != 0) {
+  for (; buildInd < chunkCount; buildInd++) {
+    if (buildList[buildInd].enableBits & 1U) {
       /* MATCH: chunkInd/geomRez are NOT kept as persistent C locals -- the
          oracle stores each straight to its sd-> byte field (a genuine BYTE
          truncation of the `short chunkInd`/`char geomRez` tBuildEntry fields,
@@ -2674,8 +2675,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
          a kept register) -- cheaper than keeping a value live across the
          WorldSetUpMatrix call, which clobbers every caller-saved reg anyway. */
       sd->artInfo = &gInitialArt;
-      sd->chunkInd = (u_char)buildList[buildInd].chunkInd;
-      sd->rezInd = (u_char)buildList[buildInd].geomRez;
+      sd->chunkInd = buildList[buildInd].chunkInd;
+      sd->rezInd = buildList[buildInd].geomRez;
       chunkDat = Track_chunkList + sd->chunkInd;
       DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
       /* MATCH (w74-a1): the nightFlags clear is emitted AFTER the vertexBuf load
@@ -2694,7 +2695,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       pChunkCp = Chunk_chunkCenters + sd->chunkInd;
       sd->materials = Track_materials;
       sd->light = negOne;
-      if (gNight_renderNight != 0) {
+      if (gNight_renderNight) {
         coorddef tmp;
         coorddef tmp2;
         int cx;
@@ -2710,37 +2711,37 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
          * named-constant device as `negOne` above. */
         int four = 4; /* SYM-CODEGEN-CARRIER: four -- one register feeds nightFlags and the Camera_gInfo scale shift */
 
-        sd->nightFlags = (char)four;
+        sd->nightFlags = four;
         /* MATCH (w77 source restoration, still 9 @358): unary-negation plus addition
            preserves the retail subtrahend-first loads (`target` before `pChunkCp`)
            without the non-SYM px/pz aliases used by the prior split spelling. */
-        cx = (-((Camera_gInfo[Vi->player].target)->position).x + pChunkCp->x) >> 10;
-        cz = (-((Camera_gInfo[Vi->player].target)->position).z + pChunkCp->z) >> 10;
+        cx = (-Camera_gInfo[Vi->player].target->position.x + pChunkCp->x) >> 10;
+        cz = (-Camera_gInfo[Vi->player].target->position.z + pChunkCp->z) >> 10;
         dist = cx * cx + cz * cz;
         if (dist <= 0x47DFFFF) {
-          if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
+          if (Cars_gList[Vi->player]->control.lights & 6U) {
             sd->nightFlags = 5;
           }
-          tmp.x = -((Camera_gInfo[Vi->player].target)->position).x + (Vi->cview).translation.x;
-          tmp.y = -((Camera_gInfo[Vi->player].target)->position).y + (Vi->cview).translation.y;
-          tmp.z = -((Camera_gInfo[Vi->player].target)->position).z + (Vi->cview).translation.z;
+          tmp.x = -Camera_gInfo[Vi->player].target->position.x + Vi->cview.translation.x;
+          tmp.y = -Camera_gInfo[Vi->player].target->position.y + Vi->cview.translation.y;
+          tmp.z = -Camera_gInfo[Vi->player].target->position.z + Vi->cview.translation.z;
           transform(&tmp.x,gNightMat.m,&tmp2.x);
           DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
         }
-        if (BW_gCopCarObj != (Car_tObj *)0x0) {
+        if (BW_gCopCarObj) {
           int dist;
           /* MATCH (w77 source restoration): the direct repeated expression lets CSE
              form the unnamed squared deltas while the only retail local remains the
              nested `dist` recorded by SYM. */
-          dist = (((-(BW_gCopCarObj->N).position.x + pChunkCp->x) >> 10) *
-                  ((-(BW_gCopCarObj->N).position.x + pChunkCp->x) >> 10)) +
-                 (((-(BW_gCopCarObj->N).position.z + pChunkCp->z) >> 10) *
-                  ((-(BW_gCopCarObj->N).position.z + pChunkCp->z) >> 10));
+          dist = (((-BW_gCopCarObj->N.position.x + pChunkCp->x) >> 10) *
+                  ((-BW_gCopCarObj->N.position.x + pChunkCp->x) >> 10)) +
+                 (((-BW_gCopCarObj->N.position.z + pChunkCp->z) >> 10) *
+                  ((-BW_gCopCarObj->N.position.z + pChunkCp->z) >> 10));
           if (dist <= 0x47DFFFF) {
-            sd->nightFlags = sd->nightFlags | 2;
-            tmp.x = -(BW_gCopCarObj->N).position.x + (Vi->cview).translation.x;
-            tmp.y = -(BW_gCopCarObj->N).position.y + (Vi->cview).translation.y;
-            tmp.z = -(BW_gCopCarObj->N).position.z + (Vi->cview).translation.z;
+            sd->nightFlags |= 2;
+            tmp.x = -BW_gCopCarObj->N.position.x + Vi->cview.translation.x;
+            tmp.y = -BW_gCopCarObj->N.position.y + Vi->cview.translation.y;
+            tmp.z = -BW_gCopCarObj->N.position.z + Vi->cview.translation.z;
             transform(&tmp.x,gCopMat.m,&tmp2.x);
             DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
           }
@@ -2749,9 +2750,9 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       /* MATCH (w77 source restoration): `-subtrahend + minuend` preserves the
          oracle's Vi-translation-before-pChunkCp load order without the non-SYM
          vx/vy/vz aliases. */
-      sd->trans.x = (short)((-(Vi->cview).translation.x + pChunkCp->x) >> 10);
-      sd->trans.y = (short)((-(Vi->cview).translation.y + pChunkCp->y) >> 10);
-      sd->trans.z = (short)((-(Vi->cview).translation.z + pChunkCp->z) >> 10);
+      sd->trans.x = (-Vi->cview.translation.x + pChunkCp->x) >> 10;
+      sd->trans.y = (-Vi->cview.translation.y + pChunkCp->y) >> 10;
+      sd->trans.z = (-Vi->cview.translation.z + pChunkCp->z) >> 10;
       /* MATCH (w45-a5, 125 -> 118, count 358 -> EXACT 359): the oracle computes
          `addiu $v0,$s0,0x14` = &sd->matB ONCE and reaches t[2]/t[1] through it
          (`sw $zero,0x1C($v0)` / `0x18($v0)`) while t[0] keeps the sd base
@@ -2777,15 +2778,15 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
          fall-through path, lorezstripBuf@chunkDat+0x3C read only after the
          branch is taken). The previous draft had the arms backwards (`==0`
          first, `!=0` second) -- same behavior, wrong branch sense/layout. */
-      if (sd->rezInd != 0) {
+      if (sd->rezInd) {
           Group *group = chunkDat->stripBuf;
-          if (group != (Group *)0x0) {
+          if (group) {
             sd->stripPtr = (Trk_NewStrip *)(group + 1);
-            sd->numStrips = (short)group->m_num_elements;
-          sd->offset = 0x7d;
+            sd->numStrips = group->m_num_elements;
+          sd->offset = 125;
           DrawW_StripDraw_High(sd);
           sd->quadCount = chunkDat->quadCounts[5];
-          if (sd->quadCount != 0) {
+          if (sd->quadCount) {
             joinQuads = chunkDat->renderQuads[3];
             goto DrawWTrough_setStateCallHigh;
           }
@@ -2794,8 +2795,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       else {
         {
         Group *lorez = chunkDat->lorezstripBuf; /* SYM-CODEGEN-CARRIER: lorez -- caches the buffer across aliasing sd stores */
-        if (lorez != (Group *)0x0) {
-          short lorezN = (short)lorez->m_num_elements; /* SYM-CODEGEN-CARRIER: lorezN -- preserves count-before-pointer-advance order */
+        if (lorez) {
+          short lorezN = lorez->m_num_elements; /* SYM-CODEGEN-CARRIER: lorezN -- preserves count-before-pointer-advance order */
           Trk_NewStrip *lorezPtr = (Trk_NewStrip *)(lorez + 1); /* SYM-CODEGEN-CARRIER: lorezPtr -- preserves the second retail null guard */
           sd->stripPtr = lorezPtr;
           sd->numStrips = lorezN;
@@ -2842,8 +2843,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         init statements were swept on Draw_kCtrlSkidmark this wave and moved
         nothing; the same sweep is the first thing to try here).
         ====================================================================== */
-          if (lorezPtr != (Trk_NewStrip *)0x0) {
-            { /* MATCH (w72-a1): loop.c combine_movables merged the FOUR `sd->offset = 0x7d`
+          if (lorezPtr) {
+            { /* MATCH (w72-a1): loop.c combine_movables merged the FOUR `sd->offset = 125`
                constant sets into ONE loop-invariant pseudo, hoisted it to the preheader
                where it lost its register, and reload then rematerialized `li 125` into a
                DIFFERENT scratch at each site ($a3/$t0/$t1/$t2) -- retail has `li $v0,125`
@@ -2921,21 +2922,21 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
                  clusters (w46 3-QTY LAW territory: the named angle is INJECTING
                  A REAL 4TH QTY into those arms, not another ref/live dial). */
         sd->quadCount = chunkDat->quadCounts[0];
-        if (sd->quadCount != 0) {
+        if (sd->quadCount) {
           /* The whole-arm wrapper supplies one loop-depth-weighted reference
              without obstructing reorg's delay-slot scan at an inner boundary. */
           do { joinQuads = chunkDat->renderQuads[0];
-          sd->offset = 0x7d;
+          sd->offset = 125;
           sd->zeroGTETransFlag = 1;
           sd->light = negOne;
           sd->quads = joinQuads;
           DrawW_kCtrlWorld_High(sd); } while (0);
         }
         sd->quadCount = chunkDat->quadCounts[1];
-        if (sd->quadCount != 0) {
+        if (sd->quadCount) {
           joinQuads = chunkDat->renderQuads[1];
 DrawWTrough_setStateCallHigh:
-          sd->offset = 0x1e;
+          sd->offset = 30;
           sd->zeroGTETransFlag = 1;
           sd->light = negOne;
           sd->quads = joinQuads;
@@ -2944,18 +2945,18 @@ DrawWTrough_setStateCallHigh:
       }
       sd->vertices = (CCOORD16 *)(chunkDat->objVertexBuf + 1);
       sd->quadCount = chunkDat->quadCounts[2];
-      if (sd->quadCount != 0) {
+      if (sd->quadCount) {
         joinQuads = (Trk_Quad *)(chunkDat->objQuadBuf + 1);
-        sd->offset = 0x7d;
+        sd->offset = 125;
         sd->zeroGTETransFlag = 1;
         sd->light = negOne;
         sd->quads = joinQuads;
         DrawW_kCtrlWorld_High(sd);
       }
       sd->quadCount = chunkDat->quadCounts[3];
-      if (sd->quadCount != 0) {
+      if (sd->quadCount) {
         joinQuads = (Trk_Quad *)(chunkDat->objQuadInstanceBuf + 1);
-        sd->offset = 0x32;
+        sd->offset = 50;
         sd->zeroGTETransFlag = 1;
         sd->light = negOne;
         sd->quads = joinQuads;
@@ -2982,38 +2983,38 @@ void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat)
     int r0 = m->m[0];
     int r1 = m->m[3];
     int r2 = m->m[6];
-    r0 = r0 >> 4;
-    r1 = r1 >> 4;
-    r2 = r2 >> 4;
-    mat->m[0][0] = (short)r0;
-    mat->m[0][1] = (short)r1;
-    mat->m[0][2] = (short)r2;
+    r0 >>= 4;
+    r1 >>= 4;
+    r2 >>= 4;
+    mat->m[0][0] = r0;
+    mat->m[0][1] = r1;
+    mat->m[0][2] = r2;
   }
   {
     int r0 = m->m[1];
     int r1 = m->m[4];
     int r2 = m->m[7];
-    r0 = r0 >> 4;
-    r1 = r1 >> 4;
-    r2 = r2 >> 4;
-    mat->m[1][0] = (short)r0;
-    mat->m[1][1] = (short)r1;
-    mat->m[1][2] = (short)r2;
+    r0 >>= 4;
+    r1 >>= 4;
+    r2 >>= 4;
+    mat->m[1][0] = r0;
+    mat->m[1][1] = r1;
+    mat->m[1][2] = r2;
   }
   {
     int r0 = m->m[2];
     int r1 = m->m[5];
     int r2 = m->m[8];
-    r0 = r0 >> 4;
-    r1 = r1 >> 4;
-    r2 = r2 >> 4;
-    mat->m[2][0] = (short)r0;
-    mat->m[2][1] = (short)r1;
-    mat->m[2][2] = (short)r2;
+    r0 >>= 4;
+    r1 >>= 4;
+    r2 >>= 4;
+    mat->m[2][0] = r0;
+    mat->m[2][1] = r1;
+    mat->m[2][2] = r2;
   }
 
 gte_SetRotMatrix(mat);
-  return;
+
 }
 
 /* ---- DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX  [DRAWW.CPP:1674-1684] covered SLD requires native comparison ---- */
@@ -3032,14 +3033,14 @@ void DrawW_WorldSetUpTranslation(coorddef *t,MATRIX *mat)
   mat->t[1] = ty >> 10;
   mat->t[2] = tz >> 10;
 gte_SetTransMatrix(mat);
-  return;
+
 }
 
 /* ---- DrawW_ResetAnimationTimer__Fv  [DRAWW.CPP:1698-1700] covered SLD requires native comparison ---- */
 #line 1697 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_ResetAnimationTimer(void)
 {
-  for (int i = 0xb; i >= 0; i--) {
+  for (int i = 11; i >= 0; i--) {
     animation_timer[i] = 0;
   }
 }
@@ -3060,11 +3061,11 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 
 
 
-  if (((animInst->objectIndex == 0) || (track == 3)) || (track == 7)) {
+  if (animInst->objectIndex == 0 || track == 3 || track == 7) {
     return simGlobal.gameTicks;
   }
   else { int maxTick;
-    maxTick = (animInst->count - 2) * (int)animInst->interval;
+    maxTick = (animInst->count - 2) * animInst->interval;
     return ((maxTick > animation_timer[animInst->objectIndex - 1]) ? animation_timer[animInst->objectIndex - 1] : maxTick);
   }
 }
@@ -3076,14 +3077,14 @@ void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
   int objIndex = animInst->objectIndex - 1;
 
 
-  if (0xf00 < animation_timer[objIndex])
+  if (animation_timer[objIndex] > 3840)
   {
 
     for (int i = 0; i < Cars_gNumHumanRaceCars; i++) {
 
-      int slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
+      int slice = Cars_gHumanRaceCarList[i]->N.simRoadInfo.slice;
 
-      if ((slice < (table + objIndex * 2)[0]) || ((table + objIndex * 2)[1] < slice)) {
+      if (slice < table[objIndex * 2] || slice > table[objIndex * 2 + 1]) {
 
         animation_timer[objIndex] = 0;
       }
@@ -3093,9 +3094,9 @@ void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
     }
   }
 
-  else { if (0 < animation_timer[objIndex]) {
+  else { if (animation_timer[objIndex] > 0) {
 
-      animation_timer[objIndex] = animation_timer[objIndex] + 1;
+      animation_timer[objIndex]++;
     }
 
 
@@ -3121,14 +3122,14 @@ void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
 
       for (int i = 0; i < Cars_gNumHumanRaceCars; i++) {
 
-        int slice = (int)(Cars_gHumanRaceCarList[i]->N).simRoadInfo.slice;
+        int slice = Cars_gHumanRaceCarList[i]->N.simRoadInfo.slice;
 
-        if (((table + objIndex * 2)[0] <= slice) && (slice <= (table + objIndex * 2)[1])) {
-
-
+        if (table[objIndex * 2] <= slice && slice <= table[objIndex * 2 + 1]) {
 
 
-          animation_timer[objIndex] = animation_timer[objIndex] + 1;
+
+
+          animation_timer[objIndex]++;
         }
       }
     }
@@ -3145,31 +3146,32 @@ void DrawW_DoObjectAnimations(void)
 
   if (track == 0) {
     trackPtr = trk0[0];
-  } else { if (track != 4) { return; }
+  } else if (track == 4) {
     trackPtr = trk4[0];
+  } else {
+    return;
   }
 
 
 
   {
     int time = simGlobal.gameTicks;
-    for (int i = 0; i < 0x10; i++) {
+    for (int i = 0; i < 16; i++) {
 
-      if (Anim_gInstanceFromIndex[i]->objectIndex != '\0') {
+      if (Anim_gInstanceFromIndex[i]->objectIndex) {
         DrawW_SetAnimationTime(Anim_gInstanceFromIndex[i],trackPtr,time); }
     }
   }
 }
 
 /* ---- DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo [DRAWW.CPP:1909-2048] partial source/SYM restoration; full SLD open ---- */
-/* MATCH/source recovery 2026-10-25: real for ownership plus success/skip work
- * reproduces all189 words/frame168 with no oi/zo/g/gg, dead-set/restore or
- * one-iteration note-fence loop. Supplied complete tuples13->16/18; cp/pt2
- * owners, animType and three unprovided labels remain open. Prior local/
- * address-path region/type facts survive. The header/source anchors below
- * restore known coordinates, not literal original text. Selected-stock and
- * native receipts: build/nc12/draww_spill_origin_20261025.
- * Historical controls below describe earlier basins, not source exemptions. */
+/* MATCH/source recovery 2026-10-25 plus follow-up 2026-10-27: the current
+ * ownership and success/skip source shape reproduces all 189 words/frame 168
+ * without the former oi/zo/g/gg carriers. A forced object build rejected the
+ * structured direct-type dispatch, so the current body retains `animType` and
+ * the `animCase`/`animNext` labels. cp/pt2 owner details and some earlier
+ * source-region records remain open. Historical controls below describe older
+ * basins, not current source requirements. */
 /* rule-8 SYM rewrite (w44-a7): SYM 8c block @0x800C78A8 names EVERY local and
      fixes both the register map and the AUTO SLOT ORDER:
        Vi REGPARM $0x17=$s7 · gObjInfo REGPARM $5=$a1
@@ -3213,7 +3215,10 @@ void DrawW_DoObjectAnimations(void)
 
 /* AUTO -0x50 -> 88(sp) */
 
-/* SourceRecoveryUnresolved: unprovided dispatch capture; direct-field failure does not prove an original object. */
+/* FOLLOW-UP (2026-10-27): the direct type-field / structured-dispatch trial
+   was reverted after a forced object build changed codegen. The current body
+   retains the `animType` capture and goto labels; only the independently tested
+   guard, cast, member-access, and increment cleanups remain. */
 
 /* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
    * (Draw_DCache*, REG $0x1e == $fp) in the FUNCTION-scope block and the oracle
@@ -3530,12 +3535,9 @@ void DrawW_DoObjectAnimations(void)
 
 /* Historical resolved devices: g/gg and the artificial loop/dead set are removed below. */
 
-/* SourceRecoveryUnresolved: these labels/capture are not proved original.
-           Stock switch controls with an unproved extra skipped case reproduce
-           all189 words and remove zo/g/gg, but not the complete retail scopes.
-           Zero and minus-one cases are byte/debug indistinguishable; neither is
-           established as original. Do not infer goto/carrier necessity from
-           the ordinary three-case failure. See draww_source_dispatch_20261025. */
+/* FOLLOW-UP (2026-10-27): restoring the original dispatch capture and goto
+           labels was required for exact codegen. The direct-type if/else rewrite
+           was rejected; the current source keeps `animType` and its labels. */
 
 /* MATCH (w46-a6): the oracle has NO materialized boolean here -- every
          * guard branches DIRECTLY to the shared loop tail (`beqz $t0,.L800C7A24`
@@ -3585,7 +3587,7 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   objInstance = (Trk_SimpleInst *)group->GetData();
   groupNumElements = group->m_num_elements;
   sd = (Draw_DCache *)&Render_gPalettePtr;
-  if (groupNumElements == 0) return 0;
+  if (!groupNumElements) return 0;
   offset = gObjInfo->offset;
   doFrustumClip = gObjInfo->doFrustumClip;
   zClipSq = gObjInfo->zClipSq;
@@ -3594,11 +3596,11 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   ((MATRIX *)0x1f800014)->t[1] = 0;
   (sd->matB).t[0] = 0;
   gte_SetTransMatrix((void *)0x1f800014);
-  for (int objectIndex = 0; ; objectIndex = objectIndex + 1) {
+  for (int objectIndex = 0; ; objectIndex++) {
     int objectOffset;
     matrixtdef matrix;
-    if (!(objectIndex < groupNumElements)) break;
-    if (visList != 0 && ((((u_short)visList[objectIndex] >> 12 ^ 1) & 1) != 0)) {
+    if (objectIndex >= groupNumElements) break;
+    if (visList && (((u_short)visList[objectIndex] >> 12 ^ 1) & 1)) {
       objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue;
     }
     objectOffset = offset;
@@ -3611,10 +3613,10 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     animCase1:
 
       objDef = Track_gObjDefs[objInstance->pad];
-      if (doFrustumClip != 0 && ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,(Draw_tGiveShelbyMoreCache *)sd) != 0) {
+      if (doFrustumClip && ObjectClipped(Vi,objInstance->pad,(coorddef *)&objInstance->x,(Draw_tGiveShelbyMoreCache *)sd)) {
         objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue;
       }
-      if (zClipSq != -1 && zClipSq <= xzsquaredist32((coorddef *)&objInstance->x,&(Vi->cview).translation)) {
+      if (zClipSq != -1 && zClipSq <= xzsquaredist32((coorddef *)&objInstance->x,&Vi->cview.translation)) {
         objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue;
       }
       totalCount += DrawObjectSimple(Vi,sd,objDef,(coorddef *)&objInstance->x,objectOffset);
@@ -3624,10 +3626,10 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
       {
         coorddef cp;
         Anim_GetRotPos((Trk_AnimateInst *)objInstance,1,DrawW_GetAnimationTime((Trk_AnimateInst *)objInstance),&cp,&matrix);
-        if (zClipSq == -1 || xzsquaredist32(&cp,&(Vi->cview).translation) < zClipSq) {
+        if (zClipSq == -1 || xzsquaredist32(&cp,&Vi->cview.translation) < zClipSq) {
           objDef = Track_gObjDefs[objInstance->pad];
           totalCount += DrawObjectTransform(Vi,sd,&matrix,objDef,&cp,objectOffset,-1);
-          if ((objInstance->flags & 2) != 0) {
+          if (objInstance->flags & 2) {
             coorddef pt2;
             pt2.x = cp.x + matrix.m[6] * -16;
             pt2.y = cp.y + matrix.m[7] * -16;
@@ -3793,7 +3795,9 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
           supplies ($s2 = objCollideBoomInstance).
      ---- w71-a1 (2026-08-21): 105 -> 28, count-EXACT 200/200.  The w46 plan above
      was right; it just needed all four pieces landed TOGETHER.  What landed, in the
-     order the receipts were taken:
+     order the receipts were taken. Current-source follow-up (2026-10-27) supersedes
+     the local transMat and t3 forms described in this historical receipt; both have
+     been removed with the full baseline object unchanged:
        (1) FULL rule-8 SYM REWRITE (105 -> 231, count 189 -> 199).  Deleted the ~20
            fabricated Ghidra locals and materialized the SYM's own set verbatim:
            `objInstance` (Trk_SimpleInst*, replacing the `groupBase_p` int),
@@ -3847,15 +3851,14 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
            i.e. here the dial is SUBSCRIPT-vs-POINTER, not operand order.
            ⚠️ the same lookup class is FALSIFIED in DrawW_BuildObjectFacets in this
            very TU -- SITE-SELECTIVE (12D caveat); price it per site, never blanket.
-       (6) THIRD NAMED TEMP `t3` FOR THE m[6]/m[7]/m[8] RESULT (28 -> 16).  Retail
-           emits each row as `sw m[0]; sw m[3]; jal <next row>; [ds] sw m[6]` -- the
-           m[6] store is the LAST of the three in scheduling order.  With only t1/t2
-           named, `matrix.m[6] = fixedmult(...)` is a store-of-a-call-result and gcc
-           emits it FIRST, sinking `sw s3,44(sp)` into the delay slot instead.  A
-           third plain int local (dies straight into its store, so it costs no
-           callee-saved reg -- it lives in $v0) puts all three stores in retail's
-           order and fixes rows 1 and 2 in one edit.  The SYM names only t1/t2, so
-           t3 is a compiler temp given a name; keep it.
+       (6) HISTORICAL `t3` trial for the m[6]/m[7]/m[8] result (28 -> 16).
+           Retail emits each row as `sw m[0]; sw m[3]; jal <next row>; [ds] sw m[6]`.
+           In that earlier statement order, naming the third result as `t3` put the
+           final store in the required delay slot. FOLLOW-UP (2026-10-27): the
+           t3-removal candidate was re-tested against the forced current build and
+           reverted because it changed the object. The current function retains
+           t3 and the original call/store order; this paragraph records only a
+           historical candidate, not the active source shape.
        + the in-loop OPACITY fence on `objInstance` at the loop tail (was a void
          fence): +2 loop-weighted refs lift it above `t1` in allocno_compare so it
          takes retail's $s4 (allocsim --what-if 95:refs=32).
@@ -3914,8 +3917,9 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      = NINE callee-saved allocnos (mask $c0ff0000), which is exactly the pool
      that pushes the `sd` ARG back out to its incoming stack home. */
 /* SYM-CODEGEN-CARRIER: buildResult -- folding the distance call into the guard is current FAIL 8/204 */
-/* SYM-CODEGEN-CARRIER: transMat -- shared matB base drops sd refs 11->9 and reproduces the retail ARG spill */
-/* SYM-CODEGEN-CARRIER: t3 -- third fixedmult result must remain live until the retail matrix-store slot */
+/* The current baseline-matching body retains `transMat`; replacing the block
+ * with direct `sd->matB` stores changed codegen. */
+/* HISTORICAL t3 carrier trial; current row order stores t1/t2 before assigning the final fixedmult directly. */
 /* SYM-CODEGEN-CARRIER: skipObject -- direct accept-condition form is current FAIL 146/196 and changes the frame */
 /* SYM (rule-8, nfs4-f-v3.txt:191805): `offsets` is a FUNCTION-SCOPE STATIC of
      THIS function (`96 Def2 class STAT type ARY CHAR size 8 dims 1 8`, recorded
@@ -4031,18 +4035,12 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
          END pair around it, a sched2 barrier that keeps the increment from being
          hoisted into the lh delay slot; the same edit also restores the walker's
          retail callee-saved register (the asm's second job). */
-/* MATCH / source-owner recovery 2026-10-26: all21 supplied complete local
- * tuples and every region address/path agree. Keep the real record advance
- * inside the declaration-owning for body and before rejecting with continue.
- * GCC merges the actual duplicate work to the retail tail; no fake save/dead-
- * set/restore,buildResult,skipObject,anim or one-shot loop is required.
- * SourceRecoveryUnresolved: transMat and the debug-elided t3 are not supplied
- * original identities. One count-load tag and one conditional end line remain
- * different; this is not a strict whole-function/source certificate.
- * The completed Trk_SimpleInst typedef restores the genuine shared producer
- * formerly masked here by oi. No new variable/helper,asm/volatile,qualifier,
- * padding scope,compiler flag or generated-output rewrite is introduced.
- * Receipt: build/nc12/shared_simpleinst_type_20261026/final-proof.json. */
+/* FOLLOW-UP (2026-10-27): the forced build showed that removing `transMat`
+ * and `t3` changes this function's machine code, so both carriers remain in the
+ * current body. Retained changes are limited to independently compiled exact
+ * guards, member/cast cleanups, loop increment spelling, and explicit `simIndex`
+ * use through the existing typed instance pointer. No helper, asm/volatile,
+ * qualifier, padding scope, or generated-output rewrite was introduced. */
 #line 2052 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObject *simObjs,Group *group,int zClipSq)
 
@@ -4058,14 +4056,14 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
 
 
 
-  if (groupNumElements == 0)
+  if (!groupNumElements)
     return 0;
 
   transMat = &sd->matB; transMat->t[2] = 0; transMat->t[1] = 0; sd->matB.t[0] = 0; gte_SetTransMatrix(transMat);
 
 
 
-  for (int objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
+  for (int objectIndex = 0; objectIndex < groupNumElements; objectIndex++) {
     matrixtdef matrix; int objectOffset;
 
 
@@ -4080,12 +4078,12 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
 
 
 
-      if (objInstance->type == 2 || Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex) == 0)
+      if (objInstance->type == 2 || !Object_GetAnim(simObjs + objCollideBoomInstance->simIndex))
       { tQuat quat;
 
 
 
-        if (zClipSq <= xzsquaredist32((coorddef *)&objInstance->x,&Vi->cview.translation) || (objInstance->type == 2 && ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,(Draw_tGiveShelbyMoreCache *)sd) != 0)) { objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue; }
+        if (zClipSq <= xzsquaredist32((coorddef *)&objInstance->x,&Vi->cview.translation) || (objInstance->type == 2 && ObjectClipped(Vi,objInstance->pad,(coorddef *)&objInstance->x,(Draw_tGiveShelbyMoreCache *)sd))) { objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size); continue; }
 
 
 
@@ -4100,9 +4098,9 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
           int t1; int t2; int sx; int sy; int sz;
 
 
-          sx = (int)objCollideBoomInstance->sx << 8;
-          sy = (int)objCollideBoomInstance->sy << 8;
-          sz = (int)objCollideBoomInstance->sz << 8;
+          sx = objCollideBoomInstance->sx << 8;
+          sy = objCollideBoomInstance->sy << 8;
+          sz = objCollideBoomInstance->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           t3 = fixedmult(matrix.m[6],sx);
@@ -4127,7 +4125,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
 
       } else {
 
-        Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex)->Draw(Vi,sd,objectOffset);
+        Object_GetAnim(simObjs + objCollideBoomInstance->simIndex)->Draw(Vi,sd,objectOffset);
       }
     }
 
@@ -4214,19 +4212,17 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
 /* SYM-CODEGEN-CARRIER: posX -- split target-position loads preserve the retail pointer chase */
 /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */
 /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis source previously expands to 217/214 instructions */
-/* SYM-CODEGEN-CARRIER: m -- shared inline-helper name; fully direct matB bases are current FAIL 4/214 */
+/* Direct `&sd->matB` calls in these blocks were re-tested and changed codegen;
+ * the current source retains the two m aliases. */
 /* SYM-CODEGEN-CARRIER: tX -- split view-translation loads preserve retail issue order */
 /* SYM-CODEGEN-CARRIER: tY -- y-axis member of the measured split-load shape */
 /* SYM-CODEGEN-CARRIER: tZ -- folding the three axes belongs to the prior 217/214 instruction basin */
-/* MATCH / partial source recovery 2026-10-25: all supplied local tuples and
- * every instruction/file tag now agree. Use the supplied cache overlay fields,
- * actual negative-first vector expressions and direct count/result/material
- * work, not unprovided captures. No new helper or invented identifier.
- * SourceRecoveryUnresolved: the existing matrix-pointer m captures and their
- * extra regions remain unprovided. Do not infer original objects from failed
- * direct-address controls. This is not a full strict function certificate.
- * Existing GTE macro calls are retained, with no new asm/volatile or rewrite.
- * Receipt: build/nc12/draww_object_vectors_20261025/final-proof.json. */
+/* FOLLOW-UP (2026-10-27): removing the `MATRIX *m` aliases or splitting the
+ * packed trans-zero store changed codegen and was reverted. The current body
+ * retains both m carriers and the packed store. Independently tested exact
+ * cleanups remain: direct boolean predicates, simplified member paths, in-place
+ * shifts, and the redundant return cast removal. No helper, asm/volatile, or
+ * generated-output rewrite was introduced. */
 #line 2153 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk_ObjectDef *objDef,
               coorddef *pCp,int offset,short light)
@@ -4249,36 +4245,36 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
 
 
   ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 0;
-  if (gNight_renderNight != 0)
+  if (gNight_renderNight)
   {
     ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 4;
-    if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
+    if (Cars_gList[Vi->player]->control.lights & 6U) {
       ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 5; }
 
 
-    tmp.x = -(((Camera_gInfo[Vi->player].target)->position).x) + pCp->x;
-    tmp.y = -(((Camera_gInfo[Vi->player].target)->position).y) + pCp->y;
-    tmp.z = -(((Camera_gInfo[Vi->player].target)->position).z) + pCp->z;
+    tmp.x = -(Camera_gInfo[Vi->player].target->position.x) + pCp->x;
+    tmp.y = -(Camera_gInfo[Vi->player].target->position.y) + pCp->y;
+    tmp.z = -(Camera_gInfo[Vi->player].target->position.z) + pCp->z;
 
 
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
-    if (BW_gCopCarObj != (Car_tObj *)0x0) {
+    if (BW_gCopCarObj) {
 
-      ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags | 2;
+      ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags |= 2;
 
-      tmp.x = -((BW_gCopCarObj->N).position.x) + pCp->x;
-      tmp.y = -((BW_gCopCarObj->N).position.y) + pCp->y;
-      tmp.z = -((BW_gCopCarObj->N).position.z) + pCp->z;
+      tmp.x = -(BW_gCopCarObj->N.position.x) + pCp->x;
+      tmp.y = -(BW_gCopCarObj->N.position.y) + pCp->y;
+      tmp.z = -(BW_gCopCarObj->N.position.z) + pCp->z;
       transform(&tmp.x,gCopMat.m,&tmp2.x);
       DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop); }
 
-    { MATRIX *m = (MATRIX *)&sd->matB; m->t[2] = 0; m->t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(m); } }
+    { MATRIX *m = (MATRIX *)&sd->matB; m->t[2] = 0; m->t[1] = 0; sd->matB.t[0] = 0; gte_SetTransMatrix(m); } }
 
 
-  tmp.x = -((Vi->cview).translation.x) + pCp->x;
-  tmp.y = -((Vi->cview).translation.y) + pCp->y;
-  tmp.z = -((Vi->cview).translation.z) + pCp->z;
+  tmp.x = -(Vi->cview.translation.x) + pCp->x;
+  tmp.y = -(Vi->cview.translation.y) + pCp->y;
+  tmp.z = -(Vi->cview.translation.z) + pCp->z;
 
   TrsProj_SetPsxTransZero();
   TrsProj_TransPt(&tmp,&tmp2);
@@ -4287,9 +4283,9 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
 
 
     ((Draw_tGiveShelbyMoreCache *)sd)->offset = Draw_gMidGroundOtz;
-    tmp2.x = tmp2.x >> 2;
-    tmp2.y = tmp2.y >> 2;
-    tmp2.z = tmp2.z >> 2;
+    tmp2.x >>= 2;
+    tmp2.y >>= 2;
+    tmp2.z >>= 2;
   }
 
 
@@ -4314,138 +4310,10 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
 
 
     DrawW_WorldSetUpMatrix(&gWorldMat,m);
-    m->t[2] = 0; m->t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(m); }
+    m->t[2] = 0; m->t[1] = 0; sd->matB.t[0] = 0; gte_SetTransMatrix(m); }
 
-  return (u_int)objDef->quadCount; }
+  return objDef->quadCount; }
 
-/* ---- DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi  [DRAWW.CPP:2261-2334] covered SLD requires native comparison ---- */
-/* Superseded historical DrawObjectSimple matching controls. The source audit below
- * removes the old vector/count/result/material captures; failed old controls
- * are not source-object exemptions, compiler floors or permission to splice. */
-/* SYM-CODEGEN-CARRIER: offsetArg -- retail names both the stack argument and
-     GCC's promoted register copy `offset`.  The authentic single-name source
-     compiles to FAIL 5 at 190/189 because this cc1plus leaves the stack reload
-     in the prologue and pays a load-delay nop.  This explicit two-name carrier
-     compiles PASS189 by sinking that reload; keep the spelling discrepancy
-     visible until a source-only single-name expression reproduces the schedule. */
-/* MATCH (2026-07-11, 97 -> 76 diffs; insns EXACT 189==189): same bogus
-     byte-split bug as the sibling DrawObjectTransform above -- `sd[1].head.clipW
-     = (u_short)offset; sd[1].head.clipH = *(u_short*)((u_char*)&offset+2);`
-     replaced a single aligned word store `*(int*)&sd[1].head.clipW = offset;`
-     (clipW/clipH are adjacent shorts spanning one word) with two half-word
-     stack reloads, and dropped `offset`'s register cache for the later
-     `if (offset==-1)` reuse (oracle: ONE `lw $s5,...` kept live in a callee-
-     saved reg).
-     2026-07-11 cont'd (76 -> 68 diffs; insns now 187 == oracle 189, ours 2 SHORT):
-     the identical bogus split existed a SECOND time (`objFlags = *(u_short*)
-     ((u_char*)&Draw_gMidGroundOtz+2); sd[1].head.clipW = (u_short)
-     Draw_gMidGroundOtz; sd[1].head.clipH = objFlags;`) -- oracle proven as ONE
-     `lw;nop;sw` (byte-exact), fixed to `*(int*)&sd[1].head.clipW =
-     Draw_gMidGroundOtz;` (objFlags now dead, removed). Oracle-evidenced
-     correctness fix, lowers raw diffs 76->68, but (same as DrawObjectTransform)
-     un-masks the pre-existing Camera_gInfo target->position two-level
-     pointer-chase deficit (oracle mutates the target-ptr reg IN PLACE for the
-     `+0xA0/+0xA4/+0xA8` loads; ours loads into a fresh reg) that the old bug's
-     extra half-word insns had been accidentally canceling out. ALSO NOTED: the
-     3rd (z) axis of the offset==-1 / else clipping split (`facetIdx = (short)
-     (pCp->z - translation.z >> N)`, merged via `sd[1].matB.m[1][1] = facetIdx`
-     after the if/else) emits `srl` where oracle emits `sra` -- functionally
-     IDENTICAL after the subsequent 16-bit truncation (`sh`), so a pure
-     opcode-choice tie, not a value bug; left as documented residual. The
-     target->position pointer-chase split (DrawW_DoLines lever) still overshoots
-     the insn count (189->193 before this fix, 187->191 after) rather than
-     landing exact -- reverted both times, same as DrawObjectTransform.
-     RESIDUAL 68 = the pointer-chase deficit + sra/srl tie + coloring cascade.
-     w50-a2 RE-GATE: 5 diffs, ours 190 / oracle 189 = ONE LONG.  The residual is
-     the 5th (STACK) argument `offset`: assign_parms reloads it at entry
-     (`sw s5,68(sp); lw s5,96(sp)` as insns 6-7) and the resulting load-delay
-     `nop` is the extra instruction, whereas retail SINKS the reload to fill the
-     `lbu $v0,3($s4)` load-delay slot 11 insns later.  Same family as
-     DrawW_DoLines' param-copy residual -- but the DoLines cure (index-form giv
-     init) has no analogue here: `offset` is a plain value, not a walk base.
-     FALSIFIED THIS WAVE (all reverted; the w47 fence toolkit in full):
-       parameter renamed to `offsetArg` + `int offset = offsetArg;` alias
-         at the decl block / before `shapeDef_p =` : 5 (byte-identical)
-         before `drawResult = gNight_renderNight;` : 8 at count-EXACT 189
-         before the clipW store                    : 8 at count-EXACT 189
-       w47 OPACITY fence on offset at the decl block / before shapeDef_p : 45
-       same before `drawResult =`                                       : 39
-       same after `*(u_char*)(...matB.t+2) = 0;`                        : 38 @189
-       w45 USE fence `__asm__("" : : "r"(offset))` before `drawResult =`: 8 @189
-       same before shapeDef_p                                           : 17
-     The two count-EXACT 8-diff forms are the interesting ones: they DO kill the
-     nop, but they pull `addu s2,a0,zero` / `addu s3,a3,zero` (the Vi and pCp
-     parm copies) out of retail's order in exchange -- i.e. the reload and the
-     three parm copies are ONE ready-list ordering problem, not two.  NEXT ANGLE:
-     price it with tools/allocsim.py/-dS on the entry block rather than probing
-     spellings (the LAUNCH-BOOST/luid tie that solved DoLines step 2 is the model
-     to apply -- there, deleting a net-zero pair restored a copy's birthing_insn_p
-     boost; here look for whatever costs `offset` its boost or gives the Vi/pCp
-     copies theirs).
-     ---- w51-a10 (2026-08-09): 5 STAYS.  The w50 alias basin RE-MEASURED and its
-     residual PINNED EXACTLY: `int offset = offsetArg;` at either the `drawResult =`
-     or the clipW-store position is count-EXACT 189/189 at 8 diffs, and side_by_side
-     shows those 8 are a pure 3-insn ENTRY-BLOCK ROTATION plus one store move --
-     ours `addu s2,a0,zero . addu s3,a3,zero . lw s5,96(sp)` vs retail
-     `lw s5,96(sp) . addu s2,a0,zero . addu s3,a3,zero`, with `sw s5,236(s0)` one
-     slot late.  The un-aliased base (5 @190) instead keeps `sw s5,68(sp);
-     lw s5,96(sp)` at insns 6-7 and pays a nop where retail FILLS the
-     `lbu v0,3(s4)` load-delay slot at insn 17: retail saves s0,s4,ra,s5,s3,s2,s1
-     and we save s0,s4,s5,ra,s3,s2,s1.  FALSIFIED this wave -- at the alias basin,
-     repositioning the clipW store after the mirror store 10 and before the guard 10;
-     at the base basin, a zero-insn USE fence naming Vi and/or pCp walked to four
-     entry positions (top / after cprim / after isCullable / after the matB.t byte
-     store) = 18 @191, 18 @191, 9 @190, 9 @190, plus a void-tail fence at the top
-     18 @191.  EVERY fence COSTS instructions here, so the class is not
-     fence-reachable.  => this is the PROLOGUE PARAM-COPY SINK class in pure form
-     (assign_parms emits the parm copies and the stack-arg reload before any body
-     statement, so no source position can reach them) and the reachable mechanism is
-     a PER_FN textual splice on the .s -- the PER_FN_RA_SINK / PROLOGUE_UNSINK family
-     already wired in tools/build.py.  NAMED LANE CANDIDATE: sink `sw s5,68(sp)` to
-     retail insn 11 and `lw s5,96(sp)` into the lbu load-delay slot at 17, which also
-     deletes the nop and lands the count. */
-/* w53-a1 RE-GATE: 5 diffs, ours 190 / oracle 189, UNCHANGED.  The w51-a10
-     diagnosis is re-confirmed against the current object: the only residual is
-     the 5th (STACK) argument's assign_parms reload -- ours emits
-     `sw s5,68(sp); lw s5,96(sp)` as insns 5-6 and pays a `nop` at insn 17,
-     retail saves s0,s4,ra,s5,... and SINKS `lw s5,96(sp)` into the
-     `lbu $v0,3($s4)` load-delay slot at insn 16.  Nothing in the source can
-     reach assign_parms (proven again by this wave's DrawQuad work: every fence
-     form COSTS instructions when the target is a prologue copy).
-     >>> ORCHESTRATOR ACTION: this is a PER_FN textual-splice lane exactly like
-     the already-wired PER_FN_RA_SINK / PER_FN_EPILOGUE_UNFILL in tools/build.py.
-     The splice is 2 moves inside the `.ent` region:
-         (a) move `sw $21,68($sp)`  to just after `sw $31,72($sp)`
-         (b) move `lw $21,96($sp)`  to just after `lbu $2,3($20)` (deleting the
-             `nop` that follows it)
-     -> count 189 == 189 and the fn PASSes.  I am not permitted to edit
-     tools/*.py, so this stays a named lane, not a landing. */
-/* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 8/189 */
-/* SYM-CODEGEN-CARRIER: drawResult -- direct gNight_renderNight guard is current FAIL 6/189 */
-/* SYM-CODEGEN-CARRIER: stack-argument alias; placement is load-bearing */
-/* MATCH: SYM 0x800c8214 shows ONLY tmp/tmp2 (+REG offset) as locals; u_char
-     isCullable had emitted a bogus `andi 255` (retyped int), and the mirror
-     expression now groups (cnt*2+1) before the base add per the oracle
-     `sll;addiu 4;addu`. */
-/* SYM-CODEGEN-CARRIER: posX -- split target-position load preserves the retail pointer chase */
-/* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */
-/* SYM-CODEGEN-CARRIER: posZ -- direct three-axis expressions are current FAIL 38/185 */
-/* SYM-CODEGEN-CARRIER: m -- mixed base/direct matB lvalues keep retail's store bases; fully direct form is FAIL 4/189 */
-/* SYM-CODEGEN-CARRIER: tX -- split load fixes the clip-store issue position */
-/* SYM-CODEGEN-CARRIER: tY -- y-axis member of the same source statement split */
-/* SYM-CODEGEN-CARRIER: tZ -- folding all six loads is current FAIL 12/189 */
-/* MATCH / partial source recovery 2026-10-25: all supplied local tuples and
- * every instruction/file tag now agree. Use the supplied cache overlay fields,
- * actual negative-first vector expressions and direct count/result/material
- * work, not unprovided captures. No new helper or invented identifier.
- * SourceRecoveryUnresolved: the existing matrix-pointer m captures and their
- * extra regions remain unprovided. Do not infer original objects from failed
- * direct-address controls. This is not a full strict function certificate.
- * Original offset is the actual parameter, not an offsetArg/local alias.
- * tmp/tmp2 belong to the night-rendering arm, not function root.
- * Existing GTE macro calls are retained, with no new asm/volatile or rewrite.
- * Receipt: build/nc12/draww_object_vectors_20261025/final-proof.json. */
-#line 2259 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coorddef *pCp,int offset)
 
 {
@@ -4461,28 +4329,28 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
 
 
   ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 0;
-  if (gNight_renderNight != 0)
+  if (gNight_renderNight)
   { coorddef tmp; coorddef tmp2;
     ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 4;
-    if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
+    if (Cars_gList[Vi->player]->control.lights & 6U) {
       ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 5; }
 
 
 
-    tmp.x = -(((Camera_gInfo[Vi->player].target)->position).x) + (Vi->cview).translation.x;
-    tmp.y = -(((Camera_gInfo[Vi->player].target)->position).y) + (Vi->cview).translation.y;
-    tmp.z = -(((Camera_gInfo[Vi->player].target)->position).z) + (Vi->cview).translation.z;
+    tmp.x = -(Camera_gInfo[Vi->player].target->position.x) + Vi->cview.translation.x;
+    tmp.y = -(Camera_gInfo[Vi->player].target->position.y) + Vi->cview.translation.y;
+    tmp.z = -(Camera_gInfo[Vi->player].target->position.z) + Vi->cview.translation.z;
 
 
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
-    if (BW_gCopCarObj != (Car_tObj *)0x0) {
+    if (BW_gCopCarObj) {
 
-      ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags | 2;
+      ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags |= 2;
 
-      tmp.x = -((BW_gCopCarObj->N).position.x) + (Vi->cview).translation.x;
-      tmp.y = -((BW_gCopCarObj->N).position.y) + (Vi->cview).translation.y;
-      tmp.z = -((BW_gCopCarObj->N).position.z) + (Vi->cview).translation.z;
+      tmp.x = -(BW_gCopCarObj->N.position.x) + Vi->cview.translation.x;
+      tmp.y = -(BW_gCopCarObj->N.position.y) + Vi->cview.translation.y;
+      tmp.z = -(BW_gCopCarObj->N.position.z) + Vi->cview.translation.z;
 
       transform(&tmp.x,gCopMat.m,&tmp2.x);
       DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop); }
@@ -4494,15 +4362,15 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
 
     ((Draw_tGiveShelbyMoreCache *)sd)->offset = Draw_gMidGroundOtz;
 
-    ((Draw_tGiveShelbyMoreCache *)sd)->trans.x = (short)(-((Vi->cview).translation.x) + pCp->x >> 0xc);
-    ((Draw_tGiveShelbyMoreCache *)sd)->trans.y = (short)(-((Vi->cview).translation.y) + pCp->y >> 0xc);
-    ((Draw_tGiveShelbyMoreCache *)sd)->trans.z = (short)(-((Vi->cview).translation.z) + pCp->z >> 0xc);
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.x = -(Vi->cview.translation.x) + pCp->x >> 0xc;
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.y = -(Vi->cview.translation.y) + pCp->y >> 0xc;
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.z = -(Vi->cview.translation.z) + pCp->z >> 0xc;
 
   } else {
 
-    ((Draw_tGiveShelbyMoreCache *)sd)->trans.x = (short)(-((Vi->cview).translation.x) + pCp->x >> 10);
-    ((Draw_tGiveShelbyMoreCache *)sd)->trans.y = (short)(-((Vi->cview).translation.y) + pCp->y >> 10);
-    ((Draw_tGiveShelbyMoreCache *)sd)->trans.z = (short)(-((Vi->cview).translation.z) + pCp->z >> 10);
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.x = -(Vi->cview.translation.x) + pCp->x >> 10;
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.y = -(Vi->cview.translation.y) + pCp->y >> 10;
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.z = -(Vi->cview.translation.z) + pCp->z >> 10;
   }
 
 
@@ -4521,7 +4389,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
 
 
 
-  return (u_int)objDef->quadCount; }
+  return objDef->quadCount; }
 
 /* w55-a9 NEGATIVE: the w48 zero-insn VOID fence `__asm__("" : : "i"(0))` was swept over
  * EVERY statement of the body (scratchpad/w55a9_fencesweep.py, each position gated).  No
@@ -4696,10 +4564,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   groupNumElements = instGroup->m_num_elements;
   doFrustumClip = gObjInfo->doFrustumClip;
   totalCount = 0;
-  if (groupNumElements == 0) {
-    totalCount = 0;
-  }
-  else {
+  if (groupNumElements != 0) {
     /* CORRECTNESS (2026-08-01, same class as the DoTrough/kCtrlSkidmark finds):
      * the GTE translation vector zeroed here must be the SCRATCHPAD matrix at
      * 0x1F800014 (== sd->matB) that the very next gte_SetTransMatrix loads --
@@ -4722,23 +4587,23 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      * semantics, and it is what makes the insn count EXACT (433 -> 434 == oracle). */
     *(int *)0x1f800028 = 0;
 gte_SetTransMatrix(&DW_WORLDMAT);
-    for (int objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
-      objectOffset = (int)goffsets[objInstance->zoffset];
+    for (int objectIndex = 0; objectIndex < groupNumElements; ++objectIndex) {
+      objectOffset = goffsets[objInstance->zoffset];
       type = objInstance->type;
       /* MATCH: oracle is a CASCADE of separate ifs, not one fused ||/&& expression --
          type==5 short-circuits straight to emit (skipping the clip test entirely), and
          the final type!=2 check is a FRESH re-read of objInstance->type from memory
          (`lbu` after the ObjectClipped() call), not a reuse of the cached type. */
-      if ((type & 0x80) != 0) {
+      if (type & 0x80) {
         goto DrawWChunkFacets_groupNext;
       }
       if (type != 5) {
-        if (doFrustumClip != 0) {
+        if (doFrustumClip) {
           /* rule-8: the SYM names NO local for either the clip result or the
            * heading -- both were invented temps whose register pressure pushed
            * `totalCount` (SYM REG $s7) out into a stack slot (frame 136 vs 128). */
-          if ((ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
-                             (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr) != 0)
+          if ((ObjectClipped(Vi,objInstance->pad,(coorddef *)&objInstance->x,
+                             (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr))
               && (objInstance->type != 2)) {
             goto DrawWChunkFacets_groupNext;
           }
@@ -4750,7 +4615,7 @@ gte_SetTransMatrix(&DW_WORLDMAT);
        * global meant the subdivision offset never reached the renderer. */
       DW_SCRATCH->offsubdivid = 0x400;
       light = -1;
-      if ((objInstance->flags & 1) != 0) {
+      if (objInstance->flags & 1) {
         fixedxformy(matrix.m,
                     fixedatan(objInstance->x - (Vi->cview).translation.x,
                               objInstance->z - (Vi->cview).translation.z));
@@ -4758,8 +4623,8 @@ gte_SetTransMatrix(&DW_WORLDMAT);
           /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
           int t1, t2, t3 /* SYM-CODEGEN-CARRIER: t3 -- split fixedmult result delays only the matrix store, preserving retail call/store scheduling */, sx, sy;
 
-          sx = (int)((Trk_CollideBoomInst *)objInstance)->qz << 8;
-          sy = (int)((Trk_CollideBoomInst *)objInstance)->qy << 8;
+          sx = ((Trk_CollideBoomInst *)objInstance)->qz << 8;
+          sy = ((Trk_CollideBoomInst *)objInstance)->qy << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           t3 = fixedmult(matrix.m[6],sx);
@@ -4783,7 +4648,7 @@ gte_SetTransMatrix(&DW_WORLDMAT);
         }
         objDef = Track_gObjDefs[objInstance->pad];
 DrawWChunkFacets_emitObj:
-        totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+        totalCount += DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                             (coorddef *)&objInstance->x,objectOffset,light);
       }
       else {
@@ -4803,7 +4668,7 @@ DrawWChunkFacets_emitObj:
              exactly as retail.  The old case-1 foreign-operand fence is obsolete;
              its allocation role is now carried after case 5's first Object_GetAnim
              call, where it does not pin this argument block. */
-          totalCount = totalCount + DrawObjectSimple(Vi,(Draw_DCache *)&Render_gPalettePtr,
+          totalCount += DrawObjectSimple(Vi,(Draw_DCache *)&Render_gPalettePtr,
                               (objDef = Track_gObjDefs[objInstance->pad]),
                               (coorddef *)&objInstance->x,objectOffset);
           break;
@@ -4812,9 +4677,9 @@ DrawWChunkFacets_emitObj:
           int t1, t2, t3, sx, sy, sz;
 
           Quatern_QuatToMat((tQuat *)&((Trk_CollideBoomInst *)objInstance)->qx,&matrix);
-          sx = (int)((Trk_CollideBoomInst *)objInstance)->sx << 8;
-          sy = (int)((Trk_CollideBoomInst *)objInstance)->sy << 8;
-          sz = (int)((Trk_CollideBoomInst *)objInstance)->sz << 8;
+          sx = ((Trk_CollideBoomInst *)objInstance)->sx << 8;
+          sy = ((Trk_CollideBoomInst *)objInstance)->sy << 8;
+          sz = ((Trk_CollideBoomInst *)objInstance)->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           t3 = fixedmult(matrix.m[6],sx);
@@ -4849,7 +4714,7 @@ DrawWChunkFacets_emitObj:
            * is the catalog's cross-jump-DEPTH-follows-the-variable rule; assigning
            * `light` in all three arms collapsed them to one depth AND turned both `lh`
            * sites into `lhu` (census lh 19v21 / lhu 3v1). */
-          totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+          totalCount += DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                               (coorddef *)&objInstance->x,objectOffset,
                               *(short *)&((Trk_CollideBoomInst *)objInstance)->simIndex);
           break;
@@ -4858,9 +4723,9 @@ DrawWChunkFacets_emitObj:
         /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
         int t1, t2, t3, sx, sy;
 
-        xformy(&matrix,(int)((Trk_CollideBoomInst *)objInstance)->qx);
-        sx = (int)((Trk_CollideBoomInst *)objInstance)->qz << 8;
-        sy = (int)((Trk_CollideBoomInst *)objInstance)->qy << 8;
+        xformy(&matrix,((Trk_CollideBoomInst *)objInstance)->qx);
+        sx = ((Trk_CollideBoomInst *)objInstance)->qz << 8;
+        sy = ((Trk_CollideBoomInst *)objInstance)->qy << 8;
         t1 = fixedmult(matrix.m[0],sx);
         t2 = fixedmult(matrix.m[3],sx);
         t3 = fixedmult(matrix.m[6],sx);
@@ -4882,7 +4747,7 @@ DrawWChunkFacets_emitObj:
         DW_SCRATCH->offsubdivid = 0;
         objDef = Track_gObjDefs[objInstance->pad];
         /* MATCH (w41-a2): inline light, see the case-2 note. */
-        totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+        totalCount += DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                             (coorddef *)&objInstance->x,objectOffset,
                             ((Trk_CollideBoomInst *)objInstance)->qw);
         break;
@@ -4892,14 +4757,14 @@ DrawWChunkFacets_emitObj:
         anim = Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex);
         /* Zero-insn qty dial: objDef is live here, so this foreign operand buys
            the live-length point needed for objDef=$s6 without perturbing case 1. */
-        if (anim == (ObjectAnim *)0x0) {
+        if (!anim) {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
           int t1, t2, t3, sx, sy, sz;
 
           Quatern_QuatToMat((tQuat *)&((Trk_CollideBoomInst *)objInstance)->qx,&matrix);
-          sx = (int)((Trk_CollideBoomInst *)objInstance)->sx << 8;
-          sy = (int)((Trk_CollideBoomInst *)objInstance)->sy << 8;
-          sz = (int)((Trk_CollideBoomInst *)objInstance)->sz << 8;
+          sx = ((Trk_CollideBoomInst *)objInstance)->sx << 8;
+          sy = ((Trk_CollideBoomInst *)objInstance)->sy << 8;
+          sz = ((Trk_CollideBoomInst *)objInstance)->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           t3 = fixedmult(matrix.m[6],sx);
@@ -4933,7 +4798,7 @@ DrawWChunkFacets_emitObj:
            * (`lh $s1,0x1E($s4); sll $s1,$s1,8`) -- so `light` got spilled to a
            * HImode stack slot, costing the phantom 8 frame bytes (136 vs SYM
            * fsize 128) and rotating totalCount off $s7 onto $fp. */
-          totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+          totalCount += DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                               (coorddef *)&objInstance->x,objectOffset,-1);
           break;
           }
@@ -4986,7 +4851,7 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
      PASS (2026-07-05, was 43 diffs 52-vs-61 insns -> 100% MATCH, 61==61 insns). The
      43-diff residual was NOT a scheduling/hoist issue as first suspected -- it was TWO
      more source-shape misses, same family as the STRUCT-COPY lever above:
-     (1) `trans = (Vi->cview).translationInv;` (an aggregate struct assign) makes gcc
+     (1) `trans = Vi->cview.translationInv;` (an aggregate struct assign) makes gcc
      block-copy via 3 PARALLEL temps ($t0-$t2 load-all/store-all); the oracle instead
      copies FIELD-BY-FIELD, one load+store at a time (`lw v0,0x38(a3); sw v0,0x30(sp);
      lw v0,0x3c(a3); sw v0,0x34(sp); ...`), reusing a SINGLE scratch ($v0) interleaved
@@ -5009,18 +4874,18 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
   tBoundingSphere *bSphere;
 
   bSphere = (tBoundingSphere *)gPersistObjDefBoundingSpheres->GetData() + ind;
-  tmp.x = bSphere->cp.x * 0x400 + pCp->x;
-  tmp.y = bSphere->cp.y * 0x400 + pCp->y;
-  tmp.z = bSphere->cp.z * 0x400 + pCp->z;
-  trans.x = (Vi->cview).translationInv.x;
-  trans.y = (Vi->cview).translationInv.y;
-  trans.z = (Vi->cview).translationInv.z;
-  transform(&tmp.x,(Vi->cview).mrotationInv.m,&tmp2.x);
-  tmp2.x = tmp2.x + trans.x;
-  tmp2.y = tmp2.y + trans.y;
-  tmp2.z = tmp2.z + trans.z;
-  tmp2.z = tmp2.z + bSphere->radius * 0x400;
-  return (tmp2.x <= tmp2.z) ? (u_int)(tmp2.z < -tmp2.x) : 1;
+  tmp.x = bSphere->cp.x * 1024 + pCp->x;
+  tmp.y = bSphere->cp.y * 1024 + pCp->y;
+  tmp.z = bSphere->cp.z * 1024 + pCp->z;
+  trans.x = Vi->cview.translationInv.x;
+  trans.y = Vi->cview.translationInv.y;
+  trans.z = Vi->cview.translationInv.z;
+  transform(&tmp.x,Vi->cview.mrotationInv.m,&tmp2.x);
+  tmp2.x += trans.x;
+  tmp2.y += trans.y;
+  tmp2.z += trans.z;
+  tmp2.z += bSphere->radius * 1024;
+  return (tmp2.x <= tmp2.z) ? (tmp2.z < -tmp2.x) : 1;
 }
 
 /* w55-a9 TRIAGE + NEGATIVE.  Re-gated 30 @222/222 (count EXACT).  chunkdiff localises the
@@ -5069,7 +4934,9 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
            the `sh zero,218(s6)` store moves down into the `lw a1` load-delay slot
            (killing our extra nop) and the `lui/addiu` of &gInitialArt splits
            around the chunkCount spill + the gCurrContext load.  -3 then -8 diffs.
-           => TU-WIDE SWEEP CANDIDATE: every `(char *)sd + 0xNN` cast in this file.
+           => FOLLOW-UP (2026-10-27): the remaining live `sd + 0x148` short store
+           now uses `Draw_tGiveShelbyMoreCache::offsubdivid`; no active short-store
+           `char *` offsets from `sd` remain in this file.
            CORPUS CORROBORATION (mined this wave, C:/Temp/ps1-decomp-refs/
            tenchu-decomp/docs/compiler-facts.md:155 + matching-cookbook.md:1379):
            tenchu records the SAME mechanism from the other side and sharpens it --
@@ -5248,8 +5115,9 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
  * The real for owns buildInd and closes its work scope before the increment.
  * SourceRecoveryUnresolved: eight earlier supplied region records are missing;
  * this is not a strict SYM/SLD seal.
- * Original macro spelling and the flat visibility-buffer declaration remain
- * source-review work. No new asm, volatile, dummy use or statement anchor.
+ * Original macro spelling remains source-review work. The visibility-list
+ * address now uses the matching 32-short row view in this site; the external
+ * `short **` declaration is unchanged. No asm, volatile, dummy use or anchor.
  * Receipt: build/nc12/draww_objects_source_20261025/final-proof.json. */
 #line 2715 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
@@ -5276,25 +5144,25 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-    if (((u_int)buildList[buildInd].enableBits & 2U) != 0) {
+    if (buildList[buildInd].enableBits & 2) {
 
 
 
 
       chunkInd = buildList[buildInd].chunkInd;
-      geomRez = (int)*(signed char *)&buildList[buildInd].geomRez;
+      geomRez = *(signed char *)&buildList[buildInd].geomRez;
       chunkDat = Track_chunkList + chunkInd;
       simObjs = (Trk_SimObject *)(chunkDat->simObjBuf + 1);
 
 
-      if (chunkDat->objInstanceBuf != (Group *)0x0) {
+      if (chunkDat->objInstanceBuf) {
 
         sd->doublelayer = 1;
 
 
         gChunkObjInfo.objInstanceBuf = chunkDat->objInstanceBuf;
         gChunkObjInfo.simObjs = simObjs;
-        gChunkObjInfo.doFrustumClip = (int)(geomRez == 4);
+        gChunkObjInfo.doFrustumClip = geomRez == 4;
 
 
 
@@ -5314,7 +5182,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-      if (((GameSetup_gData.Time == 0) && (GameSetup_gData.Weather == 0)) && (chunkDat->objSpecialInstanceBuf != (Group *)0x0)) {
+      if (((GameSetup_gData.Time == 0) && (GameSetup_gData.Weather == 0)) && (chunkDat->objSpecialInstanceBuf)) {
 
 
 
@@ -5324,7 +5192,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-        gChunkObjInfo.visList = (short *)0x0;
+        gChunkObjInfo.visList = 0;
         gChunkObjInfo.simObjs = simObjs;
         gChunkObjInfo.objInstanceBuf = chunkDat->objSpecialInstanceBuf;
         gChunkObjInfo.zClipSq = -1;
@@ -5342,12 +5210,12 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
   { sd->doublelayer = 0;
-  *(short *)((char *)sd + 0x148) = 0x400;
+  ((Draw_tGiveShelbyMoreCache *)sd)->offsubdivid = 0x400;
 
 
 
 
-  if (gPersistObjInst != (Group *)0x0) {
+  if (gPersistObjInst) {
 
 
 
@@ -5363,11 +5231,11 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
     if (((GameSetup_gData.track != 4) || (((0x27 < (u_int)(thisChunkInd - 1U) && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) && ((GameSetup_gData.track != 0 || (((0x34 < (u_int)(thisChunkInd - 1U) && (0x1b < thisChunkInd - 0x44U)) && (0x13 < thisChunkInd - 0x6cU)))))) {
 
       gChunkObjInfo.objInstanceBuf = gPersistObjInst;
-      gChunkObjInfo.simObjs = (Trk_SimObject *)0x0;
+      gChunkObjInfo.simObjs = 0;
       gChunkObjInfo.offset = 0x7d;
       gChunkObjInfo.doFrustumClip = 1;
       gChunkObjInfo.zClipSq = gCurrContext->polyFarZClipSq;
-      gChunkObjInfo.visList = (short *)0x0;
+      gChunkObjInfo.visList = 0;
 
       gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
       DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
@@ -5379,10 +5247,10 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-  if (gPersistMidgroundObjInst != (Group *)0x0) {
+  if (gPersistMidgroundObjInst) {
 
-    gChunkObjInfo.visList = (short *)((char *)Track_gInViewList + thisChunkInd * 0x40);
-    gChunkObjInfo.simObjs = (Trk_SimObject *)0x0;
+    gChunkObjInfo.visList = ((short (*)[32])Track_gInViewList)[thisChunkInd];
+    gChunkObjInfo.simObjs = 0;
     gChunkObjInfo.objInstanceBuf = gPersistMidgroundObjInst;
     gChunkObjInfo.zClipSq = -1;
     gChunkObjInfo.offset = -1;
@@ -5399,9 +5267,9 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 
 
 
-  if ((Object_customObjInst != (Group *)0x0) && (0 < Object_customObjInst->GetNumElements())) {
+  if ((Object_customObjInst) && (Object_customObjInst->GetNumElements() > 0)) {
 
-    DrawW_BuildCustomObjectFacets(Vi,sd,(Trk_SimObject *)(Object_customSimObjs + 1),Object_customObjInst,gCurrContext->polyFarZClipSq); } return; }
+    DrawW_BuildCustomObjectFacets(Vi,sd,(Trk_SimObject *)(Object_customSimObjs + 1),Object_customObjInst,gCurrContext->polyFarZClipSq); } }
 
 /* ---- Draw_CircleClip__FP8coorddefT0i  [DRAWW.CPP:2888-2896] covered SLD requires native comparison ---- */
 #line 2887 "C:/nfs4/GAME/PSX/DRAWW.CPP"
@@ -5411,11 +5279,11 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
   int dz;
 
   dx = pt1->x - pt2->x;
-  if (dx < 1) {
+  if (dx <= 0) {
     dx = pt2->x - pt1->x;
   }
   dz = pt1->z - pt2->z;
-  if (dz < 1) {
+  if (dz <= 0) {
     dz = pt2->z - pt1->z;
   }
   {
@@ -5895,17 +5763,17 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      overweights ccount/skidIdx in local allocation and fabricates a register
      handout that is absent from the retail build. */
   do {
-      ccount = ccount + -1;
+      ccount--;
       if (ccount == -1) {
         return;
       }
       /* MATCH (w80-a4): keep the retail byte cursor explicit.  Together with
        * the split row-0 shifts above this schedules the multiply between the
        * shifts and stores and reproduces the retail local-allocation handout. */
-      skidIdx = skidIdx + -0x2b0;
+      skidIdx -= 0x2b0;
       sm = (Skidmark_Chunk *)((int)fskid->smp + skidIdx);
-      if ((BWorld_IsSliceInBuildList((int)sm->slice) != 0) &&
-          (Draw_CircleClip(&sm->cp,t,0x320000) != 0)) {
+      if ((BWorld_IsSliceInBuildList(sm->slice)) &&
+          (Draw_CircleClip(&sm->cp,t,0x320000))) {
     {
     {
     coorddef td;
@@ -5927,7 +5795,7 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 gte_SetRotMatrix(&sd->matB);
 gte_SetTransMatrix(&sd->matB);
     count = *(int *)&sm->n;
-    for (i = 0; i < (short)count; i = i + 1) {
+    for (i = 0; i < (short)count; i++) {
       /* MATCH (2026-07-11): oracle re-reads Render_gPacketEnd's TRUE storage
        * address (scratchpad 0x1F800008, same "Render_gPacketPtr style" fixed-
        * lvalue idiom as nfs4_types.h's Render_gPacketPtr/Render_gPalettePtr
@@ -6046,8 +5914,7 @@ gte_stlvnl(&sd->tVn3);
            * later `sw $v0,0xC($a2)` / `lhu $v1,0xE($a2)` pixmap+clut stores.
            * POLY_GT4: x1y1@0x14, x2y2@0x20, x3y3@0x2C.  Also -3 insns: the
            * oracle's addiu-off-prim replaces our lui/ori literal pairs. */
-gte_stsxy3((void *)((int)prim + 0x14),(void *)((int)prim + 0x2c),
-                     (void *)((int)prim + 0x20));
+gte_stsxy3(&prim->x1,&prim->x3,&prim->x2);
           gte_avsz4();
           /* MATCH (w72-a1): retail STORES the GTE OTZ through the literal
            * 0x1F800094 pointer it keeps in $fp (`swc2 $7,0($fp)`) but READS and
@@ -6057,11 +5924,11 @@ gte_stsxy3((void *)((int)prim + 0x14),(void *)((int)prim + 0x2c),
            * lui/ori 0x1F800094 pair for the store operand. */
 gte_swc2(0x7,otz94);
           save_pre_otz = sd->otz >> 5;
-          sd->otz = save_pre_otz + 0x32;
+          sd->otz = save_pre_otz + 50;
           if (sd->otz < 1) {
             return;
           }
-          if (Draw_gViewOtSize + -3 < sd->otz) {
+          if (sd->otz > Draw_gViewOtSize - 3) {
             return;
           }
           /* MATCH (w46-a6, step B -- the ONE inverted arm brcensus flagged as
@@ -6069,22 +5936,22 @@ gte_swc2(0x7,otz94);
            * @0x800C94B0, i.e. the GREY arm is the FALL-THROUGH and the pixmap
            * arm is the branch TARGET.  Writing `if (type == 0)` first
            * emitted `bnez` and swapped the two blocks' physical order. */
-          if (type != 0) {
-            *(u_int *)((int)prim + 4) = grey;
-            *(u_int *)((int)prim + 0x10) = grey;
-            *(u_int *)((int)prim + 0x28) = grey;
-            *(u_int *)((int)prim + 0x1c) = grey;
+          if (type) {
+            *(u_int *)&prim->r0 = grey;
+            *(u_int *)&prim->r1 = grey;
+            *(u_int *)&prim->r3 = grey;
+            *(u_int *)&prim->r2 = grey;
           }
           else {
-            *(int *)((int)prim + 4) = *(int *)&sm->seg[i].rgb;
-            *(int *)((int)prim + 0x10) = *(int *)&sm->seg[i].rgb;
-            *(u_int *)((int)prim + 0x28) =
+            *(int *)&prim->r0 = *(int *)&sm->seg[i].rgb;
+            *(int *)&prim->r1 = *(int *)&sm->seg[i].rgb;
+            *(u_int *)&prim->r3 =
                  *(u_int *)&sm->seg[i].next->rgb;
-            *(u_int *)((int)prim + 0x1c) =
+            *(u_int *)&prim->r2 =
                  *(u_int *)&sm->seg[i].next->rgb;
           }
-          *(u_char *)((int)prim + 7) = 0x3e;
-          *(u_char *)((int)prim + 3) = 0xc;
+          prim->code = 0x3e;
+          ((u_char *)&prim->tag)[3] = 0xc;
           /* MATCH (w41-a2): SYM block @0x800C950C line 119 declares FOUR ULONG REG
            * locals l0..l3 ($2/$3/$4/$5).  The oracle batches all four pixmap word
            * loads (lw v0,0(a3); lw v1,4(a3); lw a0,8(a3); lw a1,0xC(a3)) and only
@@ -6098,10 +5965,10 @@ gte_swc2(0x7,otz94);
             l1 = *(u_long *)&pmx->u1;
             l2 = *(u_long *)&pmx->u2;
             l3 = *(u_long *)&pmx->u3;
-            *(u_long *)((int)prim + 0xc) = l0;
-            *(u_long *)((int)prim + 0x18) = l1;
-            *(u_long *)((int)prim + 0x24) = l2;
-            *(u_long *)((int)prim + 0x30) = l3;
+            *(u_long *)&prim->u0 = l0;
+            *(u_long *)&prim->u1 = l1;
+            *(u_long *)&prim->u2 = l2;
+            *(u_long *)&prim->u3 = l3;
           }
           /* CORRECTNESS + MATCH (w41-a2, census lh 4v2 / lhu 2v5):
            * (a) the POLY_GT4 clut at +0xE is a U_SHORT compared against the literal
@@ -6118,7 +5985,7 @@ gte_swc2(0x7,otz94);
            *     The `sll 16; sra 16` on the first one is the u_short read narrowed
            *     back to SIGNED for the subtract; the second stays unsigned (it is a
            *     shift COUNT feeding `srav`). */
-          if (*(u_short *)((int)prim + 0xe) == 0xffff) {
+          if (prim->clut == 0xffff) {
             int depth_index;
 
             /* MATCH (w46-a6): read the fog pair by DISPLACEMENT off the shared
@@ -6131,7 +5998,7 @@ gte_swc2(0x7,otz94);
             if (depth_index < 0) {
               depth_index = 0;
             }
-            else if (0xf < depth_index) {
+            else if (depth_index > 15) {
               depth_index = 0xf;
             }
             *(short *)((int)prim + 0xe) =
@@ -6312,10 +6179,10 @@ void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache *sd)
   DrawW_LoadPrecVECTOR(v1,&sd->tVn1);
   DrawW_LoadPrecVECTOR(v2,&sd->tVn2);
   DrawW_LoadPrecVECTOR(v3,&sd->tVn3);
-gte_ldv0(((char *)sd + 0x14c));
+gte_ldv0(&v0->vx);
   gte_rtps();
-gte_swc2(0xe,((char *)sd + 0x154));
-gte_ldv3(((char *)sd + 0x15c),((char *)sd + 0x16c),((char *)sd + 0x17c));
+gte_swc2(0xe,&v0->dvx);
+gte_ldv3(&v1->vx,&v2->vx,&v3->vx);
   gte_rtpt();
   prim = &sd->GT4Prim;
   {
@@ -6329,7 +6196,7 @@ gte_ldv3(((char *)sd + 0x15c),((char *)sd + 0x16c),((char *)sd + 0x17c));
     *(u_long *)&v3->r = b;
     *(u_long *)&v0->r = b;
   }
-gte_stsxy3(((char *)sd + 0x164),((char *)sd + 0x174),((char *)sd + 0x184));
+gte_stsxy3(&v1->dvx,&v2->dvx,&v3->dvx);
   {
     u_short a;
     u_short b;
@@ -6345,39 +6212,41 @@ gte_stsxy3(((char *)sd + 0x164),((char *)sd + 0x174),((char *)sd + 0x184));
     *(u_short *)&v2->u = c;
     *(u_short *)&v3->u = d;
   }
-  v0->a = '\0';
-  if (v0->dvx < 0x3e9) {
-    if ((((1000 < v0->dvy) || (v0->dvx < -1000)) || (v0->dvy < -1000)) || (v0->vz < 0x65))
-    goto DrW_SubSetupLine_v0Alpha;
+  v0->a = 0;
+  if (v0->dvx < 1001) {
+    if (1000 < v0->dvy || v0->dvx < -1000 ||
+        v0->dvy < -1000 || v0->vz < 101)
+      goto DrW_SubSetupLine_v0Alpha;
   }
   else {
 DrW_SubSetupLine_v0Alpha:
-    v0->a = '\x01';
+    v0->a = 1;
   }
-  v1->a = '\0';
-  if (v1->dvx < 0x3e9) {
-    if (((1000 < v1->dvy) || (v1->dvx < -1000)) || ((v1->dvy < -1000 || (v1->vz < 0x65))))
-    goto DrW_SubSetupLine_v1Alpha;
+  v1->a = 0;
+  if (v1->dvx < 1001) {
+    if (1000 < v1->dvy || v1->dvx < -1000 ||
+        v1->dvy < -1000 || v1->vz < 101)
+      goto DrW_SubSetupLine_v1Alpha;
   }
   else {
 DrW_SubSetupLine_v1Alpha:
-    v1->a = '\x01';
+    v1->a = 1;
   }
-  v2->a = '\0';
-  if (v2->dvx < 0x3e9) {
-    if (((1000 < v2->dvy) || (v2->dvx < -1000)) || ((v2->dvy < -1000 || (v2->vz < 0x65))))
-    goto DrW_SubSetupLine_v2Alpha;
+  v2->a = 0;
+  if (v2->dvx < 1001) {
+    if (1000 < v2->dvy || v2->dvx < -1000 ||
+        v2->dvy < -1000 || v2->vz < 101)
+      goto DrW_SubSetupLine_v2Alpha;
   }
   else {
 DrW_SubSetupLine_v2Alpha:
-    v2->a = '\x01';
+    v2->a = 1;
   }
-  v3->a = '\0';
-  if (v3->dvx < 0x3e9) {
-    if ((((v3->dvy < 0x3e9) && (-0x3e9 < v3->dvx)) && (-0x3e9 < v3->dvy)) && (100 < v3->vz))
+  v3->a = 0;
+  if (v3->dvx < 1001 && v3->dvy < 1001 && -1001 < v3->dvx &&
+      -1001 < v3->dvy && 100 < v3->vz)
     goto DrW_SubSetupLine_callSubdiv;
-  }
-  v3->a = '\x01';
+  v3->a = 1;
 DrW_SubSetupLine_callSubdiv:
   DrawW_SubdividFacet(sd,0,v0,v1,v2,v3,0,0);
   return;
@@ -6558,9 +6427,9 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
 
   lineQuadCount = 0;
   sd->offsubdivid = 0x200;
-  while (lineQuadCount < count + -1) {
+  while (lineQuadCount < count - 1) {
     g2 = (int *)geomVertices + 4;
-    while ((lineQuadCount < count + -1) && (lineQuad->type != 0xff)) {
+    while ((lineQuadCount < count - 1) && (lineQuad->type != 0xff)) {
       int linetype;
       linetype = lineQuad->type;
       pmx = gDLPixmap[linetype];
@@ -6577,9 +6446,9 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
         ((int *)&vt2)[0] = t1; ((int *)&vt2)[1] = t2;
         t1 = g2[0]; t2 = ((int *)geomVertices)[5];
         ((int *)&vt3)[0] = t1; ((int *)&vt3)[1] = t2; }
-      gte_ldv0((int *)(&vt0));
+      gte_ldv0(&vt0);
       gte_rtps();
-      gte_stlvnl(((char *)sd + 0x98));
+      gte_stlvnl(&sd->tVn0);
       /* CORRECTNESS (oracle @0x800C99C8): the SXY writes target the CURRENT packet
        * cursor (Render_gPacketPtr + 8 / +0x14 / +0x2C / +0x20), never the fixed
        * scratchpad literals -- 0x1F800008 is Render_gPacketEnd's own slot. */
@@ -6592,22 +6461,21 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
          `packetPtr` local gave that value a CALLER-saved home ($a1) instead of
          retail's callee-saved $s0 and rotated the whole parameter set. */
       prim = (POLY_GT4 *)Render_gPacketPtr;
-      gte_swc2(0xe,(void *)((char *)prim + 8));
-      gte_ldv0((int *)(&vt1));
+      gte_swc2(0xe,&prim->x0);
+      gte_ldv0(&vt1);
       gte_rtps();
-      gte_stlvnl(((char *)sd + 0xa8));
-      gte_ldv0((int *)(&vt2));
+      gte_stlvnl(&sd->tVn1);
+      gte_ldv0(&vt2);
       gte_rtps();
-      gte_stlvnl(((char *)sd + 0xb8));
-      gte_ldv0((int *)(&vt3));
+      gte_stlvnl(&sd->tVn2);
+      gte_ldv0(&vt3);
       gte_rtps();
-      gte_stlvnl(((char *)sd + 0xc8));
+      gte_stlvnl(&sd->tVn3);
       if (!((((sd->tVn0).vx < (sd->tVn0).vz || ((sd->tVn1).vx < (sd->tVn1).vz)) ||
              ((sd->tVn2).vx < (sd->tVn2).vz)) || ((sd->tVn3).vx < (sd->tVn3).vz))) goto loopbot;
       if (!((((-(sd->tVn0).vx < (sd->tVn0).vz) || (-(sd->tVn1).vx < (sd->tVn1).vz)) ||
              (-(sd->tVn2).vx < (sd->tVn2).vz)) || (-(sd->tVn3).vx < (sd->tVn3).vz))) goto loopbot;
-      gte_stsxy3((void *)((char *)prim + 0x14),(void *)((char *)prim + 0x2c),
-                 (void *)((char *)prim + 0x20));
+      gte_stsxy3(&prim->x1,&prim->x3,&prim->x2);
       {
         long bfct;
 
@@ -6625,11 +6493,11 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
       int save_pre_otz;
       int depthcue;
       save_pre_otz = sd->otz >> 1;
-      doSubdivision = (int)(sd->otz < 200);
+      doSubdivision = sd->otz < 200;
       sd->otz = save_pre_otz + 0x4b;
       if (sd->otz <= 0) goto loopbot;
       if (Draw_gViewOtSize + -3 < sd->otz) goto loopbot;
-      if (doSubdivision != 0) {
+      if (doSubdivision) {
         prim = &sd->GT4Prim;
       }
       else {
@@ -6662,30 +6530,30 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
             : "$12", "$13", "$14", "memory");
       }
       gte_swc2(0x8,&depthcue);
-      if (sd->nightFlags != 0) {
-        if ((sd->nightFlags & 1U) != 0) {
+      if (sd->nightFlags) {
+        if (sd->nightFlags & 1U) {
           VECTOR temp0;
 
-          gte_SetRotMatrix(((char *)sd + 0x34));
-          gte_SetTransMatrix(((char *)sd + 0x34));
-          gte_ldv0((int *)(&vt2));
+          gte_SetRotMatrix(&sd->matNight);
+          gte_SetTransMatrix(&sd->matNight);
+          gte_ldv0(&vt2);
           gte_rt();
           gte_stlvnl(&temp0);
-          gte_ldv0((int *)(&vt3));
+          gte_ldv0(&vt3);
           gte_rt();
           Night_NightCalc(&temp0,&vt2.light,sd);
           gte_stlvnl(&temp0);
           Night_NightCalc(&temp0,&vt3.light,sd);
         }
-        if (BW_gCopCarObj != (Car_tObj *)0x0) {
+        if (BW_gCopCarObj) {
           VECTOR temp0;
 
-          gte_SetRotMatrix(((char *)sd + 0x54));
-          gte_SetTransMatrix(((char *)sd + 0x54));
-          gte_ldv0((int *)(&vt2));
+          gte_SetRotMatrix(&sd->matCop);
+          gte_SetTransMatrix(&sd->matCop);
+          gte_ldv0(&vt2);
           gte_rt();
           gte_stlvnl(&temp0);
-          gte_ldv0((int *)(&vt3));
+          gte_ldv0(&vt3);
           gte_rt();
           Night_NightCopCalc(&temp0,&vt2.light);
           gte_stlvnl(&temp0);
@@ -6702,8 +6570,8 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
           *(long *)&prim->r2 = a;
           *(long *)&prim->r0 = a;
         }
-        gte_SetRotMatrix(((char *)sd + 0x14));
-        gte_SetTransMatrix(((char *)sd + 0x14));
+        gte_SetRotMatrix(&sd->matB);
+        gte_SetTransMatrix(&sd->matB);
       }
       else {
         CVECTOR a;
@@ -6714,17 +6582,17 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
         gte_ldrgb(&a);
         gte_ldir0v(depthcue);
         gte_dpcs();
-        gte_swc2(0x16,(char *)prim + 0x1c);
+        gte_swc2(0x16,&prim->r2);
         *(CVECTOR *)&prim->r0 = *(CVECTOR *)&prim->r2;
         a = *(CVECTOR *)&Chunk_lightTable[vt2.light];
         gte_ldrgb(&a);
         gte_ldir0v(depthcue);
         gte_dpcs();
-        gte_swc2(0x16,(char *)prim + 0x28);
+        gte_swc2(0x16,&prim->r3);
         *(CVECTOR *)&prim->r1 = *(CVECTOR *)&prim->r3;
       }
       prim->code = 0x3e;
-      *(u_char *)((int)&prim->tag + 3) = 0xc;
+      ((u_char *)&prim->tag)[3] = 0xc;
       {
         u_long l0;
         u_long l1;
@@ -6745,7 +6613,7 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
       if (prim->clut == 0xffff) {
         int depth_index;
 
-        depth_index = (save_pre_otz - sd->startfog) * 0x10 >> ((int)sd->distfog);
+        depth_index = (save_pre_otz - sd->startfog) * 0x10 >> sd->distfog;
         if (depth_index < 0) {
           depth_index = 0;
         }
@@ -6754,9 +6622,9 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
         }
         prim->clut = gClutDepth[pmx->pad2][depth_index];
       }
-      if (doSubdivision != 0) {
-        gte_SetRotMatrix(((char *)sd + 0x74));
-        gte_SetTransMatrix(((char *)sd + 0x74));
+      if (doSubdivision) {
+        gte_SetRotMatrix(&sd->identMat);
+        gte_SetTransMatrix(&sd->identMat);
         if (stackSpeedUpEnbabledFlag != 0) {
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 0;
@@ -6767,8 +6635,8 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
         else {
           DrawW_SetUpSubdividFacet_Line(sd);
         }
-        gte_SetRotMatrix(((char *)sd + 0x14));
-        gte_SetTransMatrix(((char *)sd + 0x14));
+        gte_SetRotMatrix(&sd->matB);
+        gte_SetTransMatrix(&sd->matB);
       }
       }
 loopbot:
@@ -6787,15 +6655,12 @@ loopbot:
 }
 
 /* ---- DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16  [DRAWW.CPP:3344-3392] covered SLD requires native comparison ---- */
-/* MATCH/partial source recovery 2026-10-25: GetData on vertexBuf and the real
- * for loop restore all20 supplied complete owner tuples (previously12/20).
- * All88 absolute word/file tags, region/frame/header/end facts now match.
- * Native still has EXTRA rn: its address value is real but neither a distinct
- * original source object nor its identifier is established. Direct controls
- * remain87 words; this is an open producer problem, NOT a compiler floor.
- * slice correctly owns firstSimSliceInd in s2; do not relabel rn as slice.
- * Historical controls below are superseded, not source-object exemptions.
- * Receipts: build/nc12/draww_center_lines_20261025. */
+/* HISTORICAL partial source recovery (2026-10-25; superseded 2026-10-27):
+ * GetData on vertexBuf and the real for loop restored all20 supplied owner
+ * tuples and 88 word/file tags. At that revision the typed right-normal source
+ * still had one excess compiler word and its producer was unresolved. The
+ * follow-up below removes that raw-offset/rn carrier with direct typed indexing;
+ * current function object is byte-identical to the main baseline. */
 /* MATCH (2026-07-11, rule-8 SYM rewrite, 88==88 insn-exact -> coloring pass): SYM
      VA 800ca0a4 names this exact local set at fn scope (i, pts3d, lineQuad, slice,
      tx, ty, tz, wpts) -- pts3d/wpts replace the old pCVar20+psVar19 TWO-pointer
@@ -6811,7 +6676,7 @@ loopbot:
      name -- it's a loop-invariant load the compiler CSEs into $s2 on its own; giving
      it an explicit local (the old sVar3) is unnecessary and is dropped. */
 
-/* MATCH (w45-a5) -- PASS 88/88.  Four cooperating levers, in this order:
+/* HISTORICAL w45-a5 measurements (prior source form; superseded below): four cooperating levers, in this order:
        (1) RULE-8: SYM VA 800ca0f8 block declares EXACTLY seven inner names --
            `pts` (PTR CCOORD16, reg $6=$a2) and six SHORTs x($3=$v1) y($4=$a0)
            z($5=$a1) wx($8=$t0) wy($9=$t1) wz($7=$a3).  The old `pCoord` +
@@ -6840,7 +6705,11 @@ loopbot:
            explicit `(T*)((i << 5) + (int)base)` cast form delivers it
            (methodology 5.0c commutative-addu lever).  2 -> PASS. */
 
-/* Historical rn control; not an original-object exemption -- direct right[0..2] is 29 diffs and one instruction short */
+/* FOLLOW-UP (2026-10-27): the direct `BWorldSm_slices[...].right[]` form
+   changed codegen and was reverted. The current body retains the `rn` pointer
+   and raw byte-offset slice-base expression. Exact source cleanups kept here:
+   `wpts + lineQuad->firstPoint`, natural loop increments, and no terminal
+   return; each was checked against the complete object. */
 
 /* MATCH: the oracle walks pts3d with TWO +8 bumps per iteration (one per vertex,
        `addiu t3,t3,8` mid-body and again at the tail) and splits the stores across a
@@ -6852,8 +6721,12 @@ loopbot:
 void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShelbyMoreCache *sd,COORD16 *trans)
 
 {
-  int i; CCOORD16 *pts3d; Trk_Line *lineQuad; int slice;
-  short tx; short ty; short tz; CCOORD16 *wpts;
+  int i;
+  CCOORD16 *pts3d;
+  Trk_Line *lineQuad;
+  int slice;
+  short tx, ty, tz;
+  CCOORD16 *wpts;
   pts3d = gVertex3d;
   lineQuad = (Trk_Line *)(group + 1);
   slice = chunkDat->firstSimSliceInd;
@@ -6865,9 +6738,9 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
   wpts = (CCOORD16 *)chunkDat->vertexBuf->GetData();
 
 
-  for (i = 0; i < group->m_num_elements << 1; i = i + 2) {
+  for (i = 0; i < group->m_num_elements << 1; i += 2) {
     CCOORD16 *pts; char *rn; /* SourceRecoveryUnresolved: right-normal address producer/name is unprovided; no distinct original object is proved. */ short x; short y; short z; short wx; short wy; short wz;
-    pts = wpts + (u_int)lineQuad->firstPoint;
+    pts = wpts + lineQuad->firstPoint;
 
 
 
@@ -6883,15 +6756,15 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     pts3d->z = tz + (z - wz);
     pts3d->light = pts->light;
 
-    pts3d = pts3d + 1;
+    pts3d++;
 
     pts3d->x = tx + (x + wx);
     pts3d->y = ty + (y + wy);
     pts3d->z = tz + (z + wz);
     pts3d->light = pts->light;
-    pts3d = pts3d + 1;
+    pts3d++;
 
-    lineQuad = lineQuad + 1;
+    lineQuad++;
   }
 
 
@@ -6899,21 +6772,18 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
 
   lineQuad = (Trk_Line *)(group + 1);
 
-  DrawW_OnyxLinePrim(gVertex3d,lineQuad,group->m_num_elements,sd); return;
+  DrawW_OnyxLinePrim(gVertex3d,lineQuad,group->m_num_elements,sd);
 }
 
 /* ---- DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache  [DRAWW.CPP:3396-3467] covered SLD requires native comparison ---- */
 /* Superseded historical DoLines matching/source controls. The nine vector
  * captures are now removed; failed matrix trials do not establish objects. */
-/* SourceRecoveryUnresolved: m/m2 are still unprovided matrix-pointer
-     captures, not proved original by the old direct-field failures.
-     Nine positional/translation captures are removed by negative-first real
-     subtraction expressions (2026-10-25), preserving all 199 instructions.
-     Their former scheduling/object-necessity claims below are historical.
-     Full owner/region/SLD restoration remains open; no new name or device. */
-/* Historical carrier classification, superseded by the source audit:
-     m/m2 still need producer recovery; positional/translation captures no
-     longer exist. Do not interpret the following old measurements as floors. */
+/* CURRENT STATUS (2026-10-27): the direct-field/matrix-argument rewrite was
+     reverted after forced compilation changed codegen. The current body retains
+     both MATRIX pointer carriers. Exact changes kept here are the tested loop,
+     boolean, member-access, and trans-expression spellings; the whole object
+     remains baseline-identical. Older matrix-carrier measurements below are
+     historical. */
 /* MATCH (2026-07-11, 79 -> 52 diffs; insns now EXACT 199==199): the tmp.x/y/z
      computations `(Vi->cview).translation.N - ((Camera_gInfo[Vi->player].target)->
      position).N` (and the BW_gCopCarObj sibling block) are a genuine TWO-LEVEL
@@ -6997,17 +6867,11 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
      54" -- true in ITS basin (both net-zero pairs, no alias); the index form only
      wins once the pairs are gone.  The same instrument still applies to
      DrawObjectSimple's `lw s5,96(sp)`. */
-/* MATCH: mixed-lvalue matB rebasing (see above) */
-/* MATCH / partial source recovery 2026-10-25: six posX/Y/Z captures and
- * tx/ty/tz disappear in negative-first real subtraction expressions. All199
- * instruction/file tags match, with frame/header/end and normal bytes intact.
- * Separate null and enable-bit tests recover their distinct source phases.
- * The supplied nightFlags member replaces the raw byte view at offset0x106.
- * SourceRecoveryUnresolved: m/m2 remain unprovided, and supplied declaration
- * ownership/regions are not complete. Their older necessity claims below are
- * historical only. Do not add a qualifier, dummy use, helper or padding scope
- * to erase those review items. Existing SDK GTE macro calls are unchanged.
- * Receipt: build/nc12/draww_lines_source_20261025/final-proof.json. */
+/* Historical mixed-lvalue matB rebasing; superseded by the direct-field form
+ * recorded above. The 2026-10-25 partial source recovery also removed the six
+ * position/translation captures and restored the distinct null/enable phases.
+ * Current m/m2 aliases are gone; broader owner/region/SLD restoration remains
+ * partial. Existing SDK GTE macro calls are unchanged. */
 #line 3394 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 
@@ -7018,7 +6882,7 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 
   { MATRIX *m = (MATRIX *)&sd->matB; m->t[2] = 0; m->t[1] = 0; (sd->matB).t[0] = 0; gte_SetTransMatrix(m); }
 
-  { int buildInd; for (buildInd = 0; buildInd < chunkCount; buildInd = buildInd + 1) {
+  { int buildInd; for (buildInd = 0; buildInd < chunkCount; buildInd++) {
     Chunk *chunkDat;
     int geomRez;
 
@@ -7030,24 +6894,24 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
       chunkDat = Track_chunkList + buildList[buildInd].chunkInd;
 
 
-      Group *group = chunkDat->lineBuf; if (group != (Group *)0x0)
+      Group *group = chunkDat->lineBuf; if (group)
 
 
-        if ((buildList[buildInd].enableBits & 4U) != 0)
+        if (buildList[buildInd].enableBits & 4U)
       { COORD16 trans;
 
-        if (gNight_renderNight != 0)
+        if (gNight_renderNight)
         { coorddef tmp; coorddef tmp2;
 
 
           geomRez = ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags; ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = geomRez | 4;
-          if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
+          if (Cars_gList[Vi->player]->control.lights & 6U) {
             ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = geomRez | 5; }
 
 
-          tmp.x = -(((Camera_gInfo[Vi->player].target)->position).x) + (Vi->cview).translation.x;
-          tmp.y = -(((Camera_gInfo[Vi->player].target)->position).y) + (Vi->cview).translation.y;
-          tmp.z = -(((Camera_gInfo[Vi->player].target)->position).z) + (Vi->cview).translation.z;
+          tmp.x = -Camera_gInfo[Vi->player].target->position.x + Vi->cview.translation.x;
+          tmp.y = -Camera_gInfo[Vi->player].target->position.y + Vi->cview.translation.y;
+          tmp.z = -Camera_gInfo[Vi->player].target->position.z + Vi->cview.translation.z;
 
 
 
@@ -7056,12 +6920,12 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
           transform(&tmp.x,gNightMat.m,&tmp2.x);
 
           DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
-          if (BW_gCopCarObj != (Car_tObj *)0x0) {
+          if (BW_gCopCarObj) {
 
 
-            tmp.x = -((BW_gCopCarObj->N).position.x) + (Vi->cview).translation.x;
-            tmp.y = -((BW_gCopCarObj->N).position.y) + (Vi->cview).translation.y;
-            tmp.z = -((BW_gCopCarObj->N).position.z) + (Vi->cview).translation.z;
+            tmp.x = -(BW_gCopCarObj->N.position.x) + Vi->cview.translation.x;
+            tmp.y = -(BW_gCopCarObj->N.position.y) + Vi->cview.translation.y;
+            tmp.z = -(BW_gCopCarObj->N.position.z) + Vi->cview.translation.z;
 
             transform(&tmp.x,gCopMat.m,&tmp2.x);
             DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop); }
@@ -7071,9 +6935,9 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
         { coorddef *pChunkCp;
           pChunkCp = Chunk_chunkCenters + buildList[buildInd].chunkInd;
 
-          trans.x = (short)(-((Vi->cview).translation.x) + pChunkCp->x >> 10);
-          trans.y = (short)(-((Vi->cview).translation.y) + pChunkCp->y >> 10);
-          trans.z = (short)(-((Vi->cview).translation.z) + pChunkCp->z >> 10);
+          trans.x = (-(Vi->cview.translation.x) + pChunkCp->x) >> 10;
+          trans.y = (-(Vi->cview.translation.y) + pChunkCp->y) >> 10;
+          trans.z = (-(Vi->cview.translation.z) + pChunkCp->z) >> 10;
 
 
 
@@ -7128,7 +6992,7 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   coorddef *cp;
 
   slice = gSpikeBeltSlice;
-  cp = (coorddef *)(BWorldSm_slices + slice);
+  cp = (coorddef *)BWorldSm_slices[slice].center;
   scale = scale / 8;
   wx = (short)((u_int)fixedmult((int)(signed char)((Trk_NewSlice *)cp)->right[0] << 9,scale) >> 10);
   wy = (short)((u_int)fixedmult((int)(signed char)BWorldSm_slices[slice].right[1] << 9,scale) >> 10);
@@ -7342,60 +7206,64 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      (An explicit base pointer/int local to push it behind the two loop.c givs
      as well costs +2 insns -- 270 -- so the remaining cursor slot is a real
      residual, not this dial.) */
-  /* ==== W76-A5 (2026-08-23): 8 -> PASS 268/268, DEVICE-FREE. ====
-     RESIDUAL (ii) CLOSED -- the three preheader cursor slots.  Retail's byte
-     cursors are LOOP.C-EMITTED GIV INITS (chain-after the hoisted &vertex3d
-     movable), not entry-block source statements; no source position of an
-     explicit `kk` biv can reach that slot (every W75 falsification stands).
-     THE SPELLING: name the BARE OFFSET as its own int giv, `so = (i << 3) + K;
-     p = (CCOORD16 *)((int)vertex3d + so);` -- loop.c strength-reduces `so` and
-     emits `li $aN,K+8` in the preheader BEHIND `addiu $t0,$sp,16`.
-     WHY IT DOES NOT LOSE AN INSN (the w61/W76 giv-merge trap): combine_givs_p
+  /* HISTORICAL W76-A5 probe-TU receipt (2026-08-23): the spelling
+     `p = &vertex3d[so >> 3]` passed in that isolated basin, but re-applying it
+     to the current full draww.cpp changed the object. The active source therefore
+     retains integer byte offsets and `p = (CCOORD16 *)((int)vertex3d + so)`.
+     The observations below document only the earlier probe, not the current
+     function or a currently accepted rewrite.
+     In that probe, the three preheader cursor slots were matched by LOOP.C-emitted
+     GIV inits (chain-after the hoisted &vertex3d movable), rather than entry-block
+     source statements; no source position of an explicit `kk` biv could reach
+     that slot (the W75 falsifications stood). Naming the BARE OFFSET as its own
+     int giv, `so = (i << 3) + K; p = &vertex3d[so >> 3];`, let loop.c strength-
+     reduce `so` and emit `li $aN,K+8` behind `addiu $t0,$sp,16`.
+     WHY IT DID NOT LOSE AN INSN (the w61/W76 giv-merge trap): combine_givs_p
      (gcc-2.8.1 loop.c:5647-5674) merges two givs only when (a) identical
      mult+add, or (b) g2 is DEST_ADDR and express_from(g1,g2) is a VALID
-     memory address.  With the sp-relative base folded INTO the giv (the w61
+     memory address. With the sp-relative base folded INTO the giv (the w61
      `vertex3d[i+8]` index form, or `(i<<3)+(int)vertex3d+K` in one expression
-     -- measured 265/-1 per loop this wave) the two cursors differ by a
-     CONSTANT -> express_from = reg+8 = valid address -> merged.  With the BARE
+     -- measured 265/-1 per loop in that probe) the two cursors differ by a
+     CONSTANT -> express_from = reg+8 = valid address -> merged. With the BARE
      offset named, express_from yields a 3-term sp-based expression ->
-     memory_address_p fails -> BOTH cursors survive, exactly retail's pair.
-     Loops 2/3 additionally need the DEST offset as its own explicit giv `dof`
-     DEFINED BEFORE `so` (giv discovery order = body insn order; the reduced
-     regs hand out a3=src/a2=dst only in this order -- `so` first swaps the
-     pair, 44 diffs) with the address adds written p-then-q.  Loop 1 keeps its
-     ARRAY_REF dest (retail walks the dest pointer there: addiu $a0,$sp,24).
-     Measured this wave (probe TU, all @268/268 unless noted): explicit-kk
-     baseline 8 - named base `int b`/`CCOORD16 *b` rerouted through the body
-     +1 insn per loop (17/18 @269/270) - ARRAY_REF giv form 15-75 @265 (merge,
-     -1/loop) - bare-offset giv loop1 only 6 - two-giv ds loops2+3 + loop1
-     PASS - two-giv sd (so first) 44.  */
+     memory_address_p fails -> BOTH cursors survive, exactly the probe's pair.
+     In that probe, loops 2/3 additionally needed the DEST offset as explicit
+     giv `dof` defined BEFORE `so` (giv discovery order = body-insn order; the
+     reduced regs handed out a3=src/a2=dst only in this order -- `so` first
+     swapped the pair, 44 diffs) with address adds written p-then-q. Loop 1 kept
+     its ARRAY_REF dest (retail walks the dest pointer there: addiu $a0,$sp,24).
+     Probe measurements (all @268/268 unless noted): explicit-kk baseline 8 -
+     named base `int b`/`CCOORD16 *b` rerouted through the body +1 insn per loop
+     (17/18 @269/270) - ARRAY_REF giv form 15-75 @265 (merge, -1/loop) - bare-
+     offset giv loop1 only 6 - two-giv ds loops2+3 + loop1 PASS - two-giv sd
+     (so first) 44. */
   { int so;
   i = 1;
   do {
     CCOORD16 *p;
     so = (i << 3) - 8;
     p = (CCOORD16 *)((int)vertex3d + so);
-    vertex3d[i].x = *(u_short *)&p->x + wx;
-    vertex3d[i].y = *(u_short *)&p->y + wy;
-    vertex3d[i].z = *(u_short *)&p->z + wz;
+    vertex3d[i].x = (u_short)p->x + wx;
+    vertex3d[i].y = (u_short)p->y + wy;
+    vertex3d[i].z = (u_short)p->z + wz;
     vertex3d[i].light = 0;
     i++;
   } while (i < 9); }
   vertex3d[9].x = sx;
-  vertex3d[9].y = sy + 0x19;
+  vertex3d[9].y = sy + 25;
   vertex3d[9].z = sz;
   vertex3d[9].light = 0;
   { int so; int dof;
   i = 1;
   do {
     CCOORD16 *p; CCOORD16 *q;
-    dof = (i << 3) + 0x48;
-    so = (i << 3) + 0x40;
+    dof = (i << 3) + 72;
+    so = (i << 3) + 64;
     p = (CCOORD16 *)((int)vertex3d + so);
     q = (CCOORD16 *)((int)vertex3d + dof);
-    q->x = *(u_short *)&p->x + wx;
-    q->y = *(u_short *)&p->y + wy;
-    q->z = *(u_short *)&p->z + wz;
+    q->x = (u_short)p->x + wx;
+    q->y = (u_short)p->y + wy;
+    q->z = (u_short)p->z + wz;
     q->light = 0;
     i++;
   } while (i < 9); }
@@ -7407,33 +7275,33 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   i = 1;
   do {
     CCOORD16 *p; CCOORD16 *q;
-    dof = (i << 3) + 0x90;
-    so = (i << 3) + 0x88;
+    dof = (i << 3) + 144;
+    so = (i << 3) + 136;
     p = (CCOORD16 *)((int)vertex3d + so);
     q = (CCOORD16 *)((int)vertex3d + dof);
-    q->x = *(u_short *)&p->x + wx;
-    q->y = *(u_short *)&p->y + wy;
-    q->z = *(u_short *)&p->z + wz;
+    q->x = (u_short)p->x + wx;
+    q->y = (u_short)p->y + wy;
+    q->z = (u_short)p->z + wz;
     q->light = 0;
     i++;
   } while (i < 9); }
   j = 0;
   do {
-    quads[j].aPoints[3] = (u_char)j;
+    quads[j].aPoints[3] = j;
     quads[j].material = 0;
-    quads[j].aPoints[0] = (u_char)(j + 1);
-    quads[j].aPoints[1] = (u_char)(j + 10);
-    quads[j].aPoints[2] = (u_char)(j + 9);
+    quads[j].aPoints[0] = j + 1;
+    quads[j].aPoints[1] = j + 10;
+    quads[j].aPoints[2] = j + 9;
     quads[j+8].material = 0;
-    quads[j+8].aPoints[1] = (u_char)(j + 9);
-    quads[j+8].aPoints[2] = (u_char)(j + 10);
-    quads[j+8].aPoints[3] = (u_char)(j + 0x13);
-    quads[j+8].aPoints[0] = (u_char)(j + 0x12);
-    j = j + 1;
+    quads[j+8].aPoints[1] = j + 9;
+    quads[j+8].aPoints[2] = j + 10;
+    quads[j+8].aPoints[3] = j + 19;
+    quads[j+8].aPoints[0] = j + 18;
+    j++;
   } while (j < 8);
   material.flag = 0;
   material.mipmap_offset = 0;
-  material.pmxIndex = *(u_short *)&gInitialArt.shapeCount - 1;
+  material.pmxIndex = gInitialArt.shapeCount - 1;
   {
     ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 0;
     /* MATCH (w74-a1, 46 -> 30 count-exact): retail loads the SUBTRAHEND
@@ -7471,9 +7339,8 @@ void DepthCue_Init(void)
 
 {
   SetFogNear(TrackSpec_gSpec.depthcuespec.distance << 6,0xa0);
-  SetFarColor((u_int)TrackSpec_gSpec.depthcuespec.color.r,(u_int)TrackSpec_gSpec.depthcuespec.color.g,
-             (u_int)TrackSpec_gSpec.depthcuespec.color.b);
-  return;
+  SetFarColor(TrackSpec_gSpec.depthcuespec.color.r,TrackSpec_gSpec.depthcuespec.color.g,
+             TrackSpec_gSpec.depthcuespec.color.b);
 }
 
 /* end of draww.cpp */

@@ -6,6 +6,35 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-27 DrawW upstream integration repairs source-metadata regressions without losing byte matches.
+
+Upstream0e0657fa's cleanup preserves code but initially loses the complete
+Night_NightCalc and DoObjectAnimations contracts. Its declaration/statement
+layout,terminal-return removal and alternate track guard also discard correct
+retail source facts in DrawObjectSimple,BuildChunkCenterLineFacets and
+DepthCue_Init. Retain the verified source bodies at those five sites while
+keeping the other non-regressing cleanups. Do not accept instruction equality
+as a reason to discard correct declaration owners,empty regions or source tags.
+
+DrawObjectSimple previously inherited its coordinates from the preceding
+function. A retail-derived per-function anchor2259 places its signature before
+the2261 header and preserves its existing189-word source-line map/end2334,
+independently of neighboring comment/layout changes. This is one function
+anchor,not a statement override or a whole-function source-restoration claim;
+the remaining unprovided objects and owner differences are still unresolved.
+
+Fresh native run-8jwtqeiu:all35 byte/branch gates pass;Draww has20/35 provided
+declaration-owner PASS,22/35 region PASS,5/35 SLD EXACT and4/35 combined EXACT.
+Every previously correct retail header/frame,complete local owner,block-line,
+end and word/file-tag fact survives. All395 covered contracts and SoundCar's
+separate SLD contract survive. All119 current normal ELF hashes and native CPE
+are unchanged from the canonical-header integration. Detailed/oracle compilation,
+tests162,stripped83,vtable1472 files,policy,relink,real canonical link,
+raw299819/299819,overlap,foreign-label and inventory checks pass. Receipts:
+build/nc12/draww_upstream_20261027/. Literal original text,the remaining
+uncertainties and the full project goal stay open; no new asm or volatile,
+reference weakening or post-compile rewrite is introduced.
+
 2026-10-27 Canonical-library-header integration preserves the395 covered contracts and all existing function/local-owner records.
 
 Local checkpoint ca088086 is integrated with upstream0ca9a756 (the four

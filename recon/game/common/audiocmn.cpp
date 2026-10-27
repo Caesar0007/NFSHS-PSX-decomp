@@ -129,7 +129,7 @@ void CopSpeak_Stop(void);
 void CopSpeak_Cancel(void);
 void CopSpeak_SilenceCop(Car_tObj *car, int playerIndex);
 void AudioMus_StopSong(int fadeticks);
-extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
+
 extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
 /* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused
  * come from lib/libfns.h already included via audiocmn_externs.h) */
@@ -332,7 +332,7 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
         check.status = SNDbankadd(&s->handle,pbank);
         /* MATCH P902: native SLD 572 groups success and header allocation. */
         if ((check.status == 7) && ((s->header = (char *)reservememadr("SFXHDR",SNDbankheadersize(s->handle),0x10)) != 0)) {
-          SNDbankheadercopy(s->header,(u_char *)s->handle);
+          SNDbankheadercopy((struct SndBankDataHeaderPrefix *)s->header,s->handle);
           s->patch = patch;
           s->ticks = simGlobal.gameTicks;
           return;
@@ -1283,7 +1283,7 @@ void freeVoiceChannel(int sndPlayer)
   if (AudioCmn_kAudioOn != 0) {
     if (sndPlayer != -1) {
       if ((void *)gaChannel[sndPlayer].Partial != (void *)0xffffffff) {   /* @0x80078108: Partial == -1 sentinel (disasm-v3) */
-        SNDautovol((void *)gaChannel[sndPlayer].Partial,5,-1);
+        SNDautovol((unsigned int)gaChannel[sndPlayer].Partial,5,-1);
         gaChannel[sndPlayer].Partial = -1;
         gaChannel[sndPlayer].SFXnum = -1;
         NumSFXOn = NumSFXOn + -1;

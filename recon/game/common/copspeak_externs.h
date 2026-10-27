@@ -14,12 +14,10 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/systask.h"
 }
 extern "C" {
-int SNDover(...);
-int SNDplay(...);
-void SNDplaysetdef(...);
-int SNDstop(...);
-int SNDtimeremaining(...);
-void SNDvol(...);
+#include "eaclib/psx/sndpsxz/snd_voice.h"
+#include "eaclib/psx/sndpsxz/stimerem.h"
+}
+extern "C" {
 int sprintf(...);
 char *strcat(...);
 int strcmp(char *, char *); /* PsyQ4.3 STRINGS.H, before StartUp's comparisons. */

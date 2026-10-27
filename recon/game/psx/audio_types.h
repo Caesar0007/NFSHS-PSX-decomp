@@ -3,44 +3,15 @@
 #define NFS4_GAME_PSX_AUDIO_TYPES_H
 
 #include "../common/color_types.h"
-
 #include "shared/SndBnk_t.h"
 
-#include "shared/SNDSYSCAP.h"
-
-
-
-
-
-
-#include "shared/SNDSYSSET.h"
-
-
-
-
-
-
-
-#include "shared/SNDSYSVEC.h"
-
-
-
-#include "shared/SNDSYSOPTS.h"
-
-
-
-
+/* sndpsxz owns the canonical system-option structs and prototypes. */
+extern "C" {
+#include "eaclib/psx/sndpsxz/ssysinit.h"
+}
 
 #include "shared/SNDSAMPLEFORMAT.h"
-
-
-
-
 #include "shared/AudioMus_tSongEntry.h"
-
-
-
-
 
 struct SpuVolume {
     short left, right;

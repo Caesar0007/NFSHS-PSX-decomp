@@ -126,8 +126,8 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
   check = SNDbankadd(&bhandle,pdata);
   if (check == 7) {
     check = SNDbankheadersize(bhandle);
-    ptemp = reservememadr(filename,check,0);
-    SNDbankheadercopy(ptemp,bhandle);
+    ptemp = (char *)reservememadr(filename,check,0);
+    SNDbankheadercopy((struct SndBankDataHeaderPrefix *)ptemp,bhandle);
     check = SNDbankheadersize(bhandle);
     size = size - check;
   }
@@ -152,7 +152,7 @@ int AudioCmn_LoadBank(char *filename,int BankNum)
 
   strcpy(bankdata,filename);
   strcat(bankdata,".bnk");
-  pdata = (char *)loadfileadrz(bankdata,(void *)0x10);
+  pdata = (char *)loadfileadrz(bankdata,0x10);
 
   if (pdata == (char *)0x0) {
 

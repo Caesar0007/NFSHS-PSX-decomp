@@ -21,15 +21,14 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/nsync.h"
 }
 extern "C" {
-int SNDSYS_getopts(...);
-int SNDSYS_init(void *membase, int memsize);
-void SNDSYS_restore(...);
-int SNDSYS_setopts(...);
-int SNDSYS_vectortoreal(...);
-int SNDbankadd(int *bank_out, void *bank_data);
-void SNDbankheadercopy(...);
-int SNDbankheadersize(...);
-void SNDbankremove(...);
+#include "eaclib/psx/sndpsxz/ssysinit.h"
+#include "eaclib/psx/sndpsxz/ssysreal.h"
+#include "eaclib/psx/sndpsxz/sbadd.h"
+#include "eaclib/psx/sndpsxz/sbhdrcpy.h"
+#include "eaclib/psx/sndpsxz/sbhdrsze.h"
+#include "eaclib/psx/sndpsxz/sbremove.h"
+}
+extern "C" {
 char *strcat(...);
 char *strcpy(...);
 }

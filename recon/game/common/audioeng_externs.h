@@ -13,14 +13,10 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/timer.h"
 }
 extern "C" {
-int SND3dpos(...);
-int SNDpitchmult(...);
-int SNDplay(...);
-void SNDplaysetdef(...);
-int SNDstop(...);
-void SNDvol(...);
-struct SndGlobalServerStateView *iSNDserveradd100hzclient(void (*cb)(void));
-void iSNDserverremove100hzclient(void (*cb)(void));
+#include "eaclib/psx/sndpsxz/snd_voice.h"
+#include "eaclib/psx/sndpsxz/sserver.h"
+}
+extern "C" {
 void *memcpy(...);
 int sprintf(...);
 }

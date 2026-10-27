@@ -861,5 +861,4 @@ void AudioMus_AutoVolume(int fadeticks,int volume)
  * that puts sst.obj, and with it spat2hdr / memcmp / sdpacket, exactly where retail has them.
  * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
 #include "../../link_stripped.h"
-extern "C" int iSNDstreamcreate(...);
-LINK_STRIPPED int AudioMus_StrippedStreamCreate(void) { return iSNDstreamcreate(); }
+LINK_STRIPPED int AudioMus_StrippedStreamCreate(void) { return iSNDstreamcreate(0, 0, 0, 0, 0, 0, 0); }

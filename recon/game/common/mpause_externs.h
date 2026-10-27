@@ -44,7 +44,9 @@ extern void  Hud_RenderPauseBox(int x, int y, int w, int h);       /* hud.obj */
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
 extern "C" int DrawSync(int mode);
 extern "C" int PadGetState(int port);
-extern "C" int SNDover(int handle);
-extern "C" int SNDstop(int handle);
+extern "C" {
+#include "eaclib/psx/sndpsxz/sover.h"
+#include "eaclib/psx/sndpsxz/sstop.h"
+}
 
 #endif /* MPAUSE_EXTERNS_H */

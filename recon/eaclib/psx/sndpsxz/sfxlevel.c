@@ -8,19 +8,21 @@
  *   2-arg (chan, fxon) -- sdriver's IDA sig is actually (a1,a2,a3), so sdriver should gain the `bus` arg
  *   on a reconcile pass.  extern links regardless; flagged in 00_current_state.md.
  */
+#include "salloc.h"
+#include "sdata.h"
+#include "sndserverpriv.h"
+#include "sndchpriv.h"
+#include "sdfx.h"
+#include "sfxlevel.h"
+#include "sdriver.h"
+#include "slib.h"
+#include "snd_state.h"
+#include "spatkey.h"
+#include "sserver.h"
 
-extern int sndgs[];
-extern int  iSNDpsxeffectvol(int left, int right);          /* spatkey */
-extern int  iSNDgetchan(unsigned int tag);                  /* salloc  */
-extern int  iSNDpatchkey(int chan, int tag);                /* spatkey */
-extern int  iSNDplatformfxlevel(int chan, int bus, int fxon); /* sdriver (3-arg) */
-extern void iSNDenteraudio(void);                           /* sserver */
-extern void iSNDleaveaudio(void);
-
-extern int iSNDplatformfxmasterlevel(int bus, int level);   /* @0x801005BC */
-extern int SNDfxlevel(int tag, int bus, int level);         /* @0x801005E8 */
-
-struct SNDfxBusView {
+/* Codegen-preserving global-state displacement view. The actual records are SndFxBus (0x10 bytes,
+ * at sndgs+0x9C); from the state base plus bus*0x10, the master is at displacement +0xA0. */
+struct SndFxBusMasterDisplacementView {
     unsigned char pad[0xa0];
     int master;
 };
@@ -32,24 +34,25 @@ struct SNDfxBusView {
 /* SNDfxlevel @0x801005E8 : set the effect-send `level` for sound `tag` on `bus` -- for each voice, scale the
  *   requested level by the voice's per-bus send (slot[bus+0x34]) and the bus master (sndgs[bus*4+0x28]),
  *   normalise by 127, and push it to the SPU.  Returns the channel, or a negative error. */
-extern int SNDfxlevel(int tag, int bus, int level)
+int SNDfxlevel(int tag, int bus, int level)
 {
     int chanIdx;
     int cur[2];
-    if ((signed char)sndgs[0xf] == 0)
+    if (!((struct SndGlobalServerStateView *)sndgs)->initialized)
         return -10;
     iSNDenteraudio();
-    chanIdx = iSNDgetchan((unsigned int)tag);
-    if (-1 < chanIdx) {
+    chanIdx = iSNDgetchan(tag);
+    if (chanIdx >= 0) {
         cur[0] = -1;
-        while (iSNDpatchkey(chanIdx, (int)cur) != 0) {
-            int slot   = sndgs[0x25] + cur[0] * 100 + bus;
-            int scaled = level * (int)(signed char)*(char *)(slot + 0x34);
+        while (iSNDpatchkey(chanIdx, cur)) {
+            SndChannel *pool = ((struct SndGlobalServerStateView *)sndgs)->play_records;
+            unsigned char *slot = (unsigned char *)&pool[cur[0]] + bus;
+            int scaled = level * ((SndChannelPlaybackFxView *)(slot + 0x34))->fx_level_window[0];
             int fxArg;
-            *(char *)(slot + 0x35) = (char)level;
-            /* The padded bus view makes GCC fold the master offset into lw 0xa0(s4),
-             * matching the original code without an extra address addiu. */
-            fxArg = (scaled * ((struct SNDfxBusView *)((unsigned char *)sndgs + bus * 0x10))->master) / 16129; /* /(127*127): normalises BOTH the send byte
+            ((SndChannelPlaybackFxView *)(slot + 0x34))->fx_level_window[1] = level;
+            /* The displacement view keeps GCC's exact retail lw 0xA0(s4) form; direct SndFxBus
+             * indexing adds an address instruction and changes this function's exact match. */
+            fxArg = (scaled * ((const struct SndFxBusMasterDisplacementView *)((unsigned char *)sndgs + bus * 0x10))->master) / (127 * 127); /* /(127*127): normalises BOTH the send byte
                                                                  * and the bus-master 0..127 fractions (oracle
                                                                  * magic 0x82061029 sra 13 == signed /16129) */
             iSNDplatformfxlevel(cur[0], bus, fxArg);

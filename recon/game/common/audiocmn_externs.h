@@ -15,25 +15,19 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/timer.h"
 }
 extern "C" {
-int SND3dpos(...);
-void SNDSTRM_setpriority(...);
-void SNDautovol(...);
-int SNDbankadd(...);
-void SNDbankheadercopy(...);
-int SNDbankheadersize(...);
-int SNDbankremove(...);
-int SNDfxinitbus(...);
-int SNDfxmasterlevel(...);
-int SNDmastervol(...);
-int SNDmemlargestunused(...);
-int SNDover(...);
-int SNDpan(...);
-int SNDpitchbend(...);
-int SNDpitchmult(...);
-int SNDplay(...);
-void SNDplaysetdef(...);
-int SNDstop(...);
-void SNDvol(...);
+#include "eaclib/psx/sndpsxz/snd_voice.h"
+#include "eaclib/psx/sndpsxz/sbadd.h"
+#include "eaclib/psx/sndpsxz/sbhdrcpy.h"
+#include "eaclib/psx/sndpsxz/sbhdrsze.h"
+#include "eaclib/psx/sndpsxz/sbremove.h"
+#include "eaclib/psx/sndpsxz/sbend.h"
+#include "eaclib/psx/sndpsxz/sdmemlu.h"
+#include "eaclib/psx/sndpsxz/sstsetpr.h"
+}
+extern "C" {
+#include "eaclib/psx/spchpsxz/spchevnt.h"
+}
+extern "C" {
 void *memcpy(...);
 int puts(...);
 char *strcat(...);

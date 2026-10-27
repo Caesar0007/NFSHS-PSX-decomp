@@ -61,10 +61,10 @@ void AudioMus_RefreshStatus(void)
 {
   if (AudioMus_g->streamhandle >= 0) {
 
-    SNDSTRM_status(AudioMus_g->streamhandle,(int)&AudioMus_g->streamstatus);
+    SNDSTRM_status(AudioMus_g->streamhandle, &AudioMus_g->streamstatus);
 
     if (0 < (AudioMus_g->streamstatus).outstandingrequests) {
-      SNDSTRM_requeststatus((AudioMus_g->streamstatus).currentrequest,(u_int)&AudioMus_g->requeststatus);
+      SNDSTRM_requeststatus((AudioMus_g->streamstatus).currentrequest, &AudioMus_g->requeststatus);
     }
   } else {
     (AudioMus_g->streamstatus).outstandingrequests = 0;
@@ -574,7 +574,7 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
         SNDplaysetdef(&opts);
         opts.vol = 0;
         AudioMus_g->streamhandle =
-            SNDSTRM_create((int *)&opts,1,chunks,AudioMus_g->streambuffer,size);
+            SNDSTRM_create(&opts, 1, chunks, AudioMus_g->streambuffer, size);
         if (-1 < AudioMus_g->streamhandle) {
           SNDSTRM_setgreedylevel(AudioMus_g->streamhandle,0);
           SNDSTRM_setpriority(AudioMus_g->streamhandle,0xff,5);
@@ -616,11 +616,11 @@ void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
       AudioMus_DriverStartUp(buffersize,spusize);
       sprintf(AudioMus_g->bigfilename,"%szzz%s.viv",Paths_Paths[27],songs);
       AudioMus_g->bigfileheader =
-          (char *)loadbigfileheader(AudioMus_g->bigfilename,(void *)cls);
+          (char *)loadbigfileheader(AudioMus_g->bigfilename,cls);
       if (AudioMus_g->bigfileheader == (char *)0x0 && cls != 0) {
         TrackMod_musicHeapFallbacks++;
         AudioMus_g->bigfileheader =
-            (char *)loadbigfileheader(AudioMus_g->bigfilename,(void *)0x0);
+            (char *)loadbigfileheader(AudioMus_g->bigfilename,0x0);
       }
       if (AudioMus_g->bigfileheader != (char *)0x0) {
         AudioMus_g->totalsongs = bigcount(AudioMus_g->bigfileheader);
@@ -874,5 +874,4 @@ void AudioMus_AutoVolume(int fadeticks,int volume)
  * that puts sst.obj, and with it spat2hdr / memcmp / sdpacket, exactly where retail has them.
  * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
 #include "../../../link_stripped.h"
-extern "C" int iSNDstreamcreate(...);
-LINK_STRIPPED int AudioMus_StrippedStreamCreate(void) { return iSNDstreamcreate(); }
+LINK_STRIPPED int AudioMus_StrippedStreamCreate(void) { return iSNDstreamcreate(0, 0, 0, 0, 0, 0, 0); }

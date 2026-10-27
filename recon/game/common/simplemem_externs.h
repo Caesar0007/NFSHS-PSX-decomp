@@ -2,11 +2,9 @@
 #ifndef SIMPLEMEM_EXTERNS_H
 #define SIMPLEMEM_EXTERNS_H
 
-/* Exact resize.h entry-point type only. The allocator owner does not use
- * eac_types.h's transform structures, which are absent from its retail type
- * surface. Source/native receipt: simplemem_ctor_restore_20261023. */
+/* Canonical EAC resize API. */
 extern "C" {
-void *resizememadr(void *userptr, int newsize);
+#include "eaclib/psx/eacpsxz/resize.h"
 }
 
 #endif

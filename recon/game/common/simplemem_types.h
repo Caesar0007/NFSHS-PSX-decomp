@@ -5,13 +5,9 @@
 
 #include "game_common_min_types.h"
 
-/* Declaration-only allocator interface: exact memstd.h function types, without
- * importing its MemBlock/MemClass implementation or unrelated transform types
- * into the SimpleMem/Group/Chunk debug surface. Retail does not supply those
- * foreign bodies here. Source/native receipt: simplemem_ctor_restore_20261023. */
+/* Canonical EAC memory API used by SimpleMem's inline allocation helpers. */
 extern "C" {
-void *reservememadr(char *name, int size, int classid);
-int purgememadr(void *p);
+#include "eaclib/psx/eacpsxz/memstd.h"
 }
 
 struct SimpleMem {

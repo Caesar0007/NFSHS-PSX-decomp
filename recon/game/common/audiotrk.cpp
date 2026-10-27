@@ -407,7 +407,7 @@ int AudioTrk_PreLoad(void)
   tick = gettick() + 0x280;
   numelems = gGameAudioList->numElements_;
   while (!loaded && gettick() < tick &&
-         0x8000 < SNDmemlargestunused(&check)) {
+         0x8000 < SNDmemlargestunused((unsigned char **)&check)) {
     AudioElem *se;
 
     loaded = true;

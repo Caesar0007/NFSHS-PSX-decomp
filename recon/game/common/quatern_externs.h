@@ -10,8 +10,7 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/fixddiv.h"
 #include "eaclib/psx/eacpsxz/fixdmult.h"
 #include "eaclib/psx/eacpsxz/fixdsqrt.h"
-}
-extern "C" {
+#include "eaclib/psx/eacpsxz/sinfunc.h"
 }
 
 #endif

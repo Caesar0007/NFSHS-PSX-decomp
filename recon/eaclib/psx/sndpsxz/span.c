@@ -7,12 +7,14 @@
  *   current @+0x3D) optionally remapped through a per-voice pan curve (@+0x48), clamps to
  *   [0,0x7F], and pokes the SPU via iSNDplatform3dpos.  Returns the channel index (or -10 off).
  */
+#include "span.h"
+#include "sndchpriv.h"
 #include "../../../lib/snd.h"
 
-extern int SNDpan(int handle, int pan)   /* @0x800E6884 */
+int SNDpan(int handle, int pan)   /* @0x800E6884 */
 {
     int chan;
-    if (SND->enabled == 0)
+    if (!SND->enabled)
         return -10;
 
     iSNDenteraudio();
@@ -23,19 +25,19 @@ extern int SNDpan(int handle, int pan)   /* @0x800E6884 */
             int voiceIndex;
             int angle;
             int p;
-            SndVoice *v = &SND->voices[iter];
-            if (v->pan_cur == pan)
+            SndChannel *v = (SndChannel *)&SND->voices[iter];
+            if (v->current_pan == pan)
                 break;                                   /* already at target -> done */
-            v->pan_cur = (signed char)pan;
+            v->current_pan = (signed char)pan;
             p = pan;
-            if (v->f33 != 1) {
-                p = (pan - 0x40) * v->f33 + 0x40;        /* scale about centre */
+            if (v->pan_scale != 1) {
+                p = (pan - 0x40) * v->pan_scale + 0x40;  /* scale about centre */
             }
             p = v->pan + p - 0x40;
             if (p >= 0x80) p = 0x7F;
             else if (p < 0) p = 0;
-            if (v->pancurve != 0)
-                p = ((signed char *)v->pancurve)[p];     /* pan curve remap */
+            if (v->pan_curve)
+                p = ((signed char *)v->pan_curve)[p];    /* pan curve remap */
             angle = ((p - 0x40) << 8) & 0xFF00;
             voiceIndex = *(volatile int *)&iter;
             iSNDplatform3dpos(voiceIndex, angle, 0);

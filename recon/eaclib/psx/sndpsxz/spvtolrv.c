@@ -3,11 +3,11 @@
  *   1 fn @0x8010C738.  iSNDpvtolrv -- pan-to-L/R for the CD/streaming volume (linear pan law about centre
  *   0x40, range 0..0x7f).  Ghidra nfs4-f.exe.c (spvtolrv) + IDA sig.
  */
-extern int iSNDpvtolrv(int pan, int level, int *out_l, int *out_r);   /* @0x8010C738 */
+#include "spvtolrv.h"
 
 /* iSNDpvtolrv @0x8010C738 : split `level` into L/R per `pan` -- centre keeps both, left/right attenuates the
  *   opposite channel by (pan or 0x7f-pan)/0x40.  Returns the attenuated value (0x40 when centred). */
-extern int iSNDpvtolrv(int pan, int level, int *out_l, int *out_r)
+void iSNDpvtolrv(int pan, int level, int *out_l, int *out_r)
 {
     int v = 0x40;
     *out_l = level;
@@ -16,10 +16,9 @@ extern int iSNDpvtolrv(int pan, int level, int *out_l, int *out_r)
         if (pan < 0x40) {
             v = level * pan >> 6;
             *out_r = v;
-            return v;
+            return;
         }
         v = level * (0x7f - pan) >> 6;
         *out_l = v;
     }
-    return v;
 }

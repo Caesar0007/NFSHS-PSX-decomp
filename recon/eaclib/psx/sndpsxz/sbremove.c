@@ -3,95 +3,82 @@
  *   3 fns @[0x800E65F8 .. 0x800E6694].  Unload sound banks: stop their voices, release SPU data, clear the
  *   bank table.  Ghidra nfs4-f.exe.c (sbremove) + IDA sigs (`this` is the bank id).
  */
-
-struct SNDGlobals {
-    char pad0[0x0c];
-    unsigned short bank_count;
-    char pad0e[3];
-    unsigned char channel_count;
-    char pad12[0x2a];
-    signed char initialized;
-    char pad3d[0x57];
-    int play_records;
-    int bank_table;
-};
-extern struct SNDGlobals sndgs;
-extern int  iSNDvalidbank(int bankId);                 /* sbvalid  */
-extern int  SNDstop(unsigned int tag);                 /* sstop    */
-extern void iSNDbankremovepat(int bank, int idx, int *scratch);  /* sbirmpat */
-extern void iSNDplatformfree(void *p);                 /* sdata    */
-
-extern int  iSNDremovepatches(int bank, int count);    /* @0x800E65F8 */
-extern void SNDbankremove(int bankId);                 /* @0x800E6674 */
-extern int  cSNDbankremove(int bankId, int recurse);   /* @0x800E6694 ; a1 always 0 at every call */
+#include "sbremove.h"
+#include "sbvalid.h"
+#include "sstop.h"
+#include "sbirmpat.h"
+#include "sdasync.h"
+#include "snd_globals.h"
+#include "sndchpriv.h"
+#include "sndbankpriv.h"
+#include "sndbankhdrpriv.h"
+#include "sdresolv.h"
 
 /* iSNDremovepatches @0x800E65F8 : release each of a bank's `count` resolved patches (de-dup via a local
  *   scratch table seeded to -1). */
-extern int iSNDremovepatches(int bank, int count)
+int iSNDremovepatches(int bank, int count)
 {
-    int scratch[512];
-    int *p;
+    struct SNDRemoveEntry scratch[256];
     int i;
-    int neg1 = -1;
-    i = 0xFF;
-    p = &scratch[510];
-    do {                                 /* seed the {id} slots to -1, back to front */
-        *p = neg1;
-        i--;
-        p -= 2;
-    } while (i >= 0);
+    unsigned char *neg1 = (unsigned char *)-1;
+    for (i = 0xFF; i >= 0; i--) {
+        scratch[i].spu_address = neg1;
+    }
     for (i = 0; i < count; i++)
         iSNDbankremovepat(bank, i, scratch);
     return 0;
 }
 
 /* SNDbankremove @0x800E6674 : the exit-time hook (sndgs[0x1f]); unloads bank `bankId`. */
-extern void SNDbankremove(int bankId)
+void SNDbankremove(int bankId)
 {
     cSNDbankremove(bankId, 0);
 }
 
 /* cSNDbankremove @0x800E6694 : unload bank `bankId` (or all banks when bankId == -1) -- stop its playing
  *   voices, free its patches/SPU data, and clear its bank-table entry. */
-extern int cSNDbankremove(int bankId, int recurse)
+int cSNDbankremove(int bankId, int recurse)
 {
     struct SNDGlobals *base = &sndgs;
     int i;
 
-    if (base->initialized == 0)
+    if (!base->initialized)
         return -10;
     if (bankId == -1) {                  /* unload every bank */
-        for (i = 0; i < (int)(unsigned)base->bank_count; i++)
+        for (i = 0; i < base->bank_count; i++)
             cSNDbankremove(i, 0);
         return 0;
     }
-    if (iSNDvalidbank(bankId) != 0)
+    if (iSNDvalidbank(bankId))
         return -8;
     {
-        int data = *(int *)(bankId * 0xc + base->bank_table);
+        struct SndBankDataHeaderPrefix *data = base->bank_table[bankId].data_block;
         int off;
-        unsigned char *entry;
+        struct SndBankTableEntry *entry;
         struct SNDGlobals *base2;
         i = 0;
-        if (base->channel_count != 0) {     /* stop voices owned by this bank */
+        if (base->channel_count) {     /* stop voices owned by this bank */
             struct SNDGlobals *loopbase = base;
             off = 0;
             do {
-                if ((int)*(signed char *)(loopbase->play_records + off + 10) == bankId)
-                    SNDstop(*(unsigned int *)(loopbase->play_records + off));
-                off += 100;
-            } while ((int)(unsigned)loopbase->channel_count > ++i);
+                /* `off` is a byte displacement; convert the legacy base before adding it. */
+                SndChannel *slot = (SndChannel *)(off + (unsigned char *)loopbase->play_records);
+                if (slot->start_marker == bankId)
+                    SNDstop((int)slot->owner_tag);
+                off += sizeof(SndChannel);
+            } while (loopbase->channel_count > ++i);
         }
         base2 = &sndgs;
-        entry = (unsigned char *)(bankId * 0xc +
-            *(volatile int *)&base2->bank_table);
-        if (*(signed char *)(entry + 9) != 0) {
-            iSNDplatformfree(*(void **)(entry + 4));
-            *(unsigned char *)(bankId * 0xc + sndgs.bank_table + 9) = 0;
+        /* Keep the 32-bit sum for retail operand order, then view its result as the typed table record. */
+        entry = (struct SndBankTableEntry *)(bankId * sizeof(struct SndBankTableEntry) +
+            (unsigned int)base2->bank_table);
+        if (entry->platform_allocated.s) {
+            iSNDplatformfree(entry->platform_block);
+            sndgs.bank_table[bankId].platform_allocated.u = 0;
         } else
-            iSNDremovepatches(bankId, (int)(unsigned)*(unsigned short *)(data + 6));
-        *(int *)(bankId * 0xc + sndgs.bank_table) = 0;
-        *(unsigned char *)(bankId * 0xc + sndgs.bank_table + 8) = 0;
+            iSNDremovepatches(bankId, data->patch_count);
+        sndgs.bank_table[bankId].data_block = 0;
+        sndgs.bank_table[bankId].load_state.u = 0;
     }
     return 0;
 }

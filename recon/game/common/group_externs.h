@@ -4,10 +4,9 @@
 #ifndef GROUP_EXTERNS_H
 #define GROUP_EXTERNS_H
 
-/* Exact blkmov.h public signature, without its unrelated eac_types.h transform
- * bodies: retail group.obj contains none. simplemem_ctor_restore_20261023. */
+/* eacpsxz public byte-move API; this C++ TU needs C linkage. */
 extern "C" {
-void blockmove(void *src, void *dst, int n);
+#include "eaclib/psx/eacpsxz/blkmov.h"
 }
 
 #endif /* GROUP_EXTERNS_H */

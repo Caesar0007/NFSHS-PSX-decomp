@@ -2,18 +2,12 @@
  * gameplay prefetch will use FILE_read + callbacks once chunk-slot binding lands. */
 #include "track_stream.h"
 
-extern "C" int FILE_opensync(char *name, int mode, int priority, int *outHandle);
-extern "C" void FILE_readsync(int handle, int offset, void *destination, int length, int priority);
-extern "C" int FILE_closesync(int handle, int priority);
-extern "C" void systemtask(int);
-extern "C" void *reservememadr(char *name, int size, int flags);
-extern "C" void purgememadr(void *address);
-extern "C" unsigned int FILE_read(
-    void *handle, unsigned int offset, unsigned int destination,
-    int length, unsigned int priority, unsigned int userData);
-extern "C" int FILE_completeop(unsigned int op);
-extern "C" void FILE_callbackop(
-    unsigned int op, void (*callback)(unsigned int, int, int));
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/nfile.h"
+#include "eaclib/psx/eacpsxz/syncfile.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+}
 extern "C" int TrackMod_prefetchErrors;
 int TrackMod_prefetchErrors;
 
@@ -193,8 +187,6 @@ extern "C" int TrackMod_LoadMetaSync(TrackModStreamState *state, unsigned int me
  * walkers read a NULL chunk record), so this waits for any prefetch in flight (the race restart moves every
  * car to the start chunks while a prefetch for the old position is pending: 547 urgent failures in the user
  * test, route D 2026-10-04) and then reads the meta synchronously into the spare buffer. */
-extern "C" void systemtask(int);
-
 extern "C" int TrackMod_LoadMetaBlocking(TrackModStreamState *state, unsigned int meta)
 {
     unsigned int offset;

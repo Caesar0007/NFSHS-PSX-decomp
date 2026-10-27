@@ -14,6 +14,11 @@
 #ifndef _LIB_LIBFNS_H_
 #define _LIB_LIBFNS_H_
 
+struct SNDSTREAMSTATUS;
+struct SNDREQUESTSTATUS;
+struct SNDPLAYOPTS;
+struct SndGlobalServerStateView;
+
 extern "C" {
 
 /* =====================================================================
@@ -94,31 +99,31 @@ u_short PAD_state(int);   /* SYM: USHORT PAD_state(int padID) — was a bogus u_
 void PAD_update(...);
 int SND3dpos(...);   /* (u_int tag, u_int x, int y) */
 int SNDSTRM_autovol(...);   /* (int handle, int ticks, int flag) */
-int SNDSTRM_create(...);   /* (int *priority,int numReq,int pktArg,int objbuf,int memsize) -> stream handle; def in eaclib sndpsxz/spvoices.cpp */
+int SNDSTRM_create(struct SNDPLAYOPTS *priority, int numReq, int pktArg, char *objbuf, int memsize);   /* -> stream handle; def in eaclib sndpsxz/spvoices.c */
 int SNDSTRM_destroy(...);   /* (int handle) */
 int SNDSTRM_getvol(...);   /* (int handle) */
 int SNDSTRM_overhead(...);   /* (int a, int b) */
 int SNDSTRM_purge(...);   /* (int handle) */
 int SNDSTRM_queuefile(...);   /* (u_int handle,int name,char *filename,long off) -> queue handle; real def eaclib sndpsxz/spvoices.c returns int (w30-a7: was void, mismatched the real definition -- AudioMus_QueueRequestedSong stores its return into requesthandle) */
-int SNDSTRM_requeststatus(...);   /* (int req, u_int statusptr) */
+int SNDSTRM_requeststatus(unsigned int reqTag, struct SNDREQUESTSTATUS *status);   /* (unsigned int req, SNDREQUESTSTATUS *status) */
 void SNDSTRM_setgreedylevel(...);   /* (int handle, int level) */
 void SNDSTRM_setgreedystate(...);   /* (int handle, int state) */
 void SNDSTRM_setpriority(...);   /* (int handle, int prio, int n) */
-int SNDSTRM_status(...);   /* (int handle, int statusptr) */
+int SNDSTRM_status(int tag, struct SNDSTREAMSTATUS *status);   /* (int handle, SNDSTREAMSTATUS *status) */
 int SNDSTRM_vol(...);   /* (int handle, int vol) */
 int SNDSYS_getopts(...);   /* (void * outOpts) */
-void SNDSYS_init(...);   /* (void *, int, int) */
+int SNDSYS_init(void *membase, int memsize);   /* (void *membase, int memsize) */
 void SNDSYS_restore(...);   /* (int arg0) */
 int SNDSYS_setopts(...);   /* (void * newOpts) */
 int SNDSYS_vectortoreal(...);   /* (void) */
 void SNDautovol(...);   /* (void *, int, int) */
-int SNDbankadd(...);   /* (void *, void *) */
+int SNDbankadd(int *bank_out, void *bank_data);   /* (int *bank_out, void *bank_data) */
 void SNDbankheadercopy(...);   /* (void *, int) */
 int SNDbankheadersize(...);   /* (int) */
-int SNDbankremove(...);   /* (int) */
+void SNDbankremove(...);   /* (int) */
 int SNDfxinitbus(...);   /* (int bus, int mode, int a2, int a3, int a4) */
 int SNDfxmasterlevel(...);   /* (int bus, int level) */
-int SNDgetlimits(...);   /* (int *opts) */
+int SNDgetlimits(void *opts);   /* (void *opts) */
 int SNDmastervol(...);   /* (int vol) */
 int SNDmemlargestunused(...);   /* (int *buf) */
 int SNDover(...);   /* (int) */
@@ -127,7 +132,7 @@ int SNDpitchbend(...);   /* (u_int tag, int bend) */
 int SNDpitchmult(...);   /* (int tag, u_int mult) */
 int SNDplay(...);   /* (void *) */
 void SNDplaysetdef(...);   /* (void *) */
-int SNDsetlimits(...);   /* (int *opts) */
+int SNDsetlimits(void *opts);   /* (void *opts) */
 int SNDstop(...);   /* (int handle) */
 int SNDtimeremaining(...);   /* (int handle) */
 void SNDvol(...);   /* (int handle, int vol) */
@@ -186,7 +191,7 @@ charactertbl * getcharacter(...);   /* (int code) */
 int geti(...);   /* (void *p, int n) */
 long getm(...);   /* (void *p, int n) */
 int gettick(...);
-short * iSNDserveradd100hzclient(...);   /* (int cb) */
+struct SndGlobalServerStateView * iSNDserveradd100hzclient(...);   /* (void (*cb)(void)) */
 int iSNDserverremove100hzclient(...);   /* (int cb) */
 void iSPCH_EACseedrandom(...);   /* (int arg0) */
 void initasync(...);   /* (int reqs, int bufsize, int flag) */

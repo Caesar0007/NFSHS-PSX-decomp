@@ -2,11 +2,10 @@
  * headers and copied child-by-child into final runtime allocations. */
 #include "track_stream.h"
 
-extern "C" int FILE_opensync(char *name, int mode, int priority, int *outHandle);
-extern "C" void FILE_readsync(int handle, int offset, void *destination, int length, int priority);
-extern "C" int FILE_closesync(int handle, int priority);
-extern "C" void *reservememadr(char *name, int size, int flags);
-extern "C" void purgememadr(void *address);
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/syncfile.h"
+}
 
 extern "C" int TrackMod_ReadResidentBytes(
     TrackModResidentState *state,

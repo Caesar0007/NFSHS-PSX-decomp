@@ -3,6 +3,8 @@
 #ifndef _GAME_COMMON_AUDIOENG_EXTERNS_H_
 #define _GAME_COMMON_AUDIOENG_EXTERNS_H_
 
+struct SndGlobalServerStateView;
+
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
 #include "eaclib/psx/eacpsxz/fixdmult.h"
@@ -11,14 +13,10 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/timer.h"
 }
 extern "C" {
-int SND3dpos(...);
-int SNDpitchmult(...);
-int SNDplay(...);
-void SNDplaysetdef(...);
-int SNDstop(...);
-void SNDvol(...);
-short *iSNDserveradd100hzclient(...);
-int iSNDserverremove100hzclient(...);
+#include "eaclib/psx/sndpsxz/snd_voice.h"
+#include "eaclib/psx/sndpsxz/sserver.h"
+}
+extern "C" {
 void *memcpy(...);
 int sprintf(...);
 }

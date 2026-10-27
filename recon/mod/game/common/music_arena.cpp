@@ -21,9 +21,10 @@
 #define TRACKMOD_MUSIC_CLASS 2        /* memclass[2]; retail uses 0 (RAM) and 1 (a cached copy of 0) */
 #define TRACKMOD_MUSIC_ARENA 0x9000   /* 36,864 B: 33,100 B of music blocks + class/guard overhead */
 
-extern "C" int creatememclass(int id, char *name, char *membuf, int bufsize, int granularity, int alignment,
-                              int infosize, int lowguard, int reserved9, int highguard, int usemutex, int field3c);
-extern "C" void MEM_defaultevent(void);        /* eaclib meminit.c: the default class's event handler */
+extern "C" {
+#include "eaclib/psx/eacpsxz/meminit.h"
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
 char *Platform_ReserveMemory(int size, char *string);   /* game/psx/platform.cpp (C++ linkage) */
 
 extern "C" int TrackMod_musicClass;            /* 0 = use the EA heap; else the class id to allocate from */

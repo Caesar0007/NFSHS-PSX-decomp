@@ -168,7 +168,6 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q)
  * which of intsin / intcos / fastintsin / fastintcos it was cannot be told apart.)
  * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
 #include "../../link_stripped.h"
-extern "C" int intsin(...);
-LINK_STRIPPED int Quatern_StrippedSin(void) { return intsin(); }
+LINK_STRIPPED int Quatern_StrippedSin(void) { return intsin(0); }
 
 /* end of quatern.cpp */

@@ -6,6 +6,46 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-27 Canonical-library-header integration preserves the395 covered contracts and all existing function/local-owner records.
+
+Local checkpoint ca088086 is integrated with upstream0ca9a756 (the four
+canonical sndpsxz/spchpsxz/eacpsxz header commits). Resolve the overlapping
+AudioCmn/CopSpeak changes without losing the restored source layout. Keep
+LoadAsyncSfx,Reset and AudioTrk_PreLoad's recorded INT check objects: retail
+explicitly records the latter as AUTO sp-48 INT. Use an unsigned-char-pointer
+output cast at the library call boundary instead of replacing the source object
+by an anonymous union or a pointer. Keep GetTimePhrase's recorded CHAR table
+and its existing signed read. Canonical typed bank/header/handle arguments and
+the integer loadbigfileheader alignment are retained. These compatibility casts
+are not a claim of uniquely recovered original API spellings.
+
+The new speech-header preamble has one fewer physical line. Preserve the
+existing wrapper definition coordinates with ordinary preamble layout,not a
+statement directive or executable placeholder. A fresh Speech native run
+run-yla5v58z restores the prior complete parsed function/local-owner records.
+All395 covered contracts and SoundCar's separate530-word SLD contract survive;
+no new complete function restoration is claimed for this integration.
+
+Both full reconstruction and expected/oracle build routes pass without failed
+or skipped TUs. Fresh stock debug compilation covers all119 tracked units;
+ASPSX524/0 and PSYLINK zero errors. The broad symloop wrapper declined units
+with missing baseline-reference files; no post-edit reference was adopted.
+Instead the lower-level native route is guarded by the recorded immutable
+normal ELF hashes,retained-section/relocation/symbol comparisons and the full
+serialized native CPE hash.118 complete normal ELFs remain identical. The sole
+AudioMus ELF difference is its discarded StreamCreate pull-helper body,its
+relocation/symbol size,and that helper's real .pdr frame24->40;all retained
+sections and their symbols/relocations agree. Native CPE remains
+f38b148083bba70dcdd8b23ff2a565e2b60c46155361bec179b4ccb5aa0a771e.
+
+Fresh detailed AudioCmn48,CopSpeak27 and AudioTrk6 byte/branch gates pass.
+Tests162/162,stripped83,vtable1472 files,source policy,relink,canonical GNU link,
+raw299819/299819,overlap,foreign-label and inventory checks pass. Private
+receipts:build/nc12/upstream_merge_20261027/. No generated outputs or unrelated
+untracked files belong in the commit. The capture-removal SoundCar experiment
+remains private and is NOT included. Global type-copy ordering,unproved source
+objects and the full original-source/SYM/SLD goal remain open.
+
 2026-10-27 HornOn/HornOff gain complete65/47-word covered SYM/SLD contracts;393->395 contracts,two source/native labels removed.
 
 HornOff's car-index-first channel selection and the actual single-player

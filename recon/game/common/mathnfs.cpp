@@ -396,7 +396,6 @@ void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr)
  * object is the one that referenced `fixedatan` (best of the 10 placements the solver found; +2 members in retail order).
  * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
 #include "../../link_stripped.h"
-extern "C" int fixedatan(...);
-LINK_STRIPPED int Math_StrippedAtan(void) { return fixedatan(); }
+LINK_STRIPPED int Math_StrippedAtan(void) { return fixedatan(0, 0); }
 
 /* end of mathnfs.cpp */

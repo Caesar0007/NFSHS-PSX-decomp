@@ -813,7 +813,7 @@ Speech::Speech()
   }
 
   sprintf(filename, "%szzzz%s.viv", Paths_Paths[0x1d], SpeechLanguage);
-  header = (char *)loadbigfileheader(filename, (void *)0x10);
+  header = (char *)loadbigfileheader(filename, 0x10);
   hoffset = 0;
   hsize = 0;
   if (header)

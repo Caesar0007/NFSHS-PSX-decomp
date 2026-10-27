@@ -4,6 +4,9 @@
  *   PSYLINK boundary marker; no functions, no data attributed. Out of game-source scope
  *   (library/runtime), included for tree-inventory completeness. */
 #include "async.h"
+extern "C" {
+#include "eaclib/psx/eacpsxz/exit.h"
+}
 /* (intentionally empty) */
 /* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
  * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.
@@ -13,7 +16,6 @@
  * equally exact placements, not proven.
  * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
 #include "../../link_stripped.h"
-extern "C" int addexit(...);
-LINK_STRIPPED int Async_StrippedAddExit(void) { return addexit(); }
+LINK_STRIPPED void Async_StrippedAddExit(void) { addexit(0); }
 
 /* end of async.cpp */

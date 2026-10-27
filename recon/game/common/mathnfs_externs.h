@@ -7,6 +7,7 @@
 /* ---- eaclib EACPSXZ fixed-point primitives ---- */
 /* eaclib (EACPSXZ.LIB) -- the library's own headers for the members this TU uses. */
 extern "C" {
+#include "eaclib/psx/eacpsxz/fixdatan.h"
 #include "eaclib/psx/eacpsxz/fixddiv.h"
 #include "eaclib/psx/eacpsxz/fixdinv.h"
 #include "eaclib/psx/eacpsxz/fixdmult.h"

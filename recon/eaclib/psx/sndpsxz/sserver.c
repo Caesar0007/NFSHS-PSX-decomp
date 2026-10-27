@@ -5,115 +5,70 @@
  *   pitch sweeps), the audio re-entrancy lock (iSNDenteraudio/leaveaudio) and the 100 Hz client list.
  *   Ghidra nfs4-f.exe.c (sserver) + IDA sigs.
  *
- *   sndgs (int[]) fields used here:  [0xf] byte2 (0x3e) = "in server" flag, byte3 (0x3f) = audio-lock depth;
- *   [4] byte1 (0x11) = channel count; [0x10] byte0 (0x40) = 100 Hz client count; [0x11] = audio tick;
- *   [0x12] = serve callback; [0x13..] = 100 Hz client fn-ptrs; [0x25] = channel pool; [0x2b] = real ticks.
- *   Channel slot (sndgs[0x25] + voice*100): +0x0 tag, +0xb state, +0x14 vel-env ptr, +0x15(*0x54) lfo ptr,
- *   +0x20/+0x24/+0x28 sweep step/accum/count, +0x2d vol, +0x30 sweep cnt, +0x31 sweep idx, +0x39/0x3a/0x3b
- *   lfo/vel/pitch phase, +0x40 sweep tbl, +0x5e pitch cache, +0x62 final pitch.
+ *   Shared `sndgs` server state is overlaid by `SndGlobalServerStateView` in `sndserverpriv.h`;
+ *   named fields include the lock/re-entry state, tick counters, callback tables, channel count and pool.
+ *   `SndServer100HzClientCursorView` retains the codegen-matched displacement while the callback list is walked.
+ *   Channel slot uses the private `SndChannel` layout (size `0x64`): owner/state at `+0x00/+0x0B`,
+ *   autovol ramp at `+0x14..+0x1F`, portamento/sweep state at `+0x20..+0x2B`, cached volume/sweep bytes
+ *   at `+0x2D..+0x31`, phases at `+0x39..+0x3B`, sweep-table pointer at `+0x40`, and pitch/cache fields
+ *   at `+0x5E..+0x63`.
  */
+#include "sclcptch.h"
+#include "sdata.h"
+#include "sndchpriv.h"
+#include "sdfx.h"
+#include "sdriver.h"
+#include "slib.h"
+#include "snd_state.h"
+#include "sndserverpriv.h"
+#include "sserver.h"
+#include "sstop.h"
 
-extern int           sndgs[];
-extern int           timerhz[];          /* hardware tick rate            */
-/* sndgs = 0x80147860 (configs/symbol_addrs.txt); DAT_80147910/DAT_80147912 are FIELDS of sndgs itself
- * (+0xB0 / +0xB2), not separate globals -- confirmed by oracle's lhu/sh %B2(s0) off the SAME &sndgs base
- * used for GB()/GUB() field accesses (iSNDleaveaudio). Both are SHORT (16-bit lhu/sh), not int. */
-#define DAT_80147910 (*(short *)((char *)sndgs + 0xB0))   /* last-seen timerhz             */
-#define DAT_80147912 (*(short *)((char *)sndgs + 0xB2))   /* deferred-server request count */
+extern int timerhz[]; /* hardware tick rate */
 
-extern void SNDI_mutexlock(void);        /* sdfx     */
-extern void SNDI_mutexunlock(void);      /* sdfx     */
-extern void iSNDserve(void);             /* slib     */
-extern int  iSNDcalcpitch(int note);     /* sclcptch */
-extern int  iSNDplatformpitch(int chan, int pitch);   /* sdriver */
-extern int  iSNDvol(int chan, int level);             /* sdriver */
-extern void iSNDcalcvol(int chan);            /* spatkey */
-extern int  SNDstop(unsigned int tag);                /* sstop   */
-extern void trap(unsigned int code);
-
-extern void iSNDserver(void);                         /* @0x800EA138 */
-extern void iSND100hzserver(void);                    /* @0x800EA254 */
-extern void iSNDenteraudio(void);                     /* @0x800EA534 */
-extern void iSNDleaveaudio(void);                     /* @0x800EA56C */
-
-#define GB(idx) (((char *)sndgs)[idx])            /* signed byte of sndgs    */
-#define GUB(idx) (((unsigned char *)sndgs)[idx])  /* unsigned byte of sndgs  */
-
-/* iSNDserver @0x800EA138 : advance the audio clock -- run iSND100hzserver (sndgs[0x12]) once per elapsed
- *   100 Hz tick to catch sndgs[0x11] up to (real ticks * 100 / timerhz).  Defers if audio is locked.
- * MATCH (w29-a5, 72->37 diffs, ours 69/71->66/71 insns): four structural fixes over the prior recon:
- * (1) the `timerhz==0` guard is NOT a call to trap() -- the oracle's `divu zero,v0,a1 / bnez a1,T / nop /
- *     break 7` is the RAW unchecked `divu` immediately followed by hand-written zero-check code that
- *     compiles straight to a bare `break 7`; a `trap(0x1c00)` C call instead emits a genuine `jal`+arg
- *     setup the oracle never has. Just divide -- no explicit zero-check statement needed in C.
- * (2) needs ONE shared base pointer `p=(char*)sndgs` routed through EVERY field access (matching the
- *     sibling iSND100hzserver/iSNDserverremove100hzclient idiom) -- using the GB()/DAT_* macros' own
- *     separate `(char*)sndgs` casts per access kept re-deriving the address instead of reusing one lui/addiu.
- * (3) `if (locked) { defer; return; }` (inverted polarity + early-return), not `if (!locked){work}else{defer}`
- *     -- the oracle's branch falls through into the deferred-count path and jumps PAST the work section,
- *     the opposite of a natural if/else lowering.
- * (4) sndgs[0x2b] (real-tick counter, offset 0xac) needs a VOLATILE re-read for the multiply operand --
- *     oracle stores the incremented count back to memory then re-loads it fresh for `*100/timerhz` instead
- *     of reusing the just-computed register value (same re-read lever as sst.c's MVI macro).
- * A SEPARATE `g` (not `p`) feeds the loop/callback pointer: `p` only needs to live in a0 up to the
- * point the loop's `jalr` call clobbers caller-saved regs; the sibling-idiom base pointer must NOT itself
- * be the value carried across that call, or gcc pins it into s0 for the WHOLE function (oracle only makes
- * that copy right before the loop, and recomputes sndgs fresh again for the final `GB(0x3e)=0` after it).
- * *** MATCH 71/71 (w32-a8, 37 -> 0 diffs).  Four more fixes, in the order they landed:
- * (5) ROTATED LOOP WITH AN ENTRY GUARD, guard and body on DIFFERENT pointers (37->21, 66->70 insns).
- *     The oracle peels the first `<= target` test before the loop (`lw v0,0x44(a0); sltu; bnez -> exit`),
- *     puts `addu s0,a0,zero` after it, and re-tests through s0 at the back edge -- i.e.
- *     `if (test on p) { g = p; do {...} while (test on g); }`.  A plain `while` lowers to the un-rotated
- *     jump-to-test form and is 5 insns short.  NOTE the earlier attempt logged here as "no diff-count
- *     effect" used the SAME variable in the guard and the back-edge test, so gcc cross-jump-merged the
- *     two tests back into one; keeping them textually distinct (p vs g) is what makes the rotation stick.
- * (6) `extern int timerhz[];` + `timerhz[0]` -- the UNSIZED-ARRAY declaration lever (methodology 3.12 #5),
- *     here in its ADDRESS-materialization form (21->9): it forces &timerhz into its OWN register
- *     (`lui v1,%hi(timerhz)` hoisted to the top of the block) which the oracle then SHARES between the
- *     `lw a1,%lo(timerhz)(v1)` compare load and the later `lhu v0,%lo(timerhz)(v1)` halfword re-read.
- *     Declared as a scalar, each access self-temps its own `lui` (2 extra insns, no sharing).  This also
- *     freed the `li v0,1` that reorg then steals into the `beqz` delay slot for the `GB(0x3e)=1` store.
- * (7) VOLATILE on the three fields the 100 Hz callback / IRQ path also touches -- sndgs[0x11] (0x44,
- *     the audio clock, already volatile in iSND100hzserver), sndgs[0x2b] (0xac, the real-tick counter)
- *     and the 0xb2 deferred-request count (already volatile in iSNDleaveaudio).  Without them gcc's
- *     scheduler hoists the two `sw zero` clears above the `sh` into the timerhz load-delay slot, and
- *     reorg steals the 0xb2 `sh` into the `j` delay slot where the oracle leaves a nop (9->6->3).
- * (8) the trailing flag clear is a VOLATILE-pointer store `{volatile char *q = (volatile char*)sndgs;
- *     q[0x3e] = 0;}` (3->0).  Only the volatile-qualified pointer makes gcc materialize the ADDRESS in a
- *     register (`lui;addiu;sb 0x3E(v0)` -- and reorg then steals that `lui` into BOTH loop-exit delay
- *     slots) instead of folding +0x3e into the reloc (`lui;sb %lo(sndgs+0x3e)`, 1 insn short).  A plain
- *     `char *q`, a bare `((char*)sndgs)[0x3e]`, an `(int)` cast and a volatile MEM cast all fold.
- *     Re-using `p` here instead is NOT the answer: it makes p live across the jalr, so gcc pins it in s1
- *     for the whole function (71/71 insns but 56 diffs).  The 0x3e re-entrancy flag is genuinely volatile
- *     (it guards against re-entry from the IRQ/leaveaudio path), so its read and its `=1` store carry the
- *     qualifier too -- all four spellings byte-match, the consistent one is kept. */
-extern void iSNDserver(void)
+/* iSNDserver @0x800EA138 : advance the audio clock, running the server callback until the audio tick
+ * catches up with real_ticks * 100 / timerhz; defer one request while the audio lock is held.
+ *
+ * Exact-match constraints retained with the shared `SndGlobalServerStateView`:
+ * - No C zero-divisor guard: the retail sequence is the unchecked divide followed by its hand-written
+ *   break path; a trap() call adds a call/setup that is absent from the target.
+ * - `p`, `g`, and volatile `q` are intentionally distinct. The entry guard uses `p`, the rotated callback
+ *   loop carries `g` across the indirect call, and the final volatile member store uses `q`; collapsing
+ *   these pointers changes register allocation / loop rotation.
+ * - `tick_count`, `real_ticks`, the deferred-request halfword, and `in_server` retain the observed volatile
+ *   accesses. The real-tick counter is re-read after its increment before computing the target.
+ * - `timerhz` remains an unsized array: its address is shared between the compare load and halfword
+ *   reload. The callback loop is an entry-guarded do/while to retain retail's rotated branch layout.
+ * - The trailing clear still materializes `q` as a volatile pointer; casting that pointer to a volatile
+ *   `SndGlobalServerStateView` names the flag without changing the matched address-generation sequence.
+ * Verified byte-for-byte: 71 instructions. */
+void iSNDserver(void)
 {
-    char *p;
-    char *g;
+    struct SndGlobalServerStateView *p;
+    struct SndGlobalServerStateView *g;
     unsigned int target;
 
-    p = (char *)sndgs;
-    if (*(volatile unsigned char *)(p + 0x3e) == 0) {           /* not already inside the server */
-        if (*(unsigned char *)(p + 0x3f) != 0) {       /* audio locked -- defer */
-            *(volatile short *)(p + 0xb2) = *(volatile short *)(p + 0xb2) + 1;   /* run it later, on leaveaudio */
+    p = (struct SndGlobalServerStateView *)sndgs;
+    if (!p->in_server) {           /* not already inside the server */
+        if (p->audio_lock_depth) {       /* audio locked -- defer */
+            p->deferred_requests.s = p->deferred_requests.s + 1;   /* run it later, on leaveaudio */
             return;
         }
-        *(volatile unsigned char *)(p + 0x3e) = 1;
-        if (timerhz[0] != (((int)(*(volatile unsigned short *)(p + 0xb0)) << 16) >> 16)) {
-            *(volatile short *)(p + 0xb0) = (short)timerhz[0];
-            *(volatile int *)(p + 0x44) = 0;
-            *(volatile int *)(p + 0xac) = 0;
+        p->in_server = 1;
+        if (timerhz[0] != (((int)(p->timer_hz_cache.u) << 16) >> 16)) {
+            p->timer_hz_cache.s = (short)timerhz[0];
+            *(volatile int *)&p->tick_count = 0;
+            *(volatile int *)&p->real_ticks = 0;
         }
-        *(volatile int *)(p + 0xac) = *(volatile int *)(p + 0xac) + 1;
-        target = (unsigned int)(*(volatile int *)(p + 0xac) * 100) / (unsigned int)timerhz[0];
-        if ((unsigned int)*(int *)(p + 0x44) <= target) {
+        *(volatile int *)&p->real_ticks = *(volatile int *)&p->real_ticks + 1;
+        target = *(volatile int *)&p->real_ticks * 100 / (unsigned int)timerhz[0];
+        if (p->tick_count <= target) {
             g = p;
             do {
-                (*(void (*)(void))*(int *)(g + 0x48))();
-            } while ((unsigned int)*(int *)(g + 0x44) <= target);
+                g->server_callback();
+            } while (g->tick_count <= target);
         }
-        { volatile char *q = (volatile char *)sndgs; q[0x3e] = 0; }
+        { volatile char *q = (volatile char *)sndgs; ((volatile struct SndGlobalServerStateView *)q)->in_server = 0; }
     }
 }
 /* iSND100hzserver @0x800EA254 : one 100 Hz tick -- bump the audio clock, run the stream/serve pump and the
@@ -127,71 +82,71 @@ extern void iSNDserver(void)
  *   p[0x10] = SND_ENVELOPE_POINT{int duration; int volume;}[] (the stride-8 table; <<16 = 16.16 volume);
  *   the 100 Hz client array generalizes NFS2's discrete midiserver/speechserver/crowdserver/pathserver
  *   pointers; NFS4 dropped NFS2's malformed-envelope abortmessage and added the pitch-LFO block. */
-extern void iSND100hzserver(void)
+void iSND100hzserver(void)
 {
     int *g;
     int i;
     int chanIdx;
-    int *channelBase;
-    int *globalBase;
-    unsigned int *p;
+    struct SndGlobalServerStateView *channelBase;
+    struct SndGlobalServerStateView *globalBase;
+    SndChannel *p;
     int dirty;
 
     g = sndgs;
-    *(volatile int *)(g + 0x11) = *(volatile int *)(g + 0x11) + 1;
+    *(volatile int *)&((struct SndGlobalServerStateView *)g)->tick_count = *(volatile int *)&((struct SndGlobalServerStateView *)g)->tick_count + 1;
     i = 0;
     iSNDserve();
-    if (0 < *(signed char *)((char *)g + 0x40)) { /* run the 100 Hz client callbacks */
-        int *clientBase = g;
+    if (0 < ((struct SndGlobalServerStateView *)g)->client_100hz_count.s) { /* run the 100 Hz client callbacks */
+        struct SndGlobalServerStateView *clientBase = (struct SndGlobalServerStateView *)(unsigned int)g;
         do {
-            (*(void (*)(void))g[0x13])();
+            ((struct SndServer100HzClientCursorView *)g)->callback();
             g++;
             i++;
-        } while (i < (int)*(signed char *)((char *)clientBase + 0x40));
+        } while (i < clientBase->client_100hz_count.s);
     }
 
-    channelBase = sndgs;
+    channelBase = (struct SndGlobalServerStateView *)(unsigned int)sndgs;
     i = 0;
-    if (*(unsigned char *)((char *)channelBase + 0x11) != 0) { /* over every channel */
+    if (channelBase->channel_count) { /* over every channel */
         globalBase = channelBase;
         chanIdx = i;
         do {
-            p = (unsigned int *)(globalBase[0x25] + chanIdx);
-            if (*(signed char *)((int)p + 0xb) == 1 && -1 < (int)*p) { /* held, valid tag */
-                if (p[0x15] != 0) {                                 /* pitch LFO active */
-                    unsigned char phase = *(unsigned char *)((int)p + 0x3b) + 1;
-                    *(unsigned char *)((int)p + 0x3b) = phase;
-                    if (*(unsigned char *)((int)p + 0x39) <= phase)
-                        *(unsigned char *)((int)p + 0x3b) = 0;
-                    *(short *)((int)p + 0x5e) = 0;
+            p = (SndChannel *)((unsigned char *)globalBase->play_records + chanIdx);
+            if (p->state == 1 && -1 < (int)p->owner_tag) { /* held, valid tag */
+                if (p->pitch_lfo_table) {                                 /* pitch LFO active */
+                    unsigned char phase = p->pitch_lfo_phase + 1;
+                    p->pitch_lfo_phase = phase;
+                    if (p->lfo_phase_limit <= phase)
+                        p->pitch_lfo_phase = 0;
+                    p->linear_pitch_cache = 0;
                     iSNDcalcpitch(i);
-                    iSNDplatformpitch(i, (int)(unsigned)*(unsigned short *)((int)p + 0x62));
+                    iSNDplatformpitch(i, p->spu_pitch);
                 }
                 dirty = 0;
-                if (p[0x14] != 0) {                                 /* velocity envelope active */
+                if (p->velocity_curve) {                                 /* velocity envelope active */
                     unsigned char phase;
                     dirty = 1;
-                    phase = *(unsigned char *)((int)p + 0x3a) + 1;
-                    *(unsigned char *)((int)p + 0x3a) = phase;
-                    if (*(unsigned char *)((int)p + 0x38) <= phase)
-                        *(unsigned char *)((int)p + 0x3a) = 0;
+                    phase = p->velocity_phase + 1;
+                    p->velocity_phase = phase;
+                    if (p->velocity_phase_limit <= phase)
+                        p->velocity_phase = 0;
                 }
                 {
                     /* MATCH (184/184): keep the step as direct field reads. GCC CSEs them into the
                      * oracle's step/sign register pair while retaining `position` as the add result. */
-                    if (p[5] != 0) {                                   /* autovol ramp step */
+                    if (p->autovol_step) {                                   /* autovol ramp step */
                         int position;
                         dirty = 1;
-                        position = (int)p[7] + (int)p[5];
-                        p[7] = (unsigned int)position;
-                        if ((int)p[5] < 0) {
-                            if (!((int)p[6] < position)) {
-                                p[7] = p[6];
-                                p[5] = 0;
+                        position = p->autovol_position.word + p->autovol_step;
+                        p->autovol_position.word = position;
+                        if (p->autovol_step < 0) {
+                            if (!(p->autovol_limit < position)) {
+                                p->autovol_position.word = p->autovol_limit;
+                                p->autovol_step = 0;
                             }
-                        } else if (!(position < (int)p[6])) {
-                            p[7] = p[6];
-                            p[5] = 0;
+                        } else if (!(position < p->autovol_limit)) {
+                            p->autovol_position.word = p->autovol_limit;
+                            p->autovol_step = 0;
                         }
                         /* 🔴 2026-08-10 REAL BUG FIX (found by the real-ASPSX byte confirm):
                          * this negative-volume stop is INSIDE the ramp block -- retail's
@@ -200,78 +155,76 @@ extern void iSND100hzserver(void)
                          * check nested in `if (step != 0)`).  The old placement ran the
                          * check every tick.  verify_asm was BLIND to it (branch-target
                          * lenient by design) -- objdiff's 99.97% was flagging exactly this. */
-                        if ((int)p[7] < 0) { SNDstop(*p); goto next_chan; }
+                        if (p->autovol_position.word < 0) { SNDstop(p->owner_tag); goto next_chan; }
                     }
                 }
                 /* portamento done -> pitch sweep */
-                if (p[8] != 0) { dirty = 1; p[9] = p[9] + p[8]; }
-                if (p[10] == 0) {                                   /* advance to next sweep segment */
-                    signed char index = *(unsigned char *)((int)p + 0x31) + 1;
-                    *(unsigned char *)((int)p + 0x31) = index;
-                    if (!(index < *(signed char *)((int)p + 0x30))) {
-                        SNDstop(*p);
+                if (p->portamento_step) { dirty = 1; p->portamento_position.word = p->portamento_position.word + p->portamento_step; }
+                if (!p->sweep_countdown) {                                   /* advance to next sweep segment */
+                    signed char index = p->sweep_index + 1;
+                    p->sweep_index = index;
+                    if (!(index < p->sweep_count)) {
+                        SNDstop(p->owner_tag);
                         goto next_chan;
                     } else {
-                        int *table = (int *)(p[0x10] + index * 8);
-                        p[10] = table[0];
-                        if ((int)p[10] < 0)
-                            p[10] = 0x7fffffff;
-                        p[8] = (table[1] * 0x10000 - (int)p[9]) / (int)p[10];
+                        SndSweepSegment *table = &p->sweep_table[index];
+                        p->sweep_countdown = table->duration;
+                        if (p->sweep_countdown < 0)
+                            p->sweep_countdown = 0x7fffffff;
+                        p->portamento_step = (table->target_pitch * 0x10000 - p->portamento_position.word) / p->sweep_countdown;
                     }
                 }
-                p[10] = p[10] - 1;
+                p->sweep_countdown = p->sweep_countdown - 1;
                 if (dirty) {
                     iSNDcalcvol(i);
-                    if (-1 < (int)*p)
-                        iSNDvol(i, (int)*(signed char *)((int)p + 0x2d));
+                    if (-1 < (int)p->owner_tag)
+                        iSNDvol(i, p->volume);
                 }
             }
 next_chan:
-            chanIdx += 100;
+            chanIdx += sizeof(SndChannel);
             i++;
-        } while (i < (int)(unsigned)*(unsigned char *)((char *)globalBase + 0x11));
+        } while (i < globalBase->channel_count);
     }
 }
 
 /* iSNDenteraudio @0x800EA534 : take the audio re-entrancy lock (mutex + depth++). */
-extern void iSNDenteraudio(void)
+void iSNDenteraudio(void)
 {
-    char *g;
+    struct SndGlobalServerStateView *g;
     SNDI_mutexlock();
-    g = (char *)sndgs;   /* materialize &sndgs (lui+addiu) AFTER the call so it lands in a caller-saved reg */
-    g[0x3f] = g[0x3f] + 1;
+    g = (struct SndGlobalServerStateView *)sndgs;   /* materialize &sndgs (lui+addiu) AFTER the call so it lands in a caller-saved reg */
+    g->audio_lock_depth = g->audio_lock_depth + 1;
 }
 
 /* iSNDleaveaudio @0x800EA56C : release the audio lock; at depth 0, flush any servers deferred while held. */
-extern void iSNDleaveaudio(void)
+void iSNDleaveaudio(void)
 {
-    char *g = (char *)sndgs;      /* held across the call (oracle: callee-saved $s0) */
-    *(volatile unsigned char *)(g + 0x3f) =
-        *(volatile unsigned char *)(g + 0x3f) - 1;
+    struct SndGlobalServerStateView *g = (struct SndGlobalServerStateView *)sndgs;      /* held across the call (oracle: callee-saved $s0) */
+    ((volatile struct SndGlobalServerStateView *)g)->audio_lock_depth =
+        ((volatile struct SndGlobalServerStateView *)g)->audio_lock_depth - 1;
     SNDI_mutexunlock();
-    if (*(volatile unsigned char *)(g + 0x3f) == 0) {
-        while (*(volatile unsigned short *)(g + 0xB2) != 0) {
-            *(volatile unsigned short *)(g + 0xB2) =
-                *(volatile unsigned short *)(g + 0xB2) - 1;
+    if (!((volatile struct SndGlobalServerStateView *)g)->audio_lock_depth) {
+        while (((struct SndGlobalServerStateView *)g)->deferred_requests.u) {
+            ((struct SndGlobalServerStateView *)g)->deferred_requests.u =
+                ((struct SndGlobalServerStateView *)g)->deferred_requests.u - 1;
             iSNDserver();
         }
     }
 }
 
 /* iSNDserveradd100hzclient @0x800EA5F0 : register a 100 Hz tick callback `cb`; returns sndgs.
- *   Count read SIGNED (lb) for the index, UNSIGNED (lbu) for the increment-store.
- * MATCH: byte-base cast keeps oracle's sll(lb*4) then addu then sw a0,0x4c(v1) displacement form */
-extern short *iSNDserveradd100hzclient(int cb)
+ *   The count uses its signed view for the array index and unsigned view for the increment-store.
+ * MATCH: the named callback array in `SndGlobalServerStateView` emits the retail sll(count*4), addu,
+ *   then `sw a0,0x4c(base)` displacement sequence. */
+struct SndGlobalServerStateView *iSNDserveradd100hzclient(void (*cb)(void))
 {
-    /* MATCH: index sndgs by the raw client count ONLY (base = sndgs + count*4, scaled by sizeof(int)
-     * with no other term folded into the index) and fold the 0x13-slot (0x4c-byte) client-array
-     * offset into the store DISPLACEMENT via a byte-base cast -- oracle emits sll(count*4); addu
-     * base; sw a0,0x4c(base). Indexing sndgs[count+0x13] instead adds 0x13 to the INDEX before the
-     * *4 scale (extra addiu v1,v1,19 before the sll) -- not what the oracle does. */
-    char *base = (char *)sndgs;
-    *(int *)(base + (signed char)base[0x40] * 4 + 0x4c) = cb;
-    GB(0x40) = GB(0x40) + 1;
-    return (short *)sndgs;
+    /* Keep the raw count as the scaled index; do not fold the 0x13-slot prefix into it. The field
+     * expression below is a true array member yet retains the retail +0x4c store displacement. */
+    struct SndGlobalServerStateView *base = (struct SndGlobalServerStateView *)sndgs;
+    base->client_100hz_callbacks[(signed char)base->client_100hz_count.s] = cb;
+    base->client_100hz_count.u = base->client_100hz_count.u + 1;
+    return (struct SndGlobalServerStateView *)sndgs;
 }
 
 /* iSNDserverremove100hzclient @0x800EA620 : unregister a 100 Hz callback, compacting the client list.
@@ -282,37 +235,38 @@ extern short *iSNDserveradd100hzclient(int cb)
  * (not a REG) so global.c `set_preference` never gives it the $a0 copy preference, and `cb` now dies
  * at the fence so it stops conflicting with the loop index -- `regs_someone_prefers[i]` loses $a0 and
  * the {i,base,cb} = {$a0,$a1,$a2} rotation lands; the `"0"` matching constraint makes reload emit
- * retail's `addu $a2,$a0,$zero` at insn 0 at zero cost.  Full mechanism + the -dg receipt is on the
- * twin in ssysserv.c.  (Retires the w33/w34 `volatile`-param 3-diff floor on BOTH twins.) */
-extern void iSNDserverremove100hzclient(int cb)
+ * retail's `addu $a2,$a0,$zero` at insn 0 at zero cost.  The state base is a typed view; callback
+ * slot displacements remain byte-based at the cursor boundary. Full mechanism + the -dg receipt is
+ * on the twin in ssysserv.c. (Retires the w33/w34 `volatile`-param 3-diff floor on BOTH twins.) */
+void iSNDserverremove100hzclient(void (*cb)(void))
 {
     int i;
     int j;
-    int target;
-    char *base;
-    char *p;
+    void (*target)(void);
+    struct SndGlobalServerStateView *base;
+    struct SndGlobalServerStateView *p;
 
     __asm__("" : "=r"(target) : "0"(cb));
-    p = (char *)sndgs;
-    if (*(signed char *)(p + 0x40) <= 0)
+    p = (struct SndGlobalServerStateView *)sndgs;
+    if (p->client_100hz_count.s <= 0)
         return;
     i = 0;
     base = p;
 findloop:
-    if (*(int *)(base + i * 4 + 0x4c) == target) {
-        *(char *)(base + 0x40) = *(char *)(base + 0x40) - 1;
-        if (i < *(signed char *)(base + 0x40)) {
+    if (((struct SndServer100HzClientCursorView *)((unsigned char *)base + i * 4))->callback == target) {
+        ((struct SndGlobalServerStateView *)base)->client_100hz_count.u = ((struct SndGlobalServerStateView *)base)->client_100hz_count.u - 1;
+        if (i < ((struct SndGlobalServerStateView *)base)->client_100hz_count.s) {
 shiftloop:
             j = i * 4;
             i++;
-            *(int *)((unsigned int)j + (unsigned int)base + 0x4c) =
-                *(int *)(base + i * 4 + 0x4c);
-            if (i < *(signed char *)(base + 0x40))
+            ((struct SndServer100HzClientCursorView *)((unsigned int)j + (unsigned int)base))->callback =
+                ((struct SndServer100HzClientCursorView *)((unsigned char *)base + i * 4))->callback;
+            if (i < ((struct SndGlobalServerStateView *)base)->client_100hz_count.s)
                 goto shiftloop;
         }
         return;
     }
     i++;
-    if (i < *(signed char *)(base + 0x40))
+    if (i < ((struct SndGlobalServerStateView *)base)->client_100hz_count.s)
         goto findloop;
 }

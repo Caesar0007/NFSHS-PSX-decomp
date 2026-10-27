@@ -129,8 +129,8 @@ void CopSpeak_Stop(void);
 void CopSpeak_Cancel(void);
 void CopSpeak_SilenceCop(Car_tObj *car, int playerIndex);
 void AudioMus_StopSong(int fadeticks);
-extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
-extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
+
+
 /* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused
  * come from lib/libfns.h already included via audiocmn_externs.h) */
 void CopSpeak_Server(void);
@@ -336,7 +336,7 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 
 
 
-        while (SNDmemlargestunused(&check) - 0x1000 < size) {
+        while (SNDmemlargestunused((unsigned char **)&check) - 0x1000 < size) {
 
 
 
@@ -355,11 +355,11 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 
 
 
-        check = SNDbankadd(&s->handle,(int)pbank);
+        check = SNDbankadd(&s->handle,pbank);
 
         if ((check == 7) && ((s->header = (char *)reservememadr("SFXHDR",SNDbankheadersize(s->handle),0x10)) != 0)) {
 
-          SNDbankheadercopy(s->header,(u_char *)s->handle);
+          SNDbankheadercopy((struct SndBankDataHeaderPrefix *)s->header,s->handle);
           s->patch = patch;
           s->ticks = simGlobal.gameTicks; return; }
 
@@ -603,7 +603,7 @@ void AudioCmn_Reset(void)
       goodtogo = true;
       CopSpeak_Server();
       systemtask(0);
-      if (0x8000 < SNDmemlargestunused(&check)) {
+      if (0x8000 < SNDmemlargestunused((unsigned char **)&check)) {
         if (GameSetup_gData.raceType == RaceType_HotPursuit) {
           {
           int i;
@@ -1442,7 +1442,7 @@ void freeVoiceChannel(int sndPlayer)
   if (AudioCmn_kAudioOn != 0) {
     if (sndPlayer != -1) {
       if ((void *)gaChannel[sndPlayer].Partial != (void *)0xffffffff) {   /* @0x80078108: Partial == -1 sentinel (disasm-v3) */
-        SNDautovol((void *)gaChannel[sndPlayer].Partial,5,-1);
+        SNDautovol((unsigned int)gaChannel[sndPlayer].Partial,5,-1);
         gaChannel[sndPlayer].Partial = -1;
         gaChannel[sndPlayer].SFXnum = -1;
         NumSFXOn = NumSFXOn + -1;

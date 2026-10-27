@@ -10,11 +10,9 @@
  */
 #include "chunk_stream.h"
 
-extern "C" void *reservememadr(char *name, int size, int flags);
-#ifndef TRACKMOD_HOST_TEST
-extern "C" int purgememadr(void *address);
-#endif
-extern "C" int largestunused(void);
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+}
 extern "C" int TrackMod_allocFailures;
 int TrackMod_allocFailures;
 extern "C" int TrackMod_loadedChunks;
@@ -41,10 +39,6 @@ extern "C" int TrackMod_poolShrinks;
 int TrackMod_poolShrinks;
 extern "C" int TrackMod_loadFail[8];   /* why TrackMod_LoadChunkSyncEx failed: 0 args, 1 meta index, 2 meta read, 3 chunk ptr, 4 pool, 5 size */
 int TrackMod_loadFail[8];
-
-#ifdef TRACKMOD_HOST_TEST
-extern "C" int purgememadr(...);
-#endif
 
 #define TRACKMOD_POOL_RESERVE   0x3C000U   /* EA heap left to the rest of the race init when the pool is sized; the race only starts music when > 0xB000 is still free after Sim_StartUp (nfs3.cpp), and 0x30000 left ~38 KB */
 #define TRACKMOD_POOL_SHRINK_PAD 0x4000U   /* extra heap left free after a pressure shrink */

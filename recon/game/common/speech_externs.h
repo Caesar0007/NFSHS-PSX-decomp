@@ -14,7 +14,9 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/timer.h"
 }
 extern "C" {
-int SNDstop(...);
+#include "eaclib/psx/sndpsxz/sstop.h"
+}
+extern "C" {
 void *SetSp(...);
 void *memcpy(...);
 int sprintf(...);

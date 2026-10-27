@@ -4,6 +4,7 @@
  *   nfs4-f.exe.c (ssine) + IDA sig.  Phase = a&0xff (0..0xff), quadrant = (a>>8)&3 reflects/negates the
  *   quarter-wave table sndsintbl[0..0x100].
  */
+#include "ssine.h"
 
 /* retail SYM `sndsintbl` @0x8013C348: ssine.obj's own .DATA table (not const, not shared) --
  * quarter-wave sine, 0x101 entries, [0]=0x0000 .. [0x100]=0xffff. */
@@ -31,20 +32,19 @@ unsigned short sndsintbl[0x101] = {   /* @0x8013C348 */
     0xfec4, 0xfeea, 0xff0e, 0xff2f, 0xff4e, 0xff6a, 0xff84, 0xff9c, 0xffb1, 0xffc3, 0xffd3, 0xffe1,
     0xffec, 0xfff4, 0xfffb, 0xfffe, 0xffff,};
 
-extern int iSNDsin(int a);                /* @0x8010CC40 */
 
 /* iSNDsin @0x8010CC40 : full-circle sine from a 0x100-step quarter-wave table -- quadrant 0 reads forward,
  *   1 mirrors, 2 negates forward, 3 negates the mirror. MATCH (37/37): every quadrant uses the masked
  *   low-eight-bit phase; leaving quadrants 1..3 unmasked is both behaviorally wrong and byte-different. */
-extern int iSNDsin(int a)
+int iSNDsin(int a)
 {
-    unsigned int quad = (unsigned int)(a >> 8) & 3;
+    unsigned int quad = a >> 8 & 3;
     a &= 0xff;
-    if (quad == 0)
-        return (int)(unsigned int)sndsintbl[a];                      /* quad 0 */
+    if (!quad)
+        return sndsintbl[a];                      /* quad 0 */
     if (quad == 1)
-        return (int)(unsigned int)sndsintbl[0x100 - a];             /* quad 1 */
+        return sndsintbl[0x100 - a];             /* quad 1 */
     if (quad == 2)
-        return -(int)(unsigned int)sndsintbl[a];                    /* quad 2 */
-    return -(int)(unsigned int)sndsintbl[0x100 - a];                /* quad 3 */
+        return -sndsintbl[a];                    /* quad 2 */
+    return -sndsintbl[0x100 - a];                /* quad 3 */
 }

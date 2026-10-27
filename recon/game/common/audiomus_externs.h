@@ -11,24 +11,23 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/timer.h"
 }
 extern "C" {
+#include "eaclib/psx/sndpsxz/spvoices.h"
+#include "eaclib/psx/sndpsxz/splysdef.h"
+#include "eaclib/psx/sndpsxz/slimits.h"
+#include "eaclib/psx/sndpsxz/sst.h"
+#include "eaclib/psx/sndpsxz/sstautov.h"
+#include "eaclib/psx/sndpsxz/sstgetv.h"
+#include "eaclib/psx/sndpsxz/sstovrhd.h"
+#include "eaclib/psx/sndpsxz/sstsetgl.h"
+#include "eaclib/psx/sndpsxz/sstsetgs.h"
+#include "eaclib/psx/sndpsxz/sstsetpr.h"
+#include "eaclib/psx/sndpsxz/sststat.h"
+#include "eaclib/psx/sndpsxz/sstvol.h"
+#include "eaclib/psx/sndpsxz/sstrstat.h"
+}
+extern "C" {
 int CdDiskReady(...);
 int GetRCnt(...);
-int SNDSTRM_autovol(...);
-int SNDSTRM_create(...);
-int SNDSTRM_destroy(...);
-int SNDSTRM_getvol(...);
-int SNDSTRM_overhead(...);
-int SNDSTRM_purge(...);
-int SNDSTRM_queuefile(...);
-int SNDSTRM_requeststatus(...);
-void SNDSTRM_setgreedylevel(...);
-void SNDSTRM_setgreedystate(...);
-void SNDSTRM_setpriority(...);
-int SNDSTRM_status(...);
-int SNDSTRM_vol(...);
-int SNDgetlimits(...);
-void SNDplaysetdef(...);
-int SNDsetlimits(...);
 int sprintf(...);
 unsigned int strlen(...);
 }

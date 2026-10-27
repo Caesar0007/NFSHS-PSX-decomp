@@ -6,10 +6,10 @@
  *   Patch ptrs are stored as offsets relative to their own field (+0x14 for bank type 4, else +0xc):
  *   abs = fieldAddr + offset.
  */
-
-extern int iSNDresolvetaggedpatch(int bank, int patch_idx, int scratch);   /* stagpat */
-
-extern int iSNDdownloadbank(int bankData, int patchData);   /* @0x8010266C */
+#include "sbdload.h"
+#include "stagpat.h"
+#include "sndbankhdrpriv.h"
+#include "sdresolv.h"
 
 /* iSNDdownloadbank @0x8010266C : rebase + resolve all patches of the bank at `bankData`.  Returns 7 (all
  *   ok) or 8 (a patch failed).
@@ -35,15 +35,15 @@ extern int iSNDdownloadbank(int bankData, int patchData);   /* @0x8010266C */
  *   (4) `i++` moved to the END of the increment run (3 -> PASS) -- see the site.
  *   The residual notes below are kept for their measurement history but their CONCLUSIONS are now
  *   superseded: the function matches under the tree's normal flags. */
-extern int iSNDdownloadbank(int bankData, int patchData)
+int iSNDdownloadbank(struct SndBankDataHeaderPrefix *bankData, unsigned char *patchData)
 {
     /* SHAPE (from the IDA per-variable register annotations of sub_8010266C, w32):
      *   v3 $s6=ret  v4/v6 $s0=ONE counter shared by the clear loop and the scan loop
      *   v7 $s5=off2  v8 $s2=cur2  v9 $s3=off4  v10 $s1=cur4  $fp=anchor  $s4=bankData
      *   v11 $v0=off  v12 $v0=abs.
      * Two facts this pinned down, both worth generalizing:
-     *  - the two cursors are INT variables dereferenced at a CONSTANT byte displacement
-     *    (`*(int *)(cur4 + 0x14)`), not `int *` walkers indexed `[5]`;
+     *  - cur2/cur4 are byte-pointer cursors advanced by four bytes per patch; the serialized entry is a union
+     *    of a scalar file offset before relocation and a tagged-patch pointer after relocation;
      *  - the 255-down-counter and the scan counter are ONE variable.  Splitting them into two
      *    locals drops that pseudo's ref count below the cursors' and re-colors the whole frame
      *    (i lands in $s2, cur2 in $s0); sharing it restores the oracle's $s0.
@@ -53,14 +53,15 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      * puts off4 in $s3 ahead of bankData in $s4, and type4 in $s7 ahead of anchor in $fp.
      * (A goto-loop gets the displacements right, see the residual below, but loses the weighting
      * and mis-colors four callee-saved registers; measured 46 diffs vs 42 here.) */
-    int scratch[512];
+    struct SNDResolveEntry scratch[256];
     int i;
-    int *p;
+    struct SNDResolveEntry *p;
     int neg;
     int ret = 7;
-    int anchor, type4, off2, off4;
-    int cur2, cur4;
-    int off, abs;
+    unsigned char *anchor, *cur2, *cur4;
+    struct SndTaggedPatchRecordPrefixView *abs;
+    int type4, off2, off4;
+    int off;
 
     /* MATCH (w50-a7): WALKER + DEPTH-WRAPPER REF DIAL, 14 -> 9.  Retail's clear loop is a
      * strength-reduced descending walker (`sw $v1,0($v0); addiu $v0,$v0,-8` with the -1 and the
@@ -74,14 +75,14 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      * body works identically (9); wrapping only the STORE does not (that was the w47 probe). */
     neg = -1;
     i = 0xff;
-    p = &scratch[0x1fe];
+    p = &scratch[0xff];
     do {
-        *p = neg;
-        p -= 2;
+        p->offset = neg;
+        p--;
         do { i--; } while (0);
     } while (i >= 0);
 
-    anchor = bankData;
+    anchor = (unsigned char *)bankData;
     /* MATCH (EAC 2026-10-04, replaces the w50-a7 void-tail `__asm__("" : : "i"(0))` fence):
      * retail issues `addu $fp,$s4,$zero` BEFORE `lhu $v0,6($s4)` and fills the `beqz` slot with
      * `addu $s0,$zero,$zero` (i = 0).  Two gcc facts decide it: sched.c's birthing boost
@@ -92,26 +93,26 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      * (4, copy still sinks), anchor copy wrapped instead (44, its ref weight re-colors s3..fp),
      * guard read through `anchor` (2), anchor copy before the clear loop (4). */
     do { i = 0; } while (0);
-    if (*(unsigned short *)(bankData + 6) != 0) {
+    if (bankData->patch_count) {
         type4 = 4;
         off2 = 0xc;
-        cur2 = bankData;
+        cur2 = (unsigned char *)bankData;
         off4 = 0x14;
-        cur4 = bankData;
+        cur4 = (unsigned char *)bankData;
         do {
-            if (*(unsigned char *)(bankData + 4) == type4)
-                off = *(int *)(cur4 + 0x14);
+            if (bankData->type == type4)
+                off = ((struct SndBankPatchOffset20CursorView *)cur4)->relative_offset.file_offset;
             else
-                off = *(int *)(cur2 + 0xc);
-            if (off != 0) {
-                if (*(unsigned char *)(bankData + 4) == type4) {
-                    *(int *)(cur4 + 0x14) = bankData + off4 + *(int *)(cur4 + 0x14);
-                    abs = *(int *)(cur4 + 0x14);   /* read-back: cse forwards -> retail's addu copy */
+                off = ((struct SndBankPatchOffset12CursorView *)cur2)->relative_offset.file_offset;
+            if (off) {
+                if (bankData->type == type4) {
+                    ((struct SndBankPatchOffset20CursorView *)cur4)->relative_offset.record = (struct SndTaggedPatchRecordPrefixView *)((unsigned char *)bankData + off4 + ((struct SndBankPatchOffset20CursorView *)cur4)->relative_offset.file_offset);
+                    abs = ((struct SndBankPatchOffset20CursorView *)cur4)->relative_offset.record;   /* read-back: cse forwards -> retail's addu copy */
                 } else {
-                    *(int *)(cur2 + 0xc) = anchor + off2 + *(int *)(cur2 + 0xc);
-                    abs = *(int *)(cur2 + 0xc);
+                    ((struct SndBankPatchOffset12CursorView *)cur2)->relative_offset.record = (struct SndTaggedPatchRecordPrefixView *)(anchor + off2 + ((struct SndBankPatchOffset12CursorView *)cur2)->relative_offset.file_offset);
+                    abs = ((struct SndBankPatchOffset12CursorView *)cur2)->relative_offset.record;
                 }
-                if (iSNDresolvetaggedpatch(abs, patchData, (int)scratch) != 7)
+                if (iSNDresolvetaggedpatch(abs, patchData, scratch) != 7)
                     ret = 8;
             }
             off2 += 4;
@@ -125,10 +126,12 @@ extern int iSNDdownloadbank(int bankData, int patchData)
              * void fence before the increment, and a void fence after it all measure 3. */
             cur4 += 4;
             i++;
-        } while (i < (int)(unsigned)*(unsigned short *)(bankData + 6));
+        } while (i < bankData->patch_count);
     }
-    /* RESIDUAL 42 diffs, 84/84 insns.  All nine callee-saved assignments now match the oracle;
-     * what is left is ONE loop.c decision plus its fallout:
+    /* HISTORICAL RESIDUAL (before the pointer-typed cursor and relocation overlays): this form had
+     * 42 diffs at 84/84 insns. The current typed-pointer version above is exact; retain this block
+     * only as the record of the earlier codegen investigation, not as a current residual. Its former
+     * loop.c decision analysis was:
      *  (a) loop.c strength-reduces each cursor biv into its +0x14 / +0xc giv and eliminates the
      *      biv, so ours walks `bankData+0x14` and loads `0(s1)` where retail keeps the plain
      *      cursor and loads `0x14(s1)`.  Retail's object shows NO strength reduction at all

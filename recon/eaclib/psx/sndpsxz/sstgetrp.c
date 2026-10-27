@@ -1,7 +1,7 @@
 /* eaclib/psx/sndpsxz/sstgetrp.c -- RECONSTRUCTED. NOT original.  *** 1/1 ***  obj sstgetrp.obj @0x80103508 */
-extern int iSNDstreamgetstreamptr(int tag);   /* sst */
-
-extern int iSNDstreamgetrequestptr(unsigned int idx);   /* @0x80103508 */
+#include "sst.h"
+#include "sstpriv.h"
+#include "sstgetrp.h"
 
 /* iSNDstreamgetrequestptr @0x80103508 : resolve a stream-request tag to its request struct -- find the
  *   stream (idx low byte), then scan its request array (0x2c stride, +4 == tag) for a match.  Returns the
@@ -12,24 +12,25 @@ extern int iSNDstreamgetrequestptr(unsigned int idx);   /* @0x80103508 */
  * `((u8<<24)>>24)` via a `volatile` byte deref -- a plain `*(char*)` cast lets gcc cache/re-derive the
  * comparison from the earlier guard read instead of reloading+sign-extending fresh every iteration
  * (11->0; same lever as iSNDstreamparsenumchunks/sst.cpp). */
-extern int iSNDstreamgetrequestptr(unsigned int idx)
+SndStreamReq *iSNDstreamgetrequestptr(unsigned int idx)
 {
-    int *sp;
-    int  rq, i;
+    SndStream *sp;
+    SndStreamReq *rq;
+    int i;
     if (-1 >= (int)idx)
         return 0;
-    sp = (int *)iSNDstreamgetstreamptr((int)(idx & 0xff));
-    if (sp == 0)
+    sp = iSNDstreamgetstreamptr((int)(idx & 0xff));
+    if (!sp)
         return 0;
-    if (!(0 < (int)((unsigned)*(unsigned char *)((int)sp + 0x16) << 0x18)))   /* (signed char) count > 0 */
+    if (!(0 < (int)((unsigned)sp->current_count << 0x18)))   /* (signed char) count > 0 */
         return 0;
-    rq = *sp;
+    rq = sp->requests;
     i = 0;
     do {
-        if (*(unsigned int *)(rq + 4) == idx)
+        if (rq->request_id == idx)
             return rq;
-        rq += 0x2c;
+        rq++;
         i++;
-    } while (i < (((int)(*(volatile unsigned char *)((int)sp + 0x16)) << 24) >> 24));
+    } while (i < (((int)((volatile SndStream *)sp)->current_count << 24) >> 24));
     return 0;
 }

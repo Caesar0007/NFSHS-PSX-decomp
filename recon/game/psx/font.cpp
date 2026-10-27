@@ -16,8 +16,7 @@
  * share a chain, so only that position gives the retail order getm, textcrnt, P10.
  * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
 #include "../../link_stripped.h"
-extern "C" int puti(...);
-LINK_STRIPPED int Font_StrippedPutNumber(void) { return puti(); }
+LINK_STRIPPED void Font_StrippedPutNumber(void) { puti(0, 0, 0); }
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them

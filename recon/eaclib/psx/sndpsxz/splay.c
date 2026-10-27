@@ -6,18 +6,18 @@
  *   play-info `info`: [0] = patch index, [1] = bank id (byte).
  *   bank @ (bankid*0xc + sndgs[0x26]): +4 type(b), +6 patch count(u16), +0xc/+0x14 patch ptr table.
  */
-
-extern int sndgs[];
-extern int iSNDvalidbank(int bankid);                /* sbvalid */
-extern int iSNDplaytaggedpatch(int patch, int info); /* stagpat */
-
-extern int  cSNDplay(int *info, int recurse);   /* @0x800E7A68 ; a1 always 0 at every call */
-extern int  SNDplay(int *info);             /* @0x800E7A30 */
+#include "sbvalid.h"
+#include "sdata.h"
+#include "sndserverpriv.h"
+#include "sndbankpriv.h"
+#include "sndbankhdrpriv.h"
+#include "splay.h"
+#include "stagpat.h"
 
 /* SNDplay @0x800E7A30 : play `info` if the audio system is up; -10 if down. */
-extern int SNDplay(int *info)
+int SNDplay(struct SNDPLAYOPTS *info)
 {
-    if ((signed char)sndgs[0xf] == 0)
+    if (!((struct SndGlobalServerStateView *)sndgs)->initialized)
         return -10;
     return cSNDplay(info, 0);
 }
@@ -27,21 +27,23 @@ extern int SNDplay(int *info)
  * the oracle's exact basic-block layout for the in-range test (branch-polarity + which path needs the
  * extra `j`-trampoline); a nested `if (cond) { body }` or an explicit `goto fail;` both left the
  * in-range test's branch inverted (7-diff residual) even though they're semantically identical. */
-extern int cSNDplay(int *info, int recurse)
+int cSNDplay(struct SNDPLAYOPTS *info, int recurse)
 {
-    int patch, bank, pp;
+    int patch;
+    struct SndTaggedPatchRecordPrefixView *pp;
+    struct SndBankDataHeaderPrefix *bank;
     (void)recurse;
-    if (iSNDvalidbank((int)(signed char)info[1]) < 0)
+    if (iSNDvalidbank((signed char)info->bhandle) < 0)
         return -8;
-    patch = info[0];
-    bank = *(int *)((signed char)info[1] * 0xc + sndgs[0x26]);
+    patch = info->patnum;
+    bank = ((struct SndGlobalServerStateView *)sndgs)->bank_table[(signed char)info->bhandle].data_block;
     if (patch < 0)
         return -8;
-    if (!(patch < (int)(unsigned)*(unsigned short *)(bank + 6)))
+    if (!(patch < bank->patch_count))
         return -8;
-    if (*(char *)(bank + 4) == 4)
-        pp = *(int *)((bank + (patch << 2)) + 0x14);
+    if (bank->type == 4)
+        pp = ((struct SndBankPatchTable20Prefix *)bank)->first_relative_patch[patch];
     else
-        pp = *(int *)((bank + (patch << 2)) + 0xc);
-    return iSNDplaytaggedpatch(pp, (int)info);
+        pp = ((struct SndBankPatchTable12Prefix *)bank)->first_relative_patch[patch];
+    return iSNDplaytaggedpatch(pp, info);
 }

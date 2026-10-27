@@ -41,9 +41,8 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/getm.h"
 #include "eaclib/psx/eacpsxz/primate.h"
 #include "eaclib/psx/eacpsxz/resize.h"
+#include "eaclib/psx/eacpsxz/textcrnt.h"
 #include "eaclib/psx/eacpsxz/textset.h"
-}
-extern "C" {
 }
 
 #endif

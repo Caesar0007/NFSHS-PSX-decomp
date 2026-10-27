@@ -1,16 +1,17 @@
 /* eaclib/psx/sndpsxz/sgetvol.c -- RECONSTRUCTED. NOT original.  *** 1/1 ***  obj sgetvol.obj @0x80102810 */
-extern int sndgs[];
-extern int  iSNDgetchan(unsigned int tag);    /* salloc  */
-extern void iSNDenteraudio(void);             /* sserver */
-extern void iSNDleaveaudio(void);
-
-extern int SNDgetvol(unsigned int tag);       /* @0x80102810 */
+#include "salloc.h"
+#include "sdata.h"
+#include "sndserverpriv.h"
+#include "sndchpriv.h"
+#include "sgetvol.h"
+#include "sserver.h"
 
 /* SNDgetvol @0x80102810 : return the current SPU volume (slot +0x2d) of sound `tag`, or a negative error. */
-extern int SNDgetvol(unsigned int tag)
+int SNDgetvol(unsigned int tag)
 {
     int ch;
-    if ((signed char)sndgs[0xf] == 0)
+    SndChannel *pool;
+    if (!((struct SndGlobalServerStateView *)sndgs)->initialized)
         return -10;
     iSNDenteraudio();
     ch = iSNDgetchan(tag);
@@ -19,5 +20,6 @@ extern int SNDgetvol(unsigned int tag)
         return -8;
     }
     iSNDleaveaudio();                               /* oracle: leaveaudio BEFORE reading the +0x2d vol */
-    return (int)*(signed char *)(ch * 100 + sndgs[0x25] + 0x2d);   /* +0x2d cached vol read signed (lb) */
+    pool = ((struct SndGlobalServerStateView *)sndgs)->play_records;
+    return pool[ch].volume;                         /* signed cached-volume load */
 }

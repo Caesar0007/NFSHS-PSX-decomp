@@ -128,7 +128,7 @@ int  iSNDvalidbank(int bank);             /* nonzero == invalid */
 int  iSNDbankremovepat(int bank, int idx, void *scratch);
 int  SNDstop(int handle);
 void iSNDplatformfree(void *p);
-int  SNDbankremove(int bank);
+void SNDbankremove(int bank);
 /* critical section + voice iteration + SPU pokes */
 void iSNDenteraudio(void);                /* @0x800EA534 lock   */
 void iSNDleaveaudio(void);                /* @0x800EA56C unlock */

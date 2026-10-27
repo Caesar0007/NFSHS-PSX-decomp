@@ -12,8 +12,10 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/timer.h"
 }
 extern "C" {
-int SNDmemlargestunused(...);
-int SNDover(...);
+#include "eaclib/psx/sndpsxz/sdmemlu.h"
+#include "eaclib/psx/sndpsxz/sover.h"
+}
+extern "C" {
 u_short PAD_state(int padID);
 }
 
@@ -21,7 +23,7 @@ extern CAudioList *gGameAudioList;
 extern DRender_tCalcView AudioClc_gRenderView;
 extern GameSetup_tData GameSetup_gData;
 extern Sim_tSimGlobalVar simGlobal;
-extern Trk_AnimateInst * Anim_gInstanceFromIndex[32]; /* retail EXT: 128 bytes, dims 1 32 */
+extern Trk_AnimateInst * Anim_gInstanceFromIndex[8];
 /* Owner-derived bworldSm type, SYM1cec71..1cedc3. The original foreign
  * header visibility is not established by AudioTrk's surviving type stream. */
 #include "shared/Trk_NewSlice.h"

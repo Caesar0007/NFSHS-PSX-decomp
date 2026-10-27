@@ -20,18 +20,13 @@
  *   1 fn @0x800E7BA8.  SNDbankheadercopy -- copy a loaded bank's header into `dst` and rebase its patch
  *   pointers to the new buffer, repointing the bank table at the copy.  Ghidra nfs4-f.exe.c (sbhdrcpy).
  */
+#include "sbhdrcpy.h"
+#include "sbhdrsze.h"
+#include "snd_globals.h"
+#include "sndbankpriv.h"
+#include "sndcrtpriv.h"
+#include "sndbankhdrpriv.h"
 
-struct SNDGlobals {
-    char pad0[0x3c];
-    signed char initialized;
-    char pad3d[0x5b];
-    int bank_table;
-};
-extern struct SNDGlobals sndgs;
-extern int SNDbankheadersize(int bankId);          /* sbhdrsze */
-extern void *memcpy(void *dst, const void *src, int n);   /* C42 (BIOS thunk) */
-
-extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
 
 /* SNDbankheadercopy @0x800E7BA8 : memcpy the bank header to `dst`, relocate each patch pointer (+0x14 for
  *   bank type 4, else +0xc) relative to `dst`, then point the bank table entry at `dst`.
@@ -123,9 +118,9 @@ extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
  * the new basin: the `i = 0` position sweep (36/36/36/32/28/20/10, optimum still LAST) and
  * hoisting `i = 0` above the count guard (36 -- `i` loses $v1; a do{}while(0) ref inflator on the
  * hoisted init restores the rank and returns to exactly 10, so the hoist is a no-op, not a win). */
-extern int SNDbankheadercopy(void *dst, int bankId)
+int SNDbankheadercopy(struct SndBankDataHeaderPrefix *dst, int bankId)
 {
-    register int id;
+    int id;
     unsigned char *dest = (unsigned char *)dst;
     struct SNDGlobals *base = &sndgs;
     int size;
@@ -151,7 +146,7 @@ extern int SNDbankheadercopy(void *dst, int bankId)
      * documented de-merger) does NOT reach it here. */
     do { id = bankId; } while (0);
     do {
-        if (base->initialized != 0)
+        if (base->initialized)
             goto initialized;
         return -10;
     } while (0);
@@ -160,7 +155,7 @@ initialized:
         size = SNDbankheadersize(id);
         if (size < 0)
             return size;
-    memcpy(dest, *(unsigned char **)(id * 0xc + base->bank_table), size);
+    memcpy(dest, (unsigned char *)base->bank_table[id].data_block, size);
     {
         int i;
         unsigned char *bankData;
@@ -174,34 +169,32 @@ initialized:
          * define `origin` before `i`.  sched1 then places i=0 in the bankData
          * pointer-load delay slot, and reorg steals origin into the count branch
          * slot, reproducing retail exactly. */
-        bankData = *(unsigned char **)(id * 0xc + base->bank_table);
+        bankData = (unsigned char *)base->bank_table[id].data_block;
         origin = bankData;
         i = 0;
-        if ((unsigned int)i < *(unsigned short *)(bankData + 6)) {
+        if (i < ((struct SndBankDataHeaderPrefix *)bankData)->patch_count) {
             type4 = 4;
             dst12 = dest;
             src12 = bankData;
             dst20 = dest;
             src20 = bankData;
-        do {
-            if (*(unsigned char *)(bankData + 4) == type4) {
-                int sp = *(int *)(src20 + 0x14);
-                if (sp != 0)
-                    *(int *)(dst20 + 0x14) = (int)dest + (sp - (int)origin);
+        for (; i < ((struct SndBankDataHeaderPrefix *)bankData)->patch_count;
+             dst12 += 4, src12 += 4, dst20 += 4, src20 += 4, i++) {
+            if (((struct SndBankDataHeaderPrefix *)bankData)->type == type4) {
+                struct SndTaggedPatchRecordPrefixView *sp = ((struct SndBankPatchTable20Prefix *)src20)->first_relative_patch[0];
+                if (sp)
+                    ((struct SndBankPatchTable20Prefix *)dst20)->first_relative_patch[0] =
+                        (struct SndTaggedPatchRecordPrefixView *)(dest + ((unsigned char *)sp - origin));
             } else {
-                int sp = *(int *)(src12 + 0xc);
-                if (sp != 0)
-                    *(int *)(dst12 + 0xc) = (int)dest + (sp - (int)bankData);
+                struct SndTaggedPatchRecordPrefixView *sp = ((struct SndBankPatchTable12Prefix *)src12)->first_relative_patch[0];
+                if (sp)
+                    ((struct SndBankPatchTable12Prefix *)dst12)->first_relative_patch[0] =
+                        (struct SndTaggedPatchRecordPrefixView *)(dest + ((unsigned char *)sp - bankData));
             }
-            dst12 += 4;
-            src12 += 4;
-            dst20 += 4;
-            src20 += 4;
-            i++;
-        } while (i < (int)(unsigned)*(unsigned short *)(bankData + 6));
+        }
         }
     }
-        *(int *)(id * 0xc + sndgs.bank_table) = (int)dest;
+        sndgs.bank_table[id].data_block = (struct SndBankDataHeaderPrefix *)dest;
         return 0;
     }
 }

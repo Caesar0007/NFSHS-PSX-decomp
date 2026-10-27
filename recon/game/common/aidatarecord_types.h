@@ -9,6 +9,15 @@
 
 
 
+/* 2026-10-27: one header-boundary source identity restores the actual
+ * class closures109/150/163/182/199 that generate the five destructor origins.
+ * This is ordinary declaration spacing,not explicit destructor bodies or
+ * statement-specific source directives. All declaration tokens,compiled code,
+ * data and native local/type/storage records remain unchanged. Other header
+ * declaration coordinates/literal comments are not claimed original. Get's
+ * CPP definition/key-function producer and EXT/STAT gap remain unresolved.
+ * Receipt:build/nc12/record_header_layout_20261027/. */
+#line 1 "C:/nfs4/GAME/COMMON/AIDATARECORD.H"
 typedef enum AIDataRecord_WhichRecord_t {
     NORECORD_R = 0,
     RACER_SPEED_R = 1,
@@ -20,13 +29,11 @@ typedef enum AIDataRecord_WhichRecord_t {
     CURVESPEED_TABLE_R = 7,
     CAR_TRACKING_R = 8
 } AIDataRecord_WhichRecord_t;
-
 typedef enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
 } AIDataRecord_RecordMethod_t;
-
 /* Real virtuals since 2026-09-19.  Declaration ORDER is retail evidence: g++ 2.8 emits the vtables at finish_file in
  * reverse declaration order and retail has CarTracking, CurveSpeedTable, TrackCurve, BestLine, AccTable, base.
  * The vptr follows the data members (old g++ ABI), where the hand-written `_vf` member used to be.
@@ -58,6 +65,62 @@ struct AIDataRecord_t {
     int SaveAndPurge();
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct AIDataRecord_AccTable_t : public AIDataRecord_t {
     int scale_;
     AIDataRecord_AccTable_t(char *name, int n, AIDataRecord_WhichRecord_t which);
@@ -65,14 +128,72 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t {
     void Setup();
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 struct AIDataRecord_BestLine_t : public AIDataRecord_t {
     AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t which);
 };
+
+
+
+
+
+
+
+
 
 struct AIDataRecord_TrackCurve_t : public AIDataRecord_t {
     AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t which);
     int Get(int i);
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
     AIDataRecord_CurveSpeedTable_t(char *name, AIDataRecord_WhichRecord_t which);
@@ -80,9 +201,20 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
     void Upgrade(int i);
 };
 
+
+
+
+
+
+
+
+
+
+
+
 struct AIDataRecord_CarTracking_t : public AIDataRecord_t {
-    /* Get is this class's KEY FUNCTION (out-of-line, last function of aidatarecord.cpp): that is why retail emits the
-     * vtable, Get and the synthesized destructor although nothing ever creates a CarTracking record. */
+    /* SOURCE-REVIEW-UNRESOLVED: SYM places Get in AIDATARECORD.H; the current CPP body is not a proved original placement.
+     * Its definition/key-function emission producer remains open; retain current output until verified source restoration. */
     virtual int Get(int slice);
 };
 

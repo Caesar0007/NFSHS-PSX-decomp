@@ -249,212 +249,264 @@ void AudioCmn_DeInitAsyncSfx(void)
 }
 
 /* ---- AudioCmn_RemoveOldestAsyncSfx__Fi  [@0x80076674] ---- */
-/* SYM (nfs4-f-v3.txt @0x80076674): named locals `oldest`=$s0, `ticks`=$v1, `i`=$a3 (outer
-   loop) / $a1 (inner loop, same source name `i`, fresh block scope). Rewritten with array
-   indexing (matches the SYM's plain "i" loop var, not a pointer-walk) instead of a
-   pAVar2/pAVar2++ struct-pointer walk. The second `i` has its own nested
-   search scope.
-   SOURCE-REVIEW-UNRESOLVED: both const slot aliases have no supplied rows.
-   Joint direct indexing preserves the entire normal ELF, but removes the
-   two iteration-body region directives. The tested for rewrites change code.
-   The aliases preserve scope evidence, not proof of original source objects. */
+/* 2026-10-27: two real for-owned i declarations replace the manual
+ * declaration blocks/while(1) scaffolding. Both aliases are plain pointers:
+ * const is unnecessary for code or native debug elision on this graph.
+ * All58 word/file tags,all14 block-line records,complete supplied owners,
+ * header/frame/mask and end527 agree. First i remains REG7 at depth2,
+ * owner+0..+112;the shadowing i remains REG5 at depth4,+120..+196.
+ * Bare for/direct-index controls shorten58 to56 or lose supplied body regions;
+ * wrapping extra manual blocks around the for adds unprovided regions.
+ * These are bounded source controls,not a floor or original-object proof.
+ * SOURCE-REVIEW-UNRESOLVED: the two plain slot pointers still have no supplied
+ * name rows. Their ordinary copy elision is NOT a source-object exemption.
+ * Actual value-producing selection controls were tested without adding fake
+ * work;none preserves code. Recover their original producer/identifiers;
+ * do not infer necessity or literal original const qualification from that.
+ * No new alias,object,qualifier,asm,volatile,fake use,scope padding,statement
+ * anchor,compiler flag or output rewrite is introduced. Literal macro text
+ * remains unproved. Receipt:build/nc12/async_oldest_source_20261027/. */
 #line 500 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_RemoveOldestAsyncSfx(int bank)
 {
-  int oldest;
-  int ticks;
-
-  oldest = -1;
+  int oldest; int ticks; oldest = -1;
   ticks = simGlobal.gameTicks + -0x10;
-  {
-    int i;
-    i = 0;
-    while (1) {
-      if (!(i < 0x20)) break;
-      AudioCmn_tAsyncSfxSlot *const slot = &AudioCmn_gSfxSlot[i];
-      if ((slot->patch != -1) && (slot->ticks < ticks)) {
-        ticks = slot->ticks;
-        oldest = i;
-      }
-      i = i + 1;
+
+  for (int i = 0; i < 0x20; i = i + 1) {
+    AudioCmn_tAsyncSfxSlot *slot = &AudioCmn_gSfxSlot[i];
+
+
+    if ((slot->patch != -1) && (slot->ticks < ticks)) {
+
+      ticks = slot->ticks;
+      oldest = i;
     }
   }
-  if (oldest == -1) {
-    /* Retail records the second index in a distinct nested search scope. */
-    {
-      int i;
-      i = 0;
-      while (1) {
-        if (!(i < 0x20)) break;
-        AudioCmn_tAsyncSfxSlot *const slot = &AudioCmn_gSfxSlot[i];
-        if ((slot->patch != -1) && (slot->bank < bank)) {
-          oldest = i;
-        }
-        i = i + 1;
-      }
-    }
+  if (oldest == -1)
+  {
+    for (int i = 0; i < 0x20; i = i + 1) {
+      AudioCmn_tAsyncSfxSlot *slot = &AudioCmn_gSfxSlot[i];
+
+
+      if ((slot->patch != -1) && (slot->bank < bank)) {
+        oldest = i;
+      } }
   }
   if (-1 < oldest) {
-    AudioCmn_RemoveAsyncSfx(oldest);
-  }
+    AudioCmn_RemoveAsyncSfx(oldest); }
   return oldest;
 }
 
 /* ---- AudioCmn_LoadAsyncSfx__FiiPvi  [@0x8007675c] ---- */
+/* 2026-10-27: a real bounded for replaces the do/while search,with
+ * unchanged code and every supplied native owner. Ordinary source phases
+ * seal all105 word/file tags,both block-line records,header/frame/end599.
+ * No new object,qualifier,scope,asm,volatile,fake use or statement anchor.
+ * SOURCE-REVIEW-UNRESOLVED: s has no supplied source-object row. Its debug
+ * elision is NOT an original-object exemption. Direct indexed/address forms
+ * currently add two instructions;those failures do not prove it necessary.
+ * Recover its actual producer/name rather than hiding it behind a new alias.
+ * SOURCE-RECOVERY-UNRESOLVED: the constant-false SimpleMem call is a known
+ * reconstruction-only rodata holder,NOT recovered original executable work.
+ * The shared constructor/header/string producer remains unresolved;no new
+ * dummy holder/default/overload is substituted merely to retain the literal.
+ * All source/statement/macro identities not provided by retail remain open;
+ * this is the full covered SYM/SLD contract,not a whole-source certificate.
+ * Receipt:build/nc12/async_load_source_20261027/. */
+/* retail audiocmn.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800556c4) ahead of
+   * this function's first literal; keeping it makes the later jump table's .align 3 land at
+   * retail's 0x8005573c. The constant-false call adds no code. */
+/* MATCH P902: native SLD 572 groups success and header allocation. */
 #line 533 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 {
-  /* retail audiocmn.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800556c4) ahead of
-   * this function's first literal; keeping it makes the later jump table's .align 3 land at
-   * retail's 0x8005573c. The constant-false call adds no code. */
-  if (0) AudioCmn_LoadBank("SimpleMem",0);
-  int slot;
+  if (0) AudioCmn_LoadBank("SimpleMem",0); int slot;
   int check;
   AudioCmn_tAsyncSfxSlot *s;
+  for (slot = 0; slot < 32; ++slot) {
 
-  slot = 0;
-  do {
-    /* The function-scoped `s` aliases this indexed slot. It emits no extra
-       debug local or block; retail records only slot/check here. */
     s = &AudioCmn_gSfxSlot[slot];
+
     if ((patch == s->patch) && (bank == s->bank) && (s->handle == -1)) {
+
       if (size != 0) {
+
+
+
+
+
+
         while (SNDmemlargestunused(&check) - 0x1000 < size) {
+
+
+
+
+
           if (AudioCmn_RemoveOldestAsyncSfx(bank) == -1) {
+
             if (bank == 2) {
-              puts("out of SPU ram on speech!\n");
-            }
+              puts("out of SPU ram on speech!\n"); }
+
+
+
             s->handle = -1;
             s->patch = -1;
-            return;
-          }
-        }
+            return; } }
+
+
+
         check = SNDbankadd(&s->handle,(int)pbank);
-        /* MATCH P902: native SLD 572 groups success and header allocation. */
+
         if ((check == 7) && ((s->header = (char *)reservememadr("SFXHDR",SNDbankheadersize(s->handle),0x10)) != 0)) {
+
           SNDbankheadercopy(s->header,(u_char *)s->handle);
           s->patch = patch;
-          s->ticks = simGlobal.gameTicks;
-          return;
-        }
+          s->ticks = simGlobal.gameTicks; return; }
+
+
+
+
+
+
+
         if (bank == 2) {
-          puts("SNDbankadd failed on speech!\n");
-        }
+          puts("SNDbankadd failed on speech!\n"); }
+
+
         SNDbankheadersize(s->handle);
+
+
         if (check >= 0) {
-          SNDbankremove(s->handle);
-        }
-      }
+          SNDbankremove(s->handle); } }
       s->handle = -1;
+
       s->patch = -1;
-      return;
-    }
-  } while (++slot < 32);
+      return; }
+
+  }
 }
 
 /* ---- AudioCmn_GetAsyncSfx__Fiib  [@0x80076900] ---- */
+/* 2026-10-27: two real bounded search loops,early hit return and a
+ * check-only switch remove FOUND/DOREQ/FILL dispatch. All93 word/file tags,
+ * six block-line records,complete supplied owners,header/frame and end670
+ * agree. A real for binding replaces the manual outer search block;its s
+ * owner remains+48..+92,outer+0..+104. The second for adds no native region.
+ * Default first/positive queue guard is the measured byte-exact switch shape;
+ * duplicated REAL successful slot stores naturally merge to the retail tail.
+ * Default source650..652 is erased;its break653 supplies the actual jump tag.
+ * First for closing637 supplies its increment note;this is not a universal
+ * rule for every for loop. Current-source stock/plain dump controls are bound.
+ * Three source labels,two formerly emitted native LABEL records,are removed
+ * (FILL was already debug-elided). No new object,name,asm,volatile,qualifier,
+ * fake use,scope padding or statement #line is introduced. Literal original
+ * macro/loop/switch spelling remains unproved,not a whole-source certificate.
+ * Receipt:build/nc12/async_get_source_20261027/. */
 #line 619 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly)
 {
-  /* SYM rule-8: fn-scope slot(s0) + AUTO r; loop1 = top-test goto loop (slti;beqz + j back)
-     with block-local s (v1) over the index-form walker (a0 = strength-reduced giv). */
   int slot;
   CopSpeak_tRequest r;
 
-  {
-  slot = 0;
-  while (true) {
-    if (!(slot < 0x20)) break;
+  for (slot = 0; slot < 0x20; slot = slot + 1) {
     AudioCmn_tAsyncSfxSlot *s = &AudioCmn_gSfxSlot[slot];
-    if ((patch == s->patch) && (bank == s->bank)) goto FOUND;
-    slot = slot + 1;
+
+
+    if ((patch == s->patch) && (bank == s->bank))
+    {
+
+
+
+
+      AudioCmn_gSfxSlot[slot].ticks = simGlobal.gameTicks;
+      return AudioCmn_gSfxSlot[slot].handle;
+    }
   }
-  }
-  slot = 0;
-  while (true) {
+
+  for (slot = 0; slot < 0x20; slot = slot + 1) {
     if (AudioCmn_gSfxSlot[slot].patch == -1) break;
-    slot = slot + 1;
-    if (!(slot < 0x20)) break;
-  }
-  if ((checkonly == false) && (slot == 0x20)) {
-    slot = AudioCmn_RemoveOldestAsyncSfx(bank);
-  }
-  if (!((u_int)slot < 0x20)) {
-    return -1;
-  }
-  /* MATCH: goto-dispatch in oracle VA order — FOUND block sits between the checkonly
-     guard pair (beqz s3 -> DOREQ; j FILL) and the CopSpeak block, exactly as laid out. */
-  if (checkonly == false) goto DOREQ;
-  goto FILL;
-FOUND:
-  AudioCmn_gSfxSlot[slot].ticks = simGlobal.gameTicks;
-  return AudioCmn_gSfxSlot[slot].handle;
-DOREQ:
-  if (5 < CopSpeak_SfxQueued()) {
-    return -1;
-  }
-  CopSpeak_InitRequest(&r);
-  r.phrase = patch;
-  r.sfx = '\x01';
-  r.bank = (char)bank;
-  if (CopSpeak_Request(&r) != -1) {
-FILL:
-    AudioCmn_gSfxSlot[slot].bank = bank;
+
+
+  } if (checkonly == false) {
+    if (slot == 0x20) {
+      slot = AudioCmn_RemoveOldestAsyncSfx(bank); } }
+
+  if (!((u_int)slot < 0x20)) { return -1; }
+
+  switch (checkonly) {
+  default: AudioCmn_gSfxSlot[slot].bank = bank;
     AudioCmn_gSfxSlot[slot].patch = patch;
     AudioCmn_gSfxSlot[slot].ticks = simGlobal.gameTicks;
-  }
+    break;
+  case 0:
+    if (CopSpeak_SfxQueued() <= 5) {
+
+      CopSpeak_InitRequest(&r);
+      r.phrase = patch;
+      r.sfx = '\x01';
+      r.bank = (char)bank;
+
+      if (CopSpeak_Request(&r) != -1) {
+
+        AudioCmn_gSfxSlot[slot].bank = bank;
+        AudioCmn_gSfxSlot[slot].patch = patch;
+        AudioCmn_gSfxSlot[slot].ticks = simGlobal.gameTicks; } } break; }
+
+
+
   return -1;
 }
 
 /* ---- AudioCmn_Init__Fv  [@0x80076a74] ---- */
+/* 2026-10-27: actual reverse/store690 precedes track/decode691;the final
+ * quick-siren reset738 follows SFX level737 in source,not scheduled execution.
+ * Ordinary layout under the existing anchor seals all94 word/file tags,both
+ * block records and end738 with unchanged ELF/CPE and complete local owners.
+ * SOURCE-REVIEW-UNRESOLVED: the existing volatile test read is not proved an
+ * original qualifier. Plain/recorded-index/branch forms were repriced on this
+ * basin:the94-word index form matches locals/SLD but reloads GameSetup's field,
+ * not the retail gp audio global. No failed candidate or replacement device
+ * is adopted;neither those trials nor this seal proves literal original text.
+ * Original early-j reuse/macro spelling remains unproved;the direct-store
+ * control also changes code. Verbatim previous comments are in before.cpp.
+ * Receipt:build/nc12/audiocmn_init_source_20261027/. */
 #line 677 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_Init(void)
 {
   int j;
   int temptrack;
 
-  /* @0x80076A7C: if(AudioCmn_kAudioOn==0) goto lbl_80076AF0 (the per-player loop, which always runs).
-   * The channel-array init + false-lap-trigger select + backwards-direction are audio-on-guarded (H42). */
   if (AudioCmn_kAudioOn != 0) {
+
+
+
+
+
     AudioCmn_InitChannelArray();
-    /* MATCH (SYM rule-8): temptrack = REG $4 (a0), mutated IN PLACE by the &0x10 arm
-       (addiu a0,v0,5); track is loaded ONCE.  The SYM-owned j local is reused for
-       reverseTrack here and redefined as the later loop index.  audioBackwardsDirection
-       is stored then RE-READ for the table select (the join starts a new EBB). */
-    temptrack = GameSetup_gData.track;
-    j = GameSetup_gData.reverseTrack;
-    /* Direct global members now preserve lw a0 / lw v1 / andi v0 / sw v1
-       without the former setup object or its empty identity asm. */
-    audioBackwardsDirection = j;
-    if ((temptrack & 0x10) != 0) {
-      temptrack = (temptrack & 0xf) + 5;
-    }
-    /* 05E VOLATILE-ON-THE-TEST-READ: retail RE-READS audioBackwardsDirection here
-       (`lw v0,0(gp); nop; bnez`) -- gcc otherwise keeps the just-stored value live in
-       the reverseTrack temp and emits no load at all.  Volatile only on the TEST read
-       (the store above stays ordinary).  48->45. */
-    /* MATCH: SYM has no table-pointer local.  Spelling the two source arms
-       directly lets gcc cross-jump their common load/store tail (29 -> 21). */
+
+    j = GameSetup_gData.reverseTrack; audioBackwardsDirection = j;
+    temptrack = GameSetup_gData.track; if ((temptrack & 0x10) != 0) { temptrack = (temptrack & 0xf) + 5; }
     if (*(volatile int *)&audioBackwardsDirection == 0) {
+
+
       falseLapTrigCur = falseLapTrigNumsForward[temptrack][0];
       flaseLapTrigTrack = falseLapTrigNumsForward[temptrack][1];
     }
+
     else {
+
       falseLapTrigCur = falseLapTrigNumsBackward[temptrack][0];
       flaseLapTrigTrack = falseLapTrigNumsBackward[temptrack][1];
     }
-    /* P906: native SLD705/706 reset intensity before falseLapCounter.
-       Preserve the named store order; the global definitions are correct. */
+
     intensityFalseLapCounter = 0;
     falseLapCounter = 0;
   }
-    /* MATCH: the two global byte bases plus direct currentLap indexing establish
-       retail's t4/t3/t2 preheader order; integer-address additions preserve the
-       `addu v0,v1,tN` operand order.  The literal 512 store remains exact without
-       an unsupported named local.  Retail data layout identifies -G8 as this TU's
-       compiler lane: Init is source-PASS 94/94 under a strict TU-wide -G8 build. */
-    j = 0;
-    do {
+
+
+
+    j = 0; do {
+
       AudioCmn_gReTrig[j].count = 0;
       *(char *)((int)j + (int)fAmbientRangeON) = '\0';
       *(char *)((int)j + (int)fMysticWindON) = '\0';
@@ -463,22 +515,24 @@ void AudioCmn_Init(void)
       PlayersRampedGasLevel[j] = 0;
       gtotallaptimes[j] = 0x200;
       AudioCmn_gPlayerArrested[j] = 0;
-      j++;
-    } while (j < 2);
+      j++; } while (j < 2);
+
   AudioCmn_InitThunder();
   AudioCmn_InitAsyncSfx();
   AudioTrk_StartUp();
+
   fReverbOn = '\0';
   fReverbLevel = '\0';
   FadingMusic = '\0';
   StartedNewMusic = '\0';
   recordLapTime = AudioCmn_GetTrackRecordLapTime();
   trackMusicState = '\x04';
-  AudioCmn_gLastFade = 0x7f;
   AudioCmn_gResume = 0;
   AudioCmn_gStreamRestartTimer = 0;
-  gQuickSirenCount = 0;
+
+  AudioCmn_gLastFade = 0x7f;
   GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
+  gQuickSirenCount = 0;
 }
 
 /* ---- AudioCmn_Reset__Fv  [@0x80076bec] ---- (Ghidra/IDA + SLD cross-checked:
@@ -1021,105 +1075,149 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
    (still using the same never-written `lastImpactSample` static, so behavior is unchanged --
    this is a byte-fidelity fix, not a gameplay fix) by routing every candidate through
    `iSFXnum` and an anti-repeat block per half of the switch instead of an early `return`. */
+/* 2026-10-27: actual s_type enumerators supplied by the owning retail
+ * ENUM/MOE records replace numeric surface IDs;no identifier is invented.
+ * Ordinary layout preserves all executable tokens except those proven-equal
+ * constant spellings,and restores all184 word/file tags,both block records,
+ * complete provided owners,header/frame/mask and end1423. The static
+ * lastImpactSample initializer remains0x63,with unchanged bytes/storage.
+ * Keep the explicit force-range upper tests:the simplification controls do
+ * not match code. Their logical redundancy does not make them removable
+ * from a faithful matching reconstruction. No new object,scope,qualifier,
+ * asm,volatile,fake use,compiler flag or statement #line is introduced.
+ * Literal original macro/comment/constant spelling remains unproved despite
+ * the recovered enum identities. This is not whole-project source recovery.
+ * Receipt:build/nc12/impact_sample_source_20261027/. */
+/* Retail bytes confirm the nonzero initializer at .sdata+0x84. */
 #line 1295 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 {
-  /* Retail bytes confirm the nonzero initializer at .sdata+0x84. */
+
   static int lastImpactSample = 0x63;
+
+
+
+
+
   int iSFXnum = 0;
 
-  if (surface1 == 8) {
-    iSFXnum = 0x13;
-  }
-  else if (surface1 == 2 && surface2 == 0) {
-    iSFXnum = 0x1f;
-  }
-  else if (surface1 == 1 && surface2 == 0xd) {
-    iSFXnum = 0x1e;
-  }
-  else if (surface1 == 1 && surface2 == 0xe) {
-    iSFXnum = 0x1d;
-  }
-  else if (surface1 == 1 && surface2 == 4) {
-    if (force > 0x6e)
-      iSFXnum = 0x21;
-    else
-      iSFXnum = (random() & 1) ? 0x25 : 0x20;
-  }
-  else if (surface1 == 1 && surface2 == 0xf) {
-    switch ((u_int)random() % 4) {
-    case 1: iSFXnum = 0x22; break;
-    case 0: iSFXnum = 0x23; break;
-    case 2: iSFXnum = 0x20; break;
-    case 3: iSFXnum = 0x25; break;
-    default: iSFXnum = 0x23; break;
-    }
-  }
-  else if (surface1 == 1 && surface2 == 5) {
-    iSFXnum = 0x1d;
-  }
-  else if (surface2 == 7) {
-    iSFXnum = 0x12;
-  }
-  else if (surface1 == 1 && (surface2 == 0 || surface2 == 3)) {
+
+
+
+  if (surface1 == kBackFire) {
+    iSFXnum = 0x13; }
+  else if (surface1 == kTires && surface2 == kAsphalt) {
+    iSFXnum = 0x1f; }
+  else if (surface1 == kCarBody && surface2 == kWoodWall) { iSFXnum = 0x1e; }
+
+  else if (surface1 == kCarBody && surface2 == kGrassWall) { iSFXnum = 0x1d; }
+
+  else if (surface1 == kCarBody && surface2 == kWall) {
+
+    if (force > 0x6e) iSFXnum = 0x21; else
+    iSFXnum = (random() & 1) ? 0x25 : 0x20; }
+
+  else if (surface1 == kCarBody && surface2 == kWallSpark) {
+
+    switch ((u_int)random() % 4) { case 1: iSFXnum = 0x22; break; case 0: iSFXnum = 0x23; break;
+
+
+
+
+
+
+
+
+
+      case 2: iSFXnum = 0x20; break; case 3: iSFXnum = 0x25; break;
+
+
+
+
+
+      default: iSFXnum = 0x23; break; } }
+
+
+  else if (surface1 == kCarBody && surface2 == kSign) { iSFXnum = 0x1d; }
+
+
+
+
+
+  else if (surface2 == kBlowOut) {
+    iSFXnum = 0x12; }
+
+  else if (surface1 == kCarBody && (surface2 == kAsphalt || surface2 == kGravel)) {
+
     if (force > 0x50) {
-      iSFXnum = 0x21;
-    }
-    else {
+      iSFXnum = 0x21; } else {
       if (force <= 0x50 && force > 0x16)
-        iSFXnum = 0x22;
+      iSFXnum = 0x22;
       else if (force <= 0x16 && force > 0x10)
-        iSFXnum = 0x20;
+      iSFXnum = 0x20;
       else if (force <= 0x10)
-        iSFXnum = 0x1d;
-    }
+      iSFXnum = 0x1d; }
 
     if (iSFXnum == lastImpactSample && iSFXnum != 0x21) {
-      switch (iSFXnum) {
-      case 0x22:
+
+      switch (iSFXnum) { case 0x22:
+
         iSFXnum = (random() & 1) ? 0x1d : 0x20;
-        break;
-      case 0x1d:
+        break; case 0x1d:
+
         iSFXnum = (random() & 1) ? 0x22 : 0x20;
-        break;
-      case 0x20:
+        break; case 0x20:
+
         iSFXnum = (random() & 1) ? 0x1d : 0x22;
-        break;
-      }
-    }
-  }
-  else {
+        break; } } } else {
+
+
+
+
+
+
     if (force > 0x5a) {
-      iSFXnum = 0x21;
-    }
-    else {
+
+      iSFXnum = 0x21; } else {
+
       if (force <= 0x5a && force > 0x46)
-        iSFXnum = 0x20;
+
+      iSFXnum = 0x20;
+
       else if (force <= 0x46 && force > 0x32)
-        iSFXnum = 0x25;
+
+      iSFXnum = 0x25;
+
       else if (force <= 0x32 && force > 0x19)
-        iSFXnum = 0x22;
+
+      iSFXnum = 0x22;
+
       else if (force <= 0x19)
-        iSFXnum = 0x1e;
-    }
+
+      iSFXnum = 0x1e; }
+
 
     if (iSFXnum == lastImpactSample && iSFXnum != 0x21) {
-      switch (iSFXnum) {
-      case 0x1e:
-        iSFXnum = 0x22;
-        break;
-      case 0x22:
+
+      switch (iSFXnum) { case 0x1e: iSFXnum = 0x22; break; case 0x22:
+
+
+
+
         iSFXnum = (random() & 1) ? 0x1e : 0x25;
-        break;
-      case 0x25:
+        break; case 0x25:
+
         iSFXnum = (random() & 1) ? 0x1e : 0x22;
-        break;
-      case 0x20:
-        iSFXnum = (random() & 1) ? 0x25 : 0x22;
-        break;
-      }
-    }
-  }
+        break; case 0x20:
+
+        iSFXnum = (random() & 1) ? 0x25 : 0x22; break; } } }
+
+
+
+
+
+
+
   return iSFXnum;
 }
 
@@ -1197,83 +1295,144 @@ int ChooseLoopedSample(s_type surface1,s_type surface2)
    Everything else the old recon declared (iVar1..iVar4, pCVar5, uVar6, vol) was
    fabricated.  BUG FIX: the retail entry guard on AudioCmn_kAudioOn (SLD 1485,
    0x80077D58/0x80077D84) was missing entirely. */
+/* 2026-10-27: actual selector assignment1506 precedes comparison1509;
+ * separate car-type1553 and roll/damage1556 guards,and frequency selector1569,
+ * subtraction1571 and lower clamp1572,restore real statement phases without
+ * a new variable or expression-region workaround. All224 word/file tags,
+ * every24 block-line record,all supplied locals/owners,frame/header/end1577
+ * agree,with whole ELF/native CPE unchanged. The merged follow-up SDK call
+ * and all original MIN arithmetic remain intact. A real value-region
+ * control also has zero tag differences but breaks code and supplied scopes;
+ * it is rejected,not accepted from tag count alone. Optimized debug owners
+ * are not a literal lexical placement recipe. Original macro/comment text
+ * is not uniquely proved. No new object,name,asm,volatile,qualifier,fake use,
+ * artificial scope,compiler flag,statement anchor or output rewrite is used.
+ * Receipt:build/nc12/audiocmn_sfx_layout_20261027/. */
+/* Retail spells the 0x23 follow-up as its OWN PlaySFX call with literal args; gcc
+       cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
+       late because it stores tempAmp instead of amplitude into 0x10(sp). */
 #line 1456 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce,int Distsq,
-               int azimuth)
+int azimuth)
 {
   int iSFXnumber;
   int amplitude;
   int frequency;
 
-  if (AudioCmn_kAudioOn == 0) {
-    return;
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  if (AudioCmn_kAudioOn == 0) { return; }
+
+
+
+
   if (Distsq < 0x1324) {
-    amplitude = ((0x1324 - Distsq) * 0x7f) / 0x1324;
-  }
-  else {
-    amplitude = 0;
-  }
-  if (sndPlayer < 0) {
-    /* Retail spells the 0x23 follow-up as its OWN PlaySFX call with literal args; gcc
-       cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
-       late because it stores tempAmp instead of amplitude into 0x10(sp). */
+    amplitude = ((0x1324 - Distsq) * 0x7f) / 0x1324; } else {
+
+    amplitude = 0; }
+
+
+
+
+
+
+
+
+  if (sndPlayer < 0)
+  {
+
     tweakedForce = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
-    if ((iSFXnumber = ChooseImpactSample(tweakedForce,surface1,surface2)) == 0x1f) {
-      int tempAmp;
-      tempAmp = ((amplitude * tweakedForce) / 0x7f) * 2;
-      if (0x7f < tempAmp) {
-        tempAmp = 0x7f;
-      }
+    iSFXnumber = ChooseImpactSample(tweakedForce,surface1,surface2);
+
+
+    if (iSFXnumber == 0x1f)
+    {
+      int tempAmp; tempAmp = ((amplitude * tweakedForce) / 0x7f) * 2;
+      if (0x7f < tempAmp) { tempAmp = 0x7f; }
       AudioCmn_PlaySFX(0x31,0x1f,0x40,0x10000,amplitude,azimuth);
-      AudioCmn_PlaySFX(0x31,0x23,0x40,0x10000,tempAmp,azimuth);
-    }
+      AudioCmn_PlaySFX(0x31,0x23,0x40,0x10000,tempAmp,azimuth); }
+
     else if (iSFXnumber == 0x12) {
+
       AudioCmn_PlaySound(gSndBnk[3].bnkID,0x12,azimuth,0x7f,0x40);
       AudioCmn_PlaySound(gSndBnk[3].bnkID,0x16,azimuth,0x7f,0x40);
-      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x23,azimuth,amplitude,0x40);
-    }
-    else {
-      AudioCmn_PlaySFX(0x31,iSFXnumber,0x40,0x10000,amplitude,azimuth);
-    }
-  }
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x23,azimuth,amplitude,0x40); } else {
+
+
+      AudioCmn_PlaySFX(0x31,iSFXnumber,0x40,0x10000,amplitude,azimuth); } }
+
+
+
+
   else if (tweakedForce < 1) {
+
     freeVoiceChannel(sndPlayer);
-    if (1 < sndPlayer - 0x12U) {
-      return;
-    }
+    if (1 < sndPlayer - 0x12U) { return; }
+
     freeVoiceChannel(sndPlayer + 4);
-    Cars_gList[sndPlayer - 0x12U]->audioDamageScrape = 0;
-    return;
-  }
+    Cars_gList[sndPlayer - 0x12U]->audioDamageScrape = 0; return; }
+
+
+
+
   else {
     iSFXnumber = ChooseLoopedSample(surface1,surface2);
     frequency = scaleFrequency(sndPlayer,iSFXnumber,tweakedForce);
 
-    if (sndPlayer - 0x12U < 2) {
+
+    if (sndPlayer - 0x12U < 2)
+    {
       tweakedForce = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
       amplitude = amplitude * tweakedForce >> 7;
-      if (amplitude >= 0x1f) {
-        Car_tObj *c;
-        c = Cars_gList[sndPlayer - 0x12U];
-        if ((c->carInfo->carType < 0x1c) &&
-           ((((c->render).currentRoll > 0 && (0x1e0000 < (c->N).damage[7]))
-            || (((c->render).currentRoll < 0 && (0x1e0000 < (c->N).damage[3])))))) {
-          AudioCmn_PlaySFX(sndPlayer + 4,0x28,frequency + 10,0x10000,
-                           amplitude + (amplitude << 1),azimuth);
-          c->audioDamageScrape = amplitude;
-        }
-      }
-      else {
+      if (
+      amplitude >= 0x1f)
+      {
+        Car_tObj *c; c = Cars_gList[sndPlayer - 0x12U];
+
+        if (c->carInfo->carType < 0x1c) {
+
+
+          if (((c->render).currentRoll > 0 && (0x1e0000 < (c->N).damage[7])) || (((c->render).currentRoll < 0 && (0x1e0000 < (c->N).damage[3])))) {
+
+            AudioCmn_PlaySFX(sndPlayer + 4,0x28,frequency + 10,0x10000, amplitude + (amplitude << 1),azimuth);
+            c->audioDamageScrape = amplitude; } } } else {
+
+
+
+
+
         freeVoiceChannel(sndPlayer + 4);
-        Cars_gList[sndPlayer - 0x12U]->audioDamageScrape = 0;
-      }
-    }
-    if ((iSFXnumber == 0x2c) && (frequency = frequency + -0x3c, frequency < 0)) {
-      frequency = 0;
-    }
+        Cars_gList[sndPlayer - 0x12U]->audioDamageScrape = 0; } }
+
+
+    if (iSFXnumber == 0x2c) {
+
+      frequency = frequency + -0x3c;
+      if (frequency < 0) { frequency = 0; } }
+
     AudioCmn_PlaySFX(sndPlayer,iSFXnumber,frequency,0x10000,amplitude,azimuth);
   }
+
 }
 
 /* ---- freeVoiceChannel__Fi  [@0x800780d0] ---- */
@@ -1302,108 +1461,139 @@ void freeVoiceChannel(int sndPlayer)
    pitchmult/use3dpos/azimuth (stack garbage) -- a real behavior bug (ours compiled to only
    50 insns vs the oracle's 152: almost the entire field-setup body was eliminated). Fixed by
    writing through the real struct so every field store's address escapes via &playopts. */
-#line 1614 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
-int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler)
-{
-  int shandle;
-  /* SYM rule-8: only fn-scope shandle (REG $2=v0) + AUTO playopts + block-local bank (a0)
+/* 2026-10-27: all152 word/file tags,six block-line records,complete
+ * supplied parameter/local tuples,header/frame/mask and end1709 now agree.
+ * Ordinary source grouping preserves every executable token and its order.
+ * Async-bank test1677/opening brace1678/declaration1679 independently restore
+ * the supplied outer/inner owners;their byte addresses remain unchanged.
+ * Original literal macro/comment/declaration text is not uniquely certified.
+ * Existing arithmetic/signed-byte/branch receipts are retained below,outside
+ * the anchor. No new name,object,scope,asm,volatile,fake use or statement
+ * directive is introduced. Receipt:build/nc12/audiocmn_doppler_sld_20261027/. */
+/* SYM rule-8: only fn-scope shandle (REG $2=v0) + AUTO playopts + block-local bank (a0)
      are named; the vol-select multiplier/level values are ANONYMOUS temps -- per-arm INLINE
      playopts.vol stores below, gcc cross-jumps the identical [lw SFX; subu; mult; sra 14]
      tails into the oracle's shared .L78278/.L7827C/.L80280 merge blocks (funnel vars in
      source would PREVENT that merge shape). gSndBnk[2].bnkID is read twice and CSE'd by
      gcc into $v1 (live to the patchNum==3 recheck) -- no named cache var. */
-  SNDPLAYOPTS playopts;
-
-  SNDplaysetdef(&playopts);
-  playopts.bhandle = (char)bhandle;
-  if (patchNum == 0x7d) {
-    playopts.vol = (u_char)(gMasterSFXLevel * vol >> 7);
-  }
-  else if (bhandle == -4) {
-    playopts.vol = (u_char)(gMasterFENarrationLevel * 0x81 >> 7);
-  }
-  else if (bhandle == gSndBnk[2].bnkID) {
-    playopts.vol = (u_char)(gMasterAmbientLevel * (vol * 0x28 - vol) >> 0xe);
-  }
-  else if (bhandle == gSndBnk[5].bnkID) {
-    /* MATCH: (vol*0x41)<<1 -- the SHIFT node breaks gcc's multiply-chain linearization,
+/* MATCH: (vol*0x41)<<1 -- the SHIFT node breaks gcc's multiply-chain linearization,
        which otherwise regroups the 0x82 constant onto the LEVEL operand (oracle shifts s0:
        sll6;addu;sll1) and flips the mult operand order out of the shared .L80078280 tail. */
-    playopts.vol = (u_char)(gMasterAmbientLevel * ((vol * 0x41) << 1) >> 0xe);
-  }
-  else if ((patchNum == 0x16) || (patchNum == 0x12)) {
-    playopts.vol = (u_char)(gMasterSFXLevel * vol >> 7);
-  }
-  else if ((patchNum == 3) &&
-           ((bhandle == gSndBnk[0].bnkID) || (bhandle == gSndBnk[2].bnkID))) {
-    playopts.vol = (u_char)(gMasterSFXLevel * (vol * 0x80 - vol) >> 0xe);
-  }
-  else if (patchNum == 0) {
-    playopts.vol = (u_char)(gMasterEngineLevel * ((vol * 7) << 1) >> 0xe);   /* MATCH: same shift-node lever (sll3;subu;sll1 on vol) */
-  }
-  else {
-    playopts.vol = (u_char)(gMasterSFXLevel * (vol * 0x28 - vol) >> 0xe);
-  }
-  /* MATCH: real if/else (not unconditional store + override) -- oracle stores patnum=1 on
+/* MATCH: same shift-node lever (sll3;subu;sll1 on vol) */
+/* MATCH: real if/else (not unconditional store + override) -- oracle stores patnum=1 on
      the ==99 arm then jumps to the shared merge, patnum=patchNum only on the fallthrough. */
-  if (patchNum == 99) {
-    playopts.patnum = 1;
-  }
-  else {
-    playopts.patnum = patchNum;
-  }
-  playopts.bend = (char)bend;
-  playopts.pitchmult = (u_short)(doppler >> 4);
-  playopts.use3dpos = Audio_direct3davail != 0;
-  /* MATCH: arm order swapped vs the Ghidra-style "==0" first -- oracle's fallthrough (common)
+/* MATCH: arm order swapped vs the Ghidra-style "==0" first -- oracle's fallthrough (common)
      path is the != 0 azimuth store; the ==0 pan/stereo code is pushed out-of-line. */
-  if (Audio_direct3davail != 0) {
-    playopts.azimuth = (u_short)azimuth;
-  }
-  else {
-    /* MATCH: arm order swapped again (same lever as the outer Audio_direct3davail check) --
+/* MATCH: arm order swapped again (same lever as the outer Audio_direct3davail check) --
        oracle's fallthrough is the != 0 azimuth-band compute; ==0 pan=0x40 is out-of-line. */
-    if (gStereoMode != 0) {
-      if (azimuth - 0x4000U < 0x8000) {
-        /* MATCH: oracle shifts this one ARITHMETICALLY (sra) -- no u_int cast (plain signed
+/* MATCH: oracle shifts this one ARITHMETICALLY (sra) -- no u_int cast (plain signed
            int >> 8), unlike the sibling branch below which does want the unsigned srl. */
-        playopts.pan = (u_char)((0xbfff - azimuth) >> 8);
-      }
-      else {
-        playopts.pan = (u_char)((u_int)(azimuth + 0x4000) >> 8);
-      }
-    }
-    else {
-      playopts.pan = 0x40;
-    }
-  }
-  /* BUG FIX (round-2): playopts.bhandle is a plain `char` field, UNSIGNED on this build
+/* BUG FIX (round-2): playopts.bhandle is a plain `char` field, UNSIGNED on this build
      (CC1PLPSX reads every char field with lbu) -- comparing the raw field against -1/-4/-3
      is provably false/true for an unsigned promotion and gcc silently DELETES the whole
      GetAsyncSfx block (a real behavior bug: async bank lookup never ran). Oracle reloads
      the byte ONCE via a signed `lb` and reuses it for all three tests. */
-  if ((signed char)playopts.bhandle < -1) {
-    int bank;   /* SYM block line 64: REG $4 = a0 (the call arg) */
-    if ((signed char)playopts.bhandle == -4) {
-      bank = 2;
-    }
-    else {
-      bank = ((signed char)playopts.bhandle == -3);
-    }
-    playopts.bhandle = (char)AudioCmn_GetAsyncSfx(bank,patchNum,false);
-    playopts.patnum = 0;
-  }
-  /* BUG FIX (round-2): same unsigned-char issue -- "-1 < playopts.bhandle" on the raw
+/* SYM block line 64: REG $4 = a0 (the call arg) */
+/* BUG FIX (round-2): same unsigned-char issue -- "-1 < playopts.bhandle" on the raw
      field folds to always-true (SNDplay called unconditionally, oracle has a real bltz
      guard skipping playback for a failed/invalid handle). Cast to signed.
      MATCH: else-arm -1 (not up-front init) puts li v0,-1 in the bltz delay slot and keeps
      shandle in its SYM home REG $2 (v0) = the call result, no copies. */
+#line 1614 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
+int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler)
+{
+  int shandle;
+  SNDPLAYOPTS playopts;
+
+
+
+
+
+
+
+
+
+
+  SNDplaysetdef(&playopts);
+  playopts.bhandle = (char)bhandle;
+
+  if (patchNum == 0x7d) {
+    playopts.vol = (u_char)(gMasterSFXLevel * vol >> 7); }
+
+  else if (bhandle == -4) {
+    playopts.vol = (u_char)(gMasterFENarrationLevel * 0x81 >> 7); }
+
+  else if (bhandle == gSndBnk[2].bnkID) {
+    playopts.vol = (u_char)(gMasterAmbientLevel * (vol * 0x28 - vol) >> 0xe); }
+
+  else if (bhandle == gSndBnk[5].bnkID) {
+    playopts.vol = (u_char)(gMasterAmbientLevel * ((vol * 0x41) << 1) >> 0xe); }
+
+
+  else if ((patchNum == 0x16) || (patchNum == 0x12)) {
+    playopts.vol = (u_char)(gMasterSFXLevel * vol >> 7); } else if ((patchNum == 3) &&
+
+
+
+
+
+  ((bhandle == gSndBnk[0].bnkID) || (bhandle == gSndBnk[2].bnkID))) { playopts.vol = (u_char)(gMasterSFXLevel * (vol * 0x80 - vol) >> 0xe); }
+
+
+  else if (patchNum == 0) {
+    playopts.vol = (u_char)(gMasterEngineLevel * ((vol * 7) << 1) >> 0xe); } else {
+
+
+    playopts.vol = (u_char)(gMasterSFXLevel * (vol * 0x28 - vol) >> 0xe); }
+
+  if (patchNum == 99) {
+    playopts.patnum = 1; } else {
+
+    playopts.patnum = patchNum; }
+
+  playopts.bend = (char)bend;
+  playopts.pitchmult = (u_short)(doppler >> 4);
+  playopts.use3dpos = Audio_direct3davail != 0;
+
+  if (Audio_direct3davail != 0) {
+    playopts.azimuth = (u_short)azimuth; } else {
+    if (gStereoMode != 0) {
+      if (azimuth - 0x4000U < 0x8000) { playopts.pan = (u_char)((0xbfff - azimuth) >> 8); } else { playopts.pan = (u_char)((u_int)(azimuth + 0x4000) >> 8); } } else {
+
+      playopts.pan = 0x40; } }
+
+
+  if ((signed char)playopts.bhandle < -1)
+  {
+    int bank;
+
+    if ((signed char)playopts.bhandle == -4) {
+      bank = 2; } else {
+      bank = ((signed char)playopts.bhandle == -3); }
+
+
+
+
+    playopts.bhandle = (char)AudioCmn_GetAsyncSfx(bank,patchNum,false);
+    playopts.patnum = 0;
+  }
+
+
   if (-1 < (signed char)playopts.bhandle) {
-    shandle = SNDplay(&playopts);
-  }
-  else {
-    shandle = -1;
-  }
+
+    shandle = SNDplay(&playopts); } else { shandle = -1; }
+
+
+
+
+
+
+
+
+
+
+
+
   NumSFXOn = NumSFXOn + 1;
   return shandle;
 }
@@ -1424,175 +1614,196 @@ int AudioCmn_PlaySound(int bhandle,int patchNum,int azimuth,int vol,int bend)
 }
 
 /* ---- AudioCmn_PlaySFX__Fiiiiii  [@0x800783cc] ---- */
+/* 2026-10-27: all316 word/file tags,all supplied locals/homes/owners,
+ * every region/frame/header/end and absence of source LABELs now agree.
+ * iPartial holds returned handles in REG2,not the former bank Boolean REG4.
+ * A real single-use bank-index local restores the supplied if/body regions
+ * and is copy-elided from native declarations. Ordinary typed array fields
+ * then remove chbase/slot/r and all remaining label dispatch,without devices.
+ * Special playback computes the handle1808/decrements count1810 before its
+ * stores1812/1813 in source,despite the scheduler's different execution order.
+ * SOURCE-REVIEW-UNRESOLVED: bankNum is a symbol-backed NFS2 spelling for
+ * actual bank indices,not a supplied NFS4 local identifier. The root lookup
+ * and shadowing async selector have genuine work/owners;their original names,
+ * erased type spelling/declaration placement and literal macro text are not
+ * uniquely recovered. Plain int/long/bool selector controls pass,with no
+ * const/volatile disguise. A frequency-parameter reuse control matches code
+ * but corrupts its provided home and is explicitly NOT adopted.
+ * This is a full covered contract,not proof of literal original source text.
+ * Receipt:build/nc12/playsfx_roles_20261027/. */
 #line 1730 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlaySFX(int sndPlayer,int iSFXnum,int iFreqIn,int iDopplerIn,int iAmpIn,int azimuth)
 {
-  /* SYM rule-8: sndPlayer=s4 iSFXnum=s3 iFreqIn=s5 iDopplerIn=fp, iAmpIn ARG->s1(iAmp),
-     azimuth ARG->s7; locals iPartial(v0-web) iFreq(s5, clamped in place) iAmp(s1)
-     PatchBank(s2). Bank select = flat goto-dispatch in oracle VA order (delay-fill steals
-     each target block's lui into the branch slot); vol select = per-arm INLINE SNDvol
-     calls cross-jumped into one jal (0x7d arm CSEs the .L78690 Partial load and enters
-     at the mflo). */
   int iPartial;
   int iFreq;
   int iAmp;
   long PatchBank;
-  /* NFS2's symbol-backed PlaySFX declares this lookup byte at root scope.
-     NFS4 emits no name row, and retail has no lookup-only declaring region. */
   u_char bankNum;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
   iFreq = iFreqIn;
+
   iFreq = (iFreq < 0) ? 0 : iFreq;
   iFreq = (0x7f < iFreq) ? 0x7f : iFreq;
-  iAmp = iAmpIn;
-  if (iAmp < 0) {
-    iAmp = 0;   /* MATCH: plain-if here (in-place zero) -- only iFreq's low clamp funnels */
-  }
-  iAmp = (0x7f < iAmp) ? 0x7f : iAmp;
-  if (sndPlayer - 0x1cU < 4) goto BNK5;
-  if (sndPlayer - 0x32U < 4) goto BNK5;
-  if (sndPlayer == 0x24) goto BNK5;
-  if (sndPlayer == 0x36) goto BNK5;
-  if (sndPlayer - 0x37U < 0x10) goto BNK5;
-  if (sndPlayer - 10U < 8) goto BNK2;
-  if (!(sndPlayer - 0x1aU < 2)) goto SFXCHK;
-BNK2:
-  PatchBank = gSndBnk[2].bnkID;
-  goto GOTBANK;
-SFXCHK:
-  if (iSFXnum == 0x7d) goto BNK5;
-  if (!(iSFXnum < 0x7e)) goto LOOKUP;
-  if (iSFXnum == 8) goto BNK3;
-  if (iSFXnum < 8) goto LOOKUP;
-  if (!(iSFXnum < 0xc)) goto LOOKUP;
-  if (iSFXnum < 10) goto LOOKUP;
-BNK3:
-  PatchBank = gSndBnk[3].bnkID;
-  goto GOTBANK;
-BNK5:
-  PatchBank = gSndBnk[5].bnkID;
-  goto GOTBANK;
-LOOKUP:
-    /* Actual lookup storage is int[71]; narrowing the indexed value gives
-       the retail byte load without a separate byte-view lookup object. */
-    /* ORIGINAL-NAME-RECOVERED: bankNum -- the symbol-bearing NFS2 AudioCmn_PlaySFX
-       records the same byte-table index as `bankNum`.  The intermediate gives
-       retail's v0 lookup base and v1 index/load web; folding both names into
-       one expression is count-exact but leaves 36 authoritative diffs. */
-    bankNum = (u_char)gBankNumLookupTable[sndPlayer];
-    PatchBank = gSndBnk[bankNum].bnkID;
-GOTBANK:
-  if (sndPlayer == 0x31) {
-    gaChannel[0x31].Partial =
-         AudioCmn_PlayDoppleredSound(PatchBank,iSFXnum,azimuth,iAmp,iFreq,iDopplerIn);
-    gaChannel[0x31].SFXnum = iSFXnum;
-    NumSFXOn = NumSFXOn - 1;
-  }
-  else {
-    /* MATCH: goto-dispatch in oracle VA order -- [guard section][NEWSOUND][RECHECK
-       vol/pan/pitch][SETM1][RET]; the natural nested if/else places NEWSOUND last. */
-    /* SYM-CODEGEN-CARRIER: chbase -- materializing the base before the shifted
-       index gives retail's index-first add.  Direct array addressing is
-       count-exact but reverses the address chain for 8 diffs. */
-    int chbase = (int)gaChannel;
-    /* SYM-CODEGEN-CARRIER: slot -- the selected-channel pointer must survive
-       through SNDover and the async guard.  Its measured post-use reference is
-       zero-instruction and closes the former 94-diff allocation basin. */
-    Channels_t *slot = (Channels_t *)((sndPlayer << 3) + chbase);
-    if (slot->SFXnum == iSFXnum) {
-    if (SNDover(slot->Partial) != 0) {
-      slot->Partial = -1;
-      slot->SFXnum = -1;
-    }
-    /* MATCH: retail computes this flag before the PatchBank < -1 guard.  Reusing
-       the disjoint iPartial web initially crosses a 20 -> 94 allocation basin;
-       extra post-SNDover references to slot restore iAmp=s1/slot=s0.  They come
-       from an absorption identity (x | (x & 3) == x for the aligned pointer;
-       combine folds it, 0 insns) that replaced a read-only asm ref fence. */
-    slot = (Channels_t *)((u_int)slot | ((u_int)slot & 3));
 
-    iPartial = (PatchBank == -3);
-    if ((PatchBank < -1) &&
-       (AudioCmn_GetAsyncSfx(iPartial,iSFXnum,false) == -1)) {
-      slot->Partial = -1;
-      slot->SFXnum = -1;
+  iAmp = iAmpIn; if (iAmp < 0) { iAmp = 0; }
+  iAmp = (0x7f < iAmp) ? 0x7f : iAmp;
+
+
+
+
+
+
+
+
+
+
+
+
+  if (sndPlayer - 0x1cU < 4 || sndPlayer - 0x32U < 4 || sndPlayer == 0x24 || sndPlayer == 0x36 || sndPlayer - 0x37U < 0x10) {
+
+    PatchBank = gSndBnk[5].bnkID;
+  } else {
+
+    if (sndPlayer - 10U < 8 || sndPlayer - 0x1aU < 2) {
+
+      PatchBank = gSndBnk[2].bnkID;
+
+    } else {
+
+      switch (iSFXnum) {
+
+
+
+
+
+      case 8: case 10: case 11:
+        PatchBank = gSndBnk[3].bnkID;
+        break;
+      case 0x7d:
+        PatchBank = gSndBnk[5].bnkID;
+        break;
+
+      default:
+        bankNum = (u_char)gBankNumLookupTable[sndPlayer];
+        PatchBank = gSndBnk[bankNum].bnkID;
+        break;
+      }
     }
-    } else goto NEWSOUND;
-    if (gaChannel[sndPlayer].SFXnum == iSFXnum) goto RECHECK;
-NEWSOUND:
+  }
+
+
+
+
+
+  if (sndPlayer == 0x31)
+  {
+    iPartial = AudioCmn_PlayDoppleredSound(PatchBank,iSFXnum,azimuth,iAmp,iFreq,iDopplerIn);
+
+    NumSFXOn = NumSFXOn - 1;
+
+    gaChannel[0x31].Partial = iPartial;
+    gaChannel[0x31].SFXnum = iSFXnum;
+  }
+
+
+
+  else
+  {
+
+    if (gaChannel[sndPlayer].SFXnum == iSFXnum)
     {
+
+      if (SNDover(gaChannel[sndPlayer].Partial) != 0) {
+
+        gaChannel[sndPlayer].Partial = -1;
+        gaChannel[sndPlayer].SFXnum = -1;
+      }
+
+
+
+      int bankNum = (PatchBank == -3);
+
+
+
+
+
+      if ((PatchBank < -1) && (AudioCmn_GetAsyncSfx(bankNum,iSFXnum,false) == -1)) {
+
+        gaChannel[sndPlayer].Partial = -1;
+        gaChannel[sndPlayer].SFXnum = -1; } }
+
+
+
+
+    if (gaChannel[sndPlayer].SFXnum != iSFXnum) {
+
+
       if (gaChannel[sndPlayer].Partial != -1) {
+
         SNDstop(gaChannel[sndPlayer].Partial);
         NumSFXOn = NumSFXOn - 1;
       }
-      /* Source-recovery queue: r is absent from retail. Assigning the sound
-         result to root iPartial and using a direct RECHECK test removes this
-         carrier, but needs the separate bank-flag allocation solved first. */
-      int r = AudioCmn_PlayDoppleredSound(PatchBank,iSFXnum,azimuth,iAmp,iFreq,iDopplerIn);
-      if (r != -1) {
-        gaChannel[sndPlayer].Partial = r;
-        gaChannel[sndPlayer].SFXnum = iSFXnum;
-      }
+
+      iPartial = AudioCmn_PlayDoppleredSound(PatchBank,iSFXnum,azimuth,iAmp,iFreq,iDopplerIn);
+
+      if (iPartial != -1) {
+
+        gaChannel[sndPlayer].Partial = iPartial;
+        gaChannel[sndPlayer].SFXnum = iSFXnum; }
+
+
       else {
-        gaChannel[sndPlayer].Partial = r;
-        gaChannel[sndPlayer].SFXnum = r;
-      }
-    }
-    goto LAB_8007887c;
-RECHECK:
-    iPartial = gaChannel[sndPlayer].Partial;
-    if (iPartial == -1) goto SETM1;
-    if (iSFXnum == 0x7d) {
-      SNDvol(gaChannel[sndPlayer].Partial,gMasterSFXLevel * iAmp >> 7);
-    }
-    else if (PatchBank == gSndBnk[2].bnkID) {
-      SNDvol(gaChannel[sndPlayer].Partial,
-             gMasterAmbientLevel * (iAmp * 0x28 - iAmp) >> 0xe);
-    }
-    else if (PatchBank == gSndBnk[5].bnkID) {
-      SNDvol(gaChannel[sndPlayer].Partial,
-             gMasterAmbientLevel * ((iAmp * 0x41) << 1) >> 0xe);
-    }
-    else if (iSFXnum == 99) {
-      SNDvol(gaChannel[sndPlayer].Partial,
-             gMasterAmbientLevel * (iAmp * 0x28 - iAmp) >> 0xe);
-    }
-    else if ((iSFXnum == 3) &&
-            ((PatchBank == gSndBnk[0].bnkID) || (PatchBank == gSndBnk[2].bnkID))) {
-      SNDvol(gaChannel[sndPlayer].Partial,
-             gMasterSFXLevel * (iAmp * 0x80 - iAmp) >> 0xe);
-    }
-    else if (iSFXnum == 0) {
-      SNDvol(gaChannel[sndPlayer].Partial,
-             gMasterEngineLevel * ((iAmp * 7) << 1) >> 0xe);
-    }
-    else {
-      SNDvol(gaChannel[sndPlayer].Partial,
-             gMasterSFXLevel * (iAmp * 0x28 - iAmp) >> 0xe);
-    }
-    if (Audio_direct3davail != 0) {
-      SND3dpos(gaChannel[sndPlayer].Partial,azimuth,0);
-    }
-    else {
-      if (gStereoMode != 0) {
-        /* Direct selection at the call site preserves the pan schedule and
-           needs no pan/pch/pbase capture. Both results are 0..65535, and
-           the int cast preserves the retail arithmetic shift spelling. */
-        SNDpan(gaChannel[sndPlayer].Partial,(int)(azimuth - 0x4000U < 0x8000
-          ? (u_int)(0xbfff - azimuth) : (azimuth + 0x4000U & 0xffff)) >> 8);
-      }
-    }
-    {
-      /* Direct array addressing now preserves this pitch web without bbase. */
+        gaChannel[sndPlayer].Partial = iPartial;
+        gaChannel[sndPlayer].SFXnum = iPartial; }
+
+
+
+
+
+    } else if (gaChannel[sndPlayer].Partial != -1) {
+
+      if (iSFXnum == 0x7d) {
+        SNDvol(gaChannel[sndPlayer].Partial,gMasterSFXLevel * iAmp >> 7); }
+      else if (PatchBank == gSndBnk[2].bnkID) {
+        SNDvol(gaChannel[sndPlayer].Partial,gMasterAmbientLevel * (iAmp * 0x28 - iAmp) >> 0xe); }
+      else if (PatchBank == gSndBnk[5].bnkID) {
+        SNDvol(gaChannel[sndPlayer].Partial,gMasterAmbientLevel * ((iAmp * 0x41) << 1) >> 0xe); }
+      else if (iSFXnum == 99) {
+        SNDvol(gaChannel[sndPlayer].Partial,gMasterAmbientLevel * (iAmp * 0x28 - iAmp) >> 0xe); }
+      else if ((iSFXnum == 3) && ((PatchBank == gSndBnk[0].bnkID) || (PatchBank == gSndBnk[2].bnkID))) {
+        SNDvol(gaChannel[sndPlayer].Partial,gMasterSFXLevel * (iAmp * 0x80 - iAmp) >> 0xe); }
+      else if (iSFXnum == 0) {
+        SNDvol(gaChannel[sndPlayer].Partial,gMasterEngineLevel * ((iAmp * 7) << 1) >> 0xe); }
+      else {
+        SNDvol(gaChannel[sndPlayer].Partial,gMasterSFXLevel * (iAmp * 0x28 - iAmp) >> 0xe); }
+
+      if (Audio_direct3davail != 0) {
+        SND3dpos(gaChannel[sndPlayer].Partial,azimuth,0); }
+      else { if (gStereoMode != 0) {
+        SNDpan(gaChannel[sndPlayer].Partial,(int)(azimuth - 0x4000U < 0x8000 ? (u_int)(0xbfff - azimuth) : (azimuth + 0x4000U & 0xffff)) >> 8); } }
+
       SNDpitchbend(gaChannel[sndPlayer].Partial,iFreq);
-      SNDpitchmult(gaChannel[sndPlayer].Partial,
-                   iDopplerIn >> 4);
-    }
-    goto LAB_8007887c;
-SETM1:
-    gaChannel[sndPlayer].SFXnum = -1;
-  }
-LAB_8007887c:
+      SNDpitchmult(gaChannel[sndPlayer].Partial,iDopplerIn >> 4); }
+
+    else {
+      gaChannel[sndPlayer].SFXnum = -1; } }
+
+
+
+
   return gaChannel[sndPlayer].Partial;
 }
 
@@ -1606,8 +1817,8 @@ LAB_8007887c:
  * selection also remove attenuation, including its later threshold-value
  * reuse. The two output
  * producers must be tested together: removing just the first capture changes
- * scheduling. distanceScale, the debug-elided rpmRatio and the remaining
- * frequency-product empty asm are still source-review work. This does not
+ * scheduling. distanceScale and the debug-elided rpmRatio remain source-review work;
+ * the later dated receipts supersede the old empty-asm and SLD status. This does not
  * certify a literal original macro name or full SLD restoration. */
 /* 2026-10-19 follow-up: ordinary iAmpIn/tuntrig assignments reproduce the
  * supplied AUTO homes at sp-52/sp-48 through natural allocator spills. No
@@ -1619,344 +1830,394 @@ LAB_8007887c:
    stores remain branch-local; the falling step is the existing MIN idiom.
    The audio-off early return restores gas's native depth1 owner. Native scalar
    homes, all530 words and every branch remain unchanged; SLD37/319 ->37/261.
-   Three older empty-asm sites and six unproved locals remain below. Their
-   existence is not proof of original source objects or a matching floor. */
+   The last empty-asm site is now removed by ordinary fixed-point source.
+   distanceScale/rpmRatio remain unproved source captures,not a floor. */
+/* 2026-10-27: freq=freq*doppler/0x10000 replaces the empty asm operand
+ * fence at530/530,whole normal ELF/CPE and entire native SYM dump unchanged.
+ * Stock flow keeps the signed divide's empty sign branch;late jump2 deletes
+ * it after liveness,leaving the real retail MULT/MFLO. Plain product/shift
+ * controls fail. Original unused destination/divisor spelling is not unique:
+ * an iFreqIn-assignment control also passes. This is a valid device-free
+ * source reconstruction,not proof of literal original text or full SLD.
+ * Raw static/o32 liveness confirms the product is not read before kill.
+ * No new name,qualifier,scope,fake use or output/reference rewrite is added.
+ * Receipt:build/nc12/audiocmn_sound_source_20261027/. */
+/* 2026-10-27 source-layout follow-up: all530 instruction/file tags,
+ * four block-line records,header/frame and end2190 match retail. Separate
+ * genuine comm-mode/reverb-level guards restore1983/1985 independently;
+ * a single && line cannot represent both. Ordinary implicit void fallthrough
+ * preserves the final gas owner ending2185 and function-end note2190.
+ * Whole normal ELF/native CPE and every current local/address owner survive.
+ * SOURCE-REVIEW-UNRESOLVED: distanceScale and debug-elided rpmRatio remain
+ * unproved source captures. Their declarations here are not original-source
+ * certification. Capture-free forms have a six-word arithmetic lead or a
+ * saved-register recoloring; none is adopted. Native distanceScale is EXTRA.
+ * CurCarGasLevel/cobblestoneAmp phase identities are not uniquely established
+ * by their shared REG16/root owner; NFS2 uses the opposite semantic phases.
+ * No name is swapped on that cross-version evidence alone. Original macro
+ * spelling/declaration lines and erased comments remain unproved. The 530
+ * word SLD contract is NOT a full source/locals or whole-goal certificate.
+ * No new asm,volatile,object,fake use,scope or statement #line is introduced.
+ * Receipt:build/nc12/soundcar_gas_20261027/. */
 #line 1906 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
-               int cardir)
+int cardir)
 {
-  int CurCarGasLevel;
-  int freq;
-  int roadSurface;
-  int cobbleMod;
-  int cobblestoneAmp;
-  char SPSC;
-  int PlayerPan;
-  static char cobbleCount = 0;
-  int loadAmp;
-  int amplitude;
-  int roadNoiseAmp;
-  int wetNoiseAmp;
-  int roadNoiseFreq;
-  int wetNoiseFreq;
-  int iAmpIn;
-  int tuntrig;
-  int cam;
-  int roadNoisePatch;
-  /* Source-recovery queue: these arithmetic objects remain unproved, but
-     their artificial private scopes are removed. Native retail has only
-     the root region and the final gas region. Direct gas scaling trials
-     remain 14/92 diffs at 530/530; do not treat that as a source floor. */
-  int distanceScale;
-  /* SYM-CODEGEN-CARRIER: rpmRatio -- inlining the redline quotient into
-     AudioEng_Set grows 530 to 531 instructions and changes 43 instructions by
-     advancing the guarded divide ahead of the gas selection. */
-  int rpmRatio;
-  
+  int CurCarGasLevel; int freq;
+  int roadSurface; int cobbleMod;
+  int cobblestoneAmp; char SPSC;
+  int PlayerPan; static char cobbleCount = 0;
+  int loadAmp; int amplitude;
+  int roadNoiseAmp; int wetNoiseAmp;
+  int roadNoiseFreq; int wetNoiseFreq;
+  int iAmpIn; int tuntrig;
+  int cam; int roadNoisePatch;
+  int distanceScale; int rpmRatio;
+
+
+
+
   AudioCmn_CheckState(car);
-  if (!AudioCmn_kAudioOn)
-    return;
+
+
+
+  if (!AudioCmn_kAudioOn) return;
+
+
   if (Camera_gInfo[car->carIndex].mode == 0xc) {
-    iAmpIn = fixeddiv(0x10000000,dst + 0x10000) / 0x10000;
-  }
-  else {
-    iAmpIn = fixeddiv(0x8000000,dst + 0x20000) / 0x10000;
-  }
-  roadNoiseAmp = (__builtin_abs((car->linearVel_ch).z) - 0xd8000 >= 0) ?
-      (__builtin_abs((car->linearVel_ch).z) - 0xd8000) >> 0xf : 0;
-  /* SYM: CurCarGasLevel is REG $s0, live from here through the fixedmult-based
-     self-referencing scale below; blowout doubles it in place. */
+    iAmpIn = fixeddiv(0x10000000,dst + 0x10000) / 0x10000; } else {
+
+    iAmpIn = fixeddiv(0x8000000,dst + 0x20000) / 0x10000; }
+
+
+  roadNoiseAmp = (__builtin_abs((car->linearVel_ch).z) - 0xd8000 >= 0) ? (__builtin_abs((car->linearVel_ch).z) - 0xd8000) >> 0xf : 0;
   CurCarGasLevel = __builtin_abs((car->linearVel_ch).z) >> 0xf;
-  if (0x7f < CurCarGasLevel) {
-    CurCarGasLevel = 0x7f;
-  }
-  /* SYM: cobbleMod is a distinct REG local ($s3) spanning from this clamp through the
-     switch-case modulo below -- split out of the Ghidra iVar4 temp (which is reused later
-     for unrelated short-lived values) so its live range doesn't force one register to
-     cover the whole function. */
+
+  if (0x7f < CurCarGasLevel) { CurCarGasLevel = 0x7f; }
   cobbleMod = CurCarGasLevel / 0x10;
   cobbleMod = 8 - cobbleMod;
-  if (cobbleMod < 3) {
-    cobbleMod = 3;
-  }
+  if (cobbleMod < 3) { cobbleMod = 3; }
   roadNoiseFreq = 0x40;
-  /* Keep the source-level freq lifetime distinct from iFreqIn.  Retail carries
-     iFreqIn in $s2, then reuses that register for PlayerPan and loadAmp. */
+
+
   freq = iFreqIn;
-  if (0x96 < freq) {
-    freq = 0x96;
-  }
-  if (freq < 0) {
-    freq = 0;
-  }
-  /* SYM: roadSurface is REG $s5, spans from here through the switch dispatch below
-     (blowout override + case-7 check) -- split from iVar12 which is reused for 3
-     unrelated short-lived values later in the function. */
+  if (0x96 < freq) { freq = 0x96; }
+  if (freq < 0) { freq = 0; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   roadSurface = (car->N).driveSurfaceType;
+
+
+
+
+
   tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
+
+
   if (tuntrig != 0) {
-    if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
-      fReverbLevel = (char)((100 < (u_char)fReverbLevel + 10) ?
-          100 : (u_char)fReverbLevel + 10);
-      SNDfxmasterlevel(0x0,(u_char)fReverbLevel);
-      fReverbOn = '\x01';
-    }
+
+    if ((GameSetup_gData.commMode != 1)) {
+
+      if (((u_char)fReverbLevel < 100)) {
+
+        fReverbLevel = (char)((100 < (u_char)fReverbLevel + 10) ? 100 : (u_char)fReverbLevel + 10);
+        SNDfxmasterlevel(0x0,(u_char)fReverbLevel);
+        fReverbOn = '\x01'; } }
+
+
     roadNoiseAmp = roadNoiseAmp + 0x14;
-    roadNoiseFreq = 0x5e;
-  }
-  else {
+    roadNoiseFreq = 0x5e; } else {
+
     if ((u_char)fReverbLevel < 0x20) {
+
       fReverbLevel = ' ';
       SNDfxmasterlevel(0x0,0x20);
-      fReverbOn = '\x01';
-    }
-    else if (0x20 < (u_char)fReverbLevel) {
-      fReverbLevel = (char)((0x20 > (int)((u_char)fReverbLevel - 5)) ?
-          0x20 : (u_char)fReverbLevel - 5);
-      SNDfxmasterlevel(0x0,(u_char)fReverbLevel);
-    }
-  }
-  if (GameSetup_gData.commMode == 1) {
-    SPSC = true;
-    PlayerPan = 0xc002;
-    if (car->carIndex != 0) {
-      PlayerPan = 0x3ffe;
-    }
-  }
-  else {
-    SPSC = false;
-    PlayerPan = 0;
-  }
-  if (car->blowout != 0) {
-    roadSurface = 4;
-    CurCarGasLevel = CurCarGasLevel << 1;
-  }
-  if (dst < 0x460000) {
-    /* SYM-CODEGEN-CARRIER: distanceScale -- replacing the lowered signed-shift
-       result with the direct `/ 0x10000` source expression preserves count but
-       changes 92 instructions by perturbing the saved-register allocation. */
+      fReverbOn = '\x01'; }
 
-    /* @0x80078B7C: the final >>16 (with negative-rounding fixup) writes BACK into
-       CurCarGasLevel itself ($s0). */
-    distanceScale = ((0x13240000 - fixedmult(dst,dst)) / 0x1324) * CurCarGasLevel;
-    CurCarGasLevel = distanceScale >> 0x10;
-    if (distanceScale < 0) {
-      distanceScale = distanceScale + 0xffff;
-      CurCarGasLevel = distanceScale >> 0x10;
-    }
-  }
-  else {
-    CurCarGasLevel = 0;
-  }
-  switch(roadSurface) {
-  case 2:
-  case 10:
-  case 0xb:
-  case 0xd:
+    else if (0x20 < (u_char)fReverbLevel) { fReverbLevel = (char)((0x20 > (int)((u_char)fReverbLevel - 5)) ?
+
+      0x20 : (u_char)fReverbLevel - 5);
+      SNDfxmasterlevel(0x0,(u_char)fReverbLevel); } }
+
+
+
+
+
+
+
+  if (GameSetup_gData.commMode == 1) {
+
+    SPSC = true; PlayerPan = 0xc002;
+    if (car->carIndex != 0) {
+      PlayerPan = 0x3ffe; } } else {
+
+
+
+    SPSC = false;
+    PlayerPan = 0; }
+
+
+
+
+
+
+
+  if (car->blowout != 0) {
+
+    roadSurface = 4;
+    CurCarGasLevel = CurCarGasLevel << 1; }
+
+
+  if (dst < 0x460000) {
+    distanceScale = ((0x13240000 - fixedmult(dst,dst)) / 0x1324) * CurCarGasLevel; CurCarGasLevel = distanceScale >> 0x10; if (distanceScale < 0) { distanceScale = distanceScale + 0xffff; CurCarGasLevel = distanceScale >> 0x10; } } else {
+
+    CurCarGasLevel = 0; }
+
+  switch(roadSurface) { case 2: case 10: case 0xb: case 0xd:
+
+
+
+
+
     roadNoiseAmp += roadNoiseAmp / 4;
     roadNoiseFreq = 0x18;
-    break;
-  case 4:
-  case 7:
-  case 0xc:
-    /* @0x80078BCC: real static counter is cobbleCount (D_8013C6B0, gp-rel byte),
-       NOT Audio_gFESFXTable.audioCounter -- oracle: cobbleCount+=1 (stored), then
-       cobbleCount%=iVar4 (stored again); the div-by-zero guard is the automatic
-       --expand-div guard on the '%' below, not a manual trap(). */
+    break; case 4: case 7: case 0xc:
+
+
+
     cobbleCount = cobbleCount + 1;
     cobbleCount = cobbleCount % cobbleMod;
     if ((cobbleCount == 0) && ((car->N).objAltitude < 0x3333) && (0 < gMasterSFXLevel)) {
-      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x1d,SPSC ? PlayerPan : 0,
-          CurCarGasLevel / 2,roadSurface == 7 ? 0x28 : 0x40);
-    }
-  }
-  if (gMasterEngineLevel == 0) {
-    return;
-  }
-  /* @0x80078CB4: real oracle shape is a flat descending guard-chain (bltz; slti<2; slti<5;
-     else), NOT the Ghidra comma-expression -- that convoluted form emits a spurious xor.
-     Also note the 2<=mode<5 case shifts by the VARIABLE `cam` (srav), not a literal 1
-     (sra) -- cam happens to equal 1 there, but the register form must be reproduced. */
-  if (Camera_gInfo[car->carIndex].mode < 0) {
-    cam = 2;
-    roadNoiseAmp = roadNoiseAmp >> 1;
-  }
-  else if (Camera_gInfo[car->carIndex].mode < 2) {
-    cam = 0;
-  }
+
+
+
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x1d,SPSC ? PlayerPan : 0, CurCarGasLevel / 2,roadSurface == 7 ? 0x28 : 0x40); } }
+
+
+
+
+
+  if (gMasterEngineLevel == 0) { return; }
+
+
+
+
+  if (Camera_gInfo[car->carIndex].mode < 0) { cam = 2; roadNoiseAmp = roadNoiseAmp >> 1; } else if (Camera_gInfo[car->carIndex].mode < 2) { cam = 0; }
   else if (Camera_gInfo[car->carIndex].mode < 5) {
     cam = 1;
-    roadNoiseAmp = roadNoiseAmp >> cam;
-  }
-  else {
+
+
+
+
+
+
+
+
+
+    roadNoiseAmp = roadNoiseAmp >> cam; } else {
+
+
     cam = 2;
-    roadNoiseAmp = roadNoiseAmp >> 1;
-  }
+    roadNoiseAmp = roadNoiseAmp >> 1; }
+
+
+
   amplitude = iAmpIn;
+
   if (PlayersRampedGasLevel[car->carIndex] < (u_char)(car->control).gasLevel) {
-    if (((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 2 > 0) {
-      PlayersRampedGasLevel[car->carIndex] += ((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 2;
-    } else {
-      PlayersRampedGasLevel[car->carIndex] += 1;
-    }
+    if (((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 2 > 0) { PlayersRampedGasLevel[car->carIndex] += ((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 2; } else { PlayersRampedGasLevel[car->carIndex] += 1; }
   } else if ((u_char)(car->control).gasLevel < PlayersRampedGasLevel[car->carIndex]) {
-    PlayersRampedGasLevel[car->carIndex] += MIN(((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 8,-1);
-  }
-  /* SYM: cobblestoneAmp is REG $s0 (shares the register with CurCarGasLevel, whose
-     live range ends earlier) -- the re-read of the just-updated ramped gas level,
-     clamped and carried into the gear-shift block below. */
+    PlayersRampedGasLevel[car->carIndex] += MIN(((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 8,-1); }
+
   cobblestoneAmp = PlayersRampedGasLevel[car->carIndex];
-  if (0xff < cobblestoneAmp) {
-    cobblestoneAmp = 0xff;
-  }
-  /* AUDAI 2026-10-04: loadAmp and roadNoiseAmp are each one scaled product
-     (`a * b >> 7`) and the tunnel test reads the spilled AUTO tuntrig directly;
-     this retired the tunnelFlag/roadProduct carriers and their two asm ref
-     fences (PASS 530/530). */
+
+  if (0xff < cobblestoneAmp) { cobblestoneAmp = 0xff; }
 
 
-  /* Write the signed /128 as a DIVIDE, not the hand-expanded bgez/+0x7f/sra rounding:
-     gcc emits that idiom itself and schedules the `li 127` into the bgez delay slot
-     exactly like retail (151->145). */
+
+
+
+
+
+
+
+
   loadAmp = 0x7f;
-  amplitude = (amplitude > amplitude * (freq + 0x28) / 128) ?
-      amplitude : amplitude * (freq + 0x28) / 128;
-  loadAmp = amplitude * loadAmp >> 7;
-  roadNoiseAmp = roadNoiseAmp * amplitude >> 7;
-  if (tuntrig != 0) {
-    wetNoiseAmp = 0;
-  } else {
-    wetNoiseAmp = Weather_GetNumParticles(car->carIndex);
-  }
-  if (0x7f < wetNoiseAmp) {
-    wetNoiseAmp = 0x7f;
-  }
-  wetNoiseFreq = 0x48 - (wetNoiseAmp >> 3);
-  roadNoiseAmp = MIN(roadNoiseAmp,0x7f);
-  if ((relvel != 0) || (Camera_gInfo[car->carIndex].mode == 0xb)) {
-    /* @0x80078E50: the div-by-zero / INT_MIN-by(-1) guard is the automatic
-       --expand-div guard on the '/' below (matches the oracle's single
-       div;break7;break6 sequence) -- no manual trap() in source. */
-    loadAmp = (loadAmp << 0x10) / doppler;
-  }
-  __asm__("" : : "r"(freq * doppler));
-  roadNoisePatch = 0xe;
-  if (cam == 0) {
-    roadNoisePatch = 0;
-    if (GameSetup_gData.commMode == 1) {
-      roadNoisePatch = 0xe;
-    }
-  }
-  if (roadNoiseAmp != 0) {
-    AudioCmn_PlaySFX(car->carIndex == 0 ? 0x18 : 0x19,
-        roadNoisePatch,roadNoiseFreq,doppler,roadNoiseAmp,azimuth);
-  }
-  else {
-    freeVoiceChannel(car->carIndex == 0 ? 0x18 : 0x19);
-  }
-  if (car->carIndex == 0) {
-    if ((GameSetup_gData.Weather == 1) && (wetNoiseAmp != 0)) {
-      AudioCmn_PlaySFX(0x1a,0,wetNoiseFreq,doppler,wetNoiseAmp,0);
-    }
-    else {
-      freeVoiceChannel(0x1a);
-    }
-  }
-  if (((((car->control).gearShiftTimer != '\0') &&
-       ((u_char)(car->control).gear > (u_char)(car->control).lastGear)) &&
-      ((u_char)(car->control).lastGear != 1)) &&
-     (cobblestoneAmp != 0)) {
-    /* @0x8007902C-ish gearShiftDelay division: automatic --expand-div guard on '/'. */
-    loadAmp = (loadAmp + loadAmp * (u_char)(car->control).gearShiftTimer /
-        car->specs->gearShiftDelay) >> 1;
-    if ((u_char)(car->control).gearShiftTimer == 5) {
-      cobblestoneAmp = cobblestoneAmp - (cobblestoneAmp >> 2);
-    }
-    else if ((u_char)(car->control).gearShiftTimer == 4) {
-      cobblestoneAmp = cobblestoneAmp >> 1;
-    }
-    else if ((u_char)(car->control).gearShiftTimer == 3) {
-      cobblestoneAmp = cobblestoneAmp >> 2;
-    }
-    else if ((u_char)(car->control).gearShiftTimer < 3) {
-      cobblestoneAmp = 0;
-    }
-    PlayersRampedGasLevel[car->carIndex] = cobblestoneAmp;
-  }
-  {
-    int gas;
 
-    /* @0x80079044 redline division (mflo a2): automatic --expand-div guard, no manual trap(). */
-    rpmRatio = (car->flywheelRpm << 0x10) / car->specs->redline;
-    gas = 0x7f;
-    if (car->revLimit == 0) {
-      gas = cobblestoneAmp >> 1;
-    }
-    AudioEng_Set(car->carIndex,(gMasterEngineLevel * 0xe) * loadAmp >> 0xe,rpmRatio,gas,cam,
-               doppler,azimuth,cardir);
+  amplitude = (amplitude > amplitude * (freq + 0x28) / 128) ? amplitude : amplitude * (freq + 0x28) / 128;
+
+
+
+  loadAmp = amplitude * loadAmp >> 7;
+
+  roadNoiseAmp = roadNoiseAmp * amplitude >> 7;
+
+
+  if (tuntrig != 0) {
+    wetNoiseAmp = 0; } else {
+
+    wetNoiseAmp = Weather_GetNumParticles(car->carIndex); }
+
+  if (0x7f < wetNoiseAmp) {
+    wetNoiseAmp = 0x7f; }
+
+
+  wetNoiseFreq = 0x48 - (wetNoiseAmp >> 3);
+
+  roadNoiseAmp = MIN(roadNoiseAmp,0x7f);
+
+  if ((relvel != 0) || (Camera_gInfo[car->carIndex].mode == 0xb)) {
+
+    loadAmp = (loadAmp << 0x10) / doppler; }
+
+
+
+
+
+  freq = freq * doppler / 0x10000;
+
+  roadNoisePatch = 0xe;
+
+  if (cam == 0) { roadNoisePatch = 0; if (GameSetup_gData.commMode == 1) {
+      roadNoisePatch = 0xe; } }
+
+
+
+  if (roadNoiseAmp != 0) {
+    AudioCmn_PlaySFX(car->carIndex == 0 ? 0x18 : 0x19, roadNoisePatch,roadNoiseFreq,doppler,roadNoiseAmp,azimuth); } else {
+
+    freeVoiceChannel(car->carIndex == 0 ? 0x18 : 0x19); }
+
+  if (car->carIndex == 0) {
+
+    if ((GameSetup_gData.Weather == 1) && (wetNoiseAmp != 0)) {
+      AudioCmn_PlaySFX(0x1a,0,wetNoiseFreq,doppler,wetNoiseAmp,0); } else {
+
+      freeVoiceChannel(0x1a); } }
+
+
+
+  if (((((car->control).gearShiftTimer != '\0') && ((u_char)(car->control).gear > (u_char)(car->control).lastGear)) && ((u_char)(car->control).lastGear != 1)) && (cobblestoneAmp != 0)) {
+
+    loadAmp = (loadAmp + loadAmp * (u_char)(car->control).gearShiftTimer / car->specs->gearShiftDelay) >> 1;
+
+    if ((u_char)(car->control).gearShiftTimer == 5) {
+      cobblestoneAmp = cobblestoneAmp - (cobblestoneAmp >> 2); }
+    else if ((u_char)(car->control).gearShiftTimer == 4) {
+      cobblestoneAmp = cobblestoneAmp >> 1; }
+    else if ((u_char)(car->control).gearShiftTimer == 3) {
+      cobblestoneAmp = cobblestoneAmp >> 2; }
+    else if ((u_char)(car->control).gearShiftTimer < 3) {
+      cobblestoneAmp = 0; }
+
+    PlayersRampedGasLevel[car->carIndex] = cobblestoneAmp; }
+
+
+  {
+    int gas; rpmRatio = (car->flywheelRpm << 0x10) / car->specs->redline;
+    gas = 0x7f; if (car->revLimit == 0) { gas = cobblestoneAmp >> 1; }
+
+    AudioEng_Set(car->carIndex,(gMasterEngineLevel * 0xe) * loadAmp >> 0xe,rpmRatio,gas,cam, doppler,azimuth,cardir);
   }
-  return;
+
+
+
+
 }
 
 /* ---- AudioCmn_TrafficSFX__Fiiiiiiii  [@0x80079104] ---- */
+/* 2026-10-27: ordinary grouped32-bit crossfade indices remove both
+ * reconstruction-only long long casts,without a fade pointer or new object.
+ * Let p=dir>>12,q=dir>>10: left p-(q-64),right(q+64)-p. Every intermediate
+ * fits signed32 for every signed32 dir;no wider arithmetic is necessary.
+ * Only this pair of16 tested real subtraction forms preserves the whole ELF.
+ * Ordinary layout and implicit void fallthrough then seal all163 word/file
+ * tags,both block-line records,all supplied owners,frame/header and end2239.
+ * Keeping the terminal return is byte-exact but leaves the root end one line
+ * late. No fake scope/use,new name,qualifier,asm or output rewrite is used.
+ * Literal original expression/macro/comment spelling remains unproved.
+ * Existing slot/crossfade/fence-removal receipts are preserved below.
+ * Receipt:build/nc12/traffic_sfx_source_20261027/. */
+/* MATCH P903: native 19311c..1932ab has only iAmpIn, player and
+     pitchmult in one scope. Both engine-patch lookups are separate native
+     statements (2226/2229), preceding the PlaySFX calls (2227/2230). */
+/* BUG FIX (2026-07-11): real crossfade table Xfade[129], not a stale "" placeholder.
+       BUG FIX (wave-13): 2nd index IS +0x40 biased -- oracle mutates s2=(dir>>12)-0x40 then
+       s1-s2 = (dir>>10)-(dir>>12)+0x40 (the wave-6 note claiming "no +0x40" misread the raw;
+       the two calls use the symmetric +-0x40 crossfade pair). */
+/* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
+       alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
+/* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
+       alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
 #line 2192 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int azimuth,int relvel,int dir)
 {
-  /* MATCH P903: native 19311c..1932ab has only iAmpIn, player and
-     pitchmult in one scope. Both engine-patch lookups are separate native
-     statements (2226/2229), preceding the PlaySFX calls (2227/2230). */
   int iAmpIn;
   int player;
   int pitchmult;
 
+
+
+
+
   player = 0;
-  if (GameSetup_gData.commMode == 1) {
-    player = (iChan < 8) ^ 1;
-  }
+
+  if (GameSetup_gData.commMode == 1) { player = (iChan < 8) ^ 1; }
+
+
   if (Camera_gInfo[player].mode == 0xc) {
-    iAmpIn = fixeddiv(0x10000000,dst + 0x10000) / 0x10000;
-  }
-  else {
-    iAmpIn = fixeddiv(0x8000000,dst + 0x20000) / 0x10000;
-  }
+    iAmpIn = fixeddiv(0x10000000,dst + 0x10000) / 0x10000; } else {
+
+    iAmpIn = fixeddiv(0x8000000,dst + 0x20000) / 0x10000; }
+
   if ((iAmpIn == 0) && (iChan != -1)) {
+
     if (gaChannel[iChan].Partial != -1) {
-      freeVoiceChannel(iChan);
-    }
+      freeVoiceChannel(iChan); }
     if (gaChannel[iChan + 4].Partial != -1) {
-      freeVoiceChannel(iChan + 4);
-    }
+      freeVoiceChannel(iChan + 4); }
     if (gaChannel[iChan + 8].Partial != -1) {
-      freeVoiceChannel(iChan + 8);
-    }
-    return;
-  }
-  else {
+      freeVoiceChannel(iChan + 8); }
+    return; } else {
+
+
     pitchmult = fixedmult(freq + 0x3333,doppler) * 0x50 >> 10;
-    /* BUG FIX (2026-07-11): real crossfade table Xfade[129], not a stale "" placeholder.
-       BUG FIX (wave-13): 2nd index IS +0x40 biased -- oracle mutates s2=(dir>>12)-0x40 then
-       s1-s2 = (dir>>10)-(dir>>12)+0x40 (the wave-6 note claiming "no +0x40" misread the raw;
-       the two calls use the symmetric +-0x40 crossfade pair). */
-    /* MATCH P903: widening the grouped subtractions prevents reassociation
-       through the array address, removing the non-SYM fade pointer. Shifted
-       int operands fit the final int index; original cast tokens are unproved. */
+
+
     player = CopSpeak_GetEnginePatch(iSFXnum,0);
-    /* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
-       alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
-    AudioCmn_PlaySFX(iChan + 4,player,0x40,pitchmult << 4,
-               iAmpIn * Xfade[(int)((long long)((dir >> 0xc) + 0x40) - (dir >> 10))] >> 7,azimuth);
-    /* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
-       alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
+    AudioCmn_PlaySFX(iChan + 4,player,0x40,pitchmult << 4, iAmpIn * Xfade[(dir >> 0xc) - ((dir >> 10) - 0x40)] >> 7,azimuth);
+
     player = CopSpeak_GetEnginePatch(iSFXnum,1);
-    AudioCmn_PlaySFX(iChan + 8,player,0x40,pitchmult << 4,
-               iAmpIn * Xfade[(int)((long long)(dir >> 10) - ((dir >> 0xc) - 0x40))] >> 7,azimuth);
+    AudioCmn_PlaySFX(iChan + 8,player,0x40,pitchmult << 4, iAmpIn * Xfade[((dir >> 10) + 0x40) - (dir >> 0xc)] >> 7,azimuth);
+
+
     if (0x280000 < relvel) {
-      relvel = 0x280000;
-    }
+      relvel = 0x280000; }
     iAmpIn = iAmpIn * relvel / 0x280000;
+
     AudioCmn_PlaySFX(iChan,99,freq,doppler,iAmpIn,azimuth);
   }
-  return;
 }
 
 /* ---- AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii  [@0x80079390] ---- */
@@ -1985,67 +2246,69 @@ void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int f
 }
 
 /* ---- AudioCmn_PlayerHornOn__Fiiiii  [@0x80079444] ---- */
+/* 2026-10-27: HornOn's actual early audio-off return preserves the
+ * real function-end2302 note while root ownership ends2301. All65 word/file
+ * tags,both block lines,provided locals/owners and frame/header/end agree.
+ * Other genuine exit forms can also pass,so literal original syntax is not
+ * unique. No dummy statement,extra scope,void-result cast or new object.
+ * Receipt for both horn functions:build/nc12/horn_source_20261027/. */
 #line 2274 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int doppler)
 {
   int iAmpIn;
   int sfx;
   int player;
+  if (AudioCmn_kAudioOn == 0) return;
 
-  if (AudioCmn_kAudioOn != 0) {
+
     if (Distsq < 0x1324) {
-      iAmpIn = ((0x1324 - Distsq) * 0x7f) / 0x1324;
-    }
-    else {
-      iAmpIn = 0;
-    }
+      iAmpIn = ((0x1324 - Distsq) * 0x7f) / 0x1324; } else {
+
+      iAmpIn = 0; }
+
+
+
     if (GameSetup_gData.commMode == 1) {
+
       sfx = 10;
-      if (carIndex == 0) {
-        player = 0x29;
-      }
-      else {
-        player = 0x2a;
-      }
-    }
-    else {
-      sfx = 3;
-      player = 0x29;
-    }
-    if ((gaChannel[player].Partial == 0xffffffff) ||
-        (SNDover(gaChannel[player].Partial) == 0)) {
+      if (carIndex == 0) { player = 0x29; } else { player = 0x2a; } } else {
+
+
+
+
+      sfx = 3; player = 0x29; }
+
+    if ((gaChannel[player].Partial == 0xffffffff) || (SNDover(gaChannel[player].Partial) == 0)) {
       AudioCmn_PlaySFX(player,sfx,iFreqIn,doppler,iAmpIn,azimuth);
     }
-  }
-  return;
 }
 
 /* ---- AudioCmn_PlayerHornOff__Fi  [@0x80079548] ---- */
+/* 2026-10-27: car-index-first player selection and the actual single-
+ * player car/handle/playback exception guard remove both LAB dispatch labels.
+ * Car test2316 precedes handle/SNDover2317;cleanup2320/return2321 remain real
+ * statements. All47 word/file tags,provided owners,block lines and frame/end
+ * agree. NFS2 corroborates the player-selection design,not NFS4's added
+ * exception or int return contract. No other behavior is imported.
+ * No new name,object,asm,volatile,fake use,scope padding or statement anchor.
+ * Literal original expression/comment spelling remains unproved. */
 #line 2304 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlayerHornOff(int carIndex)
 {
   int player;
+  if (AudioCmn_kAudioOn == 0) return 0;
 
-  if (AudioCmn_kAudioOn == 0) {
-    return 0;
-  }
-  player = 0x29;
-  if (carIndex != 0) {
-    if (GameSetup_gData.commMode == 1) {
-      player = 0x2a;
-      goto LAB_8007957c;
-    }
-  }
-  else {
-LAB_8007957c:
-    if (GameSetup_gData.commMode == 1) goto LAB_800795e8;
-  }
-  if (((Cars_gList[carIndex]->carInfo->carType == 0x14) &&
-      (gaChannel[player].Partial != 0xffffffff)) &&
-     (SNDover(gaChannel[player].Partial) == 0)) {
-    return 1;
-  }
-LAB_800795e8:
+
+
+
+  player = 0x29; if (carIndex != 0 && GameSetup_gData.commMode == 1) {
+    player = 0x2a; }
+
+  if (GameSetup_gData.commMode != 1) {
+    if (Cars_gList[carIndex]->carInfo->carType == 0x14) {
+      if ((gaChannel[player].Partial != 0xffffffff) && (SNDover(gaChannel[player].Partial) == 0)) return 1; } }
+
+
   freeVoiceChannel(player);
   return 0;
 }
@@ -2154,57 +2417,47 @@ void SirenOff(int sirennum)
 }
 
 /* ---- UpdateSiren__Fiiiii  [@0x8007995c] ---- */
+/* 2026-10-27: ordinary anchored source layout restores every129 word/file
+ * tag,all supplied parameter/local owner tuples,both block-line records and
+ * end2485,with every executable token unchanged. The two real volume arms
+ * and final pan expression keep their existing arithmetic/branch structure;
+ * no anonymous slot pointer is declared or needed. Literal original macro,
+ * comment and declaration spellings are not uniquely proved by this seal.
+ * No new object,scope,asm,volatile,fake use or statement #line is introduced.
+ * Receipt:build/nc12/siren_layout_20261027/. */
 #line 2453 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
 {
-  /* SYM rule-8: params sirennum=s1 amp=s2 dop=s5 azimuth=s4, supercop ARG->REG s0;
-     ONE iFreq (a2). No other named locals: iFreq is reused for its upper
-     clamp before the call, and the channel-slot ADDRESS for the
-     pitchbend/vol pair is a scoped anonymous pointer (s0, reusing dead supercop; Partial
-     RELOADED per call since the jals clobber memory), and the vol arms are per-arm INLINE
-     SNDvol calls cross-jumped into one jal. */
   int iFreq;
+
   if (bSirenOn[sirennum] != 0) {
+
+
     if (SNDover(gaChannel[sirennum + 0x2b].Partial) != 0) {
+
       if (supercop != 0) {
-        SuperCopSirenOn(sirennum);
-      }
-      else {
-        quickSirenOn(sirennum);
-      }
-    }
+        SuperCopSirenOn(sirennum); } else {
+
+        quickSirenOn(sirennum); } }
+
+
     quickSirenTimeCount[sirennum] = quickSirenTimeCount[sirennum] + 1;
+
     iFreq = dop / 0x400;
+
     iFreq = (iFreq < 0) ? 0 : iFreq;
-    /* SYM rule-8: the ONLY named local in retail is iFreq -- ch/chidx/c2/c2i/pan were
-       all fabricated.  Every channel-slot reference is the FULL expression
-       gaChannel[sirennum + 0x2b].Partial; gcc CSEs it into s0 by itself and hoists the
-       shared %hi(gaChannel) above the 3dpos/stereo branch (it lands in that beqz's
-       delay slot), which is exactly the `addiu v1,v1,0` the pan arm reuses. */
     iFreq = (0x7f < iFreq) ? 0x7f : iFreq;
+
     SNDpitchbend(gaChannel[sirennum + 0x2b].Partial,iFreq);
-    /* MATCH: 0x25/0x2f written as (amp*9)*4+amp / (amp*3)*0x10-amp -- the inner +/-
-       node blocks gcc's multiply-chain regrouping of the constant onto the LEVEL
-       (same lever as PlayDoppleredSound's (vol*0x41)<<1). */
+
     if (sirenCount[sirennum] == -1) {
-      SNDvol(gaChannel[sirennum + 0x2b].Partial,gMasterAmbientLevel * ((amp * 9) * 4 + amp) >> 0xe);
-    }
-    else {
-      SNDvol(gaChannel[sirennum + 0x2b].Partial,gMasterAmbientLevel * ((amp * 3) * 0x10 - amp) >> 0xe);
-    }
-    /* MATCH: arm order -- 3dpos is the fall-through (if-body), stereo pan out-of-line. */
+      SNDvol(gaChannel[sirennum + 0x2b].Partial,gMasterAmbientLevel * ((amp * 9) * 4 + amp) >> 0xe); } else {
+
+      SNDvol(gaChannel[sirennum + 0x2b].Partial,gMasterAmbientLevel * ((amp * 3) * 0x10 - amp) >> 0xe); }
     if (Audio_direct3davail != 0) {
-      SND3dpos(gaChannel[sirennum + 0x2b].Partial,azimuth,0);
-    }
-    else {
+      SND3dpos(gaChannel[sirennum + 0x2b].Partial,azimuth,0); } else {
       if (gStereoMode != 0) {
-        SNDpan(gaChannel[sirennum + 0x2b].Partial,
-               (int)((azimuth - 0x4000U < 0x8000) ? 0xbfff - azimuth
-                                                  : (azimuth + 0x4000U & 0xffff)) >> 8);
-      }
-    }
-  }
-  return;
+        SNDpan(gaChannel[sirennum + 0x2b].Partial, (int)((azimuth - 0x4000U < 0x8000) ? 0xbfff - azimuth : (azimuth + 0x4000U & 0xffff)) >> 8); } } } return;
 }
 /* ---- AudioCmn_Pause__Fv  [@0x80079b60] ---- */
 #line 2510 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"

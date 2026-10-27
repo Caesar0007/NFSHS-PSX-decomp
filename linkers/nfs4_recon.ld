@@ -1387,11 +1387,8 @@ SECTIONS
         build/recon/game/common/newton.cpp.o(.bss.newton_dummy_133);
     }
 
-    /* SYM BSS anchor: simqueue.obj's 524-byte file-static queue. */
-    .simqueue_bss 0x8013e0f4 : SUBALIGN(4)
-    {
-        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_input_queue);
-    }
+    .simqueue_bss 0x8013e0f4 (NOLOAD) : SUBALIGN(4) { build/recon/game/common/simqueue.cpp.o(.bss); }
+    ASSERT(SIZEOF(.simqueue_bss) == 524, "native zero owner size mismatch")
 
     /DISCARD/ : { *(.text.strip); *(.rodata.strip); *(.bss.strip); }
     .rodata_rest : SUBALIGN(4) { *(.rodata); *(.rodata.*); }

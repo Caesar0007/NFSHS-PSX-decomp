@@ -12,6 +12,19 @@ import struct
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE_ZERO_OWNERS=(
+    # 2026-10-27: restore SimQueue's ordinary source-local zero reservation,
+    # not a GNU PROGBITS section attribute. SYM34f8bb/compact019a0b and the
+    # original CPE prove524 bytes at8013E0F4,with no load payload. GNU's input
+    # COMMON over-alignment is not the retail linker alignment; the existing
+    # four-aligned output seam is retained before unplaced catch-all data.
+    # Backups and private all-section/all-symbol controls:
+    # build/nc12/simqueue_storage_20261027/.
+    dict(source='recon/game/common/simqueue.cpp',section='.bss',
+         address=0x8013E0F4,size=524,output='.simqueue_bss',
+         section_flags=3,symbol_visibility=0,
+         symbols=(('inputQueue',0,524,0),),exact_symbols=True,
+         linker_early_seam=True,
+         evidence='SYM34f8bb STAT sim_queue524;compact019a0b;original CPE has no queue load;all8 code/SLD contracts unchanged'),
     # P910: complete native HUD zero reservation. Native STAT names/types,
     # no CPE loads, exact14 LOCAL symbols and all references are receipted in
     # scratchpad/p910_hud_sbss; preserve the initialized HUD owner separately.

@@ -1,13 +1,13 @@
-/* game/psx/simqueue.cpp -- RECONSTRUCTED (NFS4 PSX sim input queue; C++ TU)
+/* game/common/simqueue.cpp -- RECONSTRUCTED (NFS4 PSX sim input queue; C++ TU)
  *   8 fns: SimQueue_StartUp/Reset/CleanUp/Put/SetCurrentInput/GetCurrentInput/SetLag/IsBlocking.
  *   GTE-free. Full SYM-locals applied.
  */
 #include "simqueue_types.h"
 #include "simqueue_externs.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800565CC).  The retail SYM shows the
- * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
- * (tools/psyq_pipe/simplemem_bysym.py). */
+/* SOURCE-REVIEW-UNRESOLVED: this holder preserves the unreferenced "SimpleMem" literal at0x800565CC.
+ * Retail type/header-family evidence does not recover this helper or the original literal producer.
+ * See build/nc12/simplemem_source_producer_20261023/;no constructor/default/inline identity is claimed. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -28,8 +28,8 @@ int gSimQueue_BlockOther = 1;
  * then maxTicksPerFrame (@0x8013ddd0), natural zero-initialized statics in this order. */
 static Input_tResults output[2];
 static int maxTicksPerFrame;
-static sim_queue inputQueue
-    __attribute__((section(".bss.simqueue_input_queue")));
+static sim_queue inputQueue;
+
 /* gSimQueue_Ticker is defined with its siblings at the top of this TU (W65-A8). */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
@@ -43,239 +43,162 @@ static void SimQueue_SetLag(void);
 static int SimQueue_IsBlocking(int pIndex);
 
 
-/* ---- SimQueue_StartUp__Fv  [SIMQUEUE.CPP:93-101] SLD-VERIFIED ---- */
+/* ---- SimQueue_StartUp__Fv  [SIMQUEUE.CPP:93-101] COVERED-SLD-PASS ---- */
+#line 91 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_StartUp(void)
 
 {
+
+
+
   gSimQueue_BlockSelf = 1;
   gSimQueue_BlockOther = 1;
+
+
   SimQueue_SetLag();
-  return;
 }
 
-/* ---- SimQueue_Reset__Fv  [SIMQUEUE.CPP:115-155] SLD-VERIFIED ---- */
+/* ---- SimQueue_Reset__Fv  [SIMQUEUE.CPP:115-155] COVERED-SLD-PASS ---- */
+#line 113 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_Reset(void)
 
-{
-  int i;
-  int j;
+{ int i; int j;
+
+
+
+
+
+
+
 
   gSimQueue_BlockSelf = 1;
   gSimQueue_BlockOther = 1;
 
-  for (i = 0; i < 2; i = i + 1) {
+  for (i = 0; i < 2; i = i + 1)
+  {
+    for (j = 0; j < 0x20; j = j + 1)
+    {
+      if (j < 4)
 
-    j = 0;
-
-    do {
-
-      if (j < 4) {
         inputQueue.Validity[i][j] = 1;
-      }
-      else {
+
+      else
         inputQueue.Validity[i][j] = 0;
-      }
 
       inputQueue.Buffer[i][j].steering = 0;
       inputQueue.Buffer[i][j].gas = 0;
       inputQueue.Buffer[i][j].brake = 0;
       inputQueue.Buffer[i][j].flags = 0;
-      j = j + 1;
-
-    } while (j < 0x20);
-
+    }
     inputQueue.TailTime[i] = 4;
-
   }
-
   inputQueue.HeadTime = 0;
   gSimQueue_Ticker = 3;
+
+
+
+
+
+
+
   gSimQueue_BlockOther = 0;
   gSimQueue_BlockSelf = 0;
-  return;
 }
 
-/* ---- SimQueue_CleanUp__Fv  [SIMQUEUE.CPP:169-174] SLD-VERIFIED ---- */
+/* ---- SimQueue_CleanUp__Fv  [SIMQUEUE.CPP:169-174] COVERED-SLD-PASS ---- */
+#line 167 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_CleanUp(void)
 
 {
+
+
+
   gSimQueue_BlockSelf = 1;
   gSimQueue_BlockOther = 1;
-  return;
 }
 
-/* ---- SimQueue_Put__FiP14Input_tResults  [SIMQUEUE.CPP:201-249] SLD-VERIFIED ---- */
+/* ---- SimQueue_Put__FiP14Input_tResults  [SIMQUEUE.CPP:201-249] COVERED-SLD-PASS ---- */
+#line 199 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 int SimQueue_Put(int pIndex,Input_tResults *val)
 
-{
-  int tail;
-
+{ int tail;
   tail = inputQueue.TailTime[pIndex] & 0x1f;
-  if (SimQueue_IsBlocking(pIndex) != 0) {
-    return 0;
-  }
-  if (inputQueue.Validity[pIndex][tail] != kINVALID) {
-    return 0;
-  }
+
+
+
+
+
+
+
+  if (SimQueue_IsBlocking(pIndex) != 0) return 0;
+
+
+
+
+
+  if (inputQueue.Validity[pIndex][tail] != kINVALID) return 0;
+
   inputQueue.Buffer[pIndex][tail] = *val;
   inputQueue.Validity[pIndex][tail] = kVALID;
-  inputQueue.TailTime[pIndex] = inputQueue.TailTime[pIndex] + 1;
-  if (SIMQUEUE_COMMMODE != 0) {
-    if (SIMQUEUE_COMMMODE == 1) {
-      if (pIndex != 0) {
-        gSimQueue_Ticker = gSimQueue_Ticker + 1;
-      }
-    }
-  }
-  else {
-    if (SIMQUEUE_NUM_PLAYER_RACE_CARS < 2) {
-      gSimQueue_Ticker = gSimQueue_Ticker + 1;
-    }
-    else if (pIndex != 0) {
-      gSimQueue_Ticker = gSimQueue_Ticker + 1;
-    }
-  }
-  return 1;
-}
 
-/* ---- SimQueue_SetCurrentInput__Fi  [SIMQUEUE.CPP:271-290] SLD-VERIFIED ---- */
-/*
- * NEAR-MISS 4 (count-exact 48/48).  Structure is SYM-exact: the 8c block lists
- * exactly `i` (REG $4 = $a0) and `pIndex` (REG $3 = $v1), and both are ours.
- * The whole residual is the %hi SCRATCH of the FIRST loop's `output` base:
- *     ours    lui $v0,%hi(output) ; addiu $a2,$v0,%lo(output)   (separate temp)
- *     oracle  lui $a2,%hi(output) ; addiu $a2,$a2,%lo(output)   (self temp)
- * i.e. local-alloc COMBINED the HIGH pseudo with the LO_SUM dest in retail and
- * did not in ours (3.15 v0-vs-a2 tie-break).  The SECOND loop's base uses the
- * separate-temp form in BOTH builds, so it is a per-site allocator decision,
- * not a flag or a declaration.
- * FALSIFIED (W61-A13, 2026-08-15, each a real gate run, all 4 diffs / 48-48
- * unless noted): for-loop form; `pIndex++`; cast-int index-term-first subscript
- * `*(Input_tResults *)((pIndex << 2) + (int)output)`; explicit `&inputQueue...`
- * source cast; per-iteration `Input_tResults *dst = output + pIndex` (28 @46);
- * statement order `i` before `pIndex`; a void-tail fence before the first loop
- * (9 @49); and -- in simqueue_externs.h -- `output[]` unsized and `output[64]`
- * (3.12 #5 declaration-shape lever), both inert.
- * NOT tentative-def-able: no oracle in the tree reaches `output` via %gp_rel, so
- * the 3.12 #6 ownership gate forbids it.
- * NEXT ANGLE: read the local-alloc handout (-dl) for this TU and find which
- * pseudo blocks combine_regs on the HIGH (11A: "not local to this block OR DIES
- * MORE THAN ONCE").  Do not spend more spellings.
- * W62-A12 (2026-08-15) -- re-gated 4 @48/48.  This is the SAME class as
- * audiocmn CheckState site (2), and the device that buys the self-temp `la` there
- * was re-tested here: an arm-local pointer carrying a 13B identity launder.  It
- * costs the count here too (12E: register XOR count).  Measured, all real gate runs:
- *   explicit walking dest `Input_tResults *dst = output; *dst = ...; dst++` .. 4 (inert)
- *   the same laundered `__asm__ ("" : "=r" (dst) : "0" (dst))` ............... 9 @49
- *   array form through a laundered base local ............................... 18 @50
- *   array form through a PLAIN base local ................................... 48 @48
- * The last row is the interesting one: it is count-EXACT but rotates the whole
- * function, i.e. a genuinely different basin exists at 48/48 -- worth a permuter
- * re-seed rather than more hand spellings.
- * W71-A21 -- three more axes measured, all inert or worse (real gate runs):
- *   BLOCK-LOCAL loop counters (the 13A device that landed r3dcar this wave):
- *     one block-local `pIndex` per loop ............................ 28 @48
- *     block-local only for the FIRST loop .......................... 28 @48
- *     block-local `Input_tResults *dst = output;` + dst[pIndex] ..... 48 @48
- *   SECTION-ATTRIBUTE shape of the two file statics (the `.bss.simqueue_*`
- *   named sections are a recon invention, so they were a live suspect for the
- *   address-materialization form): dropping BOTH, or either one alone, is
- *   BYTE-NEUTRAL -- 4 diffs and 7/8 TU PASS in all three cases.  So the
- *   self-vs-separate %hi temp is NOT a section/relocation question.
- * The 28 @48 rows are a THIRD count-exact basin (distinct from the 48 @48 one
- * above), so there are now at least three; the permuter re-seed is the priced
- * next step and it now has three seeds to start from, not one.
- *
- * W72-A12 2026-08-22 -- *** SOLVED (PASS 48/48 under one PER_TU_FLAGS row; see
- * (3)).  Everything above is a two-year chase of the wrong axis: this was NEVER
- * an allocator tie-break, it is the -G SMALL-DATA THRESHOLD deciding whether the
- * address gets SPLIT at all.  Three facts:
- *  (1) THE MECHANISM.  Our pair is a genuine expand-time SPLIT-ADDRESS pair:
- *          (set (reg 132) (high  (symbol_ref "output")))      <- BLOCK-LOCAL qty
- *          (set (reg 136) (lo_sum (reg 132) (symbol_ref "output")))
- *      and p136 is the loop's walking pointer, live across blocks => a GLOBAL
- *      allocno with reg_qty == -1.  local-alloc.c:1875 (`sreg >= FIRST_PSEUDO
- *      && reg_qty[sreg] == -1`) makes combine_regs REFUSE the tie, so the HIGH
- *      is a free-standing local qty and find_free_reg gives it the lowest free
- *      register.  In this block there are TWO such highs (inputQueue and
- *      output) with DISJOINT windows, so BOTH take $v0 -- which is exactly what
- *      we emit (`lui $2,%hi(inputQueue); addiu $8,$2,%lo` then
- *      `lui $2,%hi(output); addiu $6,$2,%lo`).  Nothing in this picture can hand
- *      the second high a NON-lowest register, which is why 20+ source spellings,
- *      3 fence flavours and 2 permuter basins have all been inert: there is no
- *      dial, because the answer is not a dial.
- *  (2) WHAT RETAIL ACTUALLY HAS.  Retail is MIXED inside this one function:
- *          lui $v0,%hi(inputQueue) ; addiu $t0,$v0,%lo(inputQueue)   <- SPLIT pair
- *          lui $a2,%hi(output)     ; addiu $a2,$a2,%lo(output)       <- `la $a2,output`
- *      The second is not a split pair that got lucky -- it is the ASSEMBLER's
- *      expansion of a SINGLE `la` (a plain `(set (reg) (symbol_ref))` movsi),
- *      which always self-temps (IDT Ch9 / methodology 3.16).  PROVEN by a raw
- *      CC1PLPSX A/B (scratchpad/W72_A12/rawcc1.py): with -mno-split-addresses
- *      cc1 emits `la $8,inputQueue` + `la $6,output` -- i.e. the `la` form
- *      reproduces retail's `output` pair EXACTLY and simultaneously BREAKS the
- *      `inputQueue` one.  So the two addresses in retail were materialised by
- *      DIFFERENT mechanisms, and the `output` one was created AFTER the
- *      split-address expansion (loop.c's biv initial value).
- *  (3) *** SOLVED -- IT IS THE -G THRESHOLD, AND THE WIRING IS `g_value: "8"`.
- *      mips.c `mips_check_split()` refuses to split a symbol whose
- *      SYMBOL_REF_FLAG is SET, and ENCODE_SECTION_INFO sets that flag for any
- *      object whose size is <= the -G threshold.  `output` is EXACTLY 8 bytes
- *      (2 x 4-byte Input_tResults), `inputQueue` is huge.  So at -G8 gcc splits
- *      `inputQueue`'s address (separate temp) and does NOT split `output`'s
- *      (plain movsi -> assembler `la` -> SELF temp) -- retail's mixed pair,
- *      exactly.  At -G4 (our default) `output` is over threshold, gets split
- *      too, and there is no dial that can recover the self temp.
- *      MEASURED on a scratchpad copy of build.py (scratchpad/W72_A12/ptools),
- *      PER_TU_FLAGS "recon/game/common/simqueue.cpp": {"g_value": "8"}:
- *        SimQueue_SetCurrentInput  4 @48/48 -> PASS 48/48
- *        whole TU                  7/8 -> 8/8 PASS
- *          (GetCurrentInput needs the pointer-add spelling landed below; it is
- *           byte-neutral at -G4, so it is already in-source and safe either way)
- *      PLACEMENT IS BYTE-NEUTRAL: `objdump -t` of the -G8 object is identical to
- *      the -G4 one -- output -> .bss.simqueue_output, inputQueue ->
- *      .bss.simqueue_input_queue, maxTicksPerFrame -> .sbss, the three globals
- *      -> .sdata.  The named-section attributes above are what keep the now
- *      under-threshold `output` out of .sbss, so KEEP THEM (dropping them still
- *      gates 8/8, but only the section attribute guarantees the placement).
- *      => ORCHESTRATOR ACTION: add the g_value "8" PER_TU_FLAGS row.
- *      (Falsified alternative, same probe: whole-TU no_split_addresses makes
- *       BOTH addresses `la` -- this fn 32 @48 and the TU 2/8 PASS: SetLag 4,
- *       GetCurrentInput 16, IsBlocking 16, Put 46, Reset 47.  A hard NO.)
- *     Everything else measured this wave, all real gate runs, all 4 @48/48
- *     unless noted (so the W62/W71 basins are re-confirmed from scratch):
- *       walking dest declared at the TOP of the function .............. 4
- *       walking dest assigned just before the loop ................... 4
- *       do/while (guarded) loop shape ............................... 4
- *       BOTH bases named, dest first ......................... 39 @47 (-1 insn)
- *       BOTH bases named, source first ....................... 39 @47
- *     PERMUTER (the W71 priced next step, DONE): three job dirs seeded from the
- *     three known count-exact basins (permuter_work/SimQueue_SetCurrentInput__Fi,
- *     SQ_basin2 = plain base local, SQ_basin3 = block-local counters), ~9k
- *     iterations each; base score 10, NO score-0 and no candidate below base in
- *     basin 1.  Consistent with (1): the permuter mutates C, and no C mutation
- *     changes whether an address is split.  DO NOT re-run the permuter here. */
+
+
+
+
+
+  inputQueue.TailTime[pIndex] = inputQueue.TailTime[pIndex] + 1;
+
+
+
+  switch (SIMQUEUE_COMMMODE) {
+
+
+
+
+  case 1: if (pIndex != 0) {
+    gSimQueue_Ticker = gSimQueue_Ticker + 1;
+  } break;
+
+
+  case 0: if ((SIMQUEUE_NUM_PLAYER_RACE_CARS < 2) || (pIndex != 0)) {
+
+    gSimQueue_Ticker = gSimQueue_Ticker + 1;
+  } break;
+  default: break; }
+
+
+
+
+  return 1; }
+
+/* ---- SimQueue_SetCurrentInput__Fi  [SIMQUEUE.CPP:271-290] COVERED-SLD-PASS ---- */
+/* Historical compiler-basin receipts are preserved in build/nc12/simqueue_layout_20261027/simqueue-before.cpp. Current selected G8 source matches48 words and all supplied local/SLD facts;the two real for loops need no address helper or output rewrite. */
+#line 269 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_SetCurrentInput(int time)
 
-{
-  int i;
-  int pIndex;
+{ int i; int pIndex;
 
-  pIndex = 0;
-  i = time & 0x1f;
-  while (pIndex < SIMQUEUE_NUM_PLAYER_RACE_CARS) {
+
+
+
+
+
+
+  for (pIndex = 0, i = time & 0x1f; pIndex < SIMQUEUE_NUM_PLAYER_RACE_CARS; pIndex = pIndex + 1) {
+
     output[pIndex] = inputQueue.Buffer[pIndex][i];
-    pIndex = pIndex + 1;
   }
-  pIndex = 0;
-  while (pIndex < SIMQUEUE_NUM_PLAYER_RACE_CARS) {
+
+
+  for (pIndex = 0; pIndex < SIMQUEUE_NUM_PLAYER_RACE_CARS; pIndex = pIndex + 1) {
+
     inputQueue.Validity[pIndex][i] = 0;
-    pIndex = pIndex + 1;
+
   }
   inputQueue.HeadTime = inputQueue.HeadTime + 1;
-  return;
 }
 
-/* ---- SimQueue_GetCurrentInput__FiP14Input_tResults  [SIMQUEUE.CPP:295-407] SLD-VERIFIED ---- */
+/* ---- SimQueue_GetCurrentInput__FiP14Input_tResults  [SIMQUEUE.CPP:295-296] COVERED-SLD-PASS ---- */
 /* MATCH (W72-A12): the POINTER-ADD spelling `*(output + pIndex)`, not the
    subscript `output[pIndex]`.  Both are PASS under the shipped -G4 build (the
    change is byte-neutral there), but under the -G8 wiring recommended for this
@@ -286,43 +209,65 @@ void SimQueue_SetCurrentInput(int time)
    Measured under -G8: subscript 2 @10 | `(pIndex<<2)+(int)output` 2 | a
    `p = output + pIndex` local 2 | `p = &output[pIndex]` local 2 |
    pointer-add PASS | `p = output; p[pIndex]` PASS | int-cast base-first PASS. */
+#line 293 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)
 
 {
   *out = *(output + pIndex);
 }
 
-/* ---- SimQueue_SetLag__Fv  [SIMQUEUE.CPP:326-407] SLD-VERIFIED ---- */
+/* ---- SimQueue_SetLag__Fv  [SIMQUEUE.CPP:326-343] COVERED-SLD-PASS ---- */
+#line 324 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 static void SimQueue_SetLag(void)
 
 {
-  if (SIMQUEUE_COMMMODE == 0) {
-    maxTicksPerFrame = 4;
-  }
-  else if (SIMQUEUE_COMMMODE == 1) {
-    maxTicksPerFrame = 4;
-  }
-  return;
-}
+  switch (SIMQUEUE_COMMMODE) {
 
-/* ---- SimQueue_IsBlocking__Fi  [SIMQUEUE.CPP:382-407] SLD-VERIFIED ---- */
+
+
+
+
+
+
+
+
+
+
+
+
+  case 1: maxTicksPerFrame = 4; break; case 0: maxTicksPerFrame = 4; break;
+
+  default: return; } }
+
+/* ---- SimQueue_IsBlocking__Fi  [SIMQUEUE.CPP:382-407] COVERED-SLD-PASS ---- */ /* 2026-10-27: actual mode case returns remove check_mode/calculate/return_zero labels;all21 words and supplied SYM/SLD fields agree. Literal original spelling remains unproved. Receipt: build/nc12/simqueue_blocking_20261027/. */
+#line 380 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 static int SimQueue_IsBlocking(int pIndex)
 
 {
-  /* Retail keeps two physical zero-return blocks: the nonzero-index fast path
-   * here and the unsupported-comm-mode tail below. */
-  if (pIndex == 0) goto check_mode;
-  return 0;
 
-check_mode:
-  if (SIMQUEUE_COMMMODE == 0) goto calculate;
-  if (SIMQUEUE_COMMMODE != 1) goto return_zero;
+  if (pIndex != 0)
+    return 0;
 
-calculate:
-  return inputQueue.TailTime[0] < inputQueue.HeadTime + maxTicksPerFrame ^ 1;
+  switch (SIMQUEUE_COMMMODE)
+  {
 
-return_zero:
-  return 0;
-}
+
+
+
+
+
+
+
+
+  case 0: if (inputQueue.TailTime[0] >= inputQueue.HeadTime + maxTicksPerFrame)
+
+
+
+    return 1; else return 0; case 1: return inputQueue.TailTime[0] >= inputQueue.HeadTime + maxTicksPerFrame;
+
+
+
+
+  default: return 0; } }
 
 /* end of simqueue.cpp */

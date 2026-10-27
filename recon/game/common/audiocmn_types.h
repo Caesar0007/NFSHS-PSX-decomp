@@ -39,7 +39,7 @@ typedef enum s_type {
 
 #ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
 #include "shared/SndBnk_t.h"
-struct Channels_t { int Partial, SFXnum; };
+typedef struct Channels_t { int Partial, SFXnum; } Channels_t; /* Completed C/C++ alias restores the owning SYM producer,not a pointer-use workaround;see build/nc12/playsfx_roles_20261027/. */
 #endif
 #ifndef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 #include "shared/AudioMus_tSongEntry.h"

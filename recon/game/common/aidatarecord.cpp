@@ -1,7 +1,7 @@
 /* game/common/aidatarecord.cpp -- RECONSTRUCTED (AIDataRecord_t collection + 4 record classes).
  *   AccTable / CurveSpeedTable / TrackCurve / BestLine record tables over a shared
  *   AIDataRecord_t base (real inheritance, real C++ virtuals since 2026-09-19).
- *   21 standalone fns; the trivial CarTracking::Get + 5 empty dtors were inlined in EA's build.
+ *   21 explicit definitions +5 generated dtors; SYM attributes CarTracking::Get and those dtors to AIDATARECORD.H.
  *   NOT original source; SYM-faithful, recompilable C++.  vs disasm-v4.txt.
  */
 #include "aidatarecord_types.h"
@@ -20,6 +20,7 @@ static AIDataRecord_t *recordCollection[24];   /* @0x8013df64; SYM STAT */
 
 
 /* ---- __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc  AIDataRecord_t::ctor ---- */
+#line 31 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 AIDataRecord_t::AIDataRecord_t(AIDataRecord_WhichRecord_t whichIsThis,char *preBuffer)
 {
   this->AddRecordToCollection();
@@ -29,6 +30,7 @@ AIDataRecord_t::AIDataRecord_t(AIDataRecord_WhichRecord_t whichIsThis,char *preB
 }
 
 /* ---- ___14AIDataRecord_t  AIDataRecord_t::dtor ---- */
+#line 62 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 AIDataRecord_t::~AIDataRecord_t()
 {
 
@@ -37,6 +39,7 @@ AIDataRecord_t::~AIDataRecord_t()
 }
 
 /* ---- AddRecordToCollection__14AIDataRecord_t ---- */
+#line 76 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_t::AddRecordToCollection()
 {
   for (int recordLoop = 0; recordLoop < 0x18; recordLoop++) {
@@ -52,6 +55,7 @@ int AIDataRecord_t::AddRecordToCollection()
 }
 
 /* ---- RemoveRecordFromCollection__14AIDataRecord_t ---- */
+#line 90 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_t::RemoveRecordFromCollection()
 {
   for (int recordLoop = 0; recordLoop < 0x18; recordLoop++) {
@@ -66,6 +70,7 @@ int AIDataRecord_t::RemoveRecordFromCollection()
 }
 
 /* ---- StartUp1__14AIDataRecord_t ---- */
+#line 103 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::StartUp1(void)
 {
 
@@ -80,6 +85,7 @@ void AIDataRecord_t::StartUp1(void)
 }
 
 /* ---- StartUp2__14AIDataRecord_t ---- */
+#line 138 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::StartUp2(void)
 {
 
@@ -91,27 +97,31 @@ void AIDataRecord_t::StartUp2(void)
   return;
 }
 
-/* ---- CleanUp1__14AIDataRecord_t ---- */
+/* ---- CleanUp1__14AIDataRecord_t COVERED-SLD-PASS ---- */
+#line 151 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::CleanUp1(void)
 {
-  if (AIDataRecord_BestLine != (AIDataRecord_BestLine_t *)0x0) {
+  if (AIDataRecord_BestLine != (AIDataRecord_BestLine_t *)0x0)
+  {
     delete AIDataRecord_BestLine;
     AIDataRecord_BestLine = (AIDataRecord_BestLine_t *)0x0;
   }
-  if (AIDataRecord_TrackCurve != (AIDataRecord_TrackCurve_t *)0x0) {
+  if (AIDataRecord_TrackCurve != (AIDataRecord_TrackCurve_t *)0x0)
+  {
     delete AIDataRecord_TrackCurve;
     AIDataRecord_TrackCurve = (AIDataRecord_TrackCurve_t *)0x0;
   }
-  return;
 }
 
 /* ---- CleanUp2__14AIDataRecord_t ---- */
+#line 165 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::CleanUp2(void)
 {
   return;
 }
 
 /* ---- Setup__14AIDataRecord_t ---- */
+#line 169 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::Setup()
 {
   if (this->preAllocatedBuffer_ != (char *)0x0) {
@@ -122,6 +132,7 @@ void AIDataRecord_t::Setup()
 }
 
 /* ---- Load__14AIDataRecord_t ---- */
+#line 224 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_t::Load()
 {
   if (this->RecordMethod() == NORMAL_M) {
@@ -134,6 +145,7 @@ int AIDataRecord_t::Load()
 }
 
 /* ---- SaveAndPurge__14AIDataRecord_t ---- */
+#line 242 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_t::SaveAndPurge()
 {
   if (this->DataBuffer() != (char *)0x0) {
@@ -147,6 +159,7 @@ int AIDataRecord_t::SaveAndPurge()
 }
 
 /* ---- __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t  AccTable::ctor ---- */
+#line 392 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
           AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,preBuffer)
@@ -160,31 +173,34 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
 }
 
 /* ---- Get__23AIDataRecord_AccTable_ti ---- */
+#line 402 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_AccTable_t::Get(int speed)
 {
   return (int)*(short *)(this->dataBuffer_ + speed * 2) << 8;
 }
 
-/* ---- Setup__23AIDataRecord_AccTable_t ----
- * Retail has a short third block over the loop test (+0x1c..+0x28).
- * An ordinary for loop and two single-assignment, debug-elided acceleration
- * values preserve 27/27 bytes, the three SYM blocks and all SLD tags.
- * Their semantic spellings are inferred; SYM has only the named loop local. */
+/* ---- Setup__23AIDataRecord_AccTable_t COVERED-SLD-PASS ----
+ * One mutable table value preserves27 words,all supplied owners and full covered SLD.
+ * SOURCE-REVIEW-UNRESOLVED: the remaining tableAcceleration identity/name is not in SYM.
+ * Two readonly captures were not required;original declaration/producer text stays open.
+ * Receipts:build/nc12/acc_20261026/. */
+#line 407 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_AccTable_t::Setup()
 {
   this->AIDataRecord_t::Setup();
   for (int loop = 0; loop < 0x70; loop++) {
 
 
-    const int tableAcceleration = this->Get(loop);
+    int tableAcceleration = this->Get(loop);
 
-    const int scaledAcceleration = fixedmult(tableAcceleration,this->scale_);
+    tableAcceleration = fixedmult(tableAcceleration,this->scale_);
 
-    *(short *)(this->dataBuffer_ + loop * 2) = (short)(scaledAcceleration >> 8);
+    *(short *)(this->dataBuffer_ + loop * 2) = (short)(tableAcceleration >> 8);
   }
 }
 
 /* ---- __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t  BestLine::ctor ---- */
+#line 456 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
@@ -198,6 +214,7 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
 }
 
 /* ---- __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t  TrackCurve::ctor ---- */
+#line 534 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
@@ -211,12 +228,14 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
 }
 
 /* ---- Get__25AIDataRecord_TrackCurve_ti ---- */
+#line 545 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_TrackCurve_t::Get(int slice)
 {
   return (u_int)(u_char)this->dataBuffer_[slice];
 }
 
 /* ---- __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t  CurveSpeedTable::ctor ---- */
+#line 615 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
           AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
@@ -235,6 +254,7 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
 }
 
 /* ---- Get__30AIDataRecord_CurveSpeedTable_ti ---- */
+#line 628 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 {
 
@@ -247,6 +267,7 @@ int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 }
 
 /* ---- Upgrade__30AIDataRecord_CurveSpeedTable_ti ---- */
+#line 679 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 {
   for (int curveLoop = 0; curveLoop < this->NumElements(); curveLoop++) {
@@ -255,10 +276,12 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
   }
 }
 
-/* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] ---- */
-/* Record method not implemented: always 0.  The class's key function. */
+/* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] COVERED-SLD-PASS ---- */
+/* Always0. SYM attributes this definition to AIDATARECORD.H; physical header placement/key-function emission remains unproved. */
+#line 190 "C:/nfs4/GAME/COMMON/AIDATARECORD.H"
 int AIDataRecord_CarTracking_t::Get(int slice)
 {
+
   return 0;
 }
 
@@ -266,3 +289,8 @@ int AIDataRecord_CarTracking_t::Get(int slice)
  * batch, reverse class order) -- they have no source. */
 
 /* end of aidatarecord.cpp */
+
+/* The three deferred destructor end records constrain the terminal context to765.
+ * At EOF the selected compiler uses the preceding logical line;no executable work
+ * or generated debug record is rewritten. Original literal footer text is unproved. */
+#line 766 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"

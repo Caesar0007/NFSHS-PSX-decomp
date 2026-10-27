@@ -82,6 +82,20 @@ def source_owner_link_errors(stderr):
                 'native auxiliary source window mismatch')
     return [line for line in stderr.splitlines() if any(message in line for message in messages)]
 
+
+def source_zero_owner_lines(owner):
+    """Emit storage placement only;never fabricate initialized bytes for BSS.
+
+    2026-10-27: share the existing NOLOAD/extent contract with SimQueue's
+    early placement seam. Input ownership is independently validated before
+    generation. Backups:build/nc12/simqueue_storage_20261027/.
+    """
+    obj = "build/" + owner["source"] + ".o"
+    output, section = owner["output"], owner["section"]
+    alignment = owner.get("alignment", 4)
+    return [f"    {output} {owner['address']:#x} (NOLOAD) : SUBALIGN({alignment}) {{ {obj}({section}); }}",
+            f"    ASSERT(SIZEOF({output}) == {owner['size']}, \"native zero owner size mismatch\")"]
+
 MARKER = "tools/gen_ld.py"
 # markers this generator recognises as its own lineage and may overwrite;
 # every scratchpad leg stamped the w65a5 string verbatim.
@@ -772,11 +786,13 @@ def main():
     A("        build/recon/game/common/newton.cpp.o(.bss.newton_dummy_133);")
     A("    }")
     A("")
-    A("    /* SYM BSS anchor: simqueue.obj's 524-byte file-static queue. */")
-    A("    .simqueue_bss 0x8013e0f4 : SUBALIGN(4)")
-    A("    {")
-    A("        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_input_queue);")
-    A("    }")
+    # Preserve the old cursor seam without retaining a fake source section or
+    # a loaded zero payload. Moving this reservation below .rodata_rest would
+    # move unrelated unplaced data;all-symbol/private-link controls catch it.
+    for owner in SOURCE_ZERO_OWNERS:
+        if owner.get("linker_early_seam"):
+            for line in source_zero_owner_lines(owner):
+                A(line)
     A("")
     # LINK_STRIPPED sections must be discarded BEFORE this catch-all: `*(.rodata.*)` matches `.rodata.strip` and the
     # first matching statement wins (2026-09-20: the three carrier/literal pieces were being linked past the image end).
@@ -789,14 +805,9 @@ def main():
     # Exact backups/primary proofs: scratchpad/p887_iso and source_zero_owners.
     A("    __unplaced_zero_cursor = .;")
     for owner in SOURCE_ZERO_OWNERS:
-        obj = "build/" + owner["source"] + ".o"
-        out, section = owner["output"], owner["section"]
-        # P910: retain an explicitly verified input alignment in the output.
-        # All older owners stay at4; HUD's native76-byte block requires8.
-        # Protected backup and exact alignment probes: p910_hud_sbss/backups.
-        alignment = owner.get("alignment", 4)
-        A(f"    {out} {owner['address']:#x} (NOLOAD) : SUBALIGN({alignment}) {{ {obj}({section}); }}")
-        A(f"    ASSERT(SIZEOF({out}) == {owner['size']}, \"native zero owner size mismatch\")")
+        if not owner.get("linker_early_seam"):
+            for line in source_zero_owner_lines(owner):
+                A(line)
     A("    /* W67-A7: recon plain .bss/.sbss placed at retail base so the owning")
     A("     * TU's .text %hi/%lo/%gp_rel(.bss/.sbss) relocs resolve to retail")
     A("     * (absolute-addressed; the cursor is reset below so the flowed")

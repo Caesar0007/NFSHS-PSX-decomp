@@ -7,6 +7,10 @@
 #include "../../../game/common/track_types.h"
 #include "../../../game/common/track_externs.h"
 #include "chunk_stream.h"
+extern "C" {
+#include "eaclib/psx/eacpsxz/memstd.h"
+#include "eaclib/psx/eacpsxz/systask.h"
+}
 
 extern void Track_LinkMaterials(SerializedGroup *, int, Track_tMaterial *);
 extern void CalcObjDefPtrs(void);
@@ -19,14 +23,12 @@ extern void Track_LoadObjectKillData(void);
 extern char *Track_MakeTrackPathName(char *);
 extern void Track_Init(char *);
 extern void Track_DeInit(void);
-extern "C" int largestunused(void);
 extern int gFlip;   /* draw.cpp: toggles every rendered frame */
 int AudioMus_Buffered(void);
 int AudioMus_Threshold(void);
 typedef int (*TrackModHeapHookFn)(int);
 extern "C" TrackModHeapHookFn TrackMod_heapHook[4];   /* recon/mod/eaclib/psx/eacpsxz/memstd.c */
 extern "C" int TrackMod_OnHeapPressure(int bytes);
-extern "C" void systemtask(int);
 
 #define TRACKMOD_RETAIL_GRP_LIMIT 0xA0000
 #define TRACKMOD_POST_INIT_RESERVE 0x30000

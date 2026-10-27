@@ -25,6 +25,9 @@ extern "C" {
 #include "eaclib/psx/sndpsxz/sstsetpr.h"
 }
 extern "C" {
+#include "eaclib/psx/spchpsxz/spchevnt.h"
+}
+extern "C" {
 void *memcpy(...);
 int puts(...);
 char *strcat(...);

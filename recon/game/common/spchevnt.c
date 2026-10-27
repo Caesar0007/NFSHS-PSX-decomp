@@ -5,6 +5,8 @@
  *   code + SPCHNFSType_* field args, enqueues via SPCH_AddEvent. Unmangled C-linkage symbols.
  */
 
+#include "eaclib/psx/spchpsxz/spchevnt.h"
+
 /* The 14 speech-token wrappers, as the retail debug records of these functions type them (Speech.obj's block: each is a
  * struct with the single member `unsigned long flags`; SPCHEVNT.C is C, so the tags need the typedef). */
 #ifndef SPCHEVNT_IN_SPEECH_OBJ
@@ -25,12 +27,9 @@ typedef struct SPCHNFSType_VOICE { unsigned long flags; } SPCHNFSType_VOICE;
 
 #endif
 
-/* ---- the one true cross-TU extern (eaclib SPCHPSXZ speech-event queue) ---- */
-#ifndef SPCHEVNT_IN_SPEECH_OBJ
-extern long SPCH_AddEvent(long *parms);
-#else   /* inside speech.cpp the library header has already declared it, with its own spelling of the same 32-bit types */
+/* ---- SPCHPSXZ's exact prototype is supplied by spchevnt.h. Keep the event-word
+ * pointer conversion at the call boundary; the game records use long[12]. ---- */
 #define SPCH_AddEvent(p) SPCH_AddEvent((unsigned int *)(p))
-#endif
 
 /* ---- intra-TU forward declarations (sibling events call each other) ---- */
 long SPCHNFS_C_A_CONFIRM(SPCHNFSType_VOICE *VOICE,int ID_UNIT,SPCHNFSType_CONFIRM *CONFIRM);

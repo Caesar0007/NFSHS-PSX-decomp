@@ -111,25 +111,30 @@ void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
   slicePos->slice = currInd; }
 
 /* ---- BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos  [@0x8007ea14] ---- */
+/* The supplied change fields are assigned166 and normalized at return168.
+ * No separate result object is needed;the real boolean status return keeps
+ * all39 instruction/source tags and the complete supplied local contract.
+ * Literal original macro/comment text is not uniquely recovered.
+ * Receipt:build/nc12/bworld_slice_return_20261030/final-proof.json. */
 #line 151 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int startSlice;
-  /* NFS2's matched source uses chained assignments of this comparison to
-   * quadChanged and sliceChanged. Returning that expression keeps the shared
-   * result anonymous, as in NFS4's SYM, and preserves all 39 instructions.
-   * NFS2's named sliceChanged local is not present in the NFS4 native records. */
   startSlice = slicePos->slice;
-  if (0x800000 <
-      Math_DistXZ((coorddef *)BWorldSm_slices[startSlice].center,pt)) {
+
+  if (0x800000 < Math_DistXZ((coorddef *)BWorldSm_slices[startSlice].center,pt)) {
+
+
+
+
     FindAbsClosestSliceCrude(pt,slicePos);
   }
   RawFindClosestSlice(pt,slicePos);
-  slicePos->chunk =
-      BWorldSm_slices[slicePos->slice].chunkIndex;
-  return slicePos->sliceChanged = slicePos->quadChanged =
-      (slicePos->slice != startSlice);
-}
+
+  slicePos->chunk = BWorldSm_slices[slicePos->slice].chunkIndex;
+  slicePos->sliceChanged = slicePos->quadChanged = (slicePos->slice != startSlice);
+
+  return slicePos->sliceChanged != 0; }
 
 /* ---- RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos  [@0x8007eab0] ---- */
 /* Retail has no inline-helper scope pairs here. Keep the distance arithmetic
@@ -145,76 +150,78 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 #line 178 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
-  int lastind;
-  int maxind;
-  int index;
-  int distcurr;
-  int distnext;
-  int distprev;
+  int lastind; int maxind; int index;
+  int distcurr; int distnext; int distprev;
   Trk_NewSlice *slices;
 
+  index = slicePos->slice;
   lastind = -1;
   maxind = gNumSlices - 1;
-  index = slicePos->slice;
   slices = BWorldSm_slices;
 
-  if (index != lastind) {
-    do {
-      lastind = index;
+  while (lastind != index) {
 
-      if (index < maxind) {
-        distcurr = closeXZDistSquared(slices + index,pt);
-      }
-      else {
-        distcurr = closeXZDistSquared(slices + index % (maxind + 1),pt);
-      }
+    lastind = index;
 
-      if (index < maxind - 1) {
-        distnext =
-            (((pt->x - slices[index + 1].center[0]) >> 9) *
-             ((pt->x - slices[index + 1].center[0]) >> 9)) +
-            (((pt->z - slices[index + 1].center[2]) >> 9) *
-             ((pt->z - slices[index + 1].center[2]) >> 9));
-        if (distnext < distcurr) {
-          index++;
-          continue;
-        }
-      }
-      else {
-        distnext =
-            closeXZDistSquared(slices + (index + 1) % (maxind + 1),pt);
-        if (distnext < distcurr) {
-          index++;
-          index %= maxind + 1;
-          continue;
-        }
-      }
+    if (index < maxind) {
 
-      if (index > 0) {
-        distprev =
-            (((pt->x - slices[index - 1].center[0]) >> 9) *
-             ((pt->x - slices[index - 1].center[0]) >> 9)) +
-            (((pt->z - slices[index - 1].center[2]) >> 9) *
-             ((pt->z - slices[index - 1].center[2]) >> 9));
-        if (distprev < distcurr) {
-          index--;
-        }
+      distcurr = closeXZDistSquared(slices + index,pt);
+    } else {
+
+      distcurr = closeXZDistSquared(slices + index % (maxind + 1),pt);
+    }
+
+    if (index < maxind - 1) {
+
+      distnext = (((pt->x - slices[index + 1].center[0]) >> 9) * ((pt->x - slices[index + 1].center[0]) >> 9)) + (((pt->z - slices[index + 1].center[2]) >> 9) * ((pt->z - slices[index + 1].center[2]) >> 9));
+
+      if (distnext < distcurr) {
+
+
+        index++; continue;
       }
-      else {
-        index += maxind + 1;
-        distprev =
-            closeXZDistSquared(slices + (index - 1) % (maxind + 1),pt);
-        if (distprev < distcurr) {
-          index--;
-        }
-        index += maxind + 1;
-        index %= maxind + 1;
+    } else {
+
+      distnext = closeXZDistSquared(slices + (index + 1) % (maxind + 1),pt);
+
+      if (distnext < distcurr) {
+
+
+
+        index++; index %= maxind + 1; continue;
       }
-    } while (lastind != index);
+    }
+
+    if (index > 0) {
+
+      distprev = (((pt->x - slices[index - 1].center[0]) >> 9) * ((pt->x - slices[index - 1].center[0]) >> 9)) + (((pt->z - slices[index - 1].center[2]) >> 9) * ((pt->z - slices[index - 1].center[2]) >> 9));
+
+      if (distprev < distcurr) {
+
+        index--;
+      }
+    } else {
+
+      index += maxind + 1;
+      distprev = closeXZDistSquared(slices + (index - 1) % (maxind + 1),pt);
+
+      if (distprev < distcurr) {
+
+        index--;
+      }
+      index += maxind + 1;
+      index %= maxind + 1;
+    }
+
+
+
+
+
   }
+
   slicePos->slice = (short)index;
-  return;
-}
+
+  return; }
 
 /* ---- BWorldSm_SetSlice__FiP12BWorldSm_Pos  [@0x8007ed64] ---- */
 #undef closeXZDistSquared
@@ -240,37 +247,37 @@ void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
   *(signed char *)&slicePos->quad = -1; }
 
 /* ---- GetStmQuadPts__FP12BWorldSm_PosP8coorddef  [@0x8007edb8] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: vertices is corroborated by NFS2's
+ * same-function source,not a uniquely retained NFS4 local spelling/object.
+ * Earlier direct expansion was101 words/119 diffs,not a necessity proof.
+ * All74 tags and supplied owners/regions match;the cached-value producer
+ * and literal original expression remain review work,not an exemption.
+ * Receipt:build/nc12/bworld_quadpts_layout_20261030/final-proof.json. */
 #line 322 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
 {
-  Trk_NewStrip *pStrip;
-  coorddef *pts;
-  /* ORIGINAL-NAME-RECOVERED: vertices -- the symbol-bearing NFS2 GetStmQuadPts names this
-   * same cached geometry-vertex base `vertices`.  Expanding the GetData/index
-   * expression at each use compiles to 101 instructions and 119 oracle diffs.
-   * This cached result preserves the exact 74-instruction coordinate-load
-   * schedule; SYM still records the inlined member receiver separately. */
-  CCOORD16 *vertices;
-  int cx;
-  int cy;
-  int cz;
-  int topInd;
-  int botInd;
-  int x;
-  int y;
-  int z;
+  Trk_NewStrip *pStrip; coorddef *pts; CCOORD16 *vertices;
+  int cx; int cy; int cz; int topInd; int botInd; int x; int y; int z;
+
+
+
 
   pStrip = slicePos->strip;
-  vertices = (CCOORD16 *)
-    Track_chunkList[slicePos->chunk].vertexBuf->GetData();
+  vertices = (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
+
+
+
   cx = cp->x;
   cy = cp->y;
   cz = cp->z;
+
   topInd = (u_int)pStrip->topVert;
   botInd = (u_int)pStrip->botVert;
   topInd += (int)slicePos->stripQuadInd;
   botInd += (int)slicePos->stripQuadInd;
   pts = slicePos->quadPts;
+
+
 
   x = cx + ((int)vertices[topInd + 1].x << 10);
   y = cy + ((int)vertices[topInd + 1].y << 10);
@@ -298,62 +305,71 @@ void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
   z = cz + ((int)vertices[botInd + 1].z << 10);
   pts[0].x = x;
   pts[0].y = y;
-  pts[0].z = z;
-  return;
-}
+  pts[0].z = z; }
 
 /* ---- SetStrip__FP12BWorldSm_Pos  [@0x8007eee0] ---- */
 #line 378 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void SetStrip(BWorldSm_Pos *slicePos)
 {
   int i;
-  int maxIndex;
+  int maxIndex = (u_int)slicePos->simSlice->stripIndex;
   int quadCount;
 
-  i = 0;
-  maxIndex = (u_int)slicePos->simSlice->stripIndex;
   slicePos->strip = (Trk_NewStrip *)Track_chunkList[slicePos->chunk].stripBuf->GetData();
-  if (maxIndex != 0) {
-    do {
-      i = i + 1;
-      slicePos->strip =
-           (Trk_NewStrip *)
-           (&slicePos->strip[1].topVert + (u_int)(u_char)slicePos->strip->quadCount * 2);
-    } while (i < maxIndex);
-  }
+
+  for (i = 0; i < maxIndex; i = i + 1) {
+    slicePos->strip = (Trk_NewStrip *)(&slicePos->strip[1].topVert + (u_int)(u_char)slicePos->strip->quadCount * 2); }
+
+
+
+
+
   i = (int)(signed char)slicePos->quad;
+
   quadCount = (u_int)(u_char)slicePos->strip->quadCount;
   while (quadCount <= i) {
+
     i = i - quadCount;
-    slicePos->strip =
-         (Trk_NewStrip *)(&slicePos->strip[1].topVert + quadCount * 2);
-    quadCount = (u_int)(u_char)slicePos->strip->quadCount;
-  }
-  slicePos->stripQuadInd = (short)i;
-  return;
-}
+
+    slicePos->strip = (Trk_NewStrip *)(&slicePos->strip[1].topVert + quadCount * 2);
+    quadCount = (u_int)(u_char)slicePos->strip->quadCount; }
+
+  slicePos->stripQuadInd = (short)i; }
 
 /* ---- GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16  [@0x8007ef98] ---- */
 #line 414 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
 {
-  CCOORD16 *pts;
-  Trk_NewStrip *pStrip;
-  int topInd;
-  int botInd;
-  short x;
-  short z;
-  
+  CCOORD16 *pts; Trk_NewStrip *pStrip; int topInd; int botInd; short x; short z;
+
+
+
   SetStrip(slicePos);
-  pts = slicePos->quadPts16;
+
   pStrip = slicePos->strip;
-  topInd = (u_int)pStrip->topVert + slicePos->stripQuadInd;
-  botInd = (u_int)pStrip->botVert + slicePos->stripQuadInd;
+
+  pts = slicePos->quadPts16;
+
+  topInd = (u_int)pStrip->topVert;
+  botInd = (u_int)pStrip->botVert;
+
+
+
+
+
+
+
+
+
+  topInd += slicePos->stripQuadInd;
+  botInd += slicePos->stripQuadInd;
+
 
   x = vertices[topInd + 1].x;
   z = vertices[topInd + 1].z;
   pts[1].x = x;
   pts[1].z = z;
+
   x = vertices[topInd].x;
   z = vertices[topInd].z;
   pts[2].x = x;
@@ -363,12 +379,11 @@ void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
   z = vertices[botInd].z;
   pts[3].x = x;
   pts[3].z = z;
+
   x = vertices[botInd + 1].x;
   z = vertices[botInd + 1].z;
   pts[0].x = x;
-  pts[0].z = z;
-  return;
-}
+  pts[0].z = z; }
 
 /* ---- BWorld_SetSimSlice__FP12BWorldSm_Pos  [@0x8007f034] ---- */
 #line 469 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
@@ -432,263 +447,294 @@ int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
 #line 536 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 {
-  int attempt;
-  int startQuadInd;
-  /* retail image @0x8010F07C: alternating +/- slice offsets (initialized function static
-   * -> emitted here, at the head of bworldSm.obj's .data before BWSM_NormalCache) */
+  int attempt; int startQuadInd;
   static int sliceOffs[12] = { 1, -2, 3, -4, 5, -6, 7, -8, 9, -10, 11, -12 };
-  int sliceVariance;
-  coorddef *cp;
-  CCOORD16 *vertices;
-  CCOORD16 pt16;
-  int dist;
-  int lastDist;
-  int firstSliceOffEdge;
-  
+  int sliceVariance; coorddef *cp; CCOORD16 *vertices; CCOORD16 pt16; int dist; int lastDist; int firstSliceOffEdge;
+
+
+
+
+
+
+
+
   attempt = 0;
   slicePos->simQuad = (Trk_NewSimQuad *)0x0;
   slicePos->simRotFlag = 0;
+
+
+
   BWorld_SetSimSlice(slicePos);
+
   sliceVariance = 0;
-  {
-    if ((0 <= (int)(signed char)slicePos->quad) &&
-        ((int)(signed char)slicePos->quad <
-         (int)(slicePos->simSlice->quadCount - 1)) &&
-        ((signed char)slicePos->offEdge == 0)) {
-      startQuadInd = (int)(signed char)slicePos->quad;
-    }
-    else {
-      slicePos->quad =
-          (char)((int)(slicePos->simSlice->quadCount - 1) / 2);
-      startQuadInd = (int)(signed char)slicePos->quad;
-    }
+  if ((0 <= (int)(signed char)slicePos->quad) && ((int)(signed char)slicePos->quad < (int)(slicePos->simSlice->quadCount - 1)) && ((signed char)slicePos->offEdge == 0)) {
+
+    startQuadInd = (int)(signed char)slicePos->quad;
+  } else {
+
+    slicePos->quad = (char)((int)(slicePos->simSlice->quadCount - 1) / 2); startQuadInd = (int)(signed char)slicePos->quad;
+
   }
+
+
   firstSliceOffEdge = 0;
   slicePos->offEdge = '\0';
   slicePos->quad = (char)startQuadInd;
+
   while (attempt < gMaxFindQuadSliceIterations) {
+
+
+
     BWorld_SetSimSlice(slicePos);
+
+
     slicePos->quad = (char)startQuadInd;
-    if ((int)(slicePos->simSlice->quadCount - 1) < startQuadInd) {
+    if ((int)(slicePos->simSlice->quadCount - 1) < startQuadInd)
       slicePos->quad = slicePos->simSlice->quadCount - 2;
-    }
+
+
     cp = Chunk_chunkCenters + slicePos->chunk;
     pt16.x = (short)(pt->x - cp->x >> 10);
     pt16.z = (short)(pt->z - cp->z >> 10);
-    lastDist = 0x7fffffff;
     vertices = (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
+
+
+    lastDist = 0x7fffffff;
+
     GetFirstStmQuadPts(slicePos,vertices);
+
+
+
+
     BworldSm_UpdateSimQuad(slicePos);
-    while ((int)(signed char)slicePos->quad <=
-           (int)(slicePos->simSlice->quadCount - 1)) {
+
+
+    while ((int)(signed char)slicePos->quad <= (int)(slicePos->simSlice->quadCount - 1)) {
+
       GetFirstStmQuadPts(slicePos,vertices);
-      if ((((int)slicePos->quadPts16[1].x -
-            (int)slicePos->quadPts16[2].x) *
-               ((int)pt16.z - (int)slicePos->quadPts16[2].z) -
-           ((int)pt16.x - (int)slicePos->quadPts16[2].x) *
-               ((int)slicePos->quadPts16[1].z -
-                (int)slicePos->quadPts16[2].z) < 1) &&
-          (((int)slicePos->quadPts16[0].x -
-            (int)slicePos->quadPts16[1].x) *
-               ((int)pt16.z - (int)slicePos->quadPts16[1].z) -
-           ((int)pt16.x - (int)slicePos->quadPts16[1].x) *
-               ((int)slicePos->quadPts16[0].z -
-                (int)slicePos->quadPts16[1].z) < 1) &&
-          (((int)slicePos->quadPts16[2].x -
-            (int)slicePos->quadPts16[3].x) *
-               ((int)pt16.z - (int)slicePos->quadPts16[3].z) -
-           ((int)pt16.x - (int)slicePos->quadPts16[3].x) *
-               ((int)slicePos->quadPts16[2].z -
-                (int)slicePos->quadPts16[3].z) < 1) &&
-          (((int)slicePos->quadPts16[3].x -
-            (int)slicePos->quadPts16[0].x) *
-               ((int)pt16.z - (int)slicePos->quadPts16[0].z) -
-           ((int)pt16.x - (int)slicePos->quadPts16[0].x) *
-               ((int)slicePos->quadPts16[3].z -
-                (int)slicePos->quadPts16[0].z) < 1) &&
-          BworldSm_IsSimQuadValid(slicePos)) {
-        slicePos->rez = '\x02';
-        slicePos->offEdge = '\0';
-        GetStmQuadPts(slicePos,cp);
-        return 1;
-      }
-      if ((int)(signed char)slicePos->quad ==
-          slicePos->simSlice->quadCount - 1) {
+
+      if ((((int)slicePos->quadPts16[1].x - (int)slicePos->quadPts16[2].x) * ((int)pt16.z - (int)slicePos->quadPts16[2].z) - ((int)pt16.x - (int)slicePos->quadPts16[2].x) * ((int)slicePos->quadPts16[1].z - (int)slicePos->quadPts16[2].z) < 1) && (((int)slicePos->quadPts16[0].x - (int)slicePos->quadPts16[1].x) * ((int)pt16.z - (int)slicePos->quadPts16[1].z) - ((int)pt16.x - (int)slicePos->quadPts16[1].x) * ((int)slicePos->quadPts16[0].z - (int)slicePos->quadPts16[1].z) < 1) && (((int)slicePos->quadPts16[2].x - (int)slicePos->quadPts16[3].x) * ((int)pt16.z - (int)slicePos->quadPts16[3].z) - ((int)pt16.x - (int)slicePos->quadPts16[3].x) * ((int)slicePos->quadPts16[2].z - (int)slicePos->quadPts16[3].z) < 1) && (((int)slicePos->quadPts16[3].x - (int)slicePos->quadPts16[0].x) * ((int)pt16.z - (int)slicePos->quadPts16[0].z) - ((int)pt16.x - (int)slicePos->quadPts16[0].x) * ((int)slicePos->quadPts16[3].z - (int)slicePos->quadPts16[0].z) < 1))
+
+
+
+        if (BworldSm_IsSimQuadValid(slicePos)) {
+
+
+
+
+          slicePos->rez = '\x02';
+          slicePos->offEdge = '\0';
+
+
+
+          GetStmQuadPts(slicePos,cp);
+
+          return 1;
+        }
+      if ((int)(signed char)slicePos->quad == slicePos->simSlice->quadCount - 1) {
+
         slicePos->offEdge = '\x02';
-        break;
-      }
+        break; }
+
+
+
+
       if (BworldSm_IsSimQuadValid(slicePos)) {
-        dist =
-            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[0]) +
-            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[1]) +
-            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[2]) +
-            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[3]);
+
+
+
+        dist = RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[0]) + RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[1]) + RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[2]) + RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[3]);
+
         if (0x28 < dist - lastDist) break;
-        lastDist = dist;
-      }
+
+
+
+
+        lastDist = dist; }
+
+
       slicePos->quad = slicePos->quad + '\x01';
-      BworldSm_UpdateSimQuad(slicePos);
-    }
+      BworldSm_UpdateSimQuad(slicePos); }
+
+
+
+
     lastDist = 0x7fffffff;
     if (((signed char)slicePos->offEdge != 0) && (attempt == 0)) {
       slicePos->quad = slicePos->simSlice->quadCount - 1;
-    }
-    else {
-      slicePos->quad = (char)(startQuadInd - 1);
-    }
-    if ((signed char)slicePos->quad < 0) {
-      slicePos->quad = '\0';
-    }
+    } else {
+      slicePos->quad = (char)(startQuadInd - 1); }
+    if ((signed char)slicePos->quad < 0) slicePos->quad = '\0';
     GetFirstStmQuadPts(slicePos,vertices);
+
+
     BworldSm_UpdateSimQuad(slicePos);
+
+
+
     while (-1 < (signed char)slicePos->quad) {
+
       GetFirstStmQuadPts(slicePos,vertices);
-      if ((((int)slicePos->quadPts16[1].x -
-            (int)slicePos->quadPts16[2].x) *
-               ((int)pt16.z - (int)slicePos->quadPts16[2].z) -
-           ((int)pt16.x - (int)slicePos->quadPts16[2].x) *
-               ((int)slicePos->quadPts16[1].z -
-                (int)slicePos->quadPts16[2].z) < 1) &&
-          (((int)slicePos->quadPts16[0].x -
-            (int)slicePos->quadPts16[1].x) *
-               ((int)pt16.z - (int)slicePos->quadPts16[1].z) -
-           ((int)pt16.x - (int)slicePos->quadPts16[1].x) *
-               ((int)slicePos->quadPts16[0].z -
-                (int)slicePos->quadPts16[1].z) < 1) &&
-          (((int)slicePos->quadPts16[2].x -
-            (int)slicePos->quadPts16[3].x) *
-               ((int)pt16.z - (int)slicePos->quadPts16[3].z) -
-           ((int)pt16.x - (int)slicePos->quadPts16[3].x) *
-               ((int)slicePos->quadPts16[2].z -
-                (int)slicePos->quadPts16[3].z) < 1) &&
-          (((int)slicePos->quadPts16[3].x -
-            (int)slicePos->quadPts16[0].x) *
-               ((int)pt16.z - (int)slicePos->quadPts16[0].z) -
-           ((int)pt16.x - (int)slicePos->quadPts16[0].x) *
-               ((int)slicePos->quadPts16[3].z -
-                (int)slicePos->quadPts16[0].z) < 1) &&
-          BworldSm_IsSimQuadValid(slicePos)) {
-        slicePos->rez = '\x02';
-        slicePos->offEdge = '\0';
-        GetStmQuadPts(slicePos,cp);
-        return 1;
-      }
+
+      if ((((int)slicePos->quadPts16[1].x - (int)slicePos->quadPts16[2].x) * ((int)pt16.z - (int)slicePos->quadPts16[2].z) - ((int)pt16.x - (int)slicePos->quadPts16[2].x) * ((int)slicePos->quadPts16[1].z - (int)slicePos->quadPts16[2].z) < 1) && (((int)slicePos->quadPts16[0].x - (int)slicePos->quadPts16[1].x) * ((int)pt16.z - (int)slicePos->quadPts16[1].z) - ((int)pt16.x - (int)slicePos->quadPts16[1].x) * ((int)slicePos->quadPts16[0].z - (int)slicePos->quadPts16[1].z) < 1) && (((int)slicePos->quadPts16[2].x - (int)slicePos->quadPts16[3].x) * ((int)pt16.z - (int)slicePos->quadPts16[3].z) - ((int)pt16.x - (int)slicePos->quadPts16[3].x) * ((int)slicePos->quadPts16[2].z - (int)slicePos->quadPts16[3].z) < 1) && (((int)slicePos->quadPts16[3].x - (int)slicePos->quadPts16[0].x) * ((int)pt16.z - (int)slicePos->quadPts16[0].z) - ((int)pt16.x - (int)slicePos->quadPts16[0].x) * ((int)slicePos->quadPts16[3].z - (int)slicePos->quadPts16[0].z) < 1))
+
+
+
+        if (BworldSm_IsSimQuadValid(slicePos)) {
+
+
+          slicePos->rez = '\x02';
+          slicePos->offEdge = '\0';
+
+          GetStmQuadPts(slicePos,cp);
+
+          return 1;
+
+        }
+
+
+
+
       if ((signed char)slicePos->quad == 0) {
+
         slicePos->offEdge = '\x01';
-        break;
-      }
+        break; }
+
+
+
+
       if (BworldSm_IsSimQuadValid(slicePos)) {
-        dist =
-            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[0]) +
-            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[1]) +
-            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[2]) +
-            RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[3]);
+
+
+
+        dist = RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[0]) + RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[1]) + RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[2]) + RAW_QUAD_POINT_DIST(pt16,slicePos->quadPts16[3]);
+
         if (0x28 < dist - lastDist) break;
-        lastDist = dist;
-      }
+
+
+
+
+        lastDist = dist; }
+
+
       slicePos->quad = slicePos->quad - '\x01';
-      BworldSm_UpdateSimQuad(slicePos);
-    }
-    if (attempt == 0) {
+      BworldSm_UpdateSimQuad(slicePos); }
+
+
+
+
+
+
+
+    if (attempt == 0)
       firstSliceOffEdge = (int)(signed char)slicePos->offEdge;
-    }
-    {
-      int newSlice;
-      int numSlices;
 
-      newSlice = (int)slicePos->slice;
-      newSlice += sliceOffs[attempt];
-      numSlices = gNumSlices;
-      if (numSlices <= newSlice) {
-        newSlice = newSlice - numSlices;
-      }
-      if (newSlice < 0) {
-        newSlice = newSlice + numSlices;
-      }
-      slicePos->slice = (short)newSlice;
-    }
+
+    { int newSlice; int numSlices; newSlice = (int)slicePos->slice; newSlice += sliceOffs[attempt]; numSlices = gNumSlices; if (numSlices <= newSlice) newSlice = newSlice - numSlices; if (newSlice < 0) newSlice = newSlice + numSlices; slicePos->slice = (short)newSlice; }
     sliceVariance = sliceVariance + sliceOffs[attempt];
-    attempt = attempt + 1;
-  }
-  {
-    int newSlice;
-    int numSlices;
+    attempt = attempt + 1; }
 
-    newSlice = (int)slicePos->slice;
-    newSlice -= sliceVariance;
-    numSlices = gNumSlices;
-    if (numSlices <= newSlice) {
-      newSlice = newSlice - numSlices;
-    }
-    if (newSlice < 0) {
-      newSlice = newSlice + numSlices;
-    }
-    slicePos->slice = (short)newSlice;
-  }
+
+
+
+
+  { int newSlice; int numSlices; newSlice = (int)slicePos->slice; newSlice -= sliceVariance; numSlices = gNumSlices; if (numSlices <= newSlice) newSlice = newSlice - numSlices; if (newSlice < 0) newSlice = newSlice + numSlices; slicePos->slice = (short)newSlice; }
   BWorld_SetSimSlice(slicePos);
+
   slicePos->offEdge = (char)firstSliceOffEdge;
+
+
+
+
   slicePos->simQuad = (Trk_NewSimQuad *)0x0;
   slicePos->triangleFlag = '\0';
-  return 0;
-}
+
+
+  return 0; }
 #undef RAW_QUAD_POINT_DIST
 #undef RAW_QUAD_ABS
 
 /* ---- FindClosestQuad__FP8coorddefP12BWorldSm_Pos  [@0x8007f8f8] ---- */
+/* Retail supplies done at object-relative0x1160 (VA8007fa70);keep it.
+ * SOURCE-REVIEW-UNRESOLVED: sliceChanged names the change-field comparison,
+ * but this NFS4 local spelling/object is not supplied. The cited NFS2 PC
+ * same-function SYM/source also does not list that local;the old recovered-
+ * name claim was unsupported. Earlier failed controls are not a source-
+ * object necessity proof. Keep this producer open,not as an exemption.
+ * Receipt:build/nc12/bworld_findquad_source_20261030/final-proof.json. */
 #line 1057 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 {
-  int startSlice;
-  int startQuad;
+  int startSlice = slicePos->slice;
+  int startQuad = (int)(signed char)slicePos->quad;
   int foundSlice;
-  /* ORIGINAL-NAME-RECOVERED: sliceChanged -- NFS2 FindClosestQuad's debug block and matching
-   * source name the same post-search comparison local `sliceChanged`.
-   * Reusing the stored byte adds an `andi` (116 instructions), while
-   * recomputing the comparison produces 117 instructions/four diffs.  This
-   * shared boolean gives the exact 115-instruction stores to sliceChanged and
-   * quadChanged. */
   int sliceChanged;
-  
-  startSlice = slicePos->slice;
-  startQuad = (int)(signed char)slicePos->quad;
+
+
+
+
+
+
+
+
+
   BWorldSm_FindClosestSlice(pt,slicePos);
+
+
   foundSlice = slicePos->slice;
+
+
   if (RawFindClosestQuad(pt,slicePos) != 0) goto done;
+
+
+
+
+
+
   if (*(signed char *)&slicePos->offEdge != 0) {
-    slicePos->slice = (short)foundSlice;
-    BWorld_SetSimSlice(slicePos);
-    slicePos->quad =
-        (*(signed char *)&slicePos->offEdge == 1) ?
-        0 : slicePos->simSlice->quadCount - 1;
+
+
+
+    slicePos->slice = (short)foundSlice; BWorld_SetSimSlice(slicePos);
+    slicePos->quad = (*(signed char *)&slicePos->offEdge == 1) ? 0 : slicePos->simSlice->quadCount - 1;
+
     BworldSm_UpdateSimQuad(slicePos);
+
     slicePos->rez = '\x02';
     SetStrip(slicePos);
     GetStmQuadPts(slicePos,Chunk_chunkCenters + slicePos->chunk);
+
   }
-  {
-    static coorddef corrPt;
+
+
+  { static coorddef corrPt;
     int rCount;
 
+
     corrPt = *pt;
-    rCount = 0;
-    while ((slicePos->simQuad == (Trk_NewSimQuad *)0x0) &&
-           (rCount < 10)) {
-      corrPt.x = corrPt.x +
-          ((BWorldSm_slices[slicePos->slice].center[0] - corrPt.x) >> 5);
-      corrPt.z = corrPt.z +
-          ((BWorldSm_slices[slicePos->slice].center[2] - corrPt.z) >> 5);
+    rCount = 0; while ((slicePos->simQuad == (Trk_NewSimQuad *)0x0) && (rCount < 10)) {
+
+
+
+      corrPt.x = corrPt.x + ((BWorldSm_slices[slicePos->slice].center[0] - corrPt.x) >> 5);
+      corrPt.z = corrPt.z + ((BWorldSm_slices[slicePos->slice].center[2] - corrPt.z) >> 5);
+
       RawFindClosestQuad(&corrPt,slicePos);
-      rCount = rCount + 1;
-    }
-  }
+      rCount = rCount + 1; } }
+
+
+
+
+
+
+
 done:
-  sliceChanged = startSlice != slicePos->slice;
-  slicePos->sliceChanged = sliceChanged;
-  slicePos->quadChanged =
-      (startQuad != (int)(signed char)slicePos->quad) ||
-      sliceChanged;
-  return (int)*(signed char *)&slicePos->sliceChanged;
-}
+  sliceChanged = startSlice != slicePos->slice; slicePos->sliceChanged = sliceChanged;
+  slicePos->quadChanged = (startQuad != (int)(signed char)slicePos->quad) || sliceChanged;
+
+
+
+  return (int)*(signed char *)&slicePos->sliceChanged; }
 
 /* ---- BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi  [@0x8007fac4] ---- */
 #define QUAD_PT_DIR(p1, p2, p3) \
@@ -778,66 +824,80 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
 {
   int ret;
   coorddef *pts;
-  
+
+
+
+
+
+
+
+
+
   pts = slicePos1->quadPts;
+
+
   ret = PointDirection(pts + 2,pts + 3,pt) >= -0x18000;
-  if (PointDirection(pts + 3,pts,pt) >= 0) {
+
+  if (PointDirection(pts + 3,pts,pt) >= 0)
     ret = ret | 8;
-  }
-  if (PointDirection(pts,pts + 1,pt) >= -0x18000) {
+  if (PointDirection(pts,pts + 1,pt) >= -0x18000)
     ret = ret | 2;
-  }
-  if (PointDirection(pts + 1,pts + 2,pt) >= 0) {
+  if (PointDirection(pts + 1,pts + 2,pt) >= 0)
     ret = ret | 4;
-  }
-  {
-    int y;
+
+
+
+
+  { int y;
+
 
     pts = slicePos2->quadPts;
+
     y = pts[0].y + pts[1].y + pts[2].y + pts[3].y;
-    *heightDiff = (y >> 2) - pt->y;
+    y >>= 2;
+
+    *heightDiff = y - pt->y;
   }
-  return ret;
-}
+
+  return ret; }
 
 /* ---- BWorldSm_QuadLight__FP12BWorldSm_Pos  [@0x8007fe44] ---- */
+/* SOURCE-REVIEW-UNRESOLVED: QUAD_LIGHT_VERTICES is a reconstruction
+ * cache name,not supplied by retail. Plain pointer and const pointer both
+ * preserve the entire old native dump;const is unnecessary,not a source
+ * object-necessity proof. Original cache/macro producer still needs recovery.
+ * Receipt:build/nc12/bworld_quadlight_source_20261030/final-proof.json. */
 #line 1260 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 {
   if (*(signed char *)&slicePos->rez == 2) {
-    CVECTOR light;
-    CVECTOR temp0;
-    CVECTOR temp1;
-    CVECTOR temp2;
-    CVECTOR temp3;
-    int topInd;
-    int botInd;
-    short s1;
-    short s2;
-    short s3;
-    /* one inline GetData() call (retail's single `this` scope pair); the const base is optimised out of the debug locals */
-    CCOORD16 *const QUAD_LIGHT_VERTICES = (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
+    CVECTOR light; CVECTOR temp0; CVECTOR temp1; CVECTOR temp2; CVECTOR temp3;
+    int topInd; int botInd; short s1; short s2; short s3;
+
 
     topInd = (u_int)slicePos->strip->topVert;
     botInd = (u_int)slicePos->strip->botVert;
     topInd += (int)slicePos->stripQuadInd;
     botInd += (int)slicePos->stripQuadInd;
-    s1 = *(u_short *)&QUAD_LIGHT_VERTICES[topInd].light;
-    s2 = *(u_short *)&QUAD_LIGHT_VERTICES[botInd].light;
-    s3 = *(u_short *)&QUAD_LIGHT_VERTICES[botInd + 1].light;
+
+    CCOORD16 *QUAD_LIGHT_VERTICES = (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
+    s1 = (u_short)QUAD_LIGHT_VERTICES[topInd]
+      .light; s2 = (u_short)QUAD_LIGHT_VERTICES[botInd]
+      .light; s3 = (u_short)QUAD_LIGHT_VERTICES[botInd + 1]
+      .light;
+
     temp0 = Chunk_lightTable[QUAD_LIGHT_VERTICES[topInd + 1].light];
     temp1 = Chunk_lightTable[s1];
     temp2 = Chunk_lightTable[s2];
     temp3 = Chunk_lightTable[s3];
+
     light.r = (u_char)((temp0.r + temp1.r + temp2.r + temp3.r) >> 2);
     light.g = (u_char)((temp0.g + temp1.g + temp2.g + temp3.g) >> 2);
     light.b = (u_char)((temp0.b + temp1.b + temp2.b + temp3.b) >> 2);
+
     return *(int *)&light;
-  }
-  else {
-    return 0x7f7f7f;
-  }
-}
+  } else
+    return 0x7f7f7f; }
 
 /* ---- BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos  [@0x8007ffd4] ---- */
 #line 1300 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
@@ -857,112 +917,131 @@ bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
 #line 1340 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 {
-  u_long oldestTime;
-  int oldestInd;
-  tNormalCacheEntry *ce;
+  u_long oldestTime = 0xffffffff;
+  int oldestInd = -1;
+  tNormalCacheEntry *ce = BWSM_NormalCache;
 
-  oldestTime = 0xffffffff;
-  oldestInd = -1;
-  ce = BWSM_NormalCache;
   BWSM_NormalCacheSysTime = BWSM_NormalCacheSysTime + 1;
-  {
-    int i;
 
-    i = 0;
-    do {
-      if (ce->accessTime < oldestTime) {
-        oldestInd = i;
-        oldestTime = ce->accessTime;
-      }
-      i = i + 1;
-      ce = ce + 1;
-    } while (i < 0x10);
+
+  for (int i = 0; i < 0x10; i = i + 1, ce = ce + 1) {
+
+    if (ce->accessTime < oldestTime) {
+
+      oldestInd = i;
+      oldestTime = ce->accessTime;
+    }
+
   }
+
+
   ce = BWSM_NormalCache + oldestInd;
   ce->accessTime = BWSM_NormalCacheSysTime;
   ce->forward = slicePos->forward;
   ce->normal = slicePos->normal;
   ce->sliceInd = slicePos->slice;
   ce->quadInd = slicePos->quad;
-  ce->triangleFlag = slicePos->triangleFlag;
-  return;
-}
+  ce->triangleFlag = slicePos->triangleFlag; }
 
 /* ---- NormalCache_FindEntry__FP12BWorldSm_Pos  [@0x800800e8] ---- */
 #line 1371 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 {
-  tNormalCacheEntry *ce;
-  int slice;
-  int quad;
+  BWSM_NormalCacheSysTime = BWSM_NormalCacheSysTime + 1;
+  tNormalCacheEntry *ce = BWSM_NormalCache;
+
+  int slice = slicePos->slice;
+  int quad = *(signed char *)&slicePos->quad;
+
   int i;
 
-  ce = BWSM_NormalCache;
-  i = 0;
-  BWSM_NormalCacheSysTime = BWSM_NormalCacheSysTime + 1;
-  slice = slicePos->slice;
-  quad = *(signed char *)&slicePos->quad;
-  while (i < 0x10) {
-    if ((ce->sliceInd == slice) &&
-        (ce->quadInd == quad) &&
-        ((u_int)ce->triangleFlag ==
-         (int)*(signed char *)&slicePos->triangleFlag)) {
+  i = 0; while (i < 0x10) {
+
+    if (ce->sliceInd == slice)
+
+      if (ce->quadInd == quad)
+
+        if ((u_int)ce->triangleFlag == (int)*(signed char *)&slicePos->triangleFlag) {
+
       ce->accessTime = BWSM_NormalCacheSysTime;
       break;
     }
+
+
     ce = ce + 1;
-    i = i + 1;
-  }
+    i = i + 1; }
+
   if (i < 0x10) {
+
     slicePos->normal = ce->normal;
     slicePos->forward = ce->forward;
+
     return true;
   }
-  return false;
-}
+
+  return false; }
 
 /* ---- NormalCache_Init__Fv  [@0x800801ac] ---- */
+/* The ordinary for owns supplied i (INT REG4,depth2);the manual
+ * declaration wrapper was unnecessary. Entire native dump/object/CPE match.
+ * Receipt:build/nc12/bworld_cacheinit_source_20261030/final-proof.json. */
 #line 1410 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void NormalCache_Init(void)
 {
   BWSM_NormalCacheSysTime = 0;
-  { int i;
-    for (i = 0; i < 0x10; i++) {
 
-      BWSM_NormalCache[i].sliceInd = -1;
-      BWSM_NormalCache[i].quadInd = -1;
-      BWSM_NormalCache[i].triangleFlag = '\0';
-      BWSM_NormalCache[i].accessTime = 0;
-    }
+  for (int i = 0; i < 0x10; i++) {
+
+    BWSM_NormalCache[i].sliceInd = -1;
+    BWSM_NormalCache[i].quadInd = -1;
+    BWSM_NormalCache[i].triangleFlag = '\0';
+    BWSM_NormalCache[i].accessTime = 0;
   }
+
 }
 
 /* ---- Check_Rot__FP12BWorldSm_Pos  [@0x800801e8] ---- */
+/* Covered rotation names/roles/scopes and all206 source tags match.
+ * Real cache-miss vectors and the forward/normal work region are preserved;
+ * coordinate equality does not prove unique original macro/comment text.
+ * Receipt:build/nc12/bworld_rotation_layout_20261030/final-proof.json. */
 #line 1426 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void Check_Rot(BWorldSm_Pos *slicePos)
 {
-  /* Retail owns vecX/vecZ in the cache-miss body, and ends the forward/normal
-   * region before NormalCache_AddEntry. Native scopes and all bytes agree;
-   * source-line/SLD attribution remains unsealed (run-a2bxfjip). */
-  if (slicePos->simRotFlag != (signed char)slicePos->triangleFlag) {
-    if (!NormalCache_FindEntry(slicePos)) {
+
+  if (slicePos->simRotFlag != (signed char)slicePos->triangleFlag)
+  {
+    if (!NormalCache_FindEntry(slicePos))
+    {
       coorddef vecX;
       coorddef vecZ;
+
+
       if ((signed char)slicePos->triangleFlag == 3) {
+
         vecZ.x = slicePos->quadPts[2].x - slicePos->quadPts[3].x;
         vecZ.x += (slicePos->quadPts[1].x - slicePos->quadPts[0].x) / 8;
+
         vecZ.y = slicePos->quadPts[2].y - slicePos->quadPts[3].y;
         vecZ.y += (slicePos->quadPts[1].y - slicePos->quadPts[0].y) / 8;
+
         vecZ.z = slicePos->quadPts[2].z - slicePos->quadPts[3].z;
         vecZ.z += (slicePos->quadPts[1].z - slicePos->quadPts[0].z) / 8;
+
         vecX.x = slicePos->quadPts[0].x - slicePos->quadPts[3].x;
         vecX.x += (slicePos->quadPts[1].x - slicePos->quadPts[2].x) / 8;
+
         vecX.y = slicePos->quadPts[0].y - slicePos->quadPts[3].y;
         vecX.y += (slicePos->quadPts[1].y - slicePos->quadPts[2].y) / 8;
+
         vecX.z = slicePos->quadPts[0].z - slicePos->quadPts[3].z;
         vecX.z += (slicePos->quadPts[1].z - slicePos->quadPts[2].z) / 8;
+
       }
+
+
       else if ((signed char)slicePos->triangleFlag == 2) {
+
         vecZ.x = slicePos->quadPts[1].x - slicePos->quadPts[0].x;
         vecZ.y = slicePos->quadPts[1].y - slicePos->quadPts[0].y;
         vecZ.z = slicePos->quadPts[1].z - slicePos->quadPts[0].z;
@@ -977,24 +1056,26 @@ void Check_Rot(BWorldSm_Pos *slicePos)
         vecX.x = slicePos->quadPts[0].x - slicePos->quadPts[3].x;
         vecX.y = slicePos->quadPts[0].y - slicePos->quadPts[3].y;
         vecX.z = slicePos->quadPts[0].z - slicePos->quadPts[3].z;
+
       }
+
+
       {
         coorddef *forward = &slicePos->forward;
         coorddef *normal = &slicePos->normal;
         *forward = vecZ;
         crossproduct(&vecZ.x,&vecX.x,&normal->x);
         Math_NormalizeVector(normal);
-        if (normal->y > 0xffff) {
-          normal->y = 0xfff9;
-        }
-        Math_NormalizeVector(forward);
-      }
-      NormalCache_AddEntry(slicePos);
-    }
-  }
-  slicePos->simRotFlag = (signed char)slicePos->triangleFlag;
-  return;
-}
+        if (normal->y > 0xffff) normal->y = 0xfff9;
+        Math_NormalizeVector(forward); }
+
+
+
+      NormalCache_AddEntry(slicePos); } }
+
+
+
+  slicePos->simRotFlag = (signed char)slicePos->triangleFlag; }
 
 /* ---- BWorldSm_UNormal__FP12BWorldSm_Pos  [@0x80080520] ---- */
 #line 1498 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
@@ -1021,16 +1102,22 @@ coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)
 int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {
   int ret;
-  
   ret = BWorldSm_FindClosestQuadRez(pt,slicePos,hiRezFlag);
+
+
   if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
+
     if (QUAD_PT_DIR(slicePos->quadPts[2],slicePos->quadPts[0],*pt) > 0) {
+
       slicePos->triangleFlag = 1;
-    }
-    else {
+
+    } else {
+
       slicePos->triangleFlag = 2;
+
     }
+
   }
-  return ret;
-}
+
+  return ret; }
 #undef QUAD_PT_DIR

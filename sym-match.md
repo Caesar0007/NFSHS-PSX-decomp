@@ -6,6 +6,606 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-30 Aidebug game-graph restoration;Car_tObj complete body recovered.
+
+Use genuine shared game definitions,not copied typedefs. Owner-aware full
+body comparison now proves67 literal-exact type bodies,including Car_tObj's
+complete2268-byte body and all its supplied members. Literal type-record
+occurrences improve184->1033. Car_tObj has ONE emitted typedef occurrence,
+not retail's TEN;the remaining nine need genuine declaration/include
+producers,not repetitions inserted to satisfy a counter. This data-only
+unit still has zero functions;no function MATCH or completed-type PASS is
+claimed. Original header/profile spellings are not uniquely retained.
+
+The shared Group count setter is an inferred inline API used only by
+object.cpp. For this data-only owner,retain its declaration but do not expose
+the unused inferred body. The explicit owner profile changes no member
+signature/layout. The original three Group typedef occurrences then match,
+instead of four. Default consumers keep the body at its previous source
+line:all121 OTHER cached native .s/.obj pairs are BYTE IDENTICAL. This is
+not a globally applied count fix:the audit found already-matched anim/track
+owners that must not lose an occurrence. Single enum declarations likewise
+use the existing owner profile and do not manufacture aliases.
+
+Count correction:the supplied object contains10 MOU union-member records.
+The previous private type-class filter omitted MOU,so the complete selected
+type-record total is1753,not1743. The platform-stage matches184/four extras
+are unchanged;its raw missing count was1569,not1559. The new graph has1033
+literal matches,720 missing occurrences and10 raw extras. Five extra rows
+are compiler-anonymous identities:the PAD union is independently paired
+through named PAD_COMMON.data,and its full members/offsets/types match;
+the sole bActive/time anonymous body also matches structurally. No names or
+debug outputs are rewritten and these annotations do not turn raw DIFF into
+PASS. Four canonical _physadr body rows and the opaque Udff_tHandle referent
+size0 versus supplied12 remain explicit producer discrepancies. Do not add
+a private body or a fake declaration merely to force a type size.
+
+All122 source normal/debug inputs are freshly rebuilt/bound and all122 normal
+ELFs/native CPE remain unchanged. All495 previous complete function contracts
+survive;independent queue exactSET is unchanged. BWorldSm remains27/28 covered
+combined EXACT and28/28 detailed/branch PASS;QuadLight's two tags stay open.
+Tests162,owner14,compact8,stripped83,vtable1472,policy,relink,canonical link,
+raw RECON299819/299819,overlap,foreign and inventory checks pass. Native
+assembly refresh was selective;unrelated cached objects were not rebuilt.
+No new asm,volatile,source object,typedef-copy padding or compiler/output
+rewrite. Source/header provenance,remaining types/caches and the wider goal
+remain open. Post-0b94c1ae work is uncommitted/unpushed. Receipts:
+build/nc12/aidebug_game_types_20261030/{final-proof,type-proof,probe-proof,
+compact-static-review}.json,refresh logs,owner-queue/ and saved default inputs.
+
+2026-10-30 Aidebug data-only platform/type restoration;NO function MATCH claim.
+
+Replace the empty aidebug.h surface with genuine shared MATRIX/platform-core
+definitions. The isolated selected-stock G4/NII source control preserves
+the complete normal object and CPE,while recovering184 supplied type-record
+occurrences,including nine FIELD bitfield records and14 COMPLETE owner-aware
+SDK bodies. The first shallow counter omitted FIELD;the final comparison
+includes FIELD,STRTAG/UNTAG/ENTAG,TPDEF,MOS/MOE and EOS,not just name totals.
+Actual header assembly has identical data/SDB definitions to that isolated
+control;only zero-byte file directives differ. That comparison is in memory
+only,not a compiler/assembler/output rewrite. Actual normal object and native
+CPE remain BYTE IDENTICAL. No dummy declaration or typedef copies are added.
+
+This is explicitly PARTIAL:184/1743 supplied type records are restored,1559
+remain missing,and four canonical _physadr body records are extra. Retail's
+physadr pointer typedef has referent size4;the opaque/incomplete alternative
+changes it to0 and is rejected. The canonical PsyQ4.3 SYS/TYPES.H really
+defines int r[1];do not fake the known size or erase metadata after compiling.
+The original private-type debug-emission context remains unresolved. Car_tObj
+and its ten typedef copies still need genuine game/AI include producers.
+Broader color/physics/car imports are not accepted wholesale merely because
+they increase counts. Original include spellings are not uniquely recovered.
+
+The broad native reassembly also refreshes other already-prepared objects.
+Its535 removed/8457 added definition occurrences are NOT attributed to this
+header. Independent audit proves every function/owner/SLD record unchanged,
+no previously matching literal retail record lost,and no previously matching
+COMPLETE retail body lost. Literal definition matches200006->200200 and
+complete-body occurrences13171->13196 are aggregate diagnostics,NOT original
+per-object source-restoration certificates. The only two removed non-definition
+compact names,iSNDplatformrate/gRepeatCount,are absent from supplied retail.
+Unprovided older padding/anonymous-tag artifacts are not frozen as original
+source facts. Outside the expanded122-TU source/input cohort,freshness and
+complete type ownership are not certified;the broader type audit stays open.
+
+All495 prior complete function contracts survive;the independent occurrence-
+aware queue exactSET is unchanged. BWorldSm remains27/28 combined EXACT and
+28/28 detailed/branch PASS;QuadLight's two tags remain explicit. Actual122
+source normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,
+compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/
+299819,overlap,foreign and inventory checks pass. The data-only TU has zero
+functions;zero is not a function MATCH or a type-surface PASS. No new asm,
+volatile,synthetic source object or post-compile instruction/debug rewrite.
+The source header remains marked partly UNRESTORED,with deficits/extras
+recorded. This does not complete or shrink the wider original-source goal.
+Post-0b94c1ae work is uncommitted/unpushed. Receipts:
+build/nc12/aidebug_header_source_20261030/{final-proof,type-proof,
+integration-proof,probe-proof,compact-static-review}.json and owner-queue/.
+
+Same-round FindClosestQuad field/conditional alternatives are diagnostic
+only. None preserves the existing full code/owner/SLD contract,so no cached
+comparison removal or supplied done-label change lands. The earlier finite
+failure is still not an original-object necessity exemption. Receipt:
+build/nc12/bworld_changefield_source_20261030/probe-proof.json and cases/.
+
+2026-10-30 NormalCache_Init counter-scope source cleanup;all495 contracts preserved.
+
+An ordinary for(int i=0;...) owns the supplied INT REG4 counter at depth2/
+path[0,0]. Remove the manual declaring wrapper rather than retain it solely
+as a source/debug scaffold. Existing statement coordinates and all15 word/
+file tags,owner/range,block/header/end records remain exact. Isolated and
+actual-source controls preserve the ENTIRE native dump,whole normal ELF
+and CPE. No extra object,qualifier,scope,asm,volatile or statement anchor;
+no unique-original-literal-syntax claim follows from this equivalent form.
+
+Fresh run-t67nqpgg:28/28 declaration/region and detailed/branch PASS,still27/28
+complete combined EXACT. All121 fresh normal/debug CPP bindings and normal
+ELFs,CPE,tests162,owner14,compact8,stripped83,vtable1472,policy,relink,
+canonical link,raw RECON299819/299819,overlap,foreign and inventory checks
+pass. Independent occurrence-aware queue exactSET equals all495 previous
+contracts;no new seal is counted for a source-only cleanup. QuadLight still
+has its two explicit tag differences. Wider source-restoration obligations
+remain active;post-0b94c1ae changes are uncommitted/unpushed. Receipts:
+build/nc12/bworld_cacheinit_source_20261030/{final-proof,probe-proof,
+compact-static-review}.json and owner-queue/.
+
+Same-round QuadLight address/index controls are diagnostic ONLY. Reusing
+provided INT indices as numeric vertex addresses leaves the40-byte frame
+but changes normal code/CPE,owner facts and45 tags. An asymmetric getter/
+typed-Group-header no-cache route changes code/CPE,owners and55 tags. Neither
+is adopted. These failures do not prove all address/value-role rewrites
+impossible,but they do not support changing the supplied value chains or
+removing the source-only cache merely to force the last tags. No live
+integer-pointer reuse,reference change or comparator relaxation occurred.
+Receipt:build/nc12/bworld_light_address_20261030/probe-proof.json and cases/.
+
+2026-10-30 FindClosestSlice alias-free Boolean-return seal,494->495 covered contracts.
+
+Keep the supplied startSlice and typed center/chunkIndex accesses. Real saved
+slice154,distance guard156/coarse search161,raw search163 and chunk165 phases
+now occupy retail coordinates. Assign both actual change fields166,then
+return slicePos->sliceChanged !=0 at168. The field holds the just-assigned
+0/1 comparison,so this is the real Boolean status result,not a fabricated
+identity or source object. It preserves all39 machine words while giving
+the final exit its own168 note. No separate sliceChanged/result local,
+qualifier,scope,asm,volatile,helper or statement anchor is needed.
+
+Earlier direct byte return and predicate recomputation failures were bounded
+source-form results,not proof that a cache was required. Five fresh Boolean
+source forms(!=0,==1,bool conversion,double negation,and if/return1/return0)
+all reproduce code and complete covered metadata. Choose conventional !=0;
+do not claim its spelling uniquely original or generalize to other callers.
+All39 word/file tags,three complete owner tuples,both block records,header
+152/frame32 and end168 match,not21 wrong tags. Whole normal ELF/CPE unchanged.
+
+Fresh run-30dgimzu:28/28 declaration/region and detailed/branch PASS,27/28
+complete combined EXACT. All494 prior contracts survive,now495;independent
+occurrence-aware queue exact(TU,symbol)SET equals the complete manifest.
+GAME/COMMON462,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained.
+All121 fresh normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,
+compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/
+299819,overlap,foreign and inventory checks pass. Entire non-SLD record order
+and every other function's SLD facts survive unchanged. QuadLight remains
+non-exact with two address tags;source-cache producers,upstream type-surface
+review and the wider goal remain open. Post-0b94c1ae work is uncommitted/
+unpushed. Receipts:build/nc12/bworld_slice_return_20261030/{final-proof,
+probe-proof,compact-static-review}.json,accepted.json and owner-queue/.
+
+2026-10-30 RawFindClosestQuad bidirectional-search source seal,493->494 covered contracts.
+
+Preserve both original parameters,all17 complete owner tuples,the12-element
+static sliceOffs initializer,64-byte frame and both distinct shadowed
+newSlice/numSlices pairs. Real initialization549..570 and attempt loop572
+retain saved-quad selection,world/local coordinates584..586,getter587,
+distance seed590 and setup592/597. Each polygon predicate is a real guard
+(604/667),followed by a separate validity test(608/671). The old combined
+conditions hid that statement boundary. Short-circuit order/call effects
+remain identical;no new predicate temporary or helper is introduced.
+
+Forward and reverse scan success/edge/distance/refinement phases retain the
+same stores,breaks and updates. The two actual slice-wrap regions are721
+and729,with their supplied different depths/ranges/homes;do not merge
+same-named objects or add padding scopes. First-trial layout left only the
+zero-clamp store +1148 on656 instead of655. Real guard/store share655;
+the following vertex call is656. This fixes the last tag without changing
+any instruction. All491 word/file tags,12 block records,header537/frame64
+and end741 now match,not470 wrong tags. Raw retail has no LABEL here;none
+is added. Original literal macro/comment syntax remains unproved.
+
+Fresh run-q0qeqy8z:28/28 declaration/region and detailed/branch PASS,26/28
+complete combined EXACT. Whole normal ELF/native CPE unchanged. Every493
+prior contract survives,now494;independent occurrence-aware exactSET equals
+the complete manifest. GAME/COMMON461,GAME/PSX28,FRONTEND/COMMON5;all2581
+occurrences retained. All121 fresh normal/debug CPP bindings and normal
+ELFs,CPE,tests162,owner14,compact8,stripped83,vtable1472,policy,relink,
+canonical link,raw RECON299819/299819,overlap,foreign and inventory checks
+pass. Entire non-SLD record order and every other function's SLD facts remain
+unchanged. Source contains zero unexpected control bytes. No new asm,
+volatile,qualifier,source object,scope scaffold or statement-level anchor.
+Two unit layouts,source-cache producers,upstream type-surface review and
+the wider goal remain open. Post-0b94c1ae work is uncommitted/unpushed.
+Receipts:build/nc12/bworld_rawquad_layout_20261030/{final-proof,probe-proof,
+compact-static-review}.json and owner-queue/.
+
+2026-10-30 RawFindClosestSlice ordinary-loop/source seal,492->493 covered contracts.
+
+Preserve all supplied root names/types:actual slice index184 precedes the
+lastind185/maxind186/slices187 initializers,despite their different machine
+schedule. Ordinary while(lastind!=index)189 replaces the guarded do/while.
+Real last-index191,current-distance dispatch193 and distance195/198,next
+tests/distances201..218,previous tests/distances222..237 and wrap239/240
+recover the source phases. Keep the actual leaf distance macro and direct
+arithmetic,without inventing inline parameter/local scope pairs. Every signed
+remainder,division guard,distance comparison and index update stays intact.
+
+The existing final field assignment belongs249 and the genuine return251.
+That preserves the supplied root endpoint249 while the return and filled
+store slot carry251;implicit fallthrough with assignment251 instead ended
+the debug region two source lines late. The guarded do control still matches
+all code/owners but gives three final loop-test tags its footer line instead
+of240,so it is not adopted. This does not prove unique original loop syntax.
+
+All173 word/file tags,nine complete owner tuples,two block records,header179/
+frame0 and end251 match,not172 wrong tags. Whole normal ELF/native CPE
+unchanged. Fresh run-_01mojqm:28/28 declaration/region and detailed/branch
+PASS,25/28 complete combined EXACT. All492 prior contracts survive,now493;
+independent occurrence-aware queue exact(TU,symbol)SET equals the complete
+manifest. GAME/COMMON460,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences kept.
+All121 fresh normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,
+compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/
+299819,overlap,foreign and inventory checks pass. Entire non-SLD record order
+and every other function's SLD facts remain unchanged. No new asm,volatile,
+qualifier,object,scope scaffold,source label or statement-level anchor. Raw
+retail supplies no LABEL in this function. Original macro/comment text,
+three remaining unit layouts,source-cache producers,upstream type-surface
+review and the wider goal stay open. Post-0b94c1ae work is uncommitted/unpushed.
+Receipts:build/nc12/bworld_rawslice_layout_20261030/{final-proof,probe-proof,
+compact-static-review}.json and owner-queue/.
+
+2026-10-30 Check_Rot vector/normalization source seal,491->492 covered contracts.
+
+Preserve real outer rotation guard1429/body1430 and cache test1431/body1432.
+The supplied vecX/vecZ remain cache-miss locals at depth5 with their actual
+stack slots. Triangle dispatch1437,each base/delta component1439..1455,
+second-triangle branch1460/components1462..1467 and fallback1470..1475
+recover the actual source phases,not a scheduled-opcode transcription.
+Keep the supplied forward/normal work region1480..1487:real pointer setup,
+vector copy1483,cross product1484,normal normalization1485/clamp1486 and
+forward normalization1487. It ends before cache insertion1491. Actual final
+rotation-flag store/fallthrough1495 removes the redundant explicit return.
+
+All206 word/file tags,five complete owner tuples,12 block records,header
+1427/frame64 and end1495 match,not200 wrong tags. No new variable,qualifier,
+scope scaffold,asm,volatile,helper or statement-level anchor is introduced.
+The existing value roles and real regions were already correct;ordinary
+source grouping/placement preserves them. Raw retail supplies no LABEL in
+this function;none is introduced. Whole normal ELF/native CPE unchanged.
+Literal original macro/comment syntax is not uniquely proved by this seal.
+
+Fresh run-u7ppizky:28/28 declaration/region and detailed/branch PASS,24/28
+complete combined EXACT. All491 prior contracts survive,now492;independent
+occurrence-aware queue exact(TU,symbol)SET equals the complete manifest.
+GAME/COMMON459,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences kept. All121
+fresh normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,compact8,
+stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/299819,
+overlap,foreign and inventory checks pass. Entire non-SLD record order and
+every other function's SLD facts remain unchanged. Four unit layouts,
+source-cache producers,upstream type-surface review and the wider goal remain
+open. Post-0b94c1ae work is uncommitted/unpushed. Receipts:
+build/nc12/bworld_rotation_layout_20261030/{final-proof,probe-proof,
+compact-static-review}.json and owner-queue/.
+
+2026-10-30 FindClosestQuad supplied-label/source seal,490->491 covered contracts.
+
+IMPORTANT CORRECTION:done is an ORIGINAL supplied LABEL in this exact retail
+function,not a reconstruction-only name. Raw record1d85df has object-relative
+value0x1160. BWORLDSM text base8007e910 resolves it to8007fa70,function+376,
+exactly the retry-region end;the native label independently has the same
+object/function-relative placement. The source goto/label must be retained.
+The local-owner parser omits LABEL rows,so a locals-only listing is NOT
+evidence that the label is absent. Initial no-label assumptions in this
+round were withdrawn after the raw record was read;no live removal landed.
+
+Thirteen private ordinary-return/field/predicate/switch controls are not
+accepted. Early-return tail sharing reproduces the entire code but emits
+an extra sliceChanged REG2 and extends root owners416->424. The byte-exact
+switch instead pushes corrPt/rCount to depth3 and starts their region at76,
+not supplied depth2/start204. These finite trials do not justify deleting
+a supplied source label,nor prove another source object necessary.
+
+Restore real saved-state1059/1060,slice search1072,found slice1075,raw search/
+goto1078 and guarded correction1085..1096. Retry declarations1101,copy1105,
+guard1106,x/z refinement1110/1111,call1113/counter1114 and done-tail1123/1124/
+1128 match115/115 word/file tags,seven covered owner tuples,four block
+records,header1058/frame48 and end1128,not104 wrong tags. The raw supplied
+LABEL is checked separately,including object-relative normalization;no
+reference,comparator,compiler output or debug record is rewritten.
+
+Withdraw another unsupported comment claim:the cited same-function NFS2 PC
+SYM/matched source does NOT list a sliceChanged local,and NFS4 supplies no
+such local either. Keep the existing field-comparison cache visibly under
+SOURCE-REVIEW-UNRESOLVED;do not rename it or claim its original spelling/
+object necessity from failed controls. This does not retract the separate,
+actually supplied two sliceChanged locals in NFS2 FindClosestQuadRez. Honest
+review markers559->560;the covered SLD seal does not solve source-only objects.
+
+Fresh run-882w15tx:28/28 declaration/region and detailed/branch PASS,23/28
+complete combined EXACT. All490 prior contracts survive,now491;independent
+occurrence-aware exactSET equals the full manifest. GAME/COMMON458,GAME/PSX
+28,FRONTEND/COMMON5;all2581 occurrences kept. All121 fresh normal/debug CPP
+bindings and normal ELFs,CPE,tests162,owner14,compact8,stripped83,vtable1472,
+policy,relink,canonical link,raw RECON299819/299819,overlap,foreign and
+inventory checks pass. Entire non-SLD record order and every other function's
+SLD facts remain unchanged. No new asm,volatile,qualifier,object,scope
+scaffold or statement anchor. Five unit layouts,source-cache producers,
+upstream type-surface review and wider goal remain open. Post-0b94c1ae work
+is uncommitted/unpushed. Receipts:build/nc12/bworld_findquad_source_20261030/
+{final-proof,label-proof,layout-proof,probe-proof,compact-static-review}.json,
+owner-queue/ and cases/.
+
+2026-10-30 QuadLight selected-stock source-note tracing;no production-code change.
+
+The selected CC1PLPSX -g/-O2/-G8 plain and -da observer outputs are BYTE
+IDENTICAL to each other AND the current actual debug assembly;compiler/input/
+output hashes are recorded. Initial RTL already places the scale UID91,
+base add UID93 and halfword load UID95 together under1274. Combine and final
+scheduling preserve those same UID/source associations;the final physical
+scale/add are the two residual +80/+104 instructions. Therefore these tags
+are not first introduced by scheduling or assembler translation. Inspect
+the source producer before doing further scheduling/allocator experiments.
+
+Primary GCC2.8.1 archive cp/parse.y:3552 expression-statement action calls
+emit_line_note(input_filename,lineno) before cplus_expand_expr_stmt(expr).
+That related-family source corroborates the selected-stock observation;it
+is NOT a claim that the2.8.1 archive is the exact2.8.0 compiler executable.
+The actual selected stock remains the byte/debug authority. Mere expression
+punctuation/whitespace cannot be assumed to give address and load independent
+statement notes. This does not exclude other genuine source constructs.
+
+The one-line load control preserves the complete100-word object,CPE,owners
+and block/end lines,and moves all three operations to1273. It leaves only
+the +116 load wrong (retail1274),but regresses that previously correct fact.
+It is NOT adopted merely because1 is numerically smaller than2. The live
+source/native/CPE and all121 normal objects remain identical to the verified
+490-contract checkpoint;target100/100 byte and all28 branch gates re-pass.
+No new asm,volatile,object,qualifier,integer-address reuse,scope or output
+rewrite. No impossibility/floor or original-object necessity claim. Next
+work must recover a genuine separate address/source producer consistent
+with the supplied owner/region records,or continue another open function;
+do not manufacture a carrier or change the strict references. Full goal
+remains active;22/28 module contracts and490 global covered contracts are
+unchanged. Post-0b94c1ae source work and this receipt remain uncommitted.
+Receipts:build/nc12/bworld_quadlight_notes_20261030/{phase-proof,
+control-proof}.json,stock/ and cases/.
+
+2026-10-30 QuadLight source/qualification cleanup,96->2 wrong tags;NO new full seal.
+
+Plain QUAD_LIGHT_VERTICES reproduces the entire old native dump,whole normal
+ELF and CPE:the old const qualifier was unnecessary,not what uniquely kept
+the cache out of debug locals. Remove it. Replace three unsigned-halfword
+pointer-punning reads with actual CCOORD16.light field value conversions;
+the supplied field is SHORT and conversion to u_short preserves all65536
+16-bit patterns. Selected-stock full object/CPE checks independently retain
+all100 machine words. Keep supplied light,temp0..temp3,topInd/botInd,s1..s3
+and the real getter. No new object,qualifier,asm,volatile or helper is added.
+
+Real index1267..1270,getter1272,index/field-read1273..1276,table1278..1281,
+RGB1283..1285 and packed return1287/fallback1289 phases improve96wrong
+word/file tags to2. All previously correct target tags survive. All12
+complete owner tuples,ten block records,header1261/frame40 and end1289 agree.
+Retire the old generic const-elision comment:the cache's uppercase name and
+original object/macro producer remain explicit SOURCE-REVIEW-UNRESOLVED,not
+a recovered-name or object-necessity exemption. Honest review markers558->559.
+The source-only cache itself is not removed or claimed proved necessary.
+
+The two remaining tags are EXACTLY +80 SLL v1 (8007fe94) and +104 ADDU v1
+(8007feac):current1274,retail1273. Plain/const controls have identical code
+and scope facts;changing only field/member punctuation leaves those residuals.
+Do not add an invented address carrier,integer-pointer reuse or statement
+anchor merely to force them. Next angle:inspect selected-stock frontend/
+initial-RTL source-note ownership of the scaled index and base add versus
+the subsequent field load. This finite trial is not a floor or impossibility
+proof. The strict queue still labels the target non-exact;no comparator or
+reference is weakened and no generated instruction/debug record is rewritten.
+
+Fresh run-tr2ztz_8:28/28 declaration/region and detailed/branch PASS,still22/28
+complete combined EXACT. All490 prior complete contracts remain;independent
+occurrence-aware exactSET is identical,with the target excluded. GAME/COMMON
+457,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained. All121 fresh
+normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,compact8,
+stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/299819,
+overlap,foreign and inventory checks pass. Entire non-SLD record order and
+every other function's SLD facts remain unchanged. Six unit layouts,source-
+cache producers,upstream type-surface review and wider goal remain open.
+Post-0b94c1ae work is uncommitted/unpushed. Receipts:
+build/nc12/bworld_quadlight_source_20261030/{final-proof,probe-proof,
+compact-static-review}.json,owner-queue/ and cases/.
+
+2026-10-30 FindEdgeOff edge/height source-phase seal,489->490 covered contracts.
+
+Keep supplied ret/pts and all four original parameters. Real first-quad
+base1229,initial edge result1232 and the three subsequent edge tests/bit
+updates1234..1239 occupy the retail phases. The supplied nested INT y belongs
+to actual second-quad height work:sum1249,arithmetic average1250,then
+height difference/store1252. Split the fused shift/subtraction through y;
+no new carrier or fabricated statement is needed. The real declaring region
+opens1244 and second-quad base assignment1247 preserves the supplied optimized
+zero-length +188..+188 owner/end records. Do not replace that live source
+work with an empty block merely because its optimized debug extent is zero.
+
+All71 word/file tags,seven complete owner tuples,four block records,header
+1217/frame56 and end1255 match,not57 wrong tags. Whole normal ELF/native CPE
+unchanged. Fresh run-pj7ig_0f:28/28 declaration/region and detailed/branch
+PASS,22/28 complete combined EXACT. All489 prior contracts survive,now490;
+independent occurrence-aware queue exact(TU,symbol)SET equals the entire
+manifest. GAME/COMMON457,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences kept.
+All121 fresh normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,
+compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/
+299819,overlap,foreign and inventory checks pass. Entire non-SLD record order
+and every other function's SLD facts survive unchanged. No new asm,volatile,
+qualifier,source object,scope scaffold or statement-level anchor. Literal
+original macro/comment syntax,the remaining six unit layouts,the source-only
+vertex producer,upstream type-surface review and wider goal remain open.
+Post-0b94c1ae work is uncommitted/unpushed. Receipts:
+build/nc12/bworld_edge_layout_20261030/{final-proof,probe-proof,
+compact-static-review}.json and owner-queue/.
+
+2026-10-30 GetStmQuadPts coordinate/index/copy SLD seal,488->489 covered contracts.
+
+Real strip330 and vertex-buffer getter331 precede center335/336/337,index
+field339/340,quad-offset341/342 and destination343 phases. Each actual
+world-coordinate calculation and copy then occupies347..373. Preserve the
+supplied x/y/z,cx/cy/cz,topInd/botInd,pStrip/pts names/types/value chains and
+the getter's this record. All74 word/file tags,13 complete owner tuples,six
+block records,header323/frame0 and end373 match,not74 wrong tags. Implicit
+void fallthrough removes the redundant return. No fake region is added to
+imitate the optimized root/getter regions ending at+0. Whole ELF/CPE unchanged.
+
+Retire the old ORIGINAL-NAME-RECOVERED comment's overstrong implication:
+vertices is supported by NFS2 same-function source,not uniquely retained as
+an NFS4 local/object. Its historical direct-expansion101-word/119-diff trial
+is not proof of original-object necessity. The current cache producer and
+literal expression remain explicit SOURCE-REVIEW-UNRESOLVED work,not a
+generic exemption. No object-removal claim is made;the honest lexical review
+count rises557->558 because that uncertainty is now visible. SLD equality
+does not settle the source-only cache or original literal macro spelling.
+
+Fresh run-arky2tnh:28/28 declaration/region and detailed/branch PASS,21/28
+complete combined EXACT. Every prior488 contract survives,now489;independent
+occurrence-aware queue exact(TU,symbol)SET equals the complete manifest.
+GAME/COMMON456,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained.
+All121 fresh normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,
+compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/
+299819,overlap,foreign and inventory checks pass. Entire non-SLD record order
+and every other function's SLD facts remain unchanged. No new asm,volatile,
+qualifier,source object,scope scaffold or statement-level anchor. Remaining
+seven unit layouts,the source-only vertex producer,the upstream type-surface
+review and wider goal remain open. Post-0b94c1ae work is uncommitted/unpushed.
+Receipts:build/nc12/bworld_quadpts_layout_20261030/{final-proof,probe-proof,
+compact-static-review}.json and owner-queue/.
+
+2026-10-30 SetStrip ordinary traversal/source seal,487->488 covered contracts.
+
+Restore supplied maxIndex381 before the real Group data getter384;the
+scheduled getter/chunk loads executing first do not establish source order.
+An ordinary for(i=0;i<maxIndex;i++) at386 replaces the guarded do/while,
+with the actual variable-length strip advance and closing/backedge on387.
+maxIndex comes from the supplied UCHAR stripIndex,so its value is0..255;
+the original nonzero guard and the for entry test have equivalent bounds.
+Keep root i for its second real role:the signed quad index393. Actual
+quadCount395,while396,subtraction398,strip advance400,reload/backedge401 and
+final short store/fallthrough403 then match all46 word/file tags. Remove
+the redundant final void return. No new object,scope,qualifier,asm,volatile,
+dummy use,helper or statement anchor. Original literal syntax is unproved.
+
+All five complete supplied owner tuples,six block records,header379/frame0
+and end403 match. Whole normal ELF/native CPE unchanged. Fresh run-tpluadzp:
+28/28 declaration/region and detailed/branch PASS,20/28 complete combined
+EXACT. Every prior487 contract survives,now488;independent occurrence-aware
+queue exact(TU,symbol)SET equals the complete manifest. GAME/COMMON455,
+GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained. All121 fresh normal/
+debug CPP bindings and normal ELFs,CPE,tests162,owner14,compact8,stripped83,
+vtable1472,policy,relink,canonical link,raw RECON299819/299819,overlap,foreign
+and inventory checks pass. Entire non-SLD record order and every other
+function's SLD facts remain unchanged. Remaining eight unit layouts,the
+upstream type-surface review and wider goal remain open. Post-0b94c1ae work
+is uncommitted/unpushed. Receipts:build/nc12/bworld_strip_layout_20261030/
+{final-proof,probe-proof,compact-static-review}.json and owner-queue/.
+
+2026-10-30 GetFirstStmQuadPts/TriangleRez source-phase seals,485->487 covered contracts.
+
+GetFirstStmQuadPts's real strip pointer422 precedes destination pointer424.
+Its top/bottom vertex indices are first read separately at426/427,then the
+actual quad offset is added at437/438. The old fused expressions concealed
+that two-stage source/value chain. Preserve supplied topInd/botInd/x/z and
+all eight complete parameter/local tuples,including the optimized root region
+ending at+0. The four genuine x/z reads and paired stores occupy441..459;
+implicit void fallthrough removes the redundant return. All39 word/file tags,
+both block records,header415/frame32 and end459 now match,not31 wrong tags.
+No empty source scope is invented to imitate an optimized zero-length region.
+
+FindClosestTriangleRez's supplied ret captures the real call at1519 before
+the simQuad guard1522 and existing direction macro/test1524. Actual triangle
+stores1526/1530 and return1536 restore all39 word/file tags,four complete
+owner tuples,both block records,header1517/frame32 and end1536,not33 wrong
+tags. Keep original three parameters and their names/types;no new carrier.
+Macro expansion is verified by fresh actual-source preprocessing,not by
+rewriting compiler output. Literal original macro/comment text is unproved.
+
+Each isolated trial and their combination preserve the entire normal ELF
+and native CPE. Fresh run-870v3mne:28/28 declaration/region and detailed/
+branch PASS,19/28 complete combined EXACT. Every prior485 contract survives,
+now487;independent occurrence-aware queue exact(TU,symbol)SET equals the full
+manifest. GAME/COMMON454,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences kept.
+All121 fresh normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,
+compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/
+299819,overlap,foreign and inventory checks pass. Entire non-SLD record order
+and every other function's SLD facts survive unchanged. No new asm,volatile,
+qualifier,source object,scope scaffold or statement-level anchor. Remaining
+nine unit layouts,the upstream type-surface review and wider goal remain
+open. Post-0b94c1ae work is uncommitted/unpushed. Receipts:
+build/nc12/bworld_vertices_triangle_20261030/{final-proof,probe-proof,
+combined-proof,compact-static-review}.json,accepted.json and owner-queue/.
+
+2026-10-30 NormalCache_FindEntry source guard/order seal,484->485 covered contracts.
+
+Retail clock update1373 precedes cache-pointer initialization1374,despite
+the scheduled cache-base setup executing first. Restore the actual source
+order and the supplied slice1376/quad1377/counter1381 phases. The slice,
+quad and triangle comparisons belong to three separate real guards at
+1383/1385/1387,not one multiline && test. Their successful clock update1389
+and break1390 remain unchanged. Keep root-owned i and the ordinary while,
+advances1394/1395,post-search guard1397,normal/forward copies1399/1400 and
+success1402/failure1405 exits. No new declaration,qualifier,scope scaffold,
+asm,volatile,helper or statement anchor is added.
+
+The initial compound-guard control preserves the whole ELF/CPE and owners
+but leaves13 tags wrong:five initializer-order tags and eight early-test
+tags incorrectly attributed to1387. Genuine separate guards plus the source
+initializer order seal49/49 word/file tags,five complete owner tuples,both
+region records,header1372/frame0 and end1405. No instruction/debug rewrite.
+Literal original macro/comment syntax is not uniquely proved by the seal.
+
+Fresh run-3y6j_pyy:28/28 declaration/region and detailed/branch PASS,17/28
+complete combined EXACT. Every prior484 contract survives,now485;independent
+occurrence-aware queue exact(TU,symbol)SET equals the complete manifest.
+GAME/COMMON452,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained.
+All121 fresh normal/debug CPP bindings and normal ELFs,native CPE,tests162,
+owner14,compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON
+299819/299819,overlap,foreign and inventory checks pass. Entire non-SLD
+record order and every other function's SLD facts remain unchanged from the
+fresh-header484 checkpoint. The previously disclosed upstream type-surface
+review remains open;this round adds none. Remaining11 unit layouts and the
+wider goal remain active. Post-0b94c1ae work is uncommitted/unpushed.
+Receipts:build/nc12/bworld_cachefind_layout_20261030/{final-proof,probe-proof,
+compact-static-review}.json,owner-queue/ and cases/.
+
+2026-10-30 NormalCache_AddEntry ordinary-loop/source seal,483->484 covered contracts.
+
+Use genuine oldestTime1342/oldestInd1343/ce1344 initializers,clock update1346
+and a for-owned i1349. The ordinary three-part for now owns i at supplied
+depth2/path[0,0],removing the manual declaring wrapper and do/while. Actual
+comparison1351,selection1353/1354,closing/backedge1357 and destination/data
+copies1360..1366 recover all47 word/file tags,five complete owner tuples,
+four region records,header1341/frame0 and end1366. Remove the redundant void
+return;no new name,scope scaffold,qualifier,asm,volatile or statement anchor.
+Whole normal ELF/native CPE unchanged. Literal original spelling is not
+uniquely established by the matching loop and debug coordinates.
+
+Fresh run-ktl3nkol:28/28 declaration/region and detailed/branch PASS,16/28
+complete combined EXACT. Every prior483 contract survives,now484;independent
+occurrence-aware exactSET equals the complete manifest. GAME/COMMON451,
+GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained. Full121 actual-source
+normal/debug CPP bindings and normal ELFs,CPE,tests162,owner14,compact8,
+stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/299819,
+overlap,foreign and inventory checks pass after the freshness repair below.
+Remaining12 BWorldSm layouts and broader source-restoration obligations stay
+open. This post-0b94c1ae work is uncommitted/unpushed. Receipts:
+build/nc12/bworld_cacheadd_layout_20261030/{final-proof,probe-proof,
+compact-static-review}.json and owner-queue/.
+
+Upstream-header freshness correction accompanying this round:
+e9083329's new spchdata.h changes actual CPP inputs in audiocmn.cpp and
+speech.cpp,but their saved debug inputs still predated that upstream header.
+The fail-closed freshness gate caught both. Isolated selected-stock controls
+using fresh actual inputs reproduce the complete normal ELFs/CPE and EVERY
+function SLD/owner record. Each adds exactly five SPCHInGameState type rows
+(anonymous size8 struct,two INT fields,EOS,typedef),removing none. Refresh the
+two actual debug inputs through the ordinary compiler/ASPSX/PSYLINK pipeline;
+run-0n0vmdsj retains the existing audio/speech function statuses. The final
+ordered non-SLD audit retains EVERY old row and permits ONLY those ten
+independently evidenced additions;no comparator or reference is relaxed.
+The cache function's source coordinates are the only changed function facts.
+
+These upstream type additions are NOT newly recovered retail records:
+SPCHInGameState/lastEventId/repeatCount spellings are absent from the supplied
+retail dump. Their genuine original type/include/name producer remains an
+explicit shared-header/type-surface review item,not an inferred claim of
+retail type exactness or an excuse to weaken function-local certificates.
+Partial eaclib metadata remains partial,and code equality alone does not
+resolve original header spelling. Receipt:
+build/nc12/spch_header_freshness_20261030/probe-proof.json and cases/.
+
 2026-10-30 Three BWorldSm source/SLD seals,480->483 covered contracts.
 
 SetSlice's real resets/flags/chunk/status stores now occupy the supplied

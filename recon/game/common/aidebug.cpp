@@ -5,12 +5,15 @@
  *   These debug globals are not referenced by the reconstructed game logic (the debug code
  *   paths are absent from this retail code image); they are materialized here because the obj
  *   faithfully owns this .bss data in the linked image. @0xVA breadcrumbs.
- *   TYPE/HEADER SURFACE NOT RESTORED:aidebug.h currently supplies no game
- *   types,whereas this retail object carries the full Car_tObj body and ten
- *   typedef copies. It is outside the119 current native-debug input set.
- *   The raw bodies are available;the context causing repeated copies needs
- *   genuine reference/source recovery,not dummy declarations. A no-function
- *   local audit cannot certify this object's source/type completeness.
+ *   TYPE/HEADER SURFACE PARTIALLY RESTORED:aidebug.h now supplies the SDK/core
+ *   and genuine shared game graph,including Car_tObj's complete body. The
+ *   remaining types/typedef occurrences and original include provenance are
+ *   still UNRESTORED;do not manufacture copies.
+ *   This data-only TU has its own code/data/type checks and joins the122-TU
+ *   input/object preservation cohort. Zero functions is not a MATCH or a
+ *   source/type-completeness certificate. See the explicit private-type
+ *   emission discrepancy and supplied-record proof in:
+ *   build/nc12/aidebug_game_types_20261030/final-proof.json.
  */
 #include "aidebug.h"
 

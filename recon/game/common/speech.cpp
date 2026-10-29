@@ -555,13 +555,13 @@ int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *h
 
 extern "C" {
 
-/* ---- LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell  [SPEECH.CPP:990-1102] SLD-VERIFIED ----
+/* ---- LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell [retail SPEECH.CPP:990-1102; source/SLD recovery open] ----
  * MATCH, strict source-only PASS 270/270 (2026-08-24). */
 /* MATCHING-RECEIPT (2026-08-14): detailed verify_asm 137 -> 133 -> 119 -> 97
  * -> 62 -> 51 -> 31 -> 13 -> 11 -> 9 -> 6, with the final source stream count-
  * and register-exact at 270/270.  IDA's gold allocation and the SLD expose a
- * compiler-created lagging cursor in $s2: retain source `p`, but read the first
- * offset byte from `c` before advancing it.  Inline suffix predicates reproduce
+ * compiler-created lagging cursor in $s2: offset/size now use the existing
+ * ReadBE32(c)/ReadBE32(c+4),without a caller `p` walker. Suffix predicates match
  * both retail comparison webs; the first result needs the priced +2-ref empty
  * fence (allocsim p163 6->8 refs) to land in $v1.  In the fallback, direct
  * `banknames[j]`/`fBankOffset[j]` indexing plus `++j` in the loop condition
@@ -586,7 +586,7 @@ extern "C" {
  * reverted.
  *
  * W77-root strict closure: promote size to a tied dataSize output; the
- * user-authorized zero-byte $2 clobber forces retail $v1.  Replacing the tied
+ * historical $2 clobber is now removed by stock A/B control. Replacing the tied
  * header output with two read-only header references recovers the $s0/$s1
  * handout, and ordering the header increment before the data update gives the
  * retail ready-list order.  Detailed strict gate PASS 270/270; no post-cc1
@@ -596,6 +596,14 @@ extern "C" {
 void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsize)
 
 {
+  /* 2026-10-29: existing ReadBE32(c)/ReadBE32(c+4) recover the actual
+   * entry reader calls,not a caller p walker/manual byte-local hierarchy.
+   * Eight additional complete supplied owner tuples match;none is lost.
+   * All270 words and the entire normal ELF/native CPE remain unchanged.
+   * ReadBE32 spelling is existing inferred API,not a recovered inline symbol.
+   * First-reader/allocator/suffix producers remain unresolved;no full seal.
+   * The redundant $2 clobber is removed;other empty allocator ties stay open.
+   * Receipt:build/nc12/speech_allocator_source_20261029/final-proof.json. */
   /* SOURCE-REVIEW-UNRESOLVED: reserveArg -- persistent literal web retained by
      the two reserve calls in the exact saved-register allocation.
      SOURCE-REVIEW-UNRESOLVED: reserveCallArg -- tied short-lived call alias.
@@ -626,7 +634,6 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
   char *c;
   char *hdata;
   char **banknames;
-  char *p;
 
   id = 0;
   dt = 0;
@@ -648,7 +655,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
                    "=r"(reserveBytes), "=r"(alignment)
                : "0"(size), "1"(reserveCallArg), "2"(reserveBytes),
                  "3"(0x10), "r"(header), "r"(header)
-               : "$2");
+               );
     {
       int a = (u_char)header[8];
       header += 8;
@@ -668,44 +675,24 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
         this->fBankOffset[j] = 0;
       }
   __asm__("" : : "r"(hsize));
-    p = c;
     for (int i = 0; i < filecount; i++) {
     char *name;
     int namelen;
     bool isheader;
-    int a;
 
     systemtask(0);
-    a = (u_char)*c;
+    offset = this->ReadBE32(c);
+    size = this->ReadBE32(c + 4);
     c += 8;
     name = c;
     namelen = 0;
-    {
-      {
-        int b = (u_char)p[1];
-        int c = (u_char)p[2];
-        int d = (u_char)p[3];
-
-        offset = (((a << 8 | b) << 8 | c) << 8 | d);
-      }
-      {
-        int a = (u_char)p[4];
-        int b = (u_char)p[5];
-        int c = (u_char)p[6];
-        int d = (u_char)p[7];
-
-        size = (((a << 8 | b) << 8 | c) << 8 | d);
-      }
-    }
-    p += 8;
     while (*c != '\0') {
       namelen++;
       c++;
-      p++;
     }
     isheader = false;
     if (namelen >= 5) {
-      bool extension = this->IsHeader(p - 4, '.', 'h', 'd');
+      bool extension = this->IsHeader(c - 4, '.', 'h', 'd');
       __asm__("" : : "r"(extension), "r"(extension));
       if (extension && this->CheckMultiBank(name,id,bn)) {
         isheader = true;
@@ -717,7 +704,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
         data += size;
       }
       else {
-        if (this->IsData(p - 4, '.', 'd', 'a')) {
+        if (this->IsData(c - 4, '.', 'd', 'a')) {
           if ((dt < this->fBankCount) && (banknames[dt] != 0) &&
               (strncmp(name,banknames[dt],namelen - 3) == 0)) {
             this->fBankOffset[dt++] = offset;
@@ -738,12 +725,12 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
         }
       }
     }
-    p++;
     c++;
     }
   purgememadr(hdata);
   purgememadr(banknames);
 }
+#line 747 /* preserve unchanged following-function coordinates,not an original-source claim */
 
 /* ---- __6Speech  [SPEECH.CPP:1110-1228] SLD-VERIFIED ---- */
 Speech::Speech()

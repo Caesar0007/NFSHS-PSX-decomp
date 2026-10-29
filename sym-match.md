@@ -6,6 +6,3930 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-30 Three BWorldSm source/SLD seals,480->483 covered contracts.
+
+SetSlice's real resets/flags/chunk/status stores now occupy the supplied
+263,266..271,273,275..278 phases;implicit void fallthrough removes its
+redundant return. PointDirection's complete fixed-multiply subtraction and
+return share1213,not two split source statements. TunnelFlagSm uses supplied
+Trk_NewSlice.acousticType at byte15 instead of a raw byte-pointer expression;
+the actual acoustic guard1302,surface selection1305,surface test1307 and
+final return1310 are an ordinary if/return1 then return0,not a synthetic
+XOR-style return expression. No new object,qualifier,scope,asm,volatile or
+statement-level anchor is needed. Literal original macro/comment spelling
+remains unproved. Earlier SetSlice source-order commentary is retained here:
+pointer resets precede flags,and the chunk assignment precedes status bytes;
+the compiler nevertheless hoists the chunk load exactly as retail.
+
+All73 word/file tags across21/30/22-word functions,all supplied owners and
+block/header/end records match. Fresh run-wjw4ki1n:28/28 declaration/region
+and detailed/branch PASS,15/28 complete combined EXACT. Every prior480
+contract survives;independent occurrence-aware exactSET equals all483.
+GAME/COMMON450,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained.
+All121 fresh normal/debug CPP bindings and normal ELFs,native CPE,tests162,
+owner14,compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON
+299819/299819,overlap,foreign and inventory checks pass. All non-SLD records
+and every other function's source facts survive unchanged. Remaining13 unit
+layouts and the wider original-source obligations remain open.
+Receipts:build/nc12/bworld_small_layout_20261030/{final-proof,probe-proof,
+combined-proof,compact-static-review}.json,accepted.json and owner-queue/.
+
+2026-10-30 FindAbsClosestSliceCrude source-order/loop SLD seal,479->480 covered contracts.
+
+Retail currDist125/currInd126 initializers precede numSlices130 and for131,
+even though the count load is scheduled between the immediate instructions.
+Restore those actual phases using the existing supplied variables,then the
+typed center distance call133,comparison134,index136/distance137 updates,
+ordinary for closing brace139 and final field store/fallthrough142. The
+standard three-part for remains;no added loop wrapper,counter,scope,qualifier
+or fake work is needed. Remove the redundant explicit void return. Matched
+NFS2 same-function source independently corroborates initializer-before-count
+order and the three-part loop,not unique literal NFS4 declaration syntax.
+
+All41 word/file tags,seven complete owner tuples,both block records,header123/
+frame48 and end142 match. The empty-increment-for/explicit-body-increment
+control preserves code and owners but leaves three backedge tags on140;
+the accepted ordinary for's closing139 supplies the right backedge notes.
+No instruction/debug rewrite,new asm,volatile or statement anchor is added.
+All non-SLD records and every other function's source facts survive unchanged.
+
+Fresh run-z_r9eayd:28/28 declaration/region and detailed/branch PASS,12/28
+complete combined EXACT. All479 previous full contracts survive,now480;
+independent queue exact(TU,symbol)SET equals the entire expected manifest.
+GAME/COMMON447,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained.
+All121 fresh normal/debug CPP bindings and normal ELFs,native CPE,tests162,
+owner14,compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON
+299819/299819,overlap,foreign and inventory checks pass. Literal original
+comments/macros and the remaining16 unit layouts remain unproved/open.
+Uncommitted/unpushed;full goal active. Receipt:build/nc12/bworld_crude_layout_20261030/
+{final-proof,probe-proof,compact-static-review}.json,owner-queue/ and cases/.
+
+2026-10-30 BWorldSm two additional supplied-type pointer-access repairs.
+
+After the ordinary UpdateSimQuad control-flow recovery,reprice its integer-
+address roundtrip:typed simQuad += simquadIndex + simIndex emits identical
+code and every native debug record. Retail Trk_NewSimQuad is size1 with a
+UCHAR surface member,so its true element stride is one byte,not an invented
+scale. The guarded simIndex is nonnegative;the existing unsigned expression
+is retained. FindClosestSlice's Math_DistXZ input also uses the supplied
+INT[3] center member of the size32 Trk_NewSlice rather than a char-pointer
+offset. No storage,signature,scope,qualifier,cast-to-volatile or asm is added.
+
+Isolated quad and combined actual-source trials preserve the ENTIRE native
+dump,whole normal ELF and CPE. Actual run-9k7w3o37 retains28 owner/region and
+detailed/branch PASS,11/28 combined EXACT. All121 fresh normal/debug inputs
+and normal ELFs,CPE,tests162,owner14,compact8,stripped83,vtable1472,policy,
+relink,canonical link,raw RECON299819/299819,overlap,foreign and inventory
+checks pass. The fresh occurrence-aware queue's exactSET equals all479 prior
+contracts. No new seal is counted for a typed-only repair;FindClosestSlice
+still has21 wrong tags and remains source-layout review work. This supersedes
+the previous note's untyped distance-input view backlog,not its SLD backlog.
+Original literal syntax and the wider goal remain unproved/open;no unique
+original-text claim or source-object necessity exemption. Uncommitted/unpushed.
+Receipts:build/nc12/bworld_quad_pointer_20261030/{final-proof,probe-proof,
+combined-proof,compact-static-review}.json and owner-queue/.
+
+2026-10-30 BworldSm_UpdateSimQuad ordinary-source recovery,478->479 covered contracts.
+
+Replace the reconstruction's manual outer wrapper,conditional-expression
+funnel and GNU statement-expression pointer acquisition with an ordinary
+if/else and body-local startsimquad. Keep supplied simIndex and startsimquad
+names/types/value roles and both real simQuad stores. The body-local pointer
+still emits retail's zero-length +48..+48 region:that optimized debug extent
+does NOT require a zero-length source statement expression or empty code.
+The actual header assignment501,pointer store502,offset update503 and
+fallback506 reproduce all34 word/file tags,all six block records,three
+complete owner tuples,header495/frame0 and end506,without any new name,
+qualifier,scope scaffold,asm,volatile,flag or generated-output rewrite.
+
+Controls matter:old-expression layout preserves bytes/owners but leaves18
+tags wrong;ordinary if with the GNU acquisition seals tags but adds an
+unprovided region and makes the pointer one scope too deep. Unbraced comma
+form also has an extra region and seven wrong tags. Only the tested ordinary
+body-local acquisition preserves the entire covered contract. Those finite
+controls do not prove unique original literal syntax. The old statement-
+expression necessity implication is retired,not renamed or exempted.
+
+Fresh run-u5ecx93e:28/28 declaration/region and detailed/branch PASS,11/28
+complete combined EXACT. All478 prior contracts survive,now479;independent
+occurrence-aware queue exact(TU,symbol)SET equals the full manifest. GAME/
+COMMON446,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences accounted for.
+All121 fresh normal/debug CPP bindings and normal ELFs,native CPE,tests162,
+owner14,compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON
+299819/299819,overlap,foreign and inventory checks pass. All non-SLD records
+and every other function's SLD facts survive unchanged. Literal macro/text
+and the remaining17 unit SLD layouts remain open;no whole-project completion
+claim. Uncommitted/unpushed. Receipt:build/nc12/bworld_updatequad_layout_20261030/
+{final-proof,probe-proof,compact-static-review}.json,owner-queue/ and cases/.
+
+2026-10-30 BWorld_SetSimSlice full source-phase/SLD repair,477->478 covered contracts.
+
+Keep the supplied simSlices/chunkSliceInd objects and already-restored typed
+chunkIndex/Group-header access. Ordinary source layout restores chunk477,
+buffer479,index480 and final store481. Implicit void fallthrough removes
+the redundant explicit return. All24 word/file tags,supplied local tuples,
+both region records,header470/frame0 and end481 now match. No new object,
+qualifier,scope,asm,volatile or statement-level anchor is added. An actual
+source-adoption blank-line omission was caught by the strict gate and fixed
+before acceptance;the comparison was not weakened to accept the shifted map.
+
+Fresh run-pupirppm:28/28 declaration/region and detailed/branch PASS,10/28
+complete combined EXACT. All477 previous contracts survive,now478;the
+independently regenerated occurrence-aware queue's entire exact(TU,symbol)
+set equals the manifest. GAME/COMMON445,GAME/PSX28,FRONTEND/COMMON5. Complete
+non-SLD records and every other function's source tags/blocks/end survive.
+All121 fresh normal/debug CPP bindings and normal ELFs,native CPE,tests162,
+owner14,compact8,stripped83,vtable1472,policy,relink,canonical link,raw RECON
+299819/299819,overlap,foreign and inventory checks pass. Original literal
+macro/comment text and the remaining18 unit layouts stay open.
+
+Same-round FindClosestSlice diagnostics are NOT adopted:ordinary layout
+keeps39 code words but leaves six epilogue tags on166 instead of168. Returning
+the stored char at168 seals tags but becomes40 words/12 raw positional word
+differences;recomputing the predicate becomes42 words/25 differences with
+nine tag mismatches. These finite controls do not prove a distinct original
+source object necessary. The actual function is unchanged,and its21 current
+wrong tags and untyped distance-input view remain visible for the next round.
+No failed candidate or invented carrier lands. Full goal remains active;
+uncommitted/unpushed. Receipts:build/nc12/bworld_simslice_layout_20261030/
+{final-proof,probe-proof,compact-static-review}.json and owner-queue/;
+negative controls:build/nc12/bworld_slice_layout_20261030/cases/.
+
+2026-10-30 BWorldSm supplied typed accesses restored;initializer SLD sealed,476->477 complete covered contracts.
+
+Five accesses now use supplied types rather than integer/raw-byte address
+spellings:the slice pointer assignment,two chunkIndex reads,the crude-search
+center array,and the Group-header skip. Retail declares BWorldSm_slices as
+PTR STRUCT Trk_NewSlice,size32;center is INT[3] at0 and chunkIndex UCHAR at1c.
+Group is4 bytes,so typed Group+1 gives the same serialized-data start as
+byte+4. Each isolated change and their combination preserve the whole normal
+ELF,CPE and ENTIRE native dump. Actual source adoption passes all121 fresh
+normal/debug input bindings,objects and full regression checks. No shared
+type/header change,new name,object,qualifier,scope,asm or volatile is needed.
+Receipt:build/nc12/bworld_fields_20261030/final-proof.json.
+
+BWorldSm_Init's retail source order assigns the slice pointer on85 before
+the count on86,although scheduling emits the count load first. Restoring
+that real order plus ordinary statement placement at90/92/94 seals14/14
+word/file tags,all six block records,header84 and end94. The same-order
+negative layout control preserves code but leaves four source tags wrong;
+statement order,not only spacing,is required. No per-statement directive
+or generated-output rewrite is used. Original literal macro/comment spelling
+is not uniquely recovered by coordinate equality. All non-SLD records and
+every other function's SLD facts remain unchanged.
+
+Fresh run-gnjaorf0:BYTES UNCHANGED,ASPSX524/0,PSYLINK0;28/28 owner/region PASS,
+9/28 complete combined EXACT. Detailed28/28 and branch28/28 PASS;all121 normal
+ELFs/native CPE,tests162,owner14,compact8,stripped83,vtable1472,policy,relink,
+canonical link,raw RECON299819/299819,overlap,foreign and inventory checks pass.
+The independently regenerated occurrence-aware per-directory queue's entire
+exact(TU,symbol)set equals the477-contract manifest,not just the same count.
+GAME/COMMON444,GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences accounted for.
+The other19 BWorldSm SLD layouts and557 source-review markers remain open;
+eaclib/syslib remain limited to supplied retail evidence. No whole-project
+completion or original-object-necessity claim. Uncommitted/unpushed.
+Receipts:build/nc12/bworld_init_layout_20261030/final-proof.json,
+probe-proof.json,owner-queue/covered-owner-queue.json,compact-static-review.json.
+
+2026-10-30 Cars_DoExtraCarCollisionProcessing fresh recheck: no remaining SLD tags.
+
+Fresh native run-2w0v_qto and independent retail comparison confirm597/597
+word/file tags,46 block records,15 complete local owner tuples,header856 and
+end1138 exact. All33 Cars functions pass detailed instruction and branch
+checks;the current normal/debug inputs agree with fresh actual-source
+preprocessing. All121 protected normal ELFs,the native CPE and all476 prior
+absolute covered contracts are preserved. No function-source change was
+needed or made;no new asm or volatile. The camera-index player's original
+name/object producer and literal macro spelling remain source-review work,
+not remaining SLD differences or a whole-source restoration certificate.
+Receipt:build/nc12/cars_collision_recheck_20261030/final-proof.json.
+
+2026-10-29 BWorldSm return names corroborated by original NFS2 SYM;28 source identities restored,468->476 full contracts.
+
+The original NFS2 same-function SYM contains TWO INT AUTO locals named
+sliceChanged,and its matched source uses that name in the two return arms.
+Both current NFS4 callees return the slice-change flag. Replace generic
+result by that cross-version-supported name and remove both unnecessary
+const qualifiers. Plain int sliceChanged preserves the entire native dump
+before anchoring;the old const-elision necessity implication is refuted for
+these objects. This is original-name/behavior-backed recovery,not an invented
+semantic label;the exact optimized-out NFS4 spelling/producer is nevertheless
+not uniquely retained and remains explicitly reviewed. No original-object
+necessity exemption is granted. Direct returns match115 code words but drop
+three supplied scope pairs;they are not adopted to make the code look cleaner.
+
+All28 definitions now have one measured retail-derived function anchor with
+the original BWORLDSM.CPP identity. Distances are measured from actual native
+headers,including the same-line DeInit body,not guessed globally. Original
+header/file/frame identities and all named owners match across28 records.
+Other27 header-relative word/block/end layouts survive exactly;the target's
+real field/cache/call/return phases match all115 word/file tags,four scope
+pairs,header1139/frame40 and end1187. The low-rez rez assignment is placed
+after actual simSlice/simQuad clearing to restore source order;the compiler
+retains the identical machine instruction order. No internal line directive,
+new helper,scope scaffold,object,asm,volatile or source qualification is added.
+
+Fresh preprocessing of the private whole-file candidate initially changed
+only the ELF FILE symbol to its scratch filename;all code/data/relocations
+and the CPE already matched. Preserve the true main-source identity in the
+private compiler INPUT markers before compiling. No generated ELF symbol,
+instruction or debug record is rewritten and whole-object comparison is not
+weakened. The subsequently adopted real-source normal/debug CPP bindings and
+entire ELF match the frozen original baseline,independently confirming it.
+
+Fresh run-6kxe6uzj:BYTES UNCHANGED,ASPSX524/0,PSYLINK0;28/28 owner and region-
+address PASS,8/28 full combined EXACT. Seven pre-existing relative seals gain
+absolute source identity;FindClosestQuadRez is the newly repaired relative
+layout. All468 prior full contracts survive;the complete476 manifest set is
+independently matched by occurrence-aware(TU,symbol)provenance. GAME/COMMON443,
+GAME/PSX28,FRONTEND/COMMON5;all2581 occurrences retained. Raw owner DIFF169
+is unchanged;the honest source-review count becomes557,not a hidden cleanup.
+
+All121 actual-source normal/debug CPP bindings and normal ELFs,native CPE,
+28 detailed/branch gates,tests162,owner tests14,compact tests8,stripped83,
+vtable1472,policy,relink,canonical link,raw RECON299819/299819,overlap,foreign-
+label and inventory checks pass. Compact tick32 support is retained without
+relaxing strict comparisons. The other20 unit SLD layouts and the broader
+original-source obligations remain open. Uncommitted/unpushed;full goal active.
+Receipts:build/nc12/bworld_return_source_20261029/{final-proof,scope-proof,reference-proof,anchored-proof,probe-proof,anchors}.json;owner-queue/covered-owner-queue.json;compact-static-review.json.
+
+2026-10-29 Cars_CheckForAccidentScenes restores typed stats.lap and guarded-exit SLD;467->468 complete contracts.
+
+Replace both raw+0x360 integer reads with Cars_gHumanRaceCarList[0]->stats.lap.
+Retail explicitly gives Car_tObj.stats STRUCT Car_tStats at0x34c and that
+type's lap INT at0x14:effective0x360,not the distinct root Car_tObj.lap at0x264.
+The field/type proof retains those exact raw records. The field-only candidate
+preserves the entire native dump,normal ELF and CPE;this applies recoverable
+original member names/container identity rather than a semantic guess.
+
+Actual mode/lap/clear/load phases now match all50 word/file tags,header2776,
+frame24,three scope pairs and end2804. Move the existing real void return
+inside the active-mode work region. The outside-return control also matches
+all code/tags,but leaves two scope ends on26 instead of retail29;it is not
+adopted. The inside return restores those owner-source endpoints while code,
+all named locals and every prior contract remain unchanged. Original macro/
+comment/gap text is not uniquely proved by equal source coordinates.
+
+Do not hide the remaining source-only flag-producer question. Plain sceneLoaded
+adds an unsupplied INT REG:$2 at depth3,+60..184. Direct field testing and a
+genuine switch both retain50 code words but remove two supplied scope pairs.
+These are private negative controls,not proof that the current const capture
+or its identifier was original. Keep its actual value use and existing
+qualification for now,with a new explicit SOURCE-REVIEW note before the
+unchanged2775 function anchor. No new object,qualifier,helper,asm,volatile,
+statement directive,fake use or post-compile rewrite is introduced. The honest
+source-review location count becomes556,not an artificial cleanliness gain.
+
+Fresh run-7rqtupq7:BYTES UNCHANGED,ASPSX524/0,PSYLINK0;Cars33 owner/region-
+address PASS and18/33 full combined EXACT. All467 earlier full contracts
+survive;this one makes468. The independent occurrence-aware queue matches
+the COMPLETE468 manifest set:GAME/COMMON435,GAME/PSX28,FRONTEND/COMMON5.
+All other function occurrences/word-file maps and the entire ordered non-SLD
+record stream remain unchanged;raw detailed owner DIFF169 is not relaxed.
+
+All33 detailed/branch gates,121 complete normal ELFs/current-source normal+
+debug CPP bindings,native CPE,tests162,owner tests14,compact tests8,stripped83,
+vtable1472,policy,relink,canonical link,raw RECON299819/299819,overlap,foreign-
+label and inventory checks pass. Compact tick32 evidence persists in its
+fresh companion report. Full original-source goal remains active;
+uncommitted/unpushed.
+Receipts:build/nc12/cars_accident_source_20261029/{final-proof,field-scope-proof,layout-proof,probe-proof}.json;owner-queue/covered-owner-queue.json;compact-static-review.json.
+
+2026-10-29 Cars_DoExtraCarCollisionProcessing remaining581 SLD differences sealed;466->467 complete covered contracts.
+
+Restore the actual field,guard,vector,damage,impact,audio and reset phases at
+retail coordinates under the UNCHANGED per-function855 anchor. All597 word/
+file tags,15 complete supplied owner tuples,46 block-line records,header856,
+frame and root/end1136/1138 now match. No new source name,object,qualifier,
+asm,volatile,scope device,internal line directive or post-compile rewrite.
+The entire normal Cars ELF and native CPE are unchanged. Every other function
+occurrence,word/file map and ordered raw non-SLD record remains unchanged.
+All16 previously correct target word tags survive;581 more become correct.
+
+The other-object and high-impulse tests belong on distinct991/992 source
+lines:real nested guards supply those phases instead of a single completed
+compound condition. Paired damage conditions share their real source line;
+vector component stores likewise share924/925/927/932/935/937 as retained by
+SLD. Three existing pull-over guards have separate predicate/body coordinates,
+including the actual multi-line third predicate. Impact objects,table audio
+selection,collision clears,timer update and the final y projection retain
+their supplied owners/order. Ordinary implicit fallthrough supplies1138 while
+the root work scope ends at1136. This is actual source layout/control flow,
+not executable placeholders or a rewritten debug stream.
+
+Nonexecuting coordinate gaps remain blank rather than fabricated disabled
+code/comments. Precise original macro spelling,gap contents,and the unprovided
+camera-index object's original name/producer are NOT uniquely recovered.
+Its explicit SOURCE-REVIEW note is retained outside the anchored body,not
+silently removed to clean the review count. The current player's actual
+Boolean second-human camera-row use remains;no original-object necessity
+exemption or whole-original-text claim is made.
+
+Fresh run-tzm7ixta:BYTES UNCHANGED,ASPSX524/0,PSYLINK0;Cars33/33 declaration
+and region-address PASS,17/33 full combined EXACT. All466 prior full contracts
+survive and this one makes467. The occurrence-aware queue independently
+matches the COMPLETE467 manifest set by(TU,symbol):GAME/COMMON434,GAME/PSX28,
+FRONTEND/COMMON5. All2581 native/retail occurrences are retained;raw owner
+DIFF169 and555 source-review locations remain genuine wider-goal obligations.
+
+All33 detailed/branch PASS,121 complete normal ELFs/fresh actual-source
+normal+debug CPP bindings,native CPE,tests162,owner tests14,compact tests8,
+stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/299819,
+overlap,foreign-label and inventory checks pass. Compact tick32 support
+remains separately corroborated without relaxed source comparisons.
+Full original-source goal stays active;uncommitted/unpushed.
+Receipts:build/nc12/cars_collision_layout_20261029/{final-proof,scope-proof,probe-proof,source-map}.json;owner-queue/covered-owner-queue.json;compact-static-review.json.
+
+2026-10-29 Cars collision direct field guards remove synthetic goto/label;all33 Cars named owners and region addresses now PASS.
+
+DoExtraCarCollisionProcessing previously borrowed supplied geometric y for
+the initial blowout read,then needed an inverted goto to preserve the retail
+entry edge. Test/increment the actual blowout field directly instead;keep y
+for the later road/orientation projection. Matched NFS2's same function uses
+its supplied y only for that geometric calculation. The selected stock
+compiler now preserves the correct initial fast-path edge and the later
+blowout re-read using ordinary structured fields,no goto or opacity device.
+This is a source-role/control-flow repair,not a claim that physical register
+reuse proved the old named blowout capture was original.
+
+Use actual blowout/pullOver,abort/finish and time/fatal/speed guard groups.
+All597 words,the complete Cars ELF and native CPE remain identical. Fifteen
+full named-owner tuples survive unchanged. Empty-region address matches rise
+41->46 of46:starts184/216/216/252/252 become retail168/200/200/232/232;292 was
+already correct. The synthetic afterPullOver LABEL record at function+408
+is absent from retail and is removed along with its source goto/label.
+Except those FIVE precisely checked boundary repairs and that ONE invented
+label,all ordered raw non-SLD records are unchanged. Every other function
+occurrence and word/file map is preserved. All13 previously correct target
+word tags survive,and offsets52/56/60 become correct:584->581 differences.
+
+Regrouping alone first repaired four starts while retaining the late first
+scope. Old-y OR/selector variants add words,and assignment-in-test is still
+one raw word off;they are not adopted. Direct field variants prove that the
+old goto-necessity verdict was source-shape-specific,not a compiler floor.
+Replace the old player SYM-CODEGEN-CARRIER necessity exemption by an explicit
+unresolved shared-index/row producer note. A genuine single aggregate-vector
+assignment would remove that name,but produces607 versus597 words;it is
+private,not a replacement source object or accepted metadata workaround.
+
+Fresh run-sh44j275:BYTES UNCHANGED,ASPSX524/0,PSYLINK0;Cars33/33 primary
+native CLEAN,33/33 declaration ownership PASS and33/33 region-address PASS.
+This does NOT mean full source/SLD completion:the target's block source lines,
+581 word tags and camera-index producer remain unresolved;Cars is still16/33
+full combined EXACT. All466 earlier absolute contracts survive,independently
+confirmed as the complete occurrence-aware(TU,symbol)manifest set. Raw owner
+DIFF169 and the555 lexical source-review locations are not hidden or cleared.
+
+All121 current-source normal/debug CPP bindings and normal ELF hashes,native
+CPE,33 detailed/branch gates,tests162,owner tests14,compact tests8,stripped83,
+vtable1472,policy,relink,canonical link,raw RECON299819/299819,overlap,foreign-
+label and inventory checks pass. Compact tick32 support remains separately
+corroborated without relaxing strict comparisons. No new asm,volatile,
+qualifier,source object,statement anchor or post-compile rewrite is added.
+Full original-source goal stays active;uncommitted/unpushed.
+Receipts:build/nc12/cars_collision_guard_20261029/{final-proof,scope-proof,refined-proof,probe-proof,blowout-role-proof,camera-vector-proof}.json;owner-queue/covered-owner-queue.json;compact-static-review.json.
+
+2026-10-29 Cars_FindTotalSlice real if/else restores supplied scope ownership;465->466 complete contracts.
+
+Replace the manual outer work wrapper plus a separate lapSlices block by
+the genuine unlap guard/else body. C++'s actual conditional binding supplies
+the required second owner;lapSlices belongs in the else body at depth3.
+This is ordinary executable control flow,not another empty scope or dummy
+declaration. NFS2 PC matched Cars_FindTotalSlice independently supports the
+unlap guard/else source family,while NFS4's supplied cache/reverse-track math
+and existing early zero return remain unchanged. The reference supports
+structure,not a claim of uniquely recovered NFS4 punctuation or comments.
+
+All27 word/file tags,header1552,frame0,complete provided local tuples,three
+region pairs and end1564 match. The two previously early scope opens become
+retail relative3 and8;all addresses,endpoints and previously correct word
+tags are preserved. A brace-only control also matches every fact,but the
+guard/else form is adopted because it replaces the reconstruction wrapper
+with real source ownership. No new name,object,qualifier,asm,volatile,fake use,
+scope padding,per-statement directive or compiler-output rewrite is added.
+The older failed if/else assay did not establish an original-wrapper need.
+
+Fresh run-_omneo7u:BYTES UNCHANGED,ASPSX524/0,PSYLINK0. All33 Cars detailed/
+branch gates,complete normal ELF/native CPE and all121 source/object/fresh
+normal+debug CPP bindings remain unchanged. Every other function occurrence,
+named local/type/storage tuple,word/file map and ordered non-SLD raw record
+survives. All465 earlier complete contracts survive;the new one makes466.
+The independent occurrence-aware queue matches the complete manifest SET,
+not merely its count. GAME/COMMON433,GAME/PSX28,FRONTEND/COMMON5 full contracts;
+Cars' strict combined coverage is16/33,not a whole-unit source completion.
+DoExtraCarCollisionProcessing's separate region/source gaps remain open.
+
+Tests162,owner tests14,compact tests8,stripped83,vtable1472,policy,relink,
+canonical link,raw RECON299819/299819,overlap,foreign-label and inventory
+checks pass. Compact tick32 corroboration persists without changing raw
+owner DIFF169. Full original-source goal stays active;uncommitted/unpushed.
+Receipts:build/nc12/cars_total_source_20261029/{final-proof,scope-proof,probe-proof,baseline-proof}.json;owner-queue/covered-owner-queue.json;compact-static-review.json.
+
+2026-10-29 Cars gravity exit/layout seals all80 source tags;464->465 full covered contracts,without new devices.
+
+Fresh native inspection found76/80 target tags one line early,root end+304
+at relative43 instead of41,and function end417 instead of418. Add the real
+statement-layout gap after the opening brace,and replace the terminal void
+return by ordinary implicit fallthrough while retaining the closing source
+line. All80 word/file tags,header374,frame40,provided local owners,root1/41
+and function end418 now agree. No per-statement directive,executable padding,
+scope device,new object,asm,volatile or qualifier is added. Existing per-
+function filename/line anchor remains unchanged. All33 Cars functions retain
+their complete normal ELF/native CPE and detailed/branch PASS results.
+
+The prior qualifier assay separately proved const int roadNormal unnecessary:
+plain int preserves the ENTIRE native dump. Remove that qualification and
+make the unprovided name/object-producer question explicit in source. This
+is NOT removal or proof of an original roadNormal object. A real supplied
+gravity_ch.y route retains80 words but adds exactly sw v0,20(sp) at+60 where
+retail has nop;it is not adopted or normalized away. A no-name call-valued
+expression also matches code/provided owners,but adds four block records and
+leaves three wrong tags. It is rejected,not used as scope/line camouflage.
+Direct-call and plain-value controls do not establish unique original text.
+The final source's staged real normal calculation and threshold use remain
+plain C++ with the source-producer/identifier ambiguity still recorded.
+
+Fresh run-f_32y09z is BYTES UNCHANGED,ASPSX524/0,PSYLINK0. Every other
+function occurrence/owner/word-file map and the ordered non-SLD raw stream
+are preserved. All previous464 full contracts survive;the new gravity
+contract makes465. The occurrence-aware queue independently matches the
+COMPLETE465 manifest set by(TU,symbol),not just its cardinality. GAME/COMMON
+full contracts431->432;GAME/PSX28 and FRONTEND/COMMON5 remain unchanged.
+The added explicit source-review marker makes555 lexical review locations;
+do not mistake a higher honest review count or native-clean locals for a
+finished original-source restoration. Raw owner DIFF remains169.
+
+All121 current-source normal/debug CPP bindings and complete normal objects,
+33 detailed/branch checks,native CPE,tests162,owner tests14,compact tests8,
+stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/299819,
+overlap,foreign-label and inventory checks pass. Compact tick32 support is
+retained in the fresh companion report without relaxing strict comparisons.
+Full goal stays active;uncommitted/unpushed.
+Receipts:build/nc12/cars_gravity_source_20261029/{layout-final-proof,layout-scope-proof,layout-proof,probe-proof,vertical-instruction-delta,value-expression-proof}.json;layout-owner-queue/covered-owner-queue.json;layout-compact-static-review.json.
+
+2026-10-29 Compact static evidence exposed alongside the strict queue;do not delete tick32 to clean a detailed-record surplus.
+
+The current detailed owner queue lists native tick32 as a surplus in
+DashHUD_HUDCalc,while retail's compact type6 stream retains tick32.32 at
+0x8013ddb4,immediately after resethud.28 at0x8013ddb0. Current native compact
+symbols are tick32.21 at0x8013df28 and resethud.20 at0x8013df24. Source names
+and the+4 anchor relationship agree;numeric suffixes/absolute relocated VAs
+are not treated as cross-build identities. The existing narrow comparator
+receipt corroborates this current native detailed INT STAT/address against
+the unique retail compact name and a same-function detailed INT STAT anchor.
+This does not recover the absent retail detailed type or lexical-owner tuple,
+nor original source uses. It is evidence to preserve the named storage,
+not permission to fabricate missing records or mark the strict tuple exact.
+
+New tools/source_compact_static_review.py produces an additive per-directory
+companion to source_owner_queue. It rejects stale native/retail/source inputs
+and globally repeated function names;the existing collapsed parser is never
+used to select an ambiguous occurrence by address. It reuses only the old
+comparator's three pure definitions and regexes via AST:direct import of that
+legacy CLI executes its unguarded command-line code,so no such import remains.
+No existing comparator,source,SYM,reference or generated instruction is edited.
+Both files are new tools,so no previous-file backup is applicable.
+
+Eight fail-closed tests cover wrong relative/native addresses,duplicate compact
+names,missing same-function anchor,wrong type/home,multiple occurrences and
+invalid owner pairing,plus immutable positive input/status behavior. All8,
+existing owner-queue14 and pipeline162 pass. One compact-supported surplus
+occurrence is reported;raw owner DIFF169,strict full contracts464 and all2581
+paired function occurrences remain unchanged. There is no PASS inflation.
+Original-object necessity,source uses and missing type/scope facts remain open.
+
+The same round's eight private request-index routes do not remove the queue
+snapshot. Deriving the old index from the successor assumes valid ring indices
+0..63;conditional/masked forms produce81/83 versus79 words,and explicit wrap-
+arm duplication produces140/147. None is adopted or treated as a source floor.
+CopSpeak_Request freshly79/79PASS and the full CopSpeak branch census is clean.
+All121 reconstructed source/normal-ELF hashes,native CPE/SYM and464 contracts
+are unchanged. Full goal stays active;no new asm/volatile or post-compile rewrite.
+Receipts:build/nc12/compact_static_review_20261029/{final-proof,compact-static-review}.json;build/nc12/cop_request_index_source_20261029/probe-proof.json.
+
+2026-10-29 GetPlaneY source-only numerator/qualifier removed;entire native SYM and all464 contracts preserved.
+
+Reuse the supplied D for the real final plane/test-point numerator,then
+return fixeddiv(D,norm->y). This removes the const int numerator declaration,
+not merely its native audit row. The plane coefficient is consumed before
+the assignment;the existing original identifier is reused for actual result
+work. No new name,alias,qualifier,scope,fake use,asm or volatile is added.
+All42 words,the ENTIRE scene ELF/native CPE and ENTIRE native SYM dump are
+byte-identical. Every supplied local home/type/owner,and every prior line/
+file/block/end record throughout the project survive unchanged.
+
+Four byte-equivalent source controls separate the obligations. A direct
+nested return and an assignment to D inside the argument each match code
+and supplied owners but regress ten previously exact header-relative word
+tags. They are NOT adopted. Separate D assignment preserves all42 relative
+tags and the original coefficient/numerator/divide phases. A plain int
+numerator ALSO gives the identical entire native dump,so the old const
+qualification was not necessary to elide that declaration. Prefer removal
+of the source capture,not a const/renaming workaround. The positive-sum D
+variant is two raw differences and is not retained. No claim of uniquely
+recovered original variable-reuse or literal macro/comment text follows.
+The source heading now distinguishes supplied locals/relative SLD from its
+still-unrestored absolute original filename/header coordinates.
+
+Fresh run-gnfhr6e1:BYTES UNCHANGED,ASPSX524/0,PSYLINK0;scene six records,
+five declaration PASS/one DIFF,with the unchanged BuildCustomSceneList gap.
+Six detailed/branch PASS,all121 normal ELFs/current-source normal+debug CPP
+bindings,native CPE/SYM,tests162,owner-queue tests14,stripped83,vtable1472,
+policy,relink,canonical link,raw RECON299819/299819,overlap,foreign-label and
+inventory checks pass. The fresh per-directory queue retains464 complete
+absolute contracts and2581 paired occurrences. Declaration counts do not
+improve because the removed source object was already debug-elided;do not
+inflate the audit metric or call the whole source-restoration goal complete.
+
+The same round's94 private Clock source routes retain the production source.
+Four real void-return/fallthrough forms keep43 words/CPE but do not fix gp's
+root endpoint156 versus144. Guarded exits,real counter-update sequencing,
+prefix/postfix parity and existing-fence removals find fence-free/capture-free
+43-word candidates,closest seven raw words off,NOT PASS. This refutes a
+simple instruction-count necessity claim for either old device,but does not
+prove an original capture or close the code/owner/SLD question. No failed
+Clock change,additional fence,volatile or post-compile rewrite is adopted.
+Full goal stays active;uncommitted/unpushed.
+Receipts:build/nc12/scene_plane_source_20261029/{final-proof,probe-proof,source-shape-proof}.json;owner-queue/covered-owner-queue.json;build/nc12/clock_return_source_20261029/{probe-proof,branch-proof,parity-phase-proof,increment-route-proof,condition-update-proof,flat-update-proof}.json.
+
+2026-10-29 Paths actual debug freshness recovered without changing a reference;protected source/input/object set120->121.
+
+An isolated current-header -O2 -G4 control reproduces the complete normal
+Paths ELF and native CPE,and more strongly the ENTIRE native SYM dump is
+BYTE IDENTICAL to live:76e31c204b1d46123be369fc7161462d7e5a87669eeb11da2ad197a8ae9b7e93.
+Thus the old header/file-input differences did not change any supplied or
+unprovided local,type,owner,scope,storage or SLD fact. Only after this proof,
+the normal gdebug_compile tool refreshes Paths' actual debug input/assembly;
+its new assembly equals that isolated control and its input equals fresh
+actual-source normal CPP. The old inputs/assembly/object are retained.
+The existing SN object is still bound to the saved old assembly;keep its
+strict translation check rather than silently assuming the new unused
+header/file directives are identical. Independent fresh linking proves the
+same final records/code. No generated instruction or debug record is rewritten.
+
+All121 normal objects and actual source-generated normal/debug CPP inputs
+are now hash-bound,freshly checked. This adds a freshly calibrated unit to
+the earlier120 set,NOT a new retail source seal. All464 absolute contracts
+and the native CPE/SYM remain unchanged. Paths19/19 and branch PASS,vtable1472,
+relink GREEN,tests162,owner-queue tests14 and linked raw RECON299819/299819
+pass. The fresh per-directory occurrence queue independently retains464.
+The old legacy reference
+omitting install.psx stays unchanged and remains a separately documented gap;
+no broader full-build success is manufactured by replacing it.
+
+Five ordinary pointer/reference home trials do not recover the frame:
+plain pointer,initialized pointer,char reference and array reference give17
+words/frame0;pointer reference gives18/frame0. None supplies scan AUTO:sp-8
+or equals the19-word retail body. Three genuine final-pointer-use routes
+assign scan=fePath for the two actual stores;each retains19 words but differs
+six raw positional words. No trial is adopted. These finite failures do not
+prove a distinct padding object or a unique original pointer/reference type.
+scanFrame,scan ownership/order/home,root endpoint,full SLD and original
+install.psx source producer remain open source-restoration obligations.
+Full goal stays active;no new asm,volatile,qualifier,object or flag lands.
+Receipts:build/nc12/paths_home_source_20261029/{final-proof,control-proof,refresh-proof,probe-proof,tail-role-proof}.json;owner-queue/covered-owner-queue.json.
+
+2026-10-29 Carrier-review follow-up:Paths padding exemption retired,NFS2 parser evidence recovered;no false source seal.
+
+Paths_StartUp's scanFrame array has NO supplied retail declaration. The
+old SYM-CODEGEN-CARRIER justification is replaced by a specific unresolved
+producer note,not a new generic exemption. Retail orders scan PTR CHAR
+AUTO:sp-8 before dirCounter REG:$3,inside root+0..68. Current native instead
+orders dirCounter,scan REG:$4,scanFrame ARY INT AUTO:sp-24,root+0..44. Matching
+the19-word code/frame therefore did NOT restore source object ownership.
+Matched NFS2 PC paths/Paths_StartUp.c really calls Paths_ReadTillEOL(&scan)
+and Paths_ReadTillNotEOL(&scan);the first helper increments the pointed-to
+pointer. This is evidence for genuine parser addressability,not proof of
+the missing NFS4 source or permission to add a dead address-use/parser call.
+No placeholder parser,extra variable,asm,volatile or frame device is added.
+
+The replacement preserves exactly nine physical comment lines and the
+normal preprocessed input BYTE IDENTICALLY. Fresh Paths19/19PASS and its
+one-function branch gate pass. Paths is NOT one of the previous120 protected
+TUs. A baseline check found its live debug input still predates shared-header
+extraction,and its existing legacy byte reference lacks the already-present
+12-byte install.psx rodata literal. Restoring the original HEAD source
+before --ref-only still fails that OLD reference;the freshly compiled normal
+ELF equals the pre-check ELF byte-for-byte. No reference is replaced and no
+fresh native Paths/source-metadata certificate is claimed. Correct native
+source freshness and the real scan home/frame/line producer remain open.
+
+Slider's further16 genuine statement-phase and12 equivalent Boolean-predicate
+routes also fail;the best remains two compare/branch words. No failed source
+is adopted and max is not proved original. Fresh slider71/71PASS and all60
+pausemenu functions have zero branch divergence. All120 prior source/object
+hashes,native CPE/SYM and464 contracts are unchanged;the comment-reviewed
+Paths source is separately hash-bound,not silently added as a121st fresh unit.
+No new broad build claim. Full source-restoration goal stays active.
+Receipts:build/nc12/carrier_review_followup_20261029/final-proof.json;build/nc12/slider_upper_source_20261029/{phase-route-proof,predicate-route-proof}.json;build/symloop_runs/run-_0if76gv/normal.log.
+
+2026-10-29 Slider upper-clamp carrier deletion reaches two exact raw-word differences;stock initial RTL identifies the next source angle.
+
+The owner-aware queue identifies unprovided max UINT REG:$6 at depth5 in
+tPMenuItemLeftRightSlider::ProcessInput;retail supplies only this,keyval and
+sound. Do not hide max by qualification or a semantic rename. Fresh current
+headers/control reproduce the complete normal ELF. Seventy-eight private
+no-new-object routes test32 direct clamp/quotient forms,12 real update-
+sequencing/conditional/GNU-min forms,16 value-arm conversions and18 ordinary
+branch/destination stores. None is byte-exact and none is adopted.
+
+Closest direct strict min retains all71 words and removes max,but differs
+only at+220/+224:ours slt v0,v1,a2;beqz v0,skip versus retail
+slt v0,a2,v1;bnez v0,skip. The selected values agree on equality,so this is
+an equality-path/source-expression codegen residual,not a behavioral fix or
+relocation-normalization artifact. Non-strict direct forms usually give70
+words;mere condition reversal or whole-result/value-arm casts does not solve
+the stream. Actual store-then-clamp produces75,not the retail71.
+
+Passive selected-stock -O2 -G8 -g/-dr equality is verified for control and
+closest candidate;control assembly equals the live debug assembly. Their
+different compare/branch graphs already appear in initial RTL,so do not
+blame a later scheduler/local allocator without new evidence. GCC2.8.1
+fold-const.c5631-5665 explicitly preserves the equality-selected operand
+when constructing C++ MIN_EXPR,and expr.c6519 onward expands that operand
+order. This supports a precise next investigation of original conditional/
+macro folding and equality provenance;it is NOT a stock tree trace or proof
+that an extra named object was required. Original spelling remains open.
+
+Production source/native dump/CPE and all120 tracked source/normal-ELF hashes
+are unchanged;all464 absolute contracts survive. Target freshly71/71PASS,
+whole pausemenu60 functions have zero branch-offset/count divergence. No new
+asm,volatile,qualifier,object,flag or output rewrite lands. This diagnostic
+round does not claim another full-build or source-clean certificate.
+Receipts:build/nc12/slider_upper_source_20261029/{audit-proof,probe-proof,followup-proof,arm-type-proof,store-route-proof,phase-proof}.json.
+
+2026-10-29 Mission-manager source anchors/layout restore five full covered contracts;459->464,all PASS preserved.
+
+femission.cpp now has one retail-derived original-filename anchor per method,
+with measured signature-to-native-header distance2. Ordinary source layout
+restores Initialize's actual zero-store/return phases and LoadDescription's
+file/table acquisition,copy,pointer-advance and final-purge phases. No
+executable token or literal changes;no new variable,helper,scope,qualifier,
+asm,volatile,fake use or per-statement directive is introduced. All144
+instruction/file tags,ten block records,provided local tuples,headers/frames
+and ends agree for Initialize7,LoadDescription79,ReleaseDescription15,
+GetMissionStages26 and GetMissionToRace17. currentTier is a supplied retail
+local,not an unprovided carrier. Keep the unused supplied LoadHotPursuit
+parameter;the actual filename selection still reads frontEnd.gameMode.
+
+Freshness check found this unit outside the prior119 protected TUs:normal
+input already used the current typed EA headers,but live debug input still
+used old variadic prototypes. An isolated current-header control reproduced
+the whole normal ELF/native CPE and every function/local-owner record.
+Refreshing that baseline adds40 current-header type record occurrences and
+removes ZERO raw record occurrences. Those40 are not claimed as newly
+proved retail facts. Old input/dump and the no-loss receipt are retained;
+do not attribute that independent header refresh to source line anchors.
+
+Actual frontend overlay recipe is -O2 -G0,not the global G4 default or a
+guessed G8. Fresh native run-y74o_o9w is BYTES UNCHANGED,ASPSX524/0,PSYLINK0,
+five declaration/region PASS and five SLD EXACT. All459 previous absolute
+contracts,all other function/owner/SLD records and the ordered non-SLD stream
+relative to the freshly calibrated baseline survive. Five additional full
+absolute contracts bring the verified manifest to464;source/object freshness
+coverage explicitly grows119->120 rather than pretending femission belonged
+to the old119. Literal original macro/comment/text is still not uniquely proved.
+
+Five detailed/branch PASS,all120 normal ELFs and fresh actual-source normal+
+debug CPP bindings,native CPE,tests162,owner-queue tests14,stripped83,
+vtable1472,policy,relink,canonical link,raw RECON299819/299819,overlap,
+foreign-label and inventory checks pass. The fresh occurrence-preserving
+per-directory queue independently counts464 full contracts:GAME/COMMON431,
+GAME/PSX28,FRONTEND/COMMON5. Native/retail2581 occurrences are all paired;
+169 functions still have owner differences and554 lexical review markers
+remain. Zero regex-detected synthetic identifiers is not proof that every
+source-only carrier is resolved. Eaclib/syslib remain partial-retail scope.
+Full goal stays active;this checkpoint is uncommitted/unpushed.
+Receipts:build/nc12/femission_anchors_20261029/{final-proof,baseline-proof,refresh-baseline-proof,fresh-control-proof,layout-proof,anchors}.json;owner-queue/covered-owner-queue.json.
+
+2026-10-29 Speech dataSize deletion narrowed to two swapped loads;34 further source/removal controls,no failed landing.
+
+After removing the obsolete $2 clobber,the next unprovided object is the
+tied dataSize REG:$3 copy of supplied size AUTO:sp-68. Delete that output,
+its paired input and declaration,use actual size in data+=size,and retain
+only the pre-existing remaining ties. The target still has270 words and
+all other positional words match;the sole differences are at+180/+184:
+retail lw v1,28(sp) then lbu v0,8(s0),candidate the same two loads reversed.
+Frame96 makes28(sp) the supplied entry-SP-68 size slot. This is a genuine
+two-word instruction-order residual,not a relocation/name artifact or a
+normalized verify_asm score. The candidate is private,not production PASS.
+
+Fourteen non-control paired-output/input deletion subsets were checked with
+tie indexes renumbered only as required;no operand/fence is added. The case
+that would turn an output node into an input-only implicit-volatile fence
+was deliberately not introduced. Seven real data-pointer-advance placements,
+eight coordinated removals of existing late/suffix/header-reference fences,
+and five existing byte-local declaration/assignment forms were then checked.
+None matches the target payload. The declaration controls add no source
+variable;the pointer-update placements perform actual existing work,not a
+zero identity or ref-count placeholder. No failed candidate is adopted.
+
+This does not prove that dataSize or another fence was an original source
+object. The source-native size load/first-byte scheduling producer remains
+the next specific angle,not a named-source alias or replacement empty fence.
+The fully verified $2-clobber removal remains in production unchanged,with
+the prior35 complete supplied owner tuples and all155 unit PASS results.
+All459 absolute contracts and119 object/source/native CPE/SYM hashes were
+rechecked unchanged. No fresh full-build claim is made for this source-
+unchanged diagnostic audit. Full source/SYM/SLD goal stays active.
+Receipts:build/nc12/speech_tie_subsets_20261029/{audit-proof,probe-proof,size-instruction-delta,size-route-proof,size-fence-proof,declaration-proof}.json.
+
+2026-10-29 Speech allocator's redundant $2 hard clobber removed;entire native SYM,all155 unit gates and459 contracts unchanged.
+
+Remove only the $2 clobber from the existing zero-template allocator operand
+tie. Output/input ties and all source values remain unchanged;no replacement
+fence,register pin,volatile,qualifier,source object or compiler flag is added.
+Physical line counts are preserved. Selected-stock plain/-dr output agrees,
+and the ENTIRE debug assembly is identical before/after. Actual adopted
+assembly equals the real G8/NII native compile. This is a verified removal
+of a pin-adjacent reconstruction device,not a new source/fence exemption.
+
+Fresh run-yjyn92jm is BYTES UNCHANGED,ASPSX524/0,PSYLINK0. More strongly,
+the entire native SYM dump is BYTE IDENTICAL to the prior reader checkpoint:
+2c8148226711a6db576b5c4a122872e9e6a0ae9c526e408d7a2427c64f4a4bd9.
+Thus every local/type/storage/owner/scope/header/file/block/end/word-line record
+and all459 absolute contracts survive unchanged,including the35 restored
+complete LoadBankHeaders owner tuples. The current function/module still
+has its previously documented source/SYM/SLD gaps;this is not a full seal.
+
+The isolated removal also matches the EARLIER pre-reader source's normal ELF
+and CPE under the current selected recipe. Therefore do not claim that the
+reader restoration alone made the clobber removable,or that the old W77
+necessity receipt remains true today. The stale in-source claim is corrected.
+The earlier source's different owner/SLD stream is historical,not substituted
+for the current preserved native dump.
+
+Broader source-only allocator trials remove all five argument/size/alignment
+captures and the initial asm,together with real first-reader/late-fence forms.
+All20 variants retain270 words but differ8..19 raw positional words. The
+closest manual-reader variant differs in the early argument/load scheduling
+window,not just symbol-table metadata;none is adopted. A removal-only16-case
+subset audit of the late hsize fence,suffix-result fence,duplicate header
+inputs and $2 clobber finds only control and clobber-only removal byte-exact.
+Those failures do not prove original captures/fences or close the source axes.
+
+All155 detailed/branch gates,119 normal ELFs/fresh normal+debug source CPP
+bindings,native CPE,tests162,owner-queue tests14,stripped83,vtable1472,policy,
+relink,canonical GNU link,raw RECON299819/299819,overlap,foreign-label and
+inventory checks pass. Other empty allocator/suffix fences and captures remain
+explicit unfinished work. Full goal stays active;uncommitted/unpushed.
+Receipts:build/nc12/speech_allocator_source_20261029/{final-proof,phase-proof,clobber-control-proof,probe-proof,fence-proof,pmanual0-instruction-delta}.json.
+
+2026-10-29 Speech first-reader source/type audit:23 fresh routes,no failed landing;recovered35 owner tuples preserved.
+
+Current-source stock control reproduces the entire normal ELF/native CPE,
+every parsed SLD/function record and complete owner stream. Computed header+8,
+assignment-advance and preserved caller-advance forms do not solve the first
+reader. The closest assigned-pointer form retains270 words and the same3
+actual load/pointer/data-update differences;computed forms have271 words.
+None is adopted or called a source floor.
+
+Nine equivalent sequential reader bodies(postincrement,all-postincrement and
+preincrement),six header-count accessor hypotheses and three readonly-buffer
+API forms were also tested privately. The accessor hypotheses perform real
+format work at offset8;they are NOT approved original API names/definitions
+and none matches the actual target payload. No shared header or new helper
+API is changed. The const-pointee tests model read-only byte access,not a
+const local used to hide a declaration;they also do not match and are not
+adopted. All23 non-control variants fail byte equality,so no source/native
+cleanliness claim is manufactured from their declaration shapes.
+
+An isolated actual selected-stock SDB probe resolves one type question:
+char *&p emits .type0x52(PTR PTR CHAR),whereas retail's p is PTR CHAR.
+The by-reference pointer-advance route is therefore not supported by that
+record. Both char &p and char *p emit .type0x12,so the original reference/
+pointer spelling cannot be uniquely inferred from this SDB record alone.
+The probe executable/input/assembly hashes and exact parameter definitions
+are retained;this is native compiler evidence,not a near-host assumption.
+
+Production source remains at the verified entry-reader restoration:35 complete
+supplied owner tuples,all155 unit byte/branch PASS,and459 absolute contracts.
+All119 normal ELF/source/native CPE/SYM hashes are rechecked unchanged. No new
+asm,volatile,qualifier,source object,shared-header/API or compiler-output
+rewrite is landed. First-reader source production and old allocator liveness
+devices remain explicit unfinished work. Full goal stays active.
+Receipts:build/nc12/speech_count_source_20261029/{audit-proof,probe-proof,reader-proof,accessor-proof,readonly-proof,reference-type-proof}.json.
+
+2026-10-29 Speech::LoadBankHeaders restores existing entry-reader calls;27->35 complete supplied owner tuples,with all155 unit byte/branch gates preserved.
+
+The new occurrence queue identified two missing inline p parameters and three
+missing this receivers in LoadBankHeaders. The already-existing ReadBE32
+member has the exact four-byte big-endian behavior and a/b/c/d locals. Use
+offset=ReadBE32(c),size=ReadBE32(c+4) BEFORE advancing c by8,instead of the
+manual byte-reader block hierarchy and a second caller p walker. The compiler
+still creates retail's lagging s2 cursor by itself;the old claim that a caller
+p declaration was required is superseded,not retained as an exemption.
+
+Both entry calls preserve all270 words,the ENTIRE normal speech ELF and
+native CPE. A plain c argument supplies p REG:$20 and this REG:$23 at depth4,
+owner+380..+380,path[0,2,0,0]. The computed c+4 argument correctly has no p
+row,but supplies the second this receiver. Existing inline local emission
+also recovers the actual d/c/b/a declaration ordering and homes. Eight more
+complete retail name/type/size/dimensions/home/depth/range/path tuples match:
+27->35 of48,with none of the27 prior correct facts lost. Every342 previously
+correct pairwise declaration-order relation survives;the longest ordered
+exact local subsequence improves22->32. This is actual C++ source-structure
+recovery,not another semantic rename for a synthetic caller temporary.
+
+The caller p,caller a and manual entry byte-reader declarations are removed.
+No new source variable/helper/API,asm,volatile,qualifier or build flag is added.
+ReadBE32 was already present and used elsewhere;its precise original inline
+name/return spelling is not uniquely retained by retail and is not claimed.
+Its supplied parameter/local records and actual behavior are verified here.
+The first count reader is a separate experiment:using the same member recovers
+its receiver/p pair but leaves three actual instruction differences at184/188/
+192(load versus pointer/data-update order). That experiment is NOT adopted.
+Allocator/suffix flags and old empty asm devices remain explicitly unresolved.
+
+Native local-record total49->52 is expected:three missing supplied occurrences
+(two this and one p) are restored,not three invented objects. Native-side
+name-surplus occurrences remain444;retail-side surplus153->150. The selected
+function is STILL owner/scope/SLD-inexact;no full function or module source
+seal is claimed. Its misleading inherited SLD-VERIFIED heading is corrected
+without changing the normal/debug CPP inputs. A measured boundary-only
+#line747 reset inherits the existing filename and preserves every following
+function's coordinates;it is explicitly not an original-source anchor or an
+internal statement override. Every previously correct target block/word/file
+fact and all154 neighboring Speech function owner/SLD records survive.
+
+Actual selected-stock -O2 -G8 -fno-implement-inlines -g plain/-dr output agrees;
+adopted assembly equals the real native compile and existing asm count is
+unchanged. No inherited comment is used to invent a different compiler recipe.
+Fresh run-7ym8q4tm has155/155 covered Speech records,153 owner PASS/two DIFF,
+and unchanged code/CPE. Detailed verify_asm and branch checks cover all155
+including the155th destructor through the actual ___ ABI/oracle spelling,
+not a skipped _._ name. No oracle/reference/comparison guard is changed.
+
+All459 earlier absolute contracts,119 normal ELFs/fresh source-generated
+normal+debug CPP inputs,native CPE,and every other ordered non-SLD type/storage/
+parameter record are preserved. Full155 detailed/branch gates,tests162,
+owner-queue tests14,stripped83,vtable1472,policy,relink,canonical GNU link,
+raw RECON299819/299819,overlap,foreign-label and inventory checks pass.
+The current occurrence queue is in this round's owner-queue directory;the
+earlier covered_owner_queue snapshot remains historical/hash-bound. Full
+project source/SYM/SLD goal stays open. Uncommitted/unpushed.
+Receipts:build/nc12/speech_read32_source_20261029/{final-proof,order-proof,preflight-proof,phase-proof,count-native-proof,count-instruction-delta,reset}.json;owner-queue/covered-owner-queue.json.
+
+2026-10-29 Occurrence-preserving covered-owner queue added;all2581 supplied function copies accounted for,459 absolute contracts independently confirmed.
+
+New read-only tools/source_owner_queue.py and14 invariant tests preserve each
+function/local occurrence rather than collapse repeated names. Functions pair
+only by independently parsed TU provenance plus symbol,never address,ordinal
+or apparent contract similarity. Ambiguous/missing copies remain fail-closed.
+The queue retains ordered name/type/dimensions/home/depth/block-path/range
+tuples,and keeps ALL candidates when a repeated name has a surplus. A wrong
+home/owner with the same name count is still a declaration difference,not
+silently converted into an invented-name claim.
+
+All2581 native and2581 retail function occurrences pair independently. The
+old symbol-only directory view reports2570 unique names;its11 additional
+copies are now explicit,not discarded. Complete ordered local-owner checks
+pass2412 function occurrences and differ169. The absolute local/frame/header/
+filename/block/end/per-word-SLD conjunction independently rediscovers EXACTLY
+the existing459-contract manifest:431 GAME/COMMON and28 GAME/PSX. This is
+stricter than the older header-relative SLD summary,NOT a source regression.
+
+| Covered directory | Ordered local owners exact | Absolute local/frame/SLD exact | Native/retail name-surplus occurrences |
+| --- | --- | --- | --- |
+| FRONTEND/COMMON | 764/838 | 0/838 | 179/38 |
+| FRONTEND/PSX | 79/85 | 0/85 | 12/0 |
+| GAME/COMMON | 1229/1258 | 431/1258 | 104/41 |
+| GAME/PSX | 335/395 | 28/395 | 149/74 |
+| EACLIB/PSX,partial | 5/5 | 0/5 | 0/0 |
+| SYSLIB/PSX,partial | no supplied function records | not certified | not certified |
+
+The occurrence-preserving queue has444 native-side and153 retail-side name
+surplus occurrences,versus376 rows in the legacy collapsed EXTRA summary.
+These are declaration-name count imbalances with full candidates,NOT444
+uniquely proved invented source objects or153 definitely missing source
+variables. Scope/type/home differences and incomplete producers still need
+source/SYM/binary investigation. No arbitrary same-name copy is chosen as
+the extra one. This avoids turning duplicate suppression into clean coverage.
+
+The current1419-file canonical C/C++/header snapshot has no matches for the
+legacy decompiler-name regex or the wider register/stack-artifact regex after
+comments/literals are masked. That is only a spelling scan,NOT proof that
+semantic names or debug-elided carriers are original/explained.554 explicit
+review-marker LOCATIONS remain;these are not distinct-object counts either.
+Mod trees are excluded consistently with the production inventory. Global/
+complete type graphs,data-only objects,STAT storage VAs,source-object
+necessity and original macro text remain outside this local queue's scope.
+EACLIB/SYSLIB coverage is explicitly partial,including the zero-record case.
+
+The tool never builds or certifies full-source freshness and cannot mark the
+source-restoration goal achieved. It reuses existing parsers/file comparators
+without relaxing their guards.14 new tests cover repeated symbols/locals,
+independent copy pairing,missing provenance,malformed records,wrong owner/
+home,source-path identity and trivia masking;all162 existing pipeline tests
+also pass. Existing459 contracts,119 normal ELF/source hashes and native CPE/
+SYM hashes are unchanged. No production source or compiler output changes.
+
+The same round tested12 actual stock GNU C++ <?/>? min/max operator routes.
+The compiler supports them,but none matches Chase's target payload. No new
+operator or replacement source object is adopted. Chase's fresh-result byte
+match remains source-object-inexact,and its no-extra-object route remains
+four raw differences. Full main goal stays open;changes uncommitted/unpushed.
+
+Run from the repository root:
+python tools/source_owner_queue.py --native build/psyq_g/nfs4_sym.txt --retail build/sym/nfs4-f-v3.txt --output build/nc12/covered_owner_queue_20261029
+Reports:build/nc12/covered_owner_queue_20261029/{covered-owner-queue,frontend_common,frontend_psx,game_common,game_psx,eaclib_psx,syslib_psx,audit-proof}.json.
+GNU receipt:build/nc12/chase_clamp_source_20261029/gnu-minmax-proof.json.
+
+2026-10-29 Chase fresh-result route is byte-exact but still source-object-inexact;not adopted.
+
+GCC2.8.1 fold-const.c5631..5731 explicitly chooses MIN/MAX operand order
+according to which original conditional arm owns equality(C++ lvalue rules).
+Thirty-two additional equal-bound ternary routes were checked on selected
+stock;none matches the target payload. These are actual equality variants,
+not a claim that finite syntax tests exhaust the source/compiler space.
+
+Separating the real minimum-value stage from the later floor-result stage
+does recover the ENTIRE normal ELF and native CPE:desiredSpeed takes the
+minimum,then a plain int minimumSpeed=0x50000 is conditionally overwritten
+when0x4ffff<desiredSpeed,and its product with dir supplies the final speed.
+Declaration-initializer and split declaration/assignment forms both match.
+No qualifier,asm,volatile,identity,fake use or output rewrite is needed for
+that byte equality. A ternary initializer and other minimum operand order
+controls still differ,as recorded independently.
+
+However,both exact routes emit minimumSpeed REG:$3,which retail does NOT
+supply. They would replace the old unprovided t with another unprovided
+source object/name,not solve the original-source obligation. Native owner
+comparison remains false;the source/SLD contract is not sealed. Neither is
+adopted or const-disguised. This is useful anonymous-result/working-value
+separation evidence,NOT proof that a distinct original source object existed
+or permission to rename a generic carrier and call it recovered source.
+
+All459 current complete contracts and all119 normal ELF/source/native CPE/SYM
+hashes were rechecked unchanged. Production remains at its existing byte PASS;
+the best route with no extra object remains300 words/four raw differences.
+The new distinction is that fresh-result byte matching is now reproducible,
+while recovering its anonymous source producer/debug ownership remains open.
+No new full-build or source-completion claim is made for these private tests.
+Receipts:build/nc12/chase_clamp_source_20261029/{result-routes-audit-proof,equality-proof,separate-proof}.json.
+
+2026-10-29 Chase branch route advances diagnostic residual10->4 raw words;no failed source landing.
+
+An ordinary in-place floor if after the real minimum-value assignment removes
+t in the private input and has the correct300 words,now only4 RAW POSITIONAL
+instruction-word differences. They are exactly+856/+860/+864/+868:branch
+polarity/target,constant/value selection and multiply source. The earlier
+car-base a0/a1 differences are gone. This is a diagnostic route,NOT a new
+production PASS or normalized verify_asm score. Production retains its
+verified300-word PASS until the complete source/native contract is recovered.
+
+The decoded residual still has two candidate branch-path MULTs versus the
+one current retail-matched shared MULT. Read-only selected-stock plain/-da
+output agrees for the new branch input too,and its assembly is independently
+bound to branch-best/NORMAL.S. Literal mult:SI counts including notes remain
+10/10 at jump2,then10/11 at dbr(control/candidate);these are not machine-op
+counts. The exact final decoded window independently confirms the duplicate.
+GCC2.8.1 expr.c6519..6596 documents destination selection/operand expansion
+for MIN/MAX;reorg.c documents resource-gated delay-slot motion. Those source
+files are hashed supporting references,not claimed to be the selected stock
+compiler's complete source/byte identity or a proof of every causal subpass.
+
+This follow-up checks30 ordinary branch/product routes,16 real lvalue-floor
+updates,33 commuted/nested product forms and18 signed expression-promotion
+forms. None matches the actual target payload. Multiplication commutation
+does not repair the four-word branch route. No live source,extra named object,
+qualifier,asm,volatile,fake use,scope device or compiler-output rewrite is
+adopted. The intermediate worse routes were measured rather than rejected
+by instruction count alone. Root-versus-fresh expression destination ownership
+remains the specific next source angle;there is no floor or scalar necessity
+claim and no generic-name waiver for t.
+
+All459 complete contracts and all119 normal ELF/source/native CPE/SYM hashes
+were rechecked and remain unchanged. Earlier full regression results remain
+bound to those same production inputs;this is not a new full-build claim.
+The main source/SYM/SLD restoration goal stays open.
+Receipts:build/nc12/chase_clamp_source_20261029/{followup-proof,branch-proof,branch-instruction-delta,branch-phase-proof,lvalue-proof,product-proof,promotion-proof}.json.
+
+2026-10-29 Chase clamp source-only route:300 words/10 raw differences;passive selected-stock phase evidence,no failed landing.
+
+The fresh source queue still reports CloseTargeting's unprovided t REG:$3.
+The stock control reproduces the complete current normal ELF/native CPE,
+every parsed function/SLD event and every complete owner record. The existing
+function remains byte-PASS,but its broad source/scope/SLD contract is NOT
+sealed. The old local is not excused or renamed into a new semantic exemption.
+
+Tested96 real minimum/maximum expression routes:four minimum operand orders,
+eight signed floor-comparison forms(including the actual0x4ffff threshold),
+and nested/staged/direct-field consumers. Sixteen additional real field-update
+routes test whether actual field ownership supplies the shared result without
+a caller capture. No new source object,qualifier,asm,volatile,identity,fake
+use,scope padding or compiler flag is introduced in these diagnostic routes.
+Every target payload was compared,not merely whole-object metadata or counts.
+None matches. The initial result-label collision between staged/store modes
+was fixed and the complete96-case comparison rerun with distinct labels.
+
+The closest staged source-only route removes t,has the correct300 words and
+10 RAW POSITIONAL instruction-word differences,not a normalized verify_asm
+score. Its minimum-value stage matches most of the original code;the remaining
+window includes the car base a0/a1 choice,lower-bound selection and product.
+The independently decoded final clamp has one shared MULT in the current
+retail-matched body,versus two branch-path MULT instructions in the candidate.
+No candidate is rejected solely for being temporarily longer or shorter.
+
+Selected-stock plain/-da output is byte-identical for both frozen inputs;
+normal assembly is also bound to the independently compiled control/best
+candidate. Both jump2 dumps have10 literal mult:SI occurrences including
+notes;dbr has10 in control and11 in candidate. These are NOT machine-op counts.
+Together with the decoded final window,this supports following delay-slot
+duplication and expression-target liveness,not calling the ten words a pure
+register-allocation tie or a floor. Exact source spelling/object necessity is
+still unproved. No compiler state,RTL,instruction or debug record is rewritten.
+
+Production code is unchanged. All459 current complete contracts were rechecked;
+all119 normal ELF/source hashes and native CPE/SYM remain unchanged. Prior full
+regression evidence remains bound to those identical inputs;no fresh full
+build or complete Chase source seal is claimed for this audit. Next route is
+the source-native shared multiply/selection producer,not another capture/pin.
+Full source/SYM/SLD goal remains active.
+Receipts:build/nc12/chase_clamp_source_20261029/{audit-proof,probe-proof,field-proof,best-instruction-delta,phase-proof}.json.
+
+2026-10-29 Reset source-producer reprice:ten fresh controls,no failed candidate adopted.
+
+Current-source stock control reproduces every parsed function/SLD event and
+complete owner record,the entire normal ELF and native CPE. Reset remains214
+byte-PASS with8 supplied owners,16 wrong word tags and4 wrong block-line fields.
+The two ambient ends are still827 versus863;the fallback ends900 versus901.
+All initial16 tag differences remain confined to+720..+780 in the final
+condition/true arm,not the earlier wait or the final common callback tail.
+
+Natural for-wait and for-initializer/check controls preserve bytes but change
+supplied scope paths/add regions;neither repairs the ambient endpoint safely.
+Capturing the actual AudioMus_Buffered result inside the expression supplies
+two correct call notes but adds unprovided buffered REG:$16. The ordinary
+structured if with that real result fixes all16 word tags and preserves code,
+but still adds the local and wrong regions. It is NOT adopted or const-hidden.
+Combining that condition with the natural for does not repair ownership.
+
+Moving only the closing delimiters leaves all4 block-line errors. Splitting
+the real gettick call's semicolon/argument close,or its void conversion,puts
+both fallback ends on901 and preserves code/owners,but moves two previously
+correct call tags+784/+788 from899 to900. Those three controls are NOT adopted:
+the baseline16 wrong tags would become18. This demonstrates the source-note
+coupling;it does not prove an original qualifier,missing named object,compiler
+floor or license to manufacture a note-only statement/unused declaration.
+
+Production source is unchanged. All459 complete contracts were rechecked;
+all119 normal ELF/source hashes and native CPE/SYM are unchanged. Earlier full
+regression evidence remains bound to those identical inputs;no new full build
+is claimed for this audit. Next work is the genuine condition/fallback source
+producer and ambient-loop note ownership,not preserving empty regions with
+fake locals/uses or changing output. Full goal remains open.
+Receipts:build/nc12/audio_reset_tail_20261029/{probe-proof,audit-proof}.json.
+
+2026-10-29 AudioCmn_GetTrackRecordLapTime restores reference-backed result stages and full SLD;458->459 complete contracts.
+
+Matched NFS2's same function declares int nBestTime,loads frontEnd.recordlaptime
+and returns nBestTime. Restore that actual result-role/two-statement source
+shape using NFS4's real GameSetup_gData.userSetting.bestlap field. A plain
+initialized int on287 and actual return289 reproduce all4 instruction/file
+tags,both block-line records,header283,frame0/mask0 and end289. Wrong tags4->0.
+Code,branches,the whole normal ELF/native CPE and the empty supplied local
+list remain unchanged. nBestTime naturally debug-elides without const or a
+qualifier disguise. No new asm,volatile,identity,fake use,scope,statement
+directive,compiler flag or generated-output rewrite is introduced.
+
+The ancestor supplies the name and actual result role,but the lost NFS4
+identifier/distinct-object/macro spelling is not uniquely proved. A real
+address-to-field pointer control ALSO matches every covered code/SYM/SLD
+fact,so the evidence must not be overstated as a uniquely necessary value
+declaration. The adopted result spelling has independent matched-source
+support;the pointer alternative is diagnostic only. Existing per-function
+anchors and all following source remain unchanged. Selected-stock plain/-dr
+output agrees before/after;adopted assembly equals the actual native compile.
+
+Fresh native run-iwlz5sp1:48 audio declaration CLEAN,48 region PASS,
+47 full-SLD/combined EXACT(previously46). Reset alone retains16 wrong tags
+and4 block-line fields;its code remains PASS. Every458 earlier complete
+contract survives;now459. All47 neighboring maps and complete owner lists,
+the entire ordered non-SLD stream(including the previous missing typedef
+copy recovery),119 normal ELFs/fresh normal+debug source inputs and native
+CPE are unchanged. Full48 detailed/branch checks,tests162,stripped83,
+vtable1472,policy,relink,canonical GNU link,raw RECON299819/299819,overlap,
+foreign-label and inventory checks pass. The source-provenance/carrier/name
+review and wider project objective remain open. Uncommitted/unpushed.
+Receipts:build/nc12/audio_record_source_20261029/{final-proof,phase-proof,probe-proof,reference-proof}.json.
+
+2026-10-29 AudioCmn_InitAsyncSfx removes inRange/const,restores one missing supplied typedef copy and full SLD;457->458 contracts.
+
+The synthetic loop predicate and its const qualifier are gone. Ordinary
+for(int i=0;i<32;i++) plus the actual typed AudioCmn_tAsyncSfxSlot pointer
+used for all three field stores preserves the complete14-word body and
+whole normal ELF/native CPE. Ordinary per-function-anchored layout restores
+all14 word/file tags,the sole supplied i owner,all6 block-line records,
+header454,frame0/mask0 and end461. Wrong tags7->0. The pointer producer is
+on457,the stores458/459/460,and the loop end461;the test retains455.
+No fabricated predicate,identity,fake use,extra scope,asm,volatile,new qualifier,
+per-statement directive,compiler flag or generated-output rewrite is used.
+
+The plain int and bool predicate controls ALSO match the prior code/owners:
+const had never been necessary for their native elision. A direct indexed
+bounded loop still changes code and ownership on the current input. The
+actual pointer-body loop matches code/owner addresses;normal line placement
+supplies the remaining source coordinates. Positive-if/pointer alternatives
+add unwanted regions and are not adopted. slot is a precise behavior-derived
+name,NOT a supplied original identifier. Its unique original declaration/
+macro spelling remains unproved;debug elision is not an object/name exemption.
+This replaces the unresolved artificial Boolean graph by real record access,
+not a claim that literal original source has been uniquely recovered.
+
+The full ordered non-SLD guard initially rejected the candidate:one typedef
+record was added even though the local-only comparator was already exact.
+The added record is exactly the supplied STRUCT size24 AudioCmn_tAsyncSfxSlot
+TPDEF. Retail audiocmn.obj retains8 copies;before had7,and the new native
+build has8. No other ordered non-SLD record changes. The native lane lacks
+retail FILE markers,so its insertion is attributed by the exact following
+AudioCmn_InitAsyncSfx EXT declaration and isolated audiocmn source rebuild,
+not an invented native object-marker stream. Retail's file blocks independently
+place all8 supplied copies in audiocmn.obj. No shared header,struct body,
+storage or layout is changed;full typedef ORDER equality is not claimed.
+The private guard checks this single exact recovery,not a blanket type waiver.
+
+Selected-stock plain/-dr output agrees before/after and adopted assembly
+equals the native compile. Fresh run-zozg1kxb has48 audio declaration CLEAN,
+48 region PASS and46 full-SLD/combined EXACT(previously45). All457 earlier
+complete contracts survive;now458. All47 neighboring numeric/file maps and
+complete owners survive;the one supplied typedef addition is the only
+non-SLD delta.119 normal ELFs/fresh normal+debug source inputs and native CPE
+are unchanged. Full48 detailed/branch checks,tests162,stripped83,vtable1472,
+policy,relink,canonical GNU link,raw RECON299819/299819,overlap,foreign-label
+and inventory checks pass. GAME/COMMON strict647->648 of1247;native1204,
+local-contract1223 and EXTRA376 unchanged. Full goal remains open.
+
+The same round's six reverse-store/track-decoding controls do NOT remove
+AudioCmn_Init's existing volatile read safely;none is adopted. New assignment
+chains or rereads after the store fold like the plain control;index-producing
+variants still fail the full code/owner/map contract. This is fresh negative
+evidence,not proof of an original qualifier or a floor. The copy-wrapper
+producer question and other source-only objects remain explicitly open.
+Uncommitted/unpushed.
+Receipts:build/nc12/async_init_scope_20261029/{final-proof,phase-proof,probe-proof,type-recovery-proof,non-SLD-delta}.json;build/nc12/audio_reverse_source_20261029/probe-proof.json.
+
+2026-10-29 Newton shadow-normal copy-source audit;five controls,no failed replacement adopted.
+
+The inherited GNU statement-expression around shadowNormal=normal is NOT
+certified original source merely because all32 Newton covered contracts match.
+Current-source stock-tool control reproduces the entire normal ELF/native CPE,
+every parsed function/SLD event and every complete owner record. Replacing it
+by either an ordinary copy block or a direct assignment preserves all315 words
+and all word tags but removes the supplied zero-length region at+168,line2520.
+Native block records30->28,so both fail complete ownership/SLD preservation.
+Explicit coorddef(normal) copy construction and the (coorddef)normal cast also
+remove that region and change code/226 tags;frame remains128 in every control.
+None is adopted. No production source or generated compiler output is edited.
+
+Matched NFS2 supplies the real shadowNormal=normal value transfer but not the
+original NFS4 source construct responsible for that additional optimized
+region. Next investigation is the original copy macro/type/source producer,
+not an invented local/unused declaration to keep a debug block alive. The GNU
+wrapper remains an explicit unresolved reconstruction construct,not a generic
+carrier exemption or evidence of uniquely recovered original source spelling.
+The separate compound for initializer in Undrivable is unchanged;its actual
+counter initialization and source-scope/line provenance were checked earlier.
+
+All457 current complete contracts were rechecked against unchanged retail;
+all119 normal ELF/source hashes and native CPE/SYM remain unchanged. Existing
+full regression results remain bound to those identical inputs;no new full
+build is claimed for this source-unchanged audit. Goal stays open.
+Receipts:build/nc12/newton_copy_scope_20261029/{probe-proof,audit-proof}.json.
+
+2026-10-29 Newton ground projection seals its last four tags;all32 Newton covered contracts exact;456->457 total.
+
+Newton_FindGroundElevationAndNormal now matches905/905 absolute word/file
+tags,all69 supplied complete local-owner tuples,all82 ordered block-line
+records,header610,frame448/maskc0ff0000 and end1057. The four raw delta
+words+1972/+1976/+1980/+1988 are now930 instead of931. All code bytes,
+branches,normal ELF and native CPE remain unchanged.
+
+The actual half-height difference has its own source stage930:
+plain int halfWheelHeightDelta=(tireCoord[i].y-wheelHeight[i].y)>>1;
+then the real fixedmult projection writes provided desiredCompression on931.
+The result is naturally debug-elided with no const/qualifier disguise.
+halfWheelHeightDelta is a precise behavior-derived identifier,NOT a recovered
+retail name. Its literal original identifier,distinct declaration versus
+macro spelling,and unique original source-object provenance remain unproved.
+There is no claim that native row elision alone proves original source text.
+
+The unshifted-delta control is byte-exact and fixes the tags but adds an
+unprovided REG:$4 record;it is not adopted. The negative-subtrahend control
+also fixes tags but changes code and adds a record;not adopted. Earlier
+reuse of provided desiredCompression for the input changes its home/code.
+Only the complete shifted input stage preserves all covered owner facts on
+this tested graph. This is real arithmetic used once by the projection,
+not an identity,dummy use,opaque helper or priority dial. No new scope,
+asm,volatile,qualifier,compiler flag or per-statement anchor is introduced.
+All following source coordinates and every existing anchor are unchanged.
+
+Selected-stock plain/-dr output agrees before/after and adopted assembly
+equals the native compile. Read-only initial RTL confirms delta/half on930
+followed by projection931;before,all were grouped under931. The compiler's
+final shift retains retail's931 tag while the four input words retain930.
+No compiler state,RTL,instruction or debug record is modified. The observer's
+first function selection accidentally found the Fast sibling;the selector
+was corrected to the exact function signature before creating the receipt.
+
+Fresh native run-xyf7zsru:32 Newton declaration CLEAN,32 region PASS,
+32 full-SLD/combined EXACT. Every32 complete covered owner/block/header/
+frame/file/end/word-tag contract agrees;the six former Newton tags are gone.
+This does NOT certify unique original source spelling or complete the
+whole-project carrier/name/provenance objective. Existing explicit source
+review remains,including inferred names and representations elsewhere.
+
+All456 earlier complete contracts survive;now457. All31 neighboring numeric/
+file maps and owners,and the entire ordered non-SLD record stream,are unchanged.
+119 normal ELFs/fresh normal+debug source inputs and native CPE are unchanged.
+Full32 detailed/branch checks,tests162,stripped83,vtable1472,policy,relink,
+canonical GNU link,raw RECON299819/299819,overlap,foreign-label and inventory
+checks pass. GAME/COMMON diagnostic strict646->647 of1247;native1204,
+local-contract1223 and EXTRA376 unchanged. Full goal open;uncommitted/unpushed.
+Receipts:build/nc12/newton_projection_notes_20261029/{final-proof,newton-coordinate-report,phase-proof,source-note-proof,all-case-proof}.json.
+
+2026-10-29 Newton_ApplyTheLawOfGravity seals its last two input tags;455->456 complete contracts.
+
+The actual absolute-speed results,not the raw signed component captures,
+belong to the two separate source phases2553/2554. Ordinary plain int
+x=__builtin_abs(linearVel.x),z=__builtin_abs(linearVel.z),followed by the
+real Math_BetterDist(x,z) store2555,restore both load tags+344/+348. All315
+absolute word/file tags,15 supplied complete local-owner tuples,30 block-line
+records,header2466,frame128/mask803f0000 and end2733 now agree with retail.
+
+Matched NFS2 Newton_ApplyTheLawOfGravity independently uses plain int x/z
+for those ABS results and consumes them in its planar-distance calculation.
+It supports their roles/names,not literal lost NFS4 spelling or uniquely
+proven distinct-object provenance. The adopted source is explicitly marked
+accordingly. Both actual ABS results naturally lose their debug records;
+no const qualification is introduced to hide them. The earlier raw-input
+capture control adds two non-retail REG records. Mixed raw/ABS controls each
+add one. All have unchanged bytes,but only the two-ABS-result spelling keeps
+the complete native owner list;metadata is checked,not inferred from code.
+
+This is a three-line executable source change under the existing function
+anchor,with unchanged following source coordinates and no added scope.
+No new asm,volatile,qualifier,identity,fake use,per-statement directive,
+compiler state mutation or generated-output/debug-record rewrite is used.
+Selected-stock plain/-dr output agrees before/after,and adopted assembly
+equals the actual native compilation. Prior direct-call initial RTL grouped
+both inputs under2555;the new real producer stages restore the source notes,
+not a scheduler patch. Exact original macro/comment text remains unproved.
+
+Fresh native run-59djwcnb:32 Newton declaration CLEAN,32 region PASS,
+31 full-SLD/combined EXACT(previously30). All32 functions' supplied complete
+owners,blocks,headers,frames,files and ends are exact. GroundElevationAndNormal
+alone retains four input tags(current931,retail930);none is hidden or excused.
+Every455 earlier complete contract survives;now456. All31 neighboring numeric/
+file maps and owners,and the entire ordered non-SLD record stream,are unchanged.
+119 normal ELFs/fresh normal+debug source inputs and native CPE are unchanged.
+Full32 detailed/branch checks,tests162,stripped83,vtable1472,policy,relink,
+canonical GNU link,raw RECON299819/299819,overlap,foreign-label and inventory
+checks pass. Physics road-grip's new seal and Ramp's diagnostic-only brake
+decision are preserved. Full project/source-provenance work remains open.
+Uncommitted/unpushed.
+Receipts:build/nc12/newton_gravity_speed_20261029/{final-proof,newton-coordinate-report,phase-proof,probe-proof,reference-proof}.json.
+
+2026-10-29 Physics_CalculateRoadGripModifiers seals the remaining15 SLD tags;454->455 complete contracts.
+
+Road grip now matches all95 absolute instruction/file tags,all8 supplied
+complete local-owner tuples,all12 ordered block-line records,header1394,
+frame24/mask80010000 and end1439. Wrong word tags15->0 with the entire
+normal ELF and native CPE unchanged. Two reconstruction-only GNU compound
+expression wrappers are removed. The actual wheel/front averaging region
+closes before rear/left/right averaging;the ordinary aero condition1429
+and opening brace1430 independently restore the instruction and block notes.
+
+Separate plain int results hold the actual front/rear fixedmult force values
+on1434/1438 before the real multiplier updates1435/1439. Both results are
+naturally debug-elided even without const;the qualifier controls were
+unnecessary and are NOT adopted. frontAeroForce/rearAeroForce are explicitly
+behavior-derived identifiers,NOT names recovered from retail SYM. Their
+literal original identifiers,declaration/macro spelling and source-object
+provenance remain source-review obligations;matching metadata does not prove
+unique lost source text. No new asm,volatile,qualifier,identity,fake use,
+per-statement anchor or compiler-output/debug-record rewrite is introduced.
+
+Selected-stock plain/-dr controls agree,and adopted assembly equals the
+actual native compilation. Fresh native run-2w1peemy has22 Physics byte/branch
+PASS,21 declaration CLEAN,21 region PASS and21 full-SLD/combined EXACT.
+Every Physics function now has exact word/file tags,header/frame/end records;
+RampCarControlValues alone retains its separate missing brake owner/regions.
+That inferred brake-step experiment remains DIAGNOSTIC ONLY as requested.
+
+All454 earlier complete contracts survive;now455. Every21 neighboring full
+numeric/file map and owner list,and the entire ordered non-SLD record stream,
+are preserved.119 normal ELF hashes and fresh source-generated normal/debug
+CPP inputs agree;native CPE remains f38b148083bba70dcdd8b23ff2a565e2b60c46155361bec179b4ccb5aa0a771e.
+Full22 detailed/branch checks,tests162,stripped83,vtable1472,policy,relink,
+canonical GNU link,raw RECON299819/299819,overlap,foreign-label and inventory
+checks pass. GAME/COMMON diagnostic strict644->645 of1247;native1204,
+local-contract1223 and EXTRA376 unchanged. Newton's six remaining tags and
+the wider source/SYM/SLD restoration goal remain open. Uncommitted/unpushed.
+Receipts:build/nc12/physics_grip_notes_20261029/{final-proof,physics-coordinate-report,phase-proof,final-layout-proof,force-proof}.json.
+
+2026-10-29 Physics_CalculateCarAcceleration completes all710 covered source tags/owners/regions;453->454 contracts.
+
+After the actual temp/ratio role repair,the complete engine source layout now
+matches710/710 absolute instruction/file tags,all16 supplied complete local
+owner tuples,all16 ordered block-line records,header1447,frame120 and end1672.
+Wrong tags657->0. This adds a full covered source/debug/code contract,not a
+paper declaration-only exception. All genuine table/RNG/aero/rev-limit/
+manual-driving/shift/torque/RPM/slide/negative-RPM phases retain their actual
+calls,arguments,field values and branch layout. No source-only scalar is
+introduced to reproduce an input note,and the scaled carrier/identity stay gone.
+
+blip/bblip remain the original eight-int AUTO arrays with exact values/order.
+The RNG/damage group shares1462;specs/exceedRedline and aero/drag stages retain
+their independent source phases. The real field if/else selecting revLimit3/4
+is whole-ELF neutral and supplies1495/1496/1498 without a Boolean/result local.
+The original provided-temp manual rise selection and diffDesiredRpm-owned
+flywheel minimum are retained,not replaced with their previously failing
+direct-store spellings. RPM-drop/rise declaring braces preserve their exact
+depths/ranges while recovering the retail150/151 line records at the normal
+driving else/if boundary. All cap/torque/slip arithmetic remains ordinary C++.
+
+The first layout candidate already matched699/710 tags and every supplied
+owner/block line. The last11 differences were localized to the wheel-RPM
+conversion/torque boundary:the adjustment belongs to the last fixed-product
+phase1561,the actual shift statement is1562,and the torque condition is1563.
+Stock GCC schedules that SRA into the1563 branch delay slot,so its emitted
+tag is1563,as retail. It is not source1563 merely because the opcode executes
+there. The canonical source statement order and compiler-owned slot fill
+recover the complete map without asm,reference devices,qualifiers or fake work.
+A plain temp/65536 control adds one instruction(711) on this graph and is not
+adopted or called a floor;no split source object is invented to repair it.
+
+The car-category and slippery/gear/positive-drive tests are genuine nested
+guards on1666 and1668,not one relabeled condition or a new source predicate.
+They reproduce the same710-word body while restoring the separate load/test
+phases. Source anchors remain per-function only. The existing measured legacy
+boundary reset1731 is inherited;an unnecessary intermediate1715 reset from
+the private splice was removed before final checking. No internal per-statement
+directives or compiler-output edits are used. Literal original macro/comment/
+punctuation/reuse text remains unproved separately from the complete contract.
+
+Passive selected-stock plain/-dr output is equal on before/adopted inputs,and
+adopted assembly equals the actual native compile. The read-only conversion
+receipt binds the source statement1562 and actual bne/SRA pair/tag1563 to the
+same compiler/input/assembly hashes. No GDB state,RTL,instruction or debug
+record is changed. Full source-generated normal/debug CPP bindings are fresh,
+not a stale diagnostic comparison with an independently altered helper output.
+
+Fresh native run-2w889y3w:22 Physics functions,21 declaration CLEAN,21 region
+PASS,20 full-SLD/combined EXACT(previously19). Every453 earlier complete
+contract survives;now454. All21 other Physics functions' complete numeric/file
+maps and owners,every ordered non-SLD record,119 whole normal ELFs/fresh normal+
+debug inputs,and native CPE are unchanged. Full22 detailed/branch gates,
+tests162,stripped83,vtable1472,policy,relink,GNU link,raw299819/299819,
+overlap,foreign-label and inventory pass. GAME/COMMON diagnostic strict643->644
+of1247,native1204,local-contract1223 and EXTRA376 unchanged. The fresh unit
+report leaves RampCarControlValues with its missing brake ownership/regions
+(still diagnostic-only as requested),and RoadGripModifiers with15 word tags.
+Newton's six tags,source-provenance questions and the full project objective
+remain open. Uncommitted/unpushed.
+Receipts:build/nc12/physics_acceleration_layout_20261029/{final-proof,physics-coordinate-report,phase-proof,conversion-note-proof,final-layout-proof,preflight-proof}.json.
+
+2026-10-29 Physics acceleration restores temp/ratio roles;scaledRatio,absorption identity and three non-retail regions retire;21/22 Physics native CLEAN.
+
+The late negative-RPM correction belongs to provided temp,not the slide
+multiplier ratio. Matched NFS2 independently uses temp=linearVel_ch.z*-32
+and consumes temp in the sign/limit correction,while ratio supplies the
+positive-demand multiplication. Both original NFS4 names are recorded in
+REG:$3;one reused hardware register never proved one source variable. This
+is a role restoration across dead phases,not a blind rename of scaledRatio.
+No NFS2-specific numerical cap,gear logic or other behavior is imported.
+
+With the actual scratch/factor roles restored,the ordinary
+`driveAcc = (driveAcc / 256) * (ratio / 256);` preserves all710 retail words
+and the ENTIRE normal ELF/native CPE. Remove the unprovided scaledRatio
+REG:$2,its absorption identity x&(x|3),and the manual quotient transcription.
+No new object,qualifier,alias,reference,asm,volatile,fake use or source guard
+is added. The correct source graph also removes three non-retail declaring
+regions:the native record list17->16 and region boundaries22->16. All16
+supplied complete owner tuples and all16 ordered region ADDRESS/kind records
+now equal retail. Only the scaledRatio declaration and the six boundaries of
+its three extra regions disappear from the ordered non-SLD stream;every
+other type/storage/declaration/object record remains unchanged.
+
+The causal control pair differs ONLY in the six late ratio/temp identifier
+uses,with no scaled capture or identity in either input. The wrong ratio
+role changes two EARLIER product instructions:+2600 tests v1 rather than
+v0,and+2608 adjusts v0 from v1 rather than from v0. The reference-supported
+temp role reproduces retail's dividend-copy graph. Thus a later source-role
+mistake caused the apparent earlier allocator/divide residual;the old
+unavoidable-copy/identity claims were not source necessity proofs. No exact
+optimization subpass is claimed by this paired normal-compiler observation.
+
+The bounded controls also tested reference Boolean polarity and direct
+flywheel minimum placement. A direct minimum loses two other words on this
+graph,and named-left/in-place quotient forms do not match. Only verified
+roles/product are adopted;the existing provided diffDesiredRpm minimum
+selection and previously recovered manual-driving flow remain intact.
+Selected-stock plain/-dr output is equal for before/adopted inputs,and
+adopted assembly equals the actual source-generated native compile. No
+compiler state,RTL,instruction or debug record is rewritten. Long diagnostic
+case labels exceeded a legacy assembler path limit;short private labels
+fix that harness issue without changing production tools or source flags.
+
+Full acceleration SLD is STILL OPEN:657 wrong word tags remain,no new complete
+SLD contract is claimed. All previously correct word/file/header/block/end
+facts survive. The existing anchor and one boundary-only legacy reset preserve
+all21 other Physics functions' complete source maps/owners. Root header stays
+1447;the incomplete function end moves closer to retail after capture removal,
+but is not declared exact. An explicit source-review marker keeps original
+macro/reuse text and remaining layout work visible,not a generic exemption.
+
+Fresh native run-m7jyiwgp:22 Physics functions,21 declaration CLEAN,21 region
+PASS,19 full-SLD/combined EXACT. All453 earlier complete contracts survive.
+Full22 detailed/branch gates,119 whole normal ELFs/fresh normal+debug input
+bindings,native CPE,tests162,stripped83,vtable1472,policy,relink,GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. GAME/COMMON
+diagnostic native1203->1204/1247,local-contract1222->1223,strict643 unchanged;
+EXTRA377->376. Physics_RampCarControlValues remains the sole Physics native
+review;its inferred brake-step variable is still diagnostic-only as requested.
+Newton's six tags,unexecuted RPM-source provenance and all wider source/type/
+name obligations stay open. Uncommitted/unpushed.
+Receipts:build/nc12/physics_acceleration_source_20261029/{final-proof,phase-proof,role-proof,reference-proof,retail-map,probe-proof}.json.
+
+2026-10-29 Physics_FixEngineRpm loses transformedZ and four synthetic loops through reference-derived RPM source;452->453 contracts.
+
+The86-word routine now has only its supplied carObj REGPARM:$4 record,with
+frame0,root block+0..+336,all86 absolute word/file tags,header1287 and end1307
+retail-exact. Remove transformedZ REG:$3 and all four do/while(0) loop-depth
+devices. The two real X/Z dot products and state resets remain direct C++;
+no replacement alias,qualifier,asm,volatile,identity or fake reference is added.
+All21 neighboring Physics maps/owners and every other ordered native record
+are unchanged;the sole removed raw record is transformedZ's INT REG declaration.
+
+The source angle was not another scalar spelling sweep. Matched NFS2
+Physics_FixEngineRpm has an inherited contradictory gear/RPM branch between
+the dot products and resets. Independently inspect the original-executable
+Ghidra split:the SAME gear byte at+0x2d4 is compared both equal and not-equal
+to1 in that branch. The NFS2 SYM identifies Physics_FixEngineRpm,physics.c,
+lines1285..1326 and carObj. Thus the predicate was not fabricated by this
+round or inferred only from the matched reconstruction. The mobile twin
+sub_505BAA retains the two transforms/resets,with no executed RPM branch.
+
+Restore that concrete ancestor source path using the PSX's already-proven
+signed /256 product spelling. Stock GCC removes its unreachable work and
+reproduces the ENTIRE normal ELF/native CPE byte-for-byte,where the bare
+direct graph was87words. This also explains a plausible historical purpose
+for the retained FixEngineRpm name without inventing a dummy zero guard.
+SOURCE PROVENANCE REMAINS EXPLICIT REVIEW:the retail NFS4 image cannot uniquely
+prove the exact presence/spelling of unexecuted source. The C++ heading keeps
+SOURCE-REVIEW-UNRESOLVED for that inference;this is not a claim to have found
+literal original NFS4 text or a generic carrier exemption. No NFS2-only active
+skid/style behavior is imported into the PSX routine.
+
+Source phases retain the direct transforms1289/1290,reference RPM code in the
+nonexecuting gap,actual resets1300..1303 and collided reset1306/1307. One
+boundary-only legacy-coordinate reset preserves every following function.
+Reference term/factor ordering and explicit alias-safe input controls do not
+match and are not adopted:mobile-order direct87/89,ancestor variants86/88
+with differing words,and cached raw/divided inputs76/72. The canonical
+reference branch with direct original term order is86words/exact normal ELF.
+Finite negatives never proved the old capture/loops necessary or a floor.
+
+Passive selected-stock plain/-dr outputs agree and adopted assembly equals
+the actual native compile. Initial RTL has four synthetic loop-begin/end
+notes before and ZERO after;the reference RPM source notes1292/1294/1296
+are present before optimization. Initial branch counts13->20 are diagnostic
+source graphs,not final instruction counts. The independently checked final
+86-word stream is unchanged. No compiler state,RTL,instruction or debug
+record is edited;the exact decisive optimization subpass is not claimed.
+
+Fresh native run-5rzzma4z:22 Physics functions,20 declaration CLEAN,20 region
+PASS,19 full-SLD/combined EXACT. All452 earlier complete contracts survive;
+now453. Full22 detailed/branch gates,119 whole normal ELFs/fresh normal+debug
+input bindings,native CPE,tests162,stripped83,vtable1472,policy,relink,
+GNU link,raw299819/299819,overlap,foreign-label and inventory pass. Newton's
+30 full-SLD functions and six remaining tags are unchanged. GAME/COMMON
+diagnostic native1202->1203/1247,local-contract1221->1222,strict642->643;
+EXTRA378->377. The precise NFS4 dead-source provenance,remaining Physics
+source devices,explicitly diagnostic-only brake-step question and broader
+project obligations remain open. Uncommitted/unpushed.
+Receipts:build/nc12/physics_rpm_native_source_20261029/{final-proof,phase-proof,flow-proof,reference-proof,layout-proof,retail-map,probe-proof}.json.
+
+2026-10-29 Newton_AddDamageZone final maximum restores its last source tag;451->452 complete contracts;Newton30/32 full-SLD exact.
+
+The general arm's second average stays in provided temp. Select the old
+adjacent damage or that average into the existing imp,then store imp:
+`imp = damage[zone-1] > temp ? damage[zone-1] : temp; damage[zone-1] = imp;`
+(the actual source keeps the newtonObj member qualification). This is real
+damage propagation using two recorded objects,not a new alias,pin or fake
+read. imp already carries propagated/clamped damage elsewhere in these arms.
+No declaration,type,owner,scope,directive,qualifier,asm or volatile is added.
+
+All502 instructions,the complete normal ELF/native CPE,all15 supplied
+declaration-owner tuples,38 ordered block records,header50 and end216 match.
+The final SRA at+744 now has retail111 rather than110. Its neighboring load,
+compare,branch and store tags stay exact. This completes the target's covered
+absolute source/debug/code contract;literal original select punctuation and
+source-variable reuse spelling are not uniquely recovered by that certificate.
+
+Ordinary maximum spellings were priced across comparison order/strictness
+and existing result destinations. Several alternatives preserve every code
+word but retain the wrong shift tag;others add a word or change registers.
+The strict field>temp form into imp is the verified zero-tag result. Do not
+infer an original source text merely because a neighboring equivalent select
+is byte-exact. A coupled24-case raw-delta/MIN control set on ground elevation
+does not reproduce its full byte stream and is not adopted;no unprovided
+capture or qualification is introduced to force its four remaining tags.
+
+Passive selected-stock plain/-dr outputs agree for both before/adopted inputs,
+and adopted assembly equals the actual native compile. Initial RTL attributes
+the quotient to110 in BOTH;the changed real select graph moves the final
+shift's emitted note to111 after initial expansion. The exact optimization
+subpass is not claimed. No compiler state,RTL,assembly or debug record is
+edited. This is a source-level note-provenance lever,not an output patch.
+
+Fresh native run-rw8qw5gh:32 Newton declarations CLEAN,32 region-address/
+depth PASS,30 full-SLD/combined EXACT(previously29). Every prior451 complete
+contract survives;now452. The independent strict unit report still proves
+all32 frames,files,headers,block lines,ends and complete supplied local tuples.
+Exactly6 instruction tags remain among5004 words:ground4,gravity2. All31
+neighboring maps/owners and every ordered non-SLD record are unchanged.
+Full32 detailed/branch gates,119 whole normal ELFs/fresh normal+debug input
+bindings,native CPE,tests162,stripped83,vtable1472,policy,relink,GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. GAME/COMMON
+diagnostic strict641->642/1247,native1202,local-contract1221,EXTRA378;
+those are not whole-project source-completion metrics. The remaining six
+tags,abort provenance and broader type/name/source review stay open.
+Uncommitted/unpushed. Receipts:build/nc12/newton_damage_note_20261029/{final-proof,newton-coordinate-report,note-proof,phase-proof,winner,probe-proof,projection-proof}.json.
+
+2026-10-29 Newton ground layout903->4 wrong tags;all32 recorded owner/frame/file/header/block/end coordinates now exact;seven word tags remain across5004 words.
+
+Newton_FindGroundElevationAndNormal905words now matches its retail header610,
+end1057,all69 supplied complete declaration-owner tuples,and all82 ordered
+block-line records. Ordinary vector/ground/suspension/normal/angular source
+phases restore899 previously wrong instruction tags:903->4,not zero. The
+remaining tire/height-delta words+1972/+1976/+1980/+1988 still have931 rather
+than930. An explicit SOURCE-REVIEW-UNRESOLVED marker keeps their frontend
+producer visible;no full-SLD certificate is added for this partial result.
+
+The first wheel loop is now ordinary for(int i=0;i<4;i++),removing the inherited
+integer comparison between synthetic BO pointer offsets. The stock normal
+ELF is identical. A typed wheel-pointer-bound control is913words and is not
+adopted;do not mechanically substitute address anchors for a real count.
+Root wheelsInAir/bounce initialize on614/615;carNormal reads622..624 precede
+stores627..629. Provided r1/r2/r3 hold actual position inputs679..681 before
+the carGroundCoord offset stores686..688,instead of naming the completed
+sums. The mobile vector-copy pattern and retail load/store phases support
+those roles,not merely reused hard registers. Every supplied home remains
+exact. No new object,name,qualifier,asm,volatile,identity or fake use is added.
+
+Both axle/corner vector groups retain their genuine declaring regions and
+explicit component stages. The real surface-type/store phase shares763,
+recovering its two load tags and conditional start. First-loop road/height
+queries,correction guard,three-component accumulation and actual wheel-field
+copies preserve all calls,arguments and corrected-height semantics. Existing
+limit/compression/rebound/impact loops keep all locals and optimized region
+addresses;actual opening braces independently restore their source lines.
+The bounce loop's continuation and real ratio/damping work are retained.
+Normal reconstruction,cross product,angular-cap/damping/world transforms and
+altitude-query phases close their real work regions before the final return.
+Per-function anchor608/brace610 and one boundary-only legacy reset preserve
+all31 other functions' complete owners,numeric/file tags,blocks and ends.
+
+Splitting the raw difference through the supplied desiredCompression on930,
+then projecting it on931,keeps905 words but changes its home from retail a1
+to a0 and changes11 raw positional words. Source-record validity is not
+restored by a matching count. Vector/array staging adds real stores(907/909),
+and several ordinary accumulation/clamp/mutation forms also fail. None is
+adopted. A direct initialized projection preserves code/owners but moves the
+wrong four tags to the shift/call side;plain fused projection preserves the
+retail a1 owner and leaves only the four input tags open. No const/reference
+capture is introduced to hide an unprovided row or force a green line report.
+Literal macro/input spelling and source-object uniqueness remain unproved.
+
+Passive selected-stock plain/-dr output is equal for before/adopted inputs,
+and adopted assembly equals the actual native compile. Initial RTL already
+groups delta,shift and call under931,with no930 note;the missing source
+producer precedes optimization. No GDB state,RTL,instruction or debug output
+is edited. Private helper naming hazard:Python3.14 has a compression package;
+the colliding scratch helper was renamed projection_variants.py,no toolchain
+or shared source was patched. Failed scratch imports are not native evidence.
+
+Fresh native run-snzvf22l covers32 Newton functions:32 declaration CLEAN,
+32 region-address/depth PASS,29 full-SLD/combined EXACT. The additional strict
+unit report independently proves all32 actual headers,frames,filenames,block
+lines and ends against retail,plus all complete local tuples. Exactly7 word
+tags remain among5004 instructions:ground4,damage1,gravity2. That is not whole-
+source completion or a claim that original macro/comment text is recovered.
+All451 previous complete contracts survive;no new contract is claimed.
+Every ordered non-SLD record,119 whole normal ELFs/fresh normal+debug input
+bindings,and native CPE are unchanged. Full32 detailed/branch gates,tests162,
+stripped83,vtable1472,policy,relink,GNU link,raw299819/299819,overlap,
+foreign-label and inventory pass. GAME/COMMON diagnostic native1202/1247,
+local-contract1221,strict641 and EXTRA378 remain unchanged. The seven tags,
+abort-flag provenance and the wider type/source/name review remain open.
+Uncommitted/unpushed. Receipts:build/nc12/newton_ground_layout_20261029/{final-proof,newton-coordinate-report,phase-proof,projection-note-proof,refined-proof,retail-map,for-proof}.json.
+
+2026-10-29 Newton's last EXTRA declaration removed:wheelY retires through the real three-component vector phase;32/32 native CLEAN.
+
+Newton_FindGroundElevationAndNormal905words loses the unprovided wheelY
+REG:$5 record. All69 supplied complete local/type/home/depth/range/path/order
+tuples now equal retail,with every previously correct tuple preserved. Read
+the threshold directly from wheelHeight[i].y;inside the existing valid-height
+arm,read r1/r2/r3 from all three wheelHeight components before accumulating
+elevation. This is NOT a blind wheelY->r2 rename:the old cross-branch capture
+disappears,the guard uses the real member,and the Y component belongs with
+the real X/Z read group. The new block-local r2 is debug-elided by ordinary
+stock compilation;no const,reference,type disguise,fake use or asm is needed.
+
+Independent mobile sub_4FA169 confirms the same valid-height phase:the
+consecutive v71/v70/v69 component reads precede v139/v140/v141 accumulation.
+The r1/r2/r3 spelling follows the recorded vector-copy family elsewhere in
+the same retail function,including this arm's supplied r1/r3;the literal name
+of an elided r2 and original macro text are not uniquely retained. Those are
+bounded source-text uncertainties,not a generic codegen-carrier exemption.
+Existing actualHeight stores and corrected-height semantics are unchanged.
+
+Prior direct-member removals without the complete three-component read
+group were907/905. The reference-backed r2/stack form preserves the entire
+normal ELF and native CPE,not merely a normalized instruction count. New
+controls:field-guard plus stack r2 is906words;field-based r2 is904;condition
+assignment906;return-value-to-field-first906;chained solver stores911. None
+is adopted or treated as proof of source-object necessity. This replaces
+the old unprovided-capture review with actual vector ownership,not a renamed
+live register or a declaration-audit-only silence.
+
+The final edit preserves all source newline counts and adds no directive.
+Headers,ends,and every target block line stay unchanged. Only one already-
+incorrect word tag changes:+964 from746 to747,retail793;both formerly correct
+target tags survive. Full ground SLD is still open:903/905 wrong tags remain,
+header611 versus610 and end1062 versus1057 are not sealed. The line-offset
+distribution is not a uniform shift;do not try a blanket anchor as a cure.
+All31 neighboring functions' complete numeric/file SLD and owners survive.
+The sole removed ordered non-SLD record is exactly wheelY REG:$5;all other
+type,storage,declaration and object records remain byte-for-record intact.
+
+Fresh native run-d4ct5vtx:all32 Newton declaration-owner records CLEAN,
+all32 region-address/depth contracts PASS,29 full-SLD/combined EXACT. No new
+complete SLD contract is claimed;all451 earlier contracts survive. Full32
+detailed/branch gates,119 whole normal ELFs/fresh normal+debug input bindings,
+native CPE,tests162,stripped83,vtable1472,policy,relink,GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. Passive selected-
+stock plain/-dr outputs agree and adopted assembly equals the actual native
+compile. No production tool/header/flag,reference or compiler output changes.
+GAME/COMMON diagnostic native1201->1202/1247,local-contract1220->1221,
+strict641 unchanged;EXTRA379->378. The whole-project goal is not complete:
+ground SLD,damage's one tag,gravity's two tags,abort-flag provenance and the
+wider source/type/name review remain open. Uncommitted/unpushed.
+Receipts:build/nc12/newton_wheel_height_source_20261029/{final-proof,phase-proof,reference-proof,same-lines-proof,probe-proof}.json.
+
+2026-10-29 Newton gravity real source/owner phases reduce315 wrong word tags to2;all451 contracts preserved.
+
+Newton_ApplyTheLawOfGravity315words now matches its retail header/frame,
+all15 complete supplied declaration-owner tuples,all30 ordered block lines,
+end2733 and313/315 absolute instruction/file tags. This is NOT a new complete
+SLD contract:the X/Z linear-velocity loads at+344/+348 still carry2555 versus
+retail2553/2554. Keep an explicit SOURCE-REVIEW-UNRESOLVED marker for their
+source producer;no qualifier,reference alias or directive hides the residual.
+
+Restore real schedule/fast-height/ground/gravity/orientation/speed/landing/
+tunnel phases without a new source object. The fast-path assigned elevation
+includes the dimension addition on2505,before the position store and return
+on2511. The normal path samples altitude2521 and old ground height/delta2522,
+then updates groundElevation2529. Existing relativeClosingVelocity retains
+its actual old-height capture and later closing-velocity flow;its literal
+original reuse is not uniquely proved by sharing a hard register. Bare direct
+ground-delta forms keep the elevation live differently,produce316 words and
+move its native home from v0;they are not adopted. Named supplied-variable
+staging preserves the entire315-word body and every owner tuple instead.
+
+The real bounce loop closes after its accumulation on2626,before the next
+test2627. That fixes four increment/backedge tags and k's end-line record
+without altering its native lifetime. The actual post-landing angular-limit
+call belongs inside the existing work region;including it restores that
+parent's end2651 without changing its optimized+904 endpoint or adding a
+scope. Opening the flight body on2586 independently fixes its start line.
+Landing position2630,altitude2631,impulse2632 and flight reset2633 preserve
+retail source phases despite later scheduling. The existing name-free real
+shadowNormal copy region is retained,not replaced by an invented temporary.
+
+NFS2's matched source supplies x/z names for absolute speed components.
+A diagnostic with plain x/z raw-input captures at2553/2554 and ABS consumption
+at2555 reproduces all315 code words,all315 SLD tags and the native CPE,but
+adds x REG:$4 and z REG:$5,absent from retail. It is NOT adopted;NFS2 does
+not prove that exact PSX capture spelling or qualification. Root/inner named
+tuples with those two additions excluded equal retail,but exclusion is not
+an acceptance exemption. Name-free input-expression controls add two real
+non-retail regions and disrupt owner paths;the outer-expression control adds
+one. Neither is retained. Ordinary argument-parenthesis changes leave the
+same two tag differences. No const disguise or per-statement #line is used.
+
+Passive selected-stock plain/-dr outputs agree and adopted assembly equals
+the actual native compile. Initial RTL has no2553/2554 notes:both field loads,
+their ABS work and Math_BetterDist call already belong to2555 before any
+optimizer. This bounds the remaining question to a frontend/source producer,
+not a proven scheduler floor. No compiler state,RTL,instruction or debug
+output is edited. Original sampling/macro/comment text remains unresolved.
+
+Fresh native run-o8vr1zzz:32 Newton functions,31 declaration CLEAN,all32
+region PASS,29 full-SLD/combined EXACT,unchanged. All451 previous complete
+contracts and all31 neighboring complete maps/owners survive;no new contract
+is claimed. Every ordered non-SLD record,119 whole normal ELFs/fresh normal+
+debug input bindings,and native CPE are unchanged. Full32 detailed/branch
+gates,tests162,stripped83,vtable1472,policy,relink,GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. GAME/COMMON strict
+641/1247,native1201,local-contract1220 and EXTRA379 remain diagnostic snapshots,
+not whole-goal completion. The new explicit marker keeps the two-tag producer
+visible. Damage's one tag,ground wheelY/layout,gravity's two tags,the abort
+flag's original provenance and the whole-project objective remain open.
+Uncommitted/unpushed. Receipts:build/nc12/newton_gravity_source_20261029/{final-proof,phase-proof,speed-note-proof,owners-proof,inputs-proof,refine-proof,retail-map}.json.
+
+2026-10-29 Newton undrivable wheel/edge/centroid/collision source phases seal470 words;450->451.
+
+Newton_TestForUndrivableSurfaces now matches all470 absolute instruction/file
+tags,header/frame,17 supplied complete declaration-owner tuples,52 ordered
+block records and end2361. Wrong word tags470->0. The real four-wheel for
+loop replaces the infinite for plus an in-body counter-return test with the
+entire normal ELF unchanged. Its actual initializer i=0 is independently
+tagged2179 inside the declaring for's2176 source phase,using GCC's supported
+compound initializer syntax. This is real initialization,not empty padding,
+a new local or a synthetic region. The six remaining opening-scope line
+differences are repaired by the actual else/guard/j-region brace placement;
+all real j/temp regions still close before their centroid divisions.
+
+Both raw i*48+652 coordinate copies become the actual typed expression
+((Car_tObj*)newtonObj)->wheel[i].currentPos. Independent retail newton.obj
+records prove Car.N0,Car.wheel[4]652,Car_tWheel48 and currentPos0/coorddef12.
+They are wheel positions,not a BO-owned shadow-coordinate array imported
+from the NFS2 twin. Existing signed offEdge reads,index-first quad addresses,
+newTestPoint/check ownership and same-name centroid locals remain intact.
+Ordinary i==2/i==3/else damage-zone selection also preserves the retail
+branch layout while restoring its separate2348/2350/2351/2353 source tags.
+No asm,volatile,identity,new object,qualifier or generated-output rewrite.
+
+The unprovided aborted object is NOT declared resolved by native CLEAN.
+Retain one explicit SOURCE-REVIEW-UNRESOLVED marker:its existing inferred
+semantic name,type and all-source necessity are not uniquely supplied by
+retail. The actual mobile sub_4FEF33 independently contains v21=0 at entry
+and after each wheel-position load,then guards the collision/post-barrier/
+damage exit with v21==0. This supports the flag's value flow,not its spelling.
+Selected-stock initial RTL places the same user-variable pseudo84's zero
+definition on2183 and nonzero guard on2327. Final assembly moves the zero
+to2321's branch slot and keeps the t3 nonzero test at2327;native SYM elides
+the flag. Plain/-dr outputs agree and adopted assembly equals the actual
+native compile. No compiler state,RTL,assembly or debug record is edited.
+
+Removing aborted alone is468words/59 raw positional differences;direct
+quadPts[j] is468/208,also with the typed wheels. Neither negative control
+is adopted or called a proof of original-object necessity. Historical
+NO-C-SPELLING/SEALED/carrier exemptions and retired-fence instructions are
+replaced by the bounded current evidence,not silently treated as original
+source. Literal macro/flag syntax and the broader source review remain open.
+The explicit review-marker correction preserves the exact current normal/
+debug CPP inputs;the complete gates are rerun on that final source comment.
+
+Fresh native run-adcd3v5_:32 Newton functions,31 declaration CLEAN,all32
+region PASS,29 full-SLD/combined EXACT(previously28). All450 earlier complete
+contracts survive;now451. All31 other functions' full owners,numeric/file
+SLD,blocks and ends remain exact to the previous checkpoint,and every ordered
+non-SLD record is unchanged. Full32 detailed/branch gates,119 whole normal
+ELFs/fresh normal+debug input bindings,and native CPE are unchanged. Tests162,
+stripped83,vtable1472,policy,relink,GNU link,raw299819/299819,overlap,foreign-
+label and inventory pass. GAME/COMMON diagnostic strict641/1247,native1201,
+local-contract1220;Native EXTRA rows379 unchanged. The retained source flag
+is not hidden by that diagnostic. Damage's one tag,ground wheelY/layout,
+gravity SLD and whole-project source/SYM/SLD obligations remain open.
+Uncommitted/unpushed. Receipts:build/nc12/newton_undrivable_source_20261029/{final-proof,phase-proof,flag-stock-proof,member-flag-proof,retail-map,probe-proof,final-layout-proof}.json.
+
+2026-10-29 Newton post-barrier full source rewrite removes11 extra objects and every target codegen device;449->450.
+
+Newton_DoPostBarrierCollisionHandling106words is now ordinary geometric C++:
+the normal/upVec cross product,velocity dot product,negative absolute value
+divided by16,bound-first lower clamp,matrix rows and three real calls. The
+matched NFS2 PC body independently supports those vector/matrix roles. The
+local raw PSX oracle requires signed /256 quantization of BOTH multiplicands,
+not arithmetic >>8 or full fixedmult. Keep the complete cross-product source,
+including its genuine zero-valued terms;the compiler performs the constant
+folding. No dummy variable,use,qualifier,alias or replacement fence is added.
+
+Remove all eleven unprovided scalar objects:retreat,nx,nz,nz2,nxq,t3,ny,nyq,
+yTemp,dsum and the nested p1. Native declaration records18->7,exactly retail,
+including normal ARG:sp+4,the three AUTO vector/matrix homes,impactVel REG:$16
+and distRetreat REG:$3. All seven previously correct complete owner tuples
+survive in order. The only removed raw non-SLD records are those eleven INT
+REG declarations and p1's two unprovided +116/+144 scope boundaries;every
+other ordered type,storage,declaration and object record remains unchanged.
+The old claim that the by-value normal had no SYM record was false;the actual
+retail record is retained. No source name is hidden by a const/type disguise.
+
+Also remove both empty-template asm fences,all three volatile reads,all three
+one-shot do/while loops and both absorption identities. Their hundreds of
+lines of historical required/keystone/floor commentary are superseded,not
+carried forward as generic exemptions. The complete genuine expression graph
+matches on the first reference-backed clean rewrite;independent removal
+failures on the earlier manually lowered graph were not necessity proofs.
+All106 words,absolute line/file tags,header/frame,four block records and
+end1956 match retail. Wrong word tags105->0. Existing supplied declaration
+regions end at+296 despite later field stores/calls;no fake empty source
+region is manufactured to imitate that optimized debug address.
+
+The three cross-product assignments share source1936;dot/abs/divide share
+1939;clamp1940 precedes the row stores1942..1952 and calls1954..1956.
+The bound-first clamp preserves distRetreat's supplied pre-clamp quotient
+record without a second retreat object. Literal original macro punctuation
+is not uniquely proved. NFS2's extra right-vector adjustment is not imported,
+and NFS4 passes normal to CorrectPostCollisionYaw,not NFS2's barrierVec.
+Updated M2C's fourth AttenuateVelocity argument is stale a3:the supplied
+three-argument signature and actual fresh setup remain authoritative.
+
+Negative controls on the clean graph:manual if-absolute107words/43 raw
+positional word differences;clamp moved into call106/33;in-place clamp-if
+105/38;>>8 factors78/101;full fixedmult105/105. Those scores compare exact
+unlinked target words,not the reloc-lenient verify_asm metric. None lands.
+Passive selected-stock plain/-dr outputs agree for before and adopted inputs,
+and adopted assembly equals the actual production native compile. Initial
+RTL contains the real cross-product multiply/divide work;there is no hidden
+post-compile instruction/debug rewrite or altered production compiler flag.
+
+Fresh native run-gli3k2am covers32 Newton functions:31 declaration CLEAN,
+all32 region PASS,and28 full-SLD/combined EXACT(previously30/31/27).
+Every449 earlier complete contract survives;now450. Boundary-only source
+coordinate reset preserves all31 other functions' complete owners,numeric/
+file SLD,block lines and ends. All32 detailed/branch gates,119 whole normal
+ELFs/fresh normal+debug input bindings,and native CPE are unchanged. Tests162,
+stripped83,vtable1472,policy,relink,GNU link,raw299819/299819,overlap,foreign-
+label and inventory pass. Fresh directory diagnostics give GAME/COMMON
+native1201/1247,local-contract1220/1247,strict640/1247. Native EXTRA diagnostic
+rows390->379;this target's eleven removed objects are independently proved
+by full owner tuples,not inferred from global issue counts. Damage's one
+tag,ground's wheelY/full layout,undrivable-surfaces source devices,gravity
+SLD and the whole-project objective remain open. Uncommitted/unpushed.
+Receipts:build/nc12/newton_barrier_source_20261029/{final-proof,phase-proof,removal-proof,probe-proof,retail-map}.json.
+
+2026-10-29 Newton player-distance complete source contract;damage502->1 wrong tags;last pseudo-BO[3] fields recovered;448->449.
+
+Newton_CalcDistToClosestPlayerCar200words now matches every absolute word/file
+tag,header/frame,all eight supplied declaration-owner records,all ten ordered
+block records and end1215. The genuine upgrade work closes on its last real
+statement1215 rather than the next line. Stock GCC then retains source1210
+on the shared six-word epilogue while the optimized scope endpoints remain
+retail's relative93. The field clear/source phases1211/1213/1214/1215 precede
+the scheduled position addition/store1210 in execution;sorting source by
+opcode order would be wrong. No cleanup label,return dial,new object or
+statement-level directive is introduced. The actual static dummy retains its
+name,type,storage,address and existing BSS placement attribute.
+
+Newton_AddDamageZone preserves all502 words and restores all15 supplied
+declaration-owner tuples,all38 ordered block records,header/frame and end216.
+Ordinary damage/impulse/RNG/car-space/world-space phases reduce wrong word
+tags502->1. The real damage-store and preceding maximum selection share68;
+its actual guard remains70. That restores the scope-start relative19 without
+changing branch-slot tags. Opening the genuine general-case else on106
+recovers its relative57 start. No fake region or erased variable is added.
+The target is NOT fully SLD exact:the second general-case average's SRA at
++744 still has110 instead of retail111. It remains an explicit source-note
+producer question,not a compiler floor or a new complete-contract claim.
+
+The last three BO[3] projections are not fourth Newton objects. Independent
+retail newton.obj type-graph equations resolve n[3].lastUpdated to the real
+Car.forceNoSimOptz INT at1884(two reads),and the unsigned-word write through
+newtonObj[3].eIndexShadow to Car.collision.smoking INT at1932. BO size576,
+lastUpdated156 and eIndexShadow204 explain the old offsets;Car.collision1928
+plus Cars_tCollisionInfo.smoking4 supplies the actual typed member. The latter
+is not a SHORT merely because the bogus projection named a SHORT BO field.
+No invented field,layout padding,header change or new identifier is needed.
+
+The final-average conditional/MAX operand orders,split division,accumulation
+and root-imp reuse controls do not recover the full byte/owner/tag contract
+and are not adopted. Some are count-exact but still change code or supplied
+homes;do not judge them by line counts alone. Reverse comparison and split
+test controls preserve bytes but do not resolve the tag. Selected-stock
+initial RTL keeps the real quotient under110,and final assembly still tags
+its SRA110;the remaining issue is not concealed by rewriting debug output.
+Passive plain/-dr compiler outputs agree,and adopted assembly equals the
+actual source-generated native compile. Both targets are asm-free;no new
+volatile,qualifier,reference device,fake use,flag or output rewrite is used.
+
+Fresh native run-q0hgoi1h:32 Newton functions,30 declaration CLEAN,31 region
+PASS and27 full-SLD/combined EXACT(previously26). Every448 earlier complete
+contract survives;now449. The two per-function anchors and boundary-only
+legacy-coordinate resets preserve all30 other functions' complete numeric/
+file SLD and owner records. Whole ordered non-SLD records are unchanged.
+Full32 detailed/branch gates,all119 normal ELFs/fresh normal+debug input
+bindings,and native CPE are unchanged. Tests162,stripped83,vtable1472,
+policy,relink,GNU link,raw299819/299819,overlap,foreign-label and inventory
+pass. Original literal text,the damage note,the five unsealed Newton bodies
+and the wider source/SYM/SLD goal remain open. Uncommitted/unpushed.
+Receipts:build/nc12/newton_damage_distance_20261029/{final-proof,phase-proof,member-proof,retail-map,final-layout-proof,resets}.json.
+
+2026-10-29 Newton placement/base initialization and shadow transforms restore four complete contracts;444->448.
+
+SetInitialSlicePositionOrientationEtc275words,InitBaseNewtonObj160,
+CalculateGroundShadowMatrix221 and CalcRealShadowCoordinates232 now match
+all888 instruction/file tags,retail headers/frames,all43 supplied declaration-
+owner tuples,ordered block lines and function ends. Wrong absolute word tags
+235/145/221/232->0/0/0/0;every earlier correct point is preserved. No new
+object,identifier,asm,qualifier,fake reference or synthetic scope is introduced.
+
+Placement preserves backwards1312,slice setup1318/1319,matrix-row reads/
+stores1322..1332,normalizations1334..1336,transpose1337 and the real matrix
+copies1339/1340. The three rotated-offset components1342..1344 precede world
+position1347..1349. Initial mode selection,geometry queries and final mode-
+specific height paths keep all real calls/arguments. QuadCenterY's initializer
+belongs on1374;its moved constant executes in1370's branch slot,but the for-
+scope record independently locates the initialization/next binding. The static
+dummy remains the same source identifier,storage,type,address and generated
+symbol. Stack switches and the existing stack-speed flag order remain intact;
+no extra local or generated suffix is invented to imitate the static record.
+
+Base initialization retains unused moInertia and both ARG/REG dimension
+records. Real mode/type guards1439/1441/1445 select the doubled or common
+three-halves mass work1449/1452,without a Boolean capture. Real inverse-mass,
+inertia,two-stage radius and field-reset groups keep original arithmetic and
+all values. The supplied i's scope closes after the actual damage-clear loop
+1505,before the later counter/deadTimer/active/cumulatedRot resets. Moving that
+genuine endpoint repairs its line record;it does not delete a supplied region
+or retain an unused declaration merely to match a count. Typed simSlice null
+assignment from the preceding member-role repair remains unchanged.
+
+Ground-shadow normal-copy regions,the original guard arithmetic,actual cross-
+product groups and normalizations are preserved at their retail source phases.
+No guessed fixed-point/float threshold correction is made. The successful
+alternate-path return1785 and real default-path work exit keep all root/arm
+endpoints and final1807 without a source-only goto or statement anchor.
+Real shadow coordinates preserve the tick difference,dimension enlargement,
+three-vector transform groups,type20 front-width branch,ground offset and
+four-corner projections. Opening the special front block on1846 before the
+provided front declaration1847 repairs the one early scope coordinate. The
+existing loop-owned i and signed velocity/64 work remain unchanged.
+
+Per-function retail anchors plus boundary-only legacy-coordinate resets
+preserve all28 other functions' complete owners,headers,word/file tags,blocks
+and ends EXACTLY. The two real source-local dummy declarations elsewhere in
+the TU are not conflated by a whole-file name count. Signature preparation
+checks actual definition prefixes,including the base initializer's multiline
+header;it does not crop an asm-name prototype or assume header-minus-two for
+every signature. Literal original macro/comment/punctuation text remains
+unproved separately from these complete source/debug/code contracts.
+
+Fresh native run-6oucw2wh covers32 Newton functions:30 declaration CLEAN,
+31 region PASS and26 full-SLD/combined EXACT(previously22). Every444 earlier
+complete contract survives;now448. Full32 detailed/branch gates,all119 normal
+ELFs/fresh normal+debug input bindings,native CPE and all other28-function
+records are unchanged. Tests162,stripped83,vtable1472,policy,relink,GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. Selected-stock
+plain/-dr observation is output-neutral;adopted assembly equals actual native
+output and all four targets are asm-free. No header/tool/reference/production-
+flag or post-recompile rewrite is used. Remaining Newton carriers,the six
+unsealed Newton layouts and the broader source/SYM/SLD goal stay open.
+Receipts:build/nc12/newton_initial_shadow_20261029/{final-proof,phase-proof,retail-map,layout-proof,final-layout-proof,resets}.json.
+
+2026-10-29 Newton recovers55 real member roles behind fake second-BO/raw-pointer projections;entire native SYM/debug assembly/code unchanged.
+
+Remove every newtonObj[1]/n[1] projection from the reconstructed Newton TU.
+Those expressions did not describe a second BO object:they reached members
+of the containing Car_tObj. Retail newton.obj supplies Car.N at0,BO size576,
+Car size2268,and all required member names/types/offsets. Exact graph equations,
+not semantic guesses,restore55 occurrences across damage,ground elevation,
+player-distance,base initialization and gravity code. No new local,qualifier,
+scope,directive,header layout or invented name is introduced.
+
+The bogus second-BO quadPts[1].y accesses are actual Car.carFlags at608.
+Second-BO shadowMat.m[8]/shadowCoord[0].x/y are Car.angularVel_ch.x/y/z at
+1060/1064/1068:the real car-space angular velocity being transformed,adjusted
+and transformed back,not shadow data. The four differently named BO projections
+feeding rebound count are actually wheel[0..3].rebound at688/736/784/832.
+Car.wheel is supplied at652 with four48-byte elements and rebound offset36.
+This restores original typed roles without renaming the supplied r1/r2/r3/r4
+temporaries or inventing rebound aliases.
+
+The nested quadPts16+1 integer-pointer expression resolves to Car.carInfo at
+648:576+8+56+8. The actual CCOORD16 array element stride is8,not a guessed
+coordinate stride. Its +0x40 member is GameSetup_tCarData.WeightTransfer.
+The apparent second-BO damage[3] at576+536+12 is really the Car.specs pointer
+1124;subsequent+0x130/+0x134 accesses are dampingPitchRate/dampingRollRate at
+304/308. Use the real pointer/member expressions,not integer addresses into
+imaginary damage data. Finally,((int*)newtonObj)[0x22] is the simRoadInfo.simSlice
+pointer at8+128=136. Typed null assignment restores pointer semantics instead
+of treating that field as an arbitrary int word. No fake padding/type producer
+or reference record is added to justify these accesses.
+
+The exact preprocessor-input control preserves the complete normal ELF/native
+CPE and the ENTIRE native SYM dump byte-for-byte. Real production compilation
+independently confirms the same result. All declarations,duplicate type copies,
+field bodies,storage,owner paths,headers,regions and SLD remain identical;this
+is not a lenient-relocation or declaration-count-only certificate. Passive
+selected-stock plain/-dr output is equal per input,and whole BEFORE/AFTER
+debug assembly is also byte-identical. The source text/type fidelity improves
+without adding a codegen carrier or changing any generated instruction/data.
+
+Reprice wheelY on the restored typed graph:direct stack reads907/905,actual-
+height reads906/905,and combined assignment906/905 all remain negative.
+None is adopted. These controls do not prove a distinct original object,
+source spelling or floor. The named-member recovery is retained independently
+of that still-open producer problem.
+
+Fresh native run-2f_2etry:32 Newton functions,30 declaration CLEAN,31 region
+PASS,22 full-SLD/combined EXACT,unchanged. All444 earlier complete contracts
+survive;no new contract is claimed. Full32 detailed/branch gates,all119 normal
+ELFs/fresh normal+debug input bindings,native CPE and entire native dump are
+unchanged. Tests162,stripped83,vtable1472,policy,relink,GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. No post-recompile
+rewrite,reference/tool/production-flag change,asm,volatile,fake reference or
+new source object is used. Main source/SYM/SLD goal remains open.
+Receipts:build/nc12/newton_member_roles_20261029/{final-proof,phase-proof,retail-types,probe-proof,replacements,height-proof}.json.
+
+2026-10-29 Newton geometry/elevation source phases restore four complete contracts and47 named-member accesses;440->444.
+
+UpdateRoadGeometry228words,FindGroundElevationGeneral87,
+FindGroundElevationRough117 and FindGroundElevationAndNormalFast72 now match
+all504 instruction/file tags,retail headers/frames,all45 supplied complete
+declaration-owner tuples,ordered scope lines and function ends. Before this
+round all228/87/117/72 absolute word tags differed;now0. No new variable,
+identifier,qualifier,asm,opaque identity or synthetic scope is introduced.
+
+Fast elevation replaces47 raw integer-pointer offset accesses with existing
+BO roadMatrix/position/roadCenterPoint and Car.wheel member expressions.
+Retail newton.obj independently supplies BO size576,Car.N at0,Car size2268,
+Car.wheel[4] at0x28c(size192,stride48),coordinate x/y/z offsets0/4/8,int matrix
+elements,and exact currentPos/roadNormal/actualHeight/wheelInAir/rebound/
+roadSurfaceType names,types and offsets. No header layout/padding or invented
+field is added. The isolated typed-member control preserves the whole normal
+ELF/native CPE,all owners and the COMPLETE ordered non-SLD record stream.
+Thus this is application of real SYM member information,not a semantic rename
+on top of an unverified cast or a relocation-normalized offset assumption.
+
+The fast reader's initial matrix loads522..524 and normal stores525..527,
+real surfaceType=1 assignment538,call539 and wheel-copy phases545..591 recover
+the actual value roles. The constant may execute after the call even though
+its source assignment precedes it;do not sort statements by execution order.
+SurfaceType remains the real value used by four roadSurfaceType stores,not an
+unused placeholder. The negative-height branch596 and return599 preserve all
+ten source/owner boundaries,including the genuine optimized empty regions.
+
+Geometry keeps real centroid/copy,normal-forward/cross-product,low-resolution
+matrix and yaw work regions. The supplied x1 owns the FIRST product of each
+cross component. Accumulating the subtraction into x1 preserves228 words but
+changes n/r1/r6/x1 homes and five source tags;it is rejected. A nested single
+field expression restores bytes/owners but leaves nine call tags wrong.
+Using the ACTUAL result field for the second product,then subtracting it from
+the named first product,matches299/300/301,303/304/305 and307/308/309 exactly.
+The compiler forwards/removes the intermediate field store;the whole normal
+ELF/native CPE have no extra instruction or memory write. These are the real
+multiplication/subtraction stages,not an identity,fake reference,extra scalar
+capture or proof of a unique original macro spelling. All20 supplied geometry
+records retain their correct complete homes/paths/endpoints and all24 boundaries
+match. The PC-beta counterpart backs the cross-product behavior,not its PSX
+precision or a new local name;none is imported.
+
+General elevation retains the true reciprocal-table/direct-division branches,
+index450,calculations454/460 and result463. Rough elevation keeps the real
+two-iteration roughness loop,not a one-shot codegen wrapper. Its do header
+shares485 with initialization so the hoisted table address inherits the correct
+tag;the reciprocal-arm brace is498 before index499. Numerator480,roughness
+work488/490/492..495,table/direct branches500/504 and result506 preserve every
+value and signed conversion. No signed division/modulo is replaced by a shift
+or unsigned mask merely to clean codegen. Literal macro/comment text remains
+unproved separately from these complete metadata/byte contracts.
+
+Fresh native run-3m5oedus covers32 Newton functions:30 declaration CLEAN,
+31 region PASS and22 full-SLD/combined EXACT(previously18). Every440 earlier
+complete contract survives;now444. Full32 detailed/branch gates,all119 normal
+ELFs/fresh normal+debug input bindings,native CPE,and every other28-function
+owner/header/word/file/block/end record remain EXACTLY unchanged. Tests162,
+stripped83,vtable1472,policy,relink,GNU link,raw299819/299819,overlap,foreign-
+label and inventory pass. Selected-stock plain/-dr observation is output-neutral;
+adopted assembly equals actual native output and all targets are asm-free.
+Function-boundary resets preserve legacy neighbor coordinates without statement
+overrides or source-completeness claims. No header/tool/reference/production-
+flag or post-recompile rewrite is used. Broader source/SYM/SLD goal stays open.
+Receipts:build/nc12/newton_elevation_source_20261029/{final-proof,phase-proof,member-proof,typed-fast-proof,final-layout-proof,refine-proof,retail-map,resets}.json.
+
+2026-10-29 Newton transform/vector/query source phases restore four complete contracts;436->440;unproved repeated spike flag condition removed.
+
+OptzRotxform103words,GenerateVector99,Netwon_CheckForBadQuad24 and
+CheckForSpikeBelts49 now match all275 instruction/file tags,retail headers/
+frames,all33 supplied declaration-owner tuples,ordered block records and
+function ends. Before this round all103/99/24/49 absolute word tags differed;
+now0. No new variable or identifier is introduced. Retain retail's authentic
+Netwon spelling rather than silently renaming its symbol to Newton.
+
+Transform's actual clear1579 precedes absolute-value work1581..1583,sum1585,
+y-transform1590 and changed1591. Existing real x/z guards1596/1607 and their
+transform/multiply/copy arms1598..1604/1609..1615 lead to returned changed1617.
+The unused reOrthoLimit parameter stays because its ARG record is supplied;
+there is no fake use. Both ARG and REG records for the two pointer parameters
+are preserved,not collapsed by name. The multiline signature is calibrated
+at1565(header1569),not blindly header-minus-two. BadQuad's split return-type/
+name signature similarly starts2141 for header2144. Actual complete signature
+prefixes select definitions without cropping the ABI-name prototypes.
+
+Vector construction uses genuine chained upVec.x/upVec.z zero stores2112,
+unit-y2113,flat-forward initialization and the original1/4/2/8 edge guards.
+Each edge's z/x samples retain their separate source groups. Normalize2136,
+the three cross-product component expressions2137,and output stores2138..2140
+preserve every call/argument and the original stack objects. No default edge
+initialization is invented for unsupported type values. BadQuad retains its
+real quad/surface guard2148,else-owned height2152,threshold2154,shared bad=1
+source2155 and returned bad2157;the supplied else scope is not removed.
+
+Spike handling now spells out the actual source phases:inlined getter/slice
+guard1890,latPos1893,flags1896,lateral range1899,increment1901,first-blowout
+comparison1904 and collision stores1906..1908. These are genuine nested
+eligibility guards,not fabricated declaring scopes. The inline pair,all five
+provided caller records and all ten ordered boundaries remain retail-exact.
+After that graph was restored,the prior explicit repeated AICop.active_ test
+became removable:49 words,complete normal ELF/native CPE and every SYM/SLD
+record stay unchanged without it. The two native flag branches arise from
+the existing inline getter and its caller test;do not reintroduce a source-
+only repeated condition to reproduce them. Newton_GetSpikeBelt remains an
+explicitly inferred pre-existing name,not uniquely recovered original text
+or a generic exemption. Its semantic name/body review remains open separately.
+
+Owner-interpretation correction:the matrix-copy0..204 conditional region
+contains the else pointer owners at76..204,path[0,0,0]. It is not a forward-
+copy-only scope. The older journal phrase is corrected from the complete
+retail owner tree;no matrix source or metadata changes for this correction.
+Receipt:build/nc12/newton_queries_source_20261029/scope-note-proof.json.
+
+Fresh final native run-6gqknyqz covers32 Newton functions:30 declaration CLEAN,
+31 region PASS and18 full-SLD/combined EXACT(previously14). All436 earlier
+complete contracts survive;now440. Full32 detailed/branch gates,all119 whole
+normal ELFs/fresh normal+debug input bindings,native CPE,and every other28
+function's complete owner/header/word/file/block/end records are unchanged.
+Tests162,stripped83,vtable1472,policy,relink,GNU link,raw299819/299819,overlap,
+foreign-label and inventory pass. Selected-stock plain/-dr observation is
+output-neutral;adopted assembly equals actual native output and all targets
+are asm-free. No new opaque identity,qualifier,synthetic declaring scope,
+fake reference,statement anchor,header/tool/reference/flag or post-recompile
+rewrite is used. Literal macro/comment/helper spelling and wider source/SYM/
+SLD obligations remain open;main goal is not complete.
+Receipts:build/nc12/newton_queries_source_20261029/{final-proof,phase-proof,retail-map,layout-proof,spike-guard-proof,resets}.json.
+
+2026-10-29 Newton velocity/rotation/clipping source phases restore four complete contracts;432->436.
+
+QDUpdateVel57words,QDUpdateRot64Hz68,QDUpdateRot32Hz72 and
+LimitAngularVelocity38 now match all235 instruction/file tags,retail headers/
+frames,all13 supplied complete declaration-owner tuples,ordered scope lines
+and function ends. Before this round all57/68/72/38 absolute word tags differed;
+now0. No new variable,identifier,qualifier,asm,reference device or scope is
+introduced. The existing ABI-name prototypes are retained unchanged:signature-
+only slicing would wrongly select those multiline asm-name declarations,so
+preparation requires the actual definition's signature/blank/opening brace.
+
+Velocity's inactive guard1528 has no declaring level. The real sgge guard1534,
+body opening1535 and supplied t1/t2/t3 declarations/work1536..1538 reproduce
+the exact parent and optimized zero-length local region+60..+60. That region
+contains real shifts/scaling/position updates in source;it is not fabricated
+empty source or proof of unused variables. Preserve arithmetic shifts for
+linear velocity,scaling calls1540/1542,position stores1544..1546 and fallback
+stores1550..1552. A real fallback return at1552 plus the true arm's implicit
+exit recovers the shared scope endpoint1553 and function exit1558.
+
+Rotation retains its actual rate arithmetic:64Hz uses signed/64 on1637..1639,
+32Hz signed/16 on1686..1688. These must not be changed to shifts or a guessed
+framerate divisor. The OptzRotxform calls1647/1703 keep the distinct0x1000/
+0x2000 limits;matrix updates1656/1711 preserve every real call argument.
+The counter semantics also differ intentionally:64Hz decrements before the
+combined counter/flag test1657;32Hz checks reOrthoNeeded before its conditional
+decrement1713. Do not refactor them to a common evaluation order. Real successful
+work returns after clears1661/1717,while inactive execution reaches implicit
+exits1667/1722. All original stack objects remain in their supplied root owner.
+
+Angular clipping keeps the genuine three positive/negative conditional arms,
+with guard pairs2443/2445,2448/2450 and2453/2455. The compiler merges each
+pair's stores into the retail shared source group2446/2451/2456. Implicit void
+exit preserves frame0,root endpoint2457 and final function line2456 without
+an alias,fence or fake branch. Literal macro/comment/punctuation spelling is
+not uniquely proved by any of these complete metadata/byte certificates.
+
+Fresh native run-bxh2kckr covers32 Newton functions:30 declaration CLEAN,
+31 region PASS and14 full-SLD/combined EXACT(previously10). Every432 earlier
+complete contract survives;now436. All32 detailed/branch gates pass,all119
+whole normal ELFs/native CPE and every other28-function owner/header/word/file/
+scope/end record remain EXACTLY unchanged. Function-boundary resets preserve
+measured legacy coordinates only;there is no per-statement directive or claim
+that untouched neighbors are fully restored. Current normal/debug inputs are
+freshly source-bound. Tests162,stripped83,vtable1472,policy,relink,GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. Selected-stock
+plain/-dr observation is output-neutral;adopted assembly equals the actual
+native compile and all four targets are asm-free. No header/tool/reference,
+production flag or post-recompile rewrite is used. Main goal remains open.
+Receipts:build/nc12/newton_motion_source_20261029/{final-proof,phase-proof,retail-map,layout-proof,resets}.json.
+
+2026-10-29 Newton matrix-copy and ground-height source phases restore four complete contracts;428->432.
+
+CopyRoadMatrixToOrientMat53words,CopyRoadMatrixToShadowMat53,
+CalcPerpenHeightOfLowestPointFromGround225 and
+CalcPerpenHeightOfCenterPointFromGround55 now match all386 instruction/file
+tags,their retail headers/frames,all22 supplied complete parameter/local
+tuples,ordered block coordinates and function ends. Previously all53/53/225/55
+absolute instruction tags differed;now0. No new source object or identifier
+is introduced,and all code/data/relocation output remains unchanged.
+
+The matrix routines retain the real36-byte struct copy in the forward arm,
+provided ori/shad and road pointers in the reverse arm,and all nine matrix
+field assignments with the actual row signs. Their source phases are1265/66,
+1270/71,1273..1281 and the corresponding21-lines-later shadow phases.
+The pointer's address may execute early in a branch slot;that is not a reason
+to move its source assignment ahead of the guard. A separate else keyword
+and opening brace already preserve bytes/word tags but put the else-region
+start one source line late. Ordinary `else {` followed by the provided
+declarations restores that start with no new scope or declaration. All six
+ordered boundary records per function then agree,including the enclosing
+conditional region and the shared1282/1303 end coordinates. Its two else
+pointer owners are descendants of the0..204 parent;that parent is not a
+forward-copy-only region.
+
+The lowest-point helper keeps NFS4's operand-truncated fixed-point arithmetic:
+basis products1086/1088/1090,x-direction selection1092/1093,y/z phases1094/1096,
+relative-position1099,dot1100 and final returned bound1102. The real x sign
+selection uses two explicit arms rather than an early unrelated default note;
+its supplied xDir/yDir/zDir roles and homes are unchanged. The center helper's
+subtraction1113,dot1114,orientation test1115 and dimension-specific direct
+returns1116/1118 reproduce the actual retail call/branch/return grouping.
+No shift replaces a signed division,and no PC-twin precision is imported.
+
+Per-function retail anchors and boundary-only restoration of the measured
+legacy coordinates leave all28 other functions' headers,complete owners,
+word/file tags,block/end records and ordered non-SLD records EXACTLY unchanged.
+No statement anchor,asm,volatile,qualifier,fake use,scope padding,header/tool/
+reference edit,production flag or generated-output rewrite is introduced.
+Literal original macro/comment/punctuation text remains unproved separately;
+byte/SYM/SLD equality is not a unique-source-text or whole-project certificate.
+
+Fresh native run-ws3h1dxs covers32 Newton functions:30 declaration CLEAN,
+31 region PASS and10 full-SLD/combined EXACT(previously6). All428 earlier
+complete contracts survive;now432. All32 detailed/branch gates pass,all119
+whole normal ELFs/native CPE and all earlier correct source facts are unchanged.
+Normal/debug inputs are freshly bound to current source. Tests162,stripped83,
+vtable1472,policy,relink,GNU link,raw299819/299819,overlap,foreign-label and
+inventory pass. Selected-stock plain/-dr output is byte-identical per input;
+adopted assembly equals the actual native compilation,and all four targets
+are asm-free. The remaining Newton carriers and wider source/SYM/SLD goal
+stay open;no full-module or main-goal completion is claimed.
+Receipts:build/nc12/newton_matrix_height_20261029/{final-proof,phase-proof,retail-map,layout-proof,else-proof,resets}.json.
+
+2026-10-29 Four Newton call/mutation/exit source phases restore complete absolute contracts;424->428,all28 neighbors unchanged.
+
+FindClosestQuad11words,CalculateSliceYaw28,LimitCarsToDrivableDist17 and
+UpdateRoadInfo35 now match every instruction/file tag,retail header/frame,
+complete supplied local/type/home/owner tuple,ordered block line and function
+end. Previously all11/28/17/35 absolute instruction-line tags differed;now0.
+No new variable,name,qualifier,scope,fake reference,asm or opaque identity is
+introduced. These are real statements/guards/exits,not debug-only scaffolding.
+
+FindClosestQuad's real call/return group belongs on227 after header221.
+CalculateSliceYaw preserves the supplied declaration order and actual x1/z1
+mutations;successor236,sample loads237..240,and the two mutations plus intatan
+on244 recover all records. Directly passing the differences instead changes
+the retail handout. Reordering the initialized s declaration can preserve bytes
+and tags but disrupt supplied locals;that form is rejected. The retained
+predeclared form is nearest the existing source;literal declaration punctuation
+is not uniquely proved by an also-matching initialized-declaration control.
+
+LimitCarsToDrivableDist needs ordinary implicit void fallthrough after its
+real last geometry call1068,not the old outside trailing return. Its root
+block still ends1069,as retail records. UpdateRoadInfo's successful active work
+returns after the real surface-store phase1247;inactive execution falls through
+to the implicit function exit1261. This restores the root endpoint1248 without
+an extra declaring region or source object. The outside-return controls move
+the epilogue/end or root note incorrectly and are not adopted. Source layout
+and a genuine exit restore the two different coordinates;there is no per-
+statement line override or generated-note rewrite.
+
+Each function has one retail-derived start anchor. A separate boundary-only
+coordinate reset AFTER its body restores the measured pre-edit numbering of
+untouched following functions. The resets explicitly preserve legacy evidence;
+they do not claim those neighbors' old coordinates are retail. All28 other
+parsed function records,complete owner tuples,every numeric/file word tag,
+header,block and end remain EXACTLY unchanged. All119 protected compiler inputs
+are source-fresh;the prior complete contract count was424,now428. No comparator,
+reference,header,production compiler flag or post-recompile output is altered.
+
+Fresh native run-r_nt8kfc covers32 Newton functions:30 declaration CLEAN,
+31 region PASS,6 full-SLD/combined EXACT(previously2). Full32 detailed/branch
+gates pass,all119 whole normal ELFs/native CPE are unchanged,and all424 prior
+full contracts survive. Tests162,stripped83,vtable1472,policy,relink,GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. Selected-stock
+plain/-dr output is identical per observed input;adopted assembly equals the
+actual native compile and all four targets contain no assembly templates.
+Literal original macro/comment/punctuation text and the broader source/SYM/
+SLD obligations remain open. These four seals do not complete the main goal.
+Receipts:build/nc12/newton_small_source_20261029/{final-proof,phase-proof,retail-map,final-layout-proof,endpoint-proof,slice-proof,exit-proof,resets}.json.
+
+2026-10-29 Newton road-position calculation/return phases restore two complete absolute SYM-SLD contracts;422->424.
+
+Newton_CalculateRoadPositionFromSliceAndPosition and Newton_CalculateRoadPosition
+now have retail-derived signature anchors2734/2760,headers2736/2762,actual
+center/vector phases2741/2742 and2767/2768/2769,and distinct scalar calculation/
+return phases2744/2745 and2771/2773. Their61/66 word/file tags,complete supplied
+5/4 parameter/local tuples,frames32/48,root block records and function ends
+all match. Before these changes every absolute instruction-line tag differed:
+61->0 and66->0. Both functions keep the same complete normal ELF/native CPE.
+
+The plain root int roadPosition and separate assignment/return follow the
+matched NFS2 PC Newton_CalculateRoadPosition source. Only the result name and
+real calculation/return pattern transfer;NFS4's operand-truncated fixed-point
+arithmetic is preserved,not replaced by NFS2's FIXMUL precision. The selected
+stock compiler emits no new AUTO/REG record for this ordinary returned-value
+local. The identically named canonical Car_tObj MOS member is not mistaken
+for a local. Native supplied declarations and every ordered non-SLD record
+remain unchanged apart from the authenticated file/header coordinates below.
+
+This is NOT a const/debug-elision workaround or an original-spelling proof.
+The non-const root declaration/assignment form works;const is unnecessary and
+not adopted. The existing-direct-return layout leaves four wrong final tags
+and the wrong end. Moving its semicolon/parenthesis to the return line instead
+moves31 calculation tags and a block coordinate incorrectly. In-place projected
+carRelative.x would add a real store(62/67 rather than61/66) and is rejected.
+These controls support the recovered real value/return phases;they do not
+uniquely prove NFS4's original identifier,distinct source-object necessity or
+literal vector-macro text. NFS2 independently backs the chosen semantic name
+and exact counterpart's source pattern;the helper's corresponding spelling is
+reference-supported inference. Keep those literal-source uncertainties explicit,
+not a generic carrier exemption or a whole-project source-restoration claim.
+
+The first full native attempt correctly failed closed on mixed native source
+identities:30 functions named the reconstruction path,two named retail's path.
+No ownership comparator or reference was relaxed. A module-level canonical
+file-identity reset at source line1 preserves all earlier numeric coordinates;
+the two tail functions alone have additional per-function retail anchors.
+All32 native function filenames now match their retail unit. The other30
+functions retain EXACT headers' line numbers,word tags,block/end coordinates,
+complete locals and numeric SLD records. Their other header coordinates still
+need restoration;file identity alone is not a full source/SLD seal. The broader
+32-function signature calibration is diagnostic only and is not bulk-adopted.
+There are no per-statement directives or generated-output rewrites.
+
+Fresh native run-2aowl26s covers all32 Newton functions,30 declaration CLEAN,
+31 region PASS and2 full-SLD/combined EXACT(previously0). All422 earlier full
+absolute contracts survive;now424. All32 detailed/branch gates,all119 normal
+ELFs,fresh source-bound normal/debug inputs,native CPE,tests162,stripped83,
+vtable1472,policy,relink,GNU link,raw299819/299819,overlap,foreign-label and
+inventory pass. The passive selected-stock plain/-dr observer is output-neutral,
+and adopted assembly equals the actual native compile. No new asm,volatile,
+register pin,opaque identity,fake reference or dummy scope is introduced.
+Receipts:build/nc12/newton_anchor_source_20261029/{final-proof,phase-proof,root-return-proof,return-proof,retail-map,calibration}.json.
+
+The preceding wheelY round remains negative:32 typed/address-view combinations,
+four genuine store chains and13 loop/store/test controls are nonidentical at
+906..916 words;none is adopted. Those finite negatives are not an original-
+object necessity/floor claim. The wheelY source producer and its function's
+full SLD remain active recovery work,not a permanent exemption.
+Receipts:build/nc12/newton_height_source_20261029/{views-proof,loop-proof}.json.
+
+2026-10-29 Newton ground-elevation clamps remove five unprovided locals/eight regions;all69 supplied owners and82 ordered address/depth boundaries now exact.
+
+Newton_FindGroundElevationAndNormal uses the actual desiredCompression,pitch
+and roll destinations directly in ordinary MIN/MAX-shaped conditional
+expressions. The positive compression ceiling needs bound-first operands;
+positive pitch/roll ceilings and their negative floors need value-first
+operands in the tested forms. All five former REG:$3 limit objects disappear
+without replacement aliases,qualifiers,reference devices or new declarations.
+The distinct suspension limit supplied as REG:$4 remains unchanged. Wrong
+operand-order controls differ even at the same word count;the retained forms
+work individually and together at905/905. Earlier two-arm-result/copy
+necessity claims applied to an older source graph and are superseded.
+
+The tempVecX/tempVecY/tempVecZ work ends after angular-velocity reconstruction,
+before altitude calculation. That calculation uses the root elevation and
+normal parameter,not those vector locals. Closing the genuine work region
+there moves its endpoint+3568->+3512,exactly retail. All69 supplied complete
+name/type/home/size/dimension/depth/address/owner-path tuples now agree.
+Native declarations75->70;wheelY is the sole remaining unprovided object.
+The five REG records and eight non-retail regions are removed;ordered
+boundaries98->82,with all82 address/kind/depth/owner placements matching
+retail. Every other ordered non-SLD record and other function remains exact.
+
+This is NOT a complete SLD/source-text seal. Header611 versus610,the nonretail
+file identity,903/905 wrong instruction-line tags and end1062 versus1057 remain
+open. Both previously correct instruction tags and every prior correct scope
+coordinate are preserved. The new source removes no authentic scope merely
+to reduce a count;complete owner paths and ordered retail regions are checked.
+Three solved-height field/assignment controls remain906/905 and are rejected.
+wheelY's generic carrier exemption is replaced with explicit unresolved
+producer/name review;those negatives do not prove an original object required.
+Superseded matching commentary is removed from the executable body while
+preserving all line coordinates and byte-identical actual preprocessor input.
+
+Fresh native run-siyxc372:32 Newton functions,30 declaration CLEAN,31 region
+PASS;the target remains DIRTY due to wheelY,not falsely marked complete.
+All32 detailed/branch gates pass,all119 normal ELFs/native CPE remain unchanged,
+and all422 previous absolute contracts survive. No new contract is claimed.
+Every normal/debug input is freshly source-bound. Tests162,stripped83,
+vtable1472,policy,relink,GNU link,raw299819/299819,overlap,foreign-label and
+inventory pass. Selected-stock plain/-dr before/adopted outputs agree;the
+adopted assembly equals the actual native compile and has no asm template.
+No header/build-tool/reference/compiler-output rewrite,new asm,volatile,
+fake use or scope padding is introduced. Original literal macro/comment text,
+remaining target source producer and whole-project obligations remain open.
+Receipts:build/nc12/newton_ground_source_20261029/{final-proof,phase-proof,probe-proof}.json.
+
+2026-10-29 Provided-value phase diagnostics expose an ambiguous DerivedSpecs match;not adopted as an original-name repair.
+
+A private CalculateDerivedCarSpecs form that reuses the supplied i for the
+later RPM intermediate is324 words,with identical whole normal ELF/native
+CPE,all three complete supplied declaration tuples,all324 instruction/file
+tags,block records and end406. This proves the existing unrecorded RPM
+declaration is not necessary merely to pass those gates. It does NOT prove
+that retail's loop counter originally owned that later value. The recorded
+i home is s2;the later machine quantity is v0. Those facts cannot be turned
+into an original-variable-reuse assertion from native equality alone.
+The diagnostic stays private,not a blind rpmAtMaxSpeedInHighestGear->i rename.
+NFS2 independently supplies the longer RPM name but does not establish the
+distinct NFS4 object. The original later producer/ownership remains active
+source-recovery work,not an exemption,floor or permanent-unrecoverable verdict.
+
+Using the provided acceleration-result object instead fails complete ELF
+equality. Two actual torque-index mutation/argument forms likewise fail,
+despite unchanged324-word counts. Twelve signed-scale quotient/staging
+controls through supplied dead-phase locals also fail and are not adopted;
+no new declaration,identity,reference operand or qualifier is introduced.
+Selected-stock production/diagnostic plain and -da outputs agree in each
+case;the diagnostic output also reproduces its saved full native compile.
+The15 negative controls and the complete positive diagnostic are hash-bound
+in build/nc12/physics_source_phases_20261029/diagnostic-proof.json.
+
+RoadGrip's split aero call/update tags were separately tested with genuine
+front/rear force or sum phases through the recorded wheel accumulators.
+Three such controls have95 words but differ in the full ELF. A direct-call
+expression control preserves the ELF/CPE and supplied locals,but has16 wrong
+word tags and three wrong block coordinates versus the retained15/zero;
+it is rejected. An initial private generator accidentally cleared a preceding
+store and then produced an ill-typed void arm;both harness errors were fixed
+before the final four controls were measured. No result from that invalid
+source generation is evidence of original-source feasibility or necessity.
+Receipt:build/nc12/physics_roadgrip_calls_20261029/probe-proof.json.
+
+All119 protected production source hashes and normal objects,the native dump
+and CPE remain EXACTLY the prior422-contract barrier checkpoint. No game code
+from these diagnostics is adopted,and no additional source/SYM/SLD seal is
+claimed. The positive reuse is evidence of comparator ambiguity,not permission
+to hide an unproved source object behind a supplied identifier. Main goal active.
+
+2026-10-29 Barrier source phases remove13 capture declarations and12 empty assembly templates;all23 supplied tuples and full absolute SLD restored.
+
+Physics_DoBarrierCheck now uses the supplied r1/r2/r3 for both the initial
+signed-byte right coefficients and the following center/position/shifted-
+velocity work. Each actual phase overwrites those values before the direct
+x1/x2/x3 dot products. This naturally reproduces the required right-vector
+stack reloads and multiply schedule;the old raw snapshots,memory barriers,
+centerKeep handoff and reference-count dials are unnecessary on this graph.
+All358 instruction words,the complete normal ELF and native linked CPE stay
+unchanged. No replacement alias,qualifier,fake reference,scope,compiler flag,
+register pin or generated-output rewrite is introduced.
+
+Thirteen capture declarations disappear:nine had native REG records
+(x1raw,centerX,centerY,positionZ,velocityZ,centerKeep,raw1,x3factor,x3left),
+and four were debug-elided(positionX,positionY,centerZ,linearZ). Native
+target declarations32->23,and every complete supplied name/type/home/size/
+dimension/depth/region-address/owner-path tuple is exact. The only ordered
+raw non-SLD record delta is deletion of those nine unprovided REG records.
+Every other function's complete declarations,regions and SLD are preserved.
+Do not import NFS2's additional r4/r5/r6 declarations merely because its
+related algorithm uses them;NFS4's own SYM and raw shifts are authoritative.
+
+Ordinary source layout under the existing per-function anchor restores all
+358 instruction/file tags,header761,frame120,ten block records and end932.
+Wrong word tags349->0. Initial zero-width r-work regions are produced by real
+arithmetic work,not empty source padding. The final two tags are recovered by
+the genuine return collide at919 AFTER the guarded impulse/sfx updates.
+An in-impulse-only return changes code and is rejected;the outer post-plane
+return is byte-exact. Both direct and in-place x2 forms pass,but x3 must be
+the direct product in the tested forms;the alternate coefficient orders and
+in-place x3 controls fail. These are bounded stock-compiler observations,
+not unique proof of literal original macro/comment syntax or universal rules.
+Retail's uninitialized normal pass-through in the low-altitude else arm is
+preserved;the mobile twin's later zero initialization is not imported.
+
+Fresh native run-ra8l4g_4:Physics19/22 declaration CLEAN,20/22 region PASS,
+19/22 full SLD EXACT,18/22 combined EXACT. All421 prior full absolute
+contracts survive;the new barrier contract makes422. All22 detailed byte/
+branch checks,all119 protected whole normal ELFs/fresh normal+debug CPP inputs,
+native CPE and the completed wheel-type producer hash remain unchanged.
+Tests162,stripped83,vtable1472,policy,relink,GNU link,raw299819/299819,
+overlap,foreign-label and inventory checks pass. Selected-stock before and
+adopted plain/-dr observer output is identical in each case;adopted assembly
+equals the actual native compile,with target assembly templates12->0.
+The broader type-producer,remaining Physics/source-object and whole-project
+restoration obligations stay open. Goal active;no full-project SYM/source
+completion or unique literal source-text claim is made.
+Receipts:build/nc12/physics_barrier_source_20261029/{final-proof,phase-proof,layout-proof,probe-proof,retail-map}.json.
+
+2026-10-28 User decision:keep the inferred brake-increment declaration diagnostic-only.
+
+The used0x10 increment model for RampCarControlValues remains private evidence,
+not adopted source. Both char and int reproduce code/region addresses,but
+retail supplies neither the name nor type. The user explicitly chose
+"Keep diagnostic only". This supersedes earlier pending-preference statements;
+do not introduce an inferred step variable to clear the missing brake scopes.
+Continue recovering the genuine source producer without invented declarations.
+
+2026-10-29 Full119-input Car_tObj producer audit exposes object-context differences and14 uncovered data/type-only records;no blind shared-header change adopted.
+
+Scope is bound to the119 source hashes and119 actual normal/debug CPP inputs
+of the current verified checkpoint,not every stale cached assembly file.
+Every input is paired to a retail object:117 by exact function-source path,
+Fecntl/FEI by unambiguous retail FILE-object names. Native per-object Car_tObj
+typedef counts sum650,exactly the current native dump total. Their119 retail
+objects sum798. The remaining retail14 occur in aispeech.obj(2),aidebug.obj(10)
+and DrawDbg.obj(2),each with a full2268-byte Car_tObj body. They are not in the
+119-input native-debug set. Thus the whole-image650/812 difference is NOT a
+complete source-coverage percentage or proof that all deficits share one cause.
+
+Of106 current color-graph consumers with the full retail Car_tObj body,
+81 are short one copy,17 have larger deficits,seven have matching counts,and
+aihigh has one excess. Seven matching contexts are aih_hum,aih_opp,aih_traf,
+aispeeds,object,sim andnight. The13 other current inputs have zero Car_tObj
+copies in both source and retail. Across paired objects this is149 deficit
+occurrences and one excess by count;the14 uncovered records are additional.
+Equal counts alone do not certify the ordered producers or original source.
+
+An isolated completed Car_tObj typedef in physics preserves the complete
+normal ELF/native CPE and adds one record650->651,but does not repair the
+wider early physics-header order. Selected-stock context controls reproduce
+their cached assembly EXACTLY:color1->2 matches retail2;aispeeds36->37 would
+regress retail36;aihigh15->16 worsens retail14. In each control the ONLY assembly
+change is one TPDEF insertion,no executable/data instruction change. Therefore
+the shared color-header declaration is NOT changed on count-only evidence.
+Recover actual per-object header/definition/reference contexts and audit
+source-only carriers that can mask missing producers,not conditional typedef
+switches or dummy uses invented solely to balance counts.
+
+The three speech enum alias families already match in all119 paired objects.
+AISpeechInfo_t instead has103 one-copy deficits,two two-copy deficits,and14
+matching contexts(13 with no body,plusnight). Night_SetEnviroment contains the
+explicitly unprovided Car_tObj*tgt and its absorption identity;the compiler
+emits an extra Car/member typedef neighborhood there. Its equal Car/speech
+counts must not be used to certify those source carriers. This is a source-
+producer lead,not proof of the exact original header spelling or permission
+to delete a variable before whole byte/type/owner/SLD verification.
+
+Known source-surface gap,NOT AN EXEMPTION:aispeech.h is empty,aidebug.h is
+empty,and drawdbg.h exposes onlyu_long. Definitions elsewhere are not visible
+in those TUs. AISpeech's four known speech types now live in color_types.h,
+not at the obsolete nfs4_types.h line numbers claimed in the old stub comment.
+The old "PSYLINK moved other objects' types here" explanation and vacuous-local-
+audit completion claim are removed. Per-object compiler records remain that
+object's obligation. Source/header comments now explicitly mark these
+unrestored type/include surfaces. Their actual declarations and contexts must
+be recovered;uncertain original paths or repeated-copy producers are separate
+reference-recovery work,not justification for typedef padding. No missing
+graph is claimed repaired by this comment correction.
+
+All six modified source/header files are TOKEN-IDENTICAL after comment masking.
+All three freshly rebuilt normal objects are byte-identical to their immutable
+pre-audit hashes. All119 protected source hashes,the physics-type header and
+the native CPE remain unchanged;no function matching status or prior421
+contract is redefined. The audit does not mark the full source-restoration goal
+complete. The rejected shared-header diagnostic and absence of native coverage
+for the three data/type-only objects remain explicit,actionable work.
+Receipts:build/nc12/physics_type_order_20261028/{audit-proof,consumer-audit,per-object-audit,context-proof,probe-proof,speech-family-audit,type-only-baseline}.json.
+
+2026-10-29 Acceleration scale source controls remain private negatives after the control-flow repair.
+
+Six real multiplication-order/compound-conversion/assignment-factor controls
+are710 words but nonidentical. No control is adopted or promoted to a required
+source-object/floor claim. Stock evidence still narrows the identity-free
+residual to sign-test/bias operand canonicalization,not an absent v0<-v1 copy.
+Current scaledRatio/identity and its regions/full SLD remain unresolved.
+Receipt:build/nc12/physics_accel_scale_20261028/order-proof.json.
+
+2026-10-28 Acceleration manual-driving guard/fallthrough removes the unsupported shared-exit label and two gotos;421 prior full contracts preserved.
+
+The damage arm naturally falls through to the common wheel-spin clears after
+its real decrement/MAX work. The final manual deceleration belongs inside
+flywheelRpm>=desiredRpm,not behind an invented jump around it. Removing those
+two gotos and Phy_CalcAcc_clearWheelSpinExit preserves all710 code words,
+all17 native local tuples(including the explicitly unresolved scaledRatio),
+all16 supplied complete tuples,and every existing correct SLD fact. The sole
+non-SLD raw-record change is deletion of that non-retail LABEL at function+1268.
+Historical load-bearing-goto claims are superseded on this actual source graph.
+
+Two ALREADY INCORRECT instruction tags at+912/+916 change1533->1532;retail
+is1518. They share one source-note event at+912. No prior correct tag is lost,
+the657 wrong-tag count is unchanged,and all other source-note events,headers,
+region tuples,end records,file identities and other functions remain identical.
+This is explicit remaining coordinate work,not a complete-SLD certificate or
+a claim that incorrect old coordinates must be preserved forever. Full target
+SLD,scaledRatio/its absorption identity and three extra regions stay open.
+
+Selected-stock trace corrects a misleading diagnostic direction:the simple
+product WITHOUT the identity still emits `move v0,v1`. The remaining mismatch
+is which value feeds the following sign-test/bias:retail uses v0,v0;the ordinary
+direct/unlaundered graphs use v1 as input. Do not keep chasing a missing-copy
+or invent a new source object from that false premise. Plain/-da assembly
+equality holds for all observed inputs. The global model is45/46,47/48 and
+45/46 across retained/direct/no-identity controls;those are NOT fully validated
+global handouts and are not used to price an authoritative reference dial.
+Eighteen real abs/unit accumulation,cap and quotient-staging controls remain
+nonidentical at707..712. Four dividend/divisor width controls remain nonidentical
+at710. These are measured negatives,not floors or source-object exemptions.
+Receipts:build/nc12/physics_accel_scale_20261028/{probe-proof,trace-proof,width-proof}.json.
+
+Fresh native run-bhlaezio,22/22 detailed/branch PASS,all119 normal ELFs/native
+CPE and all421 prior full contracts unchanged. Physics remains18/22 native
+CLEAN,20/22 region PASS,18/22 full SLD EXACT and17/22 combined EXACT. The
+wheel-type completed producer/hash is frozen;its preexisting wider early-header
+ordering work stays open. Tests162,stripped83,vtable1472,policy,relink,
+canonical GNU link,raw299819/299819,overlap,foreign-label and inventory pass.
+Stock before/structured-positive/adopted observations have byte-identical
+plain/-da output;adopted assembly equals the actual native compilation.
+No new asm,volatile,variable,type alias,dummy use or scope padding is added.
+Receipts:build/nc12/physics_accel_control_20261028/{final-proof,phase-proof,probe-proof}.json.
+
+2026-10-28 CalculateCarAcceleration real rev-limit arms remove an alias,one-shot loop and reference fence;421 prior full contracts preserved.
+
+Inside the actual rev-limit guard,assign desiredRpm through field/value-first
+MIN(desiredRpm,specs->redline-800) or MIN(desiredRpm,specs->redline-400) in
+the genuine gear/power arms. revLimitedRpm is unnecessary and removed,not
+renamed or const-qualified. The real timer decrement then matches without
+its one-shot loop,and that corrected graph also permits removal of the old
+four-reference desiredRpm fence. Selected-stock/code/native gates prove all
+710 instructions unchanged;there is no replacement opacity/reference device.
+
+Native local objects18->17. All16 supplied complete name/type/home/size/
+dimension/depth/address/path tuples now match retail,including rpmDrop/rpmRise
+paths that previously inherited the extra rev-limit owner. Two non-retail
+regions+732..+844 and+748..+844 disappear with the one unprovided REG record.
+Every other ordered raw non-SLD record and remaining region coordinate stays
+unchanged. Native region count13->11 versus retail8. Remaining scaledRatio
+is still EXTRA atREG:$2,with its absorption identity and three extra regions;
+full SLD and the named shared-exit label also remain source-recovery work.
+No full-function native/source seal or new full-manifest entry is claimed.
+
+Both direct desiredRpm and provided-temp MIN destinations work with value-first
+operand order;direct desiredRpm avoids unnecessary staging. Bound-first orders
+fail even at710. Keeping/removing the old loop both match after the genuine
+arm repair;ordinary decrement is selected. Whole direct scaling/division,
+per-arm scaled-force and per-arm ratio forms remain nonidentical at710/717/707,
+alone and paired with rev-limit changes. Eighteen int/long/long-long product
+typing and fence controls remain nonidentical at710. Fence-only removal on the
+correct rev-limit graph does match. These negatives are not distinct-source-
+object necessity proofs or floors;the last scaling producer remains explicit.
+
+Known statement coordinates are preserved rather than padded into a false
+complete seal:wrong word tags661->657,and every previously correct tag survives.
+The user preference update for the brake model changes only its existing
+receipt comment;fresh actual production CPP/normal/debug input checks retain
+the same compiled inputs and outputs. No inferred brake variable is introduced.
+
+Fresh native run-j3g508ql,all22 detailed/branch PASS,all119 covered normal
+ELFs/native CPE unchanged and all421 prior complete contracts preserved.
+Physics stays18/22 native CLEAN,20/22 region PASS,18/22 full SLD EXACT and
+17/22 combined EXACT. The completed wheel-type header producer/hash remains
+frozen;its known wider early-header ordering review is not silently closed.
+Tests162,stripped83,vtable1472,policy,relink,canonical GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. Plain/-da selected-
+stock output equality is bound for old,loop-free rev-limit positive,
+reference-fence-free positive and adopted inputs;target asm templates1->0,
+adopted assembly equals the actual native compile. Full goal remains open.
+Receipts:build/nc12/physics_accel_source_20261028/{final-proof,phase-proof,record-delta,retail-map,probe-proof,tail-proof}.json.
+
+2026-10-28 Physics_CalcTractionCircleAcc genuine field-clamp arms restore the real receiver and type producer;421 full covered contracts.
+
+Keep roadGrip as friction and express the real TireType1/2 skid clamps as
+field-first MIN(wheel->skid,0x80000/0x40000) arms. Both empty fences,
+roadGripCompare,skidValue and four invented labels/gotos disappear. On that
+graph the real wheel parameter also matches directly:REGPARM5->retail16,
+without wheel_reg. This removes three EXTRA records,not merely their names.
+The old direct-parameter90-diff and clamp-copy results were graph-specific,
+not proof of required source objects or fixed allocation limits. Existing
+correct gripLoss quotient/clamp ownership is preserved.
+
+All seven ordered complete supplied local/parameter tuples,233 word/file
+tags,root region coordinates,header1731 and native end1810 agree. Actual
+source can close the function on1811 with ordinary fallthrough while native
+end/epilogue remain1810. A real return on1811 instead regresses eight tags;
+packed-close1810 variants also match,so literal punctuation is not unique.
+The max-plus-quarter conditional has matched NFS2 evidence;its different
+cap/force logic and extra variable names are NOT imported. No new object,
+qualifier,scope padding,priority dial or instruction rewrite is used.
+
+Whole-record checking catches a dependency that function-local cleanliness
+alone misses. Removing wheel_reg from the plain-struct header form gives
+only6 Physics_tWheelAccStruct TPDEF records versus retail7. The old alias
+had masked the missing completed-type producer:before repair there was one
+early copy and six late;retail has an early pair and five late. Restore the
+real `typedef struct Physics_tWheelAccStruct { ... } Physics_tWheelAccStruct;`
+in physics_types.h,with a comment and immutable prior-header backup. The
+compiler natively emits the required early copy;no generated record is edited.
+All struct tags,members,offsets,sizes and EOS payloads stay exact;the adjacent
+typedef pair and entire later typedef neighborhood match retail. This is
+producer restoration,not a dummy local/type use or a count-only exemption.
+
+WIDER EARLY HEADER ORDER REMAINS OPEN RESTORATION WORK. The unchanged
+surrounding native header sequence starts Udff_tInfo/Udff_tHandle before
+the wheel-type pair,where retail has two Car_tObj copies;native also has
+matrixtdef/TransformResult ahead of coorddef. That ordering difference existed
+before this round. The new header/alias repair preserves every other old raw
+record and improves the actual wheel-type producer,but does NOT prove full
+header/source organization. type-neighbor-review.json records before/current/
+retail evidence. These available retail records must still be recovered;
+this is not an irrecoverable-information exemption or a claim of full type-order
+exactness. The frozen normal/debug/source bindings cover the real updated header.
+
+Private receiver-alias and actual-parameter field-first arms both retain233
+words;bound-first/value-less arms are238 and fail. The actual receiver form
+is selected because SYM supplies it. Conditional/packed-if distance and
+implicit/explicit terminal controls establish the precise covered line facts,
+not a uniquely proven original literal. Initial alias-free/type-incomplete
+diagnostics are NOT adopted acceptance receipts.
+
+Fresh production run-pl7sfklf:Physics native CLEAN17->18/22,regions20/22,
+SLD17->18/22,combined16->17/22. Full manifest420->421 adds this function.
+All22 detailed/branch gates,all119 covered normal ELFs/native CPE,all420 prior
+contracts and every other function SLD/local contract survive. Raw non-SLD
+changes are restricted to the three EXTRA deletions,four non-retail LABEL
+deletions,wheel's proven home correction and the exact typedef producer-position
+repair;all other records stay identical. Type-body/ordered-neighborhood checks
+explicitly distinguish the unresolved wider early order. Tests162,stripped83,
+vtable1472,policy,relink,canonical GNU link,raw299819/299819,overlap,foreign-label
+and inventory pass. Plain/-da selected-stock output equality is hash-bound
+for old,arm/alias positive,real-receiver positive,completed-type positive and
+adopted inputs;target asm templates2->0 and actual native assembly agrees.
+Whole-project/source-literal completion is still unproved/open.
+Receipts:build/nc12/physics_traction_arms_20261028/{final-proof,phase-proof,probe-proof,layout-proof,type-proof,record-delta,type-neighbor-review}.json.
+
+2026-10-28 Physics_CalcWheelLockAcc friction-only role/per-tire field clamps remove two carriers and a fence;420 full covered contracts.
+
+The recorded roadGrip is the friction quantity,not necessarily the later
+tire ceiling merely because both use a2. Keep its genuine friction calculations
+and use field-first MIN(wheel->skid,constant) in the real TireType==2 arm
+(0x80000) and other arm(0xa0000). The compiler merges these actual stores to
+the retail common comparison/copy. No ceiling variable is introduced. skid
+and cmp,their extra+384..+408 scope and the empty identity asm disappear.
+The old non-propagated-copy/opacity/source-exhaustion verdicts are superseded,
+not limitations on what source can generate the retail bytes.
+
+All six complete supplied local/parameter tuples match retail;native local
+objects8->6. optVar1/optVar2 are original SYM names,independently present in
+the matched NFS2 PC function,not synthetic names to replace. Its actual
+max-plus-quarter conditional distance expression is adopted. Both the ordinary
+conditional and packed if forms,with either implicit fallthrough or terminal
+return,retain all127 code words and exact SLD;literal syntax is not uniquely
+proved. The canonical cross-version conditional and implicit fallthrough are
+selected without new macros,qualifiers,objects,reference dials or scopes.
+
+Six GNU MIN/compound-MIN controls and12 chained real assignment-value controls
+all remain nonidentical at127 words. For per-tire arms,bound-first/reversed
+value conditionals and GNU min forms give133;the bound-less-than or equivalent
+field-first canonical MIN gives127 exact. Inverting the type-arm order also
+fails even at127. These are receipts for the tested graphs,not floor or
+source-object-necessity claims. The successful repair changes the quantity
+ownership and real branch work together,rather than hides aliases under const.
+
+Ordinary anchored source layout restores all127 word/file tags,root block
+coordinates,header1680 and end1725. All previously correct facts and the
+419 prior full contracts survive. Fresh native run-2p7ycc0v:Physics CLEAN
+16->17/22,regions19->20/22,SLD16->17/22,combined15->16/22. Full manifest
+419->420 adds this function only after native/SLD proof. All22 detailed/branch
+gates,all119 normal ELFs/native CPE,tests162,stripped83,vtable1472,policy,
+relink,canonical GNU link,raw299819/299819,overlap,foreign-label and inventory
+pass. The only raw non-SLD changes are the two unprovided REG records and
+their non-retail block pair;all other records/owners/function maps survive.
+Selected-stock plain/-da output equality is bound for old,canonical positive,
+full-layout positive and adopted inputs;target asm templates1->0,actual native
+assembly equals the adopted output. Whole-project/literal-source completion
+is not claimed from this function's full supplied contract.
+Receipts:build/nc12/physics_wheellock_source_20261028/{final-proof,phase-proof,retail-map,arm-proof,canonical-proof,layout-proof,min-proof,assignment-proof}.json.
+
+2026-10-28 Physics_Real supplied lookAhead initialization removes the final capture;native CLEAN/full absolute SLD exact,419 full covered contracts.
+
+Initialize the existing SYM-provided lookAhead at its declaration:
+`int lookAhead = carObj->RSControl * MAX(3,__builtin_abs(carObj->currentSpeed) / 0x60000);`
+The existing canonical EA/NFS2 MAX expansion is used unchanged. This removes
+rsControl completely,not through const/debug elision,renaming,a replacement
+alias or a reference dial. Native local objects36->35;all35 ordered complete
+name/type/home/size/dimension/depth/address/path tuples equal retail. All46
+block records,1272 word/file tags,header2048/end2500 and all instruction bytes
+also agree. This retires the earlier rsControl producer backlog for this
+function. Exact erased literal/macro/comment spelling remains unproved;the
+wider original-source goal remains open,not replaced by a smaller objective.
+
+The declaration-versus-assignment distinction matters at this site. Stock
+initial RTL already gives the initializer's multiply the provided user-variable
+destination p590. The otherwise equivalent separate conditional assignment
+instead produces anonymous p592 and a later p590<-p592 copy,which survives
+local/global allocation. The accepted initializer has an anonymous field-load
+quantity,not another source object. No compiler state/output is rewritten.
+Do not overclaim the exact front-end tree/folding subroutine from RTL alone:
+stmt.c expand_decl_init and expr.c assignment/COND/MINMAX routes are relevant
+source context,but the first-RTL distinction is the directly observed receipt.
+
+Full stock global-allocator simulations match93/93 for the old captured body,
+92/92 for the failed in-place result form,94/94 for the failed direct-bound
+assignment and93/93 for the adopted initializer. The failed in-place p590
+has hard conflicts2,3,4,5,6,16,29 and therefore lands in7;refs/live pricing
+alone cannot hand it retail3 without changing that graph. The direct-bound
+anonymous product takes2 and copies to the real result in3. Twelve additional
+factor/result-chain controls remain nonidentical at1275..1277. Those failures
+were not proof of an original object or an allocation floor. Two ordinary
+left-factor initializer comparisons match;right-factor initializers remain
+nonidentical at1272,and GNU >? operators are1271. The existing canonical
+MAX spelling is selected without new macros or qualifiers.
+
+Physics_Real now has no asm,volatile,pins,hard-register clobbers,one-shot loops,
+absorption identities,extra capture declarations or named gotos. The historical
+device/exhaustion receipts are replaced by the current precise receipt,not
+generic source-object exemptions. Its real Xcomponent/currentRpm roles,offset
+and damping ownership,retail statement phases and ordinary fallthrough survive.
+
+Fresh production run-mrm5yn1p,Physics native CLEAN15->16/22,region PASS19/22,
+SLD EXACT16/22 and combined EXACT14->15/22. The full absolute manifest418->419
+adds Physics_Real only after every provided local and SLD check passes. All22
+detailed/branch gates pass,all119 covered normal ELFs/native CPE remain
+unchanged,and every other non-SLD record/local tuple/function SLD map and
+all418 prior contracts survive. The only raw non-SLD change is deletion of
+the one unprovided rsControl REG:$3 record. Tests162,stripped83,vtable1472,
+policy,relink,canonical GNU link,raw299819/299819,overlap,foreign-label and
+inventory pass. Plain/-da stock output equality is hash-bound for the old,
+initializer-positive,assignment-negative and adopted inputs;adopted assembly
+equals the real native compile. Source/CPP/normal/debug freshness is independently
+checked on the actual production path,not inferred from the private trials.
+Receipts:build/nc12/physics_real_init_20261028/{final-proof,phase-proof,explanation-proof}.json
+and build/nc12/physics_real_alloc_20261028/{stock-proof,factor-proof,init-proof}.json.
+
+2026-10-28 Physics_Real drag eligibility removes a non-retail LABEL/goto with complete SLD preserved;418 full contracts unchanged.
+
+Under the real SGGE guard,drag applies when gasLevel is zero OR absolute
+slide is at least0x199a. That ordinary inner eligibility guard replaces the
+invented PhyReal_iceBraking jump and label. It preserves all1272 code words,
+the exact2475/2477/2478 guard/eligibility/vector-write phases,and every already
+correct owner/region/SLD fact. The only non-SLD raw-record difference is one
+LABEL deletion at native function+4672;retail has no such name. No variable is
+added,renamed,qualified or hidden. The negative skip/else form also matches;
+the simpler positive eligibility form is adopted. Duplicated real-work arms
+also preserve bytes but initially disturb line grouping;they are not adopted.
+
+Fresh native run-i1xgaf38,Physics22/22 detailed/branch PASS,all119 covered
+normal ELFs/native CPE unchanged,all418 prior complete contracts preserved.
+Full target SLD and all35 supplied local tuples stay exact;rsControl remains
+one EXTRA record,so this is not a native-CLEAN or original-literal-text seal.
+Tests162,stripped83,vtable1472,policy,relink,canonical GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. Plain/-da stock
+observer output agrees and adopted assembly equals actual native compilation.
+Receipts:build/nc12/physics_real_drag_20261028/{final-proof,phase-proof,probe-proof}.json.
+
+2026-10-28 Physics_Real complete absolute instruction/block/end SLD recovered with real source phases;418 full contracts preserved.
+
+All1272 instruction/file tags,46 ordered block records,header2048 and end2500
+now match retail. Wrong instruction tags1227->0. All35 supplied complete local
+tuples and every previously correct source/SYM fact survive. Physics full-SLD
+EXACT15->16/22,region PASS19/22,native CLEAN15/22 and combined EXACT14/22.
+rsControl is still EXTRA,so no full-native manifest entry is added and no
+whole-function/project source-restoration completion is claimed.
+
+The retail groups require genuine phases,not per-statement directives:
+specs is read before the three acceleration clears;the rotational cap is
+computed then halved in place;diffRpm precedes tempGas in source despite the
+opposite arithmetic scheduling;SGGE and positive-acceleration/horn eligibility
+have nested guards;the second angular fixedmult product is stored in the
+provided finalAngularAcc_ch.y before final scaling/addition with Xcomponent.
+All five isolated controls and their coupled form preserve the complete ELF.
+Parent carPos/dirVector initialization also precedes the offset-local work;
+all original complete owner tuples and region addresses remain exact.
+
+Ordinary per-function-anchored layout accounts for the compiler's separate
+condition/open-brace/local notes and shared vector/macro-shaped line groups.
+There is one existing retail-derived function anchor,no internal statement
+anchor. Four final block-end notes initially stayed on2500 versus2499 while
+every instruction tag matched. Removing only the terminal return leaves four;
+removing only the redundant inner else-return leaves one. Ordinary fallthrough
+without either redundant exit restores all four at2499 and preserves code,
+end2500 and all owners. This source-exit evidence is not a debug-record rewrite
+or a uniquely proved original punctuation/comment/macro spelling.
+
+Initial isolated-source compilation exposed a private-path STT_FILE difference
+only;that trial is not an acceptance receipt. Private probes use the future
+canonical TU identity in compiler INPUT file markers,not generated assembly,
+objects or SYM. Final gates independently preprocess the real production path
+and bind all119 fresh normal/debug inputs and full objects. No output is
+normalized or rewritten to manufacture a PASS.
+
+Fresh production run-bm617j8e,22/22 detailed/branch PASS,all119 normal ELFs
+and native CPE unchanged. All ordered non-SLD records,local tuples,other
+function SLD maps and418 prior complete contracts survive. Tests162,
+stripped83,vtable1472,policy,relink,canonical GNU link,raw299819/299819,
+overlap,foreign-label and inventory pass. Stock plain/-da equality is receipted
+for the old,four-end-diff,implicit-fallthrough and adopted inputs;actual native
+assembly equals the adopted stock output. No new asm,volatile,alias,extra
+object,fake scope/use,compiler flag or post-compile rewrite is introduced.
+Receipts:build/nc12/physics_real_sld_20261028/{final-proof,phase-proof,shape-proof,layout-proof,exit-proof}.json.
+
+Repricing the earlier20 rsControl source forms on the corrected real-phase
+graph remains negative. Six genuine GNU C++ >? producer/product-order controls
+are1271 rather than1272 and nonidentical. Do not adopt them,add a reference
+dial,or infer a distinct original object from these negatives. The selected
+compiler's quotient/field/product allocation/coalescing is the next producer
+question;rsControl stays explicitly unresolved.
+Receipts:build/nc12/physics_real_rs_sld_20261028/{rscontrol-proof,arm-proof,maxop-proof}.json.
+
+2026-10-28 Physics_Real offset lifetime restored;all35 supplied complete local tuples/all region addresses exact,418 full contracts preserved.
+
+Close the roadPosition/offset work block after adding the real offset to
+dirVector,not after normalization and the final steering clamp. Selected stock
+optimizes that genuine work region to+4140..+4140,exactly the supplied endpoint.
+This is not an empty source block:it contains the desired-position call,three
+fixedmult calculations and their three real vector additions. The later
+car-position subtraction,normalization and steering work use the parent vectors.
+
+All35 retail-supplied ordered name/type/home/size/dimension/depth/address/path
+tuples now agree. All46 ordered native region address/kind tuples agree too;
+Physics region PASS18->19/22. rsControl is still one EXTRA local,so target
+declaration CLEAN is NOT claimed. Full target source coordinates remain open:
+1227/1272 instruction tags differ and only the previously exact facts are
+certified preserved. Native region endpoint/source-line changes are explicit
+in verify.py;no incorrect old coordinate is silently called a restored line.
+
+Three genuine closing positions(after offset application,after car-position
+subtraction and after normalization) preserve code and yield the same optimized
+endpoint. Closing before the final steering clamp gives+4488 instead and is
+not adopted. The narrow real producer lifetime is chosen;literal erased brace
+placement is not uniquely proved by an optimized zero-width record. The
+earlier broad-scope body was not source-exact merely because bytes matched.
+
+Fresh native run-uu819by9,all22 detailed/branch PASS,all119 normal ELFs/native
+CPE unchanged,all418 prior complete contracts and all other function SLD maps
+preserved. Tests162,stripped83,vtable1472,policy,relink,canonical GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. Plain/-da stock
+assembly equality and exact adopted native assembly are bound to hashes.
+No new object,qualifier,fake scope/use,asm,compiler flag or output rewrite.
+Receipts:build/nc12/physics_real_offset_20261028/{final-proof,phase-proof,probe-proof}.json.
+
+Repricing the twelve earlier rsControl removal forms on the now assembly-free
+basin still fails. Eight further genuine per-arm result initializations
+(split/assignment/comma and inverted guard) also fail at1275/1276 words.
+These remain private negatives,not a distinct-original-object proof or floor.
+Next producer review should explain the quotient/field/product quantity webs
+with selected-stock allocator evidence rather than introduce a new capture.
+Receipts:build/nc12/physics_real_rs_20261028/{rscontrol-proof,arm-proof}.json.
+
+2026-10-28 Physics_Real first-product/source-scope repair removes the last target asm and four captures;418 complete contracts preserved.
+
+Retail Xcomponent REG:$16 is the first fixedmult product,not the final yaw
+acceleration sum. Keep that product in Xcomponent and form the completed sum
+directly in finalAngularAcc_ch.y. Ordinary nested fixedmult arguments then
+reproduce all1272 instructions without wheelMult,sumZ,fz,lm,the absorption
+identity,the two one-shot loops or the empty tied hard-register clobber.
+The historical source-exhaustion/hard-register-necessity claims are superseded.
+Both multiplication-by2 and shift-by1 variants match;literal spelling is not
+uniquely proved. The adopted form uses multiplication,not a new matching device.
+
+Extend the actual Xcomponent work scope through its following damping
+selection. Its supplied owner becomes+2504..+2840 instead of+2504..+2504,
+exactly retail. Remove the obsolete child declaring region as its captures
+disappear. Native locals38->36;fz/lm are the two removed debug records,while
+sumZ/wheelMult were already debug-elided source-only objects. Every other
+complete tuple and every other non-SLD record survives. The only remaining
+provided owner differences are roadPosition/offset end4528 versus4140;
+rsControl is the sole EXTRA local. No full target native/SLD seal is claimed.
+
+Control evidence separates roles from lifetime:extending the old captured
+scope alone preserves bytes and repairs the endpoint but retains the extras.
+Removing devices while retaining Xcomponent compound accumulation reaches
+the correct1272 count but wrong bytes. First-product plus direct final-field
+sum matches with either short or extended scope;the genuine extended scope
+is selected because the supplied owner proves it. Do not attribute code
+equality to scope extension alone or call the old failed basin a floor.
+
+Fresh run-o7o157nn,all22 Physics detailed/branch PASS,all119 covered normal
+ELFs/native CPE unchanged,and all418 prior complete contracts survive. All
+prior correct SLD facts and other function maps survive;target1227 tags remain
+wrong. Stock plain/-da assembly equality is bound to compiler/input hashes;
+target asm templates1->0,adopted assembly equals actual native compile.
+Tests162,stripped83,vtable1472,policy,relink,canonical GNU link,
+raw299819/299819,overlap,foreign-label and inventory pass. No new object,
+qualifier,scope padding,fake use,compiler flag or output rewrite is introduced.
+Receipts:build/nc12/physics_real_scope_20261028/{final-proof,phase-proof,probe-proof}.json.
+
+2026-10-28 Physics_Real engine-RPM ownership restored;one extra native local removed,418 complete contracts preserved.
+
+Retail currentRpm is the signed engine-RPM quotient in v0,not the later
+speed-derived look-ahead scale in a2. Restore the actual fixedmult result
+divided by0x10000 to currentRpm,and subtract it from desiredRpm. The ordinary
+signed division supplies the retail a1 bias and v0 quotient;the reconstruction's
+manual adjustedRpm bias/shift object is unnecessary. Direct speed expressions
+in the look-ahead guard/product avoid reusing the RPM name for a different
+quantity. This is a value-role correction,not an invented-name replacement.
+
+Native local objects39->38:only adjustedRpm REG:$5 disappears and currentRpm
+REG:$6 becomes retail REG:$2. Every other complete owner tuple and the entire
+other non-SLD record stream survive. All prior correct target SLD tags,region
+coordinates and end2675 survive;1227/1272 target tags still differ from retail,
+and its extra/missing regions,remaining fz/lm/rsControl captures and old source
+devices remain unresolved. No full target/native-clean claim or new manifest
+entry follows. The earlier adjustedRpm necessity/register comment is superseded.
+
+Paired tests matter:four capture-free integer/fixed-unit guard/bound models
+are1276/1273/1277/1274 words,not the1272 oracle. Keeping the existing rsControl
+capture with the corrected integer-RPM role permits both ordinary guard and
+bound-first forms at1272,whole normal ELF and native CPE identical. Fixed-unit
+capture versions remain1273. These failures are not source-object necessity
+proofs;the original spelling and the remaining capture producer stay open.
+
+After adopting the paired repair,twelve additional capture-free result-update,
+maximum/product-order,conditional-product and inverted-guard controls remain
+nonidentical at1271..1276 words. Four reach the correct1272 length but still
+have wrong bytes. No neutral/worse experiment lands;rscontrol-proof.json
+retains the inputs/counts. Correct instruction count alone is not a PASS.
+
+Fresh native run-4tn5e5ss,Physics22/22 detailed/branch PASS,all119 covered normal
+ELFs and native CPE unchanged. All418 prior absolute contracts and every other
+function SLD map survive. Stock plain/-da output equality holds for the old,
+paired-positive and adopted inputs;adopted assembly equals the actual native
+compile. Tests162,stripped83,vtable1472,policy,relink,canonical GNU link,
+raw299819/299819,overlap,foreign-label and inventory gates pass. No new asm,
+volatile,alias,fake use,compiler flag or post-compile rewrite is introduced.
+Receipts:build/nc12/physics_real_source_20261028/{final-proof,phase-proof,paired-proof}.json.
+
+2026-10-28 RampCarControlValues502 instruction tags restored with existing declarations;418 complete contracts unchanged.
+
+Actual finish-state,gas/brake/steering ramps,gear-selection,forced-control and
+ratio phases now reproduce all502 word/file tags and end1278. Wrong tags
+496->0. Every PRESENT region's address/line tuple agrees with the corresponding
+retail subset;two brake regions/four markers remain missing. rampIn therefore
+still has path[0,0,0,1,0] instead of[0,0,0,2,0]. The six complete native local
+tuples,all non-SLD records and region addresses remain unchanged. This is
+word-SLD-only recovery,not native CLEAN or another full manifest entry.
+
+Preserve the early downShifting clear before lastGear/gear copying. Moving it
+to its apparent filled-branch-slot tag makes the compiler reuse an earlier
+gear load and merge arm tails,adding three words. Its real source precedes
+the loads while the final branch slot inherits1172. Both merged hanno clears
+share1153,not the later brace-only lines. Final transmission and gear/hanno
+eligibility have distinct1273/1275 groups. Ordinary source layout suffices;
+no dummy calculation,scope,local or statement directive is added.
+
+The brake producer remains a precise unresolved question. Anonymous real-work
+and value models can preserve bytes/locals but miss the inner endpoint by
+eight bytes;byte-valued result models can introduce a copied result or altered
+clamp folding. Private inline/switch/condition/step diagnostics are not promoted
+to original-source claims. A used NON-CONST increment with canonical MIN does
+reproduce bytes,all supplied local tuples and every region address. Both char
+and int work;const variants do not. Retail records neither its name nor type,
+and matched NFS2 has different brake curves. The diagnostic declaration is NOT
+adopted under the no-invented-declarations constraint. User preference on an
+explicitly inferred source constant was requested asynchronously;do not claim
+the object/type/name is recovered or necessary if no direction arrives.
+
+A separate Transmission typing dependency is now reproduced. The legacy
+Car_tObj/Newton damage[113] proxy is not legitimate restored source. The true
+owner layout is carInfo offset980,row180,Transmission member8. Direct leaf/
+word/byte views do not match;the actual full GameSetup_tData owner/member view
+preserves the complete normal ELF/native CPE. It introduces another full owner
+type copy,current54->55 versus retail2 globally,so it is NOT adopted. Recover
+the type-body emission/compaction context;do not delete debug records or retain
+the damage proxy as a final source solution. Diagnostic receipts:
+build/nc12/physics_transmission_source_20261028/explanation-proof.json.
+
+Fresh run-f1ybsw63 keeps Physics15/22 native CLEAN,18/22 regions PASS,15/22
+full SLD EXACT and14/22 combined EXACT. Every418 prior complete contract,
+other function SLD,non-SLD record,local tuple and earlier correct target tag
+survives. All22 SOURCE_ONLY detailed/branch gates,119 unchanged normal ELF
+hashes/native CPE,119 current normal/debug CPP bindings,tests162,stripped83,
+vtable1472,policy,relink,canonical GNU link,raw299819/299819,overlap,foreign-label
+and inventory pass. Selected-stock normal/-da output agrees for before,
+byte-value negative,used-increment diagnostic and adopted source;adopted whole
+.s equals the actual native compile. No new declaration,helper,header,tracked
+tool,reference,production flag,asm/volatile or compiler-output rewrite is
+introduced. Receipts:build/nc12/physics_ramp_source_20261028/. Goal remains open.
+
+2026-10-28 RS desired-position restores actual result/arm owners and full112-word SLD;417->418 covered contracts.
+
+The supplied position is the final signed desired position,not merely its
+unsigned center magnitude. Compute the real bias/side result in each arm and
+return it once AFTER the if/else. This preserves every112 instruction and
+restores position REG:v0 instead ofa0. Ending the positive arm before that
+common return also restores its desLane/laneOffset owner end+284 instead of
++292. All other local tuple fields remain unchanged. Both parameters and all
+nine ordered complete local/type/home/depth/path/range tuples now equal retail;
+this is real value/lifetime restoration,not renaming a physical register.
+
+Drive-side1990,eligibility2000/2002,side selection2006,positive search2010/2011,
+offset2012/result2013,left search2026/2027,offset2028/result2029 and common
+return2040 restore every112 word/file tag. All8 block records,header1982/frame40
+and function end2040 agree. Wrong tags99->0. Old positive child end moved back
+eight bytes because return work no longer belongs to the arm-local region.
+The ordered non-SLD stream changes ONLY position's REG4->REG2 declaration and
+that positive END marker292->284;all other records and earlier correct facts
+survive. The audit checks those two specific source-produced changes,not a
+relaxed comparison or a rewritten debug file.
+
+The byte width is0..255 and laneOffset is0..3 in either bounded search. Both
+signed arms agree for all1024 width/offset pairs,2048 result checks;maximum
+magnitude with bias29343744 fits INT. Explicit signed conversion before the
+left-side negation preserves that intended signed meaning. The old direct
+negative-return controls could preserve code without repairing the named
+home/owners;coupling the actual result funnel with a common return does.
+Both laneWidth captures remain unprovided object/name producers. Four direct
+width/half-width/scale controls do not match;none lands and no necessity or
+original-spelling exemption is claimed. Literal original macro text is open.
+
+Fresh run-ni_mlmlf:Physics native CLEAN14->15/22,regions17->18/22,full covered
+SLD15/22 and combined14/22. Every417 earlier complete contract,FixEngineRpm's
+SLD-only repair,road-grip partial map,other function SLD and every prior correct
+target field survives. All22 SOURCE_ONLY detailed/branch gates,119 unchanged
+normal ELF hashes/native CPE,119 current normal/debug CPP bindings,tests162,
+stripped83,vtable1472,policy,relink,canonical GNU link,raw299819/299819,overlap,
+foreign-label and inventory checks pass. Selected-stock plain/-da output agrees
+for original,negative-first control,common-return positive and adopted source;
+adopted whole .s equals the actual native compile. No new object,name,scope
+padding,asm/volatile,qualifier,header,tooling,reference,production flag or
+compiler-output rewrite. Receipts:build/nc12/physics_rsposition_source_20261028/.
+The full original-source goal remains open.
+
+2026-10-28 FixEngineRpm known SLD facts restored;synthetic source NOT resolved;417 complete contracts unchanged.
+
+The four do/while(0) reference-depth dials and unprovided transformedZ remain
+explicit source debt. NO loop-removal candidate is adopted. Do not describe
+this function as original-source-restored,native CLEAN,or another full covered
+contract. This round restores only confirmed transform/reset coordinates:
+X1289,Z1290,four actual clears1300..1303,collision test1306/clear1307. All86
+word/file tags,block/end coordinates and implicit exit now agree,was86 wrong
+word tags. Every complete local tuple,including the unchanged extra local,
+and all ordered non-SLD records survive. No new fake loop,reference,object,
+qualifier or assembler device is added to obtain this coordinate repair.
+
+New selected-stock receipts explain the old depth device rather than excuse
+it. allocsim matches27/27 global decisions and identical ordering in the
+retained,dial-free-capture and direct basins. With depth weighting,p81 has
+8refs/live11,priority2.1818 and v1;without it4refs/live15,priority0.5333 and a1.
+Car-pointer refs49 vs21 also differ,though its a0 home survives. The direct
+87-word source moves the collision load and all four clears into the final
+multiply's latency window;the final branch slot becomes a nop. The retail86
+finishes the multiply/add/Z store before that cleanup and uses a clear in
+the branch slot. Raw instruction-shape receipts establish this distinction;
+it is not merely a relocation or misleading register-diff count.
+
+Bounded real source families were measured:12 direct/capture/reset controls,
+256 operand/association graphs,128 wide-arithmetic controls,144 term-order
+graphs,20 per-arm/switch tails,8 inverted exits,and48 sequenced/in-place
+accumulation forms. None preserves the complete normal ELF. Some real cleanup
+forms have86 words but still differ. This is finite falsification,NOT proof
+of a necessary source capture,unreachable coloring,original macro or floor.
+Keep the exact next source/scheduling problem open. All controls,input hashes,
+objects and stock traces remain under build/nc12/physics_fixrpm_source_20261028/.
+
+Fresh run-s32mh3vr keeps Physics14/22 native CLEAN and17/22 region PASS.
+SLD alone becomes14/22 EXACT;combined stays13/22 because this function still
+has the unprovided local. Every417 earlier complete contract,other function
+SLD,complete owner,non-SLD record and previously correct field survives.
+All22 SOURCE_ONLY detailed/branch gates,119 normal ELF hashes/native CPE,
+119 current normal/debug CPP bindings,tests162,stripped83,vtable1472,policy,
+relink,canonical GNU link,raw299819/299819,overlap,foreign-label and inventory
+checks pass. Current selected-stock plain/-da .s equals the actual native
+compile and its allocation model remains27/27. No header,tracked build tool,
+reference,production flag or compiler output is rewritten. Full goal stays open.
+
+2026-10-28 AttenuateVelocity restores279-word source/SLD and removes the register hint;416->417 covered contracts.
+
+Plain int vx preserves its exact supplied t0 home/type/owner and all279 words;
+the old explicit register keyword is unnecessary and removed. Preserve NFS4's
+operand-truncated force transforms608/609/610,position updates612/613/614,
+road-frame components619/620,impact/zeroing621/622 and forward/reverse damping
+627..644. Actual transpose648,reprojection649/650,vertical clamp651/652,
+car-frame fields654/655/656,speed657 and valued return659 restore every word/
+file tag. Keep the real NFS4 transform precision,0xc0 attenuation and ordering;
+NFS2's helper precision,tuning expression,extra zeroed-component calculation
+and vertical-clamp placement differ and are not blindly imported.
+
+All279 word/file tags,header591/frame96,seven complete supplied parameter/
+local/type/home/owner tuples,root block/end and function end659 agree. Wrong
+tags248->0. The former original-name certifications for vy/vz become a precise
+SOURCE-REVIEW-UNRESOLVED record:matched NFS2 supports these component names and
+calculations,NFS4 retail supplies neither object record. Their original NFS4
+spelling/distinct source-object producers are not proved. Fresh single/joint
+direct inlining is294/293/323 words;existing-vector-storage controls265/291/270
+also fail full normal-ELF equality. None lands;these finite negatives are not
+necessity or floor proofs. No capture is renamed,hidden or replaced by a dummy.
+
+Selected-stock plain/-da whole assembly agrees for before,plain-vx positive,
+single-component negative and adopted inputs. Adopted .s equals the actual
+native compile. All416 earlier covered contracts,road-grip's retained partial
+repair,other function SLD,ordered non-SLD records,complete owner tuples and
+prior correct target tags survive. Fresh run-fp5o8py7 keeps Physics14/22 native
+CLEAN and17/22 region PASS;full covered SLD/combined13/22,was12/22. All22
+SOURCE_ONLY detailed/branch gates,119 unchanged normal ELF hashes/native CPE,
+119 current normal/debug CPP bindings,tests162,stripped83,vtable1472,policy,
+relink,canonical GNU link,raw299819/299819,overlap,foreign-label and inventory
+checks pass. Literal original text/full source-object coverage remains open.
+No shared header,tracked build tool,reference,production flag,new asm/volatile,
+new qualifier or generated-output rewrite changes. Receipts:
+build/nc12/physics_attenuate_source_20261028/.
+
+2026-10-28 derived specifications restore324-word source/SLD and ordinary torque loop;415->416 covered contracts.
+
+Use the supplied root i in an ordinary for for the41 torque entries,retaining
+its existing early zero initialization. Both this for and a genuine while
+preserve the whole normal ELF/native CPE;moving initialization into the
+EngineMods body does not. This replaces the old do/while without a new loop,
+quantity,qualifier or reference device;literal original loop syntax is not
+uniquely proved. Actual redline/upgrade groups293/300..330,gear operations
+334/340..357,RPM/torque/drag364/366/369,track correction371..375,and inertia
+402..406 restore every324 word/file tag. All root block coordinates,end406,
+header287/frame32 and the three complete supplied parameter/local tuples agree.
+Wrong tags312->0. No change to function arity,fields,array shapes or helper APIs.
+
+The former ORIGINAL-NAME-RECOVERED wording for rpmAtMaxSpeedInHighestGear is
+replaced by a precise SOURCE-REVIEW-UNRESOLVED record. Matched NFS2 supplies
+that name and calculation,NFS4 retail does NOT supply the object record.
+Its original NFS4 spelling/distinct-object producer remains unproved. Keeping
+the cross-version name is not a native-source exemption or necessity claim.
+Plain nesting is320 words;short-width and lookup-order controls can be324
+but still differ. No narrowing cast,address pun or replacement alias lands.
+
+Stock initial RTL independently confirms one cause of the plain nested
+negative:before/adopted contain separate255 and65535 signed-divide biases;
+plain nesting removes the255 and replaces one65535 by16777215. GCC2.8.1
+fold-const.c's explicit ((a/C1)/C2)->a/(C1*C2) rule explains that combination.
+The324-word narrowing negative retains separate biases but materializes a
+different lookup-base/register/schedule web. Instruction-delta.json records
+those actual differences. This is not a floor or proof of a required capture.
+Plain/-da output is identical for before,plain/narrow negatives and adopted;
+adopted whole .s equals the actual native compilation. No compiler state,
+output or debug note is rewritten. NFS2's different upgrade/torque algorithm
+is not imported merely because some calculation names match.
+
+Fresh run-iemibry5 preserves Physics14/22 native CLEAN and17/22 region PASS;
+full covered SLD/combined now12/22,was11/22. Every415 previous contract,
+road-grip's partial improvement,ordered non-SLD record,complete local owner,
+other function SLD and prior correct target tag survive. All22 SOURCE_ONLY
+detailed/branch gates,119 unchanged normal ELF hashes/native CPE,119 current
+normal/debug CPP bindings,tests162,stripped83,vtable1472,policy,relink,
+canonical GNU link,raw299819/299819,overlap,foreign-label and inventory pass.
+GAME/COMMON covered SLD608/1247,combined606;tag differences60064->59752.
+No full original-source/object completeness claim follows from this covered
+seal. Receipts:build/nc12/physics_derived_source_20261028/. No shared header,
+tracked build tool,reference,production flag,new asm/volatile or dummy work.
+
+2026-10-28 road-grip source phases restore all regions/end and76 instruction tags;415 full contracts remain protected.
+
+Restore the four real wheel accumulators,surface/index reads1404/1405,wet
+adjustment1407/1408,and front/rear plus left/right additions1410..1417. Keep
+the supplied depth3 for-owned i and depth4 roadSurfaceType/tempSurface tuples.
+The actual front average1421 belongs before the enclosing phase ends1422;
+the subsequent rear/left/right/road modifier computations begin the next real
+work region. All12 ordered region-line records now match retail,was9 wrong,
+and function end1439 is restored. All95 words,provided locals/types/homes/
+owner paths/ranges and every region address remain unchanged. Wrong word tags
+91->15. This is a verified PARTIAL improvement,not another full manifest seal.
+
+Precise remaining source-producer work:five aero guard words carry1425 instead
+of1429;five front-call/setup words1435 instead of1434;five rear-call/setup words
+1439 instead of1438. Actual field-update lines1435/1439 already agree. Simpler
+if/early-exit and actual short-circuit/assignment forms can preserve bytes and
+locals while losing/adding supplied regions or worsening tags;none lands.
+The retained expression regions do real modifier/aero work,not dummy names,
+uses or empty scope padding. Their original literal producer remains open.
+NFS2's differently decomposed road-grip/aero algorithm is not copied into NFS4.
+
+Selected-stock plain/-da output is identical for before,plain-if negative and
+adopted controls;adopted whole .s equals the actual native compile. Initial RTL
+already attributes guard jump272 to1425 and fixedmult calls235/255 to1435/1439.
+Thus a purely assembler/scheduler explanation is false. Read the actual RTL
+chain order,not numeric UID order:the guard's higher UID precedes the two
+earlier-created call nodes. No new source temporary,macro spelling or necessity
+is proved by these observations;do not manufacture one or rewrite emitted notes.
+
+Fresh run-g37hbyog preserves Physics14/22 native CLEAN,17/22 region PASS and
+11/22 full SLD/combined EXACT. Every415 prior complete contract,other function
+SLD,ordered non-SLD record,complete local owner and prior correct target tag
+survives. All22 SOURCE_ONLY detailed/branch gates,119 normal ELF hashes/native
+CPE,119 current normal/debug CPP bindings,tests162,stripped83,vtable1472,policy,
+relink,canonical GNU link,raw299819/299819,overlap,foreign-label and inventory
+checks pass. GAME/COMMON block-line exact688,end-line exact700;covered SLD607
+and combined605 unchanged. Tag differences60140->60064. Legacy EXTRA410 is
+unchanged;the precise aero note makes586 review markers plus112 string holders,
+not unique objects. No shared header,tracked build tool,reference,production
+flag,new asm/volatile,qualifier or generated-output rewrite changes. Receipts:
+build/nc12/physics_roadgrip_source_20261028/,including explanation-proof.json.
+
+2026-10-28 AutoShift restores actual value roles/full175-word source/SLD;414->415 covered contracts.
+
+Compare the actual fixedmult result directly with maxSpeed,call operand first,
+instead of assigning that limit-test value to previousRpm. previousRpm now
+holds only the actual preceding-gear RPM. No substitute variable is introduced.
+The call-first form preserves175 words,the field-first comparison is174 and
+rejected. Selected-stock initial RTL confirms previousRpm p82 definitions2->1.
+Normal/-da assembly equality is verified for before,call-first positive,
+field-first negative and adopted inputs;adopted whole .s equals the actual
+native compilation. This is site-specific expansion/evaluation evidence,not
+a universal C++ operand-order rule. NFS2 confirms a related shift design but
+has different locals/algorithm;its extra nextRpm/previous2Rpm names are not
+imported. The real unused next-gear fixedmult call remains in the source.
+
+Restore SkipLastGear944,ShiftPoint945,gear gate950,RS change953/954 and slide956.
+Real next/previous selection groups972/973 and978/979 precede the velocity
+region985..993 and three actual gear calculations990/991/992. Preserve the
+direct negated SkipLastGear+1 expression,without reviving lastGearOffset.
+Shift tests and real field groups restore1002..1005/1015..1018/1030..1032;
+separate coast eligibility1026 and changed-gear1028 guards retain both tags.
+The upshift real exit shares1005;implicit final fallthrough recovers root end
+1033 and function end1038. A negative layout had13 wrong tags/regions;its
+source/input/result remain under cases/layout-ellr4kgl. The old declaration-
+free wrapper is independently removable at full equality,not kept as padding.
+
+All175 word/file tags,header938/frame56,nine complete supplied parameter/local
+owner tuples and every block/end record agree. Wrong tags157->0. Historical
+matching-basin receipts remain outside the per-function anchor and are
+explicitly historical,not current residuals. Literal original macro/comment
+text is unproved. Fresh run-zeqiycft keeps Physics14/22 native CLEAN and17/22
+region PASS;full covered SLD/combined now11/22,was10/22. All414 earlier contracts,
+ordered non-SLD records,other function SLD and prior correct target tags survive.
+All22 SOURCE_ONLY detailed/branch gates,119 normal ELF hashes/native CPE,
+119 current normal/debug CPP bindings,tests162,stripped83,vtable1472,policy,
+relink,canonical GNU link,raw299819/299819,overlap,foreign-label and inventory
+checks pass. No shared header,tracked build tool,reference,production flag,
+new asm/volatile,qualifier,fake use or compiler-output rewrite is introduced.
+Receipts:build/nc12/physics_autoshift_source_20261028/. The full goal stays open.
+
+2026-10-28 InitCarSpecs/ResetCar/SimCar restore239 words of complete source/SLD facts;411->414 covered contracts.
+
+InitCarSpecs keeps the original root i and three actual table-loading loops.
+Their initializers249/251/253 and bodies250/252/254 have distinct source
+groups,followed by the real scalar reads255..281. Preserve all array fields,
+read order,167 instructions and the supplied optimized i region0..208/end256;
+that debug endpoint is not a literal source-lifetime claim. ResetCar retains
+transmission-arm stores,separate vector/component resets and its real for-owned
+i at depth2,owner+44..148. Its initialization1354,wheel fields1356/1357 and
+backedge1358 recover all39 words and both enclosing region endpoints1359.
+Use brace-aware parsing of the compact source closing,not a next-newline-brace
+slicer. SimCar's real low-orientation clearing,flywheel threshold/decrement,
+altitude stop and normal-physics arms recover33 words and exit2532 with ordinary
+implicit fallthrough. No invented source object,name,qualifier or fake work.
+
+Wrong instruction tags respectively141/33/31->0. Absolute header/file identity,
+every block/end record and all complete supplied local/type/home/owner tuples
+agree for all three functions. Literal original comments/macros remain
+unproved;the broader goal is not complete. Fresh run-5gv26zct hasPhysics14/22
+native CLEAN,17/22 region PASS and now10/22 full SLD/combined EXACT,was7/22.
+All411 previous contracts,every other function SLD,all ordered non-SLD records
+and every previously correct target tag survive. All22 SOURCE_ONLY detailed/
+branch gates,119 unchanged normal ELF hashes/native CPE,119 current normal/
+debug CPP bindings,tests162,stripped83,vtable1472,policy,relink,canonical GNU
+link,raw299819/299819,overlap,foreign-label and inventory checks pass.
+GAME/COMMON covered SLD606/1247,combined604;tag differences60502->60297.
+Receipts:build/nc12/physics_specs_sld_20261028/. No shared header,build tool,
+reference,production flag,new asm/volatile or compiler-output rewrite changes.
+
+2026-10-28 traction receiver diagnosis: actual REG_EQUIV demotion,not a copy-necessity proof.
+
+Selected-stock dumps give both the retained wheel_reg p83 and direct wheel
+p81 exactly30 references and flow-stage live length169. After local allocation,
+the retained copy has live160 and global priority0.7500;the direct parameter
+has live320 and priority0.3750. Scheduled initialization carries REG_EQUAL for
+the copy but REG_EQUIV for the direct parameter. GCC2.8.1 local-alloc.c:1153
+doubles nonnegative live length for this equivalent single-set initialization;
+the read-only source and actual notes explain the observed priority gap.
+The interfering totalAcc-roadGrip quantity has5refs/live23,priority0.4347.
+It wins s0 ahead of direct wheel,which gets s1. The retained copy wins s0
+first. allocsim independently reproduces16/16 decisions and identical handout
+order for BOTH stock dumps. Plain/-da whole assembly equality is checked;
+these notes are compiler bookkeeping,not extra runtime memory reads.
+
+Sixteen receiver/initialization controls,25 real smoothing-arithmetic variants
+and12 recorded loss-phase trials do not preserve the whole normal ELF. None
+lands. Keep wheel_reg and the remaining fences/locals explicitly unresolved;
+the explanation neither identifies the original spelling nor proves that a
+distinct source copy existed. Next work must recover real value/control phases
+that change this interference or equivalence context,not add dummy refs,hide
+the alias,mutate compiler state,wire an unproven flag or declare a floor.
+Receipts:build/nc12/physics_traction_receiver_20261028/,including stock-bound
+phase-proof.json and explanation-proof.json. No production source change was
+made by those failed receiver experiments.
+
+2026-10-28 CalculateTireForces restores real guarded work/removes unsupported labels;410->411 full covered contracts.
+
+Use the actual non-lock/lock if/else within the braking guard,instead of two
+wheelLock transfers and a normalTire transfer. No predicate carrier or new
+identifier is introduced. Ordinary early-lock return and repeated flat-guard
+controls are345/371 words and fail;the negative guard plus real else body
+preserves346/346 and every complete supplied local tuple. Retain the actual
+two front finalAcc.x stores and canonical MIN/MAX operations,not decompiler
+algebraic simplifications or an imported different-game algorithm.
+
+Real initialization1822/1824,steering1834/1835,and separate positive-acceleration
+1845/gas-gear1847 tests recover their source groups. Braking clamp/ABS and lock
+work remain separate real arms. Slip,front/rear lateral and final traction
+phases preserve all source value roles. Ordinary implicit fallthrough with
+the true closing coordinate1979 restores the final seven epilogue tags and
+root endpoint;an explicit-return/1980 closing control is not retained.
+All346 word/file tags,header1815/frame48,root block/end records and six
+complete provided parameter/local/type/home/owner tuples agree. Wrong tags
+337->0. Literal original macro/comment spelling remains unproved.
+
+Exactly two non-retail LABEL records disappear:wheelLock at native+620 and
+normalTire at+700. Retail supplies no LABEL in this function. Every other
+ordered non-SLD record and complete owner tuple is unchanged. Global LABEL
+diagnostics improve different-functions100->99,native-records229->227;
+four unresolved-address functions remain. Legacy EXTRA410 and585 review
+markers plus112 string holders are unchanged,not whole-source completion.
+
+Fresh run-c9kguphm:Physics still14/22 native CLEAN and17/22 region PASS;
+full covered SLD/combined7/22,was6/22. All410 previous contracts and every
+other function SLD survive. All22 SOURCE_ONLY detailed/branch gates,119 normal
+ELF hashes/native CPE,current119 normal/debug CPP bindings,tests162,stripped83,
+vtable1472,source policy,relink,canonical GNU link,raw299819/299819,overlap,
+foreign-label and inventory checks pass. GAME/COMMON covered SLD603/1247,
+combined601;tag differences60839->60502. Selected-stock plain/-da output
+agrees for original,early-lock negative and adopted controls;adopted whole
+assembly equals the actual native compile. No new object,asm/volatile,
+qualifier,helper,scope padding,statement anchor,compiler flag,reference or
+post-compile rewrite is involved. Receipts:build/nc12/physics_tire_source_20261028/.
+
+The same round's eight coupled wheel-lock bound/clamp and twelve traction
+receiver/clamp controls fail whole normal ELF equality. None lands;no source
+object necessity or floor follows. These complement the earlier37 controls,
+not repeat their evidence. Receipts:build/nc12/physics_clamp_source_20261028/.
+The clamp locals/fences and all wider original-source obligations remain open.
+
+2026-10-28 CorrectPostCollisionYaw removes its old empty assembly fence and seals102-word source/SLD;409->410.
+
+Use MIN(__builtin_abs(diffZ),__builtin_abs(diffX)) >>1 rather than a named
+absolute-result initialization followed by per-arm half shifts. This is actual
+minimum/scale work,not a new reference device. The canonical MIN definition
+is also present verbatim at matched NFS2 nfs2.h:8. The NFS2 yaw ALGORITHM is
+different and is not imported. Plain deletion of the fence still differs on
+the old expression graph;the minimum-shaped form preserves the complete normal
+ELF/native CPE and all supplied local/type/home/owner tuples without it.
+Twenty-four real sum/selection combinations were measured;only the retained
+graph matches here. Accumulating the dot products was shorter but not equal.
+No finite negative matrix establishes necessity or a floor.
+
+Restore actual impulse683,sfxType684,otherObj685 source order. Retail schedules
+the zero store between the sfx load and OR;execution order is not statement
+order. Required dot products belong695/696,minimum/half697,and sign selection
+699/702/703/708/709/710. Separate real speed714 and steering717 guards produce
+their distinct tags;quarter reduction718 and final angular store721 complete
+the map. All102 word/file tags,root block lines,end721,frame40 and six complete
+provided parameter/local tuples match. Wrong tags93->0. Literal macro/comment
+text is not uniquely proved;this is a full covered contract,not full-project
+or unique original-text restoration.
+
+Selected-stock plain/-da output is byte-identical for before,direct-deletion
+negative and adopted sources. The adopted whole .s equals the actual native
+compile exactly. The last two diffX adds remain before ABS(diffZ) with zero
+target assembly templates;the before source has one. No diagnostic compiler,
+state mutation,output rewrite or new fence/volatile/local/qualifier is used.
+Do not carry the superseded source-shape-specific barrier-necessity receipt
+forward as an original-source fact. Physics __asm__ occurrences19->18.
+
+Fresh run-uzpj74z5:Physics remains14/22 native CLEAN and17/22 region PASS;
+covered SLD/combined now6/22. All409 prior contracts,all ordered non-SLD records,
+complete local owners,every other function SLD and all previously correct
+target tags survive. All22 SOURCE_ONLY detailed/branch gates,119 unchanged
+normal ELF hashes/native CPE,119 fresh normal/debug CPP bindings,tests162,
+stripped83,vtable1472,policy,relink,canonical GNU link,raw299819/299819,overlap,
+foreign-label and inventory checks pass. GAME/COMMON covered SLD602/1247,
+combined600;tag differences60932->60839. Extra objects/other producers remain
+open. Receipts:build/nc12/physics_yaw_source_20261028/,including phase-proof.json.
+No shared header,tracked build tool,reference or production flag is changed.
+
+2026-10-28 Physics statement/layout recovery adds four full covered contracts;405->409.
+
+CheckGamedata's two instructions belong465 while its kept empty root begins
+and ends415,under header414. Ordinary empty source with implicit fallthrough
+reproduces those independent facts;an explicit return near the opening brace
+did not. The lost/elided original body text is explicitly unresolved,not
+asserted absent or recovered by blank coordinates. GetTorque retains canonical
+NFS2 MAX/MIN spelling;its real clamp belongs673 and lookup/return674,all15 words.
+Move explanatory reconstruction comments outside the anchor rather than shift
+those real statements. StopCar's three required linear updates share1365;
+the condition is1367 and actual angular work1370. First-load scheduling does
+not determine source order. All54 words match without the final explicit return.
+TestForBarrierCollision preserves the supplied hit object and real call1380,
+hit guard1381,flag test1383,optional repair1384 and crash store1385,all22 words.
+
+All93 words,absolute filenames/headers,block/end lines and complete ordered
+local/type/home/owner-path/range tuples agree for these four functions. Wrong
+instruction tags respectively2/15/41/12->0. No new variable,helper,scope,
+qualifier,asm/volatile,fake use or statement directive is added. Original
+vector macro/comment spelling and compiled-out text are not uniquely proved.
+
+Fresh run-gf73e39s:Physics22 functions,14 native CLEAN,17 region PASS,now5/22
+full covered SLD and combined EXACT,was1/22. All prior405 complete contracts,
+all ordered non-SLD records,all other function SLD and every previously correct
+target tag survive. All22 SOURCE_ONLY detailed/branch gates,119 unchanged
+normal ELF hashes/native CPE,119 fresh normal/debug CPP bindings,tests162,
+stripped83,vtable1472,policy,relink,canonical GNU link,raw299819/299819,overlap,
+foreign-label and inventory checks pass. GAME/COMMON covered SLD601/1247 and
+combined599;wrong tags61002->60932. Legacy EXTRA410 is unchanged. An explicit
+CheckGamedata text-review note makes585 markers plus112 string holders,not
+unique unresolved object counts. Receipts:build/nc12/physics_small_sld_20261028/.
+The wider source-restoration goal remains open;no shared header,tooling,
+compiler flag,reference or generated-output rewrite is involved.
+
+2026-10-28 Physics restores22 confirmed per-function source identities;404->405 full covered contracts.
+
+Measure signature-to-native-header distance from current source/native output
+for each of22 functions;all are2 here. Retail-derived anchors then restore
+every absolute header and filename without changing executable tokens,locals,
+region trees or relative line maps. SetCurrentWallType's existing three-word
+relative contract gains its full absolute certificate. Other old unqualified
+SLD-VERIFIED labels become explicit comparison requirements,not green claims.
+Fresh run-y3pn0uli preserves all404 prior seals,all22 byte/branch gates,119
+normal ELFs/native CPE and all complete local/region/type facts. Its full
+regression gates also pass;the newer409 checkpoint above supersedes it.
+
+WheelLockAcc's two unprovided skid/cmp locals and empty identity assembly
+remain OPEN. Twenty-one fence-free clamp/upstream-sum controls and sixteen
+real per-tire-arm/tail-merge controls fail whole-normal-ELF equality;none lands.
+Widened comparisons are included,not a new adopted type qualifier. Matched
+NFS2 corroborates totalAcc/optVar1/optVar2/roadGrip and absolute components,
+but lacks this later NFS4 clamp;it is not evidence for a replacement macro.
+The finite negatives prove neither an original extra object nor a floor.
+Receipts:build/nc12/physics_lock_source_20261028/.
+
+The same continuation's whole required-work expression for CopSpeak Ready
+still adds a non-retail region;its duplicate control is not an independent
+new lever. Neither is retained. Updated M2C supports real nested tests but
+does not identify the missing source producer. This IDA body's explicit
+const-memory warning/zeroed queue accesses make it unsuitable as an exact
+source authority for this site;raw EXE/SYM/stock output remain authoritative.
+Private follow-up:build/nc12/cop_request_source_20261028/ready-owner-proof.json.
+
+2026-10-28 CopSpeak Request restores all79-word SLD facts;the unresolved extra local remains visible.
+
+Separate FileOpen,Index and phrase validation into their actual source groups
+1063/1066/1070,with Count1073 and the shared rejection1074. The successor
+selection belongs1054,bank lookup1061,request-field writes1077/1078/1079,
+size guard1081,queue copy1086,head advancement1087 and original-head return1089.
+Ordinary layout under the existing function anchor restores all79 word/file
+tags,root block lines and function end. Wrong instruction tags76->0.
+Both initial if/assignment and conditional-expression controls preserve the
+whole normal ELF/native CPE and all complete local tuples;literal original
+syntax is not uniquely proved. The raw advancement load remains scheduled
+inside the earlier copy-address group,not evidence for moving its source.
+
+Fresh run-vanyex7_:CopSpeak27/27 region PASS,26/27 covered SLD EXACT,was25/27.
+Native26/27 and combined25/27 are unchanged. Request STILL has the unprovided
+queueHeadSnapshot REG:a3;this SLD-only repair is not a native-clean/full-source
+seal and adds no entry to the404 full covered contracts. Direct global reads
+or next reassignment controls change code;they do not establish an original
+extra object,and substituting a later head value would change the return.
+No invented replacement name or debug-elision exemption is adopted.
+
+ReadyNextRequest remains two wrong jump/delay-slot tags466 versus469 and an
+unprovided hasSfx producer. A genuine failure-arm return fixes those tags but
+changes code/owners;real value-condition/call-work expressions can keep code
+and supplied locals but change the ordered region tree. None is retained.
+GCC2.8.1 cp/parse.y invokes expand_start_else without an independent line
+note;stmt.c emits the arm-exit jump there. Closing-brace coordinates alone do
+not explain the missing469 producer. Recover real source work,not a fake use,
+empty statement,dummy declaration,extra region or per-statement directive.
+
+All27 SOURCE_ONLY detailed/branch gates pass. All119 normal ELF hashes/native
+CPE and current119 normal/debug CPP bindings,all404 prior complete contracts,
+all ordered non-SLD records/local-owner tuples and every other function's SLD
+survive. Tests162,stripped83,vtable1472,source policy,relink,canonical GNU link,
+raw299819/299819,overlap,foreign-label and inventory checks pass. GAME/COMMON
+covered SLD597/1247,combined595;tag differences61078->61002. No shared header,
+build tooling,compiler flag,reference or compiler output is rewritten.
+Receipts:build/nc12/cop_request_source_20261028/. Full project goal remains open.
+
+2026-10-28 CheckState restores typed arrays/actual value roles and full415-word SLD;403->404 covered contracts.
+
+Retail19417e/1941a1 declare gtotallaptimes and AudioCmn_gPlayerArrested as
+INT[2],eight bytes each. Use those typed array accesses,not index arithmetic
+through pointer-truncating int casts. Remove the later carspeed assignment
+from the lap-time test and compare the actual time field directly in both
+branches. The shared a0 register never established that a lap-time quantity
+belonged to the original velocity local. Selected-stock initial RTL has three
+definitions of carspeed's p82 before,two after;the direct later value still
+produces exactly the retail instructions. No separate lap-time source object
+is required by this reconstruction,and no unsupported temporary name is added.
+All seven isolated/coupled feature controls preserve the whole normal ELF and
+complete provided local tuples. Ordinary signed phrase ranges also replace
+folded unsigned-subtraction idioms. NFS2 supports the shared velocity/array
+design only;its different locals,algorithm and padding helper are not imported.
+
+Real combined state guards,lap-announcement groups and separate comm-mode/time
+tests restore every415 word/file tag. Keep the two source Request calls in
+the record/best-lap arms;the compiler merges their tail instead of requiring
+an invented result carrier. All26 block-line records,ten ordered complete
+parameter/local/type/home/depth/path/range tuples,header994/frame72 and
+end1196 agree. Kept-condition starts1033/1079 independently constrain their
+keyword lines1032/1078. A multiline-start control kept ALL instruction tags
+but moved those two binding records,and is rejected. Other boolean/selection
+spellings can also match,so literal original syntax is not uniquely proved.
+
+Fresh run-jxzymy1b:AudioCmn48/48 native CLEAN and region PASS,45/48 covered SLD
+and45/48 combined EXACT,was44/48. Wrong CheckState tags402->0. All prior403
+full covered contracts,Reset's retained partial improvement,48 SOURCE_ONLY
+byte/branch gates,119 normal ELF hashes/native CPE and119 current normal/debug
+CPP bindings survive. Selected normal/oracle builds,tests162,stripped83,
+vtable1472 files,policy,relink,canonical GNU link,raw299819/299819,overlap,
+foreign-label and inventory checks pass. GAME/COMMON covered SLD596/1247,
+native+SLD595;tag differences61480->61078. Native1195,provided-local contract1214
+and legacy EXTRA410 are unchanged. A precise review note for the pre-existing
+RaceType_Id5 reconstruction label makes584 markers plus112 string holders,
+not unique-object counts. Its original mode5 macro name/meaning is not supplied
+by these records and is not replaced by an invented semantic name. LABEL100/229
+and the two selected storage gaps remain open. No shared header/build tool,
+production flag,reference or compiler output is rewritten. Receipts:
+build/nc12/audio_checkstate_source_20261028/. Stock plain/-da/private/adopted
+assembly and independent raw415-word body are bound. This covered function seal
+does not certify original macro/comment text or complete the full project goal.
+
+2026-10-28 Reset source ownership/guards improve substantially without a full SLD seal;403 covered contracts remain protected.
+
+Use three actual loop-owned i declarations instead of manual declaration-block
+wrappers. The named REG17/REG16/REG18 objects keep every supplied type/home/
+depth/path/range tuple. Restore a natural !goodtogo/gettick wait;on the current
+corrected source it preserves all214 words,unlike an older-baseline rotation
+verdict. Weather and the two patch-validity/GetAsync guards have real separate
+source tests. A positive music guard now owns the second ticks body instead
+of manual wrappers around an early return. No original local name is invented
+and no additional value object is introduced.
+
+Ordinary layout reduces wrong word tags206->16,matching block-line fields
+2/36->32/36,and restores function end903. All18 ordered native region address/
+path identities and all eight complete supplied local tuples remain exact.
+Every previously correct target word/file tag and block-line fact survives.
+The ordered non-SLD stream is unchanged apart from independently audited
+source-coordinate fields. This is real partial source recovery,NOT a complete
+Reset/source-text certificate and NOT another full manifest entry.
+
+Explicit remaining producer backlog:the retained anonymous final conditional
+model attributes16 words to900 rather than892/894/895. Two ambient enclosing
+ends are827 instead of863;two fallback ends900 instead of901. Straight branching
+fixes every word tag but either loses the two supplied empty regions or adds
+an unwanted third region. Those controls do not land. Do not insert a dummy
+void-use,assertion,empty statement,unused declaration or statement #line merely
+to fill the elided-source notes. Recover the actual producer or retain this
+precise unresolved record.
+
+A private for-loop end-note experiment explains a possible origin of the later
+ambient endpoints:body bindings pop before the for control note,whose threaded-
+away back edge can leave the enclosing scopes on the later line. Explicit
+-fno-for-scope removes the added empty initializer scope in that model and
+preserves the whole normal ELF/CPE,but changes other functions' debug owners.
+It is NOT wired into production and is not proof of the original build flag.
+The current configured PsyQ4.3 CCPSX driver invokes the selected compiler
+without that flag and warns about obsolete lookup in a tiny diagnostic;the
+retargeted SDK configuration is not the lost game's build recipe. No comparator,
+reference,production flag or compiler output is rewritten to accept the model.
+
+Fresh run-ent2yxke keeps AudioCmn48/48 native CLEAN and region PASS,44/48 covered
+SLD/combined EXACT. All prior403 full covered contracts,48 SOURCE_ONLY byte/
+branch gates,119 unchanged normal ELF hashes/native CPE and current119 normal/
+debug CPP bindings survive. Selected normal/oracle builds,tests162,stripped83,
+vtable1472 files,policy,relink,canonical GNU link,raw299819/299819,overlap,
+foreign-label and inventory checks pass. GAME/COMMON tag differences fall
+61670->61480;covered SLD595 and native+SLD594 are unchanged. Native1195,provided-
+local contract1214 and legacy EXTRA410 stay unchanged. One newly explicit
+Reset review location makes583 markers plus112 string holders,not unique-object
+counts. LABEL100/229 and the two selected storage gaps remain open. Receipts:
+build/nc12/audio_reset_source_20261028/. The full project goal remains open.
+
+2026-10-27 UpdateThunder/freeVoiceChannel recover real countdown statements and integer handle guards;401->403 covered contracts.
+
+UpdateThunder's positive amplitude test belongs321,the actual countdown
+statement323,and its separate negative test325. Replace the assignment/comma
+condition with the real decrement and nested test,without a new capture. The
+play/random/amp/delay groups327/329/330/332/334 then restore all43 word/file
+tags,root block lines,header320/frame32 and end334. Forty-two wrong tags vanish.
+The existing random()+20U followed by &3 expression is preserved,not changed
+into a different delay policy. Assignment spelling also matches;the measured
+early-return controls preserve bytes but miss end fields. Neither those
+negatives nor this seal uniquely establishes original macro/exit syntax.
+
+freeVoiceChannel's Partial is an INT field,not a pointer:retail Channels_t's
+STRTAG188f2f and MOS188f47/188f5c/EOS188f70 specify8 bytes,two integer fields
+at0/4. Compare the handle directly with-1 instead of converting the integer
+and0xffffffff to pointers. This removes an implementation-defined decompiler
+comparison while preserving the unsigned tag conversion required by the actual
+SNDautovol API. Early audio/index exit1584,integer sentinel test1587,fade1589,
+two resets1590/1591 and counter decrement1592 restore all28 word/file tags,
+provided sndPlayer home,root end1593 and function end1595. Twenty-five wrong
+tags vanish. The original@80078108 breadcrumb is retained at its typed branch.
+Compound/two-guard exits and counter-assignment controls also match,so literal
+original keywords are not uniquely proved. No new name/object or binding-
+record padding,asm/volatile,fake use or statement directive is introduced.
+
+Both changes pass together in the whole stock TU. Fresh run-5thnutg3 has48/48
+AudioCmn native CLEAN and region PASS,44/48 covered SLD and44/48 combined EXACT,
+was42/48. All prior401 covered contracts,48 SOURCE_ONLY byte/branch gates,
+119 normal ELF hashes/native CPE and119 current normal/debug CPP bindings
+survive. Selected normal/oracle builds,tests162,stripped83,vtable1472 files,
+policy,relink,canonical GNU link,raw299819/299819,overlap,foreign-label and
+inventory checks pass. GAME/COMMON covered SLD595/1247 and native+SLD594;
+native1195,provided-local contract1214,legacy EXTRA410 and the broader review
+queue are unchanged. LABEL100/229 and the two selected storage gaps remain
+open. No shared header/build tool or output/reference is rewritten. Receipts:
+build/nc12/audio_thunder_source_20261027/. Paired stock plain/-da/private-case/
+adopted assembly and independent raw43/28-word bodies are bound. The remaining
+audio gaps are CheckState,Reset,InitAsyncSfx and GetTrackRecordLapTime;unproved
+source captures/qualifiers/literal text and the full project goal stay open.
+
+2026-10-27 scaleFrequency and TrafficSkidSFX recover ordinary predicates/real exits and full51/45-word SLD;399->401 covered contracts.
+
+scaleFrequency now spells the two channel groups as ordinary18/19 and20/21
+equality pairs,instead of decompiler-shaped unsigned subtraction. These are
+equivalent for every signed32 channel value:the old modulo unsigned interval
+selects exactly the same two values in each group. Selected-stock initial RTL
+already lowers each equality pair to plus(-18/-20) followed by unsigned<2.
+Original GCC2.8.1 fold_range_test/build_range_check provide diagnostic source
+context for that canonicalization,not selected-compiler identity. Signed
+inclusive ranges also pass,so literal original condition spelling is not unique.
+
+Keep the existing three MIN spellings and their real assignments. The first
+two source branches use1270/1274;merged machine arithmetic retains1274.
+The actual cache predicate/store/load groups are1278/1282/1284/1288. All51
+word/file tags,two block lines,complete supplied parameter/scaledFreq owner
+tuples,header1259/frame0,root end1291 and return/function end1290 match.
+Fifty-one previously wrong word tags disappear without a new value object.
+
+TrafficSkidSFX needs a real early audio-off return to preserve end2273 while
+its last work region ends2270. Channel cleanup calls freeVoiceChannel at2263
+and returns separately at2264. Ordinary implicit branch completion keeps two
+jump/slot tags on2263;returning the void call directly also misattributes its
+call group. Neither failed variant is accepted merely because bytes match.
+The separate cleanup/return source preserves all45 instructions,all nine
+ordered parameter-copy/local tuples,the root+0..164 owner and both block lines.
+All45 word/file tags and header2244/frame32/end2273 agree;42 wrong tags vanish.
+No unrelated retail name,new local,scope,asm/volatile or fake operand is used.
+
+Fresh combined run-t0pgbxfw:AudioCmn48/48 native CLEAN and region PASS,42/48
+covered SLD and42/48 combined EXACT,was40/48. Both changes pass together on the
+whole TU,not only isolated probes. All prior399 covered contracts,48 SOURCE_ONLY
+byte/branch gates,119 normal ELF hashes/native CPE and119 current normal/debug
+CPP bindings survive. Selected normal/oracle builds,tests162,stripped83,
+vtable1472 files,policy,relink,canonical GNU link,raw299819/299819,overlap,
+foreign-label and inventory checks pass. GAME/COMMON covered SLD593/1247 and
+native+SLD592;native1195,provided-local contract1214,legacy EXTRA410 and the
+broader review queue are unchanged. LABEL100/229 and the two selected storage
+gaps remain open. No shared header/build tool or output/reference is rewritten.
+Receipts:build/nc12/audio_frequency_source_20261027/. Paired stock plain/-da/
+private-case/adopted whole assembly and independent raw51/45-word bodies are
+bound. Original literal macro/exit syntax and the full project goal stay open.
+
+2026-10-27 DeInit restores full54-word lifecycle SLD with unchanged executable tokens;398->399 covered contracts.
+
+The stop/cleanup calls occupy913..915,level loads/stores917/918,track/async
+cleanup919/920,real for initialization922 and live-channel body924..930.
+Keep both channel resets inside the Partial!=-1 guard: its historical skip-
+target bug is not reintroduced. The source for initialization is later than
+its optimized assignment in the cleanup call's delay slot. Do not move the
+declaration to function scope or invent an early capture from execution order.
+Root/for regions and i's REG17,depth2,owner+0..136,path[0,0] remain retail-exact.
+Stopall931,bank removal932,audio cleanup933,reverb935 and streaming937 then
+recover all54 word/file tags,four block-line records,header911/frame32 and
+function end937. Fifty wrong tags disappear. Four implicit/explicit-return
+and closing-brace spellings pass the entire covered contract;literal original
+exit syntax/comments are not uniquely proved. Adopt ordinary implicit exit.
+
+Fresh run-u234t22a:AudioCmn48/48 native CLEAN and region PASS,40/48 covered SLD
+and40/48 combined EXACT,was39/48. All48 SOURCE_ONLY byte/branch gates and prior
+398 covered contracts survive. All119 normal ELF hashes/native CPE,current119
+normal/debug CPP bindings,selected normal/oracle builds,tests162,stripped83,
+vtable1472 files,policy,relink,canonical GNU link,raw299819/299819,overlap,
+foreign-label and inventory checks pass. GAME/COMMON covered SLD591/1247,
+native+SLD590;native1195,provided-local contract1214 and legacy EXTRA410 stay
+unchanged. No shared header/build tool is changed. Receipts:
+build/nc12/audio_deinit_source_20261027/. No new variable,scope padding,asm,
+volatile,statement directive or output/reference rewrite is introduced.
+
+Same-round unresolved producer:InitAsyncSfx's inRange is not restored original
+source merely because the declaration is debug-elided. Thirteen real loop/
+increment/condition forms plus three equivalent comparison graphs were checked.
+Ordinary for/prefix/primitive-condition casts shorten14 to13 words. A positive
+if/else preserves bytes and provided i,but loses the required test region.
+Declaration-free GNU comparison groups preserve all14 words and i's complete
+tuple but add an unwanted zero-length region at+16,beside the supplied+16..28
+region. Address/path identity,not only a region or declaration count,rejects it.
+
+Selected-stock initial RTL has3 binding starts for the current source,2 for
+ordinary for/positive else,and4 for the value-condition control. Original
+GCC2.8.1 cp/parse.y's for-condition pushlevel/already-scoped-body handling and
+statement-expression keep_next_level/BIND_EXPR paths provide diagnostic context;
+they are not a claim of selected-compiler identity or proof that a distinct
+original predicate object existed. No failing form,dummy declaration,scope
+patch,qualifier substitute or invented replacement name lands. The actual
+producer/name remains explicit source-recovery work,not a floor or exemption.
+Receipts:build/nc12/audio_async_predicate_20261027/. Broader original-source,
+type-copy,storage and SYM/SLD obligations remain open.
+
+2026-10-27 ChooseLoopedSample restores retail surface names and full47-word SLD;397->398 covered contracts.
+
+Replace the surface-number comparisons with the actual s_type members from
+the owning ENTAG188f8f..EOS189150 records. This is not an inferred taxonomy:
+kCarBody1,kTires2,kGravel3,kSnow11,kGrass12,kWetAsphalt16 and the two specialized
+asphalt members17/18 are checked against the raw SYM and current header. NFS2
+corroborates the shared tire/body sample-selection design only;its unused
+sndPlayer parameter and missing wet/specialized cases are NOT imported.
+
+The outer tire test and first asphalt test genuinely share1432. Keep separate
+test/assignment lines1434..1443 and the three subsequent combined tests1444,
+1446 and1448. The corrected nested grass arm must remain: the historical extra
+default store would make the entry skip target the wrong word,despite lenient
+normalized instruction PASS. No label or replacement carrier is introduced.
+Ordinary source layout removes44 wrong tags;all47 instruction/file tags,two
+block-line records,complete supplied parameter/local/type/home/path/range
+tuples,header1428/frame0 and return/function end1451 agree. Root SFXnum ends
+at+180 on1452,independently of the return/function-end coordinate1451;do not
+force those distinct producer facts onto one line or invent a scope.
+
+Fresh run-bcgwisu7:AudioCmn48/48 native CLEAN and region PASS,39/48 covered SLD
+and39/48 combined EXACT,was38/48. All48 SOURCE_ONLY byte/branch gates pass.
+All prior397 covered contracts,119 normal ELF hashes/native CPE,current119
+normal/debug CPP input bindings and every other native function/local-owner
+record survive. Both selected build routes,tests162,stripped83,vtable1472 files,
+policy,relink,canonical GNU link,raw299819/299819,overlap,foreign-label and
+inventory checks pass. GAME/COMMON covered SLD590/1247 and native+SLD589;
+native1195,provided-local contract1214,legacy EXTRA410 and the broader review
+queue are unchanged. No shared header or build tool is changed in this round.
+Selected-stock plain/-da/case/adopted assembly equality and raw target receipts:
+build/nc12/audio_loop_source_20261027/. Original literal macro/comment text,the
+remaining source producers and the full project goal remain open;no new asm,
+volatile,object,scope padding,statement directive or output rewrite is used.
+
+2026-10-27 PlayFESFXVol restores real field-assignment order and full34-word SLD;396->397 covered contracts.
+
+Retail places the bank handle at2350,volume2351,patch2352,bend2354,3D flag2355
+and pan2356,between SNDplaysetdef2348 and SNDplay2358. Restore that source order
+instead of copying optimized execution order. Stock initial RTL contains the
+bank acquisition/store before the volume work;scheduled output still starts
+with volume arithmetic and delays the bank load until after three field stores.
+The original120-product source spelling remains unchanged and needs no capture.
+Before/after stock plain/-da controls equal their actual private debug outputs;
+the accepted whole debug assembly equals the adopted main-tree output.
+
+All34 instruction/file tags,two supplied zero-length block records,three
+complete parameter/local/type/home/owner tuples,header2332/frame56 and end2365
+match. The playopts AUTO sp-40,SNDPLAYOPTS20 object remains real;the optimized
+zero-length declaration region is not literal proof of its lexical lifetime.
+Twenty-eight wrong word tags disappear. Every other function's complete map,
+all local-owner records and the ordered non-SLD record stream are unchanged
+apart from this function's independently checked end-line coordinate.
+Historical reconstruction comments move outside the existing function anchor;
+no statement directives,extra region,variable,asm,volatile or executable padding
+is introduced. Literal original comments/macro spelling remain unproved.
+
+Fresh run-y8whbmvm:AudioCmn48/48 native CLEAN and region PASS,38/48 covered SLD
+and38/48 combined EXACT,was37/48. All48 SOURCE_ONLY byte/branch gates pass.
+Selected normal/oracle builds,119 unchanged normal ELF hashes/native CPE,
+119 current normal/debug CPP bindings,tests162,stripped83,vtable1472 files,
+policy,relink,canonical GNU link,raw299819/299819,overlap,foreign-label and
+inventory checks pass. GAME/COMMON covered SLD589/1247 and native+SLD588;
+native1195,provided-local contract1214 and legacy EXTRA410 are unchanged.
+Review locations remain582 plus112 string holders;LABEL100/229 and the two
+selected storage gaps remain open. Receipts:build/nc12/audio_fe_source_20261027/.
+
+Same-round SoundCar follow-up: the rpmRatio producer is STILL unresolved.
+Six actual call/gas-funnel graphs and ten amplitude-tree/existing-work-block
+controls do not preserve the normal ELF. The count-exact argument-owned gas
+form has40 raw unlinked instruction differences in the tail. Selected-stock
+initial RTL already expands the amplitude product before the inline RPM
+division,unlike retail's division/gas/product order. The original GCC2.8.1
+calls.c register-parameter precompute loop corroborates argument-index order;
+this is not an observed scheduling-only residual. Receipt:
+build/nc12/soundcar_rpm_source_20261027/. No failed form lands,no unrelated
+retail name is reused to hide the capture,and no artificial argument use or
+unsequenced read/write is introduced. These bounded negatives do not prove a
+floor or a distinct original object;recover the actual source producer next.
+
+2026-10-27 SoundCar removes distanceScale through real speed stages;395->396 covered contracts,AudioCmn48/48 native CLEAN.
+
+Compute the actual absolute speed into the provided CurCarGasLevel and shift
+that same value separately at source1937. The factor-first attenuation product
+at2036 can then use ordinary signed division by0x10000 directly,without the
+unprovided distanceScale object or its manual sign correction. This is real
+value computation,not an added identity,reference-count fence or unused use.
+For any defined signed product,the old negative-bias/arithmetic-shift sequence
+is the same toward-zero division; no runtime/emulator proof is claimed here.
+The selected-stock compiler and independently linked raw bytes remain decisive.
+
+Fresh post-integration controls reproduce the whole normal ELF/native CPE and
+the exact retail target locals/regions/SLD. The unstaged direct-product control
+still fails. Observed stock p88 changes from14 refs/137 insns/5 calls atREG16
+to15/136/5 atREG16;the unstaged control is13/135/5 atREG17. Absolute/shift
+stages change the real allocation graph without artificial refs. Plain/-da
+observer outputs agree,and the staged whole assembly equals the actual adopted
+debug assembly. These are actual stock receipts,not an EXACT allocsim claim.
+
+The sole ordered non-SLD record delta is SoundCar's root INT REG:$3
+distanceScale declaration,owner+0..2072,path[0]. Every other ordered non-SLD
+record,complete local tuple and instruction/file tag survives. All530 target
+words,four block-line records,provided parameter/local/type/home/path/range
+tuples,header/frame and end2190 agree. SoundCar's prior separate SLD contract
+is promoted into the full covered manifest,not counted twice. Original literal
+syntax,CurCarGasLevel/cobblestoneAmp phase-role ambiguity and the debug-elided
+rpmRatio producer remain explicitly unresolved. Native CLEAN is not a source-
+text or whole-project completion certificate.
+
+Fresh run-y01zh2rn:AudioCmn48/48 native CLEAN and region PASS,37/48 covered SLD
+EXACT and37/48 combined EXACT. All48 SOURCE_ONLY byte/branch gates pass;selected
+normal/oracle builds have no failed/skipped TU. All119 normal ELF hashes and
+serialized native CPE remain unchanged;all119 current normal/debug CPP inputs
+bind. Tests162/162,stripped83,vtable1472 files,policy,relink,canonical GNU link,
+raw299819/299819,overlap,foreign-label,inventory and whitespace checks pass.
+GAME/COMMON native1195/1247,provided-local contract1214,SLD588 and combined587.
+Legacy native EXTRA rows411->410;source locations are582 review markers plus
+112 unresolved-string holders,not unique-object counts. LABEL comparison stays
+100 different functions/229 native records;the two selected EXT/STAT gaps and
+the broader source/type/SLD backlog stay open. Receipts:
+build/nc12/soundcar_abs_land_20261027/. No new asm,volatile,object,scope padding,
+statement directive,compiler flag or output/reference rewrite is introduced.
+
 2026-10-27 DrawW upstream integration repairs source-metadata regressions without losing byte matches.
 
 Upstream0e0657fa's cleanup preserves code but initially loses the complete

@@ -55,51 +55,63 @@ int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRe
 
 
 /* ---- BWorldSm_Init__FP5Group  [@0x8007e910] ---- */
+/* 2026-10-30: supplied slice pointer/center/chunkIndex and Group-header
+ * types replace integer/byte address spellings. Group is4 bytes,NewSlice32;
+ * center is offset0,chunkIndex UCHAR offset0x1c. No new object or scope.
+ * Receipt:build/nc12/bworld_fields_20261030/final-proof.json. */
+#line 83 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_Init(Group *simGroup)
 {
+  BWorldSm_slices = (Trk_NewSlice *)simGroup->GetData();
   gNumSlices = simGroup->m_num_elements;
-  BWorldSm_slices = (int)simGroup->GetData();
+
+
+
   gMaxFindQuadSliceIterations = 5;
+
   BWorldSm_Restart();
-  return 1;
-}
+
+  return 1; }
 
 /* ---- BWorldSm_Restart__Fv  [@0x8007e948] ----
  * Call and implicit void fallthrough share retail relative source line +1:
  * 8/8 instructions, 0/8 SLD differences, exact native block/end lines. */
+#line 100 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BWorldSm_Restart(void)
 {
   NormalCache_Init(); }
 
 /* ---- BWorldSm_DeInit__Fv  [@0x8007e968] ---- */
+#line 113 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BWorldSm_DeInit(void) {
 }
 
 /* ---- FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos  [@0x8007e970] ---- */
+#line 122 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int numSlices;
-  int currDist;
-  int currInd;
+  int currDist = 0x7fffffff;
+  int currInd = -1;
   int dist;
   int i;
-  
+
   numSlices = gNumSlices;
-  currDist = 0x7fffffff;
-  currInd = -1;
   for (i = 0; i < numSlices; i += 8) {
-    dist = xzsquaredist32(
-        (coorddef *)((char *)BWorldSm_slices + i * 0x20),pt);
+
+    dist = xzsquaredist32((coorddef *)BWorldSm_slices[i].center,pt);
     if (dist < currDist) {
+
       currInd = i;
       currDist = dist;
     }
   }
-  slicePos->slice = currInd;
-  return;
-}
+
+
+  slicePos->slice = currInd; }
 
 /* ---- BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos  [@0x8007ea14] ---- */
+#line 151 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int startSlice;
@@ -109,12 +121,12 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
    * NFS2's named sliceChanged local is not present in the NFS4 native records. */
   startSlice = slicePos->slice;
   if (0x800000 <
-      Math_DistXZ((coorddef *)((char *)BWorldSm_slices + startSlice * 0x20),pt)) {
+      Math_DistXZ((coorddef *)BWorldSm_slices[startSlice].center,pt)) {
     FindAbsClosestSliceCrude(pt,slicePos);
   }
   RawFindClosestSlice(pt,slicePos);
   slicePos->chunk =
-      *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
+      BWorldSm_slices[slicePos->slice].chunkIndex;
   return slicePos->sliceChanged = slicePos->quadChanged =
       (slicePos->slice != startSlice);
 }
@@ -130,6 +142,7 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
    ((((pt)->z - (slice)->center[2]) >> 9) * \
     (((pt)->z - (slice)->center[2]) >> 9)))
 
+#line 178 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int lastind;
@@ -205,29 +218,29 @@ void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 
 /* ---- BWorldSm_SetSlice__FiP12BWorldSm_Pos  [@0x8007ed64] ---- */
 #undef closeXZDistSquared
+#line 260 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
 {
-  /* SLD statement order is source-significant here: lines 263, 266-271,
-   * 273, and 275-278 place the pointer resets before the change flags and
-   * the direct chunk assignment before the final status bytes.  With that
-   * order GCC hoists the chunkIndex load exactly as retail; no unrecorded
-   * source local is required. */
+
   slicePos->slice = (short)slice;
+
+
   slicePos->simSlice = (Trk_NewSimSlice *)0x0;
   slicePos->simQuad = (Trk_NewSimQuad *)0x0;
   slicePos->simRotFlag = 0;
   slicePos->sliceChanged = '\0';
   slicePos->quadChanged = '\0';
   slicePos->offEdge = '\0';
+
   slicePos->chunk = BWorldSm_slices[slicePos->slice].chunkIndex;
+
   *(signed char *)&slicePos->lastRezRequested = -2;
   slicePos->rez = '\x01';
   slicePos->triangleFlag = '\0';
-  *(signed char *)&slicePos->quad = -1;
-  return;
-}
+  *(signed char *)&slicePos->quad = -1; }
 
 /* ---- GetStmQuadPts__FP12BWorldSm_PosP8coorddef  [@0x8007edb8] ---- */
+#line 322 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
 {
   Trk_NewStrip *pStrip;
@@ -290,6 +303,7 @@ void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
 }
 
 /* ---- SetStrip__FP12BWorldSm_Pos  [@0x8007eee0] ---- */
+#line 378 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void SetStrip(BWorldSm_Pos *slicePos)
 {
   int i;
@@ -320,6 +334,7 @@ void SetStrip(BWorldSm_Pos *slicePos)
 }
 
 /* ---- GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16  [@0x8007ef98] ---- */
+#line 414 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
 {
   CCOORD16 *pts;
@@ -356,53 +371,47 @@ void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
 }
 
 /* ---- BWorld_SetSimSlice__FP12BWorldSm_Pos  [@0x8007f034] ---- */
+#line 469 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
 {
   Trk_NewSimSlice *simSlices;
   int chunkSliceInd;
 
-  slicePos->chunk =
-      *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
-  simSlices = (Trk_NewSimSlice *)
-      ((char *)Track_chunkList[slicePos->chunk].simSliceBuf + 4);
-  chunkSliceInd =
-      (int)slicePos->slice -
-      (int)Track_chunkList[slicePos->chunk].firstSimSliceInd;
-  slicePos->simSlice = &simSlices[chunkSliceInd];
-  return;
-}
+
+
+
+  slicePos->chunk = BWorldSm_slices[slicePos->slice].chunkIndex;
+
+  simSlices = (Trk_NewSimSlice *)(Track_chunkList[slicePos->chunk].simSliceBuf + 1);
+  chunkSliceInd = (int)slicePos->slice - (int)Track_chunkList[slicePos->chunk].firstSimSliceInd;
+  slicePos->simSlice = &simSlices[chunkSliceInd]; }
 
 /* ---- BworldSm_UpdateSimQuad__FP12BWorldSm_Pos  [@0x8007f094] ---- */
+/* Retail supplies simIndex and the zero-length startsimquad region.
+ * An ordinary if/else and body-local pointer preserve both real stores,
+ * all supplied owners/SLD;the old manual/statement-expression wrappers
+ * are unnecessary. Literal original macro/expression text is unresolved.
+ * Receipt:build/nc12/bworld_updatequad_layout_20261030/final-proof.json. */
+#line 494 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
 {
-  /* Retail SYM records root simIndex in $a2, one outer expression region,
-   * and startsimquad in a zero-length nested region at +0x30. The final
-   * store reads the just-written simQuad; the source-expression spelling is
-   * not uniquely recoverable from those debug and instruction records. */
   int simIndex;
+  simIndex = (int)(signed char)slicePos->quad - (u_int)slicePos->simSlice->simquadStartIndex;
 
-  {
-    simIndex = (int)(signed char)slicePos->quad -
-               (u_int)slicePos->simSlice->simquadStartIndex;
-    ((-1 < simIndex) &&
-     (simIndex < (int)(u_int)slicePos->simSlice->simquadCount))
-        ? (slicePos->simQuad = ({
-             Trk_NewSimQuad *startsimquad;
-             startsimquad = (Trk_NewSimQuad *)
-                 (Track_chunkList[slicePos->chunk].simQuadBuf + 1);
-             startsimquad;
-           }),
-           slicePos->simQuad = (Trk_NewSimQuad *)
-               ((int)slicePos->simQuad +
-                ((u_int)slicePos->simSlice->simquadIndex + simIndex)))
-        : (slicePos->simQuad = &GlobalSimQuad);
-  }
-}
+  if ((-1 < simIndex) && (simIndex < (int)(u_int)slicePos->simSlice->simquadCount))
+  { Trk_NewSimQuad *startsimquad;
+             startsimquad = (Trk_NewSimQuad *)(Track_chunkList[slicePos->chunk].simQuadBuf + 1);
+    slicePos->simQuad = startsimquad;
+    slicePos->simQuad += (u_int)slicePos->simSlice->simquadIndex + simIndex;
+  } else
+
+    slicePos->simQuad = &GlobalSimQuad; }
 
 /* ---- BworldSm_IsSimQuadValid__FP12BWorldSm_Pos  [@0x8007f11c] ----
  * The explicit null-path else shares its source line with the closing if:
  * all 12 instruction SLD tags and the block/function end lines match retail.
  * Literal EA spelling remains unknown. */
+#line 515 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
 {
   if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
@@ -420,6 +429,7 @@ int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
    sliceVariance=s6, firstSliceOffEdge=s7, vertices=s2, lastDist=s1).
    Direct coordinate expressions are significant: they preserve the original
    short-lived v0/v1/a0-a3 allocation across both distance scans. */
+#line 536 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int attempt;
@@ -625,6 +635,7 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 #undef RAW_QUAD_ABS
 
 /* ---- FindClosestQuad__FP8coorddefP12BWorldSm_Pos  [@0x8007f8f8] ---- */
+#line 1057 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int startSlice;
@@ -688,48 +699,81 @@ done:
    QUAD_PT_DIR((q)[0],(q)[1],(p)) <= 0 && \
    QUAD_PT_DIR((q)[2],(q)[3],(p)) <= 0 && \
    (QUAD_PT_DIR((q)[3],(q)[0],(p)) <= 0 ? 1 : 0))
+/* 2026-10-29: sliceChanged is supported by both original NFS2 SYM locals
+ * and the NFS4 callees' returned slice-change flags;not an invented label.
+ * Plain int values remove two unnecessary const qualifiers. Actual return
+ * phases and original-file anchor match all115 source tags and supplied scopes.
+ * SOURCE-REVIEW-UNRESOLVED: exact NFS4 local spelling/producer and macro text
+ * are not uniquely retained;the current scopes are not an object-necessity proof.
+ * Receipt:build/nc12/bworld_return_source_20261029/final-proof.json. */
+#line 1138 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {
   slicePos->triangleFlag = '\x03';
-  if (hiRezFlag != 0) {
+
+  if (hiRezFlag != 0)
+  {
+
+
     slicePos->lastRezRequested = '\x02';
-    if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
-      if (PT_IN_QUAD(slicePos->quadPts,*pt)) {
-        slicePos->quadChanged = '\0';
-        slicePos->sliceChanged = '\0';
+
+
+
+
+
+
+    if (slicePos->simQuad != (Trk_NewSimQuad *)0x0)
+    {
+
+      if (PT_IN_QUAD(slicePos->quadPts,*pt))
+      {
+        slicePos->quadChanged = '\0'; slicePos->sliceChanged = '\0';
+
         return 0;
       }
     }
-    const int result = FindClosestQuad(pt,slicePos);
-    return result;
+    int sliceChanged = FindClosestQuad(pt,slicePos);
+
+    return sliceChanged;
   }
   else {
+
+
     slicePos->lastRezRequested = '\x01';
-    slicePos->rez = '\x01';
+
+
     slicePos->simSlice = (Trk_NewSimSlice *)0x0;
     slicePos->simQuad = (Trk_NewSimQuad *)0x0;
-    *(signed char *)&slicePos->quad = -1;
-    slicePos->triangleFlag = '\0';
-    const int result = BWorldSm_FindClosestSlice(pt,slicePos);
-    return result;
-  }
-}
+    slicePos->rez = '\x01';
+    *(signed char *)&slicePos->quad = -1; slicePos->triangleFlag = '\0';
+
+
+
+    int sliceChanged = BWorldSm_FindClosestSlice(pt,slicePos);
+
+
+
+
+
+
+    return sliceChanged; } }
 #undef PT_IN_QUAD
 
 /* ---- BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi  [@0x8007fc90] ---- */
+#line 1198 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,int maxIterations)
 {
   return BWorldSm_FindClosestQuadRez(pt,slicePos,1);
 }
 
 /* ---- PointDirection__FP8coorddefN20  [@0x8007fcb0] ---- */
+#line 1211 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int PointDirection(coorddef *p1,coorddef *p2,coorddef *p3)
 {
-  return fixedmult(p1->x - p2->x,p3->z - p2->z) -
-         fixedmult(p3->x - p2->x,p1->z - p2->z);
-}
+  return fixedmult(p1->x - p2->x,p3->z - p2->z) - fixedmult(p3->x - p2->x,p1->z - p2->z); }
 
 /* ---- BWorldSm_FindEdgeOff__FP8coorddefP12BWorldSm_PosT1Pi  [@0x8007fd28] ---- */
+#line 1216 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slicePos2,int *heightDiff)
 {
   int ret;
@@ -757,6 +801,7 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
 }
 
 /* ---- BWorldSm_QuadLight__FP12BWorldSm_Pos  [@0x8007fe44] ---- */
+#line 1260 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 {
   if (*(signed char *)&slicePos->rez == 2) {
@@ -795,18 +840,21 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos  [@0x8007ffd4] ---- */
+#line 1300 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
 {
-  int surf;
+  int surf; if ((BWorldSm_slices[slicePos->slice].acousticType & 0x44) != 0) return 1;
 
-  if ((*(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x15) & 0x44) != 0) {
-    return 1;
-  }
+
   surf = (slicePos->simQuad != (Trk_NewSimQuad *)0x0) ? slicePos->simQuad->surface % 16 : 0xe;
-  return (u_int)((surf ^ 8) < 1);
-}
+
+  if (surf == 8) return 1;
+
+
+  return 0; }
 
 /* ---- NormalCache_AddEntry__FP12BWorldSm_Pos  [@0x8008002c] ---- */
+#line 1340 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 {
   u_long oldestTime;
@@ -841,6 +889,7 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 }
 
 /* ---- NormalCache_FindEntry__FP12BWorldSm_Pos  [@0x800800e8] ---- */
+#line 1371 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 {
   tNormalCacheEntry *ce;
@@ -873,6 +922,7 @@ bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 }
 
 /* ---- NormalCache_Init__Fv  [@0x800801ac] ---- */
+#line 1410 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void NormalCache_Init(void)
 {
   BWSM_NormalCacheSysTime = 0;
@@ -888,6 +938,7 @@ void NormalCache_Init(void)
 }
 
 /* ---- Check_Rot__FP12BWorldSm_Pos  [@0x800801e8] ---- */
+#line 1426 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void Check_Rot(BWorldSm_Pos *slicePos)
 {
   /* Retail owns vecX/vecZ in the cache-miss body, and ends the forward/normal
@@ -946,6 +997,7 @@ void Check_Rot(BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_UNormal__FP12BWorldSm_Pos  [@0x80080520] ---- */
+#line 1498 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos)
 {
   Check_Rot(slicePos);
@@ -954,6 +1006,7 @@ coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_UForward__FP12BWorldSm_Pos  [@0x80080548] ---- */
+#line 1505 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)
 {
   Check_Rot(slicePos);
@@ -964,6 +1017,7 @@ coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi  [@0x80080570] ---- */
+#line 1516 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {
   int ret;

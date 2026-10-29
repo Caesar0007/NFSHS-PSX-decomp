@@ -30,11 +30,12 @@ typedef Udff_tInfo *Udff_tHandle;
 struct Trk_NewSlice;
 typedef struct Trk_NewSlice Trk_NewSlice;
 
-struct Physics_tWheelAccStruct {
+/* Retail's completed typedef emits its own record;no local pointer alias is needed to manufacture that copy. */
+typedef struct Physics_tWheelAccStruct {
     int acc, roadGrip, steeringAcc, steeringAngle;
     coorddef velCap, finalAcc;
     int frontTire, skid;
-};
+} Physics_tWheelAccStruct;
 
 typedef int Input_tDeviceCall();
 

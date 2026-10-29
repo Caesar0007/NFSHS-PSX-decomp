@@ -844,45 +844,56 @@ void CopSpeak_Skip(void)
   return;
 }
 
-/* ---- CopSpeak_Request__FP17CopSpeak_tRequest  [COPSPEAK.CPP:1051-1089] SLD-PARTIAL ---- */
+/* ---- CopSpeak_Request__FP17CopSpeak_tRequest [COPSPEAK.CPP:1051-1089] COVERED-SLD-PASS ---- */
+/* SOURCE-REVIEW-UNRESOLVED: queueHeadSnapshot -- retail keeps the old head
+ * in a3 for the slot and return, then reloads the global for advancement.
+ * next is the supplied v1 successor. The snapshot's original spelling and
+ * source producer remain unknown: direct/global and next-reassignment trials
+ * change code; this does not prove an original extra object was required.
+ * Ordinary validation phases/layout preserve all79 instruction/file tags,
+ * supplied local tuples and block/end lines. This is NOT a native-clean or
+ * literal-original-source seal. build/nc12/cop_request_source_20261028/. */
 #line 1049 "C:/nfs4/GAME/COMMON/COPSPEAK.CPP"
 int CopSpeak_Request(CopSpeak_tRequest *r)
 
 {
-  /* SOURCE-REVIEW-UNRESOLVED: queueHeadSnapshot -- retail keeps the old head
-   * in $a3 for the slot and return, then reloads the global for advancement.
-   * next remains the retail-named $v1 successor; the snapshot's literal
-   * source spelling and debug representation are unresolved. Reassigning
-   * next after the request stores, even with the initial successor spelled
-   * as a conditional expression, is 25 differences at 80/79 instructions
-   * (2026-10-13). That failure is not proof of an original extra object. */
   int next;
-  CopSpeak_tBank *bank;  /* SYM: Def class REG $5 (a1) PTR CopSpeak_tBank name bank */
+  CopSpeak_tBank *bank;
+  const int queueHeadSnapshot = CopSpeak_gQueueHead; next = queueHeadSnapshot < 0x3f ? queueHeadSnapshot + 1 : 0;
 
-  const int queueHeadSnapshot = CopSpeak_gQueueHead;
-  next = 0;
-  if (queueHeadSnapshot < 0x3f) {
-    next = queueHeadSnapshot + 1;
-  }
-  if (next == CopSpeak_gQueuePlay) {
-    return -1;
-  }
+
+  if (next == CopSpeak_gQueuePlay) return -1;
+
+
+
   bank = &Copspeak_gBank[(signed char)r->bank];
-  if (((bank->FileOpen == 0) ||
-      (bank->Index == (CopSpeak_tFileIndex *)0x0)) || (r->phrase < 0)) {
+
+  if (bank->FileOpen == 0) return -1;
+
+
+  if (bank->Index == 0) return -1;
+
+
+
+  if (r->phrase < 0) return -1;
+
+
+  if (bank->Count < r->phrase)
     return -1;
-  }
-  if (bank->Count < r->phrase) {
-    return -1;
-  }
+
+
   r->filehandle = bank->FileHandle;
   r->offset = bank->Index[r->phrase].offset;
   r->size = bank->Index[r->phrase].size;
-  if (r->size == 0) {
-    return -1;
-  }
+
+  if (r->size == 0) return -1;
+
+
+
+
   CopSpeak_gQueue[queueHeadSnapshot] = *r;
   CopSpeak_gQueueHead = CopSpeak_gQueueHead < 0x3f ? CopSpeak_gQueueHead + 1 : 0;
+
   return queueHeadSnapshot;
 }
 

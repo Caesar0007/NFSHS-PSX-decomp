@@ -1,10 +1,15 @@
 /* game/psx/drawdbg.cpp -- RECONSTRUCTED debug TU (src DRAWDBG.CPP).
  *
- *   DrawDbg.obj is a debug-build translation unit. TUSummary EXT=1 STAT=0 ARG=0 AUTO=0 (data-only: 1 .bss global, no fns)
+ *   DrawDbg.obj is a debug-named,data-only retail translation unit. TUSummary EXT=1 STAT=0 ARG=0 AUTO=0 (1 .bss global,no fns)
  *   nfs4f_ranges: owns marker `DrawDebug_func` @0x800C5028 in .text (size 0, bare label).
  *   These debug globals are not referenced by the reconstructed game logic (the debug code
- *   paths that used them were not reconstructed); they are materialized here because the obj
+ *   paths are absent from this retail code image); they are materialized here because the obj
  *   faithfully owns this .bss data in the linked image. @0xVA breadcrumbs.
+ *   TYPE/HEADER SURFACE NOT RESTORED:drawdbg.h currently exposes only u_long.
+ *   Retail also supplies the wider game/SDK graph,Car_tObj's full body and
+ *   two typedef copies. This object is outside the119 current native-debug
+ *   input set. Zero functions is not a source/type-restoration certificate;
+ *   restore genuine declarations/include context,not typedef-count padding.
  */
 #include "drawdbg.h"
 

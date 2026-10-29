@@ -107,8 +107,8 @@ void Scene_LoadSceneFile(int sceneFileIndex)
   return;
 }
 
-/* ---- GetPlaneY__FPC8coorddefN20  [SCENE.CPP:1142-1153]
- * Native SYM and linked SLD exact; numerator source value is debug-elided. ---- */
+/* ---- GetPlaneY__FPC8coorddefN20 [SCENE.CPP:1142-1153; absolute anchors open]
+ * Supplied locals/relative SLD exact; D reuse removes numerator. Receipt:build/nc12/scene_plane_source_20261029/final-proof.json. ---- */
 int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *testPoint)
 
 {
@@ -119,10 +119,10 @@ int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *
 
 
 
-  const int numerator = -(fixedmult(norm->x,testPoint->x) + fixedmult(norm->z,testPoint->z) + D);
+  D = -(fixedmult(norm->x,testPoint->x) + fixedmult(norm->z,testPoint->z) + D);
 
 
-  return fixeddiv(numerator,norm->y);
+  return fixeddiv(D,norm->y);
 }
 
 /* end of scene.cpp */

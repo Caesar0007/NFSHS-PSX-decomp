@@ -1,10 +1,16 @@
 /* game/common/aidebug.cpp -- RECONSTRUCTED debug TU (src AIDEBUG.CPP).
  *
- *   aidebug.obj is a debug-build translation unit. TUSummary EXT=1 STAT=2 ARG=0 AUTO=0 (data-only: 3 .bss globals, no fns)
+ *   aidebug.obj is a debug-named,data-only retail translation unit. TUSummary EXT=1 STAT=2 ARG=0 AUTO=0 (3 .bss globals,no fns)
  *   nfs4f_ranges: owns marker `Aidebug_func` @0x800BBB84 in .text (size 0, bare label).
  *   These debug globals are not referenced by the reconstructed game logic (the debug code
- *   paths that used them were not reconstructed); they are materialized here because the obj
+ *   paths are absent from this retail code image); they are materialized here because the obj
  *   faithfully owns this .bss data in the linked image. @0xVA breadcrumbs.
+ *   TYPE/HEADER SURFACE NOT RESTORED:aidebug.h currently supplies no game
+ *   types,whereas this retail object carries the full Car_tObj body and ten
+ *   typedef copies. It is outside the119 current native-debug input set.
+ *   The raw bodies are available;the context causing repeated copies needs
+ *   genuine reference/source recovery,not dummy declarations. A no-function
+ *   local audit cannot certify this object's source/type completeness.
  */
 #include "aidebug.h"
 

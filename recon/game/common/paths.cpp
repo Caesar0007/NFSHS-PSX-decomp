@@ -19,15 +19,15 @@ void Paths_StartUp(void)
 {
   int dirCounter;
   char *scan;
-  /* SYM-CODEGEN-CARRIER: scanFrame -- trusted SYM places scan in an AUTO
-   * slot at -8 and retail retains a 24-byte leaf frame although all runtime
-   * uses are promoted to a0.  This compiler drops scan's home entirely;
-   * reserving the equivalent 20-byte local area restores only the retail
-   * prologue/epilogue.  Taking &scan in dead source is folded too early;
-   * __builtin_alloca adds four unwanted frame-pointer instructions.  A direct
-   * PsyQ 4.3 CC1PLPSX `-g` probe without this carrier still emits the frameless
-   * 17-instruction body and records scan as REG, so debug mode is not the
-   * missing mechanism. */
+  /* SOURCE-REVIEW-UNRESOLVED: scanFrame has NO supplied retail declaration.
+   * This padding array is not original-source recovery or an exemption.
+   * Retail scan is AUTO:sp-8, before dirCounter; ours is incorrectly REG:$4.
+   * Matched NFS2 paths/Paths_StartUp.c passes &scan to its real file parser.
+   * That grounds addressability, NOT this array or a dormant NFS4 parser.
+   * Recover the actual stack-home/frame producer and remove scanFrame;
+   * do not add a dead parser call, fake address use or replacement padding.
+   * Earlier dead-address/alloca/debug controls do not prove object necessity.
+   * Evidence:build/nc12/carrier_review_followup_20261029/final-proof.json. */
   int scanFrame[5];
   /* retail paths.obj owns an UNREFERENCED literal "install.psx" (0x80056100, between object.obj's and PauseMenu.obj's
    * read-only data = paths.obj's slot in link order) and Paths_File stays null: the install-file branch of the original

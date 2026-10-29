@@ -1,8 +1,9 @@
-/* game/common/aispeech.h -- header for the type-only aispeech translation unit.
- * aispeech.obj contributes no code/data; it only pulls in the AI-speech type set
- * (AISpeechInfo_t + speechModeType/speechIntensityType/speechSourceType), all of which
- * live in nfs4_types.h. This header exists only so aispeech.cpp has a sibling include
- * (matching the project's per-TU header convention). */
+/* game/common/aispeech.h -- UNRESTORED retail type/include surface.
+ * This placeholder currently imports no types. Known speech definitions in
+ * color_types.h are not automatically visible here. The retail FILE block
+ * also supplies the wider game/SDK graph and two Car_tObj typedef records.
+ * Recover the genuine visible declarations/include contexts;do not manufacture
+ * repeated typedefs or dummy uses solely to satisfy record counts. */
 #ifndef _GAME_COMMON_AISPEECH_H_
 #define _GAME_COMMON_AISPEECH_H_
 #endif /* _GAME_COMMON_AISPEECH_H_ */

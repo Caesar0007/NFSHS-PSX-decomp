@@ -1,13 +1,9 @@
 #ifndef _SPCHEVNT_H_
 #define _SPCHEVNT_H_
 
-#include "spch_types.h"
+#include "spchdata.h"
 
-/* ---- storage owned by spchevnt.obj ---- */
-extern VoxSlotsStruct gVoxEvents;   /* @0x80148060 the 16-slot queue + its header */
-extern int gPreLoadTicks;           /* @0x80148044 */
-extern VoxEventDat *gEventDats[4];  /* @0x80148048 the 4 bound event-data blobs */
-extern int gVoxInGame[2];           /* @0x80148058; [1] is retail's gRepeatCount */
+/* Shared BSS declarations are in spchdata.h. */
 extern SPCHReparamFn gReparm;        /* @0x801370A0 optional re-parameterize callback */
 
 extern VoxEvent *iSPCH_SearchEventDat(VoxEventDat *dat, unsigned int eventID); /* @0x800E6EC4 */

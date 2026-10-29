@@ -377,8 +377,8 @@ void iSPCH_OrderSentences(VoxEvent *event, unsigned char *outOrder)
 int iSPCH_RepeatEvent(VoxEvent *event)
 {
     int result = 1;
-    if (event->id == gVoxInGame[0] && 0 < event->repeatLimit)
-        result = gVoxInGame[1] < event->repeatLimit;   /* [1] == gRepeatCount */
+    if (event->id == gVoxInGame.lastEventId && 0 < event->repeatLimit)
+        result = gVoxInGame.repeatCount < event->repeatLimit;
     return result;
 }
 
@@ -812,17 +812,16 @@ void iSPCH_PlayChosen(void)
         iSPCH_MakeSampleRequests(gSentenceChoice.sentence, eventId);
 
         {
-            int *inGame = gVoxInGame;
-            int newRepeatCount;   /* MATCH: gVoxInGame[1] == gRepeatCount; a SHARED store after the
-                                    * if/else (not one store per branch) is what tail-merges into the
-                                    * oracle's single `sw v0,4(a0)` at the branches' join point. */
-            if (eventId == inGame[0]) {
-                newRepeatCount = inGame[1] + 1;
+            SPCHInGameState *inGame = &gVoxInGame;
+            int newRepeatCount;   /* MATCH: one SHARED repeatCount store after the if/else (not one
+                                    * store per branch) tail-merges into the oracle's `sw v0,4(a0)`. */
+            if (eventId == inGame->lastEventId) {
+                newRepeatCount = inGame->repeatCount + 1;
             } else {
                 newRepeatCount = 1;
-                inGame[0] = eventId;
+                inGame->lastEventId = eventId;
             }
-            inGame[1] = newRepeatCount;
+            inGame->repeatCount = newRepeatCount;
         }
     }
     iSPCH_ClearChosen();

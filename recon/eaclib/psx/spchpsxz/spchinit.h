@@ -1,7 +1,7 @@
 #ifndef _SPCHINIT_H_
 #define _SPCHINIT_H_
 
-#include "spch_types.h"
+#include "spchdata.h"
 
 /* Callback types = the game's SLD-verified entry points (speech.cpp: Speech_AllocateRAM__FlPc,
  * Speech_PurgeRAM__FPc, Speech_HandleRequest__Fllll), so a C++ caller needs no casts. */
@@ -9,11 +9,7 @@ typedef char *(*SPCHAllocFn)(long numBytes, char *tag);
 typedef void  (*SPCHFreeFn)(char *block);
 typedef long  (*SPCHSampleRequestFn)(long bank, long offset, long size, long event);
 
-/* ---- speech state owned by spchinit.obj (+ the callback slots next to it) ---- */
-extern int gGameNum;           /* @0x80148428 current game/race number */
-extern int gFilterSetting;     /* @0x8014842C active filter mode (1 = length/priority filter) */
-extern int gDataRate;          /* @0x80148434 sample data rate */
-extern int gLastTick;          /* @0x80148438 last insert tick (spchevnt's user) */
+/* ---- speech state and BSS views shared via spchdata.h ---- */
 extern int gSPCH_Initialized;  /* 0x1789a34 when initialised */
 /* the five callback slots (@0x80137094..0x801370AC); SYM is bare for all five, so the
  * signatures are ours -- unified across the library 2026-09-04, byte-neutral (measured) */

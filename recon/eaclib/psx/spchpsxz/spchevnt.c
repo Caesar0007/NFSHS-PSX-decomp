@@ -98,10 +98,8 @@ static unsigned int VoxEvent_GetKeepTillExpiresFlag(VoxEvent *e);
    from being CSE-merged onto the loop cursor.  What that merge actually costs is ONE
    allocno step (cursor 16 refs/66 vs age 12 refs/38), and it is now paid in source by the
    arm's statement order -- so one symbol suffices and the views are gone. */
-/* ⚠️ NOT shared via spchinit.h on purpose: spchinit DEFINES this word as `int`, but this TU
- * reads/writes only its low half -- the `unsigned short` view is what emits retail's lhu/sh.
- * Unifying the two spellings would change the access width, so the divergence is load-bearing. */
-extern unsigned short gLastSubTick;   /* @0x80148430 sub-tick counter (spchinit owns the storage) */
+/* The shared declaration in spchdata.h is `int`; keep this TU's retail halfword accesses explicit. */
+#define SPCH_LAST_SUB_TICK16 (*(unsigned short *)&gLastSubTick)
 
 extern int  gettick(void);                                  /* eaclib timer.obj */
 
@@ -218,7 +216,7 @@ void iSPCH_InitEventQueue(void)
     }
 
     gLastTick    = 0;
-    gLastSubTick = 0;
+    SPCH_LAST_SUB_TICK16 = 0;
 }
 
 /* iSPCH_FindEventSlot @0x800E7088 : pick a slot for a new event of `priority` -- first a free slot, else the
@@ -291,11 +289,11 @@ int SPCH_AddEvent(unsigned int *table)
                  * fences, and the whole base/off/tailOff device apparatus are retired at
                  * once.  Full w32..w53 floor archaeology: git history of this comment. */
                 if (tick == gLastTick)
-                    gLastSubTick++;
+                    SPCH_LAST_SUB_TICK16++;
                 else
-                    gLastSubTick = 0;
+                    SPCH_LAST_SUB_TICK16 = 0;
                 gLastTick = tick;
-                sub = gLastSubTick;
+                sub = SPCH_LAST_SUB_TICK16;
                 gVoxEvents.slots[slot].event   = voxEvent;
                 gVoxEvents.slots[slot].tick    = tick;
                 gVoxEvents.slots[slot].subTick = sub;

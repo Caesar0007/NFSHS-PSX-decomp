@@ -153,8 +153,8 @@ void iSPCH_InitInGame(void)
     /* gRepeatCount sits at gVoxInGame+4; the original wrote both through the shared %hi base
      * (gcc materializes &gVoxInGame once, stores -1 at [0], and slots the [1]=0 store into the
      * jr delay slot).  Model gVoxInGame as the 2-word array it is so the base is shared. */
-    gVoxInGame[0] = -1;
-    gVoxInGame[1] = 0;   /* == gRepeatCount */
+    gVoxInGame.lastEventId = -1;
+    gVoxInGame.repeatCount = 0;   /* == gRepeatCount */
 }
 
 /* SPCH_GetSampleDataRate @0x800EB66C : bytes/sec for `numSamples` at `rate`, scaled by channel mode

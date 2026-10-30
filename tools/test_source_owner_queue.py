@@ -2,7 +2,7 @@
 import copy
 import unittest
 
-from source_owner_queue import pair_records, name_balance, canonical_file, attach_coordinates, REGISTER_ARTIFACT
+from source_owner_queue import pair_records, name_balance, canonical_file, attach_coordinates, REGISTER_ARTIFACT, ADDRESS_DERIVED
 from local_owner_cmp import compare
 from source_review_inventory import mask_trivia, SYNTHETIC
 
@@ -92,6 +92,15 @@ class QueueTests(unittest.TestCase):
     def test_register_stack_artifacts_are_diagnostic_and_comment_masked(self):
         text = '/* in_a0 */ int unaff_s1; int extraout_v0; char auStack32[4];'
         self.assertEqual(REGISTER_ARTIFACT.findall(mask_trivia(text)), ['unaff_s1', 'extraout_v0', 'auStack32'])
+
+    # 2026-10-30 regression; backup beside source_owner_queue.py.before.
+    def test_address_derived_names_are_candidates_but_trivia_and_semantic_labels_are_not(self):
+        text = ('/* LAB_80000000 */ const char *s = "lbl_80000001"; '
+                'goto LAB_80072a14; LAB_80072a14: ++n; '
+                'void *p = &lbl_801234AB; done:; LAB_ready:; '
+                'int prefixLAB_80000002; int LAB_80000003_suffix;')
+        self.assertEqual(ADDRESS_DERIVED.findall(mask_trivia(text)),
+                         ['LAB_80072a14', 'LAB_80072a14', 'lbl_801234AB'])
 
 
 if __name__ == '__main__':

@@ -12,12 +12,21 @@ void FastRandom_CleanUp(void);
 void FastRandom_StartUp(unsigned int seeder);
 
 
-/* ---- FastRandom_CleanUp__Fv  [FASTRAND.CPP:13-14] SLD-VERIFIED ---- */
+/* 2026-10-30: both functions' supplied local/frame/region/absolute SLD
+ * contracts match through ordinary source layout and per-function anchors.
+ * StartUp's actual seed-work region owns i;all local names are supplied.
+ * The ordinary while removes the redundant entry guard/do without changing
+ * the complete normal object or native image. Original literal macro and
+ * comment text are not uniquely retained. No added work or codegen device.
+ * Receipt:build/nc12/fastrand_source_20261030/final-proof.json. */
+/* ---- FastRandom_CleanUp__Fv  [FASTRAND.CPP:13-14] ---- */
+#line 12 "C:/nfs4/GAME/COMMON/FASTRAND.CPP"
 void FastRandom_CleanUp(void)
 {
 }
 
-/* ---- FastRandom_StartUp__FUi  [FASTRAND.CPP:18-33] SLD-VERIFIED ---- */
+/* ---- FastRandom_StartUp__FUi  [FASTRAND.CPP:18-33] ---- */
+#line 16 "C:/nfs4/GAME/COMMON/FASTRAND.CPP"
 void FastRandom_StartUp(unsigned int seeder)
 
 {
@@ -31,10 +40,10 @@ void FastRandom_StartUp(unsigned int seeder)
     i = 0;
     seedIterations = (int)(seeder % 500);
 
-    if (0 < seedIterations) { do {
+    while (i < seedIterations) {
 
         randtemp = fastRandom * 0x75bcd15; fastRandom = randtemp & 0xffff;
 
-        i = i + 1; } while (i < seedIterations); } return; } }
+        i = i + 1; } return; } }
 
 /* end of fastrand.cpp */

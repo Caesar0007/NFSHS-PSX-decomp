@@ -18,6 +18,7 @@ AITrigger_TriggerManager *triggerManagerTraffic;   /* @0x8013c5ec  (bss(zero)) *
 
 
 /* ---- AITrigger_TriggerManager::Init  [@0x8007286c] ---- */
+#line 20 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 void AITrigger_TriggerManager::Init(char *rawTriggers)
 {
   int *numTriggers;
@@ -51,42 +52,69 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
 }
 
 /* ---- AITrigger_TriggerManager::InsertTrigger  [@0x80072948] ---- */
+/* 2026-10-30: ordinary if/else removes the unprovided VA-derived jump label.
+ * The two fixed-size switch arms must remain distinct: combining them is
+ * not code-neutral. Both stores are real branch work;the compiler shares
+ * the actual final increment/return. Supplied size ownership and all63
+ * word/file tags,frame,regions and end match without a new source object.
+ * Original literal macro/comment text is not uniquely retained. Receipt:
+ * build/nc12/aitriger_source_20261030/final-proof.json. */
+#line 72 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_TriggerManager::InsertTrigger(trigger_t *trigger,bool fromFile)
 {
   int size;
-
   size = 0;
   this->DescribeTrigger(trigger);
+
   if (trigger->any.type == 5) {
-    if (fromFile) {   /* @0x80072984: if(fromFile) bool test (disasm-v3) */
-      /* SYM/type fix (w19-a4): trigger is trigger_t* (72-byte union) -- raw `trigger+0x3c`
-       * pointer arithmetic SCALED by sizeof(trigger_t)=72 (bogus offsets 4320/4608 vs the
-       * oracle's plain +0x3C/+0x40 byte displacements). +0x3C/+0x40 are the real
-       * trigger_trafficPath_t::path field (a trigger_pathPosition_t* right after the header). */
+
+
+
+    if (fromFile) {
       trigger->trafficPath.path = (trigger_pathPosition_t *)((char *)trigger + 0x40);
     }
+
+
+
+
     this->triggers_[this->numTriggers_] = trigger;
+
+
     size = trigger->trafficPath.numPoints * sizeof(trigger_pathPosition_t) + 0x40;
-    goto LAB_80072a14;
+
+  } else {
+
+    switch (trigger->any.type) {
+
+
+
+      case 1:
+        size = 0x14; break;
+      case 2:
+        size = 0x14; break;
+      case 3:
+        size = 0x48; break;
+    }
+
+
+
+
+
+
+
+
+
+
+    this->triggers_[this->numTriggers_] = trigger;
   }
-  switch (trigger->any.type) {
-    case 1:
-      size = 0x14;
-      break;
-    case 2:
-      size = 0x14;
-      break;
-    case 3:
-      size = 0x48;
-      break;
-  }
-  this->triggers_[this->numTriggers_] = trigger;
-LAB_80072a14:
+
+
   this->numTriggers_ = this->numTriggers_ + 1;
-  return size;
-}
+
+  return size; }
 
 /* ---- AITrigger_TriggerManager::GetNextTrigger  [@0x80072a44] ---- */
+#line 126 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 trigger_t *
 AITrigger_TriggerManager::GetNextTrigger(int car)
 {
@@ -100,6 +128,7 @@ AITrigger_TriggerManager::GetNextTrigger(int car)
 }
 
 /* ---- AITrigger_TriggerManager::GetPrevTrigger  [@0x80072ab4] ---- */
+#line 136 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 trigger_t *
 AITrigger_TriggerManager::GetPrevTrigger(int car)
 {
@@ -113,6 +142,7 @@ AITrigger_TriggerManager::GetPrevTrigger(int car)
 }
 
 /* ---- AITrigger_TriggerManager::CheckForTriggerAtSlice  [@0x80072b24] ---- */
+#line 148 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
 {
   int *lastTrigger;
@@ -135,7 +165,7 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
        * The volatile view on the TEST read (05E) forces the fresh load AND
        * shortens *lastTrigger's live range, which un-rotates the whole
        * {numTriggers_ $a0->$v1, *lastTrigger $v1->$v0} 3-way web -- all 16
-       * diffs, one edit.  Do NOT drop the volatile. */
+       * diffs, one edit. Original read/accessor recovery remains unresolved;this is not an object-necessity proof. */
       if (*(volatile int *)lastTrigger == this->numTriggers_ + -1) break;
       this->GetNextTrigger(car);
     }
@@ -160,6 +190,7 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
 }
 
 /* ---- AITrigger_TriggerManager::GetTrigger  [@0x80072cd8] ---- */
+#line 190 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 trigger_t *
 AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
 {
@@ -174,6 +205,7 @@ AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
 }
 
 /* ---- AITrigger_TriggerManager::CheckForClosestTriggerOfType  [@0x80072d40] ---- */
+#line 205 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType type,int direction)
 {
   int tLoop;
@@ -234,6 +266,7 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
 }
 
 /* ---- AITrigger_TriggerManager::DescribeTrigger  [@0x80072e10] ---- */
+#line 277 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
 {
   return;
@@ -243,6 +276,7 @@ void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __FPCvT0 (const void*, const void* [T0 = same
  * type as param 0]) -- was __FPvT0 (non-const void*), a NAME MISMATCH invisible to the gate.
  * qsort comparator signature; both params really are const (never written). */
+#line 288 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_Compare(const void *op1, const void *op2)
 {
   trigger_t *ta = *(trigger_t *const *)op1;
@@ -251,6 +285,7 @@ int AITrigger_Compare(const void *op1, const void *op2)
 }
 
 /* ---- AITrigger_TriggerManager::Sort  [@0x80072e30] ---- */
+#line 297 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 void AITrigger_TriggerManager::Sort()
 {
   if (this->numTriggers_ != 0) {

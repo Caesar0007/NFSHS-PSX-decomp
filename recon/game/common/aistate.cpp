@@ -1,10 +1,15 @@
+/* Retail supplies this TU identity. Keep it ahead of local inline definitions
+ * as well as callers:mixing checkout/retail filenames changes inline debug
+ * scope attribution. Only separately verified function coordinates are sealed;
+ * this boundary does not certify the original full-file text or layout. */
+#line 1 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 /* game/common/aistate.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
  *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/
  *   RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
- *   Real non-polymorphic C++ inheritance (SS3.23/3.23c conversion, 2026-07-06 -- was
- *   composition-modeled); manual _vf vtable dispatch (8-byte __vtbl_ptr_type entries);
- *   deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
- *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
+ *   Polymorphic C++ inheritance (the former composition model was converted in July).
+ *   GCC-v2 vtable/destructor ABI; retained explicit ABI bridges are documented per body.
+ *   Reconstructed C++: original source spelling/layout remains separately reviewable.
+ *   Only current per-function receipts certify byte/SYM/SLD matching;no whole-file claim.
  */
 #include "../../lib/nfs4_new.h"
 #include "aistate_types.h"
@@ -34,6 +39,7 @@ static int   AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss
 /* ---- AIState_StartUp__Fv  AIState_StartUp  [AISTATE.CPP:25-26] ----
  * One call and implicit void fallthrough: 8/8 instructions and 0/8 retail
  * relative SLD differences, with exact block/function-end line records. */
+#line 25 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_StartUp(void) {
   AIState_Purgatory::StartUp(); }
 
@@ -392,72 +398,55 @@ void AIState_Chase::SetMurderMode(int murderMode,int murderTicks)
 
 
 
-/* ---- SetUp__13AIState_Chase  AIState_Chase::SetUp  [retail AISTATE.CPP:252-282; native/byte verified, inline scope starts and SLD open] ---- */
+/* ---- SetUp__13AIState_Chase [retail AISTATE.CPP:252-282;87-word complete supplied contract] ---- */
 
-/* Retail has four variable-free inline pairs. These helper spellings are
-   inferred from the stores/reads, not surviving retail names. A reference
-   destination and computed delay-car arguments keep their unnamed inputs
-   out of the caller's local list. The second pair's start is still open. */
-static inline void AIState_SetDirection(int &destination, int direction) { destination = direction; }
-static inline int DelayCarSpeedDir(AIDelayCar *d) { return (-1 < d->currentSpeed_) ? 1 : -1; }
-static inline int DelayCarRoadPosition(AIDelayCar *d) { return d->roadPosition_; }
+/* Retail has four variable-free inline pairs,not their literal API names.
+   Real speed/road/slice reads and the lateral-distance store reproduce them.
+   Names are inferred from actual field operations;computed arguments leave
+   no caller capture. The existing road-position member replaces a wrapper. */
+static inline void AIState_SetLateralDistance(int &destination, int distance) { destination = distance; }
+static inline int DelayCarSpeed(AIDelayCar *d) { return d->currentSpeed_; }
+inline int AIDelayCar::GetRoadPosition() { return roadPosition_; }
 static inline int DelayCarSlice(AIDelayCar *d) { return d->slice_; }
 
-/* SOURCE-REVIEW-UNRESOLVED: SetUp's second inline pair is +60..+84,
- * while retail records +84..+84. A raw-speed getter plus caller sign test
- * preserves 87 words but places the pair at +60..+60. A second direction
- * setter with a direct speed read is 9 diffs/86 words. Both are reverted;
- * matching scope counts alone does not identify the original accessor. */
+/* 2026-10-30: joint real getter/store ownership fixes the old pair mismatch.
+ * All87 tags,18 block records,provided locals/frame/end match. Reuse of the
+ * existing member also removes one excess AIDelayCar completed-type record.
+ * Literal inline API/header/macro identity is not uniquely retained.
+ * Receipt:build/nc12/aistate_setup_source_20261030/final-proof.json. */
+#line 251 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::SetUp()
-
-
-
 {
   coorddef targetCarPosition;
-
-  /* MATCH: the computed delay-car helper arguments let GCC retain &delayCar_
-     in s1 across Update() without a named dc capture. The position_ struct
-     copy still reads through this at +40, as the oracle does. */
-
   this->delayCar_.Update();
+  this->carDir_ = (-1 < this->carObj_->currentSpeed) ? 1 : -1;
+  this->targetDir_ = (-1 < DelayCarSpeed(&this->delayCar_)) ? 1 : -1;
+  AIState_SetLateralDistance(this->latMetersBetween_, this->carObj_->roadPosition - this->delayCar_.GetRoadPosition()); targetCarPosition = this->delayCar_.position_;
 
-  AIState_SetDirection(this->carDir_, (-1 < this->carObj_->currentSpeed) ? 1 : -1);
-  this->targetDir_ = DelayCarSpeedDir(&this->delayCar_);
-  this->latMetersBetween_ = (this->carObj_)->roadPosition - DelayCarRoadPosition(&this->delayCar_);
-  targetCarPosition = (this->delayCar_).position_;
+
+
+
   this->longMetersBetween_ = AIWorld_SplineDistance(this->carObj_,DelayCarSlice(&this->delayCar_),&targetCarPosition);
 
-  (this->carObj_)->targetPos.x =
-      (this->carObj_)->targetPos.y =
-      (this->carObj_)->targetPos.z = 0;
-
-  (this->carObj_)->targetLatPos = 0;
-
+  this->carObj_->targetPos.x = this->carObj_->targetPos.y = this->carObj_->targetPos.z = 0;
+  this->carObj_->targetLatPos = 0;
   if ((this->murderMode_ != 0) && (!(simGlobal.gameTicks < this->murderEndTime_))) {
 
     this->murderMode_ = 0;
-
     this->murderEndTime_ = 0;
-
   }
 
-  if ((this->carObj_)->accNitrous != 0x10000) {
+
+  if (this->carObj_->accNitrous != 0x10000) {
 
     this->nitrousTicks_ = this->nitrousTicks_ - AI_elapsedTime;
-
   }
 
-  (this->carObj_)->accNitrous = 0x10000;
 
-  (this->carObj_)->speedNitrous = 0x10000;
-
-  (this->carObj_)->preferredLateralPosition = 0;
-
-  (this->carObj_)->preferredLateralPositionPower = 0;
-
-  return;
-
-}
+  this->carObj_->accNitrous = 0x10000;
+  this->carObj_->speedNitrous = 0x10000;
+  this->carObj_->preferredLateralPosition = 0;
+  this->carObj_->preferredLateralPositionPower = 0; return; }
 
 
 
@@ -554,86 +543,92 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
-/* ---- Execute__13AIState_Chase [AISTATE.CPP:327-401;93-word PASS,
- * native declarations/scopes exact; full SLD remains open] ----
- * SOURCE-RECOVERY: the short-circuit far test retains retail's 93-word branch
- * graph without a named lmAbs local or its two extra native scopes. The
- * integer timer predicate preserves the global-load-first schedule without
- * a captured currentTick. The operation is real; its IsSlowingDown spelling
- * and signature are inferred, not recovered from a standalone retail symbol.
- * Exact original source text and relative SLD attribution remain open. */
+/* ---- Execute__13AIState_Chase [AISTATE.CPP:327-401;93-word PASS] ----
+ * 2026-10-30: ordinary targeting branches remove both unprovided address
+ * labels. Two genuine FarTargeting calls merge to the original shared call;
+ * no new source object or artificial control/work is involved. All supplied
+ * names,homes,owners,frame,regions and93 absolute word/file tags match.
+ * IsSlowingDown still names an inferred real timer predicate;its original
+ * inline spelling/signature and literal macro/comments are not uniquely
+ * retained. Receipt:build/nc12/aistate_chase_source_20261030/final-proof.json. */
 
+#line 326 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::Execute()
-
-
-
 {
   int far;
   int velocityToHitInTime;
   int deltaVelocity;
-  int targetCarVerySlow;  /* SYM $a0: holds target speed first, then the slow-car boolean */
-
-  
-
+  int targetCarVerySlow;
   this->SetUp();
 
+
+
+
+
+
+
+
+
   velocityToHitInTime = fixedmult(this->longMetersBetween_,0x666);
-
   velocityToHitInTime = __builtin_abs(velocityToHitInTime);
-
-  deltaVelocity =
-    this->carObj_->currentSpeed - this->targetCar_->currentSpeed;
-
+  deltaVelocity = this->carObj_->currentSpeed - this->targetCar_->currentSpeed;
   deltaVelocity = __builtin_abs(deltaVelocity);
 
-  far = (deltaVelocity < velocityToHitInTime) &&
-        (0x8c0000 < __builtin_abs(this->longMetersBetween_));
 
-  targetCarVerySlow = __builtin_abs(this->targetCar_->currentSpeed);
 
-  targetCarVerySlow = !(0x6aaa9 < targetCarVerySlow);
+  far = (deltaVelocity < velocityToHitInTime) && (0x8c0000 < __builtin_abs(this->longMetersBetween_));
 
-  if (far != 0) goto LAB_80070244;
 
-  if ((this->carDir_ * this->targetDir_ == 1) && (targetCarVerySlow == 0)) {
+
+
+  targetCarVerySlow = __builtin_abs(this->targetCar_->currentSpeed); targetCarVerySlow = !(0x6aaa9 < targetCarVerySlow);
+
+
+
+  if (far != 0) {
+    this->FarTargeting();
+
+
+
+
+
+
+  } else if ((this->carDir_ * this->targetDir_ == 1) && (targetCarVerySlow == 0)) {
+
+
+
 
     this->CloseTargeting();
 
-    goto LAB_800702a0;
 
-  }
+  } else if ((-1 < this->carDir_ * this->longMetersBetween_) && (targetCarVerySlow == 0)) {
 
-  if ((-1 < this->carDir_ * this->longMetersBetween_) && (targetCarVerySlow == 0)) {
 
-LAB_80070244:
+
 
     this->FarTargeting();
 
-    goto LAB_800702a0;
 
-  }
 
-  if ((0x1aaaaa < deltaVelocity) || (far != 0) ||
-      (0x500000 < __builtin_abs(this->longMetersBetween_))) {
+
+  } else if ((0x1aaaaa < deltaVelocity) || (far != 0) || (0x500000 < __builtin_abs(this->longMetersBetween_))) {
+
+
+
+
     this->ApproachTargeting(0);
-  }
-  else {
-    this->ApproachTargeting(1);
-  }
 
-LAB_800702a0:
+
+
+
+
+  } else {
+    this->ApproachTargeting(1);
+
+  }
 
   if (this->IsSlowingDown()) {
-
-    this->DoSlowNitrous();
-
-  }
-
-  /* Byte-PASS and native local/scope CLEAN; the remaining work here is SLD
-     statement-line attribution, not an instruction-stream residual. */
-  return;
-
-}
+    this->DoSlowNitrous(); } return; }
 
 
 
@@ -760,7 +755,7 @@ int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
 
 /* Inferred accessor spelling: the surviving inline records do not name it. */
 inline int AIDelayCar::GetCurrentSpeed() { return currentSpeed_; }
-inline int AIDelayCar::GetRoadPosition() { return roadPosition_; }
+
 
 void AIState_Chase::CloseTargeting()
 {

@@ -6,6 +6,481 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-30 Verified checkpoint and pause handoff at the user's request.
+
+The commit containing this entry checkpoints the source/audit work below;
+its historical "uncommitted" notes describe their original run time and
+are superseded by this checkpoint. Generated probes/build files and unrelated
+untracked work are excluded. The full source-restoration goal is NOT complete.
+
+Current bound checkpoint:502 complete supplied local/frame/region/absolute
+SLD contracts;123 current-source normal/debug bindings and unchanged normal
+objects/native CPE. Fresh source/object/shared-header/native-SYM/CPE hashes
+agree with build/nc12/aistate_setup_source_20261030/final-proof.json;
+owner-audit15 tests pass. The latest full regression/relink/raw evidence is
+bound to those same unchanged inputs. Remaining559 review-marker locations
+and44 address-derived identifier locations are candidates,not object counts
+or a full-project completion certificate. SDK/eaclib remain retail-partial.
+
+The subsequent CloseTargeting t-removal round is DIAGNOSTIC ONLY. Its eight
+fresh ordinary min/max operand/destination controls do not preserve the
+whole normal object/native CPE,and no candidate is retained. IDA's register
+annotations and retail distinguish the named s0 desiredSpeed from the v1
+clamp funnel;the existing t and missing sibling region still need genuine
+source recovery,not a semantic-name or necessity exemption. Re-read the
+earlier GCC/selected-stock phase receipts before repeating broad sweeps.
+Latest diagnostic receipt:build/nc12/aistate_close_carrier_20261030/probe-proof.json.
+Production remains the verified300-word PASS. Resume from the full objective,
+not a reduced clamp-only goal. Work is paused after the requested Git sync.
+
+2026-10-30 Chase SetUp real getter/store ownership;501->502 complete contracts.
+
+The old second inline pair +60..+84 versus supplied +84..+84 was NOT a
+scope-count problem. Reprice the operations jointly:carDir and targetDir
+are direct sign assignments;the first actual inline read obtains delayed
+speed before the sign test. Reuse AIDelayCar::GetRoadPosition for the real
+road-position read. The variable-free store boundary belongs around the
+lateral-distance update,not the target-direction assignment. A real
+reference destination and computed difference supply no extra parameter
+rows. DelayCarSlice supplies the remaining getter pair. All four calls do
+real reads/stores;no empty scope helper,caller capture,fake operand/work,
+new source object,qualifier,asm or volatile is introduced.
+
+This is a source model justified jointly by code,owned regions,statement
+groups and type occurrences,NOT unique recovery of literal inline API names.
+The free helper spellings/signatures remain explicitly inferred from actual
+field operations;the original hidden API/header/macro text is unretained.
+The road member already exists for CloseTargeting;move its unchanged body
+before its first use and remove the redundant free road getter. Do not
+manufacture a typedef merely to repair the graph afterward.
+
+The accepted real lateral-store form explains the last two tags:its nested
+road getter and the preceding direction store are256,while the caller's
+subtraction/store and actual position struct copy are257. All87 word/file
+tags,all18 block records,provided locals/types/homes/owners,48-byte frame
+and end282 now match. Independent raw-speed/getter and direction-setter
+trials had preserved code but could not each explain the supplied pair roles.
+Their JOINT correction is byte-neutral;old isolated failures are not original-
+object necessity proofs. Splitting punctuation and moving definitions into
+a header do not fix the two tags;extra intermediate field-store forms change
+code and are rejected. No speculative header context is landed.
+
+Existing member reuse ALSO removes a real type discrepancy:the changed
+object emitted7 completed AIDelayCar aliases,retail supplies6,and now6 are
+emitted. Every other ordered definition record is unchanged. Two adjacent
+identical raw deletion positions are indistinguishable;do not claim a unique
+one-to-one record/source declaration assignment. Both member getters instead
+of the retained raw-speed producer reduce the count to5 and lose supplied
+information,so that control is NOT adopted. No alias padding or original-
+source necessity exemption is inferred from that negative result.
+
+All previous501 complete contracts survive;SetUp adds one,now502. Its old
+generic unresolved-scope review item is retired,markers560->559. The prior
+SetUp eight incorrect scope-line fields are now resolved by the FULL accepted
+contract. CloseTargeting's separate21 scope-line issues and source carrier
+remain active;do not carry the resolved SetUp entry forward as current work.
+All51 sibling owner/block/relative-word contracts are unchanged from the
+preceding verified checkpoint;unsealed absolute coordinates may shift under
+the real function anchor and are not called restored. All non-AISTATE records
+and all122 other cached native .s/.obj inputs remain unchanged.
+
+Fresh full gates:AISTATE52/52 detailed/branch PASS,all123 normal objects and
+whole CPE unchanged,all123 actual-source normal/debug CPP bindings fresh.
+Tests162,owner15,compact8,stripped83,vtable1472,policy,relink,canonical link,
+raw RECON299819/299819,overlap,foreign and inventory pass. Independent
+directory exactSET502:GAME/COMMON469,GAME/PSX28,FRONTEND/COMMON5;others0.
+All2581 function occurrences are accounted for;SDK/eaclib remain partial.
+The44 address-derived locations elsewhere are unchanged. Updated per-function
+M2C independently agrees with the actual delayed-car/distance/state-reset
+logic;its stale fourth spline-call argument is not copied over the raw/SYM
+three-argument signature. This is not whole-project source completion.
+
+Receipts:build/nc12/aistate_setup_source_20261030/{final-proof,baseline,
+probe-proof,layout-proof,member-probe-proof,store-probe-proof,
+header-probe-proof,type-proof,compact-static-review}.json,owner-queue/,
+retail-statement-groups.json,source backup and fresh build/gate logs.
+Source/audit work after2f7fed11 is still uncommitted. No post-recompile rewrite.
+
+2026-10-30 Chase Execute structured targeting and original-file identity;499->501.
+
+AIState_Chase::Execute now has an ordinary positive-far if/else chain.
+Two genuine FarTargeting calls in mutually exclusive source arms merge to
+the one retail call;CloseTargeting and ApproachTargeting retain their actual
+priority and the common slowdown tail. Three gotos and both VA-derived
+source labels disappear,without a substitute variable,scope,helper,fake
+test or work. Negated-outer-guard and joined-Boolean controls change code/
+owners and are rejected. Same logic does not make all source forms code-neutral.
+
+Use the supplied statement phases332,342..345,349,354,358,366,371,374,
+379,384,389,396,400/401. Keeping the slow-car absolute value on353 leaves
+three wrong tags;both actual slow-car assignments share354. The accepted
+body has all93 word/file tags,provided names/types/homes/owners,24-byte frame,
+all eight block records and function end401 exact. No source object or new
+name is introduced. IsSlowingDown remains an explicitly inferred spelling
+for a real timer predicate;its literal original inline identity is unretained.
+No original-macro/comment/whitespace uniqueness claim follows from the seal.
+
+Source identity is not just display text. A lone restored filename inside
+the former checkout-named TU creates two CPP identities and correctly makes
+all52 native provenance records unpairable. Restore the supplied original
+AISTATE.CPP identity at the module boundary,before local inline declarations,
+and keep calibrated function anchors. The matcher is NOT changed to ignore
+that ambiguity. All52 independently paired occurrences return. The first
+source function,AIState_StartUp,already had all8 relative tags;its original
+25/26 anchor adds a second complete absolute certificate. Total499->501,
+not52 new seals. The banner's obsolete non-polymorphic/manual-vtable blanket
+claim is corrected to the actual polymorphic hierarchy. That comment-only
+correction preserves every preprocessor byte used by the completed checks.
+
+Filename restoration also changes29 ALREADY incorrect,unsealed sibling
+inline-scope line fields:SetUp8,CloseTargeting21. Their raw retail comparisons
+remain DIFF and the full before/after/retail rows are retained. Every previous
+matching block-tuple occurrence,ordered matching tuple and relative word tag
+survives;all51 sibling owner graphs/runtime ranges/frame facts and relative
+word maps remain unchanged. CloseTargeting's redundant same-value event
+placement differs,but its per-word map does not. Do not claim those raw
+event lists or unsealed absolute sibling maps are unchanged. No comparator
+is relaxed and these known coordinates remain active source-layout work,
+not an unrecoverable-information exemption or a floor.
+
+Raw target SYM supplies NO LABEL. The original native stream emitted only
+LAB_80070244 at function-relative+232;the common tail label was already
+debug-elided. Remove exactly that one unsupported native LABEL and require
+every other ordered definition row to stay identical. Source scan locations
+drop49->44 (five uses/definitions removed),not five distinct variables.
+
+All52 functions pass detailed and branch checks. Destructor selectors use
+the existing GNU three-underscore ABI spelling and,for vague copies,their
+own supplied retail VA. Each selected immutable oracle's first instruction
+VA is checked;do not compare the first canonical class copy by accident.
+Initial dot-dtor NO ORACLE diagnostics were selector errors,not code failures;
+no source symbol,oracle or matching tool is changed to conceal them.
+Updated per-function M2C confirms the targeting/slowdown logic and the
+one-call StartUp body. Its missing SetUp receiver and stale trailing helper
+arguments are not copied:raw/SYM arity remains authoritative.
+
+Fresh full gates:all123 normal objects and whole CPE unchanged;all123 source
+normal/debug CPP bindings fresh;all122 other cached native .s/.obj pairs
+unchanged. Every prior499 complete contract survives. Tests162,owner15,
+compact8,stripped83,vtable1472,policy,relink,canonical link,
+raw RECON299819/299819,overlap,foreign and inventory pass. Independent
+directory exactSET501:GAME/COMMON468,GAME/PSX28,FRONTEND/COMMON5;others0.
+All2581 function occurrences are accounted for;SDK/eaclib remain partial.
+There is no whole-module or whole-project source-completion certificate.
+
+Receipts:build/nc12/aistate_chase_source_20261030/{final-proof,baseline,
+probe-proof,layout-proof,relative-proof,definition-delta,provenance-proof,
+oracle-routes,compact-static-review}.json,retail-function-records.txt,
+retail-statement-groups.json,owner-queue/,source backup and build/gate logs.
+Source/audit work after2f7fed11 remains uncommitted. No new asm,volatile,
+compiler-state assignment or post-recompile instruction/debug rewrite.
+
+2026-10-30 Cars starting-grid source restoration;498->499 absolute contracts.
+
+Cars_CalculateStartingGridOffset's supplied records contain its real
+parameters/startingPosition/carOnRight/negDir and nested center/totalWidth,
+but no source LABEL. Replace three tail jumps and LAB_80089c40 with ordinary
+if/else,keeping the separate multi-car and two-car normalization paths.
+Do not fold the two paths together or replace their single-step wrapping by
+modulo. The code and all input behavior stay byte-identical;no extra source
+object,scope,test or helper API is introduced.
+
+The first same-coordinate structured control preserves whole ELF/CPE and
+every provided local tuple,but loses two previously correct tags and is NOT
+adopted. Read the actual groups instead:both normalization arms share1758
+for multi-car and1761 for two-car;orientation1764/65;one-way selection1767;
+weighted width1772,center1773 and divisor1774;one-way offset1776;ordinary
+offset1782;final y/z stores1785/86. Ordinary grouping under the existing
+function anchor restores ALL145 word/file tags,all six block records,
+the32-byte frame,all local homes/owners and end1786. The y/z-shared1785
+negative control leaves the z store wrongly tagged1785;split stores seal it.
+This recovers source phases,not unique original macro/comment spellings.
+
+The original root and nested one-way regions stay real owners. No dummy
+scope,statement anchor,new name,asm,volatile,compiler flag or generated
+instruction/debug rewrite is needed. All previously correct source facts
+survive in the full accepted contract;the earlier partial control is kept
+only as evidence,not landed because its variable count looked clean.
+
+Remove exactly the unprovided native LABEL LAB_80089c40 at function-relative
++252. The raw guard requires all other ordered definition rows to remain
+identical;it does not ignore labels globally. All2580 other function
+occurrences retain their entire native owner/header/SLD/end records,including
+the other32 Cars functions. Historical snapshot totals are not reused:
+the current independent exactSET is499 contracts,up from498,with all prior
+contracts preserved. GAME/COMMON466,GAME/PSX28,FRONTEND/COMMON5;others0.
+
+Fresh full gates:Cars33/33 detailed and branch PASS;all123 normal objects and
+the complete native CPE unchanged;all123 source normal/debug inputs fresh;
+all122 other cached native .s/.obj pairs unchanged. Tests162,owner15,compact8,
+stripped83,vtable1472,policy,relink,canonical link,raw RECON299819/299819,
+overlap,foreign and inventory pass. Retail reference SHA256 is unchanged.
+The widened address-derived scan drops53->49 locations;these still count
+uses/definitions,not distinct objects or the whole remaining goal backlog.
+Other Cars address labels and all broader review obligations remain open.
+
+Receipts:build/nc12/cars_grid_source_20261030/{final-proof,baseline,
+probe-proof,layout-proof,compact-static-review}.json,owner-queue/,
+retail-function-records.txt,retail-statement-groups.json,source backup and
+fresh build/gate logs. Source/tool work after2f7fed11 is still uncommitted.
+
+2026-10-30 InsertTrigger structured-source seal and address-label scan coverage.
+
+Raw InsertTrigger records supply this/trigger/fromFile and size,but NO LABEL
+record. Replace the reconstruction's goto LAB_80072a14 with ordinary if/else:
+the type5 arm retains its actual payload-pointer store,trigger-array store
+and size calculation;the other arm retains its switch and trigger-array
+store. The real final increment/return is common work. All63 instructions,
+the whole normal object/CPE and supplied locals/owner addresses are unchanged.
+Early-return and combined-equal-case controls FAIL and are not adopted.
+Keep the two distinct fixed-size case assignments:combining them changes
+GCC's switch dispatch even though their numerical results agree.
+
+Restore real source phases at76/78/82/83/89/92/96/103/105/117/121/123 from
+the retail instruction groups,not scheduled opcode order. Increment121 and
+ordinary return123 give the correct root end121 and epilogue/function end123.
+Return122 is an eight-tag negative control;a split return form ALSO passes,
+so literal original punctuation is not uniquely proved. The accepted form
+has all63 word/file tags,all block lines,frame,owners and end exact,without
+new source objects,scopes,asm,volatile,fake work or statement directives.
+
+All ten AITRIGER definitions now have calibrated per-function original-file
+anchors. All ten provided local contracts and headers match;other nine
+relative source maps are preserved,not called fully restored. Only
+InsertTrigger earns a new complete absolute contract:497->498. Restore
+source work without turning successful anchors into whole-function seals.
+
+The strict raw-definition guard caught one intentional change rather than
+silently accepting it:native previously emitted an unprovided LABEL named
+LAB_80072a14 at800729cc (function-relative+204). That exact record is now
+gone. The audit permits ONLY this named,position-checked deletion,after
+confirming no supplied target LABEL exists;every other ordered definition
+row must remain identical. This is an actual SYM discrepancy removed,not
+a reference change,blanket ignored-label rule or comparison relaxation.
+
+The legacy variable/register lexical scans missed address-derived names.
+tools/source_owner_queue.py now adds a SEPARATE LAB_/lbl_ eight-hex-address
+candidate category,with comments and a saved original backup. Existing
+comparisons and name classifications are unchanged. A regression fixture
+checks real code versus comments/strings and ordinary semantic labels;
+owner-audit tests14->15. SDK/retail labels still require individual canonical
+review:lexical hits are candidates,not automatic invented-object verdicts.
+The updated directory queue exposes53 remaining locations in GAME/COMMON:
+aistate32,cars8,aih_btccop7,aih_play4,aih_cop2. These count uses/definitions,
+not53 distinct variables or source objects. The target's two locations are
+removed;the wider scan would have seen55 before this fix. Old zero-variable
+artifact totals did NOT cover this family. This newly visible work stays
+in the active review queue;it is not classified as unrecoverable or exempt.
+
+An old "Do NOT drop the volatile" claim in the untouched trigger-search
+body is replaced by an explicit unresolved source-producer qualification,
+without changing its comment-line count or code. No new necessity/floor
+claim is made and no existing volatile or asm use is added or hidden.
+
+Fresh full gates:AITRIGER10/10 detailed/branch PASS;all123 normal objects and
+the whole native CPE unchanged;all123 source normal/debug inputs fresh;
+all122 other cached native .s/.obj pairs unchanged. Every prior497 absolute
+contract survives and all other function occurrences are unchanged. Tests162,
+owner15,compact8,stripped83,vtable1472,policy,relink,canonical link,
+raw RECON299819/299819,overlap,foreign and inventory checks pass.
+Directory exactSET498:GAME/COMMON465,GAME/PSX28,FRONTEND/COMMON5;others0.
+All2581 function occurrences are accounted for;SDK/eaclib remain partial.
+No claim of literal-original-text or full-project completion follows.
+
+Receipts:build/nc12/aitriger_source_20261030/{final-proof,probe-proof,
+layout-proof,baseline,compact-static-review,definition-delta}.json,
+retail-function-records.txt,retail-statement-groups.json,owner-queue/ and
+source/tool backups plus fresh build/gate logs. Source and audit-tool work
+after2f7fed11 remains uncommitted;generated trials are not project source.
+
+2026-10-30 FastRandom two-function absolute source seals;495->497 contracts.
+
+Fresh native/retail inspection supersedes the historical compact-empty-body
+CleanUp residual:the CURRENT ordinary two-line empty body already tags both
+instructions at header+1,as retail does. StartUp also already has every
+relative word tag,block line and end correct. Neither was absolute-exact:
+native headers17/23 and current checkout filenames versus retail13/18 and
+C:/nfs4/GAME/COMMON/FASTRAND.CPP. Two real per-function anchors12/16 restore
+those identities without per-statement directives or generated-note edits.
+This counts two new ABSOLUTE contracts,not two new byte matches or two newly
+recovered relative maps. All36 supplied word/file tags are now exact.
+
+Reprice the guarded do source separately. An ordinary while(i<seedIterations)
+has the same full normal ELF/CPE,all supplied homes and lexical regions,
+every block/header/end and all34 StartUp tags. A for control ALSO passes;
+literal original loop punctuation is therefore not uniquely proved. Adopt
+the straightforward while and remove its redundant entry guard/do,not a
+fake condition or priority wrapper. Keep the actual seed-work region:it
+contains real seed stores and owns retail's i at depth2;there is no reason
+to erase that supplied owner. All a,b,seedIterations,i/seeder names and
+types are supplied;no new object,name,qualifier,asm or volatile is needed.
+
+Actual selected-stock/source refresh is confined to fastrand.cpp. Add this
+calibrated TU to the preservation cohort:all123 normal objects are unchanged,
+all123 normal/debug CPP bindings are fresh,and all122 other native .s/.obj
+pairs remain byte-identical. The full CPE is unchanged. The complete ordered
+type/storage definition stream is identical,as are ALL unedited function
+occurrences;the prior495 absolute contracts survive. Both FastRandom detailed
+and branch-distance gates pass;all2 complete local/frame/region/absolute SLD
+contracts are exact. Do not equate these source facts with literal-original
+macro/comment recovery or completion of the wider project goal.
+
+Full gates:tests162,owner14,compact8,stripped83,vtable1472,policy,relink,
+canonical link,raw RECON299819/299819,overlap,foreign and inventory pass.
+Independent directory exactSET equals497 contracts:GAME/COMMON464,
+GAME/PSX28,FRONTEND/COMMON5;other groups0. All2581 native/retail function
+occurrences are accounted for;SDK/eaclib remain explicitly retail-partial.
+The earlier Aidebug1291/1753 records and96 ordered type-body matches are
+preserved through unchanged native object/type records,not recounted as
+new progress. QuadLight's two tags and all broader review work remain open.
+
+Receipts:build/nc12/fastrand_source_20261030/{final-proof,baseline,
+probe-proof,compact-static-review}.json,owner-queue/,source backup and
+refresh/verification logs. Source changes remain uncommitted after2f7fed11.
+
+2026-10-30 QuadLight TOP-address phase controls;no failed experiment lands.
+
+Re-gated BWorldSm_QuadLight:100/100 instruction PASS. Its residual tags at
++80/+104 are the TOP index scale/base addition,not the bottom index. The
+existing selected-stock RTL receipt already puts both on1274 in initial
+lowering,while retail says1273;the load at+116 correctly stays1274. Treat
+this as a source-expression/producer question,not a scheduler-output patch.
+
+Independently price TOP-only address reuse;the earlier round mutated BOTH
+provided indices. Typed,base-first and index-first TOP address forms each
+fail normal ELF/CPE and leave46 tag differences. They move slicePos from
+REGPARM4 to7,topInd from REG3 to6 and the Group receiver from REG2 to3.
+The no-cache/single-getter TOP-address form fails code/owners with50 tags.
+Walking the existing vertex cache to the top vertex fails with43 tags and
+additionally exposes an unprovided QUAD_LIGHT_VERTICES REG2 declaration.
+All keep the40-byte frame,but frame/count alone is not acceptance. No name
+change,integer-pointer role reuse or new local is adopted. These finite
+controls are not a source-object necessity proof or a floor verdict.
+
+The verified live function remains untouched with its two explicit tags.
+All122 source/object hashes,changed shared-header hashes,and the complete
+native SYM/CPE still agree with the latest Aidebug AI-data checkpoint;all495
+covered contracts survive. Fresh QuadLight detailed PASS and all28 BWorldSm
+branch-distance checks pass. The prior full link/raw/regression evidence is
+bound to those unchanged artifacts,not falsely reported as rerun here.
+Next evidence needed is the original vertex/accessor expression context;
+do not add hypothetical APIs,extra capture objects,fake work or statement
+anchors merely to force the two coordinates. The broader goal stays open.
+Receipts:build/nc12/bworld_quadlight_pointerphase_20261030/{probe-proof,
+conservation-proof}.json and saved isolated inputs/objects/vendor-link dumps.
+
+2026-10-30 Aidebug AI-data declarations;120 further supplied records recovered.
+
+Do not import the broad AI hierarchy solely to reach ten Car_tObj aliases.
+Trace the real owner type bodies instead. Reuse shared copLevel_t/copGame_t,
+the seven trigger payload structures and trigger_t union,SceneElem and
+SceneSortedElem. Include the existing AIDelayCar owner declarations for its
+actual60-byte class and supplied CarLogic_tObservations[1][3] typedef.
+All thirteen newly supplied ordered bodies match retail exactly,including
+union-member offsets/types;no class storage,method name or alias is invented.
+The original header/include spelling remains unproved. Independent data-only,
+delay-only and combined controls all preserve whole normal ELF/native CPE
+and introduce NO extra type records. No foreign AIState class is imported.
+
+Aidebug literal type occurrences1171->1291 of1753;ordered complete matching
+bodies83->96. Raw missing occurrences582->462;the same10 raw extras remain.
+All previous literal-record and ordered-body matches survive. The native
+object's ordered standalone vendor-link dump again equals the full-program
+single-owner delta. No zero-function MATCH or whole-source completion claim.
+
+Compiler/source provenance caution:the broad hierarchy trial's ten Car_tObj
+typedefs are NOT a recovered retail producer map. Its extra copies surround
+AIState_None,Idle and AIHigh_None contexts that the supplied Aidebug body
+roster does not contain. Retail's neighboring ordered aliases differ. A
+matching total is therefore insufficient and the trial remains rejected.
+GCC2.8.1 sdbout.c TYPE_DECL prints a typedef record per supplied declaration,
+while sdbout_one_type separately guards complete bodies by TREE_ASM_WRITTEN.
+This explains why alias multiplicity and complete bodies require different
+evidence,not why any particular missing original declaration existed. The
+second supplied BO_tNewtonObj/TCB bodies still need their real type contexts;
+do not clone either body or pad aliases to match a counter.
+
+Fresh single-consumer source rebuild:all122 normal ELFs and the full CPE
+unchanged;all121 other cached native .s/.obj pairs remain byte-identical.
+All122 normal/debug CPP input bindings are fresh. Complete function/owner/
+SLD streams across2581 occurrences are unchanged;all495 absolute contracts
+survive. BWorldSm28 detailed/branch PASS and27 complete EXACT remain;no new
+function seal is claimed. Tests162,owner14,compact8,stripped83,vtable1472,
+policy,relink,canonical link,raw RECON299819/299819,overlap,foreign and source
+inventory checks pass. Directory contract exactSET is independently checked;
+GAME/COMMON462,GAME/PSX28,FRONTEND/COMMON5,other groups0. SDK/eaclib remain
+retail-partial. No asm,volatile,compiler/reference/output rewrite or relaxed
+comparison is added. Wider source-carrier/ownership/SLD work remains active.
+
+Receipts:build/nc12/aidebug_ai_source_20261030/{final-proof,type-proof,
+probe-proof,compact-static-review}.json,ordered/,owner-queue/ and build/gate
+logs. Primary compiler source:original gcc281.tar.gz member
+gcc-2.8.1/sdbout.c;this is diagnostic context,not a stock-compiler identity
+certificate. These changes and the preceding thirteen leaf restorations
+remain uncommitted after2f7fed11;generated trials are not project source.
+
+2026-10-30 Aidebug ordered-body audit correction and thirteen real type restorations.
+
+Checkpoint2f7fed11 is committed and pushed to main;the historical statements
+below describing its work as uncommitted are superseded. This follow-up is
+not yet committed. The complete original-source goal remains open.
+
+The prior private game-type audit regrouped Counter.elements() into bodies.
+That loses enclosing-tag order:identical member tuples from different
+structures become adjacent. Its67-body count is not an ordered-body proof.
+Keep the valid1033 literal-record multiset matches,but supersede that body
+count with70 independently measured complete body occurrences. DR_ENV,
+BO_tNewtonObj and Cars_tAudio already have one correct ordered body each;
+the extra BO_tNewtonObj body in retail is a separate occurrence,not missing
+members to insert in the existing struct. Never alter source to imitate a
+body reconstructed from a multiset.
+
+The corrected audit links ONLY the actual native AIDebug object with vendor
+PSYLINK and dumps its unmodified SYM. Its ordered type-record multiset must
+equal the independently measured full-program single-owner delta before
+any complete body is trusted. It compares complete ordered tag/member/EOS
+tuples with the paired retail aidebug.obj FILE block and preserves occurrence
+multiplicity. No source record,compiler output or reference is rewritten.
+
+Restore existing shared definitions for POLY_GT4,Draw_SubdivStruct,
+Track_tArtresource,Track_tMaterial,Sched_tSchedule,kernpair,TCB,EXEC,DIRENTRY,
+Skidmark_Segment,Skidmark_Chunk,BW_tContext and FLARE_PIECE_DEF in aidebug.h.
+Every one has a supplied complete body;all thirteen new ordered bodies
+match exactly. There is no duplicate typedef padding,new field,helper,
+runtime work,asm or volatile. Original include names/order remain unknown.
+Literal supplied occurrences improve1033->1171 of1753;complete ordered
+bodies70->83. Missing raw occurrences720->582;the same10 raw extras remain.
+All previously matching records AND complete ordered bodies survive.
+Anonymous identities,opaque/private referent emission and repeated original
+body/typedef contexts are still explicit discrepancies,not waived.
+
+The real AI hierarchy header is a useful DIAGNOSTIC producer:it naturally
+emits all ten Car_tObj typedef occurrences,without invented repeats. The
+trial has1418 literal matches but142 raw extras and three added undefined
+vtable symbols in the normal ELF. Runtime sections/CPE remain unchanged,
+but the full object does not. It is NOT adopted. Recover the actual owner
+header/API surface instead of copying the whole foreign hierarchy or
+manufacturing nine aliases. This changes the next investigation from a
+count-only question to genuine inline/declaration producer provenance.
+
+Actual-source refresh is selective to aidebug.cpp,its sole header consumer.
+All122 normal ELFs are byte-identical;all121 other cached native .s/.obj
+pairs and the whole CPE are unchanged. All122 normal/debug CPP inputs are
+freshly bound. All2581 function owner/SLD records and495 covered absolute
+contracts survive. BWorldSm28/28 detailed/branch PASS,still27/28 combined
+EXACT;QuadLight's two remaining tags are not hidden by this type recovery.
+Tests162,owner14,compact8,stripped83,vtable1472,policy,relink,canonical link,
+raw RECON299819/299819,overlap,foreign and source inventory all pass.
+Directory reports retain GAME/COMMON462,GAME/PSX28,FRONTEND/COMMON5 complete
+covered contracts;other groups0. SDK/eaclib remain retail-partial. No new
+function certificate is counted for a zero-function data/type owner.
+
+Receipts:build/nc12/aidebug_leaf_source_20261030/{final-proof,type-proof,
+compact-static-review}.json,ordered/,owner-queue/ and refresh/verification
+logs. Baseline correction:build/nc12/aidebug_game_types_20261030/ordered-proof.json;
+rejected hierarchy:header-probe-proof.json in that same directory. Wider
+source-carrier/name/provenance/SLD obligations remain active,not completed.
+
 2026-10-30 Aidebug game-graph restoration;Car_tObj complete body recovered.
 
 Use genuine shared game definitions,not copied typedefs. Owner-aware full

@@ -33,6 +33,12 @@ REGISTER_ARTIFACT = re.compile(
     r'\b(?:in_(?:[avst]\d+|ra|sp|fp|gp)|unaff_[A-Za-z0-9_]+'
     r'|extraout_[A-Za-z0-9_]+|[auisbcfpd]+Stack[0-9a-fA-Fx_]+)\b')
 
+# 2026-10-30: InsertTrigger exposed a gap in the legacy variable-name scan.
+# Keep VA-derived label/reference candidates separate: a lexical hit needs
+# SYM/canonical-source review,not an automatic invented-object verdict.
+# Backup: build/nc12/aitriger_source_20261030/source_owner_queue.py.before.
+ADDRESS_DERIVED = re.compile(r'\b(?:LAB|lbl)_[0-9a-fA-F]{8}\b')
+
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -200,6 +206,7 @@ def audit(native_path, retail_path, *, root=ROOT):
         counts[source_group(rel)]['source_files_scanned'] += 1
         for kind, regex, content in [('synthetic_identifier', SYNTHETIC, mask_trivia(text)),
                                      ('register_artifact_identifier', REGISTER_ARTIFACT, mask_trivia(text)),
+                                     ('address_derived_identifier', ADDRESS_DERIVED, mask_trivia(text)),
                                      ('review_marker', REVIEW, text)]:
             for match in regex.finditer(content):
                 report['source_locations'].append(dict(kind=kind, file=rel,
@@ -211,6 +218,7 @@ def audit(native_path, retail_path, *, root=ROOT):
         for field in ('native_function_occurrences', 'retail_function_occurrences',
                       'native_name_surplus_occurrences', 'retail_name_surplus_occurrences',
                       'lexical_synthetic_identifier_locations', 'lexical_register_artifact_identifier_locations',
+                      'lexical_address_derived_identifier_locations',
                       'lexical_review_marker_locations'):
             c.setdefault(field, 0)
     report['directories'] = {k: dict(v) for k, v in sorted(counts.items())}

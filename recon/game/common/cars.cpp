@@ -1552,75 +1552,60 @@ void Car_DoPostCollisionStuff(Car_tObj *carObj)
 }
 
 /* ---- Cars_CalculateStartingGridOffset__FP8Car_tObjPiP8coorddef  [@0x80089b44] ---- */
+/* 2026-10-30: the two genuine grid wrap paths remain separate,but no
+ * unprovided VA-derived goto/label is needed. Ordinary source grouping
+ * restores all145 word/file tags and supplied local/frame/region/end facts.
+ * The shared source-line groups do not uniquely recover original macro text.
+ * No new object,scope,asm,volatile or generated-output rewrite. Receipt:
+ * build/nc12/cars_grid_source_20261030/final-proof.json. */
 #line 1740 "C:/nfs4/GAME/COMMON/CARS.CPP"
 void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offset)
 {
   int startingPosition;
   int carOnRight;
   int negDir;
-
   negDir = -1;
   if (GameSetup_gData.reverseTrack != 0) {
     negDir = 1;
   }
+
+
+
   startingPosition = GameSetup_gData.carInfo[carObj->carIndex].StartingPos;
-  /* Retail keeps separate slice-normalization paths for the multi-car and
-     two-car grids; spelling both paths out prevents an incorrect cross-jump. */
+
+
+
   if (3 <= Cars_gNumRaceCars) {
-    if (-1 < negDir + ((negDir * 5) << 1) * startingPosition) {
-      *slice = negDir + ((negDir * 5) << 1) * startingPosition < gNumSlices ?
-                   negDir + ((negDir * 5) << 1) * startingPosition :
-                   negDir + ((negDir * 5) << 1) * startingPosition - gNumSlices;
-      goto LAB_80089c40;
-    }
-    *slice = negDir + ((negDir * 5) << 1) * startingPosition + gNumSlices;
-    goto LAB_80089c40;
+
+    if (-1 < negDir + ((negDir * 5) << 1) * startingPosition) { *slice = negDir + ((negDir * 5) << 1) * startingPosition < gNumSlices ? negDir + ((negDir * 5) << 1) * startingPosition : negDir + ((negDir * 5) << 1) * startingPosition - gNumSlices; } else { *slice = negDir + ((negDir * 5) << 1) * startingPosition + gNumSlices; }
+  } else {
+
+    if (-1 < negDir) { *slice = negDir < gNumSlices ? negDir : negDir - gNumSlices; } else { *slice = negDir + gNumSlices; }
   }
-  else {
-    if (-1 < negDir) {
-      *slice = negDir < gNumSlices ? negDir : negDir - gNumSlices;
-      goto LAB_80089c40;
-    }
-  }
-  *slice = negDir + gNumSlices;
-LAB_80089c40:
   carOnRight = startingPosition & 1;
   if (carObj->desiredDirection * AITune_driveSide == -1) {
     carOnRight = 1 - carOnRight;
   }
-  if (AITune_GetOneWay() != 0) {
+  if (AITune_GetOneWay() != 0)
+  {
     int center;
     int totalWidth;
-    totalWidth =
-        ((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15) *
-            (BWorldSm_slices[*slice].laneCount >> 4) +
-        ((u_int)BWorldSm_slices[*slice].avgPavedWidthRt << 15) *
-            (BWorldSm_slices[*slice].laneCount & 0xf);
-    center = totalWidth / 2 -
-             ((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15) *
-                 (BWorldSm_slices[*slice].laneCount >> 4);
-    totalWidth = totalWidth / ((BWorldSm_slices[*slice].laneCount >> 4) +
-                               (BWorldSm_slices[*slice].laneCount & 0xf));
-    if (carOnRight) {
-      offset->x = center + totalWidth;
-    }
-    else {
-      offset->x = center - totalWidth;
-    }
-  }
+
+    totalWidth = ((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15) * (BWorldSm_slices[*slice].laneCount >> 4) + ((u_int)BWorldSm_slices[*slice].avgPavedWidthRt << 15) * (BWorldSm_slices[*slice].laneCount & 0xf);
+    center = totalWidth / 2 - ((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15) * (BWorldSm_slices[*slice].laneCount >> 4);
+    totalWidth = totalWidth / ((BWorldSm_slices[*slice].laneCount >> 4) + (BWorldSm_slices[*slice].laneCount & 0xf));
+
+    if (carOnRight) { offset->x = center + totalWidth; } else { offset->x = center - totalWidth; } }
+
   else {
-    if (carOnRight) {
-      offset->x = (u_int)BWorldSm_slices[*slice].avgPavedWidthRt << 14;
-    }
-    else {
-      offset->x =
-          -((int)((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15)) / 2;
-    }
-  }
+
+
+
+    if (carOnRight) { offset->x = (u_int)BWorldSm_slices[*slice].avgPavedWidthRt << 14; } else { offset->x = -((int)((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15)) / 2; } }
+
+
   offset->y = 0x8000;
-  offset->z = 0;
-  return;
-}
+  offset->z = 0; return; }
 
 /* ---- Cars_IniCarObjects__FP8Car_tObji  [@0x80089d88] ---- */
 #line 1793 "C:/nfs4/GAME/COMMON/CARS.CPP"

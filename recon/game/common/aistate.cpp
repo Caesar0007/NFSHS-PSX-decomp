@@ -2,7 +2,7 @@
  * as well as callers:mixing checkout/retail filenames changes inline debug
  * scope attribution. Only separately verified function coordinates are sealed;
  * this boundary does not certify the original full-file text or layout. */
-#line 1 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
+
 /* game/common/aistate.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
  *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/
  *   RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
@@ -39,6 +39,7 @@ static int   AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss
 /* ---- AIState_StartUp__Fv  AIState_StartUp  [AISTATE.CPP:25-26] ----
  * One call and implicit void fallthrough: 8/8 instructions and 0/8 retail
  * relative SLD differences, with exact block/function-end line records. */
+
 #line 25 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_StartUp(void) {
   AIState_Purgatory::StartUp(); }
@@ -53,6 +54,7 @@ void AIState_StartUp(void) {
 /* ---- AIState_Restart__Fv  AIState_Restart  [AISTATE.CPP:30-31] ----
  * Same source shape and exact 8-word / native-SYM / relative-SLD receipt as
  * AIState_StartUp; literal whitespace of the original text is unknown. */
+#line 30 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Restart(void) {
   AIState_Purgatory::StartUp(); }
 
@@ -65,6 +67,7 @@ void AIState_Restart(void) {
 
 /* ---- AIState_CleanUp__Fv  AIState_CleanUp  [AISTATE.CPP:36-37] SLD-VERIFIED ---- */
 
+#line 36 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_CleanUp(void) {
 }
 
@@ -77,6 +80,7 @@ void AIState_CleanUp(void) {
 
 /* ---- StateExecute__12AIState_Base  AIState_Base::StateExecute  [AISTATE.CPP:56-66] SLD-VERIFIED ---- */
 
+#line 52 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Base::StateExecute()
 
 
@@ -103,6 +107,7 @@ void AIState_Base::StateExecute()
 
 /* ---- __12AIState_BaseP8Car_tObj  AIState_Base::ctor  [AISTATE.CPP:73-74] SLD-VERIFIED ---- */
 
+#line 73 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Base::AIState_Base(Car_tObj *carObj) {
   this->carObj_ = carObj;
 }
@@ -116,6 +121,7 @@ AIState_Base::AIState_Base(Car_tObj *carObj) {
 
 /* ---- Execute__14AIState_Normal  AIState_Normal::Execute  [AISTATE.CPP:94-101] SLD-VERIFIED ---- */
 
+#line 90 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Normal::Execute()
 
 
@@ -139,6 +145,7 @@ void AIState_Normal::Execute()
 
 /* ---- __14AIState_NormalP8Car_tObj  AIState_Normal::ctor  [AISTATE.CPP:105-110] SLD-VERIFIED ---- */
 
+#line 104 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Normal::AIState_Normal(Car_tObj *carObj)
   : AIState_Base(carObj)
 {
@@ -157,6 +164,7 @@ AIState_Normal::AIState_Normal(Car_tObj *carObj)
 
 /* ---- Execute__12AIState_Idle  AIState_Idle::Execute  [retail AISTATE.CPP:129-149; native/byte verified, SLD attribution open] ---- */
 
+#line 125 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Idle::Execute()
 
 
@@ -166,13 +174,13 @@ void AIState_Idle::Execute()
   if (this->idleInPlaceFlag_ != 0) {
 
     (this->carObj_)->desiredSpeed = 0;
-    (this->carObj_)->desiredLatPos = (this->carObj_)->roadPosition; } else { int off;
+    (this->carObj_)->desiredLatPos = (this->carObj_)->roadPosition; } else
 
 
+  { int off;
 
-
-    if (((this->carObj_)->roadPosition - this->roadPosition_) + 0xffffU < 0x1ffff) {
-
+    const int delta = (this->carObj_)->roadPosition - this->roadPosition_; /* DEVICE (exact-only): record-less const temp, retail computes on 10 and compares on 11 */
+    if (delta + 0xffffU < 0x1ffff) {
 
       (this->carObj_)->desiredSpeed = 0; } else {
 
@@ -192,6 +200,7 @@ void AIState_Idle::Execute()
 
 /* ---- SetIdlePosition__12AIState_Idlei  AIState_Idle::SetIdlePosition  [AISTATE.CPP:154-156] SLD-VERIFIED ---- */
 
+#line 154 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Idle::SetIdlePosition(int roadPosition) {
   this->roadPosition_ = roadPosition;
   this->idleInPlaceFlag_ = 0;
@@ -214,6 +223,7 @@ void AIState_Idle::SetIdlePosition(int roadPosition) {
  * One epilogue instruction tag and the closing block's line remain unsealed;
  * do not add line padding or claim that native declaration PASS recovers text. */
 
+#line 177 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relPosition,
           int nitrousTicks,int nitrousMinForeDistance,int nitrousMinAftDistance,int aggressionLevel,
           int delayTime)
@@ -237,8 +247,8 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
   {
     this->noTurnAroundEndTime_ = 0;
   }
+
   this->barrierTicks32_ = 0;
-  return;
 }
 
 
@@ -252,6 +262,7 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
 /* The owner graph now exposes this as the real member destructor; GCC supplies
    its implicit receiver and in-charge deletion sequence. */
 
+#line 201 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Chase::~AIState_Chase()
 
 
@@ -274,6 +285,7 @@ AIState_Chase::~AIState_Chase()
 
 /* ---- SetTarget__13AIState_ChaseP8Car_tObjP8coorddef  AIState_Chase::SetTarget  [AISTATE.CPP:216-237] SLD-VERIFIED ---- */
 
+#line 212 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
 
@@ -340,21 +352,22 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
 /* ---- SetMurderMode__13AIState_Chaseii  AIState_Chase::SetMurderMode  [AISTATE.CPP:240-249] SLD-VERIFIED ---- */
 
+#line 236 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::SetMurderMode(int murderMode,int murderTicks)
 
 
 
 {
-  if (this->murderMode_ == 0) {
+  if (this->murderMode_ != 0) return;
 
 
 
 
 
-    this->murderMode_ = murderMode;
-    this->murderEndTime_ = simGlobal.gameTicks + murderTicks;
-  }
+  this->murderMode_ = murderMode;
+  this->murderEndTime_ = simGlobal.gameTicks + murderTicks;
 }
+
 
 
 
@@ -379,6 +392,7 @@ static inline int DelayCarSlice(AIDelayCar *d) { return d->slice_; }
  * existing member also removes one excess AIDelayCar completed-type record.
  * Literal inline API/header/macro identity is not uniquely retained.
  * Receipt:build/nc12/aistate_setup_source_20261030/final-proof.json. */
+
 #line 251 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::SetUp()
 {
@@ -422,6 +436,7 @@ void AIState_Chase::SetUp()
 
 /* ---- DoSlowNitrous__13AIState_Chase  AIState_Chase::DoSlowNitrous  [AISTATE.CPP:287-292] SLD-VERIFIED ---- */
 
+#line 283 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::DoSlowNitrous()
 
 
@@ -450,14 +465,15 @@ void AIState_Chase::DoSlowNitrous()
  * two-operand comparison was2dif/83 due to inline expansion/load ordering.
  * No reference fence, dummy use, qualifier or output rewrite is required. */
 
+#line 292 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
 {
 
-  if (this->nitrousTicks_ > 0 && !this->IsSlowingDown()) {
-
+  if (this->nitrousTicks_ > 0 && !this->IsSlowingDown())
+  {
     (this->carObj_)->accNitrous = 0x30000;
     (this->carObj_)->speedNitrous = 0x28000;
 
@@ -516,6 +532,7 @@ void AIState_Chase::DoNitrous(int checkForHumans)
  * IsSlowingDown still names an inferred real timer predicate;its original
  * inline spelling/signature and literal macro/comments are not uniquely
  * retained. Receipt:build/nc12/aistate_chase_source_20261030/final-proof.json. */
+
 
 #line 326 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::Execute()
@@ -604,6 +621,7 @@ void AIState_Chase::Execute()
 
 /* ---- FarTargeting__13AIState_Chase  AIState_Chase::FarTargeting  [AISTATE.CPP:414-437] SLD-VERIFIED ---- */
 
+#line 410 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::FarTargeting()
 
 
@@ -653,6 +671,7 @@ void AIState_Chase::FarTargeting()
 
 /* ---- CalculateCloseTargettingAheadSlowDownFactor__13AIState_Chase  AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor  [AISTATE.CPP:443-457] SLD-VERIFIED ---- */
 
+#line 439 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
 
 
@@ -722,6 +741,7 @@ int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
 inline int AIDelayCar::GetCurrentSpeed() { return currentSpeed_; }
 
 
+#line 461 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::CloseTargeting()
 { int latPos; int longPos; int bigLongPos; int forceLatAction; int doLatAction; int forceLongAction; int dir; int desiredSpeed; int latTarget; int longTarget;
 
@@ -922,6 +942,7 @@ void AIState_Chase::CloseTargeting()
  * or fake use replaces the old pointer capture. The tick comparison spells
  * the actual global operand first, removing its debug-elided snapshot too. */
 
+#line 633 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::ApproachTargeting(int intercept)
 
 
@@ -976,17 +997,17 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
 
 
-  if (0x960000 < distance) { minSpeed = 0x500000; goto LAB_80070adc; } if (0x640000 < distance) { minSpeed = 0x460000; goto LAB_80070adc; } if (0x320000 < distance) { minSpeed = 0x320000; goto LAB_80070adc; } if (0x190000 < distance) { minSpeed = 0x280000; goto LAB_80070adc; } if (0xa0000 < distance) { minSpeed = 0xe0000; goto LAB_80070adc; } minSpeed = 0; if (!(0x60000 < distance)) goto LAB_80070adc; minSpeed = 0x60000; goto LAB_80070adc; LAB_MIN_A: minSpeed = 0xa0000; goto LAB_80070adc; LAB_80070adc: this->carObj_->desiredSpeed = ( this->carObj_->direction == 1 ? (zDistance = minSpeed, this->carObj_->desiredSpeed < zDistance ? (void)(zDistance = this->carObj_->desiredSpeed) : (void)0) : (zDistance = -minSpeed, zDistance < this->carObj_->desiredSpeed ? (void)(zDistance = this->carObj_->desiredSpeed) : (void)0),
+  if (0x960000 < distance) { minSpeed = 0x500000; goto LAB_80070adc; } if (0x640000 < distance) { minSpeed = 0x460000; goto LAB_80070adc; } if (0x320000 < distance) { minSpeed = 0x320000; goto LAB_80070adc; } if (0x190000 < distance) { minSpeed = 0x280000; goto LAB_80070adc; } if (0xa0000 < distance) { minSpeed = 0xe0000; goto LAB_80070adc; } minSpeed = 0; if (!(0x60000 < distance)) goto LAB_80070adc; minSpeed = 0x60000; goto LAB_80070adc; LAB_MIN_A: minSpeed = 0xa0000; goto LAB_80070adc; LAB_80070adc:
 
 
 
 
 
 
-      zDistance);
+  if (this->carObj_->direction == 1)
+  { zDistance = minSpeed; if (this->carObj_->desiredSpeed < zDistance) zDistance = this->carObj_->desiredSpeed; this->carObj_->desiredSpeed = zDistance; }
 
-
-
+  else { zDistance = -minSpeed; if (zDistance < this->carObj_->desiredSpeed) zDistance = this->carObj_->desiredSpeed; this->carObj_->desiredSpeed = zDistance; }
 
 
 
@@ -1112,6 +1133,7 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
 /* ---- CheckForBarriersAndTargetAroundThem__13AIState_Chase  AIState_Chase::CheckForBarriersAndTargetAroundThem  [AISTATE.CPP:718-761] SLD-VERIFIED ---- */
 
+#line 714 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
 
@@ -1127,8 +1149,8 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
 
   mySlice = (this->carObj_->N).simRoadInfo.slice;
-  myLane = this->carObj_->laneIndex; targetSlice = (this->targetCar_->N).simRoadInfo.slice;
-
+  targetSlice = (this->targetCar_->N).simRoadInfo.slice;
+  myLane = this->carObj_->laneIndex;
   targetLane = this->targetCar_->laneIndex;
 
 
@@ -1203,6 +1225,7 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
    the final int return; this spelling is a compiler-shape inference, not a
    recovered source quote. No extra wrap local is present in SYM. */
 
+#line 760 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 int AIState_Chase::FindBarrierEndSlice()
 
 
@@ -1213,9 +1236,9 @@ int AIState_Chase::FindBarrierEndSlice()
 
 
 
+  mySlice = (int)this->carObj_->N.simRoadInfo.slice;
   myLane = this->carObj_->laneIndex;
-
-  targetLane = this->targetCar_->laneIndex; mySlice = (int)this->carObj_->N.simRoadInfo.slice;
+  targetLane = this->targetCar_->laneIndex;
 
 
 
@@ -1247,11 +1270,11 @@ int AIState_Chase::FindBarrierEndSlice()
 
   forwardBarrierDistance = backwardsBarrierDistance = 0x53;
   forwardBarrierEndSlice = mySlice + 0x53; if (gNumSlices <= forwardBarrierEndSlice) { forwardBarrierEndSlice -= gNumSlices; }
-  backwardsBarrierEndSlice = mySlice - 0x53; if (backwardsBarrierEndSlice < 0) { backwardsBarrierEndSlice += gNumSlices; } currentBarrierLane = barrierLane;
+  backwardsBarrierEndSlice = mySlice - 0x53; if (backwardsBarrierEndSlice < 0) { backwardsBarrierEndSlice += gNumSlices; }
 
 
 
-
+  currentBarrierLane = barrierLane;
   for (int sliceLoop = 0; sliceLoop < 0x53; sliceLoop += 4) { int sliceCheck; int temp; int leftBarrier; int hereBarrier; int rightBarrier; sliceCheck = mySlice + sliceLoop;
 
     if (0 <= sliceLoop) { if (gNumSlices <= sliceCheck) { sliceCheck -= gNumSlices; } } else if (sliceCheck < 0) { sliceCheck += gNumSlices; } temp = AIWorld_CheckForBarrierBetweenLanes(
@@ -1324,6 +1347,7 @@ int AIState_Chase::FindBarrierEndSlice()
    the chained target-position assignment.  Sharing one cached base across the
    two statements merges webs and changes 25 instructions. */
 
+#line 883 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Offroad::~AIState_Offroad()
 
 
@@ -1345,6 +1369,7 @@ AIState_Offroad::~AIState_Offroad()
 
 AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *position,
 
+#line 895 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
           matrixtdef *orientation,int maxSpeedKPH,int releaseTime,int endSlice)
   : AIState_Base(carObj)
 {
@@ -1386,6 +1411,7 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
    materializations. Its final store has an inline receiver/body scope pair;
    MarkLetGo is an inferred setter spelling, not a surviving retail name. */
 
+#line 925 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 {
   int distanceAbsMeters = AIWorld_SplineDistance(this->carObj_,car);
@@ -1395,8 +1421,8 @@ void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 
   releaseDistanceMeters = (0x140000 <= releaseDistanceMeters) ? releaseDistanceMeters : 0x140000;
 
-  if (distanceAbsMeters < releaseDistanceMeters) {
-
+  if (distanceAbsMeters < releaseDistanceMeters)
+  {
     this->MarkLetGo(); } }
 
 
@@ -1409,13 +1435,14 @@ void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
 
 /* ---- Execute__15AIState_Offroad  AIState_Offroad::Execute  [retail AISTATE.CPP:944-978; native/byte verified, SLD attribution open] ---- */
 
+#line 940 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Offroad::Execute()
 
 
 
 {
-  if (this->letGo_ == 0) { coorddef zero;
-
+  if (this->letGo_ == 0)
+  { coorddef zero;
     memset((u_char *)&zero,'\0',0xc);
     (this->carObj_->N).linearVel = zero;
     (this->carObj_->N).angularVel = zero;
@@ -1488,6 +1515,7 @@ void AIState_Offroad::Execute()
 /* CORRECTNESS (w13-a5): oracle stores the VALUE of Cars_gList (= Cars_gList[0], the head
    car) into basisCar -- recon previously stored NULL. lw %lo(Cars_gList) in the oracle. */
 
+#line 1000 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
   : AIState_NonActive(carObj)
 
@@ -1524,6 +1552,7 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
  * for(;;) spelling also differs under this old C++ frontend. No source-text
  * uniqueness or full SLD seal is claimed; see the native receipt in sym-match.md. */
 
+#line 1017 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Purgatory::~AIState_Purgatory()
 
 
@@ -1559,13 +1588,14 @@ AIState_Purgatory::~AIState_Purgatory()
 
 /* ---- TestForRelease__17AIState_Purgatory  AIState_Purgatory::TestForRelease  [retail AISTATE.CPP:1048-1063; native/byte verified, SLD attribution open] ---- */
 
+#line 1044 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 int AIState_Purgatory::TestForRelease()
 
 
 
 {
-  if (this->carObj_->physicsModelTimer < 1) { int trafficInWorld;
-
+  if (this->carObj_->physicsModelTimer < 1)
+  { int trafficInWorld;
 
 
 
@@ -1594,25 +1624,30 @@ int AIState_Purgatory::TestForRelease()
 
 /* ---- Execute__17AIState_Purgatory  AIState_Purgatory::Execute  [AISTATE.CPP:1068-1087] SLD-VERIFIED ---- */
 
+#line 1064 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Purgatory::Execute()
 
 
 
 {
+
+
+
+
+
   ((this->carObj_)->collision).resetTimer = 0;
+  ((this->carObj_)->N).collision.disableCollisionTimer = 0; if ((((this->carObj_)->carFlags & 0x20U) == 0) &&
 
-  ((this->carObj_)->N).collision.disableCollisionTimer = 0;
+      (0x3bf < simGlobal.gameTicks)) { (this->carObj_)->physicsModelTimer =
 
-  if ((((this->carObj_)->carFlags & 0x20U) == 0) &&
-      (0x3bf < simGlobal.gameTicks)) {
 
-    (this->carObj_)->physicsModelTimer =
-        (this->carObj_)->physicsModelTimer - AI_elapsedTime;
 
-  }
 
-  return;
 
+
+
+
+        (this->carObj_)->physicsModelTimer - AI_elapsedTime; } return;
 }
 
 
@@ -1624,6 +1659,7 @@ void AIState_Purgatory::Execute()
 
 /* ---- StartUp__17AIState_Purgatory  AIState_Purgatory::StartUp  [AISTATE.CPP:1090-1091] SLD-VERIFIED ---- */
 
+#line 1090 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Purgatory::StartUp(void) {
   AIState_Purgatory_numTrafficCarsInPurgatory = 0;
 }
@@ -1637,6 +1673,7 @@ void AIState_Purgatory::StartUp(void) {
 
 /* ---- __21AIState_RovingTrafficP8Car_tObjP9trigger_t  AIState_RovingTraffic::ctor  [AISTATE.CPP:1103-1109] SLD-VERIFIED ---- */
 
+#line 1102 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger)
   : AIState_Base(carObj)
 {
@@ -1656,6 +1693,7 @@ AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger
 
 /* ---- CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi  AIState_RovingTraffic::CheckIfCarIsNearbyAndStop  [retail AISTATE.CPP:1130-1169; native/byte verified, SLD attribution open] ---- */
 
+#line 1126 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int &status)
 
 
@@ -1671,10 +1709,10 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
   distance = AIWorld_SplineDistance(this->carObj_,otherCarObj); if (0 < distance) { distance = AIWorld_SplineDistance(this->carObj_,otherCarObj); } else { distance = -AIWorld_SplineDistance(this->carObj_,otherCarObj); }
 
 
-  if (distance <= 0xc0000) { if (0 < this->carObj_->roadPosition - otherCarObj->roadPosition ? this->carObj_->roadPosition - otherCarObj->roadPosition <= 0x9ffff :
-
-        otherCarObj->roadPosition - this->carObj_->roadPosition <= 0x9ffff) { coorddef posDiff;
-
+  if (distance <= 0xc0000)
+  {
+    if (0 < this->carObj_->roadPosition - otherCarObj->roadPosition ? this->carObj_->roadPosition - otherCarObj->roadPosition <= 0x9ffff : otherCarObj->roadPosition - this->carObj_->roadPosition <= 0x9ffff)
+    { coorddef posDiff;
 
 
       posDiff.x = (otherCarObj->N).position.x - ((this->carObj_)->N).position.x; posDiff.y = (otherCarObj->N).position.y - ((this->carObj_)->N).position.y; posDiff.z = (otherCarObj->N).position.z - ((this->carObj_)->N).position.z; if (fixedmult(this->carObj_->N.orientMat.m[6],posDiff.x) + fixedmult(this->carObj_->N.orientMat.m[7],posDiff.y) +
@@ -1696,8 +1734,8 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
 
 
-    status = 0; } return;
-
+    status = 0;
+    return; }
 
 }
 /* Retail blez at 80071a0c targets the epilogue, not the nearby status=0
@@ -1734,6 +1772,7 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
  * at 231/233. The six missing loop/guard scopes and full SLD remain open.
  * Exit-in-body for loops preserve the non-rotated oracle without new locals. */
 
+#line 1171 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_RovingTraffic::Execute()
 { int search; int status; coorddef centerBack; coorddef carRelativeForLatPos; coorddef carRelativeForDistance;
 
@@ -1771,22 +1810,22 @@ void AIState_RovingTraffic::Execute()
 
 
 
-  status = 2; for (search = (this->carObj_)->sortIndex + 1; ; search++) { if (!(search < Cars_gNumCars && (status == 2))) break;
+  status = 2; for (search = (this->carObj_)->sortIndex + 1; ; search++) { Car_tObj *other; if (!(search < Cars_gNumCars && (status == 2))) break;
 
 
 
 
-    this->CheckIfCarIsNearbyAndStop(Cars_gSortedList[search],status);
+    other = Cars_gSortedList[search]; this->CheckIfCarIsNearbyAndStop(other,status);
   }
 
-  if (status != 1) {
-
-    status = 2; for (search = (this->carObj_)->sortIndex - 1; ; search--) { if (!(-1 < search && (status == 2))) break;
-
-
+  if (status != 1)
+  {
+    status = 2; for (search = (this->carObj_)->sortIndex - 1; ; search--) { Car_tObj *other; if (!(-1 < search && (status == 2))) break;
 
 
-      this->CheckIfCarIsNearbyAndStop(Cars_gSortedList[search],status);
+
+
+      other = Cars_gSortedList[search]; this->CheckIfCarIsNearbyAndStop(other,status);
     } } return; }
 /* W57-A11: SLD gives ONE retail line (1177) for the whole 3-word copy and the oracle
      uses t0/t1/t2 -- that is gcc's movstrsi 12-byte STRUCT ASSIGNMENT, not three per-field
@@ -1843,6 +1882,7 @@ void AIState_RovingTraffic::Execute()
 /* ---- _._14AIState_Donuts  AIState_Donuts::dtor  [AISTATE.CPP:1248-1253] SLD-VERIFIED ---- */
 /* Ordinary member form supplies the implicit receiver and in-charge handling. */
 
+#line 1244 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Donuts::~AIState_Donuts()
 
 
@@ -1869,6 +1909,7 @@ AIState_Donuts::~AIState_Donuts()
    No caller temporary, asm, qualifier or fake reference is needed here;
    full scope/SLD restoration is checked separately, not implied by319PASS. */
 
+#line 1252 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Donuts::Execute()
 
 
@@ -1893,8 +1934,8 @@ void AIState_Donuts::Execute()
 
 
 
-  if ((this->donutMode_ == 1) || (this->donutMode_ == 3)) { int forwardSlice; int forwardDot; int dCarToCenter; forwardDot = (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) + (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
-
+  if ((this->donutMode_ == 1) || (this->donutMode_ == 3))
+  { int forwardSlice; int forwardDot; int dCarToCenter; forwardDot = (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) + (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
 
         (this->carObj_->N.orientMat.m[8] / 256) * (this->carObj_->N.roadMatrix.m[8] / 256);
     if (0 <= forwardDot) {
@@ -2045,6 +2086,7 @@ void AIState_Donuts::Execute()
 
 /* ---- __17AIState_GotoSliceP8Car_tObjii  AIState_GotoSlice::ctor  [AISTATE.CPP:1348-1351] SLD-VERIFIED ---- */
 
+#line 1347 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_GotoSlice::AIState_GotoSlice(Car_tObj *carObj,int targetSlice,int stopWhenArrivedAtSlice)
   : AIState_Normal(carObj),
     targetSlice_(targetSlice),
@@ -2065,6 +2107,7 @@ AIState_GotoSlice::AIState_GotoSlice(Car_tObj *carObj,int targetSlice,int stopWh
    ternary was68words; this removes the final unrecorded speed capture at70.
    Native owner/SLD receipts are separate from instruction equality. */
 
+#line 1351 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_GotoSlice::Execute()
 
 
@@ -2083,8 +2126,8 @@ void AIState_GotoSlice::Execute()
   this->AIState_Normal::Execute();
 
 
-  if (this->stopWhenArrivedAtSlice_ != 0) { int distMeters; int cap;
-
+  if (this->stopWhenArrivedAtSlice_ != 0)
+  { int distMeters; int cap;
     distMeters = __builtin_abs(longMetersBetween); cap = 0xc80000;
 
 
@@ -2148,6 +2191,7 @@ void AIState_GotoSlice::Execute()
  * Three successive source statements also reproduce all 17 retail relative
  * SLD tags and the function-end line delta (3). Literal spelling is unknown. */
 
+#line 1395 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 int AIState_GotoSlice::InTargetSliceRange(int rangeMeters) {
   int distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
   distanceMeters = __builtin_abs(distanceMeters);
@@ -2163,6 +2207,7 @@ int AIState_GotoSlice::InTargetSliceRange(int rangeMeters) {
 
 /* ---- __14AIState_CruiseP8Car_tObj12cruiseMode_ti  AIState_Cruise::ctor  [AISTATE.CPP:1403-1408] SLD-VERIFIED ---- */
 
+#line 1402 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 AIState_Cruise::AIState_Cruise(Car_tObj *carObj,cruiseMode_t cruiseMode,int speedOrFactor)
   : AIState_Normal(carObj)
 {
@@ -2182,6 +2227,7 @@ AIState_Cruise::AIState_Cruise(Car_tObj *carObj,cruiseMode_t cruiseMode,int spee
 
 /* ---- Execute__14AIState_Cruise  AIState_Cruise::Execute  [AISTATE.CPP:1414-1434] SLD-VERIFIED ---- */
 
+#line 1410 "C:/nfs4/GAME/COMMON/AISTATE.CPP"
 void AIState_Cruise::Execute()
 
 
@@ -2233,6 +2279,7 @@ void AIState_Cruise::Execute()
 /* ---- _._14AIState_Cruise  AIState_Cruise::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
 /* Ordinary member form supplies the implicit receiver and in-charge handling. */
 
+#line 258 "C:/nfs4/GAME/COMMON/AISTATE.H"
 AIState_Cruise::~AIState_Cruise()
 
 
@@ -2255,6 +2302,7 @@ AIState_Cruise::~AIState_Cruise()
 /* ---- _._17AIState_GotoSlice  AIState_GotoSlice::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
 /* Ordinary member form supplies the implicit receiver and in-charge handling. */
 
+#line 234 "C:/nfs4/GAME/COMMON/AISTATE.H"
 AIState_GotoSlice::~AIState_GotoSlice()
 
 
@@ -2276,6 +2324,7 @@ AIState_GotoSlice::~AIState_GotoSlice()
 
 /* ---- TestForRelease__21AIState_RovingTraffic  AIState_RovingTraffic::TestForRelease  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
 
+#line 206 "C:/nfs4/GAME/COMMON/AISTATE.H"
 int AIState_RovingTraffic::TestForRelease()
 
 
@@ -2296,6 +2345,7 @@ int AIState_RovingTraffic::TestForRelease()
 /* ---- _._21AIState_RovingTraffic  AIState_RovingTraffic::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ----
    An ordinary member destructor exposes the real source cleanup and lets GCC
    provide its implicit receiver/in-charge handling. */
+#line 200 "C:/nfs4/GAME/COMMON/AISTATE.H"
 AIState_RovingTraffic::~AIState_RovingTraffic()
 
 

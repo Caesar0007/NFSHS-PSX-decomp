@@ -156,7 +156,7 @@ struct Speech {
     struct DispatchSpeaker : public Speaker {
         /* no user constructor: retail's Speech::Speech() expands only the base Speaker() pair for `new DispatchSpeaker`
            (MobileSpeaker's user constructor adds a body block after that pair) */
-        inline void ClearSpeaker();   /* defined after struct Speech (inner Speech inline) */
+        inline void ClearSpeaker();   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
         int fStatusCount;
         Speaker *fStatusSub;
         int fUpdateCount;
@@ -191,14 +191,14 @@ struct Speech {
         inline void SetPerp(Car_tObj *car) { fPerp = car; }
         /* retail: `Speech::fgSpeech->fSpeakerCar = fCarObj` is an inline on the mobile that calls an inner
            Speech inline with parameter `carObj` (Bullhorn's nested pair records carObj/$2 and the Speech this) */
-        inline void MakeSpeaker();   /* defined after struct Speech so the inner Speech inline is expanded */
-        inline void DelayStatus(int delay);   /* Catch: `this` pair around Speech::SetDelayedStatus (defined after struct Speech) */
-        inline SPCHNFSType_VOICE *Voice() { return &fVoice; }
+        inline void MakeSpeaker();   /* defined in speech.cpp (retail SPEECH.CPP inline: its blocks record line 1) */
+        inline void DelayStatus(int delay);   /* Catch: `this` pair around Speech::SetDelayedStatus (defined in speech.cpp) */
+        inline SPCHNFSType_VOICE *Voice();   /* defined in speech.cpp (retail SPEECH.CPP inline) */
         inline void SetVoice(int Voice) { fVoice.flags = Voice; }
-        inline void SetSpeedType(int type) { fSpeedType.flags = type; }
+        inline void SetSpeedType(int type);   /* defined in speech.cpp (retail SPEECH.CPP inline) */
         inline int Speed() { return fSpeed; }
         inline SPCHNFSType_vs_KMH_MPH *SpeedType() { return &fSpeedType; }
-        inline void ClearCarObj() { fCarObj = 0; }
+        inline void ClearCarObj();   /* defined in speech.cpp (retail SPEECH.CPP inline) */
         /* FindMobile's two loops each call one inline on fMobile[i]: (this, carObj) and (this) */
         inline bool IsCar(Car_tObj *carObj) { return carObj == fCarObj; }
         inline bool IsFree() { return fCarObj == 0; }
@@ -313,9 +313,22 @@ struct Speech {
     ~Speech();
 };
 
-inline void Speech::MobileSpeaker::DelayStatus(int delay) { fgSpeech->SetDelayedStatus(this, delay); }
-inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); }
-inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); }
+
+
+
+
+/* the speech object's creation (NFS3.CPP): a header inline -- retail records its variable-free scopes at the
+   caller's line in Nfs2_GameModuleStartUp (a same-.cpp inline clamps them to line 1) */
+static inline void Speech_Create(void)
+{
+  if (Speech::fgSpeech == 0) Speech::fgSpeech = new Speech;
+}
+/* the shared undefined speaker (NFS3.CPP Nfs2_SystemNLibStartUp): retail's two extra variable-free scopes opened
+   at the function start around this creation are this header inline's (name inferred) */
+static inline void Speech_CreateUndefined(void)
+{
+  if (Speech::fgUndefined == 0) Speech::fgUndefined = new Speech::Speaker;
+}
 
 
 #endif

@@ -30,10 +30,12 @@ void AudioTrk_CleanUp(void);
        verified code, but a distinct original source pointer/name is unproved.
        P897's direct index trial is58/56 with32diffs; no carrier exemption or
        original-name claim is justified by that failed source form. */
+
+#line 58 "C:/nfs4/GAME/COMMON/AUDIOTRK.CPP"
 void AudioTrk_Reset(void)
 {
-  if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
-
+  if (AudioTrk_g != (AudioTrk_tGlobals *)0x0)
+  {
     for (int i = 0; i < 0x10; i++) {
 
       if (AudioTrk_g->chan[i].handle != -1) {
@@ -58,10 +60,12 @@ void AudioTrk_Reset(void)
 }
 
 /* ---- AudioTrk_StartUp__Fv  [@0x8007c6f4] ---- */
+
+#line 87 "C:/nfs4/GAME/COMMON/AUDIOTRK.CPP"
 void AudioTrk_StartUp(void)
 {
-  if (AudioTrk_g == (AudioTrk_tGlobals *)0x0) {
-
+  if (AudioTrk_g == (AudioTrk_tGlobals *)0x0)
+  {
     AudioTrk_g = reservememadr("trck globals",0x100,0);
     for (int i = 0; i < 16; i++)
       AudioTrk_g->chan[i].handle = -1;
@@ -102,6 +106,8 @@ void AudioTrk_StartUp(void)
              `c = chan+i` / `chan[i].se = se` (store-first, &chan[i] form, ptr-form
              store, `chan[n]` store with `n=i` placed after, slice-store-first); a
              `slot` local is 5 @414. */
+
+#line 134 "C:/nfs4/GAME/COMMON/AUDIOTRK.CPP"
 void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_tObj *car,int trkazi)
 {
   int dst; AudioTrk_tAmbientChannel *c; int n; if (AudioTrk_g == (AudioTrk_tGlobals *)0x0)
@@ -109,8 +115,8 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
 
   dst = Math_Dist3D(&se->cp,&AudioClc_gRenderView.translation);
   if (((se->range + 100) * 0x10000 <= dst) ||
-      (CopSpeak_gNumTrackSfx <= (int)(u_int)(u_char)se->patchID)) {
-
+      (CopSpeak_gNumTrackSfx <= (int)(u_int)(u_char)se->patchID))
+      {
     if (-1 < (signed char)se->chan) {
       AudioTrk_tAmbientChannel *c;
       c = AudioTrk_g->chan + (signed char)se->chan;
@@ -236,8 +242,8 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
         }
       }
 
-      if (dst < (int)se->range << 0x10) {
-
+      if (dst < (int)se->range << 0x10)
+      {
         if (se->type == '\x03') {
 
           azimuth += trkazi;
@@ -247,8 +253,8 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
           azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
           dop = AudioClc_CalcDopplerShiftRatio(&se->cp,vel);
         }
-        if ((((u_char)se->type >= 4) && ((u_char)se->type < 36)) || ((u_char)se->type == 1)) {
-
+        if ((((u_char)se->type >= 4) && ((u_char)se->type < 36)) || ((u_char)se->type == 1))
+        {
           int rangesq = (int)se->range * (int)se->range;
           vol = ((((((rangesq >> 4) * 0x10000 - fixedmult(dst >> 2,dst >> 2)) / rangesq) * ((fade << 7) - fade)) / 0x10000) >> 3);
         } else {
@@ -282,6 +288,8 @@ void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_t
                    spelling remains unproved (raw8007D118/11C). */
       /* MATCH P901: conditional assignment arms keep the native one-statement
          selection; a bare min expression reverses the retail compare polarity. */
+
+#line 309 "C:/nfs4/GAME/COMMON/AUDIOTRK.CPP"
 void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
 {
   if (GameSetup_gData.commMode == 1)
@@ -365,8 +373,8 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
         } else {
           if ((*(u_int *)&se->range & 0xffff0000) != 0)
 
-            if ((se->nextDelay < gtck) && (se->chan == -1)) {
-
+            if ((se->nextDelay < gtck) && (se->chan == -1))
+            {
               int randtick = ((u_char)se->randomDelay > 1) ? (u_int)random() % (u_char)se->randomDelay : 0;
               se->nextDelay = (u_char)se->minDelay + tck + randtick;
             }
@@ -452,6 +460,8 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
  * P898: native statement groups restored without new helpers or locals.
  * Native se/i/x/z/d ownership is retained; the original CAudioList inline
  * accessor identity (SYM1bf4f2 this) remains a source-recovery gap. */
+
+#line 477 "C:/nfs4/GAME/COMMON/AUDIOTRK.CPP"
 int AudioTrk_PreLoad(void)
 {
   int vx; int vz; int tick; bool loaded; int check; int numelems; if (gGameAudioList == (CAudioList *)0x0)
@@ -506,12 +516,14 @@ int AudioTrk_PreLoad(void)
 }
 
 /* ---- AudioTrk_CleanUp__Fv  [@0x8007d52c] ---- */
+
+#line 533 "C:/nfs4/GAME/COMMON/AUDIOTRK.CPP"
 void AudioTrk_CleanUp(void)
 {
   AudioTrk_Reset();
 
-  if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
-
+  if (AudioTrk_g != (AudioTrk_tGlobals *)0x0)
+  {
     for (int i = 0; i < 0x10; i++) {
 
       if (AudioTrk_g->chan[i].handle != -1) {

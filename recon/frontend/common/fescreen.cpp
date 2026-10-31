@@ -15,9 +15,6 @@ tTexture_ShapeInfo *gCurrentShapes;   /* @0x800517cc; SYM EXT */
 
 /* ---- tScreen::DisplayLoadingText  [FESCREEN.CPP:36-67] SLD-VERIFIED ---- */
 
-void tScreen::DisplayLoadingText()
-
-{
   /* SYM 8c: exactly TWO locals -- oldIsBg (class REG $12 = $s2, type INT) and
      i (class REG $10 = $s0, type SHORT); no `string`/`iVar2` temporaries.
      SLD statements: 37 / 40 / 43 47 48 / 51 53 59 60 63 64 65 / 66 67.
@@ -25,29 +22,42 @@ void tScreen::DisplayLoadingText()
      drawenv[1].isbg = V), which is why retail computes the view address once
      and emits the two `sb`s back to back, [1] before [0].  Line 60 is one
      statement: the two calls nest inside PSXDrawSquare's 4th argument. */
-  int oldIsBg;
-  short i;
+#line 33 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
+void tScreen::DisplayLoadingText()
 
-  if (tScreen::fSuppressLoadingText != 0) {                               /* 37 */
+
+{
+  int oldIsBg; short i; if (tScreen::fSuppressLoadingText != 0) {                               /* 37 */
+
+
     tScreen::fSuppressLoadingText = 0;                                    /* 40 */
   }
   else {
     oldIsBg = Draw_gView[Draw_gPlayer1View].drawenv[0].isbg;              /* 43 */
     Draw_gView[Draw_gPlayer1View].drawenv[0].isbg =
+
+
       Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = '\0';               /* 47 */
     for (i = 0; i < 2; i = i + 1) {                                       /* 48 */
+
+
       Draw_StartFrameRender();                                            /* 51 */
+
       Draw_StartRenderingView(Draw_gPlayer1View);                         /* 53 */
+
+
+
+
+
       FETextRender_MenuTextPositionedJustify(0x27d,0x1e0,0xdc,1,textState_Selected,textType_ScreenInfo); /* 59 */
       PSXDrawSquare(0,0x1e0,0xdc,-textpixels(TextSys_Word(0x27d)) - 5,7); /* 60 */
+
+
       Draw_StopRenderingView(Draw_gPlayer1View);                          /* 63 */
       Draw_StopFrameRender();                                             /* 64 */
     }
-    Draw_gView[Draw_gPlayer1View].drawenv[0].isbg =
-      Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = (u_char)oldIsBg;    /* 66 */
-  }
-  return;
-}
+    Draw_gView[Draw_gPlayer1View].drawenv[0].isbg = Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = (u_char)oldIsBg;    /* 66 */
+  } return; }
 
 
 
@@ -73,38 +83,40 @@ void tScreen::DisplayLoadingText()
    const pointer was 18. The playerViewIndex address still requires a
    separate debug-elided source value (direct index: 8 schedule diffs). */
 
+#line 141 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::GoNonInterlaced()
+
 
 {
   int *playerViewIndex;
+
+
   screenheight = 0xf0;
-  dflip *const displayEnv = gEnviro;
-  const u_short displayHeight = *(u_short *)&screenheight;
-  gEnviro[0].disp.disp.y = 0x100;
+
+
+
+
+  dflip *const displayEnv = gEnviro; const u_short displayHeight = *(u_short *)&screenheight; gEnviro[0].disp.disp.y = 0x100;
   gEnviro[0].disp.disp.h = displayHeight;
   gEnviro[0].disp.screen.h = displayHeight;
   displayEnv[0].disp.isinter = '\0';
   gEnviro[1].disp.disp.y = 0;
   gEnviro[1].disp.screen.h = displayHeight;
   displayEnv[1].disp.isinter = '\0';
-  Draw_tView (&viewTable)[] = Draw_gView;
-  playerViewIndex = &Draw_gPlayer1View;
-  Draw_tView *const frontView = &viewTable[*playerViewIndex];
-  frontView->drawenv[0].dfe = '\0';
-  Draw_tView *const backView = &viewTable[*playerViewIndex];
-  frontView->drawenv[0].clip.y = 0;
+
+  Draw_tView (&viewTable)[] = Draw_gView; playerViewIndex = &Draw_gPlayer1View; Draw_tView *const frontView = &viewTable[*playerViewIndex]; frontView->drawenv[0].dfe = '\0'; Draw_tView *const backView = &viewTable[*playerViewIndex]; frontView->drawenv[0].clip.y = 0;
   frontView->drawenv[0].clip.h = displayHeight;
   frontView->drawenv[0].ofs[0] = 0;
   frontView->drawenv[0].ofs[1] = 0;
   const short viewHeight = (short)screenheight;
+
   backView->drawenv[1].clip.y = 0x100;
+
   backView->drawenv[1].ofs[0] = 0;
   backView->drawenv[1].ofs[1] = 0x100;
   backView->drawenv[1].dfe = '\0';
-  backView->drawenv[1].clip.h = viewHeight;
-  DrawSync(0);
-  VSync(0);
-  return;
+  backView->drawenv[1].clip.h = viewHeight; DrawSync(0);
+  VSync(0); return;
 }
 
 
@@ -113,7 +125,9 @@ void tScreen::GoNonInterlaced()
 /* Retail SLD separates drawFlags.flip_axis, custom_shapes, loop head,
    first draw, flip guard and second draw across relative lines 4/5/7/9/10/11. */
 
+#line 182 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::DrawBackgroundImage(int startShape,int numShapes,tTexture_ShapeInfo *shapes,int flip_axis)
+
 
 {
   /* SYM ORDER (W86-S2): the 8c Def rows read drawFlags, i. */
@@ -134,7 +148,9 @@ void tScreen::DrawBackgroundImage(int startShape,int numShapes,tTexture_ShapeInf
 
 /* ---- tScreen::AsyncLoadPermanentShapeFile  [FESCREEN.CPP:201-202] SLD-VERIFIED ---- */
 
+#line 198 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::AsyncLoadPermanentShapeFile(char *fileName)
+
 
 {
   this->AsyncLoadShapeFile(fileName,this->fPermShapes);
@@ -144,7 +160,9 @@ void tScreen::AsyncLoadPermanentShapeFile(char *fileName)
 
 /* ---- tScreen::AsyncLoadSwapShapeFile  [FESCREEN.CPP:206-214] SLD-VERIFIED ---- */
 
+#line 203 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::AsyncLoadSwapShapeFile(char *fileName)
+
 
 {
   char buffer [32];
@@ -162,65 +180,64 @@ void tScreen::AsyncLoadSwapShapeFile(char *fileName)
 
 /* ---- tScreen::IsShapeFileLoaded  [FESCREEN.CPP:218-270] SLD-VERIFIED ---- */
 
-bool tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
-
-{
-  /* SYM ORDER (W86-S2): the 8c Def rows read result, async_status, bogus. */
-  bool result;
-  int async_status;
-  char *bogus;
-
   /* MATCH: ONE result var (retail's $s1, set to 1 in the entry branch's delay
      slot) with a single return -- the per-arm `pvVar3 = 0` funnel Ghidra
      produced duplicates the tail.  getasyncreadadr takes ONE arg (the oracle
      sets only $a0).  SYM-CONFORM (2026-08-16, PASS retained): the three
      retail locals are `BOOL result`, `int async_status`, and `char *bogus`;
      BOOL is the four-byte EA typedef, not native C++ bool. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read result, async_status, bogus. */
+#line 215 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
+bool tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
+
+
+{
+  bool result;
+  int async_status;
+  char *bogus;
   result = 1;
   if (shapes.async_handle != 0) {
+
     async_status = getasyncreadstatus(shapes.async_handle);
     if (0 < async_status) {
+
       if (shapes.fDestFile == (char *)0x0) {
         shapes.fFile = (char *)getasyncreadadr(shapes.async_handle);
+      } else { shapes.fFile = shapes.fDestFile;
       }
-      else {
-        shapes.fFile = shapes.fDestFile;
-      }
-      shapes.async_handle = 0;
-      if ((shapes.fFile != (char *)0x0) && (shapes.fLoadCancelled != 0)) {
+      shapes.async_handle = 0; if ((shapes.fFile != (char *)0x0) && (shapes.fLoadCancelled != 0)) {
+
         if (shapes.fDestFile == (char *)0x0) {
           purgememadr(shapes.fFile);
-        }
-        shapes.fFile = (char *)0x0;
+        } shapes.fFile = (char *)0x0;
       }
     }
-    else {
-      if (async_status == -1) {
+    else { if (async_status == -1) {
+
         bogus = (char *)getasyncreadadr(shapes.async_handle);
         if (bogus != (char *)0x0) {
           purgememadr(bogus);
-        }
-        this->AsyncLoadShapeFile(shapes.fFilename,shapes);
+        } this->AsyncLoadShapeFile(shapes.fFilename,shapes);
         result = 0;
       }
       else if (async_status == -2) {
+
         this->AsyncLoadShapeFile(shapes.fFilename,shapes);
         result = 0;
       }
       else {
         result = 0;
       }
-    }
-    }
-  else {
-    if (shapes.fLoadCancelled != 0) {
+    } } else { if (shapes.fLoadCancelled != 0) {
+
       if (shapes.fFile != (char *)0x0) {
+
         if (shapes.fDestFile == (char *)0x0) {
           purgememadr(shapes.fFile);
-        }
-        shapes.fFile = (char *)0x0;
+        } shapes.fFile = (char *)0x0;
       }
       shapes.fLoadCancelled = 0;
+
       this->AsyncLoadShapeFile(shapes.fFilename,shapes);
       this->IsShapeFileLoaded(shapes);
       result = 0;
@@ -234,7 +251,9 @@ bool tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
 
 /* ---- tScreen::UploadPermanentShapes  [FESCREEN.CPP:284-286] SLD-VERIFIED ---- */
 
+#line 281 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::UploadPermanentShapes(int numPermanentShapes)
+
 
 {
   this->UploadShapes(this->fPermShapes,0,0,(short)numPermanentShapes,0);
@@ -245,7 +264,9 @@ void tScreen::UploadPermanentShapes(int numPermanentShapes)
 
 /* ---- tScreen::UploadSwapShapes  [FESCREEN.CPP:290-292] SLD-VERIFIED ---- */
 
+#line 287 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::UploadSwapShapes(int numSwapShapes)
+
 
 {
 
@@ -256,8 +277,10 @@ void tScreen::UploadSwapShapes(int numSwapShapes)
 
 /* ---- tScreen::GetShapeInfo  [FESCREEN.CPP:321-326] SLD-VERIFIED ---- */
 
+#line 317 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
                char **swapFileName)
+
 
 {
 
@@ -271,7 +294,9 @@ void tScreen::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **perm
 
 /* ---- tScreen::ctor  [FESCREEN.CPP:332-337] SLD-VERIFIED ---- */
 
+#line 329 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 tScreen::tScreen()
+
 
 {
   (this->fPermShapes).fShapes = (tTexture_ShapeInfo *)0x0;
@@ -285,7 +310,9 @@ tScreen::tScreen()
 
 /* ---- tScreen::dtor  [FESCREEN.CPP:341-341] SLD-VERIFIED ---- */
 
+#line 338 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 tScreen::~tScreen()
+
 
 {
 }
@@ -294,14 +321,10 @@ tScreen::~tScreen()
 
 /* ---- tScreen::Initialize  [FESCREEN.CPP:345-377] SLD-VERIFIED ---- */
 
-void tScreen::Initialize()
-
-{
-  /* MATCH: IDA's retail allocation and the raw call site show no implicit
-     `this` setup for GoNonInterlaced; that routine also reads no object state.
-     Calling its class-qualified symbol through the static-member-shaped alias
-     removes the spurious a0 copy and leaves both final stores based on s1.
-     Probe: 6 -> PASS 61/61. */
+    /* SLD line 367 is ONE statement -- retail's `&&` funnel ($v1 default 0, the
+       call, sltu into $v1) whose result is copied back into $s0 at 368. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read numPermShapes, numSwapShapes,
+     permFileName, swapFileName, shapesLoaded. */
   /* SYM 8c: the ONLY local is `shapesLoaded` (class REG $10 = $s0, type BOOL);
      `this` is REGPARM $11 = $s1 and the frame carries just $s0/$s1/$ra
      (mask $80030000, fsize 56).  So there is NO separate pvVar2 -- ONE variable
@@ -309,41 +332,57 @@ void tScreen::Initialize()
      reuses $s0. `BOOL` is the retail spelling and aliases `int`; the explicit
      cast from the currently misdeclared `void *` return preserves retail's raw
      move exactly. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read numPermShapes, numSwapShapes,
-     permFileName, swapFileName, shapesLoaded. */
+  /* MATCH: IDA's retail allocation and the raw call site show no implicit
+     `this` setup for GoNonInterlaced; that routine also reads no object state.
+     Calling its class-qualified symbol through the static-member-shaped alias
+     removes the spurious a0 copy and leaves both final stores based on s1.
+     Probe: 6 -> PASS 61/61. */
+#line 342 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
+void tScreen::Initialize()
+
+
+{
   short numPermShapes;
   short numSwapShapes;
   char *permFileName;
   char *swapFileName;
-  bool shapesLoaded;
+  bool shapesLoaded; this->DisplayLoadingText();
 
-  this->DisplayLoadingText();
+
   this->PreLoad();
+
+
   this->GetShapeInfo(numPermShapes,numSwapShapes,&permFileName,&swapFileName);
   do {
+
+
+
     FeAudio_systemtask(0);
+
     shapesLoaded = this->IsShapeFileLoaded(this->fPermShapes);        /* 363 */
     if ((this->fPermShapes).fFile != (char *)0x0) {                   /* 364 */
       this->UploadPermanentShapes((int)numPermShapes);                /* 365 */
     }
-    /* SLD line 367 is ONE statement -- retail's `&&` funnel ($v1 default 0, the
-       call, sltu into $v1) whose result is copied back into $s0 at 368. */
     shapesLoaded = shapesLoaded && this->IsShapeFileLoaded(this->fSwapShapes) != 0;
     if ((this->fSwapShapes).fFile != (char *)0x0) {                   /* 368 */
-      this->UploadSwapShapes((int)numSwapShapes);                     /* 369 */
-    }
-  } while (!shapesLoaded);
+      this->UploadSwapShapes((int)numSwapShapes);                     /* 369 */ } } while (!shapesLoaded);
+
   (this->fPermShapes).fNumShapes = numPermShapes;
   (this->fSwapShapes).fNumShapes = numSwapShapes;
-  this->GoNonInterlaced();
-  return;
+
+
+
+
+  this->GoNonInterlaced(); return;
 }
 
 
 
 /* ---- tScreen::Cleanup  [FESCREEN.CPP:385-392] SLD-VERIFIED ---- */
 
+#line 382 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::Cleanup()
+
 
 {
   
@@ -359,7 +398,9 @@ void tScreen::Cleanup()
 
 /* ---- tScreen::Draw  [FESCREEN.CPP:397-401] SLD-VERIFIED ---- */
 
+#line 394 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::Draw(bool drawBackground)
+
 
 {
   if (drawBackground != 0) {
@@ -373,38 +414,53 @@ void tScreen::Draw(bool drawBackground)
 
 /* ---- tScreen::AsyncLoadShapeFile  [FESCREEN.CPP:409-451] SLD-VERIFIED ---- */
 
+#line 406 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::AsyncLoadShapeFile(char *name,tShapeInformation &data)
+
 
 {
   char buffer [128];
   
+
   if ((name == (char *)0x0) && (data.async_handle != 0)) {
+
+
     cancelasyncload(data.async_handle);
     data.async_handle = 0;
   }
+
   this->CancelAsyncLoad(data);
   if (data.fFile != (char *)0x0) {
+
     if (data.fDestFile == (char *)0x0) {
       purgememadr(data.fFile);
-    }
-    data.fFile = (char *)0x0;
+    } data.fFile = (char *)0x0;
   }
+
   data.fFlags = data.fFlags & 0xfffe;
+
   if (name != (char *)0x0) {
+
+
     sprintf(data.fFilename,"%s",name);
     sprintf(buffer,"%s%s.psh",Paths_Paths[0x20],name);
+
     if (data.fLoadCancelled == 0) {
       data.fLoadCancelled = 0;
+
+
+
+
+
+
+
+
+
+
       if (data.fDestFile != (char *)0x0) {
         data.async_handle = asyncloadfileat(buffer,data.fDestFile);
       }
-      else {
-        data.async_handle = asyncloadfile(buffer,(void *)0x10);
-      }
-    }
-  }
-  return;
-}
+      else { data.async_handle = asyncloadfile(buffer,(void *)0x10); } } } return; }
 
 
 
@@ -415,7 +471,9 @@ void tScreen::AsyncLoadShapeFile(char *name,tShapeInformation &data)
    separates retail's call/compare line tags; the inner purge stays unbraced.
    Remaining SLD attribution is not claimed exact. */
 
+#line 456 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::CancelAsyncLoad(tShapeInformation &data)
+
 
 {
 
@@ -424,18 +482,20 @@ void tScreen::CancelAsyncLoad(tShapeInformation &data)
     return;
   const int readStatus = getasyncreadstatus(data.async_handle); /* debug-elided status value */
   if (readStatus == 0) {
-    data.fLoadCancelled = 1;
-    return;
+    data.fLoadCancelled = 1; return;
   }
+
+
   if (data.fDestFile == (char *)0x0)
     data.fFile = getasyncreadadr(data.async_handle);
+
   if (data.fFile != (char *)0x0) {
+
     if (data.fDestFile == (char *)0x0)
       purgememadr(data.fFile);
     data.fFile = (char *)0x0;
   }
-  data.async_handle = 0;
-}
+  data.async_handle = 0; }
 
 
 
@@ -444,7 +504,9 @@ void tScreen::CancelAsyncLoad(tShapeInformation &data)
    on +24. The compact closing brace records that line span, not a claim
    that the original punctuation or non-emitting comments are known. */
 
+#line 482 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
+
 
 {
   u_short i;
@@ -476,7 +538,13 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 
 /* ---- tScreen::FreeShapes  [FESCREEN.CPP:514-555] SLD-VERIFIED ---- */
 
+  /* MATCH: a plain top-tested `while` -- gcc rotates it (entry test + bottom
+     bne) and LICMs the -1/-2 sentinels into callee-saved regs, which the
+     do{}while(true)+early-return shape does not.  SYM-CONFORM (2026-08-16):
+     restored the original `int async_status` name; PASS remains 88/88. */
+#line 511 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::FreeShapes(tShapeInformation &data)
+
 
 {
   /* SYM ORDER (W86-S2): the 8c Def rows read i, async_status. */
@@ -484,89 +552,102 @@ void tScreen::FreeShapes(tShapeInformation &data)
   int async_status;
 
   this->CancelAsyncLoad(data);
-  /* MATCH: a plain top-tested `while` -- gcc rotates it (entry test + bottom
-     bne) and LICMs the -1/-2 sentinels into callee-saved regs, which the
-     do{}while(true)+early-return shape does not.  SYM-CONFORM (2026-08-16):
-     restored the original `int async_status` name; PASS remains 88/88. */
+
   while (data.async_handle != 0) {
+
     async_status = getasyncreadstatus(data.async_handle);
     if ((0 < async_status) || (async_status == -1)) {
+
       if (data.fDestFile == (char *)0x0) {
         data.fFile = getasyncreadadr(data.async_handle);
       }
-      else {
-        data.fFile = (char *)0x0;
-      }
-      data.async_handle = 0;
+      else { data.fFile = (char *)0x0; } data.async_handle = 0;
     }
     else if (async_status == -2) {
+
       data.async_handle = 0;
     }
+
     FeAudio_systemtask(0);
   }
+
   if (data.fFile != (char *)0x0) {
+
     if (data.fDestFile == (char *)0x0) {
       purgememadr(data.fFile);
-    }
-    data.fFile = (char *)0x0;
+    } data.fFile = (char *)0x0;
   }
+
   if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
+
     if (data.fNumShapes != 0) {
-      i = 0;
-      do {
-        if (*(int *)&data.fShapes[i].clutID != 0) {
+      i = 0; do { if (*(int *)&data.fShapes[i].clutID != 0) {
           Texture_MenuReleaseClutId(data.fShapes[i].clutID);
         }
-        i = i + 1;
-      } while (i < (int)(u_int)data.fNumShapes);
-    }
-    purgememadr(data.fShapes);
+        i = i + 1; } while (i < (int)(u_int)data.fNumShapes); } purgememadr(data.fShapes);
     data.fShapes = (tTexture_ShapeInfo *)0x0;
   }
-  return;
-}
+  return; }
 
 
 
 /* ---- tScreen::UploadShapes  [FESCREEN.CPP:559-597] SLD-VERIFIED ---- */
 
-void tScreen::UploadShapes(tShapeInformation &data,short x,short y,short numShapes,short index)
-
-{
   /* SYM 8c: the ONLY local is `i` (class REG $10 = $s0) -- ONE counter shared by
      BOTH loops, indexed as [i + index]; the two-variable iVar1/iVar2 walk cost a
      second induction pseudo.  SLD statements: 563 571 572 / 576 578 580 581 583 /
      585 / 588 589 / 591 594 595 596 597. */
+#line 556 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
+void tScreen::UploadShapes(tShapeInformation &data,short x,short y,short numShapes,short index)
+
+
+{
   int i;
 
+
   if (data.fFile != (char *)0x0) {                                       /* 563 */
+
+
+
+
+
+
+
     if (numShapes == 0) {                                                /* 571 */
       numShapes = data.fNumShapes;                                       /* 572 */
     }
+
+
     for (i = 0; i < numShapes; i = i + 1) {                              /* 576 */
+
       if (data.fShapes[i + index].clutID != 0) {                         /* 578 */
+
         Texture_MenuReleaseClutId((short)data.fShapes[i + index].clutID); /* 580 */
         data.fShapes[i + index].clutID = 0;                              /* 581 */
       }
     }
+
     data.fFlags = data.fFlags & 0xfffe;                                   /* 585 */
+
+
     for (i = 0; i < numShapes; i = i + 1) {                               /* 588 */
-      FETexture_LoadPmxAtOffset(data.fFile,i,&data.fShapes[i + index],(int)y,(int)x); /* 589 */
-    }
+      FETexture_LoadPmxAtOffset(data.fFile,i,&data.fShapes[i + index],(int)y,(int)x); /* 589 */ }
+
     data.fFlags = data.fFlags | 1;                                        /* 591 */
+
+
     if (data.fDestFile == (char *)0x0) {                                  /* 594 */
       purgememadr(data.fFile);                                            /* 595 */
-    }
-    data.fFile = (char *)0x0;                                             /* 596 */
-  }
-  return;
-}
+    } data.fFile = (char *)0x0;                                             /* 596 */
+  } return; }
 
 
 
 /* ---- tScreen::PreLoad  [FESCREEN.CPP:600-613] SLD-VERIFIED ---- */
 /* GetShapeInfo is the virtual slot-1 dispatch; native SYM owns the four
    outgoing shape-count and filename stack locals. */
+
+#line 599 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::PreLoad()
 {
   short numPermShapes;
@@ -588,73 +669,61 @@ void tScreen::PreLoad()
 /* Both transition setters have two zero-length nested retail scopes. Their
  * compile-time constant names below describe values, not original spelling. */
 
+/* ABI type/arity retained; the unused parameter's original name is unknown (no SYM record).
+   FRONT5: retail statement order (fade, ticks, transitionOff) + FE_Ticks inline -> BYTES/SYM/SLD exact. */
+#line 618 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::TransitionOff(tScreen_TransitionType type,tMenu *)
 
+
 {
-  /* ABI type/arity retained; this unused parameter's original name is
-     unknown because optimized SYM has no corresponding named record. */
-  {
-    const int fade = 0;
-    {
-      const int transitionOff = 1;
-      this->fInternalScreenFadeVal = this->fScreenFadeVal = fade;
-      this->fTransitionOff = transitionOff;
-      this->fTransitionTicks = ticks;
-      return;
-    }
-  }
+  this->fInternalScreenFadeVal = this->fScreenFadeVal = 0;
+
+  this->fTransitionTicks = FE_Ticks();
+  this->fTransitionOff = 1;
 }
 
 
 
 /* ---- tScreen::TransitionOn  [FESCREEN.CPP:629-633] SYM/SLD-REVIEWED; emitted partitions open (P889 SLD_RECEIPT.md) ---- */
 
+/* ABI type/arity retained; see TransitionOff. */
+#line 626 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::TransitionOn(tScreen_TransitionType type,tMenu *)
 
+
 {
-  /* ABI type/arity retained; this unused parameter's original name is
-     unknown because optimized SYM has no corresponding named record. */
-  {
-    const int fade = 0x80;
-    {
-      const int transitionOff = 0;
-      this->fInternalScreenFadeVal = this->fScreenFadeVal = fade;
-      this->fTransitionOff = transitionOff;
-      this->fTransitionTicks = ticks;
-      return;
-    }
-  }
+  this->fInternalScreenFadeVal = this->fScreenFadeVal = 0x80;
+
+  this->fTransitionTicks = FE_Ticks();
+  this->fTransitionOff = 0;
 }
 
 
 
 /* ---- tScreen::UpdateTransition  [FESCREEN.CPP:637-646] SLD-VERIFIED ---- */
 
+#line 634 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::UpdateTransition()
 
+
 {
-  const int transitionValue = this->fInternalScreenFadeVal +
-      (this->fTransitionOff == 0 ? -0xc : 0xc);
-  this->fInternalScreenFadeVal = transitionValue;
-  const int lowerClamped = transitionValue < -0x32 ? -0x32 : transitionValue;
-  const int fadeValue = 0x96 < lowerClamped ? 0x96 : lowerClamped;
-  this->fInternalScreenFadeVal = fadeValue;
+  const int transitionValue = this->fInternalScreenFadeVal + (this->fTransitionOff == 0 ? -0xc : 0xc); this->fInternalScreenFadeVal = transitionValue;
+  const int lowerClamped = transitionValue < -0x32 ? -0x32 : transitionValue; const int fadeValue = 0x96 < lowerClamped ? 0x96 : lowerClamped; this->fInternalScreenFadeVal = fadeValue;
+
   this->fScreenFadeVal = (short)this->fInternalScreenFadeVal;
+
   if (this->fScreenFadeVal < 0) {
-    this->fScreenFadeVal = 0;
-    return;
-  }
-  if (0x80 < this->fScreenFadeVal) {
-    this->fScreenFadeVal = 0x80;
-  }
-  return;
-}
+    this->fScreenFadeVal = 0; return;
+  } if (0x80 < this->fScreenFadeVal) {
+    this->fScreenFadeVal = 0x80; } return; }
 
 
 
 /* ---- tScreen::TransitionIsFinished  [FESCREEN.CPP:651-652] SLD-VERIFIED ---- */
 
+#line 648 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 bool tScreen::TransitionIsFinished()
+
 
 {
   return ((this->fInternalScreenFadeVal + 0x18U < 0xa7) ^ 1);
@@ -664,7 +733,9 @@ bool tScreen::TransitionIsFinished()
 
 /* ---- tScreen::ProcessInput  [FESCREEN.CPP:663-665] SLD-VERIFIED ---- */
 
+#line 660 "C:/nfs4/FRONTEND/COMMON/FESCREEN.CPP"
 void tScreen::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
+
 
 {
   ; /* Original body has no emitted operation; retain its source statement line. */
@@ -674,22 +745,17 @@ void tScreen::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand
 
 /* ---- tScreen::DrawForeground  [FESCREEN.H:97] SLD-HDR-INLINE ---- */
 
-void tScreen::DrawForeground()
 
-{
-  return;
-}
+#line 97 "C:/nfs4/FRONTEND/COMMON/FESCREEN.H"
+void tScreen::DrawForeground() { }
 
 
 
 /* ---- tScreen::DrawBackground  [FESCREEN.H:96] SLD-HDR-INLINE ---- */
 
-void tScreen::DrawBackground()
 
-{
-  
-  return;
-}
+#line 96 "C:/nfs4/FRONTEND/COMMON/FESCREEN.H"
+void tScreen::DrawBackground() { }
 
 
 

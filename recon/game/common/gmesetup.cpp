@@ -50,6 +50,8 @@ void GameSetup_CleanUp(void);
 
 
 /* ---- GameSetup_StartUp__FPi  @0x8009BD9C  [GMESETUP.CPP:155-354] ---- */
+
+#line 154 "C:/nfs4/GAME/COMMON/GMESETUP.CPP"
 void GameSetup_StartUp(int *FrontEndDataStream)
 {
     int i;          /* $a1 -- opcode (reused as the array-store counter) */
@@ -75,9 +77,9 @@ void GameSetup_StartUp(int *FrontEndDataStream)
 
         i = *s; if (i >= 0x103) {
 
+            l = FEI_gList;
 
-
-            for (l = FEI_gList, p = 0; l->v != 0; l++) {
+            for (p = 0; l->v != 0; l++) {
 
                 if (l->v == i) {
                     p = l->p;
@@ -147,51 +149,51 @@ void GameSetup_StartUp(int *FrontEndDataStream)
     PAD_update();
 
 
-    if ((PAD_state(0) & 0xFFFF) == 0x909)  GameSetup_gData.sgge = 0x8;
+    if ((PAD_state(0) & 0xFFFF) == 0x909)
+
+      GameSetup_gData.sgge = 0x8;
 
 
 
+    if ((PAD_state(0) & 0xFFFF) == 0xA080)
 
-
-    if ((PAD_state(0) & 0xFFFF) == 0xA080) GameSetup_gData.sgge = 0x2;
-
-
-
-
-
-    if ((PAD_state(0) & 0xFFFF) == 0xC001) GameSetup_gData.sgge = 0x4;
+      GameSetup_gData.sgge = 0x2;
 
 
 
+    if ((PAD_state(0) & 0xFFFF) == 0xC001)
 
-
-    if ((PAD_state(0) & 0xFFFF) == 0x640)  GameSetup_gData.sgge = 0x10;
-
-
-
-
-
-    if ((PAD_state(0) & 0xFFFF) == 0x610)  GameSetup_gData.sgge = 0x20;
+      GameSetup_gData.sgge = 0x4;
 
 
 
+    if ((PAD_state(0) & 0xFFFF) == 0x640)
 
-
-    if ((PAD_state(0) & 0xFFFF) == 0x910)  GameSetup_gData.sgge = 0x40;
-
-
-
-
-
-    if ((PAD_state(0) & 0xFFFF) == 0x5010) GameSetup_gData.sgge = 0x80;
+      GameSetup_gData.sgge = 0x10;
 
 
 
+    if ((PAD_state(0) & 0xFFFF) == 0x610)
+
+      GameSetup_gData.sgge = 0x20;
 
 
-    if ((PAD_state(0) & 0xFFFF) == 0x620)  GameSetup_gData.sgge = 0x100;
+
+    if ((PAD_state(0) & 0xFFFF) == 0x910)
+
+      GameSetup_gData.sgge = 0x40;
 
 
+
+    if ((PAD_state(0) & 0xFFFF) == 0x5010)
+
+      GameSetup_gData.sgge = 0x80;
+
+
+
+    if ((PAD_state(0) & 0xFFFF) == 0x620)
+
+      GameSetup_gData.sgge = 0x100;
 
 
 
@@ -254,6 +256,8 @@ void GameSetup_StartUp(int *FrontEndDataStream)
 }
 
 /* ---- GameSetup_CleanUp__Fv  @0x8009C120 ---- */
+
+#line 368 "C:/nfs4/GAME/COMMON/GMESETUP.CPP"
 void GameSetup_CleanUp(void)
 {
     return; }

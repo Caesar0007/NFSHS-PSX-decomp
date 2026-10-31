@@ -12,6 +12,8 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 
 /* ---- Alloc__9SimpleMemii [@0x800b7250] covered SLD requires native comparison ---- */
+
+
 #line 9 "C:/nfs4/GAME/COMMON/SIMPLEMEM.CPP"
 void * SimpleMem::Alloc(int len,int feign)
 {
@@ -48,6 +50,8 @@ void * SimpleMem::Alloc(int len,int feign)
 }
 
 /* ---- FeignAlloc__9SimpleMemi [@0x800b729c] covered SLD requires native comparison ---- */
+
+
 #line 44 "C:/nfs4/GAME/COMMON/SIMPLEMEM.CPP"
 void * SimpleMem::FeignAlloc(int len)
 {
@@ -55,6 +59,8 @@ void * SimpleMem::FeignAlloc(int len)
 }
 
 /* ---- ResizeToFit__9SimpleMem [@0x800b72bc] covered SLD requires native comparison ---- */
+
+
 #line 56 "C:/nfs4/GAME/COMMON/SIMPLEMEM.CPP"
 void SimpleMem::ResizeToFit()
 {

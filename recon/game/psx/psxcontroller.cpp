@@ -218,7 +218,9 @@ static int hoff[2] = { 0x4d, 1 };
    Full-debug scope proof now contains only REGPARM `player`=$s2, `config`=$s6 and the
    one retail function block with REG locals `type`=$s3 and `h`=$s4.  Type-graph gate:
    named 86/86, anonymous 2/2, no source extras. */
+#line 94 "C:/nfs4/GAME/PSX/PSXCONTROLLER.CPP"
 void InGame_ResetPSXController(int player,int config)
+
 
 {
   int *h;
@@ -314,6 +316,8 @@ void InGame_ResetPSXController(int player,int config)
          type = (int)pad + (player << 5);
        }
   */
+
+#line 196 "C:/nfs4/GAME/PSX/PSXCONTROLLER.CPP"
 int InGame_GetPSXPadValue(int value, int player)
 {
   int c;
@@ -460,7 +464,9 @@ int InGame_GetPSXPadValue(int value, int player)
 #undef INGAME_CONTROL_TYPE
 #undef INGAME_PLAYER_OFFSET
 /* ---- InGame_GetDevice__Fi  [PSXCONTROLLER.CPP:338-339] SLD-VERIFIED ---- */
+#line 335 "C:/nfs4/GAME/PSX/PSXCONTROLLER.CPP"
 int InGame_GetDevice(int control)
+
 
 {
   return control & 0xff;
@@ -721,7 +727,9 @@ int InGame_GetDevice(int control)
          * `ctrl` and `hp`; `hb` remains the one open reconstruction device.  The
          * SYM's mask $803f0000 (s0-s5+ra, NO s6) proves retail carried no hoisted
          * &hoff pseudo. */
+#line 346 "C:/nfs4/GAME/PSX/PSXCONTROLLER.CPP"
 void InGame_SetRamp(void)
+
 
 {
   int *h;

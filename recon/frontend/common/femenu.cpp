@@ -15,7 +15,9 @@ tPlayer      gMenu_SubMenuPlayer = (tPlayer)-1;   /* @0x800517c0 */
 
 /* ---- tListIterator::ctor  [FEMENU.CPP:61-64] SLD-VERIFIED ---- */
 
+#line 58 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIterator::tListIterator(short *selection,char *valPtr)
+
 
 {
   this->fSelectionList = selection;
@@ -27,13 +29,17 @@ tListIterator::tListIterator(short *selection,char *valPtr)
 
 /* ---- tListIterator::dtor  [FEMENU.CPP:68-68] SLD-VERIFIED ---- */
 
+
+#line 68 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIterator::~tListIterator() {}
 
 
 
 /* ---- tListIterator::Value  [FEMENU.CPP:73-74] SLD-VERIFIED ---- */
 
+#line 70 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 char tListIterator::Value(tPlayer)
+
 
 {
   return (u_int)(u_char)*this->fValue;
@@ -43,7 +49,9 @@ char tListIterator::Value(tPlayer)
 
 /* ---- tListIterator::TextValue  [FEMENU.CPP:78-79] SLD-VERIFIED ---- */
 
+#line 75 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 short tListIterator::TextValue(tPlayer)
+
 
 {
   return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
@@ -53,7 +61,9 @@ short tListIterator::TextValue(tPlayer)
 
 /* ---- tListIterator::Increment  [FEMENU.CPP:83-86] SLD-VERIFIED ---- */
 
+#line 80 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIterator::Increment(tPlayer)
+
 
 {
   *this->fValue = *this->fValue + '\x01';
@@ -66,24 +76,27 @@ void tListIterator::Increment(tPlayer)
 
 /* ---- tListIterator::Decrement  [FEMENU.CPP:90-97] SLD-VERIFIED ---- */
 
+/* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+   gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
+#line 87 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIterator::Decrement(tPlayer)
 
+
 {
-  /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
-     gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
   if (this->fValue[0] == '\0') {
+
     while (0 < (int)this->fSelectionList[this->fValue[0] + 1]) {
-      this->fValue[0] = this->fValue[0] + 1;
-    }
+      this->fValue[0] = this->fValue[0] + 1; }
   }
-  else {
+  else
     this->fValue[0] = this->fValue[0] - 1;
-  }
 }
 
 
 
 /* ---- tListIteratorIndexed::ctor  [FEMENU.CPP:104-106] SLD-VERIFIED ---- */
+
+#line 103 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIteratorIndexed::tListIteratorIndexed(short *selection,char *valPtr,char *index)
   : tListIterator(selection,valPtr)
 {
@@ -94,13 +107,17 @@ tListIteratorIndexed::tListIteratorIndexed(short *selection,char *valPtr,char *i
 
 /* ---- tListIteratorIndexed::dtor  [FEMENU.CPP:110-110] SLD-VERIFIED ---- */
 
+
+#line 110 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIteratorIndexed::~tListIteratorIndexed() {}
 
 
 
 /* ---- tListIteratorIndexed::Value  [FEMENU.CPP:114-115] SLD-VERIFIED ---- */
 
+#line 111 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 char tListIteratorIndexed::Value(tPlayer)
+
 
 {
   return (u_int)(u_char)this->fValue[(u_char)*this->fIndex];
@@ -110,7 +127,9 @@ char tListIteratorIndexed::Value(tPlayer)
 
 /* ---- tListIteratorIndexed::TextValue  [FEMENU.CPP:119-120] SLD-VERIFIED ---- */
 
+#line 116 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 short tListIteratorIndexed::TextValue(tPlayer)
+
 
 {
   return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
@@ -120,58 +139,63 @@ short tListIteratorIndexed::TextValue(tPlayer)
 
 /* ---- tListIteratorIndexed::Increment  [FEMENU.CPP:126-129] SLD-VERIFIED ---- */
 
+#line 123 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorIndexed::Increment(tPlayer)
 
+
 {
-  this->fValue[(u_char)*this->fIndex] =
-      this->fValue[(u_char)*this->fIndex] + '\x01';
+  this->fValue[(u_char)*this->fIndex] = this->fValue[(u_char)*this->fIndex] + '\x01';
   if (this->fSelectionList[(u_char)this->fValue[(u_char)*this->fIndex]] == 0) {
-    this->fValue[(u_char)*this->fIndex] = 0;
-  }
+    this->fValue[(u_char)*this->fIndex] = 0; }
 }
 
 
 
 /* ---- tListIteratorIndexed::Decrement  [FEMENU.CPP:133-140] SLD-VERIFIED ---- */
 
+/* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+   gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
+#line 130 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorIndexed::Decrement(tPlayer)
 
+
 {
-  /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
-     gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
   if (this->fValue[*this->fIndex] == '\0') {
+
     while (0 < (int)this->fSelectionList[this->fValue[*this->fIndex] + 1]) {
-      this->fValue[*this->fIndex] = this->fValue[*this->fIndex] + 1;
-    }
+      this->fValue[*this->fIndex] = this->fValue[*this->fIndex] + 1; }
   }
-  else {
+  else
     this->fValue[*this->fIndex] = this->fValue[*this->fIndex] - 1;
-  }
 }
 
 
 
 /* ---- tListIteratorDoubleIndexed::dtor  [FEMENU.CPP:156-156] SLD-VERIFIED ---- */
 
+
+#line 156 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIteratorDoubleIndexed::~tListIteratorDoubleIndexed() {}
 
 
 
 /* ---- tListIteratorDoubleIndexed::Value  [FEMENU.CPP:160-161] SLD-VERIFIED ---- */
 
+#line 157 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 char tListIteratorDoubleIndexed::Value(tPlayer)
 
+
 {
-  return (u_int)(u_char)this->fValue
-                     [(u_int)(u_char)*this->fIndex1 * this->index1multiplier +
-                      (u_int)(u_char)*this->fIndex2];
+  return (u_int)(u_char)this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2];
 }
 
 
 
 /* ---- tListIteratorDoubleIndexed::TextValue  [FEMENU.CPP:165-166] SLD-VERIFIED ---- */
 
+#line 162 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 short tListIteratorDoubleIndexed::TextValue(tPlayer)
+
 
 {
   return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
@@ -181,54 +205,51 @@ short tListIteratorDoubleIndexed::TextValue(tPlayer)
 
 /* ---- tListIteratorDoubleIndexed::Increment  [FEMENU.CPP:172-175] SLD-VERIFIED ---- */
 
+#line 169 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorDoubleIndexed::Increment(tPlayer)
 
+
 {
-  this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier +
-               (u_int)(u_char)*this->fIndex2] =
-      this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier +
-                   (u_int)(u_char)*this->fIndex2] + '\x01';
-  if (this->fSelectionList[(u_char)this->fValue[
-          (u_int)(u_char)*this->fIndex1 * this->index1multiplier +
-          (u_int)(u_char)*this->fIndex2]] == 0) {
-    this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier +
-                 (u_int)(u_char)*this->fIndex2] = 0;
-  }
+  this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2] = this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2] + '\x01';
+  if (this->fSelectionList[(u_char)this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2]] == 0) {
+    this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2] = 0; }
 }
 
 
 
 /* ---- tListIteratorDoubleIndexed::Decrement  [FEMENU.CPP:179-186] SLD-VERIFIED ---- */
 
+/* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
+   gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
+#line 176 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorDoubleIndexed::Decrement(tPlayer)
 
+
 {
-  /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
-     gives the oracle's pre-loop guard copy with andi 0xFF re-mask (no ==0 const-fold) */
   if (this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] == '\0') {
-    while (0 < (int)this->fSelectionList
-                    [this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] + 1]) {
-      this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] =
-           this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] + 1;
-    }
+
+    while (0 < (int)this->fSelectionList[this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] + 1]) {
+      this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] = this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] + 1; }
   }
-  else {
-    this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] =
-         this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] - 1;
-  }
+  else
+    this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] = this->fValue[(u_int)*this->fIndex1 * this->index1multiplier + (u_int)*this->fIndex2] - 1;
 }
 
 
 
 /* ---- tListIteratorMultiPlayer::dtor  [FEMENU.CPP:202-202] SLD-VERIFIED ---- */
 
+
+#line 202 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIteratorMultiPlayer::~tListIteratorMultiPlayer() {}
 
 
 
 /* ---- tListIteratorMultiPlayer::Value  [FEMENU.CPP:206-210] SLD-VERIFIED ---- */
 
+#line 203 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 char tListIteratorMultiPlayer::Value(tPlayer atIndex)
+
 
 {
   if (atIndex == kPlayerBoth) {
@@ -241,7 +262,9 @@ char tListIteratorMultiPlayer::Value(tPlayer atIndex)
 
 /* ---- tListIteratorMultiPlayer::TextValue  [FEMENU.CPP:214-215] SLD-VERIFIED ---- */
 
+#line 211 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 short tListIteratorMultiPlayer::TextValue(tPlayer atIndex)
+
 
 {
   return this->fSelectionList[this->Value(atIndex) & 0xff];   /* the hand call passed no argument: a1 still held atIndex */
@@ -251,7 +274,9 @@ short tListIteratorMultiPlayer::TextValue(tPlayer atIndex)
 
 /* ---- tListIteratorMultiPlayer::Increment  [FEMENU.CPP:221-227] SLD-VERIFIED ---- */
 
+#line 218 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorMultiPlayer::Increment(tPlayer atIndex)
+
 
 {
   if (atIndex == kPlayerBoth) {
@@ -266,26 +291,29 @@ void tListIteratorMultiPlayer::Increment(tPlayer atIndex)
 
 /* ---- tListIteratorMultiPlayer::Decrement  [FEMENU.CPP:231-241] SLD-VERIFIED ---- */
 
+#line 228 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorMultiPlayer::Decrement(tPlayer atIndex)
 
-{
 
+{
   if (atIndex == kPlayerBoth) {
     atIndex = kPlayerOne;
   }
   if (this->fValue[atIndex] == '\0') {
+
     while (0 < this->fSelectionList[(u_char)this->fValue[atIndex] + 1]) {
-      this->fValue[atIndex]++;
-    }
-    return;
+      this->fValue[atIndex]++; }
   }
-  this->fValue[atIndex]--;
-  return;
+  else {
+    this->fValue[atIndex]--;
+  }
 }
 
 
 
 /* ---- tListIteratorRange::ctor  [FEMENU.CPP:250-253] SLD-VERIFIED ---- */
+
+#line 249 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIteratorRange::tListIteratorRange(char minValue,char maxValue,char *valPtr)
   : tListIterator((short *)0x0,valPtr)
 {
@@ -297,13 +325,17 @@ tListIteratorRange::tListIteratorRange(char minValue,char maxValue,char *valPtr)
 
 /* ---- tListIteratorRange::dtor  [FEMENU.CPP:257-257] SLD-VERIFIED ---- */
 
+
+#line 257 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIteratorRange::~tListIteratorRange() {}
 
 
 
 /* ---- tListIteratorRange::Value  [FEMENU.CPP:262-266] SLD-VERIFIED ---- */
 
+#line 259 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 char tListIteratorRange::Value(tPlayer)
+
 
 {
   /* Retail SLD has three non-emitting lines before this return.
@@ -316,7 +348,9 @@ char tListIteratorRange::Value(tPlayer)
 
 /* ---- tListIteratorRange::TextValue  [FEMENU.CPP:270-271] SLD-VERIFIED ---- */
 
+#line 267 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 short tListIteratorRange::TextValue(tPlayer)
+
 
 {
   return 0;
@@ -326,7 +360,9 @@ short tListIteratorRange::TextValue(tPlayer)
 
 /* ---- tListIteratorRange::Increment  [FEMENU.CPP:276-281] SLD-VERIFIED ---- */
 
+#line 273 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorRange::Increment(tPlayer)
+
 
 {
   /* Retail SLD leaves three non-emitting lines before this guard.
@@ -341,7 +377,9 @@ void tListIteratorRange::Increment(tPlayer)
 
 /* ---- tListIteratorRange::Decrement  [FEMENU.CPP:285-290] SLD-VERIFIED ---- */
 
+#line 282 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorRange::Decrement(tPlayer)
+
 
 {
   /* Retail SLD leaves three non-emitting lines before this guard.
@@ -355,6 +393,8 @@ void tListIteratorRange::Decrement(tPlayer)
 
 
 /* ---- tListIteratorRangeIndexed::ctor  [FEMENU.CPP:298-300] SLD-VERIFIED ---- */
+
+#line 297 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIteratorRangeIndexed::tListIteratorRangeIndexed(char minValue,char maxValue,char *valPtr,char *index)
   : tListIteratorRange(minValue,maxValue,valPtr)
 {
@@ -365,13 +405,17 @@ tListIteratorRangeIndexed::tListIteratorRangeIndexed(char minValue,char maxValue
 
 /* ---- tListIteratorRangeIndexed::dtor  [FEMENU.CPP:304-304] SLD-VERIFIED ---- */
 
+
+#line 304 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tListIteratorRangeIndexed::~tListIteratorRangeIndexed() {}
 
 
 
 /* ---- tListIteratorRangeIndexed::Value  [FEMENU.CPP:308-309] SLD-VERIFIED ---- */
 
+#line 305 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 char tListIteratorRangeIndexed::Value(tPlayer)
+
 
 {
   return (u_int)(u_char)this->fValue[(u_char)*this->fIndex];
@@ -381,7 +425,9 @@ char tListIteratorRangeIndexed::Value(tPlayer)
 
 /* ---- tListIteratorRangeIndexed::Increment  [FEMENU.CPP:313-315] SLD-VERIFIED ---- */
 
+#line 310 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorRangeIndexed::Increment(tPlayer)
+
 
 {
   if ((u_int)(u_char)this->fValue[(u_char)*this->fIndex] < (u_char)this->fMaxValue) {
@@ -393,7 +439,9 @@ void tListIteratorRangeIndexed::Increment(tPlayer)
 
 /* ---- tListIteratorRangeIndexed::Decrement  [FEMENU.CPP:319-321] SLD-VERIFIED ---- */
 
+#line 316 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tListIteratorRangeIndexed::Decrement(tPlayer)
+
 
 {
   if ((u_char)this->fMinValue < (u_int)(u_char)this->fValue[(u_char)*this->fIndex]) {
@@ -405,7 +453,9 @@ void tListIteratorRangeIndexed::Decrement(tPlayer)
 
 /* ---- tMenuItem::ctor  [FEMENU.CPP:423-429] SLD-VERIFIED ---- */
 
+#line 420 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItem::tMenuItem(u_int textDescription)
+
 
 {
   this->fTextDescription = textDescription;
@@ -420,13 +470,17 @@ tMenuItem::tMenuItem(u_int textDescription)
 
 /* ---- tMenuItem::dtor  [FEMENU.CPP:433-433] SLD-VERIFIED ---- */
 
+
+#line 433 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItem::~tMenuItem() {}
 
 
 
 /* ---- tMenuItem::DebounceKeys  [FEMENU.CPP:442-443] SLD-VERIFIED ---- */
 
+#line 439 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 long tMenuItem::DebounceKeys()
+
 
 {
   return -1;
@@ -436,6 +490,8 @@ long tMenuItem::DebounceKeys()
 
 /* ---- tMenuItem::ProcessInput  [FEMENU.CPP:447-448] SLD-VERIFIED ---- */
 
+
+#line 446 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItem::ProcessInput(tPlayer,tInputKeyType &,tMenuCommand &)
 {
 }
@@ -444,7 +500,9 @@ void tMenuItem::ProcessInput(tPlayer,tInputKeyType &,tMenuCommand &)
 
 /* ---- tMenuItem::UpdateTransition  [FEMENU.CPP:461-462] SLD-VERIFIED ---- */
 
+#line 458 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItem::UpdateTransition(bool selected)
+
 
 {
   this->UpdateSelFade(selected);
@@ -454,7 +512,9 @@ void tMenuItem::UpdateTransition(bool selected)
 
 /* ---- tMenuItem::TransitionIsFinished  [FEMENU.CPP:466-467] SLD-VERIFIED ---- */
 
+#line 463 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 bool tMenuItem::TransitionIsFinished()
+
 
 {
   return 1;
@@ -464,23 +524,17 @@ bool tMenuItem::TransitionIsFinished()
 
 /* ---- tMenuItem::UpdateSelFade  [FEMENU.CPP:471-477] SLD-VERIFIED ---- */
 
+#line 468 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItem::UpdateSelFade(bool selected)
+
 
 {
   if (selected != 0) {
     this->fSelFade = this->fSelFade + 0x40;
+  } else { this->fSelFade = this->fSelFade + -10;
   }
-  else {
-    this->fSelFade = this->fSelFade + -10;
-  }
-  if (0x80 < this->fSelFade) {
-    this->fSelFade = 0x80;
-  }
-  if (this->fSelFade < 0) {
-    this->fSelFade = 0;
-  }
-  return;
-}
+  if (0x80 < this->fSelFade) { this->fSelFade = 0x80;
+  } if (this->fSelFade < 0) { this->fSelFade = 0; } return; }
 
 
 
@@ -488,7 +542,9 @@ void tMenuItem::UpdateSelFade(bool selected)
 /* The `iib` signature retains both unused coordinates; retail SYM has
    no source names for them. */
 
+#line 478 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItem::Draw(int,int,bool selected)
+
 
 {
   this->Draw(selected);
@@ -500,7 +556,9 @@ void tMenuItem::Draw(int,int,bool selected)
 /* The mangled `iiib` signature retains this unused third coordinate;
    retail SYM has no source name for it. */
 
+#line 483 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItem::Draw(int x,int y,int,bool selected)
+
 
 {
   this->Draw(selected,x,y,0);
@@ -509,6 +567,8 @@ void tMenuItem::Draw(int x,int y,int,bool selected)
 
 
 /* ---- tMenuItemInteractive::ctor  [FEMENU.CPP:533-534] SLD-VERIFIED ---- */
+
+#line 532 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItemInteractive::tMenuItemInteractive(u_int textDescription)
   : tMenuItem(textDescription)
 {
@@ -518,11 +578,15 @@ tMenuItemInteractive::tMenuItemInteractive(u_int textDescription)
 
 /* ---- tMenuItemInteractive::dtor  [FEMENU.CPP:538-538] SLD-VERIFIED ---- */
 
+
+#line 538 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItemInteractive::~tMenuItemInteractive() {}
 
 
 
 /* ---- tMenuItemLeftRightChoice::ctor  [FEMENU.CPP:552-555] SLD-VERIFIED ---- */
+
+#line 551 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItemLeftRightChoice::tMenuItemLeftRightChoice(u_int textDescription,tListIterator *dataPtr)
   : tMenuItemInteractive(textDescription)
 {
@@ -534,32 +598,37 @@ tMenuItemLeftRightChoice::tMenuItemLeftRightChoice(u_int textDescription,tListIt
 
 /* ---- tMenuItemLeftRightChoice::dtor  [FEMENU.CPP:559-559] SLD-VERIFIED ---- */
 
+
+#line 559 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItemLeftRightChoice::~tMenuItemLeftRightChoice() {}
 
 
 
 /* ---- tMenuItemLeftRightChoice::ProcessInput  [FEMENU.CPP:563-582] SLD-VERIFIED ---- */
 
-void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
-              tMenuCommand &)
-
-{
-  /* The unused command reference remains in the `R12tMenuCommand` ABI;
-     retail SYM leaves its source name absent. */
+  /* MATCH: retail falls off the end here -- no return-value materialization
+     ($v0 is the AudioCmn_PlayFESFX leftover in the oracle). */
+  /* SYM-INLINE-THIS: IsDisabled */
   /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 with vars=8 but
      records no named local at any scope.  Removing these two words is FAIL
      12 (44/44): only the frame allocation, save/restore offsets, and final
      stack adjustment change to 24 bytes.  The retail binary therefore proves
      an anonymous eight-byte source/compiler temporary, but neither artifact
      can recover its original spelling or type. */
-  int frameFiller[2];
+  /* The unused command reference remains in the `R12tMenuCommand` ABI;
+     retail SYM leaves its source name absent. */
+#line 559 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
+void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+              tMenuCommand &)
 
-  /* SYM-INLINE-THIS: IsDisabled */
-  if (tMenuItem_IsDisabled(this)) {
+
+{
+  int frameFiller[2]; if (tMenuItem_IsDisabled(this)) {
     return;
   }
   switch (keyval) {
   case kInput_KeyType_Left:
+
     this->fData->Decrement(fromPlayer);
     keyval = kInput_KeyType_AlreadyProcessed;
     AudioCmn_PlayFESFX(5);
@@ -572,8 +641,6 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
   default:
     return;
   }
-  /* MATCH: retail falls off the end here -- no return-value materialization
-     ($v0 is the AudioCmn_PlayFESFX leftover in the oracle). */
 }
 
 
@@ -587,7 +654,9 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
    The `int` value shape is codegen-proven: shortening x or both values
    gave FAIL 5 at 52/51 instructions in earlier probes.  The retained
    source form is byte-PASS and its native declaration tree is exact. */
+#line 587 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItemLeftRightChoice::Draw(bool selected)
+
 
 {
 
@@ -598,18 +667,20 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
   FETextRender_MenuTextPositioned((short)this->fTextDescription,(short)x,
              (short)y,(tMenuTextState)(selected != 0),textType_Options);
 
-  FETextRender_MenuTextPositioned(
-             this->fData->TextValue(gMenu_SubMenuPlayer),
-             (short)((u_int)((x + 0xb4) * 0x10000) >> 0x10),(short)y,
-             (tMenuTextState)(selected != 0),
-             textType_Options);
 
-  return;
+
+
+
+  const short value = this->fData->TextValue(gMenu_SubMenuPlayer); /* DEVICE (exact-only): retail tags the TextValue call (13) apart from the draw (15); const temp, no SYM record */
+  FETextRender_MenuTextPositioned(value,
+             (short)((u_int)((x + 0xb4) * 0x10000) >> 0x10),(short)y,(tMenuTextState)(selected != 0),textType_Options); return;
 }
 
 
 
 /* ---- tMenuItemLeftRightSlider::ctor  [FEMENU.CPP:612-616] SLD-VERIFIED ---- */
+
+#line 611 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIterator *dataPtr)
   : tMenuItemInteractive(textDescription)
 {
@@ -622,13 +693,17 @@ tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIt
 
 /* ---- tMenuItemLeftRightSlider::dtor  [FEMENU.CPP:621-621] SLD-VERIFIED ---- */
 
+
+#line 621 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItemLeftRightSlider::~tMenuItemLeftRightSlider() {}
 
 
 
 /* ---- tMenuItemLeftRightSlider::DebounceKeys  [FEMENU.CPP:625-626] SLD-VERIFIED ---- */
 
+#line 622 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 long tMenuItemLeftRightSlider::DebounceKeys()
+
 
 {
   return 0x600;
@@ -641,20 +716,22 @@ long tMenuItemLeftRightSlider::DebounceKeys()
    carrier preserves its 32-byte frame. Case-local sound calls merge into the
    single retail call site while staging its arguments before the key store. */
 
+#line 626 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &)
 
-{
-  int frameFiller[2];
 
-  if (tMenuItem_IsDisabled(this)) {
+{
+  int frameFiller[2]; if (tMenuItem_IsDisabled(this)) {
     return;
   }
   switch (keyval) {
   case kInput_KeyType_Left:
+
     this->fData->Decrement(fromPlayer);
     keyval = kInput_KeyType_AlreadyProcessed;
     AudioCmn_PlayFESFXVol(0x15,0x40);
+
     return;
   case kInput_KeyType_Right:
     this->fData->Increment(fromPlayer);
@@ -1071,10 +1148,22 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
    preserves type info; these are minor secondary-effect register temps that did not warrant
    individual semantic naming. */
 
+        /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
+        /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
+  /* SYM-CODEGEN-CARRIER: greenVal2 -- the reverse arm needs its own lifetime;
+     shared forward/reverse temporaries previously measured 137 diffs. */
+  /* SYM-CODEGEN-CARRIER: redVal2 -- sharing or inlining the reverse-arm term
+     rotates the expression tree; the all-inline form measures 178 diffs. */
+  /* SYM-CODEGEN-CARRIER: greenVal -- keeping the forward green value separate
+     places its width shifts at retail's OR site. */
+  /* SYM-CODEGEN-CARRIER: redVal -- the per-arm pre-width value is required
+     for retail's red/green/blue divide order and late short conversion. */
+#line 659 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,short fHeight,
                short rectwidth,short rectspace,bool reverse,bool shadow,
                short fSelFade,
                short fFadeVal)
+
 
 {
   POLY_F4 *prim;
@@ -1083,101 +1172,95 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
   short factor;
   int myDarkBlue;
   int Col;
-  /* SYM-CODEGEN-CARRIER: redVal -- the per-arm pre-width value is required
-     for retail's red/green/blue divide order and late short conversion. */
-  int redVal;
-  /* SYM-CODEGEN-CARRIER: greenVal -- keeping the forward green value separate
-     places its width shifts at retail's OR site. */
-  int greenVal;
-  /* SYM-CODEGEN-CARRIER: redVal2 -- sharing or inlining the reverse-arm term
-     rotates the expression tree; the all-inline form measures 178 diffs. */
-  int redVal2;
-  /* SYM-CODEGEN-CARRIER: greenVal2 -- the reverse arm needs its own lifetime;
-     shared forward/reverse temporaries previously measured 137 diffs. */
-  int greenVal2;
+  int redVal; int greenVal; int redVal2; int greenVal2; factor = !fSelFade;
 
-  factor = !fSelFade;
+
+
   myDarkBlue = 0xc83c1e;
+
+
   width = ((value - min) * fWidth) / (max - min);
+
   if (!reverse) {
     x1 = fX;
+
     while (x1 < fX + fWidth) {
-      prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18;
-      addPrim(Render_gPalettePtr,prim);
-      prim->x0 = x1;
-      prim->y0 = fY;
-      prim->x1 = x1 + rectwidth;
-      prim->y1 = fY;
-      prim->x2 = x1;
-      prim->y2 = fY + fHeight;
-      prim->y3 = fY + fHeight;
-      prim->x3 = x1 + rectwidth;
+
+      prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18; addPrim(Render_gPalettePtr,prim);
+
+      prim->x0 = x1; prim->y0 = fY; prim->x1 = x1 + rectwidth; prim->y1 = fY; prim->x2 = x1; prim->y2 = fY + fHeight; prim->y3 = fY + fHeight; prim->x3 = x1 + rectwidth;
+
       if (shadow) {
         Col = 0;
-      }
-      else {
-        /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
-        if (x1 < fX + width) {
+      } else { if (x1 < fX + width) {
+
           if (fSelFade) {
+
             redVal = (((x1 - fX) * 0xbe) / fWidth) >> factor;
             greenVal = ((((x1 - fX) * 0x7c) / fWidth) + 0x42) >> factor;
-            Col = CalcFadeVal(myDarkBlue,
-                    ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16 |
-                    (greenVal << 16) >> 8 | (short)redVal,fSelFade);
+            Col = CalcFadeVal(myDarkBlue, ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16 | (greenVal << 16) >> 8 | (short)redVal,fSelFade);
           }
           else {
             Col = myDarkBlue;
           }
+
+
+
+
+
           Col = CalcFadeVal(Col,fFadeVal);
         }
         else {
+
           Col = CalcFadeVal(0x280f00,fFadeVal);
         }
       }
       *(int *)((u_char *)prim + 4) = Col;
       SetPolyF4(prim);
       SetSemiTrans(prim,0);
+
       x1 += rectwidth + rectspace;
     }
   }
   else {
+
     x1 = fX + fWidth - 1;
+
     while (x1 >= fX) {
-      prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18;
-      addPrim(Render_gPalettePtr,prim);
-      prim->x0 = x1;
-      prim->y0 = fY;
-      prim->x1 = x1 + rectwidth;
-      prim->y1 = fY;
-      prim->x2 = x1;
-      prim->y2 = fY + fHeight;
-      prim->y3 = fY + fHeight;
-      prim->x3 = x1 + rectwidth;
+
+      prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18; addPrim(Render_gPalettePtr,prim);
+
+      prim->x0 = x1; prim->y0 = fY; prim->x1 = x1 + rectwidth; prim->y1 = fY; prim->x2 = x1; prim->y2 = fY + fHeight; prim->y3 = fY + fHeight; prim->x3 = x1 + rectwidth;
+
       if (shadow) {
         Col = 0;
-      }
-      else {
-        /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
-        if (x1 >= fX + fWidth - width) {
+      } else { if (x1 >= fX + fWidth - width) {
+
           if (fSelFade) {
+
             redVal2 = (((fX + fWidth - x1) * 0xbe) / fWidth) >> factor;
             greenVal2 = ((((fX + fWidth - x1) * 0x7c) / fWidth) + 0x42) >> factor;
-            Col = CalcFadeVal(myDarkBlue,
-                ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16 |
-                (greenVal2 << 16) >> 8 | (short)redVal2,fSelFade);
+            Col = CalcFadeVal(myDarkBlue, ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16 | (greenVal2 << 16) >> 8 | (short)redVal2,fSelFade);
           }
           else {
+
+
+
+
             Col = myDarkBlue;
           }
+
           Col = CalcFadeVal(Col,fFadeVal);
         }
         else {
+
           Col = CalcFadeVal(0x280f00,fFadeVal);
         }
       }
       *(int *)((u_char *)prim + 4) = Col;
       SetPolyF4(prim);
       SetSemiTrans(prim,0);
+
       x1 -= rectwidth + rectspace;
     }
   }
@@ -1198,7 +1281,9 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
 /* MATCH (W57-A5): the fSelFade select is written INLINE as the 12th argument -- retail
    branches and stores 0x80 / 0 straight into the outgoing 44(sp) arg slot; routing it
    through a local makes gcc fold it to `(selected!=0) << 7` off the text-state bool. */
+#line 850 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItemLeftRightSlider::Draw(bool selected)
+
 
 {
   if (this->fX == 0 && this->fY == 0) {
@@ -1218,7 +1303,9 @@ void tMenuItemLeftRightSlider::Draw(bool selected)
 
 /* ---- tMenuItemLeftRightSlider::SetDimensions  [FEMENU.CPP:868-873] SLD-VERIFIED ---- */
 
+#line 865 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItemLeftRightSlider::SetDimensions(short x,short y,short width,short height)
+
 
 {
   this->fX = x;
@@ -1232,6 +1319,8 @@ void tMenuItemLeftRightSlider::SetDimensions(short x,short y,short width,short h
 
 /* ---- tMenuItemGoToMenuButton::ctor  [FEMENU.CPP:881-884] SLD-VERIFIED ---- */
 
+
+#line 879 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItemGoToMenuButton::tMenuItemGoToMenuButton(u_int textDescription,tMenu *newMenu,
               void (*OnButtonPress)(tMenuCommand&))
   : tMenuItemInteractive(textDescription)
@@ -1244,78 +1333,88 @@ tMenuItemGoToMenuButton::tMenuItemGoToMenuButton(u_int textDescription,tMenu *ne
 
 /* ---- tMenuItemGoToMenuButton::dtor  [FEMENU.CPP:888-888] SLD-VERIFIED ---- */
 
+
+#line 888 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton() {}
 
 
 
 /* ---- tMenuItemGoToMenuButton::ProcessInput  [FEMENU.CPP:897-926] SLD-VERIFIED ---- */
 
-void tMenuItemGoToMenuButton::ProcessInput(tPlayer,tInputKeyType &keyval,
-              tMenuCommand &command)
-
-{
   /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 but records no
      source local.  Removing this two-word storage keeps 36 instructions yet
      changes the frame to 24 bytes (12 detailed diffs).  The retail binary
      proves the eight-byte allocation, not its original optimized spelling. */
-  int frameFiller[2];
+#line 893 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
+void tMenuItemGoToMenuButton::ProcessInput(tPlayer,tInputKeyType &keyval,
+              tMenuCommand &command)
 
-  if ((this->fFlags & 1) != 0) {
+
+{
+  int frameFiller[2]; if ((this->fFlags & 1) != 0) {
     return;
   }
   if (keyval != kInput_KeyType_Cross) {
     return;
   }
   if (this->fNewMenu != (tMenu *)0x0) {
+
+
+
+
+
+
+
+
     if ((this->fFlags & 0x40) != 0) {
       command.type = kMenu_Command_GoToMenuOneWay;
     }
-    else {
-      command.type = kMenu_Command_GoToMenu;
-    }
-    command.nextMenu = this->fNewMenu;
+    else { command.type = kMenu_Command_GoToMenu;
+    } command.nextMenu = this->fNewMenu;
   }
   if (this->fOnButtonPress != 0x0) {
     (*this->fOnButtonPress)(command);
-  }
-  keyval = kInput_KeyType_AlreadyProcessed;
+  } keyval = kInput_KeyType_AlreadyProcessed;
   return;
+
+
+
 }
 
 
 
 /* ---- tMenu::tMenuConstructor  [FEMENU.CPP:966-980] SLD-VERIFIED ---- */
 
+/* SYM: `i` is the only function-scope local; `p` belongs to the loop block
+   that opens at 0x80025440 (SLD line 8). */
+#line 963 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenu::tMenuConstructor(tMenuItem *firstItem,void *ap)
 
+
 {
-  /* SYM: `i` is the only function-scope local; `p` belongs to the loop block
-     that opens at 0x80025440 (SLD line 8). */
-  int i;
+  int i; this->VertHelp = 0;
 
-  {
-    i = 0;
-    this->VertHelp = 0;
-    this->fItemList[0] = firstItem;
-    while (1) {
-      tMenuItem *p;
 
-      ap = (int *)((int)ap + 4);
-      p = ((tMenuItem **)ap)[-1];
-      this->fItemList[i + 1] = p;
-      if (p == (tMenuItem *)0x0) break;
-      i = i + 1;
-    }
+
+  this->fItemList[0] = firstItem;
+
+  for (i = 0; ; i = i + 1) {
+    tMenuItem *p;
+    ap = (int *)((int)ap + 4); p = ((tMenuItem **)ap)[-1];
+    this->fItemList[i + 1] = p;
+    if (p == (tMenuItem *)0x0) break;
   }
-  return;
-}
+
+  return; }
 
 
 
 /* ---- tMenu::ctor  [FEMENU.CPP:1009-1018] SLD-VERIFIED ---- */
 
+#line 1005 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenu::tMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMenu,
                 void (*OnButtonPress)(tMenuCommand&),short title)
+
 
 {
   this->fFlags = flags;
@@ -1333,31 +1432,35 @@ tMenu::tMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMe
 
 /* ---- tMenu::dtor  [FEMENU.CPP:1022-1022] SLD-VERIFIED ---- */
 
+
+#line 1022 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 tMenu::~tMenu() {}
 
 
 
 /* ---- tMenu::Initialize  [FEMENU.CPP:1026-1044] SLD-VERIFIED ---- */
 
+#line 1023 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenu::Initialize()
 
+
 {
-
-
-
   int original;
-  
-  if (((this->fItemList[this->fCurrentItem]->fFlags ^ 1) & 1) == 0) {
-    original = this->fCurrentItem;
-    do {
-      if ((this->fItemList[this->fCurrentItem]->fFlags & 1) == 0) {
-        return;
-      }
-      this->fCurrentItem++;
-      if (this->fItemList[this->fCurrentItem] == (tMenuItem *)0x0) {
-        this->fCurrentItem = 0;
-      }
-    } while (original != this->fCurrentItem);
+
+  if (MenuItem_IsEnabled(this->fItemList[this->fCurrentItem])) {
+    return;
+  }
+
+  original = this->fCurrentItem;
+
+  while (!MenuItem_IsEnabled(this->fItemList[this->fCurrentItem])) {
+
+    this->fCurrentItem++;
+
+    if (this->fItemList[this->fCurrentItem] == (tMenuItem *)0x0) {
+      this->fCurrentItem = 0;
+    }
+    if (original == this->fCurrentItem) break;
   }
 }
 
@@ -1370,24 +1473,44 @@ void tMenu::Initialize()
    gives IDA's item=$v1, delta=$a0 allocation and leaves lastItem=$a0 for the
    two navigation cases. */
 
+#line 1044 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
+
 
 {
   int lastItem;
   
   if (((this->fFlags & 4) != 0) && (keyval == kInput_KeyType_Start)) {
+
+
     keyval = kInput_KeyType_Cross;
   }
+
   if (((this->fFlags & 0x10000) != 0) && (keyval == kInput_KeyType_Cross)) {
+
+
     keyval = kInput_KeyType_Start;
   }
+
+
   if (this->fItemList[this->fCurrentItem] != (tMenuItem *)0x0) {
+
     this->fItemList[this->fCurrentItem]->ProcessInput(fromPlayer,keyval,command);
   }
+
+
+
+
+
+
+
+
   switch (keyval) {
     case kInput_KeyType_Up:
+
       lastItem = this->fCurrentItem;
       do {
+
         if (this->fCurrentItem > 0) {
           this->fCurrentItem--;
         }
@@ -1397,20 +1520,24 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
           }
         }
       } while ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0);
+
       if (this->fCurrentItem != lastItem) {
         AudioCmn_PlayFESFX(3);
       }
       keyval = kInput_KeyType_AlreadyProcessed;
+
       break;
 
     case kInput_KeyType_Down:
       lastItem = this->fCurrentItem;
       do {
+
         this->fCurrentItem++;
         if (this->fItemList[this->fCurrentItem] == (tMenuItem *)0x0) {
           this->fCurrentItem = 0;
         }
       } while ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0);
+
       if (this->fCurrentItem != lastItem) {
         AudioCmn_PlayFESFX(4);
       }
@@ -1419,6 +1546,7 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
 
     case kInput_KeyType_Cross:
       if (this->fNextMenu != (tMenu *)0x0) {
+
         command.type = kMenu_Command_GoToMenu;
         command.nextMenu = this->fNextMenu;
         keyval = kInput_KeyType_AlreadyProcessed;
@@ -1427,6 +1555,7 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
 
     case kInput_KeyType_Start:
       if (this->fOnButtonPress != 0x0) {
+
         (*this->fOnButtonPress)(command);
         keyval = kInput_KeyType_AlreadyProcessed;
       }
@@ -1434,10 +1563,12 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
         command.type = kMenu_Command_StartRace;
         keyval = kInput_KeyType_AlreadyProcessed;
       }
+
       else if ((this->fFlags & 2) != 0) {
         command.type = kMenu_Command_Start2PlayerRace;
         keyval = kInput_KeyType_AlreadyProcessed;
       }
+
       break;
 
     case kInput_KeyType_Circle:
@@ -1446,6 +1577,7 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
 
     case kInput_KeyType_Square:
       if (this->fOptionsMenu != (tMenu *)0x0) {
+
         command.type = kMenu_Command_GoToMenu;
         command.nextMenu = this->fOptionsMenu;
         keyval = kInput_KeyType_AlreadyProcessed;
@@ -1453,31 +1585,50 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
       break;
 
     case kInput_KeyType_Triangle:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       command.type = kMenu_Command_BackupMenu;
       keyval = kInput_KeyType_AlreadyProcessed;
       break;
   }
-  return;
-}
+  return; }
 
 
 
 /* ---- tMenu::GetNumberEnabledItems  [FEMENU.CPP:1195-1208] SLD-VERIFIED ---- */
 
+
+#line 1194 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 short tMenu::GetNumberEnabledItems()
 {
-  short result;
-  short i;
-
   if (this->fNeverAnyEnabled != 0) {
     return 0;
   }
-  result = 0;
+  short result = 0;
+  short i;
+
   for (i = 0; this->fItemList[i] != 0; i++) {
+
     if (MenuItem_IsEnabled(this->fItemList[i])) {
       result = result + 1;
-    }
-  }
+    } }
+
   return result;
 }
 
@@ -1485,49 +1636,40 @@ short tMenu::GetNumberEnabledItems()
 
 /* ---- tMenu::Draw  [FEMENU.CPP:1217-1222] SLD-VERIFIED ---- */
 
-void tMenu::Draw()
-
-{
   /* SYM: `item` lives in the block that opens at 0x80025928, after the title
      guard -- not at function scope. */
+#line 1214 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
+void tMenu::Draw()
+
+
+{
   if (-1 < this->fTitle) {
     FETextRender_Title(this->fTitle);
   }
-  {
-    short item;
-
-    item = 0;
-    while (this->fItemList[item] != (tMenuItem *)0x0) {
-      this->fItemList[item]->Draw((int)item == this->fCurrentItem);
-      item = item + 1;
-    }
-  }
-  return;
-}
+  { short item; item = 0; while (this->fItemList[item] != (tMenuItem *)0x0) {
+      this->fItemList[item]->Draw((int)item == this->fCurrentItem); item = item + 1; } } return; }
 
 
 
 /* ---- tMenu::UpdateTransition  [FEMENU.CPP:1226-1231] SLD-VERIFIED ---- */
 
+#line 1223 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenu::UpdateTransition()
 
-{
-  {
-    short item;
 
-    item = 0;
-    while (this->fItemList[item] != (tMenuItem *)0x0) {
-      this->fItemList[item]->UpdateTransition(this->fCurrentItem == (int)item);
-      item = item + 1;
+{
+  { short item; item = 0; while (this->fItemList[item] != (tMenuItem *)0x0) {
+      this->fItemList[item]->UpdateTransition(this->fCurrentItem == (int)item); item = item + 1;
     }
   }
-  return;
-}
+  return; }
 
 
 
 /* ---- tMenu::TransitionOff  [FEMENU.CPP:1235-1236] SLD-VERIFIED ---- */
 
+
+#line 1234 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenu::TransitionOff()
 {
 }
@@ -1536,13 +1678,17 @@ void tMenu::TransitionOff()
 
 /* ---- tMenu::TransitionOn  [FEMENU.CPP:1239-1240] SLD-VERIFIED ---- */
 
+
+#line 1238 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenu::TransitionOn()
 {
 }
 
 /* ---- tMenu::TransitionIsFinished  [FEMENU.CPP:1243-1244] SLD-VERIFIED ---- */
 
+#line 1240 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 bool tMenu::TransitionIsFinished()
+
 
 {
   return 1;
@@ -1552,7 +1698,9 @@ bool tMenu::TransitionIsFinished()
 
 /* ---- tMenu::IsSubMenu  [FEMENU.CPP:1253-1254] SLD-VERIFIED ---- */
 
+#line 1250 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 bool tMenu::IsSubMenu()
+
 
 {
   return 0;
@@ -1562,7 +1710,9 @@ bool tMenu::IsSubMenu()
 
 /* ---- tMenu::DebounceKeys  [FEMENU.CPP:1258-1259] SLD-VERIFIED ---- */
 
+#line 1255 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 long tMenu::DebounceKeys()
+
 
 {
   return this->fItemList[this->fCurrentItem]->DebounceKeys();
@@ -1573,7 +1723,11 @@ long tMenu::DebounceKeys()
 /* ---- tMenuItem::TransitionOn / TransitionOff  @0x80025aa8 / @0x80025ab0 ----
  * empty base virtuals (overridden by tMenu); not separately reconstructed -- vtable-only
  * refs surfaced by #75 data-materialization. nfs4-f.exe = { jr $ra } (no-op). */
+
+#line 275 "C:/nfs4/FRONTEND/COMMON/FEMENU.H"
 void tMenuItem::TransitionOn()  { return; }
+
+#line 274 "C:/nfs4/FRONTEND/COMMON/FEMENU.H"
 void tMenuItem::TransitionOff() { return; }
 
 

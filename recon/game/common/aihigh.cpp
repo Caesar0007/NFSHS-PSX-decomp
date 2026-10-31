@@ -40,6 +40,8 @@ AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
  * declaration records and sixteen scope regions agree; full SLD remains open.
  * Older failed conditional/capture-removal probes were source-shape-specific. */
 
+
+#line 57 "C:/nfs4/GAME/COMMON/AIHIGH.CPP"
 void AIHigh_StartUp(void)
 {
   int carLoop, copCounter = 0, humanCopCounter = 0;
@@ -99,7 +101,9 @@ void AIHigh_StartUp(void)
 
 /* ---- AIHigh_Restart1__Fv  AIHigh_Restart1  [AIHIGH.CPP:110-111] SLD-VERIFIED ---- */
 
+#line 105 "C:/nfs4/GAME/COMMON/AIHIGH.CPP"
 void AIHigh_Restart1(void)
+
 
 
 
@@ -116,7 +120,9 @@ void AIHigh_Restart1(void)
 
 /* ---- AIHigh_Restart2__Fv  AIHigh_Restart2  [AIHIGH.CPP:115-117] SLD-VERIFIED ---- */
 
+#line 110 "C:/nfs4/GAME/COMMON/AIHIGH.CPP"
 void AIHigh_Restart2(void)
+
 
 
 
@@ -134,6 +140,8 @@ void AIHigh_Restart2(void)
 
 /* ---- AIHigh_CleanUp__Fv  AIHigh_CleanUp  [AIHIGH.CPP:122-131] SLD-VERIFIED ---- */
 
+
+#line 121 "C:/nfs4/GAME/COMMON/AIHIGH.CPP"
 void AIHigh_CleanUp(void)
 {
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
@@ -162,6 +170,8 @@ inline bool AIHigh_Base::SchedulingOff() { return schedulingOff_ != 0; }
  * query plus direct short-circuit recovers the unnamed dispatch-result funnel;
  * executeNow and the decompiler label are unnecessary. SchedulingOff's literal
  * original identifier is unproven; this is an inferred semantic query. */
+
+#line 133 "C:/nfs4/GAME/COMMON/AIHIGH.CPP"
 void AIHigh_Execute(void)
 {
 
@@ -171,10 +181,10 @@ void AIHigh_Execute(void)
 
     if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0) { if (highLevelAIObjs[carLoop]->SchedulingOff() || (Sched_ExecuteCheck(1,0,carObj->N.distToPlayer,carObj->N.objID,
 
-             &AI_time,&AI_elapsedTime,&AI_iTime,carObj->forceNoSimOptz) != 0)) highLevelAIObjs[carLoop]->HighExecute(); }
+             &AI_time,&AI_elapsedTime,&AI_iTime,carObj->forceNoSimOptz) != 0))
 
 
-
+        highLevelAIObjs[carLoop]->HighExecute(); }
 
 
   } }
@@ -188,27 +198,20 @@ void AIHigh_Execute(void)
 
 /* ---- __11AIHigh_BaseP8Car_tObj  AIHigh_Base::ctor  [AIHIGH.CPP:158-165] SLD-VERIFIED ---- */
 
+#line 153 "C:/nfs4/GAME/COMMON/AIHIGH.CPP"
 AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
 
 
 
+
 {
-
   this->carObj_ = carObj;
-
   this->state_ = (AIState_Base *)0x0;
 
-  this->stateType_ = 0;
+  this->stateType_ = 0; this->SetState(new AIState_None(this->carObj_),STATE_NONE);
 
-  this->SetState(new AIState_None(this->carObj_),STATE_NONE);
 
-  this->schedulingOff_ = 0;
-
-  this->lastTrafficTriggerCheckSlice_ = (int)(this->CarObj()->N).simRoadInfo.slice;
-
-  return;
-
-}
+  this->schedulingOff_ = 0; this->lastTrafficTriggerCheckSlice_ = (int)(this->CarObj()->N).simRoadInfo.slice; }
 
 
 
@@ -219,24 +222,17 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
 
 /* ---- _._11AIHigh_Base  AIHigh_Base::dtor  [AIHIGH.CPP:169-276] SLD-VERIFIED ---- */
 
+#line 164 "C:/nfs4/GAME/COMMON/AIHIGH.CPP"
 AIHigh_Base::~AIHigh_Base()
 
 
 
+
 {
-
-
   if (this->state_ != (AIState_Base *)0x0) {
+
     delete this->state_;   /* virtual ~AIState_Base with __in_chrg 3 */
-
-    this->state_ = (AIState_Base *)0x0;
-
-  }
-
-
-  return;
-
-}
+    this->state_ = (AIState_Base *)0x0; } }
 
 
 

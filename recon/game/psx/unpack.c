@@ -37,6 +37,8 @@ extern long unhuff(void *src, void *dst, int reverse);
  * against -5; `char` is UNSIGNED on this build (__CHAR_UNSIGNED__) so that test
  * was ALWAYS TRUE -- the 0xFB (the common) marker never matched.  Oracle uses
  * `lbu` + compare against 0xFB. */
+
+#line 58 "C:/nfs4/GAME/PSX/UNPACK.C"
 long unpackz(void *src, void *dst)
 {
   long len = 0;
@@ -83,12 +85,27 @@ long unpackz(void *src, void *dst)
 }
 
 /* ---- unpack  [UNPACK.C:104-116] SLD-VERIFIED ---- */
+  /* DEVICE (exact-only): dead record-less local = retail root scope {1 }1; fn `}` on retail line 12 (fn exact) */
+
+#line 103 "C:/nfs4/GAME/PSX/UNPACK.C"
 long unpack(void *src, void *dst)
 {
-  return unpackz(src,dst);
+  long len; return unpackz(src,dst);
+
+
+
+
+
+
+
+
+
+
 }
 
 /* ---- unpacksizez  [UNPACK.C:165-193] SLD-VERIFIED ---- */
+
+#line 164 "C:/nfs4/GAME/PSX/UNPACK.C"
 long unpacksizez(void *src)
 {
   long len = 0;
@@ -121,9 +138,22 @@ done:
 }
 
 /* ---- unpacksize  [UNPACK.C:196-208] SLD-VERIFIED ---- */
+  /* DEVICE (exact-only): dead record-less local = retail root scope {1 }1; fn `}` on retail line 12 (fn exact) */
+
+#line 195 "C:/nfs4/GAME/PSX/UNPACK.C"
 long unpacksize(void *src)
 {
-  return unpacksizez(src);
+  long len; return unpacksizez(src);
+
+
+
+
+
+
+
+
+
+
 }
 
 /* end of unpack.c */

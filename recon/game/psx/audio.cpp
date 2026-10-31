@@ -32,7 +32,9 @@ int AudioCmn_LoadBank(char *filename,int BankNum);
 
 
 /* ---- Audio_InitDriver__Fii  [AUDIO.CPP:58-78] SLD-VERIFIED ---- */
+#line 55 "C:/nfs4/GAME/PSX/AUDIO.CPP"
 void Audio_InitDriver(int buffersize,int spusize)
+
 
 {
   for (int i = 0; i < 7; i++) {
@@ -59,13 +61,15 @@ void Audio_InitDriver(int buffersize,int spusize)
 }
 
 /* ---- Audio_DeInitDriver__Fv  [AUDIO.CPP:84-91] SLD-VERIFIED ---- */
+#line 81 "C:/nfs4/GAME/PSX/AUDIO.CPP"
 void Audio_DeInitDriver(void)
+
 
 {
   const int audioOff = 0; AudioMus_SysCleanUp();
 
-  if ((AudioCmn_kAudioOn != audioOff) || (AudioCmn_kAudioStreamingOn != audioOff)) {
-
+  if ((AudioCmn_kAudioOn != audioOff) || (AudioCmn_kAudioStreamingOn != audioOff))
+  {
     SNDSYS_restore();
     void *const heap = Audio_gHeap; purgememadr(heap);
   } return; }
@@ -74,7 +78,9 @@ void Audio_DeInitDriver(void)
 /* The unreferenced "game*" string belongs to audio.obj's data. A constant
  * false call retains the literal; the compiler removes the call. The native
  * source expression that emitted this otherwise unreferenced tag is unknown. */
+#line 130 "C:/nfs4/GAME/PSX/AUDIO.CPP"
 void Audio_CleanUp(void)
+
 
 {
   int i;
@@ -91,7 +97,9 @@ void Audio_CleanUp(void)
 }
 
 /* ---- Audio_FECleanUp__Fv  [AUDIO.CPP:151-158] SLD-VERIFIED ---- */
+#line 148 "C:/nfs4/GAME/PSX/AUDIO.CPP"
 void Audio_FECleanUp(void)
+
 
 {
 
@@ -106,7 +114,9 @@ void Audio_FECleanUp(void)
 /* ---- AudioCmn_AddBank__FPciT0i  [AUDIO.CPP:167-213] SYM locals verified; later SLD open ---- */
 /* Retail SYM: p is the filename walk ($v1), ptemp the allocated buffer ($s1).
    filename itself advances to the basename after a separator. */
+#line 164 "C:/nfs4/GAME/PSX/AUDIO.CPP"
 int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
+
 
 {
   int bhandle = -1;
@@ -161,7 +171,9 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
  * PASS 33/33; SYM names only bankdata(AUTO -0x60) and pdata($s0).
  * The direct filesize() argument is also the independent m2c shape; keeping
  * its return in a named iVar1 produced an extra non-retail debug local. */
+#line 214 "C:/nfs4/GAME/PSX/AUDIO.CPP"
 int AudioCmn_LoadBank(char *filename,int BankNum)
+
 
 {
   char bankdata [80];

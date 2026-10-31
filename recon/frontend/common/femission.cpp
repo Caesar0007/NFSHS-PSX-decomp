@@ -15,8 +15,10 @@
 
 
 /* ---- tMissionManager::Initialize  [FEMISSION.CPP:59-72] ---- */
-#line 57 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
+
+#line 56 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
 void tMissionManager::Initialize()
+
 
 {
 
@@ -43,8 +45,10 @@ void tMissionManager::Initialize()
    named data pointer after the tier and mission copies; spelling the later
    sources as repeated expressions introduced an unlisted byte temporary and
    rotated the saved-register allocation (24 diffs). */
-#line 77 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
+
+#line 76 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
 void tMissionManager::LoadDescription(bool LoadHotPursuit)
+
 
 {
   char *input; char *data; unsigned long numMissions; unsigned long numStages; char filename[80];
@@ -106,8 +110,10 @@ void tMissionManager::LoadDescription(bool LoadHotPursuit)
 
 
 /* ---- tMissionManager::ReleaseDescription  [FEMISSION.CPP:139-143] ---- */
-#line 137 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
+
+#line 136 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
 void tMissionManager::ReleaseDescription()
+
 
 {
   if (this->fDefinition != (tAcademyDefinition *)0x0) {
@@ -122,8 +128,10 @@ void tMissionManager::ReleaseDescription()
 /* SYM-CONFORM (2026-08-16, PASS retained): restored the sole retail local,
    `tMissionInfo *pMissionInfo`; gcc recreates the former definition/index
    address temporaries without exposing them as source declarations. */
-#line 170 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
+
+#line 169 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
 short tMissionManager::GetMissionStages(short tier,short mission,tStageInfo **pStages)
+
 
 {
   tMissionInfo *pMissionInfo;
@@ -137,8 +145,10 @@ short tMissionManager::GetMissionStages(short tier,short mission,tStageInfo **pS
 
 
 /* ---- tMissionManager::GetMissionToRace  [FEMISSION.CPP:186] ---- */
-#line 184 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
+
+#line 183 "C:/nfs4/FRONTEND/COMMON/FEMISSION.CPP"
 void tMissionManager::GetMissionToRace(tMissionInfo **mission)
+
 
 {
   tMissionTierInfo *currentTier = &this->fDefinition->fTiers[(byte)frontEnd.policeTier];

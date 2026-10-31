@@ -41,7 +41,9 @@ int      gShowroomLights;                         /* 0x800514b4 */
  * SOURCE-REVIEW: literal original expression/macro spelling and complete SLD
  * are not uniquely proved by this native contract and byte-match receipt. */
 
+#line 73 "C:/nfs4/GAME/PSX/FE3DMENU.CPP"
 void Fe3D_InitShowroom(void)
+
 
 {
   int i;
@@ -87,7 +89,9 @@ void Fe3D_InitShowroom(void)
 
 /* ---- CameraLookAt  [FE3DMENU.CPP:120-143] ---- */
 
+#line 117 "C:/nfs4/GAME/PSX/FE3DMENU.CPP"
 void CameraLookAt(matrixtdef *mat,coorddef *camPoint)
+
 
 {
   coorddef fwdVec;
@@ -138,8 +142,10 @@ void CameraLookAt(matrixtdef *mat,coorddef *camPoint)
        tree calls `Render_gMenuRenderFlag` is really `sd->head.mirror` @0x1F80000C
        (methodology 3.6b scratchpad-resident global; same finding draw.cpp records for
        Draw_StartRenderingView).  Using the extern symbol emitted %hi/%lo(sym) pairs. */
+#line 146 "C:/nfs4/GAME/PSX/FE3DMENU.CPP"
 void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY,int player,u_long rotation,
                int camRot,float camY,float camZ,int light,int reflection)
+
 
 {
 
@@ -302,8 +308,8 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
 
   R3DCar_Showroom(Vi);
 
-  if (reflection != 0) {
-
+  if (reflection != 0)
+  {
     Draw_CarCache *sd = (Draw_CarCache *)0x1F800000;
 
     R3DCar_InMenu = R3DCar_InMenu | 0x80;

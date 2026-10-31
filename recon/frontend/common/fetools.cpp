@@ -29,84 +29,101 @@ short currentSize;                   /* @0x800517e0; SYM SHORT */
 
 /* ---- s_upper  [FETOOLS.CPP:90-95] SLD-VERIFIED ---- */
 
-void s_upper(char *string)
-
-{
-
-  int n;
-  int len;
-
-  len = strlen(string);
-  n = 0;
-  if (0 < (int)len) {
-    do {
-      /* MATCH: index form string[n] rematerializes (s0 + a0) each iteration (incl. n==0 ->
-       * `addu a1,s0,a0`, not the hoisted `addu a1,s0,zero`). (u_int) cast forces sltiu. */
-      if ((u_int)((u_char)string[n] - 0x61) < 0x1a) {
         /* MATCH: oracle emits `addiu v0,v1,0xE0` (=-0x20 mod 256, stored to u_char). Writing
          * the constant as +0xE0 reproduces it; -0x20 would emit `addiu v0,v1,-32`. */
-        string[n] = (u_char)string[n] + 0xe0;
-      }
-      n = n + 1;
-    } while (n < (int)len);
-  }
-  return;
-}
+      /* MATCH: index form string[n] rematerializes (s0 + a0) each iteration (incl. n==0 ->
+       * `addu a1,s0,a0`, not the hoisted `addu a1,s0,zero`). (u_int) cast forces sltiu. */
+#line 87 "C:/nfs4/FRONTEND/COMMON/FETOOLS.CPP"
+void s_upper(char *string)
+
+
+{
+  int n; int len; len = strlen(string);
+  n = 0; if (0 < (int)len) {
+    do {
+      if ((u_int)((u_char)string[n] - 0x61) < 0x1a) { string[n] = (u_char)string[n] + 0xe0;
+      } n = n + 1; } while (n < (int)len); } return; }
 
 
 
 /* ---- s_lower  [FETOOLS.CPP:98-103] SLD-VERIFIED ---- */
 
-void s_lower(char *string)
-
-{
-  int n;
-  int len;
-
-  len = strlen(string);
-  n = 0;
-  if (0 < (int)len) {
-    do {
       /* MATCH: index form string[n] rematerializes (s0 + a0) each iteration (incl. n==0 ->
        * `addu a1,s0,a0`, not the hoisted `addu a1,s0,zero`). (u_int) cast forces sltiu. */
-      if ((u_int)((u_char)string[n] - 0x41) < 0x1a) {
-        string[n] = (u_char)string[n] + 0x20;
-      }
-      n = n + 1;
-    } while (n < (int)len);
-  }
-  return;
-}
+#line 95 "C:/nfs4/FRONTEND/COMMON/FETOOLS.CPP"
+void s_lower(char *string)
+
+
+{
+  int n; int len; len = strlen(string);
+  n = 0; if (0 < (int)len) {
+    do {
+      if ((u_int)((u_char)string[n] - 0x41) < 0x1a) { string[n] = (u_char)string[n] + 0x20;
+      } n = n + 1; } while (n < (int)len); } return; }
 
 
 
 /* ---- FeTools_DrawPSXButton  [FETOOLS.CPP:182-278] SLD-VERIFIED ---- */
+
+#line 181 "C:/nfs4/FRONTEND/COMMON/FETOOLS.CPP"
 void FeTools_DrawPSXButton(u_char padType, u_short button, int x, int y)
 {
   tDrawShapeExtended drawFlags;
-  int type;
+  int type; type = 0;
 
-  type = 0;
+
   drawFlags.tint[0] = 0xBEBE;
+
   y = y + 1;
+
   switch (button) {
   case 0x50:
+
+
+
+
+
+
+
     DrawShapeExtended(0x1A,0x18,x + 3,y - 2,0,0,&drawFlags);
     DrawShapeExtended(0x1B,0x18,x + 4,y + 4,0,0,&drawFlags);
     return;
   case 0xA0:
+
+
+
+
+
+
     DrawShapeExtended(0x1C,0x18,x,y - 1,0,0,&drawFlags);
-    y = y - 1;
-    DrawShapeExtended(0x1D,0x18,x + 0xA,y,0,0,&drawFlags);
+    y = y - 1; DrawShapeExtended(0x1D,0x18,x + 0xA,y,0,0,&drawFlags);
     return;
   default:
+
+
+
+
+
+
+
+
+
+
+
+
     if (padType == 0x23) {
+
+
       switch (button) {
       case 0x1000:
+
         type = 0x12;
         y = y - 3;
         break;
       case 0x4000:
+
+
+
         type = 0x13;
         y = y - 4;
         break;
@@ -117,16 +134,20 @@ void FeTools_DrawPSXButton(u_char padType, u_short button, int x, int y)
       case 8:
         type = 0x15;
         y = y - 1;
+
+
         break;
       }
-    }
-    else {
-      switch (button) {
+    } else { switch (button) {
       case 0x1000:
+
         type = 0xF;
         y = y - 3;
         break;
       case 0x4000:
+
+
+
         type = 0xC;
         y = y - 3;
         break;
@@ -141,14 +162,14 @@ void FeTools_DrawPSXButton(u_char padType, u_short button, int x, int y)
       }
     }
     break;
-  }
-  DrawShapeExtended(type,0x18,x,y,0,0,&drawFlags);
-  return;
-}
+  } DrawShapeExtended(type,0x18,x,y,0,0,&drawFlags);
+  return; }
 
 /* ---- FeTools_init  [FETOOLS.CPP:287-331] SLD-VERIFIED ---- */
 
+#line 284 "C:/nfs4/FRONTEND/COMMON/FETOOLS.CPP"
 void FeTools_init(void)
+
 
 {
   char filename [256];
@@ -193,15 +214,17 @@ void FeTools_init(void)
 
 
   Font_LoadFont(fontTitle,0x3c0,0x100,'\0');
-  currentSize = 3;
-  return;
+
+  currentSize = 3; return;
 }
 
 
 
 /* ---- FeTools_deinit  [FETOOLS.CPP:337-342] SLD-VERIFIED ---- */
 
+#line 334 "C:/nfs4/FRONTEND/COMMON/FETOOLS.CPP"
 void FeTools_deinit(void)
+
 
 {
 
@@ -223,25 +246,6 @@ void FeTools_deinit(void)
    missing a whole numeric field (real bug, see the in-body receipt), (2) the abs was
    hand-rolled instead of `abs()`.  See the in-body MATCH blocks. */
 
-void FeTools_FormatMoney(char *string,long amount)
-
-{
-  long absnum;
-  char neg;
-
-  /* MATCH (W57-A7, 5 -> PASS): the first block IS gcc's INLINE ABS idiom
-     (`bgez a1,L; addu s0,a1,zero [slot]; negu s0,s0; L:`) -- so the source was
-     `absnum = abs(amount);`, NOT a hand-rolled `if (amount<0) absnum = -absnum;`.
-     Written by hand, the two `amount < 0` tests are one condition to jump.c and get
-     merged into a single `bgez $s0` (every split-if / fence spelling still merged:
-     two ifs 5, +identity fence on amount 6, on absnum 6-7, read-only fence 6, order
-     swap 8).  `__builtin_abs` is opaque to the merge AND keeps `amount` in its
-     REGPARM $a1 exactly as the SYM says, so the sign test stays a second `bgez $a1`. */
-  neg = 0x20;
-  absnum = __builtin_abs(amount);
-  if (amount < 0) {
-    neg = 0x2d;
-  }
   /* 🔴 REAL BUG FIXED (W57-A7, 64 -> 5 diffs, ours 92 / oracle 93): the >= 1,000,000 arm
      passes THREE numeric fields, not two -- `sprintf(s,fmt,neg, n/1000000, (n%1000000)/1000,
      n%1000)`.  The old body shared ONE `sprintf(...,neg,hi,lo)` across both big arms, so a
@@ -251,17 +255,27 @@ void FeTools_FormatMoney(char *string,long amount)
      arm stores only 0x10(sp) -- the two arms then cross-jump-merge on the shared
      `sw v0,0x10(sp); jal sprintf` tail, which is exactly what per-arm sprintf calls emit.
      (The census tell was `mult 3v4 / mfhi 3v4` = one whole divide missing.) */
-  if (absnum < 1000) {
+  /* MATCH (W57-A7, 5 -> PASS): the first block IS gcc's INLINE ABS idiom
+     (`bgez a1,L; addu s0,a1,zero [slot]; negu s0,s0; L:`) -- so the source was
+     `absnum = abs(amount);`, NOT a hand-rolled `if (amount<0) absnum = -absnum;`.
+     Written by hand, the two `amount < 0` tests are one condition to jump.c and get
+     merged into a single `bgez $s0` (every split-if / fence spelling still merged:
+     two ifs 5, +identity fence on amount 6, on absnum 6-7, read-only fence 6, order
+     swap 8).  `__builtin_abs` is opaque to the merge AND keeps `amount` in its
+     REGPARM $a1 exactly as the SYM says, so the sign test stays a second `bgez $a1`. */
+#line 366 "C:/nfs4/FRONTEND/COMMON/FETOOLS.CPP"
+void FeTools_FormatMoney(char *string,long amount)
+
+
+{
+  long absnum; char neg; neg = 0x20; absnum = __builtin_abs(amount);
+  if (amount < 0) { neg = 0x2d;
+  } if (absnum < 1000) {
     sprintf(string,TextSys_Word(0x83),neg,absnum);
-  }
-  else if (absnum < 1000000) {
+  } else if (absnum < 1000000) {
     sprintf(string,TextSys_Word(0x84),neg,absnum / 1000,absnum % 1000);
   }
-  else {
-    sprintf(string,TextSys_Word(0x85),neg,absnum / 1000000,(absnum % 1000000) / 1000,absnum % 1000);
-  }
-  return;
-}
+  else { sprintf(string,TextSys_Word(0x85),neg,absnum / 1000000,(absnum % 1000000) / 1000,absnum % 1000); } return; }
 
 
 

@@ -67,7 +67,9 @@ void Font_GetUVWH(char code,int *u,int *v,int *w,int *h,int *yoff);
 
 
 /* ---- Font_TextColor__Fi  [FONT.CPP:83-85] SLD-VERIFIED ---- */
+#line 80 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_TextColor(int color)
+
 
 {
   shpfontclut.shapex = (short)((u_int)(u_short)font_clutx + color * 0x10);
@@ -75,29 +77,31 @@ void Font_TextColor(int color)
 }
 
 /* ---- Font_TextTint__Fi  [FONT.CPP:89-90] SLD-VERIFIED ---- */
+#line 86 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_TextTint(int rgb)
+
 
 {
   font_tint = rgb & 0xffffffU | 0x66000000;
 }
 
 /* ---- Font_SetABR__Fi  [FONT.CPP:96-101] SLD-FLAG:NONMONO ---- */
-void Font_SetABR(int abr)
-
-{
-  font_abr = abr;
   /* Canonical PsyQ GetTPage y argument. Const use-site expression leaves no
      extra SYM local and preserves the 18-instruction match; direct argument
      substitution swaps a2/a3 (six diffs). Original local spelling is unknown.
      2026-10-13 direct 64-bit shift36/52 gives17dif/23; casting the widened
      shift4 back to target int before shift20 gives6dif/18. Both restored;
      y remains unresolved source-only staging despite native debug elision. */
-  const int y = (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 20;
-  font_currentTPage =
-       GetTPage(*(u_char *)(*(int *)((u_char *)&(currentfont) + 136)) & 3,abr,
-                  (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14,
-                  y);
-  return;
+#line 93 "C:/nfs4/GAME/PSX/FONT.CPP"
+void Font_SetABR(int abr)
+
+
+{
+  font_abr = abr;
+
+
+
+  const int y = (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 20; font_currentTPage = GetTPage(*(u_char *)(*(int *)((u_char *)&(currentfont) + 136)) & 3,abr, (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14, y); return;
 }
 
 /* ---- Font_Blit__FiiPviiP12charactertbli  [FONT.CPP:128-152] SLD-FLAG:NONMONO ----
@@ -131,7 +135,9 @@ void Font_SetABR(int abr)
  *  all were echoes of the wrong basin, not allocator floors.  The full grind receipt
  *  (w39-w50: qty tables, ref-step probes, fence sweeps, stmtclimb runs) is in git
  *  history @ the parent of this commit -- do not re-derive it, the fn is byte-exact. */
+#line 125 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
+
 
 {
   /* Retail leaves the unused seventh ABI int unnamed; blitter linkage keeps it. */ int width; int height; SPRT *sprt; int dv; width = ch->width;                                                  /* SLD 129 */
@@ -180,7 +186,9 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
  * diffs / one insn.  (The inline `(fr+br) << 10 | ...` expression computes sum3 only
  * after the first `or`, which was the 6-diff residual.)
  */
+#line 165 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
+
 
 {
   int i;
@@ -276,8 +284,10 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
  * cmp $v0, ch $s0.  This is the classic BSD bsearch loop (lim halved per iteration,
  * lim-- on the take-the-upper-half side) -- the Ghidra body had it as a while(true)
  * with the lim/nmemb roles fused. */
+#line 258 "C:/nfs4/GAME/PSX/FONT.CPP"
 static charactertbl *
 Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
+
 
 {
   int lim;
@@ -314,7 +324,9 @@ Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
    global count read gives38dif/33 versus35; restored. Saved paired inputs
    and phase dumps: build/nc12/font_getcharacter_{baseline,direct}_20261013.
    The missing original header access representation remains unresolved. */
+#line 283 "C:/nfs4/GAME/PSX/FONT.CPP"
 charactertbl * Font_Getcharacter(int targetindex)
+
 
 {
   charactertbl *ch;
@@ -327,18 +339,24 @@ charactertbl * Font_Getcharacter(int targetindex)
     return ch;
   }
 
-  return Font_textbsearch(targetindex,(char *)characterTableBase,(*(int *)(base + 116)),0xb);
+  ch = Font_textbsearch(targetindex,(char *)characterTableBase,(*(int *)(base + 116)),0xb);
+
+  return ch;
 }
 
 /* ---- Font_SetBlitter__FPFiiPviiP12charactertbli_v  [FONT.CPP:305-306] SLD-VERIFIED ---- */
+#line 302 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_SetBlitter(fontblit blitter)
+
 
 {
   gCurrentBlitter = blitter;
 }
 
 /* ---- Font_ReSetBlitter__Fv  [FONT.CPP:311-312] SLD-VERIFIED ---- */
+#line 308 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_ReSetBlitter(void)
+
 
 {
   gCurrentBlitter = Font_Blit;
@@ -383,40 +401,40 @@ void Font_ReSetBlitter(void)
  * word-load destination/shift order. All failed trials restored. Literal
  * macro/producer syntax and full SLD unsealed;no new object/name/helper,
  * asm/volatile/pin/qualifier or compiler-output rewrite retained. */
+/* w46-a8 SEAL (2 -> PASS, 27/27).  THE MEM_IN_STRUCT_P STORE VIEW, and it is the STORE
+   side alone that is the operative bit -- font_abr is untouched.  Writing the three
+   currentfont zero stores through a STRUCT type sets MEM_IN_STRUCT_P on them, which
+   stops gcc's fixed_scalar_and_varying_struct_p heuristic from declaring the gp-rel
+   `font_abr` scalar load independent of the store group; the load can then no longer
+   sink below them and lands at retail's position (before the three `sw zero`).
+   MEASURED: struct view on the stores alone = PASS (kept); sized-[1] STRUCT view on
+   font_abr as well = 2; sized-[1] scalar array view on font_abr + struct stores = 2;
+   struct view on font_abr alone = 2; a whole-struct assignment of a zeroed temp = 20
+   (+6 insns).  This closes the w39/w41/w45 receipt chain above -- the "cc1 canonicalized
+   the load into that slot before scheduling" reading was right that it is not a
+   scheduler tie, and the alias flag is what actually pins it. */
+#line 314 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_SwitchFont(char *f1)
+
 
 {
   u_char *base; /* SOURCE-REVIEW-UNRESOLVED: unrecorded whole-header anchor;direct forms13/16dif at28/27. */
-
   setfont(f1);
-  base = (u_char *)&currentfont;
-  /* w46-a8 SEAL (2 -> PASS, 27/27).  THE MEM_IN_STRUCT_P STORE VIEW, and it is the STORE
-     side alone that is the operative bit -- font_abr is untouched.  Writing the three
-     currentfont zero stores through a STRUCT type sets MEM_IN_STRUCT_P on them, which
-     stops gcc's fixed_scalar_and_varying_struct_p heuristic from declaring the gp-rel
-     `font_abr` scalar load independent of the store group; the load can then no longer
-     sink below them and lands at retail's position (before the three `sw zero`).
-     MEASURED: struct view on the stores alone = PASS (kept); sized-[1] STRUCT view on
-     font_abr as well = 2; sized-[1] scalar array view on font_abr + struct stores = 2;
-     struct view on font_abr alone = 2; a whole-struct assignment of a zeroed temp = 20
-     (+6 insns).  This closes the w39/w41/w45 receipt chain above -- the "cc1 canonicalized
-     the load into that slot before scheduling" reading was right that it is not a
-     scheduler tie, and the alias flag is what actually pins it. */
-  {
-    ((DR_MODE *)(base + 0x94))->tag = 0;
-    ((DR_MODE *)(base + 0x94))->code[0] = 0;
-    ((DR_MODE *)(base + 0x94))->code[1] = 0;
-  }
-  int arg3 = (*(int *)(*(u_char **)(base + 136) + 0xc) << 4) >> 0x14; /* SOURCE-REVIEW-UNRESOLVED: unrecorded decoded-coordinate staging. */
-  font_currentTPage = GetTPage(**(u_char **)(base + 136) & 3,font_abr,
-                              (*(int *)(*(u_char **)(base + 136) + 0xc) << 0x14) >> 0x14,
-                              arg3);
+
+  base = (u_char *)&currentfont; ((DR_MODE *)(base + 0x94))->tag = 0;
+  ((DR_MODE *)(base + 0x94))->code[0] = 0;
+  ((DR_MODE *)(base + 0x94))->code[1] = 0;
+
+
+
+  int arg3 = (*(int *)(*(u_char **)(base + 136) + 0xc) << 4) >> 0x14; font_currentTPage = GetTPage(**(u_char **)(base + 136) & 3,font_abr, (*(int *)(*(u_char **)(base + 136) + 0xc) << 0x14) >> 0x14, arg3); /* SOURCE-REVIEW-UNRESOLVED: arg3 = unrecorded decoded-coordinate staging. */
   gFontSpaceWidth = Font_Getcharacter(0x20)->advance;
-  return;
-}
+  return; }
 
 /* ---- Font_DeInit__Fv  [FONT.CPP:333-338] SLD-VERIFIED ---- */
+#line 330 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_DeInit(void)
+
 
 {
   if (font_clutx != -1) {
@@ -427,7 +445,9 @@ void Font_DeInit(void)
 }
 
 /* ---- Font_ExitFromGame__Fv  [FONT.CPP:342-344] SLD-VERIFIED ---- */
+#line 339 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_ExitFromGame(void)
+
 
 {
   font_clutx = -1;
@@ -449,7 +469,9 @@ void Font_ExitFromGame(void)
  * cannot overflow; the final target int takes the same low32 result.
  * This removes a source-only object, not a claim of uniquely recovered
  * cast syntax. Full relative SLD still requires restoration. */
+#line 345 "C:/nfs4/GAME/PSX/FONT.CPP"
 int Font_LoadFont(char *f1,int x,int y,char in_game)
+
 
 {
   shapetbl *shp;
@@ -527,32 +549,51 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
  * Weather_DoWeather's DR_MODE tail shows -- identical materialization ORDER, reversed
  * registers, i.e. a local_alloc tie on two same-size same-ref-count constants.  A lever
  * for either one should fix both; worth attacking as a pair rather than per-function. */
+/* w45-a3: PASS 86/86 (was 8).  This tail IS PsyQ addPrim(pal, dr_mode):
+ *   setaddr(dr_mode, getaddr(pal));  bump;  setaddr(pal, dr_mode);
+ * BOTH halves must go through the P_TAG BITFIELD.  The value side being a
+ * bitfield READ (`getaddr(pal)`, gcc: lw + and) is the load-bearing dial --
+ * a plain `*pal` read gates 22, and mixing one raw word RMW with one bitfield
+ * half gates 8/22.  With both bitfields the cursor bump schedules ahead of the
+ * palette store and its register is recycled for addr24 exactly as retail; bump
+ * POSITION in the source is then irrelevant (all three placements gate 0).
+ * HISTORY: 34 (w39-a6) -> 28 -> 22 (w40-a6) -> 8 (w44) -> PASS.  The standing
+ * "t1<->t2 rotation of the hoisted 0x00ffffff / 0xff000000 mask literals, attack
+ * as a PAIR with Weather_DoWeather's DR_MODE tail" verdict was WRONG: those two
+ * literals only existed because the link was hand-rolled as word RMWs.  Bitfield
+ * stores have no mask constants to rotate. */
+#line 411 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_TextXY(char *string,int x,int y)
 
-{
-  char *str;
-  charactertbl *ch;
-  int code;
-  u_char *cfbase; /* SOURCE-REVIEW-UNRESOLVED: unrecorded whole-header view;word-array24dif/88 on this basin. */
 
-  str = string;
+{
+  char *str; charactertbl *ch; int code; u_char *cfbase; /* SOURCE-REVIEW-UNRESOLVED: unrecorded whole-header view;word-array24dif/88 on this basin. */ str = string;
+
+
+
   code = -1;
-  cfbase = (u_char *)&currentfont;
-  while (code != 0) {
+
+  cfbase = (u_char *)&currentfont; while (code != 0) {
+
     code = *(u_char *)str;
     str = str + 1;
-    if (0x20 < code) {
+    if (0x20 < code)
+    {
       ch = Font_Getcharacter(code);
-      if (ch != (charactertbl *)0x0) {
+
+      if (ch != (charactertbl *)0x0)
+      {
         int u;
 
         u = geti(ch->u,2);
+        int v = geti(ch->v,2);
         /* `char` is UNSIGNED on this build -> (signed char) forces the oracle's `lb` */
         (*gCurrentBlitter)(x + *(signed char *)&ch->xoffset,
                            y + *(signed char *)&ch->yoffset,
-                           *(void **)(cfbase + 136),
-                           u,geti(ch->v,2),(charactertbl *)ch,
-                           *(int *)(cfbase + 120));
+
+                           *(void **)(cfbase + 136),u,v,(charactertbl *)ch,*(int *)(cfbase + 120));
+
+
         x = x + *(signed char *)&ch->advance;
       }
     }
@@ -563,44 +604,26 @@ void Font_TextXY(char *string,int x,int y)
   {
     DR_MODE *dr_mode;
 
-    dr_mode = (DR_MODE *)Render_gPacketPtr;
-    /* w45-a3: PASS 86/86 (was 8).  This tail IS PsyQ addPrim(pal, dr_mode):
-     *   setaddr(dr_mode, getaddr(pal));  bump;  setaddr(pal, dr_mode);
-     * BOTH halves must go through the P_TAG BITFIELD.  The value side being a
-     * bitfield READ (`getaddr(pal)`, gcc: lw + and) is the load-bearing dial --
-     * a plain `*pal` read gates 22, and mixing one raw word RMW with one bitfield
-     * half gates 8/22.  With both bitfields the cursor bump schedules ahead of the
-     * palette store and its register is recycled for addr24 exactly as retail; bump
-     * POSITION in the source is then irrelevant (all three placements gate 0).
-     * HISTORY: 34 (w39-a6) -> 28 -> 22 (w40-a6) -> 8 (w44) -> PASS.  The standing
-     * "t1<->t2 rotation of the hoisted 0x00ffffff / 0xff000000 mask literals, attack
-     * as a PAIR with Weather_DoWeather's DR_MODE tail" verdict was WRONG: those two
-     * literals only existed because the link was hand-rolled as word RMWs.  Bitfield
-     * stores have no mask constants to rotate. */
-    setaddr(dr_mode,getaddr(Render_gPalettePtr));
-    setaddr(Render_gPalettePtr,dr_mode);
-    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
-    SetDrawMode(dr_mode,0,0,(int)font_currentTPage,(RECT *)0x0);
-  }
-  return;
+    dr_mode = (DR_MODE *)Render_gPacketPtr; setaddr(dr_mode,getaddr(Render_gPalettePtr)); setaddr(Render_gPalettePtr,dr_mode); Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+    SetDrawMode(dr_mode,0,0,(int)font_currentTPage,(RECT *)0x0); } return;
 }
 /* ---- Font_GetUVWH__FcPiN41  [FONT.CPP:541-549] SLD-VERIFIED ----
  * SYM (fsize 48, ra+s0-s5): code $a0 CHAR, u $s1, v $s2, w $s3, h $s4 (ARG), yoff $s5
  * (ARG); one block local: ch $s0.  The Ghidra leftover locals (fclr/bclr/width/...)
  * were dead but their AUTO slots inflated the frame to 64. */
+#line 538 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_GetUVWH(char code,int *u,int *v,int *w,int *h,int *yoff)
+
 
 {
   charactertbl *ch;
-
   ch = Font_Getcharacter((u_int)(u_char)code);
+
   *u = geti(ch->u,2);
-  *v = ((*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14) +
-       geti(ch->v,2);
+  *v = ((*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14) + geti(ch->v,2);
   *w = (u_int)ch->width;
   *h = (u_int)ch->height;
   *yoff = *(signed char *)&ch->yoffset;
-  return;
 }
 
 /* end of font.cpp */

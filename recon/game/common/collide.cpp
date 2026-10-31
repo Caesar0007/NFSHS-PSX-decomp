@@ -58,6 +58,8 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj);
 /* MATCH: goto shared return-0 tail (physically AFTER return 1) keeps all six guards bnez-forward */
 
 /* MATCH: signed /256 idiom; association is X_DIR*((m/256)*(dim/256)) - inner product first */
+
+
 #line 99 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int CHECK_CENTER_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
 {
@@ -95,6 +97,8 @@ int CHECK_CENTER_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
 /* Historical shape notes below; the verified single guard no longer needs goto. */
 /* MATCH: same template as CHECK_CENTER_VERTEX_WITH_DIRS - zero locals, flat goto-ret0
      guards, direct global derefs, X_DIR*((m/256)*(dim/256)) association */
+
+
 #line 130 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(int X_DIR,int Y_DIR,int Z_DIR)
 {
@@ -130,6 +134,8 @@ int CHECK_CENTER_VERTEX_WITH_DIRS_OTHER(int X_DIR,int Y_DIR,int Z_DIR)
 /* ---- CHECK_VERTEX_WITH_DIRS__Fiii  [@0x8008c37c] ---- */
 /* Historical shape notes below; the verified single guard no longer needs goto. */
 /* MATCH: CHECK_CENTER_VERTEX_WITH_DIRS template minus the pNormal writes */
+
+
 #line 160 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int CHECK_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
 {
@@ -160,6 +166,8 @@ int CHECK_VERTEX_WITH_DIRS(int X_DIR,int Y_DIR,int Z_DIR)
 /* ---- CHECK_VERTEX_WITH_DIRS_OTHER__Fiii  [@0x8008c744] ---- */
 /* Historical shape notes below; the verified single guard no longer needs goto. */
 /* MATCH: CHECK_CENTER_VERTEX_WITH_DIRS_OTHER template minus the pNormal writes */
+
+
 #line 186 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int CHECK_VERTEX_WITH_DIRS_OTHER(int X_DIR,int Y_DIR,int Z_DIR)
 {
@@ -220,6 +228,8 @@ int CHECK_VERTEX_WITH_DIRS_OTHER(int X_DIR,int Y_DIR,int Z_DIR)
 /* 2026-10-24: the genuine nonpositive-impulse exit preserves the root end389
    and epilogue390. All supplied function SYM/SLD records now agree; literal
    macro/comment text is not uniquely recovered by that contract. */
+
+
 #line 229 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 void Collide_DoObjectFixedObjectCollision(BO_tNewtonObj *o,coorddef *p,coorddef *v,coorddef *n)
 {
@@ -385,8 +395,10 @@ void Collide_DoObjectFixedObjectCollision(BO_tNewtonObj *o,coorddef *p,coorddef 
 }
 
 /* ---- Collide_LimitAngularVel__FP13BO_tNewtonObj  [@0x8008d8b4] ---- */
-#line 390 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
+
+#line 389 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 void Collide_LimitAngularVel(BO_tNewtonObj *o)
+
 
 
 
@@ -424,6 +436,8 @@ void Collide_LimitAngularVel(BO_tNewtonObj *o)
 /* MATCH: anonymous dot-sum web (s0) separate from impulse (s6) - the <<2 lands in impulse */
 
 /* MATCH: independent if - oracle re-tests front (no else-if) */
+
+
 #line 417 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoint)
 {
@@ -589,6 +603,8 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
      former void "i"(0) fence after this statement: it keeps retail issuing
      `addu s6,v0,zero` straight after the jal slot instead of sinking it into the
      load shadow of the following `lw t0,196(sp)` (no wrapper = 3 diffs @990). */
+
+
 #line 553 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
 {
@@ -894,8 +910,10 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
    returnNormalZ remains an unproved spelling for the real shared success
    exit, not a certified original name or a demonstrated necessary construct.
    Receipts: build/nc12/collision_actual_routes_20261024. */
-#line 758 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
+
+#line 757 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int Collide_DoActualObjectCollisionCheck(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
+
 
 
 
@@ -1364,6 +1382,8 @@ returnNormalZ:
 /* MATCH: 0x10000 as the ELSE arm - dbr steals the lui into the beqz delay
                    slot (safe both paths); a pre-set form lets sched hoist it into the CALL
                    slot instead (oracle jal slot = nop) */
+
+
 #line 1038 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
 {
@@ -1614,6 +1634,8 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
    Measured alternatives: direct removal in while(true) FAIL 96 (86/88),
    normalPtr-only removal FAIL 89 (89/88), speedThresh-only removal FAIL 19
    (85/88), and a count-- condition/shared-break rewrite FAIL 104 (94/88). */
+
+
 #line 1364 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 {
@@ -1681,11 +1703,12 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
      80091664 respectively; neither variable belongs at function scope.
      The extra body braces preserve the distinct loop-test/body debug blocks. */
 
-/* 2026-09-28: genuine exit-in-the-middle loop lets loop optimization
-     hoist the anonymous Cars_gNumCars load, without n or a label loop.
-     This real body-expression region retains both empty loop regions;
-     one parent start is still+1c8, retail+1bc. All128 words and original
-     locals match. Literal lost loop/macro spelling and full SLD are open. */
+/* DEVICE (exact-only): GNU statement expressions (likely a lost macro). Retail has two var-less
+   kept regions, A @+1bc (carLoop = 0) .. fn end and B @+1c8 (loop top) .. after a code-less
+   line-42 note; the nested ({ ... ({ loop; carLoop; }); return; }) gives all 128 words, every SLD
+   tag and every region record (bytes + SYM + SLD exact). The literal macro text is unknown. */
+
+
 #line 1423 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 void Collide_ClearCollisionRegistry(void)
 {
@@ -1724,23 +1747,25 @@ void Collide_ClearCollisionRegistry(void)
     }
   }
 
-  carLoop = 0; while (true) ({ if (carLoop >= Cars_gNumCars) break; carLoop = carLoop + 1; });
+  ({ carLoop = 0; ({ while (true) { if (carLoop >= Cars_gNumCars) break; carLoop = carLoop + 1; }
 
 
 
 
 
+  carLoop; });
 
 
 
-
-  return; }
+  return; }); }
 
 /* ---- Collide_CheckAccuratePointRadiusCollision__FP13BO_tNewtonObjP8coorddefi  [@0x800916d4] ---- */
 /* MATCH: SYM rule-8 - single named 'temp' accumulator; one-expression sums let gcc
      capture each fixedmult result in the NEXT jal's delay slot (3-var form scheduled early) */
 
 /* MATCH: direct returns stage 0 / xori result straight into $v0 (funnel var was v1+move) */
+
+
 #line 1477 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *point,int radius)
 {
@@ -1820,6 +1845,8 @@ int Collide_CheckAccuratePointRadiusCollision(BO_tNewtonObj *newObj,coorddef *po
    retail+400/line87; no artificial scope/use is added to conceal it.
    The old nextObj goto is replaced by the equivalent object-loop continue.
    Receipts: build/nc12/collision_checkme_source_20261024. */
+
+
 #line 1500 "C:/nfs4/GAME/COMMON/COLLIDE.CPP"
 void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
 {

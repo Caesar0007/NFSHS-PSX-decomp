@@ -8,29 +8,35 @@
 
 /* ---- FEAudio_StartLoadPatch  [FEAUDIO.CPP:43-64] SLD-VERIFIED ---- */
 
+  /* P867: SYM currentSpeechViv[40] at 80051510 is the filename passed at
+     800157e8/ec, not an empty literal; relocation normalization hid the error. */
+  /* The conditional purge/reset is one retail SLD55 group. This expression
+     preserves it without naming an unproven original macro. PASS41. */
+#line 40 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 int FEAudio_StartLoadPatch(SPEECHINFO *info)
+
 
 {
   /* P867: declaration/debug-record order and homes match SYM: length AUTO-12,
      offset AUTO-16. The combined guard below is one retail SLD51 expression. */
   int length;
   int offset;
-  
   asyncidle();
   FeAudio_LocateBigfile(speechfileHeader,info->name,&offset,&length);
+
   if ((offset == 0) || (length == 0)) {
     return 0;
   }
-  /* The conditional purge/reset is one retail SLD55 group. This expression
-     preserves it without naming an unproven original macro. PASS41. */
   info->sSpeechData != (char *)0x0
-    ? (purgememadr(info->sSpeechData), info->sSpeechData = (char *)0x0)
-    : (char *)0x0;
-  /* P867: SYM currentSpeechViv[40] at 80051510 is the filename passed at
-     800157e8/ec, not an empty literal; relocation normalization hid the error. */
+    ? (purgememadr(info->sSpeechData), info->sSpeechData = (char *)0x0) : (char *)0x0;
+
   info->sSpeechData = FeAudio_StartBigfileRead(currentSpeechViv,offset,length,&info->vivHandle);
+
   info->areLoading = '\x01';
+
   info->playNextOne = '\0';
+
+
   return 1;
 }
 
@@ -38,132 +44,167 @@ int FEAudio_StartLoadPatch(SPEECHINFO *info)
 
 /* ---- Feaudio_StartPatch  [FEAUDIO.CPP:68-121] SLD-VERIFIED ---- */
 
+#line 65 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 void Feaudio_StartPatch(SPEECHINFO *info)
+
 
 {
   SNDPLAYOPTS playopts;
   
+
+
+
+
   if (info->sSpeechData != (char *)0x0) {
+
+
+
+
+
+
+
+
     if (SNDbankadd(&info->nHandle,info->sSpeechData) == 7) {
       info->pBankHeader = reservememadr("comHeader", /* retail rodata 80010104 */
                                        SNDbankheadersize(info->nHandle),0x10);
       SNDbankheadercopy(info->pBankHeader,info->nHandle);
-      if (info->sSpeechData != (char *)0x0) {
-        purgememadr(info->sSpeechData);
-        info->sSpeechData = (char *)0x0;
+      if (info->sSpeechData != (char *)0x0) { purgememadr(info->sSpeechData); info->sSpeechData = (char *)0x0;
       }
     }
     else {
       info->lastSpeechData = info->sSpeechData;
       info->sSpeechData = (char *)0x0;
     }
+
+
     SNDplaysetdef(&playopts);
     playopts.bhandle = (char)info->nHandle;
     playopts.patnum = 0;
+
+
     playopts.vol = (char)commentaryActualLevel;
     info->nSoundHandle = SNDplay(&playopts);
     info->soundIsPlaying = '\x01';
+
+
     if (info->multiplay != 0) {
+
       if ((u_char)info->name[2] < 0x7a) {
+
         gCurrentVIV = gCurrentVIV + '\x01';
         info->name[2] = info->name[2] + '\x01';
         FEAudio_StartLoadPatch(info);
       }
       else {
+
         info->areLoading = '\0';
         info->playNextOne = '\0';
       }
     }
-  }
-  return;
-}
+  } return; }
 
 
 
 /* ---- FeAudio_systemtask  [FEAUDIO.CPP:124-204] SLD-VERIFIED ---- */
 
+#line 121 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 void FeAudio_systemtask(int x)
 
+
 {
+
   systemtask(x);
   if ((ginfo.areLoading != '\0') &&
+
+
      (getasyncreadstatus(ginfo.vivHandle) != 0)) {
+
+
+
     ginfo.areLoading = '\0';
     ginfo.playNextOne = '\x01';
   }
   if ((ginfo.soundIsPlaying != '\0') &&
+
+
      (SNDover(ginfo.nSoundHandle) != 0)) {
+
+
+
+
     SNDautovol((void *)ginfo.nSoundHandle,0,-1);
     SNDbankremove(ginfo.nHandle);
-    if (ginfo.lastSpeechData != (char *)0x0) {
-      purgememadr(ginfo.lastSpeechData);
-      ginfo.lastSpeechData = (char *)0x0;
+    if (ginfo.lastSpeechData != (char *)0x0) { purgememadr(ginfo.lastSpeechData); ginfo.lastSpeechData = (char *)0x0;
+    } if (ginfo.pBankHeader != (char *)0x0) { purgememadr(ginfo.pBankHeader); ginfo.pBankHeader = (char *)0x0;
     }
-    if (ginfo.pBankHeader != (char *)0x0) {
-      purgememadr(ginfo.pBankHeader);
-      ginfo.pBankHeader = (char *)0x0;
-    }
+
     if (ginfo.areLoading != '\0') {
-      while (getasyncreadstatus(ginfo.vivHandle) == 0) {
-        systemtask(0);
+
+      while (getasyncreadstatus(ginfo.vivHandle) == 0) { systemtask(0);
       }
       ginfo.areLoading = '\0';
       ginfo.playNextOne = '\x01';
     }
+
     ginfo.soundIsPlaying = '\0';
     ginfo.nHandle = 0;
+
+
     if (((*(u_int*)((char*)&ginfo + 16)) & 0xff00ff) == 0) {
+
       gStopCommentaryNow = 1;
     }
   }
+
+
   if (gStopCommentaryNow != 0) {
+
     gCurrentVIV = -1;
+
     if (ginfo.areLoading != '\0') {
-      while (getasyncreadstatus(ginfo.vivHandle) == 0) {
-        systemtask(0);
+
+      while (getasyncreadstatus(ginfo.vivHandle) == 0) { systemtask(0);
       }
     }
     if (ginfo.soundIsPlaying != '\0') {
+
       SNDautovol((void *)ginfo.nSoundHandle,0,-1);
       SNDbankremove(ginfo.nHandle);
     }
+
+
     AudioMus_Volume(gMasterMusicLevel * 0x46 >> 7);
-    if (ginfo.sSpeechData != (char *)0x0) {
-      purgememadr(ginfo.sSpeechData);
-      ginfo.sSpeechData = (char *)0x0;
-    }
-    if (ginfo.lastSpeechData != (char *)0x0) {
-      purgememadr(ginfo.lastSpeechData);
-      ginfo.lastSpeechData = (char *)0x0;
-    }
-    if (ginfo.pBankHeader != (char *)0x0) {
-      purgememadr(ginfo.pBankHeader);
-      ginfo.pBankHeader = (char *)0x0;
+
+    if (ginfo.sSpeechData != (char *)0x0) { purgememadr(ginfo.sSpeechData); ginfo.sSpeechData = (char *)0x0;
+    } if (ginfo.lastSpeechData != (char *)0x0) { purgememadr(ginfo.lastSpeechData); ginfo.lastSpeechData = (char *)0x0;
+    } if (ginfo.pBankHeader != (char *)0x0) { purgememadr(ginfo.pBankHeader); ginfo.pBankHeader = (char *)0x0;
     }
     ginfo.soundIsPlaying = '\0';
     ginfo.playNextOne = '\0';
     gStopCommentaryNow = 0;
     ginfo.areLoading = '\0';
   }
+
+
+
+
   if ((ginfo.playNextOne != '\0') && ((*(u_short*)((char*)&ginfo + 16)) == 0)) {
+
     Feaudio_StartPatch(&ginfo);
-    ginfo.playNextOne = '\0';
-  }
-  return;
-}
+    ginfo.playNextOne = '\0'; } return; }
 
 
 
 /* ---- FeAudio_AsyncPlayCommentary  [FEAUDIO.CPP:210-231] SLD-VERIFIED ---- */
 
+#line 207 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 short FeAudio_AsyncPlayCommentary(char *name)
+
 
 {
   commentaryActualLevel = gMasterFENarrationLevel * 0x6e >> 7;
-  if (0x5a < commentaryActualLevel) {
-    commentaryActualLevel = 0x5a;
-  }
-  strncpy(ginfo.name,name,4);
+  if (0x5a < commentaryActualLevel) { commentaryActualLevel = 0x5a;
+  } strncpy(ginfo.name,name,4);
   ginfo.nHandle = 0;
   ginfo.nSoundHandle = 0;
   ginfo.multiplay = (int)(*name != 'c');
@@ -174,10 +215,13 @@ short FeAudio_AsyncPlayCommentary(char *name)
   ginfo.sSpeechData = (char *)0x0;
   ginfo.lastSpeechData = (char *)0x0;
   ginfo.vivHandle = 0;
+
   gCurrentVIV = -1;
   if (FEAudio_StartLoadPatch(&ginfo) != 0) {
+
     AudioMus_Volume(gMasterMusicLevel * 0x23 >> 7);
   }
+
   return 1;
 }
 
@@ -185,20 +229,22 @@ short FeAudio_AsyncPlayCommentary(char *name)
 
 /* ---- FeAudio_AsyncPlaySpeech  [FEAUDIO.CPP:235-247] SLD-VERIFIED ---- */
 
+#line 232 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 short FeAudio_AsyncPlaySpeech(int type,int index)
+
 
 {
   char vivname [5];
-  
   if (type == 2) {
     sprintf(vivname,"%c%02d",99,index); /* retail rodata 80010110 */
-  }
-  else if (type == 0) {
+  } else if (type == 0) {
     sprintf(vivname,"%c%ca",0x61,index + 0x61); /* retail rodata 80010118 */
   }
-  else {
-    sprintf(vivname,"%c%ca",type + 0x61,index + 0x30);
+  else { sprintf(vivname,"%c%ca",type + 0x61,index + 0x30);
   }
+
+
+
   return FeAudio_AsyncPlayCommentary(vivname);
 }
 
@@ -206,7 +252,9 @@ short FeAudio_AsyncPlaySpeech(int type,int index)
 
 /* ---- FeAudio_StartBigfileRead  [FEAUDIO.CPP:253-269] SLD-VERIFIED ---- */
 
+#line 250 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 char * FeAudio_StartBigfileRead(char *fname,int offset,int length,int *vivHandle)
+
 
 {
   char *streamBuffer;
@@ -231,47 +279,49 @@ char * FeAudio_StartBigfileRead(char *fname,int offset,int length,int *vivHandle
 
 /* ---- FeAudio_LocateBigfile  [FEAUDIO.CPP:274-302] SLD-VERIFIED ---- */
 
-void FeAudio_LocateBigfile(LUMPYHEAD *bigfileHeader,char *name,int *offset,int *length)
-
-{
   /* P867: SYM declaration order and generated homes: i REG18/UINT,
      info REG17/PTR FILEINFO, tempChar REG5/PTR CHAR. PASS86. */
+#line 271 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
+void FeAudio_LocateBigfile(LUMPYHEAD *bigfileHeader,char *name,int *offset,int *length)
+
+
+{
   u_int i;
   FILEINFO *info;
   char *tempChar;
-  
+
   *offset = 0;
   *length = 0;
+
   if (bigfileHeader != (LUMPYHEAD *)0x0) {
+
+
+
+
     info = (FILEINFO *)(bigfileHeader + 1);
-    i = 1;
-    if (bigfileHeader->num != 0) {
-      do {
+    i = 1; if (bigfileHeader->num != 0) { do {
+
         if (strcmp(name,info->name) == 0) {
           *offset = info->offset << 0x18 | (info->offset & 0xff00) << 8 |
                     (info->offset & 0xff0000) >> 8 | (info->offset & 0xff000000) >> 0x18;
-          *length = info->length << 0x18 | (info->length & 0xff00) << 8 |
-                    (info->length & 0xff0000) >> 8 | (info->length & 0xff000000) >> 0x18;
+          *length = info->length << 0x18 | (info->length & 0xff00) << 8 | (info->length & 0xff0000) >> 8 | (info->length & 0xff000000) >> 0x18;
           return;
         }
         tempChar = info->name;
         if (*tempChar != '\0') {
-          do {
-            tempChar = tempChar + 1;
-          } while (*tempChar != '\0');
+          do { tempChar = tempChar + 1; } while (*tempChar != '\0');
         }
-        info = (FILEINFO *)(tempChar + 1);
-      } while (i++ < bigfileHeader->num);
+        info = (FILEINFO *)(tempChar + 1); } while (i++ < bigfileHeader->num);
     }
-  }
-  return;
-}
+  } return; }
 
 
 
 /* ---- FeAudio_InitViv  [FEAUDIO.CPP:305-347] SLD-VERIFIED ---- */
 
+#line 302 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 LUMPYHEAD * FeAudio_InitViv(char *fname)
+
 
 {
   /* PASS (109/109): the direct four-mask byte-swap form matches the retail
@@ -280,47 +330,41 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
   int vivHandle;
   LUMPYHEAD lumpHead;
   LUMPYHEAD *bigfileHeader;
-
   setasyncfile(fname);
   vivHandle = asyncloadsegment((char *)0x0,&lumpHead,0x10);
   do {
+
+
+
     systemtask(0);
   } while (getasyncreadstatus(vivHandle) == 0);
-
   lumpHead.type = ((lumpHead.type & 0xff) << 24) |
                   ((lumpHead.type & 0xff00) << 8) |
                   ((lumpHead.type & 0xff0000) >> 8) |
                   ((lumpHead.type & 0xff000000) >> 24);
-  lumpHead.hlen = ((lumpHead.hlen & 0xff) << 24) |
-                  ((lumpHead.hlen & 0xff00) << 8) |
-                  ((lumpHead.hlen & 0xff0000) >> 8) |
-                  ((lumpHead.hlen & 0xff000000) >> 24);
-  lumpHead.num = ((lumpHead.num & 0xff) << 24) |
-                 ((lumpHead.num & 0xff00) << 8) |
-                 ((lumpHead.num & 0xff0000) >> 8) |
-                 ((lumpHead.num & 0xff000000) >> 24);
+  lumpHead.hlen = ((lumpHead.hlen & 0xff) << 24) | ((lumpHead.hlen & 0xff00) << 8) | ((lumpHead.hlen & 0xff0000) >> 8) | ((lumpHead.hlen & 0xff000000) >> 24);
+  lumpHead.num = ((lumpHead.num & 0xff) << 24) | ((lumpHead.num & 0xff00) << 8) | ((lumpHead.num & 0xff0000) >> 8) | ((lumpHead.num & 0xff000000) >> 24);
+
 
   bigfileHeader = reservememadr("lumpyhead",lumpHead.hlen + 0x20,0);
+
   if (bigfileHeader == (LUMPYHEAD *)0x0) {
     return (LUMPYHEAD *)0x0;
   }
   vivHandle = asyncloadsegment((char *)0x0,bigfileHeader,lumpHead.hlen + 0x20);
   do {
+
+
+
     systemtask(0);
   } while (getasyncreadstatus(vivHandle) == 0);
-
   bigfileHeader->type = ((bigfileHeader->type & 0xff) << 24) |
                         ((bigfileHeader->type & 0xff00) << 8) |
                         ((bigfileHeader->type & 0xff0000) >> 8) |
                         ((bigfileHeader->type & 0xff000000) >> 24);
-  bigfileHeader->hlen = ((bigfileHeader->hlen & 0xff) << 24) |
-                        ((bigfileHeader->hlen & 0xff00) << 8) |
-                        ((bigfileHeader->hlen & 0xff0000) >> 8) |
-                        ((bigfileHeader->hlen & 0xff000000) >> 24);
-  bigfileHeader->num = ((bigfileHeader->num & 0xff) << 24) |
-                       ((bigfileHeader->num & 0xff00) << 8) |
-                       ((bigfileHeader->num & 0xff0000) >> 8) |
-                       ((bigfileHeader->num & 0xff000000) >> 24);
+  bigfileHeader->hlen = ((bigfileHeader->hlen & 0xff) << 24) | ((bigfileHeader->hlen & 0xff00) << 8) | ((bigfileHeader->hlen & 0xff0000) >> 8) | ((bigfileHeader->hlen & 0xff000000) >> 24);
+  bigfileHeader->num = ((bigfileHeader->num & 0xff) << 24) | ((bigfileHeader->num & 0xff00) << 8) | ((bigfileHeader->num & 0xff0000) >> 8) | ((bigfileHeader->num & 0xff000000) >> 24);
+
   return bigfileHeader;
 }
 
@@ -349,7 +393,9 @@ char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"}; /* @0
    language. Keep the unused parameter unnamed rather than invent arg1;
    its original spelling cannot be recovered from the current SYM block.
    NFS2's raw Watcom debug data calls it postGame; NFS4 identity is unproven. */
+#line 357 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 void FeAudio_InitCommentary(int language,int)
+
 
 {
   strcpy(ginfo.name,"000");
@@ -375,15 +421,12 @@ void FeAudio_InitCommentary(int language,int)
 
 /* ---- FeAudio_DeInitCommentary  [FEAUDIO.CPP:385-386] SLD-VERIFIED ---- */
 
+#line 382 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 void FeAudio_DeInitCommentary(void)
 
+
 {
-  if (speechfileHeader != (LUMPYHEAD *)0x0) {
-    purgememadr(speechfileHeader);
-    speechfileHeader = (LUMPYHEAD *)0x0;
-  }
-  return;
-}
+  if (speechfileHeader != (LUMPYHEAD *)0x0) { purgememadr(speechfileHeader); speechfileHeader = (LUMPYHEAD *)0x0; } return; }
 
 
 

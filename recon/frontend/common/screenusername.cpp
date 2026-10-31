@@ -14,46 +14,49 @@ struct ScreenUserName_Align1Copy2CodegenCarrier { char b[2]; };
 
 
 /* ---- tScreenUserName::Initialize  (screenusername.cpp:33) ---- */
-void tScreenUserName::Initialize()
-
-{
   /* MATCH: SLD records only the short loop index; the decompiler's rowLabel,
      n_rows, and fixed-point idx temporaries distort the retail induction chain. */
+#line 30 "C:/nfs4/FRONTEND/COMMON/SCREENUSERNAME.CPP"
+void tScreenUserName::Initialize()
+
+
+{
   short i;
-  
-  i = 0;
-  this->fTextFade = 0x80;
+  i = 0; this->fTextFade = 0x80;
+
+
+
+
+
   MENUUSERNAME_STARTY = 0x82 - (short)(menu_kUserNameRows * 0xf >> 1);
-  if (0 < menu_kUserNameRows) {
-    do {
+
+
+  if (0 < menu_kUserNameRows) { do {
+
       sprintf(this->fRowList[i],TextSys_Word(i + 0x1fb));
-      i = i + 1;
-    } while (i < menu_kUserNameRows);
+      i = i + 1; } while (i < menu_kUserNameRows);
   }
-  this->tScreen::Initialize();
-  return;
+  this->tScreen::Initialize(); return;
 }
 
 /* ---- tScreenUserName::GetShapeInfo  (screenusername.cpp:54) ---- */
+  /* P866: both pointers are SYM UserPermFileName at 800529b8, not an empty
+     literal.  The normalized gate cannot distinguish those relocation targets. */
+#line 50 "C:/nfs4/FRONTEND/COMMON/SCREENUSERNAME.CPP"
 void tScreenUserName::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
                char **swapFileName)
 
+
 {
   
-  *swapFileName = (char *)0x0;
-  numSwapShapes = 0;
+
+  *swapFileName = (char *)0x0; numSwapShapes = 0;
   numPermShapes = 0x5c;
-  /* P866: both pointers are SYM UserPermFileName at 800529b8, not an empty
-     literal.  The normalized gate cannot distinguish those relocation targets. */
   sprintf(UserPermFileName,"zUser%d",(uint)(byte)frontEnd.language);
-  *permFileName = UserPermFileName;
-  return;
+  *permFileName = UserPermFileName; return;
 }
 
 /* ---- tScreenUserName::DrawVerticalLine  (screenusername.cpp:65) ---- */
-void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
-
-{
   /* W86-S4 SYM: the `8c` block lists ONLY the four REGPARMs -- no locals at
      all -- so the former `int depth` carrier was a hard fiction.  Folded back
      into the three tests; the sll/sra SPELLING is what is load-bearing (retail
@@ -61,40 +64,28 @@ void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
      TESTS that value while the clamp stores back into $a3).  A plain
      `(int)gridpos` spelling costs 17 diffs; the folded sll/sra form is
      PASS 32/32, identical to the carrier form. */
-  if (0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) {
-    if (0x3f < (((int)(uint)(ushort)gridpos << 16) >> 16)) goto DrawVerticalLine_high;
-  }
-  if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) {
-    gridpos = 0;
-  }
-  goto DrawVerticalLine_draw;
-DrawVerticalLine_high:
-  gridpos = 0x40;
+#line 62 "C:/nfs4/FRONTEND/COMMON/SCREENUSERNAME.CPP"
+void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
+
+
+{
+  if (0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) { if (0x3f < (((int)(uint)(ushort)gridpos << 16) >> 16)) goto DrawVerticalLine_high; } if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) { gridpos = 0; } goto DrawVerticalLine_draw; DrawVerticalLine_high: gridpos = 0x40;
 DrawVerticalLine_draw:
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,0xa2,1,
-                       ((int)gridpos << 0x10) >> 0xf,0);
-  return;
+                       ((int)gridpos << 0x10) >> 0xf,0); return;
 }
 
 /* ---- tScreenUserName::DrawHorizontalLine  (screenusername.cpp:73) ---- */
-void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
-
-{
   /* W86-S4 SYM: same as DrawVerticalLine -- the `8c` block lists only the four
      REGPARMs, so the former `int depth` carrier was folded away.  PASS 33/33. */
-  if (0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) {
-    if (0x3f < (((int)(uint)(ushort)gridpos << 16) >> 16)) goto DrawHorizontalLine_high;
-  }
-  if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) {
-    gridpos = 0;
-  }
-  goto DrawHorizontalLine_draw;
-DrawHorizontalLine_high:
-  gridpos = 0x40;
+#line 70 "C:/nfs4/FRONTEND/COMMON/SCREENUSERNAME.CPP"
+void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
+
+
+{
+  if (0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) { if (0x3f < (((int)(uint)(ushort)gridpos << 16) >> 16)) goto DrawHorizontalLine_high; } if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) { gridpos = 0; } goto DrawHorizontalLine_draw; DrawHorizontalLine_high: gridpos = 0x40;
 DrawHorizontalLine_draw:
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,0xc0,1,2,
-                       ((int)gridpos << 0x10) >> 0xf,0xc);
-  return;
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,0xc0,1,2, ((int)gridpos << 0x10) >> 0xf,0xc); return;
 }
 
 /* P866: the matching history below describes earlier forms.  The current
@@ -218,29 +209,14 @@ DrawHorizontalLine_draw:
    every source-position lever; only the reload count moves it).
    Harness: scratchpad/W72_A7/{probe.py,p1..p7.py} + scratchpad/W72_A7_sbs.py. */
 /* ---- tScreenUserName::DrawBackground  (screenusername.cpp:80) ---- */
-void tScreenUserName::DrawBackground()
-
-{
-  short i;
-  short k;
-  short x;
-  short y;
-  int gray;
-  short fade;
-  short fadebox;
-  short gridpos;
-  short row;
-  short col;
-  char output[2];
-  /* SYM-CODEGEN-CARRIER: fadeboxv
-     SYM-CODEGEN-CARRIER: gridposv -- unrecorded clamp values still under
-     source-recovery review.  P866 removes textfadev with period GNU min while
-     preserving PASS 394/394.  The eleven real outer locals above remain in
-     SYM order.  Earlier failed direct-store probes do not prove that these
-     remaining two carriers existed in the lost source. */
-  short fadeboxv;
-  short gridposv;
-
+  /* W72-A7: retail reloads `this` here and never uses it (the dead
+     `lw $t2,0x70($sp)` @0x8004B2EC).  That one reload advances gcc-2.8's
+     function-global `last_spill_reg` round-robin, which sets the scratch
+     register for EVERY later reload in the body.  Zero-instruction use
+     fence -- NOT a register pin.  Deleting it costs 59 diffs. */
+  /* P866: GNU min supplies the shared normal/high value without textfadev;
+     keep the distinct zero store seen at 8004b290..8004b298.  PASS 394 and
+     exact debug twin; the original macro/expression spelling is still unknown. */
   /* W85-S5 (device removed): this was `fade = *(volatile int *)&this->
      callingMenu->fScreenFade;`.  What the volatile bought is retail's FULL
      WORD load: `lw $v0,116($v0)` + an `addu $a1,$v0,$zero` copy that keeps the
@@ -260,132 +236,170 @@ void tScreenUserName::DrawBackground()
      Modelled as tOptionsMenu::GetScreenFade() (inline, screendisplay_types.h +
      nfs4_types.h; the SYM records the inlined `this`, not the method name).
      PASS 394/394 kept; screendisplay/screenmain/screenmemcard re-gated. */
-  fade = this->callingMenu->GetScreenFade();
-  if ((short)((fade >> 1) - 0x80) < 0x80) {
-    if ((short)((fade >> 1) - 0x80) <= 0) goto DrawBgUser_fadeboxZero;
-  }
-  if ((short)((fade >> 1) - 0x80) < 0x81) goto DrawBgUser_fadeboxNormal;
-  fadeboxv = 0x80;
-  goto DrawBgUser_fadeboxDone;
-DrawBgUser_fadeboxNormal:
-  fadeboxv = (fade >> 1) - 0x80;
-  goto DrawBgUser_fadeboxDone;
-DrawBgUser_fadeboxZero:
-  fadeboxv = 0;
-DrawBgUser_fadeboxDone:
-  fadebox = fadeboxv;
-  if ((short)(fade >> 2) < 0x80) {
-    if ((short)(fade >> 2) <= 0) goto DrawBgUser_gridposZero;
-  }
-  if ((short)(fade >> 2) < 0x81) goto DrawBgUser_gridposNormal;
-  gridposv = 0x80;
-  goto DrawBgUser_gridposDone;
-DrawBgUser_gridposNormal:
-  gridposv = fade >> 2;
-  goto DrawBgUser_gridposDone;
+  /* SYM-CODEGEN-CARRIER: fadeboxv
+     SYM-CODEGEN-CARRIER: gridposv -- unrecorded clamp values still under
+     source-recovery review.  P866 removes textfadev with period GNU min while
+     preserving PASS 394/394.  The eleven real outer locals above remain in
+     SYM order.  Earlier failed direct-store probes do not prove that these
+     remaining two carriers existed in the lost source. */
+#line 77 "C:/nfs4/FRONTEND/COMMON/SCREENUSERNAME.CPP"
+void tScreenUserName::DrawBackground()
+
+
+{
+  short i;
+  short k;
+  short x;
+  short y;
+  int gray;
+  short fade;
+  short fadebox;
+  short gridpos; short row; short col; char output[2]; short fadeboxv; short gridposv; fade = this->callingMenu->GetScreenFade();
+
+  if ((short)((fade >> 1) - 0x80) < 0x80) { if ((short)((fade >> 1) - 0x80) <= 0) goto DrawBgUser_fadeboxZero; } if ((short)((fade >> 1) - 0x80) < 0x81) goto DrawBgUser_fadeboxNormal; fadeboxv = 0x80; goto DrawBgUser_fadeboxDone; DrawBgUser_fadeboxNormal: fadeboxv = (fade >> 1) - 0x80; goto DrawBgUser_fadeboxDone; DrawBgUser_fadeboxZero: fadeboxv = 0; DrawBgUser_fadeboxDone: fadebox = fadeboxv;
+
+
+  if ((short)(fade >> 2) < 0x80) { if ((short)(fade >> 2) <= 0) goto DrawBgUser_gridposZero; } if ((short)(fade >> 2) < 0x81) goto DrawBgUser_gridposNormal; gridposv = 0x80; goto DrawBgUser_gridposDone; DrawBgUser_gridposNormal: gridposv = fade >> 2; goto DrawBgUser_gridposDone;
 DrawBgUser_gridposZero:
-  gridposv = 0;
-DrawBgUser_gridposDone:
-  gridpos = gridposv;
-  if (fade < 0x80) {
-    if (fade <= 0) goto DrawBgUser_textFadeZero;
-  }
-  /* P866: GNU min supplies the shared normal/high value without textfadev;
-     keep the distinct zero store seen at 8004b290..8004b298.  PASS 394 and
-     exact debug twin; the original macro/expression spelling is still unknown. */
-  this->fTextFade = fade <? 0x80;
-  goto DrawBgUser_textFadeSkip;
-DrawBgUser_textFadeZero:
-  this->fTextFade = 0;
+  gridposv = 0; DrawBgUser_gridposDone: gridpos = gridposv; if (fade < 0x80) { if (fade <= 0) goto DrawBgUser_textFadeZero; } this->fTextFade = fade <? 0x80; goto DrawBgUser_textFadeSkip; DrawBgUser_textFadeZero: this->fTextFade = 0;
 DrawBgUser_textFadeSkip:
+
+
+
   gray = 0x80808;
+
+
+
+
+
+
   SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
   SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
-  /* W72-A7: retail reloads `this` here and never uses it (the dead
-     `lw $t2,0x70($sp)` @0x8004B2EC).  That one reload advances gcc-2.8's
-     function-global `last_spill_reg` round-robin, which sets the scratch
-     register for EVERY later reload in the body.  Zero-instruction use
-     fence -- NOT a register pin.  Deleting it costs 59 diffs. */
-  __asm__("" : : "r"(this));
-  y = MENUUSERNAME_STARTY;
-  row = 0;
-  *(struct ScreenUserName_Align1Copy2CodegenCarrier *)output =
-      *(struct ScreenUserName_Align1Copy2CodegenCarrier *)(char *)" ";
-  while (row < menu_kUserNameRows) {
-    x = 0x102;
-    col = 0;
-    while (this->fRowList[0][col + row * 9] != '\0') {
-      int colText;
 
+
+
+  __asm__("" : : "r"(this));
+
+
+
+
+
+
+
+
+
+  y = MENUUSERNAME_STARTY;
+  row = 0; *(struct ScreenUserName_Align1Copy2CodegenCarrier *)output = *(struct ScreenUserName_Align1Copy2CodegenCarrier *)(char *)" "; while (row < menu_kUserNameRows) {
+
+
+    x = 0x102;
+
+    col = 0; while (this->fRowList[0][col + row * 9] != '\0') {
+      int colText;
       output[0] = this->fRowList[0][col + row * 9];
+
+
       colText = CalcFadeVal(0xb54200,this->fTextFade);
+
       switch(output[0]) {
       case '!':
         FETextRender_FullTextRGB(TextSys_Word(0x205),x + 0x16,y - 1,colText,1,2);
         PSXDrawSquare(0,x + 0x16,y - 2,2,0xe);
+
+
+
+
+
         break;
       case '@':
+
         FETextRender_FullTextRGB(TextSys_Word(0x205),x + 0x24,y - 1,colText,1,2);
         for (k = 1; k < 3; k++) {
-          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
-        }
+          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe); }
         break;
       case '#':
         FETextRender_FullTextRGB(TextSys_Word(0x206),x + 0x16,y - 1,colText,1,2);
         PSXDrawSquare(0,x + 0x16,y - 2,2,0xe);
+
         break;
       case '$':
+
         FETextRender_FullTextRGB(TextSys_Word(0x206),x + 0x24,y - 1,colText,1,2);
         for (k = 1; k < 3; k++) {
-          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
-        }
+          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe); }
         break;
       case '&':
+
         FETextRender_FullTextRGB(TextSys_Word(0x207),x + 0x16,y - 1,colText,1,2);
         PSXDrawSquare(0,x + 0x16,y - 2,2,0xe);
         break;
       case '^':
+
+
         FETextRender_FullTextRGB(TextSys_Word(0x207),x + 0x4e,y - 1,colText,1,2);
         for (k = 1; k < 6; k++) {
-          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
-        }
+          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe); }
         break;
       default:
+
         FETextRender_FullTextRGB(output,x + 8,y - 1,colText,1,2);
         break;
       case '-':
-        break;
-      }
-      x = x + 0x1c;
+        break; } x = x + 0x1c;
       col++;
     }
+
+
     y = y + 0xf;
     row++;
   }
+
+
   gray = 0x505050;
+
+
+
+
+
+
+
+
+
+
   SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
   SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
+
+
+
+
+
+
+
+
+
+
+
   x = 0xfc;
   i = 0;
   do {
     DrawVerticalLine(x,0x2e,gridpos - i * 2);
-    i++;
-    x = x + 0x1c;
-  } while (i < 7);
+
+    i++; x = x + 0x1c; } while (i < 7);
   k = 0;
   y = MENUUSERNAME_STARTY - 3;
-  if (0 < menu_kUserNameRows + 1) {
-    do {
+  if (0 < menu_kUserNameRows + 1) { do {
+
       DrawHorizontalLine(0xf0,y,gridpos - (menu_kUserNameRows - k) * 2);
-      k++;
-      y = y + 0xf;
-    } while (k < menu_kUserNameRows + 1);
+
+      k++; y = y + 0xf; } while (k < menu_kUserNameRows + 1);
   }
-  i = 0;
-  do {
+
+
+
+  i = 0; do {
+
     DrawShapeExtended(i,0,0,0,fadebox,0,(tDrawShapeExtended *)0x0);
-    i++;
-  } while (i < 0x20);
+    i++; } while (i < 0x20);
 }
 
 /* ---- tScreenUserName::dtor  (screenusername.cpp:97) ---- */

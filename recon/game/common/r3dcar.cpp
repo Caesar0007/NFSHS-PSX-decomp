@@ -89,8 +89,10 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi);
 /* ---- R3DCar_ChangeTrafficColor__FP8Car_tObji [R3DCAR.CPP:386-420] ----
  * Whitespace-only layout seals58 word/file tags and all native records.
  * Literal original macro/comment text remains unproved. */
-#line 384 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 383 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
+
 
 {
   int color;
@@ -131,8 +133,10 @@ void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
 /* ---- R3DCar_StartUp__Fv [retail R3DCAR.CPP:424-461] ----
  * Whitespace-only anchored layout seals52 word/file tags and all native
  * local/block/end records. Literal original source text remains unproved. */
-#line 422 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 421 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_StartUp(void)
+
 
 {
   int i;
@@ -176,8 +180,10 @@ void R3DCar_StartUp(void)
 /* ---- R3DCar_PostStartUp__Fv [R3DCAR.CPP:466-489] ----
  * Whitespace-only anchored layout seals57 word/file tags and all native
  * local/block/end records. Literal original source text remains unproved. */
-#line 464 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 463 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_PostStartUp(void)
+
 
 {
   int otSize;
@@ -208,8 +214,10 @@ void R3DCar_PostStartUp(void)
 /* Real loop/body ownership and indexed access retire the five old captures.
  * No replacement source object or literal original-text claim is implied.
  * Ordinary anchored layout now seals all30 word/file tags and native records. */
-#line 493 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 492 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_Restart(void)
+
 
 {
   int i;
@@ -235,8 +243,10 @@ void R3DCar_Restart(void)
 /* ---- R3DCar_CleanUp__Fv [R3DCAR.CPP:518-571] ----
  * Whitespace-only anchored layout seals90 word/file tags and all native
  * local/block/end records. Literal original source text remains unproved. */
-#line 516 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 515 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_CleanUp(void)
+
 
 {
   int i;
@@ -297,9 +307,11 @@ void R3DCar_CleanUp(void)
  * Real late offset/for initialization and separate vt.vz sum/shift phases,
  * plus ordinary anchored layout, seal322 tags/all18 blocks/20 supplied locals.
  * Whole normal ELF is unchanged; literal original source text is unproved. */
-#line 577 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 576 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 Transformer_zScene *
 R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
+
 
 {
   int i;
@@ -607,8 +619,10 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
 /* ---- R3DCcar_ReadeMapData__Fv [R3DCAR.CPP:886-911] ----
  * Real for initialization/layout seals46 tags and all provided records.
  * Preserve ScaneData's original spelling and its distinct owned base pointer. */
-#line 884 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 883 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCcar_ReadeMapData(void)
+
 
 {
   int i;
@@ -641,8 +655,10 @@ void R3DCcar_ReadeMapData(void)
  * Inclusive selected-record count, consumed once per condition, seals all58
  * tags and supplied records without a new temporary or dummy identity.
  * Compiled bytes unchanged; literal original loop syntax remains unproved. */
-#line 915 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 914 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCcar_ReadTrackShadow(void)
+
 
 {
   int i;
@@ -677,8 +693,10 @@ void R3DCcar_ReadTrackShadow(void)
 /* MATCH: ordinary layout under the retail function anchor preserves every
  * executable token while restoring330 word tags, ten block records and all
  * supplied locals. Literal original MIN/MAX macro/comment spelling is unproved. */
-#line 956 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 955 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_CalcCarDimensions(Car_tObj *carObj,Transformer_zScene *scene,int carType)
+
 
 {
   int i;
@@ -768,8 +786,10 @@ void R3DCar_CalcCarDimensions(Car_tObj *carObj,Transformer_zScene *scene,int car
 /* ---- R3DCar_DeInstantiate3DCar__FP8Car_tObj [R3DCAR.CPP:1046-1048] ----
  * Anchored layout preserves tokens and matches all15 native word tags,
  * supplied locals, block lines and end1048. Literal macro text unproved. */
-#line 1044 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1043 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_DeInstantiate3DCar(Car_tObj *carObj)
+
 
 {
   if ((carObj->render).palCopy != (char *)0x0) { purgememadr((carObj->render).palCopy); }
@@ -780,8 +800,10 @@ void R3DCar_DeInstantiate3DCar(Car_tObj *carObj)
  * emits the current-type store first. Restored real source order plus ordinary
  * layout seals80 tags/all14 block records without changing any instruction.
  * Literal original macro/comment text remains unproved. */
-#line 1052 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1051 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
+
 
 {
   int currentCarType; currentCarType = (int)(carObj->render).currentCarType;
@@ -845,8 +867,10 @@ void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
   (carObj->render).palCopy = (char *)0x0; return; }
 
 /* ---- R3DCar_GetFileName__FPcN20  [R3DCAR.CPP:1118-1125] SLD attribution requires the native comparison ---- */
-#line 1116 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1115 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_GetFileName(char *infilename,char *filename,char *suffix)
+
 
 {
   char workFile [10];
@@ -863,8 +887,10 @@ void R3DCar_GetFileName(char *infilename,char *filename,char *suffix)
  * Nested filesize inherits1138 rather than retail1137. A real value-block
  * trial kept code but added a non-retail region and misplaced five tags;
  * it is not adopted. The original separate-note producer remains unresolved. */
-#line 1131 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1130 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 char * R3DCar_LoadFileAdr(char *name)
+
 
 {
   char * buf;
@@ -881,23 +907,28 @@ char * R3DCar_LoadFileAdr(char *name)
    original declaration proved by native cleanliness. Direct range/mutation
    forms still change the normal ELF, including with canonical table access;
    that does not establish the original name, qualification or object. */
-#line 1143 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1142 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_GetCarName(char *filename,int carType,int country)
 
+
 {
+
   const u_int copIdx = carType - 0x16U;
+
   sprintf(filename,"zz%s",GameSetup_gCarNames[carType]);
-  if (copIdx < 6) {
-    int index;
-    index = R3DCar_CopIndex[copIdx][country];
+
+  if (copIdx < 6)
+  {
+    int index = R3DCar_CopIndex[copIdx][country];
     filename[2] = R3DCar_CopCountry[index];
-  }
-  return;
-}
+  } }
 
 /* ---- R3DCar_Instantiate3DCar__FP8Car_tObji [retail R3DCAR.CPP:1159-1399; carrier/source/SLD recovery open] ---- */
-#line 1157 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1156 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
+
 
 { char filename [10]; char workFile [10]; char bigname [100]; int reload; int carType;
 
@@ -1075,20 +1106,20 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     CarIO_ReadInCarTextureData(shpfiles[index++],carObj,reload | duplicateLicense,0);
     if (((carObj->render).inside & 1U) != 0) {
 
-      CarIO_ReadInCarTextureData(shpfiles[index],carObj,0x19,0); index = index + 1; } CarIO_ReadInCarTextureData( shpfiles[index], (Texture_CarColor = ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 1) * 8,carObj),
+      CarIO_ReadInCarTextureData(shpfiles[index],carObj,0x19,0); index = index + 1; }
 
 
-        duplicateLicense | 0x91,0);
+    Texture_CarColor = ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
 
-
+    CarIO_ReadInCarTextureData(shpfiles[index],carObj,duplicateLicense | 0x91,0);
 
     CarIO_CleanUpLicense(0);
 
-    (carObj->render).palNum = (short)Texture_palNum; index = index + 1; CarIO_UpdateCarTextureData( shpfiles[index], (Texture_CarColor = ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 2) * 4,carObj), 0
+    (carObj->render).palNum = (short)Texture_palNum; index = index + 1;
 
-        ); } else { char infilename[15];
+    Texture_CarColor = ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
 
-
+    CarIO_UpdateCarTextureData(shpfiles[index],carObj,0); } else { char infilename[15];
 
 
 
@@ -1182,8 +1213,10 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
  * grouping plus layout seals234 tags, four block records and12 supplied locals.
  * carPos[4]/car are real AUTO buffers; retain in-place bound products. The real
  * x/z region optimizes to+720..+720. Literal original syntax remains unproved. */
-#line 1403 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1402 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
+
 
 {
   coorddef carPos [4];
@@ -1296,8 +1329,10 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
 /* ---- R3DCar_TurnHeadLightOn__FP8Car_tObji [R3DCAR.CPP:1516-1521] ----
  * Whitespace-only anchored layout matches all24 words/blocks/end coordinates.
  * Shared test/store tags do not uniquely prove original macro spelling. */
-#line 1514 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1513 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_TurnHeadLightOn(Car_tObj *carObj,int tail)
+
 
 {
   (carObj->render).headLight = (carObj->render).headLight | 0x11;
@@ -1309,8 +1344,10 @@ void R3DCar_TurnHeadLightOn(Car_tObj *carObj,int tail)
 /* ---- R3DCar_TurnHeadLightOff__FP8Car_tObji [R3DCAR.CPP:1525-1532] ----
  * Whitespace-only anchored layout matches all21 words/blocks/end coordinates.
  * Shared test/store tags do not uniquely prove original macro spelling. */
-#line 1523 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1522 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_TurnHeadLightOff(Car_tObj *carObj,int head)
+
 
 {
   (carObj->render).brakeLight = (carObj->render).brakeLight & 0xfd;
@@ -1324,8 +1361,10 @@ void R3DCar_TurnHeadLightOff(Car_tObj *carObj,int head)
 /* ---- R3DCar_MATRIX3DT_Copy__FPiT0 [R3DCAR.CPP:1538-1541] ----
  * Retail attributes all ten instructions to1541. Ordinary single-line work
  * preserves every token and native region; original macro spelling unproved. */
-#line 1536 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1535 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_MATRIX3DT_Copy(int *from,int *to)
+
 
 {
   int i;
@@ -1353,8 +1392,10 @@ void R3DCar_MATRIX3DT_Copy(int *from,int *to)
  * guard preserves the out-of-line brake arm without its lightFlags object or
  * three test-funnel labels/gotos. All43 supplied tuples and every correctly
  * matched region remain unchanged; literal source/SLD recovery is still open. */
-#line 1544 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 1543 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
+
 
 { int i; Transformer_zObj *obj; coorddef parent; matrixtdef bodyMat; matrixtdef orientMat; matrixtdef insideMat; matrixtdef orientIMat; matrixtdef steerMat; int rideHeight; int detailIndex; int carType; int countryFlag; int rightHandDrive; int cop_flag;
 
@@ -1375,11 +1416,11 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
   countryFlag = (int)((u_char)(carObj->render).currentCountry >> 7);
 
-  rightHandDrive = 0; if ((carType < 0x1c) &&
-      (rightHandDrive = (int)*(signed char *)&R3DCar_ForceDriveSide[carType], rightHandDrive < 0)) {
+  rightHandDrive = 0;
+  if (carType < 0x1c) {
 
-
-    rightHandDrive = AITune_trackInfo[GameSetup_gData.track].driveSide + 1 >> 1 ^ 1; }
+    rightHandDrive = (int)*(signed char *)&R3DCar_ForceDriveSide[carType];
+    if (rightHandDrive < 0) rightHandDrive = AITune_trackInfo[GameSetup_gData.track].driveSide + 1 >> 1 ^ 1; }
 
   if (GameSetup_gData.mirrorTrack != 0) { rightHandDrive = rightHandDrive ^ 1; }
 
@@ -1570,9 +1611,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
               vel = vel << (Replay_ReplayInterface.speed + 7U); } } }
 
 
-        if ((carObj->wheelLock != 0) && ((carObj->wheelLock & rear + 1U) != 0)) {
+        if (carObj->wheelLock != 0)
 
-          vel = 0; }
+          if ((carObj->wheelLock & rear + 1U) != 0) { vel = 0; }
 
 
         if (vel < -0x1800) { vel = -0x1800; } if (0x1800 < vel) { vel = 0x1800; }
@@ -1600,8 +1641,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
     if (0x1e0000 < (carObj->linearVel_ch).z) { steeringAngle =
 
-          fixeddiv(steeringAngle << 0x10,fixedmult((carObj->linearVel_ch).z,0x888)) / 0x10000; }
-
+          fixeddiv(steeringAngle << 0x10,fixedmult((carObj->linearVel_ch).z,0x888))
+            / 0x10000; }
 
 
     fixedxformy(steerMat.m,steeringAngle << 5); } { if (((carObj->control).desiredBrakeLevel != '\0') &&
@@ -2092,8 +2133,10 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
    it AFTER that call; the optional read consumes the same cursor. The other
    ordinary cursor placements were near but changed argument/slot timing.
    Complete stock normal ELF remains identical; literal spelling unproved. */
-#line 2183 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 2182 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int player)
+
 
 {
   char filename [10];   /* SYM order: filename, carType */
@@ -2259,8 +2302,10 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
  * does not preserve their literal spelling. Current use-site consts and
  * typed loaded-scene indexing leave no EXTRA native locals at 1054/1054.
  * Historical pointer-offset failures below apply to the older source basin. */
-#line 2349 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 2348 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
+
 
 { int i; Transformer_zObj *obj; coorddef parent; matrixtdef bodyMat; matrixtdef orientMat; matrixtdef insideMat; matrixtdef orientIMat; int rideHeight; int detailIndex; int carType; int changeCar; int countryFlag; int rightHandDrive; int cop_flag; int menuSubOtRow;
 
@@ -3231,8 +3276,10 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
  * callback writes/masks the real field; light owns the later packed RGB read.
  * Actual source phases/layout seal379 tags,24 block records and25 locals.
  * Whole ELF unchanged; literal original macro/comment text remains unproved. */
-#line 3089 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 3088 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_InsertCarFacetII(Car_tObj *carObj)
+
 
 {
   int i; int light; int lightAvg;
@@ -3420,8 +3467,10 @@ void R3DCar_InsertCarFacetII(Car_tObj *carObj)
  * arm or invented label. Source phases/layout seal266 tags,26 blocks/18 locals.
  * Mutate the provided envmap directly, not unprovided drawEnvmap/maskFlag copies.
  * Whole ELF unchanged; literal original source syntax remains unproved. */
-#line 3271 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 3270 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
+
 
 {
   int i; int lightAvg;
@@ -3550,8 +3599,10 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
 /* ---- R3DCar_Showroom__FP13DRender_tView [R3DCAR.CPP:3399-3406] ---- */
 /* Retail's actual calls/end are3405/3406, under header3399. Whitespace-only
  * layout preserves all20 instructions/owners and absolute source tags. */
-#line 3397 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 3396 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_Showroom(DRender_tView *Vi)
+
 
 {
 
@@ -3565,6 +3616,8 @@ void R3DCar_Showroom(DRender_tView *Vi)
 /* ---- R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView  [R3DCAR.CPP:3411-3412] ----
  * One call on source line +1, with implicit void fallthrough, preserves all
  * eight instructions and matches retail's SLD/block/function-end lines. */
+
+
 #line 3411 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_InsertCarFacetZ(Car_tObj *carObj,DRender_tView *Vi) {
   R3DCar_InsertCarFacet(carObj,Vi); }
@@ -3573,8 +3626,10 @@ void R3DCar_InsertCarFacetZ(Car_tObj *carObj,DRender_tView *Vi) {
  * Real ClockLast/Clock source order plus ordinary anchored layout seals301
  * word/file tags,34 blocks and14 supplied locals, preserving both distinct
  * runtime-sized arrays and implicit void fallthrough. Literal text unproved. */
-#line 3414 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
+
+#line 3413 "C:/nfs4/GAME/COMMON/R3DCAR.CPP"
 void R3DCar_InsertAllListFacet(DRender_tView *Vi)
+
 
 {
   int i;

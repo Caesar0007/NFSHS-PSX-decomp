@@ -68,7 +68,9 @@ void Replay_ReplayFindClosestCamera(int player,int slice);
   /* SYM lists exactly five source locals: i, done, count, c_pointer, and begin_byte.
    * The marker and paired end cursors expose unnamed retail invariant temporaries; the
    * duplicated end value is required for the inner and outer pointer comparisons. */
+#line 69 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 char * Replay_Compress(char *uncompressed_data)
+
 
 {
   int i;
@@ -136,7 +138,9 @@ char * Replay_Compress(char *uncompressed_data)
    * i, data_size, count, c_pointer, current_byte -- no pointer-typed locals. The compressed-
    * side read position is therefore a plain int ARRAY INDEX (c_pointer), not a walked pointer;
    * only the uncompressed-side write cursor is a genuine anonymous pointer temp (no SYM entry). */
+#line 124 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 char * Replay_Decompress(char *compressed_data)
+
 
 {
   int i;
@@ -176,7 +180,9 @@ char * Replay_Decompress(char *compressed_data)
 }
 
 /* ---- Replay_InitReplay__Fv  [REPLAY.CPP:169-194] SLD-VERIFIED ---- */
+#line 166 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_InitReplay(void)
+
 
 {
 
@@ -219,7 +225,9 @@ void Replay_InitReplay(void)
    * pointer walk.  The camera loop is source-level Cars_gHumanRaceCarList[i]; gcc strength-reduces
    * that index to the oracle's incrementing $s2 cursor and hoists it after the
    * GameSetup/ReplayCamera bases. */
+#line 199 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_ResetReplay(void)
+
 
 {
   int i;
@@ -287,7 +295,9 @@ void Replay_ResetReplay(void)
 }
 
 /* ---- Replay_StoringReplay__Fv  [REPLAY.CPP:270-275] SLD-VERIFIED ---- */
+#line 267 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_StoringReplay(void)
+
 
 {
 
@@ -298,7 +308,9 @@ void Replay_StoringReplay(void)
 }
 
 /* ---- Replay_StoringControllerData__FG15tControllerData  [REPLAY.CPP:283-307] SLD-VERIFIED ---- */
+#line 280 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_StoringControllerData(tControllerData controllerdata)
+
 
 {
   char packeddata [33];
@@ -328,7 +340,9 @@ void Replay_StoringControllerData(tControllerData controllerdata)
   }
 }
 /* ---- Replay_RetreivingControllerData__Fv  [REPLAY.CPP:314-335] SLD-VERIFIED ---- */
+#line 311 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 tControllerData Replay_RetreivingControllerData(void)
+
 
 {
   struct PackedBuf32 { char b[32]; };
@@ -354,7 +368,9 @@ tControllerData Replay_RetreivingControllerData(void)
 }
 
 /* ---- Replay_SaveInput__Fi  [REPLAY.CPP:342-364] SLD-VERIFIED ---- */
+#line 339 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_SaveInput(int car)
+
 
 {
   Input_Fetch(car);
@@ -388,7 +404,9 @@ void Replay_SaveInput(int car)
      replay-counter increment keeps the retail gp-relative load in $a0 and
      the shared branch shape; direct `numValidCams != 0` grows the body to
      282/280 instructions and produces 34 diffs. */
+#line 368 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_GetInput(int car)
+
 
 {
   bool hasCameras;
@@ -465,7 +483,9 @@ void Replay_GetInput(int car)
 }
 
 /* ---- Replay_SaveReplay__Fv  [REPLAY.CPP:447-453] SLD-VERIFIED ---- */
+#line 444 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_SaveReplay(void)
+
 
 {
   if (Replay_ReplayMode == 0) {
@@ -480,7 +500,9 @@ void Replay_SaveReplay(void)
 /* The optimized retail function is empty. SYM/SLD retain 21 non-emitting
    source lines between its null body statement and the final brace;
    the original content of that region cannot be inferred from bytes. */
+#line 466 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_LoadReplay(void)
+
 
 {
   ;
@@ -510,7 +532,9 @@ void Replay_LoadReplay(void)
 /* ---- Replay_DoReplay__FP8Car_tObj  [REPLAY.CPP:498-506] SLD-VERIFIED ---- */
 /* Retail starts the mode guard at relative source line +5; the preceding
    four non-emitting lines cannot be recovered verbatim from the image. */
+#line 495 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_DoReplay(Car_tObj *carObj)
+
 
 {
 
@@ -525,7 +549,9 @@ void Replay_DoReplay(Car_tObj *carObj)
 }
 
 /* ---- Replay_GetInterfaceKey__Fv  [REPLAY.CPP:516-647] SLD-VERIFIED ---- */
+#line 513 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_GetInterfaceKey(void)
+
 
 {
   int i;
@@ -661,7 +687,9 @@ void Replay_GetInterfaceKey(void)
     Camera_Update(); } return; }
 
 /* ---- Replay_LoadCameraFile__Fv  [REPLAY.CPP:665-785] SLD-VERIFIED ---- */
+#line 662 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_LoadCameraFile(void)
+
 
 {
 
@@ -786,7 +814,9 @@ void Replay_LoadCameraFile(void)
 }
 
 /* ---- Replay_ReplayChooseCamera__Fii  [REPLAY.CPP:797-833] SLD-VERIFIED ---- */
+#line 794 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_ReplayChooseCamera(int player,int slice)
+
 
 {
   int currIndex; int prevIndex; int nextIndex; int currDist; int nextDist; currIndex = Replay_ReplayCamera[player].cutToNextCamera;
@@ -840,7 +870,9 @@ ReplayChooseCam_cutCheck: if (Replay_ReplayCamera[player].cutToNextCamera != cur
    REPLAY_WRAPPED_SLICE_DIFF_LE((a), (b)) : \
    -REPLAY_WRAPPED_SLICE_DIFF_LE((a), (b)))
 
+#line 838 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_ReplayFindClosestCamera(int player,int slice)
+
 
 {
   int cameraIndex; cameraIndex = 0;

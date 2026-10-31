@@ -1,4 +1,4 @@
-#line 1 "C:/nfs4/GAME/COMMON/newton.cpp"
+
 /* game/common/newton.cpp -- RECONSTRUCTED (NFS4 PSX Newton physics integrator; C++ TU)
  *   32 fns: ground elevation/normal ray-cast, road geometry, slice orientation, rot/vel
  *   integration @32/64Hz, ground-shadow matrices, barrier/spike collision, gravity.
@@ -109,8 +109,10 @@ int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj);
  * forceNoSimOptz/collision.smoking and every prior source phase stay intact.
  * Literal original select punctuation/reuse spelling is not uniquely proved.
  * Receipt:build/nc12/newton_damage_note_20261029/final-proof.json. */
-#line 48 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 47 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type)
+
 
 {
 
@@ -280,7 +282,7 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
     newtonObj->angularVel.y = fixedmult(((Car_tObj *)newtonObj)->angularVel_ch.x,transposeMat.m[3]) + fixedmult(((Car_tObj *)newtonObj)->angularVel_ch.y,transposeMat.m[4]) + fixedmult(((Car_tObj *)newtonObj)->angularVel_ch.z,transposeMat.m[5]);
     newtonObj->angularVel.z = fixedmult(((Car_tObj *)newtonObj)->angularVel_ch.x,transposeMat.m[6]) + fixedmult(((Car_tObj *)newtonObj)->angularVel_ch.y,transposeMat.m[7]) + fixedmult(((Car_tObj *)newtonObj)->angularVel_ch.z,transposeMat.m[8]);
   } }
-#line 301 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_FindClosestQuad__FP13BO_tNewtonObj [retail NEWTON.CPP:221; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: supplied variables and genuine call/mutation/exit phases match
@@ -289,8 +291,10 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
  * remains unproved. The following boundary-only reset preserves unmodified
  * neighbors' coordinates;it is not a claim that their old layout is retail.
  * Receipt:build/nc12/newton_small_source_20261029/final-proof.json. */
-#line 219 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 218 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_FindClosestQuad(BO_tNewtonObj *n)
+
 
 {
 
@@ -300,7 +304,7 @@ void Newton_FindClosestQuad(BO_tNewtonObj *n)
 
   BWorldSm_FindClosestQuadRez(&n->position,&n->simRoadInfo,1); return;
 }
-#line 310 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CalculateSliceYaw__Fi [retail NEWTON.CPP:235; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: supplied variables and genuine call/mutation/exit phases match
@@ -309,8 +313,10 @@ void Newton_FindClosestQuad(BO_tNewtonObj *n)
  * remains unproved. The following boundary-only reset preserves unmodified
  * neighbors' coordinates;it is not a claim that their old layout is retail.
  * Receipt:build/nc12/newton_small_source_20261029/final-proof.json. */
-#line 233 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 232 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 int Newton_CalculateSliceYaw(int slice)
+
 
 {
   int s; int x1; int z1; int x2; int z2; s = slice + 1 >= gNumSlices ? slice + 1 - gNumSlices : slice + 1;
@@ -323,7 +329,7 @@ int Newton_CalculateSliceYaw(int slice)
 
   x1 = x2 - x1; z1 = z2 - z1; return intatan(x1,z1);
 }
-#line 331 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_UpdateRoadGeometry__FP13BO_tNewtonObj [NEWTON.CPP:248; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine table/roughness/copy/cross-product/YAW/return phases
@@ -332,8 +338,10 @@ int Newton_CalculateSliceYaw(int slice)
  * Literal macro/comment text remains unproved. Boundary reset preserves only
  * the measured coordinates of unchanged neighbors,not source completeness.
  * Receipt:build/nc12/newton_elevation_source_20261029/final-proof.json. */
-#line 246 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 245 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
+
 
 {
   int hiRez;
@@ -442,7 +450,7 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
     x1 = x2 - x1; z1 = z2 - z1; n->roadYaw = intatan(x1,z1);
   }
 }
-#line 445 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_FindGroundElevationGeneral__FP8coorddefN20 [NEWTON.CPP:445; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine table/roughness/copy/cross-product/YAW/return phases
@@ -451,8 +459,10 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
  * Literal macro/comment text remains unproved. Boundary reset preserves only
  * the measured coordinates of unchanged neighbors,not source completeness.
  * Receipt:build/nc12/newton_elevation_source_20261029/final-proof.json. */
-#line 443 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 442 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef *pointOnQuad)
+
 
 {
   int result;
@@ -474,7 +484,7 @@ int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef 
 
   return result;
 }
-#line 469 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_FindGroundElevationRough__FP8coorddefN20 [NEWTON.CPP:475; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine table/roughness/copy/cross-product/YAW/return phases
@@ -483,8 +493,10 @@ int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef 
  * Literal macro/comment text remains unproved. Boundary reset preserves only
  * the measured coordinates of unchanged neighbors,not source completeness.
  * Receipt:build/nc12/newton_elevation_source_20261029/final-proof.json. */
-#line 473 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 472 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *pointOnQuad)
+
 
 {
   int result; int fudgeIndex; int fudgeHeight; int fudgeDist; int numerator;
@@ -519,7 +531,7 @@ int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *p
   }
   return result;
 }
-#line 522 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef [NEWTON.CPP:515; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine table/roughness/copy/cross-product/YAW/return phases
@@ -530,8 +542,10 @@ int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *p
  * Fast reader replaces47 raw-offset accesses with existing BO/Car/wheel
  * members. The supplied surfaceType owns the real value1 before the call.
  * Receipt:build/nc12/newton_elevation_source_20261029/final-proof.json. */
-#line 513 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 512 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,coorddef *normal)
+
 
 {
   int elevation;
@@ -619,7 +633,7 @@ extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,
 
   return elevation;
 }
-#line 607 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef [NEWTON.CPP:610-1057; COVERED-SYM-SLD-PASS] ---- */
 /* 2026-10-29: real vector/ground/suspension/normal/angular phases preserve
@@ -634,8 +648,10 @@ extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,
  * An unshifted delta adds a non-retail REG record;reusing desiredCompression
  * for that input changes its home/code. Neither control is adopted.
  * Receipt:build/nc12/newton_projection_notes_20261029/final-proof.json. */
-#line 608 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 607 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *normal)
+
 
 {
   coorddef elevation; coorddef tireCoord[4]; coorddef carNormal; int wheelsInAir; int bounce;
@@ -1085,7 +1101,7 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
 
 
   return elevation.y; }
-#line 1064 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj [retail NEWTON.CPP:1062; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: supplied variables and genuine call/mutation/exit phases match
@@ -1094,8 +1110,10 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
  * remains unproved. The following boundary-only reset preserves unmodified
  * neighbors' coordinates;it is not a claim that their old layout is retail.
  * Receipt:build/nc12/newton_small_source_20261029/final-proof.json. */
-#line 1060 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1059 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_LimitCarsToDrivableDist(BO_tNewtonObj *newtonObj)
+
 
 {
   if (Physics_DoBarrierCheck((Car_tObj *)newtonObj) != 0) {
@@ -1105,7 +1123,7 @@ void Newton_LimitCarsToDrivableDist(BO_tNewtonObj *newtonObj)
     Newton_FindClosestQuad(newtonObj);
     Newton_UpdateRoadGeometry(newtonObj); }
 }
-#line 1077 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CalcPerpenHeightOfLowestPointFromGround__FP13BO_tNewtonObjP8coorddefT1 [NEWTON.CPP:1079; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real matrix/sign/vector/return phases preserve every code word
@@ -1113,8 +1131,10 @@ void Newton_LimitCarsToDrivableDist(BO_tNewtonObj *newtonObj)
  * object,asm,qualifier,fake use or scope is introduced. Literal macro/comment
  * text remains unproved. Boundary reset preserves unchanged neighbors only.
  * Receipt:build/nc12/newton_matrix_height_20261029/final-proof.json. */
-#line 1077 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1076 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint)
+
 
 {
   coorddef basisDots;
@@ -1141,7 +1161,7 @@ int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coor
 
   return xDir * basisDots.x + yDir * basisDots.y + zDir * basisDots.z + relativeDot;
 }
-#line 1126 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1 [NEWTON.CPP:1110; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real matrix/sign/vector/return phases preserve every code word
@@ -1149,8 +1169,10 @@ int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coor
  * object,asm,qualifier,fake use or scope is introduced. Literal macro/comment
  * text remains unproved. Boundary reset preserves unchanged neighbors only.
  * Receipt:build/nc12/newton_matrix_height_20261029/final-proof.json. */
-#line 1108 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1107 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint)
+
 
 {
   coorddef relativePos;
@@ -1162,7 +1184,7 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
   }
   return relativeDot - (newtonObj->dimension).x;
 }
-#line 1144 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj [NEWTON.CPP:1123; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real damage/impulse or player-distance/upgrade source phases.
@@ -1173,8 +1195,10 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
  * Literal original text remains unproved;boundary reset preserves only
  * measured unchanged-neighbor coordinates,not their source completeness.
  * Receipt:build/nc12/newton_damage_distance_20261029/final-proof.json. */
-#line 1121 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1120 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
+
 
 {
   int dist; int x; int z; int whichPlayer; int forcedSimOptz;
@@ -1270,7 +1294,7 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
       n->collision.otherObj = (BO_tNewtonObj *)0x0;
       n->objAltitude = 0; } } }
 
-#line 1245 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_UpdateRoadInfo__FP13BO_tNewtonObj [retail NEWTON.CPP:1227; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: supplied variables and genuine call/mutation/exit phases match
@@ -1279,8 +1303,10 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
  * remains unproved. The following boundary-only reset preserves unmodified
  * neighbors' coordinates;it is not a claim that their old layout is retail.
  * Receipt:build/nc12/newton_small_source_20261029/final-proof.json. */
-#line 1225 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1224 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_UpdateRoadInfo(BO_tNewtonObj *n)
+
 
 {
   if (n->active != '\0') {
@@ -1317,7 +1343,7 @@ void Newton_UpdateRoadInfo(BO_tNewtonObj *n)
 
 
 }
-#line 1264 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji [NEWTON.CPP:1264; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real matrix/sign/vector/return phases preserve every code word
@@ -1325,8 +1351,10 @@ void Newton_UpdateRoadInfo(BO_tNewtonObj *n)
  * object,asm,qualifier,fake use or scope is introduced. Literal macro/comment
  * text remains unproved. Boundary reset preserves unchanged neighbors only.
  * Receipt:build/nc12/newton_matrix_height_20261029/final-proof.json. */
-#line 1262 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1261 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
+
 
 {
   if (backwards == 0) {
@@ -1347,7 +1375,7 @@ void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
     ori->m[7] = -road->m[7];
     ori->m[8] = -road->m[8];
   } }
-#line 1290 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CopyRoadMatrixToShadowMat__FP13BO_tNewtonObji [NEWTON.CPP:1285; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real matrix/sign/vector/return phases preserve every code word
@@ -1355,8 +1383,10 @@ void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)
  * object,asm,qualifier,fake use or scope is introduced. Literal macro/comment
  * text remains unproved. Boundary reset preserves unchanged neighbors only.
  * Receipt:build/nc12/newton_matrix_height_20261029/final-proof.json. */
-#line 1283 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1282 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
+
 
 {
   if (backwards == 0) {
@@ -1377,7 +1407,7 @@ void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
     shad->m[7] = -road->m[7];
     shad->m[8] = -road->m[8];
   } }
-#line 1316 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi [NEWTON.CPP:1307; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: actual initialization/guard/transform/copy/reset/exit phases
@@ -1388,8 +1418,10 @@ void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
  * Keep source dummy and its pre-existing BSS placement;the generated
  * suffix is not a new source identifier. Unused parameters are retained.
  * Receipt:build/nc12/newton_initial_shadow_20261029/final-proof.json. */
-#line 1305 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1304 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction)
+
 
 {
   coorddef rOffset;
@@ -1501,7 +1533,7 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
 
   n->driveSurfaceType = n->groundSurfaceType & 0xf; return;
 }
-#line 1415 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii [NEWTON.CPP:1420; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: actual initialization/guard/transform/copy/reset/exit phases
@@ -1510,7 +1542,9 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
  * Literal macro/comment text remains unproved;boundary reset preserves only
  * measured unchanged-neighbor coordinates,not their source completeness.
  * Receipt:build/nc12/newton_initial_shadow_20261029/final-proof.json. */
-#line 1417 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+
+#line 1417 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_InitBaseNewtonObj(
     BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,
     int dimX,int dimY,int dimZ)
@@ -1608,7 +1642,7 @@ extern "C" void Newton_InitBaseNewtonObj(
     newtonObj->active = 1;
   newtonObj->cumulatedRot = 0;
 }
-#line 1495 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_QDUpdateVel__FP13BO_tNewtonObj [NEWTON.CPP:1516; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real velocity/rotation/guard/exit phases preserve every code word
@@ -1616,8 +1650,10 @@ extern "C" void Newton_InitBaseNewtonObj(
  * object,asm,qualifier,fake use or scope is introduced. Literal macro/comment
  * text remains unproved. Boundary reset preserves unchanged neighbors only.
  * Receipt:build/nc12/newton_motion_source_20261029/final-proof.json. */
-#line 1514 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1513 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
+
 
 {
 
@@ -1662,7 +1698,7 @@ extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
 
 
 }
-#line 1523 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_OptzRotxform__FP10matrixtdefiiiPiiT4 [NEWTON.CPP:1569; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine transform/vector/guard/increment/return phases preserve
@@ -1671,10 +1707,12 @@ extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
  * Literal original macro/comment text remains unproved. Boundary reset below
  * preserves unmodified neighbors' coordinates,not their source completeness.
  * Receipt:build/nc12/newton_queries_source_20261029/final-proof.json. */
-#line 1565 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1564 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" int Newton_OptzRotxform(
     matrixtdef *m,int ax,int ay,int az,int *reOrthoNeeded,
     int reOrthoLimit,int *cumulatedRot)
+
 
 {
   matrixtdef mx;
@@ -1726,7 +1764,7 @@ extern "C" int Newton_OptzRotxform(
   }
   return changed;
 }
-#line 1564 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj [NEWTON.CPP:1621; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real velocity/rotation/guard/exit phases preserve every code word
@@ -1734,8 +1772,10 @@ extern "C" int Newton_OptzRotxform(
  * object,asm,qualifier,fake use or scope is introduced. Literal macro/comment
  * text remains unproved. Boundary reset preserves unchanged neighbors only.
  * Receipt:build/nc12/newton_motion_source_20261029/final-proof.json. */
-#line 1619 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1618 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
+
 
 {
   matrixtdef m;
@@ -1784,7 +1824,7 @@ extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
 
 
 }
-#line 1590 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj [NEWTON.CPP:1670; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real velocity/rotation/guard/exit phases preserve every code word
@@ -1792,8 +1832,10 @@ extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
  * object,asm,qualifier,fake use or scope is introduced. Literal macro/comment
  * text remains unproved. Boundary reset preserves unchanged neighbors only.
  * Receipt:build/nc12/newton_motion_source_20261029/final-proof.json. */
-#line 1668 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1667 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
+
 
 {
   matrixtdef m;
@@ -1848,7 +1890,7 @@ extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
 
 
 }
-#line 1615 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi [NEWTON.CPP:1730; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: actual initialization/guard/transform/copy/reset/exit phases
@@ -1857,8 +1899,10 @@ extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
  * Literal macro/comment text remains unproved;boundary reset preserves only
  * measured unchanged-neighbor coordinates,not their source completeness.
  * Receipt:build/nc12/newton_initial_shadow_20261029/final-proof.json. */
-#line 1728 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1727 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coorddef *normal,int orientToGround)
+
 
 {
 
@@ -1938,7 +1982,7 @@ extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coor
     Math_NormalizeShortVector((coorddef *)&newtonObj->shadowMat.m[0]); return; }
 
 }
-#line 1700 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CalcRealShadowCoordinates__FP8Car_tObji [NEWTON.CPP:1830; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: actual initialization/guard/transform/copy/reset/exit phases
@@ -1947,8 +1991,10 @@ extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coor
  * Literal macro/comment text remains unproved;boundary reset preserves only
  * measured unchanged-neighbor coordinates,not their source completeness.
  * Receipt:build/nc12/newton_initial_shadow_20261029/final-proof.json. */
-#line 1828 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1827 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTick)
+
 
 {
   coorddef lengthVector; coorddef widthVector; coorddef frontWidthVector; coorddef carGroundCoord; coorddef temp; coorddef vecOffset; int diff; coorddef dimension;
@@ -2002,7 +2048,7 @@ extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTic
     carObj->N.shadowCoord[i].y += (carObj->N.linearVel.y / 64) * diff;
   } return;
 }
-#line 1780 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CheckForSpikeBelts__FP13BO_tNewtonObj [NEWTON.CPP:1885; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine transform/vector/guard/increment/return phases preserve
@@ -2013,8 +2059,10 @@ extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTic
  * Newton_GetSpikeBelt remains a pre-existing inferred inline spelling;
  * its original name is not supplied by these otherwise exact records.
  * Receipt:build/nc12/newton_queries_source_20261029/final-proof.json. */
-#line 1883 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1882 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
+
 
 {
   int slice;
@@ -2048,7 +2096,7 @@ extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
 
 
 }
-#line 1803 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef [NEWTON.CPP:1922; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: restore the real normal/up-vector cross product and velocity
@@ -2062,8 +2110,10 @@ extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
  * Keep retail's normal argument to CorrectPostCollisionYaw;NFS2 differs.
  * Literal original macro text is not uniquely recovered from these records.
  * Receipt:build/nc12/newton_barrier_source_20261029/final-proof.json. */
-#line 1920 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 1919 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal)
+
 
 {
   coorddef barrierVec;
@@ -2100,7 +2150,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
     impactVel = Physics_AttenuateVelocity((Car_tObj *)newtonObj,distRetreat,&islandMatrix);
     Physics_SetCurrentWallType(4);
     Physics_CorrectPostCollisionYaw((Car_tObj *)newtonObj,impactVel,normal); } }
-#line 2364 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos [NEWTON.CPP:2107; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine transform/vector/guard/increment/return phases preserve
@@ -2109,8 +2159,10 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
  * Literal original macro/comment text remains unproved. Boundary reset below
  * preserves unmodified neighbors' coordinates,not their source completeness.
  * Receipt:build/nc12/newton_queries_source_20261029/final-proof.json. */
-#line 2105 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 2104 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo)
+
 
 {
   coorddef fwdVec;
@@ -2147,7 +2199,7 @@ extern "C" void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *te
   vector->y = result.y;
   vector->z = result.z;
 }
-#line 2404 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi [NEWTON.CPP:2144; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine transform/vector/guard/increment/return phases preserve
@@ -2156,9 +2208,11 @@ extern "C" void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *te
  * Literal original macro/comment text remains unproved. Boundary reset below
  * preserves unmodified neighbors' coordinates,not their source completeness.
  * Receipt:build/nc12/newton_queries_source_20261029/final-proof.json. */
-#line 2141 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 2140 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" int
 Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,int wheel)
+
 
 {
   int bad;
@@ -2175,7 +2229,7 @@ Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,in
   }
   return bad;
 }
-#line 2427 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj [NEWTON.CPP:2161; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: genuine wheel/edge/centroid/collision phases preserve all470
@@ -2191,8 +2245,10 @@ Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,in
  * Keep signed offEdge,real temp/j ownership and index-first quad addresses.
  * No asm,volatile,identity,fake use or generated-output rewrite is added.
  * Receipt:build/nc12/newton_undrivable_source_20261029/final-proof.json. */
-#line 2159 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 2158 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
+
 
 {
   int i; int collision_type; int newHeight; coorddef normal; coorddef cautionaryCenter; coorddef undrivableCenter; coorddef speedVec; int aborted;
@@ -2395,7 +2451,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
       return;
     }
   } }
-#line 2802 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_LimitAngularVelocity__FP13BO_tNewtonObj [NEWTON.CPP:2440; COVERED-SLD-PASS] ---- */
 /* 2026-10-29: real velocity/rotation/guard/exit phases preserve every code word
@@ -2403,8 +2459,10 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
  * object,asm,qualifier,fake use or scope is introduced. Literal macro/comment
  * text remains unproved. Boundary reset preserves unchanged neighbors only.
  * Receipt:build/nc12/newton_motion_source_20261029/final-proof.json. */
-#line 2438 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+#line 2437 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
+
 
 {
 
@@ -2424,7 +2482,7 @@ extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
   } else if (newtonObj->angularVel.z < -0x18000) {
     newtonObj->angularVel.z = -0x18000;
   } }
-#line 2827 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj [NEWTON.CPP:2466-2733; COVERED-SYM-SLD-PASS] ---- */
 /* 2026-10-29: genuine schedule/ground/gravity/landing/velocity/tunnel phases
@@ -2439,7 +2497,9 @@ extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
  * No new qualifier,asm,volatile,fake use or scope is added.
  * Boundary reset preserves only unchanged-neighbor coordinates.
  * Receipt:build/nc12/newton_gravity_speed_20261029/final-proof.json. */
-#line 2465 "C:/nfs4/GAME/COMMON/newton.cpp"
+
+
+#line 2465 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
 {
   int elevationOfGround; int objAltitude; int groundVel; int relativeClosingVelocity; coorddef normal; coorddef shadowNormal; int timeCount; int elapsedTime; int iTimeCount; int modifiedGravity;
@@ -2709,7 +2769,7 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
 
 
 }
-#line 2970 "C:/nfs4/GAME/COMMON/newton.cpp" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef [NEWTON.CPP:2736-2745] COVERED-SLD-PASS ---- */
 /* Source phases (2026-10-29): root roadPosition and separate calculation/
@@ -2720,8 +2780,10 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
  * literal text are not uniquely retained. Do not claim full source recovery
  * from debug elision or add a generic source-object exemption.
  * Receipt:build/nc12/newton_anchor_source_20261029/final-proof.json. */
-#line 2734 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
+
+#line 2733 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *position,matrixtdef *matrix)
+
 
 {
   coorddef centerBack;
@@ -2743,8 +2805,10 @@ int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *positio
  * literal text are not uniquely retained. Do not claim full source recovery
  * from debug elision or add a generic source-object exemption.
  * Receipt:build/nc12/newton_anchor_source_20261029/final-proof.json. */
-#line 2760 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
+
+#line 2759 "C:/nfs4/GAME/COMMON/NEWTON.CPP"
 int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj)
+
 
 {
   coorddef centerBack;

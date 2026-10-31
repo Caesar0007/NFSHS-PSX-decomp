@@ -10,7 +10,9 @@
 /* ---- Sfx_Transform__FP8coorddefP7SVECTORT0 [SFX.CPP:40-75]
  * 2026-10-13: actual matrix-setup region owns ident at depth2. All original
  * tuples and scope markers agree,85/85 PASS; full SLD remains separate work. */
+#line 37 "C:/nfs4/GAME/PSX/SFX.CPP"
 void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
+
 
 {
   SVECTOR pt;
@@ -36,14 +38,14 @@ void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
 
 
 
-  ident.m[0][0] = 0x1000; ident.m[1][1] = 0x1000; ident.m[2][2] = 0x1000; ident.m[1][0] = 0; ident.m[2][0] = 0;
-  ident.m[0][1] = 0; ident.m[2][1] = 0;
-  ident.m[0][2] = 0; ident.m[1][2] = 0;
+  ident.m[0][0] = 0x1000; ident.m[1][0] = 0; ident.m[2][0] = 0;
+  ident.m[1][1] = 0x1000; ident.m[0][1] = 0; ident.m[2][1] = 0;
+  ident.m[2][2] = 0x1000; ident.m[0][2] = 0; ident.m[1][2] = 0;
 
 
-  ident.t[0] = 0; ident.t[1] = 0; ident.t[2] = 0;
-
-
+  ident.t[0] = 0;
+  ident.t[1] = 0;
+  ident.t[2] = 0;
 
 
   gte_SetRotMatrix(&ident);
@@ -83,6 +85,8 @@ static inline void Sfx_BuildRotatedFacet(Souffle_tISouffle *is,sfxsouffle *dSouf
  * source cosa/sina yields the recorded sina/cosa. No new storage or code
  * symbol,alias,fence,pin,qualifier or output rewrite. NFS2 PC provides
  * the helper spelling,not unique PSX textual proof. Full SLD stays open. */
+
+#line 105 "C:/nfs4/GAME/PSX/SFX.CPP"
 void Sfx_BuildSmokeFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap *cpixmap)
 {
 
@@ -99,16 +103,18 @@ void Sfx_BuildSmokeFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap
  * 2026-10-13: angle belongs to the trig setup,ending after pxp/pzp are
  * computed. Real declaring region reproduces the depth2/zero-offset scope
  * contract at110/110 PASS. No dummy statement or variable. SLD still open. */
+#line 160 "C:/nfs4/GAME/PSX/SFX.CPP"
 void Sfx_ThickenXZ(SVECTOR *d,coorddef *pt1,coorddef *pt2,coorddef *cp)
+
 
 {
   int pxp;
   int pzp;
   {
   int angle;
-
-
-  angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
+  pxp = pt2->x - pt1->x;
+  pzp = pt2->z - pt1->z;
+  angle = intatan(pxp,pzp);
 
   pxp = fixedmult(0xe666,-fastintcos(angle)) >> 1;
   pzp = fixedmult(0xe666,fastintsin(angle)) >> 1;
@@ -133,19 +139,16 @@ void Sfx_ThickenXZ(SVECTOR *d,coorddef *pt1,coorddef *pt2,coorddef *cp)
 }
 
 /* ---- Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2  [SFX.CPP:290-295] SLD-VERIFIED ---- */
+#line 287 "C:/nfs4/GAME/PSX/SFX.CPP"
 void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap *t,Draw_tPixMap *c)
+
 
 {
   int iclut;
-
   iclut = 8 - (u_char)is->cycle;
-  if (iclut >= 0x10) {
-    iclut = 0xf;
-  }
+  if (iclut >= 0x10) iclut = 0xf;
   dSouffle->pmx = *t;
-  dSouffle->pmx.clut = c->clut + (short)iclut;
-  return;
-}
+  dSouffle->pmx.clut = c->clut + (short)iclut; }
 
 /* ---- Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache  [SFX.CPP:306-363] SLD-VERIFIED ----
  * 2026-10-13 baseline/final126/126. Actual invalid-capacity/OT early returns
@@ -335,7 +338,9 @@ void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_t
          exactly the w44 "P_TAG two-setting REF dial ... the two siblings need OPPOSITE
          settings" row.  This retires the STRONG-FLOOR claim in the header comment (the
          cited PrimStop/SpotPrims family was itself cracked by this same lever in w44). */
+#line 303 "C:/nfs4/GAME/PSX/SFX.CPP"
 void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCache *sd)
+
 
 {
   POLY_FT4 *prim;
@@ -394,7 +399,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
       }
 
       prim = (POLY_FT4 *)Render_gPacketPtr; addPrim((u_int *)(sd->otz * 4 + (int)Render_gPalettePtr),prim); Render_gPacketPtr = (u_char *)(prim + 1);
-  return; }
+}
 
 /* case-4 spark ribbon: SYM block (Vi,is,dSouffle) + (ptrans,invertedm) = an inlined
  * static helper returning the skip flag (oracle `.L800DD9F8: bnez $v1,<ret>` with the
@@ -958,7 +963,9 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
      tuples and56 scope markers now agree UNFILTERED,938PASS,no captures.
      No new helper,qualifier,asm/pin or output rewrite. Native CLEAN is not
      literal original helper/statement spelling or full SLD/source proof. */
+#line 364 "C:/nfs4/GAME/PSX/SFX.CPP"
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
+
 
 {
   sfxsouffle dSouffle;
@@ -967,8 +974,8 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 
 
 
-  switch((u_char)is->type) {
-  case 1:
+  switch((u_char)is->type)
+  { case 1:
 
 
 
@@ -995,13 +1002,13 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
   case 4:
 
 
-    if (Sfx_BuildSparkFacet(Vi,is,&dSouffle) == 0) {
+    if (Sfx_BuildSparkFacet(Vi,is,&dSouffle) != 0) break;
 
 
-      dSouffle.pmx = *gSparkHPixmap[6 - (u_char)is->cycle];
+    dSouffle.pmx = *gSparkHPixmap[6 - (u_char)is->cycle];
 
-      Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,2,0x28,sd);
-    } break;
+    Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,2,0x28,sd);
+    break;
     CVECTOR color, gcolor;
   case 10:
 
@@ -1116,12 +1123,14 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 
           prim = (POLY_FT4 *)Render_gPacketPtr; addPrim((u_int *)(sd->otz * 4 + (int)Render_gPalettePtr),prim); Render_gPacketPtr = (u_char *)(prim + 1);
     }
-    break;
-  }
-  return; }
+    break; } return;
+
+}
 
 /* ---- Sfx_Add__FP17Souffle_tISouffle  [SFX.CPP:534-577] SLD-VERIFIED ---- */
+#line 531 "C:/nfs4/GAME/PSX/SFX.CPP"
 void Sfx_Add(Souffle_tISouffle *is)
+
 
 {
 

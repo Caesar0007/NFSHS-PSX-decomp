@@ -96,6 +96,8 @@ void Hrz_BuildHorizon(DRender_tView *Vi);
  * Matched NFS2 PC Horizon_InterpolateLineSCoords independently has this shape.
  * No pv, reference-fence replacement, or artificial index identity is needed
  * by the recovered source; byte/scope checks are recorded in p914_horizon. */
+
+
 #line 127 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *percentage,int n,int bPercentageArray)
 {
@@ -158,8 +160,10 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
  * The historical two-assignment form preserved code but not the supplied
  * loop-local block-end line. This is not a required temporary/source floor.
  * See build/nc12/hrz_stars_layout_20261022; literal original text is unproved. */
-#line 183 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 182 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Sky_InitStars(void)
+
 
 {
   if (starPosInSky == (SVECTOR *)0x0)
@@ -190,8 +194,10 @@ void Sky_InitStars(void)
     seedrandom(oldSeed); } return; }
 
 /* ---- Sky_KillStars__Fv  [HRZSKU.CPP:216-222] SLD-VERIFIED ---- */
-#line 214 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 213 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Sky_KillStars(void)
+
 
 {
   if (starPosInSky != (SVECTOR *)0x0) {
@@ -222,6 +228,8 @@ void Sky_KillStars(void)
  * with identical bytes. All 87 relative instruction SLD tags, block-line
  * fields and local/frame/scope contracts now agree with retail. Original
  * comments/whitespace are not claimed uniquely recovered. */
+
+
 #line 226 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_InitSkyColor(void)
 {
@@ -326,8 +334,10 @@ void Hrz_InitSkyColor(void)
        * Receipts: build/nc12/hrz_sky_source_20261022.
        * Fence removal and full statement-line restoration remain open.
        */
-#line 255 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 254 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_InitSky(void)
+
 
 {
   int i; int j; int k; int angle; int height; int radius;
@@ -432,8 +442,10 @@ void Hrz_InitSky(void)
  * missing. The height-query inline controls preserve code but add six records,
  * not the required four; no trial helper is adopted. Receipt:
  * build/nc12/hrz_ring_source_20261022. No full function SYM seal claimed. */
-#line 335 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 334 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_Init2DRing(void)
+
 
 {
   int i;
@@ -515,8 +527,10 @@ void Hrz_Init2DRing(void)
   *(u_long *)&Hrz_gSaveCol[1] = *(u_long *)&Sky_gTrackSpec->frontcolors[0]; return; }
 
 /* ---- Hrz_GetHorizonPixMap__FP12Draw_tPixMap  [HRZSKU.CPP:419-428] SLD-VERIFIED ---- */
-#line 417 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 416 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_GetHorizonPixMap(Draw_tPixMap *p)
+
 
 {
   int i;
@@ -530,8 +544,10 @@ void Hrz_GetHorizonPixMap(Draw_tPixMap *p)
     i = i + 1; } while (i < 4); return; }
 
 /* ---- Hrz_InitHorizon__Fv  [HRZSKU.CPP:432-443] SLD-VERIFIED ---- */
-#line 430 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 429 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_InitHorizon(void)
+
 
 {
   Hrz_gTrackSpec = &TrackSpec_gSpec.horizonspec;
@@ -547,8 +563,10 @@ void Hrz_InitHorizon(void)
     Sky_InitStars(); } return; }
 
 /* ---- Hrz_KillHorizon__Fv  [HRZSKU.CPP:447-450] SLD-VERIFIED ---- */
-#line 445 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 444 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_KillHorizon(void)
+
 
 {
 
@@ -567,8 +585,10 @@ void Hrz_KillHorizon(void)
  * dispatch = a REAL `switch(type)` (gcc balanced tree beq1/slti2/beqz0/beq2/beq3 with
  * arms out-of-line in ASCENDING case order + cross-jumped pmxIndex sb tail); the earlier
  * if/else-if chain inlined the ==1 arm + flipped polarities (57 diffs). SEALED 134/134. */
-#line 781 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 780 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_LightningAddFork(signed char direction,signed char column,signed char row)
+
 
 {
   char type;
@@ -612,8 +632,10 @@ void Hrz_LightningAddFork(signed char direction,signed char column,signed char r
     fork->pmxIndex = fork->pmxIndex + 8; } return; }
 
 /* ---- Hrz_CalculateLightning__Fv  [HRZSKU.CPP:826-829] SLD-VERIFIED ---- */
-#line 824 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 823 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_CalculateLightning(void)
+
 
 {
   gHrz_Lightning.numForks = '\0';
@@ -649,8 +671,10 @@ void Hrz_CalculateLightning(void)
  * The exact original EA macro/copy spelling and P_TAG producer are unproved;
  * this does not turn canonical SDK semantics into a literal-source claim.
  * Receipt: build/nc12/hrz_lightning_layout_20261022. */
-#line 831 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 830 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
+
 
 {
   POLY_FT4 *prim;
@@ -690,8 +714,10 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
  * costs the copy + a reg. (3) vy's +8000 binds to (forwardVec.y>>2) before
  * the existing unsigned sum. The explicit conversion remains; no new fence.
  * 2026-10-22: all68 word/file tags, local/scopes and end867 now match. */
-#line 860 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 859 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_SetLightingPosInSky(DRender_tView *Vi)
+
 
 { coorddef forwardVec;
   forwardVec = *(coorddef *)&(Vi->cview).mrotation.m[6];
@@ -709,8 +735,10 @@ void Hrz_SetLightingPosInSky(DRender_tView *Vi)
  * recovers root block end897 and epilogue/end898 together, all71 words
  * unchanged. A positive guard with explicit/implicit tail return matches
  * code but not both line facts. No new region/object or note rewrite. */
-#line 870 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 869 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_BuildForkLightning(Draw_DCache *sd)
+
 
 {
   char i;
@@ -756,8 +784,10 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
  * from each loop body; the capture is already initialized before its loop.
  * This measures those expression graphs, NOT distinct original-object
  * necessity. No replacement const, fence or fake use; col stays unresolved. */
-#line 899 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 898 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_LightningFlicker(int on)
+
 
 {
   u_int col; /* UNRESOLVED: absent from retail SYM; not proven necessary. */
@@ -1189,6 +1219,8 @@ void Hrz_LightningFlicker(int on)
  * row-macro spelling is not uniquely proved. Historical closed-axis/floor
  * claims above describe old source graphs, not current exemptions.
  * Receipt: build/nc12/hrz_matrix_layout_20261023. */
+
+
 #line 981 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void HrzSetPsxMatrix(matrixtdef *m)
 {
@@ -1229,6 +1261,8 @@ void HrzSetPsxMatrix(matrixtdef *m)
   gte_SetRotMatrix(&mpsx); }
 
 /* ---- HrzSetPsxTranslation__FP8coorddef  [HRZSKU.CPP:1021-1028] SLD-VERIFIED ---- */
+
+
 #line 1020 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void HrzSetPsxTranslation(coorddef *t)
 {
@@ -1246,6 +1280,8 @@ void HrzSetPsxTranslation(coorddef *t)
  * gte_stlvnl2 stores MAC3 ($27), not the different SZ3 ($19) depth value.
  * The existing SDK macro needs no generic register-number source argument.
  * Receipt: build/nc12/hrz_small_sld_20261023. */
+
+
 #line 1031 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_RotProj16(int n, SVECTOR *s, int *z, DVECTOR *p)
 {
@@ -1276,8 +1312,10 @@ void Hrz_RotProj16(int n, SVECTOR *s, int *z, DVECTOR *p)
  * filtering. 2026-10-23 also restores the complete1050/1055 source/SLD contract;
  * original literal allocation-macro spelling is still not uniquely proved.
  * Receipt: build/nc12/hrz_small_sld_20261023. No new device/output rewrite. */
-#line 1048 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 1047 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_SetDitheringPrim(int dither,int otz)
+
 
 {
   DR_MODE *prim;
@@ -1650,6 +1688,8 @@ void Hrz_SetDitheringPrim(int dither,int otz)
  * No new local, qualifier, asm, fake use/scope or generated-output rewrite.
  * Receipt: build/nc12/hrz_sky_layout_20261023. Original literal macro text is
  * not uniquely determined by this covered contract; other functions stay open. */
+
+
 #line 1059 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_BuildSky(void)
 {
@@ -1881,8 +1921,10 @@ void Hrz_BuildSky(void)
  * Old11/18-diff scheduling claims describe superseded graphs, not a floor
  * or an exemption. Receipt: build/nc12/hrz_small_sld_20261023. Literal
  * allocation-macro spelling and wider source restoration remain unproved. */
-#line 1282 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 1281 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Sky_RenderStars(Draw_SkyCache *sd,int otz)
+
 
 {
   SVECTOR *pcnt; int n;
@@ -2382,8 +2424,10 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * Cursor/source/SLD proof: build/nc12/hrz_horizon_cursor_20261023.
  * Rejected packet/color trials: hrz_horizon_packet_20261023 and
  * hrz_horizon_color_20261023. Remaining captures are not exempted. */
-#line 1336 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
+
+#line 1335 "C:/nfs4/GAME/PSX/HRZSKU.CPP"
 void Hrz_BuildHorizon(DRender_tView *Vi)
+
 
 {
   int i;

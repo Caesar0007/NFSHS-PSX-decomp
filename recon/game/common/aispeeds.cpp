@@ -88,6 +88,8 @@ int AISpeeds_GetUpgradeTopSpeedMult(int carIndex);
 
 
 /* ---- AISpeeds_StartUp__Fv  [@0x8006d5b4] ---- */
+
+
 #line 206 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_StartUp(void)
 {
@@ -118,6 +120,8 @@ void AISpeeds_StartUp(void)
 /* SYM identifies the selected model as `carType` (s3) and the nested
      * iteration variable as `carModelLoop` (s0). Keeping those scopes distinct
      * places the s0 zero-initialization in the oracle's branch delay slot. */
+
+
 #line 219 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_ReadTuningInfo(void)
 {
@@ -226,6 +230,8 @@ void AISpeeds_ReadTuningInfo(void)
 }
 
 /* ---- AISpeeds_CleanUp__Fv  [@0x8006d870] ---- */
+
+
 #line 325 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_CleanUp(void)
 {
@@ -239,6 +245,8 @@ void AISpeeds_CleanUp(void)
 }
 
 /* ---- AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars__FP8Car_tObj  [@0x8006d89c] ---- */
+
+
 #line 346 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(Car_tObj *carObj)
 {
@@ -260,6 +268,8 @@ int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRend
 }
 
 /* ---- AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi  [@0x8006d938] ---- */
+
+
 #line 376 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
 {
@@ -493,6 +503,8 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
 }
 
 /* ---- AISpeeds_NeedToSlowDownForCurve__FP8Car_tObjiii  [@0x8006de90] ---- */
+
+
 #line 624 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int currentSpeed,int futureCurveSpeed)
 {
@@ -513,6 +525,8 @@ int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int curr
 }
 
 /* ---- AISpeeds_CalcOpponentCurveSpeed__FP8Car_tObj  [@0x8006df34] ---- */
+
+
 #line 643 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 {
@@ -594,6 +608,8 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
      * RSControl-check's delay slot), regardless of whether the early-return is taken -- a
      * dead-on-one-path speculative computation. Materializing it here (source-level) instead of
      * inline inside the later `/0x3c0000+10` expression reproduces that scheduling. */
+
+
 #line 707 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
 { int closestHumanDistance; Car_tObj *closestHumanCarObj;
@@ -655,6 +671,8 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_GetNextAICar__FP8Car_tObj  [@0x8006e258] ---- */
+
+
 #line 772 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 Car_tObj * AISpeeds_GetNextAICar(Car_tObj *carObj)
 {
@@ -664,6 +682,8 @@ Car_tObj * AISpeeds_GetNextAICar(Car_tObj *carObj)
 /* ---- AISpeeds_GetPrevAICar__FP8Car_tObj  [@0x8006e264] ---- */
 /* Native carLoop belongs to the for scope. Array indexing leaves the
  * stride pointer to GCC rather than introducing a non-native pointer local. */
+
+
 #line 777 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
 {
@@ -699,6 +719,8 @@ Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
      * AISpeeds_GetPrevAICar and (if found) writes it into carObj->fallBehindCar. This whole
      * tail was previously dropped -- carObj->fallBehindCar could never be (re)acquired via
      * this path, a real gameplay bug (SYM locals tempRandom/prevAICar, block lines 133-142). */
+
+
 #line 807 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
 {
@@ -873,6 +895,8 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
  * and put glueIndex in a0. These real phases plus the assigned piecewise
  * clamp preserve131words. Full SLD and literal macro spelling remain open.
  * Controls: build/nc12/aispeeds_pack_glue_source_20261018. */
+
+
 #line 979 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetGlueFactor(Car_tObj *carObj)
 {
@@ -951,6 +975,8 @@ int AISpeeds_GetGlueFactor(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_GetDamageFactor__FP8Car_tObj  [@0x8006e898] ---- */
+
+
 #line 1121 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetDamageFactor(Car_tObj *carObj)
 {
@@ -977,6 +1003,8 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
 /* ---- AISpeeds_LimitGlueMultiplier__FP8Car_tObji  [@0x8006e9b0] ---- */
 /* Native scan scopes follow an in-range early return. The former extra
  * return used as an allocation dial is unnecessary in this source shape. */
+
+
 #line 1148 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_LimitGlueMultiplier(Car_tObj *carObj,int f_final)
 {
@@ -1017,6 +1045,8 @@ int AISpeeds_LimitGlueMultiplier(Car_tObj *carObj,int f_final)
 /* ---- AISpeeds_CalcCopTopSpeed__FP8Car_tObj  [@0x8006eaa4] ---- */
 /* Native newDesired carries the final scaled speed before direction is applied.
  * SLD1239/1248 separates that result from the return expression. */
+
+
 #line 1195 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
 {
@@ -1081,6 +1111,8 @@ int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
    * Separate randomization scale locals and a named minimum restore the arithmetic/
    * clamp shape. Expressing the reverse-track test as a direction comparison also
    * preserves the oracle's shared boolean normalization (full 104/104 match). */
+
+
 #line 1256 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
 {
@@ -1124,6 +1156,8 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
  * No source decrement or qualifier remains. Controls/backups:
  * build/nc12/aispeeds_legal_source_20261018. */
 /* ---- AISpeeds_GetLegalSpeed__Fi  [@0x8006ed0c] ---- */
+
+
 #line 1293 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetLegalSpeed(int slice)
 {
@@ -1142,6 +1176,8 @@ int AISpeeds_GetLegalSpeed(int slice)
 /* ---- AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji  [@0x8006ed50] ---- */
 /* Native newsafe is the resulting speed in a1, not the factor loaded into a0.
  * Plain signed division preserves retail's rounding on the nonpositive path. */
+
+
 #line 1311 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
 {
@@ -1176,6 +1212,8 @@ int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
                              * form emitted the inverted `bnez`. */
 /* H44 (cont.): same arm-order/polarity fix at the 2nd level */
 /* Cop is the fall-through arm (oracle beqz-skips-to-Traffic) */
+
+
 #line 1347 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj)
 {
@@ -1204,6 +1242,8 @@ void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj)
    * expression produces retail's out-of-line constant blocks and shared return.
    * __builtin_abs preserves the retail abs macro, and the complemented final
    * test selects the same fall-through constant block as the oracle. */
+
+
 #line 1383 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
 {
@@ -1242,6 +1282,8 @@ int AISpeeds_CalculateOncomingCarSpeed(Car_tObj *carObj)
  * build/nc12/aispeeds_layout_20261020/rng-index-controls.json; full native CPE,
  * supplied declarations and regions agree for the immutable-index model.
  * Native/Sld agreement does not uniquely certify its original literal syntax. */
+
+
 #line 1407 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
 {
@@ -1256,6 +1298,8 @@ void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
 /* ---- AISpeeds_MaintainLeaderBoard__Fv  [@0x8006efa4] ---- */
 /* Native carLoop owns the scan scope; test belongs to each iteration.
  * Keep the explicit head break and AISlot post-increment for retail's edges. */
+
+
 #line 1420 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 void AISpeeds_MaintainLeaderBoard(void)
 {
@@ -1296,6 +1340,8 @@ void AISpeeds_MaintainLeaderBoard(void)
   return; }
 
 /* ---- AISpeeds_GetScriptFactor__FP8Car_tObj  [@0x8006f0a4] ---- */
+
+
 #line 1470 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetScriptFactor(Car_tObj *carObj)
 {
@@ -1316,6 +1362,8 @@ int AISpeeds_GetScriptFactor(Car_tObj *carObj)
 /* @0x8006F150 $a1=*(&engineUpgrade)[+0]=accMult (H36) */
 /* @0x8006F178 $a1=*(&suspensionUpgrade)[+0] */
 /* @0x8006F1A0 $a1=*(&aeroUpgrade)[+0] */
+
+
 #line 1491 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetUpgradeAccMult(int carIndex)
 { Car_tObj*carObj; int accMult;
@@ -1334,6 +1382,8 @@ int AISpeeds_GetUpgradeAccMult(int carIndex)
 /* @0x8006F20C $a1=*(&lbl_8010DCE4)=engineUpgrade[+4]=brakeMult (H37) */
 /* @0x8006F234 $a1=*(&lbl_8010DCF4)=suspensionUpgrade[+4] */
 /* @0x8006F25C $a1=*(&lbl_8010DD04)=aeroUpgrade[+4] */
+
+
 #line 1506 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetUpgradeBrakeMult(int carIndex)
 { Car_tObj*carObj; int brakeMult;
@@ -1352,6 +1402,8 @@ int AISpeeds_GetUpgradeBrakeMult(int carIndex)
 /* @0x8006F2C8 $a1=*(&lbl_8010DCE8)=engineUpgrade[+8]=handlingMult (H38) */
 /* @0x8006F2F0 $a1=*(&lbl_8010DCF8)=suspensionUpgrade[+8] */
 /* @0x8006F318 $a1=*(&lbl_8010DD08)=aeroUpgrade[+8] */
+
+
 #line 1520 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetUpgradeHandlingMult(int carIndex)
 { Car_tObj*carObj; int handlingMult;
@@ -1370,6 +1422,8 @@ int AISpeeds_GetUpgradeHandlingMult(int carIndex)
 /* @0x8006F384 $a1=*(&lbl_8010DCEC)=engineUpgrade[+0xC]=topSpeedMult (H39) */
 /* @0x8006F3AC $a1=*(&lbl_8010DCFC)=suspensionUpgrade[+0xC] */
 /* @0x8006F3D4 $a1=*(&lbl_8010DD0C)=aeroUpgrade[+0xC] */
+
+
 #line 1534 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_GetUpgradeTopSpeedMult(int carIndex)
 { Car_tObj*carObj; int topSpeedMult;
@@ -1388,6 +1442,8 @@ int AISpeeds_GetUpgradeTopSpeedMult(int carIndex)
  *  (Ghidra @NFS4.EXE.c:49318). Thin wrapper over CalcHumanCurveSpeed.
  *  SOURCE-REVIEW-UNRESOLVED: topSpeed is an inferred spelling for the debug-elided return
  *  value; retail separately tags the call and the return (1557/1559). */
+
+
 #line 1550 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcHumanTopSpeed(Car_tObj *carObj)
 {
@@ -1407,6 +1463,8 @@ int AISpeeds_CalcHumanTopSpeed(Car_tObj *carObj)
  *  SOURCE-REVIEW-UNRESOLVED: final tightestCurve reuse is inferred, not uniquely recovered:
  *  its old index is dead, and retail separately tags lookup/return (1603/1605).
  *  A distinct debug-elided result also matches; no original extra name is known. */
+
+
 #line 1564 "C:/nfs4/GAME/COMMON/AISPEEDS.CPP"
 int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
 {

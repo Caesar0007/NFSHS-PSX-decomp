@@ -31,7 +31,9 @@ void Souffle_KillTrackSouffle(void);
 
 
 /* ---- GetGustWind__FP17Souffle_tISouffle  [SOUFFLE.CPP:44-49] SLD-VERIFIED ---- */
+#line 41 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 void GetGustWind(Souffle_tISouffle *is)
+
 
 {
 
@@ -42,7 +44,9 @@ void GetGustWind(Souffle_tISouffle *is)
 }
 
 /* ---- GetAngleWind__FP17Souffle_tISouffle  [SOUFFLE.CPP:53-57] SLD-VERIFIED ---- */
+#line 50 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 void GetAngleWind(Souffle_tISouffle *is)
+
 
 {
 
@@ -53,7 +57,9 @@ void GetAngleWind(Souffle_tISouffle *is)
 
 /* ---- MoveAngleWind__FP17Souffle_tISouffle  [SOUFFLE.CPP:61-66]
  * 14/16 SLD tags and block lines exact; final epilogue attribution open. ---- */
+#line 58 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 void MoveAngleWind(Souffle_tISouffle *is)
+
 
 {
 
@@ -64,19 +70,21 @@ void MoveAngleWind(Souffle_tISouffle *is)
 
 /* ---- Souffle_Add__FP8coorddefiT0iii  [SOUFFLE.CPP:76-165]
  * Native SYM locals/scopes exact; retail SLD line map still open. ---- */
+#line 72 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 Souffle_tISouffle *
 Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int colour)
+
 
 {
   int inserti; inserti = 0;
 
 
-  if (gCISouffle == 0x3c) {
-    int i;
+  if (gCISouffle == 0x3c)
+  { int i;
     int maxc;
-    i = 1;
+
     maxc = gISouffle[0].cycle;
-    while (i < gCISouffle) {
+    i = 1; while (i < gCISouffle) {
 
 
       if (gISouffle[i].cycle < maxc) {
@@ -161,15 +169,17 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
 }
 
 /* ---- Souffle_DoSouffle__Fv  [SOUFFLE.CPP:176-295] SLD-VERIFIED ---- */
+#line 173 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 void Souffle_DoSouffle(void)
+
 
 {
   coorddef w;
   int i;
   
 
-  if (0 < SOUFFLE_GAME_TICKS - gTMoveSouffle) {
-
+  if (0 < SOUFFLE_GAME_TICKS - gTMoveSouffle)
+  {
     gTMoveSouffle = SOUFFLE_GAME_TICKS;
 
     if (gCISouffle != 0) {
@@ -195,8 +205,8 @@ void Souffle_DoSouffle(void)
         motion.z = motion.z + w.z;
       }
 
-      if (Replay_ReplayMode == 2) {
-
+      if (Replay_ReplayMode == 2)
+      {
         int speed = 2 - SOUFFLE_REPLAY_SPEED;
 
         if (0 < speed) { motion.x = motion.x >> speed; motion.y = motion.y >> speed; motion.z = motion.z >> speed;
@@ -213,14 +223,14 @@ void Souffle_DoSouffle(void)
         } } if ((is->motion).z < 0) { (is->motion).z = (is->motion).z + 0xa3d; if (0 < (is->motion).z) { (is->motion).z = 0;
         } } else if (0 < (is->motion).z) { (is->motion).z = (is->motion).z + -0xa3d; if ((is->motion).z < 0) { (is->motion).z = 0;
         }
-      } if (is->type == '\r') {
-
+      } if (is->type == '\r')
+      {
         coorddef extramotion = is->extramotion;
 
         int wave = fastintsin(is->angle);
 
-        if (Replay_ReplayMode == 2) {
-
+        if (Replay_ReplayMode == 2)
+        {
           int speed = 2 - SOUFFLE_REPLAY_SPEED;
 
           if (0 < speed) { extramotion.x = extramotion.x >> speed; extramotion.y = extramotion.y >> speed; extramotion.z = extramotion.z >> speed;
@@ -269,74 +279,80 @@ void Souffle_DoSouffle(void)
 
       MoveAngleWind(is);
 
-      if (--is->cycle == '\0') {
+      --is->cycle;
 
-        is->type = '\0';
-      } }
+      if (is->cycle == '\0') is->type = '\0';
+    }
 
     for (i = 0; i < gCISouffle; i++) {
 
       if (gISouffle[i].type == '\0') {
 
         gISouffle[i] = gISouffle[gCISouffle - 1];
-        i--; gCISouffle--;
-      }
+        gCISouffle--;
+        i--; }
 
     } } return; }
 
 /* ---- Souffle_CircleClip__FP8coorddefT0i  [SOUFFLE.CPP:308-316]
- * Native SYM locals/scopes exact; compact retail SLD line map still open. ---- */
+ * Native SYM locals/scopes exact; SLD exact (2026-10-31 PHYS6: store-flag `if (dist < r) return 1; return 0;`). ---- */
+#line 305 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)
+
 
 {
   int dx; int dz; dx = pt1->x - pt2->x; if (dx < 1) { dx = pt2->x - pt1->x;
-  } dz = pt1->z - pt2->z; if (dz < 1) { dz = pt2->z - pt1->z;
-  }
+  } dz = pt1->z - pt2->z; if (dz < 1) { dz = pt2->z - pt1->z; }
   {
-    int dist; if (dz < dx) { dist = dx + (dz >> 2); } else { dist = dz + (dx >> 2);
-    }
-
-    return (u_int)(dist < r);
+    int dist;
+    if (dz < dx) { dist = dx + (dz >> 2); } else { dist = dz + (dx >> 2); }
+    if (dist < r) return 1;
   }
-}
+  return 0; }
+
+
 
 /* ---- Souffle_InsertFacet__FP13DRender_tView  [SOUFFLE.CPP:320-348]
- * Native SYM locals/scopes exact; retail SLD line map still open. ---- */
+ * Native SYM locals/scopes exact; SLD exact (for loop with continue, 2026-10-31 PHYS5). ---- */
+#line 317 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 void Souffle_InsertFacet(DRender_tView *Vi)
+
 
 {
   int i;
 
-  {
-
-    i = 0; do { if (gCISouffle <= i) {
-        return;
-      } Souffle_tISouffle *is = gISouffle + i;
-
-      if (Souffle_CircleClip(&is->source,&Vi->cview.translation,0x320000)) {
 
 
-        if (is->type != '\n') {
+  for (i = 0; ; i = i + 1) { if (gCISouffle <= i) {
+      return;
+    } Souffle_tISouffle *is = gISouffle + i;
 
-          Sfx_Transform(&is->source,&is->trans,&Vi->cview.translation);
-          if (((int)is->trans.vz < __builtin_abs((int)is->trans.vx)) ||
-              (is->type == '\0')) {
-            goto SouffleInsert_iterAdvance;
-          }
-        }
+    if (Souffle_CircleClip(&is->source,&Vi->cview.translation,0x320000)) {
 
 
+      if (is->type != '\n') {
+
+        Sfx_Transform(&is->source,&is->trans,&Vi->cview.translation);
+
+        if ((int)is->trans.vz < __builtin_abs((int)is->trans.vx))
+          continue;
+
+        if (is->type == '\0') continue; }
 
 
 
-        Sfx_BuildSouffleFacet(Vi,is);
-      }
-SouffleInsert_iterAdvance:
-      i = i + 1; } while (true); } }
+
+
+      Sfx_BuildSouffleFacet(Vi,is);
+    }
+
+  } }
 
 /* ---- Souffle_InitTrackSouffle__Fv  [SOUFFLE.CPP:359-367]
  * Native SYM and linked SLD exact; all 16 retail instructions preserved. ---- */
+#line 356 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 void Souffle_InitTrackSouffle(void)
+
 
 {
 
@@ -351,7 +367,9 @@ void Souffle_InitTrackSouffle(void)
 
 /* ---- Souffle_RestartTrackSouffle__Fv  [SOUFFLE.CPP:373-382]
  * Retail statement order restored; full SLD line spacing remains open. ---- */
+#line 370 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 void Souffle_RestartTrackSouffle(void)
+
 
 {
 
@@ -363,11 +381,13 @@ void Souffle_RestartTrackSouffle(void)
   gWindDir = 0;
 
   gCISouffle = 0;
-  return;
+
 }
 
 /* ---- Souffle_KillTrackSouffle__Fv  [SOUFFLE.CPP:386-388] SLD-VERIFIED ---- */
+#line 383 "C:/nfs4/GAME/COMMON/SOUFFLE.CPP"
 void Souffle_KillTrackSouffle(void)
+
 
 {
   if (gISouffle != (Souffle_tISouffle *)0x0) purgememadr(gISouffle);

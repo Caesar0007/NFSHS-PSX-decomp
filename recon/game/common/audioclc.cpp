@@ -47,6 +47,8 @@ void AudioClc_SoundSpeech(void);
 
 
 /* ---- AudioClc_SndError__Fi  [@0x80074730] ---- */
+
+#line 112 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SndError(int shandle)
 {
   return;
@@ -94,6 +96,8 @@ void AudioClc_SndError(int shandle)
 }
 
 /* ---- AudioClc_SetHorn__FP8Car_tObji  [@0x80074738] ---- */
+
+#line 213 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SetHorn(Car_tObj *car,int state)
 {
   AudioClc_tSource*s;
@@ -126,6 +130,8 @@ void AudioClc_SetHorn(Car_tObj *car,int state)
 }
 
 /* ---- AudioClc_HonkHorn__FP8Car_tObjiii  [@0x800747a8] ---- */
+
+#line 250 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_HonkHorn(Car_tObj *car,int numBeeps,int ticksOn,int ticksOff)
 {
   AudioClc_tSource*s;
@@ -152,6 +158,8 @@ void AudioClc_HonkHorn(Car_tObj *car,int numBeeps,int ticksOn,int ticksOff)
 }
 
 /* ---- AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj  [@0x80074808] ---- */
+
+#line 278 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_InitSource(AudioClc_tSource *s,Car_tObj *car)
 {
   s->car = car;
@@ -166,6 +174,8 @@ void AudioClc_InitSource(AudioClc_tSource *s,Car_tObj *car)
 }
 
 /* ---- AudioClc_StartUp__Fv  [@0x80074838] ---- */
+
+#line 296 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_StartUp(void)
 {
   AudioClc_tPlayer*p;
@@ -210,6 +220,8 @@ void AudioClc_StartUp(void)
 }
 
 /* ---- AudioClc_CalcDopplerShiftRatio__FP8coorddefT0  [@0x80074994] ---- */
+
+#line 345 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 int AudioClc_CalcDopplerShiftRatio(coorddef *objectPos,coorddef *objectVel)
 {
   coorddef*cameraPos = &AudioClc_gRenderView.translation;
@@ -235,6 +247,8 @@ int AudioClc_CalcDopplerShiftRatio(coorddef *objectPos,coorddef *objectVel)
 }
 
 /* ---- AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef  [@0x80074b60] ---- */
+
+#line 372 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 int AudioClc_CalcDistance(DRender_tCalcView *view,coorddef *object)
 {
   int x, y, z;
@@ -253,6 +267,8 @@ int AudioClc_CalcDistance(DRender_tCalcView *view,coorddef *object)
 }
 
 /* ---- AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef  [@0x80074be8] ---- */
+
+#line 392 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 int AudioClc_CalcAzimuth(DRender_tCalcView *view,coorddef *object)
 {
   coorddef temp;
@@ -272,6 +288,8 @@ int AudioClc_CalcAzimuth(DRender_tCalcView *view,coorddef *object)
 }
 
 /* ---- AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj  [@0x80074d50] ---- */
+
+#line 413 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 int AudioClc_CalcCarDirection(DRender_tCalcView *view,Car_tObj *car)
 {
   coorddef temp;
@@ -284,6 +302,8 @@ int AudioClc_CalcCarDirection(DRender_tCalcView *view,Car_tObj *car)
 }
 
 /* ---- AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj  [@0x80074e24] ---- */
+
+#line 429 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 int AudioClc_CalcTrackAzimuth(DRender_tCalcView *view,Car_tObj *car)
 {
   int x;
@@ -298,6 +318,8 @@ int AudioClc_CalcTrackAzimuth(DRender_tCalcView *view,Car_tObj *car)
 }
 
 /* ---- AudioClc_SoundOpponentHorn__Fiiii  [@0x80074f5c] ---- */
+
+#line 449 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SoundOpponentHorn(int closestIndex,int azimuth,int dop,int dsquare)
 {
   AudioClc_tSource*source = AudioClc_gClosest + closestIndex;
@@ -371,11 +393,15 @@ void AudioClc_SoundOpponentHorn(int closestIndex,int azimuth,int dop,int dsquare
 /* ---- AudioClc_SilenceOpponentHorn__Fi  [@0x80075008] ----
  * The call and implicit void fallthrough share retail's source line +1:
  * 8/8 instructions and 0/8 relative SLD tag differences. */
+
+#line 522 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SilenceOpponentHorn(int closestIndex)
 {
   freeVoiceChannel(closestIndex + 0x25); }
 
 /* ---- AudioClc_SoundCloseCar__Fii  [@0x80075028] ---- */
+
+#line 530 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
 {
   AudioClc_tSource *source; Car_tObj *car; int dsquare; int distSq; int dop; int dst; int dir; int azimuth; source = &AudioClc_gClosest[closestIndex];
@@ -500,8 +526,8 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
       }
     }
   }
-  if (car->carInfo->carType - 0x16U < 6) {
-
+  if (car->carInfo->carType - 0x16U < 6)
+  {
     if ((car->AIFlags & 2U) != 0) {
       int iamp;
       iamp = ((0x1324 - distSq) * 0x7f) / 0x1324;
@@ -529,6 +555,8 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
  * slot with `li v0,1` exactly like retail.  No per-function compiler splice is
  * required. */
         /* MATCH: preserve the common else entry before channel's bgez re-test. */
+
+#line 679 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SoundPlayersCar(int playerIndex)
 {
   DRender_tCalcView *view; AudioClc_tSource *previous; Car_tObj *car; int azimuth; int dsquare; int frequency; int dop; int dst; int facing; int cardir; int trkazi; view = &AudioClc_gRenderView;
@@ -703,8 +731,8 @@ void AudioClc_SoundPlayersCar(int playerIndex)
   }
 
 
-  if (car->carInfo->carType - 0x16U < 6) {
-
+  if (car->carInfo->carType - 0x16U < 6)
+  {
     if ((car->AIFlags & 2U) != 0) {
       int iamp;
 
@@ -729,6 +757,8 @@ void AudioClc_SoundPlayersCar(int playerIndex)
   } return; }
 
 /* ---- AudioClc_ResetClosest__FiP8Car_tObji  [@0x80075c3c] ---- */
+
+#line 881 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
 {
   if (AudioClc_gClosest[closestIndex].car != (Car_tObj *)0x0) {
@@ -793,6 +823,8 @@ void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
   /* ORIGINAL-NAME-RECOVERED: view -- the byte-matched, symbol-bearing NFS2
      predecessor retains this exact DRender_tCalcView pointer name and type;
      see the source receipt above. */
+
+#line 920 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 {
   int i;
@@ -906,6 +938,8 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 }
 
 /* ---- AudioClc_SoundSpeech__Fv  [@0x80076130] ---- */
+
+#line 1037 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SoundSpeech(void)
 {
   AudioCmn_SetLevels();
@@ -933,6 +967,8 @@ void AudioCmn_UpdateThunder(void);
      * loop.c's strength-reduction giv-init source the HOISTED base pseudo
      * -> `addu s0,s2` chain; the old explicit if+do-while sourced the
      * address temp -> `addu s0,a1` = the whole 2-diff residual). */
+
+#line 1051 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SoundCars(void)
 {
 

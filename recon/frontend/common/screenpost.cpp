@@ -22,6 +22,7 @@
    
    [ghidra-meta] section: front.text */
 
+#line 45 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 
 {
@@ -60,6 +61,7 @@ void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 /* ---- tScreenTournamentStandings::ctor  [SCREENPOST.CPP:80-81] ---- */
 tScreenTournamentStandings::tScreenTournamentStandings()
   /* base subobject _base_tScreen is constructed implicitly by g++ -> jal __7tScreen */
+#line 80 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 {
   this->fDrawMoney = 0;
 }
@@ -67,68 +69,71 @@ tScreenTournamentStandings::tScreenTournamentStandings()
 
 
 /* ---- tScreenTournamentStandings::Initialize  [SCREENPOST.CPP:85-120] ---- */
+#line 83 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void tScreenTournamentStandings::Initialize()
 
 {
-  tAwardInformation tInfo;
-  
-  this->tScreen::Initialize();
+  tAwardInformation tInfo; this->tScreen::Initialize();
+
+
   tournamentManager.GetAwardInformation(tInfo);
+
+
+
   this->gotmoney = 0;
   this->gotbonus = 0;
   this->gotbilled = 0;
   if (this->fDrawMoney != 0) {
+
     if (tInfo.fMoney != 0) {
       this->gotmoney = 1;
     }
     this->moneyFinal = Tournament_Money(tournamentManager) - tInfo.fTournMoney;
     if (tInfo.fCompletedGarageFull != 0) {
       this->moneyFinal -= tInfo.fCompletedBonusMoney;
-    }
-    this->moneyAwarded = tInfo.fMoney;
+    } this->moneyAwarded = tInfo.fMoney;
     tournamentManager.CalcTrackFinishDamageBill(false,this->moneyDamage,this->moneyBonus);
-    if (0 < this->moneyBonus) {
-      this->gotbonus = 1;
-    }
-    if (0 < this->moneyDamage) {
-      this->gotbilled = 1;
+    if (0 < this->moneyBonus) { this->gotbonus = 1;
+    } if (0 < this->moneyDamage) { this->gotbilled = 1;
     }
     this->fCountedDown = 0;
     if (((this->moneyBonus == 0) && (this->moneyDamage == 0)) && (this->moneyAwarded == 0)) {
       this->fCountedDown = 1;
     }
     this->fStartCountdownNOW = 0;
+
     this->fCountSpeed = (this->moneyDamage >? (this->moneyBonus >? tInfo.fMoney)) / 0x18;
   }
-  else {
-    this->moneyFinal = Tournament_Money(tournamentManager) - tInfo.fTournMoney;
+
+  else { this->moneyFinal = Tournament_Money(tournamentManager) - tInfo.fTournMoney;
   }
-  this->starttick = FE_Ticks();
-  return;
+  this->starttick = FE_Ticks(); return;
 }
 
 
 
 /* ---- tScreenTournamentStandings::Cleanup  [SCREENPOST.CPP:124-129] ---- */
+#line 122 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void tScreenTournamentStandings::Cleanup()
 
 {
 
 
   this->fDrawMoney = 0;
-  this->tScreen::Cleanup();
-  return;
+
+  this->tScreen::Cleanup(); return;
 }
 
 
 
 /* ---- tScreenTournamentStandings::GetShapeInfo  [SCREENPOST.CPP:133-137] ---- */
+#line 130 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void tScreenTournamentStandings::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
-  numSwapShapes = 0;
-  *swapFileName = (char *)0x0;
+
+  numSwapShapes = 0; *swapFileName = (char *)0x0;
   numPermShapes = 0x29;
   *permFileName = "zTrnSt1";
 }
@@ -136,12 +141,13 @@ void tScreenTournamentStandings::GetShapeInfo(short &numPermShapes,short &numSwa
 
 
 /* ---- tScreenTournamentStandings3item::GetShapeInfo  [SCREENPOST.CPP:142-146] ---- */
+#line 139 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void tScreenTournamentStandings3item::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
-  numSwapShapes = 0;
-  *swapFileName = (char *)0x0;
+
+  numSwapShapes = 0; *swapFileName = (char *)0x0;
   numPermShapes = 0x29;
   *permFileName = "zTrnStd";
 }
@@ -149,19 +155,17 @@ void tScreenTournamentStandings3item::GetShapeInfo(short &numPermShapes,short &n
 
 
 /* ---- tScreenTournamentStandings::ProcessInput  [SCREENPOST.CPP:152-158] ---- */
+#line 149 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
               tMenuCommand &)
 
 {
   if (keyval != kInput_KeyType_Cross) {
     return;
-  }
-  if (this->fCountedDown == 0) {
+  } if (this->fCountedDown == 0) {
+
     keyval = kInput_KeyType_AlreadyProcessed;
-    this->fStartCountdownNOW = 1;
-  }
-  return;
-}
+    this->fStartCountdownNOW = 1; } return; }
 
 
 
@@ -337,113 +341,131 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
    identity, widened expressions and remaining extra track-call pair are
    not uniquely restored. Inferred getter names are marked at their definitions.
    Native missing-name recovery does not certify complete source/SLD exactness. */
+  /* SLD 250 is one lbx expression.  Widen the grouped width adjustment to
+     keep its evaluation order without halfWidth; signed-short width/centerx
+     bound the final int result to -49153..49149.  Exact -g twin and PASS. */
+  /* SYM records i, not line.  The widened row expression below regenerates
+     the s6 induction value without a source local: SLD 203/208/223 uses and
+     line-224 back edge stay exact.  i is bounded by the signed-short count,
+     so the addition and its conversion back to int cannot overflow. */
+  /* The retail address web reuses the existing SYM `shape` local as the
+     short-lived tournament-definition carrier. */
+  /* SYM-CODEGEN-CARRIER: type -- repeating textType_TrackRecords raises the
+     residual from 3 to 35 and rematerializes the value at each call site. */
+  /* SYM-CODEGEN-CARRIER: lastRacer -- inlining `numRacers - 1` is
+     count-exact FAIL 56, shrinks the frame to 240, and changes its stack web. */
+  /* SYM-CODEGEN-CARRIER: numRacers -- recomputing the ranked count is
+     FAIL 84 at 573/561, shrinks the frame, and duplicates the whole predicate. */
+#line 162 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
 void tScreenTournamentStandings::DrawBackground()
 
 {
   int fade;
   int fadeline;
-  int i;
-  int j;
-  tTourneyInfo *tourneyInfo;
-  char sBuildOutput[80];
-  tMenuTextState state;
-  tMenuTextState statedull;
-  tTrackInformation trackInfo;
-  int wwwww;
-  tTexture_ShapeInfo *shape;
-  int lbx;
-  int tt;
-  tDrawShapeExtended drawflags;
-  int colf;
-  int colb;
-  /* SYM-CODEGEN-CARRIER: numRacers -- recomputing the ranked count is
-     FAIL 84 at 573/561, shrinks the frame, and duplicates the whole predicate. */
-  int numRacers;
-  /* SYM-CODEGEN-CARRIER: lastRacer -- inlining `numRacers - 1` is
-     count-exact FAIL 56, shrinks the frame to 240, and changes its stack web. */
-  int lastRacer;
-  /* SYM-CODEGEN-CARRIER: type -- repeating textType_TrackRecords raises the
-     residual from 3 to 35 and rematerializes the value at each call site. */
-  tMenuTextType type;
-
-  i = 0;
-  type = textType_TrackRecords;
-  fade = this->fScreenFadeVal;
-  fadeline = fade;
-  /* The retail address web reuses the existing SYM `shape` local as the
-     short-lived tournament-definition carrier. */
-  shape = (tTexture_ShapeInfo *)Tournament_Definition();
-  tourneyInfo = &((tTournamentDefinition *)shape)->fTournaments[
-      ((tTournamentDefinition *)shape)->fTiers[tournamentManager.fTier].fTournOffset +
-      tournamentManager.fTournament];
+  int i; int j; tTourneyInfo *tourneyInfo; char sBuildOutput[80]; tMenuTextState state; tMenuTextState statedull; tTrackInformation trackInfo; int wwwww; tTexture_ShapeInfo *shape; int lbx; int tt; tDrawShapeExtended drawflags; int colf; int colb; int numRacers; int lastRacer; tMenuTextType type; i = 0; type = textType_TrackRecords; fade = this->fScreenFadeVal; fadeline = fade; shape = (tTexture_ShapeInfo *)Tournament_Definition(); tourneyInfo = &((tTournamentDefinition *)shape)->fTournaments[ ((tTournamentDefinition *)shape)->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament];
   numRacers = (short)((short)Tournament_NumRacers() +
-                      (tourneyInfo->fKnockout != 0));
-  lastRacer = numRacers - 1;
-  /* SYM records i, not line.  The widened row expression below regenerates
-     the s6 induction value without a source local: SLD 203/208/223 uses and
-     line-224 back edge stay exact.  i is bounded by the signed-short count,
-     so the addition and its conversion back to int cannot overflow. */
-  for (; i < numRacers; i++) {
-    short p;
 
+
+
+
+
+                      (tourneyInfo->fKnockout != 0));
+
+
+
+
+
+
+
+
+  lastRacer = numRacers - 1; for (; i < numRacers; i++) {
+    short p;
     j = (short)tournamentManager.PlayerRanking((short)(i + 1));
     state = textState_Selected;
+
+
     if (j == 0) {
+
       state = textState_Hilighted;
       statedull = textState_Hilighted;
     }
     else {
+
+
       statedull = textState_Unselected;
     }
     FETextRender_FullTextFade(fade,TextSys_Word(i + 599),(short)TextSys_WordX(0x2f7),
+
+
+
                              (short)TextSys_WordY((int)((long long)i + 0x2fe)),type,statedull,0);
     FETextRender_FullTextFade(
         fade,
         j == 0 ? PlayerName(0) :
                  Stattool_GetAINameFromPersonality(Tournament_Personality(j)),
-        (short)TextSys_WordX(0x2f8),(short)TextSys_WordY((int)((long long)i + 0x2fe)),
-        type,state,0);
+        (short)TextSys_WordX(0x2f8),(short)TextSys_WordY((int)((long long)i + 0x2fe)), type,state,0);
+
+
+
     p = j;
     if (tourneyInfo->fKnockout != 0) {
+
       sprintf(sBuildOutput,TextSys_Word(i == lastRacer ? 0x31c : 0x31b));
     }
     else {
+
       sprintf(sBuildOutput,"%d %s",(int)tournamentManager.TournPointTotal(&p),TextSys_Word(0x31d));
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
+
                              (short)TextSys_WordY((int)((long long)i + 0x2fe)),type,state,1);
   }
+
+
+
+
   trackManager.GetTrack(Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
+
                            (short)TextSys_WordY(0x2fd),type,textState_Hilighted,2);
   i = (short)(frontEnd.tier != '\0' ?
-                TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) :
-                TextValue(&MenuDefs()->iteratorTournament,kPlayerBoth));
+                TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) : TextValue(&MenuDefs()->iteratorTournament,kPlayerBoth));
   i += 0x13;
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
+
+
                                              2,textState_Hilighted,type);
+
+
+
   wwwww = textpixels(TextSys_Word(i));
+
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
   /* Start the packet-table lifetime without joining it to the definition
      carrier above. */
   shape = (shape = gCurrentShapes, &shape[0x27]);
-  /* SLD 250 is one lbx expression.  Widen the grouped width adjustment to
-     keep its evaluation order without halfWidth; signed-short width/centerx
-     bound the final int result to -49153..49149.  Exact -g twin and PASS. */
+
   lbx = (long long)(((short)shape->width >> 1) - 2) - shape->centerx;
   tt = FE_Ticks() % (short)shape->width;
-  if (((short)shape->width / 2) < tt) {
-    tt = (short)shape->width - tt;
+  if (((short)shape->width / 2) < tt) { tt = (short)shape->width - tt;
   }
   DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+
   drawflags.tint[0] = 0x282828;
   DrawShapeExtended(0x27,0x400,0,-1,this->fScreenFadeVal,0,&drawflags);
   PSXDrawBrightEndLine(0x232323,TextSys_WordX(0x2f6) - 0x96,TextSys_WordY(0x2fd) + 10,
+
+
+
+
                        300,1,3,fadeline,0x1e);
+
   colf = CalcFadeVal(TextDefinitionColor(textType_TrackRecords,5),fade);
   colb = CalcFadeVal(0x232323,fade);
+
   if ((1000 < FE_Ticks() - this->starttick) || (this->fStartCountdownNOW != 0)) {
+
     if ((0 < this->moneyAwarded) || ((0 < this->moneyDamage || (0 < this->moneyBonus)))) {
       AudioCmn_PlayFESFX(0x15);
     }
@@ -452,13 +474,14 @@ void tScreenTournamentStandings::DrawBackground()
       this->moneyAwarded = 0;
       this->moneyDamage -= this->fCountSpeed;
       if (this->moneyDamage < 1) {
+
         this->fCountedDown = 1;
         this->moneyDamage = 0;
-        this->moneyBonus = this->moneyBonus - this->fCountSpeed < 0 ?
-                           0 : this->moneyBonus - this->fCountSpeed;
+        this->moneyBonus = this->moneyBonus - this->fCountSpeed < 0 ? 0 : this->moneyBonus - this->fCountSpeed;
       }
     }
   }
+
   if (this->fDrawMoney != 0) {
     FETextRender_FullTextFade(fade,TextSys_Word(0x312),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x312),
@@ -467,19 +490,24 @@ void tScreenTournamentStandings::DrawBackground()
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x312),6,this->moneyAwarded,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x313),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x313),
+
                              type,this->gotbilled ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x313),6,this->moneyDamage,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x314),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x314),
                              type,this->gotbonus ? 1 : 0,1);
+
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,this->moneyBonus,colf,colb);
   }
   FETextRender_FullTextFade(fade,TextSys_Word(0x315),(short)TextSys_WordX(0x2fa),(short)TextSys_WordY(0x315),
+
+
+
                            type,textState_Hilighted,1);
-  DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9,
-            ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,colb);
-  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0);
-  return;
+  DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9, ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,colb);
+
+
+  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0); return;
 }
 
 
@@ -490,44 +518,9 @@ void tScreenTournamentStandings::DrawBackground()
  * saved-reg rotation (oracle: lh 92(s7), li fp,1; ours swapped). qtytrace-class
  * (methodology 4.6); NOT reverting correct link/signedness fixes for one swap.
  * TOP W57 near-seal. */
-void tScreenPinkSlipStandings::DrawBackground()
-
-{
-  int fade;
-  char sBuildOutput [50];
-  int i;
-  tMenuTextState state;
-  tMenuTextType type;
-  int wwwww;
-  tTexture_ShapeInfo *shape;
-  int lbx;
-  int tt;
-
-  fade = (int)this->fScreenFadeVal;
-  type = textType_TrackRecords;
-  for (i = 0; state = textState_Hilighted,
-      i < (int)(byte)frontEnd.pinkSlipsNumTracks; i = i + 1) {
-      tTrackInformation trackInfo;
-      char string [30];
-
-      if (i != (byte)frontEnd.pinkSlipsTrackIndex) {
-        state = (tMenuTextState)(i < (int)(byte)frontEnd.pinkSlipsTrackIndex);
-      }
-      trackManager.GetTrack((byte)frontEnd.track[i],trackInfo);
-      FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
-                 (short)((signed char)trackInfo.fTrackID + 0xd5),
-                 (short)TextSys_WordX(0x2f7),(short)TextSys_WordY(0x2fe + i),0,state,
-                 type);
-      if (frontEnd.pinkSlipsWinner[i] == -1) {
-        sprintf(string,TextSys_Word(0x30d));
-      }
-      else {
-        sprintf(string,PlayerName((int)frontEnd.pinkSlipsWinner[i]));
-      }
-      FETextRender_FullTextFade(fade,string,(short)TextSys_WordX(0x2fb),
-                 (short)TextSys_WordY(0x2fe + i),type,state,1);
-  }
-  i = 0;
+  /* P867: SLD 390 is the same single lbx expression as SLD 250 above.
+     No halfWidth local in SYM; widening preserves the grouping and PASS
+     without changing the bounded signed result or claiming original syntax. */
   /* MATCH (W57, 26->PASS): `row` was a Ghidra-invented biv -- the SYM 8c list
      has no such local.  Retail spells the second loop exactly like the first
      (`0x2fe + i`), i.e. TextSys_WordY(0x313 + i): the giv's preheader init
@@ -535,55 +528,101 @@ void tScreenPinkSlipStandings::DrawBackground()
      literal 1 (`addiu $s7,$zero,1`), which is retail's constant order.  A real
      `row` variable inverts that order, and naming the 1 (`int one`) rotates
      $s7<->$fp off the SYM's REGPARM this=$0x1e.  Plain literals + the giv. */
-  do {
+#line 318 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.CPP"
+void tScreenPinkSlipStandings::DrawBackground()
+
+{
+  int fade;
+  char sBuildOutput [50]; int i; tMenuTextState state; tMenuTextType type; int wwwww; tTexture_ShapeInfo *shape; int lbx; int tt; fade = (int)this->fScreenFadeVal;
+
+
+
+
+
+
+  type = textType_TrackRecords;
+
+
+  for (i = 0; state = textState_Hilighted, i < (int)(byte)frontEnd.pinkSlipsNumTracks; i = i + 1) {
+      tTrackInformation trackInfo;
+      char string [30]; if (i != (byte)frontEnd.pinkSlipsTrackIndex) {
+
+        state = (tMenuTextState)(i < (int)(byte)frontEnd.pinkSlipsTrackIndex);
+      }
+
+
+
+
+      trackManager.GetTrack((byte)frontEnd.track[i],trackInfo);
+      FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
+                 (short)((signed char)trackInfo.fTrackID + 0xd5),
+                 (short)TextSys_WordX(0x2f7),(short)TextSys_WordY(0x2fe + i),0,state, type);
+
+
+      if (frontEnd.pinkSlipsWinner[i] == -1) {
+        sprintf(string,TextSys_Word(0x30d));
+      }
+      else { sprintf(string,PlayerName((int)frontEnd.pinkSlipsWinner[i]));
+      }
+      FETextRender_FullTextFade(fade,string,(short)TextSys_WordX(0x2fb),
+                 (short)TextSys_WordY(0x2fe + i),type,state,1);
+  }
+
+
+
+
+  i = 0; do {
     FETextRender_FullTextFade(fade,PlayerName(i),(short)TextSys_WordX(0x2f8),
+
+
                (short)TextSys_WordY(0x313 + i),type,state,0);
+
     if (frontEnd.pinkSlipsWins[i] == 1) {
       sprintf(sBuildOutput,TextSys_Word(799));
     }
-    else {
-      sprintf(sBuildOutput,TextSys_Word(0x31e),(uint)(byte)frontEnd.pinkSlipsWins[i]);
+    else { sprintf(sBuildOutput,TextSys_Word(0x31e),(uint)(byte)frontEnd.pinkSlipsWins[i]);
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
                (short)TextSys_WordY(0x313 + i),type,
                state,1);
-    i = i + 1;
-  } while (i < 2);
+
+    i = i + 1; } while (i < 2);
   FETextRender_MenuTextPositionedJustifyFade(fade,0x2c1,(short)TextSys_WordX(0x2f6),
+
+
+
                (short)TextSys_WordY(0x2fc),2,textState_Hilighted,type);
+
+
   wwwww = textpixels(TextSys_Word(0x2c1));
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),
                TextSys_WordY(0x2fc) - 1,wwwww,9);
+
+
   shape = &gCurrentShapes[0x27];
-  /* P867: SLD 390 is the same single lbx expression as SLD 250 above.
-     No halfWidth local in SYM; widening preserves the grouping and PASS
-     without changing the bounded signed result or claiming original syntax. */
+
   lbx = (long long)((shape->width >> 1) - 2) - shape->centerx;
   tt = FE_Ticks() % (short)shape->width;
-  if ((shape->width / 2) < tt) {
-    tt = shape->width - tt;
+  if ((shape->width / 2) < tt) { tt = shape->width - tt;
   }
   tDrawShapeExtended drawflags;
   drawflags.tint[0] = 0x282828;
-  DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,
-             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
-  DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,
-             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
-  DrawShapeExtended(0x27,0x400,0,-1,
-             (int)this->fScreenFadeVal,0,&drawflags);
-  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0);
-  return;
+  DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1, (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1, (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x27,0x400,0,-1, (int)this->fScreenFadeVal,0,&drawflags);
+
+
+  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0); return;
 }
 
 
 
 /* ---- tScreenPinkSlipStandings::ProcessInput  [SCREENPOST.CPP:80-80] ---- */
+#line 77 "C:/nfs4/FRONTEND/COMMON/SCREENPOST.H"
 void tScreenPinkSlipStandings::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
                tMenuCommand &command)
 
-{
-  tScreen_ProcessInput((tScreen *)this,fromPlayer,keyval,command);
-  return;
+{ tScreen_ProcessInput((tScreen *)this,fromPlayer,keyval,command); return;
 }
 
 

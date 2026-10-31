@@ -19,13 +19,15 @@ extern "C" {
 #endif
 
 /* ---- textnpixels  [TEXTPIX.C:61-98] SLD-VERIFIED ---- */
+
+#line 60 "C:/nfs4/GAME/PSX/TEXTPIX.C"
 int textnpixels(char *str, int n)
 {
-  struct charactertbl *ch;
   int code;
   int stringlen;
   int i;
-  int dx;
+
+
   unsigned char *fontbase; /* SYM-CODEGEN-CARRIER: fontbase -- direct form is 5 diffs, 36/37 */ i = 0;
 
 
@@ -35,7 +37,7 @@ int textnpixels(char *str, int n)
 
   stringlen = 0; if (0 < n) { fontbase = currentfont;
     do {
-
+      struct charactertbl *ch;
 
 
       code = (*(getcode *)(fontbase + 0xa0))(&str);
@@ -46,7 +48,7 @@ int textnpixels(char *str, int n)
       ch = getcharacter(code);
       if (ch != 0) {
 
-        dx = (signed char)ch->advance;
+        int dx = (signed char)ch->advance;
 
 
 
@@ -60,6 +62,8 @@ int textnpixels(char *str, int n)
 }
 
 /* ---- textpixels  [TEXTPIX.C:101-102] SLD-VERIFIED ---- */
+
+#line 100 "C:/nfs4/GAME/PSX/TEXTPIX.C"
 int textpixels(char *string)
 {
   return textnpixels(string, 0x100);

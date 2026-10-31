@@ -7,7 +7,9 @@
 
 
 /* ---- RPause_CopyBackToFrontBuffer__Fv  [RPAUSE.CPP:25-42] SLD-VERIFIED ---- */
+#line 22 "C:/nfs4/GAME/PSX/RPAUSE.CPP"
 void RPause_CopyBackToFrontBuffer(void)
+
 
 {
   RECT rscreen;
@@ -30,7 +32,9 @@ void RPause_CopyBackToFrontBuffer(void)
 }
 
 /* ---- RPause_StartPauseMenu__Fv  [RPAUSE.CPP:46-48] SLD-VERIFIED ---- */
+#line 43 "C:/nfs4/GAME/PSX/RPAUSE.CPP"
 void RPause_StartPauseMenu(void)
+
 
 {
 
@@ -38,7 +42,9 @@ void RPause_StartPauseMenu(void)
 }
 
 /* ---- RPause_StopPauseMenu__Fv  [RPAUSE.CPP:52-73] SLD-VERIFIED ---- */
+#line 49 "C:/nfs4/GAME/PSX/RPAUSE.CPP"
 void RPause_StopPauseMenu(void)
+
 
 {
   

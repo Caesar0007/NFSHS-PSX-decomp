@@ -18,6 +18,8 @@ Trk_AnimateInst *animScripts[10];   /* @0x8010e24c  (bss(zero)) */
 
 
 /* ---- Anim_Restart  [@0x80073a94] ---- */
+
+
 #line 82 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void Anim_Restart(void)
 {
@@ -35,6 +37,8 @@ void Anim_Restart(void)
 }
 
 /* ---- Anim_InitSystem  [@0x80073b1c] ---- */
+
+
 #line 106 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_InitSystem(char *trackName)
 {
@@ -134,6 +138,8 @@ int Anim_InitSystem(char *trackName)
 }
 
 /* ---- Anim_DeInitSystem  [@0x80073cb0] ---- */
+
+
 #line 210 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void Anim_DeInitSystem(void)
 {
@@ -150,6 +156,8 @@ void Anim_DeInitSystem(void)
 }
 
 /* ---- Anim_Handle  [@0x80073ce8] ---- */
+
+
 #line 230 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_Handle(int num)
 {
@@ -165,6 +173,8 @@ int Anim_Handle(int num)
 }
 
 /* ---- Anim_FreeHandle  [@0x80073d6c] ---- */
+
+
 #line 243 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_FreeHandle(int handle)
 {
@@ -174,6 +184,8 @@ int Anim_FreeHandle(int handle)
 }
 
 /* ---- Anim_GetAnim  [@0x80073dec] ---- */
+
+
 #line 250 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 AnimScript * Anim_GetAnim(int handle)
 {
@@ -181,6 +193,8 @@ AnimScript * Anim_GetAnim(int handle)
 }
 
 /* ---- Anim_GetLastRotPos  [@0x80073e08] ---- */
+
+
 #line 260 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)
 {
@@ -200,6 +214,8 @@ void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)
 }
 
 /* ---- Anim_GetLastAnimPosRot  [@0x80073e80] ---- */
+
+
 #line 283 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 {
@@ -217,6 +233,8 @@ int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)
 }
 
 /* ---- Anim_GetRotPos  [@0x80073f18] ---- */
+
+
 #line 303 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,matrixtdef *mat)
 {
@@ -243,15 +261,15 @@ int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,ma
   }
   else { interval = 6;
   }
-  flags &= 2; animInd0 = ticks / interval;
+  animInd0 = ticks / interval;
 
 
+  flags &= 2; if (flags != 0) {
 
-
-  if ((flags != 0) && (animInst->count - 1 <= animInd0)) {
-    return 0;
+    if (animInst->count - 1 <= animInd0) {
+      return 0;
+    }
   }
-
   animInd0 %= animInst->count - 1;
   animInd1 = animInd0 + 1;
 
@@ -263,21 +281,23 @@ int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,ma
 
 
 
-
+  const int frac = ((ticks % interval) << 0x10) / interval;
 
   q0 = *(tQuat *)&animFrames[animInd0].qx;
   q1 = *(tQuat *)&animFrames[animInd1].qx;
   objcp0 = *(coorddef *)&animFrames[animInd0];
   objcp1 = *(coorddef *)&animFrames[animInd1];
-  Quatern_Interpolate(&q0,&q1,&objcp0,&objcp1,
-                      ((ticks % interval) << 0x10) / interval,&q,pt);
 
+
+  Quatern_Interpolate(&q0,&q1,&objcp0,&objcp1,frac,&q,pt);
   Quatern_QuatToMat(&q,mat);
 
   return 1;
 }
 
 /* ---- Anim_GetPos  [@0x8007412c] ---- */
+
+
 #line 366 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *animTicks,
               int *animLength)
@@ -295,23 +315,23 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
   }
   else { interval = 6;
   }
-  flags &= 2; animInd0 = ticks / interval;
+  animInd0 = ticks / interval;
+  flags &= 2; if (flags != 0) {
 
-
-  if ((flags != 0) && (animInst->count - 1 <= animInd0)) {
-    return 0;
+    if (animInst->count - 1 <= animInd0) {
+      return 0;
+    }
   }
-
   animInd0 %= animInst->count - 1;
   animInd1 = animInd0 + 1;
 
-
+  const int frac = ((ticks % interval) << 0x10) / interval;
 
   objcp0 = *(coorddef *)&animFrames[animInd0];
   objcp1 = *(coorddef *)&animFrames[animInd1];
-  Quatern_VecInterpolate(&objcp0,&objcp1,
-                         ((ticks % interval) << 0x10) / interval,pt);
 
+
+  Quatern_VecInterpolate(&objcp0,&objcp1,frac,pt);
 
 
   if (animTicks != (int *)0x0) {
@@ -325,6 +345,8 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
 }
 
 /* ---- AnimScript::AnimScript  [@0x80074360] ---- */
+
+
 #line 459 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 AnimScript::AnimScript(int num)
 {
@@ -339,6 +361,8 @@ AnimScript::AnimScript(int num)
 }
 
 /* ---- AnimScript::AnimScript  [@0x800743cc] ---- */
+
+
 #line 471 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 AnimScript::AnimScript(int num,int numParts)
 {
@@ -352,6 +376,8 @@ AnimScript::AnimScript(int num,int numParts)
 }
 
 /* ---- AnimScript::AnimScript  [@0x80074468] ---- */
+
+
 #line 484 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
 {
@@ -375,6 +401,8 @@ AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
   return; }
 
 /* ---- AnimScript::SetAnimAttrib  [@0x80074534] ---- */
+
+
 #line 512 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void AnimScript::SetAnimAttrib(int flags)
 {
@@ -382,6 +410,8 @@ void AnimScript::SetAnimAttrib(int flags)
 }
 
 /* ---- AnimScript::GetAnimFrameInfo  [@0x8007453c] ---- */
+
+
 #line 522 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
 {
@@ -407,6 +437,8 @@ void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
 }
 
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x800745f8] ---- */
+
+
 #line 552 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)
 {
@@ -414,6 +446,8 @@ int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)
 }
 
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x80074624] ---- */
+
+
 #line 563 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 {
@@ -444,6 +478,8 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
 }
 
 /* ---- AnimScript::GetStatus  [@0x8007471c] ---- */
+
+
 #line 598 "C:/nfs4/GAME/COMMON/ANIM.CPP"
 int AnimScript::GetStatus()
 {

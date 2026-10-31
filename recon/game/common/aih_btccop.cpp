@@ -18,7 +18,7 @@ static inline int NumRaceCars(void) { return Cars_gNumRaceCars; }
 static inline int GameTicks(void) { return simGlobal.gameTicks; }
 /* spike-belt helpers: retail records their inline pairs (parameters slice/rightLatPos/timeNow, no `this`) */
 static inline void SpikeBelt_SetActive(int active) { AICop_spikeBelt.active_ = active; }
-static inline int SpikeBelt_Slice(void) { return AICop_spikeBelt.slice_; }
+/* SpikeBelt_Slice lives in aih_btccop_externs.h: retail records its inline pair at the caller's line (header inline) */
 static inline void SpikeBelt_Set(int slice, int leftLatPos, int rightLatPos) {
     AICop_spikeBelt.leftLatPos_ = leftLatPos;
     AICop_spikeBelt.rightLatPos_ = rightLatPos;
@@ -53,6 +53,8 @@ coorddef     AIH_BTCCop_chasePositions[3][6] = { { {0, 0, 720896}, {-524288, 0, 
 
 
 /* ---- __14AIHigh_BTC_CopP8Car_tObji  AIHigh_BTC_Cop::ctor  [AIH_BTCCOP.CPP:107-111] SLD-VERIFIED ---- */
+
+#line 107 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 AIHigh_BTC_Cop::AIHigh_BTC_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
   this->perpTarget_ = (AIHigh_BTC_Perp *)0x0;
@@ -69,7 +71,9 @@ AIHigh_BTC_Cop::AIHigh_BTC_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(
 
 /* ---- AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp  AIHigh_BTC_Cop::AssignToPlayer  [AIH_BTCCOP.CPP:115-126] SLD-VERIFIED ---- */
 
+#line 110 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Cop::AssignToPlayer(AIHigh_BTC_Perp *target)
+
 
 
 
@@ -95,19 +99,21 @@ void AIHigh_BTC_Cop::AssignToPlayer(AIHigh_BTC_Perp *target)
 
 /* ---- GetCheckChasePosition__14AIHigh_BTC_CopP8coorddef  AIHigh_BTC_Cop::GetCheckChasePosition  [AIH_BTCCOP.CPP:130-148] SLD-VERIFIED ---- */
 
+#line 125 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 int AIHigh_BTC_Cop::GetCheckChasePosition(coorddef *pos)
 
 
 
-{ int newPosition; int changed; changed = 0; if ((newPosition = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
+
+{ int newPosition; int changed; changed = 0; newPosition = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
 
 
 
 
 
-                     (this->carObj_)->carIndex)) != this->chaseIndex_) {
+                     (this->carObj_)->carIndex);
 
-
+  if (newPosition != this->chaseIndex_) {
 
     changed = 1;
     this->chaseIndex_ = newPosition; }
@@ -128,7 +134,9 @@ int AIHigh_BTC_Cop::GetCheckChasePosition(coorddef *pos)
 
 /* ---- CheckForNewTarget__14AIHigh_BTC_Cop  AIHigh_BTC_Cop::CheckForNewTarget  [AIH_BTCCOP.CPP:154-206] SLD-VERIFIED ---- */
 
+#line 149 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 int AIHigh_BTC_Cop::CheckForNewTarget()
+
 
 
 
@@ -150,17 +158,17 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
   for (perpLoop = 0; perpLoop < Cars_gNumRaceCars; perpLoop = perpLoop + 1) { Car_tObj *testPerpCarObj; int thisPerpCarIndex; AIHigh_BTC_Perp *thisPerpHigh;
 
     testPerpCarObj = Cars_gRaceCarList[perpLoop];
-    if (testPerpCarObj->N.active == '\0' || (testPerpCarObj->carFlags & 0x200U) != 0) continue; if ((thisPerpCarIndex = testPerpCarObj->carIndex, thisPerpHigh = (AIHigh_BTC_Perp *)highLevelAIObjs[thisPerpCarIndex],
+    if (testPerpCarObj->N.active == '\0' || (testPerpCarObj->carFlags & 0x200U) != 0) continue;
 
 
 
-         thisPerpHigh->basicPerpInfo_.Crime() != 0)) { int copToTargetDistanceMeters;
+    thisPerpCarIndex = testPerpCarObj->carIndex;
+    thisPerpHigh = (AIHigh_BTC_Perp *)highLevelAIObjs[thisPerpCarIndex];
 
-
-
-
-      copToTargetDistanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj));
-
+    if (thisPerpHigh->basicPerpInfo_.Crime() != 0) {
+      int copToTargetDistanceMeters;
+      copToTargetDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj);
+      copToTargetDistanceMeters = __builtin_abs(copToTargetDistanceMeters);
       if (copToTargetDistanceMeters < newTargetDistance) {
 
         newTargetDistance = copToTargetDistanceMeters;
@@ -195,7 +203,9 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
 
 /* ---- StartArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp  AIHigh_BTC_Cop::StartArrest  [AIH_BTCCOP.CPP:213-250] SLD-VERIFIED ---- */
 
+#line 208 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Cop::StartArrest(AIHigh_BTC_Perp *arrestMe)
+
 
 
 
@@ -205,7 +215,7 @@ void AIHigh_BTC_Cop::StartArrest(AIHigh_BTC_Perp *arrestMe)
 
 
 
-  if (this->freezeMode_ == 0) {
+  if (this->freezeMode_ != 0) return;
 
 
 
@@ -227,16 +237,16 @@ void AIHigh_BTC_Cop::StartArrest(AIHigh_BTC_Perp *arrestMe)
 
 
 
-    this->freezeMode_ = 3;
+  this->freezeMode_ = 3;
 
 
 
 
-    if ((this->carObj_->carFlags & 0x200U) != 0) {
-      Speech::Mobile(this->carObj_)->Catch(1);
-    }
+  if ((this->carObj_->carFlags & 0x200U) != 0) {
+    Speech::Mobile(this->carObj_)->Catch(1);
   }
-  return; }
+
+}
 
 
 
@@ -247,7 +257,9 @@ void AIHigh_BTC_Cop::StartArrest(AIHigh_BTC_Perp *arrestMe)
 
 /* ---- FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp  AIHigh_BTC_Cop::FinishArrest  [AIH_BTCCOP.CPP:253-280] SLD-VERIFIED ---- */
 
+#line 248 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Cop::FinishArrest(AIHigh_BTC_Perp *arrestMe)
+
 
 
 
@@ -260,7 +272,7 @@ void AIHigh_BTC_Cop::FinishArrest(AIHigh_BTC_Perp *arrestMe)
 
 
 
-  if ((this->freezeMode_ == 3) || (this->freezeMode_ == 0)) {
+  if ((this->freezeMode_ != 3) && (this->freezeMode_ != 0)) return;
 
 
 
@@ -268,17 +280,17 @@ void AIHigh_BTC_Cop::FinishArrest(AIHigh_BTC_Perp *arrestMe)
 
 
 
-    this->freezeMode_ = 4;
+  this->freezeMode_ = 4;
 
-    this->FreezeAndEndChase();
-    this->HudOff();
-  }
-
+  this->FreezeAndEndChase();
+  this->HudOff();
 
 
 
 
-  return; }
+
+
+}
 
 
 
@@ -289,7 +301,9 @@ void AIHigh_BTC_Cop::FinishArrest(AIHigh_BTC_Perp *arrestMe)
 
 /* ---- FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp  AIHigh_BTC_Cop::FalseArrest  [AIH_BTCCOP.CPP:283-293] SLD-VERIFIED ---- */
 
+#line 278 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Cop::FalseArrest(AIHigh_BTC_Perp *cantArrestMe)
+
 
 
 
@@ -302,8 +316,8 @@ void AIHigh_BTC_Cop::FalseArrest(AIHigh_BTC_Perp *cantArrestMe)
 
 
     this->freezeMode_ = 2;
-  }
-  return; }
+  } return;
+}
 
 
 
@@ -314,7 +328,9 @@ void AIHigh_BTC_Cop::FalseArrest(AIHigh_BTC_Perp *cantArrestMe)
 
 /* ---- FreezeAndEndChase__14AIHigh_BTC_Cop  AIHigh_BTC_Cop::FreezeAndEndChase  [AIH_BTCCOP.CPP:296-302] SLD-VERIFIED ---- */
 
+#line 291 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Cop::FreezeAndEndChase()
+
 
 
 
@@ -335,7 +351,9 @@ void AIHigh_BTC_Cop::FreezeAndEndChase()
 
 /* ---- HudOff__14AIHigh_BTC_Cop  AIHigh_BTC_Cop::HudOff  [AIH_BTCCOP.CPP:305-311] SLD-VERIFIED ---- */
 
+#line 300 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Cop::HudOff()
+
 
 
 
@@ -356,25 +374,27 @@ void AIHigh_BTC_Cop::HudOff()
 
 
 /* ---- __19AIHigh_BTC_HumanCopP8Car_tObji  AIHigh_BTC_HumanCop::ctor  [AIH_BTCCOP.CPP:326-369] SLD-VERIFIED ---- */
+
+#line 326 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh_BTC_Cop(carObj,copIndex)
 { this->SetInitialMovement(1);
+  this->needPerp_ = 0; this->SetInitialDirection(0); this->SetRequestedDesiredSpeed(0);
 
 
 
 
-
-
+  lastInputRequestTick_ = 0;
   this->currentStage_ = -1;
-
-  this->stageTimeMultiplier_ = 0x10000; this->needPerp_ = 0; this->SetInitialDirection(0); this->SetRequestedDesiredSpeed(0); this->stageRepeatCount_ = 0;
+  this->stageRepeatCount_ = 0;
+  this->stageTimeMultiplier_ = 0x10000;
   this->timeLeft_ = AITune_BTC[GameSetup_gData.skill].baseChaseTime;
 
-  this->carObj_->unlap = 0; lastInputRequestTick_ = 0;
+  this->carObj_->unlap = 0;
 
   AILife_PlaceCarAtLocation(this->carObj_,0,0,1,0,0);
 
-  if (copIndex == 0) { int startDirection; int startMovement; int startSlice; int addToSlice; int bend; startDirection = -1;
-
+  if (copIndex == 0)
+  { int startDirection; int startMovement; int startSlice; int addToSlice; int bend; startDirection = -1;
 
 
 
@@ -416,14 +436,16 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh
  * complete SLD/literal original staging spelling remains source-review work.
  * No const alias, qualifier, fence or output rewrite replaces the capture. */
 
+#line 374 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone,int randomDistance)
+
 
 
 
 { int newOffset; int newSlice;
   randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; newOffset = (randtemp >> 8 & 0xffff) * 2; newOffset = (int)((u_int)(randomDistance * newOffset) >> 0x10) - randomDistance;
-  if (0 <= newOffset) { newSlice = startSlice + newOffset; if (gNumSlices <= newSlice) { newSlice = newSlice - gNumSlices; } } else { newSlice = startSlice + newOffset; if (newSlice < 0) { newSlice = newSlice + gNumSlices; } } { int maxRuns;
-    maxRuns = 0; while (maxRuns < 30) { int startCheckSlice; int leftLaneFree; int rightLaneFree; startCheckSlice = newSlice - safetyZone;
+  if (0 <= newOffset) { newSlice = startSlice + newOffset; if (gNumSlices <= newSlice) { newSlice = newSlice - gNumSlices; } } else { newSlice = startSlice + newOffset; if (newSlice < 0) { newSlice = newSlice + gNumSlices; } }
+  for (int maxRuns = 0; maxRuns < 30; maxRuns++) { int startCheckSlice; int leftLaneFree; int rightLaneFree; startCheckSlice = newSlice - safetyZone;
 
     if (0 <= -safetyZone) { if (gNumSlices <= startCheckSlice) { startCheckSlice = startCheckSlice - gNumSlices; } } else { if (startCheckSlice < 0) { startCheckSlice = startCheckSlice + gNumSlices; } }
     leftLaneFree = AIWorld_IsDriveableLaneInSliceRange(startCheckSlice,safetyZone << 1,1,6);
@@ -431,7 +453,7 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
     if ((leftLaneFree != 0) && (rightLaneFree != 0)) { break; }
 
     if (0 <= safetyZone / 5) { newSlice = (newSlice + safetyZone / 5 < gNumSlices) ? newSlice + safetyZone / 5 : newSlice + safetyZone / 5 - gNumSlices; } else { newSlice = (0 <= newSlice + safetyZone / 5) ? newSlice + safetyZone / 5 : newSlice + safetyZone / 5 + gNumSlices; }
-      maxRuns++; } }
+    }
 
   return newSlice; }
 
@@ -444,7 +466,9 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
 /* ---- ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp  AIHigh_BTC_HumanCop::ReleaseAndStartChase  [AIH_BTCCOP.CPP:399-419] SLD-VERIFIED ---- */
 
+#line 394 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::ReleaseAndStartChase(AIHigh_BTC_Perp *newPerp)
+
 
 
 
@@ -479,7 +503,9 @@ void AIHigh_BTC_HumanCop::ReleaseAndStartChase(AIHigh_BTC_Perp *newPerp)
 
 /* ---- FreezeAndEndChase__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::FreezeAndEndChase  [AIH_BTCCOP.CPP:425-456] SLD-VERIFIED ---- */
 
+#line 420 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::FreezeAndEndChase()
+
 
 
 
@@ -492,8 +518,8 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
 
 
-  if (this->copIndex_ == 0) { int startDirection; int startSlice; int startMovement; int addToSlice; startDirection = -1;
-
+  if (this->copIndex_ == 0)
+  { int startDirection; int startSlice; int startMovement; int addToSlice; startDirection = -1;
 
 
 
@@ -525,7 +551,9 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
 /* ---- CheckConditionWithCop0__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::CheckConditionWithCop0  [AIH_BTCCOP.CPP:461-485] SLD-VERIFIED ---- */
 
+#line 456 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
+
 
 
 
@@ -533,11 +561,11 @@ void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
 
 
 
-  if (this->copIndex_ != 0) {
-
+  if (this->copIndex_ != 0)
+  {
     AIHigh_BTC_HumanCop *leadCop = (AIHigh_BTC_HumanCop *)highLevelAIObjs[0];
-    if (leadCop->CurrentStage() > this->CurrentStage()) { int startDirection = leadCop->InitialDirection(); int startSlice; int startMovement = leadCop->InitialMovement(); int addToSlice;
-
+    if (leadCop->CurrentStage() > this->CurrentStage())
+    { int startDirection = leadCop->InitialDirection(); int startSlice; int startMovement = leadCop->InitialMovement(); int addToSlice;
 
 
 
@@ -564,7 +592,9 @@ void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
 
 /* ---- NewStage__19AIHigh_BTC_HumanCopiii  AIHigh_BTC_HumanCop::NewStage  [AIH_BTCCOP.CPP:490-618] SLD-VERIFIED ---- */
 
+#line 485 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
+
 
 
 
@@ -599,6 +629,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
 
   Object_ClearCustomObjects(); this->SetInitialDirection(direction); this->SetInitialMovement(movement);
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
 
 
 
@@ -606,11 +637,10 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
 
 
-
-
+  newLatPos = 0; throwAway = 0;
 
   (this->carObj_->N).simRoadInfo.slice = (short)copSlice;
-  (this->carObj_)->direction = direction; AICop_gRoadBlockState = kAICop_RoadBlockState_None; newLatPos = 0; throwAway = 0;
+  (this->carObj_)->direction = direction;
   AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
 
   if (AIHigh_CopGameType == COP_GAME_BTC_1HC1HP) {
@@ -629,10 +659,10 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
 
 
-               direction * 0xd5555,0); } else { int rightPos; int leftPos;
+               direction * 0xd5555,0); } else
 
 
-
+  { int rightPos; int leftPos;
   rightPos = (BWorldSm_slices[copSlice].avgPavedWidthRt << 15) * (BWorldSm_slices[copSlice].laneCount & 0xf);
   leftPos = (BWorldSm_slices[copSlice].avgPavedWidthLf << 15) * (BWorldSm_slices[copSlice].laneCount >> 4);
   rightPos = rightPos < BWorldSm_slices[copSlice].rightDrive * 0x100 + -0x8000 ? rightPos : BWorldSm_slices[copSlice].rightDrive * 0x100 + -0x8000;
@@ -673,7 +703,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
   if (this->copIndex_ == 0) {
     Hud_BTC_BonusTime(nextStageTime << 1); }
 
-
+  this->timeLeft_ = this->timeLeft_ + nextStageTime;
 
 
 
@@ -688,7 +718,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   this->wingmanStatus_ = 0;
 
-  this->freezeMode_ = 1; this->timeLeft_ = this->timeLeft_ + nextStageTime;
+  this->freezeMode_ = 1;
 
 
 
@@ -741,6 +771,8 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
  * SOURCE-REVIEW: matching this complete covered contract does not uniquely
  * certify the original literal spelling/comments or the rest of the project. */
 
+
+#line 623 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 {
   static bool sayLose = true;
@@ -782,7 +814,9 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 
 /* ---- UpdateFreezeModeAndPullOverMode__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode  [AIH_BTCCOP.CPP:692-722] SLD-VERIFIED ---- */
 
+#line 687 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
+
 
 
 
@@ -827,7 +861,9 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
 /* ---- RequestWingman__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::RequestWingman  [AIH_BTCCOP.CPP:727-749] SLD-VERIFIED ---- */
 
+#line 722 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::RequestWingman()
+
 
 
 
@@ -864,7 +900,9 @@ void AIHigh_BTC_HumanCop::RequestWingman()
 
 /* ---- RequestBlockader__19AIHigh_BTC_HumanCopi  AIHigh_BTC_HumanCop::RequestBlockader  [AIH_BTCCOP.CPP:752-781] SLD-VERIFIED ---- */
 
+#line 747 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
+
 
 
 
@@ -908,7 +946,9 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
 /* ---- CheckForWingmanRequest__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::CheckForWingmanRequest  [AIH_BTCCOP.CPP:785-790] SLD-VERIFIED ---- */
 
+#line 780 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 int AIHigh_BTC_HumanCop::CheckForWingmanRequest()
+
 
 
 
@@ -929,7 +969,9 @@ int AIHigh_BTC_HumanCop::CheckForWingmanRequest()
 
 /* ---- CheckForBlockaderRequest__19AIHigh_BTC_HumanCopPi  AIHigh_BTC_HumanCop::CheckForBlockaderRequest  [AIH_BTCCOP.CPP:794-808] SLD-VERIFIED ---- */
 
+#line 789 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 int AIHigh_BTC_HumanCop::CheckForBlockaderRequest(int *spikeBeltRequest)
+
 
 
 
@@ -960,7 +1002,9 @@ int AIHigh_BTC_HumanCop::CheckForBlockaderRequest(int *spikeBeltRequest)
 
 /* ---- UpdateWingmanRole__19AIHigh_BTC_HumanCop12Wingman_Role  AIHigh_BTC_HumanCop::UpdateWingmanRole  [AIH_BTCCOP.CPP:812-821] SLD-VERIFIED ---- */
 
+#line 807 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::UpdateWingmanRole(Wingman_Role currentRole)
+
 
 
 
@@ -989,7 +1033,9 @@ void AIHigh_BTC_HumanCop::UpdateWingmanRole(Wingman_Role currentRole)
 
 /* ---- ClearTrafficToPurgatory__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::ClearTrafficToPurgatory  [AIH_BTCCOP.CPP:832-838] SLD-VERIFIED ---- */
 
+#line 827 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::ClearTrafficToPurgatory()
+
 
 
 
@@ -1011,7 +1057,9 @@ void AIHigh_BTC_HumanCop::ClearTrafficToPurgatory()
 
 /* ---- ResetClearTrafficToPurgatory__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::ResetClearTrafficToPurgatory  [AIH_BTCCOP.CPP:842-848] SLD-VERIFIED ---- */
 
+#line 837 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::ResetClearTrafficToPurgatory()
+
 
 
 
@@ -1033,7 +1081,9 @@ void AIHigh_BTC_HumanCop::ResetClearTrafficToPurgatory()
 
 /* ---- SetDesiredSpeed__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::SetDesiredSpeed  [AIH_BTCCOP.CPP:854-858] SLD-VERIFIED ---- */
 
+#line 849 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::SetDesiredSpeed()
+
 
 
 
@@ -1053,7 +1103,9 @@ void AIHigh_BTC_HumanCop::SetDesiredSpeed()
 
 /* ---- HighExecute__19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::HighExecute  [AIH_BTCCOP.CPP:863-931] SLD-VERIFIED ---- */
 
+#line 858 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_HumanCop::HighExecute()
+
 
 
 
@@ -1064,8 +1116,8 @@ void AIHigh_BTC_HumanCop::HighExecute()
     this->ClearTrafficToPurgatory(); }
 
 
-  if ((this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) && (this->freezeMode_ != 1)) {
-
+  if ((this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) && (this->freezeMode_ != 1))
+  {
 
 
 
@@ -1085,8 +1137,8 @@ void AIHigh_BTC_HumanCop::HighExecute()
   this->UpdateFreezeModeAndPullOverMode();
   this->UpdateAndCheckTimeLeft();
   this->CheckForNewTarget();
-  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) { coorddef notUsed;
-
+  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0)
+  { coorddef notUsed;
 
     this->GetCheckChasePosition(&notUsed); }
 
@@ -1138,7 +1190,9 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
 void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 
+#line 933 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
                Car_tObj *arrestingCop)
+
 
 
 
@@ -1162,6 +1216,8 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 
 
 /* ---- __18AIHigh_BTC_WingmanP8Car_tObji  AIHigh_BTC_Wingman::ctor  [AIH_BTCCOP.CPP:964-971] SLD-VERIFIED ---- */
+
+#line 964 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex) : AIHigh_BTC_Cop(carObj,copIndex)
 {
   this->spikeBeltPlaced_ = 0;
@@ -1382,6 +1438,8 @@ AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex) : AIHigh_B
    the frame 104->120 and shifts every traffic slot +16).  The case-0 and case-2
    arms stay open-coded (they already gate PASS; W75 falsification history kept
    above).  Probe: scratchpad/w76/A9_btc_I4.variant, A9_btc_I4_posmis.txt. ==== */
+
+#line 975 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Wingman::HighExecute()
 {
 
@@ -1392,36 +1450,36 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-  switch (this->stateType_) { case 0: {
-
-
-
+  switch (this->stateType_)
+  {
+    case 0:
+    {
       this->carObj_->AIFlags &= ~2;
       this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7); }
 
 
 
-    goto stateExecuteAndReturn; case 2: {
+    break; case 2:
 
-
+    {
       this->carObj_->AIFlags &= ~2; if ((this->newRole_ != this->currentRole_) &&
-          ((u_int)(this->newRole_ - 2) < 2)) {
-
-        if (AILife_IsCarInAnyVisibleArea(this->carObj_) == 0) {
-
+          ((u_int)(this->newRole_ - 2) < 2))
+      {
+        if (AILife_IsCarInAnyVisibleArea(this->carObj_) == 0)
+        {
 
           Speech::Mobile(this->carObj_)->Purge();
           this->currentRole_ = this->newRole_;
           this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
-          this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3); } } else {
+          this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3); } }
+      else
 
 
 
-
-
+      {
         this->CheckForNewTarget();
-        if (this->perpTarget_ != 0) { coorddef pos;
-
+        if (this->perpTarget_ != 0)
+        { coorddef pos;
 
 
 
@@ -1432,8 +1490,8 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-
+      if (this->UpdateFreezeModeAndPullOverMode() != 0)
+      {
         this->AssignToPlayer(0);
         this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7); this->newRole_ = 0; this->currentRole_ = 0; } }
 
@@ -1445,10 +1503,10 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-    goto stateExecuteAndReturn; case 4: { coorddef newPos; AIState_Chase *chaseState;
+    break;
 
-
-
+    case 4:
+    { coorddef newPos; AIState_Chase *chaseState;
 
       chaseState = (AIState_Chase *)this->state_;
       this->carObj_->AIFlags |= 2;
@@ -1457,14 +1515,14 @@ void AIHigh_BTC_Wingman::HighExecute()
       ((AIHigh_BasicCop *)this)->HandleBlockadeSpeech();
 
 
-      if (this->GetCheckChasePosition(&newPos) != 0) {
-
+      if (this->GetCheckChasePosition(&newPos) != 0)
+      {
         chaseState->SetTarget(this->perpTarget_->CarObj(),&newPos); }
 
 
 
-      if (chaseState->BarrierTicks32() > 0xa0) {
-
+      if (chaseState->BarrierTicks32() > 0xa0)
+      {
         int endSlice = chaseState->FindBarrierEndSlice();
 
         this->SetState(new AIState_GotoSlice(this->carObj_,endSlice,0),(stateType_t)9); }
@@ -1472,36 +1530,36 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-      if (this->CheckForNewTarget() != 0) { coorddef pos;
-
+      if (this->CheckForNewTarget() != 0)
+      { coorddef pos;
 
         this->GetCheckChasePosition(&pos);
         chaseState->SetTarget(this->perpTarget_->CarObj(),&pos); }
 
 
-      if (chaseState->InMurderRange(8,0xe0000,0xf0000)) {
+      if (chaseState->InMurderRange(8,0xe0000,
 
 
-
+                                    0xf0000)) {
 
         chaseState->SetMurderMode(1,0x300); }
 
 
 
-      if (this->perpTarget_ == 0) {
-
+      if (this->perpTarget_ == 0)
+      {
 
         this->AssignToPlayer(0);
         this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); }
 
 
 
-      if (this->newRole_ != this->currentRole_) {
+      if (this->newRole_ != this->currentRole_)
+      {
 
 
-
-        if ((u_int)(this->newRole_ - 2) < 2) {
-
+        if ((u_int)(this->newRole_ - 2) < 2)
+        {
 
           this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
           this->AssignToPlayer(0);
@@ -1511,8 +1569,8 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-
+      if (this->UpdateFreezeModeAndPullOverMode() != 0)
+      {
         this->AssignToPlayer(0);
         this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7); this->newRole_ = 0; this->currentRole_ = 0; } }
 
@@ -1523,10 +1581,10 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-    goto stateExecuteAndReturn; case 3: { int rbDistanceMeters; int rbAbsDistanceMeters; int release; coorddef newPos;
+    break;
 
-
-
+    case 3:
+    { int rbDistanceMeters; int rbAbsDistanceMeters; int release; coorddef newPos;
 
 
 
@@ -1537,8 +1595,8 @@ void AIHigh_BTC_Wingman::HighExecute()
       this->CheckForNewTarget(); release = 0;
 
 
-      if (this->perpTarget_ == 0) {
-
+      if (this->perpTarget_ == 0)
+      {
         this->newRole_ = 1; this->currentRole_ = 1;
 
 
@@ -1554,8 +1612,8 @@ void AIHigh_BTC_Wingman::HighExecute()
       this->GetCheckChasePosition(&newPos); if ((this->spikeBeltPlaced_ != 0) &&
 
 
-          (SpikeBelt_Slice() == this->spikeBeltSlice_)) {
-
+          (SpikeBelt_Slice() == this->spikeBeltSlice_))
+      {
         SpikeBelt_SetFreshenTime(simGlobal.gameTicks); }
 
 
@@ -1566,12 +1624,12 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-      if (rbAbsDistanceMeters < 0x320000) { release = 1; } else if (rbAbsDistanceMeters < 0x12c0000 &&
+      if (rbAbsDistanceMeters < 0x320000) { release = 1; } else
 
 
 
-                 (this->perpTarget_->CarObj()->currentSpeed > 0 ? this->perpTarget_->CarObj()->currentSpeed : -this->perpTarget_->CarObj()->currentSpeed) > 0x471c7) {
-
+      if (rbAbsDistanceMeters < 0x12c0000 && (this->perpTarget_->CarObj()->currentSpeed > 0 ? this->perpTarget_->CarObj()->currentSpeed : -this->perpTarget_->CarObj()->currentSpeed) > 0x471c7)
+      {
 
 
         int timeToRB = fixeddiv(rbDistanceMeters,this->perpTarget_->CarObj()->currentSpeed);
@@ -1585,8 +1643,8 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-      if (release) {
-
+      if (release)
+      {
 
         this->spikeBeltPlaced_ = 0;
 
@@ -1599,22 +1657,22 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-                                         0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4); } if ((this->newRole_ != this->currentRole_) &&
+                                         0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4); }
 
 
 
 
-          (this->newRole_ == 1)) { this->currentRole_ = 1;
+      if ((this->newRole_ != this->currentRole_) && (this->newRole_ == 1))
+      {
 
-
-
+        this->currentRole_ = 1;
         this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); }
 
 
 
 
-      if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-
+      if (this->UpdateFreezeModeAndPullOverMode() != 0)
+      {
         this->AssignToPlayer(0);
         this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
 
@@ -1626,25 +1684,25 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-    goto stateExecuteAndReturn; case 7: {
+    break;
+    case 7:
 
 
 
-
-
+    {
       this->carObj_->AIFlags &= ~2;
-      if (this->currentRole_ != this->newRole_) {
+      if (this->currentRole_ != this->newRole_)
+      {
+        if (this->newRole_ == 1)
+        {
 
-        if (this->newRole_ == 1) { this->currentRole_ = 1;
-
-
-
+          this->currentRole_ = 1;
           this->SetupWingman(this->newHumanBoss_);
 
-          this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); } else {
+          this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); } else
 
-          if ((u_int)(this->newRole_ - 2) < 2) {
-
+        { if ((u_int)(this->newRole_ - 2) < 2)
+          {
 
             this->currentRole_ = this->newRole_;
             this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
@@ -1655,15 +1713,15 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 
 
-    goto stateExecuteAndReturn; case 9: { AIState_GotoSlice *gotoState;
+    break;
+    case 9:
 
-
-
+    { AIState_GotoSlice *gotoState;
       gotoState = (AIState_GotoSlice *)this->state_;
       this->AssignToPlayer(0);
-      if (gotoState->InTargetSliceRange(0xa0000) != 0) {
-
-        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); } } goto stateExecuteAndReturn; case 10: default: goto stateExecuteAndReturn; } stateExecuteAndReturn:
+      if (gotoState->InTargetSliceRange(0xa0000) != 0)
+      {
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); } } break; case 10: default: break; }
 
 
 
@@ -1684,7 +1742,9 @@ void AIHigh_BTC_Wingman::HighExecute()
 
 /* ---- CheckForActivation__18AIHigh_BTC_Wingman  AIHigh_BTC_Wingman::CheckForActivation  [AIH_BTCCOP.CPP:1270-1305] SLD-VERIFIED ---- */
 
+#line 1265 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 int AIHigh_BTC_Wingman::CheckForActivation()
+
 
 
 
@@ -1697,8 +1757,8 @@ int AIHigh_BTC_Wingman::CheckForActivation()
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) { Car_tObj *otherCarObj;
 
     otherCarObj = Cars_gList[carLoop];
-    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) { AIHigh_BTC_HumanCop *copHigh;
-
+    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0'))
+    { AIHigh_BTC_HumanCop *copHigh;
       copHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex];
 
       if ((copHigh)->CheckForWingmanRequest() != 0) {
@@ -1711,8 +1771,8 @@ int AIHigh_BTC_Wingman::CheckForActivation()
       if ((copHigh)->CheckForBlockaderRequest(&spikeBeltRequest) != 0) { this->newRole_ = spikeBeltRequest != 0 ?
 
             ROLE_BLOCKADER_SPIKEBELT : ROLE_BLOCKADER;
-        this->newHumanBoss_ = copHigh; } }
-
+        this->newHumanBoss_ = copHigh; }
+      (void)0; } /* DEVICE (exact-only): code-less note on the `}` line -> retail block ends 25 */
 
 
   }
@@ -1720,10 +1780,10 @@ int AIHigh_BTC_Wingman::CheckForActivation()
   if (this->newHumanBoss_ != (AIHigh_BTC_HumanCop *)0x0) {
     (this->newHumanBoss_)->UpdateWingmanRole((Wingman_Role)this->currentRole_); }
 
-  return (u_int)(this->currentRole_ != this->newRole_); }
+  if (this->currentRole_ != this->newRole_)
+    return 1;
 
-
-
+  return 0; }
 
 
 
@@ -1731,7 +1791,9 @@ int AIHigh_BTC_Wingman::CheckForActivation()
 
 /* ---- UpdateFreezeModeAndPullOverMode__18AIHigh_BTC_Wingman  AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode  [AIH_BTCCOP.CPP:1311-1329] SLD-FLAG:NONMONO ---- */
 
+#line 1306 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 int AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode()
+
 
 
 
@@ -1772,7 +1834,9 @@ int AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode()
  * local/scope records without another object or fence. Its literal original
  * cast/expression spelling and full SLD are not uniquely proved by PASS. */
 
+#line 1329 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
+
 
 
 
@@ -1799,7 +1863,9 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
 /* ---- SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_HumanCopi  AIHigh_BTC_Wingman::SetupBlockader  [AIH_BTCCOP.CPP:1352-1484] SLD-VERIFIED ---- */
 
+#line 1347 "C:/nfs4/GAME/COMMON/AIH_BTCCOP.CPP"
 void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeBeltRequest)
+
 
 
 
@@ -1818,7 +1884,8 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
 
-  if (humanCop->PerpTarget() != (AIHigh_BTC_Perp *)0x0) { int perpToHumanDistance; int side; int initializationDistance; Car_tObj*perpObj; perpObj = humanCop->PerpTarget()->CarObj();
+  if (humanCop->PerpTarget() != (AIHigh_BTC_Perp *)0x0)
+  { int perpToHumanDistance; int side; int initializationDistance; Car_tObj*perpObj; perpObj = humanCop->PerpTarget()->CarObj();
 
 
 
@@ -1827,11 +1894,10 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
 
-
-
-
-
-    side = -1; if (-1 < perpObj->currentSpeed) { side = 1; }
+    if (-1 < perpObj->currentSpeed)
+      side = 1;
+    else
+      side = -1;
 
 
     perpToHumanDistance = AIWorld_ApxSplineDistance(perpObj,copObj);
@@ -1865,15 +1931,15 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
 
-    this->blockade_.target = (AIHigh_Player *)humanCop->PerpTarget(); } else { int side = -1;
+    this->blockade_.target = (AIHigh_Player *)humanCop->PerpTarget(); } else
 
 
+    {
 
+      int side = -1; if (-1 < humanCop->CarObj()->currentSpeed)
+      side = 1;
 
-    if (-1 < humanCop->CarObj()->currentSpeed) {
-      side = 1; } int initializationDistance = 0x1f40000;
-
-
+      else side = -1; /* DEVICE (exact-only): redundant else store; cse drops it, its code-less note is the retail if-scope end (71) */ int initializationDistance = 0x1f40000;
     initSlice = SLICE_ADD(humanCop->CarObj()->N.simRoadInfo.slice, initializationDistance / 0x60000 * side);
 
     this->blockade_.blockadeSpeechFlags = 0;
@@ -1883,9 +1949,9 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
   this->blockade_.direction = copObj->direction;
   this->blockade_.slice = SLICE_ADD(initSlice, -this->blockade_.direction);
 
+  AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp;
 
-
-  randtemp = fastRandom * randSeed; AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp; fastRandom = randtemp & 0xffff; blockadeType = (randtemp >> 8 & 0xffff) % 5;
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; blockadeType = (randtemp >> 8 & 0xffff) % 5;
 
   this->blockade_.flags = gBlockadeTypes[blockadeType];
 
@@ -1910,14 +1976,14 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
              humanCop->CarObj()->direction,0,0x100);
 
 
-  if (spikeBeltRequest != 0) { int spikeBeltSide; int left; int right;
+  if (spikeBeltRequest != 0)
+  { int spikeBeltSide; int left; int right;
 
 
 
-
-    spikeBeltSide = AIWorld_ApxSplineDistance(this->carObj_,copObj) >= 0 ? 1 : -1;
-
-
+    if (AIWorld_ApxSplineDistance(this->carObj_,copObj) >= 0)
+      spikeBeltSide = 1;
+    else spikeBeltSide = -1;
 
 
     spikeBeltSide = spikeBeltSide * 6; this->spikeBeltSlice_ = SLICE_ADD(this->carObj_->N.simRoadInfo.slice, spikeBeltSide);
@@ -1927,8 +1993,8 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
                        ,0xcccc); right = fixedmult(((u_int)BWorldSm_slices[this->spikeBeltSlice_].avgPavedWidthRt << 15) * (BWorldSm_slices[this->spikeBeltSlice_].laneCount & 0xf),0xcccc)
     ;
 
-    SpikeBelt_Set(this->spikeBeltSlice_, -left, right); SpikeBelt_Freshen(simGlobal.gameTicks); BWorld_SetSpikeBelt(this->spikeBeltSlice_,AICop_spikeBelt.leftLatPos_,
-
+    SpikeBelt_Set(this->spikeBeltSlice_, -left, right);
+    SpikeBelt_Freshen(simGlobal.gameTicks); BWorld_SetSpikeBelt(this->spikeBeltSlice_,AICop_spikeBelt.leftLatPos_,
 
                left + right);
 

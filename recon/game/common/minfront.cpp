@@ -26,7 +26,9 @@ extern "C" int sprintf(char *, const char *, ...);
 
 /* ---- MinFront_ParseOptions  [MINFRONT.CPP:781-805] SLD-VERIFIED ---- */
 
+#line 778 "C:/nfs4/GAME/COMMON/MINFRONT.CPP"
 int * MinFront_ParseOptions(void)
+
 
 {
   int *stream;

@@ -26,8 +26,10 @@ void Sched_Execute(Sched_tSchedule *schedule);
 
 
 /* ---- Sched_ExecuteCheck__FiiiiPiN24i [retail SCHEDULE.CPP:55-83; full SLD attribution open] ---- */
+#line 51 "C:/nfs4/GAME/COMMON/SCHEDULE.CPP"
 int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time,int *elapsedTime,int *iTime
               ,int forceNoSimOptz)
+
 
 {
   int index;
@@ -62,8 +64,10 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
 }
 
 /* ---- Sched_CreateNewSchedule__FPci  [SCHEDULE.CPP:89-109] SLD-VERIFIED ---- */
+#line 85 "C:/nfs4/GAME/COMMON/SCHEDULE.CPP"
 Sched_tSchedule *
 Sched_CreateNewSchedule(char *scheduleName,int maxFunctions)
+
 
 {
   int i;
@@ -89,7 +93,9 @@ Sched_CreateNewSchedule(char *scheduleName,int maxFunctions)
 }
 
 /* ---- Sched_CleanUpSchedule__FP15Sched_tSchedule  [SCHEDULE.CPP:113-118] SLD-VERIFIED ---- */
+#line 110 "C:/nfs4/GAME/COMMON/SCHEDULE.CPP"
 void Sched_CleanUpSchedule(Sched_tSchedule *schedule)
+
 
 {
 
@@ -100,7 +106,9 @@ void Sched_CleanUpSchedule(Sched_tSchedule *schedule)
 }
 
 /* ---- Sched_AddFunction__FP15Sched_tSchedulePFPv_vPvi  [SCHEDULE.CPP:123-155] SLD-VERIFIED ---- */
+#line 120 "C:/nfs4/GAME/COMMON/SCHEDULE.CPP"
 void Sched_AddFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1,int priority)
+
 
 {
   int i;
@@ -138,7 +146,9 @@ void Sched_AddFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void
 }
 
 /* ---- Sched_DeleteFunction__FP15Sched_tSchedulePFPv_vPv  [SCHEDULE.CPP:160-183] SLD-VERIFIED ---- */
+#line 157 "C:/nfs4/GAME/COMMON/SCHEDULE.CPP"
 void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1)
+
 
 {
   int i;
@@ -166,7 +176,9 @@ void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,v
     schedule->numFunctions = schedule->numFunctions + -1; } return; }
 
 /* ---- Sched_Execute__FP15Sched_tSchedule  [SCHEDULE.CPP:195-206] SLD-VERIFIED ---- */
+#line 192 "C:/nfs4/GAME/COMMON/SCHEDULE.CPP"
 void Sched_Execute(Sched_tSchedule *schedule)
+
 
 {
   int i;

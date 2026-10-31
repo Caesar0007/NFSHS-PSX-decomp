@@ -41,82 +41,6 @@ int          AIHigh_Player_kNumArrestsByLap[3] = { 3, 5, 8 };   /* @0x8010ce98 *
 extern char gBlockadeTypes[];   /* UNSIZED before its definition (end of file): retail addresses this
                                    small-data table absolutely (lui/addiu 0x8013c568) */
 
-/* AIH_PLAY.CPP's SLD maps every instruction in both expanded copies to one
- * caller line and records an inlined AICop_PerpChaseInfo `this`; the second
- * copy additionally records `level` in $s0.  This is therefore the original
- * inline member boundary rather than duplicated caller source.  SYM proves
- * the signatures and behavior but does not retain linkage names for inline-
- * only members; the descriptive getter/setter spellings below are therefore
- * sole remaining non-unique part of this recovered interface. */
-inline int AICop_PerpChaseInfo::GetChaseLevelIndex()
-{
-  return chaseLevelIndex_;
-}
-
-inline int AICop_PerpChaseInfo::GetNumLevels()
-{
-  return copGameInfo_->numLevels;
-}
-
-/* Inferred accessor spellings: the supplied pointer/index fields and retail
- * inline receiver pairs establish these queries, not their original names. */
-inline int AICop_PerpChaseInfo::BestChaseLevelIndex()
-{
-  return bestChaseLevelIndex_;
-}
-
-inline copGame_t *AICop_PerpChaseInfo::GetCopGameInfo()
-{
-  return copGameInfo_;
-}
-
-
-
-
-
-
-inline int AICop_PerpChaseInfo::GetChaseTime()
-{
-  return (GetChaseLevel()->engagementLapFraction * AITune_gRoughLapTime) /
-             0x10000 * 0x20;
-}
-
-inline int AICop_PerpChaseInfo::IsLastChaseLevel()
-{
-  return bestChaseLevelIndex_ == copGameInfo_->numLevels - 1;
-}
-
-inline int AICop_PerpChaseInfo::ConfiguredEngagementLapTime()
-{
-  return (GetChaseLevel()->engagementLapFraction * AITune_gRoughLapTime) / 0x10000;
-}
-inline void AICop_PerpChaseInfo::InitializeChaseTimer(int lapTime)
-{
-  engagementTime_ = lapTime << 0x15;
-  engagementPercentIncreasePerTick_ = 0x10000 / (lapTime << 5);
-  if (GameSetup_gData.numLaps == 2)
-    engagementPercentIncreasePerTick_ =
-      fixedmult(engagementPercentIncreasePerTick_,0x13333);
-  else if (GameSetup_gData.numLaps == 4)
-    engagementPercentIncreasePerTick_ =
-      fixedmult(engagementPercentIncreasePerTick_,0xa8f5);
-}
-inline void AICop_PerpChaseInfo::ResetEngagementTime()
-{
-  InitializeChaseTimer(ConfiguredEngagementLapTime());
-}
-/* The shared timer query is defined with its class interface. */
-inline void AICop_PerpChaseInfo::SetChaseLevel(int level)
-{
-  /* Inferred timer boundaries are checked against the supplied receiver tree;
-     no literal original helper spellings or complete SLD seal is claimed. */
-  chaseLevelIndex_ = level;
-  if (bestChaseLevelIndex_ < level)
-    bestChaseLevelIndex_ = level;
-  chaseLevel_ = copGameInfo_->levels + chaseLevelIndex_;
-  ResetEngagementTime();
-  blockadeDone_ = 0;
-}
 
 
 
@@ -127,8 +51,10 @@ inline void AICop_PerpChaseInfo::SetChaseLevel(int level)
  * receiver. Type-return copies are optimized out without added qualifiers;
  * the final flags/type guard owns two separate retail regions. Literal helper
  * and caller-copy spellings are not uniquely proved by this native contract. */
-#line 51 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
+
+#line 50 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 int AIHigh_Player::CheckIfABlockadeCanBeSetup()
+
 
 
 
@@ -148,8 +74,8 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
 
 
-      ((basicPerpInfo_.CopsAssigned(COP_SUPER) < pLevel->copChasers[1]) && !split)) goto return_false;
-
+      ((basicPerpInfo_.CopsAssigned(COP_SUPER) < pLevel->copChasers[1]) && !split))
+    goto return_false;
 
 
   nCopsNeeded[0] = pLevel->copBlockaders[0];
@@ -159,11 +85,11 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
   for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) { AIHigh_Cop *thisCop;
 
     thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
-    if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 0xc) { copType type = thisCop->Type();
+    if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 0xc)
+    { copType type = thisCop->Type();
 
-
-      if (nCopsNeeded[type] > assigned[type]) {
-
+      if (nCopsNeeded[type] > assigned[type])
+      {
 
 
 
@@ -179,16 +105,16 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
   }
 
 
-  if ((nCopsNeeded[0] > assigned[0]) || (nCopsNeeded[1] > assigned[1])) {
-
+  if ((nCopsNeeded[0] > assigned[0]) || (nCopsNeeded[1] > assigned[1]))
+  {
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
 
       AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex]; if (((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) &&
-          (thisCop->BlockadeMode() != 2)) { copType type = thisCop->Type();
+          (thisCop->BlockadeMode() != 2))
+      { copType type = thisCop->Type();
 
-
-        if (nCopsNeeded[type] > assigned[type]) {
-
+        if (nCopsNeeded[type] > assigned[type])
+        {
 
 
 
@@ -205,17 +131,17 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
 
 
-  if ((Cars_gNumHumanRaceCars != 1) && (nCopsNeeded[1] > assigned[1])) {
-
+  if ((Cars_gNumHumanRaceCars != 1) && (nCopsNeeded[1] > assigned[1]))
+  {
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) { AIHigh_Cop *thisCop;
 
       thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
-      if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) { copType type = thisCop->Type(); if ((type == COP_REGULAR) &&
+      if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8)
+      { copType type = thisCop->Type(); if ((type == COP_REGULAR) &&
 
 
-
-            (nCopsNeeded[1] > assigned[1]) && (assigned[1] == 0)) {
-
+            (nCopsNeeded[1] > assigned[1]) && (assigned[1] == 0))
+        {
 
 
 
@@ -264,8 +190,10 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
  * no original-object necessity is claimed. Receipts:
  * build/nc12/setup_blockade_source_20261016 and setup_wrap_source_20261016. */
 
-#line 180 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
+
+#line 179 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::SetupBlockade()
+
 
 
 
@@ -537,15 +465,17 @@ void AIHigh_Player::SetupBlockade()
 
 inline int AITrigger_TriggerManager::InvNumTriggers() { return invNumTriggers_; }
 
-#line 432 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
+
+#line 431 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::CheckForNewLevel(int force)
+
 
 { int chaseLevel; int oldChaseLevel; oldChaseLevel = this->perpChaseInfo_.GetChaseLevelIndex(); chaseLevel = oldChaseLevel;
 
 
 
-  if (1 < ((this->carObj_)->stats).finishType) { this->perpChaseInfo_.SetChaseLevel(0); this->basicPerpInfo_.SetCrime(CRIME_NONE);
-
+  if (1 < ((this->carObj_)->stats).finishType)
+  { this->perpChaseInfo_.SetChaseLevel(0); this->basicPerpInfo_.SetCrime(CRIME_NONE);
 
 
 
@@ -582,12 +512,12 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
 
   this->CheckForCrimes();
-  if (this->basicPerpInfo_.GetCrime() != CRIME_NONE) {
+  if (this->basicPerpInfo_.GetCrime() != CRIME_NONE)
 
 
 
 
-
+  {
 
 
 
@@ -609,8 +539,8 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
 
 
-  if (oldChaseLevel != this->perpChaseInfo_.GetChaseLevelIndex()) { this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() *
-
+  if (oldChaseLevel != this->perpChaseInfo_.GetChaseLevelIndex())
+  { this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() *
                            this->perpChaseInfo_.GetChaseLevel()->copsPerLap; } return;
 
 
@@ -649,8 +579,10 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
 /* ---- HandleSpeech__13AIHigh_Player [AIH_PLAY.CPP:517-663; body SLD recovery open] ---- */
 
-#line 513 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
+
+#line 512 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::HandleSpeech()
+
 
 
 
@@ -817,6 +749,8 @@ void AIHigh_Player::HandleSpeech()
    bindings; no invented list-pointer object is needed. The third-loop source
    capture and literal original spelling remain unsealed, not exempted. */
 
+
+
 #line 668 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::MaintainAvailableCops()
 { int need[2]; int got[2]; int availableCops;
@@ -865,8 +799,8 @@ void AIHigh_Player::MaintainAvailableCops()
 
     Car_tObj *copCarObj = Cars_gCopCarList[copLoop];
     AIHigh_Cop *copHighObj = (AIHigh_Cop *)highLevelAIObjs[copCarObj->carIndex];
-    if ((copCarObj->AIFlags & 4U) == 0 || copHighObj->BlockadeMode() == 1 || copHighObj->BlockadeMode() == 2) {
-
+    if ((copCarObj->AIFlags & 4U) == 0 || copHighObj->BlockadeMode() == 1 || copHighObj->BlockadeMode() == 2)
+    {
       got[copHighObj->Type()]++;
       copCarObj->AIFlags |= 8;
       availableCops--; } else {
@@ -882,8 +816,8 @@ void AIHigh_Player::MaintainAvailableCops()
 
 
     Car_tObj *copCarObj = Cars_gCopCarList[copLoop];
-    if ((copCarObj->AIFlags & 8U) == 0) {
-
+    if ((copCarObj->AIFlags & 8U) == 0)
+    {
 
       AIHigh_Cop *copHighObj = (AIHigh_Cop *)highLevelAIObjs[copCarObj->carIndex]; int playLoop = copHighObj->Type();
 
@@ -966,15 +900,17 @@ inline AICop_PerpChaseInfo::AICop_PerpChaseInfo()
 
 /* ---- __13AIHigh_PlayerP8Car_tObj [retail AIH_PLAY.CPP:750-762;
  * 129/129 byte PASS, supplied declarations/regions exact; full SLD open] ---- */
+
+
 #line 750 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
 {
 
   this->numWarnings_ = 0;
   this->numBusts_ = 0;
-
-  if (GameSetup_gData.cops != 0) {
-    this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() * this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
+  if (GameSetup_gData.cops != 0)
+  { this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() *
+        this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
 
 
 
@@ -1030,8 +966,10 @@ inline void AICop_PerpChaseInfo::AdvanceEngagement(int ticks, int movingBackward
  * No new variable, asm/volatile, fake use/scope or output rewrite is used.
  * Literal original inline names/header arrangement remain unproved.
  * Receipts: build/nc12/player_handlecops_sld_20261024. */
-#line 804 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
+
+#line 803 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::HandleCops()
+
 
 
 
@@ -1106,6 +1044,8 @@ void AIHigh_Player::HandleCops()
 
 /* ---- CleanupBlockaders__13AIHigh_Playeri [AIH_PLAY.CPP:871-902; compare native SLD] ---- */
 
+
+
 #line 870 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 {
@@ -1155,16 +1095,18 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
  * Receipt: build/nc12/pullover_source_20261016. Full relative SLD and literal
  * original inline spellings remain unsealed; no source-object exemption. */
 
+
+
 #line 905 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::HandlePullOver()
 {
 
 
-  if (this->pullOverMode_ != 0) {
-
+  if (this->pullOverMode_ != 0)
+  {
     this->beatingTicksLeft_ -= AI_elapsedTime;
-    if (this->beatingTicksLeft_ <= 0) {
-
+    if (this->beatingTicksLeft_ <= 0)
+    {
       if ((this->carObj_)->carIndex < 2) {
         Hud_Perp_OverlayOff((this->carObj_)->carIndex); }
 
@@ -1221,8 +1163,8 @@ void AIHigh_Player::HandlePullOver()
 
 
 
-  else if (this->CheckIfCaught()) { int chaseTime;
-
+  else if (this->CheckIfCaught())
+  { int chaseTime;
 
 
 
@@ -1237,25 +1179,25 @@ void AIHigh_Player::HandlePullOver()
     this->lastPullOverTime_ = simGlobal.gameTicks; if (((this->basicPerpInfo_.GetCrime() != 4 && this->carObj_->stats.numFines == 0 && this->perpChaseInfo_.GetCopGameInfo()->levels[ this->perpChaseInfo_.BestChaseLevelIndex()].numWarningsAdded != 0) && (chaseTime < this->perpChaseInfo_.GetChaseLevel()->warningTicks)) &&
 
 
-        (this->numWarnings_ < 2)) { this->numWarnings_ =
-
+        (this->numWarnings_ < 2))
+      { this->numWarnings_ =
           this->numWarnings_ + this->perpChaseInfo_.GetChaseLevel()->numWarningsAdded;
       (this->carObj_->stats).numWarnings = (this->carObj_->stats).numWarnings + 1;
-      this->pullOverMode_ = 1; } else {
+      this->pullOverMode_ = 1; } else
 
 
-
+    {
       this->numBusts_ = this->numBusts_ + 1;
       (this->carObj_->stats).numFines = (this->carObj_->stats).numFines + 1; int lapIndex; lapIndex = GameSetup_gData.numLaps == 2 ? 0
-                     : (GameSetup_gData.numLaps == 4 ? 1 : 2); if ((this->numBusts_ >= AIHigh_Player_kNumArrestsByLap[lapIndex]) || ((this->perpChaseInfo_.BestChaseLevelIndex() == this->perpChaseInfo_.GetNumLevels() - 1) &&
+                     : (GameSetup_gData.numLaps == 4 ? 1 : 2);
 
-
+      if ((this->numBusts_ >= AIHigh_Player_kNumArrestsByLap[lapIndex]) || ((this->perpChaseInfo_.BestChaseLevelIndex() == this->perpChaseInfo_.GetNumLevels() - 1) &&
 
 
            Cars_gNumHumanRaceCars == 1)) {
 
-
-        this->pullOverMode_ = 3; this->beatingTicksLeft_ = this->beatingTicksLeft_ + 0xc0; (this->carObj_->stats).numArrests =
+        this->beatingTicksLeft_ = this->beatingTicksLeft_ + 0xc0;
+        this->pullOverMode_ = 3; (this->carObj_->stats).numArrests =
             (this->carObj_->stats).numArrests + 1; } else {
 
 

@@ -18,7 +18,9 @@ static tDialogBase *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)); SYM 
 
 /* ---- tDialogBase::ShouldTimeOut  [FEDIALOG.CPP:73-76] SLD-VERIFIED ---- */
 
+#line 70 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 short tDialogBase::ShouldTimeOut()
+
 
 {
   if (0 < timeOutTicks && timeOutTicks <= FE_Ticks() - startTicks)
@@ -29,7 +31,9 @@ short tDialogBase::ShouldTimeOut()
 
 /* ---- tDialogBase::InitializeClass  [FEDIALOG.CPP:83-84] SLD-VERIFIED ---- */
 
+#line 80 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogBase::InitializeClass()
+
 
 {
   HideAllDialogs();
@@ -47,34 +51,32 @@ void tDialogBase::InitializeClass()
    significant: routing it through fPermShapes.fFilename - 0x14 reverses the
    otherwise-commutative addu. */
 
+      /* ABI-neutral spelling of the original virtual `Draw()` call; retail SYM
+         records no source vtable or array-slot pointer locals. */
+#line 87 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogBase::DrawAllDialogs()
 
-{
-  {
-    short i;
 
-    i = 0;
-    while (DialogVisibilityList[i] != (tDialogBase *)0x0) {
-      if (7 < i) break;
+{
+  { short i; i = 0; while (DialogVisibilityList[i] != (tDialogBase *)0x0) { if (7 < i) break;
+
       if ((short)DialogVisibilityList[i]->ShouldTimeOut() != 0) {
+
         DialogVisibilityList[i]->Hide();
         if (DialogVisibilityList[i] == (tDialogBase *)0x0) {
           return;
         }
       }
-      /* ABI-neutral spelling of the original virtual `Draw()` call; retail SYM
-         records no source vtable or array-slot pointer locals. */
       DialogVisibilityList[i]->Draw();
-      i++;
-    }
-  }
-}
+      i++; } } }
 
 
 
 /* ---- tDialogBase::HideAllDialogs  [FEDIALOG.CPP:107-111] SLD-VERIFIED ---- */
 
+#line 104 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogBase::HideAllDialogs()
+
 
 {
   for (short i = 0; i < 8; i++) {
@@ -87,7 +89,9 @@ void tDialogBase::HideAllDialogs()
 
 /* ---- tDialogBase::GetTopMostDialog  [FEDIALOG.CPP:117-120] SLD-VERIFIED ---- */
 
+#line 114 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 tDialogBase *tDialogBase::GetTopMostDialog()
+
 
 {
 
@@ -99,25 +103,37 @@ tDialogBase *tDialogBase::GetTopMostDialog()
 
 /* ---- tDialogBase::Display  [FEDIALOG.CPP:126-154] SLD-VERIFIED ---- */
 
+  /* SYM: `i` owns only the visibility-list shift, not the following setup. */
+#line 123 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogBase::Display()
 
+
 {
-  /* SYM: `i` owns only the visibility-list shift, not the following setup. */
   if (currentlyOn != 0)
-    return;
-  
-  currentlyOn = 1;
+    return; currentlyOn = 1;
+
   fFullyOpen = 0;
   ReturnValue = fDefault;
 
-  for (short i = 7; i > 0; i--)
+
+
+
+
+
+
+
+  for (short i = 7; i > 0; )
+  {
     DialogVisibilityList[i] = DialogVisibilityList[i - 1];
+    i--; }
+
 
   DialogVisibilityList[0] = this;
   ShouldTimeOut();
   DialogVisibilityList[0]->ShouldTimeOut();
   startTicks = FE_Ticks();
   AudioCmn_PlayFESFX(0xf);
+
   fFullyOpen = 0;
   fFadeText = 0x80;
 }
@@ -125,22 +141,31 @@ void tDialogBase::Display()
 
 /* ---- tDialogBase::Hide  [FEDIALOG.CPP:159-181] SLD-VERIFIED ---- */
 
-void tDialogBase::Hide()
-
-{
   /* SYM: `i` lives in the block opened after the currentlyOn early-out and
      reset, at retail offset +0x28. */
-  if (currentlyOn == 0)
-    return;
+#line 156 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
+void tDialogBase::Hide()
 
-  currentlyOn = 0;
+
+{
+  if (currentlyOn == 0)
+    return; currentlyOn = 0;
+
   for (short i = 0; i < 8; i++) {
+
     if (DialogVisibilityList[i] == this) {
+
       currentlyOn = 0;
       DialogVisibilityList[i] = (tDialogBase *)0x0;
       blockmove(&DialogVisibilityList[i + 1],
+
+
+
                 &DialogVisibilityList[i],(7 - i) * 4);
       DialogVisibilityList[7] = (tDialogBase *)0x0;
+
+
+
       AudioCmn_PlayFESFX(0x12);
     }
   }
@@ -149,7 +174,9 @@ void tDialogBase::Hide()
 
 /* ---- tDialogBase::Draw  [FEDIALOG.CPP:200-210] SLD-VERIFIED ---- */
 
+#line 197 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogBase::Draw()
+
 
 {
 
@@ -168,7 +195,9 @@ void tDialogBase::Draw()
 
 /* ---- tDialogBase::ProcessInput  [FEDIALOG.CPP:217-245] SLD-VERIFIED ---- */
 
+#line 214 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
+
 
 {
 
@@ -206,7 +235,9 @@ void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 
 /* ---- tDialogHelp::AddItem  [FEDIALOG.CPP:260-265] SLD-VERIFIED ---- */
 
+#line 257 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogHelp::AddItem(short textID,short controllerID)
+
 
 {
   if (numItems < 7) {
@@ -229,24 +260,52 @@ void tDialogHelp::AddItem(short textID,short controllerID)
    that shape is a Ghidra artifact of the byte-address computation, not a real
    source construct; a plain aggregate-initialized local
    reproduces the exact lwl/lwr/swl/swr sequence. */
-void tDialogHelp::CalculateDimensions()
-
-{
-  /* retail FeDialog.obj .rdata opens with an UNREFERENCED "SimpleMem" literal (0x80010238,
-   * 12 bytes) right before this function's helpArray template (0x80010244) -- the same
-   * dead tag string r3dcar.obj carries; the constant-false call keeps it, no code. */
-  if (0) textpixels("SimpleMem");
+      /* SYM-INLINE-THIS: CanContinue
+         SYM-INLINE-THIS: HasFlag */
+      /* SLD line 45 records the inlined CurrentMenu player argument here.
+         Re-reading that accessor is the original source shape: GCC CSEs its
+         value with `menu` but retains retail's a0 = s0 pointer copy. */
   /* SYM function-scope set, in 8c Def-record order: helpArray, i, newWidth,
      player.  showLeftRight/showCross/menu belong to the nested autoGenerate
      block (0x80018c60). */
+  /* retail FeDialog.obj .rdata opens with an UNREFERENCED "SimpleMem" literal (0x80010238,
+   * 12 bytes) right before this function's helpArray template (0x80010244) -- the same
+   * dead tag string r3dcar.obj carries; the constant-false call keeps it, no code. */
+#line 283 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
+void tDialogHelp::CalculateDimensions()
+
+
+{
+  if (0) textpixels("SimpleMem");
+
   tHelpData helpArray [1] = { { 1, { {0,0}, {0,0}, {0,0}, {0,0} } } };
   short i;
   int newWidth;
   tPlayer player;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   FETextRender_SetFont(0);
   numItems = 0;
+
+
+
   AddItem(0x59,0);
+
   player = (tPlayer)0;
   if (specificPlayer != -1) {
     player = (tPlayer)specificPlayer;
@@ -254,57 +313,45 @@ void tDialogHelp::CalculateDimensions()
   if (helpArray[this->variant].autoGenerate != '\0') {
     bool showLeftRight;
     bool showCross;
-    tMenu *menu;
-
-    showLeftRight = false;
-    showCross = false;
+    tMenu *menu; showLeftRight = false; showCross = false;
     menu = FEApp->CurrentMenu(player);
+
+
+
     i = 0;
-    while (true) {
-      /* SLD line 45 records the inlined CurrentMenu player argument here.
-         Re-reading that accessor is the original source shape: GCC CSEs its
-         value with `menu` but retains retail's a0 = s0 pointer copy. */
-      if (FEApp->CurrentMenu(player)->fItemList[i] == (tMenuItem *)0x0) {
+    while (true) { if (FEApp->CurrentMenu(player)->fItemList[i] == (tMenuItem *)0x0) {
         break;
-      }
-      if (((FEApp->CurrentMenu(player)->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+      } if (((FEApp->CurrentMenu(player)->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+
         if ((FEApp->CurrentMenu(player)->fItemList[i]->fFlags & 0x400) != 0) {
           showLeftRight = true;
         }
-        else {
-          showCross = true;
+        else { showCross = true;
         }
-      }
-      i++;
+      } i++;
     }
+
     if (1 < menu->GetNumberEnabledItems()) {
       AddItem(0x52,0x50);
-    }
-    if (showLeftRight) {
+    } if (showLeftRight) {
       AddItem(0x53,0xa0);
-    }
-    if (showCross) {
+    } if (showCross) {
       /* SYM-INLINE-THIS: HasFlag */
       if (menu->HasFlag(0x10000) || menu->HasFlag(0x20000)) {
         AddItem(0x56,0x4000);
       }
-      else {
-        AddItem(0x55,0x4000);
+      else { AddItem(0x55,0x4000);
       }
     }
     if (0 < FEApp->backDepth[player]) {
       AddItem(0x54,0x1000);
-    }
-    if (menu->fOptionsMenu != (tMenu *)0x0) {
+    } if (menu->fOptionsMenu != (tMenu *)0x0) {
       AddItem(0x57,-0x8000);
     }
     if ((menu->fFlags & 0x800) != 0) {
       AddItem(0x58,8);
     }
-    else {
-      /* SYM-INLINE-THIS: CanContinue
-         SYM-INLINE-THIS: HasFlag */
-      if (menu->CanContinue()) {
+    else { if (menu->CanContinue()) {
         AddItem(0x56,8);
       }
       else if (menu->HasFlag(4)) {
@@ -313,53 +360,85 @@ void tDialogHelp::CalculateDimensions()
     }
   }
   i = 0;
+
+
+
+
   while (helpArray[variant].items[i].text != 0) {
     AddItem(helpArray[variant].items[i].text,
+
+
+
             helpArray[variant].items[i].button);
     i++;
   }
   helpcontrollers = 0;
+
   PAD_update();
-  {
-    if (gPadinfo.buf[0].nopad == '\0') {
-      helpcontrollers =
-          helpcontrollers | (gPadinfo.buf[0].ID == '#' ? 2 : 1);
+  { if (gPadinfo.buf[0].nopad == '\0') {
+      helpcontrollers = helpcontrollers | (gPadinfo.buf[0].ID == '#' ? 2 : 1);
+    } } { if (gPadinfo.buf[4].nopad == '\0') {
+      helpcontrollers = helpcontrollers | (gPadinfo.buf[4].ID == '#' ? 2 : 1);
     }
   }
-  {
-    if (gPadinfo.buf[4].nopad == '\0') {
-      helpcontrollers =
-          helpcontrollers | (gPadinfo.buf[4].ID == '#' ? 2 : 1);
-    }
-  }
-  i = 0;
-  width = 0;
-  if (0 < numItems) {
+
+
+
+  i = 0; width = 0; if (0 < numItems) {
     do {
       newWidth = textpixels(text[i]);
       if (width < newWidth) {
         width = (short)newWidth;
-      }
-      i++;
-    } while (i < numItems);
+      } i++; } while (i < numItems);
   }
   if (helpcontrollers == 3) {
-    lefttext = 0x46;
-    width += 0x46;
+
+
+    lefttext = 0x46; width += 0x46;
   }
   else {
     lefttext = 0x28;
     width += 0x28;
   }
+
+
   if (numItems < 2) {
     height = 0;
   }
   else {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     height = numItems * 0xf;
   }
   DialogHelpPositionAndClamp(this,&gHelpShapes[3]);
   DialogHelpAnimateOpen(this);
   top = 0x14;
+
+
+
+
+
+
+
+
+
   left = 0x1f9 - width;
 }
 
@@ -379,7 +458,18 @@ void tDialogHelp::CalculateDimensions()
    the tick live through the letter-count division, and initializing the loop
    index and stack-buffer cursor first, reproduces its allocation and schedule. */
 
+    /* SYM-CODEGEN-CARRIER: loadedTicks -- direct `ticks = ::ticks[0]`
+       measures FAIL 3 (186/187): retail has a separate `v0 -> a0` value copy
+       between the global tick load and comparison.  The zero-instruction
+       allocation fence preserves that proven quantity without rewriting the
+       compiled object. */
+  /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
+  /* SYM-CODEGEN-CARRIER: firstTick -- repeating `this->startTicks` directly
+     measures FAIL 4 (189/187), inserting two load-delay nops and moving the
+     member load past retail's tick-value copy. */
+#line 456 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogHelp::Draw()
+
 
 {
   short i;
@@ -392,82 +482,82 @@ void tDialogHelp::Draw()
      behaviorally equivalent but measures FAIL 2 (187/187): GCC materializes
      the stack-buffer address two instructions after retail. */
   char *bufferPtr;
-  /* SYM-CODEGEN-CARRIER: firstTick -- repeating `this->startTicks` directly
-     measures FAIL 4 (189/187), inserting two load-delay nops and moving the
-     member load past retail's tick-value copy. */
   long firstTick;
-  
-  /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
-  CalculateDimensionsVirtual();
+  CalculateDimensions();
   firstTick = startTicks;
   {
-    /* SYM-CODEGEN-CARRIER: loadedTicks -- direct `ticks = ::ticks[0]`
-       measures FAIL 3 (186/187): retail has a separate `v0 -> a0` value copy
-       between the global tick load and comparison.  The zero-instruction
-       allocation fence preserves that proven quantity without rewriting the
-       compiled object. */
+
+
     long loadedTicks = ::ticks[0];
-    ticks = loadedTicks;
-    __asm__("" : "+r"(loadedTicks));
-  }
-  if (firstTick + 0x32 <= ticks) {
-    i = 0;
-    bufferPtr = buffer;
-    numLetters = (ticks - firstTick - 0x32) / 3;
-    __asm__("" : : "r"(ticks));
-    for (; i < numItems; i++) {
+
+
+
+
+    ticks = loadedTicks; __asm__("" : "+r"(loadedTicks)); } if (firstTick + 0x32 <= ticks) {
+
+
+
+
+
+
+
+
+
+
+    i = 0; bufferPtr = buffer; numLetters = (ticks - firstTick - 0x32) / 3; __asm__("" : : "r"(ticks)); for (; i < numItems; i++) {
+
+
       if (i == 0) {
         y = top + 4;
+      } else { y = top + (i - 1) * 0xf + 0x13;
       }
-      else {
-        y = top + (i - 1) * 0xf + 0x13;
-      }
+
       if (i > 0) {
+
+
         int control = cont[i];
-        if (helpcontrollers == 2) goto DialogHelpDraw_pad35;
-        if (helpcontrollers < 3) goto DialogHelpDraw_pad65;
-        if (helpcontrollers == 3) goto DialogHelpDraw_specialButtons;
+        if (helpcontrollers == 2) goto DialogHelpDraw_pad35; if (helpcontrollers < 3) goto DialogHelpDraw_pad65; if (helpcontrollers == 3) goto DialogHelpDraw_specialButtons;
 DialogHelpDraw_pad65:
         FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
+
                    (i - 1) * 0xf + top + 0x13);
         goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_pad35:
-        FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x14,
-                   (i - 1) * 0xf + top + 0x13);
+        FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x14, (i - 1) * 0xf + top + 0x13);
         goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_specialButtons:
         if ((control == 0xa0) || (control == 0x50) || (control == 0x40))
           goto DialogHelpDraw_pad65Special;
-        FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
-                   top + DialogHelpButtonY(i) + 4);
-        FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x28,
-                   top + DialogHelpButtonY(i) + 4);
-        goto DialogHelpDraw_buttonsDone;
+        FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14, top + DialogHelpButtonY(i) + 4);
+        FeTools_DrawPSXButton(0x23,(u_short)control,left + 0x28, top + DialogHelpButtonY(i) + 4); goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_pad65Special:
         FeTools_DrawPSXButton(0x41,(u_short)control,left + 0x14,
                    (i - 1) * 0xf + top + 0x13);
 DialogHelpDraw_buttonsDone:;
       }
+
+
+
       if (numLetters < (int)strlen(text[i])) {
         j = 0;
-        if (numLetters > 0) {
-          do {
+        if (numLetters > 0) { do {
+
             bufferPtr[j] = text[i][j];
-            j++;
-          } while (j < numLetters);
-        }
-        bufferPtr[numLetters] = '\0';
+            j++; } while (j < numLetters);
+        } bufferPtr[numLetters] = '\0';
         FETextRender_FullText(bufferPtr,left + lefttext,y,
-                             i == 0 ? textType_PopUpTitle : textType_PopUpText,
-                             textState_Selected,0);
+                             i == 0 ? textType_PopUpTitle : textType_PopUpText, textState_Selected,0);
       }
       else {
         FETextRender_FullText(text[i],left + lefttext,y,
                              i == 0 ? textType_PopUpTitle : textType_PopUpText,
+
                              textState_Selected,0);
       }
     }
   }
+
+
   tDialogBase::Draw();
 }
 
@@ -484,33 +574,58 @@ DialogHelpDraw_buttonsDone:;
    the old short reuse and `w` phi caused lhu/sign-extension and preload
    cascades. */
 
+#line 548 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogMessageString::CalculateDimensions()
+
 
 {
   int ticks;
-  
-  ticks = ::ticks[0];
-  fFadeText = 0x80 - ((DialogMessageTickAge(ticks) - startTicks) * 0x80) / 100;
+  ticks = ::ticks[0]; fFadeText = 0x80 - ((DialogMessageTickAge(ticks) - startTicks) * 0x80) / 100;
+
   if (DialogMessageClampFade(this) != 0) {
     fFullyOpen = 0;
   }
+
+
+
   width = MaxW;
+
+
   if (MaxH == 0) {
+
     height = FETextRender_WordWrapHeight(MaxW + -0x28,string);
     if (height == 8) {
+
       Centerit = 1;
     }
     else {
+
       Centerit = 0;
     }
     height += 0x10;
   }
   else {
+
     Centerit = 0;
     height = MaxH;
   }
+
+
+
+
+
+
+
+
+
   ticks = ::ticks[0];
   DialogMessageAnimateOpen(this, ticks);
+
+
+
+
+
+
   left = OffsetX + (short)((screenwidth - width) / 2);
   top = OffsetY + (short)((0xf0 - height) / 2);
 }
@@ -519,42 +634,59 @@ void tDialogMessageString::CalculateDimensions()
 
 /* ---- tDialogMessageString::Draw  [FEDIALOG.CPP:607-651] SLD-VERIFIED ---- */
 
-void tDialogMessageString::Draw()
-
-{
-  int col;
-  RECT r;
-  
-  CalculateDimensions();
-  if (FE_Ticks() < startTicks + 0x32) {
-    fFullyOpen = 0;
-  }
-  else {
-    if (fFadeText != 0) {
-      fFullyOpen = 0;
-    }
-    col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][4]],fFadeText);
-    r.x = left + 0x11;
-    r.y = top + 10;
-    r.w = width + -0x14;
-    r.h = height - ((u_short)reservedheight + 8);
-    FETextRender_SetABR(1,true);
-    if (Centerit != 0) {
-      FETextRender_FullTextRGB(string,
-                 (short)(((u_int)(u_short)left +
-                          DialogMessageHalfWidth(this)) * 0x10000
-                        >> 0x10),top + 8,col,'\0',2);
-    }
-    else {
-      FETextRender_WordWrapTextRGB(string,r,col);
-    }
-    FETextRender_SetABR(0,false);
-  }
   /* W65-A3 (calltarget): `this->Draw()` bound to tDialogMessageString::Draw
    * itself -- INFINITE RECURSION.  Retail calls Draw__11tDialogBase; the
    * unqualified name resolves to the derived override that shadows the base's
    * (§3.23c SILENT-SHADOW, here in its same-name-override form).  Explicit
    * base scope binds the call retail makes.  REAL RUNTIME BUG. */
+#line 604 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
+void tDialogMessageString::Draw()
+
+
+{
+  int col;
+  RECT r;
+  
+
+
+  CalculateDimensions();
+
+
+
+
+
+
+
+  if (FE_Ticks() < startTicks + 0x32) {
+
+
+
+    fFullyOpen = 0;
+  }
+  else { if (fFadeText != 0) {
+      fFullyOpen = 0;
+    }
+
+
+    col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][4]],fFadeText);
+
+
+    r.x = left + 0x11; r.y = top + 10; r.w = width + -0x14; r.h = height - ((u_short)reservedheight + 8);
+
+    FETextRender_SetABR(1,true);
+    if (Centerit != 0) {
+      FETextRender_FullTextRGB(string,
+                 (short)(((u_int)(u_short)left +
+                          DialogMessageHalfWidth(this)) * 0x10000 >> 0x10),top + 8,col,'\0',2);
+    }
+    else {
+
+      FETextRender_WordWrapTextRGB(string,r,col);
+    }
+    FETextRender_SetABR(0,false);
+  }
+
+
   tDialogBase::Draw();
 }
 
@@ -566,28 +698,27 @@ void tDialogMessageString::Draw()
    the oracle never sets $v0).  SLD: 655 guard / 658 key test / 660 the
    AlreadyProcessed store / 664 Hide() -- so Hide is the ELSE arm (source
    order puts the store BEFORE it), which is what lays it out-of-line. */
+#line 650 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &)
+
 
 {
   if ((specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)specificPlayer)) {
 
 
-    if (keyval != kInput_KeyType_Triangle) {
-      if (keyval != kInput_KeyType_Circle) {
+    if (keyval != kInput_KeyType_Triangle) { if (keyval != kInput_KeyType_Circle) {
+
         keyval = kInput_KeyType_AlreadyProcessed;
-
-
-
-
-
-
       }
     }
     else {
       ((tDialogBase *)this)->Hide();
     }
   }
+
+  return; /* DEVICE (exact-only): trailing return places the 14 note; '}' 16 = retail epilogue */
+
 }
 
 
@@ -604,55 +735,73 @@ void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
    FALSIFIED: explicit goto entry loops 129 (collapsed allocator); identity
    fence after i=0 21 (blocked strength reduction); void barrier 22; explicit
    key/menu-offset induction locals 40.  No fence or volatile remains. */
-short tDialogInteractive::Run()
-
-{
-  /* The two SLD `player` entries are inlined formals sharing $s1 with `i`.
-     SYM-INLINE-LOCAL: player = DialogCanProcessCircle */
+  /* FRONT5: CalculateDimensions/ProcessInput are called directly (retail SLD has
+     no wrapper-inline blocks at lines 4/48; bytes identical). */
   /* SYM: keyVal, command and debounce all live in the outer-loop block that
      opens at 0x80019848; `i` is one level further in (0x80019858). */
+  /* The two SLD `player` entries are inlined formals sharing $s1 with `i`.
+     SYM-INLINE-LOCAL: player = DialogCanProcessCircle */
+#line 681 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
+short tDialogInteractive::Run()
+
+
+{
   fCurrentlyRunning = 1;
+
   ((tDialogBase *)this)->Display();
-  /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
-  CalculateDimensionsVirtual();
+  CalculateDimensions();
   ReadyToReturnValue = 0;
   while (ReadyToReturnValue == 0) {
     tInputKeyType keyVal [2];
     tMenuCommand command;
-    u_long debounce = -1;
 
-    command.type = kMenu_Command_None;
+    u_long debounce = -1; command.type = kMenu_Command_None;
+
+
+
+
+
+
+
+
+
+
+
 
     for(int i = 0; i < 2; i++) {
+
       keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
       if (keyVal[i] == kInput_KeyType_NoKey) {
         keyVal[i] = kInput_KeyType_AlreadyProcessed;
       }
       if (keyVal[i] == kInput_KeyType_Circle) {
+
         if (DialogCanProcessCircle(FEApp,(tPlayer)i)) {
           FEApp->CurrentMenu((tPlayer)i)->ProcessInput(
               (tPlayer)i,keyVal[i],command);
           keyVal[i] = kInput_KeyType_AlreadyProcessed;
         }
       }
+
       if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
         /* SYM-INLINE-THIS: IsVisible */
         if (((tDialogBase *)&FEApp->helpPopup)->IsVisible()) {
+
           ((tDialogBase *)&FEApp->helpPopup)->Hide();
           keyVal[i] = kInput_KeyType_AlreadyProcessed;
         }
       }
-      if (keyVal[i] != kInput_KeyType_NoKey) {
-        /* SYM-INLINE-THIS: ProcessInputVirtual */
-        ProcessInputVirtual((tPlayer)i,keyVal[i],command);
-      }
-    }
 
+      if (keyVal[i] != kInput_KeyType_NoKey) {
+        ProcessInput((tPlayer)i,keyVal[i],command);
+      } }
     FEApp->Redraw();
   }
   AudioCmn_PlayFESFX(0);
   ((tDialogBase *)this)->Hide();
   FEApp->Redraw();
+
+
   fCurrentlyRunning = 0;
   return ReturnValue;
 }
@@ -661,23 +810,25 @@ short tDialogInteractive::Run()
 
 /* ---- tDialogYesNo::CalculateDimensions  [FEDIALOG.CPP:748-759] SLD-VERIFIED ---- */
 
-void tDialogYesNo::CalculateDimensions()
-
-{
   /* MATCH (2026-08-26): 46/46 and zero named locals, matching SYM.  The
      elapsed accessor replaces the former iVar2 carrier while preserving the
      retail in-place height update and merged trailing store. */
+#line 745 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
+void tDialogYesNo::CalculateDimensions()
+
+
+{
   tDialogMessageString::CalculateDimensions();
-  if (MaxH == 0) {
-    if (DialogYesNoOpenElapsed(this) < 0x32) {
-      height = height +
-          (short)((DialogYesNoOpenElapsed(this) * 0xf) / 0x32);
+  if (MaxH == 0)
+  { const int now = FE_Ticks(); /* DEVICE (exact-only): retail reads ticks once on line 3 (one FE_Ticks inline block); const temp, no SYM record */
+
+
+    if (now - startTicks < 0x32) {
+      height = height + (short)(((now - startTicks) * 0xf) / 0x32);
     }
-    else {
-      height = height + 0xf;
-    }
+    else { height = height + 0xf;
+    } top = OffsetY + (short)((0xf0 - height) / 2);
     reservedheight = 0xf;
-    top = OffsetY + (short)((0xf0 - height) / 2);
   }
 }
 
@@ -729,6 +880,8 @@ inline tDialogInteractive::tDialogInteractive()
   fCurrentlyRunning = 0;   /* retail zeroes it (+156) BEFORE tDialogYesNo's vtable store: done at this class's level */
 }
 
+
+#line 765 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 tDialogYesNo::tDialogYesNo() : tDialogInteractive() {
   ReturnValue = 0;
   ReadyToReturnValue = 0;
@@ -746,35 +899,52 @@ tDialogYesNo::tDialogYesNo() : tDialogInteractive() {
    the subtraction in SetABR's delay slot and the short cast in TextSys_Word's
    delay slot. */
 
+#line 770 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogYesNo::Draw()
 
+
 {
-  int x;
-  int y;
+  int x; int y;
   int col;
   int i;
+  CalculateDimensions();
 
-  /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
-  CalculateDimensionsVirtual();
+
+
   if (fFadeText != 0) {
     fFullyOpen = 0;
   }
 
-  if (0x31 < ticks[0] - startTicks) {
+
+  if (0x31 < FE_Ticks() - startTicks) {
+
     x = left + (((u_short)width << 0x10) >> 0x12);
+
+
+
+
+
+
+
 
     for (i = 0; i < 2; i++) {
       col = CalcFadeVal(
           kRGBVals[(u_char)DialogTextDefinitionsBase()
-              [DialogYesNoTextState(this,i) + 0x33]],
-          fFadeText);
+              [DialogYesNoTextState(this,i) + 0x33]], fFadeText);
+
       y = top + height - 0xb;
       FETextRender_SetABR(1,true);
       FETextRender_FullTextRGB(TextSys_Word(yesnowords[i]),x,y,col,'\0',2);
+
+
+
       FETextRender_SetABR(0,false);
+
+
       x += ((int)((u_int)(u_short)width << 0x10) >> 0x11);
     }
   }
+
   tDialogMessageString::Draw();
 }
 
@@ -786,7 +956,9 @@ void tDialogYesNo::Draw()
    831 the dispatch (a real switch -- gcc balance_case_nodes builds the
    ==0x800 root + <0x801 bound test tree over 4 case labels) /
    834-836, 838-840, 844-846 the three arms in ascending source order. */
+#line 820 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogYesNo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCommand &command)
+
 
 {
   if ((specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)specificPlayer)) {
@@ -828,16 +1000,30 @@ void tDialogYesNo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCo
 
 /* ---- tDialogYesNoMem::ProcessInput  [FEDIALOG.CPP:859-901] SLD-VERIFIED ---- */
 
+    /* W65-A3 (calltarget): unqualified `this->ProcessInput(...)` bound to THIS
+     * override -- INFINITE RECURSION.  Retail calls
+     * ProcessInput__12tDialogYesNo...; explicit base scope binds it. REAL BUG. */
+#line 855 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogYesNoMem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCommand &command
                )
+
 
 {
   int card;
   bool fMemCardGone;
+  card = CURRENTPLAYER * 4 + 1;
 
   fMemCardGone = false;
-  card = CURRENTPLAYER * 4 + 1;
-  switch(MCRD_handlecardevents(card)) {
+
+
+
+  const int cardEvents = MCRD_handlecardevents(card); /* DEVICE (exact-only): retail tags the call (9) apart from the dispatch (15); the const temp has no SYM record */
+
+
+
+
+
+  switch (cardEvents) {
   case 2:
   case 3:
   case 7:
@@ -846,19 +1032,24 @@ void tDialogYesNoMem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
   case 0x10:
   case 0x13:
   case 0x17:
+
     fMemCardGone = true;
   }
-  if (MCRD_getcard(card)->status == -1) {
+
+
+
+  CARDINFO_def *const cardInfo = MCRD_getcard(card); /* DEVICE (exact-only): call 30 / test 31 as retail; const temp, no SYM record */
+  if (cardInfo->status == -1) {
+
     fMemCardGone = true;
   }
+
   if (fMemCardGone) {
+
     ReadyToReturnValue = 1;
     ReturnValue = -1;
   }
   else {
-    /* W65-A3 (calltarget): unqualified `this->ProcessInput(...)` bound to THIS
-     * override -- INFINITE RECURSION.  Retail calls
-     * ProcessInput__12tDialogYesNo...; explicit base scope binds it. REAL BUG. */
     tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
   }
 }
@@ -867,8 +1058,10 @@ void tDialogYesNoMem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
 
 /* ---- tDialogYesNoTri::ProcessInput  [FEDIALOG.CPP:909-916] SLD-VERIFIED ---- */
 
+#line 905 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogYesNoTri::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCommand &command
                )
+
 
 {
   if (keyVal == kInput_KeyType_Triangle) {
@@ -885,8 +1078,10 @@ void tDialogYesNoTri::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
 
 /* ---- tDialogNoInputMessage::ProcessInput  [FEDIALOG.CPP:921-931] SLD-VERIFIED ---- */
 
+#line 917 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogNoInputMessage::ProcessInput(tPlayer,tInputKeyType &,
                tMenuCommand &)
+
 
 {
 

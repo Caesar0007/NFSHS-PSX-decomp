@@ -32,7 +32,9 @@ int gSaveChunk[8][4];
 
 
 /* ---- TrgSfx_AddEnviroEffect__FiiP8coorddefT2  [TRGSFX.CPP:45-53] SLD-VERIFIED ---- */
+#line 42 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_AddEnviroEffect(int obj,int type,coorddef *emitterpt,coorddef *vec)
+
 
 {
 
@@ -47,7 +49,9 @@ void TrgSfx_AddEnviroEffect(int obj,int type,coorddef *emitterpt,coorddef *vec)
 }
 
 /* ---- TrgSfx_AddCarSfx__FiP8coorddefiT1  [TRGSFX.CPP:64-72] SLD-VERIFIED ---- */
+#line 61 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_AddCarSfx(int car,coorddef *skidpt,int type,coorddef *vec)
+
 
 {
 
@@ -62,7 +66,9 @@ void TrgSfx_AddCarSfx(int car,coorddef *skidpt,int type,coorddef *vec)
 }
 
 /* ---- TrgSfx_AddCarWheelSfx__FiiP8coorddefiT2i  [TRGSFX.CPP:77-88] SLD-VERIFIED ---- */
+#line 74 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_AddCarWheelSfx(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay)
+
 
 {
 
@@ -80,7 +86,9 @@ void TrgSfx_AddCarWheelSfx(int car,int wheel,coorddef *skidpt,int type,coorddef 
 }
 
 /* ---- TrgSfx_AddCarExtraCheck__Fii  [TRGSFX.CPP:93-97] SLD-VERIFIED ---- */
+#line 90 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 bool TrgSfx_AddCarExtraCheck(int car,int wheel)
+
 
 {
 
@@ -91,8 +99,10 @@ bool TrgSfx_AddCarExtraCheck(int car,int wheel)
 
 /* ---- TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii  [TRGSFX.CPP:101-111]
  * Native SYM and linked SLD exact; all 37 retail instructions preserved. ---- */
+#line 97 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_AddCarExtraSfx(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int velY,int ground,
                int colour)
+
 
 {
   {
@@ -109,7 +119,9 @@ void TrgSfx_AddCarExtraSfx(int car,int wheel,coorddef *skidpt,int type,coorddef 
 }
 
 /* ---- TrgSfx_AddCarSplash__FiiP8coorddefiT2ii  [TRGSFX.CPP:122-133] SLD-VERIFIED ---- */
+#line 119 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_AddCarSplash(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay,int velXZ)
+
 
 {
 
@@ -127,7 +139,9 @@ void TrgSfx_AddCarSplash(int car,int wheel,coorddef *skidpt,int type,coorddef *v
 }
 
 /* ---- TrgSfx_CrashCar__FP8coorddef  [TRGSFX.CPP:146-163] SLD-VERIFIED ---- */
+#line 143 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_CrashCar(coorddef *location)
+
 
 {
   Souffle_tISouffle *is;
@@ -152,7 +166,9 @@ void TrgSfx_CrashCar(coorddef *location)
 
 /* ---- TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji  [TRGSFX.CPP:179-277]
  * Native SYM exact; 308/313 SLD tags and all block lines exact, epilogue open. ---- */
+#line 176 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity,Car_tObj *carObj,int type)
+
 
 {
   coorddef *linvel = &carObj->N.linearVel;
@@ -255,7 +271,9 @@ void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity
 }
 
 /* ---- TrgSfx_InitTrgSfx__Fv  [TRGSFX.CPP:286-312] SLD-VERIFIED ---- */
+#line 283 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_InitTrgSfx(void)
+
 
 {
   int i, j, t = TRGSFX_GAME_TICKS;
@@ -287,7 +305,9 @@ void TrgSfx_InitTrgSfx(void)
 }
 
 /* ---- TrgSfx_RestartTrgSfx__Fv  [TRGSFX.CPP:316-318] SLD-VERIFIED ---- */
+#line 313 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_RestartTrgSfx(void)
+
 
 {
   TrgSfx_KillTrgSfx();
@@ -295,6 +315,8 @@ void TrgSfx_RestartTrgSfx(void)
 }
 
 /* ---- TrgSfx_KillTrgSfx__Fv  [TRGSFX.CPP:322-323] SLD-VERIFIED ---- */
+
+#line 321 "C:/nfs4/GAME/COMMON/TRGSFX.CPP"
 void TrgSfx_KillTrgSfx(void)
 {
 }

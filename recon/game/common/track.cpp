@@ -94,16 +94,20 @@ void Track_LoadObjectKillData(void);
 
 
 /* ---- Track_SetTrackNumber__Fi  [TRACK.CPP:95-96] full SLD attribution requires native comparison ---- */
-#line 93 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 92 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_SetTrackNumber(int tracknum)
+
 
 {
   gtrackNumber = tracknum & 0xf;
 }
 
 /* ---- Track_MakeTrackPathName__FPc  [TRACK.CPP:103-110] full SLD attribution requires native comparison ---- */
-#line 101 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 100 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 char * Track_MakeTrackPathName(char *ext)
+
 
 {
 
@@ -116,8 +120,10 @@ char * Track_MakeTrackPathName(char *ext)
 }
 
 /* ---- Track_MakeTrackDataPathName__FPc  [TRACK.CPP:114-121] full SLD attribution requires native comparison ---- */
-#line 112 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 111 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 char * Track_MakeTrackDataPathName(char *ext)
+
 
 {
   static char strspc[64];   /* @0x8013e340 STAT (.bss) */
@@ -130,8 +136,10 @@ char * Track_MakeTrackDataPathName(char *ext)
 }
 
 /* ---- AllocArtResource__FP18Track_tArtresourcei  [TRACK.CPP:142-151] full SLD attribution requires native comparison ---- */
-#line 140 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 139 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void AllocArtResource(Track_tArtresource *artRes,int numPmx)
+
 
 {
   artRes->id = -1;
@@ -151,8 +159,10 @@ void AllocArtResource(Track_tArtresource *artRes,int numPmx)
    No new object, fake use/scope, asm/volatile or output rewrite.
    Literal original source/comment text is not uniquely proved.
    Receipts: build/nc12/track_teardown_source_20261025. */
-#line 153 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 152 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void InitArtResources(void)
+
 
 {
   AllocArtResource(&gInitialArt,0x352);
@@ -172,8 +182,10 @@ void InitArtResources(void)
    No new object, fake use/scope, asm/volatile or output rewrite.
    Literal original source/comment text is not uniquely proved.
    Receipts: build/nc12/track_teardown_source_20261025. */
-#line 174 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 173 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void DeInitArtResources(void)
+
 
 {
 
@@ -210,8 +222,10 @@ void DeInitArtResources(void)
  * Retail source initializes recolor_flag231 BEFORE cluttype235; stock still
  * schedules the clut load first. No new asm/volatile, fake use/scope or output
  * rewrite is introduced. Literal original macro/comment text is unproved. */
-#line 223 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 222 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,int x,int y)
+
 
 {
   int i; shapetbl *shape; Draw_tPixMap *pPmx; int recolor_flag; int cluttype; int mipmapcounter; int multiPalCount;
@@ -355,8 +369,10 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
    No new object, fake use/scope, asm/volatile or output rewrite.
    Literal original source/comment text is not uniquely proved.
    Receipts: build/nc12/track_teardown_source_20261025. */
-#line 373 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 372 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int y)
+
 
 {
   int i;
@@ -392,8 +408,10 @@ void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int
    this receiver-free argument-work producer is not supplied by anonymous
    retail regions. Its expanded spelling is not a unique-original-text claim.
    Receipts: build/nc12/track_textures_source_20261025. */
-#line 403 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 402 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void TexturesLoadInitial(void)
+
 
 {
   int success;
@@ -465,8 +483,10 @@ void TexturesLoadInitial(void)
  * The supplied controlPtr/controlCount/pmx and all covered native/SLD facts
  * agree. Five reconstruction pointer/constant captures and the goto are gone.
  * Receipts: build/nc12/track_animation_source_20261024. */
-#line 489 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 488 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_AnimateTextures(void)
+
 
 {
   Track_tMaterialController *controlPtr = Track_gMatController;
@@ -497,8 +517,10 @@ void Track_AnimateTextures(void)
     controlPtr = controlPtr + 1; } return; }
 
 /* ---- Track_GetProperMultiPalShapeIndex__Fii  [TRACK.CPP:525-532] full SLD attribution requires native comparison ---- */
-#line 523 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 522 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
+
 
 {
 
@@ -511,8 +533,10 @@ int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
 }
 
 /* ---- Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1 [TRACK.CPP:538-571] covered native/SYM/absolute SLD PASS; original text unproved ---- */
-#line 536 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 535 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap *outputPmx)
+
 
 {
 
@@ -583,8 +607,10 @@ void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap 
    for binding now reproduce all six native scopes. No generic-name exemption;
    literal original source spelling remains unsealed; covered SLD is exact. */
 
-#line 575 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 574 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_AssociateSingleMaterial(Trk_Material *inputMat,Track_tMaterial *outputMat,Track_tArtresource *art)
+
 
 {
   int animCount;
@@ -644,8 +670,10 @@ void Track_AssociateSingleMaterial(Trk_Material *inputMat,Track_tMaterial *outpu
  * Source reset pairs707/710 and847/848 are not their scheduled store order.
  * All15 supplied owner tuples and21 regions agree; no source capture is added.
  * Receipts: build/nc12/track_link_material_sld_20261024. */
-#line 686 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 685 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matList)
+
 
 {
   Trk_Material *mats;
@@ -817,8 +845,10 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
  * The inline receiver is the payload getter, not the count read; preserve
  * count968 before GetData969. All9 supplied tuples/eight regions agree.
  * Receipts: build/nc12/track_reduce_source_20261024. */
-#line 961 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 960 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
+
 
 {
   int count; Trk_SimpleInst *inst;
@@ -867,8 +897,10 @@ void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
 /* Existing receiver evidence identifies a payload expansion after the actual
  * direct count read1017, not a uniquely named count accessor. Getter spelling
  * is not supplied. Receipts: build/nc12/track_sphere_sld_20261024. */
-#line 1010 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1009 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
+
 
 {
   int count; Trk_SimpleInst *inst;
@@ -892,8 +924,10 @@ void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
  * the real centroid/radius work region and the single source diff expression;
  * no unique original macro text is claimed. No new source capture is needed.
  * Receipts: build/nc12/track_sphere_sld_20261024. */
-#line 1062 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1061 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
+
 
 {
   Trk_ObjectDef *objDef;
@@ -962,8 +996,10 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
  * The single offset cursor, one-line loop close and separate final pointer
  * assignment reproduce all 25 relative SLD tags, native scopes/locals and
  * the retail function-end line delta. Literal local spellings remain inferred. */
-#line 1177 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1176 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void CalcObjDefPtrs(void)
+
 
 {
   /* One typed view of the offset payload replaces three repeated inline
@@ -1005,8 +1041,10 @@ void CalcObjDefPtrs(void)
    release behavior, not a libc/SDK ABI change or unique original header text.
    Receipts: build/nc12/track_persistent_source_20261025. */
 #define printf (void)
-#line 1210 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1209 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_InitPersistentData(SerializedGroup *perGroup)
+
 
 {
   SerializedGroup *persistentGroups[perGroup->m_num_elements]; int count;
@@ -1111,8 +1149,10 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
  * lightData is a semantic name for the optimizer-elided payload pointer; its
  * original identifier is not supplied by SYM. No const/fence or fake use is
  * added. Proof: build/nc12/track_init_layout_20261023. */
-#line 1310 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1309 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_Init(char *tempName)
+
 
 {
   char trackName [128]; SerializedGroup * trackGroup; SerializedGroup * chunkGroup;
@@ -1286,8 +1326,10 @@ void Track_Init(char *tempName)
    No new object, fake use/scope, asm/volatile or output rewrite.
    Literal original source/comment text is not uniquely proved.
    Receipts: build/nc12/track_teardown_source_20261025. */
-#line 1490 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1489 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_DeInit(void)
+
 
 {
   delete Track_mem;
@@ -1338,8 +1380,10 @@ void Track_DeInit(void)
    No new object, fake use/scope, asm/volatile or output rewrite.
    Literal original source/comment text is not uniquely proved.
    Receipts: build/nc12/track_teardown_source_20261025. */
-#line 1535 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1534 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_AnimateTrackLighting(void)
+
 
 {
 
@@ -1351,8 +1395,10 @@ void Track_AnimateTrackLighting(void)
 }
 
 /* ---- KillFile_OpenRead__Fv  [TRACK.CPP:1720-1726] full SLD attribution requires native comparison ---- */
-#line 1718 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1717 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 char * KillFile_OpenRead(void)
+
 
 {
   char pathName [128];
@@ -1364,8 +1410,10 @@ char * KillFile_OpenRead(void)
 }
 
 /* ---- KillFile_ReadEntry__FPciRiT2  [TRACK.CPP:1732-1736] full SLD attribution requires native comparison ---- */
-#line 1730 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1729 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
+
 
 {
   filePtr += entryInd * 8;
@@ -1391,8 +1439,10 @@ void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)
              * SYM-INLINE-THIS: GetNumElements
              * Retail SLD line 44 records both inline receivers together at
              * 0x800bae84, matching these two Group member calls. */
-#line 1740 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1739 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void Track_LoadObjectKillData(void)
+
 
 {
   char *filePtr; int chunkInd; int objInd;
@@ -1482,8 +1532,10 @@ void Track_LoadObjectKillData(void)
    All25 words, both local/parameter owners,2 block records and complete
    absolute SLD/header1831/end1850 agree; whole ELF/native CPE unchanged.
    Receipts: build/nc12/track_surface_source_20261025. */
-#line 1829 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1828 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void SaveSurface::Save(Trk_NewSimQuad *simQuad)
+
 
 {
   if (fCount > fMaxCount) return;
@@ -1525,8 +1577,10 @@ void SaveSurface::Save(Trk_NewSimQuad *simQuad)
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-#line 1853 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1852 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 SaveSurface::SaveSurface(int numEntries)
+
 
 {
   fMaxCount = (short)numEntries;
@@ -1552,8 +1606,10 @@ SaveSurface::SaveSurface(int numEntries)
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-#line 1862 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1861 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 SaveSurface::~SaveSurface()
+
 
 {
   purgememadr(fStack);
@@ -1566,8 +1622,10 @@ SaveSurface::~SaveSurface()
    and absolute SLD/header1871/end1879 agree; whole ELF/native CPE unchanged.
    No fake scope, new object, asm/volatile or output rewrite is introduced.
    Receipts: build/nc12/track_surface_source_20261025. */
-#line 1869 "C:/nfs4/GAME/COMMON/TRACK.CPP"
+
+#line 1868 "C:/nfs4/GAME/COMMON/TRACK.CPP"
 void SaveSurface::RestoreAll()
+
 
 {
   for (int i = 0; i < fCount; i = i + 1) {

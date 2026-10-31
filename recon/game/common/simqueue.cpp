@@ -44,8 +44,10 @@ static int SimQueue_IsBlocking(int pIndex);
 
 
 /* ---- SimQueue_StartUp__Fv  [SIMQUEUE.CPP:93-101] COVERED-SLD-PASS ---- */
-#line 91 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
+
+#line 90 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_StartUp(void)
+
 
 {
 
@@ -59,8 +61,10 @@ void SimQueue_StartUp(void)
 }
 
 /* ---- SimQueue_Reset__Fv  [SIMQUEUE.CPP:115-155] COVERED-SLD-PASS ---- */
-#line 113 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
+
+#line 112 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_Reset(void)
+
 
 { int i; int j;
 
@@ -106,8 +110,10 @@ void SimQueue_Reset(void)
 }
 
 /* ---- SimQueue_CleanUp__Fv  [SIMQUEUE.CPP:169-174] COVERED-SLD-PASS ---- */
-#line 167 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
+
+#line 166 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_CleanUp(void)
+
 
 {
 
@@ -118,8 +124,10 @@ void SimQueue_CleanUp(void)
 }
 
 /* ---- SimQueue_Put__FiP14Input_tResults  [SIMQUEUE.CPP:201-249] COVERED-SLD-PASS ---- */
-#line 199 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
+
+#line 198 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 int SimQueue_Put(int pIndex,Input_tResults *val)
+
 
 { int tail;
   tail = inputQueue.TailTime[pIndex] & 0x1f;
@@ -173,8 +181,10 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
 
 /* ---- SimQueue_SetCurrentInput__Fi  [SIMQUEUE.CPP:271-290] COVERED-SLD-PASS ---- */
 /* Historical compiler-basin receipts are preserved in build/nc12/simqueue_layout_20261027/simqueue-before.cpp. Current selected G8 source matches48 words and all supplied local/SLD facts;the two real for loops need no address helper or output rewrite. */
-#line 269 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
+
+#line 268 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_SetCurrentInput(int time)
+
 
 { int i; int pIndex;
 
@@ -209,16 +219,20 @@ void SimQueue_SetCurrentInput(int time)
    Measured under -G8: subscript 2 @10 | `(pIndex<<2)+(int)output` 2 | a
    `p = output + pIndex` local 2 | `p = &output[pIndex]` local 2 |
    pointer-add PASS | `p = output; p[pIndex]` PASS | int-cast base-first PASS. */
-#line 293 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
+
+#line 292 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)
+
 
 {
   *out = *(output + pIndex);
 }
 
 /* ---- SimQueue_SetLag__Fv  [SIMQUEUE.CPP:326-343] COVERED-SLD-PASS ---- */
-#line 324 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
+
+#line 323 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 static void SimQueue_SetLag(void)
+
 
 {
   switch (SIMQUEUE_COMMMODE) {
@@ -240,8 +254,10 @@ static void SimQueue_SetLag(void)
   default: return; } }
 
 /* ---- SimQueue_IsBlocking__Fi  [SIMQUEUE.CPP:382-407] COVERED-SLD-PASS ---- */ /* 2026-10-27: actual mode case returns remove check_mode/calculate/return_zero labels;all21 words and supplied SYM/SLD fields agree. Literal original spelling remains unproved. Receipt: build/nc12/simqueue_blocking_20261027/. */
-#line 380 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
+
+#line 379 "C:/nfs4/GAME/COMMON/SIMQUEUE.CPP"
 static int SimQueue_IsBlocking(int pIndex)
+
 
 {
 

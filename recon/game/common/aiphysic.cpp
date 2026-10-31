@@ -38,6 +38,8 @@ int AIPhysic_iTime;                 /* @0x8013c594 */
  * coloring near-miss history is archived in before.cpp,not an active floor.
  * Original macro spelling remains unproved;no new helper or source object.
  * Receipt:build/nc12/aiphysic_engine_stop_20261027/. */
+
+
 #line 119 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
 {
@@ -58,6 +60,8 @@ void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
  * Actual parity142,sign147,rounding148 and final clamp155 groups preserve
  * every byte/owner and the genuine unnamed frame. Original literal macro
  * spelling remains open;receipt:build/nc12/aiphysic_engine_stop_20261027/. ---- */
+
+
 #line 136 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_RevEngine(Car_tObj *carObj)
 {
@@ -82,6 +86,8 @@ void AIPhysic_RevEngine(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_HandleShifting__FP8Car_tObj ---- */
+
+
 #line 167 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_HandleShifting(Car_tObj *carObj)
 {
@@ -144,6 +150,8 @@ void AIPhysic_HandleShifting(Car_tObj *carObj)
  * the root end from+228 to supplied+224,without changing any word. All65
  * tags,complete provided owners,block/end lines and entry facts now agree.
  * Receipt:build/nc12/aiphysic_gear_break_20261027/. Literal text is not unique. */
+
+
 #line 213 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
 {
@@ -190,6 +198,8 @@ Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t ---- */
+
+
 #line 261 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_GearInvSpeedRange(Car_tObj *carObj, Gear_t gear)
 {
@@ -209,6 +219,8 @@ int AIPhysic_GearInvSpeedRange(Car_tObj *carObj, Gear_t gear)
 }
 
 /* ---- AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t  (clamp via tail-recursion -> gcc `j self`) ---- */
+
+
 #line 282 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_GearTopSpeed(Car_tObj *carObj, Gear_t gear)
 {
@@ -235,6 +247,8 @@ int AIPhysic_GearTopSpeed(Car_tObj *carObj, Gear_t gear)
  * exemption. All covered SLD fields match;literal source remains unproved.
  * Receipt:build/nc12/aiphysic_gear_helpers_20261027/. */
 /* ---- AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t ---- */
+
+
 #line 302 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_GearBottomSpeed(Car_tObj *carObj, Gear_t gear)
 {
@@ -272,6 +286,8 @@ int AIPhysic_GearBottomSpeed(Car_tObj *carObj, Gear_t gear)
  * current pure source passes the unchanged selected stock pipeline. The shared
  * return tail agrees with the mobile logic twin,not a unique-text proof.
  * Receipt:build/nc12/aiphysic_acc_sld_20261027/. */
+
+
 #line 325 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
 {
@@ -357,6 +373,8 @@ if ((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.race
  * qualifiers,asm/volatile,statement anchors or generated-output rewrites.
  * Receipt:build/nc12/aiphysic_small_sld_20261027/. */
 /* ---- AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji ---- */
+
+
 #line 403 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *carObj, int acc)
 {
@@ -374,6 +392,8 @@ int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *carObj, int acc)
 }
 
 /* ---- AIPhysic_CalcDeceleration__FP8Car_tObj  (the bgez/+0xFF/sra-8 = gcc-2.x signed /256) ---- */
+
+
 #line 424 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_CalcDeceleration(Car_tObj *carObj)
 {
@@ -395,6 +415,8 @@ int AIPhysic_CalcDeceleration(Car_tObj *carObj)
  * Original macro spelling is not uniquely proved. Verbatim old receipts are
  * archived in before.cpp,not retained as an active assembly exemption.
  * Receipt:build/nc12/aiphysic_turnaround_c_20261027/. */
+
+
 #line 439 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
 {
@@ -410,6 +432,8 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
   } }
 
 /* ---- AIPhysic_HandleSignalling__FP8Car_tObj  (turn-signal flags in halfwords 0x8B8/0x8BA) ---- */
+
+
 #line 457 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_HandleSignalling(Car_tObj *carObj)
 {
@@ -446,6 +470,8 @@ void AIPhysic_HandleSignalling(Car_tObj *carObj)
  * preserving the 4-live-value peak that puts car in $a3. (3) the final `((r>>8)&0xFFFF) & field`:
  * gcc-2.7.2 narrows the `&0xFFFF` into a HALFWORD load (`lhu`, dropping the andi) — write the random
  * as `(unsigned short)(r>>8)` to anchor the andi on the random + keep the full `lw` of the personality field. */
+
+
 #line 492 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
 {
@@ -466,6 +492,8 @@ void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_Main__FP8Car_tObj ---- */
+
+
 #line 528 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_Main(Car_tObj *carObj)
 {
@@ -620,6 +648,8 @@ stopSlow:
 }
 
 /* ---- AIPhysic_CheckForBadPosition__FP8Car_tObj  (two OR-flags → reset on bad) ---- */
+
+
 #line 680 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_CheckForBadPosition(Car_tObj *carObj)
 {
@@ -665,6 +695,8 @@ void AIPhysic_CheckForBadPosition(Car_tObj *carObj)
 }
 
 /* ---- AIPhysics_UseCoolPhysics__FP8Car_tObj [@0x80069eec] COVERED-SLD-PASS ---- */ /* 2026-10-27: the ordinary compound predicate removes unprovided ret1/ret0;all17 words and provided absolute SYM/SLD fields match. Older goto-only claims were basin-relative,not a source floor. Literal original text remains unproved. Receipt: build/nc12/aiphysic_cool_20261027/. */
+
+
 #line 731 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysics_UseCoolPhysics(Car_tObj *carObj)
 {
@@ -679,6 +711,8 @@ int AIPhysics_UseCoolPhysics(Car_tObj *carObj)
 /* ---- AIPhysic_SimplePhysics__FP8Car_tObj ---- */
 /* 2026-10-31: speed is set once (line 50 abs), the lane-change product is stored straight to
    linearVel_ch.x: retail SYM speed REG $5 and the sched1 birthing order (speed REG_N_SETS==1). */
+
+
 #line 756 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_SimplePhysics(Car_tObj *carObj)
 {
@@ -743,6 +777,8 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_SimplePhysics_LongVel__FP8Car_tObj ---- */
+
+
 #line 824 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
 {
@@ -819,6 +855,8 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
  * residual was the clamp-abs coalescing (a hand-rolled `absV=v; if(v<0)absV=-absV;` collapses
  * the copy); __builtin_abs forces the oracle's keep-v-then-copy-then-negate form. NOT a
  * permuter/decomp.me wall after all — it was the abs-idiom (cross-ref CalculateGear note). */
+
+
 #line 901 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_SimplePhysics_LatVel(Car_tObj *carObj)
 {
@@ -856,6 +894,8 @@ void AIPhysic_SimplePhysics_LatVel(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_CoolPhysics__FP8Car_tObj  (per-frame physics sequencer) ---- */
+
+
 #line 958 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_CoolPhysics(Car_tObj *carObj)
 {
@@ -894,6 +934,8 @@ void AIPhysic_CoolPhysics(Car_tObj *carObj)
  * declaring D_8011E0B0 as an UNSIZED ARRAY (`extern int D_8011E0B0[]`, access `[0] - 0x18`) changed
  * the address-materialization so gcc duplicates the `%hi` into the `bgtz` delay slot exactly as the
  * oracle (§3.12#5; same lever that fixed HandleWipeoutTimer). D_8011E0B0 == &simGlobal.gameTicks. */
+
+
 #line 995 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_HandleDirection(Car_tObj *carObj)
 {
@@ -922,6 +964,8 @@ void AIPhysic_HandleDirection(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_Preperation__FP8Car_tObj ---- */
+
+
 #line 1025 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_Preperation(Car_tObj *carObj)
 {
@@ -971,6 +1015,8 @@ void AIPhysic_Preperation(Car_tObj *carObj)
 /* ---- AIPhysic_CalculateRoadPosition__FP8coorddefi  (leaf: dot(pos-sliceCenter, sliceRight)/256^2) ---- */
 /* 2026-10-31: the dot product is stored into the dead parameter `slice` and returned on the
    closing line: retail tags the final mflo/addu/epilogue with the `}` line (14), fn end 14. */
+
+
 #line 1074 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_CalculateRoadPosition(coorddef *pos, int slice)
 {
@@ -990,6 +1036,8 @@ int AIPhysic_CalculateRoadPosition(coorddef *pos, int slice)
     return slice; }
 
 /* ---- AIPhysic_GetDesiredVector__FP8Car_tObj ---- */
+
+
 #line 1098 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_GetDesiredVector(Car_tObj *carObj)
 {
@@ -1168,6 +1216,8 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_TargetedGetDesiredVector__FP8Car_tObj  (desiredVector = targetPos - position) ---- */
+
+
 #line 1274 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_TargetedGetDesiredVector(Car_tObj *carObj)
 {
@@ -1186,6 +1236,8 @@ void AIPhysic_TargetedGetDesiredVector(Car_tObj *carObj)
    (one physical line here), the shared ret1 `return 1` on 1325 and ret0 on 1333;
    the wipe-out arm is if/return 0 + return 1 on separate lines (jump folds it to the
    retail xori). abs uses __builtin_abs (single bgez/negu macro). Gaps left blank. */
+
+
 #line 1290 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
 {
@@ -1244,6 +1296,8 @@ ret0:
  * retail does. vel_limit_range and the two velocity differences go through dead SYM locals
  * (latVelLimit, maxAngVel, maxLatVel) on their retail lines 45/72/80. */
 /* ---- AIPhysic_OutOfControlPhysics__FP8Car_tObj ---- */
+
+
 #line 1350 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
 {
@@ -1432,6 +1486,8 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
  * can't restructure a sum-expr into +=-accumulation or change scalar→array access. Re-derive the
  * SYM's variable/type structure first. CANONICAL 100% scratch: https://decomp.me/scratch/JS0Q0
  * (Caesar0007 spotted the array + the missing decl; Mc-muffin / Ethanol @ Discord, github.com/Mc-muffin, cracked the last-stage clamp form.) */
+
+
 #line 1569 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_GetRearEndDamageFactor(Car_tObj *carObj)
 {
@@ -1491,6 +1547,8 @@ int AIPhysic_GetRearEndDamageFactor(Car_tObj *carObj)
  * SYM11550a: Car_tObj::personality is AIPerson_t* at+0x4f0. Typed accesses
  * replace both byte-offset views with the whole native dump/object unchanged.
  * Receipt:build/nc12/aiphysic_personality_field_20261027/. */
+
+
 #line 1603 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_InControlPhysics(Car_tObj *carObj)
 {
@@ -1767,6 +1825,8 @@ currentLatVel = (fixedmult((carObj->N).linearVel.x,unitDesiredVectorRight.x) + f
 
 
 /* ---- AIPhysic_FinishUp__FP8Car_tObj ---- */
+
+
 #line 1923 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_FinishUp(Car_tObj *carObj)
 {
@@ -1818,6 +1878,8 @@ void AIPhysic_FinishUp(Car_tObj *carObj)
  * with DIRECT field expressions (no cached locals — cse-region reloads fall out); ramp
  * tail = field-direct `+=`/`-=` so the new value takes a fresh temp, MATCH: do not
  * introduce locals here) ---- */
+
+
 #line 1988 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
 {
@@ -1918,6 +1980,8 @@ void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
  * not proven unmatchable — re-express the LOGIC (a 2-branch select IS a `&&`/`||`; an if-body can be
  * the fall-through OR the branch-target). The permuter can't discover `&&`↔if/else or branch-polarity
  * reshapes; only re-deriving the boolean structure does. (Cf. GetRearEnd: same lesson via array+=.) */
+
+
 #line 2072 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_HitWallCheck(Car_tObj *carObj)
 {
@@ -1960,6 +2024,8 @@ int AIPhysic_HitWallCheck(Car_tObj *carObj)
 /* ---- AIPhysic_ProcessBarrierCollision__FP8Car_tObj  [MATCHED 100% via __builtin_abs] ----
  * Was a "v0/v1 + 0x9FFFF constant-hoist" near-miss; the hoist was DOWNSTREAM of the abs idiom
  * (hand-rolled `if(v<0)v=-v` vs oracle's inline `bgez;negu`). __builtin_abs collapsed it. */
+
+
 #line 2116 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_ProcessBarrierCollision(Car_tObj *carObj)
 {
@@ -1972,6 +2038,8 @@ void AIPhysic_ProcessBarrierCollision(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_ProcessCollision__FP8Car_tObj  [MATCHED 100% via __builtin_abs, as ProcessBarrier] ---- */
+
+
 #line 2133 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_ProcessCollision(Car_tObj *carObj)
 {
@@ -1995,6 +2063,8 @@ void AIPhysic_ProcessCollision(Car_tObj *carObj)
  * Matched NFS2 source supports the two-arm form and timer-before-time stores.
  * Native names/homes/scopes match; PHYS 2026-10-31: statement lines placed on retail's SLD
  * coordinates (sldprobe 0/46 tags, block 1..24); gap contents unrecovered and left blank. */
+
+
 #line 2162 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_ChangeDirection(Car_tObj *carObj, int time)
 {
@@ -2024,6 +2094,8 @@ void AIPhysic_ChangeDirection(Car_tObj *carObj, int time)
 }
 
 /* ---- AIPhysic_CheckForGripReduction__FP8Car_tObj ---- */
+
+
 #line 2196 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
 {
@@ -2055,17 +2127,25 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_StartUp__Fv / CleanUp / Reset (empty stubs, retail VA order 0x8006cc3c/44/4c) ---- */
+
+
 #line 2233 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_StartUp(void) {
 }
+
+
 #line 2237 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_CleanUp(void) {
 }
+
+
 #line 2240 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_Reset(void) {
 }
 
 /* ---- AIPhysic_ResetCar__FP8Car_tObj ---- */
+
+
 #line 2242 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_ResetCar(Car_tObj *carObj)
 {
@@ -2081,6 +2161,8 @@ void AIPhysic_ResetCar(Car_tObj *carObj)
  * Car_tObj::personality is AIPerson_t* at+0x4f0. Exact typed member replaces
  * the raw byte-offset read with the entire native dump/code unchanged.
  * Receipt:build/nc12/aiphysic_engine_stop_20261027/. */
+
+
 #line 2249 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_InitCar(Car_tObj *carObj)
 {
@@ -2133,6 +2215,8 @@ void AIPhysic_InitCar(Car_tObj *carObj)
   }
 }
 /* ---- AIPhysic_DeInitCar__FP8Car_tObj ---- */
+
+
 #line 2300 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_DeInitCar(Car_tObj *carObj)
 {

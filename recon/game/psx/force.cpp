@@ -90,7 +90,9 @@ void Force_HitWall(int impulse);
  * explanation of those trials, not proof of an original pointer object.
  * These receipts apply only to this source basin, not an original-source floor.
  * `f` and `actuator1` stay SOURCE-REVIEW-UNRESOLVED (absent from retail SYM). */
+#line 58 "C:/nfs4/GAME/PSX/FORCE.CPP"
 void Force_Vbl(void)
+
 
 {
   for (int i = 0; i < 2; i = i + 1) {
@@ -221,7 +223,9 @@ void Force_Vbl(void)
  * diffs /278 words. Both are reverted. The surviving label denotes the
  * actual audio-loop destination; its semantic spelling is not recovered
  * from SYM. Native CLEAN does not establish complete SLD/original text. */
+#line 102 "C:/nfs4/GAME/PSX/FORCE.CPP"
 void Force_Update(Car_tObj *car)
+
 
 {
   if (1U < (u_int)car->carIndex) return;
@@ -348,7 +352,9 @@ ForceUpd_audioRevLoop:
  * loop exit. A separate opening-brace line gives the six stores their
  * retail source lines; implicit void fallthrough preserves the end delta.
  * The identical pointer-walk source shape also seals Disable and Pause. */
+#line 227 "C:/nfs4/GAME/PSX/FORCE.CPP"
 void Force_StartUp(void)
+
 
 {
   for (Force_tGlobal *f = Force_g; f < Force_g + 2; f = f + 1)
@@ -380,7 +386,9 @@ void Force_StartUp(void)
  * there is no split address expression left for GCSE to hoist.  Fixed by the per-TU
  * g_value=8 key, not by a source change. The later for-init rewrite leaves
  * those bytes intact while restoring f's scope and exact SLD attribution. */
+#line 247 "C:/nfs4/GAME/PSX/FORCE.CPP"
 void Force_Disable(void)
+
 
 {
   for (Force_tGlobal *f = Force_g; f < Force_g + 2; f = f + 1)
@@ -414,7 +422,9 @@ void Force_Disable(void)
  * but is not needed once the addu operand order is right.  The named result pointer is
  * SYM's `Force_tGlobal *f` in $v0; GCC CSEs the repeated field read so the index remains
  * in $a0 exactly as IDA (`sub_800CB158`) shows. */
+#line 261 "C:/nfs4/GAME/PSX/FORCE.CPP"
 int Force_IsForceOn(Car_tObj *car)
+
 
 {
   Force_tGlobal *f; if (1 < Replay_ReplayMode) {
@@ -429,7 +439,9 @@ int Force_IsForceOn(Car_tObj *car)
 }
 
 /* ---- Force_Pause__Fv  [FORCE.CPP:279-285] SLD-EXACT ---- */
+#line 276 "C:/nfs4/GAME/PSX/FORCE.CPP"
 void Force_Pause(void)
+
 
 {
   for (Force_tGlobal *f = Force_g; f < Force_g + 2; f = f + 1)
@@ -441,21 +453,27 @@ void Force_Pause(void)
 }
 
 /* ---- Force_UnPause__Fv  [FORCE.CPP:291-292] SLD-VERIFIED ---- */
+#line 288 "C:/nfs4/GAME/PSX/FORCE.CPP"
 void Force_UnPause(void)
 
+
 {
-  return; }
+}
 
 /* ---- Force_HitSign__FP8Car_tObj  [FORCE.CPP:298-299] SLD-VERIFIED ---- */
+#line 295 "C:/nfs4/GAME/PSX/FORCE.CPP"
 void Force_HitSign(Car_tObj *car)
 
+
 {
-  return; }
+}
 
 /* ---- Force_HitWall__Fi  [FORCE.CPP:301-302] SLD-VERIFIED ---- */
+#line 298 "C:/nfs4/GAME/PSX/FORCE.CPP"
 void Force_HitWall(int impulse)
 
+
 {
-  return; }
+}
 
 /* end of force.cpp */

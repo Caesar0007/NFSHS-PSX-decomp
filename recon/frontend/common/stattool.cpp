@@ -8,14 +8,6 @@ char minChar[6] = { ':',':',':',':',':',':' };   /* 0x800125ac region; minute se
 char secChar[6] = { '.',':','.','.','.','.' };   /* centisecond seps */
 
 /* ---- Stattool_nCreateIndex  (stattool.cpp:110) ---- */
-void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
-
-{
-  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
-   * function's own constants (the dead tag string most objects carry); the constant-false
-   * call keeps the string and adds no code. */
-  if (0) reservememadr("SimpleMem",0,0);
-
   /* SYM 8c @0x8004A868: nNumber REGPARM $11=$s1, nInput $13=$s3, nIndex $12=$s2;
      locals are EXACTLY i($06) j($10) nADummy($08) nBDummy($0b) nTemp($04) -- the
      walking pointers in the Ghidra body (pIdx/pVal/pIdxScan/pValScan) are compiler
@@ -39,36 +31,80 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
      `if (nNumber != 1)`) in today's PASS basin: exactly 2 diffs, unchanged.
      `one` therefore stays as a SYM-absent carrier; a pure-C replacement for the
      cse opacity it buys is device-lane work, not a declaration question. */
+#line 107 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
+void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
+
+
+{
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the dead tag string most objects carry); the constant-false
+   * call keeps the string and adds no code. */
+  if (0) reservememadr("SimpleMem",0,0);
   int i;
   int j;
   int nADummy;
   int nBDummy;
   int *nTemp;
-
   j = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   nTemp = (int *)reservememadr("TempSort",(nNumber + 1) * 4,0x10);
+
+
+
+
+
+
+
   while (j < nNumber) {
+
     nIndex[j] = (short)j;
     nTemp[j] = nInput[j];
     j++;
   }
   {
-  int one = 1;
-  __asm__ ("" : "=r" (one) : "0" (one));
-  if (nNumber != one) {
+  int one = 1; __asm__ ("" : "=r" (one) : "0" (one)); if (nNumber != one) {
+
+
+
+
+
   for (j = 1; j < nNumber; j++) {
+
     nADummy = nTemp[j];
     nBDummy = nIndex[j];
+
     for (i = j - 1; i >= 0 && nADummy < nTemp[i]; i--) {
+
       nTemp[i + 1] = nTemp[i];
       nIndex[i + 1] = nIndex[i];
     }
     nTemp[i + 1] = nADummy;
     nIndex[i + 1] = (short)nBDummy;
+
   }
   }
-  }
-  purgememadr(nTemp);
+  } purgememadr(nTemp);
   return;
 }
 
@@ -84,7 +120,9 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
    W86-S4 re-priced the fold (both recomputed inside the sprintf argument
    list, so the body carries no locals at all, as the SYM says): 90 diffs.
    The two carriers stay. */
+#line 187 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 void Stattool_ParseTime(int nTime,char *sLapTime)
+
 
 {
 
@@ -102,121 +140,95 @@ void Stattool_ParseTime(int nTime,char *sLapTime)
 
 
   sprintf(sLapTime,"%02d%c%02d%c%02d",min,(uint)(byte)minChar[(byte)frontEnd.language],sec,
-             (uint)(byte)secChar[(byte)frontEnd.language],(short)nTime);
-  return;
+             (uint)(byte)secChar[(byte)frontEnd.language],(short)nTime); return;
 }
 
 /* ---- UserNameUpperCaseOneLetter  (stattool.cpp:211) ---- */
+/* MATCH: plain `char` is UNSIGNED on this build, so the a..z guard folds to
+   the oracle's `addiu v0,v1,-0x61 / sltiu v0,v0,0x1A` range test and the
+   switch index is the UNSIGNED byte (0xE0..0xFC, 0x1D wide).  All stored
+   constants are written as their unsigned byte values.  The case bodies are in
+   the ORACLE'S PHYSICAL BLOCK ORDER (gcc emits switch arms in source order);
+   the two fallthroughs (0xE8 -> 0xEC, 0xF9 -> end) are retail's own missing
+   breaks.  In the 0xE8 arm both constants are stored directly and gcc
+   cross-jumps the two `sb`s into one (retail tags it on the else line 28).
+   SLD (FRONT5): one case per retail line, exact 0/71, blocks exact. */
+#line 208 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 void UserNameUpperCaseOneLetter(char *c)
 
+
 {
-  /* MATCH: plain `char` is UNSIGNED on this build, so the a..z guard folds to
-     the oracle's `addiu v0,v1,-0x61 / sltiu v0,v0,0x1A` range test and the
-     switch index is the UNSIGNED byte (0xE0..0xFC, 0x1D wide).  All stored
-     constants are written as their unsigned byte values -- a signed spelling
-     (-0x3c) emits `li -60`, the oracle has `li 196`.  The case bodies are in
-     the ORACLE'S PHYSICAL BLOCK ORDER (gcc emits switch arms in source order);
-     the two fallthroughs (0xE8 -> 0xEC, 0xF9 -> end) are retail's own missing
-     breaks, kept verbatim.  In the 0xE8 arm the two constants are stored
-     DIRECTLY (`if (..) *c = 0xC8; else *c = 0x45;`) and gcc cross-jumps the
-     two `sb`s into one -- a `char upperE` temp instead lands in $a1 where
-     retail reuses $v0 (6-diff near-miss). */
+
   if (('a' <= *c) && (*c <= 'z')) {
     *c = *c + 0xE0;
     return;
   }
+
+
   switch(*c) {
-  case 0xE4:
-    *c = 0xC4;
-    return;
-  case 0xF6:
-    *c = 0xD6;
-    return;
-  case 0xFC:
-    *c = 0xDC;
-    return;
-  case 0xE9:
-    *c = 0x45;
-    return;
-  case 0xE1:
-    *c = 0x41;
-    return;
-  case 0xED:
-    *c = 0x49;
-    return;
-  case 0xF3:
-    *c = 0x4F;
-    return;
-  case 0xFA:
-    *c = 0x55;
-    return;
-  case 0xF1:
-    *c = 0xD1;
-    return;
-  case 0xE5:
-    *c = 0xC5;
-    return;
-  case 0xE0:
-    *c = 0xC0;
-    return;
-  case 0xE8:
-    if (frontEnd.language == 4) {
+
+
+  case 0xE4: *c = 0xC4; return;
+  case 0xF6: *c = 0xD6; return;
+  case 0xFC: *c = 0xDC; return;
+  case 0xE9: *c = 0x45; return;
+  case 0xE1: *c = 0x41; return;
+  case 0xED: *c = 0x49; return;
+  case 0xF3: *c = 0x4F; return;
+  case 0xFA: *c = 0x55; return;
+  case 0xF1: *c = 0xD1; return;
+  case 0xE5: *c = 0xC5; return;
+
+  case 0xE0: *c = 0xC0; return;
+
+  case 0xE8: if (frontEnd.language == 4) {
       *c = 0xC8;
     }
     else {
       *c = 0x45;
-    }
-    /* FALLTHROUGH (retail) */
-  case 0xEC:
-    *c = 0xCC;
-    return;
-  case 0xF2:
-    *c = 0xD2;
-    return;
-  case 0xF9:
-    *c = 0xD9;
-    /* FALLTHROUGH (retail) */
-  default:
-    return;
-  }
-}
+    } /* FALLTHROUGH (retail) */
+  case 0xEC: *c = 0xCC; return;
+  case 0xF2: *c = 0xD2; return;
+  case 0xF9: *c = 0xD9; /* FALLTHROUGH (retail) */ default: return; } }
 
 /* ---- Stattool_SamNelsonsUpperLowerStringConverterForRecords  (stattool.cpp:250) ---- */
+#line 247 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char *string)
 
-{
-  char previousLetter;
 
-  s_lower(string);
+{
+  char previousLetter; s_lower(string);
   previousLetter = *string;
+
   UserNameUpperCaseOneLetter(string);
   string = string + 1;
+
   while (*string != '\0') {
+
     if (previousLetter == ' ') {
+
       UserNameUpperCaseOneLetter(string);
     }
     previousLetter = *string;
-    string = string + 1;
-  }
-  return;
-}
+    string = string + 1; } return; }
 
 /* ---- StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters  (stattool.cpp:269) ---- */
+#line 266 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 void StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(char *string)
+
 
 {
   while (*string != '\0') {
 
     UserNameUpperCaseOneLetter(string);
-    string = string + 1;
-  }
-  return;
-}
+    string = string + 1; } return; }
 
 /* ---- Stattool_GetAllDefaultRecords  (stattool.cpp:279) ---- */
 /* Retail SYM: i is the inner $s2 counter, n the outer $s4 counter;
    declaration order is i, n, s, AllRecords. */
+#line 276 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
+
 
 {
   int i;
@@ -244,19 +256,21 @@ void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
 }
 
 /* ---- Stattool_ReadDefaultRecords  (stattool.cpp:323) ---- */
+#line 320 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 void Stattool_ReadDefaultRecords(tRecordBuffer *Records,bool cheatones)
 
+
 {
-
-
-
-
-
-
   char filename [80];
-  
-  cheatones ? sprintf(filename,"%sznfsrec.dat",Paths_Paths[0x24]) :
-              sprintf(filename,"%szrecord.dat",Paths_Paths[0x24]);
+
+
+  if (cheatones)
+
+    sprintf(filename,"%sznfsrec.dat",Paths_Paths[0x24]);
+
+  else
+
+    sprintf(filename,"%szrecord.dat",Paths_Paths[0x24]);
 
   if (filesize(filename) == 0xe9c)
 
@@ -277,7 +291,9 @@ void Stattool_ReadDefaultRecords(tRecordBuffer *Records,bool cheatones)
 }
 
 /* ---- Stattool_GetRecords  (stattool.cpp:364) ---- */
+#line 361 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 void Stattool_GetRecords(short nShowTrack,tRecordBuffer *TrackRecords)
+
 
 {
 
@@ -291,7 +307,9 @@ void Stattool_GetRecords(short nShowTrack,tRecordBuffer *TrackRecords)
 }
 
 /* ---- Stattool_ReturnRecordLapTime  (stattool.cpp:377) ---- */
+#line 374 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 int Stattool_ReturnRecordLapTime(short nTrack)
+
 
 {
 
@@ -324,35 +342,47 @@ int Stattool_ReturnRecordLapTime(short nTrack)
 }
 
 /* ---- Stattool_CheckForHumanCar  (stattool.cpp:413) ---- */
+/* FRONT5: the nNumCars carrier (EXTRA SYM local) is gone: retail = a for loop
+   with the count on line 5 (record-less const temp, DEVICE exact-only), k
+   incremented before the early break.  BYTES/SYM/SLD exact. */
+#line 410 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 short Stattool_CheckForHumanCar(Car_tStats *dummyCars)
 
+
 {
-  /* SYM-CODEGEN-CARRIER: nNumCars -- NFS4 SYM records only `k` and
-   * `bHumanFlag`, but the matched NFS2 PC beta source restores this exact
-   * local name and early-break loop.  Its `short` type is oracle-significant:
-   * this form is PASS 34/34, while `int` is FAIL 5. */
   short k;
   short bHumanFlag;
-  short nNumCars;
-  
   bHumanFlag = 0;
-  nNumCars = (short)GameSetup_NumPlayerRaceCars +
-             (short)GameSetup_NumOpponentRaceCars;
-  k = 0;
-  do {
-    if (k >= nNumCars) {
-      break;
-    }
+
+  const short nNumCars = (short)(GameSetup_NumPlayerRaceCars + GameSetup_NumOpponentRaceCars); /* DEVICE (exact-only): retail computes the count on line 5; const temp, no SYM record */
+
+
+
+  for (k = 0; k < nNumCars; ) {
+
+
+
     if ((dummyCars[k].carFlags & 4U) != 0) {
+
+
+
+
       bHumanFlag = 1;
     }
-    k = k + 1;
-  } while (bHumanFlag != 1);
+
+    k = k + 1; if (bHumanFlag == 1) {
+      break;
+    } }
+
+
+
   return bHumanFlag;
 }
 
 /* ---- Stattool_GetAINameFromPersonality  (stattool.cpp:456) ---- */
+#line 453 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 char * Stattool_GetAINameFromPersonality(tPersonalities personality)
+
 
 {
   if ((unsigned int)personality >= (kPersonalityTraffic|kPersonalityCop3))

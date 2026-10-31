@@ -89,7 +89,9 @@ Input_tDeviceList Device_gDeviceList[5] = {
  * near-miss; the remaining lever to try next session is a source form where isP2's
  * boolean range is NOT directly provable at the mask computation (e.g. route it
  * through an opaque/indirect load) rather than fighting the optimizer's own proof. */
+#line 48 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 int Device_VerifyType(int port)
+
 
 {
   if (gUseFrontend != 0) {
@@ -113,7 +115,9 @@ int Device_VerifyType(int port)
  * PASS 28/28; SYM names only the function-local static failtime[2].  Direct use of the
  * VerifyType result and repeated indexed byte expression lets gcc create the
  * unnamed temporaries, avoiding the fabricated iVar2/bVar1 debug records. */
+#line 69 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 int Device_Fail(int port)
+
 
 {
   static u_char failtime[2];   /* @0x8013dde4 STAT (.bss) */
@@ -124,11 +128,11 @@ int Device_Fail(int port)
   }
   else {
 
-    if ((u_int)failtime[port != 0] < 9) {
+    if ((u_int)failtime[port != 0] >= 9)
+      return 1;
 
+    failtime[port != 0] = failtime[port != 0] + 1;
 
-      failtime[port != 0] = failtime[port != 0] + 1; } else { return 1;
-    }
   }
   return 0;
 }
@@ -141,7 +145,9 @@ int Device_Fail(int port)
  * in $s0.  SYM emits no local record; Ghidra and raw instructions independently
  * identify the value as GameSetup_gData.commMode, so its source-only name is
  * semantic rather than a decompiler placeholder. */
+#line 106 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 void Device_Update(void)
+
 
 {
   PAD_update();
@@ -197,7 +203,9 @@ void Device_Update(void)
         Device_gForcePause = 0; } } } return; }
 
 /* ---- Device_StartUp__Fv  [DEVICE.CPP:169-176] SLD-VERIFIED ---- */
+#line 166 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 void Device_StartUp(void)
+
 
 {
   Device_gPaused = 0;
@@ -210,17 +218,19 @@ void Device_StartUp(void)
 }
 
 /* ---- Device_SetHardCodedKeys__Fv  [DEVICE.CPP:195-205] SLD-VERIFIED ---- */
+#line 192 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 void Device_SetHardCodedKeys(void)
+
 
 {
   Input_gHandler[0x99] = 0x1003;
   Input_gHandler[0x9a] = 0x4003;
   Input_gHandler[0x9b] = 0x8003;
   Input_gHandler[0x9c] = 0x2003;
-  Input_gHandler[0x9e] = 0x803; Input_gHandler[0x9d] = 0x400003;
+  Input_gHandler[0x9d] = 0x400003;
   Input_gHandler[0xb0] = 0x100003;
   Input_gHandler[0xb1] = 0x800003;
-
+  Input_gHandler[0x9e] = 0x803;
   Input_gHandler[0xa0] = 0x103;
   Input_gHandler[0x98] = 0; return;
 }
@@ -228,14 +238,16 @@ void Device_SetHardCodedKeys(void)
 /* ---- Device_PSXPad__FUl  [DEVICE.CPP:244-250] SLD-VERIFIED ----
  * PASS 26/26; SYM names no locals.  The VerifyType call and pad-state load are
  * intentionally direct so their compiler temporaries emit no iVar1/state defs. */
+#line 241 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 int Device_PSXPad(u_long param)
 
+
 {
-  if (Device_VerifyType(param >> 0x10) == 0) {
-    return 0;
-  } if (((u_short)~*(u_short *)((int)&gPadinfo.buf[0].data.standard.state + (param >> 0x10) * sizeof(PAD_COMMON)) & param) != 0) {
+  if (Device_VerifyType(param >> 0x10) != 0) {
+
+    if (((u_short)~*(u_short *)((int)&gPadinfo.buf[0].data.standard.state + (param >> 0x10) * sizeof(PAD_COMMON)) & param) != 0) {
     return 0xff;
-  }
+    } }
   return 0;
 }
 
@@ -252,18 +264,20 @@ int Device_PSXPad(u_long param)
  * (.L800BD758 / .L800BD8B4), which is why the previous nested-if + goto reconstruction
  * came out 12 insns SHORT (128 vs 140).  Return type is BOOL per the SYM
  * (`Def class EXT type FCN BOOL`); the mangled name __FiUl is unaffected. */
+#line 258 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 bool Device_ReadPad(int port,u_long param)
+
 
 {
   char *analogs; if (Device_VerifyType(port) == 0) {
     return 0;
   }
-  if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x4000)) && (0x3f < gPadinfo.buf[port].data.negcon.buttonI)) {
-    return 1;
+  if ((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x4000)) {
+    if (0x3f < gPadinfo.buf[port].data.negcon.buttonI) return 1;
   }
-  if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x8000)) &&
-     (0x3f < gPadinfo.buf[port].data.negcon.buttonII)) {
-    return 1;
+
+  if ((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x8000)) {
+    if (0x3f < gPadinfo.buf[port].data.negcon.buttonII) return 1;
   }
 
 
@@ -292,12 +306,12 @@ bool Device_ReadPad(int port,u_long param)
       return 1; } if (0xbf < analogs[1]) {
       return 1;
     }
-  } return (PAD_state(port) & 0xffff & param) != 0;
-}
+  } if ((PAD_state(port) & 0xffff & param) != 0) return 1;
 
+
+  return 0; }
 /* ---- Device_PSXPadMulti__FUl  [DEVICE.CPP:306-342] SLD-VERIFIED ----
- * PASS (55/55, was 17 diffs).  SYM @0x800bd8dc lists REGPARM param ($10=s0) and NO named
- * locals at all -- so the recon's cached-result + result-funnel variables were fabricated:
+ * PASS (55/55, was 17 diffs).  SYM @0x800bd8dc lists REGPARM param ($10=s0) and NO named locals at all -- so the recon's cached-result + result-funnel variables were fabricated:
  * they pinned the return value into $a0 and added a trailing `addu $v0,$a0,$zero`.  Writing
  * every arm as a DIRECT `return 0xff;` / `return 0;` on the call expression makes gcc stage
  * the constants straight into $v0 and copy the call result into $v1, exactly like retail.
@@ -318,7 +332,9 @@ bool Device_ReadPad(int port,u_long param)
  * found. Parking as an honest near-miss; the call-result-caching habit repeats
  * identically at all 3 ReadPad sites so a single source-level lever (if found) should
  * clear the whole residual at once -- worth another dedicated pass. */
+#line 303 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 int Device_PSXPadMulti(u_long param)
+
 
 {
 
@@ -388,7 +404,9 @@ int Device_PSXPadMulti(u_long param)
  * three (min $a1, max $a0, v $v1) are exactly what the body still uses, and fsize 32 /
  * mask $80030000 (ra+s0+s1, 16-byte arg area, ZERO stack locals) confirms there never
  * was a hidden AUTO denominator slot. */
+#line 349 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 int Device_Analog(u_long param)
+
 
 {
   int min;
@@ -426,7 +444,9 @@ int Device_Analog(u_long param)
 }
 
 /* ---- Device_Null__FUl  [DEVICE.CPP:393-394] SLD-VERIFIED ---- */
+#line 390 "C:/nfs4/GAME/PSX/DEVICE.CPP"
 int Device_Null(u_long param)
+
 
 {
   return 0;

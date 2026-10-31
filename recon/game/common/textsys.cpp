@@ -34,7 +34,9 @@ void TextSys_UnloadWords(void);
  * to stats.obj: retail SYM shows Textsys.obj never saw that header.
  * The loadfileadr return, not sprintf's byte count, owns wordFile.
  * Raw calls: sprintf @0x800B91B0; loadfileadr @0x800B91BC/C4. */
+#line 38 "C:/nfs4/GAME/COMMON/TEXTSYS.CPP"
 void TextSys_LoadWordsGeneric(int language,char *path)
+
 
 {
   char string [250];
@@ -58,7 +60,9 @@ char *langFileName[6] = {
 };
 
 /* ---- TextSys_LoadInGame__Fi  [TEXTSYS.CPP:55-58] SLD-VERIFIED ---- */
+#line 52 "C:/nfs4/GAME/COMMON/TEXTSYS.CPP"
 void TextSys_LoadInGame(int language)
+
 
 {
   char fullpath [80];
@@ -67,7 +71,9 @@ void TextSys_LoadInGame(int language)
 }
 
 /* ---- TextSys_LoadWords__Fi  [TEXTSYS.CPP:62-63] SLD-VERIFIED ---- */
+#line 59 "C:/nfs4/GAME/COMMON/TEXTSYS.CPP"
 void TextSys_LoadWords(int language)
+
 
 {
   TextSys_LoadWordsGeneric(language,Paths_Paths[0x22]);
@@ -76,7 +82,9 @@ void TextSys_LoadWords(int language)
 /* ---- TextSys_Word__Fi  [TEXTSYS.CPP:69-75] SLD-VERIFIED ---- */
 /* ORIGINAL-NAME-RECOVERED: offset and phrase are retained by the
  * symbol-bearing NFS2 Textsys.c for the same 12-byte lookup. */
+#line 66 "C:/nfs4/GAME/COMMON/TEXTSYS.CPP"
 char * TextSys_Word(int wordnum)
+
 
 {
   int *offset;
@@ -90,7 +98,9 @@ char * TextSys_Word(int wordnum)
 /* ---- TextSys_WordFlags__Fi  [TEXTSYS.CPP:120-126] SLD-VERIFIED ---- */
 /* ORIGINAL-NAME-RECOVERED: sptr and s are retained by the
  * symbol-bearing NFS2 Textsys.c flags lookup. */
+#line 117 "C:/nfs4/GAME/COMMON/TEXTSYS.CPP"
 int TextSys_WordFlags(int wordnum)
+
 
 {
   char *sptr;
@@ -104,7 +114,9 @@ int TextSys_WordFlags(int wordnum)
 /* ---- TextSys_WordX__Fi  [TEXTSYS.CPP:132-141] SLD-VERIFIED ---- */
 /* ORIGINAL-NAME-RECOVERED: xptr and x are retained by the
  * symbol-bearing NFS2 Textsys.c X-coordinate lookup. */
+#line 129 "C:/nfs4/GAME/COMMON/TEXTSYS.CPP"
 int TextSys_WordX(int wordnum)
+
 
 {
   short *xptr;
@@ -121,7 +133,9 @@ int TextSys_WordX(int wordnum)
 /* ---- TextSys_WordY__Fi  [TEXTSYS.CPP:147-156] SLD-VERIFIED ---- */
 /* ORIGINAL-NAME-RECOVERED: yptr and y are retained by the
  * symbol-bearing NFS2 Textsys.c Y-coordinate lookup. */
+#line 144 "C:/nfs4/GAME/COMMON/TEXTSYS.CPP"
 int TextSys_WordY(int wordnum)
+
 
 {
   short *yptr;
@@ -136,7 +150,9 @@ int TextSys_WordY(int wordnum)
 }
 
 /* ---- TextSys_UnloadWords__Fv  [TEXTSYS.CPP:162-165] SLD-VERIFIED ---- */
+#line 159 "C:/nfs4/GAME/COMMON/TEXTSYS.CPP"
 void TextSys_UnloadWords(void)
+
 
 {
   if (wordFile != (char *)0x0) {

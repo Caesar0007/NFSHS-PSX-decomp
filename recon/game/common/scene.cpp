@@ -23,7 +23,9 @@ int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *
 
 
 /* ---- Scene_Init__Fi  [SCENE.CPP:1013-1015] SLD-VERIFIED ---- */
+#line 1010 "C:/nfs4/GAME/COMMON/SCENE.CPP"
 void Scene_Init(int numObjDefs)
+
 
 {
   if (0 < numObjDefs) {
@@ -34,11 +36,15 @@ void Scene_Init(int numObjDefs)
 /* ---- Scene_DeInit__Fv  [SCENE.CPP:1029-1030] ----
  * Call and implicit void fallthrough on source line +1 reproduce all eight
  * retail instructions, SLD tags and block/function-end line records. */
+
+#line 1029 "C:/nfs4/GAME/COMMON/SCENE.CPP"
 void Scene_DeInit(void) {
   Scene_PurgeScene(); }
 
 /* ---- Scene_PurgeScene__Fv  [SCENE.CPP:1040-1055] SLD-VERIFIED ---- */
+#line 1037 "C:/nfs4/GAME/COMMON/SCENE.CPP"
 void Scene_PurgeScene(void)
+
 
 {
   if (gGameSceneList != (CSceneList *)0x0) {
@@ -59,8 +65,11 @@ void Scene_PurgeScene(void)
 }
 
 /* ---- Scene_BuildCustomSceneList__Fv  [SCENE.CPP:1059-1107]
- * SYM named-local ownership restored; two retail scopes and SLD lines remain open. ---- */
+ * SYM named-local ownership restored; the element-array inline scope is the CSceneList::Elements
+ * header accessor. Open: retail if-scope end 44 (ours 39). ---- */
+#line 1056 "C:/nfs4/GAME/COMMON/SCENE.CPP"
 int Scene_BuildCustomSceneList(void)
+
 
 {
   int slice;
@@ -69,7 +78,7 @@ int Scene_BuildCustomSceneList(void)
 
 
 
-  if (gGameSceneList != (CSceneList *)0x0) { SceneElem *se; se = (SceneElem *)(gGameSceneList + 1);
+  if (gGameSceneList != (CSceneList *)0x0) { SceneElem *se; se = gGameSceneList->Elements();
 
 
 
@@ -115,7 +124,9 @@ int Scene_BuildCustomSceneList(void)
 
 /* ---- Scene_LoadSceneFile__Fi  [SCENE.CPP:1111-1137]
  * Native SYM and linked SLD exact; all 36 retail instructions preserved. ---- */
+#line 1108 "C:/nfs4/GAME/COMMON/SCENE.CPP"
 void Scene_LoadSceneFile(int sceneFileIndex)
+
 
 {
   Object_ClearCustomObjects();
@@ -148,7 +159,9 @@ void Scene_LoadSceneFile(int sceneFileIndex)
 
 /* ---- GetPlaneY__FPC8coorddefN20 [SCENE.CPP:1142-1153; absolute anchors open]
  * Supplied locals/relative SLD exact; D reuse removes numerator. Receipt:build/nc12/scene_plane_source_20261029/final-proof.json. ---- */
+#line 1139 "C:/nfs4/GAME/COMMON/SCENE.CPP"
 int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *testPoint)
+
 
 {
   int D;

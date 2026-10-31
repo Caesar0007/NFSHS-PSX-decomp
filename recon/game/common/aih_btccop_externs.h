@@ -65,4 +65,7 @@ extern "C" {
 extern "C" int SetSp(int);
 extern "C" void __builtin_delete(void *);
 
+/* spike-belt slice getter (header inline: retail records its inline pair at the caller's line) */
+static inline int SpikeBelt_Slice(void) { return AICop_spikeBelt.slice_; }
+
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

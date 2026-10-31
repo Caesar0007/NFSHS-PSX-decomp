@@ -37,7 +37,9 @@ int gSysStartUp = 0;        /* @0x8013da9c */
  * produces a complete v0/v1 swap (14 diffs); ref-count dials through the asm operands do
  * not move that allocation.  Keep the PASS source until an anonymous value can remain
  * live across the store without adding a debug record. */
+#line 122 "C:/nfs4/GAME/PSX/PLATFORM.CPP"
 void Platform_InitMemory(void)
+
 
 {
   u_int tempLow;
@@ -91,7 +93,9 @@ void Platform_InitMemory(void)
  * cursor. Reuse the provided by-value parameter only after the failure check,
  * not a new mem object. Register reuse does not prove this literal spelling;
  * the missing scope/SLD producers and source-return structure stay in review. */
+#line 136 "C:/nfs4/GAME/PSX/PLATFORM.CPP"
 char *Platform_ReserveMemory(int size,char *string)
+
 
 {
   size = size + 3; size = (size / 4) * 4;
@@ -131,7 +135,9 @@ char *Platform_ReserveMemory(int size,char *string)
  * separate `newmem` local 22, fully-inlined incl. the +3 22, param-untouched `int n` 18.
  * Prototype re-checked vs the raw oracle: 2 args ($a0 size read at insn 1, $a1 string never
  * read), returns char* in $v0. */
+#line 158 "C:/nfs4/GAME/PSX/PLATFORM.CPP"
 char *Platform_TempReserveMemory(int size,char *string)
+
 
 {
   size = size + 3; size = (size / 4) * 4;
@@ -154,7 +160,9 @@ char *Platform_TempReserveMemory(int size,char *string)
 }
 
 /* ---- Platform_SysStartUp__Fv  [PLATFORM.CPP:207-305] SLD-VERIFIED ---- */
+#line 204 "C:/nfs4/GAME/PSX/PLATFORM.CPP"
 void Platform_SysStartUp(void)
+
 
 {
   char *endofcode;
@@ -267,7 +275,9 @@ int gCurrentMemory = 0;       /* @0x8013dab8 */
 u_int gTotalMemory = 0;       /* @0x8013dabc */
 
 /* ---- Platform_DebuggerPollHost__Fv  [PLATFORM.CPP:326-330] SLD-VERIFIED ---- */
+#line 323 "C:/nfs4/GAME/PSX/PLATFORM.CPP"
 void Platform_DebuggerPollHost(void)
+
 
 {
 
@@ -276,7 +286,9 @@ void Platform_DebuggerPollHost(void)
 }
 
 /* ---- nfs2eacinit__Fv  [PLATFORM.CPP:369-408] SLD-VERIFIED ---- */
+#line 366 "C:/nfs4/GAME/PSX/PLATFORM.CPP"
 void nfs2eacinit(void)
+
 
 {
 
@@ -321,13 +333,17 @@ void nfs2eacinit(void)
 }
 
 /* ---- Platform_ResetDCTBuffer__Fv  [PLATFORM.CPP:439-440] SLD-VERIFIED ---- */
+#line 436 "C:/nfs4/GAME/PSX/PLATFORM.CPP"
 void Platform_ResetDCTBuffer(void)
+
 
 {
   gDctXtraMem = (char *)CF_DVLC; }
 
 /* ---- Platform_GetDCTBuffer__FiPc  [PLATFORM.CPP:444-461] SLD-VERIFIED ---- */
+#line 441 "C:/nfs4/GAME/PSX/PLATFORM.CPP"
 char * Platform_GetDCTBuffer(int size,char *string)
+
 
 {
   char *p;

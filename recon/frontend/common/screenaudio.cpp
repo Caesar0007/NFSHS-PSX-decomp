@@ -28,40 +28,75 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 tScreenAudio *screenAudio;   /* global instance pointer owned by this TU (SYM EXT @0x800528e8) */
 
 /* ---- tScreenAudio::PlaySound  (screenaudio.cpp:39) ---- */
+#line 36 "C:/nfs4/FRONTEND/COMMON/SCREENAUDIO.CPP"
 void tScreenAudio::PlaySound()
+
 
 {
   if (menuDefs->itemSlidingPlayList.IsActive() &&
+
+
+
+
+
      (this->fPrevSelectedSong != this->fSelectedSong)) {
+
     AudioMus_StopSong(10);
     AudioMus_PlaySong(this->songlist->song[this->fSelectedSong].filename);
     this->fPrevSelectedSong = this->fSelectedSong;
   }
+
+
+
+
+
+
+
+
+
+
   AudioMus_Volume((int)((uint)(byte)frontEnd.musicVolume * 0x23) >> 6);
   gMasterFENarrationLevel = (int)(byte)frontEnd.narrationVolume;
+
+
+
   if (frontEnd.audioMode != this->prevAudioMode) {
     SNDSYSOPTS opts;
 
     gStereoMode = 1;
     Audio_direct3davail = 0;
     this->audioTest = 1;
+
+
+
     SNDSYS_getopts(&opts);
+
     if (frontEnd.audioMode == '\x01') {
+
       opts.set.outputchannels = '\x01';
       gStereoMode = 0;
+
       this->audioTest = 2;
     }
     else if (frontEnd.audioMode == '\0') {
+
       opts.set.outputchannels = '\x02';
     }
     else {
+
+
       opts.set.outputchannels = '\x02';
+
       Audio_direct3davail = 1;
     }
+
     SNDSYS_setopts(&opts);
+
     this->prevAudioMode = frontEnd.audioMode;
   }
   if (menuDefs->menuAudio.CurrentItem() > 0 &&
+
+
       menuDefs->menuAudio.CurrentItem() < 6) {
     int sndover;
     int vol;
@@ -70,6 +105,8 @@ void tScreenAudio::PlaySound()
     sndover = 1;
     switch (menuDefs->menuAudio.CurrentItem()) {
     case 1:
+
+
       vol = (uint)(byte)frontEnd.sfxVolume;
       RepresentativeSound = 0x1f;
       break;
@@ -88,35 +125,46 @@ void tScreenAudio::PlaySound()
     default:
       vol = (uint)(byte)frontEnd.sfxVolume;
       RepresentativeSound = rand() % 6 + 0x29;
-      break;
-    }
+      break; }
+
     gMasterSFXLevel = vol;
+
     if (this->audioTest == 0) {
       this->audioTest = (frontEnd.audioMode == '\x01') ? 2 : 1;
     }
-    else {
-      sndover = SNDover(this->audioTestHandle);
+    else { sndover = SNDover(this->audioTestHandle);
     }
-    if ((sndover != 0) && !FeAudio_SpeechIsBusy() &&
-        (RepresentativeSound != 0)) {
+    if ((sndover != 0) && !FeAudio_SpeechIsBusy() && (RepresentativeSound != 0)) {
       int azimuth = 0;
 
+
+
+
+
       if (this->audioTest == 1) {
+
         azimuth = 0xc000;
         this->audioTest = (frontEnd.audioMode == '\x02') ? 2 : 3;
       }
       else if (this->audioTest == 2) {
+
+
         this->audioTest = (frontEnd.audioMode == '\x01') ? 2 : 3;
       }
       else if (this->audioTest == 3) {
+
         azimuth = 0x3fff;
         this->audioTest = (frontEnd.audioMode == '\x02') ? 4 : 1;
       }
       else if (this->audioTest == 4) {
+
         azimuth = 0x8000;
         this->audioTest = 1;
       }
+
+
       if (RepresentativeSound == -1) {
+
         FeAudio_AsyncPlaySpeech(2,3);
         this->audioTestHandle = 0;
       }
@@ -125,17 +173,18 @@ void tScreenAudio::PlaySound()
                     (gSndBnk[0].bnkID,RepresentativeSound,azimuth,vol,0x40);
       }
     }
+
+
+
     gMasterSFXLevel = (uint)(byte)frontEnd.sfxVolume;
   }
   else {
     if (this->audioTest != 0) {
+
       gMasterSFXLevel = (int)(byte)frontEnd.sfxVolume;
+
       SNDstop(this->audioTestHandle);
-      this->audioTest = 0;
-    }
-  }
-  return;
-}
+      this->audioTest = 0; } } return; }
 
 /* ---- tScreenAudio::DrawForeground  (screenaudio.cpp:195) ---- */
 /* SOURCE-REVIEW-UNRESOLVED: fadeCalc and the savedFadeCalc/zero/restore
@@ -145,39 +194,28 @@ void tScreenAudio::PlaySound()
    7 at 69 (2026-10-09). These failures do not prove a distinct input object.
    The canonical sibling GetScreenFade accessor reproduces the retail empty
    inline pair here; its literal original spelling is not recorded by SYM. */
+#line 192 "C:/nfs4/FRONTEND/COMMON/SCREENAUDIO.CPP"
 void tScreenAudio::DrawForeground()
 
+
 {
-  short fade;
-  int fadeCalc;
+  short fade; int fadeCalc; fadeCalc = menuDefs->menuAudio.GetScreenFade() >> 1;
+  if ((short)fadeCalc < 0x80) { if ((short)fadeCalc <= 0) goto DrawFgAudio_fadeZero; } if ((short)fadeCalc < 0x81) goto DrawFgAudio_fadeDone; fadeCalc = 0x80; goto DrawFgAudio_fadeDone; DrawFgAudio_fadeZero: fadeCalc = 0; DrawFgAudio_fadeDone: { int i = 0; fade = (short)fadeCalc;
 
-  fadeCalc = menuDefs->menuAudio.GetScreenFade() >> 1;
-  if ((short)fadeCalc < 0x80) {
-    if ((short)fadeCalc <= 0) goto DrawFgAudio_fadeZero;
-  }
-  if ((short)fadeCalc < 0x81) goto DrawFgAudio_fadeDone;
-  fadeCalc = 0x80;
-  goto DrawFgAudio_fadeDone;
-DrawFgAudio_fadeZero:
-  fadeCalc = 0;
-DrawFgAudio_fadeDone:
-  {
-    int i = 0;
-
-    fade = (short)fadeCalc;
-    short savedFadeCalc = (short)fadeCalc; fadeCalc = 0; fadeCalc = savedFadeCalc; /* C-only CSE boundary. */
-    do {
+    short savedFadeCalc = (short)fadeCalc; fadeCalc = 0; fadeCalc = savedFadeCalc; /* C-only CSE boundary. */ do {
       DrawShapeExtended(i + 0x30,1,0,0,(int)fade,0,
                  (tDrawShapeExtended *)0x0);
-      i = i + 1;
-    } while (i < 4);
+      i = i + 1; } while (i < 4);
   }
+
   if (99 < fade) {
+
+
+
+
+
     FETextRender_MenuTextPositionedJustify(0x27d,0x1e0,0xdc,1,textState_Selected,textType_ScreenInfo);
-    PSXDrawSquare(0,0x1e0,0xdc,-textpixels(TextSys_Word(0x27d)) - 5,7);
-  }
-  return;
-}
+    PSXDrawSquare(0,0x1e0,0xdc,-textpixels(TextSys_Word(0x27d)) - 5,7); } return; }
 
 /* ---- tScreenAudio::DrawBackground  (screenaudio.cpp:220) ---- */
 /* 154-word PASS; native declarations and all11 scope regions match retail.
@@ -185,23 +223,29 @@ DrawFgAudio_fadeDone:
    minimum/maximum update removes fadeValue; a normal counted loop makes the
    direct percent argument match without displayPercent or a dead assignment.
    Query spelling and full SLD attribution remain explicitly unsealed. */
+  /* initialized => .data at this function (retail 0x800528e0 = -1, 0x800528e4 = 0x80), not .lcomm */
+#line 217 "C:/nfs4/FRONTEND/COMMON/SCREENAUDIO.CPP"
 void tScreenAudio::DrawBackground()
 
+
 {
-  /* initialized => .data at this function (retail 0x800528e0 = -1, 0x800528e4 = 0x80), not .lcomm */
   static int lastpercentage = -1;   /* [SYM] STAT @0x800528e0 (last % shown) */
   static int perfade = 0x80;        /* [SYM] STAT @0x800528e4 (bg fade accumulator) */
   short fade;
   int percent;
-  
   this->PlaySound();
+
   fade = (short)(menuDefs->menuAudio.GetScreenFade() >> 1);
-  if (0x80 < fade) {
-    fade = 0x80;
+
+  if (0x80 < fade) { fade = 0x80;
   }
   percent = -1;
   switch(menuDefs->menuAudio.CurrentItem()) {
   case 0:
+
+
+
+
     percent = menuDefs->itemMusicVolume.Percentage();
     break;
   case 1:
@@ -217,42 +261,42 @@ void tScreenAudio::DrawBackground()
     percent = menuDefs->itemAmbientVolume.Percentage();
     break;
   default:
-    goto DrawBg_noSlider;
-  }
+    goto DrawBg_noSlider; }
 DrawBg_noSlider:
   if (-1 < percent) {
     lastpercentage = percent;
-  }
-  if ((-1 < percent) || (-1 < lastpercentage)) {
+  } if ((-1 < percent) || (-1 < lastpercentage)) {
     int ColText;
-    char sBuildOutput [255];
-
-    if ((percent == -1) ||
-       (!::TransitionIsFinished(&menuDefs->menuAudio))) {
+    char sBuildOutput [255]; if ((percent == -1) || (!::TransitionIsFinished(&menuDefs->menuAudio))) {
       perfade = perfade + 4;
     }
-    else {
-      perfade = perfade + -4;
-    }
-    perfade = (perfade <? 0x80) >? 0;
+    else { perfade = perfade + -4;
+    } perfade = (perfade <? 0x80) >? 0;
+
     ColText = CalcFadeVal(TextDefinitionColor(textType_Options,5),0,(int)fade,perfade);
+
+
+
     sprintf(sBuildOutput,"%d%%",percent >= 0 ? percent : lastpercentage);
+
     if (perfade != 0x80) {
       FETextRender_FullTextRGB(sBuildOutput,(short)TextSys_WordX(0x1dc),
+
                                (short)TextSys_WordY(0x1dc),ColText,'\0',1);
     }
   }
+
   for (int i = 0; i < 0x20; i++) {
     DrawShapeExtended
-              (i + 6,1,0,0,(int)fade,0,
-               (tDrawShapeExtended *)0x0);
-  }
-  return;
+              (i + 6,1,0,0,(int)fade,0, (tDrawShapeExtended *)0x0);
+  } return;
 }
 
 /* ---- tScreenAudio::GetShapeInfo  (screenaudio.cpp:288) ---- */
+#line 284 "C:/nfs4/FRONTEND/COMMON/SCREENAUDIO.CPP"
 void tScreenAudio::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
                char **swapFileName)
+
 
 {
 
@@ -262,7 +306,9 @@ void tScreenAudio::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char *
 }
 
 /* ---- tScreenAudio::tScreenAudio  (screenaudio.cpp:297) ---- */
+#line 294 "C:/nfs4/FRONTEND/COMMON/SCREENAUDIO.CPP"
 tScreenAudio::tScreenAudio()
+
 
 {
   this->fSelectedSong = 0;
@@ -273,7 +319,9 @@ tScreenAudio::tScreenAudio()
 /* ---- tScreenAudio::Initialize  (screenaudio.cpp:305) ---- */
 /* The initial selection store precedes the direct menuDefs call in source.
    This ordering gives the retail $a2 reuse with no non-SYM menus local. */
+#line 302 "C:/nfs4/FRONTEND/COMMON/SCREENAUDIO.CPP"
 void tScreenAudio::Initialize()
+
 
 {
   this->fPrevSelectedSong = -1;
@@ -292,7 +340,9 @@ void tScreenAudio::Initialize()
    inline taking the info block, whose hoisted address is what the old `info` carrier reproduced */
 static inline int SpeechLoading(SPEECHINFO *si) { return *(u_short *)&si->areLoading; }
 
+#line 315 "C:/nfs4/FRONTEND/COMMON/SCREENAUDIO.CPP"
 void tScreenAudio::Cleanup()
+
 
 {
   
@@ -315,11 +365,7 @@ void tScreenAudio::Cleanup()
 
   this->tScreen::Cleanup();
 
-  while (SpeechLoading(&ginfo)) {
-    FeAudio_systemtask(0);
-  }
-  return;
-}
+  while (SpeechLoading(&ginfo)) { FeAudio_systemtask(0); } return; }
 
 /* ---- tScreenAudio::~tScreenAudio  (screenaudio.cpp:74) ---- */
 /* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from

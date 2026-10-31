@@ -45,24 +45,10 @@ void MPause_StartPauseMenu(void);
 void MPause_EndPauseMenu(void);
 void MPause_KillMPause(void);
 
-inline void tPMenuItem::Enable()
-{
-  if (this->IsDisabled()) {
-    ChangedEnabling = 1;
-    this->fFlags &= ~1U;
-  }
-}
-
-inline void tPMenuItem::Disable()
-{
-  if (this->IsEnabled()) {
-    ChangedEnabling = 1;
-    this->fFlags |= 1;
-  }
-}
-
 
 /* ---- tPauseMenuDefs  [MPAUSE.CPP:172-264] SLD-VERIFIED ---- */
+
+#line 171 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 tPauseMenuDefs::tPauseMenuDefs()
   : itemGamePaused(0),
     itemContinue(1,kMPause_Continue),
@@ -160,12 +146,16 @@ tPauseMenuDefs::tPauseMenuDefs()
 }
 
 /* ---- ~tPauseMenuDefs  [MPAUSE.CPP:268-268] SLD-VERIFIED ---- */
+
+#line 267 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 tPauseMenuDefs::~tPauseMenuDefs()
 {
 }
 
 /* ---- MPause_MusicLogic__Fc  [MPAUSE.CPP:290-371] SLD-VERIFIED ---- */
+#line 287 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_MusicLogic(char active)
+
 
 {
   /* initialized => emitted into .sdata at this function (retail 0x8013d254..0x8013d264: 0,0,0,pad / 0x7f / 0 / 0) */
@@ -257,7 +247,9 @@ void MPause_MusicLogic(char active)
    preserve the four transient $s0 item-address webs byte-for-byte without
    inventing a retained local.  Retail SLD puts both disables on one line and
    both enables on one line. */
+#line 373 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_ControllerLogic(void)
+
 
 {
   if (PadGetState((u_int)(Device_gPausePortIndex != '\0') << 4) == 2)
@@ -285,7 +277,9 @@ void MPause_ControllerLogic(void)
    not proof that the original source declared a distinct object or
    that ItemEnabledNum mutates the menu. Its spelling is absent from SYM.
    ORIGINAL-NAME-UNRESOLVED: newItem remains source-name backlog. */
+#line 387 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 int MPause_Logic(void)
+
 
 {
   tPMenuCommand command;
@@ -311,11 +305,11 @@ int MPause_Logic(void)
 
   command.type = kMPause_NoEvent;
 
-  if (kMovingHighlight == 0) {
+  if (kMovingHighlight == 0)
 
 
 
-    if (keyVal != kInput_KeyType_NoKey)
+  { if (keyVal != kInput_KeyType_NoKey)
     {
       const int oldItem = gPauseCurrentMenu->CurrentItem();
       gMPauseUpdate = 1;
@@ -339,10 +333,10 @@ int MPause_Logic(void)
       gMPauseUpdateNextTime = 0;
     }
 
-    else gMPauseUpdate = 0;
-  } else goto MPauseLogic_update;
-  if (command.type != kMPause_NoEvent) {
+    else gMPauseUpdate = 0; } else goto MPauseLogic_update;
 
+  if (command.type != kMPause_NoEvent)
+  {
 
     if ((command.type & kMPause_CommandConfirmationFlag) != 0)
     {
@@ -378,16 +372,18 @@ int MPause_Logic(void)
       break;
 
     default: return command.type;
+      break;   /* DEVICE (exact-only): conventional case-terminating break; supplies retail's code-less line-91 note (switch end }92) */
     }
   }
-
   MPause_MusicLogic(gPauseCurrentMenu == (tPMenu *)(((int)gPauseMenuDefs) + 0x1c8));
   MPause_ControllerLogic();
   return 0;
 }
 
 /* ---- MPause_Render__Fv  [MPAUSE.CPP:490-530] SLD-VERIFIED ---- */
+#line 487 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_Render(void)
+
 
 {
   int numItems;
@@ -418,11 +414,11 @@ void MPause_Render(void)
   int currentItem = gPauseCurrentMenu->CurrentItem();
 
 
-  if (kMovingHighlight != 0) {
-
-
-    currentItem = gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd + 0x6a + kMovingHighlight;
-    Hud_FBuildF4(1,0x50,currentItem,0xa0,0xd,0,0,0);
+  if (kMovingHighlight != 0)
+  {
+    int y;   /* DEVICE (exact-only): record-less block local = retail's empty {31 }33 scope (fn exact: bytes, SYM, SLD) */
+    y = gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd + 0x6a + kMovingHighlight;
+    Hud_FBuildF4(1,0x50,y,0xa0,0xd,0,0,0);
   }
   else {
 
@@ -433,7 +429,9 @@ void MPause_Render(void)
 }
 
 /* ---- MPause_InitMPause__Fv  [MPAUSE.CPP:540-544] SLD-VERIFIED ---- */
+#line 537 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_InitMPause(void)
+
 
 {
 
@@ -443,7 +441,9 @@ void MPause_InitMPause(void)
 }
 
 /* ---- MPause_StartPauseMenu__Fv  [retail SLD MPAUSE.CPP:548-593; reconstruction SLD still differs] ---- */
+#line 545 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_StartPauseMenu(void)
+
 
 {
   gPauseCurrentMenu = &gPauseMenuDefs->menuPause;
@@ -466,20 +466,20 @@ void MPause_StartPauseMenu(void)
   else
   {
 
-
-
-
-
-
-
-
-
-
-
     gPauseMenuDefs->itemForfeitRace.Disable(); gPauseMenuDefs->itemQuitRace.Enable();
+
   }
 
-  gPauseMenuDefs->itemAudioSettingsMusicVolume.Enable();
+
+
+
+
+
+
+  {   /* DEVICE (exact-only): plain scope = retail's record-less {32 .. }33 around the music Enable (fn exact) */
+    gPauseMenuDefs->itemAudioSettingsMusicVolume.Enable();
+  }
+
   if (Replay_ReplayMode >= 2)
   {
     gPauseMenuDefs->itemQuitRace.SetConfirmation(false);
@@ -495,7 +495,9 @@ void MPause_StartPauseMenu(void)
 }
 
 /* ---- MPause_EndPauseMenu__Fv  [MPAUSE.CPP:598-600] SLD-VERIFIED ---- */
+#line 595 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_EndPauseMenu(void)
+
 
 {
   InGame_ResetPSXController((u_int)(u_char)Device_gPausePortIndex,
@@ -503,7 +505,9 @@ void MPause_EndPauseMenu(void)
 }
 
 /* ---- MPause_KillMPause__Fv  [MPAUSE.CPP:605-610] SLD-VERIFIED ---- */
+#line 602 "C:/nfs4/GAME/COMMON/MPAUSE.CPP"
 void MPause_KillMPause(void)
+
 
 {
 

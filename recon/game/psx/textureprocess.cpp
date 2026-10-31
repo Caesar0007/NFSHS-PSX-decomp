@@ -49,6 +49,8 @@ int      openkeys[32];
  * Exit-in-body without color is13word PASS but loses the scope; genuine
  * GNU expression groups add unsupported scopes (even at byte PASS).
  * Original producer/spelling and SLD remain open; no padding kept. */
+
+#line 46 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 int TextureProcess_TransColorCheck(char *data,int numentry)
 {
   int translucent_flag;
@@ -93,6 +95,8 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
    * register COPY of the address already materialized for the contrast load
    * (oracle: la $v1,TrackSpec_gSpec; lw 0x10($v1); addu $fp,$v1,$zero).
    * Indexed newdata stores now let the compiler create the output induction. */
+
+#line 355 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
@@ -101,7 +105,7 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
   int contrasttemp;
   sourcedata = data;
   {
-  int j; j = 0; contrasttemp = (TrackSpec_gSpec[4] * level) / (maxlevel + -1);
+  int j; contrasttemp = (TrackSpec_gSpec[4] * level) / (maxlevel + -1);
 
 
 
@@ -111,7 +115,7 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
 
 
 
-  spec = TrackSpec_gSpec; while (1) { if (!(j < numentry)) break;
+  j = 0; spec = TrackSpec_gSpec; while (1) { if (!(j < numentry)) break;
     u_short color;
     int r;
     int g;
@@ -142,17 +146,19 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
     sourcedata = sourcedata + 2;
     j = j + 1;
   }
-  }
-  {
-    RECT r;                          /* SYM names the blit rect `r`, block-scoped (shadows the loop's int r) */ r.x = (short)cx;
-    r.w = (short)numentry; r.y = (short)cy;
+  } {
 
+    RECT r;                          /* SYM names the blit rect `r`, block-scoped (shadows the loop's int r) */ r.x = (short)cx;
+    r.y = (short)cy;
+    r.w = (short)numentry;
     r.h = 1;
     LoadImage(&r,(u_long *)newdata);
   }
 }
 
 /* ---- TextureProcess_DepthColorCluts__FPci  [TEXTUREPROCESS.CPP:422-462] SLD-VERIFIED ---- */
+
+#line 421 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 int TextureProcess_DepthColorCluts(char *data,int numentry)
 {
 
@@ -198,7 +204,9 @@ int TextureProcess_DepthColorCluts(char *data,int numentry)
 }
 
 /* ---- Fog_CheckRange__FiP6FogKey  [TEXTUREPROCESS.CPP:639-661] SLD-VERIFIED ---- */
+#line 636 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 FogKey * Fog_CheckRange(int currentslice,FogKey *fkey)
+
 
 {
   FogKey *keynext;
@@ -226,7 +234,9 @@ FogKey * Fog_CheckRange(int currentslice,FogKey *fkey)
 }
 
 /* ---- Fog_FindKey__FiP6FogKey  [TEXTUREPROCESS.CPP:665-695] SLD-VERIFIED ---- */
+#line 662 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 FogKey * Fog_FindKey(int currentslice,FogKey *fkey)
+
 
 {
 
@@ -262,18 +272,24 @@ FogKey * Fog_FindKey(int currentslice,FogKey *fkey)
 }
 
 /* ---- Fog_AllocKey__Fv  [TEXTUREPROCESS.CPP:716-726] SLD-VERIFIED ---- */
+
+#line 715 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 FogKey * Fog_AllocKey(void)
 {
-  for (int i = 0; i < 0x20; i++) {
+
+  for (int i = 0; i < 0x20; i++)
+  {
     if (openkeys[i] == 1) {
+
       openkeys[i] = 0;
-      return &Fog_gBuf[i];
-    }
+      return &Fog_gBuf[i]; }
+
   }
-  return (FogKey *)0x0;
-}
+  return (FogKey *)0x0; }
 
 /* ---- Fog_AddKey__Fii  [TEXTUREPROCESS.CPP:733-790] SLD-VERIFIED ---- */
+
+#line 732 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void Fog_AddKey(int slice,int distance)
 {
   FogKey *newkey;
@@ -300,8 +316,8 @@ void Fog_AddKey(int slice,int distance)
 
     newkey->prev = newkey;
   }
-  else {
-    FogKey *insertkey = Fog_gHeadKey;
+  else
+  { FogKey *insertkey = Fog_gHeadKey;
     FogKey *savenextkey;
 
 
@@ -341,35 +357,37 @@ void Fog_AddKey(int slice,int distance)
  * The conditional's computation region and inner wrap region reproduce retail
  * binding scopes without extra declarations. Original macro spelling is unknown.
  * Complete source-line attribution remains subject to the SLD comparison. */
+
+#line 839 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void Fog_Update(int player)
 {
   int currentslice;
   FogKey *key; FogKey *nextkey; int nextslice; int diffslice; int diffdistance; int final_dist; if (Fog_gNumKeys == 1) return;
-  {
 
 
 
-    BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
+
+  { BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
 
     currentslice = fogslicePos[player].slice;
 
 
-    Fog_gCurrentKey[player] = (key = Fog_FindKey(currentslice,Fog_gCurrentKey[player]));
-
+    key = Fog_FindKey(currentslice,Fog_gCurrentKey[player]);
+    Fog_gCurrentKey[player] = key;
 
     nextkey = key->next;
     nextslice = nextkey->slice;
-    final_dist = key->distance != nextkey->distance ? ({
+    final_dist = key->distance != nextkey->distance ?
 
 
 
 
 
 
+      ({
 
-
-      if (nextslice < key->slice) {
-        int numslices;
+      if (nextslice < key->slice)
+        { int numslices;
         numslices = gNumSlices;
         nextslice = nextslice + numslices;
 
@@ -377,9 +395,9 @@ void Fog_Update(int player)
           currentslice = currentslice + numslices;
         }
       }
+      diffslice = nextslice - key->slice;
 
-
-      diffdistance = key->next->distance - key->distance; diffslice = nextslice - key->slice;
+      diffdistance = key->next->distance - key->distance;
 
       key->distance + ((currentslice - key->slice) * diffdistance) / diffslice;
     }) : key->distance;
@@ -389,7 +407,9 @@ void Fog_Update(int player)
 }
 
 /* ---- Fog_MakeTrackPathName__FPc  [TEXTUREPROCESS.CPP:1015-1022] SLD-VERIFIED ---- */
+#line 1012 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 char * Fog_MakeTrackPathName(char *ext)
+
 
 {
   static char fogstrspc[64]; /* SYM STAT ARY CHAR[64] */
@@ -412,7 +432,9 @@ char * Fog_MakeTrackPathName(char *ext)
    * instruction gate cannot identify a wrong literal, but raw binary bytes
    * and the independent Redec body settle each branch's actual filename.
    * Keep the existing condition/statement order and ordinary string literals. */
+#line 1023 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 int Fog_ReadFogKeys(void)
+
 
 {
   int *readmem;
@@ -448,11 +470,10 @@ int Fog_ReadFogKeys(void)
     return 0;
   }
 
-  for (int i = 0; ; ) { if (i < numkeys) {
-      /* MATCH: INDEX form off readmem -- loop.c strength-reduces it to the
-       * oracle's unbiased walker (`addu s0,s2,zero` + `lw 4(s0)/lw 8(s0)`);
-       * an explicit `p = readmem; p += 2` walker makes gcc pre-bias the base by
-       * +8 and use -4/0 displacements. */
+  for (int i = 0; i < numkeys; i++) {
+    /* INDEX form off readmem: loop.c strength-reduces it to the oracle's
+     * unbiased walker; an explicit `p += 2` walker pre-biases the base. */
+    int unusedKey; /* DEVICE (exact-only): record-less local keeps the cond scope (retail {35 }48 block), which also stops loop rotation */
 
 
 
@@ -461,8 +482,9 @@ int Fog_ReadFogKeys(void)
 
 
 
-      Fog_AddKey(readmem[i * 2 + 1],readmem[i * 2 + 2]);
-      i++; } else break; }
+
+    Fog_AddKey(readmem[i * 2 + 1],readmem[i * 2 + 2]);
+  }
 
   purgememadr(readmem);
 
@@ -483,11 +505,13 @@ int Fog_ReadFogKeys(void)
  * store still2dif/57, including a grouped real reset/for initializer, and
  * is restored. openval/original second-i producer and full SLD remain open. */
   /* Fog_gCurrentKey is retail's two-element pointer array. */
+#line 1079 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void Fog_InitFogTriggers(void)
+
 
 {
   int num_player;
-  int openval; /* SOURCE-REVIEW-UNRESOLVED: literal store moves the preheader load. */ openval = 1; Fog_gNumKeys = 0;
+  int openval; Fog_gNumKeys = 0;
 
   Fog_gHeadKey = (FogKey *)0x0;
 
@@ -495,7 +519,7 @@ void Fog_InitFogTriggers(void)
 
 
 
-  for (int i = 0x1f; -1 < i; i--) {
+  openval = 1; for (int i = 0x1f; -1 < i; i--) {
     openkeys[i] = openval; }
 
 
@@ -525,14 +549,18 @@ void Fog_InitFogTriggers(void)
     } } return; }
 
 /* ---- Fog_DeInitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1123-1124] SLD-VERIFIED ---- */
+#line 1120 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void Fog_DeInitFogTriggers(void)
+
 
 {
   purgememadr(fogslicePos); return;
 }
 
 /* ---- TextureProcess_Init__Fv  [TEXTUREPROCESS.CPP:1135-1137] SLD-VERIFIED ---- */
+#line 1132 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void TextureProcess_Init(void)
+
 
 {
   gZDepth = 0x10;
@@ -540,6 +568,8 @@ void TextureProcess_Init(void)
 }
 
 /* ---- CV_ProcessWorldColors_FINAL__FiP7CVECTORs  [TEXTUREPROCESS.CPP:1156-1179] SLD-VERIFIED ---- */
+
+#line 1155 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
 {
   for (int i = 0; i < Chunk_numLight; i++) {
@@ -659,7 +689,9 @@ void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
    * testing `night` BEFORE `weather` and so contradicts the oracle's
    * track/weather/night compare order at every arm.  Historical measurement;
    * the final-call-argument absorption below supplies the missing source lever. */
+#line 1180 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void CV_ColorTracks(int track,int weather,int night)
+
 
 {
   int contrast; CVECTOR color; short brightness; contrast = 0;
@@ -739,7 +771,9 @@ CVColor_emitFinal:
 }
 
 /* ---- CV_InitColorVertices__Fv  [TEXTUREPROCESS.CPP:1539-1541] SLD-VERIFIED ---- */
+#line 1536 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void CV_InitColorVertices(void)
+
 
 {
 

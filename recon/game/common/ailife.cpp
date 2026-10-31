@@ -39,6 +39,8 @@ void AILife_Debug(char *format, ...);
 
 
 /* ---- AILife_EvaluateLife__FP8Car_tObj  [@0x80067650] ---- */
+
+#line 50 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 int AILife_EvaluateLife(Car_tObj *carObj)
 {
   if (((carObj->carFlags & 0x400U) == 0) &&
@@ -57,6 +59,8 @@ int AILife_EvaluateLife(Car_tObj *carObj)
 }
 
 /* ---- AILife_RCSetSpeeds__FP8Car_tObj  [@0x800676b4] ---- */
+
+#line 81 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_RCSetSpeeds(Car_tObj *carObj)
 {
   AISpeeds_CalcDesiredSpeed(carObj);
@@ -66,6 +70,8 @@ void AILife_RCSetSpeeds(Car_tObj *carObj)
 /* ---- AILife_RCPickSliceAndDirection__FP8Car_tObj  [@0x800676e4] ---- */
   /* RAW @0x80067ad4-e8: a1=basisCar->carIndex(+0x254), a2=(basisCar->N).simRoadInfo.slice(+8),
    * a3=(carObj->N).simRoadInfo.slice(+8) -- the 3 dropped varargs, restored from the oracle. */
+
+#line 93 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
 {
   /* SYM @0x800676e4: approachSide($s5), offset(unscaled $v0), search($s6), count($s4),
@@ -79,20 +85,20 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
   int search;
   int count;
 
-  {
-
-    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; carObj->basisCar = *(Cars_gLifeBasisCarList + (Cars_gNumLifeBasisCars * ((randtemp & 0xffff00) >> 8) >> 0x10));
 
 
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; const int idx = Cars_gNumLifeBasisCars * ((randtemp & 0xffff00) >> 8) >> 0x10; /* DEVICE (exact-only): idx/sideRoll/dirRoll are record-less const temps: index and rolls tag on their retail lines, the uses on the next ones */
 
 
+    carObj->basisCar = *(Cars_gLifeBasisCarList + idx);
 
-    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; approachSide = 1; if ((int)(((randtemp & 0xffff00) >> 8) * 1000 >> 0x10) < 500) {
 
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; const int sideRoll = ((randtemp & 0xffff00) >> 8) * 1000 >> 0x10;
 
+    if (sideRoll < 500)
       approachSide = -1;
-    }
-  }
+    else
+      approachSide = 1;
   if (0x1e0000 < ((carObj->basisCar->currentSpeed < 0) ?
                   -carObj->basisCar->currentSpeed : carObj->basisCar->currentSpeed)) {
     approachSide = carObj->basisCar->direction;
@@ -123,28 +129,28 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
 
         carObj->basisCar = checkCar;
       }
-      else {
+      else
+
         break;
-      }
     }
 
   }
 
 
-  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10) < 500) {
-    carObj->direction = -1;
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; const int dirRoll = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
+  if (dirRoll < 500) { carObj->direction = -1;
   }
   else {
     carObj->direction = 1;
-  } if (AITune_oneWay != 0) {
+  } if (AITune_oneWay != 0)
     carObj->direction = AILIFE_REVERSE_TRACK == 0 ? 1 : -1;
-  }
+  carObj->desiredDirection = carObj->direction;
 
 
 
 
 
-  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; carObj->desiredDirection = carObj->direction; offset = (randtemp >> 0x15 & 7) + 0x1c;
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; offset = (randtemp >> 0x15 & 7) + 0x1c;
   (carObj->N).simRoadInfo.slice = WRAP_SLICE(offset * approachSide, (carObj->basisCar->N).simRoadInfo.slice);
   AILife_Debug(" psad checked group, basis now %d(s=%d) new slice=%d\n", carObj->basisCar->carIndex, (carObj->basisCar->N).simRoadInfo.slice, (carObj->N).simRoadInfo.slice); return;
 }
@@ -155,6 +161,8 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
    * -- and the RNG step (fastRandom*randSeed) is computed ONCE (oracle materializes it fresh
    * per branch, but from the SAME unconsumed fastRandom/randSeed -- the earlier recon called
    * it TWICE, a real duplicate-computation bug) (w18-a7). */
+
+#line 181 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
 {
   int randNumLanes;
@@ -195,6 +203,8 @@ void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
 }
 
 /* ---- AILife_PlaceCarAtLocation__FP8Car_tObjiiiii  [@0x80067c50] ---- */
+
+#line 256 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_PlaceCarAtLocation(Car_tObj *carObj,int slice,int desiredLatPos,int direction,int currentSpeed,
                int rotation1024)
 {
@@ -210,6 +220,8 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int slice,int desiredLatPos,int 
 /* ---- AILife_SetInitialSlicePositionOrientationEtc__FP8Car_tObj  [@0x80067c8c] ---- */
   /* SYM @0x80067c8c block: ONE local `offset` (AUTO coorddef, fp-24) -- not two
    * (dropped a duplicate dead `coorddef local_18` the earlier pass left; w18-a7). */
+
+#line 268 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_SetInitialSlicePositionOrientationEtc(Car_tObj *carObj)
 {
   coorddef offset; memset((u_char *)&offset,'\0',0xc);
@@ -225,6 +237,8 @@ void AILife_SetInitialSlicePositionOrientationEtc(Car_tObj *carObj)
    * stack slot (fp-0x50) -- each branch writes its own coorddef and copies it into
    * linearVel INSIDE the branch; gcc TAIL-MERGES the byte-identical copy sequence into
    * one shared block (raw shows a single merge point + `j`) (w18-a7, §D tail-merge). */
+
+#line 278 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
 {
 
@@ -284,6 +298,8 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
 }
 
 /* ---- AILife_ReencarnateTraffic__FP8Car_tObj  [@0x80067ee4] ---- */
+
+#line 341 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_ReencarnateTraffic(Car_tObj *carObj)
 {
   /* NFS2 PC recovers paintIndex's name; NFS4's const initializer has no native
@@ -342,6 +358,8 @@ void AILife_ReencarnateTraffic(Car_tObj *carObj)
   /* SYM @0x80067f94 (fn-scope): AUTO coorddef "zero"(fp-0x40, memset'd linearVel temp),
    * AUTO coorddef "offset"(fp-0x30, Newton_Set.. coorddef) -- dropped the dead duplicate
    * decls the earlier pass left unused (w18-a7). */
+
+#line 395 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_ReencarnateTrafficByPosition(Car_tObj *carObj,int slice,int travelDirection,coorddef *pos,matrixtdef *ori)
 {
   coorddef zero;
@@ -400,6 +418,8 @@ void AILife_ReencarnateTrafficByPosition(Car_tObj *carObj,int slice,int travelDi
 }
 
 /* ---- AILife_ReencarnateCopBySlice__FP8Car_tObjiiii  [@0x800681a0] ---- */
+
+#line 477 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_ReencarnateCopBySlice(Car_tObj *carObj,int slice,int travelDirection,int roadSide,int moving)
 {
   /* SYM @0x800681a0: "width"($v0)/"numLanes"($v1) are BLOCK-SCOPED locals inside each
@@ -451,6 +471,8 @@ void AILife_ReencarnateCopBySlice(Car_tObj *carObj,int slice,int travelDirection
   /* SYM @0x80068324 (fn-scope): AUTO coorddef "zero"(fp-0x38, memset'd linearVel temp),
    * AUTO coorddef "offset"(fp-0x28, Newton_Set.. coorddef) -- dropped the dead duplicate
    * decls the earlier pass left unused (w18-a7). */
+
+#line 528 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_ReencarnateCopByPosition(Car_tObj *carObj,int slice,int travelDirection,coorddef *pos,matrixtdef *ori)
 {
   coorddef zero; coorddef offset; memset((u_char *)&zero,'\0',0xc); memset((u_char *)&offset,'\0',0xc);
@@ -495,6 +517,8 @@ void AILife_ReencarnateCopByPosition(Car_tObj *carObj,int slice,int travelDirect
    * linearVel temp), AUTO coorddef "offset"(fp-0x50, Newton_Set.. coorddef), AUTO
    * matrixtdef "rotMatrix"(fp-0x40, xformy target) -- dropped the dead duplicate
    * zero/offset/rotMatrix decls the earlier pass left unused (w18-a7). */
+
+#line 571 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_ReencarnateCopByLatPosAndRotation(Car_tObj *carObj,int slice,int travelDirection,int latPos,int rotation1024)
 {
   coorddef zero; coorddef offset; matrixtdef rotMatrix; memset((u_char *)&zero,'\0',0xc); memset((u_char *)&offset,'\0',0xc);
@@ -545,6 +569,8 @@ void AILife_ReencarnateCopByLatPosAndRotation(Car_tObj *carObj,int slice,int tra
      * $a1 = dist/0xffff (magic-mult div, M=0x80008001 shift=15, restored per §3.14).
      * literal 0/1 returns (not `!cond`) -- oracle recomputes the return value AFTER
      * the call rather than keeping the compare flag live across it in a saved reg. */
+
+#line 626 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 int AILife_IsCoordInThisLiveArea(coorddef *tPos,Car_tObj *racer)
 {
   /* SYM @0x80068658 block: REG xD($v1)/zD($a2)/dist($v1, reuses xD's reg) -- 3 named
@@ -568,6 +594,8 @@ int AILife_IsCoordInThisLiveArea(coorddef *tPos,Car_tObj *racer)
 }
 
 /* ---- AILife_IsTrafficCarInAnyLiveArea__FP8Car_tObj  [@0x80068704] ---- */
+
+#line 653 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 Car_tObj * AILife_IsTrafficCarInAnyLiveArea(Car_tObj *traffic)
 {
   int racerLoop;
@@ -586,6 +614,8 @@ Car_tObj * AILife_IsTrafficCarInAnyLiveArea(Car_tObj *traffic)
 /* ---- AILife_IsCoordInThisVisibleArea__FP8coorddefP8Car_tObj  [@0x80068788] ---- */
   /* SYM @0x80068788 block: same REG layout as IsCoordInThisLiveArea -- xD($v1)/
    * zD($a2)/dist($v1, reuses xD's reg) (w18-a7). */
+
+#line 672 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 int AILife_IsCoordInThisVisibleArea(coorddef *tPos,Car_tObj *racer)
 {
   int xD;
@@ -603,6 +633,8 @@ int AILife_IsCoordInThisVisibleArea(coorddef *tPos,Car_tObj *racer)
 }
 
 /* ---- AILife_IsCarInAnyVisibleArea__FP8Car_tObj  [@0x800687ec] ---- */
+
+#line 696 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj)
 {
   return AILife_IsPositionInAnyVisibleArea(&(carObj->N).position);
@@ -612,6 +644,8 @@ Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj)
   /* SYM @0x8006880c: racerLoop($s1) is outer; sliceDist($v0) starts in the
      loop-body block at +0x24.  With that lexical scope, the natural indexed
      loop strength-reduces to retail's unnamed $s0 list cursor. */
+
+#line 705 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice)
 {
   int racerLoop;
@@ -629,6 +663,8 @@ Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice)
 /* ---- AILife_IsSliceCloseToAnyCopCar__Fi  [@0x800688ac] ---- */
   /* SYM @0x800688ac gives the parallel shape: copLoop($s1) is outer and
      sliceDist($v0) belongs to the loop-body block at +0x24. */
+
+#line 727 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice)
 {
   int copLoop;
@@ -644,6 +680,8 @@ Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice)
 }
 
 /* ---- AILife_IsPositionInAnyVisibleArea__FP8coorddef  [@0x8006894c] ---- */
+
+#line 746 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 Car_tObj * AILife_IsPositionInAnyVisibleArea(coorddef *pos)
 {
   int racerLoop;
@@ -661,6 +699,8 @@ Car_tObj * AILife_IsPositionInAnyVisibleArea(coorddef *pos)
  * varargs, a NAME MISMATCH invisible to the gate ("NOT IN OBJECT" forever). Raw demangle
  * @0x800689d0 confirms "AILife_Debug(char *, ...)". Nullsub body (§3.2 compiled-out debug fn)
  * but callers still set up the real varargs (§3.2 nullsub-still-takes-its-real-args). */
+
+#line 763 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 void AILife_Debug(char *format, ...)
 {
   /* SYM fsize=0, no locals besides REGPARM format -- the Ghidra-decompiled dead locals this

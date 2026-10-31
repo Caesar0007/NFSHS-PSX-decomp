@@ -103,7 +103,9 @@ int Weather_gTrackIntensityLimit;              /* @0x8013dc0c */
  * reads reproduce retail, so weather.cpp needs no word-array or scalar alias. */
 
 /* ---- Weather_GetNumParticles__Fi  [WEATHER.CPP:107-108] SLD-VERIFIED ---- */
+#line 104 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 int Weather_GetNumParticles(int player)
+
 
 {
   return Weather_gSys.num[0];
@@ -115,6 +117,8 @@ int Weather_GetNumParticles(int player)
  * (third block's r2 = $4/a0 reuses the dead param reg). MATCH: SYM block scopes are
  * load-bearing (catalog SS A DrawW_WorldSetUpMatrix row) -- one fn-scope decl set kept
  * the block-1 coloring on the last row. */
+
+#line 111 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_SetMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -131,6 +135,8 @@ void Weather_SetMatrix(matrixtdef *m)
 }
 
 /* ---- Weather_SetIdentMatrix__Fv  [WEATHER.CPP:127-139] SLD-VERIFIED ---- */
+
+#line 126 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_SetIdentMatrix(void)
 {
   MATRIX Ident;
@@ -148,7 +154,9 @@ void Weather_SetIdentMatrix(void)
 }
 
 /* ---- Weather_InitSnow__Fv  [WEATHER.CPP:150-162] SLD-VERIFIED ---- */
+#line 147 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_InitSnow(void)
+
 
 {
   Weather_gSys.num[0] = 0x96;
@@ -166,7 +174,9 @@ void Weather_InitSnow(void)
 }
 
 /* ---- Weather_InitRain__Fv  [WEATHER.CPP:166-178] SLD-VERIFIED ---- */
+#line 163 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_InitRain(void)
+
 
 {
   Weather_gSys.num[0] = 0x96;
@@ -206,21 +216,25 @@ void Weather_InitRain(void)
  * no-rotation + result-var break.  PASS-only SYM cleanup restored canonical
  * `i/ySize` and direct random-call expressions.  Direct `GameSetup_gData.commMode == 1`
  * is FAIL 15 (66/69), so the setup base/value remain explicit carriers. */
+#line 179 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_InitSplats(void)
+
 
 {
   int i;
-  GameSetup_tData *gameSetup; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct field form15diff/66 on current for owner,not original-object proof. */ int commModeNetwork; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original loop comparison-constant producer remains unknown. */ for (i = 0, gameSetup = &GameSetup_gData, commModeNetwork = 1;;) { int ySize; if (!(i < 0x13)) break;
-    ySize = 0xf0;
-    if (gameSetup->commMode == commModeNetwork) { ySize = 0x78;
-    }
+  for (i = 0;;) { int ySize; if (!(i < 0x13)) break;
+
+    ySize = (GameSetup_gData.commMode == 1) ? 0x78 : 0xf0;
+
     Weather_gSplatInfo[i].pos.vx = (short)((u_int)random() % 320);
     Weather_gSplatInfo[i].pos.vy = (short)((u_int)random() % ySize);
     Weather_gSplatInfo[i].startTick = (u_int)random() % 300;
     i = i + 1; } return; }
 
 /* ---- Weather_GetNewState__Fv  [WEATHER.CPP:238-249] SLD-VERIFIED ---- */
+#line 235 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 int Weather_GetNewState(void)
+
 
 {
   int randseed;
@@ -241,7 +255,9 @@ int Weather_GetNewState(void)
  * overrides, only committing to Weather_gDensityChangeFactor ONCE at the end (with the goalState
  * add + the ==0 check both reading that same held value) -- not re-storing the raw pre-override
  * return value to the global first. */
+#line 250 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_ChangeDensityState(void)
+
 
 {
   int statechange;
@@ -264,7 +280,9 @@ void Weather_ChangeDensityState(void)
 /* ---- Weather_ChangeIntensityState__Fv  [WEATHER.CPP:273-292] SLD-VERIFIED ----
  * Same held-register-temp fix as Weather_ChangeDensityState: keep Weather_GetNewState()'s result
  * in a local through both conditional overrides, commit to the global ONCE at the end. */
+#line 270 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_ChangeIntensityState(void)
+
 
 {
   int statechange;
@@ -297,7 +315,9 @@ void Weather_ChangeIntensityState(void)
      both j's advance, and cross_jump builds retail's shared jal block.  The
      third guard's operand order (TICKS > goal) is load-bearing (swapped = 4
      posmis).  Receipt: scratchpad/w83/A7_receipt.md. */
+#line 293 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_ChangeDensityBasedOnTime(void)
+
 
 {
 
@@ -331,7 +351,9 @@ void Weather_ChangeDensityBasedOnTime(void)
  * and its empty asm cross-jump barrier while preserving the native function
  * frame, locals and scope tree. The historical 58/62 cross-jump misses were
  * basin-specific, not a compiler floor. Full line-tag SLD remains open. */
+#line 320 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_ChangeIntensityBasedOnTime(void)
+
 
 {
 
@@ -363,7 +385,9 @@ void Weather_ChangeIntensityBasedOnTime(void)
   else { Weather_gType = 0; } return; }
 
 /* ---- Weather_InitStateControls__Fv  [WEATHER.CPP:355-387] SLD-VERIFIED ---- */
+#line 352 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_InitStateControls(void)
+
 
 {
   int track;
@@ -412,11 +436,13 @@ void Weather_InitStateControls(void)
  * materialization at all. Root cause: the split-per-element storage fix above (see the
  * WEATHER_GLASTPROCESSTIME0/1 comment near the top of the file). Fixed by writing through
  * those two real tentative-def scalars instead of Weather_gLastProcessTime[N]; PASS 31/31. */
+#line 388 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_Restart(void)
 
+
 {
-  if (GameSetup_gData.Weather != 0) {
-    int i;
+  if (GameSetup_gData.Weather != 0)
+  { int i;
 
     if (GameSetup_gData.commMode != 1) {
       Weather_InitStateControls();
@@ -486,15 +512,17 @@ void Weather_Restart(void)
      The complete source-only object equals the old mixed-flag object.
      Whole-TU -fforce-addr still regresses three neighbors; no flag is needed
      for this ordinary pointer-access source shape. */
+#line 411 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_Init(void)
+
 
 {
   Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
 
 
-  if (GameSetup_gData.Weather != 0) {
-    int i;
+  if (GameSetup_gData.Weather != 0)
 
+  { int i;
 
 
 
@@ -573,7 +601,9 @@ void Weather_Init(void)
     Weather_InitSplats(); } return; }
 
 /* ---- Weather_DeInit__Fv  [WEATHER.CPP:501-527] SLD-VERIFIED ---- */
+#line 498 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_DeInit(void)
+
 
 {
 
@@ -630,6 +660,8 @@ void Weather_DeInit(void)
  * is not retained. No new helper,alias,fence,qualifier or fake use. Native
  * CLEAN is not literal original source or complete SLD attribution proof.
  */
+
+#line 580 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
   VECTOR tv;
@@ -658,8 +690,8 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 
     s = s + 1;
   }
-  {
-    int r0;
+
+  { int r0;
     int r1; int r2; r0 = tv.vx;
     r1 = tv.vy;
     r2 = tv.vz;
@@ -691,7 +723,9 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
  * original-object proof. No new object,alias,fence,qualifier,flag or output
  * rewrite. Complete native contract remains exact; full SLD/text still open.
  */
+#line 620 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 short Weather_CheckAndResetParticles(SVECTOR *pt)
+
 
 {
   short flag;
@@ -751,8 +785,10 @@ short Weather_CheckAndResetParticles(SVECTOR *pt)
  * form read unrelated globals => wrong up-vector at runtime.
  * The dot product is expanded THREE times (test + both ternary arms) = an ABS() macro
  * over a DOT() macro, and there is no SYM local for it. */
+#line 669 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_QuickReOrthogonalize
                (matrixtdef *rot,matrixtdef *rotNew)
+
 
 {
   coorddef upvector = {0,0x10000,0};
@@ -830,6 +866,8 @@ void Weather_QuickReOrthogonalize
   /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
   /* re-orthogonalize the camera matrix, build the frame-to-frame difference matrix, and transform
      every particle by it so the whole field rotates rigidly with the camera */
+
+#line 703 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
   int n;
@@ -958,32 +996,32 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   }
 
   /* advance every particle by (camera comp + wind) + its turbulence vector; wrap + flag resets */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   {
     SVECTOR *tv;
     long n;
     short reset; /* SOURCE-REVIEW-UNRESOLVED: absent from retail despite debug elision; actual returned reset flag is captured before writeback. */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     tv = wpt;
 
-    for (n = 0;;) { if (num <= n) break;
+    for (n = 0; n < num; n = n + 1) {
       SVECTOR pt;
       pt.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx +
 
@@ -1007,7 +1045,7 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 
         wd[n] = 0;
       }
-      n = n + 1;
+
 
 
 
@@ -1057,6 +1095,8 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
    * RETIRED.  Re-measured after removal: this function and the whole TU stay
    * 25/25 PASS -- dials (2) split bump + (3) split palette RMW carry the match on
    * their own, so the fence was scaffolding left over from the pre-split basin. */
+
+#line 922 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_CreateSnow(SVECTOR *pt)
 {
   SVECTOR gv [4];
@@ -1155,6 +1195,8 @@ void Weather_CreateSnow(SVECTOR *pt)
        * local costs 8 diffs here -- they pin the 0x402020 constant's lui/ori below
        * the header store, where retail hoists it above the whole group. */
     /* have a previous screen position -> draw the motion-blur streak from it to the current point */
+
+#line 966 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 {
   LINE_G2 *prim;
@@ -1162,8 +1204,8 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 
   gv = *pt0;
 
-  if (*wd != '\0') {
-    int nx;
+  if (*wd != '\0')
+  { int nx;
     int ny;
     nx = pt1->vx;
     ny = pt1->vy;
@@ -1224,8 +1266,10 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
  * statement and the colour recomputing (gameTicks - startTick); this removes
  * the old `sh` carrier and both W85 splits' need, bytes 74/74 PASS, tags 0/74,
  * blocks exact. */
+#line 1005 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_CreateSplat
                (Weather_tSplatInfo *splat)
+
 
 {
 
@@ -1406,15 +1450,17 @@ void Weather_CreateSplat
      PASSes; in the tick-guard index (120 insns) or CreateSplat arg (116) it costs
      code.  Natural spellings of the compare/loop (Yoda, -1, +1 ==, >=, for,
      `>` loop test) all stay at the 14-diff s1/s2 swap. */
+#line 1035 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
+
 
 {
   int i; Weather_tSplatInfo *q; /* SYM-CODEGEN-CARRIER: q -- measured GIV/identity carrier */ if (gCurrentNumSplats < num) {
     gCurrentNumSplats = num;
   }
-  i = 0;
-  while ((i | (i & 3)) < gCurrentNumSplats) {
+
+  for (i = 0; (i | (i & 3)) < gCurrentNumSplats; i = i + 1) {
 
       if (simGlobal.gameTicks >= splats[i].startTick) {
         if (splats[i].startTick + 0x20 < simGlobal.gameTicks) {
@@ -1422,8 +1468,8 @@ void Weather_DoSplats
 
           if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {
 
-
             gCurrentNumSplats = i;
+            continue;
           }
           else {
             splats[i].pos.vx = (short)((u_int)random() % 320);
@@ -1434,7 +1480,7 @@ void Weather_DoSplats
         }
         else { Weather_CreateSplat(&splats[i]);
         }
-      } i = i + 1; } return; }
+      } } return; }
 
 /* ---- Weather_DoWeather__FP13DRender_tView  [WEATHER.CPP:1069-1156] SLD-VERIFIED ---- */
 /* MATCH (2026-08-26, strict source-only PASS 197/197): the final residual was
@@ -1775,6 +1821,8 @@ void Weather_DoSplats
      * whole-function allocno permutation, so the barrier costs more than it buys). */
 
     /* tail: link a DR_MODE primitive into the OT to reset the texture page */
+
+#line 1068 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_DoWeather(DRender_tView *Vi)
 {
   int n;
@@ -1793,10 +1841,10 @@ void Weather_DoWeather(DRender_tView *Vi)
   wd = *(Weather_gDrawnServer + player);
 
 
+  if (GameSetup_gData.commMode != 1)
 
 
-
-  if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
+  if (0x20 < simGlobal.gameTicks - timechange) {
 
     timechange = simGlobal.gameTicks;
 
@@ -1866,10 +1914,13 @@ void Weather_DoWeather(DRender_tView *Vi)
 }
 
 /* ---- Weather_BuildWeather__FP13DRender_tView  [WEATHER.CPP:1159-1186] SLD-VERIFIED ---- */
+#line 1156 "C:/nfs4/GAME/PSX/WEATHER.CPP"
 void Weather_BuildWeather(DRender_tView *Vi)
 
+
 {
-  if ((GameSetup_gData.Weather != 0) &&
+
+  if (GameSetup_gData.Weather != 0)
 
 
 
@@ -1882,9 +1933,7 @@ void Weather_BuildWeather(DRender_tView *Vi)
 
 
 
-
-      (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) == 0)) {
-
+  if (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) == 0) {
 
 
 
@@ -1893,8 +1942,9 @@ void Weather_BuildWeather(DRender_tView *Vi)
 
 
 
-    Weather_DoWeather(Vi);
-  }
-  return; }
+
+    Weather_DoWeather(Vi); } return;
+
+}
 
 /* end of weather.cpp */

@@ -14,7 +14,9 @@ char *New_cplusplus_heap;
 
 
 /* ---- __builtin_new  [NEW.CPP:16-27] SLD-VERIFIED ---- */
+#line 13 "C:/nfs4/GAME/COMMON/NEW.CPP"
 void *__builtin_new(unsigned int size)
+
 
 {
 
@@ -31,7 +33,9 @@ void *__builtin_new(unsigned int size)
 }
 
 /* ---- __builtin_vec_new  [NEW.CPP:31-42] SLD-VERIFIED ---- */
+#line 28 "C:/nfs4/GAME/COMMON/NEW.CPP"
 void *__builtin_vec_new(unsigned int size)
+
 
 {
 
@@ -48,14 +52,18 @@ void *__builtin_vec_new(unsigned int size)
 }
 
 /* ---- __builtin_delete  [NEW.CPP:46-47] SLD-VERIFIED ---- */
+#line 43 "C:/nfs4/GAME/COMMON/NEW.CPP"
 void __builtin_delete(void *deleteMe)
+
 
 {
   purgememadr(deleteMe); return;
 }
 
 /* ---- __builtin_vec_delete  [NEW.CPP:51-52] SLD-VERIFIED ---- */
+#line 48 "C:/nfs4/GAME/COMMON/NEW.CPP"
 void __builtin_vec_delete(void *deleteMe)
+
 
 {
   purgememadr(deleteMe); return;

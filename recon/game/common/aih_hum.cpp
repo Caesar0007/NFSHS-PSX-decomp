@@ -16,7 +16,9 @@ extern "C" int sprintf(char *, const char *, ...);
 
 /* ---- HighExecute__12AIHigh_Human  AIHigh_Human::HighExecute  [AIH_HUM.CPP:26-34] SLD-VERIFIED ---- */
 
+#line 21 "C:/nfs4/GAME/COMMON/AIH_HUM.CPP"
 void AIHigh_Human::HighExecute()
+
 
 
 
@@ -40,6 +42,8 @@ void AIHigh_Human::HighExecute()
 
 
 /* ---- __12AIHigh_HumanP8Car_tObj  AIHigh_Human::ctor  [AIH_HUM.CPP:38-39] SLD-VERIFIED ---- */
+
+#line 38 "C:/nfs4/GAME/COMMON/AIH_HUM.CPP"
 AIHigh_Human::AIHigh_Human(Car_tObj *carObj) : AIHigh_Player(carObj)
 {}
 

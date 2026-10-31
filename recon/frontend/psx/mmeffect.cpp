@@ -18,9 +18,6 @@
  * abr, 0, 0x100); SetDrawMode emits the draw-mode primitive. abr arrives in a0 (the decompiler's
  * lost-dataflow `in_a0` read == the regparm abr). Non-SYM temps named to match PSXFRONT:
  * linkAddr (24-bit OT link), prevPrim (= Render_gPalettePtr link cursor). */
-void FeDraw_SetABRMode(int abr)
-
-{
   /* SYM 8c: named locals are EXACTLY abr (REGPARM int) + dr_mode (REG DR_MODE*).
    * SLD: 0x8004D708..0x8004D740 -- the WHOLE OT-link block -- is ONE source line
    * (236); the SetDrawMode call is line 237.  So retail wrote line 236 as a single
@@ -44,15 +41,15 @@ void FeDraw_SetABRMode(int abr)
    * `prevPrim`+`linkAddr` spelling (30) and `linkAddr` alone (30); linkWord with the
    * OR operands swapped (26); and the -G / -mno-split-addresses axis (gprobe: all
    * four settings == baseline). */
+#line 230 "C:/nfs4/FRONTEND/PSX/MMEFFECT.CPP"
+void FeDraw_SetABRMode(int abr)
+
+
+{
   DR_MODE *dr_mode;
 
-  dr_mode = (DR_MODE *)Render_gPacketPtr;
-  dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
-  const u_long linkWord = *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff; /* debug-elided OT staging */
-  Render_gPacketPtr = (u_char *)dr_mode + 0xc;
-  *(u_long *)Render_gPalettePtr = linkWord;
-  SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,abr,0,0x100),(RECT *)0x0);
-  return;
+  dr_mode = (DR_MODE *)Render_gPacketPtr; dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff; const u_long linkWord = *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff; /* debug-elided OT staging */ Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+  *(u_long *)Render_gPalettePtr = linkWord; SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,abr,0,0x100),(RECT *)0x0); return;
 }
 
 /* end of mmeffect.cpp */

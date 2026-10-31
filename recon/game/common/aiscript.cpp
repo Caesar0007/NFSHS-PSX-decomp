@@ -16,6 +16,8 @@ int AIScript_GetReactionTicksLeft(AIScript_t *script);
 
 
 /* ---- AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails  [@0x8006f6f8] ---- */
+
+
 #line 5 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7])
 {
@@ -23,6 +25,8 @@ void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7])
 }
 
 /* ---- AIScript_ClearLastReactionIndex__FP10AIScript_t  [@0x8006f700] ---- */
+
+
 #line 10 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_ClearLastReactionIndex(AIScript_t *script)
 {
@@ -33,6 +37,8 @@ void AIScript_ClearLastReactionIndex(AIScript_t *script)
 }
 
 /* ---- AIScript_Startup__FP10AIScript_t  [@0x8006f724] ---- */
+
+
 #line 17 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_Startup(AIScript_t *script)
 {
@@ -44,12 +50,16 @@ void AIScript_Startup(AIScript_t *script)
 }
 
 /* ---- AIScript_Cleanup__Fv  [@0x8006f760] ---- */
+
+
 #line 26 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_Cleanup(void)
 {
 }
 
 /* ---- AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni  [@0x8006f768] ---- */
+
+
 #line 29 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPlayAction playerAction,
                int currentTime64)
@@ -92,6 +102,8 @@ void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPl
  * combined native run-k3ppevh8, all8 AISCRIPT contracts exact. This does not
  * uniquely certify original literal text or every type-preamble record. */
 /* ---- AIScript_ProcessActionsAndReactions__FP10AIScript_ti  [@0x8006f7f0] ---- */
+
+
 #line 54 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
@@ -185,6 +197,8 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
   script->reactionTicksLeft = script->reactionTicksLeft - elapsedTicks; return; }
 
 /* ---- AIScript_DoReAction__FP10AIScript_t20AIScript_tAIReaction  [@0x8006f958] ---- */
+
+
 #line 148 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReaction)
 {
@@ -195,6 +209,8 @@ int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReaction)
 }
 
 /* ---- AIScript_GetReactionTicksLeft__FP10AIScript_t  [@0x8006f988] ---- */
+
+
 #line 156 "C:/nfs4/GAME/COMMON/AISCRIPT.CPP"
 int AIScript_GetReactionTicksLeft(AIScript_t *script)
 {

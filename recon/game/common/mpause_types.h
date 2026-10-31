@@ -255,6 +255,23 @@ inline int tPMenu::CurrentItem() { return fCurrentItem; }
 inline void tPMenu::SetHighlight(bool highlight) { fHighlight = highlight; }
 inline unsigned int tPMenuItem::TextDescription() { return fTextDescription; }
 inline void tPMenuItem::SetTextDescription(unsigned int text) { fTextDescription = text; }
+/* Enable/Disable are header inlines: retail records their scopes at the caller's line in
+   MPause_ControllerLogic / MPause_StartPauseMenu (a same-.cpp inline clamps them to line 1). */
+extern bool ChangedEnabling;   /* PauseMenu.obj */
+inline void tPMenuItem::Enable()
+{
+  if (this->IsDisabled()) {
+    ChangedEnabling = 1;
+    this->fFlags &= ~1U;
+  }
+}
+inline void tPMenuItem::Disable()
+{
+  if (this->IsEnabled()) {
+    ChangedEnabling = 1;
+    this->fFlags |= 1;
+  }
+}
 inline void tPMenuItemCommandButton::SetCommand(tPMenuCommandType command) { fCommand = command; }
 inline void tPMenuItemCommandButton::SetConfirmation(bool confirmation) {
     if (!confirmation) {

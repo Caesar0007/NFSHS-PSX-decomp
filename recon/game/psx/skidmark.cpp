@@ -23,17 +23,19 @@ int          gMaxSChunk;   /* @0x8013dad4  (bss(zero)) */
 
 
 /* ---- CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i  [SKIDMARK.CPP:48-72] SLD-VERIFIED ---- */
+#line 44 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void CalcStartSegment(Skidmark_Segment *r1,Skidmark_Segment *r2,coorddef *cp,coorddef *pt1,
                       coorddef *pt2,int tireWidth)
+
 
 {
 
   int pxp;
   int pzp;
-  {
-    int angle;
-
-    angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
+  { int angle;
+    int dx = pt2->x - pt1->x; /* REVIEW (accepted): record-less split temporary (retail loads on their own line), name guessed. */
+    int dz = pt2->z - pt1->z; /* REVIEW (accepted): record-less split temporary, name guessed. */
+    angle = intatan(dx,dz);
     pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
     pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
   }
@@ -54,7 +56,9 @@ void CalcStartSegment(Skidmark_Segment *r1,Skidmark_Segment *r2,coorddef *cp,coo
 }
 
 /* ---- CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i  [SKIDMARK.CPP:81-99] SLD-VERIFIED ---- */
+#line 78 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt2,int tireWidth)
+
 
 {
   int pxp;
@@ -62,9 +66,9 @@ void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt
   {
     int angle;
 
-
-
-    angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
+    int dx = pt2->x - pt1->x; /* REVIEW (accepted): record-less split temporary, name guessed. */
+    int dz = pt2->z - pt1->z; /* REVIEW (accepted): record-less split temporary, name guessed. */
+    angle = intatan(dx,dz);
     pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
     pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
   }
@@ -90,8 +94,22 @@ void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt
  * correct value ownership or matching,so the unresolved nseg remains.
  */
 /* ---- Skidmark_CheckChunk__FP8coorddefii  [SKIDMARK.CPP:115-151] SLD-VERIFIED ---- */
+/* The oracle does NOT compute |d| once and compare once -- it materializes the
+   0xFFFFF limit and does a SEPARATE `slt 0xFFFFF,<diff>` in EACH arm
+   (`blez a1,.L800DEA48` + a duplicated `lui/ori 0xFFFFF`), i.e. the source is a
+   two-comparison ternary per axis, not an abs-then-compare. */
+/* MATCH (w39-a10): the segment total must be a NAMED local MUTATED IN PLACE
+   (`nseg = returnsm->n; nseg = nseg + newsegs;`) -- the one-expression form
+   `0x18 < returnsm->n + newsegs` gives the sum its own anonymous pseudo, which
+   local-alloc parks in $t1 (needNew's home) instead of reusing the dying $v0
+   that held returnsm->n.  Same pseudo on both sides of the `+` guarantees the
+   oracle's in-place `addu $v0,$v0,$a1; slti $v0,$v0,0x19`.  (Reusing the
+   existing `d` for this REGRESSES 4 -> 55: `d` is live across the three axis
+   arms, so it becomes a global allocno and drags the whole compare chain.) */
+#line 111 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 Skidmark_Chunk *
 Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
+
 
 {
   Skidmark_Chunk *returnsm;
@@ -99,58 +117,36 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
   int nseg; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct sum4diff/107 after d removal,not original-object proof. */
 
   returnsm = gSm + gUseSm;
-  /* MATCH (w39-a10): the segment total must be a NAMED local MUTATED IN PLACE
-     (`nseg = returnsm->n; nseg = nseg + newsegs;`) -- the one-expression form
-     `0x18 < returnsm->n + newsegs` gives the sum its own anonymous pseudo, which
-     local-alloc parks in $t1 (needNew's home) instead of reusing the dying $v0
-     that held returnsm->n.  Same pseudo on both sides of the `+` guarantees the
-     oracle's in-place `addu $v0,$v0,$a1; slti $v0,$v0,0x19`.  (Reusing the
-     existing `d` for this REGRESSES 4 -> 55: `d` is live across the three axis
-     arms, so it becomes a global allocno and drags the whole compare chain.) */
-  nseg = returnsm->n;
-  nseg = nseg + newsegs;
-  NewChunk = 0x18 < nseg;
-  /* The oracle does NOT compute |d| once and compare once -- it materializes the
-     0xFFFFF limit and does a SEPARATE `slt 0xFFFFF,<diff>` in EACH arm
-     (`blez a1,.L800DEA48` + a duplicated `lui/ori 0xFFFFF`), i.e. the source is a
-     two-comparison ternary per axis, not an abs-then-compare. */
+
+
+  nseg = returnsm->n; nseg = nseg + newsegs; NewChunk = 0x18 < nseg;
   if ((0 < (returnsm->cp).x - skidpt->x) ?
-      (0xfffff < (returnsm->cp).x - skidpt->x) :
-      (0xfffff < skidpt->x - (returnsm->cp).x)) {
-    NewChunk = true;
-  }
-  else {
-    if ((0 < (returnsm->cp).y - skidpt->y) ?
-        (0xfffff < (returnsm->cp).y - skidpt->y) :
-        (0xfffff < skidpt->y - (returnsm->cp).y)) {
-      NewChunk = true;
-    }
-    else {
-      if ((0 < (returnsm->cp).z - skidpt->z) ?
-          (0xfffff < (returnsm->cp).z - skidpt->z) :
-          (0xfffff < skidpt->z - (returnsm->cp).z)) {
-        NewChunk = true;
+      (0xfffff < (returnsm->cp).x - skidpt->x) : (0xfffff < skidpt->x - (returnsm->cp).x)) {
+    NewChunk = true; } else { if ((0 < (returnsm->cp).y - skidpt->y) ? (0xfffff < (returnsm->cp).y - skidpt->y) : (0xfffff < skidpt->y - (returnsm->cp).y)) {
+      NewChunk = true; } else { if ((0 < (returnsm->cp).z - skidpt->z) ? (0xfffff < (returnsm->cp).z - skidpt->z) : (0xfffff < skidpt->z - (returnsm->cp).z)) { NewChunk = true;
       }
     }
-  }
-  if (NewChunk) {
-    if (gCountSm < gMaxSChunk) {
-      gUseSm = gCountSm;
-      gCountSm = gCountSm + 1;
+  } if (NewChunk) {
+
+
+    if (gCountSm < gMaxSChunk) { gUseSm = gCountSm; gCountSm = gCountSm + 1;
     }
-    else if (gUseSm < gMaxSChunk + -1) {
-      gUseSm = gUseSm + 1;
+
+    else if (gUseSm < gMaxSChunk + -1) { gUseSm = gUseSm + 1;
     }
-    else {
-      gUseSm = 0;
+    else { gUseSm = 0;
     }
+
     returnsm = gSm + gUseSm;
     returnsm->n = 0;
   }
+
   if (returnsm->n == 0) {
+
     returnsm->cp = *skidpt;
     returnsm->slice = (short)slice;
   }
+
   return returnsm;
 }
 
@@ -183,7 +179,9 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
    `lh $v1,12($s0)` LOAD-DELAY SLOT.  Written any earlier the value is allocated to
    $v1 (which `lh $v1,12($s0)` then needs), so the store has to precede the lh and
    the slot fills with a nop -- +1 insn per tail, at both tails. */
+#line 156 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,int type,int slice)
+
 
 {
   Skidmark_Chunk *sm;
@@ -278,8 +276,10 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
  *   (2) arm3's CalcStartSegment args are spelled inline (`&sm->seg[sm->n]`,
  *       `&sm->seg[sm->n + 1]`); a named `n` local takes $a0 where retail's anonymous
  *       CSE temp takes $v0.  Converting arm1 to the named form regresses 6 -> 12. */
+#line 260 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,coorddef *skidpt,
                         CVECTOR *color,int tireWidth,int type,int slice)
+
 
 {
   Skidmark_Chunk *sm;
@@ -346,8 +346,10 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
   sm->n = sm->n + 2; }
 
 /* ---- Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii  [SKIDMARK.CPP:336-341] SLD-VERIFIED ---- */
+#line 332 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void Skidmark_Stretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,coorddef *skidpt,
                      CVECTOR *color,int tireWidth,int type)
+
 
 {
 
@@ -358,8 +360,10 @@ void Skidmark_Stretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,coord
 }
 
 /* ---- Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii  [SKIDMARK.CPP:350-361] SLD-VERIFIED ---- */
+#line 346 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void Skidmark_EndStretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,coorddef *skidpt,
                         CVECTOR *color,int tireWidth,int type)
+
 
 {
 
@@ -376,18 +380,23 @@ void Skidmark_EndStretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,co
 }
 
 /* ---- Skidmark_OnyxBuildFacets__FP13DRender_tView  [SKIDMARK.CPP:365-408] SLD-VERIFIED ---- */
-void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
-
-{
-  Draw_tCtrlSkidmark *fskid;
-  Draw_tCtrlSkidmark fskidspace;
-
   /* Oracle loads each 3-int group into THREE distinct caller-saved regs and only then
      stores them (the loads fill each other's load-delay slots); per-field
      `dst = src;` statements serialize through one reg and cost a nop each.
      `fskidspace.t = Vi->cview.translation` is a movstrsi struct assignment
      (oracle `lw a3/t0/t1; sw a3/t0/t1`). */
+#line 362 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
+void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
+
+
+{
+  Draw_tCtrlSkidmark *fskid;
+  Draw_tCtrlSkidmark fskidspace;
+
+
+
   fskid = &fskidspace;
+
   fskidspace.t = Vi->cview.translation;
   fskid->count = gCountSm;
   fskid->smp = gSm;
@@ -395,6 +404,13 @@ void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
     int t1;
     int t2;
     int t3;
+
+
+
+
+
+
+
     t1 = Vi->cview.mrotationInv.m[0];
     t2 = Vi->cview.mrotationInv.m[1];
     t3 = Vi->cview.mrotationInv.m[2];
@@ -414,12 +430,15 @@ void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
     fskid->m.m[7] = -t2;
     fskid->m.m[8] = t3;
   }
-  Draw_kCtrlSkidmark(fskid);
-  return;
+
+
+  Draw_kCtrlSkidmark(fskid); return;
 }
 
 /* ---- Skidmark_InitSkidmark__Fv  [SKIDMARK.CPP:419-429] SLD-VERIFIED ---- */
+#line 416 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void Skidmark_InitSkidmark(void)
+
 
 {
   gMaxSChunk = 0x10;
@@ -435,7 +454,9 @@ void Skidmark_InitSkidmark(void)
 }
 
 /* ---- Skidmark_RestartSkidmark__Fv  [SKIDMARK.CPP:433-437] SLD-VERIFIED ---- */
+#line 430 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void Skidmark_RestartSkidmark(void)
+
 
 {
 
@@ -445,7 +466,9 @@ void Skidmark_RestartSkidmark(void)
 }
 
 /* ---- Skidmark_KillSkidmark__Fv  [SKIDMARK.CPP:441-443] SLD-VERIFIED ---- */
+#line 438 "C:/nfs4/GAME/PSX/SKIDMARK.CPP"
 void Skidmark_KillSkidmark(void)
+
 
 {
   if (gSm != (Skidmark_Chunk *)0x0) { purgememadr(gSm);

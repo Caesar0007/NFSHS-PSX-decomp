@@ -36,7 +36,9 @@ extern int ticks_a[] asm("ticks");
    address while those forms use v0/a0. These measured failures do not prove
    a pointer object existed in original source. No replacement fence/pin,
    qualifier, dummy use or post-compile rewrite is introduced. */
+#line 59 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
+
 
 {
   /* decl order = SYM Def-record order (vid, playopts, handle, fname) */
@@ -45,169 +47,297 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   int handle;
   char fname [60];
 
+
+
   Platform_ResetDCTBuffer();
   sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
   handle = asyncloadfileat(fname,(int)CF_DVLC);
-  while (getasyncreadstatus(handle) == 0) {
-    systemtask(0);
+  while (getasyncreadstatus(handle) == 0) { systemtask(0);
   }
   vid = (struct VIDEOSTRUCT *)reservememadr("Videostruct",0x40,memtype);
   blockclear(vid,0x40);
   vid->id = 0x57444956;   /* 'VIDW' */
+
   vid->bufferwidth = width;
   vid->bufferheight = height;
+
+
   vid->streambuffer = (char *)reservememadr("streambuffer",streambuffersize,memtype);
   vid->videotap = (long)STREAM_create(2,2,2,vid->streambuffer,streambuffersize);
+
   STREAM_setfilter(vid->videotap,1,0xffff,0x4353,2);
   extern int screenbpp[];
   extern int timerhz[];
   int *hzp = timerhz;
+
+
+
+
+
+
   vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
   vid->displaytimeincr = fixeddiv(fixedmult(*hzp << 0x10,0xa0000),fps);
+
   vid->state = VIDEOSTATE_IDLE;
+
   return (int)vid;
 }
 
 /* lines 103-119: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_destroy  (video.cpp:120, code lines 120-136) ---- */
+#line 117 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 void VIDEO_destroy(int handle)
+
 
 {
   
+
   if (((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) {
     ((VIDEOSTRUCT *)handle)->id = 0;
+
+
+
+
+
+
     restoremdec(((VIDEOSTRUCT *)handle)->mdechandle);
+
     STREAM_destroy(((VIDEOSTRUCT *)handle)->videotap);
     purgememadr(((VIDEOSTRUCT *)handle)->streambuffer);
   }
-  return;
-}
+  return; }
 
 /* lines 137-138: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_spoolfile  (video.cpp:139, code lines 139-155) ---- */
+#line 136 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 void VIDEO_spoolfile(int handle,char *fname)
 
+
 {
+
+
   if ((((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) && (((VIDEOSTRUCT *)handle)->state == VIDEOSTATE_IDLE)) {
     ((VIDEOSTRUCT *)handle)->streamrequestid =
+
+
+
+
+
+
+
+
+
         STREAM_queuefile(((VIDEOSTRUCT *)handle)->videotap,fname,0,0);
     ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_SPOOLING;
-  }
-  return;
-}
+  } return; }
 
 /* lines 156-157: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_startplayback  (video.cpp:158, code lines 158-179) ---- */
+#line 155 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 void VIDEO_startplayback(int handle)
 
+
 {
+
+
   if ((((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) && (((VIDEOSTRUCT *)handle)->state != VIDEOSTATE_IDLE)) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     if (STREAM_bufferusage(((VIDEOSTRUCT *)handle)->videotap) >= 20001) {
       ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_PLAYING;
-    }
-  }
-  return;
-}
+    } } return; }
 
 /* lines 180-181: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_abortplayback  (video.cpp:182, code lines 182-195) ---- */
+#line 179 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 void VIDEO_abortplayback(int handle)
+
 
 {
   
+
   if (((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) {
+
+
+
+
+
+
     STREAM_kill(((VIDEOSTRUCT *)handle)->videotap);
+
     ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_IDLE;
-  }
-  return;
-}
+  } return; }
 
 /* lines 196-197: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_state  (video.cpp:198, code lines 198-247) ---- */
 
+#line 195 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 enum VIDEOSTATE VIDEO_state(int handle)
+
 
 {
   struct VIDEOSTRUCT *vid;
   SNDREQUESTSTATUS srs;
   vid = (struct VIDEOSTRUCT *)handle;
-  
   if (vid->id != 0x57444956   /* 'VIDW' */) {
     return (enum VIDEOSTATE)0;
   }
+
+
+
   if (vid->state == VIDEOSTATE_SPOOLING) {
+
     if (STREAM_state(vid->videotap) == 2) {
       vid->reftime = VIDEO_TicksNow() * 10;
+
+
+
+
+
+
+
       vid->state = VIDEOSTATE_PLAYING;
+
       vid->displaytime = 0;
       vid->displaytimefrac = 0;
     }
   }
   else if ((vid->state == VIDEOSTATE_PLAYING) &&
+
+
+
+
+
           (STREAM_state(vid->videotap) == 0))
   {
     vid->state = VIDEOSTATE_IDLE;
   }
+
+
+
+
+
+
+
+
+
+
+
+
   return (enum VIDEOSTATE)vid->state;
 }
 
 /* lines 248-256: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_updateframexy  (video.cpp:257, code lines 257-335) ---- */
+
+#line 256 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 int VIDEO_updateframexy(int handle,int x,int y)
 {
-  struct VIDEOSTRUCT *vid;
-  struct STREAMCHUNKHDR *chunk;
-  SNDREQUESTSTATUS audiostatus;
-  int currenttime;
-  int dropped;
+  struct VIDEOSTRUCT *vid; struct STREAMCHUNKHDR *chunk; SNDREQUESTSTATUS audiostatus; int currenttime; int dropped; vid = (struct VIDEOSTRUCT *)handle;
 
-  vid = (struct VIDEOSTRUCT *)handle;
+
+
+
+
   if (vid->id != 0x57444956) goto invalid;
-  if (vid->state != VIDEOSTATE_PLAYING) {
-    return 0;
+
+
+
+
+
+
+  if (vid->state != VIDEOSTATE_PLAYING) { return 0;
   }
+
+
+
+
+
+
+
+
   currenttime = FE_Ticks() * 10 - vid->reftime;
-  if (vid->displaytime > currenttime) {
-    return 0;
-  }
-  if (STREAM_isendofstream(vid->videotap) != 0) {
+
+
+
+
+
+  if (vid->displaytime > currenttime) { return 0; } if (STREAM_isendofstream(vid->videotap) != 0) {
     return 0;
   }
   while (1) {
+
+
+
     chunk = STREAM_get(vid->videotap);
+
+
     if (chunk == (struct STREAMCHUNKHDR *)0x0) {
       return 0;
     }
     videoupdatetime(vid);
+
+
+
+
+
+
+
+
+
+
     if (currenttime < vid->displaytime && videodecode(vid,chunk,x,y) != 0) {
       dropped = 0;
     }
     else {
+
+
+
       dropped = 1;
       vid->droppedframes = vid->droppedframes + 1;
     }
+
+
+
     STREAM_release(vid->videotap,chunk);
-    if (!dropped) {
-      return 1;
-    }
-    if (STREAM_isendofstream(vid->videotap) != 0) {
+
+
+
+
+
+    if (!dropped) { return 1; } if (STREAM_isendofstream(vid->videotap) != 0) {
+
       return 1;
     }
   }
-invalid:
-  return 0;
+invalid: return 0;
 }
 
 /* lines 336-368: (static data / macros / comments - no emitted code) */
 
 /* ---- videoupdatetime  (video.cpp:369, code lines 369-371) ---- */
+#line 365 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 void videoupdatetime(struct VIDEOSTRUCT *vid)
+
 
 {
   vid->displaytimefrac = vid->displaytimefrac + vid->displaytimeincr;
@@ -218,6 +348,8 @@ void videoupdatetime(struct VIDEOSTRUCT *vid)
 /* lines 372-374: (static data / macros / comments - no emitted code) */
 
 /* ---- videodecode  (video.cpp:375, code lines 375-423) ---- */
+
+#line 374 "C:/nfs4/FRONTEND/PSX/VIDEO.CPP"
 int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y)
 {
   int timeout;

@@ -427,64 +427,82 @@ inline int AICop_PerpChaseInfo::GetNumLevels() { return copGameInfo_->numLevels;
    tied with oppFines and lost retail $t5 on the allocno-number tie-break. */
 /* At 0x80063480/90 retail re-derives the speed comparison at its use site;
    the older absField1380 expression scored 740 versus 1015 in the permuter. */
+
+#line 37 "C:/nfs4/GAME/COMMON/AIH_OPP.CPP"
 void AIHigh_Opponent::CheckForWipeOut()
-{
-  int perTickProb;
-  int randVal;
-  int oppLevel;
-  int oppFines;
-  int hLoop;
-  int numRacers;
-  oppLevel = this->perpChaseInfo_.GetChaseLevelIndex();          /* $t7, unconditional prologue load */
-  oppFines = this->carObj_->stats.numFines;                  /* $t6, unconditional prologue load (via carObj_ = $v1) */
-  if ((Cars_gNumCopCars == 0) ||
-      (simGlobal.gameTicks < this->carObj_->wipeOutEndTick))
-    return;
-  if ((this->basicPerpInfo_.GetCrime() == CRIME_NONE) ||
-      (this->basicPerpInfo_.CopsAssigned(COP_REGULAR) +
-       this->basicPerpInfo_.CopsAssigned(COP_SUPER) == 0))
-    return;
-  if (simGlobal.gameTicks - this->carObj_->wipeOutEndTick <= 0x27f)
-    return;
+{ int perTickProb; int randVal; int oppLevel; int oppFines; int hLoop; int numRacers; oppLevel = this->perpChaseInfo_.GetChaseLevelIndex();
+
+
+
+  oppFines = this->carObj_->stats.numFines; if ((Cars_gNumCopCars == 0) ||
+
+
+      (simGlobal.gameTicks < this->carObj_->wipeOutEndTick)) return; if ((this->basicPerpInfo_.GetCrime() == CRIME_NONE) || (this->basicPerpInfo_.CopsAssigned(COP_REGULAR) +
+
+
+
+       this->basicPerpInfo_.CopsAssigned(COP_SUPER) == 0)) return;
+
+
+
+  if (simGlobal.gameTicks - this->carObj_->wipeOutEndTick <= 0x27f) return;
+
+
+
       randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; randVal = (int)(randtemp >> 8) & 0xffff;
-      perTickProb = AI_elapsedTime * 2 + AI_elapsedTime;          /* $a0 = 3*ae, 0x800633BC-C0 -- scheduled into the mult->mflo latency gap */
-      if (randVal < perTickProb) {                                /* 0x800633DC-E8 */
-        this->carObj_->wipeOutEndTick =
-            simGlobal.gameTicks + 0xC0; /* 0x800633EC-F8 */
-      }
-      hLoop = 0;
-      if (this->perpChaseInfo_.BestChaseLevelIndex() ==
-          this->perpChaseInfo_.GetNumLevels() - 1) return;
-        AIHigh_Base **const highAIList = highLevelAIObjs;
-        __asm__("" : : "r"(numRacers),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this));
-        __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop));
-        for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) {   /* 0x80063450 */
-          Car_tObj    *thisPlayerObj;
-          int speedLimit;
-          speedLimit = 0xd0000;
-          do { thisPlayerObj = Cars_gHumanRaceCarList[hLoop]; speedLimit = speedLimit | 0x5554; } while (0); /* 0x8006345C */
+      perTickProb = AI_elapsedTime * 2 + AI_elapsedTime;
+      if (randVal < perTickProb) { this->carObj_->wipeOutEndTick =
+
+
+
+
+            simGlobal.gameTicks + 0xC0; }
+
+
+
+      hLoop = 0; if (this->perpChaseInfo_.BestChaseLevelIndex() == this->perpChaseInfo_.GetNumLevels() - 1) return; AIHigh_Base **const highAIList = highLevelAIObjs; __asm__("" : : "r"(numRacers),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this)); __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop));
+
+
+
+        for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) { Car_tObj    *thisPlayerObj; int speedLimit; speedLimit = 0xd0000;
+
+          do { thisPlayerObj = Cars_gHumanRaceCarList[hLoop]; speedLimit = speedLimit | 0x5554; } while (0);
           const int carIndex = thisPlayerObj->carIndex;
-          int playerCurrentSpeed = thisPlayerObj->currentSpeed;
-          int highAIEntryAddress;
-          do { highAIEntryAddress = (carIndex << 2) + (int)highAIList; } while (0);
-          const int absolutePlayerSpeed = __builtin_abs(playerCurrentSpeed);
-          AIHigh_Player *thisPlayer = *(AIHigh_Player **)highAIEntryAddress; /* 0x80063464-84 */
-          int          playFines    = thisPlayerObj->stats.numFines;          /* SYM REG $3=$v1, 0x80063488 */
-          const int    playerChaseLevelIndex = thisPlayer->perpChaseInfo_.GetChaseLevelIndex(); /* 0x8006348C */
-          if (speedLimit < absolutePlayerSpeed) {
-            if (playerChaseLevelIndex < 2 && !(oppLevel < 3)) {                /* 0x80063494-A0: skips the fines check */
-              perTickProb = AI_elapsedTime * 116;
-              if (randVal < perTickProb)           /* 0x800634B8 */
-                this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
-            } else if (2 <= playFines - oppFines) {                          /* 0x800634A8-B0 (skip if <2) */
-              perTickProb = AI_elapsedTime * 116;
-              if (randVal < perTickProb)          /* $t2<<2, 0x800634B4-BC */
-                this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
-            }
-          }
-        }
-        __asm__("" : : "r"(numRacers),"r"(numRacers));
+
+
+
+          int playerCurrentSpeed = thisPlayerObj->currentSpeed; int highAIEntryAddress; do { highAIEntryAddress = (carIndex << 2) + (int)highAIList; } while (0); const int absolutePlayerSpeed = __builtin_abs(playerCurrentSpeed); AIHigh_Player *thisPlayer = *(AIHigh_Player **)highAIEntryAddress; int          playFines    = thisPlayerObj->stats.numFines; const int    playerChaseLevelIndex = thisPlayer->perpChaseInfo_.GetChaseLevelIndex(); if (speedLimit < absolutePlayerSpeed) {
+
+
+            if (playerChaseLevelIndex < 2 && !(oppLevel < 3)) { perTickProb = AI_elapsedTime * 116; if (randVal < perTickProb) this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0; } else if (2 <= playFines - oppFines) { perTickProb = AI_elapsedTime * 116;
+
+
+              if (randVal < perTickProb)
+
+                this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0; } }
+
+
+
+
+
+        } __asm__("" : : "r"(numRacers),"r"(numRacers));
 }
+/* $t7, unconditional prologue load */
+/* $t6, unconditional prologue load (via carObj_ = $v1) */
+/* $a0 = 3*ae, 0x800633BC-C0 -- scheduled into the mult->mflo latency gap */
+/* 0x800633DC-E8 */
+/* 0x800633EC-F8 */
+/* 0x80063450 */
+/* 0x8006345C */
+/* 0x80063464-84 */
+/* SYM REG $3=$v1, 0x80063488 */
+/* 0x8006348C */
+/* 0x80063494-A0: skips the fines check */
+/* 0x800634B8 */
+/* 0x800634C4-D0 */
+/* 0x800634A8-B0 (skip if <2) */
+/* $t2<<2, 0x800634B4-BC */
+/* 0x800634C4-D0 */
 
 
 
@@ -525,7 +543,9 @@ void AIHigh_Opponent::CheckForWipeOut()
                                    basic block and sched2 can put the longDistance*direction `mflo`
                                    AFTER the sign test like retail; the branchy `if (x<0) x=-x;`
                                    splits the region and pins the mflo before it. */
+#line 94 "C:/nfs4/GAME/COMMON/AIH_OPP.CPP"
 int AIHigh_Opponent::DoRearEnder()
+
 
 { int attackIndex;
 
@@ -587,7 +607,9 @@ int AIHigh_Opponent::DoRearEnder()
 
 /* ---- HighExecute__15AIHigh_Opponent  AIHigh_Opponent::HighExecute  [AIH_OPP.CPP:150-247] SLD-VERIFIED ---- */
 
+#line 145 "C:/nfs4/GAME/COMMON/AIH_OPP.CPP"
 void AIHigh_Opponent::HighExecute()
+
 
 
 
@@ -698,6 +720,8 @@ void AIHigh_Opponent::HighExecute()
 
 
 /* ---- __15AIHigh_OpponentP8Car_tObj  AIHigh_Opponent::ctor  [AIH_OPP.CPP:250-255] SLD-VERIFIED ---- */
+
+#line 250 "C:/nfs4/GAME/COMMON/AIH_OPP.CPP"
 AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj) : AIHigh_Player(carObj)
 {
   this->attackMode_ = 0;
@@ -714,6 +738,8 @@ AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj) : AIHigh_Player(carObj)
 
 /* ---- DoProvokedAttack__15AIHigh_Opponent  AIHigh_Opponent::DoProvokedAttack  [AIH_OPP.CPP:260-280] SLD-VERIFIED ---- */
 
+
+#line 259 "C:/nfs4/GAME/COMMON/AIH_OPP.CPP"
 int AIHigh_Opponent::DoProvokedAttack()
 { if ((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) && ((Car_tObj *)this->carObj_->N.collision.lastOtherObj != (Car_tObj *)0x0) &&
 

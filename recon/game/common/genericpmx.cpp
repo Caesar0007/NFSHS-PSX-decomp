@@ -45,6 +45,8 @@ void GenericPMX_LoadTexture(void);
      Literal removal on the restored scope shape still emits 579/593 with
      494 detailed diffs. Keep this existing name visibly unresolved until
      its original source/context is recovered; do not rename it to ry. */
+
+#line 53 "C:/nfs4/GAME/COMMON/GENERICPMX.CPP"
 void GenericPMX_LoadTexture(void)
 {
   char name[255];
@@ -155,8 +157,8 @@ void GenericPMX_LoadTexture(void)
     Draw_tPixMap *pmx = &gPixmaps[np++]; Texture_LoadPmx(shpfile,"DAMG",0x40,0,pmx_height,-1,-1,pmx); gDamagePixmap = pmx;
   }
 
-  if (GameSetup_gData.Weather != 0) {
-
+  if (GameSetup_gData.Weather != 0)
+  {
     for (i = 0; i < 8; i++) {
 
 
@@ -168,8 +170,8 @@ void GenericPMX_LoadTexture(void)
       Texture_CloneUVPmx(gLightningPixmap[i],0,gLightningPixmap[i + 8]);
     }
   }
-  else {
-
+  else
+  {
     if ((TrackSpec_gSpec.skyspec.flags & 8U) != 0) {
       {
         Draw_tPixMap *pmx = &gPixmaps[np++]; Texture_LoadPmx(shpfile,"MONF",0x40,0,pmx_height,-1,-1,pmx); gFlarePixmap[0] = pmx;

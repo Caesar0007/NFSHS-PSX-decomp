@@ -20,6 +20,8 @@ extern int CalcTextFadeSelToHiWide(int, int, int)
 /* ---- MenuNFS4_SetHelpPos__FR4RECT  [@0x800?] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:5887).
  *  SYM-CONFORM: the GCC-v2 spelling above is the linkage key; retail source is
  *  the demangled MenuNFS4_SetHelpPos(RECT&) declaration. */
+
+#line 57 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 static void MenuNFS4_SetHelpPos(RECT &r)
 {
   gHelpPos.x = r.x;
@@ -42,48 +44,16 @@ static void MenuNFS4_SetHelpPos(RECT &r)
    refs, supplied by the eight measured last-use operands below, to recover the
    retail s1/s2 handout.  No build recipe or post-cc1 edit; full TU 57/57 PASS. */
 
-void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset,short fSelFade,
-               bool drawArrows,bool reflected)
-
-{
-  DRAWENV *drenv;
-  DR_AREA *daprim;
-  RECT temp;
-  /* SYM ORDER (W86-S2): the 8c Def rows read drenv, daprim, temp, textpix,
-     dist, drawFlags, buffer, shape. */
-  int textpix;
-  int dist;
-  tDrawShapeExtended drawFlags;
-  char buffer [64];
-  tTexture_ShapeInfo *shape;
-
-  dist = initialWidth;
-  drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
-  drawFlags.tint[0] = CalcFadeVal(0xb54200,0xbebe,(int)fSelFade);
-  if (reflected != 0) {
-    drawFlags.tint[0] = CalcFadeVal(0,drawFlags.tint[0],0xe0 - r.y);
-  }
-  DrawShape_SubtractNFS4RectEdges(r);   /* W58-A1: decl is RECT& (was `(...)`) -- same $a0 address */
-  if (-1 < helpText) {
-    daprim = (DR_AREA *)Render_gPacketPtr;
-    temp.x = 0;
-    temp.y = *(short *)((char *)drenv + 2);
-    temp.w = 0x200;
-    temp.h = 0xf0;
-    addPrim(Render_gPalettePtr,daprim);
-    Render_gPacketPtr = (u_char *)daprim + 0xc;
-    SetDrawArea(daprim,&temp);
-    FETextRender_SetFont(0);
-    sprintf(buffer,"%s",TextSys_Word(helpText));
-    s_upper(buffer);
-    textpix = textpixels(buffer) - strlen(buffer);
-    {
-      /* SYM-CODEGEN-CARRIER: textType -- absent from the reliable local list;
-         its identity boundary stages retail's $a0 call argument. */
-      int textType;
-      /* SYM-CODEGEN-CARRIER: selFade -- the widened copy of stack parameter
-         fSelFade stages retail's $a1 without changing its recorded ABI type. */
-      int selFade;
+        /* MATCH W86-D3 2026-09-02: textType's identity launder replaced by a
+           PURE-C ABSORPTION inflator.  `textType & (textType | selected)` ==
+           textType for ANY value of selected (absorption law) -- a semantic
+           no-op whose operand is runtime-unknown to cse, so the AND survives
+           to flow (the extra reference is counted) and combine collapses it at
+           ZERO bytes.  Whole-TU gate 57/57 with x1 and x2.  The sibling
+           launders are NOT reachable this way: selFade absorbed against
+           selected/textpix/helpText 20, against dist 46, against fSelFade 4,
+           the OR form 20; fade absorbed against any of them 4; all three at
+           once 26 (removal of all three is 4). */
       /* SYM-CODEGEN-CARRIER: fade -- the zero-valued identity boundary stages
          retail's $a2 and leaves the dist add in the call delay slot.
          W85-S3 (2026-09-02): the EIGHT-operand `__asm__("" : : "r"(helpText) x8)`
@@ -98,78 +68,105 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
          moving the `+ 0x19` add AFTER the call (four placements, so the add is
          genuinely free to sink into the slot) 136 / 136 / 136 / 136, with an
          in-place `dist += 0x19` 210.  Kept under the W85 iron rule. */
-      int fade;
-      dist = ({
-        const int selected = textpix >= dist ? textpix : dist;
+      /* SYM-CODEGEN-CARRIER: selFade -- the widened copy of stack parameter
+         fSelFade stages retail's $a1 without changing its recorded ABI type. */
+      /* SYM-CODEGEN-CARRIER: textType -- absent from the reliable local list;
+         its identity boundary stages retail's $a0 call argument. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read drenv, daprim, temp, textpix,
+     dist, drawFlags, buffer, shape. */
+#line 62 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
+void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset,short fSelFade,
+               bool drawArrows,bool reflected)
+
+
+{ DRAWENV *drenv; DR_AREA *daprim; RECT temp; int textpix; int dist; tDrawShapeExtended drawFlags; char buffer [64]; tTexture_ShapeInfo *shape; dist = initialWidth;
+  drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
+
+
+
+
+
+
+
+
+  drawFlags.tint[0] = CalcFadeVal(0xb54200,0xbebe,(int)fSelFade);
+
+  if (reflected != 0) {
+    drawFlags.tint[0] = CalcFadeVal(0,drawFlags.tint[0],0xe0 - r.y);
+  }
+  DrawShape_SubtractNFS4RectEdges(r);   /* W58-A1: decl is RECT& (was `(...)`) -- same $a0 address */
+
+  if (-1 < helpText) {
+    daprim = (DR_AREA *)Render_gPacketPtr;
+    temp.x = 0; temp.y = *(short *)((char *)drenv + 2); temp.w = 0x200; temp.h = 0xf0;
+    addPrim(Render_gPalettePtr,daprim); Render_gPacketPtr = (u_char *)daprim + 0xc;
+    SetDrawArea(daprim,&temp);
+    FETextRender_SetFont(0);
+    sprintf(buffer,"%s",TextSys_Word(helpText));
+    s_upper(buffer);
+    textpix = textpixels(buffer) - strlen(buffer);
+    { int textType; int selFade; int fade; dist = ({ const int selected = textpix >= dist ? textpix : dist;
         selFade = fSelFade;
-        textType = textType_FlybyHelp;
-        /* MATCH W86-D3 2026-09-02: textType's identity launder replaced by a
-           PURE-C ABSORPTION inflator.  `textType & (textType | selected)` ==
-           textType for ANY value of selected (absorption law) -- a semantic
-           no-op whose operand is runtime-unknown to cse, so the AND survives
-           to flow (the extra reference is counted) and combine collapses it at
-           ZERO bytes.  Whole-TU gate 57/57 with x1 and x2.  The sibling
-           launders are NOT reachable this way: selFade absorbed against
-           selected/textpix/helpText 20, against dist 46, against fSelFade 4,
-           the OR form 20; fade absorbed against any of them 4; all three at
-           once 26 (removal of all three is 4). */
-        textType &= (textType | selected);
-        short savedSelFade = selFade; selFade = 0; selFade = savedSelFade; /* C-only CSE boundary. */
-        fade = 0;
-        __asm__("" : "=r"(fade) : "0"(fade));
-        selected;
-      }) + 0x19;
-      int col = CalcTextFadeSelToHiWide(textType,selFade,fade);
+        textType = textType_FlybyHelp; textType &= (textType | selected); short savedSelFade = selFade; selFade = 0; selFade = savedSelFade; /* C-only CSE boundary. */ fade = 0; __asm__("" : "=r"(fade) : "0"(fade)); selected; }) + 0x19; int col = CalcTextFadeSelToHiWide(textType,selFade,fade);
+
       if (reflected != 0) {
         col = CalcFadeVal(0,col,0xf0 - r.y);
       }
-      FETextRender_FullTextRGB((char *)TextSys_Word(helpText),
-                 (short)(r.x + drawOffset),r.y + 4,
-                 col,'\0',0);
-      {
-        FETextRender_FullTextRGB((char *)TextSys_Word(helpText),
-                   (short)(r.x + drawOffset - dist),r.y + 4,col,'\0',0);
+      FETextRender_FullTextRGB((char *)TextSys_Word(helpText), (short)(r.x + drawOffset),r.y + 4, col,'\0',0);
+      { FETextRender_FullTextRGB((char *)TextSys_Word(helpText), (short)(r.x + drawOffset - dist),r.y + 4,col,'\0',0);
+
         if (drawArrows != 0) {
+
           int ypos = r.y + ((int)((u_int)(u_short)r.h << 0x10) >> 0x11);
           if (reflected == 0) {
             ypos = ypos + 2;
           }
+
           DrawShapeExtended(0xa,0x118,(r.x + drawOffset) - 0xa,ypos,0,0,&drawFlags);
+
           DrawShapeExtended(0xb,0x118,r.x + drawOffset + textpix + 8,ypos,0,0,&drawFlags);
+
+
           DrawShapeExtended(0xa,0x118,((r.x + drawOffset) - dist) - 0xa,ypos,0,0,&drawFlags);
+
           DrawShapeExtended(0xb,0x118,((r.x + drawOffset) - dist) + textpix + 8,ypos,0,0,&drawFlags);
         }
       }
-    }
-    daprim = (DR_AREA *)Render_gPacketPtr;
-    temp = r;
+    } daprim = (DR_AREA *)Render_gPacketPtr; temp = r;
     temp.y = temp.y + *(short *)((char *)drenv + 2);
+
+
+
     temp.x = temp.x + 2;
     temp.w = temp.w + -4;
-    addPrim(Render_gPalettePtr,daprim);
-    Render_gPacketPtr = (u_char *)daprim + 0xc;
+    addPrim(Render_gPalettePtr,daprim); Render_gPacketPtr = (u_char *)daprim + 0xc;
     SetDrawArea(daprim,&temp);
   }
+
+
+
   temp = r;
   temp.y++;
   temp.h -= 2;
-  shape = gHelpShapes + 0x1e;
-  temp.w -= 1 + (shape->width >> 1);
+  shape = gHelpShapes + 0x1e; temp.w -= 1 + (shape->width >> 1);
   DrawShapeExtended(0x1e,8,(int)temp.x + (int)temp.w,(int)temp.y,0,0,(tDrawShapeExtended *)0x0);
-  PSXDrawSquare(0,(int)temp.x,(int)temp.y,(int)temp.w,(int)shape->height);
-  return;
+  PSXDrawSquare(0,(int)temp.x,(int)temp.y,(int)temp.w,(int)shape->height); return;
 }
 
 
 
 /* ---- tMenuItemGoToMenuNFS4Button::ctor  [FEMENUEXTENDED.CPP:152-160] SLD-FLAG:NONMONO ---- */
 
+
+#line 150 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,tMenu *newMenu,
               void (*OnButtonPress)(tMenuCommand&),int firstFrame,int numFrames)
   : tMenuItemGoToMenuButton(textDescription,newMenu,OnButtonPress)
 {
   
+
   this->fOffset = 0xe;
+
   this->fTransitionVal = 0;
   this->fTransitionSpeed = 0;
   this->fEnabledTransitionVal = 0;
@@ -181,93 +178,70 @@ tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,t
 
 /* ---- tMenuItemGoToMenuNFS4Button::dtor  [FEMENUEXTENDED.CPP:164-164] SLD-VERIFIED ---- */
 
+
+#line 164 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuItemGoToMenuNFS4Button::~tMenuItemGoToMenuNFS4Button() {}
 
 
 
 /* ---- tMenuItemGoToMenuNFS4Button::Draw  [FEMENUEXTENDED.CPP:168-211] SLD-VERIFIED ---- */
 
+#line 165 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemGoToMenuNFS4Button::Draw(int x,int y,bool selected)
+
 
 {
   /* SYM ORDER (W86-S2): the 8c Def rows read rect, dist, buffer. */
   RECT rect;
   short dist;
   char buffer [64];
-
   if ((selected == 0) && (this->fOffset + -0xe < 2)) {
     this->fOffset = 0xe;
-  }
-  else {
-    FETextRender_SetFont(0);
+  } else { FETextRender_SetFont(0);
     sprintf(buffer,"%s",TextSys_Word(this->fTextDescription));
     s_upper(buffer);
     dist = textpixels(buffer) - strlen(buffer);
-    if (dist < 0x8c) {
-      dist = 0xa5;
-    } else {
-      dist = dist + 0x19;
+    if (dist < 0x8c) { dist = 0xa5; } else { dist = dist + 0x19;
     }
     this->fOffset -= 2;
     if (selected == 0) {
       this->fOffset -= 2;
-    }
-    if (this->fOffset < 0) {
+    } if (this->fOffset < 0) {
+
+
+
       this->fOffset = (u_short)this->fOffset + dist;
     }
-  }
-  if (this->IsEnabled()) {
+  } if (this->IsEnabled()) {
     this->fEnabledTransitionVal = this->fEnabledTransitionVal + 0xc;
   }
-  else {
-    this->fEnabledTransitionVal = this->fEnabledTransitionVal - 0xc;
+  else { this->fEnabledTransitionVal = this->fEnabledTransitionVal - 0xc;
   }
   if (this->fEnabledTransitionVal < 0) {
     this->fEnabledTransitionVal = 0;
-  }
-  else if (0x80 < this->fEnabledTransitionVal) {
+  } else if (0x80 < this->fEnabledTransitionVal) {
     this->fEnabledTransitionVal = 0x80;
   }
-  rect.x = (short)x;
-  rect.y = (short)y;
-  rect.w = 0x73;
-  rect.h = 0xb;
-  if (this->fTransitionVal > this->fEnabledTransitionVal) {
-    dist = this->fEnabledTransitionVal;
-  }
-  else {
-    dist = this->fTransitionVal;
-  }
-  rect.w = (short)(rect.w * dist / 0x80);
+  rect.x = (short)x; rect.y = (short)y; rect.w = 0x73; rect.h = 0xb;
+  if (this->fTransitionVal > this->fEnabledTransitionVal) { dist = this->fEnabledTransitionVal; } else { dist = this->fTransitionVal; } rect.w = (short)(rect.w * dist / 0x80);
   MenuNFS4_DrawTextBox(this->fTextDescription,rect,
-             0x8c,this->fOffset,
-             this->fSelFade,false,0);
+             0x8c,this->fOffset, this->fSelFade,false,0);
+
   if ((this->fFlags & 0x200) != 0) {
+
     Font_SetBlitter(FontUpsideDownBlit);
-    rect.x = (short)x;
-    rect.y = 0x118 - (short)y;
-    rect.w = 0x73;
-    rect.h = 0xb;
-    if (this->fTransitionVal > this->fEnabledTransitionVal) {
-      dist = this->fEnabledTransitionVal;
-    }
-    else {
-      dist = this->fTransitionVal;
-    }
-    rect.w = (short)(rect.w * dist / 0x80);
-    MenuNFS4_DrawTextBox(this->fTextDescription,rect
-               ,0x8c,this->fOffset,
-               this->fSelFade,false,1);
-    Font_ReSetBlitter();
-  }
-  return;
-}
+    rect.x = (short)x; rect.y = 0x118 - (short)y; rect.w = 0x73; rect.h = 0xb;
+    if (this->fTransitionVal > this->fEnabledTransitionVal) { dist = this->fEnabledTransitionVal; } else { dist = this->fTransitionVal; } rect.w = (short)(rect.w * dist / 0x80);
+    MenuNFS4_DrawTextBox(this->fTextDescription,rect ,0x8c,this->fOffset, this->fSelFade,false,1);
+    Font_ReSetBlitter(); } return; }
 
 
 
 /* ---- tMenuItemGoToMenuNFS4Button::TransitionOn  [FEMENUEXTENDED.CPP:216-218] SLD-VERIFIED ---- */
 
+#line 213 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemGoToMenuNFS4Button::TransitionOn()
+
 
 {
   this->fEnabledTransitionVal = 0;
@@ -278,7 +252,9 @@ void tMenuItemGoToMenuNFS4Button::TransitionOn()
 
 /* ---- tMenuItemGoToMenuNFS4Button::TransitionOff  [FEMENUEXTENDED.CPP:222-223] SLD-VERIFIED ---- */
 
+#line 219 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemGoToMenuNFS4Button::TransitionOff()
+
 
 {
   this->fTransitionSpeed = -0xc;
@@ -288,7 +264,9 @@ void tMenuItemGoToMenuNFS4Button::TransitionOff()
 
 /* ---- tMenuItemGoToMenuNFS4Button::TransitionIsFinished  [FEMENUEXTENDED.CPP:227-228] SLD-VERIFIED ---- */
 
+#line 224 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 bool tMenuItemGoToMenuNFS4Button::TransitionIsFinished()
+
 
 {
   return this->fTransitionSpeed == 0;
@@ -298,26 +276,30 @@ bool tMenuItemGoToMenuNFS4Button::TransitionIsFinished()
 
 /* ---- tMenuItemGoToMenuNFS4Button::UpdateTransition  [FEMENUEXTENDED.CPP:232-244] SLD-VERIFIED ---- */
 
+#line 229 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemGoToMenuNFS4Button::UpdateTransition(bool selected)
+
 
 {
   this->fTransitionVal += this->fTransitionSpeed;
   if (this->fTransitionVal < 0) {
+
+
     this->fTransitionVal = 0;
   }
-  else {
-    if (this->fTransitionVal < 0x81) goto UpdTrans_callBaseGoToMenu;
+  else { if (this->fTransitionVal < 0x81) goto UpdTrans_callBaseGoToMenu;
+
     this->fTransitionVal = 0x80;
-  }
-  this->fTransitionSpeed = 0;
+  } this->fTransitionSpeed = 0;
 UpdTrans_callBaseGoToMenu:
-  this->tMenuItem::UpdateTransition(selected);
-  return;
+  this->tMenuItem::UpdateTransition(selected); return;
 }
 
 
 
 /* ---- tMenuItemNFS4LeftRightChoice::ctor  [FEMENUEXTENDED.CPP:248-254] SLD-VERIFIED ---- */
+
+#line 246 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice(u_int textDescription,tListIterator *dataPtr,
           int firstFrame,int numFrames)
   : tMenuItemLeftRightChoice(textDescription,dataPtr)
@@ -333,6 +315,8 @@ tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice(u_int textDescription
 
 /* ---- tMenuItemNFS4LeftRightChoice::dtor  [FEMENUEXTENDED.CPP:258-258] SLD-VERIFIED ---- */
 
+
+#line 258 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice() {}
 
 
@@ -352,82 +336,68 @@ tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice() {}
           34) + multiply by the selected macro value and `rect.w` (moves `li 115`
           after the sign-extend, freeing the beqz slot for retail's `sll v0,a0,16`). */
 
+  /* MATCH (W57-A5): the drawArrows flag is computed INSIDE the argument list --
+     retail emits the a3/16(sp) arg loads BEFORE the flag's branch. */
+  /* MATCH (W57-A5): rect.w = 0x73 STORED first, then multiplied by the FIELD
+     (`li v1,115; mult` -- 06D multiply-by-the-VARIABLE) instead of by the literal
+     (which strength-reduces to a 6-insn shift/add chain); field order per oracle. */
+  /* MATCH (W57-A5): shape taken VERBATIM from the PASSing sibling
+     tMenuItemGoToMenuNFS4Button::Draw -- guard arm order (selected==0 && offset-14<2),
+     field-direct offset step (`lh`+`lhu` re-read pair), and the field-direct
+     fEnabledTransitionVal step+clamp. */
+#line 259 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
+
 
 {
   /* SYM ORDER (W86-S2): the 8c Def rows read rect, dist. */
   RECT rect;
   short dist;
-
-  /* MATCH (W57-A5): shape taken VERBATIM from the PASSing sibling
-     tMenuItemGoToMenuNFS4Button::Draw -- guard arm order (selected==0 && offset-14<2),
-     field-direct offset step (`lh`+`lhu` re-read pair), and the field-direct
-     fEnabledTransitionVal step+clamp. */
   if ((selected == 0) && (this->fOffset + -0xe < 2)) {
     this->fOffset = 0xe;
-  }
-  else {
-    FETextRender_SetFont(0);
+  } else { FETextRender_SetFont(0);
     dist = textpixels(TextSys_Word(this->fTextDescription));
-    if (dist < 0x8c) {
-      dist = 0xa5;
-    }
-    else {
-      dist += 0x19;
+    if (dist < 0x8c) { dist = 0xa5; } else { dist += 0x19;
     }
     this->fOffset -= 2;
     if (selected == 0) {
       this->fOffset -= 2;
-    }
-    if (this->fOffset < 0) {
+    } if (this->fOffset < 0) {
+
+
+
       this->fOffset = (u_short)this->fOffset + dist;
     }
-  }
-  if (this->IsEnabled()) {
+  } if (this->IsEnabled()) {
     this->fEnabledTransitionVal = this->fEnabledTransitionVal + 0xc;
   }
-  else {
-    this->fEnabledTransitionVal = this->fEnabledTransitionVal - 0xc;
+  else { this->fEnabledTransitionVal = this->fEnabledTransitionVal - 0xc;
   }
   if (this->fEnabledTransitionVal < 0) {
     this->fEnabledTransitionVal = 0;
-  }
-  else if (0x80 < this->fEnabledTransitionVal) {
+  } else if (0x80 < this->fEnabledTransitionVal) {
     this->fEnabledTransitionVal = 0x80;
   }
-  /* MATCH (W57-A5): rect.w = 0x73 STORED first, then multiplied by the FIELD
-     (`li v1,115; mult` -- 06D multiply-by-the-VARIABLE) instead of by the literal
-     (which strength-reduces to a 6-insn shift/add chain); field order per oracle. */
-  rect.x = (short)x;
-  rect.y = (short)y;
-  rect.w = 0x73;
-  rect.h = 0xb;
+  rect.x = (short)x; rect.y = (short)y; rect.w = 0x73; rect.h = 0xb;
   rect.w = (short)(MIN(this->fEnabledTransitionVal,this->fTransitionVal) * rect.w / 0x80);
-  /* MATCH (W57-A5): the drawArrows flag is computed INSIDE the argument list --
-     retail emits the a3/16(sp) arg loads BEFORE the flag's branch. */
   MenuNFS4_DrawTextBox(this->fTextDescription,rect,
-             0x8c,this->fOffset,
-             this->fSelFade,(selected != 0) || (this->fOffset != 0xe),0);
+             0x8c,this->fOffset, this->fSelFade,(selected != 0) || (this->fOffset != 0xe),0);
+
   if ((this->fFlags & 0x200) != 0) {
+
     Font_SetBlitter(FontUpsideDownBlit);
-    rect.x = (short)x;
-    rect.y = 0x118 - (short)y;
-    rect.w = 0x73;
-    rect.h = 0xb;
+    rect.x = (short)x; rect.y = 0x118 - (short)y; rect.w = 0x73; rect.h = 0xb;
     rect.w = (short)(MIN(this->fTransitionVal,this->fEnabledTransitionVal) * rect.w / 0x80);
-    MenuNFS4_DrawTextBox(this->fTextDescription,
-               rect,0x8c,this->fOffset,
-               this->fSelFade,(selected != 0) || (this->fOffset != 0xe),1);
-    Font_ReSetBlitter();
-  }
-  return;
-}
+    MenuNFS4_DrawTextBox(this->fTextDescription, rect,0x8c,this->fOffset, this->fSelFade,(selected != 0) || (this->fOffset != 0xe),1);
+    Font_ReSetBlitter(); } return; }
 
 
 
 /* ---- tMenuItemNFS4LeftRightChoice::TransitionOn  [FEMENUEXTENDED.CPP:307-309] SLD-VERIFIED ---- */
 
+#line 304 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemNFS4LeftRightChoice::TransitionOn()
+
 
 {
   this->fEnabledTransitionVal = 0;
@@ -438,7 +408,9 @@ void tMenuItemNFS4LeftRightChoice::TransitionOn()
 
 /* ---- tMenuItemNFS4LeftRightChoice::TransitionOff  [FEMENUEXTENDED.CPP:313-314] SLD-VERIFIED ---- */
 
+#line 310 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemNFS4LeftRightChoice::TransitionOff()
+
 
 {
   this->fTransitionSpeed = -0xc;
@@ -448,7 +420,9 @@ void tMenuItemNFS4LeftRightChoice::TransitionOff()
 
 /* ---- tMenuItemNFS4LeftRightChoice::TransitionIsFinished  [FEMENUEXTENDED.CPP:318-319] SLD-VERIFIED ---- */
 
+#line 315 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 bool tMenuItemNFS4LeftRightChoice::TransitionIsFinished()
+
 
 {
   return this->fTransitionSpeed == 0;
@@ -458,21 +432,23 @@ bool tMenuItemNFS4LeftRightChoice::TransitionIsFinished()
 
 /* ---- tMenuItemNFS4LeftRightChoice::UpdateTransition  [FEMENUEXTENDED.CPP:323-335] SLD-VERIFIED ---- */
 
+#line 320 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemNFS4LeftRightChoice::UpdateTransition(bool selected)
+
 
 {
   this->fTransitionVal += this->fTransitionSpeed;
   if (this->fTransitionVal < 0) {
+
+
     this->fTransitionVal = 0;
   }
-  else {
-    if (this->fTransitionVal < 0x81) goto UpdTrans_callBaseLRChoice;
+  else { if (this->fTransitionVal < 0x81) goto UpdTrans_callBaseLRChoice;
+
     this->fTransitionVal = 0x80;
-  }
-  this->fTransitionSpeed = 0;
+  } this->fTransitionSpeed = 0;
 UpdTrans_callBaseLRChoice:
-  this->tMenuItem::UpdateTransition(selected);
-  return;
+  this->tMenuItem::UpdateTransition(selected); return;
 }
 
 
@@ -486,36 +462,39 @@ UpdTrans_callBaseLRChoice:
    target, so each arm STORES its constant into the slot (`beqz;sw zero;j;sw s7`) and the
    shared `1` is cse'd out of the earlier FullTextRGB call into s7 -- exactly retail. */
 
+  /* SYM ORDER (W86-S2): the 8c Def rows read r, left, col, drawFlags. */
+#line 343 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
 
+
 {
-  /* SYM ORDER (W86-S2): the 8c Def rows read r, left, col, drawFlags. */
   RECT r;
   tTexture_ShapeInfo *left;
   int col;
-  tDrawShapeExtended drawFlags;
-
-  left = &gHelpShapes[0x29];
+  tDrawShapeExtended drawFlags; left = &gHelpShapes[0x29];
   col = CalcTextFadeSelToHi(textType_Options,
+
                       this->fSelFade,0);
   FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
              (short)((u_int)((x + 0x94) * 0x10000) >> 0x10),
+
              (short)(y + 3),col,'\0',1);
   FETextRender_FullTextRGB(
              TextSys_Word((int)(short)this->fData->TextValue((tPlayer)-1)),
              (short)((u_int)((((int)((u_int)(u_short)left->width << 0x10) >> 0x11) + x +
+
                                    0xd9) * 0x10000) >> 0x10),(short)(y + 3),col,'\0',2);
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
+
                   (int)this->fSelFade);
   DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,selected ? 0 : 1,
              &drawFlags);
   DrawShapeExtended(0xb,0x118,(x - (int)left->width) + 0x12f,y + 6,0,selected ? 0 : 1,
              &drawFlags);
-  r.x = (short)x;
-  r.y = (short)y;
-  r.w = 0x129;
-  r.h = left->height;
+
+
+  r.x = (short)x; r.y = (short)y; r.w = 0x129; r.h = left->height;
   DrawShape_NFS4RoundRectangle(-1,r,(short)selected);
 }
 
@@ -523,12 +502,12 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
 
 /* ---- tMenuItemOptionsTwoItemChoice::TransitionOn  [FEMENUEXTENDED.CPP:378-379] SLD-VERIFIED ---- */
 
+#line 375 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuItemOptionsTwoItemChoice::TransitionOn()
 
+
 {
-  this->fOnOffFade =
-      ((u_char)this->fData->Value((tPlayer)-1) != 0) << 7;
-  return;
+  this->fOnOffFade = ((u_char)this->fData->Value((tPlayer)-1) != 0) << 7; return;
 }
 
 
@@ -545,58 +524,66 @@ void tMenuItemOptionsTwoItemChoice::TransitionOn()
    (the Ghidra comma/&& form materializes a real boolean; a short source local lets
    cse remat the value in-register instead of retail's `lh`+`lhu` reload pair). */
 
-void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
-
-{
   /* SYM ORDER (W86-S2): the 8c Def rows read r, left, ColTextOn, ColTextOff,
      Col, drawFlags. */
+#line 380 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
+void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
+
+
+{
   RECT r;
   tTexture_ShapeInfo *left;
   int ColTextOn;
   int ColTextOff;
   int Col;
-  tDrawShapeExtended drawFlags;
+  tDrawShapeExtended drawFlags; left = &gHelpShapes[0x29];
 
-  left = &gHelpShapes[0x29];
+
+
+
+
   if ((u_char)this->fData->Value((tPlayer)-1) != 0) {
     this->fOnOffFade = this->fOnOffFade + 0x40;
   }
-  else {
-    this->fOnOffFade = this->fOnOffFade + -0x40;
+  else { this->fOnOffFade = this->fOnOffFade + -0x40;
   }
   this->fOnOffFade = MIN(0x80,MAX(this->fOnOffFade,0));
+
+
   Col = CalcTextFadeSelToHi(textType_Options,this->fSelFade,0);
-  CalcOnOffFade(textType_Options,this->fOnOffFade,
-             this->fSelFade,0,ColTextOn,
-             ColTextOff);   /* W58-A1: decl is int& (was `(...)`) -- same $a4/$a5 addresses */
+  CalcOnOffFade(textType_Options,this->fOnOffFade, this->fSelFade,0,ColTextOn, ColTextOff);   /* W58-A1: decl is int& (was `(...)`) -- same $a4/$a5 addresses */
   FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
              (short)((u_int)((x + 0x94) * 0x10000) >> 0x10),
+
              (short)(y + 3),Col,'\0',1);
   FETextRender_FullTextRGB(TextSys_Word(this->fData->Selection(0)),
              (short)((u_int)((x + 0xb0) * 0x10000) >> 0x10),
+
+
              (short)(y + 3),ColTextOff,'\0',0);
   FETextRender_FullTextRGB(TextSys_Word(this->fData->Selection(1)),
              (short)(((x - (u_int)(u_short)left->width) + 0x126) * 0x10000 >> 0x10),
              (short)(y + 3),ColTextOn,'\0',1);
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
+
+
                   (int)this->fSelFade);
   DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,selected ? 0 : 1,
              &drawFlags);
   DrawShapeExtended(0xb,0x118,(x - (int)left->width) + 0x12f,y + 6,0,selected ? 0 : 1,
              &drawFlags);
-  r.x = (short)x;
-  r.y = (short)y;
-  r.w = 0x129;
-  r.h = left->height;
-  DrawShape_NFS4RoundRectangle(-1,r,(short)selected);
-  return;
+
+  r.x = (short)x; r.y = (short)y; r.w = 0x129; r.h = left->height;
+  DrawShape_NFS4RoundRectangle(-1,r,(short)selected); return;
 }
 
 
 
 /* ---- tMenuNFS4::ctor  [FEMENUEXTENDED.CPP:439-444] SLD-VERIFIED ---- */
 
+
+#line 437 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
                  tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
@@ -611,6 +598,8 @@ tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
 
 /* ---- tMenuNFS4::ctor  [FEMENUEXTENDED.CPP:454-455] SLD-VERIFIED ---- */
 
+
+#line 452 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMenu,
               void (*OnButtonPress)(tMenuCommand&),short title)
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
@@ -620,27 +609,31 @@ tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *o
 
 /* ---- tMenuNFS4::dtor  [FEMENUEXTENDED.CPP:459-459] SLD-VERIFIED ---- */
 
+
+#line 459 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuNFS4::~tMenuNFS4() {}
 
 
 
 /* ---- tMenuNFS4::Initialize  [FEMENUEXTENDED.CPP:463-476] SLD-VERIFIED ---- */
 
+
+#line 462 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4::Initialize()
 {
-
   this->tMenu::Initialize();
   this->fLastItem = (char)this->fCurrentItem;
   this->fInItemTransition = 0;
   this->fInMenuTransition = 0;
-  this->fNumItems = '\0';
-  while (this->fItemList[this->fNumItems] != (tMenuItem *)0x0) {
-    this->fNumItems++;
+
+
+
+  this->fNumItems = '\0'; while (this->fItemList[this->fNumItems] != (tMenuItem *)0x0) { this->fNumItems++;
   }
   if ((this->fFlags & 0x200) != 0) {
+
     for (short item = 0; this->fItemList[item] != 0; item++) {
-      MenuItem_SetFlags(this->fItemList[item], 0x200);
-    }
+      MenuItem_SetFlags(this->fItemList[item], 0x200); }
   }
 }
 
@@ -648,7 +641,9 @@ void tMenuNFS4::Initialize()
 
 /* ---- tMenuNFS4::ProcessInput  [FEMENUEXTENDED.CPP:481-482] SLD-VERIFIED ---- */
 
+#line 478 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
+
 
 {
   this->tMenu::ProcessInput(fromPlayer,keyval,command);
@@ -658,47 +653,47 @@ void tMenuNFS4::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuComma
 
 /* ---- tMenuNFS4::TransitionOff  [FEMENUEXTENDED.CPP:490-493] SLD-VERIFIED ---- */
 
+#line 487 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4::TransitionOff()
+
 
 {
   short i;
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    this->fItemList[i]->TransitionOff();
-  }
-  return;
-}
+    this->fItemList[i]->TransitionOff(); } return; }
 
 
 
 /* ---- tMenuNFS4::TransitionOn  [FEMENUEXTENDED.CPP:497-500] SLD-VERIFIED ---- */
 
+#line 494 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4::TransitionOn()
+
 
 {
   short i;
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    this->fItemList[i]->TransitionOn();
-  }
-  return;
-}
+    this->fItemList[i]->TransitionOn(); } return; }
 
 
 
 /* ---- tMenuNFS4::TransitionIsFinished  [FEMENUEXTENDED.CPP:504-511] SLD-VERIFIED ---- */
 
-bool tMenuNFS4::TransitionIsFinished()
-
-{
   /* P863: SYM names only i ($s1) and result ($s0).  The single-statement
      for-loop reproduces SLD 508 (test), 509 (call and backedge), and 511
      (return).  The explicit vtable entry preserves retail dispatch under
      the manual-vtable class model; exact original spelling is not proven. */
-  short i;
-  bool result;
+#line 501 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
+bool tMenuNFS4::TransitionIsFinished()
 
-  result = 1;
+
+{
+  short i;
+  bool result; result = 1;
+
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++)
     result = (result & this->fItemList[i]->TransitionIsFinished()) != 0;
+
   return result;
 }
 
@@ -706,23 +701,23 @@ bool tMenuNFS4::TransitionIsFinished()
 
 /* ---- tMenuNFS4::UpdateTransition  [FEMENUEXTENDED.CPP:515-519] SLD-VERIFIED ---- */
 
+#line 512 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4::UpdateTransition()
+
 
 {
   short i;
   i = 0;
   while (this->fItemList[i] != (tMenuItem *)0x0) {
-    this->fItemList[i]->UpdateTransition((int)i == this->fCurrentItem);
-    i = i + 1;
-  }
-  return;
-}
+    this->fItemList[i]->UpdateTransition((int)i == this->fCurrentItem); i = i + 1; } return; }
 
 
 
 /* ---- tMenuNFS4::DrawItem  [FEMENUEXTENDED.CPP:523-528] SLD-VERIFIED ---- */
 
+#line 520 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4::DrawItem(int item)
+
 
 {
 
@@ -736,60 +731,73 @@ void tMenuNFS4::DrawItem(int item)
 
 /* ---- tMenuNFS4::Draw  [FEMENUEXTENDED.CPP:534-556] SLD-VERIFIED ---- */
 
+
+#line 533 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4::Draw()
 {
   short i;
   tDrawShapeExtended drawFlags;
 
+
   if (this->fTitle >= 0) {
     FETextRender_Title(this->fTitle);
   }
+
   this->tMenu::Initialize();
+
   const int image = this->fItemList[this->fCurrentItem]->ButtonImage();
   const int frames = MenuItem_NumFrames(this->fItemList[this->fCurrentItem]);
+
   if (image >= 0 && frames > 0) {
+
     drawFlags.tint[0] = 0xcec844;
-    DrawShapeExtended(image + (FE_Ticks() >> 4) % frames, 0x410, 0x10,
-                      FEApp->Player() != 0 ? 0x79 : 0x10, 0, 0, &drawFlags);
+    DrawShapeExtended(image + (FE_Ticks() >> 4) % frames, 0x410, 0x10, FEApp->Player() != 0 ? 0x79 : 0x10, 0, 0, &drawFlags);
   }
+
+
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    this->DrawItem(i);
-  }
+    this->DrawItem(i); }
 }
 
 
 
 /* ---- tMenuNFS4TwoPlayer::ctor  [FEMENUEXTENDED.CPP:566-571] SLD-VERIFIED ---- */
 
+
+#line 564 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuNFS4TwoPlayer::tMenuNFS4TwoPlayer(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
                  tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
   this->fChildMenu = (tMenu *)0x0;
-  ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
-  return;
+
+  ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1)); return;
 }
 
 
 
 /* ---- tMenuNFS4TwoPlayer::dtor  [FEMENUEXTENDED.CPP:575-575] SLD-VERIFIED ---- */
 
+
+#line 575 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuNFS4TwoPlayer::~tMenuNFS4TwoPlayer() {}
 
 
 
 /* ---- tMenuNFS4TwoPlayer::DrawItem  [FEMENUEXTENDED.CPP:579-587] SLD-VERIFIED ---- */
 
+
+#line 578 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4TwoPlayer::DrawItem(int item)
 {
-
   short y;
-
-  y = 0x2b;
-  if (FEApp->Player() == 1) {
+  y = 0x2b; if (FEApp->Player() == 1) {
     y = 0x94;
   }
+
+
+
   this->fItemList[item]->Draw(10,y + item * 0x12,item == this->fCurrentItem);
 }
 
@@ -797,26 +805,32 @@ void tMenuNFS4TwoPlayer::DrawItem(int item)
 
 /* ---- tMenuNFS4Bottom::ctor  [FEMENUEXTENDED.CPP:607-611] SLD-VERIFIED ---- */
 
+
+#line 605 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuNFS4Bottom::tMenuNFS4Bottom(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
                  tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
-  return;
+
+  ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1)); return;
 }
 
 
 
 /* ---- tMenuNFS4Bottom::dtor  [FEMENUEXTENDED.CPP:615-615] SLD-VERIFIED ---- */
 
+
+#line 615 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuNFS4Bottom::~tMenuNFS4Bottom() {}
 
 
 
 /* ---- tMenuNFS4Bottom::Draw  [FEMENUEXTENDED.CPP:636-651] SLD-VERIFIED ---- */
 
+#line 633 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuNFS4Bottom::Draw()
+
 
 {
 
@@ -826,23 +840,21 @@ void tMenuNFS4Bottom::Draw()
   short i;
   RECT r;
 
-  r.x = 0x39;
-  r.y = 0xc6;
-  r.w = 0x72;
-  r.h = 0xb;
+
+
+  r.x = 0x39; r.y = 0xc6; r.w = 0x72; r.h = 0xb;
   MenuNFS4_SetHelpPos(r);
   i = 0;
+
   while (this->fItemList[i] != (tMenuItem *)0x0) {
-    this->fItemList[i]->Draw(0,0,(int)i == this->fCurrentItem);
-    i = i + 1;
-  }
-  return;
-}
+    this->fItemList[i]->Draw(0,0,(int)i == this->fCurrentItem); i = i + 1; } return; }
 
 
 
 /* ---- tMenuBlank::ctor  [FEMENUEXTENDED.CPP:659-663] SLD-VERIFIED ---- */
 
+
+#line 657 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuBlank::tMenuBlank(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMenu
               ,void (*OnButtonPress)(tMenuCommand&),short title)
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
@@ -856,13 +868,17 @@ tMenuBlank::tMenuBlank(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu 
 
 /* ---- tMenuBlank::dtor  [FEMENUEXTENDED.CPP:667-667] SLD-VERIFIED ---- */
 
+
+#line 667 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuBlank::~tMenuBlank() {}
 
 
 
 /* ---- tMenuBlank::Draw  [FEMENUEXTENDED.CPP:671-682] SLD-VERIFIED ---- */
 
+#line 668 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuBlank::Draw()
+
 
 {
 
@@ -875,33 +891,37 @@ void tMenuBlank::Draw()
 
 
     this->fTransitionVal =
-         this->fTransitionVal + (short)*(signed char *)&this->fTransitionDirection;
-  }
-  return;
-}
+         this->fTransitionVal + (short)*(signed char *)&this->fTransitionDirection; } return; }
 
 
 
 /* ---- tMenuBlank::ProcessInput  [FEMENUEXTENDED.CPP:688-700] SLD-VERIFIED ---- */
 
+#line 685 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuBlank::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
+
 
 {
   if ((keyval == kInput_KeyType_Up) || (keyval == kInput_KeyType_Down)) {
+
+
+
+
     keyval = kInput_KeyType_AlreadyProcessed;
   }
   else {
     this->fItemList[0] = (tMenuItem *)0x0;
+
     this->tMenu::ProcessInput(fromPlayer,keyval,command);
-  }
-  return;
-}
+  } return; }
 
 
 
 /* ---- tMenuBlank::Initialize  [FEMENUEXTENDED.CPP:705-706] SLD-VERIFIED ---- */
 
+#line 702 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuBlank::Initialize()
+
 
 {
 }
@@ -910,7 +930,9 @@ void tMenuBlank::Initialize()
 
 /* ---- tMenuBlank::DebounceKeys  [FEMENUEXTENDED.CPP:720-721] SLD-VERIFIED ---- */
 
+#line 717 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 long tMenuBlank::DebounceKeys()
+
 
 {
   return -1;
@@ -920,7 +942,9 @@ long tMenuBlank::DebounceKeys()
 
 /* ---- tMenuBlank::TransitionOff  [FEMENUEXTENDED.CPP:728-731] SLD-VERIFIED ---- */
 
+#line 725 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuBlank::TransitionOff()
+
 
 {
   this->fTransitionDirection = '\b';
@@ -932,7 +956,9 @@ void tMenuBlank::TransitionOff()
 
 /* ---- tMenuBlank::TransitionOn  [FEMENUEXTENDED.CPP:735-738] SLD-VERIFIED ---- */
 
+#line 732 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuBlank::TransitionOn()
+
 
 {
   *(signed char *)&this->fTransitionDirection = -8;
@@ -944,7 +970,9 @@ void tMenuBlank::TransitionOn()
 
 /* ---- tMenuBlank::TransitionIsFinished  [FEMENUEXTENDED.CPP:742-751] SLD-VERIFIED ---- */
 
+#line 739 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 bool tMenuBlank::TransitionIsFinished()
+
 
 {
   if (0 < *(signed char *)&this->fTransitionDirection) {
@@ -962,6 +990,8 @@ bool tMenuBlank::TransitionIsFinished()
 
 /* ---- tMenuOptions::ctor  [FEMENUEXTENDED.CPP:762-767] SLD-VERIFIED ---- */
 
+
+#line 759 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuOptions::tMenuOptions(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
               tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,short player,
               tMenuItem *firstItem,...)
@@ -977,33 +1007,35 @@ tMenuOptions::tMenuOptions(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
 
 /* ---- tMenuOptions::dtor  [FEMENUEXTENDED.CPP:771-771] SLD-VERIFIED ---- */
 
+
+#line 771 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 tMenuOptions::~tMenuOptions() {}
 
 
 
 /* ---- tMenuOptions::Draw  [FEMENUEXTENDED.CPP:781-852] SLD-VERIFIED ---- */
 
-void tMenuOptions::Draw()
-
-{
   /* SYM ORDER (W86-S2): the 8c Def rows read numItems, i, deltaTicks, x, y,
      w, h, itemY. */
-  short numItems;
-  short i;
-  u_long deltaTicks;
-  long x;
-  long y;
-  long w;
-  long h;
-  long itemY;
+#line 778 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
+void tMenuOptions::Draw()
 
-  numItems = ((tMenu *)this)->GetNumberEnabledItems();
+
+{
+  short numItems; short i; u_long deltaTicks; long x; long y; long w; long h; long itemY; numItems = ((tMenu *)this)->GetNumberEnabledItems();
   w = 0x140;
+
+
+
+
   this->TransitionIsFinished();
+
   h = numItems * 0x12;
   if (this->fInMenuTransition != 0) {
+
     deltaTicks = FE_Ticks() - this->fMenuEnterTicks;
     if (0x20 < deltaTicks) {
+
       deltaTicks = 0x20;
       this->fInMenuTransition = 0;
       if ((signed char)this->fTransitionDirection < 0) {
@@ -1011,10 +1043,12 @@ void tMenuOptions::Draw()
       }
     }
     if (-1 < (signed char)this->fTransitionDirection) {
+
       w = w * deltaTicks >> 5;
       h = h * deltaTicks >> 5;
     }
     else {
+
       w = w - (w * deltaTicks >> 5);
       h = h - (h * deltaTicks >> 5);
     }
@@ -1023,42 +1057,50 @@ void tMenuOptions::Draw()
     return;
   }
   h = h + 0x12;
+
   x = (int)(screenwidth - w) >> 1;
   y = (0xf0 - h) >> 1;
   if (this->fPlayer == 0) {
     y = y - ((0xf0 - h) >> 2);
-  }
-  else if (this->fPlayer == 1) {
+  } else if (this->fPlayer == 1) {
     y = y + ((0xf0 - h) >> 2);
   }
   if (this->fInMenuTransition == 0) {
+
     if (-1 < this->fTitle) {
-      FETextRender_MenuTextPositionedJustify(this->fTitle,(short)((u_int)((x + ((int)w >> 1)) * 0x10000) >> 0x10),
-                 (short)((u_int)((y + 2) * 0x10000) >> 0x10),2,textState_Hilighted,
-                 textType_PopUpTitle);
+      FETextRender_MenuTextPositionedJustify(this->fTitle,(short)((u_int)((x + ((int)w >> 1)) * 0x10000) >> 0x10), (short)((u_int)((y + 2) * 0x10000) >> 0x10),2,textState_Hilighted, textType_PopUpTitle);
     }
     itemY = y + 0x12;
     for (i = 0; this->fItemList[i] != 0; i++) {
+
       if (MenuItem_IsEnabled(this->fItemList[i])) {
+
         this->fItemList[i]->Draw(x + 10,itemY,(int)i == this->fCurrentItem);
         itemY = itemY + 0x12;
       }
     }
   }
+
+
   PSXDrawSquare(0,x,y,w,0xc);
   PSXDrawTransSquare(0,x,y + h,w,-2,1);
   PSXDrawTransSquare(0,x,y + 0xc,4,h - 0xe,1);
   PSXDrawTransSquare(0,x + w,y + 0xc,-4,h - 0xe,1);
+
+
   PSXDrawTransSquare(0,x,y,w,h,1);
+
+
   FeDraw_SetABRMode(0);
-  return;
-}
+  return; }
 
 
 
 /* ---- tMenuOptions::TransitionOff [FEMENUEXTENDED.CPP:855-859] P889: native locals/order restored; emitted SLD attribution remains under review. ---- */
 
+#line 852 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuOptions::TransitionOff()
+
 
 {
   *(signed char *)&this->fTransitionDirection = -1;
@@ -1072,6 +1114,8 @@ void tMenuOptions::TransitionOff()
 /* ---- tMenuOptions::TransitionOn [FEMENUEXTENDED.CPP:863-874] P889: ticks carrier removed; iterator/source-scope recovery remains open. ---- */
 
 
+
+#line 862 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuOptions::TransitionOn()
 {
   for (int i = 0; this->fItemList[i] != 0; i++) {
@@ -1091,7 +1135,9 @@ void tMenuOptions::TransitionOn()
 
 /* ---- tMenuOptions::TransitionIsFinished  [FEMENUEXTENDED.CPP:878-880] SLD-VERIFIED ---- */
 
+#line 875 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 bool tMenuOptions::TransitionIsFinished()
+
 
 {
   this->fInMenuTransition = (u_int)(FE_Ticks() - this->fMenuEnterTicks < 0x20);
@@ -1102,21 +1148,25 @@ bool tMenuOptions::TransitionIsFinished()
 
 /* ---- tMenuOptions::ProcessInput  [FEMENUEXTENDED.CPP:884-889] SLD-VERIFIED ---- */
 
+#line 881 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 void tMenuOptions::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
+
 
 {
   if (keyval == kInput_KeyType_Square) {
+
     keyval = kInput_KeyType_Triangle;
   }
-  this->tMenuNFS4::ProcessInput(fromPlayer,keyval,command);
-  return;
+  this->tMenuNFS4::ProcessInput(fromPlayer,keyval,command); return;
 }
 
 
 
 /* ---- tMenuOptions::IsSubMenu  [FEMENUEXTENDED.CPP:893-894] SLD-VERIFIED ---- */
 
+#line 890 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.CPP"
 bool tMenuOptions::IsSubMenu()
+
 
 {
   return 1;
@@ -1126,7 +1176,9 @@ bool tMenuOptions::IsSubMenu()
 
 /* ---- tMenuBlank::UpdateTransition  [FEMENUEXTENDED.CPP:?] SLD-FLAG:NO_SLD ---- */
 
+#line 212 "C:/nfs4/FRONTEND/COMMON/FEMENUEXTENDED.H"
 void tMenuBlank::UpdateTransition()
+
 
 { }
 

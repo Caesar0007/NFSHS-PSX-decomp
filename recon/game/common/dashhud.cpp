@@ -22,7 +22,9 @@ void DashHUD_HUDCalc(int player);
 
 
 /* ---- DashHUD_InitHUD__Fv  [DASHHUD.CPP:38-91] SLD-VERIFIED ---- */
+#line 35 "C:/nfs4/GAME/COMMON/DASHHUD.CPP"
 void DashHUD_InitHUD(void)
+
 
 {
   int i;
@@ -83,13 +85,17 @@ void DashHUD_InitHUD(void)
 /* ---- DashHUD_KillHUD__Fv  [DASHHUD.CPP:101-102] ----
  * One call plus implicit void fallthrough matches all eight retail words,
  * SLD tags and block/function-end source lines. */
+#line 98 "C:/nfs4/GAME/COMMON/DASHHUD.CPP"
 void DashHUD_KillHUD(void)
+
 
 {
   Hud_Kill(); }
 
 /* ---- DashHUD_ResetHUD__Fv  [DASHHUD.CPP:106-118] SLD-VERIFIED ---- */
+#line 103 "C:/nfs4/GAME/COMMON/DASHHUD.CPP"
 void DashHUD_ResetHUD(void)
+
 
 {
   if (Replay_ReplayMode < 2) {
@@ -106,7 +112,9 @@ void DashHUD_ResetHUD(void)
     DashHUD_gInfo.showhud[1] = 1; } return; }
 
 /* ---- DashHUD_ToggleHud__Fi  [DASHHUD.CPP:125-127] SLD-VERIFIED ---- */
+#line 122 "C:/nfs4/GAME/COMMON/DASHHUD.CPP"
 void DashHUD_ToggleHud(int player)
+
 
 {
 
@@ -116,7 +124,9 @@ void DashHUD_ToggleHud(int player)
 /* ---- DashHUD_CheckWrongWay__Fi  [DASHHUD.CPP:151-164] SLD-VERIFIED ---- */
   /* 2026-09-25: the camera anchor IS the car (Car_tObj::N sits at offset 0) and the word at 0x3F0 is Car_tObj::wrongway,
      not a byte-shifted lastOtherObj; retail SYM keeps `car` in $v0 as this loaded pointer. */
+#line 148 "C:/nfs4/GAME/COMMON/DASHHUD.CPP"
 void DashHUD_CheckWrongWay(int player)
+
 
 {
   int wrongway;
@@ -140,7 +150,9 @@ void DashHUD_CheckWrongWay(int player)
    * optimizer removed every use.  Native/retail compact type-6 symbols both
    * put it +4 after resethud; the detailed retail Def stream omits it.
    * Restoring it recovers dashhud.obj's 8-byte private-BSS footprint. */
+#line 168 "C:/nfs4/GAME/COMMON/DASHHUD.CPP"
 void DashHUD_HUDCalc(int player)
+
 
 {
   Car_tObj *car;             /* retail detailed SYM declaration order: car, resethud */

@@ -12,7 +12,9 @@ int          tracks_maxTrackIndex;   /* @0x80051620  (bss(zero)) */
 
 /* ---- tTrackManager::Initialize  [FETRACKS.CPP:29-39] SLD-VERIFIED ---- */
 
+#line 26 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tTrackManager::Initialize()
+
 
 {
   short i;
@@ -30,6 +32,8 @@ void tTrackManager::Initialize()
 
 
 /* ---- tTrackManager::LoadTracks  [FETRACKS.CPP:46-59] SLD-VERIFIED ---- */
+
+#line 45 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tTrackManager::LoadTracks(tSaveTrackInfo &load)
 {
   u_long i;
@@ -43,6 +47,8 @@ void tTrackManager::LoadTracks(tSaveTrackInfo &load)
 }
 
 /* ---- tTrackManager::SaveTracks  [FETRACKS.CPP:65-77] SLD-VERIFIED ---- */
+
+#line 64 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tTrackManager::SaveTracks(tSaveTrackInfo &save)
 {
   u_long i;
@@ -57,7 +63,9 @@ void tTrackManager::SaveTracks(tSaveTrackInfo &save)
 
 /* ---- tTrackManager::GetTrack  [FETRACKS.CPP:84-86] SLD-VERIFIED ---- */
 
+#line 81 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tTrackManager::GetTrack(short trackNumber,tTrackInformation &trackInfo)
+
 
 {
   blockmove(this->fTracks + trackNumber,&trackInfo,0x30);
@@ -75,7 +83,9 @@ void tTrackManager::GetTrack(short trackNumber,tTrackInformation &trackInfo)
    reduced to retail's byte-offset induction variable.  The named record
    fields replace all decompiler offset aliases. 78/78 instructions. */
 
+#line 91 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tTrackManager::LoadDescription()
+
 
 {
   char *input;
@@ -83,33 +93,55 @@ void tTrackManager::LoadDescription()
   char filename [80];
   u_long i;
   
+
+
+
   sprintf(filename,"%s%s",Paths_Paths[0x25],"fetrk.trk");
+
+
+
   this->ReleaseDescription();
+
+
   input = (char *)loadfileadr(filename,0x10);
+
+
+
+
   this->fNumTracks = *(u_long *)input;
   data = input + 4;
+
+
   this->fTracks = (tTrackInformation *)reservememadr("Track List",this->fNumTracks * 0x30,0);
+
+
   blockmove(data,this->fTracks,this->fNumTracks * 0x30);
   i = 0;
-  if (this->fNumTracks != 0) {
-    do {
+
+  if (this->fNumTracks != 0) { do {
+
       if (this->fTracks[i].fAvailable != '\0') {
+
         this->fAvailableTracks[(signed char)this->fTracks[i].fTrackID] = true;
       }
+
+
+
       if (this->fTracks[i].fIsEgg == '\0') {
         this->fViewableTracks[(signed char)this->fTracks[i].fTrackID] = true;
-      }
-    } while (++i < this->fNumTracks);
+      } } while (++i < this->fNumTracks);
   }
-  purgememadr(input);
-  return;
+
+  purgememadr(input); return;
 }
 
 
 
 /* ---- tTrackManager::ReleaseDescription  [FETRACKS.CPP:145-150] SLD-VERIFIED ---- */
 
+#line 142 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tTrackManager::ReleaseDescription()
+
 
 {
   
@@ -122,7 +154,9 @@ void tTrackManager::ReleaseDescription()
 
 /* ---- tTrackManager::SetTrackAvailable  [FETRACKS.CPP:157-159] SLD-VERIFIED ---- */
 
+#line 154 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tTrackManager::SetTrackAvailable(short track,bool avail)
+
 
 {
   this->fAvailableTracks[track] = avail;
@@ -136,7 +170,9 @@ void tTrackManager::SetTrackAvailable(short track,bool avail)
    The track id is explicitly signed because this build defaults plain
    char to unsigned, while retail uses `lb` for the availability index. */
 
+#line 169 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tTrackManager::SetClassAvailable(tTrackClassType trackClass,bool avail)
+
 
 {
   u_long i;
@@ -153,7 +189,9 @@ void tTrackManager::SetClassAvailable(tTrackClassType trackClass,bool avail)
 
 /* ---- tTrackManager::GetTrackByID  [FETRACKS.CPP:198-209] SLD-VERIFIED ---- */
 
+#line 195 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 tTrackInformation * tTrackManager::GetTrackByID(short track)
+
 
 {
   u_long i;
@@ -172,6 +210,8 @@ tTrackInformation * tTrackManager::GetTrackByID(short track)
 
 
 /* ---- tListIteratorTrack::ctor  [FETRACKS.CPP:233-235] SLD-VERIFIED ---- */
+
+#line 232 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 tListIteratorTrack::tListIteratorTrack(char *valPtr,char *index,tTrackManager *trackManager)
   : tListIteratorIndexed((short *)0x0,valPtr,index)
 {
@@ -182,12 +222,16 @@ tListIteratorTrack::tListIteratorTrack(char *valPtr,char *index,tTrackManager *t
 
 /* ---- tListIteratorTrack::dtor  [FETRACKS.CPP:239-239] SLD-VERIFIED ---- */
 
+
+#line 239 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 tListIteratorTrack::~tListIteratorTrack() {}
 
 
 
 /* ---- tListIteratorTrack::TextValue  [FETRACKS.CPP:243-245] SLD-VERIFIED ---- */
 
+
+#line 242 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 short tListIteratorTrack::TextValue(tPlayer atIndex)
 {
   tTrackInformation *trackInfo = &this->fTrackManager->fTracks[(u_char)this->fValue[(u_char)*this->fIndex]];
@@ -198,7 +242,9 @@ short tListIteratorTrack::TextValue(tPlayer atIndex)
 
 /* ---- tListIteratorTrack::Increment  [FETRACKS.CPP:249-255] SLD-VERIFIED ---- */
 
+#line 246 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tListIteratorTrack::Increment(tPlayer atIndex)
+
 
 {
   do {
@@ -213,7 +259,9 @@ void tListIteratorTrack::Increment(tPlayer atIndex)
 
 /* ---- tListIteratorTrack::Decrement  [FETRACKS.CPP:259-265] SLD-VERIFIED ---- */
 
+#line 256 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 void tListIteratorTrack::Decrement(tPlayer atIndex)
+
 
 {
   do {
@@ -232,6 +280,8 @@ void tListIteratorTrack::Decrement(tPlayer atIndex)
    BOOL spelling in dumpsym is the compiler's boolean base type, not the
    reconstruction's `typedef int BOOL`. */
 
+
+#line 268 "C:/nfs4/FRONTEND/COMMON/FETRACKS.CPP"
 bool tListIteratorTrack::ValidTrack(char track)
 {
   tTrackInformation *trackInfo = this->fTrackManager->fTracks + (u_char)track;

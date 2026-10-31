@@ -55,6 +55,8 @@ void AIPerson_Cleanup(void);
  * reduces the two indexed arrays to the retail $a1/$a2 cursors and schedules the $a0
  * counter initialization into the entry `blez` delay slot.  The former pointer-carrier
  * reconstruction needed a false `int` return type to obtain that schedule. */
+
+
 #line 30 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_LoadGridAndSetPersonalityIndexes(void)
 {
@@ -71,6 +73,8 @@ void AIPerson_LoadGridAndSetPersonalityIndexes(void)
 /* ---- AIPerson_SetPersonality__FP8Car_tObji  [@0x80068a34] ---- */
 /* P872: native SYM 2874e4 is CHAR[15][8]. Select the original name row
  * directly instead of expressing the same address through row zero. PASS50. */
+
+
 #line 78 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex)
 {
@@ -108,6 +112,8 @@ void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex)
 /* ---- AIPerson_SetPersonalityPointers__Fv  [@0x80068afc] ---- */
 /* Retail statement offsets: loop +1, pointer initializer +3, call +4.
  * The ordinary initializer and void fallthrough need no source padding. */
+
+
 #line 112 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_SetPersonalityPointers(void) {
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++)
@@ -124,6 +130,8 @@ void AIPerson_SetPersonalityPointers(void) {
  * 80-byte frame on today's source but change the stream, so the historical
  * frame-necessity claim is withdrawn. Neither those failures nor debug elision
  * prove a distinct original object or this identifier. No generic exemption. */
+
+
 #line 120 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
 {
@@ -206,6 +214,8 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
   }
 }
 /* ---- AIPerson_LoadScriptData__FP10Udff_tInfo  [@0x80068ea4] ---- */
+
+
 #line 207 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_LoadScriptData(Udff_tInfo *handle)
 {
@@ -252,6 +262,8 @@ void AIPerson_LoadScriptData(Udff_tInfo *handle)
   }
 }
 /* ---- AIPerson_LoadGlue__FP10Udff_tInfo  [@0x80068f80] ---- */
+
+
 #line 448 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_LoadGlue(Udff_tInfo *handle)
 {
@@ -282,6 +294,8 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
  * all 75 emitted rodata bytes match 80055354..8005539e. Both former
  * D_80116470 reads are Paths_Paths[2], not independent source globals.
  * PASS105/exact-g; raw relocation targets and string bytes checked separately. */
+
+
 #line 487 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_Startup(void)
 {
@@ -337,6 +351,8 @@ void AIPerson_Startup(void)
 }
 
 /* ---- AIPerson_Cleanup__Fv  [@0x80069230] ---- */
+
+
 #line 541 "C:/nfs4/GAME/COMMON/AIPERSON.CPP"
 void AIPerson_Cleanup(void) {
 }

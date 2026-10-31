@@ -22,7 +22,9 @@ int totalAvailMem;   /* tentative: retail emits it AFTER the literal (17B). */
 
 
 /* ---- Loading_DrawLoadingScreen__Fv  [LOADING.CPP:15-51] SLD-VERIFIED ---- */
+#line 12 "C:/nfs4/GAME/PSX/LOADING.CPP"
 void Loading_DrawLoadingScreen(void)
+
 
 {
   char name [255];
@@ -76,7 +78,9 @@ void Loading_DrawLoadingScreen(void)
  *       the oracle's place).  The lever is a NAMED TEMP for the *inner* term only
  *       (`y = i + 0x8e;`), leaving the invariant inline.  Catalog: "const-multiply
  *       reassociation needs a NAMED TEMP, not parens" -- applied to the ADDEND side. */
+#line 57 "C:/nfs4/GAME/PSX/LOADING.CPP"
 void Loading_UpdateLoadingScreen(int checkpoint)
+
 
 {
   shapetbl *tile; /* SYM-CODEGEN-CARRIER: tile -- nested call is 44 diffs, 64/62 */
@@ -113,7 +117,9 @@ void Loading_UpdateLoadingScreen(int checkpoint)
     smallShapeFile = (char *)0x0; } return; }
 
 /* ---- Loading_GetInitialMemory__Fv  [LOADING.CPP:105-106] SLD-VERIFIED ---- */
+#line 102 "C:/nfs4/GAME/PSX/LOADING.CPP"
 void Loading_GetInitialMemory(void)
+
 
 {
   totalAvailMem = largestunused();

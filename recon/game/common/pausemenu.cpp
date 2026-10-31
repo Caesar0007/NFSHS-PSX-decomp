@@ -21,27 +21,33 @@ static int gPause_CurrentY;
 
 /* ---- PauseMenu_FullText  [PAUSEMENU.CPP:60-82] SLD-VERIFIED ---- */
 
+#line 57 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
-{
-  char *str;
+
+{ char *str;
+
+
 
   str = sMenuText;
+
   if (gPause_CurrentY == 0x62) {
+
     x = 0xa0;
     flags = 2;
-    color = 6;
-  }
+    color = 6; }
+
+
+
+
+
   if (flags == 1) {
-    x = x - (short)textpixels(str);
-  }
+    x = x - (short)textpixels(str); }
   else if (flags == 2) {
-    x = x - (short)(textpixels(sMenuText) / 2);
-  }
+    x = x - (short)(textpixels(sMenuText) / 2); }
+
   Font_TextColor((int)color);
-  Font_TextXY(str,(int)x,gPause_CurrentY);
-  return;
-}
+  Font_TextXY(str,(int)x,gPause_CurrentY); return; }
 
 
 
@@ -54,7 +60,9 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
    compiler receipt explains the optimized SYM omission without a carrier
    exemption; SLD keeps the calls in retail order: flags, str, color, draw. */
 
+#line 84 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,short x)
+
 
 { char *str;
 
@@ -79,7 +87,9 @@ void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,shor
    callee also names its SHORT fourth parameter `x`. NFS2's matched
    MenuSys_Display source independently uses `short x` for this coordinate. */
 
+#line 100 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void PauseMenu_MenuText(short index,bool selected,bool disabled)
+
 
 {
   short x;
@@ -94,7 +104,9 @@ void PauseMenu_MenuText(short index,bool selected,bool disabled)
 
 /* ---- tPListIterator::ctor  [PAUSEMENU.CPP:123-125] SLD-VERIFIED ---- */
 
+#line 120 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPListIterator::tPListIterator(short *selection,int *valPtr)
+
 
 {
   this->fSelectionList = selection;
@@ -105,6 +117,8 @@ tPListIterator::tPListIterator(short *selection,int *valPtr)
 
 /* ---- tPListIterator::dtor  [PAUSEMENU.CPP:129-129] SLD-VERIFIED ---- */
 
+
+#line 129 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPListIterator::~tPListIterator() {}
 
 
@@ -113,7 +127,9 @@ tPListIterator::~tPListIterator() {}
 /* The unused tPlayer remains in the virtual ABI but has no source name
    in the retail optimized SYM declaration block. */
 
+#line 131 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 char tPListIterator::Value(tPlayer)
+
 
 {
   return *this->fValue;
@@ -125,7 +141,9 @@ char tPListIterator::Value(tPlayer)
 /* The unused tPlayer remains in the virtual ABI but has no source name
    in the retail optimized SYM declaration block. */
 
+#line 136 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 short tPListIterator::TextValue(tPlayer)
+
 
 {
   return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
@@ -137,7 +155,9 @@ short tPListIterator::TextValue(tPlayer)
 /* The unused tPlayer remains in the virtual ABI but has no source name
    in the retail optimized SYM declaration block. */
 
+#line 141 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPListIterator::Increment(tPlayer)
+
 
 {
   *this->fValue = *this->fValue + 1;
@@ -153,7 +173,9 @@ void tPListIterator::Increment(tPlayer)
 /* The unused tPlayer remains in the virtual ABI but has no source name
    in the retail optimized SYM declaration block. */
 
+#line 151 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPListIterator::Decrement(tPlayer)
+
 
 {
   if (*this->fValue == 0) {
@@ -170,6 +192,8 @@ void tPListIterator::Decrement(tPlayer)
 
 
 /* ---- tPListIteratorIndexed::ctor  [PAUSEMENU.CPP:197-199] SLD-VERIFIED ---- */
+
+#line 196 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPListIteratorIndexed::tPListIteratorIndexed(short *selection,int *valPtr,char *index)
   : tPListIterator(selection,valPtr)
 {
@@ -180,6 +204,8 @@ tPListIteratorIndexed::tPListIteratorIndexed(short *selection,int *valPtr,char *
 
 /* ---- tPListIteratorIndexed::dtor  [PAUSEMENU.CPP:203-203] SLD-VERIFIED ---- */
 
+
+#line 203 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPListIteratorIndexed::~tPListIteratorIndexed() {}
 
 
@@ -188,7 +214,9 @@ tPListIteratorIndexed::~tPListIteratorIndexed() {}
 /* The unused tPlayer remains in the virtual ABI but has no source name
    in the retail optimized SYM declaration block. */
 
+#line 204 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 char tPListIteratorIndexed::Value(tPlayer)
+
 
 {
   return this->fValue[(u_char)*this->fIndex];
@@ -200,7 +228,9 @@ char tPListIteratorIndexed::Value(tPlayer)
 /* The unused tPlayer remains in the virtual ABI but has no source name
    in the retail optimized SYM declaration block. */
 
+#line 209 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 short tPListIteratorIndexed::TextValue(tPlayer)
+
 
 {
   return (int)this->fSelectionList[this->Value((tPlayer)-1) & 0xff];
@@ -212,7 +242,9 @@ short tPListIteratorIndexed::TextValue(tPlayer)
 /* The unused tPlayer remains in the virtual ABI but has no source name
    in the retail optimized SYM declaration block. */
 
+#line 216 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPListIteratorIndexed::Increment(tPlayer)
+
 
 {
   this->fValue[(u_char)*this->fIndex] = this->fValue[(u_char)*this->fIndex] + 1;
@@ -228,7 +260,9 @@ void tPListIteratorIndexed::Increment(tPlayer)
 /* The unused tPlayer remains in the virtual ABI but has no source name
    in the retail optimized SYM declaration block. */
 
+#line 226 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPListIteratorIndexed::Decrement(tPlayer)
+
 
 {
   if (this->fValue[(u_char)*this->fIndex] == 0) {
@@ -246,7 +280,9 @@ void tPListIteratorIndexed::Decrement(tPlayer)
 
 /* ---- tPMenuItem::ctor  [PAUSEMENU.CPP:246-248] SLD-VERIFIED ---- */
 
+#line 243 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItem::tPMenuItem(u_int textDescription)
+
 
 {
   this->fTextDescription = textDescription;
@@ -257,13 +293,17 @@ tPMenuItem::tPMenuItem(u_int textDescription)
 
 /* ---- tPMenuItem::dtor  [PAUSEMENU.CPP:252-252] SLD-VERIFIED ---- */
 
+
+#line 252 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItem::~tPMenuItem() {}
 
 
 
 /* ---- tPMenuItem::NextMenu  [PAUSEMENU.CPP:256-257] SLD-VERIFIED ---- */
 
+#line 253 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenu * tPMenuItem::NextMenu()
+
 
 {
   return (tPMenu *)0x0;
@@ -273,7 +313,9 @@ tPMenu * tPMenuItem::NextMenu()
 
 /* ---- tPMenuItem::Debounce  [PAUSEMENU.CPP:261-262] SLD-VERIFIED ---- */
 
+#line 258 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 bool tPMenuItem::Debounce()
+
 
 {
   return 1;
@@ -285,6 +327,8 @@ bool tPMenuItem::Debounce()
 /* Both virtual ABI parameters are unused and unnamed in retail SYM;
    the empty base implementation retains only its implicit this. */
 
+
+#line 265 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItem::ProcessInput(tInputKeyType &,tPMenuCommand &)
 {
 }
@@ -292,6 +336,8 @@ void tPMenuItem::ProcessInput(tInputKeyType &,tPMenuCommand &)
 
 
 /* ---- tPMenuItemNonInteractiveText::ctor  [PAUSEMENU.CPP:273-274] SLD-VERIFIED ---- */
+
+#line 272 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemNonInteractiveText::tPMenuItemNonInteractiveText(u_int textDescription)
   : tPMenuItem(textDescription)
 {
@@ -301,6 +347,8 @@ tPMenuItemNonInteractiveText::tPMenuItemNonInteractiveText(u_int textDescription
 
 /* ---- tPMenuItemNonInteractiveText::dtor  [PAUSEMENU.CPP:278-278] SLD-VERIFIED ---- */
 
+
+#line 278 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemNonInteractiveText::~tPMenuItemNonInteractiveText() {}
 
 
@@ -309,7 +357,9 @@ tPMenuItemNonInteractiveText::~tPMenuItemNonInteractiveText() {}
 /* The unused bool remains in the virtual ABI but has no source name in
    the retail optimized SYM declaration block. */
 
+#line 280 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemNonInteractiveText::Draw(bool)
+
 
 {
   PauseMenu_MenuText((short)this->fTextDescription,false,0);
@@ -318,6 +368,8 @@ void tPMenuItemNonInteractiveText::Draw(bool)
 
 
 /* ---- tPMenuItemInteractive::ctor  [PAUSEMENU.CPP:297-298] SLD-VERIFIED ---- */
+
+#line 296 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemInteractive::tPMenuItemInteractive(u_int textDescription)
   : tPMenuItem(textDescription)
 {
@@ -327,6 +379,8 @@ tPMenuItemInteractive::tPMenuItemInteractive(u_int textDescription)
 
 /* ---- tPMenuItemInteractive::dtor  [PAUSEMENU.CPP:302-302] SLD-VERIFIED ---- */
 
+
+#line 302 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemInteractive::~tPMenuItemInteractive() {}
 
 
@@ -338,7 +392,9 @@ tPMenuItemInteractive::~tPMenuItemInteractive() {}
 
 /* ---- tPMenuItemInteractive::Draw  [PAUSEMENU.CPP:311-312] SLD-VERIFIED ---- */
 
+#line 308 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemInteractive::Draw(bool selected)
+
 
 {
   PauseMenu_MenuText((short)this->fTextDescription,selected,this->IsDisabled());
@@ -347,6 +403,8 @@ void tPMenuItemInteractive::Draw(bool selected)
 
 
 /* ---- tPMenuItemLeftRightChoice::ctor  [PAUSEMENU.CPP:319-321] SLD-VERIFIED ---- */
+
+#line 318 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemLeftRightChoice::tPMenuItemLeftRightChoice(u_int textDescription,tPListIterator *dataPtr)
   : tPMenuItemInteractive(textDescription)
 {
@@ -357,6 +415,8 @@ tPMenuItemLeftRightChoice::tPMenuItemLeftRightChoice(u_int textDescription,tPLis
 
 /* ---- tPMenuItemLeftRightChoice::dtor  [PAUSEMENU.CPP:325-325] SLD-VERIFIED ---- */
 
+
+#line 325 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice() {}
 
 
@@ -365,7 +425,9 @@ tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice() {}
 
 /* SYM-ABI-PARAM: command -- required by the virtual signature/linkage but
      unused and therefore absent from the optimized SYM declaration block. */
+#line 326 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &)
+
 
 {
   if (keyval == kInput_KeyType_Left) { goto left; } if (keyval == kInput_KeyType_Right) { goto right; } return; left:
@@ -393,7 +455,9 @@ void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand
      drawing and arrow-layout calls; optimized SYM gives it no debug home. */
 /* SYM-CODEGEN-CARRIER: textX -- cached TextSys_WordX result shared by the
      label draw and both arrow positions. */
+#line 343 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemLeftRightChoice::Draw(bool selected)
+
 
 { short text; short textX; int y;
 
@@ -423,6 +487,8 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
 
 
 /* ---- tPMenuItemLeftRightSlider::ctor  [PAUSEMENU.CPP:441-444] SLD-VERIFIED ---- */
+
+#line 440 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemLeftRightSlider::tPMenuItemLeftRightSlider(u_int textDescription,int *dataPtr,char maxVal)
   : tPMenuItemInteractive(textDescription)
 {
@@ -434,13 +500,17 @@ tPMenuItemLeftRightSlider::tPMenuItemLeftRightSlider(u_int textDescription,int *
 
 /* ---- tPMenuItemLeftRightSlider::dtor  [PAUSEMENU.CPP:449-449] SLD-VERIFIED ---- */
 
+
+#line 449 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemLeftRightSlider::~tPMenuItemLeftRightSlider() {}
 
 
 
 /* ---- tPMenuItemLeftRightSlider::Debounce  [PAUSEMENU.CPP:453-454] SLD-VERIFIED ---- */
 
+#line 450 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 bool tPMenuItemLeftRightSlider::Debounce()
+
 
 {
   return 0;
@@ -455,7 +525,9 @@ bool tPMenuItemLeftRightSlider::Debounce()
 /* SOURCE-REVIEW-UNRESOLVED: max is absent from retail SYM. The bound
          assignment inside the comparison removes the former value capture
          without changing 71 words. This remaining object still needs recovery. */
+#line 455 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &)
+
 
 { bool sound; sound = false;
 
@@ -571,53 +643,53 @@ void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand
        * reference view with the existing fence's same address value gives
        * 34dif/171; postfix cursor acquisition114/173. Both reverted. */
 
+#line 495 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemLeftRightSlider::Draw(bool selected)
 
-{
-  short x;
-  short y;
+
+{ short x; short y;
+
 
   x = (short)TextSys_WordX(this->fTextDescription);
-  y = gPause_CurrentY;
-  PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
-             this->IsDisabled(), x);
-  y += 4;
-  for (int i = 0; i < 15; i++) {
-    u_long col = 0x323232;
-    int xpos;
-    int off = i * 5 + 66;
-    xpos = x + off;
-    if (i < (*this->fData * 15) / (u_char)this->fMaxVal) {
-      col = 0x808080;
-      if (selected != 0) {
-        col = 0xbebe;
-      }
-    }
-    if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) {
-      POLY_GT4 *prim;
-      u_char **packetPtr;
+  y = gPause_CurrentY; PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
 
-      packetPtr = (u_char **)0x1f800004;
-      prim = (POLY_GT4 *)*packetPtr;
-      addPrim(Render_gPalettePtr, prim);
-      *packetPtr = (u_char *)(prim + 1);
+             this->IsDisabled(), x);
+
+  y += 4;
+
+  for (int i = 0; i < 15; i++) {
+
+    u_long col = 0x323232; int xpos; int off = i * 5 + 66; xpos = x + off;
+    if (i < (*this->fData * 15) / (u_char)this->fMaxVal) {
+
+
+
+
+
+
+      col = 0x808080; if (selected != 0) { col = 0xbebe; } }
+
+
+    if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) { POLY_GT4 *prim; u_char **packetPtr; packetPtr = (u_char **)0x1f800004;
+
+
+      prim = (POLY_GT4 *)*packetPtr; addPrim(Render_gPalettePtr, prim); *packetPtr = (u_char *)(prim + 1);
       Hud_BuildGT4(prim, HudPmx_gShapes + 0x12, x + 53, y + 2, 0xbebe);
 
-      prim = (POLY_GT4 *)*packetPtr;
-      addPrim(Render_gPalettePtr, prim);
-      *packetPtr = (u_char *)(prim + 1);
-      Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 144, y + 2, 0xbebe);
-      __asm__("" : : "r"((int)x), "r"(packetPtr));
-    }
-    Hud_FBuildF4(0, xpos, y + 2, 3, 5, col, '\0', '\0');
-    __asm__("" : : "r"(y), "r"(i));
+      prim = (POLY_GT4 *)*packetPtr; addPrim(Render_gPalettePtr, prim); *packetPtr = (u_char *)(prim + 1);
+      Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 144, y + 2, 0xbebe); __asm__("" : : "r"((int)x), "r"(packetPtr)); }
+
+
+    Hud_FBuildF4(0, xpos, y + 2, 3, 5, col, '\0', '\0'); __asm__("" : : "r"(y), "r"(i));
   }
-  Hud_FBuildF4(0, x + 63, y + 1, 79, 7, 0, '\0', '\0');
-}
+
+  Hud_FBuildF4(0, x + 63, y + 1, 79, 7, 0, '\0', '\0'); }
 
 
 
 /* ---- tPMenuItemLeftRightSliderIndexed::ctor  [PAUSEMENU.CPP:541-543] SLD-VERIFIED ---- */
+
+#line 539 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemLeftRightSliderIndexed::tPMenuItemLeftRightSliderIndexed(u_int textDescription,int *dataPtr,char maxVal,
           char *index)
   : tPMenuItemLeftRightSlider(textDescription,dataPtr,maxVal)
@@ -629,13 +701,17 @@ tPMenuItemLeftRightSliderIndexed::tPMenuItemLeftRightSliderIndexed(u_int textDes
 
 /* ---- tPMenuItemLeftRightSliderIndexed::dtor  [PAUSEMENU.CPP:547-547] SLD-VERIFIED ---- */
 
+
+#line 547 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemLeftRightSliderIndexed::~tPMenuItemLeftRightSliderIndexed() {}
 
 
 
 /* ---- tPMenuItemLeftRightSliderIndexed::ProcessInput  [PAUSEMENU.CPP:553-558] SLD-VERIFIED ---- */
 
+#line 550 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemLeftRightSliderIndexed::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
+
 
 {
   int *orgdata;
@@ -649,7 +725,9 @@ void tPMenuItemLeftRightSliderIndexed::ProcessInput(tInputKeyType &keyval,tPMenu
 
 /* ---- tPMenuItemLeftRightSliderIndexed::Draw  [PAUSEMENU.CPP:561-566] SLD-VERIFIED ---- */
 
+#line 558 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemLeftRightSliderIndexed::Draw(bool selected)
+
 
 {
   int *orgdata;
@@ -663,6 +741,8 @@ void tPMenuItemLeftRightSliderIndexed::Draw(bool selected)
 
 /* ---- tPMenuItemGoToMenuButton::ctor  [PAUSEMENU.CPP:573-576] SLD-VERIFIED ---- */
 
+
+#line 571 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu *newMenu,
               void (*OnButtonPress)(tPMenuCommand&))
   : tPMenuItemInteractive(textDescription)
@@ -675,13 +755,17 @@ tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu 
 
 /* ---- tPMenuItemGoToMenuButton::dtor  [PAUSEMENU.CPP:580-580] SLD-VERIFIED ---- */
 
+
+#line 580 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemGoToMenuButton::~tPMenuItemGoToMenuButton() {}
 
 
 
 /* ---- tPMenuItemGoToMenuButton::NextMenu  [PAUSEMENU.CPP:584-585] SLD-VERIFIED ---- */
 
+#line 581 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenu * tPMenuItemGoToMenuButton::NextMenu()
+
 
 {
   return this->fNewMenu;
@@ -691,7 +775,9 @@ tPMenu * tPMenuItemGoToMenuButton::NextMenu()
 
 /* ---- tPMenuItemGoToMenuButton::ProcessInput  [PAUSEMENU.CPP:589-604] SLD-VERIFIED ---- */
 
+#line 586 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
+
 
 {
   if (keyval == kInput_KeyType_Cross) {
@@ -713,6 +799,8 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
 
 
 /* ---- tPMenuItemCommandButton::ctor  [PAUSEMENU.CPP:613-615] SLD-VERIFIED ---- */
+
+#line 612 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemCommandButton::tPMenuItemCommandButton(u_int textDescription,tPMenuCommandType command)
   : tPMenuItemInteractive(textDescription)
 {
@@ -723,13 +811,17 @@ tPMenuItemCommandButton::tPMenuItemCommandButton(u_int textDescription,tPMenuCom
 
 /* ---- tPMenuItemCommandButton::dtor  [PAUSEMENU.CPP:619-619] SLD-VERIFIED ---- */
 
+
+#line 619 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenuItemCommandButton::~tPMenuItemCommandButton() {}
 
 
 
 /* ---- tPMenuItemCommandButton::ProcessInput  [PAUSEMENU.CPP:623-632] SLD-VERIFIED ---- */
 
+#line 620 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
+
 
 {
   if (keyval == kInput_KeyType_Cross) {
@@ -748,7 +840,9 @@ void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &
    counter i is eliminated by loop.c strength reduction, so it leaves no record); SLD 18/19 tags,
    blocks exact; open: the slot address is tagged 14 in retail (ours 15, same statement). ---- */
 
+#line 637 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
+
 
 {
   tPMenuItem *p;
@@ -775,7 +869,9 @@ void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
 
 /* ---- tPMenu::ctor  [PAUSEMENU.CPP:669-675] SLD-VERIFIED ---- */
 
+#line 666 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenu::tPMenu(tPMenuItem *firstItem, ...)
+
 
 {
   va_list ap;
@@ -790,6 +886,8 @@ tPMenu::tPMenu(tPMenuItem *firstItem, ...)
 
 /* ---- tPMenu::dtor  [PAUSEMENU.CPP:679-679] SLD-VERIFIED ---- */
 
+
+#line 679 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 tPMenu::~tPMenu() {}
 
 
@@ -798,7 +896,9 @@ tPMenu::~tPMenu() {}
  * Canonical flag accessors and the successful-item early return recover the
  * original receiver/loop ownership without facade item/result captures. */
 
+#line 680 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenu::Initialize()
+
 
 {
 
@@ -821,7 +921,9 @@ void tPMenu::Initialize()
    at the manual vtable boundary so GCC trusts the callee's normalization,
    just as it would for the original C++ virtual call. */
 
+#line 695 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 bool tPMenu::Debounce()
+
 
 {
   return this->fItemList[this->fCurrentItem]->Debounce();
@@ -833,7 +935,9 @@ bool tPMenu::Debounce()
  * The canonical IsDisabled call preserves the anonymous compound loop result
  * and its inline receiver without a named disabled predicate. */
 
+#line 700 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenu::CheckForDisabled()
+
 
 { while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
 
@@ -853,7 +957,9 @@ void tPMenu::CheckForDisabled()
  * fence unnecessary. The Triangle key update belongs to its switch arm;
  * GCC shares the store, retaining retail's extended switch scope endpoints. */
 
+#line 715 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
+
 
 {
 
@@ -918,39 +1024,37 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
  * The canonical IsEnabled expansion restores the three empty inline/binding
  * regions at the flag test. The exact original region syntax is unresolved. */
 
+#line 780 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenu::Draw()
 
-{
-  {
-    short item;
 
+{ { short item;
     this->CheckForDisabled();
+
     gPause_CurrentY = 0x62;
     this->fItemList[0]->Draw(false);
-    item = 1;
-    gPause_CurrentY = 0x75;
-    while (true) {
-      if (this->fItemList[item] == (tPMenuItem *)0x0) break;
+
+
+    item = 1; gPause_CurrentY = 0x75; while (true) { if (this->fItemList[item] == (tPMenuItem *)0x0) break;
+
       if (this->fItemList[item]->IsEnabled()) {
+
         if (this->fHighlight != 0) {
-          this->fItemList[item]->Draw((int)item == this->fCurrentItem);
-        }
-        else {
-          this->fItemList[item]->Draw(false);
-        }
-        gPause_CurrentY = gPause_CurrentY + 0xd;
-      }
-      item = item + 1;
-    }
-    return;
-  }
-}
+          this->fItemList[item]->Draw((int)item == this->fCurrentItem); } else {
+
+          this->fItemList[item]->Draw(false); }
+
+        gPause_CurrentY = gPause_CurrentY + 0xd; }
+
+      item = item + 1; } return; } }
 
 
 
 /* ---- tPMenu::NumEnabledItems [retail PAUSEMENU.CPP:805-814; native/byte verified, inline block-line attribution open] ---- */
 
+#line 802 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 int tPMenu::NumEnabledItems()
+
 
 {
   int ret = this->NumItems();
@@ -966,7 +1070,9 @@ int tPMenu::NumEnabledItems()
 
 /* ---- tPMenu::ItemEnabledNum [retail PAUSEMENU.CPP:818-825; native/byte verified, inline block-line attribution open] ---- */
 
+#line 815 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 int tPMenu::ItemEnabledNum(int num)
+
 
 {
   int ret = num;
@@ -980,7 +1086,9 @@ int tPMenu::ItemEnabledNum(int num)
 
 /* ---- tPMenuItemInteractive::IsNavigable  [PAUSEMENU.CPP:306-825] SLD-FLAG:NONMONO ---- */
 
+#line 303 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 bool tPMenuItemInteractive::IsNavigable()
+
 
 {
   return 1;
@@ -990,7 +1098,9 @@ bool tPMenuItemInteractive::IsNavigable()
 
 /* ---- tPMenuItemNonInteractiveText::IsNavigable  [PAUSEMENU.CPP:288-307] SLD-FLAG:NONMONO ---- */
 
+#line 285 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 bool tPMenuItemNonInteractiveText::IsNavigable()
+
 
 {
   return 0;

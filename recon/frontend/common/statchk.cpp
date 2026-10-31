@@ -20,7 +20,9 @@ extern bool NewRecords[8];
 extern bool NewBestLap;
 
 /* ---- StatChk_IsRecordLapTime  (statchk.cpp:50) ---- */
+#line 47 "C:/nfs4/FRONTEND/COMMON/STATCHK.CPP"
 bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)
+
 
 {
 
@@ -36,66 +38,178 @@ bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCa
   tCarInfo *carInfo;
   
   bBestLapFlag = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   bCheckLapRecords = Stattool_CheckForHumanCar(dummyCars);
   if (bCheckLapRecords != 1) {
+
+
+
+
     return 0;
   }
+
+
+
+
     nBestLapTimes = (int *)reservememadr("ranklap",nNumCars * sizeof(int),0x10);
     nRankBestLapTimes = (short *)reservememadr("rankbst",nNumCars * sizeof(short),0x10);
     TrackRecords = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
+
+
     for (i = 0; i < nNumCars; i++) {
+
       carInfo = GetCarFromSimID(&carManager, (short)dummyCars[i].carType);
+
+
       if ((dummyCars[i].carFlags & 0x200U) != 0) {
+
+    purgememadr(nBestLapTimes);
+    purgememadr(nRankBestLapTimes);
         goto InvalidCar;
       }
+
+
+
+
       if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {
+
+
+
+
         nBestLapTimes[i] = dummyCars[i].finalBestLap;
       }
       else {
+
+
+
+
         nBestLapTimes[i] = (i + 1) * 0x23280;
       }
     }
+
+
+
+
     if (nNumCars >= 2) {
       Stattool_nCreateIndex((int)nNumCars,nBestLapTimes,nRankBestLapTimes);
     }
-    else {
-      *nRankBestLapTimes = 0;
+    else { *nRankBestLapTimes = 0;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     for (nNewRecordHolder = 0; nNewRecordHolder < nNumCars; nNewRecordHolder++) {
-        nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder];
-        if (((dummyCars[nBestCarIndexTemp].carFlags & 4U) != 0) &&
-           (0 < dummyCars[nRankBestLapTimes[nBestCarIndexTemp]].finalBestLap)) {
+
+
+
+
+
+        nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder]; if (((dummyCars[nBestCarIndexTemp].carFlags & 4U) != 0) && (0 < dummyCars[nRankBestLapTimes[nBestCarIndexTemp]].finalBestLap)) {
           bCheckLapRecords = 1;
           break;
         }
         bCheckLapRecords = 0;
+
+
+
+
+
+
+
     }
+
+
+
     if (bCheckLapRecords) goto CheckRecord;
     purgememadr(nBestLapTimes);
+
+
+
+
+
+
     goto PurgeRest;
 InvalidCar:
-    purgememadr(nBestLapTimes);
-    purgememadr(nRankBestLapTimes);
-    purgememadr(TrackRecords);
-    return 0;
-CheckRecord:
-      nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder];
+
+
+    purgememadr(TrackRecords); return 0; CheckRecord: nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder];
+
+
+
+
+
       Stattool_GetRecords(Front_GetTrackRaced(),TrackRecords);
       memcpy_call(&RecordHolder,TrackRecords,0x14);
       if (((dummyCars[nBestCarIndexTemp].finalBestLap < RecordHolder.nBestLap) || (RecordHolder.nBestLap == 0))
+
+
+
+
+
+
+
+
+
          && (0 < dummyCars[nBestCarIndexTemp].finalBestLap)) {
+
+
+
+
         bBestLapFlag = 1;
       }
+
       *nBestCarIndex = nBestCarIndexTemp;
+
+
     purgememadr(nBestLapTimes);
-PurgeRest:
-    purgememadr(nRankBestLapTimes);
+PurgeRest: purgememadr(nRankBestLapTimes);
     purgememadr(TrackRecords);
+
+
+
     return (u_short)bBestLapFlag;
 }
 
 /* ---- StatChk_SaveRecordLapTime  (statchk.cpp:227) ---- */
+    /* SOURCE-REVIEW-UNRESOLVED: newBestLap is absent from retail locals.
+       With the corrected scalar BOOL declaration,direct true6dif/100 and
+       compound |=true8dif/102 were restored. Retail loads1 into v1 and
+       the address into v0;direct assignment reverses them. This is not
+       proof of a distinct source object or original spelling. */
+  /* MATCH: the != pair range-folds to the oracle's UNSIGNED sltiu(x-7,2);
+     a `1 < x - 7` spelling emits the signed slti. */
+#line 224 "C:/nfs4/FRONTEND/COMMON/STATCHK.CPP"
 void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestCarIndex)
+
 
 {
   /* W86-S4: the four real locals are now in the SYM's own `8c` order
@@ -109,34 +223,47 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
   int newBestLap;
 
   carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nBestCarIndex].carType);
-  /* MATCH: the != pair range-folds to the oracle's UNSIGNED sltiu(x-7,2);
-     a `1 < x - 7` spelling emits the signed slti. */
+
   if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {
+
+
     TrackRecords = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
+
+
     Stattool_GetRecords(Front_GetTrackRaced(),TrackRecords);
     memcpy_call(&RecordHolder,TrackRecords + 1,0x14);
     if ((dummyCars[nBestCarIndex].finalNumArrests == 0) &&
+
+
        (dummyCars[nBestCarIndex].finalFinishType == 2)) {
       DummyRaceResult.nTime = dummyCars[nBestCarIndex].finalTotalTime;
     }
-    else {
-      DummyRaceResult.nTime = 0;
+    else { DummyRaceResult.nTime = 0;
     }
     DummyRaceResult.nBestLap = dummyCars[nBestCarIndex].finalBestLap;
     DummyRaceResult.nCar = *(signed char *)&carInfo->fCarID;   /* MATCH: lb, plain char is unsigned here */
+
     strcpy(DummyRaceResult.sName,PlayerName((int)nBestCarIndex));
+
+
+
+
+
+
     memcpy_call(TrackRecords,&DummyRaceResult,0x14);
-    blockmove(TrackRecords,Stats_gTrackRecords + Front_GetTrackRaced() * 0x11,0x154);
-    /* SOURCE-REVIEW-UNRESOLVED: newBestLap is absent from retail locals.
-       With the corrected scalar BOOL declaration,direct true6dif/100 and
-       compound |=true8dif/102 were restored. Retail loads1 into v1 and
-       the address into v0;direct assignment reverses them. This is not
-       proof of a distinct source object or original spelling. */
+
+
     newBestLap = 1;
+
+    blockmove(TrackRecords,Stats_gTrackRecords + Front_GetTrackRaced() * 0x11,0x154);
     NewBestLap = newBestLap;
+
+
     purgememadr(TrackRecords);
   }
   return;
+
+
 }
 
 /* ---- StatChk_IsTopTime  (statchk.cpp:285) ---- */
@@ -148,7 +275,18 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
    retail load order and branch polarity.  Together with the explicit
    `bDoRecordCheck == 1` comparison, this takes the authoritative function from
    113 residual byte diffs to PASS at 299/299 instructions. */
+  /* MATCH W64-A17 -- REAL CFG FIX (11C branch-target audit; gate-invisible,
+     caught by tools/brdist.py + tools/psyqproof.py as REAL=1 on a PASSing
+     body).  Retail's chain is FLAT: from the LASTPLACE[0]!=0 / LASTPLACE[1]==0
+     / TOPLIST[1]==0 path it FALLS THROUGH into the third test
+     (`beqz $v0,.L8004A09C` at 0x8004A08C, offset 3), where our nested
+     `if (LASTPLACE[0]) {...} else if (...)` jumped straight to the join
+     (offset 12).  cse's record_jump_equiv deletes the repeated LASTPLACE[0]
+     guard, so the flat spelling is codegen-identical -- gate still PASS
+     299/299, and the branch word now matches. */
+#line 282 "C:/nfs4/FRONTEND/COMMON/STATCHK.CPP"
 short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
+
 
 {
   int retvalue;
@@ -159,110 +297,171 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
   short k;
   short nCar;
   int *nCarTotalTimes;
-  short *nRankCarTotalTimes;
-  tRecordBuffer *RecordHolders;
-  int LASTPLACE [2];
-  int TOPLIST [2];
-  int NUMBERONE [2];
-  
-  bDoRecordCheck = 0;
+  short *nRankCarTotalTimes; tRecordBuffer *RecordHolders; int LASTPLACE [2]; int TOPLIST [2]; int NUMBERONE [2]; bDoRecordCheck = 0;
   nLaps = Front_GetLapsForType();
+
+
+
+
+
+
+
+
+
+
   memset(LASTPLACE,0,sizeof(LASTPLACE));
   memset(TOPLIST,0,sizeof(TOPLIST));
   memset(NUMBERONE,0,sizeof(NUMBERONE));
+
+
+
+
   RecordHolders = (tRecordBuffer *)reservememadr("toprcrds",0x168,0x10);
   nCarTotalTimes = (int *)reservememadr("carttime",nNumCars * sizeof(int),0x10);
   nRankCarTotalTimes = (short *)reservememadr("carttrnk",nNumCars * sizeof(short),0x10);
   retvalue = 0;
+
   for (k = 0; k < nNumCars; k++) {
+
     nRankCarTotalTimes[dummyCars[k].position - 1] = k;
+
   }
-  nCar = Front_GetTrackRaced();
-  Stattool_GetRecords(nCar,RecordHolders);
+
+
+  nCar = Front_GetTrackRaced(); Stattool_GetRecords(nCar,RecordHolders);
   nLapIndicator = 9;
+
   if (nLaps == 2) {
+
     nLapIndicator = 1;
   }
+
+
+
+
+
+
+
+
+
+
+
+
   for (nCar = 0; nCar < nNumCars; nCar++) {
     tCarInfo *carInfo;
+
     carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nCar].carType);
-    k = nRankCarTotalTimes[nCar];
-    if ((dummyCars[k].carFlags & 0x200U) != 0) {
+
+    k = nRankCarTotalTimes[nCar]; if ((dummyCars[k].carFlags & 0x200U) != 0) {
+
       purgememadr(RecordHolders);
       purgememadr(nCarTotalTimes);
       purgememadr(nRankCarTotalTimes);
       return 0;
     }
+
+
     if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
       if ((((byte)frontEnd.gameMode < 3) && ((dummyCars[k].carFlags & 4U) != 0)) &&
+
+
          (dummyCars[k].finalFinishType == 2)) {
+
         bDoRecordCheck = 1;
       }
+
+
+
+
+
+
+
+
+
       if (bDoRecordCheck == 1) {
-        k = nRankCarTotalTimes[nCar];
-        nCheckTotalTime = dummyCars[k].finalTotalTime;
+
+
+
+
+        k = nRankCarTotalTimes[nCar]; nCheckTotalTime = dummyCars[k].finalTotalTime;
         bDoRecordCheck = 0;
         if ((nCheckTotalTime < RecordHolders[nLapIndicator + 6].nTime) ||
+
+
+
+
+
+
            ((RecordHolders[nLapIndicator + 7].nTime == 0 && (0 < nCheckTotalTime)))) {
+
           TOPLIST[k] = 1;
         }
         else if ((nCheckTotalTime < RecordHolders[nLapIndicator + 7].nTime) ||
+
                 ((RecordHolders[nLapIndicator + 7].nTime == 0 && (0 < nCheckTotalTime)))) {
+
           TOPLIST[nRankCarTotalTimes[nCar]] = 1;
           LASTPLACE[nRankCarTotalTimes[nCar]] = 1;
         }
         if ((nCheckTotalTime < RecordHolders[nLapIndicator].nTime) ||
+
+
            ((RecordHolders[nLapIndicator + 7].nTime == 0 && (0 < nCheckTotalTime)))) {
+
           TOPLIST[nRankCarTotalTimes[nCar]] = 1;
           NUMBERONE[nRankCarTotalTimes[nCar]] = 1;
         }
       }
     }
+
   }
-  /* MATCH W64-A17 -- REAL CFG FIX (11C branch-target audit; gate-invisible,
-     caught by tools/brdist.py + tools/psyqproof.py as REAL=1 on a PASSing
-     body).  Retail's chain is FLAT: from the LASTPLACE[0]!=0 / LASTPLACE[1]==0
-     / TOPLIST[1]==0 path it FALLS THROUGH into the third test
-     (`beqz $v0,.L8004A09C` at 0x8004A08C, offset 3), where our nested
-     `if (LASTPLACE[0]) {...} else if (...)` jumped straight to the join
-     (offset 12).  cse's record_jump_equiv deletes the repeated LASTPLACE[0]
-     guard, so the flat spelling is codegen-identical -- gate still PASS
-     299/299, and the branch word now matches. */
+
+
+
+
   if ((LASTPLACE[0] != 0) && (LASTPLACE[1] != 0)) {
+
+
+
     if (!(dummyCars->finalTotalTime > dummyCars[1].finalTotalTime)) {
       TOPLIST[1] = 0;
     }
     else {
+
       TOPLIST[0] = 0;
     }
-  }
-  else if ((LASTPLACE[0] != 0) && (TOPLIST[1] != 0)) {
+  } else if ((LASTPLACE[0] != 0) && (TOPLIST[1] != 0)) {
+
     TOPLIST[0] = 0;
   }
   else if ((LASTPLACE[1] != 0) && (TOPLIST[0] != 0)) {
+
     TOPLIST[1] = 0;
   }
+
   if ((NUMBERONE[0] != 0) && (NUMBERONE[1] != 0)) {
+
+
     if (!(dummyCars->finalTotalTime > dummyCars[1].finalTotalTime)) {
+
       NUMBERONE[1] = 0;
     }
     else {
       NUMBERONE[0] = 0;
     }
   }
+
   retvalue = (ushort)(TOPLIST[0] != 0);
-  if (NUMBERONE[0] != 0) {
-    retvalue = retvalue | 2;
+  if (NUMBERONE[0] != 0) { retvalue = retvalue | 2;
+  } if (TOPLIST[1] != 0) { retvalue = retvalue | 4;
+  } if (NUMBERONE[1] != 0) { retvalue = retvalue | 8;
   }
-  if (TOPLIST[1] != 0) {
-    retvalue = retvalue | 4;
-  }
-  if (NUMBERONE[1] != 0) {
-    retvalue = retvalue | 8;
-  }
+
   purgememadr(RecordHolders);
   purgememadr(nCarTotalTimes);
   purgememadr(nRankCarTotalTimes);
+
+
   return retvalue;
 }
 
@@ -439,61 +638,83 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * Early declaration/init and an early explicit assignment both preserve
  *416/416, but worsen SLD374/416 to396/397; LI20 still follows later tags.
  * Those relocations are restored. Producer/name and full SLD remain open. */
-void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
-
-{
-  bool bTopTenFlag;
-  bool bDoRecordCheck;
-  short nLapIndicator;
-  short nPlace;
-  int nTopTenSort [8];
-  short nTopTenIndex [8];
-  int nCheckTotalTime;
-  short k;
-  short nCar;
-  char *buffer;
-  int *nCarTotalTimes;
-  short *nRankCarTotalTimes;
-  tRecordBuffer DummyRaceResult;
-  tRecordBuffer *RecordHolders;
-  tCarInfo *carInfo;
-  int topPlacements [2];
   /* SOURCE-REVIEW-UNRESOLVED: unrecorded record-size capture. Its known
      sizeof(tRecordBuffer) value does not prove an original source object.
      Prior literal-size trial126dif/412; typed copy-source indexing26/416,
      widened byte-offset multiply136/428. All failures restored. */
-  unsigned int uRecSz;
+#line 461 "C:/nfs4/FRONTEND/COMMON/STATCHK.CPP"
+void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
-  uRecSz = sizeof(tRecordBuffer);
-  bDoRecordCheck = false;
-  bTopTenFlag = false;
+
+{
+  bool bTopTenFlag; bool bDoRecordCheck; short nLapIndicator; short nPlace; int nTopTenSort [8]; short nTopTenIndex [8]; int nCheckTotalTime; short k; short nCar; char *buffer; int *nCarTotalTimes; short *nRankCarTotalTimes; tRecordBuffer DummyRaceResult; tRecordBuffer *RecordHolders; tCarInfo *carInfo; int topPlacements [2]; unsigned int uRecSz; uRecSz = sizeof(tRecordBuffer); bDoRecordCheck = false; bTopTenFlag = false;
+
+
   nPlace = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   for (k = 0; k < 2; k = k + 1) {
-    topPlacements[k] = 0;
-  }
+    topPlacements[k] = 0; }
+
+
+
+
+
 
   RecordHolders = (tRecordBuffer *)reservememadr("toprcrds",uRecSz * 18,0x10);
   nCarTotalTimes = (int *)reservememadr("carttime",nNumCars * sizeof(int),0x10);
   nRankCarTotalTimes = (short *)reservememadr("carttrnk",nNumCars * sizeof(short),0x10);
   buffer = (char *)reservememadr("records",uRecSz * 8,0x10);
 
+
   for (k = 0; k < nNumCars; k = k + 1) {
+
     nRankCarTotalTimes[dummyCars[k].position - 1] = k;
+
   }
+
 
   Stattool_GetRecords(Front_GetTrackRaced(),RecordHolders);
 
+
   if (Front_GetLapsForType() == 2) {
+
     nLapIndicator = 1;
   }
   else {
+
     nLapIndicator = 9;
   }
+
+
+
+
+
+
+
 
   for (nCar = 0; nCar < nNumCars; nCar = nCar + 1) {
       carInfo = GetCarFromSimID(&carManager,
                  (short)dummyCars[nRankCarTotalTimes[nCar]].carType);
       if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
+
+
         if ((byte)frontEnd.gameMode < 3) {
           if (((dummyCars[nRankCarTotalTimes[nCar]].carFlags & 4U) != 0) &&
               (dummyCars[nRankCarTotalTimes[nCar]].finalFinishType == 2))
@@ -501,74 +722,121 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
             bDoRecordCheck = true;
           }
         }
-        else if (nRankCarTotalTimes[nCar] == GameSetup_LocalCar) {
-          if (((dummyCars[nRankCarTotalTimes[nCar]].carFlags & 4U) != 0) &&
-              (dummyCars[nRankCarTotalTimes[nCar]].finalFinishType == 2))
+
+
+        else if (nRankCarTotalTimes[nCar] == GameSetup_LocalCar) { if (((dummyCars[nRankCarTotalTimes[nCar]].carFlags & 4U) != 0) && (dummyCars[nRankCarTotalTimes[nCar]].finalFinishType == 2))
           {
             bDoRecordCheck = true;
           }
         }
+
         if (bDoRecordCheck == true) {
+
+
+
+
           nCheckTotalTime = dummyCars[nRankCarTotalTimes[nCar]].finalTotalTime;
           bDoRecordCheck = false;
           if ((nCheckTotalTime < RecordHolders[nLapIndicator + 7].nTime) ||
+
+
+
+
+
+
+
+
              ((RecordHolders[nLapIndicator + 7].nTime == 0) && (0 < nCheckTotalTime))) {
+
+
+
+
             DummyRaceResult.nTime = nCheckTotalTime;
             DummyRaceResult.nCar = *(signed char *)&carInfo->fCarID;   /* MATCH: lb, plain char is unsigned here */
-            bTopTenFlag = true;
-            DummyRaceResult.nBestLap = dummyCars[nRankCarTotalTimes[nCar]].finalBestLap;
+            bTopTenFlag = true; DummyRaceResult.nBestLap = dummyCars[nRankCarTotalTimes[nCar]].finalBestLap;
+
+
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
+
             for (k = nLapIndicator; k < nLapIndicator + 8; k = k + 1) {
+
               nTopTenSort[k - nLapIndicator] = RecordHolders[k].nTime;
               if (nTopTenSort[k - nLapIndicator] == 0) {
+
                 nTopTenSort[k - nLapIndicator] = (k + 1) * 0x23280;
               }
             }
+
             Stattool_nCreateIndex(8,nTopTenSort,nTopTenIndex);
             for (k = 0; k < 8; k = k + 1) {
+
+
+
               if (nTopTenIndex[k] == 7) {
+
                 nPlace = k + 1;
               }
             }
+
+
             for (k = 0; k < 8; k = k + 1) {
+
+
               if (nTopTenIndex[k] == nRankCarTotalTimes[nCar]) {
+
                 topPlacements[nRankCarTotalTimes[nCar]] = (int)nPlace;
+
                 break;
               }
             }
             strcpy(DummyRaceResult.sName,
+
+
                    PlayerName((int)nRankCarTotalTimes[nCar]));
+
+
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
+
+
             memcpy_call(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
             for (k = 0; k < 8; k = k + 1) {
               memcpy_call((tRecordBuffer *)
                           ((nLapIndicator + k) * (int)sizeof(tRecordBuffer) +
                            (int)RecordHolders),
                           buffer + nTopTenIndex[k] * uRecSz,uRecSz);
+
             }
           }
         }
-      }
-  }
+      } }
+
   if (bTopTenFlag == true) {
+
     blockmove(RecordHolders,Stats_gTrackRecords + Front_GetTrackRaced() * 0x11,0x154);
   }
+
+
+
+
+
+
+
   if (topPlacements[0] == topPlacements[1]) {
     topPlacements[1] = topPlacements[0] + 1;
-  }
-  else if ((topPlacements[1] != 0) && (topPlacements[1] < topPlacements[0])) {
+  } else if ((topPlacements[1] != 0) && (topPlacements[1] < topPlacements[0])) {
     topPlacements[0] = topPlacements[0] + 1;
   }
   for (k = 0; k < 2; k = k + 1) {
+
     if ((topPlacements[k] != 0) && (topPlacements[k] < 9)) {
       NewRecords[topPlacements[k] - 1] = 1;
-    }
-  }
+    } }
+
+
   purgememadr(buffer);
   purgememadr(RecordHolders);
   purgememadr(nCarTotalTimes);
-  purgememadr(nRankCarTotalTimes);
-  return;
+  purgememadr(nRankCarTotalTimes); return;
 }
 
 /* ---- StatChk_ClearNewRecords  (statchk.cpp:664) ---- */
@@ -577,7 +845,9 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
    fiction.  Folded into the down-counting index loop; the split
    `la NewRecords` + `addiu 0x1C` shape it was buying comes out of the index
    form for free.  Re-gated PASS. */
+#line 661 "C:/nfs4/FRONTEND/COMMON/STATCHK.CPP"
 void StatChk_ClearNewRecords(void)
+
 
 {
   int i;

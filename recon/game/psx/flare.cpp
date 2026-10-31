@@ -132,7 +132,9 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd);
  */
 
 /* ---- Flare_Tri__FPlN20i  [FLARE.CPP:75-89] SLD-VERIFIED ---- */
+#line 72 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_Tri(long *cp,long *p1,long *p2,int otz)
+
 
 {
   POLY_G3 *prim;
@@ -152,6 +154,8 @@ void Flare_Tri(long *cp,long *p1,long *p2,int otz)
 }
 
 /* ---- Flare_SetMatrix__FP10matrixtdef  [FLARE.CPP:184-192] SLD-VERIFIED ---- */
+
+#line 183 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_SetMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -165,7 +169,9 @@ void Flare_SetMatrix(matrixtdef *m)
 }
 
 /* ---- Flare_IdentMatrix__FP6MATRIX  [FLARE.CPP:196-202] SLD-VERIFIED ---- */
+#line 193 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_IdentMatrix(MATRIX *mtx)
+
 
 {
 
@@ -179,7 +185,9 @@ void Flare_IdentMatrix(MATRIX *mtx)
 /* ---- Flare_OctFlare__FPli  [FLARE.CPP:208-241] SLD-VERIFIED ---- */
   /* MATCH: SYM locals = flare_dvxy[13] + i(t1) + rgb1(t4, pre-loop gfrgb cache)
    * + block-scope prim(a0); walkers = givs from gfOctPt1[i]/gfOctPt2[i]. */
+#line 205 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_OctFlare(long *center,int otz)
+
 
 {
   long flare_dvxy [13];
@@ -235,7 +243,9 @@ gte_ldv0(((char *)&Flare_gOct + 0x38)); gte_rtps(); gte_swc2(0xe,((char *)&flare
    * (the w41 lever's actual requirement).  GENERAL RULE for this family: order the
    * OT-link statements = order you want the preheader constants; addr24 goes between
    * the slot computation and the first RMW, not at the top of the block. */
+#line 244 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_OctFlareSpikes(long *center,int otz)
+
 
 {
   long flare_dvxy [13];
@@ -314,7 +324,9 @@ gte_ldv0(((char *)&Flare_gOct + 0x38)); gte_rtps(); gte_swc2(0xe,((char *)&flare
 /* ---- Flare_Spikes__FPli  [FLARE.CPP:323-363] SLD-VERIFIED ---- */
   /* MATCH: SYM locals = flare_dvxy[13] + i(t2) + block-scope prim(a0, POLY_G4*);
    * walkers = givs from gfSpikePt0/1/2[i]; per-iter gfrgb2 reload. */
+#line 320 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_Spikes(long *center,int otz)
+
 
 {
   long flare_dvxy [13];   /* SYM order: the array is declared before i */
@@ -395,7 +407,9 @@ gte_ldv0(((char *)&Flare_gOct + 0x38)); gte_rtps(); gte_swc2(0xe,((char *)&flare
  *   no_schedule_insns2   2 PASS /  845    no_strength_reduce  15 PASS /  889
  * ALL FOUR are strictly worse -- flare.obj is a stock -O2 -G4 object.  Floor stands. */
 /* ---- Flare_HexFlare__FPli  [FLARE.CPP:370-400] SLD-VERIFIED ---- */
+#line 367 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_HexFlare(long *center,int otz)
+
 
 {
   long flare_dvxy [7];   /* SYM order: the array is declared before i */
@@ -433,7 +447,9 @@ gte_ldv0(((char *)&Flare_gHex + 0x28)); gte_rtps(); gte_swc2(0xe,((char *)&flare
 }
 
 /* ---- Flare_ReflectHexFlare__FPli  [FLARE.CPP:407-437] SLD-VERIFIED ---- */
+#line 404 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_ReflectHexFlare(long *center,int otz)
+
 
 {
   long flare_dvxy [7];   /* SYM order: the array is declared before i */
@@ -471,7 +487,9 @@ gte_ldv0(((char *)&Flare_gReflectHex + 0x28)); gte_rtps(); gte_swc2(0xe,((char *
 }
 
 /* ---- Flare_QuadFlare__FPli  [FLARE.CPP:443-456] SLD-VERIFIED ---- */
+#line 440 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_QuadFlare(long *center,int otz)
+
 
 {
   long pt [2];
@@ -523,8 +541,10 @@ gte_ldv0(((char *)&Flare_gQuad + 0x18)); gte_rtps(); gte_swc2(0xe,&pt[1]);
        * allocno_compare priority (2*6/400 = .0300) just ABOVE angleZ's (1*3/107 = .0280),
        * which is the whole $s6<->$s7 rotation.  With 5 refs (2*5/400 = .0250) angleZ wins
        * $s6 and `type` takes $s7 exactly as the SYM says.  45 -> 25. */
+#line 587 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,short flag,int otz,
                   Draw_FlareCache *sd)
+
 
 {
   VECTOR diff;                  /* @sp+0x18 */
@@ -539,83 +559,82 @@ void Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,sh
   COORD16 vec1;                 /* @sp+0x38 */
   COORD16 vec2;                 /* @sp+0x40 */
   COORD16 crossprod;            /* @sp+0x48 */
+  int i;
 
 
 
 
+  if (!(sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x400)) return;
 
-  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x400) {
+  vec1.x = pt1->x - ptCenter->x;
+  vec1.y = pt1->y - ptCenter->y;
+  vec1.z = pt1->z - ptCenter->z;
 
-    vec1.x = pt1->x - ptCenter->x;
-    vec1.y = pt1->y - ptCenter->y;
-    vec1.z = pt1->z - ptCenter->z;
-
-    vec2.x = pt2->x - ptCenter->x;
-    vec2.y = pt2->y - ptCenter->y;
-    vec2.z = pt2->z - ptCenter->z;
+  vec2.x = pt2->x - ptCenter->x;
+  vec2.y = pt2->y - ptCenter->y;
+  vec2.z = pt2->z - ptCenter->z;
 
 
-    crossprod.x = vec2.y * vec1.z - vec2.z * vec1.y;
-    crossprod.y = vec2.z * vec1.x - vec2.x * vec1.z;
-    crossprod.z = vec2.x * vec1.y - vec2.y * vec1.x;
-    ptEdge = pt1;
-    if (-1 < (int)((u_int)flag << 0x10)) {
+  crossprod.x = vec2.y * vec1.z - vec2.z * vec1.y;
+  crossprod.y = vec2.z * vec1.x - vec2.x * vec1.z;
+  crossprod.z = vec2.x * vec1.y - vec2.y * vec1.x;
+  ptEdge = pt1;
+  if (-1 < (int)((u_int)flag << 0x10)) {
 
-      ptEdge = pt2;
-    }
-    {
-      int i;                    /* SYM-CODEGEN-CARRIER: i -- gType arm index preserves the measured type/angleZ allocation */
-      u_long c;                 /* SYM-CODEGEN-CARRIER: c -- serial copy temp (v0; anti-dependence keeps the two
-                                    color word-copies lw/nop/sw serial like the oracle) */
-      int j /* SYM-CODEGEN-CARRIER: j -- separate masked-type value is the measured 25-to-19 lever */ = type & 0x7fU;   /* MATCH: SEPARATE temp for the masked value -- oracle keeps
-                               * it in $v1 and both arms do `addiu a0,v1,K`; reusing `i`
-                               * in place emits `andi a0,..;addiu a0,a0,K` (25 -> 19). */
-      if (R3DCar_InMenu != 0) { i = j + 1; } else { i = j + 0xb;
-      }
-      if ((type & 0x100U) != 0) {
+    ptEdge = pt2;
+  }
+  /* Retail SYM has no index/copy locals here (no block 38..53). Measured: with the single ternary index
+     `i` gets no SYM record (codegen as retail: andi v1 in the beqz slot, addiu a0 per arm), and the
+     struct-typed colour stores keep the copies serial (lw;nop;sw;lw) without a `c` temp -- see the
+     2DHalo note below. */
 
-        ptCenter->y = -DrawC_gReflectOffset - ptCenter->y;
-      }
+
+
+  i = (type & 0x7fU) + (R3DCar_InMenu != 0 ? 1 : 0xb);
+
+  if ((type & 0x100U) != 0) {
+
+    ptCenter->y = -DrawC_gReflectOffset - ptCenter->y;
+  }
 
 
 gte_ldv0(ptCenter);
 
-      gte_rtps();
+  gte_rtps();
 
 
-      c = Flare_gType[i].chalo; *(u_long *)&color[0] = c;
-      c = Flare_gType[i].cbeam; *(u_long *)&color[1] = c;
-      __asm__ volatile("" : : "r"(c));
+  ((Flare_tInfo *)color)->chalo = Flare_gType[i].chalo;
+  ((Flare_tInfo *)color)->cbeam = Flare_gType[i].cbeam;
 
-      scale = Flare_gType[i].scale;
 
-      flags = Flare_gType[i].flags;
-    }
-    if ((type & 0x80U) != 0) {
+  scale = Flare_gType[i].scale;
 
-      color[0].r = color[0].r >> 1;
-      color[0].g = color[0].g >> 1;
-      color[0].b = color[0].b >> 1;
-      color[1].r = color[1].r >> 1;
-      color[1].g = color[1].g >> 1;
-      color[1].b = color[1].b >> 1;
-    }
+  flags = Flare_gType[i].flags;
+
+  if ((type & 0x80U) != 0) {
+
+    color[0].r = color[0].r >> 1;
+    color[0].g = color[0].g >> 1;
+    color[0].b = color[0].b >> 1;
+    color[1].r = color[1].r >> 1;
+    color[1].g = color[1].g >> 1;
+    color[1].b = color[1].b >> 1;
+  }
 
 
 gte_stlvnl(&diff);
 
 
-    if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz) && (!(diff.vz < 0x80))) {
-
+    if (!((diff.vx <= diff.vz) && (-diff.vx <= diff.vz))) return;
+    if (diff.vz < 0x80) return;
 
 
 gte_stsxy(&sp);
-      angleZ = 0;
-      if ((flags & 8U) != 0) {
-        long result;
-        result = sp.vx + sp.vy;
-        angleZ = result * 4;
-      }
+
+  if ((flags & 8U) != 0)
+  { long result;
+    result = sp.vx + sp.vy;
+    angleZ = result * 4; }
 
 
 
@@ -623,134 +642,135 @@ gte_stsxy(&sp);
 
 
 
+  else
+    angleZ = 0;
 
 
-
-      if ((flags & 4U) != 0) {
-        VECTOR diff2;           /* @sp+0x50 */
-        DVECTOR sp2;            /* @sp+0x60 */
-        long difx;              /* s0 */
-        long dify;              /* s1 */
+  if ((flags & 4U) != 0)
+  { VECTOR diff2;           /* @sp+0x50 */
+    DVECTOR sp2;            /* @sp+0x60 */
+    long difx;              /* s0 */
+    long dify;              /* s1 */
 
 gte_ldv0(ptEdge);
 
-        gte_rtps();
+    gte_rtps();
 
 
 gte_stlvnl(&diff2);
 
 
 gte_stsxy(&sp2);
-        dify = sp2.vy - sp.vy;
-
-
-        difx = sp2.vx - sp.vx;
-
-        angleOuter = fixedatan(dify,difx) >> 4;
-
-
-        sizeOuter = isqrt(difx * difx + dify * dify) * diff.vz;
-      }
-      else {
-        angleOuter = 0;
-
-        sizeOuter = angleOuter;
-      }
-
-      gfrgb = color[0];
-      gfrgb2 = color[1];
 
 
 
-      if (-1 < (int)((u_int)(u_short)flag << 0x10)) {
-        gscale = (vec1.x * vec1.x + vec1.y * vec1.y + vec1.z * vec1.z) >> 1;
-      }
-      else { gscale = (vec2.x * vec2.x + vec2.y * vec2.y + vec2.z * vec2.z) >> 1;
-      }
-      gscale = gscale << scale;
-      scale = gscale;
+    difx = sp2.vx - sp.vx;
+    dify = sp2.vy - sp.vy;
+    const long atn = fixedatan(dify,difx);
+    angleOuter = atn >> 4;
 
-      if ((flags & 1U) != 0) {
-        VECTOR tvec1;           /* @sp+0x50 */
-        VECTOR tvec2;           /* @sp+0x68 */
-        long result;            /* v1 (the -600 clamp temp) */
+    sizeOuter = isqrt(difx * difx + dify * dify) * diff.vz;
+  }
+  else {
+    angleOuter = 0;
+
+    sizeOuter = angleOuter;
+  }
+
+  gfrgb = color[0];
+  gfrgb2 = color[1];
 
 
-        gte_ldtr0();
+
+  if (-1 < (int)((u_int)(u_short)flag << 0x10)) {
+    gscale = (vec1.x * vec1.x + vec1.y * vec1.y + vec1.z * vec1.z) >> 1;
+  }
+  else { gscale = (vec2.x * vec2.x + vec2.y * vec2.y + vec2.z * vec2.z) >> 1;
+  }
+  gscale = gscale << scale;
+  scale = gscale;
+
+  if ((flags & 1U) != 0)
+  { VECTOR tvec1;           /* @sp+0x50 */
+    VECTOR tvec2;           /* @sp+0x68 */
+    long result;            /* v1 (the -600 clamp temp) */
+
+
+    gte_ldtr0();
 
 gte_ldv0(&crossprod);
 
-        gte_rtps();
+    gte_rtps();
 
 gte_stlvnl(&tvec1);
 
-        VectorNormal((VECTOR *)&tvec1,(VECTOR *)&tvec2);
+    VectorNormal((VECTOR *)&tvec1,(VECTOR *)&tvec2);
 
-        if ((flags & 2U) != 0) {
-          tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
-        }
-        result = tvec2.vz + -0x258; if (result < 0) { result = 0; } tvec2.vz = result;
+    if ((flags & 2U) != 0) {
+      tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
+    }
+    result = tvec2.vz + -0x258; if (result < 0) { result = 0; } tvec2.vz = result;
 
-        gscale = gscale * result >> 0xb;
-      }
+    gscale = gscale * result >> 0xb;
+  }
 
-      if ((type & 0x100U) != 0) {
-        CVECTOR save;           /* @sp+0x50 */
-        MATRIX scalemat;        /* @sp+0x78 */
-        MATRIX mtx;             /* @sp+0x98 */
-
-
-
-        save = gfrgb;
+  if ((type & 0x100U) != 0)
+  { CVECTOR save;           /* @sp+0x50 */
+    MATRIX scalemat;        /* @sp+0x78 */
+    MATRIX mtx;             /* @sp+0x98 */
 
 
 
+    save = gfrgb;
+
+    gfrgb.r = gfrgb.r >> 1;
+    gfrgb.g = gfrgb.g >> 1;
+    gfrgb.b = gfrgb.b >> 1;
+
+    *(int *)&scalemat.m[0][0] = scale + (sizeOuter >> 7);
+    *(int *)&scalemat.m[1][1] = scale + (sizeOuter >> 7);
+    *(int *)&scalemat.m[2][2] = 0;
+    *(int *)&scalemat.m[0][2] = 0;
+    *(int *)&scalemat.m[2][0] = 0;
 
 
-        *(int *)&scalemat.m[0][0] = scale + (sizeOuter >> 7);
-        *(int *)&scalemat.m[1][1] = scale + (sizeOuter >> 7);
-        *(int *)&scalemat.m[2][2] = 0;
-        *(int *)&scalemat.m[0][2] = 0;
-        *(int *)&scalemat.m[2][0] = 0;
-        gfrgb.r = gfrgb.r >> 1;
-        gfrgb.g = gfrgb.g >> 1;
-        gfrgb.b = gfrgb.b >> 1; Flare_IdentMatrix(&mtx);
+    Flare_IdentMatrix(&mtx);
 
 gte_SetTransVector(&diff);
 
-        RotMatrixZ(0x800,&mtx);
+    RotMatrixZ(0x800,&mtx);
 
 gte_SetRotMatrix(&mtx); gte_ldclmv(&scalemat); gte_rtir(); gte_stclmv(&mtx); gte_ldclmv(((char *)&scalemat + 0x2)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x2)); gte_ldclmv(((char *)&scalemat + 0x4)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x4));
 
 gte_SetRotMatrix(&mtx);
 
-        Flare_ReflectHexFlare((long *)&sp,otz);
-        gfrgb = save;
-      }
-      else {
-        MATRIX mtx;             /* @sp+0x50 */
-        MATRIX mtx2;            /* @sp+0x70 */
-        MATRIX scalemat;        /* @sp+0x90 */
-        int z;                  /* v1 */
+    Flare_ReflectHexFlare((long *)&sp,otz);
+    gfrgb = save;
+  }
+  else
+  { MATRIX mtx;             /* @sp+0x50 */
+    MATRIX mtx2;            /* @sp+0x70 */
+    MATRIX scalemat;        /* @sp+0x90 */
+    int z;                  /* v1 */
 
 
 
-        z = gscale;
+    *(int *)&scalemat.m[0][0] = gscale + (sizeOuter >> 5);
 
-        *(int *)&scalemat.m[2][2] = 0;
-        *(int *)&scalemat.m[0][2] = 0;
-        *(int *)&scalemat.m[2][0] = 0;
-        *(int *)&scalemat.m[0][0] = z + (sizeOuter >> 5);
-        *(int *)&scalemat.m[1][1] = z;
-        Flare_IdentMatrix(&mtx);
+    *(int *)&scalemat.m[2][2] = 0;
+    *(int *)&scalemat.m[0][2] = 0;
+    *(int *)&scalemat.m[2][0] = 0;
 
-        Flare_IdentMatrix(&mtx2);
+    *(int *)&scalemat.m[1][1] = gscale;
+    Flare_IdentMatrix(&mtx);
+
+    Flare_IdentMatrix(&mtx2);
 
 gte_SetTransVector(&diff);
 
-        RotMatrixZ(angleZ,&mtx);
+    RotMatrixZ(angleZ,&mtx);
 
-        RotMatrixZ(angleOuter,&mtx2);
+    RotMatrixZ(angleOuter,&mtx2);
 
 gte_SetRotMatrix(&mtx2); gte_ldclmv(&scalemat); gte_rtir(); gte_stclmv(&scalemat); gte_ldclmv(((char *)&scalemat + 0x2)); gte_rtir(); gte_stclmv(((char *)&scalemat + 0x2)); gte_ldclmv(((char *)&scalemat + 0x4)); gte_rtir(); gte_stclmv(((char *)&scalemat + 0x4));
 
@@ -759,25 +779,25 @@ gte_SetRotMatrix(&scalemat); gte_ldclmv(&mtx); gte_rtir(); gte_stclmv(&mtx); gte
 gte_SetRotMatrix(&mtx);
 
 
+    z = diff.vz;
 
+    if (z < 0xc80) {
+      Flare_OctFlareSpikes((long *)&sp,otz);
+    }
+    else if (diff.vz < 0x1b80) {
 
-        if (diff.vz < 0xc80) {
-          Flare_OctFlareSpikes((long *)&sp,otz);
-        }
-        else if (diff.vz < 0x1b80) {
+      Flare_HexFlare((long *)&sp,otz);
 
-          Flare_HexFlare((long *)&sp,otz);
+      Flare_PreCalcHexLightBeam((long *)&sp,otz);
+    }
+    else {
 
-          Flare_PreCalcHexLightBeam((long *)&sp,otz);
-        }
-        else {
+      Flare_QuadFlare((long *)&sp,otz);
+    }
+  }
 
-          Flare_QuadFlare((long *)&sp,otz);
-        }
-      }
-      {
-        DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); { const u_int dtd = flags & 0x40U; SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);  /* a0 */
-        } } } } return; }
+  { const u_int dtd = flags & 0x40U; DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0); }
+}
 
 /* PsyQ gte_stszotz (SZ3>>2 depth-sort key) -- oracle Halo2 @0x800CD6E4:
  * mfc2 $12,$19; nop; sra $12,2; sw.  Promoted to psx_gte.h (w40 consolidation). */
@@ -791,8 +811,10 @@ gte_SetRotMatrix(&mtx);
  * sd param unused (not in SYM, present in the mangling). */
         /* MATCH: see Flare_CarShapedHalo -- the AND needs its own VAR_DECL to
            stop gcc's fold() turning the test into `(flags >> 6) & 1`. */
+#line 841 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fpt2,
               Draw_FlareCache *)
+
 
 {
   VECTOR diff;                  /* @sp+0x18 */
@@ -855,11 +877,11 @@ void Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fp
 gte_ldv0(&sdiff);
 
   gte_rtps();
-  {
-    u_long c;                   /* SYM-CODEGEN-CARRIER: c -- serial copy temp (v0), same measured anti-dependence as CarShapedHalo */
-    c = Flare_gType[flare_type].chalo; *(u_long *)&color[0] = c;
-    c = Flare_gType[flare_type].cbeam; *(u_long *)&color[1] = c;
-  }
+  /* Struct-typed stores (MEM_IN_STRUCT): sched keeps the cbeam load behind the chalo store (lw;nop;sw;lw)
+     like retail; a plain `*(u_long *)&color[k]` store lets alias.c pair the loads. */
+  ((Flare_tInfo *)color)->chalo = Flare_gType[flare_type].chalo;
+  ((Flare_tInfo *)color)->cbeam = Flare_gType[flare_type].cbeam;
+
 
   if (scale == -1) {
     scale = Flare_gType[flare_type].scale;
@@ -884,10 +906,10 @@ gte_stszotz(&otz);
     if (otz < 0) { return; } if (Draw_gViewOtSize + -3 < otz) {
       return;
     }
-    if ((flags & 0x80U) != 0) {
-      int r;                    /* a0 */
+    if ((flags & 0x80U) != 0)
+    { int r;                  /* a0 */
       r = (u_int)random() % 0x14;
-      scale = scale + r * 4;
+
       color[0].r = color[0].r + r;
       color[0].g = color[0].g + r;
       color[0].b = color[0].b + r;
@@ -895,12 +917,12 @@ gte_stszotz(&otz);
       color[1].r = color[1].r + r;
       color[1].g = color[1].g + r;
       color[1].b = color[1].b + r;
+
+      scale = scale + r * 4;
     }
 
-
-
-    if ((flags & 8U) != 0) {
-
+    if ((flags & 8U) != 0)
+    {
       const long result = sp.vx + sp.vy;
       angleZ = result * 4;
     }
@@ -914,9 +936,9 @@ gte_stszotz(&otz);
     gscale = scale;
 
 
-    if ((flags & 0x40U) != 0) {
-      DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);  /* a0 */
-    }
+    if ((flags & 0x40U) != 0)
+    { DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);  /* a0 */ }
+
     z = diff.vz;
 
 
@@ -934,15 +956,15 @@ gte_stlvnl(&diff2);
 gte_stsxy(&sp2);
     }
 
-    if ((flags & 4U) != 0) {
+    if ((flags & 4U) != 0)
+    {
       {
         long difx;              /* s0 (reuses scale) */
         long dify;              /* s1 (reuses flare_type) */
-        dify = sp2.vy - sp.vy;
         difx = sp2.vx - sp.vx;
-
-        angleOuter = fixedatan(dify,difx) >> 4;
-
+        dify = sp2.vy - sp.vy;
+        const long atn = fixedatan(dify,difx);
+        angleOuter = atn >> 4;
 
         sizeOuter = isqrt(difx * difx + dify * dify) * diff.vz;
       }
@@ -953,13 +975,13 @@ gte_stsxy(&sp2);
 
 
 
-
-
+        *(int *)&scalemat.m[0][0] = gscale + (sizeOuter >> 4);
+        *(int *)&scalemat.m[1][1] = gscale;
         *(int *)&scalemat.m[2][2] = 0;
         *(int *)&scalemat.m[0][2] = 0;
         *(int *)&scalemat.m[2][0] = 0;
-        *(int *)&scalemat.m[1][1] = gscale;
-        *(int *)&scalemat.m[0][0] = gscale + (sizeOuter >> 4);
+
+
         Flare_IdentMatrix(&mtx);
 
         Flare_IdentMatrix(&mtx2);
@@ -1006,13 +1028,13 @@ gte_SetRotMatrix(&mtx);
 
 
 
-
-
+        *(int *)&scalemat.m[0][0] = gscale;
+        *(int *)&scalemat.m[1][1] = gscale;
         *(int *)&scalemat.m[2][2] = 0;
         *(int *)&scalemat.m[0][2] = 0;
         *(int *)&scalemat.m[2][0] = 0;
-        *(int *)&scalemat.m[0][0] = gscale;
-        *(int *)&scalemat.m[1][1] = gscale;
+
+
         Flare_IdentMatrix(&mtx);
 
 gte_SetTransVector(&diff);
@@ -1046,7 +1068,9 @@ gte_SetRotMatrix(&mtx);
       } } }
 
 /* ---- Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache  [FLARE.CPP:1097-1098] SLD-VERIFIED ---- */
+#line 1094 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCache *sd)
+
 
 {
   Flare_Halo2(Vi,scale,type,fpt,(coorddef *)0x0,sd);
@@ -1061,7 +1085,9 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
  * `lw gfrgb2` above the bump -- the old asm/do-while barriers imitated that order.
  * History: w41 floor, w45 asm use fence, HUDFX r2 do{}while(0); falsified (old order): bump
  * `(prim + 1)` 2, `+= 0x14` 6, read between the OT stores 4, rgb temp after them 2. */
+#line 1102 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_2DSpike(long *center,long *end,int otz)
+
 
 {
   long pt [2];
@@ -1252,7 +1278,9 @@ void Flare_2DSpike(long *center,long *end,int otz)
  *   it confirms the word-copy SHAPE we already use and offers no two-carrier
  *   device; rage-racer has no matched C for this class (its prim submission is
  *   INCLUDE_ASM). */
+#line 1122 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
+
 
 {
   DVECTOR pt2;
@@ -1349,7 +1377,9 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
 /* HUDFX2: retail line layout; a plain top-tested `for` with prim declared in its body
  * (the for scope is the retail {8} record); colour/len/code stores in retail line order.
  * sldprobe 0/53, blocks exact. */
+#line 1226 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_PreCalcHexLightBeam(long *center,int otz)
+
 
 {
   long pt [2];
@@ -1378,7 +1408,9 @@ gte_rtps_b();
 }
 
 /* ---- Flare_Quad__FPlP7CVECTORi  [FLARE.CPP:1305-1315] SLD-VERIFIED ---- */
+#line 1302 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_Quad(long *pt,CVECTOR *color,int otz)
+
 
 {
   POLY_F4 *prim;
@@ -1394,7 +1426,9 @@ void Flare_Quad(long *pt,CVECTOR *color,int otz)
 }
 
 /* ---- Flare_QuadNotTransparent__FPlP7CVECTORi  [FLARE.CPP:1319-1331] SLD-VERIFIED ---- */
+#line 1316 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
+
 
 {
   POLY_F4 *prim;
@@ -1412,22 +1446,24 @@ void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
 }
 
 /* ---- Flare_QuadRing__FPlP7CVECTORi  [FLARE.CPP:1335-1352] SLD-VERIFIED ---- */
+#line 1332 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
+
 
 {
   POLY_G4 *prim;
 
   otz = otz * 4 + (int)Render_gPalettePtr; prim = (POLY_G4 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff; const int innerColor = *(int *)color; Render_gPacketPtr = (u_char *)prim + 0x24;
-  *(u_int *)((u_char *)prim + 0xc) = 0; *(int *)((u_char *)prim + 4) = innerColor;
-
-  const int outerColor = *(int *)color;
-
-
-
+  *(int *)((u_char *)prim + 4) = innerColor;
+  *(u_int *)((u_char *)prim + 0xc) = 0;
+  const int outerColor = *(int *)color; *(int *)((u_char *)prim + 0x14) = outerColor;
+  *(u_int *)((u_char *)prim + 0x1c) = 0;
 
 
-  ((u_char *)prim)[3] = 8; *(u_int *)((u_char *)prim + 0x1c) = 0; ((u_char *)prim)[7] = 0x3a;
-  *(int *)((u_char *)prim + 0x14) = outerColor;
+
+
+  ((u_char *)prim)[3] = 8; ((u_char *)prim)[7] = 0x3a;
+
   *(long *)((u_char *)prim + 8) = *pt;
   *(long *)((u_char *)prim + 0x10) = pt[1];
   *(long *)((u_char *)prim + 0x18) = pt[2];
@@ -1435,7 +1471,9 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
 }
 
 /* ---- Flare_TextureQuad__FPlP7CVECTORci  [FLARE.CPP:1368-1382] SLD-VERIFIED ---- */
+#line 1365 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
+
 
 {
   POLY_FT4 *prim;
@@ -1455,7 +1493,9 @@ void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
 }
 
 /* ---- Flare_SingleColorTex__FP7DVECTORP7CVECTORiici  [FLARE.CPP:1386-1401] SLD-VERIFIED ---- */
+#line 1383 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_SingleColorTex(DVECTOR *xy,CVECTOR *color,int width,int height,char type,int otz)
+
 
 {
   DVECTOR pt [4];
@@ -1476,7 +1516,9 @@ void Flare_SingleColorTex(DVECTOR *xy,CVECTOR *color,int width,int height,char t
 }
 
 /* ---- Flare_SingleColorHex__FP7DVECTORP7CVECTORiii  [FLARE.CPP:1405-1427] SLD-VERIFIED ---- */
+#line 1402 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_SingleColorHex(DVECTOR *xy,CVECTOR *color,int width,int height,int otz)
+
 
 {
   DVECTOR pt [6];
@@ -1503,7 +1545,9 @@ void Flare_SingleColorHex(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
   Flare_Quad((long *)(pt + 2),color,otz); }
 
 /* ---- Flare_SingleColorOct__FP7DVECTORP7CVECTORiii  [FLARE.CPP:1443-1456] SLD-VERIFIED ---- */
+#line 1440 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_SingleColorOct(DVECTOR *xy,CVECTOR *color,int width,int height,int otz)
+
 
 {
   DVECTOR pt [8];
@@ -1525,7 +1569,9 @@ void Flare_SingleColorOct(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
 /* SYM locals exactly (i / width2 / height2 / index CHAR / i2 CHAR); index = i*2 at the loop
  * top (back-edge delay slot), divides inline /256.  HUDFX2: retail line layout (decls on
  * three lines, `i = 0; do {` and `i = i + 1; } while` one-liners): sldprobe 0/111. */
+#line 1457 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_SingleColorOctRing(DVECTOR *xy,CVECTOR *color,int width,int height,int otz)
+
 
 {
   DVECTOR pt [18];
@@ -1559,7 +1605,9 @@ void Flare_SingleColorOctRing(DVECTOR *xy,CVECTOR *color,int width,int height,in
 }
 
 /* ---- Flare_InitLensFlare__Fv  [FLARE.CPP:1568-1571] SLD-VERIFIED ---- */
+#line 1565 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_InitLensFlare(void)
+
 
 {
   gFlare_LensFlare.size = 0x50;
@@ -1843,7 +1891,9 @@ void Flare_InitLensFlare(void)
  * Probe harnesses: scratchpad/w61a15/{tugate_probe.py,fnprobe.py,row_flare2.txt}. */
 /* Canonical PsyQ addPrim: the P_TAG bitfield pair expresses getaddr/setaddr
  * without reconstruction-only slot/mask temporaries. */
+#line 1575 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
+
 
 {
   int dx;
@@ -1855,7 +1905,7 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
   int sx;
   int sy;
   FLARE_PIECE_DEF *piece;
-  long angleZ; long angleZ2; char flareVis; int otz; otz = 0; if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {  /* SYM-CODEGEN-CARRIER: otz -- keeping the zero as a value preserves retail's shift/address chain; literal zero is FAIL 6/407 */
+  long angleZ; long angleZ2; char flareVis; int otz; otz = 0; if (!((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400)) return;  /* SYM-CODEGEN-CARRIER: otz -- keeping the zero as a value preserves retail's shift/address chain; literal zero is FAIL 6/407 */
     {
       DVECTOR pt [4];
       CVECTOR col; u_long colw = 0xffffff; DVECTOR *pp = pt; CVECTOR *cp = &col; int otSize; long result; do { } while (0); i = 0; otSize = Draw_gViewOtSize; { int vx0 = screenPos->vx; int vy0 = screenPos->vy;  /* SYM-CODEGEN-CARRIER: colw -- inline 0xffffff is current FAIL 24/409 */ /* SYM-CODEGEN-CARRIER: pp -- pre-fence call address forces the retail ARG-slot reload */ /* SYM-CODEGEN-CARRIER: cp -- paired pre-fence address in the same measured head-block recipe */ /* SYM-CODEGEN-CARRIER: otSize -- folding the -2 into this load is measured FAIL 10 */ /* SYM-CODEGEN-CARRIER: vx0 -- fence materializes retail's sx copy instead of folding the load into $fp */ /* SYM-CODEGEN-CARRIER: vy0 -- paired temporary materializes the sy/$s7 copy */
@@ -1871,8 +1921,8 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
 
 
-        sx = vx0;  sy = vy0; }
-
+        sx = vx0;
+        sy = vy0; }
 
 
 
@@ -1883,24 +1933,26 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
 
       pt[0].vx = (short)(sx + -2);
-      pt[1].vy = pt[0].vy = (short)(sy + -2);
+      pt[0].vy = (short)(sy + -2);
 
       pt[1].vx = (short)(sx + 3);
+      pt[1].vy = pt[0].vy;
 
-
-
-      pt[3].vy = pt[2].vy = (short)(sy + 3);
+      pt[2].vx = pt[0].vx;
+      pt[2].vy = (short)(sy + 3);
       result = sx + sy;
       angleZ = result * 8; angleZ2 = result * 6; pt[3].vx = pt[1].vx;
-      pt[2].vx = pt[0].vx;
+      pt[3].vy = pt[2].vy;
 
       Flare_QuadNotTransparent((long *)pp,cp,otSize);
     }
-    dx = 0x140 - sx; dy = 0xf0 - sy; flareVis = '\0'; gFlare_LensFlare.oldpos[0].vx = gFlare_LensFlare.pos[0].vx;
+    gFlare_LensFlare.oldpos[0].vx = gFlare_LensFlare.pos[0].vx;
     gFlare_LensFlare.oldpos[0].vy = gFlare_LensFlare.pos[0].vy;
 
     gFlare_LensFlare.pos[0].vx = (short)sx; gFlare_LensFlare.pos[0].vy = (short)sy; gFlare_LensFlare.isDrawn[0] = '\x01';
 
+    dx = 0x140 - sx;
+    dy = 0xf0 - sy;
 
 
 
@@ -1910,22 +1962,20 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
 
 
-
-
-
+    flareVis = '\0';
 
     for (; i < 0x19; i = i + 1) {
       if ((gFlare_LensFlare.screenData[0][0][i] & 0x7fff) == 0x7fff) {
         flareVis = flareVis + 1;
       }
 
-    } if (flareVis != '\0') {
-      MATRIX scalemat;
-      MATRIX mtx;
+    } if (flareVis == '\0') return;
 
 
+    { MATRIX scalemat; MATRIX mtx;
 
 
+      *(u_long *)&gfrgb2 = *(u_long *)&TrackSpec_gSpec.skyspec.sunBeamColor;
 
 
 
@@ -1934,7 +1984,7 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       *(int *)((char *)&scalemat + 0x10) = 0;
       *(int *)((char *)&scalemat + 4) = 0;
       *(int *)((char *)&scalemat + 0xc) = 0;
-      *(u_long *)&gfrgb2 = *(u_long *)&TrackSpec_gSpec.skyspec.sunBeamColor;
+
       Flare_IdentMatrix(&mtx);
 
       RotMatrixZ(angleZ,&mtx);
@@ -1955,60 +2005,56 @@ gte_SetRotMatrix(&scalemat); gte_ldclmv(&mtx); gte_rtir(); gte_stclmv(&mtx); gte
 gte_SetRotMatrix(&mtx);
 
       Flare_Spikes((long *)screenPos,0);
-      i = 0;
-      *(u_long *)&(gFlare_LensFlare.piece)->color =
-
-           *(u_long *)&TrackSpec_gSpec.skyspec.sunHaloColor;
-
-
-      while (i < 9) {
-
-        piece = gFlare_LensFlare.piece + i;
-
-        pxy.vx = (short)(((0x10000 - piece->distance) * sx + piece->distance * dx) / 0x10000);
-        pxy.vy = (short)(((0x10000 - piece->distance) * sy + piece->distance * dy) / 0x10000);
-
-
-
-
-        width = gFlare_LensFlare.size * piece->size / 0x10000;
-        height = width;
-
-
-
-
-
-        if (3 < width) {
-          CVECTOR col;
-
-          col.r = piece->color.r * flareVis / 0x19;
-          col.g = piece->color.g * flareVis / 0x19;
-          col.b = piece->color.b * flareVis / 0x19;
-          switch(piece->type) {
-          case 0:
-          case 1:
-            Flare_SingleColorTex(&pxy,&col,height,width,piece->type,0);
-            break;
-          case 2:
-            Flare_SingleColorHex(&pxy,&col,height,width,0);
-            break;
-          case 3:
-            Flare_SingleColorOct(&pxy,&col,height,width,0);
-            break;
-          case 4:
-            Flare_SingleColorOctRing(&pxy,&col,height,width,0);
-            break;
-          }
-        }
-
-        i = i + 1;
-      }
-      { DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
-
-        SetDrawMode(aprim,0,otz,0x120,(RECT *)0x0);
-      }
     }
-  }
+    *(u_long *)&(gFlare_LensFlare.piece)->color =
+
+         *(u_long *)&TrackSpec_gSpec.skyspec.sunHaloColor;
+
+
+    for (i = 0; i < 9; i = i + 1) {
+
+      piece = gFlare_LensFlare.piece + i;
+
+      pxy.vx = (short)(((0x10000 - piece->distance) * sx + piece->distance * dx) / 0x10000);
+      pxy.vy = (short)(((0x10000 - piece->distance) * sy + piece->distance * dy) / 0x10000);
+
+
+
+
+      width = gFlare_LensFlare.size * piece->size / 0x10000;
+      height = width;
+
+
+
+
+
+      if (3 < width) {
+        CVECTOR col;
+
+        col.r = piece->color.r * flareVis / 0x19;
+        col.g = piece->color.g * flareVis / 0x19;
+        col.b = piece->color.b * flareVis / 0x19;
+        switch(piece->type) {
+        case 0:
+        case 1:
+          Flare_SingleColorTex(&pxy,&col,width,height,piece->type,0);
+          break;
+        case 2:
+          Flare_SingleColorHex(&pxy,&col,width,height,0);
+          break;
+        case 3:
+          Flare_SingleColorOct(&pxy,&col,width,height,0);
+          break;
+        case 4:
+          Flare_SingleColorOctRing(&pxy,&col,width,height,0);
+          break;
+        }
+      }
+
+    }
+
+    { DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); SetDrawMode(aprim,0,otz,0x120,(RECT *)0x0); }
+
 }
 
 /* ---- Flare_Sun__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1742-1818] SLD-VERIFIED ----
@@ -2019,7 +2065,9 @@ gte_SetRotMatrix(&mtx);
  * line 54/75 holds the whole add), retail declaration order.  sldprobe 0/187, blocks
  * and locals exact.  (Older receipts on the halo-family constant-register rotation:
  * see Flare_2DHalo / Flare_CarShapedHalo.) */
+#line 1739 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd)
+
 
 {
   VECTOR diff;
@@ -2100,7 +2148,9 @@ gte_SetRotMatrix(&scalemat);
 }
 
 /* ---- Flare_Moon__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1822-1864] SLD-VERIFIED ---- */
+#line 1819 "C:/nfs4/GAME/PSX/FLARE.CPP"
 void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd)
+
 
 {
   VECTOR diff;
@@ -2139,12 +2189,12 @@ gte_swc2(0xe,&posOnScreen);
 
 
 
-  if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz))
-  {
+  if ((diff.vx > diff.vz) || (-diff.vx > diff.vz)) return;
 
 
-    Flare_SingleColorTex(&posOnScreen,&color,0x10,0x10,'\0',Draw_gViewOtSize + -2);
-  }
+
+  Flare_SingleColorTex(&posOnScreen,&color,0x10,0x10,'\0',Draw_gViewOtSize + -2);
 }
+
 
 /* end of flare.cpp */

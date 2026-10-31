@@ -34,7 +34,9 @@ void HudPmx_Kill(void);
  * HudPmx_tShape, matching `*((short*)(16+$s0))`/`*((short*)(18+$s0))`) and fabricated a `clut`
  * store the oracle never makes. Texture_LoadPmx's last arg is literally $s0 (s itself, cast --
  * HudPmx_tShape::pixmap is the struct's first member so the address is identical). */
+#line 21 "C:/nfs4/GAME/COMMON/HUDPMX.CPP"
 static void HudPmx_LoadShape(char *n,HudPmx_tShape *s)
+
 
 {
   shapetbl *shp;
@@ -52,7 +54,9 @@ static void HudPmx_LoadShape(char *n,HudPmx_tShape *s)
 }
 
 /* ---- HudPmx_InitTextures__Fv  [HUDPMX.CPP:40-204] SLD-VERIFIED ---- */
+#line 37 "C:/nfs4/GAME/COMMON/HUDPMX.CPP"
 void HudPmx_InitTextures(void)
+
 
 {
   int carType0;
@@ -224,7 +228,9 @@ HudPmxInit_shapeLoadLoop:
 /* ---- HudPmx_Kill__Fv  [HUDPMX.CPP:209-210] ----
  * Purge call and implicit void fallthrough match nine retail words,
  * all SLD tags and the block/function-end source line. */
+#line 206 "C:/nfs4/GAME/COMMON/HUDPMX.CPP"
 void HudPmx_Kill(void)
+
 
 {
   purgememadr(gHudFont); }

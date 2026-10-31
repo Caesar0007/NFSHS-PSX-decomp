@@ -23,7 +23,9 @@ char         gCarSelected[2][50];   /* @0x80051544  (bss(zero)) */
     /* INDEX-FIRST spelling: `(idx) + (char*)this + K` emits retail's `addu v0,a0,v0`
        (base as rs); the natural `this->fCarGarage[j][i]` / `base[idx]` forms all emit
        `addu v0,v0,a0` AND let LICM hoist `this + j*128` instead of just `j*128`. */
+#line 74 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::Initialize()
+
 
 {
   short i;
@@ -36,10 +38,10 @@ void tCarManager::Initialize()
 
       *(signed char *)((j * 128 + i * 4) + (char *)this + 8) = -1;
       *(signed char *)((j * 128 + i * 4) + (char *)this + 264) = -1;
-    }
-
-  }
+    } }
   for (i = 0; i < 0x30; i++) {
+
+
     this->fAvailableCars[i] = '\0';
     this->fViewableCars[i] = '\0';
   }
@@ -64,7 +66,9 @@ void tCarManager::Initialize()
    pair is the LICM->cse2 hoisted-load-becomes-copy signature; the fix is the top-tested
    index form, never a hand-cached local. */
 
+#line 98 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 tCarInfo * tCarManager::GetCarFromID(short carID)
+
 
 {
   u_long i;
@@ -80,7 +84,9 @@ tCarInfo * tCarManager::GetCarFromID(short carID)
 
 /* ---- tCarManager::GetCarFromSimID  [FECARS.CPP:116-124] SLD-VERIFIED ---- */
 
+#line 113 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 tCarInfo * tCarManager::GetCarFromSimID(short carID)
+
 
 {
   u_long i;
@@ -96,7 +102,9 @@ tCarInfo * tCarManager::GetCarFromSimID(short carID)
 
 /* ---- tCarManager::CheapestCarStockPrice  [FECARS.CPP:161-175] SLD-VERIFIED ---- */
 
+#line 158 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 long tCarManager::CheapestCarStockPrice()
+
 
 {
   int carPrice;
@@ -138,6 +146,10 @@ long tCarManager::CheapestCarStockPrice()
    (2), `(*this).GetCarFromID` (2), a fenced pointer local (2), flat byte-offset reads (6),
    early-return chain (80, wrecks the shared return-staging block). */
 
+      /* SOURCE-REVIEW-UNRESOLVED: this existing user-gated $4 clobber is
+         still2dif/67 when removed after the scope/direct-ID changes. The
+         old assertion that no pin-free source could exist is withdrawn;
+         this measured copy residual is not an original-source certificate. */
 long tCarManager::CalcUsedPrice(short garageNumber)
 /* 2026-10-11: return the completed price from the valid-car arm as well as
    the default path. GCC merges the returns, preserving all67 words and
@@ -146,41 +158,41 @@ long tCarManager::CalcUsedPrice(short garageNumber)
    tuples and the single region agree; full original spelling/SLD and the
    existing hard-clobber device remain explicitly unresolved. */
 
+
+#line 191 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 {
   long result;
   tCarInfo *carInfo;
-
   result = 0;
   if ((u_int)garageNumber >= this->fNumCars) {
+
     if ((signed char)this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fCarID != -1) {
-      /* SOURCE-REVIEW-UNRESOLVED: this existing user-gated $4 clobber is
-         still2dif/67 when removed after the scope/direct-ID changes. The
-         old assertion that no pin-free source could exist is withdrawn;
-         this measured copy residual is not an original-source certificate. */
       __asm__ __volatile__("" : : : "$4");
+
+
       carInfo = this->GetCarFromID((signed char)this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fCarID);
       if (carInfo != (tCarInfo *)0x0) {
+
+
         result = carInfo->fPrices[0];
+
+
         if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 1) != 0) {
           result = result + carInfo->fPrices[1];
-        }
-        if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 2) != 0) {
+        } if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 2) != 0) {
           result = result + carInfo->fPrices[2];
-        }
-        if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 4) != 0) {
+        } if ((this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades & 4) != 0) {
           result = result + carInfo->fPrices[3];
         }
+
         if (carInfo->fExoticCar != '\0') {
           result = result * 3 / 4;
         }
-        else {
-          result = result >> 1;
+        else { result = result >> 1;
         }
         return result;
       }
-    }
-  }
-  return result;
+    } } return result;
 }
 
 
@@ -188,7 +200,9 @@ long tCarManager::CalcUsedPrice(short garageNumber)
 /* ---- tCarManager::PurchaseCar  [FECARS.CPP:230-255] SLD-VERIFIED ---- */
 
 /* SYM: locals = short i (REG $4), tCarInfo *carInfo (REG $6) */
+#line 227 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
+
 
 {
   short i;
@@ -232,40 +246,43 @@ long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
    and kept live across an explicit if/else.  This preserves the base in $a0, puts newSel in
    $v0, and lets thread filling place garageCar-1 in the retail branch delay slot. */
 
-long tCarManager::SellCar(short garageNumber,short playerNum)
-
-{
+    /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
+       loads the byte TWICE (lb for the test, lbu for the copy). */
   /* Retail SYM records only i and result. Combined const address snapshots
      preserve all 96 instructions without emitting extra debug locals, and
      the unwrapped statements reproduce retail's one lexical block. The
      original spelling of the address expressions remains unproven. */
-  short i;
-  long result;
+#line 259 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
+long tCarManager::SellCar(short garageNumber,short playerNum)
 
-  result = this->CalcUsedPrice(garageNumber);
-  const int removedSlotOffset =
-      ((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128;
-  *(signed char *)(removedSlotOffset + (char *)this + 8) = -1;
-  for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) {
-    /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
-       loads the byte TWICE (lb for the test, lbu for the copy). */
-    if ((signed char)this->fCarGarage[playerNum][i].fCarID < 0) break;
+
+{
+  short i;
+  long result; result = this->CalcUsedPrice(garageNumber);
+
+
+  const int removedSlotOffset = ((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128; *(signed char *)(removedSlotOffset + (char *)this + 8) = -1;
+
+
+
+
+
+  for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) { if ((signed char)this->fCarGarage[playerNum][i].fCarID < 0) break;
+
     this->fCarGarage[playerNum][i - 1].fCarID = this->fCarGarage[playerNum][i].fCarID;
     this->fCarGarage[playerNum][i - 1].fUpgrades = this->fCarGarage[playerNum][i].fUpgrades;
     this->fCarGarage[playerNum][i - 1].fCarColor = this->fCarGarage[playerNum][i].fCarColor;
   }
   /* Keep the -4 outside the +8 displacement. */
-  const int previousSlotOffset = i * 4 - 4 + playerNum * 128;
-  *(signed char *)(previousSlotOffset + (char *)this + 8) = -1;
+  const int previousSlotOffset = i * 4 - 4 + playerNum * 128; *(signed char *)(previousSlotOffset + (char *)this + 8) = -1;
   /* The named player stride keeps `this` as the addu's first operand. */
   int lastSlotOffset = playerNum * 128;
+
   *(signed char *)(lastSlotOffset + (char *)this + 0x84) = -1;
-  const int selectedSlotOffset =
-      ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4
-      + playerNum * 128;
-  if (*(signed char *)(selectedSlotOffset + (char *)this + 8) < 0) {
-    frontEnd.garageCar[playerNum] = (u_int)(u_char)frontEnd.garageCar[playerNum] <= this->fNumCars
-        ? '\0' : frontEnd.garageCar[playerNum] - 1;
+
+
+  const int selectedSlotOffset = ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4 + playerNum * 128; if (*(signed char *)(selectedSlotOffset + (char *)this + 8) < 0) {
+    frontEnd.garageCar[playerNum] = (u_int)(u_char)frontEnd.garageCar[playerNum] <= this->fNumCars ? '\0' : frontEnd.garageCar[playerNum] - 1;
   }
   return result;
 }
@@ -274,33 +291,39 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
 
 /* ---- tCarManager::PurchaseUpgrade  [FECARS.CPP:298-327] SLD-VERIFIED ---- */
 
+#line 295 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short playerNum)
+
 
 {
   short i;
   short mask;
-  long result;
-  tCarInfo *carInfo;
-
-  result = 0;
+  long result; tCarInfo *carInfo; result = 0;
   carInfo = this->GetCarFromID((short)(signed char)
+
+
+
+
+
       this->fCarGarage[playerNum][(int)garageNumber - (int)this->fNumCars].fCarID);
+
+
+
   for (i = 0; i < 3; i++) {
+
     mask = 1 << i;
-    if ((upgradeFlags & mask) != 0) {
-      if ((*(u_char *)(playerNum * 128 +
-                       ((int)garageNumber - (int)this->fNumCars) * 4 +
-                       (char *)this + 9) & mask) == 0) {
+
+
+
+    if ((upgradeFlags & mask) != 0) { if ((*(u_char *)(playerNum * 128 + ((int)garageNumber - (int)this->fNumCars) * 4 + (char *)this + 9) & mask) == 0) {
         *(u_char *)(playerNum * 128 +
                     ((int)garageNumber - (int)this->fNumCars) * 4 +
-                    (char *)this + 9) =
-            mask | *(u_char *)(playerNum * 128 +
-                               ((int)garageNumber - (int)this->fNumCars) * 4 +
-                               (char *)this + 9);
+                    (char *)this + 9) = mask | *(u_char *)(playerNum * 128 + ((int)garageNumber - (int)this->fNumCars) * 4 + (char *)this + 9);
+
         result = result + carInfo->fPrices[i + 1];
       }
-    }
-  }
+    } }
+
   return result;
 }
 
@@ -355,54 +378,58 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
    `fill_slots_from_thread` moves garageCar-1 into the retail branch delay slot.  The SellCar
    twin reaches PASS with the identical source shape. */
 
-void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
-
-{
-  /* Retail SYM records only i. Combined const address snapshots preserve
-     all 82 instructions without emitting extra debug locals; removing their
-     wrapper scopes reproduces retail's one lexical block. The exact source
-     spelling of these address expressions remains unproven. */
-  short i;
-
-  /* INDEX-FIRST spelling: retail keeps `playerNum*128` and `this` SEPARATE
-     (`addu v0,v0,a0; addu v0,t1,v0`); the natural member form hoists `this + playerNum*128`. */
-  const int removedSlotOffset =
-      ((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128;
-  *(signed char *)(removedSlotOffset + (char *)this + 0x108) = -1;
-  for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) {
-    /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
-       loads the byte TWICE (lb for the test, lbu for the copy). */
-    if ((signed char)this->fPinkSlipsCars[playerNum][i].fCarID < 0) break;
-    this->fPinkSlipsCars[playerNum][i - 1].fCarID = this->fPinkSlipsCars[playerNum][i].fCarID;
-    this->fPinkSlipsCars[playerNum][i - 1].fUpgrades = this->fPinkSlipsCars[playerNum][i].fUpgrades;
-    this->fPinkSlipsCars[playerNum][i - 1].fCarColor = this->fPinkSlipsCars[playerNum][i].fCarColor;
-  }
-  /* Keep the -4 outside the 0x108 displacement. */
-  const int previousSlotOffset = i * 4 - 4 + playerNum * 128;
-  *(signed char *)(previousSlotOffset + (char *)this + 0x108) = -1;
   /* MATCH (W57-A7, 8 -> 6): the slot-31 store's `addu` operand order is decided by whether
        `playerNum*128` is an EXPRESSION or a real INPUT OPERAND.  Written flat, gcc builds the
        whole sum fresh and emits `addu v0,<pn128>,this`; naming it (exactly as the three other
        address sites already do) makes `this` operand 0 -> retail's `addu v0,t1,a1`.  The w41
        "int-typed sum flips addu operand 0" spelling `(int)this + playerNum*128 + K` measured
        IDENTICAL to the flat form -- statement granularity, not operand spelling, is the dial. */
-  int lastSlotOffset = playerNum * 128;
-  *(signed char *)(lastSlotOffset + (char *)this + 0x184) = -1;
-  const int selectedSlotOffset =
-      ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4
-      + playerNum * 128;
-  if (*(signed char *)(selectedSlotOffset + (char *)this + 0x108) < 0) {
-    frontEnd.pinkSlipsCar[playerNum] = (u_int)(u_char)frontEnd.pinkSlipsCar[playerNum] <= this->fNumCars
-        ? '\0' : frontEnd.garageCar[playerNum] - 1;
+    /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
+       loads the byte TWICE (lb for the test, lbu for the copy). */
+  /* INDEX-FIRST spelling: retail keeps `playerNum*128` and `this` SEPARATE
+     (`addu v0,v0,a0; addu v0,t1,v0`); the natural member form hoists `this + playerNum*128`. */
+  /* Retail SYM records only i. Combined const address snapshots preserve
+     all 82 instructions without emitting extra debug locals; removing their
+     wrapper scopes reproduces retail's one lexical block. The exact source
+     spelling of these address expressions remains unproven. */
+#line 329 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
+void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
+
+
+{
+  short i;
+
+
+  const int removedSlotOffset = ((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128; *(signed char *)(removedSlotOffset + (char *)this + 0x108) = -1;
+
+
+
+
+
+  for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) { if ((signed char)this->fPinkSlipsCars[playerNum][i].fCarID < 0) break;
+
+    this->fPinkSlipsCars[playerNum][i - 1].fCarID = this->fPinkSlipsCars[playerNum][i].fCarID;
+    this->fPinkSlipsCars[playerNum][i - 1].fUpgrades = this->fPinkSlipsCars[playerNum][i].fUpgrades;
+    this->fPinkSlipsCars[playerNum][i - 1].fCarColor = this->fPinkSlipsCars[playerNum][i].fCarColor;
   }
-  return;
-}
+  /* Keep the -4 outside the 0x108 displacement. */
+  const int previousSlotOffset = i * 4 - 4 + playerNum * 128; *(signed char *)(previousSlotOffset + (char *)this + 0x108) = -1;
+  int lastSlotOffset = playerNum * 128;
+
+
+  *(signed char *)(lastSlotOffset + (char *)this + 0x184) = -1;
+
+
+  const int selectedSlotOffset = ((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4 + playerNum * 128; if (*(signed char *)(selectedSlotOffset + (char *)this + 0x108) < 0) {
+    frontEnd.pinkSlipsCar[playerNum] = (u_int)(u_char)frontEnd.pinkSlipsCar[playerNum] <= this->fNumCars ? '\0' : frontEnd.garageCar[playerNum] - 1; } return; }
 
 
 
 /* ---- tCarManager::AddToPinkSlipsList  [FECARS.CPP:361-383] SLD-VERIFIED ---- */
 
+#line 358 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::AddToPinkSlipsList(short carModel,short color,short playerNum)
+
 
 {
   /* SYM: sole local = short i (REG $8); leaf fn (fsize 0, mask 0) */
@@ -444,142 +471,154 @@ void tCarManager::AddToPinkSlipsList(short carModel,short color,short playerNum)
        lets LICM hoist `this + playerNum*128 + 264` into a saved reg (+1 insn, 15 diffs).
    Falsified for the pre-call site: 4 index/base association spellings (2-4 diffs each). */
 
+#line 384 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::AddUpgradesToPinkSlipsList(short garageNumber,short upgradeFlags,short playerNum)
+
 
 {
   short i;
   short mask;
 
   this->GetCarFromID((short)(signed char)
+
+
+
+
       this->fPinkSlipsCars[playerNum][(int)garageNumber - (int)this->fNumCars].fCarID);
+
+
+
   for (i = 0; i < 3; i++) {
+
     mask = 1 << i;
-    if ((upgradeFlags & mask) != 0) {
-      if ((*(u_char *)(playerNum * 128 +
-                       ((int)garageNumber - (int)this->fNumCars) * 4 +
-                       (char *)this + 0x109) & mask) == 0) {
+
+
+
+    if ((upgradeFlags & mask) != 0) { if ((*(u_char *)(playerNum * 128 + ((int)garageNumber - (int)this->fNumCars) * 4 + (char *)this + 0x109) & mask) == 0) {
         *(u_char *)(playerNum * 128 +
                     ((int)garageNumber - (int)this->fNumCars) * 4 +
-                    (char *)this + 0x109) =
-            mask | *(u_char *)(playerNum * 128 +
-                               ((int)garageNumber - (int)this->fNumCars) * 4 +
-                               (char *)this + 0x109);
+                    (char *)this + 0x109) = mask | *(u_char *)(playerNum * 128 + ((int)garageNumber - (int)this->fNumCars) * 4 + (char *)this + 0x109);
       }
     }
-  }
-  return;
+  } return;
 }
 
 
 
 /* ---- tCarManager::LoadCars  [FECARS.CPP:420-438] SLD-VERIFIED ---- */
 
+#line 417 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::LoadCars(tSaveCarInfo &load,short playerNum)
+
 
 {
   u_long i;
 
   blockmove(&load,this->fCarGarage[playerNum],0x80);
+
+
+
+
+
   if (playerNum == 0) {
     i = 0;
     if (this->fNumCars != 0) {
       do {
         this->fAvailableCars[i] = load.fSaveAvailable[i];
         this->fViewableCars[i] = load.fSaveViewable[i];
-        i = i + 1;
-      } while (i < this->fNumCars);
-    }
-  }
-  return;
-}
+
+
+
+        i = i + 1; } while (i < this->fNumCars); } } return; }
 
 
 
 /* ---- tCarManager::SaveCars  [FECARS.CPP:445-459] SLD-VERIFIED ---- */
 
+#line 442 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::SaveCars(tSaveCarInfo &save)
+
 
 {
   u_long i;
 
   blockmove(this->fCarGarage,&save,0x80);
   i = 0;
+
+
   if (this->fNumCars != 0) {
     do {
+
+
+
       save.fSaveAvailable[i] = this->fAvailableCars[i];
       save.fSaveViewable[i] = this->fViewableCars[i];
-      i = i + 1;
-    } while (i < this->fNumCars);
-  }
-  return;
-}
+      i = i + 1; } while (i < this->fNumCars); } return; }
 
 
 
 /* ---- tCarManager::LoadPinkSlipsCars  [FECARS.CPP:466-477] SLD-VERIFIED ---- */
 
+#line 463 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum)
+
 
 {
   /* SYM: the 8c block records `int i` one level DOWN (two `Block start line = 1`
      records at the function entry VA), i.e. the body is one nested scope. */
   {
     int i;
-
     blockmove(&load,this->fPinkSlipsCars[playerNum],0x80);
     i = 0;
-    if (this->fNumCars != 0) {
-      do {
+    if (this->fNumCars != 0) { do {
+
         this->fPinkSlipsAvailableCars[playerNum][i] = load.fSaveAvailable[i];
         this->fPinkSlipsViewableCars[playerNum][i] = load.fSaveViewable[i];
-        i = i + 1;
-      } while (i < this->fNumCars);
-    }
-  }
-  return;
-}
+        i = i + 1; } while (i < this->fNumCars); } } return; }
 
 
 
 /* ---- tCarManager::SavePinkSlipsCars  [FECARS.CPP:483-507] SLD-VERIFIED ---- */
 
-void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short withoutCarInGarageNumber)
-
-{
   /* SYM: `carInfo` is the only function-scope local; `int i` lives in the
      nested block that opens at 0x80016c7c (SLD lines 7-20). */
+#line 480 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
+void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short withoutCarInGarageNumber)
+
+
+{
   tCarInfo carInfo;
 
   if (withoutCarInGarageNumber != -1) {
+
     this->GetPinkSlipsCar(withoutCarInGarageNumber,carInfo,playerNum);
     this->RemoveFromPinkSlipsList(withoutCarInGarageNumber,playerNum);
   }
   {
     int i;
 
+
+
+
     blockmove(this->fPinkSlipsCars[playerNum],&save,0x80);
-    i = 0;
-    if (this->fNumCars != 0) {
-      do {
+    i = 0; if (this->fNumCars != 0) { do {
+
         save.fSaveAvailable[i] = this->fPinkSlipsAvailableCars[playerNum][i];
         save.fSaveViewable[i] = this->fPinkSlipsViewableCars[playerNum][i];
-        i = i + 1;
-      } while (i < this->fNumCars);
+        i = i + 1; } while (i < this->fNumCars);
     }
-  }
-  if (withoutCarInGarageNumber != -1) {
+  } if (withoutCarInGarageNumber != -1) {
+
     carManager.AddToPinkSlipsList((short)(signed char)carInfo.fCarID,(u_short)carInfo.fColor,playerNum);
-    carManager.AddUpgradesToPinkSlipsList((u_short)(u_char)frontEnd.pinkSlipsCar[playerNum],(u_short)carInfo.fUpgrades,
-               playerNum);
-  }
-  return;
-}
+    carManager.AddUpgradesToPinkSlipsList((u_short)(u_char)frontEnd.pinkSlipsCar[playerNum],(u_short)carInfo.fUpgrades, playerNum); } return; }
 
 
 
 /* ---- tCarManager::SetClassAvailable  [FECARS.CPP:514-528] SLD-VERIFIED ---- */
 
+#line 511 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::SetClassAvailable(tCarClassType carClass,bool avail)
+
 
 {
   u_long i;
@@ -602,7 +641,9 @@ void tCarManager::SetClassAvailable(tCarClassType carClass,bool avail)
 
 /* ---- tCarManager::SetCarAvailable  [FECARS.CPP:534-537] SLD-VERIFIED ---- */
 
+#line 531 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::SetCarAvailable(tCarModels carModel,bool avail)
+
 
 {
   this->fAvailableCars[carModel] = avail;
@@ -614,7 +655,9 @@ void tCarManager::SetCarAvailable(tCarModels carModel,bool avail)
 
 /* ---- tCarManager::SetClassViewable  [FECARS.CPP:543-557] SLD-VERIFIED ---- */
 
+#line 540 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::SetClassViewable(tCarClassType carClass,bool view)
+
 
 {
   u_long i;
@@ -637,7 +680,9 @@ void tCarManager::SetClassViewable(tCarClassType carClass,bool view)
 
 /* ---- tCarManager::SetCarViewable  [FECARS.CPP:563-566] SLD-VERIFIED ---- */
 
+#line 560 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::SetCarViewable(tCarModels carModel,bool view)
+
 
 {
   this->fViewableCars[carModel] = view;
@@ -649,7 +694,9 @@ void tCarManager::SetCarViewable(tCarModels carModel,bool view)
 
 /* ---- tCarManager::GetStockCar  [FECARS.CPP:573-584] SLD-VERIFIED ---- */
 
+#line 570 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
+
 
 {
   if ((u_int)(int)carNumber >= this->fNumCars) {
@@ -669,48 +716,51 @@ void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 
 /* ---- tCarManager::GetGarageCar  [FECARS.CPP:591-606] SLD-VERIFIED ---- */
 
-void tCarManager::GetGarageCar(short garageNumber,tCarInfo &carInfo,short playerNum)
-
-{
   /* SYM records no locals.  The retail <<7 player stride and <<2 slot stride
      are the declared fCarGarage[2][32] member indexing; direct member source
      removes six decompiler address/value aliases and remains PASS 67/67. */
+#line 588 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
+void tCarManager::GetGarageCar(short garageNumber,tCarInfo &carInfo,short playerNum)
+
+
+{
+
+
   if ((playerNum == 1) && (this->GetNumOwnedCars(1) < 1)) {
     playerNum = 0;
   }
-  blockmove(this->GetCarFromID(
-      this->fCarGarage[playerNum][garageNumber - this->fNumCars].fCarID),
-      &carInfo,0xcc);
+  tCarInfo *const car = this->GetCarFromID( this->fCarGarage[playerNum][garageNumber - this->fNumCars].fCarID); /* DEVICE (exact-only): retail tags the lookup (6) apart from the copy (8); const temp, no SYM record */
+
+  blockmove(car, &carInfo,0xcc);
   carInfo.fAvailable = '\x01';
   carInfo.fViewable = '\x01';
-  carInfo.fUpgrades =
-      this->fCarGarage[playerNum][garageNumber - this->fNumCars].fUpgrades;
-  carInfo.fColor =
-      this->fCarGarage[playerNum][garageNumber - this->fNumCars].fCarColor;
+  carInfo.fUpgrades = this->fCarGarage[playerNum][garageNumber - this->fNumCars].fUpgrades;
+  carInfo.fColor = this->fCarGarage[playerNum][garageNumber - this->fNumCars].fCarColor;
   carInfo.fCountry = '\0';
+
   carInfo.fCarIndex = (uchar)garageNumber;
-  return;
+
 }
 
 
 
 /* ---- tCarManager::GetPinkSlipsCar  [FECARS.CPP:613-622] SLD-VERIFIED ---- */
 
+#line 610 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::GetPinkSlipsCar(short garageNumber,tCarInfo &carInfo,short playerNum)
 
+
 {
-  blockmove(this->GetCarFromID(
-      this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fCarID),
-    &carInfo,0xcc);
+  tCarInfo *const car = this->GetCarFromID( this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fCarID); /* DEVICE (exact-only): retail tags the lookup (1) apart from the copy (3); const temp, no SYM record */
+
+  blockmove(car, &carInfo,0xcc);
   carInfo.fAvailable = '\x01';
   carInfo.fViewable = '\x01';
-  carInfo.fUpgrades =
-    this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fUpgrades;
-  carInfo.fColor =
-    this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fCarColor;
+  carInfo.fUpgrades = this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fUpgrades;
+  carInfo.fColor = this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fCarColor;
   carInfo.fCountry = '\0';
   carInfo.fCarIndex = (uchar)garageNumber;
-  return;
+
 }
 
 
@@ -724,7 +774,9 @@ void tCarManager::GetPinkSlipsCar(short garageNumber,tCarInfo &carInfo,short pla
    the top-tested color loop keeps `j` as the retail loop phi instead of
    peeling its known-zero first iteration. 113 diffs -> PASS (112/112). */
 
+#line 642 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::LoadDescription()
+
 
 {
   char *input;
@@ -736,41 +788,63 @@ void tCarManager::LoadDescription()
   /* W55-A3 BUGFIX (06C class-5, sprintf-return-as-pointer): Ghidra attributed the
      sprintf `$v0` to `input`; the oracle (80017174 jal loadfileadr / 80017184
      addu $s1,$v0) shows `input` is loadfileadr's return -- sprintf's is discarded. */
+
+
+
+
+
   sprintf(filename,"%s%s",Paths_Paths[0x25],"fecars.car");
+
+
+
+
+
   this->ReleaseDescription();
+
+
   input = (char *)loadfileadr(filename,0x10);
+
+
+
+
   this->fNumCars = *(u_long *)input;
   data = input + 4;
+
+
   this->fCars = (tCarInfo *)reservememadr("Car List",this->fNumCars * 0xcc,0);
+
+
   blockmove(data,this->fCars,this->fNumCars * 0xcc);
   i = 0;
-  if (this->fNumCars != 0) {
-    do {
+
+  if (this->fNumCars != 0) { do {
       j = 0;
       if (this->fCars[i].fAvailable != '\0') {
+
         this->fAvailableCars[this->fCars[i].fCarID] = '\x01';
         this->fViewableCars[this->fCars[i].fCarID] = '\x01';
       }
-      while (j < (int)((u_int)(u_char)this->fCars[i].fNumLightColors +
-                       (u_int)(u_char)this->fCars[i].fNumDarkColors)) {
-        if ((int)(signed char)this->fCars[i].fColorOrder[j] ==
-            (u_int)this->fCars[i].fDefaultColor) {
+      while (j < (int)((u_int)(u_char)this->fCars[i].fNumLightColors + (u_int)(u_char)this->fCars[i].fNumDarkColors)) {
+
+        if ((int)(signed char)this->fCars[i].fColorOrder[j] == (u_int)this->fCars[i].fDefaultColor) {
           this->fCars[i].fDefaultColor = (uchar)j;
+
           break;
         }
-        j = j + 1;
-      }
-    } while ((u_int)++i < this->fNumCars);
+        j = j + 1; }
+      } while ((u_int)++i < this->fNumCars);
   }
-  purgememadr(input);
-  return;
+
+  purgememadr(input); return;
 }
 
 
 
 /* ---- tCarManager::ReleaseDescription  [FECARS.CPP:712-717] SLD-VERIFIED ---- */
 
+#line 709 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::ReleaseDescription()
+
 
 {
   
@@ -783,7 +857,9 @@ void tCarManager::ReleaseDescription()
 
 /* ---- tCarManager::GetNumOwnedCars  [FECARS.CPP:723-735] SLD-VERIFIED ---- */
 
+#line 720 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 short tCarManager::GetNumOwnedCars(short playerNum)
+
 
 {
   int i;
@@ -810,7 +886,9 @@ short tCarManager::GetNumOwnedCars(short playerNum)
 /* MATCH: reuse carInfo.fCarID for the lookup after storing it. A named
    carID is not in retail SYM; rereading the garage ID changes allocation. */
 
+#line 738 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 short tCarManager::GetNumTourneyCars(short playerNum)
+
 
 {
   int i;
@@ -839,7 +917,9 @@ short tCarManager::GetNumTourneyCars(short playerNum)
 
 /* ---- tCarManager::GetNumPinkSlipsCars  [FECARS.CPP:766-778] SLD-VERIFIED ---- */
 
+#line 763 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 short tCarManager::GetNumPinkSlipsCars(short playerNum)
+
 
 {
   int i;
@@ -860,24 +940,32 @@ short tCarManager::GetNumPinkSlipsCars(short playerNum)
 
 /* ---- tCarManager::GetClassList  [FECARS.CPP:787-809] SLD-VERIFIED ---- */
 
+#line 784 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 short tCarManager::GetClassList(tCarClassType carClass,short numElements,tCarModels *models)
+
 
 {
   u_short i;
-  short numCars;
+  short numCars = 0;
 
-  numCars = 0;
+
+
   for (i = 0; i < this->fNumCars; i++) {
+
     if (this->fCars[i].fCarClass == carClass) {
-      if ((int)numCars < (int)numElements) {
+
+      if ((int)numCars < (int)numElements)
         models[numCars] = (int)(signed char)this->fCars[i].fCarID;
-      }
       numCars = numCars + 1;
     }
   }
-  for (i = numCars; (int)i < (int)numElements; i++) {
-    models[i] = models[(int)i % (int)numCars];
-  }
+
+
+
+
+  for (i = numCars; (int)i < (int)numElements; i++)
+    { models[i] = models[(int)i % (int)numCars]; }
+
   return numCars;
 }
 
@@ -885,22 +973,17 @@ short tCarManager::GetClassList(tCarClassType carClass,short numElements,tCarMod
 
 /* ---- tCarManager::InitializeIngameCarList  [FECARS.CPP:815-821] SLD-VERIFIED ---- */
 
+#line 812 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::InitializeIngameCarList()
+
 
 {
   short i;
   short j;
 
-  i = 0;
-  do {
-    j = 0;
-    do {
-      gCarSelected[i][j] = '\0';
-      j = j + 1;
-    } while (j < 0x32);
-    i = i + 1;
-  } while (i < 2);
-  return;
+  i = 0; do {
+    j = 0; do {
+      gCarSelected[i][j] = '\0'; j = j + 1; } while (j < 0x32); i = i + 1; } while (i < 2); return;
 }
 
 
@@ -909,26 +992,30 @@ void tCarManager::InitializeIngameCarList()
 
 /* W58-A1: return type `void*` was a recon artifact -- the body yields 0/1 and every
    front.cpp caller's oracle tests it as a bool (`xori v0,v0,1; beqz`).  bool it is. */
+#line 824 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 bool tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
 
+
 {
+  tCarInfo *const car = this->GetCarFromID((short)model); /* DEVICE (exact-only): retail tags the lookup (1), the colour load (3) and the test (5) apart; const temps, no SYM record */
 
+  const signed char order = car->fColorOrder[(u_char)color]; /* DEVICE (exact-only) */
 
-  return gCarSelected[
-    (signed char)this->GetCarFromID((short)model)->fColorOrder[(u_char)color] / 8
-  ][model] != '\0';
+  return gCarSelected[order / 8][model] != '\0';
 }
 
 
 
 /* ---- tCarManager::AddCarToIngameList  [FECARS.CPP:838-843] SLD-VERIFIED ---- */
 
+#line 835 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
 
-{
-  short carColor;
 
-  carColor = (short)(signed char)this->GetCarFromID((short)model)->fColorOrder[(u_char)color];
+{
+  short carColor; tCarInfo *const car = this->GetCarFromID((short)model); /* DEVICE (exact-only): retail tags the lookup (1) apart from the colour load (3); const temp, no SYM record */
+
+  carColor = (short)(signed char)car->fColorOrder[(u_char)color];
 
   gCarSelected[carColor / 8][model] |= (u_char)(1 << (carColor & 7));
 }
@@ -967,61 +1054,70 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
    hoists the inner-entry predicate once across the outer loop and recreates the
    saved short copies, boolean, global base, and complete retail register band. */
 
-bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short,tCarModels *)
-
-{
-  /* The mangled `R10tCarModelsRcsP10tCarModels` linkage proves two trailing
-     parameter types after `color`, but the optimized 8c record names neither
-     because both are unused.  Keep them intentionally unnamed: their original
-     identifiers are not recoverable, and decompiler `arg3`/`arg4` aliases are
-     not source evidence. */
-  /* Retail SYM: i is the inner counter ($t0), j the outer counter ($t4);
-     carColor is the raw color-order byte ($a0), not its >>3 group. */
-  short i;
-  short j;
-  char carColor;
-  tCarInfo *carInfo;
-  short colorScheme;
-  short numColors;
-
-  carInfo = this->GetCarFromID((short)model);
-  /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): tCarInfo::fColorOrder is a shared-header
-     plain `char[16]` (+0xAF) and plain `char` is UNSIGNED on this build, so the `< 0` half of the
-     signed `/8` rounding below folded to constant FALSE and gcc DELETED it -- colours >= 0x80
-     rounded the WRONG way.  Oracle 80017744/8001774C: `lb $v0,0xAF($v1); bgez $v0,.L8001775C`.
-     Forced signed per-use (shared-header type change is a user decision). */
+          /* MATCH (W56-A8): the SECOND modulo recomputes `j + color`, and retail
+             divides SIGNED (`div`, with the INT_MIN/-1 guard @0x80017854).
+             Keep the color cast signed here just as in both order-table indices. */
   /* MATCH (W56-A8): retail computes the fColorOrder address BASE-FIRST
      (`addu $v1,$t3,$v1` = carInfo + color, @0x80017740).  The natural member
      form `&carInfo->fColorOrder[color]` emits color+carInfo (operands swapped);
      the explicit `(int)carInfo + color + 0xAF` cast forces base-first.  0xAF =
      offsetof(tCarInfo, fColorOrder), a struct offset, not a program VA. */
+  /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): tCarInfo::fColorOrder is a shared-header
+     plain `char[16]` (+0xAF) and plain `char` is UNSIGNED on this build, so the `< 0` half of the
+     signed `/8` rounding below folded to constant FALSE and gcc DELETED it -- colours >= 0x80
+     rounded the WRONG way.  Oracle 80017744/8001774C: `lb $v0,0xAF($v1); bgez $v0,.L8001775C`.
+     Forced signed per-use (shared-header type change is a user decision). */
+  /* Retail SYM: i is the inner counter ($t0), j the outer counter ($t4);
+     carColor is the raw color-order byte ($a0), not its >>3 group. */
+  /* The mangled `R10tCarModelsRcsP10tCarModels` linkage proves two trailing
+     parameter types after `color`, but the optimized 8c record names neither
+     because both are unused.  Keep them intentionally unnamed: their original
+     identifiers are not recoverable, and decompiler `arg3`/`arg4` aliases are
+     not source evidence. */
+#line 848 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
+bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short,tCarModels *)
+
+
+{
+  short i;
+  short j;
+  char carColor; tCarInfo *carInfo; short colorScheme; short numColors; carInfo = this->GetCarFromID((short)model);
+
+
+
   colorScheme = *(signed char *)((int)carInfo + (int)(u_char)color + 0xAF) / 8;
-  numColors = (short)((u_int)(u_char)carInfo->fNumLightColors +
-                      (u_int)(u_char)carInfo->fNumDarkColors);
+  numColors = (short)((u_int)(u_char)carInfo->fNumLightColors + (u_int)(u_char)carInfo->fNumDarkColors);
+
+
+
   for (j = 0; j < 2; j++) {
-    for (i = 0; i < numColors; i++) {
+
+    i = 0;
+    for (; i < numColors; i++) {
+
       carColor = carInfo->fColorOrder[((int)i + (int)(u_char)color) % numColors];
       if ((u_char)carColor >> 3 == colorScheme) {
         if (((int)(u_int)gCarSelected[(u_char)carColor >> 3][model] >>
              ((u_char)carColor & 7) & 1U) == 0) {
           gCarSelected[(u_char)carColor >> 3][model] |= (u_char)(1 <<
               ((u_char)carColor & 7));
-          /* MATCH (W56-A8): the SECOND modulo recomputes `j + color`, and retail
-             divides SIGNED (`div`, with the INT_MIN/-1 guard @0x80017854).
-             Keep the color cast signed here just as in both order-table indices. */
           color = (char)(((int)i + (int)(u_char)color) % numColors);
           return 1;
         }
       }
     }
+
     colorScheme = 1 - colorScheme;
   }
+
   return 1;
 }
 
 
 
 /* ---- tListIteratorCar::ctor  [FECARS.CPP:890-894] SLD-VERIFIED ---- */
+
+#line 889 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 tListIteratorCar::tListIteratorCar(char *valPtr,tCarManager *carManager)
   : tListIterator((short *)0x0, valPtr)
 {
@@ -1034,25 +1130,21 @@ tListIteratorCar::tListIteratorCar(char *valPtr,tCarManager *carManager)
 
 /* ---- tListIteratorCar::dtor  [FECARS.CPP:898-898] SLD-VERIFIED ---- */
 
-tListIteratorCar::~tListIteratorCar()
 
-{
-  return;
-}
+#line 898 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
+tListIteratorCar::~tListIteratorCar() { }
 
 
 
 /* ---- tListIteratorCar::Value  [FECARS.CPP:902-905] SLD-VERIFIED ---- */
 
+#line 899 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 char tListIteratorCar::Value(tPlayer atIndex)
 
+
 {
-  short i;
-  
-  i = kPlayerOne;
-  if (atIndex != kPlayerBoth) {
-    i = atIndex;
-  }
+  short i = (atIndex != kPlayerBoth) ? (short)atIndex : (short)kPlayerOne;
+
   return this->fValue[(short)i];
 }
 
@@ -1060,28 +1152,23 @@ char tListIteratorCar::Value(tPlayer atIndex)
 
 /* ---- tListIteratorCar::TextValue  [FECARS.CPP:909-921] SLD-VERIFIED ---- */
 
-short tListIteratorCar::TextValue(tPlayer atIndex)
-
-{
   /* SYM 8c: locals are exactly `short nameBase[3]` (AUTO -8) and `short i`
      (REG $v1).  nameBase is an AGGREGATE INITIALIZER (bytes @D_80010180) =
      gcc's own 6-byte rodata->stack copy (lwl/lwr + lh / swl/swr + sh). */
-  short nameBase [3] = { 0x121, 0x153, 0x185 };   /* @0x80010180 */
-  short i;
+#line 906 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
+short tListIteratorCar::TextValue(tPlayer atIndex)
 
-  i = 0;
-  if (atIndex != kPlayerBoth) {
-    i = atIndex;
+
+{
+  short nameBase [3] = { 0x121, 0x153, 0x185 };   /* @0x80010180 */
+  short i; i = 0; if (atIndex != kPlayerBoth) { i = atIndex;
   }
   if (this->fCarManager->fNumCars <= (u_int)(u_char)this->fValue[i]) {
+
     if ((this->fCarListFilter & 0x20) != 0) {
-      return nameBase[this->fNameLength] +
-             (signed char)this->fCarManager->fPinkSlipsCars[i]
-               [(u_int)(u_char)this->fValue[i] - this->fCarManager->fNumCars].fCarID;
+      return nameBase[this->fNameLength] + (signed char)this->fCarManager->fPinkSlipsCars[i] [(u_int)(u_char)this->fValue[i] - this->fCarManager->fNumCars].fCarID;
     }
-    return nameBase[this->fNameLength] +
-           (signed char)this->fCarManager->fCarGarage[i]
-             [(u_int)(u_char)this->fValue[i] - this->fCarManager->fNumCars].fCarID;
+    return nameBase[this->fNameLength] + (signed char)this->fCarManager->fCarGarage[i] [(u_int)(u_char)this->fValue[i] - this->fCarManager->fNumCars].fCarID;
   }
   return nameBase[this->fNameLength] +
          (signed char)this->fCarManager->fCars[(u_int)(u_char)this->fValue[i]].fCarID;
@@ -1090,79 +1177,91 @@ short tListIteratorCar::TextValue(tPlayer atIndex)
 
 /* ---- tListIteratorCar::AdjustPosition  [FECARS.CPP:925-1059] SLD-VERIFIED ---- */
 
+#line 922 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tListIteratorCar::AdjustPosition(tPlayer atIndex,short direction)
 
-{
-  short i;
-  char oldValue;
-  char oldCountry;
-  tCarInfo *carInfo;
-  int firstCar;
-  int lastCar;
-  tOwnedCarInfo *ownedCars;
 
-  i = 0;
-  if (atIndex != kPlayerBoth) {
-    i = (short)atIndex;
+{
+  short i; char oldValue; char oldCountry; tCarInfo *carInfo; int firstCar; int lastCar; tOwnedCarInfo *ownedCars; i = 0; if (atIndex != kPlayerBoth) { i = (short)atIndex;
   }
   carInfo = (tCarInfo *)0x0;
+
+
+
+
+
   oldValue = this->fValue[i];
   if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+
     carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
     oldCountry = frontEnd.carCountry[i][(signed char)carInfo->fCarID];
   }
-  else {
-    oldCountry = 0;
+  else { oldCountry = 0;
   }
-  firstCar = 0;
-  if ((this->fCarListFilter & 0x89U) != 0) {
+  firstCar = 0; if ((this->fCarListFilter & 0x89U) != 0) {
+
+
     lastCar = this->fCarManager->fNumCars;
   }
   else if ((this->fCarListFilter & 0x42U) != 0) {
-    ownedCars = this->fCarManager->fCarGarage[i];
+
     firstCar = this->fCarManager->fNumCars;
+    ownedCars = this->fCarManager->fCarGarage[i];
+
     if ((i == 1) && (this->fCarManager->GetNumOwnedCars(1) <= 0)) {
       ownedCars = this->fCarManager->fCarGarage[0];
     }
-    lastCar = 0;
-    while ((signed char)ownedCars[lastCar].fCarID >= 0) {
-      lastCar++;
+    lastCar = 0; while ((signed char)ownedCars[lastCar].fCarID >= 0) { lastCar++;
     }
+
     lastCar += firstCar;
   }
   else {
-    ownedCars = this->fCarManager->fPinkSlipsCars[i];
+
     firstCar = this->fCarManager->fNumCars;
+    ownedCars = this->fCarManager->fPinkSlipsCars[i];
     lastCar = 0;
-    while ((signed char)ownedCars[lastCar].fCarID >= 0) {
-      lastCar++;
+    while ((signed char)ownedCars[lastCar].fCarID >= 0) { lastCar++;
     }
     lastCar += firstCar;
   }
+
+
   if ((u_char)this->fValue[i] >= lastCar) {
     this->fValue[i] = lastCar - 1;
   }
   if ((u_char)this->fValue[i] < firstCar) {
     this->fValue[i] = firstCar;
   }
+
   if (firstCar < lastCar) {
+
+
+
     do {
+
       if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+
         carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
         if (carInfo->fCarClass == 7) {
+
           frontEnd.carCountry[i][(signed char)carInfo->fCarID] += direction;
           if ((signed char)frontEnd.carCountry[i][(signed char)carInfo->fCarID] >= 5) {
+
             frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
             this->fValue[i]++;
             if ((u_char)this->fValue[i] < lastCar) {
+
               carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
               frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
             }
           }
           else if ((signed char)frontEnd.carCountry[i][(signed char)carInfo->fCarID] < 0) {
+
             frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
             this->fValue[i]--;
             if ((u_char)this->fValue[i] >= firstCar) {
+
               carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
               frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
             }
@@ -1171,16 +1270,15 @@ void tListIteratorCar::AdjustPosition(tPlayer atIndex,short direction)
         else {
           frontEnd.carCountry[i][(signed char)carInfo->fCarID] =
               ((direction << 16) > 0) ? 0 : 4;
+
           this->fValue[i] += direction;
-          if ((direction << 16) > 0) {
-            if ((signed char)this->fValue[i] < lastCar) {
+          if ((direction << 16) > 0) { if ((signed char)this->fValue[i] < lastCar) {
+
               carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
-              frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
-              goto adjusted_country;
+              frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0; goto adjusted_country;
             }
-          }
-          if ((direction << 16) < 0) {
-            if ((signed char)this->fValue[i] >= firstCar) {
+          } if ((direction << 16) < 0) { if ((signed char)this->fValue[i] >= firstCar) {
+
               carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
               frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
             }
@@ -1188,32 +1286,36 @@ void tListIteratorCar::AdjustPosition(tPlayer atIndex,short direction)
 adjusted_country:;
         }
       }
-      else {
-        this->fValue[i] += direction;
+      else { this->fValue[i] += direction;
       }
+
+
       if ((signed char)this->fValue[i] >= lastCar) {
+
         this->fValue[i] = firstCar;
         if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+
           carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
           frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
         }
       }
       if ((signed char)this->fValue[i] < firstCar) {
+
         this->fValue[i] = lastCar - 1;
         if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+
           carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
           frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
         }
       }
       if ((oldValue != this->fValue[i]) ||
           (((signed char)this->fValue[i] < (int)this->fCarManager->fNumCars) &&
+
            ((signed char)frontEnd.carCountry[i][(signed char)carInfo->fCarID] != oldCountry))) {
+
+
         if ((((int)this->ValidCar(atIndex,this->fValue[i])) ^ 1) != 0) {
-          continue;
-        }
-      }
-      break;
-    } while (true);
+          continue; } } break; } while (true);
   }
 }
 
@@ -1221,6 +1323,8 @@ adjusted_country:;
 
 /* ---- tListIteratorCar::Increment  [FECARS.CPP:1062-1063] SLD-VERIFIED ---- */
 
+
+#line 1062 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tListIteratorCar::Increment(tPlayer atIndex) {
   this->AdjustPosition(atIndex,1); }
 
@@ -1228,6 +1332,8 @@ void tListIteratorCar::Increment(tPlayer atIndex) {
 
 /* ---- tListIteratorCar::Decrement  [FECARS.CPP:1067-1068] SLD-VERIFIED ---- */
 
+
+#line 1067 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tListIteratorCar::Decrement(tPlayer atIndex) {
   this->AdjustPosition(atIndex,-1); }
 
@@ -1235,95 +1341,82 @@ void tListIteratorCar::Decrement(tPlayer atIndex) {
 
 /* ---- tListIteratorCar::ValidCar  [FECARS.CPP:1072-1168] SLD-VERIFIED ---- */
 
+  /* Retail SYM has no carClass local. A switch on the UCHAR field preserves
+     the signed range dispatch and all 243 words without that source carrier.
+     Retail's additional lexical scopes remain unresolved. */
+    /* MATCH: the common result tail lets gcc cross-jump this call with the
+       stock-car tournament call below. */
+#line 1069 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 bool tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
 
-{
-  short i;
-  short k;
-  bool result;
-  short carID;
-  tCarInfo *carInfo;
-  tCarInfo garageCar;
 
-  i = 0;
-  if (atIndex != kPlayerBoth) {
-    i = (short)atIndex;
+{
+  short i; short k; bool result; short carID; tCarInfo *carInfo; tCarInfo garageCar; i = 0; if (atIndex != kPlayerBoth) { i = (short)atIndex;
   }
   result = 0;
   k = i;
+
+
+
   if ((i == 1) && (this->fCarManager->GetNumOwnedCars(1) <= 0)) {
     k = 0;
   }
   if (this->fCarManager->fNumCars <= (u_int)(u_char)carNumber) {
+
     carNumber -= (u_char)this->fCarManager->fNumCars;
+
     if ((this->fCarListFilter & 0x20U) != 0) {
+
       if ((signed char)this->fCarManager->fPinkSlipsCars[i][(u_char)carNumber].fCarID >= 0) {
-        result = 1;
-      }
-      return result;
+        result = 1; } return result;
     }
     if ((this->fCarListFilter & 0x42U) == 0) {
       goto ValidCar_returnResult;
-    }
-    carID = (signed char)this->fCarManager->fCarGarage[k][(u_char)carNumber].fCarID;
-    if (carID >= 0) {
+    } carID = (signed char)this->fCarManager->fCarGarage[k][(u_char)carNumber].fCarID; if (carID >= 0) {
       result = 1;
     }
     carInfo = this->fCarManager->GetCarFromID(carID);
+
+
     if ((frontEnd.raceType == RaceType_HotPursuit) && (carInfo->fPursuitAvailable == 0)) {
       return 0;
     }
-    if (!result) {
-      goto ValidCar_returnResult;
-    }
-    if ((this->fCarListFilter & 0x40U) == 0) {
+    if (!result) { goto ValidCar_returnResult; } if ((this->fCarListFilter & 0x40U) == 0) {
       return result;
-    }
-    this->fCarManager->GetGarageCar((short)((u_char)carNumber +
-                                            (u_short)this->fCarManager->fNumCars),garageCar,0);
-    result = tournamentManager.ValidCar(garageCar);
-    /* MATCH: the common result tail lets gcc cross-jump this call with the
-       stock-car tournament call below. */
-    goto ValidCar_returnResult;
+    } this->fCarManager->GetGarageCar((short)((u_char)carNumber + (u_short)this->fCarManager->fNumCars),garageCar,0);
+    result = tournamentManager.ValidCar(garageCar); goto ValidCar_returnResult;
   }
+
+
+
+
   carID = (signed char)this->fCarManager->fCars[(u_char)carNumber].fCarID;
-  if (carID < 0) {
+
+  if (carID < 0) { goto ValidCar_returnResult; } if (this->fCarManager->fViewableCars[carID] == 0) {
     goto ValidCar_returnResult;
   }
-  if (this->fCarManager->fViewableCars[carID] == 0) {
-    goto ValidCar_returnResult;
-  }
-  if ((frontEnd.raceType == RaceType_HotPursuit) &&
-      (this->fCarManager->fCars[(u_char)carNumber].fPursuitAvailable == 0)) {
+  if ((frontEnd.raceType == RaceType_HotPursuit) && (this->fCarManager->fCars[(u_char)carNumber].fPursuitAvailable == 0)) {
     return 0;
   }
-  /* Retail SYM has no carClass local. A switch on the UCHAR field preserves
-     the signed range dispatch and all 243 words without that source carrier.
-     Retail's additional lexical scopes remain unresolved. */
-  switch (this->fCarManager->fCars[(u_char)carNumber].fCarClass) {
-  case 0: case 1: case 2: case 3: case 4: case 5: case 6:
-    goto ValidCar_classNormal;
-  case 7:
-    goto ValidCar_classCop;
-  case 8:
-    goto ValidCar_classTraffic;
-  default:
-    break;
-  }
-  goto ValidCar_classDone;
+  switch (this->fCarManager->fCars[(u_char)carNumber].fCarClass) { case 0: case 1: case 2: case 3: case 4: case 5: case 6: goto ValidCar_classNormal; case 7: goto ValidCar_classCop; case 8: goto ValidCar_classTraffic; default: break; } goto ValidCar_classDone;
 
 ValidCar_classNormal:
   {
+
+
+
+
+
     if ((this->fCarListFilter & 0x81U) != 0) {
       result = 1;
-    }
-    if ((carID == 0x1c) &&
-       ((frontEnd.carListType == 1 || (frontEnd.gameMode == 1)) ||
-        (frontEnd.raceType != RaceType_SingleRace))) {
-      result = 0;
-    }
-  }
-  goto ValidCar_classDone;
+    } if (carID == 0x1c) {
+      if ((frontEnd.carListType == 1 || (frontEnd.gameMode == 1)) ||
+
+
+          (frontEnd.raceType != RaceType_SingleRace)) {
+        result = 0;
+    } }
+  } goto ValidCar_classDone;
 
 ValidCar_classCop:
     if ((this->fCarListFilter & 0xcU) != 0) {
@@ -1332,38 +1425,35 @@ ValidCar_classCop:
         tTrackInformation trackInfo;
 
         trackManager.GetTrack((u_short)(u_char)frontEnd.track[0],trackInfo);
-        if (FECheat_IsCheatEnabled(cheat_AllCops)) goto ValidCar_setValid;
-        if ((u_char)trackInfo.fCountry == (signed char)frontEnd.carCountry[i][carID]) {
+
+
+        if (FECheat_IsCheatEnabled(cheat_AllCops)) goto ValidCar_setValid; if ((u_char)trackInfo.fCountry == (signed char)frontEnd.carCountry[i][carID]) {
           result = 1;
         }
       }
-    }
-  goto ValidCar_classDone;
+    } goto ValidCar_classDone;
 
 ValidCar_classTraffic:
   if ((this->fCarListFilter & 0x10U) != 0) {
-ValidCar_setValid:
-    result = 1;
+ValidCar_setValid: result = 1;
   }
 ValidCar_classDone:
-  if (!result) {
-    goto ValidCar_returnResult;
-  }
-  if ((this->fCarListFilter & 1U) == 0) {
+
+  if (!result) { goto ValidCar_returnResult; } if ((this->fCarListFilter & 1U) == 0) { return result; } if (frontEnd.raceType != RaceType_Tournament) {
     return result;
-  }
-  if (frontEnd.raceType != RaceType_Tournament) {
-    return result;
-  }
-  result = tournamentManager.ValidCar(
-      this->fCarManager->fCars[(u_char)carNumber]);
+  } result = tournamentManager.ValidCar( this->fCarManager->fCars[(u_char)carNumber]);
 ValidCar_returnResult:
+
+
+
   return result;
 }
 
 
 
 /* ---- tListIteratorCarColor::ctor  [FECARS.CPP:1176-1181] SLD-VERIFIED ---- */
+
+#line 1174 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 tListIteratorCarColor::tListIteratorCarColor(char *value,char *player,char *playerCar,int indexSize,
           tCarManager *carManager)
   : tListIterator((short *)0x0, value)
@@ -1378,17 +1468,17 @@ tListIteratorCarColor::tListIteratorCarColor(char *value,char *player,char *play
 
 /* ---- tListIteratorCarColor::dtor  [FECARS.CPP:1185-1185] SLD-VERIFIED ---- */
 
-tListIteratorCarColor::~tListIteratorCarColor()
 
-{
-  return;
-}
+#line 1185 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
+tListIteratorCarColor::~tListIteratorCarColor() { }
 
 
 
 /* ---- tListIteratorCarColor::Value  [FECARS.CPP:1189-1196] SLD-VERIFIED ---- */
 
+#line 1186 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 char tListIteratorCarColor::Value(tPlayer)
+
 
 {
   int offset;
@@ -1404,7 +1494,9 @@ char tListIteratorCarColor::Value(tPlayer)
 
 /* ---- tListIteratorCarColor::TextValue  [FECARS.CPP:1200-1201] SLD-VERIFIED ---- */
 
+#line 1197 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 short tListIteratorCarColor::TextValue(tPlayer)
+
 
 {
   return 0;
@@ -1418,7 +1510,9 @@ short tListIteratorCarColor::TextValue(tPlayer)
  * retail slt/bnez sequence without the old fNumColors/notWrapped carriers.
  * The earlier inline-value trial used a different boolean source shape. */
 
+#line 1202 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tListIteratorCarColor::Increment(tPlayer)
+
 
 {
   int offset;
@@ -1435,7 +1529,9 @@ void tListIteratorCarColor::Increment(tPlayer)
 
 /* ---- tListIteratorCarColor::Decrement  [FECARS.CPP:1218-1228] SLD-VERIFIED ---- */
 
+#line 1215 "C:/nfs4/FRONTEND/COMMON/FECARS.CPP"
 void tListIteratorCarColor::Decrement(tPlayer)
+
 
 {
   int offset;

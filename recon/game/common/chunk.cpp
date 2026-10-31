@@ -42,6 +42,8 @@ void Chunk_DeInit(void);
  * the volatile read, preserving all earlier correct local/region tuples.
  * Positive group/zero-count arms restore the shared i/numElements endpoint.
  * Receipts: build/nc12/chunk_scope_endpoint_20261023; original text remains open. */
+
+
 #line 82 "C:/nfs4/GAME/COMMON/CHUNK.CPP"
 void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
 {
@@ -226,6 +228,8 @@ void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
 }
 
 /* ---- Chunk_UpdateSys__FP13DRender_tView [@0x8008b920] ---- */
+
+
 #line 273 "C:/nfs4/GAME/COMMON/CHUNK.CPP"
 void Chunk_UpdateSys(DRender_tView *Vi)
 {
@@ -237,6 +241,8 @@ void Chunk_UpdateSys(DRender_tView *Vi)
 }
 
 /* ---- Chunk_Init__Fv [@0x8008b928] ---- */
+
+
 #line 290 "C:/nfs4/GAME/COMMON/CHUNK.CPP"
 void Chunk_Init(void)
 {
@@ -252,6 +258,8 @@ void Chunk_Init(void)
 }
 
 /* ---- Chunk_DeInit__Fv [@0x8008b930] ---- */
+
+
 #line 309 "C:/nfs4/GAME/COMMON/CHUNK.CPP"
 void Chunk_DeInit(void)
 {

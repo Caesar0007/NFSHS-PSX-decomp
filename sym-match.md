@@ -6,6 +6,78 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-11-01 strict BYTE+SYM+SLD round + absolute-line anchors (agents PHYS..PHYS6, CAMIN..CAMIN3, AUDAI..AUDAI6, FRONT..FRONT5, HUDFX..HUDFX6, DRAW..DRAW5, EAC..EAC4, GFX/GFX2, GAME, HDR).
+
+Gate on the committed tree (quiet, fingerprinted unchanged during the run): honest 299819/299819 (0 diff
+words, 0 masked overlap bytes); vtable audit PASS 1473; link-stripped 83/0; gdebug 181/181 code-identical;
+SYM board CLEAN 2390 -> 2414 of 2570; regcheck vs the 10-31 baseline reg [] (many improved);
+tools tests 38/38 + 162/162.
+
+User rulings applied this round (2026-10-31):
+- the strict SYM+SLD match is a primary goal alongside asm removal;
+- header edits are allowed if every including TU stays PASS (all includers gated);
+- dummy objects / placeholder statements / record-less declarations are allowed ONLY when the function then
+  ends exact on BYTE (verify_asm), SYM (records + retail depths) and SLD (0 tags, blocks exact); 62 such
+  sites in 31 files, each marked `/* DEVICE (exact-only) */` for review;
+- C++ reference locals for record-less MATRIX carriers (draww) and record-less const temporaries are review
+  devices (user: "allow, mark as review").
+
+SLD (build/tmp/v/sld_board.py; only the 2581 functions with retail SLD count): at the 10-31 midpoint
+6599 tag diffs over 208042 words (exact tags 2112, tags+blocks 1914); this round removed most of the
+remainder across the frontend (~44k -> low hundreds), drawc/draww/hud/flare, the AI/speech/r3dcar TUs and
+the misc game TUs. Re-run sld_board.py for the current figure.
+
+ABSOLUTE LINES: the relative tags above hid a second gap -- only 724/2581 functions had retail's
+absolute SYM/SLD header line. build/tmp/v/line_anchor_apply.py (run tree-wide by line_anchor_all.py on a quiet
+tree) strips old `#line` lines, then puts one file-scope `#line N "C:/nfs4/<DIR>/<FILE>"` directly before
+each function signature (the existing camera/cars/drawc/draww convention, never inside a body), N computed so
+the function header equals retail; each function's own retail file is used (.CPP or .H). Gate per TU on the
+real file with its own flags: every prior PASS kept, headers == retail, no function's tags worse, data
+sections identical; otherwise restored. spchevnt.c (included by speech.cpp) anchored via --include. Result:
+2332/2581 headers exact (33 TUs still off). Two TUs were REVERTED because inlines defined in the same .cpp
+shift with the anchors and change caller tags: femenudefs.cpp (59 fns) and speech.cpp's own 102 fns. Next
+angle: infer the inline definitions' retail lines from callers' retail tags and anchor the inlines too.
+
+Notable recoveries (byte-identical): Input_Update (asm "+m" pin, absorption fence, 5 carriers removed),
+AIPhysic_OutOfControlPhysics asm-free, CarIO_CopyToShape asm pin removed, Hud_RenderHudView/Hud_BuildMapMarkers
+asm fences + launders + volatile cast removed, Hud_BuildString fence/device/gotos removed,
+Flare_Halo2/CarShapedHalo carriers + asm pin removed via a struct-typed first store, DrawC_PrimClip and
+DrawC_PrimStart SYM exact, DrawW_DrawQuad/kCtrlSkidmark/NightColorCalc SYM exact, the NonActive destructor
+header inline exact in 3 TUs, ~tGlobalMenuDefs 751->0, memcard.c 1120->5.
+
+Header changes (all includers gated): mpause_types.h (Enable/Disable), scene_types.h (CSceneList::Elements,
+name inferred), speech_class.h (Speech_Create; six inlines moved back into speech.cpp where retail defined
+them), aistate.h (NonActive dtor layout), aih_btccop_externs.h, aih_play_externs.h, aih_traf_externs.h,
+aih_cop_externs.h, hud_externs.h, fescreen_externs.h, screentournselect_externs.h and other own-TU externs.
+flare_types.h checked against retail SYM (Flare_tInfo ULONG fields already match) -- no change.
+
+Laws (cc1plus/cc1 2.8, measured; details in build/tmp/v/*_state.md):
+- block-local `const int t = expr;` gets no SYM record and leaves bytes alone: retail's "computed on line A,
+  used on line B" (exception: a mid-block const can open a scope);
+- `if (c) return 1; return 0;` folds to one sltu with the epilogue on the `}` line; retail's epilogue after
+  the root block end means an early-return guard;
+- an inline defined in a header records the caller's line; one defined earlier in the same .cpp records 1;
+- an empty retail scope pair around one call = a block-local receiver the optimizer removes;
+- one condition tagged on two lines = nested ifs / if-else-if with cross-jumped stores; a multi-line
+  statement or condition is tagged at its last line;
+- `{` on its own line opens the block on that line; block begin = last surviving note before it;
+- sched's rm_redundant_line_notes drops a statement note when only deleted notes (cse-emptied inline
+  arguments) follow it -> the inline body takes the previous line;
+- reorg/cse/alias: a struct-typed store vs a non-struct fixed-slot store decides load/store pairing
+  (MEM_IN_STRUCT); `((long *)p)[i]` lets loads pass address-taken scalar stores;
+- retail "fn end line 0" = one-line `X::~X() { }`;
+- loop.c reverses count-up fill loops into retail's count-down pointer form.
+
+Lessons: verify_asm checks code words only -- a helper/literal move can reorder .rodata (psxfront, reverted);
+always run honest_measure / a data-section compare. SYM scope depth can regress while tags/blocks look fine
+(Night_AdditiveNightCalc, reverted then redone). Batch tools must require one PASS per function and treat
+compile errors as failure; never write another version into recon/ to measure it.
+
+Still held for the user: DrawQuad asm-text change (OnyxLinePrim addPrim form) to drop its "i"(0) fence.
+Open with receipts: front tAllScreens synthesized ctor, femenudefs/speech anchors, sim volatile cast,
+BuildCdPlayer volatile cast, LensFlare register tie, row-1 negation (Prim/PrimHalo/PrimMenu/ShowroomPrims),
+GetPSXPadValue index carriers, GenerateAllLightTables block-29 `i`, aih_cop HighExecute blocks.
+
 2026-10-31b strict SYM+SLD round (agents PHYS/PHYS2, CAMIN, AUDAI, FRONT, HUDFX2/3, DRAW2/3, EAC/EAC2).
 
 User ruling 2026-10-31: the strict SYM+SLD match is a primary goal alongside asm removal.

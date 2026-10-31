@@ -19,21 +19,27 @@ void TrsProj_SetPsxTrans(coorddef *t);
 
 
 /* ---- TrsProj_SetTransPrecision__Fi  [TRSPROJ.CPP:29-30] SLD-VERIFIED ---- */
+#line 26 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_SetTransPrecision(int val)
+
 
 {
   TrsProj_precision = val; return;
 }
 
 /* ---- TrsProj_ResetTransPrecision__Fv  [TRSPROJ.CPP:41-42] SLD-VERIFIED ---- */
+#line 38 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_ResetTransPrecision(void)
+
 
 {
   TrsProj_precision = 10; return;
 }
 
 /* ---- TrsProj_SetProjection__Fiiii  [TRSPROJ.CPP:52-63] SLD-VERIFIED ---- */
+#line 49 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_SetProjection(int cx,int cy,int w,int h)
+
 
 {
   
@@ -50,6 +56,8 @@ void TrsProj_SetProjection(int cx,int cy,int w,int h)
 }
 
 /* ---- TrsProj_SetMenuProjection__Fiiii  [TRSPROJ.CPP:67-72] SLD-VERIFIED ---- */
+
+#line 66 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_SetMenuProjection(int cx,int cy,int w,int h)
 {
 
@@ -60,7 +68,9 @@ void TrsProj_SetMenuProjection(int cx,int cy,int w,int h)
 }
 
 /* ---- TrsProj_SetViewTrsProjEnviro__FP13DRender_tView  [TRSPROJ.CPP:76-100] SLD-VERIFIED ---- */
+#line 73 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
+
 
 {
 
@@ -103,6 +113,8 @@ void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
    * Retail records three nested line-1 blocks, each with INT r0/r1/r2.
    * The expansion shape is authoritative; the descriptive macro name is not
    * recoverable from this SYM. */
+
+#line 136 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_SetPsxMatrix(matrixtdef *m,coorddef *t)
 {
   MATRIX mpsx;
@@ -123,6 +135,8 @@ void TrsProj_SetPsxMatrix(matrixtdef *m,coorddef *t)
 #undef TRSPROJ_SET_MATRIX_ROW
 
 /* ---- TrsProj_SetPsxTrans__FP8coorddef  [TRSPROJ.CPP:157-164] SLD-VERIFIED ---- */
+
+#line 156 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_SetPsxTrans(coorddef *t)
 {
   MATRIX mpsx;
@@ -135,6 +149,8 @@ void TrsProj_SetPsxTrans(coorddef *t)
 }
 
 /* ---- TrsProj_SetPsxTransZero__Fv  [TRSPROJ.CPP:168-171] SLD-VERIFIED ---- */
+
+#line 167 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_SetPsxTransZero(void)
 {
   MATRIX mpsx;
@@ -143,6 +159,8 @@ void TrsProj_SetPsxTransZero(void)
 }
 
 /* ---- TrsProj_TransPt__FP8coorddefT0  [TRSPROJ.CPP:177-192] SLD-VERIFIED ---- */
+
+#line 176 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_TransPt(coorddef *s,coorddef *d)
 {
   SVECTOR pt;
@@ -163,6 +181,8 @@ void TrsProj_TransPt(coorddef *s,coorddef *d)
 }
 
 /* ---- TrsProj_TransPtN16__FP10RelCoord16P8coorddefi  [TRSPROJ.CPP:224-243] SLD-VERIFIED ---- */
+
+#line 223 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
 {
   SVECTOR pt;
@@ -195,6 +215,8 @@ void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
  * the oracle's coloring; a plain `for(i=0;i<n;i=i+1){...}` with the increment at its natural
  * for-loop position does. (decl-order swap and Yoda-vs-normal compare form alone are no-ops, as
  * previously found -- it's the do/if-guard-vs-for loop SHAPE that was the actual lever.) */
+
+#line 249 "C:/nfs4/GAME/PSX/TRSPROJ.CPP"
 void TrsProj_TransformProjectVertex(matrixtdef *m,coorddef *t,int n,coorddef *s,Draw_tVertex *v)
 {
   int i;

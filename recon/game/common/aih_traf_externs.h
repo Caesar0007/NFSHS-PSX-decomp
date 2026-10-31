@@ -26,4 +26,10 @@ int AIWorld_ApxSplineDistance(int slice, Car_tObj *b);
 void AILife_ReencarnateTrafficByPosition(Car_tObj *carObj, int a, int b, coorddef *pt, matrixtdef *mat);
 /* AITrigger_TriggerManager::CheckForTriggerAtSlice/GetTrigger/DescribeTrigger now called as C++ members (aitriger.obj) -- flat externs removed */
 
+inline int AIHigh_Base::ExchangeTrafficTriggerCheckSlice(int newSlice) {
+  int temp = lastTrafficTriggerCheckSlice_;
+  lastTrafficTriggerCheckSlice_ = newSlice;
+  return temp;
+}
+
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

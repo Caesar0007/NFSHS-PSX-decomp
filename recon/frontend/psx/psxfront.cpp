@@ -9,19 +9,10 @@
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
-/* SOURCE-REVIEW-UNRESOLVED: vraw/vb below are reconstruction-only objects.
- * Macro expansion does not exempt them from native SYM or original-source review.
+/* SOURCE-REVIEW-UNRESOLVED: vraw (DrawGouraudShape, written out in the body since its retail
+ * lines split it around `vh = shp->height`) and vb below are reconstruction-only objects.
  * Existing failed direct-expression trials are not proof those objects existed;
  * the remaining caller records and literal original macro spelling stay open. */
-#define PSXFRONT_INIT_V(shp,flags,v) {       \
-  int vraw;                                  \
-  vraw = (byte)(shp)->shapey;                \
-  (v) = vraw;                                \
-  if (((flags) & 2) != 0) {                  \
-    (v) = vraw - 1;                          \
-  }                                          \
-}
-
 #define PSXFRONT_STORE_BOTTOM_V(prim,vh,v) { \
   u_char vb;                                 \
   vb = (v);                                  \
@@ -58,7 +49,9 @@ char             titleScreenDisplayed;
 /* lines 1-96: file header, #includes, static data, macros (no symbols emitted) */
 
 /* ---- Quick_DD  (psxfront.cpp:97, code lines 97-98) ---- */
+#line 94 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void Quick_DD(int a,int b,int c)
+
 
 {
   Draw_DirectSetEnvironment(0,0,0x200,0xf0,a,b,c,0,0,0);
@@ -67,27 +60,32 @@ void Quick_DD(int a,int b,int c)
 /* lines 99-140: (static data / macros / comments - no emitted code) */
 
 /* ---- PSXFront_AllocateDrawMemory  (psxfront.cpp:141, code lines 141-154) ---- */
+#line 138 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void PSXFront_AllocateDrawMemory(void)
+
 
 {
 
 
 
-
-
-
-
   Draw_InitViewOT();
+
+
+
+
   gEnviro[0].server = (char *)reservememadr("ps0",80000,0x10);
   gEnviro[1].server = (char *)reservememadr("ps1",80000,0x10);
+
+
   Draw_SetViewMemBudget(Draw_gPlayer1View[0],80000);
-  return;
 }
 
 /* lines 155-157: (static data / macros / comments - no emitted code) */
 
 /* ---- PSXFront_FreeDrawMemory  (psxfront.cpp:158, code lines 158-159) ---- */
+#line 155 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void PSXFront_FreeDrawMemory(void)
+
 
 {
   ClearPrimitivesBuffer();
@@ -106,54 +104,76 @@ void PSXFront_FreeDrawMemory(void)
    For-header increments/ordinary breaks rotate the loop (5dif/94); a
    positive init guard is95 PASS but moves i to depth3. Failed variants are
    reverted, not source floors. Original producer/full SLD remain open. */
+#line 160 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void InitializeSpinningCars(void)
+
 
 {
   if (rendering3DEnvironmentInitialized != '\0') return;
 
+
+
+
+
+
+
     R3DCar_InMenu[0] = 1;
+
     Platform_ResetDCTBuffer();
+
     Texture_InitMenuTexture();
     inFrontEnd[0] = 1;
     CarIO_StartUp();
+
     R3DCar_StartUp();
     inFrontEnd[0] = 0;
+
+
     DrawC_ReadeMapData();
+
     Fe3D_InitShowroom();
+
     GameSetup_gData.Weather = 0;
-    for (int i = 0; ; ) {
-      Car_tObj *carObj;
-      if (2 <= i) goto spinning_cars_initialized;
+
+
+
+    for (int i = 0; ; ) { Car_tObj *carObj; if (2 <= i) goto spinning_cars_initialized;
+
       carObj = (Car_tObj *)reservememadr("carObj",0x8dc,0);
-      gCarObj[i] = carObj;
-      blockclear(carObj,0x8dc);
+      gCarObj[i] = carObj; blockclear(carObj,0x8dc);
+
       carObj->carInfo = &GameSetup_gData.carInfo[i];
+
       carObj->carInfo->carType = 1;
       strcpy(carObj->carName,GameSetup_gCarNames[carObj->carInfo->carType]);
+
       carObj->N.objID = i | 0x100;
+
+
+
+
       R3DCar_Instantiate3DCar(carObj,i);
       carObj->N.active = '\x01';
-      i = i + 1;
-    }
+
+      i = i + 1; }
 spinning_cars_initialized:
+
     R3DCar_PostStartUp();
+
     gMenuRotate[1] = 0;
     gMenuRotate[0] = 0;
     blockclear(&gCView,0x8c);
-    DrawC_gMenuColor[1] = -1;
-    DrawC_gMenuColor[0] = -1;
+
+    DrawC_gMenuColor[1] = -1; DrawC_gMenuColor[0] = -1;
     DrawC_gMenuLights[0] = 0;
     DrawC_gMenuLightsDirection[0] = 0;
+
     rendering3DEnvironmentInitialized = '\x01';
-  return;
-}
+  }
 
 /* lines 225-226: (static data / macros / comments - no emitted code) */
 
 /* ---- CleanupSpinningCars  (psxfront.cpp:227, code lines 227-275) ---- */
-void CleanupSpinningCars(void)
-
-{
   /* SYM: i, handle, fname[60] -- that is ALL.  `ppCar`/`addr`/`status` were fabricated; retail
    * indexes gCarObj[i] (loop.c turns the walker into a giv) and RE-READS it for purgememadr, so the
    * handle then lands in the walker's dead $s0 rather than in i's $s1. w42-a7.
@@ -162,58 +182,86 @@ void CleanupSpinningCars(void)
    * line = 18` holds `i` (the de-instantiate loop) and `90 Block start line = 21 ..
    * 92 Block end line = 47` holds `handle` and `fname[60]`.  An `if` whose body holds those blocks
    * would add two scopes of its own (the if level and its compound), so the guard is an early return. */
+#line 224 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void CleanupSpinningCars(void)
+
+
+{
   if (rendering3DEnvironmentInitialized == '\0') return;
+
+
+
+
+
   DrawSync(0);
   {
     int i;
 
+
     for (i = 0; i < 2; i = i + 1) {
+
       R3DCar_DeInstantiate3DCar(gCarObj[i]);
+
       purgememadr(gCarObj[i]);
     }
   }
   {
-    int handle;
-    char fname [60];
-
-    inFrontEnd[0] = 1;
+    int handle; char fname [60]; inFrontEnd[0] = 1;
     R3DCar_CleanUp();
+
     CarIO_CleanUp();
     inFrontEnd[0] = 0;
     Texture_KillMenuTexture();
+
+
     PSXFront_FreeDrawMemory();
+
     R3DCar_InMenu[0] = 0;
+
+
     gFlip[0] = -1;
+
     rendering3DEnvironmentInitialized = '\0';
+
+
+
+
+
+
+
     Platform_ResetDCTBuffer();
     sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
     handle = asyncloadfileat(fname,CF_DVLC);
-    while (getasyncreadstatus(handle) == 0) {
-      systemtask(0);
+    while (getasyncreadstatus(handle) == 0) { systemtask(0);
     }
-  }
-}
+  } }
 
 /* lines 276-280: (static data / macros / comments - no emitted code) */
 
 /* ---- CleanupSpinningCarsMenu  (psxfront.cpp:281, code lines 281-299) ---- */
-void CleanupSpinningCarsMenu(void)
-
-{
   /* `i` is a NESTED-block local (SYM `90 Block start line = 8`, directly under the function block:
    * an `if` wrapping it would add its own scope, so the guard is an early return) -- w86-S5 */
+#line 278 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void CleanupSpinningCarsMenu(void)
+
+
+{
   if (rendering3DEnvironmentInitialized == '\0') return;
+
+
+
+
+
   DrawSync(0);
   {
     int i;
 
-    i = 0;
-    do {
-      R3DCar_DeInstantiate3DCarMenu(gCarObj[i]);
-      i = i + 1;
-    } while (i < 2);
+
+    i = 0; do { R3DCar_DeInstantiate3DCarMenu(gCarObj[i]); i = i + 1; } while (i < 2);
   }
+
   Texture_CleanupMenuTexture();
+
   CarIO_ReStart();
 }
 
@@ -226,30 +274,58 @@ void CleanupSpinningCarsMenu(void)
    the three retail declaring regions (two nested ends collapse to +28).
    Existing-file and failed-load behavior and linked branch words are
    unchanged. Native exactness is not a full SLD/original-syntax certificate. */
+#line 301 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void DoTitleScreen(void)
 
+
 {
+
   shapetbl *tempShp2;
   char fileName [48];
 
   elapsedticks();
+
   if (creditShapeFile == (char *)0x0) {
+
+
+
+
+
+
+
+
+
     char artfilename [20];
 
     sprintf(artfilename,"title.psh");
+
     sprintf(fileName,STR_FRMT,Paths_Paths[0x20],artfilename);
+
     creditShapeFile = (char *)loadshapeadr(fileName,(void *)0x0);
     systemtask(0);
+
   }
   if (creditShapeFile == (char *)0x0) {
     return;
   }
   tempShp2 = (shapetbl *)locateshapez(creditShapeFile,(void *)"back");
+
+
+
+
+
+
   Quick_DD(1,0,1);
+
   settrans(0);
-  movfxya((unsigned char *)tempShp2,0,0);
-  settrans(1);
+  movfxya((unsigned char *)tempShp2,0,0); settrans(1);
+
+
+
+
+
   Quick_DD(0,1,0);
+
   purgememadr(creditShapeFile);
   creditShapeFile = (char *)0x0;
   titleScreenDisplayed = '\x01';
@@ -270,37 +346,170 @@ static inline void PSXFront_LoadMainShapes(void)
   loadshapeadr("load.psh",(void *)0x0);                 /* @0x80012820 (string only) */
 }
 
+#line 436 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void DoLanguageScreen(void)
 
+
 {
+
   Front_InitialMemCardCheck();
+
   if ((u_char)frontEnd.language == 0xff) {   /* sentinel: -1 == 0xFF as unsigned byte (this build's char is unsigned -> lbu;bne 0xFF) */
-    frontEnd.language = '\0';
-  }
-  return;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    frontEnd.language = '\0'; } return; }
 
 /* lines 570-665: (static data / macros / comments - no emitted code) */
 
 /* ---- PSXExitFrontend  (psxfront.cpp:666, code lines 666-678) ---- */
+#line 663 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void PSXExitFrontend(void)
+
 
 {
   CleanupSpinningCars();
   deltimer(PAD_update);
   Audio_DeInitDriver();
+
   if (gHelpShapes != (tTexture_ShapeInfo *)0x0) {
+
     purgememadr(gHelpShapes);
     gHelpShapes = (tTexture_ShapeInfo *)0x0;
+
   }
-  ComingIntoTheFrontEndTheVeryFirstTime[0] = 0;
-  return;
+
+  ComingIntoTheFrontEndTheVeryFirstTime[0] = 0; return;
 }
 
 /* lines 679-681: (static data / macros / comments - no emitted code) */
 
 /* ---- PSX_AllocShapes  (psxfront.cpp:682, code lines 682-684) ---- */
+#line 679 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void PSX_AllocShapes(void)
+
 
 {
   gHelpShapes = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
@@ -310,70 +519,111 @@ void PSX_AllocShapes(void)
 /* lines 685-695: (static data / macros / comments - no emitted code) */
 
 /* ---- Init_RenderingEnvironment  (psxfront.cpp:696, code lines 696-720) ---- */
-void Init_RenderingEnvironment(void)
-
-{
-  SetDefDispEnv(&gEnviro[0].disp,0,0x100,0x200,0xf0);
-  SetDefDispEnv(&gEnviro[1].disp,0,0,0x200,0xf0);
-  Draw_InitViews();
-  Draw_gRearView[0] = -1;
   /* DISGUISED BARE-VA FIX (w14-a2): raw @0x8004dd64-98 shows the true args are
    * (x0=0,y0=0,x1=0,y1=0x100,w=0x200,h=0xf0,dtd=0,isbg=1,otsize=10) -- y0 was a bogus fabricated
    * literal -0x7fec0000==0x80140000 (not a real symbol; just wrong) and y1 read an UNINITIALIZED
    * `stackv` local where the oracle passes the plain constant 0x100 ($a3, set once and never
    * touched again before the call). */
+#line 693 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void Init_RenderingEnvironment(void)
+
+
+{
+
+  SetDefDispEnv(&gEnviro[0].disp,0,0x100,0x200,0xf0);
+  SetDefDispEnv(&gEnviro[1].disp,0,0,0x200,0xf0);
+
+
+  Draw_InitViews();
+
+  Draw_gRearView[0] = -1;
   Draw_gPlayer1View[0] =
        Draw_SetView
                  (0,0,0,0x100,0x200,0xf0,0,1,10);
+
+
+
+
   blockclear(&gCView,0x8c);
   gCView.id = Draw_gPlayer1View[0];
+
   PSXFront_AllocateDrawMemory();
+
+
   Draw_gDoVSync[0] = 1;
   FETextRender_SetABR(0,false);
-  gFlip[0] = 0;
-  return;
+  gFlip[0] = 0; return;
 }
 
 /* lines 721-725: (static data / macros / comments - no emitted code) */
 
 /* ---- Init_PSX_FrontEnd  (psxfront.cpp:726, code lines 726-783) ---- */
-void Init_PSX_FrontEnd(void)
-
-{
   /* SYM lists NO locals here (movieRes was fabricated -- retail compares play_movie's $v0 directly).
    * 🔴 initlinkmode takes THREE args (oracle sets $a2 at every site: `addu a2,a1,zero` / `addu a2,a0,
    * zero`) -- the recon passed only two, dropping the 3rd (§3.12 #18).  Polarity: the FIRST-TIME
    * (!= 0) arm is the FALL-THROUGH in retail (`beqz v1` skips to the short arm). w42-a7. */
+#line 723 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void Init_PSX_FrontEnd(void)
+
+
+{
+
+
   gFlip[0] = -1;
+
+
+
+
+
   addtimer(PAD_update);
+
   InitGeom();
   PSX_AllocShapes();
+
   Texture_InitMenuClut();
+
   screenwidth[0] = 0x200;
   screenbpp[0] = 0x10;
+
+
+
+
+
+
+
+
   if (ComingIntoTheFrontEndTheVeryFirstTime[0] != 0) {
+
+
     if (play_movie('\x04') != 1) {
       play_movie('\0');
     }
+
+
     initlinkmode(0,1,1);
+
     Init_RenderingEnvironment();
+
     initlinkmode(0,0x14,0);
     DoLanguageScreen();
     TextSys_LoadWords((uint)(byte)frontEnd.language);
+
     DoTitleScreen();
     initlinkmode(0,1,1);
     Front_SecondaryMemCardCheck();
   }
   else {
+
     Init_RenderingEnvironment();
     TextSys_LoadWords((uint)(byte)frontEnd.language);
   }
+
   FeTools_init();
   Audio_InitDriver(0xd800,0x18000);
+
   SetPlayList(frontEnd.GotAPlayList);
   AudioCmn_LoadFESamples();
-  LoadAllHelpShapes();
-  return;
+  LoadAllHelpShapes(); return;
 }
 
 /* lines 784-838: (static data / macros / comments - no emitted code) */
@@ -389,74 +639,97 @@ void Init_PSX_FrontEnd(void)
    70/203, multiply-by-two14/205. Failed forms are reverted, not floors.
    Unsigned shifts retain the low-bit arithmetic without negative-left-shift
    undefined behavior. Original full syntax/SLD still needs source review. */
+    /* the 0x80 is ONE constant that ends up mutated in place into `ftop` (SYM ftop=$a1: the oracle
+     * does `li a1,0x80` -> `subu v0,a1,v0` (fbot) -> `subu a1,a1,v0` (ftop)). */
+#line 835 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,int bright,int *color,
                tDrawShapeExtended *extra)
+
 
 {
   short fadetop;
   short fadebottom;
-
   if ((*flags & 0x400U) != 0) {
+
     *x = *x - tShp->centerx;
     *y = *y - tShp->centery;
   }
+
+
+
   else if (*y <= 0) {
+
     *x = *x - tShp->centerx;
     *y = -(tShp->centery + *y);
   }
+
+
   if ((*flags & 0x100U) != 0) {
+
     *x = *x - ((int)((uint)(ushort)tShp->width << 0x10) >> 0x11);
     *y = *y - ((int)((uint)(ushort)tShp->height << 0x10) >> 0x11);
   }
+
+
+
   if ((*flags & 0x20U) != 0) {
+
+
     *y = (extra->flip_axis * 2 - (*y + tShp->height)) + 1;
     *flags = *flags | 2;
   }
+
+
+
+
   if ((*flags & 0x10U) != 0) {
     /* byte-2 term spelled (w>>16)&0xff so combine narrows IT to `lbu +2` and leaves the >>8 term
      * on the full word load (`lw; sra 8; andi 0xff`) -- retail's exact 3-load mix (w42-a7). */
     *color = (((extra->tint[0] >> 0x10) & 0xff) * bright / 128) << 0x10 |
              ((extra->tint[0] >> 8 & 0xff) * bright / 128) << 8 |
+
              (int)*(byte *)((int)extra->tint) * bright / 128;
   }
-  else if ((*flags & 0x80U) != 0) {
+  else if ((*flags & 0x80U) != 0)
+  {
     short i;
+
     for (i = 0; i < 4; i = i + 1) {
       color[i] = (((extra->tint[i] >> 0x10) & 0xff) * bright / 128) << 0x10 |
                  ((extra->tint[i] >> 8 & 0xff) * bright / 128) << 8 |
+
+
+
                  (int)*(byte *)((int)(extra->tint + i)) * bright / 128;
     }
   }
-  else if ((*flags & 0x40U) != 0) {
-    int fbot;
-    int ftop;
-    fadetop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
-    if (fadetop < 0) fadetop = -fadetop;
+  else if ((*flags & 0x40U) != 0)
+  {
+    int fbot, ftop; fadetop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
+    if (fadetop < 0)
+      fadetop = -fadetop;
     fadetop = (uint)fadetop << 1;
     if (0x80 < fadetop) {
       fadetop = 0x80;
     }
-    fadebottom = ((uint)(ushort)extra->flip_axis -
-                   ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
-    if (fadebottom < 0) fadebottom = -fadebottom;
+    fadebottom = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
+    if (fadebottom < 0)
+      fadebottom = -fadebottom;
     fadebottom = (uint)fadebottom << 1;
     if (0x80 < fadebottom) {
       fadebottom = 0x80;
     }
-    /* the 0x80 is ONE constant that ends up mutated in place into `ftop` (SYM ftop=$a1: the oracle
-     * does `li a1,0x80` -> `subu v0,a1,v0` (fbot) -> `subu a1,a1,v0` (ftop)). */
     fbot = 0x80 - fadebottom;
     ftop = 0x80 - fadetop;
+
     *color = fbot << 0x10 | fbot << 8 | fbot;
     color[1] = fbot << 0x10 | fbot << 8 | fbot;
     color[2] = ftop << 0x10 | ftop << 8 | ftop;
     color[3] = ftop << 0x10 | ftop << 8 | ftop;
   }
   else {
-    *color = bright << 0x10 | bright << 8 | bright;
-  }
-  return;
-}
+
+    *color = bright << 0x10 | bright << 8 | bright; } return; }
 
 /* lines 923-927: (static data / macros / comments - no emitted code) */
 
@@ -558,64 +831,99 @@ typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
  */
 /* GPU packet: builds POLY_GT4 (stride 0x34, code 0x3c); retail prim is a
  * POLY_GT4* packet cursor, viewed as u_char* at byte-offset packet accesses. */
-static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
-
-{
-  /* SYM 8c block: prim(POLY_GT4* $s0) width(AUTO -0x58) height($v1) u($s2) v($t4) vh(AUTO -0x50)
-   * bpp($a1) i($s1) w($s5) w1($a1); addw(INT $a2) declared in the LOOP block @0x8004E2FC.
-   * Params: shp=$s4 flags=$t6 x=$t2 y=$s7 color=$t5.  The old recon carried ~35 fabricated locals
-   * and, critically, a NEVER-ASSIGNED `xoff` in the vertex-X math where the real `x` param belongs
-   * (oracle $t2 = the x REGPARM copy) -- x was silently dropped from every emitted quad. w42-a7. */
-  /* Retail SYM records prim as POLY_GT4* in $s0. Explicit byte views at
-   * packet-offset sites retain the current 245-word allocation; the earlier
-   * typed-pointer failure applied to a different source basin. */
-  POLY_GT4 *prim;
-  short    width;
-  short    height;
-  short    u;
-  short    v;
-  short    vh;
-  short    bpp;
-  short    i;
-  short    w;
-  short    w1;
-  /* MATCH (W61-A18, 20 -> 16 count-EXACT 245/245): vraw is INT,
-                     * not u_char.  A u_char vraw makes `v = vraw` a MASKED copy
-                     * (`andi t4,v0,255`) and chains the arm off the mask
-                     * (`addiu t4,t4,-1`); retail emits a PLAIN copy `addu t4,v0,zero`
-                     * plus `addiu t4,v0,-1` -- both off the raw $v0 -- which only an
-                     * int-typed vraw produces.  Deleting the mask insn costs `v` one
-                     * REF (7 -> 6), and (2*refs-SIZE)/live then puts v .0613 BELOW the
-                     * colour pointer p84 .0665, so the two swap t4/t5 (+12 diffs).  The
-                     * cure is the priced ref-step below: ONE extra out-of-loop operand
-                     * on the existing vraw fence restores v to refs 7 (.0736 > .0665)
-                     * at zero instructions -- exactly the predicted single step.
-                     * Falsified from this basin (all re-gated): fence operand count 0
-                     * (32) and 2 (46); `prim[0x19] = v` direct instead of the read-back
-                     * at every fence count (46/46/66); vraw as u_int (32) / short (48)
-                     * / u_short (48) / signed char (46 @247).  ORIGINAL NOTE FOLLOWS. */
-  /* MATCH (2026-08-03, angle #C' LANDED, 21->20 count-EXACT 245/245):
-                     * retail's separate raw-shapey pseudo (`addu t4,v0,zero` +
-                     * `addiu t4,v0,-1` both off $v0).  vraw alone measures 0 (cse
-                     * copy-props `v = vraw`); the OUTLIVING SECOND CONSUMER is the
-                     * zero-insn USE fence after the if/else -- make_regs_eqv keeps
-                     * the copy because vraw now outlives v's birth on BOTH paths. */
-  /* MATCH (w46-a1): retail gives `v` TWO homes -- $t4 for the
-                     * prim[0xd]/prim[0x19] stores AND a byte slot 0x20(sp) reloaded
-                     * into $t7 for the `vh + v` bottom row.  This second u_char copy
-                     * IS that spilled pseudo; it supplies the third stack slot the
-                     * retired `deadfrm[2]` filler used to fake (slots are now
-                     * width@16 / vh@24 / v@32, frame 104 == SYM fsize, natively).
-                     * u_char is load-bearing: `short` gates 37, `int` 38. */
-
-  height = shp->height;
-  width = shp->width;
-  bpp = (byte)shp->depth;
-  if ((flags & 2) != 0) {
-    y = y + height;
-    height = -height;
-  }
-  vh = shp->height;
+      /* DEVICE KEPT (audited W85-S11 2026-09-02): zero-byte memory INPUT on the
+       * x0 packet field.  It is the only source-expressible store-store ordering
+       * constraint here: gcc-2.8 disambiguates `prim+8` and `prim+10` (constant
+       * offsets off one pseudo, provably disjoint) so `output_dependence` is
+       * false and the post-reload scheduler hoists the y0 `sh` into the exposed
+       * delay cycle of the `lhu t8,16(sp)` spill reload.  Removing it = FAIL 3
+       * (ours 244/245: the retail nop is gone).  Re-crack attempts, all gated:
+       *   (a) separate `short *py10 = (short*)(prim+10);` pointer local ......  3 (cse folds it back to the same base+const)
+       *   (b) y0 store written BEFORE x0 ........................ 2, count-EXACT 245/245 but y0 lands 6 slots too early (above the reload)
+       *   (c) y0 store written AFTER the x1 store ............... 2, count-EXACT 245/245 but y0 lands 2 slots too late
+       * (b)/(c) bracket the retail slot without hitting it; only the memory
+       * input pins y0 immediately after x0.  Restored verbatim.
+       * Detailed gate: 3 -> PASS 245/245. */
+      /* MATCH (w46-a1, 67->37): a FRESH DEST, never an in-place `addw = addw - 1;`.
+       * Retail emits `addiu v1,a2,-1` -- addw stays live in $a2 -- whereas the in-place
+       * mutate rotated the whole flags&4 arm's a-band down one register
+       * ({w1=a0,addw=a1,u+w1=v0} ours vs {w1=a1,addw=a2,u+w1=v1} retail). */
+    /* 🏆 MATCH (W71-A18, 7 -> PASS 245/245).  THREE coupled edits, none of which
+     * gates alone -- land them together or not at all:
+     *  (1) `prim[0x19] = v;` DIRECT (the w45 `prim[0x19] = prim[0xd]` store-read-back
+     *      is retired): the read-back's forwarded value is a pseudo whose source (v)
+     *      does NOT die at the copy, so combine_regs refuses to tie it and the copy
+     *      SURVIVES as retail's missing `addu a0,t4,zero` (+1 insn, 246/245).
+     *  (2) ONE `vb = v;` (not the w46 cross-jumped duplicate in both flags&2 arms) and
+     *      the fence back to a single "r"(vraw) operand: the direct store re-pays v the
+     *      two loop-weighted refs the read-back had deleted, so the duplicate + the
+     *      "r"(v) operand now OVER-dial it and the old t2/t3/t4 3-cycle returns (32).
+     *  (3) `vb = v;` written INSIDE the loop at its use site, and `prim[0x24] = u;`
+     *      moved ahead of the 0x25/0x31 pair.  The in-loop copy is loop-INVARIANT, so
+     *      loop.c hoists it into the preheader in ORDER OF APPEARANCE -- i.e. AFTER the
+     *      0xFF000000/0xFFFFFF mask constants that appear earlier in the body -- which
+     *      is exactly retail's `lui t3,255; ori; sb t4,32(sp)` order.  A pre-loop
+     *      `vb = v;` is emitted BEFORE the hoists (source order) and no statement-position
+     *      or fence dial can sink it (measured: before/after `i = 0;` both 2, i=0 hoisted
+     *      above the arm 4).  The 0x24-first order stops sched from sinking the 0x19
+     *      store past the vh/vb reloads.
+     * Falsified from the 4-diff basin: full ascending 0x24/0x25/0x30/0x31 (129, frame
+     * drops to 96 -- vb leaves memory); dropping `vb` and storing `vh + v` directly
+     * (124 @243, frame 96). */
+    /* MATCH W64-A17 (11 -> 7, count still 246/245): the vertex-2/3 V pair is
+       written BEFORE the U pair.  With the U stores first, sched hoists
+       `prim[0x30] = u + w1` up between the 0x18 store and the 0x19 read-back
+       (`sb v0,24; sb v0,48; addu v1,t4,zero; sb v1,25`), where retail has
+       `sb v1,24; sb t4,25; sb v1,48`; putting the V pair first lets the
+       read-back keep its slot.  Re-gated alternatives from the 11 basin:
+       0x30-before-0x24 alone 11, read-back after 0x24 11, a void fence after
+       the read-back 10 @247, a fence before it 11, `prim[0x30]=prim[0x18]`
+       read-back 47 @248.  From THIS basin: 0x30-before-0x24 7 (neutral),
+       fence after the read-back 9, interleaved 0x25/0x24/0x31/0x30 114 @245,
+       `prim[0x24]=prim[0xc]` read-back 42 @247, `prim[0x19]=v` direct 32 @245. */
+    /* 🏆 MATCH (w45-a1) -- THE v-ROOT CRACK.  Vertex 1's V equals vertex 0's V, so the
+     * quad's second row is written by READING BACK the byte just stored at prim[0xd]
+     * rather than referencing `v` again (store-then-read-back, w40/w42 family: cc1
+     * forwards the stored value, so this costs ZERO instructions -- count stays 240).
+     * WHY IT IS LOAD-BEARING: it deletes one IN-LOOP use of `v`, and in-loop refs carry
+     * loop weight 2, so v's REG_N_REFS drops 9 -> 7.  That crosses the floor_log2 step at
+     * 8 (allocno_compare pri = floor_log2(refs)*refs/live): v .1698 -> .0881, which lands
+     * BELOW mask (.0915) and x (.0971).  Since find_reg hands out caller-saved regs in
+     * NUMERIC order by descending priority, the whole t2/t3/t4 3-cycle inverts to retail's:
+     *     before  v->t2  x->t3  mask->t4        after  x->t2  mask->t3  v->t4
+     * This delta was predicted independently two ways BEFORE it was written: by hand from
+     * tools/prio.py, and by a10's validated allocator replica, which answered
+     * `--solve 82=t2,167=t3,90=t4`  ->  `p90 refs 9 -> 7 (|d|=2)` -- a single-pseudo,
+     * single-dial requirement.  103 -> 83. */
+    /* MATCH (W62-A16, 16 -> 14, count still EXACT 245/245): the `w1 <= 0` guard
+     * must test w1, not w.  cse puts w and w1 in ONE quantity (w1 is a plain copy
+     * of w) and canon_reg rewrites every use to the quantity's FIRST register --
+     * which is w's $s5 -- so ours emitted `sll v0,s5,16` where retail has
+     * `sll v0,a1,16`.  The identity launder (13B) makes w1 opaque to cse, so the
+     * guard reads w1's own register; it emits nothing and the count is unchanged.
+     * NON-ASM alternatives all falsified from this basin (re-gated): decl order
+     * w1-before-w 16 (exactly neutral), `w1 = wsel; w = w1;` 99 @244,
+     * `w1 = w; w = w1;` 88, `(int)w1` cast 0 (cse folds it), dropping `w` 168. */
+    /* Current typed-packet basin: write color[3] before the packet header.
+     * GCC schedules the same retail load/store sequence as the old early
+     * c3 latch, but no unrecorded c3 source object or debug row is needed.
+     * A direct store AFTER the header was 10 detailed diffs at 245 words. */
+    /* EA-1998 addPrim(): P_TAG bitfield setaddr pair (house idiom). */
+    /* w44-a1 addr24-EARLY (w41 family): giving the 2nd RMW's 24-bit link term its OWN temp at
+       the top of the loop body lengthens the 0xFFFFFF movable and shortens 0xFF000000 --
+       INDEPENDENTLY, which the OR-operand swaps could not do (they move both).  -dL now shows
+       the movable set retail has: 0xFFFFFF is the ONLY hoisted constant, both scratchpad
+       addresses AND 0xFF000000 are rematerialised in-loop. */
+    /* MATCH (w46-a1, 83->67): the divide chain is its OWN statement, so it gets the
+     * lower luid and issues BEFORE the `lhu 0x18(s4)` shapex load whose load-delay
+     * retail then NOPs.  The fused one-expression form hoists that load instead and
+     * fills the bgez slot with the sll (83); the bare operand swap only reaches 69. */
+  /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
+   * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
+   * single-set REG_EQUIV needs a def cse cannot merge (volatile view / different
+   * lvalue shape), each of which costs a real insn in the arm; measure vs the
+   * missing-pair budget (+2) next pass.  Also PENDING: confirm p87==vh in the
+   * lreg insn stream before further REG_EQUIV surgery. */
   /* 2026-08-02 INLINE ADDENDA (angle #1 measured, 3 falsifications + 2 ORACLE FACTS):
    * retail's vh pair is PRE-loop: `lhu $t8,0x12($s4)` with the spill `sh $t8,0x18($sp)`
    * in the flags&2 beqz DELAY SLOT, then ONE in-loop reload `lhu $t8,0x18($sp)` @8004E53C
@@ -815,196 +1123,119 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
    *   i.e. 2 of 3 measured ZERO, the third negative -- the same "mostly incidental noise"
    *   ratio the w45 trust rules predict.  The `prim[0x30] = prim[0x18];` read-back variant
    *   is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
-  PSXFRONT_INIT_V(shp,flags,v);
-  /* W85-S11 DEVICE REMOVED (2026-09-02): PSXFRONT_INIT_V used to end with an
-     `__asm__ volatile("" : : "r"(vraw));` availability fence (a W61-A18 ref-step
-     dial meant to keep v above the colour pointer in allocno_compare).  It is
-     MEASURED INERT in the current basin: deleting it leaves this function
-     PASS 245/245 and the whole TU 25/25.  Do not reintroduce it. */
-  /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
-   * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
-   * single-set REG_EQUIV needs a def cse cannot merge (volatile view / different
-   * lvalue shape), each of which costs a real insn in the arm; measure vs the
-   * missing-pair budget (+2) next pass.  Also PENDING: confirm p87==vh in the
-   * lreg insn stream before further REG_EQUIV surgery. */
+  /* MATCH (w46-a1): retail gives `v` TWO homes -- $t4 for the
+                     * prim[0xd]/prim[0x19] stores AND a byte slot 0x20(sp) reloaded
+                     * into $t7 for the `vh + v` bottom row.  This second u_char copy
+                     * IS that spilled pseudo; it supplies the third stack slot the
+                     * retired `deadfrm[2]` filler used to fake (slots are now
+                     * width@16 / vh@24 / v@32, frame 104 == SYM fsize, natively).
+                     * u_char is load-bearing: `short` gates 37, `int` 38. */
+  /* MATCH (2026-08-03, angle #C' LANDED, 21->20 count-EXACT 245/245):
+                     * retail's separate raw-shapey pseudo (`addu t4,v0,zero` +
+                     * `addiu t4,v0,-1` both off $v0).  vraw alone measures 0 (cse
+                     * copy-props `v = vraw`); the OUTLIVING SECOND CONSUMER is the
+                     * zero-insn USE fence after the if/else -- make_regs_eqv keeps
+                     * the copy because vraw now outlives v's birth on BOTH paths. */
+  /* MATCH (W61-A18, 20 -> 16 count-EXACT 245/245): vraw is INT,
+                     * not u_char.  A u_char vraw makes `v = vraw` a MASKED copy
+                     * (`andi t4,v0,255`) and chains the arm off the mask
+                     * (`addiu t4,t4,-1`); retail emits a PLAIN copy `addu t4,v0,zero`
+                     * plus `addiu t4,v0,-1` -- both off the raw $v0 -- which only an
+                     * int-typed vraw produces.  Deleting the mask insn costs `v` one
+                     * REF (7 -> 6), and (2*refs-SIZE)/live then puts v .0613 BELOW the
+                     * colour pointer p84 .0665, so the two swap t4/t5 (+12 diffs).  The
+                     * cure is the priced ref-step below: ONE extra out-of-loop operand
+                     * on the existing vraw fence restores v to refs 7 (.0736 > .0665)
+                     * at zero instructions -- exactly the predicted single step.
+                     * Falsified from this basin (all re-gated): fence operand count 0
+                     * (32) and 2 (46); `prim[0x19] = v` direct instead of the read-back
+                     * at every fence count (46/46/66); vraw as u_int (32) / short (48)
+                     * / u_short (48) / signed char (46 @247).  ORIGINAL NOTE FOLLOWS. */
+  /* Retail SYM records prim as POLY_GT4* in $s0. Explicit byte views at
+   * packet-offset sites retain the current 245-word allocation; the earlier
+   * typed-pointer failure applied to a different source basin. */
+  /* SYM 8c block: prim(POLY_GT4* $s0) width(AUTO -0x58) height($v1) u($s2) v($t4) vh(AUTO -0x50)
+   * bpp($a1) i($s1) w($s5) w1($a1); addw(INT $a2) declared in the LOOP block @0x8004E2FC.
+   * Params: shp=$s4 flags=$t6 x=$t2 y=$s7 color=$t5.  The old recon carried ~35 fabricated locals
+   * and, critically, a NEVER-ASSIGNED `xoff` in the vertex-X math where the real `x` param belongs
+   * (oracle $t2 = the x REGPARM copy) -- x was silently dropped from every emitted quad. w42-a7. */
+#line 925 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
+
+
+{
+  POLY_GT4 *prim;
+  short    width; short    height; short    u; short    v; short    vh; short    bpp; short    i; short    w; short    w1; width = shp->width;
+  height = shp->height;
+
+  bpp = (byte)shp->depth;
+
+
+
+  if ((flags & 2) != 0) {
+
+    y = y + height;
+    height = -height;
+  }
+
+  { int vraw; vraw = (byte)shp->shapey; v = vraw;
+  vh = shp->height;
+
+  if ((flags & 2) != 0)
+    v = vraw - 1; }
+
   i = 0;
   while (i < shp->width) {
     int addw;
-    int texX; /* SYM-CODEGEN-CARRIER: texX -- repeating shapex+ibp is measured
-                 FAIL 60 (247/245), duplicating loads and rotating divide operands */
-    int wsel; /* SYM-CODEGEN-CARRIER: wsel -- folding the clamp into SYM local w is
-                 measured FAIL 78 (245/245), rotating the callee-saved allocation */
-    int addwm1; /* SYM-CODEGEN-CARRIER: addwm1 -- repeating addw-1 is measured
-                   FAIL 39 (248/245), reassociating the four vertex expressions */
-    int ibp; /* SYM-CODEGEN-CARRIER: ibp -- fusing this divide into texX is measured
-                FAIL 16 (243/245), changing issue order and deleting two instructions */
+    int texX; /* SYM-CODEGEN-CARRIER: texX -- repeating shapex+ibp is measured FAIL 60 (247/245), duplicating loads and rotating divide operands */ int wsel; /* SYM-CODEGEN-CARRIER: wsel -- folding the clamp into SYM local w is measured FAIL 78 (245/245), rotating the callee-saved allocation */ int addwm1; /* SYM-CODEGEN-CARRIER: addwm1 -- repeating addw-1 is measured FAIL 39 (248/245), reassociating the four vertex expressions */ int ibp; /* SYM-CODEGEN-CARRIER: ibp -- fusing this divide into texX is measured FAIL 16 (243/245), changing issue order and deleting two instructions */ ibp = (i * bpp) / 16; texX = (uint)(ushort)shp->shapex + ibp;
+    u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) - ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
+    wsel = 0xff - u; if (shp->width - i < wsel) { wsel = shp->width - i; } w = wsel;
 
-    /* MATCH (w46-a1, 83->67): the divide chain is its OWN statement, so it gets the
-     * lower luid and issues BEFORE the `lhu 0x18(s4)` shapex load whose load-delay
-     * retail then NOPs.  The fused one-expression form hoists that load instead and
-     * fills the bgez slot with the sll (83); the bare operand swap only reaches 69. */
-    ibp = (i * bpp) / 16;
-    texX = (uint)(ushort)shp->shapex + ibp;
-    u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) -
-        ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
-    wsel = 0xff - u;
-    if (shp->width - i < wsel) {
-      wsel = shp->width - i;
-    }
-    w = wsel;
-    prim = (POLY_GT4 *)Render_gPacketPtr;
-    Render_gPacketPtr = (u_char *)prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */
-    /* w44-a1 addr24-EARLY (w41 family): giving the 2nd RMW's 24-bit link term its OWN temp at
-       the top of the loop body lengthens the 0xFFFFFF movable and shortens 0xFF000000 --
-       INDEPENDENTLY, which the OR-operand swaps could not do (they move both).  -dL now shows
-       the movable set retail has: 0xFFFFFF is the ONLY hoisted constant, both scratchpad
-       addresses AND 0xFF000000 are rematerialised in-loop. */
-    /* EA-1998 addPrim(): P_TAG bitfield setaddr pair (house idiom). */
-    ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr;
-    ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+    prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = (u_char *)prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */ ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+
     *(int *)((u_char *)prim + 4) = color[0];
     *(int *)((u_char *)prim + 0x10) = color[1];
     *(int *)((u_char *)prim + 0x1c) = color[2];
-    /* Current typed-packet basin: write color[3] before the packet header.
-     * GCC schedules the same retail load/store sequence as the old early
-     * c3 latch, but no unrecorded c3 source object or debug row is needed.
-     * A direct store AFTER the header was 10 detailed diffs at 245 words. */
     *(int *)((u_char *)prim + 0x28) = color[3];
-    ((u_char *)prim)[7] = (flags & 1) * 2 + 0x3c;
-    ((u_char *)prim)[3] = 0xc;
+
+    ((u_char *)prim)[7] = (flags & 1) * 2 + 0x3c; ((u_char *)prim)[3] = 0xc;
+
+
     *(short *)((u_char *)prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-    *(ushort *)((u_char *)prim + 0x1a) =
-         ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
-         (shp->shapey & 0x100) >> 4 |
-         (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
+    *(ushort *)((u_char *)prim + 0x1a) = ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 | (shp->shapey & 0x100) >> 4 | (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
     addw = 0;
+
     if (((flags & 4) != 0) && (shp->width < 0xff)) {
+
       u = u - 1;
       addw = 1;
     }
     w1 = w;
-    /* MATCH (W62-A16, 16 -> 14, count still EXACT 245/245): the `w1 <= 0` guard
-     * must test w1, not w.  cse puts w and w1 in ONE quantity (w1 is a plain copy
-     * of w) and canon_reg rewrites every use to the quantity's FIRST register --
-     * which is w's $s5 -- so ours emitted `sll v0,s5,16` where retail has
-     * `sll v0,a1,16`.  The identity launder (13B) makes w1 opaque to cse, so the
-     * guard reads w1's own register; it emits nothing and the count is unchanged.
-     * NON-ASM alternatives all falsified from this basin (re-gated): decl order
-     * w1-before-w 16 (exactly neutral), `w1 = wsel; w = w1;` 99 @244,
-     * `w1 = w; w = w1;` 88, `(int)w1` cast 0 (cse folds it), dropping `w` 168. */
-    ((u_char *)prim)[0xc] = u;
-    ((u_char *)prim)[0xd] = v;
-    ((u_char *)prim)[0x18] = u + w1;
-    /* 🏆 MATCH (w45-a1) -- THE v-ROOT CRACK.  Vertex 1's V equals vertex 0's V, so the
-     * quad's second row is written by READING BACK the byte just stored at prim[0xd]
-     * rather than referencing `v` again (store-then-read-back, w40/w42 family: cc1
-     * forwards the stored value, so this costs ZERO instructions -- count stays 240).
-     * WHY IT IS LOAD-BEARING: it deletes one IN-LOOP use of `v`, and in-loop refs carry
-     * loop weight 2, so v's REG_N_REFS drops 9 -> 7.  That crosses the floor_log2 step at
-     * 8 (allocno_compare pri = floor_log2(refs)*refs/live): v .1698 -> .0881, which lands
-     * BELOW mask (.0915) and x (.0971).  Since find_reg hands out caller-saved regs in
-     * NUMERIC order by descending priority, the whole t2/t3/t4 3-cycle inverts to retail's:
-     *     before  v->t2  x->t3  mask->t4        after  x->t2  mask->t3  v->t4
-     * This delta was predicted independently two ways BEFORE it was written: by hand from
-     * tools/prio.py, and by a10's validated allocator replica, which answered
-     * `--solve 82=t2,167=t3,90=t4`  ->  `p90 refs 9 -> 7 (|d|=2)` -- a single-pseudo,
-     * single-dial requirement.  103 -> 83. */
-    ((u_char *)prim)[0x19] = v;
-    /* MATCH W64-A17 (11 -> 7, count still 246/245): the vertex-2/3 V pair is
-       written BEFORE the U pair.  With the U stores first, sched hoists
-       `prim[0x30] = u + w1` up between the 0x18 store and the 0x19 read-back
-       (`sb v0,24; sb v0,48; addu v1,t4,zero; sb v1,25`), where retail has
-       `sb v1,24; sb t4,25; sb v1,48`; putting the V pair first lets the
-       read-back keep its slot.  Re-gated alternatives from the 11 basin:
-       0x30-before-0x24 alone 11, read-back after 0x24 11, a void fence after
-       the read-back 10 @247, a fence before it 11, `prim[0x30]=prim[0x18]`
-       read-back 47 @248.  From THIS basin: 0x30-before-0x24 7 (neutral),
-       fence after the read-back 9, interleaved 0x25/0x24/0x31/0x30 114 @245,
-       `prim[0x24]=prim[0xc]` read-back 42 @247, `prim[0x19]=v` direct 32 @245. */
-    ((u_char *)prim)[0x24] = u;
-    /* 🏆 MATCH (W71-A18, 7 -> PASS 245/245).  THREE coupled edits, none of which
-     * gates alone -- land them together or not at all:
-     *  (1) `prim[0x19] = v;` DIRECT (the w45 `prim[0x19] = prim[0xd]` store-read-back
-     *      is retired): the read-back's forwarded value is a pseudo whose source (v)
-     *      does NOT die at the copy, so combine_regs refuses to tie it and the copy
-     *      SURVIVES as retail's missing `addu a0,t4,zero` (+1 insn, 246/245).
-     *  (2) ONE `vb = v;` (not the w46 cross-jumped duplicate in both flags&2 arms) and
-     *      the fence back to a single "r"(vraw) operand: the direct store re-pays v the
-     *      two loop-weighted refs the read-back had deleted, so the duplicate + the
-     *      "r"(v) operand now OVER-dial it and the old t2/t3/t4 3-cycle returns (32).
-     *  (3) `vb = v;` written INSIDE the loop at its use site, and `prim[0x24] = u;`
-     *      moved ahead of the 0x25/0x31 pair.  The in-loop copy is loop-INVARIANT, so
-     *      loop.c hoists it into the preheader in ORDER OF APPEARANCE -- i.e. AFTER the
-     *      0xFF000000/0xFFFFFF mask constants that appear earlier in the body -- which
-     *      is exactly retail's `lui t3,255; ori; sb t4,32(sp)` order.  A pre-loop
-     *      `vb = v;` is emitted BEFORE the hoists (source order) and no statement-position
-     *      or fence dial can sink it (measured: before/after `i = 0;` both 2, i=0 hoisted
-     *      above the arm 4).  The 0x24-first order stops sched from sinking the 0x19
-     *      store past the vh/vb reloads.
-     * Falsified from the 4-diff basin: full ascending 0x24/0x25/0x30/0x31 (129, frame
-     * drops to 96 -- vb leaves memory); dropping `vb` and storing `vh + v` directly
-     * (124 @243, frame 96). */
-    PSXFRONT_STORE_BOTTOM_V(((u_char *)prim),vh,v);
-    ((u_char *)prim)[0x30] = u + w1;
-    if (w1 <= 0) {
-      w1 = 1;
+    ((u_char *)prim)[0xc] = u; ((u_char *)prim)[0xd] = v; ((u_char *)prim)[0x18] = u + w1; ((u_char *)prim)[0x19] = v; ((u_char *)prim)[0x24] = u; PSXFRONT_STORE_BOTTOM_V(((u_char *)prim),vh,v); ((u_char *)prim)[0x30] = u + w1;
+    if (w1 <= 0) { w1 = 1;
     }
     if ((flags & 4) != 0) {
-      /* MATCH (w46-a1, 67->37): a FRESH DEST, never an in-place `addw = addw - 1;`.
-       * Retail emits `addiu v1,a2,-1` -- addw stays live in $a2 -- whereas the in-place
-       * mutate rotated the whole flags&4 arm's a-band down one register
-       * ({w1=a0,addw=a1,u+w1=v0} ours vs {w1=a1,addw=a2,u+w1=v1} retail). */
       addwm1 = addw - 1;
-      *(short *)((u_char *)prim + 8) = ((width + x) - i) + addwm1;
-      /* DEVICE KEPT (audited W85-S11 2026-09-02): zero-byte memory INPUT on the
-       * x0 packet field.  It is the only source-expressible store-store ordering
-       * constraint here: gcc-2.8 disambiguates `prim+8` and `prim+10` (constant
-       * offsets off one pseudo, provably disjoint) so `output_dependence` is
-       * false and the post-reload scheduler hoists the y0 `sh` into the exposed
-       * delay cycle of the `lhu t8,16(sp)` spill reload.  Removing it = FAIL 3
-       * (ours 244/245: the retail nop is gone).  Re-crack attempts, all gated:
-       *   (a) separate `short *py10 = (short*)(prim+10);` pointer local ......  3 (cse folds it back to the same base+const)
-       *   (b) y0 store written BEFORE x0 ........................ 2, count-EXACT 245/245 but y0 lands 6 slots too early (above the reload)
-       *   (c) y0 store written AFTER the x1 store ............... 2, count-EXACT 245/245 but y0 lands 2 slots too late
-       * (b)/(c) bracket the retail slot without hitting it; only the memory
-       * input pins y0 immediately after x0.  Restored verbatim.
-       * Detailed gate: 3 -> PASS 245/245. */
-      __asm__("" : : "m"(*(short *)((u_char *)prim + 8)));
-      *(short *)((u_char *)prim + 10) = y;
-      *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1;
-      *(short *)((u_char *)prim + 0x16) = y;
-      *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + addwm1;
-      *(short *)((u_char *)prim + 0x22) = y + height;
-      *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1;
-      *(short *)((u_char *)prim + 0x2e) = y + height;
+      *(short *)((u_char *)prim + 8) = ((width + x) - i) + addwm1; __asm__("" : : "m"(*(short *)((u_char *)prim + 8))); *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = ((shp->width + x) - i) + addwm1; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1; *(short *)((u_char *)prim + 0x2e) = y + height;
     }
-    else {
-      *(short *)((u_char *)prim + 8) = i + x;
-      *(short *)((u_char *)prim + 10) = y;
-      *(short *)((u_char *)prim + 0x14) = w1 + (i + x);
-      *(short *)((u_char *)prim + 0x16) = y;
-      *(short *)((u_char *)prim + 0x20) = i + x;
-      *(short *)((u_char *)prim + 0x22) = y + height;
-      *(short *)((u_char *)prim + 0x2c) = w1 + (i + x);
-      *(short *)((u_char *)prim + 0x2e) = y + height;
+    else { *(short *)((u_char *)prim + 8) = i + x; *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = w1 + (i + x); *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = i + x; *(short *)((u_char *)prim + 0x22) = y + height; *(short *)((u_char *)prim + 0x2c) = w1 + (i + x); *(short *)((u_char *)prim + 0x2e) = y + height;
     }
-    i = i + w1;
-  }
-  return;
-}
+    i = i + w1; } return; }
 
 /* lines 986-990: (static data / macros / comments - no emitted code) */
 
 /* ---- DrawFlatShape  (psxfront.cpp:991, code lines 991-994) ---- */
-static void DrawFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
-
-{
-  color[1] = color[2] = color[3] = color[0];
   /* @0x8004E660: tail-call DrawGouraudShape with the SAME incoming args -- shp/flags/x/y/color/abr are
    * never modified in DrawFlatShape. The recon passed uninitialized Ghidra locals abrv/flagsv in the
    * flags/x slots, dropping the real flags and x parameters (M14). */
-  DrawGouraudShape(shp,flags,x,y,color,abr);
-  return;
+#line 988 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+static void DrawFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
+
+
+{
+
+  color[1] = color[2] = color[3] = color[0];
+  DrawGouraudShape(shp,flags,x,y,color,abr); return;
 }
 
 /* lines 995-1059: (static data / macros / comments - no emitted code) */
@@ -1020,38 +1251,40 @@ static void DrawFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *col
    These are measured pipeline observations, not proof of an original named
    capture or a source floor. Restore PASS; next angle is source evaluation
    order/anonymous quantity lifetime, without const disguises or fake uses. */
-void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawShapeExtended *extra)
-
-{
   /* SYM: the only locals are tShp (REG) + color[4] (AUTO) -- there is NO `shapeTbl`.  Retail wrote
    * the table select as a real if/ELSE that lands `tShp = table + index` in each arm (oracle emits
    * `sll v0,index,5` in BOTH arms + a shared `addu s0,v1,v0` join, then recomputes it in the 0x200
    * arm), with flags&8 as the FALL-THROUGH side. w42-a7. */
-  tTexture_ShapeInfo *tShp;
-  int color [4];
-  int bright; /* SOURCE-REVIEW-UNRESOLVED: unnamed retail brightness producer. */
+/* SOURCE-REVIEW-UNRESOLVED: `bright` = unnamed retail brightness producer. */
+#line 1057 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawShapeExtended *extra)
 
-  if ((flags & 8) != 0) {
-    tShp = gHelpShapes + index;
-  }
-  else {
-    tShp = gCurrentShapes + index;
-  }
-  bright = 0x80 - fade;
+
+{
+  tTexture_ShapeInfo *tShp; int color [4]; int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
+  } bright = 0x80 - fade;
+
+
+
+
+
+
+
+
+
+
   if ((flags & 0x200) != 0) {
     tShp = extra->custom_shapes + index;
   }
+
   AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
   /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
      brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
+
   if ((flags & 0xc0U) != 0) {
     DrawGouraudShape(tShp,flags,x,y,color,abr);
   }
-  else {
-    DrawFlatShape(tShp,flags,x,y,color,abr);
-  }
-  return;
-}
+  else { DrawFlatShape(tShp,flags,x,y,color,abr); } return; }
 
 /* lines 1085-1088: (static data / macros / comments - no emitted code) */
 
@@ -1061,91 +1294,79 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
  * preserving 175 instructions. No private sw/sh_ objects or UV helper macro.
  * Literal original source/SLD and the one subtrahend carrier remain unresolved. */
 /* GPU packet: builds POLY_GT4 (stride 0x34, SetPolyGT4); prim=u_char* build cursor, prevPrim=u_char* link word */
-static void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
-               int abr)
-
-{
+  /* Retail uw/vh are the byte extents, not captured final UV endpoints.
+   * Direct endpoint stores need no private sw/sh_ or nested do/while wrapper. */
+  /* decl order = SYM Def-record order (prim,width,height,u,v,uw,vh,bpp);
+     the non-SYM carrier follows it -- w86-S5 */
   /* SYM 8c block: prim(POLY_GT4* $s3) width($s2) height($s1) u/v/uw/vh (CHAR) bpp(AUTO SHORT
    * @sp+0x10) + the color/abr REG copies -- 9 locals, not the 28 the old recon declared.
    * x($s6) and y($s5) are the REGPARMs, MUTATED IN PLACE by the flip arms; width/height likewise
    * (`negu $s2,$s2`).  The bpp divide is SIGNED (div + break 7 + break 6). w42-a7 */
-  /* decl order = SYM Def-record order (prim,width,height,u,v,uw,vh,bpp);
-     the non-SYM carrier follows it -- w86-S5 */
-  POLY_GT4 *prim;
-  short    width;
-  short    height;
-  char     u;
-  char     v;
-  char     uw;
-  char     vh;
-  short    bpp;
-  int      one; /* SOURCE-REVIEW-UNRESOLVED: literal substitution still changes
-                   allocation (123dif/176 after the extent/region restoration). */
+/* SOURCE-REVIEW-UNRESOLVED: literal substitution still changes allocation (123dif/176 after the extent/region restoration). */
+#line 1085 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+static void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
+               int abr)
 
-  prim = (POLY_GT4 *)Render_gPacketPtr;
-  width = shp->width;
+
+{
+  POLY_GT4 *prim;
+  short    width; short    height; char     u; char     v; char     uw; char     vh; short    bpp; int      one; width = shp->width;
   height = shp->height;
+
   bpp = (byte)shp->depth;
   /* EA-1998 addPrim(): P_TAG bitfield setaddr pair, bump between (house idiom). */
-  ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr;
-  Render_gPacketPtr = (u_char *)prim + 0x34;
-  ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+  prim = (POLY_GT4 *)Render_gPacketPtr; ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim + 0x34; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+
   *(int *)((u_char *)prim + 4) = color[0];
   *(int *)((u_char *)prim + 0x10) = color[1];
   *(int *)((u_char *)prim + 0x1c) = color[2];
   *(int *)((u_char *)prim + 0x28) = color[3];
+
   SetPolyGT4(prim);
   SetSemiTrans((u_char *)prim,flags & 1);
   one = 1;
   *(short *)((u_char *)prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-  *(ushort *)((u_char *)prim + 0x1a) =
-       ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
-       (shp->shapey & 0x100) >> 4 |
-       ((ushort)shp->shapex & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
+  *(ushort *)((u_char *)prim + 0x1a) = ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 | (shp->shapey & 0x100) >> 4 | ((ushort)shp->shapex & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
+
+
   if ((flags & 4U) != 0) {
+
     x = x + fixedmult(scalex,width);
     width = -width;
   }
+
+
   if ((flags & 2U) != 0) {
+
     y = y + fixedmult(scaley,height);
     height = -height;
   }
-  *(short *)((u_char *)prim + 8) = x;
-  *(short *)((u_char *)prim + 10) = y;
-  *(short *)((u_char *)prim + 0x14) = (x - one) + fixedmult(scalex,width);
-  *(short *)((u_char *)prim + 0x16) = y;
-  *(short *)((u_char *)prim + 0x20) = x;
-  *(short *)((u_char *)prim + 0x22) = y + fixedmult(scaley,height);
-  *(short *)((u_char *)prim + 0x2c) = (x - one) + fixedmult(scalex,width);
-  *(short *)((u_char *)prim + 0x2e) = y + fixedmult(scaley,height);
-  /* Retail uw/vh are the byte extents, not captured final UV endpoints.
-   * Direct endpoint stores need no private sw/sh_ or nested do/while wrapper. */
-  uw = (byte)shp->width;
-  vh = (byte)shp->height;
+
+
+  *(short *)((u_char *)prim + 8) = x; *(short *)((u_char *)prim + 10) = y; *(short *)((u_char *)prim + 0x14) = (x - one) + fixedmult(scalex,width); *(short *)((u_char *)prim + 0x16) = y; *(short *)((u_char *)prim + 0x20) = x; *(short *)((u_char *)prim + 0x22) = y + fixedmult(scaley,height); *(short *)((u_char *)prim + 0x2c) = (x - one) + fixedmult(scalex,width); *(short *)((u_char *)prim + 0x2e) = y + fixedmult(scaley,height);
+
+
   u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
   v = (byte)shp->shapey;
+  uw = (byte)shp->width;
+  vh = (byte)shp->height;
+
   if ((flags & 4U) != 0) {
     u = u - one;
   }
   if ((flags & 2U) != 0) {
     v = (byte)shp->shapey - one;
   }
-  ((u_char *)prim)[0xd] = v;
-  ((u_char *)prim)[0x19] = v;
-  ((u_char *)prim)[0xc] = u;
-  ((u_char *)prim)[0x18] = u + uw;
-  ((u_char *)prim)[0x24] = u;
-  ((u_char *)prim)[0x25] = v + vh;
-  ((u_char *)prim)[0x30] = u + uw;
-  ((u_char *)prim)[0x31] = v + vh;
-  return;
+  ((u_char *)prim)[0xd] = v; ((u_char *)prim)[0x19] = v; ((u_char *)prim)[0xc] = u; ((u_char *)prim)[0x18] = u + uw; ((u_char *)prim)[0x24] = u; ((u_char *)prim)[0x25] = v + vh; ((u_char *)prim)[0x30] = u + uw; ((u_char *)prim)[0x31] = v + vh; return;
 }
 
 /* lines 1139-1142: (static data / macros / comments - no emitted code) */
 
 /* ---- ScaleFlatShape  (psxfront.cpp:1143, code lines 1143-1146) ---- */
+#line 1139 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 static void ScaleFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
                int abr)
+
 
 {
 
@@ -1163,62 +1384,75 @@ static void ScaleFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int sca
    (9 to8) and lets index use a0 instead of retail t1. Saved normal-compiler
    greg/lreg/sched receipts accompany the draw twin. Failed forms reverted;
    absence from SYM still requires original source producer recovery. */
-void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawShapeExtended *extra)
-
-{
+  /* decl order = SYM Def-record order (scalex,scaley,tShp,color) -- w86-S5 */
   /* SYM: scalex/scaley are REAL INT locals ($s2/$s3 -- the oracle materializes 0x20000/0x10000 into
    * callee-saved regs in the prologue and passes THOSE at both call sites), tShp REG, color[4] AUTO.
    * No `shapeTbl`: the table select is an if/ELSE assigning tShp per arm (flags&8 = fall-through). */
-  /* decl order = SYM Def-record order (scalex,scaley,tShp,color) -- w86-S5 */
-  int scalex = 0x20000;
-  int scaley = 0x10000;
-  tTexture_ShapeInfo *tShp;
-  int color [4];
-  int bright; /* SOURCE-REVIEW-UNRESOLVED: unnamed retail brightness producer. */
+/* SOURCE-REVIEW-UNRESOLVED: `bright` = unnamed retail brightness producer. */
+#line 1202 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawShapeExtended *extra)
 
-  if ((flags & 8) != 0) {
-    tShp = gHelpShapes + index;
-  }
-  else {
-    tShp = gCurrentShapes + index;
-  }
-  bright = 0x80 - fade;
+
+{
+  int scalex = 0x20000; int scaley = 0x10000;
+  tTexture_ShapeInfo *tShp;
+  int color [4]; int bright; if ((flags & 8) != 0) { tShp = gHelpShapes + index; } else { tShp = gCurrentShapes + index;
+  } bright = 0x80 - fade;
+
+
+
+
+
+
+
+
+
+
   if ((flags & 0x200) != 0) {
     tShp = extra->custom_shapes + index;
   }
+
   AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
+
+
   if ((flags & 0xc0U) != 0) {
     ScaleGouraudShape(tShp,flags,x,y,scalex,scaley,color,abr);
   }
-  else {
-    ScaleFlatShape(tShp,flags,x,y,scalex,scaley,color,abr);
-  }
-  return;
-}
+  else { ScaleFlatShape(tShp,flags,x,y,scalex,scaley,color,abr); } return; }
 
 /* lines 1231-1235: (static data / macros / comments - no emitted code) */
 
 /* ---- LoadAllHelpShapes  (psxfront.cpp:1236, code lines 1236-1260) ---- */
+  /* decl order = SYM Def-record order (fullName, permFile, i) -- w86-S5 */
+#line 1233 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void LoadAllHelpShapes(void)
 
+
 {
-  /* decl order = SYM Def-record order (fullName, permFile, i) -- w86-S5 */
   char fullName [48];
   char *permFile;
   int i;
-  
   sprintf(fullName,"%szperm.psh",Paths_Paths[0x20]);
   permFile = (char *)loadshapeadr(fullName,(void *)0x0);
+
   if (permFile != (char *)0x0) {
     i = 0;
+
+
+
+
+
+
+
+
+
     do {
-      FETexture_LoadPmx(permFile,i,gHelpShapes + i);
-      i = i + 1;
-    } while (i < 0x3b);
+      FETexture_LoadPmx(permFile,i,gHelpShapes + i); i = i + 1; } while (i < 0x3b);
+
+
+
     purgememadr(permFile);
-  }
-  return;
-}
+  } return; }
 
 /* lines 1261-1337: (static data / macros / comments - no emitted code) */
 
@@ -1227,75 +1461,64 @@ void LoadAllHelpShapes(void)
 /* The "unpacked" literal that follows LoadAllHelpShapes' "%szperm.psh" in retail .rdata (0x80012848) is FETexture.obj's
  * (its reservememadr tag; FETexture is next in link order), not a survivor of this object -- corrected 2026-09-21. */
 
-void PSXDrawSquare(int col,int x,int y,int w,int h)
-
-{
-  /* SYM 8c: fsize=0 mask=0 = TRUE frameless LEAF; the ONLY local is `prim` (REG $8 = $t0,
-   * type PTR STRUCT POLY_F4 size 24) and `h` gets a REG home ($0xd = $t5).  x_s/x1/y1/linkAddr/
-   * prevPrim were FABRICATED -- retail stores straight out of the parm regs ($a1 x, $a2 y->y+h,
-   * $a3 x+w mutated in place) and lets cse hold the OT-slot POINTER in one anonymous temp while
-   * DE-referencing it twice (the 1st setaddr store may alias).  w43-a3 */
-  POLY_F4 *prim;
-
-  prim = (POLY_F4 *)Render_gPacketPtr;
-  /* setaddr(prim, getaddr(OT)) -- 24-bit tag bitfield RMW */
-  prim->tag = prim->tag & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
   /* The OT word is RE-READ for the second setaddr (the store above may alias it), and that read
    * happens BEFORE the packet-cursor store: gcc cannot float a load above a may-aliasing store to
    * 0x1F800004, so the oracle's `lw v0,0(t2); ...; sw v1,0(t4); ...; sw v0,0(t2)` order is only
    * reachable if the source reads the OT word first.  Bump-between / bump-first / `+= 0x18`
    * spellings all measured worse (52 / 34 / 31 vs 12 for bump-last).  w43-a3 */
-  const uint link = *(uint *)Render_gPalettePtr; /* debug-elided OT staging; direct RMW is 52 diffs. */
-  Render_gPacketPtr = (u_char *)prim + 0x18;
-  *(uint *)Render_gPalettePtr = link & 0xff000000 | (uint)prim & 0xffffff;
+  /* setaddr(prim, getaddr(OT)) -- 24-bit tag bitfield RMW */
+  /* SYM 8c: fsize=0 mask=0 = TRUE frameless LEAF; the ONLY local is `prim` (REG $8 = $t0,
+   * type PTR STRUCT POLY_F4 size 24) and `h` gets a REG home ($0xd = $t5).  x_s/x1/y1/linkAddr/
+   * prevPrim were FABRICATED -- retail stores straight out of the parm regs ($a1 x, $a2 y->y+h,
+   * $a3 x+w mutated in place) and lets cse hold the OT-slot POINTER in one anonymous temp while
+   * DE-referencing it twice (the 1st setaddr store may alias).  w43-a3 */
+#line 1335 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void PSXDrawSquare(int col,int x,int y,int w,int h)
+
+
+{
+  POLY_F4 *prim;
+
+  prim = (POLY_F4 *)Render_gPacketPtr; prim->tag = prim->tag & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff; const uint link = *(uint *)Render_gPalettePtr; /* debug-elided OT staging; direct RMW is 52 diffs. */ Render_gPacketPtr = (u_char *)prim + 0x18; *(uint *)Render_gPalettePtr = link & 0xff000000 | (uint)prim & 0xffffff;
+
   *(int *)&prim->r0 = col;
+
+
   prim->code = 0x28;
   *((u_char *)prim + 3) = 5;
-  prim->y0 = y;
-  prim->y1 = y;
-  prim->x0 = x;
-  prim->x1 = x + w;
-  prim->x2 = x;
-  prim->y2 = y + h;
-  prim->x3 = x + w;
-  prim->y3 = y + h;
-  return;
+
+  prim->y0 = y; prim->y1 = y; prim->x0 = x; prim->x1 = x + w; prim->x2 = x; prim->y2 = y + h; prim->x3 = x + w; prim->y3 = y + h; return;
 }
 
 /* lines 1350-1353: (static data / macros / comments - no emitted code) */
 
 /* ---- PSXDrawGouraudSquare  (psxfront.cpp:1354, code lines 1354-1368) ---- */
 /* GPU packet: builds POLY_G4 (stride 0x24, SetPolyG4); prim=u_char* build cursor. */
-void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
-
-{
+  /* The SYM's only local is `prim`; the OT word is a debug-elided use-site const. */
   /* SYM 8c: the ONLY local is prim (REG $0x10 = $s0, PTR STRUCT size 36 tag POLY_G4);
    * x/y/w/h are REGPARM $s3/$s1/$s2/$s4 and c1..c4 REG $a3/$t0/$t1/$t2.  linkAddr,
    * x_s, y_s, x_plus_w and y_plus_h were Ghidra fabrications: retail MUTATES the w
    * and y params in place (addu $s2,$s3,$s2 / addu $s1,$s1,$s4) and lets the `sh`
    * stores do the narrowing -- no (short) casts, no extra pseudos. */
-  /* The SYM's only local is `prim`; the OT word is a debug-elided use-site const. */
+#line 1351 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
+
+
+{
   POLY_G4 *prim;
 
-  prim = (POLY_G4 *)Render_gPacketPtr;
-  prim->tag = prim->tag & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  const uint otWord = *(uint *)Render_gPalettePtr; /* debug-elided OT staging; direct RMW: 44 diffs/60 words */
-  Render_gPacketPtr = (u_char *)prim + 0x24;
-  *(uint *)Render_gPalettePtr = otWord & 0xff000000 | (uint)prim & 0xffffff;
+
+  prim = (POLY_G4 *)Render_gPacketPtr; prim->tag = prim->tag & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff; const uint otWord = *(uint *)Render_gPalettePtr; /* debug-elided OT staging; direct RMW: 44 diffs/60 words */ Render_gPacketPtr = (u_char *)prim + 0x24; *(uint *)Render_gPalettePtr = otWord & 0xff000000 | (uint)prim & 0xffffff;
+
   *(int *)&prim->r0 = c1;
   *(int *)&prim->r1 = c2;
   *(int *)&prim->r2 = c3;
   *(int *)&prim->r3 = c4;
+
   SetPolyG4(prim);
-  prim->x0 = x;
-  prim->y0 = y;
-  prim->x1 = x + w;
-  prim->y1 = y;
-  prim->x2 = x;
-  prim->y2 = y + h;
-  prim->x3 = x + w;
-  prim->y3 = y + h;
-  return;
+
+
+  prim->x0 = x; prim->y0 = y; prim->x1 = x + w; prim->y1 = y; prim->x2 = x; prim->y2 = y + h; prim->x3 = x + w; prim->y3 = y + h; return;
 }
 
 /* lines 1369-1376: (static data / macros / comments - no emitted code) */
@@ -1309,24 +1532,30 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
    in the inner block. The prior opacityv was uninitialized and wrongly fed
    all four X vertices; retail uses x. The OT read must be a plain word, not
    the bitfield accessor: the extra mask rotates i off $t0 by 14 diffs. */
+#line 1374 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
 void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2,int c3,int c4)
+
 
 {
   POLY_G4 *prim;
   { int i;
-    for (i = 0; i < opacity; ) {
-      prim = (POLY_G4 *)Render_gPacketPtr;
-      i = i + 1;
-      ((PSXFront_PTag *)prim)->addr = *(uint *)Render_gPalettePtr; Render_gPacketPtr = (u_char *)prim + 0x24; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+    for (i = 0; i < opacity; i++) {
+
+      prim = (POLY_G4 *)Render_gPacketPtr; ((PSXFront_PTag *)prim)->addr = *(uint *)Render_gPalettePtr; Render_gPacketPtr = (u_char *)prim + 0x24; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+
       *(int *)&prim->r0 = c1;
       *(int *)&prim->r1 = c2;
       *(int *)&prim->r2 = c3;
       *(int *)&prim->r3 = c4;
+
       prim->code = 0x39;
       ((u_char *)prim)[3] = 8;
+
+
+
       *(uint *)&prim->x0 = y << 0x10 | x;
-      *(uint *)&prim->x2 = (y + h) << 0x10 | x;
       *(uint *)&prim->x1 = y << 0x10 | (x + w);
+      *(uint *)&prim->x2 = (y + h) << 0x10 | x;
       *(uint *)&prim->x3 = (y + h) << 0x10 | (x + w);
     }
   }
@@ -1336,261 +1565,95 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
 
 /* ---- PSXDrawTransSquare  (psxfront.cpp:1404, code lines 1404-1416) ---- */
 /* GPU packet: builds POLY_F4 (stride 0x18, code 0x2a); prim=u_char* build cursor. */
-void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
-
-{
-  /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
-   * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
-   * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
-  /* decl order = SYM Def-record order (prim, i) -- w86-S5 */
-  POLY_F4 *prim;
-  short i;
-
-  i = 0;
-  if (0 < opacity) {
-    do {
-      prim = (POLY_F4 *)Render_gPacketPtr;
-      i = i + 1;
       /* setaddr(prim, getaddr(OT)) / setaddr(OT, prim) -- the full P_TAG bitfield
        * addPrim() shape.  Here the value side IS a bitfield READ (unlike
        * PSXDrawTransGouraudSquare, which needs the plain word): the second 0xffffff mask
        * is what lifts that constant's loop-weighted allocno onto retail's $t0 ahead of
        * the (y+h) vertex value.  Probe: plain-word value 14, hand-masked OR 22/34.  w44-a2 */
-      ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr;
-      Render_gPacketPtr = (u_char *)prim + 0x18;
-      ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+  /* decl order = SYM Def-record order (prim, i) -- w86-S5 */
+  /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
+   * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
+   * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
+#line 1401 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
+
+
+{
+  POLY_F4 *prim;
+  short i;
+
+  i = 0; if (0 < opacity) { do {
+
+      prim = (POLY_F4 *)Render_gPacketPtr; ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim + 0x18; ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
       *(int *)&prim->r0 = col;
+
       prim->code = 0x2a;
       ((u_char *)prim)[3] = 5;
-      prim->x0 = x;
-      prim->y0 = y;
-      prim->x1 = x + w;
-      prim->y1 = y;
-      prim->x2 = x;
-      prim->y2 = y + h;
-      prim->x3 = x + w;
-      prim->y3 = y + h;
-    } while (i < opacity);
-  }
-  return;
-}
+      prim->x0 = x; prim->y0 = y; prim->x1 = x + w; prim->y1 = y; prim->x2 = x; prim->y2 = y + h; prim->x3 = x + w;
+      prim->y3 = y + h; i = i + 1; } while (i < opacity); } return; }
 
 /* lines 1417-1433: (static data / macros / comments - no emitted code) */
 
 /* ---- FontUpsideDownBlit  (psxfront.cpp:1434, code lines 1434-1466) ---- */
 /* GPU packet: builds POLY_FT4 (stride 0x28, code 0x2c); prim=u_char* build cursor, prevPrim=u_char* link word */
-void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
-
-{
-  /* The seven-argument ABI is authoritative (the mangled name ends in
-   * `...P12charactertbli`), but the retail SYM has no record for the unused final
-   * parameter. */
-  /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
-   * 🔴 ch->yoffset is read with `lb` in retail (SIGNED) -- this build's plain `char` is unsigned,
-   * so it needs an explicit (signed char); and retail never doubles it: the top-Y is built as
-   * (y - yoff + 5) - (height + yoff), keeping `height + yoff` as its own shared term. w42-a7
-   * ---- w43-a2 residual 68 (count EXACT 82/82, brcensus clean, rove_op clean) ----
-   * The whole fn is ONE basic block (no branches), so local_alloc decides every home and the
-   * residual is a single register rotation: ytop lands in $a1 (gcc reuses the dying `y` REGPARM)
-   * where retail uses a fresh $t8, which then frees $a1 for the SECOND `src+0xc` read (retail
-   * `lw a1,12(a2)`; ours self-temps `lw a2,12(a2)`) and flips the $v0/$v1 roles of the second
-   * OT-link chain vs the font_tint load.  MEASURED NEGATIVE (all re-gated): ytop as one/two/three
-   * named locals, fully inlined at all 4 use sites, `ybase+5` as its own MODIFY_EXPR statement,
-   * `5 + (y-yoff)`, `(y+5)-yoff`, hoff computed first, hoff mutated into `yoff` in place, the
-   * ytop computation deferred to 4 different later statement positions, a named local for the
-   * second `src+0xc` read, and 5 positions for the font_tint store (the between-prim[3]-and-
-   * prim[7] slot below is the best of those, 72->68).  gcc folds `(A+5)-B` to `A-(B-5)` through
-   * every spelling tried, so the `addiu t4,t4,-5` vs retail's `addiu v1,t8,5` rides along.
-   * ---- w44-a2 residual 64 (count still EXACT 82/82) ----
-   * STATEMENT POSITION is the live lever here, not expression shape: a greedy per-statement
-   * position hill-climb (scratch/font_climb_a2.py -- every movable statement x every slot)
-   * took 68 -> 66 (font_tint store moved BELOW the gFontClut store) -> 64 (`width = ch->width;`
-   * hoisted to the very top, ahead of `prim = Render_gPacketPtr;`), then plateaued over all 14
-   * movable statements.  Then a10's SPREAD-THE-USES relay took 64 -> 60: move ONE USE (not the
-   * def) toward the top of the block -- `prim[0xc] = u;` hoisted to slot 2.  Re-running the climb
-   * with EVERY statement movable (scratch/font_climb2_a2.py) then took 60 -> 56 (the prim+0x16
-   * tpage word up to slot 18) -> 52 (font_tint store to slot 13) -> 50 (the prim+0x1a ytop store
-   * to slot 22); it was still descending when the wave's time cap stopped it, so RESUME THAT
-   * CLIMB FIRST next pass -- position, not spelling, is what is moving this function.
-   * ---- 2026-08-02 INLINE: climb RESUMED (tools/stmtclimb.py); its round-1 '46' move was
-   * BOGUS -- it moved the `ytop = (ybase+5) - hoff;` DEF past the prim+0x1a store that READS
-   * ytop (use-before-def, uninitialized store; the gate can't see semantics).  REVERTED --
-   * honest converged baseline = 50.  ⚠️ stmtclimb is DATAFLOW-BLIND: any accepted move must
-   * be def-use audited before adoption (tool TODO: reject moves that lift a def past a use).
-   * ---- w45-a1: the climb is CONVERGED, not "still descending".  Re-ran the full
-   * single-move neighbourhood under a NEW def-use-guarded climber (tools/stmtclimb2.py,
-   * which parses the fn's locals, derives per-statement (defs,uses) and REJECTS any order
-   * that uses a local before defining it -- validated: it accepts the baseline order and
-   * rejects exactly the `ytop`-def-past-its-use move that w45 had to revert by hand).  It
-   * found NOTHING: the best body is byte-identical to this one.  Since the guard can only
-   * REMOVE candidates the unguarded climb already tried, 50 is a true single-move local
-   * optimum and w44's "still descending when the cap hit" note is CLOSED -- the descent had
-   * already terminated; its apparent continuation was the invalid move.
-   * Residual 50 = the receipted emission-order + one-hard-register-short; route = permuter
-   * multi-basin or compound multi-move (COMPOUND is now the only unexplored positional
-   * neighbourhood: every SINGLE move is exhausted, so the next pass should climb PAIRS of
-   * statements -- restrict the pair search to the ~8 statements the receipt names as
-   * emission-order-relevant (the font_tint store, the two OT-link RMWs, the dv chain, the
-   * prim+0x16 tpage word) to keep it O(8^2 * slots) rather than O(34^2 * slots)).  a10's zero-insn
-   * REF-STEP INFLATOR (no-op `& 0xffff` re-mask) measured NEUTRAL on all four ytop/(ytop+height)
-   * store sites and on width (64 -> 64); on ybase it costs an insn (65/83).
-   * ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit
-   * bitfield addPrim spellings that cracked BOTH PSXDrawTrans*Square (72 / 132), dropping the
-   * `prevPrim` local for inline Render_gPalettePtr (79), the cursor bump hoisted to 4 earlier
-   * slots (80 / 124), `dv` deferred past the link block (78 insns -- cse then MERGES the two
-   * src+0xc loads the oracle keeps SEPARATE, so dv must stay early), ytop via embedded
-   * MODIFY_EXPR / two statements / in-place mutation / a named `five` (80-88), inlining the
-   * yoff+ybase+hoff+ytop temps per the SYM local list (68-109), and the permuter's own
-   * score-755 candidate (gates 89 -- scorer/gate disagreement, cf. tools/PERMUTER.md).
-   * MECHANISM: this is NOT a register rotation -- an a1<->t8 permblind swap only takes 68->62
-   * and posdiff's alpha-renamed LCS is 15/82, so most of the residual is EMISSION ORDER inside
-   * the single block: retail issues the packet-cursor store + the first OT-link RMW BEFORE the
-   * dv chain and hoists `and t3,t1,t3` (linkAddr) + `lui %hi(font_tint)` ABOVE the first `sw`,
-   * while ours runs the dv chain first and emits both after it.  Ours also runs ONE HARD
-   * REGISTER SHORT (15 vs 16 first-use registers): retail keeps ybase/ytop in a fresh $t8 and
-   * (ybase+5) in $v1, ours folds the +5 into hoff and mutates the dying `y` REGPARM in place,
-   * which frees $a1 so the 2nd src+0xc read self-temps into $a2 instead of retail's $a1.
-   * ==== w46-a1: 50 -> 48.  THE QTY LAYER IS NOW INSTRUMENTED -- read this before touching it.
-   * LANDED (the only mover): `ybase = ybase + 5;` as its OWN statement, mutating ybase in
-   *   place, then `ytop = ybase - hoff;`.  w45 §C says fold's constant reassociation
-   *   (`(A+5)-B -> A-(B-5)`) is STATEMENT-GRANULAR -- parentheses do nothing.  w43 had
-   *   measured "`ybase+5` as its own MODIFY_EXPR" NEGATIVE; that falsification was
-   *   BASIN-RELATIVE and is now retired (`ybase = y - yoff + 5` in two statements = 48 too;
-   *   a THIRD named local `ybase5` = 50; `ybase - (hoff - 5)` = 50).
-   * 🔬 THE QTY PRIORITY TABLE (new tool `tools/qtyprio.py`; this fn has ZERO global allocnos,
-   *   so §A0's `QTY_CMP_PRI == allocno_compare` governs everything).  50 quantities; the
-   *   contested ones, with `floor_log2(refs)*refs/live`:
-   *     p96  ytop        refs 4 live 25  .3200 -> $a1   (retail: $t8)
-   *     p94  ybase       refs 4 live 27  .2963 -> $a1
-   *     p128 2nd src+0xc refs 3 live 21  .1429 -> $a2   (retail: $a1)
-   *     p111 0xFF000000  refs 3 live 28  .1071 -> $t5
-   *     p106 0x00FF0000  refs 3 live 27  .1111 -> $t3
-   *     p87  prim        refs 26 live 69 1.5072 -> $t1  (== retail)
-   *     p84  ch (stack)  refs 2  live 74 .0270 -> $s0   (allocated LAST; the LOWEST priority
-   *                                                      qty takes the callee-saved reg --
-   *                                                      the §A0 proof, reproduced here)
-   *   ⇒ THE REQUIRED DELTA IS ONE STEP, EITHER SIDE OF ONE RAZOR:
-   *     (a) p128 refs 3 -> 4  (floor_log2 1->2: .1429 -> 2*4/21 = .3809) clears ytop's .3200,
-   *         so the 2nd src+0xc read is allocated first and takes $a1 = retail's `lw a1,0xC(a2)`,
-   *         forcing ybase/ytop off $a1; or
-   *     (b) p96 refs 4 -> 3  (.3200 -> 1*3/25 = .1200) or live 25 -> >56, dropping ytop below
-   *         p128 from the other side.
-   * FALSIFIED FROM THE 48 BASIN (all re-gated; the basin is stated per the w45 law):
-   *   - ONE variable carrying y-yoff -> +5 -> -hoff (a single long qty, which is what retail's
-   *     58-insn $t8 range looks like): 62 / 60 -- WORSE, the long qty does not sink far enough.
-   *   - ytop ref-DELETERS (the w45 store-read-back that cracked DrawGouraudShape):
-   *     `prim+0x22 <- prim+0x1a` and `prim+0x12 <- prim+10` each cost a REAL insn here
-   *     (83/84 insns, gate 109/101/110) -- cc1 forwards a just-stored BYTE, not a halfword.
-   *   - p128 inflators: naming the 2nd read in a local `src2` = 48 (exactly 0), `| (src2 & 0)`
-   *     = 48 (fold kills it), a triple re-mask = 58.
-   * 🎯 NEW NAMED ANGLE #E: the +1 ref on p128 must be created where cse/fold CANNOT merge it.
-   *   The one shape not yet tried is the w43/w44 CROSS-JUMPED DUPLICATE (`flow.c` counts both
-   *   arms while cross_jump merges the code): wrap the tpage word in a two-arm if/else whose
-   *   arms are textually identical apart from a term that re-reads `src+0xc`.  Second, cheaper
-   *   route: shorten p128's LIVE range instead of raising its refs (.1429 -> >.32 needs live
-   *   21 -> <=9), i.e. move the tpage word's two uses adjacent to the read.
-   *   2026-08-05 #E round 3: the w47 IDENTITY FENCE on a named src2 (the one cse-proof
-   *   +1-ref device the earlier probes predate) = 78@82 -- the mono-block bluntness
-   *   holds for ALL fence modes (use/opacity/identity) at every placement tried; the
-   *   fence family is EXHAUSTED on this fn.  Remaining route = the #E' instruments
-   *   ONLY: qtytrace --want p128=a1 solver, or the instrumented-cc1 [qty_order]/
-   *   [find_free_reg] traced run (Font is lab-byte-identical; its trace is a receipt).
-   *   2026-08-05 #F ALT-BODY ADOPTION ROUND (user: five-view bodies at C:/Temp/nfs4-psx;
-   *   the "missing" scratchpad 0x1F800004 is NOT missing -- it IS our Render_gPacketPtr
-   *   macro, nfs4_types.h).  Verbatim adoptions, all re-gated: m2c retail-emission-order
-   *   transcription 86@82 / IDA 92@82 / Redec (-2*yoff algebraic fold) 144@80 (2 insns
-   *   SHORT -- the fold is not retail's shape) / JEB = decompilation error.  Feeding cc1
-   *   the retail EMISSION order is strongly NEGATIVE (+38/+44 vs our climbed order): the
-   *   48-basin order pre-compensates cc1's own scheduler; retail order does not survive it.
-   *   HYBRID ATOMS in the 48 basin: named temps for the CSE'd halfword pairs
-   *   (du=u+width / ydv=dv+height / yh=ytop+height / xw=x+width), probed as yh-only,
-   *   all-4, and 3-without-yh -- ALL exactly 48.  yh-only was the receipt's route (b)
-   *   p96-refs-4->3 attempt; its neutrality PROVES the qty ref counts are cse's RTL
-   *   counts, not source counts (src2=48 precedent generalized, 3 combos x 4 temps).
-   *   => route (b) by source spelling is CLOSED; #E' instruments remain the ONLY route.
-   *   🏆 2026-08-05 #E round 5 -- THE EA-NATURAL CLEAN-ROOM RECONSTRUCTION (user order:
-   *   "reconstruct it like the EA programmer using only the symdump disasm oracle").
-   *   Bodies at scratch/font_ea_basin/ (e1..e5); the SYM-TRUE shape is e3/e4: locals
-   *   EXACTLY prim/width/height/dv (raw SYM 8c block: prim $t1, width $t7, height $t6,
-   *   dv $t0, v REG $s0, ch REG $v0, and param y REGPARM reg 24 = $T8), retail-SLD
-   *   statement order (1440 width / 1441 height / 1444 dv / 1446-1447 y-mutation /
-   *   1449 ONE-LINE prim-alloc+bump+addPrim macro / 1452 font_tint / 1455 codes / tpage
-   *   / UV / XY), y-chain carried by MUTATING PARAM y, and -- the discovery --
-   *   🔴 NEW LAW (gcc2.x cse struct-alias rule): a store through a SCALAR lvalue
-   *   (`*(uint *)prim = ...`) invalidates ALL memory equivalences incl. the scratchpad
-   *   cell reads => the 2nd `Render_gPalettePtr` cell read RELOADS (+1 insn, 83/82,
-   *   e1 = 105@83); spelling both link RMWs as P_TAG BITFIELD stores
-   *   (`((PSXFront_PTag*)p)->addr = ...`, MEM_IN_STRUCT_P) does NOT invalidate scalar
-   *   fixed-address MEMs, so the cell load stays SINGLE with NO local -- byte-structure
-   *   equal to retail (e2 = 132@82 count-EXACT).  This is how retail single-loads the
-   *   palette ptr with no prevPrim local, and it retires the old "bitfield falsified
-   *   144@84" verdict as BASIN-RELATIVE (it was measured with the prevPrim local).
-   *   e3 (+5 UNFOLDED as separate `y = y + 5;`) 132->124; e4 (-1 moved into UV args per
-   *   the SLD-1463 hint) neutral 124; e5 (fresh ytop var to break y's $a1 arg
-   *   suggestion) neutral 124 -- y stays $a1 at source level, so retail's y@$t8 is
-   *   pure allocation order (the same p128 razor: retail's 2nd src+0xc read owns $a1).
-   *   STATE: residual 124 = ONE GLOBAL REGISTER ROTATION (width/height/v already in
-   *   retail's regs; prim t0-vs-t1, dv v1-vs-t0, ch t2-vs-v0, pal t3-vs-t2, mask
-   *   t4-vs-t3, y a1-vs-t8), zero structural diffs.  The 48-body is a closer-scoring
-   *   LOOKALIKE in a SYM-false basin (extra locals); the E-basin is the TRUE source
-   *   shape.  => run the instrumented-cc1 [qty_order]/[find_free_reg] trace ON e3/e4,
-   *   not on the 48 body -- its qty-order diff vs retail is now meaningful 1:1.
-   *   2026-08-05 #E round 4 (user: "fix the prologue -- wrong types/declarations?"; all
-   *   probes via the new tools/diffsrc.py attribution): PROLOGUE DIFFS ARE POSITION-ONLY
-   *   ECHOES -- every prologue insn (ori t3 pair-split, lui t5 drift, early lw t0, early
-   *   sb from our w44 prim[0xc] hoist) is byte-identical to retail's, just scheduled into
-   *   different slots downstream of the SAME $a1-vs-$t8 rotation; no type/declaration
-   *   mismatch exists (dv/width/height/yoff/v-copy/constant regs all verified identical).
-   *   FALSIFIED THIS ROUND: (a) ALT-BODY ADOPTION ranking -- ours 48 < m2c-verbatim 86 <
-   *   IDA 92 < Redec 144@80 < JEB(error); feeding cc1 RETAIL EMISSION ORDER is strongly
-   *   negative; (b) named-CSE-temps yh/du/ydv/xw all exactly 48 (neutral -- qty refs are
-   *   cse's RTL counts, not source counts; generalizes src2); (c) THE SYM-FAITHFUL BODY
-   *   (locals = ONLY prim/width/height/dv per SYM 8c block, retail-SLD statement order
-   *   1444->1466, and PARAM-MUTATION `y = y - yoff; y = y+5 - (height+yoff);` -- the one
-   *   spelling that would explain SYM annotating param y at $t8 AND the missing ybase/ytop
-   *   locals) = 105@83 / 3-stmt 105@83; (d) the mutation ATOM alone in the 48 basin = 62 /
-   *   60 (reproduces the falsified single-long-qty numbers) -- and diffsrc PROVES mutated y
-   *   STILL colors to $a1 (sh a1,26 vs retail sh t8,26): cc1 keeps a mutated param in its
-   *   arrival reg; retail's $t8 is an ALLOCATION-ORDER outcome, not a spelling; (e)
-   *   scheduling-flag identity: nosched1 124 / nosched2 83@83 / both 138@92 -- retail used
-   *   DEFAULT scheduling.  ⇒ the prologue snaps in only when the rotation does; route
-   *   unchanged: #E' instruments (instrumented-cc1 [qty_order]/[find_free_reg] trace).
-   *   2026-08-03 ANGLE #E FALSIFIED AS SPELLED (48 basin, 4 probes): fence-before-tpage
-   *   "r"(prim) 108 / "r"(src) 74 / fence-after 110 / cross-jump duplicate if(width) 143@81.
-   *   MECHANISM: in a mono-block 50-qty function the fence is TOO BLUNT -- it pins every
-   *   value crossing it, and the collateral live-range shifts rotate far more than p128
-   *   (the CONFLICT-SET boundary from the PrimMenu receipt, single-block form).  The
-   *   cross-jump duplicate loses an insn (81/82) -- the cond folds.  🎯 #E': the dial must
-   *   touch ONLY p128 or ONLY ytop: (1) qtytrace --want "p128=a1" (the solver's first live
-   *   test) for an exact minimal delta; (2) instrumented-cc1 [qty_order]/[find_free_reg]
-   *   trace (Font IS in the byte-identical set -- its trace is a RECEIPT) to read who takes
-   *   $a1 first and which single qty to demote; (3) route (b) untried half: ytop live
-   *   25 -> >56 via a LATE ytop consumer (the last store at prim+0x22 already reads it --
-   *   a post-return-adjacent use does not exist; needs a real spelling idea).
-   * 🔬 POSITIONAL NEIGHBOURHOOD (tools/stmtclimb3.py, committed this wave): from the 50 basin
-   *   PHASE 1 gated ALL 625 def-use-valid single moves (every one = 50, confirming w45's
-   *   single-move optimum EXHAUSTIVELY rather than greedily) and PHASE 2 gated 825 COMPOUND
-   *   PAIR moves built from the 45 best singles -- best still 50.  ⇒ 50 was also a TWO-move
-   *   local optimum; position is EXHAUSTED as a lever from that basin, which is why the win
-   *   came from expression shape instead.  RE-RUN FROM THE 48 BASIN (35 statements): 650
-   *   valid singles + 586 pairs gated, best still 48 -- so 48 is ALSO a single- AND two-move
-   *   positional optimum.  ⇒ for this function, position is a CLOSED dial in both basins;
-   *   only refs/live (the qty table above) and expression shape remain.
-   * 🔑 a10 (gcc lane) CONFIRMATIONS for this table, w46: (i) it VALIDATES 27/27 against the
-   *   real CC1PLPSX `.lreg` -- q4/p84 ranks DEAD LAST at .0294, which is exactly WHY it sits
-   *   on $s0 (the §A0 law reproduced on this function); (ii) FOUR of the qtys are pass-1
-   *   "suggestion" allocations that the ref dial CANNOT reach -- aim only at the qsort-ordered
-   *   rest; (iii) 🔴 NEW LAW: `local-alloc.c:1588` hand-rolls the ordering for `next_qty <= 3`
-   *   with a BROKEN comparator, so any 3-quantity BLOCK is NOT priority-ordered (38/38
-   *   corpus-validated, 32% non-descending) -- in such a block the dials are BIRTH ORDER and
-   *   crossing the 3-vs-4 qty-count boundary (add/remove one block-local temp).  This whole
-   *   function is ONE block with 50 qtys, so (iii) does not bite here, but it does bite any
-   *   small arm.  a10 also ships `tools/qtytrace.py` (branch w46-a10: `--steps` ref-step math,
-   *   `--want` delta solver, solver UNTESTED) and a near-oracle instrumented `cc1plus-ecoff.exe`
-   *   at C:/Temp/nfs4-instr-cc1 (`-mgas -msplit-addresses -funsigned-char -fno-exceptions
-   *   -fno-rtti`; psxfront 22/25 byte-identical -- FontUpsideDownBlit is in the identical set,
-   *   DrawGouraudShape is one of the 3 inline-GTE divergences, so use it for qty/allocno traces
-   *   on Draw, never as a byte oracle). */
+  /* ==== 2026-08-24 SYM-EXACT SOURCE CLEANUP — 20 -> 52 (82/82) ====
+   * The old 20-diff basin depended on source declarations absent from retail:
+   * named seventh-parameter carrier `arg6`, macro locals `pal`/`bottom`/`right`,
+   * and a zero-insn asm fence.  The body below removes all four devices.  The
+   * seventh ABI slot is now unnamed; the macro expansions introduce no locals;
+   * and this function contains neither asm nor volatile.
+   *
+   * Fresh -O2 -g CC1PLPSX evidence now emits exactly the retail declaration set
+   * and block topology: x/y/src/u, stack v/ch plus their REG copies, and one block
+   * containing only prim/width/height/dv with the retail types.  prim=$t1,
+   * width=$t7, height=$t6, dv=$t0, v=$s0, and ch=$v0 are also retail-exact.
+   * The remaining 52 instruction diffs are codegen allocation/scheduling: y is
+   * still kept in incoming $a1 instead of retail $t8, followed by the associated
+   * addPrim/tint and tpage echoes.  No source-only name is retained to hide that
+   * residual.  Falsified while preserving the same no-asm/no-volatile policy:
+   * one-expression y chain 58; dv as the seventh parameter 118@78; dv reused as
+   * the +5 carrier 118@78; prim reused as the carrier 138@78; v reused as the
+   * carrier 130; and an address-of-stack-slot carrier 122.  A static-inline +5
+   * helper reached 26 and made y=$t8, but CC1PLPSX emitted two additional nested
+   * block pairs absent from retail SYM, so that tempting non-exact route was also
+   * rejected.
+   *
+   * ==== 2026-08-25 SYM-EXACT FAIL-6 RTL RECEIPT ====
+   * The body below is now count-exact (82/82) and its only residuals are the
+   * len/tint ownership pair plus the y0 store position.  Fresh retail-compiler
+   * -da dumps identify the header mechanism exactly: tint address/value are
+   * pseudos 127/128 and the byte constant 9 is pseudo 129.  Sched1 ends 128
+   * before 129 is born, so local-alloc gives both $v0; sched2 then records a hard
+   * anti-dependence and cannot hoist `li 9` across the tint store.  Retail instead
+   * keeps the tint value live across that definition, giving 9 to $v1.  The tail
+   * is likewise one measured sched2 level: tpage store insn 175 has priority 7,
+   * while y0 store insn 219 has priority 6, so ours selects tpage too early in
+   * the backward schedule and emits y0 before it.
+   *
+   * Rejected from this exact basin (all restored): canonical setPolyFT4-before-
+   * tint 80@84; duplicated early len 78@84; dead code-byte carrier 79@85;
+   * existing v/ch carriers 78@78 and 16@82; byte/comma ch staging neutral or 16;
+   * byte inline-return carrier 14@84; literal/readback/identity empty-asm carriers
+   * 108-130@79/80; v3/y0 and tpage/v3/y0 comma dependencies 70@82 and 112@78;
+   * x1-after-y0 dependency 10@82; memory-tied y0 dependency 72@82; and the
+   * corpus-authentic destructive width/height phase 112@78 (113@79 with a v
+   * liveness fence, which also blocks the return delay-slot fill).  Raw-vs-member
+   * tint destination spelling and a tpage conditional dependency are exactly
+   * neutral at 6.
+   *
+   * ==== 2026-08-26 SYM-EXACT PASS (82/82) ====
+   * The community macro reconstruction in scratchpad/FontUpside.txt supplied
+   * the missing combined source shape.  Its decisive parts must be kept as one
+   * bundle: addPrim's comma expansion precedes the packet-cursor bump; `dv`
+   * retains the unadjusted masked value and setUVWH subtracts one at every UV
+   * use; setPolyFT4 is followed by the source's explicit setcode/setlen writes
+   * (gcc removes the redundant stores but changes the 9/tint live overlap); and
+   * setXYWH expands as semicolon-separated x/y assignments in vertex order.
+   * Comma punctuation by itself was neutral; the complete macro/lifetime shape
+   * changes both remaining scheduler decisions.  Detailed verify_asm and vdiff
+   * are exact, tools/sldall.py reports a -g twin, and the frontend/psx SYM audit
+   * remains 85/85 declaration-clean with zero missing/extra locals or types.
+   * No asm, volatile, register pin, added local, or post-compiler move is used. */
   /* ==== 🏆 2026-08-05 ROUND 6 — THE BODY BELOW REPLACED THE 48-DIFF LOOKALIKE ====
    * This is V10 of the EA-natural clean-room campaign (scratch/font_ea_basin/, rounds
    * 1-6 in TRACE_NOTES.md): the SYM-true shape (locals EXACTLY prim/width/height/dv),
@@ -2001,64 +2064,220 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
    *   measured is +1..+4 insns).  M3 body preserved at
    *   scratchpad/w76/A2_body_m3.cpp; harness scratchpad/w76/A2_*.py;
    *   report scratchpad/w76/A2_report.md. */
-  /* ==== 2026-08-24 SYM-EXACT SOURCE CLEANUP — 20 -> 52 (82/82) ====
-   * The old 20-diff basin depended on source declarations absent from retail:
-   * named seventh-parameter carrier `arg6`, macro locals `pal`/`bottom`/`right`,
-   * and a zero-insn asm fence.  The body below removes all four devices.  The
-   * seventh ABI slot is now unnamed; the macro expansions introduce no locals;
-   * and this function contains neither asm nor volatile.
-   *
-   * Fresh -O2 -g CC1PLPSX evidence now emits exactly the retail declaration set
-   * and block topology: x/y/src/u, stack v/ch plus their REG copies, and one block
-   * containing only prim/width/height/dv with the retail types.  prim=$t1,
-   * width=$t7, height=$t6, dv=$t0, v=$s0, and ch=$v0 are also retail-exact.
-   * The remaining 52 instruction diffs are codegen allocation/scheduling: y is
-   * still kept in incoming $a1 instead of retail $t8, followed by the associated
-   * addPrim/tint and tpage echoes.  No source-only name is retained to hide that
-   * residual.  Falsified while preserving the same no-asm/no-volatile policy:
-   * one-expression y chain 58; dv as the seventh parameter 118@78; dv reused as
-   * the +5 carrier 118@78; prim reused as the carrier 138@78; v reused as the
-   * carrier 130; and an address-of-stack-slot carrier 122.  A static-inline +5
-   * helper reached 26 and made y=$t8, but CC1PLPSX emitted two additional nested
-   * block pairs absent from retail SYM, so that tempting non-exact route was also
-   * rejected.
-   *
-   * ==== 2026-08-25 SYM-EXACT FAIL-6 RTL RECEIPT ====
-   * The body below is now count-exact (82/82) and its only residuals are the
-   * len/tint ownership pair plus the y0 store position.  Fresh retail-compiler
-   * -da dumps identify the header mechanism exactly: tint address/value are
-   * pseudos 127/128 and the byte constant 9 is pseudo 129.  Sched1 ends 128
-   * before 129 is born, so local-alloc gives both $v0; sched2 then records a hard
-   * anti-dependence and cannot hoist `li 9` across the tint store.  Retail instead
-   * keeps the tint value live across that definition, giving 9 to $v1.  The tail
-   * is likewise one measured sched2 level: tpage store insn 175 has priority 7,
-   * while y0 store insn 219 has priority 6, so ours selects tpage too early in
-   * the backward schedule and emits y0 before it.
-   *
-   * Rejected from this exact basin (all restored): canonical setPolyFT4-before-
-   * tint 80@84; duplicated early len 78@84; dead code-byte carrier 79@85;
-   * existing v/ch carriers 78@78 and 16@82; byte/comma ch staging neutral or 16;
-   * byte inline-return carrier 14@84; literal/readback/identity empty-asm carriers
-   * 108-130@79/80; v3/y0 and tpage/v3/y0 comma dependencies 70@82 and 112@78;
-   * x1-after-y0 dependency 10@82; memory-tied y0 dependency 72@82; and the
-   * corpus-authentic destructive width/height phase 112@78 (113@79 with a v
-   * liveness fence, which also blocks the return delay-slot fill).  Raw-vs-member
-   * tint destination spelling and a tpage conditional dependency are exactly
-   * neutral at 6.
-   *
-   * ==== 2026-08-26 SYM-EXACT PASS (82/82) ====
-   * The community macro reconstruction in scratchpad/FontUpside.txt supplied
-   * the missing combined source shape.  Its decisive parts must be kept as one
-   * bundle: addPrim's comma expansion precedes the packet-cursor bump; `dv`
-   * retains the unadjusted masked value and setUVWH subtracts one at every UV
-   * use; setPolyFT4 is followed by the source's explicit setcode/setlen writes
-   * (gcc removes the redundant stores but changes the 9/tint live overlap); and
-   * setXYWH expands as semicolon-separated x/y assignments in vertex order.
-   * Comma punctuation by itself was neutral; the complete macro/lifetime shape
-   * changes both remaining scheduler decisions.  Detailed verify_asm and vdiff
-   * are exact, tools/sldall.py reports a -g twin, and the frontend/psx SYM audit
-   * remains 85/85 declaration-clean with zero missing/extra locals or types.
-   * No asm, volatile, register pin, added local, or post-compiler move is used. */
+  /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
+   * 🔴 ch->yoffset is read with `lb` in retail (SIGNED) -- this build's plain `char` is unsigned,
+   * so it needs an explicit (signed char); and retail never doubles it: the top-Y is built as
+   * (y - yoff + 5) - (height + yoff), keeping `height + yoff` as its own shared term. w42-a7
+   * ---- w43-a2 residual 68 (count EXACT 82/82, brcensus clean, rove_op clean) ----
+   * The whole fn is ONE basic block (no branches), so local_alloc decides every home and the
+   * residual is a single register rotation: ytop lands in $a1 (gcc reuses the dying `y` REGPARM)
+   * where retail uses a fresh $t8, which then frees $a1 for the SECOND `src+0xc` read (retail
+   * `lw a1,12(a2)`; ours self-temps `lw a2,12(a2)`) and flips the $v0/$v1 roles of the second
+   * OT-link chain vs the font_tint load.  MEASURED NEGATIVE (all re-gated): ytop as one/two/three
+   * named locals, fully inlined at all 4 use sites, `ybase+5` as its own MODIFY_EXPR statement,
+   * `5 + (y-yoff)`, `(y+5)-yoff`, hoff computed first, hoff mutated into `yoff` in place, the
+   * ytop computation deferred to 4 different later statement positions, a named local for the
+   * second `src+0xc` read, and 5 positions for the font_tint store (the between-prim[3]-and-
+   * prim[7] slot below is the best of those, 72->68).  gcc folds `(A+5)-B` to `A-(B-5)` through
+   * every spelling tried, so the `addiu t4,t4,-5` vs retail's `addiu v1,t8,5` rides along.
+   * ---- w44-a2 residual 64 (count still EXACT 82/82) ----
+   * STATEMENT POSITION is the live lever here, not expression shape: a greedy per-statement
+   * position hill-climb (scratch/font_climb_a2.py -- every movable statement x every slot)
+   * took 68 -> 66 (font_tint store moved BELOW the gFontClut store) -> 64 (`width = ch->width;`
+   * hoisted to the very top, ahead of `prim = Render_gPacketPtr;`), then plateaued over all 14
+   * movable statements.  Then a10's SPREAD-THE-USES relay took 64 -> 60: move ONE USE (not the
+   * def) toward the top of the block -- `prim[0xc] = u;` hoisted to slot 2.  Re-running the climb
+   * with EVERY statement movable (scratch/font_climb2_a2.py) then took 60 -> 56 (the prim+0x16
+   * tpage word up to slot 18) -> 52 (font_tint store to slot 13) -> 50 (the prim+0x1a ytop store
+   * to slot 22); it was still descending when the wave's time cap stopped it, so RESUME THAT
+   * CLIMB FIRST next pass -- position, not spelling, is what is moving this function.
+   * ---- 2026-08-02 INLINE: climb RESUMED (tools/stmtclimb.py); its round-1 '46' move was
+   * BOGUS -- it moved the `ytop = (ybase+5) - hoff;` DEF past the prim+0x1a store that READS
+   * ytop (use-before-def, uninitialized store; the gate can't see semantics).  REVERTED --
+   * honest converged baseline = 50.  ⚠️ stmtclimb is DATAFLOW-BLIND: any accepted move must
+   * be def-use audited before adoption (tool TODO: reject moves that lift a def past a use).
+   * ---- w45-a1: the climb is CONVERGED, not "still descending".  Re-ran the full
+   * single-move neighbourhood under a NEW def-use-guarded climber (tools/stmtclimb2.py,
+   * which parses the fn's locals, derives per-statement (defs,uses) and REJECTS any order
+   * that uses a local before defining it -- validated: it accepts the baseline order and
+   * rejects exactly the `ytop`-def-past-its-use move that w45 had to revert by hand).  It
+   * found NOTHING: the best body is byte-identical to this one.  Since the guard can only
+   * REMOVE candidates the unguarded climb already tried, 50 is a true single-move local
+   * optimum and w44's "still descending when the cap hit" note is CLOSED -- the descent had
+   * already terminated; its apparent continuation was the invalid move.
+   * Residual 50 = the receipted emission-order + one-hard-register-short; route = permuter
+   * multi-basin or compound multi-move (COMPOUND is now the only unexplored positional
+   * neighbourhood: every SINGLE move is exhausted, so the next pass should climb PAIRS of
+   * statements -- restrict the pair search to the ~8 statements the receipt names as
+   * emission-order-relevant (the font_tint store, the two OT-link RMWs, the dv chain, the
+   * prim+0x16 tpage word) to keep it O(8^2 * slots) rather than O(34^2 * slots)).  a10's zero-insn
+   * REF-STEP INFLATOR (no-op `& 0xffff` re-mask) measured NEUTRAL on all four ytop/(ytop+height)
+   * store sites and on width (64 -> 64); on ybase it costs an insn (65/83).
+   * ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit
+   * bitfield addPrim spellings that cracked BOTH PSXDrawTrans*Square (72 / 132), dropping the
+   * `prevPrim` local for inline Render_gPalettePtr (79), the cursor bump hoisted to 4 earlier
+   * slots (80 / 124), `dv` deferred past the link block (78 insns -- cse then MERGES the two
+   * src+0xc loads the oracle keeps SEPARATE, so dv must stay early), ytop via embedded
+   * MODIFY_EXPR / two statements / in-place mutation / a named `five` (80-88), inlining the
+   * yoff+ybase+hoff+ytop temps per the SYM local list (68-109), and the permuter's own
+   * score-755 candidate (gates 89 -- scorer/gate disagreement, cf. tools/PERMUTER.md).
+   * MECHANISM: this is NOT a register rotation -- an a1<->t8 permblind swap only takes 68->62
+   * and posdiff's alpha-renamed LCS is 15/82, so most of the residual is EMISSION ORDER inside
+   * the single block: retail issues the packet-cursor store + the first OT-link RMW BEFORE the
+   * dv chain and hoists `and t3,t1,t3` (linkAddr) + `lui %hi(font_tint)` ABOVE the first `sw`,
+   * while ours runs the dv chain first and emits both after it.  Ours also runs ONE HARD
+   * REGISTER SHORT (15 vs 16 first-use registers): retail keeps ybase/ytop in a fresh $t8 and
+   * (ybase+5) in $v1, ours folds the +5 into hoff and mutates the dying `y` REGPARM in place,
+   * which frees $a1 so the 2nd src+0xc read self-temps into $a2 instead of retail's $a1.
+   * ==== w46-a1: 50 -> 48.  THE QTY LAYER IS NOW INSTRUMENTED -- read this before touching it.
+   * LANDED (the only mover): `ybase = ybase + 5;` as its OWN statement, mutating ybase in
+   *   place, then `ytop = ybase - hoff;`.  w45 §C says fold's constant reassociation
+   *   (`(A+5)-B -> A-(B-5)`) is STATEMENT-GRANULAR -- parentheses do nothing.  w43 had
+   *   measured "`ybase+5` as its own MODIFY_EXPR" NEGATIVE; that falsification was
+   *   BASIN-RELATIVE and is now retired (`ybase = y - yoff + 5` in two statements = 48 too;
+   *   a THIRD named local `ybase5` = 50; `ybase - (hoff - 5)` = 50).
+   * 🔬 THE QTY PRIORITY TABLE (new tool `tools/qtyprio.py`; this fn has ZERO global allocnos,
+   *   so §A0's `QTY_CMP_PRI == allocno_compare` governs everything).  50 quantities; the
+   *   contested ones, with `floor_log2(refs)*refs/live`:
+   *     p96  ytop        refs 4 live 25  .3200 -> $a1   (retail: $t8)
+   *     p94  ybase       refs 4 live 27  .2963 -> $a1
+   *     p128 2nd src+0xc refs 3 live 21  .1429 -> $a2   (retail: $a1)
+   *     p111 0xFF000000  refs 3 live 28  .1071 -> $t5
+   *     p106 0x00FF0000  refs 3 live 27  .1111 -> $t3
+   *     p87  prim        refs 26 live 69 1.5072 -> $t1  (== retail)
+   *     p84  ch (stack)  refs 2  live 74 .0270 -> $s0   (allocated LAST; the LOWEST priority
+   *                                                      qty takes the callee-saved reg --
+   *                                                      the §A0 proof, reproduced here)
+   *   ⇒ THE REQUIRED DELTA IS ONE STEP, EITHER SIDE OF ONE RAZOR:
+   *     (a) p128 refs 3 -> 4  (floor_log2 1->2: .1429 -> 2*4/21 = .3809) clears ytop's .3200,
+   *         so the 2nd src+0xc read is allocated first and takes $a1 = retail's `lw a1,0xC(a2)`,
+   *         forcing ybase/ytop off $a1; or
+   *     (b) p96 refs 4 -> 3  (.3200 -> 1*3/25 = .1200) or live 25 -> >56, dropping ytop below
+   *         p128 from the other side.
+   * FALSIFIED FROM THE 48 BASIN (all re-gated; the basin is stated per the w45 law):
+   *   - ONE variable carrying y-yoff -> +5 -> -hoff (a single long qty, which is what retail's
+   *     58-insn $t8 range looks like): 62 / 60 -- WORSE, the long qty does not sink far enough.
+   *   - ytop ref-DELETERS (the w45 store-read-back that cracked DrawGouraudShape):
+   *     `prim+0x22 <- prim+0x1a` and `prim+0x12 <- prim+10` each cost a REAL insn here
+   *     (83/84 insns, gate 109/101/110) -- cc1 forwards a just-stored BYTE, not a halfword.
+   *   - p128 inflators: naming the 2nd read in a local `src2` = 48 (exactly 0), `| (src2 & 0)`
+   *     = 48 (fold kills it), a triple re-mask = 58.
+   * 🎯 NEW NAMED ANGLE #E: the +1 ref on p128 must be created where cse/fold CANNOT merge it.
+   *   The one shape not yet tried is the w43/w44 CROSS-JUMPED DUPLICATE (`flow.c` counts both
+   *   arms while cross_jump merges the code): wrap the tpage word in a two-arm if/else whose
+   *   arms are textually identical apart from a term that re-reads `src+0xc`.  Second, cheaper
+   *   route: shorten p128's LIVE range instead of raising its refs (.1429 -> >.32 needs live
+   *   21 -> <=9), i.e. move the tpage word's two uses adjacent to the read.
+   *   2026-08-05 #E round 3: the w47 IDENTITY FENCE on a named src2 (the one cse-proof
+   *   +1-ref device the earlier probes predate) = 78@82 -- the mono-block bluntness
+   *   holds for ALL fence modes (use/opacity/identity) at every placement tried; the
+   *   fence family is EXHAUSTED on this fn.  Remaining route = the #E' instruments
+   *   ONLY: qtytrace --want p128=a1 solver, or the instrumented-cc1 [qty_order]/
+   *   [find_free_reg] traced run (Font is lab-byte-identical; its trace is a receipt).
+   *   2026-08-05 #F ALT-BODY ADOPTION ROUND (user: five-view bodies at C:/Temp/nfs4-psx;
+   *   the "missing" scratchpad 0x1F800004 is NOT missing -- it IS our Render_gPacketPtr
+   *   macro, nfs4_types.h).  Verbatim adoptions, all re-gated: m2c retail-emission-order
+   *   transcription 86@82 / IDA 92@82 / Redec (-2*yoff algebraic fold) 144@80 (2 insns
+   *   SHORT -- the fold is not retail's shape) / JEB = decompilation error.  Feeding cc1
+   *   the retail EMISSION order is strongly NEGATIVE (+38/+44 vs our climbed order): the
+   *   48-basin order pre-compensates cc1's own scheduler; retail order does not survive it.
+   *   HYBRID ATOMS in the 48 basin: named temps for the CSE'd halfword pairs
+   *   (du=u+width / ydv=dv+height / yh=ytop+height / xw=x+width), probed as yh-only,
+   *   all-4, and 3-without-yh -- ALL exactly 48.  yh-only was the receipt's route (b)
+   *   p96-refs-4->3 attempt; its neutrality PROVES the qty ref counts are cse's RTL
+   *   counts, not source counts (src2=48 precedent generalized, 3 combos x 4 temps).
+   *   => route (b) by source spelling is CLOSED; #E' instruments remain the ONLY route.
+   *   🏆 2026-08-05 #E round 5 -- THE EA-NATURAL CLEAN-ROOM RECONSTRUCTION (user order:
+   *   "reconstruct it like the EA programmer using only the symdump disasm oracle").
+   *   Bodies at scratch/font_ea_basin/ (e1..e5); the SYM-TRUE shape is e3/e4: locals
+   *   EXACTLY prim/width/height/dv (raw SYM 8c block: prim $t1, width $t7, height $t6,
+   *   dv $t0, v REG $s0, ch REG $v0, and param y REGPARM reg 24 = $T8), retail-SLD
+   *   statement order (1440 width / 1441 height / 1444 dv / 1446-1447 y-mutation /
+   *   1449 ONE-LINE prim-alloc+bump+addPrim macro / 1452 font_tint / 1455 codes / tpage
+   *   / UV / XY), y-chain carried by MUTATING PARAM y, and -- the discovery --
+   *   🔴 NEW LAW (gcc2.x cse struct-alias rule): a store through a SCALAR lvalue
+   *   (`*(uint *)prim = ...`) invalidates ALL memory equivalences incl. the scratchpad
+   *   cell reads => the 2nd `Render_gPalettePtr` cell read RELOADS (+1 insn, 83/82,
+   *   e1 = 105@83); spelling both link RMWs as P_TAG BITFIELD stores
+   *   (`((PSXFront_PTag*)p)->addr = ...`, MEM_IN_STRUCT_P) does NOT invalidate scalar
+   *   fixed-address MEMs, so the cell load stays SINGLE with NO local -- byte-structure
+   *   equal to retail (e2 = 132@82 count-EXACT).  This is how retail single-loads the
+   *   palette ptr with no prevPrim local, and it retires the old "bitfield falsified
+   *   144@84" verdict as BASIN-RELATIVE (it was measured with the prevPrim local).
+   *   e3 (+5 UNFOLDED as separate `y = y + 5;`) 132->124; e4 (-1 moved into UV args per
+   *   the SLD-1463 hint) neutral 124; e5 (fresh ytop var to break y's $a1 arg
+   *   suggestion) neutral 124 -- y stays $a1 at source level, so retail's y@$t8 is
+   *   pure allocation order (the same p128 razor: retail's 2nd src+0xc read owns $a1).
+   *   STATE: residual 124 = ONE GLOBAL REGISTER ROTATION (width/height/v already in
+   *   retail's regs; prim t0-vs-t1, dv v1-vs-t0, ch t2-vs-v0, pal t3-vs-t2, mask
+   *   t4-vs-t3, y a1-vs-t8), zero structural diffs.  The 48-body is a closer-scoring
+   *   LOOKALIKE in a SYM-false basin (extra locals); the E-basin is the TRUE source
+   *   shape.  => run the instrumented-cc1 [qty_order]/[find_free_reg] trace ON e3/e4,
+   *   not on the 48 body -- its qty-order diff vs retail is now meaningful 1:1.
+   *   2026-08-05 #E round 4 (user: "fix the prologue -- wrong types/declarations?"; all
+   *   probes via the new tools/diffsrc.py attribution): PROLOGUE DIFFS ARE POSITION-ONLY
+   *   ECHOES -- every prologue insn (ori t3 pair-split, lui t5 drift, early lw t0, early
+   *   sb from our w44 prim[0xc] hoist) is byte-identical to retail's, just scheduled into
+   *   different slots downstream of the SAME $a1-vs-$t8 rotation; no type/declaration
+   *   mismatch exists (dv/width/height/yoff/v-copy/constant regs all verified identical).
+   *   FALSIFIED THIS ROUND: (a) ALT-BODY ADOPTION ranking -- ours 48 < m2c-verbatim 86 <
+   *   IDA 92 < Redec 144@80 < JEB(error); feeding cc1 RETAIL EMISSION ORDER is strongly
+   *   negative; (b) named-CSE-temps yh/du/ydv/xw all exactly 48 (neutral -- qty refs are
+   *   cse's RTL counts, not source counts; generalizes src2); (c) THE SYM-FAITHFUL BODY
+   *   (locals = ONLY prim/width/height/dv per SYM 8c block, retail-SLD statement order
+   *   1444->1466, and PARAM-MUTATION `y = y - yoff; y = y+5 - (height+yoff);` -- the one
+   *   spelling that would explain SYM annotating param y at $t8 AND the missing ybase/ytop
+   *   locals) = 105@83 / 3-stmt 105@83; (d) the mutation ATOM alone in the 48 basin = 62 /
+   *   60 (reproduces the falsified single-long-qty numbers) -- and diffsrc PROVES mutated y
+   *   STILL colors to $a1 (sh a1,26 vs retail sh t8,26): cc1 keeps a mutated param in its
+   *   arrival reg; retail's $t8 is an ALLOCATION-ORDER outcome, not a spelling; (e)
+   *   scheduling-flag identity: nosched1 124 / nosched2 83@83 / both 138@92 -- retail used
+   *   DEFAULT scheduling.  ⇒ the prologue snaps in only when the rotation does; route
+   *   unchanged: #E' instruments (instrumented-cc1 [qty_order]/[find_free_reg] trace).
+   *   2026-08-03 ANGLE #E FALSIFIED AS SPELLED (48 basin, 4 probes): fence-before-tpage
+   *   "r"(prim) 108 / "r"(src) 74 / fence-after 110 / cross-jump duplicate if(width) 143@81.
+   *   MECHANISM: in a mono-block 50-qty function the fence is TOO BLUNT -- it pins every
+   *   value crossing it, and the collateral live-range shifts rotate far more than p128
+   *   (the CONFLICT-SET boundary from the PrimMenu receipt, single-block form).  The
+   *   cross-jump duplicate loses an insn (81/82) -- the cond folds.  🎯 #E': the dial must
+   *   touch ONLY p128 or ONLY ytop: (1) qtytrace --want "p128=a1" (the solver's first live
+   *   test) for an exact minimal delta; (2) instrumented-cc1 [qty_order]/[find_free_reg]
+   *   trace (Font IS in the byte-identical set -- its trace is a RECEIPT) to read who takes
+   *   $a1 first and which single qty to demote; (3) route (b) untried half: ytop live
+   *   25 -> >56 via a LATE ytop consumer (the last store at prim+0x22 already reads it --
+   *   a post-return-adjacent use does not exist; needs a real spelling idea).
+   * 🔬 POSITIONAL NEIGHBOURHOOD (tools/stmtclimb3.py, committed this wave): from the 50 basin
+   *   PHASE 1 gated ALL 625 def-use-valid single moves (every one = 50, confirming w45's
+   *   single-move optimum EXHAUSTIVELY rather than greedily) and PHASE 2 gated 825 COMPOUND
+   *   PAIR moves built from the 45 best singles -- best still 50.  ⇒ 50 was also a TWO-move
+   *   local optimum; position is EXHAUSTED as a lever from that basin, which is why the win
+   *   came from expression shape instead.  RE-RUN FROM THE 48 BASIN (35 statements): 650
+   *   valid singles + 586 pairs gated, best still 48 -- so 48 is ALSO a single- AND two-move
+   *   positional optimum.  ⇒ for this function, position is a CLOSED dial in both basins;
+   *   only refs/live (the qty table above) and expression shape remain.
+   * 🔑 a10 (gcc lane) CONFIRMATIONS for this table, w46: (i) it VALIDATES 27/27 against the
+   *   real CC1PLPSX `.lreg` -- q4/p84 ranks DEAD LAST at .0294, which is exactly WHY it sits
+   *   on $s0 (the §A0 law reproduced on this function); (ii) FOUR of the qtys are pass-1
+   *   "suggestion" allocations that the ref dial CANNOT reach -- aim only at the qsort-ordered
+   *   rest; (iii) 🔴 NEW LAW: `local-alloc.c:1588` hand-rolls the ordering for `next_qty <= 3`
+   *   with a BROKEN comparator, so any 3-quantity BLOCK is NOT priority-ordered (38/38
+   *   corpus-validated, 32% non-descending) -- in such a block the dials are BIRTH ORDER and
+   *   crossing the 3-vs-4 qty-count boundary (add/remove one block-local temp).  This whole
+   *   function is ONE block with 50 qtys, so (iii) does not bite here, but it does bite any
+   *   small arm.  a10 also ships `tools/qtytrace.py` (branch w46-a10: `--steps` ref-step math,
+   *   `--want` delta solver, solver UNTESTED) and a near-oracle instrumented `cc1plus-ecoff.exe`
+   *   at C:/Temp/nfs4-instr-cc1 (`-mgas -msplit-addresses -funsigned-char -fno-exceptions
+   *   -fno-rtti`; psxfront 22/25 byte-identical -- FontUpsideDownBlit is in the identical set,
+   *   DrawGouraudShape is one of the 3 inline-GTE divergences, so use it for qty/allocno traces
+   *   on Draw, never as a byte oracle). */
+  /* The seven-argument ABI is authoritative (the mangled name ends in
+   * `...P12charactertbli`), but the retail SYM has no record for the unused final
+   * parameter. */
+#line 1431 "C:/nfs4/FRONTEND/PSX/PSXFRONT.CPP"
+void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
+
+
+{
   POLY_FT4      *prim;
   int            width;
   int            height;
@@ -2066,36 +2285,31 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
 
   width = ch->width;
   height = ch->height;
+
+
   dv = (((shapetbl *)src)->shapey + v) & 0xff;
+
   y -= (signed char)ch->yoffset;
   y += 5 - (height + (signed char)ch->yoffset);
-  prim = (POLY_FT4 *)Render_gPacketPtr;
-  ((PSXFront_PTag *)prim)->addr =
-      ((PSXFront_PTag *)Render_gPalettePtr)->addr,
-  ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
-  Render_gPacketPtr += sizeof(POLY_FT4);
+
+  prim = (POLY_FT4 *)Render_gPacketPtr; ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr, ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim; Render_gPacketPtr += sizeof(POLY_FT4);
+
+
   *(u_long *)&prim->r0 = font_tint;
-  ((PSXFront_PTag *)prim)->len = (u_char)9,
-  prim->code = (u_char)0x2c;
+
+
+  ((PSXFront_PTag *)prim)->len = (u_char)9;
   prim->code = (u_char)0x2c;
   ((PSXFront_PTag *)prim)->len = (u_char)9;
+
+
   prim->clut = gFontClut;
-  prim->tpage = (((shapetbl *)src)->type & 3) << 7 |
-                (((shapetbl *)src)->shapey & 0x100) >> 4 |
-                (((shapetbl *)src)->shapex & 0x3ff) >> 6;
+  prim->tpage = (((shapetbl *)src)->type & 3) << 7 | (((shapetbl *)src)->shapey & 0x100) >> 4 | (((shapetbl *)src)->shapex & 0x3ff) >> 6;
   prim->u0 = u, prim->v0 = dv - 1,
-  prim->u1 = u + width, prim->v1 = dv - 1,
-  prim->u2 = u, prim->v2 = dv - 1 + height,
-  prim->u3 = u + width, prim->v3 = dv - 1 + height;
-  prim->x0 = x;
-  prim->y0 = y + height;
-  prim->x1 = x + width;
-  prim->y1 = y + height;
-  prim->x2 = x;
-  prim->y2 = y;
-  prim->x3 = x + width;
-  prim->y3 = y;
-  return;
+  prim->u1 = u + width, prim->v1 = dv - 1, prim->u2 = u, prim->v2 = dv - 1 + height, prim->u3 = u + width, prim->v3 = dv - 1 + height;
+
+
+  prim->x0 = x; prim->y0 = y + height; prim->x1 = x + width; prim->y1 = y + height; prim->x2 = x; prim->y2 = y; prim->x3 = x + width; prim->y3 = y; return;
 }
 
 /* end of psxfront.cpp */

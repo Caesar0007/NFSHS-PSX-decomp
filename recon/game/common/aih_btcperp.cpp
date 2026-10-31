@@ -59,7 +59,9 @@ int          AIHigh_BTC_uTurnProb1000Skills[3] = { 3, 4, 5 };   /* @0x8010ce8c *
 
 /* ---- ReleaseCops__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::ReleaseCops  [AIH_BTCPERP.CPP:63-75] SLD-VERIFIED ---- */
 
+#line 58 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_Perp::ReleaseCops()
+
 
 
 
@@ -67,10 +69,10 @@ void AIHigh_BTC_Perp::ReleaseCops()
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
     otherCarObj = Cars_gList[carLoop];
-    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) { ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->ReleaseAndStartChase(
-
-        this); }
-
+    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0'))
+    { AIHigh_BTC_HumanCop *copHigh;
+      copHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex];
+      copHigh->ReleaseAndStartChase(this); }
 
 
   }
@@ -86,7 +88,9 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 /* ---- HandleCops__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::HandleCops  [AIH_BTCPERP.CPP:82-86] SLD-VERIFIED ---- */
 
+#line 77 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_Perp::HandleCops()
+
 
 
 
@@ -105,7 +109,9 @@ void AIHigh_BTC_Perp::HandleCops()
 
 /* ---- IsFalseArrest__15AIHigh_BTC_Perp [retail AIH_BTCPERP.CPP:93-126; native ownership exact; SLD 135/136 tags + all blocks exact -- the one open tag is the load-delay nop at +0bc (ours 16, retail 17)] ---- */
 
+#line 88 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 int AIHigh_BTC_Perp::IsFalseArrest()
+
 
 
 
@@ -155,7 +161,9 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 /* ---- CheckForControlsPressed__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::CheckForControlsPressed  [AIH_BTCPERP.CPP:130-147] SLD-VERIFIED ---- */
 
 /* H20: player-2 check must read Cars_gHumanRaceCarList[1] (oracle 0x8005FA10 base 0x8010FA4C = list+4), not [0] */
+#line 125 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 int AIHigh_BTC_Perp::CheckForControlsPressed()
+
 
 
 
@@ -193,7 +201,9 @@ inline bool AIHigh_BTC_HumanCop::HasCatchTime() { return timeLeft_ > 5; }
  * Timer assignment before mode installation removes gameTicks; only the
  * arrest-complete timer read has a retail inline pair. HasCatchTime is an
  * inferred semantic helper name, not a uniquely recovered original spelling. */
+#line 148 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_Perp::HandlePullOver()
+
 
 
 
@@ -305,7 +315,9 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
 /* ---- NotifyCopsOfArrest__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::NotifyCopsOfArrest  [AIH_BTCPERP.CPP:233-245] SLD-VERIFIED ---- */
 
+#line 228 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_Perp::NotifyCopsOfArrest()
+
 
 
 
@@ -315,10 +327,10 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
     otherCarObj = Cars_gList[carLoop];
-    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0')) { ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->StartArrest(
-
-      this); }
-
+    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0'))
+    { AIHigh_BTC_Cop *copHigh;
+      copHigh = (AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex];
+      copHigh->StartArrest(this); }
 
 
   } }
@@ -332,7 +344,9 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
 
 /* ---- NotifyCopsOfArrestComplete__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::NotifyCopsOfArrestComplete  [AIH_BTCPERP.CPP:251-266] SLD-VERIFIED ---- */
 
+#line 246 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
+
 
 
 
@@ -345,10 +359,10 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
     otherCarObj = Cars_gList[carLoop];
-    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0')) { ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FinishArrest(
-
-      this); }
-
+    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0'))
+    { AIHigh_BTC_Cop *copHigh;
+      copHigh = (AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex];
+      copHigh->FinishArrest(this); }
 
 
   } }
@@ -362,7 +376,9 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
 
 /* ---- NotifyCopsOfFalseArrest__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::NotifyCopsOfFalseArrest  [AIH_BTCPERP.CPP:271-283] SLD-VERIFIED ---- */
 
+#line 266 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
+
 
 
 
@@ -372,10 +388,10 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
     otherCarObj = Cars_gList[carLoop];
-    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0')) { ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FalseArrest(
-
-      this); }
-
+    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0'))
+    { AIHigh_BTC_Cop *copHigh;
+      copHigh = (AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex];
+      copHigh->FalseArrest(this); }
 
 
   } }
@@ -389,7 +405,9 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
 
 /* ---- NotifyHumanCopsOfArrestHud__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud  [AIH_BTCPERP.CPP:288-301] SLD-VERIFIED ---- */
 
+#line 283 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
+
 
 
 
@@ -400,9 +418,9 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
     Car_tObj *otherCarObj;
     otherCarObj = Cars_gList[carLoop];
     if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0'))
-    {
-      ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->HudOn(this,0,
-      
+    { AIHigh_BTC_HumanCop *copHigh;
+      copHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex];
+      copHigh->HudOn(this,0,
       this->lastArrestingCop_);
     }
 
@@ -434,7 +452,9 @@ inline void AICop_BasicPerpInfo::ClearCopsAssigned() {
 /* MATCH: 25/25 instructions, all native records/13 scopes, zero SLD tag
  * differences and exact block/end-line deltas. Reset/setter names are inferred
  * from the operations and inline tree; literal original identifiers are open. */
+#line 299 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_Perp::ClearForNewStage(AIHigh_BTC_HumanCop *chaserCop)
+
 
 
 
@@ -466,6 +486,8 @@ void AIHigh_BTC_Perp::ClearForNewStage(AIHigh_BTC_HumanCop *chaserCop)
  * NeedsPerp preserves the integer request, not a normalized Boolean. Both
  * member query spellings are inferred; their receiver records are retail.
  * No caller activationRequested or reconstruction-only NumCars pair remains. */
+
+#line 320 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 AIHigh_BTC_HumanCop *
 AIHigh_BTC_Perp::CheckForActivation()
 {
@@ -511,7 +533,9 @@ AIHigh_BTC_Perp::CheckForActivation()
 
 /* ---- NewStage__20AIHigh_BTC_HumanPerpP19AIHigh_BTC_HumanCop [retail AIH_BTCPERP.CPP:366-416; native ownership exact, SLD open] ---- */
 
+#line 361 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
+
 
 
 
@@ -576,7 +600,9 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 /* ---- HighExecute__20AIHigh_BTC_HumanPerp  AIHigh_BTC_HumanPerp::HighExecute  [AIH_BTCPERP.CPP:421-427] SLD-VERIFIED ---- */
 
+#line 416 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_HumanPerp::HighExecute()
+
 
 
 
@@ -596,34 +622,22 @@ void AIHigh_BTC_HumanPerp::HighExecute()
 
 
 /* ---- __17AIHigh_BTC_AIPerpP8Car_tObj  AIHigh_BTC_AIPerp::ctor  [AIH_BTCPERP.CPP:441-454] SLD-VERIFIED ---- */
+
+#line 441 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj)
-{
-
-  
 
 
 
-  this->perpMode_ = 0;
 
-  this->creationTime_ = 0;
 
-  this->madeContactTime_ = 0;
+{ this->perpMode_ = 0; this->creationTime_ = 0; this->madeContactTime_ = 0; this->timeUntilContact_ = 64000; this->escapeDuration_ = 0;
 
-  this->timeUntilContact_ = 64000;
-
-  this->escapeDuration_ = 0;
 
   this->originalMass_ = (this->carObj_->N).mass;
-
   this->originalMassInv_ = (this->carObj_->N).massInv;
 
   this->closestCopCarObj_ = (Car_tObj *)0x0;
-
-  this->closestCopCarDistanceMeters_ = 0;
-
-  return;
-
-}
+  this->closestCopCarDistanceMeters_ = 0; }
 
 
 
@@ -634,7 +648,9 @@ AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj)
 
 /* ---- _._17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::dtor  [AIH_BTCPERP.CPP:461-465] SLD-VERIFIED ---- */
 
+#line 456 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
+
 
 
 
@@ -667,7 +683,9 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
              full skill/elapsed-time-scaled random roll + dual speed-threshold check + direction flip) */
 /* Semantic reconstructed label; original spelling is unavailable. Selecting
  * braking skips the u-turn random roll before committing pullOver. */
+#line 483 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_AIPerp::AvoidCops()
+
 
 
 
@@ -682,23 +700,23 @@ void AIHigh_BTC_AIPerp::AvoidCops()
         xPosition = this->carObj_->roadPosition; xPosition -= this->closestCopCarObj_->roadPosition;
 
         xPosition *= this->closestCopCarObj_->direction;
-        zPosition = this->closestCopCarDistanceMeters_ * this->closestCopCarObj_->direction; xPositionIndex = doBrake; if ((-(this->closestCopCarObj_->N).dimension.x <= xPosition) && (xPositionIndex = 1, (this->closestCopCarObj_->N).dimension.x < xPosition)) {
+        zPosition = this->closestCopCarDistanceMeters_ * this->closestCopCarObj_->direction; xPositionIndex = doBrake;
+
+        if (-(this->closestCopCarObj_->N).dimension.x <= xPosition) {
+
+          xPositionIndex = 1; if ((this->closestCopCarObj_->N).dimension.x < xPosition) {
+            xPositionIndex = 2; } }
 
 
 
-
-          xPositionIndex = 2; } zPositionIndex = 0; if (zPosition <= 0x190000) { zPositionIndex = 1;
-
-
-
-
+        zPositionIndex = 0; if (zPosition <= 0x190000) { zPositionIndex = 1;
 
           if (zPosition <= (this->closestCopCarObj_->N).dimension.z) { zPositionIndex = 4;
 
             if (-0x190000 <= zPosition) { zPositionIndex = 2;
 
               if (zPosition < -(this->closestCopCarObj_->N).dimension.z) {
-                zPositionIndex = 3; } } } } if ((strategyChart[zPositionIndex][xPositionIndex] & 1) != 0) {
+                zPositionIndex = 3; } } } }
 
 
 
@@ -707,7 +725,9 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
 
 
-          randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AI_elapsedTime * 7 + this->carObj_->pullOver * 500)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs(this->carObj_->currentSpeed)) { doBrake = 1; goto apply_brake_choice; } } } }
+        if ((strategyChart[zPositionIndex][xPositionIndex] & 1) != 0) { randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AI_elapsedTime * 7 + this->carObj_->pullOver * 500)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs(this->carObj_->currentSpeed)) {
+
+                doBrake = 1; goto apply_brake_choice; } } } }
 
 
 
@@ -717,22 +737,20 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
 
 
+        if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) { randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) {
 
-
-        if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) { randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) { if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
-
-
+                if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
 
 
 
 
-                  (this->carObj_)->desiredDirection = -(this->carObj_)->direction; } } } } } } apply_brake_choice: if (doBrake) {
-
+                  (this->carObj_)->desiredDirection = -(this->carObj_)->direction; } } } } } }
 
 
 
 
 
+  apply_brake_choice: if (doBrake) {
     (this->carObj_)->pullOver = 1; return; }
 
   (this->carObj_)->pullOver = 0; return; }
@@ -746,7 +764,9 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
 /* ---- CalculateTimeTillContact__17AIHigh_BTC_AIPerp [retail AIH_BTCPERP.CPP:557-573; native ownership exact, SLD open] ---- */
 
+#line 552 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
+
 
 
 
@@ -778,6 +798,8 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 /* ---- FindClosestCop__17AIHigh_BTC_AIPerp  [AIH_BTCPERP.CPP:582-609]
  * Native SYM locals/scopes exact; retail SLD statement regions remain open. ---- */
 
+
+#line 581 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_AIPerp::FindClosestCop()
 { int closestCopInMeters; int closestCopInMetersAbs; int closestCarIndex; { int copLoop;
 
@@ -820,7 +842,9 @@ inline void AIHigh_Base::SetSchedulingOff(int off) { schedulingOff_ = off; }
        SYM-INLINE-LOCAL: trafficOffset = AIState_BTCInactive */
 /* retail jump table 0x80055040 [1] = the switch END (not case 2's body); the
                label must exist -- with only 4 labels over 0..10 gcc drops to a compare chain */
+#line 615 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_AIPerp::HighExecute()
+
 
 
 
@@ -1031,7 +1055,9 @@ void AIHigh_BTC_AIPerp::HighExecute()
  * the bnez delay slot.  No asm, volatile or register pin is used. */
 
 
+#line 802 "C:/nfs4/GAME/COMMON/AIH_BTCPERP.CPP"
 void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
+
 
 
 

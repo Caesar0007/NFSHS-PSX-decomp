@@ -89,7 +89,9 @@ char         *nightfile;   /* @0x8013da98  (bss(zero)) */
  * `search` sits in its own nested SYM block (2nd `Block start line = 1`).
  * Prototype re-checked vs raw oracle: struct-by-value ARG colorMatch (spilled to
  * 0(sp) and re-read as 3 lbu), REGPARM $a1 bestIndex, INT return in $v0. */
+#line 131 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
+
 
 {
   int bestDiff; int diffR; int diffG; int diffB; int colorMatchr; int colorMatchg; int colorMatchb; int searchColorr; int searchColorg; int searchColorb; int diffSum; int maxLights; bestDiff = 0x2fa03; { int search;
@@ -616,7 +618,9 @@ int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
      REGPARM -- taking its address forces the spill.  The shift/mask spelling
      (`colorH & 0xff`, `>>8 & 0xff`, `>>16 & 0xff`) compiles to srl/andi and has no
      lbu at all. */
+#line 178 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char *colorval)
+
 
 {
   int sourceR;
@@ -646,14 +650,14 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
   newColor.r = (u_char)(newR & ~7);
   newColor.g = (u_char)(newG & ~7);
   newColor.b = (u_char)(newB & ~7);
-  /* newColor.cd is deliberately NOT initialised: the oracle builds the by-value CVECTOR
-     argument by re-reading all four bytes back off the stack (`lbu $v0,0x13($sp)` for
-     .cd) with no preceding store, so retail leaves it whatever was in the slot.  Harmless
-     -- Night_FindClosestColor only reads .r/.g/.b -- but writing 0 costs an extra sb. */
-  if (((Night_FindClosestColor(newColor,&bestIndex) < 0x201) || (Chunk_numLight + 4 <= colorIndex)) ||
+  /* newColor.cd is deliberately NOT initialised: retail re-reads all four bytes of the
+     by-value CVECTOR off the stack with no preceding store (FindClosestColor reads r/g/b). */
+  /* DEVICE (exact-only): call is its own statement (retail SLD); dead sourceR holds it (sourceR/G/B,chr,newR,newB all exact, none $2) */
+  sourceR = Night_FindClosestColor(newColor,&bestIndex);
 
 
-      (0xff < Night_gTotalLights)) {
+
+  if ((sourceR < 0x201) || (Chunk_numLight + 4 <= colorIndex) || (0xff < Night_gTotalLights)) {
 
 
     *colorval = (u_char)bestIndex;
@@ -671,14 +675,18 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
     Night_gTotalLights = Night_gTotalLights + 1; } return; }
 
 /* ---- Night_CreateNightTable__FiliPA256_A16_Uc  [NIGHT.CPP:236-237] SLD-VERIFIED ---- */
+#line 233 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_CreateNightTable(int colorIndex,long colorH,int bright,u_char (*tbl)[256][16])
+
 
 {
   Night_CreateNightTableElement(colorIndex,colorH,bright,(*tbl)[colorIndex] + bright); return;
 }
 
 /* ---- Night_GenerateNextLightningEvent__Fv  [NIGHT.CPP:347-353] SLD-VERIFIED ---- */
+#line 344 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_GenerateNextLightningEvent(void)
+
 
 {
   int *ticksp; /* SYM-CODEGEN-CARRIER: ticksp -- gameTicks cell preserves retail issue order; direct global remains FAIL 2 */
@@ -690,40 +698,54 @@ void Night_GenerateNextLightningEvent(void)
 }
 
 /* ---- Night_PauseLightningEffect__Fi  [NIGHT.CPP:381-416] SLD-VERIFIED ---- */
+#line 378 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_PauseLightningEffect(int player)
 
-{
-  int track;
-  int pause_flag;
-  int slice;
 
-  slice = Camera_gInfo[player].slicePos.slice;
+{
+  int track; int pause_flag;
+  int slice; slice = Camera_gInfo[player].slicePos.slice;
+
+
   track = GameSetup_gData.track;
-  pause_flag = 0;
+
   {   /* retail SYM: startp / endp live in their own scope */
     int startp;
     int endp;
+
+
+
+
+
+
+
+
+
     startp = Night_gLightningPauseAreas[track][0];
     endp = Night_gLightningPauseAreas[track][1];
-    if (startp < slice) {
-      pause_flag = slice < endp;
-    }
+
+
+    if (startp < slice) { pause_flag = slice < endp; }
+    else pause_flag = 0;
   }
+
+
+
   if (Night_WeatherType == 0) {
     pause_flag = 1;
   }
   if (pause_flag != 0) {
+
     Night_gNextLightning = simGlobal.gameTicks;
-    Night_gEndNextLightning = simGlobal.gameTicks;
-  }
-  return;
-}
+    Night_gEndNextLightning = simGlobal.gameTicks; } return; }
 
 /* ---- Night_DoLightningEffect__FP13DRender_tView  [NIGHT.CPP:423-467] SLD-VERIFIED ---- */
     /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
        `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
        else arm; the boolean-expression form folds to a single sltiu. */
+#line 420 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_DoLightningEffect(DRender_tView *Vi)
+
 
 {
   static char lightningInit = 1; /* SYM STAT CHAR @ function-relative data offset 0x1e */
@@ -736,32 +758,32 @@ void Night_DoLightningEffect(DRender_tView *Vi)
 
     Night_gLightning = 0;
   }
-  if (((simGlobal.gameTicks > Night_gNextLightning) &&
-      (simGlobal.gameTicks < Night_gEndNextLightning)) && (Night_gNextFlicker < simGlobal.gameTicks)
+  if ((simGlobal.gameTicks > Night_gNextLightning) &&
+      (simGlobal.gameTicks < Night_gEndNextLightning)
      ) {
 
 
+    if (Night_gNextFlicker < simGlobal.gameTicks) {
+
+      Night_gLightningType = random() & 1;
+      Hrz_LightningFlicker(1);
 
 
-    Night_gLightningType = random() & 1;
-    Hrz_LightningFlicker(1);
+      if (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) != 0) {
+        Night_gDrawLightning = 0;
+      }
+      else { Night_gDrawLightning = 1;
+      }
+      Night_gLightning = 1;
+      Night_gNextFlicker = simGlobal.gameTicks + (random() & 3);
+      Night_gFlashIntensity = (Night_gLightningType + 1) * (random() & 0x1f) + 0x40;
+      if (lightningInit != '\0') {
 
-
-    if (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) != 0) {
-      Night_gDrawLightning = 0;
-    }
-    else { Night_gDrawLightning = 1;
-    }
-    Night_gLightning = 1;
-    Night_gNextFlicker = simGlobal.gameTicks + (random() & 3);
-    Night_gFlashIntensity = (Night_gLightningType + 1) * (random() & 0x1f) + 0x40;
-    if (lightningInit != '\0') {
-
-      if (Night_gShowForks != '\0') {
-        Hrz_SetLightingPosInSky(Vi);
-      } lightningInit = '\0';
-    }
-  }
+        if (Night_gShowForks != '\0') {
+          Hrz_SetLightingPosInSky(Vi);
+        } lightningInit = '\0';
+      }
+    } }
 
 
 
@@ -826,7 +848,9 @@ void Night_DoLightningEffect(DRender_tView *Vi)
  * $a0 without a debug row. Keep the copColors stack-copy order.
  * SYM's INT carTable is confirmed by retail allocation and split m2c; casts
  * occur only at the table boundaries. */
+#line 470 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
+
 
 {
   int cartype = carinfo->carType;
@@ -843,7 +867,9 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
 }
 
 /* ---- Night_InitPlayerHeadLightColor__Fi  [NIGHT.CPP:488-496] SLD-VERIFIED ---- */
+#line 485 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_InitPlayerHeadLightColor(int player)
+
 
 {
 
@@ -866,7 +892,9 @@ void Night_InitPlayerHeadLightColor(int player)
  * emits the `la $r,sym` assembler MACRO instead of pre-splitting it into a schedulable
  * `lui %hi / addiu %lo` pair, and the macro expansion is retail's.  See the
  * "recon/game/psx/night.cpp" entry in tools/build.py PER_TU_FLAGS.  No source change. */
+#line 498 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_SetPlayerHeadLightColor(int player,int colorIndex,int bright)
+
 
 {
 
@@ -874,7 +902,9 @@ void Night_SetPlayerHeadLightColor(int player,int colorIndex,int bright)
 }
 
 /* ---- Night_InitCopLightColors__Fv  [NIGHT.CPP:507-515] SLD-VERIFIED ---- */
+#line 504 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_InitCopLightColors(void)
+
 
 {
   if (Night_gCopLightingTableRed == (u_char (*) [256] [8])0x0) {
@@ -887,7 +917,9 @@ void Night_InitCopLightColors(void)
     Night_gCopLightingTableBlue = reservememadr("CopBlue",0x800,0); } return; }
 
 /* ---- Night_SetCopLightColors__Fii  [NIGHT.CPP:519-527] SLD-VERIFIED ---- */
+#line 516 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_SetCopLightColors(int colorIndex,int brighten)
+
 
 {
   
@@ -928,7 +960,9 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
  * reservememadr() result assigned directly to the element) makes gcc regenerate the
  * strength-reduced walker AND fixes the prologue order in one edit.  Constant bound 2
  * => gcc rotates the `for` to the oracle's guard-free bottom-tested do-while. */
+#line 529 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_InitWeatherTables(void)
+
 
 {
   { int i; for (i = 0; i < 2; i = i + 1) {
@@ -951,7 +985,9 @@ void Night_InitWeatherTables(void)
  * `lui sN,%hi; addiu sN,sN,%lo` retail uses.  Exactly IDT Ch9's own rule -- "either omit
  * the size or give the CORRECT size" -- read in the OTHER direction from methodology
  * sec.3.12 #5's usual unsized-array lever. */
+#line 541 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_SetWeatherColors(int colorIndex)
+
 
 {
   for (int i = 0; i < 2; i++) {
@@ -962,7 +998,9 @@ void Night_SetWeatherColors(int colorIndex)
       /* Retail's inner i begins after the weather call (+0e8); its bright
        * body starts at +0ec. A for-declaration restores those exact scopes.
        * The unused outer i's missing REG:$6 record remains unresolved. */
+#line 553 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_GenerateAllLightTables(void)
+
 
 {
   Night_gTotalLights = Chunk_numLight;
@@ -990,9 +1028,9 @@ void Night_GenerateAllLightTables(void)
       gTableCache[i].b = Chunk_lightTable[i].b;
       i = i + 1; } while (i < 0x100);
   }
-  {
-    int colorIndex;
-    int i; colorIndex = 0; while (colorIndex < Night_gTotalLights) {
+
+
+  for (int colorIndex = 0; colorIndex < Night_gTotalLights; colorIndex = colorIndex + 1) {
 
       if (GameSetup_gData.Weather == 1) {
         Night_SetWeatherColors(colorIndex);
@@ -1011,8 +1049,8 @@ void Night_GenerateAllLightTables(void)
         if ((GameSetup_gData.cops != 0) && (i < 8)) {
           Night_SetCopLightColors(colorIndex,bright);
         } }
-      colorIndex = colorIndex + 1;
-    } } { int i; i = 0; do {
+    }
+  { int i; i = 0; do {
 
       Chunk_lightTable[i].r = gTableCache[i].r;
       Chunk_lightTable[i].g = gTableCache[i].g;
@@ -1026,9 +1064,9 @@ void Night_GenerateAllLightTables(void)
      (`lui $a3,%hi(sym); addiu $a3,$a3,%lo(sym)` in the preheader, `lbu $v0,0x1($a3)` /
      `lbu $v0,0x2($a3)`), while element [0] stays %gp_rel.  A byte-pointer spelling
      (`*(u_char*)((char*)sym+1)` or `((u_char*)sym)[1]`) gp-rels all three and is 2 short. */
-  {
-    int i;
-    i = 0; do {
+
+
+  { int i; i = 0; do {
       Night_gAdditiveHeadlightColor[i].r =
            (u_char)((int)((u_int)(u_char)Night_gPlayerHeadLightColor[0] * i) / 0xf);
       Night_gAdditiveHeadlightColor[i].g = (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->g * i) / 0xf);
@@ -1053,7 +1091,9 @@ void Night_GenerateAllLightTables(void)
      and RE-LOADS the flag for the early-out.  A leading `= 0` plus an overwrite emits
      two stores; an if/else pair or a ternary both come out 4-7 instructions long
      (measured).  Same lever family as methodology sec.3.12 #7. */
+#line 628 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_InitNightDriving(void)
+
 
 {
   gNight_renderNight = GameSetup_gData.Time != 0 && GameSetup_gData.commMode != 1;
@@ -1063,13 +1103,13 @@ void Night_InitNightDriving(void)
     TrackSpec_gSpec.depthcuespec.distance = 0xff;
     *(long *)&TrackSpec_gSpec.depthcuespec.color = 0;
   }
+  /* Retail's buffer and pointer live in this guarded body, in this order.
+   * Native frame/locals/scopes and all 103 instructions agree; relative
+   * source-line/SLD attribution remains unsealed (run-8g9mktec). */
+  if (gNight_renderNight != 0)
 
+  {
 
-
-  if (gNight_renderNight != 0) {
-    /* Retail's buffer and pointer live in this guarded body, in this order.
-     * Native frame/locals/scopes and all 103 instructions agree; relative
-     * source-line/SLD attribution remains unsealed (run-8g9mktec). */
     char name [256];    /* SYM: AUTO char[256] @ -0x110 => sp+16 */
     char *mem;          /* SYM: REG $s0, load buffer then located shape */
 
@@ -1113,7 +1153,9 @@ void Night_InitNightDriving(void)
  * draww.cpp.  That was WRONG: under the proven -G8 identity the real
  * Night_gWeatherLightingTable[2] declaration reproduces both constant-index %gp_rel
  * stores and the runtime base walk directly. */
+#line 684 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_KillNightDriving(void)
+
 
 {
   if (nightfile != (char *)0x0) {
@@ -1151,7 +1193,9 @@ void Night_KillNightDriving(void)
 }
 
 /* ---- Night_RestartNightDriving__Fv  [NIGHT.CPP:723-730] SLD-VERIFIED ---- */
+#line 720 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_RestartNightDriving(void)
+
 
 {
   if ((GameSetup_gData.Weather == 1) && (GameSetup_gData.Time != 0)) {
@@ -1391,13 +1435,15 @@ void Night_RestartNightDriving(void)
      * Measured on the current pipeline (68/68 throughout): tgt + 1 absorption +
      * direct `Night_gZNear = 0x80` PASS; tgt with no absorption FAIL 8; fully
      * direct target access FAIL 8. */
+#line 733 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_SetEnviroment(DRender_tView *Vi)
+
 
 {
 
 
-  if (GameSetup_gData.Time != 0) {
-
+  if (GameSetup_gData.Time != 0)
+  {
 
 
 
@@ -1409,8 +1455,13 @@ void Night_SetEnviroment(DRender_tView *Vi)
     Night_gCurrentNightColor = Night_gPlayerLightingTable;
 
     Night_gDrawLightning = '\0';
-    if ((GameSetup_gData.Weather == 1) &&
-       (Night_PauseLightningEffect(Vi->player), Vi->player == 0)) {
+
+    if (GameSetup_gData.Weather == 1) {
+
+
+      Night_PauseLightningEffect(Vi->player);
+
+      if (Vi->player == 0)
 
 
 
@@ -1421,13 +1472,8 @@ void Night_SetEnviroment(DRender_tView *Vi)
 
 
 
+        Night_DoLightningEffect(Vi); }
 
-
-
-
-
-      Night_DoLightningEffect(Vi);
-    }
 
 
 
@@ -1595,83 +1641,61 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * z/x index math; xdist before x).  Bytes 64/64, tags 0/64.  The in-place z/x
  * mutations and the newX-loads-first shape (W71-A5 receipts) are still required:
  * `z = (z - znear) >> shift` in one statement is 44 diffs. */
+#line 808 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
-{
-  int z;
-  int index;
-  int znear;
-  int zfar;
 
-  /* MATCH (W71-A5): the 7-OPERAND read-only fence is a priced floor_log2 REF STEP,
-     not scaffolding-by-taste.  With the tail fixed, `color` (p81) is a global allocno
-     at 10 refs / 62 live = pri 0.484 and is allocated FIFTH -- after xdist (p93,
-     4 refs / 9 = 0.889) and zfar (p85, 0.5), both of which then take $a1 (find_reg's
-     pass 1 ignores regs_someone_prefers, so colour's $a1 copy-preference cannot save
-     it).  Each read-only fence OPERAND buys exactly +1 REG_N_REF at zero instructions
-     (catalog 05C), and colour needs 16 refs to cross the flr2 step that beats 0.889
-     (4*16/62 = 1.03 > 0.889); 16 - (10 - 1) = 7 operands.  MEASURED: 1..6 operands =
-     31 diffs, SEVEN = PASS 64/64, 8 and 10 also PASS -- take the cheapest.  Allocated
-     third, colour takes $a1, xdist/zfar shift to $a2 and newB follows.
-     ---- W85-S4 DEVICE PURITY: the 7-operand fence is GONE and the function still
-     PASSes 64/64 (whole TU 19/19).  The W71 ref-step was needed against the THEN
-     basin; later structural work in this TU moved `color`'s allocno ahead of
-     xdist/zfar on its own, so the device had become pure scaffolding.  Re-measured
-     2026-09-02: removed = PASS, i.e. no ref step is required any more. */
+{
+  int z; int index; int znear; int zfar;
 
   z = v->vz;
+
+
+
   znear = Night_gZNear;
   zfar = znear + (1 << (Night_gZDistShift + 6));
-  if ((znear < z) && (z < zfar)) {
-    int x;
-    int xdist;
+
+
+  if ((znear < z) && (z < zfar))
+  {
+
+    int x; int xdist;
+    xdist = 1 << (Night_gXDistShift + 5);
 
     x = v->vx;
-    xdist = 1 << (Night_gXDistShift + 5);
-    if ((-xdist < x) && (x < xdist)) {
-      int lookup;
-      short newR;
-      short newG;
-      short newB;
-      long addColor;
 
-      /* `x` is mutated IN PLACE: the oracle's `addu $a0,$a0,$a2` reuses x's own
-         register for the sum (catalog in-place-mutation lever); the two-operand
-         form inside the index expression picks a fresh destination. (77 -> 71)
-         W71-A5: `z` is mutated in place the SAME way and the four scalar steps are
-         written in the ORACLE'S ISSUE ORDER (subu/srav on z, then addu/srav on x,
-         then the sll+addu of the index).  59 -> 53 and it is what puts z in $v1. */
-      z = z - znear;
-      z = z >> Night_gZDistShift;
-      x = x + xdist;
-      x = x >> Night_gXDistShift;
-      index = (z << 6) + x;
-      lookup = (u_char)Night_gNightTbl[index];
-      addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];
-      /* W71-A5 (51 -> 31): the loaded colour byte is assigned INTO its own newX
-         variable first, so the byte load and the clamp result are ONE pseudo
-         (retail's `lbu $a3,0($a1)` loads straight into newR's home and only the
-         SUM lives in a local temp).  Written as `newX = (short)(color->x + ...)`
-         the byte load is a separate BLOCK-LOCAL quantity: local-alloc then needs a
-         4th register in the tail block and hands it $a1 -- which put hard reg 5
-         into `color`'s conflict set (`;; 81 conflicts: ... 5`) and made $a1
-         UNREACHABLE for colour under any priority dial.  With the loads folded into
-         newR/newG/newB the conflict disappears. */
+    if ((-xdist < x) && (x < xdist))
+    {
+
+      int lookup; short newR; short newG; short newB; long addColor;
+
       newR = color->r;
       newG = color->g;
       newB = color->b;
+
+
+
+
+      z = z - znear; z = z >> Night_gZDistShift;
+
+      x = x + xdist;
+
+      x = x >> Night_gXDistShift;
+      index = (z << 6) + x;
+      lookup = (u_char)Night_gNightTbl[index];
+
+      addColor = *(long *)&Night_gAdditiveHeadlightColor[lookup];
       newR = (short)(newR + (addColor & 0xff));
       newG = (short)(newG + ((addColor & 0xff00) >> 8));
       newB = (short)(newB + (((u_int)addColor >> 0x10) & 0xff));
+
       if (0xff < newR) newR = 0xff;
       if (0xff < newG) newG = 0xff;
       if (0xff < newB) newB = 0xff;
+
       color->r = (u_char)newR;
       color->g = (u_char)newG;
       color->b = (u_char)newB;
-    }
-  }
-  return;
-}
+  } } }
 
 /* end of night.cpp */

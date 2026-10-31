@@ -136,101 +136,114 @@ extern u_long  *sect_buff_v[] asm("sect_buff");
 /* lines 1-129: file header, #includes, static data, macros (no symbols emitted) */
 
 /* ---- Movie_Init  (movie.cpp:130, code lines 130-169) ---- */
-void Movie_Init(char movie)
-
-{
   /* MATCH: the oracle materializes &movie24bit and branches on it (la + beqz) -- the
    * original source tested the table itself; gcc-2.8 does not fold "&array != 0". */
+#line 127 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
+void Movie_Init(char movie)
+
+
+{
   if (movie24bit) {
+
     PPWTop = 3;
     PPWBottom = 2;
   }
   else {
+
     PPWTop = 1;
     PPWBottom = 1;
   }
   gMovieWidth = moviewidth[(u_char)movie];
   gMovieHeight = movieheight[(u_char)movie];
   Movie_SetDecodeOffset(0,0,0,0x100);
+
   gMovieFrame = 0;
   gEndFrame = 0;
   bMovieLoaded = 0;
+
   settrans(0);
+
   download = 0;
+
+
   vlcbuf0 = (u_long *)reservememadr("vlcbuf0",0x28000,0x10);
   vlcbuf1 = (u_long *)reservememadr("vlcbuf1",0x28000,0x10);
-  imgbuf_v[0] = (u_short *)reservememadr
-                     ("imgbuf",((u_int)((int)PPWTop << 5) / (u_int)(int)PPWBottom) * 0x1e0,0x10);
+  imgbuf_v[0] = (u_short *)reservememadr ("imgbuf",((u_int)((int)PPWTop << 5) / (u_int)(int)PPWBottom) * 0x1e0,0x10);
   sect_buff = (u_long *)reservememadr("sect_buff",0x10000,0x10);
+
   Platform_ResetDCTBuffer();
   CD_Restart(0);
+
   CdControlB('\v',(u_char *)0x0,(u_char *)0x0);
   CdControlB('\t',(u_char *)0x0,(u_char *)0x0);
   CdControlB('\f',(u_char *)0x0,(u_char *)0x0);
+
   DecDCToutCallback((void *)0x0);
   CdDataCallback((void *)0x0);
   CdReadyCallback((void *)0x0);
-  DecDCTvlcSize(0);
-  return;
+  DecDCTvlcSize(0); return;
 }
 
 /* lines 170-174: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_DeInit  (movie.cpp:175, code lines 175-200) ---- */
+#line 172 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 void Movie_DeInit(void)
+
 
 {
   u_char param [8];
   
   bMovieLoaded = 0;
+
   param[0] = 0x80;
   CdControlB('\x0e',param,(u_char *)0x0);
+
   DecDCToutCallback((void *)0x0);
   StUnSetRing();
+
+
   CdDataCallback((void *)0x0);
   CdReadyCallback((void *)0x0);
+
   CdControlB('\v',(u_char *)0x0,(u_char *)0x0);
   CdControlB('\t',(u_char *)0x0,(u_char *)0x0);
   CdControlB('\f',(u_char *)0x0,(u_char *)0x0);
+
   purgememadr(vlcbuf0);
   purgememadr(vlcbuf1);
   purgememadr(imgbuf_v[0]);
   purgememadr(sect_buff);
+
   Platform_ResetDCTBuffer();
-  CD_Restart(0);
-  return;
+  CD_Restart(0); return;
 }
 
 /* lines 201-205: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_SetDecodeOffset  (movie.cpp:206, code lines 206-212) ---- */
 #undef gMovieHeight
-void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
-
-{
-  /* MATCH: the oracle keeps &dec.rect[0] and &dec.rect[1] in registers (they are the
-   * two ClearImage arguments) and writes every field through them, in the order
-   * x0,y0,x1,y1,h,h,w,w -- statement order IS store order here. */
-  /* pointer-arithmetic element access, no RECT* temps (the SYM has none) */
-
   /* MATCH: PER-SITE storage view -- read gMovieHeight through the SCALAR static
    * (real STAT owner), not the unsized `_v[]` view.  The view's split %hi/%lo lowering is
    * schedulable and cc1 sinks the load past the `addiu s0,a0,8`; the scalar
    * macro form is unschedulable and issues where retail has it.  (Same symbol
    * uses the view form in strNext/Movie_Init -- both spellings are correct,
    * pick per site.) */
-  dec.rect->x = x0;
-  dec.rect->y = y0;
-  (dec.rect + 1)->x = x1;
-  (dec.rect + 1)->y = y1;
-  dec.rect->h = gMovieHeight;
-  (dec.rect + 1)->h = gMovieHeight;
-  dec.rect->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
-  (dec.rect + 1)->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
-  ClearImage(dec.rect,'\0','\0','\0');
+  /* pointer-arithmetic element access, no RECT* temps (the SYM has none) */
+  /* MATCH: the oracle keeps &dec.rect[0] and &dec.rect[1] in registers (they are the
+   * two ClearImage arguments) and writes every field through them, in the order
+   * x0,y0,x1,y1,h,h,w,w -- statement order IS store order here. */
+#line 203 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
+void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
+
+
+{
+  dec.rect->x = x0; dec.rect->y = y0; dec.rect->h = gMovieHeight; dec.rect->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
+  (dec.rect + 1)->x = x1; (dec.rect + 1)->y = y1; (dec.rect + 1)->h = gMovieHeight;
+
+  (dec.rect + 1)->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom); ClearImage(dec.rect,'\0','\0','\0');
   ClearImage(dec.rect + 1,'\0','\0','\0');
-  DrawSync(0);
-  return;
+  DrawSync(0); return;
 }
 #define gMovieHeight gMovieHeight_v[0]
 
@@ -239,7 +252,9 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
 /* ---- Movie_Load  (movie.cpp:218, code lines 218-282) ---- */
 /* MATCH: the oracle's beqz skips to the 1/1/2 block -- the 24-bit arm is the
  * fall-through, so it must be the `if` body. */
+#line 215 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 void Movie_Load(char movie)
+
 
 {
   CdlFILE file;
@@ -315,7 +330,9 @@ void Movie_Load(char movie)
    by16; signed halving and arithmetic >>1 agree. No source local remains,
    and full native records/root agree. Keep ratio/count operations intact;
    instruction order is not source order. Full SLD/literal text remain open. */
+#line 284 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 int Movie_NextFrame(void)
+
 
 {
   DecDCTin(dec.vlcbuf[dec.vlcid],(int)gMode);
@@ -335,7 +352,9 @@ int Movie_NextFrame(void)
 /* lines 300-305: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_DownloadFrame  (movie.cpp:306, code lines 306-307) ---- */
+#line 303 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 void Movie_DownloadFrame(void)
+
 
 {
   download = 1;
@@ -344,7 +363,9 @@ void Movie_DownloadFrame(void)
 /* lines 308-312: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_Stop  (movie.cpp:313, code lines 313-314) ---- */
+#line 310 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 void Movie_Stop(void)
+
 
 {
   bStopMovie = 1;
@@ -353,11 +374,12 @@ void Movie_Stop(void)
 /* lines 315-319: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_Finished  (movie.cpp:320, code lines 320-321) ---- */
+#line 317 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 bool Movie_Finished(void)
 
+
 {
-  return (((gMovieFrame >= gEndFrame) || (bMovieLoaded == 0)) ||
-          (bStopMovie != 0)) || (bRewindMovie != 0);
+  return (((gMovieFrame >= gEndFrame) || (bMovieLoaded == 0)) || (bStopMovie != 0)) || (bRewindMovie != 0);
 }
 
 /* lines 322-326: (static data / macros / comments - no emitted code) */
@@ -373,60 +395,6 @@ bool Movie_Finished(void)
    in scratch/rtl/Movie_Play_frame168_20261012.i/.lreg; compiler dumps are
    diagnostic, not a byte oracle. Older necessity claims below are not
    proof of original objects or a source floor. Passing body restored. */
-int Movie_Play(char movie)
-
-{
-  /* decl order = SYM Def-record order (disp, draw, joyval); the two non-SYM
-     carriers follow it -- w86-S5, gate unchanged */
-  DISPENV disp;
-  DRAWENV draw;
-  int joyval;
-  bool dispRect; /* SYM-CODEGEN-CARRIER: dispRect -- direct repeated rectid tests are
-                    measured FAIL 44 (136/132), rotating saved-register allocation */
-  /* MATCH: SYM fsize=184 (disp@-0xA0, draw@-0x88, 3 saved regs) -- 16 bytes of
-   * never-referenced frame slack our expression shape does not allocate. */
-  int deadfrm[4]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
-                     carrier changes the SYM-proven 184-byte frame and stack offsets */
-
-  (void)deadfrm;
-  SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
-  Movie_Init(movie);
-  Movie_Load(movie);
-  /* MATCH: two SEPARATE branch tests -- the `&&`-comma form made gcc materialize
-   * `frame_ret != -1` as a VALUE (nor/sltu) instead of branching on it. */
-  while( true ) {
-    /* MATCH: `(x ^ 1) == 0` is the ONLY spelling of "x == 1" that cc1plus keeps
-     * as the oracle's `xori v0,v0,1; beqz v0`.  Plain `x == 1` (and `!(x ^ 1)`,
-     * and the inverted `if (x != 1) ... else break`) all hoist a `li reg,1` out
-     * of the loop and branch register-to-register -- which ALSO gave that
-     * constant a 3rd reference and stole the first saved register. */
-    if ((Movie_Finished() ^ 1) == 0) break;
-    if (Movie_NextFrame() == -1) break;
-    dispRect = dec.rectid == 0;
-    SetDefDispEnv
-              (&disp,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
-               (int)dec.rect[dispRect].h);
-    disp.screen.h = 0xf0;
-    SetDefDrawEnv
-              (&draw,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
-               (int)dec.rect[dispRect].h);
-    if (gIsRGB24 != 0) {
-      disp.isrgb24 = '\x01';
-      /* MATCH: the 0x55555556 mult-high + sign fixup IS gcc's own signed divide by 3. */
-      disp.disp.w = (short)(((int)disp.disp.w << 1) / 3);
-    }
-    PutDispEnv(&disp);
-    PutDrawEnv(&draw);
-    SetDispMask(1);
-    if (gIsRGB24 == 0) {
-      FntFlush(-1);
-    }
-    Movie_DownloadFrame();
-    download = 1;
-    PAD_update();
-    /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
-     * unmasked in a register); per-local u_short narrowing emitted two. */
-    joyval = ((u_int)PAD_state(0) | (u_int)PAD_state(4)) & 0xffff;
     /* MATCH: the guard must be a plain nested `if`, NOT the comma form
      * `joyval && (Movie_Stop(), A || B)` -- inside a comma expression gcc
      * MATERIALIZES the disjunction in a register (addu v1,zero,zero / li v1,1
@@ -435,24 +403,112 @@ int Movie_Play(char movie)
      * each cross-jump-merges to the same code, but flow.c still counts both
      * refs of the HImode constant 1 (7 vs 5 loop-weighted), which lifts that
      * allocno above the `&dec` base and swaps s2/s3 through the whole fn. */
+    /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
+     * unmasked in a register); per-local u_short narrowing emitted two. */
+      /* MATCH: the 0x55555556 mult-high + sign fixup IS gcc's own signed divide by 3. */
+    /* MATCH: `(x ^ 1) == 0` is the ONLY spelling of "x == 1" that cc1plus keeps
+     * as the oracle's `xori v0,v0,1; beqz v0`.  Plain `x == 1` (and `!(x ^ 1)`,
+     * and the inverted `if (x != 1) ... else break`) all hoist a `li reg,1` out
+     * of the loop and branch register-to-register -- which ALSO gave that
+     * constant a 3rd reference and stole the first saved register. */
+  /* MATCH: two SEPARATE branch tests -- the `&&`-comma form made gcc materialize
+   * `frame_ret != -1` as a VALUE (nor/sltu) instead of branching on it. */
+  /* MATCH: SYM fsize=184 (disp@-0xA0, draw@-0x88, 3 saved regs) -- 16 bytes of
+   * never-referenced frame slack our expression shape does not allocate. */
+  /* decl order = SYM Def-record order (disp, draw, joyval); the two non-SYM
+     carriers follow it -- w86-S5, gate unchanged */
+#line 324 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
+int Movie_Play(char movie)
+
+
+{
+  DISPENV disp;
+  DRAWENV draw;
+  int joyval;
+  bool dispRect; /* SYM-CODEGEN-CARRIER: dispRect -- direct repeated rectid tests are
+                    measured FAIL 44 (136/132), rotating saved-register allocation */
+  int deadfrm[4]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
+                     carrier changes the SYM-proven 184-byte frame and stack offsets */ (void)deadfrm; SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
+
+
+
+
+  Movie_Init(movie);
+
+
+
+
+  Movie_Load(movie);
+
+  while( true ) { if ((Movie_Finished() ^ 1) == 0) break;
+
+    if (Movie_NextFrame() == -1) break;
+
+
+    dispRect = dec.rectid == 0;
+    SetDefDispEnv
+              (&disp,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
+
+               (int)dec.rect[dispRect].h);
+
+
+
+    disp.screen.h = 0xf0;
+    SetDefDrawEnv
+              (&draw,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
+               (int)dec.rect[dispRect].h);
+
+    if (gIsRGB24 != 0) {
+
+      disp.isrgb24 = '\x01';
+      disp.disp.w = (short)(((int)disp.disp.w << 1) / 3);
+    }
+
+    PutDispEnv(&disp);
+    PutDrawEnv(&draw);
+    SetDispMask(1);
+
+    if (gIsRGB24 == 0) {
+      FntFlush(-1);
+    }
+    Movie_DownloadFrame();
+    download = 1;
+
+    PAD_update();
+
+    joyval = ((u_int)PAD_state(0) | (u_int)PAD_state(4)) & 0xffff;
     if (joyval != 0) {
+
+
+
+
       Movie_Stop();
       if ((skip_all != '\0') || (joyval == 8)) {
         user_exit = 1;
       }
     }
   }
+
+
+
   Movie_DeInit();
+
   ClearImage(dec.rect,'\0','\0','\0');
   ClearImage(dec.rect + 1,'\0','\0','\0');
   DrawSync(0);
+
+
+
+
   return (int)user_exit;
 }
 
 /* lines 407-409: (static data / macros / comments - no emitted code) */
 
 /* ---- play_movie  (movie.cpp:410, code lines 410-412) ---- */
+#line 407 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 int play_movie(char movie)
+
 
 {
 
@@ -481,7 +537,9 @@ int play_movie(char movie)
 #undef vlcbuf0
 #undef vlcbuf1
 #undef gMovieHeight
+#line 417 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 static void strSetDefDecEnv(DECENV *dec)
+
 
 {
   dec->vlcbuf[0] = vlcbuf0;
@@ -503,7 +561,9 @@ static void strSetDefDecEnv(DECENV *dec)
 /* lines 429-432: (static data / macros / comments - no emitted code) */
 
 /* ---- strInit__FP6CdlLOCiPFe_vT2  (movie.cpp:433, code lines 433-445) ---- */
+#line 430 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFunc endcallback)
+
 
 {
   DecDCTReset(0);
@@ -516,8 +576,8 @@ static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFun
   StClearRing();
 
   StSetStream(gIsRGB24,1,frame_size,(void *)0x0,(void *)endcallback);
-  strKickCD(loc);
-  return;
+
+  strKickCD(loc); return;
 }
 
 /* lines 446-449: (static data / macros / comments - no emitted code) */
@@ -534,66 +594,62 @@ static inline void strCdCheck(void)
   }
 }
 
+/* 2026-10-12: final signed /2 instead of >>1 recovers the retail 32-byte frame.
+   FRONT4 2026-10-31: statements on retail SLD lines; the `rem` capture and the
+   goto join are gone (one `&&` if/else with the remainder written at both uses,
+   slice.x before the flag reset = retail lines 18/19) -- no locals, no label =
+   retail SYM.  Open: strCdCheck's blocks/tags (retail 3/6/8/9, blocks {1 {5 }10). */
+#line 447 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 static void strCallback(void)
 
+
 {
-  /* 2026-10-12: final signed /2 instead of >>1 recovers the retail32-byte
-     frame without deadfrm,191/191 PASS. The numerator is a multiple of16,
-     so target low-word halving agrees. No dummy object/use or output rewrite.
-     SOURCE-REVIEW-UNRESOLVED: rem remains an unsupported source capture;
-     repeated private-scalar expressions were78dif/207, moving flag reset
-     after the coordinate update45/192. Failed forms are reverted. Inline
-     scope ownership and full SLD remain open; array removal is not a seal. */
-  int rem;
+
 
   strCdCheck();
-  if (download != 0) {
+
+
+
+
+
+
+
+
+
+  if (download != 0)
     LoadImage(&dec.slice,(u_long *)dec.imgbuf);
-  }
-  /* MATCH: the slice.x advance is written INSIDE each arm (the oracle joins only after
-   * the store); a shared `xstep` temp merged the two adds into one block. */
-  if (isFirstSlice != 0) {
-    /* MATCH: keep the quotient expression direct here.  Giving it a named local
-     * creates a separate pseudo and rotates the whole caller-saved pool. */
-    rem = (int)dec.rect[dec.rectid].w % (((int)PPWTop << 4) / (int)PPWBottom);
-    if (rem != 0) {
-      isFirstSlice = 0;
-      /* MATCH: the rem*PPWTop multiply belongs INSIDE the guard (the oracle schedules
-       * it into the beqz delay slot); as a preceding statement it lands before the test. */
-      dec.slice.x = dec.slice.x + (short)((rem * PPWTop) / (int)PPWBottom);
-      goto strCallback_inlinedJoin;
-    }
-  }
-  dec.slice.x = dec.slice.x + (short)(((int)PPWTop << 4) / (int)PPWBottom);
-strCallback_inlinedJoin:
-  if ((int)dec.slice.x < (int)dec.rect[dec.rectid].x + (int)dec.rect[dec.rectid].w) {
-    DecDCTout
-              ((u_long *)dec.imgbuf,
-               ((((dec.slice.w + -1) / (((int)PPWTop << 4) / (int)PPWBottom) + 1) *
-                 (((int)PPWTop << 4) / (int)PPWBottom)) << 4) *
-               ((dec.slice.h + -1) / 0x10 + 1) / 2);
+
+  if ((isFirstSlice != 0) && (((int)dec.rect[dec.rectid].w % (((int)PPWTop << 4) / (int)PPWBottom)) != 0)) {
+
+    dec.slice.x = dec.slice.x + (short)((((int)dec.rect[dec.rectid].w % (((int)PPWTop << 4) / (int)PPWBottom)) * PPWTop) / (int)PPWBottom);
+    isFirstSlice = 0;
   }
   else {
-    /* MATCH: the `dec.isdone = 1` store must come BEFORE the rectid store in the
-     * SOURCE.  Then cc1 materializes the constant 1 into a register first and cse
-     * feeds that register to the rectid test -- retail's `li a1,1; sltu a0,a3,a1`
-     * (register form) -- which in turn keeps rectid live past the `li` and pins it
-     * to $a3.  With the rectid store first, gcc emits the immediate `sltiu a0,a1,1`
-     * and rectid dies into $a1, rotating the tail.  (gcc reschedules the two stores
-     * back into retail's emitted order.) */
-    dec.isdone = 1;
-    dec.rectid = (u_int)(dec.rectid == 0);
-    dec.slice.x = dec.rect[dec.rectid].x;
-    isFirstSlice = 1;
-    dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - gHeight) / 2);
+
+    dec.slice.x = dec.slice.x + (short)(((int)PPWTop << 4) / (int)PPWBottom);
   }
-  return;
+
+  if ((int)dec.slice.x < (int)dec.rect[dec.rectid].x + (int)dec.rect[dec.rectid].w)
+
+    DecDCTout((u_long *)dec.imgbuf,((((dec.slice.w + -1) / (((int)PPWTop << 4) / (int)PPWBottom) + 1) * (((int)PPWTop << 4) / (int)PPWBottom)) << 4) * ((dec.slice.h + -1) / 0x10 + 1) / 2);
+  else {
+
+
+    dec.isdone = 1;
+
+
+    dec.rectid = (u_int)(dec.rectid == 0);
+    dec.slice.x = dec.rect[dec.rectid].x; isFirstSlice = 1;
+
+    dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - gHeight) / 2); }
 }
 
 /* lines 489-492: (static data / macros / comments - no emitted code) */
 
 /* ---- strNextVlc  (movie.cpp:493, code lines 493-518) ---- */
+#line 490 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 static int strNextVlc(DECENV *dec)
+
 
 {
   /* decl order = SYM Def-record order (cnt $s0, next $s1) -- w86-S5 */
@@ -602,17 +658,23 @@ static int strNextVlc(DECENV *dec)
 
   cnt = 10;
   do {
-    next = strNext(dec);
-    cnt = cnt + -1;
-    if (next != (u_long *)0x0) goto found;
+
+    next = strNext(dec); cnt = cnt + -1; if (next != (u_long *)0x0) goto found;
+
   } while (cnt != 0);
   return -1;
 found:
+
   dec->vlcid = (u_int)(dec->vlcid == 0);
   if (DecDCTvlc(next,dec->vlcbuf[dec->vlcid]) != 0) {
+
     while (DecDCTvlc((u_long *)0x0,(u_long *)0x0) != 0) {
     }
   }
+
+
+
+
   StFreeRing(next);
   return 0;
 }
@@ -635,54 +697,79 @@ found:
    Original labels/expression spelling and full SLD remain unsealed. */
 #undef PPWTop
 #undef PPWBottom
+  /* MATCH: on the rewind path the oracle does NOT store gMovieFrame (it jumps over the
+   * store), and the rewind block is laid out BEFORE the store block.
+   * MATCH: no `fc` temp (the SYM lists none) -- the global has to be the FIRST
+   * operand evaluated so the two loads fill each other's load-delay slot. */
+  /* MATCH: the oracle's header check falls through into the StFreeRing/return-0 tail and
+   * BRANCHES to the accept path (bne .. free ; beq .. body). */
+#line 534 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 static u_long * strNext(DECENV *dec)
+
 
 {
   u_long *addr;
   CDSECTOR *sector;
   int cnt;
 
+
+
   cnt = 50000;
   while( true ) {
+
     if (StGetNext((u_long *)&addr,(u_long *)&sector) == 0) break;
     cnt = cnt + -1;
+
+
+
     if (cnt == 0) {
+
+
+
+
       return (u_long *)0x0;
     }
   }
-  /* MATCH: the oracle's header check falls through into the StFreeRing/return-0 tail and
-   * BRANCHES to the accept path (bne .. free ; beq .. body). */
-  if (*addr != sector->headm) goto freeit;
-  if (addr[1] == sector->headv) goto accept;
+
+  if (*addr != sector->headm) goto freeit; if (addr[1] == sector->headv) goto accept;
 freeit:
   StFreeRing(addr);
   return (u_long *)0x0;
 accept:
-  /* MATCH: on the rewind path the oracle does NOT store gMovieFrame (it jumps over the
-   * store), and the rewind block is laid out BEFORE the store block.
-   * MATCH: no `fc` temp (the SYM lists none) -- the global has to be the FIRST
-   * operand evaluated so the two loads fill each other's load-delay slot. */
+
   if (gMovieFrame > sector->frameCount) goto rewind;
+
+
+
+
+
+
   if (sector->frameCount < gEndFrame) goto setframe;
 rewind:
-  bRewindMovie = 1;
-  goto framedone;
+
+
+
+  bRewindMovie = 1; goto framedone;
 setframe:
+
   gMovieFrame = sector->frameCount;
 framedone:
-  if ((*(int *)(long long)width_v != (u_int)sector->width) || (gHeight != (u_int)sector->height)) {
+
+  if ((*(int *)(long long)width_v != (u_int)sector->width) || (gHeight != (u_int)sector->height))
+  {
     RECT rect;   /* SYM `90 Block start line = 50` scopes rect to THIS block */
 
-    rect.x = 0;
-    rect.y = 0;
-    rect.h = 0x1e0;
-    rect.w = (short)((PPWTop_v[0] * 0x280) / (int)PPWBottom_v[0]);
+    rect.x = 0; rect.y = 0; rect.h = 0x1e0; rect.w = (short)((PPWTop_v[0] * 0x280) / (int)PPWBottom_v[0]);
     ClearImage(&rect,'\0','\0','\0');
+
     *(int *)(long long)width_v = (int)sector->width;
     gHeight = (int)sector->height;
   }
+
   dec->rect[0].w = dec->rect[1].w = (short)((width * PPWTop) / (int)PPWBottom);
-  (dec->slice).h = dec->rect[0].h = dec->rect[1].h = (short)height;
+  dec->rect[0].h = dec->rect[1].h = (short)height;
+  (dec->slice).h = (short)height;
+
   return addr;
 }
 
@@ -702,38 +789,40 @@ framedone:
    width/height declarations also use their actual SYM names without asm-name
    aliases. Existing volatile cnt is retained, not introduced or expanded;
    full qualifier/original expression spelling and SLD remain source review. */
+#line 601 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 static void strSync(DECENV *dec,int)
 
-{
-  volatile u_long cnt;
 
-  cnt = 0x800000;
-  if (dec->isdone == 0) {
-    do {
-      cnt = cnt - 1;
-      if (cnt == 0) {
+{
+  volatile u_long cnt; cnt = 0x800000;
+
+  if (dec->isdone == 0) { do {
+
+      cnt = cnt - 1; if (cnt == 0) {
+
+
+
+
+
         dec->isdone = 1;
         dec->rectid = (u_int)(dec->rectid == 0);
         (dec->slice).x = dec->rect[dec->rectid].x;
-        (dec->slice).y = dec->rect[dec->rectid].y + (short)((0xf0 - height) / 2);
-      }
-    } while (dec->isdone == 0);
+        (dec->slice).y = dec->rect[dec->rectid].y + (short)((0xf0 - height) / 2); } } while (dec->isdone == 0);
   }
-  dec->isdone = 0;
-  return;
+
+  dec->isdone = 0; return;
 }
 
 /* lines 622-626: (static data / macros / comments - no emitted code) */
 
 /* ---- strKickCD  (movie.cpp:627, code lines 627-629) ---- */
+#line 624 "C:/nfs4/FRONTEND/PSX/MOVIE.CPP"
 static void strKickCD(CdlLOC *loc)
+
 
 {
   while (CdControl('\x15',&loc->minute,(u_char *)0x0) == 0) {
-  }
-  while (CdRead2(0x1c0) == 0) {
-  }
-  return;
+  } while (CdRead2(0x1c0) == 0) { } return;
 }
 
 /* end of movie.cpp */

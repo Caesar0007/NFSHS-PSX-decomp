@@ -18,6 +18,8 @@ AITrigger_TriggerManager *triggerManagerTraffic;   /* @0x8013c5ec  (bss(zero)) *
 
 
 /* ---- AITrigger_TriggerManager::Init  [@0x8007286c] ---- */
+
+
 #line 20 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 void AITrigger_TriggerManager::Init(char *rawTriggers)
 {
@@ -79,6 +81,8 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
  * word/file tags,frame,regions and end match without a new source object.
  * Original literal macro/comment text is not uniquely retained. Receipt:
  * build/nc12/aitriger_source_20261030/final-proof.json. */
+
+
 #line 72 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_TriggerManager::InsertTrigger(trigger_t *trigger,bool fromFile)
 {
@@ -134,6 +138,8 @@ int AITrigger_TriggerManager::InsertTrigger(trigger_t *trigger,bool fromFile)
   return size; }
 
 /* ---- AITrigger_TriggerManager::GetNextTrigger  [@0x80072a44] ---- */
+
+
 #line 126 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 trigger_t *
 AITrigger_TriggerManager::GetNextTrigger(int car)
@@ -148,6 +154,8 @@ AITrigger_TriggerManager::GetNextTrigger(int car)
 }
 
 /* ---- AITrigger_TriggerManager::GetPrevTrigger  [@0x80072ab4] ---- */
+
+
 #line 136 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 trigger_t *
 AITrigger_TriggerManager::GetPrevTrigger(int car)
@@ -178,6 +186,8 @@ AITrigger_TriggerManager::GetPrevTrigger(int car)
   /* SYM/type fix (w19-a4): lastTrigger is the SYM-named REG PTR INT local; triggers_[idx] is
    * trigger_t* (72-byte union) -- raw `+4` pointer arithmetic on it SCALED by 72 (bogus +288
    * vs the oracle's plain +4). ->any.slice/->any.type are the real common-header fields. */
+
+
 #line 148 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
 {
@@ -222,6 +232,8 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
 }
 
 /* ---- AITrigger_TriggerManager::GetTrigger  [@0x80072cd8] ---- */
+
+
 #line 190 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 trigger_t *
 AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
@@ -250,6 +262,8 @@ AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
 /* ---- AITrigger_TriggerManager::CheckForClosestTriggerOfType  [@0x80072d40] ---- */
   /* Retail scopes the loop binding at +02c and thisTrigger's body at +034.
    * The ordinary for shape preserves the entire leaf instruction stream. */
+
+
 #line 205 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType type,int direction)
 {
@@ -323,6 +337,8 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
 }
 
 /* ---- AITrigger_TriggerManager::DescribeTrigger  [@0x80072e10] ---- */
+
+
 #line 277 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
 {
@@ -339,6 +355,8 @@ void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __FPCvT0 (const void*, const void* [T0 = same
  * type as param 0]) -- was __FPvT0 (non-const void*), a NAME MISMATCH invisible to the gate.
  * qsort comparator signature; both params really are const (never written). */
+
+
 #line 288 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_Compare(const void *op1, const void *op2)
 {
@@ -350,6 +368,8 @@ int AITrigger_Compare(const void *op1, const void *op2)
 }
 
 /* ---- AITrigger_TriggerManager::Sort  [@0x80072e30] ---- */
+
+
 #line 297 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 void AITrigger_TriggerManager::Sort()
 {

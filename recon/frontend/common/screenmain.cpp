@@ -85,81 +85,88 @@ static tVideoWallConfig videoWallConfigs[24] = {
 
 
 /* ---- tScreenMain::SwapBackground  [SCREENMAIN.CPP:218-265] ---- */
+    /* MATCH (SLD 260/261/263): retail DUPLICATES the SetState call in both
+       arms (gcc cross-jump-merges them back into one `jal`, with the `!=`
+       polarity putting the Warning arm out of line and `a0 = this` in the
+       beq's delay slot); a select-into-a-variable form emits one setup. */
+        /* MATCH (SLD 246 = ONE statement): don't park rand()'s result in the
+           slot variable -- that copy (addu a1,v0,zero) is a live-range
+           extension the oracle has no room for. */
+#line 215 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::SwapBackground(int num)
+
 
 {
   char buffer [8];
   tScreenMainState oldState;
+
+
+
+
+
+
 
   VIDEO_abortplayback(this->hVideo);
   this->bVideoAborted = 1;
   if ((((this->fVideoShapes[this->fCurrentSlot].async_handle == 0) &&
        (this->fVideoShapes[this->fCurrentSlot].fFile == (char *)0x0)) &&
       (this->fVideoShapes[1 - this->fCurrentSlot].async_handle == 0)) &&
+
+
+
+
+
+
      (this->fVideoShapes[1 - this->fCurrentSlot].fFile == 0)) {
+
+
     if (num == -1) {
+
       do {
-        /* MATCH (SLD 246 = ONE statement): don't park rand()'s result in the
-           slot variable -- that copy (addu a1,v0,zero) is a live-range
-           extension the oracle has no room for. */
+
         this->fCurrentBG[this->fCurrentSlot] = rand() % 0x1c;
-      } while (this->fCurrentBG[this->fCurrentSlot] ==
-               this->fCurrentBG[1 - this->fCurrentSlot]);
+      } while (this->fCurrentBG[this->fCurrentSlot] == this->fCurrentBG[1 - this->fCurrentSlot]);
     }
     else {
+
       this->fCurrentBG[this->fCurrentSlot] = num;
     }
     sprintf(buffer,"zyVid%02d",this->fCurrentBG[this->fCurrentSlot]);
     ::AsyncLoadShapeFile((tScreen *)this,buffer,this->fVideoShapes + this->fCurrentSlot);
+
+
+
     oldState = this->fState;
     this->fState = kScreenMain_Off;
-    this->fCurrentSlot = 1 - this->fCurrentSlot;
-    /* MATCH (SLD 260/261/263): retail DUPLICATES the SetState call in both
-       arms (gcc cross-jump-merges them back into one `jal`, with the `!=`
-       polarity putting the Warning arm out of line and `a0 = this` in the
-       beq's delay slot); a select-into-a-variable form emits one setup. */
-    if (oldState != kScreenMain_WarningImage) {
+    this->fCurrentSlot = 1 - this->fCurrentSlot; if (oldState != kScreenMain_WarningImage) {
       this->SetState(kScreenMain_StaticImage);
     }
-    else {
-      this->SetState(kScreenMain_WarningImage);
+    else { this->SetState(kScreenMain_WarningImage);
     }
-    this->fNumTVsInTransition = 0x10;
-  }
-  return;
-}
+    this->fNumTVsInTransition = 0x10; } return; }
 
 
 
 /* ---- tScreenMain::DoneLoadingBackground  [SCREENMAIN.CPP:270-276] ---- */
+/* MATCH: the test is ONE retail source line -- a single `||` early-out chain.  It gives the oracle's `v0 = 0`
+   in every branch delay slot and the shared `jr ra` tail; a result-variable / &&-chain form folds the last
+   test into an `sltiu` funnel instead. */
+#line 267 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 bool tScreenMain::DoneLoadingBackground()
 
+
 {
-  /* MATCH: the whole body is ONE retail source line (SLD 274) -- a single
-     `&&` chain.  It gives the oracle's early-exit chain with `v0 = 0` in each
-     branch delay slot and the final `beqz`+`li v0,1`-in-slot cross-jump tail;
-     a result-variable form emits an `sltiu` funnel instead. */
-  /* MATCH: the whole body is ONE retail source line (SLD 274) -- a single `||`
-     early-out chain.  It gives the oracle's `v0 = 0` in every branch delay slot
-     and the shared `jr ra` tail; a result-variable / &&-chain form folds the
-     last test into an `sltiu` funnel instead. */
-  if (this->fVideoShapes[this->fCurrentSlot].async_handle != 0 ||
-      this->fVideoShapes[this->fCurrentSlot].fFile != 0 ||
-      this->fVideoShapes[1 - this->fCurrentSlot].async_handle != 0 ||
-      this->fVideoShapes[1 - this->fCurrentSlot].fFile != 0) {
-    goto DLB_ret0;
-  }
+
+
+
+  if (this->fVideoShapes[this->fCurrentSlot].async_handle != 0 || this->fVideoShapes[this->fCurrentSlot].fFile != 0 || this->fVideoShapes[1 - this->fCurrentSlot].async_handle != 0 || this->fVideoShapes[1 - this->fCurrentSlot].fFile != 0) goto DLB_ret0;
   return 1;
-DLB_ret0:
-  return 0;
+DLB_ret0: return 0;
 }
 
 
 
 /* ---- tScreenMain::SetState  [SCREENMAIN.CPP:280-342] ---- */
-void tScreenMain::SetState(tScreenMainState state)
-
-{
   /* MATCH (W64 PASS, 32->0): IDA's retail allocation is recovered by making
      `shape` the current element pointer, storing transition state before the
      u calculation, and placing the DynamicImage case first in source order.
@@ -168,66 +175,73 @@ void tScreenMain::SetState(tScreenMainState state)
      gcc-2.8 balance_case_nodes fingerprint (median-pivot `beq $v1,3` with the
      `slti $v1,4` bound test in its DELAY SLOT, case bodies out of line in
      source order) => it was a `switch`, not an if/else-if cascade. */
+#line 277 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
+void tScreenMain::SetState(tScreenMainState state)
+
+
+{
   short i;
   tTexture_ShapeInfo *shape;
 
   if (state != this->fState) {
+
+
     VIDEO_abortplayback(this->hVideo);
     this->bVideoAborted = 1;
     this->fMovieTicks = FE_Ticks();
+
     if ((state != kScreenMain_Credits) && Credits_Initialized(CreditManager) == 1) {
+
       DeInit(&CreditManager);
     }
-    i = 0;
-    this->fState = state;
+
+    i = 0; this->fState = state;
     this->fStartTicks = FE_Ticks();
     do {
+
+
       shape = this->fVideoShapes[this->fCurrentSlot].fShapes + i;
+
       this->tvTransitions[i].state = kScreenMain_StaticImage;
-      this->tvTransitions[i].u =
-           (uchar)((((int)shape->shapex - (int)(short)(shape->shapex & 0xffc0)) * 0x10) /
-                   (int)(uint)(byte)shape->depth);
+      this->tvTransitions[i].u = (uchar)((((int)shape->shapex - (int)(short)(shape->shapex & 0xffc0)) * 0x10) / (int)(uint)(byte)shape->depth);
       this->tvTransitions[i].v = (uchar)shape->shapey;
       this->tvTransitions[i].uw = (uchar)shape->width;
       this->tvTransitions[i].vh = (uchar)shape->height;
       this->tvTransitions[i].tpage =
            ((u_char)*((u_char*)shape + 9) & 3) << 7 | (short)(shape->shapey & 0x100U) >> 4 |
-           (ushort)(((ushort)shape->shapex & 0x3c0) >> 6) |
-           (shape->shapey & 0x200U) << 2;
-      this->tvTransitions[i].clut =
-           GetClut((shape->clutID & 0x3fU) << 4,shape->clutID >> 6);
+           (ushort)(((ushort)shape->shapex & 0x3c0) >> 6) | (shape->shapey & 0x200U) << 2;
+      this->tvTransitions[i].clut = GetClut((shape->clutID & 0x3fU) << 4,shape->clutID >> 6);
       this->tvTransitions[i].flags = 0;
       this->tvTransitions[i].tint = 0x808080;
+
       this->tvTransitions[i].bright = 0x80;
-      i = i + 1;
-    } while (i < 0x10);
+      i = i + 1; } while (i < 0x10);
     switch (this->fState) {
     case kScreenMain_DynamicImage:
+
       this->InitDynamicImages();
       break;
     case kScreenMain_WarningImage:
-      i = 4;
-      do {
+
+      i = 4; do {
+
         this->tvTransitions[i].bright = 0x80;
         this->tvTransitions[i].state = kScreenMain_WarningImage;
-        i = i + 1;
-      } while (i < 0xc);
+        i = i + 1; } while (i < 0xc);
       this->tvTransitions[6].bright = 0x80;
-      this->tvTransitions[5].bright = 0x80;
-      break;
+      this->tvTransitions[5].bright = 0x80; break;
     case kScreenMain_Credits:
       i = 0;
       do {
+
         this->tvTransitions[i].bright = 0x80;
         this->tvTransitions[i].state = kScreenMain_Credits;
-        i = i + 1;
-      } while (i < 0x10);
+        i = i + 1; } while (i < 0x10);
       Init(&CreditManager,this->fStartTicks);
       break;
     }
   }
-  return;
-}
+  return; }
 
 
 
@@ -237,55 +251,71 @@ void tScreenMain::SetState(tScreenMainState state)
    roles.  IDA's retail allocation (video=$s1, config=$fp, x/y=$s2/$s3,
    i/j/k=$t2/$s6/$s4) then falls out naturally; SLD lines 394-396 establish
    the final tint/state/bright statement order. */
+#line 345 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::InitDynamicImages()
+
 
 {
   tVideo *video;
   int videoWallConfig;
   int startX;
   int startY;
-  int x;
-  int y;
-  int xOffset;
-  int yOffset;
-  int i;
-  int j;
-  int k;
-  int index;
-
-  videoWallConfig = rand() % 24;
+  int x; int y; int xOffset; int yOffset; int i; int j; int k; int index; videoWallConfig = rand() % 24;
   for (i = 0; i < videoWallConfigs[videoWallConfig].numVideos; i++) {
+
     video = videoWallConfigs[videoWallConfig].videos[i];
     startX = video->x;
     startY = video->y;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     for (j = 0; j < video->tileWidth; j++) {
+
       for (k = 0; k < video->tileHeight; k++) {
+
         for (y = 0; y < video->height; y++) {
+
           for (x = 0; x < video->width; x++) {
+
             xOffset = x + startX + j * video->width;
             yOffset = y + startY + k * video->height;
             index = yOffset * 4 + xOffset;
+
             this->tvTransitions[index].u = x * (80 / video->width);
             this->tvTransitions[index].v = y * (80 / video->height);
             this->tvTransitions[index].uw = (80 / video->width) - 1;
             this->tvTransitions[index].vh = 80 / video->height;
+
             this->tvTransitions[index].tpage = GetTPage(2,0,0x200,0);
             this->tvTransitions[index].clut = 0;
+
             this->tvTransitions[index].flags = 0x22;
             this->tvTransitions[index].tint = tintColors[this->fCurrentBG[this->fCurrentSlot]];
             this->tvTransitions[index].state = kScreenMain_DynamicImage;
             this->tvTransitions[index].bright = 0x80;
+
           }
         }
       }
     }
-  }
-  return;
-}
+  } return; }
 
 
 
 /* ---- tScreenMain::ProcessInput  [SCREENMAIN.CPP:406-412] ---- */
+
+#line 405 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 {
   if (keyval == kInput_KeyType_Triangle && FEApp->BackDepth(0) > 0) {
@@ -301,22 +331,6 @@ void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 
 
 /* ---- tScreenMain::DrawDropShadow  [SCREENMAIN.CPP:417-437] ---- */
-void tScreenMain::DrawDropShadow()
-
-{
-  /* [SYM] the 8c block records exactly `i` then `prim`. addr_24 and
-     addrMask remain source-only; palette values are staged at use sites. */
-  int i;
-  POLY_G4 *prim;
-  int addr_24;
-  uint addrMask;
-  
-  i = 0;
-  do {
-    prim = (POLY_G4 *)Render_gPacketPtr;
-    u_char *const pal_link = Render_gPalettePtr;
-    addrMask = 0xffffff;
-    const uint tagMask = 0xff000000;
     /* MATCH (2026-08-11, 32 -> PASS, 69/69):
        SYM-CODEGEN-CARRIER: addr_24
        SYM-CODEGEN-CARRIER: addrMask
@@ -332,57 +346,54 @@ void tScreenMain::DrawDropShadow()
        prim/pal fence prevents the first tag store from sinking past it.  Keeping
        the mask initializers at the top of the loop lets loop.c hoist them after
        the two scratchpad address constants in the exact retail order. */
-    *(uint *)prim = *(uint *)prim & tagMask |
-                    *(uint *)pal_link & addrMask;
-    const uint palTag = *(uint *)pal_link;
-    addr_24 = (uint)prim & addrMask;
-    Render_gPacketPtr = (u_char *)prim + 0x24;
-    *(uint *)pal_link = palTag & tagMask | (addr_24 & addrMask);
-    *(u_int *)((u_char *)prim + 4) = 0x808080;
-    ((u_char *)prim)[7] = 0x3a;
-    *(u_int *)((u_char *)prim + 0xc) = 0x808080;
-    *(u_int *)((u_char *)prim + 0x1c) = 0;
-    *(u_int *)((u_char *)prim + 0x14) = 0;
+  /* [SYM] the 8c block records exactly `i` then `prim`. addr_24 and
+     addrMask remain source-only; palette values are staged at use sites. */
+#line 414 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
+void tScreenMain::DrawDropShadow()
+
+
+{
+  int i;
+  POLY_G4 *prim;
+  int addr_24;
+  uint addrMask;
+  i = 0; do {
+
+    prim = (POLY_G4 *)Render_gPacketPtr; u_char *const pal_link = Render_gPalettePtr; addrMask = 0xffffff; const uint tagMask = 0xff000000; *(uint *)prim = *(uint *)prim & tagMask | *(uint *)pal_link & addrMask; const uint palTag = *(uint *)pal_link; addr_24 = (uint)prim & addrMask; Render_gPacketPtr = (u_char *)prim + 0x24; *(uint *)pal_link = palTag & tagMask | (addr_24 & addrMask);
+    *(u_int *)((u_char *)prim + 4) = 0x808080; ((u_char *)prim)[7] = 0x3a; *(u_int *)((u_char *)prim + 0xc) = 0x808080;
+    *(u_int *)((u_char *)prim + 0x1c) = 0; *(u_int *)((u_char *)prim + 0x14) = 0;
     ((u_char *)prim)[3] = 8;
     /* MATCH (W57, 69->28): the SYM 8c block lists ONLY `i` and `prim` --
        `src_walk` was a Ghidra-invented walk pointer, and gcc strength-reduced
        it into a SECOND induction giv (`addiu a3,v0,0` + `addiu a2,a3,14`)
        where the oracle carries one.  dropShadow is `tVertex[4][4]`, so retail
        indexed it by the loop counter (3.12 #1 index-form). */
-    *(u_short *)((u_char *)prim + 8) = dropShadow[i][0].x;
-    *(u_short *)((u_char *)prim + 10) = dropShadow[i][0].y;
-    *(u_short *)((u_char *)prim + 0x10) = dropShadow[i][1].x;
-    *(u_short *)((u_char *)prim + 0x12) = dropShadow[i][1].y;
-    *(u_short *)((u_char *)prim + 0x18) = dropShadow[i][2].x;
-    *(u_short *)((u_char *)prim + 0x1a) = dropShadow[i][2].y;
-    *(u_short *)((u_char *)prim + 0x20) = dropShadow[i][3].x;
-    *(u_short *)((u_char *)prim + 0x22) = dropShadow[i][3].y;
-    i = i + 1;
-  } while (i < 4);
-  FeDraw_SetABRMode(2);
-  return;
+    *(u_short *)((u_char *)prim + 8) = dropShadow[i][0].x; *(u_short *)((u_char *)prim + 10) = dropShadow[i][0].y; *(u_short *)((u_char *)prim + 0x10) = dropShadow[i][1].x; *(u_short *)((u_char *)prim + 0x12) = dropShadow[i][1].y; *(u_short *)((u_char *)prim + 0x18) = dropShadow[i][2].x; *(u_short *)((u_char *)prim + 0x1a) = dropShadow[i][2].y; *(u_short *)((u_char *)prim + 0x20) = dropShadow[i][3].x; *(u_short *)((u_char *)prim + 0x22) = dropShadow[i][3].y;
+    i = i + 1; } while (i < 4);
+
+
+  FeDraw_SetABRMode(2); return;
 }
 
 
 
 /* ---- tScreenMain::DrawVideoLines  [SCREENMAIN.CPP:441-452] ---- */
+#line 438 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::DrawVideoLines()
+
 
 {
   int i;
   
-  i = 0xf3;
-  do {
-    PSXDrawTransSquare(0x303030,i,0x2a,2,0xa9,1);
-    i = i + 0x50;
-  } while (i < 0x1e3);
-  i = 0x54;
-  do {
-    PSXDrawTransSquare(0x202020,0xa3,i,0x141,1,1);
-    i = i + 0x2a;
-  } while (i < 0xd2);
-  FeDraw_SetABRMode(2);
-  return;
+
+  i = 0xf3; do {
+    PSXDrawTransSquare(0x303030,i,0x2a,2,0xa9,1); i = i + 0x50; } while (i < 0x1e3);
+
+  i = 0x54; do {
+    PSXDrawTransSquare(0x202020,0xa3,i,0x141,1,1); i = i + 0x2a; } while (i < 0xd2);
+
+
+  FeDraw_SetABRMode(2); return;
 }
 
 
@@ -402,265 +413,16 @@ void tScreenMain::DrawVideoLines()
    roles and homes, missing application receivers and remaining scope bounds
    still need original-source recovery. Machine value webs do not prove that
    separate named objects existed in the lost source. */
-void tScreenMain::DrawBackground()
-
-{
-  short i;
-  short j;
-  tDrawShapeExtended drawFlags;
-  u_long deltaTicks;
-  short animFade;
-  short x;
-  short y;
-  char buffer [32];
-  int shapeX;
-  int shapeY;
-  
-  animFade = 0;
-  for (i = animFade; i < 2; i++) {
-    ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + i);
-    if (this->fVideoShapes[i].fFile != (char *)0x0) {
-      bool bAllTVsOn;
-
-      bAllTVsOn = true;
-      for (j = 0; j < 0x10; j++) {
-        if (((this->tvStates[j] != kScreenMain_StaticImage) &&
-             (this->tvStates[j] != kScreenMain_Credits)) ||
-            (this->tvTransitions[j].state != this->tvStates[j]) ||
-            (this->tvConfigs[j].clut != this->tvTransitions[j].clut)) {
-          bAllTVsOn = false;
-        }
-      }
-      if (bAllTVsOn) {
-        ::UploadShapes((tScreen *)this,this->fVideoShapes + i,i * 0xa6,0,0x10,0);
-      }
-    }
-  }
-  /* Two entry labels preserve the retail repeated credits-test paths.
-     The real CurrentMenu reads now reproduce the required reload without
-     the old curMenu capture. Historical local/fence necessity claims do not
-     describe this verified source shape (2026-10-11, 822/822 PASS). */
-  if (this->fState != kScreenMain_Credits) {
-    goto test_credits_menu;
-  }
-  if (FEApp->CurrentMenu(0) != (tMenu *)&MenuDefs()->menuCredits) {
-    this->SetState(kScreenMain_StaticImage);
-    goto credits_state_done;
-  }
-test_credits_menu:
-  if (FEApp->CurrentMenu(0) == (tMenu *)&MenuDefs()->menuCredits) {
-    this->SetState(kScreenMain_Credits);
-  }
-credits_state_done:
-  ::Draw(&CreditManager,this->fState == kScreenMain_Credits);
-  if (this->fState == kScreenMain_WarningImage) {
-    if ((frontEnd.raceType != RaceType_PinkSlips) &&
-       ((tMenuItemGoToMenuNFS4Button *)
-        FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] !=
-        &MenuDefs()->itemTwoPlayerPinkSlips)) {
-      this->SetState(kScreenMain_StaticImage);
-    }
-  }
-  else if ((frontEnd.raceType == RaceType_PinkSlips) ||
-          ((tMenuItemGoToMenuNFS4Button *)
-           FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] ==
-           &MenuDefs()->itemTwoPlayerPinkSlips)) {
-    this->SetState(kScreenMain_WarningImage);
-  }
-  if ((this->fState == kScreenMain_WarningImage) || (0 < this->fWarningFade)) {
-    int fade;
-    int TextCol;
-    RECT r;
-
-    if (this->fState == kScreenMain_WarningImage) {
-      if (this->fWarningFade < 0x60) {
-        this->fWarningFade = this->fWarningFade + 4;
-      }
-    }
-    else {
-      this->fWarningFade = this->fWarningFade + -4;
-    }
-    for (i = 4; i < 0xc; i++) {
-      this->tvConfigs[i].flags = this->tvConfigs[i].flags | 2;
-      this->tvConfigs[i].tint =
-        (0x80 - (int)this->fWarningFade) * 0x10000 |
-        (0x80 - (int)this->fWarningFade) * 0x100 |
-        (0x80 - (int)this->fWarningFade);
-    }
-    /* P863: SLD 529 computes SYM's int fade in $v0; SLD 530 complements,
-       packs and stores it to both TVs. Repeated unsigned components let GCC
-       recreate the anonymous $v1/$v0 values without fadeComponent.
-       Both statement intervals and PASS 822/822 are preserved. */
-    fade = ((int)this->fWarningFade << 6) / 0x60;
-    this->tvConfigs[5].tint = this->tvConfigs[6].tint =
-        (uint)(0x80 - fade) * 0x10000 |
-        (uint)(0x80 - fade) * 0x100 | (uint)(0x80 - fade);
-    drawFlags.tint[0] = 0xbebe;
-    DrawShapeExtended((gettick() / 0xf) % 10 + 0x101,0x411,0xa3,-0xf,0x60 - this->fWarningFade
-               ,1,&drawFlags);
-    DrawShapeExtended((gettick() / 0xf) % 10 + 0x101,0x415,0x193,-0xf,0x60 - this->fWarningFade
-               ,1,&drawFlags);
-    DrawShapeExtended(0x100,0x11,0,0,0x60 - this->fWarningFade
-               ,1,&drawFlags);
-    ScaleShapeExtended((gettick() / 0x15) % 6 + 0xfa,1,0,0,0x60 - this->fWarningFade
-               ,3,(tDrawShapeExtended *)0x0);
-    FETextRender_SetABR(1,true);
-    TextCol = CalcFadeVal(0xbebe,0x60 - this->fWarningFade);
-    r.x = 0xb5;
-    r.y = 0x81;
-    r.w = 0x11c;
-    r.h = 0x2a;
-    FETextRender_WordWrapTextRGB(TextSys_Word(0x272),r,TextCol);
-    FETextRender_SetABR(0,false);
-    FeDraw_SetABRMode(0);
-  }
-  /* MATCH W64-A17 (7 -> 1): the video block's $s0 carrier is an INT, not the
-     SHORT `j`.  Retail passes it with a bare `addu a2,s0,zero` and tests it
-     with a bare `beqz s0`; a SHORT carrier makes cc1plus sign-extend at BOTH
-     sites (`sll;sra` / `sll;beqz`), which is the 4 diffs and the +2 count.
-     `j` must stay SHORT for the tv/dot-grid loops (it sign-extends there), so
-     retail used a DIFFERENT variable here -- a fresh block-scope int.  The
-     SYM's two INT $s0 locals are wrong carriers (re-gated from this basin:
-     shapeY arg-only 75 / flag-only 85 / both 82, TextCol arg-only 24 /
-     flag-only 34 / both 31, TextCol+shapeY mixed 102): both are LIVE across
-     this region, so naming them merges live ranges instead of splitting them. */
-  /* SYM-CODEGEN-CARRIER: videoY -- inlining the parity-derived coordinate in
-     VIDEO_updateframexy is FAIL 24 at 820/822 and schedules it after the
-     VIDEO_state call instead of in retail's preceding $s0 value web. */
-  int videoY = 0;
-  if ((this->fFrame & 1U) == 0) {
-    videoY = 0x50;
-  }
-  if (VIDEO_state(this->hVideo) == 3) {
-    this->bVideoAborted = 0;
-    this->fMovieTicks = FE_Ticks();
-    if (VIDEO_updateframexy(this->hVideo,0x200,videoY) != 0) {
-      this->fFrame = this->fFrame + 1;
-    }
-  }
-  else {
-    /* One ordinary compound predicate preserves the anonymous Boolean and
-       elapsed-value webs. The old separate-object necessity claims applied
-       to a different source shape; no replacement alias/fence is needed. */
-    if (((VIDEO_state(this->hVideo) != 1) &&
-         (0x280 < ((u_long)FE_Ticks() - (u_long)this->fStartTicks))) &&
-        (this->fState == kScreenMain_StaticImage)) {
-      char moviename [80];
-      RECT r;
-
-      r.x = 0x200;
-      r.w = 0x50;
-      r.y = 0;
-      r.h = 0xa0;
-      ClearImage(&r,'\0','\0','\0');
-      DrawSync(0);
-      do {
-        this->fCurrentMovie = rand() % 0x14;
-      } while (this->fCurrentMovie == this->fPreviousMovie);
-      this->fPreviousMovie = this->fCurrentMovie;
-      this->SetState(kScreenMain_DynamicImage);
-      sprintf(moviename,"%szzzVD%02d.dct",Paths_Paths[0x29],(int)this->fCurrentMovie);
-      VIDEO_spoolfile(this->hVideo,moviename);
-      VIDEO_startplayback(this->hVideo);
-    }
-  }
-  if ((this->fState == kScreenMain_DynamicImage) &&
-     (VIDEO_state(this->hVideo) == 0)) {
-    this->SetState(kScreenMain_StaticImage);
-  }
-  ::DrawBackgroundImage((tScreen *)this,2,0x1c,this->fPermShapes.fShapes,0);
-  this->DrawDropShadow();
-  this->DrawVideoLines();
-  deltaTicks = FE_Ticks() - this->fAnimTicks;
-  if ((0x5dc < deltaTicks) && (this->fState != kScreenMain_WarningImage)) {
-    deltaTicks = 0;
-    this->fAnimationUploaded = 0;
-    if (this->fSwapShapes.async_handle == 0) {
-      /* SYM-CODEGEN-CARRIER: nextAnimation -- reusing the dead SYM
-         `animFade` short is FAIL 3 at 823/822 because it adds an $s7 handoff;
-         the separate block value remains in retail's caller-saved chain. */
-      short nextAnimation;
-
-      do {
-        nextAnimation = rand() % 0x19;
-      } while (nextAnimation == this->fPreviousAnim);
-      this->fPreviousAnim = nextAnimation;
-      sprintf(buffer,"yVda%02d",(int)nextAnimation);
-      ::AsyncLoadSwapShapeFile((tScreen *)this,buffer);
-    }
-  }
-  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  if (this->fSwapShapes.fFile != (char *)0x0) {
-    this->fSwapShapes.fNumShapes = 10;
-    ::UploadSwapShapes((tScreen *)this,10);
-    this->fAnimTicks = FE_Ticks();
-    this->fAnimationUploaded = 1;
-    this->fAnimLocation = (ushort)this->fAnimTicks & 3;
-  }
-  if (deltaTicks < 0x80) {
-    animFade = deltaTicks * 0x1ffffff + 0x80;
-  }
-  else if (deltaTicks - 0x2a0 < 0x80) {
-    animFade = deltaTicks - 0x2a0;
-  }
-  if ((deltaTicks < 800) && (this->fAnimationUploaded != 0)) {
-    int drawAnimFade;
-    /* SYM-CODEGEN-CARRIER: animationFrame -- folding the divide/remainder
-       into DrawShapeExtended is count-exact FAIL 22 and interleaves its magic
-       constants with the animLocations address chain. */
-    int animationFrame;
-
-    drawFlags.tint[0] = tintColors[this->fCurrentBG[this->fCurrentSlot]];
-    drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-    drawAnimFade = (int)animFade;
-    if (CreditManager.fCreditsInitialized != 0) {
-      drawAnimFade = drawAnimFade + 0x40;
-      if (0x80 < drawAnimFade) {
-        drawAnimFade = 0x80;
-      }
-    }
-    /* MATCH W63-A17 (68 -> 44, count still EXACT 822/822): the frame-index divide
-       is its OWN statement AHEAD of the animLocations reads.  Retail materialises
-       the %10 magic pair first (`lui a0,52428; ori a0,a0,52429`), then the
-       animLocations base (`lui v1,0; addiu v1,v1,0`), then `multu t0,a0`, and only
-       then loads fAnimLocation -- our fused call-argument form interleaved the two
-       chains and swapped their register roles (magic in $v0, base in $a0, index in
-       $v1).  w43's "independent-chain issue order is fixed by STATEMENT SPLIT, not
-       operand order".  Fully inlining the x/y reads into the call args measures
-       EXACTLY the same 44, but drops both SYM 8c locals (shapeX $v0, shapeY $s0),
-       so the split-temp form is kept. */
-    animationFrame = (deltaTicks / 0xf) % 10;
-    shapeX = animLocations[this->fAnimLocation].x;
-    shapeY = animLocations[this->fAnimLocation].y;
-    DrawShapeExtended(animationFrame,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);
-  }
-  y = 0x32;
-  i = 0;
-  /* MATCH W63-A17 (110 -> 84, count still EXACT 822/822): BOTH dot-grid loops are
-     UN-ROTATED in retail (07C/13D).  The oracle tests i at the TOP
-     (`sll;sra;slti 25;beqz`) and reaches the back-edge with `j T ; addiu s2,s2,1`
-     (increment in the jump's delay slot), and the inner j-loop likewise tests at
-     the top (`sll;sra;bltz`) with an IN-PLACE `addiu s0,s0,-1`.  Our `while (A && B)`
-     + `for (j = 4; -1 < j; j--)` pair let jump.c's duplicate_loop_exit_test rotate
-     BOTH, which costs the fresh-dest+copy decrements (`addiu v0,s0,-1; addu s0,v0,zero`)
-     AND the body's own sign-extension of i (retail reuses the top test's `a0`
-     via `addu s4,a0,zero`).  Measured separately: inner-only 99 @823, outer-only
-     95 @821, BOTH 84 @822 = the only count-exact combination. */
-  while (1) {
-    if (0x19 <= i) break;
-    if (0xd2 <= y) break;
-    x = 0x1a2;
-    j = 4;
-    while (1) {
-      if (j < 0) break;
-      DrawShapeExtended((numberValues[(i + FE_Ticks() / 0x14) % 0x19] >> j) & 1,1,x,y,0x40,3,
-                 (tDrawShapeExtended *)0x0);
-      j--;
-      x = x + 0xd;
-    }
-    y = y + 8;
-    i++;
-  }
+    /* MATCH W63-A17 (84 -> 68, count still EXACT 822/822): the tvOrder loop is
+       UN-ROTATED in retail too -- the `j < 16` guard is tested at the TOP
+       (`sll;sra;slti 16;beqz`) and the `j <= computed bound` back-edge sits at the
+       BOTTOM (`slt v0,s1,v0; beqz`); our `do { if (0xf<j) break; ... } while
+       the corresponding structured form let jump.c rotate the guard DOWN into the back edge, so
+       both tests emitted at the bottom.  The SYM 8c block lists NO local for the
+       tvOrder index (the decompiler's index temp was an invention) -- inlining it is exactly
+       neutral against a block-local `byte tvIdx` (both 68) and drops the fabricated
+       local.  Also landed here: `j--` BEFORE `x += 0xd` in the dot-grid inner loop
+       (retail emits `addiu s0,s0,-1` ahead of `addiu s1,s1,13`), -2. */
   /* MATCH W64-A17 (12 -> 7): 12D DEAD-PSEUDO STAGING.  Retail computes this
      bound in a caller-saved reg, TESTS it there and only then copies it into
      $s1 (`sra v1,v0,16; bltz v1,T; ... addu s1,v1,zero`); ours coloured the
@@ -673,32 +435,311 @@ credits_state_done:
      SYM local, ULONG, needs an `(int)` at both compares) is EXACTLY neutral
      at 12; inlining the expression at both sites 35 @827; the fabricated
      bound temp had no SYM record. */
-  x = (short)((int)((FE_Ticks() - this->fStartTicks) * 0x1000) >> 0x10);
-  j = 0;
-  if (-1 < x) {
-    /* MATCH W63-A17 (84 -> 68, count still EXACT 822/822): the tvOrder loop is
-       UN-ROTATED in retail too -- the `j < 16` guard is tested at the TOP
-       (`sll;sra;slti 16;beqz`) and the `j <= computed bound` back-edge sits at the
-       BOTTOM (`slt v0,s1,v0; beqz`); our `do { if (0xf<j) break; ... } while
-       the corresponding structured form let jump.c rotate the guard DOWN into the back edge, so
-       both tests emitted at the bottom.  The SYM 8c block lists NO local for the
-       tvOrder index (the decompiler's index temp was an invention) -- inlining it is exactly
-       neutral against a block-local `byte tvIdx` (both 68) and drops the fabricated
-       local.  Also landed here: `j--` BEFORE `x += 0xd` in the dot-grid inner loop
-       (retail emits `addiu s0,s0,-1` ahead of `addiu s1,s1,13`), -2. */
-    while (1) {
-      if (0xf < j) break;
-      if (((this->tvStates[tvOrder[j]] != this->tvTransitions[tvOrder[j]].state) ||
-          (this->tvConfigs[tvOrder[j]].clut != this->tvTransitions[tvOrder[j]].clut)) &&
-         (this->tvConfigs[tvOrder[j]].state == tv_StateOn)) {
-        TurnOffTV(this->tvConfigs + tvOrder[j]);
+  /* MATCH W63-A17 (110 -> 84, count still EXACT 822/822): BOTH dot-grid loops are
+     UN-ROTATED in retail (07C/13D).  The oracle tests i at the TOP
+     (`sll;sra;slti 25;beqz`) and reaches the back-edge with `j T ; addiu s2,s2,1`
+     (increment in the jump's delay slot), and the inner j-loop likewise tests at
+     the top (`sll;sra;bltz`) with an IN-PLACE `addiu s0,s0,-1`.  Our `while (A && B)`
+     + `for (j = 4; -1 < j; j--)` pair let jump.c's duplicate_loop_exit_test rotate
+     BOTH, which costs the fresh-dest+copy decrements (`addiu v0,s0,-1; addu s0,v0,zero`)
+     AND the body's own sign-extension of i (retail reuses the top test's `a0`
+     via `addu s4,a0,zero`).  Measured separately: inner-only 99 @823, outer-only
+     95 @821, BOTH 84 @822 = the only count-exact combination. */
+    /* MATCH W63-A17 (68 -> 44, count still EXACT 822/822): the frame-index divide
+       is its OWN statement AHEAD of the animLocations reads.  Retail materialises
+       the %10 magic pair first (`lui a0,52428; ori a0,a0,52429`), then the
+       animLocations base (`lui v1,0; addiu v1,v1,0`), then `multu t0,a0`, and only
+       then loads fAnimLocation -- our fused call-argument form interleaved the two
+       chains and swapped their register roles (magic in $v0, base in $a0, index in
+       $v1).  w43's "independent-chain issue order is fixed by STATEMENT SPLIT, not
+       operand order".  Fully inlining the x/y reads into the call args measures
+       EXACTLY the same 44, but drops both SYM 8c locals (shapeX $v0, shapeY $s0),
+       so the split-temp form is kept. */
+    /* SYM-CODEGEN-CARRIER: animationFrame -- folding the divide/remainder
+       into DrawShapeExtended is count-exact FAIL 22 and interleaves its magic
+       constants with the animLocations address chain. */
+      /* SYM-CODEGEN-CARRIER: nextAnimation -- reusing the dead SYM
+         `animFade` short is FAIL 3 at 823/822 because it adds an $s7 handoff;
+         the separate block value remains in retail's caller-saved chain. */
+    /* One ordinary compound predicate preserves the anonymous Boolean and
+       elapsed-value webs. The old separate-object necessity claims applied
+       to a different source shape; no replacement alias/fence is needed. */
+  /* SYM-CODEGEN-CARRIER: videoY -- inlining the parity-derived coordinate in
+     VIDEO_updateframexy is FAIL 24 at 820/822 and schedules it after the
+     VIDEO_state call instead of in retail's preceding $s0 value web. */
+  /* MATCH W64-A17 (7 -> 1): the video block's $s0 carrier is an INT, not the
+     SHORT `j`.  Retail passes it with a bare `addu a2,s0,zero` and tests it
+     with a bare `beqz s0`; a SHORT carrier makes cc1plus sign-extend at BOTH
+     sites (`sll;sra` / `sll;beqz`), which is the 4 diffs and the +2 count.
+     `j` must stay SHORT for the tv/dot-grid loops (it sign-extends there), so
+     retail used a DIFFERENT variable here -- a fresh block-scope int.  The
+     SYM's two INT $s0 locals are wrong carriers (re-gated from this basin:
+     shapeY arg-only 75 / flag-only 85 / both 82, TextCol arg-only 24 /
+     flag-only 34 / both 31, TextCol+shapeY mixed 102): both are LIVE across
+     this region, so naming them merges live ranges instead of splitting them. */
+    /* P863: SLD 529 computes SYM's int fade in $v0; SLD 530 complements,
+       packs and stores it to both TVs. Repeated unsigned components let GCC
+       recreate the anonymous $v1/$v0 values without fadeComponent.
+       Both statement intervals and PASS 822/822 are preserved. */
+  /* Two entry labels preserve the retail repeated credits-test paths.
+     The real CurrentMenu reads now reproduce the required reload without
+     the old curMenu capture. Historical local/fence necessity claims do not
+     describe this verified source shape (2026-10-11, 822/822 PASS). */
+#line 453 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
+void tScreenMain::DrawBackground()
+
+
+{
+  short i;
+  short j;
+  tDrawShapeExtended drawFlags;
+  u_long deltaTicks; short animFade; short x; short y; char buffer [32]; int shapeX; int shapeY; animFade = 0;
+
+
+
+
+
+
+
+  for (i = animFade; i < 2; i++) {
+
+    ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + i);
+    if (this->fVideoShapes[i].fFile != (char *)0x0) {
+      bool bAllTVsOn;
+      bAllTVsOn = true;
+      for (j = 0; j < 0x10; j++) {
+        if (((this->tvStates[j] != kScreenMain_StaticImage) &&
+             (this->tvStates[j] != kScreenMain_Credits)) ||
+            (this->tvTransitions[j].state != this->tvStates[j]) ||
+
+            (this->tvConfigs[j].clut != this->tvTransitions[j].clut)) {
+          bAllTVsOn = false;
+        } }
+      if (bAllTVsOn) {
+
+
+        ::UploadShapes((tScreen *)this,this->fVideoShapes + i,i * 0xa6,0,0x10,0);
       }
-      j++;
-      if (x < j) break;
     }
   }
+  if (this->fState != kScreenMain_Credits) { goto test_credits_menu; } if (FEApp->CurrentMenu(0) != (tMenu *)&MenuDefs()->menuCredits) {
+    this->SetState(kScreenMain_StaticImage);
+    goto credits_state_done;
+  }
+test_credits_menu: if (FEApp->CurrentMenu(0) == (tMenu *)&MenuDefs()->menuCredits) {
+
+    this->SetState(kScreenMain_Credits);
+  }
+credits_state_done:
+  ::Draw(&CreditManager,this->fState == kScreenMain_Credits);
+
+  if (this->fState == kScreenMain_WarningImage) {
+    if ((frontEnd.raceType != RaceType_PinkSlips) &&
+       ((tMenuItemGoToMenuNFS4Button *)
+        FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] != &MenuDefs()->itemTwoPlayerPinkSlips)) {
+      this->SetState(kScreenMain_StaticImage);
+    }
+  }
+  else if ((frontEnd.raceType == RaceType_PinkSlips) || ((tMenuItemGoToMenuNFS4Button *) FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] == &MenuDefs()->itemTwoPlayerPinkSlips)) {
+    this->SetState(kScreenMain_WarningImage);
+  }
+
+  if ((this->fState == kScreenMain_WarningImage) || (0 < this->fWarningFade)) {
+    int fade;
+    int TextCol;
+    RECT r;
+    if (this->fState == kScreenMain_WarningImage) {
+
+      if (this->fWarningFade < 0x60) {
+        this->fWarningFade = this->fWarningFade + 4;
+      }
+    } else { this->fWarningFade = this->fWarningFade + -4;
+    }
+    for (i = 4; i < 0xc; i++) {
+
+      this->tvConfigs[i].flags = this->tvConfigs[i].flags | 2;
+      this->tvConfigs[i].tint = (0x80 - (int)this->fWarningFade) * 0x10000 | (0x80 - (int)this->fWarningFade) * 0x100 | (0x80 - (int)this->fWarningFade);
+
+    }
+
+    fade = ((int)this->fWarningFade << 6) / 0x60;
+    this->tvConfigs[5].tint = this->tvConfigs[6].tint = (uint)(0x80 - fade) * 0x10000 | (uint)(0x80 - fade) * 0x100 | (uint)(0x80 - fade);
+
+
+    drawFlags.tint[0] = 0xbebe;
+    DrawShapeExtended((gettick() / 0xf) % 10 + 0x101,0x411,0xa3,-0xf,0x60 - this->fWarningFade
+
+
+               ,1,&drawFlags);
+    DrawShapeExtended((gettick() / 0xf) % 10 + 0x101,0x415,0x193,-0xf,0x60 - this->fWarningFade
+
+
+               ,1,&drawFlags);
+    DrawShapeExtended(0x100,0x11,0,0,0x60 - this->fWarningFade
+               ,1,&drawFlags);
+    ScaleShapeExtended((gettick() / 0x15) % 6 + 0xfa,1,0,0,0x60 - this->fWarningFade
+               ,3,(tDrawShapeExtended *)0x0);
+
+
+    FETextRender_SetABR(1,true);
+    TextCol = CalcFadeVal(0xbebe,0x60 - this->fWarningFade);
+
+    r.x = 0xb5; r.y = 0x81; r.w = 0x11c; r.h = 0x2a;
+
+    FETextRender_WordWrapTextRGB(TextSys_Word(0x272),r,TextCol);
+    FETextRender_SetABR(0,false);
+
+    FeDraw_SetABRMode(0);
+  }
+  int videoY = 0;
+
+
+
+
+  if ((this->fFrame & 1U) == 0) { videoY = 0x50;
+  }
+  if (VIDEO_state(this->hVideo) == 3) {
+
+
+    this->bVideoAborted = 0;
+    this->fMovieTicks = FE_Ticks(); if (VIDEO_updateframexy(this->hVideo,0x200,videoY) != 0) {
+
+      this->fFrame = this->fFrame + 1;
+    }
+  }
+  else {
+    if (((VIDEO_state(this->hVideo) != 1) &&
+         (0x280 < ((u_long)FE_Ticks() - (u_long)this->fStartTicks))) &&
+        (this->fState == kScreenMain_StaticImage)) {
+      char moviename [80];
+      RECT r;
+
+
+
+      r.x = 0x200;
+
+      r.w = 0x50; r.y = 0;
+      r.h = 0xa0;
+      ClearImage(&r,'\0','\0','\0');
+      DrawSync(0);
+
+
+      do {
+
+        this->fCurrentMovie = rand() % 0x14;
+      } while (this->fCurrentMovie == this->fPreviousMovie);
+      this->fPreviousMovie = this->fCurrentMovie;
+
+
+      this->SetState(kScreenMain_DynamicImage);
+
+
+      sprintf(moviename,"%szzzVD%02d.dct",Paths_Paths[0x29],(int)this->fCurrentMovie);
+      VIDEO_spoolfile(this->hVideo,moviename);
+      VIDEO_startplayback(this->hVideo);
+    }
+  }
+  if ((this->fState == kScreenMain_DynamicImage) &&
+     (VIDEO_state(this->hVideo) == 0)) {
+
+    this->SetState(kScreenMain_StaticImage);
+  }
+
+
+
+  ::DrawBackgroundImage((tScreen *)this,2,0x1c,this->fPermShapes.fShapes,0);
+
+
+  this->DrawDropShadow();
+
+
+  this->DrawVideoLines();
+
+  deltaTicks = FE_Ticks() - this->fAnimTicks;
+  if ((0x5dc < deltaTicks) && (this->fState != kScreenMain_WarningImage)) {
+
+    deltaTicks = 0;
+    this->fAnimationUploaded = 0;
+
+    if (this->fSwapShapes.async_handle == 0) {
+      short nextAnimation;
+
+      do {
+
+        nextAnimation = rand() % 0x19;
+      } while (nextAnimation == this->fPreviousAnim);
+      this->fPreviousAnim = nextAnimation;
+      sprintf(buffer,"yVda%02d",(int)nextAnimation);
+      ::AsyncLoadSwapShapeFile((tScreen *)this,buffer);
+    }
+  }
+
+
+
+  ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
+  if (this->fSwapShapes.fFile != (char *)0x0) {
+
+    this->fSwapShapes.fNumShapes = 10;
+    ::UploadSwapShapes((tScreen *)this,10);
+    this->fAnimTicks = FE_Ticks();
+    this->fAnimationUploaded = 1;
+    this->fAnimLocation = (ushort)this->fAnimTicks & 3;
+  }
+
+
+
+  if (deltaTicks < 0x80) {
+    animFade = deltaTicks * 0x1ffffff + 0x80;
+  } else if (deltaTicks - 0x2a0 < 0x80) {
+    animFade = deltaTicks - 0x2a0;
+  }
+
+  if ((deltaTicks < 800) && (this->fAnimationUploaded != 0)) {
+    int drawAnimFade;
+    int animationFrame;
+    drawFlags.tint[0] = tintColors[this->fCurrentBG[this->fCurrentSlot]];
+    drawFlags.custom_shapes = this->fSwapShapes.fShapes;
+    drawAnimFade = (int)animFade;
+    if (CreditManager.fCreditsInitialized != 0) {
+      drawAnimFade = drawAnimFade + 0x40; if (0x80 < drawAnimFade) { drawAnimFade = 0x80;
+      }
+    }
+
+
+    animationFrame = (deltaTicks / 0xf) % 10; shapeX = animLocations[this->fAnimLocation].x; shapeY = animLocations[this->fAnimLocation].y; DrawShapeExtended(animationFrame,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);
+  }
+
+
+  y = 0x32;
+  i = 0; while (1) { if (0x19 <= i) break; if (0xd2 <= y) break;
+    x = 0x1a2;
+
+    j = 4; while (1) { if (j < 0) break;
+      DrawShapeExtended((numberValues[(i + FE_Ticks() / 0x14) % 0x19] >> j) & 1,1,x,y,0x40,3,
+
+                 (tDrawShapeExtended *)0x0);
+      j--; x = x + 0xd;
+    } y = y + 8;
+    i++;
+  }
+
+  x = (short)((int)((FE_Ticks() - this->fStartTicks) * 0x1000) >> 0x10);
+  j = 0; if (-1 < x) { while (1) { if (0xf < j) break;
+      if (((this->tvStates[tvOrder[j]] != this->tvTransitions[tvOrder[j]].state) ||
+          (this->tvConfigs[tvOrder[j]].clut != this->tvTransitions[tvOrder[j]].clut)) &&
+
+         (this->tvConfigs[tvOrder[j]].state == tv_StateOn)) {
+
+        TurnOffTV(this->tvConfigs + tvOrder[j]);
+      }
+      j++; if (x < j) break;
+    }
+  }
+
   for (i = 0; i < 0x10; i++) {
+
     if (this->tvConfigs[i].state == tv_StateOff) {
+
       this->tvConfigs[i].u = this->tvTransitions[i].u;
       this->tvConfigs[i].v = this->tvTransitions[i].v;
       this->tvConfigs[i].uw = this->tvTransitions[i].uw;
@@ -707,29 +748,38 @@ credits_state_done:
       this->tvConfigs[i].clut = this->tvTransitions[i].clut;
       this->tvConfigs[i].flags = this->tvTransitions[i].flags;
       this->tvConfigs[i].tint = this->tvTransitions[i].tint;
+
       this->tvStates[i] = this->tvTransitions[i].state;
       TurnOnTV(this->tvConfigs + i);
       this->tvConfigs[i].destBrightness = this->tvTransitions[i].bright;
       this->fNumTVsInTransition = this->fNumTVsInTransition + -1;
     }
   }
+
+
   for (i = 0; i < 0x10; i++) {
+
+
+
     DrawTV(this->tvConfigs + i);
   }
+
+
+
   for (i = 0xf3; i < 0x1e3; i = i + 0x50) {
-    PSXDrawSquare(0x404040,i,0x2a,2,0xa9);
-  }
+    PSXDrawSquare(0x404040,i,0x2a,2,0xa9); }
+
   for (i = 0x54; i < 0xd2; i = i + 0x2a) {
-    PSXDrawSquare(0x303030,0xa3,i,0x141,1);
-  }
-  return;
+    PSXDrawSquare(0x303030,0xa3,i,0x141,1); } return;
 }
 
 
 
 /* ---- tScreenMain::GetShapeInfo  [SCREENMAIN.CPP:747-754] ---- */
+#line 743 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
                char **swapFileName)
+
 
 {
 
@@ -744,117 +794,130 @@ void tScreenMain::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **
 
 
 /* ---- tScreenMain::PreLoad  [SCREENMAIN.CPP:758-784] ---- */
+  /* MATCH: ONE fn-scope `short i` serves BOTH loops -- splitting it into i/j
+     halves the allocno's refs and loses the oracle's s2 handout (s0 instead).
+     A plain `short` counter -- the decompiler's `i_int * 0x10000 >> 0x10`
+     idiom pre-shifts into an extra pseudo; the oracle re-signs the short at each
+     use (sll/sra) and copies the bumped value back (addiu v0,s2,1; addu s2,v0). */
+#line 755 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::PreLoad()
+
 
 {
   char buffer [32];
   short i;
 
   sprintf(gPermBuffer,"zMain%d",(uint)(byte)frontEnd.language);
+
   this->fPreviousAnim = (short)(rand() % 0x19);
-  sprintf(gNameBuffer,"yVda%02d",
-          (int)this->fPreviousAnim * 0x10000 >> 0x10);
+  sprintf(gNameBuffer,"yVda%02d", (int)this->fPreviousAnim * 0x10000 >> 0x10);
+
   this->tScreen::PreLoad();
-  /* MATCH: ONE fn-scope `short i` serves BOTH loops -- splitting it into i/j
-     halves the allocno's refs and loses the oracle's s2 handout (s0 instead).
-     A plain `short` counter -- the decompiler's `i_int * 0x10000 >> 0x10`
-     idiom pre-shifts into an extra pseudo; the oracle re-signs the short at each
-     use (sll/sra) and copies the bumped value back (addiu v0,s2,1; addu s2,v0). */
   i = 0;
   do {
+
+
     this->fVideoShapes[i].fShapes = (tTexture_ShapeInfo *)0x0;
     ::InitializeShapes((tScreen *)this,this->fVideoShapes + i,0x10);
-    i = i + 1;
-  } while (i < 2);
+    i = i + 1; } while (i < 2);
+
   this->fCurrentBG[0] = rand() % 0x1c;
-  i = 0;
-  this->fCurrentBG[1] = (this->fCurrentBG[0] + rand() % 0x1b + 1) % 0x1c;
+  i = 0; this->fCurrentBG[1] = (this->fCurrentBG[0] + rand() % 0x1b + 1) % 0x1c;
+
   do {
+
     sprintf(buffer,"zyVid%02d",this->fCurrentBG[i]);
+
     ::AsyncLoadShapeFile((tScreen *)this,buffer,this->fVideoShapes + i);
-    i = i + 1;
-  } while (i < 2);
-  return;
+    i = i + 1; } while (i < 2); return;
 }
 
 
 
 /* ---- tScreenMain::Initialize  [SCREENMAIN.CPP:788-837] ---- */
-void tScreenMain::Initialize()
-
-{
-  /* MATCH (2026-08-11, 14 -> PASS, exact 129/129): SLD lines 812-824 put
-     bVideoAborted before the tick snapshots, followed by transition and the
-     remaining state fields.  A site-local volatile read preserves retail's
-     separate fStartTicks/fAnimTicks loads; typed tvStates[i] indexing gives
-     the retail base-first address addition. */
+  /* MATCH: ONE fn-scope `short n` serves all THREE loops -- the decompiler's
+     `iVarN * 0x10000 >> 0x10` pre-shift idiom costs an extra pseudo per loop
+     (and a whole extra saved register); a plain short counter reproduces the
+     oracle's per-use sll/sra + `addiu v0,n,1; addu n,v0,zero` bump. */
+    /* MATCH: ONE `&&` expression re-assigned to the SAME named flag -- gcc builds
+       the value in an anonymous temp ($v1 in both arms) and emits a single
+       `addu s0,v1,zero` copy into `shapesLoaded`; the `flag = false; if (...)
+       flag = ...;` form writes $s0 directly in both arms (no phi copy). */
+  /* SYM types it native C++ bool (four bytes in CC1PLPSX).  A call whose
+     prototype also returns bool copies directly into the local; the `&&`
+     below performs the only required normalization. */
   /* MATCH (06A): the SYM 8c block lists exactly TWO named locals -- `i` (class
      REG $16 = $s0, SHORT) and `shapesLoaded` (class REG $16 = $s0, BOOL), sharing
      one register over disjoint ranges; mask $800f0000 = ra + s0..s3, i.e. FOUR
      saved regs.  loaded / pv / all_loaded / iVar2 / scratch / iVar3 were Ghidra
      inventions and bought a fifth saved register ($s4). */
-  /* SYM types it native C++ bool (four bytes in CC1PLPSX).  A call whose
-     prototype also returns bool copies directly into the local; the `&&`
-     below performs the only required normalization. */
+  /* MATCH (2026-08-11, 14 -> PASS, exact 129/129): SLD lines 812-824 put
+     bVideoAborted before the tick snapshots, followed by transition and the
+     remaining state fields.  A site-local volatile read preserves retail's
+     separate fStartTicks/fAnimTicks loads; typed tvStates[i] indexing gives
+     the retail base-first address addition. */
+#line 785 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
+void tScreenMain::Initialize()
+
+
+{
   short i;
   bool shapesLoaded;
 
   this->tScreen::Initialize();
+
+
   do {
+
     FeAudio_systemtask(0);
+
     shapesLoaded = ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes);
     if (this->fVideoShapes[0].fFile != (char *)0x0) {
       ::UploadShapes((tScreen *)this,this->fVideoShapes,0,0,0x10,0);
     }
-    /* MATCH: ONE `&&` expression re-assigned to the SAME named flag -- gcc builds
-       the value in an anonymous temp ($v1 in both arms) and emits a single
-       `addu s0,v1,zero` copy into `shapesLoaded`; the `flag = false; if (...)
-       flag = ...;` form writes $s0 directly in both arms (no phi copy). */
-    shapesLoaded = shapesLoaded &&
-                   (::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + 1) != 0);
+    shapesLoaded = shapesLoaded && (::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + 1) != 0);
     if (this->fVideoShapes[1].fFile != (char *)0x0) {
-      ::UploadShapes((tScreen *)this,this->fVideoShapes + 1,0xa6,0,0x10,0);
-    }
-  } while (!shapesLoaded);
+      ::UploadShapes((tScreen *)this,this->fVideoShapes + 1,0xa6,0,0x10,0); } } while (!shapesLoaded);
+
+
   this->fPreviousMovie = -1;
   this->fFrame = 0;
+
   this->hVideo = VIDEO_create(0x50,0x50,0xf0000,0x20000,0x10);
   this->bVideoAborted = 0;
+
+
   this->fStartTicks = VSyncTicks();
   this->fAnimTicks = VSyncTicks() - 800;
   this->fTransitionDirection = '\x01';
   this->fAnimationUploaded = 0;
+
   this->fWarningFade = 0;
+
   this->fNumTVsInTransition = 0;
+
   this->fCurrentSlot = 0;
-  /* MATCH: ONE fn-scope `short n` serves all THREE loops -- the decompiler's
-     `iVarN * 0x10000 >> 0x10` pre-shift idiom costs an extra pseudo per loop
-     (and a whole extra saved register); a plain short counter reproduces the
-     oracle's per-use sll/sra + `addiu v0,n,1; addu n,v0,zero` bump. */
   i = 0;
-  do {
-    InitTV(this->tvConfigs + i,this->fVideoShapes[this->fCurrentSlot].fShapes,i);
-    i = i + 1;
-  } while (i < 0x10);
+  do { InitTV(this->tvConfigs + i,this->fVideoShapes[this->fCurrentSlot].fShapes,i); i = i + 1; } while (i < 0x10);
+
+
   this->fState = kScreenMain_Off;
   this->SetState(kScreenMain_StaticImage);
   i = 0;
-  do {
-    this->tvStates[i] = 0;
-    i = i + 1;
-  } while (i < 0x10);
-  i = 0;
-  do {
-    numberValues[i] = (char)rand();
-    i = i + 1;
-  } while (i < 0x19);
-  return;
+  do { this->tvStates[i] = 0; i = i + 1; } while (i < 0x10);
+
+
+
+  i = 0; do {
+    numberValues[i] = (char)rand(); i = i + 1; } while (i < 0x19); return;
 }
 
 
 
 /* ---- tScreenMain::Cleanup  [SCREENMAIN.CPP:841-851] ---- */
+#line 838 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::Cleanup()
+
 
 {
   int i;
@@ -863,9 +926,9 @@ void tScreenMain::Cleanup()
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
   do {
-    ::FreeShapes((tScreen *)this,this->fVideoShapes + i);
-    i = i + 1;
-  } while (i < 2);
+
+
+    ::FreeShapes((tScreen *)this,this->fVideoShapes + i); i = i + 1; } while (i < 2);
   this->tScreen::Cleanup();
 }
 

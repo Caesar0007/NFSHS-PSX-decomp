@@ -89,6 +89,8 @@ void PAD_update(void);
  * W80-root (2026-08-29): superseded by an authentic compiler identity. A
  * per-function GCC 2.7.2 splice through the normal maspsx route emits all 28
  * instructions exactly; strict source-only and ordinary gates both PASS. */
+
+#line 65 "D:/nfs4/EACLIB/PSX/PAD.C"
 void padinit(void)
 {
   if (gPadinfo.initialized == 0) {
@@ -103,6 +105,8 @@ void padinit(void)
 /* lines 80-82: (static data / macros / comments - no emitted code) */
 
 /* ---- PAD_restore  (PAD.C:83, code lines 83-89) ---- */
+
+#line 82 "D:/nfs4/EACLIB/PSX/PAD.C"
 void PAD_restore(void)
 {
   /* MATCHED (w33-a10). Two per-obj toolchain-identity facts, both now
@@ -205,6 +209,8 @@ void PAD_restore(void)
  * PER_FN_CC1_VER_SPLICE lane. Adding PAD_state beside PAD_update on the 2.7.2 rung gives
  * strict NFS4_SOURCE_ONLY PASS 20/20 twice. The same measured rung now owns padinit and
  * PAD_restore too, making all five functions in pad.c source-only PASS. */
+
+#line 171 "D:/nfs4/EACLIB/PSX/PAD.C"
 u_short PAD_state(int padID)
 {
   if (gPadinfo.initialized != 0 && (u_int)padID < 8) {
@@ -216,6 +222,8 @@ u_short PAD_state(int padID)
 /* lines 187-277: (static data / macros / comments - no emitted code) */
 
 /* ---- PAD_convert  (PAD.C:278, code lines 278-278)  [static] ---- */
+
+#line 298 "D:/nfs4/EACLIB/PSX/PAD.C"
 static u_short PAD_convert(PAD_COMMON *pad)
 {
   return ~(u_int)(pad->data).standard.state & 0xffff;
@@ -527,6 +535,8 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
    SOURCE-REVIEW-UNRESOLVED: active snapshots the pad state across a byte write.
    Repeating the predicate instead was43dif/77words and was reverted. That
    failure is not proof of a uniquely original variable or identifier. */
+
+#line 341 "D:/nfs4/EACLIB/PSX/PAD.C"
 void PAD_update(void)
 {
   int i;

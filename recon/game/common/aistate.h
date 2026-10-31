@@ -106,7 +106,11 @@ struct AIState_NonActive : public AIState_Base {
             }
         }
     }
-    ~AIState_NonActive() { (carObj_->N).active = '\x01'; }   /* declared before Execute: the deferred batch is emitted in reverse member order (retail: Execute 0x80072750, dtor 0x80072758) */
+    ~AIState_NonActive()
+    {
+
+        (carObj_->N).active = '\x01'; }   /* declared before Execute: the deferred batch is emitted in reverse member order (retail: Execute 0x80072750, dtor 0x80072758) */
+
     void Execute() {}
 };
 

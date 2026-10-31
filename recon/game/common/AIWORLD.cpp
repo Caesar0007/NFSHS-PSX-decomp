@@ -46,6 +46,8 @@ int AIWorld_CalcLateralVelocity(Car_tObj *carObj);
 void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *goodPosition);
 
 /* ---- AIWorld_ZSplineDistance__FP8Car_tObjT0  [@0x80072f90] ---- */
+
+#line 28 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_ZSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
   coorddef relPos, forward;
@@ -56,6 +58,8 @@ int AIWorld_ZSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 }
 
 /* ---- AIWorld_ZSplineDistance__FP8coorddefT0P10matrixtdef  [@0x80073024] ---- */
+
+#line 37 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_ZSplineDistance(coorddef *pos1,coorddef *pos2,matrixtdef *roadMatrix)
 {
   coorddef relPos, forward;
@@ -67,6 +71,8 @@ int AIWorld_ZSplineDistance(coorddef *pos1,coorddef *pos2,matrixtdef *roadMatrix
 /* ---- AIWorld_ApxSplineDistance__FP8Car_tObjT0  [@0x800730b8] ---- */
 /* Native a/b name the input slices, not the multiply's anonymous shift/add
  * intermediates. SLD54/55 precedes diff at58 and the single return at63. */
+
+#line 51 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_ApxSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
   int diff, halfTrack;
@@ -84,6 +90,8 @@ int AIWorld_ApxSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 
 /* ---- AIWorld_ApxSplineDistance__FP8Car_tObji  [@0x80073128] ---- */
 /* As above, a is the input slice (SLD69), not a doubled-distance carrier. */
+
+#line 66 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_ApxSplineDistance(Car_tObj *carObj,int location)
 {
   int diff, halfTrack;
@@ -100,12 +108,16 @@ int AIWorld_ApxSplineDistance(Car_tObj *carObj,int location)
 }
 
 /* ---- AIWorld_ApxSplineDistance__FiP8Car_tObj  [@0x80073194] ---- */
+
+#line 81 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_ApxSplineDistance(int location,Car_tObj *carObj)
 {
   return -AIWorld_ApxSplineDistance(carObj,location);
 }
 
 /* ---- AIWorld_ApxSplineDistance__Fii  [@0x800731bc] ---- */
+
+#line 86 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_ApxSplineDistance(int locationA,int locationB)
 {
   int diff, halfTrack;
@@ -120,6 +132,8 @@ int AIWorld_ApxSplineDistance(int locationA,int locationB)
 }
 
 /* ---- AIWorld_SplineDistance__FP8Car_tObjT0  [@0x80073224] ---- */
+
+#line 106 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_SplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
   int distance;
@@ -133,6 +147,8 @@ int AIWorld_SplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 }
 
 /* ---- AIWorld_SplineDistance__FP8Car_tObjiP8coorddef  [@0x8007327c] ---- */
+
+#line 118 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_SplineDistance(Car_tObj *carObj,int location,coorddef *position)
 {
   int distance;
@@ -145,6 +161,8 @@ int AIWorld_SplineDistance(Car_tObj *carObj,int location,coorddef *position)
 }
 
 /* ---- AIWorld_GameOdometer__FP8Car_tObj  [@0x800732d8] ---- */
+
+#line 142 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_GameOdometer(Car_tObj *carObj)
 {
   return (u_int)(carObj->N).totalSlice * 0x60000;
@@ -153,6 +171,8 @@ int AIWorld_GameOdometer(Car_tObj *carObj)
 /* ---- AIWorld_IsDriveableLaneInSliceRange__Fiiii  [@0x800732f0] ---- */
 /* Native scopes own the for-declared counter and the loop-body slice.
  * SLD177..195 also fixes the clamp, mask, loop and return statement regions. */
+
+#line 171 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int direction,int laneIndex)
 {
   int profileIndex;   /* SYM: REG -- clamp shape matches GetProfileMask/IsDriveableLane */
@@ -181,6 +201,8 @@ int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int 
 }
 
 /* ---- AIWorld_IsDriveableLane__Fii  [@0x800733a8] ---- */
+
+#line 202 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_IsDriveableLane(int slice,int laneIndex)
 {
   int profileIndex;
@@ -203,6 +225,8 @@ int AIWorld_IsDriveableLane(int slice,int laneIndex)
 /* ---- AIWorld_GetProfileMask__Fi  [@0x800733fc] ---- */
 /* SLD232/233 keeps the two subtractions separate; folding them to laneIndex+1
  * drops the retail's intermediate operations. */
+
+#line 227 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_GetProfileMask(int laneIndex)
 {
   int profileIndex;   /* SYM: REG $v1 -- rewired from anonymous iVar1/iVar2 */
@@ -220,12 +244,16 @@ int AIWorld_GetProfileMask(int laneIndex)
 }
 
 /* ---- AIWorld_IsDriveableLane_UsingMask__Fii  [@0x8007343c] ---- */
+
+#line 249 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_IsDriveableLane_UsingMask(int slice,int mask)
 {
   return *(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16) & mask;
 }
 
 /* ---- AIWorld_CheckForBarrierBetweenLanes__Fiii  [@0x80073458] ---- */
+
+#line 263 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
 {
   int profileLane0, profileLane1;
@@ -254,6 +282,8 @@ int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1)
  * single-use values disappear from native -g records, unlike the old reused
  * perpDistance carrier. SLD309..313 separates lookup, multiply, divide and
  * clamps. The constant-first upper clamp preserves retail's return funnel. */
+
+#line 289 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_LaneIndex(int slice,int position)
 {
   int laneWidth;
@@ -287,6 +317,8 @@ int AIWorld_LaneIndex(int slice,int position)
 /* SLD339/340 and341/342 separate each edge calculation from its lane query.
  * leftEdge/rightEdge are independently named by NFS2's AI_CalculateLaneInfo;
  * both optimize out here. Re-read the slice for each call, as retail does. */
+
+#line 325 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
 {
   int leftEdge;
@@ -445,6 +477,8 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
 /* SLD491..493 separates the two yaw reads and subtraction. NFS2's native
  * AI_CalculateRoadYaw records yaw0/yaw1; yaw1 is optimized out here. The
  * explicit else-zero path restores retail allocation without an asm fence. */
+
+#line 484 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
 {
   int delta;
@@ -478,6 +512,8 @@ int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
  * AIPhysic_CalcRoadBend supplies the cross-version bend name. Keeping it as
  * the complete sum (not a first-product carrier) eliminates its debug record.
  * Plain signed divisions avoid the reconstruction-only helper's eight scopes. */
+
+#line 517 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
 {
   int thisSlice;
@@ -496,6 +532,8 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
 /* ---- AIWorld_CalcFutureLateralVel__FP8Car_tObji  [@0x800737bc] ---- */
 /* NFS2's native AIPhysic_CalcFutureLateralVel supplies temp for the complete
  * dot product. SLD551 computes that sum and553 returns it; temp optimizes out. */
+
+#line 536 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
 {
   int temp;
@@ -519,6 +557,8 @@ int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
 /* ---- AIWorld_CalcSpeed__FP8Car_tObj  [@0x800738d4] ---- */
 /* Native SYM16f19d/16f1b2 records these original INT names in a1/v1:
    optVar1 holds the X velocity and optVar2 the Z velocity. */
+
+#line 556 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 void AIWorld_CalcSpeed(Car_tObj *carObj)
 {
   int optVar1, optVar2;
@@ -531,6 +571,8 @@ void AIWorld_CalcSpeed(Car_tObj *carObj)
 
 /* ---- AIWorld_CalcLateralVelocity__FP8Car_tObj  [@0x8007391c] ---- */
 /* Native temp accumulates each fixed product before the next call. */
+
+#line 566 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 int AIWorld_CalcLateralVelocity(Car_tObj *carObj)
 {
   int temp;
@@ -543,6 +585,8 @@ int AIWorld_CalcLateralVelocity(Car_tObj *carObj)
 }
 
 /* ---- AIWorld_FindBarrierLessLaneAndPosition__FP8Car_tObjPiT1  [@0x80073978] ---- */
+
+#line 577 "C:/nfs4/GAME/COMMON/AIWORLD.CPP"
 void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *goodPosition)
 {
   int roadSide = carObj->direction * AITune_driveSide;

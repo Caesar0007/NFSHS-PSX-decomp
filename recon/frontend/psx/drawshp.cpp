@@ -60,7 +60,9 @@ typedef struct { unsigned addr : 24, len : 8; } DrawShp_PTag;
    cell address20/110, reverted. Historical allocation impossibility claims
    are withdrawn, not accepted as proof of source objects or compiler floors.
    Full literal source and SLD remain separate requirements. */
+#line 48 "C:/nfs4/FRONTEND/PSX/DRAWSHP.CPP"
 void DrawShape_SubtractNFS4RectEdges(RECT &rect)
+
 
 {
   DR_MODE *dr_mode;
@@ -98,56 +100,55 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
 /* lines 82-91: (static data / macros / comments - no emitted code) */
 
 /* ---- DrawShape_NFS4RoundRectangle  (drawshp.cpp:92, code lines 92-124) ---- */
-void DrawShape_NFS4RoundRectangle(int textID,RECT &position,short selected)
-
-{
   /* SYM 8c: fsize 80, mask $801f0000 (ra,s4..s0); locals are EXACTLY
    *   drawFlags(AUTO -0x30 = sp+0x20) flags(short $s3) left(tTexture_ShapeInfo* $s2)
    * REGPARM: textID $a0, position $s1, selected $a2.  `shapes`/`abr`/`x`/`y`/
    * `dseIndex`/`dseFlags`/`dseX`/`dseY` were Ghidra fictions -- the two
    * DrawShapeExtended calls were being handed FOUR UNINITIALISED locals each
    * (real bug), and the PSXDraw*Square coordinates were uninitialised too. */
-  tDrawShapeExtended drawFlags;
-  short flags;
-  tTexture_ShapeInfo *left;
+#line 89 "C:/nfs4/FRONTEND/PSX/DRAWSHP.CPP"
+void DrawShape_NFS4RoundRectangle(int textID,RECT &position,short selected)
 
-  flags = 0;
+
+{
+  tDrawShapeExtended drawFlags;
+  short flags; tTexture_ShapeInfo *left; flags = 0;
+
+
   left = gHelpShapes + 0x29;
+
+
+
   if (-1 < textID) {
     FETextRender_MenuTextPositionedJustify
-              ((short)textID,(short)(position.x + (position.w >> 1)),
-               (short)(position.y + 4),2,textState_Selected,textType_FramedInfo);
-  }
-  if (selected == 0) {
+              ((short)textID,(short)(position.x + (position.w >> 1)), (short)(position.y + 4),2,textState_Selected,textType_FramedInfo);
+  } if (selected == 0) {
     flags = 1;
   }
+
+
   DrawShapeExtended(0x29,flags | 8,position.x,position.y,0,0,&drawFlags);
   DrawShapeExtended(0x29,flags | 0xc,(int)position.x + (int)position.w - (int)left->width,
                     position.y,0,0,&drawFlags);
+
   if (selected != 0) {
     PSXDrawSquare(0x841d08,(int)position.x + (int)left->width,
                   (int)position.y + (int)left->height + -1,
                   (int)position.w - left->width * 2 + 1,1);
-    PSXDrawSquare(0,(int)position.x + (int)left->width,position.y,
-                  (int)position.w - left->width * 2 + 1,left->height + -1);
+    PSXDrawSquare(0,(int)position.x + (int)left->width,position.y, (int)position.w - left->width * 2 + 1,left->height + -1);
   }
   else {
     PSXDrawTransSquare(0x841d08,(int)position.x + (int)left->width,
                        (int)position.y + (int)left->height + -1,
                        (int)position.w - left->width * 2 + 1,1,1);
-    PSXDrawTransSquare(0,(int)position.x + (int)left->width,position.y,
-                       (int)position.w - left->width * 2 + 1,left->height + -1,1);
-    FeDraw_SetABRMode(0);
-  }
-  return;
-}
+    PSXDrawTransSquare(0,(int)position.x + (int)left->width,position.y, (int)position.w - left->width * 2 + 1,left->height + -1,1);
+    FeDraw_SetABRMode(0); } return; }
 
 /* lines 125-128: (static data / macros / comments - no emitted code) */
 
 /* ---- DrawShape_NFS4Rectangle  (drawshp.cpp:129, code lines 129-166) ---- */
-void DrawShape_NFS4Rectangle(RECT &position)
-
-{
+  /* decl order = SYM Def-record order (topleft, topright, bottomleft,
+     bottomright, drawFlags) -- w86-S5, gate unchanged */
   /* SYM 8c: fsize 96, mask $803f0000 (ra,s5..s0); locals are EXACTLY
    *   topleft($s5=&gHelpShapes[0x2a]) topright($s3=[0x2b])
    *   bottomleft($s4=[0x2c]) bottomright($s2=[0x2d]) drawFlags(AUTO -0x38=sp+0x28)
@@ -155,58 +156,48 @@ void DrawShape_NFS4Rectangle(RECT &position)
    * `dseY` were Ghidra fictions: all four DrawShapeExtended calls and every
    * PSXDraw* coordinate were UNINITIALISED locals (real bug).  Recovered from
    * the raw oracle. */
-  /* decl order = SYM Def-record order (topleft, topright, bottomleft,
-     bottomright, drawFlags) -- w86-S5, gate unchanged */
+#line 126 "C:/nfs4/FRONTEND/PSX/DRAWSHP.CPP"
+void DrawShape_NFS4Rectangle(RECT &position)
+
+
+{
   tTexture_ShapeInfo *topleft;
   tTexture_ShapeInfo *topright;
   tTexture_ShapeInfo *bottomleft;
   tTexture_ShapeInfo *bottomright;
-  tDrawShapeExtended drawFlags;
-
-  topleft = gHelpShapes + 0x2a;
+  tDrawShapeExtended drawFlags; topleft = gHelpShapes + 0x2a;
   topright = gHelpShapes + 0x2b;
   bottomleft = gHelpShapes + 0x2c;
   bottomright = gHelpShapes + 0x2d;
+
+
   drawFlags.tint[0] = 0x7b2908;
   drawFlags.tint[1] = 0x150800;
   drawFlags.tint[2] = 0x291000;
   drawFlags.tint[3] = 0x4a1900;
+
+
   DrawShapeExtended(0x2a,9,position.x,position.y,0,0,&drawFlags);
   DrawShapeExtended(0x2b,9,(int)position.x + (int)position.w - (int)topright->width,
                     position.y,0,0,&drawFlags);
   DrawShapeExtended(0x2c,9,position.x,
                     (int)position.y + (int)position.h - (int)bottomleft->height,0,0,&drawFlags);
   DrawShapeExtended(0x2d,9,(int)position.x + (int)position.w - (int)bottomright->width,
+
                     (int)position.y + (int)position.h - (int)bottomright->height,0,0,&drawFlags);
   PSXDrawTransSquare
             (drawFlags.tint[1],(int)position.x + (int)topleft->width,position.y,
              (int)position.w - (int)topleft->width - (int)topright->width,1,1);
-  PSXDrawTransSquare
-            (drawFlags.tint[0],(int)position.x + (int)bottomleft->width,
-             (int)position.y + (int)position.h + -1,
-             (int)position.w - (int)bottomleft->width - (int)bottomright->width,1,1);
+  PSXDrawTransSquare (drawFlags.tint[0],(int)position.x + (int)bottomleft->width, (int)position.y + (int)position.h + -1, (int)position.w - (int)bottomleft->width - (int)bottomright->width,1,1);
   PSXDrawTransGouraudSquare
-            (position.x,(int)position.y + (int)topleft->height,2,
-             (int)position.h - (int)topleft->height - (int)bottomleft->height,1,
-             drawFlags.tint[2],drawFlags.tint[2],drawFlags.tint[3],drawFlags.tint[3]);
-  PSXDrawTransGouraudSquare
-            ((int)position.x + (int)position.w + -2,(int)position.y + (int)topright->height,2,
-             (int)position.h - (int)topright->height - (int)bottomright->height,1,
-             drawFlags.tint[2],drawFlags.tint[2],drawFlags.tint[3],drawFlags.tint[3]);
+            (position.x,(int)position.y + (int)topleft->height,2, (int)position.h - (int)topleft->height - (int)bottomleft->height,1, drawFlags.tint[2],drawFlags.tint[2],drawFlags.tint[3],drawFlags.tint[3]);
+  PSXDrawTransGouraudSquare ((int)position.x + (int)position.w + -2,(int)position.y + (int)topright->height,2, (int)position.h - (int)topright->height - (int)bottomright->height,1, drawFlags.tint[2],drawFlags.tint[2],drawFlags.tint[3],drawFlags.tint[3]);
   PSXDrawTransSquare
             (0,(int)position.x + 2,(int)position.y + (int)topleft->height,
-             topleft->width + -2,
-             (int)position.h - (int)topleft->height - (int)bottomleft->height,1);
-  PSXDrawTransSquare
-            (0,(int)position.x + (int)position.w + -2,(int)position.y + (int)topright->height,
-             -topright->width + 2,
-             (int)position.h - (int)topright->height - (int)bottomright->height,1);
-  PSXDrawTransSquare
-            (0,(int)position.x + (int)topleft->width,(int)position.y + 1,
-             (int)position.w - (int)topleft->width - (int)topright->width,
-             position.h + -2,1);
-  FeDraw_SetABRMode(0);
-  return;
+             topleft->width + -2, (int)position.h - (int)topleft->height - (int)bottomleft->height,1);
+  PSXDrawTransSquare (0,(int)position.x + (int)position.w + -2,(int)position.y + (int)topright->height, -topright->width + 2, (int)position.h - (int)topright->height - (int)bottomright->height,1);
+  PSXDrawTransSquare (0,(int)position.x + (int)topleft->width,(int)position.y + 1, (int)position.w - (int)topleft->width - (int)topright->width, position.h + -2,1);
+  FeDraw_SetABRMode(0); return;
 }
 
 /* lines 167-169: (static data / macros / comments - no emitted code) */
@@ -220,7 +211,9 @@ void DrawShape_NFS4Rectangle(RECT &position)
  * shift form lets combine fold promotion+double into one (raw<<17)>>16 off the
  * raw parm copy, deferring the plain sign-extend to the last call site; the
  * multiply form CSEs one shared (int)opacity and is 1 insn short. */
+#line 167 "C:/nfs4/FRONTEND/PSX/DRAWSHP.CPP"
 void DrawShape_NFS4TransRectangle(RECT &r,short opacity)
+
 
 {
 
@@ -232,8 +225,8 @@ void DrawShape_NFS4TransRectangle(RECT &r,short opacity)
 
   PSXDrawTransSquare(0,r.x + 4,r.y + 2,r.w + -8,r.h + -4,opacity);
 
-  FeDraw_SetABRMode(0);
-  return;
+
+  FeDraw_SetABRMode(0); return;
 }
 
 /* end of drawshp.cpp */

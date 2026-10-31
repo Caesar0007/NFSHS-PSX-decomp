@@ -86,6 +86,8 @@ int          NitroDistanceMeters[2][2] = { 3932160, 1638400, 3932160, 1638400 };
 
 
 /* ---- __10AIHigh_CopP8Car_tObji  AIHigh_Cop::ctor  [AIH_COP.CPP:95-105] SLD-VERIFIED ---- */
+
+#line 95 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 AIHigh_Cop::AIHigh_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
   this->perpTarget_ = (AIHigh_Player *)0x0;
@@ -109,7 +111,9 @@ AIHigh_Cop::AIHigh_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,c
 
 /* ---- SetTuningLevers__10AIHigh_Cop  AIHigh_Cop::SetTuningLevers  [AIH_COP.CPP:110-123] SLD-VERIFIED ---- */
 
+#line 105 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 void AIHigh_Cop::SetTuningLevers()
+
 
 
 
@@ -518,7 +522,9 @@ void AIHigh_Cop::SetTuningLevers()
            here because estimate_case_costs rejects control-character case values
            (cost_table[1..3] < 0, stmt.c:5957-5960).  An `&&` chain folds the two
            guards away (swlab V12) -- they must be NESTED ifs.  84 -> 80 diffs. */
+#line 142 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 void AIHigh_Cop::HighExecute()
+
 
 
 
@@ -535,8 +541,8 @@ void AIHigh_Cop::HighExecute()
 
 
 
-  switch(this->stateType_) {
-
+  switch(this->stateType_)
+  { trigger_t *pNewTrigger;
   case 0:
     {
 
@@ -623,8 +629,8 @@ void AIHigh_Cop::HighExecute()
 
     }
     {
-    if (this->blockade_.mode == 2) {
-
+    if (this->blockade_.mode == 2)
+    {
       AIState_Base *newState;
       this->AssignToPlayer(this->blockade_.target);
       newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */ ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
@@ -638,8 +644,8 @@ void AIHigh_Cop::HighExecute()
 
 
 
-    else if ((((this->carObj_)->AIFlags & 8U) != 0) && (this->blockade_.mode != 1)) { trigger_t *pNewTrigger; pNewTrigger = this->CheckForNewTriggers(); if (pNewTrigger != (trigger_t *)0x0) {
-
+    else if ((((this->carObj_)->AIFlags & 8U) != 0) && (this->blockade_.mode != 1)) { pNewTrigger = this->CheckForNewTriggers(); if (pNewTrigger != (trigger_t *)0x0)
+    {
         int forceForwardTrigger;
 
         trigger_t newTrigger;
@@ -665,7 +671,7 @@ void AIHigh_Cop::HighExecute()
           newTrigger.roadblock.slice = oldSlice;
 
         }
-        triggerManagerCops->DescribeTrigger(&newTrigger); switch (newTrigger.roadblock.type)
+        triggerManagerCops->DescribeTrigger(&newTrigger); switch (TriggerType(&newTrigger))
         {
         case 0: case 2: break;
         case 3:
@@ -680,10 +686,10 @@ void AIHigh_Cop::HighExecute()
 
           int rev = GameSetup_gData.reverseTrack; int dir = newTrigger.roadblock.dir; int wrongWayHit; if (rev == 0) { wrongWayHit = (dir == 1); } else { wrongWayHit = (dir == -1); } if (wrongWayHit || (*(int *)&newTrigger.roadblock.dir == 0)) {
 
-            AIState_Offroad *newState;
+
             this->AssignToPlayer((AIHigh_Player *)0x0);
-            newState = operator new(0x68); newState = (new(newState) AIState_Offroad(this->carObj_,newTrigger.offroad.slice, &newTrigger.offroad.position,&newTrigger.offroad.orientation, newTrigger.offroad.maxSpeed,newTrigger.offroad.releaseTime,newTrigger.offroad.endSlice));
-            this->SetState((AIState_Base *)newState,(stateType_t)5);
+            this->SetState(new AIState_Offroad(this->carObj_,newTrigger.offroad.slice, &newTrigger.offroad.position,&newTrigger.offroad.orientation, newTrigger.offroad.maxSpeed,newTrigger.offroad.releaseTime,newTrigger.offroad.endSlice), (stateType_t)5);
+
             AILife_ReencarnateCopByPosition(this->carObj_,newTrigger.offroad.slice,1,
                        &newTrigger.offroad.position,&newTrigger.offroad.orientation);
 
@@ -724,10 +730,10 @@ void AIHigh_Cop::HighExecute()
           }
 
 
+
+
         }
-      }
-    }
-    }
+      } } }
     goto stateExecuteAndReturn;
     }
   case 2:
@@ -748,7 +754,7 @@ void AIHigh_Cop::HighExecute()
 
         coorddef pos;
 
-        AIState_Chase *newState;
+
 
 
 
@@ -758,8 +764,8 @@ void AIHigh_Cop::HighExecute()
         this->GetCheckChasePosition(&pos);
 
 
-        newState = operator new(0x94); newState = (new(newState) AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
-        this->SetState((AIState_Base *)newState,chaseState);
+        this->SetState(new AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), chaseState);
+
         Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_);
       }
       }
@@ -795,10 +801,10 @@ void AIHigh_Cop::HighExecute()
 
     if (0xa0 < chaseState->barrierTicks32_) {
       int endSlice;
-      AIState_GotoSlice *newState; endSlice = (chaseState)->FindBarrierEndSlice();
+      endSlice = (chaseState)->FindBarrierEndSlice();
 
-      newState = operator new(0x10); newState = (new(newState) AIState_GotoSlice(this->carObj_,endSlice,0));
-      this->SetState((AIState_Base *)newState,(stateType_t)9);
+      this->SetState(new AIState_GotoSlice(this->carObj_,endSlice,0), (stateType_t)9);
+
       Speech::Mobile(this->carObj_)->Lose();
     }
     {
@@ -872,8 +878,8 @@ void AIHigh_Cop::HighExecute()
 
       }
     }
-    if (this->CheckForNewTarget() != 0) {
-
+    if (this->CheckForNewTarget() != 0)
+    {
       coorddef pos;
       this->GetCheckChasePosition(&pos);
       (chaseState)->SetTarget((this->perpTarget_)->carObj_,&pos);
@@ -896,8 +902,8 @@ void AIHigh_Cop::HighExecute()
         this->SetState(newState,(stateType_t)2);
       }
     }
-    if ((this->forcePurgatory_ != 0) || (AILife_EvaluateLife(this->carObj_) != 0)) {
-
+    if ((this->forcePurgatory_ != 0) || (AILife_EvaluateLife(this->carObj_) != 0))
+    {
     if ((AILife_EvaluateLife(this->carObj_) != 0) && (this->driveAway_ == 0)) {
       Speech::Mobile(this->carObj_)->Lose();
     } { AIState_Base *newState; Speech::Mobile(this->carObj_)->Purge();
@@ -953,8 +959,8 @@ void AIHigh_Cop::HighExecute()
 
     }
 
-    if (this->forcePurgatory_ != 0) {
-
+    if (this->forcePurgatory_ != 0)
+    {
       AIState_Base *newState;
       this->forcePurgatory_ = 0;
       Speech::Mobile(this->carObj_)->Purge();
@@ -1077,11 +1083,11 @@ LAB_80064a0c:
       this->blockade_.mode = 0;
 
       {
-        AIState_Chase *newState;
 
 
-        newState = operator new(0x94); newState = (new(newState) AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&newPos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
-        this->SetState((AIState_Base *)newState,(stateType_t)4);
+
+        this->SetState(new AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&newPos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), (stateType_t)4);
+
         if (this->blockade_.reverse != 0) {
           AIPhysic_ChangeDirection(this->carObj_,0x40); } } goto stateExecuteAndReturn;
 
@@ -1096,12 +1102,12 @@ LAB_80064a0c:
 
       if (this->CheckForNewTarget() != 0) { if ((this->blockade_.mode != 1) && (this->blockade_.mode != 4)) {
         coorddef pos;
-        AIState_Chase *newState;
+
         this->GetCheckChasePosition(&pos);
 
 
-        newState = operator new(0x94); newState = (new(newState) AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
-        this->SetState((AIState_Base *)newState,(stateType_t)4);
+        this->SetState(new AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), (stateType_t)4);
+
         Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_); goto stateExecuteAndReturn;
       }
       } if (AILife_EvaluateLife(this->carObj_) == 0) goto stateExecuteAndReturn;
@@ -1202,6 +1208,8 @@ stateExecuteAndReturn:
 
 /* ---- CheckForNeedyPlayers__10AIHigh_Cop  AIHigh_Cop::CheckForNeedyPlayers  [AIH_COP.CPP:819-835] SLD-VERIFIED ---- */
 
+
+#line 818 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 int AIHigh_Cop::CheckForNeedyPlayers()
 {
   int needy = -1;
@@ -1231,12 +1239,12 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
 /* Retail's guard pair is the car getter plus the remaining timer query,
    not a GameTicks accessor. The loop pair reads the player's chase-level index. */
-static inline int AI_Rand(void)
-{
-  randtemp = fastRandom * randSeed;
-  fastRandom = randtemp & 0xffff;
-  return (int)((randtemp >> 8) & 0xffff);
-}
+
+
+
+
+
+
 /* The shared timer query is defined with its class interface. */
 inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; }
 
@@ -1256,7 +1264,9 @@ inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; 
      (gameTicks FIRST) makes gcc schedule the D_8011E0B0 load into the load-delay
      gap after `lw carObj_`; the `wipeOutEndTick <= gameTicks` spelling emits a nop
      there instead and rotated the whole a0/a1 band. 25 -> PASS. */
+#line 840 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 void AIHigh_Cop::CheckForWipeOut()
+
 
 
 
@@ -1270,10 +1280,10 @@ void AIHigh_Cop::CheckForWipeOut()
   if (this->stateType_ != STATE_CHASE) {
     return;
   }
-  if ((this->perpTarget_ == (AIHigh_Player *)0x0) ||
-      (((AIHigh_GetCarObj(this->perpTarget_))->carFlags & 8U) == 0) ||
-      (simGlobal.gameTicks < (this->carObj_)->wipeOutEndTick) ||
-      (this->perpTarget_->perpChaseInfo_.RemainingEngagementTime() >= 2))
+
+
+
+  if ((this->perpTarget_ == (AIHigh_Player *)0x0) || (((AIHigh_GetCarObj(this->perpTarget_))->carFlags & 8U) == 0) || (simGlobal.gameTicks < (this->carObj_)->wipeOutEndTick) || (this->perpTarget_->perpChaseInfo_.RemainingEngagementTime() >= 2))
     return;
   randVal = AI_Rand();
   thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
@@ -1300,7 +1310,7 @@ void AIHigh_Cop::CheckForWipeOut()
 
 
   }
-  return; }
+}
 
 
 
@@ -1311,6 +1321,8 @@ void AIHigh_Cop::CheckForWipeOut()
 
 /* ---- CheckForNewTarget__10AIHigh_Cop  AIHigh_Cop::CheckForNewTarget  [AIH_COP.CPP:891-968] SLD-VERIFIED ---- */
 
+
+#line 890 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 int AIHigh_Cop::CheckForNewTarget()
 {
   AIHigh_Player *newTarget; int newTargetDistance; int playerLoop; AIHigh_Player *old; newTarget = (AIHigh_Player *)0x0;
@@ -1352,8 +1364,8 @@ int AIHigh_Cop::CheckForNewTarget()
   }
 
 
-  if (newTarget == (AIHigh_Player *)0x0) {
-
+  if (newTarget == (AIHigh_Player *)0x0)
+  {
 
     for (playerLoop = 0; playerLoop < Cars_gNumRaceCars; playerLoop++) {
 
@@ -1372,8 +1384,8 @@ int AIHigh_Cop::CheckForNewTarget()
   }
 
 
-  if (newTarget != (AIHigh_Player *)0x0 && newTarget != old) {
-
+  if (newTarget != (AIHigh_Player *)0x0 && newTarget != old)
+  {
     this->AssignToPlayer(newTarget);
     this->aggressionLevel_ = PerpChase_ChaseLevel(&newTarget->perpChaseInfo_)->copAggression[this->type_];
 
@@ -1402,7 +1414,9 @@ int AIHigh_Cop::CheckForNewTarget()
 
 /* ---- AssignToPlayer__10AIHigh_CopP13AIHigh_Player  AIHigh_Cop::AssignToPlayer  [AIH_COP.CPP:975-989] SLD-VERIFIED ---- */
 
+#line 970 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 void AIHigh_Cop::AssignToPlayer(AIHigh_Player *target)
+
 
 
 
@@ -1431,7 +1445,9 @@ void AIHigh_Cop::AssignToPlayer(AIHigh_Player *target)
 
 /* ---- GetCheckChasePosition__10AIHigh_CopP8coorddef  AIHigh_Cop::GetCheckChasePosition  [AIH_COP.CPP:995-1014] SLD-VERIFIED ---- */
 
+#line 990 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
+
 
 
 
@@ -1498,6 +1514,8 @@ inline int AIHigh_Player::ExchangeLastTriggerCheckSlice(int newSlice)
      Authoritative progression: 29 -> 15 -> 9 -> 8 -> 2 -> PASS.  Falsified
      follow-ups: raw/pLevel identity 14, empty-loop boundary 5/10, accessor
      wrapper 16/19, pointer keepalive 8, and tied-output fences 7/51. */
+
+#line 1020 "C:/nfs4/GAME/COMMON/AIH_COP.CPP"
 trigger_t * AIHigh_Cop::CheckForNewTriggers()
 {
 

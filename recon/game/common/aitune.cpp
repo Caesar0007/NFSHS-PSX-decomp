@@ -35,6 +35,8 @@ void AITune_CleanUp2(void);
 
 
 /* ---- AITune_GetOneWay__Fv  [@0x80072e68] ---- */
+
+#line 102 "C:/nfs4/GAME/COMMON/AITUNE.CPP"
 int AITune_GetOneWay(void)
 {
   if (AITUNE_TRACK < 0xc) {
@@ -44,6 +46,8 @@ int AITune_GetOneWay(void)
 }
 
 /* ---- AITune_GetDriveSide__Fv  [@0x80072ec0] ---- */
+
+#line 110 "C:/nfs4/GAME/COMMON/AITUNE.CPP"
 int AITune_GetDriveSide(void)
 {
   if (AITUNE_TRACK < 0xc) {
@@ -53,6 +57,8 @@ int AITune_GetDriveSide(void)
 }
 
 /* ---- AITune_GetRoughLapTimes__Fv  [@0x80072f00] ---- */
+
+#line 118 "C:/nfs4/GAME/COMMON/AITUNE.CPP"
 int AITune_GetRoughLapTimes(void)
 {
   if (AITUNE_TRACK < 0xc) {
@@ -62,6 +68,8 @@ int AITune_GetRoughLapTimes(void)
 }
 
 /* ---- AITune_StartUp1__Fv  [@0x80072f40] ---- */
+
+#line 127 "C:/nfs4/GAME/COMMON/AITUNE.CPP"
 void AITune_StartUp1(void)
 {
   AITune_oneWay = AITune_GetOneWay();
@@ -70,13 +78,19 @@ void AITune_StartUp1(void)
 }
 
 /* ---- AITune_StartUp2__Fv  [@0x80072f78] ---- */
+
+#line 138 "C:/nfs4/GAME/COMMON/AITUNE.CPP"
 void AITune_StartUp2(void) {
 }
 
 /* ---- AITune_CleanUp1__Fv  [@0x80072f80] ---- */
+
+#line 142 "C:/nfs4/GAME/COMMON/AITUNE.CPP"
 void AITune_CleanUp1(void) {
 }
 
 /* ---- AITune_CleanUp2__Fv  [@0x80072f88] ---- */
+
+#line 146 "C:/nfs4/GAME/COMMON/AITUNE.CPP"
 void AITune_CleanUp2(void) {
 }

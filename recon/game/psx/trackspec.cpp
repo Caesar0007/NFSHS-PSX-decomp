@@ -278,8 +278,10 @@ int TrackSpec_gPrevSpec;
    * `GameSetup_gData.Weather/Time` straight into the record (one line each, the store
    * scheduled far from the load), so the locals were a reconstruction artifact whose
    * merged live range was what pushed `spec` off $a1 in the first place. */
-#line 42 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
+
+#line 41 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void TrackSpec_SetDefault(CTrackSpec *spec)
+
 
 {
   int i, j;
@@ -353,8 +355,10 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   (spec->worldcolorspec).contrast_color.r = 0x80; (spec->worldcolorspec).contrast_color.g = 0x80; (spec->worldcolorspec).contrast_color.b = 0x80; }
 
 /* ---- TrackSpec_SetUp__Fv  [TRACKSPEC.CPP:119-121] SLD-CHECK-REQUIRED ---- */
-#line 117 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
+
+#line 116 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void TrackSpec_SetUp(void)
+
 
 {
   GameSetup_gData.Time = (int)TrackSpec_gSpec.nightstate;
@@ -363,8 +367,10 @@ void TrackSpec_SetUp(void)
 /* ---- read__FPPcPvi [TRACKSPEC.CPP:127-139; full SLD still open] ---- */
 /* 2026-10-18: retail owns i in the for-initializer region, not at root.
  * Keep source/dest as the recorded root pointers; no extra wrapper scope. */
-#line 125 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
+
+#line 124 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void read(char **handle,void *buf,int bytes)
+
 
 {
   char *source;
@@ -434,8 +440,10 @@ void read(char **handle,void *buf,int bytes)
  * want_value path distinguishes a consumed assignment from a standalone one.
  * trk still needs source recovery; a separate SLD tag does not uniquely prove
  * a separate source statement or object. Full SLD remains open. */
-#line 143 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
+
+#line 142 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void TrackSpec_Read(int spec_num)
+
 
 {
   char *currentpos; char *startpos; char str [64];
@@ -495,8 +503,10 @@ void TrackSpec_Read(int spec_num)
 }
 
 /* ---- TrackSpec_Load__Fii  [TRACKSPEC.CPP:205-207] SLD-CHECK-REQUIRED ---- */
-#line 203 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
+
+#line 202 "C:/nfs4/GAME/PSX/TRACKSPEC.CPP"
 void TrackSpec_Load(int weather,int night)
+
 
 {
   int spec [2] [2] = { { 0, 1 }, { 2, 3 } };   /* @0x80056ad4 rodata template -> stack copy */

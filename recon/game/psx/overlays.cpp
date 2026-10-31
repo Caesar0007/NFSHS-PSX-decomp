@@ -30,7 +30,9 @@ tBTCPerpInfo BTCPerpInfo[2][10];
 
 
 /* ---- OptionsBarThing__Fiiii  [OVERLAYS.CPP:39-47] SLD-VERIFIED ---- */
+#line 36 "C:/nfs4/GAME/PSX/OVERLAYS.CPP"
 void OptionsBarThing(int x,int y,int w,int h)
+
 
 {
   Hud_GoTpage(1);
@@ -148,7 +150,9 @@ void OptionsBarThing(int x,int y,int w,int h)
    carrier = 6 (the volatile asm invalidates memory in cse, so the carrier cannot be CSE'd
    onto the fence's load -- that is WHY the w45 fence angle could not be walked into place),
    statement-expression fence inside arg 3 = 6, fence on POS_Y too = 7 (350 insns). */
+#line 50 "C:/nfs4/GAME/PSX/OVERLAYS.CPP"
 void RaceSummary(void)
+
 
 {
   short i;
@@ -754,7 +758,9 @@ void RaceSummary(void)
    int pitch;  SOURCE-REVIEW-UNRESOLVED: absent from retail; constant register use does not establish a named original multiplier.
    int colInset;  SOURCE-REVIEW-UNRESOLVED: debug-elided fold escape; original column-inset producer remains unknown.
    int rowInset;  SOURCE-REVIEW-UNRESOLVED: debug-elided fold escape; original row-inset producer remains unknown. */
+#line 162 "C:/nfs4/GAME/PSX/OVERLAYS.CPP"
 void RaceStatistics(void)
+
 
 {
   short i; short j;
@@ -799,8 +805,8 @@ void RaceStatistics(void)
   Font_TextXY(TextSys_Word(0x39),titleX,titleY);
 
 
-
-  Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
+  short ty17 = titleY + 0x11;  /* REVIEW: record-less split temporary (retail tags this add on its own line) */
+  Hud_FBuildF4(0,HUD_STATS_POS_X,ty17 + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
 
   if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
@@ -1291,7 +1297,9 @@ void RaceStatistics(void)
      spelling was numerically equal but cost a `negu` and re-based every column constant. */
   /* the oracle indexes row `player` and element `Hud_NextPerp[player] - 1`
      (`addiu $v1,$v1,-1` @0x800DA810, no -1 on the row). */
+#line 323 "C:/nfs4/GAME/PSX/OVERLAYS.CPP"
 void Hud_BTCStats(short player,bool postgame)
+
 
 {
   short i;
@@ -1471,7 +1479,9 @@ void Hud_BTCStats(short player,bool postgame)
      the flags!=0 arm is the if-BODY (oracle `beqz` skips to the ==0 block), the shared
      screen=0 block sits EARLY at .L800DAED0, and the "one player" tail (.L800DAFE4)
      falls out of the numRaceCars test at .L800DAFD0. */
+#line 447 "C:/nfs4/GAME/PSX/OVERLAYS.CPP"
 void Hud_RenderStatsView(void)
+
 
 {
   int screen; screen = simGlobal.gameTicks >> 9 & 1;

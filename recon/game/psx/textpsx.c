@@ -14,6 +14,8 @@
 extern unsigned char currentfont[];
 
 /* ---- fortext4  [TEXTPSX.C:153-179] SLD-VERIFIED ---- */
+
+#line 152 "C:/nfs4/GAME/PSX/TEXTPSX.C"
 void fortext4(int x, int y, void *source, int u, int v, int width, int height, int rowbytes)
 {
   return;
@@ -44,6 +46,8 @@ void fortext4(int x, int y, void *source, int u, int v, int width, int height, i
 }
 
 /* ---- inittextdraw  [TEXTPSX.C:254-270] SLD-VERIFIED ---- */
+
+#line 253 "C:/nfs4/GAME/PSX/TEXTPSX.C"
 void inittextdraw(void)
 {
 
@@ -66,6 +70,8 @@ void inittextdraw(void)
 }
 
 /* ---- restoretextdraw  [TEXTPSX.C:280-289] SLD-VERIFIED ---- */
+
+#line 279 "C:/nfs4/GAME/PSX/TEXTPSX.C"
 void restoretextdraw(void)
 {
 

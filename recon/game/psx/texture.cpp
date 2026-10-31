@@ -24,7 +24,9 @@ int              gNbFreePal8;            /* @0x8013db38 */
 
 
 /* ---- Texture_InitPaletteSharing__Fv  [TEXTURE.CPP:64-70] SLD-VERIFIED ---- */
+#line 61 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_InitPaletteSharing(void)
+
 
 {
   Texture_gNum4bitPal = 0;
@@ -36,7 +38,9 @@ void Texture_InitPaletteSharing(void)
 }
 
 /* ---- Texture_DeInitPaletteSharing__Fv  [TEXTURE.CPP:74-78] SLD-VERIFIED ---- */
+#line 71 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_DeInitPaletteSharing(void)
+
 
 {
   purgememadr(Texture_gP4bitPmx);
@@ -46,7 +50,9 @@ void Texture_DeInitPaletteSharing(void)
 }
 
 /* ---- Texture_ResetPaletteSharing__Fv  [TEXTURE.CPP:84-86] SLD-VERIFIED ---- */
+#line 81 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_ResetPaletteSharing(void)
+
 
 {
   Texture_gNum4bitPal = 0;
@@ -59,71 +65,84 @@ void Texture_ResetPaletteSharing(void)
  * compare loops use the literal palette lengths and real global counts;
  * no count/num capture or mechanical goto label is needed. Earlier flat-set
  * allocation/rotation misses do not establish source-object necessity. */
+#line 87 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 int Texture_CheckForSharedPalette(int test,char *data,Draw_tPixMap *pmx,int bpp)
 
-{
-  if (test == 0) {
-    return 0;
-  }
-  if (bpp != 0) {
-    for (int i = 0; i < Texture_gNum8bitPal; i++) {
-      int j;
-      int *indata;
-      int *checkdata;
 
-      indata = (int *)data;
-      checkdata = (int *)Texture_gPalette8bit[i];
+{
+
+  if (test == 0) return 0;
+
+  if (bpp != 0)
+  {
+    for (int i = 0; i < Texture_gNum8bitPal; i++) {
+      int j; int *indata; int *checkdata;
+
+
+      indata = (int *)data; checkdata = (int *)Texture_gPalette8bit[i];
+
       j = 0;
       for (; j < 0x80; j++) {
         if (*indata++ != *checkdata++) break;
       }
+
       if (j == 0x80) {
+
         *pmx = *Texture_gP8bitPmx[i];
+
         return 1;
       }
+
     }
   }
-  else {
-    for (int i = 0; i < Texture_gNum4bitPal; i++) {
-      int j;
-      int *indata;
-      int *checkdata;
+  else
 
-      indata = (int *)data;
-      checkdata = (int *)Texture_gPalette4bit[i];
+  {
+    for (int i = 0; i < Texture_gNum4bitPal; i++) {
+      int j; int *indata; int *checkdata;
+
+
+      indata = (int *)data; checkdata = (int *)Texture_gPalette4bit[i];
+
       j = 0;
       for (; j < 8; j++) {
         if (*indata++ != *checkdata++) break;
       }
+
       if (j == 8) {
+
         *pmx = *Texture_gP4bitPmx[i];
+
         return 1;
       }
     }
   }
+
   return 0;
 }
 
 /* ---- Texture_AddSharedPalette__FPcP12Draw_tPixMapi  [TEXTURE.CPP:143-156] SLD-VERIFIED ---- */
-void Texture_AddSharedPalette(char *ptr_to_data,Draw_tPixMap *ptr_to_pmx,int bpp)
-
-{
   /* MATCH: plain index form with the count re-read at each subscript (no
    * palslot/pmxslot temps, no cached `n`) -- gcc CSEs the count load and the
    * common `n*4` scaling exactly like the oracle. */
+#line 140 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
+void Texture_AddSharedPalette(char *ptr_to_data,Draw_tPixMap *ptr_to_pmx,int bpp)
+
+
+{
+
   if (bpp == 0) {
+
     Texture_gPalette4bit[Texture_gNum4bitPal] = ptr_to_data;
     Texture_gP4bitPmx[Texture_gNum4bitPal] = ptr_to_pmx;
-    Texture_gNum4bitPal = Texture_gNum4bitPal + 1;
-    return;
+    Texture_gNum4bitPal = Texture_gNum4bitPal + 1; return;
   }
+
   if (bpp == 1) {
+
     Texture_gPalette8bit[Texture_gNum8bitPal] = ptr_to_data;
     Texture_gP8bitPmx[Texture_gNum8bitPal] = ptr_to_pmx;
-    Texture_gNum8bitPal = Texture_gNum8bitPal + 1;
-  }
-  return;
-}
+    Texture_gNum8bitPal = Texture_gNum8bitPal + 1; } return; }
 
 /* ---- Texture_InitClut__Fv  [TEXTURE.CPP:182-215] SLD-VERIFIED ---- */
 /* MATCH (w40-a10, 16 -> PASS): the SYM `8c` block for this function lists
@@ -141,7 +160,9 @@ void Texture_AddSharedPalette(char *ptr_to_data,Draw_tPixMap *ptr_to_pmx,int bpp
  * "source-hoisted cbase" lever and its 49-54-diff rotation dead end were
  * both artifacts of the shared locals.) */
 /* EAC2 2026-10-31: retail statement order (gNbFreePal4 = 0 first) as nested for loops; byte-identical. */
+#line 179 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_InitClut(void)
+
 
 {
   int x;
@@ -184,7 +205,9 @@ void Texture_InitClut(void)
  * scaffolding) -- the oracle zeroes `id` before the bpp branch and both arms
  * cross-jump into one shared `base + idx*2; lhu` tail.  Retail SLD tags each
  * arm's pop on ONE line (6 and 23). */
+#line 218 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_GetClutId(int bpp,int *xclut,int *yclut)
+
 
 {
   short id;
@@ -223,7 +246,9 @@ void Texture_GetClutId(int bpp,int *xclut,int *yclut)
 }
 
 /* ---- Texture_MenuReleaseClutId__Fs  [TEXTURE.CPP:304-320] SLD-VERIFIED ---- */
+#line 301 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_MenuReleaseClutId(short id)
+
 
 {
   int yclut;
@@ -244,7 +269,9 @@ void Texture_MenuReleaseClutId(short id)
   gFreePal4[gNbFreePal4++] = id; return; }
 
 /* ---- Texture_ColorCarPalette__FPcT0i  [TEXTURE.CPP:327-334] SLD-VERIFIED ---- */
+#line 324 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_ColorCarPalette(char *from,char *to,int numentry)
+
 
 {
   numentry = numentry + -1; from = from + Texture_CarColor * 0x20;
@@ -260,7 +287,9 @@ void Texture_ColorCarPalette(char *from,char *to,int numentry)
  * `zero` is a runtime-zero device (permuter-derived, cf. methodology sec 3.13 "^ zero"):
  * a typed 0-holder shared by the counter init AND the initial-guard compare is what pins
  * i/dest onto the oracle's t0/t1 pair instead of the reverse coloring. Pin-free (plain C). */
+#line 336 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_CopyPalette(char *data,int width,int x,int y)
+
 
 {
   int i;
@@ -285,7 +314,9 @@ void Texture_CopyPalette(char *data,int width,int x,int y)
  * loop.c strength-reduces to the oracle's single $s0 walker (+0x208/iter) and
  * rematerializes `s0+8` in the back-edge delay slot.  EAC2: the retail line
  * table is a plain for loop (init+test on one line, increment on the `}`). */
+#line 353 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_ProcessPaletteCopy(Texture_pal8bit *palCopy,int palStart,int palNum)
+
 
 {
   RECT r;
@@ -293,26 +324,28 @@ void Texture_ProcessPaletteCopy(Texture_pal8bit *palCopy,int palStart,int palNum
   short tmpPal [16];
 
 
-  if (palCopy != (Texture_pal8bit *)0x0) {
+  if (palCopy == (Texture_pal8bit *)0x0) return;
 
 
 
-    r.w = 0x10;
-    r.h = 1;
+  r.w = 0x10;
+  r.h = 1;
 
-    for (i = palStart; i < palNum; i++) {
+  for (i = palStart; i < palNum; i++) {
 
-      Texture_ColorCarPalette((char *)palCopy[i].pal,(char *)tmpPal,0x10);
+    Texture_ColorCarPalette((char *)palCopy[i].pal,(char *)tmpPal,0x10);
 
-      r.x = (short)palCopy[i].x;
-      r.y = (short)palCopy[i].y;
+    r.x = (short)palCopy[i].x;
+    r.y = (short)palCopy[i].y;
 
-      LoadImage(&r,(u_long *)tmpPal);
-    }
-  } return; }
+    LoadImage(&r,(u_long *)tmpPal);
+  }
+}
 
 /* ---- Texture_LoadImage__FP4RECTPUl  [TEXTURE.CPP:393-396] SLD-VERIFIED ---- */
+#line 390 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_LoadImage(RECT *imgrect,u_long *p)
+
 
 {
   if ((imgrect->w & 1U) != 0) {
@@ -332,7 +365,9 @@ void Texture_LoadImage(RECT *imgrect,u_long *p)
  * The first shapex raw-word view also remains a source-shape question: typed
  * assignment after these capture removals still hoists another saved register
  * and adds two compiler rows. No fake-use/qualifier/asm replacement is added. */
+#line 403 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
+
 
 {
   RECT r;
@@ -385,27 +420,29 @@ void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
 
 
 
-      shp = (shp->next != 0) ? (shapetbl *)((char *)shp + shp->next) : (shapetbl *)0; } while (shp != (shapetbl *)0x0);
-  }
-  return; }
+      shp = (shp->next != 0) ? (shapetbl *)((char *)shp + shp->next) : (shapetbl *)0; } while (shp != (shapetbl *)0x0); }
+}
+
 
 /* ---- Texture_Vramcf__FP8shapetbliiii [TEXTURE.CPP:468-507; full SLD open] ---- */
 /* 2026-10-18: retail owns rowbytes at the root and r/height/s in the guarded
  * correction body. Direct byte-row and coordinate expressions remove the
  * unrecorded h/rowall/off/ybot captures. Keep arithmetic right shifts: signed
  * division or an unsigned shift changes the measured compiler stream. */
+#line 465 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
+
 
 {
   int rowbytes;
 
   rowbytes = ((shp->width * shapedepth((unsigned char *)shp) + 15) & ~15) >> 3;
 
-  if (((rowbytes & 2) != 0) && (((u_short)shp->height & 1) == 0)) {
+  if (((rowbytes & 2) != 0) && (((u_short)shp->height & 1) == 0))
+  {
     RECT r;
     int height;
     char *s;
-
 
     height = (short)shp->height;
 
@@ -459,25 +496,29 @@ void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
  * scope. Its actual declaration restores all local/type/home/owner records
  * and the full eight-boundary region tree without changing any of30words.
  * Exact original spelling and complete SLD attribution remain unsealed. */
+#line 511 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 int Texture_GetTranslucencyMode(shapetbl *shp)
 
+
 {
-  while( true ) {
-    if (shp == (shapetbl *)0x0) break;
-    if (*(char *)shp == 'k') {
+  while( true ) { if (shp == (shapetbl *)0x0) break;
+
+
+    if (*(char *)shp == 'k')
+    {
       u_short abr;
+
+
+
+
+
       abr = (u_short)shp->width >> 5 & 3;
       if (abr == 3) { abr = 2; }
       return abr;
     }
-    if ((*(u_int *)shp & 0xffffff00) != 0) {
-      shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8));
+    if ((*(u_int *)shp & 0xffffff00) != 0) { shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8)); } else { shp = (shapetbl *)0x0;
     }
-    else {
-      shp = (shapetbl *)0x0;
-    }
-  }
-  return 0;
+  } return 0;
 }
 
 /* ---- Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap  [TEXTURE.CPP:538-667] SLD-FLAG:NONMONO ---- */
@@ -495,7 +536,9 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
 /* MATCH: GetClut arm FIRST -- the oracle keeps two separate
  * `sh v0,2(s2)` stores (the fall-through one sits in a `j`'s delay
  * slot); with the 0xffff arm first gcc cross-jumps them into one. */
+#line 535 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_tPixMap *pmx)
+
 
 {
   shapetbl *shpptr;
@@ -631,14 +674,19 @@ void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_t
 }
 
 /* ---- Texture_CloneUVPmx__FP12Draw_tPixMapiT0  [TEXTURE.CPP:672-707] SLD-VERIFIED ---- */
+/* MATCH: each u/v pair is copied as ONE 16-bit unit (oracle: lhu/sh at
+ * 0/4/8/0xC) -- the per-byte `t = pmx->vN; rpmx->uM = pmx->uN; rpmx->vM = t;`
+ * form emits 3 insns per pair (110 insns vs 88). */
+#line 669 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_CloneUVPmx(Draw_tPixMap *pmx,int mode,Draw_tPixMap *rpmx)
 
+
 {
-  /* MATCH: each u/v pair is copied as ONE 16-bit unit (oracle: lhu/sh at
-   * 0/4/8/0xC) -- the per-byte `t = pmx->vN; rpmx->uM = pmx->uN; rpmx->vM = t;`
-   * form emits 3 insns per pair (110 insns vs 88). */
+
   *rpmx = *pmx;
+
   switch(mode) {
+
   case 0:
     *(u_short *)&rpmx->u0 = *(u_short *)&pmx->u1;
     *(u_short *)&rpmx->u1 = *(u_short *)&pmx->u0;
@@ -668,12 +716,12 @@ void Texture_CloneUVPmx(Draw_tPixMap *pmx,int mode,Draw_tPixMap *rpmx)
     *(u_short *)&rpmx->u1 = *(u_short *)&pmx->u3;
     *(u_short *)&rpmx->u3 = *(u_short *)&pmx->u2;
     *(u_short *)&rpmx->u2 = *(u_short *)&pmx->u0;
-  }
-  return;
-}
+  } return; }
 
 /* ---- Texture_InitTrackTexture__Fv  [TEXTURE.CPP:726-738] SLD-VERIFIED ---- */
+#line 723 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_InitTrackTexture(void)
+
 
 {
 
@@ -696,7 +744,9 @@ void Texture_InitTrackTexture(void)
  * canonical PsyQ getClut(x,y) = (y<<6)|((x>>4)&0x3f) then matches without
  * pal4/pal8, clut or cbase. Earlier direct-expression misses were specific
  * to the flattened local set. Literal macro spelling/full SLD remain open. */
+#line 740 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_InitMenuClut(void)
+
 
 {
   { int x; int y;
@@ -735,7 +785,9 @@ void Texture_InitMenuClut(void)
   } }
 
 /* ---- Texture_InitMenuTexture__Fv  [TEXTURE.CPP:792-795] SLD-VERIFIED ---- */
+#line 789 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_InitMenuTexture(void)
+
 
 {
   int i;
@@ -744,7 +796,9 @@ void Texture_InitMenuTexture(void)
 }
 
 /* ---- Texture_CleanupMenuTexture__Fv  [TEXTURE.CPP:799-807] SLD-VERIFIED ---- */
+#line 796 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_CleanupMenuTexture(void)
+
 
 {
   int i;
@@ -763,7 +817,9 @@ void Texture_CleanupMenuTexture(void)
  * real call/store uses are restored here; that first region's producer remains
  * unknown. No extra first pmx, dummy declaration or empty padding block is
  * added to make the child paths match. Exact original load-macro text is open. */
+#line 808 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_LoadMenuTexture(void)
+
 
 {
   char name [255]; char *shpfile; if (gMenuPixmap[0] != (Draw_tPixMap *)0x0) {
@@ -777,7 +833,7 @@ void Texture_LoadMenuTexture(void)
   shpfile = (char *)loadfileadr(name,0);
   Texture_ResetPaletteSharing();
 
-  Texture_LoadPmx(shpfile,"show",0,0x380,0x180,-1,-1,gMenuPixmapAlloc); gMenuPixmap[0] = gMenuPixmapAlloc;
+  { Draw_tPixMap *const pmx = gMenuPixmapAlloc; Texture_LoadPmx(shpfile,"show",0,0x380,0x180,-1,-1,pmx); gMenuPixmap[0] = pmx; } /* REVIEW: retail's first block has no pmx record; a const pointer to the array base folds (record-less const class). */
   {
     Draw_tPixMap *pmx = gMenuPixmapAlloc + 1; Texture_LoadPmx(shpfile,"shad",0,0x380,0x180,-1,-1,pmx); gMenuPixmap[1] = pmx;
   }
@@ -798,19 +854,23 @@ void Texture_LoadMenuTexture(void)
 
 
   purgememadr(shpfile);
-  return; }
+}
 
 /* ---- Texture_KillTrackTexture__Fv  [TEXTURE.CPP:847-851] SLD-VERIFIED ---- */
+#line 844 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_KillTrackTexture(void)
 
+
 {
-  return;
+
 
 
 }
 
 /* ---- Texture_KillMenuTexture__Fv  [TEXTURE.CPP:855-858] SLD-VERIFIED ---- */
+#line 852 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_KillMenuTexture(void)
+
 
 {
 

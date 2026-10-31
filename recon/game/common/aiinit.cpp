@@ -38,6 +38,8 @@ int AIInit_IsNonStandardCarFile(int index);
 
 
 /* ---- AIInit_StartUp1__Fv  [@0x80066bb0] ---- */
+
+#line 37 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_StartUp1(void)
 {
   int i;
@@ -55,6 +57,8 @@ void AIInit_StartUp1(void)
 }
 
 /* ---- AIInit_StartUp2__Fv  [@0x80066c24] ---- */
+
+#line 55 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_StartUp2(void)
 {
   { int carLoop; AISpeeds_StartUp();
@@ -87,12 +91,16 @@ void AIInit_StartUp2(void)
 }
 
 /* ---- AIInit_Reset1__Fv  [@0x80066cfc] ---- */
+
+#line 86 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_Reset1(void)
 {
   AIInit_forceHumanHandBrake = 0;
 }
 
 /* ---- AIInit_Reset2__Fv  [@0x80066d08] ---- */
+
+#line 92 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_Reset2(void)
 {
 
@@ -130,6 +138,8 @@ void AIInit_Reset2(void)
 }
 
 /* ---- AIInit_CleanUp1__Fv  [@0x80066e0c] ---- */
+
+#line 129 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_CleanUp1(void)
 {
   AI_CleanUp();
@@ -139,6 +149,8 @@ void AIInit_CleanUp1(void)
 }
 
 /* ---- AIInit_CleanUp2__Fv  [@0x80066e44] ---- */
+
+#line 137 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_CleanUp2(void)
 {
   { int carLoop; for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
@@ -161,6 +173,8 @@ void AIInit_CleanUp2(void)
 /* ---- AI_TrafficStartUp__Fv  [@0x80066f0c] ---- */
 extern char *Paths_Paths[];   /* paths.obj @0x80116468 */
 
+
+#line 169 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AI_TrafficStartUp(void)
 {
   char filename[100];
@@ -177,6 +191,8 @@ void AI_TrafficStartUp(void)
     else { triggerManagerTraffic->Init((char *)0x0); } } return; }
 
 /* ---- AI_TrafficCleanUp__Fv  [@0x80066fa8] ---- */
+
+#line 194 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AI_TrafficCleanUp(void)
 {
   if (triggerManagerTraffic != (AITrigger_TriggerManager *)0x0)
@@ -194,6 +210,8 @@ void AI_TrafficCleanUp(void)
 
 /* ---- AIInit_LoadConfigs__Fv  [@0x80066ff8] ---- */
 
+
+#line 224 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_LoadConfigs(void)
 {
   Udff_tInfo *handle;
@@ -219,6 +237,8 @@ void AIInit_LoadConfigs(void)
 }
 
 /* ---- AIInit_LoadPhysicsConfig__FP10Udff_tInfo  [@0x80067054] ---- */
+
+#line 256 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_LoadPhysicsConfig(Udff_tInfo *handle)
 {
   AIPhysic_ModelConfig_t*model;
@@ -252,6 +272,8 @@ void AIInit_LoadPhysicsConfig(Udff_tInfo *handle)
 }
 
 /* ---- AIInit_ClearAICar__FP8Car_tObj  [@0x80067174] ---- */
+
+#line 303 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_ClearAICar(Car_tObj *carObj)
 {
   coorddef zero; memset((u_char *)&zero,'\0',0xc);
@@ -275,6 +297,8 @@ void AIInit_ClearAICar(Car_tObj *carObj)
  * introducing a source local absent from SYM; copTopSpeed-before-copAccMult
  * preserves the observed store schedule. */
 
+
+#line 325 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_RestartAICar(Car_tObj *carObj)
 {
   carObj->direction = (GameSetup_gData.reverseTrack == 0) ? 1 : -1;
@@ -341,6 +365,8 @@ void AIInit_RestartAICar(Car_tObj *carObj)
 }
 
 /* ---- AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo  [@0x80067314] ---- */
+
+#line 398 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
 {
   int gearLoop;
@@ -408,6 +434,8 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
 }
 
 /* ---- AIInit_DeInitAICar__FP8Car_tObj  [@0x800674e8] ---- */
+
+#line 465 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_DeInitAICar(Car_tObj *carObj)
 {
   if (carObj->curveSpeedTable != (AIDataRecord_CurveSpeedTable_t *)0x0)
@@ -423,6 +451,8 @@ void AIInit_DeInitAICar(Car_tObj *carObj)
 }
 
 /* ---- AIInit_InitAICar2__FP8Car_tObj  [@0x80067568] ---- */
+
+#line 479 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_InitAICar2(Car_tObj *carObj)
 {
 
@@ -442,6 +472,8 @@ void AIInit_InitAICar2(Car_tObj *carObj)
 }
 
 /* ---- AIInit_DeInitAICar2__FP8Car_tObj  [@0x800675d0] ---- */
+
+#line 497 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 void AIInit_DeInitAICar2(Car_tObj *carObj)
 {
   return;
@@ -449,6 +481,8 @@ void AIInit_DeInitAICar2(Car_tObj *carObj)
 
 /* ---- AIInit_IsNonStandardCarFile__Fi  [@0x800675d8] ---- */
   /* local aggregate initializer: its 200-byte constant is retail .rodata 0x8005523C (28 ones, then zeros) */
+
+#line 516 "C:/nfs4/GAME/COMMON/AIINIT.CPP"
 int AIInit_IsNonStandardCarFile(int index)
 {
   int nonStandardList [50] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };

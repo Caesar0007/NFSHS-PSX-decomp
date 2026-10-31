@@ -102,6 +102,8 @@ void Camera_ResetRelPos(int bitMask);
 /* ---- EulerToMat__FP10matrixtdefiii  [@0x8008060c] ----
  * Preserve the supplied mx/my/mz/mt objects, axis builders and matrix products.
  * Three final field groups reuse mt. Source/SLD: camera_euler_view_layout_20261023. */
+
+
 #line 481 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void EulerToMat(matrixtdef *m,int ax,int ay,int az)
 {
@@ -125,6 +127,8 @@ void EulerToMat(matrixtdef *m,int ax,int ay,int az)
 /* ---- Camera_SetCamera__FP13DRender_tView  [@0x80080704] ----
  * The real view query630 precedes environment setup647. Unknown intervening
  * original text is not invented. Source/SLD: camera_euler_view_layout_20261023. */
+
+
 #line 612 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetCamera(DRender_tView *cview)
 {
@@ -167,6 +171,8 @@ void Camera_SetCamera(DRender_tView *cview)
 /* ---- Camera_LookBack__FP10matrixtdefT0  [@0x8008073c] ----
  * Preserve the two negated matrix triples and unchanged middle triple. Source/SLD
  * proof: camera_lookback_layout_20261023; no temporary matrix or helper needed. */
+
+
 #line 661 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)
 {
@@ -192,32 +198,34 @@ void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)
 }
 
 /* ---- Camera_TunnelLimit__FiPi  [@0x800807c4] ---- */
+
+
 #line 683 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_TunnelLimit(int player,int *armheight)
 {
   if (BWorldSm_TunnelFlagSm(&Camera_gInfo[player].slicePos) ||
 
-      BWorldSm_TunnelFlagSm(&Camera_gInfo[player].anchor->simRoadInfo)) {
+      BWorldSm_TunnelFlagSm(&Camera_gInfo[player].anchor->simRoadInfo))
+  {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       BWorldSm_Pos *slicePos = &Camera_gInfo[player].slicePos;
 
       coorddef quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
@@ -233,6 +241,8 @@ void Camera_TunnelLimit(int player,int *armheight)
 /* ---- Camera_UpdateCollisionCam__Fi  [@0x8008090c] ----
  * Preserve the literal arm, real z negation, oldarm struct copy and independent
  * coordinate/flag work. Source/native proof: camera_collision_layout_20261023. */
+
+
 #line 726 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCollisionCam(int player)
 {
@@ -299,6 +309,8 @@ void Camera_UpdateCollisionCam(int player)
 }
 
 /* ---- Camera_UpdateSimpleCam__Fi  [@0x80080ac8] ---- */
+
+
 #line 790 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateSimpleCam(int player)
 {
@@ -321,6 +333,8 @@ void Camera_UpdateSimpleCam(int player)
  * The supplied lookingBehind is one short-circuit Boolean value. All seven
  * Input_gLookBehind reads in this TU use the actual INT[2] array without an
  * integer-address view. Source/native proof: camera_bumper_layout_20261023. */
+
+
 #line 807 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateBumperCam(int player)
 {
@@ -360,6 +374,8 @@ void Camera_UpdateBumperCam(int player)
  * Detailed allocation/fence experiments in revision04558fbb are historical,
  * not original-source requirements. Controls:build/nc12/camera_tail_source_20261019.
  * Byte, local and region contracts are re-gated; literal text/full SLD is open. */
+
+
 #line 843 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateTailCam(int player,int behavior)
 {
@@ -452,8 +468,8 @@ void Camera_UpdateTailCam(int player,int behavior)
   Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,rate);
   if ((Camera_gInfo[player].intransition == 0) &&
 
-      ((len = Math_VectorLength(&Camera_gInfo[player].relpos)) < 0x4f0a3)) {
-
+      ((len = Math_VectorLength(&Camera_gInfo[player].relpos)) < 0x4f0a3))
+  {
     int scale = fixeddiv(0x4f0a3,len);
     Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x); Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y); Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
   }
@@ -465,7 +481,7 @@ void Camera_UpdateTailCam(int player,int behavior)
       ((Camera_gInfo[player].anchor)->position).y + Camera_gInfo[player].relpos.y;
   Camera_gInfo[player].position.z =
       ((Camera_gInfo[player].anchor)->position).z + Camera_gInfo[player].relpos.z;
-  return; }
+}
 
 /* ---- Camera_UpdateHeliCam__Fii  [@0x800813cc] ----
  * Current source receipt: camera_bumper_layout_20261023 verifies all seven
@@ -558,6 +574,8 @@ void Camera_UpdateTailCam(int player,int behavior)
    * present or needed in the current source; all bytes pass without it. */
   /* heli fallback: pull the camera back by |velocity|/20, clamped to 0x20000 */
   /* MATCH: real switch (oracle binary-tree dispatch), not if-chain */
+
+
 #line 949 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateHeliCam(int player,int behavior)
 {
@@ -663,8 +681,8 @@ void Camera_UpdateHeliCam(int player,int behavior)
   Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,rate);
   if ((Camera_gInfo[player].intransition == 0) &&
 
-      ((len = Math_VectorLength(&Camera_gInfo[player].relpos)) < 0x651eb)) {
-
+      ((len = Math_VectorLength(&Camera_gInfo[player].relpos)) < 0x651eb))
+  {
     int scale = fixeddiv(0x651eb,len);   /* SYM: REG scale in body scope, depth 3 ($s0) */
     Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x); Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y); Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
   }
@@ -676,12 +694,14 @@ void Camera_UpdateHeliCam(int player,int behavior)
       ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + Camera_gInfo[player].relpos.y;
   Camera_gInfo[player].position.z =
       ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + Camera_gInfo[player].relpos.z;
-  return; }
+}
 
 /* ---- Camera_UpdateCircleCam__Fi  [@0x80081ab8] ----
  * The angle update and trig query are separate real source phases. Supplied
  * h0/h1/ang retain their interpolation scope; no hval or cached Camera_tInfo
  * source object is introduced. Source/SLD: camera_circle_layout_20261023. */
+
+
 #line 1068 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCircleCam(int player)
 {
@@ -733,6 +753,8 @@ void Camera_UpdateCircleCam(int player)
  * value across both stores and tests without a named `gs` carrier.
  * Original macro spelling remains unproved. Ordinary source grouping restores
  * the covered SLD contract; receipt: camera_zoom_layout_20261023. */
+
+
 #line 1115 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void SetCameraZoom(int player,int targetDist)
 {
@@ -766,6 +788,8 @@ void SetCameraZoom(int player,int targetDist)
  * Typed lastX[player]/lastY[player] lets GCC build the scaled byte-index
  * quantity anonymously; the old named lastIndex was native-SYM EXTRA.
  * The older Ghidra placeholder collapsed lastY into lastX (H43). */
+
+
 #line 1135 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateTVCam(int player)
 {
@@ -799,6 +823,8 @@ void Camera_UpdateTVCam(int player)
    * It preserves retail's -1 immediate (plain postfix emits 255 here) without
    * cVar1/cVar4 source-only captures. Byte/native receipt: run-u555nwy7.
    * Exact original spelling and relative SLD attribution remain unsealed. */
+
+
 #line 1202 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateAnimCam(int player)
 {
@@ -878,12 +904,14 @@ void Camera_UpdateAnimCam(int player)
 
                        &Camera_gInfo[player].rotation);
   }
-  return; }
+}
 
 /* ---- Camera_UpdateFinishCam__Fi  [@0x80082254] ----
  * Primary animation/vector/matrix groups and six real flag writes follow the
  * retail coordinates; unknown original comments/disabled text are not invented.
  * Source/native receipt: build/nc12/camera_finish_layout_20261023. */
+
+
 #line 1282 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateFinishCam(int player)
 {
@@ -952,6 +980,8 @@ void Camera_UpdateFinishCam(int player)
   Camera_gInfo[player].checkcollisions = 1; }
 
 /* ---- Camera_UpdateBlimpCam__Fi  [@0x8008237c] ---- */
+
+
 #line 1349 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateBlimpCam(int player)
 {
@@ -975,6 +1005,8 @@ void Camera_UpdateBlimpCam(int player)
 }
 
 /* ---- Camera_SetSplineCam__Fi  [@0x800824c0] ---- */
+
+
 #line 1394 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetSplineCam(int player)
 {
@@ -986,11 +1018,11 @@ void Camera_SetSplineCam(int player)
 
 
 
-  if (Replay_ReplayCamera[player].defaultCamera == 0) {
-    int direction;
-    direction = fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->x, ((coorddef *)&anchor->N.roadMatrix.m[6])->x); if (direction + fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->y, ((coorddef *)&Camera_gInfo[player].anchor->roadMatrix.m[6])->y) + fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->z, ((coorddef *)&Camera_gInfo[player].anchor->roadMatrix.m[6])->z) < 0) {
+  if (Replay_ReplayCamera[player].defaultCamera == 0)
+  { int direction;
+    direction = fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->x, ((coorddef *)&anchor->N.roadMatrix.m[6])->x) + fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->y, ((coorddef *)&Camera_gInfo[player].anchor->roadMatrix.m[6])->y) + fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->z, ((coorddef *)&Camera_gInfo[player].anchor->roadMatrix.m[6])->z);
 
-
+    if (direction < 0) {
       numSlice = -numSlice;
     } if (anchor->linearVel_ch.z < 0) {
       numSlice = -numSlice;
@@ -1035,6 +1067,8 @@ void Camera_SetSplineCam(int player)
  * Complete absolute SLD now agrees too: run-q08hw8ry checks every word tag,
  * filename/header/end and block line. Literal original source text and the
  * complete TU type-preamble remain separate, not uniquely certified claims. */
+
+
 #line 1443 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateSplineCam(int player)
 { Car_tObj *anchor; coorddef cameraVel; int change;
@@ -1142,6 +1176,8 @@ void Camera_UpdateSplineCam(int player)
 /* ---- Camera_IslandProfile__FUs  [@0x80082c3c] ---- */
 /* MATCH: u_short locals + mutated param; masks (andi 0xFFFF) appear lazily
  * at compares; plain while yields the top and bottom loop tests. */
+
+
 #line 1552 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 int Camera_IslandProfile(u_short before)
 {
@@ -1174,6 +1210,8 @@ int Camera_IslandProfile(u_short before)
  * needed on this source graph. The profile/sign XOR and its shared normalization
  * retain the original branch words; no new Boolean source object is introduced.
  * Literal expression spelling is not unique. Source/SLD: camera_pullover_layout_20261023. */
+
+
 #line 1578 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdatePulloverCam(int player)
 {
@@ -1289,6 +1327,8 @@ void Camera_UpdatePulloverCam(int player)
   }
 
 /* ---- Camera_UpdateCopCam1__Fi  [@0x80083010] ---- */
+
+
 #line 1707 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCopCam1(int player)
 {
@@ -1313,6 +1353,8 @@ void Camera_UpdateCopCam1(int player)
  * Retail groups the signed /4 components on1730/31/32 and normalization on1733.
  * The last real position write and implicit void fallthrough share1736.
  * Native/source proof: build/nc12/camera_cop2_layout_20261023. */
+
+
 #line 1726 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateCopCam2(int player)
 {
@@ -1327,6 +1369,8 @@ void Camera_UpdateCopCam2(int player)
   Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + dirVec.z * -2; }
 
 /* ---- Camera_UpdateBTCopCam__Fi  [@0x800832b0] ---- */
+
+
 #line 1740 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateBTCopCam(int player)
 {
@@ -1473,6 +1517,8 @@ void Camera_UpdateBTCopCam(int player)
        * here is also the natural 1998 shape -- the group is placed where its
        * LAST label (0xf) belongs. */
 
+
+
 #line 1776 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_Update(void)
 {
@@ -1603,6 +1649,8 @@ void Camera_Update(void)
   } }
 
 /* ---- Camera_Init__Fv  [@0x80083858] ---- */
+
+
 #line 1911 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_Init(void)
 {
@@ -1670,7 +1718,7 @@ void Camera_Init(void)
   Camera_ResetRelPos(3);
   {
     int type;
-    type = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
+
 
 
 
@@ -1678,7 +1726,7 @@ void Camera_Init(void)
 
 
 
-
+    type = Cars_gHumanRaceCarList[0]->carInfo->carType;
     if (((type < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (splitScreen == 0)) {
 
       GameSetup_gData.carInfo[0].Camera[0] = 1;
@@ -1687,6 +1735,8 @@ void Camera_Init(void)
 /* ---- Camera_Kill__Fv  [@0x80083bec] ---- */
 /* Indexing Camera_gInfo lets GCC strength-reduce the 0x110 stride while
  * retaining the retail animHandle displacement; pointer-walk changes it. */
+
+
 #line 2000 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_Kill(void)
 {
@@ -1701,6 +1751,8 @@ void Camera_Kill(void)
 }
 
 /* ---- Camera_PitchAndRoll__Fi  [@0x80083c74] ---- */
+
+
 #line 2012 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_PitchAndRoll(int player)
 {
@@ -1729,6 +1781,8 @@ void Camera_PitchAndRoll(int player)
 }
 
 /* ---- Camera_TooSteep__FiP12BWorldSm_Pos  [@0x80083d28] ---- */
+
+
 #line 2038 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
 {
@@ -1743,9 +1797,9 @@ int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
     if (0xb4fc < fixedmult(normUnderCam.x,normUnderCar.x) +
                  fixedmult(normUnderCam.y,normUnderCar.y) +
                  fixedmult(normUnderCam.z,normUnderCar.z)) {
-      return 0;   /* MATCH: direct returns - v0=0/1 staged in branch delay slots, no result var */
-    }
-    { coorddef camToCar;        /* SYM: AUTO in nested post-guard block */ camToCar.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x; camToCar.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y; camToCar.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
+      return 0; } {   /* MATCH: direct returns - v0=0/1 staged in branch delay slots, no result var */
+
+      coorddef camToCar;        /* SYM: AUTO in nested post-guard block */ camToCar.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x; camToCar.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y; camToCar.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
       if (0 < fixedmult(normUnderCam.x,camToCar.x) +
               fixedmult(normUnderCam.y,camToCar.y) +
               fixedmult(normUnderCam.z,camToCar.z)) { if ((Camera_gInfo[player].anchor)->flightTime == 0) {
@@ -1780,6 +1834,8 @@ int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
     /* MATCH: simQuad!=0 arm FIRST (struct copies), surface check as a SEPARATE re-test if */
   /* MATCH: reuse camAngle so this loop index and its strength-reduced pointer take retail s1/s0. */
   /* MATCH: plain struct assignment -> gcc movstrsi copy (Ghidra hand-expanded it as a loop) */
+
+
 #line 2072 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_CheckWallCollisions(int player,coorddef *pos)
 {
@@ -1814,7 +1870,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   if (camAngle == 3) {
     return;
   }
-  count = 0;
+
   step.x = Camera_gInfo[player].anchor->position.x - triPnt.x; step.y = Camera_gInfo[player].anchor->position.y - triPnt.y; step.z = Camera_gInfo[player].anchor->position.z - triPnt.z;
   edge = Camera_gInfo[player].anchor->position;
   step.x >>= 7;
@@ -1823,7 +1879,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
 
 
 
-  do {
+  for (count = 0; count < 0x80; count++) {
 
     edge.x = edge.x - step.x; edge.y = edge.y - step.y; edge.z = edge.z - step.z;
     BWorldSm_FindClosestQuadMaxIterations(&edge,&slicePos,3);
@@ -1835,8 +1891,8 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
 
     if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) { if (((slicePos.simQuad)->surface & 0xf) == 0) break; } if ((((signed char)slicePos.offEdge != 0) || (Camera_TooSteep(player,&slicePos) != 0)) || ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) && (((slicePos.simQuad)->surface & 0x80) != 0) && (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) break;
 
-    count++; } while (count < 0x80);
-  camAngle = 1;
+  }
+
 
   step.x = Camera_gInfo[player].anchor->position.x - edge.x; step.y = Camera_gInfo[player].anchor->position.y - edge.y; step.z = Camera_gInfo[player].anchor->position.z - edge.z;
   step.x >>= 1;
@@ -1845,7 +1901,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
 
 
 
-  do {
+  for (camAngle = 1; (int)camAngle < 0x400; camAngle = camAngle + 4) {
 
     intsincos(camAngle,&sin,&cos);
     temp.x = fixedmult(cos,step.x) - fixedmult(sin,step.z);
@@ -1865,7 +1921,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       Camera_gInfo[player].wallLeft = temp;
       break;
     }
-    camAngle = camAngle + 4; } while ((int)camAngle < 0x400);
+  }
 
 
 
@@ -1898,7 +1954,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   temp.y += 0x8000;
   Math_NormalizeVector(&temp);
   normal.x = -temp.z;
-  edge.x = edge.x - triPnt.x; normal.y = temp.y;
+  normal.y = temp.y;
   normal.z = temp.x;
 
 
@@ -1906,15 +1962,15 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
 
 
 
-  edge.y = edge.y - triPnt.y; edge.z = edge.z - triPnt.z;
+  edge.x = edge.x - triPnt.x; edge.y = edge.y - triPnt.y; edge.z = edge.z - triPnt.z;
   i = fixedmult(edge.x,normal.x) + fixedmult(edge.y,normal.y) + fixedmult(edge.z,normal.z);
   camDotNorm = fixedmult(triVec.x,normal.x) + fixedmult(triVec.y,normal.y) + fixedmult(triVec.z,normal.z);
   edgeDotNorm = i + camDotNorm + 0x10000; if (0 < edgeDotNorm) {
 
     temp.x = fixedmult(edgeDotNorm,normal.x); temp.y = fixedmult(edgeDotNorm,normal.y); temp.z = fixedmult(edgeDotNorm,normal.z);
-    pos->x = pos->x + temp.x; pos->y = pos->y + temp.y; pos->z = pos->z + temp.z;
-  }
-  return;
+    pos->x = pos->x + temp.x; pos->y = pos->y + temp.y; pos->z = pos->z + temp.z; } return;
+
+
 
 
 
@@ -1928,6 +1984,8 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
 }
 
 /* ---- Camera_SetAboveGround__FiP8coorddef  [@0x8008480c] ---- */
+
+
 #line 2218 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetAboveGround(int player,coorddef *pos)
 {
@@ -1946,6 +2004,8 @@ void Camera_SetAboveGround(int player,coorddef *pos)
 }
 
 /* ---- Camera_AcquireTarget__FiP8coorddefT1P10matrixtdefi  [@0x80084898] ---- */
+
+
 #line 2238 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *rot,int hirez)
 {
@@ -1993,6 +2053,8 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
 }
 
 /* ---- Camera_OpponentLookBehind__FiP8coorddefi  [@0x80084c34] ---- */
+
+
 #line 2289 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_OpponentLookBehind(int player,coorddef *pos,int reset)
 {
@@ -2058,9 +2120,11 @@ afterOpponents:
   default:
     break;
   } Camera_AcquireTarget(player,&oppVector,pos,&Camera_gInfo[player].rotation,1);
-  return; }
+}
 
 /* ---- Camera_GetViewInfo__FiP17DRender_tCalcViewi  [@0x80085008] ---- */
+
+
 #line 2355 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
 {
@@ -2111,8 +2175,8 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
 
 
 
-  if (GameSetup_gData.mirrorTrack != 0) {
-
+  if (GameSetup_gData.mirrorTrack != 0)
+  {
 
 
 
@@ -2134,9 +2198,9 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
     cview->mrotation.m[1] = -t2;
     cview->mrotation.m[2] = -t3;
   }
-  {
-    int scale;
-    int t1; int t2; transpose(&cview->mrotation,&cview->mrotationInv);
+
+
+  { int scale; int t1; int t2; transpose(&cview->mrotation,&cview->mrotationInv);
 
 
 
@@ -2188,6 +2252,8 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
 }
 
 /* ---- Camera_GetAudioViewInfo__FiP17DRender_tCalcViewPP8coorddef  [@0x8008533c] ---- */
+
+
 #line 2481 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel)
 {
@@ -2253,6 +2319,8 @@ void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel
     break; } return; }
 
 /* ---- Camera_GetMode__Fi  [@0x80085568] ---- */
+
+
 #line 2546 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 int Camera_GetMode(int cviewP)
 {
@@ -2274,6 +2342,8 @@ int Camera_GetMode(int cviewP)
 }
 
 /* ---- Camera_SetMode__Fii  [@0x80085608] ---- */
+
+
 #line 2565 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_SetMode(int cviewP,int mode)
 {
@@ -2329,7 +2399,7 @@ void Camera_SetMode(int cviewP,int mode)
     Camera_gInfo[cviewP].checkcollisions = flagMode->checkcollisions;
     Camera_gInfo[cviewP].inCar = Camera_gInfo[cviewP].mode < 2;
   }
-  return; }
+}
 
 /* ---- Camera_NextMode__Fi  [@0x8008581c] ---- */
 /* 2026-10-18: test the two real modes directly. GCC's fold_range_test /
@@ -2343,6 +2413,8 @@ void Camera_SetMode(int cviewP,int mode)
     /* A signed-short remainder subscript preserves retail's scaled index
      * and address allocation without a splitBase source-only capture.
      * The increment's assignment value is already narrowed by camNum's type. */
+
+
 #line 2621 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_NextMode(int cviewP)
 {
@@ -2410,9 +2482,11 @@ void Camera_NextMode(int cviewP)
     Camera_gInfo[cviewP].checkcollisions = flagMode->checkcollisions;
     Camera_gInfo[cviewP].inCar = Camera_gInfo[cviewP].mode < 2;
   }
-  return; }
+}
 
 /* ---- Camera_ReplayUpdate__FiP15Camera_tCamSlot  [@0x80085bd0] ---- */
+
+
 #line 2689 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
 {
@@ -2428,16 +2502,18 @@ void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)
     Camera_gInfo[cviewP].position = ptr->pos;
     Camera_gInfo[cviewP].TVHeight = ptr->height;
     EulerToMat(&Camera_gInfo[cviewP].rotation,(int)(ptr->euler).x,(int)(ptr->euler).y,
-               (int)(ptr->euler).z);
-  }
+               (int)(ptr->euler).z); } return;
 
 
 
 
-  return;
+
+
 }
 
 /* ---- Camera_ResetRelPos__Fi  [@0x80085cd4] ---- */
+
+
 #line 2712 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_ResetRelPos(int bitMask)
 {

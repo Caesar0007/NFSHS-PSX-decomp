@@ -18,47 +18,84 @@
    local/type/home/depth tuples and five regions. Wrapper remains9/9 PASS.
    Whole-TU native check run-8hvanqzg has unchanged bytes/layout and2/2 CLEAN.
    Full SLD and literal original spelling are not certified by native CLEAN. */
+#line 20 "C:/nfs4/FRONTEND/PSX/FETEXTURE.CPP"
 void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yoffset,int xoffset)
+
 
 {
   shapetbl *shpptr;
   shapetbl old_shape;
-  int bpp;
-  int xclut;
-  int yclut;
-  shapetbl *unpacked;
-
-  xclut = 0;
+  int bpp; int xclut; int yclut; shapetbl *unpacked; xclut = 0;
   yclut = 0;
+
+
+
+
+
+
   shpptr = (shapetbl *)shapepointer(f,index);
+
   if (shpptr != 0) {
     char is_compressed;
-
     is_compressed = *(char *)shpptr & 0x80;
+
+
     if (is_compressed != 0) {
       char *oldptr;
       int newptr;
+
+
+
+
+
+
+
 
       unpacked = (shapetbl *)reservememadr("unpacked",unpacksize((char *)shpptr + 0x10) + 0x10,0);
       blockmove(shpptr,unpacked,0x10);
       unpack((char *)shpptr + 0x10,(void *)((int)unpacked + 0x10));
       *(char *)unpacked = *(char *)unpacked & 0x7f;
+
+
       oldptr = (char *)shpptr + (*(int *)shpptr >> 8);
       newptr = (int)oldptr - (int)unpacked;
       *(u_int *)unpacked =
            (u_int)*(u_char *)unpacked | newptr * 0x100;
     }
     else {
+
+
+
+
       unpacked = shpptr;
     }
+
+
+
+
+
     bpp = *(u_char *)unpacked & 3;
+
+
     if (bpp != 2) {
+
+
+
+
+
       Texture_GetClutId(bpp,&xclut,&yclut);
       dest->clutID = yclut << 6 | xclut >> 4 & 0x3f;
     }
+
+
     old_shape = *unpacked;
+
     vramfxya((unsigned int *)unpacked,unpacked->shapex + xoffset,unpacked->shapey + yoffset,xclut,yclut);
+
+
+
     dest->shpptr = shpptr;
+
     dest->type = *(u_char *)unpacked;
     dest->next = *(u_int *)unpacked >> 8;   /* next:24 bitfield */
     dest->width = unpacked->width;
@@ -68,26 +105,24 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
     dest->shapex = unpacked->shapex;
     dest->shapey = unpacked->shapey;
     dest->depth = shapedepth((unsigned char *)unpacked);
-    dest->tpage = ((u_char)dest->type & 3) << 7 | (short)(dest->shapey & 0x100U) >> 4 |
-                  (ushort)(((ushort)dest->shapex & 0x3ff) >> 6) | (dest->shapey & 0x200U) << 2;
+    dest->tpage = ((u_char)dest->type & 3) << 7 | (short)(dest->shapey & 0x100U) >> 4 | (ushort)(((ushort)dest->shapex & 0x3ff) >> 6) | (dest->shapey & 0x200U) << 2;
     dest->clut = GetClut((dest->clutID & 0x3fU) << 4,dest->clutID >> 6);
+
     if ((yoffset != 0) || (xoffset != 0)) {
       *unpacked = old_shape;
     }
+
+
     if (is_compressed != 0) {
-      purgememadr(unpacked);
-    }
-  }
-  return;
-}
+      purgememadr(unpacked); } } return; }
 
 /* ---- FETexture_LoadPmx  (fetexture.cpp:125, code lines 125-126) ---- */
+#line 122 "C:/nfs4/FRONTEND/PSX/FETEXTURE.CPP"
 void FETexture_LoadPmx(char *f,int index,tTexture_ShapeInfo *dest)
 
+
 {
-  
-  FETexture_LoadPmxAtOffset(f,index,dest,0,0);
-  return;
+  FETexture_LoadPmxAtOffset(f,index,dest,0,0); return;
 }
 
 /* end of fetexture.cpp */

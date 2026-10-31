@@ -17,6 +17,8 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 
 /* ---- __10AIDelayCarP8Car_tObjT1i  AIDelayCar::ctor  [AIDELAYCAR.CPP:20-25] SLD-VERIFIED ---- */
+
+#line 19 "C:/nfs4/GAME/COMMON/AIDELAYCAR.CPP"
 AIDelayCar::AIDelayCar(Car_tObj *basisCar,Car_tObj *targetCar,int delayFactor)
 {
 
@@ -35,6 +37,8 @@ AIDelayCar::AIDelayCar(Car_tObj *basisCar,Car_tObj *targetCar,int delayFactor)
 
 /* ---- SetNewTargetCar__10AIDelayCarP8Car_tObj  AIDelayCar::SetNewTargetCar  [AIDELAYCAR.CPP:29-42] SLD-VERIFIED ---- */
 
+
+#line 28 "C:/nfs4/GAME/COMMON/AIDELAYCAR.CPP"
 void AIDelayCar::SetNewTargetCar(Car_tObj *targetCar)
 {
 
@@ -61,6 +65,8 @@ void AIDelayCar::SetNewTargetCar(Car_tObj *targetCar)
 
 /* ---- Update__10AIDelayCar  AIDelayCar::Update  [AIDELAYCAR.CPP:46-75] SLD-VERIFIED ---- */
 
+
+#line 45 "C:/nfs4/GAME/COMMON/AIDELAYCAR.CPP"
 void AIDelayCar::Update()
 {
   coorddef currentDeltaPosition, changeDeltaPosition;

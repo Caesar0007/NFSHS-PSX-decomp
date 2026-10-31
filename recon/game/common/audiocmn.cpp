@@ -141,6 +141,8 @@ extern int gMusicHandle;
 
 
 /* ---- AudioCmn_MusicLevel__Fi  [@0x80076420] ---- */
+
+
 #line 277 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_MusicLevel(int level)
 {
@@ -156,6 +158,8 @@ int AudioCmn_MusicLevel(int level)
  * spelling is not uniquely established by these coordinates. No new asm,
  * volatile,qualifier,fake use or statement directive.
  * Receipt:build/nc12/audio_record_source_20261029/final-proof.json. */
+
+
 #line 282 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_GetTrackRecordLapTime(void)
 {
@@ -168,6 +172,8 @@ int AudioCmn_GetTrackRecordLapTime(void)
 }
 
 /* ---- AudioCmn_InitThunder__Fv  [@0x80076490] ---- */
+
+
 #line 302 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_InitThunder(void)
 {
@@ -177,6 +183,8 @@ void AudioCmn_InitThunder(void)
 }
 
 /* ---- AudioCmn_PlayThunder__Fii  [@0x800764a4] ---- */
+
+
 #line 309 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayThunder(int intensity,int azimuth)
 {
@@ -197,6 +205,8 @@ void AudioCmn_PlayThunder(int intensity,int azimuth)
  * assignment spelling also matches,so literal original syntax is not unique.
  * No new object,binding-record padding,asm/volatile or statement directive.
  * Receipt:build/nc12/audio_thunder_source_20261027/. */
+
+
 #line 319 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_UpdateThunder(void)
 {
@@ -228,6 +238,8 @@ void AudioCmn_UpdateThunder(void)
  * prove the lost pointer identifier or literal source. No new asm,volatile,
  * identity,fake use,scope padding,statement anchor or output rewrite.
  * Receipt:build/nc12/async_init_scope_20261029/final-proof.json. */
+
+
 #line 453 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_InitAsyncSfx(void)
 {
@@ -241,6 +253,8 @@ void AudioCmn_InitAsyncSfx(void)
 }
 
 /* ---- AudioCmn_RemoveAsyncSfx__Fi  [@0x800765b4] ---- */
+
+
 #line 466 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_RemoveAsyncSfx(int slot)
 {
@@ -267,6 +281,8 @@ void AudioCmn_RemoveAsyncSfx(int slot)
 }
 
 /* ---- AudioCmn_DeInitAsyncSfx__Fv  [@0x8007663c] ---- */
+
+
 #line 492 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_DeInitAsyncSfx(void)
 {
@@ -292,6 +308,8 @@ void AudioCmn_DeInitAsyncSfx(void)
  * No new alias,object,qualifier,asm,volatile,fake use,scope padding,statement
  * anchor,compiler flag or output rewrite is introduced. Literal macro text
  * remains unproved. Receipt:build/nc12/async_oldest_source_20261027/. */
+
+
 #line 500 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_RemoveOldestAsyncSfx(int bank)
 {
@@ -343,6 +361,8 @@ int AudioCmn_RemoveOldestAsyncSfx(int bank)
    * this function's first literal; keeping it makes the later jump table's .align 3 land at
    * retail's 0x8005573c. The constant-false call adds no code. */
 /* MATCH P902: native SLD 572 groups success and header allocation. */
+
+
 #line 533 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 {
@@ -428,6 +448,8 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
  * fake use,scope padding or statement #line is introduced. Literal original
  * macro/loop/switch spelling remains unproved,not a whole-source certificate.
  * Receipt:build/nc12/async_get_source_20261027/. */
+
+
 #line 619 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly)
 {
@@ -496,6 +518,8 @@ int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly)
  * Original early-j reuse/macro spelling remains unproved;the direct-store
  * control also changes code. Verbatim previous comments are in before.cpp.
  * Receipt:build/nc12/audiocmn_init_source_20261027/. */
+
+
 #line 677 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_Init(void)
 {
@@ -606,17 +630,19 @@ void AudioCmn_Init(void)
  * SLD/original-text or whole-project seal. No new name/object,asm/volatile,
  * executable padding or output/reference rewrite is introduced. Receipts:
  * build/nc12/audio_reset_source_20261028/. */
-/* 2026-10-31 AUDAI receipt: tags16 are the anonymous ?: statement (one tag at
- * its ';' 151; retail 143/145/146). A plain if/else gives tags 0 but g++2.8 keeps
- * an if/else clause scope only with a declaration or kept sub-block, so the
- * +310..+318 else region is lost (D: 34/36 regions); ({}) arms add regions.
- * An unused local in the else restored all regions but was RULED a banned dummy
- * local (coordinator 2026-10-31) and is not adopted. Measured: plain if/else
- * with `gettick();` = tags0 but 32/36 regions (both lost); retail discards the
- * else gettick() v0 (overwritten by the next jal gettick), so no existing
- * variable receives it. Open: the real producer of the two empty regions. */
-#line 747 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
+/* 2026-10-31 AUDAI4: EXACT on bytes (214), SYM (44 records/depths) and SLD (0 tags,
+ * blocks exact) under the user's exact-only device ruling. Plain if/else for the
+ * music-level check (tags 143/145/146/150). Three DEVICES remain for review: the
+ * dead `now` keeps the else clause scope (a dead-stored local gets no SYM record),
+ * and two code-less `(void)0;` statements put a line note on a `}` line (final.c
+ * keeps a line note followed by NOTE_INSN_BLOCK_END; the .bend line is the last
+ * note) -> retail block ends 114 and 152. Retail's real producers are still
+ * unidentified (a code-less statement on the `}` line, e.g. an empty debug macro).
+ */
+
+#line 746 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_Reset(void)
+
 
 {
 
@@ -731,7 +757,7 @@ void AudioCmn_Reset(void)
 
 
 
-  }
+  (void)0; } /* DEVICE (exact-only): code-less note on the `}` line -> block end 114 */
 
 
 
@@ -761,16 +787,16 @@ void AudioCmn_Reset(void)
       while ((((gettick() < ticks + -0xc0) || (AudioMus_Threshold() < 1)) || (AudioMus_Buffered() < AudioMus_Threshold())) && (gettick() < ticks)) {
         systemtask(0); }
 
-      ({ AudioMus_Buffered() < AudioMus_Threshold() + -100
+      if (AudioMus_Buffered() < AudioMus_Threshold() + -100) {
 
-          ? (void)(GameSetup_gData.userSetting.musicLevel = 0,gMasterMusicLevel = 0,
-                   AudioMus_Volume(AudioCmn_MusicLevel(0)))
+        GameSetup_gData.userSetting.musicLevel = 0; gMasterMusicLevel = 0;
+        AudioMus_Volume(AudioCmn_MusicLevel(0)); }
 
 
-          : (void)({
-              gettick();
-            });
-      });
+      else {
+        int now = gettick(); /* DEVICE (exact-only): dead local keeps the else scope, no SYM record */
+      (void)0; } /* DEVICE (exact-only): code-less note on the `}` line -> block end 152 */
+
 
       gettick(); AudioMus_Buffered(); AudioMus_Threshold();
   }
@@ -796,8 +822,10 @@ void AudioCmn_Reset(void)
  * exit syntax/comments are not uniquely proved. The adopted implicit form
  * adds no object,scope,asm/volatile,statement directive or output rewrite.
  * Receipt:build/nc12/audio_deinit_source_20261027/. */
-#line 909 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
+
+#line 908 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_DeInit(void)
+
 
 {
 
@@ -831,6 +859,8 @@ void AudioCmn_DeInit(void)
 
 
 /* ---- AudioCmn_SetLevels__Fv  [@0x8007701c] ---- */
+
+
 #line 941 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_SetLevels(void)
 {
@@ -841,6 +871,8 @@ void AudioCmn_SetLevels(void)
 }
 
 /* ---- AudioCmn_GetTimePhrase__Fi  [@0x8007706c] ---- */
+
+
 #line 954 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_GetTimePhrase(int time)
 {
@@ -914,6 +946,8 @@ int AudioCmn_GetTimePhrase(int time)
  * not unique original text or whole-project completion. No new source
  * object,binding padding,asm/volatile,statement directive or output rewrite.
  * Receipt:build/nc12/audio_checkstate_source_20261028/. */
+
+
 #line 993 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_CheckState(Car_tObj *car)
 {
@@ -1121,6 +1155,8 @@ void AudioCmn_CheckState(Car_tObj *car)
 }
 
 /* ---- AudioCmn_LoadFESamples__Fv  [@0x80077738] ---- */
+
+
 #line 1200 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_LoadFESamples(void)
 {
@@ -1136,6 +1172,8 @@ char *AudioCmn_LanguageName[7] = { /* @0x8010e774 */
 };
 
 /* ---- AudioCmn_LoadGameSamples__Fv  [@0x8007777c] ---- */
+
+
 #line 1213 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_LoadGameSamples(void)
 {
@@ -1168,6 +1206,8 @@ void AudioCmn_LoadGameSamples(void)
 }
 
 /* ---- AudioCmn_InitChannelArray__Fv  [@0x800778b0] ---- */
+
+
 #line 1243 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_InitChannelArray(void)
 {
@@ -1194,6 +1234,8 @@ void AudioCmn_InitChannelArray(void)
  * original condition spelling is not uniquely proved. No new object,scope,
  * asm/volatile,statement directive or output/reference rewrite is used.
  * Receipt:build/nc12/audio_frequency_source_20261027/. */
+
+
 #line 1258 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
 {
@@ -1258,6 +1300,8 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
  * the recovered enum identities. This is not whole-project source recovery.
  * Receipt:build/nc12/impact_sample_source_20261027/. */
 /* Retail bytes confirm the nonzero initializer at .sdata+0x84. */
+
+
 #line 1295 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 {
@@ -1409,6 +1453,8 @@ int ChooseImpactSample(int force,s_type surface1,s_type surface2)
  * original macro/comment spellings remain unproved. No new object,scope,
  * asm/volatile,statement directive or output/reference rewrite is used.
  * Receipt:build/nc12/audio_loop_source_20261027/. */
+
+
 #line 1427 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int ChooseLoopedSample(s_type surface1,s_type surface2)
 {
@@ -1480,6 +1526,8 @@ int ChooseLoopedSample(s_type surface1,s_type surface2)
 /* Retail spells the 0x23 follow-up as its OWN PlaySFX call with literal args; gcc
        cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
        late because it stores tempAmp instead of amplitude into 0x10(sp). */
+
+
 #line 1456 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce,int Distsq,
 int azimuth)
@@ -1616,6 +1664,8 @@ int azimuth)
  * original syntax is not unique. No new name/object,scope padding,asm/volatile,
  * statement directive or output rewrite. Receipt:
  * build/nc12/audio_thunder_source_20261027/. */
+
+
 #line 1579 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void freeVoiceChannel(int sndPlayer)
 {
@@ -1682,6 +1732,8 @@ void freeVoiceChannel(int sndPlayer)
      guard skipping playback for a failed/invalid handle). Cast to signed.
      MATCH: else-arm -1 (not up-front init) puts li v0,-1 in the bltz delay slot and keeps
      shandle in its SYM home REG $2 (v0) = the call result, no copies. */
+
+
 #line 1614 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler)
 {
@@ -1782,6 +1834,8 @@ int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int
 }
 
 /* ---- AudioCmn_PlaySound__Fiiiii  [@0x800783a0] ---- */
+
+
 #line 1715 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlaySound(int bhandle,int patchNum,int azimuth,int vol,int bend)
 {
@@ -1814,6 +1868,8 @@ int AudioCmn_PlaySound(int bhandle,int patchNum,int azimuth,int vol,int bend)
  * but corrupts its provided home and is explicitly NOT adopted.
  * This is a full covered contract,not proof of literal original source text.
  * Receipt:build/nc12/playsfx_roles_20261027/. */
+
+
 #line 1730 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlaySFX(int sndPlayer,int iSFXnum,int iFreqIn,int iDopplerIn,int iAmpIn,int azimuth)
 {
@@ -2058,6 +2114,8 @@ int AudioCmn_PlaySFX(int sndPlayer,int iSFXnum,int iFreqIn,int iDopplerIn,int iA
  * unique. The CurCarGasLevel/cobblestoneAmp phase-role uncertainty and
  * rpmRatio source producer remain open; no whole-source completion is claimed.
  * Receipt:build/nc12/soundcar_abs_land_20261027/. */
+
+
 #line 1906 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
 int cardir)
@@ -2369,6 +2427,8 @@ int cardir)
        alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
 /* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
        alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
+
+
 #line 2192 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int azimuth,int relvel,int dir)
 {
@@ -2429,6 +2489,8 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
  * No new name,object,scope,asm/volatile,fake use or statement directive.
  * Literal original exit spelling remains unproved. Receipt:
  * build/nc12/audio_frequency_source_20261027/. */
+
+
 #line 2243 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int force,int Distsq,int azimuth)
 {
@@ -2469,6 +2531,8 @@ void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int f
  * Other genuine exit forms can also pass,so literal original syntax is not
  * unique. No dummy statement,extra scope,void-result cast or new object.
  * Receipt for both horn functions:build/nc12/horn_source_20261027/. */
+
+
 #line 2274 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int doppler)
 {
@@ -2509,6 +2573,8 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
  * exception or int return contract. No other behavior is imported.
  * No new name,object,asm,volatile,fake use,scope padding or statement anchor.
  * Literal original expression/comment spelling remains unproved. */
+
+
 #line 2304 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 int AudioCmn_PlayerHornOff(int carIndex)
 {
@@ -2531,6 +2597,8 @@ int AudioCmn_PlayerHornOff(int carIndex)
 }
 
 /* ---- AudioCmn_PlayFESFX__Fi  [@0x80079604] ---- */
+
+
 #line 2326 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayFESFX(int SFXnum)
 {
@@ -2558,6 +2626,8 @@ void AudioCmn_PlayFESFX(int SFXnum)
  * statement directives,new objects/scopes/asm/volatile or output rewriting.
  * Original literal macro/comment text remains unproved. Receipt:
  * build/nc12/audio_fe_source_20261027/. */
+
+
 #line 2331 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayFESFXVol(int SFXnum,int vol)
 {
@@ -2596,6 +2666,8 @@ void AudioCmn_PlayFESFXVol(int SFXnum,int vol)
   NumSFXOn = NumSFXOn + 1; }
 
 /* ---- AudioCmn_PlayWrongWaySFX__Fv  [@0x800796ac] ---- */
+
+
 #line 2369 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayWrongWaySFX(void)
 {
@@ -2603,6 +2675,8 @@ void AudioCmn_PlayWrongWaySFX(void)
 }
 
 /* ---- AudioCmn_PlayPauseSound__Fi  [@0x800796e4] ---- */
+
+
 #line 2374 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_PlayPauseSound(int patch)
 {
@@ -2614,6 +2688,8 @@ void AudioCmn_PlayPauseSound(int patch)
  * retail retains no local row for it. Its separate selection/call SLD groups
  * do not uniquely prove the original object or spelling. Direct conditional
  * call arguments change code; that failure alone is not a necessity proof. */
+
+
 #line 2411 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void quickSirenOn(int sirennum)
 {
@@ -2622,6 +2698,8 @@ void quickSirenOn(int sirennum)
 }
 
 /* ---- SuperCopSirenOn__Fi  [@0x80079790] ---- */
+
+
 #line 2417 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void SuperCopSirenOn(int sirennum)
 {
@@ -2629,6 +2707,8 @@ void SuperCopSirenOn(int sirennum)
 }
 
 /* ---- SirenOn__Fii  [@0x800797f8] ---- */
+
+
 #line 2422 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void SirenOn(int sirennum,int supercop)
 {
@@ -2650,6 +2730,8 @@ void SirenOn(int sirennum,int supercop)
 }
 
 /* ---- SirenOff__Fi  [@0x800798a0] ---- */
+
+
 #line 2441 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void SirenOff(int sirennum)
 {
@@ -2672,6 +2754,8 @@ void SirenOff(int sirennum)
  * comment and declaration spellings are not uniquely proved by this seal.
  * No new object,scope,asm,volatile,fake use or statement #line is introduced.
  * Receipt:build/nc12/siren_layout_20261027/. */
+
+
 #line 2453 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
 {
@@ -2707,6 +2791,8 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
         SNDpan(gaChannel[sirennum + 0x2b].Partial, (int)((azimuth - 0x4000U < 0x8000) ? 0xbfff - azimuth : (azimuth + 0x4000U & 0xffff)) >> 8); } } } return;
 }
 /* ---- AudioCmn_Pause__Fv  [@0x80079b60] ---- */
+
+
 #line 2510 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_Pause(void)
 {
@@ -2731,6 +2817,8 @@ void AudioCmn_Pause(void)
 /* ---- AudioCmn_UnPause__Fv  [@0x80079c18] ---- */
 /* Retail performs the music-level calculation directly, without a call
    or the non-SYM inline-helper parameter previously used here. */
+
+
 #line 2532 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_UnPause(void)
 {
@@ -2745,6 +2833,8 @@ void AudioCmn_UnPause(void)
 }
 
 /* ---- AudioCmn_UnPauseAndQuit__Fv  [@0x80079ca4] ---- */
+
+
 #line 2545 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_UnPauseAndQuit(void)
 {
@@ -2777,6 +2867,8 @@ void AudioCmn_UnPauseAndQuit(void)
 }
 
 /* ---- AudioCmn_UnPauseAndRestart__Fv  [@0x80079d8c] ---- */
+
+
 #line 2576 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_UnPauseAndRestart(void)
 {
@@ -2813,6 +2905,8 @@ void AudioCmn_UnPauseAndRestart(void)
 }
 
 /* ---- AudioCmn_InitReverb__Fv  [@0x80079e88] ---- */
+
+
 #line 2611 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_InitReverb(void)
 {
@@ -2825,8 +2919,10 @@ void AudioCmn_InitReverb(void)
 
 /* ---- AudioCmn_ReverbOff__Fv  [@0x80079ecc] ---- */
 
-#line 2629 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
+
+#line 2628 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_ReverbOff(void)
+
 
 {
 

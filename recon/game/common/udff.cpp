@@ -16,7 +16,9 @@ void Udff_GetBuffer(Udff_tInfo *handle,char *mem,int size);
   /* MATCH: SYM has one real local (`newHandle` in $s0).  The source-level
      labels preserve retail's distinct invalid-argument/file-load purge paths
      and shared success return without reconstructed assembly. */
+#line 18 "C:/nfs4/GAME/COMMON/UDFF.CPP"
 Udff_tInfo * Udff_Opena(char *name,char *mem,int abortFlag)
+
 
 {
   Udff_tInfo *newHandle;
@@ -77,7 +79,9 @@ success:
 }
 
 /* ---- Udff_Close__FP10Udff_tInfo  [UDFF.CPP:84-100] SLD-VERIFIED ---- */
+#line 81 "C:/nfs4/GAME/COMMON/UDFF.CPP"
 void Udff_Close(Udff_tInfo *handle)
+
 
 {
   if (handle != (Udff_tInfo *)0x0) {
@@ -98,7 +102,9 @@ void Udff_Close(Udff_tInfo *handle)
   } return; }
 
 /* ---- Udff_GetInt__FP10Udff_tInfo  [UDFF.CPP:105-123] SLD-VERIFIED ---- */
+#line 102 "C:/nfs4/GAME/COMMON/UDFF.CPP"
 int Udff_GetInt(Udff_tInfo *handle)
+
 
 {
   int value;
@@ -122,7 +128,9 @@ int Udff_GetInt(Udff_tInfo *handle)
 }
 
 /* ---- Udff_GetBuffer__FP10Udff_tInfoPci  [UDFF.CPP:203-218] SLD-VERIFIED ---- */
+#line 200 "C:/nfs4/GAME/COMMON/UDFF.CPP"
 void Udff_GetBuffer(Udff_tInfo *handle,char *mem,int size)
+
 
 {
 

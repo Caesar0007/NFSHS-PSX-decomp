@@ -15,8 +15,10 @@
 /* ---- tScreenMemcard::GetShapeInfo  (screenmemcard.cpp:65) ---- */
 /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800121a8) ahead of this
  * function's first literal; the constant-false store keeps it with no code. */
+#line 61 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
                char **swapFileName)
+
 
 {
   if (0) *permFileName = "SimpleMem";   /* a dead STORE, not a call: GetShapeInfo is a leaf */
@@ -34,54 +36,65 @@ void tScreenMemcard::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char
 }
 
 /* ---- tScreenMemcard::DrawIcon  (screenmemcard.cpp:90) ---- */
+  /* SYM-CODEGEN-CARRIER: u -- naming the shared texture coordinate preserves
+   * retail's early divide and whole-function allocation; repeated source
+   * expressions move it to first use (FAIL 87 / 125 versus PASS 126). */
+#line 86 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int destheight,
                short fFade)
 
+
 {
   POLY_FT4 *prim;
+
   int stype = icon->type;
   long sposx = icon->shapex;
   long sposy = icon->shapey;
   long width = icon->width;
   long height = icon->height;
   int bpp = 4;
-  /* SYM-CODEGEN-CARRIER: u -- naming the shared texture coordinate preserves
-   * retail's early divide and whole-function allocation; repeated source
-   * expressions move it to first use (FAIL 87 / 125 versus PASS 126). */
   int u = ((sposx & 0x3f) << bpp) / bpp;
   int v = sposy % 0x100;
 
-  prim = (POLY_FT4 *)Render_gPacketPtr;
-  ((tMemcardPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
-  Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
-  ((tMemcardPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+
+
+
+
+
+
+
+
+  prim = (POLY_FT4 *)Render_gPacketPtr; ((tMemcardPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr; Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4); ((tMemcardPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+
+
+
+
   prim->code = 0x2e;
   ((u_char *)prim)[3] = 9;
-  prim->r0 = -0x80 - fFade;
-  prim->g0 = -0x80 - fFade;
-  prim->b0 = -0x80 - fFade;
-  prim->clut = shapetoclutid((unsigned int *)icon);
-  prim->tpage = (stype & 3) << 7 |
-                (sposy & 0x100) >> 4 |
-                (sposx & 0x3ff) >> 6 |
-                (sposy & 0x200) << 2;
 
-  prim->u0 = u;
-  prim->v0 = v;
-  prim->u1 = u + width;
-  prim->v1 = v;
-  prim->u2 = u;
-  prim->v2 = v + height;
-  prim->u3 = u + width;
-  prim->v3 = v + height;
-  prim->x0 = x;
-  prim->y0 = y;
-  prim->x1 = x + destwidth;
-  prim->y1 = y;
-  prim->x2 = x;
-  prim->y2 = y + destheight;
-  prim->x3 = x + destwidth;
-  prim->y3 = y + destheight;
+  prim->r0 = -0x80 - fFade; prim->g0 = -0x80 - fFade;
+  prim->b0 = -0x80 - fFade;
+
+
+
+  prim->clut = shapetoclutid((unsigned int *)icon);
+  prim->tpage = (stype & 3) << 7 | (sposy & 0x100) >> 4 | (sposx & 0x3ff) >> 6 | (sposy & 0x200) << 2;
+
+
+
+
+
+
+
+
+
+
+
+
+  prim->u0 = u; prim->v0 = v; prim->u1 = u + width; prim->v1 = v; prim->u2 = u; prim->v2 = v + height; prim->u3 = u + width; prim->v3 = v + height;
+
+
+  prim->x0 = x; prim->y0 = y; prim->x1 = x + destwidth; prim->y1 = y; prim->x2 = x; prim->y2 = y + destheight; prim->x3 = x + destwidth; prim->y3 = y + destheight;
 }
 
 /* ---- tScreenMemcard::LoadIcon  (screenmemcard.cpp:145) ---- */
@@ -100,82 +113,110 @@ void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int desth
    store.  Falsified basins: for-loop 25 @216/215; direct icon/cardInfo removal
    40 @219/215; one pointer-read fence 24 @215/215; early i=0 26 @213/215;
    post-loop i fence 44 @217/215; split induction fences 68 @215/215. */
+          /* SYM-CODEGEN-CARRIER: pulled -- assigning done directly removes
+             retail's `addu $t0,$s7,$zero` and measures 3 diffs (214/215). */
+          /* SYM-CODEGEN-CARRIER: one -- direct literal stores allocate $v0;
+             this shared value restores retail's two $t0 stores. */
+        /* Retail's +0x14c..+0x310 loop-body scope; the value itself is
+           optimized out of native SYM but holds the two $t0 stores. */
+#line 142 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::LoadIcon(int filenum)
+
 
 {
   bool done;
-  int clutx;
-  int cluty;
-  int i;
-  bool pulled;
-  
-  if (AudioMus_Buffered() < AudioMus_Threshold()) {
+  int clutx; int cluty; int i; bool pulled; if (AudioMus_Buffered() < AudioMus_Threshold()) {
     return;
   }
   CURRENTLYUSINGMEMCARD = 1;
+
+
+
+
     this->numicon[filenum] = '\0';
     this->numblock[filenum] = '\0';
+
+
+
+
     if (filenum < this->pCI->numfiles) {
+
       blockclear(this->fMemFile + filenum,0x2c);
-      CARDINFO_def *const cardInfo = this->pCI;
-      this->fMemFile[filenum].title = (char *)((int)this->fMemTitle + filenum * 0x20);
-      this->fMemFile[filenum].name = (char *)(cardInfo->dir + filenum);
+
+      CARDINFO_def *const cardInfo = this->pCI; this->fMemFile[filenum].title = (char *)((int)this->fMemTitle + filenum * 0x20); this->fMemFile[filenum].name = (char *)(cardInfo->dir + filenum);
+
+
+
       this->fMemFile[filenum].icon[0] = (shapetbl *)(*fMemIcon)[filenum][0];
       this->fMemFile[filenum].icon[1] = (shapetbl *)(*fMemIcon)[filenum][1];
       this->fMemFile[filenum].icon[2] = (shapetbl *)(*fMemIcon)[filenum][2];
-      do {
-        i = MCRD_handlecardevents(this->card);
-      } while (i != 0x16);
+
+
+      do { i = MCRD_handlecardevents(this->card); } while (i != 0x16);
+
       MCRD_loadfile(this->card,this->fMemFile + filenum,1);
       done = false;
-      while (1) {
-        if (done) {
+
+
+
+
+      while (1) { if (done) {
           break;
         }
-        /* Retail's +0x14c..+0x310 loop-body scope; the value itself is
-           optimized out of native SYM but holds the two $t0 stores. */
         int one;
+
         if (MCRD_getcard(this->card)->status == -1) {
+
           this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
         }
-        i = MCRD_handlecardevents(this->card);
-        switch(i) {
+
+        i = MCRD_handlecardevents(this->card); switch(i) {
         case 0xf:
           done = true;
+
           if (this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons != 0) {
+
             this->ReleaseIcons();
+
             goto LoadIcon_clearCardFlag;
           }
+
+
           this->numicon[filenum] = *this->fMemFile[filenum].numicons - 0x10;
           i = garyMemCardGrabBlocks(this->card,filenum);
           this->numblock[filenum] = (u_char)i;
+
           if (3 < this->numicon[filenum]) {
+
             this->numicon[filenum] = '\x03';
           }
+
+
+
           if (this->numicon[filenum] == '\0') {
+
             this->numicon[filenum] = '\x01';
           }
+
+
+
+
           if (this->fMemIconClutId[filenum] != 0) {
+
             Texture_MenuReleaseClutId(this->fMemIconClutId[filenum]);
           }
           Texture_GetClutId(0,&clutx,&cluty);
           this->fMemIconClutId[filenum] = (short)cluty << 6 | (ushort)(clutx >> 4) & 0x3f;
           i = 0;
-          if (this->numicon[filenum] != '\0') {
-            do {
+          if (this->numicon[filenum] != '\0') { do {
               __asm__("" : :
                       "r"(i * 0xc0), "r"(i * 0xc0), "r"(i * 0xc0));
               if (((*fMemIcon)[filenum][i][0] & 0xf7U) == 0x40) {
                 vramfxya((unsigned int *)(*fMemIcon)[filenum][i],i * 0x11 + 900,
                          filenum * 0x11,clutx,cluty);
               }
-              i = i + 1;
-            } while (i < (int)(uint)this->numicon[filenum]);
-          }
-          /* SYM-CODEGEN-CARRIER: one -- direct literal stores allocate $v0;
-             this shared value restores retail's two $t0 stores. */
-          one = 1;
-          this->fFadeIcon[filenum] = 0x80;
+              i = i + 1; } while (i < (int)(uint)this->numicon[filenum]);
+          } one = 1; this->fFadeIcon[filenum] = 0x80;
           this->goticon[filenum] = one;
           break;
         case 2:
@@ -186,13 +227,10 @@ void tScreenMemcard::LoadIcon(int filenum)
         case 0x10:
         case 0x13:
         case 0x17:
-          done = true;
-          /* SYM-CODEGEN-CARRIER: pulled -- assigning done directly removes
-             retail's `addu $t0,$s7,$zero` and measures 3 diffs (214/215). */
-          pulled = done;
-          __asm__("" : "=r"(pulled) : "0"(pulled));
-          this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = pulled;
+          done = true; pulled = done; __asm__("" : "=r"(pulled) : "0"(pulled)); this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = pulled;
           this->goticon[filenum] = '\0';
+
+
           break;
         }
       }
@@ -203,25 +241,13 @@ LoadIcon_clearCardFlag:
 }
 
 /* ---- tScreenMemcard::DrawVerticalLine  (screenmemcard.cpp:264) ---- */
-void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
-
-{
-  /* SYM-CODEGEN-CARRIER: innerHeight -- collapsing HEIGHT/GOURAUD/EXTRA into
-     one arithmetic tree is measured FAIL13 (46/45); the two-stage sum
-     preserves retail's arithmetic webs. Original local spelling is unresolved. */
-  int innerHeight;
-  /* SYM-CODEGEN-CARRIER: pos -- the short clamp carrier preserves retail's
-     incoming-$a3 stores and delayed gridpos handoff (measured 26 -> 17). */
-  short pos;
-  /* SYM-CODEGEN-CARRIER: test -- the explicit signed-test web separates the
-     comparisons from the clamped short result (measured 17 -> 13). */
-  int test;
-  /* SYM-CODEGEN-CARRIER: shifted -- the positive-arm identity fence keeps
-     retail's independent $v0/$v1 sign-extension webs (measured 17 -> 13). */
-  unsigned int shifted;
-  /* MATCH (SLD 265 = ONE source line for the whole clamp): the 0x40 arm is
-     OUT OF LINE (oracle `beqz` branches FORWARD to it, past the =0 block, which
-     ends with its own `j`), so it must be a goto target, not the fall-through. */
+  /* P866: sequence both geometry stages in one expression, matching retail
+     SLD 267 at 800468f0/f4/f8/fc, 80046908/0c and 80046918/1c/20.
+     The call and epilogue then share SLD 269. PASS 45 and exact debug twin;
+     this comma spelling is inferred, not recovered original source text.
+     Folding into the call with a widened inner sum was FAIL9 (46/45).
+     No-fence clamp probes: GNU min/max 23 (44/45), MIN/MAX macro 11 (46/45),
+     oracle-shaped ternary 7 (44/45); these were restored, not ruled out. */
   /* MATCH: PASS 45/45 (W60/W65/W68; 26->17->13->4->2->0).  The horizontal sibling's
      promoted `pos` plus explicit signed-test pair transfers here: it removes
      the premature gridpos result copy and makes the clamp stores use incoming
@@ -237,34 +263,28 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
      FALSIFIED in this basin: volatile shifted carrier 36; short test neutral;
      register y neutral; read-only y fence at entry 17 and before call 56;
      inner height-term swap 17; literal IDA if/else clamp 31. */
-  shifted = (unsigned int)gridpos << 16;
-  pos = gridpos;
-  test = (int)shifted >> 16;
-  if (0 < test) {
-    __asm__("" : "+r"(shifted), "+r"(x));
-    if (0x40 <= test) goto VL_clampHi;
-  }
-  if (test < 0) {
-    pos = 0;
-  }
-  goto VL_clamped;
-VL_clampHi:
-  pos = 0x40;
+  /* MATCH (SLD 265 = ONE source line for the whole clamp): the 0x40 arm is
+     OUT OF LINE (oracle `beqz` branches FORWARD to it, past the =0 block, which
+     ends with its own `j`), so it must be a goto target, not the fall-through. */
+  /* SYM-CODEGEN-CARRIER: shifted -- the positive-arm identity fence keeps
+     retail's independent $v0/$v1 sign-extension webs (measured 17 -> 13). */
+  /* SYM-CODEGEN-CARRIER: test -- the explicit signed-test web separates the
+     comparisons from the clamped short result (measured 17 -> 13). */
+  /* SYM-CODEGEN-CARRIER: pos -- the short clamp carrier preserves retail's
+     incoming-$a3 stores and delayed gridpos handoff (measured 26 -> 17). */
+  /* SYM-CODEGEN-CARRIER: innerHeight -- collapsing HEIGHT/GOURAUD/EXTRA into
+     one arithmetic tree is measured FAIL13 (46/45); the two-stage sum
+     preserves retail's arithmetic webs. Original local spelling is unresolved. */
+#line 261 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
+void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
+
+
+{
+  int innerHeight; short pos; int test; unsigned int shifted; shifted = (unsigned int)gridpos << 16; pos = gridpos; test = (int)shifted >> 16; if (0 < test) { __asm__("" : "+r"(shifted), "+r"(x)); if (0x40 <= test) goto VL_clampHi; } if (test < 0) { pos = 0; } goto VL_clamped; VL_clampHi: pos = 0x40;
 VL_clamped:
-  gridpos = pos;
-  /* P866: sequence both geometry stages in one expression, matching retail
-     SLD 267 at 800468f0/f4/f8/fc, 80046908/0c and 80046918/1c/20.
-     The call and epilogue then share SLD 269. PASS 45 and exact debug twin;
-     this comma spelling is inferred, not recovered original source text.
-     Folding into the call with a widened inner sum was FAIL9 (46/45).
-     No-fence clamp probes: GNU min/max 23 (44/45), MIN/MAX macro 11 (46/45),
-     oracle-shaped ternary 7 (44/45); these were restored, not ruled out. */
-  innerHeight = (innerHeight = (ushort)GRIDMEMCARD_HEIGHT +
-                              (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2,
-                 (ushort)EXTRAYATTOP + innerHeight);
+  gridpos = pos; innerHeight = (innerHeight = (ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2, (ushort)EXTRAYATTOP + innerHeight);
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,
-             (short)innerHeight,
-             (uint)(dir == 0),(int)gridpos * 2,0);
+             (short)innerHeight, (uint)(dir == 0),(int)gridpos * 2,0);
 }
 
 /* ---- tScreenMemcard::DrawHorizontalLine  (screenmemcard.cpp:273) ---- */
@@ -272,23 +292,8 @@ VL_clamped:
    identity fence are not recovered original local objects. A direct width
    argument with a widened grouped contribution remains21dif at47/48
    (2026-10-11); no original-object necessity follows from that trial. */
-void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
-
-{
-  int width;
-  /* SYM-CODEGEN-CARRIER: pos -- the short join carrier delays retail's
-     gridpos copy into $t0; direct parameter clamping was measured FAIL16. */
-  short pos;
-  /* SYM-CODEGEN-CARRIER: test -- the explicit signed test separates the
-     clamp comparison web from the clamped value (measured 10 -> 5 diffs). */
-  int test;
-  /* SYM-CODEGEN-CARRIER: shifted -- the shift-pair value and positive-arm
-     identity fence preserve retail's independent $a3 sign-extension web. */
-  unsigned int shifted;
-
-  /* MATCH (SLD 274 = ONE source line for the whole clamp): the 0x40 arm is OUT
-     OF LINE (oracle `beqz` branches forward past the =0 block, which ends with
-     its own `j`), so it is a goto target, not the fall-through. */
+  /* MATCH (SLD 277): the side select is INSIDE the call expression, and the
+     oracle's `beqz` puts the 2-arm at the BRANCH TARGET (3 = fall-through). */
   /* MATCH: PASS 48/48 (W59/W68; 16->10->5->2->0).  SYM makes gridpos
      REGPARM $t0, while the oracle clamps a promoted working value in incoming
      $a3 and copies it to $t0 only at the join.  The separate `pos` reproduces
@@ -301,28 +306,24 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
      promoted test local (neutral); read-only/identity fences at the init or
      join (neutral or 27 diffs); a signed 16-bit bitfield carrier (27 diffs,
      48-byte frame). */
-  shifted = (unsigned int)gridpos << 16;
-  test = (int)shifted >> 16;
-  pos = gridpos;
-  if (0 < test) {
-    __asm__("" : "+r"(shifted));
-    if (0x40 <= test) goto HL_clampHi;
-  }
-  if (test < 0) {
-    pos = 0;
-  }
-  goto HL_clamped;
-HL_clampHi:
-  pos = 0x40;
-HL_clamped:
-  gridpos = pos;
+  /* MATCH (SLD 274 = ONE source line for the whole clamp): the 0x40 arm is OUT
+     OF LINE (oracle `beqz` branches forward past the =0 block, which ends with
+     its own `j`), so it is a goto target, not the fall-through. */
+  /* SYM-CODEGEN-CARRIER: shifted -- the shift-pair value and positive-arm
+     identity fence preserve retail's independent $a3 sign-extension web. */
+  /* SYM-CODEGEN-CARRIER: test -- the explicit signed test separates the
+     clamp comparison web from the clamped value (measured 10 -> 5 diffs). */
+  /* SYM-CODEGEN-CARRIER: pos -- the short join carrier delays retail's
+     gridpos copy into $t0; direct parameter clamping was measured FAIL16. */
+#line 270 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
+void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
+
+
+{
+  int width; short pos; int test; unsigned int shifted; shifted = (unsigned int)gridpos << 16; test = (int)shifted >> 16; pos = gridpos; if (0 < test) { __asm__("" : "+r"(shifted)); if (0x40 <= test) goto HL_clampHi; } if (test < 0) { pos = 0; } goto HL_clamped; HL_clampHi: pos = 0x40; HL_clamped: gridpos = pos;
   /* MATCH (SLD 276 = ONE statement) */
   width = (ushort)GRIDMEMCARD_WIDTH + 2 + (ushort)GRIDMEMCARDGOURAUDBIT_X * 2;
-  /* MATCH (SLD 277): the side select is INSIDE the call expression, and the
-     oracle's `beqz` puts the 2-arm at the BRANCH TARGET (3 = fall-through). */
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,(short)width,
-             1,dir != 0 ? 3 : 2,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X);
-  return;
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,(short)width, 1,dir != 0 ? 3 : 2,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X); return;
 }
 
 /* ---- tScreenMemcard::PlaceIcons  (screenmemcard.cpp:282) ---- */
@@ -336,167 +337,45 @@ HL_clamped:
    is 213 PASS) and are removed. Native
    debug elision does not certify a distinct source object or its spelling.
    Full SLD and literal source are unsealed; no replacement alias/fence added. */
+#line 279 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::PlaceIcons(register int i,int fadeval)
+
 
 {
   short xx;
   short yy;
-  short computedY;
-  int j;
-  int animFrame;
+  short computedY; int j; int animFrame; for (j = 0; j < (int)(uint)this->numblock[i]; j++) {
 
-  for (j = 0; j < (int)(uint)this->numblock[i]; j++) {
+
     if ((((int)this->cursorPosition / 3) & 1U) == 0) {
-      xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX +
-           MEMCARD_DELTAX * (short)((int)this->cursorPosition % 3);
+      xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX + MEMCARD_DELTAX * (short)((int)this->cursorPosition % 3);
     }
-    else {
-      xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX +
-           MEMCARD_DELTAX * (2 - (short)((int)this->cursorPosition % 3));
+    else { xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX + MEMCARD_DELTAX * (2 - (short)((int)this->cursorPosition % 3));
     }
-    computedY = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
-            (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY);
+    computedY = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) + (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY); int tickFrame; tickFrame = (yy = computedY, FE_Ticks() >> 4);
 
-    int tickFrame;
-    tickFrame = (yy = computedY, FE_Ticks() >> 4);
     animFrame = tickFrame % this->numicon[i];
     if (i == this->theNFS4icon) {
       tDrawShapeExtended fFlags;   /* [SYM] AUTO sp+32, block opened at SLD 16 */
 
       fFlags.tint[0] = 0xb55623;
       DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,computedY - 0x70,
-                 fadeval + this->fFadeIcon[i] < 0x81 ?
-                 fadeval + this->fFadeIcon[i] : 0x80,1,
-                 &fFlags);
+                 fadeval + this->fFadeIcon[i] < 0x81 ? fadeval + this->fFadeIcon[i] : 0x80,1, &fFlags);
     }
     else {
-      this->DrawIcon((shapetbl *)(*fMemIcon)[i][animFrame],
-                 xx * 0x10000 >> 0x10,computedY * 0x10000 >> 0x10,0x1f,0x10,
-                 (short)(fadeval + this->fFadeIcon[i] < 0x81 ?
-                         fadeval + this->fFadeIcon[i] : 0x80));
+      this->DrawIcon((shapetbl *)(*fMemIcon)[i][animFrame], xx * 0x10000 >> 0x10,computedY * 0x10000 >> 0x10,0x1f,0x10, (short)(fadeval + this->fFadeIcon[i] < 0x81 ? fadeval + this->fFadeIcon[i] : 0x80));
     }
     if (((this->theNFS4icon == i) && (fadeval == 0)) && (this->fGetNewIcons == 0)) {
       xx = xx * 0x10000 >> 0x10;
-      computedY = (int)(short)yy;
-      PSXDrawSquare(0,(xx - MEMCARDICONOFFX) + 2,(computedY - MEMCARDICONOFFY) + 1,MEMCARD_DELTAX + -2,
-                 MEMCARD_DELTAY + -1);
-      PSXDrawSquare
-                (0xbebe,xx - MEMCARDICONOFFX,computedY - MEMCARDICONOFFY,MEMCARD_DELTAX + 2,
-                 MEMCARD_DELTAY + 1);
+      computedY = (int)(short)yy; PSXDrawSquare(0,(xx - MEMCARDICONOFFX) + 2,(computedY - MEMCARDICONOFFY) + 1,MEMCARD_DELTAX + -2, MEMCARD_DELTAY + -1);
+      PSXDrawSquare (0xbebe,xx - MEMCARDICONOFFX,computedY - MEMCARDICONOFFY,MEMCARD_DELTAX + 2, MEMCARD_DELTAY + 1);
     }
+
+
     this->cursorPosition = this->cursorPosition + 1;
-  }
-  return;
-}
+  } return; }
 
 /* ---- tScreenMemcard::DrawMemCardStuff  (screenmemcard.cpp:319) ---- */
-void tScreenMemcard::DrawMemCardStuff(short fadeval)
-
-{
-  /* MATCH (w37-a9): SYM 8c Function start for this fn (VA 0x80046D60) lists
-     ONLY ONE real local across the WHOLE function (all nested blocks) --
-     `i` REG SHORT. The prior recon's cardInfo/idx/fileIdx/fadeInc/fade were
-     ALL Ghidra-fabricated: `this->pCI` is written straight from
-     MCRD_getcard() (no temp), `idx`/`fileIdx` were the compiler's own
-     short-to-int WIDEN of `i` (sll 16/sra 16, gotcha #14 shift-chain
-     transcription -- `idx=idx>>0x10` / `idx=i*0x10000` / `idx>>0xf` are the
-     widen sequence Ghidra mis-read as a second counter, not real math), and
-     `fade`/`fadeInc` were a temp for a plain `this->fFadeIcon[i] +/- 8`
-     read-modify-write. `i` is SHORT throughout (status code AND every loop
-     counter share the one register). */
-  /* MATCH (W64, 64->PASS): retail parks the pulled-card cleanup out of line
-     between the zero/nonzero fGetNewIcons paths; the normal loop jumps back
-     to it only on the error flag.  Positive valid-icon and fade-out arms give
-     the retail block order, the LoadIcon arm falls through to the shared
-     fGetNewIcons test, and the ready scan is a natural `for` loop.  That final
-     spelling lets GCC retain pCI as its unnamed loop-invariant temporary. */
-  short i;
-
-  this->pCI = MCRD_getcard(this->card);
-  this->cursorPosition = 0;
-  /* MATCH (w37-a9): DE MORGAN branch-body swap (W36 lever #1) -- the oracle's
-     beq(theNFS4icon==-1) branches OUT to the reset block and falls through
-     inline to count++; write the != arm first so gcc lays it out the same. */
-  if (this->theNFS4icon != -1) {
-    this->count = this->count + 1;
-  }
-  else {
-    this->memcardanimframe = 0;
-    this->count = 0;
-  }
-  if (this->count == 4) {
-    this->count = 0;
-    this->memcardanimframe = this->memcardanimframe + 1;
-    if (0x1d < this->memcardanimframe) {
-      this->memcardanimframe = 0;
-    }
-  }
-  if (this->pCI->status == -1) {
-    this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
-    if (this->checkingstart == 0) {
-      this->checkingstart = FE_Ticks();
-    }
-    this->fMemCardMessageTextSys = (800 < FE_Ticks() - this->checkingstart) ? 0x27f : 0x27b;
-    i = 0;
-    if (0 < this->pCI->numfiles) {
-      do {
-        if (this->goticon[i] != '\0') {
-          this->fFadeIcon[i] = this->fFadeIcon[i] + 8;
-          /* MATCH (w37-a9): DE MORGAN branch-body swap -- oracle branches OUT
-             to PlaceIcons (label EE4) when fFadeIcon<0x81 and falls through
-             inline to the reset block otherwise; write the negated/swapped
-             form so gcc lays it out the same way. */
-          if (0x80 < this->fFadeIcon[i]) {
-            this->fFadeIcon[i] = 0x80;
-            this->goticon[i] = '\0';
-            this->numicon[i] = '\0';
-            this->numblock[i] = '\0';
-            if (this->fMemIconClutId[i] != 0) {
-              Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
-              this->fMemIconClutId[i] = 0;
-            }
-          }
-          else {
-            this->PlaceIcons(i,fadeval);
-          }
-        }
-        i = i + 1;
-      } while (i < this->pCI->numfiles);
-    }
-    goto DrawMC_statusCheckFinal;
-  }
-  if (this->pCI->status == -2) {
-    this->checkingstart = 0;
-    this->fMemCardMessageTextSys = 0x288;
-    goto DrawMC_statusCheckFinal;
-  }
-  this->checkingstart = 0;
-  if (this->pCI->numfiles != 0) {
-    this->fMemCardMessageTextSys = 0x27d;
-  }
-  else {
-    this->fMemCardMessageTextSys = 0x284;
-  }
-  /* MATCH (w37-a9): the oracle's fGetNewIcons==0 branch jumps STRAIGHT to
-     the per-file loop (label FD8); the !=0 (else) case falls THROUGH the
-     ready-check loop straight into the same loop with no separate jump --
-     i.e. the label/big-loop is COMMON code physically laid out right AFTER
-     the if/else, reached by fallthrough from the else-arm and by a direct
-     branch from the if-arm.  Writing it that way (label outside, no
-     explicit goto in the else-arm) reproduces the layout; the previous
-     goto-into-if-arm form put the else-arm's content at the wrong
-     (physically later) address. */
-  if (this->fGetNewIcons == 0) {
-    this->fReadyToGetNewIcons = 0;
-    goto DrawMC_perFileLoopTop;
-  }
-  goto DrawMC_checkIconFades;
-DrawMC_cardPulled:
-  this->ReleaseIcons();
-  this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0;
-  this->fGetNewIcons = 0;
-  goto DrawMC_afterPerFileLoop;
-DrawMC_checkIconFades:
   /* MATCH/CFG (w65-a1, 04Q class): retail's zero-trip guard for this scan jumps
      STRAIGHT to DrawMC_afterPerFileLoop (branch word 139: ours +19 vs retail
      +166) -- with no files the per-file loop below re-loads the identical
@@ -508,65 +387,179 @@ DrawMC_checkIconFades:
      guard + do-while 14 diffs @343 (pCI reloaded per iteration, the hoist is
      lost); `if (0 < ...)` around the same for +2 insns (guard not merged);
      `if (numfiles <= 0) goto` before the for +2; a trailing `if (i == 0) goto` +3. */
-  this->fReadyToGetNewIcons = 1;
-  i = 0;
-  if (i < this->pCI->numfiles) {
-    for (; i < this->pCI->numfiles; i = i + 1) {
-      if (this->fFadeIcon[i] < 0x80) {
-        this->fReadyToGetNewIcons = 0;
-      }
+  /* MATCH (w37-a9): the oracle's fGetNewIcons==0 branch jumps STRAIGHT to
+     the per-file loop (label FD8); the !=0 (else) case falls THROUGH the
+     ready-check loop straight into the same loop with no separate jump --
+     i.e. the label/big-loop is COMMON code physically laid out right AFTER
+     the if/else, reached by fallthrough from the else-arm and by a direct
+     branch from the if-arm.  Writing it that way (label outside, no
+     explicit goto in the else-arm) reproduces the layout; the previous
+     goto-into-if-arm form put the else-arm's content at the wrong
+     (physically later) address. */
+          /* MATCH (w37-a9): DE MORGAN branch-body swap -- oracle branches OUT
+             to PlaceIcons (label EE4) when fFadeIcon<0x81 and falls through
+             inline to the reset block otherwise; write the negated/swapped
+             form so gcc lays it out the same way. */
+  /* MATCH (w37-a9): DE MORGAN branch-body swap (W36 lever #1) -- the oracle's
+     beq(theNFS4icon==-1) branches OUT to the reset block and falls through
+     inline to count++; write the != arm first so gcc lays it out the same. */
+  /* MATCH (W64, 64->PASS): retail parks the pulled-card cleanup out of line
+     between the zero/nonzero fGetNewIcons paths; the normal loop jumps back
+     to it only on the error flag.  Positive valid-icon and fade-out arms give
+     the retail block order, the LoadIcon arm falls through to the shared
+     fGetNewIcons test, and the ready scan is a natural `for` loop.  That final
+     spelling lets GCC retain pCI as its unnamed loop-invariant temporary. */
+  /* MATCH (w37-a9): SYM 8c Function start for this fn (VA 0x80046D60) lists
+     ONLY ONE real local across the WHOLE function (all nested blocks) --
+     `i` REG SHORT. The prior recon's cardInfo/idx/fileIdx/fadeInc/fade were
+     ALL Ghidra-fabricated: `this->pCI` is written straight from
+     MCRD_getcard() (no temp), `idx`/`fileIdx` were the compiler's own
+     short-to-int WIDEN of `i` (sll 16/sra 16, gotcha #14 shift-chain
+     transcription -- `idx=idx>>0x10` / `idx=i*0x10000` / `idx>>0xf` are the
+     widen sequence Ghidra mis-read as a second counter, not real math), and
+     `fade`/`fadeInc` were a temp for a plain `this->fFadeIcon[i] +/- 8`
+     read-modify-write. `i` is SHORT throughout (status code AND every loop
+     counter share the one register). */
+#line 316 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
+void tScreenMemcard::DrawMemCardStuff(short fadeval)
+
+
+{
+  short i;
+  this->pCI = MCRD_getcard(this->card);
+  this->cursorPosition = 0;
+  if (this->theNFS4icon != -1) {
+
+    this->count = this->count + 1;
+  }
+  else {
+
+    this->memcardanimframe = 0;
+    this->count = 0;
+  }
+
+  if (this->count == 4) {
+
+    this->count = 0;
+    this->memcardanimframe = this->memcardanimframe + 1; if (0x1d < this->memcardanimframe) { this->memcardanimframe = 0;
     }
   }
-  else goto DrawMC_afterPerFileLoop;
-DrawMC_perFileLoopTop:
+
+
+
+
+
+
+
+
+  if (this->pCI->status == -1) {
+
+    this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
+
+    if (this->checkingstart == 0) { this->checkingstart = FE_Ticks();
+    } this->fMemCardMessageTextSys = (800 < FE_Ticks() - this->checkingstart) ? 0x27f : 0x27b;
     i = 0;
     if (0 < this->pCI->numfiles) {
       do {
+        if (this->goticon[i] != '\0') {
+
+          this->fFadeIcon[i] = this->fFadeIcon[i] + 8;
+          if (0x80 < this->fFadeIcon[i]) {
+
+            this->fFadeIcon[i] = 0x80;
+
+            this->goticon[i] = '\0';
+            this->numicon[i] = '\0';
+            this->numblock[i] = '\0';
+            if (this->fMemIconClutId[i] != 0) {
+
+              Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
+              this->fMemIconClutId[i] = 0;
+            }
+          }
+          else {
+
+            this->PlaceIcons(i,fadeval);
+          }
+        }
+
+        i = i + 1; } while (i < this->pCI->numfiles); } goto DrawMC_statusCheckFinal;
+  }
+
+  if (this->pCI->status == -2) {
+
+    this->checkingstart = 0;
+    this->fMemCardMessageTextSys = 0x288; goto DrawMC_statusCheckFinal;
+  }
+
+
+  this->checkingstart = 0;
+
+
+
+  if (this->pCI->numfiles != 0) {
+    this->fMemCardMessageTextSys = 0x27d; } else { this->fMemCardMessageTextSys = 0x284;
+  }
+
+
+  if (this->fGetNewIcons == 0) {
+    this->fReadyToGetNewIcons = 0; goto DrawMC_perFileLoopTop;
+  }
+  goto DrawMC_checkIconFades;
+DrawMC_cardPulled: this->ReleaseIcons(); this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0; this->fGetNewIcons = 0; goto DrawMC_afterPerFileLoop; DrawMC_checkIconFades: this->fReadyToGetNewIcons = 1;
+  i = 0; if (i < this->pCI->numfiles) { for (; i < this->pCI->numfiles; i = i + 1) {
+
+      if (this->fFadeIcon[i] < 0x80) {
+        this->fReadyToGetNewIcons = 0;
+      } }
+  }
+  else goto DrawMC_afterPerFileLoop; DrawMC_perFileLoopTop: i = 0; if (0 < this->pCI->numfiles) { do {
+
         if (this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons != 0) {
           goto DrawMC_cardPulled;
         }
-        if ((this->goticon[i] == '\0') && (CURRENTLYUSINGMEMCARD == 0)) {
-          if (this->fGetNewIcons == 0) {
+
+
+
+
+
+        if ((this->goticon[i] == '\0') && (CURRENTLYUSINGMEMCARD == 0)) { if (this->fGetNewIcons == 0) {
+
             this->LoadIcon(i);
           }
-          else {
-            goto DrawMC_readyToGetNewIcons;
+          else { goto DrawMC_readyToGetNewIcons; } } if (this->fGetNewIcons != 0) { DrawMC_readyToGetNewIcons: if (this->fReadyToGetNewIcons != 0) { this->goticon[i] = '\0';
           }
         }
-        if (this->fGetNewIcons != 0) {
-DrawMC_readyToGetNewIcons:
-          if (this->fReadyToGetNewIcons != 0) {
-            this->goticon[i] = '\0';
-          }
-        }
-        if (CURRENTLYUSINGMEMCARD == 0) {
-          if (this->goticon[i] != '\0') {
-            if (this->fFadeIcon[i] == 0) {
+
+
+
+        if (CURRENTLYUSINGMEMCARD == 0) { if (this->goticon[i] != '\0') { if (this->fFadeIcon[i] == 0) {
+
               this->theNFS4icon = MCRD_fileexists(this->card,"NFS4");
               if ((this->fMemCardMessageTextSys != 0x27f) && (this->fMemCardMessageTextSys != 0x27b)
                  ) {
                 this->checkingstart = 0;
               }
               if ((this->theNFS4icon != -1) && (this->goticon[this->theNFS4icon] != '\0')) {
+
                 this->fMemCardMessageTextSys = -1;
-                sprintf(this->fMemCardMessage,
-                           (char *)((int)this->fMemTitle + this->theNFS4icon * 0x20));
+                sprintf(this->fMemCardMessage, (char *)((int)this->fMemTitle + this->theNFS4icon * 0x20));
               }
               else {
                 this->fMemCardMessageTextSys = 0x284;
               }
             }
             goto DrawMC_iconActive;
-          }
-        }
-        else {
-DrawMC_iconActive:
-          if (this->goticon[i] != '\0') {
+          } } else { DrawMC_iconActive: if (this->goticon[i] != '\0') {
+
             if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons == 0)) {
+
               this->fFadeIcon[i] = this->fFadeIcon[i] + 8;
               if (0x80 < this->fFadeIcon[i]) {
+
                 this->fFadeIcon[i] = 0x80;
                 if (this->fMemIconClutId[i] != 0) {
+
                   Texture_MenuReleaseClutId(this->fMemIconClutId[i]);
                   this->fMemIconClutId[i] = 0;
                 }
@@ -576,83 +569,89 @@ DrawMC_iconActive:
               }
             }
             else {
+
               this->fFadeIcon[i] = this->fFadeIcon[i] - 8;
               if (this->fFadeIcon[i] < 0) {
                 this->fFadeIcon[i] = 0;
               }
-            }
-            this->PlaceIcons(i,fadeval);
+            } this->PlaceIcons(i,fadeval);
           }
-        }
-        i = i + 1;
-      } while (i < this->pCI->numfiles);
+        } i = i + 1; } while (i < this->pCI->numfiles);
     }
 DrawMC_afterPerFileLoop:
   if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons != 0)) {
     this->fGetNewIcons = 0;
   }
-DrawMC_statusCheckFinal:
-  if ((this->pCI->status == -3) && (this->theNFS4icon == -1)) {
+DrawMC_statusCheckFinal: if ((this->pCI->status == -3) && (this->theNFS4icon == -1)) {
     this->fMemCardMessageTextSys = 0x2bf;
   }
+
+
+
+
+
+
   if (CURRENTLYUSINGMEMCARD == 0) {
+
     MCRD_handlecardevents(this->card);
   }
   return;
 }
 
 /* ---- tScreenMemcard::SetEnablings  (screenmemcard.cpp:517) ---- */
-void tScreenMemcard::SetEnablings()
-
-{
+      /* MATCH: NESTED ifs, not `&&` -- the `&&` form lets gcc range-fold the two
+         adjacent constants into `(u)(s+2) < 2`; nested tests keep the oracle's two
+         separate `beq` against hoisted `li -1` / `li -2`. */
   /* MATCH (06A SYM-first): the SYM 8c block lists exactly TWO locals --
      `DontChangeEnablings` (class REG $5 = $a1) in the outer block and `i`
      (class REG $3 = $v1) in a NESTED block that closes with the loop, i.e. a
      C++ `for (int i = ...)` scope.  numfiles/walk/status/cheater were Ghidra
      inventions; each cost a pseudo and rotated $a1<->$a2.  The loop bound and
      the walking `fFadeIcon` pointer are compiler artifacts (LICM + giv). */
-  bool DontChangeEnablings;
+#line 514 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
+void tScreenMemcard::SetEnablings()
 
-  this->pCI = MCRD_getcard(this->card);
+
+{
+  bool DontChangeEnablings; this->pCI = MCRD_getcard(this->card);
   DontChangeEnablings = false;
+
+
+
+
   for (int i = 0; i < this->pCI->numfiles; i++) {
-    if ((this->goticon[i] == '\0') || (0 < this->fFadeIcon[i])) {
-      /* MATCH: NESTED ifs, not `&&` -- the `&&` form lets gcc range-fold the two
-         adjacent constants into `(u)(s+2) < 2`; nested tests keep the oracle's two
-         separate `beq` against hoisted `li -1` / `li -2`. */
-      if (this->pCI->status != -1) {
-        if (this->pCI->status != -2) {
+
+    if ((this->goticon[i] == '\0') || (0 < this->fFadeIcon[i])) { if (this->pCI->status != -1) { if (this->pCI->status != -2) {
+
           DontChangeEnablings = true;
         }
-      }
-    }
-  }
+      } } }
   if (CURRENTLYUSINGMEMCARD != 0) {
     DontChangeEnablings = true;
   }
+
+
   if (!DontChangeEnablings) {
     /* MATCH (SLD 538/539/540): the oracle's `beq` puts the CLEAR arm inline and
        the SET arm out of line -- i.e. the test is `!= -1`, not `== -1`. */
     if (this->theNFS4icon != -1) {
       MenuItem_Enable(&menuDefs->itemLoadGame);
     }
+
     else {
       MenuItem_Disable(&menuDefs->itemLoadGame);
     }
     if ((((this->pCI->status == 0) || (this->pCI->status == -2)) ||
-        ((this->pCI->status == -3 && (this->theNFS4icon != -1)))) &&
-       (this->player == 0)) {
+        ((this->pCI->status == -3 && (this->theNFS4icon != -1)))) && (this->player == 0)) {
+
       MenuItem_Enable(&menuDefs->itemSaveGame);
     }
+
     else {
       MenuItem_Disable(&menuDefs->itemSaveGame);
     }
   }
-  if (FECheat_IsTheUserACryBabyCheater() != 0) {
-    MenuItem_Disable(&menuDefs->itemSaveGame);
-  }
-  return;
-}
+  if (FECheat_IsTheUserACryBabyCheater() != 0) { MenuItem_Disable(&menuDefs->itemSaveGame); } return; }
 
 /* ---- tScreenMemcard::DrawBackground  (screenmemcard.cpp:561) ---- */
 /* 2026-10-11: the initialization i belongs directly to the guarded body,
@@ -685,44 +684,32 @@ void tScreenMemcard::SetEnablings()
  * -- symmetric with the existing LO16-addend zeroing, and narrow enough not to mask
  * a genuine constant `lui` (a real constant `lui` in ours has no HI16 reloc).
  * The verifier now resolves this relocation and reports PASS 410/410. */
-void tScreenMemcard::DrawBackground()
-
-{
-  short x;
-  short y;
-  int gray;
-  short fade;
-  short fadebox;
-  short gridpos;
-  short fTextFade;
-  int ColText;
-  RECT rr;
-  short i;
-  /* SYM-CODEGEN-CARRIER: w -- recomputing the shared box width/height at both
-     calls together is FAIL 169 at 419/410 and rotates the whole saved-register
-     web; retail retains this independent width result. */
-  short w;
-  /* SYM-CODEGEN-CARRIER: h -- see `w`; both calls share this half-height value
-     in retail rather than rematerializing the geometry expression. */
-  short h;
+  /* SYM-CODEGEN-CARRIER: startY -- direct `GRIDMEMCARD_STARTY` use is
+     count-exact FAIL 2 and moves retail's `$s2` geometry load past its peer. */
+  /* SYM-CODEGEN-CARRIER: startX -- direct `GRIDMEMCARD_STARTX` use is
+     count-exact FAIL 4 and changes the retail HI16 materialization order. */
+  /* SYM-CODEGEN-CARRIER: gouraudY -- direct constant use is FAIL 16 at
+     412/410 and rematerializes/reorders the vertical geometry loads. */
+  /* SYM-CODEGEN-CARRIER: gouraudX -- direct constant use is FAIL 28 at
+     412/410 and rotates the geometry/global-load allocation web. */
   /* Source-only SYM cleanup (2026-08-26): the earlier all-at-once geometry
      experiment hid one valid simplification.  `width` now folds directly into
      `w` at exact PASS; every surviving SYM-omitted result below was retested in
      isolation and carries its own counterfactual receipt. */
-  /* SYM-CODEGEN-CARRIER: gouraudX -- direct constant use is FAIL 28 at
-     412/410 and rotates the geometry/global-load allocation web. */
-  ushort gouraudX;
-  /* SYM-CODEGEN-CARRIER: gouraudY -- direct constant use is FAIL 16 at
-     412/410 and rematerializes/reorders the vertical geometry loads. */
-  ushort gouraudY;
-  /* SYM-CODEGEN-CARRIER: startX -- direct `GRIDMEMCARD_STARTX` use is
-     count-exact FAIL 4 and changes the retail HI16 materialization order. */
-  ushort startX;
-  /* SYM-CODEGEN-CARRIER: startY -- direct `GRIDMEMCARD_STARTY` use is
-     count-exact FAIL 2 and moves retail's `$s2` geometry load past its peer. */
-  ushort startY;
-  
-  this->fMemCardMessageTextSys = -1;
+  /* SYM-CODEGEN-CARRIER: h -- see `w`; both calls share this half-height value
+     in retail rather than rematerializing the geometry expression. */
+  /* SYM-CODEGEN-CARRIER: w -- recomputing the shared box width/height at both
+     calls together is FAIL 169 at 419/410 and rotates the whole saved-register
+     web; retail retains this independent width result. */
+#line 558 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
+void tScreenMemcard::DrawBackground()
+
+
+{
+  short x;
+  short y;
+  int gray; short fade; short fadebox; short gridpos; short fTextFade; int ColText; RECT rr; short i; short w; short h; ushort gouraudX; ushort gouraudY; ushort startX; ushort startY; this->fMemCardMessageTextSys = -1;
+
   if (this->goticon[this->theNFS4icon] == '\0') {
     this->theNFS4icon = -1;
   }
@@ -731,18 +718,28 @@ void tScreenMemcard::DrawBackground()
      three one-line EA MIN/MAX clamps.  Retail's existing short x carries the
      pre-clamp fade value before being reused for geometry; no fadeCalc local
      or compiler fence belongs to the source. */
+
   fade = (ushort)this->fScreenFadeVal * 2;
   x = (ushort)this->fScreenFadeVal * 2 - 0x80;
   fadebox = (x = MAX(MIN(0x80,x),0));
+
   gridpos = MAX(MIN(0x80,fade >> 1),0);
+
   fTextFade = MAX(MIN(0x80,fade * 2),0);
+
+
+
   if (this->fInitedMemCard == 0) {
+
     this->fMemCardMessageTextSys = 0x27c;
     if ((this->fScreenFadeVal == 0) &&
         (FE_Ticks() - this->fScreenFadeReadyTick > 0x80)) {
       int i;
       Init_Memcard(true,false);
+
+
       for (i = 0; i < 0xf; i++) {
+
         this->goticon[i] = '\0';
         this->numicon[i] = '\0';
         this->numblock[i] = '\0';
@@ -751,78 +748,89 @@ void tScreenMemcard::DrawBackground()
       this->fInitedMemCard = 1;
     }
     else if (this->fScreenFadeReadyTick == 0) {
+
       this->fScreenFadeReadyTick = FE_Ticks();
     }
   }
   if ((this->fInitedMemCard != 0) && (fadebox != 0x80)) {
+
     this->DrawMemCardStuff(fTextFade);
   }
+
+
   ColText = CalcFadeVal(TextDefinitionColor(6,5),fTextFade);
+
   if (this->message != -1) {
+
     this->fMemCardMessageTextSys = this->message;
   }
   if (this->fMemCardMessageTextSys != -1) {
+
     sprintf(this->fMemCardMessage,TextSys_Word(this->fMemCardMessageTextSys));
   }
-  rr.x = kMemCardMessageX;
-  rr.y = kMemCardMessageY;
-  rr.w = 0xbe;
-  rr.h = 0;
+
+
+  rr.x = kMemCardMessageX; rr.y = kMemCardMessageY; rr.w = 0xbe; rr.h = 0;
   FETextRender_WordWrapTextRGBJustify(this->fMemCardMessage,rr,ColText,2,0,false);
   FETextRender_FullTextRGB
             (TextSys_Word(this->player + 0x293),kMemCardMessage1X,
+
              kMemCardMessage1Y,ColText,'\0',2);
 
+
+
   gray = 0x505050;
-  startX = GRIDMEMCARD_STARTX;
-  gouraudX = GRIDMEMCARDGOURAUDBIT_X;
-  startY = GRIDMEMCARD_STARTY;
-  gouraudY = GRIDMEMCARDGOURAUDBIT_Y;
-  x = startX - gouraudX;
-  y = startY - gouraudY - ((ushort)EXTRAYATTOP + 4);
+
+  startX = GRIDMEMCARD_STARTX; gouraudX = GRIDMEMCARDGOURAUDBIT_X;
+  startY = GRIDMEMCARD_STARTY; gouraudY = GRIDMEMCARDGOURAUDBIT_Y; x = startX - gouraudX; y = startY - gouraudY - ((ushort)EXTRAYATTOP + 4);
   w = GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
-  h = (short)((ushort)GRIDMEMCARD_HEIGHT +
-              gouraudY * 2 + ((ushort)EXTRAYATTOP + 6)) / 2;
+  h = (short)((ushort)GRIDMEMCARD_HEIGHT + gouraudY * 2 + ((ushort)EXTRAYATTOP + 6)) / 2;
+
   SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);
   SubtractiveBox(x,y + h,w,h,0,0,gray,gray);
   PSXDrawSquare
             (0,GRIDMEMCARD_STARTX + 2,kMemCardMessage1Y + -2,GRIDMEMCARD_WIDTH + -4,
+
+
+
              kMemCardMessageH1 + -1);
   PSXDrawSquare
             (0,GRIDMEMCARD_STARTX + 2,GRIDMEMCARD_STARTY + MEMCARD_DELTAY * 5 + 1,
              GRIDMEMCARD_WIDTH + -4,kMemCardMessageH + -1);
+
+
+
+
   x = GRIDMEMCARD_STARTX;
   for (; i < 4; i++) {
     this->DrawVerticalLine(x,
-                     GRIDMEMCARD_STARTY - GRIDMEMCARDGOURAUDBIT_Y - EXTRAYATTOP,
-                     gridpos,i % 2);
+                     GRIDMEMCARD_STARTY - GRIDMEMCARDGOURAUDBIT_Y - EXTRAYATTOP, gridpos,i % 2);
     x += MEMCARD_DELTAX;
   }
+
   y = GRIDMEMCARD_STARTY;
+
   if (EXTRAYATTOP != 0) {
-    this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X,
-                             y - EXTRAYATTOP,gridpos,1);
-  }
-  for (i = 0; i < 6; i++) {
+    this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X, y - EXTRAYATTOP,gridpos,1);
+  } for (i = 0; i < 6; i++) {
     this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X,
                              y,gridpos,i % 2);
     y += MEMCARD_DELTAY;
   }
-  {
-    int k;
-    y += kMemCardMessageH - MEMCARD_DELTAY;
-    this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X,
-                             y,gridpos,i % 2);
+  { int k; y += kMemCardMessageH - MEMCARD_DELTAY;
+    this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X, y,gridpos,i % 2);
+
+
     for (k = 0; k < 0x10; k++) {
       DrawShapeExtended(0x1e + k,0,0,0,fadebox,0,
+
                         (tDrawShapeExtended *)0x0);
     }
   }
+
+
   if (this->fInitedMemCard != 0) {
-    this->SetEnablings();
-  }
-  return;
-}
+    this->SetEnablings(); } return; }
 
 /* ---- tScreenMemcard::DrawForeground  (screenmemcard.cpp:690) ---- */
 /* SOURCE-REVIEW-UNRESOLVED: fade is absent from retail SYM; its precise
@@ -831,36 +839,25 @@ void tScreenMemcard::DrawBackground()
    sequential guarded clamps24/41 and the nested conditional funnel13/40
    (2026-10-11). These source trials are reverted, not a compiler floor or
    evidence that a distinct named local was present in the lost source. */
+#line 687 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::DrawForeground()
 
+
 {
-  int fade;
+  int fade; fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;
 
-  fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;
-  if ((short)fade < 0x80) {
-    if ((short)fade < 1) goto DrawFg_setZero;
-  }
-  if ((short)fade < 0x81) goto DrawFg_join;
-  fade = 0x80;
-  goto DrawFg_join;
-DrawFg_setZero:
-  fade = 0;
-DrawFg_join:
-  {
-    int k;   /* [SYM] REG $s0, block opened at SLD 5 */
-
-    k = 0;
-    do {
+  if ((short)fade < 0x80) { if ((short)fade < 1) goto DrawFg_setZero; } if ((short)fade < 0x81) goto DrawFg_join; fade = 0x80; goto DrawFg_join; DrawFg_setZero: fade = 0;
+DrawFg_join: { int k;   /* [SYM] REG $s0, block opened at SLD 5 */ k = 0; do {
       DrawShapeExtended(0x38 + k,0,0,0,(short)fade,0,
+
                  (tDrawShapeExtended *)0x0);
-      k = k + 1;
-    } while (k < 4);
-  }
-  return;
+      k = k + 1; } while (k < 4); } return;
 }
 
 /* ---- tScreenMemcard::tScreenMemcard  (screenmemcard.cpp:704) ---- */
+#line 701 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 tScreenMemcard::tScreenMemcard()
+
 
 {
   this->message = -1;
@@ -868,7 +865,9 @@ tScreenMemcard::tScreenMemcard()
 }
 
 /* ---- tScreenMemcard::ReleaseIcons  (screenmemcard.cpp:710) ---- */
+#line 707 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::ReleaseIcons()
+
 
 {
   int i;
@@ -893,54 +892,110 @@ void tScreenMemcard::ReleaseIcons()
 /* ---- tScreenMemcard::Initialize  (screenmemcard.cpp:734) ---- */
 /* A const use-site message choice preserves retail's staged $a3 value and
  * optimizes out of native locals; a direct menu-field ternary costs 43 diffs. */
+#line 731 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::Initialize()
 
+
 {
+
+
+
+
+
   GRIDMEMCARD_STARTX = 0xf6;
   GRIDMEMCARD_STARTY = 0x3c;
+
   MEMCARD_DELTAX = 0x3b;
   MEMCARD_DELTAY = 0x1b;
+
   kMemCardMessageH1 = 0xc;
   kMemCardMessageH = 0xc;
   EXTRAYATTOP = 0xc;
+
   GRIDMEMCARD_WIDTH = 0xb1;
   GRIDMEMCARD_HEIGHT = 0x93;
   GRIDMEMCARDGOURAUDBIT_X = 0xc;
   GRIDMEMCARDGOURAUDBIT_Y = 6;
+
   MEMCARDICONOFFX = 0xf;
   MEMCARDICONOFFY = 6;
+
   kMemCardMessage1Y = 0x33;
   kMemCardMessageX = 0x150;
   kMemCardMessage1X = 0x150;
-  this->fScreenFadeReadyTick = 0;
-  kMemCardMessageY = 0xc6;
+  this->fScreenFadeReadyTick = 0; kMemCardMessageY = 0xc6;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   fMemIcon = (char (*)[15][3][192])reservememadr("records",0x21c0,0);
+
   this->checkingstart = 0;
   this->memcardanimframe = 0;
   this->count = 0;
+
   this->player = FEApp->fInputPlayer;
   this->card = this->player * 4 + 1;
+
   const uint msgId = this->player != 0 ? 0x289 : 0x287;
   MenuItem_SetText(&menuDefs->itemLoadGame, msgId);
   MenuItem_Disable(&menuDefs->itemSaveGame);
   MenuItem_Disable(&menuDefs->itemLoadGame);
+
   for (int i = 0; i < 0xf; i++) {
+
     this->goticon[i] = 0;
     this->numicon[i] = 0;
     this->numblock[i] = 0;
     this->fFadeIcon[i] = 0x80;
     this->fMemIconClutId[i] = 0;
   }
+
   this->fInitedMemCard = 0;
   this->fGetNewIcons = 0;
   this->fReadyToGetNewIcons = 0;
   this->theNFS4icon = -1;
   this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0;
-  this->tScreen::Initialize();
-  return;
+
+
+
+  this->tScreen::Initialize(); return;
 }
 
 /* ---- tScreenMemcard::Cleanup  (screenmemcard.cpp:833) ---- */
+
+#line 832 "C:/nfs4/FRONTEND/COMMON/SCREENMEMCARD.CPP"
 void tScreenMemcard::Cleanup()
 {
   this->ReleaseIcons();

@@ -59,6 +59,8 @@ int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRe
  * types replace integer/byte address spellings. Group is4 bytes,NewSlice32;
  * center is offset0,chunkIndex UCHAR offset0x1c. No new object or scope.
  * Receipt:build/nc12/bworld_fields_20261030/final-proof.json. */
+
+
 #line 83 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_Init(Group *simGroup)
 {
@@ -76,17 +78,23 @@ int BWorldSm_Init(Group *simGroup)
 /* ---- BWorldSm_Restart__Fv  [@0x8007e948] ----
  * Call and implicit void fallthrough share retail relative source line +1:
  * 8/8 instructions, 0/8 SLD differences, exact native block/end lines. */
+
+
 #line 100 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BWorldSm_Restart(void)
 {
   NormalCache_Init(); }
 
 /* ---- BWorldSm_DeInit__Fv  [@0x8007e968] ---- */
+
+
 #line 113 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BWorldSm_DeInit(void) {
 }
 
 /* ---- FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos  [@0x8007e970] ---- */
+
+
 #line 122 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
 {
@@ -116,6 +124,8 @@ void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
  * all39 instruction/source tags and the complete supplied local contract.
  * Literal original macro/comment text is not uniquely recovered.
  * Receipt:build/nc12/bworld_slice_return_20261030/final-proof.json. */
+
+
 #line 151 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
@@ -146,6 +156,8 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
     (((pt)->x - (slice)->center[0]) >> 9)) + \
    ((((pt)->z - (slice)->center[2]) >> 9) * \
     (((pt)->z - (slice)->center[2]) >> 9)))
+
+
 
 #line 178 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
@@ -225,6 +237,8 @@ void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 
 /* ---- BWorldSm_SetSlice__FiP12BWorldSm_Pos  [@0x8007ed64] ---- */
 #undef closeXZDistSquared
+
+
 #line 260 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
 {
@@ -253,6 +267,8 @@ void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
  * All74 tags and supplied owners/regions match;the cached-value producer
  * and literal original expression remain review work,not an exemption.
  * Receipt:build/nc12/bworld_quadpts_layout_20261030/final-proof.json. */
+
+
 #line 322 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
 {
@@ -308,6 +324,8 @@ void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
   pts[0].z = z; }
 
 /* ---- SetStrip__FP12BWorldSm_Pos  [@0x8007eee0] ---- */
+
+
 #line 378 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void SetStrip(BWorldSm_Pos *slicePos)
 {
@@ -337,6 +355,8 @@ void SetStrip(BWorldSm_Pos *slicePos)
   slicePos->stripQuadInd = (short)i; }
 
 /* ---- GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16  [@0x8007ef98] ---- */
+
+
 #line 414 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
 {
@@ -386,6 +406,8 @@ void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)
   pts[0].z = z; }
 
 /* ---- BWorld_SetSimSlice__FP12BWorldSm_Pos  [@0x8007f034] ---- */
+
+
 #line 469 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
 {
@@ -407,6 +429,8 @@ void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
  * all supplied owners/SLD;the old manual/statement-expression wrappers
  * are unnecessary. Literal original macro/expression text is unresolved.
  * Receipt:build/nc12/bworld_updatequad_layout_20261030/final-proof.json. */
+
+
 #line 494 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
 {
@@ -426,6 +450,8 @@ void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
  * The explicit null-path else shares its source line with the closing if:
  * all 12 instruction SLD tags and the block/function end lines match retail.
  * Literal EA spelling remains unknown. */
+
+
 #line 515 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
 {
@@ -444,6 +470,8 @@ int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)
    sliceVariance=s6, firstSliceOffEdge=s7, vertices=s2, lastDist=s1).
    Direct coordinate expressions are significant: they preserve the original
    short-lived v0/v1/a0-a3 allocation across both distance scans. */
+
+
 #line 536 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 {
@@ -662,6 +690,8 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
  * name claim was unsupported. Earlier failed controls are not a source-
  * object necessity proof. Keep this producer open,not as an exemption.
  * Receipt:build/nc12/bworld_findquad_source_20261030/final-proof.json. */
+
+
 #line 1057 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 {
@@ -752,6 +782,8 @@ done:
  * SOURCE-REVIEW-UNRESOLVED: exact NFS4 local spelling/producer and macro text
  * are not uniquely retained;the current scopes are not an object-necessity proof.
  * Receipt:build/nc12/bworld_return_source_20261029/final-proof.json. */
+
+
 #line 1138 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {
@@ -806,6 +838,8 @@ int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFla
 #undef PT_IN_QUAD
 
 /* ---- BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi  [@0x8007fc90] ---- */
+
+
 #line 1198 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,int maxIterations)
 {
@@ -813,12 +847,16 @@ int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,in
 }
 
 /* ---- PointDirection__FP8coorddefN20  [@0x8007fcb0] ---- */
+
+
 #line 1211 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int PointDirection(coorddef *p1,coorddef *p2,coorddef *p3)
 {
   return fixedmult(p1->x - p2->x,p3->z - p2->z) - fixedmult(p3->x - p2->x,p1->z - p2->z); }
 
 /* ---- BWorldSm_FindEdgeOff__FP8coorddefP12BWorldSm_PosT1Pi  [@0x8007fd28] ---- */
+
+
 #line 1216 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slicePos2,int *heightDiff)
 {
@@ -867,6 +905,8 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
  * preserve the entire old native dump;const is unnecessary,not a source
  * object-necessity proof. Original cache/macro producer still needs recovery.
  * Receipt:build/nc12/bworld_quadlight_source_20261030/final-proof.json. */
+
+
 #line 1260 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 {
@@ -900,6 +940,8 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
     return 0x7f7f7f; }
 
 /* ---- BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos  [@0x8007ffd4] ---- */
+
+
 #line 1300 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
 {
@@ -914,6 +956,8 @@ bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
   return 0; }
 
 /* ---- NormalCache_AddEntry__FP12BWorldSm_Pos  [@0x8008002c] ---- */
+
+
 #line 1340 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
 {
@@ -944,6 +988,8 @@ void NormalCache_AddEntry(BWorldSm_Pos *slicePos)
   ce->triangleFlag = slicePos->triangleFlag; }
 
 /* ---- NormalCache_FindEntry__FP12BWorldSm_Pos  [@0x800800e8] ---- */
+
+
 #line 1371 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 {
@@ -985,6 +1031,8 @@ bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 /* The ordinary for owns supplied i (INT REG4,depth2);the manual
  * declaration wrapper was unnecessary. Entire native dump/object/CPE match.
  * Receipt:build/nc12/bworld_cacheinit_source_20261030/final-proof.json. */
+
+
 #line 1410 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void NormalCache_Init(void)
 {
@@ -1005,6 +1053,8 @@ void NormalCache_Init(void)
  * Real cache-miss vectors and the forward/normal work region are preserved;
  * coordinate equality does not prove unique original macro/comment text.
  * Receipt:build/nc12/bworld_rotation_layout_20261030/final-proof.json. */
+
+
 #line 1426 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 void Check_Rot(BWorldSm_Pos *slicePos)
 {
@@ -1078,6 +1128,8 @@ void Check_Rot(BWorldSm_Pos *slicePos)
   slicePos->simRotFlag = (signed char)slicePos->triangleFlag; }
 
 /* ---- BWorldSm_UNormal__FP12BWorldSm_Pos  [@0x80080520] ---- */
+
+
 #line 1498 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos)
 {
@@ -1087,6 +1139,8 @@ coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_UForward__FP12BWorldSm_Pos  [@0x80080548] ---- */
+
+
 #line 1505 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)
 {
@@ -1098,6 +1152,8 @@ coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi  [@0x80080570] ---- */
+
+
 #line 1516 "C:/nfs4/GAME/COMMON/BWORLDSM.CPP"
 int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {

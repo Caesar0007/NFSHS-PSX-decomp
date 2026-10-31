@@ -24,6 +24,8 @@ extern Sim_tSimGlobalVar simGlobal;   /* Sim.obj @0x8011E0AC (.gameTicks @0x8011
 
 
 /* ---- __15AIHigh_BasicCopP8Car_tObji  AIHigh_BasicCop::ctor  [AIH_BASICCOP.CPP:18-34] SLD-VERIFIED ---- */
+
+#line 18 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 AIHigh_BasicCop::AIHigh_BasicCop(Car_tObj *carObj,int copIndex) : AIHigh_Base(carObj)
 {
 
@@ -60,6 +62,8 @@ static inline void SpikeBelt_SetFreshenTime(int timeNow) { AICop_spikeBelt.fresh
 
 /* ---- CheckSpikeBelt__15AIHigh_BasicCop  AIHigh_BasicCop::CheckSpikeBelt  [AIH_BASICCOP.CPP:41-73] SLD-VERIFIED ---- */
 
+
+#line 40 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 void AIHigh_BasicCop::CheckSpikeBelt()
 {
 
@@ -76,8 +80,8 @@ void AIHigh_BasicCop::CheckSpikeBelt()
       BWorld_InitSpikeBelt();
       SpikeBelt_SetActive(0);
     }
-    else {
-
+    else
+    {
 
       SpikeBelt_SetFreshenTime(simGlobal.gameTicks);
     }
@@ -107,6 +111,8 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
 /* ---- ShouldIPerformCutOffBlock__15AIHigh_BasicCopiP8Car_tObj  AIHigh_BasicCop::ShouldIPerformCutOffBlock  [AIH_BASICCOP.CPP:83-193] SLD-VERIFIED ---- */
 
+
+#line 82 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *target)
 {
   int chanceForElapsedTime;
@@ -120,12 +126,12 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
 
   randtemp = fastRandom * randSeed; fastRandom = fastRandom * randSeed & 0xffff; random1000 = (int)((((randtemp >> 8) & 0xffff) * 1000) >> 16);
 
-  if (random1000 < chanceOutOf1000) {
-
+  if (random1000 < chanceOutOf1000)
+  {
     int relLatPosition = *(int *)((char *)this->carObj_ + 1396) - *(int *)((char *)target + 1396);
     int absRelLatPosition = __builtin_abs(relLatPosition);
-    if ((*(int *)((char *)target + 308) + 0x10000) < absRelLatPosition && absRelLatPosition <= 0x3FFFF) {
-
+    if ((*(int *)((char *)target + 308) + 0x10000) < absRelLatPosition && absRelLatPosition <= 0x3FFFF)
+    {
       int metersBetween = AIWorld_SplineDistance(this->carObj_, target) * *(int *)((char *)this->carObj_ + 1364);
 
       int carLength = *(int *)((char *)target + 316) * 2 + 0x20000; if (carLength < metersBetween && metersBetween < 0xC0000) {
@@ -150,7 +156,9 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
 
 /* ---- Blockade_AddRoadFlare__FP8coorddef  Blockade_AddRoadFlare  [AIH_BASICCOP.CPP:119-193] SLD-VERIFIED ---- */
 
+#line 114 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 static void Blockade_AddRoadFlare(coorddef *pos)
+
 
 
 
@@ -177,6 +185,8 @@ static void Blockade_AddRoadFlare(coorddef *pos)
 
 /* ---- Blockade_AddObject__FiP8coorddefi  Blockade_AddObject  [AIH_BASICCOP.CPP:134-193] SLD-VERIFIED ---- */
 
+
+#line 133 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 static void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 {
   SceneElem theObj;
@@ -219,7 +229,9 @@ static void Blockade_AddObject(int slice,coorddef *pos,int objectID)
      which is exactly the pointer-walk's start/end bounds), which gcc lowers to its OWN memcpy-shaped
      loop; the field-decomposed hand-written form was ~2x oracle size (368B frame vs 208B). The
      offset->x/y/z arithmetic below was already correct and is kept verbatim. */
+#line 160 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 static void PlacePointOnRoad(int slice,coorddef *offset)
+
 
 
 
@@ -266,6 +278,8 @@ static void PlacePointOnRoad(int slice,coorddef *offset)
      gets its own block-scoped i (SYM regs $s0/$s2 alternate per loop within a branch). The
      "skip when i==3" compare constant is loop-invariant-hoisted to match the oracle's
      `li s5,3` outside the loop. */
+
+#line 197 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 {
   if (blockade->flags != 0) {
@@ -278,8 +292,8 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
     slice = blockade->slice;
     Object_customSliceNum = slice;
 
-    if ((blockade->flags & 1U) != 0) {
-
+    if ((blockade->flags & 1U) != 0)
+    {
       coorddef pt;
 
       {
@@ -304,8 +318,8 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
     }
 
-    else if ((blockade->flags & 2U) != 0) {
-
+    else if ((blockade->flags & 2U) != 0)
+    {
       coorddef pt;
 
       {
@@ -370,6 +384,8 @@ void AIHigh_BasicCop::SetupBlockadeElements(blockade_t *blockade)
 
 /* ---- HandleBlockadeSpeech__15AIHigh_BasicCop  AIHigh_BasicCop::HandleBlockadeSpeech  [AIH_BASICCOP.CPP:298-339] SLD-VERIFIED ---- */
 
+
+#line 297 "C:/nfs4/GAME/COMMON/AIH_BASICCOP.CPP"
 void AIHigh_BasicCop::HandleBlockadeSpeech()
 {
   Car_tObj*theCar; if ((this->blockade_).blockadeSpeechFlags == 0)

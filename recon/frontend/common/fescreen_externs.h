@@ -72,4 +72,8 @@ int DrawSync(int mode);
 int VSync(int mode);
 }
 
+/* FRONT5: retail TransitionOn/Off read the tick counter through a zero-parameter inline (SLD 2-level block at line 2,
+   the load tagged with the preceding statement line). */
+static inline int FE_Ticks(void) { return ticks; }
+
 #endif

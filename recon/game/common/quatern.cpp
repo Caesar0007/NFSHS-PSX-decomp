@@ -13,7 +13,9 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q);
 
 
 /* ---- Quatern_VecInterpolate__FP8coorddefT0iT0  [QUATERN.CPP:59-63] SLD-VERIFIED ---- */
+#line 56 "C:/nfs4/GAME/COMMON/QUATERN.CPP"
 void Quatern_VecInterpolate(coorddef *cp0,coorddef *cp1,int weight,coorddef *cp)
+
 
 {
 
@@ -23,7 +25,9 @@ void Quatern_VecInterpolate(coorddef *cp0,coorddef *cp1,int weight,coorddef *cp)
 }
 
 /* ---- Quatern_Interpolate__FP5tQuatT0P8coorddefT2iT0T2  [QUATERN.CPP:67-75] SLD-VERIFIED ---- */
+#line 64 "C:/nfs4/GAME/COMMON/QUATERN.CPP"
 void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int weight,tQuat *q,coorddef *cp)
+
 
 {
 
@@ -41,7 +45,9 @@ void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int wei
  * self-add preserves all 68 instructions and retains the retail REG rows;
  * *2 elides them, while split load/compound *=2 names the raw inputs.
  * Literal source spelling and full SLD attribution remain unsealed. */
+#line 155 "C:/nfs4/GAME/COMMON/QUATERN.CPP"
 void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)
+
 
 {
   int one; int x; int y; int z; int wx; int wy; int wz; int xx; int xy; int xz; int yy; int yz; int zz; one = 0x10000000;
@@ -78,7 +84,9 @@ void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)
 }
 
 /* ---- Quatern_MatToQuat__FP10matrixtdefP5tQuat  [QUATERN.CPP:206-278] SLD-VERIFIED ---- */
+#line 203 "C:/nfs4/GAME/COMMON/QUATERN.CPP"
 void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q)
+
 
 {
   int tr;

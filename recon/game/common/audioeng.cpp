@@ -45,6 +45,8 @@ void AudioEng_CleanUp(void);
  * Keeping each complete call/store in its arm lets GCC merge their common tail
  * and retain the original argument homes. A shared temporary/call instead
  * required five argument aliases and two pitch carriers; all are removed. */
+
+
 #line 204 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int dir)
 { AudioEng_t *g; AudioEng_tAdjustments *a; AudioEng_tState *s;
@@ -138,6 +140,8 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
  * GCC's equality-selected operand order without GNU-only >?/<? operators.
  * 2026-10-20: all supplied SLD coordinates now match. Literal original
  * spelling remains unproved; no in-body line directives are used. */
+
+
 #line 265 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 void AudioEng_Update(void)
 {
@@ -331,6 +335,8 @@ void AudioEng_Update(void)
   } }
 
 /* ---- AudioEng_LoadDef__FPcT0illPP13AudioEng_tDef  [@0x8007bddc] ---- */
+
+
 #line 459 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 void AudioEng_LoadDef(char *filename,char *name,int handle,long offset,long size,AudioEng_tDef **ed)
 {
@@ -363,6 +369,8 @@ void AudioEng_LoadDef(char *filename,char *name,int handle,long offset,long size
  * expansion supplies line570 without an explicit continue/goto or a changed pdata
  * owner. All supplied SLD coordinates now match; the macro's literal spelling and
  * its exact original definition remain unproven. No in-body line override. */
+
+
 #line 477 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 int AudioEng_StartUp(int player,char *carname)
 { AudioEng_tDef *cruisedef; AudioEng_tDef *loaddef; int tablesize; int i; int bankloaded; int spu; char filename[64]; AudioEng_t *g; char *header;
@@ -547,6 +555,8 @@ int AudioEng_StartUp(int player,char *carname)
 /* ---- AudioEng_StartServer__Fv  [@0x8007c434] ----
  * One callback-registration call and implicit void fallthrough reproduce
  * all nine retail words, SLD tags and block/function-end lines. */
+
+
 #line 659 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 void AudioEng_StartServer(void)
 {
@@ -554,12 +564,16 @@ void AudioEng_StartServer(void)
 
 /* ---- AudioEng_StopServer__Fv  [@0x8007c458] ----
  * The matching deregistration wrapper has the same nine-word/SLD receipt. */
+
+
 #line 666 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 void AudioEng_StopServer(void)
 {
   iSNDserverremove100hzclient((int)AudioEng_Update /* @0x8007b824 100Hz server callback */); }
 
 /* ---- AudioEng_Pause__Fv  [@0x8007c47c] ---- */
+
+
 #line 673 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 void AudioEng_Pause(void)
 {
@@ -587,6 +601,8 @@ void AudioEng_Pause(void)
   } return; }
 
 /* ---- AudioEng_Resume__Fv  [@0x8007c52c] ---- */
+
+
 #line 701 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 void AudioEng_Resume(void)
 { return;
@@ -599,6 +615,8 @@ void AudioEng_Resume(void)
  * The indexed loop is 56/56 PASS and replaced three older base/current/handle
  * aliases. Retail retains the table walk in s3 and base in s5 with no named
  * index record. Native CLEAN does not certify this source producer/spelling. */
+
+
 #line 707 "C:/nfs4/GAME/COMMON/AUDIOENG.CPP"
 void AudioEng_CleanUp(void)
 { int player;

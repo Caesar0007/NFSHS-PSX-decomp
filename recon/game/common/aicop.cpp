@@ -48,6 +48,8 @@ int AICop_NoCopsInArea(int slice,int sliceDistance);
 static inline void SpikeBelt_SetActive(int active) { AICop_spikeBelt.active_ = active; }
 
 /* ---- AICop_StartUp__Fv  [@0x800669ac] ---- */
+
+#line 106 "C:/nfs4/GAME/COMMON/AICOP.CPP"
 void AICop_StartUp(void)
 {
   char filename[100];
@@ -84,6 +86,8 @@ void AICop_StartUp(void)
 }
 
 /* ---- AICop_Restart__Fv  [@0x80066a58] ---- */
+
+#line 141 "C:/nfs4/GAME/COMMON/AICOP.CPP"
 void AICop_Restart(void)
 {
 
@@ -101,6 +105,8 @@ void AICop_Restart(void)
 }
 
 /* ---- AICop_CleanUp__Fv  [@0x80066aa8] ---- */
+
+#line 157 "C:/nfs4/GAME/COMMON/AICOP.CPP"
 void AICop_CleanUp(void)
 {
   if (triggerManagerCops != (AITrigger_TriggerManager *)0x0)
@@ -116,6 +122,8 @@ void AICop_CleanUp(void)
 }
 
 /* ---- AICop_NoCopsInArea__Fii  [@0x80066b08] ---- */
+
+#line 172 "C:/nfs4/GAME/COMMON/AICOP.CPP"
 int AICop_NoCopsInArea(int slice,int sliceDistance)
 {
   for (int copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {

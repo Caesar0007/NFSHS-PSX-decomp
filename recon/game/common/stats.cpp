@@ -28,7 +28,9 @@ void Stats_TrackEndGame(void);
 
 
 /* ---- Stats_DoPlayerGlue__Fv  [STATS.CPP:52-107] SLD-VERIFIED ---- */
+#line 49 "C:/nfs4/GAME/COMMON/STATS.CPP"
 void Stats_DoPlayerGlue(void)
+
 
 {
   int i;
@@ -50,8 +52,8 @@ void Stats_DoPlayerGlue(void)
       humanLeader = i;
     } }
 
-  if ((STATS_CATCHUP_LOGIC != 0) && (STATS_COMMMODE == 1)) {
-    if (((Cars_gHumanRaceCarList[0]->stats).finishType == 2) ||
+  if ((STATS_CATCHUP_LOGIC == 0) || (STATS_COMMMODE != 1)) return;
+  if (((Cars_gHumanRaceCarList[0]->stats).finishType == 2) ||
 
 
 
@@ -59,39 +61,41 @@ void Stats_DoPlayerGlue(void)
 
 
 
-       ((Cars_gHumanRaceCarList[1]->stats).finishType == 2)) {
+     ((Cars_gHumanRaceCarList[1]->stats).finishType == 2)) {
 
-      Cars_gHumanRaceCarList[0]->glue = 0x10000;
-      Cars_gHumanRaceCarList[1]->glue = 0x10000;
-    }
-    else {
-
-
-      for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
-        dist = Stats_racePosition[humanLeader].slice -
-               Cars_gHumanRaceCarList[i]->stats.sliceTotal;
-        if (dist < 5) {
-          Cars_gHumanRaceCarList[i]->glue = 0x10000;
-        } else { if (dist < 10) {
-            Cars_gHumanRaceCarList[i]->glue = 0x10666;
-          } else if (dist < 30) {
-            Cars_gHumanRaceCarList[i]->glue = 0x10ccc;
-          } else if (dist < 60) {
-            Cars_gHumanRaceCarList[i]->glue = 0x11333;
-          }
-          else { Cars_gHumanRaceCarList[i]->glue = 0x11999;
-          }
-        }
-
-
-
-      }
-    }
+    Cars_gHumanRaceCarList[0]->glue = 0x10000;
+    Cars_gHumanRaceCarList[1]->glue = 0x10000;
   }
+  else {
+
+
+    for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
+      dist = Stats_racePosition[humanLeader].slice -
+             Cars_gHumanRaceCarList[i]->stats.sliceTotal;
+      if (dist < 5) {
+        Cars_gHumanRaceCarList[i]->glue = 0x10000;
+      } else { if (dist < 10) {
+          Cars_gHumanRaceCarList[i]->glue = 0x10666;
+        } else if (dist < 30) {
+          Cars_gHumanRaceCarList[i]->glue = 0x10ccc;
+        } else if (dist < 60) {
+          Cars_gHumanRaceCarList[i]->glue = 0x11333;
+        }
+        else { Cars_gHumanRaceCarList[i]->glue = 0x11999; }
+      } }
+
+
+  }
+
 }
 
+
+
+
 /* ---- Stats_ClearPosition__Fv  [STATS.CPP:112-120] SLD-VERIFIED ---- */
+#line 109 "C:/nfs4/GAME/COMMON/STATS.CPP"
 void Stats_ClearPosition(void)
+
 
 {
 
@@ -105,7 +109,9 @@ void Stats_ClearPosition(void)
 }
 
 /* ---- Stats_GetPosition__FP8Car_tObj  [STATS.CPP:126-139] SLD-VERIFIED ---- */
+#line 123 "C:/nfs4/GAME/COMMON/STATS.CPP"
 int Stats_GetPosition(Car_tObj *carObj)
+
 
 {
   int position = 0;
@@ -124,7 +130,9 @@ int Stats_GetPosition(Car_tObj *carObj)
 }
 
 /* ---- Stats_GetNumOpponents__Fv  [STATS.CPP:145-155] SLD-VERIFIED ---- */
+#line 142 "C:/nfs4/GAME/COMMON/STATS.CPP"
 int Stats_GetNumOpponents(void)
+
 
 {
   int i;
@@ -143,17 +151,19 @@ int Stats_GetNumOpponents(void)
  * The odd-tick early return and sibling body/race-order scopes preserve the
  * 258-instruction PASS and all 11 retail SYM blocks. SLD line attribution
  * remains open; see sym-match.md for the measured residual. */
+#line 158 "C:/nfs4/GAME/COMMON/STATS.CPP"
 void Stats_TrackStats(Car_tObj *carObj)
+
 
 {
 
   if ((STATS_GAME_TICKS & 1U) != 0) return;
-  {
-    int trackSlices;
-    int currentTime;
 
 
 
+
+
+  { int trackSlices; int currentTime;
     trackSlices = gNumSlices;
     currentTime = STATS_GAME_TICKS;
     if (((carObj->stats).lap < 4) &&
@@ -187,12 +197,12 @@ void Stats_TrackStats(Car_tObj *carObj)
 
         (carObj->stats).finishType = 2;
         (carObj->stats).sliceTime = currentTime;
-        (carObj->stats).lapTime -= 0x200; (carObj->stats).sliceTotal = ((carObj->stats).lap + 1) * trackSlices;
-      }
+        (carObj->stats).sliceTotal = ((carObj->stats).lap + 1) * trackSlices;
+        (carObj->stats).lapTime -= 0x200; }
     }
-    {
-      int roadSlice;
 
+
+    { int roadSlice;
 
 
       if (STATS_REVERSE_TRACK != 0) {
@@ -215,15 +225,15 @@ void Stats_TrackStats(Car_tObj *carObj)
   }
 
 
-
   {
+
     int i;
     for (i = 0; i < Cars_gNumRaceCars; i++) {
+
         if (((carObj->stats).sliceTotal > Stats_racePosition[i].slice) ||
             (((carObj->stats).sliceTotal == Stats_racePosition[i].slice) &&
-
-             ((carObj->stats).sliceTime < Stats_racePosition[i].sliceTime))) {
-          int j;
+             ((carObj->stats).sliceTime < Stats_racePosition[i].sliceTime)))
+        { int j;
 
 
           for (j = Cars_gNumRaceCars - 2; i <= j; j--) {
@@ -238,8 +248,8 @@ void Stats_TrackStats(Car_tObj *carObj)
             Stats_racePosition[j + 1].sliceTime = r3;
             Stats_racePosition[j + 1].isHuman = r4;
           }
-          {
 
+          {
             int r1 = carObj->carIndex;
             int r2 = (carObj->stats).sliceTotal;
             int r3 = (carObj->stats).sliceTime;
@@ -253,7 +263,7 @@ void Stats_TrackStats(Car_tObj *carObj)
         }
       }
   }
-  return;
+
 
 
 
@@ -269,6 +279,8 @@ void Stats_TrackStats(Car_tObj *carObj)
              final cross-jump pass merges the two identical increments back into
              the ONE `addiu a2,a2,1` retail has.  Zero instructions, zero devices;
              the `||` one-arm spelling scores 12 @493 (a pure a2<->a3 swap). */
+
+#line 277 "C:/nfs4/GAME/COMMON/STATS.CPP"
 void Stats_ExtrapolateOpponentTimes(int type)
 {
   int i;
@@ -433,8 +445,8 @@ void Stats_ExtrapolateOpponentTimes(int type)
   }
 
 
-  if (!quick_finish) {
-
+  if (!quick_finish)
+  {
     for (int x = 0; x < Cars_gNumRaceCars; x++) {
       int position = 1;
 
@@ -466,13 +478,11 @@ void Stats_ExtrapolateOpponentTimes(int type)
  * PASS 232/232; all seven Stats functions and their branch targets retained.
  * Opposite MIN order: 234 instructions /142 diff lines; two-store override:
  * 223/95. Earlier device experiments are preserved in the scratch backup.
- * SOURCE-REVIEW-UNRESOLVED: the debug-elided inRange condition inside the
- * j loop supplies retail's otherwise missing child scope. A positive bounds
- * guard without this object is also 232/232 PASS (2026-10-13), but omits
- * the retail +150..+1c8 child region. The capture is not proved necessary
- * by code generation; its original name and the region's producer remain
- * unresolved. Negative-break for/do forms are 60 differences at234/232.
- * Remaining SLD details are tracked in sym-match.md. */
+ * 2026-10-31 PHYS5: bytes + SYM + SLD exact. The j loop is a plain for with
+ * j in the for scope (retail {31 for scope, {31 body); the body region holds
+ * the record-less pos temp (DEVICE) that splits call r32 / compare r33. */
+
+#line 469 "C:/nfs4/GAME/COMMON/STATS.CPP"
 void Stats_TrackEndGame(void)
 {
   int i;
@@ -483,8 +493,8 @@ void Stats_TrackEndGame(void)
 
 
 
-  if ((Cars_gNumRaceCars > 1) && ((STATS_GAME_TICKS % 64) == 1)) {
-    int trackSlices;
+  if ((Cars_gNumRaceCars > 1) && ((STATS_GAME_TICKS % 64) == 1))
+  { int trackSlices;
     trackSlices = STATS_NUM_LAPS * gNumSlices;
 
     for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
@@ -503,11 +513,11 @@ void Stats_TrackEndGame(void)
       } else {
         DesiredComparison = PlayerPosition - 1;
       }
-      {
-        int j; j = 0; while (1) { const int inRange = j < Cars_gNumRaceCars; if (!inRange) {
-            break;
-          } if (Stats_GetPosition(Cars_gRaceCarList[j]) == DesiredComparison) {
 
+      for (int j = 0; j < Cars_gNumRaceCars; j++) {
+
+          int pos = Stats_GetPosition(Cars_gRaceCarList[j]); /* DEVICE (exact-only): record-less temp (combine folds it into the compare): call on retail line 502, test on 503 */
+          if (pos == DesiredComparison) {
 
             DesiredSlice = MIN(Cars_gRaceCarList[j]->stats.sliceTotal, trackSlices);
             if (PlayerPosition == 1) {
@@ -516,9 +526,9 @@ void Stats_TrackEndGame(void)
               DesiredSpeed = Cars_gHumanRaceCarList[i]->linearVel_ch.z >> 16;
             } break;
           }
-          j++;
         }
-      }
+
+
       Cars_gHumanRaceCarList[i]->stats.checkpointUpdate = DesiredSlice - PlayerSlice;
 
       if ((DesiredSpeed >= 16) && (Cars_gHumanRaceCarList[i]->stats.finishType != 2)) {

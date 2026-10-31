@@ -72,16 +72,22 @@ void AI_ChooseNewLaneSlack(Car_tObj *carObj);
 
 
 /* ---- AI_StartUp__Fv  [@0x8005797c] ---- */
+
+
 #line 135 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_StartUp(void) {
 }
 
 /* ---- AI_CleanUp__Fv  [@0x80057984] ---- */
+
+
 #line 138 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CleanUp(void) {
 }
 
 /* ---- AI_Main_OverallSetup__Fv  [@0x8005798c] ---- */
+
+
 #line 156 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_Main_OverallSetup(void)
 {
@@ -92,6 +98,8 @@ void AI_Main_OverallSetup(void)
 }
 
 /* ---- AI_CarAvoidance__FP8Car_tObj  [@0x80057994] ---- */
+
+
 #line 168 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CarAvoidance(Car_tObj *carObj)
 {
@@ -103,6 +111,8 @@ void AI_CarAvoidance(Car_tObj *carObj)
 }
 
 /* ---- AI_WorldAvoidance__FP8Car_tObj  [@0x800579d8] ---- */
+
+
 #line 182 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_WorldAvoidance(Car_tObj *carObj)
 {
@@ -115,6 +125,8 @@ void AI_WorldAvoidance(Car_tObj *carObj)
 }
 
 /* ---- AI_InitAIInfo__FP8Car_tObj  [@0x80057a24] ---- */
+
+
 #line 195 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_InitAIInfo(Car_tObj *carObj)
 {
@@ -126,6 +138,8 @@ void AI_InitAIInfo(Car_tObj *carObj)
 }
 
 /* ---- AI_GenericBeginCycle__FP8Car_tObj  [@0x80057a6c] ---- */
+
+
 #line 225 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_GenericBeginCycle(Car_tObj *carObj)
 {
@@ -137,6 +151,8 @@ void AI_GenericBeginCycle(Car_tObj *carObj)
 }
 
 /* ---- AI_GenericCycle__FP8Car_tObj  [@0x80057a94] ---- */
+
+
 #line 252 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_GenericCycle(Car_tObj *carObj)
 {
@@ -158,6 +174,8 @@ void AI_GenericCycle(Car_tObj *carObj)
 }
 
 /* ---- AI_GenericEndCycle__FP8Car_tObj  [@0x80057ae8] ---- */
+
+
 #line 275 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_GenericEndCycle(Car_tObj *carObj)
 {
@@ -170,6 +188,8 @@ void AI_GenericEndCycle(Car_tObj *carObj)
 }
 
 /* ---- AI_TargetLane__FP8Car_tObji  [@0x80057b1c] ---- */
+
+
 #line 321 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_TargetLane(Car_tObj *carObj,int lane)
 {
@@ -188,6 +208,8 @@ void AI_TargetLane(Car_tObj *carObj,int lane)
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x50000; } }
 
 /* ---- AI_ClearLaneMerits__Fv  [@0x80057b6c] ---- */
+
+
 #line 344 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_ClearLaneMerits(void)
 {
@@ -197,6 +219,8 @@ void AI_ClearLaneMerits(void)
 }
 
 /* ---- AI_DoReactions__FP8Car_tObj  [@0x80057b94] SOURCE-RESTORED-PARTIAL-SLD ---- */ /* 2026-10-27: real horn/switch guards remove three unprovided labels; seconds holds the signed quotient and metersDistance the directed product (retail REG $ffffffff/LO). All144 words and supplied owners preserved. SOURCE-REVIEW-UNRESOLVED: six lookup/call tags and two region-start coordinates still differ; no original literal/macro spelling claim. Receipt: build/nc12/ai_reactions_20261027/. */
+
+
 #line 356 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_DoReactions(Car_tObj *carObj)
 {
@@ -269,6 +293,8 @@ void AI_DoReactions(Car_tObj *carObj)
 
 
 /* ---- AI_CheckForPlayerActions__FP8Car_tObjT0  [@0x80057dd4] COVERED-SLD-PASS ---- */ /* 2026-10-27: real speed/distance short-circuit guard removes the decompiler shared-tail jump/label. Separate distance/absolute-value phases and implicit void exit restore all144 words, owners and SLD/block/end fields. Literal original spelling remains unproved. Receipt: build/nc12/ai_player_20261027/. */
+
+
 #line 445 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
 { int absDistance;
@@ -315,6 +341,8 @@ void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
 }
 
 /* ---- AI_DoReactionsAndBehavior__FP8Car_tObj  [@0x80058014] ---- */
+
+
 #line 494 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_DoReactionsAndBehavior(Car_tObj *carObj)
 {
@@ -347,6 +375,8 @@ void AI_DoReactionsAndBehavior(Car_tObj *carObj)
 }
 
 /* ---- AI_OpponentBlockPlayer__FP8Car_tObjT0  [@0x800580d8] ---- */
+
+
 #line 530 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
@@ -411,6 +441,8 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
 }
 
 /* ---- AI_CheckForBarriers__FP8Car_tObj  [@0x800582d4] ---- */
+
+
 #line 601 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CheckForBarriers(Car_tObj *carObj)
 {
@@ -482,6 +514,8 @@ void AI_CheckForBarriers(Car_tObj *carObj)
     } } return; }
 
 /* ---- AI_SetupOncomingLaneDemerits__FP8Car_tObj  [@0x80058694] COVERED-SLD-PASS ---- */ /* 2026-10-27: direct mellow-zone guard keeps opposingLaneMerit on its real weight quantity. All86 words, provided owners, block/end coordinates match; literal original spelling remains unproved. Receipt: build/nc12/ai_merits_20261027/. */
+
+
 #line 684 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_SetupOncomingLaneDemerits(Car_tObj *carObj)
 {
@@ -519,6 +553,8 @@ void AI_SetupOncomingLaneDemerits(Car_tObj *carObj)
 }
 
 /* ---- AI_HandleChangeInNumLanes__FP8Car_tObj  [@0x800587ec] COVERED-SLD-PASS ---- */ /* 2026-10-26: ordinary signed division removes roundedLookAhead,92/92 and all provided owners unchanged; reprice older seven-diff controls. build/nc12/ai_look_20261026/; SLD: build/nc12/ai_wrap_20261026/. Covered SYM/SLD now exact via existing macros/real lane guard; literal original text remains unproved. */
+
+
 #line 723 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_HandleChangeInNumLanes(Car_tObj *carObj)
 {
@@ -556,6 +592,8 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
 }
 
 /* ---- AI_HandleShouldersAndOffRoad__FP8Car_tObj  [@0x8005895c] COVERED-SLD-PASS ---- */ /* 2026-10-27: actual compound shoulder guard removes CENTER_DEMERIT; supplied isRight uses its >=7 predicate. All241 words, local owners, block/end and absolute SLD fields agree. NFS2 supports the guard idiom,not NFS4 constants or missing names; literal original macro/text remains unproved. Receipt: build/nc12/ai_shoulders_20261027/. */
+
+
 #line 768 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
 {
@@ -617,6 +655,8 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
 }
 
 /* ---- AI_CalculateLaneSpeeds__FP8Car_tObj  [@0x80058d20] ---- */
+
+
 #line 840 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CalculateLaneSpeeds(Car_tObj *carObj)
 {
@@ -672,9 +712,9 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   for (ci = 0, carsFound = 0; ; ci = ci + 1) { if ((carsFound == 3) || (Cars_gNumCars <= ci)) {
       return;
     }
-    otherCarObj = Cars_gSortedList[
-        (carObjIndexInSortedList + ci * carObj->direction + Cars_gNumCars) % Cars_gNumCars];
 
+    const int sortedIndex = (carObjIndexInSortedList + ci * carObj->direction + Cars_gNumCars) % Cars_gNumCars; /* DEVICE (exact-only): record-less const temp: index on retail line 895, load on 896 */
+    otherCarObj = Cars_gSortedList[sortedIndex];
 
 
     if ((carObj == otherCarObj) || ((otherCarObj->N).active == '\0')) continue;
@@ -771,6 +811,8 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
 /* ---- AI_CalcMeritsBasedOnSpeed__FP8Car_tObj  [@0x800590b4] ---- */
   /* ORIGINAL-NAME-RECOVERED: i -- the symbol-bearing NFS2 predecessor
      records this exact loop counter as `int i`. */
+
+
 #line 1010 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
 {
@@ -821,6 +863,8 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
       i = i + 1; } while (i < 3); } return; }
 
 /* ---- AI_CheckForClearLanes__FP8Car_tObj  [@0x80059434] SOURCE-RESTORED-PARTIAL-SLD ---- */ /* 2026-10-27: real for/continue removes unprovided NEXT_CAR. All156 words, supplied owners and block/end coordinates preserved/restored. SOURCE-REVIEW-UNRESOLVED: remainder1096/retail1095 and distance-call1105/retail1101 leave13 tag differences; no original statement/macro spelling claimed. Receipt: build/nc12/ai_clear_20261027/. */
+
+
 #line 1074 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CheckForClearLanes(Car_tObj *carObj)
 {
@@ -888,6 +932,8 @@ void AI_CheckForClearLanes(Car_tObj *carObj)
 }
 
 /* ---- AI_CalcBestLineMerits__FP8Car_tObj  [@0x800596a4] ---- */
+
+
 #line 1188 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CalcBestLineMerits(Car_tObj *carObj)
 {
@@ -936,6 +982,8 @@ void AI_CalcBestLineMerits(Car_tObj *carObj)
          its native debug home; a single multiplied initializer loses it. */
       /* Native SLD1261 groups this vector subtraction as one source operation.
          The original macro spelling, if any, is not established. */
+
+
 #line 1230 "C:/nfs4/GAME/COMMON/AI.CPP"
 static void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
 {
@@ -985,6 +1033,8 @@ static void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
 }
 
 /* ---- AI_AvoidObjects__FP8Car_tObj  [@0x80059928] ---- */
+
+
 #line 1277 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_AvoidObjects(Car_tObj *carObj)
 {
@@ -994,6 +1044,8 @@ void AI_AvoidObjects(Car_tObj *carObj)
     AI_AddCollidableObjects(carObj,Object_customSimObjs); } return; }
 
 /* ---- AI_AvoidSpikeBelt__FP8Car_tObj  [@0x8005995c] ---- */
+
+
 #line 1286 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_AvoidSpikeBelt(Car_tObj *carObj)
 {
@@ -1014,6 +1066,8 @@ void AI_AvoidSpikeBelt(Car_tObj *carObj)
 }
 
 /* ---- AI_SubmitObstacle__FP8Car_tObjiiii  [@0x800599e4] ---- */
+
+
 #line 1305 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int rightLatPosition,int slice)
 {
@@ -1057,6 +1111,8 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
 }
 
 /* ---- AI_HandleTrafficHonking__FP8Car_tObj  [@0x80059b88] COVERED-SLD-PASS ---- */
+
+
 #line 1350 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_HandleTrafficHonking(Car_tObj *carObj)
 {
@@ -1081,6 +1137,8 @@ void AI_HandleTrafficHonking(Car_tObj *carObj)
 }
 
 /* ---- AI_CheckForCarsOnSide__FP8Car_tObj  [@0x80059c8c] ---- */
+
+
 #line 1379 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CheckForCarsOnSide(Car_tObj *carObj)
 {
@@ -1117,6 +1175,8 @@ void AI_CheckForCarsOnSide(Car_tObj *carObj)
   } return; }
 
 /* ---- AI_ProcessObservationsAndChooseLane__FP8Car_tObj  [@0x80059ddc] ---- */
+
+
 #line 1419 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_ProcessObservationsAndChooseLane(Car_tObj *carObj)
 {
@@ -1141,6 +1201,8 @@ void AI_ProcessObservationsAndChooseLane(Car_tObj *carObj)
 }
 
 /* ---- AI_ChooseBestLane__FP8Car_tObj  [@0x80059e20] ---- */
+
+
 #line 1464 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_ChooseBestLane(Car_tObj *carObj)
 {
@@ -1174,6 +1236,8 @@ void AI_ChooseBestLane(Car_tObj *carObj)
   if (AI_Info.desiredLane < 0) { AI_Info.desiredLane = 0; return; } if (0xd < AI_Info.desiredLane) { AI_Info.desiredLane = 0xd; } return; }
 
 /* ---- AI_CheckPreferredLateralPosition__FP8Car_tObj  [@0x80059eac] ---- */
+
+
 #line 1503 "C:/nfs4/GAME/COMMON/AI.CPP"
 int AI_CheckPreferredLateralPosition(Car_tObj *carObj)
 {
@@ -1325,6 +1389,8 @@ int AI_CheckPreferredLateralPosition(Car_tObj *carObj)
 /* ---- AI_TryToShareLanes__FP8Car_tObjT0  [@0x8005a060] COVERED-SLD-PASS ---- */
 /* SYM: absLaneIndex names the lane-minus-7 value in $v1, not the raw lane in
    $a2. Direct reads now match without a snapshot; build/nc12/ai_share_20261026/. Original literal source text remains unproved. */
+
+
 #line 1661 "C:/nfs4/GAME/COMMON/AI.CPP"
 int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
 {
@@ -1379,6 +1445,8 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
 }
 
 /* ---- AI_CalculateDesiredLatPosition__FP8Car_tObj  [@0x8005a15c] ---- */
+
+
 #line 1721 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
 {
@@ -1467,6 +1535,8 @@ void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
 }
 
 /* ---- AI_CalculateAdjustedDesiredSpeed__FP8Car_tObj  [@0x8005a390] ---- */
+
+
 #line 1827 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
 {
@@ -1540,6 +1610,8 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
       else { carObj->desiredSpeed = (carObj->desiredSpeed < -0x6aaaa) ? carObj->desiredSpeed : -0x6aaaa; } } } return; }
 
 /* ---- AI_IsMellowZone__FP8Car_tObji  [@0x8005a628] COVERED-SLD-PASS ---- */ /* 2026-10-27: compound real rejection condition removes unprovided RET0; explicit Boolean return funnel restores comparison1943/exit1946. All59 words, supplied owners, block/end and absolute SLD fields agree. Literal original spelling remains unproved. Receipt: build/nc12/ai_mellow_20261027/. */
+
+
 #line 1926 "C:/nfs4/GAME/COMMON/AI.CPP"
 int AI_IsMellowZone(Car_tObj *carObj,int delay)
 { int index; int odom; int endMellow;
@@ -1565,6 +1637,8 @@ int AI_IsMellowZone(Car_tObj *carObj,int delay)
 }
 
 /* ---- AI_KeepCarsInLane__FP8Car_tObj  [@0x8005a714] ---- */
+
+
 #line 1957 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_KeepCarsInLane(Car_tObj *carObj)
 {
@@ -1597,6 +1671,8 @@ void AI_KeepCarsInLane(Car_tObj *carObj)
 }
 
 /* ---- AI_PushFinishedCarsToSide__FP8Car_tObj  [@0x8005a724] ---- */
+
+
 #line 1991 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_PushFinishedCarsToSide(Car_tObj *carObj)
 {
@@ -1632,6 +1708,8 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
   } return; }
 
 /* ---- AI_MaybeChangeLaneSlack__FP8Car_tObj  [@0x8005a8c0] ---- */
+
+
 #line 2038 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 {
@@ -1642,25 +1720,27 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 
   if (0 <= carObj->carIndex * 2) { adaptedSlice = (carObj->N).simRoadInfo.slice + carObj->carIndex * 2; if (gNumSlices <= adaptedSlice) { adaptedSlice = adaptedSlice - gNumSlices; } } else { adaptedSlice = (carObj->N).simRoadInfo.slice + carObj->carIndex * 2; if (adaptedSlice < 0) { adaptedSlice = adaptedSlice + gNumSlices; } }
 
-  if ((carObj->carFlags & 4) == 0) {
+  if ((carObj->carFlags & 4) != 0) return;
 
-    if (((carObj->carFlags & 8) == 0) || ((adaptedSlice >> 4) << 4 == adaptedSlice)) {
+  if (((carObj->carFlags & 8) != 0) && ((adaptedSlice >> 4) << 4 != adaptedSlice)) return;
 
-      if (((carObj->carFlags & 0x10) == 0) || ((adaptedSlice >> 1) << 1 == adaptedSlice)) {
+  if (((carObj->carFlags & 0x10) != 0) && ((adaptedSlice >> 1) << 1 != adaptedSlice)) return;
 
 
 
-        range = *(int *)((char *)carObj->personality + 0x1c);
+  range = *(int *)((char *)carObj->personality + 0x1c);
 
-        randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff;
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; const int roll = range * (randtemp >> 8 & 0xffff) >> 0x10; /* DEVICE (exact-only): record-less const temp: roll on retail line 2057, compare on 2059 */
 
-        if (range * (randtemp >> 8 & 0xffff) >> 0x10 == 1) {
+  if (roll == 1) {
 
-          AI_ChooseNewLaneSlack(carObj);
-        } } } }
+    AI_ChooseNewLaneSlack(carObj);
+  }
 }
 
 /* ---- AI_ChooseNewLaneSlack__FP8Car_tObj  [@0x8005a9dc] ---- */
+
+
 #line 2068 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_ChooseNewLaneSlack(Car_tObj *carObj)
 {

@@ -145,7 +145,9 @@ inline tScreenTournamentCongrats::tScreenTournamentCongrats()
    
    [ghidra-meta] section: front.text */
 
+#line 228 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_ConstructAll(void)
+
 
 {
   gAllScreens = new tAllScreens;
@@ -194,20 +196,14 @@ void Front_ConstructAll(void)
    
    [ghidra-meta] section: front.text */
 
+#line 267 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_DeleteAll(void)
 
+
 {
-  if (gAllScreens != (tAllScreens *)0x0) {
-    delete gAllScreens;
-  }
-  if (FEApp != (tFEApplication *)0x0) {
-    delete FEApp;
-  }
-  if (menuDefs != (tGlobalMenuDefs *)0x0) {
-    delete menuDefs;
-  }
-  return;
-}
+  if (gAllScreens != (tAllScreens *)0x0) { delete gAllScreens;
+  } if (FEApp != (tFEApplication *)0x0) { delete FEApp;
+  } if (menuDefs != (tGlobalMenuDefs *)0x0) { delete menuDefs; } return; }
 
 
 
@@ -218,7 +214,9 @@ void Front_DeleteAll(void)
    
    [ghidra-meta] section: front.text */
 
+#line 277 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_ResetSettingsForCar(int player,int car)
+
 
 {
   frontEnd.settingsActive[player] = frontEnd.settingsActive[player] & ~(ushort)(1 << car);
@@ -235,7 +233,9 @@ void Front_ResetSettingsForCar(int player,int car)
    
    [ghidra-meta] section: front.text */
 
+#line 285 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_ResetSettingsMenu(int player)
+
 
 {
   int i;
@@ -243,9 +243,7 @@ void Front_ResetSettingsMenu(int player)
   i = 0;
   do {
     Front_ResetSettingsForCar(player,i);
-    i = i + 1;
-  } while (i < 0x30);
-  return;
+    i = i + 1; } while (i < 0x30); return;
 }
 
 
@@ -256,17 +254,19 @@ void Front_ResetSettingsMenu(int player)
    
    [ghidra-meta] section: front.text */
 
+#line 296 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_ResetPSXController(int player,int config)
+
 
 {
 
 
 
-
-
-  
   timedwait(10);
   PAD_update();
+
+
+
   frontEnd.controlType[player] = (ushort)gPadinfo.buf[player * 4].ID;
   frontEnd.controlConfig[player] = (char)config;
 }
@@ -279,7 +279,9 @@ void Front_ResetPSXController(int player,int config)
    
    [ghidra-meta] section: front.text */
 
+#line 315 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_ResetPSXAnalogs(int player)
+
 
 {
 
@@ -289,11 +291,11 @@ void Front_ResetPSXAnalogs(int player)
   frontEnd.deadSpot[player] = '\n';
   frontEnd.ImaxRange[player] = -1;
   frontEnd.IImaxRange[player] = -1;
+
   frontEnd.J1MAX[player] = '\x7f';
   frontEnd.J1MIN[player] = '\x06';
   frontEnd.J2MAX[player] = '\x7f';
-  frontEnd.J2MIN[player] = '\x06';
-  return;
+  frontEnd.J2MIN[player] = '\x06'; return;
 }
 
 
@@ -631,39 +633,6 @@ void Front_ResetPSXAnalogs(int player)
    The block-local `acc` carriers and their W72-A8/W74-A7 notes below are
    therefore superseded for the two 0x800000 arms; the analysis is kept because
    it is what identified the $a1/$a2 accumulator requirement in the first place. */
-int GetPSXPadValue(int value,int player)
-
-{
-  int newControl;
-  int type;
-  /* SOURCE-REVIEW-UNRESOLVED: acc1
-     SOURCE-REVIEW-UNRESOLVED: acc2
-     One accumulator per cross-jump trio.
-     Function scope is load-bearing (see the MATCH note above): it makes each a
-     GLOBAL allocno, which is what puts them in retail's $a2/$a1 and lets every
-     OR write them in place. This normal-code receipt is not source-object proof. */
-  int acc1;
-  int acc2;
-  
-  PAD_update();
-  {
-    int padBase = (int)&gPadinfo;   /* SOURCE-REVIEW-UNRESOLVED: no retail object row */
-    type = padBase + (player << 5);
-  }
-  if (((__typeof__(gPadinfo) *)type)->buf[0].nopad != '\0') {
-    goto GetPSXPadValue_noPad;
-  }
-  type = ((__typeof__(gPadinfo) *)type)->buf[0].ID;
-  goto GetPSXPadValue_gotType;
-GetPSXPadValue_noPad:
-  type = 0;
-  goto GetPSXPadValue_gotType;
-GetPSXPadValue_gotType:
-  switch (type) {
-  case 0x53:
-  case 0x73:
-    switch (value) {
-    case 0x800000:
       /* SOURCE-REVIEW-UNRESOLVED: acc2 -- W72-A8 G4 arm; retail SYM records only
          newControl/type.  W85-S3: this arm used to be a BLOCK-LOCAL `acc` plus a
          `__asm__("" : : "i"(0) : "$2","$3")` hard-register denial.  The fn-scope
@@ -671,79 +640,148 @@ GetPSXPadValue_gotType:
          reaches retail's $a1 accumulator WITHOUT any device.  Both 0x800000 arms
          must carry the same spelling together (they cross-jump into one tail);
          converting only one is 23 / 41 diffs. */
+  /* SOURCE-REVIEW-UNRESOLVED: acc1
+     SOURCE-REVIEW-UNRESOLVED: acc2
+     One accumulator per cross-jump trio.
+     Function scope is load-bearing (see the MATCH note above): it makes each a
+     GLOBAL allocno, which is what puts them in retail's $a2/$a1 and lets every
+     OR write them in place. This normal-code receipt is not source-object proof. */
+#line 330 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+int GetPSXPadValue(int value,int player)
+
+
+{
+  int newControl;
+  int type;
+  int acc1;
+  int acc2; PAD_update();
+  { int padBase = (int)&gPadinfo;   /* SOURCE-REVIEW-UNRESOLVED: no retail object row */ type = padBase + (player << 5); } if (((__typeof__(gPadinfo) *)type)->buf[0].nopad != '\0') {
+    goto GetPSXPadValue_noPad; } type = ((__typeof__(gPadinfo) *)type)->buf[0].ID; goto GetPSXPadValue_gotType;
+GetPSXPadValue_noPad:
+  type = 0;
+  goto GetPSXPadValue_gotType;
+GetPSXPadValue_gotType:
+  switch (type) {
+  case 0x53:
+  case 0x73:
+
+    switch (value) {
+    case 0x800000:
       acc2 = player << 0x1e;
-      acc2 = acc2 | (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000;
-      acc2 = acc2 | (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+
+
+
+
+
+      acc2 = acc2 | (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000; acc2 = acc2 | (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
       return acc2 | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
+
+
                    ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
       return newControl | 1;
     case 0x100000:
       acc1 = player << 0x1e;
-      acc1 = acc1 | 0x1000000 | (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000;
-      acc1 = acc1 | (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
+
+
+
+      acc1 = acc1 | 0x1000000 | (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000; acc1 = acc1 | (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
       return acc1 | 1;
     case 0x400000:
       acc2 = player << 0x1e;
-      acc2 = acc2 | 0x1000000 | ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000;
-      acc2 = acc2 | ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
+
+
+
+      acc2 = acc2 | 0x1000000 | ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000; acc2 = acc2 | ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
       return acc2 | 1;
     case -0x80000000:
       acc1 = player << 0x1e;
+
+
+
       acc1 = acc1 | 0x2000000 | (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000;
-      acc1 = acc1 | (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
-      return acc1 | 1;
+      acc1 = acc1 | (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100; return acc1 | 1;
     case 0x20000000:
-      acc2 = player << 0x1e;
-      acc2 = acc2 | 0x2000000 | ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000;
-      acc2 = acc2 | ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
-      return acc2 | 1;
+
+
+
+
+      acc2 = player << 0x1e; acc2 = acc2 | 0x2000000 | ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000;
+      acc2 = acc2 | ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100; return acc2 | 1;
     case 0x10000000:
       acc1 = player << 0x1e;
-      acc1 = acc1 | 0x3000000 | (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000;
-      acc1 = acc1 | (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+
+
+
+      acc1 = acc1 | 0x3000000 | (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000; acc1 = acc1 | (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
       return acc1 | 1;
     case 0x40000000:
-      acc2 = player << 0x1e;
-      acc2 = acc2 | 0x3000000 | ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000;
-      acc2 = acc2 | ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
+
+
+
+
+      acc2 = player << 0x1e; acc2 = acc2 | 0x3000000 | ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000; acc2 = acc2 | ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
       return acc2 | 1;
     }
     break;
   case 0x23:
+
+
+
+
+
     switch (value) {
     case 0x800000:
       /* SOURCE-REVIEW-UNRESOLVED: acc2 -- twin of the 0x53/0x800000 arm above;
          they share retail's .L8002744C tail and MUST be converted as a pair
          (W85-S3: device-free stepwise `|=` on the fn-scope carrier). */
       acc2 = player << 0x1e;
-      acc2 = acc2 | (0x7f - (byte)frontEnd.deadSpot[player]) * 0x10000;
-      acc2 = acc2 | (0x7f - (byte)frontEnd.steeringRange[player]) * 0x100;
+
+
+      acc2 = acc2 | (0x7f - (byte)frontEnd.deadSpot[player]) * 0x10000; acc2 = acc2 | (0x7f - (byte)frontEnd.steeringRange[player]) * 0x100;
       return acc2 | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000;
-      return (newControl |=
-              ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100) | 1;
+
+
+
+                   ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000; return (newControl |= ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100) | 1;
     case 0x4000:
       newControl = player << 0x1e |
                    0x1000000 |
+
+
+
                    (byte)frontEnd.ImaxRange[player] * 0x100;
       return newControl | 1;
     case 0x8000:
       newControl = player << 0x1e |
                    0x2000000 |
+
+
                    (byte)frontEnd.IImaxRange[player] * 0x100;
       return newControl | 1;
     case 0x400:
+
+
+
+
+
+
       newControl = player << 0x1e | 0x30aff01;
       return newControl;
     }
     break;
   }
+
+
+
   newControl = player << 0x1a | value << 8 | 2;
+
+
+
   return newControl;
 }
 
@@ -773,57 +811,43 @@ GetPSXPadValue_gotType:
        plain `for (i=0;i<numoffsets;i++)` rotates to a `blez` zero-trip guard + bottom test.
        This ALSO fixed the whole 3-way {pad,gotone,theanalogoffset} s1/s3/s4 rotation for
        free -- the loop shape was driving the allocation, not the other way round. */
-void SetPads(void)
-
-{
-  int j;
-  int pad;
-
-  j = 0;
-  while (j < 2) {
-    int LookingFor;
-    int starttick;
-    LookingFor = 4;
-    pad = j << 4;
-    if (FrontEnd().AnalogOn[j] != 0) {
-      LookingFor = 7;
-    }
-    starttick = ticks;
     /* SYM-CODEGEN-CARRIER: waiting -- the explicit false/conditional update
      * preserves retail's boolean normalization and constant/register handout;
      * a direct short-circuit loop is FAIL 21 / 78 versus PASS 79. */
+#line 471 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+void SetPads(void)
+
+
+{
+  int j;
+  int pad; j = 0; while (j < 2) {
+    int LookingFor;
+    int starttick;
+    LookingFor = 4; pad = j << 4; if (FrontEnd().AnalogOn[j] != 0) { LookingFor = 7; } starttick = ticks;
     bool waiting;
     do {
       waiting = false;
-      if (ticks - starttick < 0x80) {
-        waiting = PadGetState(pad) != 6;
-      }
-    } while (waiting);
+      if (ticks - starttick < 0x80) { waiting = PadGetState(pad) != 6; } } while (waiting);
     if (PadGetState(pad) == 6) {
       int theanalogoffset;
       bool gotone;
-      int numoffsets;
-      int i;
-      theanalogoffset = 0;
-      gotone = false;
+      int numoffsets; int i; theanalogoffset = 0; gotone = false;
       numoffsets = PadInfoMode(pad,4,-1);
-      i = 0;
-      while (1) {
-        if (i >= numoffsets) break;
+
+      i = 0; while (1) { if (i >= numoffsets) break;
+
         if (PadInfoMode(pad,4,i) == LookingFor) {
+
+
+
           gotone = true;
           theanalogoffset = i;
         }
         i++;
-      }
-      if (gotone) {
+      } if (gotone) {
         PadSetMainMode(pad,theanalogoffset,0);
       }
-    }
-    j++;
-  }
-  return;
-}
+    } j++; } return; }
 
 
 
@@ -839,7 +863,12 @@ void SetPads(void)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
+  /* MATCH 2026-08-03 (18->PASS): the unsized-array declarations expose
+     address pseudos which GCC can schedule and reuse; scalar absolute-store
+     macros reserve $at and cannot reproduce retail's four-store sequence. */
+#line 504 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void InitFrontEndStructure(void)
+
 
 {
   /* SYM ORDER (W86-S2): the 8c Def rows read i, j. */
@@ -847,25 +876,45 @@ void InitFrontEndStructure(void)
   int j;
 
   frontEnd.randomSeed = 0;
-  frontEnd.catchup = '\x01';
-  frontEnd.currentPlayer = '\0';
+  frontEnd.catchup = '\x01'; frontEnd.currentPlayer = '\0';
+
   frontEnd.cheatFlags = 0;
   frontEnd.cheatFlagsActive = 0;
+
   frontEnd.secretFlags = 0;
+
+
   frontEnd.gameMode = '\0';
+
+
+
+
   frontEnd.raceType = '\0';
+
+
   frontEnd.skillLevel = '\0';
+
   frontEnd.headstart = '\x14';
+
+
   for (i = 0; i < 5; i++) {
+
     frontEnd.track[i] = '\0';
     frontEnd.lapind[i] = '\0';
+
     frontEnd.trackmirrored[i] = '\0';
     frontEnd.trackdirection[i] = '\0';
+
+
+
     frontEnd.timeOfDay[i] = '\0';
+
     frontEnd.weather[i] = '\0';
     frontEnd.traffic[i] = '\0';
     frontEnd.situations[i] = '\0';
+
     frontEnd.checkPointDisplay[i] = '\0';
+
     frontEnd.playerCar[i] = '\0';
   }
   frontEnd.localSpeech = '\0';
@@ -876,19 +925,27 @@ void InitFrontEndStructure(void)
   frontEnd.laps = '\0';
   frontEnd.recordlaptime =
        Stattool_ReturnRecordLapTime((ushort)(byte)frontEnd.track[0]);
+
+
   frontEnd.tractionassist = '\x01';
   frontEnd.bestline = '\x01';
   frontEnd.checkPointType = '\x01';
+
   frontEnd.tournament = '\0';
   frontEnd.specialevent = '\0';
   frontEnd.tier = '\0';
   frontEnd.upgrade = '\0';
   frontEnd.policeTier = '\0';
   frontEnd.policeMission = '\0';
+
   frontEnd.measurement = '\0';
+
   for (i = 0; i < 2; i++) {
+
     frontEnd.AnalogOn[i] = 1;
+
     frontEnd.ABS[i] = '\0';
+
     frontEnd.transmission[i] = '\x01';
     frontEnd.displaySpeed[i] = '\0';
     frontEnd.displayTach[i] = '\x01';
@@ -898,55 +955,79 @@ void InitFrontEndStructure(void)
     frontEnd.displayPosition[i] = '\x01';
     frontEnd.displayLapNumber[i] = '\x01';
     frontEnd.displayMirror[i] = '\0';
+
     frontEnd.pinkSlipsWins[i] = '\0';
     frontEnd.pinkSlipsCash[i] = 0;
     frontEnd.pinkSlipsForfeit = -1;
+
+
     frontEnd.cameraType[i][1] = '\x03';
     frontEnd.cameraType[i][2] = '\x06';
     frontEnd.cameraType[i][3] = '\a';
     frontEnd.cameraType[i][0] = '\0';
     frontEnd.playerNameList[i][0] = '\0';
+
     for (j = 0; j < 4; j++) {
-      frontEnd.cameraSway[i][j] = '\0';
-    }
+      frontEnd.cameraSway[i][j] = '\0'; }
+
     frontEnd.rampSteer[i] = '\x01';
     frontEnd.rampGas[i] = '\x01';
     frontEnd.rampBrake[i] = '\x01';
+
     for (j = 0; j < 0x30; j++) {
+
       frontEnd.carColors[i][j] = ((tCarInfo *)carManager.GetCarFromID((short)j))->fDefaultColor;
+
     }
+
+
     frontEnd.controlType[i] = 0x41;
     frontEnd.controlConfig[i] = '\0';
+
     frontEnd.defaultedPlayerName[i] = '\x01';
+
     frontEnd.shockMode[i] = 'U';
     frontEnd.shockImpact[i] = 'U';
+
     Front_ResetPSXAnalogs(i);
     Front_ResetPSXController(i,0);
   }
+
+
+
   frontEnd.numBTracksActivated = '\0';
+
   Front_ResetSettingsMenu(0);
   Front_ResetSettingsMenu(1);
   frontEnd.oppNumber = '\x01';
   frontEnd.audioMode = '\x02';
   frontEnd.oppCar = '\0';
+
+
+
   frontEnd.language = '\0';
+
+
   frontEnd.musicVolume = 'U';
   frontEnd.sfxVolume = 'U';
   frontEnd.narrationVolume = 'U';
   frontEnd.engineVolume = 'U';
   frontEnd.ambientVolume = 'U';
+
+
   frontEnd.song = '\0';
-  /* MATCH 2026-08-03 (18->PASS): the unsized-array declarations expose
-     address pseudos which GCC can schedule and reuse; scalar absolute-store
-     macros reserve $at and cannot reproduce retail's four-store sequence. */
   gMasterMusicLevel[0] = 0x55;
   gMasterSFXLevel[0] = 0x55;
   gMasterFENarrationLevel[0] = 0x55;
   gMasterAmbientLevel[0] = 0x55;
+
+
   frontEnd.sensitivity = '\0';
   frontEnd.GotAPlayList = 0;
-  CreditManager.Setup();
-  return;
+
+
+
+  CreditManager.Setup(); return;
 }
 
 
@@ -963,7 +1044,9 @@ void InitFrontEndStructure(void)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
+#line 807 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 int LoadConfig(void)
+
 
 {
   return 0;
@@ -986,7 +1069,9 @@ int LoadConfig(void)
    
    [ghidra-meta] section: front.text */
 
+#line 816 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_InitialMemCardCheck(void)
+
 
 {
   MEMCARDFRONTENDISINITTED = false;
@@ -1015,8 +1100,8 @@ void Front_InitialMemCardCheck(void)
 
 
 
-  frontEnd.language = '\0';
-  return;
+
+  frontEnd.language = '\0'; return;
 }
 
 
@@ -1034,40 +1119,38 @@ void Front_InitialMemCardCheck(void)
    MEMCARDFRONTENDISINITTED=1. Note: outer loop has no explicit
    termination - exits via the iVar3>=2 check at top of loop body. */
 
-void Front_SecondaryMemCardCheck(void)
-
-{
-  {
-    /* SYM SCOPE/ORDER: `j` belongs to this outer lexical block; `i` is
-       recorded one block deeper, inside the loop body. */
-    int j;
-
-    MEMCARDFRONTENDISINITTED = false;
-    Init_Memcard(false,0);
-    j = 0;
     /* MATCH: loop-top guard (j<2) with the RARE exit/cleanup pushed OUT-OF-LINE after
        the loop (oracle: beqz skips to the tail block at the bottom; the loop body is the
        fall-through). The equivalent do{if(1<j){exit;return;}...}while(true) shape
        inlined the exit block at the top, duplicating/misplacing it vs the oracle.
        EXIT-IN-THE-MIDDLE keeps the test+unconditional-j-back TOP-TEST shape the oracle uses
        (a plain `while(card_i<2)` rotates to a bottom-test loop instead). */
-    while (true) {
-      int i;
+    /* SYM SCOPE/ORDER: `j` belongs to this outer lexical block; `i` is
+       recorded one block deeper, inside the loop body. */
+#line 849 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+void Front_SecondaryMemCardCheck(void)
 
-      if (!(j < 2)) break;
+
+{
+  { int j; MEMCARDFRONTENDISINITTED = false;
+
+    Init_Memcard(false,0);
+
+    j = 0; while (true) { int i; if (!(j < 2)) break;
       i = 0;
-      if (memCardReadOK == 0) {
-        do {
+
+      if (memCardReadOK == 0) { do {
+
           memCardReadOK = LoadGame((short)j,false,0) == 0;
-          i = i + 1;
-          if (2 < i) break;
-        } while (memCardReadOK == 0);
+          i = i + 1; if (2 < i) break; } while (memCardReadOK == 0);
       }
       memCardReadOK = 0;
       j = j + 1;
     }
+
     DeInit_Memcard();
     SetPads();
+
     MEMCARDFRONTENDISINITTED = true;
   }
 }
@@ -1080,7 +1163,9 @@ void Front_SecondaryMemCardCheck(void)
    
    [ghidra-meta] section: front.text */
 
+#line 877 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_InitGraphics(void)
+
 
 {
 
@@ -1116,8 +1201,8 @@ void Front_InitGraphics(void)
   }
   Platform_ResetDCTBuffer();
 
-  Init_PSX_FrontEnd();
-  return;
+
+  Init_PSX_FrontEnd(); return;
 }
 
 
@@ -1129,7 +1214,9 @@ void Front_InitGraphics(void)
    
    [ghidra-meta] section: front.text */
 
+#line 916 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_InitGraphicsAndDisplayLoading(void)
+
 
 {
   Front_InitGraphics();
@@ -1152,64 +1239,99 @@ void Front_InitGraphicsAndDisplayLoading(void)
    the loading-text literal before initializing the shared `one` value gives
    retail's address-materialization order and s4 lifetime. */
 
-int Front_Menu(tFront_ProcessingType role)
-
-{
-  /* SYM SCOPE/ORDER (W86-S2): `result` is the only function-scope SYM row;
-     `extraMoney` is recorded at block depth 4, inside the guarded arm below. */
-  int result;
-  /* SYM-CODEGEN-CARRIER: one -- a shared value of one preserves retail's s4
-     lifetime and `extraMoney + one` evaluation tree.  Literal replacement is
-     FAIL 13 with 174/173 instructions. */
-  int one;
   /* SYM-CODEGEN-CARRIER: needCar -- retail materializes a zero-initialized
      condition accumulator before the guarded money test.  The equivalent
      short-circuit condition is FAIL 51 with 168/173 instructions. */
-  int needCar;
-  
-  result = kApp_Command_StartRace;
-  _7tScreen_fSuppressLoadingText = 1;
-  one = 1;
-  gLargestUnused = largestunused();
-  FeAudio_InitCommentary((uint)(byte)frontEnd.language,0);
-  InitializeSpinningCars();
-  Front_ConstructAll();
-  needCar = 0;
-  if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) {
-    needCar = tournamentManager.fMoney < one;
-  }
-  if (needCar) {
-    long extraMoney;
+  /* SYM-CODEGEN-CARRIER: one -- a shared value of one preserves retail's s4
+     lifetime and `extraMoney + one` evaluation tree.  Literal replacement is
+     FAIL 13 with 174/173 instructions. */
+  /* SYM SCOPE/ORDER (W86-S2): `result` is the only function-scope SYM row;
+     `extraMoney` is recorded at block depth 4, inside the guarded arm below. */
+#line 931 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+int Front_Menu(tFront_ProcessingType role)
 
-    extraMoney = carManager.CheapestCarStockPrice();
-    tournamentManager.fMoney += extraMoney + one;
+
+{ int result; int one; int needCar; result = kApp_Command_StartRace; _7tScreen_fSuppressLoadingText = 1;
+  one = 1;
+
+
+
+
+  gLargestUnused = largestunused();
+
+
+  FeAudio_InitCommentary((uint)(byte)frontEnd.language,0);
+
+
+
+
+  InitializeSpinningCars();
+
+
+
+  Front_ConstructAll();
+
+
+
+
+
+
+
+
+
+  needCar = 0; if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) { needCar = tournamentManager.fMoney < one; } if (needCar) {
+    long extraMoney;
+    extraMoney = carManager.CheapestCarStockPrice(); tournamentManager.fMoney += extraMoney + one;
   }
+
   switch (role) {
   case kFront_InitialLoad:
+
     LoadConfig();
   case kFront_QuitToGameSetup:
+
     if (gUseFrontend != 0) {
       tMenuCommand tempCommand;
-
       MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);
       result = App()->RunFrontEnd();
     }
     break;
   case kFront_QuitToPostGame:
     gCalculateVictory = (char)one;
+
+
+
+
+
+
     if ((frontEnd.raceType == RaceType_Tournament) && (GameSetup_gData.replayMode == 0)) {
+
+
+
+
       tournamentManager.AdvanceToNextTrack();
       tournamentManager.UpdateAwardInformation();
     }
+
     else if ((frontEnd.raceType == RaceType_PinkSlips) && (GameSetup_gData.replayMode == 0)) {
       Car_tStats *dummyCars = Cars_gNewCarStatsList;
 
       if (((dummyCars[0].finalPosition < 2) && (frontEnd.pinkSlipsForfeit != 0)) ||
+
+
+
+
+
+
+
+
           (frontEnd.pinkSlipsForfeit == 1)) {
+
         frontEnd.pinkSlipsWinner[(byte)frontEnd.pinkSlipsTrackIndex] = 0;
         frontEnd.pinkSlipsWins[0] = frontEnd.pinkSlipsWins[0] + '\x01';
       }
       else {
+
         frontEnd.pinkSlipsWinner[(byte)frontEnd.pinkSlipsTrackIndex] = 1;
         frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
       }
@@ -1217,17 +1339,30 @@ int Front_Menu(tFront_ProcessingType role)
     result = App()->RunPostGame();
     break;
   }
+
   Front_DeleteAll();
+
   FeAudio_DeInitCommentary();
   Audio_FECleanUp();
+
   TextSys_UnloadWords();
   FeTools_deinit();
+
   PSXExitFrontend();
+
+
   FILE_delbigsync((char *)gFEBigHandle[0],(void *)0x64);
   gFEBigHandle[0] = 0;
   frontEnd.recordlaptime =
+
        Stattool_ReturnRecordLapTime((ushort)(byte)frontEnd.track[0]);
+
+
+
+
+
   gLargestUnused = largestunused();
+
   return result;
 }
 
@@ -1247,64 +1382,47 @@ int Front_Menu(tFront_ProcessingType role)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-int *OutputDisplaySettings(int *d,int c,int player,tTrackInformation &trackInfo)
-
-{
   /* W64 (2026-08-10): 159 diffs -> PASS (134/134).  SYM's lone local is the
      initialized switch result; the output is the original post-incrementing
      word stream.  CountryMeasurement is a short table despite its extern
      declaration, and cameraType is indexed by the player row. */
+#line 1168 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+int *OutputDisplaySettings(int *d,int c,int player,tTrackInformation &trackInfo)
+
+
+{
   int valtopass = 0;
 
   switch (frontEnd.displaySpeed[player]) {
   case 0:
+
     valtopass = ((short *)CountryMeasurement)[trackInfo.fSpeedoCountry];
     break;
   case 1:
     break;
   case 2:
     valtopass = 1;
+
     break;
   default:
     valtopass = 2;
     break;
   }
-  *d++ = 0x11a;
-  *d++ = c;
-  *d++ = valtopass;
-  *d++ = 0x11b;
-  *d++ = c;
-  *d++ = (uint)(frontEnd.displaySpeed[player] != '\x03');
-  *d++ = 0x11c;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.displayMap[player];
-  *d++ = 0x11d;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.displayOpponentID[player];
-  *d++ = 0x11e;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.displayTime[player];
-  *d++ = 0x11f;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.displayLapNumber[player];
-  *d++ = 0x120;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.displayPosition[player];
-  *d++ = 0x121;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.displayMirror[player];
-  *d++ = 0x126;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.cameraType[player][0];
-  *d++ = 0x127;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.cameraType[player][1];
-  *d++ = 0x128;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.cameraType[player][2];
-  *d++ = 0x129;
-  *d++ = c;
-  *d++ = (uint)(byte)frontEnd.cameraType[player][3];
+
+  *d++ = 0x11a; *d++ = c; *d++ = valtopass;
+  *d++ = 0x11b; *d++ = c; *d++ = (uint)(frontEnd.displaySpeed[player] != '\x03');
+  *d++ = 0x11c; *d++ = c; *d++ = (uint)(byte)frontEnd.displayMap[player];
+  *d++ = 0x11d; *d++ = c; *d++ = (uint)(byte)frontEnd.displayOpponentID[player];
+  *d++ = 0x11e; *d++ = c; *d++ = (uint)(byte)frontEnd.displayTime[player];
+  *d++ = 0x11f; *d++ = c; *d++ = (uint)(byte)frontEnd.displayLapNumber[player];
+  *d++ = 0x120; *d++ = c; *d++ = (uint)(byte)frontEnd.displayPosition[player];
+  *d++ = 0x121; *d++ = c; *d++ = (uint)(byte)frontEnd.displayMirror[player];
+
+  *d++ = 0x126; *d++ = c; *d++ = (uint)(byte)frontEnd.cameraType[player][0];
+  *d++ = 0x127; *d++ = c; *d++ = (uint)(byte)frontEnd.cameraType[player][1];
+  *d++ = 0x128; *d++ = c; *d++ = (uint)(byte)frontEnd.cameraType[player][2];
+  *d++ = 0x129; *d++ = c; *d++ = (uint)(byte)frontEnd.cameraType[player][3];
+
   return d;
 }
 
@@ -1318,7 +1436,9 @@ int *OutputDisplaySettings(int *d,int c,int player,tTrackInformation &trackInfo)
    
    [ghidra-meta] section: front.text */
 
+#line 1207 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 int Front_GetLapsForType(void)
+
 
 {
   short lapconv[2] = {2, 4};
@@ -1345,7 +1465,9 @@ int Front_GetLapsForType(void)
    
    [ghidra-meta] section: front.text */
 
+#line 1228 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 static void Front_InitStream(tFEStream &streamData)
+
 
 {
   streamData.totalCars = 0;
@@ -1364,37 +1486,60 @@ static void Front_InitStream(tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static void Front_InitPlayerCars(tFEStream &streamData)
-
-{
-  /* SYM: function-scope locals are exactly `i` and `carInfo` (in that Def-record
-     order -- W86-S2); carModel and carColor are declared only in the final loop
-     block. */
-  short i;
-  tCarInfo *carInfo;
-  
-  streamData.numPlayers = 0;
+      /* MATCH: fCarID is signed here -- the oracle reads it with `lb`, and plain
+         `char` is UNSIGNED on this build. */
+      /* MATCH: `i >= numPlayers` (i FIRST) -- operand order decides which side gcc
+         sign-extends first; `numPlayers <= (int)i` loads the field before the sll/sra. */
+    /* MATCH: EXIT-IN-THE-MIDDLE (top test + unconditional `j` back-edge, no
+       rotation) -- same shape as InitPerps/InitTraffic; a for/while gets rotated. */
+        /* MATCH: the increment lives IN the condition, AFTER the gameMode test (retail
+           tests gameMode first, then `addu v0,s2,v0` reusing the `li v0,1` the gameMode
+           compare just materialized). A body-level `i = i + 1` precomputes i+1 into the
+           bne's delay slot and needs its own constant. */
+        /* MATCH: retail leaves the load-delay `nop` after the fColorOrder read and stores
+           BEFORE reading fCarClass; our sched1 hoists the fCarClass load over the fColor
+           store (it disambiguates the two char fields). The barrier restores the order. */
+          /* MATCH: `carColors[i]`, NOT the Ghidra `carColors[i * 0x18]` -- carColors is
+             char[2][48], so Ghidra's flattened byte index multiplied the row stride twice
+             (ours i*24*48=1152, retail i*48). Same for carCountry below. */
+    /* MATCH: SYM local `carInfo` REG $5 (a1) -- a real tCarInfo* local forces the
+       playerCars member offset (+8) INTO the pointer (`addiu v0,v0,8; addu a1,s1,v0`);
+       an inline `streamData.playerCars[n].field` folds the +8 into every field
+       displacement instead (+205 vs the oracle's +197). */
+  /* MATCH: the PINK-SLIPS arm is the FALL-THROUGH and the stock/garage do-loop is
+     laid out out-of-line (oracle `bne raceType,6 -> .L800281DC`, with `i = 0` stolen
+     into that branch's delay slot).  Writing it as `if (!=6) {loop} pinkslips;`
+     inverts the layout. */
   /* MATCH: EACH arm carries its OWN `carInfo->fColor = fColorOrder[fColor]; numPlayers++`
      tail (retail's 1998 shape), NOT one shared fall-through tail.  gcc then CROSS-JUMPS the
      raceType==2 tail into the pinkslips arm's SECOND tail (the `j` at the end of the
      tournament arm targets it), while a shared fall-through tail instead makes the pinkslips
      arm jump AWAY and drops its own copy -- an 18-insn block the oracle has and we lacked. */
+  /* SYM: function-scope locals are exactly `i` and `carInfo` (in that Def-record
+     order -- W86-S2); carModel and carColor are declared only in the final loop
+     block. */
+#line 1238 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static void Front_InitPlayerCars(tFEStream &streamData)
+
+
+{
+  short i;
+  tCarInfo *carInfo;
+
+  streamData.numPlayers = 0;
+
+
   if (frontEnd.raceType == RaceType_Tournament) {
+
     carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],*streamData.playerCars,0);
     carInfo = &streamData.playerCars[streamData.numPlayers];
     carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
     streamData.numPlayers = streamData.numPlayers + 1;
   }
-  /* MATCH: the PINK-SLIPS arm is the FALL-THROUGH and the stock/garage do-loop is
-     laid out out-of-line (oracle `bne raceType,6 -> .L800281DC`, with `i = 0` stolen
-     into that branch's delay slot).  Writing it as `if (!=6) {loop} pinkslips;`
-     inverts the layout. */
+
   else if (frontEnd.raceType == RaceType_PinkSlips) {
+
     carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[0],*streamData.playerCars,0);
-    /* MATCH: SYM local `carInfo` REG $5 (a1) -- a real tCarInfo* local forces the
-       playerCars member offset (+8) INTO the pointer (`addiu v0,v0,8; addu a1,s1,v0`);
-       an inline `streamData.playerCars[n].field` folds the +8 into every field
-       displacement instead (+205 vs the oracle's +197). */
     carInfo = &streamData.playerCars[streamData.numPlayers];
     carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
     streamData.numPlayers = streamData.numPlayers + 1;
@@ -1412,11 +1557,7 @@ static void Front_InitPlayerCars(tFEStream &streamData)
           carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[i],
                      *(streamData.playerCars + streamData.numPlayers));
           carInfo = &streamData.playerCars[streamData.numPlayers];
-          /* MATCH: `carColors[i]`, NOT the Ghidra `carColors[i * 0x18]` -- carColors is
-             char[2][48], so Ghidra's flattened byte index multiplied the row stride twice
-             (ours i*24*48=1152, retail i*48). Same for carCountry below. */
-          carInfo->fColor = carInfo->fColorOrder[
-              (byte)frontEnd.carColors[i][carInfo->fCarID]];
+          carInfo->fColor = carInfo->fColorOrder[ (byte)frontEnd.carColors[i][carInfo->fCarID]];
         }
         else {
           carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[i],
@@ -1424,51 +1565,47 @@ static void Front_InitPlayerCars(tFEStream &streamData)
           carInfo = &streamData.playerCars[streamData.numPlayers];
           carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
         }
-        /* MATCH: retail leaves the load-delay `nop` after the fColorOrder read and stores
-           BEFORE reading fCarClass; our sched1 hoists the fCarClass load over the fColor
-           store (it disambiguates the two char fields). The barrier restores the order. */
+
         if (carInfo->fCarClass == '\a') {
+
           carInfo->fCountry = frontEnd.carCountry[streamData.numPlayers][carInfo->fCarID];
           carInfo->fColor = '\0';
         }
         streamData.numPlayers = streamData.numPlayers + 1;
-        /* MATCH: the increment lives IN the condition, AFTER the gameMode test (retail
-           tests gameMode first, then `addu v0,s2,v0` reusing the `li v0,1` the gameMode
-           compare just materialized). A body-level `i = i + 1` precomputes i+1 into the
-           bne's delay slot and needs its own constant. */
+
+
+
       } while ((frontEnd.gameMode == '\x01') && (++i < 2));
     }
   }
   {
-    const int maxCarModels = 0xd;
-    i = 0;
-    /* MATCH: EXIT-IN-THE-MIDDLE (top test + unconditional `j` back-edge, no
-       rotation) -- same shape as InitPerps/InitTraffic; a for/while gets rotated. */
-    while (1) {
-      tCarModels carModel;   /* SYM: block AUTOs at sp+0x10 / sp+0x14 */
-      char carColor;
+    const int maxCarModels = 0xd; i = 0; while (1) { tCarModels carModel;   /* SYM: block AUTOs at sp+0x10 / sp+0x14 */ char carColor; if ((int)i >= streamData.numPlayers) break;
 
-      /* MATCH: `i >= numPlayers` (i FIRST) -- operand order decides which side gcc
-         sign-extends first; `numPlayers <= (int)i` loads the field before the sll/sra. */
-      if ((int)i >= streamData.numPlayers) break;
-      /* MATCH: fCarID is signed here -- the oracle reads it with `lb`, and plain
-         `char` is UNSIGNED on this build. */
       carModel = (tCarModels)(signed char)streamData.playerCars[i].fCarID;
       carColor = streamData.playerCars[i].fColor;
+
+
+
+
+
+
+
       if (!carManager.IsCarAnAddedModel(carModel,carColor) && (streamData.totalModels < maxCarModels)) {
+
+
         streamData.totalModels = streamData.totalModels + 6;
       }
+
+
       carManager.AddCarToIngameList(carModel,carColor);
       streamData.totalCars = streamData.totalCars + 2;
+
+
       streamData.carLineup[i].isPlayerCar = 1;
       streamData.carLineup[i].carModel = carModel;
       streamData.carLineup[i].carColor = carColor;
       streamData.carLineup[i].carUpgrades = streamData.playerCars[i].fUpgrades;
-      i = i + 1;
-    }
-  }
-  return;
-}
+      i = i + 1; } } return; }
 
 
 
@@ -1478,53 +1615,53 @@ static void Front_InitPlayerCars(tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static void Front_InitTourneyTraffic(tFEStream &streamData)
-
-{
-  /* SYM ORDER (W86-S2): the 8c Def rows read carModel, carColor, i; the two
-     non-SYM carriers follow the SYM set. */
-  tCarModels carModel;
-  char carColor;
-  short i;
-  /* SYM-CODEGEN-CARRIER: maxTraffic -- the named bound preserves retail's
-     saved s5 and register `slt`; literal 3 is FAIL 13 at 90/93 instructions. */
-  short maxTraffic;
-  /* SYM-CODEGEN-CARRIER: tourn -- materializing the selected tournament
-     pointer before the race-type guard preserves the retail index schedule
-     and pointer-relative fTraffic load.  Repeating the expression is FAIL 21
-     at 92/93 instructions. */
-  tTourneyInfo *tourn;
-
-  maxTraffic = 3;
-  carColor = '\0';
   /* MATCH (SLD/oracle): retail materializes the &fTournaments[idx] POINTER BEFORE the
      raceType test -- the whole index chain sits above the `bne raceType,2` guard and the
      traffic flag is read as `tourn->fTraffic` (one `lbu 4(a1)`), not as a fresh
      fTournaments[(uint)tournOffset + tournament] expression inside the `&&` (which
      re-masks the byte offset with `andi 0xff` and re-does the *84 chain below the test). */
+  /* SYM-CODEGEN-CARRIER: tourn -- materializing the selected tournament
+     pointer before the race-type guard preserves the retail index schedule
+     and pointer-relative fTraffic load.  Repeating the expression is FAIL 21
+     at 92/93 instructions. */
+  /* SYM-CODEGEN-CARRIER: maxTraffic -- the named bound preserves retail's
+     saved s5 and register `slt`; literal 3 is FAIL 13 at 90/93 instructions. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read carModel, carColor, i; the two
+     non-SYM carriers follow the SYM set. */
+#line 1326 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static void Front_InitTourneyTraffic(tFEStream &streamData)
+
+
+{
+  tCarModels carModel;
+  char carColor; short i; short maxTraffic; tTourneyInfo *tourn; maxTraffic = 3; carColor = '\0';
   tourn = CurrentTourney();
+
+
+
   streamData.numTraffic = 0;
+
+
   if ((frontEnd.raceType == RaceType_Tournament) && (tourn->fTraffic != '\0'))
   {
     /* MATCH: same shape as Front_InitTraffic -- SYM has ONE short `i` (REG $17),
        the postfix `fTrafficCars[i++]` gives the oracle's old-i copy + increment
        pair, and `i = 0;` first so reorg steals it into the guard's delay slot. */
     i = 0;
+
     do {
+
       carModel = (tCarModels)(byte)streamData.trackInfo.fTrafficCars[i++];
-      if (5 < (int)i) {
-        i = 0;
+      if (5 < (int)i) { i = 0;
       }
       if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
+
         streamData.totalModels = streamData.totalModels + 1;
         carManager.AddCarToIngameList(carModel,carColor);
       }
       streamData.trafficCars[streamData.numTraffic] = (u_short)carModel;
       streamData.totalCars = streamData.totalCars + 1;
-    } while (++streamData.numTraffic < maxTraffic);
-  }
-  return;
-}
+    } while (++streamData.numTraffic < maxTraffic); } return; }
 
 
 
@@ -1603,25 +1740,27 @@ static void Front_InitTourneyTraffic(tFEStream &streamData)
    Also measured: declaring carLineup inside arm 1 instead of at fn scope = 6,
    identical to keeping the SYM's fn-scope declaration -- so the SYM-true
    declaration was kept. */
-static void Front_InitOpponentCars(tFEStream &streamData)
-
-{
-  short i;
-  tCarLineup *carLineup;
-  short numOpponents;
-
-  streamData.numOpponents = 0;
-  if ((frontEnd.raceType == RaceType_Tournament) ||
-     ((frontEnd.raceType == RaceType_SingleRace && (frontEnd.oppNumber == '\x02')))) {
-    tCarInfo *carInfo;
-    tCarModels carModel;
-    char carColor;
-    tCarClassType opponentClass;
-    bool usePlayerUpgrades;
-    tTourneyInfo *tourn;
-
-    usePlayerUpgrades = 0;
-    if (frontEnd.raceType == RaceType_Tournament) {
+    /* MATCH W64-A17: NO carLineup alias in this arm -- retail addresses every
+       slot straight off streamData (`sw zero,440(s2)` .. `sb v1,428(s2)`,
+       i.e. 420+N), never materialising `addiu sN,s2,420`.  The alias was a
+       Ghidra artifact; it cost one insn AND (by stretching the fn-scope
+       carLineup pseudo's live range across this arm) inverted the whole
+       s0/s1 handout the W61-A17 certificate priced.  111 -> 6 @357/357. */
+      /* SYM-CODEGEN-CARRIER: numRacers2 -- the direct sibling expression is
+         likewise count-exact but reads with `lhu` (FAIL 2 at 357/357); the
+         explicit int value preserves retail's `lw 16(s0)`. */
+      /* SYM-CODEGEN-CARRIER: numRacers -- a direct expression is count-exact
+         but reads the int field with `lhu` (FAIL 2 at 357/357); this statement
+         boundary preserves retail's `lw` without changing the value. */
+    /* MATCH W64-A17: the 5 is the ELSE ARM, not a pre-assigned default.  A
+       top-of-block `numOpponents = 5;` followed by a bare `if` makes gcc
+       materialise the 5 ahead of the raceType guard and reuse the guard's
+       own `&frontEnd` lo_sum for the field read (`addiu a0,v0,0; lbu v1,4(a0)`
+       + a later `addu fp,a0,zero`); the two-armed form lets the guard read
+       stay FUSED (`lbu %lo(frontEnd+4)(v0)`) and rematerialise `&frontEnd`
+       fresh in the loop preheader, exactly as retail does.  6 -> PASS.
+       (§5.0c "explicit else x = N" / 13C inverted-default, applied to the
+       constant arm rather than the computed one.) */
       /* MATCH W62-A15: 12D-A7 / W60-A6 INDEX-TERM-FIRST address spelling.
          Retail closes this element address with the INDEX as operand 0
          (`addu v0,v0,a1` then `lbu v1,39(v0)`); a plain `arr[idx].field`
@@ -1635,140 +1774,174 @@ static void Front_InitOpponentCars(tFEStream &streamData)
          REGRESSION: +this site only 111, +the cct_OpenClass tourn 113,
          +the else-arm tourn 115, all three 117, the two tourn sites alone
          121.  Price every site, never blanket. */
-      opponentClass = (tCarClassType)((tTourneyInfo *)
-              (((uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-                tournamentManager.fTournament) * sizeof(tTourneyInfo)
-               + (int)tournamentManager.fDefinition->fTournaments))->fOpponentCarClass;
-    }
-    else {
-      opponentClass = cct_OpenClass;
+#line 1363 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static void Front_InitOpponentCars(tFEStream &streamData)
+
+
+{
+  short i;
+  tCarLineup *carLineup;
+  short numOpponents;
+
+
+  streamData.numOpponents = 0;
+  if ((frontEnd.raceType == RaceType_Tournament) ||
+
+     ((frontEnd.raceType == RaceType_SingleRace && (frontEnd.oppNumber == '\x02')))) {
+    tCarInfo *carInfo;
+    tCarModels carModel;
+    char carColor;
+    tCarClassType opponentClass;
+    bool usePlayerUpgrades;
+    tTourneyInfo *tourn;
+
+    usePlayerUpgrades = 0;
+
+
+
+    if (frontEnd.raceType == RaceType_Tournament) {
+      opponentClass = (tCarClassType)((tTourneyInfo *) (((uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament) * sizeof(tTourneyInfo) + (int)tournamentManager.fDefinition->fTournaments))->fOpponentCarClass;
+    } else { opponentClass = cct_OpenClass;
     }
     if (opponentClass == cct_OpenClass) {
-      usePlayerUpgrades = 1;
-      tourn = &tournamentManager.fDefinition->fTournaments
-              [(uint)tournamentManager.fDefinition->fTiers[2].fTournOffset +
-               (uint)(byte)streamData.playerCars[0].fCarID];
+
+
+
+      usePlayerUpgrades = 1; tourn = &tournamentManager.fDefinition->fTournaments [(uint)tournamentManager.fDefinition->fTiers[2].fTournOffset + (uint)(byte)streamData.playerCars[0].fCarID];
     }
-    else {
-      tourn = &tournamentManager.fDefinition->fTournaments
-              [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-               tournamentManager.fTournament];
+    else { tourn = &tournamentManager.fDefinition->fTournaments [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament];
     }
-    /* MATCH W64-A17: the 5 is the ELSE ARM, not a pre-assigned default.  A
-       top-of-block `numOpponents = 5;` followed by a bare `if` makes gcc
-       materialise the 5 ahead of the raceType guard and reuse the guard's
-       own `&frontEnd` lo_sum for the field read (`addiu a0,v0,0; lbu v1,4(a0)`
-       + a later `addu fp,a0,zero`); the two-armed form lets the guard read
-       stay FUSED (`lbu %lo(frontEnd+4)(v0)`) and rematerialise `&frontEnd`
-       fresh in the loop preheader, exactly as retail does.  6 -> PASS.
-       (§5.0c "explicit else x = N" / 13C inverted-default, applied to the
-       constant arm rather than the computed one.) */
+
     if (frontEnd.raceType == RaceType_Tournament) {
-      /* SYM-CODEGEN-CARRIER: numRacers -- a direct expression is count-exact
-         but reads the int field with `lhu` (FAIL 2 at 357/357); this statement
-         boundary preserves retail's `lw` without changing the value. */
-      int numRacers = tournamentManager.fNumRacers;
-      numOpponents = numRacers + -1;
+      int numRacers = tournamentManager.fNumRacers; numOpponents = numRacers + -1;
     }
     else {
-      numOpponents = 5;
-    }
-    i = 0;
-    if (0 < numOpponents) {
-      do {
+      numOpponents = 5; } i = 0; if (0 < numOpponents) { do {
+
+
       carModel = (tCarModels)tourn->fOpponentCar[i];
       carInfo = carManager.GetCarFromID((ushort)carModel);
+
       carColor = carInfo->fDefaultColor;
+
+
       if (!carManager.IsCarAnAddedModel(carModel,carColor) && (streamData.totalModels < 0x10)) {
+
+
         streamData.totalModels = streamData.totalModels + 3;
       }
+
       carManager.FindSimilarCar(carModel,carColor,0,(tCarModels *)0x0);
+
+
       carManager.AddCarToIngameList(carModel,carColor);
       streamData.carLineup[i + 1].isPlayerCar = 0;
       streamData.carLineup[i + 1].carModel = carModel;
       streamData.carLineup[i + 1].carColor = carInfo->fColorOrder[(byte)carColor];
+
+
+
+
+
+
       if (usePlayerUpgrades) {
         streamData.carLineup[i + 1].carUpgrades = streamData.playerCars[0].fUpgrades;
       }
-      else {
-        streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
+      else { streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
       }
+
+
+
       if ((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) {
         if ((FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0) &&
            (frontEnd.opponentUpgrades != '\0')) {
           streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
-        }
-        else {
-          streamData.carLineup[i + 1].carUpgrades = '\0';
+        } else { streamData.carLineup[i + 1].carUpgrades = '\0';
         }
       }
-      i = i + 1;
-      streamData.totalCars = streamData.totalCars + 2;
+      i = i + 1; streamData.totalCars = streamData.totalCars + 2;
+
+
       streamData.numOpponents = streamData.numOpponents + 1;
       } while (i < numOpponents);
     }
     if (frontEnd.raceType == RaceType_Tournament) {
       tournamentManager.UpdateCarLineup();
-      /* SYM-CODEGEN-CARRIER: numRacers2 -- the direct sibling expression is
-         likewise count-exact but reads with `lhu` (FAIL 2 at 357/357); the
-         explicit int value preserves retail's `lw 16(s0)`. */
       int numRacers2 = tournamentManager.fNumRacers;
+
       streamData.numOpponents = numRacers2 + -1;
-      carLineup = tournamentManager.fCarLineup;
-      for (i = 0; i < numOpponents + 1; i = i + 1) {
+      carLineup = tournamentManager.fCarLineup; for (i = 0; i < numOpponents + 1; i = i + 1) {
+
         streamData.carLineup[i].personality = carLineup[i].personality;
         streamData.carLineup[i].position = carLineup[i].position;
       }
     }
     else {
       for (i = 0; i < 5; i = i + 1) {
+
+
+
         streamData.carLineup[i + kPersonalityBlurrr].personality = (tPersonalities)i;
         streamData.carLineup[i + kPersonalityBlurrr].position = (char)(i + 1);
       }
       streamData.carLineup[0].position = '\x06';
     }
   }
+
+
   else if (((byte)frontEnd.raceType < RaceType_Tournament) && (frontEnd.oppNumber == '\x01')) {
     tCarInfo carInfo;
     tCarModels carModel;
     char carColor;
     tCarModels modelList [3];
 
-    /* MATCH W64-A17: NO carLineup alias in this arm -- retail addresses every
-       slot straight off streamData (`sw zero,440(s2)` .. `sb v1,428(s2)`,
-       i.e. 420+N), never materialising `addiu sN,s2,420`.  The alias was a
-       Ghidra artifact; it cost one insn AND (by stretching the fn-scope
-       carLineup pseudo's live range across this arm) inverted the whole
-       s0/s1 handout the W61-A17 certificate priced.  111 -> 6 @357/357. */
+
+
     carManager.GetStockCar((ushort)(byte)frontEnd.oppCar,carInfo);
+
+
     carModel = (tCarModels)(int)*(signed char *)&carInfo.fCarID;
+
+
+
     carColor = carInfo.fColorOrder[carInfo.fDefaultColor];
+
+
     if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
+
       if (streamData.totalModels < 0x10) {
         streamData.totalModels = streamData.totalModels + 3;
       }
       else {
+
+
+
         carManager.GetClassList((tCarClassType)carInfo.fCarClass,3,modelList);
         carManager.FindSimilarCar(carModel,carColor,3,modelList);
       }
     }
+
+
     streamData.numOpponents = streamData.numOpponents + 1;
+
+
     streamData.carLineup[1].isPlayerCar = 0;
     streamData.carLineup[1].personality = kPersonalityNemesis;
     streamData.carLineup[1].carModel = carModel;
     streamData.carLineup[1].carColor = carColor;
     streamData.carLineup[1].carUpgrades = streamData.playerCars[0].fUpgrades;
     streamData.carLineup[1].position = '\x01';
+
     streamData.carLineup[0].position = (char)streamData.numOpponents + '\x01';
+
+
     carManager.AddCarToIngameList(carModel,carColor);
     streamData.totalCars = streamData.totalCars + 2;
   }
   else {
+
     streamData.carLineup[0].position = '\x01';
-    streamData.carLineup[1].position = '\x02';
-  }
-  return;
-}
+    streamData.carLineup[1].position = '\x02'; } return; }
 
 
 
@@ -1779,51 +1952,64 @@ static void Front_InitOpponentCars(tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static void Front_InitMissions(tFEStream &streamData)
-
-{
-  /* SYM: function-scope locals are exactly `i` and `fBestCar`; oldTier and
-     oldMission belong to the nested Hot Pursuit block below. */
-  short i;
-  tCarModels fBestCar;
-  
-  streamData.pMission = (tMissionInfo *)0x0;
-  streamData.pStages = (tStageInfo *)0x0;
-  fBestCar = (tCarModels)0;
-  if (frontEnd.raceType == RaceType_HotPursuit) {
-    char oldTier;
-    char oldMission;
-
-    /* MATCH: a plain short-counter `for` -- retail's zero-trip guard is
-       `slt i,numPlayers` (i's initial 0 shares the register with fBestCar's 0), NOT
-       the `blez numPlayers` a literal `0 < numPlayers` if-guard produces, and the
-       bound is LICM-hoisted because the body has no aliasing store. */
-    for (i = 0; i < streamData.numPlayers; i = i + 1) {            /* 1552 */
-      if (streamData.playerCars[i].fCarClass != '\a') {               /* 1557 */
-        return;                                                          /* 1559 */
-      }
-      if ((int)fBestCar <
-          (int)*(signed char *)&streamData.playerCars[i].fCarID) {       /* 1562 */
-        fBestCar = (tCarModels)*(signed char *)&streamData.playerCars[i].fCarID; /* 1563 */
-      }
-    }
     /* SLD statements 1567/1568 then 1576/1577: the policeTier/policeMission
        save AND restore both live INSIDE the raceType==1 arm, which is why retail
        holds &frontEnd in a callee-saved reg ($s0) across the three calls instead
        of rematerialising %hi/%lo for the restores. */
+    /* MATCH: a plain short-counter `for` -- retail's zero-trip guard is
+       `slt i,numPlayers` (i's initial 0 shares the register with fBestCar's 0), NOT
+       the `blez numPlayers` a literal `0 < numPlayers` if-guard produces, and the
+       bound is LICM-hoisted because the body has no aliasing store. */
+  /* SYM: function-scope locals are exactly `i` and `fBestCar`; oldTier and
+     oldMission belong to the nested Hot Pursuit block below. */
+#line 1533 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static void Front_InitMissions(tFEStream &streamData)
+
+
+{
+  short i;
+  tCarModels fBestCar;
+
+  streamData.pMission = (tMissionInfo *)0x0;
+  streamData.pStages = (tStageInfo *)0x0;
+  fBestCar = (tCarModels)0;
+
+
+
+
+
+
+
+
+  if (frontEnd.raceType == RaceType_HotPursuit) {
+    char oldTier;
+    char oldMission;
+
+
+
+    for (i = 0; i < streamData.numPlayers; i = i + 1) {            /* 1552 */
+
+      if (streamData.playerCars[i].fCarClass != '\a') {               /* 1557 */
+        return;                                                          /* 1559 */
+      } if ((int)fBestCar < (int)*(signed char *)&streamData.playerCars[i].fCarID) {       /* 1562 */
+        fBestCar = (tCarModels)*(signed char *)&streamData.playerCars[i].fCarID; /* 1563 */
+      } }
+
+
+
     oldTier = frontEnd.policeTier;                                      /* 1567 */
     oldMission = frontEnd.policeMission;                                /* 1568 */
     frontEnd.policeTier = (signed char)fBestCar + -0x16;                 /* 1569 */
     frontEnd.policeMission = '\0';                                      /* 1570 */
+
     missionManager.LoadDescription(true);                              /* 1572 */
     missionManager.GetMissionToRace(&streamData.pMission);            /* 1573 */
-    missionManager.GetMissionStages((ushort)(byte)frontEnd.policeTier,
-               (ushort)(byte)frontEnd.policeMission,&streamData.pStages); /* 1574 */
+    missionManager.GetMissionStages((ushort)(byte)frontEnd.policeTier, (ushort)(byte)frontEnd.policeMission,&streamData.pStages); /* 1574 */
+
     frontEnd.policeTier = oldTier;                                      /* 1576 */
     frontEnd.policeMission = oldMission;                                /* 1577 */
   }
-  return;
-}
+  return; }
 
 
 
@@ -1844,32 +2030,6 @@ static void Front_InitMissions(tFEStream &streamData)
      tVar6/uVar7/tVar8/uVar9/iVar10) was a compiler temp / the classic short-index
      `i<<16`/`>>16` rendering artifact -- do not reintroduce it; `i` is a plain short
      used directly as the array index in every loop. */
-static void Front_InitCopCars(tFEStream &streamData)
-
-{
-  /* SYM ORDER (W86-S2): the 8c Def rows read fBestModel, fBestClass, copModel,
-     copColor, i. */
-  tCarModels fBestModel;
-  tCarClassType fBestClass;
-  tCarModels copModel;
-  char copColor;
-  short i;
-
-  fBestModel = cm_MercedesSLK;
-  i = 0;
-  fBestClass = cct_Roadster;
-  copModel = cm_CapriceCop;
-  copColor = '\0';
-  streamData.numCops = 0;
-  streamData.numSuperCops = 0;
-  for (i = 0; i < streamData.numPlayers; i = i + 1) {
-    if ((int)fBestModel < (int)(signed char)streamData.playerCars[i].fCarID) {
-      fBestModel = (tCarModels)(signed char)streamData.playerCars[i].fCarID;
-    }
-    if ((int)fBestClass < (int)streamData.playerCars[i].fCarClass) {
-      fBestClass = streamData.playerCars[i].fCarClass;
-    }
-  }
   /* MATCH: physical layout -- the oracle places the (pMission!=0 && pStages!=0)
      body INLINE/fall-through right after the compound OR-test (jumped-to only
      when EITHER pointer is null), and the raceType body OUT-OF-LINE. Writing
@@ -1877,12 +2037,41 @@ static void Front_InitCopCars(tFEStream &streamData)
      than the original `if (A||B) { if(raceType) {...} }`) reproduces that
      layout -- swapping which block is "then" vs "else" moves ~30 insns from
      out-of-line to fall-through and matches. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read fBestModel, fBestClass, copModel,
+     copColor, i. */
+#line 1603 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static void Front_InitCopCars(tFEStream &streamData)
+
+
+{
+  tCarModels fBestModel; tCarClassType fBestClass; tCarModels copModel; char copColor; short i; fBestModel = cm_MercedesSLK;
+  i = 0;
+  fBestClass = cct_Roadster; copModel = cm_CapriceCop;
+  copColor = '\0';
+
+
+  streamData.numCops = 0;
+  streamData.numSuperCops = 0;
+
+
+  for (i = 0; i < streamData.numPlayers; i = i + 1) {
+
+    if ((int)fBestModel < (int)(signed char)streamData.playerCars[i].fCarID) {
+      fBestModel = (tCarModels)(signed char)streamData.playerCars[i].fCarID;
+    } if ((int)fBestClass < (int)streamData.playerCars[i].fCarClass) {
+      fBestClass = streamData.playerCars[i].fCarClass;
+    } }
+
+
   if ((streamData.pMission != (tMissionInfo *)0x0) && (streamData.pStages != (tStageInfo *)0x0)) {
+
     if (frontEnd.gameMode == '\x01') {
       return;
-    }
-    for (i = 0; i < (short)(uint)streamData.pMission->fNumStages; i = i + 1) {
+    } for (i = 0; i < (short)(uint)streamData.pMission->fNumStages; i = i + 1) {
+
       if ((-1 < streamData.pStages[i].fWingman) || (-1 < streamData.pStages[i].fBlockadeCop)) {
+
+
         streamData.copCars[streamData.numCops] = fBestModel;
         streamData.copCountry[streamData.numCops] = (ushort)streamData.playerCars[0].fCountry;
         streamData.numCops = streamData.numCops + 1;
@@ -1891,42 +2080,60 @@ static void Front_InitCopCars(tFEStream &streamData)
       }
     }
   }
+
   else if (frontEnd.raceType == RaceType_HotPursuit) {
+
+
+
     for (i = 0; i < streamData.numPlayers; i = i + 1) {
+
+
+
       if (streamData.playerCars[i].fCarClass == '\a') {
         return;
-      }
-    }
+      } }
+
+
     if ((streamData.numPlayers == 1) && (streamData.numOpponents == 0)) {
+
       streamData.numCops = 2;
       streamData.numSuperCops = 1;
     }
+
     else if (streamData.numPlayers == 2) {
+
+
       streamData.numCops = 0;
       streamData.numSuperCops = 2;
     }
     else {
+
+
       streamData.numCops = 4;
       streamData.numSuperCops = 0;
     }
+
+
     for (i = 0; i < streamData.numCops + streamData.numSuperCops; i = i + 1) {
+
       if (i < streamData.numSuperCops) {
         copModel = superCopModels[fBestClass][(byte)(streamData.trackInfo).fCountry];
+      } else { copModel = regularCopModels[fBestClass][(byte)(streamData.trackInfo).fCountry];
       }
-      else {
-        copModel = regularCopModels[fBestClass][(byte)(streamData.trackInfo).fCountry];
-      }
+
+
       if (!carManager.IsCarAnAddedModel(copModel,copColor)) {
+
         streamData.totalModels = streamData.totalModels + 3;
         carManager.AddCarToIngameList(copModel,copColor);
       }
+
       streamData.copCars[i] = copModel;
       streamData.totalCars = streamData.totalCars + 2;
       streamData.copCountry[i] = (ushort)(byte)(streamData.trackInfo).fCountry;
     }
   }
-  return;
-}
+  return; }
 
 
 
@@ -1936,9 +2143,13 @@ static void Front_InitCopCars(tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static void Front_InitPerps(tFEStream &streamData)
-
-{
+        /* MATCH: `fColorOrder` is declared plain `char` in the shared header, which is
+           UNSIGNED on this build (lbu); the oracle reads it with `lb` -> signed cast. */
+      /* MATCH: EXIT-IN-THE-MIDDLE keeps the bound test at the TOP with an unconditional
+         `j` back-edge (the oracle is un-rotated, no peeled guard) while STILL being a
+         real loop for loop.c -- which is required here: the oracle hoists `lui
+         %hi(carManager)`, `&carManager`, `&carModel` and `&carColor` into s5/s4/s3/s2.
+         A label+goto loop kills loop.c's LICM and loses all four hoists. */
   /* SYM (nfs4-f-v3.txt @0x80029054) `8c Function start` gives the EXACT local set:
        streamData = REGPARM $16 (s0)
        block: i = REG $17 (s1, SHORT), j = REG $3 (v1, SHORT),
@@ -1947,55 +2158,56 @@ static void Front_InitPerps(tFEStream &streamData)
                                carColor = AUTO -0x24 (= sp+0x14, CHAR)
      Everything else in the old Ghidra body (bVar1/iVar3/iVar4/pvVar5/sVar7) was a
      compiler temp -- do not reintroduce it. */
+#line 1699 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static void Front_InitPerps(tFEStream &streamData)
+
+
+{
   short i;
   short j;
   tCarInfo *carInfo;
-
   streamData.numPerpObjects = 0;
   streamData.numPerps = 0;
-  if (streamData.pMission != (tMissionInfo *)0x0) {
-    i = 0;
-    {
-      const int maxPerpModels = 0x10;
-      /* MATCH: EXIT-IN-THE-MIDDLE keeps the bound test at the TOP with an unconditional
-         `j` back-edge (the oracle is un-rotated, no peeled guard) while STILL being a
-         real loop for loop.c -- which is required here: the oracle hoists `lui
-         %hi(carManager)`, `&carManager`, `&carModel` and `&carColor` into s5/s4/s3/s2.
-         A label+goto loop kills loop.c's LICM and loses all four hoists. */
-      while (1) {
-        tCarModels carModel;   /* SYM: declared in the loop-body block, not fn scope */
-        char carColor;
 
-        if ((int)(uint)streamData.pMission->fNumStages <= (int)i) break;
+
+
+  if (streamData.pMission != (tMissionInfo *)0x0) {
+
+    i = 0; { const int maxPerpModels = 0x10; while (1) { tCarModels carModel;   /* SYM: declared in the loop-body block, not fn scope */ char carColor; if ((int)(uint)streamData.pMission->fNumStages <= (int)i) break;
+
         carModel = (tCarModels)streamData.pStages[i].fCarModel;
         carColor = streamData.pStages[i].fColor;
         carInfo = carManager.GetCarFromID(carModel);
-        j = 0;
-        /* MATCH: `fColorOrder` is declared plain `char` in the shared header, which is
-           UNSIGNED on this build (lbu); the oracle reads it with `lb` -> signed cast. */
-        while (1) {
-          if ((int)(signed char)carInfo->fColorOrder[j] == (int)(byte)carColor) break;
-          j = j + 1;
-          if (0x10 <= (int)j) break;
+
+
+        j = 0; while (1) { if ((int)(signed char)carInfo->fColorOrder[j] == (int)(byte)carColor) break; j = j + 1; if (0x10 <= (int)j) break;
         }
+
+
+
         carColor = (char)j;
+
+
         if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
+
           if (streamData.totalModels < maxPerpModels) {
             streamData.totalModels = streamData.totalModels + 6;
           }
+
+
+
+
+
+
           carManager.AddCarToIngameList(carModel,carColor);
           streamData.totalCars = streamData.totalCars + 2;
+
           streamData.perps[streamData.numPerpObjects].carModel = carModel;
           streamData.perps[streamData.numPerpObjects].carColor = streamData.pStages[i].fColor;
           streamData.numPerpObjects = streamData.numPerpObjects + 1;
         }
         streamData.numPerps = streamData.numPerps + 1;
-        i = i + 1;
-      }
-    }
-  }
-  return;
-}
+        i = i + 1; } } } return; }
 
 
 
@@ -2006,7 +2218,13 @@ static void Front_InitPerps(tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
+    /* MATCH: local pointer to &streamData.track materialized ONCE before the branch
+       (in the branch's delay slot in the oracle) and reused by BOTH arms -- reproduces
+       the oracle's shared v1=&track pointer + offset stores instead of per-field
+       absolute streamData-relative offsets. */
+#line 1751 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 static void Front_InitTrack(tFEStream &streamData)
+
 
 {
   /* SYM: the retail body records exactly one local, `tournTrack` in $v1.
@@ -2014,47 +2232,48 @@ static void Front_InitTrack(tFEStream &streamData)
   tTrackInfo *tournTrack;
   
   if (frontEnd.raceType == RaceType_Tournament) {
+
     tournamentManager.GetTrackToRace(streamData.track);
     blockmove(trackManager.GetTrackByID((short)(signed char)streamData.track.fTrackNumber),
               &streamData.trackInfo,0x30);
   }
   else {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
+
                streamData.trackInfo);
+
     streamData.track.fTrackNumber = streamData.trackInfo.fTrackID;
-    /* MATCH: local pointer to &streamData.track materialized ONCE before the branch
-       (in the branch's delay slot in the oracle) and reused by BOTH arms -- reproduces
-       the oracle's shared v1=&track pointer + offset stores instead of per-field
-       absolute streamData-relative offsets. */
     tournTrack = &streamData.track;
+
     if ((frontEnd.carListType == '\x01') || (frontEnd.raceType == RaceType_HotPursuit)) {
+
+
       tournTrack->fDirection = frontEnd.trackdirection[(byte)frontEnd.pinkSlipsTrackIndex];
       tournTrack->fMirrored = frontEnd.trackmirrored[(byte)frontEnd.pinkSlipsTrackIndex];
       tournTrack->fTimeOfDay = frontEnd.timeOfDay[(byte)frontEnd.pinkSlipsTrackIndex];
       tournTrack->fWeather = frontEnd.weather[(byte)frontEnd.pinkSlipsTrackIndex];
     }
     else {
-      tournTrack->fWeather = '\0';
-      tournTrack->fTimeOfDay = '\0';
-      tournTrack->fMirrored = '\0';
-      tournTrack->fDirection = '\0';
+
+
+
+
+
+      tournTrack->fWeather = '\0'; tournTrack->fTimeOfDay = '\0'; tournTrack->fMirrored = '\0'; tournTrack->fDirection = '\0';
     }
+
     streamData.track.fDifficulty = 0x10000;
   }
+
+
   if (1 < streamData.track.fDirection) {
     streamData.track.fDirection = (byte)rand() & 1;
-  }
-  if (1 < streamData.track.fMirrored) {
+  } if (1 < streamData.track.fMirrored) {
     streamData.track.fMirrored = (byte)rand() & 1;
-  }
-  if (1 < streamData.track.fTimeOfDay) {
+  } if (1 < streamData.track.fTimeOfDay) {
     streamData.track.fTimeOfDay = (byte)rand() & 1;
-  }
-  if (1 < streamData.track.fWeather) {
-    streamData.track.fWeather = (byte)rand() & 1;
-  }
-  return;
-}
+  } if (1 < streamData.track.fWeather) {
+    streamData.track.fWeather = (byte)rand() & 1; } return; }
 
 
 
@@ -2065,23 +2284,28 @@ static void Front_InitTrack(tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static void Front_InitTraffic(tFEStream &streamData)
-
-{
+  /* MATCH: a SWITCH, not an if/else chain -- the oracle dispatches with
+     `bltz raceType,default` + `slti raceType,2` + `beq raceType,6`, i.e. gcc's
+     emit_case_nodes bound test against the PROMOTED int index type (an if-chain
+     on the `char` field can never emit the bltz, and `(byte)x < 2` gives sltiu).
+     The empty `case 6:` is required for the 3-node tree. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read carModel, carColor, i, bTraffic,
+     maxTraffic. */
   /* SYM (nfs4-f-v3.txt @0x800293E0) `8c Function start`: streamData REGPARM $19
      (s3), i REG $16 (s0, SHORT), bTraffic REG $4 (a0, BOOL), maxTraffic REG $6
      (a2, SHORT), carModel AUTO -0x28 (sp+0x10), carColor AUTO -0x24 (sp+0x14).
      The Ghidra bVar1/sVar2/iVar3/iVar5/sVar6 temps are NOT real locals. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read carModel, carColor, i, bTraffic,
-     maxTraffic. */
-  tCarModels carModel;
-  char carColor;
-  short i;
-  bool bTraffic;
-  short maxTraffic;
+#line 1806 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static void Front_InitTraffic(tFEStream &streamData)
 
-  carColor = '\0';
+
+{
+  tCarModels carModel;
+  char carColor; short i; bool bTraffic; short maxTraffic; carColor = '\0';
   maxTraffic = 6;
+
+
+
   if (frontEnd.gameMode == '\x01') {
     maxTraffic = 3;
   }
@@ -2091,19 +2315,18 @@ static void Front_InitTraffic(tFEStream &streamData)
       maxTraffic = 1;
     }
   }
+
+
   bTraffic = frontEnd.traffic[(byte)frontEnd.pinkSlipsTrackIndex] != '\0';
-  /* MATCH: a SWITCH, not an if/else chain -- the oracle dispatches with
-     `bltz raceType,default` + `slti raceType,2` + `beq raceType,6`, i.e. gcc's
-     emit_case_nodes bound test against the PROMOTED int index type (an if-chain
-     on the `char` field can never emit the bltz, and `(byte)x < 2` gives sltiu).
-     The empty `case 6:` is required for the 3-node tree. */
   switch (frontEnd.raceType) {
   case RaceType_SingleRace:
   case RaceType_HotPursuit:
+
+
     if ((frontEnd.carListType == '\0') && (frontEnd.raceType == RaceType_SingleRace)) {
       bTraffic = true;
-    }
-    else if (frontEnd.raceType == RaceType_HotPursuit) {
+    } else if (frontEnd.raceType == RaceType_HotPursuit) {
+
       bTraffic = frontEnd.traffic[0] != '\0';
     }
     if (2 < streamData.trackInfo.fTrackDifficulty) {
@@ -2112,34 +2335,40 @@ static void Front_InitTraffic(tFEStream &streamData)
     if (streamData.trackInfo.fIsEgg != '\0') {
       bTraffic = false;
     }
-    if (frontEnd.gameMode == '\x01') {
-      if (frontEnd.raceType == RaceType_HotPursuit) {
-        bTraffic = false;
-      }
-    }
-    else if (frontEnd.oppNumber == '\x02') {
+    if (frontEnd.gameMode == '\x01') { if (frontEnd.raceType == RaceType_HotPursuit) {
+
+
+        bTraffic = false; } } else if (frontEnd.oppNumber == '\x02') {
       bTraffic = false;
     }
     break;
   case RaceType_PinkSlips:
     break;
   default:
+
     bTraffic = false;
     break;
   }
   if (bTraffic) {
     i = 0;
     streamData.numTraffic = 0;
-    if (maxTraffic != 0) {
-      do {
+
+
+
+
+
+    if (maxTraffic != 0) { do {
+
         carModel = (tCarModels)(byte)streamData.trackInfo.fTrafficCars[i++];
-        if (5 < (int)i) {
-          i = 0;
+        if (5 < (int)i) { i = 0;
         }
         if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
+
+
           carManager.AddCarToIngameList(carModel,carColor);
         }
         streamData.trafficCars[streamData.numTraffic] = (u_short)carModel;
+
         streamData.numTraffic = streamData.numTraffic + 1;
       } while (streamData.numTraffic < maxTraffic);
     }
@@ -2157,14 +2386,21 @@ static void Front_InitTraffic(tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
-
-{
-  /* SYM ORDER (W86-S2): the 8c Def rows read i, carInfo, carLineup. */
-  short i;
-  tCarInfo *carInfo;
-  tCarLineup *carLineup;
-
+      /* MATCH: `!= 0` polarity (retail `beqz`: the ==0/fDefaultTires arm is OUT-OF-LINE,
+         the `2` arm falls through) + per-arm store, which also keeps the `2` arm-local so
+         the flag test emits `andi v0,v0,2` instead of a CSE'd `li v1,2; and`. */
+      /* MATCH: the value store lives INSIDE each arm (no shared iVar1 temp) -- gcc
+         cross-jump-merges the common tail `*stream++` back into ONE store while the
+         differing `li v0,K` stays per-arm, so the constant lands in $v0 (retail).  A
+         shared temp instead merges BOTH stores and parks the value in $a2. */
+      /* MATCH: all three terms spelled as the SAME array element (retail's byte-2 read is
+         `word >> 16 & 0xff`, which gcc narrows to the `lbu +2` itself) -- identical to the
+         sibling Front_AppendOpponentData, which byte-matches.  The `(byte*)(int)base+idx*4+2`
+         cast spelling makes a SECOND address expression and flips the v0/v1 coloring plus the
+         `addu` operand order. */
+      /* MATCH: written as the De-Morgan complement with the arms swapped so the store-1
+         block is the fall-through/`j` arm and store-0 is the `bne fCarID` target -- retail's
+         exact `beqz ABS; bnez fABSAvail; bne fCarID` short-circuit layout. */
   /* MATCH: SYM-implied `short i` loop counter (index form) + pointer-increment stores
      (*stream++ = v;), same idiom as the sibling Append* fns.
      W56-A6: removed the redundant `sVar3 = i` copy (was an extra `addu t0,s1,zero`), and
@@ -2191,123 +2427,85 @@ static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
      the entry block, so it (not the a0->a3 parm copy) is what reorg steals into the
      `blez` delay slot, which is exactly retail's `blez v0 [slot: addu s1,zero,zero]`.
      Also falsified this wave: `register int *stream` parameter 2 (inert). */
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, carInfo, carLineup. */
+#line 1886 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
+
+
+{
+  short i;
+  tCarInfo *carInfo;
+  tCarLineup *carLineup;
   i = 0;
-  if (0 < streamData.numPlayers) {
-    do {
+  if (0 < streamData.numPlayers) { do {
+
+
       carLineup = &streamData.carLineup[i];
-      *stream++ = 0x119;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (int)(signed char)carLineup->position;
-      *stream++ = 0x104;
-      *stream++ = (int)streamData.currentCar;
-      carInfo = streamData.playerCars + i;
-      *stream++ = (uint)carInfo->fSimNumber;
-      *stream++ = 0x106;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)frontEnd.transmission[i];
-      *stream++ = 0x10a;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)carInfo->fColor;
-      *stream++ = 0x10b;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x111;
-      *stream++ = (int)streamData.currentCar;
-      /* MATCH: written as the De-Morgan complement with the arms swapped so the store-1
-         block is the fall-through/`j` arm and store-0 is the `bne fCarID` target -- retail's
-         exact `beqz ABS; bnez fABSAvail; bne fCarID` short-circuit layout. */
-      if (((frontEnd.ABS[i] != '\0') && (carInfo->fABSAvailable != '\0')) ||
-         ((signed char)carInfo->fCarID == '\x1c')) {
+
+      *stream++ = 0x119; *stream++ = (int)streamData.currentCar; *stream++ = (int)(signed char)carLineup->position;
+      *stream++ = 0x104; *stream++ = (int)streamData.currentCar; carInfo = streamData.playerCars + i; *stream++ = (uint)carInfo->fSimNumber;
+      *stream++ = 0x106; *stream++ = (int)streamData.currentCar; *stream++ = (uint)(byte)frontEnd.transmission[i];
+      *stream++ = 0x10a; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fColor;
+      *stream++ = 0x10b; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+
+      *stream++ = 0x111; *stream++ = (int)streamData.currentCar;
+      if (((frontEnd.ABS[i] != '\0') && (carInfo->fABSAvailable != '\0')) || ((signed char)carInfo->fCarID == '\x1c')) {
         *stream++ = 1;
+      } else { *stream++ = 0;
       }
-      else {
-        *stream++ = 0;
-      }
-      *stream++ = 0x115;
-      *stream++ = (int)streamData.currentCar;
-      if (((frontEnd.ABS[i] != '\0') && (carInfo->fTractionAvailable != '\0')) ||
-         ((signed char)carInfo->fCarID == '\x1c')) {
+      *stream++ = 0x115; *stream++ = (int)streamData.currentCar;
+      if (((frontEnd.ABS[i] != '\0') && (carInfo->fTractionAvailable != '\0')) || ((signed char)carInfo->fCarID == '\x1c')) {
         *stream++ = 1;
+      } else { *stream++ = 0;
       }
-      else {
-        *stream++ = 0;
-      }
-      *stream++ = 0x110;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (byte)carLineup->carUpgrades >> 2 & 1;
-      *stream++ = 0x112;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (byte)carLineup->carUpgrades >> 1 & 1;
-      *stream++ = 0x10d;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (byte)carLineup->carUpgrades & 1;
-      *stream++ = 0x10c;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x122;
-      *stream++ = (int)streamData.currentCar;
-      /* MATCH: all three terms spelled as the SAME array element (retail's byte-2 read is
-         `word >> 16 & 0xff`, which gcc narrows to the `lbu +2` itself) -- identical to the
-         sibling Front_AppendOpponentData, which byte-matches.  The `(byte*)(int)base+idx*4+2`
-         cast spelling makes a SECOND address expression and flips the v0/v1 coloring plus the
-         `addu` operand order. */
-      *stream++ = carInfo->fColorList[carInfo->fColor] >> 0x10 & 0xff |
-                    carInfo->fColorList[carInfo->fColor] & 0xff00 |
-                    (carInfo->fColorList[carInfo->fColor] & 0xff) << 0x10;
-      *stream++ = 0x123;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = carInfo->fHudColor[(streamData.track).fTimeOfDay];
-      *stream++ = 0x124;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)carInfo->fSpeechColors[carInfo->fColor];
-      *stream++ = 0x125;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)carInfo->fCountry;
-      /* MATCH: the value store lives INSIDE each arm (no shared iVar1 temp) -- gcc
-         cross-jump-merges the common tail `*stream++` back into ONE store while the
-         differing `li v0,K` stays per-arm, so the constant lands in $v0 (retail).  A
-         shared temp instead merges BOTH stores and parks the value in $a2. */
+      *stream++ = 0x110; *stream++ = (int)streamData.currentCar; *stream++ = (byte)carLineup->carUpgrades >> 2 & 1;
+      *stream++ = 0x112; *stream++ = (int)streamData.currentCar; *stream++ = (byte)carLineup->carUpgrades >> 1 & 1;
+      *stream++ = 0x10d; *stream++ = (int)streamData.currentCar; *stream++ = (byte)carLineup->carUpgrades & 1;
+      *stream++ = 0x10c; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+
+      *stream++ = 0x122; *stream++ = (int)streamData.currentCar; *stream++ = carInfo->fColorList[carInfo->fColor] >> 0x10 & 0xff | carInfo->fColorList[carInfo->fColor] & 0xff00 | (carInfo->fColorList[carInfo->fColor] & 0xff) << 0x10;
+
+      *stream++ = 0x123; *stream++ = (int)streamData.currentCar; *stream++ = carInfo->fHudColor[(streamData.track).fTimeOfDay];
+      *stream++ = 0x124; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSpeechColors[carInfo->fColor];
+      *stream++ = 0x125; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fCountry;
+
+
       if (carInfo->fCarClass == '\a') {
-        *stream++ = 0x105;
-        *stream++ = (int)streamData.currentCar;
-        *stream++ = 0x41;
+
+        *stream++ = 0x105; *stream++ = (int)streamData.currentCar; *stream++ = 0x41;
       }
       else {
-        *stream++ = 0x105;
-        *stream++ = (int)streamData.currentCar;
-        *stream++ = 1;
+
+        *stream++ = 0x105; *stream++ = (int)streamData.currentCar; *stream++ = 1;
       }
-      *stream++ = 0x113;
-      *stream++ = (int)streamData.currentCar;
-      /* MATCH: `!= 0` polarity (retail `beqz`: the ==0/fDefaultTires arm is OUT-OF-LINE,
-         the `2` arm falls through) + per-arm store, which also keeps the `2` arm-local so
-         the flag test emits `andi v0,v0,2` instead of a CSE'd `li v1,2; and`. */
+
+      *stream++ = 0x113; *stream++ = (int)streamData.currentCar;
+
       if ((carInfo->fUpgrades & 2) != 0) {
+
+
+
+
         *stream++ = 2;
       }
       else {
         *stream++ = (uint)carInfo->fDefaultTires;
       }
-      *stream++ = 0x107;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)frontEnd.rampSteer[i];
-      *stream++ = 0x108;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)frontEnd.rampGas[i];
-      *stream++ = 0x109;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)frontEnd.rampBrake[i];
+
+
+      *stream++ = 0x107; *stream++ = (int)streamData.currentCar; *stream++ = (uint)(byte)frontEnd.rampSteer[i];
+      *stream++ = 0x108; *stream++ = (int)streamData.currentCar; *stream++ = (uint)(byte)frontEnd.rampGas[i];
+      *stream++ = 0x109; *stream++ = (int)streamData.currentCar; *stream++ = (uint)(byte)frontEnd.rampBrake[i];
+
       stream = OutputDisplaySettings(stream,(int)streamData.currentCar,i,streamData.trackInfo);
-      i = i + 1;
-      streamData.currentCar = streamData.currentCar + 1;
+      i = i + 1; streamData.currentCar = streamData.currentCar + 1;
     } while (i < streamData.numPlayers);
   }
-  *stream++ = 0x1d;
-  *stream++ = (int)streamData.numPlayers;
-  *stream++ = 0x1e;
-  *stream++ = (int)streamData.numOpponents;
-  *stream++ = 0xe;
-  *stream++ = 0;
+
+  *stream++ = 0x1d; *stream++ = (int)streamData.numPlayers;
+  *stream++ = 0x1e; *stream++ = (int)streamData.numOpponents;
+  *stream++ = 0xe; *stream++ = 0;
+
   return stream;
 }
 
@@ -2320,14 +2518,12 @@ static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
-
-{
-  /* SYM ORDER (W86-S2): the 8c Def rows read i, carInfo, carLineup. */
-  short i;
-  tCarInfo *carInfo;
-  tCarLineup *carLineup;
-
+      /* MATCH/SYM: compute the lineup index directly and hoist its address into the
+         recorded `carLineup` pointer, used for every
+         field access below -- the oracle materializes ONE base (`addiu s0,s0,0x1A4` = the
+         carLineup[] field offset) and reads each member via a SMALL displacement off it,
+         rather than re-deriving each member address (base+0x1A4+fieldOff) at every
+         access. */
   /* MATCH: SYM-implied `short i` loop counter (index form) + pointer-increment stores
      (*stream++ = v;), same idiom as the sibling Append* fns. Materialize p=stream FIRST (before
      the if), like Front_AppendPerpData -- the oracle copies the incoming arg into its
@@ -2337,72 +2533,42 @@ static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
      reproduces the same prologue grouping in pure C, exactly as in the sibling
      Front_AppendPlayerCarData.  A `while` rewrite of the guard measures 13, so the
      do/while shape with the hoisted counter is the one that matches. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, carInfo, carLineup. */
+#line 1965 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
+
+
+{
+  short i;
+  tCarInfo *carInfo;
+  tCarLineup *carLineup;
   i = 0;
   if (0 < streamData.numOpponents) {
     do {
-      /* MATCH/SYM: compute the lineup index directly and hoist its address into the
-         recorded `carLineup` pointer, used for every
-         field access below -- the oracle materializes ONE base (`addiu s0,s0,0x1A4` = the
-         carLineup[] field offset) and reads each member via a SMALL displacement off it,
-         rather than re-deriving each member address (base+0x1A4+fieldOff) at every
-         access. */
       carLineup = &streamData.carLineup[(int)i + (int)streamData.numPlayers];
       carInfo = carManager.GetCarFromID((short)carLineup->carModel);
-      *stream++ = 0x119;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (int)(signed char)carLineup->position;
-      *stream++ = 0x104;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)carInfo->fSimNumber;
-      *stream++ = 0x106;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 1;
-      *stream++ = 0x105;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 2;
-      *stream++ = 0x114;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = carLineup->personality;
-      *stream++ = 0x118;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = carLineup->personality;
-      *stream++ = 0x10a;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)carLineup->carColor;
-      *stream++ = 0x10b;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x110;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (byte)carLineup->carUpgrades & 1;
-      *stream++ = 0x112;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (byte)carLineup->carUpgrades >> 1 & 1;
-      *stream++ = 0x10d;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (byte)carLineup->carUpgrades >> 2 & 1;
-      *stream++ = 0x10c;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x125;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x122;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = carInfo->fColorList[(byte)carLineup->carColor] >> 0x10 & 0xff |
-                    carInfo->fColorList[(byte)carLineup->carColor] & 0xff00 |
-                    (carInfo->fColorList[(byte)carLineup->carColor] & 0xff) << 0x10;
-      *stream++ = 0x123;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = carInfo->fHudColor[(streamData.track).fTimeOfDay];
-      *stream++ = 0x124;
-      *stream++ = (int)streamData.currentCar;
-      i = i + 1;
-      *stream++ = (uint)carInfo->fSpeechColors[(byte)carLineup->carColor];
+
+      *stream++ = 0x119; *stream++ = (int)streamData.currentCar; *stream++ = (int)(signed char)carLineup->position;
+      *stream++ = 0x104; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSimNumber;
+      *stream++ = 0x106; *stream++ = (int)streamData.currentCar; *stream++ = 1;
+      *stream++ = 0x105; *stream++ = (int)streamData.currentCar; *stream++ = 2;
+      *stream++ = 0x114; *stream++ = (int)streamData.currentCar; *stream++ = carLineup->personality;
+      *stream++ = 0x118; *stream++ = (int)streamData.currentCar; *stream++ = carLineup->personality;
+      *stream++ = 0x10a; *stream++ = (int)streamData.currentCar; *stream++ = (uint)(byte)carLineup->carColor;
+      *stream++ = 0x10b; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x110; *stream++ = (int)streamData.currentCar; *stream++ = (byte)carLineup->carUpgrades & 1;
+      *stream++ = 0x112; *stream++ = (int)streamData.currentCar; *stream++ = (byte)carLineup->carUpgrades >> 1 & 1;
+      *stream++ = 0x10d; *stream++ = (int)streamData.currentCar; *stream++ = (byte)carLineup->carUpgrades >> 2 & 1;
+      *stream++ = 0x10c; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x125; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+
+      *stream++ = 0x122; *stream++ = (int)streamData.currentCar; *stream++ = carInfo->fColorList[(byte)carLineup->carColor] >> 0x10 & 0xff | carInfo->fColorList[(byte)carLineup->carColor] & 0xff00 | (carInfo->fColorList[(byte)carLineup->carColor] & 0xff) << 0x10;
+      *stream++ = 0x123; *stream++ = (int)streamData.currentCar; *stream++ = carInfo->fHudColor[(streamData.track).fTimeOfDay];
+      *stream++ = 0x124; *stream++ = (int)streamData.currentCar; i = i + 1; *stream++ = (uint)carInfo->fSpeechColors[(byte)carLineup->carColor];
+
       streamData.currentCar = streamData.currentCar + 1;
     } while (i < streamData.numOpponents);
-  }
-  return stream;
+  } return stream;
 }
 
 
@@ -2414,71 +2580,55 @@ static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static int *Front_AppendCopData(int *stream,tFEStream &streamData)
-
-{
-  /* SYM ORDER (W86-S2): the SYM row i leads; the non-SYM carrier follows it. */
-  short i;
-  const int copCarModelTag = 0x104;
-
-  if (0 < (int)streamData.numCops + (int)streamData.numSuperCops) {
-    *stream++ = 0xc;
-    *stream++ = 1;
-  }
-  /* MATCH: pointer-increment stores (*stream++ = v;), not indexed stream[N]=v -- the oracle
-     re-walks the stream cursor with `addiu s0,s0,4` after EVERY word (tag+value pairs),
-     rematerializing the address each time rather than computing fixed offsets from an
-     unchanging base. Same idiom as Front_AppendTrackData. */
-  /* MATCH (LAW 05A/lever #15a): retail's loop is NOT rotated -- the bound is
-     re-loaded and the counter re-sign-extended at the loop HEAD each pass and the
-     back edge is an unconditional `j`.  An exit-in-the-middle while(1) reproduces
-     that; a `for`/`while` condition gets loop-rotated to a bottom test. */
+  /* SYM: a plain for (level +04c) whose body compound (+050..+104, its END note hoisted to the ternary join)
+     declares the looked-up car, optimised out of the debug locals; retail's loop is not rotated here because the
+     two-load bound is too long for jump.c to duplicate */
   /* MATCH (W56-A6): the missing `i = i + 1` increment was restored (oracle `addiu s3,s3,1`),
      and the bound test is written `i >= sum` (i first) so gcc sign-extends i BEFORE loading the
      two bound shorts -- filling the load-delay slot with the `sra` exactly as retail.
      SYM restore 2026-08-25: the direct conditional cursor store below removes the
      decompiler iVar2/slot pair and reproduces retail's pre-saved cursor and branch
      delay-slot increment, sealing the function at 149/149. */
-  /* SYM: a plain for (level +04c) whose body compound (+050..+104, its END note hoisted to the ternary join)
-     declares the looked-up car, optimised out of the debug locals; retail's loop is not rotated here because the
-     two-load bound is too long for jump.c to duplicate */
+  /* MATCH (LAW 05A/lever #15a): retail's loop is NOT rotated -- the bound is
+     re-loaded and the counter re-sign-extended at the loop HEAD each pass and the
+     back edge is an unconditional `j`.  An exit-in-the-middle while(1) reproduces
+     that; a `for`/`while` condition gets loop-rotated to a bottom test. */
+#line 2000 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static int *Front_AppendCopData(int *stream,tFEStream &streamData)
+
+
+{
+  /* SYM ORDER (W86-S2): the SYM row i leads; the non-SYM carrier follows it. */
+  short i;
+  const int copCarModelTag = 0x104;
+  if (0 < (int)streamData.numCops + (int)streamData.numSuperCops) {
+
+    *stream++ = 0xc; *stream++ = 1;
+  }
+  /* MATCH: pointer-increment stores (*stream++ = v;), not indexed stream[N]=v -- the oracle
+     re-walks the stream cursor with `addiu s0,s0,4` after EVERY word (tag+value pairs),
+     rematerializing the address each time rather than computing fixed offsets from an
+     unchanging base. Same idiom as Front_AppendTrackData. */
+
   for (i = 0; i < (int)streamData.numCops + (int)streamData.numSuperCops; i++) {
+
     tCarInfo *carInfo = carManager.GetCarFromID((short)streamData.copCars[i]);
-    *stream++ = copCarModelTag;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = (uint)carInfo->fSimNumber;
-    *stream++ = 0x106;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = 1;
-    *stream++ = 0x105;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = (i < streamData.numSuperCops) ? 0x10 : 8;
-    *stream++ = 0x118;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = (byte)frontEnd.skillLevel + 5;
-    *stream++ = 0x10a;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = 0;
-    *stream++ = 0x10b;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = 0;
-    *stream++ = 0x10c;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = 0;
-    *stream++ = 0x125;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = (int)streamData.copCountry[i];
-    *stream++ = 0x110;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = 0;
-    *stream++ = 0x112;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = 0;
-    *stream++ = 0x10d;
-    *stream++ = (int)streamData.currentCar;
-    *stream++ = 0;
+
+    *stream++ = copCarModelTag; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSimNumber;
+    *stream++ = 0x106; *stream++ = (int)streamData.currentCar; *stream++ = 1;
+    *stream++ = 0x105; *stream++ = (int)streamData.currentCar; *stream++ = (i < streamData.numSuperCops) ? 0x10 : 8;
+    *stream++ = 0x118; *stream++ = (int)streamData.currentCar; *stream++ = (byte)frontEnd.skillLevel + 5;
+    *stream++ = 0x10a; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+    *stream++ = 0x10b; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+    *stream++ = 0x10c; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+    *stream++ = 0x125; *stream++ = (int)streamData.currentCar; *stream++ = (int)streamData.copCountry[i];
+    *stream++ = 0x110; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+    *stream++ = 0x112; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+    *stream++ = 0x10d; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+
     streamData.currentCar = streamData.currentCar + 1;
   }
+
   return stream;
 }
 
@@ -2491,86 +2641,63 @@ static int *Front_AppendCopData(int *stream,tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
-
-{
-  /* SYM ORDER (W86-S2): the SYM row i leads; the two non-SYM carriers follow. */
-  short i;
-  /* SYM-CODEGEN-CARRIER: carInfo -- inlining the lookup at fSimNumber moves
-     the call past the leading tag/cursor updates and changes the entire
-     handout (FAIL 248 at 168/166). */
-  tCarInfo *carInfo;
-  /* SYM-CODEGEN-CARRIER: carManagerPtr -- direct carManager access is
-     count-exact but schedules its `lui a0` four instructions too early
-     (FAIL 2 at 166/166).  The pointer preserves retail placement. */
-  tCarManager *carManagerPtr;
-
+  /* MATCH: SYM-implied `short i` loop counter and pointer-increment stores. IDA's retail
+     allocation shows s0 holding the complete streamData+i*8 per-perp base, reused by the
+     16-bit carModel and byte carColor reads. Materializing carManagerPtr before that base
+     calculation also gives GCC's scheduler the oracle's early lui placement. */
   /* MATCH: pointer-increment stores here too (same idiom as the rest of the fn). Branch
      polarity/arm order flipped vs the natural null-check-first form -- the oracle's `beqz`
      skips the RARE (pMission==NULL) case out-of-line and falls through the common
      (pMission!=NULL) case. Advance the `stream` parameter itself for the whole function --
      the oracle copies the incoming arg into its
      callee-saved cursor reg immediately, before the if/else, not just before the loop. */
+  /* SYM-CODEGEN-CARRIER: carManagerPtr -- direct carManager access is
+     count-exact but schedules its `lui a0` four instructions too early
+     (FAIL 2 at 166/166).  The pointer preserves retail placement. */
+  /* SYM-CODEGEN-CARRIER: carInfo -- inlining the lookup at fSimNumber moves
+     the call past the leading tag/cursor updates and changes the entire
+     handout (FAIL 248 at 168/166). */
+  /* SYM ORDER (W86-S2): the SYM row i leads; the two non-SYM carriers follow. */
+#line 2037 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
+
+
+{
+  short i;
+  tCarInfo *carInfo;
+  tCarManager *carManagerPtr;
   if (streamData.pMission != (tMissionInfo *)0x0) {
-    *stream++ = 0x25;
-    *stream++ = (uint)streamData.pMission->fNumStages;
-    *stream++ = 0x26;
-    *stream++ = (uint)streamData.pMission->fStageOffset;
+
+    *stream++ = 0x25; *stream++ = (uint)streamData.pMission->fNumStages;
+    *stream++ = 0x26; *stream++ = (uint)streamData.pMission->fStageOffset;
   }
   else {
-    *stream++ = 0x25;
-    *stream++ = 0;
-    *stream++ = 0x26;
-    *stream++ = 0;
+
+    *stream++ = 0x25; *stream++ = 0;
+    *stream++ = 0x26; *stream++ = 0;
   }
-  /* MATCH: SYM-implied `short i` loop counter and pointer-increment stores. IDA's retail
-     allocation shows s0 holding the complete streamData+i*8 per-perp base, reused by the
-     16-bit carModel and byte carColor reads. Materializing carManagerPtr before that base
-     calculation also gives GCC's scheduler the oracle's early lui placement. */
   i = 0;
-  if (0 < streamData.numPerpObjects) {
-    do {
-      carManagerPtr = &carManager;
-      carInfo = carManagerPtr->GetCarFromID((short)streamData.perps[i].carModel);
-      *stream++ = 0x104;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)carInfo->fSimNumber;
-      *stream++ = 0x106;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 1;
-      *stream++ = 0x10a;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)streamData.perps[i].carColor;
-      *stream++ = 0x10b;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x105;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 2;
-      *stream++ = 0x118;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x10c;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 1;
-      *stream++ = 0x125;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x110;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x112;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x10d;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      i = i + 1;
-      streamData.currentCar = streamData.currentCar + 1;
+  if (0 < streamData.numPerpObjects) { do {
+
+      carManagerPtr = &carManager; carInfo = carManagerPtr->GetCarFromID((short)streamData.perps[i].carModel);
+
+      *stream++ = 0x104; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSimNumber;
+      *stream++ = 0x106; *stream++ = (int)streamData.currentCar; *stream++ = 1;
+
+      *stream++ = 0x10a; *stream++ = (int)streamData.currentCar; *stream++ = (uint)(byte)streamData.perps[i].carColor;
+      *stream++ = 0x10b; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x105; *stream++ = (int)streamData.currentCar; *stream++ = 2;
+      *stream++ = 0x118; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x10c; *stream++ = (int)streamData.currentCar; *stream++ = 1;
+      *stream++ = 0x125; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x110; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x112; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x10d; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      i = i + 1; streamData.currentCar = streamData.currentCar + 1;
     } while (i < streamData.numPerpObjects);
   }
-  *stream++ = 0x25;
-  *stream++ = (int)streamData.numPerps;
+  *stream++ = 0x25; *stream++ = (int)streamData.numPerps;
+
   return stream;
 }
 
@@ -2582,19 +2709,6 @@ static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
-
-{
-  /* SYM ORDER (W86-S2): the 8c Def rows read i, density. The lookup
-     carrier follows; the const traffic-count alias below is optimized out
-     of debug locals while preserving the retail division code. */
-  short i;
-  int density;
-  /* SYM-CODEGEN-CARRIER: carInfo -- the lookup result must survive the two
-     leading stream stores while `i` advances.  Inlining GetCarFromID at the
-     fSimNumber use is count-exact but FAIL 24 (148/148). */
-  tCarInfo *carInfo;
-
   /* MATCH: use the SYM-implied `short i` loop counter directly (index the short array by it)
      instead of the decompiler's `int iVar2` + manual `(i<<0x10)>>0xf`/`*0x10000>>0x10`
      sign-extend-emulation byte-offset cast -- and pointer-increment stores (*stream++ = v;)
@@ -2602,54 +2716,44 @@ static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
      GCC 2.8.1 also needs a distinct 32-bit const `traffic` expression and a
      ternary minimum clamp: together they prevent narrow-subreg extension of
      the quotient without adding a debug local. */
+  /* SYM-CODEGEN-CARRIER: carInfo -- the lookup result must survive the two
+     leading stream stores while `i` advances.  Inlining GetCarFromID at the
+     fSimNumber use is count-exact but FAIL 24 (148/148). */
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, density. The lookup
+     carrier follows; the const traffic-count alias below is optimized out
+     of debug locals while preserving the retail division code. */
+#line 2078 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
+
+
+{
+  short i;
+  int density;
+  tCarInfo *carInfo;
   i = 0;
-  if (0 < streamData.numTraffic) {
-    do {
+  if (0 < streamData.numTraffic) { do {
+
       carInfo = carManager.GetCarFromID(streamData.trafficCars[i]);
-      *stream++ = 0x104;
-      i = i + 1;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)carInfo->fSimNumber;
-      *stream++ = 0x106;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 1;
-      *stream++ = 0x10a;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x10b;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x105;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 4;
-      *stream++ = 0x118;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 8;
-      *stream++ = 0x10c;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 1;
-      *stream++ = 0x125;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x110;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x112;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
-      *stream++ = 0x10d;
-      *stream++ = (int)streamData.currentCar;
-      *stream++ = 0;
+
+      *stream++ = 0x104; i = i + 1; *stream++ = (int)streamData.currentCar; *stream++ = (uint)carInfo->fSimNumber;
+      *stream++ = 0x106; *stream++ = (int)streamData.currentCar; *stream++ = 1;
+      *stream++ = 0x10a; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x10b; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x105; *stream++ = (int)streamData.currentCar; *stream++ = 4;
+      *stream++ = 0x118; *stream++ = (int)streamData.currentCar; *stream++ = 8;
+      *stream++ = 0x10c; *stream++ = (int)streamData.currentCar; *stream++ = 1;
+      *stream++ = 0x125; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x110; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x112; *stream++ = (int)streamData.currentCar; *stream++ = 0;
+      *stream++ = 0x10d; *stream++ = (int)streamData.currentCar; *stream++ = 0;
       streamData.currentCar = streamData.currentCar + 1;
     } while (i < streamData.numTraffic);
   }
-  const int traffic = streamData.numTraffic;
-  density = traffic / 3;
+  const int traffic = streamData.numTraffic; density = traffic / 3;
   if (0 < streamData.numTraffic) {
     density = (density < 1) ? 1 : density;
-  }
-  *stream++ = 0xd;
-  *stream++ = density;
+  } *stream++ = 0xd; *stream++ = density;
+
   return stream;
 }
 
@@ -2661,53 +2765,57 @@ static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
    
    [ghidra-meta] section: front.text */
 
-static int *Front_AppendTrackData(int *stream,tFEStream &streamData)
-
-{
-  /* SYM ORDER (W86-S2): the 8c Def rows read trackInfo, valtopass. The
-     const speed-mode alias below preserves signed tests but disappears from
-     debug locals, as in retail. */
-  tTrackInformation trackInfo;
-  int valtopass;
-
-  trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-             trackInfo);
-  valtopass = 0;
-  const int speedMode = frontEnd.displaySpeed[0];
-  if (speedMode == 1) goto track_value_ready;
-  /* MATCH: retail has three explicit speed-mode tests
-     and one shared measurement block. The gotos
-     preserve its `slti; bnez`, `bne`, and case-2 `j` CFG; the signed int pseudo is required
-     for GCC 2.8.1 to select `slti` rather than the unsigned-char `sltiu` form. */
-  if (speedMode < 2) goto use_country_measurement;
-  if (speedMode != 2) goto use_country_measurement;
-  valtopass = 1;
-  goto track_value_ready;
-use_country_measurement:
-  /* CountryMeasurement is really `short[8]` (fetracks.cpp) but front_externs.h declares
-     it `extern int CountryMeasurement[16]` (a cross-TU type mismatch we can't fix here --
-     out of scope, only front.cpp is owned by this pass). Cast at the use site to the true
-     element type/stride so the load matches the oracle's `lh`+short-stride index. */
-  valtopass = (int)((short *)CountryMeasurement)[trackInfo.fSpeedoCountry];
-track_value_ready:
   /* MATCH: pointer-increment stores (*stream++ = v;), not indexed stream[N]=v -- the oracle
      re-walks the stream cursor with `addiu s1,s1,4` after EVERY word (tag+value pairs),
      rematerializing the address each time rather than computing N fixed offsets from one
      unchanging base. Same family as the index-vs-pointer-walk lever, applied to a serializer. */
-  *stream++ = 0x1a;
-  *stream++ = valtopass;
-  *stream++ = 0x18;
-  *stream++ = (uint)streamData.track.fMirrored;
-  *stream++ = 0x19;
-  *stream++ = (uint)streamData.track.fDirection;
-  *stream++ = 0x14;
-  *stream++ = (uint)streamData.track.fWeather;
-  *stream++ = 0x17;
-  *stream++ = (uint)streamData.track.fTimeOfDay;
-  *stream++ = 0x12;
-  *stream++ = (uint)streamData.trackInfo.fSimNumber;
-  *stream++ = 0xb;
-  *stream++ = streamData.track.fDifficulty;
+  /* CountryMeasurement is really `short[8]` (fetracks.cpp) but front_externs.h declares
+     it `extern int CountryMeasurement[16]` (a cross-TU type mismatch we can't fix here --
+     out of scope, only front.cpp is owned by this pass). Cast at the use site to the true
+     element type/stride so the load matches the oracle's `lh`+short-stride index. */
+  /* MATCH: retail has three explicit speed-mode tests
+     and one shared measurement block. The gotos
+     preserve its `slti; bnez`, `bne`, and case-2 `j` CFG; the signed int pseudo is required
+     for GCC 2.8.1 to select `slti` rather than the unsigned-char `sltiu` form. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read trackInfo, valtopass. The
+     const speed-mode alias below preserves signed tests but disappears from
+     debug locals, as in retail. */
+#line 2111 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+static int *Front_AppendTrackData(int *stream,tFEStream &streamData)
+
+
+{
+  tTrackInformation trackInfo;
+  int valtopass; trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo);
+  valtopass = 0;
+
+  const int speedMode = frontEnd.displaySpeed[0]; if (speedMode == 1) goto track_value_ready; if (speedMode < 2) goto use_country_measurement; if (speedMode != 2) goto use_country_measurement;
+  valtopass = 1;
+
+
+
+
+
+
+
+
+  goto track_value_ready;
+use_country_measurement:
+  valtopass = (int)((short *)CountryMeasurement)[trackInfo.fSpeedoCountry];
+track_value_ready:
+
+  *stream++ = 0x1a; *stream++ = valtopass;
+  *stream++ = 0x18; *stream++ = (uint)streamData.track.fMirrored;
+  *stream++ = 0x19; *stream++ = (uint)streamData.track.fDirection;
+
+
+  *stream++ = 0x14; *stream++ = (uint)streamData.track.fWeather;
+
+
+  *stream++ = 0x17; *stream++ = (uint)streamData.track.fTimeOfDay;
+  *stream++ = 0x12; *stream++ = (uint)streamData.trackInfo.fSimNumber;
+
+  *stream++ = 0xb; *stream++ = streamData.track.fDifficulty;
   return stream;
   /* NEAR-SEAL FLOOR (4 diffs, local-alloc/sched gap §4.6 qtytrace): the final
      fDifficulty temp colors to v1 here vs v0 in the oracle. Oracle order is
@@ -2731,7 +2839,9 @@ track_value_ready:
    The function scope still ends at +0x78 rather than retail +0x74;
    Front_BuildStream remains PASS 1000/1000. */
 
+#line 2266 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 bool Front_EnableLocalSpeech(void)
+
 
 {
   bool result;
@@ -2739,12 +2849,21 @@ bool Front_EnableLocalSpeech(void)
   result = false;
   if (frontEnd.raceType != RaceType_HotPursuit)
     return false;
-  trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-             trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex], trackInfo);
+
   const int lang = trackInfo.fLanguage;
   if ((lang != (byte)frontEnd.language) && (0 <= lang) &&
      (lang < 3 || lang == 6))
+
+
+
+
+
     result = true;
+
+
+
+
   return result;
 }
 
@@ -2759,7 +2878,12 @@ bool Front_EnableLocalSpeech(void)
    
    [ghidra-meta] section: front.text */
 
+    /* The two scoped const aliases preserve retail's word load and two
+       empty +0 debug scopes. Direct assignment narrowed the load to lhu;
+       this is a verified source-shape match, not proof of original names. */
+#line 2296 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 int * Front_BuildStream(int *stream)
+
 
 {
   /* SYM ORDER: the 8c Def rows read d, j, streamData, colourLoop,
@@ -2776,330 +2900,413 @@ int * Front_BuildStream(int *stream)
   int trackLang;
 
   Front_InitStream(streamData);
+
+
   Front_InitPlayerCars(streamData);
+
+
   Front_InitTrack(streamData);
+
+
+
   Front_InitTourneyTraffic(streamData);
+
+
   Front_InitOpponentCars(streamData);
+
+
   Front_InitMissions(streamData);
+
+
   Front_InitCopCars(streamData);
+
+
+
   Front_InitPerps(streamData);
-  Front_InitTraffic(streamData);
-  {
-    /* The two scoped const aliases preserve retail's word load and two
-       empty +0 debug scopes. Direct assignment narrowed the load to lhu;
-       this is a verified source-shape match, not proof of original names. */
-    const int t = ticks;
+
+
+
+  Front_InitTraffic(streamData); { const int t = ticks;
     {
       const short seed = (short)t;
+
+
+
+
+
+
+
+
+
+
+
+
       seedrandom(frontEnd.randomSeed = seed);
     }
-  }
-  for (colourLoop = 7; 0 <= colourLoop; colourLoop--) {
-    colourChosen[colourLoop] = 0;
-  }
+  } for (colourLoop = 7; 0 <= colourLoop; colourLoop--) {
+    colourChosen[colourLoop] = 0; }
+
   Controller_SetRamp();
   d = stream + 0x35;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   resizememadr(stream,0x10000);
-  *stream = 0x34;
-  stream[1] = (uint)(byte)frontEnd.controlConfig[0];
-  stream[2] = 0x35;
-  stream[3] = (uint)(byte)frontEnd.deadSpot[0];
-  stream[4] = 0x36;
-  stream[5] = (uint)(byte)frontEnd.steeringRange[0];
-  stream[6] = 0x37;
-  stream[7] = (uint)(byte)frontEnd.IImaxRange[0];
-  stream[8] = 0x38;
-  stream[9] = (uint)(byte)frontEnd.ImaxRange[0];
-  stream[10] = 0x39;
-  stream[0xb] = (uint)(byte)frontEnd.J1MAX[0];
-  stream[0xc] = 0x3a;
-  stream[0xd] = (uint)(byte)frontEnd.J1MIN[0];
-  stream[0xe] = 0x3b;
-  stream[0xf] = (uint)(byte)frontEnd.J2MAX[0];
-  stream[0x10] = 0x3c;
-  stream[0x11] = (uint)(byte)frontEnd.J2MIN[0];
-  stream[0x12] = 0x3d;
-  stream[0x13] = (uint)(byte)frontEnd.shockMode[0];
-  stream[0x14] = 0x3e;
-  stream[0x15] = (uint)(byte)frontEnd.shockImpact[0];
-  stream[0x16] = 0x3f;
-  stream[0x17] = (uint)(byte)frontEnd.controlConfig[1];
-  stream[0x18] = 0x40;
-  stream[0x19] = (uint)(byte)frontEnd.deadSpot[1];
-  stream[0x1a] = 0x41;
-  stream[0x1b] = (uint)(byte)frontEnd.steeringRange[1];
-  stream[0x1c] = 0x42;
-  stream[0x1d] = (uint)(byte)frontEnd.IImaxRange[1];
-  stream[0x1e] = 0x43;
-  stream[0x1f] = (uint)(byte)frontEnd.ImaxRange[1];
-  stream[0x20] = 0x44;
-  stream[0x21] = (uint)(byte)frontEnd.J1MAX[1];
-  stream[0x22] = 0x45;
-  stream[0x23] = (uint)(byte)frontEnd.J1MIN[1];
-  stream[0x24] = 0x46;
-  stream[0x25] = (uint)(byte)frontEnd.J2MAX[1];
-  stream[0x26] = 0x47;
-  stream[0x27] = (uint)(byte)frontEnd.J2MIN[1];
-  stream[0x28] = 0x48;
-  stream[0x29] = (uint)(byte)frontEnd.shockMode[1];
-  stream[0x2a] = 0x49;
-  stream[0x2b] = (uint)(byte)frontEnd.shockImpact[1];
-  stream[0x2c] = 0x21;
-  stream[0x2d] = -1;
-  stream[0x2e] = 3;
-  stream[0x2f] = 1;
-  stream[0x30] = 0x1b;
-  const int randomSeed = (int)frontEnd.randomSeed;
-  stream[0x32] = 0x4a;
-  stream[0x33] = 0;
+
+
+
+
+
+  *stream = 0x34; stream[1] = (uint)(byte)frontEnd.controlConfig[0];
+  stream[2] = 0x35; stream[3] = (uint)(byte)frontEnd.deadSpot[0];
+  stream[4] = 0x36; stream[5] = (uint)(byte)frontEnd.steeringRange[0];
+  stream[6] = 0x37; stream[7] = (uint)(byte)frontEnd.IImaxRange[0];
+  stream[8] = 0x38; stream[9] = (uint)(byte)frontEnd.ImaxRange[0];
+
+  stream[10] = 0x39; stream[0xb] = (uint)(byte)frontEnd.J1MAX[0];
+  stream[0xc] = 0x3a; stream[0xd] = (uint)(byte)frontEnd.J1MIN[0];
+  stream[0xe] = 0x3b; stream[0xf] = (uint)(byte)frontEnd.J2MAX[0];
+  stream[0x10] = 0x3c; stream[0x11] = (uint)(byte)frontEnd.J2MIN[0];
+
+  stream[0x12] = 0x3d; stream[0x13] = (uint)(byte)frontEnd.shockMode[0];
+  stream[0x14] = 0x3e; stream[0x15] = (uint)(byte)frontEnd.shockImpact[0];
+
+  stream[0x16] = 0x3f; stream[0x17] = (uint)(byte)frontEnd.controlConfig[1];
+  stream[0x18] = 0x40; stream[0x19] = (uint)(byte)frontEnd.deadSpot[1];
+  stream[0x1a] = 0x41; stream[0x1b] = (uint)(byte)frontEnd.steeringRange[1];
+  stream[0x1c] = 0x42; stream[0x1d] = (uint)(byte)frontEnd.IImaxRange[1];
+  stream[0x1e] = 0x43; stream[0x1f] = (uint)(byte)frontEnd.ImaxRange[1];
+
+  stream[0x20] = 0x44; stream[0x21] = (uint)(byte)frontEnd.J1MAX[1];
+  stream[0x22] = 0x45; stream[0x23] = (uint)(byte)frontEnd.J1MIN[1];
+  stream[0x24] = 0x46; stream[0x25] = (uint)(byte)frontEnd.J2MAX[1];
+  stream[0x26] = 0x47; stream[0x27] = (uint)(byte)frontEnd.J2MIN[1];
+
+
+  stream[0x28] = 0x48; stream[0x29] = (uint)(byte)frontEnd.shockMode[1];
+  stream[0x2a] = 0x49; stream[0x2b] = (uint)(byte)frontEnd.shockImpact[1];
+
+  stream[0x2c] = 0x21; stream[0x2d] = -1;
+
+
+
+  stream[0x2e] = 3; stream[0x2f] = 1;
+  stream[0x30] = 0x1b; const int randomSeed = (int)frontEnd.randomSeed;
+  stream[0x32] = 0x4a; stream[0x33] = 0;
+
+
+
   stream[0x34] = 0x24;
-  stream[0x31] = randomSeed;
-  gameLang = (uint)(byte)frontEnd.language;
+  stream[0x31] = randomSeed; gameLang = (uint)(byte)frontEnd.language;
   trackLang = (uint)(byte)streamData.trackInfo.fLanguage;
   if ((frontEnd.localSpeech != '\0') && Front_EnableLocalSpeech()) {
-    stream[0x35] = trackLang;
-    d = stream + 0x36;
+
+
+
+
+    stream[0x35] = trackLang; d = stream + 0x36;
   }
   else {
     *d++ = gameLang;
   }
-  *d++ = 0x27;
-  *d++ = (uint)(byte)frontEnd.language;
-  *d++ = 0x28;
-  *d++ = (uint)(byte)frontEnd.measurement;
-  *d++ = 0x11;
-  *d++ = 0;
-  *d++ = 9;
-  *d++ = (uint)(byte)frontEnd.skillLevel;
-  *d++ = 10;
-  *d++ = (uint)(byte)frontEnd.gameMode;
-  *d++ = 7;
-  *d++ = (uint)(byte)frontEnd.raceType;
-  *d++ = 0x115;
-  *d++ = 0;
-  *d++ = 0;
-  *d++ = 0x117;
-  *d++ = 0;
-  *d++ = 0;
-  *d++ = 0xf;
-  *d++ = (uint)(byte)frontEnd.catchup;
+  *d++ = 0x27; *d++ = (uint)(byte)frontEnd.language;
+  *d++ = 0x28; *d++ = (uint)(byte)frontEnd.measurement;
+
+  *d++ = 0x11; *d++ = 0;
+
+
+
+
+
+
+
+
+
+
+  *d++ = 9; *d++ = (uint)(byte)frontEnd.skillLevel;
+  *d++ = 10; *d++ = (uint)(byte)frontEnd.gameMode;
+  *d++ = 7; *d++ = (uint)(byte)frontEnd.raceType;
+
+
+  *d++ = 0x115; *d++ = 0; *d++ = 0;
+  *d++ = 0x117; *d++ = 0; *d++ = 0;
+
+  *d++ = 0xf; *d++ = (uint)(byte)frontEnd.catchup;
+
+
+
+
   d = Front_AppendTrackData(d,streamData);
-  *d++ = 0x13;
-  *d++ = (uint)(byte)frontEnd.song;
-  *d++ = 0x2a;
-  *d++ = (uint)(byte)frontEnd.audioMode;
-  *d++ = 0x2b;
-  *d++ = (uint)(byte)frontEnd.musicVolume;
-  *d++ = 0x2c;
-  *d++ = (uint)(byte)frontEnd.sfxVolume;
-  *d++ = 0x2d;
-  *d++ = (uint)(byte)frontEnd.engineVolume;
-  *d++ = 0x2e;
-  *d++ = (uint)(byte)frontEnd.narrationVolume;
-  *d++ = 0x2f;
-  *d++ = (uint)(byte)frontEnd.ambientVolume;
+
+
+  *d++ = 0x13; *d++ = (uint)(byte)frontEnd.song;
+  *d++ = 0x2a; *d++ = (uint)(byte)frontEnd.audioMode;
+  *d++ = 0x2b; *d++ = (uint)(byte)frontEnd.musicVolume;
+  *d++ = 0x2c; *d++ = (uint)(byte)frontEnd.sfxVolume;
+  *d++ = 0x2d; *d++ = (uint)(byte)frontEnd.engineVolume;
+  *d++ = 0x2e; *d++ = (uint)(byte)frontEnd.narrationVolume;
+  *d++ = 0x2f; *d++ = (uint)(byte)frontEnd.ambientVolume;
+
   *d++ = 0x16;
   if ((signed char)streamData.playerCars[0].fCarID == 0x1c) {
     *d++ = 0;
-  }
-  else {
-    if (frontEnd.raceType != RaceType_Tournament) {
+  } else { if (frontEnd.raceType != RaceType_Tournament) {
       *d++ = (uint)(byte)frontEnd.damage;
-    }
-    else {
-      *d++ = 1;
+    } else { *d++ = 1;
     }
   }
   numplaylistsongs = 0;
   for (j = 0; j < 0x28; j++) {
+
     if (frontEnd.FEPlayList[j] != 0) {
       numplaylistsongs++;
-    }
-  }
-  *d++ = 0x30;
-  *d++ = numplaylistsongs;
-  *d++ = 0x4c;
-  *d++ = numplaylistsongs;
+    } }
+
+  *d++ = 0x30; *d++ = numplaylistsongs;
+
+  *d++ = 0x4c; *d++ = numplaylistsongs;
   for (j = 0; j < 0x28; j++) {
+
     if (frontEnd.FEPlayList[j] != 0) {
+
       *d++ = j;
     }
   }
-  *d++ = 0x29;
-  *d++ = Stattool_ReturnRecordLapTime((short)(signed char)streamData.track.fTrackNumber);
+
+
+
+
+
+
+  *d++ = 0x29; *d++ = Stattool_ReturnRecordLapTime((short)(signed char)streamData.track.fTrackNumber);
   *d++ = 8;
+
   if ((frontEnd.raceType == RaceType_SingleRace) && (frontEnd.carListType == '\0')) {
     *d++ = 1;
-  }
-  else {
-    *d++ = Front_GetLapsForType();
+  } else { *d++ = Front_GetLapsForType();
   }
   if (((streamData.playerCars[0].fCarClass == '\a') || (streamData.playerCars[1].fCarClass == '\a'))
      || ((frontEnd.raceType == RaceType_SingleRace && ((frontEnd.oppNumber == '\0' && (frontEnd.gameMode == '\0')))
          ))) {
-    *d++ = 0x20;
-    *d++ = 0;
-    *d++ = 0x32;
-    *d++ = 0;
-    *d++ = 0x33;
-    *d++ = 0;
+
+    *d++ = 0x20; *d++ = 0;
+    *d++ = 0x32; *d++ = 0;
+    *d++ = 0x33; *d++ = 0;
   }
   else {
-    *d++ = 0x20;
-    *d++ = (uint)(byte)frontEnd.checkPointType;
-    *d++ = 0x32;
-    *d++ = (frontEnd.checkPointDisplay[0] == '\x01')
-               ? ((((short *)CountryMeasurement)[streamData.trackInfo.fSpeedoCountry] != 0) ? 1 : 2)
-               : 0;
-    *d++ = 0x33;
-    *d++ = (frontEnd.checkPointDisplay[1] == '\x01')
-               ? ((((short *)CountryMeasurement)[streamData.trackInfo.fSpeedoCountry] != 0) ? 1 : 2)
-               : 0;
+
+
+    *d++ = 0x20; *d++ = (uint)(byte)frontEnd.checkPointType;
+
+    *d++ = 0x32; *d++ = (frontEnd.checkPointDisplay[0] == '\x01') ? ((((short *)CountryMeasurement)[streamData.trackInfo.fSpeedoCountry] != 0) ? 1 : 2) : 0;
+    *d++ = 0x33; *d++ = (frontEnd.checkPointDisplay[1] == '\x01') ? ((((short *)CountryMeasurement)[streamData.trackInfo.fSpeedoCountry] != 0) ? 1 : 2) : 0;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   d = Front_AppendPlayerCarData(d,streamData);
   d = Front_AppendOpponentData(d,streamData);
   d = Front_AppendPerpData(d,streamData);
   d = Front_AppendCopData(d,streamData);
   d = Front_AppendTrafficData(d,streamData);
-  *d++ = 0x1c;
-  *d++ = (int)streamData.numPlayers + (int)streamData.numOpponents + (int)streamData.numCops +
-              (int)streamData.numSuperCops + (int)streamData.numPerpObjects +
-              (int)streamData.numTraffic;
-  *d++ = 0xe5;
-  *d++ = GetPSXPadValue(1,0);
-  *d++ = 0xeb;
-  *d++ = GetPSXPadValue(8,0);
-  *d++ = 0xe8;
-  *d++ = GetPSXPadValue(0x80,0);
-  *d++ = 0xe9;
-  *d++ = GetPSXPadValue(0x20,0);
-  *d++ = 0xe6;
-  *d++ = GetPSXPadValue(0x10,0);
-  *d++ = 0xe7;
-  *d++ = GetPSXPadValue(0x40,0);
-  *d++ = 0xea;
-  *d++ = GetPSXPadValue(0x4000,0);
+
+
+
+
+
+  *d++ = 0x1c; *d++ = (int)streamData.numPlayers + (int)streamData.numOpponents + (int)streamData.numCops + (int)streamData.numSuperCops + (int)streamData.numPerpObjects + (int)streamData.numTraffic;
+
+  *d++ = 0xe5; *d++ = GetPSXPadValue(1,0);
+  *d++ = 0xeb; *d++ = GetPSXPadValue(8,0);
+  *d++ = 0xe8; *d++ = GetPSXPadValue(0x80,0);
+  *d++ = 0xe9; *d++ = GetPSXPadValue(0x20,0);
+  *d++ = 0xe6; *d++ = GetPSXPadValue(0x10,0);
+  *d++ = 0xe7; *d++ = GetPSXPadValue(0x40,0);
+  *d++ = 0xea; *d++ = GetPSXPadValue(0x4000,0);
+
+
+
+
+
   config = (uint)(byte)frontEnd.controlConfig[0];
   type = (short)frontEnd.controlType[0];
   type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
-  *d++ = 0x4f;
-  *d++ = GetPSXPadValue(mappings[config][0][type],0);
-  *d++ = 0x50;
-  *d++ = GetPSXPadValue(mappings[config][1][type],0);
-  *d++ = 0x51;
-  *d++ = GetPSXPadValue(mappings[config][2][type],0);
-  *d++ = 0x52;
-  *d++ = GetPSXPadValue(mappings[config][3][type],0);
-  *d++ = 0xfb;
-  *d++ = GetPSXPadValue(mappings[config][8][type],0);
-  *d++ = 0x53;
-  *d++ = GetPSXPadValue(mappings[config][4][type],0);
-  *d++ = 0x66;
-  *d++ = GetPSXPadValue(mappings[config][5][type],0);
-  *d++ = 0x67;
-  *d++ = GetPSXPadValue(mappings[config][6][type],0);
-  *d++ = 0x68;
-  *d++ = GetPSXPadValue(mappings[config][0xc][type],0);
+
+
+  *d++ = 0x4f; *d++ = GetPSXPadValue(mappings[config][0][type],0);
+  *d++ = 0x50; *d++ = GetPSXPadValue(mappings[config][1][type],0);
+  *d++ = 0x51; *d++ = GetPSXPadValue(mappings[config][2][type],0);
+  *d++ = 0x52; *d++ = GetPSXPadValue(mappings[config][3][type],0);
+  *d++ = 0xfb; *d++ = GetPSXPadValue(mappings[config][8][type],0);
+  *d++ = 0x53; *d++ = GetPSXPadValue(mappings[config][4][type],0);
+  *d++ = 0x66; *d++ = GetPSXPadValue(mappings[config][5][type],0);
+  *d++ = 0x67; *d++ = GetPSXPadValue(mappings[config][6][type],0);
+  *d++ = 0x68; *d++ = GetPSXPadValue(mappings[config][0xc][type],0);
+
+
   if (streamData.track.fTimeOfDay != '\0') {
-    *d++ = 0x73;
-    *d++ = GetPSXPadValue(mappings[config][9][type],0);
-    *d++ = 0x54;
-    *d++ = GetPSXPadValue((type == 1) ? 6 : 0,0);
+
+    *d++ = 0x73; *d++ = GetPSXPadValue(mappings[config][9][type],0);
+    *d++ = 0x54; *d++ = GetPSXPadValue((type == 1) ? 6 : 0,0);
   }
   else {
-    *d++ = 0x73;
-    *d++ = 0;
-    *d++ = 0x54;
-    *d++ = GetPSXPadValue(mappings[config][9][type] | ((type == 1) ? 6 : 0),0);
+
+    *d++ = 0x73; *d++ = 0;
+    *d++ = 0x54; *d++ = GetPSXPadValue(mappings[config][9][type] | ((type == 1) ? 6 : 0),0);
   }
-  *d++ = 0x4d;
-  *d++ = GetPSXPadValue(mappings[config][0xb][type],0);
-  *d++ = 0x75;
-  *d++ = GetPSXPadValue(mappings[config][7][type],0);
-  *d++ = 0x65;
-  *d++ = GetPSXPadValue(mappings[config][7][type],0);
-  *d++ = 0x85;
-  *d++ = GetPSXPadValue(0x800,0);
+
+
+
+  *d++ = 0x4d; *d++ = GetPSXPadValue(mappings[config][0xb][type],0);
+
+  *d++ = 0x75; *d++ = GetPSXPadValue(mappings[config][7][type],0);
+  *d++ = 0x65; *d++ = GetPSXPadValue(mappings[config][7][type],0);
+
+  *d++ = 0x85; *d++ = GetPSXPadValue(0x800,0);
+
   if (streamData.playerCars[0].fCarClass == '\a') {
+
     if (frontEnd.gameMode != '\x01') {
-      *d++ = 0x7a;
-      *d++ = GetPSXPadValue(0x8000,0);
-      *d++ = 0x7b;
-      *d++ = GetPSXPadValue(0x2000,0);
-      *d++ = 0x7c;
-      *d++ = GetPSXPadValue(0x1000,0);
+
+      *d++ = 0x7a; *d++ = GetPSXPadValue(0x8000,0);
+      *d++ = 0x7b; *d++ = GetPSXPadValue(0x2000,0);
+      *d++ = 0x7c; *d++ = GetPSXPadValue(0x1000,0);
     }
-    *d++ = 0x81;
-    *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),0);
+    *d++ = 0x81; *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),0);
   }
   else {
-    *d++ = 0x82;
-    *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),0);
-    *d++ = 0x7d;
-    *d++ = GetPSXPadValue(mappings[config][0][type],0);
-    *d++ = 0x7e;
-    *d++ = GetPSXPadValue(mappings[config][1][type],0);
-    *d++ = 0x81;
-    *d++ = GetPSXPadValue(0x40,0);
+
+
+    *d++ = 0x82; *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),0);
+
+    *d++ = 0x7d; *d++ = GetPSXPadValue(mappings[config][0][type],0);
+    *d++ = 0x7e; *d++ = GetPSXPadValue(mappings[config][1][type],0);
+
+    *d++ = 0x81; *d++ = GetPSXPadValue(0x40,0);
   }
+
+
+
+
   if (frontEnd.gameMode == '\x01') {
+
     config = (uint)(byte)frontEnd.controlConfig[1];
     type = (short)frontEnd.controlType[1];
     type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
-    *d++ = 0x9b;
-    *d++ = GetPSXPadValue(mappings[config][0][type],1);
-    *d++ = 0x9c;
-    *d++ = GetPSXPadValue(mappings[config][1][type],1);
-    *d++ = 0x9d;
-    *d++ = GetPSXPadValue(mappings[config][2][type],1);
-    *d++ = 0x9e;
-    *d++ = GetPSXPadValue(mappings[config][3][type],1);
-    *d++ = 0xfc;
-    *d++ = GetPSXPadValue(mappings[config][8][type],1);
-    *d++ = 0x9f;
-    *d++ = GetPSXPadValue(mappings[config][4][type],1);
-    *d++ = 0xb2;
-    *d++ = GetPSXPadValue(mappings[config][5][type],1);
-    *d++ = 0xb3;
-    *d++ = GetPSXPadValue(mappings[config][6][type],1);
-    *d++ = 0xb4;
-    *d++ = GetPSXPadValue(mappings[config][0xc][type],1);
+
+    *d++ = 0x9b; *d++ = GetPSXPadValue(mappings[config][0][type],1);
+    *d++ = 0x9c; *d++ = GetPSXPadValue(mappings[config][1][type],1);
+    *d++ = 0x9d; *d++ = GetPSXPadValue(mappings[config][2][type],1);
+    *d++ = 0x9e; *d++ = GetPSXPadValue(mappings[config][3][type],1);
+    *d++ = 0xfc; *d++ = GetPSXPadValue(mappings[config][8][type],1);
+    *d++ = 0x9f; *d++ = GetPSXPadValue(mappings[config][4][type],1);
+    *d++ = 0xb2; *d++ = GetPSXPadValue(mappings[config][5][type],1);
+    *d++ = 0xb3; *d++ = GetPSXPadValue(mappings[config][6][type],1);
+    *d++ = 0xb4; *d++ = GetPSXPadValue(mappings[config][0xc][type],1);
+
+
+
     if (streamData.track.fTimeOfDay != '\0') {
-      *d++ = 0xbf;
-      *d++ = GetPSXPadValue(mappings[config][9][type],1);
-      *d++ = 0xa0;
-      *d++ = GetPSXPadValue((type == 1) ? 6 : 0,1);
+
+      *d++ = 0xbf; *d++ = GetPSXPadValue(mappings[config][9][type],1);
+      *d++ = 0xa0; *d++ = GetPSXPadValue((type == 1) ? 6 : 0,1);
     }
     else {
-      *d++ = 0xbf;
-      *d++ = 0;
-      *d++ = 0xa0;
-      *d++ = GetPSXPadValue(mappings[config][9][type] | ((type == 1) ? 6 : 0),1);
+
+      *d++ = 0xbf; *d++ = 0;
+      *d++ = 0xa0; *d++ = GetPSXPadValue(mappings[config][9][type] | ((type == 1) ? 6 : 0),1);
     }
-    *d++ = 0x99;
-    *d++ = GetPSXPadValue(mappings[config][0xb][type],1);
-    *d++ = 0xc1;
-    *d++ = GetPSXPadValue(mappings[config][7][type],1);
-    *d++ = 0xb1;
-    *d++ = GetPSXPadValue(mappings[config][7][type],1);
-    *d++ = 0xd1;
-    *d++ = GetPSXPadValue(0x800,1);
+
+
+
+    *d++ = 0x99; *d++ = GetPSXPadValue(mappings[config][0xb][type],1);
+
+    *d++ = 0xc1; *d++ = GetPSXPadValue(mappings[config][7][type],1);
+    *d++ = 0xb1; *d++ = GetPSXPadValue(mappings[config][7][type],1);
+
+    *d++ = 0xd1; *d++ = GetPSXPadValue(0x800,1);
+
     if (streamData.playerCars[1].fCarClass == '\a') {
-      *d++ = 0xcd;
-      *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),1);
+
+
+
+
+
+
+
+      *d++ = 0xcd; *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),1);
     }
     else {
-      *d++ = 0xce;
-      *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),1);
-      *d++ = 0xc9;
-      *d++ = GetPSXPadValue(mappings[config][0][type],1);
-      *d++ = 0xca;
-      *d++ = GetPSXPadValue(mappings[config][1][type],1);
-      *d++ = 0xcd;
-      *d++ = GetPSXPadValue(0x40,1);
+
+      *d++ = 0xce; *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),1);
+
+      *d++ = 0xc9; *d++ = GetPSXPadValue(mappings[config][0][type],1);
+      *d++ = 0xca; *d++ = GetPSXPadValue(mappings[config][1][type],1);
+
+      *d++ = 0xcd; *d++ = GetPSXPadValue(0x40,1);
     }
   }
+
   *d++ = 0;
+
   resizememadr(stream,(int)d - (int)stream);
   return stream;
 }
@@ -3114,26 +3321,33 @@ int * Front_BuildStream(int *stream)
    
    [ghidra-meta] section: front.text */
 
-void Front_GetInGameVars(void)
-
-{
   /* MATCH 2026-08-03 (29->PASS): SLD records only `int i`; direct indexed
      controller arrays recover retail's induction variable and address
      lifetimes.  Array views of the volume globals likewise expose their
      address pseudos.  Assigning musicVolume directly (instead of inventing a
      local absent from SLD) creates the frontEnd base before the music-global
      base and resolves the final prologue scheduler tie. */
+#line 2725 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
+void Front_GetInGameVars(void)
+
+
+{
   int i;
-  
+
+
+
+
   frontEnd.musicVolume = (char)gMasterMusicLevel[0];
   AudioMus_Volume((int)((uint)(byte)frontEnd.musicVolume * 0x23) >> 6);
+
   frontEnd.sfxVolume = (char)gMasterSFXLevel[0];
   frontEnd.engineVolume = (char)gMasterEngineLevel[0];
   frontEnd.narrationVolume = (char)gMasterFENarrationLevel[0];
   frontEnd.ambientVolume = (char)gMasterAmbientLevel[0];
   frontEnd.pinkSlipsForfeit = (short)GameSetup_gData.pinkSlipsForfeit;
-  i = 0;
-  do {
+
+  i = 0; do {
+
     frontEnd.controlConfig[i] = (char)GameSetup_gData.controllerData.controllerConfig[i];
     frontEnd.deadSpot[i] = (char)GameSetup_gData.controllerData.deadSpot[i];
     frontEnd.steeringRange[i] = (char)GameSetup_gData.controllerData.steeringRange[i];
@@ -3141,9 +3355,7 @@ void Front_GetInGameVars(void)
     frontEnd.ImaxRange[i] = (char)GameSetup_gData.controllerData.ImaxRange[i];
     frontEnd.shockMode[i] = (char)GameSetup_gData.controllerData.shockMode[i];
     frontEnd.shockImpact[i] = (char)GameSetup_gData.controllerData.shockImpact[i];
-    i = i + 1;
-  } while (i < 2);
-  return;
+    i = i + 1; } while (i < 2); return;
 }
 
 
@@ -3167,7 +3379,9 @@ void Front_GetInGameVars(void)
    GCC's C++ argument order preserves the call/address sequence and CSE keeps
    the plate pointer across the following calls.  Exact PASS 42/42. */
 
+#line 2759 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void SetLicensePlate(void)
+
 
 {
   for (short i = 0; i < 2; i++) {
@@ -3196,7 +3410,9 @@ void SetLicensePlate(void)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
+#line 2774 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void SetPlayList(int ivealreadygotone)
+
 
 {
   int i;
@@ -3204,26 +3420,35 @@ void SetPlayList(int ivealreadygotone)
 
   AudioMus_SysCleanUp();
   AudioMus_SysStartUp(0xc000,0x18000,"ymus");
+
+
+
+
+
   songlist = AudioMus_GetSongList("game*",0);
+
   if (ivealreadygotone == 0) {
-    i = 0x27;
-    do {
+
+    i = 0x27; do {
+
       frontEnd.FEPlayList[i] = 0;
-      i = i + -1;
-    } while (-1 < i);
+      i = i + -1; } while (-1 < i);
     i = 0;
-    if (0 < songlist->numsongs) {
-      do {
+
+    if (0 < songlist->numsongs) { do {
+
         frontEnd.FEPlayList[songlist[i * 8 + 4].currentsong] = 1;
-        i = i + 1;
-      } while (i < songlist->numsongs);
+
+
+
+        i = i + 1; } while (i < songlist->numsongs);
     }
-  }
-  frontEnd.GotAPlayList = 1;
+  } frontEnd.GotAPlayList = 1;
+
   purgememadr(songlist);
+
   AudioMus_SysCleanUp();
-  AudioMus_SysStartUp(0xd800,0x18000,"amus");
-  return;
+  AudioMus_SysStartUp(0xd800,0x18000,"amus"); return;
 }
 
 
@@ -3235,7 +3460,9 @@ void SetPlayList(int ivealreadygotone)
    
    [ghidra-meta] section: front.text */
 
+#line 2812 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 short Front_GetTrackRaced(void)
+
 
 {
 
@@ -3271,7 +3498,9 @@ short Front_GetTrackRaced(void)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
+#line 2831 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 bool PlayerNameExist(int player)
+
 
 {
   if (strlen(frontEnd.playerNameList[player]) != 0)
@@ -3301,7 +3530,9 @@ bool PlayerNameExist(int player)
    uppercases the cached player name in place, including its special-character handling.
     */
 
+#line 2838 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 char * PlayerName(int player)
+
 
 {
   sprintf(frontEnd.allUpperCasedPlayerNameList[player],frontEnd.playerNameList[player]);
@@ -3336,7 +3567,9 @@ char * PlayerName(int player)
    direct strlen testing, and arm-local TextSys_Word returns reproduce the exact 27-instruction
    body; the former s/name_len/wordnum temporaries were decompiler artifacts. */
 
+#line 2856 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 char * PlayerNameMixedCase(int player)
+
 
 {
   if (strlen(frontEnd.playerNameList[player]) != 0) {

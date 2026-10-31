@@ -28,14 +28,25 @@ static tCheat bonusList[3] = {   /* @0x800516a0, byte-exact from retail binary *
 
 /* ---- FECheat_HandleActivation  [FECHEATS.CPP:89-152] SLD-VERIFIED ---- */
 
-static void FECheat_HandleActivation(tCheatCode cheat)
-
-{
+    /* SYM-CARRIER: num=i.  SYM names this non-overlapping block lifetime
+       `short num` in $s0.
+       A separate C local prevents gcc from coalescing it with the earlier
+       `$s0` short `i` and regresses this PASS by 14 diffs (116/116).  Reusing
+       `i` is the byte-exact representation of that retail lifetime. */
+    /* SYM-CODEGEN-CARRIER: placement
+     * SYM-CODEGEN-CARRIER: placements
+     * These preserve retail's placement=$a1 / manager-base=$v0 handout.  The
+     * direct `tournamentManager.fBestPlacement[i] = cheat - 0x1b` source form
+     * is instruction-count neutral but FAIL 10 / 116 versus PASS 116. */
   /* W65 PASS (57->0): preserve retail case-body order, pass the records array
      address directly, and keep the placement cases as a top-tested loop with
      their value and manager base prepared before the loop. */
-  short i;
+#line 86 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
+static void FECheat_HandleActivation(tCheatCode cheat)
 
+
+{
+  short i;
   switch(cheat) {
   case cheat_Roadster:
   case cheat_Pony:
@@ -45,16 +56,18 @@ static void FECheat_HandleActivation(tCheatCode cheat)
   case cheat_GTRCar:
   case cheat_BonusCar:
   case cheat_CopCar:
+
     carManager.SetClassAvailable((tCarClassType)cheat,true);
     break;
   case cheat_AllCars:
+
     i = 0;
     do {
       FECheat_HandleActivation((tCheatCode)i);
-      i = i + 1;
-    } while (i < 7);
+      i = i + 1; } while (i < 7);
     break;
   case cheat_AllTracks:
+
     trackManager.SetClassAvailable(tct_Beginner,true);
     trackManager.SetClassAvailable(tct_Intermediate,true);
     trackManager.SetClassAvailable(tct_Expert,true);
@@ -63,85 +76,73 @@ static void FECheat_HandleActivation(tCheatCode cheat)
     break;
   case cheat_MoreMoney:
   case cheat_BonusMoney:
+
     tournamentManager.fMoney = tournamentManager.fMoney + 50000;
-    break;
-  case cheat_LotsaMoney:
-    tournamentManager.fMoney = tournamentManager.fMoney + 100000000;
+
+
+    break; case cheat_LotsaMoney: tournamentManager.fMoney = tournamentManager.fMoney + 100000000;
+
+
     break;
   case cheat_NFSTeamRecords:
+
     Stattool_GetAllDefaultRecords(Stats_gTrackRecords,true);
+
     break;
   case cheat_AllCheats:
+
     gFECheats = 0xffffffff;
-    i = 0;
-    do {
+    i = 0; do {
+
       if (i != cheat_AllCheats) {
         FECheat_HandleActivation((tCheatCode)i);
-      }
-      i = i + 1;
-    } while (i < 0x1f);
+      } i = i + 1; } while (i < 0x1f);
     break;
   case cheat_AllNotRaced:
   case cheat_AllGold:
   case cheat_AllSilver:
   case cheat_AllBronze: {
-    /* SYM-CODEGEN-CARRIER: placement
-     * SYM-CODEGEN-CARRIER: placements
-     * These preserve retail's placement=$a1 / manager-base=$v0 handout.  The
-     * direct `tournamentManager.fBestPlacement[i] = cheat - 0x1b` source form
-     * is instruction-count neutral but FAIL 10 / 116 versus PASS 116. */
     char placement;
-    char *placements;
-
-    /* SYM-CARRIER: num=i.  SYM names this non-overlapping block lifetime
-       `short num` in $s0.
-       A separate C local prevents gcc from coalescing it with the earlier
-       `$s0` short `i` and regresses this PASS by 14 diffs (116/116).  Reusing
-       `i` is the byte-exact representation of that retail lifetime. */
-    i = 0;
-    placement = (char)cheat + -0x1b;
-    placements = (char *)&tournamentManager;
-FECheat_placement_test:
-    if (0x3f < i) break;
-    *(char *)((int)i + (int)placements + 0x1f0) = placement;
-    i = i + 1;
-    goto FECheat_placement_test;
+    char *placements; i = 0; placement = (char)cheat + -0x1b; placements = (char *)&tournamentManager; FECheat_placement_test: if (0x3f < i) break; *(char *)((int)i + (int)placements + 0x1f0) = placement;
+    i = i + 1; goto FECheat_placement_test;
     break;
   }
   }
-  return;
-}
+  return; }
 
 
 
 /* ---- FECheat_EncodeString  [FECHEATS.CPP:159-181] SLD-VERIFIED ---- */
 
-void FECheat_EncodeString(char *input,char *output)
-
-{
   /* SYM/SLD: the complete local surface is `int i`, `int j`, and
      `char buffer[8]`.  Direct indexed source removes six decompiler pointer
      temporaries and remains byte-exact (35/35). */
+#line 156 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
+void FECheat_EncodeString(char *input,char *output)
+
+
+{
   int i;
   int j;
   char buffer [8];
-  
   i = 0;
   do {
     buffer[i] = input[i];
     output[i] = '\0';
-    i = i + 1;
-  } while (i < 8);
+    i = i + 1; } while (i < 8);
+
   i = 0;
   do {
-    j = 0;
-    do {
+    j = 0; do {
+
       output[i] = output[i] | (u_char)((buffer[j] & 1) << j);
       buffer[j] = (u_char)buffer[j] >> 1;
-      j = j + 1;
-    } while (j < 8);
-    i = i + 1;
-  } while (i < 8);
+      j = j + 1; } while (j < 8);
+    i = i + 1; } while (i < 8);
+
+
+
+
   return;
 }
 
@@ -149,7 +150,9 @@ void FECheat_EncodeString(char *input,char *output)
 
 /* ---- FECheat_EncodeString2  [FECHEATS.CPP:188-221] SLD-VERIFIED ---- */
 
+#line 185 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
 void FECheat_EncodeString2(char *input,char *output)
+
 
 {
   int i;
@@ -159,24 +162,31 @@ void FECheat_EncodeString2(char *input,char *output)
   do {
     buffer[i] = ~input[i];
     output[i] = ~input[i];
-    i = i + 1;
-  } while (i < 8);
+    i = i + 1; } while (i < 8);
+
   i = 0;
   do {
     output[0] ^= ((output[0] >> i) & 1) << i;
     output[i] ^= ((output[i] >> i) & 1) << i;
+
+
     output[0] |= ((buffer[i] >> i) & 1) << i;
     output[i] |= ((buffer[0] >> i) & 1) << i;
-    i = i + 1;
-  } while (i < 8);
+    i = i + 1; } while (i < 8);
+
   i = 1;
   do {
     output[i] &= 0xfe;
     output[i] ^= ((output[i] >> (i - 1)) & 1) << (i - 1);
+
     output[i] |= (buffer[i] >> (i - 1)) & 1;
     output[i] |= (buffer[i] & 1) << (i - 1);
-    i = i + 1;
-  } while (i < 8);
+    i = i + 1; } while (i < 8);
+
+
+
+
+
   return;
 }
 
@@ -184,7 +194,9 @@ void FECheat_EncodeString2(char *input,char *output)
 
 /* ---- FECheat_ActivateBonus  [FECHEATS.CPP:232-234] SLD-VERIFIED ---- */
 
+#line 229 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
 void FECheat_ActivateBonus(tCheatCode cheat)
+
 
 {
   FECheat_HandleActivation(cheat);
@@ -195,9 +207,10 @@ void FECheat_ActivateBonus(tCheatCode cheat)
 
 /* ---- FECheat_ActivateCheat  [FECHEATS.CPP:242-271] SLD-VERIFIED ---- */
 
-bool FECheat_ActivateCheat(char *cheat)
-
-{
+  /* MATCH: ONE result var (retail $s1) with a single return at the end; the
+     `1` it holds is REUSED as the shift base of the gFECheats mask
+     (shared-constant, methodology 3.12 #17).  Outer loop is exit-in-the-middle
+     so gcc does NOT rotate it (top slti + unconditional `j` back-edge). */
   /* SYM-INLINE-THIS: SetString
      SYM records the inlined tDialogMessageString receiver `this` in $s0 at
      source line 14.  Collapsing this receiver into direct SetString/Display
@@ -208,40 +221,39 @@ bool FECheat_ActivateCheat(char *cheat)
      These two source-only staging names place the FEApp reload between the
      TextSys_Word call and the dialog-string store; removing either is FAIL2
      (66/66), moving that load across the store. */
+#line 239 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
+bool FECheat_ActivateCheat(char *cheat)
+
+
+{
   int i;
   int j;
-  char buffer [8];
-  bool result;
-  tFEApplication *feApp;
-  char *wordText;
-  tDialogMessageString *dlgThis;
+  char buffer [8]; bool result; tFEApplication *feApp; char *wordText; tDialogMessageString *dlgThis; result = 0;
 
-  /* MATCH: ONE result var (retail $s1) with a single return at the end; the
-     `1` it holds is REUSED as the shift base of the gFECheats mask
-     (shared-constant, methodology 3.12 #17).  Outer loop is exit-in-the-middle
-     so gcc does NOT rotate it (top slti + unconditional `j` back-edge). */
-  result = 0;
   FECheat_EncodeString(cheat,buffer);
-  i = 0;
-  while (true) {
-    if (9 < i) break;
+
+  i = 0; while (true) { if (9 < i) break;
     for (j = 0; j < 8; j = j + 1) {
+
       if (cheatList[0].name[j + i * 12] != buffer[j]) break;
     }
+
     if (j == 8) {
-      AudioCmn_PlayFESFX(0x1a);
-      dlgThis = &FEApp->MemCardDialog;
-      wordText = TextSys_Word(0x27a);
-      feApp = FEApp;
-      dlgThis->SetString(wordText);
-      ((tDialogBase *)&feApp->MemCardDialog)->Display();
+
+      AudioCmn_PlayFESFX(0x1a); dlgThis = &FEApp->MemCardDialog; wordText = TextSys_Word(0x27a);
+
+
+      feApp = FEApp; dlgThis->SetString(wordText); ((tDialogBase *)&feApp->MemCardDialog)->Display();
+
+
       FECheat_HandleActivation((tCheatCode)cheatList[i].cheat);
-      result = 1;
-      gFECheats = gFECheats | result << cheatList[i].cheat;
+      result = 1; gFECheats = gFECheats | result << cheatList[i].cheat;
       break;
     }
     i = i + 1;
   }
+
+
   return result;
 }
 
@@ -250,7 +262,9 @@ bool FECheat_ActivateCheat(char *cheat)
 
 /* ---- FECheat_IsCheatEnabled  [FECHEATS.CPP:277-278] SLD-VERIFIED ---- */
 
+#line 274 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
 bool FECheat_IsCheatEnabled(tCheatCode cheat)
+
 
 {
   return ((gFECheats | gFEBonus) & 1 << cheat) != 0;
@@ -260,7 +274,9 @@ bool FECheat_IsCheatEnabled(tCheatCode cheat)
 
 /* ---- FECheat_SaveBonus  [FECHEATS.CPP:285-286] SLD-VERIFIED ---- */
 
+#line 282 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
 void FECheat_SaveBonus(u_long &cheat)
+
 
 {
   cheat = gFEBonus;
@@ -270,27 +286,32 @@ void FECheat_SaveBonus(u_long &cheat)
 
 /* ---- FECheat_LoadBonus  [FECHEATS.CPP:293-305] SLD-VERIFIED ---- */
 
+#line 290 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
 void FECheat_LoadBonus(u_long &cheat)
+
 
 {
   int i;
   i = 0;
   gFEBonus = cheat;
   gFECheats = 0;
+
   do {
+
     if ((gFEBonus & 1 << i) != 0) {
+
       FECheat_HandleActivation((tCheatCode)i);
     }
-    i = i + cheat_Pony;
-  } while (i < 0x1f);
-  return;
+    i = i + cheat_Pony; } while (i < 0x1f); return;
 }
 
 
 
 /* ---- FECheat_IsTheUserACryBabyCheater  [FECHEATS.CPP:312-316] SLD-VERIFIED ---- */
 
+#line 309 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
 bool FECheat_IsTheUserACryBabyCheater(void)
+
 
 {
 
@@ -303,33 +324,39 @@ bool FECheat_IsTheUserACryBabyCheater(void)
 
 /* ---- FECheat_ActivateBonusByCode  [FECHEATS.CPP:324-349] SLD-VERIFIED ---- */
 
-bool FECheat_ActivateBonusByCode(char *code)
-
-{
-  int i;
-  int j;
-  char buffer [8];
-  bool result;
-
   /* MATCH: twin of FECheat_ActivateCheat -- one result var + single return,
      rotated `for` inner compare loop.  Here the OUTER loop is a real
      do{}while(i<3) (bottom slti) with TWO ivs: the tCheat* walker and the
      byte offset. */
-  result = 0;
+#line 321 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
+bool FECheat_ActivateBonusByCode(char *code)
+
+
+{
+  int i;
+  int j;
+  char buffer [8]; bool result; result = 0;
+
   FECheat_EncodeString2(code,buffer);
-  i = 0;
-  do {
+
+  i = 0; do {
+
     for (j = 0; j < 8; j = j + 1) {
       if (bonusList[i].name[j] != buffer[j]) break;
     }
+
     if (j == 8) {
+
       AudioCmn_PlayFESFX(0x1a);
+
+
       FECheat_ActivateBonus((tCheatCode)bonusList[i].cheat);
       result = 1;
+
+
       break;
     }
-    i = i + 1;
-  } while (i < 3);
+    i = i + 1; } while (i < 3);
   return result;
 }
 

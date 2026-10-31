@@ -92,8 +92,10 @@ void Render_InsertDepthOfField(void);
 
 
 /* ---- Render_CreatePlayerViews__Fv  [RENDER.CPP:92-124] SLD-CHECK-REQUIRED ---- */
-#line 90 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 89 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_CreatePlayerViews(void)
+
 
 {
 
@@ -130,8 +132,10 @@ void Render_CreatePlayerViews(void)
     Draw_gPlayer2View = -1; } return; }
 
 /* ---- Render_CreatePauseMenuViews__Fv  [RENDER.CPP:140-145] SLD-CHECK-REQUIRED ---- */
-#line 138 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 137 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_CreatePauseMenuViews(void)
+
 
 {
 
@@ -141,8 +145,10 @@ void Render_CreatePauseMenuViews(void)
   Render_gPauseMenuView = Draw_SetView(0,0x100,0x140,0x100,0x140,0xf0,0,0,1); return; }
 
 /* ---- Render_CreateViews__Fv  [RENDER.CPP:151-163] SLD-CHECK-REQUIRED ---- */
-#line 149 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 148 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_CreateViews(void)
+
 
 {
 
@@ -159,8 +165,10 @@ void Render_CreateViews(void)
   Render_CreatePauseMenuViews(); return; }
 
 /* ---- Render_StartRenderingWorldView__Fi  [RENDER.CPP:169-209] SLD-CHECK-REQUIRED ---- */
-#line 167 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 166 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_StartRenderingWorldView(int viewid)
+
 
 {
 
@@ -205,8 +213,10 @@ void Render_StartRenderingWorldView(int viewid)
   Night_SetEnviroment(&gCView); return; }
 
 /* ---- Render_StopRenderingWorldView__Fi  [RENDER.CPP:215-217] SLD-CHECK-REQUIRED ---- */
-#line 213 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 212 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_StopRenderingWorldView(int viewid)
+
 
 {
 
@@ -214,8 +224,10 @@ void Render_StopRenderingWorldView(int viewid)
 }
 
 /* ---- Render_RenderWorld__FP13DRender_tView  [RENDER.CPP:223-255] SLD-CHECK-REQUIRED ---- */
-#line 221 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 220 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_RenderWorld(DRender_tView *Vi)
+
 
 {
   int savesp;
@@ -252,8 +264,10 @@ void Render_RenderWorld(DRender_tView *Vi)
   return; }
 
 /* ---- Render_RenderPlayerView__Fii  [RENDER.CPP:270-280] SLD-CHECK-REQUIRED ---- */
-#line 268 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 267 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_RenderPlayerView(int ViewID,int Player)
+
 
 {
 
@@ -268,8 +282,10 @@ void Render_RenderPlayerView(int ViewID,int Player)
   Render_StopRenderingWorldView(ViewID); return; }
 
 /* ---- Render_RenderDebugView__Fv  [RENDER.CPP:332-354] SLD-CHECK-REQUIRED ---- */
-#line 330 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 329 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_RenderDebugView(void)
+
 
 {
 
@@ -296,8 +312,10 @@ void Render_RenderDebugView(void)
 }
 
 /* ---- Render_StartFrameRender__Fv  [RENDER.CPP:359-371] SLD-CHECK-REQUIRED ---- */
-#line 357 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 356 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_StartFrameRender(void)
+
 
 {
 
@@ -314,8 +332,10 @@ void Render_StartFrameRender(void)
   Draw_StartFrameRender(); return; }
 
 /* ---- Render_StopFrameRender__Fv  [RENDER.CPP:375-379] SLD-CHECK-REQUIRED ---- */
-#line 373 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 372 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_StopFrameRender(void)
+
 
 {
 
@@ -324,8 +344,10 @@ void Render_StopFrameRender(void)
   Draw_StopFrameRender(); return; }
 
 /* ---- Render_InitPauseMenu__Fv  [RENDER.CPP:387-389] SLD-CHECK-REQUIRED ---- */
-#line 385 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 384 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_InitPauseMenu(void)
+
 
 {
 
@@ -333,8 +355,10 @@ void Render_InitPauseMenu(void)
 }
 
 /* ---- Render_RenderPauseMenuView__Fv  [RENDER.CPP:393-407] SLD-CHECK-REQUIRED ---- */
-#line 391 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 390 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_RenderPauseMenuView(void)
+
 
 {
   int ogFlip;
@@ -353,8 +377,10 @@ void Render_RenderPauseMenuView(void)
   gFlip = ogFlip; return; }
 
 /* ---- Render_KillPauseMenu__Fv  [RENDER.CPP:411-413] SLD-CHECK-REQUIRED ---- */
-#line 409 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 408 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_KillPauseMenu(void)
+
 
 {
 
@@ -366,8 +392,10 @@ void Render_KillPauseMenu(void)
  * Stock GCC merges these tails; the split-arm return supplies retail's489.
  * Erased-copy call coordinates/literal original spelling remain unproved.
  * Receipts: build/nc12/render_pause_tail_20261022. */
-#line 415 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 414 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_Render(int pause)
+
 
 {
 
@@ -480,8 +508,10 @@ void Render_Render(int pause)
     } } return; }
 
 /* ---- FlareThing__Fv  [RENDER.CPP:535-555] SLD-CHECK-REQUIRED ---- */
-#line 533 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 532 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void FlareThing(void)
+
 
 {
   int players;
@@ -506,8 +536,10 @@ void FlareThing(void)
   } return; }
 
 /* ---- Render_InitTrackRender__Fv  [RENDER.CPP:563-596] SLD-CHECK-REQUIRED ---- */
-#line 561 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 560 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_InitTrackRender(void)
+
 
 {
 
@@ -545,8 +577,10 @@ void Render_InitTrackRender(void)
   Render_InitBlurMode(); return; }
 
 /* ---- Render_RestartTrackRender__Fv  [RENDER.CPP:600-608] SLD-CHECK-REQUIRED ---- */
-#line 598 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 597 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_RestartTrackRender(void)
+
 
 {
   Draw_RestartRenderEngine();
@@ -559,8 +593,10 @@ void Render_RestartTrackRender(void)
   TrgSfx_RestartTrgSfx(); return; }
 
 /* ---- Render_InitTrackRenderPostSim__Fv  [RENDER.CPP:612-619] SLD-CHECK-REQUIRED ---- */
-#line 610 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 609 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_InitTrackRenderPostSim(void)
+
 
 {
 
@@ -572,8 +608,10 @@ void Render_InitTrackRenderPostSim(void)
   CV_InitColorVertices(); return; }
 
 /* ---- Render_KillTrackRender__Fv  [RENDER.CPP:624-634] SLD-CHECK-REQUIRED ---- */
-#line 622 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 621 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_KillTrackRender(void)
+
 
 {
   Draw_DeInitRenderEngine();
@@ -591,8 +629,10 @@ void Render_KillTrackRender(void)
 /* ---- Render_InitLibRender__Fv  [RENDER.CPP:640-641] ----
  * One call plus implicit void fallthrough matches all eight retail words,
  * SLD tags and block/function-end source lines. */
-#line 638 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 637 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_InitLibRender(void)
+
 
 {
   Draw_InitLibRender(); }
@@ -602,8 +642,10 @@ void Render_InitLibRender(void)
  * The primitive header, UV/XY rectangle, RGB and texture-page operations below
  * use canonical SDK interfaces, with retail-derived statement coordinates.
  * Exact original macro/comment spelling is not uniquely proved by SLD. */
-#line 709 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 708 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void StampImage(int xo,int depth)
+
 
 {
   POLY_FT4 *ft4_p;
@@ -666,8 +708,10 @@ void StampImage(int xo,int depth)
   } return; }
 
 /* ---- Render_InitBlurMode__Fv  [RENDER.CPP:773-785] SLD-CHECK-REQUIRED ---- */
-#line 771 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 770 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_InitBlurMode(void)
+
 
 {
   switch (GameSetup_gData.sgge) {
@@ -708,8 +752,10 @@ void Render_InitBlurMode(void)
      after prim dies -> no overlap -> prim = $a0. Eight old statement-order trials were bounded
      then-source controls, not proof of source invariance. The present strict gate PASSes;
      full SLD and the unprovided global tag-view producer/name remain separate review work. */
-#line 788 "C:/nfs4/GAME/COMMON/RENDER.CPP"
+
+#line 787 "C:/nfs4/GAME/COMMON/RENDER.CPP"
 void Render_InsertDepthOfField(void)
+
 
 {
 

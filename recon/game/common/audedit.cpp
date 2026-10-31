@@ -21,6 +21,8 @@ void AudList_LoadAudioFile(int AudioFileIndex);
 
 
 /* ---- AudList_PurgeAudio__Fv  [@0x8007b52c] ---- */
+
+#line 1141 "C:/nfs4/GAME/COMMON/AUDEDIT.CPP"
 void AudList_PurgeAudio(void)
 {
   if (gGameAudioList != (CAudioList *)0x0) {
@@ -31,6 +33,8 @@ void AudList_PurgeAudio(void)
 /* Raw calls: Track_MakeTrackPathName("") @0x8007B568, then
  * sprintf(fname,"%s%02d.aud",path,AudioFileIndex) @0x8007B580.
  * Both varargs were once missing in the reconstruction (H40). */
+
+#line 1147 "C:/nfs4/GAME/COMMON/AUDEDIT.CPP"
 void AudList_LoadAudioFile(int AudioFileIndex)
 {
   char fname [128];

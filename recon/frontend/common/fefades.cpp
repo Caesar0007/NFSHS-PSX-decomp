@@ -12,7 +12,9 @@
 /* SYM 8c: locals r($04) g($03) b($02) only -- NO `inv` local (0x80-amount is a CSE).
    SLD statement order = 26 (r, the LOW byte) / 27 (g) / 28 (b, the HIGH byte) / 30
    (the packed return).  The channel packing is PSX BGR: 0xBBGGRR. */
+#line 18 "C:/nfs4/FRONTEND/COMMON/FEFADES.CPP"
 int CalcFadeVal(int col1,int col2,int amount)
+
 
 {
   int r;
@@ -29,7 +31,9 @@ int CalcFadeVal(int col1,int col2,int amount)
 /* lines 31-33: (static data / macros / comments - no emitted code) */
 
 /* ---- CalcFadeVal2  (fefades.cpp:34, code lines 34-35) ---- */
+#line 31 "C:/nfs4/FRONTEND/COMMON/FEFADES.CPP"
 int CalcFadeVal(int col1,int amount)
+
 
 {
   return CalcFadeVal(col1,0,amount);
@@ -38,7 +42,9 @@ int CalcFadeVal(int col1,int amount)
 /* lines 36-38: (static data / macros / comments - no emitted code) */
 
 /* ---- CalcFadeVal4  (fefades.cpp:39, code lines 39-40) ---- */
+#line 36 "C:/nfs4/FRONTEND/COMMON/FEFADES.CPP"
 int CalcFadeVal(int col1,int col2,int amount,int fFade)
+
 
 {
   return CalcFadeVal(CalcFadeVal(col1,col2,amount),0,fFade);
@@ -48,7 +54,9 @@ int CalcFadeVal(int col1,int col2,int amount,int fFade)
 
 /* ---- CalcTextFadeUnselToSel  (fefades.cpp:44, code lines 44-49) ---- */
 /* Two inline lookups retain separate row bases and 3/4 displacements. */
+#line 41 "C:/nfs4/FRONTEND/COMMON/FEFADES.CPP"
 int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
+
 
 {
   const int color = CalcFadeVal(TextDefinitionColor(type,3),
@@ -63,7 +71,9 @@ int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
 
 /* ---- CalcTextFadeSelToHi  (fefades.cpp:53, code lines 53-59) ---- */
 /* Two inlined accessor calls reproduce the SYM block nesting. */
+#line 50 "C:/nfs4/FRONTEND/COMMON/FEFADES.CPP"
 int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
+
 
 {
 
@@ -93,8 +103,10 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
    with these value webs are FAIL 14 (86/88). */
 /* Source-only column-color value webs preserve retail scheduling;
    their original names are not recoverable from SYM. */
+#line 61 "C:/nfs4/FRONTEND/COMMON/FEFADES.CPP"
 void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFade,int &OnColor,
                int &OffColor)
+
 
 {
   int ColSelOn, ColSelOff, ColUnSelOn, ColUnSelOff;

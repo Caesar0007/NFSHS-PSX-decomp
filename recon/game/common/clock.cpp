@@ -28,6 +28,8 @@ void Clock_SystemCleanUp(void);
 
 
 /* ---- Clock_MasterInterruptHandler__Fv  [@0x8008b938] ---- */
+
+#line 114 "C:/nfs4/GAME/COMMON/CLOCK.CPP"
 void Clock_MasterInterruptHandler(void)
 {
   long gp;
@@ -70,6 +72,8 @@ void Clock_MasterInterruptHandler(void)
   restoregp(gp); }
 
 /* ---- Clock_SystemStartUp__Fv  [@0x8008b9e4] ---- */
+
+#line 156 "C:/nfs4/GAME/COMMON/CLOCK.CPP"
 void Clock_SystemStartUp(void)
 {
   stopClock = 0;
@@ -95,6 +99,8 @@ void Clock_SystemStartUp(void)
   R3DCar_ClockLast = 0; }
 
 /* ---- Clock_SystemCleanUp__Fv  [@0x8008ba40] ---- */
+
+#line 181 "C:/nfs4/GAME/COMMON/CLOCK.CPP"
 void Clock_SystemCleanUp(void)
 {
   if (clock_InterruptStarted != 0)

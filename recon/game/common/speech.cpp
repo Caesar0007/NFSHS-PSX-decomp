@@ -16,8 +16,8 @@ extern "C" {
 
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (0x80055B54); its vtables' 8-byte,
  * section-relative alignment proves the section starts there.  An unused inline leaves exactly that behind. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; } inline void Speech::MobileSpeaker::SetSpeedType(int type) { fSpeedType.flags = type; } inline void Speech::MobileSpeaker::ClearCarObj() { fCarObj = 0; }
+inline void Speech::MobileSpeaker::DelayStatus(int delay) { fgSpeech->SetDelayedStatus(this, delay); } inline void Speech::MobileSpeaker::MakeSpeaker() { fgSpeech->SetSpeakerCar(fCarObj); } inline void Speech::DispatchSpeaker::ClearSpeaker() { fgSpeech->SetSpeakerCar(0); } inline SPCHNFSType_VOICE *Speech::MobileSpeaker::Voice() { return &fVoice; } /* retail SPEECH.CPP inlines (not header): a same-file inline's line notes put the debug line below the function start, so the inline blocks after it record line 1 until the next printed caller note (Deny, Catch, Lose, ReportBlockade, Status) */
 /* Speech static data precedes this TU's literal pools in retail.  Keep the
  * demangled source names while binding the compiler-emitted ABI labels.
  * Storage receipt: this TU is retail -G8 plus -fconserve-space.  Together,
@@ -130,11 +130,11 @@ void Speech::CarBankName::SetCar(int carIndex)
 
 { char *game; Speech_tCarDescription *d;
   game = GameSetup_gCarNames[GameSetup_gData.carInfo[carIndex].carType];
-  d = Speech_gCarDescription; while ((d->game != (char *)0x0 &&
+  d = Speech_gCarDescription;
 
-         strncmp(game,d->game,4) != 0)) {
+  while (d->game != (char *)0x0) {
 
-
+    if (strncmp(game,d->game,4) == 0) break;
 
     d = d + 1; }
 
@@ -393,8 +393,8 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
-  if (location == 0) { this->SetDistance(0); this->SetPosition(0);
-
+  if (location == 0)
+  { this->SetDistance(0); this->SetPosition(0);
 
 
     this->SetLocation(0); } else {
@@ -415,78 +415,12 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
-    else if ((double)distance < 100.0 / 3.0) { this->SetDistance(0); if (distance + 2 < actual)
+    else if ((double)distance < 100.0 / 3.0) { this->SetDistance(0);
 
 
 
-
-        this->SetPosition(9); if (distance - 2 < actual)
-
-
-
-
-
-
-
-        this->SetPosition(8); else this->SetPosition(2); } else if (GameSetup_gData.measurement == 1) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      if (distance < 0xa6) { this->SetDistance(8);
-
-
-
-        if (distance - 2 < actual)
-
-          this->SetPosition(0x10); else this->SetPosition(2); } else { this->SetDistance(0x10);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        if (distance - 2 < actual)
-
-          this->SetPosition(0x10); else this->SetPosition(2); } } else if (distance < 0x86) { this->SetDistance(1);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      if (distance + 2 < actual)
+        this->SetPosition(9);
 
 
 
@@ -494,7 +428,30 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
       if (distance - 2 < actual)
 
-        this->SetPosition(0x10); else this->SetPosition(2); } else if (distance < 0x10c) { this->SetDistance(2);
+        this->SetPosition(8); else this->SetPosition(2); }
+
+
+
+
+
+
+
+
+
+
+
+
+    else if (GameSetup_gData.measurement == 1) {
+
+
+
+      if (distance < 0xa6)
+      { this->SetDistance(8);
+
+
+        if (distance - 2 < actual)
+
+          this->SetPosition(0x10); else this->SetPosition(2); }
 
 
 
@@ -508,12 +465,55 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
+      else { this->SetDistance(0x10);
+
+
+        if (distance - 2 < actual)
+
+          this->SetPosition(0x10); else this->SetPosition(2); } }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    else if (distance < 0x86) { this->SetDistance(1);
 
 
 
       if (distance - 2 < actual)
 
-        this->SetPosition(0x10); else this->SetPosition(2); } else { this->SetDistance(4);
+        this->SetPosition(0x10); else this->SetPosition(2); }
+
+
+
+
+
+
+
+
+
+
+
+
+    else if (distance < 0x10c) { this->SetDistance(2);
+
+
+
+      if (distance - 2 < actual)
+
+        this->SetPosition(0x10); else this->SetPosition(2); }
 
 
 
@@ -527,7 +527,7 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
-
+    else { this->SetDistance(4);
 
 
       if (distance - 2 < actual) this->SetPosition(0x10); else
@@ -538,8 +538,8 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
-        this->SetPosition(2); }
-
+        this->SetPosition(2);
+    }
 
 
 
@@ -792,11 +792,9 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
       namelen++;
       c++; } isheader = false;
 
-    if (namelen >= 5) { bool extension = this->IsHeader(c - 4, '.', 'h', 'd'); __asm__("" : : "r"(extension), "r"(extension));
+    if (namelen >= 5)
 
-      if (extension && this->CheckMultiBank(name,id,bn)) { isheader = true; } if (isheader) {
-
-
+    { bool extension = this->IsHeader(c - 4, '.', 'h', 'd'); __asm__("" : : "r"(extension), "r"(extension)); if (extension && this->CheckMultiBank(name,id,bn)) { isheader = true; } if (isheader) {
 
 
 
@@ -805,18 +803,20 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
 
 
 
+        memcpy(data,hdata + offset - hoffset,size);
 
 
-
-        id++; memcpy(data,hdata + offset - hoffset,size); banknames[SPCH_AddBank((VoxBank *)data)] = name; data += size; } else {
+        banknames[SPCH_AddBank((VoxBank *)data)] = name;
+        data += size;
+        id++; } else {
 
         if (this->IsData(c - 4, '.', 'd', 'a')) { if ((dt < this->fBankCount) && (banknames[dt] != 0) &&
 
 
               (strncmp(name,banknames[dt],namelen - 3) == 0)) {
 
-            this->fBankOffset[dt++] = offset; } else { int j = 0;
-
+            this->fBankOffset[dt] = offset;
+            dt++; } else { int j = 0;
 
 
 
@@ -1115,10 +1115,10 @@ int Speech::BankPatch(long bank,Car_tObj *car)
 long Speech::SubmitRequest(long bank,long localoffset,long size)
 
 {
-  if (Speech::fgSpeech != 0) { Car_tObj *car; int patch; long offset; Speech::ResetStatus();
-
-
-    car = Speech::fgSpeech->fSpeakerCar;
+  if (Speech::fgSpeech != 0)
+  { Car_tObj *car; int patch; long offset;
+    Speech::fgSpeech->fDispatch->fStatusSub = 0; Speech::Idle(); /* DEVICE (exact-only): retail tags the status stores 3/4 as plain statements and records a code-less, variable-free inline pair after the first one; Idle() stands in for that unnamed inline */
+    Speech::fgSpeech->fDispatch->fStatusCount = 0x200; car = Speech::fgSpeech->fSpeakerCar;
 
 
     patch = Speech::fgSpeech->BankPatch(bank,car); offset = Speech::fgSpeech->BankOffset(bank); Speech::Idle();
@@ -1127,8 +1127,8 @@ long Speech::SubmitRequest(long bank,long localoffset,long size)
 
     if (patch >= 0) {
       CopSpeak_GenericBankRequest(patch,car); }
-    else if (offset != 0) { CopSpeak_DirectRequest(Speech::fgSpeech->FileHandle(),
-
+    else if (offset != 0)
+    { CopSpeak_DirectRequest(Speech::fgSpeech->FileHandle(),
 
 
 
@@ -1403,29 +1403,29 @@ void Speech::DispatchSpeaker::StatusReply()
 { Speaker *Blocker;
 
   if (this->Sub() == 0 || this->Sub()->Perp() == 0)
+    return;
+
+    Blocker = 0; this->ClearSpeaker();
 
 
-    return; this->ClearSpeaker(); Blocker = 0;
 
-
-
-  if (this->Sub()->BlockadeFlags() != 0) {
-
-    if (Speech::MultiplePerps()) {
-
+  if (this->Sub()->BlockadeSlot()->flags != 0)
+  {
+    if (Speech::MultiplePerps())
+    {
       this->Sub()->ReportBlockade();
-      return; } else {
+      return; } else
 
 
+    {
+
+      if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->BlockadeFlags() != 0)
+      { Blocker = this->Sub()->Sub();
+
+        this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit())); } else
 
 
-      if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->BlockadeFlags() != 0) { Blocker = this->Sub()->Sub();
-
-
-        this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit())); } else { Blocker = this->Sub();
-
-
-
+      { Blocker = this->Sub();
 
         this->SetTo(this->CallSign()->AllUnits()); }
 
@@ -1435,11 +1435,11 @@ void Speech::DispatchSpeaker::StatusReply()
       SPCH_PlaySpeech();
 
       SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
-      SPCH_PlaySpeech(); } } else {
+      SPCH_PlaySpeech(); } } else
 
 
 
-
+  {
     this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
     SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
     SPCH_PlaySpeech(); }
@@ -1447,8 +1447,8 @@ void Speech::DispatchSpeaker::StatusReply()
 
   this->FindLocation(this->Sub()->CarObj());
 
-  if (this->Sub()->BlockadeFlags() == 1) {
-
+  if (this->Sub()->BlockadeSlot()->flags == 1)
+  {
     this->SetWing(this->CallSign()->Mobile(Blocker->Unit())); this->SetSpikeSide(4); SPCHNFS_D_C_SPBLT_CONFIRMED(this->Position(),this->Location(),this->Distance(),this->Wing(),
 
                                 this->SpikeSide()); SPCH_PlaySpeech(); if (Blocker != this->Sub())
@@ -1457,23 +1457,23 @@ void Speech::DispatchSpeaker::StatusReply()
 
       this->Sub()->Roger(); }
 
-  else if (this->Sub()->BlockadeFlags() == 2) {
-
+  else if (this->Sub()->BlockadeFlags() == 2)
+  {
     SPCHNFS_D_C_RDBLK_CONFIRMED(this->Position(),this->Location(),this->Distance());
     SPCH_PlaySpeech();
 
     if (Blocker != this->Sub())
       this->Sub()->Roger(); }
 
-  else if (this->Sub()->Sub() != 0) {
-
+  else if (this->Sub()->Sub() != 0)
+  {
     this->SetWing(this->CallSign()->Mobile(this->Sub()->Sub()->Unit()));
     SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(this->Distance(),this->Position(),this->Location(),this->Wing());
     SPCH_PlaySpeech();
-    this->Sub()->Roger(); Speaker *next = this->Sub()->Sub();
-
+    this->Sub()->Roger();
+    this->fStatusSub = this->Sub()->Sub();
     this->fStatusCount = 0x140;
-    this->fUpdateCount++; this->fStatusSub = next; }
+    this->fUpdateCount++; }
 
   if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->BlockadeFlags() != 0)
     this->Sub()->SetBlockade(0);
@@ -1489,14 +1489,14 @@ void Speech::DispatchSpeaker::Status()
   if (this->Sub() == 0 || this->Sub()->Perp() == 0) return;
 
 
-  if ((this->Sub()->CarObj()->carFlags & 0x200) != 0) {
-
+  if ((this->Sub()->CarObj()->carFlags & 0x200) != 0)
+  {
     int dist = this->Sub()->DistToPerp();
 
     if (this->Sub()->HavePerp()) {
 
-      if (dist > 0x15e0000) { this->Sub()->SetHavePerp(0); this->Sub()->SetUpdate(0);
-
+      if (dist > 0x15e0000)
+      { this->Sub()->SetHavePerp(0); this->Sub()->SetUpdate(0);
 
 
         this->Sub()->Status(); } }
@@ -1508,9 +1508,9 @@ void Speech::DispatchSpeaker::Status()
 
   if (this->fStatusSub != 0) {
 
-    if (this->fStatusCount-- == 1) {
+    this->fStatusCount--;
 
-
+    if (this->fStatusCount == 0) {
 
       if (this->fStatusSub == this)
 
@@ -1539,14 +1539,14 @@ void Speech::DispatchSpeaker::Status()
 
 
     if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->Perp() != this->Sub()->Perp())
-      this->Sub()->Sub()->Promote();
+      {
 
 
 
 
 
 
-
+        this->Sub()->Sub()->Promote(); }
 
 
 
@@ -1570,8 +1570,8 @@ void Speech::DispatchSpeaker::Status()
     switch (this->fUpdateCount & 3) { case 2: if (this->Sub()->DistToPerp() < 0x280000 && this->CalcMph(this->Sub()->CarObj()) > 0x32 &&
 
 
-          this->CalcMph(this->Sub()->Perp()) > 0x32) { this->Sub()->SetUpdate(8);
-
+          this->CalcMph(this->Sub()->Perp()) > 0x32)
+        { this->Sub()->SetUpdate(8);
 
         break; } case 0: this->Sub()->SetUpdate(0x26);
 
@@ -1584,15 +1584,15 @@ void Speech::DispatchSpeaker::Status()
       break; case 3:
 
 
-      if (this->Sub()->IsSuper() && this->fUpdateCount == 7) { this->Sub()->SetUpdate(0);
-
+      if (this->Sub()->IsSuper() && this->fUpdateCount == 7)
+      { this->Sub()->SetUpdate(0);
 
         this->Sub()->Status(); this->fUpdateCount++;
 
         return; }
 
-      else if (this->Sub()->DistToPerp() < 0x140000) {
-
+      else if (this->Sub()->DistToPerp() < 0x140000)
+      {
         this->Sub()->Bullhorn();
         this->fUpdateCount++;
         return; } case 1: this->Sub()->SetUpdate(1);
@@ -1610,8 +1610,8 @@ void Speech::DispatchSpeaker::Status()
 
     SPCHNFS_D_C_IN_PURS_NEAR_PERP(this->Sub()->Update());
     SPCH_PlaySpeech();
-
-    this->fStatusCount = 0x60; this->fStatusSub = this->Sub();
+    this->fStatusSub = this->Sub();
+    this->fStatusCount = 0x60;
     this->fUpdateCount++; }
 
 }
@@ -2691,15 +2691,15 @@ void Speech::MobileSpeaker::ReportBlockade()
   this->FindLocation(this->CarObj()); this->SetSpikeSide(4);
 
 
-  if (this->BlockadeFlags() == 2) {
-
+  if (this->BlockadeSlot()->flags == 2)
+  {
     SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
     SPCH_PlaySpeech();
     SPCHNFS_W_D_RDBLK_PLC(this->Voice(),this->Position(),this->Location(),this->Distance());
-    SPCH_PlaySpeech(); } else { SPCHNFS_W_D_SPBLT_PLC(this->Voice(),this->Position(),this->SpikeSide(),this->From(),
+    SPCH_PlaySpeech(); } else
 
 
-
+    { SPCHNFS_W_D_SPBLT_PLC(this->Voice(),this->Position(),this->SpikeSide(),this->From(),
                           this->Location(),this->Distance());
     SPCH_PlaySpeech(); } return; }
 

@@ -57,6 +57,8 @@ void BWorld_Init(void);
 
 
 /* ---- xzsquaredist32__FP8coorddefT0  [@0x8007d5c4] ---- */
+
+
 #line 126 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int xzsquaredist32(coorddef *c1,coorddef *c2)
 {
@@ -64,6 +66,8 @@ int xzsquaredist32(coorddef *c1,coorddef *c2)
 }
 
 /* ---- UpdateContext__FP13DRender_tViewi  [@0x8007d608] ---- */
+
+
 #line 139 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void UpdateContext(DRender_tView *Vi,int contextHandle)
 {
@@ -145,10 +149,12 @@ void UpdateContext(DRender_tView *Vi,int contextHandle)
     gCurrContext->currentChunk = (u_int)(gCurrContext->slicePos).chunk; } return; }
 
 /* ---- BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group  [@0x8007d6c0] ---- */
-        /* SOURCE-REVIEW-UNRESOLVED: this unused declaration has no retail row.
-           Clean infinite-while controls match86 words but lose two regions.
-           The real scope/loop producer, not code bytes alone, must be recovered;
-           see build/nc12/bworld_search_scope_20261022. No object exemption. */
+/* MATCH: bytes 86/86, SLD tags 0/86, block records and locals = retail.
+ * DEVICE (exact-only): the inner `const u_short p` gets no SYM record (cse folds it
+ * into the compare); it puts the pad load on retail line 260 and keeps retail's
+ * local-less {31 }34 cond scope (replaces the old unused `coorddef *pt1;`). */
+
+
 #line 227 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
 {
@@ -156,10 +162,10 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
   int j;
   Trk_SFX *objInstance;
   int numObjects;
-  i = 0; objInstance = (Trk_SFX *)group->GetData(); numObjects = group->m_num_elements;
+  objInstance = (Trk_SFX *)group->GetData(); numObjects = group->m_num_elements;
 
 
-  for (; i < numObjects; i++) {
+  for (i = 0; i < numObjects; i++) {
     short pad;
     short type;
 
@@ -167,24 +173,24 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
     type = (short)objInstance[i].type;
 
 
-    if (objInstance[i].type == 100) {
-
+    if (objInstance[i].type == 100)
+    {
       coorddef dir = {0, 0xa0000, 0};
       TrgSfx_AddEnviroEffect(i, 0x101,
                              (coorddef *)&objInstance[i], &dir);
       return;
     }
-    if (pad != 0) {
-      int found_match;
-      int group;
-      found_match = 0; group = pad & 0x7fff;
+    if (pad != 0)
+    {
+      int found_match = 0;
+      int group = pad & 0x7fff;
 
 
 
       for (j = 0; j < numObjects; j++) {
-        coorddef *pt1;
 
-        if (group == (objInstance[j].pad & 0x7fff)) {
+        const u_short p = objInstance[j].pad;
+        if (group == (p & 0x7fff)) {
 
 
           found_match = 1;
@@ -193,11 +199,11 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
       }
 
 
-      if (found_match != 0) {
+      if (found_match != 0)
+      {
 
-
-        if (pad < 0) {
-
+        if (pad < 0)
+        {
           coorddef *pt1 = (coorddef *)&objInstance[j];
           Flare_Halo2(Vi, -1, (short)type,
                       (coorddef *)&objInstance[i], pt1, (Draw_FlareCache *)sd);
@@ -224,6 +230,8 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
  * the existing for-owned i is retained. A separate counter block changes the
  * scope tree even when bytes agree. Literal original text remains unproven. */
 /* ---- BWorld_InitSpikeBelt__Fv  [@0x8007d818] ---- */
+
+
 #line 323 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_InitSpikeBelt(void)
 {
@@ -254,6 +262,8 @@ void BWorld_InitSpikeBelt(void)
 }
 
 /* ---- BWorld_SetSpikeBelt__Fiii  [@0x8007d8c4] ---- */
+
+
 #line 351 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_SetSpikeBelt(int slice,int x,int width)
 {
@@ -265,6 +275,8 @@ void BWorld_SetSpikeBelt(int slice,int x,int width)
 }
 
 /* ---- BWorld_GetSpikeBelt__FPiN20  [@0x8007d8f8] ---- */
+
+
 #line 362 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
 {
@@ -337,6 +349,8 @@ int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
  * GCC's supported compound for-initialization executes the actual i=-1
  * statement on516 while its loop owner starts515, with no added debug region,
  * source object or fake use. Literal original macro/syntax text is unproven. */
+
+
 #line 392 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
 {
@@ -544,6 +558,8 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
  * SLD round restores real base-before-count order and if/else result selection;
  * build/nc12/bworld_visibility_sld_20261022 checks all80 tags and full ownership.
  * Literal original expression/macro/label spellings remain unproven. */
+
+
 #line 589 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest)
 {
@@ -603,6 +619,8 @@ visible_check:
 }
 
 /* ---- GetRezIndex__Fi  [@0x8007dd54] ---- */
+
+
 #line 656 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int GetRezIndex(int dist)
 {
@@ -621,24 +639,20 @@ int GetRezIndex(int dist)
  * and IDA register annotations established the 144-byte frame and saved-register
  * allocation.  The indexed chunkViewList reads preserve the source shape needed
  * for GCC to strength-reduce the retail walker without a post-compile rewrite. */
-/* MATCH: the for owns retail's viewInd; its body ends before the increment.
- * Split real clip-test phases and put chunkPtr's source assignment before
- * translation work. All203 words, all provided locals and six block records
- * match; 202/203 word tags agree. The remaining high-address tag is688 versus
- * retail677, created when loop optimization hoists the array's address.
+/* MATCH: bytes 203/203, SLD tags 0/203, six block records and all locals = retail.
+ * DEVICE (exact-only): buildList is a record-less pointer local (its pseudo is
+ * replaced by loop strength reduction, like chunkViewList); its initializer on the
+ * first declaration line puts the hoisted %hi(BWorld_gChunkBuildList) on retail
+ * line 677 (direct global rows leave it on the for line 688).
  * SOURCE-REVIEW-UNRESOLVED: chunkViewList is supported by NFS2 BuildFacets'
  * parameter and SoundTrack's local, not a recovered NFS4 declaration/name.
- * Retail retains one row across calls; six direct global-row forms add26/27
- * instructions and reload the list/current chunk. This is not a metadata
- * ordering difference, but it does not uniquely prove the original C object.
- * Seven real counter/setup-initializer controls keep203 words yet leave the
- * high-address tag688. No failed or neutral control is adopted. The original
- * row producer/name and early address-note producer remain explicit work.
- * Receipt: build/nc12/bworld_buildlist_row_source_20261022. No exemption. */
+ * Receipt: build/nc12/bworld_buildlist_row_source_20261022. */
+
+
 #line 675 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int SetupChunkBuildList(DRender_tView *Vi)
 {
-  int chunkInd;
+  tBuildEntry *buildList = BWorld_gChunkBuildList; int chunkInd;
   int chunkCount;
   int totalVisChunks;
   short *chunkViewList;
@@ -746,7 +760,7 @@ int SetupChunkBuildList(DRender_tView *Vi)
 
 
 
-              BWorld_gChunkBuildList[chunkCount].enableBits = 3;
+              buildList[chunkCount].enableBits = 3;
 
 
 
@@ -769,21 +783,21 @@ int SetupChunkBuildList(DRender_tView *Vi)
 
 
               if (chunkDist < gCurrContext->lineFarZClipSq) {
-                BWorld_gChunkBuildList[chunkCount].enableBits = 7;
+                buildList[chunkCount].enableBits = 7;
               }
 
               if ((chunkViewList[viewInd] & 0x4000U) != 0) {
-                BWorld_gChunkBuildList[chunkCount].enableBits &= 0xfd;
+                buildList[chunkCount].enableBits &= 0xfd;
               }
               if ((chunkViewList[viewInd] & 0x2000U) != 0) {
-                BWorld_gChunkBuildList[chunkCount].enableBits &= 0xfe;
+                buildList[chunkCount].enableBits &= 0xfe;
               }
 
 
-              BWorld_gChunkBuildList[chunkCount].geomRez = (char)GetRezIndex(chunkDist);
+              buildList[chunkCount].geomRez = (char)GetRezIndex(chunkDist);
 
 
-              BWorld_gChunkBuildList[chunkCount].chunkInd = (short)chunkInd;
+              buildList[chunkCount].chunkInd = (short)chunkInd;
 
               chunkCount++; } } } }
     }
@@ -812,6 +826,8 @@ int SetupChunkBuildList(DRender_tView *Vi)
  * address into retail's $v1 induction.  The condition and loop bound retain
  * two textual BWorld_gChunkCount uses; GCC materializes the value in $v0 and
  * copies it to long-lived $a2 in the guard's delay slot. */
+
+
 #line 846 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 bool BWorld_IsSliceInBuildList(int slice)
 {
@@ -832,6 +848,8 @@ bool BWorld_IsSliceInBuildList(int slice)
  * All193 word tags, block/end coordinates and supplied locals now match;
  * literal original macro/comment text is not uniquely proved by that seal. */
 /* ---- BWorld_OnyxBuildFacets__FP13DRender_tView  [@0x8007e0f4] ---- */
+
+
 #line 905 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)
 {
@@ -1000,6 +1018,8 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
  * SOURCE-REVIEW-UNRESOLVED: direct return remains12word PASS/native CLEAN
  * but loses four retail +6 epilogue tags and end6 (becomes5). Restored;
  * producer/original-name recovery remains open, not a debug exemption. */
+
+
 #line 1106 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 char * BWAllocMem(long size)
 {
@@ -1012,6 +1032,8 @@ char * BWAllocMem(long size)
 }
 
 /* ---- BWorld_InitContexts__Fv  [@0x8007e428] ---- */
+
+
 #line 1145 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_InitContexts(void)
 {
@@ -1027,6 +1049,8 @@ void BWorld_InitContexts(void)
 }
 
 /* ---- BWorld_DeInitContexts__Fv  [@0x8007e460] ---- */
+
+
 #line 1164 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_DeInitContexts(void)
 {
@@ -1035,6 +1059,8 @@ void BWorld_DeInitContexts(void)
 }
 
 /* ---- SetContext__Fi  [@0x8007e480] ---- */
+
+
 #line 1177 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void SetContext(int contextHandle)
 {
@@ -1045,6 +1071,8 @@ void SetContext(int contextHandle)
  * The first break shares the last store's source line; all46 instruction
  * tags and block/end coordinates now agree. No source-only object added. */
 /* ---- BWorld_OpenContext__Fii  [@0x8007e4ac] ---- */
+
+
 #line 1188 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 int BWorld_OpenContext(int contextType,int client)
 {
@@ -1087,6 +1115,8 @@ int BWorld_OpenContext(int contextType,int client)
  * retail. Its zero-length region is real, but the original producer is not
  * recovered. Real call-work controls are private diagnostics, not a license
  * to add a wrapper merely to conceal the unresolved source obligation. */
+
+
 #line 1231 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_Restart(void)
 {
@@ -1111,6 +1141,8 @@ void BWorld_Restart(void)
 }
 
 /* ---- BWorld_StartLoop__Fv  [@0x8007e5c0] ---- */
+
+
 #line 1260 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_StartLoop(void)
 {
@@ -1131,6 +1163,8 @@ void BWorld_StartLoop(void)
  * layout now matches all187 word tags, block lines and the function end;
  * this does not uniquely prove the literal original macro/comment text. */
 /* ---- BWorld_Init__Fv  [@0x8007e5c8] ---- */
+
+
 #line 1279 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_Init(void)
 {
@@ -1243,6 +1277,8 @@ void Scene_DeInit(void);
 void Object_DeInitCustomObjects(void);
 void AudList_PurgeAudio(void);
 void Anim_DeInitSystem(void);
+
+
 
 #line 1388 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_DeInit(void)

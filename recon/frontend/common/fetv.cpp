@@ -37,7 +37,9 @@
 
 /* ---- DrawTVLines  [FETV.CPP:25-77] SLD-VERIFIED ---- */
 
+#line 22 "C:/nfs4/FRONTEND/COMMON/FETV.CPP"
 void DrawTVLines(tTVConfig &tv)
+
 
 {
   short fxHeight;
@@ -45,51 +47,53 @@ void DrawTVLines(tTVConfig &tv)
   short y;
   POLY_F4 *videoFX;
 
+
+
   tv.fxWide = (short)((tv.fxWide + 1) % (tv.h * 0x30));
   tv.fxThin = (short)((tv.fxThin + 2) % (tv.h * 0x30));
   y = tv.fxWide;
   fxHeight = 8;
   if ((int)tv.fxWide < (int)tv.y) {
+
     fxHeight = (short)(fxHeight - ((u_int)tv.y - (u_int)y));
     y = tv.y;
   }
-  else {
-    if (tv.fxWide + 8 > (int)((u_int)tv.y + (int)tv.h)) {
+  else { if (tv.fxWide + 8 > (int)((u_int)tv.y + (int)tv.h)) {
       fxHeight = (short)((u_int)tv.y - (u_int)y);
     }
-  }
-  if (0 < (fxHeight << 0x10)) {
-    videoFX = (POLY_F4 *)Render_gPacketPtr;
-    addPrim(Render_gPalettePtr,videoFX);
-    Render_gPacketPtr = (u_char *)(videoFX + 1);
-    videoFX->code = 0x2a;
-    FETV_setlen(videoFX,5);
+  } if (0 < (fxHeight << 0x10)) {
+
+    videoFX = (POLY_F4 *)Render_gPacketPtr; addPrim(Render_gPalettePtr,videoFX); Render_gPacketPtr = (u_char *)(videoFX + 1);
+    videoFX->code = 0x2a; FETV_setlen(videoFX,5);
+
+
     FETV_setXYWH(videoFX,tv.x,y,tv.w,fxHeight);
-    videoFX->b0 = 10;
-    videoFX->g0 = 10;
-    videoFX->r0 = 10;
+    videoFX->b0 = 10; videoFX->g0 = 10; videoFX->r0 = 10;
   }
   y = tv.fxThin;
+
   if (((int)tv.fxThin > (int)tv.y) && ((int)tv.fxThin < (int)tv.y + (int)tv.h)) {
-    videoFX = (POLY_F4 *)Render_gPacketPtr;
-    addPrim(Render_gPalettePtr,videoFX);
-    Render_gPacketPtr = (u_char *)(videoFX + 1);
-    videoFX->code = 0x2a;
-    FETV_setlen(videoFX,5);
+
+    videoFX = (POLY_F4 *)Render_gPacketPtr; addPrim(Render_gPalettePtr,videoFX); Render_gPacketPtr = (u_char *)(videoFX + 1);
+    videoFX->code = 0x2a; FETV_setlen(videoFX,5);
+
+
     FETV_setXYWH(videoFX,tv.x,y,tv.w,1);
-    videoFX->b0 = 10;
-    videoFX->g0 = 10;
-    videoFX->r0 = 10;
+    videoFX->b0 = 10; videoFX->g0 = 10; videoFX->r0 = 10;
   }
   FeDraw_SetABRMode(1);
+
   if ((tv.flags & 0x20) != 0) {
+
+
+
     for (x = (short)((u_short)tv.x + 4 & 0xfffc); x < tv.x + tv.w; x += 4) {
+
       PSXDrawTransSquare(0xa0a0a,x,tv.y,1,tv.h,1);
     }
-    FeDraw_SetABRMode(2);
-  }
-  return;
-}
+
+
+    FeDraw_SetABRMode(2); } return; }
 
 
 
@@ -246,7 +250,22 @@ void DrawTVLines(tTVConfig &tv)
    delay-slot scheduling and was FAIL 11 at 816/815.  The final solution is pure
    C and needs no local, volatile, asm, register pin, or postcompile splice. */
 
+        /* SOURCE-REVIEW-UNRESOLVED: this zero-net perturbation is not recovered
+           original source. Removing it after the helper expansions still
+           changes two load-order lines at 815 words (2026-10-09). */
+      /* Cast/subtrahend form preserves retail's shapey-v1 then height-v0
+         byte loads without source-only capture locals (2026-10-09, 815 PASS).
+         The final byte store makes this equal to the original byte sum;
+         literal original expression spelling and full SLD remain unproved. */
+      /* SOURCE-REVIEW-UNRESOLVED: this unrecorded mask and empty ref-count
+         fence still need source recovery. Removing both after three helper
+         expansions remain 72 diffs at 815 words; no necessity is proved. */
+      /* SOURCE-REVIEW-UNRESOLVED: packetPtrSlot is absent from retail SYM.
+         Direct scratchpad macros after the helper removals leave four address
+         materialization-order differences at 815 words, not a source floor. */
+#line 79 "C:/nfs4/FRONTEND/COMMON/FETV.CPP"
 void DrawTV(tTVConfig &tv)
+
 
 {
   POLY_FT4 *texture;
@@ -258,8 +277,7 @@ void DrawTV(tTVConfig &tv)
   short videoHeight;
   short fadeTop;
   short fadeBottom;
-  u_long tint;
-  short bright = tv.destBrightness;
+  u_long tint; short bright = tv.destBrightness;
   bool do_tint;
 
   videoX = tv.x;
@@ -269,18 +287,25 @@ void DrawTV(tTVConfig &tv)
   tint = tv.tint;
   do_tint = 1;
   if ((tv.flags & 2) == 0) {
+
     tint = 0x808080;
     do_tint = 0;
   }
+
+
   if (tv.transition != tv.destBrightness) {
     if ((tv.transition < tv.destBrightness) &&
+
+
         ((u_int)(tv.state - tv_StateOn) < 2)) {
+
       tv.transition += 4;
       if (tv.destBrightness < tv.transition) {
         tv.transition = tv.destBrightness;
       }
     }
     else if ((tv.state == tv_TransitionOff) || (tv.state == tv_StateOn)) {
+
       tv.transition -= 8;
       if (tv.transition < tv.destBrightness) {
         tv.transition = tv.destBrightness;
@@ -292,255 +317,181 @@ void DrawTV(tTVConfig &tv)
     bright = tv.destBrightness;
     break;
   case tv_StateOff:
+
+
     bright = tv.destBrightness;
     break;
   case tv_TransitionOn:
+
+
     do_tint = 1;
     if (tv.transition == tv.destBrightness) {
       tv.state = tv_StateOn;
     }
     bright = tv.transition;
+
     break;
   case tv_TransitionOff:
+
+
     do_tint = 1;
     if (tv.transition == tv.destBrightness) {
       tv.state = tv_StateOff;
-    }
-    bright = tv.transition;
+    } bright = tv.transition;
     break;
   }
   fadeTop = (short)((u_int)tint >> 0x10 & 0xff);
   tint = ((u_int)(fadeTop * bright) >> 7) << 0x10 |
          (((u_int)tint >> 8 & 0xff) * bright >> 7) << 8 |
+
+
          (tint & 0xffU) * bright >> 7;
+
   if ((tv.flags & 8) == 0) {
     DrawTVLines(tv);
   }
+
   if ((tv.flags & 0x10) == 0) {
+
+
+
     if (tv.state != tv_StateOn) {
-      /* SOURCE-REVIEW-UNRESOLVED: packetPtrSlot is absent from retail SYM.
-         Direct scratchpad macros after the helper removals leave four address
-         materialization-order differences at 815 words, not a source floor. */
-      u_char **packetPtrSlot = (u_char **)0x1f800004;
-      /* SOURCE-REVIEW-UNRESOLVED: this unrecorded mask and empty ref-count
-         fence still need source recovery. Removing both after three helper
-         expansions remain 72 diffs at 815 words; no necessity is proved. */
-      u_int rgbMask = 0xffffff;
-      __asm__("" : : "r"(rgbMask), "r"(rgbMask));
-      texture = (POLY_FT4 *)*packetPtrSlot;
-      addPrim(Render_gPalettePtr,texture);
-      *packetPtrSlot = (u_char *)(texture + 1);
-      *(u_int *)&texture->r0 =
-           (0x40 - (bright >> 1)) * 0x10000 |
-           (0x40 - (bright >> 1)) * 0x100 |
-           (0x40 - (bright >> 1));
+
+      u_char **packetPtrSlot = (u_char **)0x1f800004; u_int rgbMask = 0xffffff; __asm__("" : : "r"(rgbMask), "r"(rgbMask)); texture = (POLY_FT4 *)*packetPtrSlot; addPrim(Render_gPalettePtr,texture); *packetPtrSlot = (u_char *)(texture + 1);
+      *(u_int *)&texture->r0 = (0x40 - (bright >> 1)) * 0x10000 | (0x40 - (bright >> 1)) * 0x100 | (0x40 - (bright >> 1));
+
       SetPolyFT4(texture);
       SetSemiTrans(texture,1);
       SetShadeTex(texture,0);
-      texture->x0 = videoX;
-      texture->y0 = videoY;
-      texture->x1 = videoX + videoWidth;
-      texture->y1 = videoY;
-      texture->x2 = videoX;
-      texture->y2 = videoY + videoHeight;
-      texture->x3 = videoX + videoWidth;
-      texture->y3 = videoY + videoHeight;
+
+      texture->x0 = videoX; texture->y0 = videoY; texture->x1 = videoX + videoWidth; texture->y1 = videoY; texture->x2 = videoX; texture->y2 = videoY + videoHeight; texture->x3 = videoX + videoWidth; texture->y3 = videoY + videoHeight;
       texture->u0 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
-                    (int)noise->depth;
-      texture->v0 = noise->shapey;
-      texture->u1 = noise->width +
-                    ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
-                    (int)noise->depth;
-      texture->v1 = noise->shapey;
-      texture->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
-                    (int)noise->depth;
-      /* Cast/subtrahend form preserves retail's shapey-v1 then height-v0
-         byte loads without source-only capture locals (2026-10-09, 815 PASS).
-         The final byte store makes this equal to the original byte sum;
-         literal original expression spelling and full SLD remain unproved. */
-      texture->v2 = (u_char)noise->height - (-(u_short)noise->shapey);
-      texture->u3 = noise->width +
-                    ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
-                    (int)noise->depth;
-      texture->v3 = (u_char)noise->height - (-(u_short)noise->shapey);
-      texture->tpage =
-           ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
-           ((short)(noise->shapey & 0x100U) >> 4 | 0x60U) |
-           (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) |
-           (noise->shapey & 0x200U) << 2;
-      texture->clut =
-           GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
+                    (int)noise->depth; texture->v0 = noise->shapey; texture->u1 = noise->width + ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 / (int)noise->depth; texture->v1 = noise->shapey; texture->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 / (int)noise->depth; texture->v2 = (u_char)noise->height - (-(u_short)noise->shapey); texture->u3 = noise->width + ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 / (int)noise->depth; texture->v3 = (u_char)noise->height - (-(u_short)noise->shapey);
+      texture->tpage = ((u_char)(*((u_char *)noise + 9)) & 3) << 7 | ((short)(noise->shapey & 0x100U) >> 4 | 0x60U) | (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) | (noise->shapey & 0x200U) << 2;
+      texture->clut = GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
+
       if ((tv.flags & 4) != 0) {
+
+
         fadeTop = tv.flip_axis - videoY + 1;
         if (fadeTop < 0) {
           fadeTop = -fadeTop;
-        }
-        fadeTop = fadeTop << 1;
+        } fadeTop = fadeTop << 1;
         if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
         fadeBottom = tv.flip_axis - (videoY + videoHeight) + 1;
         if (fadeBottom < 0) {
           fadeBottom = -fadeBottom;
-        }
-        fadeBottom = fadeBottom << 1;
+        } fadeBottom = fadeBottom << 1;
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
         reflection = (POLY_GT4 *)*packetPtrSlot;
-        /* SOURCE-REVIEW-UNRESOLVED: this zero-net perturbation is not recovered
-           original source. Removing it after the helper expansions still
-           changes two load-order lines at 815 words (2026-10-09). */
-        reflection--;
-        reflection++;
-        addPrim(Render_gPalettePtr,reflection);
-        *packetPtrSlot = (u_char *)(reflection + 1);
+        reflection--; reflection++; addPrim(Render_gPalettePtr,reflection); *packetPtrSlot = (u_char *)(reflection + 1);
         *(u_int *)&reflection->r0 = *(u_int *)&reflection->r1 =
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 0x10) |
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 8) |
+
+
              ((0x80 - bright) * (0x80 - fadeTop) / 0x80);
         *(u_int *)&reflection->r2 = *(u_int *)&reflection->r3 =
              (((0x80 - bright) * (0x80 - fadeBottom) / 0x80) << 0x10) |
              (((0x80 - bright) * (0x80 - fadeBottom) / 0x80) << 8) |
              ((0x80 - bright) * (0x80 - fadeBottom) / 0x80);
-        reflection->code = 0x3e;
-        ((u_char *)reflection)[3] = 0xc;
-        reflection->x0 = videoX;
-        reflection->y0 = tv.flip_axis * 2 - videoY;
-        reflection->x1 = videoX + videoWidth;
-        reflection->y1 = tv.flip_axis * 2 - videoY;
-        reflection->x2 = videoX;
-        reflection->y2 = (tv.flip_axis * 2 - videoY) - videoHeight;
-        reflection->x3 = videoX + videoWidth;
-        reflection->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
+
+        reflection->code = 0x3e; ((u_char *)reflection)[3] = 0xc;
+
+
+
+        reflection->x0 = videoX; reflection->y0 = tv.flip_axis * 2 - videoY; reflection->x1 = videoX + videoWidth; reflection->y1 = tv.flip_axis * 2 - videoY; reflection->x2 = videoX; reflection->y2 = (tv.flip_axis * 2 - videoY) - videoHeight; reflection->x3 = videoX + videoWidth; reflection->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
         reflection->u0 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
-                         (int)noise->depth;
-        reflection->v0 = noise->shapey - 1;
-        reflection->u1 = noise->width +
-                         ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
-                         (int)noise->depth;
-        reflection->v1 = noise->shapey - 1;
-        reflection->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
-                         (int)noise->depth;
-        reflection->v2 = noise->shapey - 1 + noise->height;
-        reflection->u3 = noise->width +
-                         ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
-                         (int)noise->depth;
-        reflection->v3 = noise->shapey - 1 + noise->height;
-        reflection->tpage =
-             ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
-             ((short)(noise->shapey & 0x100U) >> 4 | 0x60U) |
-             (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) |
-             (noise->shapey & 0x200U) << 2;
-        reflection->clut =
-             GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
+                         (int)noise->depth; reflection->v0 = noise->shapey - 1; reflection->u1 = noise->width + ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 / (int)noise->depth; reflection->v1 = noise->shapey - 1; reflection->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 / (int)noise->depth; reflection->v2 = noise->shapey - 1 + noise->height; reflection->u3 = noise->width + ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 / (int)noise->depth; reflection->v3 = noise->shapey - 1 + noise->height;
+        reflection->tpage = ((u_char)(*((u_char *)noise + 9)) & 3) << 7 | ((short)(noise->shapey & 0x100U) >> 4 | 0x60U) | (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) | (noise->shapey & 0x200U) << 2;
+        reflection->clut = GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
       }
     }
-    if (tv.state != tv_StateOff) {
-      u_char **packetPtrSlot = (u_char **)0x1f800004;
-      u_int rgbMask = 0xffffff;
-      __asm__("" : : "r"(rgbMask), "r"(rgbMask));
 
-      texture = (POLY_FT4 *)*packetPtrSlot;
-      FETVLinkFT4((u_int *)Render_gPalettePtr,texture,packetPtrSlot,rgbMask);
-      *(u_int *)&texture->r0 = tint;
-      SetPolyFT4(texture);
+
+    if (tv.state != tv_StateOff) {
+
+      u_char **packetPtrSlot = (u_char **)0x1f800004; u_int rgbMask = 0xffffff; __asm__("" : : "r"(rgbMask), "r"(rgbMask)); texture = (POLY_FT4 *)*packetPtrSlot; FETVLinkFT4((u_int *)Render_gPalettePtr,texture,packetPtrSlot,rgbMask); *(u_int *)&texture->r0 = tint; SetPolyFT4(texture);
+
+
+
+
+
       SetSemiTrans(texture,0);
       SetShadeTex(texture,do_tint ^ 1);
-      texture->x0 = videoX;
-      texture->y0 = videoY;
-      texture->x1 = videoX + videoWidth;
-      texture->y1 = videoY;
-      texture->x2 = videoX;
-      texture->y2 = videoY + videoHeight;
-      texture->x3 = videoX + videoWidth;
-      texture->y3 = videoY + videoHeight;
-      texture->u0 = tv.u;
-      texture->v0 = tv.v;
-      texture->u1 = tv.u + tv.uw;
-      texture->v1 = tv.v;
-      texture->u2 = tv.u;
-      texture->v2 = tv.v + tv.vh;
-      texture->u3 = tv.u + tv.uw;
-      texture->v3 = tv.v + tv.vh;
+
+      texture->x0 = videoX; texture->y0 = videoY; texture->x1 = videoX + videoWidth; texture->y1 = videoY; texture->x2 = videoX; texture->y2 = videoY + videoHeight; texture->x3 = videoX + videoWidth; texture->y3 = videoY + videoHeight;
+      texture->u0 = tv.u; texture->v0 = tv.v; texture->u1 = tv.u + tv.uw; texture->v1 = tv.v; texture->u2 = tv.u; texture->v2 = tv.v + tv.vh; texture->u3 = tv.u + tv.uw; texture->v3 = tv.v + tv.vh;
       texture->tpage = tv.tpage;
       texture->clut = tv.clut;
+
       if ((tv.flags & 4) != 0) {
+
+
         fadeTop = tv.flip_axis - videoY + 1;
         if (fadeTop < 0) {
           fadeTop = -fadeTop;
-        }
-        fadeTop = fadeTop << 1;
+        } fadeTop = fadeTop << 1;
         if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
         fadeBottom = tv.flip_axis - (videoY + videoHeight) + 1;
         if (fadeBottom < 0) {
           fadeBottom = -fadeBottom;
-        }
-        fadeBottom = fadeBottom << 1;
+        } fadeBottom = fadeBottom << 1;
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
-        texture = (POLY_FT4 *)*packetPtrSlot;
-        addPrim(Render_gPalettePtr,(POLY_GT4 *)texture);
-        *packetPtrSlot = (u_char *)((POLY_GT4 *)texture + 1);
-        ((u_char *)texture)[3] = 0xc;
+
+        texture = (POLY_FT4 *)*packetPtrSlot; addPrim(Render_gPalettePtr,(POLY_GT4 *)texture); *packetPtrSlot = (u_char *)((POLY_GT4 *)texture + 1);
+
         *(u_int *)&((POLY_GT4 *)texture)->r0 = *(u_int *)&((POLY_GT4 *)texture)->r1 =
              (((tint >> 16 & 0xff) * (0x80 - fadeTop) >> 7) << 16) |
              (((tint >> 8 & 0xff) * (0x80 - fadeTop) >> 7) << 8) |
+
              ((tint & 0xff) * (0x80 - fadeTop) >> 7);
         *(u_int *)&((POLY_GT4 *)texture)->r2 = *(u_int *)&((POLY_GT4 *)texture)->r3 =
              (((tint >> 16 & 0xff) * (0x80 - fadeBottom) >> 7) << 16) |
              (((tint >> 8 & 0xff) * (0x80 - fadeBottom) >> 7) << 8) |
              ((tint & 0xff) * (0x80 - fadeBottom) >> 7);
-        ((POLY_GT4 *)texture)->code = 0x3c;
-        ((POLY_GT4 *)texture)->x0 = videoX;
-        ((POLY_GT4 *)texture)->y0 = tv.flip_axis * 2 - videoY;
-        ((POLY_GT4 *)texture)->x1 = videoX + videoWidth;
-        ((POLY_GT4 *)texture)->y1 = tv.flip_axis * 2 - videoY;
-        ((POLY_GT4 *)texture)->x2 = videoX;
-        ((POLY_GT4 *)texture)->y2 = (tv.flip_axis * 2 - videoY) - videoHeight;
-        ((POLY_GT4 *)texture)->x3 = videoX + videoWidth;
-        ((POLY_GT4 *)texture)->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
-        ((POLY_GT4 *)texture)->u0 = tv.u;
-        ((POLY_GT4 *)texture)->v0 = tv.v - 1;
-        ((POLY_GT4 *)texture)->u1 = tv.u + tv.uw;
-        ((POLY_GT4 *)texture)->v1 = tv.v - 1;
-        ((POLY_GT4 *)texture)->u2 = tv.u;
-        ((POLY_GT4 *)texture)->v2 = tv.v - 1 + tv.vh;
-        ((POLY_GT4 *)texture)->u3 = tv.u + tv.uw;
-        ((POLY_GT4 *)texture)->v3 = tv.v - 1 + tv.vh;
+
+        ((POLY_GT4 *)texture)->code = 0x3c; ((u_char *)texture)[3] = 0xc;
+
+
+
+        ((POLY_GT4 *)texture)->x0 = videoX; ((POLY_GT4 *)texture)->y0 = tv.flip_axis * 2 - videoY; ((POLY_GT4 *)texture)->x1 = videoX + videoWidth; ((POLY_GT4 *)texture)->y1 = tv.flip_axis * 2 - videoY; ((POLY_GT4 *)texture)->x2 = videoX; ((POLY_GT4 *)texture)->y2 = (tv.flip_axis * 2 - videoY) - videoHeight; ((POLY_GT4 *)texture)->x3 = videoX + videoWidth; ((POLY_GT4 *)texture)->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
+        ((POLY_GT4 *)texture)->u0 = tv.u; ((POLY_GT4 *)texture)->v0 = tv.v - 1; ((POLY_GT4 *)texture)->u1 = tv.u + tv.uw; ((POLY_GT4 *)texture)->v1 = tv.v - 1; ((POLY_GT4 *)texture)->u2 = tv.u; ((POLY_GT4 *)texture)->v2 = tv.v - 1 + tv.vh; ((POLY_GT4 *)texture)->u3 = tv.u + tv.uw; ((POLY_GT4 *)texture)->v3 = tv.v - 1 + tv.vh;
         ((POLY_GT4 *)texture)->tpage = tv.tpage;
         ((POLY_GT4 *)texture)->clut = tv.clut;
       }
     }
-  }
-  return;
-}
+  } return; }
 
 
 
 /* ---- InitTV  [FETV.CPP:287-309] SLD-VERIFIED ---- */
 
-void InitTV(tTVConfig &tv,tTexture_ShapeInfo *textures,short index)
-
-{
   /* SYM records no locals.  Direct textures[index] expressions let GCC form
      the retail $s0 indexed base without a source pointer/byte-offset local.
      SLD lines 304..309 put both rand assignments before tint/flip/transition/
      brightness; that order lets the second remainder stay live while those
      independent stores fill its divide latency and is exact PASS 132/132. */
-  
+#line 284 "C:/nfs4/FRONTEND/COMMON/FETV.CPP"
+void InitTV(tTVConfig &tv,tTexture_ShapeInfo *textures,short index)
+
+
+{
   tv.state = tv_StateOff;
   tv.flags = 0;
   tv.x = -textures[index].centerx;
   tv.y = -textures[index].centery;
   tv.w = textures[index].width;
   tv.h = textures[index].height;
-  tv.u = (u_char)((((int)textures[index].shapex -
-          (int)(short)(textures[index].shapex & 0xffc0)) * 0x10) /
-          (int)(u_char)textures[index].depth);
+  tv.u = (u_char)((((int)textures[index].shapex - (int)(short)(textures[index].shapex & 0xffc0)) * 0x10) / (int)(u_char)textures[index].depth);
   tv.v = (u_char)textures[index].shapey;
   tv.uw = (u_char)tv.w;
   tv.vh = (u_char)tv.h;
@@ -549,10 +500,7 @@ void InitTV(tTVConfig &tv,tTexture_ShapeInfo *textures,short index)
   tv.clutID = textures[index].clutID;
   tv.shapeType = textures[index].type & 3;
   tv.clut = GetClut((tv.clutID & 0x3f) << 4,(u_int)(tv.clutID >> 6));
-  tv.tpage = ((u_char)textures[index].type & 3) << 7 |
-              (short)(textures[index].shapey & 0x100) >> 4 |
-              (u_short)((textures[index].shapex & 0x3c0) >> 6) |
-              (textures[index].shapey & 0x200) << 2;
+  tv.tpage = ((u_char)textures[index].type & 3) << 7 | (short)(textures[index].shapey & 0x100) >> 4 | (u_short)((textures[index].shapex & 0x3c0) >> 6) | (textures[index].shapey & 0x200) << 2;
   tv.fxWide = (short)(rand() % (tv.h * 0x30));
   tv.fxThin = (short)(rand() % (tv.h * 0x30));
   tv.tint = 0x808080;
@@ -566,7 +514,9 @@ void InitTV(tTVConfig &tv,tTexture_ShapeInfo *textures,short index)
 
 /* ---- TurnOffTV  [FETV.CPP:313-315] SLD-VERIFIED ---- */
 
+#line 310 "C:/nfs4/FRONTEND/COMMON/FETV.CPP"
 void TurnOffTV(tTVConfig &tv)
+
 
 {
   tv.state = tv_TransitionOff;
@@ -577,7 +527,9 @@ void TurnOffTV(tTVConfig &tv)
 
 /* ---- TurnOnTV  [FETV.CPP:319-321] SLD-VERIFIED ---- */
 
+#line 316 "C:/nfs4/FRONTEND/COMMON/FETV.CPP"
 void TurnOnTV(tTVConfig &tv)
+
 
 {
   tv.state = tv_TransitionOn;

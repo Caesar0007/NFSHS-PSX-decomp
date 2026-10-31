@@ -57,7 +57,9 @@ void Sim_MainGameLoop(void);
 
 
 /* ---- Sim_StartUp__Fv  [SIM.CPP:186-227] SLD-VERIFIED ---- */
+#line 183 "C:/nfs4/GAME/COMMON/SIM.CPP"
 void Sim_StartUp(void)
+
 
 {
   simVar.restartGame = 1;
@@ -104,7 +106,9 @@ void Sim_StartUp(void)
 }
 
 /* ---- Sim_Restart__Fv  [SIM.CPP:231-260] SLD-VERIFIED ---- */
+#line 228 "C:/nfs4/GAME/COMMON/SIM.CPP"
 void Sim_Restart(void)
+
 
 {
   quitType = 1;
@@ -139,7 +143,9 @@ void Sim_Restart(void)
 }
 
 /* ---- Sim_CleanUp__Fv  [SIM.CPP:264-286] SLD-VERIFIED ---- */
+#line 261 "C:/nfs4/GAME/COMMON/SIM.CPP"
 void Sim_CleanUp(void)
+
 
 {
 
@@ -167,7 +173,9 @@ void Sim_CleanUp(void)
 }
 
 /* ---- Sim_FadeInSFX__Fv  [SIM.CPP:290-301] SLD-VERIFIED ---- */
+#line 287 "C:/nfs4/GAME/COMMON/SIM.CPP"
 void Sim_FadeInSFX(void)
+
 
 {
   if (simGlobal.gameTicks == 0)
@@ -199,15 +207,17 @@ void Sim_FadeInSFX(void)
            widened addition is8dif/197; multiply/shift is8dif/201 with a second
            induction variable. These failures do not prove a distinct source
            object or its original name/type. Revisit the pre-combine loop graph. */
+#line 309 "C:/nfs4/GAME/COMMON/SIM.CPP"
 void Sim_ProcessSimSchedules(void)
+
 
 {
   if (!(((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0))))))) {
-
-    if (simGlobal.gameStarted == 0) {
+       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))))
+  {
+    if (simGlobal.gameStarted == 0)
       {
-
+      {
 
 
 
@@ -347,7 +357,9 @@ void Sim_ProcessSimSchedules(void)
 }
 
 /* ---- Sim_ProcessPause__Fv  [SIM.CPP:467-531] SLD-VERIFIED ---- */
+#line 464 "C:/nfs4/GAME/COMMON/SIM.CPP"
 static void Sim_ProcessPause(void)
+
 
 {
   int r;
@@ -365,12 +377,12 @@ static void Sim_ProcessPause(void)
       simVar.pauseSim = 0;
 
       Force_UnPause();
+
+
+
+
+      (void)0; /* DEVICE (exact-only): zero-code statement = retail line note of the j-over-else on this line */
     }
-
-
-
-
-
 
     else if (r == 2) {
 
@@ -400,7 +412,7 @@ static void Sim_ProcessPause(void)
       quitType = 1;
     } MPause_EndPauseMenu();
   }
-  return;
+
 
 
 
@@ -416,13 +428,15 @@ static void Sim_ProcessPause(void)
 }
 
 /* ---- Sim_CheckForPause__Fi  [SIM.CPP:536-551] SLD-VERIFIED ---- */
+#line 533 "C:/nfs4/GAME/COMMON/SIM.CPP"
 void Sim_CheckForPause(int checkInput)
 
+
 {
-  if ((((Replay_ReplayMode < 2) && (simVar.restartGame == 0)) && (0x20 < simGlobal.gameTicks)) && (((checkInput != 0 && (Input_Interface(6,1) != 0)) || (Device_gForcePause != 0)))) {
+  if (((Replay_ReplayMode < 2) && (simVar.restartGame == 0)) && (0x20 < simGlobal.gameTicks))
 
 
-
+  if (((checkInput != 0 && (Input_Interface(6,1) != 0)) || (Device_gForcePause != 0))) {
 
     unPauseDelay = clock_realTime.time32Hz + 4;
     AudioCmn_Pause();
@@ -430,9 +444,9 @@ void Sim_CheckForPause(int checkInput)
     simVar.pauseSim = 1;
 
 
-    Force_Pause();
-  }
-  return;
+    Force_Pause(); } return;
+
+
 }
 
 /* ---- Sim_MainGameLoop__Fv  [SIM.CPP:554-826] SLD-VERIFIED ---- */
@@ -553,7 +567,9 @@ void Sim_CheckForPause(int checkInput)
      function-scope initialization moves it to the prologue and regresses by
      two diffs. Literal comparison/store and the equivalent InBetween increment
      are69dif/320 in the current basin. A separate source object is not proved. */
+#line 551 "C:/nfs4/GAME/COMMON/SIM.CPP"
 void Sim_MainGameLoop(void)
+
 
 {
   int lastRealTick; int lastGoalTick; int one; GameSetup_tData *replaySetup; lastRealTick = clock_realTime.time64Hz + 10000;
@@ -633,9 +649,9 @@ void Sim_MainGameLoop(void)
     if (0x10 < Input_gTime - simGlobal.time32Hz) {
       simGlobal.time32Hz = Input_gTime;
     }
-    replaySetup = &GameSetup_gData; while ((simGlobal.time32Hz <= Input_gTime && (simVar.endSimGame == 0))) {
+    replaySetup = &GameSetup_gData; while (simGlobal.time32Hz <= Input_gTime) {
 
-
+      if (simVar.endSimGame != 0) break;
 
 
 
@@ -674,15 +690,15 @@ void Sim_MainGameLoop(void)
             }
           }
         }
-      } if (simVar.endSimGame == 0) {
-
+      } if (simVar.endSimGame == 0)
+      {
         if (simVar.pauseSim != 0) {
 
           Sim_ProcessPause();
           simVar.keyRelease = 0x18;
         }
-        else {
-
+        else
+        {
           if (Input_Interface(0x15,1) != 0) {
 
 
@@ -708,10 +724,10 @@ void Sim_MainGameLoop(void)
           else {
             int i; char *gameSetup; i = 0; if (i > (int)(u_int)(replaySetup->commMode == 1)) goto SimMainLoop_inputDone; gameSetup = (char *)&GameSetup_gData;
 SimMainLoop_inputLoop:
-              if ((Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0) && (Replay_ReplayMode < 2)) {
-
-                Camera_NextMode(i);
-              }
+              if (Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0)
+                if (Replay_ReplayMode < 2) {
+                  Camera_NextMode(i);
+                }
               if (Input_Interface(i != 0 ? 0x1d : 0x1c,1) != 0) {
                 DashHUD_ToggleHud(i);
               }
@@ -721,8 +737,8 @@ SimMainLoop_inputLoop:
               i++; if (i <= (int)(u_int)(*(int *)((char *)((u_int)gameSetup | ((u_int)gameSetup & 3)) + 0xc) == 1))
                 goto SimMainLoop_inputLoop;
 SimMainLoop_inputDone:
-              ;
-          } } } simGlobal.time32Hz = simGlobal.time32Hz + 1;
+              ; } } }
+          simGlobal.time32Hz = simGlobal.time32Hz + 1;
     }
 
 
@@ -744,9 +760,9 @@ SimMainLoop_inputDone:
 
 
       if (simVar.currentClockTicks > simVar.goalClockTicks) {
-
-
-        skipRender = 1; } else { one = 1;
+        skipRender = 1;
+      } else {
+        one = 1;
         do {
 
 
@@ -754,9 +770,9 @@ SimMainLoop_inputDone:
             SimQueue_SetCurrentInput(simVar.currentClockTicks >> 1);
           }
           InBetween = 0;
-          if ((Replay_ReplayMode != 2) ||
-              (Replay_ReplayInterface.speed == 2) ||
-              ((Replay_ReplayInterface.speed == one) &&
+
+          if (Replay_ReplayMode != 2) goto SimMainLoop_processSchedules;
+          if ((Replay_ReplayInterface.speed == 2) || ((Replay_ReplayInterface.speed == one) &&
                ((simVar.currentClockTicks & 1U) == 0)) ||
               ((Replay_ReplayInterface.speed == 0) &&
                ((simVar.currentClockTicks & 3U) == 0)))

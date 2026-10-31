@@ -20,19 +20,23 @@ static inline int TextDefinitionColor(tMenuTextType type, int column) {
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- tScreenTrackRecords::GetShapeInfo  (screentrackrec.cpp:67) ---- */
+#line 63 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKRECORDS.CPP"
 void tScreenTrackRecords::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
+
 
 {
   numPermShapes = 0x28;
   numSwapShapes = 0;
+
   *permFileName = "zRec";
-  *swapFileName = (char *)0x0;
-  return;
+  *swapFileName = (char *)0x0; return;
 }
 
 /* ---- tScreenTrackRecords::Initialize  (screentrackrec.cpp:78) ---- */
+#line 75 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKRECORDS.CPP"
 void tScreenTrackRecords::Initialize()
+
 
 {
 
@@ -47,12 +51,14 @@ void tScreenTrackRecords::Initialize()
   Stattool_GetRecords(Front_GetTrackRaced(),this->TrackRecords);
 
 
-  this->fReadNewData = 0;
-  return;
+
+  this->fReadNewData = 0; return;
 }
 
 /* ---- tScreenTrackRecords::Cleanup  (screentrackrec.cpp:97) ---- */
+#line 94 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKRECORDS.CPP"
 void tScreenTrackRecords::Cleanup()
+
 
 {
 
@@ -63,27 +69,35 @@ void tScreenTrackRecords::Cleanup()
 
   this->TrackRecords = (tRecordBuffer *)0x0;
   StatChk_ClearNewRecords();
-  this->tScreen::Cleanup();
-  return;
+
+  this->tScreen::Cleanup(); return;
 }
 
 /* ---- tScreenTrackRecords::DrawOneRecord  (screentrackrec.cpp:113) ---- */
+#line 110 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKRECORDS.CPP"
 void tScreenTrackRecords::DrawOneRecord(int index,bool newrecord,int y)
+
 
 {
   /* W86-S4: SYM `8c` declaration order (sBuildOutput AUTO sp+32 ARY CHAR[80],
      textState REG $19 s3 ENUM tMenuTextState).  Re-gated PASS. */
   char sBuildOutput [80];
   tMenuTextState textState;
-
   textState = (tMenuTextState)((newrecord != 0) << 1);
+
   if (-1 < this->TrackRecords[index].nBestLap) {
+
+
+
+
     if (newrecord != 0) {
       Flare_2DHalo(TextSys_WordX(0x247) + 3,y + 4,
                    this->flare_intensity / 2,
+
+
+
                    (this->flare_intensity * 2) / 3,0x17);
-      DrawShapeExtended(0,0,TextSys_WordX(0x247),y,0,0,
-                        (tDrawShapeExtended *)0x0);
+      DrawShapeExtended(0,0,TextSys_WordX(0x247),y,0,0, (tDrawShapeExtended *)0x0);
     }
     FETextRender_FullText
               (this->TrackRecords[index].sName,(short)TextSys_WordX(0x24b),
@@ -92,78 +106,76 @@ void tScreenTrackRecords::DrawOneRecord(int index,bool newrecord,int y)
     FETextRender_FullText
               (TextSys_Word(this->TrackRecords[index].nCar + 0x153),
                (short)TextSys_WordX(0x24c),(short)y,
+
                textType_TrackRecords,textState,0);
+
+
     if (this->TrackRecords[index].nTime != 0) {
       Stattool_ParseTime(this->TrackRecords[index].nTime,sBuildOutput);
     }
-    else {
-      sprintf(sBuildOutput,TextSys_Word(0x261));
+    else { sprintf(sBuildOutput,TextSys_Word(0x261));
     }
     FETextRender_FullText
-              (sBuildOutput,(short)TextSys_WordX(0x24d),(short)y,
-               textType_TrackRecords,
-               newrecord ? textState_Hilighted
-                              : (tMenuTextState)(index != 0),0);
+              (sBuildOutput,(short)TextSys_WordX(0x24d),(short)y, textType_TrackRecords, newrecord ? textState_Hilighted : (tMenuTextState)(index != 0),0);
+
     Stattool_ParseTime(this->TrackRecords[index].nBestLap,sBuildOutput);
     FETextRender_FullText
-              (sBuildOutput,(short)TextSys_WordX(0x24e),(short)y,
-               textType_TrackRecords,
-               index != 0 || textState != textState_Unselected
-                 ? textState : textState_Selected,0);
-  }
-  return;
-}
+              (sBuildOutput,(short)TextSys_WordX(0x24e),(short)y, textType_TrackRecords, index != 0 || textState != textState_Unselected ? textState : textState_Selected,0); } return; }
 
 /* ---- tScreenTrackRecords::DrawRecords  (screentrackrec.cpp:161) ---- */
 
-void tScreenTrackRecords::DrawRecords(short maxitem)
-
-{
+  /* MATCH: the signed /2 is written in BOTH arms -- gcc cross-jump-merges the
+     shared `addu; sra 1` tail, leaving the oracle's `slti 0x1F; bnez` that skips
+     only the 60-x subtraction.  A ternary shares the divide in source but emits
+     the addu operands the other way round (addu v0,v0,v1 vs v1,v0). */
   /* MATCH: the SYM 8c block lists exactly TWO locals -- short nLapIndicator($a0)
      and short k($s2) (this=$s4, maxitem=$fp; fsize 64, mask $c0ff0000).
      Ghidra's kk/flareSign/sMenuText/idx/wy/flareTmp/textState are fabricated;
      they forced a stack home for the short parameter and hid the shared
      signed-/2 of the ping-pong flare counter (SLD 163-197). */
-  short nLapIndicator;
-  short k;
+#line 158 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKRECORDS.CPP"
+void tScreenTrackRecords::DrawRecords(short maxitem)
 
-  this->flareextra = this->flareextra + 1;
-  if (0x3c < this->flareextra) {
-    this->flareextra = 0;
-  }
-  /* MATCH: the signed /2 is written in BOTH arms -- gcc cross-jump-merges the
-     shared `addu; sra 1` tail, leaving the oracle's `slti 0x1F; bnez` that skips
-     only the 60-x subtraction.  A ternary shares the divide in source but emits
-     the addu operands the other way round (addu v0,v0,v1 vs v1,v0). */
-  if (0x1e < this->flareextra) {
-    this->flare_intensity = (0x3c - this->flareextra) / 2;
-  }
-  else {
-    this->flare_intensity = this->flareextra / 2;
-  }
-  this->flare_intensity = (this->flare_intensity + 0x14)
-                          * 0x80;
+
+{
+  short nLapIndicator;
+  short k; this->flareextra = this->flareextra + 1;
+  if (0x3c < this->flareextra) { this->flareextra = 0;
+  } if (0x1e < this->flareextra) { this->flare_intensity = (0x3c - this->flareextra) / 2;
+  } else { this->flare_intensity = this->flareextra / 2;
+  } this->flare_intensity = (this->flare_intensity + 0x14) * 0x80;
   /* MATCH: explicit if/ELSE -- the `= 9` lands in the `bne` DELAY SLOT after the
      call, so nLapIndicator lives in the caller-saved $a0 the SYM records.  A
      plain `nLapIndicator = 9;` before the call forces a callee-saved reg. */
+
+
+
+
+
+
+
   if (Front_GetLapsForType() == 2) {
     nLapIndicator = 1;
   }
   else {
     nLapIndicator = 9;
   }
-  for (k = 0; k < 8; k = k + 1) {
-    if (maxitem <= k) break;
+
+  for (k = 0; k < 8; k = k + 1) { if (maxitem <= k) break;
     FETextRender_FullText(TextSys_Word(k + 599),(short)TextSys_WordX(0x249),
                           (short)TextSys_WordY(k + 599),textType_TrackRecords,
+
+
+
                           (NewRecords[k] == 0) ? textState_Unselected : textState_Hilighted,0);
+
     this->DrawOneRecord(k + nLapIndicator,NewRecords[k],TextSys_WordY(k + 599));
   }
+
+
   if (8 < maxitem) {
-    this->DrawOneRecord(0,NewBestLap,TextSys_WordY(0x260));
-  }
-  return;
-}
+
+    this->DrawOneRecord(0,NewBestLap,TextSys_WordY(0x260)); } return; }
 
 /* ---- tScreenTrackRecords::DrawBackground  (screentrackrec.cpp:210) ---- */
 /* 2026-10-11: selected/bright TextDefinitionColor calls reproduce the two
@@ -174,7 +186,18 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
    attribution of all three +dc pairs to missing clamp helpers is superseded.
    Getter spelling and the existing widened expressions' literal original
    syntax/full statement-line attribution remain source-review work. */
+  /* P865: retain short sign extension and subtract 12 before boxy, with no
+     invented helper or local.  The complete 8004301c..8004305c call setup
+     is one source statement, as in retail SLD 284; PASS and exact debug twin. */
+  /* P865: widening the bounded half-width expression preserves retail's
+     addiu -2 before the centerx subtraction, without a non-SYM half local.
+     This is a verified source shape, not proof of the original cast spelling. */
+  /* SYM restoration: tt is the declared $s2 int.  Retail uses that same
+     non-overlapping lifetime for this text-fade clamp and later overwrites
+     it with the texture tick offset; a separate fadeAmt name is unnecessary. */
+#line 207 "C:/nfs4/FRONTEND/COMMON/SCREENTRACKRECORDS.CPP"
 void tScreenTrackRecords::DrawBackground()
+
 
 {
   char string[50];
@@ -182,67 +205,81 @@ void tScreenTrackRecords::DrawBackground()
   int fade;
   fade = (this->fScreenFadeVal * 0x134) / 0x80;
   short linefadeval, maxitem, boxx, boxy, boxw, midy, j;
-  int Col, ColTextSel, ColTextBright;
-  tTexture_ShapeInfo *shape;
-  int lbx, tt;
-  tDrawShapeExtended drawflags;
+  int Col, ColTextSel, ColTextBright; tTexture_ShapeInfo *shape; int lbx, tt; tDrawShapeExtended drawflags; tt = ((fade - 0xb4) >? 0) <? 0x80;
 
-  /* SYM restoration: tt is the declared $s2 int.  Retail uses that same
-     non-overlapping lifetime for this text-fade clamp and later overwrites
-     it with the texture tick offset; a separate fadeAmt name is unnecessary. */
-  tt = ((fade - 0xb4) >? 0) <? 0x80;
   maxitem = (fade >? 0) <? 0xb4;
   linefadeval = (((fade * 0x80) / 0xb4) >? 0) <? 0x80;
   maxitem = (0xb4 - maxitem) / 0x14;
+
+
+
+
+
+
   boxx = TextSys_WordX(0x248);
   boxy = TextSys_WordY(0x256);
   boxw = TextSys_WordX(0x24f) - boxx;
   midy = TextSys_WordY(0x25f);
+
   Col = 0x232323;
   ColTextSel = CalcFadeVal(TextDefinitionColor(textType_TrackRecords,4),(short)tt);
   ColTextBright = CalcFadeVal(TextDefinitionColor(textType_TrackRecords,5),(short)tt);
+
+
   this->DrawRecords(maxitem);
+
+
+
+
   sprintf(string2,TextSys_Word(0x251),Front_GetLapsForType());
   sprintf(string,"%s %s",TextSys_Word((short)Front_GetTrackRaced() + 0xd5),string2);
+
+
   FETextRender_FullTextRGB(string,0x104,(short)TextSys_WordY(0x255),ColTextBright,0,2);
+
+
   PSXDrawSquare(0,0x104 - (textpixels(string) >> 1),TextSys_WordY(0x255),textpixels(string),9);
+
+
   shape = &gCurrentShapes[0x26];
-  /* P865: widening the bounded half-width expression preserves retail's
-     addiu -2 before the centerx subtraction, without a non-SYM half local.
-     This is a verified source shape, not proof of the original cast spelling. */
+
+
   lbx = (long long)(((short)shape->width >> 1) - 2) - shape->centerx;
   tt = FE_Ticks() % (short)shape->width;
-  if (((short)shape->width / 2) < tt) {
-    tt = (short)shape->width - tt;
-  }
-  DrawShapeExtended(0x27,0,lbx + tt,TextSys_WordY(0x255) + 1,
-                    (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
-  DrawShapeExtended(0x27,0,lbx - tt,TextSys_WordY(0x255) + 1,
-                    (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  if (((short)shape->width / 2) < tt) { tt = (short)shape->width - tt;
+  } DrawShapeExtended(0x27,0,lbx + tt,TextSys_WordY(0x255) + 1, (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x27,0,lbx - tt,TextSys_WordY(0x255) + 1, (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+
+
   drawflags.tint[0] = 0x505050;
   DrawShapeExtended(0x26,0x410,-2,0,(int)this->fScreenFadeVal,0,&drawflags);
+
+
+
   for (j = 0; j < 3; j++) {
+
     int xx = TextSys_WordX(j + 0x24c);
-    FETextRender_FullTextRGB(TextSys_Word(j + 0x252),(short)xx,(short)(boxy + 4),
-                             ColTextSel,0,0);
+    FETextRender_FullTextRGB(TextSys_Word(j + 0x252),(short)xx,(short)(boxy + 4), ColTextSel,0,0);
+
+
     if (0 < maxitem) {
       PSXDrawSquare(Col,xx - 6,(short)boxy + 2,2,(0x80 - linefadeval) / 0x10);
-    }
-  }
-  FETextRender_FullTextRGB(TextSys_Word(0x262),(short)TextSys_WordX(0x249),
-                           (short)(midy + 3),ColTextSel,0,0);
+    } }
+  FETextRender_FullTextRGB(TextSys_Word(0x262),(short)TextSys_WordX(0x249), (short)(midy + 3),ColTextSel,0,0);
+
+
+
   PSXDrawBrightEndLine(Col,boxx,(short)boxy + 3,boxw,-1,2,linefadeval,0x23);
-  /* P865: retain short sign extension and subtract 12 before boxy, with no
-     invented helper or local.  The complete 8004301c..8004305c call setup
-     is one source statement, as in retail SLD 284; PASS and exact debug twin. */
   PSXDrawBrightEndLine(Col,TextSys_WordX(0x24c) - 6,(short)boxy + 4,2,
                        (long long)((short)midy - 0xc) - (short)boxy,
+
                        1,linefadeval,0);
+
   if (8 < maxitem) {
     PSXDrawSquare(Col,TextSys_WordX(0x24c) - 6,TextSys_WordY(0x260) - 1,2,8);
   }
-  ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes,0);
-  return;
+
+  ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes,0); return;
 }
 
 /* ---- tScreenTrackRecords::~tScreenTrackRecords  (screentrackrec.cpp:55) ---- */

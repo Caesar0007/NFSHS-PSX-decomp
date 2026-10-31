@@ -13,6 +13,8 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 /* @0x80091ec0  IsNumChar(char c) -- line 454 */
+
+#line 453 "C:/nfs4/GAME/COMMON/COLOR.CPP"
 char IsNumChar(char c)
 {
   if ((u_char)(c - 0x30U) < 10) { return '\x01';
@@ -22,6 +24,8 @@ char IsNumChar(char c)
 }
 
 /* @0x80091efc  Risk_ReadNextValue(char **aScript) -- line 462 */
+
+#line 461 "C:/nfs4/GAME/COMMON/COLOR.CPP"
 int Risk_ReadNextValue(char **aScript)
 {
   char s[256];

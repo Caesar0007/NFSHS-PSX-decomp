@@ -34,7 +34,9 @@ int          AIHigh_BasicPerp_CaughtDistance[3] = { 1966080, 2949120, 3932160 };
  * This spelling is a verified source representation, not uniquely recovered
  * original macro text; do not silently simplify it without re-gating. */
 
+#line 38 "C:/nfs4/GAME/COMMON/AIH_BASICPERP.CPP"
 void AIHigh_BasicPerp::CheckForCrimes()
+
 
 
 
@@ -149,7 +151,9 @@ void AIHigh_BasicPerp::CheckForCrimes()
  * necessity receipt no longer describes this source. not_caught is an
  * inferred shared-fallback label; its literal original spelling is unknown. */
 
+#line 175 "C:/nfs4/GAME/COMMON/AIH_BASICPERP.CPP"
 int AIHigh_BasicPerp::CheckIfCaught()
+
 
 
 
@@ -166,8 +170,8 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
 
 
-  if (this->basicPerpInfo_.GetCrime() == 0) return 0;
-
+  if (this->basicPerpInfo_.GetCrime() == 0)
+    return 0;
 
     if (AIHigh_BasicPerp_PlayerCaughtSpeed[skill] < absSpeed) { return 0; }
 
@@ -185,18 +189,14 @@ int AIHigh_BasicPerp::CheckIfCaught()
       for (int carLoop = 0; ; carLoop = carLoop + 1) { Car_tObj *cop; int diffSpeed; int validCar; if (Cars_gNumCars <= carLoop) { return 0; }
 
         cop = Cars_gList[carLoop];
-        diffSpeed = this->carObj_->currentSpeed - cop->currentSpeed; validCar = 0; if (((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) && ((cop->carFlags & 0x200U) != 0)) || ((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 && ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) &&
+        diffSpeed = this->carObj_->currentSpeed - cop->currentSpeed; validCar = 0; if (((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))))
 
 
 
-            ((cop->carFlags & 0x20U) != 0)))) {
-
-
-          validCar = 1; } if ((validCar != 0) && (((((cop->AIFlags & 2U) != 0) && ((cop->N).flightTime == 0)) && (((cop->N).active != '\0' && ((cop->AIFlags & 4U) == 0)))) && ((0x9999 < (cop->N).orientMat.m[4] && (diffSpeed < AIHigh_BasicPerp_MinDeltaSpeed[skill])))) && (__builtin_abs(cop->currentSpeed) < AIHigh_BasicPerp_CopCaughtSpeed[skill]) && ((cop->N.position.y - carObj_->N.position.y > 0 ? cop->N.position.y - carObj_->N.position.y : carObj_->N.position.y - cop->N.position.y) <
-
-
-
-
+            && ((cop->carFlags & 0x200U) != 0)))
+          validCar = 1;
+        else if (((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 && ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) && ((cop->carFlags & 0x20U) != 0)))) {
+          validCar = 1; }
 
 
 
@@ -213,28 +213,32 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
 
 
+        if ((validCar != 0) && (((((cop->AIFlags & 2U) != 0) && ((cop->N).flightTime == 0)) && (((cop->N).active != '\0' && ((cop->AIFlags & 4U) == 0)))) && ((0x9999 < (cop->N).orientMat.m[4] && (diffSpeed < AIHigh_BasicPerp_MinDeltaSpeed[skill])))) && (__builtin_abs(cop->currentSpeed) < AIHigh_BasicPerp_CopCaughtSpeed[skill]) && ((cop->N.position.y - carObj_->N.position.y > 0 ? cop->N.position.y - carObj_->N.position.y : carObj_->N.position.y - cop->N.position.y) <
 
 
 
 
 
-              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill])) { int distanceAbsMeters; int barrierInWay;
-
-          distanceAbsMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,cop)); barrierInWay = 0; if (((int)(7 - (u_int)(BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount >> 4)) <= this->carObj_->laneIndex) && (this->carObj_->laneIndex <= (int)((BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount & 0xf) + 6)) && ((int)(7 - (u_int)(BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount >> 4)) <= cop->laneIndex) && (cop->laneIndex <= (int)((BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount & 0xf) + 6)) && (AIWorld_CheckForBarrierBetweenLanes((int)(cop->N).simRoadInfo.slice,
-
-
-                    cop->laneIndex,this->carObj_->laneIndex) != 0)) { barrierInWay = AIWorld_CheckForBarrierBetweenLanes((int)(this->carObj_->N).simRoadInfo.slice,
-                    cop->laneIndex,this->carObj_->laneIndex) != 0; } if ((distanceAbsMeters < AIHigh_BasicPerp_CaughtDistance[skill]) &&
-
-
-              (barrierInWay == 0)) { int xDot; int zDot; xDot = 0; zDot = 0x10000; if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
 
 
 
+              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill]))
+        { int distanceAbsMeters; int barrierInWay;
+          const int distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,cop); barrierInWay = 0; /* DEVICE (exact-only): record-less const temp = retail call@67 / abs@68 split (PHYS5 law) */
+          distanceAbsMeters = __builtin_abs(distanceMeters);
+
+            if (((int)(7 - (u_int)(BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount >> 4)) <= this->carObj_->laneIndex) && (this->carObj_->laneIndex <= (int)((BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount & 0xf) + 6)) && ((int)(7 - (u_int)(BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount >> 4)) <= cop->laneIndex) && (cop->laneIndex <= (int)((BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount & 0xf) + 6)))
+            if (AIWorld_CheckForBarrierBetweenLanes((int)(cop->N).simRoadInfo.slice, cop->laneIndex,this->carObj_->laneIndex) != 0) { barrierInWay = AIWorld_CheckForBarrierBetweenLanes((int)(this->carObj_->N).simRoadInfo.slice, cop->laneIndex,this->carObj_->laneIndex) != 0; }
 
 
-              ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) { coorddef carCopVector;
+            if ((distanceAbsMeters < AIHigh_BasicPerp_CaughtDistance[skill]) && (barrierInWay == 0))
+            { int xDot; int zDot;
 
+              xDot = 0; zDot = 0x10000; if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
+
+
+              ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))))
+              { coorddef carCopVector;
 
             carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x; carCopVector.y = (cop->N).position.y - ((this->carObj_)->N).position.y; carCopVector.z = (cop->N).position.z - ((this->carObj_)->N).position.z; xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) + fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) +
                    fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]); zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) + fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]) +
@@ -280,6 +284,8 @@ int AIHigh_BasicPerp::CheckIfCaught()
    the native scope tree at 84/84 bytes. The tail's relative SLD lines still
    differ at 13 instructions; complete statement attribution remains open. */
 
+
+#line 295 "C:/nfs4/GAME/COMMON/AIH_BASICPERP.CPP"
 void AIHigh_BasicPerp::RemoveCloseCops()
 {
   for (int copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
@@ -321,6 +327,8 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
 /* ---- RemoveChaser__16AIHigh_BasicPerpii7copType  AIHigh_BasicPerp::RemoveChaser  [AIH_BASICPERP.CPP:331-337] SLD-VERIFIED ---- */
 
+
+#line 330 "C:/nfs4/GAME/COMMON/AIH_BASICPERP.CPP"
 void AIHigh_BasicPerp::RemoveChaser(int copIndex,int carIndex,copType type)
 {
   int pos = this->copVSPositionList_[copIndex];
@@ -340,7 +348,9 @@ void AIHigh_BasicPerp::RemoveChaser(int copIndex,int carIndex,copType type)
 
 /* ---- AddChaser__16AIHigh_BasicPerpii7copType  AIHigh_BasicPerp::AddChaser  [AIH_BASICPERP.CPP:343-355] SLD-VERIFIED ---- */
 
+#line 338 "C:/nfs4/GAME/COMMON/AIH_BASICPERP.CPP"
 int AIHigh_BasicPerp::AddChaser(int copIndex,int carIndex,copType type)
+
 
 
 
@@ -368,29 +378,7 @@ int AIHigh_BasicPerp::AddChaser(int copIndex,int carIndex,copType type)
 
 /* ---- CheckChaserPosition__16AIHigh_BasicPerpii  AIHigh_BasicPerp::CheckChaserPosition  [AIH_BASICPERP.CPP:359-400] SLD-VERIFIED ---- */
 
-int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
-
-
-
-{
-  int pos;
-  int thisCopSlice;
-  int nextCopIndex;
-  int nextCarIndex;
-
-
-
-  pos = this->copVSPositionList_[copIndex];
-
-  thisCopSlice = (highLevelAIObjs[carIndex]->GetCarObj()->N).simRoadInfo.slice;
-
-  if (0 < pos) {
-    do {
-      nextCopIndex = this->positionVSCopList_[pos + -1].copIndex;
-
-      nextCarIndex = this->positionVSCopList_[pos + -1].carIndex;
-
-      /* NEAR-MISS 2 diffs (85/87): retail keeps a defensive `blez s0` (this
+/* NEAR-MISS 2 diffs (85/87): retail keeps a defensive `blez s0` (this
          `if(pos<1)break;`, the 2nd of 3 pos<=0 guards) that our build's
          cse/jump.c deletes -- it proves pos>0 from the outer `if(0<pos)` +
          `while(0<pos)`.  W56-A16 FALSIFIED: identity-fence `("":"=r"(pos):
@@ -508,7 +496,7 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          on it 15 @86 -- i.e. the 13B/21B "any asm stops reorg's backward scan" rule does
          NOT keep the copy out of the blez delay slot here, because the copy is minted by
          the launder itself and sits BELOW it.  Probe: scratchpad/W74_A11_ccp.py. */
-      /* ==== W75-A9 re-gated (2 @85/87) and IDENTIFIED THE OWNING PASS AND ITS EXACT
+/* ==== W75-A9 re-gated (2 @85/87) and IDENTIFIED THE OWNING PASS AND ITS EXACT
          ESCAPE FROM COMPILER SOURCE + RTL DUMPS.  Six waves called this "a cse
          value-range record"; that is right but incomplete, and the missing half is
          what makes it actionable.
@@ -567,9 +555,7 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          (`if (X || 0 < pos)`), whose true-arm label is emitted immediately before the
          body -- it needs a zero-cost X.
          Probes: scratchpad/w75/A9_v1..v4.py, A9_flagprobe.py; dumps scratchpad/w75/A9_rtl/. ==== */
-            if (pos < 1) break;
-
-      /* ==== W76-A9 PIN-SEALED (last-resort asm insertion per the 2026-08-23 policy,
+/* ==== W76-A9 PIN-SEALED (last-resort asm insertion per the 2026-08-23 policy,
          order (a)-(e) exhausted): the C guard above is the retail line-378 redundant
          `blez s0` that gcc-2.8.0 cse DELETES in every source spelling (mechanism:
          jump.c duplicate_loop_exit_test copies it into the PREHEADER, where cse's
@@ -592,43 +578,54 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          gate PASS 87/87 + slotcheck clean.  DO NOT "simplify" the C guard away and
          do not move this block: it must sit between the nextCarIndex load and the
          nextCopIndex test.  ==== */
-      __asm__ volatile (".word 0x1A000028
-	nop");
+#line 354 "C:/nfs4/GAME/COMMON/AIH_BASICPERP.CPP"
+int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
-      if (nextCopIndex != -1) {
 
-        if (nextCarIndex != -1) {
-          nextCarIndex =
-              AIWorld_ApxSplineDistance(highLevelAIObjs[nextCarIndex]->carObj_,
-                                        thisCopSlice);
 
-          if (nextCarIndex * (this->carObj_)->direction >= -0xc0000) {
-            return pos;
-          }
 
-        }
+{ int pos; int thisCopSlice; int nextCopIndex; int nextCarIndex;
 
-        this->copVSPositionList_[nextCopIndex] = pos;
 
-      }
+  pos = this->copVSPositionList_[copIndex];
+
+  thisCopSlice = (highLevelAIObjs[carIndex]->GetCarObj()->N).simRoadInfo.slice;
+
+
+
+
+
+  if (0 < pos) { do {
+
+
+      nextCopIndex = this->positionVSCopList_[pos + -1].copIndex;
+      nextCarIndex = this->positionVSCopList_[pos + -1].carIndex;
+
+
+            if (pos < 1) break; __asm__ volatile (".word 0x1A000028
+ nop"); if (nextCopIndex != -1) { if (nextCarIndex != -1) { nextCarIndex = AIWorld_ApxSplineDistance(highLevelAIObjs[nextCarIndex]->carObj_, thisCopSlice); if (nextCarIndex * (this->carObj_)->direction >= -0xc0000) { return pos; } }
+
+
+
+        this->copVSPositionList_[nextCopIndex] = pos; }
 
       this->copVSPositionList_[copIndex] = pos + -1;
 
       this->positionVSCopList_[pos].copIndex = this->positionVSCopList_[pos + -1].copIndex;
-
       this->positionVSCopList_[pos].carIndex = this->positionVSCopList_[pos + -1].carIndex;
 
-      this->positionVSCopList_[pos + -1].copIndex = copIndex;
-
-      this->positionVSCopList_[pos + -1].carIndex = carIndex;
+      this->positionVSCopList_[pos + -1].copIndex = copIndex; this->positionVSCopList_[pos + -1].carIndex = carIndex;
 
       pos = pos + -1;
-    } while (0 < pos);
-  }
+    } while (0 < pos); }
 
-  return pos;
 
-}
+
+
+
+
+
+  return pos; }
 
 
 
@@ -639,6 +636,8 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
 /* ---- Clear__16AIHigh_BasicPerp  AIHigh_BasicPerp::Clear  [AIH_BASICPERP.CPP:406-415] SLD-VERIFIED ---- */
 /* Retail SYM scopes `loop` to the for statement (source lines 2..6). */
+
+#line 405 "C:/nfs4/GAME/COMMON/AIH_BASICPERP.CPP"
 void AIHigh_BasicPerp::Clear()
 {
   for (int loop = 0; loop < 6; loop++) {
@@ -675,6 +674,8 @@ inline AICop_BasicPerpInfo::AICop_BasicPerpInfo() {
  * 18/18 byte PASS, native+SLD exact] ---- */
 /* basicPerpInfo_ default construction owns the pre-body inline/reset tree.
  * The body only clears the high-level state; reset-helper names are inferred. */
+
+#line 419 "C:/nfs4/GAME/COMMON/AIH_BASICPERP.CPP"
 AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj) : AIHigh_Base(carObj)
 {
   this->Clear();

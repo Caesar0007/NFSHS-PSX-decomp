@@ -14,8 +14,10 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 
 /* ---- LocateNextGroupType__15SerializedGroupi [@0x8009c128] covered SLD requires native comparison ---- */
-#line 42 "C:/nfs4/GAME/COMMON/GROUP.CPP"
+
+#line 41 "C:/nfs4/GAME/COMMON/GROUP.CPP"
 SerializedGroup * SerializedGroup::LocateNextGroupType(int type)
+
 
 {
   SerializedGroup *group;
@@ -35,8 +37,10 @@ SerializedGroup * SerializedGroup::LocateNextGroupType(int type)
 }
 
 /* ---- LocateGroupType__15SerializedGroupii [@0x8009c150] covered SLD requires native comparison ---- */
-#line 61 "C:/nfs4/GAME/COMMON/GROUP.CPP"
+
+#line 60 "C:/nfs4/GAME/COMMON/GROUP.CPP"
 SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
+
 
 {
   int count; int numElems; SerializedGroup *group; count = 0;
@@ -78,8 +82,10 @@ SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
 }
 
 /* ---- LocateGroupNum__15SerializedGroupi [@0x8009c1c0] covered SLD requires native comparison ---- */
-#line 101 "C:/nfs4/GAME/COMMON/GROUP.CPP"
+
+#line 100 "C:/nfs4/GAME/COMMON/GROUP.CPP"
 SerializedGroup * SerializedGroup::LocateGroupNum(int index)
+
 
 {
   int numElems; char *group; numElems = this->m_num_elements;
@@ -104,9 +110,11 @@ SerializedGroup * SerializedGroup::LocateGroupNum(int index)
    Plain predicate staging preserves supplied records; a pointer stage's
    header/type-copy order remains unresolved. No qualifier/fake-use dial.
    Receipt: build/nc12/group_final_observer_20261023/findings-proof.json. */
-#line 117 "C:/nfs4/GAME/COMMON/GROUP.CPP"
+
+#line 116 "C:/nfs4/GAME/COMMON/GROUP.CPP"
 Group *
 SerializedGroup::LocateCreateGroupType(int type,SimpleMem *mem,int index)
+
 
 {
   bool groupFound = LocateGroupType(type,index) != 0;
@@ -126,8 +134,10 @@ SerializedGroup::LocateCreateGroupType(int type,SimpleMem *mem,int index)
 }
 
 /* ---- CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem [@0x8009c27c] covered SLD requires native comparison ---- */
-#line 166 "C:/nfs4/GAME/COMMON/GROUP.CPP"
+
+#line 165 "C:/nfs4/GAME/COMMON/GROUP.CPP"
 Group * SerializedGroup::CreateLiteGroup(SerializedGroup *source,SimpleMem *mem)
+
 
 {
   int newLen;
@@ -146,9 +156,11 @@ Group * SerializedGroup::CreateLiteGroup(SerializedGroup *source,SimpleMem *mem)
 }
 
 /* ---- CreateLiteGroupDataSize__15SerializedGroupP15SerializedGroupP9SimpleMemi [@0x8009c2e4] covered SLD requires native comparison ---- */
-#line 183 "C:/nfs4/GAME/COMMON/GROUP.CPP"
+
+#line 182 "C:/nfs4/GAME/COMMON/GROUP.CPP"
 Group *
 SerializedGroup::CreateLiteGroupDataSize(SerializedGroup *source,SimpleMem *mem,int dataSize)
+
 
 {
   int newLen;

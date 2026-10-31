@@ -46,6 +46,8 @@ void AudioMus_AutoVolume(int fadeticks,int volume);
 /* The file-local SimpleMem string holder is reconstruction-only; its
    original producer remains unresolved. The active guard and calls below
    follow retail SLD lines +1/+3/+5/+6/+9. */
+
+
 #line 82 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_RefreshStatus(void)
 {
@@ -68,6 +70,8 @@ void AudioMus_RefreshStatus(void)
  * Combining the final guards changes return branches (4 diffs); combining
  * only the first two guards preserves code but merges16 native line pairs.
  * This form preserves all33 words and every branch target. */
+
+
 #line 145 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 int AudioMus_Threshold(void)
 {
@@ -88,6 +92,8 @@ int AudioMus_Threshold(void)
 }
 
 /* ---- AudioMus_Buffered__Fv  [@0x80079fdc] ---- */
+
+
 #line 166 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 int AudioMus_Buffered(void)
 {
@@ -125,6 +131,8 @@ int AudioMus_Buffered(void)
      is a further in-place bump (+0xC) reused for the title store -- cached sub-field pointer
      idiom (proven this TU, w28-a6). The errorcode/newswitch checks re-read AudioMus_g-> fresh
      (oracle re-issues the gp-rel load at each of those, not through a cached AudioMus_g local). */
+
+
 #line 195 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
 {
@@ -164,6 +172,8 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
 }
 
 /* ---- AudioMus_SwitchSong__Fv  [@0x8007a0e4] ---- */
+
+
 #line 241 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_SwitchSong(void)
 {
@@ -208,6 +218,8 @@ void AudioMus_SwitchSong(void)
 }
 
 /* ---- AudioMus_Fail__Fi  [@0x8007a1dc] ---- */
+
+
 #line 284 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_Fail(int errorcode)
 {
@@ -243,6 +255,8 @@ void AudioMus_Fail(int errorcode)
    The info pointer is materialized once and reused for all entry fields.
    SLD places the locate/queue/switch/failby operations on +3/+7/+9/+10,
    remaining reset on +14, info address on +16, and six fields on +18..+23. */
+
+
 #line 315 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_QueueRequestedSong(void)
 {
@@ -279,6 +293,8 @@ void AudioMus_QueueRequestedSong(void)
  * form preserves retail's rotated loop and removes the former synthetic
  * iVar3 source object. The source-scope entry is now retail line +2 and
  * the four initializer stores are +1..+4; loop/tail SLD remains partial. */
+
+
 #line 344 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_SetEntry(AudioMus_tSongEntry *info)
 {
@@ -317,6 +333,8 @@ void AudioMus_SetEntry(AudioMus_tSongEntry *info)
    entry-address calculation, and length store to separate source regions
    +1/+3/+5/+7. The const `music` snapshot has no retained SYM local;
    its original private spelling is unknown. */
+
+
 #line 378 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_SetCurrentSongInfo(void)
 {
@@ -348,6 +366,8 @@ void AudioMus_SetCurrentSongInfo(void)
    * The literal/ordinary-switch form alone was300words/16diffs. No ordinary
    * local remains. The existing done label and residual SLD groups still need
    * source recovery; no new alias or codegen device is introduced. */
+
+
 #line 406 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 int AudioMus_Server(int mode,int ticks)
 {
@@ -412,14 +432,14 @@ int AudioMus_Server(int mode,int ticks)
         AudioMus_g->greedy = 1;
       }
     } else {
-      if ((AudioMus_Buffered() >= AudioMus_g->threshold) && (AudioMus_g->greedy != 0)) {
+      if (AudioMus_Buffered() >= AudioMus_g->threshold) {
 
-
+        if (AudioMus_g->greedy != 0) {
 
         SNDSTRM_setgreedystate(AudioMus_g->streamhandle,0);
 
         AudioMus_g->greedy = 0;
-      }
+      } }
     }
   }
 
@@ -499,6 +519,8 @@ done:
    very END of the function) -- so the test is `if (g != NULL) {...} else {...}`, not the
    inverted form the old recon used; (b) the counting loop's induction variable starts
    from numsongs (retail CSEs the shared 0: `addu s0,s1,zero` in the guard's delay slot). */
+
+
 #line 546 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 AudioMus_tSongList *
 AudioMus_GetSongList(char *pattern,int memtype)
@@ -551,6 +573,8 @@ AudioMus_GetSongList(char *pattern,int memtype)
 }
 
 /* ---- AudioMus_InitGlobals__Fv  [@0x8007aa54] ---- */
+
+
 #line 598 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_InitGlobals(void)
 {
@@ -567,6 +591,8 @@ void AudioMus_InitGlobals(void)
    emitting the requestsong constant before the zero stores. The gaps at
    +11..+13, +15, +17 and +24 are non-emitting source regions; their
    original comment or macro text cannot be recovered from this image. */
+
+
 #line 610 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_InitDriverGlobals(void)
 {
@@ -598,6 +624,8 @@ void AudioMus_InitDriverGlobals(void)
 }
 
 /* ---- AudioMus_DriverStartUp__Fii  [@0x8007aad4] ---- */
+
+
 #line 641 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_DriverStartUp(int buffersize,int spusize)
 {
@@ -657,62 +685,66 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
 }
 
 /* ---- AudioMus_SysStartUp__FiiPc  [@0x8007ac18] ---- */
+
+
 #line 700 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
 {
 
-  if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) return;
 
 
 
 
-    AudioMus_g = (AudioMus_tMusicGlobals *)reservememadr("Music Globals",0x158,0);
+  AudioMus_g = (AudioMus_tMusicGlobals *)reservememadr("Music Globals",0x158,0);
 
-    if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
-
-
-
-
-      AudioMus_InitGlobals();
-      AudioMus_g->streambuffer =
-          (char*)reservememadr("Music Buffer",
-
-
-
-                        buffersize + SNDSTRM_overhead(0x1,buffersize / 0x400),0);
+  if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) return;
 
 
 
 
-      AudioMus_DriverStartUp(buffersize,spusize);
+  AudioMus_InitGlobals();
 
 
-      sprintf(AudioMus_g->bigfilename,"%szzz%s.viv",Paths_Paths[27],songs);
-      AudioMus_g->bigfileheader = (char *)loadbigfileheader(AudioMus_g->bigfilename,0x0);
 
-      if (AudioMus_g->bigfileheader != (char *)0x0) {
+  const int blocks = buffersize / 0x400;  /* DEVICE (exact-only): record-less temp, retail tags the divide r18 */
+  const int overhead = SNDSTRM_overhead(0x1,blocks);  /* DEVICE (exact-only): record-less temp, call r19 */
+  AudioMus_g->streambuffer = (char*)reservememadr("Music Buffer",buffersize + overhead,0);
 
-        AudioMus_g->totalsongs = bigcount(AudioMus_g->bigfileheader);
-      }
-    }
+
+
+
+  AudioMus_DriverStartUp(buffersize,spusize);
+
+
+  sprintf(AudioMus_g->bigfilename,"%szzz%s.viv",Paths_Paths[27],songs);
+  AudioMus_g->bigfileheader = (char *)loadbigfileheader(AudioMus_g->bigfilename,0x0);
+
+  if (AudioMus_g->bigfileheader != (char *)0x0) {
+
+    AudioMus_g->totalsongs = bigcount(AudioMus_g->bigfileheader);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
   return;
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
 
 /* ---- AudioMus_DriverCleanUp__Fv  [@0x8007ad10] ---- */
+
+
 #line 756 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_DriverCleanUp(void)
 {
@@ -733,6 +765,8 @@ void AudioMus_DriverCleanUp(void)
 }
 
 /* ---- AudioMus_SysCleanUp__Fv  [@0x8007ad8c] ---- */
+
+
 #line 776 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_SysCleanUp(void)
 {
@@ -752,6 +786,8 @@ void AudioMus_SysCleanUp(void)
 }
 
 /* ---- AudioMus_StopSong__Fi  [@0x8007ae04] ---- */
+
+
 #line 795 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_StopSong(int fadeticks)
 {
@@ -759,9 +795,9 @@ void AudioMus_StopSong(int fadeticks)
 
 
 
-  if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (-1 < AudioMus_g->requestsong)) {
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
 
-
+  if (-1 < AudioMus_g->requestsong) {
 
     if (fadeticks == 0) {
 
@@ -786,9 +822,11 @@ void AudioMus_StopSong(int fadeticks)
       }
       AudioMus_g->switchsong = -1;
     }
-    AudioMus_g->requestsong = -1; } return; }
+    AudioMus_g->requestsong = -1; } } return; }
 
 /* ---- AudioMus_BuildPlayList__FiPi  [@0x8007aed8] ---- */
+
+
 #line 835 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist)
 {
@@ -809,6 +847,8 @@ void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist)
 }
 
 /* ---- AudioMus_BuildPattern__FPc  [@0x8007af60] ---- */
+
+
 #line 855 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_BuildPattern(char *pattern)
 {
@@ -834,6 +874,8 @@ void AudioMus_BuildPattern(char *pattern)
  * modulo join without a pick local or fence. Repeated GetRCnt calls are real.
  * Direct divisor-newsong form is 171 words/15 diffs; the paired form is160/PASS.
  * Original macro/token spellings are not uniquely established by these checks. */
+
+
 #line 874 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 int AudioMus_PlaySong(char *pattern)
 {
@@ -928,6 +970,8 @@ int AudioMus_PlaySong(char *pattern)
    passed a literal 0 to StopSong where retail passes ticksleft (`addu a0,s0,zero` in
    the jal's delay slot), and had the two fade arms in the WRONG ORDER (retail's SLD
    runs 984 ticksleft!=0 as the FALL-THROUGH, 989 as the out-of-line arm). */
+
+
 #line 960 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_Volume(int volume)
 {
@@ -958,11 +1002,11 @@ void AudioMus_Volume(int volume)
           SNDSTRM_vol(AudioMus_g->streamhandle,(volume * ticksleft) / AudioMus_g->fadetime);
           SNDSTRM_autovol(AudioMus_g->streamhandle,ticksleft,0);
         }
-        else { if ((-1 < AudioMus_g->streamhandle) && (AudioMus_g->switchsong != 2)) {
+        else { if (-1 < AudioMus_g->streamhandle) {
 
-
+            if (AudioMus_g->switchsong != 2) {
             SNDSTRM_vol(AudioMus_g->streamhandle,volume);
-          }
+          } }
         } if (AudioMus_g->volume == 0) {
 
           AudioMus_g->volume = volume;
@@ -972,143 +1016,38 @@ void AudioMus_Volume(int volume)
           AudioMus_g->volume = volume; } } } } return; }
 
 /* ---- AudioMus_AutoVolume__Fii  [@0x8007b46c] ---- */
+
+
 #line 1008 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_AutoVolume(int fadeticks,int volume)
 {
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
 
+    if (AudioMus_g->volume != volume) {
 
-  if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->volume != volume)) {
+      if (volume == 0) {
 
-    if (volume == 0) {
-
-      AudioMus_g->volume = 0;
-      AudioMus_StopSong(0);
-    }
-    else {
-
-      if (AudioMus_g->volume == 0) {
-
-        AudioMus_g->volume = volume;
-        AudioMus_PlaySong((char *)0x0);
+        AudioMus_g->volume = 0;
+        AudioMus_StopSong(0);
       }
       else {
-        AudioMus_g->volume = volume;
-      }
-      if (((AudioMus_g->switchsong != 2) && (AudioMus_g->fadetime == 0)) && (-1 < AudioMus_g->streamhandle)) {
 
+        if (AudioMus_g->volume == 0) {
 
-        SNDSTRM_autovol(AudioMus_g->streamhandle,fadeticks,volume);
+          AudioMus_g->volume = volume;
+          AudioMus_PlaySong((char *)0x0);
+        }
+        else {
+          AudioMus_g->volume = volume;
+        }
+        if (AudioMus_g->switchsong != 2)
+          if (AudioMus_g->fadetime == 0)
+            if (-1 < AudioMus_g->streamhandle)
+              SNDSTRM_autovol(AudioMus_g->streamhandle,fadeticks,volume);
+
       }
     }
   }
-  return;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 /* ---- SOURCE-RECOVERY-UNRESOLVED: reference producer; original function name/body not retained ----

@@ -20,14 +20,18 @@ void FastRandom_StartUp(unsigned int seeder);
  * comment text are not uniquely retained. No added work or codegen device.
  * Receipt:build/nc12/fastrand_source_20261030/final-proof.json. */
 /* ---- FastRandom_CleanUp__Fv  [FASTRAND.CPP:13-14] ---- */
+
+
 #line 12 "C:/nfs4/GAME/COMMON/FASTRAND.CPP"
 void FastRandom_CleanUp(void)
 {
 }
 
 /* ---- FastRandom_StartUp__FUi  [FASTRAND.CPP:18-33] ---- */
-#line 16 "C:/nfs4/GAME/COMMON/FASTRAND.CPP"
+
+#line 15 "C:/nfs4/GAME/COMMON/FASTRAND.CPP"
 void FastRandom_StartUp(unsigned int seeder)
+
 
 {
   unsigned int a, b;

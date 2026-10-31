@@ -33,7 +33,9 @@ int Input_MainExitKey(void);
 
 
 /* ---- Input_StartUp__Fv  [INPUT.CPP:55-77] SLD-VERIFIED ---- */
+#line 52 "C:/nfs4/GAME/COMMON/INPUT.CPP"
 int * Input_StartUp(void)
+
 
 {
   int * h;
@@ -61,7 +63,9 @@ int * Input_StartUp(void)
 }
 
 /* ---- Input_WingCommandMode__Fi  [INPUT.CPP:84-93] SLD-VERIFIED ---- */
+#line 81 "C:/nfs4/GAME/COMMON/INPUT.CPP"
 int Input_WingCommandMode(int player)
+
 
 {
   int *h = Input_gHandler + 0x2d;
@@ -74,76 +78,45 @@ int Input_WingCommandMode(int player)
 
   return 1; }
 
-/* ---- Input_Update__Fv [INPUT.CPP:104-430; byte868 PASS,source/SLD unsealed] ----
- * Historical matching dials are not original-source evidence. The five
- * address blockers,interface void fence and dbFlags capture are now removed;
- * their former necessity claims are stale. Remaining pointer/value captures,
- * one,acc absorption and the flags read/write fence need source recovery.
- * Actual compiler dumps/oracle bytes remain authoritative; the instrumented
- * C++ lane was not byte-faithful for this function's old allocation basin. */
-    /* SYM-CODEGEN-CARRIER: interfaceActive -- the named iactive cursor is
-       spilled in retail's 184-byte frame and preserves the interface-loop
-       address lifetime.  Direct iactive indexing shrinks the frame to 176
-       bytes, emits 870/868 instructions, and produces 108 diffs. */
-    /* CAMIN 2026-10-04: the acc=$s5 ref dial is now the pure-C absorption
-       identity `acc | (acc & 3)` (== acc, folded to zero bytes by combine),
-       replacing a read-only asm fence. */
-        /* Retail owns k and m at the same depth7. Both declarations now
-           belong to the outer for binding. k's home still differs (s0 vs
-           a0);this is not complete local recovery. Direct global indexing
-           below removes dbFlags at868/868 after restoring that scope. */
-      /* MATCH (w55-a12, 36 -> 28): retail's first held-key scan is UN-rotated
-       * (`slti;beqz;nop` at the loop head, `addiu s1,s1,4; j T` back-edge).
-       * `for (;;) { if (j >= 17) break; ... }` lets gcc-2.8 prove j==0 on
-       * entry, peel the head test and rotate; the `while (1) { if (!(j < 17))
-       * break; ... }` spelling keeps the top test + unconditional back-edge.
-       * (The SECOND, near-identical scan below is NOT affected -- probed, no
-       * gate delta -- so leave its `for (;;)` alone.) */
-    /* SOURCE-REVIEW-UNRESOLVED: these initial-fill objects are not retail
-       locals. Direct byte literal2dif/868;indexed for/do100dif/868 in the
-       current scope-corrected basin. Both were restored,not certified as
-       a distinct original source object/producer. */
-  /* SYM-CODEGEN-CARRIER: devList -- CAMIN 2026-10-04.  Retail rematerializes
-     `lui/addiu $t3,Device_gDeviceList` at EVERY dispatch site, including the
-     final interface loop: the signature of ONE function-wide pseudo with a
-     REG_EQUIV constant that global-alloc spills (its live range spans every
-     loop) and reload re-emits per use.  Spelling the table through this single
-     function-scope pointer reproduces that, replacing the five
-     `addressBlocker` pressure pseudos and the interface-loop void fence (11
-     asm pins); direct indexing lets loop.c hoist the final loop's address into
-     a free $s3 (6 diffs). */
-  /* SOURCE-REVIEW-UNRESOLVED: activeBase is not a retail source name/object.
-     Retail instead owns separate active/hactive CHAR[17] arrays at the same
-     AUTO-136 slot in the two mode arms. Direct named-array forms101dif/855;
-     scoped arrays plus per-arm pointer assignment156dif/878 spills i.
-     Both restored,not proof that original source required this capture. */
-  /* SYM-CODEGEN-CARRIER: one -- the shared literal quantity must survive to
-     the player-count comparison.  Using a direct 1 there emits 869/868
-     instructions and 7 diffs, losing retail's `$s6` compare operand. */
+/* ---- Input_Update__Fv [INPUT.CPP:104-430; byte868 PASS, SLD tags+blocks exact] ----
+ * Retail block list rebuilt (CAMIN2 2026-10-31): the mode arms own their
+ * active[17] / active[40]+hactive[17] arrays (gcc reuses the AUTO-136 slot);
+ * the fills are count-UP for loops that loop.c reverses (retail's kept
+ * count-down biv plus reduced pointer); the held-key scans are plain for
+ * loops whose inner `for (int k ...)` keeps the cond scope, which is what
+ * stops jump.c from rotating them; `r->flags |= acc << 3` is the last
+ * statement of BOTH arms (cross-jumped; gives the reload and the j@261 tag).
+ * k = *h in the third scan is inferred from the retail REG $4 k record there.
+ * SYM-CODEGEN-CARRIER: devList -- retail rematerializes Device_gDeviceList at
+ * every dispatch site (one function-wide REG_EQUIV pseudo that global-alloc
+ * spills); direct Device_gDeviceList indexing gives 382 diffs (870/868). It
+ * gets no SYM record. */
+#line 101 "C:/nfs4/GAME/COMMON/INPUT.CPP"
 void Input_Update(void)
+
 
 {
   int *h;
   Input_tResults *r;
   u_long acc;
   u_long menukeys;
-  u_long one;
+
   int i;
   int j;
-  int k; int left; int right; char iactive[32]; char hactive[17]; char *activeBase; Input_tDeviceList *devList; Device_Update();
+  int k; int left; int right; char iactive[32]; Input_tDeviceList *devList; Device_Update();
   devList = Device_gDeviceList;
-  {
-    char *activePtr;
-    char activeValue;
-    activeValue = 1; i = 31; activePtr = &iactive[31];
-    do { *activePtr = activeValue; i--; activePtr--; } while (i >= 0);
-  }
+
+
+
+  for (i = 0; i < 32; i++)
+    iactive[i] = 1;
+
   h = Input_gHandler;
   r = Input_gResults;
 
+  menukeys = 0;
 
-
-  i = 0; one = 1; menukeys = 0; activeBase = hactive; for (; i < 2; i++) {
+  for (i = 0; i < 2; i++) {
     int mode;
 
     mode = 0;
@@ -156,8 +129,8 @@ void Input_Update(void)
 
     Input_gMode[i] = mode;
 
-    if (mode == 0) {
-
+    if (mode == 0)
+    {
       left = devList[*h & 0xff].devicefunc(*h >> 8); h++;
       right = devList[*h & 0xff].devicefunc(*h >> 8); h++;
       r->steering = (char)((right - left) / 2);
@@ -167,108 +140,108 @@ void Input_Update(void)
       for (j = 0; j < 2; j++) {
         if ((*h != 0) &&
             (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
-          r->flags |= (one << j);
+          r->flags |= (1 << j);
         } else {
-          r->flags &= ~(one << j);
+          r->flags &= ~(1 << j);
         }
         h++; }
-      acc = 0; r->flags &= 7;
-      {
-        char *activePtr;
+      { char active[17]; r->flags &= 7;
+      acc = 0;
 
 
 
-        k = 16; activePtr = activeBase + k;
-        for (; k >= 0; k--) { *activePtr = one; activePtr--; }
-      }
-      j = 0; while (1) { if (!(j < 17)) {
-          break;
-        } { if (*h != 0) {
 
-          if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
+      for (int k = 0; k < 17; k++)
+        active[k] = 1;
 
+      for (j = 0; j < 17; j++) {
+
+        if (*h != 0)
+        {
+          if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)
+          {
             Input_gPressTime[i][j]++;
 
             if (Input_gPressTime[i][j] >= 6) {
 
-              if ((Input_gDBFlags[i] & (one << j)) == 0) {
+              if ((Input_gDBFlags[i] & (1 << j)) == 0) {
 
                 acc = j + 1;
-                Input_gDBFlags[i] |= (one << j);
+                Input_gDBFlags[i] |= (1 << j);
               }
             }
-            for (k = 0; k < 17; k++) {
+            for (int k = 0; k < 17; k++) {
 
               if (h[k - (j - 17)] == *h) {
 
-                activeBase[k] = 0;
+                active[k] = 0;
                 Input_gPressTime[i][k] = Input_gPressTime[i][j];
               }
             }
           } else {
 
 
-            Input_gDBFlags[i] &= ~(one << j);
+            Input_gDBFlags[i] &= ~(1 << j);
             Input_gPressTime[i][j] = 0;
           }
         }
         h++;
-        j++;
-      } } for (j = 0; j < 17; j++) {
+      }
+      for (j = 0; j < 17; j++) {
 
         if (*h != 0) {
 
           if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
 
-            if ((activeBase[j] != 0) && ((Input_gDBFlags[i] & (one << j)) == 0)) {
+            if (active[j] != 0)
 
-
+              if ((Input_gDBFlags[i] & (1 << j)) == 0) {
 
               acc = j + 1;
-              Input_gDBFlags[i] |= (one << j);
+              Input_gDBFlags[i] |= (1 << j);
             }
           } else {
 
             if ((u_int)(Input_gPressTime[i][j] - 1) < 5) {
 
-              if ((Input_gDBFlags[i] & (one << j)) == 0) {
+              if ((Input_gDBFlags[i] & (1 << j)) == 0) {
 
                 acc = j + 1;
-                Input_gDBFlags[i] |= (one << j);
+                Input_gDBFlags[i] |= (1 << j);
               }
               Input_gPressTime[i][j] = 0;
             } else {
 
-              Input_gDBFlags[i] &= ~(one << j);
+              Input_gDBFlags[i] &= ~(1 << j);
             }
           }
         } h++; }
-      { for (int k, m = 0; m < 2; m++) {
+        for (int m = 0, k; m < 2; m++) {
 
-          for (k = 0; k < 17; k++) {
+          for (j = 0; j < 17; j++) {
 
-            if (*h != 0) {
+            if ((k = *h) != 0) {
 
-              if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
-                Input_gDBFlags[i] |= (one << k);
+              if (devList[k & 0xff].devicefunc(k >> 8) >= 65) {
+                Input_gDBFlags[i] |= (1 << j);
               } else {
-                Input_gDBFlags[i] &= ~(one << k);
+                Input_gDBFlags[i] &= ~(1 << j);
               }
             }
             h++; }
         }
       }
-    } else {
-      char active[40];
+      r->flags |= (acc << 3);
+    }
+    else
 
-      {
-        char *activePtr;
+    { char active[40];
 
 
 
-        j = 39; activePtr = active + j;
-        for (; j >= 0; j--) { *activePtr = one; activePtr--; }
-      }
+      for (j = 0; j < 40; j++)
+        active[j] = 1;
+
       for (j = 0; j < 40; j++) {
         for (k = 0; k < 17; k++) {
           if (h[j] == h[mode * 17 + k + 23]) {
@@ -298,82 +271,82 @@ void Input_Update(void)
         if (active[j + 4] != 0) {
           if ((*h != 0) &&
               (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
-            r->flags |= (one << j);
+            r->flags |= (1 << j);
           } else {
-            r->flags &= ~(one << j);
+            r->flags &= ~(1 << j);
           }
         }
         h++; }
-      { acc = 0; r->flags &= 7;
-        {
-          char *activePtr;
+      { char hactive[17]; r->flags &= 7;
+        acc = 0;
 
 
 
-          k = 16; activePtr = activeBase + k;
-          for (; k >= 0; k--) { *activePtr = one; activePtr--; }
-        }
-        j = 0; for (;;) { if (j >= 17) {
-            goto secondHeldDone;
-          } if (*h != 0) {
-            if ((active[j + 6] != 0) &&
-                (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
 
+        for (int k = 0; k < 17; k++)
+          hactive[k] = 1;
+
+        for (j = 0; j < 17; j++) {
+
+          if (*h != 0)
+          {
+            if ((active[j + 6] != 0) && (devList[*h & 0xff].devicefunc(*h >> 8) >= 65))
+            {
               Input_gPressTime[i][j]++;
 
               if (Input_gPressTime[i][j] >= 6) {
 
-                if ((Input_gDBFlags[i] & (one << j)) == 0) {
+                if ((Input_gDBFlags[i] & (1 << j)) == 0) {
 
                   acc = j + 1;
-                  Input_gDBFlags[i] |= (one << j);
+                  Input_gDBFlags[i] |= (1 << j);
                 }
               }
-              for (k = 0; k < 17; k++) {
+              for (int k = 0; k < 17; k++) {
 
                 if (h[k - (j - 17)] == *h) {
 
-                  activeBase[k] = 0;
+                  hactive[k] = 0;
                   Input_gPressTime[i][k] = Input_gPressTime[i][j];
                 }
               }
             } else {
 
 
-              Input_gDBFlags[i] &= ~(one << j);
+              Input_gDBFlags[i] &= ~(1 << j);
               Input_gPressTime[i][j] = 0;
             }
           }
 
           h++;
-          j++; }
-secondHeldDone:
+        }
+
         for (j = 0; j < 17; j++) {
 
           if (*h != 0) {
             if ((active[j + 23] != 0) &&
                 (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
 
+              if ((Input_gDBFlags[i] & (1 << j)) == 0)
 
-
-              if (((Input_gDBFlags[i] & (one << j)) == 0) && (activeBase[j] != 0)) {
+                if (hactive[j] != 0) {
 
                 acc = j + 1;
-                Input_gDBFlags[i] |= (one << j);
+                Input_gDBFlags[i] |= (1 << j);
               }
             } else if ((active[j + 23] != 0) &&
                        (Input_gPressTime[i][j] > 0) &&
                        (Input_gPressTime[i][j] < 6)) {
 
-              if ((Input_gDBFlags[i] & (one << j)) == 0) {
+              if ((Input_gDBFlags[i] & (1 << j)) == 0) {
 
                 acc = j + 1;
-                Input_gDBFlags[i] |= (one << j);
+                Input_gDBFlags[i] |= (1 << j);
               }
               Input_gPressTime[i][j] = 0;
             } else {
 
-              Input_gDBFlags[i] &= ~(one << j);
+              Input_gDBFlags[i] &= ~(1 << j);
             }
           }
           h++; }
@@ -387,22 +360,22 @@ secondHeldDone:
 
           if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
 
-            if ((Input_gDBFlags[i] & (one << j)) == 0) {
+            if ((Input_gDBFlags[i] & (1 << j)) == 0) {
 
               acc = j + 1;
-              Input_gDBFlags[i] |= (one << j);
+              Input_gDBFlags[i] |= (1 << j);
             }
           } else {
 
-            Input_gDBFlags[i] &= ~(one << j);
+            Input_gDBFlags[i] &= ~(1 << j);
           }
         }
         h++; }
+
+
+      r->flags |= (acc << 3);
       h += (2 - mode) * 17;
     }
-    r->flags |= ((acc | (acc & 3)) << 3);
-    __asm__("" : "+m"(r->flags));             /* force retail byte reload */
-
 
 
 
@@ -415,12 +388,12 @@ secondHeldDone:
       case 16:
 
         r->flags &= 7;
-        menukeys |= (one << (i + 26));
+        menukeys |= (1 << (i + 26));
         break;
       case 17:
 
         r->flags &= 7;
-        menukeys |= (one << (i + 28));
+        menukeys |= (1 << (i + 28));
         break;
     }
 
@@ -429,56 +402,62 @@ secondHeldDone:
 
     r++;
 
-    if (GameSetup_gData.numPlayerRaceCars == one) {
+    if (GameSetup_gData.numPlayerRaceCars == 1) {
 
       h += 76;
       i++;
     }
   }
-  {
-    char *interfaceActive;
 
 
 
-    i = 0; interfaceActive = iactive; left = 1;
-    for (; i < 32; i++) {
-      if ((interfaceActive[i] != 0) && (*h != 0) && (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
-        menukeys |= (left << i);
-      }
-      h++; }
-  } Input_gTime += 2;
+
+
+  for (i = 0; i < 32; i++) {
+
+    if ((iactive[i] != 0) && (*h != 0) && (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+      menukeys |= (1 << i);
+    }
+    h++; }
+  Input_gTime += 2;
   Input_gInterfaceResults[Input_gTime & 0x1f] = menukeys;
   Input_gInterfaceResults[(Input_gTime + 1) & 0x1f] = menukeys;
 }
 
 /* ---- Input_Store__Fv  [INPUT.CPP:436-450] SLD-VERIFIED ---- */
+#line 433 "C:/nfs4/GAME/COMMON/INPUT.CPP"
 void Input_Store(void)
 
+
 {
-  if (gSimQueue_BlockSelf == 0) {
+  if (gSimQueue_BlockSelf != 0) return;
 
 
-    if (1 < GameSetup_gData.numPlayerRaceCars) {
+  if (1 < GameSetup_gData.numPlayerRaceCars) {
 
 
 
 
-      if (SimQueue_Put(0,Input_gResults))
-        SimQueue_Put(1,&Input_gResults[1]);
-    }
-    else if (GameSetup_gData.commMode == 0)
-      SimQueue_Put(GameSetup_gData.localCar,Input_gResults);
-  } }
+    if (SimQueue_Put(0,Input_gResults))
+      SimQueue_Put(1,&Input_gResults[1]);
+  }
+  else if (GameSetup_gData.commMode == 0)
+    SimQueue_Put(GameSetup_gData.localCar,Input_gResults);
+}
 
 /* ---- Input_Fetch__Fi  [INPUT.CPP:456-457] SLD-VERIFIED ---- */
+#line 453 "C:/nfs4/GAME/COMMON/INPUT.CPP"
 void Input_Fetch(int humanIndex)
+
 
 {
   SimQueue_GetCurrentInput(humanIndex,&Input_gSim);
 }
 
 /* ---- Input_Gear__Fci  [INPUT.CPP:466-479] SLD-VERIFIED ---- */
+#line 463 "C:/nfs4/GAME/COMMON/INPUT.CPP"
 char Input_Gear(char currentGear,int numGears)
+
 
 {
   if (Input_gSim.flags >> 3 == 1)
@@ -497,7 +476,9 @@ char Input_Gear(char currentGear,int numGears)
 }
 
 /* ---- Input_Interface__FUli  [INPUT.CPP:488-499] SLD-VERIFIED ---- */
+#line 485 "C:/nfs4/GAME/COMMON/INPUT.CPP"
 int Input_Interface(u_long key,int debounce)
+
 
 {
   if (debounce != 0) {
@@ -513,7 +494,9 @@ int Input_Interface(u_long key,int debounce)
   return 0; }
 
 /* ---- Input_MainExitKey__Fv  [INPUT.CPP:543-544] SLD-VERIFIED ---- */
+#line 540 "C:/nfs4/GAME/COMMON/INPUT.CPP"
 int Input_MainExitKey(void)
+
 
 {
   return Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1;

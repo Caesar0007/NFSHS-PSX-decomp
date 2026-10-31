@@ -48,4 +48,17 @@ extern "C" {
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
 extern "C" void *SetSp(void *stack_pointer);
 
+/* The PRNG step CheckForWipeOut reads: retail's SLD/SYM record it as a header inline (its block pair
+   carries the caller's line, its loads the caller's statement line), not a .cpp-local one. */
+static inline int AI_Rand(void)
+{
+  randtemp = fastRandom * randSeed;
+  fastRandom = randtemp & 0xffff;
+  return (int)((randtemp >> 8) & 0xffff);
+}
+
+/* HighExecute's trigger dispatch switches on this one-parameter inline (see aih_traf.cpp): its post-inline
+   line note tags the dispatch with the switch's closing line, and its record sits after the case bodies. */
+static inline int TriggerType(trigger_t *trigger) { return trigger->any.type; }
+
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

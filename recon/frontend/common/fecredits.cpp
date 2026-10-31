@@ -15,7 +15,9 @@ int CREDFADETICKS = 700;   /* @0x80051aa0; SYM EXT INT */
 
 
 /* ---- tCreditManager::Setup  [FECREDITS.CPP:32-35] ---- */
+#line 29 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 void tCreditManager::Setup()
+
 
 {
   this->fCreditsInitialized = 0;
@@ -26,38 +28,62 @@ void tCreditManager::Setup()
 
 
 /* ---- tCreditManager::Init  [FECREDITS.CPP:57-99] ---- */
-void tCreditManager::Init(int)
-
-{
   /* The trailing int remains in the ABI; retail SYM has no name for this
      unused parameter, so the definition leaves it unnamed. */
-  char filename [80];
-  
-  if (this->fCreditsInitialized == 0) {
+#line 54 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
+void tCreditManager::Init(int)
+
+
+{
+  char filename [80]; if (this->fCreditsInitialized == 0) {
+
     if (this->fRequestDeInit != 0) {
       this->fRequestDeInit = 0;
     }
-    this->fShowCreditNum = -1;
-    this->fTextFade = 0x80;
-    this->fStartTicks = 0;
+    this->fShowCreditNum = -1; this->fTextFade = 0x80; this->fStartTicks = 0;
     this->StartedTransition = 0;
     this->StartedLines = 0;
     this->StartedTextFade = 0;
+
     this->fRequestDeInit = 0;
+
     this->fCurrCredit = 0;
+
+
+
+
+
+
+
+
+
+
+
     sprintf(filename,"%szcred%d.dat",Paths_Paths[0x25],(uint)(byte)frontEnd.language);
+
+
+
+
+
+
+
     this->CreditBuffer = reservememadr("records",filesize(filename),0);
+
     loadfileatadrz(filename,this->CreditBuffer);
     this->fNumCredits = (u_int)filesize(filename) / 0x144;
+
+
+
+
     this->fCreditsInitialized = 1;
-  }
-  return;
-}
+  } return; }
 
 
 
 /* ---- tCreditManager::DeInit  [FECREDITS.CPP:102-103] ---- */
+#line 99 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 void tCreditManager::DeInit()
+
 
 {
   this->fRequestDeInit = 1;
@@ -66,7 +92,9 @@ void tCreditManager::DeInit()
 
 
 /* ---- tCreditManager::RealDeInit  [FECREDITS.CPP:107-117] ---- */
+#line 104 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 void tCreditManager::RealDeInit()
+
 
 {
   
@@ -93,47 +121,50 @@ void tCreditManager::Draw(bool selected)
    retail v1/a0 comparison and result funnel.
    P880: direct scalar screenMain access also removes the extra mainScreen
    local; the native i/REG6 loop and all normal object bytes stay unchanged. */
+
+#line 120 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 {
   if (selected) {
     this->fTVFade = this->fTVFade + 4;
-  }
-  else {
-    this->fTVFade = this->fTVFade + -4;
+  } else { this->fTVFade = this->fTVFade + -4;
   }
   this->fTVFade = MIN(0x5c,MAX(this->fTVFade,0));
   if (this->fTVFade < 0x5c) {
     this->fTextFade = MAX(this->fTextFade,0x80 - this->fTVFade);
   }
-  {
-    int i;
+  { int i; i = 0; do {
 
-    i = 0;
-    do {
       screenMain->tvConfigs[i].flags = screenMain->tvConfigs[i].flags | 2;
-      screenMain->tvConfigs[i].tint =
-          (0x80 - this->fTVFade) * 0x10000 |
-          (0x80 - this->fTVFade) * 0x100 |
-          (0x80 - this->fTVFade);
-      i = i + 1;
-    } while (i < 0x10);
+      screenMain->tvConfigs[i].tint = (0x80 - this->fTVFade) * 0x10000 | (0x80 - this->fTVFade) * 0x100 | (0x80 - this->fTVFade);
+      i = i + 1; } while (i < 0x10);
   }
   if (this->fTVFade == 0) {
+
+
     if (this->fRequestDeInit != 0) {
       this->RealDeInit();
     }
   }
   else if (this->fCreditsInitialized != 0) {
+
+
+
     this->SetupCurrCredit();
+
     if (this->fShowCreditNum != -1) {
       this->DrawCurrCredit();
     }
-  }
-  return;
-}
+  } return; }
 
 
 
 /* ---- tCreditManager::SetupCurrCredit  [FECREDITS.CPP:155-238] ---- */
+      /* MATCH (w37-a2): SYM shows a SEPARATE nested-block local at
+         VA 0x80035f94 (line 66) for currentCredit+1, not a reassignment of
+         currentCredit itself. */
+  /* SYM5f1f9a: function-local STAT INT at object data+4, retail80051AA4.
+     Explicit zero initialization retains the native initialized data run
+     after CREDFADETICKS; link ownership excludes the raw oracle-only copy. */
 void tCreditManager::SetupCurrCredit()
 
 /* MATCH (w37-a2 + later source-restoration rounds): SYM records function-static
@@ -159,67 +190,77 @@ void tCreditManager::SetupCurrCredit()
    The final two-diff load-order residual was source-shape: spelling the first
    wrap test as `fCurrCredit >= fNumCredits` presents GCC with retail's operand
    order while preserving the same comparison and branch. */
-{
-  /* SYM5f1f9a: function-local STAT INT at object data+4, retail80051AA4.
-     Explicit zero initialization retains the native initialized data run
-     after CREDFADETICKS; link ownership excludes the raw oracle-only copy. */
-  static int lasttick = 0;
-  bool backgroundReady;
 
-  if (((0xc < FE_Ticks() - lasttick) && (this->fTextFade == 0)) &&
-      this->fCurrCredit == this->fShowCreditNum) {
+#line 155 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
+{
+  static int lasttick = 0;
+  bool backgroundReady; if (((0xc < FE_Ticks() - lasttick) && (this->fTextFade == 0)) && this->fCurrCredit == this->fShowCreditNum) {
     if (FEInput_GetNoDebounceKey(0x20,0) != 0 ||
         FEInput_GetNoDebounceKey(0x20,1) != 0) {
+
       AudioCmn_PlayFESFX(6);
-      this->fStartTicks = 0;
-      this->fCurrCredit = this->fShowCreditNum + 1;
+      this->fStartTicks = 0; this->fCurrCredit = this->fShowCreditNum + 1;
       lasttick = FE_Ticks();
     }
+
+
+
+
+
+
+
+
+
+
     if (this->fCurrCredit >= this->fNumCredits) {
       this->fCurrCredit = 0;
-    }
-    if (this->fCurrCredit < 0) {
+    } if (this->fCurrCredit < 0) {
       this->fCurrCredit = this->fNumCredits + -1;
     }
   }
+
+
+
+
   if ((this->fStartTicks != 0) && (FE_Ticks() - this->fStartTicks > CREDFADETICKS)) {
-    const int nextCredit = this->fCurrCredit + 1;
-    this->fCurrCredit = nextCredit;
+
+    const int nextCredit = this->fCurrCredit + 1; this->fCurrCredit = nextCredit;
     if (this->fNumCredits <= nextCredit) {
       this->fCurrCredit = 0;
-    }
-    if (this->fCurrCredit < 0) {
+    } if (this->fCurrCredit < 0) {
       this->fCurrCredit = this->fNumCredits + -1;
     }
     this->fStartTicks = 0;
   }
+
+
   if (this->fShowCreditNum != this->fCurrCredit) {
+
+
     this->fTextFadeDir = 8;
     this->StartedTransition = 0;
     this->StartedLines = 0;
     this->StartedTextFade = 0;
   }
+
   const int textFade = this->fTextFade + this->fTextFadeDir;
   this->fTextFade = textFade;
   if (textFade < 1) {
     this->fTextFade = 0;
-  }
-  if (0x7f < this->fTextFade) {
+  } if (0x7f < this->fTextFade) {
     this->fTextFade = 0x80;
   }
+
+
   if ((this->fTextFade == 0x80) && (this->StartedTransition == 0)) {
+
     this->StartedTransition = 1;
     this->fShowCreditNum = this->fCurrCredit;
-    if ((this->fShowCreditNum == (this->fShowCreditNum / 3) * 3) ||
-        (this->CreditBuffer[this->fShowCreditNum].bgNumber != -1)) {
-      /* MATCH (w37-a2): SYM shows a SEPARATE nested-block local at
-         VA 0x80035f94 (line 66) for currentCredit+1, not a reassignment of
-         currentCredit itself. */
+    if ((this->fShowCreditNum == (this->fShowCreditNum / 3) * 3) || (this->CreditBuffer[this->fShowCreditNum].bgNumber != -1)) {
+
       int NNNNN = this->fShowCreditNum + 1;
-      if (this->fNumCredits < NNNNN) {
-        NNNNN = 0;
-      }
-      screenMain->SwapBackground((int)this->CreditBuffer[NNNNN].bgNumber);
+      if (this->fNumCredits < NNNNN) { NNNNN = 0;
+      } screenMain->SwapBackground((int)this->CreditBuffer[NNNNN].bgNumber);
     }
   }
   if (((this->StartedLines == 0) && (this->StartedTransition != 0)) &&
@@ -229,21 +270,41 @@ void tCreditManager::SetupCurrCredit()
     this->StartedLines = 1;
   }
   if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&
+
      (0x1e < FE_Ticks() - this->fLineTicks)) {
     const int startTicksSnapshot = *(volatile int *)&ticks;
-    this->StartedTextFade = 1;
-    this->fTextFadeDir = -8;
-    this->fStartTicks = startTicksSnapshot;
-  }
-  return;
-}
+    this->StartedTextFade = 1; this->fTextFadeDir = -8; this->fStartTicks = startTicksSnapshot; } return; }
 
 
 
 /* ---- tCreditManager::DrawCurrCredit  [FECREDITS.CPP:246] ---- */
-void tCreditManager::DrawCurrCredit()
-
-{
+    /* MATCH (w37-a2): SYM shows the tail block's `dist`/`width`/`height`
+       as NESTED-BLOCK locals distinct from the earlier top-level `width`
+       (subTitleWidth-derived, REG s0) -- reusing that SAME C variable here
+       merged the two live ranges and re-colored the earlier one too. Use
+       a fresh nested `width` for this block (SYM REG s2),
+       with `dist` REASSIGNED in place (matches oracle's $s0 reuse). It
+       stays LIVE into the second bright-line calc (oracle's `subu s1,v0,
+       s2` reuses it there). */
+      /* MATCH (w37-a2): De Morgan physical block-order flip (W36 lever #1)
+         -- the oracle's plain render is the FALL-THROUGH and the cheat
+         check is the branch target, so the source condition is `!hidden`
+         with the plain-render body first. */
+    /* MATCH (w37-a2): a single conditional-value store (not two separate
+       assignments) -- the oracle computes v0=2000/700 via one branch and
+       stores it ONCE, scheduled into the jaguar-branch's delay slot. */
+    /* W85-S5: same removal as the tag==10 arm above -- plain join re-read. */
+    /* W85-S5: was `tag = *(volatile byte *)p;` INSIDE the block.  A plain
+       re-read placed at the JOIN is byte-identical (7/7 PASS): the skip loop
+       invalidates gcc's value for `*p`, so the join load is emitted fresh --
+       no volatile needed.  Same shape the tag==9 arm already used. */
+      /* MATCH (w37-a2): compare the skip-loop against the CAPTURED
+         tag, not the literal again -- lets gcc reuse the register
+         the initial `if` already loaded instead of a fresh `li`. */
+  /* MATCH (w37-a2): physical block order flip (W36 lever #1 De Morgan swap)
+     -- the oracle reaches the FullTextRGB body via a `beqz`-taken branch
+     target and falls THROUGH into the WordWrap/RECT body, so the source
+     condition is `!= 0` with the WordWrap body first (confirmed by m2c). */
   /* MATCH (w37-a2): full SYM-driven rewrite from the raw oracle .s trace
      (asm/nonmatchings/front/DrawCurrCredit__14tCreditManager.s). Prior recon
      invented ~35 locals none of which are in the SYM 8c block (fsize=416);
@@ -286,38 +347,45 @@ void tCreditManager::DrawCurrCredit()
      has no recovered spelling:
      SYM-CODEGEN-CARRIER: tag
      PASS, 451/451 instructions. */
-  tDrawShapeExtended drawFlags;
-  tCredit *fShowCred;
-  int width;
-  short x;
-  short y;
-  int ColTextTitle;
-  int ColTextSubTitle;
-  int ColText;
-  RECT r;
-  char *p, *p2;
-  char buffer [292];
-  byte tag;
+#line 243 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
+void tCreditManager::DrawCurrCredit()
 
-  drawFlags.tint[0] = 0xcec844;
+
+{
+  tDrawShapeExtended drawFlags;
+  tCredit *fShowCred; int width; short x; short y; int ColTextTitle; int ColTextSubTitle; int ColText; RECT r; char *p, *p2; char buffer [292]; byte tag; drawFlags.tint[0] = 0xcec844;
   DrawShapeExtended(((FE_Ticks() >> 4) % 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
+
+
   fShowCred = this->CreditBuffer + this->fShowCreditNum;
+
+
+
+
+
+
+
+
+
+
   FETextRender_SetABR(1,true);
+
+
+
   y = (u_short)fShowCred->subTitleY;
+
   ColTextTitle = CalcFadeVal(0xbebe,this->fTextFade);
   ColTextTitle = CalcFadeVal(ColTextTitle,0x28);
+
   ColTextSubTitle = CalcFadeVal(0xbebe,this->fTextFade);
   ColTextSubTitle = CalcFadeVal(ColTextSubTitle,0x28);
   ColText = CalcFadeVal(0x787878,this->fTextFade);
-  /* MATCH (w37-a2): physical block order flip (W36 lever #1 De Morgan swap)
-     -- the oracle reaches the FullTextRGB body via a `beqz`-taken branch
-     target and falls THROUGH into the WordWrap/RECT body, so the source
-     condition is `!= 0` with the WordWrap body first (confirmed by m2c). */
+
+
   if (fShowCred->titleWidth != 0) {
-    r.x = fShowCred->titleX;
-    r.y = fShowCred->titleY;
-    r.w = fShowCred->titleWidth;
-    r.h = 100;
+
+
+    r.x = fShowCred->titleX; r.y = fShowCred->titleY; r.w = fShowCred->titleWidth; r.h = 100;
     FETextRender_WordWrapTextRGBJustify(TextSys_Word(fShowCred->titleTextID + 0x514),
         r,ColTextTitle,fShowCred->titleJustify,0,false);
   }
@@ -326,176 +394,166 @@ void tCreditManager::DrawCurrCredit()
                fShowCred->titleX,fShowCred->titleY,ColTextTitle,'\0',
                fShowCred->titleJustify);
   }
+
   if (fShowCred->subTitleWidth != 0) {
-    r.x = fShowCred->subTitleX;
-    r.y = fShowCred->subTitleY;
-    r.w = fShowCred->subTitleWidth;
-    r.h = 100;
+
+
+    r.x = fShowCred->subTitleX; r.y = fShowCred->subTitleY; r.w = fShowCred->subTitleWidth; r.h = 100;
     y = y + FETextRender_WordWrapTextRGBJustify(TextSys_Word(fShowCred->subTitleTextID + 0x514),
         r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
   }
   else {
-    y = y + 8;
+
     FETextRender_FullTextRGB(TextSys_Word(fShowCred->subTitleTextID + 0x514),
                fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
                fShowCred->subTitleJustify);
+    y = y + 8;
   }
+
+
+
+
+
   if (fShowCred->textY != 0) {
     y = (u_short)fShowCred->textY;
-  }
-  x = fShowCred->textX;
+  } x = fShowCred->textX;
+
   width = fShowCred->subTitleWidth;
   if (width == 0) {
+
     FETextRender_SetFont(0);
     width = textpixels(TextSys_Word(fShowCred->subTitleTextID + 0x514)) -
         strlen(TextSys_Word(fShowCred->subTitleTextID + 0x514));
   }
+
   if (x == 0) {
+
     if (fShowCred->subTitleJustify == 0) {
+
       x = fShowCred->subTitleX + width + 2;
     }
     else {
+
       x = (fShowCred->subTitleX - width) + -2;
     }
   }
+
   strcpy(buffer,fShowCred->text);
   p = (byte *)buffer;
+
+
   while (p != (byte *)0x0) {
     bool hidden;
     bool jaguar;
-    bool rollthedice;
-
-    hidden = false;
-    jaguar = false;
+    bool rollthedice; hidden = false; jaguar = false;
     rollthedice = false;
+
     p2 = (byte *)strchr((char *)p,10);
     if (p2 != 0) {
       *p2 = 0;
-    }
-    tag = *p;
-    if (tag == 10) {
-      /* MATCH (w37-a2): compare the skip-loop against the CAPTURED
-         tag, not the literal again -- lets gcc reuse the register
-         the initial `if` already loaded instead of a fresh `li`. */
+    } tag = *p; if (tag == 10) { do {
+        p = p + 1; } while (*p == tag);
+    } tag = *p; if (tag == 9) { hidden = true;
       do {
-        p = p + 1;
-      } while (*p == tag);
+
+        p = p + 1; } while (*p == tag);
     }
-    /* W85-S5: was `tag = *(volatile byte *)p;` INSIDE the block.  A plain
-       re-read placed at the JOIN is byte-identical (7/7 PASS): the skip loop
-       invalidates gcc's value for `*p`, so the join load is emitted fresh --
-       no volatile needed.  Same shape the tag==9 arm already used. */
-    tag = *p;
-    if (tag == 9) {
-      hidden = true;
-      do {
-        p = p + 1;
-      } while (*p == tag);
+    tag = *p; if (tag == 0x2a) { jaguar = true; do {
+
+
+        p = p + 1; } while (*p == tag);
     }
-    tag = *p;
-    if (tag == 0x2a) {
-      jaguar = true;
-      do {
-        p = p + 1;
-      } while (*p == tag);
+    tag = *p; if (tag == 0x5e) { rollthedice = true; do {
+
+
+        p = p + 1; } while (*p == tag);
     }
-    /* W85-S5: same removal as the tag==10 arm above -- plain join re-read. */
-    tag = *p;
-    if (tag == 0x5e) {
-      rollthedice = true;
-      do {
-        p = p + 1;
-      } while (*p == tag);
-    }
-    /* MATCH (w37-a2): a single conditional-value store (not two separate
-       assignments) -- the oracle computes v0=2000/700 via one branch and
-       stores it ONCE, scheduled into the jaguar-branch's delay slot. */
     CREDFADETICKS = rollthedice ? 2000 : 700;
+
+
+
+
     if (jaguar) {
-      r.x = 0xb4;
-      r.y = 0x55;
-      r.w = 0x118;
-      r.h = 100;
+
+      r.x = 0xb4; r.y = 0x55; r.w = 0x118; r.h = 100;
+
       FETextRender_WordWrapTextRGBJustify(TextSys_Word(0x596),r,ColText,0,0,false);
     }
     else if (rollthedice) {
+
       for (int rtd = 0; rtd < 0x19; rtd++) {
+
         FETextRender_FullTextRGB(TextSys_Word(rtd + 0x597),x,y,ColText,'\0',fShowCred->textJustify);
         y = y + 8;
       }
     }
-    else {
-      /* MATCH (w37-a2): De Morgan physical block-order flip (W36 lever #1)
-         -- the oracle's plain render is the FALL-THROUGH and the cheat
-         check is the branch target, so the source condition is `!hidden`
-         with the plain-render body first. */
-      if (!hidden) {
+    else { if (!hidden) {
+
         FETextRender_FullTextRGB((char *)p,x,y,ColText,'\0',fShowCred->textJustify);
       }
-      else {
-        if (FECheat_IsCheatEnabled(cheat_MyMomSaysImCool) != 0) {
+      else { if (FECheat_IsCheatEnabled(cheat_MyMomSaysImCool) != 0) {
           FETextRender_FullTextRGB((char *)p,x,y,CalcFadeVal(0x505050,this->fTextFade),'\0',fShowCred->textJustify);
         }
-      }
-    }
-    y = y + 8;
+      } } y = y + 8;
     p = p2;
+
     if (p2 != 0) {
+
       p = p2 + 1;
     }
   }
   FETextRender_SetABR(0,false);
+
+
+
+
+
+
   if (this->StartedLines != 0) {
-    /* MATCH (w37-a2): SYM shows the tail block's `dist`/`width`/`height`
-       as NESTED-BLOCK locals distinct from the earlier top-level `width`
-       (subTitleWidth-derived, REG s0) -- reusing that SAME C variable here
-       merged the two live ranges and re-colored the earlier one too. Use
-       a fresh nested `width` for this block (SYM REG s2),
-       with `dist` REASSIGNED in place (matches oracle's $s0 reuse). It
-       stays LIVE into the second bright-line calc (oracle's `subu s1,v0,
-       s2` reuses it there). */
     int dist;
     int width;
-    int height;
-
-    dist = ((FE_Ticks() - this->fLineTicks) * 0x208) / 0x50;
+    int height; dist = ((FE_Ticks() - this->fLineTicks) * 0x208) / 0x50;
     width = 200;
     if (dist < 200) {
+
       width = dist;
       dist = 200;
     }
     if (0x140 < dist) {
-      width = 0x140 - dist;
-      if (width < 0) {
-        width = 0;
-      }
-      dist = 0x208 - width;
+
+      width = 0x140 - dist; if (width < 0) { width = 0;
+      } dist = 0x208 - width;
     }
+
     if (0 < width) {
-      ColTextSubTitle = CalcFadeVal(0x505050,0x40);
-      ColTextTitle = fShowCred->subTitleY + -2;
-      PSXTransDrawBrightEndLine(ColTextSubTitle,dist + -0x25,ColTextTitle,width,4,3,1,0,1);
+
+
+
+
+
+      ColTextSubTitle = CalcFadeVal(0x505050,0x40); ColTextTitle = fShowCred->subTitleY + -2; PSXTransDrawBrightEndLine(ColTextSubTitle,dist + -0x25,ColTextTitle,width,4,3,1,0,1);
     }
+
     dist = ((FE_Ticks() - this->fLineTicks) * 0x10c) / 0x50;
     height = 100;
     if (dist < 100) {
+
       height = dist;
       dist = 100;
     }
     if (0xa8 < dist) {
-      height = 0xa8 - dist;
-      if (height < 0) {
-        height = 0;
-      }
-      dist = 0x10c - width;
+
+      height = 0xa8 - dist; if (height < 0) { height = 0;
+      } dist = 0x10c - width;
     }
+
     if (0 < height) {
-      ColTextTitle = CalcFadeVal(0x505050,0x40);
-      PSXTransDrawBrightEndLine(ColTextTitle,(int)x,dist + -0x3a,2,height,1,1,0,1);
-    }
-  }
-  return;
-}
+
+
+
+
+
+      ColTextTitle = CalcFadeVal(0x505050,0x40); PSXTransDrawBrightEndLine(ColTextTitle,(int)x,dist + -0x3a,2,height,1,1,0,1); } } return; }
 
 
 

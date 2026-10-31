@@ -81,7 +81,9 @@ void Draw_InitLibRender(void);
      (DRAWENV*, both 92 bytes) as real locals -- NOT raw Draw_gView[index].drawenv[N]
      array-index expressions everywhere. Rewritten to cache the two DRAWENV pointers
      once per the SYM, matching the oracle's s1/s2-hold-e00/e10-address shape. */
+#line 69 "C:/nfs4/GAME/PSX/DRAW.CPP"
 int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize)
+
 
 {
   Draw_tView *newview;
@@ -116,7 +118,9 @@ int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int ot
 }
 
 /* ---- Draw_InitViews__Fv  [DRAW.CPP:113-114] SLD-VERIFIED ---- */
+#line 110 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_InitViews(void)
+
 
 {
   Draw_gNumView = 0;
@@ -127,7 +131,9 @@ void Draw_InitViews(void)
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
+#line 124 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_InitViewOT(void)
+
 
 {
   for (int i = 0; i < Draw_gNumView; i++) {
@@ -143,7 +149,9 @@ void Draw_InitViewOT(void)
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
+#line 135 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_InitViewOTInGame(void)
+
 
 {
   for (int i = 0; i < Draw_gNumView; i++) {
@@ -159,7 +167,9 @@ void Draw_InitViewOTInGame(void)
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
+#line 154 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_DeInitViews(void)
+
 
 {
 
@@ -179,7 +189,9 @@ void Draw_DeInitViews(void)
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
+#line 169 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_DeInitViewsInGame(void)
+
 
 {
 
@@ -195,21 +207,27 @@ void Draw_DeInitViewsInGame(void)
   } return; }
 
 /* ---- Draw_GetDRAWENV__Fii  [DRAW.CPP:187-188] SLD-VERIFIED ---- */
+#line 184 "C:/nfs4/GAME/PSX/DRAW.CPP"
 DRAWENV * Draw_GetDRAWENV(int viewid,int page)
+
 
 {
   return &Draw_gView[viewid].drawenv[page];
 }
 
 /* ---- Draw_SetViewMemBudget__Fii  [DRAW.CPP:197-198] SLD-VERIFIED ---- */
+#line 194 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_SetViewMemBudget(int viewid,int totalmem)
+
 
 {
   Draw_gView[viewid].membudget = totalmem;
 }
 
 /* ---- Draw_SetViewColor__Fiiii  [DRAW.CPP:213-219] SLD-VERIFIED ---- */
+#line 210 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_SetViewColor(int viewid,int r,int g,int b)
+
 
 {
   Draw_tView *view;
@@ -239,7 +257,9 @@ void Draw_SetViewColor(int viewid,int r,int g,int b)
      between the `commMode==1` compare and the multiply), so gcc reuses the still-live
      compare constant register as the shift-amount operand (a variable-form `sllv`) --
      an allocator artifact of NOT introducing an intervening `membudget` computation. */
+#line 234 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void AllocatePrimitivesBuffer(void)
+
 
 {
 
@@ -299,7 +319,9 @@ void AllocatePrimitivesBuffer(void)
     view->membudget = gTotalMem + -0x1a00; } return; }
 
 /* ---- ClearPrimitivesBuffer__Fv  [DRAW.CPP:312-320] SLD-VERIFIED ---- */
+#line 309 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void ClearPrimitivesBuffer(void)
+
 
 {
 
@@ -313,7 +335,9 @@ void ClearPrimitivesBuffer(void)
 }
 
 /* ---- ClearPlatformPrimitivesBuffer__Fv  [DRAW.CPP:325-339] SLD-VERIFIED ---- */
+#line 322 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void ClearPlatformPrimitivesBuffer(void)
+
 
 {
 
@@ -361,7 +385,9 @@ void ClearPlatformPrimitivesBuffer(void)
      comment at the tail if/else -- De Morgan DOES crack it once the arm body
      reads `view->membudget` instead of re-indexing `Draw_gView[viewid]`.
      PASS 46/46 as of 2026-07-31.) */
+#line 349 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_StartRenderingView(int viewid)
+
 
 {
   Draw_DCache *sd;
@@ -435,7 +461,9 @@ void Draw_StartRenderingView(int viewid)
      copy source) 107, index-form 2nd otsize read 65.  The later byte-PASS
      source remains authoritative; a const pal snapshot and retail declaration
      order LEnv/pEnv/view also make its native SYM record exact. */
+#line 384 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_StopRenderingView(int viewid)
+
 
 {
   DRAWENV LEnv;
@@ -452,7 +480,9 @@ void Draw_StopRenderingView(int viewid)
 }
 
 /* ---- Draw_CheckFirstFrameRender__Fv  [DRAW.CPP:409-419] SLD-VERIFIED ---- */
+#line 406 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_CheckFirstFrameRender(void)
+
 
 {
 
@@ -484,7 +514,9 @@ void Draw_CheckFirstFrameRender(void)
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
+#line 429 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_StartFrameRender(void)
+
 
 {
 
@@ -501,7 +533,9 @@ void Draw_StartFrameRender(void)
 }
 
 /* ---- Draw_SetDrawSyncCallback__FPFv_v  [DRAW.CPP:448-449] SLD-VERIFIED ---- */
+#line 445 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_SetDrawSyncCallback(void (*p)(void))
+
 
 {
   Draw_gSyncCallback = p;
@@ -512,7 +546,9 @@ void Draw_SetDrawSyncCallback(void (*p)(void))
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
+#line 460 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_StopFrameRender(void)
+
 
 {
 
@@ -542,7 +578,9 @@ void Draw_StopFrameRender(void)
 }
 
 /* ---- Draw_DrawDirectScreen__FP8shapetblii  [DRAW.CPP:493-498] SLD-VERIFIED ---- */
+#line 490 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_DrawDirectScreen(shapetbl *tile,int x,int y)
+
 
 {
   
@@ -565,7 +603,9 @@ void Draw_DrawDirectScreen(shapetbl *tile,int x,int y)
      BEFORE PutDrawEnv -- confirmed by decoding the buffer offsets 0x31/0x32/0x33/0x30
      (relative to the sp+0x18 base) against the real DRAWENV field layout. The prior
      reconstruction dropped this whole block (treating erase/r/g/b as unused params). */
+#line 510 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)
+
 
 {
 
@@ -603,7 +643,9 @@ void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,in
     SetDispMask(1); } return; }
 
 /* ---- Draw_SetEnvironment__Fiiiiiiii  [DRAW.CPP:551-553] SLD-VERIFIED ---- */
+#line 548 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_SetEnvironment(int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)
+
 
 {
   
@@ -611,7 +653,9 @@ void Draw_SetEnvironment(int w,int h,int edraw,int edisplay,int erase,int r,int 
 }
 
 /* ---- Draw_InitRenderEngine__Fiiiiii  [DRAW.CPP:577-591] SLD-VERIFIED ---- */
+#line 574 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_InitRenderEngine(int x0,int y0,int x1,int y1,int w,int h)
+
 
 {
   
@@ -631,13 +675,17 @@ void Draw_InitRenderEngine(int x0,int y0,int x1,int y1,int w,int h)
 }
 
 /* ---- Draw_RestartRenderEngine__Fv  [DRAW.CPP:596-597] SLD-VERIFIED ---- */
+#line 593 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_RestartRenderEngine(void)
+
 
 {
 }
 
 /* ---- Draw_DeInitRenderEngine__Fv  [DRAW.CPP:600-603] SLD-VERIFIED ---- */
+#line 597 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_DeInitRenderEngine(void)
+
 
 {
 
@@ -646,7 +694,9 @@ void Draw_DeInitRenderEngine(void)
 }
 
 /* ---- Draw_InitLibRender__Fv  [DRAW.CPP:609-613] SLD-VERIFIED ---- */
+#line 606 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void Draw_InitLibRender(void)
+
 
 {
 

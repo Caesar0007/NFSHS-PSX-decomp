@@ -19,7 +19,9 @@ void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr);
 
 
 /* ---- Math_DistXZ__FP8coorddefT0  [MATHNFS.CPP:26-38] SLD-VERIFIED ---- */
+#line 23 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 int Math_DistXZ(coorddef *a,coorddef *b)
+
 
 {
   int dist;
@@ -37,7 +39,9 @@ int Math_DistXZ(coorddef *a,coorddef *b)
 }
 
 /* ---- Math_Dist3D__FP8coorddefT0  [MATHNFS.CPP:42-53] SLD-VERIFIED ---- */
+#line 39 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 int Math_Dist3D(coorddef *a,coorddef *b)
+
 
 {
   int dist;
@@ -54,7 +58,9 @@ int Math_Dist3D(coorddef *a,coorddef *b)
 }
 
 /* ---- Math_BetterDist__Fii  [MATHNFS.CPP:57-79] SLD-VERIFIED ---- */
+#line 54 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 int Math_BetterDist(int a,int b)
+
 
 {
   int x;
@@ -82,7 +88,9 @@ int Math_BetterDist(int a,int b)
 }
 
 /* ---- Math_ResolveRotatedVector__FiiiPiT3  [MATHNFS.CPP:96-103] SLD-VERIFIED ---- */
+#line 93 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 void Math_ResolveRotatedVector(int x,int y,int angle,int *newx,int *newy)
+
 
 {
   int ds;
@@ -95,7 +103,9 @@ void Math_ResolveRotatedVector(int x,int y,int angle,int *newx,int *newy)
 }
 
 /* ---- Math_VectorLength__FP8coorddef  [MATHNFS.CPP:132-199] SLD-VERIFIED ---- */
+#line 129 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 int Math_VectorLength(coorddef *v)
+
 
 {
   int vx;
@@ -111,11 +121,11 @@ int Math_VectorLength(coorddef *v)
   vx = v->x;
   vy = v->y;
   vz = v->z;
-  while ((0x1000000 < __builtin_abs(vx)) ||
-         (0x1000000 < __builtin_abs(vy)) ||
-         (0x1000000 < __builtin_abs(vz))) {
 
 
+
+
+  while ((0x1000000 < __builtin_abs(vx)) || (0x1000000 < __builtin_abs(vy)) || (0x1000000 < __builtin_abs(vz))) {
 
     vx = vx >> 1;
     vy = vy >> 1;
@@ -168,7 +178,9 @@ int Math_VectorLength(coorddef *v)
 }
 
 /* ---- Math_VectorLength2__FP8coorddef  [MATHNFS.CPP:207-273] SLD-VERIFIED ---- */
+#line 204 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 int Math_VectorLength2(coorddef *v)
+
 
 {
   int vx;
@@ -184,11 +196,11 @@ int Math_VectorLength2(coorddef *v)
   vx = v->x;
   vy = v->y;
   vz = v->z;
-  while ((0x1000000 < __builtin_abs(vx)) ||
-         (0x1000000 < __builtin_abs(vy)) ||
-         (0x1000000 < __builtin_abs(vz))) {
 
 
+
+
+  while ((0x1000000 < __builtin_abs(vx)) || (0x1000000 < __builtin_abs(vy)) || (0x1000000 < __builtin_abs(vz))) {
 
     vx = vx >> 1;
     vy = vy >> 1;
@@ -240,7 +252,9 @@ int Math_VectorLength2(coorddef *v)
 }
 
 /* ---- Math_NormalizeVector__FP8coorddef  [MATHNFS.CPP:298-362] SLD-VERIFIED ---- */
+#line 295 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 void Math_NormalizeVector(coorddef *v)
+
 
 {
   int vx;
@@ -252,11 +266,11 @@ void Math_NormalizeVector(coorddef *v)
   u_int vx2s; u_int vy2s; u_int vz2s; int length; vx = v->x;
   vy = v->y;
   vz = v->z;
-  while ((0x1000000 < __builtin_abs(vx)) ||
-         (0x1000000 < __builtin_abs(vy)) ||
-         (0x1000000 < __builtin_abs(vz))) {
 
 
+
+
+  while ((0x1000000 < __builtin_abs(vx)) || (0x1000000 < __builtin_abs(vy)) || (0x1000000 < __builtin_abs(vz))) {
 
     vx = vx >> 1;
     vy = vy >> 1;
@@ -299,39 +313,43 @@ void Math_NormalizeVector(coorddef *v)
   length = fixedsqrt(vx2 + vy2 + vz2);
 
 
-  if (length != 0) {
+  if (length == 0) return;
 
 
-    v->x = fixeddiv(vx,length);
-    v->y = fixeddiv(vy,length);
+  v->x = fixeddiv(vx,length);
+  v->y = fixeddiv(vy,length);
+  v->z = fixeddiv(vz,length);
 
-
-    v->z = fixeddiv(vz,length);
-  }
 }
 
+
+
 /* ---- Math_NormalizeShortVector__FP8coorddef  [MATHNFS.CPP:371-386] SLD-VERIFIED ---- */
+#line 368 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 void Math_NormalizeShortVector(coorddef *v)
+
 
 {
   int inverse;
   int length;
-  length = fixedsqrt(fixedmult(v->x,v->x) +
-                     fixedmult(v->y,v->y) + fixedmult(v->z,v->z));
 
+  length = fixedmult(v->x,v->x) + fixedmult(v->y,v->y) + fixedmult(v->z,v->z);
 
+  length = fixedsqrt(length);
 
-  if (length != 0) {
+  if (length == 0) return;
 
-    inverse = fixeddiv(0x10000,length);
+  inverse = fixeddiv(0x10000,length);
 
-    v->x = fixedmult(v->x,inverse);
-    v->y = fixedmult(v->y,inverse);
-    v->z = fixedmult(v->z,inverse);
-  } return; }
+  v->x = fixedmult(v->x,inverse);
+  v->y = fixedmult(v->y,inverse);
+  v->z = fixedmult(v->z,inverse);
+}
 
 /* ---- Math_QDNormalizeVector__FP8coorddef  [MATHNFS.CPP:396-417] SLD-VERIFIED ---- */
+#line 393 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 void Math_QDNormalizeVector(coorddef *v)
+
 
 {
   coorddef temp; int length; int inverse; temp = *v;
@@ -346,31 +364,33 @@ void Math_QDNormalizeVector(coorddef *v)
   length = Math_BetterDist(temp.x,temp.y);
   length = Math_BetterDist(length,temp.z);
 
-  if (length != 0) {
+  if (length == 0) return;
 
-    inverse = fixedinverse(length);
+  inverse = fixedinverse(length);
 
 
-    v->x = (v->x / 256) * (inverse / 256);
-    v->y = (v->y / 256) * (inverse / 256);
-    v->z = (v->z / 256) * (inverse / 256);
-  }
+  v->x = (v->x / 256) * (inverse / 256);
+  v->y = (v->y / 256) * (inverse / 256);
+  v->z = (v->z / 256) * (inverse / 256);
 }
 
+
 /* ---- Math_fasttransmult__FP10matrixtdefN20  [MATHNFS.CPP:533-584] SLD-VERIFIED ---- */
+#line 530 "C:/nfs4/GAME/COMMON/MATHNFS.CPP"
 void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr)
+
 
 {
   int i;
   int j;
   int val;
   matrixtdef mtmp;
-  int ta;
-  int tb;
-  int tc; int td; int te; int tf; for (i = 0; i < 9; i += 3) {
+  int ta; int tb; int tc;
+  int td; int te; int tf; i = 0;
+  do {
 
-
-    for (j = 0; j < 3; j++) {
+    j = 0;
+    do {
 
       ta = m1->m[i];
       tb = m2->m[j];
@@ -378,20 +398,20 @@ void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr)
       td = m2->m[j + 3];
       te = m1->m[i + 2];
       tf = m2->m[j + 6];
-      val = ((ta >> 3) * (tb >> 3) >> 10) +
-            ((tc >> 3) * (td >> 3) >> 10) +
-            ((te >> 3) * (tf >> 3) >> 10);
 
+      val = (ta >> 3) * (tb >> 3) >> 10;
+      val = val + ((tc >> 3) * (td >> 3) >> 10);
+      val = val + ((te >> 3) * (tf >> 3) >> 10);
 
       mtmp.m[i + j] = val;
 
+      j++;
     }
+    while (j < 3);
 
-
-
+    i += 3;
   }
-
-
+  while (i < 9);
 
   ta = mtmp.m[0];
   tb = mtmp.m[1];

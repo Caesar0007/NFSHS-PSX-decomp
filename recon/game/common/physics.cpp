@@ -76,8 +76,10 @@ void Physics_SimCar(Car_tObj *carObj);
  * First/second/third initializers249/251/253 and bodies250/252/254,then
  * actual scalar reads255..281 preserve all167 words and i owner0..208.
  * build/nc12/physics_specs_sld_20261028/;literal original text unproved. */
-#line 241 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 240 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_InitCarSpecs(Car_tObj *carObj,Udff_tInfo *handle)
+
 
 {
   int i;
@@ -133,8 +135,10 @@ void Physics_InitCarSpecs(Car_tObj *carObj,Udff_tInfo *handle)
  * do not prove a required capture or a floor. No alias is renamed/hidden.
  * Literal loop/macro/comment text is not uniquely proved.
  * build/nc12/physics_derived_source_20261028/. */
-#line 285 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 284 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
+
 
 {
   int i; int rpmAtMaxSpeedInHighestGear; int accAtMaxSpeedInHighestGear;
@@ -262,8 +266,10 @@ void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
 /* SOURCE-REVIEW-UNRESOLVED: retail has only jr/nop here. Ordinary empty
  * source recovers header414, kept root415 and exit465, not the lost/elided
  * original body text. build/nc12/physics_small_sld_20261028/. */
-#line 412 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 411 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_CheckGamedata(void)
+
 
 {
 
@@ -334,8 +340,10 @@ void Physics_CheckGamedata(void)
  * NFS2's precision,zeroed component and vertical-clamp ordering differences
  * are not imported. Literal original text is unproved.
  * build/nc12/physics_attenuate_source_20261028/. */
-#line 589 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 588 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
+
 
 {
   coorddef vel_b;
@@ -409,8 +417,10 @@ int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
 }
 
 /* ---- Physics_SetCurrentWallType__Fi  [PHYSICS.CPP:665-666] COVERED-SLD-PASS ---- */
-#line 663 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 662 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_SetCurrentWallType(int wallType)
+
 
 {
   currentWallType = wallType;
@@ -419,8 +429,10 @@ void Physics_SetCurrentWallType(int wallType)
 /* ---- Physics_GetTorque__FP8Car_tObji  [PHYSICS.CPP:672-674] COVERED-SLD-PASS ---- */
 /* Canonical MAX/MIN spelling is independently present in matched NFS2 PC
  * source. Retail NFS4 confirms all15 words and the673 clamp/674 lookup split. */
-#line 670 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 669 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 int Physics_GetTorque(Car_tObj *carObj,int index)
+
 
 {
   index = MAX(MIN(index,40),0);
@@ -436,8 +448,10 @@ int Physics_GetTorque(Car_tObj *carObj,int index)
  * order and separate speed/steering guards recover all instruction/file tags,
  * supplied locals/owners,block lines and end721. Literal macro/comment spelling
  * is not uniquely proved. build/nc12/physics_yaw_source_20261028/. */
-#line 678 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 677 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef barrierVec)
+
 
 {
   int diffZ; int diffX; int result;
@@ -498,8 +512,10 @@ void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef bar
  * uninitialized in the low-altitude else arm;do not import the mobile fix.
  * Literal original macro/comment spelling is not uniquely established.
  * Receipt:build/nc12/physics_barrier_source_20261029/final-proof.json. */
-#line 759 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 758 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 int Physics_DoBarrierCheck(Car_tObj *carObj)
+
 
 {
   int diff = 0;
@@ -772,8 +788,10 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
            * unrecorded lastGearOffset snapshot (2026-09-28, 175/175 PASS).
            * Sharing one snapshot across the guards was 47 diffs.  `move_term`
          * (`gear + SkipLastGear + 1 < numGears`) = 23. */
-#line 936 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 935 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_AutoShift(Car_tObj *carObj)
+
 
 {
   int wheelRpm; int previousRpm; int previousGear; int nextGear;
@@ -901,8 +919,10 @@ void Physics_AutoShift(Car_tObj *carObj)
      re-emit it after the negu (two slls); the builtin's bgez/negu/sll idiom is
      retail's.  Routing it through a separate temp first only reaches 22/26 -- the operand
      must be the field read itself (methodology 5.0c __builtin_abs lever). */
-#line 1042 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1041 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_RampCarControlValues(Car_tObj *carObj)
+
 
 {
   int i; int diff; int gear;
@@ -1152,8 +1172,10 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
  * path in lost NFS4 text is inferred,not uniquely proved by the retail image.
  * No arbitrary always-false predicate was invented to imitate loop depth.
  * Receipt:build/nc12/physics_rpm_native_source_20261029/final-proof.json. */
-#line 1285 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1284 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_FixEngineRpm(Car_tObj *carObj)
+
 
 {
 
@@ -1176,15 +1198,17 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
 
   if (carObj->N.collision.collided == 2)
     carObj->N.collision.collided = 0; }
-#line 1309 "C:/nfs4/GAME/COMMON/PHYSICS.CPP" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Physics_ResetCar__FP8Car_tObj  [PHYSICS.CPP:1313-1358] COVERED-SLD-PASS ---- */
 /* Source/SLD receipt: transmission arm stores,vector/component reset phases
  * and the real for-owned i retain all39 words and complete retail owners.
  * The enclosing/for endpoint is1359;actual loop backedge/end source1358.
  * No dummy region or local is added. Use brace-aware slicing for this body. */
-#line 1311 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1310 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_ResetCar(Car_tObj *carObj)
+
 
 {
 
@@ -1236,8 +1260,10 @@ void Physics_ResetCar(Car_tObj *carObj)
 /* ---- Physics_StopCar__FP8Car_tObj  [PHYSICS.CPP:1364-1370] COVERED-SLD-PASS ---- */
 /* Retail groups all three linear components on1365; original vector macro
  * spelling is unproved. Actual angular work is1370, not the scheduled order. */
-#line 1362 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1361 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_StopCar(Car_tObj *carObj)
+
 
 {
   (carObj->N).linearVel.x = (carObj->N).linearVel.x * 0xf5 / 0x100; (carObj->N).linearVel.y = (carObj->N).linearVel.y * 0xf5 / 0x100; (carObj->N).linearVel.z = (carObj->N).linearVel.z * 0xf5 / 0x100;
@@ -1251,8 +1277,10 @@ void Physics_StopCar(Car_tObj *carObj)
 /* ---- Physics_TestForBarrierCollision__FP8Car_tObj  [PHYSICS.CPP:1377-1385] COVERED-SLD-PASS ---- */
 /* Real call1380, hit guard1381, flag test1383, optional repair1384 and
  * crash store1385 recover the complete covered contract without new objects. */
-#line 1375 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1374 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_TestForBarrierCollision(Car_tObj *carObj)
+
 
 {
   int hit;
@@ -1276,8 +1304,10 @@ void Physics_TestForBarrierCollision(Car_tObj *carObj)
  * identifiers. Their exact original names/macro spelling are not retained;
  * this evidence does not claim unique original source text.
  * Receipt:build/nc12/physics_grip_notes_20261029/final-proof.json. */
-#line 1392 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1391 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
+
 
 {
   int frontWheels = 0;
@@ -1325,7 +1355,7 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
 
     int rearAeroForce = fixedmult(carObj->linearVel_ch.z,carObj->specs->rearAeroDownForce);
     rearMult += rearAeroForce; } }
-#line 1441 "C:/nfs4/GAME/COMMON/PHYSICS.CPP" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Physics_CalculateCarAcceleration__FP8Car_tObj [PHYSICS.CPP:1447-1672; COVERED-SYM-SLD-PASS] ---- */
 /* @0x800AA984
@@ -1338,8 +1368,10 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
  * Nested real car-category/slippery guards restore their distinct phases.
  * Literal original macro/comment/punctuation/reuse text is not uniquely proved.
  * Receipt:build/nc12/physics_acceleration_layout_20261029/final-proof.json. */
-#line 1445 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1444 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 int Physics_CalculateCarAcceleration(Car_tObj *carObj)
+
 
 {
   int blip[8] = {0,0,250,200,175,150,125,0};
@@ -1567,7 +1599,7 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   }
 
   return driveAcc - drag; }
-#line 1731 "C:/nfs4/GAME/COMMON/PHYSICS.CPP" /* preserve unchanged following-function coordinates */
+
 
 /* ---- Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct [PHYSICS.CPP:1680-1725] COVERED-SYM-SLD-PASS ---- */
 /* @0x800AB49C */
@@ -1583,8 +1615,10 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
  * The literal original macro/branch/comment spelling remains unproved,and
  * the wider source-restoration goal is open. No new object or matching device.
  * build/nc12/physics_wheellock_source_20261028/. */
-#line 1678 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1677 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
+
 
 {
   int totalAcc;
@@ -1651,8 +1685,10 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
  * branch/comment spelling and the wider source-restoration goal stay open.
  * No extra source object,qualifier,scope padding or matching device is used.
  * build/nc12/physics_traction_arms_20261028/. */
-#line 1729 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1728 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
+
 
 {
   int totalAcc;
@@ -1746,8 +1782,10 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
  * equivalent early-return/flat-guard controls do not match this compiler.
  * Literal original macros/comments remain unproved,not inferred from a seal.
  * build/nc12/physics_tire_source_20261028/. */
-#line 1813 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1812 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
+
 
 {
   int latAcc; int brakingSituation; int slipAngle; int roadGrip;
@@ -1928,8 +1966,10 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
  * objects/names. Capture-free scale/half-width controls do not match;this is
  * not proof of original spelling or necessity. Literal source text is open.
  * build/nc12/physics_rsposition_source_20261028/. */
-#line 1980 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 1979 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,int lookAhead)
+
 
 {
   int driveSide; int position;
@@ -2008,8 +2048,10 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
  * The exact erased literal/macro/comment spelling is not uniquely proved by
  * these covered contracts;the wider original-source goal remains open.
  * build/nc12/physics_real_init_20261028/ and physics_real_alloc_20261028/. */
-#line 2046 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 2045 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_Real(Car_tObj *carObj)
+
 
 {
   int driveAcc;
@@ -2469,8 +2511,10 @@ void Physics_Real(Car_tObj *carObj)
 /* Source/SLD receipt: real low-orientation clearing,RPM decrement and altitude
  * stop/normal-physics arms recover all33 words and complete covered metadata.
  * Implicit fallthrough preserves exit2532;literal source text is unproved. */
-#line 2505 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
+
+#line 2504 "C:/nfs4/GAME/COMMON/PHYSICS.CPP"
 void Physics_SimCar(Car_tObj *carObj)
+
 
 {
 

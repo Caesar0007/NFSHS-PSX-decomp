@@ -21,6 +21,8 @@ extern "C" int sprintf(char *, const char *, ...);
 /* ---- CheckForCops__14AIHigh_TrafficPi  AIHigh_Traffic::CheckForCops  [AIH_TRAF.CPP:32-56] SLD-VERIFIED ---- */
 Car_tObj *
 
+
+#line 31 "C:/nfs4/GAME/COMMON/AIH_TRAF.CPP"
 AIHigh_Traffic::CheckForCops(int *closestDistance)
 {
   int copLoop;
@@ -72,6 +74,8 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
  * sites.  NOT a floor: the fence-above probe proves the SHAPE is one cse substitution away. */
 AIHigh_Cop *
 
+
+#line 60 "C:/nfs4/GAME/COMMON/AIH_TRAF.CPP"
 AIHigh_Traffic::CopCheck(int *blockade)
 {
   Car_tObj*closest;
@@ -96,8 +100,8 @@ AIHigh_Traffic::CopCheck(int *blockade)
 
 
 
-  if ((speed < 0x20000) && (closestDistance < 0x4b0000)) {
-
+  if ((speed < 0x20000) && (closestDistance < 0x4b0000))
+  {
 
     *blockade = 1;
 
@@ -148,43 +152,45 @@ AIHigh_Traffic::CopCheck(int *blockade)
  * assigns from a named const struct, not per-field literals. Sits immediately before this TU's
  * own _vt_14AIHigh_Traffic in rodata -> TU-owned, not a cross-module extern. */
 /* SYM-GLOBAL-CARRIER: D_800551A4
- * Retail data and instruction references prove the const object and owner;
- * the absent debug record leaves its original source identifier unknown. */
-/* (class (b) 2026-09-17) the 12-byte constant is HighExecute's local brace initializer: cc1plus emits it at
-   expansion time, BEFORE the vtable batch (retail order D_800551A4 0x800551a4, _vt 0x800551b0). */
+/* The type5 trigger dispatch is a real switch on this one-parameter inline: its post-inline line
+   note gives the dispatch the switch's closing-brace line, and its `trigger` record sits in the
+   switch scope after the case body (both = retail SYM/SLD). The earlier two-parameter
+   Traffic_ReencarnateAtTrigger wrapper (extra `high`, `trigger` one level deeper) is gone. */
 
 /* UNRESOLVED RECONSTRUCTION: retail records trigger one level shallower and
    no high parameter. This wrapper still has both mismatches; value-pointer,
    reference/member and statement-expression trials do not resolve them.
    The car read must remain late and the operation must remain type5-guarded. */
-static inline void Traffic_ReencarnateAtTrigger(AIHigh_Base *high, trigger_t *trigger)
-{
-  AILife_ReencarnateTrafficByPosition(high->carObj_, trigger->trafficPath.slice, 1,
-                                      &trigger->trafficPath.path->position,
-                                      &trigger->trafficPath.orientation);
-}
+static inline int TriggerType(trigger_t *trigger) { return trigger->any.type; }
+
+
+
+
+
 
 /* ---- HighExecute__14AIHigh_Traffic [retail AIH_TRAF.CPP:129-340;
  * 547/547 byte PASS, native/SLD recovery still open] ---- */
 
+
+#line 128 "C:/nfs4/GAME/COMMON/AIH_TRAF.CPP"
 void AIHigh_Traffic::HighExecute()
 {
   carObj_->unlap = 0;
   carObj_->lap = 0;
 
 
-  switch ((stateType_t)stateType_) {
+  switch ((stateType_t)stateType_)
+  {
     trigger_t *pNewTrigger;
-  case STATE_NONE:
-      {
+  case STATE_NONE: {
         coorddef trafficOffset = { 0, 0x640000, 0 };
-        if ((carObj_->carFlags & 0x400U) != 0) {
-
+        if ((carObj_->carFlags & 0x400U) != 0)
+        {
 
           this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
         }
-        else {
-
+        else
+        {
 
           this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
         }
@@ -195,9 +201,9 @@ void AIHigh_Traffic::HighExecute()
   case STATE_PURGATORY:
 
 
-      if (accidentData_ != (SceneElem *)0x0) {
+      if (accidentData_ != (SceneElem *)0x0)
+      {
         BWorldSm_Pos spos;
-
         this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
 
 
@@ -212,28 +218,28 @@ void AIHigh_Traffic::HighExecute()
 
         accidentData_ = (SceneElem *)0x0;
       }
-      else {
-        if ((state_->TestForRelease() != 0) && (this->ForcePurgatory() == 0)) {
-
-          pNewTrigger = CheckForNewTriggers(); if (pNewTrigger != (trigger_t *)0x0) {
-
-
-
-            triggerManagerTraffic->DescribeTrigger(pNewTrigger);
-            if (pNewTrigger->any.type == 5) {
+      else
+      { if ((state_->TestForRelease() != 0) && (this->ForcePurgatory() == 0))
+        {
+          pNewTrigger = CheckForNewTriggers(); if (pNewTrigger != (trigger_t *)0x0)
+          {
 
 
+            triggerManagerTraffic->DescribeTrigger(pNewTrigger); switch (TriggerType(pNewTrigger))
 
+            {
+
+            case 5:
               this->SetState(new AIState_RovingTraffic(carObj_,pNewTrigger), STATE_ROVING_TRAFFIC);
+              AILife_ReencarnateTrafficByPosition(carObj_, pNewTrigger->trafficPath.slice, 1, &pNewTrigger->trafficPath.path->position, &pNewTrigger->trafficPath.orientation);
 
 
-
-              Traffic_ReencarnateAtTrigger(this, pNewTrigger);
+              break;
             }
           }
-          else {
+          else
 
-
+          {
 
             this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
             AILife_ReencarnateTraffic(carObj_);
@@ -241,45 +247,45 @@ void AIHigh_Traffic::HighExecute()
         }
       } break;
   case STATE_NORMAL:
+
     {
       int blockade;
-
-      if (AILife_EvaluateLife(carObj_) != 0) {
-
-
-        this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
-      }
-      else if (this->ForcePurgatory() != 0) {
-
+      if (AILife_EvaluateLife(carObj_) != 0)
+      {
 
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
+      else if (this->ForcePurgatory() != 0)
+      {
 
-      else if (CopCheck(&blockade) != (AIHigh_Cop *)0x0) {
+        this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
+      }
 
-        if (ignoreCops_ == 0) {
-
+      else if (CopCheck(&blockade) != (AIHigh_Cop *)0x0)
+      {
+        if (ignoreCops_ == 0)
+        {
           randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; int cRand = ((randtemp >> 8) & 0xffff) * 5 >> 0xf;
-          if (blockade != 0) {
+          if (blockade != 0)
+          {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             {
             AIState_Idle *idleState;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -291,91 +297,91 @@ void AIHigh_Traffic::HighExecute()
           }
 
 
-
-
-
-
-          else if (cRand <= 0) {
-
-
-
-
-            this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
-          }
-
-          else if (cRand < 8) {
-            AIState_Idle *idleState;
-
-
-
-
-            int slice = (int)carObj_->N.simRoadInfo.slice;
-            this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
-            idleState = (AIState_Idle *)this->state_;
-            idleState->SetIdlePosition( carObj_->direction == 1 ? ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) * (BWorldSm_slices[slice].laneCount & 0xf) : ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) * ((u_int)BWorldSm_slices[slice].laneCount >> 4));
-          }
           else {
 
 
 
+            if (cRand <= 0)
+            {
 
-            ignoreCops_ = 1;
-          }
+
+
+              this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
+            }
+
+            else if (cRand < 8)
+            {
+              AIState_Idle *idleState;
+
+
+
+              int slice = (int)carObj_->N.simRoadInfo.slice;
+              this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
+              idleState = (AIState_Idle *)this->state_;
+              idleState->SetIdlePosition( carObj_->direction == 1 ? ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) * (BWorldSm_slices[slice].laneCount & 0xf) : ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) * ((u_int)BWorldSm_slices[slice].laneCount >> 4));
+            }
+            else {
+
+
+
+
+              ignoreCops_ = 1;
+            } }
         }
       }
       else {
-        ignoreCops_ = 0;
-      }
-    }
+
+
+        ignoreCops_ = 0; } }
 
 
     break;
   case STATE_IDLE:
+
+
     {
       int blockade;
-
-
-      if (AILife_EvaluateLife(carObj_) != 0) {
-
+      if (AILife_EvaluateLife(carObj_) != 0)
+      {
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
-      else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) &&
-               ((carObj_->carFlags & 0x400U) == 0)) {
+
+      else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) && ((carObj_->carFlags & 0x400U) == 0))
+      {
         this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
       }
     }
 
-
     break;
   case STATE_ROVING_TRAFFIC:
+
+
     {
-
-
-      if (AILife_EvaluateLife(carObj_) != 0) {
-
+      if (AILife_EvaluateLife(carObj_) != 0)
+      {
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
 
-      else if (this->ForcePurgatory() != 0) {
-
+      else if (this->ForcePurgatory() != 0)
+      {
 
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
-      else if (state_->TestForRelease() != 0) {
-
+      else if (state_->TestForRelease() != 0)
+      {
         this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
       }
     }
     break;
   case STATE_CHASE:
   case STATE_OFFROAD:
-  case STATE_NONACTIVE:
-  case STATE_DONUTS:
-  case STATE_GOTOSLICE:
-  case STATE_CRUISE:
-  default:
-    break;
+  case STATE_NONACTIVE: case STATE_DONUTS:
+  case STATE_GOTOSLICE: case STATE_CRUISE:
+  default: break;
   }
+
+
+
 
 
   state_->StateExecute();
@@ -389,6 +395,8 @@ void AIHigh_Traffic::HighExecute()
 
 
 /* ---- __14AIHigh_TrafficP8Car_tObj  AIHigh_Traffic::ctor  [AIH_TRAF.CPP:343-347] SLD-VERIFIED ---- */
+
+#line 343 "C:/nfs4/GAME/COMMON/AIH_TRAF.CPP"
 AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj) : AIHigh_Base(carObj)
 {
   this->ignoreCops_ = 0;
@@ -404,18 +412,20 @@ AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj) : AIHigh_Base(carObj)
 
 
 
-inline int AIHigh_Base::ExchangeTrafficTriggerCheckSlice(int newSlice) {
-  int temp = lastTrafficTriggerCheckSlice_;
-  lastTrafficTriggerCheckSlice_ = newSlice;
-  return temp;
-}
+
+
+
+
+
 
 /* ---- CheckForNewTriggers__14AIHigh_Traffic [retail AIH_TRAF.CPP:353-433;
- * 149/149 byte PASS, native ownership exact, full SLD attribution open] ---- */
+ * 149/149 byte PASS, native ownership exact, SLD tags+blocks exact] ---- */
 /* The exchange owns retail this/newSlice/temp; the caller's same-value temp
  * copy is optimized out, without a second debug object. Both for statements
  * and the visibility early continue restore the complete retail scope tree.
  * The helper/caller literal spellings remain unproven original text. */
+
+#line 352 "C:/nfs4/GAME/COMMON/AIH_TRAF.CPP"
 trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 {
 
@@ -423,8 +433,8 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
   for (int sortedLoop = Cars_gNumCars - 1; sortedLoop >= 0; sortedLoop--) {
 
     Car_tObj *testCar = Cars_gTotalSortedList[sortedLoop];
-    if ((testCar->carFlags & 0x204U) != 0) {
-      int dir = -1;
+    if ((testCar->carFlags & 0x204U) != 0)
+    { int dir = -1;
 
       AIHigh_Base *thisPlayer =
         (AIHigh_Base *)highLevelAIObjs[testCar->carIndex];
@@ -455,8 +465,8 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
 
 
-        int triggerHere = triggerManagerTraffic->CheckForTriggerAtSlice (testCar->carIndex,sliceLoop); if (triggerHere != -1) {
-
+        int triggerHere = triggerManagerTraffic->CheckForTriggerAtSlice (testCar->carIndex,sliceLoop); if (triggerHere != -1)
+        {
           int iRandomChance = ((fRandomChance * 0x19) << 2) / 0x10000;
           randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; int randomValue = (((randtemp >> 8) & 0xffff) * 0x19) >> 0xe;
 
@@ -477,22 +487,22 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 
 
 
-          if (randomValue < iRandomChance) {
-            int unused;
+          if (randomValue < iRandomChance)
+          { int unused;
 
 
 
 
-            return triggerManagerTraffic->GetTrigger(triggerHere,&unused);
-          }
+            trigger_t *const trigger = triggerManagerTraffic->GetTrigger(triggerHere,&unused); /* DEVICE (exact-only): record-less const temp puts retail's return jump on the `}` line */
+            return trigger; }
+
+
+
+
+
+
+          else continue; /* DEVICE (exact-only): redundant continue = retail line note before the if-scope ends (zero code) */
         }
-
-
-
-
-
-
-
 
       }
     }

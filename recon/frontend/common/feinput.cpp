@@ -18,7 +18,9 @@ static int debounce[2];     /* @0x80052b60; SYM STAT INT[2] */
    then the reset call on +9. A real unconditional return on that source
    line preserves the root block and gives the epilogue/end retail's +10. */
 
+#line 25 "C:/nfs4/FRONTEND/COMMON/FEINPUT.CPP"
 void FEInput_VerifyControllerValues(int controller)
+
 
 {
   if (gPadinfo.buf[controller * 4].nopad == '\0')
@@ -49,62 +51,6 @@ void FEInput_VerifyControllerValues(int controller)
    Falsified in the old 38 basin: direct if/return spellings (neutral), bool return/local
    spellings (neutral), raw-mask return (37), and per-site barriers (159, severe). */
 
-int FEInput_GetNoDebounceKey(int key,int controller)
-
-{
-  char *analogs;
-  int result;
-
-  /* SOURCE-REVIEW-UNRESOLVED: retail has no result local; native emits REG:$2.
-     These funnels are a current byte match, not proof this object was original. */
-
-  PAD_update();
-  if (gPadinfo.buf[controller * 4].nopad != '\0') {
-    return 0;
-  }
-  FEInput_VerifyControllerValues(controller);
-  analogs = (char *)&gPadinfo.buf[controller * 4].data.negcon.twist;
-  if ((gPadinfo.buf[controller * 4].ID == 's') ||
-      (gPadinfo.buf[controller * 4].ID == 'S')) {
-    switch (key) {
-    case 0x800000:
-      result = (u_char)analogs[0] < 0x40;
-      goto return_bool;
-    case 0x200000:
-      result = (u_char)analogs[0] < 0xc1;
-      goto return_not_bool;
-    case 0x100000:
-      result = (u_char)analogs[1] < 0x40;
-      goto return_bool;
-    case 0x400000:
-      result = (u_char)analogs[1] < 0xc1;
-      goto return_not_bool;
-    case (int)0x80000000:
-      result = (u_char)analogs[2] < 0x40;
-      goto return_bool;
-    case 0x20000000:
-      result = (u_char)analogs[2] < 0xc1;
-      goto return_not_bool;
-    case 0x10000000:
-      result = (u_char)analogs[3] < 0x40;
-      goto return_bool;
-    case 0x40000000:
-      result = (u_char)analogs[3] < 0xc1;
-      goto return_not_bool;
-    default:
-      result = ~(u_int)gPadinfo.buf[controller * 4].data.standard.state;
-      goto return_mask;
-    }
-  }
-
-  if (gPadinfo.buf[controller * 4].ID == '#') {
-    switch (key) {
-    case 0x200000:
-      result = gPadinfo.buf[controller * 4].data.negcon.twist < 0xa1;
-      goto return_not_bool;
-    case 0x800000:
-      result = gPadinfo.buf[controller * 4].data.negcon.twist < 0x62;
-return_bool:
       /* W85-S5 (device removed): this used to be `if (result) return 1;` +
          a void `__asm__("" : : "i"(0))` boundary + `return 0;`.  Without a
          boundary gcc collapses the pair into the `sltu $v0,$zero,$v0`
@@ -113,36 +59,111 @@ return_bool:
          The pure-C equivalent is the catalog's goto-to-shared-tail: branch to
          the SAME `return_one` label the sibling arm already uses, which is
          exactly the `j` target retail shares. */
-      if (result) {
-        goto return_one;
-      }
-      return 0;
-    case 0x8000:
-      result = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41;
-      goto return_not_bool;
-    case 0x4000:
-      result = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x41;
-return_not_bool:
-      if (!result) {
-        goto return_one;
-      }
-      return 0;
+  /* SOURCE-REVIEW-UNRESOLVED: retail has no result local; native emits REG:$2.
+     These funnels are a current byte match, not proof this object was original. */
+#line 41 "C:/nfs4/FRONTEND/COMMON/FEINPUT.CPP"
+int FEInput_GetNoDebounceKey(int key,int controller)
+
+
+{
+  char *analogs;
+  int result;
+  PAD_update();
+  if (gPadinfo.buf[controller * 4].nopad != '\0') {
+    return 0;
+  }
+  FEInput_VerifyControllerValues(controller);
+
+  analogs = (char *)&gPadinfo.buf[controller * 4].data.negcon.twist;
+  if ((gPadinfo.buf[controller * 4].ID == 's') ||
+
+      (gPadinfo.buf[controller * 4].ID == 'S')) {
+
+    switch (key) {
+    case 0x800000:
+
+      result = (u_char)analogs[0] < 0x40; goto return_bool;
+    case 0x200000:
+
+      result = (u_char)analogs[0] < 0xc1; goto return_not_bool;
+    case 0x100000:
+
+      result = (u_char)analogs[1] < 0x40; goto return_bool;
+    case 0x400000:
+
+      result = (u_char)analogs[1] < 0xc1; goto return_not_bool;
+    case (int)0x80000000:
+
+      result = (u_char)analogs[2] < 0x40; goto return_bool;
+    case 0x20000000:
+
+      result = (u_char)analogs[2] < 0xc1; goto return_not_bool;
+    case 0x10000000:
+
+      result = (u_char)analogs[3] < 0x40; goto return_bool;
+    case 0x40000000:
+
+      result = (u_char)analogs[3] < 0xc1; goto return_not_bool;
     default:
-      result = (u_int)PAD_state(controller << 2) & 0xffff;
-return_mask:
-      if ((result & key) != 0) {
-        return 1;
-      }
-      __asm__("" : : "i"(0));
-      return 0;
+
+      result = ~(u_int)gPadinfo.buf[controller * 4].data.standard.state; goto return_mask;
     }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  if (gPadinfo.buf[controller * 4].ID == '#') {
+
+    switch (key) {
+    case 0x200000:
+
+      result = gPadinfo.buf[controller * 4].data.negcon.twist < 0xa1; goto return_not_bool;
+    case 0x800000:
+
+      result = gPadinfo.buf[controller * 4].data.negcon.twist < 0x62; return_bool: if (result) { goto return_one; } return 0;
+    case 0x8000:
+
+
+      result = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41; goto return_not_bool;
+    case 0x4000:
+
+      result = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x41; return_not_bool: if (!result) { goto return_one; } return 0;
+    default:
+
+      result = (u_int)PAD_state(controller << 2) & 0xffff; return_mask: if ((result & key) != 0) { return 1; } __asm__("" : : "i"(0)); return 0;
+    }
+  }
+
   if ((((u_int)PAD_state(controller << 2) & 0xffff) & key) == 0) {
     return 0;
   }
-
-return_one:
-  return 1;
+return_one: return 1;
 }
 
 
@@ -157,7 +178,9 @@ return_one:
    path are both laid out OUT OF LINE after the tick block (oracle `beqz` to
    .L80023C38 / .L80023C50), so both guards must be written as the taken-branch
    case with the tick block falling through. */
+#line 143 "C:/nfs4/FRONTEND/COMMON/FEINPUT.CPP"
 int FEInput_GetDebounceKey(int key,int controller)
+
 
 {
 
@@ -199,8 +222,10 @@ int FEInput_GetDebounceKey(int key,int controller)
 
 
 /* ---- FEInput_GetKeyFromPlayer [FEINPUT.CPP:214-319] NATIVE CLEAN; SLD OPEN ---- */
+#line 210 "C:/nfs4/FRONTEND/COMMON/FEINPUT.CPP"
 tInputKeyType
 FEInput_GetKeyFromPlayer(tPlayer player,long debounce)
+
 
 {
   u_short i;
@@ -209,26 +234,62 @@ FEInput_GetKeyFromPlayer(tPlayer player,long debounce)
      Keeping the short-circuit test directly in the for-loop condition lets
      GCC create retail's temporary found pseudo, clear it in the back-edge
      delay slot, and place the mapping/Square return blocks in oracle order. */
+
+
+
+
+
+
+
   for (i = 0; i < 16; i++) {
     if ((FEInput_GetDebounceKey(getKeyMappings[i].PSXKey,player) != 0) ||
         (((debounce & getKeyMappings[i].FEKey) == kInput_KeyType_NoKey) &&
          (FEInput_GetNoDebounceKey(getKeyMappings[i].PSXKey,player) != 0))) {
       return (tInputKeyType)getKeyMappings[i].FEKey;
-    }
-  }
+    } }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   if (FEInput_GetDebounceKey(0x4000,player) != 0) {
-    return kInput_KeyType_Cross;
-  }
-  if (FEInput_GetDebounceKey(0x1000,player) != 0) {
+    return kInput_KeyType_Cross; } if (FEInput_GetDebounceKey(0x1000,player) != 0) {
     return kInput_KeyType_Triangle;
-  }
-  if (FEInput_GetDebounceKey(0x2000,player) != 0) {
+  } if (FEInput_GetDebounceKey(0x2000,player) != 0) {
     return kInput_KeyType_Circle;
   }
   /* Inverting only this final test preserves the bnez tail layout. */
   if (FEInput_GetDebounceKey(0x8000,player) == 0) {
-    return (tInputKeyType)
-        ((u_int)(FEInput_GetDebounceKey(8,player) != 0) << 0xd);
+    return (tInputKeyType) ((u_int)(FEInput_GetDebounceKey(8,player) != 0) << 0xd);
   }
   return kInput_KeyType_Square;
 }

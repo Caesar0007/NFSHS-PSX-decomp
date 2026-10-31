@@ -5,9 +5,6 @@
  */
 #include "fevideowall.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
 
 
 /* ---- tVideoWall::Initialize  [FEVIDEOWALL.CPP:59-88] ---- */
@@ -67,7 +64,6 @@ void tVideoWall::UpdateImages()
     } while (i < this->fNumTVs);
   }
   this->fUpdated = 1;
-  return;
 }
 
 
@@ -81,7 +77,6 @@ void tVideoWall::SetAvailableText(short textID,short x,short y)
   this->fAvailableY = y;
   this->fAvailableBright = 0;
   this->fAvailable = 1;
-  return;
 }
 
 
@@ -91,6 +86,7 @@ void tVideoWall::SetAvailableIcon(short icon,short numFrames,short x,short y,
                tTexture_ShapeInfo *iconImages)
 
 {
+
   this->fIcon = icon;
   this->fIconFrames = numFrames;
   this->fIconX = x;
@@ -107,7 +103,6 @@ void tVideoWall::SetOffset(short x,short y)
 {
   this->fOffsetX = x;
   this->fOffsetY = y;
-  return;
 }
 
 
@@ -117,7 +112,6 @@ void tVideoWall::SetAvailable(short avail)
 
 {
   this->fAvailable = avail;
-  return;
 }
 
 
@@ -127,7 +121,6 @@ void tVideoWall::SetValid(short valid)
 
 {
   this->fValid = valid;
-  return;
 }
 
 

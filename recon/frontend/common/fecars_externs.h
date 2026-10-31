@@ -37,4 +37,11 @@ int sprintf(...);
 
 /* class vtables (FECars.obj-defined iterator subclasses) */
 
+static inline void FeCars_UnusedCarFileName(char *filename, char *path, char *name)
+{
+  short nameBase [3] = { 0x121, 0x153, 0x185 };
+  int nameId [11] = { 22, 22, 25, 25, 26, 27, 27, 22, 22, 22, 0 };
+  filename[0] = (char)(nameBase[0] + nameId[0]);
+}
+
 #endif

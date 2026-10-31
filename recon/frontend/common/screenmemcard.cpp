@@ -3,22 +3,9 @@
  */
 #include "screenmemcard.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
-static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
-static inline void MenuItem_SetText(tMenuItem *item, unsigned int text) { item->fTextDescription = text; }
-static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
 
-/* ORIGINAL-NAME-UNRESOLVED: inferred color-table accessor, following
-   FEFades' typed lookup; the memory-card text uses the existing type6/color5. */
-static inline int TextDefinitionColor(int type, int column) {
-  return kRGBVals[(byte)textDefinitions[type][column]];
-}
 
 
 /* P884: use native scalar declarations for the grid/message INTs, the
@@ -343,7 +330,7 @@ HL_clamped:
    retail seven-region tree at213PASS. The comma expression sequences the
    actual yy copy before the clock read; loading numIcons afterwards gives
    the retail address register/schedule. Both values are genuinely consumed.
-   SOURCE-REVIEW-UNRESOLVED: computedY/animFrame/tickFrame/nfs4Icon still
+   SOURCE-REVIEW-UNRESOLVED: computedY/animFrame/tickFrame still (nfs4Icon: removed R7)
    need original producer recovery. 2026-10-31: the numIcons carrier and its
    divisor fence were both inert in this basin (direct `% this->numicon[i]`
    is 213 PASS) and are removed. Native
@@ -369,11 +356,11 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     }
     computedY = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
             (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY);
-    int nfs4Icon = this->theNFS4icon;
+
     int tickFrame;
     tickFrame = (yy = computedY, FE_Ticks() >> 4);
     animFrame = tickFrame % this->numicon[i];
-    if (i == nfs4Icon) {
+    if (i == this->theNFS4icon) {
       tDrawShapeExtended fFlags;   /* [SYM] AUTO sp+32, block opened at SLD 16 */
 
       fFlags.tint[0] = 0xb55623;
@@ -956,12 +943,16 @@ void tScreenMemcard::Initialize()
 /* ---- tScreenMemcard::Cleanup  (screenmemcard.cpp:833) ---- */
 void tScreenMemcard::Cleanup()
 {
-
   this->ReleaseIcons();
   DeInit_Memcard();
+
   MenuItem_Enable(&menuDefs->itemSaveGame);
   MenuItem_Enable(&menuDefs->itemLoadGame);
   purgememadr(fMemIcon);
+
+
+
+
   this->tScreen::Cleanup();
 }
 

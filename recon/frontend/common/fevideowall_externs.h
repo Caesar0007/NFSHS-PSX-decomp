@@ -22,4 +22,8 @@ void  FETextRender_SetABR(int, bool);
 void  FETextRender_FullTextRGB(char*, short, short, int, char, short);
 char *TextSys_Word(int);
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
 #endif

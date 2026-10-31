@@ -111,27 +111,16 @@ static int hoff[2] = { 0x4d, 1 };
  * `int *hp = hoff + player` walker (251 but 11 insns SHORT -- structurally wrong),
  * `*(h + 0xae + player)` deref spelling (254), signed-vs-unsigned carFlags mask (254),
  * and all three declaration orders of {h, type, v} (254 each). */
-void InGame_ResetPSXController(int player,int config)
-
-{
-  int *h;
-  int type;
-
-  type = gPadinfo.buf[player * 4].ID;
-  h = Input_gHandler;
-  type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
-  /* Exact-SYM lifetime probe: express every related address from the same
+/* Exact-SYM lifetime probe: express every related address from the same
      player-scaled byte offset without introducing a source local. */
 #define INGAME_PLAYER_OFFSET (player << 2)
 #define INGAME_CONTROL_TYPE (frontEnd.controlType[player])
 #define INGAME_PAD_ID (gPadinfo.buf[INGAME_PLAYER_OFFSET].ID)
-  if (INGAME_CONTROL_TYPE != (u_short)INGAME_PAD_ID) {
-    INGAME_CONTROL_TYPE = (u_short)INGAME_PAD_ID;
-  }
-  GameSetup_gData.controllerData.controllerConfig[player] = config;
-#undef INGAME_PAD_ID
-#undef INGAME_CONTROL_TYPE
-#undef INGAME_PLAYER_OFFSET
+  /* w59-a6: the three `hoff[player]` reads below are spelled as the byte-base form
+     `*(int *)((player << 2) + (int)hoff)` ON PURPOSE (catalog 09I) -- they are the first
+     statement of a post-`jal` block and the plain subscript issues the `lui/addiu` pair
+     ahead of the `sll`, which retail does not.  Do NOT "simplify" them back to
+     `hoff[player]`: that costs 12 diffs.  Every other site in this fn stays natural. */
   /* w46-a8 (40 -> 21): the store is BACK at retail's position (after the controlType if)
      and the w41 lever-(7) job -- making the `player*4` giv a GLOBAL allocno instead of a
      block-local qty that steals $s0 pre-global-alloc -- is done by a ZERO-INSN USE FENCE
@@ -223,57 +212,81 @@ void InGame_ResetPSXController(int player,int config)
    controllerConfig[24] (owner byte 0x60) without importing absent GameSetup owner types.
    The earlier inline-helper PASS was a useful allocation proof but emitted an extra
    full-debug inline scope and is superseded.
-
    The four reconstruction-only block locals named `m` were also removed.  Their exact
    retail spelling is the conditional call argument `(type == 1) ? (mapping | 6) :
    mapping` (and `(type == 1) ? 6 : 0`); all four substitutions are byte-neutral.
    Full-debug scope proof now contains only REGPARM `player`=$s2, `config`=$s6 and the
    one retail function block with REG locals `type`=$s3 and `h`=$s4.  Type-graph gate:
    named 86/86, anonymous 2/2, no source extras. */
+void InGame_ResetPSXController(int player,int config)
+
+{
+  int *h;
+  int type; h = Input_gHandler;
+
+
+
+
+
+
+
+  type = gPadinfo.buf[player * 4].ID;
+  type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
+
+  if (INGAME_CONTROL_TYPE != (u_short)INGAME_PAD_ID) {
+
+    INGAME_CONTROL_TYPE = (u_short)INGAME_PAD_ID;
+  }
+
+
+
+  GameSetup_gData.controllerData.controllerConfig[player] = config;
+
+
+
+
+
   h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
   h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
   h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
   h[0x52 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][3][type],player);
+
+
   h[player + 0xae] = InGame_GetPSXPadValue(mappings[config][8][type],player);
+
   h[0x75 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
   h[0x65 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
+
   h[0x53 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][4][type],player);
+
+
   if ((Cars_gHumanRaceCarList[player]->carFlags & 0x200U) != 0) {
     h[0x81 - hoff[player]] = InGame_GetPSXPadValue(
-        (type == 1) ? (mappings[config][10][type] | 6)
-                    : mappings[config][10][type],
-        player);
+        (type == 1) ? (mappings[config][10][type] | 6) : mappings[config][10][type], player);
   }
   else {
+
     h[0x7d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],0);
     h[0x7e - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],0);
-    h[0x82 - hoff[player]] = InGame_GetPSXPadValue(
-        (type == 1) ? (mappings[config][10][type] | 6)
-                    : mappings[config][10][type],
-        player);
+    h[0x82 - hoff[player]] = InGame_GetPSXPadValue( (type == 1) ? (mappings[config][10][type] | 6) : mappings[config][10][type], player);
   }
-  /* w59-a6: the three `hoff[player]` reads below are spelled as the byte-base form
-     `*(int *)((player << 2) + (int)hoff)` ON PURPOSE (catalog 09I) -- they are the first
-     statement of a post-`jal` block and the plain subscript issues the `lui/addiu` pair
-     ahead of the `sll`, which retail does not.  Do NOT "simplify" them back to
-     `hoff[player]`: that costs 12 diffs.  Every other site in this fn stays natural. */
+
   if (GameSetup_gData.Time != 0) {
+
     h[0x73 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(mappings[config][9][type],player);
-    h[0x54 - hoff[player]] = InGame_GetPSXPadValue(
-        (type == 1) ? 6 : 0, player);
+    h[0x54 - hoff[player]] = InGame_GetPSXPadValue( (type == 1) ? 6 : 0, player);
   }
   else {
+
     h[0x73 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(0,player);
-    h[0x54 - hoff[player]] = InGame_GetPSXPadValue(
-        (type == 1) ? (mappings[config][9][type] | 6)
-                    : mappings[config][9][type],
-        player);
+    h[0x54 - hoff[player]] = InGame_GetPSXPadValue( (type == 1) ? (mappings[config][9][type] | 6) : mappings[config][9][type], player);
   }
+
   h[0x66 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(mappings[config][5][type],player);
   h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
   h[0x68 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);
-  h[0x4d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xb][type],player);
-  return;
+
+  h[0x4d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xb][type],player); return;
 }
 
 #define INGAME_CONTROLLER_WORD(offset) \
@@ -311,11 +324,11 @@ int InGame_GetPSXPadValue(int value, int player)
 
 
   PAD_update();
-  newControl = (int)&gPadinfo; type = player << 5; type += newControl; if (*(u_char *)(type + 4) != 0)
-    goto no_pad; type = *(u_char *)(type + 5); goto have_pad_type;
-no_pad:
-  type = 0;
-have_pad_type:
+  newControl = (int)&gPadinfo; type = player << 5; type += newControl; if (*(u_char *)(type + 4) == 0)
+    type = *(u_char *)(type + 5);
+  else
+    type = 0;
+
   switch (type) {
   case 0x53:
   case 0x73:
@@ -378,7 +391,7 @@ have_pad_type:
                    (INGAME_CONTROLLER_WORD(0x98) + 128) * 0x10000 |
 
                    (INGAME_CONTROLLER_WORD(0xA0) + 128) * 0x100 | 1;
-      break; default: goto generic_control; } break;
+      break; default: newControl = (player << 26) | (c << 8) | 2; break; } break;
 
   case 0x23:
 
@@ -426,10 +439,10 @@ have_pad_type:
 
 
       newControl = (player << 30) | 0x030AFF01;
-      break; default: goto generic_control; } break;
+      break; default: newControl = (player << 26) | (c << 8) | 2; break; } break;
 
   default:
-generic_control:
+
 
 
 
@@ -443,6 +456,9 @@ generic_control:
 #undef INGAME_CONTROLLER_WORD
 #undef INGAME_INDEX_WORD
 
+#undef INGAME_PAD_ID
+#undef INGAME_CONTROL_TYPE
+#undef INGAME_PLAYER_OFFSET
 /* ---- InGame_GetDevice__Fi  [PSXCONTROLLER.CPP:338-339] SLD-VERIFIED ---- */
 int InGame_GetDevice(int control)
 
@@ -651,21 +667,34 @@ int InGame_GetDevice(int control)
  * insns), so the angle only pays if the added movables are dead after combine/cse2.
  * NOT ATTEMPTED here (out of budget); recorded so the next belt does not re-run the
  * insn_count or ordering halves in isolation again. */
-void InGame_SetRamp(void)
-
-{
-  int *h;
-
-  h = Input_gHandler;
-  if (Replay_ReplayMode < 2) {
-    short i;
-
-    i = 0;
-    if (i < Cars_gNumHumanRaceCars) {
-      do {
-        Cars_gHumanRaceCarList[i]->carInfo->RampSteering =
-            Cars_gHumanRaceCarList[i]->carInfo->RampBrake =
-                Cars_gHumanRaceCarList[i]->carInfo->RampGas = 1;
+#define INGAME_HOFF_PTR ((int *)(i * 4 + (int)hb))
+        /* W76 SYM correction (2026-08-23), byte-neutral PASS 98/98:
+           `RampSteering = RampBrake = RampGas = 1` is the typed chained assignment
+           whose unnamed base CSE replaces the non-retail `ctrl` local and preserves
+           retail's +0x1c,+0x20,+0x18 store order.  Repeating the full index-first
+           hoff address as an asm input removes function-scope `hp` while preserving
+           the same $s0 quantity.  Full-debug now has only one remaining extra record,
+           block-local `hb`; eliminating its load-bearing identity launder without
+           re-hoisting &hoff is the open SYM task.  W78 re-priced that task: repeating
+           the fully anonymous `i*4+(int)hoff` address (with `r`, `m`, or volatile view)
+           re-hoists &hoff and costs 17 @99 plus a non-retail $s6; a sign-extension
+           zero identity costs 34 @100; a raw absolute-address spelling reaches 8 @96
+           but loses the required symbol relocation and two retail instructions.  The
+           Parasite Eve 2 inline-identity idiom was also tested both as a base-only helper
+           and with the complete index-first address inside the helper; both remove `hb`
+           but rotate the loop's saved-register topology and cost 57 @107.  A full-body
+           inline carrier and an anonymous-union carrier both stay 98/98, but full debug
+           rejects them: the inline expansion adds nested `h`/`i`/`hb` records, while the
+           union adds an anonymous type/member and still emits local `hb`.  GCC 2.8.1
+           `sdbout.c` also proves ordinary locals are not suppressed by `DECL_IGNORED_P`
+           or system-header provenance.  All were reverted; `hb` remains until a SYM-safe
+           opaque-address source shape is found, because PASS preservation takes priority
+           over deleting its record. */
+          /* CAMIN 2026-10-04: the old `"=r"(hb) : "0"(hb)` identity launder is
+             now the pure-C absorption identity `X | (X & 3)` == X as a second
+             SET of hb (blocks the &hoff loop hoist the same way; combine folds
+             it to zero bytes).  Same identity folded into the declaration's
+             initializer instead = 17 @99. */
         /* ===== w64-a14: SEAL 13 -> PASS 98/98.  FOUR ordered devices; the
          * w63-a14 "push k on loop.c's threshold" angle was never needed --
          * the &hoff hoist is killed at the MOVABLE-EXISTENCE layer instead.
@@ -692,52 +721,25 @@ void InGame_SetRamp(void)
          * `ctrl` and `hp`; `hb` remains the one open reconstruction device.  The
          * SYM's mask $803f0000 (s0-s5+ra, NO s6) proves retail carried no hoisted
          * &hoff pseudo. */
-#define INGAME_HOFF_PTR ((int *)(i * 4 + (int)hb))
+void InGame_SetRamp(void)
+
+{
+  int *h;
+  h = Input_gHandler;
+
+  if (Replay_ReplayMode < 2)
+  { short i;
+    i = 0;
+    if (i < Cars_gNumHumanRaceCars) { do {
+        Cars_gHumanRaceCarList[i]->carInfo->RampSteering =
+            Cars_gHumanRaceCarList[i]->carInfo->RampBrake =
+                Cars_gHumanRaceCarList[i]->carInfo->RampGas = 1;
         { int *hb = hoff; /* SYM-CODEGEN-CARRIER: hb -- blocks the non-retail &hoff loop hoist */
-          /* CAMIN 2026-10-04: the old `"=r"(hb) : "0"(hb)` identity launder is
-             now the pure-C absorption identity `X | (X & 3)` == X as a second
-             SET of hb (blocks the &hoff loop hoist the same way; combine folds
-             it to zero bytes).  Same identity folded into the declaration's
-             initializer instead = 17 @99. */
-          hb = (int *)((u_int)hb | ((u_int)hb & 3));
-        if (InGame_GetDevice(h[0x4f - *INGAME_HOFF_PTR]) == 1) {
-          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
-        }
-        if (InGame_GetDevice(h[0x51 - *INGAME_HOFF_PTR]) == 1) {
-          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x1c) = 0;
-        }
-        if (InGame_GetDevice(h[0x52 - *INGAME_HOFF_PTR]) == 1) {
-          *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x20) = 0;
-        }
-        }
-#undef INGAME_HOFF_PTR
-        /* W76 SYM correction (2026-08-23), byte-neutral PASS 98/98:
-           `RampSteering = RampBrake = RampGas = 1` is the typed chained assignment
-           whose unnamed base CSE replaces the non-retail `ctrl` local and preserves
-           retail's +0x1c,+0x20,+0x18 store order.  Repeating the full index-first
-           hoff address as an asm input removes function-scope `hp` while preserving
-           the same $s0 quantity.  Full-debug now has only one remaining extra record,
-           block-local `hb`; eliminating its load-bearing identity launder without
-           re-hoisting &hoff is the open SYM task.  W78 re-priced that task: repeating
-           the fully anonymous `i*4+(int)hoff` address (with `r`, `m`, or volatile view)
-           re-hoists &hoff and costs 17 @99 plus a non-retail $s6; a sign-extension
-           zero identity costs 34 @100; a raw absolute-address spelling reaches 8 @96
-           but loses the required symbol relocation and two retail instructions.  The
-           Parasite Eve 2 inline-identity idiom was also tested both as a base-only helper
-           and with the complete index-first address inside the helper; both remove `hb`
-           but rotate the loop's saved-register topology and cost 57 @107.  A full-body
-           inline carrier and an anonymous-union carrier both stay 98/98, but full debug
-           rejects them: the inline expansion adds nested `h`/`i`/`hb` records, while the
-           union adds an anonymous type/member and still emits local `hb`.  GCC 2.8.1
-           `sdbout.c` also proves ordinary locals are not suppressed by `DECL_IGNORED_P`
-           or system-header provenance.  All were reverted; `hb` remains until a SYM-safe
-           opaque-address source shape is found, because PASS preservation takes priority
-           over deleting its record. */
-        i = i + 1;
-      } while (i < Cars_gNumHumanRaceCars);
-    }
-  }
-  return;
-}
+
+          hb = (int *)((u_int)hb | ((u_int)hb & 3)); if (InGame_GetDevice(h[0x4f - *INGAME_HOFF_PTR]) == 1) { *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
+        } if (InGame_GetDevice(h[0x51 - *INGAME_HOFF_PTR]) == 1) { *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x1c) = 0;
+        } if (InGame_GetDevice(h[0x52 - *INGAME_HOFF_PTR]) == 1) { *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x20) = 0;
+        } } i = i + 1; } while (i < Cars_gNumHumanRaceCars); } } return; }
 
 /* end of psxcontroller.cpp */
+#undef INGAME_HOFF_PTR

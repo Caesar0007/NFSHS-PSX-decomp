@@ -5,9 +5,6 @@
  */
 #include "feaudio.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800100F8): the unused inline of the
- * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- FEAudio_StartLoadPatch  [FEAUDIO.CPP:43-64] SLD-VERIFIED ---- */
 
@@ -219,10 +216,14 @@ char * FeAudio_StartBigfileRead(char *fname,int offset,int length,int *vivHandle
   }
   streamBuffer = reservememadr("streamBuffer",length,0); /* retail rodata 80010120 */
   if (streamBuffer == (char *)0x0) {
+
+
     return (char *)0x0;
+
   }
   setasyncfile(fname);
   *vivHandle = asyncloadsegment((char *)offset,streamBuffer,length);
+
   return streamBuffer;
 }
 
@@ -344,13 +345,13 @@ char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"}; /* @0
 
 /* ---- FeAudio_InitCommentary  [FEAUDIO.CPP:360-377] SLD-VERIFIED ---- */
 
+/* P867: __Fii proves the trailing int parameter, but SYM records only
+   language. Keep the unused parameter unnamed rather than invent arg1;
+   its original spelling cannot be recovered from the current SYM block.
+   NFS2's raw Watcom debug data calls it postGame; NFS4 identity is unproven. */
 void FeAudio_InitCommentary(int language,int)
 
 {
-  /* P867: __Fii proves the trailing int parameter, but SYM records only
-     language. Keep the unused parameter unnamed rather than invent arg1;
-     its original spelling cannot be recovered from the current SYM block.
-     NFS2's raw Watcom debug data calls it postGame; NFS4 identity is unproven. */
   strcpy(ginfo.name,"000");
   ginfo.nHandle = 0;
   ginfo.multiplay = 1;
@@ -362,12 +363,12 @@ void FeAudio_InitCommentary(int language,int)
   ginfo.sSpeechData = (char *)0x0;
   ginfo.lastSpeechData = (char *)0x0;
   ginfo.vivHandle = 0;
+
   /* The language pointer load remains at the call site, while the
      Paths_Paths high-half load is free to schedule early. */
   sprintf(currentSpeechViv,"%s%s.viv",Paths_Paths[0x26],
           *(char * *)&allLanguages[language]);  /* H11: dest was "" (oracle 0x800160EC $a0=$s0=&currentSpeechViv @0x80051510) */
   speechfileHeader = FeAudio_InitViv(currentSpeechViv);  /* H11: arg was "" (oracle 0x8001615C $a0=$s0) */
-  return;
 }
 
 

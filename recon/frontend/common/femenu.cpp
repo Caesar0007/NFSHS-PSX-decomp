@@ -6,10 +6,6 @@
  */
 #include "femenu.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800110B8): the unused inline of the
- * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline bool MenuItem_IsEnabled(tMenuItem *item) { return ((item->fFlags ^ 1) & 1) != 0; }
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- FEMenu.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
 /* P872: native SYM 563d74 is scalar ENUM tPlayer (4 B). Frontend -G0
@@ -273,6 +269,7 @@ void tListIteratorMultiPlayer::Increment(tPlayer atIndex)
 void tListIteratorMultiPlayer::Decrement(tPlayer atIndex)
 
 {
+
   if (atIndex == kPlayerBoth) {
     atIndex = kPlayerOne;
   }
@@ -583,27 +580,30 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 
 /* ---- tMenuItemLeftRightChoice::Draw  [FEMENU.CPP:590-605] SLD-VERIFIED ---- */
 
+/* Retail SYM records no locals in this Draw method.  A const use-site x
+   and the shared y result both optimize out of debug while GCC calls
+   TextSys_WordX/WordY once and reuses their values across two renders.
+   Their semantic names follow those APIs, not recovered source spelling.
+   The `int` value shape is codegen-proven: shortening x or both values
+   gave FAIL 5 at 52/51 instructions in earlier probes.  The retained
+   source form is byte-PASS and its native declaration tree is exact. */
 void tMenuItemLeftRightChoice::Draw(bool selected)
 
 {
-  /* Retail SYM records no locals in this Draw method.  A const use-site x
-     and the shared y result both optimize out of debug while GCC calls
-     TextSys_WordX/WordY once and reuses their values across two renders.
-     Their semantic names follow those APIs, not recovered source spelling.
-     The `int` value shape is codegen-proven: shortening x or both values
-     gave FAIL 5 at 52/51 instructions in earlier probes.  The retained
-     source form is byte-PASS and its native declaration tree is exact. */
-  int y;
 
+
+  int y;
   const int x = TextSys_WordX(this->fTextDescription);
   y = TextSys_WordY(this->fTextDescription);
   FETextRender_MenuTextPositioned((short)this->fTextDescription,(short)x,
              (short)y,(tMenuTextState)(selected != 0),textType_Options);
+
   FETextRender_MenuTextPositioned(
              this->fData->TextValue(gMenu_SubMenuPlayer),
              (short)((u_int)((x + 0xb4) * 0x10000) >> 0x10),(short)y,
              (tMenuTextState)(selected != 0),
              textType_Options);
+
   return;
 }
 
@@ -1195,24 +1195,23 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
        `andi` past the lbu chain and cost a `move`; retail's local is `u_char` (mask at
        the assignment, right after the jalr). */
 
+/* MATCH (W57-A5): the fSelFade select is written INLINE as the 12th argument -- retail
+   branches and stores 0x80 / 0 straight into the outgoing 44(sp) arg slot; routing it
+   through a local makes gcc fold it to `(selected!=0) << 7` off the text-state bool. */
 void tMenuItemLeftRightSlider::Draw(bool selected)
 
 {
-  
   if (this->fX == 0 && this->fY == 0) {
+
     this->fX = (short)TextSys_WordX(this->fTextDescription);
     this->fY = (short)TextSys_WordY(this->fTextDescription);
   }
   FETextRender_MenuTextPositioned((short)this->fTextDescription,this->fX + 8,
              this->fY + 3,(tMenuTextState)(selected != 0),textType_Options);
-  /* MATCH (W57-A5): the fSelFade select is written INLINE as the 12th argument -- retail
-     branches and stores 0x80 / 0 straight into the outgoing 44(sp) arg slot; routing it
-     through a local makes gcc fold it to `(selected!=0) << 7` off the text-state bool. */
   DrawSlider((u_char)this->fData->Value((tPlayer)-1),
              (u_short)(u_char)this->fData->fMinValue,(u_short)(u_char)this->fData->fMaxValue,
              this->fX + 0x73,this->fY + 4,this->fWidth,this->fHeight,6,4,false,0,
              selected ? 0x80 : 0,0);
-  return;
 }
 
 
@@ -1343,6 +1342,9 @@ tMenu::~tMenu() {}
 void tMenu::Initialize()
 
 {
+
+
+
   int original;
   
   if (((this->fItemList[this->fCurrentItem]->fFlags ^ 1) & 1) == 0) {
@@ -1357,7 +1359,6 @@ void tMenu::Initialize()
       }
     } while (original != this->fCurrentItem);
   }
-  return;
 }
 
 

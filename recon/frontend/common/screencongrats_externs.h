@@ -60,4 +60,34 @@ int sprintf(char *buffer, const char *format, ...);
 }
 
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks[0]; }
+
+/* ORIGINAL-NAME-UNRESOLVED: inferred text-definition color accessor.
+   The same table lookup is used by FEFades and FETextRender. */
+static inline int TextDefinitionColor(tMenuTextType type, int column) {
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
+/* Retail screencongrats.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+/* retail's ProcessInput tree: if-level, compound, inner if-level holding two inline-call pairs -- the speech-loading
+   test and the tick read are inlines, and there is no consume flag */
+static inline int SpeechLoading(SPEECHINFO *si) { return *(u_short *)((char *)si + 0x10); }
+
+/* ---- tScreenCongrats::ProcessInput  (screencongrats.cpp:423) ---- */
+static inline long CongratsTicks(void) { return ticks[0]; }
+
+/* ORIGINAL-NAME-UNRESOLVED: this inferred money getter and tm parameter
+   reproduce the retail receiver-free read pair; their spelling is not recorded. */
+static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
+
+static inline void ReplaceLoserLicense(int player)
+{
+  CarIO_CleanUpLicense(player);
+  CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
+}
+
 #endif

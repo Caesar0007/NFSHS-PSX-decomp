@@ -42,20 +42,43 @@ long unpackz(void *src, void *dst)
   long len = 0;
 
   if ((((u_char *)src)[1] == 0xfb) || (((u_char *)src)[1] == 0x32)) {
+
     switch (*(u_char *)src & 0xfe) {
     case 0x10:
+
       len = unrefpack(src,dst,1);
       break;
     case 0x30:
     case 0x32:
     case 0x34:
+
+
+
+
+
+
+
+
       len = unhuff(src,dst,1);
       break;
     case 0x46:
+
+
       len = unbtree(src,dst);
       break;
     }
   }
+
+
+
+
+
+
+
+
+
+
+
   return len;
 }
 
@@ -71,27 +94,29 @@ long unpacksizez(void *src)
   long len = 0;
 
   if ((((u_char *)src)[1] == 0xfb) || (((u_char *)src)[1] == 0x32)) {
-    if ((short)(*(u_char *)src & 0xfe) == 0x32) goto ok;
-    if ((short)(*(u_char *)src & 0xfe) < 0x33) {
-      if ((short)(*(u_char *)src & 0xfe) == 0x18) goto ok;
-      if ((short)(*(u_char *)src & 0xfe) < 0x19) {
-        if ((short)(*(u_char *)src & 0xfe) == 0x10) goto ok;
-      } else {
-        if ((short)(*(u_char *)src & 0xfe) == 0x30) goto ok;
-      }
-    } else {
-      if ((short)(*(u_char *)src & 0xfe) == 0x46) goto ok;
-      if ((short)(*(u_char *)src & 0xfe) < 0x47) {
-        if ((short)(*(u_char *)src & 0xfe) == 0x34) goto ok;
-      } else {
-        if ((short)(*(u_char *)src & 0xfe) == 0x4a) goto ok;
+
+    if ((short)(*(u_char *)src & 0xfe) == 0x32) goto ok; if ((short)(*(u_char *)src & 0xfe) < 0x33) { if ((short)(*(u_char *)src & 0xfe) == 0x18) goto ok; if ((short)(*(u_char *)src & 0xfe) < 0x19) { if ((short)(*(u_char *)src & 0xfe) == 0x10) goto ok; } else { if ((short)(*(u_char *)src & 0xfe) == 0x30) goto ok; } } else { if ((short)(*(u_char *)src & 0xfe) == 0x46) goto ok; if ((short)(*(u_char *)src & 0xfe) < 0x47) { if ((short)(*(u_char *)src & 0xfe) == 0x34) goto ok; } else { if ((short)(*(u_char *)src & 0xfe) == 0x4a) goto ok;
       }
     }
     goto done;
   ok:
+
+
+
+
+
+
+
+
     len = getm((void *)((int)src + 2),3);
   }
 done:
+
+
+
+
+
+
   return len;
 }
 

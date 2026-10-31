@@ -281,8 +281,10 @@ void tScreenTrackSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
   tTrackInformation trackInfo;
   
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+
   numPermShapes = 0x44;
   numSwapShapes = 10;
+
   *permFileName = "ztrack";
   sprintf(gSwapFileName,"%s",trackInfo.fShapeName);
   *swapFileName = gSwapFileName;

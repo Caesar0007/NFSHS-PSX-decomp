@@ -105,9 +105,7 @@
 #include "psyq_prim_macros.h"
 #include "hud_externs.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
+/* FE_Ticks: inline tick getter, defined in hud_externs.h (header-defined inline records the caller's line). */
 
 
 /* Retail hud.obj opens .rodata with this unreferenced class tag. */
@@ -263,31 +261,107 @@ void Hud_Perp_OverlayOff(int player);
 /* ---- Hud_CreateHudViews__Fv  [HUD.CPP:273-375] SLD-VERIFIED ---- */
 void Hud_CreateHudViews(void)
 {
+
+
   Hud_InitTables();
   Hud_BeTheCop = 0;
+
   for (int i = 0; i < GameSetup_gData.numCars; i++) {
-    if (GameSetup_gData.carInfo[i].carClass & 0x40) Hud_BeTheCop = 1;
+
+    if (GameSetup_gData.carInfo[i].carClass & 0x40)
+      Hud_BeTheCop = 1;
   }
+
+
   if (GameSetup_gData.numPlayerRaceCars >= 2) {
+
     HudMapOffsetY = -6;
   } else if ((GameSetup_gData.numPlayerRaceCars + GameSetup_gData.numOpponentRaceCars) == 1
              || Hud_BeTheCop != 0) {
+
     HudMapOffsetY = 8;
   } else {
+
+
     HudMapOffsetY = 0;
   }
+
+
+
+
+
   if (GameSetup_gData.commMode == 1) {
+
+
+
+
+
     Hud_gMapView[0] = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
+
+
+
+
     Hud_gMapView[1] = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
+
+
+
+
+
     Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
+
+
+
+
     Hud_gHudView[1] = Draw_SetView(0,     0x178, 0x140, 0x178, 0x140, 0x78, 0, 0, 1);
+
+
+
+
+
     Hud_gTacView[0] = Draw_SetView(0x115, 0x113, 0x255, 0x113, 0x1c, 0x1c, 0, 0, 1);
+
+
+
+
     Hud_gTacView[1] = Draw_SetView(0x115, 0x17c, 0x255, 0x17c, 0x1c, 0x1c, 0, 0, 1);
   } else {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     Hud_gMapView[0] = Draw_SetView(0xff,  HudMapOffsetY + 0x1a4, 0x23f, HudMapOffsetY + 0x1a4, 0x2d, 0x30, 0, 0, 1);
+
+
+
+
+
+
+
     Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
+
+
+
+
     Hud_gTacView[0] = Draw_SetView(0xb8,  0x115, 0x1f8, 0x115, 0x1c, 0x1c, 0, 0, 1);
   }
+
+
+
+
+
   Hud_gStatsView = Draw_SetView(0, 0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
 }
 
@@ -306,14 +380,54 @@ void Hud_DebugInfo(void)
   char string[20];
   int  b, t;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   sprintf(string, "SLC %d", (int)(Cars_gList[0]->N).simRoadInfo.slice);
   Font_TextXY(string, 0xe6, 0x2d);
+
   Hud_FBuildF4(1, 0xe6, 0x30, textpixels(string) + 5, 10, 0x50505, '\0', '\0');
+
   b = AudioMus_Buffered();
   t = AudioMus_Threshold();
+
   sprintf(string, "AUD %d.%d/%d.%d", b / 1000, (b % 1000) / 100, t / 1000, (t % 1000) / 100);
   Font_TextXY(string, 0xe6, 0x23);
+
   Hud_FBuildF4(1, 0xe6, 0x26, textpixels(string) + 5, 10, 0x50505, '\0', '\0');
+
   CopSpeak_Debug();
 }
 
@@ -321,6 +435,20 @@ void Hud_DebugInfo(void)
 void Hud_DebugCrap(void)
 
 {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -631,75 +759,53 @@ void Hud_Init0(void)
 void Hud_InitMapFrame(int i,int mode)
 
 {
-  SPRT *gSprt1;
-  POLY_F4 *HudF4;
-  POLY_FT4 *HudFT4;
-  long splitY;
+  SPRT *gSprt1; POLY_F4 *HudF4; POLY_FT4 *HudFT4; long splitY; if (i != 0) gSprt1 = gSprite1; else gSprt1 = gSprite0;
+  HudF4 = gHudF4; if (i != 0) HudF4 = gHudF4 + 7;
+  HudFT4 = gHudFT4; if (i != 0) HudFT4 = gHudFT4 + 5;
+  splitY = 0; if (i != 0) splitY = -0xd;
 
-  if (i != 0) {
-    gSprt1 = gSprite1;
-  }
-  else {
-    gSprt1 = gSprite0;
-  }
-  HudF4 = gHudF4;
-  if (i != 0) {
-    HudF4 = gHudF4 + 7;
-  }
-  HudFT4 = gHudFT4;
-  if (i != 0) {
-    HudFT4 = gHudFT4 + 5;
-  }
-  splitY = 0;
-  if (i != 0) {
-    splitY = -0xd;
-  }
-  {
-    int lx;
-    int h1;
-    int h2;
-    int h3;
-    int w1;
-    int w2;
-    int w3;
 
-    h1 = (int)HudPmx_gShapes[0xe].height;
-    w1 = (int)HudPmx_gShapes[0xe].width;
+  { int lx; int h1; int h2; int h3; int w1; int w2; int w3;
     lx = (int)g1Player[0xe].x;
+
+    h1 = (int)HudPmx_gShapes[0xe].height; h2 = (int)HudPmx_gShapes[0x18].height;
+
+    w1 = (int)HudPmx_gShapes[0xe].width; w2 = (int)HudPmx_gShapes[0x14].width;
     h3 = h1 - (int)HudPmx_gShapes[0x14].height;
     w3 = w1 - (int)HudPmx_gShapes[0x18].width;
-    h2 = (int)HudPmx_gShapes[0x18].height;
-    w2 = (int)HudPmx_gShapes[0x14].width;
+
+
+
     if (mode == 1) {
+
       lx = lx + -0x1e;
     }
+
     currentSpriteColor = 0xff5721;
     currentSpriteTransparent = '\0';
     Hud_BuildSprite2(gSprt1 + 0x3f,0xe,lx,g1Player[0xe].y + HudMapOffsetY + splitY);
-    Hud_BuildSprite2(gSprt1 + 0x40,0xf,g1Player[0xe].x + w1 + w2,
-               g1Player[0xe].y + HudMapOffsetY + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x40,0xf,g1Player[0xe].x + w1 + w2, g1Player[0xe].y + HudMapOffsetY + splitY);
     Hud_BuildSprite2(gSprt1 + 0x41,0x10,lx,g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
-    Hud_BuildSprite2(gSprt1 + 0x42,0x11,g1Player[0xe].x + w1 + w2,
-               g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x42,0x11,g1Player[0xe].x + w1 + w2, g1Player[0xe].y + HudMapOffsetY + h1 + h2 + splitY);
+
     Hud_BuildSprite2(gSprt1 + 0x43,mode + 0x14,lx + w1,g1Player[0xe].y + HudMapOffsetY + splitY);
-    Hud_BuildSprite2(gSprt1 + 0x44,mode + 0x14,lx + w1,
-               g1Player[0xe].y + HudMapOffsetY + h1 + h2 + h3 + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x44,mode + 0x14,lx + w1, g1Player[0xe].y + HudMapOffsetY + h1 + h2 + h3 + splitY);
     Hud_BuildSprite2(gSprt1 + 0x45,0x18,lx,g1Player[0xe].y + HudMapOffsetY + h1 + splitY)
+
     ;
-    Hud_BuildSprite2(gSprt1 + 0x46,0x18,g1Player[0xe].x + w1 + w2 + w3,
-               g1Player[0xe].y + HudMapOffsetY + h1 + splitY);
+    Hud_BuildSprite2(gSprt1 + 0x46,0x18,g1Player[0xe].x + w1 + w2 + w3, g1Player[0xe].y + HudMapOffsetY + h1 + splitY);
+
     Hud_BuildF4(HudF4 + 4,1,0,0,0x2d,0x30,0);
+
     if (GameSetup_gData.mirrorTrack != 0) {
       Hud_BuildMapMirrorFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
     }
-    else {
-      Hud_BuildFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
+    else { Hud_BuildFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
     }
     Hud_BuildFT4(HudFT4 + 1,HudPmx_gShapes + 0x70,0,0,0x808080,1);
     Hud_BuildMirrorFT4(HudFT4 + 2,HudPmx_gShapes + 0x70,(int)HudPmx_gShapes[0x70].width,0,0x808080,1);
     Hud_BuildFT4(HudFT4 + 3,HudPmx_gShapes + 0x71,0,0,0x808080,1);
-    Hud_BuildMirrorFT4(HudFT4 + 4,HudPmx_gShapes + 0x71,(int)HudPmx_gShapes[0x71].width,0,0x808080,1);
-    return;
+    Hud_BuildMirrorFT4(HudFT4 + 4,HudPmx_gShapes + 0x71,(int)HudPmx_gShapes[0x71].width,0,0x808080,1); return;
   }
 }
 
@@ -815,24 +921,6 @@ void Hud_InitMapFrame(int i,int mode)
  * NAMED ANGLE: stop the two movstrsi block copies from clobbering the argument registers (the
  *   21C-1 destination-alignment axis), so gcc has no reason to copy a0/a3 out in the prologue --
  *   the one change that would move all three residual items together. */
-void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
-
-{
-  /* Ghidra hand-expanded these 2 as unaligned lwl/lwr bit-math on a stack
-     pointer; the oracle is a plain compiler-generated rodata->stack aggregate
-     copy (movstrsi shape, catalog wave-4 row) of a 6-char literal init. */
-  char minSep [6] = {':', ':', '\'', '\'', '\'', '.'} /* @0x8013d8dc */;
-  char secSep [6] = {'.', ':', '"',  '"',  '"',  ','} /* @0x8013d8e4 */;
-  char langMin;
-  char langSec;
-  int c;
-  int n; /* SYM-CODEGEN-CARRIER: n -- indexed sprite GIV keeps REGPARM sprt in $a0; sprt++ is the measured 18-diff form */
-  int w;
-
-  langMin = minSep[GameSetup_gData.userSetting.language];
-  langSec = secSep[GameSetup_gData.userSetting.language];
-  c = (u_char)*str;
-  n = 0;
   /* MATCH (w74-a2) -- SEALED 77/77, and BOTH earlier devices (the w71-a2 read-only `y`
    * fence and the w71-a2 do{}while(0) depth wrapper on the M-test) are GONE.  The whole
    * 18-diff residual was ONE structural item: the SPRITE CURSOR IS AN INDEXED GIV, not a
@@ -854,19 +942,52 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
    *   PASS; only the two removed devices matter (either one alone re-breaks it).
    * The 0x53 constant is rematerialised into $v0 in the first `bne`'s delay slot and 0x4D is
    * LICM-hoisted into $s7 -- retail's exact constant handling -- with no wrapper needed. */
-  while (c != 0) {
+  /* Ghidra hand-expanded these 2 as unaligned lwl/lwr bit-math on a stack
+     pointer; the oracle is a plain compiler-generated rodata->stack aggregate
+     copy (movstrsi shape, catalog wave-4 row) of a 6-char literal init. */
+void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
+
+{
+  char minSep [6] = {':', ':', '\'', '\'', '\'', '.'} /* @0x8013d8dc */;
+
+
+
+
+
+
+
+
+  char secSep [6] = {'.', ':', '"',  '"',  '"',  ','} /* @0x8013d8e4 */;
+  char langMin;
+  char langSec;
+  int c;
+  int n; /* SYM-CODEGEN-CARRIER: n -- indexed sprite GIV keeps REGPARM sprt in $a0; sprt++ is the measured 18-diff form */
+  int w;
+
+
+
+  langMin = minSep[GameSetup_gData.userSetting.language];
+  langSec = secSep[GameSetup_gData.userSetting.language];
+
+
+
+
+
+
+  c = (u_char)*str; n = 0; while (c != 0) {
+
     if (c == 0x4d) {
       c = langMin;
-    }
-    if (c == 0x53) {
+    } if (c == 0x53) {
       c = langSec;
     }
     w = *(signed char *)((u_char *)Font_Getcharacter(c) + 8) + 1;
+
+
     Hud_BuildSpriteFromFont(&sprt[n],(char)c,x,y);
     n = n + 1;
-    str = str + 1;
-    x = x + w;
-    c = (u_char)*str;
+
+    str = str + 1; x = x + w; c = (u_char)*str;
   }
 }
 
@@ -951,244 +1072,221 @@ void Hud_Init(void)
   int w1;
   int w2;
   u_long textcolour;
-
   textcolour = 0xa0a0a0;
-  i = 0;
-  do {
-    j = 0;
-    do {
+
+
+
+
+
+
+
+
+
+
+
+
+  for (i = 0; i < 2; i = i + 1)
+  {
+    for (j = 0; j < 4; j = j + 1)
+    {
       SetDrawMode(&gTPage0[i][j],0,0,2,(RECT *)0x0);
       SetDrawMode(&gTPage1[i][j],0,0,3,(RECT *)0x0);
-      j = j + 1;
-    } while (j < 4);
-    i = i + 1;
-  } while (i < 2);
+    }
+  }
+
+
   for (i = 0; i <= DashHUD_gInfo.splitscreen; i++) {
     SPRT *gSprt1;
-    POLY_F4 *HudF4;
-    POLY_G4 *HudG4;
-    long splitY;
-    int timelapshift;
+    gSprt1 = (i != 0) ? gSprite1 : gSprite0;
+    POLY_F4 *HudF4 = (i != 0) ? gHudF4 + 7 : gHudF4;
+    POLY_G4 *HudG4 = (i != 0) ? gHudG4 + 4 : gHudG4;
+    long splitY = (i != 0) ? -0xf : 0;
 
-    if (i != 0) {
-      gSprt1 = gSprite1;
-    }
-    else {
-      gSprt1 = gSprite0;
-    }
-    HudF4 = gHudF4;
-    if (i != 0) {
-      HudF4 = gHudF4 + 7;
-    }
-    HudG4 = gHudG4;
-    if (i != 0) {
-      HudG4 = gHudG4 + 4;
-    }
-    splitY = 0;
-    if (i != 0) {
-      splitY = -0xf;
-    }
-    timelapshift = (GameSetup_gData.carInfo[i].HudTime == 0) * 0x10;
-    if (GameSetup_gData.carInfo[i].HudLapnum == 0) {
+
+
+    int timelapshift = (GameSetup_gData.carInfo[i].HudTime == 0) * 0x10;
+
+    if (GameSetup_gData.carInfo[i].HudLapnum == 0)
       timelapshift = timelapshift + 0x10;
-    }
+
     Hud_BuildSprite(gSprt1,0x68,g1Player->x,(g1Player->y + splitY) - timelapshift,0xbebe,0);
+
+
     currentSpriteColor = 0x808080;
     Hud_BuildSprite2(gSprt1 + 1,0x80,g1Player[1].x,g1Player[1].y + splitY);
     Hud_BuildSprite2(gSprt1 + 2,(i != 0) ? 0x83 : 0x81,0,0);
+
+
     *(int *)&gSprt1[2].w = 0x1c001c;
-    w1 = HudPmx_gShapes[0x6b].width;
-    w2 = 0x46;
-    if (Hud_BeTheCop != 0) {
-      w2 = 0x2e;
-    }
-    x = g1Player[2].x;
-    y = g1Player[2].y + splitY;
+
+
+
+
+
+
+
+
+    w1 = HudPmx_gShapes[0x6b].width; w2 = 0x46; if (Hud_BeTheCop != 0) w2 = 0x2e;
+
+    x = g1Player[2].x; y = g1Player[2].y + splitY;
     Hud_BuildSprite2(gSprt1 + 4,0x69,x,y);
+
+
     x = x + w1;
     Hud_BuildG4(HudG4,1,x,y,w2,10,0,0x707070,0,0x707070);
+
+
     x = x + w2;
     Hud_BuildSprite2(gSprt1 + 5,0x7d,x,y);
     Hud_BuildF4(HudF4,1,x,y + 7,7,3,0x707070);
-    w1 = HudPmx_gShapes[0x6b].width;
-    x = g1Player[3].x;
+
+
+
+
     timelapshift = (GameSetup_gData.carInfo[i].HudTime == 0) * 0x10;
+
+    w1 = HudPmx_gShapes[0x6b].width; w2 = 0x1d;
+    x = g1Player[3].x;
     y = (g1Player[3].y + splitY) - timelapshift;
-    /* MATCH (w61-a1): retail emits `li $s3,29` (this `w2`) in the slot right after the
-     * PREVIOUS jal, i.e. the assignment precedes the Hud_BuildSprite2 call.  22 -> 20.
-     * NOTE the sibling `w2 = 0x3c;` hoist below measures -2 ALONE but +40 when BOTH are
-     * hoisted (62) -- the pair rotates w2's allocno band.  Take exactly one. */
-    w2 = 0x1d;
+
     Hud_BuildSprite2(gSprt1 + 6,0x6b,x,y);
+
     x = x + w1;
     Hud_BuildG4(HudG4 + 1,1,x,y,w2,10,0,0x707070,0,0x707070);
+
     x = x + w2;
     Hud_BuildF4(HudF4 + 1,1,x,y + 7,7,3,0x707070);
     Hud_BuildSprite2(gSprt1 + 7,0x7d,x,y);
-    w1 = HudPmx_gShapes[0x6b].width;
+
+
+    w1 = HudPmx_gShapes[0x6b].width; w2 = 0x3c;
     x = g1Player[4].x;
     y = g1Player[4].y + splitY;
-    w2 = 0x3c;
+
     Hud_BuildSprite2(gSprt1 + 8,0x69,x,y);
-    /* W85-S4 DEVICE PURITY: a read-only fence on `w2` stood here; removed and
-     * re-gated -- Hud_BuildPlayer1Hud and the whole TU stay PASS without it. */
     x = x + w1;
     Hud_BuildG4(HudG4 + 3,1,x,y,w2,10,0,0x707070,0,0x707070);
     x = x + w2;
     Hud_BuildF4(HudF4 + 2,1,x,y + 7,7,3,0x707070);
     Hud_BuildSprite2(gSprt1 + 9,0x7d,x,y);
-    w1 = HudPmx_gShapes[0x76].width;
-    if (Hud_BeTheCop == 0) {
-      w2 = 0x32;
-      if (GameSetup_gData.checkpointHUD[i] == 0) {
-        w2 = 0x3d;
-      }
-    }
-    else {
-      w2 = 0x26;
-    }
-    /* MATCH (w40-a1): the volatile read DEFEATS cse's re-use of the Hud_BeTheCop value the
-     * w2 chain just loaded.  Retail RELOADS `lw $v0,%gp_rel(Hud_BeTheCop)($gp)` before each of
-     * the three tests (w2 / x-select / y-select) and lays the w2 block out as `bnez v0,past`;
-     * without this cast our cse constant-folds the x-select on the fall-through path, moving
-     * the cop x-block inline and inverting the w2 branch polarity.  Receipt: 71 -> 55 with the
-     * cast on this ONE site (all three casts = 61, i.e. worse -- only the x-select is threaded). */
-    /* w76-a4 WORD-EXACTNESS NOTE (24F-9 wordcmp audit of the gate-PASSing Hud_Init):
-     * REAL=1 -- our word 265 `bnez v0,+0xa` vs retail `+0xb` (oracle C3C50).  Retail SPLITS
-     * this join: the w2-chain's `bnez Hud_BeTheCop` enters at .L800D3480 (the nop before the
-     * x-select beqz), PAST the .L800D347C reload below, because retail's cse proved the
-     * reload redundant on that edge (v0 still holds Hud_BeTheCop) and retargeted the jump;
-     * ours enters AT the reload (one shared label).  The volatile cast above blocks that
-     * retarget BY DESIGN (a volatile MEM is never provably redundant), and the cast is
-     * load-bearing for the whole x-select structure: removing it re-measured in the current
-     * PASS basin = FAIL 72 @620 (probe w/ the TEXT_MOVES rows injected), i.e. the w40
-     * receipt still holds.  Semantically identical (the skipped insn re-loads the same
-     * global).  Gate-invisible (branch-target leniency); board shows it as the 99.99%.
-     * Coupled-device artifact -- do not chase with label devices (policy) or by dropping
-     * the volatile (measured). */
-    if (Hud_BeTheCop != 0) {
-      x = g1Player[2].x + 0xe;
-    }
-    else {
-      x = g1Player[5].x;
-    }
-    if (Hud_BeTheCop != 0) {
-      y = g1Player[2].y + (long long)(splitY + 0xe);
-    }
-    else {
-      y = g1Player[5].y + splitY;
-    }
+
+
+    w1 = HudPmx_gShapes[0x76].width; if (Hud_BeTheCop == 0) { w2 = 0x32; if (GameSetup_gData.checkpointHUD[i] == 0) w2 = 0x3d; } else w2 = 0x26;
+    if (Hud_BeTheCop != 0) x = g1Player[2].x + 0xe; else x = g1Player[5].x;
+    if (Hud_BeTheCop != 0) y = g1Player[2].y + (long long)(splitY + 0xe); else y = g1Player[5].y + splitY;
+
     Hud_BuildSprite2(gSprt1 + 10,0x76,x,y);
-    /* Pass the next X to the call, then advance the running cursor; this
-       stages the address and literal arguments before the addition. */
-    Hud_BuildG4(HudG4 + 2,1,x + w1,y,w2,10,0,0x707070,0,0x707070);
-    x = x + w1;
-    /* The F4 call uses the same call-before-cursor-update shape. */
-    Hud_BuildF4(HudF4 + 3,1,x + w2,y + 7,7,3,0x707070);
-    x = x + w2;
+
+    Hud_BuildG4(HudG4 + 2,1,x + w1,y,w2,10,0,0x707070,0,0x707070); x = x + w1;
+
+    Hud_BuildF4(HudF4 + 3,1,x + w2,y + 7,7,3,0x707070); x = x + w2;
+
     Hud_BuildSprite(gSprt1 + 0xb,0x7d,x,y,0x808080,0);
+
+
+
+
+
     currentSpriteColor = textcolour;
-    Hud_BuildTimeSprites(gSprt1 + 0xc,"00M00S00",g1Player[2].x + g1Player[6].x,
-               g1Player[2].y + splitY + g1Player[6].y);
-    Hud_BuildTimeSprites(gSprt1 + 0x14,"0/0",g1Player[3].x + g1Player[7].x,
-               (g1Player[3].y + g1Player[7].y + splitY) - timelapshift);
+
+    Hud_BuildTimeSprites(gSprt1 + 0xc,"00M00S00",g1Player[2].x + g1Player[6].x,g1Player[2].y + splitY + g1Player[6].y);
+
+    Hud_BuildTimeSprites(gSprt1 + 0x14,"0/0",g1Player[3].x + g1Player[7].x,(g1Player[3].y + g1Player[7].y + splitY) - timelapshift);
+
+
+
+
+
+
+
     currentSpriteColor = 0xa0a0a0;
-    Hud_BuildTimeSprites(gSprt1 + 0x17,"0M00S00",g1Player[4].x + g1Player[8].x,
-               g1Player[4].y + g1Player[8].y + splitY + 1);
-    if (Hud_BeTheCop != 0) {
-      x = g1Player[2].x + 0x10;
-    }
-    else {
-      x = g1Player[5].x + g1Player[9].x;
-    }
-    if (Hud_BeTheCop != 0) {
-      y = g1Player[2].y + (long long)(splitY + 0xc);
-    }
-    else {
-      y = g1Player[5].y + splitY + 1;
-    }
+
+    Hud_BuildTimeSprites(gSprt1 + 0x17,"0M00S00",g1Player[4].x + g1Player[8].x,g1Player[4].y + g1Player[8].y + splitY + 1);
+
+
+    if (Hud_BeTheCop != 0) x = g1Player[2].x + 0x10; else x = g1Player[5].x + g1Player[9].x;
+    if (Hud_BeTheCop != 0) y = g1Player[2].y + (long long)(splitY + 0xc); else y = g1Player[5].y + splitY + 1;
+
     x = x + HudPmx_gShapes[0x76].width;
-    /* MATCH (w61-a1): 09J "EACH ARM CARRIES ITS OWN TAIL" -- retail materialises
-     * `addiu $a0,$s5,600` (= gSprt1+0x1e) TWICE, once per arm, and cross_jump merges
-     * only the jal + $a2/$a3 setup.  The ternary form hoists the shared $a0 above the
-     * branch (1 insn SHORT) and lets reorg steal it into the `bnez` delay slot instead
-     * of `addu $s0,$s0,$v1` (= x += width).  Duplicating the call per arm restores both.
-     * Receipt: ternary 43 @623/624 -> if/else duplicated 22 @624/624 (count-exact);
-     * arms swapped = 24; a named `char *tstr` select temp = 50 @622 (2 SHORT). */
-    if (GameSetup_gData.checkpointHUD[i] == 0) {
+
+    if (GameSetup_gData.checkpointHUD[i] == 0)
       Hud_BuildTimeSprites(gSprt1 + 0x1e,"0M00S00",x,y);
-    }
-    else {
+    else
       Hud_BuildTimeSprites(gSprt1 + 0x1e,"0.000",x,y);
-    }
+
+
     HudSplitTimeDiff1[i] = gSprt1[0x1f].y0 - gSprt1[0x1e].y0;
-    currentSpriteColor = textcolour;
     HudSplitTimeDiff2[i] = gSprt1[0x22].y0 - gSprt1[0x1e].y0;
-    w1 = HudPmx_gShapes[0x2c].width;
-    w2 = HudPmx_gShapes[0x47].width;
+
+    w1 = HudPmx_gShapes[0x2c].width; w2 = HudPmx_gShapes[0x47].width;
     x = g1Player[0xe].x + g1Player[10].x;
     y = g1Player[0xe].y + HudMapOffsetY + g1Player[10].y + splitY;
-    if ((i == 0) && (DashHUD_gInfo.splitscreen != 0)) {
+
+    currentSpriteColor = textcolour;
+
+    if ((i == 0) && (DashHUD_gInfo.splitscreen != 0))
       y = y + -2;
-    }
-    /* MATCH (w61-a1): retail's `beqz` delay slot holds `addiu $a0,$s5,800` (the
-     * Hud_BuildSprite a0 arg, duplicated at the join) -- i.e. the call, not `j = 0`,
-     * is the first statement after the if.  Moving `j = 0;` below the call gives reorg
-     * that candidate instead.  -4 diffs. */
+
     Hud_BuildSprite(gSprt1 + 0x28,0x3e,g1Player[0xe].x + 0x13,y + -1,0x808080,0);
-    j = 0;
-    Hud_BuildSprite2(gSprt1 + 0x25,0x2c,x,y);
-    x = x + w1;
+    Hud_BuildSprite2(gSprt1 + 0x25,0x2c,x,y); x = x + w1;
     Hud_BuildSprite2(gSprt1 + 0x26,0x47,x,y);
     Hud_BuildSprite2(gSprt1 + 0x27,0x36,x + w2,y);
-    currentSpriteColor = 0x808080;
+
+
     x = g1Player[1].x + g1Player[0xb].x;
     y = g1Player[1].y + g1Player[0xb].y + splitY;
+
+    currentSpriteColor = 0x808080;
     Hud_BuildSprite2(gSprt1 + 0x31,0x1a,x + -1,y);
     Hud_BuildSprite2(gSprt1 + 0x32,0x1b,x + -2,y + -1);
-    y = y + 6;   /* MATCH (w61-a1): retail emits `addiu $s1,$s1,6` before `addiu $s0,$s0,2` (-2) */
-    x = x + 2;
-    do {
-      Hud_BuildSprite2(gSprt1 + 0x29 + j,j + 0x1c,x,y);
-      j = j + 1;
-    } while (j < 8);
+
+    y = y + 6; x = x + 2;
+    for (j = 0; j < 8; j = j + 1)
+    { Hud_BuildSprite2(gSprt1 + 0x29 + j,j + 0x1c,x,y); }
+
     Hud_InitMapFrame(i,0);
   }
-  {
-  SPRT *spriteReplay;
-  int baseX;
-  int baseY;
 
-  /* MATCH (w61-a1): retail's order after the loop is `ori v0,0x8080` (the colour),
-   * `li a1,111` (the first call's shape arg), `lw s1,%gp_rel(gSprite0)`, `addu fp,zero,zero`
-   * -- i.e. the colour/transparency stores precede the pointer + counter inits.  -2. */
-  spriteReplay = gSprite0;
-  baseX = g1Player[0xd].x;
-  baseY = g1Player[0xd].y;
-  currentSpriteColor = 0x808080;
-  currentSpriteTransparent = 1;
-  Hud_BuildSprite2(spriteReplay + 0x37,0x6f,baseX,baseY);
-  Hud_BuildSprite2(spriteReplay + 0x33,0x6c,baseX + 0x12,baseY);
-  Hud_BuildSprite2(spriteReplay + 0x34,0x6e,baseX + 0x25,baseY);
-  Hud_BuildSprite2(spriteReplay + 0x35,0x3f,baseX + 0x3a,baseY);
-  Hud_BuildSprite2(spriteReplay + 0x38,0x72,baseX + 0x4a,baseY);
-  Hud_BuildSprite2(spriteReplay + 0x36,0,baseX + 0x6d,baseY + -7);
-  Hud_BuildSprite2(spriteReplay + 0x39,3,0,baseY + 4);
+
+  { SPRT *spriteReplay; int baseX; int baseY;
+    spriteReplay = gSprite0;
+    baseX = g1Player[0xd].x;
+    baseY = g1Player[0xd].y;
+
+
+
+    currentSpriteColor = 0x808080;
+    currentSpriteTransparent = 1;
+    Hud_BuildSprite2(spriteReplay + 0x37,0x6f,baseX,baseY);
+    Hud_BuildSprite2(spriteReplay + 0x33,0x6c,baseX + 0x12,baseY);
+    Hud_BuildSprite2(spriteReplay + 0x34,0x6e,baseX + 0x25,baseY);
+    Hud_BuildSprite2(spriteReplay + 0x35,0x3f,baseX + 0x3a,baseY);
+    Hud_BuildSprite2(spriteReplay + 0x38,0x72,baseX + 0x4a,baseY);
+    Hud_BuildSprite2(spriteReplay + 0x36,0,baseX + 0x6d,baseY + -7);
+
+
+    Hud_BuildSprite2(spriteReplay + 0x39,3,0,baseY + 4);
   }
   currentSpriteTransparent = 0;
+
+
   Hud_InitCdPlayer();
+
   Hud_Reset();
   BTC_BonusTime = 0;
   BTC_Countdown = 0;
   FinalBTC_Countdown = 0;
   BTC_UserHasControl = 0;
+
   HudBustedOverlay = 0;
-  i = 0;
-  do {
+  for (i = 0; i < 2; i = i + 1)
+  {
     PerpOverlayOn[i] = 0;
     PerpOverlayMessage[i] = 0;
-    i = i + 1;
-  } while (i < 2);
+  }
+
+
+
   Hud_kTurnSongOffNext = 0;
 }
 
@@ -1203,168 +1301,160 @@ void Hud_InitTables(void)
 }
 
 /* ---- Hud_BuildETimeString__FP4SPRTi  [HUD.CPP:1232-1248] SLD-VERIFIED ---- */
+/* (body comments moved here by HUDFX r7; the body follows retail's SLD lines) */
+/* MATCH: statement ORDER (min,sec BEFORE hun) is the lever here -- 146->10 diffs.
+ RESIDUAL 10 (99/99 count-exact), w44-a5 MECHANISM (supersedes "copy-direction pick"):
+ the oracle's 5 insns are `v0=abs(a1); bgez v0; [slot] a2=v0; v0=v0+63; sra a1,v0,6`
+ -- i.e. the divide's copy_to_mode_reg temp is COALESCED with the abs pseudo (the abs
+ value DIES at the divide) and the SURVIVING temp2 is a SEPARATE pseudo fed by an
+ extra copy.  Ours is the mirror: temp2 IS the abs pseudo (lives on) and the divide
+ copies into a fresh v0.  gcc-2.8 cannot emit the oracle's shape from a source-level
+ copy: expand_divmod always emits `tmp = copy(op0)` with tmp fresh, so op0 only dies
+ if nothing else uses it -- and any `temp2 = temp3;` copy is killed by cse's copy
+ propagation (op0 is never modified at cse time).  FALSIFIED (all exactly 10, count
+ 99/99): temp3+copy either side of the divide; `time = abs(time)` in place; two
+ `__builtin_abs(time)` calls (cse unifies); `(temp2 ^ zero)` runtime-zero (folds);
+ `hun = (temp2 % 0x40)*100/0x40`.  NEAR MISS WORTH RE-RUNNING: making the SURVIVOR
+ the clamped `time` and the dividend the abs (`temp1 = __builtin_abs(time)/0x40;
+ hun = (time - temp1*0x40)...`) gives 12 diffs but REPRODUCES the oracle's coalescing
+ exactly (abs->v0, dividend dies, `addiu v0,v0,63` in place) -- the only residual
+ there is WHERE the survivor copy is made (entry a1->a2 vs post-abs v0->a2).
+ w45-a7 RE-RUN, 10 more spellings, ALL 10 or 12 (count 99/99 throughout).  NEW
+ FALSIFICATIONS: in-place divide `temp1=abs(time); temp2=temp1; temp1=temp1/0x40;`
+ (10) -- the in-place-mutation lever does NOT stop cse propagating the survivor;
+ anon-abs-first-then-named `temp1=abs(time)/0x40; temp2=abs(time);` (10); named-first
+ then anon (10); block-scoped `{int t3=abs(time); temp2=t3; temp1=t3/0x40;}` (10);
+ anonymous abs AT THE USE SITE in hun (10); `(temp1<<6)` instead of `temp1*0x40` (10);
+ survivor = the CLAMPED PARAM `temp2=time;` before (12) / after (12) the divide /
+ inside `do{}while(0)` (12) -- all three coalesce temp2 with `time` and CLAMP a2 at
+ entry instead of copying post-abs; ternary abs for the survivor (66, +2 insns).
+ MECHANISM NARROWED: our `addiu v0,a2,63` proves COMBINE folded expand_divmod's
+ `(set v0 a2)` copy into the guard-add -- i.e. v0 is provably the divide temp and a2
+ the abs pseudo.  Retail's `addiu v0,v0,63` + `addu a2,v0,zero` is the mirror: the
+ divide temp is COALESCED with the abs pseudo and the survivor is the surviving copy.
+ Every source-level copy we can write is removed before local-alloc (param copies get
+ coalesced by copy-prop; abs copies get cse-propagated), so the copy that reaches
+ local-alloc is always expand_divmod's own.
+ NEW NAMED ANGLE (untried): stop COMBINE from folding the divide's copy into the
+ `+63` -- if `(set div a2)` survives as its own insn, local-alloc's make_regs_eqv can
+ canonicalise the OUTLIVING pseudo (a2) and the direction flips.  Concretely: place a
+ def of the survivor (or any insn writing a2's pseudo) BETWEEN the abs and the divide
+ so the copy and the add are no longer adjacent single-use.  Secondary: hand this to
+ the allocator-simulator lane as a COALESCING-DIRECTION delta (not a priority delta) --
+ it is the only survivor in this fn and needs local-alloc qty ordering, not
+ allocno_compare. */
+/* w46-a4 LEVER (10 -> 6, count 99/99): DIVIDE THE CLAMPED PARAM, NOT THE ABS.
+ `temp1 = time / 0x40;` (was `temp2 / 0x40`).  Semantically identical -- time is
+ already clamped >= 0 -- but it splits the two roles onto two pseudos: the divide's
+ op0 becomes `time` (so expand_divmod's copy is NOT combine-folded any more: ours now
+ emits the oracle's IN-PLACE `addiu v0,v0,63`) and the abs value keeps its own
+ register for the `hun` numerator.  4 of the 10 diffs go; the `subu v1,a2,v1` /
+ `sra a1,v0,6` tail is byte-exact.
+ RESIDUAL 6 = the abs is computed FROM the divide's copy instead of from the param:
+ ours   `addu v0,a1,zero; bgez v0; addu a2,v0,zero; negu a2,a2; bgez v0; addiu v0,v0,63`
+ retail `bgez a1; addu v0,a1,zero; negu v0,v0; bgez v0; addu a2,v0,zero; addiu v0,v0,63`
+ i.e. retail's abs guard tests the PARAM and negates in place; ours tests the copy.
+ FALSIFIED IN THIS (NEW) BASIN -- the w44/w45 lists were basin-relative, these are
+ re-runs: temp1=abs;temp2=temp1;temp1/=64 (10); + hun off time (72); time=abs(time)
+ in place + temp2=time (10); divide-first-then-abs (19, +1 insn); hun off `time`
+ (14, 97 insns); ternary clamp (7, +1 insn); clamp+abs+divide inside a fresh block
+ scope on a local copy (6, identical); `temp2 += time - time` late-use fence (6,
+ identical); anon-abs-divide-then-named-abs (10); u_int survivor (10).
+ NEW NAMED ANGLE: the surviving 6 is an ORDER question, not a coalescing one -- both
+ builds now have the same three copies, retail just issues the abs block BEFORE the
+ divide's copy_to_mode_reg.  Attack it as a sched2 ready-list drain (the abs's `bgez`
+ and the divide's copy are both ready at the top of the entry block): walk a ZERO-INSN
+ USE FENCE between the clamp and the abs / between the abs and the divide (catalog w45
+ 'the fence is a sched-issue-position fixpoint; POSITION is the dial'), and/or hand it
+ to the a10 lane as a -dR ready-list question for this one block.
+ ===== w50-a1: the fence walk above was EXECUTED -- ALL INERT; the survivor-copy family
+ was re-run with the w49 OPACITY/IDENTITY fence.  STILL 6.  Measurements:
+ fence walk (all 6, count 99/99): read-only AND identity fences placed between the
+ clamp and the abs, and between the abs and the divide -- four placements, ZERO
+ change.  The "sched2 ready-list drain" framing predicts a POSITION dial; there is
+ none, so the residual is an allocation/coalescing fact, not an issue-order one.
+ survivor-copy family (goal: the abs pseudo must DIE at the divide so expand_divmod's
+ temp coalesces with it in place, leaving the `hun` survivor as retail's copy
+ `addu a2,v0,zero` in the divide guard's delay slot):
+ temp3=abs; temp2=temp3; FENCE(temp2); temp1=temp3/64   -> 8   (99/99) <- closest
+ temp3=abs; FENCE(temp3); temp2=temp3; temp1=temp3/64   -> 5   (100/99, +1 insn)
+ both ends fenced                                       -> 5   (100/99)
+ temp3=abs; temp1=temp3/64; temp2=temp3; FENCE(temp2)   -> 70
+ temp2=abs; FENCE(temp2); temp1=temp2/64                -> 10  (the old basin)
+ temp2=abs; temp1=temp2/64; FENCE(temp2)                -> 12
+ temp3=abs; temp1=temp3/64; temp2=temp3 (no fence)      -> 10
+ divide the abs + `hun` off the clamped param           -> 12  (13/100 w/ a use
+ fence on time)
+ cse double-eval (anon abs divides, named abs for hun)  -> 10; + fence -> 70
+ The 8-diff form is the instructive one: its four insns ARE retail's, with a2<->v0
+ swapped (`addu a2,a1,zero; negu a2,a2; addu v0,a2,zero; addiu v0,v0,63` vs retail
+ `addu v0,a1,zero; negu v0,v0; addu a2,v0,zero; addiu v0,v0,63`).  The "0" constraint
+ TIES the fenced survivor to its source's register, so the abs pseudo cannot die at
+ the divide and expand_divmod is forced to make the copy -- the identity fence is
+ structurally the WRONG device for this job.  What is needed is a copy whose SOURCE
+ dies and whose DEST outlives, with the ends in DIFFERENT hard regs; every C spelling
+ is either copy-propagated (no fence) or register-tied (with one).  ⇒ NEXT is the w47
+ `combine_regs`/`make_regs_eqv` lever: a PRODUCER whose destination is a distinct
+ short-lived pseudo -- i.e. one more real 1-insn computation between the abs and the
+ divide -- not another spelling of the copy.
+ ===== w51-a9: the named PRODUCER angle EXECUTED and NEGATIVE.  STILL 6 (99/99) =====
+ A real 1-insn producer between the abs and the divide (`sec = time;` then
+ `temp1 = sec / 0x40;`) does NOT split the roles -- 73 @100: the extra pseudo is
+ copy-propagated into the divide and costs an insn instead of surviving.  Re-runs in
+ THIS basin, all worse or equal: `time = abs(time); temp2 = time; temp1 = time/0x40`
+ (10) · `temp2 = abs(time); temp1 = temp2/0x40` i.e. the pre-w46 divide-the-abs form
+ (10) · anon-abs-divide-then-named-abs (10) · an un-foldable negate chain feeding the
+ divide (`(-time < 0 ? time : -(-time)) / 0x40`, 6 = neutral).
+ STATE OF THE ANGLE: retail's `addu a2,v0,zero` is a copy whose DEST outlives and
+ whose SOURCE (the abs pseudo) DIES at the divide.  gcc-2.8 will not produce it from
+ ===== w59-a6: 6 -> PASS (99/99).  THE SYM 8c BLOCK SETTLED IT (catalog 06A) =====
+ Every wave above assumed `temp2` IS the abs value and then hunted for a copy whose
+ source dies at the divide.  The SYM 8c block @0x800d3a18 says otherwise:
+ min REG $9 | sec REG $a | hun REG $5 | temp1 REG $5 | temp2 REG $3
+ temp2 is `$v1` -- and the oracle's `$v1` is the SUBTRACTION result (`sll v1,a1,6;
+ subu v1,a2,v1` = abs - temp1*0x40), not the abs.  The abs lives in `$a2`, which no
+ SYM record names => it is an ANONYMOUS cse temp.  So retail's shape is simply:
+ 1237:  temp1 = abs(time) / 0x40;
+ 1238:  temp2 = abs(time) - temp1 * 0x40;
+ 1239:  min = (temp1 / 0x3c) % 0x3c;  sec = temp1 % 0x3c;
+ 1241:  hun = temp2 * 100 / 0x40;
+ -- TWO textual `__builtin_abs(time)` calls.  cse recognises the repeat, computes it
+ once into the divide's operand and emits the extra `addu a2,v0,zero` copy to keep the
+ common subexpression alive for line 1238; the abs pseudo then DIES at the divide and
+ the copy is the survivor.  That is EXACTLY the copy the w44-w51 receipts declared
+ "gcc-2.8 will not produce from C": it is produced by cse's common-subexpression copy,
+ not by any source-level assignment.  (`temp2 = abs(time); temp1 = temp2/0x40;` scores
+ 10 precisely because there the NAMED temp2 is the abs and outlives the divide.)
+ The SLD line order also moved `hun`'s numerator from after min/sec to line 1238,
+ before them -- both changes are needed; the pair takes 6 -> 0.
+ CATALOG CANDIDATE: "a SYM REG number that does not match the value you assumed the
+ local holds is the whole diagnosis" + "a repeated subexpression is the only C spelling
+ that mints a cse copy whose SOURCE dies and whose DEST outlives".
+ (historical, superseded) With no fence cse copy-propagates the survivor; with an identity fence the "0"
+ constraint ties both ends to one register; an extra real producer is copy-propagated
+ too.  What is left is not a source spelling at all -- it is a local-alloc
+ `combine_regs` refusal (w47 row: combine_regs will not tie a copy whose DESTINATION
+ is a GLOBAL allocno).  Route: make temp2 a GLOBAL allocno (live across a basic-block
+ boundary) while the abs stays block-local -- e.g. by moving temp2's only consumer
+ (`hun`) behind a real branch.  Not attempted here (it changes control flow). */
 void Hud_BuildETimeString(SPRT *sprt,int time)
 
-{
-  int min;
-  int sec;
-  int hun;
-  int temp1;
-  int temp2;
+{ int min, sec, hun, temp1, temp2;
+  if (time < 0) time = 0;
 
-  if (time < 0) {
-    time = 0;
-  }
-  temp1 = __builtin_abs(time) / 0x40;               /* SLD 1237 */
-  temp2 = __builtin_abs(time) - temp1 * 0x40;       /* SLD 1238 */
-  min = (temp1 / 0x3c) % 0x3c;                      /* SLD 1239 */
-  sec = temp1 % 0x3c;                               /* SLD 1239 */
-  /* MATCH: statement ORDER (min,sec BEFORE hun) is the lever here -- 146->10 diffs.
-     RESIDUAL 10 (99/99 count-exact), w44-a5 MECHANISM (supersedes "copy-direction pick"):
-     the oracle's 5 insns are `v0=abs(a1); bgez v0; [slot] a2=v0; v0=v0+63; sra a1,v0,6`
-     -- i.e. the divide's copy_to_mode_reg temp is COALESCED with the abs pseudo (the abs
-     value DIES at the divide) and the SURVIVING temp2 is a SEPARATE pseudo fed by an
-     extra copy.  Ours is the mirror: temp2 IS the abs pseudo (lives on) and the divide
-     copies into a fresh v0.  gcc-2.8 cannot emit the oracle's shape from a source-level
-     copy: expand_divmod always emits `tmp = copy(op0)` with tmp fresh, so op0 only dies
-     if nothing else uses it -- and any `temp2 = temp3;` copy is killed by cse's copy
-     propagation (op0 is never modified at cse time).  FALSIFIED (all exactly 10, count
-     99/99): temp3+copy either side of the divide; `time = abs(time)` in place; two
-     `__builtin_abs(time)` calls (cse unifies); `(temp2 ^ zero)` runtime-zero (folds);
-     `hun = (temp2 % 0x40)*100/0x40`.  NEAR MISS WORTH RE-RUNNING: making the SURVIVOR
-     the clamped `time` and the dividend the abs (`temp1 = __builtin_abs(time)/0x40;
-     hun = (time - temp1*0x40)...`) gives 12 diffs but REPRODUCES the oracle's coalescing
-     exactly (abs->v0, dividend dies, `addiu v0,v0,63` in place) -- the only residual
-     there is WHERE the survivor copy is made (entry a1->a2 vs post-abs v0->a2).
-     w45-a7 RE-RUN, 10 more spellings, ALL 10 or 12 (count 99/99 throughout).  NEW
-     FALSIFICATIONS: in-place divide `temp1=abs(time); temp2=temp1; temp1=temp1/0x40;`
-     (10) -- the in-place-mutation lever does NOT stop cse propagating the survivor;
-     anon-abs-first-then-named `temp1=abs(time)/0x40; temp2=abs(time);` (10); named-first
-     then anon (10); block-scoped `{int t3=abs(time); temp2=t3; temp1=t3/0x40;}` (10);
-     anonymous abs AT THE USE SITE in hun (10); `(temp1<<6)` instead of `temp1*0x40` (10);
-     survivor = the CLAMPED PARAM `temp2=time;` before (12) / after (12) the divide /
-     inside `do{}while(0)` (12) -- all three coalesce temp2 with `time` and CLAMP a2 at
-     entry instead of copying post-abs; ternary abs for the survivor (66, +2 insns).
-     MECHANISM NARROWED: our `addiu v0,a2,63` proves COMBINE folded expand_divmod's
-     `(set v0 a2)` copy into the guard-add -- i.e. v0 is provably the divide temp and a2
-     the abs pseudo.  Retail's `addiu v0,v0,63` + `addu a2,v0,zero` is the mirror: the
-     divide temp is COALESCED with the abs pseudo and the survivor is the surviving copy.
-     Every source-level copy we can write is removed before local-alloc (param copies get
-     coalesced by copy-prop; abs copies get cse-propagated), so the copy that reaches
-     local-alloc is always expand_divmod's own.
-     NEW NAMED ANGLE (untried): stop COMBINE from folding the divide's copy into the
-     `+63` -- if `(set div a2)` survives as its own insn, local-alloc's make_regs_eqv can
-     canonicalise the OUTLIVING pseudo (a2) and the direction flips.  Concretely: place a
-     def of the survivor (or any insn writing a2's pseudo) BETWEEN the abs and the divide
-     so the copy and the add are no longer adjacent single-use.  Secondary: hand this to
-     the allocator-simulator lane as a COALESCING-DIRECTION delta (not a priority delta) --
-     it is the only survivor in this fn and needs local-alloc qty ordering, not
-     allocno_compare. */
-  /* w46-a4 LEVER (10 -> 6, count 99/99): DIVIDE THE CLAMPED PARAM, NOT THE ABS.
-     `temp1 = time / 0x40;` (was `temp2 / 0x40`).  Semantically identical -- time is
-     already clamped >= 0 -- but it splits the two roles onto two pseudos: the divide's
-     op0 becomes `time` (so expand_divmod's copy is NOT combine-folded any more: ours now
-     emits the oracle's IN-PLACE `addiu v0,v0,63`) and the abs value keeps its own
-     register for the `hun` numerator.  4 of the 10 diffs go; the `subu v1,a2,v1` /
-     `sra a1,v0,6` tail is byte-exact.
-     RESIDUAL 6 = the abs is computed FROM the divide's copy instead of from the param:
-       ours   `addu v0,a1,zero; bgez v0; addu a2,v0,zero; negu a2,a2; bgez v0; addiu v0,v0,63`
-       retail `bgez a1; addu v0,a1,zero; negu v0,v0; bgez v0; addu a2,v0,zero; addiu v0,v0,63`
-     i.e. retail's abs guard tests the PARAM and negates in place; ours tests the copy.
-     FALSIFIED IN THIS (NEW) BASIN -- the w44/w45 lists were basin-relative, these are
-     re-runs: temp1=abs;temp2=temp1;temp1/=64 (10); + hun off time (72); time=abs(time)
-     in place + temp2=time (10); divide-first-then-abs (19, +1 insn); hun off `time`
-     (14, 97 insns); ternary clamp (7, +1 insn); clamp+abs+divide inside a fresh block
-     scope on a local copy (6, identical); `temp2 += time - time` late-use fence (6,
-     identical); anon-abs-divide-then-named-abs (10); u_int survivor (10).
-     NEW NAMED ANGLE: the surviving 6 is an ORDER question, not a coalescing one -- both
-     builds now have the same three copies, retail just issues the abs block BEFORE the
-     divide's copy_to_mode_reg.  Attack it as a sched2 ready-list drain (the abs's `bgez`
-     and the divide's copy are both ready at the top of the entry block): walk a ZERO-INSN
-     USE FENCE between the clamp and the abs / between the abs and the divide (catalog w45
-     'the fence is a sched-issue-position fixpoint; POSITION is the dial'), and/or hand it
-     to the a10 lane as a -dR ready-list question for this one block.
-     ===== w50-a1: the fence walk above was EXECUTED -- ALL INERT; the survivor-copy family
-     was re-run with the w49 OPACITY/IDENTITY fence.  STILL 6.  Measurements:
-       fence walk (all 6, count 99/99): read-only AND identity fences placed between the
-         clamp and the abs, and between the abs and the divide -- four placements, ZERO
-         change.  The "sched2 ready-list drain" framing predicts a POSITION dial; there is
-         none, so the residual is an allocation/coalescing fact, not an issue-order one.
-       survivor-copy family (goal: the abs pseudo must DIE at the divide so expand_divmod's
-         temp coalesces with it in place, leaving the `hun` survivor as retail's copy
-         `addu a2,v0,zero` in the divide guard's delay slot):
-           temp3=abs; temp2=temp3; FENCE(temp2); temp1=temp3/64   -> 8   (99/99) <- closest
-           temp3=abs; FENCE(temp3); temp2=temp3; temp1=temp3/64   -> 5   (100/99, +1 insn)
-           both ends fenced                                       -> 5   (100/99)
-           temp3=abs; temp1=temp3/64; temp2=temp3; FENCE(temp2)   -> 70
-           temp2=abs; FENCE(temp2); temp1=temp2/64                -> 10  (the old basin)
-           temp2=abs; temp1=temp2/64; FENCE(temp2)                -> 12
-           temp3=abs; temp1=temp3/64; temp2=temp3 (no fence)      -> 10
-           divide the abs + `hun` off the clamped param           -> 12  (13/100 w/ a use
-                                                                          fence on time)
-           cse double-eval (anon abs divides, named abs for hun)  -> 10; + fence -> 70
-       The 8-diff form is the instructive one: its four insns ARE retail's, with a2<->v0
-       swapped (`addu a2,a1,zero; negu a2,a2; addu v0,a2,zero; addiu v0,v0,63` vs retail
-       `addu v0,a1,zero; negu v0,v0; addu a2,v0,zero; addiu v0,v0,63`).  The "0" constraint
-       TIES the fenced survivor to its source's register, so the abs pseudo cannot die at
-       the divide and expand_divmod is forced to make the copy -- the identity fence is
-       structurally the WRONG device for this job.  What is needed is a copy whose SOURCE
-       dies and whose DEST outlives, with the ends in DIFFERENT hard regs; every C spelling
-       is either copy-propagated (no fence) or register-tied (with one).  ⇒ NEXT is the w47
-       `combine_regs`/`make_regs_eqv` lever: a PRODUCER whose destination is a distinct
-       short-lived pseudo -- i.e. one more real 1-insn computation between the abs and the
-       divide -- not another spelling of the copy.
-       ===== w51-a9: the named PRODUCER angle EXECUTED and NEGATIVE.  STILL 6 (99/99) =====
-       A real 1-insn producer between the abs and the divide (`sec = time;` then
-       `temp1 = sec / 0x40;`) does NOT split the roles -- 73 @100: the extra pseudo is
-       copy-propagated into the divide and costs an insn instead of surviving.  Re-runs in
-       THIS basin, all worse or equal: `time = abs(time); temp2 = time; temp1 = time/0x40`
-       (10) · `temp2 = abs(time); temp1 = temp2/0x40` i.e. the pre-w46 divide-the-abs form
-       (10) · anon-abs-divide-then-named-abs (10) · an un-foldable negate chain feeding the
-       divide (`(-time < 0 ? time : -(-time)) / 0x40`, 6 = neutral).
-       STATE OF THE ANGLE: retail's `addu a2,v0,zero` is a copy whose DEST outlives and
-       whose SOURCE (the abs pseudo) DIES at the divide.  gcc-2.8 will not produce it from
-       ===== w59-a6: 6 -> PASS (99/99).  THE SYM 8c BLOCK SETTLED IT (catalog 06A) =====
-       Every wave above assumed `temp2` IS the abs value and then hunted for a copy whose
-       source dies at the divide.  The SYM 8c block @0x800d3a18 says otherwise:
-           min REG $9 | sec REG $a | hun REG $5 | temp1 REG $5 | temp2 REG $3
-       temp2 is `$v1` -- and the oracle's `$v1` is the SUBTRACTION result (`sll v1,a1,6;
-       subu v1,a2,v1` = abs - temp1*0x40), not the abs.  The abs lives in `$a2`, which no
-       SYM record names => it is an ANONYMOUS cse temp.  So retail's shape is simply:
-           1237:  temp1 = abs(time) / 0x40;
-           1238:  temp2 = abs(time) - temp1 * 0x40;
-           1239:  min = (temp1 / 0x3c) % 0x3c;  sec = temp1 % 0x3c;
-           1241:  hun = temp2 * 100 / 0x40;
-       -- TWO textual `__builtin_abs(time)` calls.  cse recognises the repeat, computes it
-       once into the divide's operand and emits the extra `addu a2,v0,zero` copy to keep the
-       common subexpression alive for line 1238; the abs pseudo then DIES at the divide and
-       the copy is the survivor.  That is EXACTLY the copy the w44-w51 receipts declared
-       "gcc-2.8 will not produce from C": it is produced by cse's common-subexpression copy,
-       not by any source-level assignment.  (`temp2 = abs(time); temp1 = temp2/0x40;` scores
-       10 precisely because there the NAMED temp2 is the abs and outlives the divide.)
-       The SLD line order also moved `hun`'s numerator from after min/sec to line 1238,
-       before them -- both changes are needed; the pair takes 6 -> 0.
-       CATALOG CANDIDATE: "a SYM REG number that does not match the value you assumed the
-       local holds is the whole diagnosis" + "a repeated subexpression is the only C spelling
-       that mints a cse copy whose SOURCE dies and whose DEST outlives".
-       (historical, superseded) With no fence cse copy-propagates the survivor; with an identity fence the "0"
-       constraint ties both ends to one register; an extra real producer is copy-propagated
-       too.  What is left is not a source spelling at all -- it is a local-alloc
-       `combine_regs` refusal (w47 row: combine_regs will not tie a copy whose DESTINATION
-       is a GLOBAL allocno).  Route: make temp2 a GLOBAL allocno (live across a basic-block
-       boundary) while the abs stays block-local -- e.g. by moving temp2's only consumer
-       (`hun`) behind a real branch.  Not attempted here (it changes control flow). */
-  hun = temp2 * 100 / 0x40;                         /* SLD 1241 */
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
-  sprt = sprt + 1;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min % 10];
-  sprt = sprt + 2;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[sec / 10];
-  sprt = sprt + 1;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[sec % 10];
-  sprt = sprt + 2;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun / 10];
-  sprt = sprt + 1;
+
+
+  temp1 = __builtin_abs(time) / 0x40;
+  temp2 = __builtin_abs(time) - temp1 * 0x40;
+  min = (temp1 / 0x3c) % 0x3c;
+  sec = temp1 % 0x3c;
+  hun = temp2 * 100 / 0x40;
+
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10]; sprt = sprt + 1;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min % 10]; sprt = sprt + 2;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[sec / 10]; sprt = sprt + 1;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[sec % 10]; sprt = sprt + 2;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun / 10]; sprt = sprt + 1;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun % 10];
 }
 
@@ -1383,18 +1473,18 @@ bool Hud_BuildDistanceString(SPRT *sprt,int player)
   int slices = (Cars_gHumanRaceCarList[player]->stats).checkpointUpdate;
   int dist = __builtin_abs(slices * 6);
   if (GameSetup_gData.checkpointHUD[player] == 2) {
+
     dist = (dist * 1000) / 0x647;
   }
+
   if (9999 < dist) {
     return 0;
   }
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[dist / 1000];
-  sprt = sprt + 2;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[(dist % 1000) / 100];
-  sprt = sprt + 1;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[dist / 1000]; sprt = sprt + 2;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[(dist % 1000) / 100]; sprt = sprt + 1;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[(dist % 100) / 10];
-  sprt = sprt + 1;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[dist % 10];
+  sprt = sprt + 1; *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[dist % 10];
+
   return 1;
 }
 
@@ -1405,23 +1495,18 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
   int min;
   int sec;
   int hun;
-  int temp1;
-  int temp2;
-
-  temp1 = __builtin_abs(time) / 0x40;
+  int temp1; int temp2; temp1 = __builtin_abs(time) / 0x40;
   temp2 = __builtin_abs(time) - temp1 * 0x40;
   min = temp1 / 0x3c;
   sec = temp1 % 0x3c;
   hun = temp2 * 100 / 0x40;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min % 10];
-  sprt = sprt + 2;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[sec / 10];
-  sprt = sprt + 1;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[sec % 10];
-  sprt = sprt + 2;
+
+
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min % 10]; sprt = sprt + 2;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[sec / 10]; sprt = sprt + 1;
+  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[sec % 10]; sprt = sprt + 2;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun / 10];
-  sprt = sprt + 1;
-  *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun % 10];
+  sprt = sprt + 1; *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun % 10];
 }
 
 /* w45-a8: 163 (268/269) -> 85, posdiff structural residual 27.  LEVER: all FOUR OT/palette
@@ -1637,162 +1722,21 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
  * loads14dif/269. All failed trials restored;not source-object proof/floors.
  * No new helper/name/asm/volatile/pin/qualifier or output rewrite. Historical
  * receipts below refer to removed captures;literal syntax/full SLD unsealed. */
-void Hud_BuildTach(int player)
-
-{
-  int fangle;
-  int sin;
-  int cos;
-  int rpm;
-  SPRT *gSprt1;
-  u_long clut;
-  u_long x;
-  u_long y;
-  int cos1;
-  int sin1;
-  int carType;
-  u_long color;
-  int tachNeedle_p; /* SOURCE-REVIEW-UNRESOLVED: unrecorded selected-address capture;direct loads14dif/269. */
-  void *tp9; /* SOURCE-REVIEW-UNRESOLVED: unrecorded line-packet pointer;direct forms80dif/269 on this basin. */
-  
-  if (player != 0) {
-    gSprt1 = gSprite1;
-  }
-  else {
-    gSprt1 = gSprite0;
-  }
-  carType = 0x1d;
-  if (GameSetup_gData.carInfo[player].carType < 0x1e) {
-    carType = GameSetup_gData.carInfo[player].carType;
-  }
-  if (GameSetup_gData.Time != 0) {
-    color = night_needle[carType];
-  }
-  else {
-    color = day_needle[carType];
-  }
-  rpm = DashHUD_gInfo.rpm;
-  fangle = (rpm * 0x10000) / 0x2a30 + 0x5999;
-  if (fangle < 0x5999) {
-    fangle = 0x5999;
-  }
-  if (0x13334 < fangle) {
-    fangle = 0x13334;
-  }
-  fixedsincos(fangle,&sin,&cos);
-  /* needle glyph shapes: player0 = &HudPmx_gShapes[0x81] (0x801116AC), player1 =
-   * &HudPmx_gShapes[0x83] (0x801116D4) -- were disguised bare VAs -0x7feee954/-0x7feee92c */
-  if (player != 0) {
-    tachNeedle_p = (int)&HudPmx_gShapes[0x83];
-  }
-  else {
-    tachNeedle_p = (int)&HudPmx_gShapes[0x81];
-  }
-  clut = *(u_long *)tachNeedle_p;
-  clut = clut & 0xffff0000;   /* in-place mutate: load lands in clut's reg directly */
-  x = fixedmult(cos,0x1d);
-  y = fixedmult(sin,0x1d);
-  /* MATCH (w75-a3 lever 1): the else-arm value hoisted ABOVE the select and PINNED at the
-   * block head (sched1 issue-position fixpoint).  Unpinned, sched1 sinks the addiu to the
-   * bottom of the block and reorg steals it into the `beqz` delay slot; pinned, retail's
-   * `or s0,s0,v0` is the steal and the hoisted value lands in $v1.
-   * PURE-C FENCE (HUDFX r2): the pin is the do/while(0) wrapper (was a zero-insn asm use
-   * fence).  Falsified natural forms: ternary 7, default-then-override 6, combined OR 12,
-   * hoist above the fixedmult call 30. */
-  u_long clutx; /* SOURCE-REVIEW-UNRESOLVED: unrecorded offset capture/statement wrapper. */
-  do { clutx = x + 0x1d; } while (0);
-  clut = clut | (y + 0x9d) << 8;
-  if (player != 0) {
-    clut = clut | (x + 0x75);
-  }
-  else {
-    clut = clut | clutx;
-    /* MATCH (w55-a9): zero-insn sched fence at the ELSE-ARM EXIT (W54 06B
-     * inner-arm-exit placement) -- restores the oracle's `sh s6,14(t0)` /
-     * `lw t4,40(sp)` issue order in the tach-needle tail and makes the count
-     * EXACT 269/269.  41 -> 40.
-     * ---- W85-S4 DEVICE PURITY: RETIRED.  Removed and re-gated: Hud_BuildTach
-     * stays PASS (and the whole TU 62/62), so the later w75-a3 tail rewrite of
-     * this function subsumed the w55-a9 fence. */
-  }
-  *(u_int *)&gSprt1[2].u0 = clut;   /* word-fused u0/v0/clut store */
-  cos1 = fixedmult(cos,10) + 0xe;
-  sin1 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
-  {
-    POLY_F3 *prim;
-    POLY_F3 *prim2;
-
-    prim = (POLY_F3 *)Render_gPacketPtr;
-    tp9 = (void *)((u_char *)prim + 0x14);
-    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    /* MATCH (w75-a3 lever 2): the cursor bump is written BELOW the palette store; retail
-     * issues `sw t0,0(t3)` inside that store's RMW group, and with the bump written first
-     * sched1 sinks it a whole group too far.  13 -> 11; every fence spelling here is
-     * catastrophic (63-117) -- statement ORDER, not a barrier. */
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
-    Render_gPacketPtr = (u_char *)prim + 0x14;
-    ((Hud_PTag *)tp9)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    Render_gPacketPtr = (u_char *)prim + 0x24;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)tp9;
-    /* MATCH (w63-a1): 30 -> 22 (count EXACT 269/269) by STATEMENT ORDER of this tp9
-     * vertex block alone -- the colour word is written FIRST (retail SLD 1418 issues its
-     * whole `lw color; lui 0x4200; addu; or` chain as one group before any vertex store;
-     * with the colour store third, sched1 fills its load-delay slot with the y1 `sh`).
-     * Measured orders (code first unless noted, all 269/269 unless marked):
-     *   code,x0,rgb,y0,y1,x1 = 30 (the old form) . code,rgb,x0,y0,y1,x1 = 22 (kept)
-     *   rgb,code,x0,y0,y1,x1 = 26 . code,rgb,y0,x0,y1,x1 = 28 . code,rgb,x0,y1,y0,x1 = 22
-     *   code,x0,y0,rgb,y1,x1 = 32 . rgb,x0,y0,y1,x1,code = 25 @268
-     *   code,rgb,x0,y0,x1,y1 = 19 @268 and code,rgb,x0,x1,y0,y1 / x1,y1,x0,y0 = 25 @268
-     *     -- all three are 1 insn SHORT, so 22 @269 is the better (count-exact) basin.
-     * FALSIFIED: a void fence `("" : : "i"(0))` anywhere inside this block is
-     * CATASTROPHIC here (263-273 diffs, 259-266 insns) -- it walls off the whole
-     * packet-store region; and POLY_F3 member spelling for tp9's x1/y1 is inert (30). */
-    ((u_char *)tp9)[3] = 3;
-    *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
-    *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
-    *(short *)((u_char *)tp9 + 10) = 0xe - (short)y;
-    /* MATCH (w71-a2): 20 -> 17.  The w46 residual cluster (1) ("a 4-5 insn block issues 2
-     * slots later for us and duplicates `sh s6,14(t0)` into it") is a STATEMENT-ORDER item,
-     * not a fence item: `cos1` is a SYM AUTO (stack -0x34) so its use emits `lhu t4,36(sp)`
-     * whose load-delay slot retail fills with the sin1 `sh`.  With the sin1 store written
-     * FIRST, gcc emits it before the reload and pays a `nop`; writing the cos1 store first
-     * makes the reload issue first and the sin1 store falls into its delay slot = retail's
-     * `lhu t4,36(sp); sh s6,14(t0); sh t4,12(t0)`.  ⚠️ ours is now 268 vs oracle 269 -- the
-     * one remaining insn is retail's `addu v1,s1,zero` COPY of ts1 before the `+2` in the
-     * y2 tail (we fold it to a single `addiu v0,s1,2`).  MEASURED count-exact alternative:
-     * a block-local `short t2 = ts1;` + identity launder at the y2 site mints the copy
-     * (269/269, sbsx 17) but gates 20 -- recorded, not landed. */
-    *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
-    *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
-    prim2 = (POLY_F3 *)Render_gPacketPtr;
-    ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    Render_gPacketPtr = (u_char *)prim2 + 0x14;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim2;
-  Hud_BuildF3(prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
-  Hud_BuildF3(prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);
-  ((u_char *)prim)[7] = ((u_char *)prim)[7] & 0xfd;
-  fixedsincos(fangle + -0x200,&sin,&cos);
-  prim2->x1 = prim->x1 = 0xe - (short)fixedmult(cos,0x20);
-  prim2->y1 = prim->y1 = 0xe - (short)fixedmult(sin,0x20);
-  fixedsincos(fangle + 0x200,&sin,&cos);
-  prim2->x2 = prim->x2 = 0xe - (short)fixedmult(cos,0x20);
-  prim2->y2 = prim->y2 = 0xe - (short)fixedmult(sin,0x20);
-  /* w75-a3 lever 4 shipped a void fence here to pin this store adjacent to its
-   * `prim` twin (retail `sh s1,18(s2); sh s1,18(s0)`).
-   * ---- W85-S4 DEVICE PURITY: RETIRED -- removed and re-gated, Hud_BuildTach and
-   * the whole TU stay PASS, so the surrounding statement ORDER (the w50-a1 ledger
-   * below) already holds the pairing on its own. */
-  /* MATCH (w50-a1): 43 -> 41 by STATEMENT ORDER alone in the "+2" tail (cluster (2) of the
-   * w46 receipt: retail interleaves the re-reads with the stores, we batch them).  Measured
-   * orders, tp3 first unless noted: [0xe,10,0x12] 41 · [10,0xe,0x12] 43 · [10,0x12,0xe] 43
-   * (the old form) · [0x12,10,0xe] 43 · tp3 between the 1st and 2nd store 41 · tp3 last 55.
-   * 🔴 THE MISSING +1 INSN IS THE 0x12 STORE'S RE-READ: spelling it `*(prim2+0x12) =
-   * *(prim2+0x12) + 2;` instead of `ts1 + 2` makes the count EXACT 269/269 -- but the LCS
-   * jumps (84-105 over six orders), i.e. the extra `lhu` lands with a whole-region schedule
-   * we do not otherwise reproduce.  Recorded, not landed: the count-exact basin exists and
-   * is one scheduling cluster away, which is a better starting point than this 41 if the
-   * fn is picked up again (per the standing "judge on count + posdiff" rule the re-read is
-   * probably the retail spelling). */
+  /* MATCH (w75-a3 lever 3): all THREE as re-read RMWs, in source order y0, y1, y2.  The y2
+   * one is store-forwarded by cse from `prim2->y2 = ts1;` above and, being a HImode member,
+   * the forward survives combine as retail's `addu v1,s1,zero` copy -- the +1 insn the w72/
+   * w74 receipts hunted.  ORDER IS THE DIAL (y0,y2,y1 = 7 posmis, y1,y0,y2 = 4, y2-first =
+   * 268 with the forward lost); the old ts1 read-only fence must stay REMOVED (12 @269). */
+  /* MATCH (w63-a1): 22 -> 20 (count EXACT 269/269).  Retail COPIES ts1 into a fresh
+   * caller-saved reg before adding 2 (`addu v1,s1,zero` @0x800d4220 then `addiu v1,v1,2`
+   * @0x800d4240) where we mutate ts1's own home in place (`addiu s1,s1,2`).  A zero-insn
+   * read-only fence keeping ts1 live PAST this statement is the whole dial: the +2 pseudo
+   * can no longer take ts1's register, so it gets a fresh dest and the copy materializes.
+   * Position measured: after this store = 20, before the gSprt1[2] link block = 20,
+   * BEFORE the store = 22 (inert, the range must extend PAST the use), after `tp3 =` = 24.
+   * A second operand buys nothing (20).  FALSIFIED: identity fence on ts1 (83 @270 -- it
+   * adds a def+use and costs an insn); an explicit `ts2 = ts1;` copy variable (22, cse
+   * propagates it away); a block-local `short t = ts1;` at the +2 site (22). */
   /* MATCH (w63-a1): 40 -> 30 by the 14D ALIAS-DEPENDENCE DIAL alone -- the eight
    * `*(short *)(prim + 0xNN)` / `(prim2 + 0xNN)` vertex stores and the three `+2` tail
    * RMWs are POLY_F3 MEMBERS (tag 0 / rgb+code 4 / x0 8 / y0 10 / x1 0xc / y1 0xe /
@@ -1807,260 +1751,246 @@ void Hud_BuildTach(int player)
    * FALSIFIED in this basin: converting the tp9 x0/y0/x1/y1 stores too (neutral 30);
    * + `((POLY_F3 *)tp9)->code = 3` (32); + the tp9 rgb word via `&->r0` (32);
    * `prim[7] &= 0xfd` as `->code` (neutral); the y2 tail as a re-read RMW (75/270). */
-  /* MATCH (w63-a1): 22 -> 20 (count EXACT 269/269).  Retail COPIES ts1 into a fresh
-   * caller-saved reg before adding 2 (`addu v1,s1,zero` @0x800d4220 then `addiu v1,v1,2`
-   * @0x800d4240) where we mutate ts1's own home in place (`addiu s1,s1,2`).  A zero-insn
-   * read-only fence keeping ts1 live PAST this statement is the whole dial: the +2 pseudo
-   * can no longer take ts1's register, so it gets a fresh dest and the copy materializes.
-   * Position measured: after this store = 20, before the gSprt1[2] link block = 20,
-   * BEFORE the store = 22 (inert, the range must extend PAST the use), after `tp3 =` = 24.
-   * A second operand buys nothing (20).  FALSIFIED: identity fence on ts1 (83 @270 -- it
-   * adds a def+use and costs an insn); an explicit `ts2 = ts1;` copy variable (22, cse
-   * propagates it away); a block-local `short t = ts1;` at the +2 site (22). */
-  /* MATCH (w75-a3 lever 3): all THREE as re-read RMWs, in source order y0, y1, y2.  The y2
-   * one is store-forwarded by cse from `prim2->y2 = ts1;` above and, being a HImode member,
-   * the forward survives combine as retail's `addu v1,s1,zero` copy -- the +1 insn the w72/
-   * w74 receipts hunted.  ORDER IS THE DIAL (y0,y2,y1 = 7 posmis, y1,y0,y2 = 4, y2-first =
-   * 268 with the forward lost); the old ts1 read-only fence must stay REMOVED (12 @269). */
+  /* MATCH (w50-a1): 43 -> 41 by STATEMENT ORDER alone in the "+2" tail (cluster (2) of the
+   * w46 receipt: retail interleaves the re-reads with the stores, we batch them).  Measured
+   * orders, tp3 first unless noted: [0xe,10,0x12] 41 · [10,0xe,0x12] 43 · [10,0x12,0xe] 43
+   * (the old form) · [0x12,10,0xe] 43 · tp3 between the 1st and 2nd store 41 · tp3 last 55.
+   * 🔴 THE MISSING +1 INSN IS THE 0x12 STORE'S RE-READ: spelling it `*(prim2+0x12) =
+   * *(prim2+0x12) + 2;` instead of `ts1 + 2` makes the count EXACT 269/269 -- but the LCS
+   * jumps (84-105 over six orders), i.e. the extra `lhu` lands with a whole-region schedule
+   * we do not otherwise reproduce.  Recorded, not landed: the count-exact basin exists and
+   * is one scheduling cluster away, which is a better starting point than this 41 if the
+   * fn is picked up again (per the standing "judge on count + posdiff" rule the re-read is
+   * probably the retail spelling). */
+  /* w75-a3 lever 4 shipped a void fence here to pin this store adjacent to its
+   * `prim` twin (retail `sh s1,18(s2); sh s1,18(s0)`).
+   * ---- W85-S4 DEVICE PURITY: RETIRED -- removed and re-gated, Hud_BuildTach and
+   * the whole TU stay PASS, so the surrounding statement ORDER (the w50-a1 ledger
+   * below) already holds the pairing on its own. */
+    /* MATCH (w71-a2): 20 -> 17.  The w46 residual cluster (1) ("a 4-5 insn block issues 2
+     * slots later for us and duplicates `sh s6,14(t0)` into it") is a STATEMENT-ORDER item,
+     * not a fence item: `cos1` is a SYM AUTO (stack -0x34) so its use emits `lhu t4,36(sp)`
+     * whose load-delay slot retail fills with the sin1 `sh`.  With the sin1 store written
+     * FIRST, gcc emits it before the reload and pays a `nop`; writing the cos1 store first
+     * makes the reload issue first and the sin1 store falls into its delay slot = retail's
+     * `lhu t4,36(sp); sh s6,14(t0); sh t4,12(t0)`.  ⚠️ ours is now 268 vs oracle 269 -- the
+     * one remaining insn is retail's `addu v1,s1,zero` COPY of ts1 before the `+2` in the
+     * y2 tail (we fold it to a single `addiu v0,s1,2`).  MEASURED count-exact alternative:
+     * a block-local `short t2 = ts1;` + identity launder at the y2 site mints the copy
+     * (269/269, sbsx 17) but gates 20 -- recorded, not landed. */
+    /* MATCH (w63-a1): 30 -> 22 (count EXACT 269/269) by STATEMENT ORDER of this tp9
+     * vertex block alone -- the colour word is written FIRST (retail SLD 1418 issues its
+     * whole `lw color; lui 0x4200; addu; or` chain as one group before any vertex store;
+     * with the colour store third, sched1 fills its load-delay slot with the y1 `sh`).
+     * Measured orders (code first unless noted, all 269/269 unless marked):
+     *   code,x0,rgb,y0,y1,x1 = 30 (the old form) . code,rgb,x0,y0,y1,x1 = 22 (kept)
+     *   rgb,code,x0,y0,y1,x1 = 26 . code,rgb,y0,x0,y1,x1 = 28 . code,rgb,x0,y1,y0,x1 = 22
+     *   code,x0,y0,rgb,y1,x1 = 32 . rgb,x0,y0,y1,x1,code = 25 @268
+     *   code,rgb,x0,y0,x1,y1 = 19 @268 and code,rgb,x0,x1,y0,y1 / x1,y1,x0,y0 = 25 @268
+     *     -- all three are 1 insn SHORT, so 22 @269 is the better (count-exact) basin.
+     * FALSIFIED: a void fence `("" : : "i"(0))` anywhere inside this block is
+     * CATASTROPHIC here (263-273 diffs, 259-266 insns) -- it walls off the whole
+     * packet-store region; and POLY_F3 member spelling for tp9's x1/y1 is inert (30). */
+    /* MATCH (w75-a3 lever 2): the cursor bump is written BELOW the palette store; retail
+     * issues `sw t0,0(t3)` inside that store's RMW group, and with the bump written first
+     * sched1 sinks it a whole group too far.  13 -> 11; every fence spelling here is
+     * catastrophic (63-117) -- statement ORDER, not a barrier. */
+    /* MATCH (w55-a9): zero-insn sched fence at the ELSE-ARM EXIT (W54 06B
+     * inner-arm-exit placement) -- restores the oracle's `sh s6,14(t0)` /
+     * `lw t4,40(sp)` issue order in the tach-needle tail and makes the count
+     * EXACT 269/269.  41 -> 40.
+     * ---- W85-S4 DEVICE PURITY: RETIRED.  Removed and re-gated: Hud_BuildTach
+     * stays PASS (and the whole TU 62/62), so the later w75-a3 tail rewrite of
+     * this function subsumed the w55-a9 fence. */
+  /* MATCH (w75-a3 lever 1): the else-arm value hoisted ABOVE the select and PINNED at the
+   * block head (sched1 issue-position fixpoint).  Unpinned, sched1 sinks the addiu to the
+   * bottom of the block and reorg steals it into the `beqz` delay slot; pinned, retail's
+   * `or s0,s0,v0` is the steal and the hoisted value lands in $v1.
+   * PURE-C FENCE (HUDFX r2): the pin is the do/while(0) wrapper (was a zero-insn asm use
+   * fence).  Falsified natural forms: ternary 7, default-then-override 6, combined OR 12,
+   * hoist above the fixedmult call 30. */
+void Hud_BuildTach(int player)
+
+{
+  int fangle;
+  int sin; int cos; int rpm; SPRT *gSprt1; u_long clut; u_long x; u_long y; int cos1; int sin1; int carType; u_long color; if (player != 0) { gSprt1 = gSprite1; } else { gSprt1 = gSprite0;
+  }
+  carType = 0x1d;
+  if (GameSetup_gData.carInfo[player].carType < 0x1e) carType = GameSetup_gData.carInfo[player].carType;
+  if (GameSetup_gData.Time != 0) { color = night_needle[carType]; } else { color = day_needle[carType];
+  }
+  rpm = DashHUD_gInfo.rpm;
+  fangle = (rpm * 0x10000) / 0x2a30 + 0x5999;
+
+  if (fangle < 0x5999) {
+    fangle = 0x5999;
+  }
+  if (0x13334 < fangle) {
+    fangle = 0x13334;
+  } fixedsincos(fangle,&sin,&cos);
+  /* needle glyph shapes: player0 = &HudPmx_gShapes[0x81] (0x801116AC), player1 =
+   * &HudPmx_gShapes[0x83] (0x801116D4) -- were disguised bare VAs -0x7feee954/-0x7feee92c */
+
+
+
+  clut = *(u_long *)(player != 0 ? &HudPmx_gShapes[0x83] : &HudPmx_gShapes[0x81]); clut = clut & 0xffff0000;   /* in-place mutate: load lands in clut's reg directly */
+  x = fixedmult(cos,0x1d);
+  y = fixedmult(sin,0x1d);
+  u_long clutx; do { clutx = x + 0x1d; } while (0); clut = clut | (y + 0x9d) << 8; if (player != 0) { clut = clut | (x + 0x75); } else { clut = clut | clutx; } *(u_int *)&gSprt1[2].u0 = clut;  /* SOURCE-REVIEW-UNRESOLVED: unrecorded offset capture/statement wrapper. */ /* word-fused u0/v0/clut store */
+
+  cos1 = fixedmult(cos,10) + 0xe;
+  sin1 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
+  {
+    POLY_F3 *prim;
+    POLY_F3 *prim2;
+
+
+
+
+    prim = (POLY_F3 *)Render_gPacketPtr; void *const tp9 = (void *)((u_char *)prim + 0x14); ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)prim + 0x14;
+
+
+
+    ((Hud_PTag *)tp9)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim + 0x24; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)tp9;
+    ((u_char *)tp9)[3] = 3;
+    *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
+    *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
+    *(short *)((u_char *)tp9 + 10) = 0xe - (short)y;
+    *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
+    *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
+
+    prim2 = (POLY_F3 *)Render_gPacketPtr; ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim2 + 0x14; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim2;
+
+  Hud_BuildF3(prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
+  Hud_BuildF3(prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);
+  ((u_char *)prim)[7] = ((u_char *)prim)[7] & 0xfd;
+
+  fixedsincos(fangle + -0x200,&sin,&cos);
+  prim2->x1 = prim->x1 = 0xe - (short)fixedmult(cos,0x20);
+  prim2->y1 = prim->y1 = 0xe - (short)fixedmult(sin,0x20);
+  fixedsincos(fangle + 0x200,&sin,&cos);
+  prim2->x2 = prim->x2 = 0xe - (short)fixedmult(cos,0x20);
+  prim2->y2 = prim->y2 = 0xe - (short)fixedmult(sin,0x20);
   prim2->y0 = prim2->y0 + 2;
   prim2->y1 = prim2->y1 + 2;
   prim2->y2 = prim2->y2 + 2;
-  ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(gSprt1 + 2);
+
+
+
+  ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(gSprt1 + 2);
   }
 }
 
-/* 2026-09-22: the two pad-glyph shapes are &HudPmx_gShapes[0xad] / [0xaa] (element 0x14 bytes, width @+0x10), reached
- * through a POINTER-taking inline: the argument is a constant ADDR_EXPR, so each arm gets its own `la HudPmx_gShapes+K`
- * after the FBuildSprite call and then `lh 0x10(reg)` -- retail's 3-insn form.  (The plain `HudPmx_gShapes[K].width`
- * folds to `lui; lh %lo(sym+K+0x10)`; an INDEX-taking inline computes base+K*20, loop.c hoists the shared base and the
- * generic site below loses its registers.)  This replaces the invented labels D_80111A1C / D_801119E0. */
-static inline int Hud_ShapeWidth(HudPmx_tShape *shape) { return shape->width; }
-
 /* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
- * RESIDUAL 118 (ours 205 / oracle 215).  SYM (fsize 80) has NO `shp` local -- the oracle
- * re-materializes `&HudPmx_gShapes[K]` AFTER each Hud_FBuildSprite call (`lui $t0; addiu
- * $t0; lh $v1,0x10($t0)`) where our `shp` pointer is hoisted before it.  NEGATIVE (w39-a1
- * receipt): deleting `shp` and writing `ix = ix + 3 + HudPmx_gShapes[K].width;` DOES move
- * the count the right way (205 -> 211 of 215) but the freed register re-permutes the whole
- * PARAM s-assignment (y $s6->$s7, color $s7->$fp, justwidth $s5->$s6) and the gate
- * REGRESSES 118 -> 204.  Banked: it needs to land together with a fix for the str/'#'
- * allocno swap ($s2/$s3, the other standing residual), not on its own.
- * ===== w49-a1 RE-GATED 52 (ours 215 / oracle 215, posdiff structural 14) and QUANTIFIED =====
- * posdiff first-use order differs in EXACTLY one adjacent pair (ours s0 s3 a0 ... s2, retail
- * s0 s2 a0 ... s3) => the whole residual is ONE allocno swap.  allocsim/prio table (from
- * tools/rtl_dump.py -dg -dl + tools/prio.py):
- *     p108 -> s2  refs=17 live=298 calls=5 pri=.2281   <- the hoisted `'#'` (0x23) literal
- *     p80  -> s3  refs=8  live=159 calls=7 pri=.1509   <- `str` (the $a0 parm copy)
- * RETAIL WANTS p80=$s2, p108=$s3 (the SYM says str is REGPARM $s2).  tools/reqdelta.py gives
- * exactly TWO single dials, both on REF COUNT:
- *     p108 refs 17 -> 14   (floor_log2 step 4->3)   |  p80 refs 8 -> 13
- * The literal is referenced at 8 sites, ALL inside the loop (weighted x2) + 1 preheader def =
- * 17, and the ORACLE has the same 8 `bne/beq $v0,$s3` sites, so the ref counts are equal on
- * both sides -- the divergence must be a live-length/luid difference we cannot read off the
- * ROM.  FALSIFIED w49-a1: the w45 "name the hoisted literal to lengthen its range and demote
- * it" lever (`int padHash; padHash = 0x23;` as the first statement, all 8 sites compared
- * against it) -> 54 diffs, WORSE: cse const-propagates it straight back into every compare so
- * the pseudo is unchanged, and the named local costs 2 more diffs.
- * NEW NAMED ANGLE: p80 refs 8 -> 13 is the reachable half (the literal cannot lose refs
- * without dropping a real compare).  `str` is referenced 8 times: def, the strlen arg copy,
- * two in-loop `lbu 0(str)` and the in-loop `str = str + 1`.  Find a FAITHFUL shape with 2-3
- * more in-loop references of `str` itself (not of `*str`, which cse merges into the two
- * existing lbu's) -- e.g. a spelling where the per-character dispatch indexes off `str`
- * rather than a cse'd byte.  The `shp` deletion banked above should be re-tested immediately
- * after, per the catalog's blocking-register-cascade rule. */
-/* 2026-10-13: widened actual ix+3/ix+1 components remove iw1..iw5 at215/215.
- * Loop initialization/post-increment remain actual for operations with the
- * original exit-in-body test;offy belongs to the normal-glyph owner atdepth7.
- * Restore original root order alphShape/i/ox/ix/numch. Direct typed glyph
- * index lookup15dif/216;index-first byte-address width expression215PASS
- * removes as and its extra region. All14 original tuples now equal retail
- * WITHOUT filtering extra names. Native DIRTY remains correct:the larger
- * scope tree,shape-width producer,save/dead-set/restore and old void fence
- * still need real source recovery. Device removal33dif/214,fully restored;
- * no original-object/name exemption. Literal widening/full SLD unsealed.
- * No new helper/name/asm/volatile/pin/qualifier or output rewrite retained. */
+ * HUDFX2: rewritten in retail line layout (sldprobe 0/215).  The character loop
+ * indexes str[i] (retail's $s2 is the strength-reduced giv; with `*str` + `str++`
+ * the '#' literal outranked str and the two swapped $s2/$s3 -- the old identity
+ * fences, save/dead-set/restore and the void tail fence are all gone).  The 11-
+ * branch else-if chain exceeds cse's path length, which is what makes the 0xE5
+ * arm re-read *str.  The pad glyphs' width goes through a const element pointer
+ * (`shp`, no SYM record): the address must be a pseudo so it is rematerialised
+ * as `la; lh 16(reg)` after the FBuildSprite call (direct `.width` folds the
+ * offset and hoists the base: 140 diffs).  Residual: those 4 shp scopes are
+ * extra SYM blocks (retail 7 scopes, ours 17); the earlier pointer-taking inline
+ * Hud_ShapeWidth gave the same bytes but more blocks and 12 tag diffs.
+ * If/else on one line for the pad-dependent glyphs: a ?: of two int literals
+ * stored to char emits sign-extended constants (li -86). */
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {
+  Hud_GoTpage(1);
   char alphShape;
   int i;
   int ox;
   int ix;
   int numch;
-
-  Hud_GoTpage(1);
-  ix = x;
-  ox = x;
-  numch = strlen(str);
-  for (i = 0; ; i++) {
-    if (numch <= i) break;    /* exit-in-the-middle: top test + `j` back-edge, tail out-of-line */
-    /* MATCH (w50-a1): 52 -> 26, count EXACT 215/215.  This fence PAIR is the w49 reqdelta
-     * dial "p80 (`str`) refs 8 -> 13" made real: an OPACITY/IDENTITY fence costs ZERO
-     * instructions ("0" pins the output to the input's register) but flow.c counts a def
-     * AND a use, and both sit at loop depth 2 => +4 weighted refs each.  ONE fence gives
-     * refs 12 -> floor_log2(12)*12/159 = .2264, still a hair under the '#' literal's .2281
-     * (measured: id_top 54, id_tail 52 -- both single fences FAIL, exactly as the priority
-     * arithmetic predicts); the PAIR gives 16 -> flr2 step 3->4 -> .4025 and `str` takes
-     * retail's $s2 with the '#' literal falling to $s3 (SYM: str is REGPARM $s2).
-     * Read-only `"r"` fences are NOT enough here (+2 refs each: use_top 54, use_top_tail
-     * 54) -- the def side of the identity fence is what buys the step.
-     * RESIDUAL 26 = standing residual (2) below (the HudPmx_gShapes index/base a0<->v1 role
-     * swap after Hud_FBuildSprite) + the `lui a0`/`sw zero,16(sp)` slot order beside it.
-     * ===== w51-a9: 26 -> 2, count EXACT 215/215.  THREE cooperating edits =====
-     *  (a) NAMED INDEX TEMP for the width lookup (`int as = alphShape;` then
-     *      `HudPmx_gShapes[as].width`) -- 26 -> 9 @214.  This IS standing residual (2):
-     *      gcc expands the ARRAY_REF base-first, so `&HudPmx_gShapes` won $a0 (the register
-     *      the call argument had just freed) and the masked index was pushed to $v1; naming
-     *      the index makes ITS pseudo the one born first, so it inherits $a0 exactly like
-     *      retail (`andi a0,s0,255; lui v1; addiu v1; sll v0,a0,2; ...; addu v0,v0,v1`) and
-     *      the dead `lui a0` that reorg had stolen into the `bnez s5` delay slot disappears.
-     *      Equivalent forms all measure the same 9 @214: `u_int as = (u_char)alphShape`, the
-     *      byte-base cast `((HudPmx_tShape *)(alphShape*20 + (int)HudPmx_gShapes))->width`,
-     *      and the pointer form `(HudPmx_gShapes + alphShape)->width`.  ⚠️ do NOT also route
-     *      the CALL argument through `as` (63 @214) -- retail recomputes the mask.
-     *  (b) the 0xE5 arm RE-READS `*str` (retail `lbu v1,0(s2); li v0,229; bne; addiu
-     *      s0,v1,67`); ours reused the cse'd byte from the `- 0x30` range test.  A third
-     *      identity fence on `str` at the head of that arm restores the re-read and puts the
-     *      count back to EXACT 215 -- 9 -> 6.  (`char c2 = *(volatile char *)str;` reaches
-     *      the identical 6 @215; the fence is preferred as the house device.)
-     *  (c) 🔴 THE FENCE-BARRIER COST, and its fix: fence #1 sat BELOW the `numch <= i` exit
-     *      test, so its scheduling barrier stopped the space literal (`li v0,32`) from being
-     *      stolen into that branch's delay slot -- ours emitted `beqz v0; nop; lbu; li v0,32`
-     *      where retail has `beqz v0; li v0,32; lbu; nop`.  MOVING fence #1 ABOVE the exit
-     *      test keeps its two loop-weighted refs (the w50 flr2 step is untouched: same loop
-     *      depth, same insn count) and frees the slot: 6 -> 2.  GENERAL RULE for the ref-step
-     *      fence: place it where its BARRIER costs nothing -- the ref dial only needs the
-     *      fence somewhere at the right loop depth, so prefer a position with no schedulable
-     *      insn crossing it.
-     * ===== w59-a6: 2 -> PASS (215/215).  THE LAST TWO DIFFS ARE CLOSED =====
-     * The residual was `li s0,103` (alphShape=0x67) vs `li a2,-1` (offy=-1) issue order in
-     * the 0xE5 arm.  Retail's order is s0-then-a2, i.e. SOURCE order `alphShape = 0x67;
-     * offy = -1;` -- but writing it that way alone drops to 4 diffs @213 because the arm's
-     * new TAIL (`offy = -1;`) then matches the tail of the sibling `(u_char)(*str+0x40)<0x1d`
-     * arm (`offy = -1; goto haveShape;`) and jump.c's CROSS_JUMP merges the two, deleting
-     * two insns.  FIX = swap the statements AND terminate the arm with a ZERO-INSN VOID-TAIL
-     * FENCE `__asm__("" : : "i"(0))`: the asm becomes the block's last RTL insn, so the two
-     * arms no longer share a common tail and cross_jump leaves both copies alone, while the
-     * fence itself emits nothing.  (The earlier receipt's "a void fence between them is
-     * exactly neutral" is correct and not in conflict -- the fence has to be AFTER both
-     * statements, where it breaks the tail, not BETWEEN them.)
-     * CATALOG CANDIDATE: "void-tail fence AS A CROSS_JUMP TAIL-BREAKER" -- whenever the
-     * statement order retail needs makes two arms tail-identical, end the arm with a
-     * void-tail fence; it is the zero-insn way to keep a duplicate that jump.c would merge
-     * (the 09G "duplicate a shared tail through DIFFERENT locals" trick without the local). */
-    if (*str == ' ') {
+  ix = x; ox = x; numch = strlen(str);
+  for (i = 0; i < numch; i = i + 1)
+  {
+    if (str[i] == ' ')
       ix = ix + 3;
-    }
-    else if (*str == '*') {
-      ix = ix + 2;            /* own statement -> lands in the buf[0].ID test's delay slot */
-      if (gPadinfo.buf[0].ID == '#') {
-        if (justwidth == 0) {
+    else if (str[i] == '*')
+    {
+      ix = ix + 2;
+
+      if (gPadinfo.buf[0].ID == '#')
+      { HudPmx_tShape *const shp = &HudPmx_gShapes[0xad];
+        if (justwidth == 0)
+        {
           Hud_FBuildSprite(0xad,ix,y,color,0);
         }
-        ix = (long long)(ix + 3) + Hud_ShapeWidth(&HudPmx_gShapes[0xad]);
+        ix = (long long)(ix + 3) + shp->width;
       }
-      else {
-        if (justwidth == 0) {
+      else
+      { HudPmx_tShape *const shp = &HudPmx_gShapes[0xaa];
+        if (justwidth == 0)
+        {
           Hud_FBuildSprite(0xaa,ix,y,color,0);
         }
-        ix = (long long)(ix + 3) + Hud_ShapeWidth(&HudPmx_gShapes[0xaa]);
+        ix = (long long)(ix + 3) + shp->width;
       }
-      if (GameSetup_gData.commMode == 1) {
-        if (gPadinfo.buf[4].ID == '#') {
-          if (gPadinfo.buf[0].ID == '#') goto HudBuildStr_next;
-        }
-        else if (gPadinfo.buf[0].ID != '#') goto HudBuildStr_next;
-        if (gPadinfo.buf[4].ID == '#') {
-            if (justwidth == 0) {
+
+
+
+
+
+      if ((GameSetup_gData.commMode == 1) && ((gPadinfo.buf[4].ID == '#') ? (gPadinfo.buf[0].ID != '#') : (gPadinfo.buf[0].ID == '#')))
+      {
+        if (gPadinfo.buf[4].ID == '#')
+        { HudPmx_tShape *const shp = &HudPmx_gShapes[0xad];
+          if (justwidth == 0)
+          {
             Hud_FBuildSprite(0xad,ix,y,color,0);
           }
-        ix = (long long)(ix + 3) + Hud_ShapeWidth(&HudPmx_gShapes[0xad]);
+          ix = (long long)(ix + 3) + shp->width;
         }
-        else {
-            if (justwidth == 0) {
+        else
+        { HudPmx_tShape *const shp = &HudPmx_gShapes[0xaa];
+          if (justwidth == 0)
+          {
             Hud_FBuildSprite(0xaa,ix,y,color,0);
           }
-        ix = (long long)(ix + 3) + Hud_ShapeWidth(&HudPmx_gShapes[0xaa]);
+          ix = (long long)(ix + 3) + shp->width;
         }
       }
     }
-    else {
+    else
+
+    {
       int offy = 0;
-      if (*str == '^') {
-        alphShape = 0xaa;
-        if (gPadinfo.buf[player * 4].ID == '#') {
-          alphShape = 0xad;
-        }
-      }
-      else if (*str == '(') {
-        alphShape = 0xa9;
-        if (gPadinfo.buf[player * 4].ID == '#') {
-          alphShape = 0xab;
-        }
-      }
-      else if (*str == ')') {
-        alphShape = 0xa8;
-        if (gPadinfo.buf[player * 4].ID == '#') {
-          alphShape = 0xac;
-        }
-      }
-      else if (*str == '&') {
+
+      if (str[i] == '^')
+        if (gPadinfo.buf[player * 4].ID == '#') alphShape = 0xad; else alphShape = 0xaa;
+      else if (str[i] == '(')
+        if (gPadinfo.buf[player * 4].ID == '#') alphShape = 0xab; else alphShape = 0xa9;
+      else if (str[i] == ')')
+        if (gPadinfo.buf[player * 4].ID == '#') alphShape = 0xac; else alphShape = 0xa8;
+      else if (str[i] == '&')
         alphShape = 0xae;
+      else if ((u_char)(str[i] - 0x30U) < 10)
+        alphShape = str[i] + 0x6e;
+      else if (str[i] == '-')
+        alphShape = 0x48;
+      else if (str[i] == ':')
+        alphShape = 0x49;
+      else if ((u_char)(str[i] + 0x40U) < 0x1d)
+      {
+        alphShape = str[i] + 0x8a;
+
+        offy = -1;
       }
-      else {
-        alphShape = *str + 0x6e;
-        if (9 < (u_char)(*str - 0x30U)) {
-          if (*str == '-') {
-            alphShape = 0x48;
-          }
-          else if (*str == ':') {
-            alphShape = 0x49;
-          }
-          else {
-            alphShape = *str + 0x8a;
-            if ((u_char)(*str + 0x40U) < 0x1d) {
-              offy = -1;
-              goto HudBuildStr_haveShape;
-            }
-            {
-              /* BUGFIX (w38-a1): was `*str == -0x1b` -- `char` is UNSIGNED on this build, so
-               * the compare was provably false and gcc DELETED this whole arm (oracle
-               * @800D4574 has `lbu v1,0(s2); li v0,0xE5; bne` + the 0x67/-1 block).  Compare
-               * the raw byte value instead. */
-              /* MATCH (w51-a9 b): third identity fence -- forces the 0xE5 arm's OWN
-               * `lbu v1,0(s2)` re-read (retail's `addiu s0,v1,67`); without it cse reuses
-               * the byte loaded for the `- 0x30` range test and we run 1 insn short. */
-              /* SOURCE-REVIEW-UNRESOLVED: W86-D2 replaced an identity fence by save/dead-set/restore.
-                 The pseudo still gets the extra SET that makes cse forget the byte it
-                 loaded for the `- 0x30` range test, so the 0xE5 arm re-reads `lbu v1,0(s2)`
-                 exactly as retail does; the dead `= 0` store is deleted by flow, so this
-                 costs zero instructions.  Ladder (whole-TU gate, Hud_BuildString):
-                   device removed ............................ 33
-                   `str = 0;` after the last read (dead set) .. 33
-                   save / dead set / restore ................. PASS  <- landed
-                 (the dead value is free: 0, 1 and -1 all PASS). */
-              { char *s_ = str; str = 0; str = s_; }
-              alphShape = *str + 0x43;
-              if ((u_char)*str == 0xe5) {
-                alphShape = 0x67;
-                offy = -1;
-                __asm__("" : : "i"(0));
-              }
-            }
-          }
-        }
-      }
-HudBuildStr_haveShape:
-      if (justwidth == 0) {
+      else if ((u_char)str[i] == 0xe5)
+      { alphShape = 0x67; offy = -1; }
+      else
+        alphShape = str[i] + 0x43;
+
+      if (justwidth == 0)
         Hud_FBuildSprite((u_int)alphShape,ix,y + offy,color,0);
-      }
       ix = (long long)(ix + 1) + ((HudPmx_tShape *)(((u_char)alphShape * 20) + (int)HudPmx_gShapes))->width;
     }
-HudBuildStr_next:
-    str = str + 1;
   }
   Hud_GoTpage(0);
+
   return ix - ox;
 }
 
@@ -2782,231 +2712,182 @@ void Hud_BuildNumbers0(int player)
 void Hud_BuildNumbers(int player)
 
 {
-  int i;
-  SPRT *pSprt;
-  POLY_F4 *HudF4;
-  POLY_G4 *HudG4;
-  int splitY;
+  int i = player;
+  SPRT *pSprt = (i != 0) ? gSprite1 : gSprite0;
+  POLY_F4 *HudF4 = (player != 0) ? gHudF4 + 7 : gHudF4;
+  POLY_G4 *HudG4 = (player != 0) ? gHudG4 + 4 : gHudG4;
+  int splitY = (player != 0) ? -0xf : 0;
 
-  i = player;
-  if (i != 0) {
-    pSprt = gSprite1;
-  }
-  else {
-    pSprt = gSprite0;
-  }
-  HudF4 = gHudF4;
-  if (player != 0) {
-    HudF4 = HudF4 + 7;
-  }
-  HudG4 = gHudG4;
-  if (player != 0) {
-    HudG4 = HudG4 + 4;
-  }
-  splitY = 0;
-  if (player != 0) {
-    splitY = -0xf;
-  }
-  if (((GameSetup_gData.carInfo[i].HudLapnum != 0) && (Hud_BeTheCop == 0)) &&
-     (DashHUD_gInfo.maxlaps != 1)) {
+
+  if (((GameSetup_gData.carInfo[i].HudLapnum != 0) && (Hud_BeTheCop == 0)) && (DashHUD_gInfo.maxlaps != 1))
+  {
     int j;
 
     *(int *)&pSprt[20].u0 = *(int *)&HudPmx_gHudNumberUV[DashHUD_gInfo.lap];
     *(int *)&pSprt[22].u0 = *(int *)&HudPmx_gHudNumberUV[DashHUD_gInfo.maxlaps];
-    j = 0x14;
-    do {
-      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
-      j = j + 1;
-    } while (j < 0x17);
-    j = 6;
-    do {
-      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
-      j = j + 1;
-    } while (j < 8);
-    ((Hud_PTag *)&HudG4[1])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudG4[1];
-    ((Hud_PTag *)&HudF4[1])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudF4[1];
+
+    for (j = 0x14; j < 0x17; j = j + 1)
+    { ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j]; }
+    for (j = 6; j < 8; j = j + 1)
+    { ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j]; }
+    ((Hud_PTag *)&HudG4[1])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudG4[1];
+    ((Hud_PTag *)&HudF4[1])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudF4[1];
   }
+
+
+
   if ((((GameSetup_gData.carInfo[i].HudTime != 0) && (DashHUD_gInfo.record != 0)) &&
-      ((DashHUD_gInfo.record < 0x9600 && ((Hud_BeTheCop == 0 && (Hud_gShowedCDPlayer == 0)))))) &&
-     (DashHUD_gInfo.maxlaps != 1)) {
+       ((DashHUD_gInfo.record < 0x9600 && ((Hud_BeTheCop == 0 && (Hud_gShowedCDPlayer == 0)))))) && (DashHUD_gInfo.maxlaps != 1))
+  {
     int j;
 
-    if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0)) {
+    if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0))
       Hud_BuildTimeString(pSprt + 23,DashHUD_gInfo.record);
-    }
-    j = 0x17;
-    do {
-      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
-      j = j + 1;
-    } while (j < 0x1e);
-    j = 8;
-    do {
-      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
-      j = j + 1;
-    } while (j < 10);
-    ((Hud_PTag *)&HudG4[3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudG4[3];
-    ((Hud_PTag *)&HudF4[2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudF4[2];
+
+    for (j = 0x17; j < 0x1e; j = j + 1)
+    { ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j]; }
+    for (j = 8; j < 10; j = j + 1)
+    { ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j]; }
+    ((Hud_PTag *)&HudG4[3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudG4[3];
+    ((Hud_PTag *)&HudF4[2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudF4[2];
   }
-  if (((GameSetup_gData.carInfo[i].HudPosition != 0) && (Hud_BeTheCop == 0)) &&
-     (1 < DashHUD_gInfo.opponents)) {
+
+
+  if (((GameSetup_gData.carInfo[i].HudPosition != 0) && (Hud_BeTheCop == 0)) && (1 < DashHUD_gInfo.opponents))
+  {
     int j;
 
-    /* MATCH (w64-a1): the `HudPmx_gShapes[0x2c].width` term must lead.  With it last, fold
-     * reassociates `(A + B + W + -2) - P` into `(A + B + W) - (P + 2)` (ours `addiu v0,v0,2`
-     * on the SUBTRAHEND); leading, retail's `lhu a1,896(a2); addiu a1,a1,-2` (the -2 stays on
-     * the width) is emitted early and the whole caller-saved band follows.  208 -> 200. */
     pSprt[37].x0 = (g1Player[0xe].x + g1Player[10].x + (long long)(HudPmx_gShapes[0x2c].width - 2)) -
                    HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;
+
     *(int *)&pSprt[37].u0 = *(int *)&HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].pixmap;
     pSprt[37].w = HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;
+
     *(u_int *)&pSprt[39].u0 = *(u_int *)&HudPmx_gShapes[DashHUD_gInfo.opponents + 0x35].pixmap;
     pSprt[39].w = HudPmx_gShapes[DashHUD_gInfo.opponents + 0x35].width;
-    j = 0x25;
-    do {
-      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
-      j = j + 1;
-    } while (j < 0x28);
-    if (GameSetup_gData.carInfo[j].HudMap != 0) {  /* retail bug: j==0x28, not player */
+
+    for (j = 0x25; j < 0x28; j = j + 1)
+    { ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j]; }
+
+    if (GameSetup_gData.carInfo[j].HudMap != 0)  /* retail bug: j==0x28, not player */
+    {
       Hud_GoTpage(0);
-      ((Hud_PTag *)&pSprt[40])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[40];
+      ((Hud_PTag *)&pSprt[40])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[40];
       Hud_GoTpage(1);
     }
   }
+
   Hud_GoTpage(0);
-  if (GameSetup_gData.carInfo[i].HudTach != 0) {
-    switch (DashHUD_gInfo.gear) {
+
+
+  if (GameSetup_gData.carInfo[i].HudTach != 0)
+  {
+
+
+
+    switch (DashHUD_gInfo.gear)
+    {
     case 0:
-      ((Hud_PTag *)&pSprt[48])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[48];
+
+      ((Hud_PTag *)&pSprt[48])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[48];
+
       break;
+
+
     case 1:
-      ((Hud_PTag *)&pSprt[47])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[47];
+      ((Hud_PTag *)&pSprt[47])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[47];
       break;
     default:
-      ((Hud_PTag *)(DashHUD_gInfo.gear * 20 + (int)pSprt + 780))->addr =
-           ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(DashHUD_gInfo.gear * 20 + (int)pSprt + 780);
+      ((Hud_PTag *)(DashHUD_gInfo.gear * 20 + (int)pSprt + 780))->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(DashHUD_gInfo.gear * 20 + (int)pSprt + 780);
       break;
     }
-    if (GameSetup_gData.carInfo[i].HudSpeed == 0) {
-      ((Hud_PTag *)&pSprt[50])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[50];
+
+
+
+
+
+
+    if (GameSetup_gData.carInfo[i].HudSpeed == 0)
+    {
+      ((Hud_PTag *)&pSprt[50])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[50];
     }
-    else {
-      ((Hud_PTag *)&pSprt[49])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[49];
+    else
+    {
+      ((Hud_PTag *)&pSprt[49])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[49];
     }
   }
-  Hud_GoTpage(1);
-  if (GameSetup_gData.carInfo[player].HudTach != 0) {
-    int speed;
-    int hun;
-    int ten;
-    int x;
-    int y;
-    int w1;
-    int w2;
-    int w3;
-    int w7;
-    int color2;
-    POLY_GT4 *prim;
-    u_long SpeedColor;
 
-    speed = fixedmult(GameSetup_gData.carInfo[i].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
-    hun = speed / 100;
-    ten = speed / 10 + hun * -10;
-    SpeedColor = 0xc8c8c8;
-    color2 = 0x505050;
+
+  Hud_GoTpage(1);
+
+
+  if (GameSetup_gData.carInfo[player].HudTach != 0)
+  {
+    int speed = fixedmult(GameSetup_gData.carInfo[i].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
+    int hun = speed / 100;
+    int ten = speed / 10 + hun * -10;
+    int x, y, w1, w2, w3, w7, color2;
+    POLY_GT4 *prim; u_long SpeedColor;
     w1 = HudPmx_gShapes[0x2c].width + 1;
     w2 = w1 + HudPmx_gShapes[0x2d].width >> 1;
     w7 = w1 + HudPmx_gShapes[0x33].width >> 1;
     w3 = w1 - w2;
-    /* MATCH (w71-a2): the fold reassociates `(A + B + 4) + w1*2` into `(A+B) + (w1*2+4)`
-     * (`sll v0,w1,1; addiu v0,v0,4; addu s2,v1,v0`), where retail keeps the `+4` on the
-     * A+B term and adds the doubled width LAST with the shift first in the addu
-     * (`addu s2,a1,v0; addiu v1,s2,4; sll v0,w1,1; addu s2,v0,v1`).  fold is
-     * STATEMENT-granular, so the two-statement form with the `+ 4` in the SECOND
-     * statement is the only spelling that reaches it (200 -> 196; `x = A+B+4;` then
-     * `x = w1*2 + x;` = 252, three-statement `x=A+B; x=x+4; x=w1*2+x;` = 210).  But fold
-     * STILL reassociates `w1*2 + (x + 4)` into `(w1*2 + 4) + x` inside the second statement
-     * -- the constant only survives on the A+B term when the `x + 4` is a SEPARATE
-     * block-local temp fold cannot see through: 196 -> 188 (count 758/758 throughout).
-     * Measured: `xt + w1*2` (operand order) 190 . fn-scope `xt` 188 (same) . `4 + x` 196 .
-     * `x = w1*2 + (A+B+4)` 228. */
     x = (int)g1Player[1].x + (int)g1Player[0xc].x;
+    y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
+
+
+
+
+
+    SpeedColor = 0xc8c8c8;
+    color2 = 0x505050;
+
+
+
     {
       const int xt /* SOURCE-REVIEW-UNRESOLVED: unrecorded fold-boundary capture;direct forms2/6/30dif at758. */ = x + 4;
-      x = w1 * 2 + xt;
-    }
-    y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
-    prim = (POLY_GT4 *)Render_gPacketPtr;
-    Render_gPacketPtr = Render_gPacketPtr + 0x34;
-    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+
+
+
+      x = w1 * 2 + xt; }
+    prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = Render_gPacketPtr + 0x34; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
     Hud_BuildGT4(prim,HudPmx_gShapes + speed % 10 + 0x2c,x,y,SpeedColor);
-    *(u_int *)&prim->r3 = color2;
-    *(u_int *)&prim->r2 = color2;
-    if (ten == 1) {
-      /* MATCH (w53-a3): 256 -> 208, count still EXACT 758/758.  The do{}while(0) DEPTH
-       * WRAPPER (w44 ref-inflator #3) is here purely as an allocno REF dial: flow.c
-       * weights refs by loop depth, so this one `w2` reference counts twice and w2's
-       * REG_N_REFS crosses the floor_log2 step 3 -> 4.  reqdelta (allocsim, MATCH 49/49
-       * on this fn) named it as the MINIMAL single dial for `pSprt`(p82) to move $s4 ->
-       * $s5, which is retail's handout; loop.c strips the phony loop so 0 insns are
-       * added.  pSprt is now `lw s5,0(gp)` at both gSprite selects = oracle-exact.
-       * RESIDUAL 208 = the rest of the w46 4-cycle: `speed`(p643) is ours $s3 / retail
-       * $s4 and `w1`(p624) is ours $s6 / retail $s3 (w2 -> $s4 and `ten` -> $s6 follow).
-       * reqdelta's minimal dial for that half is p624(w1) refs 6 -> 8 or live 61 -> 42.
-       * FALSIFIED HERE (this basin): depth wrapper on `w3 = w1 - w2;` (421 @759),
-       * NESTED depth-2 wrapper on the else-arm `x = x - w1;` (260), one wrapper round
-       * the w2+w7 defs (346 @760), and moving `hun`/`ten` below the first Hud_BuildGT4
-       * to lengthen `speed`'s live range (504 @762). */
+    *(u_int *)&prim->r3 = color2; *(u_int *)&prim->r2 = color2;
+
+
+    if (ten == 1)
       x = x - w2;
-    }
-    else if (ten == 7) {
+    else if (ten == 7)
       x = x - w7;
-    }
-    else {
+    else
       do { do { x = x - w1; } while (0); } while (0);
-    }
-    if ((hun != 0) || (ten != 0)) {
-      prim = (POLY_GT4 *)Render_gPacketPtr;
-      Render_gPacketPtr = Render_gPacketPtr + 0x34;
-      ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+
+    if ((hun != 0) || (ten != 0))
+    {
+      prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = Render_gPacketPtr + 0x34; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
       Hud_BuildGT4(prim,HudPmx_gShapes + ten + 0x2c,x,y,SpeedColor);
-      *(u_int *)&prim->r3 = color2;
-      *(u_int *)&prim->r2 = color2;
+      *(u_int *)&prim->r3 = color2; *(u_int *)&prim->r2 = color2;
     }
-    if (ten == 1) {
+
+    if (ten == 1)
       x = x - w3;
-    }
+
+
+
     x = (long long)(x - 1) - (int)HudPmx_gShapes[hun + 0x2c].width;
-    if (hun != 0) {
-      prim = (POLY_GT4 *)Render_gPacketPtr;
-      Render_gPacketPtr = Render_gPacketPtr + 0x34;
-      ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+    if (hun != 0)
+    {
+      prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = Render_gPacketPtr + 0x34; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
       Hud_BuildGT4(prim,HudPmx_gShapes + hun + 0x2c,x,y,SpeedColor);
-      *(u_int *)&prim->r3 = color2;
-      *(u_int *)&prim->r2 = color2;
+      *(u_int *)&prim->r3 = color2; *(u_int *)&prim->r2 = color2;
     }
   }
-  if ((DashHUD_gInfo.wrongway[i] != 0) && ((simGlobal.gameTicks >> 5 & 1U) != 0)) {
-    ((Hud_PTag *)&pSprt[0])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[0];
-  }
+
+
+  if (DashHUD_gInfo.wrongway[i] != 0)
+
+    if ((simGlobal.gameTicks >> 5 & 1U) != 0)
+      { ((Hud_PTag *)&pSprt[0])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[0]; }
 }
 
 /* ---- Hud_InitMap__Fv [HUD.CPP:1917-1926;native exact,full SLD open] ----
@@ -3281,7 +3162,7 @@ void Hud_BuildMapMarkers(int player)
       SPRT *sprt;
       int slice;
       u_char **pktcell; /* SOURCE-REVIEW-UNRESOLVED: absent from retail;existing identity device is not original-source proof. */
-      int aiflags; /* SOURCE-REVIEW-UNRESOLVED: flag snapshot absent from retail. */
+
 
       slice = Cars_gCopCarList[i]->N.simRoadInfo.slice;
       rx = BWorldSm_slices[slice][0] / gMapScaleX;
@@ -3329,7 +3210,7 @@ void Hud_BuildMapMarkers(int player)
        * both + fence BOTH 34 @310 (this).  FALSIFIED here: hoisting the read into a local
        * (inert 45), an `m`-operand fence on the global (42), moving the cursor bump below
        * the funnel (294 -- it shatters the whole loop band). */
-      aiflags = Cars_gCopCarList[i]->AIFlags;
+      const int aiflags = Cars_gCopCarList[i]->AIFlags;
       *pktcell = (u_char *)sprt + 0x14;
       *(long *)&currentSpriteColor = ((aiflags & 2) != 0)
                          ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
@@ -3346,7 +3227,7 @@ void Hud_BuildMapMarkers(int player)
       SPRT *sprt;
       int slice;
       u_char **pktcell; /* SOURCE-REVIEW-UNRESOLVED: unrecorded cursor-cell capture/identity device. */
-      Car_tObj *car; /* SOURCE-REVIEW-UNRESOLVED: unrecorded pointer capture;older trial is not original-object proof. */
+
       u_int cflags; /* SOURCE-REVIEW-UNRESOLVED: unrecorded flag capture. */
 
       slice = Cars_gRaceCarList[i]->N.simRoadInfo.slice;
@@ -3380,7 +3261,7 @@ void Hud_BuildMapMarkers(int player)
        * store.  BOTH locals are load-bearing: cflags alone is 74 @310, the pair is 14 @308
        * (count exact).  The pointer local is what keeps retail's single `lw a0,0(s6)` feeding
        * both the carFlags read here and the AIFlags read in arm 1 (oracle 244/252). */
-      car = Cars_gRaceCarList[i];
+      Car_tObj *const car = Cars_gRaceCarList[i];
       cflags = car->carFlags;
       *pktcell = (u_char *)sprt + 0x14;
       if ((cflags & 0x200U) != 0) {
@@ -3554,43 +3435,6 @@ void Hud_WingmanFlash(int player,int index)
  * unrecorded captures,not native-CLEAN exemptions. Reusing flashTicks for fc
  * passes bytes/homes but loses retail's real guarded binding pair;restored.
  * Direct staged y then +=2 is36dif/211;restored. Full SLD/text still open. */
-void Hud_BuildWingmanInterface(int player)
-
-{
-  /* SYM locals: splitY=$t0, flashTicks=$s3, poly=$a0 (POLY_F4*), x=$s7, y=$s4; block i=$s2.
-   * g1Player[0xe].x read once (s1), the -0x1b string-x CSEs into s0. */
-  int splitY;
-  int flashTicks;
-  POLY_F4 *poly;
-  int x;
-  int y;
-  int two; /* SOURCE-REVIEW-UNRESOLVED: literal capture absent from retail;direct y+2 gives36dif/211 on this basin. */
-
-  /* MATCH (w50-a1): 18 -> 6, count EXACT 211/211 -- the w45 NAMED-ONE lever that cluster
-   * (3) below named but never swept.  Retail materialises the literal 2 into a CALLEE-SAVED
-   * register (`li s0,2` + `addu a3,s4,s0` at the final Hud_BuildF4) where a bare literal
-   * gives `addu s0,s4,zero` + `addiu a3,s0,2`; naming it routes the constant into the
-   * s-pool.  The `+2` that reaches the final F4 is the one fold hoists out of the `y`
-   * definition (cluster (1)), so `(splitY + two)` is the site that matters.  PLACEMENT
-   * SWEEP: top / before `now =` / before `xf =` / before the `y =` statement are ALL 6
-   * (the constant is loop-invariant and LICM parks it identically); before the final F4
-   * call = 8; ALSO routing the icon row's `(y + 2)` through `two` = 10 (that +2 is a
-   * different term -- it must stay a literal).  Clusters (1) and (3) below are CLOSED by
-   * this; the surviving 6 is cluster (2) only. */
-  two = 2;
-  splitY = 0;
-  if (player != 0) {
-    splitY = -0xf;
-  }
-  flashTicks = (int)(-(unsigned int)FE_Ticks() + (unsigned int)Hud_gWingmanFlashTicks[player]);
-  x = (int)g1Player[0xe].x - 0x1c;
-  y = g1Player[0xe].y + HudMapOffsetY + (splitY + two);
-  Hud_BuildString(TextSys_Word(0x29),x + 1,y + 3,0x808080,0,false);
-  Hud_BuildString(TextSys_Word(0x2a),x + 1,y + 0xc,0x808080,player,false);
-  Hud_BuildString(TextSys_Word(0x2b),x + 1,y + 0x15,0x808080,player,false);
-  Hud_BuildString(TextSys_Word(0x2c),x + 1,y + 0x1e,0x808080,player,false);
-  Hud_BuildString(TextSys_Word(0x2d),x + 1,y + 0x27,0x808080,player,false);
-  if (0 < flashTicks) {
     /* MATCH (w50-a1): 6 -> 2, count EXACT 211/211.  Hoisting the /20 modulo out of the
      * Hud_BuildF4 argument list into its own first statement of the guarded block puts the
      * magic-multiply constant (lui t3,26214; ori 26215) at retail's emission position --
@@ -3615,32 +3459,55 @@ void Hud_BuildWingmanInterface(int player)
      * `y + ((E*9) + 2)` 6; `y + E*9 + two` (the NAMED-ONE 2) 2.
      * No original iconRow spelling or separate source object was established.
      * Current fc also remains unrecorded/source-review work;pal is removed. */
+  /* MATCH (w50-a1): 18 -> 6, count EXACT 211/211 -- the w45 NAMED-ONE lever that cluster
+   * (3) below named but never swept.  Retail materialises the literal 2 into a CALLEE-SAVED
+   * register (`li s0,2` + `addu a3,s4,s0` at the final Hud_BuildF4) where a bare literal
+   * gives `addu s0,s4,zero` + `addiu a3,s0,2`; naming it routes the constant into the
+   * s-pool.  The `+2` that reaches the final F4 is the one fold hoists out of the `y`
+   * definition (cluster (1)), so `(splitY + two)` is the site that matters.  PLACEMENT
+   * SWEEP: top / before `now =` / before `xf =` / before the `y =` statement are ALL 6
+   * (the constant is loop-invariant and LICM parks it identically); before the final F4
+   * call = 8; ALSO routing the icon row's `(y + 2)` through `two` = 10 (that +2 is a
+   * different term -- it must stay a literal).  Clusters (1) and (3) below are CLOSED by
+   * this; the surviving 6 is cluster (2) only. */
+  /* SYM locals: splitY=$t0, flashTicks=$s3, poly=$a0 (POLY_F4*), x=$s7, y=$s4; block i=$s2.
+   * g1Player[0xe].x read once (s1), the -0x1b string-x CSEs into s0. */
+void Hud_BuildWingmanInterface(int player)
+
+{
+  int splitY;
+  int flashTicks;
+  POLY_F4 *poly;
+  int x; int y; int two; two = 2; splitY = 0; if (player != 0) { splitY = -0xf;  /* SOURCE-REVIEW-UNRESOLVED: literal capture absent from retail;direct y+2 gives36dif/211 on this basin. */
+  }
+  flashTicks = (int)(-(unsigned int)FE_Ticks() + (unsigned int)Hud_gWingmanFlashTicks[player]);
+
+  x = (int)g1Player[0xe].x - 0x1c;
+  y = g1Player[0xe].y + HudMapOffsetY + (splitY + two);
+
+  Hud_BuildString(TextSys_Word(0x29),x + 1,y + 3,0x808080,0,false);
+  Hud_BuildString(TextSys_Word(0x2a),x + 1,y + 0xc,0x808080,player,false);
+  Hud_BuildString(TextSys_Word(0x2b),x + 1,y + 0x15,0x808080,player,false);
+  Hud_BuildString(TextSys_Word(0x2c),x + 1,y + 0x1e,0x808080,player,false);
+  Hud_BuildString(TextSys_Word(0x2d),x + 1,y + 0x27,0x808080,player,false);
+
+  if (0 < flashTicks)
+  {
     int fc /* SOURCE-REVIEW-UNRESOLVED: unrecorded guarded modulo capture;literal name not recovered. */ = (flashTicks % 0x14) * 10;
-    poly = (POLY_F4 *)Render_gPacketPtr;
-    ((Hud_PTag *)poly)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    Render_gPacketPtr = (u_char *)poly + 0x18;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
-    Hud_BuildF4(poly,0,x + 0xc,
-       (int)((unsigned int)y - (-(unsigned int)(((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2))),
-       0x3f,8,fc);
+    poly = (POLY_F4 *)Render_gPacketPtr; ((Hud_PTag *)poly)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)poly + 0x18; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
+    Hud_BuildF4(poly,0,x + 0xc, (int)((unsigned int)y - (-(unsigned int)(((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2))), 0x3f,8,fc);
   }
   {
-    int i;
+    int i; i = 0; do {
 
-    i = 0;
-    do {
-      poly = (POLY_F4 *)Render_gPacketPtr;
-      ((Hud_PTag *)poly)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      Render_gPacketPtr = (u_char *)poly + 0x18;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
+      poly = (POLY_F4 *)Render_gPacketPtr; ((Hud_PTag *)poly)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)poly + 0x18; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
+
+
+
+
       Hud_BuildF4(poly,0,x,(y + 2) + i * 9,0x4b,7,0);
-      i = i + 1;
-    } while (i < 5);
-  }
-  poly = (POLY_F4 *)Render_gPacketPtr;
-  ((Hud_PTag *)poly)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  Render_gPacketPtr = (u_char *)poly + 0x18;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
+      i = i + 1; } while (i < 5);
+  } poly = (POLY_F4 *)Render_gPacketPtr; ((Hud_PTag *)poly)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)poly + 0x18; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
   Hud_BuildF4(poly,1,x,y,0x4b,0x30,0);
 }
 
@@ -4236,39 +4103,47 @@ HudCdPlay_buildOutString:
  * This restores an observed owner containing real draw operations,not an
  * empty scope/count pad or manufactured declaration. Literal syntax/full
  * SLD still unsealed;no register pin,new helper,asm or volatile was added. */
-int Hud_BuildRadar(int player)
-
-{
+      /* MATCH (w45-a7): De Morgan + SWAPPED ARMS.  Retail reaches the 0xFF arm from BOTH
+       * tests (`bnez a0` on gFlip and, after it, `beqz v0` on quickPauseSim whose delay slot
+       * carries `lui v0,0xFF0000`), i.e. the `||`-chain's TRUE arm is the shared inline block
+       * and the 0xFF0000 arm is the fall-through set from a delay slot.  The natural
+       * `if (A==0 && B==0) 0xff0000; else 0xff;` inverts that and costs an extra `j`
+       * (8 -> 4 diffs, ours 452 -> 450 = oracle).  Falsified: default+override [9],
+       * ternary [19, 449 insns], explicit goto-chain [10]. */
+      /* MATCH (w45-a7): EA-1998 addPrim() -- the PsyQ P_TAG bitfield setaddr pair
+       * (value side = a bitfield READ), packet-cursor bump BETWEEN the two stores.
+       * Replaces the hand-masked `*sprt & 0xff000000 | *pal & 0xffffff` form and the
+       * `tag` staging temp it needed: 46 -> 8 diffs, ours 452 -> 450 = oracle. */
   /* SYM-exact locals (8c block @0x800d6b48): car=$v0, i=$s0, x=$a1, z=$v0, cenX=$t3,
    * cenZ=$t2, mapx=$fp, mapz=$s7(constants 22/24 held callee-saved), m00=$t6, m01=$t5,
    * m10=$t4, m11=$a0, scr AUTO -0xE0, visible=$s6; sprt block-local per draw loop.
    * player is ARG class (stack-spilled, reloaded 0xF8(sp) at each use). */
-  BO_tNewtonObj *car;
-  int i;
-  int x;
-  int z;
-  int cenX;
-  int cenZ;
-  int mapx;
-  int mapz;
-  int m00;
-  int m01;
-  int m10;
-  int m11;
-  coorddef scr [15];
-  int visible;
+int Hud_BuildRadar(int player)
 
-  car = Camera_gInfo[player].anchor;               /* SLD 2498 */
+{
+  BO_tNewtonObj *car; int i; int x; int z; int cenX; int cenZ; int mapx; int mapz; int m00; int m01; int m10; int m11; coorddef scr [15]; int visible; car = Camera_gInfo[player].anchor;               /* SLD 2498 */
+
+
+
+
+
+
+
+
   m00 = car->orientMat.m[0] >> 8;   /* +0xF0  SLD 2507 */
   m01 = car->orientMat.m[6] >> 8;   /* +0x108 SLD 2508 */
   m10 = car->orientMat.m[2] >> 8;   /* +0xF8  SLD 2509 */
   m11 = car->orientMat.m[8] >> 8;   /* +0x110 SLD 2510 */
+
   mapx = 0x16;                                     /* SLD 2512 */
   mapz = 0x18;                                     /* SLD 2513 */
   cenX = car->position.x >> 8;                     /* SLD 2514 */
   cenZ = -car->position.z >> 8;                    /* SLD 2515 */
   visible = 0;                                     /* SLD 2519 (no line of its own) */
+
+
   for (i = 0; i < Cars_gNumRaceCars; i++) {        /* SLD 2519 */
+
     x = (Cars_gRaceCarList[i]->N.position.x >> 8) - cenX;
     z = (-Cars_gRaceCarList[i]->N.position.z >> 8) - cenZ;
     scr[i].x = m00 * x + m01 * z >> 0x10;
@@ -4277,15 +4152,16 @@ int Hud_BuildRadar(int player)
       scr[i].x = -scr[i].x;
     }
     if ((Cars_gRaceCarList[i]->N.active != '\0') && (Cars_gRaceCarList[i]->carIndex != player)) {
-      if ((-mapx < scr[i].x) && (scr[i].x < mapx)) {
-        if ((-mapz < scr[i].z) && (scr[i].z < mapz)) {
+
+      if ((-mapx < scr[i].x) && (scr[i].x < mapx)) { if ((-mapz < scr[i].z) && (scr[i].z < mapz)) {
           visible = 1;
         }
-      }
-    }
-  }
+      } } }
+
   for (i = 0; i < Cars_gNumCopCars; i++) {
+
     if (Cars_gCopCarList[i]->N.active != '\0') {
+
       x = (Cars_gCopCarList[i]->N.position.x >> 8) - cenX;
       z = (-Cars_gCopCarList[i]->N.position.z >> 8) - cenZ;
       scr[Cars_gNumRaceCars + i].x = m00 * x + m01 * z >> 0x10;
@@ -4293,82 +4169,74 @@ int Hud_BuildRadar(int player)
       if (GameSetup_gData.mirrorTrack != 0) {
         scr[Cars_gNumRaceCars + i].x = -scr[Cars_gNumRaceCars + i].x;
       }
-      if ((-mapx < scr[Cars_gNumRaceCars + i].x) && (scr[Cars_gNumRaceCars + i].x < mapx)) {
-        if ((-mapz < scr[Cars_gNumRaceCars + i].z) && (scr[Cars_gNumRaceCars + i].z < mapz)) {
+      if ((-mapx < scr[Cars_gNumRaceCars + i].x) && (scr[Cars_gNumRaceCars + i].x < mapx)) { if ((-mapz < scr[Cars_gNumRaceCars + i].z) && (scr[Cars_gNumRaceCars + i].z < mapz)) {
           visible = 1;
         }
-      }
-    }
-  }
+      } } }
+
+
+
+
   if (visible == 0) {
+
     for (i = 0; i < Cars_gNumRaceCars; i++) {
+
       if (Cars_gRaceCarList[i]->N.active != '\0') {
+
+
         scr[i].x = scr[i].x >> 2;
         scr[i].z = scr[i].z >> 2;
-        if (Cars_gRaceCarList[i]->carIndex != player) {
-          if ((-mapx < scr[i].x) && (scr[i].x < mapx) && (-mapz < scr[i].z) && (scr[i].z < mapz)) {
+        if (Cars_gRaceCarList[i]->carIndex != player) { if ((-mapx < scr[i].x) && (scr[i].x < mapx) && (-mapz < scr[i].z) && (scr[i].z < mapz)) {
             visible = 2;
           }
-        }
-      }
-    }
+        } } }
+
     for (i = 0; i < Cars_gNumCopCars; i++) {
+
       scr[i + Cars_gNumRaceCars].x = scr[i + Cars_gNumRaceCars].x >> 2;
       scr[i + Cars_gNumRaceCars].z = scr[i + Cars_gNumRaceCars].z >> 2;
       if ((-mapx < scr[i + Cars_gNumRaceCars].x) && (scr[i + Cars_gNumRaceCars].x < mapx) &&
           (-mapz < scr[i + Cars_gNumRaceCars].z) && (scr[i + Cars_gNumRaceCars].z < mapz)) {
         visible = 2;
-      }
-    }
+      } }
   }
   { /* Retail shared packet-emission region (+47c..+6d8). */
+
+
   for (i = 0; i < Cars_gNumCopCars; i++) {
+
     if (Cars_gCopCarList[i]->N.active != '\0') {
       SPRT *sprt;
 
-      sprt = (SPRT *)Render_gPacketPtr;
-      /* MATCH (w45-a7): EA-1998 addPrim() -- the PsyQ P_TAG bitfield setaddr pair
-       * (value side = a bitfield READ), packet-cursor bump BETWEEN the two stores.
-       * Replaces the hand-masked `*sprt & 0xff000000 | *pal & 0xffffff` form and the
-       * `tag` staging temp it needed: 46 -> 8 diffs, ours 452 -> 450 = oracle. */
-      ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      Render_gPacketPtr = (u_char *)sprt + 0x14;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)sprt;
-      /* MATCH (w45-a7): De Morgan + SWAPPED ARMS.  Retail reaches the 0xFF arm from BOTH
-       * tests (`bnez a0` on gFlip and, after it, `beqz v0` on quickPauseSim whose delay slot
-       * carries `lui v0,0xFF0000`), i.e. the `||`-chain's TRUE arm is the shared inline block
-       * and the 0xFF0000 arm is the fall-through set from a delay slot.  The natural
-       * `if (A==0 && B==0) 0xff0000; else 0xff;` inverts that and costs an extra `j`
-       * (8 -> 4 diffs, ours 452 -> 450 = oracle).  Falsified: default+override [9],
-       * ternary [19, 449 insns], explicit goto-chain [10]. */
+      sprt = (SPRT *)Render_gPacketPtr; ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)sprt + 0x14; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)sprt;
       if ((gFlip != 0) || (simVar.quickPauseSim != 0)) {
         currentSpriteColor = 0xff;
       }
-      else {
-        currentSpriteColor = 0xff0000;
-      }
-      Hud_BuildSprite(sprt,0x7a,scr[i + Cars_gNumRaceCars].x + mapx + -2 & 0xffff,
-                 scr[i + Cars_gNumRaceCars].z + mapz & 0xffff,currentSpriteColor,0);
+      else currentSpriteColor = 0xff0000;
+      Hud_BuildSprite(sprt,0x7a,scr[i + Cars_gNumRaceCars].x + mapx + -2 & 0xffff, scr[i + Cars_gNumRaceCars].z + mapz & 0xffff,currentSpriteColor,0);
     }
   }
+
   for (i = 0; i < Cars_gNumRaceCars; i++) {
+
+
+
+
+
+
+
+
       if ((i == player) || (Cars_gRaceCarList[i]->N.active == '\0')) continue;
       SPRT *sprt;
-
-      sprt = (SPRT *)Render_gPacketPtr;
-      ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)sprt;
-      Render_gPacketPtr = (u_char *)sprt + 0x14;
+      sprt = (SPRT *)Render_gPacketPtr; ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)sprt; Render_gPacketPtr = (u_char *)sprt + 0x14;
       if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
-        Hud_BuildSprite(sprt,0x79,scr[i].x + mapx + -3 & 0xffff,scr[i].z + mapz & 0xffff,
-                   *(u_long *)&Hud_gMarkerColor[i],0);
+        Hud_BuildSprite(sprt,0x79,scr[i].x + mapx + -3 & 0xffff,scr[i].z + mapz & 0xffff, *(u_long *)&Hud_gMarkerColor[i],0);
       }
-      else {
-        Hud_BuildSprite(sprt,0x7a,scr[i].x + mapx + -2 & 0xffff,scr[i].z + mapz & 0xffff,
-                   *(u_long *)&Hud_gMarkerColor[i],0);
+      else { Hud_BuildSprite(sprt,0x7a,scr[i].x + mapx + -2 & 0xffff,scr[i].z + mapz & 0xffff, *(u_long *)&Hud_gMarkerColor[i],0);
       }
     }
   }
+
   return visible;
 }
 
@@ -4690,47 +4558,34 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
 
 {
   int i;   /* SYM order: i, j, direction, carObj */
-  int j;
-  int direction;
-  Car_tObj *carObj;
-  
-  direction = (u_int)(0 < Input_gLookBehind[player] != 0 < DashHUD_gInfo.wrongway[player]);
+  int j; int direction; Car_tObj *carObj; direction = (u_int)(0 < Input_gLookBehind[player] != 0 < DashHUD_gInfo.wrongway[player]);
   carObj = Cars_gHumanRaceCarList[player];   /* retail's only pointer local; sorted-list entries are read direct */
-  if (1 < Cars_gNumRaceCars) {
-    j = Stats_GetPosition(carObj);
-    if ((j == 1) && (direction == 0)) {
+
+
+
+  if (1 < Cars_gNumRaceCars) { j = Stats_GetPosition(carObj); if ((j == 1) && (direction == 0)) {
       return "";
     }
     {
-      i = 0;
-      direction = direction ^ GameSetup_gData.reverseTrack;
-      j = carObj->sortIndex;
-      if (0 < Cars_gNumCars + -1) {
-        do {
-          if (direction != 0) {
-            j = j + -1;
-          }
-          else {
-            j = j + 1;
-          }
-          if (j < 0) {
-            j = j + Cars_gNumCars;
-          }
-          if (Cars_gNumCars <= j) {
-            j = 0;
+      i = 0; direction = direction ^ GameSetup_gData.reverseTrack;
+
+      j = carObj->sortIndex; if (0 < Cars_gNumCars + -1) { do {
+
+          if (direction != 0) { j = j + -1; } else j = j + 1;
+          if (j < 0) j = j + Cars_gNumCars;
+          if (Cars_gNumCars <= j) { j = 0;
           }
           if ((Cars_gSortedList[j]->carFlags & 0xc) != 0) {
+
             if (GameSetup_gData.carInfo[player].HudOpponentID == 2) {
               return (char *)Cars_gSortedList[j] + 0x249;
             }
             return Cars_gSortedList[j]->carInfo->driver;
           }
-          i = i + 1;
-        } while (i < Cars_gNumCars + -1);
+          i = i + 1; } while (i < Cars_gNumCars + -1);
       }
     }
-  }
-  return "";
+  } return "";
 }
 
 /* ---- Hud_RenderMapView__Fv  [HUD.CPP:2935-2980] SLD-VERIFIED ----
@@ -4840,40 +4695,169 @@ void Hud_RenderMapView(void)
  * No new helper/name/asm/volatile/pin or scope/output rewrite. Low-word
  * conversion at the existing int call arguments preserves retail arithmetic.
  * Literal original widening syntax remains unproved/source-review work,
- * not a claim of uniquely recovered macro text. CORNERWIDTH remains an
- * unrecorded snapshot;no native-CLEAN exemption or source-object necessity
- * is inferred from the old direct-field trial. Full SLD remains unsealed. */
+ * not a claim of uniquely recovered macro text. HUDFX r11: CORNERWIDTH is a
+ * const snapshot (no SYM record, as retail); bytes unchanged. Full SLD remains unsealed. */
 
 void Hud_BlackThinBox(int x, int y, int w, int h)
 {
   short CORNERHEIGHT;
-  int CORNERWIDTH; /* SOURCE-REVIEW-UNRESOLVED: unrecorded width snapshot;direct field form is126dif/117 on this basin. */
-
-  CORNERWIDTH = HudPmx_gShapes[0x11].width;
+  const int CORNERWIDTH = HudPmx_gShapes[0x11].width;
   CORNERHEIGHT = HudPmx_gShapes[0x11].height;
   /* top edge */
   Hud_FBuildF4(0, (x + CORNERWIDTH) - 2, y - 2,
+
+
                (w - CORNERWIDTH * 2) + 2, 2, 0, '\0', '\0');
   /* left edge */
   Hud_FBuildF4(0, x - 2, (y + CORNERHEIGHT) - 2, 2,
+
+
                (h - CORNERHEIGHT * 2) + 4, 0, '\0', '\0');
   /* right edge */
   Hud_FBuildF4(0, (x + w) - 2, (y + CORNERHEIGHT) - 2, 2,
+
+
                (h - CORNERHEIGHT * 2) + 4, 0, '\0', '\0');
   /* bottom edge */
   Hud_FBuildF4(0, (x + CORNERWIDTH) - 2, y + h,
+
+
                (w - CORNERWIDTH * 2) + 2, 2, 0, '\0', '\0');
   /* 4 rounded corners */
+
   Hud_FBuildGT4(&HudPmx_gShapes[0xe],  x - 2, y - 2, 0);
+
   Hud_FBuildGT4(&HudPmx_gShapes[0xf],  (x + w) - CORNERWIDTH, y - 2, 0);
+
+
+
   Hud_FBuildGT4(&HudPmx_gShapes[0x10], x - 2, (y + h) - (long long)(CORNERHEIGHT - 2), 0);
+
   Hud_FBuildGT4(&HudPmx_gShapes[0x11], (x + w) - CORNERWIDTH, (y + h) - (long long)(CORNERHEIGHT - 2), 0);
 }
 
 /* ---- Hud_Draw321Num__Fiiiiii  [HUD.CPP:3155-3254] SLD-VERIFIED ---- */
-void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
-
-{
+  /* SOURCE-REVIEW-UNRESOLVED: the w-era read-only ref fence `__asm__ volatile("" : : "r"(by))`
+     (removal cost 65 diffs) is replaced by the pure-C ABSORPTION IDENTITY
+     `X | (X & 3) == X`.  Real RTL for cse/loop/flow (the reference is counted and
+     `by` gets a second SET), folded back to X by combine => ZERO bytes.  Ladder
+     (whole-TU gate, Hud_Draw321Num): fence removed 65 | one absorption PASS |
+     two or four absorptions PASS | `X & (X | 3)` PASS. */
+  /* MATCH (w50-a1): zero-insn USE fence that LENGTHENS `by`'s live range past the
+   * loop -- the reqdelta dial the w49 receipt below named as "the single best next
+   * move".  In the two-level-walker basin `by`(p89) and `byw`(p90) come out SWAPPED
+   * because p89 pri = flr2(5)*5/19 = .5263 out-ranks p90's .4828; allocsim/prio say
+   * p89 must fall below .4828.  An identity fence (`"=r"/"0"`) is the WRONG device
+   * here -- it adds a def AND a use (refs 5->7) and the priority goes UP (.5833,
+   * measured).  A read-only fence adds ONE ref (5->6) so the live stretch wins, but
+   * only if the fence sits far enough away: inside the `if` right after the loop the
+   * range only reaches 24 (2*6/24 = .5000, still above .4828 -- measured, no change);
+   * AFTER the BlackThinBox call it reaches >=25 (2*6/25 = .4800 < .4828) and the pair
+   * flips to retail's byw=$s4 / by=$s5.  13 -> 10, count EXACT 111/111.  (The fence
+   * is deliberately outside the flare_intensity guard: it emits nothing, so the
+   * old uninitialised-path claim is not valid C semantics;current source
+   * initializes by from the real y baseline before either path. Inside the guard the range is
+   * one insn too short.)  RESIDUAL 10 = the `index` a0-vs-v1 chain documented below;
+   * FALSIFIED for it in THIS basin: identity fence on `index` (21 / 110 insns, index
+   * moves to $v0 and an insn is lost) and a read-only fence on `index` (21 / 110).
+   * ===== w51-a9: 10 -> 2 (count EXACT 111/111) =====
+   * The `index` a0-vs-v1 chain is CLOSED -- see the MATCH note at loop 1's bit test.
+   * RESIDUAL 2 = the POSITION of `addu s4,a1,zero` (the `byw = y` walker seed): ours emits
+   * it BEFORE the LICM-hoisted `&Hud_Character[num]` address chain (lui/addiu/sll/addu s7),
+   * retail AFTER it.  That is NOT a statement dial: loop.c's `move_movables` inserts hoisted
+   * invariants immediately before loop_start -- after EVERY source insn of the preheader --
+   * and `strength_reduce` appends the giv inits after those.  So retail's copy sits where a
+   * loop.c-GENERATED giv init sits, not where any source statement can be placed.
+   * FALSIFIED in THIS basin (the w44/w45 verdicts re-measured and confirmed):
+   *   statement position of `byw = y` (top / after k=0 / after i=0) -- all 2, no movement;
+   *   the single-expression giv `by = y + i*9` (also `i*9 + y`, `y + 9*i`) -- 5 @112: the
+   *     giv init DOES land at retail's position but with base 0 (`addu s4,s2,zero`) plus a
+   *     per-outer-iteration `lw t0,76(sp)` ARG-HOME reload -- loop.c will not take the
+   *     spilled parm pseudo as the giv's add_val;
+   *   seeding the giv from an invariant local (`byw = y; by = byw + i*9`, `i*9 + byw`, and
+   *     the split `by = byw; by = by + i*9`) -- 20 / 20 / 42 @115 (the extra pseudo spills);
+   *   an explicit `u_long *chr = &Hud_Character[num];` statement placed before / between /
+   *     after the counter inits, to make the address a SOURCE insn (which would put it ahead
+   *     of the copy instead of behind it) -- 29 / 25 / 27 @114, the pointer local costs 3.
+   * NEXT ANGLE (unchanged, still untried): the only shape that can put a REGISTER-based copy
+   * after the hoists is a giv whose add_val is a zero-cost register invariant -- i.e. get
+   * `y` out of its ARG home across loop 1 without adding a pseudo (the w44 "share the `y-2`
+   * term with the following Hud_BlackThinBox call so cse keeps y live" idea). */
+        /* MATCH (w51-a9): 10 -> 2.  `index` is ONE fn-scope variable driving BOTH loops'
+         * bit tests -- exactly the named angle in the w49 receipt below ("make it span two
+         * basic blocks").  Written only in loop 2 it is a BLOCK-LOCAL qty carrying the $a0
+         * copy-preference local_alloc honours, so it coalesces into the call argument
+         * (`ori a0,a0,60`); driving loop 1's test as well makes it a GLOBAL allocno and it
+         * lands in retail's/the SYM's $v1 (`and v1,v1,v0; sltu v1,zero,v1; ori a0,v1,60`).
+         * Zero insn change, and it is the natural spelling -- one "is this pixel lit" flag
+         * reused by the halo pass and the sprite pass.  (`index = raw & 1<<k` without the
+         * `!= 0`, and the assign-inside-the-if form, both measure the same 2.) */
+      /* MATCH (w63-a1): 2 -> PASS (count stays EXACT 111/111).  THE LAST RESIDUAL WAS THE
+       * POSITION OF `addu s4,a1,zero` and the mechanism is loop.c's GIV-BENEFIT RAZOR, read
+       * off gcc-2.8.1 loop.c (all line numbers from C:/Temp/gcc-2.8.1-src/extracted/loop.c):
+       *   3877  if (! v->replaceable && ! bl->eliminable && REG_USERVAR_P (v->dest_reg))
+       *           benefit -= copy_cost;                      [copy_cost = 4, loop.c:316]
+       *   3881  benefit -= add_cost * bl->biv_count;         [add_cost  = 4, loop.c:310]
+       *   3914  if (v->lifetime * threshold * benefit < insn_count) -> v->ignore = 1
+       * `by` is a USER VARIABLE and is NON-REPLACEABLE (the w50 read-only fence after the
+       * loop keeps it live past loop_end), so it pays copy_cost.  The natural 2-op spelling
+       * `by = y + i * 9` accumulates benefit = rtx_cost(mult) + rtx_cost(plus) = 8
+       * (simplify_giv_expr, loop.c:5456 + 5216), so 8 - 4 - 4 = 0 and `-dL` prints
+       * "giv of insn 228 not worth while, 0 vs 25" -- loop.c reduces only the inner
+       * `i * 9` giv (base 0) and leaves `by = y_reload + giv` in the loop (5 diffs @112,
+       * with a per-outer-iteration `lw t0,76(sp)` ARG-HOME reload of y).
+       * ANY THREE-OP spelling of 9*i pushes the raw benefit to >= 12, the razor is cleared,
+       * and loop.c reduces `by` itself: `emit_iv_add_mult` puts the giv init `addu s4,a1,zero`
+       * in the PREHEADER **after** move_movables' hoists (loop.c:1538 inserts movables before
+       * loop_start, giv inits are emitted after them) = retail's exact slot, and the
+       * non-replaceable path emits the `addu s5,s4,zero` move at the outer-body head + the
+       * `addiu s4,s4,9` bump at the outer bottom.  That is retail's whole shape.
+       * MEASURED PASS with `y + i*5 + i*4`, `y + i*4 + i*5`, `y + 4*i + 5*i`, `(y+i*4)+(i*5)`,
+       * `y + i*3 + i*6`, `y + i*10 - i`, `y + i*9 + i - i` -- i.e. the SPELLING is free, the
+       * OP COUNT is the dial.  Kept as 5 + 4 = the 5-pixel glyph row + the 4-pixel gap of the
+       * 5x5 grid this loop walks (the halo/sprite offsets +4/+1 are the same cell geometry).
+       * FALSIFIED HERE (all re-measured in this basin):
+       *   2-op `y + i*9` / `9*i` / `i*9 + y`                      5 @112 (razor, above)
+       *   `y + i*8 + i`, `y + i*9 + 1` (+ call arg by+3)          4 @111
+       *   `y + i + i*8`, `by = i*9; by = by + y;`                51 @110 (giv replaced away)
+       *   `by = y; by = by + i*9;` (consec sets)                  5 @112
+       *   `y + (i*3)*3`                                           5 @112
+       *   `y + i*9 + j*0` / `+ k*0` (the "outer additive term of   5 @112 -- fold eats them,
+       *     ZERO" question the w62 receipt named)                  so the +0 door is CLOSED
+       *   extra read-only fence operands on `by` (2 and 3)        5 / 27 @112 -- the benefit
+       *     and fence repositioning (before BlackThinBox)         5 @112 -- razor is NOT a
+       *                                                           lifetime dial, benefit == 0
+       *                                                           makes the product 0.
+       *   separate loop-2 counters i2 (+ j2/k2) to make loop 1's  26/27/53 -- the
+       *     biv eliminable and dodge the copy_cost guard          `! bl->eliminable` door is
+       *                                                           closed too. */
+  /* MATCH (w49-a1): 37 -> 13 (ours 112 / oracle 111, posdiff structural 18 -> 6).
+   * LEVER LANDED -- STORAGE-SCOPE SPLIT of `by` (w46 §A0 law): one fn-scope `by` assigned in
+   *   BOTH loops is ONE global allocno whose merged conflict set out-ranked the loop-1 giv;
+   *   giving loop 2 its own `by2` splits it into two short allocnos and lands retail's band
+   *   EXACTLY -- i(outer)=$s3, giv=$s4, by=$s5, matching the SYM (`by` REG $0x15 = $s5).
+   *   The whole documented s3/s4/s5 3-cycle in the w42/w44/w45 receipts above was this.
+   *   Zero insn change; the +1 insn (the per-outer-iteration `lw y,76(sp)` ARG-HOME reload)
+   *   is untouched and is now the ONLY structural item left.
+   * MEASURED ALTERNATIVE, NOT LANDED (w49-a1) -- the w45-shelved TWO-LEVEL WALKER, re-tested
+   *   in this new basin because the catalog's lever-order law says falsifications are
+   *   basin-relative: `byw = y;` in the outer preheader, `by = byw;` at the outer-body head,
+   *   `byw = byw + 9;` at the outer bottom (retail's `addu s4,a1,zero / addu s5,s4,zero /
+   *   addiu s4,s4,9`).  It DOES kill the ARG-HOME reload -> count becomes EXACT 111/111, and
+   *   w45's 76-78-diff verdict on the same shape is thereby REFUTED -- but the gate goes
+   *   13 -> 16 and posdiff 6 -> 8 because `byw`(p90, refs 7/live 29, pri .4828) and `by`
+   *   (p89, refs 5/live 19, .5263) come out SWAPPED (retail wants byw=$s4, by=$s5).
+   *   reqdelta on that basin gives three single dials to fix it: p89 refs 5->4, p89 live
+   *   19->21, p90 live 29->26.  FALSIFIED there: `by = byw;` before `j = 0;` (16, no change)
+   *   and hoisting the `byw += 9` bump to just after the copy (29 / 112 insns).  `by` has
+   *   exactly ONE use so the refs dial has no source form; the open one is a +2 live-length
+   *   stretch on `by` that moves no instruction.  Landing that would give a count-exact,
+   *   near-PASS body -- it is the single best next move on this function.
+   * REMAINING 13 = the ARG-HOME reload (blocks 1-3, see the w44/w45 analysis above) plus
+   *   3 diffs where `index` lands in $a0 (coalesced into the `ori a0,a0,60` call-arg) while
+   *   the SYM/retail keep it in $v1.  `index` is a BLOCK-LOCAL qty carrying the $a0
+   *   copy-preference local_alloc honours; making it span two basic blocks (a global allocno,
+   *   e.g. by also driving loop 1's `Hud_Character[num] & 1<<k` test) is the named angle. */
   /* Retail local map (8c @0x800d7ca8, fsize 72): x REGPARM $fp | y ARG 0x4C(sp) |
    * num ARG 0x50(sp) | flare_intensity REGPARM $s6 | i $s0 | j $s3 | k $s2 | by $s5 |
    * index $v1. Retail i is the INNER counter and j the OUTER one;the source
@@ -4922,213 +4906,194 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
  * per the briefing rule, judge on posdiff + insn count together, and posdiff says the
  * base-0 form is the closer body.  So the +1 insn is NOT the thing to chase first; the
  * open item stays the ARG-HOME reload / y-liveness angle above. */
-  /* MATCH (w49-a1): 37 -> 13 (ours 112 / oracle 111, posdiff structural 18 -> 6).
-   * LEVER LANDED -- STORAGE-SCOPE SPLIT of `by` (w46 §A0 law): one fn-scope `by` assigned in
-   *   BOTH loops is ONE global allocno whose merged conflict set out-ranked the loop-1 giv;
-   *   giving loop 2 its own `by2` splits it into two short allocnos and lands retail's band
-   *   EXACTLY -- i(outer)=$s3, giv=$s4, by=$s5, matching the SYM (`by` REG $0x15 = $s5).
-   *   The whole documented s3/s4/s5 3-cycle in the w42/w44/w45 receipts above was this.
-   *   Zero insn change; the +1 insn (the per-outer-iteration `lw y,76(sp)` ARG-HOME reload)
-   *   is untouched and is now the ONLY structural item left.
-   * MEASURED ALTERNATIVE, NOT LANDED (w49-a1) -- the w45-shelved TWO-LEVEL WALKER, re-tested
-   *   in this new basin because the catalog's lever-order law says falsifications are
-   *   basin-relative: `byw = y;` in the outer preheader, `by = byw;` at the outer-body head,
-   *   `byw = byw + 9;` at the outer bottom (retail's `addu s4,a1,zero / addu s5,s4,zero /
-   *   addiu s4,s4,9`).  It DOES kill the ARG-HOME reload -> count becomes EXACT 111/111, and
-   *   w45's 76-78-diff verdict on the same shape is thereby REFUTED -- but the gate goes
-   *   13 -> 16 and posdiff 6 -> 8 because `byw`(p90, refs 7/live 29, pri .4828) and `by`
-   *   (p89, refs 5/live 19, .5263) come out SWAPPED (retail wants byw=$s4, by=$s5).
-   *   reqdelta on that basin gives three single dials to fix it: p89 refs 5->4, p89 live
-   *   19->21, p90 live 29->26.  FALSIFIED there: `by = byw;` before `j = 0;` (16, no change)
-   *   and hoisting the `byw += 9` bump to just after the copy (29 / 112 insns).  `by` has
-   *   exactly ONE use so the refs dial has no source form; the open one is a +2 live-length
-   *   stretch on `by` that moves no instruction.  Landing that would give a count-exact,
-   *   near-PASS body -- it is the single best next move on this function.
-   * REMAINING 13 = the ARG-HOME reload (blocks 1-3, see the w44/w45 analysis above) plus
-   *   3 diffs where `index` lands in $a0 (coalesced into the `ori a0,a0,60` call-arg) while
-   *   the SYM/retail keep it in $v1.  `index` is a BLOCK-LOCAL qty carrying the $a0
-   *   copy-preference local_alloc honours; making it span two basic blocks (a global allocno,
-   *   e.g. by also driving loop 1's `Hud_Character[num] & 1<<k` test) is the named angle. */
+void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
+
+{
   int i;
   int j;
   int k;
   int by;
   int by2; /* SOURCE-REVIEW-UNRESOLVED: absent from retail locals. */
   int index;
-
   by = y; /* Defined row baseline even when the optional halo pass is skipped. */
+
+
   if (flare_intensity != 0) {
-    k = 0;
-    j = 0;
-    do {
-      i = 0;
-      /* MATCH (w63-a1): 2 -> PASS (count stays EXACT 111/111).  THE LAST RESIDUAL WAS THE
-       * POSITION OF `addu s4,a1,zero` and the mechanism is loop.c's GIV-BENEFIT RAZOR, read
-       * off gcc-2.8.1 loop.c (all line numbers from C:/Temp/gcc-2.8.1-src/extracted/loop.c):
-       *   3877  if (! v->replaceable && ! bl->eliminable && REG_USERVAR_P (v->dest_reg))
-       *           benefit -= copy_cost;                      [copy_cost = 4, loop.c:316]
-       *   3881  benefit -= add_cost * bl->biv_count;         [add_cost  = 4, loop.c:310]
-       *   3914  if (v->lifetime * threshold * benefit < insn_count) -> v->ignore = 1
-       * `by` is a USER VARIABLE and is NON-REPLACEABLE (the w50 read-only fence after the
-       * loop keeps it live past loop_end), so it pays copy_cost.  The natural 2-op spelling
-       * `by = y + i * 9` accumulates benefit = rtx_cost(mult) + rtx_cost(plus) = 8
-       * (simplify_giv_expr, loop.c:5456 + 5216), so 8 - 4 - 4 = 0 and `-dL` prints
-       * "giv of insn 228 not worth while, 0 vs 25" -- loop.c reduces only the inner
-       * `i * 9` giv (base 0) and leaves `by = y_reload + giv` in the loop (5 diffs @112,
-       * with a per-outer-iteration `lw t0,76(sp)` ARG-HOME reload of y).
-       * ANY THREE-OP spelling of 9*i pushes the raw benefit to >= 12, the razor is cleared,
-       * and loop.c reduces `by` itself: `emit_iv_add_mult` puts the giv init `addu s4,a1,zero`
-       * in the PREHEADER **after** move_movables' hoists (loop.c:1538 inserts movables before
-       * loop_start, giv inits are emitted after them) = retail's exact slot, and the
-       * non-replaceable path emits the `addu s5,s4,zero` move at the outer-body head + the
-       * `addiu s4,s4,9` bump at the outer bottom.  That is retail's whole shape.
-       * MEASURED PASS with `y + i*5 + i*4`, `y + i*4 + i*5`, `y + 4*i + 5*i`, `(y+i*4)+(i*5)`,
-       * `y + i*3 + i*6`, `y + i*10 - i`, `y + i*9 + i - i` -- i.e. the SPELLING is free, the
-       * OP COUNT is the dial.  Kept as 5 + 4 = the 5-pixel glyph row + the 4-pixel gap of the
-       * 5x5 grid this loop walks (the halo/sprite offsets +4/+1 are the same cell geometry).
-       * FALSIFIED HERE (all re-measured in this basin):
-       *   2-op `y + i*9` / `9*i` / `i*9 + y`                      5 @112 (razor, above)
-       *   `y + i*8 + i`, `y + i*9 + 1` (+ call arg by+3)          4 @111
-       *   `y + i + i*8`, `by = i*9; by = by + y;`                51 @110 (giv replaced away)
-       *   `by = y; by = by + i*9;` (consec sets)                  5 @112
-       *   `y + (i*3)*3`                                           5 @112
-       *   `y + i*9 + j*0` / `+ k*0` (the "outer additive term of   5 @112 -- fold eats them,
-       *     ZERO" question the w62 receipt named)                  so the +0 door is CLOSED
-       *   extra read-only fence operands on `by` (2 and 3)        5 / 27 @112 -- the benefit
-       *     and fence repositioning (before BlackThinBox)         5 @112 -- razor is NOT a
-       *                                                           lifetime dial, benefit == 0
-       *                                                           makes the product 0.
-       *   separate loop-2 counters i2 (+ j2/k2) to make loop 1's  26/27/53 -- the
-       *     biv eliminable and dodge the copy_cost guard          `! bl->eliminable` door is
-       *                                                           closed too. */
-      by = y + j * 5 + j * 4;
-      do {
-        /* MATCH (w51-a9): 10 -> 2.  `index` is ONE fn-scope variable driving BOTH loops'
-         * bit tests -- exactly the named angle in the w49 receipt below ("make it span two
-         * basic blocks").  Written only in loop 2 it is a BLOCK-LOCAL qty carrying the $a0
-         * copy-preference local_alloc honours, so it coalesces into the call argument
-         * (`ori a0,a0,60`); driving loop 1's test as well makes it a GLOBAL allocno and it
-         * lands in retail's/the SYM's $v1 (`and v1,v1,v0; sltu v1,zero,v1; ori a0,v1,60`).
-         * Zero insn change, and it is the natural spelling -- one "is this pixel lit" flag
-         * reused by the halo pass and the sprite pass.  (`index = raw & 1<<k` without the
-         * `!= 0`, and the assign-inside-the-if form, both measure the same 2.) */
+
+    k = 0; j = 0; do {
+
+      i = 0; by = y + j * 5 + j * 4; do {
+
+
+
         index = (Hud_Character[num] & 1 << k) != 0;
+
         if (index != 0) {
+
+
+
+
+
           Flare_2DHalo(x + i * 10 + 4,by + 4,flare_intensity,flare_intensity,6);
         }
-        i = i + 1;
-        k = k + 1;
-      } while (i < 5);
-      j = j + 1;
-    } while (j < 5);
+        i = i + 1; k = k + 1; } while (i < 5);
+      j = j + 1; } while (j < 5);
   }
-  /* MATCH (w50-a1): zero-insn USE fence that LENGTHENS `by`'s live range past the
-   * loop -- the reqdelta dial the w49 receipt below named as "the single best next
-   * move".  In the two-level-walker basin `by`(p89) and `byw`(p90) come out SWAPPED
-   * because p89 pri = flr2(5)*5/19 = .5263 out-ranks p90's .4828; allocsim/prio say
-   * p89 must fall below .4828.  An identity fence (`"=r"/"0"`) is the WRONG device
-   * here -- it adds a def AND a use (refs 5->7) and the priority goes UP (.5833,
-   * measured).  A read-only fence adds ONE ref (5->6) so the live stretch wins, but
-   * only if the fence sits far enough away: inside the `if` right after the loop the
-   * range only reaches 24 (2*6/24 = .5000, still above .4828 -- measured, no change);
-   * AFTER the BlackThinBox call it reaches >=25 (2*6/25 = .4800 < .4828) and the pair
-   * flips to retail's byw=$s4 / by=$s5.  13 -> 10, count EXACT 111/111.  (The fence
-   * is deliberately outside the flare_intensity guard: it emits nothing, so the
-   * old uninitialised-path claim is not valid C semantics;current source
-   * initializes by from the real y baseline before either path. Inside the guard the range is
-   * one insn too short.)  RESIDUAL 10 = the `index` a0-vs-v1 chain documented below;
-   * FALSIFIED for it in THIS basin: identity fence on `index` (21 / 110 insns, index
-   * moves to $v0 and an insn is lost) and a read-only fence on `index` (21 / 110).
-   * ===== w51-a9: 10 -> 2 (count EXACT 111/111) =====
-   * The `index` a0-vs-v1 chain is CLOSED -- see the MATCH note at loop 1's bit test.
-   * RESIDUAL 2 = the POSITION of `addu s4,a1,zero` (the `byw = y` walker seed): ours emits
-   * it BEFORE the LICM-hoisted `&Hud_Character[num]` address chain (lui/addiu/sll/addu s7),
-   * retail AFTER it.  That is NOT a statement dial: loop.c's `move_movables` inserts hoisted
-   * invariants immediately before loop_start -- after EVERY source insn of the preheader --
-   * and `strength_reduce` appends the giv inits after those.  So retail's copy sits where a
-   * loop.c-GENERATED giv init sits, not where any source statement can be placed.
-   * FALSIFIED in THIS basin (the w44/w45 verdicts re-measured and confirmed):
-   *   statement position of `byw = y` (top / after k=0 / after i=0) -- all 2, no movement;
-   *   the single-expression giv `by = y + i*9` (also `i*9 + y`, `y + 9*i`) -- 5 @112: the
-   *     giv init DOES land at retail's position but with base 0 (`addu s4,s2,zero`) plus a
-   *     per-outer-iteration `lw t0,76(sp)` ARG-HOME reload -- loop.c will not take the
-   *     spilled parm pseudo as the giv's add_val;
-   *   seeding the giv from an invariant local (`byw = y; by = byw + i*9`, `i*9 + byw`, and
-   *     the split `by = byw; by = by + i*9`) -- 20 / 20 / 42 @115 (the extra pseudo spills);
-   *   an explicit `u_long *chr = &Hud_Character[num];` statement placed before / between /
-   *     after the counter inits, to make the address a SOURCE insn (which would put it ahead
-   *     of the copy instead of behind it) -- 29 / 25 / 27 @114, the pointer local costs 3.
-   * NEXT ANGLE (unchanged, still untried): the only shape that can put a REGISTER-based copy
-   * after the hoists is a giv whose add_val is a zero-cost register invariant -- i.e. get
-   * `y` out of its ARG home across loop 1 without adding a pseudo (the w44 "share the `y-2`
-   * term with the following Hud_BlackThinBox call so cse keeps y live" idea). */
-  /* SOURCE-REVIEW-UNRESOLVED: the w-era read-only ref fence `__asm__ volatile("" : : "r"(by))`
-     (removal cost 65 diffs) is replaced by the pure-C ABSORPTION IDENTITY
-     `X | (X & 3) == X`.  Real RTL for cse/loop/flow (the reference is counted and
-     `by` gets a second SET), folded back to X by combine => ZERO bytes.  Ladder
-     (whole-TU gate, Hud_Draw321Num): fence removed 65 | one absorption PASS |
-     two or four absorptions PASS | `X & (X | 3)` PASS. */
+
+
+
+
+
+
+
+
+
   Hud_BlackThinBox(x - 3,y - 2,0x38,0x31);
   by = (__typeof__(by))((unsigned int)by | ((unsigned int)by & 3u));
-  k = 0;
-  j = 0;
-  do {
-    i = 0;
-    by2 = y + j * 9 + 1;
-    do {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  k = 0; j = 0; do {
+
+    i = 0; by2 = y + j * 9 + 1; do {
+
+
+
       index = (Hud_Character[num] & 1 << k) != 0;
+
       Hud_FBuildSprite(index | 0x3c,x + i * 10 + 1,by2,0x808080,0);
-      i = i + 1;
-      k = k + 1;
-    } while (i < 5);
-    j = j + 1;
-  } while (j < 5);
+      i = i + 1; k = k + 1; } while (i < 5);
+    j = j + 1; } while (j < 5);
+
+
+
+
+
+
   Hud_FBuildF4(0,x - 3,y - 2,0x38,0x31,0,'\0','\0');
+
   Hud_GoTpage(1);
 }
 
 /* ---- Hud_Render321Go__Fv  [HUD.CPP:3261-3339] SLD-VERIFIED ---- */
-void Hud_Render321Go(void)
-
-{
   /* MATCH: SYM's complete named-local set is currentTick/x/y/flare_intensity/num;
    * using those names directly removes the duplicate decompiler `_00` values
    * without changing the exact 83-instruction body. */
+void Hud_Render321Go(void)
+
+{
   static signed char oldCountdown = -1;
   static u_long countdownTick;
   u_long currentTick;
-  u_long x;
-  u_long y;
-  int flare_intensity;
-  int num;
-  
-  gCView.id = Hud_gStatsView;
+  u_long x; u_long y; int flare_intensity; int num; gCView.id = Hud_gStatsView;
+
   Draw_StartRenderingView(Hud_gStatsView);
+
+
+
+
+
+
+
+
+
+
+
+
   y = (int)g1Player[0x11].y;
   x = 160;
-  if ((int)oldCountdown != (u_int)(u_char)countdown) {
+  if ((int)oldCountdown != (u_int)(u_char)countdown)
+  {
     oldCountdown = countdown;
     countdownTick = FE_Ticks();
   }
+
   currentTick = FE_Ticks() - countdownTick;
   if ((u_char)countdown == 4) {
-    if (currentTick < 100) {
-      flare_intensity = 8000 - currentTick * 0x50;
-      goto HudRender321_drawCountNum;
+    if (currentTick < 100) { flare_intensity = 8000 - currentTick * 0x50; goto HudRender321_drawCountNum;
     }
-  }
-  else if (currentTick < 100) {
-    flare_intensity = 6000 - currentTick * 0x3c;
-    goto HudRender321_drawCountNum;
-  }
-  flare_intensity = 0;
+  } else if (currentTick < 100) { flare_intensity = 6000 - currentTick * 0x3c; goto HudRender321_drawCountNum; } flare_intensity = 0;
 HudRender321_drawCountNum:
   num = 4 - (u_int)(u_char)countdown;
+
   if ((u_char)countdown != 4) {
+
     Hud_Draw321Num(x-0x58,y,num,flare_intensity,1,0);
     Hud_Draw321Num(x-0x19,y,num,flare_intensity,0,0);
     Hud_Draw321Num(x+0x26,y,num,flare_intensity,0,1);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   Draw_StopRenderingView(Hud_gStatsView);
 }
 
@@ -5157,82 +5122,84 @@ HudRender321_drawCountNum:
  *      must KEEP `Col = 0xc800;` FIRST (gcc then sinks the else-arm's `li s5,200` into the
  *      guard's bnez delay slot exactly like retail).  Moving both arms = 8 diffs, moving
  *      only the then-arm = 20 -- the else-arm assignment position is the whole dial. */
+  /* SYM records this local static at HUD .sdata+0x88, immediately after
+   * lastsec.  An implicit initializer instead sends it to .sbss. */
 void BigBTCTime(int secs)
 
 {
-  static int lastsec = 50;
-  /* SYM records this local static at HUD .sdata+0x88, immediately after
-   * lastsec.  An implicit initializer instead sends it to .sbss. */
-  static int lastsectick = 0;
-  POLY_GT4 *prim;
-  int x;
-  int y;
-  int xx;
-  int yy;
-  int Col;
-  int Col2;
-  int w1;
-  int w2;
-  int ten;
-
-  if ((BTC_BonusTime != 0) || (HudBustedOverlay != 0) || (secs < 0)) {
+  static int lastsec = 50; static int lastsectick = 0; POLY_GT4 *prim; int x; int y; int xx; int yy; int Col; int Col2; int w1; int w2; int ten; if ((BTC_BonusTime != 0) || (HudBustedOverlay != 0) || (secs < 0)) {
     return;
   }
-  if (secs != lastsec) {
+
+
+
+
+  if (secs != lastsec)
+  {
     lastsec = secs;
     lastsectick = FE_Ticks();
   }
+
+
+
   x = g1Player[0xf].x + 2;
   y = g1Player[0xf].y;
   xx = x;
   yy = y;
+
+
+
   w1 = HudPmx_gShapes[0x2c].width + 1;
   w2 = HudPmx_gShapes[0x2d].width + 1;
-  if (0xa < secs) {
-    Col = 0xc800;
-    BTC_playedsoundalready = 0;
-    Col2 = 0x6400;
-  }
-  else {
-    int diff;
 
-    diff = FE_Ticks() - lastsectick;
+  if (0xa < secs) {
+
+    Col = 0xc800;
+
+    BTC_playedsoundalready = 0; Col2 = 0x6400;
+  }
+
+  else {
+    int diff; diff = FE_Ticks() - lastsectick;
     if (diff < 0x40) {
+
       Hud_BlackThinBox(xx,yy,w1 * 2,0xe);
       Hud_FBuildF4(0,xx,yy,w1 * 2,0xe,0,'\0','\0');
       BTC_playedsoundalready = 0;
       return;
     }
+
+
     if (BTC_playedsoundalready == 0) {
+
       AudioCmn_PlayWrongWaySFX();
       BTC_playedsoundalready = 1;
     }
     Col = 200;
+
     Col2 = 100;
   }
+
+
   x = x + w1;
-  prim = (POLY_GT4 *)Render_gPacketPtr;
-  Render_gPacketPtr = (u_char *)prim + 0x34;
-  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+
+
+  prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = (u_char *)prim + 0x34; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
   Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + secs % 10,x + -1,y,Col);
   *(int *)((char *)prim + 0x28) = Col2;
   *(int *)((char *)prim + 0x1c) = Col2;
   ten = secs / 10;
+
   if (ten != 0) {
+
     if (ten == 1) {
       x = x - w2;
     }
-    else {
-      x = x - w1;
+    else { x = x - w1;
     }
-    prim = (POLY_GT4 *)Render_gPacketPtr;
-    Render_gPacketPtr = (u_char *)prim + 0x34;
-    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+    prim = (POLY_GT4 *)Render_gPacketPtr; Render_gPacketPtr = (u_char *)prim + 0x34; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
     Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + ten,x,y,Col);
-    *(int *)((char *)prim + 0x28) = Col2;
-    *(int *)((char *)prim + 0x1c) = Col2;
+    *(int *)((char *)prim + 0x28) = Col2; *(int *)((char *)prim + 0x1c) = Col2;
   }
   Hud_BlackThinBox(xx,yy,w1 * 2,0xe);
   Hud_FBuildF4(0,xx,yy,w1 * 2,0xe,0,'\0','\0');
@@ -5411,24 +5378,9 @@ void Hud_RenderHudView(void)
       if ((u_int)((BTC_Countdown >> 6) - 1U) < 0x1e) {
         BigBTCTime(BTC_Countdown >> 6);
       } else {
-        /* MATCH (w62-a1 + HUDFX r2): explicit default + override statement chain (13C
-         * PRE-SET-THE-DEFAULT): retail pre-sets a0 in each guard's delay slot; the
-         * `&&`/`||` expression form branches TO a `li a0,1` block instead.  The override
-         * zero is written `countdown >> 8` (always 0 for the u_char just tested): a literal
-         * 0 is cross-jumped onto the entry default by jump2 (604, 2 short) or store-flagged;
-         * this non-constant RTL survives jump2 and combine's nonzero_bits folds it to
-         * `addu a0,zero,zero` afterwards.  Replaces the w62 zero-insn void asm fence.
-         * FALSIFIED: De Morgan on the inner `||` [14], on the whole expression [14],
-         * `countdown >= 4` [14]; `cdshow = Hud_BeTheCop` (cse folds it to 0 -> 4 @604). */
-        int cdshow = 0; /* SYM-CODEGEN-CARRIER: cdshow -- explicit default/override is the measured PASS 606 branch shape */
-
-        if (0x23f < simGlobal.gameTicks) {
-          cdshow = 1;
-          if (((u_char)countdown < 4) && (Hud_BeTheCop == 0)) {
-            cdshow = countdown >> 8;
-          }
-        }
-        Hud_BuildCdPlayer(cdshow, j);
+        /* HUDFX2: the flag is the call argument itself (no cdshow carrier); the 0-arm
+         * `countdown >> 8` is the combine-only zero that keeps retail's branch shape. */
+        Hud_BuildCdPlayer((0x23f < simGlobal.gameTicks) ? ((((u_char)countdown < 4) && (Hud_BeTheCop == 0)) ? countdown >> 8 : 1) : 0, j);
       }
     }
     if (((dashhud_info *)((int)&DashHUD_gInfo + viewOff))->showhud[0] != 0) {
@@ -5851,13 +5803,23 @@ extern int DashHUD_view[] __asm__("DashHUD_gInfo");
  * (+1 body lui, self-temp entry/tail pairs, 11 LCS lines) is the fn's floor receipt. */
 void Hud_RenderTacView(void)
 {
-  for (int j = 0; j <= DashHUD_gInfo.splitscreen; j++) {
-    if (GameSetup_gData.carInfo[j].HudTach != 0 && DashHUD_gInfo.showhud[j] != 0) {
+
+  for (int j = 0; j <= DashHUD_gInfo.splitscreen; j++)
+  {
+
+    if (GameSetup_gData.carInfo[j].HudTach != 0 && DashHUD_gInfo.showhud[j] != 0)
+    {
+
       Draw_StartRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
+
       DashHUD_HUDCalc(j);
+
       Hud_BuildTach(j);
-      ((Hud_PTag *)&gTPage1[j][2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage1[j][2];
+
+
+      ((Hud_PTag *)&gTPage1[j][2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage1[j][2];
+
+
       Draw_StopRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
     }
   }
@@ -5874,19 +5836,25 @@ void Hud_RenderTacView(void)
 void Hud_ParseTime(int nTime,char *sLapTime)
 
 {
-  bool showtime;
-
-  if (nTime < 0) {
-    nTime = 0;
+  bool showtime; if (nTime < 0) { nTime = 0;
   }
   showtime = nTime != 0;
+
+
+
+
+
+
   nTime = nTime * 0x6400 / 0x4000;   /* the signed /0x4000 is retail's +0x3fff/sra 14 pair */
+
+
   const short min = nTime / 6000;
   nTime = nTime + min * -6000;
   const short sec = nTime / 100;
   nTime = nTime + sec * -100;
-  if (!(min < 0x3c)) {
-    showtime = 0;
+
+
+  if (!(min < 0x3c)) { showtime = 0;
   }
   if (showtime != 0) {
     sprintf(sLapTime,"%01d%c%02d%c%02d",min,
@@ -5897,6 +5865,7 @@ void Hud_ParseTime(int nTime,char *sLapTime)
   else {
     sprintf(sLapTime," - %c - - %c - -",
                (u_int)(u_char)HudminChar[GameSetup_gData.userSetting.language],
+
                (u_int)(u_char)HudsecChar[GameSetup_gData.userSetting.language]);
   }
 }
@@ -5905,171 +5874,186 @@ void Hud_ParseTime(int nTime,char *sLapTime)
 void Hud_RenderPauseBox(int x, int y, int w, int h)
 {
   short CORNERWIDTH, CORNERHEIGHT;
-
   CORNERWIDTH  = HudPmx_gShapes[0x11].width;
   CORNERHEIGHT = HudPmx_gShapes[0x11].height;
   /* 4 textured rounded corners */
+
+
+
+
   Hud_FBuildFT4(&HudPmx_gShapes[0xe],  x - 2,                 y + 0xa,                0);
+
   Hud_FBuildFT4(&HudPmx_gShapes[0xf],  (x + w) - CORNERWIDTH, y + 0xa,                0);
+
+
+
   Hud_FBuildFT4(&HudPmx_gShapes[0x10], x - 2,                 (y + h) - CORNERHEIGHT, 0);
+
   Hud_FBuildFT4(&HudPmx_gShapes[0x11], (x + w) - CORNERWIDTH, (y + h) - CORNERHEIGHT, 0);
   /* bottom highlight bar, frame, title strip, dark-red body fill */
   Hud_FBuildF4(0, x, (y + h) - 2, w, 2, 0, '\0', '\0');
   Hud_BlackThinBox(x, y, w, h);
+
+
   Hud_FBuildF4(0, x, y, w, 0xc, 0, '\0', '\0');
+
+
+
   Hud_FBuildF4(1, x, y + 0xc, w, h - 0xc, 0x461414, '\0', '\0');
 }
 
 /* ---- Hud_Render__Fv  [HUD.CPP:3846-3967] SLD-VERIFIED ---- */
-/* 2026-10-13: retail count REG16/depth6 is the viewport loop counter,not
- * the bonus minimum in a1. Use actual for-initializer count and a direct
- * minimum expression for the bonus increment. The stats/game if/else and
- * real guarded player/wingmode owners restore count6/player7/wingmode7
- * at282/282. Wingman for retains exit-in-body test;continue targets its
- * real increment without the old semantic next label/empty statement.
- * Remaining quota/countamount owner is still wrong;remain unrecorded.
- * Direct max clamps10dif/282,both operand orders;isolated CD countamount
- * and quota/remainder reuse routes67/89dif at281,frame56 vs48. All failed
- * forms restored. No original-object necessity/floor or native-CLEAN claim.
- * Broader scope/SLD restoration remains;no new helper/name/asm/volatile/
- * pin/qualifier or compiler-output rewrite was retained. */
+/* HUDFX2: retail locals/scopes restored -- countamount is local to the nested
+ * bonus-tick if (retail SYM {35 REG $4}); the clamp is one ternary store with no
+ * remain carrier (with the block-local countamount the difference ties to the
+ * loaded BTC_BonusTime in v1, as retail). The CD-player flag is an expression
+ * argument (its 0-arm `countdown >> 8` is the combine-only zero that blocks the
+ * store-flag fold). Wingman loop: the equal+busted arm is written out and
+ * cross-jumped into the replay tail (no label). Allman layout + blank lines put
+ * every statement on its retail line (sldprobe 0/282, blocks exact apart from
+ * the FE_Ticks inline record lines). */
 void Hud_Render(void)
 
 {
-  int countamount; /* SOURCE-REVIEW-UNRESOLVED: shared quota/mode owner does not yet match retail's mode scope. */
-  int remain; /* SOURCE-REVIEW-UNRESOLVED: unrecorded bonus remainder;direct max10dif/282. */
   int i;
 
-  if (Replay_ReplayInterface.statsScreen != 0) {
-    if (simGlobal.gameTicks < 0x240) {
+
+
+
+
+  if (Replay_ReplayInterface.statsScreen != 0)
+  {
+    if (simGlobal.gameTicks < 0x240)
+    {
       DashHUD_gInfo.showhud[0] = 0;
       DashHUD_gInfo.showhud[1] = 0;
     }
+
+
     gCView.id = Hud_gStatsView;
+
     Draw_StartRenderingView(Hud_gStatsView);
+
     Hud_DebugCrap();
+
+
     Hud_RenderStatsView();
+
+
     Draw_StopRenderingView(Hud_gStatsView);
-  } else {
-  if (((HudBustedOverlay == 0) && (BTC_BonusTime != 0)) && (0xfa < FE_Ticks() - BTC_BonusTimeTick)) {
-    /* MATCH: plain if / else-if / else with BOTH 0x32 arms written out -- gcc
-     * cross-jumps them into the single shared `j; addiu a0,0x32` block the oracle
-     * reaches from the splitscreen==0 branch AND from the car[1] fall-through.
-     * The old `goto` into the else arm emitted an extra un-filled `j; nop`. */
-    if (DashHUD_gInfo.splitscreen != 0) {
-      if ((Cars_gRaceCarList[0]->carFlags & 0x200U) == 0) goto HudRender_amt250;
-      if ((Cars_gRaceCarList[1]->carFlags & 0x200U) == 0) {
-        countamount = 0xfa;
-        goto HudRender_amtDone;
+  }
+  else
+  {
+
+    if ((HudBustedOverlay == 0) && (BTC_BonusTime != 0))
+    {
+      if (0xfa < FE_Ticks() - BTC_BonusTimeTick)
+      {
+        int countamount = (DashHUD_gInfo.splitscreen == 0 || (((Cars_gRaceCarList[0]->carFlags & 0x200U) != 0) && ((Cars_gRaceCarList[1]->carFlags & 0x200U) != 0))) ? 0x32 : 0xfa;
+
+
+
+
+        BTC_Countdown = BTC_Countdown + (BTC_BonusTime < countamount ? BTC_BonusTime : countamount);
+        BTC_BonusTime = (BTC_BonusTime - countamount < 0) ? 0 : BTC_BonusTime - countamount;
       }
     }
-    countamount = 0x32;
-    goto HudRender_amtDone;
-HudRender_amt250:
-    countamount = 0xfa;
-HudRender_amtDone:
-    remain = BTC_BonusTime;
-    BTC_Countdown = BTC_Countdown + (remain < countamount ? remain : countamount);
-    remain = remain - countamount;
-    /* MATCH: single store -- the oracle computes the difference, clamps it in a
-     * register and stores ONCE (`subu; bgez; addu v1,zero,zero; sw`); writing the
-     * subtraction back to the global first emits an extra `sw` (census sw 17v16). */
-    if (remain < 0) {
-      remain = 0;
-    }
-    BTC_BonusTime = remain;
-  }
-  if ((Hud_BeTheCop != 0) && (BTC_UserHasControl == 0)) {
-    for (int count = 0; count <= DashHUD_gInfo.splitscreen; count = count + 1) {
+
+
+    if ((Hud_BeTheCop != 0) && (BTC_UserHasControl == 0))
+    {
+      for (int count = 0; count <= DashHUD_gInfo.splitscreen; count = count + 1)
+      {
         Draw_StartRenderingView(Hud_gHudView[count]);
         Hud_GoTpage(1);
-        if (((count == 0) && (1 < Replay_ReplayMode)) && (Replay_ReplayInterface.statsScreen == 0)) {
+
+        if (((count == 0) && (1 < Replay_ReplayMode)) && (Replay_ReplayInterface.statsScreen == 0))
           Hud_BuildReplay();
-        }
-        if (count == DashHUD_gInfo.splitscreen) {
-          /* MATCH (HUDFX r2): gcc-2.8 jump.c folds `x = 1; if (c) x = 0;` into ONE
-           * store-flag (`sltu a0,zero,countdown`) when the guarded set is a constant at
-           * jump2; retail branches (`beqz [ds li a0,1]` / `bnez [ds nop]` / `addu a0,zero,zero`).
-           * The 0-arm is written `countdown >> 8` (always 0 for the u_char): cse1/jump2 see
-           * a non-constant (so no store-flag), combine's nonzero_bits folds it to 0 afterwards.
-           * Replaces the w45-a7 zero-insn asm use fence.  Measured: plain `countdown` copy
-           * 2 diffs (`addu a0,v0,zero`); `-1`/`^=1`/`>>=1`/`(countdown!=0)` fold early (4);
-           * `& countamount` 2; `& 0x100` also PASS.  FALSIFIED before: nested if, goto-chain,
-           * if/else both-arms, 3-arm cascade, two full Hud_BuildCdPlayer calls. */
-          countamount = 1;
-          if (simGlobal.gameTicks < 0x240) {
-            if (countdown == '\0') {
-              countamount = countdown >> 8;
-            }
-          }
-          Hud_BuildCdPlayer(countamount,count);
-        }
-        if (DashHUD_gInfo.showhud[count] != 0) {
+
+        if (count == DashHUD_gInfo.splitscreen)
+          Hud_BuildCdPlayer(((simGlobal.gameTicks < 0x240) && (countdown == '\0')) ? countdown >> 8 : 1,count);
+
+        if (DashHUD_gInfo.showhud[count] != 0)
+        {
           Hud_DebugInfo();
           Hud_BuildNumbers0(count);
         }
         Hud_GoTpage(0);
         Draw_StopRenderingView(Hud_gHudView[count]);
-    }
-  }
-  else {
-    if ((HudBustedOverlay != 0) && (Replay_ReplayMode < 2)) {
-      short player;
-      player = HudBustedOverlayPlayer;
-      gCView.id = Hud_gStatsView;
-      Draw_StartRenderingView(Hud_gStatsView);
-      StatsTimer[player] = StatsTimer[player] + 1;
-      Hud_BTCStats(player,false);
-      Draw_StopRenderingView(Hud_gStatsView);
-    }
-    /* MATCH: retail walks Hud_gWingmanInterface with an explicit pointer ($s2:
-     * lbu/sb 0($s2) + `addiu $s2,$s2,1`), and lays the shared init-map-frame
-     * block LAST (.L800D9424) reached by goto from BOTH the equal-and-busted
-     * head test and the replay-mode tail test; the loop back-edge is a `j` with
-     * `addiu $s0,$s0,1` in the delay slot (top-tested while). */
-    for (i = 0; ; i++) {
-      if (2 <= i) break;
-      int wingmode = Input_WingCommandMode(i);
-      if (((u_char)Hud_gWingmanInterface[i] == wingmode) && (HudBustedOverlay != 0)) {
-        Hud_gWingmanInterface[i] = 0;
-        Hud_InitMapFrame(i,0);
       }
-      else if (FE_Ticks() > Hud_gWingmanFlashTicks[i]) {
-        if ((u_char)Hud_gWingmanInterface[i] != wingmode) {
-          if (1 < Replay_ReplayMode) goto HudRender_initMapFrame;
-          if (HudBustedOverlay == 0) {
+    }
+    else
+    {
+      if ((HudBustedOverlay != 0) && (Replay_ReplayMode < 2))
+      {
+        short player = HudBustedOverlayPlayer;
+        gCView.id = Hud_gStatsView;
+        Draw_StartRenderingView(Hud_gStatsView);
+
+        StatsTimer[player] = StatsTimer[player] + 1;
+        Hud_BTCStats(player,false);
+
+        Draw_StopRenderingView(Hud_gStatsView);
+      }
+
+
+      for (i = 0; ; i = i + 1) { if (2 <= i) break;
+
+        int wingmode = Input_WingCommandMode(i);
+        if (((u_char)Hud_gWingmanInterface[i] == wingmode) && (HudBustedOverlay != 0))
+        {
+          Hud_gWingmanInterface[i] = 0;
+          Hud_InitMapFrame(i,0);
+        }
+        else if (FE_Ticks() > Hud_gWingmanFlashTicks[i])
+        {
+
+          if (((u_char)Hud_gWingmanInterface[i] != wingmode) && (Replay_ReplayMode < 2) && (HudBustedOverlay == 0))
+          {
             Hud_InitMapFrame(i,wingmode);
             Hud_gWingmanInterface[i] = (char)wingmode;
           }
+          if (1 < Replay_ReplayMode)
+          {
+            Hud_gWingmanInterface[i] = 0;
+            Hud_InitMapFrame(i,0);
+          }
         }
-        if (Replay_ReplayMode < 2) continue;
-HudRender_initMapFrame:
-        Hud_gWingmanInterface[i] = 0;
-        Hud_InitMapFrame(i,0);
       }
+      Hud_gShowedCDPlayer = 0;
+
+      if (simGlobal.gameTicks < 0x240)
+      {
+        if ((countdown != '\0') && (Hud_BeTheCop == 0))
+        {
+          Hud_Render321Go();
+        }
+      }
+
+
+      Hud_RenderHudView();
+
+      Hud_RenderMapView();
+
+      Hud_RenderTacView();
     }
-    Hud_gShowedCDPlayer = 0;
-    if (((simGlobal.gameTicks < 0x240) && (countdown != '\0')) && (Hud_BeTheCop == 0)) {
-      Hud_Render321Go();
-    }
-    Hud_RenderHudView();
-    Hud_RenderMapView();
-    Hud_RenderTacView();
-  }
   }
 }
 
 /* ---- Hud_PositionMap__Fv  [HUD.CPP:3980-3993] SLD-VERIFIED ---- */
 void Hud_PositionMap(void)
 {
+
   gMapScaleX = (int)(fMapScaleX[GameSetup_gData.track] * 65536.0f);
   gMapScaleY = (int)(fMapScaleY[GameSetup_gData.track] * 65536.0f);
   gMapOffX = fMapOffX[GameSetup_gData.track];
-  if (GameSetup_gData.mirrorTrack != 0) {
-    gMapOffX = gMapOffX - 2;
-  }
+  if (GameSetup_gData.mirrorTrack != 0) gMapOffX = gMapOffX - 2;
+
   gMapOffY   = fMapOffY[GameSetup_gData.track];
   gMapRotate = fMapRotate[GameSetup_gData.track];
+
+
+
   mapMarkerMCos = ccos(gMapRotate) << 4;
   mapMarkerMSin = csin(gMapRotate) << 4;
 }
@@ -6218,8 +6202,11 @@ void Hud_BTC_QuitOut(void)
 void Hud_BTC_BonusTime(long extratime)
 
 {
-  BTC_BonusTime = extratime;
+
+
+
   BTC_BonusTimeTick = FE_Ticks();
+  BTC_BonusTime = extratime;
 }
 
 /* ---- Hud_Perp_OverlayOn__Fii  [HUD.CPP:4100-4102] SLD-VERIFIED ---- */

@@ -1062,8 +1062,8 @@ void DrawC_MenuColorData(int color,Car_tObj *carObj,int player)
          supersedes the historical PER_FN_TEXT_MOVES proposal above. */
 /* SYM-CODEGEN-CARRIER: pos -- W71/W76 duplicated fence input keeps the shifted position in retail v1 */
 /* SYM-CODEGEN-CARRIER: ev -- W71 stages the unsigned texture index before the offset scale */
-/* SYM-CODEGEN-CARRIER: byteOffset -- W76 exposes the exact halfword-table byte address quantity */
-/* SYM-CODEGEN-CARRIER: envMapOffset -- W76 identity fence preserves retail address handout */
+/* DRAW 2026-10-31: the byteOffset/envMapOffset carriers and their absorption identity are gone -- the
+   plain subscript DrawC_gEnvMapOffset[ev] is byte-identical on the current basin (976/976). */
 /* W86-D2: pure-C ABSORPTION IDENTITY (`X | (X & 3) == X`, or the `X & (X | 3)`
            twin) replacing a zero-insn identity/ref __asm__ device.  It is a real RTL insn
            (both operands are the same VARIABLE, so fold() keeps it), so cse/loop/flow see
@@ -1405,7 +1405,7 @@ int DrawC_PrimStart(Draw_tVertex *center,Car_tObj *carObj,int lightAvg,Draw_CarC
       }
     }
     {
-      int envShift = eSpeed + 3; int pz = (int)(carObj->N).positionXZ; int pos  = pz >> envShift; u_int evraw = (sd->ePmx1).v0; { u_int ev  = evraw >> 6; u_int byteOffset  = ev << 1; short *envMapOffset  = DrawC_gEnvMapOffset; envMapOffset = (__typeof__(envMapOffset))((unsigned int)envMapOffset | ((unsigned int)envMapOffset & 3u)); sd->eAddZ = (pos & 0x3fU) + (int)*(short *)(byteOffset + (u_int)envMapOffset);
+      int envShift = eSpeed + 3; int pz = (int)(carObj->N).positionXZ; int pos  = pz >> envShift; u_int evraw = (sd->ePmx1).v0; { u_int ev  = evraw >> 6; sd->eAddZ = (pos & 0x3fU) + (int)DrawC_gEnvMapOffset[ev];
       }
     } if (((GameSetup_gData.Weather != 0) && (tunnelFlag = (int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo), tunnelFlag != 1)) && (Cars_kSkidMarkSurface[(carObj->N).driveSurfaceType] == 1)) {
       DrawC_gWetRoad = 1;
@@ -1803,6 +1803,9 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
 /* The SYM has no distinct records for these five source-shaping identities.
      Each remains only because the detailed W53/W60/W75 receipts below measure
      a natural direct spelling as a different instruction/allocation stream.
+     Since 2026-10-31 ff/hi/overlayRaw/facetValue survive in case 9 ONLY: the
+     case-8 shape there is 46 diffs, a pure facetFlag-vs-id0..id2 register
+     rotation (facetFlag 12 weighted refs vs the ids' 16).
      SYM-CODEGEN-CARRIER: envmapUV_dst
      SYM-CODEGEN-CARRIER: ff
      SYM-CODEGEN-CARRIER: hi
@@ -2020,20 +2023,12 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
 /* SYM per-case block: literal repeated SYM names redeclared (wave-9 lever);
      * loop rebuilt as while+continue per the oracle (0x800C08DC..0x800C0C58,
      * tails cfLbl1/3 + otStitch24 inlined at their oracle position). */
-/* SYM-CODEGEN-CARRIER: facetValue -- explicit promotion of the SHORT
-       assignment, preserving retail's single signed halfword load. */
+/* Case 8 (2026-10-31): retail SYM shape -- block-local int facet_flag/sd_otz,
+       case-scope SHORT facetFlag = facet_flag & 0xfff.  The if/else overlay
+       select (`>> 0x18` re-reading DrawC_gOverlay, which cse folds onto the
+       same <<16 value) replaces the ff/hi/overlayRaw/facetValue carriers;
+       its jump/label RTL is what lets the 0xfff temp outrank sd_otz for $v1. */
 /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-/* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
-       * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-/* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
-           * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-/* W75-A7: BOTH launders moved INSIDE the guard body -- see the
-             * receipt above DrawC_Prim.  They still stop cse collapsing
-             * ff/facet_flag (so retail's `addu $9,$3,$0` copy survives), but
-             * they no longer stand BETWEEN that copy and the `beqz`, so
-             * reorg.c:685 stop_search_p lets the backward scan reach the copy
-             * and fill the guard's delay slot with it -- retail's stream. */
-/* W86-D2 ff absorption; the short save/dead-set/restore replaces facet_flag asm at zero bytes. */
 /* SYM block {index,which,facetOverlay} -- FT3B overlay variant */
 /* SYM per-case block: literal repeated SYM names redeclared (wave-9 lever);
      * loop rebuilt as while+continue per the oracle (0x800C0C5C..0x800C12C8,
@@ -2146,9 +2141,9 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   {
     int r0 = m->m[0]; int r1 = m->m[3]; int r2 = m->m[6]; (sd->matB).m[0][0] = (short)(r0 >> 4); (sd->matB).m[0][1] = (short)(r1 >> 4); (sd->matB).m[0][2] = (short)(r2 >> 4);
   } { int r0 = m->m[1]; int r1 = m->m[4]; int r2 = m->m[7]; (sd->matB).m[1][0] = (short)(r0 >> 4); (sd->matB).m[1][1] = (short)(r1 >> 4); (sd->matB).m[1][2] = (short)(r2 >> 4);
-  } { int r0 = m->m[2]; int r1 = m->m[5]; int r2 = m->m[8];
+  } { int r0 = m->m[2]; int r1 = m->m[5]; int r2 = m->m[8]; (sd->matB).m[1][0] = -(sd->matB).m[1][0]; (sd->matB).m[2][0] = (short)(r0 >> 4); (sd->matB).m[2][1] = (short)(r1 >> 4); (sd->matB).m[2][2] = (short)(r2 >> 4);
 
-    (sd->matB).m[1][0] = -(sd->matB).m[1][0]; (sd->matB).m[2][0] = (short)(r0 >> 4); (sd->matB).m[2][1] = (short)(r1 >> 4); (sd->matB).m[2][2] = (short)(r2 >> 4);
+
     (sd->matB).m[1][1] = -(sd->matB).m[1][1];
     (sd->matB).m[1][2] = -(sd->matB).m[1][2];
   }
@@ -2264,7 +2259,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
                 offsetV = sd->offsetV2;
               }
               {
-                u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; } { u_char u0 = facet->uv0.u + offsetU; u_char u1 = facet->uv1.u + offsetU; u_char u2 = facet->uv2.u + offsetU; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; } { u_char v0 = facet->uv0.v + offsetV; u_char v1 = facet->uv1.v + offsetV; u_char v2 = facet->uv2.v + offsetV; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
+                u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += offsetU; u1 = facet->uv1.u; u1 += offsetU; u2 = facet->uv2.u; u2 += offsetU; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += offsetV; v1 = facet->uv1.v; v1 += offsetV; v2 = facet->uv2.v; v2 += offsetV; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
               }
             } else {
               u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
@@ -2344,11 +2339,11 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
             *(u_char *)((int)prim + 7) = code;
           }
 
-          if (((u_short)facet->flag & 1) == 0) {
-
+          if (((u_short)facet->flag & 1) == 0)
+          {
             Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
 
-            u_char offsetU = sd->offsetU0; u_char offsetV = sd->offsetV0; { u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; } { u_char u0 = facet->uv0.u + offsetU; u_char u1 = facet->uv1.u + offsetU; u_char u2 = facet->uv2.u + offsetU; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; } { u_char v0 = facet->uv0.v + offsetV; u_char v1 = facet->uv1.v + offsetV; u_char v2 = facet->uv2.v + offsetV; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
+            { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = sd->offsetU0; u_char v = sd->offsetV0; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
             }
           } else { Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex; u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)((u_int *)prim + 3) = uv0; *(u_short *)((u_int *)prim + 5) = uv1; *(u_short *)((u_int *)prim + 7) = uv2;
           }
@@ -2431,17 +2426,17 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
           {
             long xy0 = *(long *)&sd->dvx0; long xy1 = *(long *)&sd->dvx1; long xy2 = *(long *)&sd->dvx2; ((u_int *)prim)[2] = xy0; ((u_int *)prim)[4] = xy1; ((u_int *)prim)[6] = xy2;
           }
-
-
-
-
-
-
-
-
-          ((u_int *)prim)[1] = sd->eColor0;
-          *(u_char *)((int)prim + 7) = 0x26;
           {
+
+            u_long color = sd->eColor0;
+            u_char code = 0x26;
+
+
+
+
+            ((u_int *)prim)[1] = color;
+            *(u_char *)((int)prim + 7) = code;
+          } {
 
 
 
@@ -2463,17 +2458,17 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
           {
             long xy0 = *(long *)&sd->dvx0; long xy1 = *(long *)&sd->dvx1; long xy2 = *(long *)&sd->dvx2; ((u_int *)prim)[2] = xy0; ((u_int *)prim)[4] = xy1; ((u_int *)prim)[6] = xy2;
           }
-
-
-
-
-
-
-
-
-          ((u_int *)prim)[1] = sd->eColor0;
-          *(u_char *)((int)prim + 7) = 0x26;
           {
+
+            u_long color = sd->eColor0;
+
+
+
+
+
+            ((u_int *)prim)[1] = color;
+            *(u_char *)((int)prim + 7) = 0x26;
+          } {
 
 
 
@@ -2508,7 +2503,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
       }
     }
     case 8: {
-      POLY_FT3 *prim; int overlayFlag; int overlayRaw; short facetFlag; int facetValue; Transformer_zFacet *facet; int id0; int id1; int id2; int facet_flag; int sd_otz;
+      POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2;
       while( true ) { i = i - 1; if (i == -1) {
           return;
         }
@@ -2552,32 +2547,32 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
         gte_stOTZm(sd->otz);
 
-        overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10; overlayFlag = overlayRaw >> 0x10;
-        if (overlayFlag != 0) {
+        overlayFlag = ((u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x10;
+        if (overlayFlag != 0)
+        {
+          int facet_flag = facet->flag;
+          int sd_otz = sd->otz;
 
-          facetValue = (facetFlag = facet->flag);
-          sd_otz = sd->otz;
-          overlayFlag = overlayFlag & 0xff;
-          if (facetValue < 0) { overlayFlag = overlayRaw >> 0x18;
-          }
+          if (facet_flag < 0) { overlayFlag = ((u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x18;
+          } else { overlayFlag = overlayFlag & 0xff; }
 
           sd_otz = sd_otz + sd->sub_otz; if ((overlayFlag & 0x40) != 0) { sd_otz = sd_otz - 2;
           } if (sd_otz < 0) continue; if (sd->sub_otSize < sd_otz) continue;
-          {
-            int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0; facet_flag = ff;
-            if (hi != 0) {
-              facet_flag = (__typeof__(facet_flag))((unsigned int)facet_flag & ((unsigned int)facet_flag | 3u)); ff = (__typeof__(ff))((unsigned int)ff | ((unsigned int)ff & 3u));
-              overlayFlag = overlayFlag & ((u_int)ff >> 4);
-              if (overlayFlag != 0) { while ((overlayFlag & 3) == 0) { overlayFlag = overlayFlag >> 2;
-                }
+
+          facetFlag = facet_flag & 0xfff;
+          if ((facet_flag & 0x3f0) != 0) {
+
+            overlayFlag = overlayFlag & (facetFlag >> 4);
+            if (overlayFlag != 0) { while ((overlayFlag & 3) == 0) { overlayFlag = overlayFlag >> 2;
               }
-            } } sd->otz = sd_otz;
+            }
+          } sd->otz = sd_otz;
         }
         else {
           sd->otz = sd->otz + sd->sub_otz;
           if (sd->otz < 0) continue; if (sd->sub_otSize < sd->otz) continue;
 
-          facet_flag = (u_short)facet->flag & 0xfff;
+          facetFlag = facet->flag & 0xfff;
         }
 
 
@@ -2609,7 +2604,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
             u_long color = 0x808080; u_char code; if ((overlayFlag & 0x80) == 0) {
               color = sd->color;
-            } if ((facet_flag & 1) != 0) { code = 0x26;
+            } if ((facetFlag & 1) != 0) { code = 0x26;
             } else { code = 0x24; }
             ((u_int *)prim)[1] = color;
             *(u_char *)((int)prim + 7) = code;
@@ -2618,7 +2613,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
             Draw_tPixMap *pmx = sd->pmxStart + (facet->textureIndex + facetOverlay->offset);
 
-            u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; { u_char u0 = facet->uv0.u + u; u_char u1 = facet->uv1.u + u; u_char u2 = facet->uv2.u + u; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; } { u_char v0 = facet->uv0.v + v; u_char v1 = facet->uv1.v + v; u_char v2 = facet->uv2.v + v; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
+            { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
             }
           }
         }
@@ -2638,7 +2633,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
             u_long color = 0x808080; u_char code; if ((overlayFlag & 0x80) == 0) {
               color = sd->color;
-            } if ((facet_flag & 1) != 0) { code = 0x26;
+            } if ((facetFlag & 1) != 0) { code = 0x26;
             } else { code = 0x24; }
             ((u_int *)prim)[1] = color;
             *(u_char *)((int)prim + 7) = code;
@@ -2785,20 +2780,20 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
             long xy0 = *(long *)&sd->dvx0; long xy1 = *(long *)&sd->dvx1; long xy2 = *(long *)&sd->dvx2; ((u_int *)prim)[2] = xy0; ((u_int *)prim)[4] = xy1;
             ((u_int *)prim)[6] = xy2;
           }
-          {
+          { u_long color;
 
 
 
-            if ((overlayFlag & 1) != 0) { ((u_int *)prim)[1] = sd->eColor2;
-            } else if ((facet_flag & 4) != 0) { ((u_int *)prim)[1] = sd->eColor1;
+            if ((overlayFlag & 1) != 0) { color = sd->eColor2;
+            } else if ((facet_flag & 4) != 0) { color = sd->eColor1;
+            } else { color = sd->eColor0;
             }
-            else {
 
 
 
 
-              ((u_int *)prim)[1] = sd->eColor0;
-            } *(u_char *)((int)prim + 7) = code;
+            ((u_int *)prim)[1] = color;
+            *(u_char *)((int)prim + 7) = code;
           }
           {
 
@@ -2842,7 +2837,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
             Draw_tPixMap *pmx = sd->pmxStart + (facet->textureIndex + facetOverlay->offset);
 
-            u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; { u_char u0 = facet->uv0.u + u; u_char u1 = facet->uv1.u + u; u_char u2 = facet->uv2.u + u; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; } { u_char v0 = facet->uv0.v + v; u_char v1 = facet->uv1.v + v; u_char v2 = facet->uv2.v + v; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
+            { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; *(u_short *)((int)prim + 0xe) = clut; *(u_short *)((int)prim + 0x16) = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; *(u_char *)((u_int *)prim + 3) = u0; *(u_char *)((u_int *)prim + 5) = u1; *(u_char *)((u_int *)prim + 7) = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; *(u_char *)((int)prim + 0xd) = v0; *(u_char *)((int)prim + 0x15) = v1; *(u_char *)((int)prim + 0x1d) = v2;
             }
           }
         }
@@ -3281,19 +3276,12 @@ void DrawC_DividePrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,u_short *u0,u_short
 /* These names do not correspond to distinct DrawC_PrimClip SYM declarations.
      They are retained only where the W72-W76 oracle experiments cited below prove
      that a natural direct/index spelling changes scheduling, GIV placement, or local
-     allocation.  The mid-edge names describe the corresponding generated
-     vertex/UV slots without pretending that SYM declared separate locals.
+     allocation.  (Both strength-reduced away: no debug record is emitted.)
+     The ff/hi/overlayRaw/facetValue and mid-edge vt/uv pointer carriers are
+     gone (2026-10-31): the retail if/else overlay select and direct
+     &sd->vt3.. / &sd->u3.. arguments compile byte-identical.
      SYM-CODEGEN-CARRIER: envmapUV_dst
-     SYM-CODEGEN-CARRIER: ff
-     SYM-CODEGEN-CARRIER: hi
-     SYM-CODEGEN-CARRIER: overlayRaw
-     SYM-CODEGEN-CARRIER: midUv01
-     SYM-CODEGEN-CARRIER: midUv12
-     SYM-CODEGEN-CARRIER: midUv20
-     SYM-CODEGEN-CARRIER: uvk
-     SYM-CODEGEN-CARRIER: midVt01
-     SYM-CODEGEN-CARRIER: midVt12
-     SYM-CODEGEN-CARRIER: midVt20 */
+     SYM-CODEGEN-CARRIER: uvk */
 /* SYM block-scope rebuild (SEAL rule 8c): this whole envmap-UV loop is its
      * OWN nested SYM block chain (line=18/19/27/31, va 0x800c15c8-0x800c16bc)
      * distinct from psVar8's later, unrelated facet-vertex uses -- give it a
@@ -3382,29 +3370,15 @@ void DrawC_DividePrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,u_short *u0,u_short
 /* SYM block line=449 {prim,overlayFlag,facetFlag,facet,id0,id1,id2} --
      * literal repeated SYM names redeclared per case (wave-9 lever); loop
      * rebuilt as while+continue chains per the oracle (0x800C25D0..). */
-/* SYM-CODEGEN-CARRIER: facetValue -- the integer-promoted result of the facetFlag
-       assignment.  A direct later use of the HImode local makes GCC emit a
-       second unsigned reload; this explicit promotion reproduces retail's
-       single `lh` while the -g type graph retains facetFlag as SHORT. */
+/* Cases 8/9 (2026-10-31): retail SYM shape (block-local int facet_flag/sd_otz,
+       case-scope SHORT facetFlag = facet_flag & 0xfff, if/else overlay select);
+       the ff/hi/overlayRaw/facetValue/savedFacetFlag carriers are gone. */
 /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
 /* load-3/store-3 (oracle lhu t4/t5/t6 batched; idN = morphed addrs) */
-/* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
-       * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-/* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
-           * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-/* W75-A7: launders INSIDE the guard body (same lever as the two
-             * DrawC_Prim sites; -2 each here).  reorg.c:685 stop_search_p
-             * fires at ANY asm, so a launder standing between the ff copy
-             * and the beqz walls the backward scan off from the copy and
-             * reorg eager-steals the following srl instead.  Inside the body
-             * the launders still break the cse collapse that would delete
-             * the copy, but the slot is reachable again. */
-/* W86-D2 absorption identity: zero-byte device replacement, see above. */
 /* SYM block line=550 {index,which,facetOverlay} -- FT3B overlay variant */
 /* SYM block line=609 {prim,overlayFlag,facetFlag,facet,id0,id1,id2} --
      * literal repeated SYM names redeclared per case (wave-9 lever); loop
      * rebuilt as while+continue chains per the oracle (0x800C2AB4..). */
-/* SYM-CODEGEN-CARRIER: facetValue -- same proven SHORT-assignment promotion as case 8. */
 /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
 /* W76-A7 JOINT CELL, id2 half (closes the W75 t1<->t8 certificate):
        * the target-only read fence (24E-3) adds ONE loop-weighted mention ->
@@ -3451,7 +3425,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
                int envmap,Draw_CarCache *sd)
 {
   int i;
-  COORD16 *Nvertice; u_char *midUv12; COORD16 *midVt12; u_char *midUv20; u_char *midUv01; COORD16 *midVt01; COORD16 *midVt20;
+  COORD16 *Nvertice;
   Nvertice = obj->Nvertex;
 
   if ((*(int *)&sd->ePmx0 == 0) && (*(int *)&sd->ePmx1 == 0)) { envmap = envmap & 0xbe;
@@ -3640,7 +3614,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
             Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
 
-            u_char u = sd->offsetU0; u_char v = sd->offsetV0; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; { u_char u0 = facet->uv0.u + u; u_char u1 = facet->uv1.u + u; u_char u2 = facet->uv2.u + u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; } { u_char v0 = facet->uv0.v + v; u_char v1 = facet->uv1.v + v; u_char v2 = facet->uv2.v + v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
+            { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = sd->offsetU0; u_char v = sd->offsetV0; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
             }
           } else {
             Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
@@ -3656,7 +3630,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
                 offsetV = sd->offsetV2;
               }
               {
-                u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; } { u_char u0 = facet->uv0.u + offsetU; u_char u1 = facet->uv1.u + offsetU; u_char u2 = facet->uv2.u + offsetU; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; } { u_char v0 = facet->uv0.v + offsetV; u_char v1 = facet->uv1.v + offsetV; u_char v2 = facet->uv2.v + offsetV; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
+                u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += offsetU; u1 = facet->uv1.u; u1 += offsetU; u2 = facet->uv2.u; u2 += offsetU; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += offsetV; v1 = facet->uv1.v; v1 += offsetV; v2 = facet->uv2.v; v2 += offsetV; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
               }
             } else {
               u_short clut = pmx->clut; u_short tpage = pmx->tpage; u_short uv0; u_short uv1; u_short uv2; prim->clut = clut; prim->tpage = tpage; uv0 = *(u_short *)&facet->uv0; uv1 = *(u_short *)&facet->uv1; uv2 = *(u_short *)&facet->uv2; *(u_short *)&prim->u0 = uv0; *(u_short *)&prim->u1 = uv1; *(u_short *)&prim->u2 = uv2;
@@ -3666,7 +3640,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
       }
 
 
-      midVt01 = &sd->vt3; midVt20 = &sd->vt5; midUv01 = &sd->u3; midUv20 = &sd->u5; midVt12 = &sd->vt4; midUv12 = &sd->u4; while( true ) { i = i - 1; if (i == -1) break;
+      while( true ) { i = i - 1; if (i == -1) break;
         {
           Transformer_zFacet *facet = obj->facet + i;
 
@@ -3716,12 +3690,12 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
           sd->v4 = (u_char)((int)((u_int)sd->v1 + (u_int)sd->v2 + 1) >> 1);
           sd->u5 = (u_char)((int)((u_int)sd->u2 + (u_int)sd->u0 + 1) >> 1);
           sd->v5 = (u_char)((int)((u_int)sd->v2 + (u_int)sd->v0 + 1) >> 1);
-          DrawC_DividePrim(&sd->vt0,midVt01,midVt20,(u_short *)&sd->u0,
+          DrawC_DividePrim(&sd->vt0,&sd->vt3,&sd->vt5,(u_short *)&sd->u0,
 
-          (u_short *)midUv01,(u_short *)midUv20,pmx,sd); DrawC_DividePrim(midVt01,&sd->vt1,midVt12,(u_short *)midUv01,
-          (u_short *)&sd->u1,(u_short *)midUv12,pmx,sd); DrawC_DividePrim(midVt20,midVt12,&sd->vt2,(u_short *)midUv20,
-          (u_short *)midUv12,(u_short *)&sd->u2,pmx,sd); DrawC_DividePrim(midVt20,midVt01,midVt12,(u_short *)midUv20,
-          (u_short *)midUv01,(u_short *)midUv12,pmx,sd);
+          (u_short *)&sd->u3,(u_short *)&sd->u5,pmx,sd); DrawC_DividePrim(&sd->vt3,&sd->vt1,&sd->vt4,(u_short *)&sd->u3,
+          (u_short *)&sd->u1,(u_short *)&sd->u4,pmx,sd); DrawC_DividePrim(&sd->vt5,&sd->vt4,&sd->vt2,(u_short *)&sd->u5,
+          (u_short *)&sd->u4,(u_short *)&sd->u2,pmx,sd); DrawC_DividePrim(&sd->vt5,&sd->vt3,&sd->vt4,(u_short *)&sd->u5,
+          (u_short *)&sd->u3,(u_short *)&sd->u4,pmx,sd);
         }
       }
       return;
@@ -3896,7 +3870,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
       }
     }
     case 8: {
-      POLY_FT3 *prim; int overlayFlag; int overlayRaw; short facetFlag; int facetValue; Transformer_zFacet *facet; int id0; int id1; int id2; int facet_flag; int sd_otz;
+      POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2;
       while( true ) { i = i - 1; if (i == -1) {
           return;
         }
@@ -3968,32 +3942,32 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
         gte_stOTZm(sd->otz);
 
-        overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10; overlayFlag = overlayRaw >> 0x10;
-        if (overlayFlag != 0) {
+        overlayFlag = ((u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x10;
+        if (overlayFlag != 0)
+        {
+          int facet_flag = facet->flag;
+          int sd_otz = sd->otz;
 
-          facetValue = (facetFlag = facet->flag);
-          sd_otz = sd->otz;
-          overlayFlag = overlayFlag & 0xff;
-          if (facetValue < 0) { overlayFlag = overlayRaw >> 0x18;
-          }
+          if (facet_flag < 0) { overlayFlag = ((u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x18;
+          } else { overlayFlag = overlayFlag & 0xff; }
 
           sd_otz = sd_otz + sd->sub_otz; if ((overlayFlag & 0x40) != 0) { sd_otz = sd_otz - 2;
           } if (sd_otz < 0) continue; if (sd->sub_otSize < sd_otz) continue;
-          {
-            int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0; facet_flag = ff;
-            if (hi != 0) {
-              short savedFacetFlag = (short)facet_flag; facet_flag = 0; facet_flag = savedFacetFlag; ff = (__typeof__(ff))((unsigned int)ff | ((unsigned int)ff & 3u));
-              overlayFlag = overlayFlag & ((u_int)ff >> 4);
-              if (overlayFlag != 0) { while ((overlayFlag & 3) == 0) { overlayFlag = overlayFlag >> 2;
-                }
+
+          facetFlag = facet_flag & 0xfff;
+          if ((facet_flag & 0x3f0) != 0) {
+
+            overlayFlag = overlayFlag & (facetFlag >> 4);
+            if (overlayFlag != 0) { while ((overlayFlag & 3) == 0) { overlayFlag = overlayFlag >> 2;
               }
-            } } sd->otz = sd_otz;
+            }
+          } sd->otz = sd_otz;
         }
         else {
           sd->otz = sd->otz + sd->sub_otz;
           if (sd->otz < 0) continue; if (sd->sub_otSize < sd->otz) continue;
 
-          facet_flag = (u_short)facet->flag & 0xfff;
+          facetFlag = facet->flag & 0xfff;
         }
 
 
@@ -4018,7 +3992,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
             u_long color = 0x808080; u_char code; if ((overlayFlag & 0x80) == 0) {
               color = sd->color;
-            } if ((facet_flag & 1) != 0) { code = 0x26;
+            } if ((facetFlag & 1) != 0) { code = 0x26;
             } else { code = 0x24; }
             *(u_int *)&prim->r0 = color;
             prim->code = code;
@@ -4027,7 +4001,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
             Draw_tPixMap *pmx = sd->pmxStart + (facet->textureIndex + facetOverlay->offset);
 
-            u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; { u_char u0 = facet->uv0.u + u; u_char u1 = facet->uv1.u + u; u_char u2 = facet->uv2.u + u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; } { u_char v0 = facet->uv0.v + v; u_char v1 = facet->uv1.v + v; u_char v2 = facet->uv2.v + v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
+            { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
             }
           }
         }
@@ -4045,7 +4019,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
             u_long color = 0x808080; u_char code; if ((overlayFlag & 0x80) == 0) {
               color = sd->color;
-            } if ((facet_flag & 1) != 0) { code = 0x26;
+            } if ((facetFlag & 1) != 0) { code = 0x26;
             } else { code = 0x24; }
             *(u_int *)&prim->r0 = color;
             prim->code = code;
@@ -4056,7 +4030,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
         }
       }
     }
-    case 9: { POLY_FT3 *prim; int overlayFlag; int overlayRaw; short facetFlag; int facetValue; Transformer_zFacet *facet; int id0; int id1; int id2; int facet_flag; int sd_otz;
+    case 9: { POLY_FT3 *prim; int overlayFlag; short facetFlag; Transformer_zFacet *facet; int id0; int id1; int id2;
       while( true ) { i = i - 1; if (i == -1) {
           return;
         }
@@ -4128,39 +4102,39 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
         gte_stOTZm(sd->otz);
 
-        overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10; overlayFlag = overlayRaw >> 0x10;
-        if (overlayFlag != 0) {
+        overlayFlag = ((u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x10;
+        if (overlayFlag != 0)
+        {
+          int facet_flag = facet->flag;
+          int sd_otz = sd->otz;
 
-          facetValue = (facetFlag = facet->flag);
-          sd_otz = sd->otz;
-          overlayFlag = overlayFlag & 0xff;
-          if (facetValue < 0) { overlayFlag = overlayRaw >> 0x18;
-          }
+          if (facet_flag < 0) { overlayFlag = ((u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x18;
+          } else { overlayFlag = overlayFlag & 0xff; }
 
           sd_otz = sd_otz + sd->sub_otz;
           if (sd_otz < 0) continue; if (sd->sub_otSize < sd_otz) continue;
-          {
-            int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0; facet_flag = ff;
-            if (hi != 0) {
-              facet_flag = (__typeof__(facet_flag))((unsigned int)facet_flag & ((unsigned int)facet_flag | 3u));
-              overlayFlag = overlayFlag & ((u_int)ff >> 4);
-              if (overlayFlag != 0) { while ((overlayFlag & 3) == 0) { overlayFlag = overlayFlag >> 2;
-                }
+
+          facetFlag = facet_flag & 0xfff;
+          if ((facet_flag & 0x3f0) != 0) {
+
+            overlayFlag = overlayFlag & (facetFlag >> 4);
+            if (overlayFlag != 0) { while ((overlayFlag & 3) == 0) { overlayFlag = overlayFlag >> 2;
               }
-            } } sd->otz = sd_otz;
+            }
+          } sd->otz = sd_otz;
         }
         else {
           sd->otz = sd->otz + sd->sub_otz;
           if (sd->otz < 0) continue; if (sd->sub_otSize < sd->otz) continue;
 
-          facet_flag = (u_short)facet->flag & 0xfff;
+          facetFlag = facet->flag & 0xfff;
         }
 
-        if ((envmap & 0x20U) != 0) { if ((facet_flag & 1) != 0) continue;
+        if ((envmap & 0x20U) != 0) { if ((facetFlag & 1) != 0) continue;
         }
 
 
-        if (((facet_flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
+        if (((facetFlag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
           {
             short *z = (short *)&Nvertice[facet->vertexId0]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt0).x = t1; (sd->vt0).y = t2; (sd->vt0).z = t3;
           } { short *z = (short *)&Nvertice[facet->vertexId1]; short t1 = z[0]; short t2 = z[1]; short t3 = z[2]; (sd->vt1).x = t1; (sd->vt1).y = t2; (sd->vt1).z = t3;
@@ -4216,15 +4190,15 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
 
 
-          if ((overlayFlag & 1) != 0) { *(u_int *)&prim->r0 = sd->eColor2;
-          } else if ((facet_flag & 4) != 0) { *(u_int *)&prim->r0 = sd->eColor1;
+          { u_long color; if ((overlayFlag & 1) != 0) { color = sd->eColor2;
+          } else if ((facetFlag & 4) != 0) { color = sd->eColor1;
+          } else { color = sd->eColor0;
           }
-          else {
 
 
 
 
-            *(u_int *)&prim->r0 = sd->eColor0;
+            *(u_int *)&prim->r0 = color;
           } prim->code = 0x26;
           {
 
@@ -4246,7 +4220,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
           int which = (overlayFlag & 3) - 1;
 
           Transformer_zOverlay *facetOverlay = overlay + (index * 3 + which);
-          __asm__("" : "=r"(facet_flag) : "0"(facet_flag), "r"(facetOverlay) : "$9", "$10", "$11");
+          __asm__("" : "=r"(facetFlag) : "0"(facetFlag), "r"(facetOverlay) : "$9", "$10", "$11");
 
 
           prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
@@ -4260,18 +4234,18 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
 
             u_long color = sd->color; u_char code = 0x24;
-            if ((facet_flag & 1) != 0) { code = 0x26;
+            if ((facetFlag & 1) != 0) { code = 0x26;
             }
             *(u_int *)&prim->r0 = color;
             prim->code = code;
 
 
-            if ((facet_flag & 1) != 0) { prim->code = code | 2;
+            if ((facetFlag & 1) != 0) { prim->code = code | 2;
             }
           }
           { Draw_tPixMap *pmx = sd->pmxStart + (facet->textureIndex + facetOverlay->offset);
 
-            u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; { u_char u0 = facet->uv0.u + u; u_char u1 = facet->uv1.u + u; u_char u2 = facet->uv2.u + u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; } { u_char v0 = facet->uv0.v + v; u_char v1 = facet->uv1.v + v; u_char v2 = facet->uv2.v + v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
+            { u_char u0; u_char u1; u_char u2; u_char v0; u_char v1; u_char v2; u_char u = facetOverlay->u; u_char v = facetOverlay->v; u_short clut = pmx->clut; u_short tpage = pmx->tpage; prim->clut = clut; prim->tpage = tpage; u0 = facet->uv0.u; u0 += u; u1 = facet->uv1.u; u1 += u; u2 = facet->uv2.u; u2 += u; prim->u0 = u0; prim->u1 = u1; prim->u2 = u2; v0 = facet->uv0.v; v0 += v; v1 = facet->uv1.v; v1 += v; v2 = facet->uv2.v; v2 += v; prim->v0 = v0; prim->v1 = v1; prim->v2 = v2;
             }
           }
         }
@@ -4288,7 +4262,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
 
             u_long color = sd->color; u_char code = 0x24;
-            if ((facet_flag & 1) != 0) { code = 0x26;
+            if ((facetFlag & 1) != 0) { code = 0x26;
             }
             *(u_int *)&prim->r0 = color;
             prim->code = code;
@@ -4514,9 +4488,9 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   {
     int r0 = m->m[0] >> 4; int r1 = m->m[3] >> 4; int r2 = m->m[6] >> 4; (sd->matB).m[0][0] = (short)r0; (sd->matB).m[0][1] = (short)r1; (sd->matB).m[0][2] = (short)r2;
   } { int r0 = m->m[1] >> 4; int r1 = m->m[4] >> 4; int r2 = m->m[7] >> 4; (sd->matB).m[1][0] = (short)r0; (sd->matB).m[1][1] = (short)r1; (sd->matB).m[1][2] = (short)r2;
-  } { int r0 = m->m[2] >> 4; int r1 = m->m[5] >> 4; int r2 = m->m[8] >> 4;
+  } { int r0 = m->m[2] >> 4; int r1 = m->m[5] >> 4; int r2 = m->m[8] >> 4; (sd->matB).m[1][0] = -(sd->matB).m[1][0]; (sd->matB).m[2][0] = (short)r0; (sd->matB).m[2][1] = (short)r1; (sd->matB).m[2][2] = (short)r2;
 
-    (sd->matB).m[1][0] = -(sd->matB).m[1][0]; (sd->matB).m[2][0] = (short)r0; (sd->matB).m[2][1] = (short)r1; (sd->matB).m[2][2] = (short)r2;
+
     (sd->matB).m[1][1] = -(sd->matB).m[1][1];
     (sd->matB).m[1][2] = -(sd->matB).m[1][2];
   }
@@ -4707,8 +4681,8 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
         {
           u_short clut, tpage;
 
-
           tpage = (sd->ePmx0).tpage; clut = (sd->ePmx0).clut;
+
           prim->clut = clut;
           prim->tpage = tpage;
         }
@@ -4729,11 +4703,11 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
       index = facet->textureIndex;
 
 
-
-
-
-
       prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr; facetOverlay = overlay + (index * 3 + which);
+
+
+
+
       DRAWC_OTLINK_FT3B(sd, prim);
       { long xy0, xy1, xy2;
         xy0 = *(u_int *)&sd->dvx0; xy1 = *(u_int *)&sd->dvx1; xy2 = *(u_int *)&sd->dvx2; *(u_long *)&prim->x0 = xy0; *(u_long *)&prim->x1 = xy1; *(u_long *)&prim->x2 = xy2;
@@ -4953,9 +4927,9 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
   { int r0,r1,r2;
     r0 = m->m[0]; r1 = m->m[3]; r2 = m->m[6]; (sd->matB).m[0][0] = (short)(r0 >> 4); (sd->matB).m[0][1] = (short)(r1 >> 4); (sd->matB).m[0][2] = (short)(r2 >> 4);
   } { int r0,r1,r2; r0 = m->m[1]; r1 = m->m[4]; r2 = m->m[7]; (sd->matB).m[1][0] = (short)(r0 >> 4); (sd->matB).m[1][1] = (short)(r1 >> 4); (sd->matB).m[1][2] = (short)(r2 >> 4);
-  } { int r0,r1,r2; r0 = m->m[2]; r1 = m->m[5]; r2 = m->m[8];
+  } { int r0,r1,r2; r0 = m->m[2]; r1 = m->m[5]; r2 = m->m[8]; (sd->matB).m[1][0] = -(sd->matB).m[1][0]; (sd->matB).m[2][0] = (short)(r0 >> 4); (sd->matB).m[2][1] = (short)(r1 >> 4); (sd->matB).m[2][2] = (short)(r2 >> 4);
 
-    (sd->matB).m[1][0] = -(sd->matB).m[1][0]; (sd->matB).m[2][0] = (short)(r0 >> 4); (sd->matB).m[2][1] = (short)(r1 >> 4); (sd->matB).m[2][2] = (short)(r2 >> 4);
+
     (sd->matB).m[1][1] = -(sd->matB).m[1][1];
     (sd->matB).m[1][2] = -(sd->matB).m[1][2];
   }
@@ -5018,19 +4992,19 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
 
     real_type = ((u_int)type) & 0xffbf;
 
-    if (index >= 0) {
-      int overlayFlag;
+    if (index >= 0)
+    { int overlayFlag;
 
 
-      int ovs  = (int)((u_int)(u_short)DrawC_gOverlay[index] << 0x10); do { } while (0);
-      if (facet->flag < 0) { overlayFlag = ovs >> 0x18;
-      } else { overlayFlag = ovs >> 0x10; overlayFlag = overlayFlag & 0xff;
-      } __asm__("" : : "r"(ovs));
+      overlayFlag = ((u_short)DrawC_gOverlay[index] << 0x10) >> 0x10;
+      if (facet->flag < 0) { overlayFlag = ((u_short)DrawC_gOverlay[index] << 0x10) >> 0x18;
+      } else { overlayFlag &= 0xff;
+      }
       if (((((u_int)type) & 0x40) != 0) && ((overlayFlag & 0x40) == 0)) {
 
-        ovs = (int)((u_int)(u_short)DrawC_gOverlay[0x18] << 0x10); do { } while (0);
-        if (facet->flag < 0) { overlayFlag = ovs >> 0x18;
-        } else { overlayFlag = ovs >> 0x10; overlayFlag = overlayFlag & 0xff;
+        overlayFlag = ((u_short)DrawC_gOverlay[0x18] << 0x10) >> 0x10;
+        if (facet->flag < 0) { overlayFlag = ((u_short)DrawC_gOverlay[0x18] << 0x10) >> 0x18;
+        } else { overlayFlag &= 0xff;
         }
       }
       if ((overlayFlag & 0x81) == 0) continue;
@@ -5525,9 +5499,9 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
     {
       int r0 = m->m[0]; int r1 = m->m[3]; int r2 = m->m[6]; (sd->matB).m[0][0] = (short)(r0 >> 4); (sd->matB).m[0][1] = (short)(r1 >> 4); (sd->matB).m[0][2] = (short)(r2 >> 4);
     } { int r0 = m->m[1]; int r1 = m->m[4]; int r2 = m->m[7]; (sd->matB).m[1][0] = (short)(r0 >> 4); (sd->matB).m[1][1] = (short)(r1 >> 4); (sd->matB).m[1][2] = (short)(r2 >> 4);
-    } { int r0 = m->m[2]; int r1 = m->m[5]; int r2 = m->m[8];
+    } { int r0 = m->m[2]; int r1 = m->m[5]; int r2 = m->m[8]; (sd->matB).m[1][0] = -(sd->matB).m[1][0]; (sd->matB).m[2][0] = (short)(r0 >> 4); (sd->matB).m[2][1] = (short)(r1 >> 4); (sd->matB).m[2][2] = (short)(r2 >> 4);
 
-      (sd->matB).m[1][0] = -(sd->matB).m[1][0]; (sd->matB).m[2][0] = (short)(r0 >> 4); (sd->matB).m[2][1] = (short)(r1 >> 4); (sd->matB).m[2][2] = (short)(r2 >> 4);
+
       (sd->matB).m[1][1] = -(sd->matB).m[1][1];
       (sd->matB).m[1][2] = -(sd->matB).m[1][2];
     }

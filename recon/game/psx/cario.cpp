@@ -184,106 +184,90 @@ void CarIO_ReStart(void)
 void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 
 {
-  int columns = w >> 2, mask = w & 3;
-  u_short firstMask;
-  u_short lastMask;
-  u_short lastLastMask;
+  int columns = w >> 2, mask = w & 3; u_short firstMask; u_short lastMask; u_short lastLastMask; if (mask != 0) { columns = columns + 1;
+  }
 
-  if (mask != 0) {
-    columns = columns + 1;
-  }
+
+
   dest = dest + ((x >> 2) + y * 0xc);
+
   lastLastMask = 0xffff;
-  lastMask = 0xffff;
-  if (mask == 0) {
-    lastMask = 0;
-  }
-  mask = mask - 1;
-  if (mask != -1) {
-    do {
-      lastMask = lastMask << 4;
-      mask = mask - 1;
-    } while (mask != -1);
+  lastMask = 0xffff; if (mask == 0) { lastMask = 0;
+  } mask = mask - 1; if (mask != -1) { do { lastMask = lastMask << 4; mask = mask - 1; } while (mask != -1);
   }
   firstMask = 0;
   mask = x & 3;
-  while (1) {
-    u_short rollOver;
+  while (1) { u_short rollOver; mask = mask - 1; if (mask == -1) break;
 
-    mask = mask - 1;
-    if (mask == -1) break;
+
+
     firstMask = (firstMask << 4) | 0xf;
-    rollOver = lastMask & 0xf000;
-    lastMask = lastMask << 4;
+
+    rollOver = lastMask & 0xf000; lastMask = lastMask << 4;
     rollOver >>= 0xc;
-    lastLastMask <<= 4;
-    lastLastMask |= rollOver;
+    lastLastMask <<= 4; lastLastMask |= rollOver;
   }
+
   if (lastLastMask != 0xffff) {
+
     lastMask = lastLastMask;
+
     columns = columns + 1;
   }
-  while (1) {
-    int i;
-    u_short current;
-    u_short next;
 
-    h = h - 1;
-    next = 0;
-    if (h == -1) break;
-    current = *source;
-    source = source + 1;
+
+  while (1) { int i; u_short current; u_short next; h = h - 1; next = 0; if (h == -1) break;
+
+
+
+    current = *source; source = source + 1;
+
+
     mask = x & 3;
-    while (1) {
-      u_short rollOver;
-
-      mask = mask - 1;
-      if (mask == -1) break;
+    while (1) { u_short rollOver; mask = mask - 1; if (mask == -1) break;
       rollOver = current & 0xf000;
+
+
       current = current << 4;
       rollOver >>= 0xc;
-      next <<= 4;
-      next |= rollOver;
+      next <<= 4; next |= rollOver;
     }
     i = 1;
-    dest[0] &= firstMask;
-    dest[0] |= current;
+    dest[0] &= firstMask; dest[0] |= current;
+
     for (; i < columns - 1; i++) {
       mask = x & 3;
       dest[i] = (short)next;
-      current = *source;
-      source = source + 1;
+
+      current = *source; source = source + 1;
       next = 0;
       while (1) {
         u_short rollOver;
-
-        mask = mask - 1;
-        if (mask == -1) break;
+        mask = mask - 1; if (mask == -1) break;
         rollOver = current & 0xf000;
+
+
         current = current << 4;
         rollOver >>= 0xc;
-        next <<= 4;
-        next |= rollOver;
+        next <<= 4; next |= rollOver;
       }
+
       dest[i] |= current;
     }
     mask = x & 3;
-    dest[i] &= lastMask;
-    dest[i] |= next;
+    dest[i] &= lastMask; dest[i] |= next;
+
     if (lastLastMask == 0xffff) {
+
       current = *source;
       source = source + 1;
       mask = mask - 1;
-      while (mask != -1) {
-        current = current << 4;
-        mask = mask - 1;
+      while (mask != -1) { current = current << 4; mask = mask - 1;
       }
       dest[i] |= current;
     }
-    dest = dest + 0xc;
-  }
-  return;
-}
+
+    dest = dest + 0xc; } return; }
 
 /* ---- CarIO_CopyToShape__FPsT0i  [CARIO.CPP:347-374] ----
  * The mirror for-loop reproduces retail pixel3 and all six declaring regions.
@@ -568,58 +552,31 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  * is the reload spill-pool identity named in (a), not a set of 50 statement-level misses --
  * do not open this function statement-by-statement; the only live route is reducing the
  * whole-body $v0 population (or the permuter). */
-void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int player)
-
-{
-  int i;
-  int carType;
-  int vx;
-  int vy;
-  int carPixMapCount;
-  int recolor_flag;
-
-  recolor_flag = 8;
-  carType = (carObj->render).currentCarType;
-  if ((reload & 1U) == 0) {
-    if (R3DCar_InMenu == 0) {
-      vx = (carObj->render).VRamX = CarIO_carVRamSlots[CarIO_carVRamCount][0];
-      vy = (carObj->render).VRamY = CarIO_carVRamSlots[CarIO_carVRamCount][1];
-      if (carType < 0x1c) {
-        /* oracle: `andi v0,inside,1; beqz v0,<+3 arm>` -- the inside!=0 case is
-         * the FALL-THROUGH, so it is the if-BODY (arm order was inverted). */
-        if (((carObj->render).inside & 1U) != 0) {
-          /* SYM block line 22: `index` REG $02($v0) -- the /3 quotient is a
-           * NAMED local in retail, not an inline subexpression. */
-          int index;
-
-          index = CarIO_carVRamCount / 3;
-          CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[index] * 3;
-        }
-        else {
-          CarIO_carVRamCount = CarIO_carVRamCount + 3;
-        }
-      }
-      else {
-        CarIO_carVRamCount = CarIO_carVRamCount + 1;
-      }
-    }
-    else {
-      vx = (carObj->render).VRamX = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][0];
-      vy = (carObj->render).VRamY = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][1];
-      CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[CarIO_carVRamCount];
-    }
-  }
-  else {
-    vx = (carObj->render).VRamX;
-    vy = (carObj->render).VRamY;
-  }
-  if ((reload & 0x10U) == 0) {
-    (carObj->render).textureStartIndex = CarIO_carPixMapCount;
-    carPixMapCount = CarIO_carPixMapCount;
-  }
-  else {
-    carPixMapCount = (carObj->render).textureStartIndex;
-  }
+          /* `license = 1` is set BEFORE the two calls (the flag-first spelling):
+           * that is what makes the pseudo CALL-CROSSING, so gcc must give it a
+           * callee-saved register -- retail's `license` REG $10($s0) per the SYM.
+           * With it set after the calls the flag is caller-saved ($a0) and $s0
+           * stays free INSIDE the loop, which lets `cx` reuse $s0; that single
+           * reuse shifts palette/cx/cy/vx/vy one register each and hands $fp to
+           * carObj instead of spilling it to its ARG home 140($sp).  gcc still
+           * SINKS the constant materialization past the calls here (the `li s0,1`
+           * lands next to the `flag = 1` store exactly as the oracle does). */
+    /* MATCH (w50-a6, 186 -> 184): the sibling UpdateCarTextureData's flag-store lever --
+     * writing `palette = 1;` AFTER the locateshapez call lets dbr use the flag store as
+     * the `jal`'s delay-slot filler instead of emitting it ahead of the arg setup.  It
+     * transfers only partially here (the sibling went 7 -> PASS); the comma-order swap
+     * that cracked the sibling's tail is NEGATIVE on this fn (188), so the two loops'
+     * residuals are NOT the same cluster despite the identical source shape. */
+  /* MATCH (w62-a14, 35 -> 19): the loop-tail COMMA ORDER.  Both builds emit the
+   * same two spilled-giv increments (68(sp) += 1 = carPixMapCount, 88(sp) += 2);
+   * retail issues carPixMapCount's load/add/store FIRST, so the comma operands go
+   * in that order.  Measured: swapped 19 (kept), original 35, moving the increment
+   * into the body 47 @486 (drops 5 insns). */
+    /* oracle: `lw t1,72(sp); ori t1,t1,0x10; sw t1,72(sp)` -- an OR into the
+     * already-stored 8, NOT a fresh `recolor_flag = 0x18` store. */
+      /* the `>> 6` is its OWN statement on the named local: the oracle emits the
+       * `sra v1,v1,6` at the two arms' merge point, BEFORE the carVRamOffset base
+       * is materialized (folded into the subscript it lands after the lui/addiu). */
   /* MATCH (w62-a14, 184 -> 35): THE RELOAD SPILL-POOL IDENTITY IS SOURCE-REACHABLE.
    * The w41/w42/w53 receipts below priced the residual as "164 of 184 are which of
    * two interchangeable reload scratch registers gcc picked ... a whole-function
@@ -881,174 +838,211 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
    * ranges (catalog 22C-7) so cse/copy-prop cannot collapse T into pseudo 88 --
    * every previously tried `int n` form let them stay sequential, which is
    * exactly the condition 22C-7 says keeps them one qty. */
+          /* SYM block line 22: `index` REG $02($v0) -- the /3 quotient is a
+           * NAMED local in retail, not an inline subexpression. */
+        /* oracle: `andi v0,inside,1; beqz v0,<+3 arm>` -- the inside!=0 case is
+         * the FALL-THROUGH, so it is the if-BODY (arm order was inverted). */
+void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int player)
+
+{
+  int i;
+  int carType;
+
+
+
+
+
+
+  int vx; int vy; int carPixMapCount; int recolor_flag; recolor_flag = 8; carType = (carObj->render).currentCarType;
+
+  if ((reload & 1U) == 0) {
+
+    if (R3DCar_InMenu == 0) {
+
+      vx = (carObj->render).VRamX = CarIO_carVRamSlots[CarIO_carVRamCount][0];
+      vy = (carObj->render).VRamY = CarIO_carVRamSlots[CarIO_carVRamCount][1];
+
+      if (carType < 0x1c) {
+
+        if (((carObj->render).inside & 1U) != 0) {
+          int index;
+          index = CarIO_carVRamCount / 3;
+          CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[index] * 3;
+        }
+        else { CarIO_carVRamCount = CarIO_carVRamCount + 3;
+        }
+      } else { CarIO_carVRamCount = CarIO_carVRamCount + 1;
+      }
+    }
+    else { vx = (carObj->render).VRamX = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][0];
+      vy = (carObj->render).VRamY = CarIO_carVRamSlotsMenu[CarIO_carVRamCount][1];
+
+      CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[CarIO_carVRamCount];
+    }
+  }
+  else {
+    vx = (carObj->render).VRamX;
+    vy = (carObj->render).VRamY;
+  }
+
+  if ((reload & 0x10U) == 0) { (carObj->render).textureStartIndex = CarIO_carPixMapCount; carPixMapCount = CarIO_carPixMapCount;
+  } else { carPixMapCount = (carObj->render).textureStartIndex;
+  }
   if ((reload & 8U) != 0) {
+
     if (((carObj->render).inside & 1U) != 0) {
       int index;
-
       index = vx - 0x200;
-      if (R3DCar_InMenu == 0) {
-        index = vx - 0x280;
+      if (R3DCar_InMenu == 0) { index = vx - 0x280;
       }
-      /* the `>> 6` is its OWN statement on the named local: the oracle emits the
-       * `sra v1,v1,6` at the two arms' merge point, BEFORE the carVRamOffset base
-       * is materialized (folded into the subscript it lands after the lui/addiu). */
       index = index >> 6;
+
       vx = vx + CarIO_carVRamOffset[index];
     }
+
     (carObj->render).textureOffsetU = (short)((vx & 0x3f) << 2);
     (carObj->render).textureOffsetV = (u_short)vy & 0xff;
   }
   i = 0;
-  if (R3DCar_InMenu == 0) {
-    /* oracle: `lw t1,72(sp); ori t1,t1,0x10; sw t1,72(sp)` -- an OR into the
-     * already-stored 8, NOT a fresh `recolor_flag = 0x18` store. */
-    recolor_flag = recolor_flag | 0x10;
+
+
+  if (R3DCar_InMenu == 0) { recolor_flag = recolor_flag | 0x10;
   }
   Texture_palCopy = (carObj->render).palCopy;
+
+
   Texture_ResetPaletteSharing();
-  /* MATCH (w62-a14, 35 -> 19): the loop-tail COMMA ORDER.  Both builds emit the
-   * same two spilled-giv increments (68(sp) += 1 = carPixMapCount, 88(sp) += 2);
-   * retail issues carPixMapCount's load/add/store FIRST, so the comma operands go
-   * in that order.  Measured: swapped 19 (kept), original 35, moving the increment
-   * into the body 47 @486 (drops 5 insns). */
+
   for (; i < 0x33; carPixMapCount = carPixMapCount + 1, i = i + 1) {
     shapetbl *shape;
-    int palShare;
-    int palette;
-
-    /* MATCH (w50-a6, 186 -> 184): the sibling UpdateCarTextureData's flag-store lever --
-     * writing `palette = 1;` AFTER the locateshapez call lets dbr use the flag store as
-     * the `jal`'s delay-slot filler instead of emitting it ahead of the arg setup.  It
-     * transfers only partially here (the sibling went 7 -> PASS); the comma-order swap
-     * that cracked the sibling's tail is NEGATIVE on this fn (188), so the two loops'
-     * residuals are NOT the same cluster despite the identical source shape. */
-    shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
+    int palShare; int palette; shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
     palette = 1;
     palShare = CarIO_textureName[i].palShare;
+
+
     if ((shape == (shapetbl *)0x0) && (palShare == 0)) {
       palette = 0;
+
+
       shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
     }
-    if (i == 0x14) {
-      recolor_flag = 0;
+
+    if (i == 0x14) { recolor_flag = 0;
     }
     if (shape != (shapetbl *)0x0) {
       int license;
 
       license = 0;
-      if (recolor_flag != 0) {
-        (carObj->render).palCopyNum[i] = (short)Texture_palNum;
+      if (recolor_flag != 0) { (carObj->render).palCopyNum[i] = (short)Texture_palNum;
       }
       if (carType < 0x16) {
+
         if (i == CarIO_licensePlate[carType][0]) {
           int license_vx;
-          int license_vy;
-
-          license_vx = vx + CarIO_licensePlate[carType][1];
+          int license_vy; license_vx = vx + CarIO_licensePlate[carType][1];
           license_vy = vy + CarIO_licensePlate[carType][2];
-          /* `license = 1` is set BEFORE the two calls (the flag-first spelling):
-           * that is what makes the pseudo CALL-CROSSING, so gcc must give it a
-           * callee-saved register -- retail's `license` REG $10($s0) per the SYM.
-           * With it set after the calls the flag is caller-saved ($a0) and $s0
-           * stays free INSIDE the loop, which lets `cx` reuse $s0; that single
-           * reuse shifts palette/cx/cy/vx/vy one register each and hands $fp to
-           * carObj instead of spilling it to its ARG home 140($sp).  gcc still
-           * SINKS the constant materialization past the calls here (the `li s0,1`
-           * lands next to the `flag = 1` store exactly as the oracle does). */
-          license = 1;
+
           CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
+
+          license = 1;
           Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],recolor_flag,license_vx,
+
                      license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]);
+
           CarIO_carPixMap[carPixMapCount].flag = 1;
         }
         else if (i == CarIO_licensePlate[carType][3]) {
           int license_vx;
-          int license_vy;
-
-          license_vx = vx + CarIO_licensePlate[carType][4];
+          int license_vy; license_vx = vx + CarIO_licensePlate[carType][4];
           license_vy = vy + CarIO_licensePlate[carType][5];
+
           CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
           Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],recolor_flag,license_vx,
-                     license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]);
-          license = 1;
+
+
+
+                     license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]); license = 1;
+
           CarIO_carPixMap[carPixMapCount].flag = 2;
         }
       }
+
       if (license == 0) {
-        Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag,vx,vy,-1,-1,
-                   &CarIO_carPixMap[carPixMapCount]);
+        Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag,vx,vy,-1,-1, &CarIO_carPixMap[carPixMapCount]);
       }
-      if (i == 0x20) {
-        ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
+      if (i == 0x20) { ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
       }
       CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
     }
+
       if (palette != 0) {
         int palIndex;
-
         palIndex = carPixMapCount;
         if (palShare != 0) {
           palIndex = palShare + -1;
-          if (recolor_flag != 0) {
-            (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
+
+
+          if (recolor_flag != 0) { (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
           }
           palIndex = palIndex + (carObj->render).textureStartIndex;
         }
+
         shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
+
         if (shape != (shapetbl *)0x0) {
           int license;
-          u_short clut;
-          int cx;
-          int cy;
+          u_short clut; int cx; int cy; license = 0;
 
-          license = 0;
           clut = CarIO_carPixMap[palIndex].clut;
+
           cx = (clut & 0x3f) << 4;
           cy = (int)(clut >> 6);
+
           if (carType < 0x16) {
+
             if (i == CarIO_licensePlate[carType][0]) {
               int license_vx;
-              int license_vy;
-
-              license_vx = vx + CarIO_licensePlate[carType][1];
+              int license_vy; license_vx = vx + CarIO_licensePlate[carType][1];
               license_vy = vy + CarIO_licensePlate[carType][2];
               license = 1;      /* flag-first: keeps `license` call-crossing -> $s0 */
               CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
               Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,license_vx,license_vy,
+
+
+
                          cx,cy,&CarIO_carPixMap[carPixMapCount]);
+
               CarIO_carPixMap[carPixMapCount].flag = 1;
             }
             else if (i == CarIO_licensePlate[carType][3]) {
               int license_vx;
-              int license_vy;
-
-              license_vx = vx + CarIO_licensePlate[carType][4];
+              int license_vy; license_vx = vx + CarIO_licensePlate[carType][4];
               license_vy = vy + CarIO_licensePlate[carType][5];
+
               CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
               Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],0x20,license_vx,license_vy,
-                         cx,cy,&CarIO_carPixMap[carPixMapCount]);
-              license = 1;
+
+
+
+                         cx,cy,&CarIO_carPixMap[carPixMapCount]); license = 1;
+
               CarIO_carPixMap[carPixMapCount].flag = 2;
             }
           }
+
           if (license == 0) {
-            Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy,
-                       &CarIO_carPixMap[carPixMapCount]);
+            Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy, &CarIO_carPixMap[carPixMapCount]);
           }
-          if (i == 0x20) {
-            ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
+          if (i == 0x20) { ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
           }
-          if (palShare == 0) {
-            CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
+          if (palShare == 0) { CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
           }
         }
     }
+
   }
-  if ((reload & 0x80U) != 0) {
-    CarIO_carPixMapCount = carPixMapCount;
-  }
-  return;
-}
+
+  if ((reload & 0x80U) != 0) { CarIO_carPixMapCount = carPixMapCount; } return; }
 
 /* ---- CarIO_UpdateCarTextureData__FPcP8Car_tObji  [CARIO.CPP:718-849] ----
  * Missing initial shapes may still need palette handling. Existing shapes
@@ -1094,26 +1088,19 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
  *   no_schedule_insns2 Update->139 but breaks 6 currently-PASSing fns           WORSE
  *   no_strength_reduce Update->379, CopyToShape 51->55                          WORSE
  * => cario.obj is a STOCK-FLAG object (only the proven g_value:8 stays). */
-void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
-
-{
-  int i;
-  int carType;
-  int vx;
-  int vy;
-  int carPixMapCount;
-  int recolor_flag;
-
-  carPixMapCount = (carObj->render).textureStartIndex;
-  carType = (int)(carObj->render).currentCarType;
-  vx = (int)(carObj->render).VRamX;
-  vy = (int)(carObj->render).VRamY;
-  recolor_flag = 8;
-  if (R3DCar_InMenu == 0) {
-    recolor_flag = 0x18;
-  }
-  Texture_palCopy = (carObj->render).palCopy;
-  Texture_ResetPaletteSharing();
+        /* the oracle computes `palShare - 1` ONCE into palIndex (delay slot of
+         * the recolor_flag guard) and then ADDS textureStartIndex to it -- so
+         * palShare is referenced 5x, not 6x.  That one ref is load-bearing:
+         * -dl gives palShare 12 refs / 170 insns (prio 3*12/170 = .212) vs
+         * recolor_flag 14 / 211 (.199), which is exactly why OUR build gave
+         * palShare $s7 and spilled recolor_flag.  At 10 refs palShare drops to
+         * .176 and the pair swaps to the retail assignment. */
+    /* MATCH (w50-a6, 7 -> PASS 298/298): retail sets up locateshapez's two args BEFORE
+     * materializing the `palette` flag and fills the `jal`'s delay slot with the
+     * `sw t0,52(sp)` flag store.  Written before the call, the store is already emitted
+     * when dbr scans back and the slot gets a nop; written AFTER the call statement it
+     * becomes the slot filler.  (Any of the three post-call positions -- after the call,
+     * after the palShare read, immediately before the guard -- gates PASS.) */
   /* MATCH (w50-a6, 25 -> 7, ours 301 -> 299 vs oracle 298): the two spilled counters'
    * TAIL ORDER is set by the comma-expression order.  Retail updates carPixMapCount
    * (44(sp)) FIRST and the palCopyNum giv (60(sp)) last, with `addiu t0,t0,2` in the
@@ -1122,29 +1109,44 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
    * identical (neither reads the other) and also lets dbr fill the guard `beqz` slot,
    * which is what removed the two nops.  (Falsified from this basin: an explicit while
    * form with both bumps at the bottom 372 @290; a `(short *)palCopyNum` pointer view 25.) */
+void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
+
+{
+  int i;
+  int carType;
+  int vx; int vy; int carPixMapCount; int recolor_flag; carType = (int)(carObj->render).currentCarType;
+
+  vx = (int)(carObj->render).VRamX;
+  vy = (int)(carObj->render).VRamY;
+
+  carPixMapCount = (carObj->render).textureStartIndex;
+
+  recolor_flag = 8;
+
+  if (R3DCar_InMenu == 0) { recolor_flag = 0x18;
+  }
+  Texture_palCopy = (carObj->render).palCopy;
+
+
+  Texture_ResetPaletteSharing();
+
   for (i = 0; i < 0x33; carPixMapCount = carPixMapCount + 1, i = i + 1) {
     shapetbl *shape;
-    int palShare;
-    int palette;
+    int palShare; int palette; shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
 
-    /* MATCH (w50-a6, 7 -> PASS 298/298): retail sets up locateshapez's two args BEFORE
-     * materializing the `palette` flag and fills the `jal`'s delay slot with the
-     * `sw t0,52(sp)` flag store.  Written before the call, the store is already emitted
-     * when dbr scans back and the slot gets a nop; written AFTER the call statement it
-     * becomes the slot filler.  (Any of the three post-call positions -- after the call,
-     * after the palShare read, immediately before the guard -- gates PASS.) */
-    shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
-    palette = 1;
     palShare = CarIO_textureName[i].palShare;
+
+    palette = 1;
     if ((shape == (shapetbl *)0x0) && (palShare == 0)) {
+
       palette = 0;
+
       shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
     }
-    if (i == 0x14) {
-      recolor_flag = 0;
+
+    if (i == 0x14) { recolor_flag = 0;
     }
-    if (shape == (shapetbl *)0x0 ||
-        ((((Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap))->flag & 0x80) != 0)) {
+    if (shape == (shapetbl *)0x0 || ((((Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap))->flag & 0x80) != 0)) {
       if (shape != (shapetbl *)0x0) {
         int license;
         u_short clut;
@@ -1152,98 +1154,95 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
         int cy;
 
         license = 0;
+
+
+
         clut = ((Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap))->clut;
+
         cx = (clut & 0x3f) << 4;
         cy = (int)(clut >> 6);
-        if (recolor_flag != 0) {
-          Texture_palNum = (int)(carObj->render).palCopyNum[i];
+
+        if (recolor_flag != 0) { Texture_palNum = (int)(carObj->render).palCopyNum[i];
         }
         if (carType < 0x16) {
+
           if (i == CarIO_licensePlate[carType][0]) {
+
             license = 1;
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],recolor_flag,
                        vx + CarIO_licensePlate[carType][1],
-                       vy + CarIO_licensePlate[carType][2],cx,cy,
-                       (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap));
+                       vy + CarIO_licensePlate[carType][2],cx,cy, (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap));
           }
           else if (i == CarIO_licensePlate[carType][3]) {
+
             license = 1;
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],recolor_flag,
                        vx + CarIO_licensePlate[carType][4],
-                       vy + CarIO_licensePlate[carType][5],cx,cy,
-                       (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap));
+                       vy + CarIO_licensePlate[carType][5],cx,cy, (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap));
           }
         }
+
         if (license == 0) {
-          Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag,vx,vy,cx,cy,
-                     &CarIO_carPixMap[carPixMapCount]);
+          Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag,vx,vy,cx,cy, &CarIO_carPixMap[carPixMapCount]);
         }
-        if (i == 0x20) {
-          ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
+        if (i == 0x20) { ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
         }
         CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
       }
+
     if (palette != 0) {
       int palIndex;
-
       palIndex = carPixMapCount;
       if (palShare != 0) {
-        /* the oracle computes `palShare - 1` ONCE into palIndex (delay slot of
-         * the recolor_flag guard) and then ADDS textureStartIndex to it -- so
-         * palShare is referenced 5x, not 6x.  That one ref is load-bearing:
-         * -dl gives palShare 12 refs / 170 insns (prio 3*12/170 = .212) vs
-         * recolor_flag 14 / 211 (.199), which is exactly why OUR build gave
-         * palShare $s7 and spilled recolor_flag.  At 10 refs palShare drops to
-         * .176 and the pair swaps to the retail assignment. */
         palIndex = palShare + -1;
-        if (recolor_flag != 0) {
-          (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
+
+
+        if (recolor_flag != 0) { (carObj->render).palCopyNum[i] = (carObj->render).palCopyNum[palIndex];
         }
         palIndex = palIndex + (carObj->render).textureStartIndex;
       }
+
       shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].tex);
+
       if (shape != (shapetbl *)0x0) {
         int license;
-        u_short clut;
-        int cx;
-        int cy;
+        u_short clut; int cx; int cy; license = 0;
 
-        license = 0;
         clut = CarIO_carPixMap[palIndex].clut;
+
         cx = (clut & 0x3f) << 4;
         cy = (int)(clut >> 6);
+
         if (carType < 0x16) {
+
           if (i == CarIO_licensePlate[carType][0]) {
+
             license = 1;
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,
                        vx + CarIO_licensePlate[carType][1],
-                       vy + CarIO_licensePlate[carType][2],cx,cy,
-                       &CarIO_carPixMap[carPixMapCount]);
+                       vy + CarIO_licensePlate[carType][2],cx,cy, &CarIO_carPixMap[carPixMapCount]);
           }
           else if (i == CarIO_licensePlate[carType][3]) {
+
             license = 1;
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],0x20,
                        vx + CarIO_licensePlate[carType][4],
-                       vy + CarIO_licensePlate[carType][5],cx,cy,
-                       &CarIO_carPixMap[carPixMapCount]);
+                       vy + CarIO_licensePlate[carType][5],cx,cy, &CarIO_carPixMap[carPixMapCount]);
           }
         }
+
         if (license == 0) {
-          Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy,
-                     &CarIO_carPixMap[carPixMapCount]);
+          Texture_LoadPmx((char *)0x0,(char *)shape,0x20,vx,vy,cx,cy, &CarIO_carPixMap[carPixMapCount]);
         }
-        if (i == 0x20) {
-          ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
+        if (i == 0x20) { ChangeTPage(&CarIO_carPixMap[carPixMapCount].tpage,2);
         }
-        if (palShare == 0) {
-          CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
+        if (palShare == 0) { CarIO_carPixMap[carPixMapCount].flag = CarIO_carPixMap[carPixMapCount].flag | 0x80;
         }
       }
     }
     }
-  }
-  return;
-}
+
+  } return; }
 
 /* ---- CarIO_ReleaseCarCluts__FP8Car_tObj  [CARIO.CPP:856-871] SLD-VERIFIED ---- */
   /* SYM @0x800bd358: fsize 32, mask $80030000 (ra,s1,s0) -- EXACTLY two REG

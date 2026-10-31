@@ -145,6 +145,10 @@ void UpdateContext(DRender_tView *Vi,int contextHandle)
     gCurrContext->currentChunk = (u_int)(gCurrContext->slicePos).chunk; } return; }
 
 /* ---- BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group  [@0x8007d6c0] ---- */
+        /* SOURCE-REVIEW-UNRESOLVED: this unused declaration has no retail row.
+           Clean infinite-while controls match86 words but lose two regions.
+           The real scope/loop producer, not code bytes alone, must be recovered;
+           see build/nc12/bworld_search_scope_20261022. No object exemption. */
 #line 227 "C:/nfs4/GAME/COMMON/BWORLD.CPP"
 void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
 {
@@ -152,19 +156,20 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
   int j;
   Trk_SFX *objInstance;
   int numObjects;
+  i = 0; objInstance = (Trk_SFX *)group->GetData(); numObjects = group->m_num_elements;
 
-  i = 0;
-  objInstance = (Trk_SFX *)group->GetData();
-  numObjects = group->m_num_elements;
+
   for (; i < numObjects; i++) {
     short pad;
     short type;
 
     pad = objInstance[i].pad;
     type = (short)objInstance[i].type;
-    if (objInstance[i].type == 100) {
-      coorddef dir = {0, 0xa0000, 0};
 
+
+    if (objInstance[i].type == 100) {
+
+      coorddef dir = {0, 0xa0000, 0};
       TrgSfx_AddEnviroEffect(i, 0x101,
                              (coorddef *)&objInstance[i], &dir);
       return;
@@ -172,22 +177,27 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
     if (pad != 0) {
       int found_match;
       int group;
+      found_match = 0; group = pad & 0x7fff;
 
-      found_match = 0;
-      group = pad & 0x7fff;
+
+
       for (j = 0; j < numObjects; j++) {
-        /* SOURCE-REVIEW-UNRESOLVED: this unused declaration has no retail row.
-           Clean infinite-while controls match86 words but lose two regions.
-           The real scope/loop producer, not code bytes alone, must be recovered;
-           see build/nc12/bworld_search_scope_20261022. No object exemption. */
         coorddef *pt1;
+
         if (group == (objInstance[j].pad & 0x7fff)) {
+
+
           found_match = 1;
           break;
         }
       }
+
+
       if (found_match != 0) {
+
+
         if (pad < 0) {
+
           coorddef *pt1 = (coorddef *)&objInstance[j];
           Flare_Halo2(Vi, -1, (short)type,
                       (coorddef *)&objInstance[i], pt1, (Draw_FlareCache *)sd);
@@ -196,6 +206,14 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
     }
     else {
       Flare_Halo(Vi, -1, (short)type,
+
+
+
+
+
+
+
+
                  (coorddef *)&objInstance[i], (Draw_FlareCache *)sd);
     }
   }

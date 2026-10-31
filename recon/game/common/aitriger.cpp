@@ -27,28 +27,48 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
 
   this->numTriggers_ = 0;
   this->invNumTriggers_ = 0;
+
+
+
+
+
+
+
+
+
+
   for (tLoop = 0; tLoop < 100; tLoop++) {
-    this->checkTime_[tLoop] = -0xa00;
-  }
+    this->checkTime_[tLoop] = -0xa00; }
   for (tLoop = 0; tLoop < 9; tLoop++) {
-    this->lastTriggerChecked_[tLoop] = 0;
-  }
+    this->lastTriggerChecked_[tLoop] = 0; }
+
+
   if (rawTriggers != (char *)0x0) {
     numTriggers = (int *)rawTriggers;   /* SYM: numTriggers is a REG PTR INT, aliases rawTriggers's count header */
+
+
+
+
+
+
+
+
     currentTrigger = (char *)(numTriggers + 1);   /* SYM: currentTrigger is a REG PTR CHAR (byte cursor, NOT trigger_t* -- must NOT scale by sizeof(trigger_t)=72) */
-    tLoop = 0;
-    if (0 < *numTriggers) {
+    tLoop = 0; if (0 < *numTriggers) {
       do {
         currentTrigger = currentTrigger + this->InsertTrigger((trigger_t *)currentTrigger,true);
-        tLoop = tLoop + 1;
-      } while (tLoop < *numTriggers);
+        tLoop = tLoop + 1; } while (tLoop < *numTriggers);
     }
     this->Sort();
+
     if (this->numTriggers_ != 0) {
+
       this->invNumTriggers_ = fixeddiv(0x10000,this->numTriggers_ << 0x10);
     }
   }
   return;
+
+
 }
 
 /* ---- AITrigger_TriggerManager::InsertTrigger  [@0x80072948] ---- */
@@ -118,13 +138,13 @@ int AITrigger_TriggerManager::InsertTrigger(trigger_t *trigger,bool fromFile)
 trigger_t *
 AITrigger_TriggerManager::GetNextTrigger(int car)
 {
+
   if (this->numTriggers_ == 0) {
     return (trigger_t *)0x0;
-  }
-  if (++this->lastTriggerChecked_[car] == this->numTriggers_) {
+  } ++this->lastTriggerChecked_[car];
+  if (this->lastTriggerChecked_[car] == this->numTriggers_) {
     this->lastTriggerChecked_[car] = 0;
-  }
-  return this->GetCheckedTrigger(this->lastTriggerChecked_[car]);
+  } return this->GetCheckedTrigger(this->lastTriggerChecked_[car]);
 }
 
 /* ---- AITrigger_TriggerManager::GetPrevTrigger  [@0x80072ab4] ---- */
@@ -132,30 +152,19 @@ AITrigger_TriggerManager::GetNextTrigger(int car)
 trigger_t *
 AITrigger_TriggerManager::GetPrevTrigger(int car)
 {
+
   if (this->numTriggers_ == 0) {
     return (trigger_t *)0x0;
-  }
-  if (--this->lastTriggerChecked_[car] == -1) {
+  } --this->lastTriggerChecked_[car];
+  if (this->lastTriggerChecked_[car] == -1) {
     this->lastTriggerChecked_[car] = this->numTriggers_ + -1;
-  }
-  return this->GetCheckedTrigger(this->lastTriggerChecked_[car]);
+  } return this->GetCheckedTrigger(this->lastTriggerChecked_[car]);
 }
 
 /* ---- AITrigger_TriggerManager::CheckForTriggerAtSlice  [@0x80072b24] ---- */
-#line 148 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
-int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
-{
-  int *lastTrigger;
-
-  if (this->numTriggers_ == 0) {
-    return -1;
-  }
-  /* SYM/type fix (w19-a4): lastTrigger is the SYM-named REG PTR INT local; triggers_[idx] is
-   * trigger_t* (72-byte union) -- raw `+4` pointer arithmetic on it SCALED by 72 (bogus +288
-   * vs the oracle's plain +4). ->any.slice/->any.type are the real common-header fields. */
-  lastTrigger = &this->lastTriggerChecked_[car];
-  if ((this->triggers_[*lastTrigger]->any.slice < slice) && (1 < this->numTriggers_)) {
-    while (this->triggers_[*lastTrigger]->any.slice < slice) {
+    /* MATCH: retail RE-READS *lastTrigger at the else-arm head (oracle 80072BE4);
+       the 0-insn (implicitly volatile) asm is a cse memory barrier so the value from
+       the first condition is not carried across. */
       /* MATCH (w55-a12, 16 -> PASS 109/109): retail RE-READS *lastTrigger for
        * this break test (oracle 80072B78 `lw v1,0(s1)` fills the
        * numTriggers_ load-delay slot); ours carried the value cached in $v1
@@ -166,26 +175,49 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
        * shortens *lastTrigger's live range, which un-rotates the whole
        * {numTriggers_ $a0->$v1, *lastTrigger $v1->$v0} 3-way web -- all 16
        * diffs, one edit. Original read/accessor recovery remains unresolved;this is not an object-necessity proof. */
+  /* SYM/type fix (w19-a4): lastTrigger is the SYM-named REG PTR INT local; triggers_[idx] is
+   * trigger_t* (72-byte union) -- raw `+4` pointer arithmetic on it SCALED by 72 (bogus +288
+   * vs the oracle's plain +4). ->any.slice/->any.type are the real common-header fields. */
+#line 148 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
+int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
+{
+  int *lastTrigger;
+
+  if (this->numTriggers_ == 0) {
+    return -1;
+  } lastTrigger = &this->lastTriggerChecked_[car];
+
+
+
+
+  if ((this->triggers_[*lastTrigger]->any.slice < slice) && (1 < this->numTriggers_)) {
+    while (this->triggers_[*lastTrigger]->any.slice < slice) {
       if (*(volatile int *)lastTrigger == this->numTriggers_ + -1) break;
+
       this->GetNextTrigger(car);
     }
   } else {
-    /* MATCH: retail RE-READS *lastTrigger at the else-arm head (oracle 80072BE4);
-       the 0-insn (implicitly volatile) asm is a cse memory barrier so the value from
-       the first condition is not carried across. */
     if ((slice < this->triggers_[*lastTrigger]->any.slice) &&
         (1 < this->numTriggers_)) {
       while (slice < this->triggers_[*lastTrigger]->any.slice) {
         if (*lastTrigger == 0) break;
+
         this->GetPrevTrigger(car);
       }
     }
   }
   if (((this->triggers_[*lastTrigger]->any.slice == slice) &&
       (0xa00 < AITRIGGER_GAME_TICKS - this->checkTime_[*lastTrigger])) &&
+
+
+
      (this->triggers_[*lastTrigger]->any.type != 2)) {
+
+
     return *lastTrigger;
   }
+
+
   return -1;
 }
 
@@ -197,23 +229,14 @@ AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
   if (0xa00 < AITRIGGER_GAME_TICKS - this->checkTime_[trigger]) {
     *used = 0;
   }
-  else {
-    *used = 1;
+  else { *used = 1;
   }
+
+
   this->checkTime_[trigger] = AITRIGGER_GAME_TICKS;
+
   return this->GetCheckedTrigger(trigger);
 }
-
-/* ---- AITrigger_TriggerManager::CheckForClosestTriggerOfType  [@0x80072d40] ---- */
-#line 205 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
-int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType type,int direction)
-{
-  int tLoop;
-  trigger_t *prevTrigger;
-  trigger_t *firstTrigger;
-  int prevTriggerIndex;
-  int firstTriggerIndex;
-
   /* SYM-driven rewrite (w19-a4): SYM shows `fsize=0 mask=$00000000` -- a TRUE LEAF (no saved
    * regs, no stack frame at all). The Ghidra "shadow ptVar6/iVar8 provisional update, commit
    * at loop bottom" pattern was a decompiler SSA artifact -- the real source updates
@@ -223,45 +246,79 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
    * count check (numTriggers_ cached AFTER the zero-test, not before) -- gcc strength-reduces
    * the `triggers_[tLoop]` index into a0 itself incrementing by 4/iter with a fixed +8 load
    * displacement (triggers_'s field offset), matching the oracle exactly. */
-  prevTrigger = (trigger_t *)0x0;
+
+/* ---- AITrigger_TriggerManager::CheckForClosestTriggerOfType  [@0x80072d40] ---- */
+  /* Retail scopes the loop binding at +02c and thisTrigger's body at +034.
+   * The ordinary for shape preserves the entire leaf instruction stream. */
+#line 205 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
+int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType type,int direction)
+{
+  int tLoop;
+  trigger_t *prevTrigger; trigger_t *firstTrigger; int prevTriggerIndex; int firstTriggerIndex; prevTrigger = (trigger_t *)0x0;
   firstTrigger = prevTrigger;
   prevTriggerIndex = -1;
   firstTriggerIndex = -1;
+
   if (this->numTriggers_ == 0) {
     return prevTriggerIndex;
   }
-  tLoop = 0;
-  /* Retail scopes the loop binding at +02c and thisTrigger's body at +034.
-   * The ordinary for shape preserves the entire leaf instruction stream. */
-  for (; tLoop < this->numTriggers_; tLoop = tLoop + 1) {
+
+
+  tLoop = 0; for (; tLoop < this->numTriggers_; tLoop = tLoop + 1) {
     trigger_t *thisTrigger;
+
     thisTrigger = this->triggers_[tLoop];
+
     if (thisTrigger->any.type == type) {
+
+
+
+
+
       if (firstTrigger == (trigger_t *)0x0) {
+
         firstTrigger = thisTrigger;
         firstTriggerIndex = tLoop;
       }
+
+
       if (thisTrigger->any.slice == slice) {
         return tLoop;
       }
+
       if (slice < thisTrigger->any.slice) {
+
+
         if (0 < direction) {
           return tLoop;
         }
+
+
+
         if ((direction < 0) && (prevTrigger != (trigger_t *)0x0)) {
           return prevTriggerIndex;
         }
       }
+
+
+
       prevTrigger = thisTrigger;
       prevTriggerIndex = tLoop;
-    }
-  }
+    } }
+
+
   if ((prevTrigger != (trigger_t *)0x0) && (direction < 0)) {
     return prevTriggerIndex;
   }
+
+
+
   if (0 < direction) {
     return firstTriggerIndex;
   }
+
+
+
   return -1;
 }
 
@@ -270,6 +327,12 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
 void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
 {
   return;
+
+
+
+
+
+
 }
 
 /* ---- AITrigger_Compare  [@0x80072e18] ---- */
@@ -279,6 +342,8 @@ void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
 #line 288 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 int AITrigger_Compare(const void *op1, const void *op2)
 {
+
+
   trigger_t *ta = *(trigger_t *const *)op1;
   trigger_t *tb = *(trigger_t *const *)op2;
   return ta->any.slice - tb->any.slice;
@@ -288,8 +353,9 @@ int AITrigger_Compare(const void *op1, const void *op2)
 #line 297 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 void AITrigger_TriggerManager::Sort()
 {
+
   if (this->numTriggers_ != 0) {
+
+
     qsort(this->triggers_,this->numTriggers_,4,(int)AITrigger_Compare /* @0x80072e18 qsort comparator */);
-  }
-  return;
-}
+  } return; }

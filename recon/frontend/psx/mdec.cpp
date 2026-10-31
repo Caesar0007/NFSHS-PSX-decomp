@@ -21,9 +21,6 @@ struct {
 int g_mdecdrawsyncfailed = 0;                 /* 0x80052b30 (SYM: EXT INT) */
 #include "mdec_externs.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
 
 
 /* lines 1-91: file header, #includes, static data (DECDCTTAB), macros (no symbols) */

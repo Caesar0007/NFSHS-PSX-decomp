@@ -237,6 +237,8 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
 /* lines 213-217: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_Load  (movie.cpp:218, code lines 218-282) ---- */
+/* MATCH: the oracle's beqz skips to the 1/1/2 block -- the 24-bit arm is the
+ * fall-through, so it must be the `if` body. */
 void Movie_Load(char movie)
 
 {
@@ -247,34 +249,60 @@ void Movie_Load(char movie)
   bRewindMovie = 0;
   bStopMovie = 0;
   download = 0;
+
   isFirstSlice = 1;
+
+
+
+
+
   ResetCallback();
+
   sprintf(gFEFileName,"\\MOVIES\\%s;1",movienames[(u_char)movie]);
   gMovieFrame = 0;
   gEndFrame = (int)movieframes[(u_char)movie] - 1;
   gIsRGB24 = movie24bit[(u_char)movie];
   gMovieWidth = moviewidth[(u_char)movie];
   gMovieHeight = movieheight[(u_char)movie];
-  /* MATCH: the oracle's beqz skips to the 1/1/2 block -- the 24-bit arm is the
-   * fall-through, so it must be the `if` body. */
+
   if (gIsRGB24 != 0) {
+
     PPWTop = 3;
     PPWBottom = 2;
     gMode = 3;
+
   }
   else {
     PPWTop = 1;
     PPWBottom = 1;
     gMode = 2;
+
+
+
+
+
   }
   if (CdSearchFile(&file,gFEFileName) != (void *)0x0) {
+
+
+
+
+
+
+
     loc_v[0].minute = file.pos.minute;
     loc_v[0].second = file.pos.second;
     loc_v[0].sector = file.pos.sector;
+
     strSetDefDecEnv(&dec);
+
     strInit(loc_v,0xfffffff,strCallback,(CallbackFunc)0x0);
+
     strNextVlc(&dec);
+
     bMovieLoaded = 1;
+
+
   }
   return;
 }
@@ -294,11 +322,13 @@ int Movie_NextFrame(void)
   DecDCTinSync(1);
   DecDCTout((u_long *)dec.imgbuf,
             (((((dec.slice.w + -1) / (((int)PPWTop << 4) / (int)PPWBottom) + 1) * (((int)PPWTop << 4) / (int)PPWBottom)) << 4) * ((dec.slice.h + -1) / 0x10 + 1)) / 2);
+
   if (strNextVlc(&dec) < 0) {
     return -1;
   }
   strSync(&dec,0);
   VSync(0);
+
   return 0;
 }
 
@@ -425,6 +455,7 @@ int Movie_Play(char movie)
 int play_movie(char movie)
 
 {
+
   return Movie_Play(movie);
 }
 
@@ -475,12 +506,15 @@ static void strSetDefDecEnv(DECENV *dec)
 static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFunc endcallback)
 
 {
-  
   DecDCTReset(0);
   bRewindMovie = 0;
+
   DecDCToutCallback((void *)callback);
+
   StSetRing(sect_buff,0x20);
+
   StClearRing();
+
   StSetStream(gIsRGB24,1,frame_size,(void *)0x0,(void *)endcallback);
   strKickCD(loc);
   return;

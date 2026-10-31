@@ -677,6 +677,8 @@ int AIPhysics_UseCoolPhysics(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_SimplePhysics__FP8Car_tObj ---- */
+/* 2026-10-31: speed is set once (line 50 abs), the lane-change product is stored straight to
+   linearVel_ch.x: retail SYM speed REG $5 and the sched1 birthing order (speed REG_N_SETS==1). */
 #line 756 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_SimplePhysics(Car_tObj *carObj)
 {
@@ -713,9 +715,9 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
 
 
   (carObj->linearVel_ch).z = carObj->speed;
-  speed = carObj->laneChangeSpeed * carObj->direction;
+  (carObj->linearVel_ch).x = carObj->laneChangeSpeed * carObj->direction;
 
-  (carObj->linearVel_ch).x = speed; if (__builtin_abs(speed) / 256 * 0x19 < __builtin_abs(speed))
+  if (__builtin_abs((carObj->linearVel_ch).x) / 256 * 0x19 < __builtin_abs((carObj->linearVel_ch).x))
     carObj->slide = 0x8000;
   else
     carObj->slide = 0;
@@ -729,10 +731,10 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
   if (0x30000 < carObj->speed)
     Newton_CopyRoadMatrixToOrientMat(&carObj->N,(u_int)(carObj->direction == -1));
 
-  sliceLookAhead = __builtin_abs(carObj->currentSpeed)
+  speed = __builtin_abs(carObj->currentSpeed);
 
-    / 0x60000;
-  if (-1 < sliceLookAhead) { if ((sliceLookAhead < AIPhysicConfig.min_lookahead / 6) && (-1 < __builtin_abs(carObj->currentSpeed)))
+  sliceLookAhead = speed / 0x60000;
+  if (-1 < sliceLookAhead) { if ((sliceLookAhead < AIPhysicConfig.min_lookahead / 6) && (-1 < speed))
       sliceLookAhead = AIPhysicConfig.min_lookahead / 6; }
   if (AIPhysicConfig.max_lookahead / 6 < sliceLookAhead) sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
 
@@ -967,6 +969,8 @@ void AIPhysic_Preperation(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_CalculateRoadPosition__FP8coorddefi  (leaf: dot(pos-sliceCenter, sliceRight)/256^2) ---- */
+/* 2026-10-31: the dot product is stored into the dead parameter `slice` and returned on the
+   closing line: retail tags the final mflo/addu/epilogue with the `}` line (14), fn end 14. */
 #line 1074 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 int AIPhysic_CalculateRoadPosition(coorddef *pos, int slice)
 {
@@ -981,8 +985,9 @@ int AIPhysic_CalculateRoadPosition(coorddef *pos, int slice)
     right.y = (signed char)BWorldSm_slices[slice].right[1] << 9;
     right.z = (signed char)BWorldSm_slices[slice].right[2] << 9;
 
-    return (right.x / 256) * (carRelative.x / 256) + (right.y / 256) * (carRelative.y / 256) + (right.z / 256) * (carRelative.z / 256);
-}
+    slice = (right.x / 256) * (carRelative.x / 256) + (right.y / 256) * (carRelative.y / 256) + (right.z / 256) * (carRelative.z / 256);
+
+    return slice; }
 
 /* ---- AIPhysic_GetDesiredVector__FP8Car_tObj ---- */
 #line 1098 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
@@ -1228,26 +1233,16 @@ ret0:
   return 0;
 }
 
-/* SOURCE-REVIEW: cfg/latvelcalcLookahead and three existing address asm
- * statements remain unprovided source devices,not recovered original code.
- * Retail supplies14 named INT locals and no config pointer/lookahead local.
- * 2026-10-27: source-only 412-word controls without any asm/extra object now
- * exist,but still differ in16/18 actual linked words. The16-word candidate
- * preserves every supplied local/region tuple;the18-word candidate changes
- * dir's home from REG2 to REG3. Neither may replace the existing byte PASS.
- * Only dangle_to_dav's real load changes the413-word direct-field basin to412;
- * broad field-cast changes also disturb unrelated downstream code. Stock RTL
- * locates its different address graph in expand,not just a scheduling tie.
- * The head full-address pseudo still survives;no candidate is adopted.
- * Read-only GDB observations are bounded diagnostic evidence: standalone
- * host ICEs,control/observed output agrees under GDB,but host differs from
- * selected stock. Stock -da preserves the actual whole assembly independently.
- * Do not infer source-object necessity,original names or closed source axes
- * from the historical failed trials. Their complete comments are archived in
- * before.cpp. The earlier ordinary signed-speed guard/acceleration else still
- * removes two unprovided source LABELs;tail block/end facts remain exact,
- * with193 word tags and these source devices still unresolved.
- * Receipt:build/nc12/aiphysic_ooc_select_20261027/. */
+/* 2026-10-31: no asm, no cfg/latvelcalcLookahead carriers; all14 retail locals and registers.
+ * FENCE DEBT (pure-C cse1 skip-blocks barrier): the redundant `else uTurn = 0;` gives the
+ * join label a second use so cse1 stops there; retail's real construct is still unknown.
+ * Equivalent evidence (same mechanism, also PASS 0/412): the ternary
+ * `uTurn = cond ? (carObj->driveDirection != -1) : 0;` and the inverted if/else.
+ * Mechanism: the else-jump stops cse1 at the join,
+ * so the line-20 full AIPhysicConfig address dies there and cse2 (after the jump pass drops
+ * the empty else) reuses only the %hi register, building the full address at line 34 as
+ * retail does. vel_limit_range and the two velocity differences go through dead SYM locals
+ * (latVelLimit, maxAngVel, maxLatVel) on their retail lines 45/72/80. */
 /* ---- AIPhysic_OutOfControlPhysics__FP8Car_tObj ---- */
 #line 1350 "C:/nfs4/GAME/COMMON/AIPHYSIC.CPP"
 void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
@@ -1258,7 +1253,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
 
 
 
-    int desiredAngVel; int desiredLatVel; int currentAngAcc; int currentLatAcc; int currentLongAcc; int maxLatVel; int maxAngVel; int skid; int dir; int currentLatVel; int latVelLimit; int targetVel; int uTurn; int currentVel; AIPhysic_Config_t *cfg; int latvelcalcLookahead; dir = carObj->direction;
+    int desiredAngVel; int desiredLatVel; int currentAngAcc; int currentLatAcc; int currentLongAcc; int maxLatVel; int maxAngVel; int skid; int dir; int currentLatVel; int latVelLimit; int targetVel; int uTurn; int currentVel; dir = carObj->direction;
 
 
 
@@ -1266,49 +1261,49 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
 
 
 
+    carObj->drag = 0;
+
+
+
+
+    uTurn = 0; currentLatVel = AIWorld_CalcFutureLateralVel(carObj, dir * AIPhysicConfig.latvelcalc_lookahead);
+
+
+    if (carObj->direction * carObj->currentSpeed < 0) { uTurn = carObj->driveDirection != -1; } else uTurn = 0;
+
+
+
+    carObj->wipeOutEndTick = simGlobal.gameTicks;
 
 
 
 
 
-    __asm__("lui %0,%%hi(AIPhysicConfig)" : "=r"(cfg) : : "memory"); carObj->drag = 0; __asm__("lw %0,%%lo(AIPhysicConfig)(%1)" : "=r"(latvelcalcLookahead) : "r"(cfg) : "memory"); uTurn = 0; currentLatVel = AIWorld_CalcFutureLateralVel(carObj, dir * latvelcalcLookahead);
 
-
-    if (carObj->direction * carObj->currentSpeed < 0) { uTurn = carObj->driveDirection != -1; }
-
-
-
-    { dir = simGlobal.gameTicks;
-
-
-
-
-
-
-    __asm__("addiu %0,%0,%%lo(AIPhysicConfig)" : "+r"(cfg)); carObj->wipeOutEndTick = dir; } desiredAngVel = -carObj->aCarWRTDesired * fixedmult(0x80,cfg->OOCModel.dangle_to_dav);
-    desiredAngVel = (desiredAngVel < cfg->OOCModel.max_dav) ? desiredAngVel : cfg->OOCModel.max_dav;
-    desiredAngVel = MAX(desiredAngVel,-cfg->OOCModel.max_dav);
+    desiredAngVel = -carObj->aCarWRTDesired * fixedmult(0x80,AIPhysicConfig.OOCModel.dangle_to_dav);
+    desiredAngVel = (desiredAngVel < AIPhysicConfig.OOCModel.max_dav) ? desiredAngVel : AIPhysicConfig.OOCModel.max_dav;
+    desiredAngVel = MAX(desiredAngVel,-AIPhysicConfig.OOCModel.max_dav);
 
 
     desiredLatVel = (desiredAngVel / 256) * 0xa00;
-    desiredLatVel = (desiredLatVel < cfg->OOCModel.max_dlvel) ? desiredLatVel : cfg->OOCModel.max_dlvel;
-    desiredLatVel = MAX(desiredLatVel,-cfg->OOCModel.max_dlvel);
+    desiredLatVel = (desiredLatVel < AIPhysicConfig.OOCModel.max_dlvel) ? desiredLatVel : AIPhysicConfig.OOCModel.max_dlvel;
+    desiredLatVel = MAX(desiredLatVel,-AIPhysicConfig.OOCModel.max_dlvel);
     desiredLatVel = (desiredLatVel < carObj->speed) ? desiredLatVel : carObj->speed;
     desiredLatVel = MAX(desiredLatVel,-carObj->speed);
 
-
-    if ((-cfg->OOCModel.vel_limit_range < carObj->currentSpeed) && (carObj->currentSpeed < cfg->OOCModel.vel_limit_range)) {
-
-
+    latVelLimit = AIPhysicConfig.OOCModel.vel_limit_range;
+    if ((-latVelLimit < carObj->currentSpeed) && (carObj->currentSpeed < latVelLimit)) {
 
 
 
-    maxLatVel = (carObj->speed / 256) * (cfg->OOCModel.lat_vel_limit_factor / 256);
+
+
+    maxLatVel = (carObj->speed / 256) * (AIPhysicConfig.OOCModel.lat_vel_limit_factor / 256);
     maxLatVel = __builtin_abs(maxLatVel);
     latVelLimit = (desiredLatVel < maxLatVel) ? desiredLatVel : maxLatVel; desiredLatVel = latVelLimit;
     desiredLatVel = MAX(desiredLatVel,-maxLatVel);
 
-    maxAngVel = (carObj->speed / 256) * (cfg->OOCModel.ang_vel_limit_factor / 256);
+    maxAngVel = (carObj->speed / 256) * (AIPhysicConfig.OOCModel.ang_vel_limit_factor / 256);
     maxAngVel = __builtin_abs(maxAngVel);
     desiredAngVel = (desiredAngVel < maxAngVel) ? desiredAngVel : maxAngVel;
     desiredAngVel = MAX(desiredAngVel,-maxAngVel); }
@@ -1323,16 +1318,16 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
     if (carObj->donutMode == 2) {
     desiredAngVel = desiredAngVel * 5; }
 
-
-    currentAngAcc = -((((carObj->angularVel_ch).y - desiredAngVel) / 256) * (AIPhysicConfig.OOCModel.dav_to_aa / 256));
+    maxAngVel = (carObj->angularVel_ch).y - desiredAngVel;
+    currentAngAcc = -((maxAngVel / 256) * (AIPhysicConfig.OOCModel.dav_to_aa / 256));
     if (0x120000 < __builtin_abs(carObj->currentSpeed)) {
     currentAngAcc = currentAngAcc / 2; }
     currentAngAcc = (currentAngAcc < carObj->max_aa) ? currentAngAcc : carObj->max_aa;
     currentAngAcc = MAX(currentAngAcc,-carObj->max_aa);
 
 
-
-    currentLatAcc = -((((carObj->linearVel_ch).x - desiredLatVel) / 256) * (AIPhysicConfig.OOCModel.dlvel_to_clacc / 256));
+    maxLatVel = (carObj->linearVel_ch).x - desiredLatVel;
+    currentLatAcc = -((maxLatVel / 256) * (AIPhysicConfig.OOCModel.dlvel_to_clacc / 256));
     currentLatAcc = (currentLatAcc < carObj->max_clacc) ? currentLatAcc : carObj->max_clacc;
     currentLatAcc = MAX(currentLatAcc,-carObj->max_clacc);
 

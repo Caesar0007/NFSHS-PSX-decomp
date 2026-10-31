@@ -174,4 +174,65 @@ extern "C" int sprintf(char *, const char *, ...);
 extern "C" void SetDrawArea(DR_AREA *, RECT *);
 
 void PreLoad(tScreen*) asm("PreLoad__7tScreen");
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks[0]; }
+
+static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
+
+/* ORIGINAL-NAME-UNRESOLVED: the same inferred money getter used by the
+ * congratulations/postgame callers; retail supplies its receiver-free pair. */
+static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
+
+/* ORIGINAL-NAME-UNRESOLVED: inferred selector spelling. Retail emits an
+ * empty inline pair at each of these menu-selection reads. */
+static inline int Menu_CurrentItem(tMenu &menu) { return menu.fCurrentItem; }
+
+/* `ticks` is VSync-ISR state: each read is a real load */
+static inline int VSyncTicks(void) { return *(volatile int *)&ticks[0]; }
+
+static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
+
+static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
+
+static inline u_char FrontEnd_PinkSlipsCar(int player) { return frontEnd.pinkSlipsCar[player]; }
+
+static inline char *Text_WaitingForPlayer(void) { return TextSys_Word(0x2a8); }
+
+static inline void Dialog_SetString(tDialogBase *dialog, char *string) { ((tDialogBackUpOnly *)dialog)->string = string; }
+
+/* ORIGINAL-NAME-UNRESOLVED: same inferred readiness getter as FEMenuDefs.
+ * Retail's receiver-free pair supplies its source ownership, not its name. */
+static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFullyOpen ^ 1) == 0; }
+
+/* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+static inline short CarStatValue(tCarStatType carStat, tCarInfo *carInfo)
+{
+  short result;
+
+  result = (short)carInfo->fStats[0][carStat];
+  if ((carInfo->fUpgrades & 1) != 0) {
+    result = result + carInfo->fStats[1][carStat];
+  }
+  if ((carInfo->fUpgrades & 2) != 0) {
+    result = result + carInfo->fStats[2][carStat];
+  }
+  if ((carInfo->fUpgrades & 4) != 0) {
+    result = result + carInfo->fStats[3][carStat];
+  }
+  return result;
+}
+
+/* retail's SYM opens DrawCar with an inline-call pair at +000: the tick read is an inline getter
+   (its long return type supplies the signed remainder the old `signedTicks` carrier staged) */
+static inline long GetTicks(void) { return (long)::ticks[0]; }
+
 #endif

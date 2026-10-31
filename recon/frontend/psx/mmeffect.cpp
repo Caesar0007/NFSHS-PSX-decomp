@@ -7,9 +7,6 @@
 #include "mmeffect.h"
 #include "mmeffect_externs.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800127C8): the unused inline of the
- * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* lines 1-232: file header, #includes, static data, macros (no symbols emitted) */
 

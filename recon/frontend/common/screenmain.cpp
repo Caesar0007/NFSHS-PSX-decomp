@@ -289,7 +289,9 @@ void tScreenMain::InitDynamicImages()
 void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 {
   if (keyval == kInput_KeyType_Triangle && FEApp->BackDepth(0) > 0) {
+
     this->SwapBackground(-1);
+
     if ((tMenuNFS4 *)FEApp->CurrentMenu(0) == &menuDefs->menuPinkSlipSelect) {
       frontEnd.raceType = RaceType_SingleRace;
     }
@@ -730,11 +732,13 @@ void tScreenMain::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **
                char **swapFileName)
 
 {
+
   numPermShapes = 0x10b;
   *permFileName = gPermBuffer;
+
+
   numSwapShapes = 10;
   *swapFileName = gNameBuffer;
-  return;
 }
 
 
@@ -863,7 +867,6 @@ void tScreenMain::Cleanup()
     i = i + 1;
   } while (i < 2);
   this->tScreen::Cleanup();
-  return;
 }
 
 

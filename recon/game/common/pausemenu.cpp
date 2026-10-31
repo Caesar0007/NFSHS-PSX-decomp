@@ -464,26 +464,27 @@ void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand
 
     if (0 < *this->fData) {
 
-      gMPauseUpdateNextTime = 1; *this->fData = (0 < *this->fData - (u_char)this->fMaxVal / 0x1e)
-          ? *this->fData - (u_char)this->fMaxVal / 0x1e : 0; sound = true; } keyval = kInput_KeyType_AlreadyProcessed; break; case kInput_KeyType_Right:
+      gMPauseUpdateNextTime = 1;
+      *this->fData = (0 < *this->fData - (u_char)this->fMaxVal / 0x1e) ? *this->fData - (u_char)this->fMaxVal / 0x1e : 0; sound = true; }
 
 
 
-    if (*this->fData < (int)(u_int)(u_char)this->fMaxVal) { u_int max;
+    keyval = kInput_KeyType_AlreadyProcessed; break; case kInput_KeyType_Right:
 
-      gMPauseUpdateNextTime = 1; if (*this->fData + (u_char)this->fMaxVal / 0x1e <=
+    if (*this->fData < (int)(u_int)(u_char)this->fMaxVal) {
 
-          (int)(max = (u_char)this->fMaxVal)) {
-        max = *this->fData + (u_char)this->fMaxVal / 0x1e; } *this->fData = max; sound = true; } keyval = kInput_KeyType_AlreadyProcessed; break; default: break; }
+      gMPauseUpdateNextTime = 1;
+      *this->fData = *this->fData + (u_char)this->fMaxVal / 0x1e > (int)(u_int)(u_char)this->fMaxVal ? (int)(u_int)(u_char)this->fMaxVal : *this->fData + (u_char)this->fMaxVal / 0x1e;
+      sound = true; }
+
+    keyval = kInput_KeyType_AlreadyProcessed; break; default: break; }
+
+
+
+
+
   if (sound) {
-
-    AudioCmn_PlayPauseSound(5); } return;
-
-
-
-
-
-}
+    AudioCmn_PlayPauseSound(5); } }
 
 
 
@@ -743,34 +744,32 @@ void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &
 
 
 
-/* ---- tPMenu::tPMenuConstructor [PAUSEMENU.CPP:640-659; source/SLD review open] ---- */
+/* ---- tPMenu::tPMenuConstructor [PAUSEMENU.CPP:640-659] -- locals match retail (only p; the element
+   counter i is eliminated by loop.c strength reduction, so it leaves no record); SLD 18/19 tags,
+   blocks exact; open: the slot address is tagged 14 in retail (ours 15, same statement). ---- */
 
 void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
 
 {
   tPMenuItem *p;
-  /* SOURCE-REVIEW-UNRESOLVED: offset has no retail local record. Direct
-     fNumItems indexing is 10 diffs at 19 words (2026-10-09); an independent
-     element index is 11 at 18, reduced to a pointer walker by loop.c.
-     These measured choices do not prove an original byte-offset object. */
-  int offset;
+  int i;
 
-  ap = (void *)((int)ap + 4);
   this->fItemList[0] = firstItem;
+
   this->fNumItems = 0;
-  this->fItemList[1] = ((tPMenuItem **)ap)[-1];
-  if (this->fItemList[1] != (tPMenuItem *)0x0) {
-    offset = 4;
-    do {
-      offset = offset + 4;
-      this->fNumItems = this->fNumItems + 1;
-      ap = (void *)((int)ap + 4);
-      p = ((tPMenuItem **)ap)[-1];
-      *(tPMenuItem **)((int)this + offset + 8) = p;
-    } while (p != (tPMenuItem *)0x0);
+
+  i = 2;
+
+  for (;;) {
+    ap = (void *)((int)ap + 4);
+    p = ((tPMenuItem **)ap)[-1];
+
+    *(tPMenuItem **)((int)this + ((i - 1) << 2) + 8)
+      = p; if (p == (tPMenuItem *)0x0) break;
+    this->fNumItems = this->fNumItems + 1;
+    i++;
   }
-  return;
-}
+  return; }
 
 
 

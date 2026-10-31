@@ -30,4 +30,11 @@ void  mdecreset(void) asm("mdecreset__Fv");
    every such call statement in nested debug scopes retail's SYM does not have (tools/psyq_pipe/implicit_sweep.py). */
 extern "C" int sprintf(char *out, const char *format, ...);
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+/* the VSync tick counter read as the array the video module declares */
+static inline int VIDEO_TicksNow(void) { extern int ticks[]; return ticks[0]; }
+
 #endif

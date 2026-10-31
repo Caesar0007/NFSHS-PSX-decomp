@@ -42,37 +42,43 @@ void AIInit_StartUp1(void)
 {
   int i;
   
+
   AI_TrafficStartUp();
+
   inverseLaneWidthTable[0] = 0;
   for (i = 1; i < 0x50; i++) {
-    inverseLaneWidthTable[i] = rdiv(0x10000,i << 0xe);
-  }
+    inverseLaneWidthTable[i] = rdiv(0x10000,i << 0xe); }
   AITune_StartUp1();
+
   AIDataRecord_t::StartUp1();
-  AI_StartUp();
-  return;
+  AI_StartUp(); return;
 }
 
 /* ---- AIInit_StartUp2__Fv  [@0x80066c24] ---- */
 void AIInit_StartUp2(void)
 {
-  {
-    int carLoop;
-    AISpeeds_StartUp();
+  { int carLoop; AISpeeds_StartUp();
     AIInit_LoadConfigs();
     for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-      AIScript_Startup(&Cars_gList[carLoop]->script);
-    }
-  }
-  {
-    int carLoop;
-    AIPerson_Startup();
+      AIScript_Startup(&Cars_gList[carLoop]->script); }
+  } { int carLoop; AIPerson_Startup();
+
+
     AIDataRecord_t::StartUp2();
     AIPhysic_StartUp();
+
+
+
+
+
+
+
     AITune_StartUp2();
-    carLoop = 0;
-    while (carLoop < Cars_gNumCars) {
+    carLoop = 0; while (carLoop < Cars_gNumCars) {
+
+
       Car_tObj *carObj = Cars_gList[carLoop];
+
       AIPhysic_InitCar(carObj);
       AIInit_InitAICar2(carObj);
       carLoop = carLoop + 1;
@@ -89,41 +95,38 @@ void AIInit_Reset1(void)
 /* ---- AIInit_Reset2__Fv  [@0x80066d08] ---- */
 void AIInit_Reset2(void)
 {
+
+
+
   if (GameSetup_gData.raceType != RaceType_Id3) {
     AIInit_useSpreadForce = 1;
   }
-  else {
-    AIInit_useSpreadForce = 0;
+  else { AIInit_useSpreadForce = 0;
   }
   {
-    int carLoop;
-    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-      AIScript_Startup(&Cars_gList[carLoop]->script);
-    }
+    int carLoop; for (carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
+      AIScript_Startup(&Cars_gList[carLoop]->script); }
   }
-  leaderBoard.leadHumanRacer = Cars_gHumanRaceCarList[0];
-  leaderBoard.leadRacer = Cars_gHumanRaceCarList[0];
+
+
+
+
+  leaderBoard.leadHumanRacer = Cars_gHumanRaceCarList[0]; leaderBoard.leadRacer = Cars_gHumanRaceCarList[0];
+
+
   leaderBoard.lastAIRacer = Cars_gAIRaceCarList[0];
   leaderBoard.leadAIRacer = Cars_gAIRaceCarList[0];
   AIPhysic_Reset();
-  AI_Info.blockingCars[2] = 0;
-  AI_Info.blockingCars[1] = 0;
-  AI_Info.blockingCars[0] = 0;
-  AI_Info.blockingCarsDist[2] = 0;
-  AI_Info.blockingCarsDist[1] = 0;
-  AI_Info.blockingCarsDist[0] = 0;
-  AI_Info.laneSpeeds[2] = 0;
-  AI_Info.laneSpeeds[1] = 0;
-  AI_Info.laneSpeeds[0] = 0;
-  AI_Info.laneSpeedsAhead[2] = 0;
-  AI_Info.laneSpeedsAhead[1] = 0;
-  AI_Info.laneSpeedsAhead[0] = 0;
-  AI_Info.laneWeights[2] = 0;
-  AI_Info.laneWeights[1] = 0;
-  AI_Info.laneWeights[0] = 0;
+
+
+
+  AI_Info.blockingCars[2] = 0; AI_Info.blockingCars[1] = 0; AI_Info.blockingCars[0] = 0;
+  AI_Info.blockingCarsDist[2] = 0; AI_Info.blockingCarsDist[1] = 0; AI_Info.blockingCarsDist[0] = 0;
+  AI_Info.laneSpeeds[2] = 0; AI_Info.laneSpeeds[1] = 0; AI_Info.laneSpeeds[0] = 0;
+  AI_Info.laneSpeedsAhead[2] = 0; AI_Info.laneSpeedsAhead[1] = 0; AI_Info.laneSpeedsAhead[0] = 0;
+  AI_Info.laneWeights[2] = 0; AI_Info.laneWeights[1] = 0; AI_Info.laneWeights[0] = 0;
   AI_Info.desiredLane = 0;
-  AI_Info.deltaYaw = 0;
-  return;
+  AI_Info.deltaYaw = 0; return;
 }
 
 /* ---- AIInit_CleanUp1__Fv  [@0x80066e0c] ---- */
@@ -138,25 +141,21 @@ void AIInit_CleanUp1(void)
 /* ---- AIInit_CleanUp2__Fv  [@0x80066e44] ---- */
 void AIInit_CleanUp2(void)
 {
-  {
-    int carLoop;
-    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+  { int carLoop; for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+
       AIInit_DeInitAICar2(Cars_gList[carLoop]);
       AIPhysic_DeInitCar(Cars_gList[carLoop]);
     }
-  }
-  AITune_CleanUp2();
+  } AITune_CleanUp2();
+
+
+
   AIPhysic_CleanUp();
   AIDataRecord_t::CleanUp2();
   AIPerson_Cleanup();
-  {
-    int carLoop;
-    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-      AIScript_Cleanup();
-    }
-  }
-  AISpeeds_CleanUp();
-  return;
+  { int carLoop; for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+      AIScript_Cleanup(); }
+  } AISpeeds_CleanUp(); return;
 }
 
 /* ---- AI_TrafficStartUp__Fv  [@0x80066f0c] ---- */
@@ -167,18 +166,15 @@ void AI_TrafficStartUp(void)
   char filename[100];
 
   if (GameSetup_gData.trafficDensity != 0) {
+
     triggerManagerTraffic = new AITrigger_TriggerManager;
+
     sprintf(filename,"%sTr%02d.trf",Paths_Paths[18],GameSetup_gData.track);   /* literal @0x8005521C */
     AITraffic_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AITraffic_rawTriggers != (u_char *)0x0) {
       triggerManagerTraffic->Init((char *)AITraffic_rawTriggers);
     }
-    else {
-      triggerManagerTraffic->Init((char *)0x0);
-    }
-  }
-  return;
-}
+    else { triggerManagerTraffic->Init((char *)0x0); } } return; }
 
 /* ---- AI_TrafficCleanUp__Fv  [@0x80066fa8] ---- */
 void AI_TrafficCleanUp(void)
@@ -203,11 +199,23 @@ void AIInit_LoadConfigs(void)
   Udff_tInfo *handle;
   char pathname[100];
 
+
   sprintf(pathname,"%strafcfg.dat",Paths_Paths[2]);   /* literal @0x8005522C */
+
+
+
+
+
+
+
+
   handle = Udff_Opena((char *)0x0,trafcfg,1);
+
+
+
   AIInit_LoadPhysicsConfig(handle);
-  Udff_Close(handle);
-  return;
+
+  Udff_Close(handle); return;
 }
 
 /* ---- AIInit_LoadPhysicsConfig__FP10Udff_tInfo  [@0x80067054] ---- */
@@ -218,16 +226,16 @@ void AIInit_LoadPhysicsConfig(Udff_tInfo *handle)
   
   AIPhysicConfig.latvelcalc_lookahead = Udff_GetInt(handle);
   AIPhysicConfig.min_lookahead = Udff_GetInt(handle);
+
   AIPhysicConfig.max_lookahead = Udff_GetInt(handle);
   AIPhysicConfig.look_ahead_factor = Udff_GetInt(handle);
+
   AIPhysicConfig.skid_value = Udff_GetInt(handle);
+
   loop = 0;
   do {
-    if (loop == 0) {
-      model = &AIPhysicConfig.ICModel;
-    }
-    else {
-      model = &AIPhysicConfig.OOCModel;
+    if (loop == 0) { model = &AIPhysicConfig.ICModel;
+    } else { model = &AIPhysicConfig.OOCModel;
     }
     model->dlpos_to_dlvel = Udff_GetInt(handle);
     model->max_dlvel = Udff_GetInt(handle);
@@ -240,30 +248,26 @@ void AIInit_LoadPhysicsConfig(Udff_tInfo *handle)
     model->vel_limit_range = Udff_GetInt(handle);
     model->lat_vel_limit_factor = Udff_GetInt(handle);
     model->ang_vel_limit_factor = Udff_GetInt(handle);
-    loop = loop + 1;
-  } while (loop < 2);
-  return;
+    loop = loop + 1; } while (loop < 2); return;
 }
 
 /* ---- AIInit_ClearAICar__FP8Car_tObj  [@0x80067174] ---- */
 void AIInit_ClearAICar(Car_tObj *carObj)
 {
-  coorddef zero;
-
-  memset((u_char *)&zero,'\0',0xc);
+  coorddef zero; memset((u_char *)&zero,'\0',0xc);
   (carObj->N).angularVel = zero;
   (carObj->N).flightTime = 0;
   carObj->frontSkid = 0;
   carObj->rearSkid = 0;
   carObj->tailgateTimer = 0;
   carObj->aiShiftTimer = 0;
+
   carObj->driveDirection = 1;
   carObj->driveDirectionTimer = 0;
   carObj->driveDirectionReverseTime = 0;
   carObj->wipeOutEndTick = 0;
   carObj->wipeOutStartTick = 0;
-  carObj->AIFishtailEndTick = 0;
-  return;
+  carObj->AIFishtailEndTick = 0; return;
 }
 
 /* ---- AIInit_RestartAICar__FP8Car_tObj  [@0x800671ec] ---- */
@@ -273,14 +277,13 @@ void AIInit_ClearAICar(Car_tObj *carObj)
 
 void AIInit_RestartAICar(Car_tObj *carObj)
 {
-  carObj->desiredDirection = carObj->direction =
-      (GameSetup_gData.reverseTrack == 0) ? 1 : -1;
-  carObj->targetLatPos = 0;
-  (carObj->targetPos).z = 0;
-  (carObj->targetPos).y = 0;
-  (carObj->targetPos).x = 0;
+  carObj->direction = (GameSetup_gData.reverseTrack == 0) ? 1 : -1;
+  carObj->desiredDirection = carObj->direction;
+  carObj->targetLatPos = 0; (carObj->targetPos).z = 0; (carObj->targetPos).y = 0; (carObj->targetPos).x = 0;
+
   carObj->preferredLateralPosition = 0;
   carObj->preferredLateralPositionPower = 0;
+
   carObj->carInLane = 0;
   carObj->driveDirection = 1;
   carObj->driveDirectionTimer = 0;
@@ -307,79 +310,101 @@ void AIInit_RestartAICar(Car_tObj *carObj)
   carObj->speedNitrous = 0x10000;
   (carObj->speechInfo).speechMode = 0;
   carObj->wipeOutEndTick = 0;
+  carObj->donutMode = 0;
   carObj->btcGlueModifier = 0x10000;
   carObj->copTopSpeed = 0x640000;
   carObj->copAccMult = 0x10000;
-  carObj->donutMode = 0;
   carObj->laneIndex = 7;
+
   carObj->AIFishtailEndTick = 0;
   carObj->lookAheadSlice = 0;
   if ((carObj->carFlags & 2U) != 0) {
     carObj->forceNoSimOptz = 0;
   }
-  else {
-    carObj->forceNoSimOptz = 1;
+  else { carObj->forceNoSimOptz = 1;
   }
-  carObj->wipeOutStartTick = 0;
-  if ((carObj->carFlags & 10U) == 2) {
+  carObj->wipeOutStartTick = 0; if ((carObj->carFlags & 10U) == 2) {
+
     (carObj->N).active = '\0';
   }
-  carObj->caravanTimer = -1;
+
   carObj->fallBehindCar = (Car_tObj *)0x0;
   carObj->nextAIRacer = (Car_tObj *)0x0;
   carObj->caravanFollowBehindDistanceMeters = 0;
+  carObj->caravanTimer = -1;
   carObj->AISlot = 0;
+
+
   carObj->gripFactor = 0x10000;
   carObj->damageMult = 0x10000;
-  carObj->extraWallCollisionAllowance = 0;
-  return;
+  carObj->extraWallCollisionAllowance = 0; return;
 }
 
 /* ---- AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo  [@0x80067314] ---- */
 void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
 {
   int gearLoop;
-  int accelerationScale;
-  
-  accelerationScale = 0x10000;
+  int accelerationScale; accelerationScale = 0x10000;
   carObj->redLine = Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)carObj->topSpeeds,0x1c);
   for (gearLoop = 0; gearLoop < 7; gearLoop = gearLoop + 1) {
+
     if (gearLoop == 0) {
       carObj->invTopSpeeds[0] = rdiv(0x10000,carObj->topSpeeds[0]);
-    }
-    else if (carObj->topSpeeds[gearLoop] == 0) {
+    } else if (carObj->topSpeeds[gearLoop] == 0) {
       carObj->invTopSpeeds[gearLoop] = 0;
     }
-    else {
-      carObj->invTopSpeeds[gearLoop] = rdiv(0x10000,carObj->topSpeeds[gearLoop] - carObj->topSpeeds[gearLoop - 1]);
+    else { carObj->invTopSpeeds[gearLoop] = rdiv(0x10000,carObj->topSpeeds[gearLoop] - carObj->topSpeeds[gearLoop - 1]);
     }
   }
+
   Udff_GetBuffer(handle,(char *)carObj->accTable,0xe0);
   carObj->aiShiftDuration = Udff_GetInt(handle);
   carObj->max_clacc = Udff_GetInt(handle);
   carObj->max_aa = Udff_GetInt(handle);
+
+
   if ((carObj->carFlags & 8U) != 0) {
     int carType;
-
     carType = carObj->carInfo->carType;
+
     accelerationScale = AITune_accelerationScale[carType].scale;
   }
+
   carObj->accelerationRecord = new AIDataRecord_AccTable_t((char *)carObj->accTable,accelerationScale,3);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
   if (AIInit_IsNonStandardCarFile(carObj->carInfo->carType) != 0) {
+
+
+
+
+
+
+
     carObj->curveSpeedTable = new AIDataRecord_CurveSpeedTable_t(carObj->carName,7);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
   }
   else {
+
+
+
     carObj->curveSpeedTable = (AIDataRecord_CurveSpeedTable_t *)0x0;
   }
+
+
   carObj->max_clacc = fixedmult(carObj->max_clacc,0x13333);
+
   carObj->speedFactor = Udff_GetInt(handle);
+
+
+
   carObj->slackProb = Udff_GetInt(handle);
+
   carObj->gripFactor = 0x10000;
+
+
+
   carObj->topSpeedUpgradeMult = 0;
   carObj->accUpgradeMult = 0;
-  carObj->damageMult = 0x10000;
-  return;
+  carObj->damageMult = 0x10000; return;
 }
 
 /* ---- AIInit_DeInitAICar__FP8Car_tObj  [@0x800674e8] ---- */
@@ -400,12 +425,20 @@ void AIInit_DeInitAICar(Car_tObj *carObj)
 /* ---- AIInit_InitAICar2__FP8Car_tObj  [@0x80067568] ---- */
 void AIInit_InitAICar2(Car_tObj *carObj)
 {
+
   if ((carObj->carFlags & 8U) != 0) {
+
+
     (carObj->curveSpeedTable)->Upgrade(AISpeeds_GetUpgradeHandlingMult(carObj->carIndex));
   }
+
+
+
+
+
+
   carObj->accUpgradeMult = AISpeeds_GetUpgradeAccMult(carObj->carIndex);
-  carObj->topSpeedUpgradeMult = AISpeeds_GetUpgradeTopSpeedMult(carObj->carIndex);
-  return;
+  carObj->topSpeedUpgradeMult = AISpeeds_GetUpgradeTopSpeedMult(carObj->carIndex); return;
 }
 
 /* ---- AIInit_DeInitAICar2__FP8Car_tObj  [@0x800675d0] ---- */
@@ -415,10 +448,87 @@ void AIInit_DeInitAICar2(Car_tObj *carObj)
 }
 
 /* ---- AIInit_IsNonStandardCarFile__Fi  [@0x800675d8] ---- */
+  /* local aggregate initializer: its 200-byte constant is retail .rodata 0x8005523C (28 ones, then zeros) */
 int AIInit_IsNonStandardCarFile(int index)
 {
-  /* local aggregate initializer: its 200-byte constant is retail .rodata 0x8005523C (28 ones, then zeros) */
   int nonStandardList [50] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return index < 0x32 ? nonStandardList[index] : 0;
 }

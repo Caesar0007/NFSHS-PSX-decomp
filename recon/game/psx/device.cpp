@@ -93,12 +93,15 @@ int Device_VerifyType(int port)
 
 {
   if (gUseFrontend != 0) {
+
     if (gPadinfo.buf[port].nopad != '\0') {
       return 0;
-    }
-    if (gPadinfo.buf[port].ID != frontEnd.controlType[port != 0]) {
+    } if (gPadinfo.buf[port].ID != frontEnd.controlType[port != 0]) {
       InGame_ResetPSXController(port != 0,
+
+
           GameSetup_gData.controllerData.controllerConfig[port != 0]);
+
       frontEnd.controlType[port != 0] = gPadinfo.buf[port].ID;
       return 1;
     }
@@ -116,14 +119,15 @@ int Device_Fail(int port)
   static u_char failtime[2];   /* @0x8013dde4 STAT (.bss) */
 
   if (Device_VerifyType(port) != 0) {
+
     failtime[port != 0] = '\0';
   }
   else {
+
     if ((u_int)failtime[port != 0] < 9) {
-      failtime[port != 0] = failtime[port != 0] + 1;
-    }
-    else {
-      return 1;
+
+
+      failtime[port != 0] = failtime[port != 0] + 1; } else { return 1;
     }
   }
   return 0;
@@ -141,37 +145,56 @@ void Device_Update(void)
 
 {
   PAD_update();
+
+
+
   if (simVar.pauseSim != 0) {
+
     Device_gPaused = 1;
     Device_gToggleTime[0] = 0x11;
     Device_gToggleTime[1] = 0x11;
   }
   else if (Device_gPaused != 0) {
+
     Device_gPaused = 0;
     Device_gPausePort = -1;
     Device_gToggleTime[0] = 0;
     Device_gToggleTime[1] = 0;
   }
+
+
   if (simVar.pauseSim == 0) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     if (Device_Fail(0) != 0) {
+
       Device_gForcePause = 1;
       Device_gPausePort = 0;
       Device_gPausePortIndex = '\0';
     }
-    else {
-      if ((GameSetup_gData.commMode == 1) && (Device_Fail(4) != 0)) {
+    else { if ((GameSetup_gData.commMode == 1) && (Device_Fail(4) != 0)) {
         /* the SYM has no local here; retail stores the literal 1 (same bytes as a commMode copy, which is 1 in this arm) */
         Device_gForcePause = 1;
         Device_gPausePort = 4;
         Device_gPausePortIndex = 1;
       }
       else {
-        Device_gForcePause = 0;
-      }
-    }
-  }
-  return;
-}
+        Device_gForcePause = 0; } } } return; }
 
 /* ---- Device_StartUp__Fv  [DEVICE.CPP:169-176] SLD-VERIFIED ---- */
 void Device_StartUp(void)
@@ -183,8 +206,7 @@ void Device_StartUp(void)
   Device_gToggleTime[0] = 0;
   Device_gToggleTime[1] = 0;
   Device_gPrev[0] = 0;
-  Device_gPrev[1] = 0;
-  return;
+  Device_gPrev[1] = 0; return;
 }
 
 /* ---- Device_SetHardCodedKeys__Fv  [DEVICE.CPP:195-205] SLD-VERIFIED ---- */
@@ -195,13 +217,12 @@ void Device_SetHardCodedKeys(void)
   Input_gHandler[0x9a] = 0x4003;
   Input_gHandler[0x9b] = 0x8003;
   Input_gHandler[0x9c] = 0x2003;
-  Input_gHandler[0x9e] = 0x803;
-  Input_gHandler[0x9d] = 0x400003;
+  Input_gHandler[0x9e] = 0x803; Input_gHandler[0x9d] = 0x400003;
   Input_gHandler[0xb0] = 0x100003;
   Input_gHandler[0xb1] = 0x800003;
+
   Input_gHandler[0xa0] = 0x103;
-  Input_gHandler[0x98] = 0;
-  return;
+  Input_gHandler[0x98] = 0; return;
 }
 
 /* ---- Device_PSXPad__FUl  [DEVICE.CPP:244-250] SLD-VERIFIED ----
@@ -212,9 +233,7 @@ int Device_PSXPad(u_long param)
 {
   if (Device_VerifyType(param >> 0x10) == 0) {
     return 0;
-  }
-  if (((u_short)~*(u_short *)((int)&gPadinfo.buf[0].data.standard.state +
-                              (param >> 0x10) * sizeof(PAD_COMMON)) & param) != 0) {
+  } if (((u_short)~*(u_short *)((int)&gPadinfo.buf[0].data.standard.state + (param >> 0x10) * sizeof(PAD_COMMON)) & param) != 0) {
     return 0xff;
   }
   return 0;
@@ -236,53 +255,44 @@ int Device_PSXPad(u_long param)
 bool Device_ReadPad(int port,u_long param)
 
 {
-  char *analogs;
-
-  if (Device_VerifyType(port) == 0) {
+  char *analogs; if (Device_VerifyType(port) == 0) {
     return 0;
   }
-  if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x4000)) &&
-     (0x3f < gPadinfo.buf[port].data.negcon.buttonI)) {
+  if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x4000)) && (0x3f < gPadinfo.buf[port].data.negcon.buttonI)) {
     return 1;
   }
   if (((gPadinfo.buf[port].ID == '#') && ((param & 0xffff) == 0x8000)) &&
      (0x3f < gPadinfo.buf[port].data.negcon.buttonII)) {
     return 1;
   }
+
+
   analogs = (char *)&gPadinfo.buf[port].data.negcon.twist;
+
+
   if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x80)) {
-    if (analogs[0] < 0x41) {
+
+    if (analogs[0] < 0x41) { return 1;
+    } if (analogs[2] < 0x41) {
       return 1;
-    }
-    if (analogs[2] < 0x41) {
-      return 1;
-    }
-  }
-  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x20)) {
+    } } if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x20)) {
+
     if (0xbf < analogs[0]) {
+      return 1; } if (0xbf < analogs[2]) {
       return 1;
     }
-    if (0xbf < analogs[2]) {
-      return 1;
-    }
-  }
-  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x10)) {
+  } if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x10)) {
+
     if (analogs[3] < 0x41) {
+      return 1; } if (analogs[1] < 0x41) {
       return 1;
-    }
-    if (analogs[1] < 0x41) {
-      return 1;
-    }
-  }
-  if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x40)) {
+    } } if ((gPadinfo.buf[port].ID == 's') && ((param & 0xffff) == 0x40)) {
+
     if (0xbf < analogs[3]) {
+      return 1; } if (0xbf < analogs[1]) {
       return 1;
     }
-    if (0xbf < analogs[1]) {
-      return 1;
-    }
-  }
-  return (PAD_state(port) & 0xffff & param) != 0;
+  } return (PAD_state(port) & 0xffff & param) != 0;
 }
 
 /* ---- Device_PSXPadMulti__FUl  [DEVICE.CPP:306-342] SLD-VERIFIED ----
@@ -311,29 +321,41 @@ bool Device_ReadPad(int port,u_long param)
 int Device_PSXPadMulti(u_long param)
 
 {
+
   if (simVar.pauseSim != 0) {
+
     if (Device_ReadPad(Device_gPausePort,param) != 0) {
       return 0xff;
     }
     return 0;
   }
+
+
+
   if (Device_ReadPad(0,param) != 0) {
+
     if ((param & 0xffff) == 8) {
+
       Device_gPausePort = 0;
       Device_gPausePortIndex = '\0';
     }
     return 0xff;
   }
-  if ((1 < Replay_ReplayMode) || (GameSetup_gData.commMode == 1)) {
-    if (Device_ReadPad(4,param) == 0) {
+
+
+  if ((1 < Replay_ReplayMode) || (GameSetup_gData.commMode == 1)) { if (Device_ReadPad(4,param) == 0) {
       return 0;
     }
+
+
     if ((param & 0xffff) == 8) {
+
       Device_gPausePortIndex = '\x01';
       Device_gPausePort = 4;
     }
     return 0xff;
   }
+
   return 0;
 }
 
@@ -371,41 +393,36 @@ int Device_Analog(u_long param)
 {
   int min;
   int max;
-  int v;
-
-  if (Device_VerifyType(param >> 0x14) == 0) {
-    return 0;
+  int v; if (Device_VerifyType(param >> 0x14) == 0) { return 0;
   }
-  v = (int)*((u_char *)&gPadinfo.buf[param >> 0x14].data.negcon.twist +
-             (param >> 0x10 & 3));
+  v = (int)*((u_char *)&gPadinfo.buf[param >> 0x14].data.negcon.twist + (param >> 0x10 & 3));
+
   min = param >> 8 & 0xff;
   max = param & 0xff;
+
   if (min < max) {
+
     if (v < min) {
       v = 0;
-    }
-    else if (max < v) {
+    } else if (max < v) {
       v = 0xff;
     }
-    else {
-      v = ((v - min) * 0xff) / (max - min);
+    else { v = ((v - min) * 0xff) / (max - min);
     }
-  }
-  else if (min == max) {
+  } else if (min == max) {
     v = 0;
   }
   else {
+
+
     if (v < max) {
       v = 0xff;
-    }
-    else if (min < v) {
+    } else if (min < v) {
       v = 0;
     }
-    else {
-      v = ((min - v) * 0xff) / (min - max);
+    else { v = ((min - v) * 0xff) / (min - max);
     }
-  }
-  return v;
+  } return v;
 }
 
 /* ---- Device_Null__FUl  [DEVICE.CPP:393-394] SLD-VERIFIED ---- */

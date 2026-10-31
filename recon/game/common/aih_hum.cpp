@@ -22,13 +22,13 @@ void AIHigh_Human::HighExecute()
 
 {
 
-  this->HandleCops();
 
+
+
+  this->HandleCops();
   ((this->carObj_)->N).active = '\x01';
 
-  (this->state_)->StateExecute();
-
-  return;
+  (this->state_)->StateExecute(); return;
 
 }
 

@@ -35,10 +35,18 @@ void tScreenTrackRecords::GetShapeInfo(short &numPermShapes,short &numSwapShapes
 void tScreenTrackRecords::Initialize()
 
 {
+
+
   this->flareextra = 0;
   this->tScreen::Initialize();
+
+
   this->TrackRecords = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
+
+
   Stattool_GetRecords(Front_GetTrackRaced(),this->TrackRecords);
+
+
   this->fReadNewData = 0;
   return;
 }
@@ -47,8 +55,12 @@ void tScreenTrackRecords::Initialize()
 void tScreenTrackRecords::Cleanup()
 
 {
+
   
   purgememadr(this->TrackRecords);
+
+
+
   this->TrackRecords = (tRecordBuffer *)0x0;
   StatChk_ClearNewRecords();
   this->tScreen::Cleanup();

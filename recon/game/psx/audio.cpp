@@ -68,10 +68,7 @@ void Audio_DeInitDriver(void)
 
     SNDSYS_restore();
     void *const heap = Audio_gHeap; purgememadr(heap);
-
-  }
-  return;
-}
+  } return; }
 
 /* ---- Audio_CleanUp__Fv  [AUDIO.CPP:133-144] SLD-VERIFIED ---- */
 /* The unreferenced "game*" string belongs to audio.obj's data. A constant
@@ -123,20 +120,40 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
       filename = p + 1;
     p = p + 1;
   }
+
   check = SNDbankadd(&bhandle,pdata);
+
+
   if (check == 7) {
-    check = SNDbankheadersize(bhandle);
-    ptemp = (char *)reservememadr(filename,check,0);
+
+
+    check = SNDbankheadersize(bhandle); ptemp = (char *)reservememadr(filename,check,0);
+
+
     SNDbankheadercopy((struct SndBankDataHeaderPrefix *)ptemp,bhandle);
-    check = SNDbankheadersize(bhandle);
-    size = size - check;
+
+    check = SNDbankheadersize(bhandle); size = size - check;
   }
   else {
+
     AudioClc_SndError(check);
   }
+
+
+
   purgememadr(pdata);
-  gSndBnk[BankNum].pdata = ptemp;
-  gSndBnk[BankNum].bnkID = bhandle;
+
+
+
+
+
+  gSndBnk[BankNum].pdata = ptemp; gSndBnk[BankNum].bnkID = bhandle;
+
+
+
+
+
+
   return size;
 }
 

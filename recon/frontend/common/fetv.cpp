@@ -34,17 +34,6 @@
    Moving a capture into an inline helper does not recover original source or
    explain that extra object. Recover the packet-link expansion without these
    aliases/pairs; the original helper/macro spelling is not proved. */
-static inline void FETVLinkFT4(u_int *palette,POLY_FT4 *primitive,
-                               u_char **packetPtrSlot,u_int rgbMask)
-{
-  u_int paletteTag;
-
-  *(u_int *)primitive =
-       *(u_int *)primitive & 0xff000000 | *palette & rgbMask;
-  paletteTag = *palette;
-  *packetPtrSlot = (u_char *)primitive + 0x28;
-  *palette = paletteTag & 0xff000000 | (u_int)primitive & rgbMask;
-}
 
 /* ---- DrawTVLines  [FETV.CPP:25-77] SLD-VERIFIED ---- */
 

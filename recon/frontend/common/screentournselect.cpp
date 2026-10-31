@@ -37,7 +37,6 @@ tScreenTournSelect::tScreenTournSelect()
 
 {
 
-  return;
 }
 
 
@@ -64,6 +63,8 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
+
+
   GetTrophyName((numPermShapes = 0x40,
                 numSwapShapes = 0x20,
                 *permFileName = "ztourn", &tournamentManager),
@@ -71,7 +72,6 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
           (byte)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament)),
       ts_Medium,gSwapFileName,-1);
   *swapFileName = gSwapFileName;
-  return;
 }
 
 
@@ -134,6 +134,7 @@ void tScreenTournSelect::Cleanup()
   
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
+
   this->tScreen::Cleanup();
   return;
 }
@@ -389,14 +390,15 @@ void tScreenTournSelect::DrawBackground()
 
 
 /* ---- tScreenTournSelect::DrawForeground  [SCREENTOURNSELECT.CPP:381-387] ---- */
+/* MATCH: SLD records no locals; the decompiler's unused buffer, RECT,
+   colors, and draw-flags aggregate inflated the frame from 48 to 144. */
 void tScreenTournSelect::DrawForeground()
 
 {
-  /* MATCH: SLD records no locals; the decompiler's unused buffer, RECT,
-     colors, and draw-flags aggregate inflated the frame from 48 to 144. */
+
   PSXDrawBrightEndLine(0x232323,0xa7,0x29,0x13c,1,3,(int)this->fScreenFadeVal,0x14);
+
   PSXDrawBrightEndLine(0x232323,0xa7,0x4a,0x13c,1,2,(int)this->fScreenFadeVal,0x14);
-  return;
 }
 
 

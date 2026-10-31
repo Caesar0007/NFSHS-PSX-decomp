@@ -296,8 +296,8 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
   int laneLoop;
 
   carObj->carInLane = 0;
-  if ((carObj->AIFlags & 4U) == 0)
-  {
+  if ((carObj->AIFlags & 4U) != 0) return;
+
 
     carObj->laneIndex = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,carObj->roadPosition);
 
@@ -315,7 +315,130 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
       for (laneLoop = leftEdgeIndex; (int)laneLoop <= (int)rightEdgeIndex; laneLoop = laneLoop + 1)
         carObj->carInLane = carObj->carInLane | 1 << laneLoop;
     }
-  }
+
+
+  /* retail: a long code-less span (SLD function end line 151) follows the last statement */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 /* ---- AIWorld_CalculateDeltaRoadYaw__FP8Car_tObj  [@0x80073658] ---- */

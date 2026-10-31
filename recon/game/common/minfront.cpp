@@ -31,9 +31,27 @@ int * MinFront_ParseOptions(void)
 {
   int *stream;
 
+
+
   stream = reservememadr("FE Data Stream",0x2000,0x10);   /* literal @0x8001000C */
   *stream = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   resizememadr(stream,4);
+
   return stream;
 }
 

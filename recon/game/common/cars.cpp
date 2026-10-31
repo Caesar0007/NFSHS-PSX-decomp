@@ -256,107 +256,119 @@ void Cars_InitStats(Car_tObj *carObj)
 #line 537 "C:/nfs4/GAME/COMMON/CARS.CPP"
 void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)
 {
-  int carClass;
+  int carClass; carClass = carObj->carInfo->carClass;
 
-  carClass = carObj->carInfo->carClass;
+
   Cars_gList[Cars_gNumCars] = carObj;
   Cars_gSortedList[Cars_gNumCars] = carObj;
   Cars_gTotalSortedList[Cars_gNumCars] = carObj;
+
+
+
   carObj->carIndex = Cars_gNumCars;
   Cars_gNumCars = Cars_gNumCars + 1;
+
   carObj->carFlags = 0;
   carObj->humanIndex = -1;
   strcpy(carObj->carName,GameSetup_gCarNames[carObj->carInfo->carType])
+
   ;
+
   if (carObj->carInfo->carType < 0x1d) {
-    strcpy(carObj->carNameLocalized,
-           TextSys_Word(carObj->carInfo->carType + 0x4e));
+    strcpy(carObj->carNameLocalized, TextSys_Word(carObj->carInfo->carType + 0x4e));
+  } else { sprintf(carObj->carNameLocalized,"");
   }
-  else {
-    sprintf(carObj->carNameLocalized,"");
-  }
+
   if ((carClass & 1) == 0) goto LAB_80086300;
+
+
   if (PlayerNameExist(Cars_gNumHumanRaceCars) != (void *)0x0) {
-    sprintf(carObj->carInfo->driver,
-            PlayerNameMixedCase(Cars_gNumHumanRaceCars));
-  }
-  else {
-    if (frontEnd.gameMode == '\x01') {
-      sprintf(carObj->carInfo->driver,TextSys_Word(0x2f),
-              Cars_gNumHumanRaceCars + 1);
-      goto LAB_80086248;
+    sprintf(carObj->carInfo->driver, PlayerNameMixedCase(Cars_gNumHumanRaceCars));
+  } else { if (frontEnd.gameMode == '\x01') {
+      sprintf(carObj->carInfo->driver,TextSys_Word(0x2f), Cars_gNumHumanRaceCars + 1); goto LAB_80086248;
     }
     sprintf(carObj->carInfo->driver,TextSys_Word(0x2e));
   }
-LAB_80086248:
-  strcpy(carObj->carInfo->license,frontEnd.licensePlate[Cars_gNumHumanRaceCars]);
+LAB_80086248: strcpy(carObj->carInfo->license,frontEnd.licensePlate[Cars_gNumHumanRaceCars]);
+
   carObj->humanIndex = Cars_gNumHumanRaceCars;
   Cars_gHumanRaceCarList[Cars_gNumHumanRaceCars] = carObj;
   Cars_gNumHumanRaceCars = Cars_gNumHumanRaceCars + 1;
   carObj->carFlags = carObj->carFlags | 4;
+
   Cars_gRaceCarList[Cars_gNumRaceCars] = carObj;
   Cars_gNumRaceCars = Cars_gNumRaceCars + 1;
   carObj->carFlags = carObj->carFlags | 1;
+
   Cars_gLifeBasisCarList[Cars_gNumLifeBasisCars] = carObj;
   Cars_gNumLifeBasisCars = Cars_gNumLifeBasisCars + 1;
   carObj->carFlags = carObj->carFlags | 0x100;
+
   if ((carClass & 0x40) != 0) {
     carObj->carFlags = carObj->carFlags | 0x200;
   }
 LAB_80086300:
+
+
   if ((carClass & 2) != 0) {
     int personality;
+
+
     personality = GameSetup_gData.carInfo[carObj->carIndex].Personality;
+
     strcpy(carObj->carInfo->driver,GameSetup_gPersonalityNames[personality]);
     if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0) ||
-        ((Cars_gNumHumanRaceCars == 2) && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))) {
+       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0) || ((Cars_gNumHumanRaceCars == 2) && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))) {
       strcpy(carObj->carInfo->license,TextSys_Word(0x32));
     }
-    else {
-      strcpy(carObj->carInfo->license,
-             GameSetup_gPersonalityNames[personality]);
-    }
-    s_lower(carObj->carInfo->license);
+    else { strcpy(carObj->carInfo->license, GameSetup_gPersonalityNames[personality]);
+    } s_lower(carObj->carInfo->license);
+
     Cars_gAICarList[Cars_gNumAICars] = carObj;
     Cars_gNumAICars = Cars_gNumAICars + 1;
     carObj->carFlags = carObj->carFlags | 2;
+
     Cars_gAIRaceCarList[Cars_gNumAIRaceCars] = carObj;
     Cars_gNumAIRaceCars = Cars_gNumAIRaceCars + 1;
     carObj->carFlags = carObj->carFlags | 8;
+
     Cars_gRaceCarList[Cars_gNumRaceCars] = carObj;
-    carObj->carFlags = carObj->carFlags | 1;
     Cars_gNumRaceCars = Cars_gNumRaceCars + 1;
+    carObj->carFlags = carObj->carFlags | 1;
     if ((GameSetup_gData.cops != 0) &&
-       (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
-        (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0) &&
-         ((Cars_gNumHumanRaceCars != 2) || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) {
+       (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0) && ((Cars_gNumHumanRaceCars != 2) || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) {
+
       Cars_gLifeBasisCarList[Cars_gNumLifeBasisCars] = carObj;
       Cars_gNumLifeBasisCars = Cars_gNumLifeBasisCars + 1;
       carObj->carFlags = carObj->carFlags | 0x100;
     }
   }
+
+
   if ((carClass & 4) != 0) {
+
     Cars_gAICarList[Cars_gNumAICars] = carObj;
     Cars_gNumAICars = Cars_gNumAICars + 1;
     carObj->carFlags = carObj->carFlags | 2;
+
     Cars_gTrafficCarList[Cars_gNumTrafficCars] = carObj;
     Cars_gNumTrafficCars = Cars_gNumTrafficCars + 1;
     carObj->carFlags = carObj->carFlags | 0x10;
   }
+
+
   if ((carClass & 0x18) != 0) {
+
     Cars_gAICarList[Cars_gNumAICars] = carObj;
     Cars_gNumAICars = Cars_gNumAICars + 1;
     carObj->carFlags = carObj->carFlags | 2;
+
     Cars_gCopCarList[Cars_gNumCopCars] = carObj;
     Cars_gNumCopCars = Cars_gNumCopCars + 1;
     carObj->carFlags = carObj->carFlags | 0x20;
+
     if ((carClass & 0x10) != 0) {
-      carObj->carFlags = carObj->carFlags | 0x40;
-    }
-  }
-  return;
-}
+      carObj->carFlags = carObj->carFlags | 0x40; } } return; }
 
 /* The empty format literal above occupies .sdata @0x8013c7e0; alignment then
    places these two initialized limits at their retail addresses. */
@@ -953,160 +965,144 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
  * Ordinary combined splash guards and leaf-effect declaration ownership restore
  * all43 supplied local tuples and all retail regions without changing code.
  * Full statement-line attribution and original macro spelling remain open. */
-#line 1258 "C:/nfs4/GAME/COMMON/CARS.CPP"
-void Car_TireSkiddingStuff(Car_tObj *carObj)
-{
-  /* SYM 8c @0x800878cc: fsize=168 mask=$c0ff0000; REGs: visible=s5 front=s3 rear=s4
-     skidFront=s6 roadSurface=a1 roadSurfaceWheel=s2 surfaceType=s1 speed=fp wetRoad=s7;
-     AUTOs: position@-136 point@-120 audioSurface@-56 originalFront@-52 originalRear@-48;
-     12 wheel blocks each redeclare block-local coorddef wheelFrontX/Z (or Back). */
-  coorddef position;
-  coorddef point;
-  int visible;
-  int audioSurface;
-  int front;
-  int rear;
-  int skidFront;
-  int originalFront;
-  int originalRear;
-  int roadSurface;
-  int roadSurfaceWheel;
-  int surfaceType;
-  int speed;
-  int wetRoad;
-
-  visible = 0;
-  speed = *(short *)((int)&(carObj->N).speedXZ + 2);
-  wetRoad = 0;
-  if (GameSetup_gData.Weather != 0) {
-    wetRoad = BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo) != 1;
-  }
-  roadSurface = (carObj->N).driveSurfaceType;
-  if (((carObj->N).distToPlayer < 0x3c0000) && ((carObj->N).objAltitude < 0x6666)) {
-    do {
-      do {
-        visible = 1;
-      } while (0);
-    } while (0);
-  }
-  if (visible != 0) {
-    front = 0;
-    position.x = (carObj->N).position.x;
-    position.y = (carObj->N).position.y;
-    position.z = (carObj->N).position.z;
-    position.y = (carObj->N).groundElevation;
-      do {
-      if (carObj->frontSkid > 0) {
+      /* SOURCE-SHAPE: the retail SYM has no splash-result locals.  Keeping the
+         non-positive arm first preserves GCC's anonymous select pseudo; the
+         equivalent reversed ternary folds the result directly into front. */
         /* P815: NFS2's symbol-bearing source has no clamp-result local and
            writes through `front`; the PSX-added skid-field update is the
            same value.  Chaining those destinations preserves retail's
            separate clamp result pseudo without an invented source name. */
+  /* SYM 8c @0x800878cc: fsize=168 mask=$c0ff0000; REGs: visible=s5 front=s3 rear=s4
+     skidFront=s6 roadSurface=a1 roadSurfaceWheel=s2 surfaceType=s1 speed=fp wetRoad=s7;
+     AUTOs: position@-136 point@-120 audioSurface@-56 originalFront@-52 originalRear@-48;
+     12 wheel blocks each redeclare block-local coorddef wheelFrontX/Z (or Back). */
+#line 1258 "C:/nfs4/GAME/COMMON/CARS.CPP"
+void Car_TireSkiddingStuff(Car_tObj *carObj)
+{
+  coorddef position;
+  coorddef point;
+  int visible;
+  int audioSurface; int front; int rear; int skidFront; int originalFront; int originalRear; int roadSurface; int roadSurfaceWheel; int surfaceType; int speed; int wetRoad; visible = 0;
+
+
+
+
+
+
+
+
+
+
+  speed = *(short *)((int)&(carObj->N).speedXZ + 2);
+  wetRoad = 0;
+
+  if (GameSetup_gData.Weather != 0) { wetRoad = BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo) != 1;
+  }
+
+  roadSurface = (carObj->N).driveSurfaceType;
+
+
+
+
+
+
+
+
+
+  if (((carObj->N).distToPlayer < 0x3c0000) && ((carObj->N).objAltitude < 0x6666)) {
+    do { do { visible = 1;
+      } while (0);
+    } while (0); } if (visible != 0) {
+    front = 0;
+    position.x = (carObj->N).position.x; position.y = (carObj->N).position.y; position.z = (carObj->N).position.z;
+    position.y = (carObj->N).groundElevation;
+      do {
+
+
+      if (carObj->frontSkid > 0) {
         front = carObj->frontSkid =
             (0xa0000 < carObj->frontSkid) ? 0xa0000 : carObj->frontSkid;
         originalFront = front;
         if (__builtin_abs((carObj->linearVel_ch).z) > 0x140000) {
-          skidFront = front - __builtin_abs((carObj->linearVel_ch).z / 8);
-          break;
+          skidFront = front - __builtin_abs((carObj->linearVel_ch).z / 8); break;
         }
       }
       else {
-        originalFront = 0;
-      }
-      skidFront = front;
+
+        originalFront = 0; } skidFront = front;
     } while (0);
+
     if (carObj->rearSkid > 0) {
       rear = carObj->rearSkid =
           (0xa0000 < carObj->rearSkid) ? 0xa0000 : carObj->rearSkid;
       originalRear = rear;
     }
     else {
-      rear = 0;
-      originalRear = 0;
+      rear = 0; originalRear = 0;
     }
   }
   else {
-    front = 0;
-    skidFront = front;
-    rear = front;
-    originalFront = 0;
-    originalRear = 0;
+    front = 0; skidFront = front; originalFront = 0;
+    originalRear = 0; rear = front;
   }
+
+
+
+
   audioSurface = Cars_kAudioRoadSurfaceInterface[roadSurface];
+
   if (0 < GameSetup_gData.Weather) {
-    if (audioSurface == 0) {
-      if (((int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo) ^ 1) != 0) {
+
+    if (audioSurface == 0) { if (((int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo) ^ 1) != 0) {
         audioSurface = 0x10;
       }
     }
-  }
-  else if (audioSurface == 0) {
+  } else if (audioSurface == 0) {
+
     if (carObj->carInfo->TireType == 0) {
       audioSurface = 0x12;
-    }
-    else if (carObj->carInfo->TireType == 2) {
+    } else if (carObj->carInfo->TireType == 2) {
       audioSurface = 0x11;
     }
   }
   /* ---- wheel 0 (front) ---- */
+
+
+
+
+
+
+
+
+
   roadSurfaceWheel = carObj->wheel[0].roadSurfaceType;
   surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
-  if (carObj->wheel[0].wheelInAir != 0) {
-    surfaceType = 0;
+
+  if (carObj->wheel[0].wheelInAir != 0) { surfaceType = 0;
   }
   if (((front != 0 && wetRoad == 0) || (surfaceType >= 2 && speed != 0)) && visible != 0) {
     {
-      coorddef wheelFrontX;
-      coorddef wheelFrontZ;
-
-      wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
-      wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
-      wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
-      wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
-      wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
-      wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-      point.x = position.x - wheelFrontX.x;
-      point.y = position.y - wheelFrontX.y;
-      point.z = position.z - wheelFrontX.z;
-      point.x += wheelFrontZ.x;
-      point.y += wheelFrontZ.y;
-      point.z += wheelFrontZ.z;
+      coorddef wheelFrontX; coorddef wheelFrontZ; wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256; wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256; wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256; wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x - wheelFrontX.x; point.y = position.y - wheelFrontX.y; point.z = position.z - wheelFrontX.z; point.x += wheelFrontZ.x; point.y += wheelFrontZ.y; point.z += wheelFrontZ.z;
     }
-    if (surfaceType >= 2 && frontLimit < skidFront) {
-      surfaceType = 3;
+    if (surfaceType >= 2 && frontLimit < skidFront) { surfaceType = 3;
     }
-    if (surfaceType != 0) {
-      Cars_AddCarSfx(carObj,0,&point,roadSurfaceWheel,surfaceType,1);
-    }
-    else {
-      Cars_AddCarSfx(carObj,0,&point,roadSurfaceWheel,0,0);
+    if (surfaceType != 0) { Cars_AddCarSfx(carObj,0,&point,roadSurfaceWheel,surfaceType,1);
+    } else { Cars_AddCarSfx(carObj,0,&point,roadSurfaceWheel,0,0);
     }
   }
   else if ((carObj->oldSkidState & 1) != 0) {
+
     carObj->oldSkidState = carObj->oldSkidState - 1;
     TrgSfx_AddSkidmark((carObj->N).objID,0,carObj->oldSkidPoint,1,carObj->frontSkid,carObj,0);
   }
+
+
   if (wetRoad != 0 && surfaceType == 1 && speed != 0 && visible != 0) {
       {
-        coorddef wheelFrontX;
-        coorddef wheelFrontZ;
-
-        wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
-        wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
-        wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
-        wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
-        wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
-        wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x - wheelFrontX.x;
-        point.y = position.y - wheelFrontX.y;
-        point.z = position.z - wheelFrontX.z;
-        point.x += wheelFrontZ.x;
-        point.y += wheelFrontZ.y;
-        point.z += wheelFrontZ.z;
+        coorddef wheelFrontX; coorddef wheelFrontZ; wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256; wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256; wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256; wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x - wheelFrontX.x; point.y = position.y - wheelFrontX.y; point.z = position.z - wheelFrontX.z; point.x += wheelFrontZ.x; point.y += wheelFrontZ.y; point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,0,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      /* SOURCE-SHAPE: the retail SYM has no splash-result locals.  Keeping the
-         non-positive arm first preserves GCC's anonymous select pseudo; the
-         equivalent reversed ternary folds the result directly into front. */
+
       front = front <= 0 ? 1 : front;
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1114,83 +1110,39 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       int rndOffset;
       rndOffset = ((random() & 7) - 4) * 0x3333;
       {
-        coorddef wheelFrontX;
-        coorddef wheelFrontZ;
-
-        wheelFrontX.x = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
-        wheelFrontX.y = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
-        wheelFrontX.z = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
-        wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
-        wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
-        wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x - wheelFrontX.x;
-        point.y = position.y - wheelFrontX.y;
-        point.z = position.z - wheelFrontX.z;
-        point.x += wheelFrontZ.x;
-        point.y += wheelFrontZ.y;
-        point.z += wheelFrontZ.z;
+        coorddef wheelFrontX; coorddef wheelFrontZ; wheelFrontX.x = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256; wheelFrontX.y = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256; wheelFrontX.z = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256; wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x - wheelFrontX.x; point.y = position.y - wheelFrontX.y; point.z = position.z - wheelFrontX.z; point.x += wheelFrontZ.x; point.y += wheelFrontZ.y; point.z += wheelFrontZ.z;
       }
-      TrgSfx_AddCarExtraSfx((carObj->N).objID,0,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 *(int *)&point.y,(carObj->render).light);
+      TrgSfx_AddCarExtraSfx((carObj->N).objID,0,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ, *(int *)&point.y,(carObj->render).light);
   }
-
   /* ---- wheel 1 (front) ---- */
   roadSurfaceWheel = carObj->wheel[1].roadSurfaceType;
   surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
-  if (carObj->wheel[1].wheelInAir != 0) {
-    surfaceType = 0;
+
+  if (carObj->wheel[1].wheelInAir != 0) { surfaceType = 0;
   }
   if (((front != 0 && wetRoad == 0) || (surfaceType >= 2 && speed != 0)) && visible != 0) {
     {
-      coorddef wheelFrontX;
-      coorddef wheelFrontZ;
-
-      wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
-      wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
-      wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
-      wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
-      wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
-      wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-      point.x = position.x + wheelFrontX.x;
-      point.y = position.y + wheelFrontX.y;
-      point.z = position.z + wheelFrontX.z;
-      point.x += wheelFrontZ.x;
-      point.y += wheelFrontZ.y;
-      point.z += wheelFrontZ.z;
+      coorddef wheelFrontX; coorddef wheelFrontZ; wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256; wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256; wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256; wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x + wheelFrontX.x; point.y = position.y + wheelFrontX.y; point.z = position.z + wheelFrontX.z; point.x += wheelFrontZ.x; point.y += wheelFrontZ.y; point.z += wheelFrontZ.z;
     }
-    if (surfaceType >= 2 && frontLimit < skidFront) {
-      surfaceType = 3;
+    if (surfaceType >= 2 && frontLimit < skidFront) { surfaceType = 3;
     }
-    if (surfaceType != 0) {
-      Cars_AddCarSfx(carObj,1,&point,roadSurfaceWheel,surfaceType,1);
-    }
-    else {
-      Cars_AddCarSfx(carObj,1,&point,roadSurfaceWheel,0,0);
+    if (surfaceType != 0) { Cars_AddCarSfx(carObj,1,&point,roadSurfaceWheel,surfaceType,1);
+    } else { Cars_AddCarSfx(carObj,1,&point,roadSurfaceWheel,0,0);
     }
   }
   else if ((carObj->oldSkidState & 2) != 0) {
+
     carObj->oldSkidState = carObj->oldSkidState - 2;
     TrgSfx_AddSkidmark((carObj->N).objID,1,carObj->oldSkidPoint + 1,1,carObj->frontSkid,carObj,0);
   }
+
+
   if (wetRoad != 0 && surfaceType == 1 && speed != 0 && visible != 0) {
       {
-        coorddef wheelFrontX;
-        coorddef wheelFrontZ;
-
-        wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
-        wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
-        wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
-        wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
-        wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
-        wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x + wheelFrontX.x;
-        point.y = position.y + wheelFrontX.y;
-        point.z = position.z + wheelFrontX.z;
-        point.x += wheelFrontZ.x;
-        point.y += wheelFrontZ.y;
-        point.z += wheelFrontZ.z;
+        coorddef wheelFrontX; coorddef wheelFrontZ; wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256; wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256; wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256; wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x + wheelFrontX.x; point.y = position.y + wheelFrontX.y; point.z = position.z + wheelFrontX.z; point.x += wheelFrontZ.x; point.y += wheelFrontZ.y; point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,1,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
+
       front = front <= 0 ? 1 : front;
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1198,83 +1150,39 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       int rndOffset;
       rndOffset = ((random() & 7) - 4) * 0x3333;
       {
-        coorddef wheelFrontX;
-        coorddef wheelFrontZ;
-
-        wheelFrontX.x = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
-        wheelFrontX.y = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
-        wheelFrontX.z = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
-        wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256;
-        wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256;
-        wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x + wheelFrontX.x;
-        point.y = position.y + wheelFrontX.y;
-        point.z = position.z + wheelFrontX.z;
-        point.x += wheelFrontZ.x;
-        point.y += wheelFrontZ.y;
-        point.z += wheelFrontZ.z;
+        coorddef wheelFrontX; coorddef wheelFrontZ; wheelFrontX.x = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256; wheelFrontX.y = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256; wheelFrontX.z = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256; wheelFrontZ.x = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelFrontZ.y = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelFrontZ.z = (carObj->N).wheelFrontZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x + wheelFrontX.x; point.y = position.y + wheelFrontX.y; point.z = position.z + wheelFrontX.z; point.x += wheelFrontZ.x; point.y += wheelFrontZ.y; point.z += wheelFrontZ.z;
       }
-      TrgSfx_AddCarExtraSfx((carObj->N).objID,1,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 point.y,(carObj->render).light);
+      TrgSfx_AddCarExtraSfx((carObj->N).objID,1,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ, point.y,(carObj->render).light);
   }
-
   /* ---- wheel 2 (back) ---- */
   roadSurfaceWheel = carObj->wheel[2].roadSurfaceType;
   surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
-  if (carObj->wheel[2].wheelInAir != 0) {
-    surfaceType = 0;
+
+  if (carObj->wheel[2].wheelInAir != 0) { surfaceType = 0;
   }
   if (((rear != 0 && wetRoad == 0) || (surfaceType >= 2 && speed != 0)) && visible != 0) {
     {
-      coorddef wheelBackX;
-      coorddef wheelBackZ;
-
-      wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
-      wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
-      wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
-      wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
-      wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
-      wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-      point.x = position.x - wheelBackX.x;
-      point.y = position.y - wheelBackX.y;
-      point.z = position.z - wheelBackX.z;
-      point.x -= wheelBackZ.x;
-      point.y -= wheelBackZ.y;
-      point.z -= wheelBackZ.z;
+      coorddef wheelBackX; coorddef wheelBackZ; wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256; wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256; wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256; wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x - wheelBackX.x; point.y = position.y - wheelBackX.y; point.z = position.z - wheelBackX.z; point.x -= wheelBackZ.x; point.y -= wheelBackZ.y; point.z -= wheelBackZ.z;
     }
-    if (surfaceType >= 2 && rearLimit < rear) {
-      surfaceType = 3;
+    if (surfaceType >= 2 && rearLimit < rear) { surfaceType = 3;
     }
-    if (surfaceType != 0) {
-      Cars_AddCarSfx(carObj,2,&point,roadSurfaceWheel,surfaceType,1);
-    }
-    else {
-      Cars_AddCarSfx(carObj,2,&point,roadSurfaceWheel,0,0);
+    if (surfaceType != 0) { Cars_AddCarSfx(carObj,2,&point,roadSurfaceWheel,surfaceType,1);
+    } else { Cars_AddCarSfx(carObj,2,&point,roadSurfaceWheel,0,0);
     }
   }
   else if ((carObj->oldSkidState & 4) != 0) {
+
     TrgSfx_AddSkidmark((carObj->N).objID,2,carObj->oldSkidPoint + 2,1,carObj->rearSkid,carObj,0);
     carObj->oldSkidState = carObj->oldSkidState - 4;
   }
+
+
   if (wetRoad != 0 && surfaceType == 1 && speed != 0 && visible != 0) {
       {
-        coorddef wheelBackX;
-        coorddef wheelBackZ;
-
-        wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
-        wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
-        wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
-        wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
-        wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
-        wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x - wheelBackX.x;
-        point.y = position.y - wheelBackX.y;
-        point.z = position.z - wheelBackX.z;
-        point.x -= wheelBackZ.x;
-        point.y -= wheelBackZ.y;
-        point.z -= wheelBackZ.z;
+        coorddef wheelBackX; coorddef wheelBackZ; wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256; wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256; wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256; wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x - wheelBackX.x; point.y = position.y - wheelBackX.y; point.z = position.z - wheelBackX.z; point.x -= wheelBackZ.x; point.y -= wheelBackZ.y; point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,2,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
+
       rear = rear <= 0 ? 1 : rear;
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1282,83 +1190,39 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       int rndOffset;
       rndOffset = ((random() & 7) - 4) * 0x3333;
       {
-        coorddef wheelBackX;
-        coorddef wheelBackZ;
-
-        wheelBackX.x = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
-        wheelBackX.y = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
-        wheelBackX.z = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
-        wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
-        wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
-        wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x - wheelBackX.x;
-        point.y = position.y - wheelBackX.y;
-        point.z = position.z - wheelBackX.z;
-        point.x -= wheelBackZ.x;
-        point.y -= wheelBackZ.y;
-        point.z -= wheelBackZ.z;
+        coorddef wheelBackX; coorddef wheelBackZ; wheelBackX.x = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256; wheelBackX.y = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256; wheelBackX.z = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256; wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x - wheelBackX.x; point.y = position.y - wheelBackX.y; point.z = position.z - wheelBackX.z; point.x -= wheelBackZ.x; point.y -= wheelBackZ.y; point.z -= wheelBackZ.z;
       }
-      TrgSfx_AddCarExtraSfx((carObj->N).objID,2,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 point.y,(carObj->render).light);
+      TrgSfx_AddCarExtraSfx((carObj->N).objID,2,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ, point.y,(carObj->render).light);
   }
-
   /* ---- wheel 3 (back) ---- */
   roadSurfaceWheel = carObj->wheel[3].roadSurfaceType;
   surfaceType = Cars_kSkidMarkSurface[roadSurfaceWheel & 0xf];
-  if (carObj->wheel[3].wheelInAir != 0) {
-    surfaceType = 0;
+
+  if (carObj->wheel[3].wheelInAir != 0) { surfaceType = 0;
   }
   if (((rear != 0 && wetRoad == 0) || (surfaceType >= 2 && speed != 0)) && visible != 0) {
     {
-      coorddef wheelBackX;
-      coorddef wheelBackZ;
-
-      wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
-      wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
-      wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
-      wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
-      wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
-      wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-      point.x = position.x + wheelBackX.x;
-      point.y = position.y + wheelBackX.y;
-      point.z = position.z + wheelBackX.z;
-      point.x -= wheelBackZ.x;
-      point.y -= wheelBackZ.y;
-      point.z -= wheelBackZ.z;
+      coorddef wheelBackX; coorddef wheelBackZ; wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256; wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256; wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256; wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x + wheelBackX.x; point.y = position.y + wheelBackX.y; point.z = position.z + wheelBackX.z; point.x -= wheelBackZ.x; point.y -= wheelBackZ.y; point.z -= wheelBackZ.z;
     }
-    if (surfaceType >= 2 && rearLimit < rear) {
-      surfaceType = 3;
+    if (surfaceType >= 2 && rearLimit < rear) { surfaceType = 3;
     }
-    if (surfaceType != 0) {
-      Cars_AddCarSfx(carObj,3,&point,roadSurfaceWheel,surfaceType,1);
-    }
-    else {
-      Cars_AddCarSfx(carObj,3,&point,roadSurfaceWheel,0,0);
+    if (surfaceType != 0) { Cars_AddCarSfx(carObj,3,&point,roadSurfaceWheel,surfaceType,1);
+    } else { Cars_AddCarSfx(carObj,3,&point,roadSurfaceWheel,0,0);
     }
   }
   else if ((carObj->oldSkidState & 8) != 0) {
+
     TrgSfx_AddSkidmark((carObj->N).objID,3,carObj->oldSkidPoint + 3,1,carObj->rearSkid,carObj,0);
     carObj->oldSkidState = carObj->oldSkidState - 8;
   }
+
+
   if (wetRoad != 0 && surfaceType == 1 && speed != 0 && visible != 0) {
       {
-        coorddef wheelBackX;
-        coorddef wheelBackZ;
-
-        wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
-        wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
-        wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
-        wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
-        wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
-        wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x + wheelBackX.x;
-        point.y = position.y + wheelBackX.y;
-        point.z = position.z + wheelBackX.z;
-        point.x -= wheelBackZ.x;
-        point.y -= wheelBackZ.y;
-        point.z -= wheelBackZ.z;
+        coorddef wheelBackX; coorddef wheelBackZ; wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256; wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256; wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256; wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x + wheelBackX.x; point.y = position.y + wheelBackX.y; point.z = position.z + wheelBackX.z; point.x -= wheelBackZ.x; point.y -= wheelBackZ.y; point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,3,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
+
       rear = rear <= 0 ? 1 : rear;
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1366,48 +1230,40 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       int rndOffset;
       rndOffset = ((random() & 7) - 4) * 0x3333;
       {
-        coorddef wheelBackX;
-        coorddef wheelBackZ;
-
-        wheelBackX.x = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
-        wheelBackX.y = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
-        wheelBackX.z = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
-        wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256;
-        wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256;
-        wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256;
-        point.x = position.x + wheelBackX.x;
-        point.y = position.y + wheelBackX.y;
-        point.z = position.z + wheelBackX.z;
-        point.x -= wheelBackZ.x;
-        point.y -= wheelBackZ.y;
-        point.z -= wheelBackZ.z;
+        coorddef wheelBackX; coorddef wheelBackZ; wheelBackX.x = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256; wheelBackX.y = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256; wheelBackX.z = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256; wheelBackZ.x = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[6] / 256; wheelBackZ.y = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[7] / 256; wheelBackZ.z = (carObj->N).wheelBackZ / 256 * (carObj->N).orientMat.m[8] / 256; point.x = position.x + wheelBackX.x; point.y = position.y + wheelBackX.y; point.z = position.z + wheelBackX.z; point.x -= wheelBackZ.x; point.y -= wheelBackZ.y; point.z -= wheelBackZ.z;
       }
-      TrgSfx_AddCarExtraSfx((carObj->N).objID,3,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 point.y,(carObj->render).light);
+      TrgSfx_AddCarExtraSfx((carObj->N).objID,3,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ, point.y,(carObj->render).light);
   }
+
   if (front != 0) {
-    if (originalFront < 0) {
-      originalFront = 0;
-    }
-    if (originalFront != 0 || (carObj->carFlags & 4) != 0) {
+
+    if (originalFront < 0) { originalFront = 0;
+    } if (originalFront != 0 || (carObj->carFlags & 4) != 0) {
+
       Cars_SetAudioCalls(carObj,2,0x12,2,audioSurface,front,0);
       carObj->oldAudioSkidState = carObj->oldAudioSkidState | 1;
     }
   }
+
   else if ((carObj->oldAudioSkidState & 1) != 0) {
+
     Cars_SetAudioCalls(carObj,3,0x12,2,audioSurface,0,0);
     carObj->oldAudioSkidState = carObj->oldAudioSkidState - 1;
   }
+
+
   if (rear != 0) {
-    if (originalRear < 0) {
-      originalRear = 0;
-    }
-    if (originalRear != 0 || (carObj->carFlags & 4) != 0) {
+
+    if (originalRear < 0) { originalRear = 0;
+    } if (originalRear != 0 || (carObj->carFlags & 4) != 0) {
+
       Cars_SetAudioCalls(carObj,4,0x14,2,audioSurface,rear / 2,0);
       carObj->oldAudioSkidState = carObj->oldAudioSkidState | 2;
     }
   }
+
   else if ((carObj->oldAudioSkidState & 2) != 0) {
+
     Cars_SetAudioCalls(carObj,5,0x14,2,audioSurface,0,0);
     carObj->oldAudioSkidState = carObj->oldAudioSkidState - 2;
   }
@@ -1435,34 +1291,59 @@ void Cars_FindTotalSlice(Car_tObj *carObj)
       (carObj->N).totalSlice = (u_short)(carObj->N).simRoadInfo.slice + carObj->lap * lapSlices; } } }
 
 /* ---- Car_DoSkiddingStuff__FP8Car_tObj  [@0x800897cc] ---- */
-#line 1574 "C:/nfs4/GAME/COMMON/CARS.CPP"
-void Car_DoSkiddingStuff(Car_tObj *carObj)
-{
   /* MATCH: oracle places the >=0x3334 (skid-check + Car_TireSkiddingStuff) block as the
      FALLTHROUGH and jumps AWAY to the <0x3334 (altitude/speed) block -- negate the
      guard + swap the branches to reproduce that layout (same lever as
      Cars_CheckForAccidentScenes/Cars_FindTotalSlice). */
+#line 1574 "C:/nfs4/GAME/COMMON/CARS.CPP"
+void Car_DoSkiddingStuff(Car_tObj *carObj)
+{
+
+
+
   if (0x3334 <= (carObj->N).orientationToGround.y) {
+
     if ((carObj->oldAudioSkidState & 4U) != 0) {
+
       Cars_SetAudioCalls(carObj,5,0x14,1,0,0,0);
       carObj->oldAudioSkidState = carObj->oldAudioSkidState + -4;
     }
+
     Car_TireSkiddingStuff(carObj);
   }
   else {
     int speed = (carObj->N).speedXZ;
+
+
+
+
+
+
+
     int audioSurface = Cars_kAudioRoadSurfaceInterface[(carObj->N).driveSurfaceType];
+
+
     if (((carObj->N).objAltitude < 0x3333) && (0x20000 < speed)) {
+
+
+
+
       Cars_SetAudioCalls(carObj,4,0x14,1,audioSurface,0xa0000,0);
       carObj->oldAudioSkidState = carObj->oldAudioSkidState | 4;
     }
     else {
+
+
+
+
+
+
+
+
+
+
       Cars_SetAudioCalls(carObj,5,0x14,1,0,0,0);
-      carObj->oldAudioSkidState = carObj->oldAudioSkidState - 4;
-    }
-  }
-  return;
-}
+      carObj->oldAudioSkidState = carObj->oldAudioSkidState - 4; } } return; }
 
 /* ---- Car_DoPostCollisionStuff__FP8Car_tObj  [@0x800898dc] ---- */
 /* MATCH: bound-first upper clamp plus the real height-before-roll source order
@@ -1629,86 +1510,113 @@ void Cars_IniCarObjects(Car_tObj *carObj,int index)
   coorddef offset;
 
   Cars_InitStats(carObj);
+
   carObj->swapCar = (Car_tObj *)0x0;
   carObj->swapTime = 0;
+
+
+
+
   if (index < GameSetup_gData.numCars) {
     int carMass;
-    if (carObj->carInfo->carType == 0x21) goto MASS_HEAVY;
-    if (carObj->carInfo->carType == 0x24) goto MASS_HEAVY;
-    if (carObj->carInfo->carType == 0x26) goto MASS_HEAVY;
-    if (carObj->carInfo->carType == 0x27) goto MASS_HEAVY;
-    if (carObj->carInfo->carType == 0x2f) goto MASS_HEAVY;
-    if (carObj->carInfo->carType == 0x30) goto MASS_HEAVY;
-    if (carObj->carInfo->carType != 0x31) goto MASS_CHECK2;
-MASS_HEAVY:
-    carMass = 0x190000;
-    goto MASS_DONE;
+
+
+
+
+
+
+
+
+    if (carObj->carInfo->carType == 0x21) goto MASS_HEAVY; if (carObj->carInfo->carType == 0x24) goto MASS_HEAVY; if (carObj->carInfo->carType == 0x26) goto MASS_HEAVY; if (carObj->carInfo->carType == 0x27) goto MASS_HEAVY; if (carObj->carInfo->carType == 0x2f) goto MASS_HEAVY; if (carObj->carInfo->carType == 0x30) goto MASS_HEAVY; if (carObj->carInfo->carType != 0x31) goto MASS_CHECK2;
+MASS_HEAVY: carMass = 0x190000; goto MASS_DONE;
 MASS_CHECK2:
-    if (carObj->carInfo->carType == 0x22) goto MASS_LIGHT;
-    if (carObj->carInfo->carType == 0x25) goto MASS_LIGHT;
-    if (carObj->carInfo->carType == 0x29) goto MASS_LIGHT;
-    if (carObj->carInfo->carType == 0x2b) goto MASS_LIGHT;
-    if (carObj->carInfo->carType != 0x2c) goto MASS_CALC;
-MASS_LIGHT:
-    carMass = 0x110000;
-    goto MASS_DONE;
+
+
+
+    if (carObj->carInfo->carType == 0x22) goto MASS_LIGHT; if (carObj->carInfo->carType == 0x25) goto MASS_LIGHT; if (carObj->carInfo->carType == 0x29) goto MASS_LIGHT; if (carObj->carInfo->carType == 0x2b) goto MASS_LIGHT; if (carObj->carInfo->carType != 0x2c) goto MASS_CALC;
+MASS_LIGHT: carMass = 0x110000; goto MASS_DONE;
 MASS_CALC:
     carMass = carObj->specs->mass / 0x80;
 MASS_DONE:
     Newton_InitBaseNewtonObj(&carObj->N,index | 0x100,carMass,carMass,(carObj->N).dimension.x,(carObj->N).dimension.y,
                (carObj->N).dimension.z);
   }
+
   Cars_CalculateStartingGridOffset(carObj,&startSlice,&offset);
+
+
+
+
+
+
+
+
+
   if (gNumSlices / 2 < startSlice) {
     (carObj->stats).extractSlice = gNumSlices - startSlice;
   }
-  else {
-    (carObj->stats).extractSlice = startSlice;
+  else { (carObj->stats).extractSlice = startSlice;
   }
   if (GameSetup_gData.reverseTrack) {
     Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,startSlice,&offset,-1);
   }
-  else {
-    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,startSlice,&offset,1);
+  else { Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,startSlice,&offset,1);
   }
-  carObj->unlap = 1;
+
+
+
   carObj->lap = 0;
+  carObj->unlap = 1;
   if (GameSetup_gData.reverseTrack) {
     (carObj->N).oldSlice = ((short)gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
   }
-  else {
-    (carObj->N).oldSlice = (carObj->N).simRoadInfo.slice;
-  }
-  Cars_FindTotalSlice(carObj);
+  else { (carObj->N).oldSlice = (carObj->N).simRoadInfo.slice;
+  } Cars_FindTotalSlice(carObj);
+
   carObj->RSControl = 0;
   carObj->RSSteering = 0;
   carObj->RSGasLevel = '\0';
   carObj->RSBrakeLevel = '\0';
+
   carObj->glue = 0x10000;
   carObj->aiGlue = 0x10000;
   carObj->drag = 0;
   carObj->crash = 0;
   carObj->blowout = 0;
   carObj->pullOver = 0;
+
+
+
+
   (carObj->linearAcc).x = 0;
   (carObj->linearAcc).y = 0;
   (carObj->linearAcc).z = 0;
+
   (carObj->angularAcc).x = 0;
   (carObj->angularAcc).y = 0;
   (carObj->angularAcc).z = 0;
+
   (carObj->linearAcc_ch).x = 0;
   (carObj->linearAcc_ch).y = 0;
   (carObj->linearAcc_ch).z = 0;
+
   (carObj->linearAcc_rh).x = 0;
   (carObj->linearAcc_rh).y = 0;
   (carObj->linearAcc_rh).z = 0;
+
   (carObj->linearVel_ch).x = 0;
   (carObj->linearVel_ch).y = 0;
   (carObj->linearVel_ch).z = 0;
+
   (carObj->angularVel_ch).x = 0;
   (carObj->angularVel_ch).y = 0;
   (carObj->angularVel_ch).z = 0;
+
+
+
+
   for (int k = 0; k < 4; k++) {
+
     carObj->wheel[k].actualHeight = 0;
     carObj->wheel[k].currentPos.x = 0;
     carObj->wheel[k].currentPos.y = 0;
@@ -1722,9 +1630,8 @@ MASS_DONE:
     carObj->wheel[k].impactCompression = 0;
     carObj->wheel[k].roadSurfaceType = 1;
   }
-  (carObj->control).desiredGear = '\x01';
-  (carObj->control).gear = '\x01';
-  (carObj->control).lastGear = '\x01';
+
+
   carObj->flywheelRpm = 0;
   carObj->wheelSpin = 0;
   carObj->frontWheelSpin = 0;
@@ -1732,35 +1639,56 @@ MASS_DONE:
   carObj->slide = 0;
   carObj->frontSkid = 0;
   carObj->rearSkid = 0;
+
   (carObj->control).desiredGasLevel = '\0';
   (carObj->control).desiredBrakeLevel = '\0';
+  (carObj->control).desiredGear = '\x01';
   (carObj->control).desiredSteering = 0;
+
   (carObj->control).downShifting = '\0';
   (carObj->control).gearShiftTimer = '\0';
+
   (carObj->control).gasLevel = '\0';
   (carObj->control).brakeLevel = '\0';
   (carObj->control).steering = 0;
+  (carObj->control).gear = '\x01';
+  (carObj->control).lastGear = '\x01';
   (carObj->control).handBrake = '\0';
   (carObj->control).horn = '\0';
+
   if (GameSetup_gData.Time) {
     (carObj->control).lights = '\x03';
   }
-  else {
-    (carObj->control).lights = '\0';
+  else { (carObj->control).lights = '\0';
   }
   (carObj->control).abort = '\0';
   (carObj->control).lookBehind = '\0';
   (carObj->control).hanno = 0;
   (carObj->control).event = '\0';
   (carObj->control).queuedEvent = '\0';
+
   carObj->gTransferFront = 0;
+
   carObj->oldSkidState = 0;
   carObj->oldAudioSkidState = 0;
   carObj->frontSkid = 0;
   carObj->rearSkid = 0;
+
+
+
+
+
   AIInit_RestartAICar(carObj);
+
+
+
+
   carObj->audioCount = 0;
   carObj->audioDamageScrape = 0;
+
+
+
+
   (carObj->collision).resetTimer = 0;
   (carObj->collision).smoking = 0;
   (carObj->N).flightTime = 0;
@@ -1772,33 +1700,35 @@ MASS_DONE:
   (carObj->N).groundVel = 0;
   (carObj->N).roadGravityModifier = 0;
   (carObj->N).speedXZ = 0;
+
+
+
+
   (carObj->render).bodyPitch = 0;
   (carObj->render).bodyRoll = 0;
   (carObj->render).currentPitch = 0;
   (carObj->render).currentRoll = 0;
   (carObj->render).currentHeight = 0;
+
   if (carObj->carInfo->carType < 0x1d) {
     (carObj->render).pitchFactor =
         fixeddiv(carObj->specs->bodyPitchFactor,carObj->specs->suspensionStiffness * 3);
-    (carObj->render).rollFactor =
-        fixeddiv(carObj->specs->bodyRollFactor,carObj->specs->suspensionStiffness << 1);
+    (carObj->render).rollFactor = fixeddiv(carObj->specs->bodyRollFactor,carObj->specs->suspensionStiffness << 1);
   }
   else {
+
     (carObj->render).pitchFactor = 0;
-    (carObj->render).rollFactor = 0;
-  }
-  return;
-}
+    (carObj->render).rollFactor = 0; } return; }
 
 /* ---- Cars_InitCar__FP8Car_tObji  [@0x8008a174] ---- */
-#line 2030 "C:/nfs4/GAME/COMMON/CARS.CPP"
-void Cars_InitCar(Car_tObj *carObj,int index)
-{
-  char carFile[100];
-  char specsFile[100];
-  char name[20];
-  char *file2;
-  char *file1;
+    /* BUG FIX: locatebig is the REAL 2-arg fn (locatbig.cpp:178, char *locatebig(void*,char*));
+       oracle 0x8008A2AC `jal locatebig` sets up ONLY a0/a1 (no a2) -- the old 3rd "0" arg + its
+       "$a2 dropped by Ghidra" comment was wrong (Ghidra didn't drop anything; there IS no 3rd
+       arg). Confirmed by other correctly-2-arg call sites (r3dcar.cpp locatebig(bigfile,name)). */
+    /* MATCH: +1 REF on file1 (allocno-priority dial, see the header note) via the
+       absorption identity `X | (X & 3)` == X in the call argument: combine folds it
+       to zero bytes, local-alloc still counts the reference -> file1 wins $s3 over
+       handle. Plain/initializer controls still differ; this is not an original-source exemption. */
   /* SOURCE-REVIEW-UNRESOLVED: file1 identity. Historical MATCH: 19->16 via locatebig's 2 args
      (locatbig.cpp:178 `char *locatebig(void*,char*)`; oracle 0x8008A2AC sets up ONLY a0/a1
      before the jal, no a2) -- dropped the bogus 3rd "0" arg (was a stale/wrong "$a2 dropped
@@ -1817,85 +1747,203 @@ void Cars_InitCar(Car_tObj *carObj,int index)
      source order file1-then-handle (the emission order of the `addu sN,s2,zero`
      copies IS the source statement order).  196/196 PASS.
      Falsified: identity fence `"+r"(file1)` (22 diffs -- it also moves the def). */
-  Udff_tInfo *handle;
-  Udff_tInfo *handle2;
+#line 2030 "C:/nfs4/GAME/COMMON/CARS.CPP"
+void Cars_InitCar(Car_tObj *carObj,int index)
+{
+  char carFile[100];
+  char specsFile[100];
+  char name[20];
+  char *file2; char *file1; Udff_tInfo *handle; Udff_tInfo *handle2; file2 = (char *)0x0;
 
-  file2 = (char *)0x0;
+
+
   file1 = (char *)0x0;
+
   handle = (Udff_tInfo *)0x0;
   handle2 = (Udff_tInfo *)0x0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   if (index < GameSetup_gData.numCars) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     if (AIInit_IsNonStandardCarFile(carObj->carInfo->carType) != 0) {
+
+
+
+
+
+
+
       sprintf(carFile,"%s%s.qda",Paths_Paths[4],(char *)carObj + 0x240);
     }
     else {
+
+
       sprintf(carFile,"%sSTDR.qda",Paths_Paths[4]);
-    }
-    file1 = (char *)loadpackadr(carFile,0x10);
-    /* MATCH: +1 REF on file1 (allocno-priority dial, see the header note) via the
-       absorption identity `X | (X & 3)` == X in the call argument: combine folds it
-       to zero bytes, local-alloc still counts the reference -> file1 wins $s3 over
-       handle. Plain/initializer controls still differ; this is not an original-source exemption. */
+    } file1 = (char *)loadpackadr(carFile,0x10);
+
     handle = Udff_Opena((char *)0x0,(char *)((u_int)file1 | ((u_int)file1 & 3)),1);
+
+
+
+
     if (carObj->carInfo->carType < 0x1d) {
+
       sprintf(name,"p%s.dat",GameSetup_gCarNames[carObj->carInfo->carType]);
     }
     else {
+
+
       sprintf(name,"ptram.dat");
     }
+
+
     sprintf(specsFile,"%sdusty.viv",Paths_Paths[3]);
     file2 = (char *)loadfileadrz(specsFile,0x10);
-    /* BUG FIX: locatebig is the REAL 2-arg fn (locatbig.cpp:178, char *locatebig(void*,char*));
-       oracle 0x8008A2AC `jal locatebig` sets up ONLY a0/a1 (no a2) -- the old 3rd "0" arg + its
-       "$a2 dropped by Ghidra" comment was wrong (Ghidra didn't drop anything; there IS no 3rd
-       arg). Confirmed by other correctly-2-arg call sites (r3dcar.cpp locatebig(bigfile,name)). */
     handle2 = Udff_Opena((char *)0x0,(char *)locatebig(file2,name),0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     if (index < GameSetup_gData.numCars) {
+
+
+
+
       AIInit_InitAICar(carObj,handle);
       AIInit_RestartAICar(carObj);
+
+
+
+
+
       carObj->specs = reservememadr("carSpecs",0x1d0,0);
       Physics_InitCarSpecs(carObj,handle2);
       if ((carObj->carFlags & 4U) != 0) {
+
         Physics_CalculateDerivedCarSpecs(carObj);
       }
     }
   }
   carObj->funcUpdateRoadInfo =
+
+
        (Sched_tFunctionPt)Newton_UpdateRoadInfo;
   carObj->funcReplay = (Sched_tFunctionPt)Replay_DoReplay;
   carObj->funcControl = (Sched_tFunctionPt)Control_Human;
   carObj->funcStats = (Sched_tFunctionPt)Stats_TrackStats;
   carObj->funcHandlingPhysics = (Sched_tFunctionPt)Physics_SimCar;
-  carObj->funcGravityPhysics =
-       (Sched_tFunctionPt)Newton_ApplyTheLawOfGravity;
-  carObj->funcQDPhysicsUpdateVel =
-       (Sched_tFunctionPt)Newton_QDUpdateVel;
-  carObj->funcQDPhysicsUpdateRot =
-       (Sched_tFunctionPt)Newton_QDUpdateRot64Hz;
-  carObj->funcTestMeForCollisions =
-       (Sched_tFunctionPt)Collide_CheckMeForCollisions;
+  carObj->funcGravityPhysics = (Sched_tFunctionPt)Newton_ApplyTheLawOfGravity;
+  carObj->funcQDPhysicsUpdateVel = (Sched_tFunctionPt)Newton_QDUpdateVel;
+  carObj->funcQDPhysicsUpdateRot = (Sched_tFunctionPt)Newton_QDUpdateRot64Hz;
+  carObj->funcTestMeForCollisions = (Sched_tFunctionPt)Collide_CheckMeForCollisions;
   carObj->funcDoPostCollisionStuff = (Sched_tFunctionPt)Car_DoPostCollisionStuff;
+
   if ((carObj->carFlags & 2U) != 0) {
-    carObj->funcControl = (Sched_tFunctionPt)Control_AI;
-    carObj->funcHandlingPhysics =
-         (Sched_tFunctionPt)AIPhysic_Main;
+
     carObj->funcReplay = (Sched_tFunctionPt)0x0;
-    carObj->funcQDPhysicsUpdateRot =
-         (Sched_tFunctionPt)Newton_QDUpdateRot32Hz;
+    carObj->funcControl = (Sched_tFunctionPt)Control_AI;
+    carObj->funcHandlingPhysics = (Sched_tFunctionPt)AIPhysic_Main;
+    carObj->funcQDPhysicsUpdateRot = (Sched_tFunctionPt)Newton_QDUpdateRot32Hz;
   }
   if ((((carObj->carFlags & 4U) != 0) && (GameSetup_gData.catchupLogic != 0)) &&
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
      (0 < GameSetup_gData.commMode)) {
+
     carObj->funcQDPhysicsUpdateVel = (Sched_tFunctionPt)Cars_QDUpdateVelGlue;
   }
+
+
+
+
+
+
   R3DCar_Instantiate3DCar(carObj,index);
+
   if (index < GameSetup_gData.numCars) {
+
     Udff_Close(handle);
     Udff_Close(handle2);
     purgememadr(file2);
-    purgememadr(file1);
-  }
-  return;
-}
+
+    purgememadr(file1); } return; }
 
 /* ---- Cars_DeInitCar__FP8Car_tObj  [@0x8008a484] ---- */
 #line 2231 "C:/nfs4/GAME/COMMON/CARS.CPP"

@@ -26,13 +26,18 @@ int textnpixels(char *str, int n)
   int stringlen;
   int i;
   int dx;
-  unsigned char *fontbase; /* SYM-CODEGEN-CARRIER: fontbase -- direct form is 5 diffs, 36/37 */
+  unsigned char *fontbase; /* SYM-CODEGEN-CARRIER: fontbase -- direct form is 5 diffs, 36/37 */ i = 0;
 
-  i = 0;
-  stringlen = 0;
-  if (0 < n) {
-    fontbase = currentfont;
+
+
+
+
+
+  stringlen = 0; if (0 < n) { fontbase = currentfont;
     do {
+
+
+
       code = (*(getcode *)(fontbase + 0xa0))(&str);
       if (code == 0) {
         return stringlen;
@@ -40,12 +45,18 @@ int textnpixels(char *str, int n)
       i = i + 1;
       ch = getcharacter(code);
       if (ch != 0) {
+
         dx = (signed char)ch->advance;
+
+
+
+
+
+
         stringlen = stringlen + dx;
       }
     } while (i < n);
-  }
-  return stringlen;
+  } return stringlen;
 }
 
 /* ---- textpixels  [TEXTPIX.C:101-102] SLD-VERIFIED ---- */

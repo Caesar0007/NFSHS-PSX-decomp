@@ -46,38 +46,42 @@ void Fe3D_InitShowroom(void)
 {
   int i;
   long angle;
-  
   angle = 0;
-  i = 0;
-  do {
+
+  i = 0; do {
+
     Fe3D_spotVertex[i].x = (short)(((csin(angle) << 4) * 3) >> 8);
     Fe3D_spotVertex[i].y = 0;
     Fe3D_spotVertex[i].z = (short)(((ccos(angle) << 4) * 3) >> 8);
+
     angle = angle + 0x80;
-    i = i + 1;
-  } while (i < 0x20);
+    i = i + 1; } while (i < 0x20);
+
   Fe3D_spotVertex[i].x = 0, Fe3D_spotVertex[i].y = 0, Fe3D_spotVertex[i].z = 0;
   {
     short iPlus;
+
+
+
+
     angle = 0;
     iPlus = 0;
-    for (i = 0; ; i = i + 1) {
-      if (0x20 <= i) break;
+
+    for (i = 0; ; i = i + 1) { if (0x20 <= i) break;
       long angle_sin;
-      long angle_cos;
-      angle_sin = fastintsin(angle) >> 3;
+      long angle_cos; angle_sin = fastintsin(angle) >> 3;
       angle_cos = fastintcos(angle) >> 3;
+
       Fe3D_lightsVertex[iPlus].x = (short)((u_int)(angle_sin * 3) >> 5);
       Fe3D_lightsVertex[iPlus].y = 0;
       Fe3D_lightsVertex[iPlus++].z = (short)((u_int)(angle_cos * 3) >> 5);
+
       Fe3D_lightsVertex[iPlus].x = (short)(angle_sin * 0x15 >> 8);
       Fe3D_lightsVertex[iPlus].y = 0;
       Fe3D_lightsVertex[iPlus++].z = (short)(angle_cos * 0x15 >> 8);
+
       angle = angle + 0x20;
-    }
-  }
-  return;
-}
+    } } return; }
 
 
 
@@ -90,12 +94,16 @@ void CameraLookAt(matrixtdef *mat,coorddef *camPoint)
   coorddef rightVec;
   coorddef upVec = { 0, 0x10000, 0 };   /* local aggregate initializer: its constant is retail .rodata 0x8001002C */
 
+
   fwdVec.x = -camPoint->x;
   fwdVec.y = -camPoint->y;
   fwdVec.z = -camPoint->z;
+
+
   Math_NormalizeVector(&fwdVec);
   crossproduct(&upVec.x,&fwdVec.x,&rightVec.x);
   crossproduct(&fwdVec.x,&rightVec.x,&upVec.x);
+
   mat->m[0] = rightVec.x;
   mat->m[1] = rightVec.y;
   mat->m[2] = rightVec.z;
@@ -104,8 +112,7 @@ void CameraLookAt(matrixtdef *mat,coorddef *camPoint)
   mat->m[5] = upVec.z;
   mat->m[6] = fwdVec.x;
   mat->m[7] = fwdVec.y;
-  mat->m[8] = fwdVec.z;
-  return;
+  mat->m[8] = fwdVec.z; return;
 }
 
 
@@ -125,11 +132,43 @@ void CameraLookAt(matrixtdef *mat,coorddef *camPoint)
  * SOURCE-REVIEW: original statement/macro spelling and complete SLD remain
  * unresolved; native CLEAN alone is not a complete original-source seal. */
 
+    /* w38-a9: SYM block @0x80012ef0 declares `Draw_CarCache *sd` ($s2) HERE, and the
+       oracle materializes it as the LITERAL scratchpad base (`lui $s2,0x1F80`) then
+       reaches the menu-render mirror flag by DISPLACEMENT `0xC($s2)` -- i.e. what the
+       tree calls `Render_gMenuRenderFlag` is really `sd->head.mirror` @0x1F80000C
+       (methodology 3.6b scratchpad-resident global; same finding draw.cpp records for
+       Draw_StartRenderingView).  Using the extern symbol emitted %hi/%lo(sym) pairs. */
 void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY,int player,u_long rotation,
                int camRot,float camY,float camZ,int light,int reflection)
 
 {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   TrsProj_ResetTransPrecision();
+
+
+
+
+
+
   if (showRoomFlag != 0) {
     posY = 0x8c;
   }
@@ -138,18 +177,42 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
     matrixtdef temp;
     matrixtdef temp1;
     matrixtdef temp2;
-    coorddef pos;
-    gMenuRotate[player] = gMenuRotate[player] + rotation;
+    coorddef pos; gMenuRotate[player] = gMenuRotate[player] + rotation;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     if (showRoomFlag != 0) {                                /* showroom camera */
       coorddef targetPos;
       camY = camY * 0.5f;
+
+
+
       targetPos.x = 0;
       targetPos.y = (int)(camY * 65536.0f);
       targetPos.z = (int)(camZ * 65536.0f);
       CameraLookAt(&temp1,&targetPos);
+
+
       fixedxformy(temp2.m,camRot << 6);
       Math_fasttransmult(&temp1,&temp2,&temp);
+
       camZ = camZ + camY / 2.5;
+
       camY = 0.0f;
     }
     else {
@@ -161,28 +224,44 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
          entries and only THEN overwrites it with 0x8980 in the Math_fasttransmult jal's
          delay slot -- i.e. the source writes a full IDENTITY first, then tweaks m[4].
          The old recon dropped the identity m[4] store (1 insn short). */
-      correct.m[0] = 0x10000;
-      correct.m[1] = 0;
-      correct.m[2] = 0;
-      correct.m[3] = 0;
-      correct.m[4] = 0x10000;
-      correct.m[5] = 0;
-      correct.m[6] = 0;
-      correct.m[7] = 0;
-      correct.m[8] = 0x10000;
+      correct.m[0] = 0x10000; correct.m[1] = 0; correct.m[2] = 0;
+      correct.m[3] = 0; correct.m[4] = 0x10000; correct.m[5] = 0;
+      correct.m[6] = 0; correct.m[7] = 0; correct.m[8] = 0x10000;
+
+
+
       correct.m[4] = 0x8980;
+
+
+
+
       Math_fasttransmult(&correct,&temp,&(Vi->cview).mrotation);
-    }
-    transpose(&(Vi->cview).mrotation,&(Vi->cview).mrotationInv);
+    } transpose(&(Vi->cview).mrotation,&(Vi->cview).mrotationInv);
+
+
     pos.x = 0;
     pos.y = (int)(camY * 65536.0f);
     pos.z = (int)(camZ * 65536.0f);
+
+
+
     transform(&pos.x,(Vi->cview).mrotation.m,(int *)&Vi->cview);
+
+
     pos.x = -(Vi->cview).translation.x;
     pos.y = -(Vi->cview).translation.y;
     pos.z = -(Vi->cview).translation.z;
     transform(&pos.x,(Vi->cview).mrotationInv.m,&(Vi->cview).translationInv.x);
   }
+
+
+
+
+
+
+
+
+
   (carObj->N).orientMat.m[0] = 0x10000;
   (carObj->N).orientMat.m[4] = 0x10000;
   (carObj->N).orientMat.m[8] = 0x10000;
@@ -192,45 +271,56 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
   (carObj->N).orientMat.m[5] = 0;
   (carObj->N).orientMat.m[6] = 0;
   (carObj->N).orientMat.m[7] = 0;
+
+
   (carObj->N).position.x = 0;
   (carObj->N).position.y = 0;
   (carObj->N).position.z = 0;
+
   if (player == 0) {
+
     if (generic128HzClock > R3DCar_ClockLast) {
-      R3DCar_Clock = 1;
+
       R3DCar_ClockLast = generic128HzClock + 5;
+      R3DCar_Clock = 1;
     }
-    else {
-      R3DCar_Clock = 0;
+    else { R3DCar_Clock = 0;
     }
   }
   Vi->player = player;
+
   Texture_LoadMenuTexture();
+
+
+
   R3DCar_InsertCarFacetMenu(carObj,Vi);
+
+
+
+
   R3DCar_InsertCarFacetMenuII(carObj,light);
+
   R3DCar_Showroom(Vi);
+
   if (reflection != 0) {
-    /* w38-a9: SYM block @0x80012ef0 declares `Draw_CarCache *sd` ($s2) HERE, and the
-       oracle materializes it as the LITERAL scratchpad base (`lui $s2,0x1F80`) then
-       reaches the menu-render mirror flag by DISPLACEMENT `0xC($s2)` -- i.e. what the
-       tree calls `Render_gMenuRenderFlag` is really `sd->head.mirror` @0x1F80000C
-       (methodology 3.6b scratchpad-resident global; same finding draw.cpp records for
-       Draw_StartRenderingView).  Using the extern symbol emitted %hi/%lo(sym) pairs. */
+
     Draw_CarCache *sd = (Draw_CarCache *)0x1F800000;
 
     R3DCar_InMenu = R3DCar_InMenu | 0x80;
     sd->head.mirror = sd->head.mirror ^ 1;
-    gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-    stackSpeedUpEnbabledFlag = 1;
+
+
+    gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
+
     R3DCar_InsertCarFacetMenu(carObj,Vi);
+
     gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
     stackSpeedUpEnbabledFlag = 0;
+
     R3DCar_InsertCarFacetMenuII(carObj,light);
+
     R3DCar_InMenu = R3DCar_InMenu & 0x7f;
-    sd->head.mirror = sd->head.mirror ^ 1;
-  }
-  return;
-}
+    sd->head.mirror = sd->head.mirror ^ 1; } return; }
 
 
 

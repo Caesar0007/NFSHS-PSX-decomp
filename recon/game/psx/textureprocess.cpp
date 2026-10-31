@@ -80,76 +80,73 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
  * views and direct contrast-member load bias the anchor to+16:27dif/129;
  * assigning spec first is15dif/129. All failed forms restored. Canonical
  * external identity, spec's original producer and full SLD remain open. */
+      /* MATCH: narrow each channel to 5 bits as its OWN statement (assigned back
+       * into the channel var) before composing -- folding the shift+mask into
+       * the compose expression lets gcc reassociate it to (b<<7)&0x7c00. */
+      /* MATCH: one variable per channel (raw value then clamped result share
+       * $s1/$s2/$s0) and the `= 0` default as the if-ARM so it lands in the
+       * bltz delay slot. */
+  /* MATCH: exit-in-the-middle -- numentry is re-loaded from its arg slot at the
+   * top of every iteration and the back edge is an unconditional `j`. */
+  /* MATCH: the contrast read goes through the GLOBAL directly and `spec` is
+   * assigned AFTER it -- cse then turns `spec = &TrackSpec_gSpec` into a plain
+   * register COPY of the address already materialized for the contrast load
+   * (oracle: la $v1,TrackSpec_gSpec; lw 0x10($v1); addu $fp,$v1,$zero).
+   * Indexed newdata stores now let the compiler create the output induction. */
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
   int *spec; /* SOURCE-REVIEW-UNRESOLVED: direct global views change base anchoring. */
   char *sourcedata;
   int contrasttemp;
-
   sourcedata = data;
   {
-  int j;
-  j = 0;
-  /* MATCH: the contrast read goes through the GLOBAL directly and `spec` is
-   * assigned AFTER it -- cse then turns `spec = &TrackSpec_gSpec` into a plain
-   * register COPY of the address already materialized for the contrast load
-   * (oracle: la $v1,TrackSpec_gSpec; lw 0x10($v1); addu $fp,$v1,$zero).
-   * Indexed newdata stores now let the compiler create the output induction. */
-  contrasttemp = (TrackSpec_gSpec[4] * level) / (maxlevel + -1);
-  spec = TrackSpec_gSpec;
-  /* MATCH: exit-in-the-middle -- numentry is re-loaded from its arg slot at the
-   * top of every iteration and the back edge is an unconditional `j`. */
-  while (1) {
-    if (!(j < numentry)) break;
+  int j; j = 0; contrasttemp = (TrackSpec_gSpec[4] * level) / (maxlevel + -1);
+
+
+
+
+
+
+
+
+
+  spec = TrackSpec_gSpec; while (1) { if (!(j < numentry)) break;
     u_short color;
     int r;
     int g;
     int b;
     color = *(u_short *)sourcedata;
+
     if (color == 0) {
       newdata[j] = 0;
     }
     else {
+
       b = (color >> 7) & 0xf8;
       g = (color >> 2) & 0xf8;
       r = (color & 0x1f) * 8;
-      /* MATCH: one variable per channel (raw value then clamped result share
-       * $s1/$s2/$s0) and the `= 0` default as the if-ARM so it lands in the
-       * bltz delay slot. */
       {
-      int temp;
-      temp = r - fixedmult(r - ((CFogSpec *)(spec + 4))->color.r,contrasttemp);
-      if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
-      }
-      {
-      int temp;
-      temp = g - fixedmult(g - ((CFogSpec *)(spec + 4))->color.g,contrasttemp);
-      if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
-      }
-      {
-      int temp;
-      temp = b - fixedmult(b - ((CFogSpec *)(spec + 4))->color.b,contrasttemp);
-      if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
+      int temp; temp = r - fixedmult(r - ((CFogSpec *)(spec + 4))->color.r,contrasttemp); if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+      } { int temp; temp = g - fixedmult(g - ((CFogSpec *)(spec + 4))->color.g,contrasttemp); if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
+      } { int temp; temp = b - fixedmult(b - ((CFogSpec *)(spec + 4))->color.b,contrasttemp); if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
       }
       if (b < 8) { b = 8; }                          /* keep a minimum blue so the pixel stays visible */
-      /* MATCH: narrow each channel to 5 bits as its OWN statement (assigned back
-       * into the channel var) before composing -- folding the shift+mask into
-       * the compose expression lets gcc reassociate it to (b<<7)&0x7c00. */
+
       b = (b >> 3) & 0x1f;
       g = (g >> 3) & 0x1f;
       r = (r >> 3) & 0x1f;
       newdata[j] = (short)((color & 0x8000) | (b << 10) | (g << 5) | r);
     }
+
     sourcedata = sourcedata + 2;
     j = j + 1;
   }
   }
   {
-    RECT r;                          /* SYM names the blit rect `r`, block-scoped (shadows the loop's int r) */
-    r.x = (short)cx;
-    r.w = (short)numentry;
-    r.y = (short)cy;
+    RECT r;                          /* SYM names the blit rect `r`, block-scoped (shadows the loop's int r) */ r.x = (short)cx;
+    r.w = (short)numentry; r.y = (short)cy;
+
     r.h = 1;
     LoadImage(&r,(u_long *)newdata);
   }
@@ -347,34 +344,47 @@ void Fog_AddKey(int slice,int distance)
 void Fog_Update(int player)
 {
   int currentslice;
-  FogKey *key;
-  FogKey *nextkey;
-  int nextslice;
-  int diffslice;
-  int diffdistance;
-  int final_dist;
-
-  if (Fog_gNumKeys == 1) return;
+  FogKey *key; FogKey *nextkey; int nextslice; int diffslice; int diffdistance; int final_dist; if (Fog_gNumKeys == 1) return;
   {
+
+
+
     BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
+
     currentslice = fogslicePos[player].slice;
+
+
     Fog_gCurrentKey[player] = (key = Fog_FindKey(currentslice,Fog_gCurrentKey[player]));
+
+
     nextkey = key->next;
     nextslice = nextkey->slice;
     final_dist = key->distance != nextkey->distance ? ({
+
+
+
+
+
+
+
+
       if (nextslice < key->slice) {
         int numslices;
         numslices = gNumSlices;
         nextslice = nextslice + numslices;
+
         if ((-1 < currentslice) && (currentslice < key->slice)) {
           currentslice = currentslice + numslices;
         }
       }
-      diffdistance = key->next->distance - key->distance;
-      diffslice = nextslice - key->slice;
+
+
+      diffdistance = key->next->distance - key->distance; diffslice = nextslice - key->slice;
+
       key->distance + ((currentslice - key->slice) * diffdistance) / diffslice;
     }) : key->distance;
   }
+
   ((CFogSpec *)(TrackSpec_gSpec + 4))->start = final_dist;
 }
 
@@ -472,36 +482,47 @@ int Fog_ReadFogKeys(void)
  * supplies the verified132byte allocation stride. The literal first-loop
  * store still2dif/57, including a grouped real reset/for initializer, and
  * is restored. openval/original second-i producer and full SLD remain open. */
+  /* Fog_gCurrentKey is retail's two-element pointer array. */
 void Fog_InitFogTriggers(void)
 
 {
   int num_player;
-  int openval; /* SOURCE-REVIEW-UNRESOLVED: literal store moves the preheader load. */
-  openval = 1;
-  Fog_gNumKeys = 0;
+  int openval; /* SOURCE-REVIEW-UNRESOLVED: literal store moves the preheader load. */ openval = 1; Fog_gNumKeys = 0;
+
   Fog_gHeadKey = (FogKey *)0x0;
+
+
+
+
+
   for (int i = 0x1f; -1 < i; i--) {
-    openkeys[i] = openval;
-  }
+    openkeys[i] = openval; }
+
+
+
   if (Fog_ReadFogKeys() == 0) {
+
+
     Fog_AddKey(0,((CFogSpec *)(TrackSpec_gSpec + 4))->start);
   }
-  num_player = 1;
-  /* Fog_gCurrentKey is retail's two-element pointer array. */
+
   Fog_gCurrentKey[0] = Fog_gHeadKey;
   Fog_gCurrentKey[1] = Fog_gHeadKey;
+
+
+
+  num_player = 1;
+
   if (GameSetup_gData[3] == 1) {
+
     num_player = 2;
   }
-  {
-    int k;
-    fogslicePos = reservememadr("fog pos",num_player * sizeof(BWorldSm_Pos),0);
+  { int k; fogslicePos = reservememadr("fog pos",num_player * sizeof(BWorldSm_Pos),0);
+
     for (k = 0; k < num_player; k++) {
+
       BWorldSm_SetSlice(0,fogslicePos + k);
-    }
-  }
-  return;
-}
+    } } return; }
 
 /* ---- Fog_DeInitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1123-1124] SLD-VERIFIED ---- */
 void Fog_DeInitFogTriggers(void)

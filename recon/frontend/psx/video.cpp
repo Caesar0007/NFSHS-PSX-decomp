@@ -18,9 +18,6 @@
 #include "video.h"
 #include "video_externs.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
 
 /* MATCH: split-address view of `ticks` for videodecode's PRE-LOOP read only -- a bare
    scalar extern compiles to the atomic `lw $r,sym` assembler macro, so its lui cannot
@@ -132,8 +129,6 @@ void VIDEO_abortplayback(int handle)
 /* lines 196-197: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_state  (video.cpp:198, code lines 198-247) ---- */
-/* the VSync tick counter read as the array the video module declares */
-static inline int VIDEO_TicksNow(void) { extern int ticks[]; return ticks[0]; }
 
 enum VIDEOSTATE VIDEO_state(int handle)
 
@@ -218,7 +213,6 @@ void videoupdatetime(struct VIDEOSTRUCT *vid)
   vid->displaytimefrac = vid->displaytimefrac + vid->displaytimeincr;
   vid->displaytime = vid->displaytime + (vid->displaytimefrac >> 0x10);
   vid->displaytimefrac = (u_int)(ushort)vid->displaytimefrac;
-  return;
 }
 
 /* lines 372-374: (static data / macros / comments - no emitted code) */
@@ -229,15 +223,32 @@ int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y
   int timeout;
 
   if (chunk->type != 0x4443546d) {
+
+
+
     return 0;
   }
   vid->framewidth = (int)(short)chunk[1].size;
   vid->frameheight = (int)*(short *)((int)&chunk[1].size + 2);
+
+
+
+
+
+
+
+
+
+
+
   mdec(vid->mdechandle,(char *)(chunk + 1),x,y);
+
   timeout = VIDEO_TicksNow() + timerhz * 4;
   while (mdecdone(vid->mdechandle) == 0) {
+
     systemtask(0);
     if (VIDEO_TicksNow() > timeout) {
+
       mdecreset();
       return 0;
     }

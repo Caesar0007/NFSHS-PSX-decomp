@@ -6,16 +6,10 @@
 #include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
 
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
 
-/* Retail feapp.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 typedef struct tPsyQPrimTag {
   unsigned int addr : 24;
@@ -107,11 +101,20 @@ void tFEApplication::PerformMenuInitialization()
 
 {
   extern void InitializeClass_noarg() asm("InitializeClass__11tDialogBase");
-
   this->fCurrentMusic = 0;
+
+
+
   AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
+
+
   InitializeClass_noarg();
+
+
+
   Clock_SystemStartUp();
+
+
   Draw_gDoVSync = 1;
   FETextRender_SetABR(0,false);
   return;
@@ -755,11 +758,11 @@ void Texture_MenuReleaseClutId(short clutID);      /* @0x800df9a4 */
 static void FreeHelpShapeCluts(void)
 {
 
-
-
   int i;
   for (i = 0; i < 0x3b; i++) {
+
     if (gHelpShapes[i].clutID != 0) {
+
       Texture_MenuReleaseClutId((short)gHelpShapes[i].clutID);
       gHelpShapes[i].clutID = 0;
     }
@@ -774,8 +777,9 @@ static void FreeHelpShapeCluts(void)
    currentVideo; the decompiler's boolean/result/vtable/screen temporaries
    were all compiler values.  DisplayLoadingText is a static tScreen member
    (its body never uses `this`, and retail prepares no $a0).  Base-first
-   virtual adjustments and the post-largestunused staging below reproduce
-   the hidden temporaries of the original native C++ virtual call. */
+   virtual adjustments remain.  Round 6: the largest/menu staging block is
+   gone (plain statements are 164/164 PASS) and every statement sits on its
+   retail SLD line, giving retail's single root block (tags 0/164). */
 
 void tFEApplication::RunDemoVideo()
 
@@ -783,52 +787,75 @@ void tFEApplication::RunDemoVideo()
   static int currentVideo = 0;   /* initialized => .data @0x800514bc (not .lcomm) */
   char buffer [40];
 
+
+
   if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs->menuMain) {
+
     AudioMus_StopSong(0x78);
     FeAudio_systemtask(0);
+
     this->fCurrentMenu[0]->TransitionOff();
     (this->fCurrentScreen[0])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-    while ((this->fCurrentMenu[0]->TransitionIsFinished() == 0) ||
-           (this->fCurrentScreen[0]->TransitionIsFinished() == 0)) {
+    while ((this->fCurrentMenu[0]->TransitionIsFinished() == 0) || (this->fCurrentScreen[0]->TransitionIsFinished() == 0)) {
+
       this->Redraw();
       FeAudio_systemtask(0);
     }
+
+
     this->fCurrentScreen[0]->Cleanup();
+
     Audio_FECleanUp();
     Audio_DeInitDriver();
     PSXFront_FreeDrawMemory();
     FeTools_deinit();
+
+
+
+
+
     FreeHelpShapeCluts();
+
     gLargestUnused = largestunused();
+
     play_movie((u_char)(currentVideo + 1));
+
     gLargestUnused = largestunused();
+
+
+
+
+
+
+
+
+
+
+
+
     PSXFront_AllocateDrawMemory();
+
     FeTools_init();
     tScreen::DisplayLoadingText();
     Audio_InitDriver(0xd800,0x18000);
     AudioCmn_LoadFESamples();
     LoadAllHelpShapes();
-    this->UpdateMusic();
-    AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
-    {
-      /* These spell the hidden evaluation temporaries of a native virtual
-         call; they are not additional semantic source state.  Loading both
-         before publishing `largest` permits retail's load/load/store order.
-         SYM-CODEGEN-CARRIER: largest
-         SYM-CODEGEN-CARRIER: menu
-         SYM-CODEGEN-CARRIER: vtbl */
-      int largest = largestunused();
-      tMenu *menu = this->fCurrentMenu[0];
 
-      gLargestUnused = largest;
-      menu->Initialize();
-    }
+    this->UpdateMusic();
+
+
+    AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
+
+    gLargestUnused = largestunused();
+
+    this->fCurrentMenu[0]->Initialize();
     this->fCurrentScreen[0]->Initialize();
     this->fCurrentMenu[0]->TransitionOn();
     (this->fCurrentScreen[0])->TransitionOn(kScreen_TransitionTypeScreen,(tMenu *)0x0);
+
+
     currentVideo = (currentVideo + 1) % 3;
   }
-  return;
 }
 
 

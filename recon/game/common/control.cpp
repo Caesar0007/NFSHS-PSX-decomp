@@ -16,6 +16,36 @@ extern "C" int sprintf(char *, const char *, ...);
 void Control_AI(Car_tObj *carObj)
 {
   return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 /* @0x80091fe4  Control_Human(Car_tObj *carObj) -- line 80 */

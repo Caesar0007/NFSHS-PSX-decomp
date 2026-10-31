@@ -42,14 +42,12 @@ void Platform_InitMemory(void)
 {
   u_int tempLow;
   u_int m; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; prior variants are not object-necessity proof. */
-
   tempLow = 0x80010080;   /* PSX prog base 0x80010000 + 0x80 EXE-header = low-mem bound; memory-map constant (no data symbol), not a VA to migrate */
-  m = (u_int)&bigBuf[sizeof(bigBuf) - 0x80];
-  m -= tempLow;
-  gTotalMemory = m;
-  m += tempLow;
+
+
   gLowMemory = tempLow;
-  gHighMemory = m;
+  m = (u_int)&bigBuf[sizeof(bigBuf) - 0x80]; m -= tempLow; gTotalMemory = m;
+  m += tempLow; gHighMemory = m;
   gCurrentMemory = tempLow;
   return;
 }
@@ -96,13 +94,22 @@ void Platform_InitMemory(void)
 char *Platform_ReserveMemory(int size,char *string)
 
 {
-  size = size + 3;
-  size = (size / 4) * 4;
+  size = size + 3; size = (size / 4) * 4;
+
+
   if ((int)gTotalMemory < (gCurrentMemory + size) - gLowMemory) {
+
+
     return (char *)0x0;
   }
-  string = (char *)gCurrentMemory;
-  gCurrentMemory += size;
+
+
+
+
+  string = (char *)gCurrentMemory; gCurrentMemory += size;
+
+
+
   return string;
 }
 
@@ -127,11 +134,22 @@ char *Platform_ReserveMemory(int size,char *string)
 char *Platform_TempReserveMemory(int size,char *string)
 
 {
-  size = size + 3;
-  size = (size / 4) * 4;
+  size = size + 3; size = (size / 4) * 4;
+
+
   if ((int)gTotalMemory < (gCurrentMemory + size) - gLowMemory) {
+
+
     return (char *)0x0;
   }
+
+
+
+
+
+
+
+
   return (char *)gCurrentMemory;
 }
 
@@ -140,22 +158,103 @@ void Platform_SysStartUp(void)
 
 {
   char *endofcode;
-
   disablecd = 0;
+
+
+
+
+
   endofcode = ::endofcode + 8;
+
+
+
+
+
+
+
+
+
+
   Platform_nfsUserRam = 0x801fc000 - (int)endofcode;   /* 0x801fc000 = PSX RAM top (2MB) - 16KB stack reserve; hardware constant */
+
+
+
+
   initmemadr(endofcode,Platform_nfsUserRam);
+
+
+
+
   nfs2eacinit();
+
+
+
   Draw_SetEnvironment(0x200,0xf0,1,0,1,0,0,0);
+
+
+
+
+
   initlinkmode(0,1,1);
   setdirectory("cdrom:");
+
+
   initlinkmode(0,1000,1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   initlinkmode(0,1000,1);
+
+
+
+
+
+
   gSysStartUp = 1;
+
+
+
+
+
   inittimer(0x80);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   Paths_StartUp();
-  initasync(0x1e,0x2000,0);
-  return;
+
+
+
+
+
+  initasync(0x1e,0x2000,0); return;
 }
 
 /* These definitions follow Platform_SysStartUp in the retail source/section
@@ -171,18 +270,53 @@ u_int gTotalMemory = 0;       /* @0x8013dabc */
 void Platform_DebuggerPollHost(void)
 
 {
-  return;
+
+
+
 }
 
 /* ---- nfs2eacinit__Fv  [PLATFORM.CPP:369-408] SLD-VERIFIED ---- */
 void nfs2eacinit(void)
 
 {
+
+
+
+
   FlushCache();
+
+
+
+
+
+
+
+
+
+
   ResetCallback();
+
+
+
+
+
   ResetGraph(3);   /* @0x800ED670 (libgpu); was mislabeled "Eac_vars" -- delay-slot arg=3 */
+
+
   initjoy(2);
+
+
+
+
+
+
+
   FILE_init(10,800,0x30);
+
+
+
+
+
   return;
 }
 
@@ -190,18 +324,28 @@ void nfs2eacinit(void)
 void Platform_ResetDCTBuffer(void)
 
 {
-  gDctXtraMem = (char *)CF_DVLC;
-  return;
-}
+  gDctXtraMem = (char *)CF_DVLC; }
 
 /* ---- Platform_GetDCTBuffer__FiPc  [PLATFORM.CPP:444-461] SLD-VERIFIED ---- */
 char * Platform_GetDCTBuffer(int size,char *string)
 
 {
   char *p;
-  
   p = gDctXtraMem;
+
+
+
+
+
+
+
+
   gDctXtraMem = gDctXtraMem + size;
+
+
+
+
+
   return p;
 }
 

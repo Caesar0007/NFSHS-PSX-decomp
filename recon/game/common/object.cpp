@@ -73,6 +73,9 @@ int CalcObjYawAngle(CCOORD16 *pts)
 
 {
   return (fixedatan((int)pts[1].x - (int)pts->x,
+
+
+
                     (int)pts[1].z - (int)pts->z) - 0x4000) >> 8;
 }
 
@@ -85,16 +88,15 @@ void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *q
 {
   matrixtdef matrix;
   int cpx;
-  int cpz;
-  coorddef pt0;
-  coorddef pt1;
-
-  cpx = cp->x;
+  int cpz; coorddef pt0; coorddef pt1; cpx = cp->x;
   cpz = cp->z;
+
+
   pt0.x = (int)pts->x << 10;
   pt0.z = (int)pts->z << 10;
   pt1.x = (int)pts[1].x << 10;
   pt1.z = (int)pts[1].z << 10;
+
   resultPts->x = cpx;
   resultPts->z = cpz;
   Quatern_QuatToMat(quat,&matrix);
@@ -103,8 +105,7 @@ void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *q
   resultPts[1].x = resultPts[1].x + cpx;
   resultPts[1].z = resultPts[1].z + cpz;
   resultPts[2].x = resultPts[2].x + cpx;
-  resultPts[2].z = resultPts[2].z + cpz;
-  return;
+  resultPts[2].z = resultPts[2].z + cpz; return;
 }
 
 /* ---- BuildObjCollisionMatrix  [OBJECT.CPP:121-140] covered SLD requires native comparison ---- */
@@ -120,11 +121,19 @@ void BuildObjCollisionMatrix(int weight,int objAngle,int impactAngle,matrixtdef 
   
   fixedxformy(objAngleMat.m,
               fixedmult(-impactAngle,0x10000 - weight) +
+
+
+
+
+
+
               fixedmult(-objAngle,weight));
+
+
   fixedxformy(impactMat.m,impactAngle);
+
   Math_fasttransmult(&objAngleMat,mat,&tmpMat);
-  Math_fasttransmult(&tmpMat,&impactMat,mat);
-  return;
+  Math_fasttransmult(&tmpMat,&impactMat,mat); return;
 }
 
 
@@ -177,55 +186,66 @@ FindObjInstanceFromSerialNum(Group *group,int index)
  * pointer before the common chunkIndex load removes altSlice while retaining
  * base-first address operands. Direct field arms were4dif/134; integer-address
  * forms were21dif/135. No replacement capture or compiler-output rewrite. */
+            /* MATCH: WRAP-ARM = the STEPPED value first, wrap term last.  `slice - 1 + gNumSlices`
+             * reassociates to the oracle's `addiu G,-1; addu slice,G-1`; `slice + gNumSlices - 1`
+             * emits addu-then-addiu, and `slice + (gNumSlices - 1)` lets cse steal the condition's
+             * own `slice-1` (=> `(slice-1)+G`, +2 insns).  Mirrors line 202's `(slice+1) - gNumSlices`. */
 #line 188 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *objList,int *numObj)
 
 {
   int altChunk;
 
+
   if (Track_chunkList[slicePos->chunk].simObjBuf != (Group *)0x0) {
     objList->numObjects = Track_chunkList[slicePos->chunk].simObjBuf->GetNumElements();
   } else {
     objList->numObjects = 0;
-  }
-  objList->chunk = (int)slicePos->chunk;
+  } objList->chunk = (int)slicePos->chunk;
   objList->numObjects2 = 0;
-  altChunk = slicePos->slice + 1;
-  altChunk = (int)(altChunk < gNumSlices
-      ? BWorldSm_slices + altChunk
-      : BWorldSm_slices + (slicePos->slice - (gNumSlices - 1)))->chunkIndex;
+
+
+  altChunk = slicePos->slice + 1; altChunk = (int)(altChunk < gNumSlices ? BWorldSm_slices + altChunk : BWorldSm_slices + (slicePos->slice - (gNumSlices - 1)))->chunkIndex;
   if ((altChunk != slicePos->chunk) &&
       (Track_chunkList[altChunk].simObjBuf != (Group *)0x0)) {
+
     objList->numObjects2 = Track_chunkList[altChunk].simObjBuf->m_num_elements;
     objList->chunk2 = altChunk;
     *numObj = objList->numObjects + objList->numObjects2;
   } else {
     altChunk = (int)BWorldSm_slices[
         (slicePos->slice - 1 < 0)
-            /* MATCH: WRAP-ARM = the STEPPED value first, wrap term last.  `slice - 1 + gNumSlices`
-             * reassociates to the oracle's `addiu G,-1; addu slice,G-1`; `slice + gNumSlices - 1`
-             * emits addu-then-addiu, and `slice + (gNumSlices - 1)` lets cse steal the condition's
-             * own `slice-1` (=> `(slice-1)+G`, +2 insns).  Mirrors line 202's `(slice+1) - gNumSlices`. */
             ? slicePos->slice - 1 + gNumSlices
             : slicePos->slice - 1].chunkIndex;
     if ((altChunk != slicePos->chunk) &&
         (Track_chunkList[altChunk].simObjBuf != (Group *)0x0)) {
+
       objList->numObjects2 = Track_chunkList[altChunk].simObjBuf->m_num_elements;
       objList->chunk2 = altChunk;
       *numObj = objList->numObjects + objList->numObjects2;
     } else {
+
+
+
       *numObj = objList->numObjects;
     }
   }
+
   if (Object_customSimObjs != (Group *)0x0) {
+
     if (0 < Object_customSimObjs->GetNumElements()) {
       if (Math_DistXZ((coorddef *)(BWorldSm_slices + Object_customSliceNum),
+
                       (coorddef *)(BWorldSm_slices + slicePos->slice)) <= 0xbfffff) {
+
+
+
         *numObj = *numObj + Object_customSimObjs->GetNumElements();
       }
     }
   }
   return;
+
 }
 
 /* ---- GetSimObj  [OBJECT.CPP:256-290] covered SLD requires native comparison ---- */
@@ -316,6 +336,11 @@ int Object_GetRadiusCollisionData(Object_tSimObjList *objList,int objIndex,coord
 /* ---- Object_GetPointsCollisionData  [OBJECT.CPP:336-381] covered SLD requires native comparison ---- */
 
 
+      /* SOURCE-REVIEW-UNRESOLVED: these constants are not recovered objects.
+       * Element-result getters elide objDef. Table-level getter trials keep
+       * 79 words,local owners and pair addresses,but their name/purpose is open.
+       * No inferred helper or assertion control is adopted as original source.
+       * Recover the actual producer before replacing this scope scaffold. */
 #line 334 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
 void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int *numPoints,coorddef *resultPoints)
 
@@ -324,52 +349,47 @@ void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int 
   int chunk;
   
   simObj = GetSimObj(objIndex,objList,&chunk);
+
+
   if (simObj != (Trk_SimObject *)0x0) {
     Trk_SimpleInst *objInstance;
 
+
     if (chunk == -1) {
-      objInstance = FindObjInstanceFromSerialNum(
-          (Group *)0x0,(u_int)simObj->instIndex);
+      objInstance = FindObjInstanceFromSerialNum( (Group *)0x0,(u_int)simObj->instIndex);
     }
-    else {
-      objInstance = FindObjInstanceFromSerialNum(
-          Track_chunkList[chunk].objInstanceBuf,(u_int)simObj->instIndex);
+    else { objInstance = FindObjInstanceFromSerialNum( Track_chunkList[chunk].objInstanceBuf,(u_int)simObj->instIndex);
     }
     if (objInstance != (Trk_SimpleInst *)0x0) {
       Trk_ObjectDef *objDef;
-      /* SOURCE-REVIEW-UNRESOLVED: these constants are not recovered objects.
-       * Element-result getters elide objDef. Table-level getter trials keep
-       * 79 words,local owners and pair addresses,but their name/purpose is open.
-       * No inferred helper or assertion control is adopted as original source.
-       * Recover the actual producer before replacing this scope scaffold. */
       {
         const int extentType = 5;
         {
           const int clearFlag = 0;
-        }
-      }
-      objDef = Track_gObjDefs[objInstance->pad];
+        } } objDef = Track_gObjDefs[objInstance->pad];
       if ((objInstance->type == '\x05') &&
+
           (((Trk_CollideBoomInst *)(void *)objInstance)->boomIndex == 0)) {
         CalcObjExtentPoints((coorddef *)simObj->point,(CCOORD16 *)(objDef + 1),
+
                             resultPoints,(tQuat *)&((Trk_CollideBoomInst *)(void *)objInstance)->qx);
         *numPoints = 3;
       }
       else {
+
+
         *resultPoints = *(coorddef *)simObj->point;
         *numPoints = 1;
       }
     }
     else {
+
+
       *numPoints = 1;
       *resultPoints = *(coorddef *)simObj->point;
     }
   }
-  else {
-    *numPoints = 0;
-  }
-  return;
-}
+  else { *numPoints = 0; } return; }
 
 
 
@@ -625,12 +645,13 @@ void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   BWorldSm_FindClosestQuadRez(pt,slicePos,1);
   if ((slicePos->simQuad != (Trk_NewSimQuad *)0x0) &&
+
+
+
       ((slicePos->simQuad->surface & 0x40) == 0)) {
+
     (Track_gSaveSurface)->Save(slicePos->simQuad);
-    slicePos->simQuad->surface = slicePos->simQuad->surface | 0x40;
-  }
-  return;
-}
+    slicePos->simQuad->surface = slicePos->simQuad->surface | 0x40; } return; }
 
 /* ---- Object_AddCustomSimObject  [OBJECT.CPP:668-718] covered SLD requires native comparison ---- */
 
@@ -642,36 +663,52 @@ int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)
   if (objectData->type == 0) {
     Trk_SimObject *simObj;
     BWorldSm_Pos slicePos;
-    coorddef pt;
+    coorddef pt; simObj = (Trk_SimObject *)Object_customSimObjs->GetData() + Object_customSimObjs->m_num_elements;
 
-    simObj = (Trk_SimObject *)Object_customSimObjs->GetData() +
-             Object_customSimObjs->m_num_elements;
     simObj->point[0] = objectData->cp.x;
     simObj->point[1] = objectData->cp.y;
     simObj->point[2] = objectData->cp.z;
+
+
+
     BWorldSm_SetSlice(1,&slicePos);
     pt = objectData->cp;
+
     SetCautionSurface(&pt,&slicePos);
+
     pt.x = pt.x + -0x40000;
     SetCautionSurface(&pt,&slicePos);
+
     pt.x = pt.x + 0x80000;
     SetCautionSurface(&pt,&slicePos);
+
     pt.x = pt.x + -0x40000;
     pt.z = pt.z + -0x40000;
     SetCautionSurface(&pt,&slicePos);
+
     pt.z = pt.z + 0x80000;
     SetCautionSurface(&pt,&slicePos);
+
     Object_customSliceNum = slicePos.slice;
+
     simObj->radius = objectData->scalar2 >> 9;
     simObj->serialNum = serialNum + 400;
     simObj->instIndex = instIndex - 0x80;
+
+
+
+
     if (objectData->scalar1 < 9) {
-      simObj->type = 2;
-    } else {
-      simObj->type = 1;
+      simObj->type = 2; } else { simObj->type = 1;
     }
+
+
+
+
+
     Object_customSimObjs->m_num_elements = Object_customSimObjs->m_num_elements + 1;
   }
+
   return Object_customSimObjs->m_num_elements + -1;
 }
 
@@ -716,100 +753,18 @@ int Object_FindDefWithThisID(int ID)
  * setter recover all retail locals/scopes. The early traffic-case break owns
  * the num-cars guard before the search. Pointer-typed zero staging remains
  * explicitly unresolved below; native exactness is not a source-text seal. */
-#line 806 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
-void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
-
-{
-  switch (objectData->type) {
-case 0:
-    {
-      Trk_CollideBoomInst *objBoomInstance;
-      int index;
-      tQuat quat;
-
-      index = Object_customObjInst->GetNumElements();
-      objBoomInstance = (Trk_CollideBoomInst *)(Object_customObjInst + 1);
-      index--;
-      if (index != -1) {
-        do {
-          index--;
-          objBoomInstance = (Trk_CollideBoomInst *)
-              ((char *)objBoomInstance +
-               (short)Object_customObjInst[1].m_num_elements);
-        } while (index != -1);
-      }
-      objBoomInstance->size = sizeof(Trk_CollideBoomInst);
-      if (objectData->scalar1 < 9) {
-        objBoomInstance->type = 5;
-      }
-      else {
-        objBoomInstance->type = 2;
-      }
-      objBoomInstance->zoffset = 3;
-      objBoomInstance->flags = 0;
-      objBoomInstance->x = objectData->cp.x;
-      objBoomInstance->y = objectData->cp.y;
-      objBoomInstance->z = objectData->cp.z;
-      objBoomInstance->objectIndex = 0;
-      objBoomInstance->pad = (short)objectData->subTypeIndex;
-      if (objBoomInstance->pad >= gPersistObjDef->m_num_elements) {
-        objBoomInstance->pad = 0;
-      }
-      if ((objectData->committed != 0) && (objectData->visible != 0) &&
-          (Object_GetObjDefID(objBoomInstance->pad) != objectData->scalar1)) {
-          int newInd;
-
-          Object_FindDefWithThisID(objectData->scalar1);
-          newInd = Object_FindDefWithThisID(objectData->scalar1);
-          if (newInd != -1) {
-            objBoomInstance->pad = (short)newInd;
-            objectData->subTypeIndex = newInd;
-            Object_FindDefWithThisID(objectData->scalar1);
-          }
-          else {
-            objectData->scalar1 = Object_GetObjDefID(objBoomInstance->pad);
-          }
-      }
-      Quatern_MatToQuat(&objectData->orient,&quat);
-      objBoomInstance->qw = quat.w;
-      objBoomInstance->qx = quat.x;
-      objBoomInstance->qy = quat.y;
-      objBoomInstance->qz = quat.z;
-      objBoomInstance->sx = 0x100;
-      objBoomInstance->sy = 0x100;
-      objBoomInstance->sz = 0x100;
-      if (setupSimDataFlag != 0) {
-        objBoomInstance->simIndex =
-            Object_AddCustomSimObject(objectData,Object_customObjInst->m_num_elements,
-                                      Object_customObjInst->m_num_elements);
-        objBoomInstance->boomIndex = (u_char)objectData->scalar1;
-      }
-      else {
-        objBoomInstance->simIndex = 0;
-        objBoomInstance->boomIndex = 0;
-      }
-      Object_customObjInst->m_num_elements++;
-    }
-    break;
-case 2:
-    {
-      Trk_SFX *sfxInstance;
-
-      sfxInstance = (Trk_SFX *)Object_customSFXInst->GetData() +
-                    Object_customSFXInst->m_num_elements;
-      sfxInstance->point[0] = objectData->cp.x;
-      sfxInstance->point[1] = objectData->cp.y;
-      sfxInstance->point[2] = objectData->cp.z;
-      sfxInstance->type = (short)objectData->subType;
-      sfxInstance->pad = 0;
-      Object_customSFXInst->m_num_elements++;
-    }
-    break;
-case 1:
-    {
-      int i;
-      Car_tObj *carObj;
-
+      /* SOURCE-REVIEW-UNRESOLVED: this pointer-typed zero staging is not
+         established original source. Direct i guard on the restored switch/
+         setter/ownership graph still fails11dif at212/213; it is reverted. */
+      /* MATCH (W62-A12, 11 -> PASS 213/213, DEVICE-FREE): retail's missing insn
+         was `addu a0,a1,zero` in the `bnez` delay slot -- 12D DEAD-PSEUDO STAGING:
+         the zero is carried through carObj's OWN register (SYM 8c @800a5c80:
+         carObj = REG $4 = $a0, i = REG $5 = $a1), so the guard must read the
+         STAGED value, not `i`.  The second half of the pair (and the reason five
+         earlier waves' staging attempts all failed) is that the `for`'s redundant
+         re-init `i = 0` must GO: it is exactly the one reference reqdelta prices
+         (p188 refs 9 -> 8) that swaps i off $a0 and lets carObj take it.  Land the
+         pair or neither -- staging alone is 19-20, dropping the init alone is 11. */
       /* NEAR-MISS 11 (ours 212 / oracle 213).  Retail materialises `i = 0` EARLY
          (its own SLD statement, line 925 -- ours sinks it into the `bnez` delay
          slot) and then COPIES it into a second pseudo `addu a0,a1,zero` (SLD 927)
@@ -853,31 +808,136 @@ case 1:
          off $a1 (W56-A14) -- 12E's law in the flesh: a dial buys retail's REGISTER
          or retail's COUNT, never both in that measured basin. Later source
          ownership must be tested; these failures establish no universal floor. */
-      i = 0;
-      /* MATCH (W62-A12, 11 -> PASS 213/213, DEVICE-FREE): retail's missing insn
-         was `addu a0,a1,zero` in the `bnez` delay slot -- 12D DEAD-PSEUDO STAGING:
-         the zero is carried through carObj's OWN register (SYM 8c @800a5c80:
-         carObj = REG $4 = $a0, i = REG $5 = $a1), so the guard must read the
-         STAGED value, not `i`.  The second half of the pair (and the reason five
-         earlier waves' staging attempts all failed) is that the `for`'s redundant
-         re-init `i = 0` must GO: it is exactly the one reference reqdelta prices
-         (p188 refs 9 -> 8) that swaps i off $a0 and lets carObj take it.  Land the
-         pair or neither -- staging alone is 19-20, dropping the init alone is 11. */
-      /* SOURCE-REVIEW-UNRESOLVED: this pointer-typed zero staging is not
-         established original source. Direct i guard on the restored switch/
-         setter/ownership graph still fails11dif at212/213; it is reverted. */
+#line 806 "C:/nfs4/GAME/COMMON/OBJECT.CPP"
+void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
+
+{
+
+
+
+  switch (objectData->type) {
+case 0:
+
+    {
+      Trk_CollideBoomInst *objBoomInstance;
+      int index;
+      tQuat quat;
+      index = Object_customObjInst->GetNumElements();
+
+      objBoomInstance = (Trk_CollideBoomInst *)(Object_customObjInst + 1); index--; if (index != -1) { do { index--; objBoomInstance = (Trk_CollideBoomInst *) ((char *)objBoomInstance + (short)Object_customObjInst[1].m_num_elements); } while (index != -1);
+      }
+
+      objBoomInstance->size = sizeof(Trk_CollideBoomInst);
+      if (objectData->scalar1 < 9) {
+        objBoomInstance->type = 5; } else { objBoomInstance->type = 2;
+      }
+
+
+      objBoomInstance->zoffset = 3;
+      objBoomInstance->flags = 0;
+      objBoomInstance->x = objectData->cp.x;
+      objBoomInstance->y = objectData->cp.y;
+      objBoomInstance->z = objectData->cp.z;
+
+
+      objBoomInstance->objectIndex = 0;
+      objBoomInstance->pad = (short)objectData->subTypeIndex;
+
+      if (objBoomInstance->pad >= gPersistObjDef->m_num_elements) {
+        objBoomInstance->pad = 0;
+      }
+      if ((objectData->committed != 0) && (objectData->visible != 0) && (Object_GetObjDefID(objBoomInstance->pad) != objectData->scalar1)) {
+          int newInd;
+          Object_FindDefWithThisID(objectData->scalar1);
+          newInd = Object_FindDefWithThisID(objectData->scalar1);
+          if (newInd != -1) {
+
+            objBoomInstance->pad = (short)newInd;
+            objectData->subTypeIndex = newInd;
+            Object_FindDefWithThisID(objectData->scalar1);
+          }
+          else {
+
+
+            objectData->scalar1 = Object_GetObjDefID(objBoomInstance->pad);
+          }
+      }
+
+
+
+
+      Quatern_MatToQuat(&objectData->orient,&quat);
+
+      objBoomInstance->qw = quat.w;
+      objBoomInstance->qx = quat.x;
+      objBoomInstance->qy = quat.y;
+      objBoomInstance->qz = quat.z;
+      objBoomInstance->sx = 0x100;
+      objBoomInstance->sy = 0x100;
+      objBoomInstance->sz = 0x100;
+
+
+
+      if (setupSimDataFlag != 0) {
+        objBoomInstance->simIndex =
+            Object_AddCustomSimObject(objectData,Object_customObjInst->m_num_elements, Object_customObjInst->m_num_elements);
+        objBoomInstance->boomIndex = (u_char)objectData->scalar1;
+      }
+      else {
+
+        objBoomInstance->simIndex = 0;
+        objBoomInstance->boomIndex = 0;
+      }
+
+      Object_customObjInst->m_num_elements++;
+    }
+    break;
+case 2:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    {
+      Trk_SFX *sfxInstance;
+
+      sfxInstance = (Trk_SFX *)Object_customSFXInst->GetData() +
+                    Object_customSFXInst->m_num_elements;
+      sfxInstance->point[0] = objectData->cp.x;
+      sfxInstance->point[1] = objectData->cp.y;
+      sfxInstance->point[2] = objectData->cp.z;
+      sfxInstance->type = (short)objectData->subType;
+      sfxInstance->pad = 0;
+      Object_customSFXInst->m_num_elements++;
+    }
+
+    break;
+case 1:
+    {
+      int i;
+      Car_tObj *carObj; i = 0;
       carObj = (Car_tObj *)i;
       if (objectData->subType == 0) {
         if ((Cars_gNumTrafficCars == 0) ||
             ((int)carObj >= Cars_gNumTrafficCars))
           break;
-        for (; i < Cars_gNumTrafficCars; i++) {
-          if (((Cars_gTrafficCarList[i]->carFlags & 0x400U) == 0) &&
-              ((int)Cars_gTrafficCarList[i]->render.currentCarType ==
-               objectData->scalar3)) {
-            break;
-          }
-        }
+
+        for (; i < Cars_gNumTrafficCars; i++) { if (((Cars_gTrafficCarList[i]->carFlags & 0x400U) == 0) && ((int)Cars_gTrafficCarList[i]->render.currentCarType == objectData->scalar3)) {
+            break; } }
+
         if (i < Cars_gNumTrafficCars) {
           AIHigh_Traffic *aicar;
 
@@ -887,6 +947,64 @@ case 1:
         }
       }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     break;
   }
 }
@@ -1067,21 +1185,21 @@ ObjectMultiAnim::ObjectMultiAnim(coorddef *impactVel,AnimDef *def,
           ObjectFinishedMultiAnim *finishedAnim)
 
 {
+
   this->impactVel.x = impactVel->x >> 6;
   this->impactVel.y = impactVel->y >> 6;
   this->impactVel.z = impactVel->z >> 6;
   animParms = def;
+
   this->objCollideInstance = objCollideInstance;
   this->objDef = objDef;
   this->simObj = simObj;
+
+
   if (objCollideInstance->type == '\x06') {
-    script = new AnimScript(gPersistObjInst,8,
-                            *(u_char *)((int)&objCollideInstance->y + 1),
-                            animParms->numPieces);
+    script = new AnimScript(gPersistObjInst,8, *(u_char *)((int)&objCollideInstance->y + 1), animParms->numPieces);
   }
-  else {
-    script = new AnimScript(gPersistObjInst,8,objCollideInstance->boomIndex,
-                            animParms->numPieces);
+  else { script = new AnimScript(gPersistObjInst,8,objCollideInstance->boomIndex, animParms->numPieces);
   }
   script->SetAnimAttrib(2);
   this->finishedAnim = finishedAnim;
@@ -1109,17 +1227,18 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
   matrixtdef matrix;
   coorddef animcp;
 
+
+
   if ((u_int)(script->GetTimedAnimPosRot(0,&animcp,&matrix) + 1) < 2) {
     int i;
     ObjectAnim *anim;
+    anim = (ObjectAnim *)finishedAnim; i = simObj->serialNum;
 
-    anim = (ObjectAnim *)finishedAnim;
-    i = simObj->serialNum;
+
+
     finishedAnim = (ObjectFinishedMultiAnim *)0x0;
-    if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
-      delete gSimObjAnims[i];
-    }
-    gSimObjAnims[i] = anim;
+    if (gSimObjAnims[i] != (ObjectAnim *)0x0) { delete gSimObjAnims[i];
+    } gSimObjAnims[i] = anim;
     return anim->Draw(Vi,sd,offset);
   }
   else {
@@ -1127,78 +1246,91 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
     int animIndex;
     int partCount;
     coorddef cp;
-    coorddef impact;
-    matrixtdef RSmatrix;
-    Trk_AnimateBoomInst *objInst;
 
-    animIndex = 0;
-    {
-      int ticks;
-      Trk_AnimateInst *animInst;
 
-      ticks = simGlobal.gameTicks - script->baseTicks;
-      animInst = *script->inst;
-      partCount = animParms->numPieces;
-      if (((int)animInst->interval * (int)animInst->count >> 1) < ticks) {
-        ticks = (int)animInst->interval * (int)animInst->count >> 1;
-      }
-      impact.x = impactVel.x * ticks;
+
+
+
+
+
+    coorddef impact; matrixtdef RSmatrix; Trk_AnimateBoomInst *objInst; animIndex = 0; { int ticks; Trk_AnimateInst *animInst; ticks = simGlobal.gameTicks - script->baseTicks; animInst = *script->inst; partCount = animParms->numPieces;
+
+
+      if (((int)animInst->interval * (int)animInst->count >> 1) < ticks) { ticks = (int)animInst->interval * (int)animInst->count >> 1;
+      } impact.x = impactVel.x * ticks;
       impact.y = impactVel.y * ticks;
       impact.z = impactVel.z * ticks;
     }
+
     if (objCollideInstance->type != '\x06') {
       tQuat quat;
+
+
+
+
+
+
+
 
       quat = *(tQuat *)&objCollideInstance->qx;
       Quatern_QuatToMat(&quat,&RSmatrix);
       {
         int t1;
         int t2;
-        int sx;
-        int sy;
-        int sz;
-
-        sx = (int)objCollideInstance->sx << 8;
+        int sx; int sy; int sz; sx = (int)objCollideInstance->sx << 8;
         sy = (int)objCollideInstance->sy << 8;
         sz = (int)objCollideInstance->sz << 8;
         t1 = fixedmult(RSmatrix.m[0],sx);
         t2 = fixedmult(RSmatrix.m[3],sx);
         RSmatrix.m[(RSmatrix.m[0] = t1, RSmatrix.m[3] = t2, 6)] = fixedmult(RSmatrix.m[6],sx);
+
+
+
         t1 = fixedmult(RSmatrix.m[1],sy);
         t2 = fixedmult(RSmatrix.m[4],sy);
         RSmatrix.m[(RSmatrix.m[1] = t1, RSmatrix.m[4] = t2, 7)] = fixedmult(RSmatrix.m[7],sy);
+
+
+
         t1 = fixedmult(RSmatrix.m[2],sz);
         t2 = fixedmult(RSmatrix.m[5],sz);
         RSmatrix.m[(RSmatrix.m[2] = t1, RSmatrix.m[5] = t2, 8)] = fixedmult(RSmatrix.m[8],sz);
       }
     }
+
+
+
+
+
     objInst = (Trk_AnimateBoomInst *)(gPersistObjInst + 1);
+
     while (animIndex < partCount) {
+
       script->GetTimedAnimPosRot(animIndex,&animcp,&matrix);
       if (objCollideInstance->type != '\x06') {
         Math_fasttransmult(&matrix,&RSmatrix,&matrix);
       }
+
       cp = *(coorddef *)simObj;
+
       cp.x += animcp.x + impact.x;
       cp.y += animcp.y;
       cp.z += animcp.z + impact.z;
       while( true ) {
-        if (objInst->type == '\b') {
-          if (((objCollideInstance->type != '\x05') ||
-               (objInst->boomIndex == objCollideInstance->boomIndex)) &&
-              ((objCollideInstance->type != '\x06') ||
-               (objInst->boomIndex == ((u_char *)&objCollideInstance->y)[1]))) {
-            break;
-          }
-        }
-        objInst = (Trk_AnimateBoomInst *)((char *)objInst + objInst->size);
+
+
+
+        if (objInst->type == '\b') { if (((objCollideInstance->type != '\x05') || (objInst->boomIndex == objCollideInstance->boomIndex)) && ((objCollideInstance->type != '\x06') || (objInst->boomIndex == ((u_char *)&objCollideInstance->y)[1]))) {
+            break; } } objInst = (Trk_AnimateBoomInst *)((char *)objInst + objInst->size);
       }
       pObjDef = Track_gObjDefs[objInst->pad];
+
       DrawObjectTransform(Vi,sd,&matrix,pObjDef,&cp,offset,-1);
       animIndex = animIndex + 1;
       objInst = (Trk_AnimateBoomInst *)((char *)objInst + objInst->size);
     }
   }
+
   return 4;
 }
 
@@ -1208,9 +1340,7 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 int ObjectFinishedSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
-  DrawObjectTransform(Vi,sd,(matrixtdef *)((int)this + 4),
-             *(Trk_ObjectDef **)((int)this + 0x28),
-             (coorddef *)(*(int *)((int)this + 0x2c) + 8),offset,-1);
+  DrawObjectTransform(Vi,sd,(matrixtdef *)((int)this + 4), *(Trk_ObjectDef **)((int)this + 0x28), (coorddef *)(*(int *)((int)this + 0x2c) + 8),offset,-1);
   return 2;
 }
 
@@ -1223,52 +1353,50 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
           coorddef *roadNormal,ObjectFinishedSignAnim *finishedAnim)
 
 {
-  int vel;
+  int vel; vel = (__builtin_abs(impactVel->x) + __builtin_abs(impactVel->z)) >> 16;
 
-  vel = (__builtin_abs(impactVel->x) + __builtin_abs(impactVel->z)) >> 16;
   this->impactVel = *impactVel;
   this->impactAngle = impactAngle << 8;
   animParms = def;
+
   this->objCollideInstance = objCollideInstance;
   this->objDef = objDef;
   this->simObj = simObj;
   objectAngle = CalcObjYawAngle((CCOORD16 *)(objDef + 1)) << 8;
+
   if (vel < 10)
     script = new AnimScript(animParms->baseAnim,animParms->numPieces);
   else
     script = new AnimScript(animParms->baseAnim + 1,animParms->numPieces);
-  script->SetAnimAttrib(2);
-  this->finishedAnim = finishedAnim;
 
+  script->SetAnimAttrib(2);
+
+  this->finishedAnim = finishedAnim;
   {
   coorddef *rotx;
-  coorddef *roty;
-  coorddef *rotz;
-  matrixtdef yawMat;
-  matrixtdef objAngleMat;
-  matrixtdef tmpMat;
-  matrixtdef mat;
-  rotx = (coorddef *)&finishedAnim->finalMatrix.m[0];
-  roty = (coorddef *)&finishedAnim->finalMatrix.m[3];
+  coorddef *roty; coorddef *rotz; matrixtdef yawMat; matrixtdef objAngleMat; matrixtdef tmpMat; matrixtdef mat; rotx = (coorddef *)&finishedAnim->finalMatrix.m[0]; roty = (coorddef *)&finishedAnim->finalMatrix.m[3];
   rotz = (coorddef *)&finishedAnim->finalMatrix.m[6];
+
   *roty = *roadNormal;
-  rotz->x = 0;
-  rotz->y = 0;
-  rotz->z = 0x10000;
-  rotx->x = fixedmult(roty->y,rotz->z) - fixedmult(roty->z,rotz->y);
-  rotx->y = fixedmult(roty->z,rotz->x) - fixedmult(roty->x,rotz->z);
-  rotx->z = fixedmult(roty->x,rotz->y) - fixedmult(roty->y,rotz->x);
-  rotz->x = fixedmult(rotx->y,roty->z) - fixedmult(rotx->z,roty->y);
-  rotz->y = fixedmult(rotx->z,roty->x) - fixedmult(rotx->x,roty->z);
-  rotz->z = fixedmult(rotx->x,roty->y) - fixedmult(rotx->y,roty->x);
+  rotz->x = 0; rotz->y = 0; rotz->z = 0x10000;
+
+
+  rotx->x = fixedmult(roty->y,rotz->z) - fixedmult(roty->z,rotz->y); rotx->y = fixedmult(roty->z,rotz->x) - fixedmult(roty->x,rotz->z); rotx->z = fixedmult(roty->x,rotz->y) - fixedmult(roty->y,rotz->x);
+  rotz->x = fixedmult(rotx->y,roty->z) - fixedmult(rotx->z,roty->y); rotz->y = fixedmult(rotx->z,roty->x) - fixedmult(rotx->x,roty->z); rotz->z = fixedmult(rotx->x,roty->y) - fixedmult(rotx->y,roty->x);
   reorthogonalize(finishedAnim->finalMatrix.m);
+
+
+
+
   fixedxformx(mat.m,0x4000);
   fixedxformy(objAngleMat.m,-objectAngle);
   fixedxformy(yawMat.m,this->impactAngle);
+
+
   Math_fasttransmult(&objAngleMat,&mat,&tmpMat);
   Math_fasttransmult(&tmpMat,&yawMat,&tmpMat);
-  Math_fasttransmult(&tmpMat,&finishedAnim->finalMatrix,
-                     &finishedAnim->finalMatrix);
+  Math_fasttransmult(&tmpMat,&finishedAnim->finalMatrix, &finishedAnim->finalMatrix);
+
   finishedAnim->objDef = objDef;
   finishedAnim->objCollideInstance = objCollideInstance;
   }
@@ -1285,33 +1413,43 @@ int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
   matrixtdef matrix;
   coorddef animcp;
 
+
+
   if (this->script->GetTimedAnimPosRot(0, &animcp, &matrix) + 1U < 2) {
     int i;
     ObjectAnim *anim;
-    anim = this->finishedAnim;
-    i = this->simObj->serialNum;
+    anim = this->finishedAnim; i = this->simObj->serialNum;
+
+
+
     this->finishedAnim = (ObjectFinishedSignAnim *)0x0;
-    if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
-      delete gSimObjAnims[i];
-    }
-    gSimObjAnims[i] = anim;
+    if (gSimObjAnims[i] != (ObjectAnim *)0x0) { delete gSimObjAnims[i];
+    } gSimObjAnims[i] = anim;
     return anim->Draw(Vi,sd,offset);
   }
   else {
     Trk_ObjectDef *pObjDef;
-    coorddef cp;
-    int frame;
-    int numFrames;
-    pObjDef = this->objDef;
+    coorddef cp; int frame; int numFrames; pObjDef = this->objDef;
+
+
+
+
     this->script->GetTimedAnimPosRot(0, &animcp, &matrix);
     this->script->GetAnimFrameInfo(&frame, &numFrames);
     cp = *(coorddef *)&this->objCollideInstance->x;
+
     cp.x += animcp.x;
     cp.y += animcp.y;
     cp.z += animcp.z;
+
+
+
     BuildObjCollisionMatrix((frame << 0x10) / numFrames,this->objectAngle,this->impactAngle,&matrix);
+
     DrawObjectTransform(Vi,sd,&matrix,pObjDef,&cp,offset,-1);
   }
+
+
   return 4;
 }
 

@@ -112,5 +112,15 @@ void  LoadPinkSlipsCars(tCarManager*, tSaveCarInfo*, short) asm("LoadPinkSlipsCa
 void  SetPads();
 void  Front_ResetPSXController(int, unsigned int) asm("Front_ResetPSXController__Fii");
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
+
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline volatile int FE_Ticks(void) { return ticks; }
+
+/* Retail fememcard.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #endif
 

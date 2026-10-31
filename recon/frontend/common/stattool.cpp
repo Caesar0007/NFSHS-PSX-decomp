@@ -73,28 +73,34 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
 }
 
 /* ---- Stattool_ParseTime  (stattool.cpp:190) ---- */
+/* MATCH (W55-A15, 56 -> PASS): retail keeps the SECOND remainder as its own
+   statement before the sprintf -- the oracle's "subu $t2,$t2,$v1" lands BEFORE
+   the two minChar/secChar lbu loads, mutating the nTime REGPARM in place.
+   Folding it into the last sprintf argument sinks the whole sec*100 multiply
+   chain past those loads and pushes nTime off its SYM-declared home
+   (8c block @0x8004A99C: nTime REGPARM $0a = $t2, sLapTime REGPARM $10 = $s0,
+   and ZERO declared locals -- SYM-CODEGEN-CARRIER: min and
+   SYM-CODEGEN-CARRIER: sec are compiler temps).
+   W86-S4 re-priced the fold (both recomputed inside the sprintf argument
+   list, so the body carries no locals at all, as the SYM says): 90 diffs.
+   The two carriers stay. */
 void Stattool_ParseTime(int nTime,char *sLapTime)
 
 {
-  /* MATCH (W55-A15, 56 -> PASS): retail keeps the SECOND remainder as its own
-     statement before the sprintf -- the oracle's "subu $t2,$t2,$v1" lands BEFORE
-     the two minChar/secChar lbu loads, mutating the nTime REGPARM in place.
-     Folding it into the last sprintf argument sinks the whole sec*100 multiply
-     chain past those loads and pushes nTime off its SYM-declared home
-     (8c block @0x8004A99C: nTime REGPARM $0a = $t2, sLapTime REGPARM $10 = $s0,
-     and ZERO declared locals -- SYM-CODEGEN-CARRIER: min and
-     SYM-CODEGEN-CARRIER: sec are compiler temps).
-     W86-S4 re-priced the fold (both recomputed inside the sprintf argument
-     list, so the body carries no locals at all, as the SYM says): 90 diffs.
-     The two carriers stay. */
+
+
+
   short min;
   short sec;
-
   nTime = (int)((float)nTime / 0.64f);
+
   min = nTime / 6000;
   nTime = nTime - min * 6000;
   sec = nTime / 100;
   nTime = nTime - sec * 100;
+
+
+
   sprintf(sLapTime,"%02d%c%02d%c%02d",min,(uint)(byte)minChar[(byte)frontEnd.language],sec,
              (uint)(byte)secChar[(byte)frontEnd.language],(short)nTime);
   return;
@@ -200,6 +206,7 @@ void StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(char *string)
 
 {
   while (*string != '\0') {
+
     UserNameUpperCaseOneLetter(string);
     string = string + 1;
   }
@@ -240,12 +247,31 @@ void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
 void Stattool_ReadDefaultRecords(tRecordBuffer *Records,bool cheatones)
 
 {
+
+
+
+
+
+
   char filename [80];
   
   cheatones ? sprintf(filename,"%sznfsrec.dat",Paths_Paths[0x24]) :
               sprintf(filename,"%szrecord.dat",Paths_Paths[0x24]);
+
   if (filesize(filename) == 0xe9c)
+
     loadfileatadrz(filename,Records);
+
+
+
+
+
+
+
+
+
+
+
   else
     blockclear(Records,0xe9c);
 }
@@ -268,15 +294,32 @@ void Stattool_GetRecords(short nShowTrack,tRecordBuffer *TrackRecords)
 int Stattool_ReturnRecordLapTime(short nTrack)
 
 {
+
+
+
+
+
+
+
+
+
+
+
+
   /* W86-S4: SYM `8c` declaration order restored (RecordLapHolder AUTO sp+16,
      TrackRecords REG $16 s0).  Re-gated PASS. */
   tRecordBuffer RecordLapHolder;
   tRecordBuffer *TrackRecords;
   
   TrackRecords = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
+
+
   Stattool_GetRecords(nTrack,TrackRecords);
   memcpy(&RecordLapHolder,TrackRecords,0x14);
+
+
   purgememadr(TrackRecords);
+
   return RecordLapHolder.nBestLap;
 }
 

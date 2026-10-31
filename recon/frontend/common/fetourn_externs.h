@@ -44,4 +44,17 @@ int rand(...);
 int sprintf(...);
 }
 
+/* Retail fetourn.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
+
+static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
+
+static inline tCompetitor *Tournament_Competitors(tTournamentManager &tm) { return tm.fCompetitors; }
+
+static inline int Tournament_BestPlacement(tTournamentManager &tm, int tournamentID) { return (signed char)tm.fBestPlacement[tournamentID]; }
+
+static inline int Tier_TournOffset(tTierInfo &tier) { return tier.fTournOffset; }
+
 #endif

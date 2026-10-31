@@ -60,8 +60,7 @@ void MoveAngleWind(Souffle_tISouffle *is)
   is->angle = is->angle + is->aspeed;
 
   if (is->aspeed < -8) { is->aspeed = is->aspeed + 1; return; }
-  if (8 < is->aspeed) is->aspeed = is->aspeed + -1; return;
-}
+  if (8 < is->aspeed) is->aspeed = is->aspeed + -1; return; }
 
 /* ---- Souffle_Add__FP8coorddefiT0iii  [SOUFFLE.CPP:76-165]
  * Native SYM locals/scopes exact; retail SLD line map still open. ---- */
@@ -69,31 +68,29 @@ Souffle_tISouffle *
 Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int colour)
 
 {
-  int inserti;
+  int inserti; inserti = 0;
 
-  inserti = 0;
+
   if (gCISouffle == 0x3c) {
     int i;
     int maxc;
     i = 1;
     maxc = gISouffle[0].cycle;
     while (i < gCISouffle) {
+
+
       if (gISouffle[i].cycle < maxc) {
+
         inserti = i;
         maxc = gISouffle[i].cycle;
       }
       i++;
     }
+  } else { inserti = gCISouffle; gCISouffle = gCISouffle + 1;
   }
-  else {
-    inserti = gCISouffle;
-    gCISouffle = gCISouffle + 1;
-  }
-
   {
     coorddef vempty;
-    Souffle_tISouffle *is;
-    is = gISouffle + inserti;
+    Souffle_tISouffle *is; is = gISouffle + inserti;
     is->source = *soufflept;
     is->cycle = 0;
     is->type = type;
@@ -102,6 +99,7 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
     is->colour = colour;
 
     if (vec == (coorddef *)0x0) {
+
       vec = &vempty;
       vempty.x = 0;
       vempty.y = 0;
@@ -113,15 +111,25 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
     case 2:
     case 3:
     case 6:
+
+
+
+
+
+
       GetGustWind(is);
       is->wind = 1;
       GetAngleWind(is);
+
       break;
 
     case 4:
     case 8:
     case 10:
     case 12:
+
+
+
       is->rndpixmap = velVX;
       /* fall through */
     case 7:
@@ -130,15 +138,24 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
     case 13:
     case 14:
     case 0x101:
+
+
+
+
+
+
       is->motion.x = vec->x >> 5;
       is->motion.y = vec->y >> 6;
       is->motion.z = vec->z >> 5;
+
       is->wind = 0;
+
       GetAngleWind(is);
       break;
     }
 
     Sfx_Add(is);
+
     return is;
   }
 }
@@ -150,151 +167,135 @@ void Souffle_DoSouffle(void)
   coorddef w;
   int i;
   
+
   if (0 < SOUFFLE_GAME_TICKS - gTMoveSouffle) {
+
     gTMoveSouffle = SOUFFLE_GAME_TICKS;
+
     if (gCISouffle != 0) {
+
       gWindDir = gWindDir + 2;
+
       w.x = fixedmult(fastintcos(gWindDir),0xccc);
       w.z = fixedmult(fastintsin(gWindDir),0xccc);
       w.y = 0;
     }
+
     for (i = 0; i < gCISouffle; i++) {
+
+
       Souffle_tISouffle *is = gISouffle + i;
+
       coorddef motion = is->motion;
+
       if (is->wind != '\0') {
+
         motion.x = motion.x + w.x;
         motion.y = motion.y + w.y;
         motion.z = motion.z + w.z;
       }
+
       if (Replay_ReplayMode == 2) {
+
         int speed = 2 - SOUFFLE_REPLAY_SPEED;
-        if (0 < speed) {
-          motion.x = motion.x >> speed;
-          motion.y = motion.y >> speed;
-          motion.z = motion.z >> speed;
-        }
-        if (speed < 0) {
-          motion.x = motion.x << 1;
-          motion.y = motion.y << 1;
-          motion.z = motion.z << 1;
+
+        if (0 < speed) { motion.x = motion.x >> speed; motion.y = motion.y >> speed; motion.z = motion.z >> speed;
+        } if (speed < 0) { motion.x = motion.x << 1; motion.y = motion.y << 1; motion.z = motion.z << 1;
         }
       }
       (is->source).x = (is->source).x + motion.x;
       (is->source).y = (is->source).y + motion.y;
       (is->source).z = (is->source).z + motion.z;
-      if ((is->motion).x < 0) {
-        (is->motion).x = (is->motion).x + 0xa3d;
-        if (0 < (is->motion).x) {
-          (is->motion).x = 0;
+
+
+      if ((is->motion).x < 0) { (is->motion).x = (is->motion).x + 0xa3d; if (0 < (is->motion).x) { (is->motion).x = 0;
+        } } else if (0 < (is->motion).x) { (is->motion).x = (is->motion).x + -0xa3d; if ((is->motion).x < 0) { (is->motion).x = 0;
+        } } if ((is->motion).z < 0) { (is->motion).z = (is->motion).z + 0xa3d; if (0 < (is->motion).z) { (is->motion).z = 0;
+        } } else if (0 < (is->motion).z) { (is->motion).z = (is->motion).z + -0xa3d; if ((is->motion).z < 0) { (is->motion).z = 0;
         }
-      }
-      else if (0 < (is->motion).x) {
-        (is->motion).x = (is->motion).x + -0xa3d;
-        if ((is->motion).x < 0) {
-          (is->motion).x = 0;
-        }
-      }
-      if ((is->motion).z < 0) {
-        (is->motion).z = (is->motion).z + 0xa3d;
-        if (0 < (is->motion).z) {
-          (is->motion).z = 0;
-        }
-      }
-      else if (0 < (is->motion).z) {
-        (is->motion).z = (is->motion).z + -0xa3d;
-        if ((is->motion).z < 0) {
-          (is->motion).z = 0;
-        }
-      }
-      if (is->type == '\r') {
+      } if (is->type == '\r') {
+
         coorddef extramotion = is->extramotion;
+
         int wave = fastintsin(is->angle);
+
         if (Replay_ReplayMode == 2) {
+
           int speed = 2 - SOUFFLE_REPLAY_SPEED;
-          if (0 < speed) {
-            extramotion.x = extramotion.x >> speed;
-            extramotion.y = extramotion.y >> speed;
-            extramotion.z = extramotion.z >> speed;
-          }
-          if (speed < 0) {
-            extramotion.x = extramotion.x << 1;
-            extramotion.y = extramotion.y << 1;
-            extramotion.z = extramotion.z << 1;
+
+          if (0 < speed) { extramotion.x = extramotion.x >> speed; extramotion.y = extramotion.y >> speed; extramotion.z = extramotion.z >> speed;
+          } if (speed < 0) { extramotion.x = extramotion.x << 1; extramotion.y = extramotion.y << 1; extramotion.z = extramotion.z << 1;
           }
         }
         (is->source).x = (is->source).x + (extramotion.x * wave >> 0x11);
         (is->source).z = (is->source).z + (extramotion.z * wave >> 0x11);
-        if ((is->extramotion).x < 0) {
-          (is->extramotion).x = (is->extramotion).x + 0x147;
-          if (0 < (is->extramotion).x) {
-            (is->extramotion).x = 0;
+
+        if ((is->extramotion).x < 0) { (is->extramotion).x = (is->extramotion).x + 0x147; if (0 < (is->extramotion).x) { (is->extramotion).x = 0;
+          } } else if (0 < (is->extramotion).x) { (is->extramotion).x = (is->extramotion).x + -0x147; if ((is->extramotion).x < 0) { (is->extramotion).x = 0;
+          } } if ((is->extramotion).z < 0) { (is->extramotion).z = (is->extramotion).z + 0x147; if (0 < (is->extramotion).z) { (is->extramotion).z = 0;
+          } } else if (0 < (is->extramotion).z) { (is->extramotion).z = (is->extramotion).z + -0x147; if ((is->extramotion).z < 0) { (is->extramotion).z = 0;
           }
-        }
-        else if (0 < (is->extramotion).x) {
-          (is->extramotion).x = (is->extramotion).x + -0x147;
-          if ((is->extramotion).x < 0) {
-            (is->extramotion).x = 0;
-          }
-        }
-        if ((is->extramotion).z < 0) {
-          (is->extramotion).z = (is->extramotion).z + 0x147;
-          if (0 < (is->extramotion).z) {
-            (is->extramotion).z = 0;
-          }
-        }
-        else if (0 < (is->extramotion).z) {
-          (is->extramotion).z = (is->extramotion).z + -0x147;
-          if ((is->extramotion).z < 0) {
-            (is->extramotion).z = 0;
-          }
-        }
-        if ((is->source).y <= is->ground) {
-          is->type = '\0';
-        }
-        else {
-          (is->motion).y = (is->motion).y + -0x147;
+        } if ((is->source).y <= is->ground) { is->type = '\0';
+        } else { (is->motion).y = (is->motion).y + -0x147;
         }
       }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       MoveAngleWind(is);
+
       if (--is->cycle == '\0') {
+
         is->type = '\0';
-      }
-    }
+      } }
+
     for (i = 0; i < gCISouffle; i++) {
+
       if (gISouffle[i].type == '\0') {
+
         gISouffle[i] = gISouffle[gCISouffle - 1];
-        i--;
-        gCISouffle--;
+        i--; gCISouffle--;
       }
-    }
-  }
-  return;
-}
+
+    } } return; }
 
 /* ---- Souffle_CircleClip__FP8coorddefT0i  [SOUFFLE.CPP:308-316]
  * Native SYM locals/scopes exact; compact retail SLD line map still open. ---- */
 int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 
 {
-  int dx;
-  int dz;
-
-  dx = pt1->x - pt2->x;
-  if (dx < 1) {
-    dx = pt2->x - pt1->x;
-  }
-  dz = pt1->z - pt2->z;
-  if (dz < 1) {
-    dz = pt2->z - pt1->z;
+  int dx; int dz; dx = pt1->x - pt2->x; if (dx < 1) { dx = pt2->x - pt1->x;
+  } dz = pt1->z - pt2->z; if (dz < 1) { dz = pt2->z - pt1->z;
   }
   {
-    int dist;
-    if (dz < dx) {
-      dist = dx + (dz >> 2);
+    int dist; if (dz < dx) { dist = dx + (dz >> 2); } else { dist = dz + (dx >> 2);
     }
-    else {
-      dist = dz + (dx >> 2);
-    }
+
     return (u_int)(dist < r);
   }
 }
@@ -307,27 +308,31 @@ void Souffle_InsertFacet(DRender_tView *Vi)
   int i;
 
   {
-    i = 0;
-    do {
-      if (gCISouffle <= i) {
+
+    i = 0; do { if (gCISouffle <= i) {
         return;
-      }
-      Souffle_tISouffle *is = gISouffle + i;
+      } Souffle_tISouffle *is = gISouffle + i;
+
       if (Souffle_CircleClip(&is->source,&Vi->cview.translation,0x320000)) {
+
+
         if (is->type != '\n') {
+
           Sfx_Transform(&is->source,&is->trans,&Vi->cview.translation);
           if (((int)is->trans.vz < __builtin_abs((int)is->trans.vx)) ||
               (is->type == '\0')) {
             goto SouffleInsert_iterAdvance;
           }
         }
+
+
+
+
+
         Sfx_BuildSouffleFacet(Vi,is);
       }
 SouffleInsert_iterAdvance:
-      i = i + 1;
-    } while (true);
-  }
-}
+      i = i + 1; } while (true); } }
 
 /* ---- Souffle_InitTrackSouffle__Fv  [SOUFFLE.CPP:359-367]
  * Native SYM and linked SLD exact; all 16 retail instructions preserved. ---- */
@@ -349,8 +354,14 @@ void Souffle_InitTrackSouffle(void)
 void Souffle_RestartTrackSouffle(void)
 
 {
+
+
+
+
   gTMoveSouffle = SOUFFLE_GAME_TICKS;
+
   gWindDir = 0;
+
   gCISouffle = 0;
   return;
 }

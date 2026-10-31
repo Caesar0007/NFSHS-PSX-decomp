@@ -4,8 +4,6 @@
  */
 #include "statchk.h"
 
-/* Retail statchk.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 /* MATCH (w35-a10): cc1plus expands a constant-size `memcpy` inline (movstrsi);

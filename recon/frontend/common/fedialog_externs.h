@@ -8,6 +8,7 @@ extern tfrontEnd frontEnd;
 /* Address-visible view: several retail routines schedule %hi(ticks)
    independently of the load; a scalar extern collapses it into a macro. */
 extern int ticks[];
+static inline int FE_Ticks(void) { return ticks[0]; }
 extern tGlobalMenuDefs *menuDefs;
 /* class vtables (FEDialog.obj-defined subclasses) */
 /* engine helpers (shared with FeMenuOptions) */
@@ -55,4 +56,151 @@ extern "C" {
 #include "eaclib/psx/eacpsxz/blkmov.h"
 }
 extern "C" void PAD_update(void);
+/* Draw's 8c record has no `buttonY` local.  Retail nevertheless shares this
+   expression across the two controller-button calls; this inline boundary
+   preserves that CSE without inventing a caller local.  The body is proven,
+   while the original helper/macro spelling is not recoverable. */
+static inline int DialogHelpButtonY(short item)
+{
+  return (item - 1) * 0xf + 0xf;
+}
+
+static inline void DialogHelpAnimateOpen(tDialogHelp *dialog)
+{
+  /* SLD opens an outer inline scope at 0x80019034 (retail line 140), exactly
+     where the tick is materialized, and an inner scope at 0x80019068 (line
+     146), exactly where the opening body begins.  The caller's 8c record has
+     neither `currentTicks` nor `openHeight`; keeping them inside this proven
+     inline boundary restores that scope while preserving retail allocation. */
+  long currentTicks = ticks[0];
+
+  dialog->width += 0x14;
+  dialog->height += 10;
+  if ((u_int)(currentTicks - dialog->startTicks) < 0x32) {
+    int openHeight = gHelpShapes[0x2a].height;
+
+    dialog->width =
+         gHelpShapes[0x2a].width * 2 +
+         (short)((u_int)(((int)dialog->width -
+                          (short)(gHelpShapes[0x2a].width * 2)) *
+                         (currentTicks - dialog->startTicks)) / 0x32);
+    dialog->height =
+         openHeight * 2 +
+         (short)((u_int)(((int)dialog->height -
+                          (short)(openHeight * 2)) *
+                         (currentTicks - dialog->startTicks)) / 0x32);
+  }
+}
+
+static inline void DialogHelpPositionAndClamp(tDialogHelp *dialog,
+                                              tTexture_ShapeInfo *shape)
+{
+  /* The caller's complete 8c record has no shape pointer.  Passing shape 3
+     through this zero-local inline boundary makes GCC evaluate the argument
+     before the centering expressions, reproducing retail's early base load.
+     SYM does not retain the private helper/macro spelling, only the absence of
+     a caller local; the body and resulting 359-instruction allocation are
+     byte-exact. */
+  dialog->left = (short)((screenwidth - dialog->width) / 2);
+  dialog->top = (short)((0xf0 - dialog->height) / 2);
+  if ((int)dialog->width < shape->width + 0x14) {
+    dialog->width = shape->width + 0x14;
+  }
+}
+
+/* CalculateDimensions' 8c record names only `ticks`.  This inline expression
+   keeps the retail subtraction grouping without introducing a caller local. */
+static inline int DialogMessageTickAge(int value)
+{
+  return value + -0x32;
+}
+
+static inline int DialogMessageHalfWidth(tDialogMessageString *dialog)
+{
+  /* Draw's 8c record names only `col` and `r`.  This zero-local boundary
+     preserves retail's width-before-left load order without a halfw carrier. */
+  return (int)((u_int)(u_short)dialog->width << 0x10) >> 0x11;
+}
+
+/* The zero-local 8c record and nested line-1 SLD scopes prove an inline source
+   boundary around this clamp.  Its behavior and allocation are exact; the
+   original unexported helper/macro spelling is not recoverable from SYM. */
+static inline int DialogMessageClampFade(tDialogMessageString *dialog)
+{
+  int fade = dialog->fFadeText;
+  int clamped;
+
+  if (0x80 < fade) {
+    fade = 0x80;
+  }
+  clamped = fade;
+  if (clamped < 0) {
+    clamped = 0;
+  }
+  dialog->fFadeText = clamped;
+  return clamped;
+}
+
+/* SLD opens a separate nested scope at retail line 580 (0x80019500) for this
+   animation.  Keeping it inline removes five false caller locals while
+   retaining retail's exact shared shape loads and arithmetic schedule. */
+static inline void DialogMessageAnimateOpen(tDialogMessageString *dialog, int ticks)
+{
+  int elapsed = ticks - dialog->startTicks;
+
+  if (elapsed < 0x32) {
+    int shapeWidth = gHelpShapes[0x2a].width;
+    int shapeHeight = gHelpShapes[0x2a].height;
+
+    dialog->fFullyOpen = 0;
+    dialog->width =
+         shapeWidth * 2 +
+         (short)((((int)dialog->width - (((int)shapeWidth << 0x11) >> 0x10)) * elapsed) / 0x32)
+    ;
+    dialog->height =
+         shapeHeight * 2 +
+         (short)((((int)dialog->height - (((int)shapeHeight << 0x11) >> 0x10)) *
+                  (ticks - dialog->startTicks))
+                        / 0x32);
+  }
+  else {
+    dialog->fFullyOpen = 1;
+  }
+}
+
+/* Run's 8c record has no boolean local for this predicate, while SLD opens
+   nested inline scopes at retail lines 31/32.  The private helper spelling is
+   unavailable; this boundary preserves the proven materialized-bool shape. */
+static inline bool DialogCanProcessCircle(tFEApplication *app, tPlayer player)
+{
+  return app->helpPopup.currentlyOn == 0 &&
+         app->CurrentMenu(player) != (tMenu *)0x0;
+}
+
+/* Draw's retail load selects state 1/2 and then addresses the row-8 palette
+   state subarray.  SLD retains no caller temporary for that selection; the
+   exact private helper spelling is not recoverable. */
+static inline int DialogYesNoTextState(tDialogYesNo *dialog, int item)
+{
+  if (item == dialog->ReturnValue) {
+    return 1;
+  }
+  return 2;
+}
+
+static inline char *DialogTextDefinitionsBase()
+{
+  /* Keeping the array's unoffset base in its own zero-local inline boundary
+     reproduces retail's indexed `lbu +51`; folding the row offset into the
+     returned address is byte-different. */
+  return (char *)textDefinitions;
+}
+
+static inline int DialogYesNoOpenElapsed(tDialogYesNo *dialog)
+{
+  /* CalculateDimensions' 8c record has no elapsed local.  Repeating this
+     zero-local accessor lets GCC share the quantity exactly as retail does. */
+  return ticks[0] - dialog->startTicks;
+}
+
 #endif

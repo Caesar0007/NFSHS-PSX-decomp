@@ -118,56 +118,15 @@ int Weather_GetNumParticles(int player)
 void Weather_SetMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
-
   {
-    int r0;
-    int r1;
-    int r2;
+    int r0; int r1; int r2; r0 = m->m[0]; r1 = m->m[3]; r2 = m->m[6]; r0 = r0 >> 4; r1 = r1 >> 4; r2 = r2 >> 4; mpsx.m[0][0] = (short)r0; mpsx.m[0][1] = (short)r1; mpsx.m[0][2] = (short)r2;
+  } { int r0; int r1; int r2; r0 = m->m[1]; r1 = m->m[4]; r2 = m->m[7]; r0 = r0 >> 4; r1 = r1 >> 4; r2 = r2 >> 4; mpsx.m[1][0] = (short)r0; mpsx.m[1][1] = (short)r1; mpsx.m[1][2] = (short)r2;
+  } { int r0; int r1; int r2; r0 = m->m[2]; r1 = m->m[5]; r2 = m->m[8]; r0 = r0 >> 4; r1 = r1 >> 4; r2 = r2 >> 4; mpsx.m[2][0] = (short)r0; mpsx.m[2][1] = (short)r1; mpsx.m[2][2] = (short)r2;
 
-    r0 = m->m[0];
-    r1 = m->m[3];
-    r2 = m->m[6];
-    r0 = r0 >> 4;
-    r1 = r1 >> 4;
-    r2 = r2 >> 4;
-    mpsx.m[0][0] = (short)r0;
-    mpsx.m[0][1] = (short)r1;
-    mpsx.m[0][2] = (short)r2;
-  }
-  {
-    int r0;
-    int r1;
-    int r2;
-
-    r0 = m->m[1];
-    r1 = m->m[4];
-    r2 = m->m[7];
-    r0 = r0 >> 4;
-    r1 = r1 >> 4;
-    r2 = r2 >> 4;
-    mpsx.m[1][0] = (short)r0;
-    mpsx.m[1][1] = (short)r1;
-    mpsx.m[1][2] = (short)r2;
-  }
-  {
-    int r0;
-    int r1;
-    int r2;
-
-    r0 = m->m[2];
-    r1 = m->m[5];
-    r2 = m->m[8];
     mpsx.t[0] = 0;
     mpsx.t[1] = 0;
     mpsx.t[2] = 0;
-    r0 = r0 >> 4;
-    r1 = r1 >> 4;
-    r2 = r2 >> 4;
-    mpsx.m[2][0] = (short)r0;
-    mpsx.m[2][1] = (short)r1;
-    mpsx.m[2][2] = (short)r2;
-  }
-  gte_SetRotMatrix(&mpsx);
+  } gte_SetRotMatrix(&mpsx);
   gte_SetTransMatrix(&mpsx);
 }
 
@@ -199,12 +158,11 @@ void Weather_InitSnow(void)
   Weather_gSys.length = 0x500;
   Weather_gSys.bottom = -0x140;
   Weather_gSys.top = 0x3c0;
-  Weather_gSys.velocity.vy = -0x12;
   Weather_gSys.height = 0x500;
   Weather_gSys.velocity.vx = 0;
+  Weather_gSys.velocity.vy = -0x12;
   Weather_gSys.velocity.vz = 0;
-  Weather_gSys.hdist = 0xa0;
-  return;
+  Weather_gSys.hdist = 0xa0; return;
 }
 
 /* ---- Weather_InitRain__Fv  [WEATHER.CPP:166-178] SLD-VERIFIED ---- */
@@ -217,13 +175,12 @@ void Weather_InitRain(void)
   Weather_gSys.zfar = 0xa00;
   Weather_gSys.length = 0x880;
   Weather_gSys.bottom = -0x140;
-  Weather_gSys.height = 0x580;
-  Weather_gSys.velocity.vy = -0x68;
   Weather_gSys.top = 0x440;
+  Weather_gSys.height = 0x580;
   Weather_gSys.velocity.vx = 0;
+  Weather_gSys.velocity.vy = -0x68;
   Weather_gSys.velocity.vz = 0;
-  Weather_gSys.hdist = 0xa0;
-  return;
+  Weather_gSys.hdist = 0xa0; return;
 }
 
 /* SOURCE REVIEW (2026-10-13): actual for initialization owns i/setup values;
@@ -290,19 +247,19 @@ void Weather_ChangeDensityState(void)
   int statechange;
 
   statechange = Weather_GetNewState();
+
   if (Weather_gDensityGoalState + statechange >= 4) {
     statechange = -1;
-  }
-  else if (Weather_gDensityGoalState + statechange < 0) {
+  } else if (Weather_gDensityGoalState + statechange < 0) {
     statechange = 1;
   }
-  Weather_gDensityChangeFactor = statechange;
   Weather_gDensityGoalState = Weather_gDensityGoalState + statechange;
+
+
+  Weather_gDensityChangeFactor = statechange;
+
   if (statechange == 0) {
-    Weather_gDensityTimerGoal = simGlobal.gameTicks + 0x400;
-  }
-  return;
-}
+    Weather_gDensityTimerGoal = simGlobal.gameTicks + 0x400; } return; }
 
 /* ---- Weather_ChangeIntensityState__Fv  [WEATHER.CPP:273-292] SLD-VERIFIED ----
  * Same held-register-temp fix as Weather_ChangeDensityState: keep Weather_GetNewState()'s result
@@ -312,20 +269,23 @@ void Weather_ChangeIntensityState(void)
 {
   int statechange;
 
+
+
+
   statechange = Weather_GetNewState();
+
   if (Weather_gTrackIntensityLimit < Weather_gIntensityGoalState + statechange) {
     statechange = -1;
-  }
-  else if (Weather_gIntensityGoalState + statechange < 0) {
+  } else if (Weather_gIntensityGoalState + statechange < 0) {
     statechange = 1;
   }
-  Weather_gIntensityChangeFactor = statechange;
   Weather_gIntensityGoalState = Weather_gIntensityGoalState + statechange;
+
+
+  Weather_gIntensityChangeFactor = statechange;
+
   if (statechange == 0) {
-    Weather_gIntensityTimerGoal = simGlobal.gameTicks + 0x400;
-  }
-  return;
-}
+    Weather_gIntensityTimerGoal = simGlobal.gameTicks + 0x400; } return; }
 
 /* ---- Weather_ChangeDensityBasedOnTime__Fv  [WEATHER.CPP:296-319] SLD-VERIFIED ---- */
   /* MATCH (W83-A7, brdist word #5 cured): natural if/else-if/else with the
@@ -409,30 +369,35 @@ void Weather_InitStateControls(void)
   int track;
 
   track = GameSetup_gData.track;
+
   Weather_gTrackIntensityLimit = Weather_gTrackIntensityLimitTbl[track];
   if ((track == 0) || (track == 4)) {
+
     Weather_gSnowTrack = 1;
     Weather_gIntensityGoalState = 3;
   }
   else {
+
     Weather_gSnowTrack = 0;
     Weather_gIntensityGoalState = 0;
   }
+
   Weather_gSys.velocity.vy = (short)Weather_gIntensityTbl[Weather_gIntensityGoalState];
+
   if (Weather_gIntensityGoalState == 3) {
     Weather_gType = 0;
   }
-  else {
-    Weather_gType = 1;
-  }
-  Weather_gDensityGoalState = 3;
-  Weather_gIntensityChangeFactor = 0;
-  Weather_gDensityChangeFactor = 0;
+  else { Weather_gType = 1;
+  } Weather_gIntensityChangeFactor = 0;
   Weather_gIntensityTimerGoal = simGlobal.gameTicks + 0x400;
+
+  Weather_gDensityGoalState = 3;
   Weather_gSys.num[0] = Weather_gDensityTbl[3];
+  Weather_gDensityChangeFactor = 0;
   Weather_gDensityTimerGoal = simGlobal.gameTicks + 0x400;
-  timechange = simGlobal.gameTicks;
-  return;
+
+
+  timechange = simGlobal.gameTicks; return;
 }
 
 /* SOURCE REVIEW (2026-10-13): i belongs to the active-weather body,not root.
@@ -450,22 +415,17 @@ void Weather_InitStateControls(void)
 void Weather_Restart(void)
 
 {
-  
   if (GameSetup_gData.Weather != 0) {
     int i;
+
     if (GameSetup_gData.commMode != 1) {
       Weather_InitStateControls();
     }
+    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks; WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
+
+
     i = 0;
-    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
-    WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
-    do {
-      Weather_gWasDrawn[i] = '\0';
-      i = i + 1;
-    } while (i < 0x98);
-  }
-  return;
-}
+    do { Weather_gWasDrawn[i] = '\0'; i = i + 1; } while (i < 0x98); } return; }
 
 /* SOURCE REVIEW (2026-10-13): active-weather body owns i at depth3; actual
  * particle-initialization phase owns sv at depth4,ending before the clear
@@ -498,65 +458,8 @@ void Weather_Restart(void)
  * variable-index sites (Weather_DoWeather's `[player]`), writing both at every
  * mutation.  SYM block locals for this fn: i $s0 (block @line 7), sv $s2 (PTR SVECTOR,
  * block @line 62). */
-void Weather_Init(void)
-
-{
-  
-  /* P878: use the initialized SYM CWeatherSpec pointer consistently for all
-     type reads. This emits retail's shared HI base and second LO type load
-     without the former per-function -fforce-addr intervention: PASS211 with
-     an exact debug twin, whole weather.cpp 25/25 and branch distances exact.
-     The complete source-only object equals the old mixed-flag object.
-     Whole-TU -fforce-addr still regresses three neighbors; no flag is needed
-     for this ordinary pointer-access source shape. */
-  /* MATCH (2026-09-04, strict source-only): canonical `camera_info` member
-   * copies let CSE retain one Camera_gInfo base with +8/+48 MEM offsets.  The
-   * earlier raw-offset spelling needed an invented cameraWords cursor to get
-   * the same shape; the exact aggregate declaration removes that carrier and
-   * remains PASS 211/211. */
-  Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
-  if (GameSetup_gData.Weather != 0) {
-    int i;
-    Weather_gType = Weather_gTrackSpec->type;
-    if (Weather_gTrackSpec->type == 1) {
-      Weather_InitRain();
-    }
-    else if (Weather_gTrackSpec->type == 0) {
-      Weather_InitSnow();
-    }
-    if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {
-      Weather_gSplatInfo = reservememadr("raindrop",0xa8,0);
-    }
-    if (Weather_gPos == (SVECTOR *)0x0) {
-      Weather_gPos = reservememadr("weather1",0x4c0,0);
-    }
-    if (Weather_gPrevPos == (DVECTOR *)0x0) {
-      Weather_gPrevPos = reservememadr("weather2",0x260,0);
-    }
-    if (Weather_gWasDrawn == (char *)0x0) {
-      Weather_gWasDrawn = reservememadr("weather3",0x98,0);
-    }
-    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
-    WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
-    Weather_gPServer[0] = Weather_gPos;
-    Weather_gPrevPServer[0] = Weather_gPrevPos;
-    Weather_gDrawnServer[0] = Weather_gWasDrawn;
-    Weather_gSplatInfoServer[0] = Weather_gSplatInfo;
-    if (GameSetup_gData.commMode == 1) {
-      Weather_gPServer[1] = Weather_gPos + 0x4c;
-      Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;
-      Weather_gDrawnServer[1] = Weather_gWasDrawn + 0x4c;
-      Weather_gSys.num[0] = 0x4c;
-      Weather_gSys.num[1] = 0x4c;
-      Weather_gSplatInfoServer[1] = Weather_gSplatInfo + 9;
-    }
-    /* MATCH (w39-a6): these four are plain STRUCT ASSIGNMENTS, not the hand-unrolled
-     * copy loops Ghidra printed.  The oracle emits gcc's own movstrsi expansion:
-     * coorddef (12B) -> straight-line 3x lw + 3x sw; matrixtdef (36B) -> a 4-word/iter
-     * loop with an end-pointer `bne` + a 1-word tail (methodology 3.25 3d(a)).  Note the
-     * second copy of each pair READS BACK the destination just written (prevCamPos[1],
-     * prevCamMat[0]) -- the oracle's `lw t2,12(v1)` / `addu v1,a3,zero` prove the source
-     * is the freshly-stored copy, not a second read of Camera_gInfo. */
+    /* One source cursor serves both aggregate reads; retail materializes
+       Camera_gInfo once and keeps the member offsets on the MEM operands. */
     /* MATCH (w39-a6): TWO separate base locals.  The oracle carries an extra
      * `addu t1,a3,zero` copy of &prevCamMat that is used ONLY as the second copy's
      * destination base (`addiu a0,t1,36`) -- the cse.c double-evaluation shape
@@ -564,33 +467,110 @@ void Weather_Init(void)
      * a register COPY).  One shared local is 1 insn short and shifts the whole
      * movstrsi scratch pool down a register (t1-t4 vs the oracle's t2-t5): 85 diffs.
      * Two locals => 211/211 count-exact and the entire block byte-matches (12 diffs). */
-    /* One source cursor serves both aggregate reads; retail materializes
-       Camera_gInfo once and keeps the member offsets on the MEM operands. */
-    prevCamPos[1] = Camera_gInfo[0].position;
-    prevCamPos[0] = prevCamPos[1];
+    /* MATCH (w39-a6): these four are plain STRUCT ASSIGNMENTS, not the hand-unrolled
+     * copy loops Ghidra printed.  The oracle emits gcc's own movstrsi expansion:
+     * coorddef (12B) -> straight-line 3x lw + 3x sw; matrixtdef (36B) -> a 4-word/iter
+     * loop with an end-pointer `bne` + a 1-word tail (methodology 3.25 3d(a)).  Note the
+     * second copy of each pair READS BACK the destination just written (prevCamPos[1],
+     * prevCamMat[0]) -- the oracle's `lw t2,12(v1)` / `addu v1,a3,zero` prove the source
+     * is the freshly-stored copy, not a second read of Camera_gInfo. */
+  /* MATCH (2026-09-04, strict source-only): canonical `camera_info` member
+   * copies let CSE retain one Camera_gInfo base with +8/+48 MEM offsets.  The
+   * earlier raw-offset spelling needed an invented cameraWords cursor to get
+   * the same shape; the exact aggregate declaration removes that carrier and
+   * remains PASS 211/211. */
+  /* P878: use the initialized SYM CWeatherSpec pointer consistently for all
+     type reads. This emits retail's shared HI base and second LO type load
+     without the former per-function -fforce-addr intervention: PASS211 with
+     an exact debug twin, whole weather.cpp 25/25 and branch distances exact.
+     The complete source-only object equals the old mixed-flag object.
+     Whole-TU -fforce-addr still regresses three neighbors; no flag is needed
+     for this ordinary pointer-access source shape. */
+void Weather_Init(void)
+
+{
+  Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
+
+
+  if (GameSetup_gData.Weather != 0) {
+    int i;
+
+
+
+
+
+    Weather_gType = Weather_gTrackSpec->type;
+    if (Weather_gTrackSpec->type == 1) {
+      Weather_InitRain();
+    } else if (Weather_gTrackSpec->type == 0) {
+      Weather_InitSnow();
+    }
+
+
+
+
+
+
+
+
+    if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {
+      Weather_gSplatInfo = reservememadr("raindrop",0xa8,0);
+    } if (Weather_gPos == (SVECTOR *)0x0) {
+      Weather_gPos = reservememadr("weather1",0x4c0,0);
+    } if (Weather_gPrevPos == (DVECTOR *)0x0) {
+      Weather_gPrevPos = reservememadr("weather2",0x260,0);
+    } if (Weather_gWasDrawn == (char *)0x0) {
+      Weather_gWasDrawn = reservememadr("weather3",0x98,0);
+    }
+
+
+
+
+
+
+
+
+    Weather_gPServer[0] = Weather_gPos;
+    Weather_gPrevPServer[0] = Weather_gPrevPos;
+    Weather_gDrawnServer[0] = Weather_gWasDrawn;
+    Weather_gSplatInfoServer[0] = Weather_gSplatInfo;
+
+    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks; WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
+
+    if (GameSetup_gData.commMode == 1) {
+
+      Weather_gPServer[1] = Weather_gPos + 0x4c;
+      Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;
+      Weather_gDrawnServer[1] = Weather_gWasDrawn + 0x4c;
+
+      Weather_gSys.num[0] = 0x4c;
+      Weather_gSys.num[1] = 0x4c;
+      Weather_gSplatInfoServer[1] = Weather_gSplatInfo + 9;
+    }
+
+    prevCamPos[1] = Camera_gInfo[0].position; prevCamPos[0] = prevCamPos[1];
     prevCamMat[1] = prevCamMat[0] = Camera_gInfo[0].rotation;
     {
     SVECTOR *sv;
+
+
+
     sv = Weather_gPos;
-    i = 0x97;
-    do {
+    i = 0x97; do {
       i = i + -1;
       sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
       sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);
       sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);
-      sv = sv + 1;
-    } while (i != -1);
+      sv = sv + 1; } while (i != -1);
     }
+
+
+
     i = 0;
-    do {
-      Weather_gWasDrawn[i] = '\0';
-      i = i + 1;
-    } while (i < 0x98);
+    do { Weather_gWasDrawn[i] = '\0'; i = i + 1; } while (i < 0x98);
+
     gCurrentNumSplats = 0;
-    Weather_InitSplats();
-  }
-  return;
-}
+    Weather_InitSplats(); } return; }
 
 /* ---- Weather_DeInit__Fv  [WEATHER.CPP:501-527] SLD-VERIFIED ---- */
 void Weather_DeInit(void)
@@ -715,25 +695,27 @@ short Weather_CheckAndResetParticles(SVECTOR *pt)
 
 {
   short flag;
-  
   flag = 0;
   if ((int)pt->vx > (int)Weather_gSys.width) {
+
+
     pt->vx = (short)(-Weather_gSys.width + 0x40);
     pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
-    pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
-    flag = 1;
+    pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length); flag = 1;
   }
   else if ((int)pt->vx < -(int)Weather_gSys.width) {
+
+    flag = 2;
     pt->vx = Weather_gSys.width + -0x40;
     pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
     pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
-    flag = 2;
   }
   if (pt->vz > Weather_gSys.zfar) {
+
+
     pt->vz = Weather_gSys.znear + 0x40;
     pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
-    flag = 3;
+    pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height); flag = 3;
   }
   else if ((int)pt->vz < (int)Weather_gSys.znear) {
     flag = 4;
@@ -743,16 +725,18 @@ short Weather_CheckAndResetParticles(SVECTOR *pt)
     pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
   }
   if (pt->vy > Weather_gSys.top) {
+
+
     pt->vy = Weather_gSys.bottom + 0x40;
     pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
-    flag = 5;
+    pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length); flag = 5;
   }
   else if ((int)pt->vy < (int)Weather_gSys.bottom) {
+
+    flag = 6;
     pt->vy = Weather_gSys.top + -0x40;
     pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
-    flag = 6;
   }
   return flag;
 }
@@ -1235,58 +1219,30 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
  * original tuples/homes/order and four scope markers agree after filtering
  * only sh; native CLEAN/full SLD/literal original spelling not claimed.
  */
+/* CAMIN 2026-10-31: retail statement lines (SLD) restored -- vx/vy declaration
+ * initialisers, the packet macro on one line, splatTick shifted in its own
+ * statement and the colour recomputing (gameTicks - startTick); this removes
+ * the old `sh` carrier and both W85 splits' need, bytes 74/74 PASS, tags 0/74,
+ * blocks exact. */
 void Weather_CreateSplat
                (Weather_tSplatInfo *splat)
 
 {
-  short vx;
-  short vy;
-  POLY_FT4 *prim;
-  int size;
-  int splatTick;
 
-  prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
-  vx = (splat->pos).vx;
-  vy = (splat->pos).vy;
-  addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
-  RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
-  /* MATCH: the palette write-back BEFORE the cursor bump.  With the bump 2nd (the
-   * Ghidra order) gcc issues `addiu/sw` ahead of the tag store (64 diffs); with it
-   * 3rd the scheduler interleaves it into the palette merge exactly like retail. */
-  /* w46-a9 (6 -> PASS).  Three cooperating dials, all zero-instruction:
-   *  (1) SPLIT the cursor bump into a value statement (`next`) and its store, and
-   *      put the store INSIDE the palette RMW -- retail's `sw $v1,0($a3)` issues
-   *      between the addr24 mask and the palette merge, which no placement of a
-   *      fused `PTR = prim + 0x28;` statement can reach.
-   *  (2) SPLIT the palette read-modify-write itself (`palw` read, then the write)
-   *      -- the read must issue before the addr24 mask, exactly as the oracle's
-   *      `lw $v0,0($a1) / and $a0,$t0,$a0` pair shows (w43 SPLIT-RMW row).
-   *  (3) a zero-operand USE fence after the `next` value statement pinned the
-   *      `addiu $v1,$t0,0x28` into the tag merge instead of letting it sink.
-   * ---- W85-S4 DEVICE PURITY: dial (3) is RETIRED.  Removing the fence leaves the
-   * function and the whole TU at 25/25 PASS -- the two SPLITS (1)+(2) already pin
-   * the addiu; the fence was redundant scaffolding from the pre-split basin. */
-  ((P_TAG *)prim)->len = 9;
-  prim->code = 0x2e;
-  size = 0x12;
-  if (((splat->pos).vx & 1U) != 0) {
-    size = 0xc;
-  }
-  splatTick = simGlobal.gameTicks - splat->startTick;
-  /* w46-a9: retail issues `li $v0,-128 / subu $v0,$v0,$a0` BEFORE `sra $v1,$v1,3`
-   * (both are ready right after the `sll`, a sched2 ready-list tie).  Naming the
-   * colour value and fencing the shift behind it wins the tie at 0 insns; a bare
-   * fence between the two ORIGINAL statements over-shoots (sra sinks too far).
-   * ---- W85-S4 DEVICE PURITY (fence RETIRED, PASS held): the tie is won by a
-   * SECOND named value carrier instead.  Spelling the shift as its own temp `sh`
-   * DECLARED AFTER `col` puts the subu's pseudo ahead of the sra's in the RTL
-   * stream, so sched2's ready-list tie breaks retail's way at zero instructions.
-   * Re-measured from this basin with the fence gone: this form PASS; store-before-
-   * shift with no temp 2; `(u_char)(-0x80 - splatTick*4)` inline + shift after 2. */
-  prim->r0 = prim->g0 = prim->b0 = (u_char)(-0x80 - splatTick * 4);
-  int sh = splatTick >> 3; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct shift still2diff/74,not original-object proof. */
-  splatTick = sh;
+  short vx = (splat->pos).vx;
+  short vy = (splat->pos).vy;
+  POLY_FT4 *prim; int size; int splatTick;
+  prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR; addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim); RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
+
+
+  ((P_TAG *)prim)->len = 9; prim->code = 0x2e;
+  size = 0x12; if (((splat->pos).vx & 1U) != 0) size = 0xc;
+  splatTick = (simGlobal.gameTicks - splat->startTick) >> 3;
+
   vy = vy + splatTick;
+
+  prim->r0 = prim->g0 = prim->b0 = (u_char)(-0x80 - (simGlobal.gameTicks - splat->startTick) * 4);
+
   prim->x0 = vx - splatTick;
   prim->y0 = vy - splatTick;
   prim->x1 = vx + size + splatTick;
@@ -1295,22 +1251,9 @@ void Weather_CreateSplat
   prim->y2 = vy + size + splatTick * 2;
   prim->x3 = vx + size + splatTick;
   prim->y3 = vy + size + splatTick * 2;
-  {
-    u_long l0;
-    u_long l1;
-    u_long l2;
-    u_long l3;
 
-    l0 = *(u_int *)&gWeatherPixmap[2]->u0;
-    l1 = *(u_int *)&gWeatherPixmap[2]->u1;
-    l2 = *(u_int *)&gWeatherPixmap[2]->u2;
-    l3 = *(u_int *)&gWeatherPixmap[2]->u3;
-    *(u_int *)&prim->u0 = l0;
-    *(u_int *)&prim->u1 = l1;
-    *(u_int *)&prim->u2 = l2;
-    *(u_int *)&prim->u3 = l3;
-  }
-}
+
+  { u_long l0; u_long l1; u_long l2; u_long l3; l0 = *(u_int *)&gWeatherPixmap[2]->u0; l1 = *(u_int *)&gWeatherPixmap[2]->u1; l2 = *(u_int *)&gWeatherPixmap[2]->u2; l3 = *(u_int *)&gWeatherPixmap[2]->u3; *(u_int *)&prim->u0 = l0; *(u_int *)&prim->u1 = l1; *(u_int *)&prim->u2 = l2; *(u_int *)&prim->u3 = l3; } }
 
 /* ---- Weather_DoSplats__FiP18Weather_tSplatInfo  [WEATHER.CPP:1039-1064] SLD-VERIFIED ---- */
 /* ---- w53-a5 (2026-08-09): 36 STAYS @ 111/113 (re-gated; the worklist row 96.84% is

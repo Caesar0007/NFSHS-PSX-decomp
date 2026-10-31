@@ -4,15 +4,6 @@
  */
 #include "femenudefs.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800114C8): the unused inline of the
- * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline int Tournament_CurrentTrack(tTournamentManager &tm) { return tm.fCurrentTrack; }
-static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFullyOpen ^ 1) == 0; }
-static inline tDialogYesNo *Dialog_AsYesNo(tDialogMessageString *dialog) { return (tDialogYesNo *)dialog; }
-static inline void Dialog_SetText(tDialogMessageString *dialog, char *text) { dialog->string = text; }
-static inline bool MenuItem_IsDisabled(tMenuItem &item) { return (item.fFlags & 1) != 0; }
-static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 inline tDialogMessageString *tDialogMessageString::SetString(int word)
 {
@@ -338,6 +329,11 @@ int AskTheUserToSaveTheGame(void)
     dialog->yesnowords[1] = 0x322;
     dialog->fDefault = 0;
     answer = (short)((tDialogInteractive *)dialog)->Run();
+
+
+
+
+
     return answer;
   }
   return 0;
@@ -380,8 +376,8 @@ void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &command)
 void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand &command)
 
 {
-
   if (AskTheUserToSaveTheGame() != 0) {
+
     command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuPostGameSave;
     command.type = kMenu_Command_GoToMenuOneWay;
   }
@@ -903,6 +899,7 @@ void MenuExtended_GoToRace(tMenuCommand &command)
 void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
 
 {
+
   tDialogMessageString *popUp;
   tCarInfo carInfo;
   command.type = kMenu_Command_Start2PlayerRace;
@@ -911,8 +908,11 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
     return;
   }
   if (frontEnd.carListType == '\x01') {
+
     if ((carManager.GetNumOwnedCars(0) <= 0) &&
         (frontEnd.raceType != RaceType_HotPursuit)) {
+
+
       popUp->SetString(TextSys_Word(0xaa));
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
@@ -923,10 +923,13 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
     carManager.GetStockCar(
         (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
     if (carInfo.fAvailable == '\x00') {
+
       popUp->SetString(TextSys_Word(0xf3));
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
       return;
+
+
     }
   }
   if (frontEnd.raceType == RaceType_HotPursuit) {
@@ -934,8 +937,10 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
         (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
     if (carInfo.fPursuitAvailable == '\x00') {
       popUp->SetString(TextSys_Word(0xf2));
+
       popUp->tDialogBase::Display();
       command.type = kMenu_Command_None;
+
     }
   }
 }
@@ -1124,10 +1129,6 @@ void MenuExtended_GoToDealerShowroom(tMenuCommand &command)
 
 
 
-/* car-list filter setter (retail records a variable-free inline pair on menuDefs->iteratorCar1) */
-static inline void CarIterator_SetFilter(tListIteratorCar &iterator, int filter) { iterator.fCarListFilter = filter; }
-/* menu-item state test (retail records a variable-free inline pair on menuDefs->itemSaveGame) */
-static inline int MenuItem_IsEnabled(tMenuItem &item) { return ((item.fFlags ^ 1) & 1) != 0; }
 
 /* ---- MenuExtended_SetHPSoloRace__FR12tMenuCommand  [FEMENUDEFS.CPP:764-768] ---- */
 
@@ -1548,13 +1549,23 @@ void MenuExtended_SaveGame(tMenuCommand &)
 
 void GenericMenuLoadGame(int player)
 {
-
   if (CURRENTLYUSINGMEMCARD == 0) {
+
     screenMemcard->SetMessage(0x27d);
     FEApp->Redraw();
     LoadGame((short)player,false,1);
     screenMemcard->SetMessage(-1);
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
+
+
+
+
+
+
+
+
+
+
   }
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
 }
@@ -1971,7 +1982,7 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
    garageIterator carrier still represents an unrecovered inline this scope. */
 void MenuExtended_GoToGarage(tMenuCommand &command)
 {
-  frontEnd.carListType = '';
+  frontEnd.carListType = '\x01';
   menuDefs->iteratorGarageCar.SetFilter(0x40);
   menuDefs->iteratorGarageCar.tListIteratorCar::Decrement(kPlayerBoth);
   menuDefs->iteratorGarageCar.Increment(kPlayerBoth);
@@ -2713,8 +2724,581 @@ winCase:
    including three wrong destination objects. Retail records a 640-byte frame;
    the full-debug source restoration is documented at the constructor body below. */
 
+/* SYM-INLINE-LOCAL: child = tMenu::SetChildMenu (setter spelling inferred)
+   Retail's body contains three child pairs plus thirteen receiver-free pairs.
+   Member field updates reproduce that entire body tree without pointer locals.
+   The helper spellings remain inferred, not uniquely recovered original text;
+   initializer shaping regions are removed; full debug is the retail build input. */
+/* [W82-A3] SLD-LICENSED STATEMENT ORDER.  The trusted SYM's SLD line map puts
+   ALL FOUR SetCarFilter calls and the three VertHelp stores below on ONE retail
+   source line (2200; the whole 3207-instruction constructor carries 18 SLD
+   records at just 10 distinct addresses, and everything before the body -- all
+   3129 member-init instructions -- carries only TWO).  Their source order is
+   therefore a free variable the SLD cannot constrain -- and it is the last dial:
+   GarageCar first makes cc1 materialize the shared constant 2 as the FIRST
+   instruction of the tail block (retail's `li a0,2` at oracle 3171, tagged to the
+   PREVIOUS statement's line 2172), which flips the const-2 / fFlags-load pair
+   onto retail's registers ($a0 / $v1).  Measured over all 24 permutations of the
+   four calls: 1023 (this one) = PASS, 3021 = 4, 0123 (old) = 14, worst 21. */
 tGlobalMenuDefs::tGlobalMenuDefs()
  : itemMainOnePlayerRace(0x5b, (tMenu*)&menuOnePlayer, (void (*)(tMenuCommand&))MenuExtended_SetOnePlayer, 0x1e, 10)   /* +0x0 tMenuItemGoToMenuNFS4Button */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  , itemMainTwoPlayerRace(0x5c, (tMenu*)&menuTwoPlayer, (void (*)(tMenuCommand&))MenuExtended_SetTwoPlayer, 0x28, 10)   /* +0x2C tMenuItemGoToMenuNFS4Button */
  , itemMainTrophyRoom(0x5e, (tMenu*)&menuTrophyRoomSelect, 0, 0x32, 10)   /* +0x58 tMenuItemGoToMenuNFS4Button */
  , itemMainOptions(0x5d, (tMenu*)&menuOptions, 0, 0x3c, 10)   /* +0x84 tMenuItemGoToMenuNFS4Button */
@@ -2968,11 +3552,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemMemContinue(0x28a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
  {
-  /* SYM-INLINE-LOCAL: child = tMenu::SetChildMenu (setter spelling inferred)
-     Retail's body contains three child pairs plus thirteen receiver-free pairs.
-     Member field updates reproduce that entire body tree without pointer locals.
-     The helper spellings remain inferred, not uniquely recovered original text;
-     initializer shaping regions are removed; full debug is the retail build input. */
+
   menuPlayerOneCarSelect.SetChildMenu(&menuPlayerTwoCarSelect);
   menuPlayerOneGarage.SetChildMenu(&menuPlayerTwoGarage);
   menuPlayerOnePinkSlipCarSelect.SetChildMenu(&menuPlayerTwoPinkSlipCarSelect);
@@ -2981,30 +3561,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   ((tMenuItemLeftRightSlider *)&itemEngineVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemSpeechVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemAmbientVolume)->SetDimensions(0,0,0x78,5);
-  /* [W82-A3] SLD-LICENSED STATEMENT ORDER.  The trusted SYM's SLD line map puts
-
-     ALL FOUR SetCarFilter calls and the three VertHelp stores below on ONE retail
-
-     source line (2200; the whole 3207-instruction constructor carries 18 SLD
-
-     records at just 10 distinct addresses, and everything before the body -- all
-
-     3129 member-init instructions -- carries only TWO).  Their source order is
-
-     therefore a free variable the SLD cannot constrain -- and it is the last dial:
-
-     GarageCar first makes cc1 materialize the shared constant 2 as the FIRST
-
-     instruction of the tail block (retail's `li a0,2` at oracle 3171, tagged to the
-
-     PREVIOUS statement's line 2172), which flips the const-2 / fFlags-load pair
-
-     onto retail's registers ($a0 / $v1).  Measured over all 24 permutations of the
-
-     four calls: 1023 (this one) = PASS, 3021 = 4, 0123 (old) = 14, worst 21. */
-
   iteratorGarageCar.SetFilter(2);
-
   iteratorPinkSlipsCar.SetFilter(0x20);
   iteratorDealerCar.SetFilter(1);
   iteratorSellerCar.SetFilter(2);
@@ -3012,6 +3569,9 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   menuDisplayOptions.SetVerticalHelp(0);
   menuControllerConfig.SetVerticalHelp(1);
   itemTournamentFinishedHome.SetFlags(itemTournamentFinishedHome.GetFlags() | 0x40);
+
+
+
   /* [2026-10-14] Retail's receiver-free tail inline pairs permit actual member
      updates instead of memoryMenu/userNameMenu captures. All seven VertHelp
      setters and the flag getter/setter reproduce the complete body scope tree,

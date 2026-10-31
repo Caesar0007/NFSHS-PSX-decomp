@@ -134,26 +134,30 @@ void Font_SetABR(int abr)
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
 
 {
-  /* Retail leaves the unused seventh ABI int unnamed; blitter linkage keeps it. */
-  int width;
-  int height;
-  SPRT *sprt;
-  int dv;
-
-  width = ch->width;                                                  /* SLD 129 */
+  /* Retail leaves the unused seventh ABI int unnamed; blitter linkage keeps it. */ int width; int height; SPRT *sprt; int dv; width = ch->width;                                                  /* SLD 129 */
   height = ch->height;                                                /* SLD 130 */
+
+
+
+
+
   dv = ((*(int *)((u_char *)src + 0xc) << 4) >> 0x14) + v & 0xff;     /* SLD 136 */
-  sprt = (SPRT *)Render_gPacketPtr;                                   /* SLD 137 */
-  Render_gPacketPtr = (u_char *)sprt + 0x14;
-  setaddr(sprt,getaddr(Render_gPalettePtr));
-  setaddr(Render_gPalettePtr,sprt);
+  sprt = (SPRT *)Render_gPacketPtr;                                   /* SLD 137 */ Render_gPacketPtr = (u_char *)sprt + 0x14; setaddr(sprt,getaddr(Render_gPalettePtr)); setaddr(Render_gPalettePtr,sprt);
+
+
   *((u_char *)sprt + 3) = 4;                                          /* SLD 140 */
+
+
   *(u_long *)&sprt->r0 = font_tint;                                   /* SLD 143 */
+
+
   *(int *)&sprt->x0 = y << 0x10 | x;                                  /* SLD 146 */
+
   *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | dv << 8 | u;       /* SLD 148 */
+
   *(u_int *)&sprt->w = height << 0x10 | width;                        /* SLD 150 */
-  SetSemiTrans(sprt,1);                                               /* SLD 152 */
-  return;   /* Font_Blit is void per disasm-v3 (Ghidra void-return mis-infer) */
+
+  SetSemiTrans(sprt,1);                                               /* SLD 152 */ return;   /* Font_Blit is void per disasm-v3 (Ghidra void-return mis-infer) */
 }
 /* ---- Font_ComputeColors__Fiiic  [FONT.CPP:168-255] SLD-VERIFIED ----
  * SYM (one fn-scope block, fsize 88): i $t2, r $v0, g $v1, b $a0, fr $t8, fg $t4,
@@ -191,13 +195,8 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
   int bb;
   int rgb;
   int opaque;
-  CVECTOR fclr;
-  CVECTOR bclr;
-  int fr1;
-  int fg1;
-  int fb1;
+  CVECTOR fclr; CVECTOR bclr; int fr1; int fg1; int fb1; opaque = forecolour & 0xff000000;
 
-  opaque = forecolour & 0xff000000;
   shpfontclut.type = 0x23;
   shpfontclut.next = 0;
   shpfontclut.width = 0x10;
@@ -206,22 +205,39 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
   shpfontclut.centery = 0;
   shpfontclut.shapex = (short)font_clutx;
   shpfontclut.shapey = (short)font_cluty;
+
+
   *(long *)&fclr = forecolour;
   *(long *)&bclr = backcolour;
+
   fr1 = (fclr.r * 31) / 255;
   fg1 = (fclr.g * 31) / 255;
   fb1 = (fclr.b * 31) / 255;
+
   for (i = 0; i < 16; i++) {
+
     if ((in_game != 0) && (opaque == 0)) {
+
+
+
+
       if (i < 8) {
         rgb = 0;
       }
+
+
+
+
+
+
       else if (i < 12) {
         rgb = 0x8000 | fr1 << 10 | fg1 << 5 | fb1;
       }
       else {
         rgb = fr1 << 10 | fg1 << 5 | fb1;
         if (rgb == 0) {
+
+
           rgb = 0x400;
         }
       }
@@ -230,9 +246,11 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
       fr = (fclr.r * i * 31) / 3825;
       fg = (fclr.g * i * 31) / 3825;
       fb = (fclr.b * i * 31) / 3825;
+
       br = (bclr.r * (15 - i) * 31) / 3825;
       bg = (bclr.g * (15 - i) * 31) / 3825;
       bb = (bclr.b * (15 - i) * 31) / 3825;
+
       if (i < 4) {
         rgb = 0;
       }
@@ -240,21 +258,18 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
         r = fr + br;
         g = fg + bg;
         b = fb + bb;
+
         rgb = r << 10 | g << 5 | b;
         if (colour == 0xf) {
           rgb = rgb | 0x8000;
-        }
-        if (rgb == 0) {
-          rgb = 0x400;
+        } if (rgb == 0) { rgb = 0x400;
         }
       }
-    }
-    shpfontclut.data[i] = (short)rgb;
+    } shpfontclut.data[i] = (short)rgb;
   }
   Texture_Vramf((shapetbl *)&shpfontclut,font_clutx,font_cluty,font_clutx + colour * 0x10,
                 font_cluty);
-  DrawSync(0);
-  return;
+  DrawSync(0); return;
 }
 /* ---- Font_textbsearch__FiPcUlUl  [FONT.CPP:262-280] SLD-VERIFIED ----
  * SYM (fsize 40, ra+s0-s4): key $s4, base $s2, nmemb $a2, size $s3; locals lim $s1,
@@ -268,18 +283,20 @@ Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
   int lim;
   int cmp;
   charactertbl *ch;
-
   for (lim = nmemb; lim != 0; lim >>= 1) {
+
     ch = (charactertbl *)(base + (lim >> 1) * size);
     cmp = key - geti(ch,2);
     if (cmp == 0) {
       return ch;
-    }
-    if (0 < cmp) {
+    } if (0 < cmp) {
+
+
       base = (char *)ch + size;
       lim--;
     }
   }
+
   return (charactertbl *)0x0;
 }
 /* ---- Font_Getcharacter__Fi  [FONT.CPP:286-299] SLD-VERIFIED ---- */
@@ -301,14 +318,15 @@ charactertbl * Font_Getcharacter(int targetindex)
 
 {
   charactertbl *ch;
-  char *base;
+  char *base; base = (char *)&currentfont; const u_int characterTableBase = (*(int *)(base + 132));
 
-  base = (char *)&currentfont;
-  const u_int characterTableBase = (*(int *)(base + 132));
   ch = (charactertbl *)(characterTableBase + (targetindex + -0x20) * 0xb);
+
   if (geti(ch,2) == targetindex) {
+
     return ch;
   }
+
   return Font_textbsearch(targetindex,(char *)characterTableBase,(*(int *)(base + 116)),0xb);
 }
 
@@ -438,29 +456,52 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   int i;
   int l;
 
+
   setfont(f1);
+
   shp = (shapetbl *)(*(int *)((u_char *)&(currentfont) + 136));
+
   l = ((int)shp->width * (int)shp->height) / 2;
+
+
   for (i = 0; i < l; i++) {
-    (&shp->data)[i] = ((&shp->data)[i] & 0xf) << 4 | (&shp->data)[i] >> 4;
-  }
+    (&shp->data)[i] = ((&shp->data)[i] & 0xf) << 4 | (&shp->data)[i] >> 4; }
+
   if (font_clutx == -1) {
     Texture_GetClutId(1,&font_clutx,&font_cluty);
   }
   Texture_Vramf(shp,x,y,font_clutx,font_cluty);
+
   waitdraw();
+
   shp->next = (int)&shpfontclut - (int)shp;
+
+
   for (i = 0; i < l; i++) {
-    (&shp->data)[i] = ((&shp->data)[i] & 0xf) << 4 | (&shp->data)[i] >> 4;
-  }
+    (&shp->data)[i] = ((&shp->data)[i] & 0xf) << 4 | (&shp->data)[i] >> 4; }
+
+
+
+
+
+
+
+
+
+
   for (i = 0; i < 0x10; i++) {
-    Font_ComputeColors(i,colourRGB[i],0,in_game);
-  }
+    Font_ComputeColors(i,colourRGB[i],0,in_game); }
+
   Font_ReSetBlitter();
   Font_SwitchFont(f1);
+
+
+
   resizememadr(f1,(int)((long long)(int)*(char **)(currentfont + 136) - (long long)(int)(f1 - 0x10)));
+
   Font_TextTint(0x808080);
   Font_TextColor(2);
+
   return y + shp->height;
 }
 /* ---- Font_TextXY__FPcii  [FONT.CPP:414-453] SLD-VERIFIED ----

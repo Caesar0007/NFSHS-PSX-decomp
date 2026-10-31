@@ -23,11 +23,9 @@ extern "C" int sprintf(char *, const char *, ...);
 tScreenTrophyRoom::tScreenTrophyRoom()
 
 {
-
   this->fPreviousTrophy = '\0';
   this->fRealCurrentTourn[0] = 0;
   this->fRealCurrentTourn[1] = 0;
-  return;
 }
 
 
@@ -57,6 +55,8 @@ void tScreenTrophyRoom::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
+
+
   numPermShapes = 0x26;
   numSwapShapes = 0x20;
   /* retail's tree is the function level plus one inline-call pair: no block, no `cur` local */
@@ -123,11 +123,13 @@ void tScreenTrophyRoom::PreLoad()
 
 {
   ::PreLoad((tScreen *)this);
+
+
   (this->fTrophyShapes).fShapes = (tTexture_ShapeInfo *)0x0;
   ::InitializeShapes((tScreen *)this,&this->fTrophyShapes,8);
+
   ::AsyncLoadShapeFile((tScreen *)this,
       frontEnd.tier != '\0' ? "zCase2" : "zCase",&this->fTrophyShapes);
-  return;
 }
 
 
@@ -219,7 +221,6 @@ void tScreenTrophyRoom::Initialize()
 void tScreenTrophyRoom::Cleanup()
 
 {
-  
   ::FreeShapes((tScreen *)this,&this->fTrophyShapes);
   this->tScreen::Cleanup();
   return;
@@ -332,20 +333,21 @@ void tScreenTrophyRoom::DrawBackground()
 
 
 /* ---- tScreenTrophyRoom::LoadTrophy  [SCREENTROPHYROOM.CPP:235-247 (body @240)] ---- */
+  /* MATCH: the two index terms are grouped into one x84 chain.  Direct
+     gSwapFileName arguments still keep its address in $s0 across both calls;
+     no source alias is required. */
 void tScreenTrophyRoom::LoadTrophy()
 
 {
+
+
   if (this->fRealCurrentTourn[this->tier] != (ushort)(byte)this->fPreviousTrophy) {
-    /* MATCH: the two index terms are grouped into one x84 chain.  Direct
-       gSwapFileName arguments still keep its address in $s0 across both calls;
-       no source alias is required. */
     /* the frontEnd.tier read is its OWN local so its %hi lands in the beq
        delay slot (retail's eager steal) instead of tournamentManager's. */
     GetTrophyName(&tournamentManager,TourneyInTier((byte)frontEnd.tier,(byte)this->fRealCurrentTourn[this->tier]),ts_Small,gSwapFileName,-1);
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }
-  return;
 }
 
 

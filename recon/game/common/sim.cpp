@@ -108,15 +108,16 @@ void Sim_Restart(void)
 
 {
   quitType = 1;
+  countdown = '\0';
   simVar.endSimGame = 0;
   simVar.pauseSim = 0;
   simVar.quickPauseSim = 0;
   simVar.goalClockTicks = 0;
   simVar.currentClockTicks = 0;
   simGlobal.gameStarted = 0;
-  countdown = '\0';
   simGlobal.gameTicks = 0;
   GameSetup_gData.perpArrests = 0;
+
   FastRandom_StartUp(GameSetup_gData.randSeed);
   AICop_Restart();
   AIInit_Reset1();
@@ -125,11 +126,16 @@ void Sim_Restart(void)
   Cars_Restart();
   AIHigh_Restart2();
   AIInit_Reset2();
+
   Hud_Reset();
+
+
+
+
   Render_RestartTrackRender();
+
   SimQueue_Reset();
-  simGlobal.time32Hz = Input_gTime;
-  return;
+  simGlobal.time32Hz = Input_gTime; return;
 }
 
 /* ---- Sim_CleanUp__Fv  [SIM.CPP:264-286] SLD-VERIFIED ---- */
@@ -470,161 +476,6 @@ void Sim_CheckForPause(int checkInput)
  * reuse of the earlier speed value, restoring retail's fresh `lw`, its two load-
  * delay nops, and the s4/s5 base lifetimes.  The nonvolatile form is 32@319; the
  * former A/B/C structured source is 6@319. */
-void Sim_MainGameLoop(void)
-
-{
-  int lastRealTick;
-  int lastGoalTick;
-  /* SOURCE-REVIEW-UNRESOLVED: one
-     Retail debug data retains no name for this shared constant pseudo.  The
-     measured block-local assignment below places `li s0,1` exactly; a
-     function-scope initialization moves it to the prologue and regresses by
-     two diffs. Literal comparison/store and the equivalent InBetween increment
-     are69dif/320 in the current basin. A separate source object is not proved. */
-  int one;
-  /* SOURCE-REVIEW-UNRESOLVED: replaySetup
-     Retail keeps an unnamed address value in $s5. Earlier removal was45dif,
-     four words short; current direct member reads are only3dif/320 versus321:
-     a copy to s2 replaces the late lui/addiu rematerialization. Long-long
-     address and member-base recovery tie3; initializer absorption is89dif.
-     All failed forms are reverted; no distinct source pointer is proved. */
-  GameSetup_tData *replaySetup;
-
-  quitType = 1;
-  lastRealTick = clock_realTime.time64Hz + 10000;
-  lastGoalTick = 0;
-  simGlobal.time32Hz = Input_gTime;
-  do {
-    if (simVar.endSimGame != 0) goto SimMainLoop_endGame;
-    systemtask(0);
-    {
-      int realTick;
-      int diffReal;
-      int diffGoal;
-
-      realTick = clock_realTime.time64Hz;
-      simVar.goalClockTicks = gSimQueue_Ticker * 2;
-      diffReal = realTick - lastRealTick;
-      diffGoal = simVar.goalClockTicks - lastGoalTick;
-      if (diffReal > diffGoal) {
-        simVar.goalClockTicks++;
-      }
-      lastRealTick = realTick;
-      lastGoalTick = simVar.goalClockTicks;
-    }
-    if (0x10 < Input_gTime - simGlobal.time32Hz) {
-      simGlobal.time32Hz = Input_gTime;
-    }
-    replaySetup = &GameSetup_gData;
-    /* MATCH (W57-A12, 31->11): a 1-operand READ-ONLY fence on replaySetup, placed at its
-       narrowest scope (immediately after the assignment, 06B). replaySetup is NOT in the SYM
-       8c list -- only lastRealTick (REG $0x16=$s6) and lastGoalTick (REG $0x17=$s7) are -- yet
-       the oracle DOES park &GameSetup_gData in a callee-saved reg ($s5), i.e. it is a gcc CSE
-       temp candidate, not proof against an unrecorded source local. Without the fence our band came out one slot LOW
-       (lastRealTick=$s5, lastGoalTick=$s6, replaySetup=$s7); the +1 ref DEMOTES the two SYM
-       locals past the address temp so the whole 3-way rotation lands on the SYM map. Measured
-       alternatives, all worse: dropping the local entirely (45, ours 4 insns short), fencing
-       lastRealTick/lastGoalTick instead at decl (67) or before-consumer (44). */
-    while ((simGlobal.time32Hz <= Input_gTime && (simVar.endSimGame == 0))) {
-      if ((Replay_ReplayMode == 2) && (simVar.pauseSim == 0)) {
-        Replay_GetInterfaceKey();
-        if (Replay_ReplayInterface.depressed == 4) {
-          Replay_ReplayInterface.depressed = 0;
-          simVar.endSimGame = Replay_ReplayInterface.end;
-          if (replaySetup->instantReplay != 0) {
-            AudioCmn_UnPauseAndRestart();
-          }
-          else {
-            if ((Replay_ReplayInterface.end != 0) && (simVar.quickPauseSim != 0)) {
-              simVar.quickPauseSim = 0;
-              AudioCmn_UnPauseAndQuit();
-            }
-            else if (simVar.quickPauseSim != Replay_ReplayInterface.pause) {
-              simVar.quickPauseSim = Replay_ReplayInterface.pause;
-              if (simVar.quickPauseSim != 0) {
-                Camera_Update();
-                AudioCmn_Pause();
-              }
-              else {
-                AudioCmn_UnPause();
-              }
-            }
-          }
-        }
-      }
-      if (simVar.endSimGame == 0) {
-        if (simVar.pauseSim != 0) {
-          Sim_ProcessPause();
-          simVar.keyRelease = 0x18;
-        }
-        else {
-          if (Input_Interface(0x15,1) != 0) {
-            AudioMus_SwitchSong();
-            Hud_ActivateCDPlayer = 1;
-          }
-          if (simVar.keyRelease != 0) {
-            if (Input_Interface(simVar.keyRelease,0) == 0) {
-              simVar.keyRelease = 0;
-            }
-          }
-          else {
-            int i;
-            /* SOURCE-REVIEW-UNRESOLVED: gameSetup
-               The late address materialization and priced absorption-identity ref
-               reproduce retail's $s2 web.  Direct/fused GameSetup spellings
-               were measured at 11--38 diffs in earlier basins. Current ordinary
-               input for-loop/direct-global form is242dif/319; existing replay
-               pointer form is212dif/317. No necessity/original-name claim. */
-            char *gameSetup;
-
-            i = 0;
-            /* MATCH (W59-A14, class 2a/2b): the guard reads commMode through the ALREADY-LIVE
-               replaySetup pointer, so nothing of GameSetup is materialized before it; the
-               `gameSetup` la then sits BELOW the guard and reorg fills the `bnez` delay slot
-               with its `lui %hi` exactly like retail. */
-            if (i > (int)(u_int)(replaySetup->commMode == 1))
-              goto SimMainLoop_inputDone;
-            gameSetup = (char *)&GameSetup_gData;
-SimMainLoop_inputLoop:
-              if ((Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0) &&
-                  (Replay_ReplayMode < 2)) {
-                Camera_NextMode(i);
-              }
-              if (Input_Interface(i != 0 ? 0x1d : 0x1c,1) != 0) {
-                DashHUD_ToggleHud(i);
-              }
-              *(int *)((i << 2) + (int)Input_gLookBehind) =
-                  Input_Interface(i + 0x16,0);
-              Sim_CheckForPause(1);
-              i++;
-              /* MATCH (W59-A14 class 2c; CAMIN 2026-10-04 pure C): +1 ref on gameSetup.
-                 allocsim prices it: pri 0.1578 -> 0.1842 overtakes the call-result
-                 pseudo (0.1611), restoring retail's gameSetup=$s2 / result=$s3; without
-                 it the web flips s2<->s3 (24-33 diffs).  The ref is the absorption
-                 identity `X | (X & 3)` == X on the loop-test base: combine folds it to
-                 zero bytes (was a read-only asm fence; an absorption SET instead = 114). */
-              if (i <= (int)(u_int)(*(int *)((char *)((u_int)gameSetup |
-                                                       ((u_int)gameSetup & 3)) + 0xc) == 1))
-                goto SimMainLoop_inputLoop;
-SimMainLoop_inputDone:
-              ;
-          }
-        }
-      }
-      simGlobal.time32Hz = simGlobal.time32Hz + 1;
-    }
-    skipRender = 0;
-    if (((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) && (simVar.endSimGame == 0)) {
-      if (simVar.currentClockTicks > simVar.goalClockTicks) {
-        skipRender = 1;
-      }
-      else {
-        one = 1;
-        do {
-          if ((simVar.currentClockTicks & 1U) == 0) {
-            SimQueue_SetCurrentInput(simVar.currentClockTicks >> 1);
-          }
-          InBetween = 0;
           /* NEAR-MISS 6 (ours 319 / oracle 321) -- W61-A13 2026-08-15, DIAGNOSED.
              Not a coloring or a statement-order residual: it is pure BASIC-BLOCK
              PLACEMENT of the shared Sim_ProcessSimSchedules() block.  Label the
@@ -665,6 +516,244 @@ SimMainLoop_inputDone:
              The 317 forms remain 2 SHORT of ours, confirming the receipt above:
              once B ends in a goto, gcc folds B's own call away entirely.
              The unexplored axis is therefore the LAYOUT pass, not the source. */
+              /* MATCH (W59-A14 class 2c; CAMIN 2026-10-04 pure C): +1 ref on gameSetup.
+                 allocsim prices it: pri 0.1578 -> 0.1842 overtakes the call-result
+                 pseudo (0.1611), restoring retail's gameSetup=$s2 / result=$s3; without
+                 it the web flips s2<->s3 (24-33 diffs).  The ref is the absorption
+                 identity `X | (X & 3)` == X on the loop-test base: combine folds it to
+                 zero bytes (was a read-only asm fence; an absorption SET instead = 114). */
+            /* MATCH (W59-A14, class 2a/2b): the guard reads commMode through the ALREADY-LIVE
+               replaySetup pointer, so nothing of GameSetup is materialized before it; the
+               `gameSetup` la then sits BELOW the guard and reorg fills the `bnez` delay slot
+               with its `lui %hi` exactly like retail. */
+            /* SOURCE-REVIEW-UNRESOLVED: gameSetup
+               The late address materialization and priced absorption-identity ref
+               reproduce retail's $s2 web.  Direct/fused GameSetup spellings
+               were measured at 11--38 diffs in earlier basins. Current ordinary
+               input for-loop/direct-global form is242dif/319; existing replay
+               pointer form is212dif/317. No necessity/original-name claim. */
+    /* MATCH (W57-A12, 31->11): a 1-operand READ-ONLY fence on replaySetup, placed at its
+       narrowest scope (immediately after the assignment, 06B). replaySetup is NOT in the SYM
+       8c list -- only lastRealTick (REG $0x16=$s6) and lastGoalTick (REG $0x17=$s7) are -- yet
+       the oracle DOES park &GameSetup_gData in a callee-saved reg ($s5), i.e. it is a gcc CSE
+       temp candidate, not proof against an unrecorded source local. Without the fence our band came out one slot LOW
+       (lastRealTick=$s5, lastGoalTick=$s6, replaySetup=$s7); the +1 ref DEMOTES the two SYM
+       locals past the address temp so the whole 3-way rotation lands on the SYM map. Measured
+       alternatives, all worse: dropping the local entirely (45, ours 4 insns short), fencing
+       lastRealTick/lastGoalTick instead at decl (67) or before-consumer (44). */
+  /* SOURCE-REVIEW-UNRESOLVED: replaySetup
+     Retail keeps an unnamed address value in $s5. Earlier removal was45dif,
+     four words short; current direct member reads are only3dif/320 versus321:
+     a copy to s2 replaces the late lui/addiu rematerialization. Long-long
+     address and member-base recovery tie3; initializer absorption is89dif.
+     All failed forms are reverted; no distinct source pointer is proved. */
+  /* SOURCE-REVIEW-UNRESOLVED: one
+     Retail debug data retains no name for this shared constant pseudo.  The
+     measured block-local assignment below places `li s0,1` exactly; a
+     function-scope initialization moves it to the prologue and regresses by
+     two diffs. Literal comparison/store and the equivalent InBetween increment
+     are69dif/320 in the current basin. A separate source object is not proved. */
+void Sim_MainGameLoop(void)
+
+{
+  int lastRealTick; int lastGoalTick; int one; GameSetup_tData *replaySetup; lastRealTick = clock_realTime.time64Hz + 10000;
+  lastGoalTick = 0;
+
+  quitType = 1;
+  simGlobal.time32Hz = Input_gTime;
+
+  do { if (simVar.endSimGame != 0) goto SimMainLoop_endGame;
+
+    systemtask(0);
+    {
+      int realTick; int diffReal; int diffGoal; simVar.goalClockTicks = gSimQueue_Ticker * 2;
+
+
+
+
+      realTick = clock_realTime.time64Hz;
+
+
+
+      diffReal = realTick - lastRealTick;
+      diffGoal = simVar.goalClockTicks - lastGoalTick;
+
+      if (diffReal > diffGoal) {
+        simVar.goalClockTicks++;
+      }
+      lastRealTick = realTick;
+      lastGoalTick = simVar.goalClockTicks;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if (0x10 < Input_gTime - simGlobal.time32Hz) {
+      simGlobal.time32Hz = Input_gTime;
+    }
+    replaySetup = &GameSetup_gData; while ((simGlobal.time32Hz <= Input_gTime && (simVar.endSimGame == 0))) {
+
+
+
+
+
+
+
+
+
+
+
+
+      if ((Replay_ReplayMode == 2) && (simVar.pauseSim == 0)) {
+
+        Replay_GetInterfaceKey();
+        if (Replay_ReplayInterface.depressed == 4) {
+
+          Replay_ReplayInterface.depressed = 0;
+          simVar.endSimGame = Replay_ReplayInterface.end;
+          if (replaySetup->instantReplay != 0) {
+            AudioCmn_UnPauseAndRestart();
+          } else { if ((Replay_ReplayInterface.end != 0) && (simVar.quickPauseSim != 0)) {
+              simVar.quickPauseSim = 0;
+
+              AudioCmn_UnPauseAndQuit();
+            }
+            else if (simVar.quickPauseSim != Replay_ReplayInterface.pause) {
+              simVar.quickPauseSim = Replay_ReplayInterface.pause;
+
+              if (simVar.quickPauseSim != 0) {
+
+                Camera_Update();
+                AudioCmn_Pause();
+              }
+              else {
+                AudioCmn_UnPause();
+              }
+            }
+          }
+        }
+      } if (simVar.endSimGame == 0) {
+
+        if (simVar.pauseSim != 0) {
+
+          Sim_ProcessPause();
+          simVar.keyRelease = 0x18;
+        }
+        else {
+
+          if (Input_Interface(0x15,1) != 0) {
+
+
+
+
+
+            AudioMus_SwitchSong();
+
+
+
+
+            Hud_ActivateCDPlayer = 1;
+          }
+
+
+
+          if (simVar.keyRelease != 0) {
+
+            if (Input_Interface(simVar.keyRelease,0) == 0) {
+              simVar.keyRelease = 0;
+            }
+          }
+          else {
+            int i; char *gameSetup; i = 0; if (i > (int)(u_int)(replaySetup->commMode == 1)) goto SimMainLoop_inputDone; gameSetup = (char *)&GameSetup_gData;
+SimMainLoop_inputLoop:
+              if ((Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0) && (Replay_ReplayMode < 2)) {
+
+                Camera_NextMode(i);
+              }
+              if (Input_Interface(i != 0 ? 0x1d : 0x1c,1) != 0) {
+                DashHUD_ToggleHud(i);
+              }
+              *(int *)((i << 2) + (int)Input_gLookBehind) = Input_Interface(i + 0x16,0);
+
+              Sim_CheckForPause(1);
+              i++; if (i <= (int)(u_int)(*(int *)((char *)((u_int)gameSetup | ((u_int)gameSetup & 3)) + 0xc) == 1))
+                goto SimMainLoop_inputLoop;
+SimMainLoop_inputDone:
+              ;
+          } } } simGlobal.time32Hz = simGlobal.time32Hz + 1;
+    }
+
+
+
+
+
+
+
+
+
+
+    skipRender = 0;
+
+
+
+
+    if (((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) && (simVar.endSimGame == 0)) {
+
+
+
+      if (simVar.currentClockTicks > simVar.goalClockTicks) {
+
+
+        skipRender = 1; } else { one = 1;
+        do {
+
+
+          if ((simVar.currentClockTicks & 1U) == 0) {
+            SimQueue_SetCurrentInput(simVar.currentClockTicks >> 1);
+          }
+          InBetween = 0;
           if ((Replay_ReplayMode != 2) ||
               (Replay_ReplayInterface.speed == 2) ||
               ((Replay_ReplayInterface.speed == one) &&
@@ -677,37 +766,67 @@ SimMainLoop_inputDone:
           switch (*(volatile int *)&Replay_ReplayInterface.speed) {
             case 3:
               Sim_ProcessSimSchedules();
-              Sim_ProcessSimSchedules();
-              break;
+              Sim_ProcessSimSchedules(); break;
             default:
+
+
               InBetween = one;
-              Camera_Update();
-              break;
-          }
-          goto SimMainLoop_processedSchedules;
+              Camera_Update(); break; } goto SimMainLoop_processedSchedules;
 SimMainLoop_processSchedules:
+
+
+
           Sim_ProcessSimSchedules();
 SimMainLoop_processedSchedules:
-          simVar.currentClockTicks = simVar.currentClockTicks + 1;
-        } while (simVar.currentClockTicks <= simVar.goalClockTicks);
+          simVar.currentClockTicks = simVar.currentClockTicks + 1; } while (simVar.currentClockTicks <= simVar.goalClockTicks);
       }
     }
-    else {
-      Camera_Update();
+    else { Camera_Update();
     }
+
+
+
+
     if (skipRender == 0) {
+
+
+
+
+
       Render_Render(simVar.pauseSim);
     }
     if ((Input_MainExitKey() != 0) ||
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         ((Replay_ReplayMode == 3 && (0x40 < simGlobal.gameTicks)))) {
       simVar.endSimGame = 1;
     }
+
+
+
   } while( true );
 SimMainLoop_endGame:
+
   if (Replay_ReplayMode < 2) {
-    GameSetup_gData.finalPerpArrests = GameSetup_gData.perpArrests;
-  }
-  return;
-}
+
+    GameSetup_gData.finalPerpArrests = GameSetup_gData.perpArrests; } return; }
 
 /* end of sim.cpp */

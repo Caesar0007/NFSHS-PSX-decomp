@@ -52,33 +52,52 @@ void AICop_StartUp(void)
 {
   char filename[100];
 
+
   if (AICOP_COPS != 0) {
+
     triggerManagerCops = new AITrigger_TriggerManager;
+
     sprintf(filename,"%sTr%02d.cop",Paths_Paths[22],AICOP_TRACK);
     AICop_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AICop_rawTriggers != (u_char *)0x0) {
       triggerManagerCops->Init((char *)AICop_rawTriggers);
     }
-    else {
-      triggerManagerCops->Init((char *)0x0);
+    else { triggerManagerCops->Init((char *)0x0);
     }
   }
   SpikeBelt_SetActive(0);
+
+
+
+
+
+
+
+
+
+
+
+
+
   AICop_numArrestedHumans = 0;
-  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
-  return;
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None; return;
 }
 
 /* ---- AICop_Restart__Fv  [@0x80066a58] ---- */
 void AICop_Restart(void)
 {
+
   if ((AICop_rawTriggers != (u_char *)0x0) && (AICOP_COPS != 0)) {
     triggerManagerCops->Init((char *)AICop_rawTriggers);
   }
   SpikeBelt_SetActive(0);
+
+
+
+
+
   AICop_numArrestedHumans = 0;
-  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
-  return;
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None; return;
 }
 
 /* ---- AICop_CleanUp__Fv  [@0x80066aa8] ---- */
@@ -101,15 +120,14 @@ int AICop_NoCopsInArea(int slice,int sliceDistance)
 {
   for (int copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
     int absDistance;
+
     if ((Cars_gCopCarList[copLoop]->AIFlags & 4U) == 0) {
+
       absDistance = AIWorld_ApxSplineDistance(Cars_gCopCarList[copLoop],slice);
-      if (absDistance < 0) {
-        absDistance = -absDistance;
-      }
-      if (absDistance < sliceDistance) {
+      if (absDistance < 0) { absDistance = -absDistance;
+      } if (absDistance < sliceDistance) {
         return 0;
-      }
-    }
-  }
+      } } }
+
   return 1;
 }

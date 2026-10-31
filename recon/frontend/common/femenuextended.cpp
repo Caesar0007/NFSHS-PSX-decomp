@@ -5,20 +5,10 @@
  */
 #include "femenuextended.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tFEApplication * App(void) { return FEApp; }
-static inline int MenuItem_NumFrames(tMenuItem *item) { return item->fNumFrames; }
-static inline bool MenuItem_IsEnabled(tMenuItem *item) { return ((item->fFlags ^ 1) & 1) != 0; }
-static inline void MenuItem_SetFlags(tMenuItem *item, unsigned int flags) { item->fFlags |= flags; }
 
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
 
 
-/* Retail femenuextended.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- FEMenuExtended.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
 static RECT  gHelpPos;   /* @0x80052b58  (bss(zero)); SYM STAT */
@@ -672,7 +662,6 @@ void tMenuNFS4::TransitionOff()
 
 {
   short i;
-
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
     this->fItemList[i]->TransitionOff();
   }
@@ -687,7 +676,6 @@ void tMenuNFS4::TransitionOn()
 
 {
   short i;
-
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
     this->fItemList[i]->TransitionOn();
   }
@@ -722,7 +710,6 @@ void tMenuNFS4::UpdateTransition()
 
 {
   short i;
-
   i = 0;
   while (this->fItemList[i] != (tMenuItem *)0x0) {
     this->fItemList[i]->UpdateTransition((int)i == this->fCurrentItem);
@@ -878,8 +865,15 @@ tMenuBlank::~tMenuBlank() {}
 void tMenuBlank::Draw()
 
 {
+
   if (this->fInMenuTransition != 0) {
+
+
+
+
     this->TransitionIsFinished();
+
+
     this->fTransitionVal =
          this->fTransitionVal + (short)*(signed char *)&this->fTransitionDirection;
   }
@@ -953,10 +947,10 @@ void tMenuBlank::TransitionOn()
 bool tMenuBlank::TransitionIsFinished()
 
 {
-
-
   if (0 < *(signed char *)&this->fTransitionDirection) {
+
     *(int *)&this->fInMenuTransition = (u_int)(int)this->fTransitionVal >> 0x1f;
+
   }
   else {
     this->fInMenuTransition = this->fTransitionVal < -0x6f ^ 1;
@@ -1077,16 +1071,13 @@ void tMenuOptions::TransitionOff()
 
 /* ---- tMenuOptions::TransitionOn [FEMENUEXTENDED.CPP:863-874] P889: ticks carrier removed; iterator/source-scope recovery remains open. ---- */
 
-/* retail's TransitionOn ends in a zero-length inline-call pair: the tick read is a getter (the loop-level pairs
-   retail shows around the item walk are still open: the IsDisabled inline costs 2 diffs in this goto shape) */
-static inline u_long tMenuOptions_Ticks(void) { return ticks; }
 
 void tMenuOptions::TransitionOn()
 {
-
-
   for (int i = 0; this->fItemList[i] != 0; i++) {
+
     if (MenuItem_IsEnabled(this->fItemList[i])) {
+
       this->fItemList[i]->TransitionOn();
     }
   }

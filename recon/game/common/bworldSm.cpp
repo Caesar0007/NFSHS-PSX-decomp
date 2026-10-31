@@ -881,8 +881,8 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
     botInd += (int)slicePos->stripQuadInd;
 
     CCOORD16 *QUAD_LIGHT_VERTICES = (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
-    s1 = (u_short)QUAD_LIGHT_VERTICES[topInd]
-      .light; s2 = (u_short)QUAD_LIGHT_VERTICES[botInd]
+    s1 = (u_short)QUAD_LIGHT_VERTICES[topInd] .light; s2 = (u_short)QUAD_LIGHT_VERTICES[botInd]
+
       .light; s3 = (u_short)QUAD_LIGHT_VERTICES[botInd + 1]
       .light;
 

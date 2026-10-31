@@ -5,17 +5,10 @@
 #define FEAPP_DEFINE_DIALOG_CTORS
 #include "fememcard.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
 
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline volatile int FE_Ticks(void) { return ticks; }
 
 
-/* Retail fememcard.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- FEMemCard.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes / .bss zero;
    productCode="SLUS-00826" = the retail PSX game ID; textSysMemCardFail_Index = fail-message LUT).
@@ -84,8 +77,8 @@ inline tDialogNoInputMessage::tDialogNoInputMessage()
 static void ChecksumData(tMemCardData *memCardData)
 
 {
-
   memCardData->fSize = 0x14ac;
+
   memCardData->frontEndCRC = crc16((unsigned char *)&memCardData->frontEnd,0x450);
   memCardData->carInfoCRC = crc16((unsigned char *)&memCardData->carInfo,0xe0);
   memCardData->trackInfoCRC = crc16((unsigned char *)&memCardData->trackInfo,0x10);
@@ -97,21 +90,23 @@ static void ChecksumData(tMemCardData *memCardData)
 
 /* ---- VerifySuccessfulRead  [FEMEMCARD.CPP:75-86] ---- */
 
+/* MATCH: `(cmp) & result` BOOL-accumulation form (SYM: result BOOL) -- the oracle re-masks
+   the stored bool in each beq delay slot (andi s0,s0,1 = the fold of `1 & result` on the equal path
+   -- BITWISE &, not &&: && normalizes via sltu) then clears on fall-through; a plain
+   `if (x != crc) result = false;` chain emits no andi and mis-colors s0/s1. */
 static bool VerifySuccessfulRead(tMemCardData *memCardData)
 
 {
-  bool result;
 
-  /* MATCH: `(cmp) & result` BOOL-accumulation form (SYM: result BOOL) -- the oracle re-masks
-     the stored bool in each beq delay slot (andi s0,s0,1 = the fold of `1 & result` on the equal path
-     -- BITWISE &, not &&: && normalizes via sltu) then clears on fall-through; a plain
-     `if (x != crc) result = false;` chain emits no andi and mis-colors s0/s1. */
+  bool result;
   result = memCardData->frontEndCRC == crc16((unsigned char *)&memCardData->frontEnd,0x450);
   result = (memCardData->carInfoCRC == crc16((unsigned char *)&memCardData->carInfo,0xe0)) & result;
   result = (memCardData->trackInfoCRC == crc16((unsigned char *)&memCardData->trackInfo,0x10)) & result;
   result = (memCardData->tournamentCRC == crc16((unsigned char *)&memCardData->tournament,0xb0)) & result;
   result = (memCardData->recordsCRC == crc16((unsigned char *)memCardData->records,0xe9c)) & result;
+
   result = (memCardData->fSize == 0x14ac) & result;
+
   return result;
 }
 
@@ -849,12 +844,14 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
 
   MakeWayForMemoryCard();
   CURRENTPLAYER = player;
+  CURRENTLYUSINGMEMCARD = 1;
   cardNum = player * 4 + 1;
+  nomessage = 0;
   finished = false;
   finishedsave = false;              /* oracle: s5/s2 = copies of s3's 0 */
   result = PinkSlipsNoError;
-  CURRENTLYUSINGMEMCARD = 1;
-  nomessage = 0;
+
+
   sprintf(shapeFileName,"%szMem.psh",Paths_Paths[0x20]);
   shapeFile = (char *)loadshapeadr(shapeFileName,(void *)0x0);
   Init_MemcardFile(memCardFile,cardNum,true);

@@ -13,23 +13,28 @@ void RPause_CopyBackToFrontBuffer(void)
   RECT rscreen;
   DRAWENV *drawenv;
 
+
   drawenv = Draw_GetDRAWENV(Draw_gPlayer1View,1);
+
+
   rscreen = drawenv->clip;
   rscreen.x = rscreen.x + gPauseMenuRect.x;
   rscreen.y = rscreen.y + gPauseMenuRect.y;
   rscreen.w = gPauseMenuRect.w;
   rscreen.h = gPauseMenuRect.h;
+
+
   drawenv = Draw_GetDRAWENV(Draw_gPlayer1View,0);
-  MoveImage(&rscreen,drawenv->clip.x + gPauseMenuRect.x,drawenv->clip.y + gPauseMenuRect.y);
-  return;
+
+  MoveImage(&rscreen,drawenv->clip.x + gPauseMenuRect.x,drawenv->clip.y + gPauseMenuRect.y); return;
 }
 
 /* ---- RPause_StartPauseMenu__Fv  [RPAUSE.CPP:46-48] SLD-VERIFIED ---- */
 void RPause_StartPauseMenu(void)
 
 {
-  Draw_StartFrameRender();
-  return;
+
+  Draw_StartFrameRender(); return;
 }
 
 /* ---- RPause_StopPauseMenu__Fv  [RPAUSE.CPP:52-73] SLD-VERIFIED ---- */
@@ -37,15 +42,26 @@ void RPause_StopPauseMenu(void)
 
 {
   
+
+
+
   PutDispEnv(&gEnviro[1].disp);
+
+
   DrawSync(0);
+
   VSync(0);
+
+
   RPause_CopyBackToFrontBuffer();
   DrawOTag(Draw_gView[Render_gPauseMenuView].ot[gFlip] +
+
              Draw_gView[Render_gPauseMenuView].otsize + -1);
+
   systemtask(0);
-  gFlip = 1 - gFlip;
-  return;
+
+
+  gFlip = 1 - gFlip; return;
 }
 
 /* end of rpause.cpp */

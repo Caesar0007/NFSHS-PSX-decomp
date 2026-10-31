@@ -297,17 +297,24 @@ void tScreenAudio::Cleanup()
 {
   
   if (this->audioTest != 0) {
+
     SNDstop(this->audioTestHandle);
     this->audioTest = 0;
+
+
   }
   AudioMus_Volume((int)((uint)(byte)frontEnd.musicVolume * 0x23) >> 6);
+
   gMasterMusicLevel = (int)(byte)frontEnd.musicVolume;
   gMasterSFXLevel = (int)(byte)frontEnd.sfxVolume;
   gMasterFENarrationLevel = (int)(byte)frontEnd.narrationVolume;
   gMasterEngineLevel = (int)(byte)frontEnd.engineVolume;
   gMasterAmbientLevel = (int)(byte)frontEnd.ambientVolume;
+
   AudioMus_Volume((int)(byte)frontEnd.musicVolume * 0x23 >> 6);
+
   this->tScreen::Cleanup();
+
   while (SpeechLoading(&ginfo)) {
     FeAudio_systemtask(0);
   }

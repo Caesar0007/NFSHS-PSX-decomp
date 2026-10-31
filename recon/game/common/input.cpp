@@ -81,30 +81,28 @@ int Input_WingCommandMode(int player)
  * one,acc absorption and the flags read/write fence need source recovery.
  * Actual compiler dumps/oracle bytes remain authoritative; the instrumented
  * C++ lane was not byte-faithful for this function's old allocation basin. */
-void Input_Update(void)
-
-{
-  int *h;
-  Input_tResults *r;
-  u_long acc;
-  u_long menukeys;
-  /* SYM-CODEGEN-CARRIER: one -- the shared literal quantity must survive to
-     the player-count comparison.  Using a direct 1 there emits 869/868
-     instructions and 7 diffs, losing retail's `$s6` compare operand. */
-  u_long one;
-  int i;
-  int j;
-  int k;
-  int left;
-  int right;
-  char iactive[32];
-  char hactive[17];
-  /* SOURCE-REVIEW-UNRESOLVED: activeBase is not a retail source name/object.
-     Retail instead owns separate active/hactive CHAR[17] arrays at the same
-     AUTO-136 slot in the two mode arms. Direct named-array forms101dif/855;
-     scoped arrays plus per-arm pointer assignment156dif/878 spills i.
-     Both restored,not proof that original source required this capture. */
-  char *activeBase;
+    /* SYM-CODEGEN-CARRIER: interfaceActive -- the named iactive cursor is
+       spilled in retail's 184-byte frame and preserves the interface-loop
+       address lifetime.  Direct iactive indexing shrinks the frame to 176
+       bytes, emits 870/868 instructions, and produces 108 diffs. */
+    /* CAMIN 2026-10-04: the acc=$s5 ref dial is now the pure-C absorption
+       identity `acc | (acc & 3)` (== acc, folded to zero bytes by combine),
+       replacing a read-only asm fence. */
+        /* Retail owns k and m at the same depth7. Both declarations now
+           belong to the outer for binding. k's home still differs (s0 vs
+           a0);this is not complete local recovery. Direct global indexing
+           below removes dbFlags at868/868 after restoring that scope. */
+      /* MATCH (w55-a12, 36 -> 28): retail's first held-key scan is UN-rotated
+       * (`slti;beqz;nop` at the loop head, `addiu s1,s1,4; j T` back-edge).
+       * `for (;;) { if (j >= 17) break; ... }` lets gcc-2.8 prove j==0 on
+       * entry, peel the head test and rotate; the `while (1) { if (!(j < 17))
+       * break; ... }` spelling keeps the top test + unconditional back-edge.
+       * (The SECOND, near-identical scan below is NOT affected -- probed, no
+       * gate delta -- so leave its `for (;;)` alone.) */
+    /* SOURCE-REVIEW-UNRESOLVED: these initial-fill objects are not retail
+       locals. Direct byte literal2dif/868;indexed for/do100dif/868 in the
+       current scope-corrected basin. Both were restored,not certified as
+       a distinct original source object/producer. */
   /* SYM-CODEGEN-CARRIER: devList -- CAMIN 2026-10-04.  Retail rematerializes
      `lui/addiu $t3,Device_gDeviceList` at EVERY dispatch site, including the
      final interface loop: the signature of ONE function-wide pseudo with a
@@ -114,37 +112,38 @@ void Input_Update(void)
      `addressBlocker` pressure pseudos and the interface-loop void fence (11
      asm pins); direct indexing lets loop.c hoist the final loop's address into
      a free $s3 (6 diffs). */
-  Input_tDeviceList *devList;
+  /* SOURCE-REVIEW-UNRESOLVED: activeBase is not a retail source name/object.
+     Retail instead owns separate active/hactive CHAR[17] arrays at the same
+     AUTO-136 slot in the two mode arms. Direct named-array forms101dif/855;
+     scoped arrays plus per-arm pointer assignment156dif/878 spills i.
+     Both restored,not proof that original source required this capture. */
+  /* SYM-CODEGEN-CARRIER: one -- the shared literal quantity must survive to
+     the player-count comparison.  Using a direct 1 there emits 869/868
+     instructions and 7 diffs, losing retail's `$s6` compare operand. */
+void Input_Update(void)
 
-  Device_Update();
+{
+  int *h;
+  Input_tResults *r;
+  u_long acc;
+  u_long menukeys;
+  u_long one;
+  int i;
+  int j;
+  int k; int left; int right; char iactive[32]; char hactive[17]; char *activeBase; Input_tDeviceList *devList; Device_Update();
   devList = Device_gDeviceList;
-
   {
-    /* SOURCE-REVIEW-UNRESOLVED: these initial-fill objects are not retail
-       locals. Direct byte literal2dif/868;indexed for/do100dif/868 in the
-       current scope-corrected basin. Both were restored,not certified as
-       a distinct original source object/producer. */
     char *activePtr;
     char activeValue;
-
-    activeValue = 1;
-    i = 31;
-    activePtr = &iactive[31];
-    do {
-      *activePtr = activeValue;
-      i--;
-      activePtr--;
-    } while (i >= 0);
+    activeValue = 1; i = 31; activePtr = &iactive[31];
+    do { *activePtr = activeValue; i--; activePtr--; } while (i >= 0);
   }
-
   h = Input_gHandler;
   r = Input_gResults;
-  i = 0;
-  one = 1;
-  menukeys = 0;
-  activeBase = hactive;
 
-  for (; i < 2; i++) {
+
+
+  i = 0; one = 1; menukeys = 0; activeBase = hactive; for (; i < 2; i++) {
     int mode;
 
     mode = 0;
@@ -153,20 +152,17 @@ void Input_Update(void)
           (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
         mode = j + 1;
       }
-      h++;
-    }
+      h++; }
+
     Input_gMode[i] = mode;
 
     if (mode == 0) {
-      left = devList[*h & 0xff].devicefunc(*h >> 8);
-      h++;
-      right = devList[*h & 0xff].devicefunc(*h >> 8);
-      h++;
+
+      left = devList[*h & 0xff].devicefunc(*h >> 8); h++;
+      right = devList[*h & 0xff].devicefunc(*h >> 8); h++;
       r->steering = (char)((right - left) / 2);
-      r->gas = devList[*h & 0xff].devicefunc(*h >> 8);
-      h++;
-      r->brake = devList[*h & 0xff].devicefunc(*h >> 8);
-      h++;
+      r->gas = devList[*h & 0xff].devicefunc(*h >> 8); h++;
+      r->brake = devList[*h & 0xff].devicefunc(*h >> 8); h++;
 
       for (j = 0; j < 2; j++) {
         if ((*h != 0) &&
@@ -175,98 +171,91 @@ void Input_Update(void)
         } else {
           r->flags &= ~(one << j);
         }
-        h++;
-      }
-
-      acc = 0;
-      r->flags &= 7;
+        h++; }
+      acc = 0; r->flags &= 7;
       {
         char *activePtr;
 
-        k = 16;
-        activePtr = activeBase + k;
-        for (; k >= 0; k--) {
-          *activePtr = one;
-          activePtr--;
-        }
-      }
 
-      j = 0;
-      /* MATCH (w55-a12, 36 -> 28): retail's first held-key scan is UN-rotated
-       * (`slti;beqz;nop` at the loop head, `addiu s1,s1,4; j T` back-edge).
-       * `for (;;) { if (j >= 17) break; ... }` lets gcc-2.8 prove j==0 on
-       * entry, peel the head test and rotate; the `while (1) { if (!(j < 17))
-       * break; ... }` spelling keeps the top test + unconditional back-edge.
-       * (The SECOND, near-identical scan below is NOT affected -- probed, no
-       * gate delta -- so leave its `for (;;)` alone.) */
-      while (1) {
-        if (!(j < 17)) {
+
+        k = 16; activePtr = activeBase + k;
+        for (; k >= 0; k--) { *activePtr = one; activePtr--; }
+      }
+      j = 0; while (1) { if (!(j < 17)) {
           break;
-        }
-      {
-        if (*h != 0) {
+        } { if (*h != 0) {
+
           if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
+
             Input_gPressTime[i][j]++;
+
             if (Input_gPressTime[i][j] >= 6) {
+
               if ((Input_gDBFlags[i] & (one << j)) == 0) {
+
                 acc = j + 1;
                 Input_gDBFlags[i] |= (one << j);
               }
             }
             for (k = 0; k < 17; k++) {
+
               if (h[k - (j - 17)] == *h) {
+
                 activeBase[k] = 0;
                 Input_gPressTime[i][k] = Input_gPressTime[i][j];
               }
             }
           } else {
+
+
             Input_gDBFlags[i] &= ~(one << j);
             Input_gPressTime[i][j] = 0;
           }
         }
         h++;
         j++;
-      }
-      }
+      } } for (j = 0; j < 17; j++) {
 
-      for (j = 0; j < 17; j++) {
         if (*h != 0) {
+
           if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
+
             if ((activeBase[j] != 0) && ((Input_gDBFlags[i] & (one << j)) == 0)) {
+
+
+
               acc = j + 1;
               Input_gDBFlags[i] |= (one << j);
             }
           } else {
+
             if ((u_int)(Input_gPressTime[i][j] - 1) < 5) {
+
               if ((Input_gDBFlags[i] & (one << j)) == 0) {
+
                 acc = j + 1;
                 Input_gDBFlags[i] |= (one << j);
               }
               Input_gPressTime[i][j] = 0;
             } else {
+
               Input_gDBFlags[i] &= ~(one << j);
             }
           }
-        }
-        h++;
-      }
+        } h++; }
+      { for (int k, m = 0; m < 2; m++) {
 
-      {
-        /* Retail owns k and m at the same depth7. Both declarations now
-           belong to the outer for binding. k's home still differs (s0 vs
-           a0);this is not complete local recovery. Direct global indexing
-           below removes dbFlags at868/868 after restoring that scope. */
-        for (int k, m = 0; m < 2; m++) {
           for (k = 0; k < 17; k++) {
+
             if (*h != 0) {
+
               if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
                 Input_gDBFlags[i] |= (one << k);
               } else {
                 Input_gDBFlags[i] &= ~(one << k);
               }
             }
-            h++;
-          }
+            h++; }
         }
       }
     } else {
@@ -275,34 +264,24 @@ void Input_Update(void)
       {
         char *activePtr;
 
-        j = 39;
-        activePtr = active + j;
-        for (; j >= 0; j--) {
-          *activePtr = one;
-          activePtr--;
-        }
-      }
 
+
+        j = 39; activePtr = active + j;
+        for (; j >= 0; j--) { *activePtr = one; activePtr--; }
+      }
       for (j = 0; j < 40; j++) {
         for (k = 0; k < 17; k++) {
           if (h[j] == h[mode * 17 + k + 23]) {
             active[j] = 0;
           }
-        }
-      }
-
-      for (j = 0; j < 32; j++) {
+        } } for (j = 0; j < 32; j++) {
         for (k = 0; k < 17; k++) {
           if (Input_gHandler[j + 152] == h[mode * 17 + k + 23]) {
             iactive[j] = 0;
           }
-        }
-      }
+        } } left = devList[*h & 0xff].devicefunc(*h >> 8); h++;
+      right = devList[*h & 0xff].devicefunc(*h >> 8); h++;
 
-      left = devList[*h & 0xff].devicefunc(*h >> 8);
-      h++;
-      right = devList[*h & 0xff].devicefunc(*h >> 8);
-      h++;
       if ((active[0] != 0) && (active[1] != 0)) {
         r->steering = (char)((right - left) / 2);
       }
@@ -312,10 +291,10 @@ void Input_Update(void)
       h++;
       if (active[3] != 0) {
         r->brake = devList[*h & 0xff].devicefunc(*h >> 8);
-      }
-      h++;
+      } h++;
 
       for (j = 0; j < 2; j++) {
+
         if (active[j + 4] != 0) {
           if ((*h != 0) &&
               (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
@@ -324,143 +303,150 @@ void Input_Update(void)
             r->flags &= ~(one << j);
           }
         }
-        h++;
-      }
-
-      {
-        acc = 0;
-        r->flags &= 7;
+        h++; }
+      { acc = 0; r->flags &= 7;
         {
           char *activePtr;
 
-          k = 16;
-          activePtr = activeBase + k;
-          for (; k >= 0; k--) {
-            *activePtr = one;
-            activePtr--;
-          }
-        }
 
-        j = 0;
-        for (;;) {
-          if (j >= 17) {
+
+          k = 16; activePtr = activeBase + k;
+          for (; k >= 0; k--) { *activePtr = one; activePtr--; }
+        }
+        j = 0; for (;;) { if (j >= 17) {
             goto secondHeldDone;
-          }
-          if (*h != 0) {
+          } if (*h != 0) {
             if ((active[j + 6] != 0) &&
                 (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+
               Input_gPressTime[i][j]++;
+
               if (Input_gPressTime[i][j] >= 6) {
+
                 if ((Input_gDBFlags[i] & (one << j)) == 0) {
+
                   acc = j + 1;
                   Input_gDBFlags[i] |= (one << j);
                 }
               }
               for (k = 0; k < 17; k++) {
+
                 if (h[k - (j - 17)] == *h) {
+
                   activeBase[k] = 0;
                   Input_gPressTime[i][k] = Input_gPressTime[i][j];
                 }
               }
             } else {
+
+
               Input_gDBFlags[i] &= ~(one << j);
               Input_gPressTime[i][j] = 0;
             }
           }
-          h++;
-          j++;
-        }
-secondHeldDone:
 
+          h++;
+          j++; }
+secondHeldDone:
         for (j = 0; j < 17; j++) {
+
           if (*h != 0) {
             if ((active[j + 23] != 0) &&
                 (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+
+
+
               if (((Input_gDBFlags[i] & (one << j)) == 0) && (activeBase[j] != 0)) {
+
                 acc = j + 1;
                 Input_gDBFlags[i] |= (one << j);
               }
             } else if ((active[j + 23] != 0) &&
                        (Input_gPressTime[i][j] > 0) &&
                        (Input_gPressTime[i][j] < 6)) {
+
               if ((Input_gDBFlags[i] & (one << j)) == 0) {
+
                 acc = j + 1;
                 Input_gDBFlags[i] |= (one << j);
               }
               Input_gPressTime[i][j] = 0;
             } else {
+
               Input_gDBFlags[i] &= ~(one << j);
             }
           }
-          h++;
-        }
+          h++; }
       }
 
       h += (mode - 1) * 17;
+
       for (j = 0; j < 17; j++) {
+
         if (*h != 0) {
+
           if (devList[*h & 0xff].devicefunc(*h >> 8) >= 65) {
+
             if ((Input_gDBFlags[i] & (one << j)) == 0) {
+
               acc = j + 1;
               Input_gDBFlags[i] |= (one << j);
             }
           } else {
+
             Input_gDBFlags[i] &= ~(one << j);
           }
         }
-        h++;
-      }
+        h++; }
       h += (2 - mode) * 17;
     }
-
-    /* CAMIN 2026-10-04: the acc=$s5 ref dial is now the pure-C absorption
-       identity `acc | (acc & 3)` (== acc, folded to zero bytes by combine),
-       replacing a read-only asm fence. */
     r->flags |= ((acc | (acc & 3)) << 3);
     __asm__("" : "+m"(r->flags));             /* force retail byte reload */
-    right = (u_char)r->flags;
-    switch (((u_char)right) >> 3) {
+
+
+
+
+    right = (u_char)r->flags; switch (((u_char)right) >> 3) {
       case 15:
+
         r->flags &= 7;
         menukeys |= 0x200000;
         break;
       case 16:
+
         r->flags &= 7;
         menukeys |= (one << (i + 26));
         break;
       case 17:
+
         r->flags &= 7;
         menukeys |= (one << (i + 28));
         break;
     }
 
+
+
+
     r++;
+
     if (GameSetup_gData.numPlayerRaceCars == one) {
+
       h += 76;
       i++;
     }
   }
-
   {
-    /* SYM-CODEGEN-CARRIER: interfaceActive -- the named iactive cursor is
-       spilled in retail's 184-byte frame and preserves the interface-loop
-       address lifetime.  Direct iactive indexing shrinks the frame to 176
-       bytes, emits 870/868 instructions, and produces 108 diffs. */
     char *interfaceActive;
 
-    i = 0;
-    interfaceActive = iactive;
-    left = 1;
+
+
+    i = 0; interfaceActive = iactive; left = 1;
     for (; i < 32; i++) {
-      if ((interfaceActive[i] != 0) && (*h != 0) &&
-          (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
+      if ((interfaceActive[i] != 0) && (*h != 0) && (devList[*h & 0xff].devicefunc(*h >> 8) >= 65)) {
         menukeys |= (left << i);
       }
-      h++;
-    }
-  }
-
-  Input_gTime += 2;
+      h++; }
+  } Input_gTime += 2;
   Input_gInterfaceResults[Input_gTime & 0x1f] = menukeys;
   Input_gInterfaceResults[(Input_gTime + 1) & 0x1f] = menukeys;
 }

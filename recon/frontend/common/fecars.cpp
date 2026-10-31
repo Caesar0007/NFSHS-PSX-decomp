@@ -17,37 +17,32 @@ char         gCarSelected[2][50];   /* @0x80051544  (bss(zero)) */
    of the overlay objects, not data.  (The native slink build showed both copies: Route A had hidden the duplicate
    because the two identical literals overlapped.)  They are the expansion-time constants of a function the compiler never emitted: an
    unused static helper ahead of the first definition.  Its original name is not retained. */
-static inline void FeCars_UnusedCarFileName(char *filename, char *path, char *name)
-{
-  short nameBase [3] = { 0x121, 0x153, 0x185 };
-  int nameId [11] = { 22, 22, 25, 25, 26, 27, 27, 22, 22, 22, 0 };
-  filename[0] = (char)(nameBase[0] + nameId[0]);
-}
 
 /* ---- tCarManager::Initialize  [FECARS.CPP:77-94] SLD-VERIFIED ---- */
 
+    /* INDEX-FIRST spelling: `(idx) + (char*)this + K` emits retail's `addu v0,a0,v0`
+       (base as rs); the natural `this->fCarGarage[j][i]` / `base[idx]` forms all emit
+       `addu v0,v0,a0` AND let LICM hoist `this + j*128` instead of just `j*128`. */
 void tCarManager::Initialize()
 
 {
   short i;
   short j;
-
   this->fNumCars = 0;
   this->fCars = (tCarInfo *)0x0;
+
   for (j = 0; j < 2; j++) {
     for (i = 0; i < 0x20; i++) {
-      /* INDEX-FIRST spelling: `(idx) + (char*)this + K` emits retail's `addu v0,a0,v0`
-         (base as rs); the natural `this->fCarGarage[j][i]` / `base[idx]` forms all emit
-         `addu v0,v0,a0` AND let LICM hoist `this + j*128` instead of just `j*128`. */
+
       *(signed char *)((j * 128 + i * 4) + (char *)this + 8) = -1;
       *(signed char *)((j * 128 + i * 4) + (char *)this + 264) = -1;
     }
+
   }
   for (i = 0; i < 0x30; i++) {
     this->fAvailableCars[i] = '\0';
     this->fViewableCars[i] = '\0';
   }
-  return;
 }
 
 
@@ -192,23 +187,31 @@ long tCarManager::CalcUsedPrice(short garageNumber)
 
 /* ---- tCarManager::PurchaseCar  [FECARS.CPP:230-255] SLD-VERIFIED ---- */
 
+/* SYM: locals = short i (REG $4), tCarInfo *carInfo (REG $6) */
 long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
 
 {
-  /* SYM: locals = short i (REG $4), tCarInfo *carInfo (REG $6) */
   short i;
   tCarInfo *carInfo;
-
   carInfo = carManager.GetCarFromID(carModel);
+
 
   for (i = 0; i < 32; i++) {
     /* MATCH: char is UNSIGNED on this build -> (signed char) restores the
        oracle's lb/bgez (a plain `< 0` folds to false and gcc DELETES the body) */
     if ((signed char)this->fCarGarage[playerNum][i].fCarID < 0) {
+
+
+
+
+
       this->fCarGarage[playerNum][i].fCarID = (char)carModel;
       this->fCarGarage[playerNum][i].fCarColor = (u_char)color;
       this->fCarGarage[playerNum][i].fUpgrades = 0;
+
+
       frontEnd.garageCar[playerNum] = i + this->fNumCars;
+
       return carInfo->fPrices[0];
     }
   }
@@ -406,11 +409,19 @@ void tCarManager::AddToPinkSlipsList(short carModel,short color,short playerNum)
   short i;
 
   for (i = 0; i < 32; i++) {
+
     /* MATCH: (signed char) — plain `char < 0` folds false (unsigned char ABI) */
     if ((signed char)this->fPinkSlipsCars[playerNum][i].fCarID < 0) {
+
+
+
+
+
       this->fPinkSlipsCars[playerNum][i].fCarID = (char)carModel;
       this->fPinkSlipsCars[playerNum][i].fCarColor = (u_char)color;
       this->fPinkSlipsCars[playerNum][i].fUpgrades = 0;
+
+
       frontEnd.pinkSlipsCar[playerNum] = i + this->fNumCars;
       return;
     }
@@ -901,6 +912,8 @@ void tCarManager::InitializeIngameCarList()
 bool tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
 
 {
+
+
   return gCarSelected[
     (signed char)this->GetCarFromID((short)model)->fColorOrder[(u_char)color] / 8
   ][model] != '\0';
@@ -916,8 +929,8 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
   short carColor;
 
   carColor = (short)(signed char)this->GetCarFromID((short)model)->fColorOrder[(u_char)color];
+
   gCarSelected[carColor / 8][model] |= (u_char)(1 << (carColor & 7));
-  return;
 }
 
 
@@ -1012,11 +1025,9 @@ bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short,tCarModels 
 tListIteratorCar::tListIteratorCar(char *valPtr,tCarManager *carManager)
   : tListIterator((short *)0x0, valPtr)
 {
-  
   this->fCarManager = carManager;
   this->fCarListFilter = 1;
   this->fNameLength = cnl_Medium;
-  return;
 }
 
 
@@ -1357,12 +1368,10 @@ tListIteratorCarColor::tListIteratorCarColor(char *value,char *player,char *play
           tCarManager *carManager)
   : tListIterator((short *)0x0, value)
 {
-  
   this->fPlayer = player;
   this->fPlayerCar = playerCar;
   this->fIndexSize = indexSize;
   this->fCarManager = carManager;
-  return;
 }
 
 

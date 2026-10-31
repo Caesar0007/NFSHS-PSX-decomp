@@ -39,7 +39,6 @@ void tScreenDisplay::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char
   numSwapShapes = 0;
   numPermShapes = 0x2b;
   *permFileName = "zDsply";
-  return;
 }
 
 /* ---- tScreenDisplay::~tScreenDisplay  (screendisplay.cpp:41) ---- */

@@ -32,4 +32,8 @@ void DecDCTout(u_long *buf, long size);
 extern "C" int DrawSync(int mode);
 extern "C" int LoadImage(RECT *rect, u_long *p);
 
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
 #endif

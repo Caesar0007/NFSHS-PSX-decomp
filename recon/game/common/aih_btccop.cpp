@@ -99,29 +99,25 @@ int AIHigh_BTC_Cop::GetCheckChasePosition(coorddef *pos)
 
 
 
-{
-  int newPosition;
-  int changed;
+{ int newPosition; int changed; changed = 0; if ((newPosition = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
 
 
 
-  changed = 0;
 
-  if ((newPosition = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
 
                      (this->carObj_)->carIndex)) != this->chaseIndex_) {
 
+
+
     changed = 1;
+    this->chaseIndex_ = newPosition; }
 
-    this->chaseIndex_ = newPosition;
 
-  }
+
+
 
   *pos = AIH_BTCCop_chasePositions[0][this->chaseIndex_];
-
-  return changed;
-
-}
+  return changed; }
 
 
 
@@ -361,95 +357,50 @@ void AIHigh_BTC_Cop::HudOff()
 
 /* ---- __19AIHigh_BTC_HumanCopP8Car_tObji  AIHigh_BTC_HumanCop::ctor  [AIH_BTCCOP.CPP:326-369] SLD-VERIFIED ---- */
 AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh_BTC_Cop(carObj,copIndex)
-{
-  this->SetInitialMovement(1);
+{ this->SetInitialMovement(1);
+
+
+
+
+
 
   this->currentStage_ = -1;
 
-  this->stageTimeMultiplier_ = 0x10000;
-
-  this->needPerp_ = 0;
-
-  this->SetInitialDirection(0);
-
-  this->SetRequestedDesiredSpeed(0);
-
-  this->stageRepeatCount_ = 0;
-
+  this->stageTimeMultiplier_ = 0x10000; this->needPerp_ = 0; this->SetInitialDirection(0); this->SetRequestedDesiredSpeed(0); this->stageRepeatCount_ = 0;
   this->timeLeft_ = AITune_BTC[GameSetup_gData.skill].baseChaseTime;
 
-  this->carObj_->unlap = 0;
-
-  lastInputRequestTick_ = 0;
+  this->carObj_->unlap = 0; lastInputRequestTick_ = 0;
 
   AILife_PlaceCarAtLocation(this->carObj_,0,0,1,0,0);
 
-  if (copIndex == 0) {
-    int startDirection;
-    int startMovement;
-    int startSlice;
-    int addToSlice;
-    int bend;
+  if (copIndex == 0) { int startDirection; int startMovement; int startSlice; int addToSlice; int bend; startDirection = -1;
 
-    startDirection = -1;
 
-    randtemp = fastRandom * randSeed;
 
-    fastRandom = randtemp & 0xffff;
 
-    if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 500) {
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 500) {
+      startDirection = 1; }
 
-      startDirection = 1;
 
-    }
 
-    randtemp = fastRandom * randSeed;
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; startMovement = 0; if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 0x2ee) { startMovement = (u_int)(AIHigh_CopGameType != COP_GAME_BTC_1HC1HP); }
 
-    fastRandom = randtemp & 0xffff;
 
-    startMovement = 0;
 
-    if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 0x2ee) {
-
-      startMovement = (u_int)(AIHigh_CopGameType != COP_GAME_BTC_1HC1HP);
-
-    }
 
     startSlice = this->FindRandomBarrierFreeArea(0,100,500);
+    if (((this->currentStage_ + 1) & 1) == 0) { addToSlice = startDirection * 7; } else { addToSlice = -(startDirection * 7); } __asm__("" : : "r" (addToSlice), "r" (startSlice));
 
-    if (((this->currentStage_ + 1) & 1) == 0) {
 
-      addToSlice = startDirection * 7;
 
-    } else {
-
-      addToSlice = -(startDirection * 7);
-
-    }
-
-    __asm__("" : : "r" (addToSlice), "r" (startSlice));  /* liveness fence: original keeps the dead slice-adjust calc */
 
     bend = AIWorld_CalcRoadBend(this->carObj_,3);
-
-    if (bend < 0) {
-
-      bend = -bend;
-
-    }
-
+    if (bend < 0) { bend = -bend; }
     if ((0x5eb8 < bend) && (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP)) {
+      startMovement = 1; }
 
-      startMovement = 1;
-
-    }
-
-    this->NewStage((int)((this->carObj_)->N).simRoadInfo.slice,startDirection,startMovement);
-
-  }
-
-  return;
-
-}
+    this->NewStage((int)((this->carObj_)->N).simRoadInfo.slice,startDirection,startMovement); } return; }
+/* liveness fence: original keeps the dead slice-adjust calc */
 
 
 
@@ -617,169 +568,151 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
 
 
-{
-  /* SYM (retail): fn-scope locals are nextStageTime plus the AUTOs newLatPos/throwAway (the lane search
-     writes throwAway first); rightPos/leftPos are block-scoped in the third arm.  The accessor pairs
-     (spike belt SetActive, SetInitialDirection/SetInitialMovement) and the plain ternary MINs are
-     byte-exact without the earlier laneBits/leftWidth/limitR/limitL carrier locals. */
-  int nextStageTime;
-
-  int newLatPos;
-
-  int throwAway;
-
-
-
+{ int nextStageTime; int newLatPos; int throwAway;
   this->currentStage_ = this->currentStage_ + 1;
+  GameSetup_gData.perpArrests = GameSetup_gData.perpArrests + 1; if ((((u_int)(AIHigh_CopGameType - COP_GAME_BTC_1HC) < 2) && (this->currentStage_ >= GameSetup_gData.numPerps)) ||
 
-  GameSetup_gData.perpArrests = GameSetup_gData.perpArrests + 1;
 
-  if ((((u_int)(AIHigh_CopGameType - COP_GAME_BTC_1HC) < 2) && (this->currentStage_ >= GameSetup_gData.numPerps)) ||
+
+
+
+
+
+
 
      ((AIHigh_CopGameType == COP_GAME_BTC_1HC1HP && (2 < this->currentStage_)))) {
 
+
+
+
+
+
+
     simVar.endSimGame = 1;
+    return; }
 
-    return;
 
-  }
 
-  BWorld_InitSpikeBelt();
 
-  SpikeBelt_SetActive(0);
+  BWorld_InitSpikeBelt(); SpikeBelt_SetActive(0);
 
-  Object_ClearCustomObjects();
 
-  this->SetInitialDirection(direction);
-  this->SetInitialMovement(movement);
+
+  Object_ClearCustomObjects(); this->SetInitialDirection(direction); this->SetInitialMovement(movement);
+
+
+
+
+
+
+
+
+
 
   (this->carObj_->N).simRoadInfo.slice = (short)copSlice;
-
-  (this->carObj_)->direction = direction;
-
-  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
-
-  newLatPos = 0;
-
-  throwAway = 0;
-
+  (this->carObj_)->direction = direction; AICop_gRoadBlockState = kAICop_RoadBlockState_None; newLatPos = 0; throwAway = 0;
   AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
 
-  /* W57-A11: the oracle sets up the AILife_PlaceCarAtLocation ARGS inside EACH arm
-     (per-arm `lw a2,0x1C(sp)` + `sw ..,0x10/0x14(sp)` stack args, SLD 542/551) and only
-     cross-jump-merges the `lw a0; jal; addu a3` triple at .L8005D8CC -- the single shared
-     call + goto form hoisted the last two args into callee-saved regs and lost 7 insns. */
   if (AIHigh_CopGameType == COP_GAME_BTC_1HC1HP) {
 
-    AILife_PlaceCarAtLocation(this->carObj_,copSlice,newLatPos,direction,0,0);
 
-  }
 
-  else if (movement != 0) {
 
-    AILife_PlaceCarAtLocation(this->carObj_,copSlice,newLatPos,direction,
-               direction * 0xd5555,0);
 
-  }
 
-  else {
+    AILife_PlaceCarAtLocation(this->carObj_,copSlice,newLatPos,direction,0,0); }
 
-  /* W57-A11: SYM 8c -- this arm's REAL locals are BLOCK-SCOPED `rightPos` ($11=s1) and
-     `leftPos` ($10=s0); iVar3/uVar4/the IsDriveableLane results are anonymous temps. */
-  int rightPos;
-  int leftPos;
+  else if (movement != 0) { AILife_PlaceCarAtLocation(this->carObj_,copSlice,newLatPos,direction,
+
+
+
+
+
+
+               direction * 0xd5555,0); } else { int rightPos; int leftPos;
+
+
+
   rightPos = (BWorldSm_slices[copSlice].avgPavedWidthRt << 15) * (BWorldSm_slices[copSlice].laneCount & 0xf);
   leftPos = (BWorldSm_slices[copSlice].avgPavedWidthLf << 15) * (BWorldSm_slices[copSlice].laneCount >> 4);
   rightPos = rightPos < BWorldSm_slices[copSlice].rightDrive * 0x100 + -0x8000 ? rightPos : BWorldSm_slices[copSlice].rightDrive * 0x100 + -0x8000;
   leftPos = leftPos < BWorldSm_slices[copSlice].leftDrive * 0x100 + -0x8000 ? leftPos : BWorldSm_slices[copSlice].leftDrive * 0x100 + -0x8000;
+
   if (AIWorld_IsDriveableLane(copSlice,6 - (BWorldSm_slices[copSlice].laneCount >> 4)) == 0) {
-
-    leftPos = leftPos + -0x20000;
-
-  }
-
+    leftPos = leftPos + -0x20000; }
   if (AIWorld_IsDriveableLane(copSlice,(BWorldSm_slices[copSlice].laneCount & 0xf) + 7) == 0) {
+    rightPos = rightPos + -0x20000; }
 
-    rightPos = rightPos + -0x20000;
+  if (this->copIndex_ == 0) { if (AITune_driveSide == 1) goto LAB_8005d8a0; goto LAB_8005d8b8; } if (AITune_driveSide != -1) goto LAB_8005d8b8; LAB_8005d8a0: AILife_PlaceCarAtLocation(this->carObj_,copSlice,rightPos,direction,0,
 
-  }
 
-  /* W57-A11: retail branches on the POSITIVE test into the shared A block
-     (`beq driveSide,1 -> .L8005D8A0` / `bne driveSide,-1 -> .L8005D8B4`) and carries a
-     SEPARATE call in each arm (three `addu a1,s3,zero` copSlice setups survive). */
-  if (this->copIndex_ == 0) {
 
-    if (AITune_driveSide == 1) goto LAB_8005d8a0;
 
-    goto LAB_8005d8b8;
 
-  }
+             direction * 0x100 + 0x200); goto LAB_8005d8d8; LAB_8005d8b8: AILife_PlaceCarAtLocation(this->carObj_,copSlice,-leftPos,direction,0,
 
-  if (AITune_driveSide != -1) goto LAB_8005d8b8;
 
-LAB_8005d8a0:
 
-  AILife_PlaceCarAtLocation(this->carObj_,copSlice,rightPos,direction,0,
-             direction * 0x100 + 0x200);
 
-  goto LAB_8005d8d8;
 
-LAB_8005d8b8:
 
-  AILife_PlaceCarAtLocation(this->carObj_,copSlice,-leftPos,direction,0,
-             0x200 - direction * 0x100);
+             0x200 - direction * 0x100); LAB_8005d8d8: ; }
 
-LAB_8005d8d8:
-
-  ;
-
-  }
 
   if (AIHigh_CopGameType == COP_GAME_BTC_1HC1HP) {
+    nextStageTime = AIH_BTC_Cop_1HC1HP_StageTimes[this->currentStage_] << 5; } else {
 
-    /* W57-A11: the `<< 5` lives in EACH arm (oracle `sll s0,v0,5` twice) -- a shared
-       post-if shift makes the load land directly in nextStageTime's reg. */
-    nextStageTime = AIH_BTC_Cop_1HC1HP_StageTimes[this->currentStage_] << 5;
-
-  }
-
-  else {
-
-    nextStageTime = GameSetup_gData.perpInfo[this->currentStage_].TimeLimit << 5;
-
-  }
-
+    nextStageTime = GameSetup_gData.perpInfo[this->currentStage_].TimeLimit << 5; }
   if (nextStageTime < 0) {
-
-    nextStageTime = 0;
-
-  }
+    nextStageTime = 0; }
 
 
-  /* W57-A11: the /0x10000 form keeps retail's SINGLE in-place `sra s0,a0,16`. */
+
   nextStageTime = (nextStageTime * this->stageTimeMultiplier_) / 0x10000;
 
   if (this->copIndex_ == 0) {
+    Hud_BTC_BonusTime(nextStageTime << 1); }
 
-    Hud_BTC_BonusTime(nextStageTime << 1);
 
-  }
+
+
+
+
+
 
   this->needPerp_ = 1;
 
+
   this->chaseStartTime_ = 0;
+
 
   this->wingmanStatus_ = 0;
 
-  this->freezeMode_ = 1;
+  this->freezeMode_ = 1; this->timeLeft_ = this->timeLeft_ + nextStageTime;
 
-  this->timeLeft_ = this->timeLeft_ + nextStageTime;
 
-  TrgSfx_RestartTrgSfx();
 
-  return;
 
+
+
+  TrgSfx_RestartTrgSfx(); return;
 }
+/* SYM (retail): fn-scope locals are nextStageTime plus the AUTOs newLatPos/throwAway (the lane search
+     writes throwAway first); rightPos/leftPos are block-scoped in the third arm.  The accessor pairs
+     (spike belt SetActive, SetInitialDirection/SetInitialMovement) and the plain ternary MINs are
+     byte-exact without the earlier laneBits/leftWidth/limitR/limitL carrier locals. */
+/* W57-A11: the oracle sets up the AILife_PlaceCarAtLocation ARGS inside EACH arm
+     (per-arm `lw a2,0x1C(sp)` + `sw ..,0x10/0x14(sp)` stack args, SLD 542/551) and only
+     cross-jump-merges the `lw a0; jal; addu a3` triple at .L8005D8CC -- the single shared
+     call + goto form hoisted the last two args into callee-saved regs and lost 7 insns. */
+/* W57-A11: SYM 8c -- this arm's REAL locals are BLOCK-SCOPED `rightPos` ($11=s1) and
+     `leftPos` ($10=s0); iVar3/uVar4/the IsDriveableLane results are anonymous temps. */
+/* W57-A11: retail branches on the POSITIVE test into the shared A block
+     (`beq driveSide,1 -> .L8005D8A0` / `bne driveSide,-1 -> .L8005D8B4`) and carries a
+     SEPARATE call in each arm (three `addu a1,s3,zero` copSlice setups survive). */
+/* W57-A11: the `<< 5` lives in EACH arm (oracle `sll s0,v0,5` twice) -- a shared
+       post-if shift makes the load land directly in nextStageTime's reg. */
+/* W57-A11: the /0x10000 form keeps retail's SINGLE in-place `sra s0,a0,16`. */
 
 
 
@@ -1451,169 +1384,294 @@ AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex) : AIHigh_B
    above).  Probe: scratchpad/w76/A9_btc_I4.variant, A9_btc_I4_posmis.txt. ==== */
 void AIHigh_BTC_Wingman::HighExecute()
 {
+
+
+
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();
   this->CheckForActivation();
-  switch (this->stateType_) {
-  case 0:
-    {
+
+
+
+  switch (this->stateType_) { case 0: {
+
+
+
       this->carObj_->AIFlags &= ~2;
-      this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
-    }
-    goto stateExecuteAndReturn;
-  case 2:
-    {
-      this->carObj_->AIFlags &= ~2;
-      if ((this->newRole_ != this->currentRole_) &&
+      this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7); }
+
+
+
+    goto stateExecuteAndReturn; case 2: {
+
+
+      this->carObj_->AIFlags &= ~2; if ((this->newRole_ != this->currentRole_) &&
           ((u_int)(this->newRole_ - 2) < 2)) {
+
         if (AILife_IsCarInAnyVisibleArea(this->carObj_) == 0) {
+
+
           Speech::Mobile(this->carObj_)->Purge();
           this->currentRole_ = this->newRole_;
           this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
-          this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3);
-        }
-      } else {
+          this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3); } } else {
+
+
+
+
+
         this->CheckForNewTarget();
-        if (this->perpTarget_ != 0) {
-          coorddef pos;
-          this->GetCheckChasePosition(&pos);
-          this->SetState(new AIState_Chase(this->carObj_,this->perpTarget_->CarObj(),&pos,
-                                           0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4);
-        }
-      }
+        if (this->perpTarget_ != 0) { coorddef pos;
+
+
+
+
+          this->GetCheckChasePosition(&pos); this->SetState(new AIState_Chase(this->carObj_,this->perpTarget_->CarObj(),&pos,
+
+
+                                           0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4); } }
+
+
+
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
+
         this->AssignToPlayer(0);
-        this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
-        this->newRole_ = 0;
-        this->currentRole_ = 0;
-      }
-    }
-    goto stateExecuteAndReturn;
-  case 4:
-    {
-      coorddef newPos;
-      AIState_Chase *chaseState;
+        this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7); this->newRole_ = 0; this->currentRole_ = 0; } }
+
+
+
+
+
+
+
+
+
+    goto stateExecuteAndReturn; case 4: { coorddef newPos; AIState_Chase *chaseState;
+
+
+
+
       chaseState = (AIState_Chase *)this->state_;
       this->carObj_->AIFlags |= 2;
+
+
       ((AIHigh_BasicCop *)this)->HandleBlockadeSpeech();
+
+
       if (this->GetCheckChasePosition(&newPos) != 0) {
-        chaseState->SetTarget(this->perpTarget_->CarObj(),&newPos);
-      }
+
+        chaseState->SetTarget(this->perpTarget_->CarObj(),&newPos); }
+
+
+
       if (chaseState->BarrierTicks32() > 0xa0) {
+
         int endSlice = chaseState->FindBarrierEndSlice();
-        this->SetState(new AIState_GotoSlice(this->carObj_,endSlice,0),(stateType_t)9);
-      }
-      if (this->CheckForNewTarget() != 0) {
-        coorddef pos;
+
+        this->SetState(new AIState_GotoSlice(this->carObj_,endSlice,0),(stateType_t)9); }
+
+
+
+
+      if (this->CheckForNewTarget() != 0) { coorddef pos;
+
+
         this->GetCheckChasePosition(&pos);
-        chaseState->SetTarget(this->perpTarget_->CarObj(),&pos);
-      }
+        chaseState->SetTarget(this->perpTarget_->CarObj(),&pos); }
+
+
       if (chaseState->InMurderRange(8,0xe0000,0xf0000)) {
-        chaseState->SetMurderMode(1,0x300);
-      }
+
+
+
+
+        chaseState->SetMurderMode(1,0x300); }
+
+
+
       if (this->perpTarget_ == 0) {
+
+
         this->AssignToPlayer(0);
-        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
-      }
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); }
+
+
+
       if (this->newRole_ != this->currentRole_) {
+
+
+
         if ((u_int)(this->newRole_ - 2) < 2) {
+
+
           this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
           this->AssignToPlayer(0);
           this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
-          Speech::Mobile(this->carObj_)->Lose();
-        }
-      }
+
+          Speech::Mobile(this->carObj_)->Lose(); } }
+
+
+
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
+
         this->AssignToPlayer(0);
-        this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
-        this->newRole_ = 0;
-        this->currentRole_ = 0;
-      }
-    }
-    goto stateExecuteAndReturn;
-  case 3:
-    {
-      int rbDistanceMeters;
-      int rbAbsDistanceMeters;
-      int release;
-      coorddef newPos;
+        this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7); this->newRole_ = 0; this->currentRole_ = 0; } }
+
+
+
+
+
+
+
+
+    goto stateExecuteAndReturn; case 3: { int rbDistanceMeters; int rbAbsDistanceMeters; int release; coorddef newPos;
+
+
+
+
+
+
+
+
       this->carObj_->AIFlags |= 2;
-      this->CheckForNewTarget();
-      release = 0;
+
+      this->CheckForNewTarget(); release = 0;
+
+
       if (this->perpTarget_ == 0) {
-        this->newRole_ = 1;
-        this->currentRole_ = 1;
+
+        this->newRole_ = 1; this->currentRole_ = 1;
+
+
+
         this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
-        return;
-      }
-      this->GetCheckChasePosition(&newPos);
-      if ((this->spikeBeltPlaced_ != 0) &&
+
+        return; }
+
+
+
+
+
+      this->GetCheckChasePosition(&newPos); if ((this->spikeBeltPlaced_ != 0) &&
+
+
           (SpikeBelt_Slice() == this->spikeBeltSlice_)) {
-        SpikeBelt_SetFreshenTime(simGlobal.gameTicks);
-      }
+
+        SpikeBelt_SetFreshenTime(simGlobal.gameTicks); }
+
+
+
+
       rbDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,this->perpTarget_->CarObj());
       rbAbsDistanceMeters = __builtin_abs(rbDistanceMeters);
-      if (rbAbsDistanceMeters < 0x320000) {
-        release = 1;
-      } else if (rbAbsDistanceMeters < 0x12c0000 &&
+
+
+
+      if (rbAbsDistanceMeters < 0x320000) { release = 1; } else if (rbAbsDistanceMeters < 0x12c0000 &&
+
+
+
                  (this->perpTarget_->CarObj()->currentSpeed > 0 ? this->perpTarget_->CarObj()->currentSpeed : -this->perpTarget_->CarObj()->currentSpeed) > 0x471c7) {
+
+
+
         int timeToRB = fixeddiv(rbDistanceMeters,this->perpTarget_->CarObj()->currentSpeed);
         if (timeToRB > 0 && timeToRB < this->spikeBeltInterceptReleaseTime_) {
-          release = 1;
-        }
-      }
+
+          release = 1; } }
+
+
+
+
+
+
+
       if (release) {
+
+
         this->spikeBeltPlaced_ = 0;
-        this->newRole_ = 1;
-        this->currentRole_ = 1;
-        this->SetState(new AIState_Chase(this->carObj_,this->perpTarget_->CarObj(),&newPos,
-                                         0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4);
-      }
-      if ((this->newRole_ != this->currentRole_) &&
-          (this->newRole_ == 1)) {
-        this->currentRole_ = 1;
-        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
-      }
+
+
+
+
+        this->newRole_ = 1; this->currentRole_ = 1; this->SetState(new AIState_Chase(this->carObj_,this->perpTarget_->CarObj(),&newPos,
+
+
+
+
+
+                                         0x200,0x3c0000,0x190000,2,0x10000),(stateType_t)4); } if ((this->newRole_ != this->currentRole_) &&
+
+
+
+
+          (this->newRole_ == 1)) { this->currentRole_ = 1;
+
+
+
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); }
+
+
+
+
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
+
         this->AssignToPlayer(0);
         this->SetState(new AIState_NonActive(this->carObj_),(stateType_t)7);
-        this->newRole_ = 0;
-        this->currentRole_ = 0;
-      }
-    }
-    goto stateExecuteAndReturn;
-  case 7:
-    {
+
+        this->newRole_ = 0; this->currentRole_ = 0; } }
+
+
+
+
+
+
+
+    goto stateExecuteAndReturn; case 7: {
+
+
+
+
+
       this->carObj_->AIFlags &= ~2;
       if (this->currentRole_ != this->newRole_) {
-        if (this->newRole_ == 1) {
-          this->currentRole_ = 1;
+
+        if (this->newRole_ == 1) { this->currentRole_ = 1;
+
+
+
           this->SetupWingman(this->newHumanBoss_);
-          this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
-        } else {
+
+          this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); } else {
+
           if ((u_int)(this->newRole_ - 2) < 2) {
+
+
             this->currentRole_ = this->newRole_;
             this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
-            this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3);
-          }
-        }
-      }
-    }
-    goto stateExecuteAndReturn;
-  case 9:
-    {
-      AIState_GotoSlice *gotoState;
+            this->SetState(new AIState_Idle(this->carObj_,1),(stateType_t)3); } } } }
+
+
+
+
+
+
+    goto stateExecuteAndReturn; case 9: { AIState_GotoSlice *gotoState;
+
+
+
       gotoState = (AIState_GotoSlice *)this->state_;
       this->AssignToPlayer(0);
       if (gotoState->InTargetSliceRange(0xa0000) != 0) {
-        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2);
-      }
-    }
-    goto stateExecuteAndReturn;
-  case 10:
-  default:
-    goto stateExecuteAndReturn;
-  }
-stateExecuteAndReturn:
+
+        this->SetState(new AIState_Normal(this->carObj_),(stateType_t)2); } } goto stateExecuteAndReturn; case 10: default: goto stateExecuteAndReturn; } stateExecuteAndReturn:
+
+
+
+
+
+
+
+
   this->state_->StateExecute();
 }
 
@@ -1745,158 +1803,146 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
 
-{
-  /* SYM (retail): fn-scope locals are only initSlice/copObj/blockadeType.  The accessor pairs
-     (humanCop->CarObj(), PerpTarget(), the spike belt's Set/Freshen), the SLICE_ADD wrap macro and
-     plain field stores reproduce the 340 retail instructions without the former carrier locals
-     (blockadeDirection, blockadeFlags, sliceOffset, blockadeSlice, perpDistance, slice, the
-     else-arm candidates) and without the identity asm fences. */
-  int initSlice;
-  Car_tObj*copObj;
-  int blockadeType;
-  copObj = humanCop->CarObj();
-  if (humanCop->PerpTarget() != (AIHigh_BTC_Perp *)0x0) {
+{ int initSlice; Car_tObj*copObj; int blockadeType; copObj = humanCop->CarObj();
 
-    int perpToHumanDistance;
-    int side;
-    int initializationDistance;
-    Car_tObj*perpObj;
 
-    perpObj = humanCop->PerpTarget()->CarObj();
 
-    side = -1;
 
-    if (-1 < perpObj->currentSpeed) {
 
-      side = 1;
 
-    }
+
+
+
+
+
+
+
+
+  if (humanCop->PerpTarget() != (AIHigh_BTC_Perp *)0x0) { int perpToHumanDistance; int side; int initializationDistance; Car_tObj*perpObj; perpObj = humanCop->PerpTarget()->CarObj();
+
+
+
+
+
+
+
+
+
+
+
+
+    side = -1; if (-1 < perpObj->currentSpeed) { side = 1; }
+
 
     perpToHumanDistance = AIWorld_ApxSplineDistance(perpObj,copObj);
 
-    initializationDistance = 0x1f40000;
-    if (initializationDistance < __builtin_abs(perpToHumanDistance)) {
-      initializationDistance = __builtin_abs(perpToHumanDistance);
-    }
-    /* a named bound (gcc propagates it away, so it leaves no record): the literal form is folded to
-       MIN_EXPR(x, K) and clamps in place, while retail computes MIN(K, x) in a temporary. */
-    int maximumDistance = 0x5dc0000;
-    initializationDistance =
-        (initializationDistance < maximumDistance) ?
+
+
+
+
+    initializationDistance = 0x1f40000; if (initializationDistance < __builtin_abs(perpToHumanDistance)) { initializationDistance = __builtin_abs(perpToHumanDistance); } int maximumDistance = 0x5dc0000; initializationDistance = (initializationDistance < maximumDistance) ?
         initializationDistance : maximumDistance;
 
     if (perpToHumanDistance * side < 0) {
-      initSlice = SLICE_ADD(copObj->N.simRoadInfo.slice, (initializationDistance / 0x60000) * side);
-    }
-    else {
-      initSlice = SLICE_ADD(perpObj->N.simRoadInfo.slice, (initializationDistance / 0x60000) * side);
-    }
+
+
+
+
+
+      initSlice = SLICE_ADD(copObj->N.simRoadInfo.slice, (initializationDistance / 0x60000) * side); } else {
+
+
+
+
+
+
+
+      initSlice = SLICE_ADD(perpObj->N.simRoadInfo.slice, (initializationDistance / 0x60000) * side); }
+
 
     this->blockade_.blockadeSpeechFlags = 1;
 
-    this->blockade_.target = (AIHigh_Player *)humanCop->PerpTarget();
 
-  }
 
-  else {
 
-    int side = -1;
+    this->blockade_.target = (AIHigh_Player *)humanCop->PerpTarget(); } else { int side = -1;
+
+
+
+
     if (-1 < humanCop->CarObj()->currentSpeed) {
-      side = 1;
-    }
-    int initializationDistance = 0x1f40000;
+      side = 1; } int initializationDistance = 0x1f40000;
+
+
     initSlice = SLICE_ADD(humanCop->CarObj()->N.simRoadInfo.slice, initializationDistance / 0x60000 * side);
 
     this->blockade_.blockadeSpeechFlags = 0;
-
-    this->blockade_.target = (AIHigh_Player *)0x0;
-
-  }
+    this->blockade_.target = (AIHigh_Player *)0x0; }
 
 
   this->blockade_.direction = copObj->direction;
   this->blockade_.slice = SLICE_ADD(initSlice, -this->blockade_.direction);
-  randtemp = fastRandom * randSeed;
 
-  AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp;
 
-  fastRandom = randtemp & 0xffff;
 
-  blockadeType = (randtemp >> 8 & 0xffff) % 5;
+  randtemp = fastRandom * randSeed; AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp; fastRandom = randtemp & 0xffff; blockadeType = (randtemp >> 8 & 0xffff) % 5;
+
   this->blockade_.flags = gBlockadeTypes[blockadeType];
+
   if (this->blockade_.flags != 0) {
 
     if (stackSpeedUpEnbabledFlag != 0) {
 
-      gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-            stackSpeedUpEnbabledFlag = 0;
+      gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
 
       ((AIHigh_BasicCop *)this)->SetupBlockadeElements(&this->blockade_);
+      gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 1; } else {
 
-      gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-            stackSpeedUpEnbabledFlag = 1;
+      ((AIHigh_BasicCop *)this)->SetupBlockadeElements(&this->blockade_); } } AILife_ReencarnateCopByLatPosAndRotation(this->carObj_,initSlice,
 
-    }
 
-    else {
 
-      ((AIHigh_BasicCop *)this)->SetupBlockadeElements(&this->blockade_);
 
-    }
 
-  }
 
-  AILife_ReencarnateCopByLatPosAndRotation(this->carObj_,initSlice,
+
+
              humanCop->CarObj()->direction,0,0x100);
 
-  if (spikeBeltRequest != 0) {
 
-    int spikeBeltSide;
-    int left;
-    int right;
+  if (spikeBeltRequest != 0) { int spikeBeltSide; int left; int right;
+
+
 
 
     spikeBeltSide = AIWorld_ApxSplineDistance(this->carObj_,copObj) >= 0 ? 1 : -1;
-    spikeBeltSide = spikeBeltSide * 6;
-
-    this->spikeBeltSlice_ = SLICE_ADD(this->carObj_->N.simRoadInfo.slice, spikeBeltSide);
 
 
 
-    randtemp = fastRandom * randSeed;
 
-    fastRandom = randtemp & 0xffff;
+    spikeBeltSide = spikeBeltSide * 6; this->spikeBeltSlice_ = SLICE_ADD(this->carObj_->N.simRoadInfo.slice, spikeBeltSide);
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; this->spikeBeltInterceptReleaseTime_ = ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999; left = fixedmult(((u_int)BWorldSm_slices[this->spikeBeltSlice_].avgPavedWidthLf << 15) * (BWorldSm_slices[this->spikeBeltSlice_].laneCount >> 4)
 
-    this->spikeBeltInterceptReleaseTime_ = ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999;
 
-    left = fixedmult(((u_int)BWorldSm_slices[this->spikeBeltSlice_].avgPavedWidthLf << 15) *
-                     (BWorldSm_slices[this->spikeBeltSlice_].laneCount >> 4)
-
-                       ,0xcccc);
-
-    right =
-
-         fixedmult(((u_int)BWorldSm_slices[this->spikeBeltSlice_].avgPavedWidthRt << 15) *
-                   (BWorldSm_slices[this->spikeBeltSlice_].laneCount & 0xf),0xcccc)
-
+                       ,0xcccc); right = fixedmult(((u_int)BWorldSm_slices[this->spikeBeltSlice_].avgPavedWidthRt << 15) * (BWorldSm_slices[this->spikeBeltSlice_].laneCount & 0xf),0xcccc)
     ;
 
+    SpikeBelt_Set(this->spikeBeltSlice_, -left, right); SpikeBelt_Freshen(simGlobal.gameTicks); BWorld_SetSpikeBelt(this->spikeBeltSlice_,AICop_spikeBelt.leftLatPos_,
 
 
-    SpikeBelt_Set(this->spikeBeltSlice_, -left, right); SpikeBelt_Freshen(simGlobal.gameTicks);
-
-    BWorld_SetSpikeBelt(this->spikeBeltSlice_,AICop_spikeBelt.leftLatPos_,
                left + right);
 
-    this->spikeBeltPlaced_ = 1;
+    this->spikeBeltPlaced_ = 1; }
 
-  }
 
-  Speech::Dispatch()->Ready(this->carObj_);
-
-  return;
-
-}
+  Speech::Dispatch()->Ready(this->carObj_); return; }
+/* SYM (retail): fn-scope locals are only initSlice/copObj/blockadeType.  The accessor pairs
+     (humanCop->CarObj(), PerpTarget(), the spike belt's Set/Freshen), the SLICE_ADD wrap macro and
+     plain field stores reproduce the 340 retail instructions without the former carrier locals
+     (blockadeDirection, blockadeFlags, sliceOffset, blockadeSlice, perpDistance, slice, the
+     else-arm candidates) and without the identity asm fences. */
+/* a named bound (gcc propagates it away, so it leaves no record): the literal form is folded to
+       MIN_EXPR(x, K) and clamps in place, while retail computes MIN(K, x) in a temporary. */
 
 
 

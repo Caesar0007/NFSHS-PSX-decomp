@@ -37,6 +37,16 @@ void AudList_LoadAudioFile(int AudioFileIndex)
 
 
   sprintf(fname,"%s%02d.aud",Track_MakeTrackPathName(""),AudioFileIndex);
-  gGameAudioList = (CAudioList *)loadfileadrz(fname,(void *)0x0);
-  return;
+
+
+
+
+
+
+
+
+
+
+
+  gGameAudioList = (CAudioList *)loadfileadrz(fname,(void *)0x0); return;
 }

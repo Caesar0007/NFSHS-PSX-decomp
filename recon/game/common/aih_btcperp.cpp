@@ -199,13 +199,13 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
 {
 
-  if (this->pullOverMode_ != 0) {
-    int userReadyToContinue;
+
+
+
+  if (this->pullOverMode_ != 0) { int userReadyToContinue;
 
     this->NotifyCopsOfArrest();
-
-    this->beatingTicksLeft_ -= AI_elapsedTime;   /* H21: oracle 0x8005FA94 v0=beatingTicksLeft_-AI_elapsedTime, 0x8005FA9C store */
-
+    this->beatingTicksLeft_ -= AI_elapsedTime;
     if ((this->beatingTicksLeft_ < 1) && (this->hudActivated_ == 0)) {
 
       if (this->IsFalseArrest() != 0) {
@@ -216,65 +216,85 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
         (this->carObj_)->pullOver = 0;
 
+
         this->pullOverMode_ = 0;
 
-        Speech::Mobile(Cars_gList[0])->Lose();
 
-      }
-
-      else {
+        Speech::Mobile(Cars_gList[0])->Lose(); } else {
 
         if (this->hudActivated_ == 0) {
 
           this->NotifyHumanCopsOfArrestHud();
+          this->hudActivated_ = 1; } } }
 
-          this->hudActivated_ = 1;
 
-        }
+    userReadyToContinue = this->CheckForControlsPressed(); if ((((this->beatingTicksLeft_ < 1) && (this->pullOverMode_ != 0)) && (userReadyToContinue != 0)) && ((this->hudActivated_ == 1 &&
 
-      }
 
-    }
 
-    userReadyToContinue = this->CheckForControlsPressed();
 
-    if ((((this->beatingTicksLeft_ < 1) &&
 
-         (this->pullOverMode_ != 0)) && (userReadyToContinue != 0)) &&
-
-       ((this->hudActivated_ == 1 &&
 
         (0x140 < simGlobal.gameTicks - this->lastPullOverTime_)))) {
 
-      this->lastPullOverTime_ = GameTicks();
+      this->lastPullOverTime_ = GameTicks(); this->basicPerpInfo_.crime_ = 0;
 
-      this->basicPerpInfo_.crime_ = 0;
 
       this->NotifyCopsOfArrestComplete();
-
       (this->carObj_)->pullOver = 0;
+
 
       this->pullOverMode_ = 0;
 
+
       this->caught_ = 1;
+      this->hudActivated_ = 0; } } else if (this->originalActivationCop_->HasCatchTime() &&
 
-      this->hudActivated_ = 0;
 
-    }
 
-  }
 
-  else if (this->originalActivationCop_->HasCatchTime() &&
+
+
            (this->CheckIfCaught() != 0)) {
+
+
     this->carObj_->pullOver = 1;
+
+
     this->beatingTicksLeft_ = 0x60;
+
+
     this->lastPullOverTime_ = simGlobal.gameTicks;
-    this->pullOverMode_ = 2;
-  }
 
-  return;
-
-}
+    this->pullOverMode_ = 2; } return; }
+/* The line-15/22/33 SLD scopes are the four inline member expansions below.
+     ReadBE32 is expanded once for filecount and twice for each directory row;
+     IsHeader is expanded for the four trailing filename characters.  Fully
+     inlined function names have no surviving linkage, so these spellings are
+     source-shape inferences; the receiver/locals and byte operations are
+     proved by SYM plus the exact retail instruction stream.
+     SYM-INLINE-THIS: ReadBE32
+     SYM-INLINE-THIS: ReadBE32
+     SYM-INLINE-THIS: ReadBE32
+     SYM-INLINE-LOCAL: p = ReadBE32
+     SYM-INLINE-LOCAL: p = ReadBE32
+     SYM-INLINE-LOCAL: a = ReadBE32
+     SYM-INLINE-LOCAL: a = ReadBE32
+     SYM-INLINE-LOCAL: a = ReadBE32
+     SYM-INLINE-LOCAL: b = ReadBE32
+     SYM-INLINE-LOCAL: b = ReadBE32
+     SYM-INLINE-LOCAL: b = ReadBE32
+     SYM-INLINE-LOCAL: c = ReadBE32
+     SYM-INLINE-LOCAL: c = ReadBE32
+     SYM-INLINE-LOCAL: c = ReadBE32
+     SYM-INLINE-LOCAL: d = ReadBE32
+     SYM-INLINE-LOCAL: d = ReadBE32
+     SYM-INLINE-LOCAL: d = ReadBE32
+     SYM-INLINE-THIS: IsHeader
+     SYM-INLINE-LOCAL: a = IsHeader
+     SYM-INLINE-LOCAL: b = IsHeader
+     SYM-INLINE-LOCAL: c = IsHeader
+     SYM-INLINE-LOCAL: d = IsHeader */
 
 
 
@@ -495,79 +515,57 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
 
-{
-  int placementSide;
-  int placementDirection;
-  int humanDirection;
-  int newLatPos;
-  int throwAway;
+{ int placementSide; int placementDirection; int humanDirection; int newLatPos; int throwAway; humanDirection = chaserCop->InitialDirection(); this->originalActivationCop_ = chaserCop;
 
-  
 
-  humanDirection = chaserCop->InitialDirection();
 
-  this->originalActivationCop_ = chaserCop;
+
+
+
+
+
+
 
   this->ClearForNewStage(chaserCop);
-
   this->ReleaseCops();
 
-  randtemp = fastRandom * randSeed;
-
-  placementSide = 1;
 
 
-  fastRandom = randtemp & 0xffff;
 
-  placementDirection = placementSide;
 
-  this->carObj_->N.simRoadInfo.slice =
-      0 <= humanDirection * 0x10
-      ? (gNumSlices <= (short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10
-         ? (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 - (u_short)gNumSlices)
-         : (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10))
-      : ((short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 < 0
-         ? (short)((u_short)gNumSlices + ((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10))
+
+
+  randtemp = fastRandom * randSeed; placementSide = 1; fastRandom = randtemp & 0xffff; placementDirection = placementSide; this->carObj_->N.simRoadInfo.slice = 0 <= humanDirection * 0x10 ? (gNumSlices <= (short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 ? (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 - (u_short)gNumSlices) : (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10)) : ((short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10 < 0 ? (short)((u_short)gNumSlices + ((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10))
+
+
          : (short)((u_short)chaserCop->CarObj()->N.simRoadInfo.slice + humanDirection * 0x10));
 
+
   if (placementDirection == 1) {
+    (this->carObj_)->desiredDirection = placementSide * humanDirection; } else {
 
-    (this->carObj_)->desiredDirection = placementSide * humanDirection;
-
-  }
-
-  else {
-
-    (this->carObj_)->desiredDirection = -(placementSide * humanDirection);
-
-  }
+    (this->carObj_)->desiredDirection = -(placementSide * humanDirection); }
 
   this->carObj_->direction = this->carObj_->desiredDirection;
 
-  newLatPos = 0;
+  newLatPos = 0; throwAway = 0;
 
-  throwAway = 0;
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos); AILife_PlaceCarAtLocation(this->carObj_, (int)(this->carObj_->N).simRoadInfo.slice,newLatPos,
 
-  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
 
-  AILife_PlaceCarAtLocation(this->carObj_,
 
-             (int)(this->carObj_->N).simRoadInfo.slice,newLatPos,
+
+
+
+
              this->carObj_->direction,0,0);
 
   ((SpeakerVirtualDispatch *)Speech::Mobile(chaserCop->CarObj()))->slot15();
-
   ((SpeakerVirtualDispatch *)Speech::Dispatch())->slot0(this->carObj_);
-
   ((SpeakerVirtualDispatch *)Speech::Mobile(chaserCop->CarObj()))->slot0(this->carObj_);
-
   ((SpeakerVirtualDispatch *)Speech::Mobile(chaserCop->CarObj()))->slot5(this->carObj_);
 
-  TrgSfx_RestartTrgSfx();
-
-  return;
-
-}
+  TrgSfx_RestartTrgSfx(); return; }
 
 
 
@@ -643,17 +641,8 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
 {
 
 
-  (this->carObj_->N).mass = this->originalMass_;
-
-  ((this->carObj_)->N).massInv =
-
-       this->originalMassInv_;
-
-
-
-  return;
-
-}
+  (this->carObj_->N).mass = this->originalMass_; ((this->carObj_)->N).massInv =
+       this->originalMassInv_; return; }
 
 
 
@@ -697,7 +686,9 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
 
 
+
           xPositionIndex = 2; } zPositionIndex = 0; if (zPosition <= 0x190000) { zPositionIndex = 1;
+
 
 
 
@@ -707,9 +698,7 @@ void AIHigh_BTC_AIPerp::AvoidCops()
             if (-0x190000 <= zPosition) { zPositionIndex = 2;
 
               if (zPosition < -(this->closestCopCarObj_->N).dimension.z) {
-
                 zPositionIndex = 3; } } } } if ((strategyChart[zPositionIndex][xPositionIndex] & 1) != 0) {
-
 
 
 
@@ -720,7 +709,6 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
           randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AI_elapsedTime * 7 + this->carObj_->pullOver * 500)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs(this->carObj_->currentSpeed)) { doBrake = 1; goto apply_brake_choice; } } } }
 
-        if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) {
 
 
 
@@ -730,7 +718,13 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
 
 
-          randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) { if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
+
+        if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) { randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) { if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
+
+
+
+
+
 
                   (this->carObj_)->desiredDirection = -(this->carObj_)->direction; } } } } } } apply_brake_choice: if (doBrake) {
 
@@ -739,11 +733,8 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
 
 
-
-
-
-
     (this->carObj_)->pullOver = 1; return; }
+
   (this->carObj_)->pullOver = 0; return; }
 
 
@@ -760,39 +751,22 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 
 
 {
+  if (this->closestCopCarObj_ == (Car_tObj *)0x0 || (u_int)this->perpMode_ >= 2) { this->timeUntilContact_ = 64000; } else { int distance; int relVel; relVel = (this->carObj_)->currentSpeed -
 
 
 
-  if (this->closestCopCarObj_ == (Car_tObj *)0x0 || (u_int)this->perpMode_ >= 2) {
-    this->timeUntilContact_ = 64000;
-  } else {
-    int distance;
-    int relVel;
 
-    relVel = (this->carObj_)->currentSpeed -
 
-        this->closestCopCarObj_->currentSpeed;
 
-    distance = this->closestCopCarDistanceMeters_;
 
+
+        this->closestCopCarObj_->currentSpeed; distance = this->closestCopCarDistanceMeters_;
     if (0xfffe < relVel + 0x7fffU) {
 
-      this->timeUntilContact_ = -(fixeddiv(distance,relVel) / 0x400);
 
-    } else {
-
-      this->timeUntilContact_ = 0x3e80000;
-
-    }
-
+      this->timeUntilContact_ = -(fixeddiv(distance,relVel) / 0x400); } else { this->timeUntilContact_ = 0x3e80000; }
     if (this->timeUntilContact_ < 0) {
-      this->timeUntilContact_ = 64000;
-    }
-  }
-
-  return;
-
-}
+      this->timeUntilContact_ = 64000; } } return; }
 
 
 
@@ -1061,243 +1035,218 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
 
-{
-  int stage;
-  Car_tObj*humanCopCarObj;
-  int placementDistance;
-  int placementSide;
-  int placementDirection;
-  enum {
-    PLACEMENTSPEED_SLOW,
-    PLACEMENTSPEED_FAST
-  } placementSpeed;
-  int randPlacement;
-  int humanDirection;
-  int humanMovement;
-  int newLatPos;
-  int throwAway;
+{ int stage; Car_tObj*humanCopCarObj; int placementDistance; int placementSide; int placementDirection; enum { PLACEMENTSPEED_SLOW, PLACEMENTSPEED_FAST } placementSpeed; int randPlacement; int humanDirection; int humanMovement; int newLatPos; int throwAway; stage = chaserCop->CurrentStage(); humanCopCarObj = chaserCop->CarObj(); this->originalActivationCop_ = chaserCop;
 
-  
 
-  stage = chaserCop->CurrentStage();
 
-  humanCopCarObj = chaserCop->CarObj();
 
-  this->originalActivationCop_ = chaserCop;
+
+
 
   this->ClearForNewStage(chaserCop);
 
+
+
   for (int i = 0; i < 10; i++) {
-
-    ((this->carObj_)->N).damage[i] = 0;
-
-  }
+    ((this->carObj_)->N).damage[i] = 0; }
 
   ((this->carObj_)->render).headLight = 0;
-
   ((this->carObj_)->render).brakeLight = 0;
-
   if (GameSetup_gData.Time != 0) {
 
     ((this->carObj_)->render).headLight = 0x33;
+    ((this->carObj_)->render).brakeLight = 2; }
 
-    ((this->carObj_)->render).brakeLight = 2;
-
-  }
 
   ((this->carObj_)->render).signalLight[0] = 0;
-
   ((this->carObj_)->render).signalLight[1] = 0;
 
   ((this->carObj_)->render).damageParts = 0;
 
+
+
+
+
   (this->carObj_)->forceNoSimOptz = 1;
 
-  Camera_gInfo[0].forceFocus = 1;
-
-  Camera_gInfo[0].focusOnAICar =
-
+  Camera_gInfo[0].forceFocus = 1; Camera_gInfo[0].focusOnAICar =
+       (char)(this->carObj_)->carIndex;
+  Camera_gInfo[1].forceFocus = 1; Camera_gInfo[1].focusOnAICar =
        (char)(this->carObj_)->carIndex;
 
-  Camera_gInfo[1].forceFocus = 1;
 
-  Camera_gInfo[1].focusOnAICar =
 
-       (char)(this->carObj_)->carIndex;
+
+
 
   Object_ClearCustomObjects();
 
-  randtemp = fastRandom * randSeed;
 
-  humanDirection = chaserCop->InitialDirection();
 
-  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
 
-  fastRandom = randtemp & 0xffff;
 
-  humanMovement = chaserCop->InitialMovement();
+  randtemp = fastRandom * randSeed; humanDirection = chaserCop->InitialDirection(); AICop_gRoadBlockState = kAICop_RoadBlockState_None; fastRandom = randtemp & 0xffff; humanMovement = chaserCop->InitialMovement(); placementSide = -1; randPlacement = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
 
-  placementSide = -1;
 
-  randPlacement = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
 
   if (randPlacement < 0x14d) {
 
-    placementDirection = 0;
 
+
+
+
+    placementDirection = 0;
     placementSpeed = PLACEMENTSPEED_FAST;
 
-    humanCopCarObj->desiredSpeed = 0xd5555;
+    humanCopCarObj->desiredSpeed = 0xd5555; chaserCop->SetRequestedDesiredSpeed(0xd5555);
 
-    chaserCop->SetRequestedDesiredSpeed(0xd5555);
 
     if (humanMovement != 0) {
 
       this->escapeDuration_ = 0x280;
+      placementDistance = 0xe1; } else {
 
-      placementDistance = 0xe1;
 
-    }
-
-    else {
 
       this->escapeDuration_ = 0x180;
+      placementDistance = 400; } } else {
 
-      placementDistance = 400;
 
-    }
+    if (humanMovement == 0) { placementSide = 1;
 
-  }
 
-  else {
 
-    if (humanMovement == 0) {
 
-      placementSide = 1;
 
       placementDirection = 0;
-
       placementSpeed = PLACEMENTSPEED_FAST;
 
+
       humanCopCarObj->desiredSpeed = 0x2c71c7;
 
-      placementDistance = 400;
 
-      chaserCop->SetRequestedDesiredSpeed(0x2c71c7);
 
-      this->escapeDuration_ = 0x180;
 
-    }
 
-    else {
 
-      placementSide = 1;
+
+
+
+      placementDistance = 400; chaserCop->SetRequestedDesiredSpeed(0x2c71c7); this->escapeDuration_ = 0x180; } else { placementSide = 1;
+
+
+
+
+
+
+
 
       placementDistance = 0x28;
-
       placementDirection = placementSide;
-
       placementSpeed = PLACEMENTSPEED_SLOW;
 
-      humanCopCarObj->desiredSpeed = 0x2c71c7;
+      humanCopCarObj->desiredSpeed = 0x2c71c7; chaserCop->SetRequestedDesiredSpeed(0x2c71c7);
 
-      chaserCop->SetRequestedDesiredSpeed(0x2c71c7);
+      this->escapeDuration_ = 0x1e0; } } (this->carObj_->N).simRoadInfo.slice = WRAP_SLICE( (placementDistance / 6) * placementSide * humanDirection,
 
-      this->escapeDuration_ = 0x1e0;
 
-    }
 
-  }
 
-  (this->carObj_->N).simRoadInfo.slice = WRAP_SLICE(
-      (placementDistance / 6) * placementSide * humanDirection,
+
       (humanCopCarObj->N).simRoadInfo.slice);
 
+
   if (placementDirection == 1) {
+    (this->carObj_)->desiredDirection = placementSide * humanDirection; } else {
 
-    (this->carObj_)->desiredDirection = placementSide * humanDirection;
+    (this->carObj_)->desiredDirection = -(placementSide * humanDirection); }
 
-  }
-
-  else {
-
-    (this->carObj_)->desiredDirection = -(placementSide * humanDirection);
-
-  }
 
   this->carObj_->direction = this->carObj_->desiredDirection;
 
-  newLatPos = 0;
+  newLatPos = 0; throwAway = 0;
 
-  throwAway = 0;
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos); AILife_PlaceCarAtLocation(this->carObj_,(int)this->carObj_->N.simRoadInfo.slice, newLatPos,this->carObj_->direction,
 
-  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
 
-  AILife_PlaceCarAtLocation(this->carObj_,(int)this->carObj_->N.simRoadInfo.slice,
-                          newLatPos,this->carObj_->direction,
+
+
+
+
+
                           placementSpeed == PLACEMENTSPEED_FAST ? 0x1f1c71 : 0x11c71c,0);
-  Camera_Update();
 
-  (this->carObj_)->btcGlueModifier =
-      fixedmult(GameSetup_gData.perpInfo[stage].GlueFactor,
-                AITune_BTC[GameSetup_gData.skill].glueMult);
+  Camera_Update(); (this->carObj_)->btcGlueModifier = fixedmult(GameSetup_gData.perpInfo[stage].GlueFactor,
 
-  (this->carObj_)->speedFactor =
-      fixedmult(GameSetup_gData.perpInfo[stage].SpeedFactor,
-                AITune_BTC[GameSetup_gData.skill].speedMult);
 
-  ((this->carObj_)->N).mass =
-      fixedmult(fixedmult(this->originalMass_,
-                          GameSetup_gData.perpInfo[stage].WeightFactor),
+
+
+
+
+                AITune_BTC[GameSetup_gData.skill].glueMult); (this->carObj_)->speedFactor = fixedmult(GameSetup_gData.perpInfo[stage].SpeedFactor,
+                AITune_BTC[GameSetup_gData.skill].speedMult); ((this->carObj_)->N).mass = fixedmult(fixedmult(this->originalMass_, GameSetup_gData.perpInfo[stage].WeightFactor),
+
                 AITune_BTC[GameSetup_gData.skill].weightMult);
 
-  ((this->carObj_)->N).massInv = fixeddiv(0x10000,((this->carObj_)->N).mass);
 
-  AIPerson_SetPersonality(this->carObj_,
 
-             GameSetup_gData.perpInfo[stage].Personality);
+  ((this->carObj_)->N).massInv = fixeddiv(0x10000,((this->carObj_)->N).mass); AIPerson_SetPersonality(this->carObj_,
 
-  R3DCar_ChangeTrafficColor(this->carObj_,
+             GameSetup_gData.perpInfo[stage].Personality); R3DCar_ChangeTrafficColor(this->carObj_,
 
-             GameSetup_gData.perpInfo[stage].Colour);
-
-  (this->carObj_)->carInfo->SpeechColour =
-
-       GameSetup_gData.perpInfo[stage].SpeechColour;
-
-  (this->carObj_)->carInfo->HudColour =
-
+             GameSetup_gData.perpInfo[stage].Colour); (this->carObj_)->carInfo->SpeechColour =
+       GameSetup_gData.perpInfo[stage].SpeechColour; (this->carObj_)->carInfo->HudColour =
        GameSetup_gData.perpInfo[stage].HudColour;
-
   Hud_InitMap();
 
+
+
+
+
+
+
+
+
+
   this->creationTime_ = simGlobal.gameTicks;
+
+
 
   if (placementSpeed == PLACEMENTSPEED_FAST) {
 
     this->SetState(new AIState_Normal(this->carObj_), STATE_NORMAL);
 
-    this->perpMode_ = (cruiseMode_t)placementSpeed;
 
-  }
+    this->perpMode_ = (cruiseMode_t)placementSpeed; } else {
 
-  else {
+
+
 
     this->SetState(new AIState_Cruise(this->carObj_,(cruiseMode_t)1,0x8000), STATE_CRUISE);
 
-    this->perpMode_ = 0;
+    this->perpMode_ = 0; }
 
-  }
+
+
 
   ((SpeakerVirtualDispatch *)Speech::Mobile(humanCopCarObj))->slot15();
 
+
   ((SpeakerVirtualDispatch *)Speech::Dispatch())->slot0(this->carObj_);
 
-  TrgSfx_RestartTrgSfx();
 
-  return;
-
-}
+  TrgSfx_RestartTrgSfx(); return; }
+/* SOURCE-REVIEW-UNRESOLVED: t has no retail caller-local record. After
+       restoring the speed getter, direct clamp forms still differ (22/300,
+       split assignment13/299, void-arm products121/305). Those finite
+       failures do not prove that an original source object was required. */
+/* Retail has only these two lateral locals. The three getter call sites
+       reproduce its guarded inline groups; their original name is unknown.
+       Previous staged-offset/fence necessity claims were source-shape-specific;
+       the prior body is backed up in build/nc12/aistate_before_lateral_getters_20261016.cpp. */
+/* Bounds are unsigned byte-field products, but retail compares signed.
+         Cast the bounded products to int
+         and evaluate each bound first; no source-only limit object is needed. */
 
 
 

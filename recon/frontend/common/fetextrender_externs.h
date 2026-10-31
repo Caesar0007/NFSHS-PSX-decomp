@@ -32,4 +32,10 @@ int sprintf(...);
 char *strcpy(...);
 unsigned int strlen(...);
 }
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+/* Retail fetextrender.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #endif

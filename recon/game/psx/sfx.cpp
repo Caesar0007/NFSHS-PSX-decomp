@@ -1124,33 +1124,46 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 void Sfx_Add(Souffle_tISouffle *is)
 
 {
+
   switch((u_char)is->type) {
   case 1:
   case 2:
   case 3:
     is->cycle = 0x1f;
     is->rndpixmap = random() & 1;
+
+
+
+
+
     return;
   case 6:
   case 7:
   case 9:
+
+
+
     is->cycle = 8;
     is->rndpixmap = random() & 1;
     return;
   case 11:
+
     is->rndpixmap = random() & 1;
     is->cycle = 2;
     return;
   case 4:
   case 8:
   case 10:
+
+
+
     is->cycle = 6;
     return;
   case 13:
+
     is->cycle = 0x40;
-    is->extramotion.y = 0;
+
     is->extramotion.x = -is->motion.z;
+    is->extramotion.y = 0;
     is->extramotion.z = is->motion.x;
-  }
-  return;
-}
+  } return; }

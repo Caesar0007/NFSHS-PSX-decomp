@@ -700,18 +700,10 @@ void AIHigh_Opponent::HighExecute()
 /* ---- __15AIHigh_OpponentP8Car_tObj  AIHigh_Opponent::ctor  [AIH_OPP.CPP:250-255] SLD-VERIFIED ---- */
 AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj) : AIHigh_Player(carObj)
 {
-
   this->attackMode_ = 0;
-
   this->lastHumanHitter_ = (Car_tObj *)0x0;
-
   this->hitCount_ = 0;
-
-  this->attackTicksLeft_ = 0;
-
-  return;
-
-}
+  this->attackTicksLeft_ = 0; return; }
 
 
 

@@ -7,178 +7,24 @@
 #include "fedialog_externs.h"
 
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks[0]; }
+   through an inline getter, not directly.  FE_Ticks lives in fedialog_externs.h: an inline defined
+   in a header records its pair at the CALLER's line (retail), one defined earlier in this .cpp at 1. */
+
 
 
 /* ---- FEDialog.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
 static tDialogBase *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)); SYM STAT */
 
 
-/* Draw's 8c record has no `buttonY` local.  Retail nevertheless shares this
-   expression across the two controller-button calls; this inline boundary
-   preserves that CSE without inventing a caller local.  The body is proven,
-   while the original helper/macro spelling is not recoverable. */
-static inline int DialogHelpButtonY(short item)
-{
-  return (item - 1) * 0xf + 0xf;
-}
-
-static inline void DialogHelpAnimateOpen(tDialogHelp *dialog)
-{
-  /* SLD opens an outer inline scope at 0x80019034 (retail line 140), exactly
-     where the tick is materialized, and an inner scope at 0x80019068 (line
-     146), exactly where the opening body begins.  The caller's 8c record has
-     neither `currentTicks` nor `openHeight`; keeping them inside this proven
-     inline boundary restores that scope while preserving retail allocation. */
-  long currentTicks = ticks[0];
-
-  dialog->width += 0x14;
-  dialog->height += 10;
-  if ((u_int)(currentTicks - dialog->startTicks) < 0x32) {
-    int openHeight = gHelpShapes[0x2a].height;
-
-    dialog->width =
-         gHelpShapes[0x2a].width * 2 +
-         (short)((u_int)(((int)dialog->width -
-                          (short)(gHelpShapes[0x2a].width * 2)) *
-                         (currentTicks - dialog->startTicks)) / 0x32);
-    dialog->height =
-         openHeight * 2 +
-         (short)((u_int)(((int)dialog->height -
-                          (short)(openHeight * 2)) *
-                         (currentTicks - dialog->startTicks)) / 0x32);
-  }
-}
-
-static inline void DialogHelpPositionAndClamp(tDialogHelp *dialog,
-                                              tTexture_ShapeInfo *shape)
-{
-  /* The caller's complete 8c record has no shape pointer.  Passing shape 3
-     through this zero-local inline boundary makes GCC evaluate the argument
-     before the centering expressions, reproducing retail's early base load.
-     SYM does not retain the private helper/macro spelling, only the absence of
-     a caller local; the body and resulting 359-instruction allocation are
-     byte-exact. */
-  dialog->left = (short)((screenwidth - dialog->width) / 2);
-  dialog->top = (short)((0xf0 - dialog->height) / 2);
-  if ((int)dialog->width < shape->width + 0x14) {
-    dialog->width = shape->width + 0x14;
-  }
-}
-
-/* CalculateDimensions' 8c record names only `ticks`.  This inline expression
-   keeps the retail subtraction grouping without introducing a caller local. */
-static inline int DialogMessageTickAge(int value)
-{
-  return value + -0x32;
-}
-
-static inline int DialogMessageHalfWidth(tDialogMessageString *dialog)
-{
-  /* Draw's 8c record names only `col` and `r`.  This zero-local boundary
-     preserves retail's width-before-left load order without a halfw carrier. */
-  return (int)((u_int)(u_short)dialog->width << 0x10) >> 0x11;
-}
-
-/* The zero-local 8c record and nested line-1 SLD scopes prove an inline source
-   boundary around this clamp.  Its behavior and allocation are exact; the
-   original unexported helper/macro spelling is not recoverable from SYM. */
-static inline int DialogMessageClampFade(tDialogMessageString *dialog)
-{
-  int fade = dialog->fFadeText;
-  int clamped;
-
-  if (0x80 < fade) {
-    fade = 0x80;
-  }
-  clamped = fade;
-  if (clamped < 0) {
-    clamped = 0;
-  }
-  dialog->fFadeText = clamped;
-  return clamped;
-}
-
-/* SLD opens a separate nested scope at retail line 580 (0x80019500) for this
-   animation.  Keeping it inline removes five false caller locals while
-   retaining retail's exact shared shape loads and arithmetic schedule. */
-static inline void DialogMessageAnimateOpen(tDialogMessageString *dialog, int ticks)
-{
-  int elapsed = ticks - dialog->startTicks;
-
-  if (elapsed < 0x32) {
-    int shapeWidth = gHelpShapes[0x2a].width;
-    int shapeHeight = gHelpShapes[0x2a].height;
-
-    dialog->fFullyOpen = 0;
-    dialog->width =
-         shapeWidth * 2 +
-         (short)((((int)dialog->width - (((int)shapeWidth << 0x11) >> 0x10)) * elapsed) / 0x32)
-    ;
-    dialog->height =
-         shapeHeight * 2 +
-         (short)((((int)dialog->height - (((int)shapeHeight << 0x11) >> 0x10)) *
-                  (ticks - dialog->startTicks))
-                        / 0x32);
-  }
-  else {
-    dialog->fFullyOpen = 1;
-  }
-}
-
-/* Run's 8c record has no boolean local for this predicate, while SLD opens
-   nested inline scopes at retail lines 31/32.  The private helper spelling is
-   unavailable; this boundary preserves the proven materialized-bool shape. */
-static inline bool DialogCanProcessCircle(tFEApplication *app, tPlayer player)
-{
-  return app->helpPopup.currentlyOn == 0 &&
-         app->CurrentMenu(player) != (tMenu *)0x0;
-}
-
-/* Draw's retail load selects state 1/2 and then addresses the row-8 palette
-   state subarray.  SLD retains no caller temporary for that selection; the
-   exact private helper spelling is not recoverable. */
-static inline int DialogYesNoTextState(tDialogYesNo *dialog, int item)
-{
-  if (item == dialog->ReturnValue) {
-    return 1;
-  }
-  return 2;
-}
-
-static inline char *DialogTextDefinitionsBase()
-{
-  /* Keeping the array's unoffset base in its own zero-local inline boundary
-     reproduces retail's indexed `lbu +51`; folding the row offset into the
-     returned address is byte-different. */
-  return (char *)textDefinitions;
-}
-
-static inline int DialogYesNoOpenElapsed(tDialogYesNo *dialog)
-{
-  /* CalculateDimensions' 8c record has no elapsed local.  Repeating this
-     zero-local accessor lets GCC share the quantity exactly as retail does. */
-  return ticks[0] - dialog->startTicks;
-}
-
 /* ---- tDialogBase::ShouldTimeOut  [FEDIALOG.CPP:73-76] SLD-VERIFIED ---- */
 
 short tDialogBase::ShouldTimeOut()
 
 {
-  /* MATCH 2026-08-03 (15->PASS): keep the expired case as the inner positive
-     return and the zero case as the tail.  The ticks array view exposes its
-     address pseudo, so GCC fills the outer branch delay with %hi(ticks)
-     instead of preloading the zero result. */
-  if (0 < timeOutTicks) {
-    if (timeOutTicks <= FE_Ticks() - startTicks) {
-      return 1;
-    }
-  }
-  return 0;
+  if (0 < timeOutTicks && timeOutTicks <= FE_Ticks() - startTicks)
+    return 1;
+  else return 0;
 }
-
 
 
 /* ---- tDialogBase::InitializeClass  [FEDIALOG.CPP:83-84] SLD-VERIFIED ---- */
@@ -231,8 +77,8 @@ void tDialogBase::DrawAllDialogs()
 void tDialogBase::HideAllDialogs()
 
 {
-  
   for (short i = 0; i < 8; i++) {
+
     DialogVisibilityList[i] = (tDialogBase *)0x0;
   }
 }
@@ -311,7 +157,10 @@ void tDialogBase::Draw()
   PSXDrawTransSquare(0,(left + width) - 4,top,4,height,4);
   PSXDrawTransSquare(0,left + 4,top,width + -8,2,4);
   PSXDrawTransSquare(0,left + 4,(top + height) - 2,width + -8,2,4);
+
+
   PSXDrawTransSquare(0,left + 4,top + 2,width + -8,height + -4,2);
+
   FeDraw_SetABRMode(0);
 }
 
@@ -344,10 +193,10 @@ void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 
 
 
-
   /* The first and third ABI parameters are unnamed in retail SYM and
      unused here; their types remain in the mangled method signature. */
   if (keyval != kInput_KeyType_AlreadyProcessed) {
+
     Hide();
     keyval = kInput_KeyType_AlreadyProcessed;
   }
@@ -360,8 +209,8 @@ void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 void tDialogHelp::AddItem(short textID,short controllerID)
 
 {
-
   if (numItems < 7) {
+
     text[numItems] = TextSys_Word(textID);
     cont[numItems] = controllerID;
     numItems++;
@@ -713,18 +562,26 @@ void tDialogMessageString::Draw()
 
 /* ---- tDialogBackUpOnly::ProcessInput  [FEDIALOG.CPP:654-670] SLD-VERIFIED ---- */
 
+/* SYM: FCN VOID, no locals (the "iVar1" return funnel was a Ghidra fiction --
+   the oracle never sets $v0).  SLD: 655 guard / 658 key test / 660 the
+   AlreadyProcessed store / 664 Hide() -- so Hide is the ELSE arm (source
+   order puts the store BEFORE it), which is what lays it out-of-line. */
 void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &)
 
 {
-  /* SYM: FCN VOID, no locals (the "iVar1" return funnel was a Ghidra fiction --
-     the oracle never sets $v0).  SLD: 655 guard / 658 key test / 660 the
-     AlreadyProcessed store / 664 Hide() -- so Hide is the ELSE arm (source
-     order puts the store BEFORE it), which is what lays it out-of-line. */
   if ((specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)specificPlayer)) {
+
+
     if (keyval != kInput_KeyType_Triangle) {
       if (keyval != kInput_KeyType_Circle) {
         keyval = kInput_KeyType_AlreadyProcessed;
+
+
+
+
+
+
       }
     }
     else {
@@ -925,16 +782,22 @@ void tDialogYesNo::Draw()
 
 /* ---- tDialogYesNo::ProcessInput  [FEDIALOG.CPP:823-853] SLD-VERIFIED ---- */
 
+/* SLD: 824 player guard / 827 fFullyOpen guard (own line, own block) /
+   831 the dispatch (a real switch -- gcc balance_case_nodes builds the
+   ==0x800 root + <0x801 bound test tree over 4 case labels) /
+   834-836, 838-840, 844-846 the three arms in ascending source order. */
 void tDialogYesNo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCommand &command)
 
 {
-  /* SLD: 824 player guard / 827 fFullyOpen guard (own line, own block) /
-     831 the dispatch (a real switch -- gcc balance_case_nodes builds the
-     ==0x800 root + <0x801 bound test tree over 4 case labels) /
-     834-836, 838-840, 844-846 the three arms in ascending source order. */
   if ((specificPlayer == kPlayerBoth) || (fromPlayer == (tPlayer)specificPlayer)) {
+
+
     if ((fFullyOpen ^ 1) == 0) {   /* xori;bnez -- same idiom as fememcard.cpp */
+
+
+
       switch (keyVal) {
+
       case kInput_KeyType_Left:
         AudioCmn_PlayFESFX(5);
         ReturnValue = 1;
@@ -943,11 +806,18 @@ void tDialogYesNo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMenuCo
         AudioCmn_PlayFESFX(6);
         ReturnValue = 0;
         break;
+
       case kInput_KeyType_Cross:
       case kInput_KeyType_Start:
         AudioCmn_PlayFESFX(0);
         this->ReadyToReturnValue = 1;
         ((tDialogBase *)this)->Hide();
+
+
+
+
+
+
         break;
       }
     }

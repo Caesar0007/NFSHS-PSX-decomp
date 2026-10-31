@@ -88,26 +88,24 @@ void Force_HitWall(int impulse);
  * requires DEST_ADDR. Paired full inputs/dumps: build/nc12/
  * force_{indexfirst,pointer}_probe.i.*. This is a measured compiler
  * explanation of those trials, not proof of an original pointer object.
- * These receipts apply only to this source basin, not an original-source floor. */
+ * These receipts apply only to this source basin, not an original-source floor.
+ * `f` and `actuator1` stay SOURCE-REVIEW-UNRESOLVED (absent from retail SYM). */
 void Force_Vbl(void)
 
 {
-
   for (int i = 0; i < 2; i = i + 1) {
-    Force_tGlobal *f; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; indexed producer still needs recovery. */
-    int padnum;
-    int padstate;
-    int actuator1; /* SOURCE-REVIEW-UNRESOLVED: absent from retail SYM; clamp receipts above. */
-
-    f = &Force_g[i];
-    padnum = i << 4;
+    Force_tGlobal *f; int padnum;
+    int padstate; int actuator1;
+    f = &Force_g[i]; padnum = i << 4;
     padstate = PadGetState(padnum);
+
     if (padstate != 6) {
+
       if (padstate < 4) {
         f->active = 0;
       }
-    }
-    else if (f->active == 0) {
+    } else if (f->active == 0) {
+
       PadSetAct(padnum,f->actuator,2);
       PadSetActAlign(padnum,Force_gActAlign);
       f->active = 1;
@@ -115,25 +113,17 @@ void Force_Vbl(void)
     if (f->time > f->fade) {
       f->actuator[0] =
            Force_rand_256[Force_gTick >> 1 & 0xff] < f->high + f->jolt;
-      actuator1 = 0xff;
-      if (f->low + f->jolt < 0x100) {
-        actuator1 = f->low + f->jolt;
-      }
-      f->actuator[1] = actuator1;
+      actuator1 = 0xff; if (f->low + f->jolt < 0x100) actuator1 = f->low + f->jolt; f->actuator[1] = actuator1;
       f->time = f->time - 1;
     }
     else if (f->time != 0) {
       f->actuator[0] =
-           Force_rand_256[Force_gTick >> 1 & 0xff] <
-           f->jolt * f->time / f->fade + f->high;
-      actuator1 = 0xff;
-      if (f->jolt * f->time / f->fade + f->low < 0x100) {
-        actuator1 = f->jolt * f->time / f->fade + f->low;
-      }
-      f->actuator[1] = actuator1;
+           Force_rand_256[Force_gTick >> 1 & 0xff] < f->jolt * f->time / f->fade + f->high;
+      actuator1 = 0xff; if (f->jolt * f->time / f->fade + f->low < 0x100) actuator1 = f->jolt * f->time / f->fade + f->low; f->actuator[1] = actuator1;
       f->time = f->time - 1;
     }
     else {
+
       f->jolt = 0;
       f->actuator[0] = Force_rand_256[Force_gTick >> 1 & 0xff] < f->high;
       f->actuator[1] = f->low;
@@ -234,48 +224,32 @@ void Force_Vbl(void)
 void Force_Update(Car_tObj *car)
 
 {
-  Force_tGlobal *f;
-  int skids;
-  int impacts;
-  int frontmultiplier;
-  int rearmultiplier;
-  int impactmultiplier;
-  int v0;
-  int v1;
-  
-  if (1U < (u_int)car->carIndex) {
-    return;
-  }
+  if (1U < (u_int)car->carIndex) return;
+  Force_tGlobal *f; int skids; int impacts;
+  int frontmultiplier; int rearmultiplier; int impactmultiplier; int v0; int v1;
   f = &Force_g[car->carIndex];
+
   if (1 < Replay_ReplayMode) {
+
     f->high = '\0';
     f->low = '\0';
     f->time = '\0';
     return;
   }
+
   skids = GameSetup_gData.controllerData.shockMode[car->carIndex];
   impacts = GameSetup_gData.controllerData.shockImpact[car->carIndex];
-  if (skids != 0) {
-    frontmultiplier = (skids + 0x10) * 0x2da6;
-  }
-  else {
-    frontmultiplier = 0;
-  }
-  if (skids != 0) {
-    rearmultiplier = (skids + 0x10) * 0x1e6e;
-  }
-  else {
-    rearmultiplier = 0;
-  }
-  if (impacts != 0) {
-    impactmultiplier = (impacts + 0x10) * 0xb699;
-  }
-  else {
-    impactmultiplier = 0;
-  }
-  v0 = 0;
-  v1 = v0;
+  if (skids != 0) frontmultiplier = (skids + 0x10) * 0x2da6; else frontmultiplier = 0;
+  if (skids != 0) rearmultiplier = (skids + 0x10) * 0x1e6e; else rearmultiplier = 0;
+  if (impacts != 0) impactmultiplier = (impacts + 0x10) * 0xb699; else impactmultiplier = 0;
+
+  v0 = 0; v1 = v0;
+
+
+
+
   if ((car->N).flightTime == 0) {
+
     switch((car->N).driveSurfaceType) {
     case 2:
     case 3:
@@ -285,9 +259,9 @@ void Force_Update(Car_tObj *car)
     case 7:
     case 8:
     case 9:
+
       v0 = 0;
-      v1 = 0x78000 < __builtin_abs((car->linearVel_ch).z) >> 2 ?
-           0x78000 : __builtin_abs((car->linearVel_ch).z) >> 2;
+      v1 = 0x78000 < __builtin_abs((car->linearVel_ch).z) >> 2 ? 0x78000 : __builtin_abs((car->linearVel_ch).z) >> 2;
       goto ForceUpd_audioRevLoop;
     case 10:
     case 0xb:
@@ -295,47 +269,56 @@ void Force_Update(Car_tObj *car)
     case 0xd:
     case 0xf:
       v0 = 0x58000 < __builtin_abs((car->linearVel_ch).z) >> 1 ?
+
            0x58000 : __builtin_abs((car->linearVel_ch).z) >> 1;
+
       break;
     case 0xe:
+
       v0 = 0;
-    }
-    v1 = 0;
+    } v1 = 0;
   }
 ForceUpd_audioRevLoop:
-  if (car->audioCount != 0) {
-    int c = car->audioCount + -1;
-    while (1) {
-      if (c < 0) {
-        break;
-      }
-      if (car->audio[c].channel == 0x12) {
-        v0 = v0 > car->audio[c].force * 2 ? v0 : car->audio[c].force * 2;
-      }
-      else if (car->audio[c].channel == 0x14) {
-        v1 = v1 > car->audio[c].force * 2 ? v1 : car->audio[c].force * 2;
-      }
-      else if ((car->audio[c].channel < 0) && (impactmultiplier != 0)) {
-        int force;
-        int shock;
-        int time;
 
+
+
+
+  if (car->audioCount != 0)
+  {
+    int c = car->audioCount + -1;
+
+    while (1) { if (c < 0) break;
+
+
+      if (car->audio[c].channel == 0x12)
+        v0 = v0 > car->audio[c].force * 2 ? v0 : car->audio[c].force * 2;
+
+
+      else if (car->audio[c].channel == 0x14)
+        v1 = v1 > car->audio[c].force * 2 ? v1 : car->audio[c].force * 2;
+
+
+      else if ((car->audio[c].channel < 0) && (impactmultiplier != 0))
+      {
+        int force; int shock;
+        int time;
         if ((car->audio[c].surface1 != 10) && (car->audio[c].surface1 != 8)) {
+
+
           if (0x28000 < car->audio[c].force) {
+
             force = 0x28000;
-            if ((fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000 < 0x61) {
-              time = (fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000;
-            }
-            else {
-              time = 0x60;
-            }
+            if ((fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000 < 0x61) time = (fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000; else time = 0x60;
           }
           else {
+
             force = car->audio[c].force;
             time = 0x20;
           }
           shock = fixedmult(force,impactmultiplier) / 0x10000;
+
           if (((int)(u_int)f->jolt < shock) || ((int)(u_int)f->time < time)) {
+
             f->fade = (u_char)(time >> 1);
             f->time = (u_char)time;
             f->jolt = (u_char)shock;
@@ -345,21 +328,19 @@ ForceUpd_audioRevLoop:
       c = c + -1;
     }
   }
-  if (frontmultiplier != 0) {
+
+  if (frontmultiplier != 0)
     v0 = fixedmult(0xa0000 <? v0,frontmultiplier) / 0x10000;
-  }
-  else {
-    v0 = 0;
-  }
-  if (rearmultiplier != 0) {
+
+  else v0 = 0;
+
+  if (rearmultiplier != 0)
     v1 = fixedmult(0xf0000 <? v1,rearmultiplier) / 0x10000;
-  }
-  else {
-    v1 = 0;
-  }
+
+  else v1 = 0;
+
   f->high = (u_char)v0;
   f->low = (u_char)v1;
-  return;
 }
 
 /* ---- Force_StartUp__Fv  [FORCE.CPP:230-244] SLD-EXACT ----
@@ -436,15 +417,14 @@ void Force_Disable(void)
 int Force_IsForceOn(Car_tObj *car)
 
 {
-  Force_tGlobal *f;
-
-  if (1 < Replay_ReplayMode) {
+  Force_tGlobal *f; if (1 < Replay_ReplayMode) {
     return 0;
   }
   if ((u_int)car->carIndex >= 2) {
     return 0;
   }
   f = (Force_tGlobal *)((car->carIndex << 3) + (int)Force_g);
+
   return f->active == 1;
 }
 
@@ -464,21 +444,18 @@ void Force_Pause(void)
 void Force_UnPause(void)
 
 {
-  return;
-}
+  return; }
 
 /* ---- Force_HitSign__FP8Car_tObj  [FORCE.CPP:298-299] SLD-VERIFIED ---- */
 void Force_HitSign(Car_tObj *car)
 
 {
-  return;
-}
+  return; }
 
 /* ---- Force_HitWall__Fi  [FORCE.CPP:301-302] SLD-VERIFIED ---- */
 void Force_HitWall(int impulse)
 
 {
-  return;
-}
+  return; }
 
 /* end of force.cpp */

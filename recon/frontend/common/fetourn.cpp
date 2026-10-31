@@ -4,13 +4,6 @@
  */
 #include "fetourn.h"
 
-/* Retail fetourn.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
-static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
-static inline tCompetitor *Tournament_Competitors(tTournamentManager &tm) { return tm.fCompetitors; }
-static inline int Tournament_BestPlacement(tTournamentManager &tm, int tournamentID) { return (signed char)tm.fBestPlacement[tournamentID]; }
-static inline int Tier_TournOffset(tTierInfo &tier) { return tier.fTournOffset; }
 inline tTourneyInfo *tTournamentManager::CurrentTourney() { return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament]; }
 
 /* ---- tTournamentManager::Initialize  [FETOURN.CPP:36-82] ---- */
@@ -278,6 +271,8 @@ static int tournPointsCompare(char *p1,char *p2)
      (result = (int)comps[(byte)*p2].fIsPlayerCar -
                (int)comps[(byte)*p1].fIsPlayerCar,
       result == 0)) {
+
+
     result = dummyCars[(byte)*p1].finalPosition -
              dummyCars[(byte)*p2].finalPosition;
   }
@@ -320,13 +315,13 @@ void tTournamentManager::UpdateTournFinishMoney()
 void tTournamentManager::UpdateTrackFinishMoney()
 
 {
-
-
-
   Car_tStats *dummyCars;
 
   dummyCars = Cars_NewCarStatsList();
   if (dummyCars[0].finalFinishType == 2) {
+
+
+
     (this->fAwards).fMoney +=
         this->GetTrackFinishPrize((short)dummyCars[0].finalPosition + -1);
   }
@@ -787,10 +782,10 @@ long tTournamentManager::GetTrackFinishPrize(short position)
 /* ---- tTournamentManager::GetTournamentFinishPrize  [FETOURN.CPP:897-905] ---- */
 long tTournamentManager::GetTournamentFinishPrize(short position)
 {
-
   /* SYM-CODEGEN-CARRIER: tourn -- SYM has no locals here; the shared pointer
      is required for the retail address schedule (inlining changes 14 insns). */
   if ((ushort)position < 6) {
+
     tTourneyInfo *tourn = this->CurrentTourney();
     return tourn->fPrize[position];
   }
@@ -897,29 +892,31 @@ void tTournamentManager::CalcTierFinishPrize()
 
 /* ---- tTournamentManager::GetTrophyName  [FETOURN.CPP:1040-1056] ---- */
 
+/* Const snapshots preserve the pre-branch best-placement load and the
+   short branch selection without adding retail-absent SYM locals. */
+/* SYM locals: int showplace (REG $2) + char trophySizeLetter[3] (AUTO -0x18)
+   + char trophyPlacementLetter[4] (AUTO -0x10); `place` keeps its own REG $3.
+   The two arrays are AGGREGATE INITIALIZERS (rodata->stack copies: 3x lb/sb
+   for the 3-byte one, an unaligned lwl/lwr+swl/swr word for the 4-byte one) --
+   the Ghidra body had hand-expanded gcc's own unaligned block move. */
+/* MATCH: `char` is UNSIGNED on this build -> (signed char) restores the oracle's lb.
+   SLD puts this read on line 1042/1043 -- BETWEEN the two array initializers and
+   before the guard, i.e. in the entry basic block (sched1 cannot move a load
+   across a branch, so an in-branch placement can never reproduce it). */
 void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char *buffer,int place
                )
 
 {
-  /* Const snapshots preserve the pre-branch best-placement load and the
-     short branch selection without adding retail-absent SYM locals. */
-  /* SYM locals: int showplace (REG $2) + char trophySizeLetter[3] (AUTO -0x18)
-     + char trophyPlacementLetter[4] (AUTO -0x10); `place` keeps its own REG $3.
-     The two arrays are AGGREGATE INITIALIZERS (rodata->stack copies: 3x lb/sb
-     for the 3-byte one, an unaligned lwl/lwr+swl/swr word for the 4-byte one) --
-     the Ghidra body had hand-expanded gcc's own unaligned block move. */
   int showplace;
   char trophySizeLetter [3] = { 'S', 'M', 'L' };
-  /* MATCH: `char` is UNSIGNED on this build -> (signed char) restores the oracle's lb.
-     SLD puts this read on line 1042/1043 -- BETWEEN the two array initializers and
-     before the guard, i.e. in the entry basic block (sched1 cannot move a load
-     across a branch, so an in-branch placement can never reproduce it). */
   const int best = Tournament_BestPlacement(tournamentManager, (signed char)tourn->fTournamentID);
   char trophyPlacementLetter [4] = { 'W', 'G', 'S', 'B' };
+
 
   if (place == -1) {
     const short t = (u_int)(best - 1U) < 3 ? best : 0;
     showplace = t;
+
   }
   else {
     showplace = place;

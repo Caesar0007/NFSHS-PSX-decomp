@@ -606,6 +606,15 @@ void AudioCmn_Init(void)
  * SLD/original-text or whole-project seal. No new name/object,asm/volatile,
  * executable padding or output/reference rewrite is introduced. Receipts:
  * build/nc12/audio_reset_source_20261028/. */
+/* 2026-10-31 AUDAI receipt: tags16 are the anonymous ?: statement (one tag at
+ * its ';' 151; retail 143/145/146). A plain if/else gives tags 0 but g++2.8 keeps
+ * an if/else clause scope only with a declaration or kept sub-block, so the
+ * +310..+318 else region is lost (D: 34/36 regions); ({}) arms add regions.
+ * An unused local in the else restored all regions but was RULED a banned dummy
+ * local (coordinator 2026-10-31) and is not adopted. Measured: plain if/else
+ * with `gettick();` = tags0 but 32/36 regions (both lost); retail discards the
+ * else gettick() v0 (overwritten by the next jal gettick), so no existing
+ * variable receives it. Open: the real producer of the two empty regions. */
 #line 747 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
 void AudioCmn_Reset(void)
 

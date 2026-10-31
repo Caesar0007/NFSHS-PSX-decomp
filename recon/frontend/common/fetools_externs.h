@@ -29,4 +29,7 @@ int sprintf(...);
 unsigned int strlen(...);
 }
 
+/* Retail fetools.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #endif

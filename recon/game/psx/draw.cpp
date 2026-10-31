@@ -75,38 +75,43 @@ void Draw_InitLibRender(void);
 
 
 /* ---- Draw_SetView__Fiiiiiiiii  [DRAW.CPP:72-101] SLD-VERIFIED ---- */
-int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize)
-
-{
+  /* Const use-site snapshot preserves the pre-increment return value without
+     emitting a retail-absent `viewIndex` debug local. */
   /* SYM (nfs4-f-v3.txt @0x800BDAC0) names `newview` (Draw_tView*) + `e00`/`e10`
      (DRAWENV*, both 92 bytes) as real locals -- NOT raw Draw_gView[index].drawenv[N]
      array-index expressions everywhere. Rewritten to cache the two DRAWENV pointers
      once per the SYM, matching the oracle's s1/s2-hold-e00/e10-address shape. */
+int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize)
+
+{
   Draw_tView *newview;
   DRAWENV *e00;
   DRAWENV *e10;
 
+
   newview = Draw_gView + Draw_gNumView;
+
   e00 = newview->drawenv;
   e10 = newview->drawenv + 1;
+
   SetDefDrawEnv(e00,x0,y0,w,h);
   SetDefDrawEnv(e10,x1,y1,w,h);
-  e00->r0 = '\0';
-  e00->g0 = '\0';
-  e00->b0 = '\0';
-  e10->r0 = '\0';
-  e10->g0 = '\0';
-  e10->b0 = '\0';
-  e10->isbg = (u_char)isbg;
-  e00->isbg = (u_char)isbg;
-  e10->dtd = (u_char)dtd;
-  e00->dtd = (u_char)dtd;
-  /* Const use-site snapshot preserves the pre-increment return value without
-     emitting a retail-absent `viewIndex` debug local. */
+
+  e00->r0 = '\0'; e00->g0 = '\0'; e00->b0 = '\0';
+  e10->r0 = '\0'; e10->g0 = '\0'; e10->b0 = '\0';
+
+  e10->isbg = (u_char)isbg; e00->isbg = (u_char)isbg;
+
+  e10->dtd = (u_char)dtd; e00->dtd = (u_char)dtd;
   const int viewIndex = Draw_gNumView;
+
   newview->otsize = otsize;
+
+
   newview->membudget = 0;
+
   Draw_gNumView = Draw_gNumView + 1;
+
   return viewIndex;
 }
 
@@ -118,74 +123,76 @@ void Draw_InitViews(void)
 }
 
 /* ---- Draw_InitViewOT__Fv  [DRAW.CPP:127-134] SLD-VERIFIED ---- */
+  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
+     strength-reduce the view walk without an extra mutable debug local.
+     `view` is a const reconstruction expression alias, not a recovered name.
+     Byte-PASS and native scope/home contract verified 2026-09-27. */
 void Draw_InitViewOT(void)
 
 {
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
+
+
+    view->ot[0] = reservememadr("ot0",view->otsize << 2,0x10);
+    view->ot[1] = reservememadr("ot1",view->otsize << 2,0x10);
+  } return; }
+
+/* ---- Draw_InitViewOTInGame__Fv  [DRAW.CPP:138-145] SLD-VERIFIED ---- */
   /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
-  for (int i = 0; i < Draw_gNumView; i++) {
-    Draw_tView *const view = &Draw_gView[i];
-    view->ot[0] = reservememadr("ot0",view->otsize << 2,0x10);
-    view->ot[1] = reservememadr("ot1",view->otsize << 2,0x10);
-  }
-  return;
-}
-
-/* ---- Draw_InitViewOTInGame__Fv  [DRAW.CPP:138-145] SLD-VERIFIED ---- */
 void Draw_InitViewOTInGame(void)
 
 {
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
+
+
+    view->ot[0] = (u_long *)Platform_ReserveMemory(view->otsize << 2,"ot0");
+    view->ot[1] = (u_long *)Platform_ReserveMemory(view->otsize << 2,"ot1");
+  } return; }
+
+/* ---- Draw_DeInitViews__Fv  [DRAW.CPP:157-168] SLD-VERIFIED ---- */
   /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
-  for (int i = 0; i < Draw_gNumView; i++) {
-    Draw_tView *const view = &Draw_gView[i];
-    view->ot[0] = (u_long *)Platform_ReserveMemory(view->otsize << 2,"ot0");
-    view->ot[1] = (u_long *)Platform_ReserveMemory(view->otsize << 2,"ot1");
-  }
-  return;
-}
-
-/* ---- Draw_DeInitViews__Fv  [DRAW.CPP:157-168] SLD-VERIFIED ---- */
 void Draw_DeInitViews(void)
 
 {
+
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
+
+
+
+    if (view->ot[0] != (u_long *)0x0) { purgememadr(view->ot[0]);
+    } if (view->ot[1] != (u_long *)0x0) { purgememadr(view->ot[1]);
+    } view->ot[0] = (u_long *)0x0;
+    view->ot[1] = (u_long *)0x0;
+  } return; }
+
+/* ---- Draw_DeInitViewsInGame__Fv  [DRAW.CPP:172-183] SLD-VERIFIED ---- */
   /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
-  for (int i = 0; i < Draw_gNumView; i++) {
-    Draw_tView *const view = &Draw_gView[i];
-    if (view->ot[0] != (u_long *)0x0) {
-      purgememadr(view->ot[0]);
-    }
-    if (view->ot[1] != (u_long *)0x0) {
-      purgememadr(view->ot[1]);
-    }
-    view->ot[0] = (u_long *)0x0;
-    view->ot[1] = (u_long *)0x0;
-  }
-  return;
-}
-
-/* ---- Draw_DeInitViewsInGame__Fv  [DRAW.CPP:172-183] SLD-VERIFIED ---- */
 void Draw_DeInitViewsInGame(void)
 
 {
-  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
-     strength-reduce the view walk without an extra mutable debug local.
-     `view` is a const reconstruction expression alias, not a recovered name.
-     Byte-PASS and native scope/home contract verified 2026-09-27. */
+
   for (int i = 0; i < Draw_gNumView; i++) {
     Draw_tView *const view = &Draw_gView[i];
+
+
+
+
+
     view->ot[0] = (u_long *)0x0;
     view->ot[1] = (u_long *)0x0;
-  }
-  return;
-}
+  } return; }
 
 /* ---- Draw_GetDRAWENV__Fii  [DRAW.CPP:187-188] SLD-VERIFIED ---- */
 DRAWENV * Draw_GetDRAWENV(int viewid,int page)
@@ -214,9 +221,6 @@ void Draw_SetViewColor(int viewid,int r,int g,int b)
 }
 
 /* ---- AllocatePrimitivesBuffer__Fv  [DRAW.CPP:237-292] SLD-VERIFIED ---- */
-void AllocatePrimitivesBuffer(void)
-
-{
   /* SYM (nfs4-f-v3.txt @0x800BDE60) names exactly 3 locals, all `Draw_tView *`, in TWO
      DISJOINT block scopes: view0+view1 in the if(commMode==1) block (lines 33-37), view
      ALONE in the else block (lines 49-56) -- there is NO function-scope `membudget`
@@ -235,35 +239,64 @@ void AllocatePrimitivesBuffer(void)
      between the `commMode==1` compare and the multiply), so gcc reuses the still-live
      compare constant register as the shift-amount operand (a variable-form `sllv`) --
      an allocator artifact of NOT introducing an intervening `membudget` computation. */
+void AllocatePrimitivesBuffer(void)
+
+{
+
   if (GameSetup_gData.commMode == 1) {
     Draw_InitViewOT();
   }
-  else {
-    Draw_InitViewOTInGame();
+  else { Draw_InitViewOTInGame();
   }
+
+
+
+
+
+
+
+
+
   if (GameSetup_gData.commMode == 1) {
     gTotalMem = 0x22500;
   }
-  else {
-    gTotalMem = 0x1f600;
+  else { gTotalMem = 0x1f600;
   }
+
   gEnviro[0].server = Platform_ReserveMemory(gTotalMem,"ps0");
   gEnviro[1].server = Platform_ReserveMemory(gTotalMem,"ps1");
+
+
+
+
+
+
+
   if (GameSetup_gData.commMode == 1) {
     Draw_tView *view0;
     Draw_tView *view1;
+
+
     view0 = &Draw_gView[Draw_gPlayer1View];
+
     view0->membudget = (gTotalMem >> 1) + -0x1a00;
+
+
+
     view1 = &Draw_gView[Draw_gPlayer2View];
+
     view1->membudget = (gTotalMem >> 1) + -0x1a00;
   }
   else {
     Draw_tView *view;
+
+
+
     view = &Draw_gView[Draw_gPlayer1View];
-    view->membudget = gTotalMem + -0x1a00;
-  }
-  return;
-}
+
+
+
+    view->membudget = gTotalMem + -0x1a00; } return; }
 
 /* ---- ClearPrimitivesBuffer__Fv  [DRAW.CPP:312-320] SLD-VERIFIED ---- */
 void ClearPrimitivesBuffer(void)
@@ -283,22 +316,32 @@ void ClearPrimitivesBuffer(void)
 void ClearPlatformPrimitivesBuffer(void)
 
 {
+
   DrawSync(0);
-  gEnviro[1].server = (char *)0x0;
-  gEnviro[0].server = (char *)0x0;
+
+
+
+
+
+  gEnviro[1].server = (char *)0x0; gEnviro[0].server = (char *)0x0;
+
+
   if (GameSetup_gData.commMode == 1) {
     Draw_DeInitViews();
   }
-  else {
-    Draw_DeInitViewsInGame();
-  }
-  return;
-}
+  else { Draw_DeInitViewsInGame(); } return; }
 
 /* ---- Draw_StartRenderingView__Fi  [DRAW.CPP:352-374] SLD-VERIFIED ---- */
-void Draw_StartRenderingView(int viewid)
-
-{
+  /* MATCH (2026-07-31, w38-a3): the oracle's tail is the DE MORGAN form --
+     `if (viewid != P1 && viewid != P2) { gMaxPrim } else { PrimPtr+membudget }`
+     -- so BOTH equality tests `beq` out to the SAME out-of-line THEN block and
+     the gMaxPrim arm is the fall-through, exactly as the oracle lays it out.
+     A previous pass tried De Morgan and saw a +10-insn blow-up, concluding
+     "GENUINE FLOOR"; that verdict was WRONG -- the blow-up came from the arm
+     body still spelling `Draw_gView[viewid].membudget`, which re-materializes
+     the array base inside the now-out-of-line block (the oracle reads it off
+     the already-live `view` pointer, `lw v1,0x4($a2)`).  De Morgan + the
+     `view->` spelling together = PASS 46/46. */
   /* FIXED: the oracle materializes ONE literal scratchpad base register (0x1F800000)
      and addresses every field below it by DISPLACEMENT -- these are cache fields,
      not linked globals whose accesses would compile as %hi/%lo(symbol). The SYM already
@@ -318,10 +361,15 @@ void Draw_StartRenderingView(int viewid)
      comment at the tail if/else -- De Morgan DOES crack it once the arm body
      reads `view->membudget` instead of re-indexing `Draw_gView[viewid]`.
      PASS 46/46 as of 2026-07-31.) */
+void Draw_StartRenderingView(int viewid)
+
+{
   Draw_DCache *sd;
   Draw_tView *view;
-
   sd = (Draw_DCache *)0x1F800000;
+
+
+
   view = Draw_gView + viewid;
   const int midGroundOtzNumerator = view->otsize * 7;
   Draw_gViewOtSize = view->otsize;
@@ -331,30 +379,16 @@ void Draw_StartRenderingView(int viewid)
   sd->head.clipH = Draw_gView[viewid].drawenv[0].clip.h;
   Draw_gMidGroundOtz = roundedNumerator >> 3;
   sd->head.cprim.LastPrim = (u_long *)view->ot[gFlip];
-  /* MATCH (2026-07-31, w38-a3): the oracle's tail is the DE MORGAN form --
-     `if (viewid != P1 && viewid != P2) { gMaxPrim } else { PrimPtr+membudget }`
-     -- so BOTH equality tests `beq` out to the SAME out-of-line THEN block and
-     the gMaxPrim arm is the fall-through, exactly as the oracle lays it out.
-     A previous pass tried De Morgan and saw a +10-insn blow-up, concluding
-     "GENUINE FLOOR"; that verdict was WRONG -- the blow-up came from the arm
-     body still spelling `Draw_gView[viewid].membudget`, which re-materializes
-     the array base inside the now-out-of-line block (the oracle reads it off
-     the already-live `view` pointer, `lw v1,0x4($a2)`).  De Morgan + the
-     `view->` spelling together = PASS 46/46. */
+
   if ((viewid != Draw_gPlayer1View) && (viewid != Draw_gPlayer2View)) {
     sd->head.cprim.MPrimPtr = Draw_gMaxPrim;
   }
-  else {
-    sd->head.cprim.MPrimPtr = sd->head.cprim.PrimPtr + view->membudget;
+  else { sd->head.cprim.MPrimPtr = sd->head.cprim.PrimPtr + view->membudget;
   }
-  sd->head.mirror = 0;
-  return;
+  sd->head.mirror = 0; return;
 }
 
 /* ---- Draw_StopRenderingView__Fi  [DRAW.CPP:387-398] SLD-VERIFIED ---- */
-void Draw_StopRenderingView(int viewid)
-
-{
   /* FIXED: SYM (nfs4-f-v3.txt @0x800BE118) names exactly THREE locals -- LEnv (DRAWENV,
      AUTO stack, sp+0x10, matches `addiu a3,sp,0x10`), pEnv (DR_ENV*, reg $a0), view
      (Draw_tView*, reg $a1) -- NOT the ~15 raw byte-offset iterator temps the previous
@@ -401,49 +435,38 @@ void Draw_StopRenderingView(int viewid)
      copy source) 107, index-form 2nd otsize read 65.  The later byte-PASS
      source remains authoritative; a const pal snapshot and retail declaration
      order LEnv/pEnv/view also make its native SYM record exact. */
+void Draw_StopRenderingView(int viewid)
+
+{
   DRAWENV LEnv;
   DR_ENV *pEnv;
   Draw_tView *view;
 
   view = Draw_gView + viewid;
+
   LEnv = view->drawenv[gFlip];
-  pEnv = (DR_ENV *)Render_gPacketPtr;
-  u_char *const pal = Render_gPalettePtr;
-  *(u_int *)pEnv = *(u_int *)pEnv & 0xff000000 |
-       *(u_int *)(pal + view->otsize * 4 + -4) & 0xffffff;
-  Render_gPacketPtr = (char *)pEnv + 0x40;
-  ((u_int *)(view->otsize * 4 + (int)pal))[-1] =
-      ((u_int *)(view->otsize * 4 + (int)pal))[-1] & 0xff000000 |
-      (u_int)pEnv & 0xffffff;
-  SetDrawEnv(pEnv,&LEnv);
-  return;
+
+  pEnv = (DR_ENV *)Render_gPacketPtr; u_char *const pal = Render_gPalettePtr; *(u_int *)pEnv = *(u_int *)pEnv & 0xff000000 | *(u_int *)(pal + view->otsize * 4 + -4) & 0xffffff; Render_gPacketPtr = (char *)pEnv + 0x40; ((u_int *)(view->otsize * 4 + (int)pal))[-1] = ((u_int *)(view->otsize * 4 + (int)pal))[-1] & 0xff000000 | (u_int)pEnv & 0xffffff;
+
+  SetDrawEnv(pEnv,&LEnv); return;
 }
 
 /* ---- Draw_CheckFirstFrameRender__Fv  [DRAW.CPP:409-419] SLD-VERIFIED ---- */
 void Draw_CheckFirstFrameRender(void)
 
 {
+
   if (gFlip == -1) {
+
+
     Draw_DirectSetEnvironment(0x140,0x100,0x140,0xf0,1,0,1,0,0,0);
     Draw_DirectSetEnvironment(0,0x100,0x140,0xf0,1,1,1,0,0,0);
+
     gFlip = 1;
-    AllocatePrimitivesBuffer();
-  }
-  return;
-}
+
+    AllocatePrimitivesBuffer(); } return; }
 
 /* ---- Draw_StartFrameRender__Fv  [DRAW.CPP:432-443] SLD-VERIFIED ---- */
-void Draw_StartFrameRender(void)
-
-{
-  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
-     strength-reduce the view walk without an extra mutable debug local.
-     `view` is a const reconstruction expression alias, not a recovered name.
-     Byte-PASS and native scope/home contract verified 2026-09-27. */
-  for (int i = 0; i < Draw_gNumView; i++) {
-    Draw_tView *const view = &Draw_gView[i];
-    ClearOTagR(view->ot[gFlip],view->otsize);
-  }
   /* MATCH (2026-07-31, w38-a3): the oracle LOADS gEnviro[gFlip].server TWICE
      (`lw v1,0x14(v0)` then `lw v0,0x14(v0)` off the SAME CSE'd address); our
      build CSE'd the value once and emitted `addu v0,a0,zero`.  ROOT CAUSE:
@@ -457,9 +480,24 @@ void Draw_StartFrameRender(void)
      Identical address + identical stored value; PASS 40/40.
      NEW LEVER: a scratchpad "global" that is really a struct FIELD must be
      stored through its struct view or it silently loses alias conflicts. */
+  /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
+     strength-reduce the view walk without an extra mutable debug local.
+     `view` is a const reconstruction expression alias, not a recovered name.
+     Byte-PASS and native scope/home contract verified 2026-09-27. */
+void Draw_StartFrameRender(void)
+
+{
+
+  for (int i = 0; i < Draw_gNumView; i++) {
+    Draw_tView *const view = &Draw_gView[i];
+
+
+    ClearOTagR(view->ot[gFlip],view->otsize);
+  }
+
   ((Draw_PrimStruct *)0x1F800000)->PrimPtr = gEnviro[gFlip].server;
-  Draw_gMaxPrim = gEnviro[gFlip].server + gTotalMem;
-  return;
+
+  Draw_gMaxPrim = gEnviro[gFlip].server + gTotalMem; return;
 }
 
 /* ---- Draw_SetDrawSyncCallback__FPFv_v  [DRAW.CPP:448-449] SLD-VERIFIED ---- */
@@ -470,28 +508,37 @@ void Draw_SetDrawSyncCallback(void (*p)(void))
 }
 
 /* ---- Draw_StopFrameRender__Fv  [DRAW.CPP:463-487] SLD-VERIFIED ---- */
-void Draw_StopFrameRender(void)
-
-{
   /* Native SYM: only `i`, inside the for scope. Indexing lets GCC
      strength-reduce the view walk without an extra mutable debug local.
      `view` is a const reconstruction expression alias, not a recovered name.
      Byte-PASS and native scope/home contract verified 2026-09-27. */
+void Draw_StopFrameRender(void)
+
+{
+
   DrawSync(0);
+
   gLoop = gLoop + 1;
+
+
   if (Draw_gSyncCallback != (void *)0x0) {
     (*Draw_gSyncCallback)();
   }
   if (Draw_gDoVSync != 0) {
     VSync(0);
   }
+
   PutDispEnv(&gEnviro[gFlip].disp);
+
   for (int i = 0; i < Draw_gNumView; i++) {
     Draw_tView *const view = &Draw_gView[i];
+
+
     DrawOTag(view->ot[gFlip] + view->otsize + -1);
   }
-  gFlip = 1 - gFlip;
-  return;
+
+
+  gFlip = 1 - gFlip; return;
 }
 
 /* ---- Draw_DrawDirectScreen__FP8shapetblii  [DRAW.CPP:493-498] SLD-VERIFIED ---- */
@@ -506,9 +553,6 @@ void Draw_DrawDirectScreen(shapetbl *tile,int x,int y)
 }
 
 /* ---- Draw_DirectSetEnvironment__Fiiiiiiiiii  [DRAW.CPP:513-546] SLD-VERIFIED ---- */
-void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)
-
-{
   /* SYM records two disjoint branch-local `e` objects: DRAWENV/92B under
      edraw and DISPENV/20B under edisplay. Their nonoverlapping lifetimes
      let GCC reuse the same sp-128 stack slot, explaining the shared address
@@ -521,30 +565,42 @@ void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,in
      BEFORE PutDrawEnv -- confirmed by decoding the buffer offsets 0x31/0x32/0x33/0x30
      (relative to the sp+0x18 base) against the real DRAWENV field layout. The prior
      reconstruction dropped this whole block (treating erase/r/g/b as unused params). */
+void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)
+
+{
+
   if (edraw != 0) {
     DRAWENV e;
+
+
     SetDefDrawEnv(&e,x,y,w,h);
+
     if (erase != 0) {
-      e.r0 = (u_char)r;
-      e.g0 = (u_char)g;
-      e.b0 = (u_char)b;
+
+
+      e.r0 = (u_char)r; e.g0 = (u_char)g; e.b0 = (u_char)b;
+
       e.isbg = 1;
     }
-    else {
-      e.isbg = 0;
+    else { e.isbg = 0;
     }
     PutDrawEnv(&e);
   }
+
   if (edisplay != 0) {
     DISPENV e;
+
+
     SetDefDispEnv(&e,x,y,w,h);
+
+
+
+
+
     SetDispMask(0);
     PutDispEnv(&e);
     timedwait(timerhz >> 1);
-    SetDispMask(1);
-  }
-  return;
-}
+    SetDispMask(1); } return; }
 
 /* ---- Draw_SetEnvironment__Fiiiiiiii  [DRAW.CPP:551-553] SLD-VERIFIED ---- */
 void Draw_SetEnvironment(int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)
@@ -560,12 +616,18 @@ void Draw_InitRenderEngine(int x0,int y0,int x1,int y1,int w,int h)
 {
   
   gFlip = -1;
+
   gEnviro[0].server = (char *)0x0;
   gEnviro[1].server = (char *)0x0;
+
   SetDefDispEnv(&gEnviro[0].disp,x0,y0,w,h);
   SetDefDispEnv(&gEnviro[1].disp,x1,y1,w,h);
-  Draw_SetDrawSyncCallback((void (*)(void))0x0);
-  return;
+
+
+
+
+
+  Draw_SetDrawSyncCallback((void (*)(void))0x0); return;
 }
 
 /* ---- Draw_RestartRenderEngine__Fv  [DRAW.CPP:596-597] SLD-VERIFIED ---- */

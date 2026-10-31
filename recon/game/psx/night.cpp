@@ -92,55 +92,47 @@ char         *nightfile;   /* @0x8013da98  (bss(zero)) */
 int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
 
 {
-  int bestDiff;
-  int diffR;
-  int diffG;
-  int diffB;
-  int colorMatchr;
-  int colorMatchg;
-  int colorMatchb;
-  int searchColorr;
-  int searchColorg;
-  int searchColorb;
-  int diffSum;
-  int maxLights;
+  int bestDiff; int diffR; int diffG; int diffB; int colorMatchr; int colorMatchg; int colorMatchb; int searchColorr; int searchColorg; int searchColorb; int diffSum; int maxLights; bestDiff = 0x2fa03; { int search;
 
-  bestDiff = 0x2fa03;
-  colorMatchr = colorMatch.r;
-  colorMatchg = colorMatch.g;
-  colorMatchb = colorMatch.b;
-  {
-  int search;
+    colorMatchr = colorMatch.r; colorMatchg = colorMatch.g; colorMatchb = colorMatch.b;
 
-  search = 1;
-  maxLights = Night_gTotalLights + 1;
-  searchColorr = (u_char)gTableCache->r;
-  searchColorg = (u_char)gTableCache->g;
-  searchColorb = (u_char)gTableCache->b;
-  if (search < maxLights) {
-    do {
-      diffR = colorMatchr - searchColorr;
-      diffG = colorMatchg - searchColorg;
-      diffB = colorMatchb - searchColorb;
-      searchColorr = (u_char)gTableCache[search].r;
-      searchColorg = (u_char)gTableCache[search].g;
-      searchColorb = (u_char)gTableCache[search].b;
-      diffSum = diffR * diffR;
-      diffSum = diffSum + diffG * diffG;
-      diffSum = diffSum + diffB * diffB;
-      if (diffSum < bestDiff) {
-        bestDiff = diffSum;
-        *bestIndex = search + -1;
-        if (diffSum < 0x40) {
-          return diffSum;
+
+    maxLights = Night_gTotalLights + 1;
+
+    searchColorr = (u_char)gTableCache->r;
+    searchColorg = (u_char)gTableCache->g;
+    searchColorb = (u_char)gTableCache->b;
+
+
+    search = 1; if (search < maxLights) { do {
+
+
+        diffR = colorMatchr - searchColorr;
+        diffSum = diffR * diffR;
+        diffG = colorMatchg - searchColorg;
+        diffSum = diffSum + diffG * diffG;
+        diffB = colorMatchb - searchColorb;
+        diffSum = diffSum + diffB * diffB;
+
+
+
+
+
+        searchColorr = (u_char)gTableCache[search].r;
+        searchColorg = (u_char)gTableCache[search].g;
+        searchColorb = (u_char)gTableCache[search].b;
+
+
+        if (diffSum < bestDiff) {
+
+          bestDiff = diffSum;
+          *bestIndex = search + -1;
+
+          if (diffSum < 0x40)
+            return diffSum;
         }
-      }
-      search = search + 1;
-    } while (search < maxLights);
-  }
-  }
-  return bestDiff;
-}
+        search = search + 1; } while (search < maxLights); } }
+  return bestDiff; }
 
 /* ---- Night_CreateNightTableElement__FiliPUc  [NIGHT.CPP:181-231] SLD-VERIFIED ----
  * NEAR-MISS 56 diffs, COUNT-EXACT 113/113 (w40-a9; was 85 with 110/113).
@@ -967,65 +959,65 @@ void Night_SetWeatherColors(int colorIndex)
 }
 
 /* ---- Night_GenerateAllLightTables__Fv  [NIGHT.CPP:556-625] SLD-VERIFIED ---- */
+      /* Retail's inner i begins after the weather call (+0e8); its bright
+       * body starts at +0ec. A for-declaration restores those exact scopes.
+       * The unused outer i's missing REG:$6 record remains unresolved. */
 void Night_GenerateAllLightTables(void)
 
 {
+  Night_gTotalLights = Chunk_numLight;
   /* SYM: STAT char[16].  Retail passes colorCreationTable[i] (a dither-ordered brightness
      permutation, D_80120DAC = 00 0F 07 05 0B 0D 03 09 01 0E 0A 04 02 0C 06 08) as the
      BRIGHTNESS argument of BOTH Night_SetPlayerHeadLightColor and Night_SetCopLightColors
      (oracle `addu $v0,$s0,$s4; lbu $s1,0($v0)` then `addu $a2,$s1,zero` / `addu $a1,$s1,zero`);
      the old body passed the raw loop counter -- a REAL BUG (wrong headlight/cop-light
-     brightness slot filled for every colour). */
+     brightness slot filled for every colour).  Statement lines follow retail's SLD. */
   static char colorCreationTable[16] = {0,15,7,5,11,13,3,9,1,14,10,4,2,12,6,8};
 
-  gNightInitCache = (tNightInitCache *)&Render_gPalettePtr;
-  gTableCache = (tCompRGB *)&Render_gPalettePtr;
-  Night_gTotalLights = Chunk_numLight;
-  {
-    int i;
 
-    i = 0;
-    do {
+
+
+  gNightInitCache = (tNightInitCache *)&Render_gPalettePtr;
+
+
+
+
+  gTableCache = (tCompRGB *)&Render_gPalettePtr;
+  { int i; i = 0; do {
+
       gTableCache[i].r = Chunk_lightTable[i].r;
       gTableCache[i].g = Chunk_lightTable[i].g;
       gTableCache[i].b = Chunk_lightTable[i].b;
-      i = i + 1;
-    } while (i < 0x100);
+      i = i + 1; } while (i < 0x100);
   }
   {
     int colorIndex;
-    int i;
+    int i; colorIndex = 0; while (colorIndex < Night_gTotalLights) {
 
-    colorIndex = 0;
-    while (colorIndex < Night_gTotalLights) {
       if (GameSetup_gData.Weather == 1) {
         Night_SetWeatherColors(colorIndex);
-      }
-      /* Retail's inner i begins after the weather call (+0e8); its bright
-       * body starts at +0ec. A for-declaration restores those exact scopes.
-       * The unused outer i's missing REG:$6 record remains unresolved. */
-      for (int i = 0; i < 0x10; i = i + 1) {
+      } for (int i = 0; i < 0x10; i = i + 1) {
         int bright;
-
         bright = colorCreationTable[i];
+
+
         Night_SetPlayerHeadLightColor(0,colorIndex,bright);
+
+
+
+
+
+
         if ((GameSetup_gData.cops != 0) && (i < 8)) {
           Night_SetCopLightColors(colorIndex,bright);
-        }
-      }
+        } }
       colorIndex = colorIndex + 1;
-    }
-  }
-  {
-    int i;
+    } } { int i; i = 0; do {
 
-    i = 0;
-    do {
       Chunk_lightTable[i].r = gTableCache[i].r;
       Chunk_lightTable[i].g = gTableCache[i].g;
       Chunk_lightTable[i].b = gTableCache[i].b;
-      i = i + 1;
-    } while (i < 0x100);
+      i = i + 1; } while (i < 0x100);
   }
   /* the .g/.b components MUST be read through a CVECTOR-typed view, not a byte cast:
      the struct-typed MEM keeps gcc from folding the access into the one-instruction
@@ -1036,19 +1028,12 @@ void Night_GenerateAllLightTables(void)
      (`*(u_char*)((char*)sym+1)` or `((u_char*)sym)[1]`) gp-rels all three and is 2 short. */
   {
     int i;
-
-    i = 0;
-    do {
+    i = 0; do {
       Night_gAdditiveHeadlightColor[i].r =
            (u_char)((int)((u_int)(u_char)Night_gPlayerHeadLightColor[0] * i) / 0xf);
-      Night_gAdditiveHeadlightColor[i].g =
-           (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->g * i) / 0xf);
-      Night_gAdditiveHeadlightColor[i].b =
-           (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->b * i) / 0xf);
-      i = i + 1;
-    } while (i < 0x10);
-  }
-  return;
+      Night_gAdditiveHeadlightColor[i].g = (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->g * i) / 0xf);
+      Night_gAdditiveHeadlightColor[i].b = (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->b * i) / 0xf);
+      i = i + 1; } while (i < 0x10); } return;
 }
 
 /* ---- Night_InitNightDriving__Fv  [NIGHT.CPP:631-680] SLD-VERIFIED ---- */
@@ -1398,22 +1383,6 @@ void Night_RestartNightDriving(void)
  * the real ZNear update within the mask operand gives11dif/69, restored.
  * Literal producer spelling/full SLD still require recovery; no new fence,
  * qualifier, object/name or compiler-output rewrite was retained. */
-void Night_SetEnviroment(DRender_tView *Vi)
-
-{
-  if (GameSetup_gData.Time != 0) {
-    Night_gDrawLightning = '\0';
-    Night_gCurrentNightColor = Night_gPlayerLightingTable;
-    if ((GameSetup_gData.Weather == 1) &&
-       (Night_PauseLightningEffect(Vi->player), Vi->player == 0)) {
-      Night_DoLightningEffect(Vi);
-    }
-    Night_gXDistShift = 10;
-    Night_gZDistShift = 0xc;
-    /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
-     * above the function for the mechanism and the falsification list. */
-    Car_tObj *tgt /* SOURCE-REVIEW-UNRESOLVED: absent from retail; inferred target role is not original-object proof. */ =
-        (Car_tObj *)Camera_gInfo[Vi->player].target;
     /* CAMIN (2026-10-04): the W80 asm use-fence and three of the four
      * absorption identities are now unnecessary.  The named `tgt` load plus ONE
      * pure-C absorption identity `X | (X & 3) == X` (a real RTL use that combine
@@ -1422,22 +1391,77 @@ void Night_SetEnviroment(DRender_tView *Vi)
      * Measured on the current pipeline (68/68 throughout): tgt + 1 absorption +
      * direct `Night_gZNear = 0x80` PASS; tgt with no absorption FAIL 8; fully
      * direct target access FAIL 8. */
-    tgt = (Car_tObj *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
+void Night_SetEnviroment(DRender_tView *Vi)
+
+{
+
+
+  if (GameSetup_gData.Time != 0) {
+
+
+
+
+
+
+
+
+
+    Night_gCurrentNightColor = Night_gPlayerLightingTable;
+
+    Night_gDrawLightning = '\0';
+    if ((GameSetup_gData.Weather == 1) &&
+       (Night_PauseLightningEffect(Vi->player), Vi->player == 0)) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      Night_DoLightningEffect(Vi);
+    }
+
+
+
+
+
+
+
+
+
+
+    Night_gXDistShift = 10;
+
+    Night_gZDistShift = 0xc;
+
     Night_gZNear = 0x80;
-    if ((tgt->control.lights & 4) != 0) {
+    /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
+     * above the function for the mechanism and the falsification list. */
+    Car_tObj *tgt /* SOURCE-REVIEW-UNRESOLVED: absent from retail; inferred target role is not original-object proof. */ = (Car_tObj *)Camera_gInfo[Vi->player].target; tgt = (Car_tObj *)((unsigned int)tgt | ((unsigned int)tgt & 3u)); if ((tgt->control.lights & 4) != 0) {
+
+
       Night_gZDistShift = 0xd;
       Night_gXDistShift = 0xb;
     }
+
+
+
     if (Camera_GetMode(Vi->player) == 0) {
       Night_gZNear = -0x200;
-    }
-    Night_gXDist = 1 << (Night_gXDistShift);
+    } Night_gXDist = 1 << (Night_gXDistShift);
+
     Night_gZDist = 1 << (Night_gZDistShift);
+
     Night_gZDistShift = Night_gZDistShift + -6;
-    Night_gXDistShift = Night_gXDistShift + -5;
-  }
-  return;
-}
+    Night_gXDistShift = Night_gXDistShift + -5; } return; }
 
 /* ---- Night_AdditiveNightCalc__FP6VECTORP7CVECTOR  [NIGHT.CPP:811-861] SLD-VERIFIED ----
  * NEAR-MISS 77 diffs (ours 65 / oracle 64).  The ONE extra instruction is a copy of the
@@ -1567,6 +1591,10 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * the pointer copy away, so no new block-local pseudo is ever minted); the same with an
  * identity launder on `vp` = 65.  ⇒ the combine_regs route needs a device that survives
  * copy-propagation, not just a narrower scope. */
+/* CAMIN 2026-10-31: statements on retail's SLD lines (colour byte loads before the
+ * z/x index math; xdist before x).  Bytes 64/64, tags 0/64.  The in-place z/x
+ * mutations and the newX-loads-first shape (W71-A5 receipts) are still required:
+ * `z = (z - znear) >> shift` in one statement is 44 diffs. */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {

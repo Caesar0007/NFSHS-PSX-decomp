@@ -22,4 +22,8 @@ void PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void PSXDrawTransGouraudSquare(int x, int y, int w, int h, int opacity, int c1, int c2, int c3, int c4);
 void FeDraw_SetABRMode(int abr);
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80012738): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #endif

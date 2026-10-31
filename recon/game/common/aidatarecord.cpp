@@ -24,9 +24,25 @@ static AIDataRecord_t *recordCollection[24];   /* @0x8013df64; SYM STAT */
 AIDataRecord_t::AIDataRecord_t(AIDataRecord_WhichRecord_t whichIsThis,char *preBuffer)
 {
   this->AddRecordToCollection();
+
+
+
   this->preAllocatedBuffer_ = preBuffer;
-  this->recordMethod_ = 0;
-  return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  this->recordMethod_ = 0; return;
 }
 
 /* ---- ___14AIDataRecord_t  AIDataRecord_t::dtor ---- */
@@ -73,15 +89,23 @@ int AIDataRecord_t::RemoveRecordFromCollection()
 #line 103 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::StartUp1(void)
 {
-
   AIDataRecord_WhichRecord = NORECORD_R;
   AIDataRecord_RecordMethod = NORMAL_M;
+
+
+
+
+
+
+
+
+
+
   for (int recordLoop = 0x17; recordLoop >= 0; recordLoop--) {
-    recordCollection[recordLoop] = (AIDataRecord_t *)0x0;
-  }
+    recordCollection[recordLoop] = (AIDataRecord_t *)0x0; }
+
   AIDataRecord_BestLine = new AIDataRecord_BestLine_t((AIDataRecord_WhichRecord_t)5);
-  AIDataRecord_TrackCurve = new AIDataRecord_TrackCurve_t((AIDataRecord_WhichRecord_t)6);
-  return;
+  AIDataRecord_TrackCurve = new AIDataRecord_TrackCurve_t((AIDataRecord_WhichRecord_t)6); return;
 }
 
 /* ---- StartUp2__14AIDataRecord_t ---- */
@@ -89,12 +113,14 @@ void AIDataRecord_t::StartUp1(void)
 void AIDataRecord_t::StartUp2(void)
 {
 
+
+
+
   for (int recordLoop = 0; recordLoop < 0x18; recordLoop++) {
+
     if (recordCollection[recordLoop] != (AIDataRecord_t *)0x0) {
       recordCollection[recordLoop]->Setup();
-    }
-  }
-  return;
+    } } return;
 }
 
 /* ---- CleanUp1__14AIDataRecord_t COVERED-SLD-PASS ---- */
@@ -117,16 +143,44 @@ void AIDataRecord_t::CleanUp1(void)
 #line 165 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::CleanUp2(void)
 {
-  return;
-}
+  return; }
 
 /* ---- Setup__14AIDataRecord_t ---- */
 #line 169 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::Setup()
 {
+
+
   if (this->preAllocatedBuffer_ != (char *)0x0) {
     this->dataBuffer_ = this->PreAllocatedBuffer();
+
+
+
+
+
+
+
+
+
+
   } else if (this->Load() == 0) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     this->SetDataBuffer((char *)reservememadr(this->Name(),this->BufferSize(),0));
   }
 }
@@ -135,13 +189,20 @@ void AIDataRecord_t::Setup()
 #line 224 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_t::Load()
 {
+
   if (this->RecordMethod() == NORMAL_M) {
+
     this->SetDataBuffer((char *)loadpackadrz(this->Name(),(void *)0x0));
   }
+
+
+
+
+
+
+
   if (this->DataBuffer() != (char *)0x0) {
-    return 1;
-  }
-  return 0;
+    return 1; } return 0;
 }
 
 /* ---- SaveAndPurge__14AIDataRecord_t ---- */
@@ -149,12 +210,31 @@ int AIDataRecord_t::Load()
 int AIDataRecord_t::SaveAndPurge()
 {
   if (this->DataBuffer() != (char *)0x0) {
+
+
+
+
+
+
+
+
+
+
+
     if (this->preAllocatedBuffer_ == (char *)0x0) {
+
       purgememadr(this->DataBuffer());
     }
     this->SetDataBuffer((char *)0x0);
+
+
+
+
     return 1;
   }
+
+
+
   return 0;
 }
 
@@ -167,9 +247,7 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
   this->numElements_ = 0x70;
   this->bSize_ = 0xe0;
   this->scale_ = scale;
-  sprintf(this->name_,"%s%s.acc",Paths_Paths[5],
-          (char *)Cars_gHumanRaceCarList[0] + 0x240);
-  return;
+  sprintf(this->name_,"%s%s.acc",Paths_Paths[5], (char *)Cars_gHumanRaceCarList[0] + 0x240); return;
 }
 
 /* ---- Get__23AIDataRecord_AccTable_ti ---- */
@@ -205,9 +283,9 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   this->bSize_ = this->numElements_ = gNumSlices;
+
   if (this->RecordMethod() == NORMAL_M) {
-    sprintf(this->name_,"%sTr%02d.qbe",
-            Paths_Paths[12],GameSetup_gData.track);
+    sprintf(this->name_,"%sTr%02d.qbe", Paths_Paths[12],GameSetup_gData.track);
   } else {
     sprintf(this->name_,"%sTr%02d.bes",Paths_Paths[13],GameSetup_gData.track);
   }
@@ -219,9 +297,9 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
   this->bSize_ = (this->numElements_ = gNumSlices) + 1;
+
   if (this->RecordMethod() == NORMAL_M) {
-    sprintf(this->name_,"%sTr%02d.qcr",
-            Paths_Paths[10],GameSetup_gData.track);
+    sprintf(this->name_,"%sTr%02d.qcr", Paths_Paths[10],GameSetup_gData.track);
   } else {
     sprintf(this->name_,"%sTr%02d.crv",Paths_Paths[11],GameSetup_gData.track);
   }
@@ -235,6 +313,7 @@ int AIDataRecord_TrackCurve_t::Get(int slice)
 }
 
 /* ---- __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t  CurveSpeedTable::ctor ---- */
+    /* retail keeps an UNREFERENCED "%sTr%02d%c.ctk" (0x8005541C) after ".csp": a compiled-out record kind */
 #line 615 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
           AIDataRecord_WhichRecord_t whichIsThis)
@@ -245,12 +324,7 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
   if (this->RecordMethod() == NORMAL_M) {
     sprintf(this->name_,"%s%s.qcs",Paths_Paths[4],carName);
   }
-  else {
-    sprintf(this->name_,"%s%s.csp",Paths_Paths[5],carName);
-    /* retail keeps an UNREFERENCED "%sTr%02d%c.ctk" (0x8005541C) after ".csp": a compiled-out record kind */
-    if (0) sprintf((char *)0,"%sTr%02d%c.ctk");
-  }
-  return;
+  else { sprintf(this->name_,"%s%s.csp",Paths_Paths[5],carName); if (0) sprintf((char *)0,"%sTr%02d%c.ctk"); } return;
 }
 
 /* ---- Get__30AIDataRecord_CurveSpeedTable_ti ---- */
@@ -272,6 +346,8 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 {
   for (int curveLoop = 0; curveLoop < this->NumElements(); curveLoop++) {
     this->dataBuffer_[curveLoop] =
+
+
         fixedmult(this->Get(curveLoop), handlingUpgrade) / 0x10000;
   }
 }

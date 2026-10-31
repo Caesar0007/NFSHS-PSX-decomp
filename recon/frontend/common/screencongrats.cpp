@@ -19,19 +19,9 @@ extern tScreenTournamentCongrats *screenTournamentCongrats;
 #define NFS4_TSCREENCONGRATS_OWNER   /* ScreenCongrats.obj emits tScreenCongrats's table: slot 11 is __pure_virtual */
 #include "screencongrats.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks[0]; }
-
-/* ORIGINAL-NAME-UNRESOLVED: inferred text-definition color accessor.
-   The same table lookup is used by FEFades and FETextRender. */
-static inline int TextDefinitionColor(tMenuTextType type, int column) {
-  return kRGBVals[(byte)textDefinitions[type][column]];
-}
 
 
-/* Retail screencongrats.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ScreenCongrats.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) */
 tScreenPinkSlipCongrats *screenPinkSlipCongrats;   /* @0x80052944  (bss(zero)) */
@@ -398,49 +388,49 @@ void tScreenCongrats::CalculatePrizes()
 }
 
 /* ---- tScreenCongrats::Initialize  (screencongrats.cpp:385) ---- */
+/* SYM-CODEGEN-CARRIER: vtbl -- retail SYM has no source local here; the original
+   C++ virtual-call syntax produced its vtable temporaries implicitly.  The
+   reconstruction models the ABI through _vf, so this cache is the safe
+   source-level surrogate.  Direct _vf[1][0]/_vf[1][2] access remains byte-
+   exact (PASS 49/49) but is rejected by audit_vtable_indexing.py four times. */
+/* MATCH: use the field directly in the comparison and division. GCC CSEs the
+   load later, after lowering signed /64 to retail's bgez/addiu/sra sequence;
+   a cached local lets its value-range pass incorrectly remove that sequence. */
 void tScreenCongrats::Initialize()
 
 {
-  /* SYM-CODEGEN-CARRIER: vtbl -- retail SYM has no source local here; the original
-     C++ virtual-call syntax produced its vtable temporaries implicitly.  The
-     reconstruction models the ABI through _vf, so this cache is the safe
-     source-level surrogate.  Direct _vf[1][0]/_vf[1][2] access remains byte-
-     exact (PASS 49/49) but is rejected by audit_vtable_indexing.py four times. */
-
   /* P892: capture the entry tick before state writes. Direct native fields
      remove an unproved inline helper; exact bytes and improved SLD pairs. */
   this->fEnterTick = FE_Ticks();
   this->fSpeechToPlay = 0;
   this->starttick = -1;
+
   this->framenum = -1;
   this->InExtraSpin = 0;
   SetLicensePlate();
   this->CalculatePrizes();
+
+
+
   this->fGotCar = this->GetCar(this->fCarInfo);
-  /* MATCH: use the field directly in the comparison and division. GCC CSEs the
-     load later, after lowering signed /64 to retail's bgez/addiu/sra sequence;
-     a cached local lets its value-range pass incorrectly remove that sequence. */
+
   if (this->CashAwarded > 0) {
+
     this->fCountedDown = 0;
+
     this->fStartCountdownNOW = 0;
     this->fCountSpeed = this->CashAwarded / 0x40;
+
   }
   else {
     this->fCountedDown = 1;
     this->fStartCountdownNOW = 1;
     this->fCountSpeed = 1000;
+
   }
   this->tScreen::Initialize();
 }
 
-/* ---- tScreenCongrats::ProcessInput  (screencongrats.cpp:423) ---- */
-/* retail's ProcessInput tree: if-level, compound, inner if-level holding two inline-call pairs -- the speech-loading
-   test and the tick read are inlines, and there is no consume flag */
-static inline int SpeechLoading(SPEECHINFO *si) { return *(u_short *)((char *)si + 0x10); }
-static inline long CongratsTicks(void) { return ticks[0]; }
-/* ORIGINAL-NAME-UNRESOLVED: this inferred money getter and tm parameter
-   reproduce the retail receiver-free read pair; their spelling is not recorded. */
-static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
 
 void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand &c)
 
@@ -510,11 +500,6 @@ bool tScreenPinkSlipCongrats::GetCar(tCarInfo &carInfo)
    MATCH 2026-10-09: CalculatePrizes 68/68 PASS, complete TU sections/layout
    unchanged (run-1l6dllfm), native locals and blocks exact. Full SLD and
    literal original helper spelling remain unresolved. */
-static inline void ReplaceLoserLicense(int player)
-{
-  CarIO_CleanUpLicense(player);
-  CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
-}
 
 void tScreenPinkSlipCongrats::CalculatePrizes()
 
@@ -596,6 +581,9 @@ void tScreenTournamentTrophy::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenu
 
 {
   if ((keyval == kInput_KeyType_Cross) && (this->fCountedDown == 0)) {
+
+
+
     keyval = kInput_KeyType_AlreadyProcessed;
     this->fStartCountdownNOW = 1;
   }
@@ -607,14 +595,19 @@ void tScreenTournamentTrophy::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenu
 bool tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
 
 {
-
   if (this->congratsMessage == kScreenCongrats_Congrats) {
     tAwardInformation tInfo;   /* [SYM] AUTO sp+16, block opened at SLD 3 */
 
     tournamentManager.GetAwardInformation(tInfo);
+
+
+
     blockmove(GetCarFromID(&carManager, (u_short)tInfo.fAwardCarModel),&carInfo,0xcc);
+
+
     carInfo.fUpgrades = tInfo.fAwardCarUpgrades;
     carInfo.fColor = tInfo.fAwardCarColor;
+
   }
   else {
     GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
@@ -830,9 +823,9 @@ bool tScreenBeTheCopCongrats::GetCar(tCarInfo &carInfo)
 
 {
 
-
   
   blockmove(GetCarFromID(&carManager, (ushort)(byte)frontEnd.congratsCopCar),&carInfo,0xcc);
+
   carInfo.fCountry = frontEnd.congratsCopCountry;
   return 1;
 }
@@ -890,11 +883,11 @@ bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
 
 {
 
-
   tAwardInformation tInfo;
   
   tournamentManager.GetAwardInformation(tInfo);
   blockmove(GetCarFromID(&carManager, (u_short)tInfo.fCompletedCar),&carInfo,0xcc);
+
   return 1;
 }
 

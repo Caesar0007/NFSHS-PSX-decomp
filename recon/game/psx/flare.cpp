@@ -177,54 +177,41 @@ void Flare_IdentMatrix(MATRIX *mtx)
 }
 
 /* ---- Flare_OctFlare__FPli  [FLARE.CPP:208-241] SLD-VERIFIED ---- */
+  /* MATCH: SYM locals = flare_dvxy[13] + i(t1) + rgb1(t4, pre-loop gfrgb cache)
+   * + block-scope prim(a0); walkers = givs from gfOctPt1[i]/gfOctPt2[i]. */
 void Flare_OctFlare(long *center,int otz)
 
 {
   long flare_dvxy [13];
   int i;
-  long rgb1;
+  long rgb1; rgb1 = *(long *)&gfrgb;
 
-  /* MATCH: SYM locals = flare_dvxy[13] + i(t1) + rgb1(t4, pre-loop gfrgb cache)
-   * + block-scope prim(a0); walkers = givs from gfOctPt1[i]/gfOctPt2[i]. */
-  rgb1 = *(long *)&gfrgb;
-gte_ldv0(&Flare_gOct);
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_ldv0(((char *)&Flare_gOct + 0x8));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
-gte_ldv0(((char *)&Flare_gOct + 0x10));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
-gte_ldv0(((char *)&Flare_gOct + 0x18));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
-gte_ldv0(((char *)&Flare_gOct + 0x20));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
-gte_ldv0(((char *)&Flare_gOct + 0x28));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
-gte_ldv0(((char *)&Flare_gOct + 0x30));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
-gte_ldv0(((char *)&Flare_gOct + 0x38));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
+gte_ldv0(&Flare_gOct); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
+gte_ldv0(((char *)&Flare_gOct + 0x8)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
+gte_ldv0(((char *)&Flare_gOct + 0x10)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
+gte_ldv0(((char *)&Flare_gOct + 0x18)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
+gte_ldv0(((char *)&Flare_gOct + 0x20)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
+gte_ldv0(((char *)&Flare_gOct + 0x28)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
+gte_ldv0(((char *)&Flare_gOct + 0x30)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
+gte_ldv0(((char *)&Flare_gOct + 0x38)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
+
+
+
   i = 8;
-  while( true ) {
-    i = i - 1;
-    if (i == -1) break;
+  while( true ) { i = i - 1; if (i == -1) break;
+
     {
       POLY_G3 *prim;
-      prim = (POLY_G3 *)Render_gPacketPtr;
-      setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)prim + 0x1c;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
+
+      prim = (POLY_G3 *)Render_gPacketPtr; setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)prim + 0x1c; setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
       *(u_int *)((u_char *)prim + 4) = 0x32000000;
       *(long *)((u_char *)prim + 0xc) = rgb1;
       *(u_int *)((u_char *)prim + 0x14) = 0;
+
       ((u_char *)prim)[3] = 6;
+
       *(long *)((u_char *)prim + 8) = flare_dvxy[gfOctPt2[i]];
       *(long *)((u_char *)prim + 0x10) = *center;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfOctPt1[i]];
@@ -233,18 +220,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
 }
 
 /* ---- Flare_OctFlareSpikes__FPli  [FLARE.CPP:247-316] SLD-VERIFIED ---- */
-void Flare_OctFlareSpikes(long *center,int otz)
-
-{
-  long flare_dvxy [13];
-  int i;
-  long rgb1;
-  long rgb2;
-  long cent;
-  int id0;
-  int id1;
-  int id2;
-
   /* MATCH: SYM locals = flare_dvxy[13], i(t3), rgb1(s2)/rgb2(s1) pre-loop caches,
    * cent(t8), id0(a3)/id1(t1)/id2(a2) in-place reused across both prims;
    * SpikePt0/1/2[i] -> givs, OctPt1/2[i] stay indexed (giv budget).
@@ -260,115 +235,75 @@ void Flare_OctFlareSpikes(long *center,int otz)
    * (the w41 lever's actual requirement).  GENERAL RULE for this family: order the
    * OT-link statements = order you want the preheader constants; addr24 goes between
    * the slot computation and the first RMW, not at the top of the block. */
-gte_ldv0(&Flare_gSpikes);
+void Flare_OctFlareSpikes(long *center,int otz)
 
-  gte_rtps();
+{
+  long flare_dvxy [13];
+  int i;
+  long rgb1; long rgb2; long cent; int id0; int id1; int id2; gte_ldv0(&Flare_gSpikes); gte_rtps(); gte_swc2(0xe,&flare_dvxy);
+gte_ldv0(((char *)&Flare_gSpikes + 0x8)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
+gte_ldv0(((char *)&Flare_gSpikes + 0x10)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
+gte_ldv0(((char *)&Flare_gSpikes + 0x18)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
 
-gte_swc2(0xe,&flare_dvxy);
+gte_ldv0(&Flare_gOct); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
+gte_ldv0(((char *)&Flare_gOct + 0x8)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
+gte_ldv0(((char *)&Flare_gOct + 0x10)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
+gte_ldv0(((char *)&Flare_gOct + 0x18)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
+gte_ldv0(((char *)&Flare_gOct + 0x20)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
+gte_ldv0(((char *)&Flare_gOct + 0x28)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
+gte_ldv0(((char *)&Flare_gOct + 0x30)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
+gte_ldv0(((char *)&Flare_gOct + 0x38)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
 
-gte_ldv0(((char *)&Flare_gSpikes + 0x8));
 
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
-
-gte_ldv0(((char *)&Flare_gSpikes + 0x10));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
-
-gte_ldv0(((char *)&Flare_gSpikes + 0x18));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
-
-gte_ldv0(&Flare_gOct);
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-
-gte_ldv0(((char *)&Flare_gOct + 0x8));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
-
-gte_ldv0(((char *)&Flare_gOct + 0x10));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
-
-gte_ldv0(((char *)&Flare_gOct + 0x18));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
-
-gte_ldv0(((char *)&Flare_gOct + 0x20));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
-
-gte_ldv0(((char *)&Flare_gOct + 0x28));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
-
-gte_ldv0(((char *)&Flare_gOct + 0x30));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
-
-gte_ldv0(((char *)&Flare_gOct + 0x38));
-
-  gte_rtps();
-
-gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
   rgb1 = *(long *)&gfrgb;
   rgb2 = *(long *)&gfrgb2;
   cent = *center;
+
+
   i = 8;
-  while( true ) {
-    i = i - 1;
-    if (i == -1) break;
-    id0 = gfSpikePt0[i];
-    id1 = gfSpikePt1[i];
-    id2 = gfSpikePt2[i];
+  while( true ) { i = i - 1; if (i == -1) break;
+
     {
       POLY_G4 *prim;
-      prim = (POLY_G4 *)Render_gPacketPtr;
-      setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)prim + 0x24;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+      id0 = gfSpikePt0[i];
+      id1 = gfSpikePt1[i];
+      id2 = gfSpikePt2[i];
+
+
+
+
+      prim = (POLY_G4 *)Render_gPacketPtr; setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)prim + 0x24; setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
+
       *(u_int *)((u_char *)prim + 4) = 0x3a000000;
-      ((u_char *)prim)[3] = 8;
       *(long *)((u_char *)prim + 0xc) = rgb2;
       *(u_int *)((u_char *)prim + 0x14) = 0;
       *(u_int *)((u_char *)prim + 0x1c) = 0;
+
+      ((u_char *)prim)[3] = 8;
+
       *(long *)((u_char *)prim + 8) = flare_dvxy[id0];
       *(long *)((u_char *)prim + 0x10) = cent;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[id2];
       *(long *)((u_char *)prim + 0x20) = flare_dvxy[id1];
     }
+
+
+
     id0 = gfOctPt1[i];
     id1 = gfOctPt2[i];
     {
       POLY_G3 *prim;
-      prim = (POLY_G3 *)Render_gPacketPtr;
-      setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)prim + 0x1c;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
+
+      prim = (POLY_G3 *)Render_gPacketPtr; setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)prim + 0x1c; setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
       *(u_int *)((u_char *)prim + 4) = 0x32000000;
-      ((u_char *)prim)[3] = 6;
       *(long *)((u_char *)prim + 0xc) = rgb1;
       *(u_int *)((u_char *)prim + 0x14) = 0;
+
+      ((u_char *)prim)[3] = 6;
+
       *(long *)((u_char *)prim + 8) = flare_dvxy[id0];
       *(long *)((u_char *)prim + 0x10) = cent;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[id1];
@@ -377,65 +312,47 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
 }
 
 /* ---- Flare_Spikes__FPli  [FLARE.CPP:323-363] SLD-VERIFIED ---- */
+  /* MATCH: SYM locals = flare_dvxy[13] + i(t2) + block-scope prim(a0, POLY_G4*);
+   * walkers = givs from gfSpikePt0/1/2[i]; per-iter gfrgb2 reload. */
 void Flare_Spikes(long *center,int otz)
 
 {
   long flare_dvxy [13];   /* SYM order: the array is declared before i */
   int i;
 
-  /* MATCH: SYM locals = flare_dvxy[13] + i(t2) + block-scope prim(a0, POLY_G4*);
-   * walkers = givs from gfSpikePt0/1/2[i]; per-iter gfrgb2 reload. */
-gte_ldv0(&Flare_gSpikes);
-  gte_rtps();
-gte_swc2(0xe,&flare_dvxy);
-gte_ldv0(((char *)&Flare_gSpikes + 0x8));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
-gte_ldv0(((char *)&Flare_gSpikes + 0x10));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
-gte_ldv0(((char *)&Flare_gSpikes + 0x18));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
-gte_ldv0(&Flare_gOct);
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_ldv0(((char *)&Flare_gOct + 0x8));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
-gte_ldv0(((char *)&Flare_gOct + 0x10));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
-gte_ldv0(((char *)&Flare_gOct + 0x18));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
-gte_ldv0(((char *)&Flare_gOct + 0x20));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
-gte_ldv0(((char *)&Flare_gOct + 0x28));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
-gte_ldv0(((char *)&Flare_gOct + 0x30));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
-gte_ldv0(((char *)&Flare_gOct + 0x38));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
+gte_ldv0(&Flare_gSpikes); gte_rtps(); gte_swc2(0xe,&flare_dvxy);
+gte_ldv0(((char *)&Flare_gSpikes + 0x8)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
+gte_ldv0(((char *)&Flare_gSpikes + 0x10)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
+gte_ldv0(((char *)&Flare_gSpikes + 0x18)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
+
+gte_ldv0(&Flare_gOct); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
+gte_ldv0(((char *)&Flare_gOct + 0x8)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
+gte_ldv0(((char *)&Flare_gOct + 0x10)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x18));
+gte_ldv0(((char *)&Flare_gOct + 0x18)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x1c));
+gte_ldv0(((char *)&Flare_gOct + 0x20)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x20));
+gte_ldv0(((char *)&Flare_gOct + 0x28)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x24));
+gte_ldv0(((char *)&Flare_gOct + 0x30)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x28));
+gte_ldv0(((char *)&Flare_gOct + 0x38)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
+
+
+
   i = 8;
-  while( true ) {
-    i = i - 1;
-    if (i == -1) break;
+  while( true ) { i = i - 1; if (i == -1) break;
+
     {
       POLY_G4 *prim;
-      prim = (POLY_G4 *)Render_gPacketPtr;
-      setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)prim + 0x24;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
+
+      prim = (POLY_G4 *)Render_gPacketPtr; setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)prim + 0x24; setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
+
       *(u_int *)((u_char *)prim + 4) = 0x3a000000;
       *(u_int *)((u_char *)prim + 0xc) = *(u_int *)&gfrgb2;   /* stored here, where the SYM-less retail loads it */
       *(u_int *)((u_char *)prim + 0x14) = 0;
       *(u_int *)((u_char *)prim + 0x1c) = 0;
+
       ((u_char *)prim)[3] = 8;
+
       *(long *)((u_char *)prim + 8) = flare_dvxy[gfSpikePt0[i]];
       *(long *)((u_char *)prim + 0x10) = *center;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfSpikePt2[i]];   /* retail: +0x18 walks gfSpikePt2 ($a3), +0x20 gfSpikePt1 ($t0) */
@@ -484,41 +401,30 @@ void Flare_HexFlare(long *center,int otz)
   long flare_dvxy [7];   /* SYM order: the array is declared before i */
   int i;
 
-gte_ldv0(&Flare_gHex);
-  gte_rtps();
-gte_swc2(0xe,&flare_dvxy);
-gte_ldv0(((char *)&Flare_gHex + 0x8));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
-gte_ldv0(((char *)&Flare_gHex + 0x10));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
-gte_ldv0(((char *)&Flare_gHex + 0x18));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
-gte_ldv0(((char *)&Flare_gHex + 0x20));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_ldv0(((char *)&Flare_gHex + 0x28));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
+gte_ldv0(&Flare_gHex); gte_rtps(); gte_swc2(0xe,&flare_dvxy);
+gte_ldv0(((char *)&Flare_gHex + 0x8)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
+gte_ldv0(((char *)&Flare_gHex + 0x10)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
+gte_ldv0(((char *)&Flare_gHex + 0x18)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
+gte_ldv0(((char *)&Flare_gHex + 0x20)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
+gte_ldv0(((char *)&Flare_gHex + 0x28)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
   /* MATCH: SYM locals = flare_dvxy[7] + i(t1) + block-scope prim(a0) only --
    * walkers = strength-reduction givs from gfHexPt1[i]/gfHexPt2[i] index form;
    * exit-in-the-middle down count keeps top-test + j back-edge. */
   i = 6;
-  while( true ) {
-    i = i - 1;
-    if (i == -1) break;
+  while( true ) { i = i - 1; if (i == -1) break;
+
     {
       POLY_G3 *prim;
-      prim = (POLY_G3 *)Render_gPacketPtr;
-      setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)prim + 0x1c;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
+
+      prim = (POLY_G3 *)Render_gPacketPtr; setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)prim + 0x1c; setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
       *(u_int *)((u_char *)prim + 4) = 0x32000000;
       *(u_int *)((u_char *)prim + 0xc) = *(u_int *)&gfrgb;   /* stored here, where the SYM-less retail loads it */
       *(u_int *)((u_char *)prim + 0x14) = 0;
+
       ((u_char *)prim)[3] = 6;
+
       *(long *)((u_char *)prim + 8) = flare_dvxy[gfHexPt2[i]];
       *(long *)((u_char *)prim + 0x10) = *center;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfHexPt1[i]];
@@ -533,41 +439,30 @@ void Flare_ReflectHexFlare(long *center,int otz)
   long flare_dvxy [7];   /* SYM order: the array is declared before i */
   int i;
 
-gte_ldv0(&Flare_gReflectHex);
-  gte_rtps();
-gte_swc2(0xe,&flare_dvxy);
-gte_ldv0(((char *)&Flare_gReflectHex + 0x8));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
-gte_ldv0(((char *)&Flare_gReflectHex + 0x10));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
-gte_ldv0(((char *)&Flare_gReflectHex + 0x18));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
-gte_ldv0(((char *)&Flare_gReflectHex + 0x20));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
-gte_ldv0(((char *)&Flare_gReflectHex + 0x28));
-  gte_rtps();
-gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
+gte_ldv0(&Flare_gReflectHex); gte_rtps(); gte_swc2(0xe,&flare_dvxy);
+gte_ldv0(((char *)&Flare_gReflectHex + 0x8)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x4));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x10)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x8));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x18)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0xc));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x20)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x10));
+gte_ldv0(((char *)&Flare_gReflectHex + 0x28)); gte_rtps(); gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
   /* MATCH: SYM locals = flare_dvxy[7] + i(t1) + block-scope prim(a0) only --
    * walkers = strength-reduction givs from gfHexPt1[i]/gfHexPt2[i] index form;
    * exit-in-the-middle down count keeps top-test + j back-edge. */
   i = 6;
-  while( true ) {
-    i = i - 1;
-    if (i == -1) break;
+  while( true ) { i = i - 1; if (i == -1) break;
+
     {
       POLY_G3 *prim;
-      prim = (POLY_G3 *)Render_gPacketPtr;
-      setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)prim + 0x1c;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
+
+      prim = (POLY_G3 *)Render_gPacketPtr; setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)prim + 0x1c; setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+
       *(u_int *)((u_char *)prim + 4) = 0x32000000;
       *(u_int *)((u_char *)prim + 0xc) = *(u_int *)&gfrgb;   /* stored here, where the SYM-less retail loads it */
       *(u_int *)((u_char *)prim + 0x14) = 0;
+
       ((u_char *)prim)[3] = 6;
+
       *(long *)((u_char *)prim + 8) = flare_dvxy[gfHexPt2[i]];
       *(long *)((u_char *)prim + 0x10) = *center;
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfHexPt1[i]];
@@ -582,20 +477,14 @@ void Flare_QuadFlare(long *center,int otz)
   long pt [2];
   long save1;
 
-gte_ldv0(&Flare_gQuad);
-  gte_rtps();
-gte_swc2(0xe,&save1);
-gte_ldv0(((char *)&Flare_gQuad + 0x8));
-  gte_rtps();
-gte_swc2(0xe,&pt[1]);
+gte_ldv0(&Flare_gQuad); gte_rtps(); gte_swc2(0xe,&save1);
+gte_ldv0(((char *)&Flare_gQuad + 0x8)); gte_rtps(); gte_swc2(0xe,&pt[1]);
   Flare_Tri(center,&save1,&pt[1],otz);
-gte_ldv0(((char *)&Flare_gQuad + 0x10));
-  gte_rtps();
-gte_swc2(0xe,&pt[0]);
+
+gte_ldv0(((char *)&Flare_gQuad + 0x10)); gte_rtps(); gte_swc2(0xe,&pt[0]);
   Flare_Tri(center,&pt[1],&pt[0],otz);
-gte_ldv0(((char *)&Flare_gQuad + 0x18));
-  gte_rtps();
-gte_swc2(0xe,&pt[1]);
+
+gte_ldv0(((char *)&Flare_gQuad + 0x18)); gte_rtps(); gte_swc2(0xe,&pt[1]);
   Flare_Tri(center,&pt[0],&pt[1],otz);
   Flare_Tri(center,&pt[1],&save1,otz);
 }
@@ -609,6 +498,31 @@ gte_swc2(0xe,&pt[1]);
  * MATCH: scale/flags REUSED (flags = gType index before the field loads; scale = shifted
  * gscale after `scale = gscale << scale`); branch A (reflect) keeps the STALE pre-(flags&1)
  * scale value while branch B reloads gscale into z -- faithful to the original. */
+          /* MATCH: the AND must land in its OWN variable -- gcc-2.8's fold()
+             rewrites `(flags & 0x40) != 0` (any spelling: Yoda, >0, !!, explicit
+             shift) into `(flags >> 6) & 1`; only a VAR_DECL operand keeps the
+             oracle's `andi a2,s4,0x40 ; sltu a2,zero,a2`. */
+      /* MATCH: gscale is the SHIFT DESTINATION and `scale` re-reads it (not
+         `scale = gscale<<scale; gscale = scale;`) -- the re-read is the second
+         evaluation cse turns into the oracle's `sllv v0,v0,s3 ; addu s3,v0,zero`
+         copy; the scale-first form coalesces it into an in-place `sllv s3,v0,s3`. */
+        /* else-LOCAL zero-init: reorg hoists `angleOuter = 0` into the beqz
+         * delay slot (harmless on the taken path), and same-BB cse turns
+         * `sizeOuter = angleOuter` into the oracle's addu s2,s5,zero copy. */
+      /* MATCH (w45-a9 SEAL 3 -> PASS 630/630): sched2 was hoisting `lw s3,8(v1)` (the
+       * `scale` field load) up into the LOAD-DELAY slot of `lw v0,0(v1)`, where retail
+       * leaves a `nop` and issues the scale/flags pair adjacently AFTER the `andi
+       * v0,s7,128`.  s3's use is far down the block, so its scheduler priority (longest
+       * path to block end) is the highest in the ready list and it always wins that slot.
+       * The zero-insn USE fence (§2b.5) is a sched fixpoint: the two gType field loads
+       * that follow it in source order can no longer migrate above it.  Emits nothing;
+       * the andi still hoists above them (it is after the fence too), = retail. */
+      /* MATCH (w42-a6): ONE `type & 0x7f` computed into `i` first, then the +1/+0xb per
+       * arm.  Writing the mask in BOTH arms costs `type` one extra REG_N_REFS (6 vs 5)
+       * even though cse merges the two andi's into one insn -- and 6 refs put `type`'s
+       * allocno_compare priority (2*6/400 = .0300) just ABOVE angleZ's (1*3/107 = .0280),
+       * which is the whole $s6<->$s7 rotation.  With 5 refs (2*5/400 = .0250) angleZ wins
+       * $s6 and `type` takes $s7 exactly as the SYM says.  45 -> 25. */
 void Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,short flag,int otz,
                   Draw_FlareCache *sd)
 
@@ -626,61 +540,59 @@ void Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,sh
   COORD16 vec2;                 /* @sp+0x40 */
   COORD16 crossprod;            /* @sp+0x48 */
 
+
+
+
+
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x400) {
+
     vec1.x = pt1->x - ptCenter->x;
     vec1.y = pt1->y - ptCenter->y;
     vec1.z = pt1->z - ptCenter->z;
+
     vec2.x = pt2->x - ptCenter->x;
     vec2.y = pt2->y - ptCenter->y;
     vec2.z = pt2->z - ptCenter->z;
+
+
     crossprod.x = vec2.y * vec1.z - vec2.z * vec1.y;
     crossprod.y = vec2.z * vec1.x - vec2.x * vec1.z;
     crossprod.z = vec2.x * vec1.y - vec2.y * vec1.x;
     ptEdge = pt1;
     if (-1 < (int)((u_int)flag << 0x10)) {
+
       ptEdge = pt2;
     }
     {
       int i;                    /* SYM-CODEGEN-CARRIER: i -- gType arm index preserves the measured type/angleZ allocation */
       u_long c;                 /* SYM-CODEGEN-CARRIER: c -- serial copy temp (v0; anti-dependence keeps the two
                                     color word-copies lw/nop/sw serial like the oracle) */
-      /* MATCH (w42-a6): ONE `type & 0x7f` computed into `i` first, then the +1/+0xb per
-       * arm.  Writing the mask in BOTH arms costs `type` one extra REG_N_REFS (6 vs 5)
-       * even though cse merges the two andi's into one insn -- and 6 refs put `type`'s
-       * allocno_compare priority (2*6/400 = .0300) just ABOVE angleZ's (1*3/107 = .0280),
-       * which is the whole $s6<->$s7 rotation.  With 5 refs (2*5/400 = .0250) angleZ wins
-       * $s6 and `type` takes $s7 exactly as the SYM says.  45 -> 25. */
       int j /* SYM-CODEGEN-CARRIER: j -- separate masked-type value is the measured 25-to-19 lever */ = type & 0x7fU;   /* MATCH: SEPARATE temp for the masked value -- oracle keeps
                                * it in $v1 and both arms do `addiu a0,v1,K`; reusing `i`
                                * in place emits `andi a0,..;addiu a0,a0,K` (25 -> 19). */
-      if (R3DCar_InMenu != 0) {
-        i = j + 1;
-      }
-      else {
-        i = j + 0xb;
+      if (R3DCar_InMenu != 0) { i = j + 1; } else { i = j + 0xb;
       }
       if ((type & 0x100U) != 0) {
+
         ptCenter->y = -DrawC_gReflectOffset - ptCenter->y;
       }
+
+
 gte_ldv0(ptCenter);
+
       gte_rtps();
-      c = Flare_gType[i].chalo;
-      *(u_long *)&color[0] = c;
-      c = Flare_gType[i].cbeam;
-      *(u_long *)&color[1] = c;
-      /* MATCH (w45-a9 SEAL 3 -> PASS 630/630): sched2 was hoisting `lw s3,8(v1)` (the
-       * `scale` field load) up into the LOAD-DELAY slot of `lw v0,0(v1)`, where retail
-       * leaves a `nop` and issues the scale/flags pair adjacently AFTER the `andi
-       * v0,s7,128`.  s3's use is far down the block, so its scheduler priority (longest
-       * path to block end) is the highest in the ready list and it always wins that slot.
-       * The zero-insn USE fence (§2b.5) is a sched fixpoint: the two gType field loads
-       * that follow it in source order can no longer migrate above it.  Emits nothing;
-       * the andi still hoists above them (it is after the fence too), = retail. */
+
+
+      c = Flare_gType[i].chalo; *(u_long *)&color[0] = c;
+      c = Flare_gType[i].cbeam; *(u_long *)&color[1] = c;
       __asm__ volatile("" : : "r"(c));
+
       scale = Flare_gType[i].scale;
+
       flags = Flare_gType[i].flags;
     }
     if ((type & 0x80U) != 0) {
+
       color[0].r = color[0].r >> 1;
       color[0].g = color[0].g >> 1;
       color[0].b = color[0].b >> 1;
@@ -688,8 +600,15 @@ gte_ldv0(ptCenter);
       color[1].g = color[1].g >> 1;
       color[1].b = color[1].b >> 1;
     }
+
+
 gte_stlvnl(&diff);
+
+
     if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz) && (!(diff.vz < 0x80))) {
+
+
+
 gte_stsxy(&sp);
       angleZ = 0;
       if ((flags & 8U) != 0) {
@@ -697,65 +616,97 @@ gte_stsxy(&sp);
         result = sp.vx + sp.vy;
         angleZ = result * 4;
       }
+
+
+
+
+
+
+
+
+
+
       if ((flags & 4U) != 0) {
         VECTOR diff2;           /* @sp+0x50 */
         DVECTOR sp2;            /* @sp+0x60 */
         long difx;              /* s0 */
         long dify;              /* s1 */
+
 gte_ldv0(ptEdge);
+
         gte_rtps();
+
+
 gte_stlvnl(&diff2);
+
+
 gte_stsxy(&sp2);
         dify = sp2.vy - sp.vy;
+
+
         difx = sp2.vx - sp.vx;
+
         angleOuter = fixedatan(dify,difx) >> 4;
+
+
         sizeOuter = isqrt(difx * difx + dify * dify) * diff.vz;
       }
       else {
-        /* else-LOCAL zero-init: reorg hoists `angleOuter = 0` into the beqz
-         * delay slot (harmless on the taken path), and same-BB cse turns
-         * `sizeOuter = angleOuter` into the oracle's addu s2,s5,zero copy. */
         angleOuter = 0;
+
         sizeOuter = angleOuter;
       }
+
       gfrgb = color[0];
       gfrgb2 = color[1];
+
+
+
       if (-1 < (int)((u_int)(u_short)flag << 0x10)) {
         gscale = (vec1.x * vec1.x + vec1.y * vec1.y + vec1.z * vec1.z) >> 1;
       }
-      else {
-        gscale = (vec2.x * vec2.x + vec2.y * vec2.y + vec2.z * vec2.z) >> 1;
+      else { gscale = (vec2.x * vec2.x + vec2.y * vec2.y + vec2.z * vec2.z) >> 1;
       }
-      /* MATCH: gscale is the SHIFT DESTINATION and `scale` re-reads it (not
-         `scale = gscale<<scale; gscale = scale;`) -- the re-read is the second
-         evaluation cse turns into the oracle's `sllv v0,v0,s3 ; addu s3,v0,zero`
-         copy; the scale-first form coalesces it into an in-place `sllv s3,v0,s3`. */
       gscale = gscale << scale;
       scale = gscale;
+
       if ((flags & 1U) != 0) {
         VECTOR tvec1;           /* @sp+0x50 */
         VECTOR tvec2;           /* @sp+0x68 */
         long result;            /* v1 (the -600 clamp temp) */
+
+
         gte_ldtr0();
+
 gte_ldv0(&crossprod);
+
         gte_rtps();
+
 gte_stlvnl(&tvec1);
+
         VectorNormal((VECTOR *)&tvec1,(VECTOR *)&tvec2);
+
         if ((flags & 2U) != 0) {
           tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
         }
-        result = tvec2.vz + -0x258;
-        if (result < 0) {
-          result = 0;
-        }
-        tvec2.vz = result;
+        result = tvec2.vz + -0x258; if (result < 0) { result = 0; } tvec2.vz = result;
+
         gscale = gscale * result >> 0xb;
       }
+
       if ((type & 0x100U) != 0) {
         CVECTOR save;           /* @sp+0x50 */
         MATRIX scalemat;        /* @sp+0x78 */
         MATRIX mtx;             /* @sp+0x98 */
+
+
+
         save = gfrgb;
+
+
+
+
+
         *(int *)&scalemat.m[0][0] = scale + (sizeOuter >> 7);
         *(int *)&scalemat.m[1][1] = scale + (sizeOuter >> 7);
         *(int *)&scalemat.m[2][2] = 0;
@@ -763,21 +714,16 @@ gte_stlvnl(&tvec1);
         *(int *)&scalemat.m[2][0] = 0;
         gfrgb.r = gfrgb.r >> 1;
         gfrgb.g = gfrgb.g >> 1;
-        gfrgb.b = gfrgb.b >> 1;
-        Flare_IdentMatrix(&mtx);
+        gfrgb.b = gfrgb.b >> 1; Flare_IdentMatrix(&mtx);
+
 gte_SetTransVector(&diff);
+
         RotMatrixZ(0x800,&mtx);
+
+gte_SetRotMatrix(&mtx); gte_ldclmv(&scalemat); gte_rtir(); gte_stclmv(&mtx); gte_ldclmv(((char *)&scalemat + 0x2)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x2)); gte_ldclmv(((char *)&scalemat + 0x4)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x4));
+
 gte_SetRotMatrix(&mtx);
-gte_ldclmv(&scalemat);
-        gte_rtir();
-gte_stclmv(&mtx);
-gte_ldclmv(((char *)&scalemat + 0x2));
-        gte_rtir();
-gte_stclmv(((char *)&mtx + 0x2));
-gte_ldclmv(((char *)&scalemat + 0x4));
-        gte_rtir();
-gte_stclmv(((char *)&mtx + 0x4));
-gte_SetRotMatrix(&mtx);
+
         Flare_ReflectHexFlare((long *)&sp,otz);
         gfrgb = save;
       }
@@ -786,68 +732,52 @@ gte_SetRotMatrix(&mtx);
         MATRIX mtx2;            /* @sp+0x70 */
         MATRIX scalemat;        /* @sp+0x90 */
         int z;                  /* v1 */
+
+
+
         z = gscale;
+
         *(int *)&scalemat.m[2][2] = 0;
         *(int *)&scalemat.m[0][2] = 0;
         *(int *)&scalemat.m[2][0] = 0;
         *(int *)&scalemat.m[0][0] = z + (sizeOuter >> 5);
         *(int *)&scalemat.m[1][1] = z;
         Flare_IdentMatrix(&mtx);
+
         Flare_IdentMatrix(&mtx2);
+
 gte_SetTransVector(&diff);
+
         RotMatrixZ(angleZ,&mtx);
+
         RotMatrixZ(angleOuter,&mtx2);
-gte_SetRotMatrix(&mtx2);
-gte_ldclmv(&scalemat);
-        gte_rtir();
-gte_stclmv(&scalemat);
-gte_ldclmv(((char *)&scalemat + 0x2));
-        gte_rtir();
-gte_stclmv(((char *)&scalemat + 0x2));
-gte_ldclmv(((char *)&scalemat + 0x4));
-        gte_rtir();
-gte_stclmv(((char *)&scalemat + 0x4));
-gte_SetRotMatrix(&scalemat);
-gte_ldclmv(&mtx);
-        gte_rtir();
-gte_stclmv(&mtx);
-gte_ldclmv(((char *)&mtx + 0x2));
-        gte_rtir();
-gte_stclmv(((char *)&mtx + 0x2));
-gte_ldclmv(((char *)&mtx + 0x4));
-        gte_rtir();
-gte_stclmv(((char *)&mtx + 0x4));
+
+gte_SetRotMatrix(&mtx2); gte_ldclmv(&scalemat); gte_rtir(); gte_stclmv(&scalemat); gte_ldclmv(((char *)&scalemat + 0x2)); gte_rtir(); gte_stclmv(((char *)&scalemat + 0x2)); gte_ldclmv(((char *)&scalemat + 0x4)); gte_rtir(); gte_stclmv(((char *)&scalemat + 0x4));
+
+gte_SetRotMatrix(&scalemat); gte_ldclmv(&mtx); gte_rtir(); gte_stclmv(&mtx); gte_ldclmv(((char *)&mtx + 0x2)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x2)); gte_ldclmv(((char *)&mtx + 0x4)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x4));
+
 gte_SetRotMatrix(&mtx);
+
+
+
+
         if (diff.vz < 0xc80) {
           Flare_OctFlareSpikes((long *)&sp,otz);
         }
         else if (diff.vz < 0x1b80) {
+
           Flare_HexFlare((long *)&sp,otz);
+
           Flare_PreCalcHexLightBeam((long *)&sp,otz);
         }
         else {
+
           Flare_QuadFlare((long *)&sp,otz);
         }
       }
       {
-        DR_MODE *aprim;         /* a0 */
-        aprim = (DR_MODE *)Render_gPacketPtr;
-        setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-        Render_gPacketPtr = (u_char *)aprim + 0xc;
-        setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
-        {
-          /* MATCH: the AND must land in its OWN variable -- gcc-2.8's fold()
-             rewrites `(flags & 0x40) != 0` (any spelling: Yoda, >0, !!, explicit
-             shift) into `(flags >> 6) & 1`; only a VAR_DECL operand keeps the
-             oracle's `andi a2,s4,0x40 ; sltu a2,zero,a2`. */
-          u_int dtd /* SYM-CODEGEN-CARRIER: dtd -- VAR_DECL prevents fold to shift/bit form */ = flags & 0x40U;
-          SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
-        }
-      }
-    }
-  }
-  return;
-}
+        DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); { const u_int dtd = flags & 0x40U; SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);  /* a0 */
+        } } } } return; }
 
 /* PsyQ gte_stszotz (SZ3>>2 depth-sort key) -- oracle Halo2 @0x800CD6E4:
  * mfc2 $12,$19; nop; sra $12,2; sw.  Promoted to psx_gte.h (w40 consolidation). */
@@ -859,6 +789,8 @@ gte_SetRotMatrix(&mtx);
  *   t=v0 tx=t1 ty=a0 tz=t0 dx=v1 dy=a1 dz=a3 r=a0 result=v0 difx=s0 dify=s1 aprim=a0.
  * &diff CSE'd into s6 by gcc (2 cross-call uses). Return: SYM FCN VOID.
  * sd param unused (not in SYM, present in the mangling). */
+        /* MATCH: see Flare_CarShapedHalo -- the AND needs its own VAR_DECL to
+           stop gcc's fold() turning the test into `(flags >> 6) & 1`. */
 void Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fpt2,
               Draw_FlareCache *)
 
@@ -873,82 +805,83 @@ void Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fp
   DVECTOR sp;                   /* @sp+0x40 */
   int flare_type;               /* s1 */
   int flags;                    /* s3 */
-  int otz;                      /* AUTO @sp+0xC0 (address taken -> late slot) */
-  int z;                        /* s4 */
-  VECTOR diff2;                 /* @sp+0x48 */
-  DVECTOR sp2;                  /* @sp+0x58 */
-
-  flare_type = type & 0xff;
+  int otz; int z; VECTOR diff2; DVECTOR sp2; flare_type = type & 0xff;  /* AUTO @sp+0xC0 (address taken -> late slot) */ /* s4 */ /* @sp+0x48 */ /* @sp+0x58 */
   flags = Flare_gType[flare_type].flags;
   angleZ = 0;
   if (fpt2 == (coorddef *)0x0) {
     flags = flags & -6;
   }
-  {
-    coorddef *t;                /* v0 */
+
+  { coorddef *t;              /* v0 */
     int tx;                     /* t1 */
     int ty;                     /* a0 */
     int tz;                     /* t0 */
     int dx;                     /* v1 */
-    int dy;                     /* a1 */
-    int dz;                     /* a3 */
-    t = (coorddef *)&Vi->cview;
-    tx = t->x;
-    ty = t->y;
-    tz = t->z;
-    dx = fpt->x;
-    dy = fpt->y;
-    dz = fpt->z;
-    dx = dx - tx;
-    dy = dy - ty;
-    dz = dz - tz;
+    int dy; int dz; t = (coorddef *)&Vi->cview;  /* a1 */ /* a3 */
+    tx = t->x; ty = t->y; tz = t->z;
+
+    dx = fpt->x; dy = fpt->y; dz = fpt->z;
+    dx = dx - tx; dy = dy - ty; dz = dz - tz;
+
+
     sdiff.vx = (short)(dx >> 10);
     sdiff.vy = (short)(dy >> 10);
     sdiff.vz = (short)(dz >> 10);
+
     if ((flags & 5U) != 0) {
-      dx = fpt2->x;
-      dy = fpt2->y;
-      dz = fpt2->z;
-      dx = dx - tx;
-      dy = dy - ty;
-      dz = dz - tz;
+
+      dx = fpt2->x; dy = fpt2->y; dz = fpt2->z;
+      dx = dx - tx; dy = dy - ty; dz = dz - tz;
+
       sdiff2.vx = (short)(dx >> 10);
       sdiff2.vy = (short)(dy >> 10);
       sdiff2.vz = (short)(dz >> 10);
     }
   }
+
+
   if ((flags & 0x10U) != 0) {
-    if (((simGlobal.gameTicks >> 6) & 1U) != 0) {
-      return;
+
+    if (((simGlobal.gameTicks >> 6) & 1U) != 0) { return;
     }
-  }
-  else if ((flags & 0x20U) != 0) {
+  } else if ((flags & 0x20U) != 0) {
+
     if (((simGlobal.gameTicks + 0x1b >> 5) & 1U) != 0) {
       return;
     }
   }
   Flare_SetMatrix(&gWorldMat);
+
 gte_ldv0(&sdiff);
+
   gte_rtps();
   {
     u_long c;                   /* SYM-CODEGEN-CARRIER: c -- serial copy temp (v0), same measured anti-dependence as CarShapedHalo */
-    c = Flare_gType[flare_type].chalo;
-    *(u_long *)&color[0] = c;
-    c = Flare_gType[flare_type].cbeam;
-    *(u_long *)&color[1] = c;
+    c = Flare_gType[flare_type].chalo; *(u_long *)&color[0] = c;
+    c = Flare_gType[flare_type].cbeam; *(u_long *)&color[1] = c;
   }
+
   if (scale == -1) {
     scale = Flare_gType[flare_type].scale;
   }
+
 gte_stlvnl(&diff);
-  if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz) && (!(diff.vz < 0x80))) {
+
+
+  if (!((diff.vx <= diff.vz) && (-diff.vx <= diff.vz))) return;
+
+  if (diff.vz < 0x80) return;
+
+
 gte_stsxy(&sp);
+
+
+
+
+
 gte_stszotz(&otz);
     otz = otz >> 1;
-    if (otz < 0) {
-      return;
-    }
-    if (Draw_gViewOtSize + -3 < otz) {
+    if (otz < 0) { return; } if (Draw_gViewOtSize + -3 < otz) {
       return;
     }
     if ((flags & 0x80U) != 0) {
@@ -958,153 +891,159 @@ gte_stszotz(&otz);
       color[0].r = color[0].r + r;
       color[0].g = color[0].g + r;
       color[0].b = color[0].b + r;
+
       color[1].r = color[1].r + r;
       color[1].g = color[1].g + r;
       color[1].b = color[1].b + r;
     }
+
+
+
     if ((flags & 8U) != 0) {
-      long result;              /* v0 */
-      result = sp.vx + sp.vy;
+
+      const long result = sp.vx + sp.vy;
       angleZ = result * 4;
     }
+
+
+
     gfrgb = color[0];
+
     gfrgb2 = color[1];
+
     gscale = scale;
+
+
     if ((flags & 0x40U) != 0) {
-      DR_MODE *aprim;           /* a0 */
-      aprim = (DR_MODE *)Render_gPacketPtr;
-      setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)aprim + 0xc;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
-      SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
+      DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);  /* a0 */
     }
     z = diff.vz;
+
+
     if ((flags & 5U) != 0) {
+
+
 gte_ldv0(&sdiff2);
+
       gte_rtps();
+
+
 gte_stlvnl(&diff2);
+
+
 gte_stsxy(&sp2);
     }
+
     if ((flags & 4U) != 0) {
       {
         long difx;              /* s0 (reuses scale) */
         long dify;              /* s1 (reuses flare_type) */
         dify = sp2.vy - sp.vy;
         difx = sp2.vx - sp.vx;
+
         angleOuter = fixedatan(dify,difx) >> 4;
+
+
         sizeOuter = isqrt(difx * difx + dify * dify) * diff.vz;
       }
       {
         MATRIX mtx;             /* @sp+0x60 */
         MATRIX mtx2;            /* @sp+0x80 */
         MATRIX scalemat;        /* @sp+0xA0 */
+
+
+
+
+
         *(int *)&scalemat.m[2][2] = 0;
         *(int *)&scalemat.m[0][2] = 0;
         *(int *)&scalemat.m[2][0] = 0;
         *(int *)&scalemat.m[1][1] = gscale;
         *(int *)&scalemat.m[0][0] = gscale + (sizeOuter >> 4);
         Flare_IdentMatrix(&mtx);
+
         Flare_IdentMatrix(&mtx2);
+
 gte_SetTransVector(&diff);
+
         RotMatrixZ(angleZ,&mtx);
+
         RotMatrixZ(angleOuter,&mtx2);
-gte_SetRotMatrix(&mtx2);
-gte_ldclmv(&scalemat);
-        gte_rtir();
-gte_stclmv(&scalemat);
-gte_ldclmv(((char *)&scalemat + 0x2));
-        gte_rtir();
-gte_stclmv(((char *)&scalemat + 0x2));
-gte_ldclmv(((char *)&scalemat + 0x4));
-        gte_rtir();
-gte_stclmv(((char *)&scalemat + 0x4));
-gte_SetRotMatrix(&scalemat);
-gte_ldclmv(&mtx);
-        gte_rtir();
-gte_stclmv(&mtx);
-gte_ldclmv(((char *)&mtx + 0x2));
-        gte_rtir();
-gte_stclmv(((char *)&mtx + 0x2));
-gte_ldclmv(((char *)&mtx + 0x4));
-        gte_rtir();
-gte_stclmv(((char *)&mtx + 0x4));
+
+gte_SetRotMatrix(&mtx2); gte_ldclmv(&scalemat); gte_rtir(); gte_stclmv(&scalemat); gte_ldclmv(((char *)&scalemat + 0x2)); gte_rtir(); gte_stclmv(((char *)&scalemat + 0x2)); gte_ldclmv(((char *)&scalemat + 0x4)); gte_rtir(); gte_stclmv(((char *)&scalemat + 0x4));
+
+gte_SetRotMatrix(&scalemat); gte_ldclmv(&mtx); gte_rtir(); gte_stclmv(&mtx); gte_ldclmv(((char *)&mtx + 0x2)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x2)); gte_ldclmv(((char *)&mtx + 0x4)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x4));
+
 gte_SetRotMatrix(&mtx);
       }
     }
     else {
+
       if ((flags & 1U) != 0) {
         VECTOR tvec;            /* @sp+0x60 */
         VECTOR tvec2;           /* @sp+0x70 */
-        long result;            /* v1 (the -600 clamp temp) */
-        tvec.vx = diff.vx - diff2.vx;
+        long result; tvec.vx = diff.vx - diff2.vx;  /* v1 (the -600 clamp temp) */
         tvec.vy = diff.vy - diff2.vy;
         tvec.vz = diff.vz - diff2.vz;
         VectorNormal((VECTOR *)&tvec,(VECTOR *)&tvec2);
+
         if ((flags & 2U) != 0) {
           tvec2.vz = (tvec2.vz + -0xf33) * 0x14;
         }
-        result = tvec2.vz + -0x258;
-        if (result < 0) {
-          result = 0;
+        result = tvec2.vz + -0x258; if (result < 0) { result = 0;
         }
-        tvec2.vz = result;
-        if (result == 0) {
+        tvec2.vz = result; if (result == 0) {
           return;
         }
         gscale = gscale * result >> 0xb;
-        if (type == 0x1e) {
-          z = z / 4;
+
+        if (type == 0x1e) { z = z / 4;
         }
       }
       {
         MATRIX mtx;             /* @sp+0x60 */
         MATRIX scalemat;        /* @sp+0x80 */
+
+
+
+
+
         *(int *)&scalemat.m[2][2] = 0;
         *(int *)&scalemat.m[0][2] = 0;
         *(int *)&scalemat.m[2][0] = 0;
         *(int *)&scalemat.m[0][0] = gscale;
         *(int *)&scalemat.m[1][1] = gscale;
         Flare_IdentMatrix(&mtx);
+
 gte_SetTransVector(&diff);
+
         RotMatrixZ(angleZ,&mtx);
-gte_SetRotMatrix(&mtx);
-gte_ldclmv(&scalemat);
-        gte_rtir();
-gte_stclmv(&mtx);
-gte_ldclmv(((char *)&scalemat + 0x2));
-        gte_rtir();
-gte_stclmv(((char *)&mtx + 0x2));
-gte_ldclmv(((char *)&scalemat + 0x4));
-        gte_rtir();
-gte_stclmv(((char *)&mtx + 0x4));
+
+gte_SetRotMatrix(&mtx); gte_ldclmv(&scalemat); gte_rtir(); gte_stclmv(&mtx); gte_ldclmv(((char *)&scalemat + 0x2)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x2)); gte_ldclmv(((char *)&scalemat + 0x4)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x4));
+
 gte_SetRotMatrix(&mtx);
       }
     }
+
+
+
     if (z < 0xc80) {
       Flare_OctFlareSpikes((long *)&sp,otz);
     }
     else if (z < 0x1b80) {
+
       Flare_HexFlare((long *)&sp,otz);
+
       Flare_PreCalcHexLightBeam((long *)&sp,otz);
     }
     else {
+
       Flare_QuadFlare((long *)&sp,otz);
     }
     {
       DR_MODE *aprim;           /* a0 */
-      aprim = (DR_MODE *)Render_gPacketPtr;
-      setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)aprim + 0xc;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
-      {
-        /* MATCH: see Flare_CarShapedHalo -- the AND needs its own VAR_DECL to
-           stop gcc's fold() turning the test into `(flags >> 6) & 1`. */
-        u_int dtd /* SYM-CODEGEN-CARRIER: dtd -- VAR_DECL prevents fold to shift/bit form */ = flags & 0x40U;
-        SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
-      }
-    }
-  }
-}
+      aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); { const u_int dtd = flags & 0x40U; SetDrawMode(aprim,0,(u_int)(dtd != 0),0x120,(RECT *)0x0);
+      } } }
 
 /* ---- Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache  [FLARE.CPP:1097-1098] SLD-VERIFIED ---- */
 void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCache *sd)
@@ -1142,9 +1081,38 @@ void Flare_2DSpike(long *center,long *end,int otz)
   *(long *)((u_char *)prim + 0x10) = pt[1]; }
 
 /* ---- Flare_2DHalo__Fiiiii  [FLARE.CPP:1125-1211] SLD-VERIFIED ---- */
-void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
-
-{
+    /* MATCH (w62-a13, 4 -> PASS 247/247): residual (B) was an ALIAS-DEPENDENCE
+       question, not an allocation one -- and the SYM proves the shape.  @404394
+       lists NO colour local at all (only flare_type/aprim/i), so retail wrote the
+       two copies with no temp; `gfrgb`@0x8013d86c and `gfrgb2`@0x8013d870 are the
+       ADJACENT chalo/cbeam word pair, i.e. the destination is the same
+       Flare_tInfo layout as the source.  Spelling the stores as STRUCT MEMBER
+       stores does two things at once:
+         (1) MEM_IN_STRUCT_P is set on the destination, so gcc-2.8 alias.c's
+             `fixed_scalar_and_varying_struct_p` no longer disambiguates the store
+             (fixed-address SCALAR) from the next `Flare_gType[..].cbeam` load
+             (varying-address STRUCT).  With the dependence restored, sched1 keeps
+             the pairs SERIAL -- load, `li a3,288`, store, `lw a0,0(t3)`, load,
+             `lui t2`, store -- exactly retail.  The old `*(u_long *)&gfrgb = c;`
+             cast made the store a fixed scalar, gcc proved independence and
+             bunched both loads (the 4 misplaced-filler diffs).
+         (2) dropping the shared `c` temp gives the second colour its OWN pseudo,
+             born where the gType base dies, so local-alloc hands it $v0 (retail's
+             dead-base reuse `lw $v0,4($v0)`) instead of $v1.
+       BOTH halves are required: two pseudos alone = 8 (registers right, schedule
+       wrong); the struct view with ONE shared `c` = 4 (schedule right, registers
+       wrong).  That is catalog 12E's "a dial buys the REGISTER or the COUNT, never
+       both" -- here the two dials are independent and compose.
+       FALSIFIED at this site (all count-exact 247/247 unless noted): two temps 8 .
+       direct second store 8 . block-local c2 8 . identity launder on c / c2 / both
+       18-20 . USE fence between the copies, before either store, at the top, at the
+       end 18-28 . `volatile` on either or both stores 8 (volatile does NOT create
+       the alias dependence -- it only blocks slot-filling).
+       EQUIVALENT PASSING FORMS (kept as receipts, not taken): a local
+       `typedef struct { u_long w; } Flare_Word;` view on both stores with two temps,
+       with one temp, or with none; and a `Flare_tInfo *dst = (Flare_tInfo *)&gfrgb;`
+       pointer local.  The in-place member view below is the SYM-faithful one (no
+       invented type, no local). */
   /* MATCH: SYM rule-8 shape (block 0x800cdf70): pt(s3)=&pt2, otz(s4)=0 (cse zero
    * source for the first SetDrawMode's 0,0 args + a3 of all 16 Tri/Spike calls),
    * sd(t0)=scratchpad cache base — guard reads sd->head.cprim.{PrimPtr,MPrimPtr}
@@ -1284,62 +1252,31 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
  *   it confirms the word-copy SHAPE we already use and offers no two-carrier
  *   device; rage-racer has no matched C for this class (its prim submission is
  *   INCLUDE_ASM). */
+void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
+
+{
   DVECTOR pt2;
   DVECTOR *pt = &pt2;
-  int otz;
-  Draw_FlareCache *sd;
+  int otz; Draw_FlareCache *sd; pt2.vx = (short)x;  /* pt initialised at its declaration keeps the scale-parameter copies in the entry block (retail prologue/save schedule) */
+  pt2.vy = (short)y;
+
+
+
 
   sd = (Draw_FlareCache *)&Render_gPalettePtr;
-  pt2.vx = (short)x;
-  pt2.vy = (short)y;
-  /* Initializing pt at declaration keeps the scale-parameter copies in the entry
-   * block and naturally reproduces retail's prologue/save schedule. */
-  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x1000) {
+  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x1000)
+  {
     int flare_type;
 
-    otz = 0;
     flare_type = type & 0xffU;
-    /* MATCH (w62-a13, 4 -> PASS 247/247): residual (B) was an ALIAS-DEPENDENCE
-       question, not an allocation one -- and the SYM proves the shape.  @404394
-       lists NO colour local at all (only flare_type/aprim/i), so retail wrote the
-       two copies with no temp; `gfrgb`@0x8013d86c and `gfrgb2`@0x8013d870 are the
-       ADJACENT chalo/cbeam word pair, i.e. the destination is the same
-       Flare_tInfo layout as the source.  Spelling the stores as STRUCT MEMBER
-       stores does two things at once:
-         (1) MEM_IN_STRUCT_P is set on the destination, so gcc-2.8 alias.c's
-             `fixed_scalar_and_varying_struct_p` no longer disambiguates the store
-             (fixed-address SCALAR) from the next `Flare_gType[..].cbeam` load
-             (varying-address STRUCT).  With the dependence restored, sched1 keeps
-             the pairs SERIAL -- load, `li a3,288`, store, `lw a0,0(t3)`, load,
-             `lui t2`, store -- exactly retail.  The old `*(u_long *)&gfrgb = c;`
-             cast made the store a fixed scalar, gcc proved independence and
-             bunched both loads (the 4 misplaced-filler diffs).
-         (2) dropping the shared `c` temp gives the second colour its OWN pseudo,
-             born where the gType base dies, so local-alloc hands it $v0 (retail's
-             dead-base reuse `lw $v0,4($v0)`) instead of $v1.
-       BOTH halves are required: two pseudos alone = 8 (registers right, schedule
-       wrong); the struct view with ONE shared `c` = 4 (schedule right, registers
-       wrong).  That is catalog 12E's "a dial buys the REGISTER or the COUNT, never
-       both" -- here the two dials are independent and compose.
-       FALSIFIED at this site (all count-exact 247/247 unless noted): two temps 8 .
-       direct second store 8 . block-local c2 8 . identity launder on c / c2 / both
-       18-20 . USE fence between the copies, before either store, at the top, at the
-       end 18-28 . `volatile` on either or both stores 8 (volatile does NOT create
-       the alias dependence -- it only blocks slot-filling).
-       EQUIVALENT PASSING FORMS (kept as receipts, not taken): a local
-       `typedef struct { u_long w; } Flare_Word;` view on both stores with two temps,
-       with one temp, or with none; and a `Flare_tInfo *dst = (Flare_tInfo *)&gfrgb;`
-       pointer local.  The in-place member view below is the SYM-faithful one (no
-       invented type, no local). */
+
+
     ((Flare_tInfo *)&gfrgb)->chalo = Flare_gType[flare_type].chalo;
     ((Flare_tInfo *)&gfrgb)->cbeam = Flare_gType[flare_type].cbeam;
+    otz = 0;
     {
       DR_MODE *aprim;
-      aprim = (DR_MODE *)Render_gPacketPtr;
-      setaddr(aprim,getaddr(Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)aprim + 0xc;
-      setaddr(Render_gPalettePtr,aprim);
-      SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
+      aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(Render_gPalettePtr,aprim); SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
     }
     {
       DVECTOR npt [2];
@@ -1347,38 +1284,55 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
       DVECTOR octring [8];
       int i;
 
+
       for (i = 0; i < 8; i++) {
+
         octring[i].vx = (short)(Flare_gOct[i].vx * scalex / 0x10000);
         octring[i].vy = (short)(Flare_gOct[i].vy * scaley / 0x10000);
       }
+
       save1.vx = octring[0].vx + x;
       save1.vy = octring[0].vy + y;
+
       npt[1].vx = octring[1].vx + x;
       npt[1].vy = octring[1].vy + y;
+
       Flare_Tri((long *)pt,(long *)&save1,(long *)&npt[1],otz);
       Flare_2DSpike((long *)pt,(long *)&npt[1],otz);
+
       npt[0].vx = octring[2].vx + x;
       npt[0].vy = octring[2].vy + y;
+
       Flare_Tri((long *)pt,(long *)&npt[1],(long *)npt,otz);
       Flare_2DSpike((long *)pt,(long *)npt,otz);
+
       npt[1].vx = octring[3].vx + x;
       npt[1].vy = octring[3].vy + y;
+
       Flare_Tri((long *)pt,(long *)npt,(long *)&npt[1],otz);
       Flare_2DSpike((long *)pt,(long *)&npt[1],otz);
+
       npt[0].vx = octring[4].vx + x;
       npt[0].vy = octring[4].vy + y;
+
       Flare_Tri((long *)pt,(long *)&npt[1],(long *)npt,otz);
       Flare_2DSpike((long *)pt,(long *)npt,otz);
+
       npt[1].vx = octring[5].vx + x;
       npt[1].vy = octring[5].vy + y;
+
       Flare_Tri((long *)pt,(long *)npt,(long *)&npt[1],otz);
       Flare_2DSpike((long *)pt,(long *)&npt[1],otz);
+
       npt[0].vx = octring[6].vx + x;
       npt[0].vy = octring[6].vy + y;
+
       Flare_Tri((long *)pt,(long *)&npt[1],(long *)npt,otz);
       Flare_2DSpike((long *)pt,(long *)npt,otz);
+
       npt[1].vx = octring[7].vx + x;
       npt[1].vy = octring[7].vy + y;
+
       Flare_Tri((long *)pt,(long *)npt,(long *)&npt[1],otz);
       Flare_2DSpike((long *)pt,(long *)&npt[1],otz);
       Flare_Tri((long *)pt,(long *)&npt[1],(long *)&save1,otz);
@@ -1386,67 +1340,40 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
     }
     {
       DR_MODE *aprim;
-
-      aprim = (DR_MODE *)Render_gPacketPtr;
-      setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)aprim + 0xc;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
-      SetDrawMode(aprim,0,1,0x120,(RECT *)0x0);
+      aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); SetDrawMode(aprim,0,1,0x120,(RECT *)0x0);
     }
   }
 }
 
 /* ---- Flare_PreCalcHexLightBeam__FPli  [FLARE.CPP:1229-1252] SLD-VERIFIED ---- */
+/* HUDFX2: retail line layout; a plain top-tested `for` with prim declared in its body
+ * (the for scope is the retail {8} record); colour/len/code stores in retail line order.
+ * sldprobe 0/53, blocks exact. */
 void Flare_PreCalcHexLightBeam(long *center,int otz)
 
 {
   long pt [2];
   long i;
 
-  /* MATCH: SYM locals = pt[2] AUTO + i REG(t0) LONG + block-scope prim LINE_G2*(a0).
-   * pt[0]=*center saved to STACK once, body reloads it (swc2 memory clobber);
-   * top-test + j back-edge loop (exit-in-the-middle prevents rotation);
-   * gte_stsxy pointer form materializes &pt[1] each iteration (PsyQ inline_c shape).
-   * ---- w45-a9 HISTORICAL hand-mask seal 16 -> PASS 53/53 ----
-   * The 16 diffs were TWO coupled residuals, both fixed by the OT-link statement order:
-   *  (a) preheader movable order: retail = pktaddr(t1) | palette-base(t4) | otz*4(t3) |
-   *      0xFFFFFF(a3) | 0xFF000000(t2).  Splitting `pal = Render_gPalettePtr;` out of the
-   *      slot expression puts the `lui 0x1F80` ahead of the `sll`, and giving the
-   *      prim-address mask its own `addr24` temp BEFORE the first RMW generates 0xFFFFFF
-   *      ahead of 0xFF000000 (the RMW's left operand generates the HI mask first).
-   *  (b) the i/mask $a3<->$t0 rotation: `*slot = pkt24 | (addr24 & 0xffffff)` re-masks an
-   *      already-masked value -- ZERO INSNS, but it lifts the 0xFFFFFF pseudo from 3 refs
-   *      to 4, crossing the floor_log2 step (1 -> 2) in allocno_compare, so the mask now
-   *      out-prioritises the counter and takes $a3 (the lower hard reg in MIPS' numeric
-   *      handout) while `i` drops to $t0, exactly as the SYM says.  (w44 ref-step family.)
-   * NOTE this refutes the w41 note "(1) alone REGRESSES PreCalcHexLightBeam (16->18, no
-   * loop -> no LICM)": there IS a preheader here, and (1) only works together with the
-   * addr24 temp placed AFTER the slot statement.
-   * PASS-lock wave 18 supersedes that workaround with the canonical P_TAG field
-   * expansion; it remains PASS 53/53 without `slot/pal/pkt24/addr24`. */
-  i = 0;
+
   pt[0] = *center;
-  while (true) {
-    if (i >= 8) break;
-    {
-      LINE_G2 *prim;
+
+  for (i = 0; i < 8; i = i + 1)
+  {
+    LINE_G2 *prim;
 
 gte_ldv0(&Flare_gOct[i]);
-      prim = (LINE_G2 *)Render_gPacketPtr;
-      setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-      Render_gPacketPtr = (u_char *)prim + 0x14;
-      setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
-      gte_rtps_b();
-      const u_int rgb = *(u_int *)&gfrgb2;
-      *((u_char *)prim + 3) = 4;
-      *(u_int *)((u_char *)prim + 0xc) = 0;
-      *(u_int *)((u_char *)prim + 4) = rgb;
-      *((u_char *)prim + 7) = 0x52;
-      gte_stsxy(&pt[1]);
-      *(long *)((u_char *)prim + 8) = pt[0];
-      *(long *)((u_char *)prim + 0x10) = pt[1];
-    }
-    i = i + 1;
+    prim = (LINE_G2 *)Render_gPacketPtr; setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)prim + 0x14; setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
+gte_rtps_b();
+
+
+    *(u_int *)((u_char *)prim + 4) = *(u_int *)&gfrgb2;
+    *(u_int *)((u_char *)prim + 0xc) = 0;
+    *((u_char *)prim + 3) = 4; *((u_char *)prim + 7) = 0x52;
+    gte_stsxy(&pt[1]);
+
+    *(long *)((u_char *)prim + 8) = pt[0];
+    *(long *)((u_char *)prim + 0x10) = pt[1];
   }
 }
 
@@ -1490,18 +1417,16 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
 {
   POLY_G4 *prim;
 
-  otz = otz * 4 + (int)Render_gPalettePtr;
-  prim = (POLY_G4 *)Render_gPacketPtr;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
-  const int innerColor = *(int *)color;
-  Render_gPacketPtr = (u_char *)prim + 0x24;
-  *(u_int *)((u_char *)prim + 0xc) = 0;
-  *(int *)((u_char *)prim + 4) = innerColor;
+  otz = otz * 4 + (int)Render_gPalettePtr; prim = (POLY_G4 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff; const int innerColor = *(int *)color; Render_gPacketPtr = (u_char *)prim + 0x24;
+  *(u_int *)((u_char *)prim + 0xc) = 0; *(int *)((u_char *)prim + 4) = innerColor;
+
   const int outerColor = *(int *)color;
-  ((u_char *)prim)[3] = 8;
-  *(u_int *)((u_char *)prim + 0x1c) = 0;
-  ((u_char *)prim)[7] = 0x3a;
+
+
+
+
+
+  ((u_char *)prim)[3] = 8; *(u_int *)((u_char *)prim + 0x1c) = 0; ((u_char *)prim)[7] = 0x3a;
   *(int *)((u_char *)prim + 0x14) = outerColor;
   *(long *)((u_char *)prim + 8) = *pt;
   *(long *)((u_char *)prim + 0x10) = pt[1];
@@ -1597,30 +1522,32 @@ void Flare_SingleColorOct(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
 }
 
 /* ---- Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii  [FLARE.CPP:1460-1488] SLD-VERIFIED ---- */
+/* SYM locals exactly (i / width2 / height2 / index CHAR / i2 CHAR); index = i*2 at the loop
+ * top (back-edge delay slot), divides inline /256.  HUDFX2: retail line layout (decls on
+ * three lines, `i = 0; do {` and `i = i + 1; } while` one-liners): sldprobe 0/111. */
 void Flare_SingleColorOctRing(DVECTOR *xy,CVECTOR *color,int width,int height,int otz)
 
 {
   DVECTOR pt [18];
-  int i;
-  int width2;
-  int height2;
-  char index;
-  char i2;
-
-  /* MATCH: SYM locals exactly (i / width2 / height2 / index CHAR / i2 CHAR) --
-   * index = i*2 computed at loop-body TOP (back-edge delay slot), divides inline /256. */
+  int i, width2, height2;
+  char index, i2;
   width2 = width - 5;
   height2 = height - 5;
-  i = 0;
-  do {
+
+
+
+
+  i = 0; do {
+
     index = (char)(i * 2);
     i2 = (char)(i % 8);
+
     pt[index].vx = xy->vx + (short)(width * Flare_gOct[i2].vx / 256);
     pt[index].vy = xy->vy + (short)(height * Flare_gOct[i2].vy / 256);
     pt[index + 1].vx = xy->vx + (short)(width2 * Flare_gOct[i2].vx / 256);
     pt[index + 1].vy = xy->vy + (short)(height2 * Flare_gOct[i2].vy / 256);
-    i = i + 1;
-  } while (i < 9);
+    i = i + 1; } while (i < 9);
+
   Flare_QuadRing((long *)pt,color,otz);
   Flare_QuadRing((long *)(pt + 2),color,otz);
   Flare_QuadRing((long *)(pt + 4),color,otz);
@@ -1928,59 +1855,79 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
   int sx;
   int sy;
   FLARE_PIECE_DEF *piece;
-  long angleZ;
-  long angleZ2;
-  char flareVis;
-  int otz; /* SYM-CODEGEN-CARRIER: otz -- keeping the zero as a value preserves retail's shift/address chain; literal zero is FAIL 6/407 */
-
-  otz = 0;
-  if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
+  long angleZ; long angleZ2; char flareVis; int otz; otz = 0; if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {  /* SYM-CODEGEN-CARRIER: otz -- keeping the zero as a value preserves retail's shift/address chain; literal zero is FAIL 6/407 */
     {
       DVECTOR pt [4];
-      CVECTOR col;
-      u_long colw = 0xffffff; /* SYM-CODEGEN-CARRIER: colw -- inline 0xffffff is current FAIL 24/409 */
-      DVECTOR *pp = pt; /* SYM-CODEGEN-CARRIER: pp -- pre-fence call address forces the retail ARG-slot reload */
-      CVECTOR *cp = &col; /* SYM-CODEGEN-CARRIER: cp -- paired pre-fence address in the same measured head-block recipe */
-      int otSize; /* SYM-CODEGEN-CARRIER: otSize -- folding the -2 into this load is measured FAIL 10 */
-      long result;
-
-      do { } while (0);
-      i = 0;
-      otSize = Draw_gViewOtSize;
-      { int vx0 = screenPos->vx; /* SYM-CODEGEN-CARRIER: vx0 -- fence materializes retail's sx copy instead of folding the load into $fp */
-        int vy0 = screenPos->vy; /* SYM-CODEGEN-CARRIER: vy0 -- paired temporary materializes the sy/$s7 copy */
+      CVECTOR col; u_long colw = 0xffffff; DVECTOR *pp = pt; CVECTOR *cp = &col; int otSize; long result; do { } while (0); i = 0; otSize = Draw_gViewOtSize; { int vx0 = screenPos->vx; int vy0 = screenPos->vy;  /* SYM-CODEGEN-CARRIER: colw -- inline 0xffffff is current FAIL 24/409 */ /* SYM-CODEGEN-CARRIER: pp -- pre-fence call address forces the retail ARG-slot reload */ /* SYM-CODEGEN-CARRIER: cp -- paired pre-fence address in the same measured head-block recipe */ /* SYM-CODEGEN-CARRIER: otSize -- folding the -2 into this load is measured FAIL 10 */ /* SYM-CODEGEN-CARRIER: vx0 -- fence materializes retail's sx copy instead of folding the load into $fp */ /* SYM-CODEGEN-CARRIER: vy0 -- paired temporary materializes the sy/$s7 copy */
         __asm__ volatile("" : : "r"(vx0), "r"(vy0));
         otSize = otSize - 2;
         *(u_long *)&col = colw;
         __asm__ volatile("" : : "r"(otSize), "m"(col));
+
+
+
+
+
+
+
+
         sx = vx0;  sy = vy0; }
+
+
+
+
+
+
+
+
+
+
       pt[0].vx = (short)(sx + -2);
       pt[1].vy = pt[0].vy = (short)(sy + -2);
+
       pt[1].vx = (short)(sx + 3);
+
+
+
       pt[3].vy = pt[2].vy = (short)(sy + 3);
       result = sx + sy;
-      angleZ = result * 8;
-      angleZ2 = result * 6;
-      pt[3].vx = pt[1].vx;
+      angleZ = result * 8; angleZ2 = result * 6; pt[3].vx = pt[1].vx;
       pt[2].vx = pt[0].vx;
+
       Flare_QuadNotTransparent((long *)pp,cp,otSize);
     }
-    dx = 0x140 - sx;
-    dy = 0xf0 - sy;
-    flareVis = '\0';
-    gFlare_LensFlare.oldpos[0].vx = gFlare_LensFlare.pos[0].vx;
+    dx = 0x140 - sx; dy = 0xf0 - sy; flareVis = '\0'; gFlare_LensFlare.oldpos[0].vx = gFlare_LensFlare.pos[0].vx;
     gFlare_LensFlare.oldpos[0].vy = gFlare_LensFlare.pos[0].vy;
-    gFlare_LensFlare.pos[0].vx = (short)sx;
-    gFlare_LensFlare.pos[0].vy = (short)sy;
-    gFlare_LensFlare.isDrawn[0] = '\x01';
+
+    gFlare_LensFlare.pos[0].vx = (short)sx; gFlare_LensFlare.pos[0].vy = (short)sy; gFlare_LensFlare.isDrawn[0] = '\x01';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     for (; i < 0x19; i = i + 1) {
       if ((gFlare_LensFlare.screenData[0][0][i] & 0x7fff) == 0x7fff) {
         flareVis = flareVis + 1;
       }
-    }
-    if (flareVis != '\0') {
+
+    } if (flareVis != '\0') {
       MATRIX scalemat;
       MATRIX mtx;
+
+
+
+
+
+
 
       *(int *)((char *)&scalemat + 0) = flareVis * 0x80;
       *(int *)((char *)&scalemat + 8) = flareVis * 0x40;
@@ -1989,43 +1936,48 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       *(int *)((char *)&scalemat + 0xc) = 0;
       *(u_long *)&gfrgb2 = *(u_long *)&TrackSpec_gSpec.skyspec.sunBeamColor;
       Flare_IdentMatrix(&mtx);
+
       RotMatrixZ(angleZ,&mtx);
-gte_SetRotMatrix(&scalemat);
-gte_ldclmv(&mtx);
-      gte_rtir();
-gte_stclmv(&mtx);
-gte_ldclmv(((char *)&mtx + 0x2));
-      gte_rtir();
-gte_stclmv(((char *)&mtx + 0x2));
-gte_ldclmv(((char *)&mtx + 0x4));
-      gte_rtir();
-gte_stclmv(((char *)&mtx + 0x4));
+
+gte_SetRotMatrix(&scalemat); gte_ldclmv(&mtx); gte_rtir(); gte_stclmv(&mtx); gte_ldclmv(((char *)&mtx + 0x2)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x2)); gte_ldclmv(((char *)&mtx + 0x4)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x4));
+
 gte_SetRotMatrix(&mtx);
+
       Flare_Spikes((long *)screenPos,0);
       *(int *)((char *)&scalemat + 0) = flareVis * 0x40;
+
       Flare_IdentMatrix(&mtx);
+
       RotMatrixZ(angleZ2,&mtx);
-gte_SetRotMatrix(&scalemat);
-gte_ldclmv(&mtx);
-      gte_rtir();
-gte_stclmv(&mtx);
-gte_ldclmv(((char *)&mtx + 0x2));
-      gte_rtir();
-gte_stclmv(((char *)&mtx + 0x2));
-gte_ldclmv(((char *)&mtx + 0x4));
-      gte_rtir();
-gte_stclmv(((char *)&mtx + 0x4));
+
+gte_SetRotMatrix(&scalemat); gte_ldclmv(&mtx); gte_rtir(); gte_stclmv(&mtx); gte_ldclmv(((char *)&mtx + 0x2)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x2)); gte_ldclmv(((char *)&mtx + 0x4)); gte_rtir(); gte_stclmv(((char *)&mtx + 0x4));
+
 gte_SetRotMatrix(&mtx);
+
       Flare_Spikes((long *)screenPos,0);
       i = 0;
       *(u_long *)&(gFlare_LensFlare.piece)->color =
+
            *(u_long *)&TrackSpec_gSpec.skyspec.sunHaloColor;
+
+
       while (i < 9) {
+
         piece = gFlare_LensFlare.piece + i;
+
         pxy.vx = (short)(((0x10000 - piece->distance) * sx + piece->distance * dx) / 0x10000);
         pxy.vy = (short)(((0x10000 - piece->distance) * sy + piece->distance * dy) / 0x10000);
+
+
+
+
         width = gFlare_LensFlare.size * piece->size / 0x10000;
         height = width;
+
+
+
+
+
         if (3 < width) {
           CVECTOR col;
 
@@ -2048,16 +2000,11 @@ gte_SetRotMatrix(&mtx);
             break;
           }
         }
+
         i = i + 1;
       }
-      {
-        DR_MODE *aprim;
+      { DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
 
-        aprim = (DR_MODE *)Render_gPacketPtr;
-
-        setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-        Render_gPacketPtr = (u_char *)aprim + 0xc;
-        setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
         SetDrawMode(aprim,0,otz,0x120,(RECT *)0x0);
       }
     }
@@ -2065,134 +2012,91 @@ gte_SetRotMatrix(&mtx);
 }
 
 /* ---- Flare_Sun__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1742-1818] SLD-VERIFIED ----
- * MATCH (2026-08-28): source-only PASS 187/187.  Keep the unshifted
- * TrackSpec_gSpec symbol base in one block-local pointer, then express the
- * skyspec fields at their retail object offsets (flags +0x5c, sunHaloColor
- * +0xbc).  Casting the symbol to CSkySpec at +0x58 is semantically equivalent
- * but folds 0x58 into the relocation and emits field displacements 4/100;
- * retail materializes the base symbol itself and uses 92/188.
- * HISTORICAL W40 RECEIPT: the earlier 50-diff, count-exact build was one 3-cycle rotation of
- * the three block-local constants in the two AddPrim/SetDrawMode tails:
- *     ours  pktPtrAddr(0x1F800004)=$t2  0xFFFFFF=$t3  0xFF000000=$t1
- *     oracle             "        =$t3          =$t1            =$t2
- * Instruction stream, schedule, def positions and use positions are IDENTICAL -- only the
- * local-alloc quantity ORDER differs, i.e. the documented 0xffffff/0xff000000 constant-reg
- * tie (catalog wave-12 a7: both mask pseudos are block-LOCAL, so local-alloc decides, and
- * no zero-cost source lever changes the qty priority).  The SAME rotation is the whole
- * residual of Flare_2DHalo (68), most of Flare_LensFlare's tail, Flare_CarShapedHalo and
- * Flare_Halo2's tails, and Sky_RenderStars (2, LICM-hoist ORDER variant of the same tie).
- * w40-a8 QUANTIFICATION of that floor across the halo family (tool: scratch/quant_a8.py --
- * aligns ours vs oracle, then searches register permutations that make an aligned pair
- * equal, reporting how many pairs remain OUTSIDE):
- *     Flare_Sun          50 diffs = 25 pairs, 25/25 explained by {t1->t2,t2->t3,t3->t1}
- *                        -> 0 OUTSIDE.  100%% floor, count exact.  Do not grind.
- *     Flare_Halo2        48 diffs = 24 pairs, 24/24 explained -> 0 OUTSIDE (after the
- *                        w40 batched-load fix below).  100%% floor, count exact.
- *     Flare_2DHalo       60 diffs = 24 pairs, 21 explained, 3 OUTSIDE (+12 count-only):
- *                        a v0<->t0 swap between the otz*4 shift and the palette-base load
- *                        in the SECOND tail block, plus prologue save-order.
- *     Flare_CarShapedHalo 59 diffs = 27 pairs, only 6 explained by a t0<->t1 2-cycle;
- *                        21 OUTSIDE = an s6<->s7 swap (type param vs the zero-init
- *                        angleZ; the SYM says angleZ=$s6, so the ORACLE is right and our
- *                        build gives angleZ $s7) + a v0/v1 pick on `andi ...,127`.
- *                        THIS ONE IS NOT THE FLOOR -- it is the biggest remaining lead
- *                        in flare.cpp: demote `type` / promote `angleZ` in allocno order.
- * w39-a8 probes, ALL byte-neutral or worse: Hrz_SetDitheringPrim's exact spelling (slot
- * first, unmasked `tag = *slot` then `(tag & 0xff000000)|(...)`) = 50; unmasked pkt24 with
- * the original statement order = 50; swapping the first RMW's OR operands = 56.  Also NOT
- * a per-TU flag object (see the Flare_LensFlare banner for the four flag receipts). */
+ * HUDFX2: retail layout and structure -- early returns instead of the two nested ifs
+ * (retail has no if-scope records around the aprim/scalemat blocks), the skyspec
+ * fields read directly (the block-local trackSpec base carrier is gone; it was only
+ * needed in the nested basin), the DR_MODE add written as one-line blocks (retail
+ * line 54/75 holds the whole add), retail declaration order.  sldprobe 0/187, blocks
+ * and locals exact.  (Older receipts on the halo-family constant-register rotation:
+ * see Flare_2DHalo / Flare_CarShapedHalo.) */
 void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd)
 
 {
-  int pshift;
-  int vertRezBy2;
-  int dvz;
-  int otz;
   VECTOR diff;
   CVECTOR color;
   DVECTOR posOnScreen;
-
-  /* MATCH: SYM locals = diff/color/posOnScreen AUTO + pshift(a2) + vertRezBy2/dvz(v1,
-   * same reg reuse) + otz(s0) + block-scope aprim/scalemat. Restored vs old recon:
-   * the diff.vx/vy/vz translation recompute + Camera_gGeomScreen clamp (was MISSING --
-   * correctness bug: garbage GTE translation), scalemat 0x400-diag init (was fed
-   * UNINITIALIZED to gte_SetRotMatrix), gfrgb = color struct-assign (lwl/lwr). */
-  pshift = 0x78;
-  if (GameSetup_gData.commMode == 1) {
+  int pshift = 0x78, vertRezBy2, dvz, otz;
+  if (GameSetup_gData.commMode == 1)
+  {
     pshift = 0x3c;
   }
-  if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
+
+
+  if ((sd->head).cprim.MPrimPtr + -0x400 <= (sd->head).cprim.PrimPtr) return;
+
+
 gte_ldv0(worldPos);
-    gte_rtps();
+gte_rtps();
+
+
 gte_stlvnl(&diff);
-    if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz)) {
-      *(u_int *)&color = 0x808080;
-      gte_stsxy(&posOnScreen);
-      vertRezBy2 = 0x78;
-      posOnScreen.vy = (short)((diff.vy >> 2) + pshift);
-      if (GameSetup_gData.commMode == 1) {
-        vertRezBy2 = 0x3c;
-      }
-      diff.vy = (posOnScreen.vy - vertRezBy2) * 4;
-      dvz = Camera_gGeomScreen * 4;
-      diff.vx = (posOnScreen.vx - 0xa0) * 4;
-      if (dvz > 0xb50) {
-        dvz = 0xb50;
-      }
-      diff.vz = dvz;
-      gte_SetTransVector(&diff);
-      if (((posOnScreen.vx < 0x13d) && (GameSetup_gData.commMode != 1)) &&
-         ((TrackSpec_gSpec.skyspec.flags & 0x100U) == 0)) {
-        Flare_LensFlare(&posOnScreen,sd);
-      }
-      gfrgb = color;
-      otz = Draw_gViewOtSize - 2;
-      {
-        DR_MODE *aprim;
 
-        aprim = (DR_MODE *)Render_gPacketPtr;
+  if (!((diff.vx <= diff.vz) && (-diff.vx <= diff.vz))) return;
 
-        setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-        Render_gPacketPtr = (u_char *)aprim + 0xc;
-        setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
-        SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
-      }
-      {
-        MATRIX scalemat;
 
-        *(int *)((char *)&scalemat + 0) = 0x400;
-        *(int *)((char *)&scalemat + 8) = 0x400;
-        *(int *)((char *)&scalemat + 0x10) = 0;
-        *(int *)((char *)&scalemat + 4) = 0;
-        *(int *)((char *)&scalemat + 0xc) = 0;
+
+  *(u_int *)&color = 0x808080;
+
+
+  gte_stsxy(&posOnScreen);
+
+  posOnScreen.vy = (short)((diff.vy >> 2) + pshift);
+
+  vertRezBy2 = 0x78;
+  if (GameSetup_gData.commMode == 1)
+    vertRezBy2 = 0x3c;
+
+
+  diff.vy = (posOnScreen.vy - vertRezBy2) * 4;
+  diff.vx = (posOnScreen.vx - 0xa0) * 4;
+  dvz = Camera_gGeomScreen * 4;
+  if (dvz > 0xb50) dvz = 0xb50;
+  diff.vz = dvz;
+
+  gte_SetTransVector(&diff);
+
+  if (posOnScreen.vx < 0x13d)
+    if ((GameSetup_gData.commMode != 1) && ((TrackSpec_gSpec.skyspec.flags & 0x100U) == 0))
+      Flare_LensFlare(&posOnScreen,sd);
+
+
+  otz = Draw_gViewOtSize - 2;
+
+  gfrgb = color;
+
+
+  { DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); SetDrawMode(aprim,0,0,0x120,(RECT *)0x0); }
+
+
+  {
+    MATRIX scalemat;
+
+
+    *(int *)((char *)&scalemat + 0) = 0x400;
+    *(int *)((char *)&scalemat + 8) = 0x400;
+    *(int *)((char *)&scalemat + 0x10) = 0;
+    *(int *)((char *)&scalemat + 4) = 0;
+    *(int *)((char *)&scalemat + 0xc) = 0;
+
+
 gte_SetRotMatrix(&scalemat);
-      }
-      {
-        u_char *trackSpec; /* SYM-CODEGEN-CARRIER: trackSpec -- the retail
-                              function has no debug local for this shared base.
-                              Direct TrackSpec_gSpec.skyspec expressions measure
-                              FAIL 9 at 188/187; this staged base is PASS 187. */
-
-        trackSpec = (u_char *)&TrackSpec_gSpec;
-        if ((*(u_int *)(trackSpec + 92) & 0x100U) != 0) {
-          Flare_SingleColorTex(&posOnScreen,(CVECTOR *)(trackSpec + 188),0x10,0x10,'\0',otz);
-        }
-        else {
-          Flare_OctFlare((long *)&posOnScreen,otz);
-        }
-      }
-      {
-        DR_MODE *aprim;
-
-        aprim = (DR_MODE *)Render_gPacketPtr;
-
-        setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr));
-        Render_gPacketPtr = (u_char *)aprim + 0xc;
-        setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
-        SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
-      }
-    }
   }
+  if ((TrackSpec_gSpec.skyspec.flags & 0x100U) != 0)
+    Flare_SingleColorTex(&posOnScreen,&TrackSpec_gSpec.skyspec.sunHaloColor,0x10,0x10,'\0',otz);
+  else
+    Flare_OctFlare((long *)&posOnScreen,otz);
+
+  { DR_MODE *aprim; aprim = (DR_MODE *)Render_gPacketPtr; setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr)); Render_gPacketPtr = (u_char *)aprim + 0xc; setaddr(otz * 4 + (int)Render_gPalettePtr,aprim); SetDrawMode(aprim,0,0,0x120,(RECT *)0x0); }
 }
 
 /* ---- Flare_Moon__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1822-1864] SLD-VERIFIED ---- */
@@ -2202,19 +2106,43 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd)
   VECTOR diff;
   CVECTOR color;
   DVECTOR posOnScreen;
-  int pshift;
-
-  pshift = 0x78;
-  if (GameSetup_gData.commMode == 1) {
+  int pshift = 0x78;
+  if (GameSetup_gData.commMode == 1)
+  {
     pshift = 0x3c;
   }
+
+
 gte_ldv0(worldPos);
   gte_rtps();
+
+
   *(u_int *)&color = 0x808080;
+
+
 gte_stlvnl(&diff);
+
+
 gte_swc2(0xe,&posOnScreen);
+
   posOnScreen.vy = (short)(diff.vy >> 2) + (short)pshift;
-  if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz)) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+  if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz))
+  {
+
+
     Flare_SingleColorTex(&posOnScreen,&color,0x10,0x10,'\0',Draw_gViewOtSize + -2);
   }
 }

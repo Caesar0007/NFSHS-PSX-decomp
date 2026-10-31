@@ -24,22 +24,28 @@ Car_tObj *
 AIHigh_Traffic::CheckForCops(int *closestDistance)
 {
   int copLoop;
-  Car_tObj*closestCop;
-  closestCop = (Car_tObj *)0x0;
+  Car_tObj*closestCop; closestCop = (Car_tObj *)0x0;
+
   *closestDistance = 0x4e200000;
+
+
+
   for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
     Car_tObj*cop;
     int sliceDistance;
+
     cop = Cars_gCopCarList[copLoop];
     if ((cop->AIFlags & 4U) == 0) {
+
       sliceDistance = AIWorld_ApxSplineDistance(this->carObj_,cop);
       sliceDistance = __builtin_abs(sliceDistance);
       if (sliceDistance < *closestDistance) {
+
         closestCop = cop;
         *closestDistance = sliceDistance;
       }
-    }
-  }
+    } }
+
   return closestCop;
 }
 
@@ -72,26 +78,61 @@ AIHigh_Traffic::CopCheck(int *blockade)
   int closestDistance;
   int speed;
   AIHigh_Cop*cop;
+
   *blockade = 0;
   cop = (AIHigh_Cop *)0x0;
+
   if (Cars_gNumCopCars == 0) {
     return cop;
   }
+
   closest = this->CheckForCops(&closestDistance);
+
+
   if (closest == (Car_tObj *)0x0) {
     return cop;
   }
   speed = __builtin_abs(closest->currentSpeed);
+
+
+
   if ((speed < 0x20000) && (closestDistance < 0x4b0000)) {
+
+
     *blockade = 1;
+
     cop = (AIHigh_Cop *)highLevelAIObjs[closest->carIndex];
+
     if (cop->PerpTarget() == (AIHigh_Player *)0x0) {
       cop = (AIHigh_Cop *)0x0;
     }
   }
+
   else if ((0x20000 < speed) && (closestDistance < 0x4b0000)) {
+
+
     cop = (AIHigh_Cop *)highLevelAIObjs[closest->carIndex];
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return cop;
 }
 
@@ -130,92 +171,154 @@ void AIHigh_Traffic::HighExecute()
 {
   carObj_->unlap = 0;
   carObj_->lap = 0;
+
+
   switch ((stateType_t)stateType_) {
     trigger_t *pNewTrigger;
   case STATE_NONE:
       {
         coorddef trafficOffset = { 0, 0x640000, 0 };
         if ((carObj_->carFlags & 0x400U) != 0) {
+
+
           this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
         }
         else {
+
+
           this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
         }
+
         Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
         return;
       }
   case STATE_PURGATORY:
+
+
       if (accidentData_ != (SceneElem *)0x0) {
         BWorldSm_Pos spos;
+
         this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
+
+
         spos.slice = 0;
         BWorldSm_FindClosestSlice(&accidentData_->cp,&spos);
         AILife_ReencarnateTrafficByPosition
           (carObj_,(int)spos.slice,1,&accidentData_->cp,&accidentData_->orient);
+
+
+
         carObj_->carFlags = carObj_->carFlags | 0x400U;
+
         accidentData_ = (SceneElem *)0x0;
       }
       else {
         if ((state_->TestForRelease() != 0) && (this->ForcePurgatory() == 0)) {
-          pNewTrigger = CheckForNewTriggers();
-          if (pNewTrigger != (trigger_t *)0x0) {
+
+          pNewTrigger = CheckForNewTriggers(); if (pNewTrigger != (trigger_t *)0x0) {
+
+
+
             triggerManagerTraffic->DescribeTrigger(pNewTrigger);
             if (pNewTrigger->any.type == 5) {
+
+
+
               this->SetState(new AIState_RovingTraffic(carObj_,pNewTrigger), STATE_ROVING_TRAFFIC);
+
+
+
               Traffic_ReencarnateAtTrigger(this, pNewTrigger);
             }
           }
           else {
+
+
+
             this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
             AILife_ReencarnateTraffic(carObj_);
           }
         }
-      }
-    break;
+      } break;
   case STATE_NORMAL:
     {
       int blockade;
+
       if (AILife_EvaluateLife(carObj_) != 0) {
+
+
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
       else if (this->ForcePurgatory() != 0) {
+
+
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
+
       else if (CopCheck(&blockade) != (AIHigh_Cop *)0x0) {
+
         if (ignoreCops_ == 0) {
-          randtemp = fastRandom * randSeed;
-          fastRandom = randtemp & 0xffff;
-          int cRand = ((randtemp >> 8) & 0xffff) * 5 >> 0xf;
+
+          randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; int cRand = ((randtemp >> 8) & 0xffff) * 5 >> 0xf;
           if (blockade != 0) {
             {
             AIState_Idle *idleState;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             int slice = (int)carObj_->N.simRoadInfo.slice;
             this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
             idleState = (AIState_Idle *)this->state_;
-            idleState->SetIdlePosition(
-              carObj_->direction == 1 ?
-                ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
-                  (BWorldSm_slices[slice].laneCount & 0xf) :
-                ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) *
-                  ((u_int)BWorldSm_slices[slice].laneCount >> 4));
+            idleState->SetIdlePosition( carObj_->direction == 1 ? ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) * (BWorldSm_slices[slice].laneCount & 0xf) : ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) * ((u_int)BWorldSm_slices[slice].laneCount >> 4));
             }
           }
+
+
+
+
+
+
           else if (cRand <= 0) {
+
+
+
+
             this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
           }
+
           else if (cRand < 8) {
             AIState_Idle *idleState;
+
+
+
+
             int slice = (int)carObj_->N.simRoadInfo.slice;
             this->SetState(new AIState_Idle(carObj_, 1), STATE_IDLE);
             idleState = (AIState_Idle *)this->state_;
-            idleState->SetIdlePosition(
-              carObj_->direction == 1 ?
-                ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) *
-                  (BWorldSm_slices[slice].laneCount & 0xf) :
-                ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) *
-                  ((u_int)BWorldSm_slices[slice].laneCount >> 4));
+            idleState->SetIdlePosition( carObj_->direction == 1 ? ((u_int)BWorldSm_slices[slice].avgPavedWidthRt << 0xf) * (BWorldSm_slices[slice].laneCount & 0xf) : ((u_int)BWorldSm_slices[slice].avgPavedWidthLf << 0xf) * ((u_int)BWorldSm_slices[slice].laneCount >> 4));
           }
           else {
+
+
+
+
             ignoreCops_ = 1;
           }
         }
@@ -224,11 +327,16 @@ void AIHigh_Traffic::HighExecute()
         ignoreCops_ = 0;
       }
     }
+
+
     break;
   case STATE_IDLE:
     {
       int blockade;
+
+
       if (AILife_EvaluateLife(carObj_) != 0) {
+
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
       else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) &&
@@ -236,16 +344,25 @@ void AIHigh_Traffic::HighExecute()
         this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
       }
     }
+
+
     break;
   case STATE_ROVING_TRAFFIC:
     {
+
+
       if (AILife_EvaluateLife(carObj_) != 0) {
+
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
+
       else if (this->ForcePurgatory() != 0) {
+
+
         this->SetState(new AIState_Purgatory(carObj_), STATE_PURGATORY);
       }
       else if (state_->TestForRelease() != 0) {
+
         this->SetState(new AIState_Normal(carObj_), STATE_NORMAL);
       }
     }
@@ -259,6 +376,8 @@ void AIHigh_Traffic::HighExecute()
   default:
     break;
   }
+
+
   state_->StateExecute();
 }
 
@@ -272,14 +391,9 @@ void AIHigh_Traffic::HighExecute()
 /* ---- __14AIHigh_TrafficP8Car_tObj  AIHigh_Traffic::ctor  [AIH_TRAF.CPP:343-347] SLD-VERIFIED ---- */
 AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj) : AIHigh_Base(carObj)
 {
-
   this->ignoreCops_ = 0;
-
   this->forcePurgatory_ = 0;
-
-  this->accidentData_ = (SceneElem *)0x0;
-
-  return;
+  this->accidentData_ = (SceneElem *)0x0; return;
 
 }
 
@@ -304,71 +418,85 @@ inline int AIHigh_Base::ExchangeTrafficTriggerCheckSlice(int newSlice) {
  * The helper/caller literal spellings remain unproven original text. */
 trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 {
-  for (int sortedLoop = Cars_gNumCars - 1; sortedLoop >= 0; sortedLoop--) {
-    Car_tObj *testCar = Cars_gTotalSortedList[sortedLoop];
 
+
+  for (int sortedLoop = Cars_gNumCars - 1; sortedLoop >= 0; sortedLoop--) {
+
+    Car_tObj *testCar = Cars_gTotalSortedList[sortedLoop];
     if ((testCar->carFlags & 0x204U) != 0) {
       int dir = -1;
+
       AIHigh_Base *thisPlayer =
         (AIHigh_Base *)highLevelAIObjs[testCar->carIndex];
       int thisSlice;
       int startSlice;
       int endSlice;
       int fRandomChance = 0x320000;
-
-      if (testCar->currentSpeed >= 0) {
-        dir = 1;
+      if (testCar->currentSpeed >= 0) { dir = 1;
       }
 
-      thisSlice = dir * 0x2d;
-      if (thisSlice >= 0) {
-        thisSlice =
-          testCar->N.simRoadInfo.slice + (thisSlice = thisSlice);
-        if (thisSlice >= gNumSlices) {
-          thisSlice -= gNumSlices;
+      thisSlice = dir * 0x2d; if (thisSlice >= 0) { thisSlice = testCar->N.simRoadInfo.slice + (thisSlice = thisSlice); if (thisSlice >= gNumSlices) { thisSlice -= gNumSlices; } } else { thisSlice = testCar->N.simRoadInfo.slice + (thisSlice = thisSlice); if (thisSlice < 0) { thisSlice += gNumSlices;
         }
       }
-      else {
-        thisSlice =
-          testCar->N.simRoadInfo.slice + (thisSlice = thisSlice);
-        if (thisSlice < 0) {
-          thisSlice += gNumSlices;
-        }
-      }
-
       int temp = thisPlayer->ExchangeTrafficTriggerCheckSlice(thisSlice);
       if (temp < thisSlice) {
+
         startSlice = temp;
         endSlice = thisSlice;
       } else {
+
+
         startSlice = thisSlice;
         endSlice = temp;
       }
 
-      for (int sliceLoop = startSlice; (sliceLoop < endSlice) &&
-             ((endSlice - startSlice) < 0x32); sliceLoop++) {
-        int triggerHere =
-          triggerManagerTraffic->CheckForTriggerAtSlice
-            (testCar->carIndex,sliceLoop);
+      for (int sliceLoop = startSlice; (sliceLoop < endSlice) && ((endSlice - startSlice) < 0x32); sliceLoop++) {
 
-        if (triggerHere != -1) {
+
+
+
+        int triggerHere = triggerManagerTraffic->CheckForTriggerAtSlice (testCar->carIndex,sliceLoop); if (triggerHere != -1) {
+
           int iRandomChance = ((fRandomChance * 0x19) << 2) / 0x10000;
-          randtemp = fastRandom * randSeed;
-          fastRandom = randtemp & 0xffff;
-          int randomValue = (((randtemp >> 8) & 0xffff) * 0x19) >> 0xe;
+          randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; int randomValue = (((randtemp >> 8) & 0xffff) * 0x19) >> 0xe;
+
+
+
+
+
+
+
+
+
+
 
           if (AILife_IsSliceInAnyVisibleArea(sliceLoop) != (Car_tObj *)0x0)
             continue;
+
+
+
+
+
           if (randomValue < iRandomChance) {
             int unused;
+
+
+
+
             return triggerManagerTraffic->GetTrigger(triggerHere,&unused);
           }
         }
+
+
+
+
+
+
+
+
       }
     }
-
   }
-
   return (trigger_t *)0x0;
 
 }

@@ -16,4 +16,16 @@ extern "C" void SetPolyFT4(POLY_FT4 *p);
 extern "C" void SetSemiTrans(void *p, int abe);
 extern "C" void SetShadeTex(void *p, int tge);
 
+static inline void FETVLinkFT4(u_int *palette,POLY_FT4 *primitive,
+                               u_char **packetPtrSlot,u_int rgbMask)
+{
+  u_int paletteTag;
+
+  *(u_int *)primitive =
+       *(u_int *)primitive & 0xff000000 | *palette & rgbMask;
+  paletteTag = *palette;
+  *packetPtrSlot = (u_char *)primitive + 0x28;
+  *palette = paletteTag & 0xff000000 | (u_int)primitive & rgbMask;
+}
+
 #endif

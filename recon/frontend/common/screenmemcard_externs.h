@@ -61,4 +61,23 @@ int AudioMus_Threshold(void);
 void PSXDrawBrightEndLine(int col, int x, int y, int w, int h, int side, int fade, int darksides);
 void Texture_MenuReleaseClutId(short id);
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
+
+static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
+
+static inline void MenuItem_SetText(tMenuItem *item, unsigned int text) { item->fTextDescription = text; }
+
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+/* ORIGINAL-NAME-UNRESOLVED: inferred color-table accessor, following
+   FEFades' typed lookup; the memory-card text uses the existing type6/color5. */
+static inline int TextDefinitionColor(int type, int column) {
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
 #endif

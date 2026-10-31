@@ -167,4 +167,22 @@ extern tScreenUserName *screenUserName;
    `lw v0,0(v0)` (LOAD the value stored at the vtable's FIRST ENTRY, i.e. garbage bits of a
    __nfs4_vtbl_ptr_t struct) instead of materializing the array's own address (the real vtable
    pointer). Every tAllScreens::tAllScreens()/tDialog* vptr-init through these was corrupted. */
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
+
+/* Retail front.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+/* retail's SYM opens Front_GetLapsForType and Front_InitTourneyTraffic with an inline-call pair at +000 and no `this`: the
+   current-tourney pointer comes from an inline accessor, not an open-coded index chain */
+static inline tTourneyInfo *CurrentTourney(void)
+{
+  return tournamentManager.fDefinition->fTournaments +
+         (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+          tournamentManager.fTournament);
+}
+
 #endif

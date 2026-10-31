@@ -206,8 +206,10 @@ void tScreenPinkSlips::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
   tTrackInformation trackInfo;
   
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+
   numPermShapes = 0x39;
   numSwapShapes = 4;
+
   *permFileName = "zPink";
   sprintf(gSwapFileName,"TR%02dPS",(int)(signed char)trackInfo.fTrackID);
   *swapFileName = gSwapFileName;

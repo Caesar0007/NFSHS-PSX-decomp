@@ -88,19 +88,15 @@ int          NitroDistanceMeters[2][2] = { 3932160, 1638400, 3932160, 1638400 };
 /* ---- __10AIHigh_CopP8Car_tObji  AIHigh_Cop::ctor  [AIH_COP.CPP:95-105] SLD-VERIFIED ---- */
 AIHigh_Cop::AIHigh_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
-
-
   this->perpTarget_ = (AIHigh_Player *)0x0;
 
   this->chaseIndex_ = 0;
 
-  this->requestSpikeBeltAtSlice_ = -1;
 
+  this->requestSpikeBeltAtSlice_ = -1;
   this->forcePurgatory_ = 0;
 
-  this->aggressionLevel_ = 0;
-
-  return;
+  this->aggressionLevel_ = 0; return;
 
 }
 
@@ -118,33 +114,19 @@ void AIHigh_Cop::SetTuningLevers()
 
 
 {
-  int carTypeIndex;
+  int carTypeIndex; carTypeIndex = this->carObj_->carInfo->carType;
 
 
-
-  carTypeIndex = this->carObj_->carInfo->carType;
 
   if (this->type_ == 1) {
 
     this->carObj_->copTopSpeed = copTuningInfo[carTypeIndex + -0x16].superCopTopSpeedCap;
-
-    (this->carObj_)->copAccMult =
-
-         copTuningInfo[carTypeIndex + -0x16].superCopAccMultiplier;
-
-    return;
+    (this->carObj_)->copAccMult = copTuningInfo[carTypeIndex + -0x16].superCopAccMultiplier; return;
 
   }
 
   this->carObj_->copTopSpeed = copTuningInfo[carTypeIndex + -0x16].regularCopTopSpeedCap;
-
-  (this->carObj_)->copAccMult =
-
-       copTuningInfo[carTypeIndex + -0x16].regularCopAccMultiplier;
-
-  return;
-
-}
+  (this->carObj_)->copAccMult = copTuningInfo[carTypeIndex + -0x16].regularCopAccMultiplier; return; }
 
 
 
@@ -323,193 +305,139 @@ void AIHigh_Cop::SetTuningLevers()
    the block pair, not another spelling.  The remaining ~64 diffs are the scattered
    caller-saved naming bands the w63 multidial program was working through. */
 
-void AIHigh_Cop::HighExecute()
-
-
-
-{
-  (this->carObj_)->unlap = 0;
-
-  (this->carObj_)->lap = 0;
-
-  this->CheckSpikeBelt();
-
-  this->CheckForWipeOut();
-
-  this->SetTuningLevers();
-
-  switch(this->stateType_) {
-
-  case 0:
-    {
-    this->AssignToPlayer((AIHigh_Player *)0x0);
-
-    (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
-
-    if (((this->carObj_)->carFlags & 0x400U) != 0) {
-      /* Idle arm = oracle FALL-THROUGH (beqz jumps to the Purgatory arm) */
-      AIState_Base *newState;
-
-      newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
-      ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-
-      this->SetState(newState,(stateType_t)3);
-
-      return;
-    }
-
-    {
-      AIState_Base *newState;
-
-      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
-
-      this->SetState(newState,(stateType_t)1);
-
-      return;
-    }
-    }
-
-  case 1:
-    {
-    (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
-
-    this->requestSpikeBeltAtSlice_ = -1;
-
-    this->driveAway_ = 0;
-
-    if (this->blockade_.mode == 4) {
-
-      this->blockade_.mode = 0;
-
-    }
-
-    {
-    if (this->blockade_.mode == 2) {
-
-      AIState_Base *newState;
-
-      this->AssignToPlayer(this->blockade_.target);
-
-      newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
-      ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-
-      this->SetState(newState,(stateType_t)3);
-
-      {
-        AILife_ReencarnateCopByLatPosAndRotation(this->carObj_,this->blockade_.slice
-                   ,this->blockade_.direction,
-                   this->blockade_.latPos,this->blockade_.rotation);
-      }
-
-      this->requestSpikeBeltAtSlice_ = this->blockade_.requestSpikeBeltAtSlice;
-
-    }
-
-    else if ((((this->carObj_)->AIFlags & 8U) != 0) && (this->blockade_.mode != 1))
-
-    {
-
-      trigger_t *pNewTrigger;
-
-      pNewTrigger = this->CheckForNewTriggers();
-
-      if (pNewTrigger != (trigger_t *)0x0) {
-
-        int forceForwardTrigger;
-
-        trigger_t newTrigger;
-
-        forceForwardTrigger = 0;
-
-        newTrigger = *pNewTrigger;
-
-        if (NumHumanRaceCars() == 2) {
-
-          int distanceMeters;
-
-          distanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(Cars_gHumanRaceCarList[0],Cars_gHumanRaceCarList[1]));
-
-          if (distanceMeters < 0x12c0000) {
-
-            forceForwardTrigger = 1;
-
-          }
-
-        }
-
-        if (forceForwardTrigger) {
-
-          int oldSlice;
-
-          oldSlice = newTrigger.roadblock.slice;
-
-          newTrigger.roadblock.type = 1;
-
-          newTrigger.roadblock.spikeBelt = 1;
-
-          newTrigger.roadblock.dir = 1;
-
-          newTrigger.roadblock.numCars = 1;
-
-          newTrigger.roadblock.slice = oldSlice;
-
-        }
-
-        triggerManagerCops->DescribeTrigger(&newTrigger);
-
-        /* W61-A12: retail is NOT a switch here -- the oracle's test order
-           (beq==1 -> body1 | slti<2 -> out | beq==2 -> out | bne!=3 -> out |
-           fall -> body3) is byte-for-byte gcc-2.8's lowering of THIS nested
-           if-chain (scratchpad/w61a12/swlab.c V10, CC1PLPSX-verified).  A
-           3-case switch cannot produce it: balance_case_nodes (stmt.c:6059-6095)
-           splits any 3-node list at the MIDDLE (root=2) and use_cost_table is 0
-           here because estimate_case_costs rejects control-character case values
-           (cost_table[1..3] < 0, stmt.c:5957-5960).  An `&&` chain folds the two
-           guards away (swlab V12) -- they must be NESTED ifs.  84 -> 80 diffs. */
-        if (newTrigger.roadblock.type != 1) {
-          if (newTrigger.roadblock.type > 1) {
-            if (newTrigger.roadblock.type != 2) {
-              if (newTrigger.roadblock.type == 3) {
-          {
-          /* W83-A11 (PIN-REMOVAL BELT) -- W72-A11's note here described two zero-insn
-             opacity fences; by the time of this edit the rev half had become a
-             `register int rev asm("$2")` PIN (methodology 3.13 forbids those).  The pin
-             is DEAD: `int rev` alone re-gates PASS 1460/1460 on its own and in the
-             all-six-pins-removed candidate (W83-A11 step (b), cells A_rev_plain and
-             base5).  Plain locals, no fence, no pin. */
-          /* SYM-CODEGEN-CARRIER: rev -- the plain block-local reverse-track
-             selection is byte-exact; the documented direct/conditional/fenced
-             alternatives produce 20-41 diffs or extra instructions. */
-          int rev = GameSetup_gData.reverseTrack;
-          /* SYM-CODEGEN-CARRIER: dir -- sharing this first roadblock-direction
-             read with the select is required by the measured two-cell receipt. */
-          int dir = newTrigger.roadblock.dir;
-
-          /* W85-S1: the two arms compute the WRONG-WAY BOOLEAN DIRECTLY
-             (`dir == 1` forward / `dir == -1` on a reversed track) instead of
-             building an intermediate `rev` and testing it for zero.  gcc-2.8
-             lowers `x == 1` to `xori v0,x,1; sltiu v0,v0,1` and `x == -1` to
-             `nor v0,zero,x; sltiu v0,v0,1`, then CROSS-JUMP-MERGES the shared
-             `sltiu` into the join -- which IS retail's
-             `bnez rev; nor(delay); xori; .L: sltiu; bnez`.  This replaces the
-             `__asm__("" : "=r"(wrongWayHit) : "0"(wrongWayHit))` identity fence
-             that was standing in for the materialized boolean: the fence forced
-             gcc to keep a value it would otherwise fold into the branch, but the
-             value retail materializes is the COMPARISON RESULT of the two arms,
-             not an opaque copy.  Plain-temp control (`rev = dir^1 / ~dir` then
-             `wrongWayHit = (rev == 0)`, no fence) = 3 diffs @1459. */
-          int wrongWayHit;
-          if (rev == 0) {
-
-            wrongWayHit = (dir == 1);
-
-          }
-          else {
-
-            wrongWayHit = (dir == -1);
-
-          }
-
+      /* SYM-CODEGEN-CARRIER: targetLevel -- declaration-initializing both level
+         snapshots before the store gives 12 diffs; this ordered form is exact. */
+      /* SYM-CODEGEN-CARRIER: blockLevel -- the field reads must remain ordered
+         store, target level, blockade level; reading this first gives 8 diffs. */
+      /* SYM-CODEGEN-CARRIER: chaseTarget -- this snapshot carries the target
+         across the ordered level reads and the conditional engagement store. */
+      /* MATCH (W83-A11): this was a 4-instruction `__asm__ volatile` block with THREE
+         `register ... asm("$N")` pins ($4/$2/$3) standing in for plain field access.
+         Pure C reproduces it exactly -- but the STATEMENT ORDER is load-bearing: the
+         -1 store first, then the chaseLevelIndex_ read, then the chaseLevel read.
+         Measured on the pinned base: this order PASS 1460; blockLevel-before-
+         targetLevel FAIL 8; both reads as decl-inits ahead of the store FAIL 12. */
+        /* SYM-CODEGEN-CARRIER: distance -- this second spline-distance result
+           needs its own block-local quantity. Reusing the SYM-listed
+           rbDistanceMeters keeps the instruction count but produces 16 diffs. */
+              /* MATCH (W71-A19, 69->55): retail RE-DERIVES the whole chain here
+                 (oracle 0x80064DBC-DCC `lw v0,0x58(s1); lw v0,0(v0); lw a1,0x564(v0)`)
+                 while our cse keeps the carObj_ pointer live across the abs branch and
+                 re-loads only the field (`lw a1,1380(a1)`) -- 4 insns short + a band
+                 shift.  A volatile view on the perpTarget_ READ defeats the ADDRESS-CSE
+                 (w22-a10 / 05E) and restores retail's fresh chain.  Measured, each
+                 re-gated from 69: volatile on carObj_ alone 67; on the field alone 69
+                 (inert); on perpTarget_ 55; on both links 55; both reads volatile 55.
+                 Non-volatile alternatives are strictly worse: identity-launder of a
+                 fresh `AIHigh_Player *pt` copy 65 (in- or out-of-chain), read-only
+                 fence on `this` 69 (inert), nested-ifs / block-scoped pointer locals
+                 for either read 69 (all inert). */
+          /* SYM-CODEGEN-CARRIER: speed -- assigning the comparison back into
+             the now-dead absolute-speed quantity reproduces retail's in-place
+             slt; direct and separately named boolean forms were measured worse. */
+          /* SYM-OPTIMIZED: slice -- BWorld_SetSpikeBelt's inlined slice
+             parameter aliases requestSpikeBeltAtSlice_ at this call site.
+             SYM-OPTIMIZED: rightLatPos -- its inlined third parameter aliases
+             the caller's exact `right` local in the sum below. */
+          /* SYM-OPTIMIZED: timeNow -- the inlined spike-belt freshen operation
+             names this direct gameTicks value; it has no separate caller slot. */
+          /* MATCH (W71-A19, 55->41): retail loads this->requestSpikeBeltAtSlice_
+             EARLY in this store block (oracle idx 948 `lw t0,0x64(s1)`, right after
+             the &AICop_spikeBelt addiu and BEFORE the D_8011E0B0 %hi) -- sched1's
+             ready-list tie follows source luid order (16C).  Writing the slice_
+             store FIRST gives that load the earlier luid; gcc reschedules the four
+             STORES back to retail's 8/12/0/4/16 order for free, and the whole
+             t0/a3/a2 band falls in with it.  (An invented `int reqSlice` read at
+             the top of the block measures the same 41 -- prefer the store order,
+             the SYM lists no such local.) */
+          /* W61-A12: test INVERTED (was `skill == 0` first).  Retail puts the
+             0xb333 arm in its own block AFTER the else arm and reaches it by the
+             beqz, with the else arm ending `j <merge>; li s0,0xcccc` -- our
+             then-first form let reorg sink `li s0,0xb333` into the beqz delay slot
+             and fall through, 1 insn short.  Inverting the arms reproduces retail's
+             block order exactly.  80 -> 77 diffs (fn is 84 -> 77 with the trigger
+             if-chain above). */
+      /* W85-S1 (device clearance): the W72-A11 zero-insn opacity fence
+         `__asm__("" : "=r"(co) : "0"(co))` that stood here is DEAD on today's body --
+         removed, the whole TU re-gates 10/10 PASS byte-identical.  (Its "38 -> 26"
+         receipt predates several later edits to this block.)  The NAMED POINTER
+         SNAPSHOT `co` is still the carrier; only the fence is gone.  Do not re-add it. */
+        /* SYM-CODEGEN-CARRIER: carObj -- each direction-reset block snapshots
+           this->carObj_ before reading reverseTrack. Folding this first snapshot
+           adds two instructions and produces 18 diffs; folding all three adds
+           three instructions and produces 57 diffs. */
+      /* SYM-CODEGEN-CARRIER: cutOff -- the explicit selected boolean preserves
+         retail's zero/default quantity and branch polarity. Folding it into the
+         compound condition removes two instructions and produces four diffs. */
+        /* SYM-CODEGEN-CARRIER: meters -- reusing this absolute-distance quantity
+           across the nested lateral/longitudinal tests is part of the same
+           measured 1452-instruction/32-diff ablation above. */
+      /* SYM-CODEGEN-CARRIER: murder -- the explicit selected boolean preserves
+         the retail nested-guard value flow. Folding murder and meters into one
+         compound condition removes eight instructions and produces 32 diffs. */
+        /* SYM-OPTIMIZED: slowDownEndTime -- the inlined AIState_Chase setter's
+           parameter is the gameTicks-plus-delay value stored directly below. */
+      /* SYM-CODEGEN-CARRIER: needy -- the explicit false/default selection keeps
+         the shared -1 constant in the retail callee-saved quantity. Folding to a
+         compound condition removes one instruction and produces 17 diffs. */
+      /* SYM-CODEGEN-CARRIER: copChasers -- keeping the selected chase-level row
+         pointer across the two element tests preserves the retail address chain;
+         direct indexed expressions add three instructions and produce 17 diffs. */
+        /* W57-A8: arg2 via the inline GetCarObj() accessor (NOT the raw ->carObj_
+           field): the accessor form makes gcc evaluate the perpTarget deref EARLY
+           into its own scratch like retail, instead of parking perpTarget_ in $a2
+           across the whole 9-arg setup and dereferencing in place. Same edit at all
+           three AIState_Chase construction sites: 168 -> 84 diffs. */
+      /* W83-A11: the re-read of blockade_.mode was an `__asm__("lw %0,32(%1)")` with a
+         `register ... asm("$3")` pin on its output.  With the (a) boundary in place the
+         plain field re-read is emitted by itself (cse cannot carry the first load past
+         the join either), so both the asm and the pin are gone and the invented `mode2`
+         local -- which the SYM does not list for this block -- goes with them. */
+        /* 2026-09-20: the carrier's data word goes to the DISCARDED input section -- it forces the label exactly as
+           before but no longer puts 4 bytes into the image that retail does not have (tools/overlap_audit.py). */
+        /* SYM-CODEGEN-CARRIER: aihCopFlagsBoundary_ -- this zero-instruction
+           forced-label boundary terminates the GCC CSE block; removing it
+           produces 10 diffs, as documented by the three-cell necessity grid.
+           STILL A CARRIER (2026-09-17): it costs 4 .sdata bytes retail does not have
+           (aicop +4 in the PSYLINK lane).  Receipts (build/psyq/probe/aihi.py, .i-level
+           compiles, label-normalized diff): nested/flat/switch/do-while/for/goto/else
+           shapes, chaseState assigned early or in-block, `one` or literal 1, literal 4
+           or chaseState in either guard, cc1plus 2.8.0 / 2.8.1-sn / psq45, and
+           -fno-cse-skip-blocks (changes 89 other lines) ALL leave the 4 merged into $s2
+           at the second guard; `(void)&&L` and an auto `void *p = &&L` do not force the
+           label.  Retail targets: guard1 ==1 -> 0x800643a0, ==4 -> 0x80064268 (guard2
+           head, ONE xref, SYM block `{ line 223`).  Open: the construct that gives the
+           join a real CODE_LABEL (or LABEL_NUSES 2) at cse time without data. */
+        /* cell (a): zero-instruction cse-block boundary -- see the case head. */
+    /* SYM-CODEGEN-CARRIER: one -- this named constant spans both guards and
+       preserves the retail $a1 lifetime; removing it produces 12 diffs. */
+    /* MATCH (W83-A11) -- THREE COOPERATING CELLS, ALL NECESSARY, NO PINS.
+       Retail re-materialises the `4` of the SECOND mode guard (`li $v0,4` in the
+       `beq $v1,$a1` delay slot) while REUSING the `1` in $a1 and the earlier `4` in
+       $s2.  Mechanism: gcc-2.8 cse.c `cse_end_of_basic_block` normally SKIPS the
+       AIFlags block (the "AROUND" path, cse.c:8329 -- taken because the skip label
+       has LABEL_NUSES==1 and no CODE_LABEL lies between), so its value table -- and
+       with it the constant 4 -- survives into the second guard and cse canonicalises
+       the second `4` onto $s2, leaving a bare `nop` in the slot.
+         (a) BLOCK BOUNDARY: a dead `static void *... = &&label;` (jump.c:238 puts the
+             label in forced_labels so it reaches cse as a real CODE_LABEL; zero
+             instructions, 4 bytes of .sdata) breaks `no_labels_between_p` -> the cse
+             block ENDS at the join -> both guards re-materialise their constants.
+         (b) `one`: a NAMED 1 spanning both guards keeps that constant one GLOBAL
+             pseudo in $a1 (untouched by the AIFlags block, which clobbers $v0/$v1/$a0)
+             so reload_cse_regs deletes the re-materialised `li $a1,1` as a no-op set
+             (catalog 29A-1) -- retail's `nop`.  Without it: FAIL 12.
+         (c) `chaseState`: the 4 of the FIRST guard and of `stateType_ = STATE_CHASE`
+             are ONE named local (retail's $s2 spans both, oracle 0x80064244 ->
+             0x8006437C), and it must be ASSIGNED INSIDE this `if`, not decl-inited at
+             case scope -- an early `li $s2,4` gets scheduled into the first guard's
+             delay slot where retail has a `nop` (FAIL 1).  Without it: FAIL 30.
+       Necessity grid (each cell dropped from the sealed body): boundary 10, `one` 12,
+       `chaseState` 30, keeping the old `asm("$2")` pin 12.  DO NOT "SIMPLIFY". */
+            /* Normal arm = oracle FALL-THROUGH */
+          /* SYM-CODEGEN-CARRIER: wrongWayHit -- the assigned boolean plus the
+             zero-instruction identity fence is the measured source mechanism
+             for retail's materialized sltiu value; a plain temporary folds. */
           /* W61-A12 RESIDUAL ISLAND (5 of the fn's 61 diff insns).  Retail's SLD puts
              the reverseTrack select AND this test on ONE line (303) and emits
              `bnez G; nor(delay); xori; sltiu v0,v0,1; bnez v0 -> body` plus a RELOAD
@@ -557,209 +485,297 @@ void AIHigh_Cop::HighExecute()
              into its own local ahead of the `~dir` (an attempt at retail's load order
              `lw reverseTrack; lw dir` vs ours `lw dir; lw reverseTrack; nop`) -- gcc
              reschedules to the same stream, 69 unchanged. ==== */
-          /* SYM-CODEGEN-CARRIER: wrongWayHit -- the assigned boolean plus the
-             zero-instruction identity fence is the measured source mechanism
-             for retail's materialized sltiu value; a plain temporary folds. */
+          /* W85-S1: the two arms compute the WRONG-WAY BOOLEAN DIRECTLY
+             (`dir == 1` forward / `dir == -1` on a reversed track) instead of
+             building an intermediate `rev` and testing it for zero.  gcc-2.8
+             lowers `x == 1` to `xori v0,x,1; sltiu v0,v0,1` and `x == -1` to
+             `nor v0,zero,x; sltiu v0,v0,1`, then CROSS-JUMP-MERGES the shared
+             `sltiu` into the join -- which IS retail's
+             `bnez rev; nor(delay); xori; .L: sltiu; bnez`.  This replaces the
+             `__asm__("" : "=r"(wrongWayHit) : "0"(wrongWayHit))` identity fence
+             that was standing in for the materialized boolean: the fence forced
+             gcc to keep a value it would otherwise fold into the branch, but the
+             value retail materializes is the COMPARISON RESULT of the two arms,
+             not an opaque copy.  Plain-temp control (`rev = dir^1 / ~dir` then
+             `wrongWayHit = (rev == 0)`, no fence) = 3 diffs @1459. */
+          /* SYM-CODEGEN-CARRIER: dir -- sharing this first roadblock-direction
+             read with the select is required by the measured two-cell receipt. */
+          /* SYM-CODEGEN-CARRIER: rev -- the plain block-local reverse-track
+             selection is byte-exact; the documented direct/conditional/fenced
+             alternatives produce 20-41 diffs or extra instructions. */
+          /* W83-A11 (PIN-REMOVAL BELT) -- W72-A11's note here described two zero-insn
+             opacity fences; by the time of this edit the rev half had become a
+             `register int rev asm("$2")` PIN (methodology 3.13 forbids those).  The pin
+             is DEAD: `int rev` alone re-gates PASS 1460/1460 on its own and in the
+             all-six-pins-removed candidate (W83-A11 step (b), cells A_rev_plain and
+             base5).  Plain locals, no fence, no pin. */
+        /* W61-A12: retail is NOT a switch here -- the oracle's test order
+           (beq==1 -> body1 | slti<2 -> out | beq==2 -> out | bne!=3 -> out |
+           fall -> body3) is byte-for-byte gcc-2.8's lowering of THIS nested
+           if-chain (scratchpad/w61a12/swlab.c V10, CC1PLPSX-verified).  A
+           3-case switch cannot produce it: balance_case_nodes (stmt.c:6059-6095)
+           splits any 3-node list at the MIDDLE (root=2) and use_cost_table is 0
+           here because estimate_case_costs rejects control-character case values
+           (cost_table[1..3] < 0, stmt.c:5957-5960).  An `&&` chain folds the two
+           guards away (swlab V12) -- they must be NESTED ifs.  84 -> 80 diffs. */
+void AIHigh_Cop::HighExecute()
 
-          if (wrongWayHit || (*(int *)&newTrigger.roadblock.dir == 0)) {
+
+
+{
+  (this->carObj_)->unlap = 0;
+  (this->carObj_)->lap = 0;
+
+  this->CheckSpikeBelt();
+  this->CheckForWipeOut();
+  this->SetTuningLevers();
+
+
+
+
+
+
+  switch(this->stateType_) {
+
+  case 0:
+    {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    this->AssignToPlayer((AIHigh_Player *)0x0);
+    (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
+    if (((this->carObj_)->carFlags & 0x400U) != 0) {
+      /* Idle arm = oracle FALL-THROUGH (beqz jumps to the Purgatory arm) */
+      AIState_Base *newState;
+      newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */ ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1; this->SetState(newState,(stateType_t)3); return;
+    }
+
+    {
+      AIState_Base *newState;
+      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
+      this->SetState(newState,(stateType_t)1);
+      return;
+    }
+    }
+
+  case 1:
+    {
+
+
+
+
+
+
+    (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    this->requestSpikeBeltAtSlice_ = -1;
+    this->driveAway_ = 0; if (this->blockade_.mode == 4) {
+
+      this->blockade_.mode = 0;
+
+    }
+    {
+    if (this->blockade_.mode == 2) {
+
+      AIState_Base *newState;
+      this->AssignToPlayer(this->blockade_.target);
+      newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */ ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
+      this->SetState(newState,(stateType_t)3);
+      {
+        AILife_ReencarnateCopByLatPosAndRotation(this->carObj_,this->blockade_.slice ,this->blockade_.direction, this->blockade_.latPos,this->blockade_.rotation);
+      } this->requestSpikeBeltAtSlice_ = this->blockade_.requestSpikeBeltAtSlice;
+
+    }
+
+
+
+
+    else if ((((this->carObj_)->AIFlags & 8U) != 0) && (this->blockade_.mode != 1)) { trigger_t *pNewTrigger; pNewTrigger = this->CheckForNewTriggers(); if (pNewTrigger != (trigger_t *)0x0) {
+
+        int forceForwardTrigger;
+
+        trigger_t newTrigger;
+        forceForwardTrigger = 0;
+        newTrigger = *pNewTrigger;
+        if (NumHumanRaceCars() == 2) {
+          int distanceMeters;
+          distanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(Cars_gHumanRaceCarList[0],Cars_gHumanRaceCarList[1]));
+
+          if (distanceMeters < 0x12c0000) {
+            forceForwardTrigger = 1;
+          }
+        }
+        if (forceForwardTrigger) {
+          int oldSlice;
+          oldSlice = newTrigger.roadblock.slice;
+          newTrigger.roadblock.type = 1;
+
+          newTrigger.roadblock.spikeBelt = 1;
+          newTrigger.roadblock.dir = 1;
+          newTrigger.roadblock.numCars = 1;
+
+          newTrigger.roadblock.slice = oldSlice;
+
+        }
+        triggerManagerCops->DescribeTrigger(&newTrigger); switch (newTrigger.roadblock.type)
+        {
+        case 0: case 2: break;
+        case 3:
+
+          {
+
+
+
+
+
+
+
+          int rev = GameSetup_gData.reverseTrack; int dir = newTrigger.roadblock.dir; int wrongWayHit; if (rev == 0) { wrongWayHit = (dir == 1); } else { wrongWayHit = (dir == -1); } if (wrongWayHit || (*(int *)&newTrigger.roadblock.dir == 0)) {
 
             AIState_Offroad *newState;
-
             this->AssignToPlayer((AIHigh_Player *)0x0);
-
-            newState = operator new(0x68);
-
-            newState = (new(newState) AIState_Offroad(this->carObj_,newTrigger.offroad.slice,
-                                &newTrigger.offroad.position,&newTrigger.offroad.orientation,
-                                newTrigger.offroad.maxSpeed,newTrigger.offroad.releaseTime,newTrigger.offroad.endSlice));
-
+            newState = operator new(0x68); newState = (new(newState) AIState_Offroad(this->carObj_,newTrigger.offroad.slice, &newTrigger.offroad.position,&newTrigger.offroad.orientation, newTrigger.offroad.maxSpeed,newTrigger.offroad.releaseTime,newTrigger.offroad.endSlice));
             this->SetState((AIState_Base *)newState,(stateType_t)5);
-
             AILife_ReencarnateCopByPosition(this->carObj_,newTrigger.offroad.slice,1,
                        &newTrigger.offroad.position,&newTrigger.offroad.orientation);
 
           }
           }
+          break;
+        case 1:
 
-              }
-            }
-          }
-        } else {
+
           {
           int direction;
-
-          randtemp = fastRandom * randSeed;
-
-          fastRandom = randtemp & 0xffff;
+          randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff;
 
           direction = -1;
 
-          if (GameSetup_gData.reverseTrack == 0) {
 
-            direction = 1;
+
+
+          if (GameSetup_gData.reverseTrack == 0) { direction = 1;
 
           }
 
+
+
           if (newTrigger.roadblock.spikeBelt != 0) {
-            /* Normal arm = oracle FALL-THROUGH */
             AIState_Base *newState;
-
             this->AssignToPlayer((AIHigh_Player *)0x0);
-
             newState = new AIState_Normal(this->carObj_);
 
             this->SetState(newState,(stateType_t)2);
-
           }
-
           else {
-
             AIState_Base *newState;
-
             this->AssignToPlayer((AIHigh_Player *)0x0);
-
-            newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
-            ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-
+            newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */ ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
             this->SetState(newState,(stateType_t)3);
-
+          } AILife_ReencarnateCopBySlice(this->carObj_,newTrigger.roadblock.slice,direction,direction, newTrigger.roadblock.spikeBelt);
           }
 
-          AILife_ReencarnateCopBySlice(this->carObj_,newTrigger.roadblock.slice,direction,direction,
-                     newTrigger.roadblock.spikeBelt);
-          }
 
         }
-
       }
-
     }
     }
-
     goto stateExecuteAndReturn;
     }
-
   case 2:
     {
-    /* MATCH (W83-A11) -- THREE COOPERATING CELLS, ALL NECESSARY, NO PINS.
-       Retail re-materialises the `4` of the SECOND mode guard (`li $v0,4` in the
-       `beq $v1,$a1` delay slot) while REUSING the `1` in $a1 and the earlier `4` in
-       $s2.  Mechanism: gcc-2.8 cse.c `cse_end_of_basic_block` normally SKIPS the
-       AIFlags block (the "AROUND" path, cse.c:8329 -- taken because the skip label
-       has LABEL_NUSES==1 and no CODE_LABEL lies between), so its value table -- and
-       with it the constant 4 -- survives into the second guard and cse canonicalises
-       the second `4` onto $s2, leaving a bare `nop` in the slot.
-         (a) BLOCK BOUNDARY: a dead `static void *... = &&label;` (jump.c:238 puts the
-             label in forced_labels so it reaches cse as a real CODE_LABEL; zero
-             instructions, 4 bytes of .sdata) breaks `no_labels_between_p` -> the cse
-             block ENDS at the join -> both guards re-materialise their constants.
-         (b) `one`: a NAMED 1 spanning both guards keeps that constant one GLOBAL
-             pseudo in $a1 (untouched by the AIFlags block, which clobbers $v0/$v1/$a0)
-             so reload_cse_regs deletes the re-materialised `li $a1,1` as a no-op set
-             (catalog 29A-1) -- retail's `nop`.  Without it: FAIL 12.
-         (c) `chaseState`: the 4 of the FIRST guard and of `stateType_ = STATE_CHASE`
-             are ONE named local (retail's $s2 spans both, oracle 0x80064244 ->
-             0x8006437C), and it must be ASSIGNED INSIDE this `if`, not decl-inited at
-             case scope -- an early `li $s2,4` gets scheduled into the first guard's
-             delay slot where retail has a `nop` (FAIL 1).  Without it: FAIL 30.
-       Necessity grid (each cell dropped from the sealed body): boundary 10, `one` 12,
-       `chaseState` 30, keeping the old `asm("$2")` pin 12.  DO NOT "SIMPLIFY". */
-    /* SYM-CODEGEN-CARRIER: one -- this named constant spans both guards and
-       preserves the retail $a1 lifetime; removing it produces 12 diffs. */
     blockadeMode_t one;
+
+
+
+
 
     this->requestSpikeBeltAtSlice_ = -1;
 
-    one = (blockadeMode_t)1;
-
-    if (this->blockade_.mode != one) {
-
-      stateType_t chaseState;
-      chaseState = (stateType_t)4;
-
-      if (this->blockade_.mode != chaseState) {
-        /* cell (a): zero-instruction cse-block boundary -- see the case head. */
-        /* SYM-CODEGEN-CARRIER: aihCopFlagsBoundary_ -- this zero-instruction
-           forced-label boundary terminates the GCC CSE block; removing it
-           produces 10 diffs, as documented by the three-cell necessity grid.
-           STILL A CARRIER (2026-09-17): it costs 4 .sdata bytes retail does not have
-           (aicop +4 in the PSYLINK lane).  Receipts (build/psyq/probe/aihi.py, .i-level
-           compiles, label-normalized diff): nested/flat/switch/do-while/for/goto/else
-           shapes, chaseState assigned early or in-block, `one` or literal 1, literal 4
-           or chaseState in either guard, cc1plus 2.8.0 / 2.8.1-sn / psq45, and
-           -fno-cse-skip-blocks (changes 89 other lines) ALL leave the 4 merged into $s2
-           at the second guard; `(void)&&L` and an auto `void *p = &&L` do not force the
-           label.  Retail targets: guard1 ==1 -> 0x800643a0, ==4 -> 0x80064268 (guard2
-           head, ONE xref, SYM block `{ line 223`).  Open: the construct that gives the
-           join a real CODE_LABEL (or LABEL_NUSES 2) at cse time without data. */
-        /* 2026-09-20: the carrier's data word goes to the DISCARDED input section -- it forces the label exactly as
-           before but no longer puts 4 bytes into the image that retail does not have (tools/overlap_audit.py). */
-        static void *aihCopFlagsBoundary_ LINK_STRIPPED_RODATA = &&aih_cop_flagsGuard;
-
-        (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
-
+    one = (blockadeMode_t)1; if (this->blockade_.mode != one) { stateType_t chaseState; chaseState = (stateType_t)4; if (this->blockade_.mode != chaseState) {
+        static void *aihCopFlagsBoundary_ LINK_STRIPPED_RODATA = &&aih_cop_flagsGuard; (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
       aih_cop_flagsGuard: ;
       }
-
-      {
-      /* W83-A11: the re-read of blockade_.mode was an `__asm__("lw %0,32(%1)")` with a
-         `register ... asm("$3")` pin on its output.  With the (a) boundary in place the
-         plain field re-read is emitted by itself (cse cannot carry the first load past
-         the join either), so both the asm and the pin are gone and the invented `mode2`
-         local -- which the SYM does not list for this block -- goes with them. */
-      if (this->blockade_.mode != one) {
-
-      if ((this->blockade_.mode != 4) && (this->CheckForNewTarget() != 0)) {
+      { if (this->blockade_.mode != one) { if ((this->blockade_.mode != 4) && (this->CheckForNewTarget() != 0)) {
 
         coorddef pos;
 
         AIState_Chase *newState;
 
+
+
+
+
+
         this->GetCheckChasePosition(&pos);
 
-        newState = operator new(0x94);
 
-        /* W57-A8: arg2 via the inline GetCarObj() accessor (NOT the raw ->carObj_
-           field): the accessor form makes gcc evaluate the perpTarget deref EARLY
-           into its own scratch like retail, instead of parking perpTarget_ in $a2
-           across the whole 9-arg setup and dereferencing in place. Same edit at all
-           three AIState_Chase construction sites: 168 -> 84 diffs. */
-        newState = (new(newState) AIState_Chase(this->carObj_,
-                             AIHigh_GetCarObj(this->perpTarget_),&pos,
-                             AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
-                             NitroDistanceMeters[this->type_][0],
-                             NitroDistanceMeters[this->type_][1],
-                             this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
-
+        newState = operator new(0x94); newState = (new(newState) AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
         this->SetState((AIState_Base *)newState,chaseState);
-
         Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_);
-
       }
       }
       }
-
-    }
-
-    if ((this->forcePurgatory_ == 0) &&
-       (AILife_EvaluateLife(this->carObj_) == 0))
-
+    } if ((this->forcePurgatory_ == 0) && (AILife_EvaluateLife(this->carObj_) == 0))
     goto stateExecuteAndReturn;
-
     {
       AIState_Base *newState;
+      this->forcePurgatory_ = 0; Speech::Mobile(this->carObj_)->Purge();
 
-      this->forcePurgatory_ = 0;
-
-      Speech::Mobile(this->carObj_)->Purge();
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
-
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
       this->SetState(newState,(stateType_t)1);
     }
-
     goto stateExecuteAndReturn;
     }
 
@@ -769,64 +785,37 @@ void AIHigh_Cop::HighExecute()
 
     coorddef newPos;
 
-    chaseState = (AIState_Chase *)this->state_;
 
+
+    chaseState = (AIState_Chase *)this->state_;
     this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
 
+
+
+
     if (0xa0 < chaseState->barrierTicks32_) {
-
       int endSlice;
+      AIState_GotoSlice *newState; endSlice = (chaseState)->FindBarrierEndSlice();
 
-      AIState_GotoSlice *newState;
-
-      endSlice = (chaseState)->FindBarrierEndSlice();
-
-      newState = operator new(0x10);
-
-      newState = (new(newState) AIState_GotoSlice(this->carObj_,endSlice,0));
-
+      newState = operator new(0x10); newState = (new(newState) AIState_GotoSlice(this->carObj_,endSlice,0));
       this->SetState((AIState_Base *)newState,(stateType_t)9);
-
       Speech::Mobile(this->carObj_)->Lose();
-
     }
-
     {
-      /* SYM-CODEGEN-CARRIER: copChasers -- keeping the selected chase-level row
-         pointer across the two element tests preserves the retail address chain;
-         direct indexed expressions add three instructions and produce 17 diffs. */
       int *copChasers;
-
       copChasers = ((this->perpTarget_->perpChaseInfo_).chaseLevel_)->copChasers +
-                this->type_;
 
-      if ((*copChasers == 0) && (copChasers[3] == 0)) {
 
+                this->type_; if ((*copChasers == 0) && (copChasers[3] == 0)) {
         chaseState->nitrousTicks_ = 0;
 
       }
     }
 
-    this->requestSpikeBeltAtSlice_ = -1;
+    this->requestSpikeBeltAtSlice_ = -1; { int needy; needy = 0; if (simGlobal.gameTicks >= chaseState->slowDownEndTime_) {
 
-    {
-      /* SYM-CODEGEN-CARRIER: needy -- the explicit false/default selection keeps
-         the shared -1 constant in the retail callee-saved quantity. Folding to a
-         compound condition removes one instruction and produces 17 diffs. */
-      int needy;
 
-      needy = 0;
-
-      if (simGlobal.gameTicks >= chaseState->slowDownEndTime_) {
-
-        needy = this->CheckForNeedyPlayers() != -1;
-
-      }
-
-      if (needy) {
-
-        /* SYM-OPTIMIZED: slowDownEndTime -- the inlined AIState_Chase setter's
-           parameter is the gameTicks-plus-delay value stored directly below. */
+        needy = this->CheckForNeedyPlayers() != -1; } if (needy) {
         chaseState->slowDownEndTime_ = simGlobal.gameTicks + 0x3c0;
 
       }
@@ -840,209 +829,123 @@ void AIHigh_Cop::HighExecute()
          it into a compound condition removes two instructions and produces ten diffs. */
       int retarget;
 
-      retarget = 0;
 
-      if (this->GetCheckChasePosition(&newPos) != 0) {
 
-        retarget = chaseState->murderMode_ == 0;
 
-      }
 
-      if (retarget) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      retarget = 0; if (this->GetCheckChasePosition(&newPos) != 0) { retarget = chaseState->murderMode_ == 0; } if (retarget) {
 
         (chaseState)->SetTarget((this->perpTarget_)->carObj_,&newPos);
-
       }
     }
-
     {
       int minTimeInZone;
-
       int minLatMetersDistance;
-
       int minLongMetersDistance;
-
-      /* SYM-CODEGEN-CARRIER: murder -- the explicit selected boolean preserves
-         the retail nested-guard value flow. Folding murder and meters into one
-         compound condition removes eight instructions and produces 32 diffs. */
-      int murder;
-
-      minTimeInZone = AIHigh_Cop_AggressionData[this->aggressionLevel_].ticksInChaseRegionForMurder;
-
-      minLatMetersDistance = AIHigh_Cop_AggressionData[this->aggressionLevel_].minLatMetersDistanceForMurder;
-
-      minLongMetersDistance = AIHigh_Cop_AggressionData[this->aggressionLevel_].minLongMetersDistanceForMurder;
-
-      murder = 0;
-
-      if (minTimeInZone < chaseState->inTargetRegion_) {
-
-        /* SYM-CODEGEN-CARRIER: meters -- reusing this absolute-distance quantity
-           across the nested lateral/longitudinal tests is part of the same
-           measured 1452-instruction/32-diff ablation above. */
-        int meters;
-
-        meters = __builtin_abs(chaseState->latMetersBetween_);
-
-        if (meters < minLatMetersDistance) {
-
-          meters = __builtin_abs(chaseState->longMetersBetween_);
-
-          murder = meters < minLongMetersDistance;
-
+      int murder; minTimeInZone = AIHigh_Cop_AggressionData[this->aggressionLevel_].ticksInChaseRegionForMurder; minLatMetersDistance = AIHigh_Cop_AggressionData[this->aggressionLevel_].minLatMetersDistanceForMurder; minLongMetersDistance = AIHigh_Cop_AggressionData[this->aggressionLevel_].minLongMetersDistanceForMurder; murder = 0; if (minTimeInZone < chaseState->inTargetRegion_) { int meters; meters = __builtin_abs(chaseState->latMetersBetween_); if (meters < minLatMetersDistance) { meters = __builtin_abs(chaseState->longMetersBetween_); murder = meters < minLongMetersDistance;
         }
-
       }
-
       if (murder) {
 
         (chaseState)->SetMurderMode(1,AIHigh_Cop_AggressionData[this->aggressionLevel_].murderTicks);
-
       }
     }
-
-    {
-      /* SYM-CODEGEN-CARRIER: cutOff -- the explicit selected boolean preserves
-         retail's zero/default quantity and branch polarity. Folding it into the
-         compound condition removes two instructions and produces four diffs. */
-      int cutOff;
-
-      cutOff = 0;
-
-      if (((AIHigh_BasicCop *)this)->ShouldIPerformCutOffBlock(0x4000,
-                          (this->perpTarget_)->carObj_) != 0) {
-
-        cutOff = chaseState->murderMode_ == 0;
-
-      }
-
-      if (cutOff) {
-
+    { int cutOff; cutOff = 0; if (((AIHigh_BasicCop *)this)->ShouldIPerformCutOffBlock(0x4000, (this->perpTarget_)->carObj_) != 0) { cutOff = chaseState->murderMode_ == 0; } if (cutOff) {
         coorddef zero;
-
         memset((u_char *)&zero,'\0',0xc);
-
         (chaseState)->SetTarget((this->perpTarget_)->carObj_,&zero);
-
         (chaseState)->SetMurderMode(1,0x20);
 
       }
     }
-
     if (this->CheckForNewTarget() != 0) {
 
       coorddef pos;
-
       this->GetCheckChasePosition(&pos);
-
       (chaseState)->SetTarget((this->perpTarget_)->carObj_,&pos);
-
     }
-
     if ((((this->blockade_.mode == 1) || (this->blockade_.mode == 4)) ||
          (this->perpTarget_ == (AIHigh_Player *)0x0)) ||
-
             (1 < (((this->perpTarget_)->carObj_)->stats).finishType)) {
 
+
       if ((this->blockade_.mode == 1) || (this->blockade_.mode == 4)) {
-
-        /* SYM-CODEGEN-CARRIER: carObj -- each direction-reset block snapshots
-           this->carObj_ before reading reverseTrack. Folding this first snapshot
-           adds two instructions and produces 18 diffs; folding all three adds
-           three instructions and produces 57 diffs. */
         Car_tObj *carObj;
-
         int direction;
-
-        direction = 1;
-
-        carObj = this->carObj_;
-
-        if (GameSetup_gData.reverseTrack == 0) {
-
-          direction = -1;
-
-        }
-
-        carObj->desiredDirection = direction;
-
+        direction = 1; carObj = this->carObj_; if (GameSetup_gData.reverseTrack == 0) { direction = -1; } carObj->desiredDirection = direction;
         (this->carObj_)->driveDirection = 1;
-
       }
-
       {
         AIState_Base *newState;
-
         this->AssignToPlayer((AIHigh_Player *)0x0);
-
         newState = new AIState_Normal(this->carObj_);
-
         this->SetState(newState,(stateType_t)2);
       }
-
     }
-
-    if ((this->forcePurgatory_ != 0) ||
-       (AILife_EvaluateLife(this->carObj_) != 0)) {
+    if ((this->forcePurgatory_ != 0) || (AILife_EvaluateLife(this->carObj_) != 0)) {
 
     if ((AILife_EvaluateLife(this->carObj_) != 0) && (this->driveAway_ == 0)) {
-
       Speech::Mobile(this->carObj_)->Lose();
-
-    }
-
-    {
-      AIState_Base *newState;
-
-      Speech::Mobile(this->carObj_)->Purge();
+    } { AIState_Base *newState; Speech::Mobile(this->carObj_)->Purge();
 
       this->forcePurgatory_ = 0;
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
-
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
-
-      this->SetState(newState,(stateType_t)1);
-    }
-
-    goto stateExecuteAndReturn;
+      this->SetState(newState,(stateType_t)1); } goto stateExecuteAndReturn;
 
     }
-
     if (this->driveAway_ == 0) goto stateExecuteAndReturn;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     goto LAB_80064a0c;
     }
 
   case 3:
     {
-    if ((this->blockade_.mode == 1) || (this->blockade_.mode == 4)) {
 
+
+
+
+
+
+
+
+    if ((this->blockade_.mode == 1) || (this->blockade_.mode == 4)) {
       {
         int direction;
-
-        Car_tObj *carObj;
-
-        direction = 1;
-
-        carObj = this->carObj_;
-
-        if (GameSetup_gData.reverseTrack == 0) {
-
-          direction = -1;
-
-        }
-
-        carObj->desiredDirection = direction;
-
+        Car_tObj *carObj; direction = 1; carObj = this->carObj_; if (GameSetup_gData.reverseTrack == 0) { direction = -1; } carObj->desiredDirection = direction;
         (this->carObj_)->driveDirection = 1;
       }
-
-      {
-        AIState_Base *newState;
-
-        this->AssignToPlayer((AIHigh_Player *)0x0);
-
+      { AIState_Base *newState; this->AssignToPlayer((AIHigh_Player *)0x0);
         newState = new AIState_Normal(this->carObj_);
 
         this->SetState(newState,(stateType_t)2);
@@ -1053,300 +956,120 @@ void AIHigh_Cop::HighExecute()
     if (this->forcePurgatory_ != 0) {
 
       AIState_Base *newState;
-
       this->forcePurgatory_ = 0;
-
       Speech::Mobile(this->carObj_)->Purge();
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
-
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
-
-      this->SetState(newState,(stateType_t)1);
-
-      goto stateExecuteAndReturn;
+      this->SetState(newState,(stateType_t)1); goto stateExecuteAndReturn;
 
     }
 
+
     if (this->driveAway_ != 0) {
-
 LAB_80064a0c:
-
       {
-        AIState_Base *newState;
-
-        {
-          Car_tObj *carObj;
-
-          int direction;
-
-          direction = 1;
-
-          carObj = this->carObj_;
-
-          if (GameSetup_gData.reverseTrack == 0) {
-
-            direction = -1;
-
-          }
-
-          carObj->desiredDirection = direction;
-
+        AIState_Base *newState; { Car_tObj *carObj; int direction; direction = 1; carObj = this->carObj_; if (GameSetup_gData.reverseTrack == 0) { direction = -1; } carObj->desiredDirection = direction;
           (this->carObj_)->driveDirection = 1;
         }
-
         this->AssignToPlayer((AIHigh_Player *)0x0);
-
         newState = new AIState_Normal(this->carObj_);
-
         this->SetState(newState,(stateType_t)2);
-
         if (this->driveAway_ == 1) {
-
           Cars_ResetCollidedCars(this->carObj_,1,1);
-
-        }
-
-        this->driveAway_ = 0;
-
-        goto stateExecuteAndReturn;
+        } this->driveAway_ = 0; goto stateExecuteAndReturn;
       }
 
     }
 
     {
     if (this->blockade_.mode == 2) {
-
       coorddef newPos;
-
       int rbDistanceMeters;
-
       int rbAbsDistanceMeters;
-
       int release;
-
-      /* W85-S1 (device clearance): the W72-A11 zero-insn opacity fence
-         `__asm__("" : "=r"(co) : "0"(co))` that stood here is DEAD on today's body --
-         removed, the whole TU re-gates 10/10 PASS byte-identical.  (Its "38 -> 26"
-         receipt predates several later edits to this block.)  The NAMED POINTER
-         SNAPSHOT `co` is still the carrier; only the fence is gone.  Do not re-add it. */
       { /* SYM-CODEGEN-CARRIER: co -- the pointer snapshot reproduces retail's
            pointer/value register handout for this RMW. */
-        Car_tObj *co = this->carObj_;
-        co->AIFlags = co->AIFlags | 2; }
+        Car_tObj *co = this->carObj_; co->AIFlags = co->AIFlags | 2; }
 
       {
         release = 0;
 
         if ((this->requestSpikeBeltAtSlice_ != -1) && (AICop_spikeBelt.active_ == 0)) {
-
           int size;
-
-          int left;
-
-          int right;
-
-          /* W61-A12: test INVERTED (was `skill == 0` first).  Retail puts the
-             0xb333 arm in its own block AFTER the else arm and reaches it by the
-             beqz, with the else arm ending `j <merge>; li s0,0xcccc` -- our
-             then-first form let reorg sink `li s0,0xb333` into the beqz delay slot
-             and fall through, 1 insn short.  Inverting the arms reproduces retail's
-             block order exactly.  80 -> 77 diffs (fn is 84 -> 77 with the trigger
-             if-chain above). */
-          if (GameSetup_gData.skill != 0) {
-
-            size = 0xe666;
-
-            if (GameSetup_gData.skill == 1) {
-
-              size = 0xcccc;
-
-            }
-
+          int left; int right; if (GameSetup_gData.skill != 0) { size = 0xe666; if (GameSetup_gData.skill == 1) { size = 0xcccc; } } else { size = 0xb333;
           }
+          left = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1e) << 15) * (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) >> 4),size);
+          right = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1f) << 15) * (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf),size);
 
-          else {
-
-            size = 0xb333;
-
-          }
-
-          left = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1e) << 15) *
-                             (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) >> 4),size);
-
-          right = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1f) << 15) *
-                             (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf),size);
-
-          /* MATCH (W71-A19, 55->41): retail loads this->requestSpikeBeltAtSlice_
-             EARLY in this store block (oracle idx 948 `lw t0,0x64(s1)`, right after
-             the &AICop_spikeBelt addiu and BEFORE the D_8011E0B0 %hi) -- sched1's
-             ready-list tie follows source luid order (16C).  Writing the slice_
-             store FIRST gives that load the earlier luid; gcc reschedules the four
-             STORES back to retail's 8/12/0/4/16 order for free, and the whole
-             t0/a3/a2 band falls in with it.  (An invented `int reqSlice` read at
-             the top of the block measures the same 41 -- prefer the store order,
-             the SYM lists no such local.) */
-          AICop_spikeBelt.slice_ = this->requestSpikeBeltAtSlice_;
-
-          AICop_spikeBelt.leftLatPos_ = -left;
-
-          AICop_spikeBelt.rightLatPos_ = right;
-
-          AICop_spikeBelt.active_ = 1;
-
-          /* SYM-OPTIMIZED: timeNow -- the inlined spike-belt freshen operation
-             names this direct gameTicks value; it has no separate caller slot. */
-          AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
-
-          /* SYM-OPTIMIZED: slice -- BWorld_SetSpikeBelt's inlined slice
-             parameter aliases requestSpikeBeltAtSlice_ at this call site.
-             SYM-OPTIMIZED: rightLatPos -- its inlined third parameter aliases
-             the caller's exact `right` local in the sum below. */
+          AICop_spikeBelt.slice_ = this->requestSpikeBeltAtSlice_; AICop_spikeBelt.leftLatPos_ = -left;
+          AICop_spikeBelt.rightLatPos_ = right; AICop_spikeBelt.active_ = 1; AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
           BWorld_SetSpikeBelt(this->requestSpikeBeltAtSlice_,-left,
                      left + right);
 
         }
-
         AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp;
 
         if ((this->requestSpikeBeltAtSlice_ != -1) &&
             (AICop_spikeBelt.slice_ == this->requestSpikeBeltAtSlice_)) {
-
           AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
-
         }
-      }
-
-      if (this->blockade_.flags != 0) {
+      } if (this->blockade_.flags != 0) {
 
         if (stackSpeedUpEnbabledFlag != 0) {
 
-          gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-          stackSpeedUpEnbabledFlag = 0;
+          gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
 
           this->SetupBlockadeElements(&this->blockade_);
-
-          gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-          stackSpeedUpEnbabledFlag = 1;
-
+          gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 1;
         }
-
-        else {
-
-          this->SetupBlockadeElements(&this->blockade_);
-
+        else { this->SetupBlockadeElements(&this->blockade_);
         }
-
       }
-
       this->perpTarget_->perpChaseInfo_.ResetEngagementTime();
-
       this->GetCheckChasePosition(&newPos);
 
       rbDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,
-                         (this->perpTarget_)->carObj_);
 
+                         (this->perpTarget_)->carObj_);
       rbAbsDistanceMeters = __builtin_abs(rbDistanceMeters);
+
 
       if (0x31ffff < rbAbsDistanceMeters) {
 
-        if (rbAbsDistanceMeters < 0x12c0000) {
 
-          /* SYM-CODEGEN-CARRIER: speed -- assigning the comparison back into
-             the now-dead absolute-speed quantity reproduces retail's in-place
-             slt; direct and separately named boolean forms were measured worse. */
-          int speed;
 
-          int timeToRB;
-
-          speed = ((this->perpTarget_)->carObj_)->currentSpeed;
-
-          if (speed < 1) {
-
-            speed = -speed;
-
-          }
-
-          speed = 0x471c7 < speed;
-
+        if (rbAbsDistanceMeters < 0x12c0000) { int speed; int timeToRB; speed = ((this->perpTarget_)->carObj_)->currentSpeed; if (speed < 1) { speed = -speed; } speed = 0x471c7 < speed;
           if ((speed &&
-
-              /* MATCH (W71-A19, 69->55): retail RE-DERIVES the whole chain here
-                 (oracle 0x80064DBC-DCC `lw v0,0x58(s1); lw v0,0(v0); lw a1,0x564(v0)`)
-                 while our cse keeps the carObj_ pointer live across the abs branch and
-                 re-loads only the field (`lw a1,1380(a1)`) -- 4 insns short + a band
-                 shift.  A volatile view on the perpTarget_ READ defeats the ADDRESS-CSE
-                 (w22-a10 / 05E) and restores retail's fresh chain.  Measured, each
-                 re-gated from 69: volatile on carObj_ alone 67; on the field alone 69
-                 (inert); on perpTarget_ 55; on both links 55; both reads volatile 55.
-                 Non-volatile alternatives are strictly worse: identity-launder of a
-                 fresh `AIHigh_Player *pt` copy 65 (in- or out-of-chain), read-only
-                 fence on `this` 69 (inert), nested-ifs / block-scoped pointer locals
-                 for either read 69 (all inert). */
               (timeToRB = fixeddiv(rbDistanceMeters,
-                   (*(AIHigh_Player *volatile *)&this->perpTarget_)->carObj_->currentSpeed),
-                   0 < timeToRB)) &&
-
-             (timeToRB < this->blockade_.releaseTime)) {
-
+                   (*(AIHigh_Player *volatile *)&this->perpTarget_)->carObj_->currentSpeed), 0 < timeToRB)) && (timeToRB < this->blockade_.releaseTime)) {
             release = 1;
-
-          }
-
-        }
+          } } } else { release = 1;
 
       }
 
-      else {
 
-        release = 1;
 
+
+
+      if (!release) { int distance; distance = AIWorld_ApxSplineDistance((this->perpTarget_)->carObj_, this->blockade_.slice); if (distance < 0) { distance = distance + 0xffff; } if (this->blockade_.initialPlayerDistanceMetersInt * (distance >> 0x10) < 1) goto stateExecuteAndReturn;
       }
 
-      if (!release) {
+      AIHigh_Player *chaseTarget = this->perpTarget_; int blockLevel; int targetLevel; this->requestSpikeBeltAtSlice_ = -1;
 
-        /* SYM-CODEGEN-CARRIER: distance -- this second spline-distance result
-           needs its own block-local quantity. Reusing the SYM-listed
-           rbDistanceMeters keeps the instruction count but produces 16 diffs. */
-        int distance;
 
-        distance = AIWorld_ApxSplineDistance((this->perpTarget_)->carObj_,
-                            this->blockade_.slice);
 
-        if (distance < 0) {
 
-          distance = distance + 0xffff;
 
-        }
 
-        if (this->blockade_.initialPlayerDistanceMetersInt * (distance >> 0x10) <
 
-            1) goto stateExecuteAndReturn;
 
-      }
 
-      /* MATCH (W83-A11): this was a 4-instruction `__asm__ volatile` block with THREE
-         `register ... asm("$N")` pins ($4/$2/$3) standing in for plain field access.
-         Pure C reproduces it exactly -- but the STATEMENT ORDER is load-bearing: the
-         -1 store first, then the chaseLevelIndex_ read, then the chaseLevel read.
-         Measured on the pinned base: this order PASS 1460; blockLevel-before-
-         targetLevel FAIL 8; both reads as decl-inits ahead of the store FAIL 12. */
-      /* SYM-CODEGEN-CARRIER: chaseTarget -- this snapshot carries the target
-         across the ordered level reads and the conditional engagement store. */
-      AIHigh_Player *chaseTarget = this->perpTarget_;
-      /* SYM-CODEGEN-CARRIER: blockLevel -- the field reads must remain ordered
-         store, target level, blockade level; reading this first gives 8 diffs. */
-      int blockLevel;
-      /* SYM-CODEGEN-CARRIER: targetLevel -- declaration-initializing both level
-         snapshots before the store gives 12 diffs; this ordered form is exact. */
-      int targetLevel;
 
-      this->requestSpikeBeltAtSlice_ = -1;
-      targetLevel = chaseTarget->perpChaseInfo_.chaseLevelIndex_;
-      blockLevel = this->blockade_.chaseLevel;
 
-      if (blockLevel == targetLevel) {
 
+
+      targetLevel = chaseTarget->perpChaseInfo_.chaseLevelIndex_; blockLevel = this->blockade_.chaseLevel; if (blockLevel == targetLevel) {
         (chaseTarget->perpChaseInfo_).engagementTime_ = 0;
 
       }
@@ -1356,68 +1079,34 @@ LAB_80064a0c:
       {
         AIState_Chase *newState;
 
-        newState = operator new(0x94);
 
-        newState = (new(newState) AIState_Chase(this->carObj_,
-                             AIHigh_GetCarObj(this->perpTarget_),&newPos,
-                             AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
-                             NitroDistanceMeters[this->type_][0],
-                             NitroDistanceMeters[this->type_][1],
-                             this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
-
+        newState = operator new(0x94); newState = (new(newState) AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&newPos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
         this->SetState((AIState_Base *)newState,(stateType_t)4);
-
         if (this->blockade_.reverse != 0) {
-
-          AIPhysic_ChangeDirection(this->carObj_,0x40);
-
-        }
-      }
-
-      goto stateExecuteAndReturn;
+          AIPhysic_ChangeDirection(this->carObj_,0x40); } } goto stateExecuteAndReturn;
 
     }
 
     else {
 
+
+
+
       (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
 
-      if (this->CheckForNewTarget() != 0) {
-
-      if ((this->blockade_.mode != 1) && (this->blockade_.mode != 4)) {
-
+      if (this->CheckForNewTarget() != 0) { if ((this->blockade_.mode != 1) && (this->blockade_.mode != 4)) {
         coorddef pos;
-
         AIState_Chase *newState;
-
         this->GetCheckChasePosition(&pos);
 
-        newState = operator new(0x94);
 
-        newState = (new(newState) AIState_Chase(this->carObj_,
-                             AIHigh_GetCarObj(this->perpTarget_),&pos,
-                             AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
-                             NitroDistanceMeters[this->type_][0],
-                             NitroDistanceMeters[this->type_][1],
-                             this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
-
+        newState = operator new(0x94); newState = (new(newState) AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
         this->SetState((AIState_Base *)newState,(stateType_t)4);
-
-        Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_);
-
-        goto stateExecuteAndReturn;
-
+        Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_); goto stateExecuteAndReturn;
       }
-
-      }
-
-      if (AILife_EvaluateLife(this->carObj_) == 0) goto stateExecuteAndReturn;
-
+      } if (AILife_EvaluateLife(this->carObj_) == 0) goto stateExecuteAndReturn;
       {
-        AIState_Base *newState;
-
-        this->AssignToPlayer((AIHigh_Player *)0x0);
-
+        AIState_Base *newState; this->AssignToPlayer((AIHigh_Player *)0x0);
         newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
         this->SetState(newState,(stateType_t)1);
@@ -1432,85 +1121,41 @@ LAB_80064a0c:
   case 5:
     {
     int hLoop;
-
     {
       if ((this->carObj_->N).simOptz == '\0') {
-
         this->carObj_->extraWallCollisionAllowance = 0;
-
       }
-
-      else {
-
-        this->carObj_->extraWallCollisionAllowance = 0x18000;
-
+      else { this->carObj_->extraWallCollisionAllowance = 0x18000;
       }
     }
-
     this->requestSpikeBeltAtSlice_ = -1;
 
-    hLoop = 0;
 
-    while (true) {
 
-      if (NumRaceCars() <= hLoop) break;
-
+    hLoop = 0; while (true) { if (NumRaceCars() <= hLoop) break;
       {
-        Car_tObj *thisPlayerObj;
-        AIHigh_Player *thisPlayer;
-
-        thisPlayerObj = Cars_gRaceCarList[hLoop];
+        Car_tObj *thisPlayerObj; AIHigh_Player *thisPlayer; thisPlayerObj = Cars_gRaceCarList[hLoop];
         thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
 
         if (thisPlayer->basicPerpInfo_.crime_ != 0) {
 
           ((AIState_Offroad *)this->state_)->UnleashIfInRange(thisPlayerObj);
-
         }
-      }
-
-      hLoop = hLoop + 1;
-
+      } hLoop = hLoop + 1;
     }
-
-    {
-      if (((int)-((BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].avgPavedWidthLf << 15) *
-                   (BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount >> 4)) <=
-
-           this->carObj_->roadPosition) &&
-
-         (this->carObj_->roadPosition <=
-
-          (BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].avgPavedWidthRt << 15) *
-          (BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount & 0xf))) {
-
+    { if (((int)-((BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].avgPavedWidthLf << 15) * (BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount >> 4)) <= this->carObj_->roadPosition) && (this->carObj_->roadPosition <= (BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].avgPavedWidthRt << 15) * (BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount & 0xf))) {
         AIState_Base *newState;
-
         this->carObj_->extraWallCollisionAllowance = 0;
-
         this->AssignToPlayer((AIHigh_Player *)0x0);
-
         newState = new AIState_Normal(this->carObj_);
-
         this->SetState(newState,(stateType_t)2);
-
       }
     }
-
-    if ((this->forcePurgatory_ == 0) &&
-       (AILife_EvaluateLife(this->carObj_) == 0))
-
+    if ((this->forcePurgatory_ == 0) && (AILife_EvaluateLife(this->carObj_) == 0))
     goto stateExecuteAndReturn;
-
-    {
-      AIState_Base *newState;
-
-      (this->carObj_)->extraWallCollisionAllowance = 0;
-
+    { AIState_Base *newState; (this->carObj_)->extraWallCollisionAllowance = 0;
       this->forcePurgatory_ = 0;
-
       this->AssignToPlayer((AIHigh_Player *)0x0);
-
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
       this->SetState(newState,(stateType_t)1);
@@ -1526,21 +1171,14 @@ LAB_80064a0c:
   case 8:
 
   case 10:
-
   default:
-
     goto stateExecuteAndReturn;
-
   case 9:
     {
     AIState_GotoSlice *gotoState;
-
     AIState_Base *newState;
-
     gotoState = (AIState_GotoSlice *)this->state_;
-
     this->AssignToPlayer((AIHigh_Player *)0x0);
-
     if ((gotoState)->InTargetSliceRange(0xa0000) == 0) goto stateExecuteAndReturn;
 
     newState = new AIState_Normal(this->carObj_);
@@ -1551,14 +1189,9 @@ LAB_80064a0c:
   }
 
 stateExecuteAndReturn:
-
   (this->state_)->StateExecute()
-
   ;
-
-  return;
-
-}
+  return; }
 
 
 
@@ -1572,13 +1205,20 @@ stateExecuteAndReturn:
 int AIHigh_Cop::CheckForNeedyPlayers()
 {
   int needy = -1;
+
   for (int hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop++) {
+
     Car_tObj *thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
     AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
-    if (PerpChase_CopFreeTicks(&thisPlayer->perpChaseInfo_) > 800 &&
-        __builtin_abs(thisPlayerObj->currentSpeed) > 0x140000)
+    if (PerpChase_CopFreeTicks(&thisPlayer->perpChaseInfo_) > 800 && __builtin_abs(thisPlayerObj->currentSpeed) > 0x140000)
+
       needy = thisPlayerObj->carIndex;
+
+
+
+
   }
+
   return needy;
 }
 
@@ -1606,6 +1246,16 @@ inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; 
  * A conditional-expression store keeps the loop getter pair at its retail
  * address without an extra if owner. Literal original macro/helper names are
  * unproven; all named locals and all12 native scope regions match. */
+  /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
+     (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
+     materializations, the AI_elapsedTime load, NumHumanRaceCars(), the perpTarget_
+     re-read + thisTargetLevel load, and 5 of the 6 insns of `AI_elapsedTime * 89`),
+     867/868 = the two list lookups, 877 = the paired guard (the multiply's LAST insn
+     `addu $v1,$t1,$a2` lands in its delay slot), 879 = the store, 884 = the bump. */
+  /* W57-A8 08E: operand order is the load order -- `gameTicks >= wipeOutEndTick`
+     (gameTicks FIRST) makes gcc schedule the D_8011E0B0 load into the load-delay
+     gap after `lw carObj_`; the `wipeOutEndTick <= gameTicks` spelling emits a nop
+     there instead and rotated the whole a0/a1 band. 25 -> PASS. */
 void AIHigh_Cop::CheckForWipeOut()
 
 
@@ -1617,41 +1267,22 @@ void AIHigh_Cop::CheckForWipeOut()
 
   int thisTargetLevel;
 
-
-  
-
   if (this->stateType_ != STATE_CHASE) {
-
     return;
-
   }
-
-  /* W57-A8 08E: operand order is the load order -- `gameTicks >= wipeOutEndTick`
-     (gameTicks FIRST) makes gcc schedule the D_8011E0B0 load into the load-delay
-     gap after `lw carObj_`; the `wipeOutEndTick <= gameTicks` spelling emits a nop
-     there instead and rotated the whole a0/a1 band. 25 -> PASS. */
   if ((this->perpTarget_ == (AIHigh_Player *)0x0) ||
       (((AIHigh_GetCarObj(this->perpTarget_))->carFlags & 8U) == 0) ||
       (simGlobal.gameTicks < (this->carObj_)->wipeOutEndTick) ||
       (this->perpTarget_->perpChaseInfo_.RemainingEngagementTime() >= 2))
     return;
-
-  /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
-     (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
-     materializations, the AI_elapsedTime load, NumHumanRaceCars(), the perpTarget_
-     re-read + thisTargetLevel load, and 5 of the 6 insns of `AI_elapsedTime * 89`),
-     867/868 = the two list lookups, 877 = the paired guard (the multiply's LAST insn
-     `addu $v1,$t1,$a2` lands in its delay slot), 879 = the store, 884 = the bump. */
   randVal = AI_Rand();
   thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
+
+
+
   for (int hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop++) {
-
     Car_tObj *thisPlayerObj;
-
-    AIHigh_Player *thisPlayer;
-
-    thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
-
+    AIHigh_Player *thisPlayer; thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
     thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
 
     perTickProb = AI_elapsedTime * 89;
@@ -1659,12 +1290,17 @@ void AIHigh_Cop::CheckForWipeOut()
     (thisTargetLevel < thisPlayer->perpChaseInfo_.GetChaseLevelIndex() &&
      randVal < perTickProb)
       ? (void)(this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0x280)
+
+
       : (void)0;
 
-  }
-  return;
 
-}
+
+
+
+
+  }
+  return; }
 
 
 
@@ -1677,16 +1313,22 @@ void AIHigh_Cop::CheckForWipeOut()
 
 int AIHigh_Cop::CheckForNewTarget()
 {
-  AIHigh_Player *newTarget;
-  int newTargetDistance;
-  int playerLoop;
-  AIHigh_Player *old;
-  newTarget = (AIHigh_Player *)0x0;
+  AIHigh_Player *newTarget; int newTargetDistance; int playerLoop; AIHigh_Player *old; newTarget = (AIHigh_Player *)0x0;
   newTargetDistance = 0x27100000;
+
+
   old = this->perpTarget_;
+
+
+
   if (this->BlockadeMode() == 1 || this->BlockadeMode() == 4 || this->BlockadeMode() == 2)
     return 0;
+
+
+
+
   for (playerLoop = 0; playerLoop < Cars_gNumRaceCars; playerLoop++) {
+
     int thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
     AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
     int needs = thisPlayer->basicPerpInfo_.GetCrime() != 0 ?
@@ -1694,34 +1336,59 @@ int AIHigh_Cop::CheckForNewTarget()
     int got = thisPlayer->basicPerpInfo_.CopsAssigned(this->type_);
     if (this->perpTarget_ != (AIHigh_Player *)0x0 && this->perpTarget_ == thisPlayer)
       got = got - 1;
+
     if (got < needs) {
       int copToTargetDistanceMeters =
           __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj()));
+
+
       if (copToTargetDistanceMeters < newTargetDistance) {
+
+
         newTargetDistance = copToTargetDistanceMeters;
         newTarget = thisPlayer;
       }
     }
   }
+
+
   if (newTarget == (AIHigh_Player *)0x0) {
+
+
     for (playerLoop = 0; playerLoop < Cars_gNumRaceCars; playerLoop++) {
+
       int thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
       AIHigh_Player *thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
-      int copToTargetDistanceMeters =
-          __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj()));
+      int copToTargetDistanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_, thisPlayer->CarObj()));
+
+
       if (copToTargetDistanceMeters < newTargetDistance && thisPlayer->basicPerpInfo_.GetCrime() != 0) {
+
+
         newTargetDistance = copToTargetDistanceMeters;
         newTarget = thisPlayer;
       }
     }
   }
+
+
   if (newTarget != (AIHigh_Player *)0x0 && newTarget != old) {
+
     this->AssignToPlayer(newTarget);
     this->aggressionLevel_ = PerpChase_ChaseLevel(&newTarget->perpChaseInfo_)->copAggression[this->type_];
+
+
+
     return 1;
   } else {
+
+
+
+
     if (old != (AIHigh_Player *)0x0 && newTarget == (AIHigh_Player *)0x0)
+
       this->AssignToPlayer((AIHigh_Player *)0x0);
+
     return 0;
   }
 }
@@ -1742,17 +1409,10 @@ void AIHigh_Cop::AssignToPlayer(AIHigh_Player *target)
 {
 
   if (this->perpTarget_ != (AIHigh_Player *)0x0) {
-
-    ((AIHigh_BasicPerp *)this->perpTarget_)->RemoveChaser(this->copIndex_,
-
-               (this->carObj_)->carIndex,(copType)this->type_
-
-              );
+    ((AIHigh_BasicPerp *)this->perpTarget_)->RemoveChaser(this->copIndex_, (this->carObj_)->carIndex,(copType)this->type_ );
 
   }
-
   if ((target == (AIHigh_Player *)0x0) && (this->blockade_.mode != 1)) {
-
     this->blockade_.mode = 0;
 
   }
@@ -1760,18 +1420,7 @@ void AIHigh_Cop::AssignToPlayer(AIHigh_Player *target)
   this->perpTarget_ = target;
 
   if (target != (AIHigh_Player *)0x0) {
-
-    ((AIHigh_BasicPerp *)target)->AddChaser(this->copIndex_,
-
-               (this->carObj_)->carIndex,(copType)this->type_
-
-              );
-
-  }
-
-  return;
-
-}
+    ((AIHigh_BasicPerp *)target)->AddChaser(this->copIndex_, (this->carObj_)->carIndex,(copType)this->type_ ); } return; }
 
 
 
@@ -1790,27 +1439,21 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
   int newPosition;
   int changed;
-
-
-
   changed = 0;
-
   newPosition = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
-
                      (this->carObj_)->carIndex);
 
   if (newPosition != this->chaseIndex_) {
 
     changed = 1;
-
     this->chaseIndex_ = newPosition;
 
   }
 
   /* H23: per-aggression stride is 72B = one [6] row (oracle 0x800658F0 aggressionLevel_*72);
      whole-struct copy (matches oracle's 3-word block load/store), NOT field-by-field. */
-  *pos = AIH_Cop_chasePositions[this->aggressionLevel_][this->chaseIndex_];
 
+  *pos = AIH_Cop_chasePositions[this->aggressionLevel_][this->chaseIndex_];
   return (u_int)changed;
 
 }
@@ -1836,8 +1479,6 @@ inline int AIHigh_Player::ExchangeLastTriggerCheckSlice(int newSlice)
   return temp;
 }
 
-trigger_t * AIHigh_Cop::CheckForNewTriggers()
-{
   /* W57-A8 05A/06A rewrite: SYM 8c local set (sortedLoop=$30 testCar=$21 dir=$3
      thisPlayer=$16 needs=$4 got=AUTO-44 pLevel=$6 thisSlice=$3 startSlice=$4
      endSlice=$20 fRandomChance=$18 | newSlice=$3 temp=$5 sliceLoop=$17
@@ -1857,96 +1498,149 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
      Authoritative progression: 29 -> 15 -> 9 -> 8 -> 2 -> PASS.  Falsified
      follow-ups: raw/pLevel identity 14, empty-loop boundary 5/10, accessor
      wrapper 16/19, pointer keepalive 8, and tied-output fences 7/51. */
+trigger_t * AIHigh_Cop::CheckForNewTriggers()
+{
+
+
+
+
+
+
+
+
+
+
+
+
   if (simGlobal.gameTicks <= 0x5bf)
     return (trigger_t *)0;
+
+
+
+
+
   for (int sortedLoop = Cars_gNumCars - 1; -1 < sortedLoop;
        sortedLoop = sortedLoop - 1) {
-    Car_tObj *testCar;
-    testCar = Cars_gTotalSortedList[sortedLoop];
+    Car_tObj *testCar; testCar = Cars_gTotalSortedList[sortedLoop];
     if ((testCar->carFlags & 1U) != 0) {
       int dir;
       AIHigh_Player *thisPlayer;
-      int needs;
-      int got;
-      copLevel_t *pLevel;
-      int thisSlice;
-      int startSlice;
-      int endSlice;
-      int fRandomChance;
-
-      thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex];
-      pLevel = thisPlayer->ChaseLevel();
-      fRandomChance = thisPlayer->newTriggerProb_;
+      int needs; int got; copLevel_t *pLevel; int thisSlice; int startSlice; int endSlice; int fRandomChance; thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex]; pLevel = thisPlayer->ChaseLevel(); fRandomChance = thisPlayer->newTriggerProb_;
       got = thisPlayer->basicPerpInfo_.CopsAssigned(this->type_);
+
+
+
+
+
+
+
+
+
+
+
       if (thisPlayer->basicPerpInfo_.GetCrime() == 0) {
         fRandomChance = fRandomChance * 2;
         if ((0 < pLevel->copChasers[this->type_]) &&
+
+
+
             (AICop_NoCopsInArea((int)(thisPlayer->CarObj()->N).simRoadInfo.slice, 0x1f40000) != 0)) {
           needs = 1;
         }
-        else {
-          needs = 0;
+        else { needs = 0;
         }
       }
       else {
         needs = pLevel->copChasers[this->type_];
       }
+
+
+
+
+
+
+
+
+
       if (GameSetup_gData.skill == 2) {
         fRandomChance = 0x10000;
       }
       if (simGlobal.gameTicks - thisPlayer->LastPullOverTime() <= 0x1bf)
         continue;
+
+
+
+
       if (got >= needs)
         continue;
 
       dir = -1;
-      if (-1 < testCar->currentSpeed) {
-        dir = 1;
+      if (-1 < testCar->currentSpeed) { dir = 1;
       }
-      thisSlice = dir * 0x1f;
-      if (-1 < thisSlice) {
-        thisSlice = (testCar->N).simRoadInfo.slice - (-thisSlice);
-        if (gNumSlices <= thisSlice) {
-          thisSlice = thisSlice - gNumSlices;
+
+      thisSlice = dir * 0x1f; if (-1 < thisSlice) { thisSlice = (testCar->N).simRoadInfo.slice - (-thisSlice); if (gNumSlices <= thisSlice) { thisSlice = thisSlice - gNumSlices; } } else { thisSlice = (testCar->N).simRoadInfo.slice - (-thisSlice); if (thisSlice < 0) { thisSlice = thisSlice + gNumSlices;
         }
-      }
-      else {
-        thisSlice = (testCar->N).simRoadInfo.slice - (-thisSlice);
-        if (thisSlice < 0) {
-          thisSlice = thisSlice + gNumSlices;
-        }
-      }
-      int previousSlice = thisPlayer->ExchangeLastTriggerCheckSlice(thisSlice);
-      if (previousSlice < thisSlice) {
+      } int previousSlice = thisPlayer->ExchangeLastTriggerCheckSlice(thisSlice); if (previousSlice < thisSlice) {
+
         startSlice = previousSlice;
         endSlice = thisSlice;
       }
       else {
+
         startSlice = thisSlice;
         endSlice = previousSlice;
       }
-      for (int sliceLoop = startSlice;
-           (sliceLoop < endSlice) && (endSlice - startSlice < 6);
+
+
+
+      for (int sliceLoop = startSlice; (sliceLoop < endSlice) && (endSlice - startSlice < 6);
            sliceLoop++) {
         int triggerHere;
 
-        triggerHere = triggerManagerCops->CheckForTriggerAtSlice(testCar->carIndex, sliceLoop);
-        if (triggerHere != -1) {
-          int iRandomChance;
-          int randomValue;
 
-          iRandomChance = (fRandomChance * 100) / 0x10000;
-          randtemp = fastRandom * randSeed;
-          fastRandom = randtemp & 0xffff;
-          randomValue = (int)(((randtemp >> 8) & 0xffff) * 0x19 >> 0xe);
+        triggerHere = triggerManagerCops->CheckForTriggerAtSlice(testCar->carIndex, sliceLoop); if (triggerHere != -1) {
+          int iRandomChance;
+          int randomValue; iRandomChance = (fRandomChance * 100) / 0x10000;
+          randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; randomValue = (int)(((randtemp >> 8) & 0xffff) * 0x19 >> 0xe);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           if (AILife_IsSliceInAnyVisibleArea(sliceLoop) != (Car_tObj *)0x0)
             continue;
+
+
+
+
+
           if ((got != 0) || (randomValue < iRandomChance)) {
               int unused;
+
+
+
+
 
               return triggerManagerCops->GetTrigger(triggerHere, &unused);
           }
         }
+
+
+
+
+
+
+
+
       }
     }
   }

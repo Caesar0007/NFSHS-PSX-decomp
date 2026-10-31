@@ -4,16 +4,10 @@
  */
 #include "front.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tFEApplication * App(void) { return FEApp; }
 
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
 
 
-/* Retail front.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- Front.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes, .bss=zero) ---- */
 /* overRide + ComingIntoTheFrontEndTheVeryFirstTime lead Front.obj's run at
@@ -154,16 +148,19 @@ inline tScreenTournamentCongrats::tScreenTournamentCongrats()
 void Front_ConstructAll(void)
 
 {
-
   gAllScreens = new tAllScreens;
+
+
   /* MATCH: retail publishes screenMain before the remaining sub-screen pointers. */
   screenMain = &gAllScreens->screenMain;
+
   screenCarSelect = &gAllScreens->screenCarSelect;
   screenCarSelectDuel = &gAllScreens->screenCarSelectDuel;
   screenCarSelectTwoPlayer = &gAllScreens->screenCarSelectTwoPlayer;
   screenCarSelectPlayerTwo = &gAllScreens->screenCarSelectPlayerTwo;
   screenPinkSlipsCarSelectTwoPlayer = &gAllScreens->screenPinkSlipsCarSelectTwoPlayer;
   screenPinkSlipsCarSelectPlayerTwo = &gAllScreens->screenPinkSlipsCarSelectPlayerTwo;
+
   screenTrackRecords = &gAllScreens->screenTrackRecords;
   screenTrackInfo = &gAllScreens->screenTrackInfo;
   screenTrackSelect = &gAllScreens->screenTrackSelect;
@@ -183,9 +180,9 @@ void Front_ConstructAll(void)
   screenPinkSlips = &gAllScreens->screenPinkSlips;
   screenBeTheCopCongrats = &gAllScreens->screenBeTheCopCongrats;
   screenTournamentCongrats = &gAllScreens->screenTournamentCongrats;
+
   FEApp = new tFEApplication;
   menuDefs = new tGlobalMenuDefs;
-  return;
 }
 
 
@@ -262,12 +259,16 @@ void Front_ResetSettingsMenu(int player)
 void Front_ResetPSXController(int player,int config)
 
 {
+
+
+
+
+
   
   timedwait(10);
   PAD_update();
   frontEnd.controlType[player] = (ushort)gPadinfo.buf[player * 4].ID;
   frontEnd.controlConfig[player] = (char)config;
-  return;
 }
 
 
@@ -281,6 +282,9 @@ void Front_ResetPSXController(int player,int config)
 void Front_ResetPSXAnalogs(int player)
 
 {
+
+
+
   frontEnd.steeringRange[player] = 'y';
   frontEnd.deadSpot[player] = '\n';
   frontEnd.ImaxRange[player] = -1;
@@ -986,10 +990,31 @@ void Front_InitialMemCardCheck(void)
 
 {
   MEMCARDFRONTENDISINITTED = false;
+
   gPSXMemCardFull = 0;
+
   memCardReadOK = 0;
+
   Stattool_GetAllDefaultRecords((tRecordBuffer *)&Stats_gTrackRecords,false);
+
   InitFrontEndStructure();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   frontEnd.language = '\0';
   return;
 }
@@ -1058,16 +1083,39 @@ void Front_SecondaryMemCardCheck(void)
 void Front_InitGraphics(void)
 
 {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   char buffer [40];
 
   initlinkmode(0,1,1);
+
+
   sprintf(buffer,"%szzFE.viv",Paths_Paths[0x23]);
   if (FILE_addbigsync(buffer,(void *)0x0,100,gFEBigHandle) == 0) {
     do {
                     /* WARNING: Do nothing block with infinite loop */
     } while( true );
+
+
+
   }
   Platform_ResetDCTBuffer();
+
   Init_PSX_FrontEnd();
   return;
 }
@@ -1262,14 +1310,6 @@ int *OutputDisplaySettings(int *d,int c,int player,tTrackInformation &trackInfo)
 
 
 
-/* retail's SYM opens Front_GetLapsForType and Front_InitTourneyTraffic with an inline-call pair at +000 and no `this`: the
-   current-tourney pointer comes from an inline accessor, not an open-coded index chain */
-static inline tTourneyInfo *CurrentTourney(void)
-{
-  return tournamentManager.fDefinition->fTournaments +
-         (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-          tournamentManager.fTournament);
-}
 
 /* ---- Front_GetLapsForType  [FRONT.CPP:1210-1223] ---- */
 
@@ -3130,15 +3170,15 @@ void Front_GetInGameVars(void)
 void SetLicensePlate(void)
 
 {
-
   for (short i = 0; i < 2; i++) {
+
     sprintf(frontEnd.licensePlate[i],PlayerName(i));
     StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(frontEnd.licensePlate[i]);
     s_lower(frontEnd.licensePlate[i]);
+
     CarIO_CleanUpLicense(i);
     CarIO_CreateLicense(frontEnd.licensePlate[i],0,i);
   }
-  return;
 }
 
 
@@ -3198,16 +3238,19 @@ void SetPlayList(int ivealreadygotone)
 short Front_GetTrackRaced(void)
 
 {
+
   short trackraced;
   tTrackInformation trackInfo;
   
   if (frontEnd.raceType == RaceType_Tournament) {
+
     trackraced = tournamentManager.GetLastTrackRaced();
   }
   else {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                trackInfo);
     trackraced = (short)(signed char)trackInfo.fTrackID;
+
   }
   return trackraced;
 }
@@ -3268,6 +3311,7 @@ char * PlayerName(int player)
     return frontEnd.allUpperCasedPlayerNameList[player];
   }
   if (frontEnd.gameMode == '\x01') {
+
     return (char *)TextSys_Word(player + 0x50);
   }
   return (char *)TextSys_Word(0x4e);
@@ -3296,9 +3340,11 @@ char * PlayerNameMixedCase(int player)
 
 {
   if (strlen(frontEnd.playerNameList[player]) != 0) {
+
     return frontEnd.playerNameList[player];
   }
   if (frontEnd.gameMode == '\x01') {
+
     return (char *)TextSys_Word(player + 0x50);
   }
   return (char *)TextSys_Word(0x4e);

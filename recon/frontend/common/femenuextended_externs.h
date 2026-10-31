@@ -54,4 +54,24 @@ void SetDrawArea(...);
 int sprintf(char *, const char *, ...);
 unsigned int strlen(const char *);
 }
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tFEApplication * App(void) { return FEApp; }
+
+static inline int MenuItem_NumFrames(tMenuItem *item) { return item->fNumFrames; }
+
+static inline bool MenuItem_IsEnabled(tMenuItem *item) { return ((item->fFlags ^ 1) & 1) != 0; }
+
+static inline void MenuItem_SetFlags(tMenuItem *item, unsigned int flags) { item->fFlags |= flags; }
+
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+/* Retail femenuextended.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+/* retail's TransitionOn ends in a zero-length inline-call pair: the tick read is a getter (the loop-level pairs
+   retail shows around the item walk are still open: the IsDisabled inline costs 2 diffs in this goto shape) */
+static inline u_long tMenuOptions_Ticks(void) { return ticks; }
+
 #endif

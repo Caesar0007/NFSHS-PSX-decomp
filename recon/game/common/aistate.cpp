@@ -163,48 +163,25 @@ void AIState_Idle::Execute()
 
 {
 
-
-
   if (this->idleInPlaceFlag_ != 0) {
 
     (this->carObj_)->desiredSpeed = 0;
+    (this->carObj_)->desiredLatPos = (this->carObj_)->roadPosition; } else { int off;
 
-    (this->carObj_)->desiredLatPos = (this->carObj_)->roadPosition;
 
-  }
 
-  else {
-    int off;
-    /* Retail owns off in this else region (+040..+0ac), not at root. */
+
     if (((this->carObj_)->roadPosition - this->roadPosition_) + 0xffffU < 0x1ffff) {
 
-      (this->carObj_)->desiredSpeed = 0;
 
-    }
+      (this->carObj_)->desiredSpeed = 0; } else {
 
-    else {
+
 
       AISpeeds_CalcDesiredSpeed(this->carObj_);
+      off = (this->carObj_)->desiredSpeed; if (off < 0) { off = off + 3; } (this->carObj_)->desiredSpeed = off >> 2; }
 
-      off = (this->carObj_)->desiredSpeed;
-
-      if (off < 0) {
-
-        off = off + 3;
-
-      }
-
-      (this->carObj_)->desiredSpeed = off >> 2;
-
-    }
-
-    (this->carObj_)->desiredLatPos = this->roadPosition_;
-
-  }
-
-  return;
-
-}
+    (this->carObj_)->desiredLatPos = this->roadPosition_; } return; }
 
 
 
@@ -279,26 +256,14 @@ AIState_Chase::~AIState_Chase()
 
 
 
-{
+{ (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y =
 
-  (this->carObj_)->targetPos.x =
-      (this->carObj_)->targetPos.y =
       (this->carObj_)->targetPos.z = 0;
-
   (this->carObj_)->targetLatPos = 0;
-
   (this->carObj_)->preferredLateralPosition = 0;
-
   (this->carObj_)->preferredLateralPositionPower = 0;
-
   (this->carObj_)->accNitrous = 0x10000;
-
-  (this->carObj_)->speedNitrous = 0x10000;
-
-
-  return;
-
-}
+  (this->carObj_)->speedNitrous = 0x10000; return; }
 
 
 
@@ -758,181 +723,188 @@ inline int AIDelayCar::GetCurrentSpeed() { return currentSpeed_; }
 
 
 void AIState_Chase::CloseTargeting()
-{
-  int latPos;
-  int longPos;
-  int bigLongPos;
-  int forceLatAction;
-  int doLatAction;
-  int forceLongAction;
-  int dir;
-  int desiredSpeed;
-  int latTarget;
-  int longTarget;
-  latPos = 0;
-  longPos = 0;
+{ int latPos; int longPos; int bigLongPos; int forceLatAction; int doLatAction; int forceLongAction; int dir; int desiredSpeed; int latTarget; int longTarget;
+
+  latPos = 0; longPos = 0;
+
+
+
+
+
+
+
   dir = (this->carObj_)->direction;
+  this->DoNitrous(1); bigLongPos = 0;
 
-  this->DoNitrous(1);
 
-  bigLongPos = 0;
+
   if (this->murderMode_ != 0) {
-    longTarget = 0;
-    latTarget = 0;
-    this->DoNitrous(0);
-  }
-  else {
+
+    longTarget = 0; latTarget = 0;
+    this->DoNitrous(0); } else {
+
+
+
     latTarget = this->latTargetRegion_;
-    longTarget = this->longTargetRegion_;
-  }
+    longTarget = this->longTargetRegion_; } {
 
-  {
+
     if (this->latMetersBetween_ * dir < -(this->targetCar_->N).dimension.x) {
-      latPos = -1;
-    }
+      latPos = -1; }
     else if ((this->targetCar_->N).dimension.x < this->latMetersBetween_ * dir) {
-      latPos = 1;
-    }
-  }
+      latPos = 1; } } {
 
-  {
     if (this->longMetersBetween_ * dir < 0x20000 - (this->targetCar_->N).dimension.z) {
-      longPos = -1;
-    }
+      longPos = -1; }
     else if ((this->targetCar_->N).dimension.z + 0x20000 < this->longMetersBetween_ * dir) {
-      longPos = 1;
-    }
-  }
+      longPos = 1; } } {
 
-  {
     if (this->longMetersBetween_ * dir < -((this->targetCar_->N).dimension.z + 0x20000)) {
-      bigLongPos = -1;
-    }
+      bigLongPos = -1; }
     else if ((this->targetCar_->N).dimension.z + 0x20000 < this->longMetersBetween_ * dir) {
-      bigLongPos = 1;
-    }
-  }
+      bigLongPos = 1; } }
+
 
   if ((latPos == latTarget) && (longPos == longTarget)) {
-    this->inTargetRegion_ = this->inTargetRegion_ + AI_elapsedTime;
-  }
-  else {
-    this->inTargetRegion_ = 0;
-  }
+    this->inTargetRegion_ = this->inTargetRegion_ + AI_elapsedTime; } else {
+
+    this->inTargetRegion_ = 0; }
+
+
+
 
   forceLongAction = 0;
-  forceLatAction = 0;
-  doLatAction = 1;
+  forceLatAction = 0; doLatAction = 1;
+
 
   if (bigLongPos * longTarget == -1) {
-    forceLatAction = latTarget;
-    if (latTarget == 0) {
-      forceLatAction = -1;
-    }
-  }
-  else if ((latPos * latTarget == -1) && (bigLongPos == 0)) {
-    forceLongAction = -1;
-    doLatAction = 0;
-  }
-  else if ((latTarget == 0) && ((bigLongPos == 0 && (this->murderMode_ == 0)))) {
-    doLatAction = 0;
-  }
-  else if ((longTarget == 1) && (((bigLongPos == 1 && (latPos == 0)) && (this->longMetersBetween_ < 0x140000)))
-          ) {
-    forceLongAction = -2;
-  }
 
-  desiredSpeed = this->delayCar_.GetCurrentSpeed() > 0
+
+    forceLatAction = latTarget; if (latTarget == 0) { forceLatAction = -1; } }
+
+
+  else if ((latPos * latTarget == -1) && (bigLongPos == 0)) {
+
+    forceLongAction = -1;
+    doLatAction = 0; }
+
+
+  else if ((latTarget == 0) && ((bigLongPos == 0 && (this->murderMode_ == 0)))) {
+
+    doLatAction = 0; } else if ((longTarget == 1) && (((bigLongPos == 1 && (latPos == 0)) && (this->longMetersBetween_ < 0x140000)))
+
+
+          ) {
+
+    forceLongAction = -2; } desiredSpeed = this->delayCar_.GetCurrentSpeed() > 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       ? this->delayCar_.GetCurrentSpeed() : -this->delayCar_.GetCurrentSpeed();
 
+
   if ((longPos < longTarget) || (forceLongAction == 1)) {
-    desiredSpeed = fixedmult(desiredSpeed,0x16666);
-  }
-  else if (((longTarget < longPos) || (forceLongAction == -1)) ||
-          ((0x140000 < this->longMetersBetween_ &&
+
+    desiredSpeed = fixedmult(desiredSpeed,0x16666); } else if (((longTarget < longPos) || (forceLongAction == -1)) || ((0x140000 < this->longMetersBetween_ &&
+
+
+
+
+
            (((0x9ffff < this->longMetersBetween_ || (latPos != 0)) || (latTarget == 0)))))) {
-    desiredSpeed = fixedmult(desiredSpeed,this->CalculateCloseTargettingAheadSlowDownFactor());
-  }
-  else {
-    if (forceLongAction == -2)
-    {
-      int superSlowDown;
-      if (this->aggressionLevel_ != 0) {
-        superSlowDown = 0xa666;
-        if (this->aggressionLevel_ == 1) {
-          superSlowDown = 0xbae1;
-        }
-      }
-      else {
-        superSlowDown = 0xca3d;
-      }
-      desiredSpeed = fixedmult(desiredSpeed,superSlowDown);
-    }
-  }
+
+    desiredSpeed = fixedmult(desiredSpeed,this->CalculateCloseTargettingAheadSlowDownFactor()); } else {
+
+
+
+
+
+
+    if (forceLongAction == -2) { int superSlowDown;
+
+      if (this->aggressionLevel_ != 0) { superSlowDown = 0xa666; if (this->aggressionLevel_ == 1) { superSlowDown = 0xbae1; } } else { superSlowDown = 0xca3d; }
+      desiredSpeed = fixedmult(desiredSpeed,superSlowDown); } }
+
+
+
+
+
+
+
+
+
+
+
+
 
   AISpeeds_CalcDesiredSpeed(this->carObj_);
-
-  (this->carObj_)->desiredSpeed = __builtin_abs((this->carObj_)->desiredSpeed);
-
-  {
-    /* SOURCE-REVIEW-UNRESOLVED: t has no retail caller-local record. After
-       restoring the speed getter, direct clamp forms still differ (22/300,
-       split assignment13/299, void-arm products121/305). Those finite
-       failures do not prove that an original source object was required. */
-    int t = (this->carObj_)->desiredSpeed;
-    if (desiredSpeed < t) {
-      t = desiredSpeed;
-    }
-    desiredSpeed = t;
-    t = 0x50000;
-    if (0x4ffff < desiredSpeed) {
-      t = desiredSpeed;
-    }
+  (this->carObj_)->desiredSpeed = __builtin_abs((this->carObj_)->desiredSpeed); {
+    int t = (this->carObj_)->desiredSpeed; if (desiredSpeed < t) { t = desiredSpeed; } desiredSpeed = t; t = 0x50000;
+    if (0x4ffff < desiredSpeed) { t = desiredSpeed; }
     desiredSpeed = t * dir;
-    (this->carObj_)->desiredSpeed = desiredSpeed;
-  }
+    (this->carObj_)->desiredSpeed = desiredSpeed; }
+
 
   AI_GenericBeginCycle(this->carObj_);
+  if (doLatAction) { int targettingStrength; int targetLanePosition; targettingStrength = 0xf0000;
 
-  if (doLatAction) {
-    int targettingStrength;
-    int targetLanePosition;
-    /* Retail has only these two lateral locals. The three getter call sites
-       reproduce its guarded inline groups; their original name is unknown.
-       Previous staged-offset/fence necessity claims were source-shape-specific;
-       the prior body is backed up in build/nc12/aistate_before_lateral_getters_20261016.cpp. */
 
-    targettingStrength = 0xf0000;
+
     if (this->murderMode_ != 0) {
       targettingStrength = 0x1e0000;
-      targetLanePosition = this->delayCar_.GetRoadPosition();
-    }
-    else {
-      if (forceLatAction != 0) {
-        targetLanePosition = this->delayCar_.GetRoadPosition() +
-            ((this->targetCar_->N).dimension.x + 0x60000) * dir;
-      }
-      else {
-        targetLanePosition = this->delayCar_.GetRoadPosition() + this->relPosition_.x * dir;
-      }
 
-      /* Bounds are unsigned byte-field products, but retail compares signed.
-         Cast the bounded products to int
-         and evaluate each bound first; no source-only limit object is needed. */
-      targetLanePosition = -(int)(((u_int)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].avgPavedWidthLf << 15) *
-          (u_int)(BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].laneCount >> 4)) >? targetLanePosition;
-      targetLanePosition = (int)(((u_int)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].avgPavedWidthRt << 15) *
-          (u_int)(BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].laneCount & 15)) <? targetLanePosition;
-    }
+      targetLanePosition = this->delayCar_.GetRoadPosition(); } else {
+
+
+
+      if (forceLatAction != 0) { targetLanePosition = this->delayCar_.GetRoadPosition() +
+
+
+            ((this->targetCar_->N).dimension.x + 0x60000) * dir; } else {
+
+
+
+
+        targetLanePosition = this->delayCar_.GetRoadPosition() + this->relPosition_.x * dir; } targetLanePosition = -(int)(((u_int)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].avgPavedWidthLf << 15) *
+
+
+          (u_int)(BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].laneCount >> 4)) >? targetLanePosition; targetLanePosition = (int)(((u_int)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].avgPavedWidthRt << 15) *
+          (u_int)(BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].laneCount & 15)) <? targetLanePosition; }
 
     (this->carObj_)->preferredLateralPosition = targetLanePosition;
-    (this->carObj_)->preferredLateralPositionPower = targettingStrength;
-  }
+    (this->carObj_)->preferredLateralPositionPower = targettingStrength; }
+
 
   this->CheckForBarriersAndTargetAroundThem();
   AI_GenericCycle(this->carObj_);
-  AI_GenericEndCycle(this->carObj_);
-}
+  AI_GenericEndCycle(this->carObj_); }
+/* SOURCE-REVIEW-UNRESOLVED: t has no retail caller-local record. After
+       restoring the speed getter, direct clamp forms still differ (22/300,
+       split assignment13/299, void-arm products121/305). Those finite
+       failures do not prove that an original source object was required. */
+/* Retail has only these two lateral locals. The three getter call sites
+       reproduce its guarded inline groups; their original name is unknown.
+       Previous staged-offset/fence necessity claims were source-shape-specific;
+       the prior body is backed up in build/nc12/aistate_before_lateral_getters_20261016.cpp. */
+/* Bounds are unsigned byte-field products, but retail compares signed.
+         Cast the bounded products to int
+         and evaluate each bound first; no source-only limit object is needed. */
 
 
 
@@ -1144,66 +1116,78 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
 
 
-{
-  int mySlice;
-  int targetSlice;
-  int barrierBesideTarget;
-  int barrierBesideMe;
-  int myLane;
-  int targetLane;
+{ int mySlice; int targetSlice; int barrierBesideTarget; int barrierBesideMe; int myLane; int targetLane;
+
 
   if (0x1f40000 < __builtin_abs(this->longMetersBetween_)) return;
 
+
+
+
+
+
   mySlice = (this->carObj_->N).simRoadInfo.slice;
-
-  myLane = this->carObj_->laneIndex;
-
-  targetSlice = (this->targetCar_->N).simRoadInfo.slice;
+  myLane = this->carObj_->laneIndex; targetSlice = (this->targetCar_->N).simRoadInfo.slice;
 
   targetLane = this->targetCar_->laneIndex;
 
-  if (myLane < 6 - (BWorldSm_slices[mySlice].laneCount >> 4)) return;
 
-  if ((BWorldSm_slices[mySlice].laneCount & 0xf) + 7 < myLane) return;
+  if (myLane < 6 - (BWorldSm_slices[mySlice].laneCount >> 4)) return; if ((BWorldSm_slices[mySlice].laneCount & 0xf) + 7 < myLane) return; if (targetLane < 6 - (BWorldSm_slices[targetSlice].laneCount >> 4)) return; if ((BWorldSm_slices[targetSlice].laneCount & 0xf) + 7 < targetLane) return;
 
-  if (targetLane < 6 - (BWorldSm_slices[targetSlice].laneCount >> 4)) return;
 
-  if ((BWorldSm_slices[targetSlice].laneCount & 0xf) + 7 < targetLane) return;
 
   barrierBesideTarget = AIWorld_CheckForBarrierBetweenLanes(targetSlice,targetLane,myLane);
-
   barrierBesideMe = AIWorld_CheckForBarrierBetweenLanes(mySlice,targetLane,myLane);
 
   if (barrierBesideTarget == 0) goto LAB_TICKS0;
 
-  if (barrierBesideMe != 0) goto LAB_ELAPSED;
 
-  this->barrierTicks32_ = 0;
+  if (barrierBesideMe != 0) goto LAB_ELAPSED; this->barrierTicks32_ = 0;
 
-  AI_TargetLane(this->carObj_,targetLane);
 
-  AI_TargetLane(this->carObj_,targetLane);
 
   AI_TargetLane(this->carObj_,targetLane);
+  AI_TargetLane(this->carObj_,targetLane);
+  AI_TargetLane(this->carObj_,targetLane); return; LAB_ELAPSED:
 
-  return;
 
-LAB_ELAPSED:
 
-  /* CORRECTNESS (w13-a5): oracle's middle arm is barrierTicks32_ += AI_elapsedTime
-     (@.L80070CD8) -- recon previously had a self-assignment placeholder. */
+  this->barrierTicks32_ = this->barrierTicks32_ + AI_elapsedTime; return; LAB_TICKS0:
 
-  this->barrierTicks32_ = this->barrierTicks32_ + AI_elapsedTime;
 
-  return;
 
-LAB_TICKS0:
 
-  this->barrierTicks32_ = 0;
-
-  return;
+  this->barrierTicks32_ = 0; return;
 
 }
+/* The line-15/22/33 SLD scopes are the four inline member expansions below.
+     ReadBE32 is expanded once for filecount and twice for each directory row;
+     IsHeader is expanded for the four trailing filename characters.  Fully
+     inlined function names have no surviving linkage, so these spellings are
+     source-shape inferences; the receiver/locals and byte operations are
+     proved by SYM plus the exact retail instruction stream.
+     SYM-INLINE-THIS: ReadBE32
+     SYM-INLINE-THIS: ReadBE32
+     SYM-INLINE-THIS: ReadBE32
+     SYM-INLINE-LOCAL: p = ReadBE32
+     SYM-INLINE-LOCAL: p = ReadBE32
+     SYM-INLINE-LOCAL: a = ReadBE32
+     SYM-INLINE-LOCAL: a = ReadBE32
+     SYM-INLINE-LOCAL: a = ReadBE32
+     SYM-INLINE-LOCAL: b = ReadBE32
+     SYM-INLINE-LOCAL: b = ReadBE32
+     SYM-INLINE-LOCAL: b = ReadBE32
+     SYM-INLINE-LOCAL: c = ReadBE32
+     SYM-INLINE-LOCAL: c = ReadBE32
+     SYM-INLINE-LOCAL: c = ReadBE32
+     SYM-INLINE-LOCAL: d = ReadBE32
+     SYM-INLINE-LOCAL: d = ReadBE32
+     SYM-INLINE-LOCAL: d = ReadBE32
+     SYM-INLINE-THIS: IsHeader
+     SYM-INLINE-LOCAL: a = IsHeader
+     SYM-INLINE-LOCAL: b = IsHeader
+     SYM-INLINE-LOCAL: c = IsHeader
+     SYM-INLINE-LOCAL: d = IsHeader */
 
 
 
@@ -1223,210 +1207,109 @@ int AIState_Chase::FindBarrierEndSlice()
 
 
 
-{
-  int mySlice;
-  int myLane;
-  int targetLane;
-  int leftLane;
-  int rightLane;
-  int barrierLane;
-  int currentBarrierLane;
-  int forwardBarrierEndSlice;
-  int forwardBarrierDistance;
-  int backwardsBarrierEndSlice;
-  int backwardsBarrierDistance;
+{ int mySlice; int myLane; int targetLane; int leftLane; int rightLane; int barrierLane; int currentBarrierLane; int forwardBarrierEndSlice; int forwardBarrierDistance; int backwardsBarrierEndSlice; int backwardsBarrierDistance;
+
+
+
+
 
   myLane = this->carObj_->laneIndex;
-  targetLane = this->targetCar_->laneIndex;
-  mySlice = (int)this->carObj_->N.simRoadInfo.slice;
 
-  if (targetLane < myLane) {
+  targetLane = this->targetCar_->laneIndex; mySlice = (int)this->carObj_->N.simRoadInfo.slice;
 
-    leftLane = targetLane;
-    rightLane = myLane;
 
-  }
 
-  else {
+
+
+
+
+  if (targetLane < myLane) { leftLane = targetLane;
+
+
+    rightLane = myLane; } else {
+
+
 
     leftLane = myLane;
-    rightLane = targetLane;
+    rightLane = targetLane; }
 
-  }
+  barrierLane = leftLane; while (barrierLane < rightLane) {
 
-  barrierLane = leftLane;
+    if (AIWorld_CheckForBarrierBetweenLanes(mySlice,barrierLane,barrierLane) != 0) { break; }
 
-  while (barrierLane < rightLane) {
+    barrierLane++; }
 
-    if (AIWorld_CheckForBarrierBetweenLanes(mySlice,barrierLane,barrierLane) != 0) {
 
-      break;
 
-    }
 
-    barrierLane++;
 
-  }
+
 
   forwardBarrierDistance = backwardsBarrierDistance = 0x53;
+  forwardBarrierEndSlice = mySlice + 0x53; if (gNumSlices <= forwardBarrierEndSlice) { forwardBarrierEndSlice -= gNumSlices; }
+  backwardsBarrierEndSlice = mySlice - 0x53; if (backwardsBarrierEndSlice < 0) { backwardsBarrierEndSlice += gNumSlices; } currentBarrierLane = barrierLane;
 
-  forwardBarrierEndSlice = mySlice + 0x53;
 
-  if (gNumSlices <= forwardBarrierEndSlice) {
 
-    forwardBarrierEndSlice -= gNumSlices;
 
-  }
+  for (int sliceLoop = 0; sliceLoop < 0x53; sliceLoop += 4) { int sliceCheck; int temp; int leftBarrier; int hereBarrier; int rightBarrier; sliceCheck = mySlice + sliceLoop;
 
-  backwardsBarrierEndSlice = mySlice - 0x53;
-
-  if (backwardsBarrierEndSlice < 0) {
-
-    backwardsBarrierEndSlice += gNumSlices;
-
-  }
-
-  currentBarrierLane = barrierLane;
-
-  for (int sliceLoop = 0; sliceLoop < 0x53; sliceLoop += 4) {
-    int sliceCheck;
-    int temp;
-    int leftBarrier;
-    int hereBarrier;
-    int rightBarrier;
-
-    sliceCheck = mySlice + sliceLoop;
-
-    if (0 <= sliceLoop) {
-
-      if (gNumSlices <= sliceCheck) {
-
-        sliceCheck -= gNumSlices;
-
-      }
-
-    }
-
-    else if (sliceCheck < 0) {
-
-      sliceCheck += gNumSlices;
-
-    }
-
-    temp = AIWorld_CheckForBarrierBetweenLanes(
+    if (0 <= sliceLoop) { if (gNumSlices <= sliceCheck) { sliceCheck -= gNumSlices; } } else if (sliceCheck < 0) { sliceCheck += gNumSlices; } temp = AIWorld_CheckForBarrierBetweenLanes(
         sliceCheck,currentBarrierLane + 1,currentBarrierLane - 1);
     leftBarrier = temp & 4;
-    hereBarrier = temp & 2;
-    rightBarrier = temp & 1;
+    hereBarrier = temp & 2; rightBarrier = temp & 1;
 
-    if (hereBarrier == 0) {
 
-      if ((leftBarrier != 0) &&
-          (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) &&
-          (currentBarrierLane - 1 <=
+    if (hereBarrier == 0) { if ((leftBarrier != 0) && (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) && (currentBarrierLane - 1 <=
+
+
            (BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7)) {
+        currentBarrierLane--; } else if ((rightBarrier == 0) || (currentBarrierLane + 1 < 6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) || ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
 
-        currentBarrierLane--;
-
-      }
-
-      else if ((rightBarrier == 0) ||
-               (currentBarrierLane + 1 <
-                6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) ||
-               ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
                 currentBarrierLane + 1)) {
 
-        forwardBarrierEndSlice = sliceCheck;
-        forwardBarrierDistance = sliceLoop;
-        break;
 
-      }
 
-      else {
 
-        currentBarrierLane++;
+        forwardBarrierEndSlice = sliceCheck; forwardBarrierDistance = sliceLoop;
 
-      }
+        break; } else { currentBarrierLane++; } }
 
-    }
+
 
   }
-
   currentBarrierLane = barrierLane;
+  for (int sliceLoop = 0; sliceLoop < 0x53; sliceLoop += 4) { int sliceCheck; int temp; int leftBarrier; int hereBarrier; int rightBarrier; sliceCheck = mySlice - sliceLoop;
 
-  for (int sliceLoop = 0; sliceLoop < 0x53; sliceLoop += 4) {
-    int sliceCheck;
-    int temp;
-    int leftBarrier;
-    int hereBarrier;
-    int rightBarrier;
-
-    sliceCheck = mySlice - sliceLoop;
-
-    if (0 <= -sliceLoop) {
-
-      if (gNumSlices <= sliceCheck) {
-
-        sliceCheck -= gNumSlices;
-
-      }
-
-    }
-
-    else if (sliceCheck < 0) {
-
-      sliceCheck += gNumSlices;
-
-    }
-
-    temp = AIWorld_CheckForBarrierBetweenLanes(
+    if (0 <= -sliceLoop) { if (gNumSlices <= sliceCheck) { sliceCheck -= gNumSlices; } } else if (sliceCheck < 0) { sliceCheck += gNumSlices; } temp = AIWorld_CheckForBarrierBetweenLanes(
         sliceCheck,currentBarrierLane + 1,currentBarrierLane - 1);
     leftBarrier = temp & 4;
-    hereBarrier = temp & 2;
-    rightBarrier = temp & 1;
+    hereBarrier = temp & 2; rightBarrier = temp & 1;
 
-    if (hereBarrier == 0) {
 
-      if ((leftBarrier != 0) &&
-          (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) &&
-          (currentBarrierLane - 1 <=
+    if (hereBarrier == 0) { if ((leftBarrier != 0) && (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) && (currentBarrierLane - 1 <=
+
+
            (BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7)) {
+        currentBarrierLane--; } else if ((rightBarrier == 0) || (currentBarrierLane + 1 < 6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) || ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
 
-        currentBarrierLane--;
-
-      }
-
-      else if ((rightBarrier == 0) ||
-               (currentBarrierLane + 1 <
-                6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) ||
-               ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
                 currentBarrierLane + 1)) {
 
-        backwardsBarrierEndSlice = sliceCheck;
-        backwardsBarrierDistance = sliceLoop;
-        break;
 
-      }
 
-      else {
 
-        currentBarrierLane++;
+        backwardsBarrierEndSlice = sliceCheck; backwardsBarrierDistance = sliceLoop;
 
-      }
+        break; } else { currentBarrierLane++; } }
 
-    }
+
 
   }
 
   if (forwardBarrierDistance < backwardsBarrierDistance) {
+    return (forwardBarrierEndSlice + 6 < gNumSlices) ? forwardBarrierEndSlice + 6 : forwardBarrierEndSlice - (long long)(gNumSlices - 6); }
 
-    return (forwardBarrierEndSlice + 6 < gNumSlices) ? forwardBarrierEndSlice + 6 : forwardBarrierEndSlice - (long long)(gNumSlices - 6);
-
-  }
-
-  return (backwardsBarrierEndSlice - 6 < 0) ? backwardsBarrierEndSlice + (long long)(gNumSlices - 6) : backwardsBarrierEndSlice - 6;
-
-}
+  return (backwardsBarrierEndSlice - 6 < 0) ? backwardsBarrierEndSlice + (long long)(gNumSlices - 6) : backwardsBarrierEndSlice - 6; }
 
 
 
@@ -1445,20 +1328,11 @@ AIState_Offroad::~AIState_Offroad()
 
 
 
-{
+{ (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y =
 
-  (this->carObj_)->targetPos.x =
-      (this->carObj_)->targetPos.y =
       (this->carObj_)->targetPos.z = 0;
-
   (this->carObj_)->targetLatPos = 0;
-
-  this->carObj_->carFlags = this->carObj_->carFlags & 0xfffff7ff;
-
-
-  return;
-
-}
+  this->carObj_->carFlags = this->carObj_->carFlags & 0xfffff7ff; return; }
 
 
 
@@ -1657,40 +1531,24 @@ AIState_Purgatory::~AIState_Purgatory()
 {
   int search;
   Car_tObj*test;
-
   (this->carObj_->collision).resetTimer = 0;
-
   ((this->carObj_)->N).collision.disableCollisionTimer = 0;
 
+
   this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffb;
-
-  if (((this->carObj_)->carFlags & 0x10U) != 0) {
-
+  if (((this->carObj_)->carFlags & 0x10U) != 0)
     AIState_Purgatory_numTrafficCarsInPurgatory = AIState_Purgatory_numTrafficCarsInPurgatory + -1;
-
-  }
-
   this->carObj_->desiredDirection = this->carObj_->direction = 1;
 
-  search = Cars_gNumCars - 1;
-  while (1) {
-    if (search < 0)
-      break;
+
+  search = Cars_gNumCars - 1; while (1) { if (search < 0) break;
+
+
     test = Cars_gSortedList[search];
     if ((test->carFlags & 0x100U) != 0) {
-      this->carObj_->basisCar = test;
-      break;
-    }
-    --search;
-  }
 
-
-  /* carObj_->N.active = 1 now comes from the inlined ~AIState_NonActive (real dtor chain). */
-
-
-  return;
-
-}
+      this->carObj_->basisCar = test; break; } --search; }
+  return; } /* carObj_->N.active = 1 comes from the inlined ~AIState_NonActive (real dtor chain). */
 
 
 
@@ -1989,20 +1847,12 @@ AIState_Donuts::~AIState_Donuts()
 
 
 
-{
+{ (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y =
 
-  (this->carObj_)->targetPos.x =
-      (this->carObj_)->targetPos.y =
+
       (this->carObj_)->targetPos.z = 0;
-
   (this->carObj_)->targetLatPos = 0;
-
-  (this->carObj_)->donutMode = 0;
-
-
-  return;
-
-}
+  (this->carObj_)->donutMode = 0; return; }
 
 
 
@@ -2450,21 +2300,10 @@ AIState_RovingTraffic::~AIState_RovingTraffic()
 
 
 
-{
-
-
-  (this->carObj_)->targetPos.x =
-      (this->carObj_)->targetPos.y =
+{ (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y =
       (this->carObj_)->targetPos.z = 0;
-
   this->carObj_->targetLatPos = 0;
-
-  this->carObj_->carFlags &= 0xfffff7ff;
-
-
-  return;
-
-}
+  this->carObj_->carFlags &= 0xfffff7ff; return; }
 
 
 

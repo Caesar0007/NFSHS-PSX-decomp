@@ -51,4 +51,40 @@ tScreenTournamentStandings *screenTournamentStandings = 0;
 tScreenTournamentStandings3item *screenTournamentStandings3item = 0;
 tScreenPinkSlipStandings *screenPinkSlipStandings = 0;
 
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
+
+/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
+static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
+
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
+
+/* ORIGINAL-NAME-UNRESOLVED: inferred definition/count field accessors for
+   the two receiver-free retail pairs at the opening standings phase. */
+static inline tTournamentDefinition *Tournament_Definition() {
+  return tournamentManager.fDefinition;
+}
+
+static inline int Tournament_NumRacers() {
+  return tournamentManager.fNumRacers;
+}
+
+/* ORIGINAL-NAME-UNRESOLVED: inferred accessor for the retail personality
+   pair. Its j parameter is the nested INT:$19 record, not a caller copy. */
+static inline tPersonalities Tournament_Personality(int j) {
+  return tournamentManager.fCompetitors[j].fPersonality;
+}
+
+/* ORIGINAL-NAME-UNRESOLVED: same color-table lookup used by FEFades. */
+static inline int TextDefinitionColor(tMenuTextType type, int column) {
+  return kRGBVals[(byte)textDefinitions[type][column]];
+}
+
+/* Retail screenpost.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #endif

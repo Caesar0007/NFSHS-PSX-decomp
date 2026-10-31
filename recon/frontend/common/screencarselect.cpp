@@ -9,39 +9,13 @@
 #define setRECT(r, _x, _y, _w, _h) \
     (r)->x = (_x),(r)->y = (_y),(r)->w = (_w),(r)->h = (_h)
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tFEApplication * App(void) { return FEApp; }
 
 
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks[0]; }
-static inline long CarManager_NumCars(tCarManager &cm) { return cm.fNumCars; }
-/* ORIGINAL-NAME-UNRESOLVED: the same inferred money getter used by the
- * congratulations/postgame callers; retail supplies its receiver-free pair. */
-static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
-/* ORIGINAL-NAME-UNRESOLVED: inferred selector spelling. Retail emits an
- * empty inline pair at each of these menu-selection reads. */
-static inline int Menu_CurrentItem(tMenu &menu) { return menu.fCurrentItem; }
-/* `ticks` is VSync-ISR state: each read is a real load */
-static inline int VSyncTicks(void) { return *(volatile int *)&ticks[0]; }
-static inline void MenuItem_Enable(tMenuItem *item) { item->fFlags &= ~1; }
-static inline void MenuItem_Disable(tMenuItem *item) { item->fFlags |= 1; }
-static inline u_char FrontEnd_PinkSlipsCar(int player) { return frontEnd.pinkSlipsCar[player]; }
-static inline char *Text_WaitingForPlayer(void) { return TextSys_Word(0x2a8); }
-static inline void Dialog_SetString(tDialogBase *dialog, char *string) { ((tDialogBackUpOnly *)dialog)->string = string; }
-/* ORIGINAL-NAME-UNRESOLVED: same inferred readiness getter as FEMenuDefs.
- * Retail's receiver-free pair supplies its source ownership, not its name. */
-static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFullyOpen ^ 1) == 0; }
 
 
-/* Retail screencarselect.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 extern tFEApplication *FEAppB[] asm("FEApp");
 
@@ -92,22 +66,6 @@ inline void tDialogMessageString::Display(int word)
    `result`, all attributed to one call-site line.  This body reproduces all
    three expansions byte-for-byte; the retail artifacts cannot recover its
    original spelling, so CarStatValue is an explicit semantic name. */
-static inline short CarStatValue(tCarStatType carStat, tCarInfo *carInfo)
-{
-  short result;
-
-  result = (short)carInfo->fStats[0][carStat];
-  if ((carInfo->fUpgrades & 1) != 0) {
-    result = result + carInfo->fStats[1][carStat];
-  }
-  if ((carInfo->fUpgrades & 2) != 0) {
-    result = result + carInfo->fStats[2][carStat];
-  }
-  if ((carInfo->fUpgrades & 4) != 0) {
-    result = result + carInfo->fStats[3][carStat];
-  }
-  return result;
-}
 
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0).
@@ -148,9 +106,6 @@ static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[
    remove the decompiler's byte/pointer aliases and make the remainder of the
    body byte-identical. */
 
-/* retail's SYM opens DrawCar with an inline-call pair at +000: the tick read is an inline getter
-   (its long return type supplies the signed remainder the old `signedTicks` carrier staged) */
-static inline long GetTicks(void) { return (long)::ticks[0]; }
 
 void DrawCar(tCarInfo &carInfo,short x,short y,float camerax,float cameray,char brightness,
                bool reflection,u_long rotate,tPlayer player)
@@ -235,12 +190,11 @@ tScreenCarSelect::~tScreenCarSelect()
 
 
 /* ---- tScreenCarSelect::Cleanup  [SCREENCARSELECT.CPP:324-327] ---- */
+/* SYM-CODEGEN-CARRIER: vtbl -- direct this->_vf[1][5] indexing is measured
+   byte-identical but violates the manual-ABI vtable safety gate. */
 void tScreenCarSelect::Cleanup()
 
 {
-  /* SYM-CODEGEN-CARRIER: vtbl -- direct this->_vf[1][5] indexing is measured
-     byte-identical but violates the manual-ABI vtable safety gate. */
-
   CleanupSpinningCarsMenu();
   this->tScreen::Cleanup();
   this->FreeAsyncBuffer();
@@ -984,6 +938,13 @@ void tScreenCarSelect::DrawBackground()
       TurnOn(this->fVideoWall);
       if (this->fBrightness[0] == this->fDestBrightness[0]) {
         this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
+
+
+
+
+
+
+
       }
     }
   }
@@ -1990,10 +1951,12 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
 void tScreenCarSelectTwoPlayer::SetDialog()
 {
   int player = FEApp->GetPlayer();
-
   if (FEApp->waitingForOtherPlayer[player] != 0) {
+
+
     Dialog_SetString(this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c, (tPlayer)(short)player),
       (sprintf(WaitingString,Text_WaitingForPlayer(),PlayerName(1 - player)), WaitingString));
+
     this->CarDialog.tDialogBase::Display();
   }
   else {
@@ -2077,7 +2040,9 @@ bool tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
   if (PinkSlipsScreenState[0] == CardLoadedFine && PinkSlipsScreenState[1] == CardLoadedFine) {
     const tPlayer player = FEApp->GetPlayer();
     carManager.GetPinkSlipsCar(FrontEnd_PinkSlipsCar(player), carInfo, player);
+
     carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
+
     return 1;
   }
   else {
@@ -2091,8 +2056,8 @@ bool tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
 void tScreenPinkSlipsCarSelect::DrawBackground()
 
 {
-  
   this->DoMemCardStuff();
+
   this->tScreenCarSelectTwoPlayer::DrawBackground();
   if (this->fExitingScreen != 0) {
     ((tDialogBase *)&this->CarDialog)->Hide();
@@ -2215,10 +2180,13 @@ void tScreenPinkSlipsCarSelect::Initialize()
   this->waitfordialog = 0;
   this->fStartCheckTick = 0;
   this->fCardFailed = 0;
+
   PinkSlipsScreenState[0] = NoCardInserted;
+
   PinkSlipsScreenState[1] = NoCardInserted;
   this->pCI = MCRD_getcard(1);
   Init_Memcard(true,1);
+
   this->fExitingScreen = 0;
   this->tScreenCarSelectTwoPlayer::Initialize();
   return;

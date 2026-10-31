@@ -37,7 +37,6 @@ void tScreenControllerConfig::ClearActuators()
 {
   (this->fShaker).actuator[0] = '\0';
   (this->fShaker).actuator[1] = '\0';
-  return;
 }
 
 /* ---- tScreenControllerConfig::SetActuators  (screencontroller.cpp:47) ---- */
@@ -45,24 +44,29 @@ void tScreenControllerConfig::ClearActuators()
    inline getter, and the pulse/tick values are block locals the SYM does not record */
 static inline int GetTicks(void) { return ticks; }
 
+/* Real timer/actuator sibling arms preserve retail34/34 and scope bounds.
+ * Compute the random comparison before the power-byte source assignment;
+ * scheduling still places that store in the load gap. No pulse/tick alias.
+ * Full original statement-line attribution remains unsealed. */
 void tScreenControllerConfig::SetActuators(int max)
 
 {
-  /* Real timer/actuator sibling arms preserve retail34/34 and scope bounds.
-   * Compute the random comparison before the power-byte source assignment;
-   * scheduling still places that store in the load gap. No pulse/tick alias.
-   * Full original statement-line attribution remains unsealed. */
-
   if (this->fResetShakeTimeOut != 0) {
+
     this->fResetShakeTimeOut = 0;
     (this->fShaker).time = 0x40;
+
+
   }
   else if ((this->fShaker).time != '\0') {
     (this->fShaker).time = (this->fShaker).time - 1;
   }
   if (*(uchar *)&(this->fShaker).time != '\0') {
+
     (this->fShaker).actuator[0] = (int)(uint)Force_rand_256[GetTicks() >> 2 & 0xff] < max;
     (this->fShaker).actuator[1] = (uchar)max;
+
+
   } else {
   this->ClearActuators();
   }
@@ -73,7 +77,6 @@ void tScreenControllerConfig::TurnOffShakers()
 
 {
   (this->fShaker).active = '\0';
-  return;
 }
 
 /* ---- tScreenControllerConfig::ShakeIt  (screencontroller.cpp:76) ---- */
@@ -1299,11 +1302,13 @@ void tScreenControllerConfig::GetShapeInfo(short &numPermShapes,short &numSwapSh
                char **permFileName,char **swapFileName)
 
 {
+
+
   numPermShapes = 0x18;
   *permFileName = "zpCtrl";
+
   numSwapShapes = 0x42;
   *swapFileName = "aCtrl";
-  return;
 }
 
 /* ---- tScreenControllerConfig::Initialize  (screencontroller.cpp:1831) ---- */
@@ -1354,12 +1359,10 @@ void tScreenControllerConfig::Initialize()
 void tScreenControllerConfig::Cleanup()
 
 {
-  
   this->ClearActuators();
   this->TurnOffShakers();
   PadStartCom();
   this->tScreen::Cleanup();
-  return;
 }
 
 /* ---- tScreenControllerConfig::tScreenControllerConfig  (screencontroller.cpp:1889) ---- */

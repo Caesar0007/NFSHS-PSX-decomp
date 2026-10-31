@@ -42,11 +42,20 @@ void Scene_PurgeScene(void)
 
 {
   if (gGameSceneList != (CSceneList *)0x0) {
+
     purgememadr(gGameSceneList);
     gGameSceneList = (CSceneList *)0x0;
   }
-  Object_ClearCustomObjects();
-  return;
+
+
+
+
+
+
+
+
+
+  Object_ClearCustomObjects(); return;
 }
 
 /* ---- Scene_BuildCustomSceneList__Fv  [SCENE.CPP:1059-1107]
@@ -55,22 +64,52 @@ int Scene_BuildCustomSceneList(void)
 
 {
   int slice;
-  
   Object_ClearCustomObjects();
   slice = -1;
-  if (gGameSceneList != (CSceneList *)0x0) {
-    SceneElem *se;
-    se = (SceneElem *)(gGameSceneList + 1);
+
+
+
+  if (gGameSceneList != (CSceneList *)0x0) { SceneElem *se; se = (SceneElem *)(gGameSceneList + 1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     slice = gGameSceneList->slice_;
     Object_customSliceNum = slice;
+
     for (int i = 0; i < gGameSceneList->numElements_; se++, i++) {
-      if (se->type < 3) {
-        if (-1 < se->type) {
+
+      if (se->type < 3) { if (-1 < se->type) {
+
+
+
+
           Object_AddCustomObject(se,1);
         }
       }
+
+
+
     }
   }
+
+
+
+
+
+
+
+
   return slice;
 }
 

@@ -6,6 +6,80 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-31b strict SYM+SLD round (agents PHYS/PHYS2, CAMIN, AUDAI, FRONT, HUDFX2/3, DRAW2/3, EAC/EAC2).
+
+User ruling 2026-10-31: the strict SYM+SLD match is a primary goal alongside asm removal.
+Gate on the committed tree (quiet, fingerprinted unchanged during the run): honest
+299819/299819 (0 diff words, 0 masked overlap bytes); vtable audit PASS 1473; link-stripped
+83/0; gdebug 181/181 code-identical; SYM board CLEAN 2372 -> 2390 of 2570; regcheck vs
+the 10-31 baseline reg [] (19 improved); tools tests 38/38 + 162/162. Every edited TU passes verify_asm for
+every function with an oracle; strict_branch clean where branches moved; sldprobe no worse
+except Hud_RenderHudView (+1 tag vs HEAD, blocks 40->32 better, cdshow carrier removed).
+
+SLD (sldprobe tag diffs, HEAD -> now), source layout + statement reorders only:
+CAMIN 13 TUs ~7490->384 (psxcontroller 381->0, camera 1700->14, cario 851->16, input
+862->25, weather 665->10); PHYS 18 AI TUs 7104->~200 and 25 misc TUs 6044->210; PHYS2
+15 more TUs (replay 1909->5, object 1131->66, hudpmx 672->1, mathnfs 618->111); AUDAI
+r3dcar 2711->554, speech 2671->824, audiocmn 161->0, aih_play 1266->80; HUDFX2/3 hud
+6186->1898, flare 3054->72; DRAW2/3 draww 3918->~340, drawc 381->357; EAC/EAC2 misc 15 TUs
+(Hud_BTCStats 460->0, RaceSummary 338->0, Force_Update 266->0, nfs3 main 227->0);
+FRONT frontend exact 119->143 of 417 plus 45 newly owned TUs (fecars 1724->1566, ...).
+
+SYM: carriers removed / missing retail locals restored, byte-identical: OutOfControlPhysics
+(asm-free, 14 locals = retail), SimplePhysics, CalculateRoadPosition, Hud_Render (remain,
+labels), Hud_BuildString (asm fence + device + gotos removed), Flare_Sun, DrawC_PrimClip (0
+issues, 247 locals), DrawC_Prim (all but case 9), DrawW_NightColorCalc (tempcop/tempnight
+restored, fence gone), DrawC_PrimHalo (asm pin + 2 fences gone), SetupBlockade (manager,
+lastSlice), tPMenuConstructor, slider ProcessInput, Weather_CreateSplat, RunDemoVideo,
+ShouldTimeOut, InGame_GetPSXPadValue labels.
+
+DEVICES FOR REVIEW (committed, user-allowed or fence debt, NOT natural recovery):
+- C++ reference locals replacing MATRIX-pointer carriers (record-less; user allowed
+  "mark as review"): DrawW DrawObjectSimple, DrawObjectTransform, DoLines,
+  BuildCustomObjectFacets, DoTrough, BuildChunkCenterLineFacets (`MATRIX &m = ...`,
+  `char (&rn)[3] = ...`).
+- Record-less `const short` split temporaries (titleX, titleY, ty15, ty17) in RaceSummary /
+  RaceStatistics (same review class).
+- `else uTurn = 0;` in AIPhysic_OutOfControlPhysics: redundant store that stops cse1's
+  skip-blocks walk = pure-C fence debt (ternary / inverted-if give the same mechanism).
+- nfs3 main `unusedTailLocal` pre-existing dummy (debt, unchanged).
+REJECTED / REVERTED: ClearCollisionRegistry `carLoop;` + `return;`-inside-({}) exact form
+(placeholder for a debug region); AudioCmn_Reset `int now = gettick();` (dummy local);
+Hud_BuildTimeSprites pointer-in-int w reuse; psxfront.cpp/psxfront_externs.h helper move
+(below). HELD for the user: Night_CreateNightTableElement dead-SYM-int owner;
+DisplayHelp / CheckForNewLevel / mpause Enable-Disable inline members need header edits;
+unpack empty {1 }1; MPause_Render block-scoped y.
+
+INCIDENT + LAW (data drift): moving psxfront's string-only inline survivors
+(SimpleMem_ClassName, the unused "main"/"load.psh" literals) into psxfront_externs.h
+reordered .rodata/.data (66 masked bytes, 25 diff words). verify_asm checks instruction
+words only. Inline helpers that exist to emit retail string literals must stay where the
+literal order requires; after any helper move run honest_measure (or a per-object
+data-section compare, build/tmp/v/DRAW_datachk.py). psxfront.cpp reverted to HEAD.
+Night_AdditiveNightCalc hand layout reverted to HEAD (it raised SYM scope depth 5->7; sldprobe tags/blocks did not show it -- also gate SYM scope depth, not only SLD).
+
+Layout/statement laws added this round (see agent state files build/tmp/v/*_state.md):
+- An inline defined in a header records its block lines at the caller's line; one
+  defined earlier in the same .cpp records line 1.
+- Lay out the longest in-order statement run first; out-of-order statements block joins.
+- `#define`/`#undef` inside a body block line joins; move them outside the function.
+- When retail SLD collapses a chain of compares onto one line, the original was a switch.
+- `a = b = x;` with stores tagged on two lines, and `if (++x == y)`, were two statements.
+- Retail's if/else had no gotos: an if/else plus a duplicated shared tail gives the same
+  bytes (cross-jump merges it).
+- Our compiler emits a for/if scope block only when it holds a local or kept sub-block;
+  retail's empty blocks point to a different construct.
+- An unused or dead-stored local gets no SYM record.
+- A function-scope variable shared by two uses changes allocation priorities; making it
+  block-local can make a carrier unnecessary (Hud_Render remain).
+- sched1 boosts single-set registers; assigning an existing variable a second time can
+  reorder independent loads (SimplePhysics).
+- `return v;` on the `}` line pulls the final instructions and epilogue onto that line.
+- cse skip-blocks: a one-use label is skipped, a two-use label stops the walk.
+- In cc1 2.8.0, macros are not expanded on the line where a multi-line string closes.
+- Batch tools must require one PASS per function and treat compile errors / vanished
+  functions as failure; never write any version into a recon/ file to measure it.
+
 2026-10-31 asm-removal + stricter SLD round (7 agents, source layout only).
 
 Gate on the working tree: honest 299819/299819 (0 diff words); vtable audit

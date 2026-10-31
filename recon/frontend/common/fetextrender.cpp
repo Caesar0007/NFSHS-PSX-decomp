@@ -5,12 +5,8 @@
  */
 #include "fetextrender.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tFEApplication * App(void) { return FEApp; }
 
 
-/* Retail fetextrender.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* EXT data owned by FETextRender.obj, byte-exact from retail binary */
 char textDefinitions[14][6] = {   /* @0x800515b8 (ARY ARY CHAR, SYM dims 14x6 -> 14 rows x 6 cols; same 84 bytes, row-stride 6) */
@@ -99,10 +95,9 @@ void FETextRender_FullText(char *sMenuText,short x,short y,tMenuTextType textTyp
                short justify)
 
 {
-  
   int textcol = kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]];
+
   FETextRender_FullTextRGB(sMenuText,x,y,textcol,textDefinitions[textType][0],justify);
-  return;
 }
 
 
@@ -159,7 +154,6 @@ void FETextRender_MenuTextPositionedJustify(short index,short x,short y,short ju
 
 {
   FETextRender_MenuTextPositionedJustifyFade(0,index,x,y,justify,state,type);
-  return;
 }
 
 
@@ -294,9 +288,7 @@ int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,in
 void FETextRender_WordWrapTextRGB(char *str,RECT &r,int Col)
 
 {
-  
   FETextRender_WordWrapTextRGBJustify(str,r,Col,0,0,false);
-  return;
 }
 
 
@@ -309,6 +301,8 @@ void FETextRender_WordWrapTextFade(int fade,char *str,RECT &r,tMenuTextState tex
   FETextRender_WordWrapTextRGBJustify(str,r,
             CalcFadeVal(kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],fade),
             (u_int)(u_char)textDefinitions[textType][1],(u_int)(u_char)textDefinitions[textType][0],false);
+
+
   return;
 }
 
@@ -318,9 +312,7 @@ void FETextRender_WordWrapTextFade(int fade,char *str,RECT &r,tMenuTextState tex
 void FETextRender_WordWrapText(char *str,RECT &r,tMenuTextState textState,tMenuTextType textType)
 
 {
-  
   FETextRender_WordWrapTextFade(0,str,r,textState,textType);
-  return;
 }
 
 
@@ -329,8 +321,9 @@ void FETextRender_WordWrapText(char *str,RECT &r,tMenuTextState textState,tMenuT
 void FETextRender_WordWrapFade(int fade,short index,RECT &r,tMenuTextState state,tMenuTextType type)
 
 {
+
+
   FETextRender_WordWrapTextFade(fade,TextSys_Word((int)index),r,state,type);
-  return;
 }
 
 
@@ -339,9 +332,7 @@ void FETextRender_WordWrapFade(int fade,short index,RECT &r,tMenuTextState state
 void FETextRender_WordWrap(short index,RECT &r,tMenuTextState textState,tMenuTextType textType)
 
 {
-  
   FETextRender_WordWrapFade(0,index,r,textState,textType);
-  return;
 }
 
 
@@ -384,7 +375,6 @@ void FETextRender_Title(short index)
   r.h = 0xc;
   PSXDrawTransSquare(0,r.x,r.y,r.w,r.h,2);
   FeDraw_SetABRMode(0);
-  return;
 }
 
 

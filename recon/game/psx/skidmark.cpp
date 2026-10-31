@@ -32,23 +32,25 @@ void CalcStartSegment(Skidmark_Segment *r1,Skidmark_Segment *r2,coorddef *cp,coo
   int pzp;
   {
     int angle;
+
     angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
     pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
     pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
   }
+
   r1->svx[0].vx = (short)((pt1->x + pxp) - cp->x >> 6);
   r1->svx[0].vy = (short)(pt1->y - cp->y >> 6);
   r1->svx[0].vz = (short)((pt1->z + pzp) - cp->z >> 6);
   r1->svx[1].vx = (short)((pt1->x - pxp) - cp->x >> 6);
   r1->svx[1].vy = (short)(pt1->y - cp->y >> 6);
   r1->svx[1].vz = (short)((pt1->z - pzp) - cp->z >> 6);
+
   r2->svx[1].vx = (short)((pt2->x - pxp) - cp->x >> 6);
   r2->svx[1].vy = (short)(pt2->y - cp->y >> 6);
   r2->svx[1].vz = (short)((pt2->z - pzp) - cp->z >> 6);
   r2->svx[0].vx = (short)((pt2->x + pxp) - cp->x >> 6);
   r2->svx[0].vy = (short)(pt2->y - cp->y >> 6);
-  r2->svx[0].vz = (short)((pt2->z + pzp) - cp->z >> 6);
-  return;
+  r2->svx[0].vz = (short)((pt2->z + pzp) - cp->z >> 6); return;
 }
 
 /* ---- CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i  [SKIDMARK.CPP:81-99] SLD-VERIFIED ---- */
@@ -59,17 +61,20 @@ void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt
   int pzp;
   {
     int angle;
+
+
+
     angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
     pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
     pzp = fixedmult(tireWidth,fastintsin(angle)) >> 1;
   }
+
   r1->svx[0].vx = (short)((pt2->x + pxp) - cp->x >> 6);
   r1->svx[0].vy = (short)(pt2->y - cp->y >> 6);
   r1->svx[0].vz = (short)((pt2->z + pzp) - cp->z >> 6);
   r1->svx[1].vx = (short)((pt2->x - pxp) - cp->x >> 6);
   r1->svx[1].vy = (short)(pt2->y - cp->y >> 6);
-  r1->svx[1].vz = (short)((pt2->z - pzp) - cp->z >> 6);
-  return;
+  r1->svx[1].vz = (short)((pt2->z - pzp) - cp->z >> 6); return;
 }
 
 /* SOURCE REVIEW (2026-10-13): repeating the real signed axis differences
@@ -173,35 +178,79 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
  * Skidmark_AddStretch PASSES with the identical statement (`*savechunk = gUseSm;`)
  * because its preceding statement is a single pointer store, not the three
  * clr/type/pt struct copies that give our scheduler room to hoist. */
+/* `chunk = gUseSm` is the LAST of the prevskid stores: the oracle issues its
+   %gp_rel load only after `sm->seg[n+1].next = 0` and lands the store in the
+   `lh $v1,12($s0)` LOAD-DELAY SLOT.  Written any earlier the value is allocated to
+   $v1 (which `lh $v1,12($s0)` then needs), so the store has to precede the lh and
+   the slot fills with a nop -- +1 insn per tail, at both tails. */
 void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,int type,int slice)
 
 {
   Skidmark_Chunk *sm;
 
+
+
+
+
+
+
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
+
+
     sm = Skidmark_CheckChunk(skidpt,2,slice);
+
     CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     /* chained assignments: one sm->n read per pair, as retail (no `n` local in the SYM) */
     sm->seg[sm->n].rgb = sm->seg[sm->n + 1].rgb = *color;
     sm->seg[sm->n].type = sm->seg[sm->n + 1].type = type;
+    sm->seg[sm->n].next = &sm->seg[sm->n + 1];
+    sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
+    prevskid->clr = *color;
+    prevskid->type = type;
+    prevskid->pt = *skidpt;
+    prevskid->nseg = &sm->seg[sm->n + 1];
+    prevskid->chunk = gUseSm;
+    sm->n = sm->n + 2;
+
+
+    return;
   }
   else {
+
+
     sm = Skidmark_CheckChunk(skidpt,2,slice);
+
+
+
+
     if (prevskid->chunk == gUseSm) {
+
+
       CalcOneSegment(&sm->seg[sm->n],&sm->cp,&prevskid->pt,skidpt,tireWidth);
+
       sm->seg[sm->n].rgb = *color;
       sm->seg[sm->n].type = type;
+
       prevskid->nseg->next = &sm->seg[sm->n];
       sm->seg[sm->n].next = (Skidmark_Segment *)0x0;
+
       prevskid->clr = *color;
       prevskid->type = type;
       prevskid->pt = *skidpt;
       prevskid->nseg = &sm->seg[sm->n];
       prevskid->chunk = gUseSm;
-      sm->n = sm->n + 1;
-      return;
+
+      sm->n = sm->n + 1; return;
     }
+
+
+
+
+
+
+
     CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
+
     sm->seg[sm->n].rgb = prevskid->clr;
     sm->seg[sm->n].type = prevskid->type;
     sm->seg[sm->n + 1].rgb = *color;
@@ -209,19 +258,14 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
   }
   sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
-  /* `chunk = gUseSm` is the LAST of the prevskid stores: the oracle issues its
-     %gp_rel load only after `sm->seg[n+1].next = 0` and lands the store in the
-     `lh $v1,12($s0)` LOAD-DELAY SLOT.  Written any earlier the value is allocated to
-     $v1 (which `lh $v1,12($s0)` then needs), so the store has to precede the lh and
-     the slot fills with a nop -- +1 insn per tail, at both tails. */
+
   prevskid->clr = *color;
   prevskid->type = type;
   prevskid->pt = *skidpt;
   prevskid->nseg = &sm->seg[sm->n + 1];
   prevskid->chunk = gUseSm;
-  sm->n = sm->n + 2;
-  return;
-}
+
+  sm->n = sm->n + 2; }
 
 /* ---- Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii  [SKIDMARK.CPP:264-326] SLD-VERIFIED ----
  * PASS (w39-a10, 231/231; was 20).  Two structural corrections, both readable
@@ -240,27 +284,54 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
 {
   Skidmark_Chunk *sm;
 
+
+
+
+
+
+
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
+
+
     sm = Skidmark_CheckChunk(skidpt,2,slice);
+
     CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
     /* chained assignments: one sm->n read per pair, as retail (no `n` local in the SYM) */
     sm->seg[sm->n].rgb = sm->seg[sm->n + 1].rgb = *color;
     sm->seg[sm->n].type = sm->seg[sm->n + 1].type = type;
+    sm->seg[sm->n].next = &sm->seg[sm->n + 1];
+    sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
+    *save = &sm->seg[sm->n + 1];
+    *savechunk = gUseSm;
+    sm->n = sm->n + 2;
+
+
+    return;
   }
   else {
+
     sm = Skidmark_CheckChunk(skidpt,2,slice);
+
     if (prevskid->chunk == gUseSm) {
+
+
       CalcOneSegment(&sm->seg[sm->n],&sm->cp,&prevskid->pt,skidpt,tireWidth);
+
       sm->seg[sm->n].rgb = *color;
       sm->seg[sm->n].type = type;
+
       prevskid->nseg->next = &sm->seg[sm->n];
       sm->seg[sm->n].next = (Skidmark_Segment *)0x0;
+
       *save = &sm->seg[sm->n];
       *savechunk = gUseSm;
-      sm->n = sm->n + 1;
-      return;
+
+      sm->n = sm->n + 1; return;
     }
+
+
     CalcStartSegment(&sm->seg[sm->n],&sm->seg[sm->n + 1],&sm->cp,&prevskid->pt,skidpt,tireWidth);
+
     sm->seg[sm->n].rgb = prevskid->clr;
     sm->seg[sm->n].type = prevskid->type;
     sm->seg[sm->n + 1].rgb = *color;
@@ -268,21 +339,22 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
   }
   sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
+
   *save = &sm->seg[sm->n + 1];
   *savechunk = gUseSm;
-  sm->n = sm->n + 2;
-  return;
-}
+
+  sm->n = sm->n + 2; }
 
 /* ---- Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii  [SKIDMARK.CPP:336-341] SLD-VERIFIED ---- */
 void Skidmark_Stretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,coorddef *skidpt,
                      CVECTOR *color,int tireWidth,int type)
 
 {
+
   CalcOneSegment(save,&gSm[savechunk].cp,&prevskid->pt,skidpt,tireWidth);
+
   save->rgb = *color;
-  save->type = type;
-  return;
+  save->type = type; return;
 }
 
 /* ---- Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii  [SKIDMARK.CPP:350-361] SLD-VERIFIED ---- */
@@ -290,15 +362,17 @@ void Skidmark_EndStretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,co
                         CVECTOR *color,int tireWidth,int type)
 
 {
+
   CalcOneSegment(save,&gSm[savechunk].cp,&prevskid->pt,skidpt,tireWidth);
+
   save->rgb = *color;
   save->type = type;
+
   prevskid->clr = *color;
   prevskid->type = type;
   prevskid->pt = *skidpt;
   prevskid->nseg = save;
-  prevskid->chunk = savechunk;
-  return;
+  prevskid->chunk = savechunk; return;
 }
 
 /* ---- Skidmark_OnyxBuildFacets__FP13DRender_tView  [SKIDMARK.CPP:365-408] SLD-VERIFIED ---- */
@@ -349,36 +423,33 @@ void Skidmark_InitSkidmark(void)
 
 {
   gMaxSChunk = 0x10;
-  if (GameSetup_gData[3] == 1) {
-    gMaxSChunk = 8;
-  }
+  if (GameSetup_gData[3] == 1) gMaxSChunk = 8;
+
+
   gSm = reservememadr("SkidMark",gMaxSChunk * 0x2b0,0);
-  gSm->n = 0;
+
+
   gCountSm = 0;
   gUseSm = 0;
-  return;
+  gSm->n = 0;
 }
 
 /* ---- Skidmark_RestartSkidmark__Fv  [SKIDMARK.CPP:433-437] SLD-VERIFIED ---- */
 void Skidmark_RestartSkidmark(void)
 
 {
+
   gCountSm = 0;
   gUseSm = 0;
-  gSm->n = 0;
-  return;
+  gSm->n = 0; return;
 }
 
 /* ---- Skidmark_KillSkidmark__Fv  [SKIDMARK.CPP:441-443] SLD-VERIFIED ---- */
 void Skidmark_KillSkidmark(void)
 
 {
-  
-  if (gSm != (Skidmark_Chunk *)0x0) {
-    purgememadr(gSm);
-  }
-  gSm = (Skidmark_Chunk *)0x0;
-  return;
+  if (gSm != (Skidmark_Chunk *)0x0) { purgememadr(gSm);
+  } gSm = (Skidmark_Chunk *)0x0; return;
 }
 
 /* end of skidmark.cpp */

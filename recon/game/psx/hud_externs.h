@@ -190,4 +190,8 @@ int sprintf(char *buffer, const char *format, ...);
 unsigned int strlen(const char *string);
 }
 
+/* retail's SYM records an inline-call pair at every tick read in hud.cpp: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
 #endif

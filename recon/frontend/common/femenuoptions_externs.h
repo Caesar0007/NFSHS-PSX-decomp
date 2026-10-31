@@ -62,4 +62,29 @@ bool FECheat_ActivateBonusByCode(char*);
  * `(...)` decl mangled both call sites as CalcOnOffFade__Fe (never links). */
 void CalcOnOffFade(tMenuTextType, short, short, short, int &, int &)
     asm("CalcOnOffFade__F13tMenuTextTypesssRiT4");
+/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
+   through an inline getter, not directly */
+static inline int FE_Ticks(void) { return ticks; }
+
+static inline bool MenuItem_Enabled(tMenuItem *item) { return ((item->fFlags & 1) ^ 1) != 0; }
+
+static inline int ListIterator_Min(tListIterator *it) { return (unsigned char)it->fMinValue; }
+
+static inline int ListIterator_Max(tListIterator *it) { return (unsigned char)it->fMaxValue; }
+
+static inline u_short GInfo_Busy(void) { return *(u_short *)&ginfo[16]; }
+
+static inline int Text_BrightColor(int text) { return kRGBVals[(u_char)textDefinitions[TextSys_WordFlags((short)text)][5]]; }
+
+static inline int Text_Color(int text) { return kRGBVals[(u_char)textDefinitions[TextSys_WordFlags((short)text)][4]]; }
+
+/* P891 retained carrier: inline_fn/arg0 are not recovered native source names.
+ * With scalar ticks, base direct remainder and declaration-init probes both
+ * fail 5 diffs (21/22); split load/remainder fails 15. The helper retains PASS.
+ * Its original inline/read source shape remains a documented recovery task. */
+static inline int inline_fn(int *arg0)
+{
+  return arg0[0];
+}
+
 #endif

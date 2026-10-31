@@ -5,11 +5,6 @@
  */
 #include "fefades.h"
 
-static inline int TextDefinitionColor(tMenuTextType type, int column)
-{
-  /* The retail SYM records a nested inline block for each lookup. */
-  return kRGBVals[(byte)textDefinitions[type][column]];
-}
 
 /* lines 1-20: file header, #includes, static data, macros (no symbols emitted) */
 

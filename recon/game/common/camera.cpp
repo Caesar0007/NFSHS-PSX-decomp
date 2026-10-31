@@ -364,88 +364,62 @@ void Camera_UpdateBumperCam(int player)
 void Camera_UpdateTailCam(int player,int behavior)
 {
   coorddef arm;
-  coorddef newarm;
-  coorddef oldarm;
-  Car_tObj *anchor;
-  int maxrate;
-  int rate;
-  int rateY;
-  int vertigo;
-  int slice;
-  int lookahead;
-  int len;
+  coorddef newarm; coorddef oldarm; Car_tObj *anchor; int maxrate; int rate; int rateY; int vertigo; int slice; int lookahead; int len; arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
 
-  maxrate = 0x1999;
-  rate = maxrate;
-  arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
+
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
+  maxrate = 0x1999; rate = maxrate;
   rateY = 0xCCC;
+
   lookahead = (GameSetup_gData.reverseTrack ^ (anchor->wrongway > 0)) ? 3 : -3;
-  if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
-    return;
-  }
-  if (InBetween != 0) {
+
+
+
+
+  if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) { return; } if (InBetween != 0) {
     return;
   }
   switch (behavior) {
   case 0:
-    rate = 0x1999;
-    break;
-  case 1:
-    maxrate = 0x1999;
-    break;
-  case 2:
-    maxrate = 0xCCC;
+    rate = 0x1999; break;
+  case 1: maxrate = 0x1999; break;
+  case 2: maxrate = 0xCCC;
     break;
   }
+
   if (behavior != 0) {
     rate = __builtin_abs(anchor->linearVel_ch.x) > __builtin_abs(anchor->linearVel_ch.z)
-        ? __builtin_abs(anchor->linearVel_ch.x) + (__builtin_abs(anchor->linearVel_ch.z) >> 2)
-        : __builtin_abs(anchor->linearVel_ch.z) + (__builtin_abs(anchor->linearVel_ch.x) >> 2);
+        ? __builtin_abs(anchor->linearVel_ch.x) + (__builtin_abs(anchor->linearVel_ch.z) >> 2) : __builtin_abs(anchor->linearVel_ch.z) + (__builtin_abs(anchor->linearVel_ch.x) >> 2);
     rate = rate / 900;
-    rate = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
-        : (maxrate < rate ? maxrate : rate);
+    rate = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E : (maxrate < rate ? maxrate : rate);
   }
+
+
   if (Input_gLookBehind[player] != 0) {
     transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
   }
+
+
   slice = (int)((Camera_gInfo[player].anchor)->simRoadInfo).slice;
-  if (0 <= lookahead) {
-    slice = slice + lookahead;
-    if (gNumSlices <= slice) {
-      slice = slice - gNumSlices;
-    }
-  }
-  else {
-    slice = slice + lookahead;
-    if (slice < 0) {
-      slice = slice + gNumSlices;
-    }
-  }
-  vertigo = BWorldSm_slices[slice].center[1];
-  vertigo -= BWorldSm_slices[lookahead < 1
-      ? (slice - lookahead < gNumSlices ? slice - lookahead : slice - lookahead - gNumSlices)
-      : (slice - lookahead < 0 ? slice - lookahead + gNumSlices : slice - lookahead)].center[1];
+  if (0 <= lookahead) { slice = slice + lookahead; if (gNumSlices <= slice) { slice = slice - gNumSlices; } } else { slice = slice + lookahead; if (slice < 0) { slice = slice + gNumSlices;
+    } } vertigo = BWorldSm_slices[slice].center[1];
+  vertigo -= BWorldSm_slices[lookahead < 1 ? (slice - lookahead < gNumSlices ? slice - lookahead : slice - lookahead - gNumSlices) : (slice - lookahead < 0 ? slice - lookahead + gNumSlices : slice - lookahead)].center[1];
   vertigo = vertigo / 3;
   switch (behavior) {
   case 0:
-    vertigo = 0;
+    vertigo = 0; break;
+  case 1: vertigo = ((0x10000 < vertigo ? 0x10000 : vertigo) < 0x4000) ? 0x4000 : (0x10000 < vertigo ? 0x10000 : vertigo);
+    break; case 2: vertigo = ((0x20000 < vertigo ? 0x20000 : vertigo) < -0x4000) ? -0x4000 : (0x20000 < vertigo ? 0x20000 : vertigo);
     break;
-  case 1:
-    vertigo = ((0x10000 < vertigo ? 0x10000 : vertigo) < 0x4000) ? 0x4000
-        : (0x10000 < vertigo ? 0x10000 : vertigo);
-    break;
-  case 2:
-    vertigo = ((0x20000 < vertigo ? 0x20000 : vertigo) < -0x4000) ? -0x4000
-        : (0x20000 < vertigo ? 0x20000 : vertigo);
-    break;
-  }
-  arm.y += vertigo;
+  } arm.y += vertigo;
+
+
   if (Input_gLookBehind[player] != 0) {
+
+
     transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
-    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    Camera_gInfo[player].audioPos.y = (Camera_gInfo[player].anchor->position).y + newarm.y;
-    Camera_gInfo[player].audioPos.z = (Camera_gInfo[player].anchor->position).z + newarm.z;
+    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x; Camera_gInfo[player].audioPos.y = (Camera_gInfo[player].anchor->position).y + newarm.y; Camera_gInfo[player].audioPos.z = (Camera_gInfo[player].anchor->position).z + newarm.z;
+
     arm.z = -arm.z;
     transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
     Camera_TunnelLimit(player,&newarm.y);
@@ -454,32 +428,44 @@ void Camera_UpdateTailCam(int player,int behavior)
     Camera_gInfo[player].position.z = (Camera_gInfo[player].anchor->position).z + newarm.z;
     return;
   }
+
+
   transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
   Camera_TunnelLimit(player,&newarm.y);
+
+
   oldarm = Camera_gInfo[player].relpos;
+
+
   if (Camera_gInfo[player].intransition != 0) {
+
     Camera_gInfo[player].intransition = Camera_gInfo[player].intransition - 1;
-    rateY = 0x1999;
-    rate = 0x1999;
+    rateY = 0x1999; rate = 0x1999;
   }
+
+
+
   Camera_gInfo[player].relpos.x = oldarm.x + fixedmult(newarm.x - oldarm.x,rate);
+
   Camera_gInfo[player].relpos.y = oldarm.y + fixedmult(newarm.y - oldarm.y,rateY);
+
   Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,rate);
   if ((Camera_gInfo[player].intransition == 0) &&
+
       ((len = Math_VectorLength(&Camera_gInfo[player].relpos)) < 0x4f0a3)) {
+
     int scale = fixeddiv(0x4f0a3,len);
-    Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x);
-    Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y);
-    Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
+    Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x); Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y); Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
   }
   Camera_gInfo[player].position.x =
+
+
       ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
   Camera_gInfo[player].position.y =
       ((Camera_gInfo[player].anchor)->position).y + Camera_gInfo[player].relpos.y;
   Camera_gInfo[player].position.z =
       ((Camera_gInfo[player].anchor)->position).z + Camera_gInfo[player].relpos.z;
-  return;
-}
+  return; }
 
 /* ---- Camera_UpdateHeliCam__Fii  [@0x800813cc] ----
  * Current source receipt: camera_bumper_layout_20261023 verifies all seven
@@ -568,149 +554,129 @@ void Camera_UpdateTailCam(int player,int behavior)
  * all empty asm fences from this function. The older fence/alias requirements
  * above are historical, not current source necessities. See
  * build/nc12/camera_heli_road_source_20261018; literal original text/SLD is open. */
+  /* Historical W61-A11 used an epilogue ref-step fence. It is no longer
+   * present or needed in the current source; all bytes pass without it. */
+  /* heli fallback: pull the camera back by |velocity|/20, clamped to 0x20000 */
+  /* MATCH: real switch (oracle binary-tree dispatch), not if-chain */
 #line 949 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_UpdateHeliCam(int player,int behavior)
 {
   coorddef arm;      /* SYM: AUTO @0x10 */
-  coorddef newarm;   /* SYM: AUTO @0x20 */
-  coorddef oldarm;   /* SYM: AUTO @0x30 */
-  Car_tObj *anchor;  /* SYM: REG ($s2 - live across calls) */
-  int fallback;      /* SYM: REG ($a0) */
-  int maxrate;       /* SYM: REG ($a2) */
-  int rate;          /* SYM: REG ($s0) */
-  int rateY;         /* SYM: REG ($s5) */
-  int vertigo;       /* SYM: REG */
-  int slice;         /* SYM: REG ($v1) */
-  int lookahead;     /* SYM: REG ($s1) */
-  int len;           /* SYM: REG ($v0) */
+  coorddef newarm;   /* SYM: AUTO @0x20 */ coorddef oldarm;   /* SYM: AUTO @0x30 */ Car_tObj *anchor;  /* SYM: REG ($s2 - live across calls) */ int fallback;      /* SYM: REG ($a0) */ int maxrate;       /* SYM: REG ($a2) */ int rate;          /* SYM: REG ($s0) */ int rateY;         /* SYM: REG ($s5) */ int vertigo;       /* SYM: REG */ int slice;         /* SYM: REG ($v1) */ int lookahead;     /* SYM: REG ($s1) */ int len;           /* SYM: REG ($v0) */ arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
 
-  maxrate = 0x1999;
-  rate = maxrate;
-  arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
+
+
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
+
+  maxrate = 0x1999; rate = maxrate;
   rateY = 0xCCC;
+
   lookahead = (GameSetup_gData.reverseTrack ^ (anchor->wrongway > 0)) ? 3 : -3;
-  if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
+
+
+
+
+  if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) { return; } if (InBetween != 0) {
     return;
   }
-  if (InBetween != 0) {
-    return;
-  }
-  /* MATCH: real switch (oracle binary-tree dispatch), not if-chain */
   switch (behavior) {
   case 0:
-    rate = 0x1999;
-    break;
-  case 1:
-    maxrate = 0x1999;
-    break;
-  case 2:
-    maxrate = 0xCCC;
+    rate = 0x1999; break;
+  case 1: maxrate = 0x1999; break;
+  case 2: maxrate = 0xCCC;
     break;
   }
+
   if (behavior != 0) {
     rate = __builtin_abs(anchor->linearVel_ch.x) > __builtin_abs(anchor->linearVel_ch.z)
-        ? __builtin_abs(anchor->linearVel_ch.x) + (__builtin_abs(anchor->linearVel_ch.z) >> 2)
-        : __builtin_abs(anchor->linearVel_ch.z) + (__builtin_abs(anchor->linearVel_ch.x) >> 2);
+        ? __builtin_abs(anchor->linearVel_ch.x) + (__builtin_abs(anchor->linearVel_ch.z) >> 2) : __builtin_abs(anchor->linearVel_ch.z) + (__builtin_abs(anchor->linearVel_ch.x) >> 2);
     rate = rate / 900;
-    rate = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
-            : (maxrate < rate ? maxrate : rate);
+    rate = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E : (maxrate < rate ? maxrate : rate);
   }
+
+
   if (1 < Replay_ReplayMode) {
     rate = 0x28F;
   }
+
   if (Input_gLookBehind[player] != 0) {
     transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
   }
-  /* heli fallback: pull the camera back by |velocity|/20, clamped to 0x20000 */
   fallback = __builtin_abs(anchor->linearVel_ch.x) > __builtin_abs(anchor->linearVel_ch.z)
       ? __builtin_abs(anchor->linearVel_ch.x) + (__builtin_abs(anchor->linearVel_ch.z) >> 2)
       : __builtin_abs(anchor->linearVel_ch.z) + (__builtin_abs(anchor->linearVel_ch.x) >> 2);
   fallback = fallback / 20;
   if (0x20000 < fallback) {
     fallback = 0x20000;
-  }
-  arm.z = arm.z - fallback;
+  } arm.z = arm.z - fallback;
+
+
   slice = (int)((Camera_gInfo[player].anchor)->simRoadInfo).slice;
-  if (0 <= lookahead) {
-    slice = slice + lookahead;
-    if (gNumSlices <= slice) {
-      slice = slice - gNumSlices;
-    }
-  }
-  else {
-    slice = slice + lookahead;
-    if (slice < 0) {
-      slice = slice + gNumSlices;
-    }
-  }
-  vertigo = BWorldSm_slices[slice].center[1];
-  vertigo -= BWorldSm_slices[lookahead < 1
-      ? (slice - lookahead < gNumSlices ? slice - lookahead : slice - lookahead - gNumSlices)
-      : (slice - lookahead < 0 ? slice - lookahead + gNumSlices : slice - lookahead)].center[1];
+  if (0 <= lookahead) { slice = slice + lookahead; if (gNumSlices <= slice) { slice = slice - gNumSlices; } } else { slice = slice + lookahead; if (slice < 0) { slice = slice + gNumSlices;
+    } } vertigo = BWorldSm_slices[slice].center[1];
+  vertigo -= BWorldSm_slices[lookahead < 1 ? (slice - lookahead < gNumSlices ? slice - lookahead : slice - lookahead - gNumSlices) : (slice - lookahead < 0 ? slice - lookahead + gNumSlices : slice - lookahead)].center[1];
   vertigo = vertigo / 2;
   switch (behavior) {
   case 0:
-    vertigo = 0;
+    vertigo = 0; break;
+  case 1: vertigo = ((0x14000 < vertigo ? 0x14000 : vertigo) < 0x4000) ? 0x4000 : (0x14000 < vertigo ? 0x14000 : vertigo); break;
+  case 2: vertigo = ((0x30000 < vertigo ? 0x30000 : vertigo) < -0xc000) ? -0xc000 : (0x30000 < vertigo ? 0x30000 : vertigo);
     break;
-  case 1:
-    vertigo = ((0x14000 < vertigo ? 0x14000 : vertigo) < 0x4000) ? 0x4000
-        : (0x14000 < vertigo ? 0x14000 : vertigo);
-    break;
-  case 2:
-    vertigo = ((0x30000 < vertigo ? 0x30000 : vertigo) < -0xc000) ? -0xc000
-        : (0x30000 < vertigo ? 0x30000 : vertigo);
-    break;
-  }
-  arm.y += vertigo;
+  } arm.y += vertigo;
+
+
   if (Input_gLookBehind[player] != 0) {
     /* audio (look-behind) arm FIRST in VA order */
+
     transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
-    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    Camera_gInfo[player].audioPos.y =
-        ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + newarm.y;
-    Camera_gInfo[player].audioPos.z =
-        ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + newarm.z;
+    Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x; Camera_gInfo[player].audioPos.y = ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + newarm.y; Camera_gInfo[player].audioPos.z = ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + newarm.z;
+
     arm.z = -arm.z;
     transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
     Camera_TunnelLimit(player,&newarm.y);
     Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    Camera_gInfo[player].position.y =
-        ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + newarm.y;
-    Camera_gInfo[player].position.z =
-        ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + newarm.z;
+    Camera_gInfo[player].position.y = ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + newarm.y;
+    Camera_gInfo[player].position.z = ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + newarm.z;
     return;
   }
+
+
   transform((int *)&arm,((Camera_gInfo[player].anchor)->orientMat).m,(int *)&newarm);
   Camera_TunnelLimit(player,&newarm.y);
+
+
   oldarm = Camera_gInfo[player].relpos;   /* MATCH: struct copy -> grouped t0-t2 load/store */
+
+
   if (Camera_gInfo[player].intransition != 0) {
+
     Camera_gInfo[player].intransition = Camera_gInfo[player].intransition - 1;
-    rateY = 0x1999;
-    rate = 0x1999;
+    rateY = 0x1999; rate = 0x1999;
   }
+
+
+
   Camera_gInfo[player].relpos.x = oldarm.x + fixedmult(newarm.x - oldarm.x,rate);
+
   Camera_gInfo[player].relpos.y = oldarm.y + fixedmult(newarm.y - oldarm.y,rateY);
+
   Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,rate);
   if ((Camera_gInfo[player].intransition == 0) &&
+
       ((len = Math_VectorLength(&Camera_gInfo[player].relpos)) < 0x651eb)) {
+
     int scale = fixeddiv(0x651eb,len);   /* SYM: REG scale in body scope, depth 3 ($s0) */
-    Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x);
-    Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y);
-    Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
+    Camera_gInfo[player].relpos.x = fixedmult(scale,Camera_gInfo[player].relpos.x); Camera_gInfo[player].relpos.y = fixedmult(scale,Camera_gInfo[player].relpos.y); Camera_gInfo[player].relpos.z = fixedmult(scale,Camera_gInfo[player].relpos.z);
   }
   Camera_gInfo[player].position.x =
+
+
        ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
   Camera_gInfo[player].position.y =
-      ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y +
-      Camera_gInfo[player].relpos.y;
+      ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + Camera_gInfo[player].relpos.y;
   Camera_gInfo[player].position.z =
-      ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z +
-      Camera_gInfo[player].relpos.z;
-  /* Historical W61-A11 used an epilogue ref-step fence. It is no longer
-   * present or needed in the current source; all bytes pass without it. */
-  return;
-}
+      ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + Camera_gInfo[player].relpos.z;
+  return; }
 
 /* ---- Camera_UpdateCircleCam__Fi  [@0x80081ab8] ----
  * The angle update and trig query are separate real source phases. Supplied
@@ -1368,8 +1334,7 @@ void Camera_UpdateBTCopCam(int player)
   switch (Camera_gInfo[player].forceFocus) {
   case 0:
     break;   /* MATCH: empty case 0 shapes the slti-2 binary dispatch tree */
-  case 2:   /* MATCH: case 2 body FIRST in VA order (bne falls through into it) */
-    Camera_gInfo[player].anchor = &Cars_gList[player]->N;
+  case 2:   /* MATCH: case 2 body FIRST in VA order (bne falls through into it) */ Camera_gInfo[player].anchor = &Cars_gList[player]->N;
     Camera_gInfo[player].target = &Cars_gList[(signed char)Camera_gInfo[player].focusOnAICar]->N;
     Camera_UpdateCopCam2(player);
     break;
@@ -1379,16 +1344,24 @@ void Camera_UpdateBTCopCam(int player)
     Camera_UpdateCircleCam(player);
     break;
   }
-  Camera_gGeomScreen = 0xbe;
+
+
+
+
+
+
   Camera_gInfo[player].POInhibitor = simGlobal.gameTicks + 0x140;
+
+
+  Camera_gGeomScreen = 0xbe;
   /* MATCH: real bitfield assignments; checkcollisions=0 LAST (m2c: (x&~2&~4|0x38)&~0x40) */
+
   Camera_gInfo[player].pitch = 0;
   Camera_gInfo[player].jostling = 0;
   Camera_gInfo[player].tracking = 1;
   Camera_gInfo[player].checkwalls = 1;
   Camera_gInfo[player].noLookBack = 1;
-  Camera_gInfo[player].checkcollisions = 0;
-  return;
+  Camera_gInfo[player].checkcollisions = 0; return;
 }
 
 /* ---- Camera_Update__Fv  [@0x800833d8] ---- */
@@ -1633,29 +1606,37 @@ void Camera_Update(void)
 #line 1911 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
 void Camera_Init(void)
 {
-  int splitScreen;
-  BWorldSm_Pos slicePos;
-  int localCar;
-  int i;
-  
-  splitScreen = GameSetup_gData.commMode == 1;
+  int splitScreen; BWorldSm_Pos slicePos; int localCar; int i; splitScreen = GameSetup_gData.commMode == 1;
   memset((u_char *)&slicePos,'\0',sizeof(slicePos));
+
+
+
   for (i = 0; i <= splitScreen; i++) {
     localCar = i;
-    if (splitScreen == 0) {
-      localCar = GameSetup_gData.localCar;
+    if (splitScreen == 0) { localCar = GameSetup_gData.localCar;
     }
+
     Camera_gInfo[i].anchor = &Cars_gHumanRaceCarList[localCar]->N;
     Camera_gInfo[i].target = &Cars_gHumanRaceCarList[localCar]->N;
+
     Camera_gInfo[i].position = Camera_gInfo[i].anchor->position;
+
+
+
     Camera_gInfo[i].audioPos = Camera_gInfo[i].anchor->position;
     Camera_gInfo[i].TVHeight = 0;
+
+
     Camera_gInfo[i].rotation = Camera_gInfo[i].anchor->orientMat;
     Camera_gInfo[i].twist = 0;
+
     Camera_gInfo[i].wallLeft = Camera_gInfo[i].anchor->position;
     Camera_gInfo[i].wallRight = Camera_gInfo[i].anchor->position;
+
+
     Camera_gInfo[i].mode = 0xe;
     Camera_gInfo[i].camNum = 0;
+
     Camera_gInfo[i].modechange = 0;
     Camera_gInfo[i].pitch = 0;
     Camera_gInfo[i].jostling = 0;
@@ -1669,36 +1650,39 @@ void Camera_Init(void)
     Camera_gInfo[i].direction = 0;
     Camera_gInfo[i].zooming = 0;
     Camera_gInfo[i].inCar = 0;
+
     Camera_gInfo[i].circleCounter = 0;
     Camera_gInfo[i].circleAngle = 0;
+
     Camera_gInfo[i].animNum = gAnimCams[GameSetup_gData.track][0];
-    if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
-        ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
+    if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
       Camera_gInfo[i].animNum = '\x01';
-    }
-    Camera_gInfo[i].animHandle = -1;
+    } Camera_gInfo[i].animHandle = -1;
+
     Camera_gInfo[i].splineMode = '\0';
     Camera_gInfo[i].forceFocus = 0;
     Camera_gInfo[i].focusOnAICar = -1;
+
     Camera_gInfo[i].POInhibitor = 0x40;
     Camera_gInfo[i].slicePos = slicePos;
   }
+
   Camera_ResetRelPos(3);
   {
     int type;
     type = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
+
+
+
     Camera_gGeomScreen = 0xbe;
+
+
+
+
     if (((type < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (splitScreen == 0)) {
+
       GameSetup_gData.carInfo[0].Camera[0] = 1;
-      Camera_gFlags[1].arm = gDriverCam[type];
-                    
-                    
-                    
-    }
-  }
-  return;
-}
+      Camera_gFlags[1].arm = gDriverCam[type]; } } return; }
 
 /* ---- Camera_Kill__Fv  [@0x80083bec] ---- */
 /* Indexing Camera_gInfo lets GCC strength-reduce the 0x110 stride while
@@ -1771,156 +1755,6 @@ int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
 }
 
 /* ---- Camera_CheckWallCollisions__FiP8coorddef  [@0x80083e98] ---- */
-#line 2072 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
-void Camera_CheckWallCollisions(int player,coorddef *pos)
-{
-  BWorldSm_Pos slicePos;    /* SYM: AUTO @-0x118 */
-  coorddef edge;            /* SYM: AUTO @-0x90 */
-  coorddef normal;          /* SYM: AUTO @-0x80 (3 ints) */
-  coorddef step;            /* SYM: AUTO @-0x70 */
-  coorddef temp;            /* SYM: AUTO @-0x60 */
-  coorddef quadUnderCamera; /* SYM: AUTO @-0x50 */
-  coorddef triPnt;          /* SYM: AUTO @-0x40 */
-  coorddef triVec;          /* SYM: AUTO @-0x30 */
-  int camAngle;             /* SYM: REG */
-  int sin;                  /* SYM: AUTO @-0x20 */
-  int cos;                  /* SYM: AUTO @-0x1c */
-  int camDotNorm;
-  int edgeDotNorm;
-  int count;
-  int i;
-  
-  /* MATCH: plain struct assignment -> gcc movstrsi copy (Ghidra hand-expanded it as a loop) */
-  slicePos = Camera_gInfo[player].slicePos;
-  /* MATCH: reuse camAngle so this loop index and its strength-reduced pointer take retail s1/s0. */
-  for (camAngle = 0; camAngle < 3; camAngle++) {
-    transform((int *)(feeler3 + camAngle),Camera_gInfo[player].anchor->orientMat.m,(int *)&triVec);
-    triPnt.x = pos->x + triVec.x;
-    triPnt.y = pos->y + triVec.y;
-    triPnt.z = pos->z + triVec.z;
-    BWorldSm_FindClosestQuadMaxIterations(&triPnt,&slicePos,3);
-    /* MATCH: simQuad!=0 arm FIRST (struct copies), surface check as a SEPARATE re-test if */
-    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
-      quadUnderCamera = slicePos.quadPts[0];
-    }
-    else {
-      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
-    }
-    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
-      if (((slicePos.simQuad)->surface & 0xf) == 0) break;
-    }
-    if ((((signed char)slicePos.offEdge != 0) ||
-        (Camera_TooSteep(player,&slicePos) != 0)) ||
-       ((slicePos.simQuad != (Trk_NewSimQuad *)0x0 &&
-        ((((slicePos.simQuad)->surface & 0x80) != 0 &&
-         (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y)))))) break;
-  }
-  if (camAngle == 3) {
-    return;
-  }
-  count = 0;
-  step.x = Camera_gInfo[player].anchor->position.x - triPnt.x;
-  step.y = Camera_gInfo[player].anchor->position.y - triPnt.y;
-  step.z = Camera_gInfo[player].anchor->position.z - triPnt.z;
-  edge = Camera_gInfo[player].anchor->position;
-  step.x >>= 7;
-  step.y >>= 7;
-  step.z >>= 7;
-  do {
-    edge.x = edge.x - step.x;
-    edge.y = edge.y - step.y;
-    edge.z = edge.z - step.z;
-    BWorldSm_FindClosestQuadMaxIterations(&edge,&slicePos,3);
-    /* MATCH: simQuad!=0 arm FIRST (struct copies), surface check as a SEPARATE re-test if */
-    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
-      quadUnderCamera = slicePos.quadPts[0];
-    }
-    else {
-      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
-    }
-    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
-      if (((slicePos.simQuad)->surface & 0xf) == 0) break;
-    }
-    if ((((signed char)slicePos.offEdge != 0) ||
-         (Camera_TooSteep(player,&slicePos) != 0)) ||
-        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
-         (((slicePos.simQuad)->surface & 0x80) != 0) &&
-         (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) break;
-    count++;
-  } while (count < 0x80);
-  camAngle = 1;
-  step.x = Camera_gInfo[player].anchor->position.x - edge.x;
-  step.y = Camera_gInfo[player].anchor->position.y - edge.y;
-  step.z = Camera_gInfo[player].anchor->position.z - edge.z;
-  step.x >>= 1;
-  step.y >>= 1;
-  step.z >>= 1;
-  do {
-    intsincos(camAngle,&sin,&cos);
-    temp.x = fixedmult(cos,step.x) - fixedmult(sin,step.z);
-    temp.y = step.y;
-    temp.z = fixedmult(sin,step.x) + fixedmult(cos,step.z);
-    temp.x = edge.x + temp.x;
-    temp.y = edge.y + temp.y;
-    temp.z = edge.z + temp.z;
-    BWorldSm_FindClosestQuadMaxIterations(&temp,&slicePos,3);
-    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
-      quadUnderCamera = slicePos.quadPts[0];
-    }
-    else {
-      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
-    }
-    if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
-         (((slicePos.simQuad)->surface & 0xf) == 0)) ||
-        ((signed char)slicePos.offEdge != 0) ||
-        (Camera_TooSteep(player,&slicePos) != 0) ||
-        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
-         (((slicePos.simQuad)->surface & 0x80) != 0) &&
-         (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) {
-      Camera_gInfo[player].wallLeft = temp;
-      break;
-    }
-    camAngle = camAngle + 4;
-  } while ((int)camAngle < 0x400);
-  camAngle = 0xffffffff;
-  do {
-    intsincos(camAngle,&sin,&cos);
-    temp.x = fixedmult(cos,step.x) - fixedmult(sin,step.z);
-    temp.y = step.y;
-    temp.z = fixedmult(sin,step.x) + fixedmult(cos,step.z);
-    temp.x = edge.x + temp.x;
-    temp.y = edge.y + temp.y;
-    temp.z = edge.z + temp.z;
-    BWorldSm_FindClosestQuadMaxIterations(&temp,&slicePos,3);
-    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
-      quadUnderCamera = slicePos.quadPts[0];
-    }
-    else {
-      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
-    }
-    if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
-         (((slicePos.simQuad)->surface & 0xf) == 0)) ||
-        ((signed char)slicePos.offEdge != 0) ||
-        (Camera_TooSteep(player,&slicePos) != 0) ||
-        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
-         (((slicePos.simQuad)->surface & 0x80) != 0) &&
-         (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) {
-      Camera_gInfo[player].wallRight = temp;
-      break;
-    }
-    camAngle = camAngle - 4;
-  } while (-0x400 < (int)camAngle);
-  temp.x = Camera_gInfo[player].wallRight.x - Camera_gInfo[player].wallLeft.x;
-  temp.y = Camera_gInfo[player].wallRight.y - Camera_gInfo[player].wallLeft.y;
-  temp.z = Camera_gInfo[player].wallRight.z - Camera_gInfo[player].wallLeft.z;
-  temp.y += 0x8000;
-  Math_NormalizeVector(&temp);
-  normal.x = -temp.z;
-  edge.x = edge.x - triPnt.x;
-  normal.y = temp.y;
-  normal.z = temp.x;
-  edge.y = edge.y - triPnt.y;
-  edge.z = edge.z - triPnt.z;
   /* MATCH (W61-A11, 6 -> PASS 605/605).  Three coupled facts, all instrument-
    * proven; do NOT "simplify" any of them:
    *  (1) each dot is ONE sum expression (not `= f1; += f2; += f3;`) -- that is
@@ -1942,18 +1776,155 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
    * whole thing as one expression 41@608 | read-only/identity fences on
    * edgeDotNorm 25@606 | on camDotNorm 24@605 | `i` + a 2-operand read-only fence
    * 5@606 | staging the 2nd terms through camDotNorm/count 6@603. */
+    /* MATCH: simQuad!=0 arm FIRST (struct copies), surface check as a SEPARATE re-test if */
+    /* MATCH: simQuad!=0 arm FIRST (struct copies), surface check as a SEPARATE re-test if */
+  /* MATCH: reuse camAngle so this loop index and its strength-reduced pointer take retail s1/s0. */
+  /* MATCH: plain struct assignment -> gcc movstrsi copy (Ghidra hand-expanded it as a loop) */
+#line 2072 "C:/nfs4/GAME/COMMON/CAMERA.CPP"
+void Camera_CheckWallCollisions(int player,coorddef *pos)
+{
+  BWorldSm_Pos slicePos;    /* SYM: AUTO @-0x118 */
+  coorddef edge;            /* SYM: AUTO @-0x90 */
+  coorddef normal;          /* SYM: AUTO @-0x80 (3 ints) */
+  coorddef step;            /* SYM: AUTO @-0x70 */
+  coorddef temp;            /* SYM: AUTO @-0x60 */
+  coorddef quadUnderCamera; /* SYM: AUTO @-0x50 */
+  coorddef triPnt;          /* SYM: AUTO @-0x40 */
+  coorddef triVec;          /* SYM: AUTO @-0x30 */
+  int camAngle;             /* SYM: REG */
+  int sin;                  /* SYM: AUTO @-0x20 */ int cos;                  /* SYM: AUTO @-0x1c */ int camDotNorm; int edgeDotNorm; int count; int i; slicePos = Camera_gInfo[player].slicePos;
+  for (camAngle = 0; camAngle < 3; camAngle++) {
+
+
+    transform((int *)(feeler3 + camAngle),Camera_gInfo[player].anchor->orientMat.m,(int *)&triVec);
+    triPnt.x = pos->x + triVec.x; triPnt.y = pos->y + triVec.y; triPnt.z = pos->z + triVec.z;
+    BWorldSm_FindClosestQuadMaxIterations(&triPnt,&slicePos,3);
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) { quadUnderCamera = slicePos.quadPts[0]; } else { quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
+    }
+
+
+
+
+
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) { if (((slicePos.simQuad)->surface & 0xf) == 0) break; } if ((((signed char)slicePos.offEdge != 0) || (Camera_TooSteep(player,&slicePos) != 0)) || ((slicePos.simQuad != (Trk_NewSimQuad *)0x0 && ((((slicePos.simQuad)->surface & 0x80) != 0 && (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y)))))) break;
+
+  }
+
+
+  if (camAngle == 3) {
+    return;
+  }
+  count = 0;
+  step.x = Camera_gInfo[player].anchor->position.x - triPnt.x; step.y = Camera_gInfo[player].anchor->position.y - triPnt.y; step.z = Camera_gInfo[player].anchor->position.z - triPnt.z;
+  edge = Camera_gInfo[player].anchor->position;
+  step.x >>= 7;
+  step.y >>= 7;
+  step.z >>= 7;
+
+
+
+  do {
+
+    edge.x = edge.x - step.x; edge.y = edge.y - step.y; edge.z = edge.z - step.z;
+    BWorldSm_FindClosestQuadMaxIterations(&edge,&slicePos,3);
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) { quadUnderCamera = slicePos.quadPts[0]; } else { quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
+    }
+
+
+
+
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) { if (((slicePos.simQuad)->surface & 0xf) == 0) break; } if ((((signed char)slicePos.offEdge != 0) || (Camera_TooSteep(player,&slicePos) != 0)) || ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) && (((slicePos.simQuad)->surface & 0x80) != 0) && (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) break;
+
+    count++; } while (count < 0x80);
+  camAngle = 1;
+
+  step.x = Camera_gInfo[player].anchor->position.x - edge.x; step.y = Camera_gInfo[player].anchor->position.y - edge.y; step.z = Camera_gInfo[player].anchor->position.z - edge.z;
+  step.x >>= 1;
+  step.y >>= 1;
+  step.z >>= 1;
+
+
+
+  do {
+
+    intsincos(camAngle,&sin,&cos);
+    temp.x = fixedmult(cos,step.x) - fixedmult(sin,step.z);
+    temp.y = step.y;
+    temp.z = fixedmult(sin,step.x) + fixedmult(cos,step.z);
+
+    temp.x = edge.x + temp.x; temp.y = edge.y + temp.y; temp.z = edge.z + temp.z;
+    BWorldSm_FindClosestQuadMaxIterations(&temp,&slicePos,3);
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) { quadUnderCamera = slicePos.quadPts[0]; } else { quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
+    }
+    if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
+         (((slicePos.simQuad)->surface & 0xf) == 0)) ||
+        ((signed char)slicePos.offEdge != 0) ||
+        (Camera_TooSteep(player,&slicePos) != 0) ||
+        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) && (((slicePos.simQuad)->surface & 0x80) != 0) && (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) {
+
+      Camera_gInfo[player].wallLeft = temp;
+      break;
+    }
+    camAngle = camAngle + 4; } while ((int)camAngle < 0x400);
+
+
+
+
+  camAngle = 0xffffffff; do {
+
+    intsincos(camAngle,&sin,&cos);
+    temp.x = fixedmult(cos,step.x) - fixedmult(sin,step.z);
+    temp.y = step.y;
+    temp.z = fixedmult(sin,step.x) + fixedmult(cos,step.z);
+
+    temp.x = edge.x + temp.x; temp.y = edge.y + temp.y; temp.z = edge.z + temp.z;
+    BWorldSm_FindClosestQuadMaxIterations(&temp,&slicePos,3);
+    if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) { quadUnderCamera = slicePos.quadPts[0]; } else { quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
+    }
+    if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
+         (((slicePos.simQuad)->surface & 0xf) == 0)) ||
+        ((signed char)slicePos.offEdge != 0) ||
+        (Camera_TooSteep(player,&slicePos) != 0) ||
+        ((slicePos.simQuad != (Trk_NewSimQuad *)0x0) && (((slicePos.simQuad)->surface & 0x80) != 0) && (0x38000 < quadUnderCamera.y - Camera_gInfo[player].anchor->position.y))) {
+
+      Camera_gInfo[player].wallRight = temp;
+      break;
+    }
+    camAngle = camAngle - 4; } while (-0x400 < (int)camAngle);
+
+
+
+  temp.x = Camera_gInfo[player].wallRight.x - Camera_gInfo[player].wallLeft.x; temp.y = Camera_gInfo[player].wallRight.y - Camera_gInfo[player].wallLeft.y; temp.z = Camera_gInfo[player].wallRight.z - Camera_gInfo[player].wallLeft.z;
+  temp.y += 0x8000;
+  Math_NormalizeVector(&temp);
+  normal.x = -temp.z;
+  edge.x = edge.x - triPnt.x; normal.y = temp.y;
+  normal.z = temp.x;
+
+
+
+
+
+
+  edge.y = edge.y - triPnt.y; edge.z = edge.z - triPnt.z;
   i = fixedmult(edge.x,normal.x) + fixedmult(edge.y,normal.y) + fixedmult(edge.z,normal.z);
   camDotNorm = fixedmult(triVec.x,normal.x) + fixedmult(triVec.y,normal.y) + fixedmult(triVec.z,normal.z);
-  edgeDotNorm = i + camDotNorm + 0x10000;
-  if (0 < edgeDotNorm) {
-    temp.x = fixedmult(edgeDotNorm,normal.x);
-    temp.y = fixedmult(edgeDotNorm,normal.y);
-    temp.z = fixedmult(edgeDotNorm,normal.z);
-    pos->x = pos->x + temp.x;
-    pos->y = pos->y + temp.y;
-    pos->z = pos->z + temp.z;
+  edgeDotNorm = i + camDotNorm + 0x10000; if (0 < edgeDotNorm) {
+
+    temp.x = fixedmult(edgeDotNorm,normal.x); temp.y = fixedmult(edgeDotNorm,normal.y); temp.z = fixedmult(edgeDotNorm,normal.z);
+    pos->x = pos->x + temp.x; pos->y = pos->y + temp.y; pos->z = pos->z + temp.z;
   }
   return;
+
+
+
+
+
+
+
+
+
+
 }
 
 /* ---- Camera_SetAboveGround__FiP8coorddef  [@0x8008480c] ---- */

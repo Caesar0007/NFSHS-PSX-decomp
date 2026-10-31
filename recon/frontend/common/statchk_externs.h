@@ -30,4 +30,7 @@ void *memset(...);
 char *strcpy(...);
 }
 
+/* Retail statchk.obj opens .rodata with this unreferenced class tag. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #endif

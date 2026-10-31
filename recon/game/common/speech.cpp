@@ -419,7 +419,9 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
+
         this->SetPosition(9); if (distance - 2 < actual)
+
 
 
 
@@ -441,56 +443,56 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
+
+
       if (distance < 0xa6) { this->SetDistance(8);
 
 
 
         if (distance - 2 < actual)
 
-
-
           this->SetPosition(0x10); else this->SetPosition(2); } else { this->SetDistance(0x10);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         if (distance - 2 < actual)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           this->SetPosition(0x10); else this->SetPosition(2); } } else if (distance < 0x86) { this->SetDistance(1);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       if (distance - 2 < actual)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         this->SetPosition(0x10); else this->SetPosition(2); } else if (distance < 0x10c) { this->SetDistance(2);
 
@@ -507,22 +509,28 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 
 
 
+
+
       if (distance - 2 < actual)
-
-
 
         this->SetPosition(0x10); else this->SetPosition(2); } else { this->SetDistance(4);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       if (distance - 2 < actual) this->SetPosition(0x10); else
-
-
-
-
-
-
-
-
-
 
 
 
@@ -543,51 +551,53 @@ void Speech::Speaker::FindLocation(Car_tObj *car)
 /* ---- CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci  [SPEECH.CPP:852-884] SLD-VERIFIED ---- */
 bool Speech::CheckCallSignBank(CallSignBank *bank,char *name,int id)
 
-{
-  /* SYM-INLINE-LOCAL: bankid = SetAllUnits
+{ bool match; Speech_tCallSignDescription * d; int dispatchName;
+
+
+  d = Speech_gCallSignDescription; match = false;
+
+
+  if (strncmp(name,d->AllUnits,strlen((u_long)d->AllUnits)) == 0) { bank->SetAllUnits(id);
+
+
+    match = true; }
+
+
+  dispatchName = GameSetup_gData.track % 5; if (strncmp(name,d->Dispatch[dispatchName],
+
+              strlen((u_long)d->Dispatch[dispatchName])) == 0) { bank->SetDispatch(id);
+
+
+    match = true; } { int i = 0;
+
+    while (true) { if (0xf <= i) break;
+
+      if (strncmp(name,d->Mobile[i],strlen((u_long)d->Mobile[i])) == 0) { bank->SetMobile(i,id);
+
+
+        match = true; }
+
+      i = i + 1; } }
+
+
+
+
+
+  return match; }
+/* SYM-INLINE-LOCAL: bankid = SetAllUnits
      SYM-INLINE-LOCAL: bankid = SetDispatch
      SYM-INLINE-LOCAL: unit = SetMobile
      SYM-INLINE-LOCAL: bankid = SetMobile */
-  bool match;
-  Speech_tCallSignDescription * d;
-  int dispatchName;
-  
-  d = Speech_gCallSignDescription;
-  /* MATCH: retail sets the match flag INSIDE each branch (`li s3,1` per arm),
+/* MATCH: retail sets the match flag INSIDE each branch (`li s3,1` per arm),
      it does NOT build a combined `a==0 || b==0` boolean -- the combined form
      keeps both strncmp results live to the join and rotates the whole s-map.
      80 -> 35 diffs. */
-  match = false;
-  if (strncmp(name,d->AllUnits,strlen((u_long)d->AllUnits)) == 0) {
-    bank->SetAllUnits(id);
-    match = true;
-  }
-  dispatchName = GameSetup_gData.track % 5;
-  if (strncmp(name,d->Dispatch[dispatchName],
-              strlen((u_long)d->Dispatch[dispatchName])) == 0) {
-    bank->SetDispatch(id);
-    match = true;
-  }
-  /* MATCH: `i` is born in the for-init, not before the 2nd guard (oracle sets it
+/* MATCH: `i` is born in the for-init, not before the 2nd guard (oracle sets it
      in the `bnez` delay slot AFTER the guard).  35 -> 34, count now exact. */
-  {
-    int i = 0;
-
-    while (true) {
-      if (0xf <= i) break;
-      /* W57-A8 3.12#1 + 07C: BOTH walks are index forms in retail (`bank[i+2]` and
+/* W57-A8 3.12#1 + 07C: BOTH walks are index forms in retail (`bank[i+2]` and
          `Speech_gCallSignDescription[0].Mobile[i]` -> one giv each), and the loop is
          UN-ROTATED (`while(true){ if(N<=i) break; ... }`) -- a `for` lets gcc prove
          entry and rotate the test to the bottom. 34 -> PASS. */
-      if (strncmp(name,d->Mobile[i],strlen((u_long)d->Mobile[i])) == 0) {
-        bank->SetMobile(i,id);
-        match = true;
-      }
-      i = i + 1;
-    }
-  }
-  return match;
-}
 
 /* ---- CheckMultiBank__6SpeechPciPQ26Speech11CarBankName  [SPEECH.CPP:889-924] SLD-VERIFIED ---- */
 bool Speech::CheckMultiBank(char *name,int id,CarBankName *bn)
@@ -632,75 +642,60 @@ bool Speech::CheckMultiBank(char *name,int id,CarBankName *bn)
 /* ---- CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3  [SPEECH.CPP:931-984] SLD-VERIFIED ---- */
 int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *hsize)
 
-{
-  /* The line-15/22/33 SLD scopes are the four inline member expansions below.
-     ReadBE32 is expanded once for filecount and twice for each directory row;
-     IsHeader is expanded for the four trailing filename characters.  Fully
-     inlined function names have no surviving linkage, so these spellings are
-     source-shape inferences; the receiver/locals and byte operations are
-     proved by SYM plus the exact retail instruction stream.
-     SYM-INLINE-THIS: ReadBE32
-     SYM-INLINE-THIS: ReadBE32
-     SYM-INLINE-THIS: ReadBE32
-     SYM-INLINE-LOCAL: p = ReadBE32
-     SYM-INLINE-LOCAL: p = ReadBE32
-     SYM-INLINE-LOCAL: a = ReadBE32
-     SYM-INLINE-LOCAL: a = ReadBE32
-     SYM-INLINE-LOCAL: a = ReadBE32
-     SYM-INLINE-LOCAL: b = ReadBE32
-     SYM-INLINE-LOCAL: b = ReadBE32
-     SYM-INLINE-LOCAL: b = ReadBE32
-     SYM-INLINE-LOCAL: c = ReadBE32
-     SYM-INLINE-LOCAL: c = ReadBE32
-     SYM-INLINE-LOCAL: c = ReadBE32
-     SYM-INLINE-LOCAL: d = ReadBE32
-     SYM-INLINE-LOCAL: d = ReadBE32
-     SYM-INLINE-LOCAL: d = ReadBE32
-     SYM-INLINE-THIS: IsHeader
-     SYM-INLINE-LOCAL: a = IsHeader
-     SYM-INLINE-LOCAL: b = IsHeader
-     SYM-INLINE-LOCAL: c = IsHeader
-     SYM-INLINE-LOCAL: d = IsHeader */
-  int bcount;
-  int bsize;
-  long offset;
-  long size;
-
+{ int bcount; int bsize; long offset; long size;
   bcount = 0;
   bsize = 0;
-  if (locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size) != 0) {
-    int filecount;
-    char *c;
 
-    c = header + 0x10;
-    bsize = size;
-    filecount = this->ReadBE32(header + 8);
-    for (int i = 0; i < filecount; i++) {
-      char *name;
+
+
+
+
+
+
+
+
+  if (locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size) != 0) { int filecount; char *c; c = header + 0x10;
+
+    bsize = size; filecount = this->ReadBE32(header + 8);
+
+
+
+
+
+
+    for (int i = 0; i < filecount; i++) { char *name;
 
       offset = this->ReadBE32(c);
       size = this->ReadBE32(c + 4);
-      name = c + 8;
-      c = name;
+      name = c + 8; c = name;
+
+
+
       while (*c != '\0') {
-        c++;
-      }
+        c++; }
+
       if (this->IsHeader(c - 4, '.', 'h', 'd')) {
+
         if (*hoffset == 0) {
-          *hoffset = offset;
-        }
+          *hoffset = offset; }
+
         *hsize = offset + size - *hoffset;
+
         if (this->CheckMultiBank(name,bcount,bn)) {
-          bcount++;
-          bsize += size;
-        }
-      }
+
+
+
+
+
+
+          bcount++; bsize += size; } }
+
+
       c++;
-    }
-  }
+    } }
+
   this->fBankCount = bcount;
-  return bsize;
-}
+  return bsize; }
 
 extern "C" {
 
@@ -744,8 +739,120 @@ extern "C" {
 
 void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsize)
 
-{
-  /* 2026-10-29: existing ReadBE32(c)/ReadBE32(c+4) recover the actual
+{ char *data; long offset; long size; int id; int dt; int filecount; char *c; char *hdata; char **banknames;
+
+  data = (char *)this->fBankOffset + this->fBankCount * 4;
+
+
+
+
+  locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size);
+
+  FILE_readsync(this->fFileHandle,offset,data,size,100);
+  SPCH_ResolveData((VoxEventDat *)data);
+
+
+  id = 0; dt = 0;
+
+
+
+
+
+  c = header + 0x10; {
+
+    char *reserveArg = "spch temp"; char *reserveCallArg = reserveArg; long reserveBytes = hsize; int alignment; long dataSize; __asm__("" : "=r"(dataSize), "=r"(reserveCallArg), "=r"(reserveBytes), "=r"(alignment) : "0"(size), "1"(reserveCallArg), "2"(reserveBytes), "3"(0x10), "r"(header), "r"(header) ); { int a = (u_char)header[8]; header += 8; data += dataSize; int b = (u_char)header[1]; int c = (u_char)header[2]; int d = (u_char)header[3]; filecount = (((a << 8 | b) << 8 | c) << 8 | d); } hdata = (char *)reservememadr(reserveCallArg,reserveBytes,alignment);
+    FILE_readsync(this->fFileHandle,hoffset,hdata,hsize,100);
+
+    banknames = (char **)reservememadr(reserveArg,this->fBankCount << 2,0x10); }
+
+
+
+
+
+    for (int j = 0; j < this->fBankCount; j++) {
+
+        banknames[j] = 0;
+        this->fBankOffset[j] = 0;
+      } __asm__("" : : "r"(hsize));
+
+    for (int i = 0; i < filecount; i++) { char *name; int namelen; bool isheader;
+
+    systemtask(0);
+
+    offset = this->ReadBE32(c);
+    size = this->ReadBE32(c + 4);
+    c += 8;
+
+    name = c;
+
+    namelen = 0;
+
+    while (*c != '\0') {
+
+      namelen++;
+      c++; } isheader = false;
+
+    if (namelen >= 5) { bool extension = this->IsHeader(c - 4, '.', 'h', 'd'); __asm__("" : : "r"(extension), "r"(extension));
+
+      if (extension && this->CheckMultiBank(name,id,bn)) { isheader = true; } if (isheader) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+        id++; memcpy(data,hdata + offset - hoffset,size); banknames[SPCH_AddBank((VoxBank *)data)] = name; data += size; } else {
+
+        if (this->IsData(c - 4, '.', 'd', 'a')) { if ((dt < this->fBankCount) && (banknames[dt] != 0) &&
+
+
+              (strncmp(name,banknames[dt],namelen - 3) == 0)) {
+
+            this->fBankOffset[dt++] = offset; } else { int j = 0;
+
+
+
+
+            if (0 < this->fBankCount) { do { if ((banknames[j] != 0) &&
+
+                    (strncmp(name,banknames[j],namelen - 3) == 0)) {
+
+                  this->fBankOffset[j] = offset;
+                  dt = j + 1; }
+
+              } while (++j < this->fBankCount); } } } } }
+
+
+
+    c++;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  purgememadr(hdata);
+  purgememadr(banknames); }
+/* 2026-10-29: existing ReadBE32(c)/ReadBE32(c+4) recover the actual
    * entry reader calls,not a caller p walker/manual byte-local hierarchy.
    * Eight additional complete supplied owner tuples match;none is lost.
    * All270 words and the entire normal ELF/native CPE remain unchanged.
@@ -753,7 +860,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
    * First-reader/allocator/suffix producers remain unresolved;no full seal.
    * The redundant $2 clobber is removed;other empty allocator ties stay open.
    * Receipt:build/nc12/speech_allocator_source_20261029/final-proof.json. */
-  /* SOURCE-REVIEW-UNRESOLVED: reserveArg -- persistent literal web retained by
+/* SOURCE-REVIEW-UNRESOLVED: reserveArg -- persistent literal web retained by
      the two reserve calls in the exact saved-register allocation.
      SOURCE-REVIEW-UNRESOLVED: reserveCallArg -- tied short-lived call alias.
      SOURCE-REVIEW-UNRESOLVED: reserveBytes -- tied hsize allocator input.
@@ -774,199 +881,136 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
      SYM-INLINE-LOCAL: b = IsData
      SYM-INLINE-LOCAL: c = IsData
      SYM-INLINE-LOCAL: d = IsData */
-  char *data;
-  long offset;
-  long size;
-  int id;
-  int dt;
-  int filecount;
-  char *c;
-  char *hdata;
-  char **banknames;
-
-  id = 0;
-  dt = 0;
-  data = (char *)this->fBankOffset + this->fBankCount * 4;
-  locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&offset,(unsigned int *)&size);
-  FILE_readsync(this->fFileHandle,offset,data,size,100);
-  SPCH_ResolveData((VoxEventDat *)data);
-  c = header + 0x10;
-  {
-    char *reserveArg = "spch temp";
-    char *reserveCallArg = reserveArg;
-    long reserveBytes = hsize;
-    int alignment;
-
-    long dataSize;
-    /* SOURCE-REVIEW-UNRESOLVED: zero-template allocator ties and duplicate
+/* SOURCE-REVIEW-UNRESOLVED: zero-template allocator ties and duplicate
      * header references are reconstruction devices, not recovered source. */
-    __asm__("" : "=r"(dataSize), "=r"(reserveCallArg),
-                   "=r"(reserveBytes), "=r"(alignment)
-               : "0"(size), "1"(reserveCallArg), "2"(reserveBytes),
-                 "3"(0x10), "r"(header), "r"(header)
-               );
-    {
-      int a = (u_char)header[8];
-      header += 8;
-      data += dataSize;
-      int b = (u_char)header[1];
-      int c = (u_char)header[2];
-      int d = (u_char)header[3];
-
-      filecount = (((a << 8 | b) << 8 | c) << 8 | d);
-    }
-    hdata = (char *)reservememadr(reserveCallArg,reserveBytes,alignment);
-    FILE_readsync(this->fFileHandle,hoffset,hdata,hsize,100);
-    banknames = (char **)reservememadr(reserveArg,this->fBankCount << 2,0x10);
-  }
-    for (int j = 0; j < this->fBankCount; j++) {
-        banknames[j] = 0;
-        this->fBankOffset[j] = 0;
-      }
-  __asm__("" : : "r"(hsize));
-    for (int i = 0; i < filecount; i++) {
-    char *name;
-    int namelen;
-    bool isheader;
-
-    systemtask(0);
-    offset = this->ReadBE32(c);
-    size = this->ReadBE32(c + 4);
-    c += 8;
-    name = c;
-    namelen = 0;
-    while (*c != '\0') {
-      namelen++;
-      c++;
-    }
-    isheader = false;
-    if (namelen >= 5) {
-      bool extension = this->IsHeader(c - 4, '.', 'h', 'd');
-      __asm__("" : : "r"(extension), "r"(extension));
-      if (extension && this->CheckMultiBank(name,id,bn)) {
-        isheader = true;
-      }
-      if (isheader) {
-        id++;
-        memcpy(data,hdata + offset - hoffset,size);
-        banknames[SPCH_AddBank((VoxBank *)data)] = name;
-        data += size;
-      }
-      else {
-        if (this->IsData(c - 4, '.', 'd', 'a')) {
-          if ((dt < this->fBankCount) && (banknames[dt] != 0) &&
-              (strncmp(name,banknames[dt],namelen - 3) == 0)) {
-            this->fBankOffset[dt++] = offset;
-          }
-          else {
-            int j = 0;
-
-            if (0 < this->fBankCount) {
-              do {
-                if ((banknames[j] != 0) &&
-                    (strncmp(name,banknames[j],namelen - 3) == 0)) {
-                  this->fBankOffset[j] = offset;
-                  dt = j + 1;
-                }
-              } while (++j < this->fBankCount);
-            }
-          }
-        }
-      }
-    }
-    c++;
-    }
-  purgememadr(hdata);
-  purgememadr(banknames);
-}
 #line 747 /* preserve unchanged following-function coordinates,not an original-source claim */
 
 /* ---- __6Speech  [SPEECH.CPP:1110-1228] SLD-VERIFIED ---- */
 Speech::Speech()
-{
-  int numracers;
-  int numhumancops;
-  CarBankName bn[9];
-  int banksize;
-  char *SpeechLanguage;
-  char filename[100];
-  char *header;
-  long hoffset;
-  long hsize;
-
-  /* SYM-CODEGEN-CARRIER: dispatch -- materializes the result of the implicit
-     DispatchSpeaker construction represented explicitly by this recovered
-     class model.  Re-reading fDispatch adds two instructions and changes 14. */
-  DispatchSpeaker *dispatch = new DispatchSpeaker;
-  fDispatch = dispatch;
+{ int numracers; int numhumancops; CarBankName bn[9]; int banksize; char *SpeechLanguage; char filename[100]; char *header; long hoffset; long hsize;
+  DispatchSpeaker *dispatch = new DispatchSpeaker; fDispatch = dispatch;
 
   for (int i = 0; i < 4; i++) {
-    /* SYM-CODEGEN-CARRIER: mobile -- materializes the result of the implicit
-       MobileSpeaker construction.  Re-reading fMobile[i] adds four
-       instructions and changes 28 instructions. */
-    MobileSpeaker *mobile = new MobileSpeaker;
-    fMobile[i] = mobile;
-  }
+    MobileSpeaker *mobile = new MobileSpeaker; fMobile[i] = mobile; }
 
   fFileOpen = 0;
-  fBankOffset = 0;
-  numracers = 0;
-  numhumancops = 0;
+  fBankOffset = 0; numracers = 0; numhumancops = 0;
+
+
+
+
   for (int i = 0; i < GameSetup_gData.numCars; i++) {
-    if (GameSetup_gData.carInfo[i].carClass == 1)
-      numracers++;
+
+    if (GameSetup_gData.carInfo[i].carClass == 1) numracers++;
+
     else if (GameSetup_gData.carInfo[i].carClass == 2)
       numracers++;
     else if (GameSetup_gData.carInfo[i].carClass == 0x41)
       numhumancops++;
   }
   if (numhumancops == 0 && numracers > 1)
-    fMultiplePerps = 1;
-  else
+    fMultiplePerps = 1; else
+
     fMultiplePerps = 0;
 
+
+
+
   gettick();
+
+
   fCarCount = GameSetup_gData.numCars;
+
+
+
   for (int i = 0; i < fCarCount; i++)
     bn[i].SetCar(i);
 
   this->CountLocations();
-  fBankCount = 0;
-  banksize = 0;
-  switch (GameSetup_gData.languageSpeech) {
-  case 2:
+
+  fBankCount = 0; banksize = 0;
+
+
+
+
+
+
+  switch (GameSetup_gData.languageSpeech) { case 2:
+
+
     SpeechLanguage = "fre";
-    break;
-  case 1:
+    break; case 1:
+
     SpeechLanguage = "ger";
-    break;
-  case 6:
+    break; case 6:
+
     SpeechLanguage = "brt";
-    break;
-  default:
-    SpeechLanguage = "eng";
-    break;
-  }
+    break; default: SpeechLanguage = "eng"; break; }
+
+
+
+
 
   sprintf(filename, "%szzzz%s.viv", Paths_Paths[0x1d], SpeechLanguage);
   header = (char *)loadbigfileheader(filename, 0x10);
-  hoffset = 0;
-  hsize = 0;
+
+  hoffset = 0; hsize = 0;
+
+
   if (header)
+
+
+
+
+
     banksize = this->CalculateBankSize(header, bn, &hoffset, &hsize);
+
+
   if (banksize > 0)
+
     fBankOffset = (long *)reservememadr("spch index", fBankCount * 4 + banksize, 0);
-  if (fBankOffset) {
-    SPCH_Init(Speech_HandleRequest, 0x12345678,
+
+
+
+
+
+
+  if (fBankOffset) { SPCH_Init(Speech_HandleRequest, 0x12345678,
+
+
+
               SPCH_GetSampleDataRate(0x2b11, 0x10, 2));
     SPCH_InitBankMem(Speech_AllocateRAM, Speech_PurgeRAM, fBankCount);
+
+
     fFileOpen = FILE_opensync(filename, 1, 100, (int)&fFileHandle) != 0;
-    this->LoadBankHeaders(header, bn, hoffset, hsize);
-  }
+
+
+
+
+
+    this->LoadBankHeaders(header, bn, hoffset, hsize); }
+
+
+
+
+
+
   if (header)
     purgememadr(header);
-  gettick();
-}
+
+
+
+
+
+
+  gettick(); }
+/* SYM-CODEGEN-CARRIER: dispatch -- materializes the result of the implicit
+     DispatchSpeaker construction represented explicitly by this recovered
+     class model.  Re-reading fDispatch adds two instructions and changes 14. */
+/* SYM-CODEGEN-CARRIER: mobile -- materializes the result of the implicit
+       MobileSpeaker construction.  Re-reading fMobile[i] adds four
+       instructions and changes 28 instructions. */
 
 /* ---- Reset__6Speech  [SPEECH.CPP:1248-1261] SLD-VERIFIED ---- */
 void Speech::Reset(void)
@@ -1001,15 +1045,21 @@ void Speech::Reset(void)
 Speech::~Speech()
 {
   if (fBankOffset != 0) {
+
+
+
+
+
     SPCH_Deinit();
-    purgememadr(fBankOffset);
-  }
+    purgememadr(fBankOffset); }
+
   if (fFileOpen != 0)
     FILE_closesync(fFileHandle, 100);
+
   delete fDispatch;
+
   for (int i = 0; i < 4; i++)
-    delete fMobile[i];
-}
+    delete fMobile[i]; }
 
 /* ---- BankPatch__6SpeechlP8Car_tObj  [SPEECH.CPP:1297-1307] SLD-VERIFIED ---- */
 int Speech::BankPatch(long bank,Car_tObj *car)
@@ -1350,143 +1400,220 @@ void Speech::DispatchSpeaker::Roger()
  * arm fetches Sub()->Sub() (a copy-propagated local) before the counter stores. */
 void Speech::DispatchSpeaker::StatusReply()
 
-{
-  Speaker *Blocker;
+{ Speaker *Blocker;
 
   if (this->Sub() == 0 || this->Sub()->Perp() == 0)
-    return;
-  this->ClearSpeaker();
-  Blocker = 0;
+
+
+    return; this->ClearSpeaker(); Blocker = 0;
+
+
+
   if (this->Sub()->BlockadeFlags() != 0) {
+
     if (Speech::MultiplePerps()) {
+
       this->Sub()->ReportBlockade();
-      return;
-    }
-    else {
-      if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->BlockadeFlags() != 0) {
-        Blocker = this->Sub()->Sub();
-        this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
-      }
-      else {
-        Blocker = this->Sub();
-        this->SetTo(this->CallSign()->AllUnits());
-      }
-      Blocker->ReportBlockade();
-      this->ClearSpeaker();
+      return; } else {
+
+
+
+
+      if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->BlockadeFlags() != 0) { Blocker = this->Sub()->Sub();
+
+
+        this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit())); } else { Blocker = this->Sub();
+
+
+
+
+        this->SetTo(this->CallSign()->AllUnits()); }
+
+      Blocker->ReportBlockade(); this->ClearSpeaker();
+
       SPCHNFS_D_A_CONFIRM(this->Confirm());
       SPCH_PlaySpeech();
+
       SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
-      SPCH_PlaySpeech();
-    }
-  }
-  else {
+      SPCH_PlaySpeech(); } } else {
+
+
+
+
     this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
     SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
-    SPCH_PlaySpeech();
-  }
+    SPCH_PlaySpeech(); }
+
+
   this->FindLocation(this->Sub()->CarObj());
+
   if (this->Sub()->BlockadeFlags() == 1) {
-    this->SetWing(this->CallSign()->Mobile(Blocker->Unit()));
-    this->SetSpikeSide(4);
-    SPCHNFS_D_C_SPBLT_CONFIRMED(this->Position(),this->Location(),this->Distance(),this->Wing(),
-                                this->SpikeSide());
-    SPCH_PlaySpeech();
-    if (Blocker != this->Sub())
-      this->Sub()->Roger();
-  }
+
+    this->SetWing(this->CallSign()->Mobile(Blocker->Unit())); this->SetSpikeSide(4); SPCHNFS_D_C_SPBLT_CONFIRMED(this->Position(),this->Location(),this->Distance(),this->Wing(),
+
+                                this->SpikeSide()); SPCH_PlaySpeech(); if (Blocker != this->Sub())
+
+
+
+      this->Sub()->Roger(); }
+
   else if (this->Sub()->BlockadeFlags() == 2) {
+
     SPCHNFS_D_C_RDBLK_CONFIRMED(this->Position(),this->Location(),this->Distance());
     SPCH_PlaySpeech();
+
     if (Blocker != this->Sub())
-      this->Sub()->Roger();
-  }
+      this->Sub()->Roger(); }
+
   else if (this->Sub()->Sub() != 0) {
+
     this->SetWing(this->CallSign()->Mobile(this->Sub()->Sub()->Unit()));
     SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(this->Distance(),this->Position(),this->Location(),this->Wing());
     SPCH_PlaySpeech();
-    this->Sub()->Roger();
-    Speaker *next = this->Sub()->Sub();
+    this->Sub()->Roger(); Speaker *next = this->Sub()->Sub();
+
     this->fStatusCount = 0x140;
-    this->fUpdateCount++;
-    this->fStatusSub = next;
-  }
+    this->fUpdateCount++; this->fStatusSub = next; }
+
   if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->BlockadeFlags() != 0)
     this->Sub()->SetBlockade(0);
 }
+/* CORRECTNESS (w13-a5): oracle's middle arm is barrierTicks32_ += AI_elapsedTime
+     (@.L80070CD8) -- recon previously had a self-assignment placeholder. */
 
 /* ---- Status__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1718-1848] SLD-VERIFIED ---- */
 void Speech::DispatchSpeaker::Status()
 
 {
-  if (this->Sub() == 0 || this->Sub()->Perp() == 0)
-    return;
+
+  if (this->Sub() == 0 || this->Sub()->Perp() == 0) return;
+
+
   if ((this->Sub()->CarObj()->carFlags & 0x200) != 0) {
+
     int dist = this->Sub()->DistToPerp();
 
     if (this->Sub()->HavePerp()) {
-      if (dist > 0x15e0000) {
-        this->Sub()->SetHavePerp(0);
-        this->Sub()->SetUpdate(0);
-        this->Sub()->Status();
-      }
-    }
+
+      if (dist > 0x15e0000) { this->Sub()->SetHavePerp(0); this->Sub()->SetUpdate(0);
+
+
+
+        this->Sub()->Status(); } }
+
+
     else if (dist < 0x640000)
-      this->Sub()->Engage(this->Sub()->Perp());
-  }
+      this->Sub()->Engage(this->Sub()->Perp()); }
+
+
   if (this->fStatusSub != 0) {
+
     if (this->fStatusCount-- == 1) {
+
+
+
       if (this->fStatusSub == this)
+
         this->StatusReply();
+
       else if (this->Sub() != 0 && this->fStatusSub == this->Sub()->Sub())
-        this->fStatusSub->Status();
-      else {
-        this->fStatusSub->Status();
-        this->ClearSpeaker();
-        this->Roger();
-      }
-    }
-  }
+
+        this->fStatusSub->Status(); else {
+
+
+
+        this->fStatusSub->Status(); this->ClearSpeaker();
+
+        this->Roger(); } } }
+
+
+
   else if (this->fStatusCount > 0)
+
     this->fStatusCount--;
+
   else if (this->Sub()->BlockadeFlags() == 0 && this->Sub()->ArrestFlags() == 0) {
+
+
+
+
+
     if (this->Sub()->Sub() != 0 && this->Sub()->Sub()->Perp() != this->Sub()->Perp())
       this->Sub()->Sub()->Promote();
-    switch (this->fUpdateCount & 3) {
-    case 2:
-      if (this->Sub()->DistToPerp() < 0x280000 && this->CalcMph(this->Sub()->CarObj()) > 0x32 &&
-          this->CalcMph(this->Sub()->Perp()) > 0x32) {
-        this->Sub()->SetUpdate(8);
-        break;
-      }
-    case 0:
-      this->Sub()->SetUpdate(0x26);
-      break;
-    case 3:
-      if (this->Sub()->IsSuper() && this->fUpdateCount == 7) {
-        this->Sub()->SetUpdate(0);
-        this->Sub()->Status();
-        this->fUpdateCount++;
-        return;
-      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    switch (this->fUpdateCount & 3) { case 2: if (this->Sub()->DistToPerp() < 0x280000 && this->CalcMph(this->Sub()->CarObj()) > 0x32 &&
+
+
+          this->CalcMph(this->Sub()->Perp()) > 0x32) { this->Sub()->SetUpdate(8);
+
+
+        break; } case 0: this->Sub()->SetUpdate(0x26);
+
+
+
+
+
+
+
+      break; case 3:
+
+
+      if (this->Sub()->IsSuper() && this->fUpdateCount == 7) { this->Sub()->SetUpdate(0);
+
+
+        this->Sub()->Status(); this->fUpdateCount++;
+
+        return; }
+
       else if (this->Sub()->DistToPerp() < 0x140000) {
+
         this->Sub()->Bullhorn();
         this->fUpdateCount++;
-        return;
-      }
-    case 1:
-      this->Sub()->SetUpdate(1);
-      break;
-    }
-    this->ClearSpeaker();
+        return; } case 1: this->Sub()->SetUpdate(1);
+
+
+
+
+
+      break; } this->ClearSpeaker();
+
+
     this->SetTo(this->CallSign()->Mobile(this->Sub()->Unit()));
     SPCHNFS_D_C_INTRO_CALL(this->To(),this->From(),this->Reverse());
     SPCH_PlaySpeech();
+
     SPCHNFS_D_C_IN_PURS_NEAR_PERP(this->Sub()->Update());
     SPCH_PlaySpeech();
-    this->fStatusCount = 0x60;
-    this->fStatusSub = this->Sub();
-    this->fUpdateCount++;
-  }
+
+    this->fStatusCount = 0x60; this->fStatusSub = this->Sub();
+    this->fUpdateCount++; }
+
 }
 
 /* ---- Status__Q26Speech13MobileSpeaker  [SPEECH.CPP:1853-1948] SLD-VERIFIED ----
@@ -2042,95 +2169,126 @@ void Speech::MobileSpeaker::Report(Car_tObj *perp)
 /* ---- Engage__Q26Speech13MobileSpeakerP8Car_tObj  [SPEECH.CPP:2331-2450] SLD-VERIFIED ---- */
 void Speech::MobileSpeaker::Engage(Car_tObj *perp)
 
-{
-  this->MakeSpeaker();
-  this->SetHavePerp(1);
-  if (perp != this->Perp()) {
-    this->SetPerp(perp);
-    this->SetCar(this->Perp());
-    if ((this->CarObj()->carFlags & 0x200) == 0) {
-      Speaker *SubChain = Speech::Dispatch();
+{ this->MakeSpeaker(); this->SetHavePerp(1);
 
+
+
+
+
+
+
+
+  if (perp != this->Perp()) { this->SetPerp(perp);
+
+
+    this->SetCar(this->Perp());
+
+    if ((this->CarObj()->carFlags & 0x200) == 0) {
+
+      Speaker *SubChain = Speech::Dispatch();
       while (SubChain->Sub() != 0) {
-        if (SubChain->Sub() == this) {
-          SubChain->SetSub(this->Sub());
-          this->SetSub(0);
-          break;
-        }
-        SubChain = SubChain->Sub();
-      }
-    }
+
+        if (SubChain->Sub() == this) { SubChain->SetSub(this->Sub()); this->SetSub(0); break; }
+
+
+
+
+
+        SubChain = SubChain->Sub(); } }
+
+
+
     if (Speech::Dispatch()->Sub() == this) {
+
       if ((this->CarObj()->carFlags & 0x200) != 0) {
-        Speech::Dispatch()->Report(perp);
-        this->MakeSpeaker();
+
+
+        Speech::Dispatch()->Report(perp); this->MakeSpeaker();
+
         this->SetTo(this->CallSign()->Dispatch());
-        this->FindLocation(this->Perp());
-        SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(this->Voice(),this->To(),this->Colour(),this->Car(),
-                                               this->Distance(),this->Position(),this->Location(),
+        this->FindLocation(this->Perp()); SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(this->Voice(),this->To(),this->Colour(),this->Car(), this->Distance(),this->Position(),this->Location(),
                                                this->Confirm());
-        SPCH_PlaySpeech();
-      }
-    }
-    else if (this->IsSuper() && (this->Perp()->carFlags & 4) != 0 && Speech::Dispatch()->Sub() != 0 &&
+        SPCH_PlaySpeech(); } } else if (this->IsSuper() && (this->Perp()->carFlags & 4) != 0 && Speech::Dispatch()->Sub() != 0 &&
+
+
              (Speech::Dispatch()->Sub()->CarObj()->carFlags & 0x40) == 0) {
+
+
       this->SetSub(Speech::Dispatch()->Sub());
       Speech::Dispatch()->SetSub(this);
+
       if (this->BlockadeFlags() == 0) {
+
         this->SetTo(this->CallSign()->AllUnits());
         SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
         SPCH_PlaySpeech();
-        SPCHNFS_S_C_SUPER_COP_ARRIVAL(this->Voice());
-        SPCH_PlaySpeech();
-      }
-    }
-    else {
-      Speaker *SubChain = Speech::Dispatch();
 
-      if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Perp() != 0 &&
+        SPCHNFS_S_C_SUPER_COP_ARRIVAL(this->Voice());
+        SPCH_PlaySpeech(); } } else {
+
+
+
+
+
+      Speaker *SubChain = Speech::Dispatch(); if (Speech::Dispatch()->Sub() != 0 && Speech::Dispatch()->Sub()->Perp() != 0 &&
+
+
           (Speech::Dispatch()->Sub()->Perp()->carFlags & 4) == 0 && (this->Perp()->carFlags & 4) != 0) {
+
+
         this->SetSub(Speech::Dispatch()->Sub());
-        Speech::Dispatch()->SetSub(this);
-      }
-      else {
+        Speech::Dispatch()->SetSub(this); } else {
+
+
+
+
         while (SubChain->Sub() != 0)
-          SubChain = SubChain->Sub();
-        SubChain->SetSub(this);
-      }
+          SubChain = SubChain->Sub(); SubChain->SetSub(this); }
+
+
+
       if (this->BlockadeFlags() == 0) {
+
+
         if (!Speech::Dispatch()->KnownPerp(perp) || Speech::Dispatch()->StatusCount() <= 0x17f) {
+
           this->SetTo(this->CallSign()->Dispatch());
           SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
           SPCH_PlaySpeech();
+
           this->FindLocation(this->Perp());
           this->SetSpeed(this->Perp());
-          if (Speech::Dispatch()->KnownPerp(this->Perp()))
-            SPCHNFS_C_D_PERP_SIGHTED(this->Voice(),this->Colour(),this->Car(),this->Distance(),
-                                     this->Position(),this->Location(),this->PerpName());
-          else
-            SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(this->Voice(),this->Colour(),this->Car(),this->Position(),
-                                             this->Location(),this->Distance(),this->Speed(),
+
+          if (Speech::Dispatch()->KnownPerp(this->Perp())) SPCHNFS_C_D_PERP_SIGHTED(this->Voice(),this->Colour(),this->Car(),this->Distance(),
+                                     this->Position(),this->Location(),this->PerpName()); else SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(this->Voice(),this->Colour(),this->Car(),this->Position(), this->Location(),this->Distance(),this->Speed(),
+
+
                                              this->SpeedType(),this->PerpName());
+
           SPCH_PlaySpeech();
+
+
           SubChain = Speech::Dispatch()->Sub();
           Speech::Dispatch()->SetSub(this);
           Speech::Dispatch()->Report(this->Perp());
-          Speech::Dispatch()->SetSub(SubChain);
-        }
-      }
-    }
-  }
+          Speech::Dispatch()->SetSub(SubChain); } } } }
+
+
+
+
+
+
   else if (!Speech::MultiplePerps() && Speech::Dispatch()->StatusCount() < 0x160) {
+
     this->SetCar(this->Perp());
+
     this->SetTo(this->CallSign()->Dispatch());
     SPCHNFS_C_A_INTRO(this->Voice(),this->To(),this->From(),this->Reverse());
     SPCH_PlaySpeech();
-    this->FindLocation(this->Perp());
-    SPCHNFS_C_C_PERP_REAQUIRED(this->Voice(),this->Colour(),this->Car(),this->Position(),this->Location(),
+
+    this->FindLocation(this->Perp()); SPCHNFS_C_C_PERP_REAQUIRED(this->Voice(),this->Colour(),this->Car(),this->Position(),this->Location(),
                                this->Distance());
-    SPCH_PlaySpeech();
-  }
-}
+    SPCH_PlaySpeech(); } }
 
 /* ---- Lose__Q26Speech13MobileSpeaker  [SPEECH.CPP:2463-2538] SLD-VERIFIED ----
  * SYM CLEAN (2026-09-26): written with the Speaker/MobileSpeaker accessor inlines that retail's pairs record

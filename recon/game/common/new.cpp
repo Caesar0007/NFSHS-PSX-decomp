@@ -17,6 +17,16 @@ char *New_cplusplus_heap;
 void *__builtin_new(unsigned int size)
 
 {
+
+
+
+
+
+
+
+
+
+
   return reservememadr((char *)0x0,(int)size,0);
 }
 
@@ -24,6 +34,16 @@ void *__builtin_new(unsigned int size)
 void *__builtin_vec_new(unsigned int size)
 
 {
+
+
+
+
+
+
+
+
+
+
   return reservememadr((char *)0x0,(int)size,0);
 }
 
@@ -31,16 +51,14 @@ void *__builtin_vec_new(unsigned int size)
 void __builtin_delete(void *deleteMe)
 
 {
-  purgememadr(deleteMe);
-  return;
+  purgememadr(deleteMe); return;
 }
 
 /* ---- __builtin_vec_delete  [NEW.CPP:51-52] SLD-VERIFIED ---- */
 void __builtin_vec_delete(void *deleteMe)
 
 {
-  purgememadr(deleteMe);
-  return;
+  purgememadr(deleteMe); return;
 }
 
 /* end of new.cpp */

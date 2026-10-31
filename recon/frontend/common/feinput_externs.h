@@ -35,4 +35,8 @@ void  FEInput_VerifyControllerValues(int controller);
 int   FEInput_GetNoDebounceKey(int key, int controller);
 int   FEInput_GetDebounceKey(int key, int controller);
 
+/* gettick is the EA name in retail SYM/MAP at800E8220 and the matched NFS2 timer.
+   This local inline expansion is reconstructed; original header spelling is unproved. */
+static inline int gettick(void) { return ticks; }
+
 #endif

@@ -3,41 +3,14 @@
  */
 #include "screenpost.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
 
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
-static inline long Tournament_Money(tTournamentManager &tm) { return tm.fMoney; }
-
-/* ORIGINAL-NAME-UNRESOLVED: inferred definition/count field accessors for
-   the two receiver-free retail pairs at the opening standings phase. */
-static inline tTournamentDefinition *Tournament_Definition() {
-  return tournamentManager.fDefinition;
-}
-static inline int Tournament_NumRacers() {
-  return tournamentManager.fNumRacers;
-}
-
-/* ORIGINAL-NAME-UNRESOLVED: inferred accessor for the retail personality
-   pair. Its j parameter is the nested INT:$19 record, not a caller copy. */
-static inline tPersonalities Tournament_Personality(int j) {
-  return tournamentManager.fCompetitors[j].fPersonality;
-}
-/* ORIGINAL-NAME-UNRESOLVED: same color-table lookup used by FEFades. */
-static inline int TextDefinitionColor(tMenuTextType type, int column) {
-  return kRGBVals[(byte)textDefinitions[type][column]];
-}
 
 
-/* Retail screenpost.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+
 
 /* P893: native SLD113 is the flag store and SLD115 is max/max/divide.
  * SYM records only tInfo; the original maximum-operator spelling is unknown. */
@@ -57,6 +30,7 @@ void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
   char string2 [50];
   
   switch (numplaces) {
+
   case 3:
     sprintf(string1,TextSys_Word(0x86),0);
     break;
@@ -65,12 +39,20 @@ void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
     break;
   case 9:
     sprintf(string1,TextSys_Word(0x88),0,0,0);
+
     break;
   }
   FeTools_FormatMoney(string2,number);
+
+
+
+
+
+
+
+
   FETextRender_FullTextRGB(string2,(short)x,(short)y,colfore,'\0',1);
   FETextRender_FullTextRGB(string1,(short)x,(short)y,colback,'\0',1);
-  return;
 }
 
 
@@ -79,9 +61,7 @@ void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 tScreenTournamentStandings::tScreenTournamentStandings()
   /* base subobject _base_tScreen is constructed implicitly by g++ -> jal __7tScreen */
 {
-
   this->fDrawMoney = 0;
-  return;
 }
 
 
@@ -133,6 +113,8 @@ void tScreenTournamentStandings::Initialize()
 void tScreenTournamentStandings::Cleanup()
 
 {
+
+
   this->fDrawMoney = 0;
   this->tScreen::Cleanup();
   return;
@@ -149,7 +131,6 @@ void tScreenTournamentStandings::GetShapeInfo(short &numPermShapes,short &numSwa
   *swapFileName = (char *)0x0;
   numPermShapes = 0x29;
   *permFileName = "zTrnSt1";
-  return;
 }
 
 
@@ -163,7 +144,6 @@ void tScreenTournamentStandings3item::GetShapeInfo(short &numPermShapes,short &n
   *swapFileName = (char *)0x0;
   numPermShapes = 0x29;
   *permFileName = "zTrnStd";
-  return;
 }
 
 

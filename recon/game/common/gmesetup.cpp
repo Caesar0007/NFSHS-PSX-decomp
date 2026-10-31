@@ -58,78 +58,204 @@ void GameSetup_StartUp(int *FrontEndDataStream)
     int *p;         /* $a0 -- resolved FEI target pointer */
     FEI_tList *l;   /* $v1 -- FEI_gList iterator */
 
+
+
     Input_StartUp();
 
-    h = (int *)&Input_gHandler;
+
+
+
+
     s = FrontEndDataStream;
-    if (*FrontEndDataStream != 0)
-    do {
-        i = *s;
-        if (i >= 0x103) {
+    h = (int *)&Input_gHandler;
+
+
+
+    if (*FrontEndDataStream != 0) do {
+
+        i = *s; if (i >= 0x103) {
+
+
+
             for (l = FEI_gList, p = 0; l->v != 0; l++) {
+
                 if (l->v == i) {
                     p = l->p;
-                }
-            }
+                } }
+
             if (p != 0) {
+
+
                 p += s[1] * 0x2D;
+
                 *p = s[2];
             }
             s += 3;
         }
         else if (i >= 0x4D) {
+
             h[i - 0x4D] = s[1];
             if (Device_gDeviceList[s[1] & 0xFF].startupfunc != 0) {
                 Device_gDeviceList[s[1] & 0xFF].startupfunc(s[1] >> 8);
-            }
-            s += 2;
+            } s += 2;
         }
         else {
+
+
+
+
             for (l = FEI_gList, p = 0; l->v != 0; l++) {
+
                 if (l->v == i) {
                     p = l->p;
-                }
-            }
+                } }
+
             if (p != 0) {
+
                 if (*s >= 0x4B) {
                     for (i = 0; i < s[1]; i++) {
-                        p[i] = s[i + 2];
-                    }
+                        p[i] = s[i + 2]; }
                 }
                 else {
                     *p = s[1];
                 }
-            }
-            if (*s >= 0x4B) {
+            } if (*s >= 0x4B) {
                 s += s[1];
-            }
-            s += 2;
-        }
-    } while (*s != 0);
+            } s += 2; } } while (*s != 0);
+
+
+
+
+
+
 
     purgememadr(FrontEndDataStream);
+
+
+
+
+
+
+
+
+
+
+
+
+
     timedwait(100);
     PAD_update();
+
+
     if ((PAD_state(0) & 0xFFFF) == 0x909)  GameSetup_gData.sgge = 0x8;
+
+
+
+
+
     if ((PAD_state(0) & 0xFFFF) == 0xA080) GameSetup_gData.sgge = 0x2;
+
+
+
+
+
     if ((PAD_state(0) & 0xFFFF) == 0xC001) GameSetup_gData.sgge = 0x4;
+
+
+
+
+
     if ((PAD_state(0) & 0xFFFF) == 0x640)  GameSetup_gData.sgge = 0x10;
+
+
+
+
+
     if ((PAD_state(0) & 0xFFFF) == 0x610)  GameSetup_gData.sgge = 0x20;
+
+
+
+
+
     if ((PAD_state(0) & 0xFFFF) == 0x910)  GameSetup_gData.sgge = 0x40;
+
+
+
+
+
     if ((PAD_state(0) & 0xFFFF) == 0x5010) GameSetup_gData.sgge = 0x80;
+
+
+
+
+
     if ((PAD_state(0) & 0xFFFF) == 0x620)  GameSetup_gData.sgge = 0x100;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     gMasterMusicLevel       = GameSetup_gData.userSetting.musicLevel;
     gMasterSFXLevel         = GameSetup_gData.userSetting.sfxLevel;
     gMasterFENarrationLevel = GameSetup_gData.userSetting.speechLevel;
     gMasterEngineLevel      = GameSetup_gData.userSetting.engineLevel;
     gMasterAmbientLevel     = GameSetup_gData.userSetting.ambientLevel;
+
+
+
+
+
+
+
+
+
+
+
+
     Device_SetHardCodedKeys();
 }
 
 /* ---- GameSetup_CleanUp__Fv  @0x8009C120 ---- */
 void GameSetup_CleanUp(void)
 {
-    return;
-}
+    return; }
 
 /* end of gmesetup.cpp */

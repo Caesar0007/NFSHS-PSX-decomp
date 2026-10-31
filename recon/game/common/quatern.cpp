@@ -16,22 +16,24 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q);
 void Quatern_VecInterpolate(coorddef *cp0,coorddef *cp1,int weight,coorddef *cp)
 
 {
+
   cp->x = cp0->x + fixedmult(cp1->x - cp0->x,weight);
   cp->y = cp0->y + fixedmult(cp1->y - cp0->y,weight);
-  cp->z = cp0->z + fixedmult(cp1->z - cp0->z,weight);
-  return;
+  cp->z = cp0->z + fixedmult(cp1->z - cp0->z,weight); return;
 }
 
 /* ---- Quatern_Interpolate__FP5tQuatT0P8coorddefT2iT0T2  [QUATERN.CPP:67-75] SLD-VERIFIED ---- */
 void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int weight,tQuat *q,coorddef *cp)
 
 {
+
   q->x = q0->x + (short)fixedmult((int)q1->x - (int)q0->x,weight);
   q->y = q0->y + (short)fixedmult((int)q1->y - (int)q0->y,weight);
   q->z = q0->z + (short)fixedmult((int)q1->z - (int)q0->z,weight);
   q->w = q0->w + (short)fixedmult((int)q1->w - (int)q0->w,weight);
-  Quatern_VecInterpolate(cp0,cp1,weight,cp);
-  return;
+
+
+  Quatern_VecInterpolate(cp0,cp1,weight,cp); return;
 }
 
 /* ---- Quatern_QuatToMat__FP5tQuatP10matrixtdef  [QUATERN.CPP:158-189] ----
@@ -42,24 +44,17 @@ void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int wei
 void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)
 
 {
-  int one;
-  int x;
-  int y;
-  int z;
-  int wx;
-  int wy;
-  int wz;
-  int xx;
-  int xy;
-  int xz;
-  int yy;
-  int yz;
-  int zz;
+  int one; int x; int y; int z; int wx; int wy; int wz; int xx; int xy; int xz; int yy; int yz; int zz; one = 0x10000000;
 
-  one = 0x10000000;
+
+
+
+
+
   x = q->x + q->x;
   y = q->y + q->y;
   z = q->z + q->z;
+
   wx = q->w * x;
   wy = q->w * y;
   wz = q->w * z;
@@ -69,6 +64,8 @@ void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)
   yy = q->y * y;
   yz = q->y * z;
   zz = q->z * z;
+
+
   matrix->m[0] = one - yy - zz >> 0xc;
   matrix->m[1] = xy + wz >> 0xc;
   matrix->m[2] = xz - wy >> 0xc;
@@ -77,8 +74,7 @@ void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)
   matrix->m[5] = yz + wx >> 0xc;
   matrix->m[6] = xz + wy >> 0xc;
   matrix->m[7] = yz - wx >> 0xc;
-  matrix->m[8] = one - xx - yy >> 0xc;
-  return;
+  matrix->m[8] = one - xx - yy >> 0xc; return;
 }
 
 /* ---- Quatern_MatToQuat__FP10matrixtdefP5tQuat  [QUATERN.CPP:206-278] SLD-VERIFIED ---- */
@@ -88,47 +84,49 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q)
   int tr;
   int s;
   int i;
-  
   if ((((((matrix->m[0] == 0x10000) && (matrix->m[1] == 0)) && (matrix->m[2] == 0)) &&
        ((matrix->m[3] == 0 && (matrix->m[4] == 0x10000)))) &&
       ((matrix->m[5] == 0 && ((matrix->m[6] == 0 && (matrix->m[7] == 0)))))) &&
      (matrix->m[8] == 0x10000)) {
+
     q->w = 0x4000;
     q->x = 0;
     q->y = 0;
     q->z = 0;
     return;
   }
+
   tr = matrix->m[0] + matrix->m[4] + matrix->m[8];
+
   if (tr > 0) {
+
     s = fixedsqrt(tr + 0x10000);
     q->w = (short)((int)(s + ((u_int)s >> 0x1f)) >> 3);
     s = fixeddiv(0x8000,s);
     q->x = (short)(fixedmult(matrix->m[7] - matrix->m[5],s) >> 2);
     q->y = (short)(fixedmult(matrix->m[2] - matrix->m[6],s) >> 2);
-    q->z = (short)(fixedmult(matrix->m[3] - matrix->m[1],s) >> 2);
-    return;
+    q->z = (short)(fixedmult(matrix->m[3] - matrix->m[1],s) >> 2); return;
   }
 
   i = 0;
+
   if (matrix->m[0] < matrix->m[4]) {
     i = 1;
+
     if (matrix->m[4] < matrix->m[8]) {
       i = 2;
     }
-  }
-  if (matrix->m[8] > matrix->m[0]) {
+  } if (matrix->m[8] > matrix->m[0]) {
     i = 2;
   }
-
   switch (i) {
   case 0:
+
     s = fixedsqrt(matrix->m[0] - (matrix->m[4] + matrix->m[8]) + 0x10000);
     q->x = (short)((int)(s + ((u_int)s >> 0x1f)) >> 3);
     if (s != 0) {
       s = fixeddiv(0x8000,s);
-    }
-    q->w = (short)(fixedmult(matrix->m[7] - matrix->m[5],s) >> 2);
+    } q->w = (short)(fixedmult(matrix->m[7] - matrix->m[5],s) >> 2);
     q->y = (short)(fixedmult(matrix->m[3] + matrix->m[1],s) >> 2);
     q->z = (short)(fixedmult(matrix->m[2] + matrix->m[6],s) >> 2);
     return;
@@ -138,8 +136,7 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q)
     q->y = (short)((int)(s + ((u_int)s >> 0x1f)) >> 3);
     if (s != 0) {
       s = fixeddiv(0x8000,s);
-    }
-    q->w = (short)(fixedmult(matrix->m[2] - matrix->m[6],s) >> 2);
+    } q->w = (short)(fixedmult(matrix->m[2] - matrix->m[6],s) >> 2);
     q->z = (short)(fixedmult(matrix->m[7] + matrix->m[5],s) >> 2);
     q->x = (short)(fixedmult(matrix->m[3] + matrix->m[1],s) >> 2);
     return;
@@ -149,16 +146,13 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q)
     q->z = (short)((int)(s + ((u_int)s >> 0x1f)) >> 3);
     if (s != 0) {
       s = fixeddiv(0x8000,s);
-    }
-    q->w = (short)(fixedmult(matrix->m[3] - matrix->m[1],s) >> 2);
+    } q->w = (short)(fixedmult(matrix->m[3] - matrix->m[1],s) >> 2);
     q->x = (short)(fixedmult(matrix->m[2] + matrix->m[6],s) >> 2);
     q->y = (short)(fixedmult(matrix->m[5] + matrix->m[7],s) >> 2);
     return;
-
   default:
     return;
-  }
-}
+  } }
 
 /* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
  * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.

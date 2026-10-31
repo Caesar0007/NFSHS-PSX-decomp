@@ -99,4 +99,26 @@ extern tScreenTrophyRoom *screenTrophyRoom;
 /* SEVERE BUG FIXED (extern-audit): same class as front_externs.h -- these 9 were
    `extern int X_vtable;` (SCALAR) vs the real owner def `__vtbl_ptr_type X_vtable[N]`
    (ARRAY, vtables_t*.cpp), corrupting the vptr-init cast to `(void*)X_vtable`. */
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800114C8): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline int Tournament_CurrentTrack(tTournamentManager &tm) { return tm.fCurrentTrack; }
+
+static inline bool Dialog_FullyOpen(tDialogBase *dialog) { return (dialog->fFullyOpen ^ 1) == 0; }
+
+static inline tDialogYesNo *Dialog_AsYesNo(tDialogMessageString *dialog) { return (tDialogYesNo *)dialog; }
+
+static inline void Dialog_SetText(tDialogMessageString *dialog, char *text) { dialog->string = text; }
+
+static inline bool MenuItem_IsDisabled(tMenuItem &item) { return (item.fFlags & 1) != 0; }
+
+static inline Car_tStats *Cars_NewCarStatsList(void) { return Cars_gNewCarStatsList; }
+
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+/* car-list filter setter (retail records a variable-free inline pair on menuDefs->iteratorCar1) */
+static inline void CarIterator_SetFilter(tListIteratorCar &iterator, int filter) { iterator.fCarListFilter = filter; }
+
+/* menu-item state test (retail records a variable-free inline pair on menuDefs->itemSaveGame) */
+static inline int MenuItem_IsEnabled(tMenuItem &item) { return ((item.fFlags ^ 1) & 1) != 0; }
+
 #endif

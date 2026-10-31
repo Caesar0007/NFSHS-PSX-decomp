@@ -15,32 +15,31 @@ extern "C" int sprintf(char *, const char *, ...);
 /* @0x80091ec0  IsNumChar(char c) -- line 454 */
 char IsNumChar(char c)
 {
-  if ((u_char)(c - 0x30U) < 10) {
-    return '\x01';
-  }
-  if ((u_char)c == '-') {
-    return '\x01';
-  }
-  return (u_char)c == '+';
+  if ((u_char)(c - 0x30U) < 10) { return '\x01';
+  } if ((u_char)c == '-') {
+
+    return '\x01'; } return (u_char)c == '+';
 }
 
 /* @0x80091efc  Risk_ReadNextValue(char **aScript) -- line 462 */
 int Risk_ReadNextValue(char **aScript)
 {
   char s[256];
-  int n;
-  char *Script;
+  int n; char *Script; n = 0;
 
-  n = 0;
+
   Script = *aScript;
+
   while (IsNumChar(*Script) == '\0') {
+
+
     if ((u_char)*Script++ == '/') {
+
       while ((u_char)*Script++ != '/') {
       }
     }
   }
-  while (IsNumChar(*Script)) {
-    s[n++] = *Script++;
+  while (IsNumChar(*Script)) { s[n++] = *Script++;
   }
   s[n] = '\0';
   n = atoi(s);

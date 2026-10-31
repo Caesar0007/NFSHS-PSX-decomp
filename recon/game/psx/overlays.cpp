@@ -36,10 +36,11 @@ void OptionsBarThing(int x,int y,int w,int h)
   Hud_GoTpage(1);
   Hud_BuildString(TextSys_Word(0x40),
                   0xa0 - (Hud_BuildString(TextSys_Word(0x40),0,0,0,0,1) >> 1),
+
                   y + h + -6,0xbebe,0,0);
+
   Hud_FBuildF4(0,x,y + h + -8,w,8,0,'\0','\0');
-  Hud_GoTpage(0);
-  return;
+  Hud_GoTpage(0); return;
 }
 
 /* SOURCE REVIEW (2026-10-13): masked width can be written directly in both
@@ -47,8 +48,7 @@ void OptionsBarThing(int x,int y,int w,int h)
  * and its zero-length declaring region are removed; the historical named-
  * carrier receipt below is superseded, not proof of an original variable.
  * All12 original ordered local/type/home/depth tuples and six scope markers
- * match retail after filtering only the still-unresolved titleX/titleY.
- * Those two absent objects are not excused by old direct-form failures.
+ * match retail; the old titleX/titleY extras are now record-less const shorts.
  * SYM field offsets also restore actual carInfo->driver, carFlags and
  * stats.finalFinishType/finalTotalTime/finalBestLap accesses at349/349.
  * Whole linked raw-byte proof is required in addition to normalized PASS.
@@ -122,6 +122,32 @@ void OptionsBarThing(int x,int y,int w,int h)
  * an ANONYMOUS cse temp.  Look for a second HImode consumer of SIZE_W in the same extended
  * BB (the Hud_FBuildF4 `(u_short)HUD_STATS_SIZE_W` arg is the candidate) and give the two
  * consumers a shared HImode subexpression so combine cannot merge load+zero_extend. */
+/* DECL POSITION IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in pseudo-regno
+   order and cc1plus numbers pseudos where the declaration is REACHED, so the SYM's AUTO
+   offsets read off retail's decl sequence.  fsize 184 = string 0x20 / SIZE_W 0x48 /
+   SIZE_H 0x50 / POS_Y 0x58 / <(int)SIZE_H> 0x60 / <0x78-halfH> 0x64 / colpos 0x68 /
+   colname 0x70 / colcar 0x78 / coltime 0x80 / colbestlap 0x88 -- the two SImode temps
+   born in the SIZE_H/POS_Y statements sit BETWEEN POS_Y and colpos, so the col* block
+   is declared after them, not at the top of the function.
+   TITLE COORDINATES (EAC2 2026-10-31): titleX/titleY/ty15/ty17 are block-level
+   `const short` locals.  A const short whose pseudo is folded away emits no .def, so the
+   SYM keeps exactly retail's 12 records, and each initialiser keeps its own retail SLD
+   line (the y+15 add tags line 17 although it is scheduled after the line-31 call; the
+   y+17 add tags line 39).  The four NAMES are descriptive (ORIGINAL-NAME-UNRESOLVED:
+   SYM cannot carry them). */
+/* w46-a8 SEAL (5 -> PASS, 349/349).  THE `& 0xffff` NAMED CARRIER.  Retail reloads the
+   SIZE_W AUTO through the shared scratch and COPIES it into the callee-saved carrier
+   (`lhu $t0,72(sp); addu $s2,$t0,$zero`) where every `(u_short)` spelling let reload fold
+   the zero-extend straight into the destination (`lhu $s2,72(sp)`, 1 insn short).
+   `HUD_STATS_SIZE_W & 0xffff` on a `short` builds `(and:SI (sign_extend:SI (mem:HI)) 0xffff)`
+   -- combine narrows the load to `lhu` but the AND's result is a SEPARATE pseudo from the
+   load's, so the long-lived carrier is a COPY, exactly retail's pair.  MEASURED at this
+   base: `(u_short)` cast named local = 5 (folded), `int t2=(u_short)W; int w2=t2;` split
+   = 5 (coalesced), named y2/w2/h2 triple = 5, zero-insn USE fence before the call = 6
+   (count-exact 349 but the extra load lands ahead of the 88(sp) reload), fence + named
+   carrier = 6 (the volatile asm invalidates memory in cse, so the carrier cannot be CSE'd
+   onto the fence's load -- that is WHY the w45 fence angle could not be walked into place),
+   statement-expression fence inside arg 3 = 6, fence on POS_Y too = 7 (350 insns). */
 void RaceSummary(void)
 
 {
@@ -129,52 +155,46 @@ void RaceSummary(void)
   char string [40];
   short HUD_STATS_POS_X;
   short HUD_STATS_SIZE_W;
-  short HUD_STATS_SIZE_H;
-  short HUD_STATS_POS_Y;
-  int titleY; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; old direct failures do not prove this original object/name. */
-  int titleX; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original title-coordinate producer remains unknown. */
-
-  HUD_STATS_POS_X = 8;
-  if (GameSetup_gData.numLaps == 1) {
-    HUD_STATS_POS_X = 0x28;
-  }
-  HUD_STATS_SIZE_W = 0x130;
-  if (GameSetup_gData.numLaps == 1) {
-    HUD_STATS_SIZE_W = 0xef;
-  }
+  short HUD_STATS_SIZE_H; short HUD_STATS_POS_Y;
+  HUD_STATS_POS_X = 8; if (GameSetup_gData.numLaps == 1) HUD_STATS_POS_X = 0x28;
+  HUD_STATS_SIZE_W = 0x130; if (GameSetup_gData.numLaps == 1) HUD_STATS_SIZE_W = 0xef;
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
+
   HUD_STATS_POS_Y = (short)(0x78 - (HUD_STATS_SIZE_H >> 1));
-  /* DECL POSITION IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in pseudo-regno
-     order and cc1plus numbers pseudos where the declaration is REACHED, so the SYM's AUTO
-     offsets read off retail's decl sequence.  fsize 184 = string 0x20 / SIZE_W 0x48 /
-     SIZE_H 0x50 / POS_Y 0x58 / <(int)SIZE_H> 0x60 / <0x78-halfH> 0x64 / colpos 0x68 /
-     colname 0x70 / colcar 0x78 / coltime 0x80 / colbestlap 0x88 -- the two SImode temps
-     born in the two statements above sit BETWEEN POS_Y and colpos, so the col* block must
-     be declared HERE, not at the top of the function. */
   short colpos;
   short colname;
-  short colcar;
-  short coltime;
-  short colbestlap;
-  titleX = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
-  titleY = 0x76 - (HUD_STATS_SIZE_H >> 1);
+  short colcar; short coltime; short colbestlap;
+  const short titleX = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
+
+  const short titleY = 0x76 - (HUD_STATS_SIZE_H >> 1);
+  const short ty15 = titleY + 0xf;
+
+
   Font_TextColor(6);
-  Font_TextXY(TextSys_Word(0x38),titleX * 0x10000 >> 0x10,titleY);
-  Font_TextColor(3);
-  /* each col* is computed immediately before its own Font_TextXY (oracle interleaves the
-     `addiu $v0,$s6,K; addu $sN,$v0,$zero` pairs with the calls @0x800D9B2C..0x800D9B94). */
+  Font_TextXY(TextSys_Word(0x38),titleX,titleY);
+
+
   colpos = HUD_STATS_POS_X;
   colname = HUD_STATS_POS_X + 0x11;
-  Font_TextXY(TextSys_Word(0x2e),colname,(titleY + 0xf) * 0x10000 >> 0x10);
   colcar = HUD_STATS_POS_X + 0x5f;
-  Font_TextXY(TextSys_Word(0x3a),colcar,(titleY + 0xf) * 0x10000 >> 0x10);
   coltime = HUD_STATS_POS_X + 0xa7;
-  Font_TextXY(TextSys_Word(0x3b),coltime,(titleY + 0xf) * 0x10000 >> 0x10);
   colbestlap = HUD_STATS_POS_X + 0xe1;
+
+  Font_TextColor(3);
+  Font_TextXY(TextSys_Word(0x2e),colname,ty15);
+  Font_TextXY(TextSys_Word(0x3a),colcar,ty15);
+  Font_TextXY(TextSys_Word(0x3b),coltime,ty15);
   if (GameSetup_gData.numLaps != 1) {
-    Font_TextXY(TextSys_Word(0x3c),colbestlap,(titleY + 0xf) * 0x10000 >> 0x10);
+    Font_TextXY(TextSys_Word(0x3c),colbestlap,ty15);
   }
-  Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
+
+
+  const short ty17 = titleY + 0x11;
+
+
+  Hud_FBuildF4(0,HUD_STATS_POS_X,ty17 + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
+
+
   Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   Hud_FBuildF4(0,colcar + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   Hud_FBuildF4(0,coltime + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
@@ -183,70 +203,59 @@ void RaceSummary(void)
   }
   for (i = 0; i < Cars_gNumRaceCars; i = i + 1) {
     /* SYM: `pos` is a BLOCK-scoped REG $s2 inside the per-car loop. */
-    int pos;
-
-    pos = Cars_gRaceCarList[i]->stats.finalPosition;
+    int pos = Cars_gRaceCarList[i]->stats.finalPosition;
     if (pos * 2 + 4 < StatsTimer[0]) {
-      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
+
+
+      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0)
         Font_TextColor(3);
-      }
-      else {
+      else
         Font_TextColor(4);
-      }
       sprintf(string,"%d",pos);
-      Font_TextXY(string,colpos | 1,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
+      Font_TextXY(string,colpos | 1,ty17 + pos * 0xc);
+
+
       Font_TextColor(3);
       sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
-      Font_TextXY(string,colname,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
-      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
+      Font_TextXY(string,colname,ty17 + pos * 0xc);
+
+
+      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0)
         Font_TextColor(3);
-      }
-      else {
+      else
         Font_TextColor(4);
-      }
       sprintf(string,"%s",Cars_gRaceCarList[i]->carNameLocalized);
-      Font_TextXY(string,colcar,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
-      if (GameSetup_gData.pinkSlipsForfeit == i) {
+      Font_TextXY(string,colcar,ty17 + pos * 0xc);
+
+
+
+      if (GameSetup_gData.pinkSlipsForfeit == i)
         sprintf(string,TextSys_Word(0x36));
-      }
-      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) &&
-               (Cars_gRaceCarList[i]->stats.finalNumArrests != 0)) {
+      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (Cars_gRaceCarList[i]->stats.finalNumArrests != 0))
         sprintf(string,TextSys_Word(0x3d));
-      }
-      else if (Cars_gRaceCarList[i]->stats.finalFinishType == 2) {
+      else if (Cars_gRaceCarList[i]->stats.finalFinishType == 2)
         Hud_ParseTime(Cars_gRaceCarList[i]->stats.finalTotalTime,string);
-      }
-      else {
+      else
         sprintf(string,TextSys_Word(0x35));
-      }
-      Font_TextXY(string,coltime,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
+      Font_TextXY(string,coltime,ty17 + pos * 0xc);
+
+
       if (GameSetup_gData.numLaps != 1) {
-        if (Cars_gRaceCarList[i]->stats.finalBestLap != 0) {
+
+        if (Cars_gRaceCarList[i]->stats.finalBestLap != 0)
           Hud_ParseTime(Cars_gRaceCarList[i]->stats.finalBestLap,string);
-        }
-        else {
+        else
           Hud_ParseTime(0,string);
-        }
-        Font_TextXY(string,colbestlap,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
+        Font_TextXY(string,colbestlap,ty17 + pos * 0xc);
       }
     }
   }
-  /* w46-a8 SEAL (5 -> PASS, 349/349).  THE `& 0xffff` NAMED CARRIER.  Retail reloads the
-     SIZE_W AUTO through the shared scratch and COPIES it into the callee-saved carrier
-     (`lhu $t0,72(sp); addu $s2,$t0,$zero`) where every `(u_short)` spelling let reload fold
-     the zero-extend straight into the destination (`lhu $s2,72(sp)`, 1 insn short).
-     `HUD_STATS_SIZE_W & 0xffff` on a `short` builds `(and:SI (sign_extend:SI (mem:HI)) 0xffff)`
-     -- combine narrows the load to `lhu` but the AND's result is a SEPARATE pseudo from the
-     load's, so the long-lived carrier is a COPY, exactly retail's pair.  MEASURED at this
-     base: `(u_short)` cast named local = 5 (folded), `int t2=(u_short)W; int w2=t2;` split
-     = 5 (coalesced), named y2/w2/h2 triple = 5, zero-insn USE fence before the call = 6
-     (count-exact 349 but the extra load lands ahead of the 88(sp) reload), fence + named
-     carrier = 6 (the volatile asm invalidates memory in cse, so the carrier cannot be CSE'd
-     onto the fence's load -- that is WHY the w45 fence angle could not be walked into place),
-     statement-expression fence inside arg 3 = 6, fence on POS_Y too = 7 (350 insns). */
+
+
   OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W & 0xffff,(int)HUD_STATS_SIZE_H);
+
+
   Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W & 0xffff,(int)HUD_STATS_SIZE_H);
-  return;
 }
 
 /* SOURCE REVIEW (2026-10-13): actual per-player for ownership replaces the
@@ -737,31 +746,27 @@ void RaceSummary(void)
 /* colour is an inline ternary (oracle puts `li $a0,3` in the `beq` delay slot
              @0x800DA33C and falls into `li $a0,4`); there is no `color` local in the SYM. */
 
+/* RaceStatistics local review notes (moved out of the body for SLD line layout):
+   short colX;  SOURCE-REVIEW-UNRESOLVED: debug-elided; direct col1 after owner repair is4diff/473,not original-object proof.
+   int sizeH16;  SOURCE-REVIEW-UNRESOLVED: absent from retail; original shifted-height producer remains unknown.
+   int titleY;  SOURCE-REVIEW-UNRESOLVED: absent from retail; original title-coordinate producer remains unknown.
+   int one;  SOURCE-REVIEW-UNRESOLVED: absent from retail; literal guard10diff/475 on current owners,not original-object proof.
+   int pitch;  SOURCE-REVIEW-UNRESOLVED: absent from retail; constant register use does not establish a named original multiplier.
+   int colInset;  SOURCE-REVIEW-UNRESOLVED: debug-elided fold escape; original column-inset producer remains unknown.
+   int rowInset;  SOURCE-REVIEW-UNRESOLVED: debug-elided fold escape; original row-inset producer remains unknown. */
 void RaceStatistics(void)
 
 {
-  short i;
-  short j;
-  short col1;
-  short col2;
-  short colX; /* SOURCE-REVIEW-UNRESOLVED: debug-elided; direct col1 after owner repair is4diff/473,not original-object proof. */
-  char string [40];
-  short HUD_STATS_POS_X;
-  short HUD_STATS_SIZE_W;
-  short HUD_STATS_SIZE_H;
-  short HUD_STATS_POS_Y;
-  int sizeH16; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original shifted-height producer remains unknown. */
-  int titleX; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; old direct-form failure is not original-object proof. */
-  int titleY; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original title-coordinate producer remains unknown. */
-  int one; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; literal guard10diff/475 on current owners,not original-object proof. */
-  int pitch; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; constant register use does not establish a named original multiplier. */
-  int colInset; /* SOURCE-REVIEW-UNRESOLVED: debug-elided fold escape; original column-inset producer remains unknown. */
-  int rowInset; /* SOURCE-REVIEW-UNRESOLVED: debug-elided fold escape; original row-inset producer remains unknown. */
-
-  pitch = 0x96;
-  HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
-  one = 1;
-  HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch;
+  short i; short j;
+  short col1; short col2;
+  short colX; char string [40];
+  short HUD_STATS_POS_X; short HUD_STATS_SIZE_W;
+  short HUD_STATS_SIZE_H; short HUD_STATS_POS_Y;
+  int sizeH16; int titleY;
+  int one; int pitch;
+  int colInset; int rowInset;
+  pitch = 0x96; HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
+  one = 1; HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch;
   HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
   if (GameSetup_gData.numLaps == one) {
     HUD_STATS_SIZE_H -= 0xc;
@@ -769,98 +774,130 @@ void RaceStatistics(void)
   if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
-  sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
-  HUD_STATS_POS_Y = (short)(0x78 - (sizeH16 >> 0x11));
+  sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10); HUD_STATS_POS_Y = (short)(0x78 - (sizeH16 >> 0x11));
+
+
   colX = HUD_STATS_POS_X + 0xa;
-  titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
+
+  const short titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
+
+
   titleY = 0x76 - (sizeH16 >> 0x11);
   short HUD_STATS_HOTPURSUIT_Y;
-  HUD_STATS_HOTPURSUIT_Y =
-      (short)(titleY + (GameSetup_gData.numLaps + 2) * 0xc + 0x13);
+
+  HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (GameSetup_gData.numLaps + 2) * 0xc + 0x13);
+
+
+
   col1 = colX;
   col2 = 0xa0;
-  if (1 < Cars_gNumHumanRaceCars) {
-    col2 = 0x55;
-  }
+  if (1 < Cars_gNumHumanRaceCars) col2 = 0x55;
+
+
+
   Font_TextColor(6);
-  Font_TextXY(TextSys_Word(0x39),titleX * 0x10000 >> 0x10,titleY);
+  Font_TextXY(TextSys_Word(0x39),titleX,titleY);
+
+
+
   Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
+
   if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
-  for (i = 0; (int)i < Cars_gNumHumanRaceCars; i = i + 1) {
-      /* SYM: `colmid` is a BLOCK-scoped REG $s2, declared inside the per-player loop. */
-      int colmid;
 
+
+  for (i = 0; (int)i < Cars_gNumHumanRaceCars; i = i + 1) {
+      int colmid; /* SYM: BLOCK-scoped REG $s2 */
       colInset = 2;
       colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + colInset);
       rowInset = 0x13;
-      Hud_FBuildF4(0,col2 + -2,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1,
-                   (sizeH16 >> 0x10) - ((((titleY + 0x11) * 0x10000 >> 0x10) - (int)HUD_STATS_POS_Y) + rowInset),0,'\0','\0');
+
+      Hud_FBuildF4(0,col2 + -2,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1, (sizeH16 >> 0x10) - ((((titleY + 0x11) * 0x10000 >> 0x10) - (int)HUD_STATS_POS_Y) + rowInset),0,'\0','\0');
+
       if (0 < (int)i) {
         Hud_FBuildF4(0,col1 + -2,(int)HUD_STATS_POS_Y,1,(sizeH16 >> 0x10) + -8,0,'\0','\0');
       }
+
+
+
       if (2 < StatsTimer[1]) {
+
         Font_TextColor(3);
+
+
+
+
+
+
+
+
         sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
         Font_TextXY(string,colmid,((titleY + 0x11) * 0x10000 >> 0x10) + -4);
       }
+
+
+
     if (GameSetup_gData.numLaps != 1) {
+
+
      for (j = 0; (int)j < GameSetup_gData.numLaps; j = j + 1) {
+
         if ((int)j * 2 + 4 < StatsTimer[1]) {
-          if (((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) &&
-              ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] ==
-               (Cars_gHumanRaceCarList[i]->stats).finalBestLap)) {
+
+
+          if (((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) && ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] == (Cars_gHumanRaceCarList[i]->stats).finalBestLap)) {
             Font_TextColor(3);
-          }
-          else {
+          } else {
             Font_TextColor(4);
           }
           sprintf(string,TextSys_Word(0x34),(int)j + 1);
           Font_TextXY(string,(int)col1,((titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
+
           if ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) {
             Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j],string);
-          }
-          else {
+          } else {
             Hud_ParseTime(0,string);
           }
           Font_TextXY(string,col2 + 5,((titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
         }
      }
     }
+
+
     if (GameSetup_gData.numLaps * 2 + 4 < StatsTimer[1]) {
+
       sprintf(string,TextSys_Word(0x37));
       Font_TextColor(3);
-      Font_TextXY(string,(int)col1,
-                  GameSetup_gData.numLaps != 1 ?
-                  ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc + 0xc :
-                  ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc);
+      Font_TextXY(string,(int)col1, GameSetup_gData.numLaps != 1 ? ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc + 0xc : ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc);
+
       if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
-      }
-      else if ((Cars_gHumanRaceCarList[i]->stats).finalFinishType == 2) {
+      } else if ((Cars_gHumanRaceCarList[i]->stats).finalFinishType == 2) {
         Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalTotalTime,string);
-      }
-      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) &&
-               ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
+      } else if ((GameSetup_gData.raceType == RaceType_HotPursuit) && ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
-      }
-      else {
+      } else {
         sprintf(string,TextSys_Word(0x35));
       }
-      Font_TextXY(string,col2 + 5,
-                  (GameSetup_gData.numLaps != 1 ?
-                   ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
+      Font_TextXY(string,col2 + 5, (GameSetup_gData.numLaps != 1 ? ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
+
     if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+
+
       if (GameSetup_gData.numLaps * 2 + 6 < StatsTimer[1]) {
+
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 1);
         sprintf(string,"%d",Cars_gHumanRaceCarList[i]->stats.finalNumWarnings);
         Font_TextXY(string,col2 + 5,HUD_STATS_HOTPURSUIT_Y + 1);
       }
+
+
       if (GameSetup_gData.numLaps * 2 + 8 < StatsTimer[1]) {
+
         sprintf(string,TextSys_Word(0x3f));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 0xd);
@@ -868,12 +905,14 @@ void RaceStatistics(void)
         Font_TextXY(string,col2 + 5,HUD_STATS_HOTPURSUIT_Y + 0xd);
       }
     }
+
     col1 = col1 + 0x96;
     col2 = col2 + 0x96;
+
   }
+
   OptionsBarThing(HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
   Hud_RenderPauseBox(HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
-  return;
 }
 
 /* SOURCE REVIEW (2026-10-13): the older matching receipts below do not prove
@@ -1163,93 +1202,33 @@ void RaceStatistics(void)
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */
-void Hud_BTCStats(short player,bool postgame)
-
-{
-  short i;
-  short col [4];
-  short startY;
-  char string [40];
-  bool chasinghuman;
-  bool showname;
-  short PLAYERWIDTH;
-  bool showtimeleft;
-  short HUD_STATS_POS_X;
-  short HUD_STATS_SIZE_W;
-  short HUD_STATS_SIZE_H;
-  short HUD_STATS_POS_Y;
-  short HUD_STATS_TEXT_START_X;
-  short HUD_STATS_TITLE_START_X;
-  short HUD_STATS_TITLE_START_Y;
-  short HUD_STATS_TEXT_START_Y;
-  int sizeH; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; current direct forms are receipted,not original-object proof. */
-  int postgameInset; /* SOURCE-REVIEW-UNRESOLVED: absent from retail despite debug elision; inset producer remains unknown. */
-
-  chasinghuman = 0;
-  showname = 0;
-  if (1 < Cars_gNumHumanRaceCars) {
-    if ((Cars_gHumanRaceCarList[1 - player]->carFlags & 0x200U) == 0) {
-      chasinghuman = 1;
-    }
-    else {
-      showname = 1;
-    }
-  }
-  PLAYERWIDTH = 0xe7;
-  if (chasinghuman) {
-    PLAYERWIDTH = 0xa1;
-  }
-  showtimeleft = 0;
-  /* the oracle indexes row `player` and element `Hud_NextPerp[player] - 1`
-     (`addiu $v1,$v1,-1` @0x800DA810, no -1 on the row). */
-  if ((postgame == 0) || (BTCPerpInfo[player][Hud_NextPerp[player] - 1].caught != 0)) {
-    showtimeleft = 1;
-  }
-  HUD_STATS_SIZE_W = PLAYERWIDTH + 6;
-  /* w40-a4: the oracle builds POS_X directly as `0xa0 - (PLAYERWIDTH>>1)` (`li $s5,0xA0`
-     CSE'd with the TITLE_START_X centring below, then `subu $s1,$s5,$v0` @0x800DA87C) and
-     derives TEXT_START_X from it (`addiu $s2,$s1,0x7`).  The old `-(PW>>1)` + `+0xa0`
-     spelling was numerically equal but cost a `negu` and re-based every column constant. */
-  HUD_STATS_POS_X = 0xa0 - (PLAYERWIDTH >> 1);
-  HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x16;
-  if (showtimeleft) {
-    HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x22;
-  }
-  if (postgame) {
-    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 8;
-  }
-  if (showname) {
-    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0xc;
-  }
-  HUD_STATS_POS_Y = 0x78 - (HUD_STATS_SIZE_H >> 1);
-  HUD_STATS_TEXT_START_X = HUD_STATS_POS_X + 7;
-  HUD_STATS_TITLE_START_X = 0xa0 - (textpixels(TextSys_Word(postgame ? 0x48 : 0x47)) >> 1);
-  HUD_STATS_TITLE_START_Y = 0x76 - (HUD_STATS_SIZE_H >> 1);
-  HUD_STATS_TEXT_START_Y = HUD_STATS_TITLE_START_Y + 0xf;
-  col[0] = HUD_STATS_POS_X + 3;
-  col[1] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0xc : 0xf);
-  col[2] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0xc : 0x50);
-  col[3] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0x50 : 0x96);
-  startY = HUD_STATS_TEXT_START_Y;
-  Font_TextColor(6);
-  Font_TextXY(TextSys_Word(postgame ? 0x48 : 0x47),HUD_STATS_TITLE_START_X,HUD_STATS_TITLE_START_Y);
-  if (showname) {
-    Font_TextColor(4);
-    Font_TextXY(Cars_gRaceCarList[player]->carInfo->driver,col[2],startY);
-    startY = startY + 0xc;
-  }
-  Font_TextColor(3);
-  if (!chasinghuman) {
-    Font_TextXY(TextSys_Word(0x4a),col[1],startY);
-  }
-  Font_TextXY(TextSys_Word(0x4b),col[2],startY);
-  Font_TextXY(TextSys_Word(0x4c),col[3],startY);
-  Hud_FBuildF4(0,HUD_STATS_POS_X,startY + 0xf,HUD_STATS_SIZE_W,1,0,'\0','\0');
-  /* w40-a4 CORRECTNESS: the vertical rules run i = 1..3 (`li $s5,1` in the jal delay slot
-     @0x800DAA34, loop `slti $v0,$v0,4`), NOT 0..3 -- col[0] gets no rule.  And the height is
-     SIZE_H minus the bar inset, not a flat SIZE_H-8: oracle @0x800DAAAC picks
-     `s2 - (s1 + 8)` under postgame vs `s2 - s1`, then `-0x10` under showtimeleft, with
-     s2 = (int)SIZE_H and s1 = y - POS_Y. */
+    /* oracle selects the COLUMN (`lh $a1,0x26(sp)` vs `lh $a1,0x24(sp)` @0x800DADC0), it does
+       not overwrite col[2] with col[3]. */
+  /* MATCH (W71-A6): both StatsTimer guards are spelled as an INDEX-TERM-FIRST byte
+     address (`(player << 2) + (int)&StatsTimer`) and NOT as `StatsTimer_arr[player]`.
+     The `<<` keeps fold from rebuilding an ARRAY_REF, which is what makes gcc
+     self-temp the address into its own dest like retail (`lui v1; addiu v1;
+     addu v1,s2,v1`) instead of picking a separate `t0` scratch.  The MULT spelling
+     `player * 4 + ...` folds back and loses it. */
+  /* in-place `startY += 0xf` (`addiu $a0,$s6,0xF; addu $s6,$a0,$zero` @0x800DAB9C) -- there is
+     no separate dataY local (SYM lists only i/col/startY/string/chasinghuman/showname/
+     PLAYERWIDTH/showtimeleft/HUD_STATS_*). */
+    /* MATCH (W72-A13, THE FOLD ESCAPE -- see the receipt above): the postgame inset is a
+       MUTABLE LOCAL, never the literal 8, and it is assigned INSIDE the loop body.  Both
+       halves are load-bearing and neither works alone:
+         - a literal 8 is TREE_CONSTANT, so fold-const.c:4349 `split_tree (arg1, ...)`
+           succeeds and UNCONDITIONALLY rewrites `sizeH - (yoff + 8)` into
+           `(sizeH - 8) - yoff` (retail folded NEITHER direction);
+         - a VAR_DECL addend is not TREE_CONSTANT, split_tree returns 0, and the tree
+           survives as retail's `addu; subu` pair -- then RTL cse const-props the 8 back
+           into the `addiu` and the `li` dies, but ONLY if the assignment sits in the same
+           cse path as the use, i.e. INSIDE the loop (assigning it in the preheader leaves
+           `li s3,8` + `addu v0,s1,s3` = 3 diffs @474).
+       Do NOT "simplify" this back to `(postgame ? 8 : 0)`. */
+  /* MATCH (W71-A6): `sizeH` is the HOISTED MINUEND -- do NOT inline it back into the
+     expression below.  Making the minuend a plain pseudo is what makes gcc expand it
+     BEFORE the subtrahend, which is what gives retail's s1=yoff / s2=sizeH roles.
+     Pairs with the SINK spelling of the subtrahend below; neither works alone. */
   /* MATCH (w49-a10, 27 -> 24 diffs and count-EXACT 473/473): the postgame inset is
    * added to `startY + 0xf` INSIDE the parenthesis, before POS_Y is subtracted --
    * `SIZE_H - ((startY + 0xf + (postgame ? 8 : 0)) - POS_Y)`.  Adding it to the
@@ -1301,72 +1280,135 @@ void Hud_BTCStats(short player,bool postgame)
    * the dial may be that SECOND call site's spelling (make cse mint yoff THERE first),
    * not this one's; and per the w44 ternary-fold boundary the only other route is to
    * make the addend non-constant, which here would delete retail's own `beqz`. */
-  /* MATCH (W71-A6): `sizeH` is the HOISTED MINUEND -- do NOT inline it back into the
-     expression below.  Making the minuend a plain pseudo is what makes gcc expand it
-     BEFORE the subtrahend, which is what gives retail's s1=yoff / s2=sizeH roles.
-     Pairs with the SINK spelling of the subtrahend below; neither works alone. */
-  sizeH = HUD_STATS_SIZE_H;
-  for (i = 1; i < 4; i = i + 1) {
-    /* MATCH (W72-A13, THE FOLD ESCAPE -- see the receipt above): the postgame inset is a
-       MUTABLE LOCAL, never the literal 8, and it is assigned INSIDE the loop body.  Both
-       halves are load-bearing and neither works alone:
-         - a literal 8 is TREE_CONSTANT, so fold-const.c:4349 `split_tree (arg1, ...)`
-           succeeds and UNCONDITIONALLY rewrites `sizeH - (yoff + 8)` into
-           `(sizeH - 8) - yoff` (retail folded NEITHER direction);
-         - a VAR_DECL addend is not TREE_CONSTANT, split_tree returns 0, and the tree
-           survives as retail's `addu; subu` pair -- then RTL cse const-props the 8 back
-           into the `addiu` and the `li` dies, but ONLY if the assignment sits in the same
-           cse path as the use, i.e. INSIDE the loop (assigning it in the preheader leaves
-           `li s3,8` + `addu v0,s1,s3` = 3 diffs @474).
-       Do NOT "simplify" this back to `(postgame ? 8 : 0)`. */
-    postgameInset = 8;
-    Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1,
-                 sizeH - (((startY + 0xf) - HUD_STATS_POS_Y) + (postgame ? postgameInset : 0)) -
-                 (showtimeleft ? 0x10 : 0),0,'\0','\0');
+  /* w40-a4 CORRECTNESS: the vertical rules run i = 1..3 (`li $s5,1` in the jal delay slot
+     @0x800DAA34, loop `slti $v0,$v0,4`), NOT 0..3 -- col[0] gets no rule.  And the height is
+     SIZE_H minus the bar inset, not a flat SIZE_H-8: oracle @0x800DAAAC picks
+     `s2 - (s1 + 8)` under postgame vs `s2 - s1`, then `-0x10` under showtimeleft, with
+     s2 = (int)SIZE_H and s1 = y - POS_Y. */
+  /* w40-a4: the oracle builds POS_X directly as `0xa0 - (PLAYERWIDTH>>1)` (`li $s5,0xA0`
+     CSE'd with the TITLE_START_X centring below, then `subu $s1,$s5,$v0` @0x800DA87C) and
+     derives TEXT_START_X from it (`addiu $s2,$s1,0x7`).  The old `-(PW>>1)` + `+0xa0`
+     spelling was numerically equal but cost a `negu` and re-based every column constant. */
+  /* the oracle indexes row `player` and element `Hud_NextPerp[player] - 1`
+     (`addiu $v1,$v1,-1` @0x800DA810, no -1 on the row). */
+void Hud_BTCStats(short player,bool postgame)
+
+{
+  short i;
+  short col [4];
+  short startY;
+  char string [40];
+  bool chasinghuman;
+  bool showname; short PLAYERWIDTH; bool showtimeleft; short HUD_STATS_POS_X; short HUD_STATS_SIZE_W; short HUD_STATS_SIZE_H; short HUD_STATS_POS_Y; short HUD_STATS_TEXT_START_X; short HUD_STATS_TITLE_START_X; short HUD_STATS_TITLE_START_Y; short HUD_STATS_TEXT_START_Y; int sizeH; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; current direct forms are receipted,not original-object proof. */ int postgameInset; /* SOURCE-REVIEW-UNRESOLVED: absent from retail despite debug elision; inset producer remains unknown. */ chasinghuman = 0; showname = 0;
+  if (1 < Cars_gNumHumanRaceCars) {
+
+    if ((Cars_gHumanRaceCarList[1 - player]->carFlags & 0x200U) == 0) {
+      chasinghuman = 1;
+    }
+    else { showname = 1;
+    }
   }
+  PLAYERWIDTH = 0xe7;
+  if (chasinghuman) { PLAYERWIDTH = 0xa1;
+  }
+  showtimeleft = 0;
+  if ((postgame == 0) || (BTCPerpInfo[player][Hud_NextPerp[player] - 1].caught != 0)) {
+    showtimeleft = 1;
+  }
+  HUD_STATS_POS_X = 0xa0 - (PLAYERWIDTH >> 1);
+  HUD_STATS_SIZE_W = PLAYERWIDTH + 6;
+  HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x16;
+  if (showtimeleft) { HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x22;
+  } if (postgame) { HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 8;
+  }
+  if (showname) {
+    HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0xc;
+  }
+  HUD_STATS_POS_Y = 0x78 - (HUD_STATS_SIZE_H >> 1);
+
+
+  HUD_STATS_TEXT_START_X = HUD_STATS_POS_X + 7;
+
+  HUD_STATS_TITLE_START_X = 0xa0 - (textpixels(TextSys_Word(postgame ? 0x48 : 0x47)) >> 1);
+
+  HUD_STATS_TITLE_START_Y = 0x76 - (HUD_STATS_SIZE_H >> 1);
+  HUD_STATS_TEXT_START_Y = HUD_STATS_TITLE_START_Y + 0xf;
+
+  col[0] = HUD_STATS_POS_X + 3;
+  col[1] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0xc : 0xf);
+  col[2] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0xc : 0x50);
+  col[3] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0x50 : 0x96);
+  startY = HUD_STATS_TEXT_START_Y;
+
+
+  Font_TextColor(6);
+
+  Font_TextXY(TextSys_Word(postgame ? 0x48 : 0x47),HUD_STATS_TITLE_START_X,HUD_STATS_TITLE_START_Y);
+
+  if (showname) {
+
+    Font_TextColor(4);
+    Font_TextXY(Cars_gRaceCarList[player]->carInfo->driver,col[2],startY);
+    startY = startY + 0xc;
+  }
+
+  Font_TextColor(3);
+  if (!chasinghuman) {
+    Font_TextXY(TextSys_Word(0x4a),col[1],startY);
+  } Font_TextXY(TextSys_Word(0x4b),col[2],startY);
+  Font_TextXY(TextSys_Word(0x4c),col[3],startY);
+
+  Hud_FBuildF4(0,HUD_STATS_POS_X,startY + 0xf,HUD_STATS_SIZE_W,1,0,'\0','\0');
+  sizeH = HUD_STATS_SIZE_H; for (i = 1; i < 4; i = i + 1) {
+    postgameInset = 8;
+    Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1, sizeH - (((startY + 0xf) - HUD_STATS_POS_Y) + (postgame ? postgameInset : 0)) - (showtimeleft ? 0x10 : 0),0,'\0','\0');
+  }
+
   if (showtimeleft) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,
                  (startY + 0xf + HUD_STATS_SIZE_H - (postgame ? 8 : 0)) -
                  (startY + 0xf - HUD_STATS_POS_Y) - 0x10,HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
-  /* in-place `startY += 0xf` (`addiu $a0,$s6,0xF; addu $s6,$a0,$zero` @0x800DAB9C) -- there is
-     no separate dataY local (SYM lists only i/col/startY/string/chasinghuman/showname/
-     PLAYERWIDTH/showtimeleft/HUD_STATS_*). */
+
   startY = startY + 0xf;
-  /* MATCH (W71-A6): both StatsTimer guards are spelled as an INDEX-TERM-FIRST byte
-     address (`(player << 2) + (int)&StatsTimer`) and NOT as `StatsTimer_arr[player]`.
-     The `<<` keeps fold from rebuilding an ARRAY_REF, which is what makes gcc
-     self-temp the address into its own dest like retail (`lui v1; addiu v1;
-     addu v1,s2,v1`) instead of picking a separate `t0` scratch.  The MULT spelling
-     `player * 4 + ...` folds back and loses it. */
+
   for (i = 0; i < Hud_NextPerp[player]; i = i + 1) {
+
     if (*(int *)((player << 2) + (int)StatsTimer) > (int)i * 2 + 4) {
+
+
       Font_TextColor(4);
+
       sprintf(string,"%d",(int)i + 1);
       Font_TextXY(string,col[0],startY + (int)i * 0xc);
+
       if (!chasinghuman) {
+
         sprintf(string,"%s",BTCPerpInfo[player][i].name);
         Font_TextXY(string,col[1],startY + (int)i * 0xc);
       }
+
       Hud_ParseTime(BTCPerpInfo[player][i].time,string);
+
       Font_TextXY(string,col[2],startY + (int)i * 0xc);
       Font_TextXY(TextSys_Word(BTCPerpInfo[player][i].caught != 0 ? 0x3d : 0x49),col[3],
+
                   startY + (int)i * 0xc);
     }
+
   }
   if (showtimeleft && (*(int *)((player << 2) + (int)StatsTimer) > (int)i * 2 + 4)) {
+
     Font_TextColor(3);
     Hud_ParseTime(FinalBTC_Countdown,string);
     Font_TextXY(TextSys_Word(0x4d),col[0],startY + (int)i * 0xc + 2);
-    /* oracle selects the COLUMN (`lh $a1,0x26(sp)` vs `lh $a1,0x24(sp)` @0x800DADC0), it does
-       not overwrite col[2] with col[3]. */
     Font_TextXY(string,chasinghuman ? col[3] : col[2],startY + (int)i * 0xc + 2);
   }
+
+
   if (postgame) {
     OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W,HUD_STATS_SIZE_H);
-  }
-  Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W,HUD_STATS_SIZE_H);
-  return;
+  } Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W,HUD_STATS_SIZE_H); return;
 }
 
 /* ---- Hud_RenderStatsView__Fv  [OVERLAYS.CPP:450-507] SLD-VERIFIED ---- */
@@ -1419,76 +1461,75 @@ void Hud_BTCStats(short player,bool postgame)
  * historical SLD-VERIFIED heading is not a full native-SLD seal claim.
  */
 
-void Hud_RenderStatsView(void)
-
-{
-  int screen;
-
-  screen = simGlobal.gameTicks >> 9 & 1;
+      /* w40-a4: there is no `player` local (SYM lists only `screen`); the two
+         Hud_BTCStats(0/1,true) call sites CROSS-JUMP into the single shared
+         `jal` @0x800DB090 with $a0 set per arm. */
+    /* the other player's cell is cleared AFTER the increment: that order gives retail's
+       `lw [0]; sw zero,[1]; addiu; move; slti; sw [0]` with no CSE of StatsTimer+4 as a
+       base (probe build/psyq/probe/st2.i fD vs fF-fH). */
   /* Block order + branch polarity transcribed from the oracle CFG (0x800DAE94..0x800DAFE8):
      the flags!=0 arm is the if-BODY (oracle `beqz` skips to the ==0 block), the shared
      screen=0 block sits EARLY at .L800DAED0, and the "one player" tail (.L800DAFE4)
      falls out of the numRaceCars test at .L800DAFD0. */
-  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
-    if (GameSetup_gData.commMode == 1) goto HudStats_common;
-HudStats_setUserZero:
-    screen = 0;
-    goto HudStats_finalize;
-  }
-  if (GameSetup_gData.commMode != 1) goto HudStats_checkNumCars;
+void Hud_RenderStatsView(void)
+
+{
+  int screen; screen = simGlobal.gameTicks >> 9 & 1;
+
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) { if (GameSetup_gData.commMode == 1) goto HudStats_common;
+HudStats_setUserZero: screen = 0; goto HudStats_finalize;
+  } if (GameSetup_gData.commMode != 1) goto HudStats_checkNumCars;
 HudStats_common:
-  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
-    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
+  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) { if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
     goto HudStats_setUserZero;
-  }
-  if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) goto HudStats_secondCar;
-HudStats_check200B:
-  if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) goto HudStats_setUserOne;
-  if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
-  if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
+  } if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) goto HudStats_secondCar; HudStats_check200B: if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) goto HudStats_setUserOne;
+
+
+
+
+
+  if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero; if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
 HudStats_secondCar:
-  if (((*(Cars_gHumanRaceCarList + 1))->carFlags & 0x200U) == 0) goto HudStats_finalize;
-  if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
-  if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
+
+
+
+  if (((*(Cars_gHumanRaceCarList + 1))->carFlags & 0x200U) == 0) goto HudStats_finalize; if (GameSetup_gData.commMode != 1) goto HudStats_finalize; if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
   screen = 1;
   goto HudStats_finalize;
 HudStats_checkNumCars:
+
+
+
+
   if (Cars_gNumRaceCars != 1) goto HudStats_finalize;
-HudStats_setUserOne:
-  screen = 1;
+HudStats_setUserOne: screen = 1;
 HudStats_finalize:
   if (screen == 0) {
-    /* the other player's cell is cleared AFTER the increment: that order gives retail's
-       `lw [0]; sw zero,[1]; addiu; move; slti; sw [0]` with no CSE of StatsTimer+4 as a
-       base (probe build/psyq/probe/st2.i fD vs fF-fH). */
+
+
     StatsTimer[0] = StatsTimer[0] + 1;
     StatsTimer[1] = 0;
     StatsTimer[0] = StatsTimer[0] <= 10000 ? StatsTimer[0] : 10000;
+
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
+
+
+
+
       RaceSummary();
     }
     else {
-      /* w40-a4: there is no `player` local (SYM lists only `screen`); the two
-         Hud_BTCStats(0/1,true) call sites CROSS-JUMP into the single shared
-         `jal` @0x800DB090 with $a0 set per arm. */
       Hud_BTCStats(0,true);
-    }
-  }
-  else {
+    } } else { StatsTimer[0] = 0;
     StatsTimer[1] = StatsTimer[1] + 1;
-    StatsTimer[0] = 0;
+
     StatsTimer[1] = StatsTimer[1] <= 10000 ? StatsTimer[1] : 10000;
-    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
-      RaceStatistics();
-    }
-    else if (GameSetup_gData.commMode == 1) {
+
+    if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) { RaceStatistics(); } else if (GameSetup_gData.commMode == 1) {
+
       Hud_BTCStats(1,true);
     }
     else {
-      RaceStatistics();
-    }
-  }
-  return;
-}
+      RaceStatistics(); } } return; }
 
 /* end of overlays.cpp */

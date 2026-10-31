@@ -12,7 +12,6 @@ void PSXDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade,int 
 
 {
   PSXTransDrawBrightEndLine(col,x,y,w,h,side,fade,darksides,0);
-  return;
 }
 
 /* lines 26-29: (static data / macros / comments - no emitted code) */

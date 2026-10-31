@@ -50,6 +50,47 @@ void AudioClc_SoundSpeech(void);
 void AudioClc_SndError(int shandle)
 {
   return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 /* ---- AudioClc_SetHorn__FP8Car_tObji  [@0x80074738] ---- */
@@ -337,43 +378,28 @@ void AudioClc_SilenceOpponentHorn(int closestIndex)
 /* ---- AudioClc_SoundCloseCar__Fii  [@0x80075028] ---- */
 void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
 {
-  AudioClc_tSource *source;
-  Car_tObj *car;
-  int dsquare;
-  int distSq;
-  int dop;
-  int dst;
-  int dir;
-  int azimuth;
-
-  source = &AudioClc_gClosest[closestIndex];
+  AudioClc_tSource *source; Car_tObj *car; int dsquare; int distSq; int dop; int dst; int dir; int azimuth; source = &AudioClc_gClosest[closestIndex];
   car = source->car;
+
+
+
+
+
   if (car == (Car_tObj *)0x0) {
     return;
   }
   dop = AudioClc_CalcDopplerShiftRatio(&(car->N).position,&(car->N).linearVel);
+
   if (dop < 0) {
     return;
   }
   dst = AudioClc_CalcDistance(&AudioClc_gRenderView,&(car->N).position);
-  dir =
-      (((fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) <
-          0x10001) ?
-         fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) :
-         0x10000) >= -0x10000) ?
-        ((fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) <
-          0x10001) ?
-         fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) :
-         0x10000) :
-        -0x10000;
+  dir = (((fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) < 0x10001) ? fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) : 0x10000) >= -0x10000) ? ((fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) < 0x10001) ? fixeddiv(AudioClc_CalcCarDirection(&AudioClc_gRenderView,car),dst) : 0x10000) : -0x10000;
+
   if (GameSetup_gData.commMode == 1) {
-    azimuth = 0x3fff;
-    if (playerIndex == 0) {
-      azimuth = 0xc000;
+    azimuth = 0x3fff; if (playerIndex == 0) { azimuth = 0xc000;
     }
-  }
-  else {
-    azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&(car->N).position);
+  } else { azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&(car->N).position);
   }
   dsquare = dst / 0x10000;
   dsquare *= dsquare;
@@ -381,60 +407,83 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
   if (dsquare < 0x1324) {
     distSq = dsquare;
   }
+
+
   if (AudioClc_gCameraVelocity != (coorddef *)0x0) {
-    source->relVelocity =
-        ((car->currentSpeed -
-          AudioClc_gPlayer[playerIndex].source.car->currentSpeed) > 0) ?
-        (car->currentSpeed -
-         AudioClc_gPlayer[playerIndex].source.car->currentSpeed) :
-        (AudioClc_gPlayer[playerIndex].source.car->currentSpeed -
-         car->currentSpeed);
+    source->relVelocity = ((car->currentSpeed - AudioClc_gPlayer[playerIndex].source.car->currentSpeed) > 0) ? (car->currentSpeed - AudioClc_gPlayer[playerIndex].source.car->currentSpeed) : (AudioClc_gPlayer[playerIndex].source.car->currentSpeed - car->currentSpeed);
   }
-  else {
-    source->relVelocity = __builtin_abs(car->currentSpeed);
+  else { source->relVelocity = __builtin_abs(car->currentSpeed);
   }
+
+
   source->distSq = distSq;
   AudioCmn_TrafficSFX(closestIndex + 6,car->carInfo->carType,
                       (car->flywheelRpm << 0x10) / car->specs->redline,
+
+
+
+
+
+
+
                       dop,dst,azimuth,__builtin_abs((car->linearVel_ch).z),dir);
   {
     int c;
 
+
+
+
     c = car->audioCount - 1;
     while (c >= 0) {
+
       if (car->audio[c].channel >= 0) {
         AudioCmn_TrafficSkidSFX(closestIndex + 0x20,
             (s_type)car->audio[c].surface1,(s_type)car->audio[c].surface2,
+
+
+
+
+
             car->audio[c].force,dsquare,azimuth);
       }
       else {
         AudioCmn_TrafficSkidSFX(-1,
             (s_type)car->audio[c].surface1,(s_type)car->audio[c].surface2,
+
+
+
+
+
             car->audio[c].force,distSq,azimuth);
       }
       c--;
     }
   }
+
+
   if ((car->carFlags & 4U) != 0) {
+
     if ((car->control).horn != '\0') {
+
       AudioClc_SoundOpponentHorn(closestIndex,azimuth,dop,distSq);
       source->horn = 1;
     }
     else if (source->horn != 0) {
+
       AudioClc_SilenceOpponentHorn(closestIndex);
       source->horn = 0;
     }
   }
-  else {
-    if (0 < source->horn) {
+  else { if (0 < source->horn) {
+
       if (0 < source->hornOn) {
         source->horn--;
-      }
-      if (source->horn == 0) {
+      } if (source->horn == 0) {
         (car->control).horn = '\0';
+
         AudioClc_SilenceOpponentHorn(closestIndex);
-        source->hornCount--;
-        if (source->hornCount != 0) {
+
+        source->hornCount--; if (source->hornCount != 0) {
           source->horn = source->hornOff;
         }
       }
@@ -445,33 +494,31 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
     }
     else if (source->horn < 0) {
       source->horn++;
+
       if (source->horn == 0) {
         source->horn = source->hornOn;
       }
     }
   }
   if (car->carInfo->carType - 0x16U < 6) {
+
     if ((car->AIFlags & 2U) != 0) {
       int iamp;
-
       iamp = ((0x1324 - distSq) * 0x7f) / 0x1324;
+
       if (bSirenOn[closestIndex] == 0) {
         SirenOn(closestIndex,car->carFlags & 0x40);
       }
-      else {
-        UpdateSiren(closestIndex,iamp,dop,azimuth,
-                 car->carFlags & 0x40);
+      else { UpdateSiren(closestIndex,iamp,dop,azimuth, car->carFlags & 0x40);
       }
     }
-    else {
-      if (bSirenOn[closestIndex] != 0) {
+    else { if (bSirenOn[closestIndex] != 0) {
+
         SirenOff(closestIndex);
         freeVoiceChannel(closestIndex + 0x2b);
       }
     }
-  }
-  return;
-}
+  } return; }
 
 /* ---- AudioClc_SoundPlayersCar__Fi  [@0x80075508] ---- */
 /* MATCH: source-PASS 461/461 (2026-08-24).  The former 4-diff residual was
@@ -481,39 +528,31 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
  * observable to jump.c; both false paths enter before bgez, and gcc fills its
  * slot with `li v0,1` exactly like retail.  No per-function compiler splice is
  * required. */
+        /* MATCH: preserve the common else entry before channel's bgez re-test. */
 void AudioClc_SoundPlayersCar(int playerIndex)
 {
-  DRender_tCalcView *view;
-  AudioClc_tSource *previous;
-  Car_tObj *car;
-  int azimuth;
-  int dsquare;
-  int frequency;
-  int dop;
-  int dst;
-  int facing;
-  int cardir;
-  int trkazi;
-
-  view = &AudioClc_gRenderView;
+  DRender_tCalcView *view; AudioClc_tSource *previous; Car_tObj *car; int azimuth; int dsquare; int frequency; int dop; int dst; int facing; int cardir; int trkazi; view = &AudioClc_gRenderView;
   previous = &AudioClc_gPlayer[playerIndex].source;
   car = previous->car;
+
+
+
   if (car == (Car_tObj *)0x0) {
     return;
   }
   facing = 0;
+
+
+
   if ((car->carFlags & 0x200U) != 0) {
+
     if (car->desiredDirection != car->direction) {
       facing = -1;
     }
   }
   else {
-    facing = fixedmult((car->N).orientMat.m[6],
-                       (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0xf)) +
-             fixedmult((car->N).orientMat.m[7],
-                       (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x10)) +
-             fixedmult((car->N).orientMat.m[8],
-                       (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x11));
+    facing = fixedmult((car->N).orientMat.m[6], (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0xf)) + fixedmult((car->N).orientMat.m[7], (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x10)) + fixedmult((car->N).orientMat.m[8], (int)*(signed char *)((car->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x11));
+
     if (GameSetup_gData.reverseTrack != 0) {
       facing = -facing;
     }
@@ -523,8 +562,16 @@ void AudioClc_SoundPlayersCar(int playerIndex)
         ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
          ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
        ((car->carFlags & 0x204U) == 4)))) &&
+
       (car->RSControl == 0) && (car->pullOver == 0) && (facing < 0)) {
+
+
+
+
+
+
     if (((car->N).flightTime == 0) && ((car->collision).smoking == 0)) {
+
       car->wrongway++;
       if (((0x3f < car->wrongway) && ((car->wrongway & 0x1f) == 0)) &&
          ((car->wrongway < 0x94 || (Hud_BeTheCop != 0)))) {
@@ -535,138 +582,151 @@ void AudioClc_SoundPlayersCar(int playerIndex)
   else {
     car->wrongway = 0;
   }
+
   dop = AudioClc_CalcDopplerShiftRatio(&(car->N).position,&(car->N).linearVel);
+
   if (GameSetup_gData.commMode == 1) {
-    azimuth = 0xc000;
-    if (playerIndex != 0) {
-      azimuth = 0x3fff;
-    }
-  }
-  else if (Camera_gInfo[playerIndex].mode == 0) {
+    azimuth = 0xc000; if (playerIndex != 0) { azimuth = 0x3fff;
+    } } else if (Camera_gInfo[playerIndex].mode == 0) {
     azimuth = 0;
   }
-  else {
-    azimuth = AudioClc_CalcAzimuth(view,&(car->N).position);
+  else { azimuth = AudioClc_CalcAzimuth(view,&(car->N).position);
   }
   dst = AudioClc_CalcDistance(view,&(car->N).position);
   cardir =
-      (((fixeddiv(AudioClc_CalcCarDirection(view,car),dst) < 0x10001) ?
-         fixeddiv(AudioClc_CalcCarDirection(view,car),dst) : 0x10000) >=
-       -0x10000) ?
-      ((fixeddiv(AudioClc_CalcCarDirection(view,car),dst) < 0x10001) ?
-       fixeddiv(AudioClc_CalcCarDirection(view,car),dst) : 0x10000) :
-      -0x10000;
+      (((fixeddiv(AudioClc_CalcCarDirection(view,car),dst) < 0x10001) ? fixeddiv(AudioClc_CalcCarDirection(view,car),dst) : 0x10000) >= -0x10000) ? ((fixeddiv(AudioClc_CalcCarDirection(view,car),dst) < 0x10001) ? fixeddiv(AudioClc_CalcCarDirection(view,car),dst) : 0x10000) : -0x10000;
+
   dsquare = dst / 0x10000;
   dsquare *= dsquare;
   {
     int revLimit;
 
-    if (car->carInfo->Transmission == 1) {
-      revLimit = car->specs->redline + 1000;
-    }
-    else {
-      revLimit = car->specs->redline + 2000;
-    }
-    if (5 < (car->N).flightTime) {
+
+    if (car->carInfo->Transmission == 1) { revLimit = car->specs->redline + 1000;
+    } else { revLimit = car->specs->redline + 2000;
+    } if (5 < (car->N).flightTime) {
       revLimit -= 500;
-    }
-    frequency = (car->flywheelRpm * 0x7f) / revLimit;
+    } frequency = (car->flywheelRpm * 0x7f) / revLimit;
   }
+
+
   if (AudioClc_gCameraVelocity != (coorddef *)0x0) {
     previous->relVelocity = 0;
   }
-  else {
-    previous->relVelocity = __builtin_abs(car->currentSpeed);
+  else { previous->relVelocity = __builtin_abs(car->currentSpeed);
   }
   trkazi = AudioClc_CalcTrackAzimuth(view,car);
+
   AudioTrk_SoundTrack(car,trkazi);
   AudioCmn_SoundCar(car,dst,frequency,dop,azimuth,trkazi,
+
+
              previous->relVelocity,cardir);
+
+
+
+
+
+
   if (gMasterSFXLevel == 0) {
     return;
   }
   {
     int c;
     int channel;
-
     c = car->audioCount - 1;
     while (c >= 0) {
+
+
+
+
+
+
+
+
+
+
+
+
+
       if (car->audio[c].channel == 0x12) {
-        channel = 0x12;
-        if (playerIndex != 0) {
-          channel = 0x13;
+        channel = 0x12; if (playerIndex != 0) { channel = 0x13;
         }
-      }
-      else if (car->audio[c].channel == 0x14) {
-        channel = 0x14;
-        if (playerIndex != 0) {
-          channel = 0x15;
+      } else if (car->audio[c].channel == 0x14) {
+        channel = 0x14; if (playerIndex != 0) { channel = 0x15;
         }
       }
       else {
         channel = car->audio[c].channel;
       }
       if (((car->audio[c].type == 5) ||
+
            (car->audio[c].type == 3)) && (channel >= 0)) {
+
         freeVoiceChannel(channel);
         if (channel - 0x12U < 2) {
           freeVoiceChannel(channel + 4);
         }
       }
-      else {
-        /* MATCH: preserve the common else entry before channel's bgez re-test. */
-        if ((channel < 0) && (GameSetup_gData.commMode != 1) &&
-            (car->audio[c].surface1 != 10) &&
-            (car->audio[c].surface1 != 8)) {
+      else { if ((channel < 0) && (GameSetup_gData.commMode != 1) && (car->audio[c].surface1 != 10) && (car->audio[c].surface1 != 8)) {
           AudioCmn_SFX(channel,car->audio[c].surface1,
                        car->audio[c].surface2,car->audio[c].force,
                        dsquare,
                        AudioClc_CalcAzimuth(view,
+
+
+
                          &(car->N).collision.collisionPoint));
         }
         else {
           AudioCmn_SFX(channel,car->audio[c].surface1,
                        car->audio[c].surface2,car->audio[c].force,
+
+
+
+
                        dsquare,azimuth);
         }
-      }
-      c--;
+      } c--;
     }
   }
+
+
   if ((car->control).horn != '\0') {
+
     AudioCmn_PlayerHornOn(car->carIndex,dsquare,0x40,azimuth,dop);
     previous->horn = 1;
   }
   else if (previous->horn != 0) {
+
     previous->horn = AudioCmn_PlayerHornOff(car->carIndex);
   }
+
+
   if (car->carInfo->carType - 0x16U < 6) {
+
     if ((car->AIFlags & 2U) != 0) {
       int iamp;
+
 
       if (dsquare < 0x1324) {
         iamp = ((0x1324 - dsquare) * 0x7f) / 0x1324;
       }
-      else {
-        iamp = 0;
+      else { iamp = 0;
       }
       if (bSirenOn[car->carIndex + 4] == 0) {
         SirenOn(car->carIndex + 4,car->carFlags & 0x40);
       }
-      else {
-        UpdateSiren(car->carIndex + 4,iamp,dop,azimuth,
-                    car->carFlags & 0x40);
+      else { UpdateSiren(car->carIndex + 4,iamp,dop,azimuth, car->carFlags & 0x40);
       }
     }
-    else {
-      if (bSirenOn[car->carIndex + 4] != 0) {
+    else { if (bSirenOn[car->carIndex + 4] != 0) {
+
         SirenOff(car->carIndex + 4);
         freeVoiceChannel(car->carIndex + 0x2f);
       }
     }
-  }
-  return;
-}
+  } return; }
 
 /* ---- AudioClc_ResetClosest__FiP8Car_tObji  [@0x80075c3c] ---- */
 void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
@@ -730,41 +790,39 @@ void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
  * retaining the same typed source object as `view = &AudioClc_gRenderView`
  * before the loop preserves the shared-source name and expression shape and is
  * independently byte-exact at 267/267.  Optimized NFS4 SYM omits this pointer. */
+  /* ORIGINAL-NAME-RECOVERED: view -- the byte-matched, symbol-bearing NFS2
+     predecessor retains this exact DRender_tCalcView pointer name and type;
+     see the source receipt above. */
 void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 {
   int i;
   int j;
   int k;
   int x;
-  int y;
-  int z;
-  int distance;
-  int distance1;
-  Car_tObj **car;
-  AudioClc_tSource *closest = AudioClc_gClosest + closestIndex;
+  int y; int z; int distance; int distance1; Car_tObj **car; AudioClc_tSource *closest = AudioClc_gClosest + closestIndex;
   AudioClc_tCLCache cl[numclosest];
 
   for (i = 0; i < numclosest; i++) {
+
     cl[i].ptr = 0;
     cl[i].dst = 0x12c0000;
   }
-
-  /* ORIGINAL-NAME-RECOVERED: view -- the byte-matched, symbol-bearing NFS2
-     predecessor retains this exact DRender_tCalcView pointer name and type;
-     see the source receipt above. */
   DRender_tCalcView *view = &AudioClc_gRenderView;
-
   for (i = 0, car = Cars_gList; i < Cars_gNumCars; i++, car++) {
     int searchdist;
-
     if (GameSetup_gData.commMode == 1) {
+
       if (((*car)->carFlags & 4U) != 0) {
         continue;
       }
     }
+
     else if (*car == AudioClc_gPlayer[playerIndex].source.car) {
       continue;
     }
+
+
+
 
     if ((*car)->N.active == 0) {
       continue;
@@ -774,6 +832,7 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
     x = (*car)->N.position.x - view->translation.x;
     y = (*car)->N.position.y - view->translation.y;
     z = (*car)->N.position.z - view->translation.z;
+
     x = __builtin_abs(x);
     y = __builtin_abs(y);
     z = __builtin_abs(z);
@@ -787,15 +846,18 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
       if (patch >= 0) {
         AudioCmn_GetAsyncSfx(1,patch,(void *)0);
       }
-    }
+    } if (distance1 < searchdist) {
 
-    if (distance1 < searchdist) {
       distance = (distance1 < y) ? y + (distance1 >> 2) : distance1 + (y >> 2);
 
       if (distance < searchdist) {
+
         for (j = 0; j < numclosest; j++) {
+
           if (distance < cl[j].dst) {
+
             for (k = numclosest - 1; k > j; k--) {
+
               cl[k].ptr = cl[k - 1].ptr;
               cl[k].dst = cl[k - 1].dst;
             }
@@ -807,37 +869,40 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
       }
     }
   }
-
   for (i = 0; i < numclosest; i++) {
+
     if (closest[i].car != 0) {
+
       for (j = 0; j < numclosest; j++) {
+
         if (cl[j].ptr == closest[i].car) {
           cl[j].ptr = 0;
+
           break;
         }
       }
       if (j == numclosest) {
         closest[i].car = (Car_tObj *)-1;
       }
-    }
-  }
-
+    } }
   for (i = 0; i < numclosest; i++) {
+
     if (cl[i].ptr != 0) {
+
       for (j = 0; j < numclosest; j++) {
+
         if ((closest[j].car == 0) || (closest[j].car == (Car_tObj *)-1)) {
+
           AudioClc_ResetClosest(j + closestIndex,cl[i].ptr,playerIndex);
           break;
         }
       }
     }
   }
-
   for (i = 0; i < numclosest; i++) {
     if (closest[i].car == (Car_tObj *)-1) {
       AudioClc_ResetClosest(i + closestIndex,0,playerIndex);
-    }
-  }
+    } }
 }
 
 /* ---- AudioClc_SoundSpeech__Fv  [@0x80076130] ---- */
@@ -860,16 +925,6 @@ void AudioCmn_UpdateThunder(void);
  *  mis-rendered lastview as =0). Skipped from the AudioClc pass. Per screen: get audio view,
  *  find/sound the closest cars, sound the player's car, save the view position as lastview.
  *  Pursuit "busted" block re-primes perp engine SFX. */
-void AudioClc_SoundCars(void)
-{
-
-  AudioClc_SoundSpeech();
-  AudioCmn_UpdateThunder();
-
-  if ((GameSetup_gData.raceType == RaceType_HotPursuit || GameSetup_gData.raceType == RaceType_Id5) &&
-      ((Cars_gHumanRaceCarList[0]->carFlags & 0x200) ||
-       (Cars_gNumHumanRaceCars == 2 && (Cars_gHumanRaceCarList[1]->carFlags & 0x200))) &&
-      HudBustedOverlay != 0) {
     /* MATCH: PASS 176/176 (2026-08-08, was FAIL 2 under a w30-a6 "pure
      * allocator artifact" floor verdict + 505-iter permuter).  Three SYM
      * truths cracked it together: NO `gs`/`patch` locals (SYM block lists
@@ -878,22 +933,36 @@ void AudioClc_SoundCars(void)
      * loop.c's strength-reduction giv-init source the HOISTED base pseudo
      * -> `addu s0,s2` chain; the old explicit if+do-while sourced the
      * address temp -> `addu s0,a1` = the whole 2-diff residual). */
+void AudioClc_SoundCars(void)
+{
+
+
+
+
+
+
+
+
+  AudioClc_SoundSpeech();
+  AudioCmn_UpdateThunder();
+  if ((GameSetup_gData.raceType == RaceType_HotPursuit || GameSetup_gData.raceType == RaceType_Id5) &&
+      ((Cars_gHumanRaceCarList[0]->carFlags & 0x200) || (Cars_gNumHumanRaceCars == 2 && (Cars_gHumanRaceCarList[1]->carFlags & 0x200))) && HudBustedOverlay != 0) {
     {
       int i;
-
       for (i = 0; i < GameSetup_gData.numPerps; i++) {
+
         AudioCmn_GetAsyncSfx(1, CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 0), (void *)0);
         AudioCmn_GetAsyncSfx(1, CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 1), (void *)0);
       }
     }
   }
-
   if (GameSetup_gData.commMode == 1) {
     /* two-player split screen */
     Camera_GetAudioViewInfo(0, &AudioClc_gRenderView, &AudioClc_gCameraVelocity);
     AudioClc_GetClosestCars(0, 0, 2);
     AudioClc_SoundPlayersCar(0);
     if (0 < gMasterAmbientLevel) {
+
       AudioClc_SoundCloseCar(0, 0);
       AudioClc_SoundCloseCar(0, 1);
     }
@@ -903,16 +972,30 @@ void AudioClc_SoundCars(void)
     AudioClc_GetClosestCars(1, 2, 2);
     AudioClc_SoundPlayersCar(1);
     if (0 < gMasterAmbientLevel) {
+
       AudioClc_SoundCloseCar(1, 2);
       AudioClc_SoundCloseCar(1, 3);
     }
     AudioClc_gPlayer[1].lastview = AudioClc_gRenderView.translation;
   } else {
     /* single screen */
+
+
+
+
+
+
+
+
+
+
     Camera_GetAudioViewInfo(0, &AudioClc_gRenderView, &AudioClc_gCameraVelocity);
+
     AudioClc_GetClosestCars(0, 0, 4);
     AudioClc_SoundPlayersCar(0);
+
     if (0 < gMasterAmbientLevel) {
+
       AudioClc_SoundCloseCar(0, 0);
       AudioClc_SoundCloseCar(0, 1);
       AudioClc_SoundCloseCar(0, 2);

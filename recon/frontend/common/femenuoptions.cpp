@@ -10,15 +10,6 @@
 #undef NFS4_FE_CORE_OPTIONS_DRAW_ACCESSORS
 #undef NFS4_FE_CORE_MENUITEM_ISENABLED
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
-static inline bool MenuItem_Enabled(tMenuItem *item) { return ((item->fFlags & 1) ^ 1) != 0; }
-static inline int ListIterator_Min(tListIterator *it) { return (unsigned char)it->fMinValue; }
-static inline int ListIterator_Max(tListIterator *it) { return (unsigned char)it->fMaxValue; }
-static inline u_short GInfo_Busy(void) { return *(u_short *)&ginfo[16]; }
-static inline int Text_BrightColor(int text) { return kRGBVals[(u_char)textDefinitions[TextSys_WordFlags((short)text)][5]]; }
-static inline int Text_Color(int text) { return kRGBVals[(u_char)textDefinitions[TextSys_WordFlags((short)text)][4]]; }
 
 
 /* EXT data owned by FeMenuOptions.obj: both UNINITIALIZED -- cc1plus 2.8 defers them to
@@ -33,14 +24,6 @@ typedef struct tPsyQPrimTag {
 } tPsyQPrimTag;
 
 
-/* P891 retained carrier: inline_fn/arg0 are not recovered native source names.
- * With scalar ticks, base direct remainder and declaration-init probes both
- * fail 5 diffs (21/22); split load/remainder fails 15. The helper retains PASS.
- * Its original inline/read source shape remains a documented recovery task. */
-static inline int inline_fn(int *arg0)
-{
-  return arg0[0];
-}
 
 /* ---- CalcPulsateYellow  [FEMENUOPTIONS.CPP:77-82] SYM/SLD-REVIEWED; emitted partitions open (P891 SLD_RECEIPT.md) ---- */
 void CalcPulsateYellow(void)
@@ -322,10 +305,10 @@ tOptionsMenu::tOptionsMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
 
-
   
   this->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fScreenFade = 0;
+
   this->fPrevItem = 0;
   this->fFirstFrame = firstframe;
   this->fNumFrames = numframes;
@@ -613,9 +596,9 @@ tInsideBoxMenu::tInsideBoxMenu(u_int flags,tScreen *screenHandler,tMenu *nextMen
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
 
-
   
   this->tMenuConstructor(firstItem,(&firstItem + 1));
+
   this->fPrevItem = 0;
   this->fMoving = 0;
   this->fMovingDir = 0;
@@ -780,15 +763,17 @@ void tMenuItemSlidingMenu::TransitionOn()
 
 /* ---- tMenuItemSlidingMenu::TransitionIsFinished  [FEMENUOPTIONS.CPP:661-676] SLD-VERIFIED ---- */
 
+/* MATCH: plain if/else-if chain (same shape as tMenuItemLeftRightFade's).  The
+   fFadeDir reload at 8001D2E8 is free: the preceding `&&` clobbered $v0 with
+   fFadeVal, so only that path reloads while the bgez edge enters mid-block. */
 bool tMenuItemSlidingMenu::TransitionIsFinished()
 
 {
-  /* MATCH: plain if/else-if chain (same shape as tMenuItemLeftRightFade's).  The
-     fFadeDir reload at 8001D2E8 is free: the preceding `&&` clobbered $v0 with
-     fFadeVal, so only that path reloads while the bgez edge enters mid-block. */
   if ((this->currMenu == (tInsideBoxMenu *)0x0) || (this->nextMenu == (tInsideBoxMenu *)0x0)) {
+
     this->fFadeDir = 0;
     this->fInTransition = 0;
+
   } else if (this->fFadeDir == 0) {
     this->fInTransition = 0;
   } else if ((this->fFadeDir < 0) && (this->fFadeVal <= 0)) {
@@ -1054,10 +1039,10 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
                tMenuCommand &command)
 
 {
-
-
   if ((this->fOpenHeight == this->fHeight) &&
       (this->currMenu != (tInsideBoxMenu *)0x0)) {
+
+
     this->currMenu->ProcessInput(fromPlayer,keyval,command);
   }
   if (keyval == kInput_KeyType_Down) {
@@ -1074,12 +1059,17 @@ void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
 {
   this->nextMenu = menu;
   if (bothmenus) {
+
     this->currMenu = menu;
   }
   if (this->nextMenu == 0) {
+
+
     this->Disable();
+
   }
   else {
+
     this->Enable();
   }
 }
@@ -1153,14 +1143,15 @@ void tMenuItemSlidingActivated::TransitionOn()
 
 /* ---- tMenuItemSlidingActivated::TransitionIsFinished  [FEMENUOPTIONS.CPP:964-979] SLD-VERIFIED ---- */
 
+/* MATCH: same if/else-if chain as tMenuItemSlidingMenu::TransitionIsFinished. */
 bool tMenuItemSlidingActivated::TransitionIsFinished()
 
 {
-
-  /* MATCH: same if/else-if chain as tMenuItemSlidingMenu::TransitionIsFinished. */
   if ((this->currMenu == (tInsideBoxMenu *)0x0) || (this->nextMenu == (tInsideBoxMenu *)0x0)) {
+
     this->fFadeDir = 0;
     this->fInTransition = 0;
+
   } else if (this->fFadeDir == 0) {
     this->fInTransition = 0;
   } else if ((this->fFadeDir < 0) && (this->fFadeVal <= 0)) {
@@ -1847,11 +1838,11 @@ void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool)
 tInsideBoxTwoWaySlider::tInsideBoxTwoWaySlider(u_int textDescription,tListIterator *dataPtr,int type)
   : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
-
-  
   this->fType = (short)type;
+
   this->fSelFade = 0;
   this->fHeight = 5;
+
   this->fActive = 0;
 }
 
@@ -2738,6 +2729,8 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
 
 {
   this->fFadeVal = (short)((((int)this->fFadeVal + (int)this->fFadeDir) <? 0x80) >? 0);
+
+
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;

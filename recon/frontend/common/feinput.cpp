@@ -5,9 +5,6 @@
  */
 #include "feinput.h"
 
-/* gettick is the EA name in retail SYM/MAP at800E8220 and the matched NFS2 timer.
-   This local inline expansion is reconstructed; original header spelling is unproved. */
-static inline int gettick(void) { return ticks; }
 
 
 /* ---- FEInput.obj-OWNED data -- DEFINED here (self-contained; real NFS4.EXE bytes). ---- */
@@ -152,22 +149,30 @@ return_one:
 
 /* ---- FEInput_GetDebounceKey [FEINPUT.CPP:146-179] NATIVE CLEAN; SLD OPEN ---- */
 
+/* SYM (nfs4-f-v3.txt @0x80023B74): key REGPARM $16, controller REGPARM $17,
+   and exactly ONE named local -- `int tick` REG $4 (a0), declared at the top of
+   the block starting at 0x80023BB8 (the tick load) and running to 0x80023C38.
+   The oracle reads ticks ONCE through an inline pair; the old body re-read the global
+   at every use.  Branch polarity: the debounce SET path and the debounce CLEAR
+   path are both laid out OUT OF LINE after the tick block (oracle `beqz` to
+   .L80023C38 / .L80023C50), so both guards must be written as the taken-branch
+   case with the tick block falling through. */
 int FEInput_GetDebounceKey(int key,int controller)
 
 {
-  /* SYM (nfs4-f-v3.txt @0x80023B74): key REGPARM $16, controller REGPARM $17,
-     and exactly ONE named local -- `int tick` REG $4 (a0), declared at the top of
-     the block starting at 0x80023BB8 (the tick load) and running to 0x80023C38.
-     The oracle reads ticks ONCE through an inline pair; the old body re-read the global
-     at every use.  Branch polarity: the debounce SET path and the debounce CLEAR
-     path are both laid out OUT OF LINE after the tick block (oracle `beqz` to
-     .L80023C38 / .L80023C50), so both guards must be written as the taken-branch
-     case with the tick block falling through. */
+
   if (FEInput_GetNoDebounceKey(key,controller) != 0) {
+
+
+
     if ((debounce[controller] & key) != 0) {
+
+
       int tick = gettick();
 
       if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (key == 0x40)) {
+
+
         if (nextTick == 0) {
           nextTick = tick + FeTools_gScrollTicksOut + 10;
         }
@@ -182,6 +187,8 @@ int FEInput_GetDebounceKey(int key,int controller)
       debounce[controller] = debounce[controller] | key;
       nextTick = 0;
       return 1;
+
+
     }
   } else {
     debounce[controller] = debounce[controller] & ~key;

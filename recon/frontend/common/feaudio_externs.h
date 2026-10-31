@@ -49,4 +49,8 @@ char  *strncpy(...);
 char *FeAudio_StartBigfileRead(char *fname, int offset, int length, int *vivHandle);
 void  FeAudio_LocateBigfile(LUMPYHEAD *bigfileHeader, char *name, int *offset, int *length);
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800100F8): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #endif

@@ -5,8 +5,6 @@
  */
 #include "fetools.h"
 
-/* Retail fetools.obj opens .rodata with this unreferenced class tag. */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- Fetools.obj-OWNED globals -- DEFINED here (self-contained; .bss zero / real bytes).
    font12/font18/fontTitle = FE font pointers (set in FeTools_init); currentSize = current font
@@ -158,12 +156,42 @@ void FeTools_init(void)
   Font_ExitFromGame();
   sprintf(filename,"%stiny.pfn",Paths_Paths[0x21]);
   font12 = (char *)loadfileadrz(filename,(void *)0x0);
+
+
+
+
+
+
+
+
+
   Font_LoadFont(font12,0x3c0,0x181,'\0');
+
+
+
   sprintf(filename,"%ssmall.pfn",Paths_Paths[0x21]);
   font18 = (char *)loadfileadrz(filename,(void *)0x0);
+
+
+
+
+
+
+
+
   Font_LoadFont(font18,0x380,0x100,'\0');
+
   sprintf(filename,"%stitle.pfn",Paths_Paths[0x21]);
   fontTitle = (char *)loadfileadrz(filename,(void *)0x0);
+
+
+
+
+
+
+
+
+
   Font_LoadFont(fontTitle,0x3c0,0x100,'\0');
   currentSize = 3;
   return;
@@ -176,11 +204,11 @@ void FeTools_init(void)
 void FeTools_deinit(void)
 
 {
+
   purgememadr(font18);
   purgememadr(fontTitle);
   purgememadr(font12);
   Font_DeInit();
-  return;
 }
 
 

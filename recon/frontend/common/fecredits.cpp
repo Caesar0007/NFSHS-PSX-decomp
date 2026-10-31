@@ -4,14 +4,8 @@
  */
 #include "fecredits.h"
 
-/* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
-   through an inline getter, not directly */
-static inline int FE_Ticks(void) { return ticks; }
 
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80011858): the unused inline of the
- * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* ---- FECredits.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes) ---- */
 /* P880: ticks and screenMain use their existing scalar declarations from

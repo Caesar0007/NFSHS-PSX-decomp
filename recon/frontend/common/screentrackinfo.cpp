@@ -84,11 +84,12 @@ void tScreenTrackInfo::DrawBackground()
 void tScreenTrackInfo::Initialize()
 
 {
+
+
   this->tScreen::Initialize();
   ::Initialize(&this->fVideoWall,this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0);
   UpdateImages(&this->fVideoWall);
   TurnOn(&this->fVideoWall);
-  return;
 }
 
 /* ---- tScreenTrackInfo::ProcessInput  (screentrackinfo.cpp:108) ---- */
@@ -99,13 +100,18 @@ void tScreenTrackInfo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
                tMenuCommand &command)
 
 {
+
+
   if (keyval == kInput_KeyType_Triangle) {
+
     TurnOffInstant(&this->fVideoWall);
+
+
     if (tournamentManager.CurrentTrack() == 0) {
+
       tournamentManager.SubtractMoney(-(u_long)tournamentManager.CurrentTourney()->fEntranceFee);
     }
   }
-  return;
 }
 
 /* ---- tScreenTrackInfo::~tScreenTrackInfo  (screentrackinfo.cpp:52) ---- */

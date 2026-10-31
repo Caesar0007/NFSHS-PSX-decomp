@@ -42,8 +42,13 @@ static void HudPmx_LoadShape(char *n,HudPmx_tShape *s)
   shp = locateshape(gShpfile,n);
   s->width  = shp->width;
   s->height = shp->height;
-  Texture_LoadPmx(gShpfile,n,0x41,loadShapeXOff + 0x80,0x80,-1,-1,(Draw_tPixMap *)s);
-  return;
+
+
+
+
+
+
+  Texture_LoadPmx(gShpfile,n,0x41,loadShapeXOff + 0x80,0x80,-1,-1,(Draw_tPixMap *)s); return;
 }
 
 /* ---- HudPmx_InitTextures__Fv  [HUDPMX.CPP:40-204] SLD-VERIFIED ---- */
@@ -54,11 +59,20 @@ void HudPmx_InitTextures(void)
   int carType1;
   char name[256];
   int i;
+
+
+
+
+
   char *tachs[29] = {
     "tslk","tbz3","thsv","tfor","tz28","ttra","tdb7","txkr","ttm5","tvet",
     "t550","t911","tf50","tdsv","tclk","tmcf","t911","thsv","tvet","tbon",
     "tbon","tbon","tcap","thsv","ttm5","tvet","t911","tdsv","tbon"
   };
+
+
+
+
   char *ntachs[29] = {
     "nslk","nbz3","nhsv","nfor","nz28","ntra","ndb7","nxkr","nnm5","nvet",
     "n550","n911","nf50","tdsv","tclk","nmcf","n911","nhsv","nvet","nbon",
@@ -66,7 +80,12 @@ void HudPmx_InitTextures(void)
   };
   char mapname[5];
 
+
+
+
+
   sprintf(mapname,"mp%02d",GameSetup_gData.track);
+
 
   char *shapes[132] = {
     "cmra","cam0","cam1","cam2","cam3","cam4","cam5","cam6","cam7","cam8",
@@ -84,67 +103,92 @@ void HudPmx_InitTextures(void)
     mapname,"plr1","oppn","barl","barr","barb","baXl","baXr","tacc",
     tachs[0],"tpno",tachs[0]
   };
+
+
+
+
+
+
+
+
+
+
+
+
   loadShapeXOff = 0;
+
+
+
+
+
+
+
+
+
   sprintf(name,"%sfont.pfn",Paths_Paths[0x1a]);
   i = 0;
   gHudFont = loadfileadrz(name,0);
+
+
+
+
+
+
+
+
+
   Font_LoadFont(gHudFont,0x80,0x80,1);
   {
     for (; i < 10; i = i + 1) {
       int u;
       int v;
-      int w;
-      int h;
-      int yo;
-
-      Font_GetUVWH((char)(i + '0'),&u,&v,&w,&h,&yo);
+      int w; int h; int yo; Font_GetUVWH((char)(i + '0'),&u,&v,&w,&h,&yo);
       HudPmx_gHudNumberUV[i].u0 = (u_char)u;
       HudPmx_gHudNumberUV[i].v0 = (u_char)v;
       HudPmx_gHudNumberUV[i].clut = gFontClut;
     }
   }
+
+
+
   sprintf(name,"%shud.psh",Paths_Paths[0x1a]);
   gShpfile = (char *)loadfileadr(name,0);
+
   Texture_ResetPaletteSharing();
+
+
+
+
+
   carType0 = GameSetup_gData.carInfo[0].carType;
   carType1 = GameSetup_gData.carInfo[1].carType;
   if (GameSetup_gData.Time != 0) {
-    if (carType0 < 0x1e) {
-      shapes[129] = ntachs[carType0];
-    }
-    else {
-      shapes[129] = "nbon";
-    }
-    if (carType1 < 0x1e) {
-      shapes[131] = ntachs[carType1];
-      goto HudPmxInit_shapeLoadLoop;
-    }
-    shapes[131] = "nbon";
+
+    if (carType0 < 0x1e) { shapes[129] = ntachs[carType0]; } else { shapes[129] = "nbon";
+    } if (carType1 < 0x1e) { shapes[131] = ntachs[carType1]; goto HudPmxInit_shapeLoadLoop; } shapes[131] = "nbon";
   }
   else {
-    if (carType0 < 0x1e) {
-      shapes[129] = tachs[carType0];
-    }
-    else {
-      shapes[129] = "tbon";
-    }
-    if (carType1 < 0x1e) {
-      shapes[131] = tachs[carType1];
-      goto HudPmxInit_shapeLoadLoop;
-    }
-    shapes[131] = "tbon";
+
+    if (carType0 < 0x1e) { shapes[129] = tachs[carType0]; } else { shapes[129] = "tbon";
+    } if (carType1 < 0x1e) { shapes[131] = tachs[carType1]; goto HudPmxInit_shapeLoadLoop; } shapes[131] = "tbon";
   }
 HudPmxInit_shapeLoadLoop:
+
+
+
+
   for (i = 0; i < 0x83; i = i + 1) {
-    HudPmx_LoadShape(shapes[i],&HudPmx_gShapes[i]);
-  }
+    HudPmx_LoadShape(shapes[i],&HudPmx_gShapes[i]); }
+
   for (i = 0x84; i < 0x9e; i = i + 1) {
     static char alph [5] = "alpX";  /* @0x8013cd34, runtime-patched at [3] */
+
     alph[3] = (char)(i - 0x43);
     HudPmx_LoadShape(alph,&HudPmx_gShapes[i]);
   }
   for (i = 0x9e; i < 0xa8; i = i + 1) {
     static char alph [5] = "alpX";  /* @0x8013cd3c, runtime-patched at [3] */
+
     alph[3] = (char)(i - 0x6e);
     HudPmx_LoadShape(alph,&HudPmx_gShapes[i]);
   }
@@ -155,18 +199,26 @@ HudPmxInit_shapeLoadLoop:
   HudPmx_LoadShape("negB",&HudPmx_gShapes[172] /* @0x80111a08 */);
   HudPmx_LoadShape("neg2",&HudPmx_gShapes[173] /* @0x80111a1c */);
   HudPmx_LoadShape("alUP",&HudPmx_gShapes[174] /* @0x80111a30 */);
+
+
   for (i = 0; i < 0x1c; i = i + 1) {
+
     HudPmx_LoadShape(shapes[i + 74],&HudPmx_gShapes[i + 74]);
+
   }
   HudPmx_LoadShape("a229",&HudPmx_gShapes[103] /* @0x801114a4 */);
   HudPmx_LoadShape("ahyp",&HudPmx_gShapes[72] /* @0x80111238 */);
   HudPmx_LoadShape("acol",&HudPmx_gShapes[73] /* @0x8011124c */);
+
   if (DashHUD_gInfo.splitscreen != 0) {
+
+
+
     loadShapeXOff = 0x16;
     HudPmx_LoadShape(shapes[131],&HudPmx_gShapes[131] /* @0x801116d4 */);
   }
-  purgememadr(gShpfile);
-  return;
+
+  purgememadr(gShpfile); return;
 }
 
 /* ---- HudPmx_Kill__Fv  [HUDPMX.CPP:209-210] ----

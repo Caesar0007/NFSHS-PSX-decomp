@@ -6,9 +6,6 @@
  */
 #include "drawshp.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80012738): the unused inline of the
- * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
 /* REAL DATA DEFECT fixed W66-A5 (zeroinit per-symbol screen, after its UNKNOWN
    bucket was taught to compare the readable OVERLAP): retail's word at
@@ -75,19 +72,27 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   y2 = y1 + rect.h + -1;
   x1 = rect.x + 2;
   x2 = rect.x + (rect.w >> 3);
+
   for (i = 0; i < 2; i = i + 1)
   {
     DrawShp_AllocPrim(prim,POLY_G4);
     *(u_long *)&prim->r2 = *(u_long *)&prim->r0 = 0x808080;
     *(u_long *)&prim->r1 = *(u_long *)&prim->r3 = 0;
+
+
     prim->code = 0x3a, ((u_char *)&prim->tag)[3] = 8;
+
+
+
     setXY4(prim,x1,y1 + 2,x2,y1,x1,y2 + -2,x2,y2);
+
     x1 = rect.x + rect.w + -2;
     x2 = x1 - (rect.w >> 3);
   }
+
+
   DrawShp_AllocPrim(dr_mode,DR_MODE);
   SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,2,0,0x100),(RECT *)0x0);
-  return;
 }
 
 /* lines 82-91: (static data / macros / comments - no emitted code) */
@@ -207,22 +212,26 @@ void DrawShape_NFS4Rectangle(RECT &position)
 /* lines 167-169: (static data / macros / comments - no emitted code) */
 
 /* ---- DrawShape_NFS4TransRectangle  (drawshp.cpp:170, code lines 170-181) ---- */
+/* SYM: fsize 48, mask $800f0000 (ra,s3,s2,s1,s0); Block start/end both line 1
+ * => ZERO named locals.  The old Ghidra body carried fabricated x/y/abr/opac
+ * and passed UNINITIALISED x/y as the draw coordinates (real bug).  Every
+ * coordinate is re-read from *r (lh) at each call site per the oracle.
+ * MATCH: the doubled opacity MUST be spelled  opacity << 1  (not * 2): the
+ * shift form lets combine fold promotion+double into one (raw<<17)>>16 off the
+ * raw parm copy, deferring the plain sign-extend to the last call site; the
+ * multiply form CSEs one shared (int)opacity and is 1 insn short. */
 void DrawShape_NFS4TransRectangle(RECT &r,short opacity)
 
 {
-  /* SYM: fsize 48, mask $800f0000 (ra,s3,s2,s1,s0); Block start/end both line 1
-   * => ZERO named locals.  The old Ghidra body carried fabricated x/y/abr/opac
-   * and passed UNINITIALISED x/y as the draw coordinates (real bug).  Every
-   * coordinate is re-read from *r (lh) at each call site per the oracle.
-   * MATCH: the doubled opacity MUST be spelled  opacity << 1  (not * 2): the
-   * shift form lets combine fold promotion+double into one (raw<<17)>>16 off the
-   * raw parm copy, deferring the plain sign-extend to the last call site; the
-   * multiply form CSEs one shared (int)opacity and is 1 insn short. */
+
   PSXDrawTransSquare(0,r.x,r.y,4,r.h,opacity << 1);
   PSXDrawTransSquare(0,r.x + r.w + -4,r.y,4,r.h,opacity << 1);
   PSXDrawTransSquare(0,r.x + 4,r.y,r.w + -8,2,opacity << 1);
   PSXDrawTransSquare(0,r.x + 4,r.y + r.h + -2,r.w + -8,2,opacity << 1);
+
+
   PSXDrawTransSquare(0,r.x + 4,r.y + 2,r.w + -8,r.h + -4,opacity);
+
   FeDraw_SetABRMode(0);
   return;
 }

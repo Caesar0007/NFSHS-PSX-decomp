@@ -27,25 +27,40 @@ void Loading_DrawLoadingScreen(void)
 {
   char name [255];
   char *f;
-  char *g;
-  int language;
-  shapetbl *s;
+  char *g; int language; shapetbl *s; language = GameSetup_gData.userSetting.language;
 
-  language = GameSetup_gData.userSetting.language;
+
+
+
+
+
+
+
+
+
+
+
   sprintf(name,"%sLoad%d%c.qps",Paths_Paths[0x19],GameSetup_gData.track,GameSetup_gData.mirrorTrack + 0x61);
   f = (char *)loadshapeadr(name,(void *)0x0);
+
   sprintf(name,"%sLoada.psh",Paths_Paths[0x19]);
   g = (char *)loadshapeadr(name,(void *)0x0);
+
+
   Draw_SetEnvironment(0x200,0xf0,1,0,1,0,0,0);
-  s = shapepointer(f,0);
-  Draw_DrawDirectScreen(s,0,0);
+
+
+  s = shapepointer(f,0); Draw_DrawDirectScreen(s,0,0);
+
   s = locateshapez(g,loading_languageNames[language]);
-  Draw_DrawDirectScreen(s,(*(int *)((char *)s + 0xc) << 0x14) >> 0x14,
-                          (*(int *)((char *)s + 0xc) << 4) >> 0x14);
+  Draw_DrawDirectScreen(s,(*(int *)((char *)s + 0xc) << 0x14) >> 0x14, (*(int *)((char *)s + 0xc) << 4) >> 0x14);
+
+
   purgememadr(f);
   purgememadr(g);
-  Draw_SetEnvironment(0x200,0xf0,0,1,0,0,0,0);
-  return;
+
+
+  Draw_SetEnvironment(0x200,0xf0,0,1,0,0,0,0); return;
 }
 
 /* ---- Loading_UpdateLoadingScreen__Fi  [LOADING.CPP:60-92] SLD-VERIFIED ---- */
@@ -65,29 +80,37 @@ void Loading_UpdateLoadingScreen(int checkpoint)
 
 {
   shapetbl *tile; /* SYM-CODEGEN-CARRIER: tile -- nested call is 44 diffs, 64/62 */
-  int i;
-  int max;
-  char name [255];
+  int i; int max; char name [255]; max = 0x17;
 
-  max = 0x17;
+
+
+
+
+
+
+
+
   if ((checkpoint == 1) && (smallShapeFile == (char *)0x0)) {
+
     sprintf(name,"%sLoadb.psh",Paths_Paths[0x19]);
     smallShapeFile = (char *)loadshapeadr(name,(void *)0x10);
   }
   i = 0;
-  if (i < max) {
-    do {
-      tile = locateshapez(smallShapeFile,"back");
-      Draw_DrawDirectScreen(tile,(checkpoint - 1) * 0x17 + 0x8e + i,0xc0);   /* this addend order needs no `y` temp (none in the SYM) */
-      i = i + 1;
-    } while (i < max);
+
+  if (i < max) { do {
+      tile = locateshapez(smallShapeFile,"back"); Draw_DrawDirectScreen(tile,(checkpoint - 1) * 0x17 + 0x8e + i,0xc0);   /* this addend order needs no `y` temp (none in the SYM) */ i = i + 1; } while (i < max);
   }
+
+
+
+
+
+
   if ((checkpoint == 10) && (smallShapeFile != (char *)0x0)) {
+
+
     purgememadr(smallShapeFile);
-    smallShapeFile = (char *)0x0;
-  }
-  return;
-}
+    smallShapeFile = (char *)0x0; } return; }
 
 /* ---- Loading_GetInitialMemory__Fv  [LOADING.CPP:105-106] SLD-VERIFIED ---- */
 void Loading_GetInitialMemory(void)

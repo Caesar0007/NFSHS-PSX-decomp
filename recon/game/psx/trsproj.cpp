@@ -22,16 +22,14 @@ void TrsProj_SetPsxTrans(coorddef *t);
 void TrsProj_SetTransPrecision(int val)
 
 {
-  TrsProj_precision = val;
-  return;
+  TrsProj_precision = val; return;
 }
 
 /* ---- TrsProj_ResetTransPrecision__Fv  [TRSPROJ.CPP:41-42] SLD-VERIFIED ---- */
 void TrsProj_ResetTransPrecision(void)
 
 {
-  TrsProj_precision = 10;
-  return;
+  TrsProj_precision = 10; return;
 }
 
 /* ---- TrsProj_SetProjection__Fiiii  [TRSPROJ.CPP:52-63] SLD-VERIFIED ---- */
@@ -39,15 +37,25 @@ void TrsProj_SetProjection(int cx,int cy,int w,int h)
 
 {
   
+
+
+
+
+
   SetGeomScreen(Camera_gGeomScreen);
-  gte_SetGeomOffset(cx + w / 2,cy + h / 2);
-  return;
+
+
+
+  gte_SetGeomOffset(cx + w / 2,cy + h / 2); return;
 }
 
 /* ---- TrsProj_SetMenuProjection__Fiiii  [TRSPROJ.CPP:67-72] SLD-VERIFIED ---- */
 void TrsProj_SetMenuProjection(int cx,int cy,int w,int h)
 {
+
   gte_ctc2(0x200,0x1a);
+
+
   gte_SetGeomOffset(cx + w / 2,cy + h / 2);
 }
 
@@ -55,14 +63,30 @@ void TrsProj_SetMenuProjection(int cx,int cy,int w,int h)
 void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
 
 {
+
+
+
+
+
+
+
+
+
+
   if (GameSetup_gData.commMode == 1) {
+
+
     TrsProj_SetProjection(0,0,0x140,0x78);
   }
   else {
-    TrsProj_SetProjection(0,0,0x140,0xf0);
-  }
-  return;
-}
+
+
+
+
+
+
+
+    TrsProj_SetProjection(0,0,0x140,0xf0); } return; }
 
 /* ---- TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef  [TRSPROJ.CPP:137-151] SLD-VERIFIED ---- */
 #define TRSPROJ_SET_MATRIX_ROW(row, i0, i1, i2) \
@@ -75,27 +99,26 @@ void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
   mpsx.m[row][2] = (short)r2; \
 }
 
-void TrsProj_SetPsxMatrix(matrixtdef *m,coorddef *t)
-{
-  MATRIX mpsx;
-
   /* SYM-MACRO-LOCALS: r0, r1, r2 = TRSPROJ_SET_MATRIX_ROW x3
    * Retail records three nested line-1 blocks, each with INT r0/r1/r2.
    * The expansion shape is authoritative; the descriptive macro name is not
    * recoverable from this SYM. */
+void TrsProj_SetPsxMatrix(matrixtdef *m,coorddef *t)
+{
+  MATRIX mpsx;
+
   TRSPROJ_SET_MATRIX_ROW(0, 0, 3, 6);
   TRSPROJ_SET_MATRIX_ROW(1, 1, 4, 7);
   TRSPROJ_SET_MATRIX_ROW(2, 2, 5, 8);
+
   gte_SetRotMatrix(&mpsx);
+
   if (t != (coorddef *)0x0) {
-    TrsProj_SetPsxTrans(t);
-    return;
+    TrsProj_SetPsxTrans(t); return;
   }
-  mpsx.t[2] = 0;
-  mpsx.t[1] = 0;
-  mpsx.t[0] = 0;
-  gte_SetTransMatrix(&mpsx);
-}
+
+  mpsx.t[2] = 0; mpsx.t[1] = 0; mpsx.t[0] = 0;
+  gte_SetTransMatrix(&mpsx); }
 
 #undef TRSPROJ_SET_MATRIX_ROW
 
@@ -107,6 +130,7 @@ void TrsProj_SetPsxTrans(coorddef *t)
   mpsx.t[0] = (int)t->x >> 0xa;
   mpsx.t[1] = (int)t->y >> 0xa;
   mpsx.t[2] = (int)t->z >> 0xa;
+
   gte_SetTransMatrix(&mpsx);
 }
 
@@ -114,10 +138,7 @@ void TrsProj_SetPsxTrans(coorddef *t)
 void TrsProj_SetPsxTransZero(void)
 {
   MATRIX mpsx;
-
-  mpsx.t[2] = 0;
-  mpsx.t[1] = 0;
-  mpsx.t[0] = 0;
+  mpsx.t[2] = 0; mpsx.t[1] = 0; mpsx.t[0] = 0;
   gte_SetTransMatrix(&mpsx);
 }
 
@@ -130,9 +151,12 @@ void TrsProj_TransPt(coorddef *s,coorddef *d)
   pt.vx = (short)((int)s->x >> 0xa);
   pt.vy = (short)((int)s->y >> 0xa);
   pt.vz = (short)((int)s->z >> 0xa);
+
+
   gte_ldv0(&pt);
   gte_mvmva(1,0,0,0,0);
   gte_stlvnl(&tv);
+
   d->x = tv.vx << 0xa;
   d->y = tv.vy << 0xa;
   d->z = tv.vz << 0xa;
@@ -145,9 +169,12 @@ void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
   VECTOR tv;
 
   for (n = n - 1; n != -1; n = n - 1) {
+
     pt.vx = s->x;
     pt.vy = 0;
     pt.vz = s->z;
+
+
     gte_ldv0(&pt);
     gte_mvmva(1,0,0,0,0);
     gte_stlvnl(&tv);
@@ -155,8 +182,8 @@ void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
     d->x = tv.vx;
     d->y = tv.vy;
     d->z = tv.vz;
-    d = d + 1;
-  }
+
+    d = d + 1; }
 }
 
 /* ---- TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex  [TRSPROJ.CPP:250-264] SLD-VERIFIED ----
@@ -173,14 +200,16 @@ void TrsProj_TransformProjectVertex(matrixtdef *m,coorddef *t,int n,coorddef *s,
   int i;
   coorddef tmp;
 
+
   for (i = 0; i < n; i = i + 1) {
+
     transform(&s->x,m->m,&tmp.x);
-    s = s + 1;
-    v->sv.x = (short)((tmp.x + t->x) >> 10);
+    s = s + 1; v->sv.x = (short)((tmp.x + t->x) >> 10);
     v->sv.y = (short)((tmp.y + t->y) >> 10);
     v->sv.z = (short)((tmp.z + t->z) >> 10);
     v->sv.p = 10;
     v = v + 1;
+
   }
 }
 

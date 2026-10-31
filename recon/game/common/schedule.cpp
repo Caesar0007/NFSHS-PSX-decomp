@@ -32,18 +32,19 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
 {
   int index;
 
+
   if (0xf < simGlobal.gameTicks) {
     int distanceIndex;
     int mask;
+
+
     distanceIndex = distance / 16;
     distanceIndex = distanceIndex / 65536;
     if (0x13 < distanceIndex) {
       distanceIndex = 0x13;
-    }
-    if (forceNoSimOptz != 0) {
+    } if (forceNoSimOptz != 0) {
       distanceIndex = 0;
-    }
-    index = Sched_gExecuteInfo[module][distanceIndex];
+    } index = Sched_gExecuteInfo[module][distanceIndex];
     *time = Sched_ExecuteTimes[index];
     *iTime = Sched_ExecuteiTimes[index];
     *elapsedTime = Sched_ExecuteElapsedTimes[index];
@@ -51,6 +52,8 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
     return (u_int)((simGlobal.gameTicks / 2 + carId * staggered & mask) == mask);
   }
   else {
+
+
   *time = Sched_ExecuteTimes[6];
   *iTime = Sched_ExecuteiTimes[6];
   *elapsedTime = Sched_ExecuteElapsedTimes[6];
@@ -68,13 +71,20 @@ Sched_CreateNewSchedule(char *scheduleName,int maxFunctions)
   
   newSchedule = (Sched_tSchedule *)reservememadr(
       scheduleName,maxFunctions * sizeof(Sched_tFunctionSchedule) +
+
+
+
+
       sizeof(Sched_tSchedule),0);
   newSchedule->maxNumFunctions = maxFunctions;
   newSchedule->numFunctions = 0;
+
   for (i = 0; i < newSchedule->maxNumFunctions; i++) {
+
     newSchedule->func[i].priority = 0x7ffe;
     newSchedule->func[i].function = 0;
   }
+
   return newSchedule;
 }
 
@@ -82,6 +92,9 @@ Sched_CreateNewSchedule(char *scheduleName,int maxFunctions)
 void Sched_CleanUpSchedule(Sched_tSchedule *schedule)
 
 {
+
+
+
   purgememadr(schedule);
   return;
 }
@@ -94,29 +107,34 @@ void Sched_AddFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void
   int j;
   int n;
 
+
+
+
+
+
+
+
+
+
+
+
+
   schedule->numFunctions = schedule->numFunctions + 1;
-  i = n = 0;
-  while (i < schedule->numFunctions) {
+  i = n = 0; while (i < schedule->numFunctions) {
     n = i;
+
     if (priority < schedule->func[i].priority) {
-      j = schedule->numFunctions + -1;
-      if (n < j) {
-        do {
+
+      j = schedule->numFunctions + -1; if (n < j) { do {
           *(Sched_tFunctionSchedule *)
-              ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + 8) =
-              *(Sched_tFunctionSchedule *)
-              ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + -8);
-          j = j + -1;
-        } while (i < j);
-      }
-      break;
+              ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + 8) = *(Sched_tFunctionSchedule *) ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + -8);
+          j = j + -1; } while (i < j);
+      } break;
     }
     i = n + 1;
-  }
-  schedule->func[n].priority = priority;
+  } schedule->func[n].priority = priority;
   schedule->func[n].function = (void *)function;
-  schedule->func[n].var1 = var1;
-  return;
+  schedule->func[n].var1 = var1; return;
 }
 
 /* ---- Sched_DeleteFunction__FP15Sched_tSchedulePFPv_vPv  [SCHEDULE.CPP:160-183] SLD-VERIFIED ---- */
@@ -126,33 +144,26 @@ void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,v
   int i;
   int j;
 
+
+
+
   if (schedule->numFunctions != 0) {
     i = 0;
     while (i < schedule->numFunctions) {
       if ((schedule->func[i].function == (void *)function) &&
+
           (schedule->func[i].var1 == var1))
       {
-        j = i;
-        if (j < schedule->numFunctions + -1) {
+
+        j = i; if (j < schedule->numFunctions + -1) {
           do {
-            *(Sched_tFunctionSchedule *)
-                ((char *)schedule +
-                 j * sizeof(Sched_tFunctionSchedule) + 8) =
-                *(Sched_tFunctionSchedule *)
-                ((char *)schedule +
-                 j * sizeof(Sched_tFunctionSchedule) + 24);
-            j = j + 1;
-          } while (j < schedule->numFunctions + -1);
-        }
-        break;
+            *(Sched_tFunctionSchedule *) ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + 8) = *(Sched_tFunctionSchedule *) ((char *)schedule + j * sizeof(Sched_tFunctionSchedule) + 24);
+            j = j + 1; } while (j < schedule->numFunctions + -1);
+        } break;
       }
       i = i + 1;
-    }
-    schedule->func[schedule->numFunctions].priority = 0x7ffe;
-    schedule->numFunctions = schedule->numFunctions + -1;
-  }
-  return;
-}
+    } schedule->func[schedule->numFunctions].priority = 0x7ffe;
+    schedule->numFunctions = schedule->numFunctions + -1; } return; }
 
 /* ---- Sched_Execute__FP15Sched_tSchedule  [SCHEDULE.CPP:195-206] SLD-VERIFIED ---- */
 void Sched_Execute(Sched_tSchedule *schedule)
@@ -161,15 +172,13 @@ void Sched_Execute(Sched_tSchedule *schedule)
   int i;
 
   i = 0;
-  if (0 < schedule->numFunctions) {
-    do {
+
+  if (0 < schedule->numFunctions) { do {
+
       if (schedule->func[i].function != (void *)0x0) {
+
         ((Sched_tFunctionPt)schedule->func[i].function)(schedule->func[i].var1);
       }
-      i = i + 1;
-    } while (i < schedule->numFunctions);
-  }
-  return;
-}
+      i = i + 1; } while (i < schedule->numFunctions); } return; }
 
 /* end of schedule.cpp */

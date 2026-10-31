@@ -64,23 +64,18 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 
 {
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
-  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-    Car_tObj *otherCarObj = Cars_gList[carLoop];
+    otherCarObj = Cars_gList[carLoop];
+    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) { ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->ReleaseAndStartChase(
 
-    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) {
+        this); }
 
-      ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->ReleaseAndStartChase(this);
 
-    }
 
   }
 
-  (this->carObj_)->forceNoSimOptz = 0;
-
-  return;
-
-}
+  (this->carObj_)->forceNoSimOptz = 0; }
 
 
 
@@ -97,11 +92,9 @@ void AIHigh_BTC_Perp::HandleCops()
 
 {
 
-  this->HandlePullOver();
 
-  return;
 
-}
+  this->HandlePullOver(); }
 
 
 
@@ -110,81 +103,44 @@ void AIHigh_BTC_Perp::HandleCops()
 
 
 
-/* ---- IsFalseArrest__15AIHigh_BTC_Perp [retail AIH_BTCPERP.CPP:93-126; native ownership exact, SLD still open] ---- */
+/* ---- IsFalseArrest__15AIHigh_BTC_Perp [retail AIH_BTCPERP.CPP:93-126; native ownership exact; SLD 135/136 tags + all blocks exact -- the one open tag is the load-delay nop at +0bc (ours 16, retail 17)] ---- */
 
 int AIHigh_BTC_Perp::IsFalseArrest()
 
 
 
 {
-  /* SYM whole-function rewrite (w22-a13): SYM @0x8005f798 names ONLY randNum1000(REG v0),
-   * carLoop(REG s5), cop(REG a1), xDot(REG s2), zDot(REG s1), and carCopVector (AUTO
-   * coorddef, sp+0x10/14/18) -- NO iVar1..iVar5/delta[3] temps exist in the real source.
-   * AUDAI (2026-10-04): pin-free PASS 136/136.  xDot and zDot are both single
-   * three-term dot-product expressions, and |xDot| is taken INSIDE the arrest test as
-   * `(xDot < 0 ? -xDot : xDot)` rather than by a separate `if (xDot < 0) xDot = -xDot;`
-   * statement.  The conditional expression gives retail's `bgez s2; nop; negu s2` with
-   * the empty slot and the post-call accumulation order; the old statement form needed
-   * three void fences plus the dotTerm/dotTerm2 carriers to reach the same bytes. */
-  int randNum1000;
-
-
-
-
-  randtemp = fastRandom * randSeed;
-
-  fastRandom = randtemp & 0xffff;
-
-  randNum1000 = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
+  int randNum1000; randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; randNum1000 = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
+  /* SYM: randNum1000 (v0), carLoop (s5), cop (a1), xDot (s2), zDot (s1),
+   * carCopVector (AUTO).  xDot/zDot are single three-term dot products and
+   * |xDot| is taken inside the arrest test (retail bgez/nop/negu); body lines
+   * follow retail's SLD line tags. */
 
   if (((this->carObj_)->carFlags & 4U) != 0 || randNum1000 <= 0x3d3) {
     return 0;
   }
 
-    for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-      Car_tObj *cop = Cars_gList[carLoop];
-
-      if ((cop->carFlags & 0x200U) != 0) {
-        int xDot;
-        int zDot;
-        coorddef carCopVector;
-
-        carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x;
-
-        carCopVector.y = (cop->N).position.y -
-
-                ((this->carObj_)->N).position.y;
-
-        carCopVector.z = (cop->N).position.z -
-
-                ((this->carObj_)->N).position.z;
-
-        xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) +
-
-               fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) +
-
-               fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
 
 
-        zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) +
 
-               fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]) +
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+    Car_tObj *cop;
+    cop = Cars_gList[carLoop];
+    if ((cop->carFlags & 0x200U) != 0)
+    {
+      int xDot; int zDot; coorddef carCopVector;
 
-               fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
+      carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x; carCopVector.y = (cop->N).position.y - ((this->carObj_)->N).position.y; carCopVector.z = (cop->N).position.z - ((this->carObj_)->N).position.z;
+      xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) + fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) + fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
+      zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) + fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]) + fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
+      if (((0x30000 < (xDot < 0 ? -xDot : xDot)) || (0x80000 < zDot)) || (zDot < 0)) {
 
-        if (((0x30000 < (xDot < 0 ? -xDot : xDot)) || (0x80000 < zDot)) || (zDot < 0)) {
-
-
-          AudioClc_HonkHorn(this->carObj_,2,0x80,0x20);
-
-          return 1;
-
-        }
-
-      }
+        AudioClc_HonkHorn(this->carObj_,2,0x80,0x20);
+        return 1;
+      } }
 
 
-    }
+  }
 
   return 0;
 }
@@ -198,40 +154,29 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
 /* ---- CheckForControlsPressed__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::CheckForControlsPressed  [AIH_BTCPERP.CPP:130-147] SLD-VERIFIED ---- */
 
+/* H20: player-2 check must read Cars_gHumanRaceCarList[1] (oracle 0x8005FA10 base 0x8010FA4C = list+4), not [0] */
 int AIHigh_BTC_Perp::CheckForControlsPressed()
 
 
 
-{
-  int pressed;
+{ int pressed; pressed = 0;
+
+
+  if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) { Car_tControl *control = &Cars_gHumanRaceCarList[0]->control;
 
 
 
-  pressed = 0;
-
-  if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) {
-    Car_tControl *control = &Cars_gHumanRaceCarList[0]->control;
     if (*(u_short *)control != 0 || control->handBrake == '\x01') {
+      pressed = 1; } } if ((Cars_gNumHumanRaceCars == 2) &&
 
-      pressed = 1;
+      (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)) { Car_tControl *control = &Cars_gHumanRaceCarList[1]->control;
 
-    }
-  }
 
-  /* H20: player-2 check must read Cars_gHumanRaceCarList[1] (oracle 0x8005FA10 base 0x8010FA4C = list+4), not [0] */
-  if ((Cars_gNumHumanRaceCars == 2) &&
-      (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)) {
-    Car_tControl *control = &Cars_gHumanRaceCarList[1]->control;
+
     if (*(u_short *)control != 0 || control->handBrake == '\x01') {
+      pressed = 1; } }
 
-      pressed = 1;
-
-    }
-  }
-
-  return pressed;
-
-}
+  return pressed; }
 
 
 
@@ -345,19 +290,18 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
 
 
 {
-  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-    Car_tObj *otherCarObj = Cars_gList[carLoop];
 
-    if (((otherCarObj->carFlags & 0x220U) != 0) &&
-        ((otherCarObj->N).active != '\0')) {
-      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->StartArrest(this);
-    }
 
-  }
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
-  return;
+    otherCarObj = Cars_gList[carLoop];
+    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0')) { ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->StartArrest(
 
-}
+      this); }
+
+
+
+  } }
 
 
 
@@ -374,23 +318,20 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
 
 {
 
-  
 
-  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-    Car_tObj *otherCarObj = Cars_gList[carLoop];
 
-    if (((otherCarObj->carFlags & 0x220U) != 0) &&
-        ((otherCarObj->N).active != '\0')) {
 
-      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FinishArrest(this);
 
-    }
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
-  }
+    otherCarObj = Cars_gList[carLoop];
+    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0')) { ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FinishArrest(
 
-  return;
+      this); }
 
-}
+
+
+  } }
 
 
 
@@ -406,21 +347,18 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
 
 
 {
-  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-    Car_tObj *otherCarObj = Cars_gList[carLoop];
 
-    if (((otherCarObj->carFlags & 0x220U) != 0) &&
-        ((otherCarObj->N).active != '\0')) {
 
-      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FalseArrest(this);
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) { Car_tObj *otherCarObj;
 
-    }
+    otherCarObj = Cars_gList[carLoop];
+    if (((otherCarObj->carFlags & 0x220U) != 0) && ((otherCarObj->N).active != '\0')) { ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FalseArrest(
 
-  }
+      this); }
 
-  return;
 
-}
+
+  } }
 
 
 
@@ -436,23 +374,19 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
 
 
 {
+
+
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop = carLoop + 1) {
-    Car_tObj *otherCarObj = Cars_gList[carLoop];
-
-    if (((otherCarObj->carFlags & 0x200U) != 0) &&
-        ((otherCarObj->N).active != '\0')) {
-
+    Car_tObj *otherCarObj;
+    otherCarObj = Cars_gList[carLoop];
+    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0'))
+    {
       ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->HudOn(this,0,
-
-                 this->lastArrestingCop_);
-
+      
+      this->lastArrestingCop_);
     }
 
-  }
-
-  return;
-
-}
+  } }
 
 
 
@@ -515,27 +449,38 @@ void AIHigh_BTC_Perp::ClearForNewStage(AIHigh_BTC_HumanCop *chaserCop)
 AIHigh_BTC_HumanCop *
 AIHigh_BTC_Perp::CheckForActivation()
 {
+
+
+
+
+
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-    Car_tObj *humanCopCarObj = Cars_gList[carLoop];
-    if (((humanCopCarObj->carFlags & 0x200U) != 0) &&
+
+    Car_tObj *humanCopCarObj = Cars_gList[carLoop]; if (((humanCopCarObj->carFlags & 0x200U) != 0) &&
         (humanCopCarObj->N.active != '\0')) {
-      AIHigh_BTC_HumanCop *carHigh =
-          (AIHigh_BTC_HumanCop *)highLevelAIObjs[humanCopCarObj->carIndex];
+
+      AIHigh_BTC_HumanCop *carHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[humanCopCarObj->carIndex];
       if (carHigh->NeedsPerp() != 0) {
+
+
         if ((this->carObj_->carFlags & 4U) != 0) {
-          return carHigh;
-        }
+
+          return carHigh; }
+
+
         else {
+
           int carType = GameSetup_gData.perpInfo[carHigh->CurrentStage()].CarType;
-          if (carType == this->carObj_->carInfo->carType) {
-            return carHigh;
-          }
-        }
-      }
-    }
+
+          if (carType == this->carObj_->carInfo->carType) { return carHigh; } } } }
+
+
+
+
+
   }
-  return (AIHigh_BTC_HumanCop *)0;
-}
+
+  return (AIHigh_BTC_HumanCop *)0; }
 
 
 
@@ -637,31 +582,13 @@ void AIHigh_BTC_HumanPerp::HighExecute()
 
 
 
-{
+{ AIHigh_BTC_HumanCop *chaserCop; if ((this->caught_ == 1) && (chaserCop = this->CheckForActivation(),
 
-  AIHigh_BTC_HumanCop *chaserCop;
-
-  
-
-  if ((this->caught_ == 1) &&
-
-     (chaserCop = this->CheckForActivation(),
 
      chaserCop != (AIHigh_BTC_HumanCop *)0x0)) {
+    this->NewStage(chaserCop); } else {
 
-    this->NewStage(chaserCop);
-
-  }
-
-  else {
-
-    this->HandleCops();
-
-  }
-
-  return;
-
-}
+    this->HandleCops(); } return; }
 
 
 
@@ -745,141 +672,79 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
  * the multiply.  Direct __builtin_abs comparisons recover the branch shapes.
  * No volatile, register pin, or empty-asm allocation fence is required. */
 
+/* Retail owns these four quantities in this compound guard body
+     * (+05c..+324), not in separately nested tests. SLD attribution is open. */
+/* H-AVOID2: u-turn probability roll (was a stub -- oracle 0x80060600-0x800606EC does a
+             full skill/elapsed-time-scaled random roll + dual speed-threshold check + direction flip) */
+/* Semantic reconstructed label; original spelling is unavailable. Selecting
+ * braking skips the u-turn random roll before committing pullOver. */
 void AIHigh_BTC_AIPerp::AvoidCops()
 
 
 
-{
-  int doBrake;
+{ int doBrake; doBrake = 0; if ((this->closestCopCarObj_ != (Car_tObj *)0x0) && (this->closestCopCarObj_->RSControl == 0) && (this->closestCopCarObj_->direction == this->carObj_->direction) &&
 
-  
 
-  doBrake = 0;
+      (__builtin_abs(this->closestCopCarDistanceMeters_) < 0x1f40000)) { int xPosition; int zPosition; int xPositionIndex; int zPositionIndex;
 
-  if ((this->closestCopCarObj_ != (Car_tObj *)0x0) &&
-      (this->closestCopCarObj_->RSControl == 0) &&
-      (this->closestCopCarObj_->direction == this->carObj_->direction) &&
-      (__builtin_abs(this->closestCopCarDistanceMeters_) < 0x1f40000)) {
-    /* Retail owns these four quantities in this compound guard body
-     * (+05c..+324), not in separately nested tests. SLD attribution is open. */
-    int xPosition;
-    int zPosition;
-    int xPositionIndex;
-    int zPositionIndex;
 
-        xPosition = this->carObj_->roadPosition;
-        xPosition -= this->closestCopCarObj_->roadPosition;
+
+
+        xPosition = this->carObj_->roadPosition; xPosition -= this->closestCopCarObj_->roadPosition;
+
         xPosition *= this->closestCopCarObj_->direction;
+        zPosition = this->closestCopCarDistanceMeters_ * this->closestCopCarObj_->direction; xPositionIndex = doBrake; if ((-(this->closestCopCarObj_->N).dimension.x <= xPosition) && (xPositionIndex = 1, (this->closestCopCarObj_->N).dimension.x < xPosition)) {
 
-        zPosition = this->closestCopCarDistanceMeters_ * this->closestCopCarObj_->direction;
 
-        xPositionIndex = doBrake;
 
-        if ((-(this->closestCopCarObj_->N).dimension.x <= xPosition) &&
-            (xPositionIndex = 1,
-             (this->closestCopCarObj_->N).dimension.x < xPosition)) {
+          xPositionIndex = 2; } zPositionIndex = 0; if (zPosition <= 0x190000) { zPositionIndex = 1;
 
-          xPositionIndex = 2;
 
-        }
 
-        zPositionIndex = 0;
 
-        if (zPosition <= 0x190000) {
+          if (zPosition <= (this->closestCopCarObj_->N).dimension.z) { zPositionIndex = 4;
 
-          zPositionIndex = 1;
-
-          if (zPosition <= (this->closestCopCarObj_->N).dimension.z) {
-
-            zPositionIndex = 4;
-
-            if (-0x190000 <= zPosition) {
-
-              zPositionIndex = 2;
+            if (-0x190000 <= zPosition) { zPositionIndex = 2;
 
               if (zPosition < -(this->closestCopCarObj_->N).dimension.z) {
 
-                zPositionIndex = 3;
+                zPositionIndex = 3; } } } } if ((strategyChart[zPositionIndex][xPositionIndex] & 1) != 0) {
 
-              }
 
-            }
 
-          }
 
-        }
 
-        if ((strategyChart[zPositionIndex][xPositionIndex] & 1) != 0) {
 
-          randtemp = fastRandom * randSeed;
 
-          fastRandom = randtemp & 0xffff;
 
-          if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 <
-              (u_int)(AI_elapsedTime * 7 + this->carObj_->pullOver * 500)) {
 
-            if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) {
-
-              if (0x11c71c < __builtin_abs(this->carObj_->currentSpeed)) {
-
-                doBrake = 1;
-                goto apply_brake_choice;
-
-              }
-
-            }
-
-          }
-
-        }
+          randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AI_elapsedTime * 7 + this->carObj_->pullOver * 500)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs(this->carObj_->currentSpeed)) { doBrake = 1; goto apply_brake_choice; } } } }
 
         if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) {
 
-          randtemp = fastRandom * randSeed;
 
-          fastRandom = randtemp & 0xffff;
 
-          /* H-AVOID2: u-turn probability roll (was a stub -- oracle 0x80060600-0x800606EC does a
-             full skill/elapsed-time-scaled random roll + dual speed-threshold check + direction flip) */
-          if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 <
-              (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) {
 
-            if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) {
 
-              if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) {
 
-                if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
 
-                  (this->carObj_)->desiredDirection = -(this->carObj_)->direction;
 
-                }
 
-              }
+          randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) { if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) { if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) { if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
 
-            }
+                  (this->carObj_)->desiredDirection = -(this->carObj_)->direction; } } } } } } apply_brake_choice: if (doBrake) {
 
-          }
 
-        }
 
-  }
 
-/* Semantic reconstructed label; original spelling is unavailable. Selecting
- * braking skips the u-turn random roll before committing pullOver. */
-apply_brake_choice:
-  if (doBrake) {
 
-    (this->carObj_)->pullOver = 1;
 
-    return;
 
-  }
 
-  (this->carObj_)->pullOver = 0;
 
-  return;
 
-}
+    (this->carObj_)->pullOver = 1; return; }
+  (this->carObj_)->pullOver = 0; return; }
 
 
 
@@ -940,44 +805,34 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
  * Native SYM locals/scopes exact; retail SLD statement regions remain open. ---- */
 
 void AIHigh_BTC_AIPerp::FindClosestCop()
-{
-  int closestCopInMeters;
-  int closestCopInMetersAbs;
-  int closestCarIndex;
+{ int closestCopInMeters; int closestCopInMetersAbs; int closestCarIndex; { int copLoop;
 
-  {
-    int copLoop;
     closestCopInMeters = 0x270f0000;
     closestCopInMetersAbs = 0x270f0000;
     closestCarIndex = -1;
-    copLoop = 0;
-    while (true) {
-      if (Cars_gNumHumanRaceCars <= copLoop) {
-        break;
-      }
-      if ((Cars_gHumanRaceCarList[copLoop]->carFlags & 0x200U) != 0) {
-        int longMetersBetween;
-        int absLongMetersBetween;
-        longMetersBetween = AIWorld_ApxSplineDistance(
+    copLoop = 0; while (true) { if (Cars_gNumHumanRaceCars <= copLoop) { break; }
+
+      if ((Cars_gHumanRaceCarList[copLoop]->carFlags & 0x200U) != 0) { int longMetersBetween; int absLongMetersBetween; longMetersBetween = AIWorld_ApxSplineDistance(
+
             this->carObj_,Cars_gHumanRaceCarList[copLoop]);
         absLongMetersBetween = __builtin_abs(longMetersBetween);
         if (absLongMetersBetween < closestCopInMetersAbs) {
+
           closestCopInMeters = longMetersBetween;
           closestCopInMetersAbs = absLongMetersBetween;
-          closestCarIndex = Cars_gHumanRaceCarList[copLoop]->carIndex;
-        }
-      }
-      copLoop = copLoop + 1;
-    }
-  }
+          closestCarIndex = Cars_gHumanRaceCarList[copLoop]->carIndex; } }
+
+
+      copLoop = copLoop + 1; } }
+
   if (closestCarIndex == -1) {
-    this->closestCopCarObj_ = (Car_tObj *)0x0;
-  }
-  else {
+
+    this->closestCopCarObj_ = (Car_tObj *)0x0; } else {
+
+
+
     this->closestCopCarObj_ = Cars_gList[closestCarIndex];
-    this->closestCopCarDistanceMeters_ = closestCopInMeters;
-  }
-}
+    this->closestCopCarDistanceMeters_ = closestCopInMeters; } }
 
 inline void AIHigh_Base::SetSchedulingOff(int off) { schedulingOff_ = off; }
 
@@ -987,224 +842,197 @@ inline void AIHigh_Base::SetSchedulingOff(int off) { schedulingOff_ = off; }
  * merge into the same physical code. Case/guard ownership and member accessors
  * restore the inline receivers without caller captures or a merge label.
  * Accessor names remain inferred; this is not a literal-source/SLD seal. */
+/* SYM-INLINE-LOCAL: carObj = AIState_BTCInactive
+       SYM-INLINE-LOCAL: trafficOffset = AIState_BTCInactive */
+/* retail jump table 0x80055040 [1] = the switch END (not case 2's body); the
+               label must exist -- with only 4 labels over 0..10 gcc drops to a compare chain */
 void AIHigh_BTC_AIPerp::HighExecute()
 
 
 
 {
 
-  
-
   if (((this->carObj_)->N).active != '\0') {
 
     this->FindClosestCop();
+    this->CalculateTimeTillContact(); }
 
-    this->CalculateTimeTillContact();
 
-  }
 
-  switch(this->stateType_) {
 
-  case 0: {
 
-    /* SYM-INLINE-LOCAL: carObj = AIState_BTCInactive
-       SYM-INLINE-LOCAL: trafficOffset = AIState_BTCInactive */
-    this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE);
+  switch(this->stateType_) { case 0: { this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE); this->perpMode_ = 0; break; } case 1: break; case 2: {
 
-    this->perpMode_ = 0;
 
-    break;
-  }
 
-  case 1:   /* retail jump table 0x80055040 [1] = the switch END (not case 2's body); the
-               label must exist -- with only 4 labels over 0..10 gcc drops to a compare chain */
-    break;
 
-  case 2: {
 
-    switch(this->perpMode_) {
 
-    case 0:
 
-    case 3:
 
-    case 5:
 
-      break;
 
-    case 1: {
+
+    switch(this->perpMode_) { case 0: case 3: case 5: break; case 1: {
+
+
+
+
+
+
+
+
+
 
       if (this->timeUntilContact_ < 0x140) {
 
         this->madeContactTime_ = simGlobal.gameTicks;
 
-        if (this->perpMode_ != 2) {
-
-          ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
-              ->slot0(this->carObj_);
-
-        }
+        if (this->perpMode_ != 2) { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
+              ->slot0(this->carObj_); }
 
         this->perpMode_ = 2;
 
-        Camera_gInfo[0].forceFocus = 2;
-
-        Camera_gInfo[0].focusOnAICar =
-
+        Camera_gInfo[0].forceFocus = 2; Camera_gInfo[0].focusOnAICar =
              (char)(this->carObj_)->carIndex;
+        Camera_gInfo[1].forceFocus = 2; Camera_gInfo[1].focusOnAICar =
+             (char)(this->carObj_)->carIndex; } }
 
-        Camera_gInfo[1].forceFocus = 2;
 
-        Camera_gInfo[1].focusOnAICar =
 
-             (char)(this->carObj_)->carIndex;
+      break; case 2:
 
-      }
 
-    }
-      break;
-    case 2:
 
       this->perpMode_ = 4;
 
-      break;
 
-    case 4: {
+      break; case 4: {
+
+
+
+
+
+
+
 
       if (this->escapeDuration_ < simGlobal.gameTicks - this->madeContactTime_) {
 
         this->perpMode_ = 5;
 
-        this->ReleaseCops();
-
-      }
+        this->ReleaseCops(); }
 
       if (simGlobal.gameTicks - this->madeContactTime_ > this->escapeDuration_ - 0x40) {
 
-        if (Camera_gInfo[0].forceFocus != 0) {
+        if (Camera_gInfo[0].forceFocus != 0) { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
 
-          ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
               ->slot5(this->carObj_);
 
-          Camera_ResetRelPos(3);
 
-        }
 
-        Camera_gInfo[0].forceFocus = 0;
+          Camera_ResetRelPos(3); }
 
-        Camera_gInfo[0].focusOnAICar =
-
+        Camera_gInfo[0].forceFocus = 0; Camera_gInfo[0].focusOnAICar =
              (char)(this->carObj_)->carIndex;
+        Camera_gInfo[1].forceFocus = 0; Camera_gInfo[1].focusOnAICar =
+             (char)(this->carObj_)->carIndex; }
 
-        Camera_gInfo[1].forceFocus = 0;
 
-        Camera_gInfo[1].focusOnAICar =
 
-             (char)(this->carObj_)->carIndex;
 
-      }
 
-      if (this->originalActivationCop_->CarObj()->direction ==
-          this->carObj_->direction) {
 
-        if (0 < AIWorld_ApxSplineDistance(
-                    this->carObj_,this->originalActivationCop_->CarObj()) *
-                    this->carObj_->direction) {
+      if (this->originalActivationCop_->CarObj()->direction == this->carObj_->direction) { if (0 < AIWorld_ApxSplineDistance( this->carObj_,this->originalActivationCop_->CarObj()) *
 
-          this->originalActivationCop_->SetRequestedDesiredSpeed(
-              fixedmult(__builtin_abs(this->carObj_->currentSpeed),0xcccc));
+                    this->carObj_->direction) { this->originalActivationCop_->SetRequestedDesiredSpeed(
+              fixedmult(__builtin_abs(this->carObj_->currentSpeed),0xcccc)); } } break; } default: break; }
 
-        }
 
-      }
 
-      break;
 
-    }
-    default:
 
-      break;
 
-    }
+
+
+
+
+
 
     if (this->perpMode_ == 5) {
+
       this->HandleCops();
       if (this->pullOverMode_ != 2) {
-        this->AvoidCops();
-      }
+        this->AvoidCops(); }
+
       if (this->caught_ != 0) {
-        this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE);
-        this->perpMode_ = 0;
-      }
-    }
-  }
-    break;
 
-  case 7: {
+        this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE); this->perpMode_ = 0; } } }
+
+
+
+
+
+
+    break; case 7: {
+
+
+
+
+
+
+
+
     AIHigh_BTC_HumanCop *chaserCop = this->CheckForActivation();
-
     if (chaserCop != (AIHigh_BTC_HumanCop *)0x0) {
 
       this->NewStage(chaserCop);
+      this->SetSchedulingOff(0); }
 
-      this->SetSchedulingOff(0);
 
-    }
+    else { this->SetSchedulingOff(1); } }
 
-    else {
 
-      this->SetSchedulingOff(1);
 
-    }
+    break; case 10: {
 
-  }
-    break;
 
-  case 10: {
+
+
+
+
+
+
+
 
     if ((this->perpMode_ == 0) && (this->timeUntilContact_ < 0x140)) {
 
       this->madeContactTime_ = simGlobal.gameTicks;
 
-      if (this->perpMode_ != 2) {
-
-        ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
-            ->slot0(this->carObj_);
-
-      }
+      if (this->perpMode_ != 2) { ((SpeakerVirtualDispatch *)Speech::Mobile(this->originalActivationCop_->CarObj()))
+            ->slot0(this->carObj_); }
 
       this->perpMode_ = 2;
 
-      Camera_gInfo[0].forceFocus = 2;
 
-      Camera_gInfo[0].focusOnAICar =
-
+      Camera_gInfo[0].forceFocus = 2; Camera_gInfo[0].focusOnAICar =
            (char)(this->carObj_)->carIndex;
+      Camera_gInfo[1].forceFocus = 2; Camera_gInfo[1].focusOnAICar =
+           (char)(this->carObj_)->carIndex; }
 
-      Camera_gInfo[1].forceFocus = 2;
-
-      Camera_gInfo[1].focusOnAICar =
-
-           (char)(this->carObj_)->carIndex;
-
-    }
 
     else if (this->perpMode_ == 2) {
 
       this->SetState(new AIState_Normal(this->carObj_),STATE_NORMAL);
 
-      this->perpMode_ = 4;
+      this->perpMode_ = 4; } } }
 
-    }
 
-  }
-  }
 
-  (this->state_)->StateExecute();
 
-  return;
 
-}
+
+
+  (this->state_)->StateExecute(); return; }
 
 
 

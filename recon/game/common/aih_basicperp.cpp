@@ -38,71 +38,99 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
 
 
-{
+{ crimeType crime = basicPerpInfo_.GetCrime(); crimeType originalCrime = crime;
 
-  crimeType crime = basicPerpInfo_.GetCrime();
-  crimeType originalCrime = crime;
+
   int legal = AISpeeds_GetLegalSpeed(carObj_->N.simRoadInfo.slice);
 
-  if (simGlobal.gameTicks - lastPullOverTime_ < 0x280)
-    return;
 
-  if (carObj_->stats.finishType >= 2)
-    return;
 
-  if ((simGlobal.gameTicks - carObj_->N.collision.lastTime < 15) &&
-      (carObj_->N.collision.lastOtherObj != 0) &&
+
+
+
+
+
+
+
+  if (simGlobal.gameTicks - lastPullOverTime_ < 0x280) return; if (carObj_->stats.finishType >= 2) return; if ((simGlobal.gameTicks - carObj_->N.collision.lastTime < 15) && (carObj_->N.collision.lastOtherObj != 0) &&
+
+
+
+
+
       (((Car_tObj *)carObj_->N.collision.lastOtherObj)->carFlags & 0x20)) {
+
     if (carObj_->N.collision.lastImpulse > 0x140000)
+
       crime = CRIME_SMASHCOP;
+
     else if (crime == CRIME_NONE)
-      crime = CRIME_BUMPCOP;
-  }
 
-  if ((originalCrime != CRIME_NONE) && (crime != CRIME_SMASHCOP))
-    return;
+      crime = CRIME_BUMPCOP; }
 
-  if ((__builtin_abs(carObj_->currentSpeed) > __builtin_abs(legal)) &&
+
+
+
+  if ((originalCrime != CRIME_NONE) && (crime != CRIME_SMASHCOP)) return; if ((__builtin_abs(carObj_->currentSpeed) > __builtin_abs(legal)) &&
+
+
+
+
+
       (crime == CRIME_NONE))
+
     crime = CRIME_SPEEDER;
 
-  if (AITune_oneWay != 0) {
-    switch (((u_int)carObj_->currentSpeed +
-            (GameSetup_gData.reverseTrack != 0
-             ? -2U * (u_int)carObj_->currentSpeed : 0U)) >> 31) {
-    case 0: break;
-    default:
-      if ((__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
+
+
+
+  if (AITune_oneWay != 0) { switch (((u_int)carObj_->currentSpeed + (GameSetup_gData.reverseTrack != 0
+
+             ? -2U * (u_int)carObj_->currentSpeed : 0U)) >> 31) { case 0: break; default: if ((__builtin_abs(carObj_->currentSpeed) > 0x40000) && (crime == CRIME_NONE))
+
+        crime = CRIME_WRONGSIDE; } } else {
+
+
+
+
+    if ((carObj_->currentSpeed * AITune_driveSide) >= 0) { if ((carObj_->laneIndex < 7) && (__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
+
           (crime == CRIME_NONE))
-        crime = CRIME_WRONGSIDE;
-    }
-  } else {
-    if ((carObj_->currentSpeed * AITune_driveSide) >= 0) {
-      if ((carObj_->laneIndex < 7) &&
-          (__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
+
+        crime = CRIME_WRONGSIDE; } else { if ((carObj_->laneIndex >= 7) && (__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
+
+
+
+
           (crime == CRIME_NONE))
-        crime = CRIME_WRONGSIDE;
-    } else {
-      if ((carObj_->laneIndex >= 7) &&
-          (__builtin_abs(carObj_->currentSpeed) > 0x40000) &&
-          (crime == CRIME_NONE))
-        crime = CRIME_WRONGSIDE;
-    }
-  }
+
+        crime = CRIME_WRONGSIDE; } }
+
+
+
+
 
   if (simGlobal.gameTicks < 0x200)
+
     crime = CRIME_NONE;
 
-  if (crime != CRIME_NONE) {
-    int carLoop;
+
+  if (crime != CRIME_NONE) { int carLoop;
+
+
+
+
     for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+
       Car_tObj *carObj = Cars_gList[carLoop];
-      if ((carObj->carFlags & 0x220) && carObj->N.active) {
-        basicPerpInfo_.SetCrime(crime);
-        return;
-      }
-    }
-  }
+      if ((carObj->carFlags & 0x220) && carObj->N.active) { basicPerpInfo_.SetCrime(crime);
+
+
+        return; }
+
+    } }
+
+
 }
 
 
@@ -125,189 +153,116 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
 
 
-{
-  int absSpeed;
-  int perpUpright;
-  int skill;
+{ int absSpeed; int perpUpright; int skill;
+
 
   skill = GameSetup_gData.skill;
 
+
   if ((this->carObj_->carFlags & 2U) != 0) {
+    absSpeed = __builtin_abs(this->carObj_->currentSpeed); } else {
 
-    absSpeed = __builtin_abs(this->carObj_->currentSpeed);
+    absSpeed = this->carObj_->N.speedXZ; }
 
-  }
 
-  else {
-
-    absSpeed = this->carObj_->N.speedXZ;
-
-  }
 
   if (this->basicPerpInfo_.GetCrime() == 0) return 0;
 
-    if (AIHigh_BasicPerp_PlayerCaughtSpeed[skill] < absSpeed) {
 
-      return 0;
+    if (AIHigh_BasicPerp_PlayerCaughtSpeed[skill] < absSpeed) { return 0; }
 
-    }
 
-    if (simGlobal.gameTicks - this->lastPullOverTime_ < 0x3c0) {
 
-      return 0;
+    if (simGlobal.gameTicks - this->lastPullOverTime_ < 0x3c0) { return 0; } if ((this->carObj_->stats).finishType >= 2) goto not_caught;
 
-    }
 
-    if ((this->carObj_->stats).finishType >= 2) goto not_caught;
+
 
 
       perpUpright = 0x9999 < this->carObj_->N.orientMat.m[4];
 
-      for (int carLoop = 0; ; carLoop = carLoop + 1) {
 
-        Car_tObj *cop;
-        int diffSpeed;
-        int validCar;
-
-        if (Cars_gNumCars <= carLoop) {
-
-          return 0;
-
-        }
+      for (int carLoop = 0; ; carLoop = carLoop + 1) { Car_tObj *cop; int diffSpeed; int validCar; if (Cars_gNumCars <= carLoop) { return 0; }
 
         cop = Cars_gList[carLoop];
+        diffSpeed = this->carObj_->currentSpeed - cop->currentSpeed; validCar = 0; if (((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) && ((cop->carFlags & 0x200U) != 0)) || ((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) || (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 && ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) &&
 
-        diffSpeed = this->carObj_->currentSpeed - cop->currentSpeed;
 
-        validCar = 0;
-
-        if (((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-
-             (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
-
-              ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) &&
-
-            ((cop->carFlags & 0x200U) != 0)) ||
-
-           ((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
-
-             (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 &&
-
-              ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) &&
 
             ((cop->carFlags & 0x20U) != 0)))) {
 
-          validCar = 1;
 
-        }
+          validCar = 1; } if ((validCar != 0) && (((((cop->AIFlags & 2U) != 0) && ((cop->N).flightTime == 0)) && (((cop->N).active != '\0' && ((cop->AIFlags & 4U) == 0)))) && ((0x9999 < (cop->N).orientMat.m[4] && (diffSpeed < AIHigh_BasicPerp_MinDeltaSpeed[skill])))) && (__builtin_abs(cop->currentSpeed) < AIHigh_BasicPerp_CopCaughtSpeed[skill]) && ((cop->N.position.y - carObj_->N.position.y > 0 ? cop->N.position.y - carObj_->N.position.y : carObj_->N.position.y - cop->N.position.y) <
 
-        if ((validCar != 0) && (((((cop->AIFlags & 2U) != 0) && ((cop->N).flightTime == 0)) &&
 
-            (((cop->N).active != '\0' && ((cop->AIFlags & 4U) == 0)))) &&
 
-           ((0x9999 < (cop->N).orientMat.m[4] &&
 
-            (diffSpeed < AIHigh_BasicPerp_MinDeltaSpeed[skill])))) &&
-            (__builtin_abs(cop->currentSpeed) <
-              AIHigh_BasicPerp_CopCaughtSpeed[skill]) &&
-            ((cop->N.position.y - carObj_->N.position.y > 0
-                   ? cop->N.position.y - carObj_->N.position.y
-                   : carObj_->N.position.y - cop->N.position.y) <
-              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill])) {
 
-          int distanceAbsMeters;
-          int barrierInWay;
 
-          distanceAbsMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,cop));
 
-          barrierInWay = 0;
 
-          if (((int)(7 - (u_int)(BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount >> 4))
-                    <= this->carObj_->laneIndex) &&
-              (this->carObj_->laneIndex <=
-                    (int)((BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount & 0xf) + 6)) &&
-              ((int)(7 - (u_int)(BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount >> 4))
-                    <= cop->laneIndex) &&
-              (cop->laneIndex <=
-                    (int)((BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount & 0xf) + 6)) &&
-              (AIWorld_CheckForBarrierBetweenLanes((int)(cop->N).simRoadInfo.slice,
-                    cop->laneIndex,this->carObj_->laneIndex) != 0)) {
 
-            barrierInWay =
-                AIWorld_CheckForBarrierBetweenLanes((int)(this->carObj_->N).simRoadInfo.slice,
-                    cop->laneIndex,this->carObj_->laneIndex) != 0;
 
-          }
 
-          if ((distanceAbsMeters < AIHigh_BasicPerp_CaughtDistance[skill]) &&
-              (barrierInWay == 0)) {
-          int xDot;
-          int zDot;
 
-          xDot = 0;
-          zDot = 0x10000;
 
-          if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
 
-             (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
 
-              ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
 
-            coorddef carCopVector;
 
-            carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x;
 
-            carCopVector.y = (cop->N).position.y - ((this->carObj_)->N).position.y;
 
-            carCopVector.z = (cop->N).position.z - ((this->carObj_)->N).position.z;
 
-            xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) +
-                   fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) +
-                   fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
 
-            zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) +
-                   fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]) +
-                   fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
 
-          }
 
-          if ((!perpUpright) ||
 
-             ((cop->speed < 0x471c7 && ((this->carObj_)->speed < 0x471c7)))) {
 
-            if (this->lastArrestingCop_ == (Car_tObj *)0x0) {
+              AIHigh_BasicPerp_PlayerCaughtDeltaY[skill])) { int distanceAbsMeters; int barrierInWay;
 
-              this->lastArrestingCop_ = cop;
+          distanceAbsMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,cop)); barrierInWay = 0; if (((int)(7 - (u_int)(BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount >> 4)) <= this->carObj_->laneIndex) && (this->carObj_->laneIndex <= (int)((BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount & 0xf) + 6)) && ((int)(7 - (u_int)(BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount >> 4)) <= cop->laneIndex) && (cop->laneIndex <= (int)((BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount & 0xf) + 6)) && (AIWorld_CheckForBarrierBetweenLanes((int)(cop->N).simRoadInfo.slice,
 
-            }
 
-            return 1;
+                    cop->laneIndex,this->carObj_->laneIndex) != 0)) { barrierInWay = AIWorld_CheckForBarrierBetweenLanes((int)(this->carObj_->N).simRoadInfo.slice,
+                    cop->laneIndex,this->carObj_->laneIndex) != 0; } if ((distanceAbsMeters < AIHigh_BasicPerp_CaughtDistance[skill]) &&
 
-          }
 
-          if (0x8ffff < __builtin_abs(xDot)) continue;
+              (barrierInWay == 0)) { int xDot; int zDot; xDot = 0; zDot = 0x10000; if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
 
-          if (zDot < 0) continue;
 
-          if (0x8ffff < zDot) continue;
 
-          if (this->lastArrestingCop_ == (Car_tObj *)0x0) {
 
-            this->lastArrestingCop_ = cop;
 
-          }
+              ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) { coorddef carCopVector;
 
-          return 1;
-          }
 
-        }
+            carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x; carCopVector.y = (cop->N).position.y - ((this->carObj_)->N).position.y; carCopVector.z = (cop->N).position.z - ((this->carObj_)->N).position.z; xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]) + fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]) +
+                   fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]); zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) + fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]) +
+                   fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]); } if ((!perpUpright) ||
 
-      }
 
-not_caught:
-  return 0;
 
-}
+
+
+
+
+
+             ((cop->speed < 0x471c7 && ((this->carObj_)->speed < 0x471c7)))) { if (this->lastArrestingCop_ == (Car_tObj *)0x0) { this->lastArrestingCop_ = cop; } return 1; } if (0x8ffff < __builtin_abs(xDot)) continue; if (zDot < 0) continue; if (0x8ffff < zDot) continue;
+
+
+
+
+
+
+
+          if (this->lastArrestingCop_ == (Car_tObj *)0x0) { this->lastArrestingCop_ = cop; }
+          return 1; } }
+
+
+
+
+      } not_caught:
+  return 0; }
 
 
 
@@ -340,19 +295,22 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
       AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[cop->carIndex];
 
-      cop->desiredDirection = cop->direction = GameSetup_gData.reverseTrack == 0 ? -1 : 1;
+      cop->desiredDirection = cop->direction = GameSetup_gData.reverseTrack == 0 ? -1 : 1; cop->driveDirection = 1;
 
-      cop->driveDirection = 1;
+
       if (distance < 0x1e0000) {
-        thisCop->SetDriveAway(DRIVEAWAY_RESET);
-      }
+        thisCop->SetDriveAway(DRIVEAWAY_RESET); }
+
       else { thisCop->SetDriveAway(DRIVEAWAY_NORESET); }
 
-      Speech::Mobile(thisCop->GetCarObj())->Purge();
+      Speech::Mobile(thisCop->GetCarObj())->Purge(); }
 
-    }
-  }
-}
+
+
+
+
+
+  } }
 
 
 

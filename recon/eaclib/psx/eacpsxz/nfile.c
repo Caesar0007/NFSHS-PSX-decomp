@@ -1753,12 +1753,11 @@ static FileHandle *reservehandle(void)
              * increment/decrement pair keeps `cur` split without becoming an asm scheduling
              * barrier; applying the same zero-net pair to `i` restores the retail a0/a1 priority.
              * Both pairs optimize away, yielding an exact 44/44 PASS with no general asm fence. */
-            do {
-                cur++;
-                cur--;
-                i++;
-                i--;
-            } while (0);
+            /* EAC 2026-10-31: the do{}while(0) that wrapped these pairs was inert (removed, PASS). */
+            cur++;
+            cur--;
+            i++;
+            i--;
         } while (i < count);
     }
     FILE_CS_LEAVE(sr);

@@ -75,27 +75,16 @@ void AIHigh_BTC_Cop::AssignToPlayer(AIHigh_BTC_Perp *target)
 
 {
 
-  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
+  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) { ((AIHigh_BasicPerp *)this->perpTarget_)->RemoveChaser(this->copIndex_,
+               (this->carObj_)->carIndex,(copType)this->type_); } this->perpTarget_ = target;
 
-    ((AIHigh_BasicPerp *)this->perpTarget_)->RemoveChaser(this->copIndex_,
 
-               (this->carObj_)->carIndex,(copType)this->type_);
 
-  }
 
-  this->perpTarget_ = target;
 
-  if (target != (AIHigh_BTC_Perp *)0x0) {
 
-    ((AIHigh_BasicPerp *)target)->AddChaser(this->copIndex_,
-
-               (this->carObj_)->carIndex,(copType)this->type_);
-
-  }
-
-  return;
-
-}
+  if (target != (AIHigh_BTC_Perp *)0x0) { ((AIHigh_BasicPerp *)target)->AddChaser(this->copIndex_,
+               (this->carObj_)->carIndex,(copType)this->type_); } return; }
 
 
 
@@ -147,60 +136,59 @@ int AIHigh_BTC_Cop::CheckForNewTarget()
 
 
 
-{
-  AIHigh_BTC_Perp*newTarget;
-  int newTargetDistance;
-  int perpLoop;
-  AIHigh_BTC_Perp*old;
+{ AIHigh_BTC_Perp*newTarget; int newTargetDistance; int perpLoop; AIHigh_BTC_Perp*old;
 
   newTarget = (AIHigh_BTC_Perp *)0x0;
-
   newTargetDistance = 0x27100000;
 
   old = this->perpTarget_;
 
-  for (perpLoop = 0; perpLoop < Cars_gNumRaceCars; perpLoop = perpLoop + 1) {
-    Car_tObj *testPerpCarObj;
-    int thisPerpCarIndex;
-    AIHigh_BTC_Perp *thisPerpHigh;
+
+
+
+
+
+
+
+
+  for (perpLoop = 0; perpLoop < Cars_gNumRaceCars; perpLoop = perpLoop + 1) { Car_tObj *testPerpCarObj; int thisPerpCarIndex; AIHigh_BTC_Perp *thisPerpHigh;
 
     testPerpCarObj = Cars_gRaceCarList[perpLoop];
-    if (testPerpCarObj->N.active == '\0' || (testPerpCarObj->carFlags & 0x200U) != 0)
-      continue;
-    if ((thisPerpCarIndex = testPerpCarObj->carIndex,
-         thisPerpHigh = (AIHigh_BTC_Perp *)highLevelAIObjs[thisPerpCarIndex],
-         thisPerpHigh->basicPerpInfo_.Crime() != 0)) {
-      int copToTargetDistanceMeters;
+    if (testPerpCarObj->N.active == '\0' || (testPerpCarObj->carFlags & 0x200U) != 0) continue; if ((thisPerpCarIndex = testPerpCarObj->carIndex, thisPerpHigh = (AIHigh_BTC_Perp *)highLevelAIObjs[thisPerpCarIndex],
+
+
+
+         thisPerpHigh->basicPerpInfo_.Crime() != 0)) { int copToTargetDistanceMeters;
+
+
+
 
       copToTargetDistanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,testPerpCarObj));
+
       if (copToTargetDistanceMeters < newTargetDistance) {
+
         newTargetDistance = copToTargetDistanceMeters;
-        newTarget = thisPerpHigh;
-      }
-    }
+        newTarget = thisPerpHigh; } }
+
+
+
+
+
   }
+
 
   if ((newTarget != (AIHigh_BTC_Perp *)0x0) && (newTarget != old)) {
 
     this->AssignToPlayer(newTarget);
+    return 1; } else {
 
-    return 1;
 
-  }
 
-  else {
+
 
     if ((old != (AIHigh_BTC_Perp *)0x0) && (newTarget == (AIHigh_BTC_Perp *)0x0)) {
-
-      this->AssignToPlayer((AIHigh_BTC_Perp *)0x0);
-
-    }
-
-    return 0;
-
-  }
-
-}
+      this->AssignToPlayer((AIHigh_BTC_Perp *)0x0); }
+    return 0; } }
 
 
 
@@ -216,19 +204,43 @@ void AIHigh_BTC_Cop::StartArrest(AIHigh_BTC_Perp *arrestMe)
 
 
 {
+
+
+
+
+
   if (this->freezeMode_ == 0) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     this->freezeMode_ = 3;
+
+
+
 
     if ((this->carObj_->carFlags & 0x200U) != 0) {
       Speech::Mobile(this->carObj_)->Catch(1);
-
     }
-
   }
-
-  return;
-
-}
+  return; }
 
 
 
@@ -244,18 +256,33 @@ void AIHigh_BTC_Cop::FinishArrest(AIHigh_BTC_Perp *arrestMe)
 
 
 {
+
+
+
+
+
+
+
+
   if ((this->freezeMode_ == 3) || (this->freezeMode_ == 0)) {
+
+
+
+
+
+
+
     this->freezeMode_ = 4;
 
     this->FreezeAndEndChase();
-
     this->HudOff();
-
   }
 
-  return;
 
-}
+
+
+
+  return; }
 
 
 
@@ -297,7 +324,9 @@ void AIHigh_BTC_Cop::FreezeAndEndChase()
 
 {
 
-  return;
+
+
+
 
 }
 
@@ -440,107 +469,20 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
 
 
-{
-  int newOffset;
-  int newSlice;
+{ int newOffset; int newSlice;
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; newOffset = (randtemp >> 8 & 0xffff) * 2; newOffset = (int)((u_int)(randomDistance * newOffset) >> 0x10) - randomDistance;
+  if (0 <= newOffset) { newSlice = startSlice + newOffset; if (gNumSlices <= newSlice) { newSlice = newSlice - gNumSlices; } } else { newSlice = startSlice + newOffset; if (newSlice < 0) { newSlice = newSlice + gNumSlices; } } { int maxRuns;
+    maxRuns = 0; while (maxRuns < 30) { int startCheckSlice; int leftLaneFree; int rightLaneFree; startCheckSlice = newSlice - safetyZone;
 
-
-
-  randtemp = fastRandom * randSeed;
-
-  fastRandom = randtemp & 0xffff;
-
-  newOffset = (randtemp >> 8 & 0xffff) * 2;
-
-  newOffset = (int)((u_int)(randomDistance * newOffset) >> 0x10) - randomDistance;
-
-  if (0 <= newOffset) {
-
-    newSlice = startSlice + newOffset;
-
-    if (gNumSlices <= newSlice) {
-
-      newSlice = newSlice - gNumSlices;
-
-    }
-
-  }
-
-  else {
-
-    newSlice = startSlice + newOffset;
-
-    if (newSlice < 0) {
-
-      newSlice = newSlice + gNumSlices;
-
-    }
-
-  }
-
-  {
-    int maxRuns;
-
-    maxRuns = 0;
-    while (maxRuns < 30) {
-      int startCheckSlice;
-      int leftLaneFree;
-      int rightLaneFree;
-
-      startCheckSlice = newSlice - safetyZone;
-
-    if (0 <= -safetyZone) {
-
-      if (gNumSlices <= startCheckSlice) {
-
-        startCheckSlice = startCheckSlice - gNumSlices;
-
-      }
-
-    }
-
-    else {
-
-      if (startCheckSlice < 0) {
-
-        startCheckSlice = startCheckSlice + gNumSlices;
-
-      }
-
-    }
-
+    if (0 <= -safetyZone) { if (gNumSlices <= startCheckSlice) { startCheckSlice = startCheckSlice - gNumSlices; } } else { if (startCheckSlice < 0) { startCheckSlice = startCheckSlice + gNumSlices; } }
     leftLaneFree = AIWorld_IsDriveableLaneInSliceRange(startCheckSlice,safetyZone << 1,1,6);
-
     rightLaneFree = AIWorld_IsDriveableLaneInSliceRange(startCheckSlice,safetyZone << 1,1,7);
+    if ((leftLaneFree != 0) && (rightLaneFree != 0)) { break; }
 
-    if ((leftLaneFree != 0) && (rightLaneFree != 0)) {
+    if (0 <= safetyZone / 5) { newSlice = (newSlice + safetyZone / 5 < gNumSlices) ? newSlice + safetyZone / 5 : newSlice + safetyZone / 5 - gNumSlices; } else { newSlice = (0 <= newSlice + safetyZone / 5) ? newSlice + safetyZone / 5 : newSlice + safetyZone / 5 + gNumSlices; }
+      maxRuns++; } }
 
-      break;
-
-    }
-
-    if (0 <= safetyZone / 5) {
-
-      newSlice = (newSlice + safetyZone / 5 < gNumSlices) ?
-                 newSlice + safetyZone / 5 :
-                 newSlice + safetyZone / 5 - gNumSlices;
-
-    }
-
-    else {
-
-      newSlice = (0 <= newSlice + safetyZone / 5) ?
-                 newSlice + safetyZone / 5 :
-                 newSlice + safetyZone / 5 + gNumSlices;
-
-    }
-
-      maxRuns++;
-    }
-  }
-
-  return newSlice;
-}
+  return newSlice; }
 
 
 
@@ -557,23 +499,25 @@ void AIHigh_BTC_HumanCop::ReleaseAndStartChase(AIHigh_BTC_Perp *newPerp)
 
 {
 
+
+
+
+
   this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
 
   this->CheckForNewTarget();
 
   if (this->perpTarget_ == newPerp) {
 
+
+
+
+
     this->freezeMode_ = 2;
 
-    this->chaseStartTime_ = simGlobal.gameTicks;
+    this->chaseStartTime_ = simGlobal.gameTicks; }
 
-  }
-
-  this->ResetClearTrafficToPurgatory();
-
-  return;
-
-}
+  this->ResetClearTrafficToPurgatory(); return; }
 
 
 
@@ -589,94 +533,37 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
 
 {
-  if (this->copIndex_ == 0) {
-    int startDirection;
-    int startSlice;
-    int startMovement;
-    int addToSlice;
 
-    startDirection = -1;
 
-    randtemp = fastRandom * randSeed;
 
-    fastRandom = randtemp & 0xffff;
 
-    if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 500) {
 
-      startDirection = 1;
 
-    }
 
-    randtemp = fastRandom * randSeed;
 
-    fastRandom = randtemp & 0xffff;
+  if (this->copIndex_ == 0) { int startDirection; int startSlice; int startMovement; int addToSlice; startDirection = -1;
 
-    startMovement = 0;
 
-    if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 0x2ee) {
 
-      startMovement = (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP);
 
-    }
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 500) {
+      startDirection = 1; }
 
-    startSlice = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,
-                                       (int)((this->carObj_)->N).simRoadInfo.slice);
 
-    if ((0x41 < startSlice) && (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP)) {
 
-      startMovement = 1;
+    randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; startMovement = 0; if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 0x2ee) { startMovement = (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP); } startSlice = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,
 
-    }
+
+
+
+                                       (int)((this->carObj_)->N).simRoadInfo.slice); if ((0x41 < startSlice) && (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP)) {
+      startMovement = 1; }
 
     startSlice = this->FindRandomBarrierFreeArea((int)((this->carObj_)->N).simRoadInfo.slice,100,1);
-
-    if ((this->currentStage_ + 1U & 1) == 0) {
-
-      addToSlice = startDirection * 7;
-
-    }
-
-    else {
-
-      addToSlice = startDirection * -7;
-
-    }
-
-    if (addToSlice >= 0) {
-
-      startSlice = startSlice + addToSlice;
-
-      if (gNumSlices <= startSlice) {
-
-        startSlice = startSlice - gNumSlices;
-
-      }
-
-    }
-
-    else {
-
-      startSlice = startSlice + addToSlice;
-
-      if (startSlice < 0) {
-
-        startSlice = startSlice + gNumSlices;
-
-      }
-
-    }
-
-    ((this->carObj_)->N).simRoadInfo.slice =
-
+    if ((this->currentStage_ + 1U & 1) == 0) { addToSlice = startDirection * 7; } else { addToSlice = startDirection * -7; }
+    if (addToSlice >= 0) { startSlice = startSlice + addToSlice; if (gNumSlices <= startSlice) { startSlice = startSlice - gNumSlices; } } else { startSlice = startSlice + addToSlice; if (startSlice < 0) { startSlice = startSlice + gNumSlices; } } ((this->carObj_)->N).simRoadInfo.slice =
          (short)startSlice;
-
-    this->NewStage(startSlice,startDirection,startMovement);
-
-  }
-
-  return;
-
-}
+    this->NewStage(startSlice,startDirection,startMovement); } return; }
 
 
 
@@ -692,35 +579,30 @@ void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
 
 
 {
-  if (this->copIndex_ != 0) {
-    AIHigh_BTC_HumanCop *leadCop = (AIHigh_BTC_HumanCop *)highLevelAIObjs[0];
 
-    if (leadCop->CurrentStage() > this->CurrentStage()) {
-      int startDirection = leadCop->InitialDirection();
-      int startSlice;
-      int startMovement = leadCop->InitialMovement();
-      int addToSlice;
+
+
+  if (this->copIndex_ != 0) {
+
+    AIHigh_BTC_HumanCop *leadCop = (AIHigh_BTC_HumanCop *)highLevelAIObjs[0];
+    if (leadCop->CurrentStage() > this->CurrentStage()) { int startDirection = leadCop->InitialDirection(); int startSlice; int startMovement = leadCop->InitialMovement(); int addToSlice;
+
+
+
+
+
+
 
       startSlice = leadCop->CarObj()->N.simRoadInfo.slice;
-      if ((this->currentStage_ + 1U & 1) != 0)
-        addToSlice = startDirection * 0xe;
-      else
-        addToSlice = startDirection * -0xe;
-      if (0 <= addToSlice) {
-        startSlice = startSlice + addToSlice;
-        if (gNumSlices <= startSlice)
-          startSlice = startSlice - gNumSlices;
-      }
-      else {
-        startSlice = startSlice + addToSlice;
-        if (startSlice < 0)
-          startSlice = startSlice + gNumSlices;
-      }
-      this->NewStage(startSlice,startDirection,startMovement);
-    }
-    this->carObj_->desiredSpeed = leadCop->CarObj()->desiredSpeed;
-  }
-}
+      if ((this->currentStage_ + 1U & 1) != 0) addToSlice = startDirection * 0xe; else addToSlice = startDirection * -0xe;
+      if (0 <= addToSlice) { startSlice = startSlice + addToSlice; if (gNumSlices <= startSlice) startSlice = startSlice - gNumSlices; } else { startSlice = startSlice + addToSlice; if (startSlice < 0) startSlice = startSlice + gNumSlices; }
+      this->NewStage(startSlice,startDirection,startMovement); }
+
+
+
+
+
+    this->carObj_->desiredSpeed = leadCop->CarObj()->desiredSpeed; } }
 
 
 
@@ -972,32 +854,36 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
 
 {
-  if (this->timeLeft_ < 0) {
-    AIInit_forceHumanHandBrake = 1;
+
+  if (this->timeLeft_ < 0)
+  {
     this->carObj_->RSControl = this->carObj_->direction;
-    this->SetRequestedDesiredSpeed(0);
-  }
-  else if (this->freezeMode_ == 3) {
+
+    AIInit_forceHumanHandBrake = 1; this->SetRequestedDesiredSpeed(0); }
+
+  else if (this->freezeMode_ == 3)
+  {
     this->carObj_->RSControl = 0;
     this->carObj_->pullOver = 1;
-    this->SetRequestedDesiredSpeed(0);
-  }
-  else if (this->freezeMode_ == 1) {
+    this->SetRequestedDesiredSpeed(0); }
+
+
+  else if (this->freezeMode_ == 1)
+  {
     this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
     this->carObj_->RSControl = this->InitialDirection();
     this->carObj_->pullOver = (u_int)(this->InitialMovement() == 0);
     if (this->carObj_->pullOver != 0)
-      this->SetRequestedDesiredSpeed(0);
-  }
-  else {
+      this->SetRequestedDesiredSpeed(0); } else
+
+
+  {
     if (this->carObj_->pullOver == 1 || this->carObj_->RSControl != 0)
-      this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
-    this->SetRequestedDesiredSpeed(0);
+      this->carObj_->AIFlags = this->carObj_->AIFlags | 2; this->SetRequestedDesiredSpeed(0);
+
     this->freezeMode_ = 0;
     this->carObj_->RSControl = 0;
-    this->carObj_->pullOver = 0;
-  }
-}
+    this->carObj_->pullOver = 0; } }
 
 
 
@@ -1012,41 +898,27 @@ void AIHigh_BTC_HumanCop::RequestWingman()
 
 
 
-{
-  int wingmanActivationTime;
+{ int wingmanActivationTime;
+  if (1 < (u_int)(this->freezeMode_ - 3)) { wingmanActivationTime = GameSetup_gData.perpInfo[this->currentStage_].WingmanTime * 0x40 +
 
-
-
-  if (1 < (u_int)(this->freezeMode_ - 3)) {
-
-    wingmanActivationTime = GameSetup_gData.perpInfo[this->currentStage_].WingmanTime * 0x40 +
 
             AITune_BTC[GameSetup_gData.skill].wingmanTime;
 
+
     Speech::Mobile(this->carObj_)->Backup();
 
-    if (this->chaseStartTime_ == 0) goto LAB_dispatch;
+    if (this->chaseStartTime_ == 0) goto LAB_dispatch; if (wingmanActivationTime == 0) goto LAB_dispatch; if (simGlobal.gameTicks - this->chaseStartTime_ <= wingmanActivationTime) goto LAB_dispatch; if (this->wingmanStatus_ != 4) { this->wingmanStatus_ = 1;
 
-    if (wingmanActivationTime == 0) goto LAB_dispatch;
 
-    if (simGlobal.gameTicks - this->chaseStartTime_ <= wingmanActivationTime) goto LAB_dispatch;
 
-    if (this->wingmanStatus_ != 4) {
+      goto LAB_end; } LAB_dispatch:
 
-      this->wingmanStatus_ = 1;
 
-      goto LAB_end;
 
-    }
+    Speech::Dispatch()->Deny(); LAB_end: ; } return;
 
-LAB_dispatch:
-    Speech::Dispatch()->Deny();
 
-LAB_end: ;
 
-  }
-
-  return;
 
 }
 
@@ -1063,64 +935,34 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 
 
 
-{
-  int availableTime;
-
+{ int availableTime;
 
 
   if (1 < (u_int)(this->freezeMode_ - 3)) {
 
     if (spikeBeltRequest != 0) {
-      Speech::Mobile(this->carObj_)->SpikeBelt();
 
-      availableTime = GameSetup_gData.perpInfo[this->currentStage_].SpikeBeltTime * 0x40 +
+      Speech::Mobile(this->carObj_)->SpikeBelt(); availableTime = GameSetup_gData.perpInfo[this->currentStage_].SpikeBeltTime * 0x40 +
+                      AITune_BTC[GameSetup_gData.skill].spikeBeltTime; } else {
 
-                      AITune_BTC[GameSetup_gData.skill].spikeBeltTime;
 
-    }
 
-    else {
-      Speech::Mobile(this->carObj_)->RoadBlock();
+      Speech::Mobile(this->carObj_)->RoadBlock(); availableTime = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime * 0x40 +
+                      AITune_BTC[GameSetup_gData.skill].blockaderTime; }
 
-      availableTime = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime * 0x40 +
 
-                      AITune_BTC[GameSetup_gData.skill].blockaderTime;
+    if (this->chaseStartTime_ == 0) goto LAB_dispatch; if (availableTime < 1) goto LAB_dispatch; if (simGlobal.gameTicks - this->chaseStartTime_ <= availableTime) goto LAB_dispatch; if (this->wingmanStatus_ != 5) {
 
-    }
-
-    if (this->chaseStartTime_ == 0) goto LAB_dispatch;
-
-    if (availableTime < 1) goto LAB_dispatch;
-
-    if (simGlobal.gameTicks - this->chaseStartTime_ <= availableTime) goto LAB_dispatch;
-
-    if (this->wingmanStatus_ != 5) {
       Speech::Dispatch()->Grant();
 
-      if (spikeBeltRequest != 0) {
 
-        this->wingmanStatus_ = 3;
 
-      }
 
-      else {
+      if (spikeBeltRequest != 0) { this->wingmanStatus_ = 3; } else { this->wingmanStatus_ = 2; } goto LAB_end; } LAB_dispatch:
 
-        this->wingmanStatus_ = 2;
 
-      }
 
-      goto LAB_end;
-
-    }
-
-LAB_dispatch:
-    Speech::Dispatch()->Deny();
-
-LAB_end: ;
-
-  }
-
-  return;
+    Speech::Dispatch()->Deny(); LAB_end: ; } return;
 
 }
 
@@ -1282,95 +1124,75 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
 
 
-{
-if ((this->copIndex_ == 0) &&
+{ if ((this->copIndex_ == 0) &&
+
 
      (this->freezeMode_ == 1)) {
+    this->ClearTrafficToPurgatory(); }
 
-    this->ClearTrafficToPurgatory();
-
-  }
 
   if ((this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) && (this->freezeMode_ != 1)) {
 
-    (this->carObj_)->desiredDirection = AIHigh_GetCarObj(this->perpTarget_)->direction;
 
-  }
+
+
+
+
+
+
+
+
+    (this->carObj_)->desiredDirection = AIHigh_GetCarObj(this->perpTarget_)->direction; }
+
+
+
 
   this->SetDesiredSpeed();
-
   this->CheckConditionWithCop0();
-
   this->UpdateFreezeModeAndPullOverMode();
-
   this->UpdateAndCheckTimeLeft();
-
   this->CheckForNewTarget();
+  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) { coorddef notUsed;
 
-  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
-    coorddef notUsed;
 
-    this->GetCheckChasePosition(&notUsed);
-  }
+    this->GetCheckChasePosition(&notUsed); }
 
   if (AIHigh_CopGameType == COP_GAME_BTC_1HC) {
 
-    if (0x281 <= simGlobal.gameTicks - lastInputRequestTick_) {
+    if (0x281 <= simGlobal.gameTicks - lastInputRequestTick_) { if (((this->carObj_)->control).queuedEvent ==
 
-      if (((this->carObj_)->control).queuedEvent ==
 
           '\x04') {
 
+
         this->RequestWingman();
-
         ((this->carObj_)->control).queuedEvent = '\0';
-
-        lastInputRequestTick_ = simGlobal.gameTicks;
-
-      }
-
-      if (((this->carObj_)->control).queuedEvent ==
+        lastInputRequestTick_ = simGlobal.gameTicks; } if (((this->carObj_)->control).queuedEvent ==
 
           '\x05') {
 
         this->RequestBlockader(0);
-
         ((this->carObj_)->control).queuedEvent = '\0';
-
-        lastInputRequestTick_ = simGlobal.gameTicks;
-
-      }
-
-      if (((this->carObj_)->control).queuedEvent ==
+        lastInputRequestTick_ = simGlobal.gameTicks; } if (((this->carObj_)->control).queuedEvent ==
 
           '\x06') {
 
         this->RequestBlockader(1);
-
         ((this->carObj_)->control).queuedEvent = '\0';
+        lastInputRequestTick_ = simGlobal.gameTicks; } } else {
 
-        lastInputRequestTick_ = simGlobal.gameTicks;
 
-      }
 
-    }
 
-    else {
+
+
       if ((u_int)(u_char)(this->carObj_->control).queuedEvent - 4 < 3) {
+        (this->carObj_->control).queuedEvent = '\0'; } } }
 
-        (this->carObj_->control).queuedEvent = '\0';
 
-      }
 
-    }
 
-  }
-
-  (this->state_)->StateExecute();
-
-  return;
-
-}
+  (this->state_)->StateExecute(); return; }
 
 
 
@@ -1808,50 +1630,39 @@ int AIHigh_BTC_Wingman::CheckForActivation()
 
 
 
-{
-  int spikeBeltRequest;
+{ int spikeBeltRequest;
+
   spikeBeltRequest = 0;
 
-  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-    Car_tObj *otherCarObj;
+
+
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) { Car_tObj *otherCarObj;
 
     otherCarObj = Cars_gList[carLoop];
-
-    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) {
-      AIHigh_BTC_HumanCop *copHigh;
+    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) { AIHigh_BTC_HumanCop *copHigh;
 
       copHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex];
 
       if ((copHigh)->CheckForWingmanRequest() != 0) {
 
         this->newRole_ = 1;
+        this->newHumanBoss_ = copHigh; }
 
-        this->newHumanBoss_ = copHigh;
 
-      }
 
-      if ((copHigh)->CheckForBlockaderRequest(&spikeBeltRequest) != 0) {
+      if ((copHigh)->CheckForBlockaderRequest(&spikeBeltRequest) != 0) { this->newRole_ = spikeBeltRequest != 0 ?
 
-        this->newRole_ = spikeBeltRequest != 0 ?
             ROLE_BLOCKADER_SPIKEBELT : ROLE_BLOCKADER;
+        this->newHumanBoss_ = copHigh; } }
 
-        this->newHumanBoss_ = copHigh;
 
-      }
-
-    }
 
   }
 
   if (this->newHumanBoss_ != (AIHigh_BTC_HumanCop *)0x0) {
+    (this->newHumanBoss_)->UpdateWingmanRole((Wingman_Role)this->currentRole_); }
 
-    (this->newHumanBoss_)->UpdateWingmanRole((Wingman_Role)this->currentRole_);
-
-  }
-
-  return (u_int)(this->currentRole_ != this->newRole_);
-
-}
+  return (u_int)(this->currentRole_ != this->newRole_); }
 
 
 
@@ -1867,19 +1678,25 @@ int AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode()
 
 
 {
+
   if (this->freezeMode_ == 3) {
+
     this->carObj_->pullOver = 1;
     return 0;
   }
   else {
     int result;
 
+
     this->carObj_->pullOver = 0;
+
     result = this->freezeMode_ == 4;
+
+
     this->freezeMode_ = 0;
+
     return result;
-  }
-}
+  } }
 
 
 
@@ -1901,70 +1718,19 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
 
 
-{
-  Car_tObj *otherCarObj;
+{ Car_tObj *otherCarObj; int side; int perpSide; otherCarObj = AIHigh_GetCarObj(humanCop); side = -1;
 
-  int side;
 
-  int perpSide;
+  if (-1 < otherCarObj->currentSpeed) { side = 1; }
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; perpSide = -1; if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 500) { perpSide = 1; }
 
-  otherCarObj = AIHigh_GetCarObj(humanCop);
 
-  side = -1;
 
-  if (-1 < otherCarObj->currentSpeed) {
 
-    side = 1;
 
-  }
 
-  randtemp = fastRandom * randSeed;
-
-  fastRandom = randtemp & 0xffff;
-
-  perpSide = -1;
-
-  if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 500) {
-
-    perpSide = 1;
-
-  }
-
-  perpSide = (int)((long long)perpSide * (side * 0x1c));
-
-  if (perpSide >= 0) {
-
-    perpSide = (otherCarObj->N).simRoadInfo.slice - -perpSide;
-
-    if (gNumSlices <= perpSide) {
-
-      perpSide = perpSide - gNumSlices;
-
-    }
-
-  }
-
-  else {
-
-    perpSide = (otherCarObj->N).simRoadInfo.slice - -perpSide;
-
-    if (perpSide < 0) {
-
-      perpSide = perpSide + gNumSlices;
-
-    }
-
-  }
-
-  AILife_PlaceCarAtLocation(this->carObj_,perpSide,0,side,
-
-             otherCarObj->currentSpeed,0);
-
-  Speech::Dispatch()->Ready(this->carObj_);
-
-  return;
-
-}
+  perpSide = (int)((long long)perpSide * (side * 0x1c)); if (perpSide >= 0) { perpSide = (otherCarObj->N).simRoadInfo.slice - -perpSide; if (gNumSlices <= perpSide) { perpSide = perpSide - gNumSlices; } } else { perpSide = (otherCarObj->N).simRoadInfo.slice - -perpSide; if (perpSide < 0) { perpSide = perpSide + gNumSlices; } } AILife_PlaceCarAtLocation(this->carObj_,perpSide,0,side, otherCarObj->currentSpeed,0);
+  Speech::Dispatch()->Ready(this->carObj_); return; }
 
 
 

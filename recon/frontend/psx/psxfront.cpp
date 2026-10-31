@@ -62,7 +62,6 @@ void Quick_DD(int a,int b,int c)
 
 {
   Draw_DirectSetEnvironment(0,0,0x200,0xf0,a,b,c,0,0,0);
-  return;
 }
 
 /* lines 99-140: (static data / macros / comments - no emitted code) */
@@ -71,6 +70,13 @@ void Quick_DD(int a,int b,int c)
 void PSXFront_AllocateDrawMemory(void)
 
 {
+
+
+
+
+
+
+
   Draw_InitViewOT();
   gEnviro[0].server = (char *)reservememadr("ps0",80000,0x10);
   gEnviro[1].server = (char *)reservememadr("ps1",80000,0x10);
@@ -85,7 +91,6 @@ void PSXFront_FreeDrawMemory(void)
 
 {
   ClearPrimitivesBuffer();
-  return;
 }
 
 /* lines 160-162: (static data / macros / comments - no emitted code) */
@@ -300,7 +305,6 @@ void PSX_AllocShapes(void)
 {
   gHelpShapes = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
   blockclear(gHelpShapes,0x760);
-  return;
 }
 
 /* lines 685-695: (static data / macros / comments - no emitted code) */
@@ -1144,9 +1148,9 @@ static void ScaleFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int sca
                int abr)
 
 {
+
   color[1] = color[2] = color[3] = color[0];
   ScaleGouraudShape(shp,flags,x,y,scalex,scaley,color,abr);
-  return;
 }
 
 /* lines 1147-1204: (static data / macros / comments - no emitted code) */

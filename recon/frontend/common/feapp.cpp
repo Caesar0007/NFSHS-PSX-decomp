@@ -124,6 +124,10 @@ void tFEApplication::PerformMenuInitialization()
 void tFEApplication::PerformMenuDestruction()
 
 {
+
+
+
+
   short i;
 
   Clock_SystemCleanUp();
@@ -750,6 +754,9 @@ void Texture_MenuReleaseClutId(short clutID);      /* @0x800df9a4 */
 
 static void FreeHelpShapeCluts(void)
 {
+
+
+
   int i;
   for (i = 0; i < 0x3b; i++) {
     if (gHelpShapes[i].clutID != 0) {
@@ -1401,6 +1408,13 @@ tAppCommand tFEApplication::RunPostGame()
 tAppCommand tFEApplication::RunFrontEnd()
 
 {
+
+
+
+
+
+
+
   return this->MainLoop((tMenu*)&menuDefs->menuMain);
 }
 

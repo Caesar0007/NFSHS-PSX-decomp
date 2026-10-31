@@ -138,7 +138,6 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 bool tScreenCongrats::GetCar(tCarInfo &carInfo)
 
 {
-  
   GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
   return 1;
@@ -346,7 +345,7 @@ void tScreenCongrats::DrawBackground()
 void tScreenCongrats::DrawForeground()
 
 {
-  return;
+
 }
 
 /* ---- tScreenCongrats::CalculatePrizes  (screencongrats.cpp:365) ---- */
@@ -432,7 +431,6 @@ void tScreenCongrats::Initialize()
     this->fCountSpeed = 1000;
   }
   this->tScreen::Initialize();
-  return;
 }
 
 /* ---- tScreenCongrats::ProcessInput  (screencongrats.cpp:423) ---- */
@@ -453,7 +451,6 @@ void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand 
       keyval = kInput_KeyType_AlreadyProcessed;
     }
   }
-  return;
 }
 
 
@@ -569,6 +566,9 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
 void tScreenPinkSlipCongrats::Initialize()
 
 {
+
+
+
   this->fWinner = -1;
   if ((int)(((byte)frontEnd.pinkSlipsNumTracks >> 1) + 1) <= (int)(byte)frontEnd.pinkSlipsWins[0]) {
     this->fWinner = 0;
@@ -829,6 +829,8 @@ prizes_done:
 bool tScreenBeTheCopCongrats::GetCar(tCarInfo &carInfo)
 
 {
+
+
   
   blockmove(GetCarFromID(&carManager, (ushort)(byte)frontEnd.congratsCopCar),&carInfo,0xcc);
   carInfo.fCountry = frontEnd.congratsCopCountry;
@@ -887,6 +889,8 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
 bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
 
 {
+
+
   tAwardInformation tInfo;
   
   tournamentManager.GetAwardInformation(tInfo);

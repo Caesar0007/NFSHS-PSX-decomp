@@ -54,9 +54,15 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
   int translucent_flag;
 
   translucent_flag = 0;
+
   while (numentry-- != 0) {
     const u_short color = *(u_short *)data;
+
+
+
+
     translucent_flag |= 0x8000 < color;
+
     data += 2;
   }
   return translucent_flag;
@@ -152,12 +158,43 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
 /* ---- TextureProcess_DepthColorCluts__FPci  [TEXTUREPROCESS.CPP:422-462] SLD-VERIFIED ---- */
 int TextureProcess_DepthColorCluts(char *data,int numentry)
 {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   DrawSync(0);
   for (int i = 0; i < 0x10; i++) {
     int cx;
     int cy;
     Texture_GetClutId(0x10 < numentry,&cx,&cy);
     gClutDepth[TP_gZPaletteSystem.numdepthclut][i] = (short)((cy << 6) | ((cx >> 4) & 0x3f));
+
+
+
+
+
+
+
+
+
+
+
+
+
     TextureProcess_ColorClut(i,0x10,data,numentry,cx,cy);
   }
   return TP_gZPaletteSystem.numdepthclut++;
@@ -172,44 +209,59 @@ FogKey * Fog_CheckRange(int currentslice,FogKey *fkey)
   keynext = fkey->next;
   /* MATCH: direct returns (no result funnel) -- the oracle stages 0/fkey straight
    * into $v0 in the branch delay slots; a funnel local takes $a2 + a tail copy. */
+
+
   if (keynext->slice < fkey->slice) {
     /* MATCH: `||` short-circuit -- both arms fall into ONE `return fkey` block
      * (oracle beqz/beqz both target .L800E0BC4); split returns duplicate it. */
-    if ((fkey->slice <= currentslice) || (currentslice < keynext->slice)) {
-      return fkey;
+
+    if ((fkey->slice <= currentslice) || (currentslice < keynext->slice)) { return fkey;
     }
     goto ret0;
   }
-  if (currentslice < fkey->slice) {
-    goto ret0;
-  }
-  if (currentslice < keynext->slice) {
+
+
+
+
+  if (currentslice < fkey->slice) { goto ret0; } if (currentslice < keynext->slice) {
     return fkey;
-  }
-ret0:
-  return (FogKey *)0x0;
+  } ret0: return (FogKey *)0x0;
 }
 
 /* ---- Fog_FindKey__FiP6FogKey  [TEXTUREPROCESS.CPP:665-695] SLD-VERIFIED ---- */
 FogKey * Fog_FindKey(int currentslice,FogKey *fkey)
 
 {
-  if (fkey == (FogKey *)0x0) {
-    fkey = Fog_gHeadKey;
+
+  if (fkey == (FogKey *)0x0) { fkey = Fog_gHeadKey;
   }
+
+
+
+
   if (Fog_CheckRange(currentslice,fkey) == (FogKey *)0x0) {
+
     if (currentslice < fkey->slice) {
       do {
+
+
+
         fkey = fkey->prev;
+
+
       } while (Fog_CheckRange(currentslice,fkey) == (FogKey *)0x0);
     }
     else {
       do {
+
+
+
         fkey = fkey->next;
+
+
       } while (Fog_CheckRange(currentslice,fkey) == (FogKey *)0x0);
     }
-  }
-  return fkey;
+  } return fkey;
 }
 
 /* ---- Fog_AllocKey__Fv  [TEXTUREPROCESS.CPP:716-726] SLD-VERIFIED ---- */
@@ -229,31 +281,59 @@ void Fog_AddKey(int slice,int distance)
 {
   FogKey *newkey;
 
+
+
   newkey = Fog_AllocKey();
-  newkey->prev = (FogKey *)0x0;
-  newkey->next = (FogKey *)0x0;
+
+
+
+
+
+
+  newkey->prev = (FogKey *)0x0; newkey->next = (FogKey *)0x0;
   newkey->slice = (short)slice;
   newkey->distance = (short)distance;
+
   if (Fog_gHeadKey == (FogKey *)0x0) {
+
+
     Fog_gHeadKey = newkey;
+
     newkey->next = newkey;
+
     newkey->prev = newkey;
   }
   else {
     FogKey *insertkey = Fog_gHeadKey;
     FogKey *savenextkey;
+
+
     if (insertkey != insertkey->next) {
+
+
       insertkey = Fog_FindKey(slice,(FogKey *)0x0);
     }
+
+
     if (insertkey->slice == slice) {
       return;
     }
+
+
+
+
     savenextkey = insertkey->next;
+
     insertkey->next = newkey;
+
     newkey->prev = insertkey;
+
     newkey->next = savenextkey;
+
     savenextkey->prev = newkey;
   }
+
+
   Fog_gNumKeys = Fog_gNumKeys + 1;
 }
 
@@ -304,7 +384,10 @@ char * Fog_MakeTrackPathName(char *ext)
 {
   static char fogstrspc[64]; /* SYM STAT ARY CHAR[64] */
 
+
+
   sprintf(fogstrspc,"%sTr%02d%s",Paths_Paths[6],GameSetup_gData[15] & 0xf,ext);
+
   return fogstrspc;
 }
 
@@ -312,6 +395,13 @@ char * Fog_MakeTrackPathName(char *ext)
  * The four filename cases retain the retail branch/call order without a
  * reconstruction-only haveext label. The +200..+212 test region and full
  * statement-line attribution remain source-restoration work. */
+  /* P886: native476a7c..476aa6 bounds i's loop-local scope, ending before
+     purgememadr; i remains the actual INT/REG17 counter, not a new carrier. */
+  /* P886: raw instructions at800E0F18..800E0FA0 select the four native
+   * strings at8013DB4C/54/5C/64: S.fog, N.fog, W.fog, .fog. The normalized
+   * instruction gate cannot identify a wrong literal, but raw binary bytes
+   * and the independent Redec body settle each branch's actual filename.
+   * Keep the existing condition/statement order and ordinary string literals. */
 int Fog_ReadFogKeys(void)
 
 {
@@ -319,11 +409,7 @@ int Fog_ReadFogKeys(void)
   char *strspc;
   int numkeys;
 
-  /* P886: raw instructions at800E0F18..800E0FA0 select the four native
-   * strings at8013DB4C/54/5C/64: S.fog, N.fog, W.fog, .fog. The normalized
-   * instruction gate cannot identify a wrong literal, but raw binary bytes
-   * and the independent Redec body settle each branch's actual filename.
-   * Keep the existing condition/statement order and ordinary string literals. */
+
   if (GameSetup_gData[21] != 0 && GameSetup_gData[18] != 0) {
     strspc = Fog_MakeTrackPathName("S.fog");
   } else if (GameSetup_gData[21] != 0) {
@@ -333,27 +419,43 @@ int Fog_ReadFogKeys(void)
   } else {
     strspc = Fog_MakeTrackPathName(".fog");
   }
+
+
   readmem = (int *)loadfileadr(strspc,0);
+
   if (readmem == (int *)0x0) {
     return 0;
   }
+
+
+
   numkeys = *readmem;
+
+
   if (0x1f < (u_int)numkeys) {
+
+
     return 0;
   }
-  /* P886: native476a7c..476aa6 bounds i's loop-local scope, ending before
-     purgememadr; i remains the actual INT/REG17 counter, not a new carrier. */
-  for (int i = 0; ; ) {
-    if (i < numkeys) {
+
+  for (int i = 0; ; ) { if (i < numkeys) {
       /* MATCH: INDEX form off readmem -- loop.c strength-reduces it to the
        * oracle's unbiased walker (`addu s0,s2,zero` + `lw 4(s0)/lw 8(s0)`);
        * an explicit `p = readmem; p += 2` walker makes gcc pre-bias the base by
        * +8 and use -4/0 displacements. */
+
+
+
+
+
+
+
+
       Fog_AddKey(readmem[i * 2 + 1],readmem[i * 2 + 2]);
-      i++;
-    } else break;
-  }
+      i++; } else break; }
+
   purgememadr(readmem);
+
   return 1;
 }
 
@@ -405,8 +507,7 @@ void Fog_InitFogTriggers(void)
 void Fog_DeInitFogTriggers(void)
 
 {
-  purgememadr(fogslicePos);
-  return;
+  purgememadr(fogslicePos); return;
 }
 
 /* ---- TextureProcess_Init__Fv  [TEXTUREPROCESS.CPP:1135-1137] SLD-VERIFIED ---- */
@@ -421,24 +522,24 @@ void TextureProcess_Init(void)
 void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
 {
   for (int i = 0; i < Chunk_numLight; i++) {
+
+
     int r = Chunk_lightTable[i].r;
     int g = Chunk_lightTable[i].g;
     int b = Chunk_lightTable[i].b;
     {
-      int temp = r - fixedmult(r - color->r,constrast);
-      if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
-    }
-    { int temp = g - fixedmult(g - color->g,constrast); if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } } }
+      int temp = r - fixedmult(r - color->r,constrast); if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
+    } { int temp = g - fixedmult(g - color->g,constrast); if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } } }
     { int temp = b - fixedmult(b - color->b,constrast); if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } } }
+
     r = r + brightness;
     g = g + brightness;
     b = b + brightness;
-    if (0xff < r) { r = 0xff; }
-    if (r < 0) { r = 0; }
-    if (0xff < g) { g = 0xff; }
-    if (g < 0) { g = 0; }
-    if (0xff < b) { b = 0xff; }
-    if (b < 0) { b = 0; }
+
+    if (0xff < r) { r = 0xff; } if (r < 0) { r = 0; }
+    if (0xff < g) { g = 0xff; } if (g < 0) { g = 0; }
+    if (0xff < b) { b = 0xff; } if (b < 0) { b = 0; }
+
     Chunk_lightTable[i].r = (u_char)r;
     Chunk_lightTable[i].g = (u_char)g;
     Chunk_lightTable[i].b = (u_char)b;
@@ -446,13 +547,51 @@ void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
 }
 
 /* ---- CV_ColorTracks__Fiii  [TEXTUREPROCESS.CPP:1183-1257] SLD-VERIFIED ---- */
-void CV_ColorTracks(int track,int weather,int night)
-
-{
-  int contrast;
-  CVECTOR color;
-  short brightness;
-
+      /* MATCH: the oracle writes the whole CVECTOR with ONE word store
+       * (sw 0x10 -> r=0x10, g=b=cd=0), not four byte stores. */
+    /* MATCH: FLAT per-case chain -- each arm re-tests `track` (the oracle has two
+     * separate track==3 tests and two track==4 tests, with the compare constant
+     * rematerialized into the intervening delay slots).  A nested
+     * `if (track == 3) { ... }` tests it once and comes out 8 insns short. */
+  /* CAMIN (2026-10-04): the 2026-08-23 read-only empty-asm use of contrast
+   * after memset is retired.  The missing contrast reference now comes from the
+   * final call argument, spelled with the absorption identity
+   * `contrast | (contrast & 3)` (== contrast; combine folds it to zero bytes,
+   * but local-alloc counts the extra reference, enough to beat weather's
+   * priority and give retail's contrast=$s0 / weather=$s1).  Falsified pure-C
+   * placements (all 72 @130): absorption set/`&`-form after memset (folded:
+   * contrast is a known 0 there), brightness=contrast copies, do/while-wrapped
+   * re-init, memset fill arg = contrast, ternary/else self-assign on the
+   * track-10 arm; contrast=0 after memset = 142 @126. */
+  /* HISTORICAL POST-COMPILE CANDIDATE (w50-a6, now disabled).  The residual was exactly 2 diffs at a
+   * COUNT-EXACT 130/130, and both are the SAME instruction in two places -- `sw ra,40(sp)`:
+   *   ours   ... sw s3,36; addu s3,a2; [sw ra,40]; sw s0,24; addu s0,zero; addiu a0,sp,16;
+   *              addu a1,s0; jal memset
+   *   retail ... sw s3,36; addu s3,a2;  sw s0,24; addu s0,zero; addiu a0,sp,16;
+   *              addu a1,s0; [sw ra,40]; jal memset
+   * i.e. retail SINKS the $ra save four slots, below the whole memset arg setup, while our
+   * cc1 issues it inside the callee-save block.  Every other byte of the function matches.
+   * Same family as the w48 PER_FN_EPILOGUE_UNFILL class (a per-function prologue save
+   * POSITION no whole-fn switch reaches) and the same class A3 proposed as
+   * PER_FN_PROLOGUE_UNSINK on FILE_completeop -- here in the SINK direction (ours too early).
+   * FLAG AXIS FALSIFIED for this fn (scratch/w50_a6/flagprobe.py, cc1 on the built .i;
+   * relative counts, not gate-exact): baseline 18, -fno-schedule-insns 18,
+   * -fno-schedule-insns2 35, -mno-split-addresses 18, -fno-delayed-branch 128 @150 insns.
+   * No flag moves the save, and the w49 receipt already banks 8 falsified fence placements.
+   * A textual per-fn splice moving the `sw $31,0x28($sp)` line down to just before the `jal`
+   * landed PASS historically.  It is no longer wired: user policy forbids
+   * post-recompile instruction rewrites, and the source-only receipt follows. */
+  /* HISTORICAL STEP (w49-a6, 72 -> 2, count still EXACT 130/130): the receipt above
+   * quantified the whole 72-diff residual as ONE allocno_compare razor -- weather
+   * (14 refs / 114) .36842 vs contrast (11 refs / 90) .36666 -- and named the exact bar:
+   * contrast needs refs >= 12 (3*12/90 = .400) at ZERO instructions.  Every zero-cost dial
+   * it tried was a VALUE copy, which cc1 folds before life analysis.  The w44 REF-STEP
+   * inflator #3 -- a `do { } while (0)` DEPTH WRAPPER -- is not a value dial at all: flow.c
+   * weights refs by loop depth, and loop.c later strips the phony loop, so the extra ref is
+   * free.  Wrapping the `contrast = 0;` init alone clears the bar and the $s0/$s1 pair lands
+   * retail's way.  (Two nested wrappers measure the same 2; the wrapper must sit on a
+   * contrast REF, and this one is outside every call-crossing region so its LOOP_BEG/END
+   * note costs no scheduling.) */
   /* MATCH: `contrast` is initialized to 0 BEFORE the memset, so its live range
    * crosses that call and it earns a callee-saved reg -- assigning it only
    * inside the branches leaves it in $a0 (the outgoing arg reg).  The same 0
@@ -499,106 +638,83 @@ void CV_ColorTracks(int track,int weather,int night)
    * testing `night` BEFORE `weather` and so contradicts the oracle's
    * track/weather/night compare order at every arm.  Historical measurement;
    * the final-call-argument absorption below supplies the missing source lever. */
-  /* HISTORICAL STEP (w49-a6, 72 -> 2, count still EXACT 130/130): the receipt above
-   * quantified the whole 72-diff residual as ONE allocno_compare razor -- weather
-   * (14 refs / 114) .36842 vs contrast (11 refs / 90) .36666 -- and named the exact bar:
-   * contrast needs refs >= 12 (3*12/90 = .400) at ZERO instructions.  Every zero-cost dial
-   * it tried was a VALUE copy, which cc1 folds before life analysis.  The w44 REF-STEP
-   * inflator #3 -- a `do { } while (0)` DEPTH WRAPPER -- is not a value dial at all: flow.c
-   * weights refs by loop depth, and loop.c later strips the phony loop, so the extra ref is
-   * free.  Wrapping the `contrast = 0;` init alone clears the bar and the $s0/$s1 pair lands
-   * retail's way.  (Two nested wrappers measure the same 2; the wrapper must sit on a
-   * contrast REF, and this one is outside every call-crossing region so its LOOP_BEG/END
-   * note costs no scheduling.) */
-  /* HISTORICAL POST-COMPILE CANDIDATE (w50-a6, now disabled).  The residual was exactly 2 diffs at a
-   * COUNT-EXACT 130/130, and both are the SAME instruction in two places -- `sw ra,40(sp)`:
-   *   ours   ... sw s3,36; addu s3,a2; [sw ra,40]; sw s0,24; addu s0,zero; addiu a0,sp,16;
-   *              addu a1,s0; jal memset
-   *   retail ... sw s3,36; addu s3,a2;  sw s0,24; addu s0,zero; addiu a0,sp,16;
-   *              addu a1,s0; [sw ra,40]; jal memset
-   * i.e. retail SINKS the $ra save four slots, below the whole memset arg setup, while our
-   * cc1 issues it inside the callee-save block.  Every other byte of the function matches.
-   * Same family as the w48 PER_FN_EPILOGUE_UNFILL class (a per-function prologue save
-   * POSITION no whole-fn switch reaches) and the same class A3 proposed as
-   * PER_FN_PROLOGUE_UNSINK on FILE_completeop -- here in the SINK direction (ours too early).
-   * FLAG AXIS FALSIFIED for this fn (scratch/w50_a6/flagprobe.py, cc1 on the built .i;
-   * relative counts, not gate-exact): baseline 18, -fno-schedule-insns 18,
-   * -fno-schedule-insns2 35, -mno-split-addresses 18, -fno-delayed-branch 128 @150 insns.
-   * No flag moves the save, and the w49 receipt already banks 8 falsified fence placements.
-   * A textual per-fn splice moving the `sw $31,0x28($sp)` line down to just before the `jal`
-   * landed PASS historically.  It is no longer wired: user policy forbids
-   * post-recompile instruction rewrites, and the source-only receipt follows. */
-  /* CAMIN (2026-10-04): the 2026-08-23 read-only empty-asm use of contrast
-   * after memset is retired.  The missing contrast reference now comes from the
-   * final call argument, spelled with the absorption identity
-   * `contrast | (contrast & 3)` (== contrast; combine folds it to zero bytes,
-   * but local-alloc counts the extra reference, enough to beat weather's
-   * priority and give retail's contrast=$s0 / weather=$s1).  Falsified pure-C
-   * placements (all 72 @130): absorption set/`&`-form after memset (folded:
-   * contrast is a known 0 there), brightness=contrast copies, do/while-wrapped
-   * re-init, memset fill arg = contrast, ternary/else self-assign on the
-   * track-10 arm; contrast=0 after memset = 142 @126. */
-  contrast = 0;
+void CV_ColorTracks(int track,int weather,int night)
+
+{
+  int contrast; CVECTOR color; short brightness; contrast = 0;
   memset(&color,0,4);
   brightness = 0;
+
   if (GameSetup_gData[3] == 1) {
+
+
     if (((track == 2) && (weather == 1)) && (night == 1)) {
+
+
       contrast = -0x9c80;
       color.g = '\x10';
-      brightness = 0x10;
-      goto CVColor_emitFinal;
+      brightness = 0x10; goto CVColor_emitFinal;
     }
-    /* MATCH: FLAT per-case chain -- each arm re-tests `track` (the oracle has two
-     * separate track==3 tests and two track==4 tests, with the compare constant
-     * rematerialized into the intervening delay slots).  A nested
-     * `if (track == 3) { ... }` tests it once and comes out 8 insns short. */
+
     if (((track == 3) && (weather == 0)) && (night == 1)) {
-      contrast = -0xf400;
-      goto CVColor_emitFinal;
+
+      contrast = -0xf400; goto CVColor_emitFinal;
     }
+
     if (((track == 3) && (weather == 1)) && (night == 1)) {
+
       contrast = -0x7400;
-      /* MATCH: the oracle writes the whole CVECTOR with ONE word store
-       * (sw 0x10 -> r=0x10, g=b=cd=0), not four byte stores. */
       *(int *)&color = 0x10;
-      brightness = 0x10;
-      goto CVColor_emitFinal;
+      brightness = 0x10; goto CVColor_emitFinal;
     }
+
     if (((track == 4) && (weather == 0)) && (night == 1)) {
       contrast = -0x7800;
       goto CVColor_emitFinal;
     }
+
     if (((track == 4) && (weather == 1)) && (night == 1)) {
+
       contrast = -0x10000;
       color.g = '\x18';
-      brightness = 0x10;
-      goto CVColor_emitFinal;
+      brightness = 0x10; goto CVColor_emitFinal;
     }
+
     if (((track == 6) && (weather == 0)) && (night == 1)) {
+
       contrast = -0x9610;
-      brightness = 0x31;
-      goto CVColor_emitFinal;
+      brightness = 0x31; goto CVColor_emitFinal;
     }
+
     if (((track == 7) && (weather == 0)) && (night == 1)) {
+
       contrast = -0xb400;
-      brightness = 0x14;
-      goto CVColor_emitFinal;
+      brightness = 0x14; goto CVColor_emitFinal;
     }
+
     if (((track != 8) || (weather != 0)) || (night != 1)) {
+
+
+
+
+
+
       if (((track == 10) && (weather == 1)) && (night == 1)) {
         contrast = -0x5400;
-      }
-      goto CVColor_emitFinal;
+      } goto CVColor_emitFinal;
     }
   }
   else {
+
     if (((track != 8) || (weather != 0)) || (night != 1)) goto CVColor_emitFinal;
   }
   contrast = 0x6800;
+
   brightness = 0x16;
 CVColor_emitFinal:
-  CV_ProcessWorldColors_FINAL(contrast | (contrast & 3),&color,brightness);
-  return;
+
+
+  CV_ProcessWorldColors_FINAL(contrast | (contrast & 3),&color,brightness); return;
 }
 
 /* ---- CV_InitColorVertices__Fv  [TEXTUREPROCESS.CPP:1539-1541] SLD-VERIFIED ---- */

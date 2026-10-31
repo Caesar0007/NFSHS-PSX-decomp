@@ -76,43 +76,44 @@ void CarIO_ReleaseCarCluts(Car_tObj *carObj);
  * PASS 27/27; the SYM's sole local is i($v1).  Indexed source lets strength
  * reduction create the descending Draw_tPixMap pointer anonymously, removing
  * the reconstructed pDVar1/iVar2 records without changing one instruction. */
-void CarIO_StartUp(void)
-
-{
   /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
    * function's own constants (the dead tag string most objects carry); the constant-false
    * call keeps the string and adds no code. */
-  if (0) reservememadr("SimpleMem",0,0);
+void CarIO_StartUp(void)
 
+{
+  if (0) reservememadr("SimpleMem",0,0);
   int i;
-  
+
+
   if (CarIO_carPixMap == (Draw_tPixMap *)0x0) {
     CarIO_carPixMap = reservememadr("carPixMap",0x2640,0);
   }
-  i = 0x263;
-  do {
-    CarIO_carPixMap[i].flag = 0;
-    i = i + -1;
-  } while (-1 < i);
+
+
+
+
+
+  i = 0x263; do { CarIO_carPixMap[i].flag = 0; i = i + -1; } while (-1 < i);
+
   CarIO_carPixMapCount = 0;
   CarIO_carVRamCount = 0;
+
   CarIO_licenseSFX_Count = 0;
-  CarIO_Plate2[0] = (shapetbl *)0x0;
-  CarIO_Plate1[0] = (shapetbl *)0x0;
-  CarIO_Plate2[1] = (shapetbl *)0x0;
-  CarIO_Plate1[1] = (shapetbl *)0x0;
-  return;
+
+  CarIO_Plate2[0] = (shapetbl *)0x0; CarIO_Plate1[0] = (shapetbl *)0x0;
+  CarIO_Plate2[1] = (shapetbl *)0x0; CarIO_Plate1[1] = (shapetbl *)0x0; return;
 }
 
 /* ---- CarIO_CleanUp__Fv  [CARIO.CPP:233-238] SLD-VERIFIED ---- */
 void CarIO_CleanUp(void)
 
 {
-  if (CarIO_carPixMap != (Draw_tPixMap *)0x0) {
-    purgememadr(CarIO_carPixMap);
+
+
+  if (CarIO_carPixMap != (Draw_tPixMap *)0x0) { purgememadr(CarIO_carPixMap);
   }
-  CarIO_carPixMap = (Draw_tPixMap *)0x0;
-  return;
+  CarIO_carPixMap = (Draw_tPixMap *)0x0; return;
 }
 
 /* ---- CarIO_ReStart__Fv  [CARIO.CPP:244-253] SLD-VERIFIED ----
@@ -123,16 +124,13 @@ void CarIO_ReStart(void)
 {
   int i;
 
-  i = 0x263;
-  do {
-    CarIO_carPixMap[i].flag = 0;
-    i = i + -1;
-  } while (-1 < i);
+  i = 0x263; do { CarIO_carPixMap[i].flag = 0; i = i + -1; } while (-1 < i);
+
   CarIO_carPixMapCount = 0;
   CarIO_carVRamCount = 0;
+
   CarIO_CleanUpLicense(0);
-  CarIO_CleanUpLicense(1);
-  return;
+  CarIO_CleanUpLicense(1); return;
 }
 
 /* ---- CarIO_CopyFromShape__FPsT0iiii  [CARIO.CPP:258-342] ----
@@ -290,48 +288,42 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
 /* ---- CarIO_CopyToShape__FPsT0i  [CARIO.CPP:347-374] ----
  * The mirror for-loop reproduces retail pixel3 and all six declaring regions.
  * Nibble carriers/empty fence and full line attribution remain source review. */
+      /* SOURCE-REVIEW-UNRESOLVED: without this existing zero-template fence,
+       * GCC still merges the two source-advance tails (40 versus42 words).
+       * Original source separation remains unrecovered. */
+        /* SOURCE-REVIEW-UNRESOLVED: these parallel nibble objects are absent
+         * from retail SYM. Current direct/accumulating forms change allocation;
+         * that is not proof four source declarations were originally present. */
 void CarIO_CopyToShape(short *source,short *dest,int mirror)
 
 {
   int h = 0x16;
-  while (1) {
-    int i;
+  while (1) { int i; h = h - 1; if (h == -1) break;
 
-    h = h - 1;
-    if (h == -1) break;
-    if (mirror == 0) {
-      for (i = 0; i < 6; i++) {
-        *dest++ = source[i];
-      }
-      source = source + 0xc;
+
+
+    if (mirror == 0) { for (i = 0; i < 6; i++) { *dest++ = source[i]; } source = source + 0xc;
     }
-    else {
-      for (i = 5; ; i--) {
-        u_short pixel3;
-
-        if (i < 0) break;
-        /* SOURCE-REVIEW-UNRESOLVED: these parallel nibble objects are absent
-         * from retail SYM. Current direct/accumulating forms change allocation;
-         * that is not proof four source declarations were originally present. */
+    else { for (i = 5; ; i--) { u_short pixel3; if (i < 0) break;
         int n0, n1, n2, n3;
 
+
         pixel3 = source[i];
+
         n0 = (pixel3 & 0xf) << 0xc;
         n1 = (pixel3 & 0xf0) << 4;
         n2 = (pixel3 & 0xf00) >> 4;
-        pixel3 = pixel3 >> 0xc;
-        n3 = pixel3;
+        pixel3 = pixel3 >> 0xc; n3 = pixel3;
+
         *dest++ = (short)(n0 | n1 | n2 | n3);
+
+
+
+
       }
-      /* SOURCE-REVIEW-UNRESOLVED: without this existing zero-template fence,
-       * GCC still merges the two source-advance tails (40 versus42 words).
-       * Original source separation remains unrecovered. */
       __asm__("");
-      source = source + 0xc;
-    }
-  }
-  return;
-}
+
+      source = source + 0xc; } } return; }
 
 /* ---- CarIO_CreateLicense__FPcii [CARIO.CPP:379-483] ----
  * Retail root order is i, clutPlate1/2, thePlate, shape, clutptr. The no-plate
@@ -341,6 +333,8 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  * All229 instructions and native local/scope records agree. Historical partial
  * sweeps do not prove source-object necessity or justify post-compile rewriting.
  * The existing ASCII identity boundary and full SLD remain source review. */
+          /* SOURCE-REVIEW-UNRESOLVED: removing this old identity boundary
+           * still changes the switch allocation (29dif/230 after scope repair). */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -351,109 +345,117 @@ void CarIO_CreateLicense(char *text,int carType,int player)
   shapetbl *shape;
   shapetbl *clutptr;
 
+
+
+
   if (carType >= 0x16) {
-    CarIO_Plate2[player] = (shapetbl *)0x0;
-    CarIO_Plate1[player] = (shapetbl *)0x0;
+
+    CarIO_Plate2[player] = (shapetbl *)0x0; CarIO_Plate1[player] = (shapetbl *)0x0;
     return;
   }
+
     CarIO_Plate1[player] = (shapetbl *)reservememadr("plate1",0x148,0);
     CarIO_Plate2[player] = (shapetbl *)reservememadr("plate2",0x148,0);
+
     clutPlate1 = CarIO_Plate1[player] + 0xe;
     clutPlate2 = CarIO_Plate2[player] + 0xe;
+
     thePlate = (short *)reservememadr("theplate",0x210,0x10);
+
     shape = (shapetbl *)locateshapez(R3DCar_LicenseShapeFile,"blnk");
     clutptr = (shapetbl *)((int)shape + (*(int *)shape >> 8));
-    i = 0;
-    do {
-      *(int *)(i * 4 + (int)CarIO_Plate1[player]) =
-          *(int *)(i * 4 + (int)CarIO_Plate2[player]) = ((int *)shape)[i];
-      i = i + 1;
-    } while (i < 4);
-    i = 0;
-    do {
-      ((int *)clutPlate1)[i] = ((int *)clutPlate2)[i] = ((int *)clutptr)[i];
-      i = i + 1;
-    } while (i < 0xc);
+
+    i = 0; do { *(int *)(i * 4 + (int)CarIO_Plate1[player]) = *(int *)(i * 4 + (int)CarIO_Plate2[player]) = ((int *)shape)[i]; i = i + 1; } while (i < 4);
+    i = 0; do { ((int *)clutPlate1)[i] = ((int *)clutPlate2)[i] = ((int *)clutptr)[i]; i = i + 1; } while (i < 0xc);
+
     CarIO_Plate1[player]->next = CarIO_Plate2[player]->next = 0x118;
     CarIO_Plate1[player]->width = CarIO_Plate2[player]->width = 0x18;
+
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
     {
       int length;
-      int start;
-
-      length = strlen(text);
+      int start; length = strlen(text);
       start = 0x18 - length * 3;
+
       for (i = 0; i < length; i = i + 1) {
+
         if (text[i] != ' ') {
           char letter [5];
           char ascii;
 
           ascii = text[i];
-
           switch(ascii) {
           case 0xd1:
             ascii = 'n';
+
+
+
+
+
+
+
+
+
+
             break;
-          case 0xc0:
-          case 0xc4:
-          case 0xc5:
-            ascii = 'a';
-            break;
+
+
+
+
+
+
+          case 0xc0: case 0xc4: case 0xc5: ascii = 'a'; break;
           case 0xc8:
             ascii = 'e';
             break;
-          case 0xcc:
-            ascii = 'i';
-            break;
-          case 0xd2:
-          case 0xd6:
-            ascii = 'o';
-            break;
-          case 0xd9:
-          case 0xdc:
-            ascii = 'u';
-          }
-          /* SOURCE-REVIEW-UNRESOLVED: removing this old identity boundary
-           * still changes the switch allocation (29dif/230 after scope repair). */
-          char savedAscii = ascii; ascii = 0; ascii = savedAscii;
-          letter[0] = ascii;
-          letter[1] = '\0';
-          strcat(letter,"   ");
-          CarIO_CopyFromShape((short *)((int)locateshapez(R3DCar_LicenseShapeFile,letter) + 0x10),thePlate,7,0xc,start,5);
+
+
+          case 0xcc: ascii = 'i'; break;
+
+
+          case 0xd2: case 0xd6: ascii = 'o'; break;
+
+          case 0xd9: case 0xdc: ascii = 'u';
         }
+
+
+          char savedAscii = ascii; ascii = 0; ascii = savedAscii; letter[0] = ascii; letter[1] = '\0';
+          strcat(letter,"   ");
+
+          shape = (shapetbl *)locateshapez(R3DCar_LicenseShapeFile,letter);
+          CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,7,0xc,start,5);
+        }
+
         start = start + 6;
       }
-    }
-    if ((R3DCar_InMenu == 0) && (GameSetup_gData.mirrorTrack != 0)) {
+
+
+    } if ((R3DCar_InMenu == 0) && (GameSetup_gData.mirrorTrack != 0)) {
+
       CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate1[player]->data,1);
-      CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate2[player]->data,1);
-    }
-    else {
+      CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate2[player]->data,1); } else {
+
+
       CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate1[player]->data,0);
       CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate2[player]->data,0);
     }
+
     purgememadr(thePlate);
-  return;
-}
+  return; }
 
 /* ---- CarIO_CleanUpLicense__Fi  [CARIO.CPP:486-490] SLD-VERIFIED ---- */
 /* NEAR-MISS 2 diffs (30/30): OURS fills the first beqz's delay slot with the join block's
  * `lui v0,%hi(CarIO_Plate2)` (reorg steal-from-target + duplicate on the jal path); the oracle
  * leaves a nop and keeps ONE lui at the join. Index-form rewrite = 6 diffs (reverted). A reorg
  * slot-steal tie (same class as Sfx_BuildSmokeFacet); permuter class. ACCEPT for now. */
+  /* plain indexed form: no locals, as the SYM records none */
 void CarIO_CleanUpLicense(int player)
 
 {
-  /* plain indexed form: no locals, as the SYM records none */
-  if (CarIO_Plate1[player] != (shapetbl *)0x0) {
-    purgememadr(CarIO_Plate1[player]);
-  }
-  CarIO_Plate1[player] = (shapetbl *)0x0;
-  if (CarIO_Plate2[player] != (shapetbl *)0x0) {
-    purgememadr(CarIO_Plate2[player]);
-  }
-  CarIO_Plate2[player] = (shapetbl *)0x0;
-  return;
+  if (CarIO_Plate1[player] != (shapetbl *)0x0) { purgememadr(CarIO_Plate1[player]);
+  } CarIO_Plate1[player] = (shapetbl *)0x0;
+  if (CarIO_Plate2[player] != (shapetbl *)0x0) { purgememadr(CarIO_Plate2[player]);
+  } CarIO_Plate2[player] = (shapetbl *)0x0; return;
 }
 
 /* ---- CarIO_LicenseCheck__FiPiT1P8Car_tObji  [CARIO.CPP:497-511] ----
@@ -471,12 +473,13 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
     (carObj->render).licenseOffsetU[plate] =
         ((sfx_vx & 0x3f) - (*license_vx & 0x3f)) * 4;
     (carObj->render).licenseOffsetV[plate] = (char)sfx_vy - (char)*license_vy;
+
     *license_vx = sfx_vx;
     *license_vy = sfx_vy;
+
     CarIO_licenseSFX_Count = CarIO_licenseSFX_Count + 1;
   } else {
-    (carObj->render).licenseOffsetU[plate] =
-        (carObj->render).licenseOffsetV[plate] = '\0';
+    (carObj->render).licenseOffsetU[plate] = (carObj->render).licenseOffsetV[plate] = '\0';
   }
 }
 
@@ -1243,27 +1246,28 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
 }
 
 /* ---- CarIO_ReleaseCarCluts__FP8Car_tObj  [CARIO.CPP:856-871] SLD-VERIFIED ---- */
-void CarIO_ReleaseCarCluts(Car_tObj *carObj)
-
-{
   /* SYM @0x800bd358: fsize 32, mask $80030000 (ra,s1,s0) -- EXACTLY two REG
    * locals, i=$10($s0) and carPixMapCount=$11($s1).  The old 26-local Ghidra
    * soup (incl. a `char letter[5]`) inflated the frame 32->40 and swapped the
    * two saved regs. */
+void CarIO_ReleaseCarCluts(Car_tObj *carObj)
+
+{
   int i;
   int carPixMapCount;
-
   carPixMapCount = (carObj->render).textureStartIndex;
+
   i = 0;
   do {
     if ((CarIO_carPixMap[carPixMapCount].flag & 0x80) != 0) {
       CarIO_carPixMap[carPixMapCount].flag = 0;
+
+
       Texture_MenuReleaseClutId(CarIO_carPixMap[carPixMapCount].clut);
     }
-    i = i + 1;
-    carPixMapCount = carPixMapCount + 1;
-  } while (i < 0x33);
-  return;
+
+
+    i = i + 1; carPixMapCount = carPixMapCount + 1; } while (i < 0x33); return;
 }
 
 /* end of cario.cpp */

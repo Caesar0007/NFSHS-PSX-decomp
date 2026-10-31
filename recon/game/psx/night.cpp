@@ -236,272 +236,85 @@ int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
  * gcc-2.8.1 uses floor_log2(refs)*refs*SIZE/live.  Every pseudo here is a 4-byte int, so
  * the *4 is a common factor and the w41-a7/W55-A16 ORDERINGS and the reqdelta receipt are
  * all unaffected -- but re-derive any NEW dial from the multiplicative form. */
-void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char *colorval)
-
-{
-  int sourceR;
-  int sourceG;
-  int sourceB;
-  int chr;
-  int chg;
-  int chb;
-  CVECTOR newColor;
-  int b15;
-  int newR;
-  int newG;
-  int newB;
-  int bestIndex;
-
-  b15 = bright * 0x111;
-  /* colorH's THREE COMPONENT BYTES are read with lbu out of its ARG HOME on the stack
-     (oracle `sw $a1,0x34($sp)` then `lbu 0x34($sp)` / `addiu $v1,$sp,0x34; lbu 1($v1);
-     lbu 2($v1)`), which is also why the SYM classes colorH as ARG (stack) rather than
-     REGPARM -- taking its address forces the spill.  The shift/mask spelling
-     (`colorH & 0xff`, `>>8 & 0xff`, `>>16 & 0xff`) compiles to srl/andi and has no
-     lbu at all. */
-  chr = ((u_char *)&colorH)[0];
-  chg = ((u_char *)&colorH)[1];
-  chb = ((u_char *)&colorH)[2];
-  sourceR = gTableCache[colorIndex].r;
-  sourceG = gTableCache[colorIndex].g;
-  sourceB = gTableCache[colorIndex].b;
-  newR = sourceR + ((int)(chr * b15) >> 0xc);
-  if (0xff < newR) newR = 0xff;
-  newG = sourceG + ((int)(chg * b15) >> 0xc);
-  if (0xff < newG) newG = 0xff;
-  newB = sourceB + ((int)(chb * b15) >> 0xc);
-  /* MATCH (W55-A16, 38 -> 26 diffs, count still EXACT 113/113) -- REQDELTA RECEIPT.
-     The chg / sourceG / sourceB three-way register rotation (ours a1/v1/t0 vs oracle
-     t0/a1/v1) was a GLOBAL-ALLOCNO PRIORITY tie, not a coloring coin-flip.
-     allocsim replicates this fn 15/15 EXACTLY, and reqdelta's minimal single-dial
-     answer for the retail handout {p86=v1, p85=a1, p88=t0} is
-        p86 (sourceB)  refs 2 -> 4   (the floor_log2 REF-STEP: pri 0.1666 -> 0.667,
-                                      lifting sourceB ABOVE the p85/p88 pair at 0.2857)
-        p86 (sourceB)  live 12 -> 6  (the alternative dial)
-     A two-operand read-only fence is exactly +2 refs and zero insns, so it buys the
-     REF-STEP directly.  MEASURED, all four placements, this fn:
-        1 operand  (refs 3, pri 0.25 -- BELOW the 0.2857 pair)  -> 41, rotation BACK
-        2 operands before `newB =`                              -> 29 but 114 insns
-                              (the implicit-volatile barrier blocks the chb `mult`
-                               from filling a load-delay slot -> a stray nop)
-        2 operands AFTER `newB =`                               -> 26, 113/113  <== kept
-        sinking the `sourceB =` load to its use (the live dial) -> 48
-     Re-laddered the store-order x read-back table AFTER this landing (04Z: rung
-     tables are basin-relative): bgr/gbr/brg + read-back-of-r all stay 26, rgb 56,
-     grb 58 -- the w50-a5 ranking is unchanged, so both halves below still hold.
-     Residual 26 = the newColor byte-store/pack block only (see the diffsrc SLD map:
-     retail stores .r at 16(sp) FIRST, SLD 206, and .b at 18(sp) SLD 208). */
-  /* w61-a14: the w60-a6 'reframed target -- a dial for the b15/sourceG order that does NOT
-     need the reverse store order' was attacked with the zero-insn identity launder (the
-     device that cracked Weather_DoSplats and Weather_DoWeather this same wave) and is
-     FALSIFIED: from the SLD-natural r,g,b pack basin (56) a launder on `b15` = 65 @114,
-     on `sourceG` = 90, both = 84; from the SHIPPED basin a launder on `b15` = 55 @114 and
-     on `sourceG` = 84.  The shipped 26 stands; the reverse-store-order price is still the
-     cheapest way to buy that allocno order. */
-  /* ---- w64-a13 (2026-08-15): 26 STAYS @113/113.  NEW BOUNDING FACT -- the W55 reqdelta
-     TARGET IS ALREADY MET, so the residual is provably NOT an allocno question any more.
-     Re-dumped this basin (`tools/rtl_dump.py recon/game/psx/night.cpp -dg -dl`) and ran
-     tools/allocsim.py: **MATCH 15/15 (order-vs-dump: IDENTICAL)** and the handout is
-     exactly W55's retail target -- p86 (sourceB) = $v1, p85 = $a1, p88 = $t0, bought by
-     the two-operand read-only fence below.  Every long-lived pseudo in the table is on its
-     retail register; what is left (p137 refs=10 live=7 pri 4.29 -> $v1, p157 -> $v1,
-     p93 refs=4 live=8 -> $a0) are the SHORT block-local pack temps, i.e. the residual lives
-     entirely in the by-value CVECTOR assembly and its store/forward choice, not in the
-     priority table.  Concretely (side_by_side): retail reloads bytes 16(sp) and 19(sp) and
-     forwards .g/.b, ours reloads 18(sp)/19(sp) and forwards .r/.g, and retail's OR-tree
-     accumulates into ONE register in ascending byte order (`or a0,a0,v0` x3) where ours
-     builds a different tree.  Since the w50/w63 store-order x read-back table is saturated
-     in both directions (every combination is 26 or 54-58) and the allocno side is now
-     closed, the only remaining axis is which bytes cse chooses to forward -- a cse/expand
-     question for the instrumented lane, not a spelling sweep. */
-  /* W76-orchestrator (2026-08-23): fence retuned per the A13_c4.spec PASS recipe --
-     1-op "r"(newR) form; the old 2-op sourceB fence belongs to the 2.8.0-lane 26
-     basin.  Live ONLY together with the SLD-natural store order below and the
-     retail-2.8.1 per-fn cc1plus splice row (PER_FN_CC1PLUS_VER_SPLICE, psq44
-     CC1PLPSX "2.8.1 SN32 BUILD 4.0.0010" -- a RETAIL SN binary, per the user's
-     retail-PsyQ-only ruling).  Mechanism: the 2.8.0 orphan (use reg) note from
-     try_combine's NULL-elim distribute_notes call (fixed Feb-6-1998) -- see the
-     A13 receipt below. */
-  /* ---- W71-A5 (2026-08-21): 26 STAYS @113/113.  The residual is now BOUNDED to a
-     single mechanical fact and the bound is worth writing down, because the same wave
-     cracked its TWIN (Night_AdditiveNightCalc, 59 -> PASS) with exactly the analogous
-     move and it does NOT transfer here.
-     THE FACT: ours and retail's pack blocks are STRUCTURALLY IDENTICAL, instruction for
-     instruction, and differ ONLY in WHICH component byte is reloaded.  Both build
-     [store X] [store g] [store Y] then forward g and Y with `andi ..,255` and RELOAD X
-     with `lbu`.  Retail has X=.r (stored FIRST) / Y=.b; ours has X=.b / Y=.r.  The
-     reloaded one is always the FIRST-stored, because its value register is clobbered by
-     the SECOND store's `and` -- so the reload identity is a pure function of the STORE
-     ORDER, and store order r-first is the 56-diff basin (it rotates b15/sourceG and the
-     prologue parm spill upstream).  The two halves are therefore COUPLED and the coupling
-     is the whole 26.
-     RE-MEASURED THIS WAVE (all count-exact 113/113 unless noted, all from the shipped
-     basin, extending the w50/w63 tables to the FULL cross-product):
-       . store order x read-back, ALL 6 orders x ALL 8 read-back subsets (48 cells):
-         every order that stores .r LAST plus a read-back of .r = 26; everything else
-         46 / 54 / 56 / 58 / 66.  SATURATED in both directions, third confirmation.
-       . VOLATILE-STORE forwarding dial (the 05E/14D device, aimed straight at "make .r
-         reload"): `*(volatile u_char *)&newColor.r/.g/.b` x 3 orders x 5 read-back sets
-         (75 cells) -- volatile on .b is BIT-IDENTICAL to none, volatile on .r or .g
-         costs +2, and none of them changes which byte cse forwards.
-       . early read-back of the FIRST-stored byte (so its register survives the second
-         store) -- `newB = newColor.b;` between the .b and .g stores, with and without a
-         ref fence on newB, and the `int mb = newB & ~7;` named-temp form: 55/59/61/78
-         and +3 REAL INSNS (116/113) in every shape that actually keeps the value live.
-       . declaration order of newR/newG/newB, all 6 permutations, both basins: provable
-         no-op (bit-identical) -- pseudos here are numbered by FIRST USE, re-confirming
-         the w41-a7 receipt against the w64-16A "decl order = pseudo number" law (that
-         law's PRE-GATE does not hold here).
-       . the rgb basin attacked with the ref-step dial that sealed AdditiveNightCalc:
-         read-only fences of 1/2/3/4/6/8 operands on b15, sourceG, sourceR and chg
-         (24 cells) -- 56 -> 58/62/64/66/68/78, i.e. every operand count moves it AWAY.
-     🔴 WHY THE AdditiveNightCalc CURE DOES NOT TRANSFER, stated precisely (this is the
-     useful part): there the blocker was the same SHAPE -- a block-local qty parked in the
-     wanted hard register poisoning a long-lived pseudo's conflict set -- and the cure was
-     to fold the offending BYTE LOAD into an existing global pseudo (`newR = color->r;`),
-     which deleted the local qty outright.  Here the offending local qty is NOT a source
-     read: it is the cse-created reload inside gcc's BY-VALUE CVECTOR argument assembly
-     for `Night_FindClosestColor(newColor, ...)`.  There is no C handle on it -- a source
-     read-back cannot merge with it (measured above, it costs a separate insn) -- so the
-     fold is unavailable.  reqdelta on the rgb-basin dump confirms the arithmetic side is
-     closed too: the wanted handout {p85=a1,p90=a3,p92=a1,p93=a0} has NO single-dial and
-     NO same-pseudo two-dial solution within +-40 on refs/live/calls, because p93 (newB)
-     carries a HARD conflict with $a0 in that basin (`;; 93 conflicts: ... 2 3 4 29`) --
-     one of the pack block's own local qtys owns $a0 there, so no priority dial can ever
-     reach it.
-     ⇒ NAMED ANGLE (unchanged in kind, now quantified): this is a local-alloc QTY handout
-     inside compiler-generated argument assembly = the AGENT_GUIDE 4.6 / catalog 06E
-     instrument gap.  It needs tools/qtytrace.py against the instrumented cc1 ("which
-     source change moves the arg-assembly reload off $a0 / makes cse forward .b instead of
-     .r"), NOT another spelling sweep -- the spelling axis is now saturated three ways. */
-  /* ---- W72-A14 (2026-08-22): 26 STAYS @113/113, but the class is RE-CLASSIFIED and the
-     W71 "needs qtytrace/local-alloc QTY" verdict is REFUTED.  The residual is NOT an
-     allocator question at all -- it is a **gcc VERSION identity** question (catalog 3.25
-     / AGENT_GUIDE 3), and the evidence is now direct rather than inferential.
-     THE INSTRUMENT: C:\Temp\nfs4-instr-cc1\cc1plus-ecoff.exe (the FSF gcc-2.8.1 cc1plus
-     built for the trace lane).  Run it on this TU's own build/.../night.cpp.i with
-     `-quiet -O2 -G8 -funsigned-char` (the -funsigned-char is MANDATORY: PsyQ's CC1PLPSX
-     defines __CHAR_UNSIGNED__, the FSF build does not, and without it every `char` field
-     read comes out `lb` instead of `lbu` and swamps the comparison).
-     FINDING 1 -- THE RESIDUAL IS EXACTLY THE VERSION-SENSITIVE REGION.  With that flag,
-     gcc-2.8.1 and PsyQ CC1PLPSX (2.8.0) emit this 117-cc1-insn function **IDENTICALLY**
-     except for 20 lines, and those 20 lines ARE the by-value CVECTOR argument assembly.
-     Nothing else in the function differs -- not one register, not one schedule slot.
-     FINDING 2 -- 2.8.1 PRODUCES RETAIL'S PACK BLOCK, THE FIRST BUILD EVER TO DO SO.
-     In the NATURAL r,g,b store order gcc-2.8.1 emits, register for register:
-        li $3,-8 / li $4,255 / and $2,$7,$3 / sb $2,16(sp) / and $2,$5,$3 / sb $2,17(sp)
-        andi $2,$2,0xff / and $3,$4,$3 / sll $2,$2,8 / sb $3,18(sp) / andi $3,$3,0xff
-        sll $3,$3,16 / lbu $4,16(sp) / addu $5,$sp,24 / or $4,$4,$2 / lbu $2,19(sp)
-        or $4,$4,$3 / sll $2,$2,24 / jal / or $4,$4,$2
-     which is retail's block verbatim apart from ONE upstream register ($7 vs retail's $6
-     for newR -- the known b15/sourceG rotation).  gcc-2.8.0 instead builds an
-     intermediate accumulator in $v1 and RELOADS a second byte:
-        ... andi $4,$2,0xff / and $3,$5,$3 / sll $4,$4,8 / addu $5,$sp,24 / sb $3,18(sp)
-        lbu $3,16(sp) / **lbu $2,18(sp)** / or $3,$3,$4 / sll $2,$2,16 / lbu $4,19(sp)
-        or $3,$3,$2 / sll $4,$4,24 / jal / **or $4,$3,$4**
-     i.e. 2.8.0 does NOT store-forward the LAST byte store, and its OR-tree therefore
-     cannot start from the arg register.  That is the whole 26.
-     FINDING 3 -- THE TWO HALVES WANT OPPOSITE STORE ORDERS, WHICH IS WHY 26 IS THE 2.8.0
-     MINIMUM.  Region A (the clamps + the prologue parm spill + the b15/sourceG rotation)
-     is retail ONLY in the shipped b,g,r + read-back-of-.r basin; region B (the pack
-     block) is retail ONLY in the r,g,b basin AND only under 2.8.1.  Under 2.8.0 no store
-     order can fix B: the 2.8.0 lane never forwards the last store.  MEASURED THIS WAVE:
-        shipped source, 2.8.0 lane ............................. 26 @113
-        shipped source, 2.8.1 SPLICE .......................... 26 @113 (inert -- 2.8.1's
-             better OR-tree still reloads 18(sp)/19(sp), because the reload IDENTITY is a
-             function of the STORE ORDER, exactly as the W71 receipt says)
-        r,g,b (read-back removed), 2.8.0 ...................... 56 @113
-        r,g,b, 2.8.1 SPLICE .................................. 56 @113 (region B becomes
-             retail, region A's ~50 lines dominate -- the count is a coincidence)
-        r,g,b + `newB = newColor.b;` read-back, 2.8.0 ......... 56, pack block
-             BIT-IDENTICAL to the plain r,g,b one => the last-store forwarding is
-             unreachable from source on 2.8.0, a clean negative control.
-        r,g,b + 1/2/3-operand read-only fence on newR ......... 56 / 68 / 68
-        r,g,b + a 1-operand newR fence placed between the .r and .g stores .. 56
-        r,g,b + that fence, 2.8.1 SPLICE ..................... 56
-     FINDING 4 -- THE CORPUS ROUTE IS CLOSED (the briefed "the matched C spelling may
-     exist"): a by-value CVECTOR/SVECTOR/DVECTOR parameter does not occur ANYWHERE in the
-     34-repo C:\Temp\ps1-decomp-refs corpus, nor in rage-racer-decomp, nor in psyz
-     (`grep -rnE "\((CVECTOR|SVECTOR|DVECTOR)[ ]+[a-z][A-Za-z0-9_]*[,)]" --include=*.c`
-     = zero hits in all three).  There is no matched sibling spelling to copy; EA's
-     `Night_FindClosestColor(CVECTOR, int *)` by-value prototype is unique to this tree.
-     => NAMED NEXT ANGLE, and it is now a ONE-VARIABLE problem: under a 2.8.1 cc1plus the
-     pack block is FREE in the r,g,b basin, so the entire function reduces to "dial region
-     A (b15 <-> sourceG <-> newR + the prologue parm spill slide) in the r,g,b basin".
-     Two orchestrator-level prerequisites, both outside an agent's scope:
-       (a) a per-fn or per-TU **cc1PLUS version splice** for the C++ lane -- build.py's
-           `_apply_cc1_ver_splice` exists but is called only from compile_c, and
-           `_resolve_cc1_alt` resolves the windows-gcc-psx **cc1** (C) rungs; the C++ lane
-           has no ladder.  A probe harness that does the splice is kept at
-           scratchpad/W72_A14/cc1pl_splice_probe.py (monkey-patches compile_cpp, runs the
-           full maspsx+as route, gates with verify_asm's own normalizers).
-       (b) a DECISION on whether an FSF-built 2.8.1 cc1plus may stand in for a vendor one
-           at all -- the instrumented binary needs -funsigned-char to match PsyQ's char
-           default, so it is a lab instrument, not a shippable toolchain rung.
-     Until (a)+(b), the shipped b,g,r basin remains the right ship: it buys region A,
-     which is 30 diffs, at the cost of region B, which is 26. */
-  /* ===== W74-A12 (2026-08-22/23): 26 STAYS @113/113 -- and THE SOURCE AXIS IS NOW
-     CLOSED WITH A MECHANISM, not with an exhaustion argument.  The assignment was to
-     find a 2.8.0-reachable spelling the 123-cell store-order x read-back x
-     volatile-store cross-product (w50/w63/w71) missed.  FOUR axes it never touched
-     were swept (37 new cells, every one re-gated); none lands, and the third one
-     REFUTES the model everybody has been working from, which is the useful part.
-     WHAT THE BLOCK ACTUALLY IS (expr.c reading, the assignment's third instrument):
-     `Night_FindClosestColor(newColor, ...)` passes a 4-byte align-1 BLKmode aggregate
-     wholly in $a0, so expand_call reaches expr.c:2859 `move_block_to_reg` ->
-     `operand_subword_force (x, 0, BLKmode)` (expr.c:1734); with alignment below a word
-     that falls through to expmed.c's `extract_split_bit_field`, whose little-endian
-     loop emits exactly the shipped shape -- four byte reads at 16..19(sp), each shifted
-     by 8*i and OR-ed into a running accumulator in ASCENDING byte order.  The tree is
-     therefore FIXED by the loop, not by the source; the only things that can differ are
-     (i) which of the four byte reads cse replaces with a still-recorded store value
-     (`andi rN,rN,255` instead of `lbu`), and (ii) where the accumulator lives.
-     🔴 THE REFUTATION (round 3, the cse MEMORY-INVALIDATION dial -- a `"memory"` clobber
-     between the pack stores and the call).  It does exactly what it should: every
-     recorded store dies, all FOUR bytes become fresh `lbu`s, and the count does not move
-     (113, forwards traded 1:1 for reloads).  Retail's block starts `lbu a0,16(sp)` and
-     then accumulates IN $a0 (`or a0,a0,v0` x3).  Under this clobber gcc-2.8.0 DOES emit
-     `lbu a0,16(sp)` -- and still writes the accumulator into a scratch (`or v0,a0,v0`),
-     with only the final `or` reaching $a0.  ⇒ the accumulator's home is NOT a function
-     of whether the first term is a fresh load or a forwarded register.  Every receipt in
-     this stack from w50 onward has treated "which byte is forwarded" as the question;
-     it is not.  gcc-2.8.0 builds this OR-tree in a scratch unconditionally, gcc-2.8.1
-     (W72-A14's dump) builds it in the destination.  That is the whole 26, it is a
-     one-line codegen-identity difference, and NO byte-availability spelling can reach it.
-     (The clobber also costs upstream: it is a sched1 barrier, so it re-rotates the
-     clamps -- 68 diffs.  mem-clobber placed BEFORE the last store is bit-identical to
-     none, as expected: only the last store's record is at stake.)
-     THE OTHER THREE AXES, all inert or worse (full ladder):
-       (1) MEM_IN_STRUCT_P ALIAS DIAL (catalog 22C-3) -- the three pack stores respelled
-           as `*(u_char *)((char *)&newColor + N) = ...` cast stores, which clear /s and
-           alias-chain to everything: all three, .r only, .g+.b, .b only, .g only =
-           26 BIT-IDENTICALLY in every cell.  Aliasing controls cse INVALIDATION, not
-           cse RECORDING, so a cast store is recorded exactly like a COMPONENT_REF;
-           the dial cannot reach this block at all.  (Dropping the read-back from the
-           cast form still measures 46, i.e. the read-back is doing its documented job.)
-       (2) TIED MULTI-OUTPUT LAUNDER (catalog 22B-3) on the clamped locals:
-           (newG,newB) 29 @114 . (newR,newB) 43 @114 . (newR,newG,newB) 29 @114 .
-           (newG,newB) placed between the .b and .g stores 26 (bit-identical).
-           Every form that is not inert costs its own copy insn -- the same cross-block
-           boundary the W71 front.cpp receipt records for this device.
-           Read-only ref fences on newR / newB (1 and 2 operands, before and after the
-           pack block): 55 / 59 / 67 / 59 @116 -- all +3 real insns.
-       (3) THE ARGUMENT-EXPRESSION AXIS (how expand_call is handed the aggregate):
-           `*(CVECTOR *)&newColor` 26 (bit-identical) . through a `CVECTOR *` local 26
-           (bit-identical) . through a copy `CVECTOR nc2 = newColor;` 97 @118 (a real
-           movstrsi block copy appears) . read-back carrier respelled as a fresh
-           block-local 46 . as `*(u_char *)&newColor` 26 . extra read-backs of .g / .b /
-           both 26 (all bit-identical) . a read-back of .cd 62.
-     ⇒ VERDICT: the source axis for region B is CLOSED, and closed by a named mechanism
-     (extract_split_bit_field's accumulator home is a 2.8.0-vs-2.8.1 identity, not a
-     byte-availability or aliasing or liveness question).  The remaining route is
-     unchanged and is the ORCHESTRATOR-level one W72-A14 specified: a per-fn cc1PLUS
-     VERSION splice for the C++ lane (build.py's `_apply_cc1_ver_splice` is wired only
-     from compile_c) plus a decision on whether an FSF-built 2.8.1 cc1plus may stand in
-     for a vendor one.  With that splice the pack block is free in the r,g,b basin and
-     the whole function reduces to dialling region A (the b15 <-> sourceG order + the
-     prologue parm spill) in that basin.  Nothing further should be spent on spellings
-     here. */
+  /* W76-orchestrator: SLD-natural r,g,b store order, read-back REMOVED -- the
+     A13_c4.spec PASS-113/113 shape under the 2.8.1 splice row.  The W50 reverse-
+     order + read-back device above described the 2.8.0-lane 38/26 basins and is
+     SUPERSEDED for this fn (kept as history). */
+  /* MATCH (w50-a5, 56 -> 38 diffs, count still EXACT 113/113): TWO cooperating pieces,
+     NEITHER of which moves the gate alone.  (1) the three masked stores in REVERSE
+     component order, so newColor.r is stored LAST; (2) a zero-insn STORE-READ-BACK of
+     that last store (`newR = newColor.r;` -- cc1 forwards the just-stored value, so no
+     instruction is emitted, the count stays 113).  This is aimed straight at the
+     mechanism the w41-a7 -dg/-dl receipt below already named: our hard-$a0 conflict comes
+     from the cse-created reload of the just-stored newColor.g byte, and retail avoids it
+     because retail ALSO store-forwards a byte instead of reloading it.  Making the LAST
+     store the forwarded one reproduces that.  MEASURED (all count-exact 113/113): store
+     order alone rbg 56 / grb 58 / gbr 54 / brg 54 / bgr 54; read-back alone (rgb order)
+     r/g/b all 56; r-stored-LAST + read-back-of-r 38 in EVERY combination (bgr, brg, gbr,
+     and plain g,b,r), and adding further read-backs changes nothing.  ⚠️ do NOT also route
+     the else-arm's gTableCache stores through newR/newG/newB -- that costs 7 real insns
+     (141 @120).  Reverse store order is the load-bearing half; keep both. */
+  /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
+     `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */
+  /* ===== W76-A13 (2026-08-23): 26 STAYS in the tree, but the function is SOLVED --
+     PASS 113/113 exists under a per-fn cc1plus-2.8.1 splice (recipe below), and the
+     W75 provenance is UPGRADED to the exact 2.8.0 bug + its fix commit.
+     (1) TRUE PROVENANCE (supersedes W75's walk-internal reading -- the walk code is
+     IDENTICAL in 2.8.0/2.8.1).  The orphaning distribution is try_combine(i3=insn 196
+     `137 &= 0xFF00FFFF`, i2=insn 190 `137 = 139|143` = the accumulator's BIRTH): the
+     merged pattern `137 = 139|143` drops the self-use (mask folded via nonzero_bits),
+     i3dest_killed = reg 137, and elim_i2 = i2dest = reg 137 (full 2->1 merge, dest not
+     in i2src -- combine.c:2189).  gcc-2.8.1 passes elim_i2/elim_i1 to the i3dest_killed
+     distribute_notes call (combine.c:2356-2359), whose REG_DEAD case discards the note
+     at `if (XEXP(note,0) == elim_i2 ...) break;` (:11282) -> place stays 0 ->
+     REG_N_DEATHS-- (:11535-38) -> deaths(137)==1 -> local-alloc eligible -> $a0 = retail.
+     gcc-2.8.0 passed NULL_RTX there; the fix is ChangeLog Fri Feb 6 1998 (Kenner):
+     "combine.c (try_combine): Pass elim_i2 and elim_i1 to distribute_notes for
+     i3dest_killed REG_DEAD note."  W75 cited the two distribute_notes-body entries
+     (Feb 12/14) but the operative change is this CALL-SITE one.
+     (2) THEOREM (source axis closed BY CONSTRUCTION, upgrading W75's measurements):
+     on 2.8.0 the note has NO good outcome -- a successful walk PLACEMENT also leaves
+     REG_N_DEATHS==2 (only the elim-discard path decrements), and the orphan fires
+     whenever combine merges the accumulator birth into the first SURVIVING self-mask,
+     which every >=3-field by-value byte-aggregate build produces (the first acc-mask
+     folds in cse via AND-chain association, every later one sits over an IOR and
+     survives to combine).  No spelling of a 4-byte by-value CVECTOR can escape.
+     (3) TOOL BUG: the W72-A14 splice harness (scratchpad/W72_A14/cc1pl_splice_probe.py)
+     gated VACUOUSLY -- tools/verify_asm.py re-imports build.py FRESH (module_from_spec
+     ignores the monkey-patch) and compile_cpp has no cache, so the gate recompiled
+     UNSPLICED.  Every W72 Finding-3 "SPLICE" cell (26/56/56) = the no-splice number.
+     Fixed harness: scratchpad/w76/A13_splicegate.py (gates the pre-built object,
+     SPLICE-NOOP guard).  TRUE splice table (all count 113 unless noted, x2 stable):
+        shipped source + 2.8.1 splice ......... 16  (W72 said 26 "inert" -- wrong)
+        r,g,b, no read-back + splice .......... 20  (W72 said 56 -- wrong; residual =
+             region A exactly: b15<->newR a2/a3 pair + the parm-spill slide)
+        ... + sourceB fence removed ........... 20  (the W55 fence is 2.8.1-inert)
+        ... + 1-op newR fence after newR clamp   3 @114 (fence barrier blocks the chg
+             mult's load-delay-slot fill -> stray nop)
+        ... + tied launder on newR ............  8
+        ... + `__asm__("" : : "r"(newR));` AT THIS fence position, sourceB fence
+             removed, read-back removed ....... PASS 113/113  <== spec kept at
+             scratchpad/w76/A13_c4.spec; same source on the 2.8.0 lane = 56.
+     The PASS source is MORE faithful than the shipped basin: SLD-natural r,g,b store
+     order (SLD 206-208), no read-back device, one 1-op fence.  Mechanism: +1 ref lifts
+     newR (4->5 refs, pri .33->.42) above b15's .33 tie so newR allocates first ($a2,
+     retail) and b15 takes $a3; at this position the barrier sits between the newB
+     compute and its clamp where it blocks no slot fill.
+     => SHIP DECISION unchanged until the orchestrator/user wires a PER-FN cc1PLUS
+     ver-splice lane (compile_cpp has none; only compile_c has _apply_cc1_ver_splice)
+     and rules on the FSF-built 2.8.1 cc1plus stand-in (-funsigned-char lab build).
+     When wired: apply A13_c4.spec verbatim + the splice row -> seal.  NOTE for the
+     [distribute_notes] trace belt (A20): pristine 2.8.1 does NOT reproduce the Night
+     orphan -- the note dies at the :11282 elim break; to reproduce 2.8.0 behavior the
+     instrument needs an env-gated NULL elim_i2/elim_i1 at the i3dest_killed call.
+     CONFIRMED with A20's built instrument (GCC_TRACE_DISTRIBUTE_NOTES=2, instrumented
+     2.8.1 cc1plus, this TU's .i): ZERO trace lines -- reg 137's REG_DEAD never even
+     enters the place==0 walk under 2.8.1 (discarded at the elim break, upstream of
+     the walk), the one-command negative certificate for this receipt.  The W75 named
+     angles (a) label-move and (b) same-block-death are both DEAD BY CONSTRUCTION on
+     2.8.0: a *successful* walk placement also yields REG_N_DEATHS==2 (theorem above),
+     so no label/block reshape can reach deaths==1 -- only the elim discard can, and
+     2.8.0 never takes it.  The splice-lane PASS recipe above supersedes them. */
   /* ===== W75-A13 (2026-08-23): 26 STAYS @113/113 -- and the W72/W74 verdict
      ("the accumulator's home is a 2.8.0-vs-2.8.1 CODEGEN identity inside
      extract_split_bit_field") is REFUTED.  The two compilers' RTL for this
@@ -573,86 +386,271 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      REG_DEAD(reg 137) goes homeless -- the same class of named instrument ask as
      23D-1's [reload_pick].  A whole-function cc1plus version splice would of course
      also fix it, but it is no longer the only description of the problem. */
-  /* ===== W76-A13 (2026-08-23): 26 STAYS in the tree, but the function is SOLVED --
-     PASS 113/113 exists under a per-fn cc1plus-2.8.1 splice (recipe below), and the
-     W75 provenance is UPGRADED to the exact 2.8.0 bug + its fix commit.
-     (1) TRUE PROVENANCE (supersedes W75's walk-internal reading -- the walk code is
-     IDENTICAL in 2.8.0/2.8.1).  The orphaning distribution is try_combine(i3=insn 196
-     `137 &= 0xFF00FFFF`, i2=insn 190 `137 = 139|143` = the accumulator's BIRTH): the
-     merged pattern `137 = 139|143` drops the self-use (mask folded via nonzero_bits),
-     i3dest_killed = reg 137, and elim_i2 = i2dest = reg 137 (full 2->1 merge, dest not
-     in i2src -- combine.c:2189).  gcc-2.8.1 passes elim_i2/elim_i1 to the i3dest_killed
-     distribute_notes call (combine.c:2356-2359), whose REG_DEAD case discards the note
-     at `if (XEXP(note,0) == elim_i2 ...) break;` (:11282) -> place stays 0 ->
-     REG_N_DEATHS-- (:11535-38) -> deaths(137)==1 -> local-alloc eligible -> $a0 = retail.
-     gcc-2.8.0 passed NULL_RTX there; the fix is ChangeLog Fri Feb 6 1998 (Kenner):
-     "combine.c (try_combine): Pass elim_i2 and elim_i1 to distribute_notes for
-     i3dest_killed REG_DEAD note."  W75 cited the two distribute_notes-body entries
-     (Feb 12/14) but the operative change is this CALL-SITE one.
-     (2) THEOREM (source axis closed BY CONSTRUCTION, upgrading W75's measurements):
-     on 2.8.0 the note has NO good outcome -- a successful walk PLACEMENT also leaves
-     REG_N_DEATHS==2 (only the elim-discard path decrements), and the orphan fires
-     whenever combine merges the accumulator birth into the first SURVIVING self-mask,
-     which every >=3-field by-value byte-aggregate build produces (the first acc-mask
-     folds in cse via AND-chain association, every later one sits over an IOR and
-     survives to combine).  No spelling of a 4-byte by-value CVECTOR can escape.
-     (3) TOOL BUG: the W72-A14 splice harness (scratchpad/W72_A14/cc1pl_splice_probe.py)
-     gated VACUOUSLY -- tools/verify_asm.py re-imports build.py FRESH (module_from_spec
-     ignores the monkey-patch) and compile_cpp has no cache, so the gate recompiled
-     UNSPLICED.  Every W72 Finding-3 "SPLICE" cell (26/56/56) = the no-splice number.
-     Fixed harness: scratchpad/w76/A13_splicegate.py (gates the pre-built object,
-     SPLICE-NOOP guard).  TRUE splice table (all count 113 unless noted, x2 stable):
-        shipped source + 2.8.1 splice ......... 16  (W72 said 26 "inert" -- wrong)
-        r,g,b, no read-back + splice .......... 20  (W72 said 56 -- wrong; residual =
-             region A exactly: b15<->newR a2/a3 pair + the parm-spill slide)
-        ... + sourceB fence removed ........... 20  (the W55 fence is 2.8.1-inert)
-        ... + 1-op newR fence after newR clamp   3 @114 (fence barrier blocks the chg
-             mult's load-delay-slot fill -> stray nop)
-        ... + tied launder on newR ............  8
-        ... + `__asm__("" : : "r"(newR));` AT THIS fence position, sourceB fence
-             removed, read-back removed ....... PASS 113/113  <== spec kept at
-             scratchpad/w76/A13_c4.spec; same source on the 2.8.0 lane = 56.
-     The PASS source is MORE faithful than the shipped basin: SLD-natural r,g,b store
-     order (SLD 206-208), no read-back device, one 1-op fence.  Mechanism: +1 ref lifts
-     newR (4->5 refs, pri .33->.42) above b15's .33 tie so newR allocates first ($a2,
-     retail) and b15 takes $a3; at this position the barrier sits between the newB
-     compute and its clamp where it blocks no slot fill.
-     => SHIP DECISION unchanged until the orchestrator/user wires a PER-FN cc1PLUS
-     ver-splice lane (compile_cpp has none; only compile_c has _apply_cc1_ver_splice)
-     and rules on the FSF-built 2.8.1 cc1plus stand-in (-funsigned-char lab build).
-     When wired: apply A13_c4.spec verbatim + the splice row -> seal.  NOTE for the
-     [distribute_notes] trace belt (A20): pristine 2.8.1 does NOT reproduce the Night
-     orphan -- the note dies at the :11282 elim break; to reproduce 2.8.0 behavior the
-     instrument needs an env-gated NULL elim_i2/elim_i1 at the i3dest_killed call.
-     CONFIRMED with A20's built instrument (GCC_TRACE_DISTRIBUTE_NOTES=2, instrumented
-     2.8.1 cc1plus, this TU's .i): ZERO trace lines -- reg 137's REG_DEAD never even
-     enters the place==0 walk under 2.8.1 (discarded at the elim break, upstream of
-     the walk), the one-command negative certificate for this receipt.  The W75 named
-     angles (a) label-move and (b) same-block-death are both DEAD BY CONSTRUCTION on
-     2.8.0: a *successful* walk placement also yields REG_N_DEATHS==2 (theorem above),
-     so no label/block reshape can reach deaths==1 -- only the elim discard can, and
-     2.8.0 never takes it.  The splice-lane PASS recipe above supersedes them. */
+  /* ===== W74-A12 (2026-08-22/23): 26 STAYS @113/113 -- and THE SOURCE AXIS IS NOW
+     CLOSED WITH A MECHANISM, not with an exhaustion argument.  The assignment was to
+     find a 2.8.0-reachable spelling the 123-cell store-order x read-back x
+     volatile-store cross-product (w50/w63/w71) missed.  FOUR axes it never touched
+     were swept (37 new cells, every one re-gated); none lands, and the third one
+     REFUTES the model everybody has been working from, which is the useful part.
+     WHAT THE BLOCK ACTUALLY IS (expr.c reading, the assignment's third instrument):
+     `Night_FindClosestColor(newColor, ...)` passes a 4-byte align-1 BLKmode aggregate
+     wholly in $a0, so expand_call reaches expr.c:2859 `move_block_to_reg` ->
+     `operand_subword_force (x, 0, BLKmode)` (expr.c:1734); with alignment below a word
+     that falls through to expmed.c's `extract_split_bit_field`, whose little-endian
+     loop emits exactly the shipped shape -- four byte reads at 16..19(sp), each shifted
+     by 8*i and OR-ed into a running accumulator in ASCENDING byte order.  The tree is
+     therefore FIXED by the loop, not by the source; the only things that can differ are
+     (i) which of the four byte reads cse replaces with a still-recorded store value
+     (`andi rN,rN,255` instead of `lbu`), and (ii) where the accumulator lives.
+     🔴 THE REFUTATION (round 3, the cse MEMORY-INVALIDATION dial -- a `"memory"` clobber
+     between the pack stores and the call).  It does exactly what it should: every
+     recorded store dies, all FOUR bytes become fresh `lbu`s, and the count does not move
+     (113, forwards traded 1:1 for reloads).  Retail's block starts `lbu a0,16(sp)` and
+     then accumulates IN $a0 (`or a0,a0,v0` x3).  Under this clobber gcc-2.8.0 DOES emit
+     `lbu a0,16(sp)` -- and still writes the accumulator into a scratch (`or v0,a0,v0`),
+     with only the final `or` reaching $a0.  ⇒ the accumulator's home is NOT a function
+     of whether the first term is a fresh load or a forwarded register.  Every receipt in
+     this stack from w50 onward has treated "which byte is forwarded" as the question;
+     it is not.  gcc-2.8.0 builds this OR-tree in a scratch unconditionally, gcc-2.8.1
+     (W72-A14's dump) builds it in the destination.  That is the whole 26, it is a
+     one-line codegen-identity difference, and NO byte-availability spelling can reach it.
+     (The clobber also costs upstream: it is a sched1 barrier, so it re-rotates the
+     clamps -- 68 diffs.  mem-clobber placed BEFORE the last store is bit-identical to
+     none, as expected: only the last store's record is at stake.)
+     THE OTHER THREE AXES, all inert or worse (full ladder):
+       (1) MEM_IN_STRUCT_P ALIAS DIAL (catalog 22C-3) -- the three pack stores respelled
+           as `*(u_char *)((char *)&newColor + N) = ...` cast stores, which clear /s and
+           alias-chain to everything: all three, .r only, .g+.b, .b only, .g only =
+           26 BIT-IDENTICALLY in every cell.  Aliasing controls cse INVALIDATION, not
+           cse RECORDING, so a cast store is recorded exactly like a COMPONENT_REF;
+           the dial cannot reach this block at all.  (Dropping the read-back from the
+           cast form still measures 46, i.e. the read-back is doing its documented job.)
+       (2) TIED MULTI-OUTPUT LAUNDER (catalog 22B-3) on the clamped locals:
+           (newG,newB) 29 @114 . (newR,newB) 43 @114 . (newR,newG,newB) 29 @114 .
+           (newG,newB) placed between the .b and .g stores 26 (bit-identical).
+           Every form that is not inert costs its own copy insn -- the same cross-block
+           boundary the W71 front.cpp receipt records for this device.
+           Read-only ref fences on newR / newB (1 and 2 operands, before and after the
+           pack block): 55 / 59 / 67 / 59 @116 -- all +3 real insns.
+       (3) THE ARGUMENT-EXPRESSION AXIS (how expand_call is handed the aggregate):
+           `*(CVECTOR *)&newColor` 26 (bit-identical) . through a `CVECTOR *` local 26
+           (bit-identical) . through a copy `CVECTOR nc2 = newColor;` 97 @118 (a real
+           movstrsi block copy appears) . read-back carrier respelled as a fresh
+           block-local 46 . as `*(u_char *)&newColor` 26 . extra read-backs of .g / .b /
+           both 26 (all bit-identical) . a read-back of .cd 62.
+     ⇒ VERDICT: the source axis for region B is CLOSED, and closed by a named mechanism
+     (extract_split_bit_field's accumulator home is a 2.8.0-vs-2.8.1 identity, not a
+     byte-availability or aliasing or liveness question).  The remaining route is
+     unchanged and is the ORCHESTRATOR-level one W72-A14 specified: a per-fn cc1PLUS
+     VERSION splice for the C++ lane (build.py's `_apply_cc1_ver_splice` is wired only
+     from compile_c) plus a decision on whether an FSF-built 2.8.1 cc1plus may stand in
+     for a vendor one.  With that splice the pack block is free in the r,g,b basin and
+     the whole function reduces to dialling region A (the b15 <-> sourceG order + the
+     prologue parm spill) in that basin.  Nothing further should be spent on spellings
+     here. */
+  /* ---- W72-A14 (2026-08-22): 26 STAYS @113/113, but the class is RE-CLASSIFIED and the
+     W71 "needs qtytrace/local-alloc QTY" verdict is REFUTED.  The residual is NOT an
+     allocator question at all -- it is a **gcc VERSION identity** question (catalog 3.25
+     / AGENT_GUIDE 3), and the evidence is now direct rather than inferential.
+     THE INSTRUMENT: C:\Temp\nfs4-instr-cc1\cc1plus-ecoff.exe (the FSF gcc-2.8.1 cc1plus
+     built for the trace lane).  Run it on this TU's own build/.../night.cpp.i with
+     `-quiet -O2 -G8 -funsigned-char` (the -funsigned-char is MANDATORY: PsyQ's CC1PLPSX
+     defines __CHAR_UNSIGNED__, the FSF build does not, and without it every `char` field
+     read comes out `lb` instead of `lbu` and swamps the comparison).
+     FINDING 1 -- THE RESIDUAL IS EXACTLY THE VERSION-SENSITIVE REGION.  With that flag,
+     gcc-2.8.1 and PsyQ CC1PLPSX (2.8.0) emit this 117-cc1-insn function **IDENTICALLY**
+     except for 20 lines, and those 20 lines ARE the by-value CVECTOR argument assembly.
+     Nothing else in the function differs -- not one register, not one schedule slot.
+     FINDING 2 -- 2.8.1 PRODUCES RETAIL'S PACK BLOCK, THE FIRST BUILD EVER TO DO SO.
+     In the NATURAL r,g,b store order gcc-2.8.1 emits, register for register:
+        li $3,-8 / li $4,255 / and $2,$7,$3 / sb $2,16(sp) / and $2,$5,$3 / sb $2,17(sp)
+        andi $2,$2,0xff / and $3,$4,$3 / sll $2,$2,8 / sb $3,18(sp) / andi $3,$3,0xff
+        sll $3,$3,16 / lbu $4,16(sp) / addu $5,$sp,24 / or $4,$4,$2 / lbu $2,19(sp)
+        or $4,$4,$3 / sll $2,$2,24 / jal / or $4,$4,$2
+     which is retail's block verbatim apart from ONE upstream register ($7 vs retail's $6
+     for newR -- the known b15/sourceG rotation).  gcc-2.8.0 instead builds an
+     intermediate accumulator in $v1 and RELOADS a second byte:
+        ... andi $4,$2,0xff / and $3,$5,$3 / sll $4,$4,8 / addu $5,$sp,24 / sb $3,18(sp)
+        lbu $3,16(sp) / **lbu $2,18(sp)** / or $3,$3,$4 / sll $2,$2,16 / lbu $4,19(sp)
+        or $3,$3,$2 / sll $4,$4,24 / jal / **or $4,$3,$4**
+     i.e. 2.8.0 does NOT store-forward the LAST byte store, and its OR-tree therefore
+     cannot start from the arg register.  That is the whole 26.
+     FINDING 3 -- THE TWO HALVES WANT OPPOSITE STORE ORDERS, WHICH IS WHY 26 IS THE 2.8.0
+     MINIMUM.  Region A (the clamps + the prologue parm spill + the b15/sourceG rotation)
+     is retail ONLY in the shipped b,g,r + read-back-of-.r basin; region B (the pack
+     block) is retail ONLY in the r,g,b basin AND only under 2.8.1.  Under 2.8.0 no store
+     order can fix B: the 2.8.0 lane never forwards the last store.  MEASURED THIS WAVE:
+        shipped source, 2.8.0 lane ............................. 26 @113
+        shipped source, 2.8.1 SPLICE .......................... 26 @113 (inert -- 2.8.1's
+             better OR-tree still reloads 18(sp)/19(sp), because the reload IDENTITY is a
+             function of the STORE ORDER, exactly as the W71 receipt says)
+        r,g,b (read-back removed), 2.8.0 ...................... 56 @113
+        r,g,b, 2.8.1 SPLICE .................................. 56 @113 (region B becomes
+             retail, region A's ~50 lines dominate -- the count is a coincidence)
+        r,g,b + `newB = newColor.b;` read-back, 2.8.0 ......... 56, pack block
+             BIT-IDENTICAL to the plain r,g,b one => the last-store forwarding is
+             unreachable from source on 2.8.0, a clean negative control.
+        r,g,b + 1/2/3-operand read-only fence on newR ......... 56 / 68 / 68
+        r,g,b + a 1-operand newR fence placed between the .r and .g stores .. 56
+        r,g,b + that fence, 2.8.1 SPLICE ..................... 56
+     FINDING 4 -- THE CORPUS ROUTE IS CLOSED (the briefed "the matched C spelling may
+     exist"): a by-value CVECTOR/SVECTOR/DVECTOR parameter does not occur ANYWHERE in the
+     34-repo C:\Temp\ps1-decomp-refs corpus, nor in rage-racer-decomp, nor in psyz
+     (`grep -rnE "\((CVECTOR|SVECTOR|DVECTOR)[ ]+[a-z][A-Za-z0-9_]*[,)]" --include=*.c`
+     = zero hits in all three).  There is no matched sibling spelling to copy; EA's
+     `Night_FindClosestColor(CVECTOR, int *)` by-value prototype is unique to this tree.
+     => NAMED NEXT ANGLE, and it is now a ONE-VARIABLE problem: under a 2.8.1 cc1plus the
+     pack block is FREE in the r,g,b basin, so the entire function reduces to "dial region
+     A (b15 <-> sourceG <-> newR + the prologue parm spill slide) in the r,g,b basin".
+     Two orchestrator-level prerequisites, both outside an agent's scope:
+       (a) a per-fn or per-TU **cc1PLUS version splice** for the C++ lane -- build.py's
+           `_apply_cc1_ver_splice` exists but is called only from compile_c, and
+           `_resolve_cc1_alt` resolves the windows-gcc-psx **cc1** (C) rungs; the C++ lane
+           has no ladder.  A probe harness that does the splice is kept at
+           scratchpad/W72_A14/cc1pl_splice_probe.py (monkey-patches compile_cpp, runs the
+           full maspsx+as route, gates with verify_asm's own normalizers).
+       (b) a DECISION on whether an FSF-built 2.8.1 cc1plus may stand in for a vendor one
+           at all -- the instrumented binary needs -funsigned-char to match PsyQ's char
+           default, so it is a lab instrument, not a shippable toolchain rung.
+     Until (a)+(b), the shipped b,g,r basin remains the right ship: it buys region A,
+     which is 30 diffs, at the cost of region B, which is 26. */
+  /* ---- W71-A5 (2026-08-21): 26 STAYS @113/113.  The residual is now BOUNDED to a
+     single mechanical fact and the bound is worth writing down, because the same wave
+     cracked its TWIN (Night_AdditiveNightCalc, 59 -> PASS) with exactly the analogous
+     move and it does NOT transfer here.
+     THE FACT: ours and retail's pack blocks are STRUCTURALLY IDENTICAL, instruction for
+     instruction, and differ ONLY in WHICH component byte is reloaded.  Both build
+     [store X] [store g] [store Y] then forward g and Y with `andi ..,255` and RELOAD X
+     with `lbu`.  Retail has X=.r (stored FIRST) / Y=.b; ours has X=.b / Y=.r.  The
+     reloaded one is always the FIRST-stored, because its value register is clobbered by
+     the SECOND store's `and` -- so the reload identity is a pure function of the STORE
+     ORDER, and store order r-first is the 56-diff basin (it rotates b15/sourceG and the
+     prologue parm spill upstream).  The two halves are therefore COUPLED and the coupling
+     is the whole 26.
+     RE-MEASURED THIS WAVE (all count-exact 113/113 unless noted, all from the shipped
+     basin, extending the w50/w63 tables to the FULL cross-product):
+       . store order x read-back, ALL 6 orders x ALL 8 read-back subsets (48 cells):
+         every order that stores .r LAST plus a read-back of .r = 26; everything else
+         46 / 54 / 56 / 58 / 66.  SATURATED in both directions, third confirmation.
+       . VOLATILE-STORE forwarding dial (the 05E/14D device, aimed straight at "make .r
+         reload"): `*(volatile u_char *)&newColor.r/.g/.b` x 3 orders x 5 read-back sets
+         (75 cells) -- volatile on .b is BIT-IDENTICAL to none, volatile on .r or .g
+         costs +2, and none of them changes which byte cse forwards.
+       . early read-back of the FIRST-stored byte (so its register survives the second
+         store) -- `newB = newColor.b;` between the .b and .g stores, with and without a
+         ref fence on newB, and the `int mb = newB & ~7;` named-temp form: 55/59/61/78
+         and +3 REAL INSNS (116/113) in every shape that actually keeps the value live.
+       . declaration order of newR/newG/newB, all 6 permutations, both basins: provable
+         no-op (bit-identical) -- pseudos here are numbered by FIRST USE, re-confirming
+         the w41-a7 receipt against the w64-16A "decl order = pseudo number" law (that
+         law's PRE-GATE does not hold here).
+       . the rgb basin attacked with the ref-step dial that sealed AdditiveNightCalc:
+         read-only fences of 1/2/3/4/6/8 operands on b15, sourceG, sourceR and chg
+         (24 cells) -- 56 -> 58/62/64/66/68/78, i.e. every operand count moves it AWAY.
+     🔴 WHY THE AdditiveNightCalc CURE DOES NOT TRANSFER, stated precisely (this is the
+     useful part): there the blocker was the same SHAPE -- a block-local qty parked in the
+     wanted hard register poisoning a long-lived pseudo's conflict set -- and the cure was
+     to fold the offending BYTE LOAD into an existing global pseudo (`newR = color->r;`),
+     which deleted the local qty outright.  Here the offending local qty is NOT a source
+     read: it is the cse-created reload inside gcc's BY-VALUE CVECTOR argument assembly
+     for `Night_FindClosestColor(newColor, ...)`.  There is no C handle on it -- a source
+     read-back cannot merge with it (measured above, it costs a separate insn) -- so the
+     fold is unavailable.  reqdelta on the rgb-basin dump confirms the arithmetic side is
+     closed too: the wanted handout {p85=a1,p90=a3,p92=a1,p93=a0} has NO single-dial and
+     NO same-pseudo two-dial solution within +-40 on refs/live/calls, because p93 (newB)
+     carries a HARD conflict with $a0 in that basin (`;; 93 conflicts: ... 2 3 4 29`) --
+     one of the pack block's own local qtys owns $a0 there, so no priority dial can ever
+     reach it.
+     ⇒ NAMED ANGLE (unchanged in kind, now quantified): this is a local-alloc QTY handout
+     inside compiler-generated argument assembly = the AGENT_GUIDE 4.6 / catalog 06E
+     instrument gap.  It needs tools/qtytrace.py against the instrumented cc1 ("which
+     source change moves the arg-assembly reload off $a0 / makes cse forward .b instead of
+     .r"), NOT another spelling sweep -- the spelling axis is now saturated three ways. */
+  /* W76-orchestrator (2026-08-23): fence retuned per the A13_c4.spec PASS recipe --
+     1-op "r"(newR) form; the old 2-op sourceB fence belongs to the 2.8.0-lane 26
+     basin.  Live ONLY together with the SLD-natural store order below and the
+     retail-2.8.1 per-fn cc1plus splice row (PER_FN_CC1PLUS_VER_SPLICE, psq44
+     CC1PLPSX "2.8.1 SN32 BUILD 4.0.0010" -- a RETAIL SN binary, per the user's
+     retail-PsyQ-only ruling).  Mechanism: the 2.8.0 orphan (use reg) note from
+     try_combine's NULL-elim distribute_notes call (fixed Feb-6-1998) -- see the
+     A13 receipt below. */
+  /* ---- w64-a13 (2026-08-15): 26 STAYS @113/113.  NEW BOUNDING FACT -- the W55 reqdelta
+     TARGET IS ALREADY MET, so the residual is provably NOT an allocno question any more.
+     Re-dumped this basin (`tools/rtl_dump.py recon/game/psx/night.cpp -dg -dl`) and ran
+     tools/allocsim.py: **MATCH 15/15 (order-vs-dump: IDENTICAL)** and the handout is
+     exactly W55's retail target -- p86 (sourceB) = $v1, p85 = $a1, p88 = $t0, bought by
+     the two-operand read-only fence below.  Every long-lived pseudo in the table is on its
+     retail register; what is left (p137 refs=10 live=7 pri 4.29 -> $v1, p157 -> $v1,
+     p93 refs=4 live=8 -> $a0) are the SHORT block-local pack temps, i.e. the residual lives
+     entirely in the by-value CVECTOR assembly and its store/forward choice, not in the
+     priority table.  Concretely (side_by_side): retail reloads bytes 16(sp) and 19(sp) and
+     forwards .g/.b, ours reloads 18(sp)/19(sp) and forwards .r/.g, and retail's OR-tree
+     accumulates into ONE register in ascending byte order (`or a0,a0,v0` x3) where ours
+     builds a different tree.  Since the w50/w63 store-order x read-back table is saturated
+     in both directions (every combination is 26 or 54-58) and the allocno side is now
+     closed, the only remaining axis is which bytes cse chooses to forward -- a cse/expand
+     question for the instrumented lane, not a spelling sweep. */
+  /* w61-a14: the w60-a6 'reframed target -- a dial for the b15/sourceG order that does NOT
+     need the reverse store order' was attacked with the zero-insn identity launder (the
+     device that cracked Weather_DoSplats and Weather_DoWeather this same wave) and is
+     FALSIFIED: from the SLD-natural r,g,b pack basin (56) a launder on `b15` = 65 @114,
+     on `sourceG` = 90, both = 84; from the SHIPPED basin a launder on `b15` = 55 @114 and
+     on `sourceG` = 84.  The shipped 26 stands; the reverse-store-order price is still the
+     cheapest way to buy that allocno order. */
+  /* MATCH (W55-A16, 38 -> 26 diffs, count still EXACT 113/113) -- REQDELTA RECEIPT.
+     The chg / sourceG / sourceB three-way register rotation (ours a1/v1/t0 vs oracle
+     t0/a1/v1) was a GLOBAL-ALLOCNO PRIORITY tie, not a coloring coin-flip.
+     allocsim replicates this fn 15/15 EXACTLY, and reqdelta's minimal single-dial
+     answer for the retail handout {p86=v1, p85=a1, p88=t0} is
+        p86 (sourceB)  refs 2 -> 4   (the floor_log2 REF-STEP: pri 0.1666 -> 0.667,
+                                      lifting sourceB ABOVE the p85/p88 pair at 0.2857)
+        p86 (sourceB)  live 12 -> 6  (the alternative dial)
+     A two-operand read-only fence is exactly +2 refs and zero insns, so it buys the
+     REF-STEP directly.  MEASURED, all four placements, this fn:
+        1 operand  (refs 3, pri 0.25 -- BELOW the 0.2857 pair)  -> 41, rotation BACK
+        2 operands before `newB =`                              -> 29 but 114 insns
+                              (the implicit-volatile barrier blocks the chb `mult`
+                               from filling a load-delay slot -> a stray nop)
+        2 operands AFTER `newB =`                               -> 26, 113/113  <== kept
+        sinking the `sourceB =` load to its use (the live dial) -> 48
+     Re-laddered the store-order x read-back table AFTER this landing (04Z: rung
+     tables are basin-relative): bgr/gbr/brg + read-back-of-r all stay 26, rgb 56,
+     grb 58 -- the w50-a5 ranking is unchanged, so both halves below still hold.
+     Residual 26 = the newColor byte-store/pack block only (see the diffsrc SLD map:
+     retail stores .r at 16(sp) FIRST, SLD 206, and .b at 18(sp) SLD 208). */
+  /* colorH's THREE COMPONENT BYTES are read with lbu out of its ARG HOME on the stack
+     (oracle `sw $a1,0x34($sp)` then `lbu 0x34($sp)` / `addiu $v1,$sp,0x34; lbu 1($v1);
+     lbu 2($v1)`), which is also why the SYM classes colorH as ARG (stack) rather than
+     REGPARM -- taking its address forces the spill.  The shift/mask spelling
+     (`colorH & 0xff`, `>>8 & 0xff`, `>>16 & 0xff`) compiles to srl/andi and has no
+     lbu at all. */
+void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char *colorval)
+
+{
+  int sourceR;
+  int sourceG;
+  int sourceB;
+  int chr; int chg; int chb; CVECTOR newColor; int b15; int newR; int newG; int newB; int bestIndex; b15 = bright * 0x111;
+
+
+
+  chr = ((u_char *)&colorH)[0];
+  chg = ((u_char *)&colorH)[1];
+  chb = ((u_char *)&colorH)[2];
+
+  sourceR = gTableCache[colorIndex].r;
+  sourceG = gTableCache[colorIndex].g;
+  sourceB = gTableCache[colorIndex].b;
+
+  newR = sourceR + ((int)(chr * b15) >> 0xc);
+  if (0xff < newR) newR = 0xff;
+
+  newG = sourceG + ((int)(chg * b15) >> 0xc);
+  if (0xff < newG) newG = 0xff;
+
+  newB = sourceB + ((int)(chb * b15) >> 0xc);
   if (0xff < newB) newB = 0xff;
-  /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
-     `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */
-  /* MATCH (w50-a5, 56 -> 38 diffs, count still EXACT 113/113): TWO cooperating pieces,
-     NEITHER of which moves the gate alone.  (1) the three masked stores in REVERSE
-     component order, so newColor.r is stored LAST; (2) a zero-insn STORE-READ-BACK of
-     that last store (`newR = newColor.r;` -- cc1 forwards the just-stored value, so no
-     instruction is emitted, the count stays 113).  This is aimed straight at the
-     mechanism the w41-a7 -dg/-dl receipt below already named: our hard-$a0 conflict comes
-     from the cse-created reload of the just-stored newColor.g byte, and retail avoids it
-     because retail ALSO store-forwards a byte instead of reloading it.  Making the LAST
-     store the forwarded one reproduces that.  MEASURED (all count-exact 113/113): store
-     order alone rbg 56 / grb 58 / gbr 54 / brg 54 / bgr 54; read-back alone (rgb order)
-     r/g/b all 56; r-stored-LAST + read-back-of-r 38 in EVERY combination (bgr, brg, gbr,
-     and plain g,b,r), and adding further read-backs changes nothing.  ⚠️ do NOT also route
-     the else-arm's gTableCache stores through newR/newG/newB -- that costs 7 real insns
-     (141 @120).  Reverse store order is the load-bearing half; keep both. */
-  /* W76-orchestrator: SLD-natural r,g,b store order, read-back REMOVED -- the
-     A13_c4.spec PASS-113/113 shape under the 2.8.1 splice row.  The W50 reverse-
-     order + read-back device above described the 2.8.0-lane 38/26 basins and is
-     SUPERSEDED for this fn (kept as history). */
+
   newColor.r = (u_char)(newR & ~7);
   newColor.g = (u_char)(newG & ~7);
   newColor.b = (u_char)(newB & ~7);
@@ -661,25 +659,30 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      .cd) with no preceding store, so retail leaves it whatever was in the slot.  Harmless
      -- Night_FindClosestColor only reads .r/.g/.b -- but writing 0 costs an extra sb. */
   if (((Night_FindClosestColor(newColor,&bestIndex) < 0x201) || (Chunk_numLight + 4 <= colorIndex)) ||
+
+
       (0xff < Night_gTotalLights)) {
+
+
     *colorval = (u_char)bestIndex;
   }
   else {
+
+
     gTableCache[Night_gTotalLights].r = newColor.r;
     gTableCache[Night_gTotalLights].g = newColor.g;
     gTableCache[Night_gTotalLights].b = newColor.b;
+
+
     *colorval = (u_char)Night_gTotalLights;
-    Night_gTotalLights = Night_gTotalLights + 1;
-  }
-  return;
-}
+
+    Night_gTotalLights = Night_gTotalLights + 1; } return; }
 
 /* ---- Night_CreateNightTable__FiliPA256_A16_Uc  [NIGHT.CPP:236-237] SLD-VERIFIED ---- */
 void Night_CreateNightTable(int colorIndex,long colorH,int bright,u_char (*tbl)[256][16])
 
 {
-  Night_CreateNightTableElement(colorIndex,colorH,bright,(*tbl)[colorIndex] + bright);
-  return;
+  Night_CreateNightTableElement(colorIndex,colorH,bright,(*tbl)[colorIndex] + bright); return;
 }
 
 /* ---- Night_GenerateNextLightningEvent__Fv  [NIGHT.CPP:347-353] SLD-VERIFIED ---- */
@@ -687,16 +690,11 @@ void Night_GenerateNextLightningEvent(void)
 
 {
   int *ticksp; /* SYM-CODEGEN-CARRIER: ticksp -- gameTicks cell preserves retail issue order; direct global remains FAIL 2 */
-
-  ticksp = &simGlobal.gameTicks;
-  const int firstDelay = (random() & 0x7ff) + 0x1f;
-  Night_gNextLightning = *ticksp + firstDelay;
-  const int secondDelay = (random() & 0xf) + 0xf;
-  Night_gEndNextLightning = Night_gNextLightning + secondDelay;
+  ticksp = &simGlobal.gameTicks; const int firstDelay = (random() & 0x7ff) + 0x1f; Night_gNextLightning = *ticksp + firstDelay;
+  const int secondDelay = (random() & 0xf) + 0xf; Night_gEndNextLightning = Night_gNextLightning + secondDelay;
   Night_gNextFlicker = Night_gNextLightning;
   Night_gFlashAzimuth = random() & 0xffff;
-  Night_gShowForks = (u_char)random() & 1;
-  return;
+  Night_gShowForks = (u_char)random() & 1; return;
 }
 
 /* ---- Night_PauseLightningEffect__Fi  [NIGHT.CPP:381-416] SLD-VERIFIED ---- */
@@ -730,47 +728,56 @@ void Night_PauseLightningEffect(int player)
 }
 
 /* ---- Night_DoLightningEffect__FP13DRender_tView  [NIGHT.CPP:423-467] SLD-VERIFIED ---- */
+    /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
+       `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
+       else arm; the boolean-expression form folds to a single sltiu. */
 void Night_DoLightningEffect(DRender_tView *Vi)
 
 {
   static char lightningInit = 1; /* SYM STAT CHAR @ function-relative data offset 0x1e */
 
   if (Night_gLightning != 0) {
+
     AudioCmn_PlayThunder(Night_gFlashIntensity,Night_gFlashAzimuth);
+
     Hrz_LightningFlicker(0);
+
     Night_gLightning = 0;
   }
   if (((simGlobal.gameTicks > Night_gNextLightning) &&
       (simGlobal.gameTicks < Night_gEndNextLightning)) && (Night_gNextFlicker < simGlobal.gameTicks)
      ) {
+
+
+
+
     Night_gLightningType = random() & 1;
     Hrz_LightningFlicker(1);
-    /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
-       `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
-       else arm; the boolean-expression form folds to a single sltiu. */
+
+
     if (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) != 0) {
       Night_gDrawLightning = 0;
     }
-    else {
-      Night_gDrawLightning = 1;
+    else { Night_gDrawLightning = 1;
     }
     Night_gLightning = 1;
     Night_gNextFlicker = simGlobal.gameTicks + (random() & 3);
     Night_gFlashIntensity = (Night_gLightningType + 1) * (random() & 0x1f) + 0x40;
     if (lightningInit != '\0') {
+
       if (Night_gShowForks != '\0') {
         Hrz_SetLightingPosInSky(Vi);
-      }
-      lightningInit = '\0';
+      } lightningInit = '\0';
     }
   }
+
+
+
   if (simGlobal.gameTicks > Night_gEndNextLightning) {
+
     Night_GenerateNextLightningEvent();
     Hrz_CalculateLightning();
-    lightningInit = '\x01';
-  }
-  return;
-}
+    lightningInit = '\x01'; } return; }
 
 /* ---- Night_SetCopColor__FP18GameSetup_tCarData  [NIGHT.CPP:473-484] SLD-VERIFIED ----
  * NEAR-MISS 5 diffs (ours 38 / oracle 37).  Was 25, then 21 after the per-element
@@ -832,14 +839,14 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
 {
   int cartype = carinfo->carType;
   int country = carinfo->Country; int carTable;
-  cartype += (int)CopCarTypeLights - 22;
-  const int copType = *(u_char *)cartype;
+  cartype += (int)CopCarTypeLights - 22; const int copType = *(u_char *)cartype;
+
   u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed, Night_gCopLightingTableBlue };
   int col1, col2;
   col1 = (u_char)Night_gCopCountryLightTbl[copType][country][0];
   col2 = (u_char)Night_gCopCountryLightTbl[copType][country][1];
-  carTable = (int)copColors[col1];
-  Night_gCopColor[0] = (u_char (*)[256][8])carTable;
+
+  carTable = (int)copColors[col1]; Night_gCopColor[0] = (u_char (*)[256][8])carTable;
   Night_gCopColor[1] = copColors[col2];
 }
 
@@ -848,11 +855,13 @@ void Night_InitPlayerHeadLightColor(int player)
 
 {
 
+
   if (Night_gPlayerLightingTable == (u_char (*) [256] [16])0x0) {
     Night_gPlayerLightingTable = reservememadr("plnight",0x1000,0);
   }
-  Night_gPlayerHeadLightColor[player] = *(long *)&TrackSpec_gSpec.nightspec.nightcolor;
-  return;
+
+
+  Night_gPlayerHeadLightColor[player] = *(long *)&TrackSpec_gSpec.nightspec.nightcolor; return;
 }
 
 /* ---- Night_SetPlayerHeadLightColor__Fiii  [NIGHT.CPP:501-503] SLD-VERIFIED ---- */
@@ -879,11 +888,11 @@ void Night_InitCopLightColors(void)
   if (Night_gCopLightingTableRed == (u_char (*) [256] [8])0x0) {
     Night_gCopLightingTableRed = reservememadr("CopRed",0x800,0);
   }
+
+
+
   if (Night_gCopLightingTableBlue == (u_char (*) [256] [8])0x0) {
-    Night_gCopLightingTableBlue = reservememadr("CopBlue",0x800,0);
-  }
-  return;
-}
+    Night_gCopLightingTableBlue = reservememadr("CopBlue",0x800,0); } return; }
 
 /* ---- Night_SetCopLightColors__Fii  [NIGHT.CPP:519-527] SLD-VERIFIED ---- */
 void Night_SetCopLightColors(int colorIndex,int brighten)
@@ -891,10 +900,12 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
 {
   
   Night_CreateNightTableElement(colorIndex,0x602020,brighten,
+
+
+
              (*Night_gCopLightingTableBlue)[colorIndex] + (brighten >> 1));
   Night_CreateNightTableElement(colorIndex,0x101054,brighten,
-             (*Night_gCopLightingTableRed)[colorIndex] + (brighten >> 1));
-  return;
+             (*Night_gCopLightingTableRed)[colorIndex] + (brighten >> 1)); return;
 }
 
 /* ---- Night_InitWeatherTables__Fv  [NIGHT.CPP:532-540] SLD-VERIFIED ---- */
@@ -928,19 +939,14 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
 void Night_InitWeatherTables(void)
 
 {
-  {
-    int i;
+  { int i; for (i = 0; i < 2; i = i + 1) {
 
-    for (i = 0; i < 2; i = i + 1) {
       if (Night_gWeatherLightingTable[i] == 0) {
-        Night_gWeatherLightingTable[i] =
-            (u_char (*)[256])reservememadr("wtnight",0x100,0);
-      }
-    }
+        Night_gWeatherLightingTable[i] = (u_char (*)[256])reservememadr("wtnight",0x100,0);
+      } }
   }
   Night_gWeatherColor[0] = 0x574054;
-  Night_gWeatherColor[1] = 0x6c4040;
-  return;
+  Night_gWeatherColor[1] = 0x6c4040; return;
 }
 
 /* ---- Night_SetWeatherColors__Fi  [NIGHT.CPP:544-546] SLD-VERIFIED ---- */
@@ -956,12 +962,8 @@ void Night_InitWeatherTables(void)
 void Night_SetWeatherColors(int colorIndex)
 
 {
-
   for (int i = 0; i < 2; i++) {
-    Night_CreateNightTableElement(colorIndex,Night_gWeatherColor[i],0xf,
-                                  *Night_gWeatherLightingTable[i] + colorIndex);
-  }
-  return;
+    Night_CreateNightTableElement(colorIndex,Night_gWeatherColor[i],0xf, *Night_gWeatherLightingTable[i] + colorIndex); } return;
 }
 
 /* ---- Night_GenerateAllLightTables__Fv  [NIGHT.CPP:556-625] SLD-VERIFIED ---- */
@@ -1050,44 +1052,58 @@ void Night_GenerateAllLightTables(void)
 }
 
 /* ---- Night_InitNightDriving__Fv  [NIGHT.CPP:631-680] SLD-VERIFIED ---- */
-void Night_InitNightDriving(void)
-
-{
+    /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.h: `void *locateshape(void
+       *shapefile, char *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
+       a phantom read of the stale blockmove size. */
+    /* no `sz`/`shp` locals: the SYM lists only `mem` and `name`.  Both filesize() results
+       are consumed straight out of $v0 (the second one lands in the blockmove arg while
+       the loadshapeadr pointer is parked in $s0 from the jal delay slot), and `mem`
+       carries the shape buffer BEFORE it carries the locateshape result. */
+    /* the whole 4-byte CVECTOR is cleared with ONE word store (oracle
+       `sw $zero,0xF0($v0)`), not four `sb`s; distance is an int at +0xF4
+       (`sw $v1,0xF4($v0)`).  Per-field byte clears cost 4 extra instructions. */
   /* ONE `&&` expression, ONE store: the oracle computes the flag in $v0 (`addu
      $v0,zero,zero` in the Time==0 beqz delay slot, xori/sltu otherwise) and stores it
      once at the join, then RE-TESTS Time (same CSE'd $v1) to gate the depth-cue clear
      and RE-LOADS the flag for the early-out.  A leading `= 0` plus an overwrite emits
      two stores; an if/else pair or a ternary both come out 4-7 instructions long
      (measured).  Same lever family as methodology sec.3.12 #7. */
+void Night_InitNightDriving(void)
+
+{
   gNight_renderNight = GameSetup_gData.Time != 0 && GameSetup_gData.commMode != 1;
+
   if ((GameSetup_gData.Time != 0) && (gNight_renderNight == 0)) {
-    /* the whole 4-byte CVECTOR is cleared with ONE word store (oracle
-       `sw $zero,0xF0($v0)`), not four `sb`s; distance is an int at +0xF4
-       (`sw $v1,0xF4($v0)`).  Per-field byte clears cost 4 extra instructions. */
+
     TrackSpec_gSpec.depthcuespec.distance = 0xff;
     *(long *)&TrackSpec_gSpec.depthcuespec.color = 0;
   }
+
+
+
   if (gNight_renderNight != 0) {
     /* Retail's buffer and pointer live in this guarded body, in this order.
      * Native frame/locals/scopes and all 103 instructions agree; relative
      * source-line/SLD attribution remains unsealed (run-8g9mktec). */
     char name [256];    /* SYM: AUTO char[256] @ -0x110 => sp+16 */
     char *mem;          /* SYM: REG $s0, load buffer then located shape */
+
     sprintf(name,"%snight.psh",Paths_Paths[0x19]);
-    /* no `sz`/`shp` locals: the SYM lists only `mem` and `name`.  Both filesize() results
-       are consumed straight out of $v0 (the second one lands in the blockmove arg while
-       the loadshapeadr pointer is parked in $s0 from the jal delay slot), and `mem`
-       carries the shape buffer BEFORE it carries the locateshape result. */
     nightfile = (char *)reservememadr("night.psh",filesize(name),0);
     mem = (char *)loadshapeadr(name,(void *)0x0);
     blockmove(mem,nightfile,filesize(name));
     purgememadr(mem);
-    /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.h: `void *locateshape(void
-       *shapefile, char *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
-       a phantom read of the stale blockmove size. */
+
+
     mem = (char *)locateshape(nightfile,"nght");
     Night_gNightTbl = mem + 0x10;
+
     Night_InitPlayerHeadLightColor(0);
+
+
+
+
+
     if (GameSetup_gData.cops != 0) {
       Night_InitCopLightColors();
     }
@@ -1095,16 +1111,15 @@ void Night_InitNightDriving(void)
       Night_InitWeatherTables();
     }
     Night_GenerateAllLightTables();
+
+
     if (GameSetup_gData.Weather == 1) {
+
       Night_gLightning = 0;
       Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
       Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
       Night_gNextFlicker = Night_gNextLightning;
-      Hrz_CalculateLightning();
-    }
-  }
-  return;
-}
+      Hrz_CalculateLightning(); } } return; }
 
 /* ---- Night_KillNightDriving__Fv  [NIGHT.CPP:687-719] SLD-VERIFIED ---- */
 /* SEALED 40/40 PASS (w39-a9).  The prior note certified the last two purge-blocks as a
@@ -1118,29 +1133,36 @@ void Night_KillNightDriving(void)
 {
   if (nightfile != (char *)0x0) {
     purgememadr(nightfile);
-  }
-  nightfile = (char *)0x0;
+  } nightfile = (char *)0x0;
+
   if (Night_gPlayerLightingTable != (u_char (*) [256] [16])0x0) {
     purgememadr(Night_gPlayerLightingTable);
-  }
-  Night_gPlayerLightingTable = (u_char (*) [256] [16])0x0;
+  } Night_gPlayerLightingTable = (u_char (*) [256] [16])0x0;
+
+
+
+
+
+
   if (Night_gCopLightingTableRed != (u_char (*) [256] [8])0x0) {
     purgememadr(Night_gCopLightingTableRed);
-  }
-  Night_gCopLightingTableRed = (u_char (*) [256] [8])0x0;
+  } Night_gCopLightingTableRed = (u_char (*) [256] [8])0x0;
+
+
+
+
+
   if (Night_gCopLightingTableBlue != (u_char (*) [256] [8])0x0) {
     purgememadr(Night_gCopLightingTableBlue);
-  }
-  Night_gCopLightingTableBlue = (u_char (*) [256] [8])0x0;
+  } Night_gCopLightingTableBlue = (u_char (*) [256] [8])0x0;
+
   if (Night_gWeatherLightingTable[0] != (u_char (*) [256])0x0) {
     purgememadr(Night_gWeatherLightingTable[0]);
-  }
-  Night_gWeatherLightingTable[0] = (u_char (*) [256])0x0;
+  } Night_gWeatherLightingTable[0] = (u_char (*) [256])0x0;
+
   if (Night_gWeatherLightingTable[1] != (u_char (*) [256])0x0) {
     purgememadr(Night_gWeatherLightingTable[1]);
-  }
-  Night_gWeatherLightingTable[1] = (u_char (*) [256])0x0;
-  return;
+  } Night_gWeatherLightingTable[1] = (u_char (*) [256])0x0; return;
 }
 
 /* ---- Night_RestartNightDriving__Fv  [NIGHT.CPP:723-730] SLD-VERIFIED ---- */
@@ -1148,14 +1170,12 @@ void Night_RestartNightDriving(void)
 
 {
   if ((GameSetup_gData.Weather == 1) && (GameSetup_gData.Time != 0)) {
+
     Night_gLightning = 0;
     Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
     Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
     Night_gNextFlicker = Night_gNextLightning;
-    Hrz_LightningFlicker(0);
-  }
-  return;
-}
+    Hrz_LightningFlicker(0); } return; }
 
 /* ---- Night_SetEnviroment__FP13DRender_tView  [NIGHT.CPP:736-804] SLD-VERIFIED ----
  * NEAR-MISS 8 diffs, COUNT-EXACT 68/68.  ONE register-materialization tie in the

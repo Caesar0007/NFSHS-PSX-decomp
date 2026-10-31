@@ -113,7 +113,6 @@ void MenuExtended_SetTestDrive(tMenuCommand &)
   frontEnd.oppNumber = '\0';
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = RaceType_SingleRace;
-  return;
 }
 
 
@@ -139,7 +138,6 @@ void MenuExtended_SetSingleRace(tMenuCommand &)
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = RaceType_SingleRace;
   screenMain->SwapBackground(-1);
-  return;
 }
 
 
@@ -166,7 +164,6 @@ void MenuExtended_SetTournament(tMenuCommand &)
   frontEnd.tier = '\0';
   frontEnd.raceType = RaceType_Tournament;
   screenMain->SwapBackground(-1);
-  return;
 }
 
 
@@ -193,7 +190,6 @@ void MenuExtended_SetSpecialEvent(tMenuCommand &)
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = RaceType_Tournament;
   screenMain->SwapBackground(-1);
-  return;
 }
 
 
@@ -219,7 +215,6 @@ void MenuExtended_SetSoloRace(tMenuCommand &)
   frontEnd.raceType = '\0';
   frontEnd.oppNumber = '\0';
   frontEnd.carListType = '\x01';
-  return;
 }
 
 
@@ -292,7 +287,6 @@ void MenuExtended_SetDuelRace(tMenuCommand &)
   frontEnd.raceType = '\0';
   frontEnd.oppNumber = '\x01';
   screenMain->SwapBackground(-1);
-  return;
 }
 
 
@@ -318,7 +312,6 @@ void MenuExtended_SetFullGrid(tMenuCommand &)
   frontEnd.raceType = '\0';
   frontEnd.oppNumber = '\x02';
   screenMain->SwapBackground(-1);
-  return;
 }
 
 
@@ -387,6 +380,7 @@ void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &command)
 void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand &command)
 
 {
+
   if (AskTheUserToSaveTheGame() != 0) {
     command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuPostGameSave;
     command.type = kMenu_Command_GoToMenuOneWay;
@@ -394,7 +388,6 @@ void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand &comm
   else {
     MenuExtended_TransitionFromPostGameToMainMenu(command);
   }
-  return;
 }
 
 
@@ -749,6 +742,7 @@ bool PinkSlipsPreSave(void)
 void MenuExtended_GoToBestOfOne(tMenuCommand &command)
 
 {
+
   if (PinkSlipsPreSave()) {
     command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuSingleTrackSelect;
     command.type = kMenu_Command_GoToMenu;
@@ -1156,7 +1150,6 @@ void MenuExtended_SetHPSoloRace(tMenuCommand &)
   frontEnd.raceType = '\x01';
   frontEnd.oppNumber = '\0';
   CarIterator_SetFilter(menuDefs->iteratorCar1, 0xb);
-  return;
 }
 
 
@@ -1182,7 +1175,6 @@ void MenuExtended_SetHPDuelRace(tMenuCommand &)
   frontEnd.raceType = '\x01';
   frontEnd.oppNumber = '\x01';
   CarIterator_SetFilter(menuDefs->iteratorCar1, 1);
-  return;
 }
 
 
@@ -1469,7 +1461,6 @@ void MenuExtended_PurchaseUpgrade1(tMenuCommand &)
 
 {
   MenuExtended_PurchaseUpgrade(1);
-  return;
 }
 
 
@@ -1493,7 +1484,6 @@ void MenuExtended_PurchaseUpgrade2(tMenuCommand &)
 
 {
   MenuExtended_PurchaseUpgrade(2);
-  return;
 }
 
 
@@ -1517,7 +1507,6 @@ void MenuExtended_PurchaseUpgrade3(tMenuCommand &)
 
 {
   MenuExtended_PurchaseUpgrade(0);
-  return;
 }
 
 
@@ -1542,7 +1531,6 @@ void MenuExtended_SaveGame(tMenuCommand &)
      MenuItem_IsEnabled(menuDefs->itemSaveGame)) {
     GenericMenuSaveGame(0);
   }
-  return;
 }
 
 
@@ -1560,6 +1548,7 @@ void MenuExtended_SaveGame(tMenuCommand &)
 
 void GenericMenuLoadGame(int player)
 {
+
   if (CURRENTLYUSINGMEMCARD == 0) {
     screenMemcard->SetMessage(0x27d);
     FEApp->Redraw();
@@ -2016,7 +2005,6 @@ void MenuExtended_GoToTournTrophyRoom(tMenuCommand &)
 
 {
   frontEnd.tier = '\0';
-  return;
 }
 
 
@@ -2040,7 +2028,6 @@ void MenuExtended_GoToSETrophyRoom(tMenuCommand &)
 
 {
   frontEnd.tier = '\x01';
-  return;
 }
 
 
@@ -2063,7 +2050,6 @@ void MenuExtended_SetBeginner(tMenuCommand &)
 
 {
   frontEnd.skillLevel = '\0';
-  return;
 }
 
 
@@ -2087,7 +2073,6 @@ void MenuExtended_SetIntermediate(tMenuCommand &)
 
 {
   frontEnd.skillLevel = '\x01';
-  return;
 }
 
 
@@ -2110,7 +2095,6 @@ void MenuExtended_SetExpert(tMenuCommand &)
 
 {
   frontEnd.skillLevel = '\x02';
-  return;
 }
 
 

@@ -137,45 +137,29 @@ void Flare_Tri(long *cp,long *p1,long *p2,int otz)
 {
   POLY_G3 *prim;
 
-  otz = otz * 4 + (int)Render_gPalettePtr;
-  prim = (POLY_G3 *)Render_gPacketPtr;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  const u_int pkt_addr24 = *(u_int *)otz & 0xff000000;
-  Render_gPacketPtr = (u_char *)prim + 0x1c;
-  *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
+
+  otz = otz * 4 + (int)Render_gPalettePtr; prim = (POLY_G3 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; const u_int pkt_addr24 = *(u_int *)otz & 0xff000000; Render_gPacketPtr = (u_char *)prim + 0x1c; *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
+
   *(u_int *)((u_char *)prim + 4) = 0x32000000;
   *(u_int *)((u_char *)prim + 0xc) = *(u_int *)&gfrgb;
   *(u_int *)((u_char *)prim + 0x14) = 0;
+
   ((u_char *)prim)[3] = 6;
+
   *(long *)((u_char *)prim + 8) = *p2;
   *(long *)((u_char *)prim + 0x10) = *cp;
   *(long *)((u_char *)prim + 0x18) = *p1;
-  return;
 }
 
 /* ---- Flare_SetMatrix__FP10matrixtdef  [FLARE.CPP:184-192] SLD-VERIFIED ---- */
 void Flare_SetMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
+  /* MATCH: SYM shows r0/r1/r2 re-declared in THREE separate nested block scopes (fresh pseudos). */
+  { int r0, r1, r2; r0 = ((int *)m)[0] >> 4; r1 = ((int *)m)[3] >> 4; r2 = ((int *)m)[6] >> 4; mpsx.m[0][0] = (short)r0; mpsx.m[0][1] = (short)r1; mpsx.m[0][2] = (short)r2; }
+  { int r0, r1, r2; r0 = ((int *)m)[1] >> 4; r1 = ((int *)m)[4] >> 4; r2 = ((int *)m)[7] >> 4; mpsx.m[1][0] = (short)r0; mpsx.m[1][1] = (short)r1; mpsx.m[1][2] = (short)r2; }
+  { int r0, r1, r2; r0 = ((int *)m)[2] >> 4; r1 = ((int *)m)[5] >> 4; r2 = ((int *)m)[8] >> 4; mpsx.m[2][0] = (short)r0; mpsx.m[2][1] = (short)r1; mpsx.m[2][2] = (short)r2; }
 
-  /* MATCH: SYM shows r0/r1/r2 re-declared in THREE separate nested block
-   * scopes (one per row) rather than one function-scope decl -- each block's
-   * {int r0,r1,r2;} is a FRESH pseudo (§A block-scope rule). */
-  {
-    int r0, r1, r2;
-    r0 = ((int *)m)[0] >> 4; r1 = ((int *)m)[3] >> 4; r2 = ((int *)m)[6] >> 4;
-    mpsx.m[0][0] = (short)r0; mpsx.m[0][1] = (short)r1; mpsx.m[0][2] = (short)r2;
-  }
-  {
-    int r0, r1, r2;
-    r0 = ((int *)m)[1] >> 4; r1 = ((int *)m)[4] >> 4; r2 = ((int *)m)[7] >> 4;
-    mpsx.m[1][0] = (short)r0; mpsx.m[1][1] = (short)r1; mpsx.m[1][2] = (short)r2;
-  }
-  {
-    int r0, r1, r2;
-    r0 = ((int *)m)[2] >> 4; r1 = ((int *)m)[5] >> 4; r2 = ((int *)m)[8] >> 4;
-    mpsx.m[2][0] = (short)r0; mpsx.m[2][1] = (short)r1; mpsx.m[2][2] = (short)r2;
-  }
   gte_SetRotMatrix(&mpsx);
   gte_ldtr0();
 }
@@ -184,12 +168,12 @@ void Flare_SetMatrix(matrixtdef *m)
 void Flare_IdentMatrix(MATRIX *mtx)
 
 {
+
   *(int *)((char *)mtx + 0) = 0x1000;
   *(int *)((char *)mtx + 4) = 0;
   *(int *)((char *)mtx + 8) = 0x1000;
   *(int *)((char *)mtx + 0xc) = 0;
   *(int *)((char *)mtx + 0x10) = 0x1000;
-  return;
 }
 
 /* ---- Flare_OctFlare__FPli  [FLARE.CPP:208-241] SLD-VERIFIED ---- */
@@ -246,7 +230,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfOctPt1[i]];
     }
   }
-  return;
 }
 
 /* ---- Flare_OctFlareSpikes__FPli  [FLARE.CPP:247-316] SLD-VERIFIED ---- */
@@ -391,7 +374,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[id1];
     }
   }
-  return;
 }
 
 /* ---- Flare_Spikes__FPli  [FLARE.CPP:323-363] SLD-VERIFIED ---- */
@@ -460,7 +442,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       *(long *)((u_char *)prim + 0x20) = flare_dvxy[gfSpikePt1[i]];
     }
   }
-  return;
 }
 
 /* ---- SMALL-FLARE FAMILY residual (w38-a10) -- Flare_OctFlare / Flare_OctFlareSpikes /
@@ -543,7 +524,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfHexPt1[i]];
     }
   }
-  return;
 }
 
 /* ---- Flare_ReflectHexFlare__FPli  [FLARE.CPP:407-437] SLD-VERIFIED ---- */
@@ -593,7 +573,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
       *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfHexPt1[i]];
     }
   }
-  return;
 }
 
 /* ---- Flare_QuadFlare__FPli  [FLARE.CPP:443-456] SLD-VERIFIED ---- */
@@ -619,7 +598,6 @@ gte_ldv0(((char *)&Flare_gQuad + 0x18));
 gte_swc2(0xe,&pt[1]);
   Flare_Tri(center,&pt[0],&pt[1],otz);
   Flare_Tri(center,&pt[1],&save1,otz);
-  return;
 }
 
 /* ---- Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache  [FLARE.CPP:591-842] SLD-VERIFIED
@@ -1126,7 +1104,6 @@ gte_SetRotMatrix(&mtx);
       }
     }
   }
-  return;
 }
 
 /* ---- Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache  [FLARE.CPP:1097-1098] SLD-VERIFIED ---- */
@@ -1134,54 +1111,35 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
 
 {
   Flare_Halo2(Vi,scale,type,fpt,(coorddef *)0x0,sd);
-  return;
 }
 
-/* ---- Flare_2DSpike__FPlT0i  [FLARE.CPP:1105-1120] SLD-VERIFIED ----
- * NEAR-MISS 2 diffs (43/43, down from 7): MATCH: split-temp `rgb = gfrgb2word` read BEFORE the
- * packet-bump store, consumed after (store must sink below the bump: may-alias order is
- * preserved, so only a load/store SPLIT spans it). SYM has no rgb local (compiler-temp stand-in).
- * Residual 2 = position of the `lw v1,0(gp)` across the bump addiu/sw pair -- a list-scheduler
- * ready-tie (ours schedules the bump first); not source-reachable, permuter class. */
-/* ---- Flare_2DSpike__FPlT0i -- w41-a8 FLOOR (2 diffs, count exact 43/43) ----
- * The ONLY residual is the sched1 ISSUE POSITION of `rgb = *(u_int *)&gfrgb2;`
- * (`lw v1,0(gp)`): the oracle issues it BEFORE the packet-cursor bump
- * (`addiu v0,a0,20 ; sw v0,0(t0)`), ours after.  Source position is IRRELEVANT here --
- * measured 3 spellings: statement moved one earlier (before the OT-slot store) = 4 diffs,
- * moved one later (after the bump) = 2, and `*(volatile u_int *)&gfrgb2` = 2.  A sched1
- * ready-list tie, not source-reachable.  (STRONG per the floor bar: prototype is void/void
- * per SYM, count exact, 3 alternate forms measured, named mechanism.)
- * ---- w45-a9: THE "NOT SOURCE-REACHABLE" VERDICT IS REFUTED -- PASS 43/43. ----
- * A zero-insn scheduling barrier right after the read pins the `lw v1,0(gp)` BEFORE the
- * packet-cursor bump (retail 26/27/28).  w45 used an asm use fence; HUDFX r2 replaced it
- * with a `do { rgb = ...; } while (0);` wrapper (pure-C fence, same effect).  The
- * PTag-bitfield spellings were also measured here (§2b.1): value-side bitfield READ = 6,
- * plain word READ = 6 (both re-color the bump to $v1) -- this fn wants the hand-masked OR.
- * HUDFX r1/r2 falsified (no barrier): bump as `(prim + 1)` 2, `+= 0x14` 6, read between the
- * two OT stores 4, after both 2, at the top 24, rgb stores reordered 2, `next` temp 2. */
+/* ---- Flare_2DSpike__FPlT0i  [FLARE.CPP:1105-1120] ----
+ * HUDFX r4: PASS 43/43 with NO barrier and NO rgb temp, SLD tags 0/43 + blocks exact.  The
+ * body follows retail's SLD statement phases (relative lines): pt copies 5/6; the OT link AND
+ * the cursor bump on 8; the colour word store on 10 (read straight from gfrgb2), the zero
+ * colour-1 word on 11, setlen/setcode on 12, the two xy copies on 14/15, `}` on 15.  The
+ * colour store written BEFORE setlen/zero (retail order) is what lets sched issue the
+ * `lw gfrgb2` above the bump -- the old asm/do-while barriers imitated that order.
+ * History: w41 floor, w45 asm use fence, HUDFX r2 do{}while(0); falsified (old order): bump
+ * `(prim + 1)` 2, `+= 0x14` 6, read between the OT stores 4, rgb temp after them 2. */
 void Flare_2DSpike(long *center,long *end,int otz)
 
 {
   long pt [2];
   LINE_G2 *prim;
 
+
   pt[0] = *center;
   pt[1] = *end;
-  otz = otz * 4 + (int)Render_gPalettePtr;
-  prim = (LINE_G2 *)Render_gPacketPtr;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
-  const u_int rgb = *(u_int *)&gfrgb2;
-  __asm__ volatile("" : : "r"(rgb));
-  Render_gPacketPtr = (u_char *)prim + 0x14;
-  ((u_char *)prim)[3] = 4;
+
+  otz = otz * 4 + (int)Render_gPalettePtr; prim = (LINE_G2 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff; Render_gPacketPtr = (u_char *)prim + 0x14;
+
+  *(u_int *)((u_char *)prim + 4) = *(u_int *)&gfrgb2;
   *(u_int *)((u_char *)prim + 0xc) = 0;
-  *(u_int *)((u_char *)prim + 4) = rgb;
-  ((u_char *)prim)[7] = 0x52;
+  ((u_char *)prim)[3] = 4; ((u_char *)prim)[7] = 0x52;
+
   *(long *)((u_char *)prim + 8) = pt[0];
-  *(long *)((u_char *)prim + 0x10) = pt[1];
-  return;
-}
+  *(long *)((u_char *)prim + 0x10) = pt[1]; }
 
 /* ---- Flare_2DHalo__Fiiiii  [FLARE.CPP:1125-1211] SLD-VERIFIED ---- */
 void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
@@ -1436,7 +1394,6 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
       SetDrawMode(aprim,0,1,0x120,(RECT *)0x0);
     }
   }
-  return;
 }
 
 /* ---- Flare_PreCalcHexLightBeam__FPli  [FLARE.CPP:1229-1252] SLD-VERIFIED ---- */
@@ -1491,7 +1448,6 @@ gte_ldv0(&Flare_gOct[i]);
     }
     i = i + 1;
   }
-  return;
 }
 
 /* ---- Flare_Quad__FPlP7CVECTORi  [FLARE.CPP:1305-1315] SLD-VERIFIED ---- */
@@ -1500,20 +1456,14 @@ void Flare_Quad(long *pt,CVECTOR *color,int otz)
 {
   POLY_F4 *prim;
 
-  otz = otz * 4 + (int)Render_gPalettePtr;
-  prim = (POLY_F4 *)Render_gPacketPtr;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  const u_int pkt_addr24 = *(u_int *)otz & 0xff000000;
-  Render_gPacketPtr = (u_char *)prim + 0x18;
-  *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
+  otz = otz * 4 + (int)Render_gPalettePtr; prim = (POLY_F4 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; const u_int pkt_addr24 = *(u_int *)otz & 0xff000000; Render_gPacketPtr = (u_char *)prim + 0x18; *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */
-  ((u_char *)prim)[3] = 5;
-  ((u_char *)prim)[7] = 0x2a;
+  ((u_char *)prim)[3] = 5; ((u_char *)prim)[7] = 0x2a;
+
   *(long *)((u_char *)prim + 8) = *pt;
   *(long *)((u_char *)prim + 0xc) = pt[1];
   *(long *)((u_char *)prim + 0x10) = pt[2];
   *(long *)((u_char *)prim + 0x14) = pt[3];
-  return;
 }
 
 /* ---- Flare_QuadNotTransparent__FPlP7CVECTORi  [FLARE.CPP:1319-1331] SLD-VERIFIED ---- */
@@ -1522,20 +1472,16 @@ void Flare_QuadNotTransparent(long *pt,CVECTOR *color,int otz)
 {
   POLY_F4 *prim;
 
-  otz = otz * 4 + (int)Render_gPalettePtr;
-  prim = (POLY_F4 *)Render_gPacketPtr;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  const u_int pkt_addr24 = *(u_int *)otz & 0xff000000;
-  Render_gPacketPtr = (u_char *)prim + 0x18;
-  *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
+  otz = otz * 4 + (int)Render_gPalettePtr; prim = (POLY_F4 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; const u_int pkt_addr24 = *(u_int *)otz & 0xff000000; Render_gPacketPtr = (u_char *)prim + 0x18; *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */
-  ((u_char *)prim)[3] = 5;
-  ((u_char *)prim)[7] = 0x28;
+
+
+  ((u_char *)prim)[3] = 5; ((u_char *)prim)[7] = 0x28;
+
   *(long *)((u_char *)prim + 8) = *pt;
   *(long *)((u_char *)prim + 0xc) = pt[1];
   *(long *)((u_char *)prim + 0x10) = pt[2];
   *(long *)((u_char *)prim + 0x14) = pt[3];
-  return;
 }
 
 /* ---- Flare_QuadRing__FPlP7CVECTORi  [FLARE.CPP:1335-1352] SLD-VERIFIED ---- */
@@ -1561,7 +1507,6 @@ void Flare_QuadRing(long *pt,CVECTOR *color,int otz)
   *(long *)((u_char *)prim + 0x10) = pt[1];
   *(long *)((u_char *)prim + 0x18) = pt[2];
   *(long *)((u_char *)prim + 0x20) = pt[3];
-  return;
 }
 
 /* ---- Flare_TextureQuad__FPlP7CVECTORci  [FLARE.CPP:1368-1382] SLD-VERIFIED ---- */
@@ -1570,35 +1515,18 @@ void Flare_TextureQuad(long *pt,CVECTOR *color,char type,int otz)
 {
   POLY_FT4 *prim;
 
-  otz = otz * 4 + (int)Render_gPalettePtr;
-  prim = (POLY_FT4 *)Render_gPacketPtr;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
-  const u_int pkt_addr24 = *(u_int *)otz & 0xff000000;
-  Render_gPacketPtr = (u_char *)prim + 0x28;
-  *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
+  otz = otz * 4 + (int)Render_gPalettePtr; prim = (POLY_FT4 *)Render_gPacketPtr; *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff; const u_int pkt_addr24 = *(u_int *)otz & 0xff000000; Render_gPacketPtr = (u_char *)prim + 0x28; *(u_int *)otz = pkt_addr24 | (u_int)prim & 0xffffff;
   *(int *)((u_char *)prim + 4) = *(int *)color;   /* stored where the SYM-less retail loads it */
-  ((u_char *)prim)[3] = 9;
-  ((u_char *)prim)[7] = 0x2e;
+
+
+  ((u_char *)prim)[3] = 9; ((u_char *)prim)[7] = 0x2e;
+
   *(long *)((u_char *)prim + 8) = *pt;
   *(long *)((u_char *)prim + 0x10) = pt[1];
   *(long *)((u_char *)prim + 0x18) = pt[2];
   *(long *)((u_char *)prim + 0x20) = pt[3];
-  {
-    u_long l0;
-    u_long l1;
-    u_long l2;
-    u_long l3;
 
-    l0 = *(u_long *)gFlarePixmap[(u_char)type];
-    l1 = *(u_long *)((char *)gFlarePixmap[(u_char)type] + 4);
-    l2 = *(u_long *)((char *)gFlarePixmap[(u_char)type] + 8);
-    l3 = *(u_long *)((char *)gFlarePixmap[(u_char)type] + 0xc);
-    *(u_long *)((u_char *)prim + 0xc) = l0;
-    *(u_long *)((u_char *)prim + 0x14) = l1;
-    *(u_long *)((u_char *)prim + 0x1c) = l2;
-    *(u_long *)((u_char *)prim + 0x24) = l3;
-  }
-  return;
+  { u_long l0; u_long l1; u_long l2; u_long l3; l0 = *(u_long *)gFlarePixmap[(u_char)type]; l1 = *(u_long *)((char *)gFlarePixmap[(u_char)type] + 4); l2 = *(u_long *)((char *)gFlarePixmap[(u_char)type] + 8); l3 = *(u_long *)((char *)gFlarePixmap[(u_char)type] + 0xc); *(u_long *)((u_char *)prim + 0xc) = l0; *(u_long *)((u_char *)prim + 0x14) = l1; *(u_long *)((u_char *)prim + 0x1c) = l2; *(u_long *)((u_char *)prim + 0x24) = l3; }
 }
 
 /* ---- Flare_SingleColorTex__FP7DVECTORP7CVECTORiici  [FLARE.CPP:1386-1401] SLD-VERIFIED ---- */
@@ -1609,14 +1537,17 @@ void Flare_SingleColorTex(DVECTOR *xy,CVECTOR *color,int width,int height,char t
   
   pt[0].vx = xy->vx - (short)width;
   pt[0].vy = xy->vy + (short)height;
+
   pt[1].vx = xy->vx + (short)width;
   pt[1].vy = xy->vy + (short)height;
+
   pt[2].vx = xy->vx - (short)width;
   pt[2].vy = xy->vy - (short)height;
+
   pt[3].vx = xy->vx + (short)width;
   pt[3].vy = xy->vy - (short)height;
+
   Flare_TextureQuad((long *)pt,color,type,otz);
-  return;
 }
 
 /* ---- Flare_SingleColorHex__FP7DVECTORP7CVECTORiii  [FLARE.CPP:1405-1427] SLD-VERIFIED ---- */
@@ -1624,25 +1555,27 @@ void Flare_SingleColorHex(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
 
 {
   DVECTOR pt [6];
-
-  /* MATCH: SYM shows NO locals besides pt -- the divides are INLINE expressions,
-   * CSE'd by gcc (width/4 -> fresh temp t1, height/2 mutates a3 in place). */
+  /* MATCH: SYM shows NO locals besides pt -- the divides are INLINE expressions (CSE'd by gcc). */
   pt[0].vx = xy->vx - width / 4;
   pt[0].vy = xy->vy + height / 2;
+
   pt[1].vx = xy->vx + width / 4;
   pt[1].vy = xy->vy + height / 2;
+
   pt[2].vx = xy->vx - width / 2;
   pt[2].vy = xy->vy;
+
   pt[3].vx = xy->vx + width / 2;
   pt[3].vy = xy->vy;
+
   pt[4].vx = xy->vx - width / 4;
   pt[4].vy = xy->vy - height / 2;
+
   pt[5].vx = xy->vx + width / 4;
   pt[5].vy = xy->vy - height / 2;
+
   Flare_Quad((long *)pt,color,otz);
-  Flare_Quad((long *)(pt + 2),color,otz);
-  return;
-}
+  Flare_Quad((long *)(pt + 2),color,otz); }
 
 /* ---- Flare_SingleColorOct__FP7DVECTORP7CVECTORiii  [FLARE.CPP:1443-1456] SLD-VERIFIED ---- */
 void Flare_SingleColorOct(DVECTOR *xy,CVECTOR *color,int width,int height,int otz)
@@ -1650,20 +1583,17 @@ void Flare_SingleColorOct(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
 {
   DVECTOR pt [8];
   int i;
+  /* MATCH: SYM records only `pt[8]` and `i`.  Natural signed `/ 256` emits the retail
+   * negative-product correction; indexed array source strength-reduces to two cursors. */
+  i = 0; do {
 
-  /* MATCH: SYM records only `pt[8]` and `i`.  Natural signed `/ 256` emits the
-   * retail negative-product correction; indexed array source strength-reduces
-   * to the same two cursor inductions without naming decompiler pointers. */
-  i = 0;
-  do {
     pt[i].vx = xy->vx + (short)(width * Flare_gLensOct[i].vx / 256);
     pt[i].vy = xy->vy + (short)(height * Flare_gLensOct[i].vy / 256);
-    i = i + 1;
-  } while (i < 8);
+    i = i + 1; } while (i < 8);
+
   Flare_Quad((long *)pt,color,otz);
   Flare_Quad((long *)(pt + 2),color,otz);
   Flare_Quad((long *)(pt + 4),color,otz);
-  return;
 }
 
 /* ---- Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii  [FLARE.CPP:1460-1488] SLD-VERIFIED ---- */
@@ -1699,7 +1629,6 @@ void Flare_SingleColorOctRing(DVECTOR *xy,CVECTOR *color,int width,int height,in
   Flare_QuadRing((long *)(pt + 10),color,otz);
   Flare_QuadRing((long *)(pt + 0xc),color,otz);
   Flare_QuadRing((long *)(pt + 0xe),color,otz);
-  return;
 }
 
 /* ---- Flare_InitLensFlare__Fv  [FLARE.CPP:1568-1571] SLD-VERIFIED ---- */
@@ -1708,9 +1637,7 @@ void Flare_InitLensFlare(void)
 {
   gFlare_LensFlare.size = 0x50;
   gFlare_LensFlare.piece = Flare_SunFlarePieces;
-  gFlare_LensFlare.isDrawn[1] = '\0';
-  gFlare_LensFlare.isDrawn[0] = '\0';
-  return;
+  gFlare_LensFlare.isDrawn[1] = '\0'; gFlare_LensFlare.isDrawn[0] = '\0';
 }
 
 /* ---- Flare_LensFlare__FP7DVECTORP15Draw_FlareCache  [FLARE.CPP:1578-1738] SLD-VERIFIED ----
@@ -1730,174 +1657,268 @@ void Flare_InitLensFlare(void)
  *    that the SYM does not have.
  *  => this is a rule-8 SYM-driven rewrite (name the SYM locals into the dataflow, add the
  *    line-13/14/78/134/159 block scopes), not a coloring grind. */
+/* (body comments moved here by HUDFX r7; the body follows retail's SLD lines) */
+/* MATCH: SYM rule-8 rewrite (SYM block @404e96, fsize 184, mask $c0ff0000).
+ * SYM locals, EXACTLY: fn-scope dx/dy(AUTO -0x40/-0x3c) pxy(AUTO -0xa0)
+ * width($7=a3) height($6=a2) i($16) sx($30=fp) sy($23=s7) piece($8=t0)
+ * angleZ($17=s1) angleZ2(AUTO -0x38) flareVis(REG $21, type CHAR);
+ * block@line14 { pt[4](-0x98) col(-0x88) }; block@line78 { scalemat(-0x80)
+ * mtx(-0x60) }; block@line134 { col(-0x98, REUSES pt's slot) };
+ * block@line159 { aprim($4) }.  `screenPos` is SYM class ARG -- retail runs
+ * out of callee-saved regs (all 10 in mask) and spills it to its incoming
+ * slot 184($sp), reloading it for sx/sy and for the two Flare_Spikes calls.
+ * Fixes vs the old iVarN body (all raw-oracle evidence, BF36C-BF1CC):
+ *  - width/height: ONE compute `size*piece->size/0x10000` + a copy
+ *    (`addu a2,a3,zero` in the guard's delay slot); calls take (height,width).
+ *  - gte_ldsv/gte_stsv (stride 2, SVECTOR) were WRONG -- oracle uses lhu/sh at
+ *    0/6/12 = PsyQ gte_ldclmv/gte_stclmv (MATRIX COLUMN, row stride 6).
+ *  - scalemat IS built here (5 word stores 0/8/0x10/4/0xc = flareVis*128,
+ *    flareVis*64, 0, 0, 0) and its m[0][0..1] is REWRITTEN to flareVis*64
+ *    before the 2nd spike pass -- the old body fed an UNINITIALIZED scalemat
+ *    to gte_SetRotMatrix twice (correctness bug).
+ *  - Flare_SingleColorHex took `(DVECTOR*)piece` -- oracle passes &pxy
+ *    (`addiu a0,$sp,0x18`) like every other arm (correctness bug).
+ *  - the 25-entry visibility scan walks gFlare_LensFlare.screenData[0]
+ *    (base+0x10, stride 2) with the SAME `i` the piece loop reuses; flareVis
+ *    is a CHAR (oracle `andi s6,s5,0xff` once, then reused for *128/*64 and
+ *    the /25 colour scale).
+ *  - Render_gPacketPtr / Render_gPalettePtr are read in the TAIL only; the old
+ *    `while (p = ..., tp3 = ..., idx < 9)` comma-hoist has no oracle basis. */
+/* RESIDUAL 56 (ours 407 / oracle 409), w39-a8.  TWO clusters, both measured:
+ *  (a) HEAD: the oracle loads screenPos->vx/vy into $v0/$v1 and COPIES them to
+ *      $fp/$s7 (`addu $fp,$v0,zero` / `addu $s7,$v1,zero`, the 2 missing insns);
+ *      that extra pair lets its scheduler hold sx-2 in $a3 across the whole pt[]
+ *      build and sink the pt[0]/pt[2].vx stores to the end.  Ours loads straight
+ *      into the home regs and therefore serializes the four value chains through
+ *      $v0.  Probed: all 24 group orderings of the four chained pt assignments
+ *      (56 is the minimum; the oracle's STORE order costs 76 because it flips
+ *      which of sx/sy is defined first, and with it the $fp/$s7 split), reading
+ *      pos[0].vx/vy back from screenPos instead of sx/sy (84), (int) casts (56),
+ *      moving sx/sy into the pt block (56).
+ *  (b) TAIL: the 3-cycle rotation of the pkt-ptr address / 0xFFFFFF / 0xFF000000
+ *      constant registers -- the shared flare.cpp allocator tie, see the note on
+ *      Flare_Sun.  Structure and count are otherwise exact.
+ * Per-TU flag probe (w39, now that compile_cpp honours the keys): flare.cpp is
+ * NOT a no_split_addresses / no_schedule_insns / no_schedule_insns2 /
+ * no_strength_reduce object -- whole-TU baseline 15 PASS / 458 diffs vs
+ * 10/1387, 4/2086, 2/845, 15/889.
+ * ---- w45-a9: cluster (a)'s TWO MISSING INSNS ARE NOW SOURCE-REACHABLE (not landed --
+ * it costs 2 gate diffs, so it was reverted under verify-or-revert; ADOPT IT FIRST next
+ * time, it is the structurally correct base).  THE SPELLING:
+ *     { int vx0 = screenPos->vx;  int vy0 = screenPos->vy;
+ *       __asm__ volatile("" : : "r"(vx0), "r"(vy0));      // §2b.5 zero-insn USE fence
+ *       sx = vx0;  sy = vy0; }
+ * -> COUNT BECOMES EXACT 409/409 (from 407) at 36 diffs (baseline 34).  The fence stops
+ * reload from folding the two `lh`s straight into the $fp/$s7 homes, so retail's
+ * `lh <tmp>,0(base); addu $fp,<tmp>,$zero` copy pair materializes -- that pair IS the
+ * documented 2-insn gap and it is what lets retail's scheduler hold sx-2 across the pt[]
+ * build.  What is left after it: (i) the reload BASE -- retail spills screenPos and reads
+ * `lh v0,0($t7)` off the 184(sp) reload, ours still reads through the live `$a0`; (ii) the
+ * two temps land in $v1/$a2, retail's in $v0/$v1.  NEXT STEPS from that base: force the
+ * ARG-slot reload (screenPos is SYM class ARG) by taking `DVECTOR *sp2 = screenPos;` only
+ * INSIDE this block after a call, or by fencing `screenPos` itself so its pseudo must be
+ * reloaded; then re-run the 24 pt-group orderings from the (a) probe list -- they were all
+ * measured on the 407-insn base and are stale in this basin (§2b.4 lever-order).
+ * FALSIFIED this wave: fencing `sx`/`sy` AFTER the assignments (36 @407 -- no copy pair,
+ * just a nop shuffle).  Cluster (b) (the 0xFFFFFF/0xFF000000/pkt-addr 3-cycle) is the SAME
+ * tie that Flare_PreCalcHexLightBeam SEALED this wave -- apply that recipe verbatim to the
+ * tail OT-link block here: `pal = Render_gPalettePtr;` split out, `addr24` temp AFTER the
+ * slot statement and BEFORE the first RMW, and the zero-insn re-mask `pkt24 | (addr24 &
+ * 0xffffff)` for the +1 ref-step.  MEASURED THIS WAVE: applying just the statement-order
+ * half of that recipe (addr24 moved below the two slot statements) at all 7 OT sites in
+ * this fn is DIFF-NEUTRAL (34, 0 TU regressions) -- so here the mask order is NOT the
+ * dial; the `pal` split + the ref-step re-mask are the untried halves.
+ * ---- w46-a8: THE COUNT-EXACT-409 FENCED BASIN WAS BUILT AND FULLY SWEPT.  It does not
+ * beat the kept 34 @407, so it is again NOT landed (verify-or-revert), but the follow-up
+ * list the w45 note left is now CLOSED and must not be re-run:
+ *   - the fenced split-temp base reproduces exactly as written: 36 diffs, count-exact
+ *     409/409.
+ *   - FORCING THE ARG-SLOT RELOAD (the w45 "next step") does NOTHING: fencing `screenPos`
+ *     itself before the block, naming `screenPos` as a third operand of the same fence, a
+ *     `DVECTOR *sp2 = screenPos;` local inside the block, and that local defined after a
+ *     fence on screenPos -- ALL exactly 36 @409.  Swapping the two temps' declaration
+ *     order (vy0 first) is also 36.  ⇒ retail's `lw $t7,184(sp)` ARG reload is not
+ *     reachable by any source handle on the pointer; it is a spill decision.
+ *   - ALL 24 pt-group orderings RE-RUN IN THIS BASIN (the w45 note flagged the old list
+ *     stale): the current order is joint-best at 36 (perms 0,1,2,12,14,15 = 36; the rest
+ *     42/50/52/56).  The basin-stale hypothesis is therefore falsified -- the ordering
+ *     ranking is the SAME in both basins.
+ *   ⇒ from the fenced base the residual 36 is: (i) the ARG spill above, and (ii) the two
+ *   head temps landing in $v1/$a2 vs retail's $v0/$v1.  NEW NAMED ANGLE: (ii) is a
+ *   local-alloc QTY pick (both temps are born and die inside the entry block) -- per §A0
+ *   compute their QTY_CMP_PRI from a `-dl` dump of THIS basin and use the ref/live dials,
+ *   which is the one instrument never applied to this function.  The untried tail halves
+ *   (`pal = Render_gPalettePtr;` split out at the 7 OT sites) remain open and are
+ *   independent of the head cluster.
+ * ---- w50-A3: 34 @407 -> 30 @409 COUNT-EXACT, and the fenced basin IS NOW LANDED
+ * (the w45 note's own recommendation, which w45/w46 both left un-adopted because the
+ * bare fenced base gates 36).  TWO edits:
+ *  (1) the w45 fenced split-temp head (vx0/vy0 + zero-insn USE fence) -- retail's two
+ *      `addu fp,v0,zero` / `addu s7,v1,zero` copies materialize, count 407 -> 409;
+ *  (2) NEW: THE `col` CONSTANT MOVED TO ITS USE SITE (`*(u_long*)&col = 0xffffff;`
+ *      written just before the Flare_QuadNotTransparent call instead of at the top of
+ *      the block): 36 -> 30.  Lengthening the 0xFFFFFF constant's live range DEMOTES
+ *      its qty out of $v0 into retail's $a3, and $a3 is then reused for `sx-2` exactly
+ *      like retail (`sw a3,48(sp); addiu a3,fp,-2; sh a3,32(sp)`).
+ * RE-SWEPT IN THE NEW BASIN (current, not stale): all 24 pt-group orderings (the kept
+ * 0,1,2,3 is joint-best at 30; retail's STORE order 1,2,3,0 = 44), four DISTINCT
+ * per-group temps (30, no change), `col` named in a local (36), a fence on the col
+ * word after the stores (47 @410).
+ * RESIDUAL 30 = ONE head cluster: retail RELOADS screenPos from its ARG home
+ * (`lw t7,184(sp); lh v0,0(t7)`) because its scheduler issues the two call-arg address
+ * setups (`addiu a0,sp,32` / `addiu a1,sp,48`) BEFORE the two `lh`s, so $a0 is already
+ * clobbered and reload cannot inherit it; ours issues the `lh`s first and reads straight
+ * through the live $a0.  => the dial is NOT a handle on the pointer (w46 closed that
+ * list) -- it is WHERE the two arg-address materializations issue.  NEW NAMED ANGLE:
+ * give the two call-arg addresses real pointer locals defined at the TOP of the pt block
+ * (`DVECTOR *pp = pt; CVECTOR *cp = &col;`) and pass those, so their addiu's are born
+ * before the reads; a bare `"r"(pt)` fence operand does NOT compile under cc1plus 2.8
+ * ("inconsistent operand constraints") -- use the locals.
+ * ---- w59-a5 (2026-08-14): 30 -> 18, count-exact 409/409.  THE w50 NAMED ANGLE WORKS,
+ * with one correction: the pointer locals must be born BEFORE the vx0/vy0 fence block,
+ * not merely "at the top of the pt block".  The `__asm__ volatile("")` head fence is a
+ * FULL sched barrier, so anything written after it can never issue before the two `lh`s
+ * -- the fix is to MOVE THE FENCED HEAD BLOCK INSIDE the pt block, below the decls:
+ *     { DVECTOR pt[4]; CVECTOR col;
+ *       u_long colw = 0xffffff;      // (2) constant VALUE hoisted, store stays at use
+ *       DVECTOR *pp = pt;            // (1) the two call-arg addresses, born pre-fence
+ *       CVECTOR *cp = &col;
+ *       int otSize = Draw_gViewOtSize;   // (3) load split from the `-2`
+ *       { int vx0=..; int vy0=..; __asm__ volatile("" : : "r"(vx0),"r"(vy0));
+ *         sx=vx0; sy=vy0; }
+ *       ...pt stores...
+ *       angleZ  = (sx+sy)*8;         // (4) MOVED UP, above the call
+ *       angleZ2 = (sx+sy)*6;
+ *       Flare_QuadNotTransparent((long *)pp,cp,otSize + -2); }
+ * pt/col STAY in their own block so the SYM's -0x98/-0x88 slots (and the line-134 `col`
+ * that re-uses pt's slot) are untouched -- frame is unchanged, count stays 409.
+ * MEASURED, step by step, each re-gated: (1) alone 34 (a WORSE score that is the
+ * hard-floor basin rule in action -- it is what makes retail's ARG-slot reload
+ * `lw t7,184(sp); lh v0,0(t7)` appear, the residual w46-a8 declared "not reachable by
+ * any source handle on the pointer"); +(2) 30; +(3) with decl order colw,pp,cp 24;
+ * +(4) 18.  Item (4) is the biggest single step and is a STRUCTURE find, not a dial:
+ * retail computes angleZ/angleZ2 BEFORE the QuadNotTransparent call (oracle
+ * `addu v1,fp,s7; sll s1,v1,3; sll v0,v1,1; addu; sll; ... jal`), i.e. EA's source had
+ * those two statements inside the pt block, not after it.
+ * RE-SWEPT IN THIS BASIN (both stale-check runs, both confirm the kept form):
+ *   - all 24 pt-group orderings: 24 is the joint minimum at the pre-(4) basin and the
+ *     kept 0,1,2,3 is in the winning set {0123,0132,0213,2013,2103}; retail's STORE
+ *     order 1,2,3,0 = 42.
+ *   - the `col` store WALKED through all 7 positions of the block (before every pt
+ *     group .. immediately before the call): 18 at EVERY position -- inert here, so the
+ *     w50 "col at its use site" lever is now basin-neutral, only its VALUE hoist (2)
+ *     still pays.  Moving the whole `col = colw` store to the block head in the 24-basin
+ *     was 32, i.e. it only hurt before (4) landed.
+ * RESIDUAL 18 = ONE cluster, all in the pt block, count-exact: retail holds sx-2 in $a3
+ * from `addiu a3,fp,-2` right after the fp copy and SINKS its two stores (`sh a3,32(sp)`
+ * / `sh a3,40(sp)`) past the whole angleZ chain to just before the `jal`; ours computes
+ * it into $v0 and stores immediately.  Same for `addiu v1,fp,3` (one slot early in
+ * retail) and the positions of `addu s0,zero,zero`, `addiu a2,a2,-2` and `sw a3,48(sp)`,
+ * which all follow that one register's fate.  FALSIFIED here: splitting the value out
+ * (`int xm2 = sx + -2;` first, `pt[2].vx = pt[0].vx = (short)xm2;` moved below the
+ * angleZ pair) = 40 -- it makes `sy` the first-defined value again and flips the
+ * fp/s7 split, the same trap the w39 note records for the pt STORE order.
+ * NEXT ANGLE (named): the store sink needs sx-2 to be the ONLY live short-lived value
+ * across the angleZ chain while sx-2's DEF stays first; try a form that keeps group 0's
+ * def in place but gives its two stores a later, separate statement THROUGH THE SAME
+ * expression (`pt[0].vx = (short)(sx + -2);` early, `pt[2].vx = pt[0].vx;` late -- a
+ * re-read, not a temp), or price it with allocsim/reqdelta on the block's local qtys. */
+/* MATCH (2026-08-26, source-only 6 -> PASS 409/409): the two call
+ * addresses are real pre-header values.  Naming their zero-byte use before
+ * `i` keeps the index init between the address setup and screenPos reload.
+ * Keeping the otSize adjustment and packed-colour store inside the existing
+ * vx/vy carrier block, then fencing their register/memory dependencies,
+ * gives retail's `addiu a2,-2; sw a3,48(sp)` before the sx/sy copies.
+ * PURE-C FENCE (HUDFX r2): the head barrier after pp/cp is an empty do/while(0)
+ * (was an asm use of pp,cp); without any barrier `addu s0,zero,zero` (i = 0) issues
+ * late (2 diffs); wrapping `i = 0` itself is 3 @410; dropping pp/cp is 23. */
+/* MATCH: group order sx-2, sy-2, sx+3, sy+3 (compute order in the oracle)
+ * with each chain written HI = LO = v (stores ascending).  Moving the
+ * sx-2 group last (= the oracle's STORE order) costs 14 diffs: it flips
+ * which of sx/sy is defined first and therefore the fp/s7 split.
+ * ---- w60-a7 (2026-08-14): 18 -> 6, count still exact 409/409.  The w59
+ * NEXT ANGLE ("give group 0's two stores a later, separate statement
+ * THROUGH THE SAME EXPRESSION -- a RE-READ, not a temp") is CORRECT, and
+ * it generalises to BOTH x groups.  The DEF must stay where it is (it is
+ * what fixes which of sx/sy is defined first, i.e. the fp/s7 split); only
+ * the SECOND store of each x pair moves, spelled as a re-read of the
+ * already-stored halfword:
+ *     pt[0].vx = (short)(sx + -2);   <- def stays first
+ *     ...
+ *     pt[3].vx = pt[1].vx;           <- sunk, re-read
+ *     pt[2].vx = pt[0].vx;           <- sunk, re-read
+ * That alone is 18 -> 16 for group 0, 18 -> 12 for group 1, and 10 for
+ * both.  The last -4 came from the `col` word store moved to the HEAD of
+ * the block: it frees $a3 (the 0xFFFFFF constant's home) early, and $a3 is
+ * then reused for `sx-2` exactly like retail (`sw a3,48(sp)` then
+ * `addiu a3,fp,-2`).  With both, the whole pt[] build -- every addiu, every
+ * sh, and all four registers -- is byte-identical to the oracle.
+ * NOTE this REVERSES the w50/w59 "col at its use site" receipt: that lever
+ * measured inert (18 at all 7 positions) in the 18-basin and only becomes
+ * live once the two x stores are sunk (lever-order law again).
+ * FALSIFIED from the 10-basin: col store at every OTHER position (all 10);
+ * the col constant spelled inline instead of via `colw` (10).  From the
+ * 18-basin: sinking the DEF as well (both x stores late, one expression)
+ * 40, the same with the expression written twice 40, a named `xm2` temp
+ * with the stores late 40, col-store-first alone 40, x+3 group computed
+ * before y-2 18, sinking the y-2 pair too 22.
+ * RESIDUAL 6, count-exact 409/409, all three lines in the entry block and
+ * all of them POSITION-only (registers and instruction stream identical):
+ * retail issues `addu s0,zero,zero` (i = 0) BEFORE the `lw t7,184(sp)`
+ * screenPos reload, and `addiu a2,a2,-2` (otSize - 2) + `sw a3,48(sp)`
+ * (the col store) IMMEDIATELY after the two `lh`s; ours issues all three a
+ * few slots later.  FALSIFIED here: `int otSize = Draw_gViewOtSize - 2;`
+ * folded into the decl (10), the same as its own `otSize = otSize - 2;`
+ * statement at the block head (8), an explicit `i = 0;` at the block head
+ * with the scan loop changed to `for (; i < 0x19; ...)` (6, exactly inert
+ * -- so the s0 position is NOT a source-statement question).
+ * ---- w60-a7 addendum: THE INSTRUMENTED-cc1plus LANE DOES NOT APPLY HERE.
+ * Fidelity check (the 11A discipline: a trace is only a receipt when the lab
+ * reproduces the real compiler byte-for-byte): under cc1plus-ecoff with
+ * `-O2 -G4 -mgas -msplit-addresses -funsigned-char -fno-exceptions -fno-rtti`
+ * this fn is 396/396 insns but NOT identical -- it diverges from insn 243
+ * (the lab hoists a `lui %hi` and re-orders the `lw` pair around the
+ * `ori $17,$17,0x851f`).  Flare_LensFlare therefore sits in the ~6%
+ * Mode-A-DIVERGENT set and its [qty_order]/[find_free_reg] trace must NOT be
+ * quoted as evidence for it (its TU-mate Flare_2DHalo IS identical, so the
+ * divergence is per-function, not per-TU).  The real CC1PLPSX -dl/-dg dump
+ * still applies and confirms what the side-by-side already shows: every
+ * register in the pt[] region matches the oracle, so the residual 3 lines are
+ * pure sched2 EMISSION POSITION in the entry block, the same class as
+ * Flare_2DHalo's residual (A) -- a PER_FN emission splice, not a source dial.
+ * ---- w61-a15 (2026-08-15): 6 -> **PASS 409/409**.  The w60 verdict was exactly
+ * right and its named mechanism is realisable with the EXISTING generic
+ * PER_FN_TEXT_MOVES table -- no new build.py mechanism was needed.  All three
+ * residual lines are pure entry-block relocations, each dependence-legal:
+ *   X `move $16,$0`  (i = 0)                 -> up to just after `addu $5,$sp,48`
+ *   Z `addu $6,$6,-2` (Draw_gViewOtSize - 2) -> up to just after `lh $3,2($15)`
+ *   Y `sw $7,48($sp)` (the packed col store) -> up to just after Z
+ * (X's dest is dead before; Z's source $6 is loaded 3 insns earlier so the load
+ * delay stays satisfied; Y's $a3 is not redefined until `addu $7,$fp,-2`, which
+ * still follows.)  Probe-verified PASS twice; flare.cpp 25/27 -> 26/27, zero
+ * regressions (Flare_2DHalo unaffected by these rows).
+ * ⇒ ORCHESTRATOR ACTION -- wire into PER_FN_TEXT_MOVES:
+ *   "recon/game/psx/flare.cpp": {
+ *       "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache": [
+ *           {"take": r"\tmove\t\$16,\$0\n(?=\tmove\t\$fp,\$2\n)",
+ *            "after": r"\taddu\t\$5,\$sp,48\n"},
+ *           {"take": r"\taddu\t\$6,\$6,-2\n",
+ *            "after": r"\tlh\t\$3,2\(\$15\)\n"},
+ *           {"take": r"\tsw\t\$7,48\(\$sp\)\n",
+ *            "after": r"\taddu\t\$6,\$6,-2\n"},
+ *       ],
+ *   },
+ * GOTCHA banked for the catalog: `move $16,$0` occurs TWICE in this region, and
+ * the empty entry fence prints as ` #APP\n #NO_APP\n` BEFORE it, not after -- a
+ * first attempt anchored the lookahead on ` #APP` and the take silently no-op'd
+ * (TEXT_MOVES `continue`s on a miss), which reads as "the move did nothing"
+ * rather than as an error.  Disambiguate on the FOLLOWING real insn instead.
+ * Probe harnesses: scratchpad/w61a15/{tugate_probe.py,fnprobe.py,row_flare2.txt}. */
+/* Canonical PsyQ addPrim: the P_TAG bitfield pair expresses getaddr/setaddr
+ * without reconstruction-only slot/mask temporaries. */
 void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
 {
-  /* MATCH: SYM rule-8 rewrite (SYM block @404e96, fsize 184, mask $c0ff0000).
-   * SYM locals, EXACTLY: fn-scope dx/dy(AUTO -0x40/-0x3c) pxy(AUTO -0xa0)
-   * width($7=a3) height($6=a2) i($16) sx($30=fp) sy($23=s7) piece($8=t0)
-   * angleZ($17=s1) angleZ2(AUTO -0x38) flareVis(REG $21, type CHAR);
-   * block@line14 { pt[4](-0x98) col(-0x88) }; block@line78 { scalemat(-0x80)
-   * mtx(-0x60) }; block@line134 { col(-0x98, REUSES pt's slot) };
-   * block@line159 { aprim($4) }.  `screenPos` is SYM class ARG -- retail runs
-   * out of callee-saved regs (all 10 in mask) and spills it to its incoming
-   * slot 184($sp), reloading it for sx/sy and for the two Flare_Spikes calls.
-   * Fixes vs the old iVarN body (all raw-oracle evidence, BF36C-BF1CC):
-   *  - width/height: ONE compute `size*piece->size/0x10000` + a copy
-   *    (`addu a2,a3,zero` in the guard's delay slot); calls take (height,width).
-   *  - gte_ldsv/gte_stsv (stride 2, SVECTOR) were WRONG -- oracle uses lhu/sh at
-   *    0/6/12 = PsyQ gte_ldclmv/gte_stclmv (MATRIX COLUMN, row stride 6).
-   *  - scalemat IS built here (5 word stores 0/8/0x10/4/0xc = flareVis*128,
-   *    flareVis*64, 0, 0, 0) and its m[0][0..1] is REWRITTEN to flareVis*64
-   *    before the 2nd spike pass -- the old body fed an UNINITIALIZED scalemat
-   *    to gte_SetRotMatrix twice (correctness bug).
-   *  - Flare_SingleColorHex took `(DVECTOR*)piece` -- oracle passes &pxy
-   *    (`addiu a0,$sp,0x18`) like every other arm (correctness bug).
-   *  - the 25-entry visibility scan walks gFlare_LensFlare.screenData[0]
-   *    (base+0x10, stride 2) with the SAME `i` the piece loop reuses; flareVis
-   *    is a CHAR (oracle `andi s6,s5,0xff` once, then reused for *128/*64 and
-   *    the /25 colour scale).
-   *  - Render_gPacketPtr / Render_gPalettePtr are read in the TAIL only; the old
-   *    `while (p = ..., tp3 = ..., idx < 9)` comma-hoist has no oracle basis. */
-  /* RESIDUAL 56 (ours 407 / oracle 409), w39-a8.  TWO clusters, both measured:
-   *  (a) HEAD: the oracle loads screenPos->vx/vy into $v0/$v1 and COPIES them to
-   *      $fp/$s7 (`addu $fp,$v0,zero` / `addu $s7,$v1,zero`, the 2 missing insns);
-   *      that extra pair lets its scheduler hold sx-2 in $a3 across the whole pt[]
-   *      build and sink the pt[0]/pt[2].vx stores to the end.  Ours loads straight
-   *      into the home regs and therefore serializes the four value chains through
-   *      $v0.  Probed: all 24 group orderings of the four chained pt assignments
-   *      (56 is the minimum; the oracle's STORE order costs 76 because it flips
-   *      which of sx/sy is defined first, and with it the $fp/$s7 split), reading
-   *      pos[0].vx/vy back from screenPos instead of sx/sy (84), (int) casts (56),
-   *      moving sx/sy into the pt block (56).
-   *  (b) TAIL: the 3-cycle rotation of the pkt-ptr address / 0xFFFFFF / 0xFF000000
-   *      constant registers -- the shared flare.cpp allocator tie, see the note on
-   *      Flare_Sun.  Structure and count are otherwise exact.
-   * Per-TU flag probe (w39, now that compile_cpp honours the keys): flare.cpp is
-   * NOT a no_split_addresses / no_schedule_insns / no_schedule_insns2 /
-   * no_strength_reduce object -- whole-TU baseline 15 PASS / 458 diffs vs
-   * 10/1387, 4/2086, 2/845, 15/889.
-   * ---- w45-a9: cluster (a)'s TWO MISSING INSNS ARE NOW SOURCE-REACHABLE (not landed --
-   * it costs 2 gate diffs, so it was reverted under verify-or-revert; ADOPT IT FIRST next
-   * time, it is the structurally correct base).  THE SPELLING:
-   *     { int vx0 = screenPos->vx;  int vy0 = screenPos->vy;
-   *       __asm__ volatile("" : : "r"(vx0), "r"(vy0));      // §2b.5 zero-insn USE fence
-   *       sx = vx0;  sy = vy0; }
-   * -> COUNT BECOMES EXACT 409/409 (from 407) at 36 diffs (baseline 34).  The fence stops
-   * reload from folding the two `lh`s straight into the $fp/$s7 homes, so retail's
-   * `lh <tmp>,0(base); addu $fp,<tmp>,$zero` copy pair materializes -- that pair IS the
-   * documented 2-insn gap and it is what lets retail's scheduler hold sx-2 across the pt[]
-   * build.  What is left after it: (i) the reload BASE -- retail spills screenPos and reads
-   * `lh v0,0($t7)` off the 184(sp) reload, ours still reads through the live `$a0`; (ii) the
-   * two temps land in $v1/$a2, retail's in $v0/$v1.  NEXT STEPS from that base: force the
-   * ARG-slot reload (screenPos is SYM class ARG) by taking `DVECTOR *sp2 = screenPos;` only
-   * INSIDE this block after a call, or by fencing `screenPos` itself so its pseudo must be
-   * reloaded; then re-run the 24 pt-group orderings from the (a) probe list -- they were all
-   * measured on the 407-insn base and are stale in this basin (§2b.4 lever-order).
-   * FALSIFIED this wave: fencing `sx`/`sy` AFTER the assignments (36 @407 -- no copy pair,
-   * just a nop shuffle).  Cluster (b) (the 0xFFFFFF/0xFF000000/pkt-addr 3-cycle) is the SAME
-   * tie that Flare_PreCalcHexLightBeam SEALED this wave -- apply that recipe verbatim to the
-   * tail OT-link block here: `pal = Render_gPalettePtr;` split out, `addr24` temp AFTER the
-   * slot statement and BEFORE the first RMW, and the zero-insn re-mask `pkt24 | (addr24 &
-   * 0xffffff)` for the +1 ref-step.  MEASURED THIS WAVE: applying just the statement-order
-   * half of that recipe (addr24 moved below the two slot statements) at all 7 OT sites in
-   * this fn is DIFF-NEUTRAL (34, 0 TU regressions) -- so here the mask order is NOT the
-   * dial; the `pal` split + the ref-step re-mask are the untried halves.
-   * ---- w46-a8: THE COUNT-EXACT-409 FENCED BASIN WAS BUILT AND FULLY SWEPT.  It does not
-   * beat the kept 34 @407, so it is again NOT landed (verify-or-revert), but the follow-up
-   * list the w45 note left is now CLOSED and must not be re-run:
-   *   - the fenced split-temp base reproduces exactly as written: 36 diffs, count-exact
-   *     409/409.
-   *   - FORCING THE ARG-SLOT RELOAD (the w45 "next step") does NOTHING: fencing `screenPos`
-   *     itself before the block, naming `screenPos` as a third operand of the same fence, a
-   *     `DVECTOR *sp2 = screenPos;` local inside the block, and that local defined after a
-   *     fence on screenPos -- ALL exactly 36 @409.  Swapping the two temps' declaration
-   *     order (vy0 first) is also 36.  ⇒ retail's `lw $t7,184(sp)` ARG reload is not
-   *     reachable by any source handle on the pointer; it is a spill decision.
-   *   - ALL 24 pt-group orderings RE-RUN IN THIS BASIN (the w45 note flagged the old list
-   *     stale): the current order is joint-best at 36 (perms 0,1,2,12,14,15 = 36; the rest
-   *     42/50/52/56).  The basin-stale hypothesis is therefore falsified -- the ordering
-   *     ranking is the SAME in both basins.
-   *   ⇒ from the fenced base the residual 36 is: (i) the ARG spill above, and (ii) the two
-   *   head temps landing in $v1/$a2 vs retail's $v0/$v1.  NEW NAMED ANGLE: (ii) is a
-   *   local-alloc QTY pick (both temps are born and die inside the entry block) -- per §A0
-   *   compute their QTY_CMP_PRI from a `-dl` dump of THIS basin and use the ref/live dials,
-   *   which is the one instrument never applied to this function.  The untried tail halves
-   *   (`pal = Render_gPalettePtr;` split out at the 7 OT sites) remain open and are
-   *   independent of the head cluster.
-   * ---- w50-A3: 34 @407 -> 30 @409 COUNT-EXACT, and the fenced basin IS NOW LANDED
-   * (the w45 note's own recommendation, which w45/w46 both left un-adopted because the
-   * bare fenced base gates 36).  TWO edits:
-   *  (1) the w45 fenced split-temp head (vx0/vy0 + zero-insn USE fence) -- retail's two
-   *      `addu fp,v0,zero` / `addu s7,v1,zero` copies materialize, count 407 -> 409;
-   *  (2) NEW: THE `col` CONSTANT MOVED TO ITS USE SITE (`*(u_long*)&col = 0xffffff;`
-   *      written just before the Flare_QuadNotTransparent call instead of at the top of
-   *      the block): 36 -> 30.  Lengthening the 0xFFFFFF constant's live range DEMOTES
-   *      its qty out of $v0 into retail's $a3, and $a3 is then reused for `sx-2` exactly
-   *      like retail (`sw a3,48(sp); addiu a3,fp,-2; sh a3,32(sp)`).
-   * RE-SWEPT IN THE NEW BASIN (current, not stale): all 24 pt-group orderings (the kept
-   * 0,1,2,3 is joint-best at 30; retail's STORE order 1,2,3,0 = 44), four DISTINCT
-   * per-group temps (30, no change), `col` named in a local (36), a fence on the col
-   * word after the stores (47 @410).
-   * RESIDUAL 30 = ONE head cluster: retail RELOADS screenPos from its ARG home
-   * (`lw t7,184(sp); lh v0,0(t7)`) because its scheduler issues the two call-arg address
-   * setups (`addiu a0,sp,32` / `addiu a1,sp,48`) BEFORE the two `lh`s, so $a0 is already
-   * clobbered and reload cannot inherit it; ours issues the `lh`s first and reads straight
-   * through the live $a0.  => the dial is NOT a handle on the pointer (w46 closed that
-   * list) -- it is WHERE the two arg-address materializations issue.  NEW NAMED ANGLE:
-   * give the two call-arg addresses real pointer locals defined at the TOP of the pt block
-   * (`DVECTOR *pp = pt; CVECTOR *cp = &col;`) and pass those, so their addiu's are born
-   * before the reads; a bare `"r"(pt)` fence operand does NOT compile under cc1plus 2.8
-   * ("inconsistent operand constraints") -- use the locals.
-   * ---- w59-a5 (2026-08-14): 30 -> 18, count-exact 409/409.  THE w50 NAMED ANGLE WORKS,
-   * with one correction: the pointer locals must be born BEFORE the vx0/vy0 fence block,
-   * not merely "at the top of the pt block".  The `__asm__ volatile("")` head fence is a
-   * FULL sched barrier, so anything written after it can never issue before the two `lh`s
-   * -- the fix is to MOVE THE FENCED HEAD BLOCK INSIDE the pt block, below the decls:
-   *     { DVECTOR pt[4]; CVECTOR col;
-   *       u_long colw = 0xffffff;      // (2) constant VALUE hoisted, store stays at use
-   *       DVECTOR *pp = pt;            // (1) the two call-arg addresses, born pre-fence
-   *       CVECTOR *cp = &col;
-   *       int otSize = Draw_gViewOtSize;   // (3) load split from the `-2`
-   *       { int vx0=..; int vy0=..; __asm__ volatile("" : : "r"(vx0),"r"(vy0));
-   *         sx=vx0; sy=vy0; }
-   *       ...pt stores...
-   *       angleZ  = (sx+sy)*8;         // (4) MOVED UP, above the call
-   *       angleZ2 = (sx+sy)*6;
-   *       Flare_QuadNotTransparent((long *)pp,cp,otSize + -2); }
-   * pt/col STAY in their own block so the SYM's -0x98/-0x88 slots (and the line-134 `col`
-   * that re-uses pt's slot) are untouched -- frame is unchanged, count stays 409.
-   * MEASURED, step by step, each re-gated: (1) alone 34 (a WORSE score that is the
-   * hard-floor basin rule in action -- it is what makes retail's ARG-slot reload
-   * `lw t7,184(sp); lh v0,0(t7)` appear, the residual w46-a8 declared "not reachable by
-   * any source handle on the pointer"); +(2) 30; +(3) with decl order colw,pp,cp 24;
-   * +(4) 18.  Item (4) is the biggest single step and is a STRUCTURE find, not a dial:
-   * retail computes angleZ/angleZ2 BEFORE the QuadNotTransparent call (oracle
-   * `addu v1,fp,s7; sll s1,v1,3; sll v0,v1,1; addu; sll; ... jal`), i.e. EA's source had
-   * those two statements inside the pt block, not after it.
-   * RE-SWEPT IN THIS BASIN (both stale-check runs, both confirm the kept form):
-   *   - all 24 pt-group orderings: 24 is the joint minimum at the pre-(4) basin and the
-   *     kept 0,1,2,3 is in the winning set {0123,0132,0213,2013,2103}; retail's STORE
-   *     order 1,2,3,0 = 42.
-   *   - the `col` store WALKED through all 7 positions of the block (before every pt
-   *     group .. immediately before the call): 18 at EVERY position -- inert here, so the
-   *     w50 "col at its use site" lever is now basin-neutral, only its VALUE hoist (2)
-   *     still pays.  Moving the whole `col = colw` store to the block head in the 24-basin
-   *     was 32, i.e. it only hurt before (4) landed.
-   * RESIDUAL 18 = ONE cluster, all in the pt block, count-exact: retail holds sx-2 in $a3
-   * from `addiu a3,fp,-2` right after the fp copy and SINKS its two stores (`sh a3,32(sp)`
-   * / `sh a3,40(sp)`) past the whole angleZ chain to just before the `jal`; ours computes
-   * it into $v0 and stores immediately.  Same for `addiu v1,fp,3` (one slot early in
-   * retail) and the positions of `addu s0,zero,zero`, `addiu a2,a2,-2` and `sw a3,48(sp)`,
-   * which all follow that one register's fate.  FALSIFIED here: splitting the value out
-   * (`int xm2 = sx + -2;` first, `pt[2].vx = pt[0].vx = (short)xm2;` moved below the
-   * angleZ pair) = 40 -- it makes `sy` the first-defined value again and flips the
-   * fp/s7 split, the same trap the w39 note records for the pt STORE order.
-   * NEXT ANGLE (named): the store sink needs sx-2 to be the ONLY live short-lived value
-   * across the angleZ chain while sx-2's DEF stays first; try a form that keeps group 0's
-   * def in place but gives its two stores a later, separate statement THROUGH THE SAME
-   * expression (`pt[0].vx = (short)(sx + -2);` early, `pt[2].vx = pt[0].vx;` late -- a
-   * re-read, not a temp), or price it with allocsim/reqdelta on the block's local qtys. */
   int dx;
   int dy;
   DVECTOR pxy;
@@ -1923,15 +1944,6 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       int otSize; /* SYM-CODEGEN-CARRIER: otSize -- folding the -2 into this load is measured FAIL 10 */
       long result;
 
-      /* MATCH (2026-08-26, source-only 6 -> PASS 409/409): the two call
-       * addresses are real pre-header values.  Naming their zero-byte use before
-       * `i` keeps the index init between the address setup and screenPos reload.
-       * Keeping the otSize adjustment and packed-colour store inside the existing
-       * vx/vy carrier block, then fencing their register/memory dependencies,
-       * gives retail's `addiu a2,-2; sw a3,48(sp)` before the sx/sy copies.
-       * PURE-C FENCE (HUDFX r2): the head barrier after pp/cp is an empty do/while(0)
-       * (was an asm use of pp,cp); without any barrier `addu s0,zero,zero` (i = 0) issues
-       * late (2 diffs); wrapping `i = 0` itself is 3 @410; dropping pp/cp is 23. */
       do { } while (0);
       i = 0;
       otSize = Draw_gViewOtSize;
@@ -1942,88 +1954,6 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
         *(u_long *)&col = colw;
         __asm__ volatile("" : : "r"(otSize), "m"(col));
         sx = vx0;  sy = vy0; }
-      /* MATCH: group order sx-2, sy-2, sx+3, sy+3 (compute order in the oracle)
-       * with each chain written HI = LO = v (stores ascending).  Moving the
-       * sx-2 group last (= the oracle's STORE order) costs 14 diffs: it flips
-       * which of sx/sy is defined first and therefore the fp/s7 split.
-       * ---- w60-a7 (2026-08-14): 18 -> 6, count still exact 409/409.  The w59
-       * NEXT ANGLE ("give group 0's two stores a later, separate statement
-       * THROUGH THE SAME EXPRESSION -- a RE-READ, not a temp") is CORRECT, and
-       * it generalises to BOTH x groups.  The DEF must stay where it is (it is
-       * what fixes which of sx/sy is defined first, i.e. the fp/s7 split); only
-       * the SECOND store of each x pair moves, spelled as a re-read of the
-       * already-stored halfword:
-       *     pt[0].vx = (short)(sx + -2);   <- def stays first
-       *     ...
-       *     pt[3].vx = pt[1].vx;           <- sunk, re-read
-       *     pt[2].vx = pt[0].vx;           <- sunk, re-read
-       * That alone is 18 -> 16 for group 0, 18 -> 12 for group 1, and 10 for
-       * both.  The last -4 came from the `col` word store moved to the HEAD of
-       * the block: it frees $a3 (the 0xFFFFFF constant's home) early, and $a3 is
-       * then reused for `sx-2` exactly like retail (`sw a3,48(sp)` then
-       * `addiu a3,fp,-2`).  With both, the whole pt[] build -- every addiu, every
-       * sh, and all four registers -- is byte-identical to the oracle.
-       * NOTE this REVERSES the w50/w59 "col at its use site" receipt: that lever
-       * measured inert (18 at all 7 positions) in the 18-basin and only becomes
-       * live once the two x stores are sunk (lever-order law again).
-       * FALSIFIED from the 10-basin: col store at every OTHER position (all 10);
-       * the col constant spelled inline instead of via `colw` (10).  From the
-       * 18-basin: sinking the DEF as well (both x stores late, one expression)
-       * 40, the same with the expression written twice 40, a named `xm2` temp
-       * with the stores late 40, col-store-first alone 40, x+3 group computed
-       * before y-2 18, sinking the y-2 pair too 22.
-       * RESIDUAL 6, count-exact 409/409, all three lines in the entry block and
-       * all of them POSITION-only (registers and instruction stream identical):
-       * retail issues `addu s0,zero,zero` (i = 0) BEFORE the `lw t7,184(sp)`
-       * screenPos reload, and `addiu a2,a2,-2` (otSize - 2) + `sw a3,48(sp)`
-       * (the col store) IMMEDIATELY after the two `lh`s; ours issues all three a
-       * few slots later.  FALSIFIED here: `int otSize = Draw_gViewOtSize - 2;`
-       * folded into the decl (10), the same as its own `otSize = otSize - 2;`
-       * statement at the block head (8), an explicit `i = 0;` at the block head
-       * with the scan loop changed to `for (; i < 0x19; ...)` (6, exactly inert
-       * -- so the s0 position is NOT a source-statement question).
-       * ---- w60-a7 addendum: THE INSTRUMENTED-cc1plus LANE DOES NOT APPLY HERE.
-       * Fidelity check (the 11A discipline: a trace is only a receipt when the lab
-       * reproduces the real compiler byte-for-byte): under cc1plus-ecoff with
-       * `-O2 -G4 -mgas -msplit-addresses -funsigned-char -fno-exceptions -fno-rtti`
-       * this fn is 396/396 insns but NOT identical -- it diverges from insn 243
-       * (the lab hoists a `lui %hi` and re-orders the `lw` pair around the
-       * `ori $17,$17,0x851f`).  Flare_LensFlare therefore sits in the ~6%
-       * Mode-A-DIVERGENT set and its [qty_order]/[find_free_reg] trace must NOT be
-       * quoted as evidence for it (its TU-mate Flare_2DHalo IS identical, so the
-       * divergence is per-function, not per-TU).  The real CC1PLPSX -dl/-dg dump
-       * still applies and confirms what the side-by-side already shows: every
-       * register in the pt[] region matches the oracle, so the residual 3 lines are
-       * pure sched2 EMISSION POSITION in the entry block, the same class as
-       * Flare_2DHalo's residual (A) -- a PER_FN emission splice, not a source dial.
-       * ---- w61-a15 (2026-08-15): 6 -> **PASS 409/409**.  The w60 verdict was exactly
-       * right and its named mechanism is realisable with the EXISTING generic
-       * PER_FN_TEXT_MOVES table -- no new build.py mechanism was needed.  All three
-       * residual lines are pure entry-block relocations, each dependence-legal:
-       *   X `move $16,$0`  (i = 0)                 -> up to just after `addu $5,$sp,48`
-       *   Z `addu $6,$6,-2` (Draw_gViewOtSize - 2) -> up to just after `lh $3,2($15)`
-       *   Y `sw $7,48($sp)` (the packed col store) -> up to just after Z
-       * (X's dest is dead before; Z's source $6 is loaded 3 insns earlier so the load
-       * delay stays satisfied; Y's $a3 is not redefined until `addu $7,$fp,-2`, which
-       * still follows.)  Probe-verified PASS twice; flare.cpp 25/27 -> 26/27, zero
-       * regressions (Flare_2DHalo unaffected by these rows).
-       * ⇒ ORCHESTRATOR ACTION -- wire into PER_FN_TEXT_MOVES:
-       *   "recon/game/psx/flare.cpp": {
-       *       "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache": [
-       *           {"take": r"\tmove\t\$16,\$0\n(?=\tmove\t\$fp,\$2\n)",
-       *            "after": r"\taddu\t\$5,\$sp,48\n"},
-       *           {"take": r"\taddu\t\$6,\$6,-2\n",
-       *            "after": r"\tlh\t\$3,2\(\$15\)\n"},
-       *           {"take": r"\tsw\t\$7,48\(\$sp\)\n",
-       *            "after": r"\taddu\t\$6,\$6,-2\n"},
-       *       ],
-       *   },
-       * GOTCHA banked for the catalog: `move $16,$0` occurs TWICE in this region, and
-       * the empty entry fence prints as ` #APP\n #NO_APP\n` BEFORE it, not after -- a
-       * first attempt anchored the lookahead on ` #APP` and the take silently no-op'd
-       * (TEXT_MOVES `continue`s on a miss), which reads as "the move did nothing"
-       * rather than as an error.  Disambiguate on the FOLLOWING real insn instead.
-       * Probe harnesses: scratchpad/w61a15/{tugate_probe.py,fnprobe.py,row_flare2.txt}. */
       pt[0].vx = (short)(sx + -2);
       pt[1].vy = pt[0].vy = (short)(sy + -2);
       pt[1].vx = (short)(sx + 3);
@@ -2125,8 +2055,6 @@ gte_SetRotMatrix(&mtx);
 
         aprim = (DR_MODE *)Render_gPacketPtr;
 
-        /* Canonical PsyQ addPrim: the P_TAG bitfield pair expresses getaddr/setaddr
-         * without reconstruction-only slot/mask temporaries. */
         setaddr(aprim,getaddr(otz * 4 + (int)Render_gPalettePtr));
         Render_gPacketPtr = (u_char *)aprim + 0xc;
         setaddr(otz * 4 + (int)Render_gPalettePtr,aprim);
@@ -2134,7 +2062,6 @@ gte_SetRotMatrix(&mtx);
       }
     }
   }
-  return;
 }
 
 /* ---- Flare_Sun__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1742-1818] SLD-VERIFIED ----
@@ -2266,7 +2193,6 @@ gte_SetRotMatrix(&scalemat);
       }
     }
   }
-  return;
 }
 
 /* ---- Flare_Moon__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1822-1864] SLD-VERIFIED ---- */
@@ -2291,7 +2217,6 @@ gte_swc2(0xe,&posOnScreen);
   if ((diff.vx <= diff.vz) && (-diff.vx <= diff.vz)) {
     Flare_SingleColorTex(&posOnScreen,&color,0x10,0x10,'\0',Draw_gViewOtSize + -2);
   }
-  return;
 }
 
 /* end of flare.cpp */

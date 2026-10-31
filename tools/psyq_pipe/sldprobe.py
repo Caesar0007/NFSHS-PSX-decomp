@@ -6,6 +6,12 @@ temp dir and print, per function, the debug line structure the SN SYM will carry
 native SYM header. First emitted instruction/prologue may belong to a later
 statement; using it shifts every relative tag. No source/output rewriting.
 Backup: scratchpad/sldprobe_before_header_20260928.py.
+2026-10-31: macro-aware alignment (la / big li / bare-symbol mem ops / div-mul macros) plus an
+ALIGN WARNING when .s and object word counts do not reconcile. Backup:
+scratchpad/sldprobe_before_macro_20261031.py.
+2026-10-31b (from agent DRAW): objdump -z keeps zero words, .word lines (GTE cop2 templates)
+count as instructions, gcc #nop entries keep their own tag, and an assembler load-delay nop takes
+the NEXT statement's tag (a branch-delay nop keeps the branch's). Backup: build/tmp/v/sldprobe_macro_only.py.
 """
 import bisect
 import re
@@ -61,8 +67,13 @@ for l in Path(P.RETAIL).read_text(errors='replace').splitlines():
     if m and name:
         rblocks[name].append(('{' if m[2] == '90' else '}', int(m[3]), int(m[1], 16)))
 
-fn = None; cur = None; out = {}; pending_loc = None
+fn = None; cur = None; out = {}; pending_loc = None; intext = True
 for l in lines:
+    sec = re.match(r'^\t\.(text|rdata|data|sdata|bss|sbss|section)\b', l)
+    if sec:
+        intext = sec[1] == 'text'; continue
+    if not intext:
+        continue                      # switch jump tables (.rdata .word $L..) are data, not code
     # GCC emits the defining/body header .loc immediately BEFORE .ent.
     # Preserve it even while outside a function; do not infer it from code.
     loc = re.match(r'^\t\.loc\t\d+ (\d+)', l)
@@ -81,7 +92,7 @@ for l in lines:
         cur['blocks'].append(('{' if m[1] == 'begin' else '}', int(m[2]), len(cur['ins']) * 4)); continue
     if re.match(r'^\t\.end\t', l):
         fn = None; pending_loc = None; continue
-    if re.match(r'^\t\.', l) or re.match(r'^\S', l) or not l.strip():
+    if (re.match(r'^\t\.', l) and not re.match(r'^\s*\.word\s', l)) or re.match(r'^\S', l) or not l.strip():
         continue
     body = l.split('#')[0].strip()
     if body or l.strip() == '#nop':
@@ -89,35 +100,109 @@ for l in lines:
 
 import subprocess
 OBJD = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe'
-real_obj = ROOT / 'build' / (src.relative_to(ROOT).as_posix() + '.o')
-dis = subprocess.run([OBJD, '-d', str(real_obj)], capture_output=True, text=True).stdout
+# 2026-10-31c: disassemble the object compiled by THIS probe run (same code words as the
+# normal build; -g changes debug records only), not build/<tu>.o, which can be stale after
+# an edit or a file swap. Only names with a .ent in our .s start a new function: some TUs
+# keep LM<n> line labels as object symbols, which used to cut a function after its first words.
+real_obj = build.OUT / (src.relative_to(ROOT).as_posix() + '.o')
+dis = subprocess.run([OBJD, '-d', '-z', str(real_obj)], capture_output=True, text=True).stdout
 real = {}; cur = None
 for l in dis.splitlines():
     m = re.match(r'^[0-9a-f]+ <(.+)>:', l)
     if m:
-        cur = m[1]; real[cur] = []; continue
+        nm = m[1]
+        if nm not in out and nm.startswith('___') and '_._' + nm[3:] in out:
+            nm = '_._' + nm[3:]       # destructor: the GNU-lane object spells _._X as ___X
+        if nm in out or cur is None:
+            cur = nm; real[cur] = []
+        continue
     m = re.match(r'^\s*[0-9a-f]+:\s+[0-9a-f]{8}\s+(\S+)\s*(.*)', l)
     if m and cur:
         real[cur].append((m[1], m[2]))
 BR = re.compile(r'^(j|jal|jr|jalr|b|beq|bne|beqz|bnez|blez|bgtz|bltz|bgez|bgezal)$')
 
 
+MEM = {'lb', 'lbu', 'lh', 'lhu', 'lw', 'lwl', 'lwr', 'sb', 'sh', 'sw', 'swl', 'swr', 'lwc2', 'swc2'}
+SYMOP = re.compile(r'[A-Za-z_.$][\w.$]*')
+
+
+def _imm(s):
+    try:
+        return int(s.split('#')[0].strip(), 0)
+    except ValueError:
+        return None
+
+
+def width(b, rins, j):
+    """Real words one .s instruction occupies at real index j. GNU as macro expansion:
+    la sym -> lui+addiu (+addu when indexed); li big -> lui[+ori]; mem op on a bare symbol or absolute
+    address -> lui+op, on sym(reg) -> lui+addu+op;
+    3-operand div/divu/rem/remu/mul -> the checked sequence ending at mflo/mfhi. gp-relative and %hi/%lo
+    forms stay one word; the real stream decides (a non-lui first word means no expansion)."""
+    smn, _, ops = b.partition(' ') if ' ' in b else b.partition('\t')
+    smn = smn.strip(); ops = ops.strip()
+    rmn = lambda k: rins[k][0] if k < len(rins) else ''
+    if smn == 'li':
+        v = _imm(ops.split(',', 1)[1]) if ',' in ops else None
+        if v is None or -0x8000 <= v <= 0xffff or (v & 0xffff) == 0:
+            return 1
+        return 2
+    if smn in ('li.d', 'li.s') and ',' in ops:
+        # GPR float constant: each 32-bit half loads like li (lui and/or ori/addiu; zero = one move)
+        import struct
+        try:
+            f = float(ops.split(',', 1)[1].split('#')[0])
+        except ValueError:
+            return 1
+        halves = struct.unpack('<II', struct.pack('<d', f)) if smn == 'li.d' else struct.unpack('<I', struct.pack('<f', f))
+        n = 0
+        for h in halves:
+            n += 1 if (h <= 0xffff or (h & 0xffff) == 0 or h >= 0xffff8000) else 2
+        return n
+    if '%' in ops:
+        return 1
+    if smn == 'la' and rmn(j) == 'lui':
+        n = 2
+        if '(' in ops and rmn(j + 2) == 'addu':
+            n = 3
+        return n
+    if smn in MEM and rmn(j) == 'lui':
+        addr = ops.split(',', 1)[1] if ',' in ops else ''
+        if '(' not in addr:             # bare symbol or absolute address: lui + op
+            return 2
+        if SYMOP.match(addr.lstrip('-')) and rmn(j + 1) == 'addu':
+            return 3                    # sym(reg): lui + addu + op
+    if smn in ('div', 'divu', 'rem', 'remu', 'mul') and ops.count(',') == 2 and not ops.startswith('$0,'):
+        for k in range(j, min(len(rins), j + 16)):
+            if rmn(k) in ('mflo', 'mfhi'):
+                return k - j + 1
+    return 1
+
+
 def align(sins, rins):
-    """map each REAL instruction to a .s instruction's tag (ASPSX reorder: delay/load nops, lw/sw macros = 2 words)."""
-    out = []; i = 0; last = None
-    for mn, ops in rins:
-        if i < len(sins):
-            t, b = sins[i]; smn = b.split()[0] if b else ''
-        else:
-            t, b, smn = last, '', ''
+    """map each REAL instruction to a .s instruction's tag. ASPSX/as reorder inserts load/branch-delay nops
+    (a load-delay nop takes the next statement's tag, a branch-delay nop the branch's); assembler macros expand to several words (see width()).
+    2026-10-31: was lui-only for symbol loads/stores, so every `la`, big `li` and div macro shifted all
+    following tags by its extra words. Returns (pairs, consumed .s count)."""
+    out = []; i = 0; last = None; j = 0
+    while j < len(rins):
+        mn = rins[j][0]
+        if i >= len(sins):
+            out.append((last, '')); j += 1; continue
+        t, b = sins[i]; smn = b.split()[0] if b else ''
+        if smn == 'nop' and mn == 'nop':
+            out.append((t, 'nop')); last = t; i += 1; j += 1; continue
+        if smn == 'nop' and mn != 'nop':
+            i += 1; continue          # gcc #nop that ASPSX dropped/filled
         if mn == 'nop' and smn != 'nop':
-            out.append((last, 'nop')); continue
-        if mn == 'lui' and smn in ('lw', 'sw', 'lh', 'lhu', 'lb', 'lbu', 'sh', 'sb') and '(' not in b and '%' not in b:
-            out.append((t, b + '  [lui]')); last = t; continue      # macro: lui then the access
-        out.append((t, b)); last = t; i += 1
-        if mn in ('lui',) and smn != 'lui':
-            pass
-    return out
+            prevbr = j > 0 and BR.match(rins[j - 1][0] or '')
+            out.append((last if prevbr else t, 'nop')); j += 1; continue
+        w = width(b, rins, j)
+        for k in range(w):
+            if j + k < len(rins):
+                out.append((t, b if k == w - 1 else b + '  [macro]'))
+        last = t; i += 1; j += w
+    return out, i
 
 
 for fname, d in out.items():
@@ -128,9 +213,9 @@ for fname, d in out.items():
     hdr = d['hdr']
     if hdr is None:  # legacy/no pre-.ent .loc: retain the old heuristic explicitly
         hdr = next((t for t, b in d['ins'] if re.match(r'(subu|addiu)\s+\$sp,\$sp,-?\d+', b)), locs[0] if locs else 0)
-    sins = [(t, b) for t, b in d['ins'] if b != 'nop']
+    sins = list(d['ins'])
     rins = real.get(fname, [])
-    al = align(sins, rins)
+    al, used = align(sins, rins)
     rel = [(t - hdr) if (t is not None and hdr is not None) else None for t, _ in al]
     print('==', fname, 'hdr line', hdr, '(retail hdr', r['hdr']['line'] if r else '?', ') real words', len(rins))
     if r:
@@ -144,6 +229,9 @@ for fname, d in out.items():
         diffs += x != y
         print('  +%03x ours %3s retail %3s  %-28s | %s%s' % (i * 4, x, y, (rins[i][0] + ' ' + rins[i][1])[:28], b[:44], mark))
     print('  tag diffs %d/%d' % (diffs, len(rel)))
+    if used != len(sins) or len(al) != len(rins):
+        print('  ALIGN WARNING: .s instructions used %d/%d, real words %d -- tags past the first mismatch are unreliable'
+              % (used, len(sins), len(rins)))
     print('  blocks ours  :', ' '.join('%s%d' % (c, n) for c, n, o in d['blocks']))
     if r:
         print('  blocks retail:', ' '.join('%s%d@+%x' % (c, n, a - r['start']) for c, n, a in rblocks.get(fname, [])),

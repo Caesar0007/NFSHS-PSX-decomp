@@ -412,23 +412,21 @@ void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
 void DrawW_DivVertice(Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2)
 
 {
+
   v0->vx = ((v1->vx + v2->vx + 1) >> 1);
   v0->vy = ((v1->vy + v2->vy + 1) >> 1);
   v0->vz = ((v1->vz + v2->vz + 1) >> 1);
+
   v0->u = ((v1->u + v2->u + 1) >> 1);
   v0->v = ((v1->v + v2->v + 1) >> 1);
+
   v0->r = ((v1->r + v2->r) >> 1);
   v0->g = ((v1->g + v2->g) >> 1);
   v0->b = ((v1->b + v2->b) >> 1);
 }
 
 /* ---- DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31  [DRAWW.CPP:402-418] covered SLD requires native comparison ---- */
-#line 399 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2,
-              Draw_SVertex *v3)
-
-{
-  /* MATCH (2026-07-04, was 50 diffs -> 10, insns now EXACT 34==34): SYM (nfs4-f-v3.txt
+/* MATCH (2026-07-04, was 50 diffs -> 10, insns now EXACT 34==34): SYM (nfs4-f-v3.txt
      @0x800C51FC) names FOUR outer-scope locals `z0`/`z1`/`z2`/`z3` (one per vertex's vz)
      -- the oracle reads ALL FOUR UPFRONT (v0/v1/v2/v3's vz, in that order) BEFORE any
      compare, then funnels the running-min through self-reassignment of the SAME reg
@@ -442,35 +440,27 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
      order gives the oracle's beqz-to-far-block layout + duplicated `jr` returns.
      Every funnel/ternary/nested form leaves the value in $v1 + a copy (14 diffs), and
      the ascending/nested direct-return orders flip branch polarity (6-10 diffs). */
-  int z0;
-  int z1;
-  int z2;
-  int z3;
+/* z0 is the running minimum (retail's z0 is REG $a1, the min funnel) */
+#line 399 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2,
+              Draw_SVertex *v3)
 
+{
+  int z0; int z1; int z2; int z3;
   z0 = v0->vz;
   z1 = v1->vz;
   z2 = v2->vz;
   z3 = v3->vz;
-  /* z0 is the running minimum (retail's z0 is REG $a1, the min funnel) */
-  if (z1 < z0) {
-    z0 = z1;
-  }
-  if (z2 < z0) {
-    z0 = z2;
-  }
-  if (z3 < z0) {
-    z0 = z3;
-  }
+
+  if (z1 < z0) z0 = z1;
+  if (z2 < z0) z0 = z2;
+  if (z3 < z0) z0 = z3;
+
   z0 += sd->offsubdivid;
-  if (0x800 < z0) {
-    return 0;
-  }
-  if (0x500 < z0) {
-    return 1;
-  }
-  if (0x200 < z0) {
-    return 2;
-  }
+
+  if (0x800 < z0) return 0;
+  if (0x500 < z0) return 1;
+  if (0x200 < z0) return 2;
   return 3;
 }
 
@@ -1049,33 +1039,31 @@ DrawWSubdiv_edgedone:
 }
 
 /* ---- DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR  [DRAWW.CPP:593-606] covered SLD requires native comparison ---- */
+/* SYM (rule-8, nfs4-f-v3.txt @0x800C5BB4): the block declares a FOURTH local
+     `temp` (class REG, type LONG) whose home is $3 -- the same register `y`
+     lives in, i.e. the packed vx:vy word that overwrites y's value.  Restored
+     as a real C variable; gate-verified codegen-neutral (PASS held). */
+/* MATCH (§3.12 #15b split-load): load all three FIRST, then shift-assign -- this
+     groups the three shifts (vx<<2, vy<<18, vz<<2) the way the oracle does, instead of
+     fusing load+shift (which schedules vz's sll after the sw). Mask AFTER the shift;
+     pack vx:vy as one word. Form from DataPlusProgram decomp.me/scratch/ODvI7 (score 0). */
 #line 591 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
 
 {
-  int x;
-  int y;
-  int z;
-  /* SYM (rule-8, nfs4-f-v3.txt @0x800C5BB4): the block declares a FOURTH local
-     `temp` (class REG, type LONG) whose home is $3 -- the same register `y`
-     lives in, i.e. the packed vx:vy word that overwrites y's value.  Restored
-     as a real C variable; gate-verified codegen-neutral (PASS held). */
-  long temp;
-
-  /* MATCH (§3.12 #15b split-load): load all three FIRST, then shift-assign -- this
-     groups the three shifts (vx<<2, vy<<18, vz<<2) the way the oracle does, instead of
-     fusing load+shift (which schedules vz's sll after the sw). Mask AFTER the shift;
-     pack vx:vy as one word. Form from DataPlusProgram decomp.me/scratch/ODvI7 (score 0). */
+  int x; int y; int z; long temp;
   x = dv->vx;
   y = dv->vy;
   z = dv->vz;
+
+
   x <<= 2;
   y <<= 18;
   z <<= 2;
+
   temp = y | (x & 0xffffU);
   *(u_int *)&v->vx = temp;
   v->vz = z;
-
 }
 
 /* ---- DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:612-696] covered SLD requires native comparison ---- */
@@ -1222,11 +1210,7 @@ DrW_SubSetup_callSubdiv:
 }
 
 /* ---- Night_NightCopCalc__FP6VECTORPs  [DRAWW.CPP:711-744] covered SLD requires native comparison ---- */
-#line 709 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-void Night_NightCopCalc(VECTOR *v,short *idx)
-
-{
-  /* MATCH (2026-07-04, was 42 diffs / 38-vs-40 insns -> 40 diffs / EXACT 40==40 insns):
+/* MATCH (2026-07-04, was 42 diffs / 38-vs-40 insns -> 40 diffs / EXACT 40==40 insns):
      SYM (nfs4-f-v3.txt @0x800C5F18) shows `z` (REG $3=v1) is the ONLY local at the
      function's outer scope -- `x` (REG $6=a2) is declared in a NESTED block starting at
      line 7 (VA 0x800C5F30), i.e. AFTER the first bounds-check branch, not before it. The
@@ -1245,36 +1229,49 @@ void Night_NightCopCalc(VECTOR *v,short *idx)
      $a3 entry copy), `lookup` = the FINAL color byte (REG $2=v0). Plus split
      `x = x + 0x400; x = x >> 5;` (in-place addiu/sra) and the permuter-found
      index-reuse for the table byte (see MATCH note below). */
+/* MATCH (permuter output-0, 2026-07-16): the night-table byte REUSES `index`
+         (dead after the Night_gCopColor[] load) -- the oracle's in-place
+         `lbu a1; sra a1,a1,1` is index's pseudo morphing into the byte. Do NOT
+         "clean up" into an anonymous subexpression (re-colors to srl v1 + 18 diffs). */
+#line 709 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+void Night_NightCopCalc(VECTOR *v,short *idx)
+
+{
   int z;
 
   z = v->vz;
-  if ((u_int)(z + 0x7ff) < 0xfff) {
+
+  if ((u_int)(z + 0x7ff) < 0xfff)
+  {
+
     int x = v->vx;
 
-    if ((u_int)(x + 0x3ff) < 0x7ff) {
+    if ((u_int)(x + 0x3ff) < 0x7ff)
+    {
       u_char (*coplookuptbl)[256][8];
       int index;
       int lookup;
 
       index = 0;
-      if (z < 0) {
+      if (z < 0)
+      {
+
         z = -z;
         index = 1;
       }
+      coplookuptbl = Night_gCopColor[index];
+
+
       z = z >> 5;
+
       x = x + 0x400;
       x = x >> 5;
-      coplookuptbl = Night_gCopColor[index];
-      /* MATCH (permuter output-0, 2026-07-16): the night-table byte REUSES `index`
-         (dead after the Night_gCopColor[] load) -- the oracle's in-place
-         `lbu a1; sra a1,a1,1` is index's pseudo morphing into the byte. Do NOT
-         "clean up" into an anonymous subexpression (re-colors to srl v1 + 18 diffs). */
+
       index = (u_char)Night_gNightTbl[(z << 6) + x];
-      lookup = (*coplookuptbl)[*idx][index >> 1];
-      *idx = lookup;
+
+      lookup = (*coplookuptbl)[*idx][index >> 1]; *idx = lookup;
     }
   }
-
 }
 
 /* ---- Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:750-788] covered SLD requires native comparison ---- */
@@ -2264,11 +2261,7 @@ gte_SetTransMatrix(&sd->matB);
 }
 
 /* ---- DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:1302-1324] covered SLD requires native comparison ---- */
-#line 1300 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
-
-{
-  /* MATCH: SYM (nfs4-f-v3.txt @0x800C6E38) names `numQuads` (reg $s0) and `pquad` (reg
+/* MATCH: SYM (nfs4-f-v3.txt @0x800C6E38) names `numQuads` (reg $s0) and `pquad` (reg
      $s1, PTR Trk_Quad size 6); `sd` REGPARM lives in $s2. frame mask 0x800f0000 = ra+s0+
      s1+s2+s3 (FOUR saved regs) -- oracle's $s3 is a genuine dedicated `-1` sentinel local
      (materialized lazily: `li v0,-1` up front for the guard-check, then copied into `s3`
@@ -2286,22 +2279,33 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
      exactly the oracle's lazy sentinel. The earlier attempt failed because it kept
      `sentinel = -1` UP FRONT (sentinel then owns the -1 materialization in $s3 and the
      guard compares vs $s3) AND fused the load-decrement through a $v0 stage. */
-  int numQuads;
-  Trk_Quad *pquad;
+/* the loop-invariant -1 is what retail parks in $s3 (no local in the SYM) */
+#line 1300 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
 
-  numQuads = sd->quadCount;
+{
+  int numQuads; Trk_Quad *pquad; numQuads = sd->quadCount;
   pquad = (Trk_Quad *)sd->quads;
-  --numQuads;
-  if (numQuads != -1) {
-    do {
-      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-        DrawW_DrawQuad(sd,pquad);
-        pquad++;
-      }
-      --numQuads;
-    } while (numQuads != -1);   /* the loop-invariant -1 is what retail parks in $s3 (no local in the SYM) */
-  }
 
+
+
+
+
+
+  --numQuads; if (numQuads != -1) {
+    do {
+
+      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+
+
+        DrawW_DrawQuad(sd,pquad);
+
+
+
+
+
+
+        pquad++; } --numQuads; } while (numQuads != -1); }
 }
 
 /* ---- DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:1331-1375] covered SLD requires native comparison ---- */
@@ -2963,11 +2967,7 @@ DrawWTrough_setStateCallHigh:
 }
 
 /* ---- DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX  [DRAWW.CPP:1663-1670] covered SLD requires native comparison ---- */
-#line 1661 "C:/nfs4/GAME/PSX/DRAWW.CPP"
-void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat)
-
-{
-  /* MATCH 100% (2026-07-08): the SYM (nfs4-f-v3.txt @0x800C753C) shows THREE separate
+/* MATCH 100% (2026-07-08): the SYM (nfs4-f-v3.txt @0x800C753C) shows THREE separate
      nested BLOCK scopes, each with its own {r0,r1,r2} REG triplet -- and that block
      structure is LOAD-BEARING (methodology par.3.12 #15 declaration-scope rule): each
      block's r0/r1/r2 are FRESH gcc pseudos, so block 3's r2 grabs the just-freed $a0
@@ -2975,42 +2975,17 @@ void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat)
      block-1 coloring $a2 forever (= the old 6-diff "floor"). DO NOT hoist the decls out
      of the blocks or merge the blocks -- that reverts to the near-miss. Per-row shape:
      all 3 loads, then all 3 shifts, then all 3 stores (not interleaved). */
-  {
-    int r0 = m->m[0];
-    int r1 = m->m[3];
-    int r2 = m->m[6];
-    r0 >>= 4;
-    r1 >>= 4;
-    r2 >>= 4;
-    mat->m[0][0] = r0;
-    mat->m[0][1] = r1;
-    mat->m[0][2] = r2;
-  }
-  {
-    int r0 = m->m[1];
-    int r1 = m->m[4];
-    int r2 = m->m[7];
-    r0 >>= 4;
-    r1 >>= 4;
-    r2 >>= 4;
-    mat->m[1][0] = r0;
-    mat->m[1][1] = r1;
-    mat->m[1][2] = r2;
-  }
-  {
-    int r0 = m->m[2];
-    int r1 = m->m[5];
-    int r2 = m->m[8];
-    r0 >>= 4;
-    r1 >>= 4;
-    r2 >>= 4;
-    mat->m[2][0] = r0;
-    mat->m[2][1] = r1;
-    mat->m[2][2] = r2;
-  }
+#line 1661 "C:/nfs4/GAME/PSX/DRAWW.CPP"
+void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat)
+
+{
+
+  { int r0 = m->m[0]; int r1 = m->m[3]; int r2 = m->m[6]; r0 >>= 4; r1 >>= 4; r2 >>= 4; mat->m[0][0] = r0; mat->m[0][1] = r1; mat->m[0][2] = r2; }
+  { int r0 = m->m[1]; int r1 = m->m[4]; int r2 = m->m[7]; r0 >>= 4; r1 >>= 4; r2 >>= 4; mat->m[1][0] = r0; mat->m[1][1] = r1; mat->m[1][2] = r2; }
+  { int r0 = m->m[2]; int r1 = m->m[5]; int r2 = m->m[8]; r0 >>= 4; r1 >>= 4; r2 >>= 4; mat->m[2][0] = r0; mat->m[2][1] = r1; mat->m[2][2] = r2; }
+
 
 gte_SetRotMatrix(mat);
-
 }
 
 /* ---- DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX  [DRAWW.CPP:1674-1684] covered SLD requires native comparison ---- */
@@ -3018,18 +2993,16 @@ gte_SetRotMatrix(mat);
 void DrawW_WorldSetUpTranslation(coorddef *t,MATRIX *mat)
 
 {
-  int tx;
-  int ty;
-  int tz;
-  
-  tx = t->x;
-  ty = t->y;
-  tz = t->z;
-  mat->t[0] = tx >> 10;
-  mat->t[1] = ty >> 10;
-  mat->t[2] = tz >> 10;
-gte_SetTransMatrix(mat);
+  int tx = t->x >> 10;
+  int ty = t->y >> 10;
+  int tz = t->z >> 10;
 
+  mat->t[0] = tx;
+  mat->t[1] = ty;
+  mat->t[2] = tz;
+
+
+gte_SetTransMatrix(mat);
 }
 
 /* ---- DrawW_ResetAnimationTimer__Fv  [DRAWW.CPP:1698-1700] covered SLD requires native comparison ---- */
@@ -3037,8 +3010,7 @@ gte_SetTransMatrix(mat);
 void DrawW_ResetAnimationTimer(void)
 {
   for (int i = 11; i >= 0; i--) {
-    animation_timer[i] = 0;
-  }
+    animation_timer[i] = 0; }
 }
 
 /* ---- DrawW_GetAnimationTime__FP15Trk_AnimateInst [DRAWW.CPP:1704-1716] ---- */
@@ -5270,25 +5242,13 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 #line 2887 "C:/nfs4/GAME/PSX/DRAWW.CPP"
 int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 {
-  int dx;
-  int dz;
-
-  dx = pt1->x - pt2->x;
-  if (dx <= 0) {
-    dx = pt2->x - pt1->x;
-  }
-  dz = pt1->z - pt2->z;
-  if (dz <= 0) {
-    dz = pt2->z - pt1->z;
-  }
+  int dx; int dz; dx = pt1->x - pt2->x; if (dx <= 0) { dx = pt2->x - pt1->x; }
+  dz = pt1->z - pt2->z; if (dz <= 0) { dz = pt2->z - pt1->z; }
   {
     int dist;
-    if (dz < dx) {
-      dist = dx + (dz >> 2);
-    }
-    else {
-      dist = dz + (dx >> 2);
-    }
+    if (dz < dx) { dist = dx + (dz >> 2); } else { dist = dz + (dx >> 2); }
+
+
     return dist < r;
   }
 }
@@ -7329,10 +7289,10 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
 void DepthCue_Init(void)
 
 {
+
   SetFogNear(TrackSpec_gSpec.depthcuespec.distance << 6,0xa0);
-  SetFarColor((u_int)TrackSpec_gSpec.depthcuespec.color.r,(u_int)TrackSpec_gSpec.depthcuespec.color.g,
-             (u_int)TrackSpec_gSpec.depthcuespec.color.b);
-  return;
+
+  SetFarColor((u_int)TrackSpec_gSpec.depthcuespec.color.r,(u_int)TrackSpec_gSpec.depthcuespec.color.g,(u_int)TrackSpec_gSpec.depthcuespec.color.b);
 }
 
 /* end of draww.cpp */

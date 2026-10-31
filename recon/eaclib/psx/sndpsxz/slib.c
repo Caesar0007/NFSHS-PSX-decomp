@@ -883,7 +883,8 @@ void iSNDserve(void)
                             int c = chan;
                             if (n == 2) {
                                 vbase = D_801479F0;
-                                do { vbase++; vbase--; } while (0);
+                                vbase++;          /* zero-net pair; its old do{}while(0) was inert */
+                                vbase--;
                                 c = (int)((unsigned int)*(volatile unsigned char *)&((struct SndPacketVoiceState *)vp)->link_index << 24) >> 24;
                                 vp = D_801479F0 +
                                      ((int)((unsigned int)*(volatile unsigned char *)&((struct SndPacketVoiceState *)vp)->link_index << 24) >> 24) * (int)sizeof(SndPacketVoiceState);

@@ -184,11 +184,12 @@ void tMenuItemGoToMenuButtonFade::TransitionOff()
 void tMenuItemGoToMenuButtonFade::TransitionOn()
 
 {
+
   this->fFadeVal = 0x80;
   this->fFadeDir = -0x1e;
+
   this->fSelFade = 0;
   this->fEnableVal = 0;
-  return;
 }
 
 
@@ -240,10 +241,11 @@ void tMenuItemGoToMenuButtonFade::UpdateTransition(bool selected)
 tMenuItemLeftRightFade::tMenuItemLeftRightFade(u_int textDescription,tListIterator *dataPtr)
   : tMenuItemLeftRightChoice(textDescription,dataPtr)
 {
+
+
   
   this->flareextra = 0;
   this->fSelFade = 0;
-  return;
 }
 
 
@@ -265,26 +267,26 @@ void tMenuItemLeftRightFade::TransitionOff()
 void tMenuItemLeftRightFade::TransitionOn()
 
 {
-  this->fInTransition = 1;
-  this->fFadeDir = -0x1e;
   this->flareextra = 0;
   this->fSelFade = 0;
+
+  this->fInTransition = 1;
+  this->fFadeDir = -0x1e;
   this->fFadeVal = 0x80;
-  return;
 }
 
 
 
 /* ---- tMenuItemLeftRightFade::TransitionIsFinished  [FEMENUOPTIONS.CPP:231-241] SLD-VERIFIED ---- */
 
+/* MATCH: plain if/else-if chain of &&-guards.  The `fFadeDir` reload the oracle
+   emits at 8001C3F8 is NOT a cache-invalidation trick — it falls out for free:
+   the first `&&` clobbers $v0 with fFadeVal, so the second guard's re-read of
+   fFadeDir must reload on THAT path only, while the `fFadeDir >= 0` edge jumps
+   straight to the shared blez (gcc places the reload inside the outer if). */
 bool tMenuItemLeftRightFade::TransitionIsFinished()
 
 {
-  /* MATCH: plain if/else-if chain of &&-guards.  The `fFadeDir` reload the oracle
-     emits at 8001C3F8 is NOT a cache-invalidation trick — it falls out for free:
-     the first `&&` clobbers $v0 with fFadeVal, so the second guard's re-read of
-     fFadeDir must reload on THAT path only, while the `fFadeDir >= 0` edge jumps
-     straight to the shared blez (gcc places the reload inside the outer if). */
   if (this->fFadeDir == 0) {
     this->fInTransition = 0;
   } else if ((this->fFadeDir < 0) && (this->fFadeVal <= 0)) {
@@ -319,13 +321,14 @@ tOptionsMenu::tOptionsMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
               tMenuItem *firstItem,...)
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
+
+
   
   this->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fScreenFade = 0;
   this->fPrevItem = 0;
   this->fFirstFrame = firstframe;
   this->fNumFrames = numframes;
-  return;
 }
 
 
@@ -609,12 +612,13 @@ tInsideBoxMenu::tInsideBoxMenu(u_int flags,tScreen *screenHandler,tMenu *nextMen
               tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
+
+
   
   this->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fPrevItem = 0;
   this->fMoving = 0;
   this->fMovingDir = 0;
-  return;
 }
 
 
@@ -634,6 +638,7 @@ tInsideBoxMenu::~tInsideBoxMenu()
 void tInsideBoxMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
 
 {
+
   /* The post-write reference read is the original key on the unmodified
      path and AlreadyProcessed on the moved Up/Down path. Retail has no
      named cached-key local; this direct form retains all 52 instructions. */
@@ -748,11 +753,11 @@ void tMenuItemSlidingMenu::TransitionOff()
   this->fFadeDir = 0;
   this->fTransitioningOut = 1;
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
+
     this->fInTransition = 1;
     this->fFadeDir = 0x1e;
     this->fFadeVal = 0;
   }
-  return;
 }
 
 
@@ -803,6 +808,12 @@ bool tMenuItemSlidingMenu::TransitionIsFinished()
 void tMenuItemSlidingMenu::UpdateTransition(bool selected)
 
 {
+
+
+
+
+
+
   this->fFadeVal = (short)((((int)this->fFadeVal + (int)this->fFadeDir) <? 0x80) >? 0);
   this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
@@ -1043,6 +1054,8 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
                tMenuCommand &command)
 
 {
+
+
   if ((this->fOpenHeight == this->fHeight) &&
       (this->currMenu != (tInsideBoxMenu *)0x0)) {
     this->currMenu->ProcessInput(fromPlayer,keyval,command);
@@ -1051,7 +1064,6 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
     keyval = kInput_KeyType_AlreadyProcessed;
   }
   this->tMenuItem::ProcessInput(fromPlayer,keyval,command);
-  return;
 }
 
 
@@ -1111,11 +1123,11 @@ void tMenuItemSlidingActivated::TransitionOff()
   this->fFadeDir = 0;
   this->fTransitioningOut = 1;
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
+
     this->fInTransition = 1;
     this->fFadeDir = 0x1e;
     this->fFadeVal = 0;
   }
-  return;
 }
 
 
@@ -1144,6 +1156,7 @@ void tMenuItemSlidingActivated::TransitionOn()
 bool tMenuItemSlidingActivated::TransitionIsFinished()
 
 {
+
   /* MATCH: same if/else-if chain as tMenuItemSlidingMenu::TransitionIsFinished. */
   if ((this->currMenu == (tInsideBoxMenu *)0x0) || (this->nextMenu == (tInsideBoxMenu *)0x0)) {
     this->fFadeDir = 0;
@@ -1346,11 +1359,9 @@ tMenuItemLeftRightAudioSlider::tMenuItemLeftRightAudioSlider(u_int textDescripti
           int AudioArt)
   : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
-  
   this->fAudioArt = (short)AudioArt;
   this->flareextra = 0;
   this->fSelFade = 0;
-  return;
 }
 
 
@@ -1836,12 +1847,12 @@ void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool)
 tInsideBoxTwoWaySlider::tInsideBoxTwoWaySlider(u_int textDescription,tListIterator *dataPtr,int type)
   : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
+
   
   this->fType = (short)type;
   this->fSelFade = 0;
   this->fHeight = 5;
   this->fActive = 0;
-  return;
 }
 
 

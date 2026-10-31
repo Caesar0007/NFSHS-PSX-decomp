@@ -343,10 +343,11 @@ HL_clamped:
    retail seven-region tree at213PASS. The comma expression sequences the
    actual yy copy before the clock read; loading numIcons afterwards gives
    the retail address register/schedule. Both values are genuinely consumed.
-   SOURCE-REVIEW-UNRESOLVED: computedY/animFrame/tickFrame/nfs4Icon/numIcons and
-   the existing divisor fence still need original producer recovery. Native
+   SOURCE-REVIEW-UNRESOLVED: computedY/animFrame/tickFrame/nfs4Icon still
+   need original producer recovery. 2026-10-31: the numIcons carrier and its
+   divisor fence were both inert in this basin (direct `% this->numicon[i]`
+   is 213 PASS) and are removed. Native
    debug elision does not certify a distinct source object or its spelling.
-   Fence/divisor removal now measures4dif/213, not the old64dif/217 basin.
    Full SLD and literal source are unsealed; no replacement alias/fence added. */
 void tScreenMemcard::PlaceIcons(register int i,int fadeval)
 
@@ -370,11 +371,8 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
             (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY);
     int nfs4Icon = this->theNFS4icon;
     int tickFrame;
-    int numIcons;
     tickFrame = (yy = computedY, FE_Ticks() >> 4);
-    numIcons = this->numicon[i];
-    __asm__("" : : "r"(numIcons));
-    animFrame = tickFrame % numIcons;
+    animFrame = tickFrame % this->numicon[i];
     if (i == nfs4Icon) {
       tDrawShapeExtended fFlags;   /* [SYM] AUTO sp+32, block opened at SLD 16 */
 
@@ -958,6 +956,7 @@ void tScreenMemcard::Initialize()
 /* ---- tScreenMemcard::Cleanup  (screenmemcard.cpp:833) ---- */
 void tScreenMemcard::Cleanup()
 {
+
   this->ReleaseIcons();
   DeInit_Memcard();
   MenuItem_Enable(&menuDefs->itemSaveGame);

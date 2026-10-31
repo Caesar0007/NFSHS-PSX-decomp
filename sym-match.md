@@ -6,6 +6,114 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-10-31 asm-removal + stricter SLD round (7 agents, source layout only).
+
+Gate on the working tree: honest 299819/299819 (0 diff words); vtable audit
+PASS 1473 files; link-stripped 83 listed, 0 violations; gdebug 180/180
+comparable TUs code-identical; SYM board CLEAN 2371->2372 of 2570
+(Hud_RenderMapView now clean); regcheck against the 10-31 baseline reg []
+imp [Hud_RenderMapView]; tools tests 38/38 + psyq_pipe 162/162. Every
+touched function passes verify_asm; strict_branch CLEAN wherever a branch
+moved. No new asm, volatile, pragma, in-body #line, dummy local/object,
+placeholder statement or fake scope. Blank-line gaps placing statements on
+retail lines are the accepted statement-layout device (2026-10-29 Cars).
+drawc.cpp gained 20 file-scope `#line N "C:/nfs4/GAME/PSX/DRAWC.CPP"`
+anchors, one directly before each function, the convention draww.cpp has at
+HEAD (35); none inside a body.
+
+tools/psyq_pipe/sldprobe.py was mis-aligning tags; fixed (backups
+scratchpad/sldprobe_before_macro_20261031.py, build/tmp/v/sldprobe_macro_only.py):
+assembler macro widths (la, big li, li.d/li.s, bare-symbol and absolute-address
+mem ops, sym(reg), 3-operand div/mul); objdump -z keeps zero words; `.word`
+in .text counts (GTE cop2 templates) but switch tables in .rdata do not; gcc
+#nop entries keep their tag; an assembler load-delay nop takes the NEXT
+statement's tag, a branch-delay nop the branch's; it disassembles the object
+it just compiled (build/<tu>.o could be stale); only .ent names start a
+function (some TUs keep LM<n> labels as object symbols); destructor `___X`
+maps to `_._X`; ALIGN WARNING when .s and object word counts disagree (0 on
+every probed TU after the fix). Several "dirty" functions were artifacts:
+Hrz_BuildSky 368->0, Hrz_BuildHorizon 298->0, Newton_CalculateGroundShadowMatrix
+19->0, DrawC_NightHeadlight 34->0 with no source change. Older probe numbers
+in this file are not comparable.
+
+Pins/fences removed (byte-identical): Flare_2DSpike asm + wrapper (retail
+statement order), Hud_BuildNumbers0 `do { j = 4; } while (0)` (retail for-loop
+line form), Hud_BuildCdPlayer 2 pins + lt/lt4 carriers (scroll++ before
+LastTick += 4 in a plain while), tScreenMemcard::PlaceIcons divisor pin (stale),
+DrawC_PrimMenu 3 stale id1/id2 wrappers, eaclib reservehandle and iSNDserve
+stale wrappers (their zero-net ++/-- pairs stay: 17 and 4 diffs without).
+
+SLD (sldprobe tag diffs, HEAD -> now): drawc 6521->381 (12/20 exact);
+CAMIN 13 TUs ~15360->7490 (clock 3/3, sfx 1339->79, weather 1744->665,
+camera 32/38, CarIO_CreateLicense and Sfx_BuildSouffleFacet 0); AUDAI 9 TUs
+16610->7016 (speech 5016->2448, aistate 1915->663, HandleCops,
+FreezeAndEndChase, ~50 speech accessors exact); aiphysic 38/42 exact (InitCar
+incl. 12 inline-ctor blocks); hud 32/62, flare 12/27, hrzsku 22/22; frontend
+exact 84->119 of 417. Agent receipts/laws: build/tmp/v/HUDFX_state.md and the
+per-agent scratch in build/tmp/v/.
+
+Layout laws (measured, cc1plus 2.8.0 -g, SN SLD):
+- A statement's code is tagged with the line of its terminating `;`; splitting
+  an expression across lines moves all of it. Retail tags on two lines =
+  two statements.
+- Block begin = line of `{` or of the first declaration; end = line of `}`.
+  `if (...) {` on one line opens two records there; retail's one-line-apart
+  begins mean `{` on its own line. A blank line before a nested if/for pulls
+  its record up one line.
+- A for-loop's increment and back-edge take the line of the body's `}`.
+- Void epilogue: last statement's line when falling off the end; an explicit
+  `return;` moves it to the return/`}` line and the root block end one line
+  later. Ghidra's trailing `return;` is the usual source of epilogue diffs.
+  Value return: the return line. Constructor: tagged header = initializer-list
+  line.
+- Delay-slot instructions carry their branch's line; a byte-neutral statement
+  that lands in a delay slot can be placed on an earlier line to move a block
+  begin.
+- A mid-block `const` local opens a scope record with no local record ONLY
+  when its initialiser folds; a hoisted/register const pointer still gets a
+  REG record (AIHigh_BTC_Perp loops: blocks exact but extra record, reverted).
+- Empty body `{ }` = end +0; `{`/`}` on consecutive lines = +1; one-line
+  in-class definitions = retail "fn end line 0".
+
+Fence laws (from -dS/-dR/-dl/-dg/-ds/-dd dumps of stock CC1PSX/CC1PLPSX and GDB
+on C:/Temp/windows-gcc-psx/gcc-2.8.1-psx/cc1.exe, which matched stock output):
+- A read-only asm fence is a volatile insn and splits the scheduler region
+  (r3dcar loadedSceneColor/colorTypeOffset; sbhdrcpy 147: without it the id
+  copy wins an issue-order tie at T-6 and swaps sw s3/sw ra).
+- A fence after a loop can matter only because it makes a block-local value
+  cross blocks, moving it from local-alloc to global-alloc (speech hsize vs
+  the constant 100; night tgt). Check `in block N` in -dl before counting refs.
+- reload_cse_regs turns a constant load into a copy of a register holding the
+  same value unless a code label intervenes (stattool `one`).
+- A fence can carry a scheduling and a cse role at once (sst 280: keeps
+  `i = step` non-constant and in the delay slot).
+- `do{}while(0)` around zero-net `x++; x--;` adds nothing; drop the wrapper.
+- Dumps must use the TU's own flags (-fno-rerun-cse-after-loop changed the
+  sdmemman 781 diagnosis from cse to local-alloc).
+
+Exact allocator deficits still open (refs needed through a REAL use;
+absorption/wrappers do not count): DrawC_Prim id1 +1, id2 +1; Hud_BuildNumbers
+w1 +2; Hrz_InitSky radius +2, height +1; sim gameSetup +1; weather i +1 vs q;
+textureprocess contrast +1 vs weather; cars file1 +1 or live length -14;
+pausemenu slider y +2, i +2; aih_opp numRacers +1; spchpick base address
+needs >=8 weighted refs. Next angle for each: the retail read that supplies it
+(SLD statement lines show which statements read the value).
+
+Other open receipts with named next angles: Flare_LensFlare retail-order head
+without colw/pp/cp/otSize/vx0/vy0 and without all 3 pins compiles count-exact
+at 24 diffs (build/tmp/v/hudfx_flare_r7_lfhead24.cpp; next: colour-constant
+lifetime); Hud_BuildMapMarkers function-scope packet pointer count-exact at 54
+(pointer wins fp over mapy); Collide_TestObjectVertices rpx (retail keeps
+rp.x live past the divide); AIPhysic_OutOfControlPhysics AIPhysicConfig
+address rows; clock "i"(0) (reorg fill_simple_delay_slots trace); speech
+extension/tied pin; HumanCop dead value; basicperp .word; frontend 26 pins
+(smallest: screencongrats 2/3/3, stattool 2, psxfront 3, fedialog 3).
+Decisions held for the user, NOT applied: Night_CreateNightTableElement
+(storing the Night_FindClosestColor result in any of six dead SYM ints gives
+0/113 tags with unchanged records; which one is unproven) and
+tFEApplication::DisplayHelp (needs a new inline tDialogHelp member in
+fedialog.h).
+
 2026-10-30 Verified checkpoint and pause handoff at the user's request.
 
 The commit containing this entry checkpoints the source/audit work below;

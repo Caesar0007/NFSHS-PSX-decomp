@@ -12,9 +12,9 @@ Kinds:
 
 | tree | empty pins | files | functions | real asm | files | pure-C fences |
 |---|---:|---:|---:|---:|---:|---:|
-| game | 33 | 14 | 22 | 14 | 4 | 26 |
-| frontend | 27 | 13 | 18 | 1 | 1 | 1 |
-| eaclib | 4 | 4 | 4 | 41 | 26 | 26 |
+| game | 30 | 14 | 20 | 14 | 4 | 22 |
+| frontend | 26 | 13 | 17 | 1 | 1 | 1 |
+| eaclib | 4 | 4 | 4 | 41 | 26 | 24 |
 | syslib | 159 | 23 | 65 | 59 | 36 | - |
 | lib | 0 | 0 | 0 | 90 | 4 | - |
 
@@ -23,90 +23,86 @@ Kinds:
 | file:line | function | text |
 |---|---|---|
 | frontend/psx/endcode.cpp:11 | (file scope) | `"\t.section .last\n\t.globl endofcode\nendofcode:\n\t.text\n` |
-| game/common/aih_basicperp.cpp:637 | AIHigh_BasicPerp::CheckChaserPosition | `".word 0x1A000028 nop"` |
-| game/common/aiphysic.cpp:1127 | AIPhysic_OutOfControlPhysics | `"lui %0,%%hi(AIPhysicConfig)" : "=r"(cfg) : : "memory"` |
-| game/common/aiphysic.cpp:1132 | AIPhysic_OutOfControlPhysics | `"lw %0,%%lo(AIPhysicConfig)(%1)" : "=r"(latvelcalcLookahead)` |
-| game/common/aiphysic.cpp:1145 | AIPhysic_OutOfControlPhysics | `"addiu %0,%0,%%lo(AIPhysicConfig)" : "+r"(cfg)` |
+| game/common/aih_basicperp.cpp:595 | AIHigh_BasicPerp::CheckChaserPosition | `".word 0x1A000028 nop"` |
+| game/common/aiphysic.cpp:1274 | AIPhysic_OutOfControlPhysics | `"lui %0,%%hi(AIPhysicConfig)" : "=r"(cfg) : : "memory"` |
+| game/common/aiphysic.cpp:1274 | AIPhysic_OutOfControlPhysics | `"lw %0,%%lo(AIPhysicConfig)(%1)" : "=r"(latvelcalcLookahead)` |
+| game/common/aiphysic.cpp:1288 | AIPhysic_OutOfControlPhysics | `"addiu %0,%0,%%lo(AIPhysicConfig)" : "+r"(cfg)` |
 | game/psx/drawc.cpp:73 | #define DRAWC_OTLINK_FT3 | `\ "lw\t%0,4(%1)\n\tlw\t$12,60(%1)\n\tlw\t$13,56(%1)\n\taddiu` |
 | game/psx/drawc.cpp:117 | #define DRAWC_UVTINT_ID | `\ "lbu\t$14,100(%0)\n\tlbu\t$15,101(%0)\n\taddiu\t$14,$14,64` |
 | game/psx/drawc.cpp:123 | #define DRAWC_UVTINT_VT | `\ "lbu\t$14,116(%0)\n\tlbu\t$15,117(%0)\n\tlbu\t$13,132(%0)\` |
 | game/psx/drawc.cpp:126 | #define DRAWC_OTLINK_FT3B | `\ "lw\t$12,60(%1)\n\tlw\t$13,56(%1)\n\taddiu\t$14,%0,32\n\ts` |
 | game/psx/drawc.cpp:132 | #define DRAWC_OTLINK_MODE | `\ "lw\t$12,4(%0)\n\tlw\t$13,60(%0)\n\tlw\t$14,56(%0)\n\taddi` |
 | game/psx/drawc.cpp:164 | #define DRAWC_VTZ | `\ "lhu\t$12,212(%1)\n\tlhu\t$13,212(%2)\n\tlhu\t$14,212(%3)\` |
-| game/psx/draww.cpp:1006 | DrawW_SubdividFacet | `"lw $12,0(%2) lw $13,0(%1) addiu $14,%0,52 sll $12,$12,2 add` |
-| game/psx/draww.cpp:2056 | DrawW_DrawQuad | `"lw $12,0(%2) lw $13,0(%1) addiu $14,%0,52 sll $12,$12,2 add` |
-| game/psx/draww.cpp:6103 | Draw_kCtrlSkidmark | `"lw\t%0,4(%1)\n\t" "lw\t$12,0(%2)\n\t" "lw\t$13,0(%1)\n\t" "` |
-| game/psx/draww.cpp:6509 | DrawW_OnyxLinePrim | `"lw %0,4(%1) lw $12,0(%2) lw $13,0(%1) addiu $14,%0,52 sll $` |
+| game/psx/draww.cpp:996 | DrawW_SubdividFacet | `"lw $12,0(%2) lw $13,0(%1) addiu $14,%0,52 sll $12,$12,2 add` |
+| game/psx/draww.cpp:2053 | DrawW_DrawQuad | `"lw $12,0(%2) lw $13,0(%1) addiu $14,%0,52 sll $12,$12,2 add` |
+| game/psx/draww.cpp:6063 | Draw_kCtrlSkidmark | `"lw\t%0,4(%1)\n\t" "lw\t$12,0(%2)\n\t" "lw\t$13,0(%1)\n\t" "` |
+| game/psx/draww.cpp:6469 | DrawW_OnyxLinePrim | `"lw %0,4(%1) lw $12,0(%2) lw $13,0(%1) addiu $14,%0,52 sll $` |
 
 ## Game: empty pins
 
 | file:line | function | pin |
 |---|---|---|
-| game/common/aih_btccop.cpp:401 | AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop | `"" : : "r" (addToSlice), "r" (startSlice)` |
+| game/common/aih_btccop.cpp:430 | AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop | `"" : : "r" (addToSlice), "r" (startSlice)` |
 | game/common/aih_opp.cpp:459 | AIHigh_Opponent::CheckForWipeOut | `"" : : "r"(numRacers),"r"(this),"r"(this),"r"(this),"r"(this` |
 | game/common/aih_opp.cpp:460 | AIHigh_Opponent::CheckForWipeOut | `"" : : "r"(randVal),"r"(randVal),"r"(hLoop)` |
 | game/common/aih_opp.cpp:486 | AIHigh_Opponent::CheckForWipeOut | `"" : : "r"(numRacers),"r"(numRacers)` |
-| game/common/clock.cpp:53 | Clock_MasterInterruptHandler | `"" : : "i"(0)` |
+| game/common/clock.cpp:52 | Clock_MasterInterruptHandler | `"" : : "i"(0)` |
 | game/common/collide.cpp:1481 | Collide_TestObjectVertices | `"" : : "r"(rpx) : "a1"` |
-| game/common/input.cpp:441 | Input_Update | `"" : "+m"(r->flags)` |
-| game/common/pausemenu.cpp:635 | tPMenuItemLeftRightSlider::Draw | `"" : : "r"((int)x), "r"(packetPtr)` |
-| game/common/pausemenu.cpp:638 | tPMenuItemLeftRightSlider::Draw | `"" : : "r"(y), "r"(i)` |
+| game/common/input.cpp:420 | Input_Update | `"" : "+m"(r->flags)` |
+| game/common/pausemenu.cpp:609 | tPMenuItemLeftRightSlider::Draw | `"" : : "r"((int)x), "r"(packetPtr)` |
+| game/common/pausemenu.cpp:612 | tPMenuItemLeftRightSlider::Draw | `"" : : "r"(y), "r"(i)` |
 | game/common/r3dcar.cpp:1022 | R3DCar_Instantiate3DCar | `"" : : "r"(loadedSceneColor)` |
 | game/common/r3dcar.cpp:1025 | R3DCar_Instantiate3DCar | `"" : : "r"(colorTypeOffset)` |
-| game/common/speech.cpp:654 | Speech::LoadBankHeaders | `"" : "=r"(dataSize), "=r"(reserveCallArg), "=r"(reserveBytes` |
-| game/common/speech.cpp:677 | Speech::LoadBankHeaders | `"" : : "r"(hsize)` |
-| game/common/speech.cpp:696 | Speech::LoadBankHeaders | `"" : : "r"(extension), "r"(extension)` |
-| game/psx/cario.cpp:329 | CarIO_CopyToShape | `""` |
-| game/psx/drawc.cpp:4292 | DrawC_PrimClip | `"" : "=r"(facet_flag) : "0"(facet_flag), "r"(facetOverlay) :` |
-| game/psx/drawc.cpp:5160 | DrawC_PrimHalo | `"" : : "r"(ovs)` |
-| game/psx/drawc.cpp:5784 | DrawC_ShowroomPrims | `"" : :` |
-| game/psx/draww.cpp:2046 | DrawW_DrawQuad | `"" : : "i"(0)` |
-| game/psx/flare.cpp:701 | Flare_CarShapedHalo | `"" : : "r"(c)` |
-| game/psx/flare.cpp:1175 | Flare_2DSpike | `"" : : "r"(rgb)` |
-| game/psx/flare.cpp:1940 | Flare_LensFlare | `"" : : "r"(vx0), "r"(vy0)` |
-| game/psx/flare.cpp:1943 | Flare_LensFlare | `"" : : "r"(otSize), "m"(col)` |
+| game/common/speech.cpp:803 | Speech::LoadBankHeaders | `"" : "=r"(dataSize), "=r"(reserveCallArg), "=r"(reserveBytes` |
+| game/common/speech.cpp:826 | Speech::LoadBankHeaders | `"" : : "r"(hsize)` |
+| game/common/speech.cpp:845 | Speech::LoadBankHeaders | `"" : : "r"(extension), "r"(extension)` |
+| game/psx/cario.cpp:324 | CarIO_CopyToShape | `""` |
+| game/psx/drawc.cpp:4249 | DrawC_PrimClip | `"" : "=r"(facet_flag) : "0"(facet_flag), "r"(facetOverlay) :` |
+| game/psx/drawc.cpp:5028 | DrawC_PrimHalo | `"" : : "r"(ovs)` |
+| game/psx/drawc.cpp:5553 | DrawC_ShowroomPrims | `"" : :` |
+| game/psx/draww.cpp:2043 | DrawW_DrawQuad | `"" : : "i"(0)` |
+| game/psx/flare.cpp:679 | Flare_CarShapedHalo | `"" : : "r"(c)` |
+| game/psx/flare.cpp:1952 | Flare_LensFlare | `"" : : "r"(vx0), "r"(vy0)` |
+| game/psx/flare.cpp:1955 | Flare_LensFlare | `"" : : "r"(otSize), "m"(col)` |
 | game/psx/hrzsku.cpp:381 | Hrz_InitSky | `"" : : "r"(radius), "r"(height)` |
 | game/psx/hrzsku.cpp:2520 | Hrz_BuildHorizon | `"" : "=r"(cw) : "0"(cw), "r"((int)mpts[0].vx)` |
 | game/psx/hrzsku.cpp:2524 | Hrz_BuildHorizon | `"" : "=r"(ch) : "0"(ch), "r"((int)mpts[0].vy)` |
-| game/psx/hud.cpp:2072 | Hud_BuildString | `"" : : "i"(0)` |
-| game/psx/hud.cpp:3332 | Hud_BuildMapMarkers | `"" : "=r"(pktcell) : "0"(pktcell)` |
-| game/psx/hud.cpp:3402 | Hud_BuildMapMarkers | `"" : "=r"(pktcell) : "0"(pktcell) : "$5"` |
-| game/psx/hud.cpp:3430 | Hud_BuildMapMarkers | `"" : : "i"(0)` |
-| game/psx/hud.cpp:4098 | Hud_BuildCdPlayer | `"" : "=r"(lt) : "0"(lt) : "$3"` |
-| game/psx/hud.cpp:4111 | Hud_BuildCdPlayer | `"" : : "r"(lt4),"r"(lt4)` |
-| game/psx/hud.cpp:5520 | Hud_RenderHudView | `"" : : "r"(pw), "r"(pw)` |
+| game/psx/hud.cpp:2048 | Hud_BuildString | `"" : : "i"(0)` |
+| game/psx/hud.cpp:3303 | Hud_BuildMapMarkers | `"" : "=r"(pktcell) : "0"(pktcell)` |
+| game/psx/hud.cpp:3373 | Hud_BuildMapMarkers | `"" : "=r"(pktcell) : "0"(pktcell) : "$5"` |
+| game/psx/hud.cpp:3401 | Hud_BuildMapMarkers | `"" : : "i"(0)` |
+| game/psx/hud.cpp:5468 | Hud_RenderHudView | `"" : : "r"(pw), "r"(pw)` |
 
 ## Frontend: empty pins
 
 | file:line | function | pin |
 |---|---|---|
-| frontend/common/feapp.cpp:1079 | tFEApplication::MainLoop | `"" : : "r"(needToSetChildMenu)` |
-| frontend/common/feapp.cpp:1241 | tFEApplication::MainLoop | `"" : : "r"(&command[0])` |
-| frontend/common/feapp.cpp:1257 | tFEApplication::MainLoop | `"" : : "r"(currentTicks)` |
-| frontend/common/fedialog.cpp:535 | tDialogHelp::Draw | `"" : "+r"(loadedTicks)` |
-| frontend/common/fedialog.cpp:541 | tDialogHelp::Draw | `"" : : "r"(ticks)` |
+| frontend/common/feapp.cpp:1086 | tFEApplication::MainLoop | `"" : : "r"(needToSetChildMenu)` |
+| frontend/common/feapp.cpp:1248 | tFEApplication::MainLoop | `"" : : "r"(&command[0])` |
+| frontend/common/feapp.cpp:1264 | tFEApplication::MainLoop | `"" : : "r"(currentTicks)` |
+| frontend/common/fedialog.cpp:562 | tDialogHelp::Draw | `"" : "+r"(loadedTicks)` |
+| frontend/common/fedialog.cpp:568 | tDialogHelp::Draw | `"" : : "r"(ticks)` |
 | frontend/common/feinput.cpp:139 | FEInput_GetNoDebounceKey | `"" : : "i"(0)` |
-| frontend/common/fememcard.cpp:924 | SavePinkSlipsCars | `""` |
+| frontend/common/fememcard.cpp:946 | SavePinkSlipsCars | `""` |
 | frontend/common/femenuextended.cpp:129 | MenuNFS4_DrawTextBox | `"" : "=r"(fade) : "0"(fade)` |
 | frontend/common/femenuoptions.cpp:164 | SubtractiveBox | `"" : : "r"(packetCell)` |
 | frontend/common/femenuoptions.cpp:165 | SubtractiveBox | `"" : "=r"(x) : "0"(x)` |
 | frontend/common/femenuoptions.cpp:166 | SubtractiveBox | `"" : "=r"(x) : "0"(x)` |
 | frontend/common/fetv.cpp:340 | DrawTV | `"" : : "r"(rgbMask), "r"(rgbMask)` |
 | frontend/common/fetv.cpp:453 | DrawTV | `"" : : "r"(rgbMask), "r"(rgbMask)` |
-| frontend/common/screencarselect.cpp:1071 | tScreenCarSelect::DrawForeground | `"" : : "r"(currentItem)` |
-| frontend/common/screencongrats.cpp:239 | tScreenCongrats::DrawBackground | `"" : : "i"(0)` |
-| frontend/common/screencongrats.cpp:379 | tScreenCongrats::CalculatePrizes | `"" : : "r"(carCXBits)` |
-| frontend/common/screencongrats.cpp:397 | tScreenCongrats::CalculatePrizes | `"" : : "r"(carCXBits)` |
+| frontend/common/screencarselect.cpp:1069 | tScreenCarSelect::DrawForeground | `"" : : "r"(currentItem)` |
+| frontend/common/screencongrats.cpp:238 | tScreenCongrats::DrawBackground | `"" : : "i"(0)` |
+| frontend/common/screencongrats.cpp:378 | tScreenCongrats::CalculatePrizes | `"" : : "r"(carCXBits)` |
+| frontend/common/screencongrats.cpp:396 | tScreenCongrats::CalculatePrizes | `"" : : "r"(carCXBits)` |
 | frontend/common/screencongrats.cpp:811 | tScreenTournamentTrophy::CalculatePrizes | `"" : : "i"(0)` |
 | frontend/common/screencongrats.cpp:813 | tScreenTournamentTrophy::CalculatePrizes | `"" : "=r"(carCXBits) : "0"(carCXBits)` |
 | frontend/common/screenmemcard.cpp:179 | tScreenMemcard::LoadIcon | `"" : : "r"(i * 0xc0), "r"(i * 0xc0), "r"(i * 0xc0)` |
 | frontend/common/screenmemcard.cpp:206 | tScreenMemcard::LoadIcon | `"" : "=r"(pulled) : "0"(pulled)` |
 | frontend/common/screenmemcard.cpp:257 | tScreenMemcard::DrawVerticalLine | `"" : "+r"(shifted), "+r"(x)` |
 | frontend/common/screenmemcard.cpp:321 | tScreenMemcard::DrawHorizontalLine | `"" : "+r"(shifted)` |
-| frontend/common/screenmemcard.cpp:376 | tScreenMemcard::PlaceIcons | `"" : : "r"(numIcons)` |
 | frontend/common/screenusername.cpp:309 | tScreenUserName::DrawBackground | `"" : : "r"(this)` |
 | frontend/common/stattool.cpp:57 | Stattool_nCreateIndex | `"" : "=r" (one) : "0" (one)` |
-| frontend/psx/psxfront.cpp:968 | DrawGouraudShape | `"" : : "m"(*(short *)((u_char *)prim + 8))` |
+| frontend/psx/psxfront.cpp:972 | DrawGouraudShape | `"" : : "m"(*(short *)((u_char *)prim + 8))` |
 
 ## EA libs: empty pins
 
@@ -123,7 +119,6 @@ Kinds:
 |---|---|---|
 | eaclib/psx/eacpsxz/fixdsin.c:43 | fixedcos | do-while(0) wrapper |
 | eaclib/psx/eacpsxz/nfile.c:636 | FILE_cancelop | do-while(0) wrapper |
-| eaclib/psx/eacpsxz/nfile.c:1756 | reservehandle | do-while(0) wrapper |
 | eaclib/psx/eacpsxz/nsync.c:169 | loadfileadratomic | do-while(0) wrapper |
 | eaclib/psx/eacpsxz/syncfile.c:194 | synccallback | do-while(0) wrapper |
 | eaclib/psx/eacpsxz/vramfxya.c:455 | vramfxya | OR/AND self-repeat x|v|v |
@@ -140,8 +135,7 @@ Kinds:
 | eaclib/psx/sndpsxz/sdpacket.c:598 | iSNDfillspuwithpackets | do-while(0) wrapper |
 | eaclib/psx/sndpsxz/slib.c:390 | #define MASK_SR_FOR_DMA | do-while(0) wrapper |
 | eaclib/psx/sndpsxz/slib.c:668 | iSNDserve | do-while(0) wrapper |
-| eaclib/psx/sndpsxz/slib.c:886 | iSNDserve | do-while(0) wrapper |
-| eaclib/psx/sndpsxz/slib.c:976 | iSNDserve | do-while(0) wrapper |
+| eaclib/psx/sndpsxz/slib.c:977 | iSNDserve | do-while(0) wrapper |
 | eaclib/psx/sndpsxz/spktplay.c:160 | SNDPKTPLAY_create | do-while(0) wrapper |
 | eaclib/psx/sndpsxz/spktplay.c:408 | SNDPKTPLAY_submit | do-while(0) wrapper |
 | eaclib/psx/sndpsxz/sst.c:280 | iSNDstreamparsedata | do-while(0) wrapper |
@@ -150,30 +144,26 @@ Kinds:
 | frontend/common/femenuextended.cpp:126 | MenuNFS4_DrawTextBox | absorption x|(x&k) / x&(x|k) |
 | game/common/aih_opp.cpp:465 | AIHigh_Opponent::CheckForWipeOut | do-while(0) wrapper |
 | game/common/aih_opp.cpp:469 | AIHigh_Opponent::CheckForWipeOut | do-while(0) wrapper |
-| game/common/cars.cpp:973 | Car_TireSkiddingStuff | do-while(0) wrapper |
+| game/common/cars.cpp:987 | Car_TireSkiddingStuff | do-while(0) wrapper |
 | game/common/r3dcar.cpp:1030 | R3DCar_Instantiate3DCar | absorption x|(x&k) / x&(x|k) |
-| game/psx/drawc.cpp:1883 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:1884 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:1885 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:1989 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:1990 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:1991 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:2368 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:2369 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:2370 | DrawC_Prim | do-while(0) wrapper |
-| game/psx/drawc.cpp:4569 | DrawC_PrimMenu | do-while(0) wrapper |
-| game/psx/drawc.cpp:4570 | DrawC_PrimMenu | do-while(0) wrapper |
-| game/psx/drawc.cpp:4571 | DrawC_PrimMenu | do-while(0) wrapper |
-| game/psx/drawc.cpp:4664 | DrawC_PrimMenu | do-while(0) wrapper |
-| game/psx/drawc.cpp:5152 | DrawC_PrimHalo | do-while(0) wrapper |
-| game/psx/drawc.cpp:5163 | DrawC_PrimHalo | do-while(0) wrapper |
-| game/psx/draww.cpp:1457 | DrawW_NightColorCalc | do-while(0) wrapper |
-| game/psx/draww.cpp:2924 | DrawW_DoTrough | do-while(0) wrapper |
-| game/psx/draww.cpp:6597 | DrawW_OnyxLinePrim | do-while(0) wrapper |
-| game/psx/flare.cpp:1935 | Flare_LensFlare | do-while(0) wrapper |
-| game/psx/hud.cpp:1726 | Hud_BuildTach | do-while(0) wrapper |
-| game/psx/hud.cpp:2293 | Hud_BuildNumbers0 | do-while(0) wrapper |
-| game/psx/hud.cpp:3012 | Hud_BuildNumbers | do-while(0) wrapper |
+| game/psx/drawc.cpp:2200 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:2201 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:2201 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:2291 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:2292 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:2292 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:2529 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:2530 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:2530 | DrawC_Prim | do-while(0) wrapper |
+| game/psx/drawc.cpp:4612 | DrawC_PrimMenu | do-while(0) wrapper |
+| game/psx/drawc.cpp:5025 | DrawC_PrimHalo | do-while(0) wrapper |
+| game/psx/drawc.cpp:5031 | DrawC_PrimHalo | do-while(0) wrapper |
+| game/psx/draww.cpp:1454 | DrawW_NightColorCalc | do-while(0) wrapper |
+| game/psx/draww.cpp:2928 | DrawW_DoTrough | do-while(0) wrapper |
+| game/psx/draww.cpp:6557 | DrawW_OnyxLinePrim | do-while(0) wrapper |
+| game/psx/flare.cpp:1947 | Flare_LensFlare | do-while(0) wrapper |
+| game/psx/hud.cpp:1703 | Hud_BuildTach | do-while(0) wrapper |
+| game/psx/hud.cpp:2981 | Hud_BuildNumbers | do-while(0) wrapper |
 
 ## EA libs: real asm (cop0 interrupt masks, section/label plumbing)
 

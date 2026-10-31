@@ -283,15 +283,10 @@ void InGame_ResetPSXController(int player,int config)
   (((GameSetup_tControllerData *)((index) + \
      (int)&GameSetup_gData))->controllerConfig[(offset) >> 2])
 
-int InGame_GetPSXPadValue(int value, int player)
-{
-  int c;
-  int newControl;
-  int type;
-
-  c = value;
-  PAD_update();
-
+      /* SYM-CODEGEN-CARRIER: index -- this one-case byte offset shares the
+         GameSetup base calculation across both controller words. Replacing
+         it with the natural player-index macro keeps 233 instructions but
+         changes 20 branch/delay-slot and register-allocation positions. */
   /* w83-b1: the pad base goes through the SYM's OWN `newControl` -- whose SYM
      home is $v0, exactly the register retail's `addiu $v0,$v0,%lo` uses here --
      and the row offset accumulates INTO `type` ($v1).  THREE statements, not
@@ -306,109 +301,142 @@ int InGame_GetPSXPadValue(int value, int player)
          type = (int)pad + (player << 5);
        }
   */
-  newControl = (int)&gPadinfo;
-  type = player << 5;
-  type += newControl;
-  if (*(u_char *)(type + 4) != 0)
-    goto no_pad;
-  type = *(u_char *)(type + 5);
-  goto have_pad_type;
+int InGame_GetPSXPadValue(int value, int player)
+{
+  int c;
+  int newControl;
+  int type;
+
+  c = value;
+
+
+  PAD_update();
+  newControl = (int)&gPadinfo; type = player << 5; type += newControl; if (*(u_char *)(type + 4) != 0)
+    goto no_pad; type = *(u_char *)(type + 5); goto have_pad_type;
 no_pad:
   type = 0;
 have_pad_type:
-
   switch (type) {
   case 0x53:
   case 0x73:
+
     switch (c) {
     case 0x00800000: {
-      /* SYM-CODEGEN-CARRIER: index -- this one-case byte offset shares the
-         GameSetup base calculation across both controller words. Replacing
-         it with the natural player-index macro keeps 233 instructions but
-         changes 20 branch/delay-slot and register-allocation positions. */
       int index = player << 2;
       newControl = ((player << 30) |
                     (128 - INGAME_INDEX_WORD(index, 0x88)) * 0x10000 |
+
+
+
                     (128 - INGAME_INDEX_WORD(index, 0x90)) * 0x100) | 1;
       break;
     }
     case 0x00200000:
       newControl = (player << 30) |
                    (INGAME_CONTROLLER_WORD(0x88) + 128) * 0x10000 |
+
                    (INGAME_CONTROLLER_WORD(0x90) + 128) * 0x100 | 1;
       break;
     case 0x00100000:
       newControl = (player << 30) | 0x01000000 |
                    (128 - INGAME_CONTROLLER_WORD(0x88)) * 0x10000 |
+
+
                    (128 - INGAME_CONTROLLER_WORD(0x90)) * 0x100 | 1;
       break;
     case 0x00400000:
       newControl = (player << 30) | 0x01000000 |
                    (INGAME_CONTROLLER_WORD(0x88) + 128) * 0x10000 |
+
+
                    (INGAME_CONTROLLER_WORD(0x90) + 128) * 0x100 | 1;
       break;
     case (int)0x80000000:
       newControl = (player << 30) | 0x02000000 |
                    (128 - INGAME_CONTROLLER_WORD(0x98)) * 0x10000 |
+
+
                    (128 - INGAME_CONTROLLER_WORD(0xA0)) * 0x100 | 1;
       break;
     case 0x20000000:
       newControl = (player << 30) | 0x02000000 |
                    (INGAME_CONTROLLER_WORD(0x98) + 128) * 0x10000 |
+
+
                    (INGAME_CONTROLLER_WORD(0xA0) + 128) * 0x100 | 1;
       break;
     case 0x10000000: {
       int index = player << 2;
       newControl = (player << 30) | 0x03000000 |
                    (128 - INGAME_INDEX_WORD(index, 0x98)) * 0x10000 |
+
                    (128 - INGAME_INDEX_WORD(index, 0xA0)) * 0x100 | 1;
       break;
     }
     case 0x40000000:
       newControl = (player << 30) | 0x03000000 |
                    (INGAME_CONTROLLER_WORD(0x98) + 128) * 0x10000 |
+
                    (INGAME_CONTROLLER_WORD(0xA0) + 128) * 0x100 | 1;
-      break;
-    default:
-      goto generic_control;
-    }
-    break;
+      break; default: goto generic_control; } break;
 
   case 0x23:
+
+
+
+
+
+
     switch (c) {
     case 0x00800000: {
       int index = player << 2;
       newControl = ((player << 30) |
                     (128 - INGAME_INDEX_WORD(index, 0x68)) * 0x10000 |
+
+
+
                     (128 - INGAME_INDEX_WORD(index, 0x70)) * 0x100) | 1;
       break;
     }
     case 0x00200000:
       newControl = (player << 30) |
                    (INGAME_CONTROLLER_WORD(0x68) + 128) * 0x10000 |
+
                    (INGAME_CONTROLLER_WORD(0x70) + 128) * 0x100 | 1;
       break;
     case 0x00004000:
       newControl = (player << 30) | 0x01000000 |
+
+
+
                    INGAME_CONTROLLER_WORD(0x80) * 0x100 | 1;
       break;
     case 0x00008000:
       newControl = (player << 30) | 0x02000000 |
+
+
+
                    INGAME_CONTROLLER_WORD(0x78) * 0x100 | 1;
       break;
     case 0x00000400:
+
+
+
+
+
+
       newControl = (player << 30) | 0x030AFF01;
-      break;
-    default:
-      goto generic_control;
-    }
-    break;
+      break; default: goto generic_control; } break;
 
   default:
 generic_control:
+
+
+
     newControl = (player << 26) | (c << 8) | 2;
     break;
   }
+
   return newControl;
 }
 

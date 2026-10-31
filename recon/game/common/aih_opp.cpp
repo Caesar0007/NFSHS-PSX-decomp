@@ -500,20 +500,10 @@ void AIHigh_Opponent::CheckForWipeOut()
  * latDistance sign tests (see the block receipt below -- that was the seal); and
  * splitting the two probability tests restores the retail early-return CFG. */
 
-int AIHigh_Opponent::DoRearEnder()
-
-{
-  int attackIndex;
-
-  attackIndex = AIScript_DoReAction(&(this->carObj_)->script,0x100);   /* SYM: attackIndex is REG $s1,
+/* SYM: attackIndex is REG $s1,
                                             held live across the AIWorld_SplineDistance call below --
                                             rewired from anonymous iVar1 per the SYM ground truth. */
-
-  if (attackIndex != -1) {
-    Car_tObj *otherCarObj;
-    int longDistance;
-    int latDistance;
-    /* ==== W64-A12: SEALED, PASS 181/181 (was 50).  THE LEVER WAS THE ABS FORM AT
+/* ==== W64-A12: SEALED, PASS 181/181 (was 50).  THE LEVER WAS THE ABS FORM AT
        THE *OTHER* SITE.  Retail defers the `mflo` of longDistance*direction PAST the
        latDistance sign test at BOTH sites (oracle idx 38 / 127), which no scheduler can
        do while the abs is a real branch: a hand-rolled `if (x<0) x = -x;` splits the
@@ -523,68 +513,70 @@ int AIHigh_Opponent::DoRearEnder()
        it, exactly like retail -- and the two 32-bit range constants then fall into the
        roadPosition load-delay slots for free.  Landed form = plain literal constants, zero
        asm, zero named temps (09L: __builtin_abs is the retail spelling). ==== */
-
-    otherCarObj = Cars_gList[attackIndex];
-    longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
-    longDistance = longDistance * this->carObj_->direction;
-    latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
-    latDistance = __builtin_abs(latDistance);
-    if (((u_int)(longDistance - 0x10001) <= 0x26fffeU) && (latDistance < longDistance * 2)) {
-      if (0xb1c71 < __builtin_abs(otherCarObj->currentSpeed)) {
-        return attackIndex;
-      }
-    }
-  }
-
-  /* SYM scope tree (2026-09-25): ONE guard statement here (retail: if level + its compound, then the
+/* SYM scope tree (2026-09-25): ONE guard statement here (retail: if level + its compound, then the
      for level holding racerLoop, then the loop body block holding otherCarObj/longDistance/latDistance
      TOGETHER); two nested ifs, or the distances declared inside the road-position test, each add scopes
      retail does not have. */
-  if (((this->carObj_->N).simOptz == '\0') && (0x140000 < __builtin_abs(this->carObj_->currentSpeed))) {
-    for (int racerLoop = 0; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {
-      Car_tObj *otherCarObj = Cars_gHumanRaceCarList[racerLoop]; /* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh
+/* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh
                                    block-scope pseudo) inside this loop -- same physical slot as section 1's. */
-      int longDistance;
-      int latDistance;   /* SYM: REG $a1, re-declared fresh in this block (same reg as section 1's). */
-
-      if (((int)-(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
-                                .avgPavedWidthLf << 15) *
-                  (u_int)(BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
-                                .laneCount >> 4)) <=
-           otherCarObj->roadPosition) &&
-          (otherCarObj->roadPosition <=
-           (int)(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
-                                .avgPavedWidthRt << 15) *
-                 (BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
-                                .laneCount & 0xf)))) {
-        longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
-        longDistance = longDistance * this->carObj_->direction;
-        latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
-        latDistance = __builtin_abs(latDistance);   /* MATCH (w64-a12, THE seal lever, 50 -> 24):
+/* SYM: REG $a1, re-declared fresh in this block (same reg as section 1's). */
+/* MATCH (w64-a12, THE seal lever, 50 -> 24):
                                    __builtin_abs is ONE RTL insn, so this whole region stays ONE
                                    basic block and sched2 can put the longDistance*direction `mflo`
                                    AFTER the sign test like retail; the branchy `if (x<0) x=-x;`
                                    splits the region and pins the mflo before it. */
-        if ((longDistance - 0x10001U < 0x26ffff) &&
-            (latDistance < longDistance * 2)) {
-          if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b &
-               this->carObj_->personality->rearBumpProbMask) ==
-              this->carObj_->personality->rearBumpProbMask) {
-            return otherCarObj->carIndex;
-          }
-        }
-        if (longDistance + 0x3ffffU < 0x7ffff) {
-          if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b &
-               this->carObj_->personality->smackProbMask) ==
-              this->carObj_->personality->smackProbMask) {
-            return otherCarObj->carIndex;
-          }
-        }
-      }
-    }
-  }
-  return -1;
-}
+int AIHigh_Opponent::DoRearEnder()
+
+{ int attackIndex;
+
+
+
+  attackIndex = AIScript_DoReAction(&(this->carObj_)->script,0x100);
+  if (attackIndex != -1) { Car_tObj *otherCarObj; int longDistance; int latDistance;
+
+    otherCarObj = Cars_gList[attackIndex];
+    longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_); longDistance = longDistance * this->carObj_->direction;
+    latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
+
+    latDistance = __builtin_abs(latDistance);
+
+
+
+    if (((u_int)(longDistance - 0x10001) <= 0x26fffeU) && (latDistance < longDistance * 2)) { if (0xb1c71 < __builtin_abs(otherCarObj->currentSpeed)) {
+
+        return attackIndex; } } }
+
+
+
+
+  if (((this->carObj_->N).simOptz == '\0') && (0x140000 < __builtin_abs(this->carObj_->currentSpeed))) {
+
+
+    for (int racerLoop = 0; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {
+
+      Car_tObj *otherCarObj = Cars_gHumanRaceCarList[racerLoop]; int longDistance; int latDistance; if (((int)-(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice] .avgPavedWidthLf << 15) * (u_int)(BWorldSm_slices[otherCarObj->N.simRoadInfo.slice] .laneCount >> 4)) <= otherCarObj->roadPosition) && (otherCarObj->roadPosition <= (int)(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice] .avgPavedWidthRt << 15) * (BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                .laneCount & 0xf)))) {
+
+        longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_); longDistance = longDistance * this->carObj_->direction;
+        latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
+
+        latDistance = __builtin_abs(latDistance); if ((longDistance - 0x10001U < 0x26ffff) &&
+
+
+            (latDistance < longDistance * 2)) { if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b & this->carObj_->personality->rearBumpProbMask) == this->carObj_->personality->rearBumpProbMask) { return otherCarObj->carIndex; } }
+
+
+
+
+        if (longDistance + 0x3ffffU < 0x7ffff) { if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b & this->carObj_->personality->smackProbMask) == this->carObj_->personality->smackProbMask) {
+
+            return otherCarObj->carIndex; } } }
+
+
+    } }
+
+
+  return -1; }
 
 
 
@@ -600,105 +592,102 @@ void AIHigh_Opponent::HighExecute()
 
 
 {
-  switch ((stateType_t)stateType_) {
 
-  case STATE_PURGATORY:
-  case STATE_IDLE:
-  case STATE_OFFROAD:
-  case STATE_ROVING_TRAFFIC:
-  case STATE_NONACTIVE:
-  case STATE_DONUTS:
-  case STATE_GOTOSLICE:
-  case STATE_CRUISE:
-    break;
 
-  case STATE_NONE:
+
+  switch ((stateType_t)stateType_) { case STATE_PURGATORY: case STATE_IDLE: case STATE_OFFROAD: case STATE_ROVING_TRAFFIC: case STATE_NONACTIVE: case STATE_DONUTS: case STATE_GOTOSLICE: case STATE_CRUISE: break; case STATE_NONE:
+
+
     this->SetState(new AIState_Normal(carObj_),STATE_NORMAL);
-    return;
+    return; case STATE_NORMAL: { int attackIndex;
 
-  case STATE_NORMAL:
-    {
-    int attackIndex;
+
+
+
 
     this->HandleCops();
-
     this->CheckForWipeOut();
+
 
     if ((attackIndex = AIScript_DoReAction(&carObj_->script,0x40)) != -1) {
-      this->attackMode_ = SCRIPT_ATTACK;
-    }
-    else if ((attackIndex = DoRearEnder()) != -1) {
-      this->attackMode_ = REAR_END;
-    }
-    else if ((attackIndex = DoProvokedAttack()) != -1) {
-      this->attackMode_ = PROVOKED_ATTACK;
-    }
 
-    if (this->attackMode_ != 0) {
-      coorddef pos;
+      this->attackMode_ = SCRIPT_ATTACK; }
+
+    else if ((attackIndex = DoRearEnder()) != -1) {
+
+      this->attackMode_ = REAR_END; }
+
+    else if ((attackIndex = DoProvokedAttack()) != -1) {
+
+      this->attackMode_ = PROVOKED_ATTACK; }
+
+
+    if (this->attackMode_ != 0) { coorddef pos;
 
       memset((u_char *)&pos,0,0xc);
-
       int aggression = attackMode_ - 1;
-      aggression = aggression < 2 ? 2 : aggression;
+      aggression = aggression < 2 ? 2 : aggression; this->SetState(new AIState_Chase(carObj_,Cars_gList[attackIndex],&pos,0x20, 0x960000,0x960000,aggression,0x10000),
 
-      this->SetState(new AIState_Chase(carObj_,Cars_gList[attackIndex],&pos,0x20,
-                        0x960000,0x960000,aggression,0x10000),
-        STATE_CHASE);
+        STATE_CHASE); } }
 
-    }
-    }
-    break;
 
-  case STATE_CHASE:
-    {
+
+    break; case STATE_CHASE: {
+
+
     AIState_Chase *attackState = (AIState_Chase *)state_;
-
     this->HandleCops();
-
     this->CheckForWipeOut();
-
     attackState->SetMurderMode(1,0xf);
+    switch (attackMode_) { case SCRIPT_ATTACK:
 
-    switch (attackMode_) {
-    case SCRIPT_ATTACK:
-      if (AIScript_DoReAction(&carObj_->script,0x40) == -1) {
-        attackMode_ = NO_ATTACK;
-      }
-      break;
 
-    case REAR_END:
-      if (DoRearEnder() == -1) {
-        attackMode_ = NO_ATTACK;
-      }
-      break;
+      if (AIScript_DoReAction(&carObj_->script,0x40) == -1) { attackMode_ = NO_ATTACK; }
 
-    case PROVOKED_ATTACK:
+      break; case REAR_END:
+
+      if (DoRearEnder() == -1) { attackMode_ = NO_ATTACK; }
+
+
+
+      break; case PROVOKED_ATTACK:
+
+
       attackTicksLeft_ -= AI_elapsedTime;
       if (attackTicksLeft_ <= 0) {
-        attackMode_ = NO_ATTACK;
-      }
-      break;
-    }
+        attackMode_ = NO_ATTACK; } break; }
 
-    if (attackMode_ == NO_ATTACK) {
-      carObj_->desiredDirection =
-        GameSetup_gData.reverseTrack == 0 ? 1 : -1;
 
-      this->SetState(new AIState_Normal(carObj_),
+
+
+
+
+    if (attackMode_ == NO_ATTACK) { carObj_->desiredDirection =
+
+        GameSetup_gData.reverseTrack == 0 ? 1 : -1; this->SetState(new AIState_Normal(carObj_),
         STATE_NORMAL);
 
-      attackMode_ = NO_ATTACK;
-    }
-    break;
-    }
+      attackMode_ = NO_ATTACK; } break; } }
 
-  }
 
-  (this->state_)->StateExecute();
 
-  return;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  (this->state_)->StateExecute(); return;
 }
 
 
@@ -734,25 +723,27 @@ AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj) : AIHigh_Player(carObj)
 /* ---- DoProvokedAttack__15AIHigh_Opponent  AIHigh_Opponent::DoProvokedAttack  [AIH_OPP.CPP:260-280] SLD-VERIFIED ---- */
 
 int AIHigh_Opponent::DoProvokedAttack()
-{
-  if ((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) &&
-      ((Car_tObj *)this->carObj_->N.collision.lastOtherObj != (Car_tObj *)0x0) &&
-      ((((Car_tObj *)this->carObj_->N.collision.lastOtherObj)->carFlags & 4U) != 0)) {
-    Car_tObj *otherCar = (Car_tObj *)this->carObj_->N.collision.lastOtherObj;
+{ if ((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) && ((Car_tObj *)this->carObj_->N.collision.lastOtherObj != (Car_tObj *)0x0) &&
+
+
+      ((((Car_tObj *)this->carObj_->N.collision.lastOtherObj)->carFlags & 4U) != 0)) { Car_tObj *otherCar = (Car_tObj *)this->carObj_->N.collision.lastOtherObj;
+
+
     if (this->lastHumanHitter_ != otherCar) {
+
       this->lastHumanHitter_ = otherCar;
-      this->hitCount_ = 0;
-    }
-    this->hitCount_++;
-    if (this->hitCount_ >
+      this->hitCount_ = 0; }
+
+    this->hitCount_++; if (this->hitCount_ >
         this->carObj_->personality->attackActivationHits) {
+
       this->attackTicksLeft_ = this->carObj_->personality->attackTime;
       this->hitCount_ = 0;
-      return otherCar->carIndex;
-    }
-  }
-  return -1;
-}
+
+      return otherCar->carIndex; } }
+
+
+  return -1; }
 
 
 

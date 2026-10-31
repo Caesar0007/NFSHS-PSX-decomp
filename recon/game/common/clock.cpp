@@ -31,57 +31,68 @@ void Clock_SystemCleanUp(void);
 void Clock_MasterInterruptHandler(void)
 {
   long gp;
-  /* DEBUG-ELIDED SOURCE VALUE: even128 -- retail SYM retains only `gp`.
-     The stopped-clock early exit leaves this single-definition const in the
-     root owner, so GCC drops its debug row while retaining all 43 bytes.
-     The old guarded declaration added two unsupported scopes; the direct
-     parity condition made 42/43 and let reorg steal an address instruction
-     into the branch slot. The existing zero-insn fence still preserves the
-     oracle nop there. Named locals now match; the root block closes twelve
-     bytes later than retail and full SLD is not sealed. */
 
   savegp((u_int *)&gp);
-  if (stopClock != 0) {
-    restoregp(gp);
-    return;
-  }
+  /* DEBUG-ELIDED SOURCE VALUE: even128 -- retail SYM retains only `gp`; the
+     single-definition const stays in the root owner, so GCC drops its debug
+     row while retaining all 43 bytes.  Statement lines follow retail's SLD
+     (savegp +3, stop test +14, counters +16/+18, parity test +20 ...).
+     The zero-insn fence keeps reorg from stealing the `addiu a0,%lo(...)`
+     base materialization into the parity bnez delay slot (retail: nop).
+     Receipts for the falsified fence replacements are in the CAMIN reports
+     (direct parity in the if, retail if(!stopClock){...} nesting with a single
+     restoregp, statement orders, early-return, pointer local, switch). */
+
+  if (stopClock != 0) { restoregp(gp); return; }
+
   clock_realTime.time128Hz = clock_realTime.time128Hz + 1;
-  const int even128 = clock_realTime.time128Hz & 1U;
+
   generic128HzClock = generic128HzClock + 1;
-  /* MATCH: 0-insn void fence stops reorg stealing the `addiu a0,a0,%lo(clock_realTime)`
-     base materialization into the bnez delay slot (oracle 8008B97C is a nop). */
-  __asm__("" : : "i"(0));
-  if (!even128) {
+
+  const int even128 = clock_realTime.time128Hz & 1U; __asm__("" : : "i"(0)); if (!even128) {
+
     clock_realTime.time64Hz = clock_realTime.time64Hz + 1;
     if (!(clock_realTime.time64Hz & 1U)) {
+
       clock_realTime.time32Hz = clock_realTime.time32Hz + 1;
-      if (!(clock_realTime.time32Hz & 1U)) {
+
+      if (!(clock_realTime.time32Hz & 1U))
         Input_Update();
-      }
+
       Input_Store();
     }
   }
-  restoregp(gp);
-  return;
-}
+
+
+
+
+
+  restoregp(gp); }
 
 /* ---- Clock_SystemStartUp__Fv  [@0x8008b9e4] ---- */
 void Clock_SystemStartUp(void)
 {
-  
   stopClock = 0;
   generic128HzClock = 0;
   if (clock_InterruptStarted == 0) {
+
     clock_InterruptStarted = 1;
     addtimer(Clock_MasterInterruptHandler);
+
+
     clock_realTime.time128Hz = 0;
     clock_realTime.time64Hz = 0;
     clock_realTime.time32Hz = 0;
     Input_gTime = 0;
   }
-  R3DCar_ClockLast = 0;
-  return;
-}
+
+
+
+
+
+
+
+  R3DCar_ClockLast = 0; }
 
 /* ---- Clock_SystemCleanUp__Fv  [@0x8008ba40] ---- */
 void Clock_SystemCleanUp(void)

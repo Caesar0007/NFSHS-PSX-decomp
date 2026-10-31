@@ -314,57 +314,57 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
 
 {
-  if (this->targetCar_ != targetCar) {
 
-    (&this->delayCar_)->SetNewTargetCar(targetCar)
-
-    ;
-
-  }
-
+  if (this->targetCar_ != targetCar) { (&this->delayCar_)->SetNewTargetCar(targetCar)
+    ; }
   this->targetCar_ = targetCar;
-
   this->relPosition_ = *relPosition;
+  this->longTargetRegion_ = 0; this->latTargetRegion_ = 0;
 
-  this->longTargetRegion_ = 0;
-
-  this->latTargetRegion_ = 0;
-
-  if (this->relPosition_.x < -this->targetCar_->N.dimension.x) {
-
-    this->latTargetRegion_ = -1;
-
-  }
+  if (this->relPosition_.x < -this->targetCar_->N.dimension.x) { this->latTargetRegion_ = -1; }
 
   else if (this->targetCar_->N.dimension.x < this->relPosition_.x) {
-
-    this->latTargetRegion_ = 1;
-
-  }
-
-  if (this->relPosition_.z < -this->targetCar_->N.dimension.z) {
-
-    this->longTargetRegion_ = -1;
-
-  }
+    this->latTargetRegion_ = 1; }
+  if (this->relPosition_.z < -this->targetCar_->N.dimension.z) { this->longTargetRegion_ = -1; }
 
   else if (this->targetCar_->N.dimension.z < this->relPosition_.z) {
-
-    this->longTargetRegion_ = 1;
-
-  }
+    this->longTargetRegion_ = 1; }
 
   this->murderMode_ = 0;
+  this->murderEndTime_ = 0; this->inTargetRegion_ = 0;
 
-  this->murderEndTime_ = 0;
 
-  this->inTargetRegion_ = 0;
+  this->SetUp(); return; }
 
-  this->SetUp();
 
-  return;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -490,51 +490,51 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 {
+
   if (this->nitrousTicks_ > 0 && !this->IsSlowingDown()) {
 
     (this->carObj_)->accNitrous = 0x30000;
-
     (this->carObj_)->speedNitrous = 0x28000;
 
-    for (int humanLoop = 0; ; humanLoop++) {
-      int distanceMeters;
 
-      if (checkForHumans == 0) {
-
-        break;
-
-      }
-
-      if (Cars_gNumHumanRaceCars <= humanLoop) {
-
-        break;
-
-      }
+    for (int humanLoop = 0; ; humanLoop++) { int distanceMeters; if (checkForHumans == 0) { break; } if (Cars_gNumHumanRaceCars <= humanLoop) { break; }
 
       distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,Cars_gHumanRaceCarList[humanLoop]);
       distanceMeters = distanceMeters * this->carObj_->direction;
-
       if ((0 < distanceMeters) && (distanceMeters < this->nitrousMinForeDistance_)) {
 
         (this->carObj_)->accNitrous = 0x10000;
-
-        (this->carObj_)->speedNitrous = 0x10000;
-
-      }
+        (this->carObj_)->speedNitrous = 0x10000; }
 
       if ((distanceMeters < 0) && (-this->nitrousMinAftDistance_ < distanceMeters)) {
 
         (this->carObj_)->accNitrous = 0x10000;
+        (this->carObj_)->speedNitrous = 0x10000; }
 
-        (this->carObj_)->speedNitrous = 0x10000;
+    } } }
 
-      }
 
-    }
 
-  }
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -644,40 +644,40 @@ void AIState_Chase::FarTargeting()
 
 
 {
-
   this->inTargetRegion_ = 0;
 
   if (simGlobal.gameTicks > this->noTurnAroundEndTime_) {
 
     if (0 < this->longMetersBetween_) {
+      (this->carObj_)->desiredDirection = -1; } else {
 
-      (this->carObj_)->desiredDirection = -1;
+      (this->carObj_)->desiredDirection = 1; } }
 
-    }
-
-    else {
-
-      (this->carObj_)->desiredDirection = 1;
-
-    }
-
-  }
 
   this->DoNitrous(1);
 
+
+
+
   AISpeeds_CalcDesiredSpeed(this->carObj_);
 
+
+
   AI_GenericBeginCycle(this->carObj_);
-
   this->CheckForBarriersAndTargetAroundThem();
-
   AI_GenericCycle(this->carObj_);
+  AI_GenericEndCycle(this->carObj_); return; }
 
-  AI_GenericEndCycle(this->carObj_);
 
-  return;
 
-}
+
+
+
+
+
+
+
+
 
 
 
@@ -692,49 +692,49 @@ int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
 
 
 
-{
-  int absLongMetersBetween;
-  int slowDown;
+{ int absLongMetersBetween; int slowDown;
 
-
-
-  absLongMetersBetween = __builtin_abs(this->longMetersBetween_);
-
-  slowDown = 0x9999;
+  absLongMetersBetween = __builtin_abs(this->longMetersBetween_); slowDown = 0x9999;
 
   if (absLongMetersBetween < 0x1e0000) {
-
-    slowDown = 0xf333;
-
-  }
-
-  else if (absLongMetersBetween < 0x320000) {
-
-    slowDown = 0xcccc;
-
-  }
+    slowDown = 0xf333; }
+  else if (absLongMetersBetween < 0x320000) { slowDown = 0xcccc; }
 
   else if (absLongMetersBetween < 0x640000) {
-
-    slowDown = 0xcccc;
-
-  }
-
+    slowDown = 0xcccc; }
   else if (absLongMetersBetween < 0x960000) {
-
-    slowDown = 0xc000;
-
-  }
-
+    slowDown = 0xc000; }
   else if (absLongMetersBetween < 0xc80000) {
+    slowDown = 0xb333; }
+  return slowDown; }
 
-    slowDown = 0xb333;
 
-  }
 
-  return slowDown;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -954,182 +954,182 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
 
 
-{
-  int xDistance;
-  int zDistance;
-  int distance;
-  int minSpeed;
+{ int xDistance; int zDistance; int distance; int minSpeed;
 
-
-  
 
   xDistance = (this->carObj_->N).position.x - (this->targetCar_->N).position.x;
-
   xDistance = __builtin_abs(xDistance);
-
   zDistance = (this->carObj_->N).position.z - (this->targetCar_->N).position.z;
-
   zDistance = __builtin_abs(zDistance);
-
-  if (zDistance < xDistance) {
-
-    distance = xDistance + (zDistance >> 2);
-
-  }
-
-  else {
-
-    distance = zDistance + (xDistance >> 2);
-
-  }
+  if (zDistance < xDistance) { distance = xDistance + (zDistance >> 2); } else { distance = zDistance + (xDistance >> 2); }
 
   this->inTargetRegion_ = 0;
 
   if (simGlobal.gameTicks > this->noTurnAroundEndTime_) {
 
     if (0 < this->longMetersBetween_) {
+      (this->carObj_)->desiredDirection = -1; } else {
 
-      (this->carObj_)->desiredDirection = -1;
+      (this->carObj_)->desiredDirection = 1; } }
 
-    }
-
-    else {
-
-      (this->carObj_)->desiredDirection = 1;
-
-    }
-
-  }
 
   AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-  /* MATCH (w13-a5): flat descending guard-chains, per-arm minSpeed assignment + goto ADC
-     (assignments land in the bnez delay slots); block order = oracle VA order
-     (C0 @.L9B8, C1 @.LA10, shared 0x60000 tail @.LA60, C2 @.LA78). */
 
-  if (this->aggressionLevel_ == 1) goto LAB_CHAIN1;
 
-  if (!(this->aggressionLevel_ < 2)) goto LAB_GE2;
+  if (this->aggressionLevel_ == 1) goto LAB_CHAIN1; if (!(this->aggressionLevel_ < 2)) goto LAB_GE2; if (this->aggressionLevel_ == 0) goto LAB_CHAIN0; minSpeed = 0x190000; goto LAB_80070adc; LAB_GE2: if (this->aggressionLevel_ == 2) goto LAB_CHAIN2; minSpeed = 0x190000; goto LAB_80070adc; LAB_CHAIN0:
 
-  if (this->aggressionLevel_ == 0) goto LAB_CHAIN0;
 
-  minSpeed = 0x190000;
 
-  goto LAB_80070adc;
 
-LAB_GE2:
 
-  if (this->aggressionLevel_ == 2) goto LAB_CHAIN2;
 
-  minSpeed = 0x190000;
 
-  goto LAB_80070adc;
 
-LAB_CHAIN0:
+  if (0x960000 < distance) { minSpeed = 0x3c0000; goto LAB_80070adc; } if (0x640000 < distance) { minSpeed = 0x320000; goto LAB_80070adc; } if (0x320000 < distance) { minSpeed = 0x280000; goto LAB_80070adc; } if (0x190000 < distance) { minSpeed = 0x230000; goto LAB_80070adc; } if (!(0xa0000 < distance)) goto LAB_A60; minSpeed = 0x140000; goto LAB_80070adc; LAB_CHAIN1:
 
-  if (0x960000 < distance) { minSpeed = 0x3c0000; goto LAB_80070adc; }
 
-  if (0x640000 < distance) { minSpeed = 0x320000; goto LAB_80070adc; }
 
-  if (0x320000 < distance) { minSpeed = 0x280000; goto LAB_80070adc; }
 
-  if (0x190000 < distance) { minSpeed = 0x230000; goto LAB_80070adc; }
 
-  if (!(0xa0000 < distance)) goto LAB_A60;
 
-  minSpeed = 0x140000;
 
-  goto LAB_80070adc;
 
-LAB_CHAIN1:
+  if (0x960000 < distance) { minSpeed = 0x3c0000; goto LAB_80070adc; } if (0x640000 < distance) { minSpeed = 0x320000; goto LAB_80070adc; } if (0x320000 < distance) { minSpeed = 0x280000; goto LAB_80070adc; } if (0x190000 < distance) { minSpeed = 0x230000; goto LAB_80070adc; } if (0xa0000 < distance) goto LAB_MIN_A; LAB_A60: minSpeed = 0; if (!(0x60000 < distance)) goto LAB_80070adc; minSpeed = 0x30000; goto LAB_80070adc; LAB_CHAIN2:
 
-  if (0x960000 < distance) { minSpeed = 0x3c0000; goto LAB_80070adc; }
 
-  if (0x640000 < distance) { minSpeed = 0x320000; goto LAB_80070adc; }
 
-  if (0x320000 < distance) { minSpeed = 0x280000; goto LAB_80070adc; }
 
-  if (0x190000 < distance) { minSpeed = 0x230000; goto LAB_80070adc; }
 
-  /* Keep the equal-valued threshold and result in separate blocks: retail
-     materializes 0xA0000 independently in v0 and a0. */
-  if (0xa0000 < distance) goto LAB_MIN_A;
 
-LAB_A60:
 
-  minSpeed = 0;
 
-  if (!(0x60000 < distance)) goto LAB_80070adc;
+  if (0x960000 < distance) { minSpeed = 0x500000; goto LAB_80070adc; } if (0x640000 < distance) { minSpeed = 0x460000; goto LAB_80070adc; } if (0x320000 < distance) { minSpeed = 0x320000; goto LAB_80070adc; } if (0x190000 < distance) { minSpeed = 0x280000; goto LAB_80070adc; } if (0xa0000 < distance) { minSpeed = 0xe0000; goto LAB_80070adc; } minSpeed = 0; if (!(0x60000 < distance)) goto LAB_80070adc; minSpeed = 0x60000; goto LAB_80070adc; LAB_MIN_A: minSpeed = 0xa0000; goto LAB_80070adc; LAB_80070adc: this->carObj_->desiredSpeed = ( this->carObj_->direction == 1 ? (zDistance = minSpeed, this->carObj_->desiredSpeed < zDistance ? (void)(zDistance = this->carObj_->desiredSpeed) : (void)0) : (zDistance = -minSpeed, zDistance < this->carObj_->desiredSpeed ? (void)(zDistance = this->carObj_->desiredSpeed) : (void)0),
 
-  minSpeed = 0x30000;
 
-  goto LAB_80070adc;
 
-LAB_CHAIN2:
 
-  if (0x960000 < distance) { minSpeed = 0x500000; goto LAB_80070adc; }
 
-  if (0x640000 < distance) { minSpeed = 0x460000; goto LAB_80070adc; }
 
-  if (0x320000 < distance) { minSpeed = 0x320000; goto LAB_80070adc; }
-
-  if (0x190000 < distance) { minSpeed = 0x280000; goto LAB_80070adc; }
-
-  if (0xa0000 < distance) { minSpeed = 0xe0000; goto LAB_80070adc; }
-
-  minSpeed = 0;
-
-  if (!(0x60000 < distance)) goto LAB_80070adc;
-
-  minSpeed = 0x60000;
-
-  goto LAB_80070adc;
-
-LAB_MIN_A:
-
-  minSpeed = 0xa0000;
-
-  goto LAB_80070adc;
-
-LAB_80070adc:
-
-  /* Retail zDistance is dead after the geometric distance phase. Reusing its
-     REG:$3 quantity for this clamp removes the unrecorded selectedSpeed object
-     while preserving all 195 words and the recorded local homes. Literal
-     original reuse is not uniquely proved by that register reuse. */
-  this->carObj_->desiredSpeed = (
-      this->carObj_->direction == 1
-        ? (zDistance = minSpeed,
-           this->carObj_->desiredSpeed < zDistance
-             ? (void)(zDistance = this->carObj_->desiredSpeed) : (void)0)
-        : (zDistance = -minSpeed,
-           zDistance < this->carObj_->desiredSpeed
-             ? (void)(zDistance = this->carObj_->desiredSpeed) : (void)0),
       zDistance);
 
+
+
+
+
+
+
   AI_GenericBeginCycle(this->carObj_);
-
   this->CheckForBarriersAndTargetAroundThem();
-
   AI_GenericCycle(this->carObj_);
-
   AI_GenericEndCycle(this->carObj_);
+
 
   if (intercept != 0) {
 
     (this->carObj_)->targetPos = (this->targetCar_->N).position;
-
     (this->carObj_)->targetLatPos = this->targetCar_->roadPosition;
-
     (this->carObj_)->preferredLateralPosition = this->targetCar_->roadPosition;
+    (this->carObj_)->preferredLateralPositionPower = 0xf0000; } return; }
+/* MATCH (w13-a5): flat descending guard-chains, per-arm minSpeed assignment + goto ADC
+     (assignments land in the bnez delay slots); block order = oracle VA order
+     (C0 @.L9B8, C1 @.LA10, shared 0x60000 tail @.LA60, C2 @.LA78). */
+/* Keep the equal-valued threshold and result in separate blocks: retail
+     materializes 0xA0000 independently in v0 and a0. */
+/* Retail zDistance is dead after the geometric distance phase. Reusing its
+     REG:$3 quantity for this clamp removes the unrecorded selectedSpeed object
+     while preserving all 195 words and the recorded local homes. Literal
+     original reuse is not uniquely proved by that register reuse. */
 
-    (this->carObj_)->preferredLateralPositionPower = 0xf0000;
 
-  }
 
-  return;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1522,9 +1522,9 @@ void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
   releaseDistanceMeters = (0x140000 <= releaseDistanceMeters) ? releaseDistanceMeters : 0x140000;
 
   if (distanceAbsMeters < releaseDistanceMeters) {
-    this->MarkLetGo();
-  }
-}
+
+    this->MarkLetGo(); } }
+
 
 
 
@@ -1540,68 +1540,68 @@ void AIState_Offroad::Execute()
 
 
 {
-
-  
-
-  if (this->letGo_ == 0) {
-    coorddef zero;
-    /* Retail owns zero only in the hold branch. The targetLatPos clears
-     * in both arms compile to one shared store while preserving the outer
-     * scope through +19c. Native/byte receipt: run-_pn_5wry. */
+  if (this->letGo_ == 0) { coorddef zero;
 
     memset((u_char *)&zero,'\0',0xc);
-
     (this->carObj_->N).linearVel = zero;
-
     (this->carObj_->N).angularVel = zero;
-
     (this->carObj_)->desiredSpeed = 0;
 
     (this->carObj_->N).position = this->startPosition_;
+    (this->carObj_->N).orientMat = this->startOrientation_; (this->carObj_)->targetPos.x = (this->carObj_)->targetPos.y =
 
-    (this->carObj_->N).orientMat = this->startOrientation_;
 
-    (this->carObj_)->targetPos.x =
-        (this->carObj_)->targetPos.y =
         (this->carObj_)->targetPos.z = 0;
+    (this->carObj_)->targetLatPos = 0; } else {
 
-    (this->carObj_)->targetLatPos = 0;
-  }
 
-  else {
 
     this->longMetersBetween_ = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
-
     this->carObj_->desiredSpeed = this->maxSpeedMPS_;
-
     if (0 < this->longMetersBetween_) {
 
       (this->carObj_)->desiredDirection = -1;
+      this->carObj_->desiredSpeed = -this->carObj_->desiredSpeed; } else {
 
-      this->carObj_->desiredSpeed = -this->carObj_->desiredSpeed;
 
-    }
 
-    else {
+      (this->carObj_)->desiredDirection = 1; }
 
-      (this->carObj_)->desiredDirection = 1;
 
-    }
 
     AI_GenericBeginCycle(this->carObj_);
-
     AI_GenericCycle(this->carObj_);
-
     AI_GenericEndCycle(this->carObj_);
-
     (this->carObj_)->targetPos = this->targetPosition_;
+    (this->carObj_)->targetLatPos = 0; } return; }
+/* Retail owns zero only in the hold branch. The targetLatPos clears
+     * in both arms compile to one shared store while preserving the outer
+     * scope through +19c. Native/byte receipt: run-_pn_5wry. */
 
-    (this->carObj_)->targetLatPos = 0;
-  }
 
-  return;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1706,26 +1706,26 @@ int AIState_Purgatory::TestForRelease()
 
 
 {
-  if (this->carObj_->physicsModelTimer < 1) {
-    int trafficInWorld;
-    /* Retail declares this count in the timer-expired body (+018..+06c). */
-    trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory;
+  if (this->carObj_->physicsModelTimer < 1) { int trafficInWorld;
 
-    if (trafficInWorld <
-        AITune_MaxTraffic[GameSetup_gData.commMode == 1]
-                         [GameSetup_gData.trafficDensity]) {
 
-      return 1;
 
-    }
 
-    this->carObj_->physicsModelTimer = 1;
 
-  }
 
-  return 0;
+    trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory; if (trafficInWorld < AITune_MaxTraffic[GameSetup_gData.commMode == 1]
+                         [GameSetup_gData.trafficDensity]) { return 1; }
 
-}
+
+    this->carObj_->physicsModelTimer = 1; }
+
+
+  return 0; }
+/* Retail declares this count in the timer-expired body (+018..+06c). */
+
+
+
+
 
 
 
@@ -1802,59 +1802,59 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
 
 
-{
-  int distance;
+{ int distance;
 
-  if (this->carObj_ == otherCarObj) { status = 2; return; }
+  if (this->carObj_ == otherCarObj) { status = 2; return; } if ((otherCarObj->N).active == '\0') { status = 2; return; }
 
-  if ((otherCarObj->N).active == '\0') { status = 2; return; }
 
-  distance = AIWorld_SplineDistance(this->carObj_,otherCarObj);
 
-  if (0 < distance) {
 
-    distance = AIWorld_SplineDistance(this->carObj_,otherCarObj);
 
-  }
+  distance = AIWorld_SplineDistance(this->carObj_,otherCarObj); if (0 < distance) { distance = AIWorld_SplineDistance(this->carObj_,otherCarObj); } else { distance = -AIWorld_SplineDistance(this->carObj_,otherCarObj); }
 
-  else {
 
-    distance = -AIWorld_SplineDistance(this->carObj_,otherCarObj);
+  if (distance <= 0xc0000) { if (0 < this->carObj_->roadPosition - otherCarObj->roadPosition ? this->carObj_->roadPosition - otherCarObj->roadPosition <= 0x9ffff :
 
-  }
+        otherCarObj->roadPosition - this->carObj_->roadPosition <= 0x9ffff) { coorddef posDiff;
 
-  if (distance <= 0xc0000) {
-    if (0 < this->carObj_->roadPosition - otherCarObj->roadPosition ?
-        this->carObj_->roadPosition - otherCarObj->roadPosition <= 0x9ffff :
-        otherCarObj->roadPosition - this->carObj_->roadPosition <= 0x9ffff) {
-      coorddef posDiff;
 
-      posDiff.x = (otherCarObj->N).position.x - ((this->carObj_)->N).position.x;
-      posDiff.y = (otherCarObj->N).position.y - ((this->carObj_)->N).position.y;
-      posDiff.z = (otherCarObj->N).position.z - ((this->carObj_)->N).position.z;
 
-      /* Retail blez at 80071a0c targets the epilogue, not the nearby status=0
-       * store. Leave status untouched on this path. The full byte gate checks
-       * that branch displacement, not only its normalized target spelling. */
-      if (fixedmult(this->carObj_->N.orientMat.m[6],posDiff.x) +
-          fixedmult(this->carObj_->N.orientMat.m[7],posDiff.y) +
+      posDiff.x = (otherCarObj->N).position.x - ((this->carObj_)->N).position.x; posDiff.y = (otherCarObj->N).position.y - ((this->carObj_)->N).position.y; posDiff.z = (otherCarObj->N).position.z - ((this->carObj_)->N).position.z; if (fixedmult(this->carObj_->N.orientMat.m[6],posDiff.x) + fixedmult(this->carObj_->N.orientMat.m[7],posDiff.y) +
+
           fixedmult(this->carObj_->N.orientMat.m[8],posDiff.z) <= 0) return;
+
 
       AudioClc_HonkHorn(this->carObj_,4,0x10,8);
       (this->carObj_)->desiredSpeed = 0;
       status = 1;
-      return;
-    } else {
-      status = 2;
-      return;
-    }
-  } else {
-    status = 0;
-  }
+      return; } else {
 
-  return;
+
+
+
+      status = 2;
+      return; } } else {
+
+
+
+
+    status = 0; } return;
+
 
 }
+/* Retail blez at 80071a0c targets the epilogue, not the nearby status=0
+       * store. Leave status untouched on this path. The full byte gate checks
+       * that branch displacement, not only its normalized target spelling. */
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1877,103 +1877,103 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
  * Exit-in-body for loops preserve the non-rotated oracle without new locals. */
 
 void AIState_RovingTraffic::Execute()
-{
-  int search;
-  int status;
-  coorddef centerBack;
-  coorddef carRelativeForLatPos;
-  coorddef carRelativeForDistance;
+{ int search; int status; coorddef centerBack; coorddef carRelativeForLatPos; coorddef carRelativeForDistance;
 
-    /* W57-A11: SLD gives ONE retail line (1177) for the whole 3-word copy and the oracle
-     uses t0/t1/t2 -- that is gcc's movstrsi 12-byte STRUCT ASSIGNMENT, not three per-field
-     statements (catalog 3d(a)). */
+
+
+
   this->carObj_->targetPos = this->path_[this->pathIndex_].position;
-
   (this->carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
 
-  /* W57-A11: SLD line 1183 = one struct assignment (movstrsi t0/t1/t2). */
+
+
+
   centerBack = *(coorddef *)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].center;
+  carRelativeForLatPos.x = this->carObj_->targetPos.x - centerBack.x; carRelativeForLatPos.y = this->carObj_->targetPos.y - centerBack.y; carRelativeForLatPos.z = this->carObj_->targetPos.z - centerBack.z; this->carObj_->targetLatPos = this->carObj_->N.roadMatrix.m[0] / 256 * (carRelativeForLatPos.x / 256) + this->carObj_->N.roadMatrix.m[1] / 256 * (carRelativeForLatPos.y / 256) +
 
-  carRelativeForLatPos.x = this->carObj_->targetPos.x - centerBack.x;
-
-  carRelativeForLatPos.y = this->carObj_->targetPos.y - centerBack.y;
-
-  carRelativeForLatPos.z = this->carObj_->targetPos.z - centerBack.z;
-
-  /* gcc-2.x signed /256 idiom (bgez;addiu 0xFF;sra 8) -- write the plain division,
-     not a hand-rolled if(x<0)x+=0xff;x>>=8 -- reference_mips_isa_asm.md MULT/DIV section.
-     Statement order matches the oracle's interleave: div-pair, mult, div-pair, mult, ... */
-
-  this->carObj_->targetLatPos =
-      this->carObj_->N.roadMatrix.m[0] / 256 * (carRelativeForLatPos.x / 256) +
-      this->carObj_->N.roadMatrix.m[1] / 256 * (carRelativeForLatPos.y / 256) +
       this->carObj_->N.roadMatrix.m[2] / 256 * (carRelativeForLatPos.z / 256);
 
-  carRelativeForDistance.x = this->carObj_->targetPos.x - this->carObj_->N.position.x;
-
-  carRelativeForDistance.y = this->carObj_->targetPos.y - this->carObj_->N.position.y;
-
-  carRelativeForDistance.z = this->carObj_->targetPos.z - this->carObj_->N.position.z;
-
+  carRelativeForDistance.x = this->carObj_->targetPos.x - this->carObj_->N.position.x; carRelativeForDistance.y = this->carObj_->targetPos.y - this->carObj_->N.position.y; carRelativeForDistance.z = this->carObj_->targetPos.z - this->carObj_->N.position.z;
   carRelativeForDistance.x >>= 0xc;
-  carRelativeForDistance.z >>= 0xc;
+  carRelativeForDistance.z >>= 0xc; if (carRelativeForDistance.x * carRelativeForDistance.x +
 
-  if (carRelativeForDistance.x * carRelativeForDistance.x +
       carRelativeForDistance.z * carRelativeForDistance.z < 10000) {
 
     if (this->waitTick_ == 0) {
-
-      this->waitTick_ = simGlobal.gameTicks + this->path_[this->pathIndex_].waitTime;
-
-    }
+      this->waitTick_ = simGlobal.gameTicks + this->path_[this->pathIndex_].waitTime; }
 
     if (simGlobal.gameTicks < this->waitTick_) {
+      (this->carObj_)->desiredSpeed = 0; } else {
 
-      (this->carObj_)->desiredSpeed = 0;
-
-    }
-
-    else {
 
       this->waitTick_ = 0;
+      this->pathIndex_ = this->pathIndex_ + 1; } }
 
-      this->pathIndex_ = this->pathIndex_ + 1;
 
-    }
 
-  }
 
-  status = 2;
 
-  /* Keep the test in the for body: a condition-bearing loop rotates the
-     oracle's shared top test. This form preserves all 233 instructions but
-     does not yet recover retail's empty scope regions. */
+  status = 2; for (search = (this->carObj_)->sortIndex + 1; ; search++) { if (!(search < Cars_gNumCars && (status == 2))) break;
 
-  for (search = (this->carObj_)->sortIndex + 1; ; search++) {
 
-    if (!(search < Cars_gNumCars && (status == 2))) break;
+
 
     this->CheckIfCarIsNearbyAndStop(Cars_gSortedList[search],status);
-
   }
 
   if (status != 1) {
 
-    status = 2;
+    status = 2; for (search = (this->carObj_)->sortIndex - 1; ; search--) { if (!(-1 < search && (status == 2))) break;
 
-    for (search = (this->carObj_)->sortIndex - 1; ; search--) {
 
-      if (!(-1 < search && (status == 2))) break;
+
 
       this->CheckIfCarIsNearbyAndStop(Cars_gSortedList[search],status);
+    } } return; }
+/* W57-A11: SLD gives ONE retail line (1177) for the whole 3-word copy and the oracle
+     uses t0/t1/t2 -- that is gcc's movstrsi 12-byte STRUCT ASSIGNMENT, not three per-field
+     statements (catalog 3d(a)). */
+/* W57-A11: SLD line 1183 = one struct assignment (movstrsi t0/t1/t2). */
+/* gcc-2.x signed /256 idiom (bgez;addiu 0xFF;sra 8) -- write the plain division,
+     not a hand-rolled if(x<0)x+=0xff;x>>=8 -- reference_mips_isa_asm.md MULT/DIV section.
+     Statement order matches the oracle's interleave: div-pair, mult, div-pair, mult, ... */
+/* Keep the test in the for body: a condition-bearing loop rotates the
+     oracle's shared top test. This form preserves all 233 instructions but
+     does not yet recover retail's empty scope regions. */
 
-    }
 
-  }
 
-  return;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2023,168 +2023,168 @@ void AIState_Donuts::Execute()
 
 
 
-{
-  coorddef right;
-  coorddef forward;
-  coorddef targetPos;
-  int latPos;
-  int slice;
-  int forwardDot;
+{ coorddef right; coorddef forward; coorddef targetPos; int latPos; int slice; int forwardDot;
 
 
 
-    slice = (int)this->carObj_->N.simRoadInfo.slice;
 
-    forwardDot =
-        (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) +
-        (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
+    slice = (int)this->carObj_->N.simRoadInfo.slice; forwardDot = (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) + (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
         (this->carObj_->N.orientMat.m[8] / 256) * (this->carObj_->N.roadMatrix.m[8] / 256);
 
-    if (forwardDot > 0) {
 
-      this->carObj_->desiredDirection = this->carObj_->direction = 1;
 
-    }
+    if (forwardDot > 0) { this->carObj_->desiredDirection = this->carObj_->direction = 1; } else {
 
-    else {
 
-      this->carObj_->desiredDirection = this->carObj_->direction = -1;
 
-    }
 
-  if ((this->donutMode_ == 1) || (this->donutMode_ == 3)) {
 
-    int forwardSlice;
-    int forwardDot;
-    int dCarToCenter;
-    /* Each wrap is one retail SLD statement (1281/1283). As in
-     * FindBarrierEndSlice, widening the inner subtraction preserves its
-     * arithmetic tree without adding an unrecorded source local. */
+      this->carObj_->desiredDirection = this->carObj_->direction = -1; }
 
-    forwardDot =
-        (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) +
-        (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
+
+
+  if ((this->donutMode_ == 1) || (this->donutMode_ == 3)) { int forwardSlice; int forwardDot; int dCarToCenter; forwardDot = (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) + (this->carObj_->N.orientMat.m[7] / 256) * (this->carObj_->N.roadMatrix.m[7] / 256) +
+
+
         (this->carObj_->N.orientMat.m[8] / 256) * (this->carObj_->N.roadMatrix.m[8] / 256);
+    if (0 <= forwardDot) {
+      forwardSlice = (slice + 3 < gNumSlices) ? slice + 3 : slice - (long long)(gNumSlices - 3); } else {
 
-    if (0 <= forwardDot)
-
-    {
-      forwardSlice = (slice + 3 < gNumSlices) ? slice + 3 : slice - (long long)(gNumSlices - 3);
-
-    }
-
-    else {
-
-      forwardSlice = (slice - 3 < 0) ? slice + (long long)(gNumSlices - 3) : slice - 3;
-
-    }
+      forwardSlice = (slice - 3 < 0) ? slice + (long long)(gNumSlices - 3) : slice - 3; }
 
     targetPos = *(coorddef *)BWorldSm_slices[forwardSlice].center;
 
-    dCarToCenter = __builtin_abs(this->carObj_->roadPosition);
 
-    latPos = 0;
+    dCarToCenter = __builtin_abs(this->carObj_->roadPosition); latPos = 0;
 
     if ((this->donutMode_ == 1) && (dCarToCenter < 0x28000)) {
+      this->donutMode_ = 2; } } else {
 
-      this->donutMode_ = 2;
 
-    }
 
-  }
 
-  else {
 
     this->donutLookForward_ -= 0x10000;
-
     if (this->donutLookForward_ < 0x8000) {
+      randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; this->donutLookForward_ = ((randtemp >> 8 & 0xffff) * 5 >> 0xe) * 0x10000 + 0x140000; }
 
-      randtemp = fastRandom * randSeed;
 
-      fastRandom = randtemp & 0xffff;
 
-      this->donutLookForward_ = ((randtemp >> 8 & 0xffff) * 5 >> 0xe) * 0x10000 + 0x140000;
 
-    }
+    right = *(coorddef *)&this->carObj_->N.orientMat.m[0];
+    forward = *(coorddef *)&this->carObj_->N.orientMat.m[6];
 
-    /* SYM: right/forward/targetPos are real coorddef locals -- right = scaled local
+
+    right.x = fixedmult(0x60000,right.x); right.y = fixedmult(0x60000,right.y); right.z = fixedmult(0x60000,right.z);
+    forward.x = fixedmult(this->donutLookForward_,forward.x); forward.y = fixedmult(this->donutLookForward_,forward.y); forward.z = fixedmult(this->donutLookForward_,forward.z);
+
+
+    targetPos.x = ((this->carObj_)->N).position.x + right.x; targetPos.y = ((this->carObj_)->N).position.y + right.y; targetPos.z = ((this->carObj_)->N).position.z + right.z;
+    targetPos.x = targetPos.x + forward.x; targetPos.y = targetPos.y + forward.y; targetPos.z = targetPos.z + forward.z; latPos = Newton_CalculateRoadPositionFromSliceAndPosition(
+
+
+        (int)this->carObj_->N.simRoadInfo.slice,&targetPos,&this->carObj_->N.roadMatrix);
+
+
+
+    if (this->carObj_->roadPosition < 0) { if (this->carObj_->roadPosition - 0x20000 < -((BWorldSm_slices[slice].avgPavedWidthLf << 15) * (BWorldSm_slices[slice].laneCount >> 4))) goto LAB_800722e8; goto LAB_800722ec; } else { if (!((BWorldSm_slices[slice].avgPavedWidthRt << 15) * (BWorldSm_slices[slice].laneCount & 0xf) < this->carObj_->roadPosition + 0x20000)) goto LAB_800722ec; } LAB_800722e8:
+
+    this->donutMode_ = 1; } LAB_800722ec:
+
+
+
+  (this->carObj_)->donutMode = this->donutMode_;
+  AI_GenericBeginCycle(this->carObj_);
+  AI_GenericCycle(this->carObj_);
+  AI_GenericEndCycle(this->carObj_);
+
+
+  this->carObj_->targetPos = targetPos;
+  (this->carObj_)->targetLatPos = latPos;
+  (this->carObj_)->desiredSpeed = 0x471c7; return; }
+/* Each wrap is one retail SLD statement (1281/1283). As in
+     * FindBarrierEndSlice, widening the inner subtraction preserves its
+     * arithmetic tree without adding an unrecorded source local. */
+/* SYM: right/forward/targetPos are real coorddef locals -- right = scaled local
        right-axis (orientMat row0), forward = scaled local forward-axis (orientMat row2
        via donutLookForward_), targetPos = position + right + forward. */
 
-    right = *(coorddef *)&this->carObj_->N.orientMat.m[0];
 
-    forward = *(coorddef *)&this->carObj_->N.orientMat.m[6];
 
-    right.x = fixedmult(0x60000,right.x);
 
-    right.y = fixedmult(0x60000,right.y);
 
-    right.z = fixedmult(0x60000,right.z);
 
-    forward.x = fixedmult(this->donutLookForward_,forward.x);
 
-    forward.y = fixedmult(this->donutLookForward_,forward.y);
 
-    forward.z = fixedmult(this->donutLookForward_,forward.z);
 
-    targetPos.x = ((this->carObj_)->N).position.x + right.x;
 
-    targetPos.y = ((this->carObj_)->N).position.y + right.y;
 
-    targetPos.z = ((this->carObj_)->N).position.z + right.z;
 
-    targetPos.x = targetPos.x + forward.x;
 
-    targetPos.y = targetPos.y + forward.y;
 
-    targetPos.z = targetPos.z + forward.z;
 
-    latPos = Newton_CalculateRoadPositionFromSliceAndPosition(
-        (int)this->carObj_->N.simRoadInfo.slice,&targetPos,&this->carObj_->N.roadMatrix);
 
-    if (this->carObj_->roadPosition < 0) {
 
-      if (this->carObj_->roadPosition - 0x20000 <
-          -((BWorldSm_slices[slice].avgPavedWidthLf << 15) *
-            (BWorldSm_slices[slice].laneCount >> 4))) goto LAB_800722e8;
 
-      goto LAB_800722ec;
 
-    }
 
-    else {
 
-      if (!((BWorldSm_slices[slice].avgPavedWidthRt << 15) *
-            (BWorldSm_slices[slice].laneCount & 0xf) <
-            this->carObj_->roadPosition + 0x20000)) goto LAB_800722ec;
 
-    }
 
-LAB_800722e8:
 
-    this->donutMode_ = 1;
 
-  }
 
-LAB_800722ec:
 
-  (this->carObj_)->donutMode = this->donutMode_;
 
-  AI_GenericBeginCycle(this->carObj_);
 
-  AI_GenericCycle(this->carObj_);
 
-  AI_GenericEndCycle(this->carObj_);
 
-  this->carObj_->targetPos = targetPos;
 
-  (this->carObj_)->targetLatPos = latPos;
 
-  (this->carObj_)->desiredSpeed = 0x471c7;
 
-  return;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2219,70 +2219,70 @@ void AIState_GotoSlice::Execute()
 
 
 
-{
-  int longMetersBetween;
+{ int longMetersBetween;
+
 
   longMetersBetween = AIWorld_ApxSplineDistance(this->targetSlice_,this->carObj_);
 
   if (-1 < longMetersBetween) {
+    (this->carObj_)->desiredDirection = 1; } else {
 
-    (this->carObj_)->desiredDirection = 1;
+    (this->carObj_)->desiredDirection = -1; }
 
-  }
-
-  else {
-
-    (this->carObj_)->desiredDirection = -1;
-
-  }
 
   this->AIState_Normal::Execute();
 
-  if (this->stopWhenArrivedAtSlice_ != 0) {
-    int distMeters;
-    int cap;
 
-    distMeters = __builtin_abs(longMetersBetween);
+  if (this->stopWhenArrivedAtSlice_ != 0) { int distMeters; int cap;
 
-    cap = 0xc80000;
+    distMeters = __builtin_abs(longMetersBetween); cap = 0xc80000;
+
+
 
     if (distMeters < 0xc0000) {
-
-      cap = 0x40000;
-
-    }
-
+      cap = 0x40000; }
     else if (distMeters < 0x320000) {
-
-      cap = 0x140000;
-
-    }
-
+      cap = 0x140000; }
     else if (distMeters < 0x960000) {
-
-      cap = 0x280000;
-
-    }
-
+      cap = 0x280000; }
     else if (distMeters < 0x1900000) {
+      cap = 0x500000; }
 
-      cap = 0x500000;
 
-    }
+    if (this->carObj_->desiredSpeed >= 0) { this->carObj_->desiredSpeed = this->carObj_->desiredSpeed < cap ? this->carObj_->desiredSpeed : cap;
+      return; } this->carObj_->desiredSpeed = this->carObj_->desiredSpeed > -cap
 
-    if (this->carObj_->desiredSpeed >= 0) {
-      this->carObj_->desiredSpeed = this->carObj_->desiredSpeed < cap
-          ? this->carObj_->desiredSpeed : cap;
-      return;
-    }
-    this->carObj_->desiredSpeed = this->carObj_->desiredSpeed > -cap
-        ? this->carObj_->desiredSpeed : -cap;
+        ? this->carObj_->desiredSpeed : -cap; } return; }
 
-  }
 
-  return;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2337,41 +2337,41 @@ void AIState_Cruise::Execute()
 
 
 {
-  switch (this->cruiseMode_) {
 
-  case CRUISE_ATSETSPEED:
 
-    this->carObj_->desiredSpeed =
+  switch (this->cruiseMode_) { case CRUISE_ATSETSPEED: this->carObj_->desiredSpeed =
+
+
         this->cruiseSpeed_ * this->carObj_->direction;
+    break; case CRUISE_ATFACTOR:
 
-    break;
-
-  case CRUISE_ATFACTOR:
-
-    AISpeeds_CalcDesiredSpeed(this->carObj_);
-
-    (this->carObj_)->desiredSpeed =
+    AISpeeds_CalcDesiredSpeed(this->carObj_); (this->carObj_)->desiredSpeed =
         fixedmult((this->carObj_)->desiredSpeed,this->cruiseFactor_);
+    break; case CRUISE_ATTRAFFICSPEED:
 
-    break;
+    AISpeeds_CalcTrafficTopSpeed(this->carObj_); break; }
 
-  case CRUISE_ATTRAFFICSPEED:
 
-    AISpeeds_CalcTrafficTopSpeed(this->carObj_);
 
-    break;
-
-  }
 
   AI_GenericBeginCycle(this->carObj_);
-
   AI_GenericCycle(this->carObj_);
+  AI_GenericEndCycle(this->carObj_); return; }
 
-  AI_GenericEndCycle(this->carObj_);
 
-  return;
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2430,11 +2430,11 @@ int AIState_RovingTraffic::TestForRelease()
 
 
 
-{
+{ return this->pathIndex_ < this->numPathPoints_ ^ 1; }
 
-  return this->pathIndex_ < this->numPathPoints_ ^ 1;
 
-}
+
+
 
 
 

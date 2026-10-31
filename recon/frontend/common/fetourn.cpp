@@ -320,6 +320,9 @@ void tTournamentManager::UpdateTournFinishMoney()
 void tTournamentManager::UpdateTrackFinishMoney()
 
 {
+
+
+
   Car_tStats *dummyCars;
 
   dummyCars = Cars_NewCarStatsList();
@@ -327,7 +330,6 @@ void tTournamentManager::UpdateTrackFinishMoney()
     (this->fAwards).fMoney +=
         this->GetTrackFinishPrize((short)dummyCars[0].finalPosition + -1);
   }
-  return;
 }
 
 
@@ -702,6 +704,7 @@ void tTournamentManager::LoadTournament(tSaveTournament &load)
 
 short tTournamentManager::GetNumCompetitors()
 {
+
   return this->CurrentTourney()->fNumCars;
 }
 
@@ -784,6 +787,7 @@ long tTournamentManager::GetTrackFinishPrize(short position)
 /* ---- tTournamentManager::GetTournamentFinishPrize  [FETOURN.CPP:897-905] ---- */
 long tTournamentManager::GetTournamentFinishPrize(short position)
 {
+
   /* SYM-CODEGEN-CARRIER: tourn -- SYM has no locals here; the shared pointer
      is required for the retail address schedule (inlining changes 14 insns). */
   if ((ushort)position < 6) {
@@ -981,9 +985,7 @@ bool tTournamentManager::ValidCar(tCarInfo &carInfo)
 tListIteratorTournament::tListIteratorTournament(char *valPtr,tTournamentManager *tournManager)
   : tListIterator((short *)0x0, valPtr)
 {
-
   this->fTournamentManager = tournManager;
-  return;
 }
 
 
@@ -1044,15 +1046,15 @@ void tListIteratorTournament::Increment(tPlayer)
 
 /* ---- tListIteratorTournament::Decrement  [FETOURN.CPP:1148-1158] ---- */
 
+/* P863 source recovery: SYM 5cbc89 records only tier, not a byte-value
+   local. Store each branch's decremented result directly; GCC merges the
+   store and fills the nonzero branch's delay slot with the decrement.
+   Retail SLD 1153/1154/1156/1158 corroborates guard / wrap load /
+   decrement-store / validity test. Exact original spelling is unavailable;
+   this source shape and its 36-instruction debug twin are verified. */
 void tListIteratorTournament::Decrement(tPlayer)
 
 {
-  /* P863 source recovery: SYM 5cbc89 records only tier, not a byte-value
-     local. Store each branch's decremented result directly; GCC merges the
-     store and fills the nonzero branch's delay slot with the decrement.
-     Retail SLD 1153/1154/1156/1158 corroborates guard / wrap load /
-     decrement-store / validity test. Exact original spelling is unavailable;
-     this source shape and its 36-instruction debug twin are verified. */
   tTierInfo *tier;
 
   tier = &this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier];

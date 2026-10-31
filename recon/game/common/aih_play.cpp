@@ -132,83 +132,122 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
 
 
-{
+{ int copLoop; copLevel_t*pLevel; int nCopsNeeded[2]; int ready[2]; int assigned[2]; int split; pLevel = this->perpChaseInfo_.GetChaseLevel();
 
-  int copLoop;
-  copLevel_t*pLevel;
-  int nCopsNeeded[2];
-  int ready[2];
-  int assigned[2];
-  int split;
-  pLevel = this->perpChaseInfo_.GetChaseLevel();
+
+
+
+
 
   memset(ready,0,sizeof(ready));
   memset(assigned,0,sizeof(assigned));
+  split = Cars_gNumHumanRaceCars == 2; if ((pLevel->numBlockaders == 0) || this->perpChaseInfo_.BlockadeDone() || ((basicPerpInfo_.CopsAssigned(COP_REGULAR) < pLevel->copChasers[0]) && !split) ||
 
-  split = Cars_gNumHumanRaceCars == 2;
-  if ((pLevel->numBlockaders == 0) || this->perpChaseInfo_.BlockadeDone() ||
-      ((basicPerpInfo_.CopsAssigned(COP_REGULAR) < pLevel->copChasers[0]) && !split) ||
-      ((basicPerpInfo_.CopsAssigned(COP_SUPER) < pLevel->copChasers[1]) && !split))
-    goto return_false;
+
+
+
+
+
+      ((basicPerpInfo_.CopsAssigned(COP_SUPER) < pLevel->copChasers[1]) && !split)) goto return_false;
+
+
 
   nCopsNeeded[0] = pLevel->copBlockaders[0];
   nCopsNeeded[1] = pLevel->copBlockaders[1];
 
-  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
-    AIHigh_Cop *thisCop;
+
+  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) { AIHigh_Cop *thisCop;
+
     thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
-    if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 0xc) {
-      copType type = thisCop->Type();
+    if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 0xc) { copType type = thisCop->Type();
+
+
       if (nCopsNeeded[type] > assigned[type]) {
+
+
+
+
+
         ready[type] = ready[type] + 1;
         assigned[type] = assigned[type] + 1;
+
         thisCop->blockade_.mode = 1;
-        thisCop->Blockade()->target = this;
-      }
-    }
+        thisCop->Blockade()->target = this; } }
+
+
+
   }
+
 
   if ((nCopsNeeded[0] > assigned[0]) || (nCopsNeeded[1] > assigned[1])) {
+
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
-      AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
-      if (((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) &&
-          (thisCop->BlockadeMode() != 2)) {
-        copType type = thisCop->Type();
+
+      AIHigh_Cop *thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex]; if (((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) &&
+          (thisCop->BlockadeMode() != 2)) { copType type = thisCop->Type();
+
+
         if (nCopsNeeded[type] > assigned[type]) {
+
+
+
+
+
+
           assigned[type] = assigned[type] + 1;
+
           thisCop->blockade_.mode = 1;
-          thisCop->Blockade()->target = this;
-        }
-      }
-    }
-  }
+          thisCop->Blockade()->target = this; } }
+
+
+
+    } }
+
+
 
   if ((Cars_gNumHumanRaceCars != 1) && (nCopsNeeded[1] > assigned[1])) {
-    for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
-      AIHigh_Cop *thisCop;
+
+    for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) { AIHigh_Cop *thisCop;
+
       thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
-      if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) {
-        copType type = thisCop->Type();
-        if ((type == COP_REGULAR) &&
+      if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) { copType type = thisCop->Type(); if ((type == COP_REGULAR) &&
+
+
+
             (nCopsNeeded[1] > assigned[1]) && (assigned[1] == 0)) {
+
+
+
+
+
+
+
           assigned[1] = 1;
+
           thisCop->blockade_.mode = 4;
-          thisCop->Blockade()->target = this;
-        }
-      }
-    }
-  }
+          thisCop->Blockade()->target = this; } }
 
-  if (ready[0] < nCopsNeeded[0]) {
-    goto return_false;
-  }
-  if (ready[1] >= nCopsNeeded[1]) {
-    return 1;
-  }
-return_false:
-  return 0;
 
-}
+
+    } }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  if (ready[0] < nCopsNeeded[0]) { goto return_false; } if (ready[1] >= nCopsNeeded[1]) { return 1; } return_false:
+
+
+  return 0; }
 
 
 
@@ -620,11 +659,85 @@ inline int AITrigger_TriggerManager::InvNumTriggers() { return invNumTriggers_; 
 #line 432 "C:/nfs4/GAME/COMMON/AIH_PLAY.CPP"
 void AIHigh_Player::CheckForNewLevel(int force)
 
-{
-  int chaseLevel;
-  int oldChaseLevel;
+{ int chaseLevel; int oldChaseLevel; oldChaseLevel = this->perpChaseInfo_.GetChaseLevelIndex(); chaseLevel = oldChaseLevel;
 
-  /* W57-A11: SLD/SYM-shaped rewrite.  The retail SYM 8c block lists exactly TWO
+
+
+  if (1 < ((this->carObj_)->stats).finishType) { this->perpChaseInfo_.SetChaseLevel(0); this->basicPerpInfo_.SetCrime(CRIME_NONE);
+
+
+
+
+    return; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  this->CheckForCrimes();
+  if (this->basicPerpInfo_.GetCrime() != CRIME_NONE) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if (force == 0) { bool doIt = false; if (this->perpChaseInfo_.RemainingEngagementTime() <= 0) { doIt = true; } if (!doIt) goto check_level_changed; } {
+
+      chaseLevel = chaseLevel + 1;
+      if (this->perpChaseInfo_.GetNumLevels() <= chaseLevel) {
+        chaseLevel = this->perpChaseInfo_.GetNumLevels() + -2; } this->perpChaseInfo_.SetChaseLevel(chaseLevel); } } check_level_changed:
+
+
+
+
+
+
+
+
+  if (oldChaseLevel != this->perpChaseInfo_.GetChaseLevelIndex()) { this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() *
+
+                           this->perpChaseInfo_.GetChaseLevel()->copsPerLap; } return;
+
+
+
+
+
+}
+/* W57-A11: SLD/SYM-shaped rewrite.  The retail SYM 8c block lists exactly TWO
      int locals (chaseLevel $10=s0, oldChaseLevel $13=s3) plus a chain of INLINED
      AICop_PerpChaseInfo methods, each contributing its own block-scoped `this`
      pseudo ($3=v1, $10=s0, $4=a0, $11=s1) and one `level` parameter ($10=s0).
@@ -636,72 +749,15 @@ void AIHigh_Player::CheckForNewLevel(int force)
      476 crime test | 490 force/engagementTime gate | 491-493 level bump |
      494 the second inlined SetChaseLevel chunk | 503 index compare |
      504-505 newTriggerProb_ | 511 close.  */
-
-  oldChaseLevel = this->perpChaseInfo_.GetChaseLevelIndex();
-
-  chaseLevel = oldChaseLevel;
-
-  if (1 < ((this->carObj_)->stats).finishType) {
-
-    /* SYM-INLINE-LOCAL: level = SetChaseLevel */
-    this->perpChaseInfo_.SetChaseLevel(0);
-
-    this->basicPerpInfo_.SetCrime(CRIME_NONE);
-
-    return;
-
-  }
-
-  /* Retail AIHigh_Player_vtable[3] @0x800550b0 is
+/* SYM-INLINE-LOCAL: level = SetChaseLevel */
+/* Retail AIHigh_Player_vtable[3] @0x800550b0 is
      CheckForCrimes__16AIHigh_BasicPerp @0x8005b500.  Keep the ABI-shaped call
      local until the explicit AIHigh hierarchy vptr is restored as C++ virtual
      source; the former pa_Var1 decompiler alias is not required for codegen. */
-  this->CheckForCrimes();
-
-  if (this->basicPerpInfo_.GetCrime() != CRIME_NONE) {
-
-    if (force == 0) {
-
-      /* UNRESOLVED RECONSTRUCTION: doIt has no retail caller record. Current
+/* UNRESOLVED RECONSTRUCTION: doIt has no retail caller record. Current
          direct/Boolean-query forms lose two result-funnel instructions
          (8dif/182 versus184); that does not prove an original object existed. */
-      bool doIt = false;
-
-      if (this->perpChaseInfo_.RemainingEngagementTime() <= 0) {
-
-        doIt = true;
-
-      }
-
-      if (!doIt) goto check_level_changed;
-
-    }
-
-    {
-
-      chaseLevel = chaseLevel + 1;
-
-      if (this->perpChaseInfo_.GetNumLevels() <= chaseLevel) {
-
-        chaseLevel = this->perpChaseInfo_.GetNumLevels() + -2;
-
-      }
-
-      this->perpChaseInfo_.SetChaseLevel(chaseLevel);
-
-    }
-
-  }
-
 /* Semantic fallback label, not a recovered original spelling. */
-check_level_changed:
-  if (oldChaseLevel != this->perpChaseInfo_.GetChaseLevelIndex()) {
-    this->newTriggerProb_ = triggerManagerCops->InvNumTriggers() *
-                           this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
-  }
-  return;
-
-}
 
 
 
@@ -717,94 +773,153 @@ void AIHigh_Player::HandleSpeech()
 
 
 
-{
-  int highestRankedCopIndex;
-  int arrestType;
-  int player;
+{ int highestRankedCopIndex; int arrestType; int player;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   if (this->positionVSCopList_[0].carIndex == -1) {
 
-    highestRankedCopIndex = (*(int *)((char *)Cars_gCopCarList[0] + 0x254));
 
-  }
+    highestRankedCopIndex = (*(int *)((char *)Cars_gCopCarList[0] + 0x254)); } else { highestRankedCopIndex = this->positionVSCopList_[0].carIndex; } if ((this->positionVSCopList_[1].carIndex != -1) &&
 
-  else {
-
-    highestRankedCopIndex = this->positionVSCopList_[0].carIndex;
-
-  }
-
-  if ((this->positionVSCopList_[1].carIndex != -1) &&
       (this->positionVSCopList_[1].carIndex < highestRankedCopIndex)) {
-
-    highestRankedCopIndex = this->positionVSCopList_[1].carIndex;
-
-  }
-
-  if ((this->positionVSCopList_[2].carIndex != -1) &&
+    highestRankedCopIndex = this->positionVSCopList_[1].carIndex; } if ((this->positionVSCopList_[2].carIndex != -1) &&
       (this->positionVSCopList_[2].carIndex < highestRankedCopIndex)) {
+    highestRankedCopIndex = this->positionVSCopList_[2].carIndex; }
 
-    highestRankedCopIndex = this->positionVSCopList_[2].carIndex;
 
-  }
+
+
 
   player = (this->carObj_)->carIndex;
 
-  if (this->pullOverMode_ == 1) goto LAB_pullover_flag;
 
-  if (1 < (int)this->pullOverMode_) {
 
-    if (this->pullOverMode_ == 2) goto LAB_pullover_arrest;
 
-    if (this->pullOverMode_ == 3) goto LAB_pullover_evade;
 
-  }
 
-  arrestType = 4;
+  if (this->pullOverMode_ == 1) goto LAB_pullover_flag; if (1 < (int)this->pullOverMode_) { if (this->pullOverMode_ == 2) goto LAB_pullover_arrest; if (this->pullOverMode_ == 3) goto LAB_pullover_evade; } arrestType = 4;
 
-  goto LAB_800625d0;
 
-LAB_pullover_flag:
 
-  Hud_Perp_OverlayOn(player,0);
 
-  arrestType = 2;
 
-  goto LAB_800625d0;
 
-LAB_pullover_arrest:
 
-  Hud_Perp_OverlayOn(player,1);
+  goto LAB_800625d0; LAB_pullover_flag:
 
-  arrestType = 8;
 
-  if (2 < this->numBusts_) {
+  Hud_Perp_OverlayOn(player,0); arrestType = 2;
 
-    arrestType = this->numBusts_ + 6;
 
-  }
 
-  goto LAB_800625d0;
 
-LAB_pullover_evade:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  goto LAB_800625d0; LAB_pullover_arrest:
+
+  Hud_Perp_OverlayOn(player,1); arrestType = 8;
+
+  if (2 < this->numBusts_) { arrestType = this->numBusts_ + 6; }
+
+
+
+
+
+
+
+
+
+
+
+  goto LAB_800625d0; LAB_pullover_evade:
 
   Hud_Perp_OverlayOn(player,2);
+  arrestType = 1; LAB_800625d0:
 
-  arrestType = 1;
 
-LAB_800625d0:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   if (AICop_gRoadBlockState != kAICop_RoadBlockState_None) {
+    AICop_gRoadBlockState = kAICop_RoadBlockState_PerpPassed; }
 
-    AICop_gRoadBlockState = kAICop_RoadBlockState_PerpPassed;
-
-  }
-
-  Speech::Mobile(Cars_gList[highestRankedCopIndex])->Catch(arrestType);
-
-  return;
-
-}
+  Speech::Mobile(Cars_gList[highestRankedCopIndex])->Catch(arrestType); return; }
 
 
 

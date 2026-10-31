@@ -44,56 +44,51 @@ void AIHigh_StartUp(void)
 {
   int carLoop, copCounter = 0, humanCopCounter = 0;
 
-  AIState_StartUp();
 
-  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-      (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
-       ((Cars_gNumHumanRaceCars == 2 &&
+  AIState_StartUp(); if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 &&
+
+
          ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
+
     for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-      Car_tObj *carObj = Cars_gList[carLoop];
-      highLevelAIObjs[carLoop] = (carObj->carFlags & 0x200U) != 0 ? new AIHigh_BTC_HumanCop(carObj,copCounter++) :
-              (carObj->carFlags & 4U) != 0 ? new AIHigh_BTC_HumanPerp(carObj) :
-              (carObj->carFlags & 8U) != 0 ? new AIHigh_BTC_AIPerp(carObj) :
-              (carObj->carFlags & 0x10U) != 0 ? new AIHigh_Traffic(carObj) :
-              (carObj->carFlags & 0x20U) != 0 ? new AIHigh_BTC_Wingman(carObj,copCounter++) :
+
+      Car_tObj *carObj = Cars_gList[carLoop]; highLevelAIObjs[carLoop] = (carObj->carFlags & 0x200U) != 0 ? new AIHigh_BTC_HumanCop(carObj,copCounter++) : (carObj->carFlags & 4U) != 0 ? new AIHigh_BTC_HumanPerp(carObj) : (carObj->carFlags & 8U) != 0 ? new AIHigh_BTC_AIPerp(carObj) : (carObj->carFlags & 0x10U) != 0 ? new AIHigh_Traffic(carObj) : (carObj->carFlags & 0x20U) != 0 ? new AIHigh_BTC_Wingman(carObj,copCounter++) :
+
+
+
+
+
+
               new AIHigh_None(carObj);
       if ((carObj->carFlags & 0x200U) != 0) {
-        humanCopCounter = humanCopCounter + 1;
-      }
+        humanCopCounter = humanCopCounter + 1; }
     }
 
     if (humanCopCounter == 2) {
-      AIHigh_CopGameType = COP_GAME_BTC_2HC;
-      return;
-    }
-    if (humanCopCounter == 1) {
-      if (copCounter == humanCopCounter) {
-        AIHigh_CopGameType = COP_GAME_BTC_1HC1HP;
-        return;
-      }
-    }
-    AIHigh_CopGameType = COP_GAME_BTC_1HC;
-  }
-  else {
-    for (carLoop = 0, copCounter = carLoop;
-         carLoop < Cars_gNumCars; carLoop++) {
-      Car_tObj *carObj = Cars_gList[carLoop];
-      highLevelAIObjs[carLoop] = (carObj->carFlags & 4U) != 0 ? new AIHigh_Human(carObj) :
-                               (carObj->carFlags & 8U) != 0 ? new AIHigh_Opponent(carObj) :
-                               (carObj->carFlags & 0x10U) != 0 ? new AIHigh_Traffic(carObj) :
-                               (carObj->carFlags & 0x20U) != 0 ? new AIHigh_Cop(carObj,copCounter++) :
-                               new AIHigh_None(carObj);
-    }
+      AIHigh_CopGameType = COP_GAME_BTC_2HC; return; }
+    if (humanCopCounter == 1) { if (copCounter == humanCopCounter) {
+        AIHigh_CopGameType = COP_GAME_BTC_1HC1HP; return; } }
 
-    if (0 < copCounter) {
-      AIHigh_CopGameType = COP_GAME_PURSUIT;
-      return;
+    AIHigh_CopGameType = COP_GAME_BTC_1HC; } else {
+
+
+
+
+    for (carLoop = 0, copCounter = carLoop; carLoop < Cars_gNumCars; carLoop++) {
+
+      Car_tObj *carObj = Cars_gList[carLoop]; highLevelAIObjs[carLoop] = (carObj->carFlags & 4U) != 0 ? new AIHigh_Human(carObj) : (carObj->carFlags & 8U) != 0 ? new AIHigh_Opponent(carObj) : (carObj->carFlags & 0x10U) != 0 ? new AIHigh_Traffic(carObj) : (carObj->carFlags & 0x20U) != 0 ? new AIHigh_Cop(carObj,copCounter++) :
+
+
+
+
+
+                               new AIHigh_None(carObj);
+
     }
-    AIHigh_CopGameType = COP_GAME_NO;
-    return;
-  }
-}
+    if (0 < copCounter) {
+      AIHigh_CopGameType = COP_GAME_PURSUIT; return; }
+
+    AIHigh_CopGameType = COP_GAME_NO; return; } }
 
 
 
@@ -169,16 +164,20 @@ inline bool AIHigh_Base::SchedulingOff() { return schedulingOff_ != 0; }
  * original identifier is unproven; this is an inferred semantic query. */
 void AIHigh_Execute(void)
 {
+
   for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+
     Car_tObj *carObj = Cars_gList[carLoop];
-    if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0) {
-      if (highLevelAIObjs[carLoop]->SchedulingOff() ||
-          (Sched_ExecuteCheck(1,0,carObj->N.distToPlayer,carObj->N.objID,
-             &AI_time,&AI_elapsedTime,&AI_iTime,carObj->forceNoSimOptz) != 0))
-        highLevelAIObjs[carLoop]->HighExecute();
-    }
-  }
-}
+
+    if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0) { if (highLevelAIObjs[carLoop]->SchedulingOff() || (Sched_ExecuteCheck(1,0,carObj->N.distToPlayer,carObj->N.objID,
+
+             &AI_time,&AI_elapsedTime,&AI_iTime,carObj->forceNoSimOptz) != 0)) highLevelAIObjs[carLoop]->HighExecute(); }
+
+
+
+
+
+  } }
 
 
 

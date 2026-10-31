@@ -69,24 +69,38 @@ void Sim_StartUp(void)
   simVar.keyRelease = 0;
   simGlobal.gameStarted = 0;
   simGlobal.gameTicks = 0;
+
+
+
+
   simGlobal.schedule32Hz = Sched_CreateNewSchedule(D_8013D410,0x46);   /* "Sc32-1" */
   simGlobal.schedule32Hz2 = Sched_CreateNewSchedule(D_8013D418,0xb);   /* "Sc32-2" */
   simGlobal.schedule64Hz = Sched_CreateNewSchedule(D_8013D420,0x1a);   /* "Sc64" */
+
   FastRandom_StartUp(GameSetup_gData.randSeed);
+
+
+
   AICop_StartUp();
   AIInit_StartUp1();
   R3DCar_StartUp();
   CarIO_StartUp();
   Cars_StartUp();
   R3DCar_PostStartUp();
+
   AIHigh_StartUp();
+
   Loading_UpdateLoadingScreen(8);
   Loading_UpdateLoadingScreen(9);
+
   AIInit_StartUp2();
   Loading_UpdateLoadingScreen(10);
+
   AudioCmn_Init();
-  Sched_AddFunction(simGlobal.schedule64Hz,(void (*)(void *))Camera_Update,(void *)0x0,100);
-  return;
+
+
+
+  Sched_AddFunction(simGlobal.schedule64Hz,(void (*)(void *))Camera_Update,(void *)0x0,100); return;
 }
 
 /* ---- Sim_Restart__Fv  [SIM.CPP:231-260] SLD-VERIFIED ---- */
@@ -122,21 +136,28 @@ void Sim_Restart(void)
 void Sim_CleanUp(void)
 
 {
+
   Force_Disable();
+
   SimQueue_CleanUp();
+
+
   Sched_DeleteFunction(simGlobal.schedule64Hz,(void (*)(void *))Camera_Update,(void *)0x0);
   AIInit_CleanUp2();
+
   AIHigh_CleanUp();
   Cars_CleanUp();
   R3DCar_CleanUp();
   CarIO_CleanUp();
   AIInit_CleanUp1();
   AICop_CleanUp();
+
+
+
   FastRandom_CleanUp();
   Sched_CleanUpSchedule(simGlobal.schedule32Hz);
   Sched_CleanUpSchedule(simGlobal.schedule32Hz2);
-  Sched_CleanUpSchedule(simGlobal.schedule64Hz);
-  return;
+  Sched_CleanUpSchedule(simGlobal.schedule64Hz); return;
 }
 
 /* ---- Sim_FadeInSFX__Fv  [SIM.CPP:290-301] SLD-VERIFIED ---- */
@@ -165,16 +186,6 @@ void Sim_FadeInSFX(void)
  * use as the current `for` initializer reproduce retail's block starts at
  * +0/+0, +0x7c/+0x7c, +0x8c/+0x8c and first block end at +0xd8.
  * This verifies the current representation, not an original source object. */
-void Sim_ProcessSimSchedules(void)
-
-{
-  if (!(((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
-       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
-        ((Cars_gNumHumanRaceCars == 2 &&
-          ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0))))))) {
-    if (simGlobal.gameStarted == 0) {
-      {
-        int i = (u_char)countdown - 1;
         /* SOURCE-REVIEW-UNRESOLVED: firstSfx has no retail declaration.
            Current RTL retains a QI constant SET and hoisted zero-extension
            before combine; an int literal instead folds into addiu and changes
@@ -182,62 +193,151 @@ void Sim_ProcessSimSchedules(void)
            widened addition is8dif/197; multiply/shift is8dif/201 with a second
            induction variable. These failures do not prove a distinct source
            object or its original name/type. Revisit the pre-combine loop graph. */
-        char firstSfx;
-        if (i < 0) {
-          i = 0;
-        }
-        for (firstSfx = 0x23; i < 4; i = i + 1) {
-          AudioCmn_GetAsyncSfx(2,i + firstSfx,false);
-        }
+void Sim_ProcessSimSchedules(void)
+
+{
+  if (!(((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 || ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0))))))) {
+
+    if (simGlobal.gameStarted == 0) {
+      {
+
+
+
+
+
+
+
+
+
+        int i = (u_char)countdown - 1; char firstSfx; if (i < 0) { i = 0; } for (firstSfx = 0x23; i < 4; i = i + 1) {
+          AudioCmn_GetAsyncSfx(2,i + firstSfx,false); }
       }
+
       if (simGlobal.gameTicks >= counter[(u_char)countdown]) {
+
         if (0x1ff < simGlobal.gameTicks) {
           simGlobal.gameStarted = 1;
         }
         AudioCmn_PlaySound(-4,(u_char)countdown + 0x23,0,0x7f,0x40);
         countdown = countdown + '\x01';
       }
+
+
       Sim_FadeInSFX();
     }
   }
   else {
+
+
     Sim_FadeInSFX();
     simGlobal.gameStarted = 1;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   if ((simGlobal.gameTicks & 1U) == 0) {
+
+
+
+
+
     systemtask(0);
-    gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-    stackSpeedUpEnbabledFlag = 1;
+
+    gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
+
+
     Stats_ClearPosition();
+
+
     Collide_ClearCollisionRegistry();
+
+
     Sched_Execute(simGlobal.schedule32Hz);
+
+
     Cars_ManageBureaucracy();
-    gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-    stackSpeedUpEnbabledFlag = 0;
+
+    gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     Cars_CheckForAccidentScenes();
   }
-  gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-  stackSpeedUpEnbabledFlag = 1;
+
+
+
+
+
+  gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
   Sched_Execute(simGlobal.schedule64Hz);
-  gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-  stackSpeedUpEnbabledFlag = 0;
+  gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
+
+
+
+
+
   if ((simGlobal.gameTicks & 1U) != 0) {
-    gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-    stackSpeedUpEnbabledFlag = 1;
+
+
+
+
+    gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
     AIHigh_Execute();
-    gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-    stackSpeedUpEnbabledFlag = 0;
-    gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-    stackSpeedUpEnbabledFlag = 1;
+    gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
+
+
+
+
+
+
+
+
+    gWSavePtr = (u_long)SetSp(&gScratchLastWord); stackSpeedUpEnbabledFlag = 1;
     Sched_Execute(simGlobal.schedule32Hz2);
+
     Stats_TrackEndGame();
     Stats_DoPlayerGlue();
-    gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-    stackSpeedUpEnbabledFlag = 0;
+    gWSavePtr = (u_long)SetSp((void *)gWSavePtr); stackSpeedUpEnbabledFlag = 0;
     AudioClc_SoundCars();
   }
-  simGlobal.gameTicks = simGlobal.gameTicks + 1;
-  return;
+
+
+
+
+
+
+
+
+
+  simGlobal.gameTicks = simGlobal.gameTicks + 1; return;
 }
 
 /* ---- Sim_ProcessPause__Fv  [SIM.CPP:467-531] SLD-VERIFIED ---- */
@@ -247,52 +347,83 @@ static void Sim_ProcessPause(void)
   int r;
   
   if (unPauseDelay <= clock_realTime.time32Hz) {
+
+
     r = MPause_Logic();
+
     if (r == 1) {
+
       if (simVar.quickPauseSim == 0) {
         AudioCmn_UnPause();
-      }
-      gSimQueue_BlockSelf = 0;
+      } gSimQueue_BlockSelf = 0;
       simVar.pauseSim = 0;
+
       Force_UnPause();
     }
+
+
+
+
+
+
     else if (r == 2) {
+
       AudioCmn_UnPauseAndRestart();
       simVar.pauseSim = 1;
       simVar.endSimGame = 1;
+
+
+
+
       simVar.restartGame = 1;
     }
     else {
       if (1 < r - 4U) {
         return;
-      }
-      if (r == 5) {
+      } if (r == 5) {
         GameSetup_gData.pinkSlipsForfeit = (int)(Device_gPausePortIndex != '\0');
       }
       Hud_BTC_QuitOut();
+
       AudioCmn_UnPauseAndRestart();
+
       simVar.pauseSim = 0;
       simVar.endSimGame = 1;
       simVar.restartGame = 0;
       Stats_ExtrapolateOpponentTimes(1);
       quitType = 1;
-    }
-    MPause_EndPauseMenu();
+    } MPause_EndPauseMenu();
   }
   return;
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 /* ---- Sim_CheckForPause__Fi  [SIM.CPP:536-551] SLD-VERIFIED ---- */
 void Sim_CheckForPause(int checkInput)
 
 {
-  if ((((Replay_ReplayMode < 2) && (simVar.restartGame == 0)) && (0x20 < simGlobal.gameTicks)) &&
-     (((checkInput != 0 && (Input_Interface(6,1) != 0)) ||
-      (Device_gForcePause != 0)))) {
+  if ((((Replay_ReplayMode < 2) && (simVar.restartGame == 0)) && (0x20 < simGlobal.gameTicks)) && (((checkInput != 0 && (Input_Interface(6,1) != 0)) || (Device_gForcePause != 0)))) {
+
+
+
+
     unPauseDelay = clock_realTime.time32Hz + 4;
     AudioCmn_Pause();
     gSimQueue_BlockSelf = 1;
     simVar.pauseSim = 1;
+
+
     Force_Pause();
   }
   return;

@@ -185,7 +185,6 @@ tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,t
   this->fEnabledTransitionVal = 0;
   this->fNumFrames = numFrames;
   this->fButtonImage = firstFrame;
-  return;
 }
 
 
@@ -333,13 +332,11 @@ tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice(u_int textDescription
           int firstFrame,int numFrames)
   : tMenuItemLeftRightChoice(textDescription,dataPtr)
 {
-  
   this->fButtonImage = firstFrame;
+  this->fNumFrames = numFrames;
   this->fOffset = 0xe;
   this->fTransitionVal = 0;
   this->fTransitionSpeed = 0;
-  this->fNumFrames = numFrames;
-  return;
 }
 
 
@@ -530,7 +527,6 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
   r.w = 0x129;
   r.h = left->height;
   DrawShape_NFS4RoundRectangle(-1,r,(short)selected);
-  return;
 }
 
 
@@ -616,8 +612,9 @@ tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
 
+
+
   this->tMenuConstructor(firstItem,(&firstItem + 1));
-  return;
 }
 
 
@@ -641,6 +638,7 @@ tMenuNFS4::~tMenuNFS4() {}
 
 void tMenuNFS4::Initialize()
 {
+
   this->tMenu::Initialize();
   this->fLastItem = (char)this->fCurrentItem;
   this->fInItemTransition = 0;
@@ -740,8 +738,11 @@ void tMenuNFS4::UpdateTransition()
 void tMenuNFS4::DrawItem(int item)
 
 {
+
+
+
+
   this->fItemList[item]->Draw(10,item * 0x12 + 0x2b,item == this->fCurrentItem);
-  return;
 }
 
 
@@ -795,6 +796,7 @@ tMenuNFS4TwoPlayer::~tMenuNFS4TwoPlayer() {}
 
 void tMenuNFS4TwoPlayer::DrawItem(int item)
 {
+
   short y;
 
   y = 0x2b;
@@ -830,6 +832,10 @@ tMenuNFS4Bottom::~tMenuNFS4Bottom() {}
 void tMenuNFS4Bottom::Draw()
 
 {
+
+
+
+
   short i;
   RECT r;
 
@@ -904,7 +910,6 @@ void tMenuBlank::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuComm
 void tMenuBlank::Initialize()
 
 {
-  return;
 }
 
 
@@ -948,6 +953,8 @@ void tMenuBlank::TransitionOn()
 bool tMenuBlank::TransitionIsFinished()
 
 {
+
+
   if (0 < *(signed char *)&this->fTransitionDirection) {
     *(int *)&this->fInMenuTransition = (u_int)(int)this->fTransitionVal >> 0x1f;
   }
@@ -966,10 +973,10 @@ tMenuOptions::tMenuOptions(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
               tMenuItem *firstItem,...)
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
+
   
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fPlayer = player;
-  return;
 }
 
 
@@ -1076,6 +1083,8 @@ static inline u_long tMenuOptions_Ticks(void) { return ticks; }
 
 void tMenuOptions::TransitionOn()
 {
+
+
   for (int i = 0; this->fItemList[i] != 0; i++) {
     if (MenuItem_IsEnabled(this->fItemList[i])) {
       this->fItemList[i]->TransitionOn();
@@ -1128,9 +1137,7 @@ bool tMenuOptions::IsSubMenu()
 
 void tMenuBlank::UpdateTransition()
 
-{
-  return;
-}
+{ }
 
 
 

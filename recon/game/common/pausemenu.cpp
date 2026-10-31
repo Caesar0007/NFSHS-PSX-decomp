@@ -56,19 +56,19 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,short x)
 
-{
-  char *str;
-  short flags = TextSys_WordFlags(index);
-  short color;
-  
-  str = TextSys_Word(index);
-  color = 4;
-  if (selected != 0) {
-    color = 3;
-  }
-  PauseMenu_FullText(str,x,flags,color);
-  return;
-}
+{ char *str;
+
+  short flags = TextSys_WordFlags(index); short color;
+
+
+  str = TextSys_Word(index); color = 4;
+
+
+
+
+  if (selected != 0) { color = 3; }
+
+  PauseMenu_FullText(str,x,flags,color); return; }
 
 
 
@@ -363,27 +363,22 @@ tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice() {}
 
 /* ---- tPMenuItemLeftRightChoice::ProcessInput  [PAUSEMENU.CPP:329-341] SLD-VERIFIED ---- */
 
+/* SYM-ABI-PARAM: command -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
 void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &)
 
 {
-  /* SYM-ABI-PARAM: command -- required by the virtual signature/linkage but
-     unused and therefore absent from the optimized SYM declaration block. */
-  if (keyval == kInput_KeyType_Left) {
-    goto left;
-  }
-  if (keyval == kInput_KeyType_Right) {
-    goto right;
-  }
-  return;
+  if (keyval == kInput_KeyType_Left) { goto left; } if (keyval == kInput_KeyType_Right) { goto right; } return; left:
 
-left:
+
     this->fData->Decrement((tPlayer)-1);
-    goto processed;
-right:
-    this->fData->Increment((tPlayer)-1);
-processed:
-  keyval = kInput_KeyType_AlreadyProcessed;
-  return;
+
+    goto processed; right:
+
+    this->fData->Increment((tPlayer)-1); processed:
+  keyval = kInput_KeyType_AlreadyProcessed; return;
+
+
 }
 
 
@@ -394,47 +389,36 @@ processed:
  * changes register allocation; the separate statement retains the retail
  * call/load order and both canonical inline receiver pairs. */
 
+/* SYM-CODEGEN-CARRIER: text -- virtual TextValue result retained across
+     drawing and arrow-layout calls; optimized SYM gives it no debug home. */
+/* SYM-CODEGEN-CARRIER: textX -- cached TextSys_WordX result shared by the
+     label draw and both arrow positions. */
 void tPMenuItemLeftRightChoice::Draw(bool selected)
 
-{
-  /* SYM-CODEGEN-CARRIER: text -- virtual TextValue result retained across
-     drawing and arrow-layout calls; optimized SYM gives it no debug home. */
-  short text;
-  /* SYM-CODEGEN-CARRIER: textX -- cached TextSys_WordX result shared by the
-     label draw and both arrow positions. */
-  short textX;
-  int y;
+{ short text; short textX; int y;
 
-  textX = (short)TextSys_WordX(this->fTextDescription);
-  PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
+
+
+  textX = (short)TextSys_WordX(this->fTextDescription); PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
+
+
              this->IsDisabled(), textX);
-  text = this->fData->TextValue((tPlayer)-1);
-  textX = (short)TextSys_WordX((int)text);
-  PauseMenu_MenuTextPositioned(text, (short)selected,
-                               this->IsDisabled(), textX);
-  y = gPause_CurrentY;
-  if ((selected != 0) && (GameSetup_gData.userSetting.language == 0))
-  {
-    struct PMenuTag {
-      u_int addr : 24;
-      u_int len : 8;
-    };
-    POLY_GT4 *prim;
 
-    prim = (POLY_GT4 *)Render_gPacketPtr;
-    ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
-    ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
-    Render_gPacketPtr = (u_char *)(prim + 1);
-    Hud_BuildGT4(prim, HudPmx_gShapes + 0x12,
+
+  text = this->fData->TextValue((tPlayer)-1);
+  textX = (short)TextSys_WordX((int)text); PauseMenu_MenuTextPositioned(text, (short)selected,
+
+                               this->IsDisabled(), textX);
+
+  y = gPause_CurrentY;
+  if ((selected != 0) && (GameSetup_gData.userSetting.language == 0)) { struct PMenuTag { u_int addr : 24; u_int len : 8; }; POLY_GT4 *prim;
+
+
+    prim = (POLY_GT4 *)Render_gPacketPtr; ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr; ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)(prim + 1); Hud_BuildGT4(prim, HudPmx_gShapes + 0x12,
                  textX - textpixels(TextSys_Word((int)text)) - 8, y + 5, 0xbebe);
 
-    prim = (POLY_GT4 *)Render_gPacketPtr;
-    ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
-    ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
-    Render_gPacketPtr = (u_char *)(prim + 1);
-    Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, textX + 4, y + 5, 0xbebe);
-  }
-}
+    prim = (POLY_GT4 *)Render_gPacketPtr; ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr; ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim; Render_gPacketPtr = (u_char *)(prim + 1);
+    Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, textX + 4, y + 5, 0xbebe); } }
 
 
 
@@ -466,49 +450,39 @@ bool tPMenuItemLeftRightSlider::Debounce()
 
 /* ---- tPMenuItemLeftRightSlider::ProcessInput [PAUSEMENU.CPP:458-485; source/SLD review open] ---- */
 
-void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &)
-
-{
-  bool sound;
-
-  /* The unused command reference remains in the virtual ABI but is unnamed
+/* The unused command reference remains in the virtual ABI but is unnamed
      in retail SYM. */
-  
-  sound = false;
-  switch (keyval) {
-  case kInput_KeyType_Left:
-    if (0 < *this->fData) {
-      gMPauseUpdateNextTime = 1;
-      *this->fData = (0 < *this->fData - (u_char)this->fMaxVal / 0x1e)
-          ? *this->fData - (u_char)this->fMaxVal / 0x1e : 0;
-      sound = true;
-    }
-    keyval = kInput_KeyType_AlreadyProcessed;
-    break;
-  case kInput_KeyType_Right:
-    if (*this->fData < (int)(u_int)(u_char)this->fMaxVal) {
-      /* SOURCE-REVIEW-UNRESOLVED: max is absent from retail SYM. The bound
+/* SOURCE-REVIEW-UNRESOLVED: max is absent from retail SYM. The bound
          assignment inside the comparison removes the former value capture
          without changing 71 words. This remaining object still needs recovery. */
-      u_int max;
+void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &)
 
-      gMPauseUpdateNextTime = 1;
-      if (*this->fData + (u_char)this->fMaxVal / 0x1e <=
+{ bool sound; sound = false;
+
+  switch (keyval) { case kInput_KeyType_Left:
+
+
+    if (0 < *this->fData) {
+
+      gMPauseUpdateNextTime = 1; *this->fData = (0 < *this->fData - (u_char)this->fMaxVal / 0x1e)
+          ? *this->fData - (u_char)this->fMaxVal / 0x1e : 0; sound = true; } keyval = kInput_KeyType_AlreadyProcessed; break; case kInput_KeyType_Right:
+
+
+
+    if (*this->fData < (int)(u_int)(u_char)this->fMaxVal) { u_int max;
+
+      gMPauseUpdateNextTime = 1; if (*this->fData + (u_char)this->fMaxVal / 0x1e <=
+
           (int)(max = (u_char)this->fMaxVal)) {
-        max = *this->fData + (u_char)this->fMaxVal / 0x1e;
-      }
-      *this->fData = max;
-      sound = true;
-    }
-    keyval = kInput_KeyType_AlreadyProcessed;
-    break;
-  default:
-    break;
-  }
+        max = *this->fData + (u_char)this->fMaxVal / 0x1e; } *this->fData = max; sound = true; } keyval = kInput_KeyType_AlreadyProcessed; break; default: break; }
   if (sound) {
-    AudioCmn_PlayPauseSound(5);
-  }
-  return;
+
+    AudioCmn_PlayPauseSound(5); } return;
+
+
+
+
+
 }
 
 
@@ -720,17 +694,19 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
 
 {
   if (keyval == kInput_KeyType_Cross) {
+
+
     AudioCmn_PlayPauseSound(4);
     if (this->NextMenu() != 0) {
+
       command.type = kMPause_GoToMenu;
-      command.nextMenu = this->NextMenu();
-    }
+      command.nextMenu = this->NextMenu(); }
+
     if (this->fOnButtonPress != 0x0) {
-      (*this->fOnButtonPress)(command);
-    }
-    keyval = kInput_KeyType_AlreadyProcessed;
-  }
-  return;
+      (*this->fOnButtonPress)(command); }
+    keyval = kInput_KeyType_AlreadyProcessed; } return;
+
+
 }
 
 
@@ -757,11 +733,12 @@ void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &
 {
   if (keyval == kInput_KeyType_Cross) {
 
+
     AudioCmn_PlayPauseSound(4);
     command.type = this->fCommand;
-    keyval = kInput_KeyType_AlreadyProcessed;
-  }
-  return;
+    keyval = kInput_KeyType_AlreadyProcessed; } return;
+
+
 }
 
 
@@ -825,16 +802,17 @@ tPMenu::~tPMenu() {}
 void tPMenu::Initialize()
 
 {
+
   this->fCurrentItem = 0;
-  this->fHighlight = 1;
-  if (this->fItemList[this->fCurrentItem]->IsEnabled() &&
-      (this->fItemList[this->fCurrentItem]->IsNavigable() != 0)) return;
-  while ((this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) &&
-         (this->fItemList[this->fCurrentItem]->IsDisabled() ||
+  this->fHighlight = 1; if (this->fItemList[this->fCurrentItem]->IsEnabled() &&
+
+      (this->fItemList[this->fCurrentItem]->IsNavigable() != 0)) return; while ((this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) && (this->fItemList[this->fCurrentItem]->IsDisabled() ||
+
+
+
+
           (this->fItemList[this->fCurrentItem]->IsNavigable() == 0))) {
-    this->fCurrentItem = this->fCurrentItem + 1;
-  }
-  return;
+    this->fCurrentItem = this->fCurrentItem + 1; } return;
 }
 
 
@@ -858,24 +836,16 @@ bool tPMenu::Debounce()
 
 void tPMenu::CheckForDisabled()
 
-{
-  while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
+{ while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
+
          this->fItemList[this->fCurrentItem]->IsDisabled()) {
+
     if (0 < this->fCurrentItem) {
-      this->fCurrentItem = this->fCurrentItem + -1;
-    }
-    else {
-      if (this->fItemList[this->fCurrentItem + 1] !=
-          (tPMenuItem *)0x0) {
-        do {
-          this->fCurrentItem = this->fCurrentItem + 1;
-        } while (this->fItemList[this->fCurrentItem + 1] !=
-                 (tPMenuItem *)0x0);
-      }
-    }
-  }
-  return;
-}
+      this->fCurrentItem = this->fCurrentItem + -1; } else { if (this->fItemList[this->fCurrentItem + 1] !=
+
+
+          (tPMenuItem *)0x0) { do {
+          this->fCurrentItem = this->fCurrentItem + 1; } while (this->fItemList[this->fCurrentItem + 1] != (tPMenuItem *)0x0); } } } return; }
 
 
 
@@ -887,58 +857,59 @@ void tPMenu::CheckForDisabled()
 void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
-  if (this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) {
-    this->fItemList[this->fCurrentItem]->ProcessInput(keyval,command);
-  }
-  switch (keyval) {
-    case kInput_KeyType_Up:
-      AudioCmn_PlayPauseSound(3);
-      do {
-        if (0 < this->fCurrentItem) {
-          this->fCurrentItem = this->fCurrentItem + -1;
-        }
-        else {
-          if (this->fItemList[this->fCurrentItem + 1] !=
-              (tPMenuItem *)0x0) {
-            do {
-              this->fCurrentItem = this->fCurrentItem + 1;
-            } while (this->fItemList[this->fCurrentItem + 1] !=
-                     (tPMenuItem *)0x0);
-          }
-        }
-      } while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
-               this->fItemList[this->fCurrentItem]->IsDisabled());
-      keyval = kInput_KeyType_AlreadyProcessed;
-      return;
 
-    case kInput_KeyType_Down:
-      AudioCmn_PlayPauseSound(3);
-      do {
+
+  if (this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) {
+    this->fItemList[this->fCurrentItem]->ProcessInput(keyval,command); }
+
+  switch (keyval) { case kInput_KeyType_Up:
+
+
+      AudioCmn_PlayPauseSound(3); do {
+
+
+
+        if (0 < this->fCurrentItem) {
+          this->fCurrentItem = this->fCurrentItem + -1; } else { if (this->fItemList[this->fCurrentItem + 1] !=
+
+
+              (tPMenuItem *)0x0) { do {
+              this->fCurrentItem = this->fCurrentItem + 1; } while (this->fItemList[this->fCurrentItem + 1] != (tPMenuItem *)0x0); } } } while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
+
+
+               this->fItemList[this->fCurrentItem]->IsDisabled()); keyval = kInput_KeyType_AlreadyProcessed;
+
+
+
+      return; case kInput_KeyType_Down:
+
+
+      AudioCmn_PlayPauseSound(3); do {
+
+
+
         this->fCurrentItem = this->fCurrentItem + 1;
         if (this->fItemList[this->fCurrentItem] == (tPMenuItem *)0x0) {
-          this->fCurrentItem = 0;
-        }
-      } while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
-               this->fItemList[this->fCurrentItem]->IsDisabled());
-      keyval = kInput_KeyType_AlreadyProcessed;
-      return;
+          this->fCurrentItem = 0; } } while ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
 
-    case kInput_KeyType_Start:
+               this->fItemList[this->fCurrentItem]->IsDisabled()); keyval = kInput_KeyType_AlreadyProcessed;
+
+
+      return; case kInput_KeyType_Start:
+
+
+
       AudioCmn_PlayPauseSound(4);
-      command.type = kMPause_Continue;
-      keyval = kInput_KeyType_AlreadyProcessed;
-      return;
+      command.type = kMPause_Continue; keyval = kInput_KeyType_AlreadyProcessed;
 
-    case kInput_KeyType_Triangle:
+
+      return; case kInput_KeyType_Triangle:
+
       AudioCmn_PlayPauseSound(4);
       command.type = kMPause_BackupMenu;
-      keyval = kInput_KeyType_AlreadyProcessed;
-      break;
+      keyval = kInput_KeyType_AlreadyProcessed; break; default: return; } return;
 
-    default:
-      return;
-  }
-  return;
+
 }
 
 

@@ -591,10 +591,8 @@ void TurnOffTV(tTVConfig &tv)
 void TurnOnTV(tTVConfig &tv)
 
 {
-  
   tv.state = tv_TransitionOn;
   tv.destBrightness = 0x80;
-  return;
 }
 
 

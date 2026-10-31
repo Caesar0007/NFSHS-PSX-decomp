@@ -198,6 +198,9 @@ void DrawCar(tCarInfo &carInfo,short x,short y,float camerax,float cameray,char 
 tScreenCarSelect::tScreenCarSelect()
 
 {
+
+
+
   tOverlay *overlay;
   short i;
 
@@ -217,7 +220,6 @@ tScreenCarSelect::tScreenCarSelect()
   for (i = 0; i < 4; i = i + 1) {
     this->fCurrentOverlays[i] = 0;
   }
-  return;
 }
 
 
@@ -598,7 +600,6 @@ void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
     this->SetBrightness(0,0);
     TurnOff(this->fVideoWall);
   }
-  return;
 }
 
 
@@ -622,10 +623,8 @@ void tScreenCarSelect::AllocateAsyncBuffer()
 void tScreenCarSelect::FreeAsyncBuffer()
 
 {
-  
   Platform_ResetDCTBuffer();
   this->fSwapShapes.fDestFile = (char *)0x0;
-  return;
 }
 
 
@@ -930,7 +929,6 @@ void tScreenCarSelect::SetBrightness(short bright,short i)
 
 {
   this->fDestBrightness[i] = bright;
-  return;
 }
 
 
@@ -1298,7 +1296,6 @@ void tScreenCarSelectDuel::PreLoad()
 void tScreenCarSelectDuel::AllocateAsyncBuffer()
 
 {
-  return;
 }
 
 
@@ -1307,11 +1304,10 @@ void tScreenCarSelectDuel::AllocateAsyncBuffer()
 void tScreenCarSelectDuel::FreeAsyncBuffer()
 
 {
-  
+
   Platform_ResetDCTBuffer();
   this->fSwapShapes.fDestFile = (char *)0x0;
   (this->fOpponentShapes).fDestFile = (char *)0x0;
-  return;
 }
 
 
@@ -1348,11 +1344,9 @@ void tScreenCarSelectDuel::InitializeVideoWall()
 void tScreenCarSelectDuel::Initialize()
 
 {
-  
   this->tScreenCarSelect::Initialize();
   this->fState = 0;
   gShowroomLights[0] = 0;
-  return;
 }
 
 
@@ -1361,10 +1355,8 @@ void tScreenCarSelectDuel::Initialize()
 void tScreenCarSelectDuel::Cleanup()
 
 {
-  
   ::FreeShapes((tScreen *)this,&this->fOpponentShapes);
   this->tScreenCarSelect::Cleanup();
-  return;
 }
 
 
@@ -1404,7 +1396,6 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
   this->fVideoWall->SetValid(validCar);
   SetAvailable(this->fVideoWall,(ushort)carInfo.fAvailable);
   ::Draw(this->fVideoWall);
-  return;
 }
 
 
@@ -1677,7 +1668,6 @@ void tScreenCarSelectDuel::DrawForeground()
     y = 0x96;
     carManager.GetStockCar((ushort)(byte)frontEnd.oppCar,carInfo);
   }
-  return;
 }
 
 
@@ -1836,7 +1826,6 @@ void tScreenCarSelectTwoPlayer::TurnOffVideoWall()
 
 {
   TurnOffInstant(this->fVideoWall);
-  return;
 }
 
 
@@ -1959,6 +1948,10 @@ extern tFEApplication *FEAppA[] asm("FEApp");
 
 void tScreenCarSelectTwoPlayer::DrawForeground()
 {
+
+
+
+
   tCarInfo carInfo;
   short j;
   short yOffset;
@@ -2015,7 +2008,6 @@ void tScreenCarSelectTwoPlayer::AllocateAsyncBuffer()
 
 {
   this->fSwapShapes.fDestFile = Platform_GetDCTBuffer(16000,"VideoWall");
-  return;
 }
 
 
@@ -2060,10 +2052,8 @@ void tScreenCarSelectTwoPlayer::Initialize()
 void tScreenCarSelectTwoPlayer::Cleanup()
 
 {
-  
   ((tDialogBase *)&this->CarDialog)->Hide();
   this->tScreenCarSelect::Cleanup();
-  return;
 }
 
 
@@ -2107,7 +2097,6 @@ void tScreenPinkSlipsCarSelect::DrawBackground()
   if (this->fExitingScreen != 0) {
     ((tDialogBase *)&this->CarDialog)->Hide();
   }
-  return;
 }
 
 
@@ -2214,9 +2203,7 @@ DoMC_pinkSlipsIter:
 void tScreenPinkSlipsCarSelect::DrawForeground()
 
 {
-  
   this->tScreenCarSelectTwoPlayer::DrawForeground();
-  return;
 }
 
 

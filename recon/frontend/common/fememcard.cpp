@@ -84,13 +84,13 @@ inline tDialogNoInputMessage::tDialogNoInputMessage()
 static void ChecksumData(tMemCardData *memCardData)
 
 {
+
   memCardData->fSize = 0x14ac;
   memCardData->frontEndCRC = crc16((unsigned char *)&memCardData->frontEnd,0x450);
   memCardData->carInfoCRC = crc16((unsigned char *)&memCardData->carInfo,0xe0);
   memCardData->trackInfoCRC = crc16((unsigned char *)&memCardData->trackInfo,0x10);
   memCardData->tournamentCRC = crc16((unsigned char *)&memCardData->tournament,0xb0);
   memCardData->recordsCRC = crc16((unsigned char *)memCardData->records,0xe9c);
-  return;
 }
 
 
@@ -122,8 +122,16 @@ static bool VerifySuccessfulRead(tMemCardData *memCardData)
 void MakeWayForMemoryCard(void)
 
 {
+
+
+
+
+
+
+
+
+
   deltimer(Clock_MasterInterruptHandler);
-  return;
 }
 
 
@@ -254,6 +262,9 @@ static int Confirm(int Text,int yesText)
 static int OverwriteConfirm(void)
 
 {
+
+
+
   return Confirm(CURRENTPLAYER + 0x323,0x28f);
 }
 
@@ -274,6 +285,11 @@ static int OverwriteAlwaysYes(void)
 static int FormatConfirm(void)
 
 {
+
+
+
+
+
   return Confirm(CURRENTPLAYER + 0x327,0x290);
 }
 
@@ -284,7 +300,9 @@ static int FormatConfirm(void)
 static void LoadingProc(void)
 
 {
-  return;
+
+
+
 }
 
 
@@ -294,8 +312,10 @@ static void LoadingProc(void)
 static void LoadingRedrawProc(void)
 
 {
+
+
+
   Redraw(FEApp);
-  return;
 }
 
 
@@ -305,8 +325,10 @@ static void LoadingRedrawProc(void)
 static void SavingProc(void)
 
 {
+
+
+
   Redraw(FEApp);
-  return;
 }
 
 

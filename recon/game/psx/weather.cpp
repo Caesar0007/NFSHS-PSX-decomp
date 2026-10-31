@@ -176,15 +176,11 @@ void Weather_SetIdentMatrix(void)
 {
   MATRIX Ident;
 
-  Ident.m[0][0] = 0x1000;
-  Ident.m[0][1] = 0;
-  Ident.m[0][2] = 0;
-  Ident.m[1][0] = 0;
-  Ident.m[1][1] = -0x1000;
-  Ident.m[1][2] = 0;
-  Ident.m[2][0] = 0;
-  Ident.m[2][1] = 0;
-  Ident.m[2][2] = 0x1000;
+
+  Ident.m[0][0] = 0x1000; Ident.m[0][1] = 0; Ident.m[0][2] = 0;
+  Ident.m[1][0] = 0; Ident.m[1][1] = -0x1000; Ident.m[1][2] = 0;
+  Ident.m[2][0] = 0; Ident.m[2][1] = 0; Ident.m[2][2] = 0x1000;
+
   Ident.t[0] = 0;
   Ident.t[1] = 0;
   Ident.t[2] = 0;
@@ -256,25 +252,15 @@ void Weather_InitRain(void)
 void Weather_InitSplats(void)
 
 {
-
   int i;
-  GameSetup_tData *gameSetup; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct field form15diff/66 on current for owner,not original-object proof. */
-  int commModeNetwork; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original loop comparison-constant producer remains unknown. */
-
-  for (i = 0, gameSetup = &GameSetup_gData, commModeNetwork = 1;;) {
-    int ySize;
-    if (!(i < 0x13)) break;
+  GameSetup_tData *gameSetup; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; direct field form15diff/66 on current for owner,not original-object proof. */ int commModeNetwork; /* SOURCE-REVIEW-UNRESOLVED: absent from retail; original loop comparison-constant producer remains unknown. */ for (i = 0, gameSetup = &GameSetup_gData, commModeNetwork = 1;;) { int ySize; if (!(i < 0x13)) break;
     ySize = 0xf0;
-    if (gameSetup->commMode == commModeNetwork) {
-      ySize = 0x78;
+    if (gameSetup->commMode == commModeNetwork) { ySize = 0x78;
     }
     Weather_gSplatInfo[i].pos.vx = (short)((u_int)random() % 320);
     Weather_gSplatInfo[i].pos.vy = (short)((u_int)random() % ySize);
     Weather_gSplatInfo[i].startTick = (u_int)random() % 300;
-    i = i + 1;
-  }
-  return;
-}
+    i = i + 1; } return; }
 
 /* ---- Weather_GetNewState__Fv  [WEATHER.CPP:238-249] SLD-VERIFIED ---- */
 int Weather_GetNewState(void)
@@ -283,6 +269,7 @@ int Weather_GetNewState(void)
   int randseed;
 
   randseed = random() & 3;
+
   if (randseed < 2) {
     return 0;
   }
@@ -341,9 +328,6 @@ void Weather_ChangeIntensityState(void)
 }
 
 /* ---- Weather_ChangeDensityBasedOnTime__Fv  [WEATHER.CPP:296-319] SLD-VERIFIED ---- */
-void Weather_ChangeDensityBasedOnTime(void)
-
-{
   /* MATCH (W83-A7, brdist word #5 cured): natural if/else-if/else with the
      call in ALL THREE arms.  The goto spelling made guard 2 branch TO the
      call, so its condition read EQ and relax_delay_slots' invert-and-swap
@@ -353,25 +337,32 @@ void Weather_ChangeDensityBasedOnTime(void)
      both j's advance, and cross_jump builds retail's shared jal block.  The
      third guard's operand order (TICKS > goal) is load-bearing (swapped = 4
      posmis).  Receipt: scratchpad/w83/A7_receipt.md. */
+void Weather_ChangeDensityBasedOnTime(void)
+
+{
+
   if (Weather_gDensityChangeFactor > 0) {
+
     if (Weather_gSys.num[0] >= Weather_gDensityTbl[Weather_gDensityGoalState]) {
       Weather_ChangeDensityState();
     }
-  }
-  else if (Weather_gDensityChangeFactor < 0) {
+  } else if (Weather_gDensityChangeFactor < 0) {
+
     if (Weather_gSys.num[0] <= Weather_gDensityTbl[Weather_gDensityGoalState]) {
       Weather_ChangeDensityState();
     }
   }
+
   else if (simGlobal.gameTicks > Weather_gDensityTimerGoal) {
+
     Weather_ChangeDensityState();
   }
+
+
+
   Weather_gSys.num[0] = Weather_gSys.num[0] + Weather_gDensityChangeFactor;
-  if (Weather_gSys.num[0] < 1) {
-    Weather_gSys.num[0] = 0;
-  }
-  return;
-}
+
+  if (Weather_gSys.num[0] < 1) { Weather_gSys.num[0] = 0; } return; }
 
 /* ---- Weather_ChangeIntensityBasedOnTime__Fv  [WEATHER.CPP:323-350] SLD-REVIEWED ----
  * 2026-10-01: structured positive/negative/zero guards each express the real
@@ -383,26 +374,33 @@ void Weather_ChangeDensityBasedOnTime(void)
 void Weather_ChangeIntensityBasedOnTime(void)
 
 {
+
   if (Weather_gIntensityChangeFactor > 0) {
+
     if ((int)Weather_gSys.velocity.vy >= Weather_gIntensityTbl[Weather_gIntensityGoalState])
       Weather_ChangeIntensityState();
   }
   else if (Weather_gIntensityChangeFactor < 0) {
+
     if ((int)Weather_gSys.velocity.vy <= Weather_gIntensityTbl[Weather_gIntensityGoalState])
       Weather_ChangeIntensityState();
   }
+
+
+
   else if (simGlobal.gameTicks > Weather_gIntensityTimerGoal) {
+
     Weather_ChangeIntensityState();
   }
+
+
+
   Weather_gSys.velocity.vy = Weather_gSys.velocity.vy + (short)Weather_gIntensityChangeFactor;
-  if (Weather_gSys.velocity.vy < -0x20) {
-    Weather_gType = 1;
+
+
+  if (Weather_gSys.velocity.vy < -0x20) { Weather_gType = 1;
   }
-  else {
-    Weather_gType = 0;
-  }
-  return;
-}
+  else { Weather_gType = 0; } return; }
 
 /* ---- Weather_InitStateControls__Fv  [WEATHER.CPP:355-387] SLD-VERIFIED ---- */
 void Weather_InitStateControls(void)
@@ -598,26 +596,32 @@ void Weather_Init(void)
 void Weather_DeInit(void)
 
 {
+
   if (GameSetup_gData.Weather != 0) {
+
+
+
+
+
+
+
+
+
+
+
+
     if (Weather_gSplatInfo != (Weather_tSplatInfo *)0x0) {
       purgememadr(Weather_gSplatInfo);
-    }
-    if (Weather_gPos != (SVECTOR *)0x0) {
+    } if (Weather_gPos != (SVECTOR *)0x0) {
       purgememadr(Weather_gPos);
-    }
-    if (Weather_gPrevPos != (DVECTOR *)0x0) {
+    } if (Weather_gPrevPos != (DVECTOR *)0x0) {
       purgememadr(Weather_gPrevPos);
-    }
-    if (Weather_gWasDrawn != (char *)0x0) {
+    } if (Weather_gWasDrawn != (char *)0x0) {
       purgememadr(Weather_gWasDrawn);
-    }
-    Weather_gSplatInfo = (Weather_tSplatInfo *)0x0;
+    } Weather_gSplatInfo = (Weather_tSplatInfo *)0x0;
     Weather_gPos = (SVECTOR *)0x0;
     Weather_gPrevPos = (DVECTOR *)0x0;
-    Weather_gWasDrawn = (char *)0x0;
-  }
-  return;
-}
+    Weather_gWasDrawn = (char *)0x0; } return; }
 
 /* ---- Weather_TransformVertex__FP10matrixtdefiP7SVECTOR  [WEATHER.CPP:581-615] SLD-VERIFIED ----
  * NEAR-MISS 32 diffs (49/49 insns, down from 39): moved the loop's break-test BEFORE `next=s+1`
@@ -650,21 +654,20 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
   VECTOR tv;
 
+
   Weather_SetMatrix(m);
+
   gte_ldv0(s);
   gte_mvmva(1,0,0,0,0);
   n = n + -1;
   gte_stlvnl(&tv);
-  while (true) {
-    n = n + -1;
-    if (n == -1) break;
+
+  while (true) { n = n + -1; if (n == -1) break;
+
     gte_ldv0(s + 1);
     gte_mvmva(1,0,0,0,0);
     {
-    int r0;
-    int r1;
-    int r2;
-    r0 = tv.vx;
+    int r0; int r1; int r2; r0 = tv.vx;
     r1 = tv.vy;
     r2 = tv.vz;
     s->vx = (short)r0;
@@ -672,13 +675,12 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
     s->vz = (short)r2;
     }
     gte_stlvnl(&tv);
+
     s = s + 1;
   }
   {
     int r0;
-    int r1;
-    int r2;
-    r0 = tv.vx;
+    int r1; int r2; r0 = tv.vx;
     r1 = tv.vy;
     r2 = tv.vz;
     s->vx = (short)r0;
@@ -771,35 +773,31 @@ void Weather_QuickReOrthogonalize
 {
   coorddef upvector = {0,0x10000,0};
   coorddef *nrotx;
-  coorddef *nroty;
-  coorddef *nrotz;
-  coorddef *roty;
-  coorddef *rotz;
-
-  nrotx = (coorddef *)rotNew;
+  coorddef *nroty; coorddef *nrotz; coorddef *roty; coorddef *rotz; nrotx = (coorddef *)rotNew;
   nroty = (coorddef *)(rotNew->m + 3);
   nrotz = (coorddef *)(rotNew->m + 6);
+
+
   roty = (coorddef *)(rot->m + 3);
   rotz = (coorddef *)(rot->m + 6);
+
   *nrotz = *rotz;
+
+
+
+
+
+
+
   Math_NormalizeVector(nrotz);
   if (0xfd70 <
       (0 < fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
-           fixedmult(upvector.z,rotz->z) ?
-       fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
-       fixedmult(upvector.z,rotz->z) :
-       -(fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) +
-         fixedmult(upvector.z,rotz->z)))) {
+           fixedmult(upvector.z,rotz->z) ? fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) + fixedmult(upvector.z,rotz->z) : -(fixedmult(upvector.x,rotz->x) + fixedmult(upvector.y,rotz->y) + fixedmult(upvector.z,rotz->z)))) {
     upvector = *roty;
   }
-  nrotx->x = fixedmult(upvector.y,nrotz->z) - fixedmult(upvector.z,nrotz->y);
-  nrotx->y = fixedmult(upvector.z,nrotz->x) - fixedmult(upvector.x,nrotz->z);
-  nrotx->z = fixedmult(upvector.x,nrotz->y) - fixedmult(upvector.y,nrotz->x);
+  nrotx->x = fixedmult(upvector.y,nrotz->z) - fixedmult(upvector.z,nrotz->y); nrotx->y = fixedmult(upvector.z,nrotz->x) - fixedmult(upvector.x,nrotz->z); nrotx->z = fixedmult(upvector.x,nrotz->y) - fixedmult(upvector.y,nrotz->x);
   Math_NormalizeVector(nrotx);
-  nroty->x = fixedmult(nrotz->y,nrotx->z) - fixedmult(nrotz->z,nrotx->y);
-  nroty->y = fixedmult(nrotz->z,nrotx->x) - fixedmult(nrotz->x,nrotx->z);
-  nroty->z = fixedmult(nrotz->x,nrotx->y) - fixedmult(nrotz->y,nrotx->x);
-  return;
+  nroty->x = fixedmult(nrotz->y,nrotx->z) - fixedmult(nrotz->z,nrotx->y); nroty->y = fixedmult(nrotz->z,nrotx->x) - fixedmult(nrotz->x,nrotx->z); nroty->z = fixedmult(nrotz->x,nrotx->y) - fixedmult(nrotz->y,nrotx->x); return;
 }
 /* ---- Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc  [WEATHER.CPP:704-887] SLD-VERIFIED ----
  * SYM (fsize 264, ra+s0-s6): Vi $s3, num $s4, wpt $s5, wd $s6; fn-block n $t2 +
@@ -842,6 +840,12 @@ void Weather_QuickReOrthogonalize
  * Two-arm call/writeback forms,including inverted condition polarity,both
  *47diff/260 versus251 and reverted. No new original-object necessity claim.
  */
+      /* MATCH: the oracle writes vx+vy as ONE aligned word (lw 0x70(sp); sw 0(s2))
+       * then vz as a halfword -- a COORD16/6-byte struct assign compiles to the
+       * align-2 lwl/lwr/swl/swr soup instead, so the word pun is the faithful form. */
+  /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
+  /* re-orthogonalize the camera matrix, build the frame-to-frame difference matrix, and transform
+     every particle by it so the whole field rotates rigidly with the camera */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
   int n;
@@ -849,30 +853,62 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   matrixtdef orthoMat;
   SVECTOR velocity_vector_change;
   SVECTOR total_vector_change;
+  {
+  {
+  SVECTOR temp_vector; VECTOR result; coorddef *cp; Weather_QuickReOrthogonalize(&Vi->cview.mrotationInvRaw,&orthoMat);
 
-  /* re-orthogonalize the camera matrix, build the frame-to-frame difference matrix, and transform
-     every particle by it so the whole field rotates rigidly with the camera */
-  {
-  {
-  SVECTOR temp_vector;
-  VECTOR result;
-  coorddef *cp;
-  Weather_QuickReOrthogonalize(&Vi->cview.mrotationInvRaw,&orthoMat);
+
   Math_fasttransmult(&prevCamMat[Vi->player],&orthoMat,&matdiff);
+
   transpose(&orthoMat,&prevCamMat[Vi->player]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   Weather_TransformVertex(&matdiff,num,wpt);
+
+
+
+
   Weather_SetMatrix(&Vi->cview.mrotationInvRaw);
 
   /* camera translation delta since last frame, rotated into camera space -> total_vector_change */
     cp = &Vi->cview.translation;
 
+
+
+
+
+
     temp_vector.vx = (short)((Vi->cview.translation.x - prevCamPos[Vi->player].x) / 0x400);
     temp_vector.vy = (short)((cp->y - prevCamPos[Vi->player].y) / 0x400);
     temp_vector.vz = (short)((cp->z - prevCamPos[Vi->player].z) / 0x400);
+
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
+
     prevCamPos[Vi->player] = *cp;
+
     gte_stlvnl(&result);
+
     total_vector_change.vx = -(short)result.vx;
     total_vector_change.vy = -(short)result.vy;
     total_vector_change.vz = -(short)result.vz;
@@ -882,37 +918,54 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   {
     SVECTOR temp_vector;
     VECTOR result;
+
+
     SVECTOR *vel = &Weather_gSys.velocity;
 
     temp_vector.vx = vel->vx;
     temp_vector.vy = vel->vy;
     temp_vector.vz = vel->vz;
+
+
+
+
+
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
     gte_stlvnl(&result);
+
     velocity_vector_change.vx = (short)result.vx;
     velocity_vector_change.vy = (short)result.vy;
     velocity_vector_change.vz = (short)result.vz;
+
+
+
     total_vector_change.vx = total_vector_change.vx + velocity_vector_change.vx;
     total_vector_change.vy = total_vector_change.vy + velocity_vector_change.vy;
     total_vector_change.vz = total_vector_change.vz + velocity_vector_change.vz;
   }
   }
   SVECTOR Weather_gTransformedRandomVelocityVectors [12];
-
-  /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
   {
-    n = 0;
-    while (1) {
-      if (12 <= n) break;
+    n = 0; while (1) { if (12 <= n) break;
       SVECTOR temp_vector;
       VECTOR result;
+
+
+
+
+
+
+
       temp_vector.vx = (signed char)Weather_gRandomVelocityVectors[n][0];
       temp_vector.vy = (signed char)Weather_gRandomVelocityVectors[n][1];
       temp_vector.vz = (signed char)Weather_gRandomVelocityVectors[n][2];
+
+
       gte_ldv0(&temp_vector);
       gte_mvmva(1,0,0,0,0);
       gte_stlvnl(&result);
+
       Weather_gTransformedRandomVelocityVectors[n].vx = (short)result.vx;
       Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
       Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
@@ -926,27 +979,57 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
     long n;
     short reset; /* SOURCE-REVIEW-UNRESOLVED: absent from retail despite debug elision; actual returned reset flag is captured before writeback. */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     tv = wpt;
-    for (n = 0;;) {
-      if (num <= n) break;
+
+    for (n = 0;;) { if (num <= n) break;
       SVECTOR pt;
       pt.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx +
+
+
+
+
               (tv->vx + total_vector_change.vx);
-      pt.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy +
-              (tv->vy + total_vector_change.vy);
-      pt.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz +
-              (tv->vz + total_vector_change.vz);
-      /* MATCH: the oracle writes vx+vy as ONE aligned word (lw 0x70(sp); sw 0(s2))
-       * then vz as a halfword -- a COORD16/6-byte struct assign compiles to the
-       * align-2 lwl/lwr/swl/swr soup instead, so the word pun is the faithful form. */
+      pt.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy + (tv->vy + total_vector_change.vy);
+      pt.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz + (tv->vz + total_vector_change.vz);
+
+
       reset = Weather_CheckAndResetParticles(&pt);
+
+
       *(long *)&tv->vx = *(long *)&pt.vx;
       tv->vz = pt.vz;
+
       tv = tv + 1;
+
       if (reset != 0) {
+
         wd[n] = 0;
       }
       n = n + 1;
+
+
+
+
+
+
     }
   }
 }
@@ -968,28 +1051,13 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
  * Old split/RMW necessity claims below are historical receipts,not live
  * exemptions. Full SLD/original spelling remains independently unsealed.
  */
-void Weather_CreateSnow(SVECTOR *pt)
-{
-  SVECTOR gv [4];
-
-  /* build the 4 corners of the snowflake quad (the packed SVECTOR[4] copies the compiler emitted
-     as lwl/lwr/swl/swr unaligned word moves -- here in their faithful struct-assignment form) */
-  gv[0] = *pt;
-  gv[1] = gv[0];
-  gv[2] = gv[1];
-  gv[1].vx = gv[1].vx + 0xa;
-  gv[2].vy = gv[2].vy - 0xa;
-  gv[3] = gv[1];
-  gv[3].vy = gv[2].vy;
-
-  /* project corners 0..2 with the GTE, link a POLY_FT4 into the ordering table */
-  {
-  POLY_FT4 *prim;
-  gte_ldv3(&gv[0],&gv[1],&gv[2]);
-  gte_rtpt();
-  prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
-  addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
-  RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
+  /* w46-a9: residual (b) -- the `(int)pt & 4` mask emitted BEFORE the `la` of
+   * gWeatherPixmap, retail after.  The cure is the HONEST INDEX FORM: the byte-offset
+   * cast is a Ghidra transcription of `gWeatherPixmap[bit]`, and writing the real
+   * array access lets gcc materialize the table address first and fold the scale.
+   * (`char *wp = ...;` hoisted base and a named `m` + hoisted base also PASS; a named
+   * `m` alone, the reversed `((int)pt&4) + (char*)tbl` addition, and a bare fence all
+   * stay at 2.) */
   /* w46-a9 (10 -> PASS): residual (a) above is the SAME shape that cracked
    * Weather_CreateSplat this wave -- the fused `PTR = prim + 0x28;` statement lets
    * gcc hoist the `addiu` ABOVE the header-merge store, so the bump gets a fresh
@@ -1005,37 +1073,46 @@ void Weather_CreateSnow(SVECTOR *pt)
    * RETIRED.  Re-measured after removal: this function and the whole TU stay
    * 25/25 PASS -- dials (2) split bump + (3) split palette RMW carry the match on
    * their own, so the fence was scaffolding left over from the pre-split basin. */
-  ((P_TAG *)prim)->len = 9;                                  /* OT tag length (9 words) */
-  gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
+void Weather_CreateSnow(SVECTOR *pt)
+{
+  SVECTOR gv [4];
+  /* build the 4 corners of the snowflake quad (the packed SVECTOR[4] copies the compiler emitted
+     as lwl/lwr/swl/swr unaligned word moves -- here in their faithful struct-assignment form) */
+  gv[0] = *pt;
+  gv[1] = gv[0]; gv[2] = gv[1];
+  gv[1].vx = gv[1].vx + 0xa;
+  gv[2].vy = gv[2].vy - 0xa;
+  gv[3] = gv[1];
+  gv[3].vy = gv[2].vy;
 
+  /* project corners 0..2 with the GTE, link a POLY_FT4 into the ordering table */
+  {
+  POLY_FT4 *prim;
+
+
+
+  gte_ldv3(&gv[0],&gv[1],&gv[2]);
+  gte_rtpt();
+  prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR; addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim); RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
+
+  ((P_TAG *)prim)->len = 9;                                  /* OT tag length (9 words) */
+
+  gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
   /* project the 4th corner, set colour+code, copy the per-vertex texture coords from the pixmap */
   gte_ldv0(&gv[3]);
   gte_rtps();
   *(u_int *)&prim->r0 = 0x2e202020;                         /* r0=g0=b0=0x20, code=0x2e (textured FT4) */
   gte_stsxy(&prim->x3);
-  /* w46-a9: residual (b) -- the `(int)pt & 4` mask emitted BEFORE the `la` of
-   * gWeatherPixmap, retail after.  The cure is the HONEST INDEX FORM: the byte-offset
-   * cast is a Ghidra transcription of `gWeatherPixmap[bit]`, and writing the real
-   * array access lets gcc materialize the table address first and fold the scale.
-   * (`char *wp = ...;` hoisted base and a named `m` + hoisted base also PASS; a named
-   * `m` alone, the reversed `((int)pt&4) + (char*)tbl` addition, and a bare fence all
-   * stay at 2.) */
   {
   Draw_tPixMap *pmx;
+
+
+
+
+
   pmx = gWeatherPixmap[((int)pt & 4) >> 2];
   {
-  unsigned long l0;
-  unsigned long l1;
-  unsigned long l2;
-  unsigned long l3;
-  l0 = *(u_int *)pmx;
-  l1 = *(u_int *)((char *)pmx + 4);
-  l2 = *(u_int *)((char *)pmx + 8);
-  l3 = *(u_int *)((char *)pmx + 0xc);
-  *(u_int *)&prim->u0 = l0;
-  *(u_int *)&prim->u1 = l1;
-  *(u_int *)&prim->u2 = l2;
-  *(u_int *)&prim->u3 = l3;
+  unsigned long l0; unsigned long l1; unsigned long l2; unsigned long l3; l0 = *(u_int *)pmx; l1 = *(u_int *)((char *)pmx + 4); l2 = *(u_int *)((char *)pmx + 8); l3 = *(u_int *)((char *)pmx + 0xc); *(u_int *)&prim->u0 = l0; *(u_int *)&prim->u1 = l1; *(u_int *)&prim->u2 = l2; *(u_int *)&prim->u3 = l3;
   }
   }
   }
@@ -1093,27 +1170,28 @@ void Weather_CreateSnow(SVECTOR *pt)
        * CreateSnow's `__asm__ __volatile__("")` fence and/or its split `next`
        * local costs 8 diffs here -- they pin the 0x402020 constant's lui/ori below
        * the header store, where retail hoists it above the whole group. */
+    /* have a previous screen position -> draw the motion-blur streak from it to the current point */
 void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 {
   LINE_G2 *prim;
   SVECTOR gv;
 
   gv = *pt0;
+
   if (*wd != '\0') {
     int nx;
     int ny;
-    /* have a previous screen position -> draw the motion-blur streak from it to the current point */
     nx = pt1->vx;
     ny = pt1->vy;
     gte_ldv0(&gv);
     gte_rtps();
-    prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
-    addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
-    RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
+
+    prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR; addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim); RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
     ((P_TAG *)prim)->len = 4;                       /* OT tag length (4 words) */
     *(u_int *)&prim->r0 = 0x52000000;              /* rgb0=0, code=0x52 (LINE_G2) */
     *(u_int *)&prim->r1 = 0x402020;                /* r1=0x20,g1=0x20,b1=0x40 */
     gte_stsxy(&prim->x1);                          /* current projected pos -> streak end */
+
     prim->x0 = (short)((nx + prim->x1 * 3) / 4);   /* streak start: weighted toward the end */
     prim->y0 = (short)((ny + prim->y1) / 2);
   }
@@ -1121,16 +1199,17 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     /* first frame for this drop -> zero-length line at the current point */
     gte_ldv0(&gv);
     gte_rtps();
-    prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
-    addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
-    RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
+
+    prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR; addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim); RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
     ((P_TAG *)prim)->len = 4;
     *(u_int *)&prim->r0 = 0x52000000;
     *(u_int *)&prim->r1 = 0x402020;
     gte_stsxy(&prim->x1);
     *(u_int *)&prim->x0 = *(u_int *)&prim->x1;
   }
+
   *wd = 1;
+
   *(u_int *)pt1 = *(u_int *)&prim->x1;             /* save current screen pos as next frame's prev */
 }
 
@@ -1371,17 +1450,11 @@ void Weather_CreateSplat
  * (The SYM 8c block lists only `i` + the two REGPARMs, so `q` is a compiler-visible
  * pseudo retail's source did not name -- but the oracle proves the value exists, and the
  * launder is the pin-free way to spell it.) */
-void Weather_DoSplats
-               (int num,Weather_tSplatInfo *splats)
-
-{
-  int i;
-  Weather_tSplatInfo *q; /* SYM-CODEGEN-CARRIER: q -- measured GIV/identity carrier */
-
-  if (gCurrentNumSplats < num) {
-    gCurrentNumSplats = num;
-  }
-  i = 0;
+            /* W86-D2: identity launder -> ABSORPTION IDENTITY `X | (X & 3) == X`.
+               Real RTL for cse/loop/flow (so `q` still gets the second SET that makes
+               cse forget `q == &splats[i]`), folded away by combine => zero bytes.
+               Ladder (whole-TU gate, Weather_DoSplats): device removed 36 | one
+               absorption PASS | `X & (X | 3)` PASS | two or four absorptions 28. */
   /* CAMIN (2026-10-04): the old read-only `__asm__("" : : "r"(i))` ref fence at
      the top of the body (lever (2) above) is replaced by a pure-C read-side
      absorption identity in the loop test: `i | (i & 3)` == i, folded to zero bytes
@@ -1390,38 +1463,35 @@ void Weather_DoSplats
      PASSes; in the tick-guard index (120 insns) or CreateSplat arg (116) it costs
      code.  Natural spellings of the compare/loop (Yoda, -1, +1 ==, >=, for,
      `>` loop test) all stay at the 14-diff s1/s2 swap. */
+void Weather_DoSplats
+               (int num,Weather_tSplatInfo *splats)
+
+{
+  int i; Weather_tSplatInfo *q; /* SYM-CODEGEN-CARRIER: q -- measured GIV/identity carrier */ if (gCurrentNumSplats < num) {
+    gCurrentNumSplats = num;
+  }
+  i = 0;
   while ((i | (i & 3)) < gCurrentNumSplats) {
+
       if (simGlobal.gameTicks >= splats[i].startTick) {
         if (splats[i].startTick + 0x20 < simGlobal.gameTicks) {
+
+
           if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {
+
+
             gCurrentNumSplats = i;
           }
           else {
             splats[i].pos.vx = (short)((u_int)random() % 320);
-            q = &splats[i];
-            /* W86-D2: identity launder -> ABSORPTION IDENTITY `X | (X & 3) == X`.
-               Real RTL for cse/loop/flow (so `q` still gets the second SET that makes
-               cse forget `q == &splats[i]`), folded away by combine => zero bytes.
-               Ladder (whole-TU gate, Weather_DoSplats): device removed 36 | one
-               absorption PASS | `X & (X | 3)` PASS | two or four absorptions 28. */
-            q = (Weather_tSplatInfo *)((unsigned int)q | ((unsigned int)q & 3u));
-            if (GameSetup_gData.commMode == 1) {
-              q->pos.vy = (short)((u_int)random() % 0xf0 >> 1);
-            }
-            else {
-              q->pos.vy = (short)((u_int)random() % 0xf0);
+            q = &splats[i]; q = (Weather_tSplatInfo *)((unsigned int)q | ((unsigned int)q & 3u)); if (GameSetup_gData.commMode == 1) { q->pos.vy = (short)((u_int)random() % 0xf0 >> 1); } else { q->pos.vy = (short)((u_int)random() % 0xf0);
             }
             splats[i].startTick = simGlobal.gameTicks + (u_int)random() % 100;
           }
         }
-        else {
-          Weather_CreateSplat(&splats[i]);
+        else { Weather_CreateSplat(&splats[i]);
         }
-      }
-      i = i + 1;
-  }
-  return;
-}
+      } i = i + 1; } return; }
 
 /* ---- Weather_DoWeather__FP13DRender_tView  [WEATHER.CPP:1069-1156] SLD-VERIFIED ---- */
 /* MATCH (2026-08-26, strict source-only PASS 197/197): the final residual was
@@ -1761,6 +1831,7 @@ void Weather_DoSplats
      * NEGATIVE here (this tail sits at the end of a 197-insn function whose residual is a
      * whole-function allocno permutation, so the barrier costs more than it buys). */
 
+    /* tail: link a DR_MODE primitive into the OT to reset the texture page */
 void Weather_DoWeather(DRender_tView *Vi)
 {
   int n;
@@ -1777,62 +1848,76 @@ void Weather_DoWeather(DRender_tView *Vi)
   wpt = Weather_gPServer[player];
   wprevpt = Weather_gPrevPServer[player];
   wd = *(Weather_gDrawnServer + player);
+
+
+
+
+
   if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
+
     timechange = simGlobal.gameTicks;
+
     if (Weather_gSnowTrack == 0) {
       Weather_ChangeIntensityBasedOnTime();
-    }
-    Weather_ChangeDensityBasedOnTime();
+    } Weather_ChangeDensityBasedOnTime();
   }
+
+
   if (Weather_gSys.num[0] == 0) return;
     /* force a wasDrawn-clear when the look-behind state or the camera mode just changed */
+
     ab = Input_gLookBehind[player];
     clean_up = 0;
-    if (ab != prevLookBehind[player]) {
-      clean_up = ab == 1;
+
+    if (ab != prevLookBehind[player]) { clean_up = ab == 1;
     }
     prevLookBehind[player] = ab;
+
+
+
     ab = Camera_GetMode(player);
     if (ab != prevCameraMode[player]) {
+
       clean_up = 1;
     }
     prevCameraMode[player] = ab;
+
+
     if (clean_up != 0) {
       int i;
       i = 0;
+
       if (0 < Weather_gSys.num[player]) {
         do {
           wd[i] = 0;
-          i = i + 1;
-        } while (i < Weather_gSys.num[player]);
+          i = i + 1; } while (i < Weather_gSys.num[player]);
       }
     }
+
     if (1 < simGlobal.gameTicks - Weather_gLastProcessTime[player]) {
+
       Weather_gLastProcessTime[player] = simGlobal.gameTicks;
       Weather_ProcessParticles(Vi,Weather_gSys.num[player],wpt,wd);
     }
+
+
     Weather_SetIdentMatrix();
+
     if (Camera_gInfo[player].inCar) {
       Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServer[player]);
     }
     n = 0;
-    if (0 < Weather_gSys.num[player]) {
-      do {
+    if (0 < Weather_gSys.num[player]) { do {
+
         if (Weather_gType == Weather_kRain) {
           Weather_CreateRain(wpt + n,wprevpt + n,wd + n);
         }
-        else {
-          Weather_CreateSnow(wpt + n);
-        }
-        n = n + 1;
-      } while (n < Weather_gSys.num[player]);
+        else { Weather_CreateSnow(wpt + n);
+        } n = n + 1; } while (n < Weather_gSys.num[player]);
     }
-    /* tail: link a DR_MODE primitive into the OT to reset the texture page */
     {
     DR_MODE *prim;
-    prim = (DR_MODE *)RENDER_PACKETPTR_ADDR;
-    addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim);
-    RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
+    prim = (DR_MODE *)RENDER_PACKETPTR_ADDR; addPrim((u_long *)RENDER_PALETTEPTR_ADDR,prim); RENDER_PACKETPTR_ADDR = (u_char *)(prim + 1);
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }
 }
@@ -1842,10 +1927,31 @@ void Weather_BuildWeather(DRender_tView *Vi)
 
 {
   if ((GameSetup_gData.Weather != 0) &&
+
+
+
+
+
+
+
+
+
+
+
+
+
       (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) == 0)) {
+
+
+
+
+
+
+
+
+
     Weather_DoWeather(Vi);
   }
-  return;
-}
+  return; }
 
 /* end of weather.cpp */

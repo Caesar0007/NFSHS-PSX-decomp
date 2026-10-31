@@ -296,13 +296,8 @@ void Hud_GoTpage(int page)
 
 {
   DR_MODE *prim;
-
-  prim = (DR_MODE *)Render_gPacketPtr;
-  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  Render_gPacketPtr = (u_char *)prim + 0xc;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+  prim = (DR_MODE *)Render_gPacketPtr; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim + 0xc; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
   SetDrawMode(prim,0,0,(page * 0x40 + 0x80U & 0x3ff) >> 6,(RECT *)0x0);
-  return;
 }
 
 /* ---- Hud_DebugInfo__Fv  [HUD.CPP:479-531] SLD-VERIFIED ---- */
@@ -326,7 +321,6 @@ void Hud_DebugInfo(void)
 void Hud_DebugCrap(void)
 
 {
-  return;
 }
 
 
@@ -334,16 +328,19 @@ void Hud_DebugCrap(void)
 void Hud_BuildSprite(SPRT *sprt,int shapeIdx,int x,int y,u_long color,int trans)
 
 {
-  HudPmx_tShape *shape;
-  
-  shape = HudPmx_gShapes + shapeIdx;
+  HudPmx_tShape *shape = HudPmx_gShapes + shapeIdx;
   SetSemiTrans(sprt,trans);
+
+
   *(u_char *)((int)&sprt->tag + 3) = 4;
+
   *(u_int *)&sprt->r0 = color | 0x66000000;
+
   *(u_int *)&sprt->x0 = y << 0x10 | x;
+
   *(u_int *)&sprt->u0 = *(u_int *)&shape->pixmap;
+
   *(u_int *)&sprt->w = (int)HudPmx_gShapes[shapeIdx].height << 0x10 | (int)HudPmx_gShapes[shapeIdx].width;
-  return;
 }
 
 /* ---- Hud_BuildSprite2__FP4SPRTiii  [HUD.CPP:573-574] SLD-VERIFIED ---- */
@@ -351,7 +348,6 @@ void Hud_BuildSprite2(SPRT *sprt,int shapeIdx,int x,int y)
 
 {
   Hud_BuildSprite(sprt,shapeIdx,x,y,currentSpriteColor,(u_int)(u_char)currentSpriteTransparent);
-  return;
 }
 
 /* ---- Hud_FBuildSprite__FiiiUli  [HUD.CPP:579-582] SLD-VERIFIED ---- */
@@ -366,35 +362,28 @@ void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
 
 {
   SPRT *prim;
-
-  prim = (SPRT *)Render_gPacketPtr;
-  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  Render_gPacketPtr = (u_char *)prim + 0x14;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+  prim = (SPRT *)Render_gPacketPtr; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim + 0x14; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
   Hud_BuildSprite(prim,shapeIdx,x,y,color,trans);
-  return;
 }
 
 /* ---- Hud_BuildSpriteFromFont__FP4SPRTcii  [HUD.CPP:586-600] SLD-VERIFIED ---- */
 void Hud_BuildSpriteFromFont(SPRT *sprt,char ch,int x,int y)
 
 {
-  int u;
-  int v;
-  int w;
-  int h;
-  int yo;
-  
+  int u; int v; int w;
+  int h; int yo;
   Font_GetUVWH(ch,&u,&v,&w,&h,&yo);
+
   *(u_char *)((int)&sprt->tag + 3) = 4;
+
   *(u_int *)&sprt->r0 = currentSpriteColor | 0x66000000;
+
   *(u_int *)&sprt->x0 = (y + yo) * 0x10000 | x;
-  sprt->u0 = (u_char)u;
-  sprt->v0 = (u_char)v;
+
+  sprt->u0 = (u_char)u; sprt->v0 = (u_char)v;
   sprt->clut = gFontClut;
-  sprt->w = (short)w;
-  sprt->h = (short)h;
-  return;
+
+  sprt->w = (short)w; sprt->h = (short)h;
 }
 
 /* ---- Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl  [HUD.CPP:620-625] SLD-VERIFIED ---- */
@@ -406,7 +395,6 @@ void Hud_BuildF3(POLY_F3 *prim,HudPmx_tShape *shape,int x,int y,u_long color)
   *(u_int *)&prim->x0 = y << 0x10 | x;
   *(u_int *)&prim->x1 = (y - (short)shape->height / 2) * 0x10000 | x + shape->width;
   *(u_int *)&prim->x2 = (y + (short)shape->height / 2) * 0x10000 | x + shape->width;
-  return;
 }
 
 /* ---- Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl  [HUD.CPP:629-643] SLD-VERIFIED ---- */
@@ -414,11 +402,12 @@ void Hud_BuildGT4(POLY_GT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color)
 
 {
   *(u_char *)((int)&prim->tag + 3) = 0xc;
-  *(u_int *)&prim->x0 = y << 0x10 | x;
   *(u_int *)&prim->r0 = color | 0x3e000000;
   *(u_int *)&prim->r1 = color;
   *(u_int *)&prim->r2 = color;
   *(u_int *)&prim->r3 = color;
+
+  *(u_int *)&prim->x0 = y << 0x10 | x;
   *(u_int *)&prim->u0 = *(u_int *)((char *)&shape->pixmap + 0x0);
   *(u_int *)&prim->x1 = y << 0x10 | x + shape->width;
   *(u_int *)&prim->u1 = *(u_int *)((char *)&shape->pixmap + 0x4);
@@ -426,7 +415,6 @@ void Hud_BuildGT4(POLY_GT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color)
   *(u_int *)&prim->u2 = *(u_int *)((char *)&shape->pixmap + 0x8);
   *(u_int *)&prim->x3 = (y + shape->height) * 0x10000 | x + shape->width;
   *(u_int *)&prim->u3 = *(u_int *)((char *)&shape->pixmap + 0xc);
-  return;
 }
 
 /* ---- Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli  [HUD.CPP:647-658] SLD-VERIFIED ---- */
@@ -444,7 +432,6 @@ void Hud_BuildFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,i
   *(u_int *)&prim->u2 = *(u_int *)((char *)&shape->pixmap + 0x8);
   *(u_int *)&prim->x3 = (y + shape->height) * 0x10000 | x + shape->width;
   *(u_int *)&prim->u3 = *(u_int *)((char *)&shape->pixmap + 0xc);
-  return;
 }
 
 /* ---- Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli  [HUD.CPP:662-677] SLD-VERIFIED ---- */
@@ -454,17 +441,18 @@ void Hud_BuildMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long c
   *(u_int *)&prim->r0 = color;
   SetPolyFT4(prim);
   SetSemiTrans(prim,trans);
+
   *(u_int *)&prim->x0 = y << 0x10 | x + shape->width;
   *(u_int *)&prim->u0 = *(u_int *)((char *)&shape->pixmap + 0x0);
   *(u_int *)&prim->x1 = y << 0x10 | x;
   *(u_int *)&prim->u1 = *(u_int *)((char *)&shape->pixmap + 0x4);
   prim->u1 = prim->u1 - 1;
+
   *(u_int *)&prim->x2 = (y + shape->height) * 0x10000 | x + shape->width;
   *(u_int *)&prim->u2 = *(u_int *)((char *)&shape->pixmap + 0x8);
   *(u_int *)&prim->x3 = (y + shape->height) * 0x10000 | x;
   *(u_int *)&prim->u3 = *(u_int *)((char *)&shape->pixmap + 0xc);
   prim->u3 = prim->u3 - 1;
-  return;
 }
 
 /* ---- Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli  [HUD.CPP:682-704] SLD-VERIFIED ---- */
@@ -474,33 +462,43 @@ void Hud_BuildMapMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_lon
   *(u_int *)&prim->r0 = color;
   SetPolyFT4(prim);
   SetSemiTrans(prim,trans);
+
   *(u_int *)&prim->x0 = y << 0x10 | x + shape->width;
   *(u_int *)&prim->u0 = *(u_int *)((char *)&shape->pixmap + 0x0);
   *(u_int *)&prim->x1 = y << 0x10 | x;
   *(u_int *)&prim->u1 = *(u_int *)((char *)&shape->pixmap + 0x4);
   prim->x0 = prim->x0 + -3;
+
+
   prim->x1 = prim->x1 + -3;
+
+
+
   *(u_int *)&prim->x2 = (y + shape->height) * 0x10000 | x + shape->width;
   *(u_int *)&prim->u2 = *(u_int *)((char *)&shape->pixmap + 0x8);
   *(u_int *)&prim->x3 = (y + shape->height) * 0x10000 | x;
   *(u_int *)&prim->u3 = *(u_int *)((char *)&shape->pixmap + 0xc);
   prim->x2 = prim->x2 + -3;
+
   prim->x3 = prim->x3 + -3;
-  return;
 }
 
 /* ---- Hud_BuildF4__FP7POLY_F4iiiiiUl  [HUD.CPP:712-724] SLD-VERIFIED ---- */
 void Hud_BuildF4(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color)
 
 {
+
+
+
   *(u_int *)&prim->r0 = color;
   SetPolyF4(prim);
   SetSemiTrans(prim,trans);
+
+
   *(u_int *)&prim->x0 = y << 0x10 | x;
   *(u_int *)&prim->x1 = y << 0x10 | x + w;
   *(u_int *)&prim->x2 = (y + h) * 0x10000 | x;
   *(u_int *)&prim->x3 = (y + h) * 0x10000 | x + w;
-  return;
 }
 
 /* ---- Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl  [HUD.CPP:728-743] SLD-VERIFIED ---- */
@@ -508,31 +506,37 @@ void Hud_BuildG4(POLY_G4 *prim,int trans,int x,int y,int w,int h,u_long col1,u_l
                u_long col4)
 
 {
+
+
   *(u_int *)&prim->r0 = col1;
   *(u_int *)&prim->r1 = col2;
   *(u_int *)&prim->r2 = col3;
   *(u_int *)&prim->r3 = col4;
+
   SetPolyG4(prim);
   SetSemiTrans(prim,trans);
+
+
   *(u_int *)&prim->x0 = y << 0x10 | x;
   *(u_int *)&prim->x1 = y << 0x10 | x + w;
   *(u_int *)&prim->x2 = (y + h) * 0x10000 | x;
   *(u_int *)&prim->x3 = (y + h) * 0x10000 | x + w;
-  return;
 }
 
 /* ---- Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc  [HUD.CPP:747-757] SLD-VERIFIED ---- */
 void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,signed char x0off,signed char x1off)
 
 {
+
   *(u_int *)&prim->r0 = color;
   SetPolyF4(prim);
   SetSemiTrans(prim,trans);
+
+
   *(u_int *)&prim->x0 = y << 0x10 | x + x0off;
   *(u_int *)&prim->x1 = y << 0x10 | x + w + (int)x1off;
   *(u_int *)&prim->x2 = (y + h) * 0x10000 | x;
   *(u_int *)&prim->x3 = (y + h) * 0x10000 | x + w;
-  return;
 }
 
 
@@ -540,11 +544,7 @@ void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,s
 void Hud_FBuildGT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 {
   POLY_GT4 *prim;
-
-  prim     = (POLY_GT4 *)Render_gPacketPtr;
-  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  Render_gPacketPtr = (u_char *)prim + 0x34;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+  prim = (POLY_GT4 *)Render_gPacketPtr; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim + 0x34; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
   Hud_BuildGT4(prim, shape, x, y, col1);
 }
 
@@ -552,11 +552,7 @@ void Hud_FBuildGT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 {
   POLY_FT4 *prim;
-
-  prim     = (POLY_FT4 *)Render_gPacketPtr;
-  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  Render_gPacketPtr = (u_char *)prim + 0x28;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+  prim = (POLY_FT4 *)Render_gPacketPtr; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim + 0x28; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
   Hud_BuildFT4(prim, shape, x, y, col1, 0);
 }
 
@@ -588,11 +584,7 @@ void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1)
 void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char x0off, char x1off)
 {
   POLY_F4 *prim;
-
-  prim = (POLY_F4 *)Render_gPacketPtr;
-  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  Render_gPacketPtr = (u_char *)prim + 0x18;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
+  prim = (POLY_F4 *)Render_gPacketPtr; ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; Render_gPacketPtr = (u_char *)prim + 0x18; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
   Hud_BuildF4o(prim, transparent, x, y, w, h, col1, x0off, x1off);
 }
 
@@ -600,20 +592,11 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
 static void uppercase(char *string)
 
 {
-  int n;
-  int len;
-
-  len = strlen(string);
-  n = 0;
-  if (0 < len) {
-    do {
-      if ((u_int)(((u_char *)string)[n] - 0x61) < 0x1au) {
-        ((u_char *)string)[n] = ((u_char *)string)[n] + (u_char)0xe0;
-      }
-      n = n + 1;
-    } while (n < len);
+  int n, len = strlen(string);
+  for (n = 0; n < len; n = n + 1)
+  {
+    if ((u_int)(((u_char *)string)[n] - 0x61) < 0x1au) ((u_char *)string)[n] = ((u_char *)string)[n] + (u_char)0xe0;
   }
-  return;
 }
 
 
@@ -622,26 +605,26 @@ void Hud_Kill(void)
 
 {
   HudPmx_Kill();
-  if (gSprite0 != (SPRT *)0x0) {
+
+  if (gSprite0 != (SPRT *)0x0)
     purgememadr(gSprite0);
-  }
   gSprite0 = (SPRT *)0x0;
-  if (gSprite1 != (SPRT *)0x0) {
+  if (gSprite1 != (SPRT *)0x0)
     purgememadr(gSprite1);
-  }
   gSprite1 = (SPRT *)0x0;
-  return;
 }
 
 /* ---- Hud_Init0__Fv  [HUD.CPP:813-820] SLD-VERIFIED ---- */
 void Hud_Init0(void)
 
 {
+
+
   gSprite0 = reservememadr("HUD1",0x80c,0);
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData.commMode == 1)
+
+
     gSprite1 = reservememadr("HUD2",0x80c,0);
-  }
-  return;
 }
 
 /* ---- Hud_InitMapFrame__Fii  [HUD.CPP:827-874] SLD-VERIFIED ---- */
@@ -885,7 +868,6 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
     x = x + w;
     c = (u_char)*str;
   }
-  return;
 }
 
 /* ---- Hud_Init__Fv  [HUD.CPP:930-1153] SLD-VERIFIED ----
@@ -1208,7 +1190,6 @@ void Hud_Init(void)
     i = i + 1;
   } while (i < 2);
   Hud_kTurnSongOffNext = 0;
-  return;
 }
 
 /* ---- Hud_InitTables__Fv  [HUD.CPP:1227-1228] SLD-VERIFIED ----
@@ -1217,10 +1198,8 @@ void Hud_Init(void)
  * pointer funnel below is the measured PASS source carrier. */
 void Hud_InitTables(void)
 
-{
-  /* the SYM has no local here: the row select is one indexed read (also PASS as a ?: select) */
+{ /* the SYM has no local here: the row select is one indexed read (also PASS as a ?: select) */
   g1Player = Hud_gElementPositions[1 < GameSetup_gData.numPlayerRaceCars];
-  return;
 }
 
 /* ---- Hud_BuildETimeString__FP4SPRTi  [HUD.CPP:1232-1248] SLD-VERIFIED ---- */
@@ -1387,7 +1366,6 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun / 10];
   sprt = sprt + 1;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun % 10];
-  return;
 }
 
 /* ---- Hud_BuildDistanceString__FP4SPRTi [HUD.CPP:1253-1269;native ownership exact,SLD open] ---- */
@@ -1444,7 +1422,6 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun / 10];
   sprt = sprt + 1;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[hun % 10];
-  return;
 }
 
 /* w45-a8: 163 (268/269) -> 85, posdiff structural residual 27.  LEVER: all FOUR OT/palette
@@ -1851,7 +1828,6 @@ void Hud_BuildTach(int player)
   ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
   ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(gSprt1 + 2);
   }
-  return;
 }
 
 /* 2026-09-22: the two pad-glyph shapes are &HudPmx_gShapes[0xad] / [0xaa] (element 0x14 bytes, width @+0x10), reached
@@ -2146,7 +2122,7 @@ HudBuildStr_next:
  * BASIN-RELATIVE") was right: one of these was explicitly falsified in the 141 basin and
  * works now.  Order matters -- (1) must land before (3) is worth anything.
  *  (1) REF-STEP ON THE j=4 TAG-WALK COUNTER -- zero-insn read-only fence right after
- *      `j = 4;` (was `__asm__("" : : "r"(j));`; HUDFX r2: now `do { j = 4; } while (0);`,
+ *      `j = 4;` (was `__asm__("" : : "r"(j));`; HUDFX r2 do/while(0); HUDFX r8: retail for-loop, no fence;
  *      a pure-C fence -- see the body).  46 -> 22.  The whole {j, pal, mask} triple
  *      was rotated (ours j=$a3/pal=$a2/mask=$a1, retail j=$a1/mask=$a2/pal=$a3) with EVERY
  *      instruction already in retail's position -- a pure allocno-priority order, and `j`
@@ -2286,16 +2262,10 @@ void Hud_BuildNumbers0(int player)
       }
       {
 
-        /* PURE-C FENCE (HUDFX r2, replaces the asm ref fence): the do/while(0) wrapper adds the
-         * one reference j needs (prio 7*2/20=.70 < mask .737 -> j served first only with +1 ref).
-         * Falsified natural forms: j=4 after pal + for/do loop 14 (pure a1/a2 j<->mask swap),
-         * while-loop 29, absorption in the increment 14 (kills the giv). */
-        do { j = 4; } while (0);
-        do {
-          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
-          j = j + 1;
-        } while (j < 6);
+        /* HUDFX r8: retail's for-loop (head on one line, one-line body) needs no fence; the old
+         * asm/do-while ref fence on `j = 4` is gone (it was only needed in the pal-local basin). */
+        for (j = 4; j < 6; j = j + 1)
+        { ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j]; }
         ((Hud_PTag *)HudG4)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
         ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)HudG4;
         ((Hud_PTag *)HudF4)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
@@ -2471,7 +2441,6 @@ void Hud_BuildNumbers0(int player)
   ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudG4[2];
   ((Hud_PTag *)&HudF4[3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
   ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&HudF4[3];
-  return;
 }
 
 /* ---- Hud_BuildNumbers__Fi  [HUD.CPP:1721-1897] SLD-VERIFIED ----
@@ -3038,7 +3007,6 @@ void Hud_BuildNumbers(int player)
     ((Hud_PTag *)&pSprt[0])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
     ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[0];
   }
-  return;
 }
 
 /* ---- Hud_InitMap__Fv [HUD.CPP:1917-1926;native exact,full SLD open] ----
@@ -3062,8 +3030,11 @@ void Hud_InitMap(void)
 {
   int i;
 
+
+
   for (i = 0; i < Cars_gNumRaceCars; i++)
     ((int *)Hud_gMarkerColor)[i] = Cars_gRaceCarList[i]->carInfo->HudColour;
+
   for (i = 0; i < Cars_gNumCopCars; i++)
     ((int *)Hud_gCopMarkerColor)[i] = Cars_gCopCarList[i]->carInfo->HudColour;
 }
@@ -3461,16 +3432,16 @@ void Hud_BuildMapMarkers(int player)
 void Hud_WingmanFlash(int player,int index)
 
 {
-
-  if ((Replay_ReplayMode < 2) && (HudBustedOverlay == 0)) {
+  if ((Replay_ReplayMode < 2) && (HudBustedOverlay == 0))
+  {
     if (Hud_gWingmanInterface[player] != '\x01') {
+
       Hud_InitMapFrame(player,1);
       Hud_gWingmanInterface[player] = '\x01';
     }
     Hud_gWingmanFlashIcon[player] = (char)index;
     Hud_gWingmanFlashTicks[player] = FE_Ticks() + 100;
   }
-  return;
 }
 
 /* ---- Hud_BuildWingmanInterface__Fi  [HUD.CPP:2162-2196] SLD-VERIFIED ----
@@ -3671,7 +3642,6 @@ void Hud_BuildWingmanInterface(int player)
   Render_gPacketPtr = (u_char *)poly + 0x18;
   ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)poly;
   Hud_BuildF4(poly,1,x,y,0x4b,0x30,0);
-  return;
 }
 
 /* ---- Hud_InitCdPlayer__Fv  [HUD.CPP:2215-2219] SLD-VERIFIED ---- */
@@ -3682,7 +3652,6 @@ void Hud_InitCdPlayer(void)
   Hud_gCdScrollTitle = 0;
   Hud_gCdActive = 0;
   Hud_ActivateCDPlayer = (u_int)(Replay_ReplayMode < 2);
-  return;
 }
 
 /* w55-a9 NEGATIVE (void-fence axis swept, nothing landed): the w48 zero-insn VOID fence
@@ -4062,59 +4031,16 @@ HudCdPlay_nullStringFallback:
      * the join with `j` from `sb $zero,0($a2)` (.L800D688C). */
     if (title == (char *)0x0) goto HudCdPlay_nullTitleTail;
   }
-  if (Hud_gCdScrollTitle < Hud_BuildString(title,0,0,0,0,true) + 0x4c) {
-    /* oracle .L800D675C is an UN-ROTATED top-test loop with an unconditional `j` back-edge
-     * (a plain `while` gets rotated to a guard + bottom `bnez`), so the source is the
-     * label+goto shape. */
-    /* MATCH (w50-a1), half 2 of 2: the scroll counter is a LOCAL that is written back after
-     * the loop.  The oracle's loop body is `lw a0,%gp_rel(LastTick); slt v0,a0,v0; beqz;
-     * [ds] addiu v0,a0,4; sw v0,%gp_rel(LastTick); addiu v1,v1,1` -- LastTick is RE-LOADED
-     * every iteration and the counter lives in a register with NO store, which is the exact
-     * inverse of what a global counter gives (ours re-loaded `FE_Ticks()` and kept LastTick in a
-     * register).  -3 diffs alone (70 @473) but PAIRED with the per-arm glyph re-read above
-     * it lands the count EXACTLY (475/475) and 73 -> 58.  Falsified alternatives: caching
-     * `FE_Ticks()` in a local 77; volatile on the LastTick RMW 77 (+2 insns); both 77. */
-    /* MATCH (w75-a4): the tick loop is a GLOBAL RMW ON BOTH COUNTERS, not a cached
-     * local written back after the loop.  Retail's body is [lw lastTick][slt][beqz]
-     * [addiu lastTick+4 (ds)][lw scroll][sw lastTick][addiu scroll+1][sw scroll][j][nop]
-     * -- Hud_gCdScrollTitle is RELOADED and RESTORED every iteration and there is no
-     * post-loop store at all (the loop exit branches straight to `dx = 0`).  The w50/w72
-     * `scroll` local was basin-stale: once clusters (1) and (4) were fixed the global form
-     * wins (36 -> 33) AND it is what makes the loop-exit `addu s3,zero,zero` (dx = 0) and
-     * the `slt v1` compare register land where retail has them.
-     * The `lt` local + 20B launder is a pure COLORING dial: retail homes the loaded
-     * lastTick in $a0, ours took $v1; clobbering $v1 on a launder placed BEFORE the branch
-     * (so it is not in reorg's fall-through thread and the `addiu lt+4` still reaches the
-     * beqz delay slot) moves it to $a0 at zero insns.  Measured: no local 39 . local, no
-     * fence 43 . read-only fence + $v1 clobber 37 . launder, no clobber 43 . launder +
-     * $v1 33 (this) . + $v0 45 . + $v0 only 41 . + $a0 41 . clobber inside the if-body
-     * 34/477 (it eats the delay-slot fill -- reorg stop_search_p fires on any asm in the
-     * thread).  Falsified as no-ops on the residual v0<->v1 body swap: a named `sc` local
-     * before/after the lastTick store, the two RMWs swapped, a named `lt4`, a $v0 clobber
-     * between the stores (all 33-34). */
-HudCdPlay_scrollTick:
-    {
-      int lt /* SOURCE-REVIEW-UNRESOLVED: unrecorded clock snapshot;older launder trial is not original-source proof. */ = Hud_gCdLastTick;
-      __asm__("" : "=r"(lt) : "0"(lt) : "$3");
-      if (FE_Ticks() > lt) {   /* operand order: oracle loads FE_Ticks() FIRST */
-        /* MATCH (w75-a4): a COMPUTED ref-step (21A-4) on the lastTick+4 quantity.  The
-         * loop body block holds exactly two local qtys -- `lt4` (2 refs, live 2) and the
-         * scroll RMW value (4 refs, live 3) -- so QTY_CMP_PRI = floor_log2(refs)*refs/live
-         * gives 1.00 vs 2.67 and the scroll qty is served first and takes $v0; retail
-         * serves lt4 first ($v0) and the scroll second ($v1).  A multi-operand read-only
-         * fence buys refs at ZERO instructions: n=2 crosses the step (floor_log2(4)*4/3 =
-         * 2.67 -> ties, and the tie breaks on qty birth order, which lt4 wins).  Measured
-         * n = 0/1/2/3/4/5 -> 23/23/15/15/15/15, so 2 is the minimum operand count.  The
-         * fence MUST sit before the `Hud_gCdLastTick` store: after it the range is already
-         * closed and every n costs +1 insn (24 @477). */
-        int lt4 /* SOURCE-REVIEW-UNRESOLVED: unrecorded clock-offset capture/device. */ = lt + 4;
-        __asm__("" : : "r"(lt4),"r"(lt4));
-        Hud_gCdLastTick = lt4;
-        Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;
-        goto HudCdPlay_scrollTick;
-      }
-    }
-  }
+  if (Hud_gCdScrollTitle < Hud_BuildString(title,0,0,0,0,true) + 0x4c) { while (FE_Ticks() > Hud_gCdLastTick) {
+
+      Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;
+      Hud_gCdLastTick = Hud_gCdLastTick + 4;
+    } }
+    /* HUDFX r9: retail's tick loop is a plain `while` with the scroll increment written BEFORE
+     * the LastTick += 4 RMW (retail SLD: test 161, scroll++ 163, LastTick+4 + back-edge 164).
+     * In that order it is PASS with no `lt`/`lt4` locals and no asm (the old w50/w75 launder,
+     * $v1 clobber and lt4 two-operand ref-step fences all imitated this statement order).
+     * Falsified now: label/goto with either store order 14; `lt` snapshot + goto 18. */
   else if (Hud_gCdLastTick + 0x80 < FE_Ticks()) {
     Hud_gCdActive = 0;
   }
@@ -4517,31 +4443,74 @@ int Hud_BuildRadar(int player)
  * genuinely block-local producer.  Check `-dl` for whether our pal is really tagged global in
  * this region, and if it is, the target is the SOURCE side (make the scratchpad load's dest a
  * pseudo that dies in the entry block). */
+/* (body comments moved here by HUDFX r5; the body follows retail's SLD lines/braces) */
+/* SYM locals: i=$t1, hilite AUTO char[5] (template @0x8013d914 = {4,0,1,2,3}),
+ * spr=$v1 (byte-offset walker in loop 1, then reused as the speed-glyph index). */
+/* MATCH: a real `switch` -- the oracle's dispatch is gcc-2.8 balance_case_nodes
+ * (root `beq 1`, `slti 2` bound test, then `beqz`/`beq 2` leaves) with the default
+ * body duplicated into the two guard delay slots; an if/else-if cascade emits the
+ * arms inline with the opposite polarity. */
+/* MATCH (w50-a1): 41 -> 2, count now EXACT 191/191 (was 190, one insn SHORT).  TWO
+ * cooperating changes, both predicted by the w49 receipt above:
+ *  (a) the 0x39 head stores read the palette cursor through the NAMED `pal` instead of
+ *      an anonymous `Render_gPalettePtr` deref -- that alone is 41 -> 7 and fixes the
+ *      whole caller-saved band (0xFFFFFF/0xFF000000 move down to retail's $a1/$a2);
+ *  (b) the LINK LOOP re-reads the cursor into its OWN block-local `palL`.  The two reads
+ *      are provably equal (nothing writes the 0x1F800000 cell here -- the stores go
+ *      through the pointer, not to it), so cse unifies them and emits retail's missing
+ *      reg-reg COPY `lui v0,8064; lw v0,0(v0); addu t0,v0,zero` -- the catalog trichotomy
+ *      case (2) "cse DOUBLE-EVALUATION supplies a retail reg-reg copy".  That is the +1
+ *      insn the w49 note was hunting; its "make the producer's dest a short-lived
+ *      block-local pseudo" framing was right, but a `pal0 = ...; pal = pal0;` SOURCE copy
+ *      is always copy-propagated (re-confirmed here: 38 with an identity fence on either
+ *      end, 41 plain).  An equivalent form -- named read first + an anonymous re-read for
+ *      the head store -- also gates 2/191.
+ * RESIDUAL 2 = the position of `li t1,51` (the `i = 0x33` init).
+ * ===== w51-a9: 2 -> PASS 191/191 =====
+ * MATCH: `i = 0x33;` belongs BELOW the 0x39 head-store statements, immediately above the
+ * link loop -- NOT at the top of the region.  The w50 receipt swept three positions
+ * (before/after `tSs1_2 =`, inside the block) and called the residual a sched2 drain tie;
+ * all three sit ABOVE the head store, which is why they measured identical.  Retail's
+ * preheader run is `lui a1,255; ori a1` (the head store's 0xFFFFFF) THEN `li t1,51` THEN
+ * the loop's own hoisted `lui t2,255; ori t2; lui t3,65280` -- i.e. the counter init is
+ * generated AFTER the head store's constants and BEFORE the loop's movables, which is
+ * exactly RTL-generation order for a `i = 0x33;` written here.  Position was the dial;
+ * the swept range simply never crossed the head store.
+ * ===== PASS-only SYM cleanup (wave 19): the earlier pointer-split workaround is now
+ * superseded.  Direct `gSprite0` and `Render_gPalettePtr` expressions remove all
+ * `tSs1*`, `pal`, and `palL` source names byte-identically; the function remains
+ * PASS 191/191 with exactly the SYM locals `i`, `hilite`, and `spr`. */
 void Hud_BuildReplay(void)
 
 {
-  /* SYM locals: i=$t1, hilite AUTO char[5] (template @0x8013d914 = {4,0,1,2,3}),
-   * spr=$v1 (byte-offset walker in loop 1, then reused as the speed-glyph index). */
+  /* SYM locals: i=$t1, hilite AUTO char[5] (template @0x8013d914 = {4,0,1,2,3}), spr=$v1 */
+
   int i;
   char hilite [5] = {4,0,1,2,3};
   int spr;
 
-  i = 0x33;
-  do {
-    *(u_int *)&gSprite0[i].r0 = 0x66808080;
-    i = i + 1;
-  } while (i < 0x3f);
+  i = 0x33; do {
+    *(u_int *)&gSprite0[i].r0 = 0x66808080; i = i + 1; } while (i < 0x3f);
+
+
   *(u_int *)&gSprite0[(u_char)hilite[Replay_ReplayInterface.selection] + 0x33].r0 = 0x6600bebe;
-  if (Replay_ReplayInterface.selection == 3) {
+
+
+
+  if (Replay_ReplayInterface.selection == 3)
+  {
     *(u_int *)&gSprite0[0x38].r0 = 0x6600bebe;
   }
-  *(u_int *)&gSprite0[0x34].u0 =
-       *(u_int *)&(HudPmx_gShapes + 0x6e - Replay_ReplayInterface.pause)->pixmap.u0;
-  /* MATCH: a real `switch` -- the oracle's dispatch is gcc-2.8 balance_case_nodes
-   * (root `beq 1`, `slti 2` bound test, then `beqz`/`beq 2` leaves) with the default
-   * body duplicated into the two guard delay slots; an if/else-if cascade emits the
-   * arms inline with the opposite polarity. */
-  switch (Replay_ReplayInterface.speed) {
+
+
+
+
+  *(u_int *)&gSprite0[0x34].u0 = *(u_int *)&(HudPmx_gShapes + 0x6e - Replay_ReplayInterface.pause)->pixmap.u0;
+
+
+
+  switch (Replay_ReplayInterface.speed)
+  {
   case 0:
     spr = 0x72;
     break;
@@ -4557,66 +4526,60 @@ void Hud_BuildReplay(void)
   }
   gSprite0[0x38].u0 = HudPmx_gShapes[spr].pixmap.u0;
   gSprite0[0x38].v0 = HudPmx_gShapes[spr].pixmap.v0;
-  *(u_int *)&gSprite0[0x39].u0 =
-       *(u_int *)&HudPmx_gShapes[Replay_ReplayInterface.camera + 2].pixmap.u0;
+
+
+
+
+
+  *(u_int *)&gSprite0[0x39].u0 = *(u_int *)&HudPmx_gShapes[Replay_ReplayInterface.camera + 2].pixmap.u0;
   gSprite0[0x39].x0 = g1Player[0xd].x + 0x75;
-  if (Replay_ReplayInterface.selection == 4) {
+
+  if (Replay_ReplayInterface.selection == 4)
     *(u_int *)&gSprite0[0x39].r0 = 0x6600bebe;
-  }
-  else {
+  else
     *(u_int *)&gSprite0[0x39].r0 = 0x66808080;
-  }
-  {
-  /* MATCH (w50-a1): 41 -> 2, count now EXACT 191/191 (was 190, one insn SHORT).  TWO
-   * cooperating changes, both predicted by the w49 receipt above:
-   *  (a) the 0x39 head stores read the palette cursor through the NAMED `pal` instead of
-   *      an anonymous `Render_gPalettePtr` deref -- that alone is 41 -> 7 and fixes the
-   *      whole caller-saved band (0xFFFFFF/0xFF000000 move down to retail's $a1/$a2);
-   *  (b) the LINK LOOP re-reads the cursor into its OWN block-local `palL`.  The two reads
-   *      are provably equal (nothing writes the 0x1F800000 cell here -- the stores go
-   *      through the pointer, not to it), so cse unifies them and emits retail's missing
-   *      reg-reg COPY `lui v0,8064; lw v0,0(v0); addu t0,v0,zero` -- the catalog trichotomy
-   *      case (2) "cse DOUBLE-EVALUATION supplies a retail reg-reg copy".  That is the +1
-   *      insn the w49 note was hunting; its "make the producer's dest a short-lived
-   *      block-local pseudo" framing was right, but a `pal0 = ...; pal = pal0;` SOURCE copy
-   *      is always copy-propagated (re-confirmed here: 38 with an identity fence on either
-   *      end, 41 plain).  An equivalent form -- named read first + an anonymous re-read for
-   *      the head store -- also gates 2/191.
-   * RESIDUAL 2 = the position of `li t1,51` (the `i = 0x33` init).
-   * ===== w51-a9: 2 -> PASS 191/191 =====
-   * MATCH: `i = 0x33;` belongs BELOW the 0x39 head-store statements, immediately above the
-   * link loop -- NOT at the top of the region.  The w50 receipt swept three positions
-   * (before/after `tSs1_2 =`, inside the block) and called the residual a sched2 drain tie;
-   * all three sit ABOVE the head store, which is why they measured identical.  Retail's
- * preheader run is `lui a1,255; ori a1` (the head store's 0xFFFFFF) THEN `li t1,51` THEN
- * the loop's own hoisted `lui t2,255; ori t2; lui t3,65280` -- i.e. the counter init is
- * generated AFTER the head store's constants and BEFORE the loop's movables, which is
- * exactly RTL-generation order for a `i = 0x33;` written here.  Position was the dial;
- * the swept range simply never crossed the head store.
- * ===== PASS-only SYM cleanup (wave 19): the earlier pointer-split workaround is now
- * superseded.  Direct `gSprite0` and `Render_gPalettePtr` expressions remove all
- * `tSs1*`, `pal`, and `palL` source names byte-identically; the function remains
- * PASS 191/191 with exactly the SYM locals `i`, `hilite`, and `spr`. */
-  ((Hud_PTag *)&gSprite0[0x39])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gSprite0[0x39];
-  i = 0x33;
-  {
-  do {
-    ((Hud_PTag *)&gSprite0[i])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gSprite0[i];
-    i = i + 1;
-  } while (i < 0x38);
-  }
-  }
-  {
-  ((Hud_PTag *)&gSprite0[0x38])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gSprite0[0x38];
-  ((Hud_PTag *)&gTPage1[0][3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage1[0][3];
-  ((Hud_PTag *)&gTPage0[0][3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage0[0][3];
-  }
-  return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ((Hud_PTag *)&gSprite0[0x39])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gSprite0[0x39];
+
+
+
+
+  i = 0x33; do {
+    ((Hud_PTag *)&gSprite0[i])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gSprite0[i]; i = i + 1; } while (i < 0x38);
+
+  ((Hud_PTag *)&gSprite0[0x38])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gSprite0[0x38];
+
+  ((Hud_PTag *)&gTPage1[0][3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage1[0][3];
+
+
+
+
+
+  ((Hud_PTag *)&gTPage0[0][3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage0[0][3];
 }
 
 /* P907: the existing typed member now matches without a standalone alias.
@@ -4660,62 +4623,38 @@ void Hud_BuildReplay(void)
  * difference downstream of the (correctness-preserving) polarity rewrite, not reachable without
  * un-doing the branch-polarity win. Net: 40->28, +1 real correctness fix (D_8011321C), insn
  * count exact. */
+/* (moved from the body, HUDFX r5) MATCH (w45-a7): the old zero-length volatile reorg barrier
+ * in the early-out arm was RETIRED in W85-S4 (the unsized-array D_8011321C view carries the
+ * eager fill on its own).  HUDFX r5: body laid out on retail's SLD statement lines. */
 int Hud_NextPlayer(int player)
 
 {
-  int i;   /* SYM order: i, j, direction, carObj */
-  int j;
-  int direction;
-  Car_tObj *carObj;
-
-  direction = (u_int)(0 < *(int *)((player << 2) + (int)Input_gLookBehind) !=
-                         0 < DashHUD_gInfo.wrongway[player]);
+  int i; int j; int direction; Car_tObj *carObj;   /* SYM order: i, j, direction, carObj */
+  direction = (u_int)(0 < *(int *)((player << 2) + (int)Input_gLookBehind) != 0 < DashHUD_gInfo.wrongway[player]);
   carObj = Cars_gHumanRaceCarList[player];   /* retail's only pointer local; sorted-list entries are read direct */
-  if (1 < Cars_gNumRaceCars) {
-    j = Stats_GetPosition(carObj);
-    if ((j == 1) && (direction == 0)) {
-      /* MATCH (w45-a7): zero-length VOLATILE asm = a reorg barrier, not a pin.  Without
-       * it fill_simple_delay_slots grabs this block's `li v0,-1` out of the fall-through
-       * into the `bnez s1` delay slot and leaves the following `j` slot a nop; retail
-       * has the nop-free pair (`bnez [ds lui]` / `j [ds li v0,-1]`).  The volatile insn
-       * makes resource_conflicts_p fail the simple fill, so reorg falls through to
-       * fill_eager_delay_slots and steals from the TARGET instead (see the unsized-array
-       * receipt on D_8011321C above -- both levers are required, 6 -> 4 -> PASS).
-       * ---- W85-S4 DEVICE PURITY: RETIRED.  Removed and re-gated: this function
-       * and the whole TU stay PASS, so the unsized-array D_8011321C view is now
-       * carrying the eager-fill on its own and the reorg barrier is redundant. */
-      return -1;
-    }
-    i = 0;
-    direction = direction ^ GameSetup_gData.reverseTrack;
-    j = carObj->sortIndex;
-    if (0 < Cars_gNumCars + -1) {
-      do {
-        if (direction != 0) {
-          j = j + -1;
-        }
-        else {
-          j = j + 1;
-        }
-        if (j < 0) {
-          j = j + Cars_gNumCars;
-        }
-        if (Cars_gNumCars <= j) {
-          j = 0;
-        }
+
+
+
+  if (1 < Cars_gNumRaceCars) { j = Stats_GetPosition(carObj); if ((j == 1) && (direction == 0)) {
+      return -1; }
+
+
+    i = 0; direction = direction ^ GameSetup_gData.reverseTrack;
+
+    j = carObj->sortIndex; if (0 < Cars_gNumCars + -1) { do {
+
+        if (direction != 0) j = j + -1; else j = j + 1;
+        if (j < 0) j = j + Cars_gNumCars;
+        if (Cars_gNumCars <= j) j = 0;
+
         if ((Cars_gSortedList[j]->carFlags & 4) != 0) {
-          if (player != 0) {
-            return 7;
-          }
-          return 8;
-        }
-        i = i + 1;
-        if ((Cars_gSortedList[j]->carFlags & 8) != 0) {
-          return *(int *)((int)Cars_gSortedList[j] + 0x4ec);
-        }
+          if (player != 0) return 7; return 8; }
+        i = i + 1; if ((Cars_gSortedList[j]->carFlags & 8) != 0) {
+          return *(int *)((int)Cars_gSortedList[j] + 0x4ec); }
+
       } while (i < Cars_gNumCars + -1);
-    }
-  }
+    } }
+
   return -1;
 }
 
@@ -4824,59 +4763,70 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
  * with NO extra declarations. Anonymous owners+184..488/+288..488 remain
  * absent (five scopes vs seven):do not invent names or scope wrappers to
  * clean the report. Full original macro/SLD source recovery remains open. */
+/* (body comments moved here by HUDFX r5; the body follows retail's SLD lines/braces) */
+/* Historical pointer-hoist claim was shape-specific:direct reads
+ * now match all161 words with the P_TAG link spelling. */
+/* MATCH (w45-a7) -- SEALED THE FN.  EA-1998 addPrim(): the P_TAG bitfield
+ * setaddr pair (house idiom, cf. psxfront.cpp/drawshp.cpp).  The explicit
+ * `tag & 0xff000000 | *pal & 0xffffff` spelling is byte-identical IN THE BODY
+ * but births the HI(0xff000000) mask pseudo FIRST, so the two hoisted mask
+ * regs are initialised s2-then-s1 in the prologue; retail is s1(0xFFFFFF)
+ * then s2(0xFF000000).  The bitfield READ `y->addr` evaluates the RHS
+ * extraction first => LO pseudo born first => retail's prologue order.
+ * (Swapping the `|` operands instead re-colors the body v0/v1: 4 -> 8.) */
+/* oracle `and $v1,$v1,$s1` on the JUST-STORED palette word: the second link is
+ * the same read-modify idiom, not a re-materialized &HudFT4[1]. */
+/* SYM has no phi local here: the final link store is written INLINE in both
+ * arms and gcc cross-jump-merges it (a `prim` variable makes gcc hoist BOTH
+ * &HudFT4[2] and &HudFT4[4] above the branch). */
 void Hud_RenderMapView(void)
 
 {
-  for (int j = 0; j <= DashHUD_gInfo.splitscreen; j++) {
-    if (((GameSetup_gData.carInfo[j].HudMap != 0) && (DashHUD_gInfo.showhud[j] != 0)) &&
-       (Hud_gWingmanInterface[j] == '\0')) {
-      POLY_FT4 *HudFT4;
 
-      HudFT4 = gHudFT4;
-      if (j != 0) {
-        HudFT4 = HudFT4 + 5;
-      }
+  for (int j = 0; j <= DashHUD_gInfo.splitscreen; j++)
+  {
+    if (((GameSetup_gData.carInfo[j].HudMap != 0) && (DashHUD_gInfo.showhud[j] != 0)) && (Hud_gWingmanInterface[j] == '\0'))
+    {
+      POLY_FT4 *HudFT4;
+      HudFT4 = gHudFT4; if (j != 0) HudFT4 = HudFT4 + 5;
+
       Draw_StartRenderingView(Hud_gMapView[j]);
-      if (GameSetup_gData.carInfo[j].HudMap == 1) {
+      const int mapMode =
+        GameSetup_gData.carInfo[j].HudMap; if (mapMode == 1)
+      {
+
         Hud_BuildMapMarkers(j);
-        /* Historical pointer-hoist claim was shape-specific:direct reads
-         * now match all161 words with the P_TAG link spelling. */
-        /* MATCH (w45-a7) -- SEALED THE FN.  EA-1998 addPrim(): the P_TAG bitfield
-         * setaddr pair (house idiom, cf. psxfront.cpp/drawshp.cpp).  The explicit
-         * `tag & 0xff000000 | *pal & 0xffffff` spelling is byte-identical IN THE BODY
-         * but births the HI(0xff000000) mask pseudo FIRST, so the two hoisted mask
-         * regs are initialised s2-then-s1 in the prologue; retail is s1(0xFFFFFF)
-         * then s2(0xFF000000).  The bitfield READ `y->addr` evaluates the RHS
-         * extraction first => LO pseudo born first => retail's prologue order.
-         * (Swapping the `|` operands instead re-colors the body v0/v1: 4 -> 8.) */
-        ((Hud_PTag *)HudFT4)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-        ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)HudFT4;
+
+
+
+
+        ((Hud_PTag *)HudFT4)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)HudFT4;
       }
-      else {
-        if (Hud_BuildRadar(j) == 1) {
-          ((Hud_PTag *)&HudFT4[1])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HudFT4 + 1);
-          /* oracle `and $v1,$v1,$s1` on the JUST-STORED palette word: the second link is
-           * the same read-modify idiom, not a re-materialized &HudFT4[1]. */
-          ((Hud_PTag *)&HudFT4[2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HudFT4 + 2);
+
+      else
+      {
+        const int radar = Hud_BuildRadar(j);
+        if (radar == 1)
+        {
+          ((Hud_PTag *)&HudFT4[1])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HudFT4 + 1);
+          ((Hud_PTag *)&HudFT4[2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HudFT4 + 2);
         }
-        else {
-          ((Hud_PTag *)&HudFT4[3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HudFT4 + 3);
-          ((Hud_PTag *)&HudFT4[4])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-          /* SYM has no phi local here: the final link store is written INLINE in both
-           * arms and gcc cross-jump-merges it (a `prim` variable makes gcc hoist BOTH
-           * &HudFT4[2] and &HudFT4[4] above the branch). */
-          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HudFT4 + 4);
+        else
+        {
+          ((Hud_PTag *)&HudFT4[3])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HudFT4 + 3);
+          ((Hud_PTag *)&HudFT4[4])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HudFT4 + 4);
         }
       }
-      ((Hud_PTag *)((j * 0x30) + (int)&gTPage1[0][1]))->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)((j * 0x30) + (int)&gTPage1[0][1]);
+
+
+
+
+
+      ((Hud_PTag *)((j * 0x30) + (int)&gTPage1[0][1]))->addr = ((Hud_PTag *)Render_gPalettePtr)->addr; ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)((j * 0x30) + (int)&gTPage1[0][1]);
+
       Draw_StopRenderingView(Hud_gMapView[j]);
     }
   }
-  return;
 }
 
 /* ---- Hud_BlackThinBox__Fiiii [HUD.CPP:3082-3116;native partial,SLD open] ----
@@ -5135,7 +5085,6 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
   } while (j < 5);
   Hud_FBuildF4(0,x - 3,y - 2,0x38,0x31,0,'\0','\0');
   Hud_GoTpage(1);
-  return;
 }
 
 /* ---- Hud_Render321Go__Fv  [HUD.CPP:3261-3339] SLD-VERIFIED ---- */
@@ -5181,7 +5130,6 @@ HudRender321_drawCountNum:
     Hud_Draw321Num(x+0x26,y,num,flare_intensity,0,1);
   }
   Draw_StopRenderingView(Hud_gStatsView);
-  return;
 }
 
 /* ---- BigBTCTime__Fi [HUD.CPP:3345-3423;native ownership exact,SLD open] ----
@@ -5951,7 +5899,6 @@ void Hud_ParseTime(int nTime,char *sLapTime)
                (u_int)(u_char)HudminChar[GameSetup_gData.userSetting.language],
                (u_int)(u_char)HudsecChar[GameSetup_gData.userSetting.language]);
   }
-  return;
 }
 
 /* ---- Hud_RenderPauseBox__Fiiii  [HUD.CPP:3812-3839] SLD-VERIFIED ---- */
@@ -6110,7 +6057,6 @@ HudRender_initMapFrame:
     Hud_RenderTacView();
   }
   }
-  return;
 }
 
 /* ---- Hud_PositionMap__Fv  [HUD.CPP:3980-3993] SLD-VERIFIED ---- */
@@ -6132,68 +6078,82 @@ void Hud_PositionMap(void)
 void Hud_BTC_Update(char *perpname,int timeleft,bool userHasControl)
 
 {
-  
   sprintf(BTC_CurrentPerpName,perpname);
   BTC_UserHasControl = userHasControl;
-  if ((BTC_BonusTime == 0) && (HudBustedOverlay == 0)) {
+
+  if ((BTC_BonusTime == 0) && (HudBustedOverlay == 0))
+
     BTC_Countdown = timeleft << 1;
-  }
-  return;
 }
 
 /* ---- Hud_BustedOverlayOn__FiPcbs  [HUD.CPP:4009-4046] SLD-VERIFIED ---- */
+/* (moved out of the body by HUDFX r5 so the body sits on retail's SLD lines) */
+/* w46-a4 LEVER (19 -> 10, count now EXACT 110/110): the sprintf index is a FRESH
+ * `Hud_NextPerp[player]` array read, NOT `*psVar3`.  With `*psVar3` the load is tied
+ * to the pointer local, gcc issues `lw BTC_Countdown` / `sw FinalBTC_Countdown`
+ * back-to-back and pays a load-delay `nop` (the 111th insn); the array read lets the
+ * scheduler interleave the sprintf address chain (`lh a0,0(s0); sll a0,a0,4;
+ * addu a0,a0,s3`) between the gp load and its store, exactly as retail does.
+ * RESIDUAL 10 = the head `player` arithmetic only: retail sign-extends the short param
+ * into $v1 and MUTATES IN PLACE (`sll a2,v1,2; addu a2,a2,v1; sll v1,v1,1`, i.e. the
+ * *5 row offset is built BEFORE the *2 pointer offset and `player` dies at `sll v1,v1,1`);
+ * ours sign-extends into $a0, builds *2 first and keeps `player` live for `addu v0,a2,a0`.
+ * FALSIFIED HERE (this basin): FinalBTC first (10, identical) / after the sprintf (29)
+ * / sprintf before psVar3 (29) / row-base char* local first (14) / name-pointer local
+ * first (29) / int copy of player used for both indices (20) / `&Hud_NextPerp[i]` +
+ * `*psVar3` index (36).
+ * NEW NAMED ANGLE: this is a 4-insn block-local QTY question (all four pseudos are
+ * born and die inside the entry block) -- per catalog w45 В§A0 `QTY_CMP_PRI ==
+ * allocno_compare`, so read the -dl qty table for this block and apply the ref-step /
+ * live-length dial to the sign-extended `player` pseudo so it ranks where retail's does
+ * (retail's dies 2 insns earlier).  A source shape that makes the *5 the FIRST consumer
+ * of `player` without moving the sprintf is the direct route.
+ * MATCH (w49-a1): SYM-EMPTY-LOCALS PURGE, 10 -> 0 PASS 110/110.  The SYM 8c block
+ * @0x800d962c lists exactly ONE named local (`i`, REG $18, inside the else-loop block)
+ * -- `psVar3` was FABRICATED in the head.  Deleting the head `psVar3 = Hud_NextPerp +
+ * player;` and reading `Hud_NextPerp[player]` freshly at all three caught-branch sites
+ * lets gcc build the *5 row offset as the in-place mutation of the *4 StatsTimer index
+ * (`sll a2,v1,2; addu a2,a2,v1; sll v1,v1,1`) and sign-extend `player` into $v1 (dying
+ * at the *2) instead of $a0 -- the whole residual was downstream of the invented local.
+ * PASS-only SYM cleanup: the else loop now also spells every access directly through
+ * `Hud_NextPerp[i]`; this removes `psVar3`/`iVar2` plus two dead decompiler locals while
+ * preserving PASS 110/110, leaving exactly the sole SYM-named local `i`. */
+/* MATCH (w45-a7): REAL 2-D FIELD ACCESS, not the hand-folded byte form.
+ * `BTCPerpInfo[0][Hud_NextPerp[i]-1].name + 0xc` lets gcc fold
+ * (Hud_NextPerp[i]-1)*16+12 into Hud_NextPerp[i]*16-4 and park
+ * `&BTCPerpInfo-4` in an EXTRA callee-saved reg ($s4); retail
+ * keeps the index expression whole -- `addiu v0,v1,-1; sll v0,v0,4; addu s1; addu
+ * s3; lw v0,12(v0)` -- which only the named-field/real-index spelling produces.
+ * 37 -> 19 diffs. */
 void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
 
 {
   StatsTimer[player] = 0;
-  if (Replay_ReplayMode < 2) {
+
+
+
+
+
+
+
+
+  if (Replay_ReplayMode < 2)
+  {
     FinalBTC_Countdown = BTC_Countdown;
-    /* w46-a4 LEVER (19 -> 10, count now EXACT 110/110): the sprintf index is a FRESH
-     * `Hud_NextPerp[player]` array read, NOT `*psVar3`.  With `*psVar3` the load is tied
-     * to the pointer local, gcc issues `lw BTC_Countdown` / `sw FinalBTC_Countdown`
-     * back-to-back and pays a load-delay `nop` (the 111th insn); the array read lets the
-     * scheduler interleave the sprintf address chain (`lh a0,0(s0); sll a0,a0,4;
-     * addu a0,a0,s3`) between the gp load and its store, exactly as retail does.
-     * RESIDUAL 10 = the head `player` arithmetic only: retail sign-extends the short param
-     * into $v1 and MUTATES IN PLACE (`sll a2,v1,2; addu a2,a2,v1; sll v1,v1,1`, i.e. the
-     * *5 row offset is built BEFORE the *2 pointer offset and `player` dies at `sll v1,v1,1`);
-     * ours sign-extends into $a0, builds *2 first and keeps `player` live for `addu v0,a2,a0`.
-     * FALSIFIED HERE (this basin): FinalBTC first (10, identical) / after the sprintf (29)
-     * / sprintf before psVar3 (29) / row-base char* local first (14) / name-pointer local
-     * first (29) / int copy of player used for both indices (20) / `&Hud_NextPerp[i]` +
-     * `*psVar3` index (36).
-     * NEW NAMED ANGLE: this is a 4-insn block-local QTY question (all four pseudos are
-     * born and die inside the entry block) -- per catalog w45 В§A0 `QTY_CMP_PRI ==
-     * allocno_compare`, so read the -dl qty table for this block and apply the ref-step /
-     * live-length dial to the sign-extended `player` pseudo so it ranks where retail's does
-     * (retail's dies 2 insns earlier).  A source shape that makes the *5 the FIRST consumer
-     * of `player` without moving the sprintf is the direct route.
-     * MATCH (w49-a1): SYM-EMPTY-LOCALS PURGE, 10 -> 0 PASS 110/110.  The SYM 8c block
-     * @0x800d962c lists exactly ONE named local (`i`, REG $18, inside the else-loop block)
-     * -- `psVar3` was FABRICATED in the head.  Deleting the head `psVar3 = Hud_NextPerp +
-     * player;` and reading `Hud_NextPerp[player]` freshly at all three caught-branch sites
-     * lets gcc build the *5 row offset as the in-place mutation of the *4 StatsTimer index
-     * (`sll a2,v1,2; addu a2,a2,v1; sll v1,v1,1`) and sign-extend `player` into $v1 (dying
-     * at the *2) instead of $a0 -- the whole residual was downstream of the invented local.
-     * PASS-only SYM cleanup: the else loop now also spells every access directly through
-     * `Hud_NextPerp[i]`; this removes `psVar3`/`iVar2` plus two dead decompiler locals while
-     * preserving PASS 110/110, leaving exactly the sole SYM-named local `i`. */
     sprintf(BTCPerpInfo[player][Hud_NextPerp[player]].name,name);
-    if (caught != 0) {
+    if (caught != 0)
+    {
       BTCPerpInfo[player][Hud_NextPerp[player]].caught = 1;
       BTCPerpInfo[player][Hud_NextPerp[player]].time = time;
       Hud_NextPerp[player] = Hud_NextPerp[player] + 1;
     }
-    else {
-      for (int i = 0; i < 2; i++) {
-        /* MATCH (w45-a7): REAL 2-D FIELD ACCESS, not the hand-folded byte form.
-         * `BTCPerpInfo[0][Hud_NextPerp[i]-1].name + 0xc` lets gcc fold
-         * (Hud_NextPerp[i]-1)*16+12 into Hud_NextPerp[i]*16-4 and park
-         * `&BTCPerpInfo-4` in an EXTRA callee-saved reg ($s4); retail
-         * keeps the index expression whole -- `addiu v0,v1,-1; sll v0,v0,4; addu s1; addu
-         * s3; lw v0,12(v0)` -- which only the named-field/real-index spelling produces.
-         * 37 -> 19 diffs. */
-        if ((Hud_NextPerp[i] == 0) || (BTCPerpInfo[i][Hud_NextPerp[i] - 1].caught != 0)) {
+    else
+    {
+      for (int i = 0; i < 2; i++)
+      {
+
+        if ((Hud_NextPerp[i] == 0) || (BTCPerpInfo[i][Hud_NextPerp[i] - 1].caught != 0))
+        {
           BTCPerpInfo[i][Hud_NextPerp[i]].caught = 0;
           BTCPerpInfo[i][Hud_NextPerp[i]].time = 0;
           sprintf(BTCPerpInfo[i][Hud_NextPerp[i]].name,BTC_CurrentPerpName);
@@ -6201,10 +6161,11 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
         }
       }
     }
+
+
     HudBustedOverlay = 1;
     HudBustedOverlayPlayer = player;
   }
-  return;
 }
 
 /* ---- Hud_BustedOverlayOff__Fv  [HUD.CPP:4051-4052] SLD-VERIFIED ---- */
@@ -6212,14 +6173,15 @@ void Hud_BustedOverlayOff(void)
 
 {
   HudBustedOverlay = 0;
-  return;
 }
 
 /* ---- Hud_Reset__Fv  [HUD.CPP:4056-4069] SLD-VERIFIED ---- */
 void Hud_Reset(void)
 {
-  if (Replay_ReplayMode < 2) {
-    for (int i = 0; i < 2; i++) {
+  if (Replay_ReplayMode < 2)
+  {
+    for (int i = 0; i < 2; i++)
+    {
       Hud_NextPerp[i] = 0;
       BTC_CurrentPerpName[0] = '\0';
     }
@@ -6237,12 +6199,17 @@ void Hud_Reset(void)
  * the former flattened row/pointer/index temporaries were decompiler artifacts. */
 void Hud_BTC_QuitOut(void)
 {
-  if (HudBustedOverlay == 0) {
-    for (int i = 0; i < 2; i++) {
+  if (HudBustedOverlay == 0)
+  {
+    for (int i = 0; i < 2; i++)
+    {
       sprintf(BTCPerpInfo[i][Hud_NextPerp[i]].name,BTC_CurrentPerpName);
       BTCPerpInfo[i][Hud_NextPerp[i]].caught = 0;
       BTCPerpInfo[i][Hud_NextPerp[i]].time = 0;
       Hud_NextPerp[i] = Hud_NextPerp[i] + 1;
+
+
+
     }
   }
 }
@@ -6253,7 +6220,6 @@ void Hud_BTC_BonusTime(long extratime)
 {
   BTC_BonusTime = extratime;
   BTC_BonusTimeTick = FE_Ticks();
-  return;
 }
 
 /* ---- Hud_Perp_OverlayOn__Fii  [HUD.CPP:4100-4102] SLD-VERIFIED ---- */
@@ -6262,7 +6228,6 @@ void Hud_Perp_OverlayOn(int player,int level)
 {
   *(int *)((player << 2) + (int)PerpOverlayOn) = 1;
   *(int *)((player << 2) + (int)PerpOverlayMessage) = level;
-  return;
 }
 
 /* ---- Hud_Perp_OverlayOff__Fi  [HUD.CPP:4106-4107] SLD-VERIFIED ----
@@ -6273,7 +6238,6 @@ void Hud_Perp_OverlayOff(int player)
 
 {
   *(int *)((player << 2) + (int)PerpOverlayOn) = 0;
-  return;
 }
 
 /* end of hud.cpp */

@@ -254,8 +254,14 @@ void Stattool_ReadDefaultRecords(tRecordBuffer *Records,bool cheatones)
 void Stattool_GetRecords(short nShowTrack,tRecordBuffer *TrackRecords)
 
 {
+
+
+
+
+
+
+
   blockmove(Stats_gTrackRecords + nShowTrack * 0x11,TrackRecords,0x154);
-  return;
 }
 
 /* ---- Stattool_ReturnRecordLapTime  (stattool.cpp:377) ---- */

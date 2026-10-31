@@ -399,42 +399,54 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
 {
   int y;
   int newSlice;
-  coorddef offset;
-  int resetCounter;
-  int direction;
+  coorddef offset; int resetCounter; int direction; memset((u_char *)&offset,'\0',0xc);
 
-  memset((u_char *)&offset,'\0',0xc);
   direction = carObj->desiredDirection;
   (carObj->collision).smoking = 0;
-  /* MATCH (w64-a15, DUAL-LANE: gate PASS 280/280 + psyqproof REAL=0): the blowout early-return
-   * REPEATS `smoking = 0` even though the store two lines up already did it.  That duplicate is
-   * what makes cross_jump merge this arm's `sw $zero,0x78C($s2); j <epilogue>` tail with the
-   * SAME tail of the big early-return arm below, and -- crucially -- the merged block's LABEL
-   * lands BEFORE the store, so the `bnez $v0` guard targets `.L800867D0` (dist 75) exactly like
-   * retail.  Without the duplicate our arm is a bare `j <epilogue>`, jump.c's follow_jumps
-   * forwards the guard straight to the epilogue (dist 256), and the resulting wrong branch WORD
-   * is invisible to verify_asm (04Q: targets normalise to T) -- gate PASS, psyqproof REAL=1
-   * word 15.  Count is unchanged (280) because the two tails merge back to one copy. */
+
+
   if (carObj->blowout != 0) {
     (carObj->collision).smoking = 0;
     return;
   }
+
   if (forceReset == 0) {
-    if (((0xc000 < (y = (carObj->N).roadMatrix.m[3] / 256 * ((carObj->N).orientMat.m[3] / 256) +
-                   (carObj->N).roadMatrix.m[4] / 256 * ((carObj->N).orientMat.m[4] / 256) +
-                   (carObj->N).roadMatrix.m[5] / 256 * ((carObj->N).orientMat.m[5] / 256))) &&
-         ((carObj->N).angularVel.x < 0x10000)) &&
-        ((carObj->N).angularVel.z < 0x10000) &&
-        ((((carObj->N).driveSurfaceType != 0xe &&
-          ((carObj->N).driveSurfaceType != 0)) &&
-         (((carObj->N).simRoadInfo.simQuad != (Trk_NewSimQuad *)0x0 &&
-          (((carObj->N).flightTime < 6 && ((carObj->N).objAltitude < 0x10000)))))))) {
+    y = (carObj->N).roadMatrix.m[3] / 256 * ((carObj->N).orientMat.m[3] / 256) +
+        (carObj->N).roadMatrix.m[4] / 256 * ((carObj->N).orientMat.m[4] / 256) +
+
+
+        (carObj->N).roadMatrix.m[5] / 256 * ((carObj->N).orientMat.m[5] / 256);
+    if (((0xc000 < y) && ((carObj->N).angularVel.x < 0x10000)) &&
+
+
+
+
+
+
+
+        ((carObj->N).angularVel.z < 0x10000) && ((((carObj->N).driveSurfaceType != 0xe && ((carObj->N).driveSurfaceType != 0)) && (((carObj->N).simRoadInfo.simQuad != (Trk_NewSimQuad *)0x0 && (((carObj->N).flightTime < 6 && ((carObj->N).objAltitude < 0x10000)))))))) {
       (carObj->collision).smoking = 0;
+
+
+
+
       return;
     }
   }
+
+
+
+
+
+
+
+
+
+
   newSlice = (carObj->N).simRoadInfo.slice;
+
   newSlice = WRAP_SLICE(direction * 4,newSlice);
+
   if (forceReset == 2) {
     newSlice = (int)(carObj->N).simRoadInfo.slice;
   }
@@ -446,12 +458,12 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
   }
   {
     int side;   /* SYM block-62 side (s4): stays 0 -- the loop's `offset.x += side << 14`
-                   nudge is a REAL EA BUG (inner block-63 `side` SHADOWS this one, so the
-                   computed side never reaches the loop; oracle sll $s4,14 with s4==0). */
-    side = 0;
+                   nudge is a REAL EA BUG (inner block-63 `side` SHADOWS this one, so the computed side never reaches the loop; oracle sll $s4,14 with s4==0). */ side = 0;
     {
       int side;   /* SYM block-63 side (v1) -- shadows the outer one */
+
       side = carObj->carIndex / 2 * 2 != carObj->carIndex;
+
       if (direction == -1) {
         side = 1 - side;
       }
@@ -460,9 +472,7 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
       }
       if (side != 0) {
         offset.x =
-            -(((u_int)BWorldSm_slices[newSlice].avgPavedWidthLf << 15) *
-              (BWorldSm_slices[newSlice].laneCount >> 4)) +
-            (carObj->N).dimension.x / 256 * 0x180;
+            -(((u_int)BWorldSm_slices[newSlice].avgPavedWidthLf << 15) * (BWorldSm_slices[newSlice].laneCount >> 4)) + (carObj->N).dimension.x / 256 * 0x180;
       }
       else {
         offset.x = ((u_int)BWorldSm_slices[newSlice].avgPavedWidthRt << 15) *
@@ -470,26 +480,37 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
                    (carObj->N).dimension.x / 256 * 0x180;
       }
     }
+
     Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,newSlice,&offset,direction);
     resetCounter = 0;
     while (((carObj->N).driveSurfaceType == 0 || ((carObj->N).driveSurfaceType == 0xe)) ||
+
+
            ((carObj->N).simRoadInfo.simQuad == (Trk_NewSimQuad *)0x0)) {
+
       offset.x = offset.x + (side << 14);
       Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,newSlice,&offset,direction);
-      resetCounter = resetCounter + 1;
-      if (0x28 < resetCounter) {
+      resetCounter = resetCounter + 1; if (0x28 < resetCounter) {
+
+
+
+
         offset.x = 0;
         Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,newSlice,&offset,direction);
         break;
       }
     }
   }
-  (carObj->N).linearVel.z = 0;
-  (carObj->N).linearVel.y = 0;
+
+
+
+
+
+
+  (carObj->N).linearVel.z = 0; (carObj->N).linearVel.y = 0;
   (carObj->N).linearVel.x = 0;
   Cars_ResetVariablesAfterACollision(carObj);
-  return;
-}
+  return; }
 
 /* ---- Cars_SetCarUpForHiRezSim__FP8Car_tObj  [@0x80086ac4] ---- */
 #line 836 "C:/nfs4/GAME/COMMON/CARS.CPP"
@@ -799,24 +820,6 @@ void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj)
 }
 
 /* ---- Cars_AddCarSfx__FP8Car_tObjiP8coorddefiii  [@0x8008748c] ---- */
-#line 1157 "C:/nfs4/GAME/COMMON/CARS.CPP"
-void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,int surfaceType,
-               int drawSkid)
-{
-  int objID;
-  int sfxType;
-  int stateBit;
-  int smoking;
-  int traffic;
-  int sfxDelay;
-
-  objID = carObj->N.objID;
-  sfxType = Cars_kConvertFromRoadToSfxType[roadSurface & 0xf];
-  stateBit = 1 << wheel;
-  smoking = Cars_kSmokingSurface[roadSurface & 0xf];
-  if (surfaceType == 3) {
-    smoking = 0;
-  }
   /* MATCH (W55-A10, sealed 272/272 PASS) -- the W54-A13 retail SHAPE + the REF-STEP fix.
      W54-A13 proved the SLD statement order below makes the instruction stream EXACT but left
      a 5-way callee-saved permutation (98 diffs) because `sfxDelay` carried NINE refs where
@@ -848,48 +851,61 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
      `traffic` (`x>0x1c`, `?:`, default+override, if/else-both-assign) folds to slti+xori --
      only the `traffic=1` INSIDE the if survives; `traffic=0` must sit BEFORE
      `sfxDelay = gTAddCarWheelDelay;` (it is the bnez delay slot). */
+#line 1157 "C:/nfs4/GAME/COMMON/CARS.CPP"
+void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,int surfaceType,
+               int drawSkid)
+{
+  int objID; int sfxType; int stateBit; int smoking; int traffic; int sfxDelay; objID = carObj->N.objID;
+
+  sfxType = Cars_kConvertFromRoadToSfxType[roadSurface & 0xf];
+
+  stateBit = 1 << wheel;
+
+  smoking = Cars_kSmokingSurface[roadSurface & 0xf];
+  if (surfaceType == 3) { smoking = 0;
+  }
   traffic = 0;
   sfxDelay = gTAddCarWheelDelay;
   if (carObj->render.currentCarType > 0x1c) {
+
     traffic = 1;
     sfxDelay <<= traffic;
   }
   if (carObj->render.currentCarType == 0x1c) {
     return;
-  }
-  if (wheel >= 2) {
+  } if (wheel >= 2) {
+
     if (drawSkid && surfaceType && !traffic) {
       if ((skidpt->x != carObj->oldSkidPoint[wheel].x) ||
           (skidpt->z != carObj->oldSkidPoint[wheel].z)) {
         int skid;
 
+
         if (wheel == 2) {
           skid = carObj->rearSkid - carObj->gTransferRight;
         }
-        else {
-          skid = carObj->rearSkid + carObj->gTransferRight;
+        else { skid = carObj->rearSkid + carObj->gTransferRight;
         }
-        skid = (skid - 0x10000 < 0 ? 0 : skid - 0x10000) > 0x60000 ?
-            0x60000 : (skid - 0x10000 < 0 ? 0 : skid - 0x10000);
+        skid = (skid - 0x10000 < 0 ? 0 : skid - 0x10000) > 0x60000 ? 0x60000 : (skid - 0x10000 < 0 ? 0 : skid - 0x10000);
+
+
         TrgSfx_AddSkidmark(objID,wheel,skidpt,0,skid,carObj,surfaceType - 1);
         carObj->oldSkidPoint[wheel] = *skidpt;
+
         carObj->oldSkidState |= stateBit;
       }
     }
-    else {
-      if (carObj->oldSkidState & stateBit) {
+    else { if (carObj->oldSkidState & stateBit) {
         TrgSfx_AddSkidmark(objID,wheel,&carObj->oldSkidPoint[wheel],1,
+
             carObj->rearSkid,carObj,0);
         carObj->oldSkidState -= stateBit;
       }
     }
+
     if (sfxType == 8) {
       TrgSfx_AddCarSplash(objID,wheel,skidpt,8,&carObj->N.linearVel,
-          sfxDelay,carObj->N.speedXZ);
-      return;
-    }
-    if (((smoking < carObj->N.speedXZ) && (smoking > 0)) ||
-        (carObj->rearSkid > 0x40000)) {
+          sfxDelay,carObj->N.speedXZ); return; } if (((smoking < carObj->N.speedXZ) && (smoking > 0)) || (carObj->rearSkid > 0x40000)) {
       TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
     }
   }
@@ -899,37 +915,35 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
           (skidpt->z != carObj->oldSkidPoint[wheel].z)) {
         int skid;
 
+
         if (wheel == 0) {
           skid = carObj->frontSkid - carObj->gTransferRight;
         }
-        else {
-          skid = carObj->frontSkid + carObj->gTransferRight;
+        else { skid = carObj->frontSkid + carObj->gTransferRight;
         }
-        skid = (skid - 0x18000 < 0 ? 0 : skid - 0x18000) > 0x60000 ?
-            0x60000 : (skid - 0x18000 < 0 ? 0 : skid - 0x18000);
+        skid = (skid - 0x18000 < 0 ? 0 : skid - 0x18000) > 0x60000 ? 0x60000 : (skid - 0x18000 < 0 ? 0 : skid - 0x18000);
+
+
         TrgSfx_AddSkidmark(objID,wheel,skidpt,0,skid,carObj,surfaceType - 1);
         carObj->oldSkidPoint[wheel] = *skidpt;
+
         carObj->oldSkidState |= stateBit;
       }
     }
-    else {
-      if (carObj->oldSkidState & stateBit) {
+    else { if (carObj->oldSkidState & stateBit) {
         TrgSfx_AddSkidmark(objID,wheel,&carObj->oldSkidPoint[wheel],1,
+
             carObj->frontSkid,carObj,0);
         carObj->oldSkidState -= stateBit;
       }
     }
+
     if (sfxType == 8) {
-      TrgSfx_AddCarSplash(objID,wheel,skidpt,8,&carObj->N.linearVel,
-          sfxDelay,carObj->N.speedXZ);
-      return;
-    }
-    if (((smoking < carObj->N.speedXZ) && (smoking > 0)) ||
-        (carObj->frontSkid > 0x40000)) {
+      TrgSfx_AddCarSplash(objID,wheel,skidpt,8,&carObj->N.linearVel, sfxDelay,carObj->N.speedXZ); return;
+    } if (((smoking < carObj->N.speedXZ) && (smoking > 0)) || (carObj->frontSkid > 0x40000)) {
       TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
     }
-  }
-}
+  } }
 
 /* ---- Car_TireSkiddingStuff__FP8Car_tObj  [@0x800878cc] ---- */
 /* SOURCE-REVIEW-UNRESOLVED: the visibility/skid one-iteration loops still need
@@ -1904,9 +1918,11 @@ void Cars_Restart(void)
   /* SLD exposes only i=$s0. */
   int i;
   for (i = 0; i < Cars_gNumCars; i++) {
+
     Cars_gSortedList[i] = Cars_gList[i];
     Cars_gTotalSortedList[i] = Cars_gList[i];
   }
+
   for (i = 0; i < Cars_gNumCars; i++) {
     /* ORIGINAL-NAME-RECOVERED: carObj -- the symbol-bearing NFS2
        Cars_Restart block records this exact local and its canonical source
@@ -1915,17 +1931,17 @@ void Cars_Restart(void)
     Car_tObj *carObj = Cars_gList[i];
     Cars_IniCarObjects(carObj,i);
   }
-  i = 0;
-  while( true ) {
-    if (Object_GetNumIMassObjects() <= i) break;
+
+  i = 0; while( true ) { if (Object_GetNumIMassObjects() <= i) break;
+
     Object_IMassObjInst[i].lastPos.x = 0;
     Object_IMassObjInst[i].lastPos.y = 0;
     Object_IMassObjInst[i].lastPos.z = 0;
     Object_IMassObjInst[i].lastTick = 0;
     i = i + 1;
   }
-  accidentSlice = 0;
-  return;
+
+  accidentSlice = 0; return;
 }
 
 /* ---- Cars_Initialize__FPci  [@0x8008a5b4] ---- */
@@ -1941,100 +1957,6 @@ void Cars_Initialize(char *mem,int size)
   } }
 
 /* ---- Cars_StartUp__Fv  [@0x8008a5d8] ---- */
-#line 2362 "C:/nfs4/GAME/COMMON/CARS.CPP"
-void Cars_StartUp(void)
-{
-  int i;
-  Car_tObj *newCar;
-
-  Cars_ResetCarCounters();
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    newCar = (Car_tObj *)reservememadr("Car_tObj",0x8dc,0);
-    Cars_Initialize((char *)newCar,0x8dc);
-    if (i < GameSetup_gData.numCars) {
-      newCar->carInfo = &GameSetup_gData.carInfo[i];
-    }
-    Cars_InitializeCarTablesFlagsAndCounters(newCar);
-  }
-
-  for (i = 0; i < Object_GetNumIMassObjects(); i++) {
-    coorddef dim;
-
-    Object_GetIMassObjectDimensions(i,&dim);
-    Newton_InitBaseNewtonObj(
-        &InfiniteMassNewton[i],0x201,0x280000,0x1400000,
-        dim.x,dim.y,dim.z + 0x10000);
-  }
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    Cars_InitCar(carObj,i);
-    Sched_AddFunction(
-        simGlobal.schedule32Hz,carObj->funcUpdateRoadInfo,carObj,6);
-  }
-
-  if (R3DCar_LicenseShapeFile != (char *)0x0) {
-    purgememadr(R3DCar_LicenseShapeFile);
-  }
-  R3DCar_LicenseShapeFile = (char *)0x0;
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    Sched_AddFunction(
-        simGlobal.schedule32Hz,carObj->funcControl,carObj,0x15);
-  }
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    Sched_AddFunction(
-        simGlobal.schedule32Hz,carObj->funcHandlingPhysics,carObj,0x1e);
-  }
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    Sched_AddFunction(
-        simGlobal.schedule32Hz,carObj->funcGravityPhysics,carObj,0x1e);
-  }
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    Sched_AddFunction(
-        simGlobal.schedule32Hz,carObj->funcTestMeForCollisions,carObj,0x28);
-  }
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    Sched_AddFunction(
-        simGlobal.schedule32Hz,carObj->funcDoPostCollisionStuff,carObj,0x32);
-  }
-
-  Force_StartUp();
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    if ((carObj->carFlags & 1U) != 0) {
-      Sched_AddFunction(
-          simGlobal.schedule64Hz,carObj->funcStats,carObj,0x19);
-    }
-  }
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    Sched_AddFunction(
-        simGlobal.schedule64Hz,carObj->funcQDPhysicsUpdateVel,carObj,0x1e);
-  }
-
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    Car_tObj *carObj = Cars_gList[i];
-    if ((carObj->carFlags & 4U) != 0) {
-      Sched_AddFunction(simGlobal.schedule64Hz,
-                        carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
-    }
-    else {
-      Sched_AddFunction(simGlobal.schedule32Hz2,
-                        carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
-    }
     /* 2026-10-01: explicit conditional calls replace the old empty asm fence.
        GCC tail-merges the two calls into retail's one call site while keeping
        the loop latch in a separate block. The jal delay slot is li a3,30 and
@@ -2045,17 +1967,148 @@ void Cars_StartUp(void)
        call must occur syntactically in each branch for this source graph.
        The argument values, pointer and callback are identical on both paths.
        Native locals/scopes remain CLEAN; full SLD attribution stays open. */
+#line 2362 "C:/nfs4/GAME/COMMON/CARS.CPP"
+void Cars_StartUp(void)
+{
+  int i;
+  Car_tObj *newCar;
+
+
+
+
+
+
+
+
+
+
+  Cars_ResetCarCounters();
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+    newCar = (Car_tObj *)reservememadr("Car_tObj",0x8dc,0);
+
+    Cars_Initialize((char *)newCar,0x8dc);
+
+
+
+
+    if (i < GameSetup_gData.numCars) {
+
+      newCar->carInfo = &GameSetup_gData.carInfo[i];
+    }
+
+
+
+
+
+
+    Cars_InitializeCarTablesFlagsAndCounters(newCar);
+  }
+
+
+  for (i = 0; i < Object_GetNumIMassObjects(); i++) {
+    coorddef dim;
+
+    Object_GetIMassObjectDimensions(i,&dim);
+    Newton_InitBaseNewtonObj( &InfiniteMassNewton[i],0x201,0x280000,0x1400000, dim.x,dim.y,dim.z + 0x10000);
+  }
+
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    Cars_InitCar(carObj,i);
+    Sched_AddFunction(
+
+
+
+
+
+
+        simGlobal.schedule32Hz,carObj->funcUpdateRoadInfo,carObj,6);
+  }
+
+
+  if (R3DCar_LicenseShapeFile != (char *)0x0) { purgememadr(R3DCar_LicenseShapeFile);
+  } R3DCar_LicenseShapeFile = (char *)0x0;
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcControl,carObj,0x15);
+  }
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcHandlingPhysics,carObj,0x1e);
+  }
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcGravityPhysics,carObj,0x1e);
+  }
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcTestMeForCollisions,carObj,0x28);
+  }
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule32Hz,carObj->funcDoPostCollisionStuff,carObj,0x32);
+  }
+
+
+  Force_StartUp();
+
+
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    if ((carObj->carFlags & 1U) != 0) {
+      Sched_AddFunction(
+          simGlobal.schedule64Hz,carObj->funcStats,carObj,0x19);
+    } }
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    Sched_AddFunction(
+        simGlobal.schedule64Hz,carObj->funcQDPhysicsUpdateVel,carObj,0x1e);
+  }
+
+
+  for (i = 0; i < GameSetup_gData.numCars; i++) {
+
+
+    Car_tObj *carObj = Cars_gList[i];
+    if ((carObj->carFlags & 4U) != 0) {
+      Sched_AddFunction(simGlobal.schedule64Hz,
+
+                        carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
+    }
+    else {
+      Sched_AddFunction(simGlobal.schedule32Hz2,
+
+                        carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
+    }
   }
 }
 
 /* ---- Cars_CleanUp__Fv  [@0x8008aa40] ---- */
-#line 2513 "C:/nfs4/GAME/COMMON/CARS.CPP"
-void Cars_CleanUp(void)
-{
-  int i;
-
-  i = 0;
-  if (0 < Cars_gNumCars) {
     /* MATCH (W54-A13/P814): NFS4 SLD and the symbol-bearing NFS2 predecessor
        both prove direct Cars_gList[i] source expressions and an explicit final
        carFlags if/else; the former pCVar2 cache was reconstruction-only.
@@ -2065,37 +2118,83 @@ void Cars_CleanUp(void)
        `p = Cars_gList;` statement (a real preheader insn) can never come second.  Writing the
        body as `Cars_gList[i]` makes the walk a GIV -> exact preheader order.  The counter
        increment must sit at the LOOP END (moving it earlier costs 2 diffs).  98/98 PASS. */
-    do {
+#line 2513 "C:/nfs4/GAME/COMMON/CARS.CPP"
+void Cars_CleanUp(void)
+{
+  int i;
+
+
+
+
+  i = 0; if (0 < Cars_gNumCars) { do {
+
+
+
+
+
+
+
+
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcUpdateRoadInfo,Cars_gList[i]);
+
+
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcControl,Cars_gList[i]);
+
       if ((Cars_gList[i]->carFlags & 1U) != 0) {
+
         Sched_DeleteFunction(simGlobal.schedule64Hz,Cars_gList[i]->funcStats,Cars_gList[i]);
       }
+
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcHandlingPhysics,Cars_gList[i]);
+
+
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcGravityPhysics,Cars_gList[i]);
+
+
       Sched_DeleteFunction(simGlobal.schedule64Hz,Cars_gList[i]->funcQDPhysicsUpdateVel,Cars_gList[i]);
+
+
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcTestMeForCollisions,Cars_gList[i]);
+
+
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcDoPostCollisionStuff,Cars_gList[i]);
+
+
+
       if (Force_IsForceOn(Cars_gList[i]) != 0) {
+
+
         Sched_DeleteFunction(simGlobal.schedule32Hz,Force_Update,Cars_gList[i]);
       }
+
+
       if ((Cars_gList[i]->carFlags & 4U) != 0) {
         Sched_DeleteFunction(simGlobal.schedule64Hz,
+
                              Cars_gList[i]->funcQDPhysicsUpdateRot,Cars_gList[i]);
       }
       else {
         Sched_DeleteFunction(simGlobal.schedule32Hz2,
+
                              Cars_gList[i]->funcQDPhysicsUpdateRot,Cars_gList[i]);
       }
+
+
+
+
       Cars_DeInitCar(Cars_gList[i]);
+
+
+
+
       purgememadr(Cars_gList[i]);
-      i = i + 1;
-    } while (i < Cars_gNumCars);
-  }
-  return;
-}
+      i = i + 1; } while (i < Cars_gNumCars); } return; }
 
 /* ---- Cars_FindCurrentLap__FP8Car_tObj  [@0x8008abc8] ---- */
+    /* MATCH: guard-clause (negated-early) form -- the oracle branches to a SHARED merge
+       point whether roadSlice<0x1F5 is true OR oldSlice!=0 is true, then falls into the inner
+       if; the original if/else duplicated the inner-if test as a separate branch
+       (+4/+5 insns short). DeMorgan the OR into the negated guard + else-if. */
 #line 2589 "C:/nfs4/GAME/COMMON/CARS.CPP"
 void Cars_FindCurrentLap(Car_tObj *carObj)
 {
@@ -2104,29 +2203,29 @@ void Cars_FindCurrentLap(Car_tObj *carObj)
   if (GameSetup_gData.reverseTrack != 0) {
     roadSlice = (gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
   }
-  else {
-    roadSlice = (carObj->N).simRoadInfo.slice;
+  else { roadSlice = (carObj->N).simRoadInfo.slice;
   }
+
+
   if ((carObj->N).oldSlice != roadSlice) {
-    /* MATCH: guard-clause (negated-early) form -- the oracle branches to a SHARED merge
-       point whether roadSlice<0x1F5 is true OR oldSlice!=0 is true, then falls into the inner
-       if; the original if/else duplicated the inner-if test as a separate branch
-       (+4/+5 insns short). DeMorgan the OR into the negated guard + else-if. */
+
+
     if ((0x1f5 <= roadSlice) && ((carObj->N).oldSlice == 0)) {
+
       carObj->unlap = carObj->unlap + 1;
     }
+
     else if (((u_int)roadSlice < 0x33) && (500 < (carObj->N).oldSlice)) {
+
+
       if (1 <= carObj->unlap) {
+
         carObj->unlap = carObj->unlap + -1;
       }
       else {
         carObj->lap = carObj->lap + 1;
       }
-    }
-    (carObj->N).oldSlice = (u_short)roadSlice;
-  }
-  return;
-}
+    } (carObj->N).oldSlice = (u_short)roadSlice; } return; }
 
 /* ---- Cars_CalculateRoadSpan__FP8Car_tObj  [@0x8008ac80] ---- */
 #line 2623 "C:/nfs4/GAME/COMMON/CARS.CPP"
@@ -2218,37 +2317,61 @@ void Cars_ManageBureaucracy(void)
   int carLoop;
 
   for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+
+
     Car_tObj *carObj = Cars_gList[carLoop];
+
     if (carObj->N.active == '\0') continue;
+
+
+
+
+
     carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
     carObj->roadPosition = Cars_CalculateRoadPosition(carObj);
+
+
     AIWorld_CalculateLaneInfo(carObj);
     {
+
       if (AIPhysics_UseCoolPhysics(carObj) != 0) {
         carObj->currentSpeed = Cars_CalcVelDownRoad(carObj);
       }
       if ((carObj->carFlags & 4U) != 0) {
+
         carObj->speed = carObj->N.speedXZ;
         if ((unsigned)(carObj->currentSpeed + 0x2ffff) < 0x5ffff) {
           int facing;
-          facing =
-              fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) +
-              fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]) +
-              fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]);
+          facing = fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) + fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]) + fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]);
           carObj->direction = (0 < facing) ? 1 : -1;
         } else {
+
+
+
+
           carObj->direction = (-1 < carObj->currentSpeed) ? 1 : -1;
         }
       }
+
       if ((signed char)carObj->N.simRoadInfo.sliceChanged != '\0') {
+
         Cars_FindCurrentLap(carObj);
         Cars_FindTotalSlice(carObj);
       }
     }
   }
+
+
   Cars_SortCars();
   Cars_Randomize();
   AISpeeds_MaintainLeaderBoard();
+
+
+
+
+
+
+
   DrawW_DoObjectAnimations();
 }
 

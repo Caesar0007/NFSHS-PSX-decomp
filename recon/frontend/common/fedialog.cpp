@@ -244,6 +244,8 @@ void tDialogBase::HideAllDialogs()
 tDialogBase *tDialogBase::GetTopMostDialog()
 
 {
+
+
   return DialogVisibilityList[0];
 }
 
@@ -304,6 +306,7 @@ void tDialogBase::Hide()
 void tDialogBase::Draw()
 
 {
+
   PSXDrawTransSquare(0,left,top,4,height,4);
   PSXDrawTransSquare(0,(left + width) - 4,top,4,height,4);
   PSXDrawTransSquare(0,left + 4,top,width + -8,2,4);
@@ -319,6 +322,29 @@ void tDialogBase::Draw()
 void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 
 {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /* The first and third ABI parameters are unnamed in retail SYM and
      unused here; their types remain in the mangled method signature. */
   if (keyval != kInput_KeyType_AlreadyProcessed) {
@@ -334,6 +360,7 @@ void tDialogBase::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 void tDialogHelp::AddItem(short textID,short controllerID)
 
 {
+
   if (numItems < 7) {
     text[numItems] = TextSys_Word(textID);
     cont[numItems] = controllerID;
@@ -845,9 +872,7 @@ inline tDialogInteractive::tDialogInteractive()
   fCurrentlyRunning = 0;   /* retail zeroes it (+156) BEFORE tDialogYesNo's vtable store: done at this class's level */
 }
 
-tDialogYesNo::tDialogYesNo()
-  : tDialogInteractive()
-{
+tDialogYesNo::tDialogYesNo() : tDialogInteractive() {
   ReturnValue = 0;
   ReadyToReturnValue = 0;
 }
@@ -994,6 +1019,15 @@ void tDialogNoInputMessage::ProcessInput(tPlayer,tInputKeyType &,
                tMenuCommand &)
 
 {
+
+
+
+
+
+
+
+
+
 }
 
 

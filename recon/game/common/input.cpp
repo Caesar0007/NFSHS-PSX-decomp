@@ -38,30 +38,25 @@ int * Input_StartUp(void)
 {
   int * h;
   int i;
-
   Device_StartUp();
+
+
   h = Input_gHandler;
   i = 0xb7;
-  do {
-    *h = 0;
-    i = i + -1;
-    h = h + 1;
-  } while (-1 < i);
+  do { *h = 0; i = i + -1; h = h + 1; } while (-1 < i);
+
   for (i = 0; i < 2; i = i + 1) {
+
     Input_gDBFlags[i] = 0;
     Input_gMode[i] = 0;
+
     for (int j = 0; j < 0x11; j = j + 1) {
-      Input_gPressTime[i][j] = 0;
-    }
+      Input_gPressTime[i][j] = 0; }
   }
-  i = 0x1f;
-  h = (int *)Input_gInterfaceResults;
-  h = h + 0x1f;
-  do {
-    *h = 0;
-    i = i + -1;
-    h = h + -1;
-  } while (-1 < i);
+
+  i = 0x1f; h = (int *)Input_gInterfaceResults; h = h + 0x1f;
+  do { *h = 0; i = i + -1; h = h + -1; } while (-1 < i);
+
   return Input_gHandler;
 }
 
@@ -69,31 +64,15 @@ int * Input_StartUp(void)
 int Input_WingCommandMode(int player)
 
 {
-  int * h;
+  int *h = Input_gHandler + 0x2d;
 
-  h = Input_gHandler + 0x2d;
-  if (player != 0) {
+  if (player != 0)
     h = h + 0x4c;
-  }
-  if (*h != 0) {
-    goto checkMode;
-  }
-  if (h[1] != 0) {
-    goto checkMode;
-  }
-  if (h[2] == 0) {
-    goto falseResult;
-  }
-checkMode:
-  if (Input_gMode[player & 1] == 1) {
-    goto trueResult;
-  }
-falseResult:
-  return 0;
 
-trueResult:
-  return 1;
-}
+  if (((*h == 0) && (h[1] == 0) && (h[2] == 0)) || (Input_gMode[player & 1] != 1))
+    return 0;
+
+  return 1; }
 
 /* ---- Input_Update__Fv [INPUT.CPP:104-430; byte868 PASS,source/SLD unsealed] ----
  * Historical matching dials are not original-source evidence. The five
@@ -491,17 +470,19 @@ void Input_Store(void)
 
 {
   if (gSimQueue_BlockSelf == 0) {
+
+
     if (1 < GameSetup_gData.numPlayerRaceCars) {
-      if (SimQueue_Put(0,Input_gResults)) {
+
+
+
+
+      if (SimQueue_Put(0,Input_gResults))
         SimQueue_Put(1,&Input_gResults[1]);
-      }
     }
-    else if (GameSetup_gData.commMode == 0) {
+    else if (GameSetup_gData.commMode == 0)
       SimQueue_Put(GameSetup_gData.localCar,Input_gResults);
-    }
-  }
-  return;
-}
+  } }
 
 /* ---- Input_Fetch__Fi  [INPUT.CPP:456-457] SLD-VERIFIED ---- */
 void Input_Fetch(int humanIndex)
@@ -533,22 +514,17 @@ char Input_Gear(char currentGear,int numGears)
 int Input_Interface(u_long key,int debounce)
 
 {
-  if (debounce == 0) {
-    goto no_debounce;
-  }
-  if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << key &
-       ~Input_gInterfaceResults[simGlobal.time32Hz - 1U & 0x1f]) == 0) {
-    goto return_zero;
-  }
-  return 1;
+  if (debounce != 0) {
 
-no_debounce:
-  if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << key) != 0) {
-    return 1;
+
+    if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << key & ~Input_gInterfaceResults[simGlobal.time32Hz - 1U & 0x1f]) != 0)
+      return 1;
+  } else {
+    if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << key) != 0)
+
+      return 1;
   }
-return_zero:
-  return 0;
-}
+  return 0; }
 
 /* ---- Input_MainExitKey__Fv  [INPUT.CPP:543-544] SLD-VERIFIED ---- */
 int Input_MainExitKey(void)

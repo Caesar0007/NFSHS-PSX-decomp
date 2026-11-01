@@ -13,14 +13,18 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 extern "C" int sprintf(char *, const char *, ...);
 
 /* @0x80091ec0  IsNumChar(char c) -- line 454 */
+/* Matched NFS2 PC risk/IsNumChar.c confirms this digit/minus/plus return chain.
+ * Explicit sign arms retain retail's separate return notes on line458; a direct
+ * Boolean tail has identical code but loses those two notes. No extra object
+ * or compiler fence is needed. Literal original PSX formatting is unproved. */
 
 #line 453 "C:/nfs4/GAME/COMMON/COLOR.CPP"
 char IsNumChar(char c)
 {
-  if ((u_char)(c - 0x30U) < 10) { return '\x01';
-  } if ((u_char)c == '-') {
+  if (c >= '0' && c <= '9') return 1;
+  else if (c == '-')
 
-    return '\x01'; } return (u_char)c == '+';
+    return 1; else if (c == '+') return 1; else return 0;
 }
 
 /* @0x80091efc  Risk_ReadNextValue(char **aScript) -- line 462 */

@@ -5,10 +5,6 @@
 #include "screentrophyroom_types.h"
 #include "screentrophyroom_externs.h"
 
-/* retail's SYM records an inline-call pair at these reads: the value is read through an inline getter */
-static inline tfrontEnd & FrontEnd(void) { return frontEnd; }
-
-
 /* retail's SYM records an inline-call pair at every tick read in this TU: the tick counter is read
    through an inline getter, not directly */
 static inline int FE_Ticks(void) { return ticks; }
@@ -150,12 +146,12 @@ void tScreenTrophyRoom::PreLoad()
   /* SYM-CODEGEN-CARRIER: loopFe -- reusing `fe` directly is FAIL 21 at
      117/118; it loses retail's caller-saved-to-`$s3` handoff and rotates the
      tier/constant allocation web. */
-  /* SYM-CODEGEN-CARRIER: curIdx -- the direct EA `MIN(current,count - 1)`
-     expansion is FAIL 16 at 120/118 because it reloads both operands; retail
-     keeps one candidate and one current-tournament load. */
-  /* W86-S4: the SYM `8c` block records exactly ONE function-scope local here,
-     `REG i $17 s1 SHORT`; the two SYM-ABSENT carriers are quarantined after it.
-     Re-gated PASS. */
+  /* 2026-11-01: remove former curIdx with bound-first GNU minimum. The older
+     repeated EA `MIN(current,count - 1)` expansion was FAIL16 at120/118;
+     that did not establish a source object. The selected minimum evaluates
+     both genuine inputs once and preserves the complete normal ELF/SLD. */
+  /* SYM records exactly one function-scope local here: i REG17 SHORT.
+     loopFe remains unprovided source-recovery work, not an exemption. */
   /* MATCH (W54-A7, from the SYM SLD map 0x80040910..0x80040AE4): retail's
      statements are 119 base-Initialize / 124 systemtask / 125 the load poll /
      126 tier / 127 fNumTrophies (a ONE-line select) / 128 fClearScreen /
@@ -166,19 +162,25 @@ void tScreenTrophyRoom::PreLoad()
      reproduced all 13 global handouts and isolated the frontEnd/constant priority
      crossing and the loop's caller-saved-to-$s3 handoff.  The later source-only SYM
      cleanup (2026-08-26) found the simpler original-looking form: direct
-     `FrontEnd().tier` reads plus `loopFe = &frontEnd` preserve that handoff at exact
+     `FrontEnd().tier` reads plus `loopFe = &frontEnd` preserved that handoff at exact
      PASS, so the old `fe` alias and four-input opacity fence were unnecessary.
      The load-poll result also feeds its condition directly.  The six remaining
      SYM-omitted value webs have measured counterfactual receipts beside their
      declarations; explicit `tournIdx`/`tourney`, in particular, retain retail's
-     address-add result and operand order. */
+     address-add result and operand order.
+     2026-11-01: direct frontEnd.tier reads remove the two unexpected early
+     inline pairs, preserve all code and seal118/118 word tags. The actual
+     existing Definition getter now restores both actual loop pairs at+0x98
+     and eight missing manager-family type copies, without a new named row.
+     All nine provided region tuples agree. Remaining object provenance stays
+     open; Definition-only loopFe removal is9dif/118, not necessity proof. */
 #line 112 "C:/nfs4/FRONTEND/COMMON/SCREENTROPHYROOM.CPP"
 void tScreenTrophyRoom::Initialize()
 
 
 {
   short i;
-  int curIdx;
+
   tfrontEnd *loopFe;
   this->tScreen::Initialize();
   do {
@@ -187,13 +189,13 @@ void tScreenTrophyRoom::Initialize()
 
     systemtask(0);
   } while (((int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes) ^ 1) != 0);
-  this->tier = (uint)(byte)FrontEnd().tier;
-  this->fNumTrophies = FrontEnd().tier != '\0' ? 8 : 6;
+  this->tier = (uint)(byte)frontEnd.tier;
+  this->fNumTrophies = frontEnd.tier != '\0' ? 8 : 6;
   this->fClearScreen = 1;
 
   i = 0; loopFe = &frontEnd; for (; i < this->fNumTrophies; i = i + 1) {
     int placement;
-    short place; this->fTrophyList[i] = 1; placement = (signed char)tournamentManager.fBestPlacement[(signed char)((tournamentManager.fDefinition)->fTournaments + ((uint)(tournamentManager.fDefinition)->fTiers[(byte)loopFe->tier].fTournOffset + (uint)(byte)i))->fTournamentID];
+    short place; this->fTrophyList[i] = 1; placement = (signed char)tournamentManager.fBestPlacement[(signed char)((tournamentManager.Definition())->fTournaments + ((uint)(tournamentManager.Definition())->fTiers[(byte)loopFe->tier].fTournOffset + (uint)(byte)i))->fTournamentID];
     place = 0;
 
 
@@ -210,7 +212,7 @@ void tScreenTrophyRoom::Initialize()
 
   this->fTrophyList[this->fNumTrophies] = 0;
 
-  curIdx = this->fNumTrophies + -1; if (this->fRealCurrentTourn[this->tier] < curIdx) { curIdx = (int)this->fRealCurrentTourn[this->tier]; } this->fRealCurrentTourn[this->tier] = (short)curIdx;
+  this->fRealCurrentTourn[this->tier] = (this->fNumTrophies - 1) <? (int)this->fRealCurrentTourn[this->tier];
   this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
 
   this->startTicks = FE_Ticks(); return;
@@ -248,10 +250,12 @@ void tScreenTrophyRoom::Cleanup()
   /* W86-S4: the eight locals above are now in the SYM `8c` order exactly
      (drawFlags3 AUTO sp+32, fModNumber REG $19 s3, TROPHY_LEFTOFFSET REG $21 s5,
      drawFlags AUTO sp+56, i REG $17 s1, x REG $6 a2, y REG $7 a3, texttoshow
-     REG $4 a0); the SYM-ABSENT drawFlagsPtr carrier is quarantined after them.
-     Re-gated PASS. */
+     REG $4 a0). 2026-11-01 direct &drawFlags arguments preserve code/locals/
+     regions/SLD, but lose one supplied completed tDrawShapeExtended typedef
+     copy. Restored, not an original-pointer exemption: investigate the shared
+     completed-type producer before repricing this source-only pointer. */
   /* Reliable SYM names every retained retail local and omits these five
-     optimized-away source identities justified by the W66 receipt above:
+     source identities, which remain unresolved rather than exempted:
      SYM-CODEGEN-CARRIER: feTier
      SYM-CODEGEN-CARRIER: currentTourn
      SYM-CODEGEN-CARRIER: tourn

@@ -12,6 +12,11 @@
      800157e8/ec, not an empty literal; relocation normalization hid the error. */
   /* The conditional purge/reset is one retail SLD55 group. This expression
      preserves it without naming an unproven original macro. PASS41. */
+  /* Source/SLD recovery 2026-11-01: success work inside a positive guard,
+     success return61 and common failure return64 reproduce the separate
+     constant61/epilogue64 notes with unchanged41words and supplied owners.
+     Moving one terminal return alone loses four correct epilogue tags.
+     Receipt: build/tmp/v/feaudio_source_20261101/proof.json. */
 #line 40 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 int FEAudio_StartLoadPatch(SPEECHINFO *info)
 
@@ -24,9 +29,9 @@ int FEAudio_StartLoadPatch(SPEECHINFO *info)
   asyncidle();
   FeAudio_LocateBigfile(speechfileHeader,info->name,&offset,&length);
 
-  if ((offset == 0) || (length == 0)) {
-    return 0;
-  }
+  if ((offset != 0) && (length != 0)) {
+
+
   info->sSpeechData != (char *)0x0
     ? (purgememadr(info->sSpeechData), info->sSpeechData = (char *)0x0) : (char *)0x0;
 
@@ -34,16 +39,24 @@ int FEAudio_StartLoadPatch(SPEECHINFO *info)
 
   info->areLoading = '\x01';
 
-  info->playNextOne = '\0';
+  info->playNextOne = '\0'; return 1;
 
 
-  return 1;
+  } return 0;
 }
 
 
 
 /* ---- Feaudio_StartPatch  [FEAUDIO.CPP:68-121] SLD-VERIFIED ---- */
 
+/* Source/SLD recovery 2026-11-01: the two real multi-patch outcomes return
+ * after their work; other paths fall through. This preserves all73 words,
+ * every instruction tag and all supplied owners, while placing the root
+ * block end at119 (+51), not122 (+54). The function-end/epilogue stays121.
+ * A lone terminal-return deletion loses four correct epilogue tags; the
+ * coupled real exits avoid that regression. The bank-add call still has
+ * two wrong tags (84 vs81); exact original expression spelling is open.
+ * Receipt: build/tmp/v/feaudio_source_20261101/proof.json. */
 #line 65 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 void Feaudio_StartPatch(SPEECHINFO *info)
 
@@ -93,19 +106,25 @@ void Feaudio_StartPatch(SPEECHINFO *info)
 
         gCurrentVIV = gCurrentVIV + '\x01';
         info->name[2] = info->name[2] + '\x01';
-        FEAudio_StartLoadPatch(info);
+        FEAudio_StartLoadPatch(info); return;
       }
       else {
 
         info->areLoading = '\0';
-        info->playNextOne = '\0';
+        info->playNextOne = '\0'; return;
       }
     }
-  } return; }
+  }         }
 
 
 
 /* ---- FeAudio_systemtask  [FEAUDIO.CPP:124-204] SLD-VERIFIED ---- */
+/* Source/SLD follow-up (2026-11-01): separate loading/status and playing/over
+   guards restore the real130/132 and140/142 phases; the matched NFS2 source
+   independently uses those nested guards. Clear nHandle before soundIsPlaying
+   in source159/160, even though scheduling emits the byte clear first.
+   All161 word tags and the existing root region then match, without a new
+   local, helper or qualifier. Receipt: build/tmp/v/feaudio_viv_20261101/proof.json. */
 
 #line 121 "C:/nfs4/FRONTEND/COMMON/FEAUDIO.CPP"
 void FeAudio_systemtask(int x)
@@ -114,22 +133,22 @@ void FeAudio_systemtask(int x)
 {
 
   systemtask(x);
-  if ((ginfo.areLoading != '\0') &&
 
 
-     (getasyncreadstatus(ginfo.vivHandle) != 0)) {
 
+  if (ginfo.areLoading != '\0') {
 
+    if (getasyncreadstatus(ginfo.vivHandle) != 0) {
 
     ginfo.areLoading = '\0';
     ginfo.playNextOne = '\x01';
-  }
-  if ((ginfo.soundIsPlaying != '\0') &&
+  } }
 
 
-     (SNDover(ginfo.nSoundHandle) != 0)) {
 
+  if (ginfo.soundIsPlaying != '\0') {
 
+    if (SNDover(ginfo.nSoundHandle) != 0) {
 
 
     SNDautovol((void *)ginfo.nSoundHandle,0,-1);
@@ -146,15 +165,15 @@ void FeAudio_systemtask(int x)
       ginfo.playNextOne = '\x01';
     }
 
-    ginfo.soundIsPlaying = '\0';
     ginfo.nHandle = 0;
+    ginfo.soundIsPlaying = '\0';
 
 
     if (((*(u_int*)((char*)&ginfo + 16)) & 0xff00ff) == 0) {
 
       gStopCommentaryNow = 1;
     }
-  }
+  } }
 
 
   if (gStopCommentaryNow != 0) {

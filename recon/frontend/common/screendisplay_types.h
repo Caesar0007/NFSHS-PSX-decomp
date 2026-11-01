@@ -154,11 +154,11 @@ struct tTournamentManager {
     void GetAwardInformation(tAwardInformation &);
     short IsTournamentFinished(); /* retail EXT5c91d6: FCN SHORT */
 #endif
-#ifdef NFS4_FRONT_SURFACE
-    short AdvanceToNextTrack();
-    short GetLastTrackRaced();
-    void UpdateCarLineup();
-    void UpdateAwardInformation();
+#if defined(NFS4_FRONT_SURFACE)
+    short AdvanceToNextTrack(); short GetLastTrackRaced();
+    void UpdateCarLineup(); void UpdateAwardInformation();
+#elif defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)
+    tTournamentDefinition *Definition() { return fDefinition; } /* Existing inferred accessor; no layout/virtual slot. */
 #endif
 };
 

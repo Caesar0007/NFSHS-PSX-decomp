@@ -8,29 +8,17 @@ char minChar[6] = { ':',':',':',':',':',':' };   /* 0x800125ac region; minute se
 char secChar[6] = { '.',':','.','.','.','.' };   /* centisecond seps */
 
 /* ---- Stattool_nCreateIndex  (stattool.cpp:110) ---- */
-  /* SYM 8c @0x8004A868: nNumber REGPARM $11=$s1, nInput $13=$s3, nIndex $12=$s2;
-     locals are EXACTLY i($06) j($10) nADummy($08) nBDummy($0b) nTemp($04) -- the
-     walking pointers in the Ghidra body (pIdx/pVal/pIdxScan/pValScan) are compiler
-     GIVs, not source variables, so this is the index-form insertion sort.  (W55-A15)
-     Retail i is the inner scan; retail j is the initial/outer loop counter.
-     Two further levers were needed for the SYM's 4-saved-reg mask ($800f0000, fsize 40):
-       * `j = 0;` BEFORE the reservememadr call -- that makes j CALL-CROSSING, so it gets a
-         callee-saved home ($s0) instead of the caller-saved $t0 a post-call init lands in;
-       * the explicit `if (nNumber != 1)` wrapper -- the oracle really does test `beq $s1,1`
-         ahead of the ordinary `slt` zero-trip guard, and no `for` spelling emits it.
-     108 -> 2 diffs, count-exact 77/77.
-     W57-A7 SEAL (2 -> PASS 77/77): the last residual was ours `addu $s0,$v0,$zero` copying
-     the guard's live `li $v0,1` into j where retail re-materializes `li $s0,1` in the beq
-     delay slot.  It was NOT the 3.25-3b no-copy-prop identity -- it is plain cse constant
-     sharing, and the OPACITY/IDENTITY FENCE (catalog 04-a4/a5, zero insns) breaks it: with
-     `one` laundered (SYM-CODEGEN-CARRIER: one), cse can no longer prove the
-     compare's register holds 1, so `j = 1`
-     re-materializes.  Falsified at this basin BEFORE the fence: j=1 hoisted above the guard,
-     j=1 inside the guard, guard spelled against j.
-     W86-S4 re-priced dropping the fence and the `one` carrier (plain
-     `if (nNumber != 1)`) in today's PASS basin: exactly 2 diffs, unchanged.
-     `one` therefore stays as a SYM-absent carrier; a pure-C replacement for the
-     cse opacity it buys is device-lane work, not a declaration question. */
+  /* Retail @0x8004A868 records only i/j/nADummy/nBDummy/nTemp at homes
+     $6/$16/$8/$11/$4. The walked addresses are compiler induction values.
+     Matched NFS2 source has a real singleton cleanup path and a separate
+     sorting cleanup path. That shape also reproduces all77 NFS4 words:
+     the two purge calls merge, while j receives its own literal1 in the
+     comparison's delay slot. No one capture or empty assembly fence is needed.
+     Initialization, named value roles and statement phases remain supplied
+     by NFS4's own SYM/SLD; NFS2's debug assertions are not imported.
+     Implicit void fallthrough after the final purge keeps root end180 and
+     the epilogue's180 tag distinct from the purge's179 tag. These matching
+     facts do not uniquely recover original punctuation or macro text. */
 #line 107 "C:/nfs4/FRONTEND/COMMON/STATTOOL.CPP"
 void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
 
@@ -82,8 +70,8 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
     nTemp[j] = nInput[j];
     j++;
   }
-  {
-  int one = 1; __asm__ ("" : "=r" (one) : "0" (one)); if (nNumber != one) {
+
+  if (nNumber == 1) { purgememadr(nTemp); return; }
 
 
 
@@ -103,9 +91,8 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
     nIndex[i + 1] = (short)nBDummy;
 
   }
-  }
-  } purgememadr(nTemp);
-  return;
+
+  purgememadr(nTemp);
 }
 
 /* ---- Stattool_ParseTime  (stattool.cpp:190) ---- */

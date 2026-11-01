@@ -55,7 +55,7 @@ def _source_path(root, key):
     return current if current.is_file() and current.resolve().is_relative_to((root/'recon').resolve()) else None
 
 
-def _included_sld_owner(sources, root=None):
+def _included_sld_owner(sources, root=None, origin_units=None):
     """Independently prove a multi-file SLD compilation group, or decline it.
 
     2026-10-16: Speech.obj includes SPCHEVNT.C. Native PsyQ has no paired FILE
@@ -66,6 +66,17 @@ def _included_sld_owner(sources, root=None):
     Unknown graphs, multiple roots and conflicting FILE anchors stay invalid.
     """
     root = Path(root) if root is not None else Path(__file__).resolve().parents[2]
+    # 2026-11-01: canonical original MAIN names are constructed BEFORE CC1.
+    # A genuine included-source group still requires hash-bound compiler/ASPSX
+    # producer evidence. This assigns a TU, never changes an emitted filename
+    # or accepts a name/VA/ordinal/contract-similarity fallback.
+    # Backup: build/tmp/v/compiler_identity_20261101/local_owner_cmp.before.py.
+    def source_key(value):
+        return re.sub(r'[\\/]+', '/', str(value).strip().strip('"')).casefold()
+    wanted = frozenset(source_key(value) for value in sources)
+    for group, evidence in (origin_units or {}).items():
+        if len(group) == len(sources) and wanted == frozenset(source_key(value) for value in group):
+            return evidence['unit'], evidence
     try:
         manifest = root/'tools/build.py'
         data = manifest.read_bytes()
@@ -110,6 +121,9 @@ def _included_sld_owner(sources, root=None):
 
 def parse_owner_records(path, *, source_root=None):
     """Preserve all function occurrences; do not coalesce repeated symbols."""
+    from compiler_origin_evidence import validated_units
+    root = Path(source_root) if source_root is not None else Path(__file__).resolve().parents[2]
+    origin_units = validated_units(Path(path), root)
     functions, current, header = [], None, False
     pending_sources, active_sources, file_unit = set(), (), None
     for line in Path(path).read_text(errors='replace').splitlines():
@@ -207,7 +221,7 @@ def parse_owner_records(path, *, source_root=None):
         file_owner = unit_name(unit['name']) if unit and unit['valid'] and unit['closed'] else None
         if sources not in source_owners:
             source_owners[sources] = ((unit_name(sources[0]), None) if len(sources) == 1 else
-                                     _included_sld_owner(sources, source_root) if sources else (None, None))
+                                     _included_sld_owner(sources, source_root, origin_units) if sources else (None, None))
         source_owner, include_evidence = source_owners[sources]
         owner = file_owner or source_owner
         if unit and (not unit['valid'] or not unit['closed']):

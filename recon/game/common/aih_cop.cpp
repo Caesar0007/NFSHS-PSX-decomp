@@ -544,63 +544,63 @@ void AIHigh_Cop::HighExecute()
   switch(this->stateType_)
   { trigger_t *pNewTrigger;
   case 0:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     this->AssignToPlayer((AIHigh_Player *)0x0);
     (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
-    if (((this->carObj_)->carFlags & 0x400U) != 0) {
-      /* Idle arm = oracle FALL-THROUGH (beqz jumps to the Purgatory arm) */
-      AIState_Base *newState;
-      newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */ ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1; this->SetState(newState,(stateType_t)3); return;
-    }
+    if (((this->carObj_)->carFlags & 0x400U) != 0)
+    { /* Idle arm = oracle FALL-THROUGH (beqz jumps to the Purgatory arm) */
 
-    {
-      AIState_Base *newState;
-      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
-      this->SetState(newState,(stateType_t)1);
-      return;
+      this->SetState(new AIState_Idle(this->carObj_, 1), (stateType_t)3); return;
     }
+    else
+    {
+
+      this->SetState(new AIState_Purgatory(this->carObj_), (stateType_t)1);
+      }
+    return;
+
     }
 
   case 1:
-    {
+
 
 
 
@@ -628,23 +628,23 @@ void AIHigh_Cop::HighExecute()
       this->blockade_.mode = 0;
 
     }
-    {
+
     if (this->blockade_.mode == 2)
     {
-      AIState_Base *newState;
+
       this->AssignToPlayer(this->blockade_.target);
-      newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */ ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-      this->SetState(newState,(stateType_t)3);
+      this->SetState(new AIState_Idle(this->carObj_, 1), (stateType_t)3);
+
       {
         AILife_ReencarnateCopByLatPosAndRotation(this->carObj_,this->blockade_.slice ,this->blockade_.direction, this->blockade_.latPos,this->blockade_.rotation);
       } this->requestSpikeBeltAtSlice_ = this->blockade_.requestSpikeBeltAtSlice;
 
     }
+    else {
 
 
 
-
-    else if ((((this->carObj_)->AIFlags & 8U) != 0) && (this->blockade_.mode != 1)) { pNewTrigger = this->CheckForNewTriggers(); if (pNewTrigger != (trigger_t *)0x0)
+      if ((((this->carObj_)->AIFlags & 8U) != 0) && (this->blockade_.mode != 1) && ((pNewTrigger = this->CheckForNewTriggers()) != (trigger_t *)0x0))
     {
         int forceForwardTrigger;
 
@@ -714,44 +714,44 @@ void AIHigh_Cop::HighExecute()
 
 
 
-          if (newTrigger.roadblock.spikeBelt != 0) {
-            AIState_Base *newState;
+          if (newTrigger.roadblock.spikeBelt != 0)
+          {
             this->AssignToPlayer((AIHigh_Player *)0x0);
-            newState = new AIState_Normal(this->carObj_);
+            this->SetState(new AIState_Normal(this->carObj_), (stateType_t)2);
 
-            this->SetState(newState,(stateType_t)2);
+            AILife_ReencarnateCopBySlice(this->carObj_,newTrigger.roadblock.slice,direction,direction, newTrigger.roadblock.spikeBelt);
           }
-          else {
-            AIState_Base *newState;
+          else
+          {
             this->AssignToPlayer((AIHigh_Player *)0x0);
-            newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */ ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-            this->SetState(newState,(stateType_t)3);
-          } AILife_ReencarnateCopBySlice(this->carObj_,newTrigger.roadblock.slice,direction,direction, newTrigger.roadblock.spikeBelt);
-          }
+            this->SetState(new AIState_Idle(this->carObj_, 1), (stateType_t)3);
+
+            AILife_ReencarnateCopBySlice(this->carObj_,newTrigger.roadblock.slice,direction,direction, newTrigger.roadblock.spikeBelt);
+          } }
 
 
 
 
         }
-      } } }
-    goto stateExecuteAndReturn;
-    }
+      } }
+    break;
+
   case 2:
+
+
+
+
+
     {
     blockadeMode_t one;
-
-
-
-
-
     this->requestSpikeBeltAtSlice_ = -1;
 
     one = (blockadeMode_t)1; if (this->blockade_.mode != one) { stateType_t chaseState; chaseState = (stateType_t)4; if (this->blockade_.mode != chaseState) {
         static void *aihCopFlagsBoundary_ LINK_STRIPPED_RODATA = &&aih_cop_flagsGuard; (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
       aih_cop_flagsGuard: ;
       }
-      { if (this->blockade_.mode != one) { if ((this->blockade_.mode != 4) && (this->CheckForNewTarget() != 0)) {
-
+      if ((this->blockade_.mode != one) && (this->blockade_.mode != 4) && (this->CheckForNewTarget() != 0))
+      {
         coorddef pos;
 
 
@@ -764,25 +764,25 @@ void AIHigh_Cop::HighExecute()
         this->GetCheckChasePosition(&pos);
 
 
-        this->SetState(new AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), chaseState);
+        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), chaseState);
 
-        Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_);
+        Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->CarObj());
       }
-      }
-      }
-    } if ((this->forcePurgatory_ == 0) && (AILife_EvaluateLife(this->carObj_) == 0))
-    goto stateExecuteAndReturn;
+
+
+    } if ((this->forcePurgatory_ != 0) || (AILife_EvaluateLife(this->carObj_) != 0))
     {
-      AIState_Base *newState;
-      this->forcePurgatory_ = 0; Speech::Mobile(this->carObj_)->Purge();
+      this->forcePurgatory_ = 0;
+
+      Speech::Mobile(this->carObj_)->Purge();
 
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
-      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
+      this->SetState(new AIState_Purgatory(this->carObj_), (stateType_t)1);
 
-      this->SetState(newState,(stateType_t)1);
+
     }
-    goto stateExecuteAndReturn;
+    break;
     }
 
   case 4:
@@ -912,10 +912,10 @@ void AIHigh_Cop::HighExecute()
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
-      this->SetState(newState,(stateType_t)1); } goto stateExecuteAndReturn;
+      this->SetState(newState,(stateType_t)1); } break;
 
     }
-    if (this->driveAway_ == 0) goto stateExecuteAndReturn;
+    if (this->driveAway_ == 0) break;
 
 
 
@@ -967,7 +967,7 @@ void AIHigh_Cop::HighExecute()
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
-      this->SetState(newState,(stateType_t)1); goto stateExecuteAndReturn;
+      this->SetState(newState,(stateType_t)1); break;
 
     }
 
@@ -983,7 +983,7 @@ LAB_80064a0c:
         this->SetState(newState,(stateType_t)2);
         if (this->driveAway_ == 1) {
           Cars_ResetCollidedCars(this->carObj_,1,1);
-        } this->driveAway_ = 0; goto stateExecuteAndReturn;
+        } this->driveAway_ = 0; break;
       }
 
     }
@@ -1058,7 +1058,7 @@ LAB_80064a0c:
 
 
 
-      if (!release) { int distance; distance = AIWorld_ApxSplineDistance((this->perpTarget_)->carObj_, this->blockade_.slice); if (distance < 0) { distance = distance + 0xffff; } if (this->blockade_.initialPlayerDistanceMetersInt * (distance >> 0x10) < 1) goto stateExecuteAndReturn;
+      if (!release) { int distance; distance = AIWorld_ApxSplineDistance((this->perpTarget_)->carObj_, this->blockade_.slice); if (distance < 0) { distance = distance + 0xffff; } if (this->blockade_.initialPlayerDistanceMetersInt * (distance >> 0x10) < 1) break;
       }
 
       AIHigh_Player *chaseTarget = this->perpTarget_; int blockLevel; int targetLevel; this->requestSpikeBeltAtSlice_ = -1;
@@ -1086,10 +1086,10 @@ LAB_80064a0c:
 
 
 
-        this->SetState(new AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&newPos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), (stateType_t)4);
+        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&newPos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), (stateType_t)4);
 
         if (this->blockade_.reverse != 0) {
-          AIPhysic_ChangeDirection(this->carObj_,0x40); } } goto stateExecuteAndReturn;
+          AIPhysic_ChangeDirection(this->carObj_,0x40); } } break;
 
     }
 
@@ -1106,11 +1106,11 @@ LAB_80064a0c:
         this->GetCheckChasePosition(&pos);
 
 
-        this->SetState(new AIState_Chase(this->carObj_, AIHigh_GetCarObj(this->perpTarget_),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), (stateType_t)4);
+        this->SetState(new AIState_Chase(this->carObj_, (this->perpTarget_)->CarObj(),&pos, AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks, NitroDistanceMeters[this->type_][0], NitroDistanceMeters[this->type_][1], this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]), (stateType_t)4);
 
-        Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_); goto stateExecuteAndReturn;
+        Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_); break;
       }
-      } if (AILife_EvaluateLife(this->carObj_) == 0) goto stateExecuteAndReturn;
+      } if (AILife_EvaluateLife(this->carObj_) == 0) break;
       {
         AIState_Base *newState; this->AssignToPlayer((AIHigh_Player *)0x0);
         newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
@@ -1118,7 +1118,7 @@ LAB_80064a0c:
         this->SetState(newState,(stateType_t)1);
       }
 
-      goto stateExecuteAndReturn;
+      break;
 
     }
     }
@@ -1158,7 +1158,7 @@ LAB_80064a0c:
       }
     }
     if ((this->forcePurgatory_ == 0) && (AILife_EvaluateLife(this->carObj_) == 0))
-    goto stateExecuteAndReturn;
+    break;
     { AIState_Base *newState; (this->carObj_)->extraWallCollisionAllowance = 0;
       this->forcePurgatory_ = 0;
       this->AssignToPlayer((AIHigh_Player *)0x0);
@@ -1167,7 +1167,7 @@ LAB_80064a0c:
       this->SetState(newState,(stateType_t)1);
     }
 
-    goto stateExecuteAndReturn;
+    break;
     }
 
   case 6:
@@ -1178,14 +1178,14 @@ LAB_80064a0c:
 
   case 10:
   default:
-    goto stateExecuteAndReturn;
+    break;
   case 9:
     {
     AIState_GotoSlice *gotoState;
     AIState_Base *newState;
     gotoState = (AIState_GotoSlice *)this->state_;
     this->AssignToPlayer((AIHigh_Player *)0x0);
-    if ((gotoState)->InTargetSliceRange(0xa0000) == 0) goto stateExecuteAndReturn;
+    if ((gotoState)->InTargetSliceRange(0xa0000) == 0) break;
 
     newState = new AIState_Normal(this->carObj_);
 
@@ -1194,7 +1194,7 @@ LAB_80064a0c:
 
   }
 
-stateExecuteAndReturn:
+
   (this->state_)->StateExecute()
   ;
   return; }

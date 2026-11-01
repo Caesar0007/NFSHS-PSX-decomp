@@ -56,8 +56,8 @@ void tScreen::DisplayLoadingText()
       Draw_StopRenderingView(Draw_gPlayer1View);                          /* 63 */
       Draw_StopFrameRender();                                             /* 64 */
     }
-    Draw_gView[Draw_gPlayer1View].drawenv[0].isbg = Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = (u_char)oldIsBg;    /* 66 */
-  } return; }
+    Draw_gView[Draw_gPlayer1View].drawenv[0].isbg = Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = (u_char)oldIsBg; } return;    /* 66 */
+}
 
 
 
@@ -638,8 +638,8 @@ void tScreen::UploadShapes(tShapeInformation &data,short x,short y,short numShap
 
     if (data.fDestFile == (char *)0x0) {                                  /* 594 */
       purgememadr(data.fFile);                                            /* 595 */
-    } data.fFile = (char *)0x0;                                             /* 596 */
-  } return; }
+    } data.fFile = (char *)0x0; } return;                                    /* 596 */
+}
 
 
 

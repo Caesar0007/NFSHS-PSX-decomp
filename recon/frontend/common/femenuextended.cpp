@@ -164,14 +164,14 @@ tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,t
   : tMenuItemGoToMenuButton(textDescription,newMenu,OnButtonPress)
 {
   
-
+  this->fNumFrames = numFrames;
   this->fOffset = 0xe;
-
+  this->fButtonImage = firstFrame;
   this->fTransitionVal = 0;
   this->fTransitionSpeed = 0;
   this->fEnabledTransitionVal = 0;
-  this->fNumFrames = numFrames;
-  this->fButtonImage = firstFrame;
+
+
 }
 
 

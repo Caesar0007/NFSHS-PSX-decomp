@@ -123,6 +123,11 @@ void tScreenTrackRecords::DrawOneRecord(int index,bool newrecord,int y)
               (sBuildOutput,(short)TextSys_WordX(0x24e),(short)y, textType_TrackRecords, index != 0 || textState != textState_Unselected ? textState : textState_Selected,0); } return; }
 
 /* ---- tScreenTrackRecords::DrawRecords  (screentrackrec.cpp:161) ---- */
+/* Source/SLD follow-up (2026-11-01): real field bias167 and scale168 are
+   separate source phases. Splitting the complete update preserves all120
+   words and declarations while restoring the last SLL tag, with all block
+   records unchanged. No temporary or alternate field role is introduced.
+   Receipt: build/tmp/v/trackrecords_source_20261101/proof.json. */
 
   /* MATCH: the signed /2 is written in BOTH arms -- gcc cross-jump-merges the
      shared `addu; sra 1` tail, leaving the oracle's `slti 0x1F; bnez` that skips
@@ -143,8 +148,8 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
   if (0x3c < this->flareextra) { this->flareextra = 0;
   } if (0x1e < this->flareextra) { this->flare_intensity = (0x3c - this->flareextra) / 2;
   } else { this->flare_intensity = this->flareextra / 2;
-  } this->flare_intensity = (this->flare_intensity + 0x14) * 0x80;
-  /* MATCH: explicit if/ELSE -- the `= 9` lands in the `bne` DELAY SLOT after the
+  } this->flare_intensity = this->flare_intensity + 0x14;
+  this->flare_intensity = this->flare_intensity * 0x80; /* MATCH: explicit if/ELSE -- the `= 9` lands in the `bne` DELAY SLOT after the
      call, so nLapIndicator lives in the caller-saved $a0 the SYM records.  A
      plain `nLapIndicator = 9;` before the call forces a callee-saved reg. */
 

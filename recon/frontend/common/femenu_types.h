@@ -23,7 +23,7 @@ enum tMenuCommandType {
 
 #include "shared/tMenuCommand.h"
 
-#define NFS4_FE_CORE_FEMENU_METHODS
+#define NFS4_FE_CORE_FEMENU_METHODS inline bool IsEnabled(); /* owner-only interface declaration */
 #define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu comes after the item classes below */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS

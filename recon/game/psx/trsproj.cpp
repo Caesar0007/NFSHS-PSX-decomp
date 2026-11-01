@@ -198,12 +198,12 @@ void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
     gte_ldv0(&pt);
     gte_mvmva(1,0,0,0,0);
     gte_stlvnl(&tv);
-    s = s + 1;
+
     d->x = tv.vx;
     d->y = tv.vy;
     d->z = tv.vz;
 
-    d = d + 1; }
+    s = s + 1; d = d + 1; }
 }
 
 /* ---- TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex  [TRSPROJ.CPP:250-264] SLD-VERIFIED ----
@@ -226,12 +226,12 @@ void TrsProj_TransformProjectVertex(matrixtdef *m,coorddef *t,int n,coorddef *s,
   for (i = 0; i < n; i = i + 1) {
 
     transform(&s->x,m->m,&tmp.x);
-    s = s + 1; v->sv.x = (short)((tmp.x + t->x) >> 10);
+    v->sv.x = (short)((tmp.x + t->x) >> 10);
     v->sv.y = (short)((tmp.y + t->y) >> 10);
     v->sv.z = (short)((tmp.z + t->z) >> 10);
     v->sv.p = 10;
     v = v + 1;
-
+    s = s + 1;
   }
 }
 

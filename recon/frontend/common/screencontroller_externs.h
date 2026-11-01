@@ -57,4 +57,14 @@ void FeDraw_SetABRMode(int abr);
 bool IsShapeFileLoaded(tScreen * thisobj, tShapeInformation * shapes) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void FETextRender_SetFont(int size);
 
+/* Existing inferred word-ID overload: actual text lookup and string-field
+ * store, with no new class API/layout. Its exact original signature and
+ * owner-header visibility are not uniquely retained by retail debug data. */
+#pragma interface
+inline tDialogMessageString *tDialogMessageString::SetString(int word)
+{
+  string = TextSys_Word(word);
+  return this;
+}
+
 #endif

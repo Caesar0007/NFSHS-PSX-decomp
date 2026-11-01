@@ -35,10 +35,10 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
   int index;
 
 
-  if (0xf < simGlobal.gameTicks) {
+  if (0xf < simGlobal.gameTicks)
+  {
     int distanceIndex;
     int mask;
-
 
     distanceIndex = distance / 16;
     distanceIndex = distanceIndex / 65536;

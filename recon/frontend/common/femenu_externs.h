@@ -34,8 +34,13 @@ void SetSemiTrans(...);
 
 /* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800110B8): the unused inline of the
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline bool MenuItem_IsEnabled(tMenuItem *item) { return ((item->fFlags ^ 1) & 1) != 0; }
 
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
+/* Retail Initialize retains tMenuItem receivers, not a free helper's item.
+ * IsEnabled reuses the existing inferred member spelling. The interface-only
+ * definition avoids a non-retail standalone getter in this key-function TU. */
+#pragma interface
+inline bool tMenuItem::IsEnabled() { return ((fFlags ^ 1) & 1) != 0; }
 
 #endif

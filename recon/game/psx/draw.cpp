@@ -75,8 +75,8 @@ void Draw_InitLibRender(void);
 
 
 /* ---- Draw_SetView__Fiiiiiiiii  [DRAW.CPP:72-101] SLD-VERIFIED ---- */
-  /* Const use-site snapshot preserves the pre-increment return value without
-     emitting a retail-absent `viewIndex` debug local. */
+  /* Advance the actual view count, then return its previous index. The compiler
+     retains the old value directly; no unrecorded index capture is needed. */
   /* SYM (nfs4-f-v3.txt @0x800BDAC0) names `newview` (Draw_tView*) + `e00`/`e10`
      (DRAWENV*, both 92 bytes) as real locals -- NOT raw Draw_gView[index].drawenv[N]
      array-index expressions everywhere. Rewritten to cache the two DRAWENV pointers
@@ -105,7 +105,7 @@ int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int ot
   e10->isbg = (u_char)isbg; e00->isbg = (u_char)isbg;
 
   e10->dtd = (u_char)dtd; e00->dtd = (u_char)dtd;
-  const int viewIndex = Draw_gNumView;
+
 
   newview->otsize = otsize;
 
@@ -114,7 +114,7 @@ int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int ot
 
   Draw_gNumView = Draw_gNumView + 1;
 
-  return viewIndex;
+  return Draw_gNumView - 1;
 }
 
 /* ---- Draw_InitViews__Fv  [DRAW.CPP:113-114] SLD-VERIFIED ---- */
@@ -239,24 +239,13 @@ void Draw_SetViewColor(int viewid,int r,int g,int b)
 }
 
 /* ---- AllocatePrimitivesBuffer__Fv  [DRAW.CPP:237-292] SLD-VERIFIED ---- */
-  /* SYM (nfs4-f-v3.txt @0x800BDE60) names exactly 3 locals, all `Draw_tView *`, in TWO
-     DISJOINT block scopes: view0+view1 in the if(commMode==1) block (lines 33-37), view
-     ALONE in the else block (lines 49-56) -- there is NO function-scope `membudget`
-     local anywhere (the outer line=1 block has zero named locals). The oracle's shared
-     tail `sw a0,4(vN)` reached from BOTH the if-block (via an explicit `j`) and the
-     else-block (via fallthrough) is gcc's CROSS-JUMP TAIL-MERGE of two INDEPENDENT,
-     textually-identical store statements (§D "gcc tail-merged duplicate ... KEEP the
-     duplicated-C" family) -- not a shared variable. Each branch computes+stores its OWN
-     membudget expression directly on each Draw_tView*; the if-block's two IDENTICAL
-     `(gTotalMem>>1)+-0x1a00` computations fold to one physical value via ordinary local
-     CSE (both stores are in the same straight-line block), matching the oracle's single
-     `sra/addiu` reused for the view0 AND view1 stores, while the tail-merge pass unifies
-     the if-block's 2nd store with the else-block's only store into the shared `sw`. This
-     also reproduces the oracle's exact scheduling: `&Draw_gView[Draw_gPlayer1View]`'s
-     multiply is computed BEFORE the `gTotalMem>>1` shift (no local ever occupies `$v0`
-     between the `commMode==1` compare and the multiply), so gcc reuses the still-live
-     compare constant register as the shift-amount operand (a variable-form `sllv`) --
-     an allocator artifact of NOT introducing an intervening `membudget` computation. */
+  /* Retail @0x800BDE60 supplies view0/view1 in the multiplayer arm and view in
+     the other arm, with no root membudget local. Source phases275/277 separate
+     the multiplayer budget read/half from its reservation subtraction;290/292
+     separate the single-player read from its subtraction. Real field updates
+     express those phases without an extra source capture. Stock GCC eliminates
+     the interim stores and shares the final branch-tail store. Matching bytes
+     and debug phases do not establish unique original punctuation or macros. */
 #line 234 "C:/nfs4/GAME/PSX/DRAW.CPP"
 void AllocatePrimitivesBuffer(void)
 
@@ -292,31 +281,31 @@ void AllocatePrimitivesBuffer(void)
 
 
 
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData.commMode == 1)
+  {
     Draw_tView *view0;
     Draw_tView *view1;
 
-
     view0 = &Draw_gView[Draw_gPlayer1View];
 
-    view0->membudget = (gTotalMem >> 1) + -0x1a00;
+    view0->membudget = gTotalMem >> 1;
 
-
+    view0->membudget -= 0x1a00;
 
     view1 = &Draw_gView[Draw_gPlayer2View];
 
     view1->membudget = (gTotalMem >> 1) + -0x1a00;
   }
-  else {
+  else
+
+  {
     Draw_tView *view;
-
-
 
     view = &Draw_gView[Draw_gPlayer1View];
 
+    view->membudget = gTotalMem;
 
-
-    view->membudget = gTotalMem + -0x1a00; } return; }
+    view->membudget -= 0x1a00; } return; }
 
 /* ---- ClearPrimitivesBuffer__Fv  [DRAW.CPP:312-320] SLD-VERIFIED ---- */
 #line 309 "C:/nfs4/GAME/PSX/DRAW.CPP"
@@ -397,13 +386,13 @@ void Draw_StartRenderingView(int viewid)
 
 
   view = Draw_gView + viewid;
-  const int midGroundOtzNumerator = view->otsize * 7;
+
   Draw_gViewOtSize = view->otsize;
-  const int roundedNumerator = midGroundOtzNumerator < 0
-      ? midGroundOtzNumerator + 7 : midGroundOtzNumerator;
+  Draw_gMidGroundOtz = (Draw_gViewOtSize * 7) / 8;
+
   sd->head.clipW = Draw_gView[viewid].drawenv[0].clip.w;
   sd->head.clipH = Draw_gView[viewid].drawenv[0].clip.h;
-  Draw_gMidGroundOtz = roundedNumerator >> 3;
+
   sd->head.cprim.LastPrim = (u_long *)view->ot[gFlip];
 
   if ((viewid != Draw_gPlayer1View) && (viewid != Draw_gPlayer2View)) {
@@ -609,9 +598,9 @@ void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,in
 
 {
 
-  if (edraw != 0) {
+  if (edraw != 0)
+  {
     DRAWENV e;
-
 
     SetDefDrawEnv(&e,x,y,w,h);
 
@@ -627,9 +616,9 @@ void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,in
     PutDrawEnv(&e);
   }
 
-  if (edisplay != 0) {
+  if (edisplay != 0)
+  {
     DISPENV e;
-
 
     SetDefDispEnv(&e,x,y,w,h);
 

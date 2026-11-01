@@ -147,10 +147,10 @@ char * Replay_Decompress(char *compressed_data)
   int data_size;
   int u_pointer;
   int count;
-  int c_pointer; char current_byte; data_size = (int)(u_char)*compressed_data; c_pointer = 1;
+  int c_pointer; char current_byte; c_pointer = 1;
   u_pointer = 0;
 
-
+  data_size = (int)(u_char)*compressed_data;
 
   if (c_pointer < data_size) { do {
 
@@ -161,10 +161,10 @@ char * Replay_Decompress(char *compressed_data)
 
         count = (int)(u_char)compressed_data[c_pointer + 1];
         i = 0; if (count != 0) { do {
-            i = i + 1;
+
             uncompressed_data[u_pointer] = compressed_data[c_pointer + 2];
             u_pointer = u_pointer + 1;
-          } while (i < count);
+            i = i + 1; } while (i < count);
         } c_pointer = c_pointer + 3;
       }
       else {
@@ -194,9 +194,9 @@ void Replay_InitReplay(void)
 
 
 
-  if (Replay_ReplayMode == 2) {
+  if (Replay_ReplayMode == 2)
+  {
     GameSetup_tUserSetting temp;
-
     temp = GameSetup_gData.userSetting;
 
     Replay_LoadReplay();
@@ -243,14 +243,14 @@ void Replay_ResetReplay(void)
   }
 
   else if (1 < Replay_ReplayMode) {
-    i = 0;
 
 
+    Replay_ReplayGetPtr = 0;
 
 
     Replay_ReplayInterface.pause = 0;
     Replay_ReplayInterface.speed = 2;
-    Replay_ReplayGetPtr = 0; Replay_ReplayInterface.end = 0;
+    Replay_ReplayInterface.end = 0;
     Replay_ReplayInterface.camera = 0;
     Replay_ReplayInterface.selection = 4;
     Replay_ReplayInterface.depressed = 0;
@@ -261,7 +261,7 @@ void Replay_ResetReplay(void)
 
 
 
-    do {
+    i = 0; do {
 
       if (numValidCams != 0) {
 
@@ -687,6 +687,10 @@ void Replay_GetInterfaceKey(void)
     Camera_Update(); } return; }
 
 /* ---- Replay_LoadCameraFile__Fv  [REPLAY.CPP:665-785] SLD-VERIFIED ---- */
+/* The failed-file ELSE return keeps the implicit cameraFile guard through
+ * source785 while its successful i/j declaration body still ends777.
+ * Both supplied endpoints and all219 word tags agree; no extra scope or
+ * placeholder is needed. The whole normal object remains byte-identical. */
 #line 662 "C:/nfs4/GAME/COMMON/REPLAY.CPP"
 void Replay_LoadCameraFile(void)
 
@@ -694,10 +698,10 @@ void Replay_LoadCameraFile(void)
 {
 
 
-  if (numValidCams == 0) {
-    Camera_tCamSlot *cameraFile;
-    char fname [80];
-    int bigFile;
+  if (numValidCams == 0)
+
+  {
+    Camera_tCamSlot *cameraFile; char fname [80]; int bigFile;
 
     bigFile = 0;
 
@@ -741,10 +745,10 @@ void Replay_LoadCameraFile(void)
       }
     }
 
-    if (cameraFile) {
+    if (cameraFile)
+    {
       int i;
       int j;
-
 
       memcpy(gReplayCameraSlots,cameraFile,sizeof(Camera_tCamSlot) * 32);
 
@@ -764,11 +768,11 @@ void Replay_LoadCameraFile(void)
       for (j = 0; j < 31; j++) {
 
         for (i = 0; i < 31; i++) {
-          if (((gReplayCameraSlots[i].slice > gReplayCameraSlots[i + 1].slice) ||
-               (gReplayCameraSlots[i].slice < 0)) &&
-              (gReplayCameraSlots[i + 1].slice >= 0)) {
-            Camera_tCamSlot temp;
-            temp = gReplayCameraSlots[i];
+
+          if (((gReplayCameraSlots[i].slice > gReplayCameraSlots[i + 1].slice) || (gReplayCameraSlots[i].slice < 0)) &&
+              (gReplayCameraSlots[i + 1].slice >= 0))
+          {
+            Camera_tCamSlot temp; temp = gReplayCameraSlots[i];
             gReplayCameraSlots[i] = gReplayCameraSlots[i + 1];
             gReplayCameraSlots[i + 1] = temp;
           }
@@ -784,9 +788,9 @@ void Replay_LoadCameraFile(void)
 
 
 
-      if (GameSetup_gData.reverseTrack != 0) {
-        int temp;
-        temp = gReplayCameraSlots[numValidCams - 1].slice;
+      if (GameSetup_gData.reverseTrack != 0)
+      {
+        int temp; temp = gReplayCameraSlots[numValidCams - 1].slice;
         for (i = numValidCams - 1; i >= 0; i--) {
 
           if (i == 0) {
@@ -804,14 +808,14 @@ void Replay_LoadCameraFile(void)
         gReplayCameraSlots[i].pos.z <<= 6;
       }
     }
-  }
-  return;
 
 
 
 
 
-}
+
+
+    else return; } }
 
 /* ---- Replay_ReplayChooseCamera__Fii  [REPLAY.CPP:797-833] SLD-VERIFIED ---- */
 #line 794 "C:/nfs4/GAME/COMMON/REPLAY.CPP"

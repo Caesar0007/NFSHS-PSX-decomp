@@ -169,6 +169,13 @@ return_one: return 1;
 
 
 /* ---- FEInput_GetDebounceKey [FEINPUT.CPP:146-179] NATIVE CLEAN; SLD OPEN ---- */
+/* Source/SLD follow-up (2026-11-01): actual compound-body ownership and a
+   non-direction early return restore all14 block line/address records and
+   tick's source153 load, with the whole four-function object unchanged.
+   The call148 / branch150 split is still unresolved: moving the condition
+   close to150 repairs the branch but wrongly moves the call too. No result
+   object or synthetic region is added to conceal those two remaining tags.
+   Receipt: build/tmp/v/feinput_debounce_20261101/proof.json. */
 
 /* SYM (nfs4-f-v3.txt @0x80023B74): key REGPARM $16, controller REGPARM $17,
    and exactly ONE named local -- `int tick` REG $4 (a0), declared at the top of
@@ -184,16 +191,16 @@ int FEInput_GetDebounceKey(int key,int controller)
 
 {
 
-  if (FEInput_GetNoDebounceKey(key,controller) != 0) {
+  if (FEInput_GetNoDebounceKey(key,controller) != 0)
 
 
-
-    if ((debounce[controller] & key) != 0) {
-
+  {
+    if ((debounce[controller] & key) != 0)
+    {
 
       int tick = gettick();
 
-      if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (key == 0x40)) {
+      if (key != 0x10 && key != 0x80 && key != 0x20 && key != 0x40) return 0;
 
 
         if (nextTick == 0) {
@@ -204,8 +211,8 @@ int FEInput_GetDebounceKey(int key,int controller)
         }
         nextTick = tick + FeTools_gScrollTicksOut;
         return 1;
-      }
-      return 0;
+
+
     } else {
       debounce[controller] = debounce[controller] | key;
       nextTick = 0;

@@ -27,8 +27,8 @@ void Anim_Restart(void)
 
   for (int i = 0; i < 32; i++) {
 
-
-    if (animSlots[i] != 0) {
+    if (animSlots[i] != 0)
+    {
       delete animSlots[i]; } animSlots[i] = (AnimScript *)0x0;
   }
 
@@ -163,8 +163,8 @@ int Anim_Handle(int num)
 {
   int handle;
 
-  handle = 0;
-  while ((handle < 0x20) && (animSlots[handle] != (AnimScript *)0x0)) {
+  for (handle = 0; handle < 0x20;) {
+    if (animSlots[handle] == (AnimScript *)0x0) break;
 
 
     handle = handle + 1; } animSlots[handle] = new AnimScript(num);
@@ -373,6 +373,8 @@ AnimScript::AnimScript(int num,int numParts)
 
   this->baseTicks = simGlobal.gameTicks;
   this->flags = 6;
+
+  return;
 }
 
 /* ---- AnimScript::AnimScript  [@0x80074468] ---- */
@@ -466,9 +468,9 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
     return 0;
   }
 
-  if ((this->flags & 4U) != 0) {
+  if ((this->flags & 4U) != 0)
+  {
     int tmp;
-
     tmp = mat->m[3]; mat->m[3] = mat->m[6]; mat->m[6] = -tmp;
     tmp = mat->m[4]; mat->m[4] = mat->m[7]; mat->m[7] = -tmp;
     tmp = mat->m[5]; mat->m[5] = mat->m[8]; mat->m[8] = -tmp;

@@ -3,6 +3,8 @@
 2026-10-16: regression tests for FEMenuDefs' native full-debug identity.
 AST-load the real command builder, stop before compilation, and never rewrite
 compiler output or invoke the toolchain. New test file; no predecessor.
+2026-11-01 fixture dependency update backup:
+build/tmp/v/compiler_identity_20261101/test_retail_debug_mode.before.py.
 """
 import ast
 from pathlib import Path
@@ -37,7 +39,12 @@ class RetailDebugModeTests(unittest.TestCase):
             context = dict(ROOT=root, OUT=root/'out', RECON=root/'recon',
                 G_VALUE='4', CPP=Path('cpp.exe'), run=run,
                 per_tu_flags=lambda _: flags,
-                cpp_compiler=lambda _: Path('CC1PLPSX.EXE'))
+                cpp_compiler=lambda _: Path('CC1PLPSX.EXE'),
+                # example.cpp is deliberately outside the two-TU identity
+                # policy. This flag-only fixture never produces a real .i;
+                # the stage has separate helper tests and stock-CC1 controls.
+                _cpp_origin_source_sha=lambda _: None,
+                _prepare_cpp_origin=lambda *args: None)
             exec(compile(ast.Module(body=[fn], type_ignores=[]), str(BUILD), 'exec'), context)
             with self.assertRaises(StopBeforeCompiler):
                 context['compile_cpp'](root/'recon/frontend/common/example.cpp')

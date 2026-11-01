@@ -283,7 +283,7 @@ void tScreenControllerConfig::SwapInController()
 void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
 
-{ tInsideBoxMenu *fSetMenu; bool setmenutonull; tDialogYesNo *dialog; fSetMenu = (tInsideBoxMenu *)0x0; dialog = &this->negconPopUp; dialog->SetString(TextSys_Word(0x20b)); dialog->yesnowords[0] = 0x20c; dialog->yesnowords[1] = 0x20d; dialog->fDefault = 1;
+{ tInsideBoxMenu *fSetMenu; bool setmenutonull; tDialogYesNo *dialog; fSetMenu = (tInsideBoxMenu *)0x0; dialog = &this->negconPopUp; dialog->SetString(0x20b); this->negconPopUp.SetChoices(0x20c,0x20d,1);
   setmenutonull = false;
 
 
@@ -306,12 +306,12 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
     {
       bool dialogIsIdle;
       int previousNegconChoice; this->fTimeOutStartTick = 0; if (((firsttime == 0) && (this->fCurrentController != '\x02')) && (this->fCurrentController != '\x01')) {
-        dialogIsIdle = false;
-        if (dialog->currentlyOn == 0) { dialogIsIdle = dialog->fCurrentlyRunning == 0; } if (dialogIsIdle) { previousNegconChoice = this->negconChoice; if (previousNegconChoice != -1) {
+
+        dialogIsIdle = false; if (!this->negconPopUp.IsVisible()) { dialogIsIdle = dialog->fCurrentlyRunning == 0; } if (dialogIsIdle) { previousNegconChoice = this->negconChoice; if (previousNegconChoice != -1) {
             goto SetCurCtrl_noNegconDialog;
           } this->fCurrentController = '\0';
           this->fArrowFade = 0x80;
-          this->negconChoice = Run((tDialogInteractive *)dialog);
+          this->negconChoice = this->negconPopUp.Run();
           this->fCurrentController =
 
               this->negconChoice != 0 ? '\x02' : '\x01';
@@ -919,6 +919,10 @@ DrawCtrl_axisDone:
 }
 
 /* ---- tScreenControllerConfig::HorzVertLine  (screencontroller.cpp:1518) ---- */
+/* SYM/SLD: length owns the scaled short span; brightlength owns its one-eighth
+ * bright segment, as in the horizontal arm. Actual source phases and brace
+ * placement restore147 word tags and20 ordered block line/address records
+ * without changing the whole normal object or supplied declarations. */
 #line 1515 "C:/nfs4/FRONTEND/COMMON/SCREENCONTROLLER.CPP"
 void tScreenControllerConfig::HorzVertLine(short *ArrowLoc,bool type)
 
@@ -937,35 +941,35 @@ void tScreenControllerConfig::HorzVertLine(short *ArrowLoc,bool type)
   if (0 < this->fArrowFadeDir) {
     LineCol = CalcFadeVal(0x1e1e1e,this->fArrowFade);
   }
-  if (startx == endx) {
-    int extrabitoff;
-    int extrabit; short length; extrabitoff = 0; if (!type) { extrabitoff = endy >= starty;
+  if (startx == endx)
+  {
+    int extrabitoff; int extrabit; short length; extrabitoff = 0; if (!type) { extrabitoff = endy >= starty;
     } extrabit = 0; if (type == true) { extrabit = endy >= starty;
     }
     length = (short)(endy - starty);
 
-    if (this->mult != 0x40) {
-      int brightlength;
-      brightlength = ((int)length * (int)this->mult) >> 6; length = (short)brightlength;
-      PSXDrawTransSquare(0xffffff,endx,
-          endy - ((short)brightlength - ((short)brightlength >> 3) - extrabitoff + extrabit), 2,-((short)brightlength >> 3),2);
+    if (this->mult != 0x40)
+    { int brightlength;
+      length = (short)(((int)length * (int)this->mult) >> 6);
+      brightlength = (int)length >> 3;
+      PSXDrawTransSquare(0xffffff,endx, endy - ((int)length - brightlength - extrabitoff + extrabit), 2,-brightlength,2);
     }
     PSXDrawTransSquare(LineCol,endx,endy + extrabit,2,
                        -((int)length - extrabitoff + extrabit),2);
   }
-  else {
-    int extrabit;
-    short length;
+  else
+  {
+    int extrabit; short length;
     extrabit = (endx >= startx) * 2;
     length = (short)(endx - startx);
 
 
 
-    if (this->mult != 0x40) {
-
+    if (this->mult != 0x40)
+    {
       length = (short)(((int)length * (int)this->mult) >> 6);
-      if (extrabit < ((length < 0) ? -(int)length : (int)length)) {
-        int brightlength; brightlength = (int)length >> 3;
+      if (extrabit < ((length < 0) ? -(int)length : (int)length))
+      { int brightlength; brightlength = (int)length >> 3;
         PSXDrawTransSquare(0xffffff, endx - ((int)length - brightlength) + extrabit,starty, -(brightlength + extrabit),1,2);
       }
     }
@@ -1033,7 +1037,9 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
   /* Retail's first read is the existing GetScreenFade inline receiver pair,
    * not an om pointer object. TransitionIsFinished has canonical BOOL return;
    * its normalized logical inversion remains an integer XOR to match reorg.
-   * All137 instructions and native locals/scopes agree; full SLD is separate. */
+   * The actual frame/controller writes precede final transition flags in
+   * source, though scheduling retains the original store order. All137 tags
+   * and eight ordered scope line/address records now agree as well. */
 #line 1605 "C:/nfs4/FRONTEND/COMMON/SCREENCONTROLLER.CPP"
 void tScreenControllerConfig::DrawBackground()
 
@@ -1053,10 +1059,10 @@ void tScreenControllerConfig::DrawBackground()
     this->fAnimFade = 1;
     this->fAnimFadeStart = this->AnimKeyPoints(true,1);
     this->fAnimFadeStop = this->AnimKeyPoints(true,0);
-    this->fTransitioningIn = 1; this->fAnimFadeFrame = this->fAnimFadeStart;
+    this->fAnimFadeFrame = this->fAnimFadeStart;
 
     this->fAnimFadeController = (ushort)(byte)this->fCurrentController;
-  }
+    this->fTransitioningIn = 1; }
   if ((((int)::TransitionIsFinished(&menuDefs->menuControllerConfig) ^ 1) != 0) &&
 
       (this->fTransitionedIn != 0)) { if ((this->fTransitioningOut == 0) && (this->fCurrentController != '\0')) {
@@ -1064,10 +1070,10 @@ void tScreenControllerConfig::DrawBackground()
       this->fAnimFade = -1;
       this->fAnimFadeStart = this->AnimKeyPoints(false,1);
       this->fAnimFadeStop = this->AnimKeyPoints(false,0);
-      this->fTransitioningOut = 1; this->SuperFastFadeOut = 1; this->fAnimFadeFrame = this->fAnimFadeStart;
+      this->fAnimFadeFrame = this->fAnimFadeStart;
       this->fAnimFadeController = (ushort)(byte)this->fCurrentController;
-    }
-  }
+      this->fTransitioningOut = 1;
+      this->SuperFastFadeOut = 1; } }
 
 
   if (this->fTransitioningOut == 0) {
@@ -1080,9 +1086,9 @@ void tScreenControllerConfig::DrawBackground()
   if (((this->fAnimFade != 0) || (this->fTransitioningOut == 0)) && (this->fTransitioningIn != 0)) {
     this->DrawController();
   }
-  {
-    int i;   /* [SYM] REG $s0, block opened at SLD 44 */ i = 0; do {
-      ScaleShapeExtended(i + 10,0,0,0,(int)fade,0,(tDrawShapeExtended *)0x0); i = i + 1; } while (i < 0xc); } return;
+
+  { int i; i = 0; do {
+    ScaleShapeExtended(i + 10,0,0,0,(int)fade,0,(tDrawShapeExtended *)0x0); i = i + 1; } while (i < 0xc); } return;
 }
 
 /* ---- tScreenControllerConfig::DrawForeground  (screencontroller.cpp:1659) ---- */

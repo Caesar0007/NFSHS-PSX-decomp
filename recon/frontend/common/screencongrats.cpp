@@ -87,11 +87,11 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
   *permFileName = fPermFileNameBuf;
 
 
-  if (2 <= (u_int)(this->trophy - kTrophyCar)) {
-    int j;
-    j = 900; numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0'));
-    {
-      int i; i = 1; if (0 < numRanked) { do {
+  if (2 <= (u_int)(this->trophy - kTrophyCar))
+  {
+    int j; numRanked = (short)((short)tournamentManager.NumRacers() + (tourneyInfo->fKnockout != '\0'));
+    j = 900;
+    { int i; i = 1; if (0 < numRanked) { do {
           if (tournamentManager.PlayerRanking((short)i) == 0) {
             j = i;
           } i = i + 1; } while (i <= numRanked); } } GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
@@ -117,12 +117,12 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
       break;
     }
   }
-  return;
 
 
 
 
-}
+
+  return; }
 
 /* ---- tScreenCongrats::GetCar  (screencongrats.cpp:121) ---- */
 #line 118 "C:/nfs4/FRONTEND/COMMON/SCREENCONGRATS.CPP"
@@ -162,27 +162,27 @@ void tScreenCongrats::DrawBackground()
     fJustFadeOff = this->fScreenFadeVal;
   }
 
-
+  carRotate += 3;
 
 
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   drawFlags2.custom_shapes = this->fSwapShapes.fShapes;
-  carRotate += 3;
+
   this->DrawCongratsMessage();
   if ((((this->trophy == kTrophyCar) && (this->starttick == -1)) ||
       ((this->fGotCar == 0) && (this->trophy == kTrophyCar))) ||
      ((this->trophy == kTrophyCar) &&
 
-      ((-1 < R3DCar_aSyncLoading) || (FE_Ticks() - this->fEnterTick < 0x3c)))) {
-
+      ((-1 < R3DCar_aSyncLoading) || (FE_Ticks() - this->fEnterTick < 0x3c))))
+  {
     this->starttick = FE_Ticks();
   }
-  else {
-    bool scale;
+  else
+  { bool scale;
     if (this->starttick == -1) { this->starttick = FE_Ticks();
     }
-    if (this->CashAwarded != -1) {
-      int colf;
+    if (this->CashAwarded != -1)
+    { int colf;
       int colb; if ((1000 < FE_Ticks() - this->starttick) || (this->fStartCountdownNOW != 0)) {
 
         if (this->CashAwarded != 0) {
@@ -216,18 +216,18 @@ void tScreenCongrats::DrawBackground()
       FeAudio_AsyncPlaySpeech(2,this->fSpeechToPlay);
       this->fSpeechToPlay = 0;
     }
+
+
+
+
+
     scale = false;
-
-
-
-
-
-    if (this->congratsMessage == kScreenCongrats_Congrats) {
-
+    if (this->congratsMessage == kScreenCongrats_Congrats)
+    {
       drawFlags.tint[0] = CalcFadeVal(0xbebe,this->fScreenFadeVal);
       drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);
-      if (this->InExtraSpin != 0) {
-
+      if (this->InExtraSpin != 0)
+      {
 
 
 
@@ -259,21 +259,21 @@ void tScreenCongrats::DrawBackground()
 
         this->framenum = (FE_Ticks() - this->starttick) / 2;
 
-        if (0x13 < this->framenum) {
-          int spinTicks;
-          __asm__("" : : "i"(0));
+        if (0x13 < this->framenum)
+        {
+          int spinTicks; __asm__("" : : "i"(0));
           scale = true;
           if (((spinTicks = FE_Ticks(), this->framenum = 0x14),
-               spinTicks - this->starttick / 4) % 0x5dc < 0x2d) {
+               spinTicks - this->starttick / 4) % 0x5dc < 0x2d)
+          {
             this->InExtraSpinTick = FE_Ticks();
-
             this->InExtraSpin = 1;
           }
         }
       }
     }
-    else {
-
+    else
+    {
 
       drawFlags.tint[0] = CalcFadeVal(0x646464,fJustFadeOff);
       drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);
@@ -288,8 +288,8 @@ void tScreenCongrats::DrawBackground()
     }
     else { DrawShapeExtended(this->framenum,0x410,0, (this->congratsMessage == kScreenCongrats_Eliminated) ? 0xA : 0, 0,0,&drawFlags);
     }
-    if ((uint)(this->trophy - kTrophyCar) >= 2) {
-
+    if ((uint)(this->trophy - kTrophyCar) >= 2)
+    {
 
       ScaleShapeExtended((FE_Ticks() / 12) % 0x20,0x610,0x46,0xf,0,0,&drawFlags2);
     }
@@ -297,10 +297,10 @@ void tScreenCongrats::DrawBackground()
 
 
 
-    if ((uint)this->trophy >= (uint)kTrophyCar) {
-
-      switch (this->smallSpinningThing) {
-      case kSpinningGold:
+    if ((uint)this->trophy >= (uint)kTrophyCar)
+    {
+      switch (this->smallSpinningThing)
+      { case kSpinningGold:
         ScaleShapeExtended((FE_Ticks() >> 3) % this->fNumSmallSpinShapes,
 
                            0x610,0x29,0xbe,0,0,&drawFlags2);
@@ -309,9 +309,9 @@ void tScreenCongrats::DrawBackground()
         drawFlags.tint[0] = 0x551e00;
         DrawShapeExtended((FE_Ticks() / 0x14) % this->fNumSmallSpinShapes,
                           0x610,-0xc1,0x56,0,0,&drawFlags);
-        break;
-      }
-    }
+
+
+        break; } }
   }
 
 
@@ -347,9 +347,9 @@ void tScreenCongrats::DrawBackground()
 
 
 
-      (this->trophy != kTrophyCar)) {
-    {
-      int i; for (i = 1; i < 0x1e; i++) {
+      (this->trophy != kTrophyCar))
+  {
+    { int i; for (i = 1; i < 0x1e; i++) {
 
         if ((i % 3) != 0) {
           DrawShapeExtended(bannerframe,0x410,i * 2,0,
@@ -378,9 +378,9 @@ void tScreenCongrats::DrawBackground()
     }
   }
   if ((this->trophy == kTrophyCar) && (this->fGotCar != 0)) {
-    DrawCar(this->fCarInfo,this->fCarX,this->fCarY,this->fCarCX,this->fCarCY,
 
-            (showRoomFlag = 0, -0x80),true,carRotate,(tPlayer)this->fCarPlayer); } return; }
+    showRoomFlag = 0;
+    DrawCar(this->fCarInfo,this->fCarX,this->fCarY,this->fCarCX,this->fCarCY,-0x80,true,carRotate,(tPlayer)this->fCarPlayer); } return; }
 
 
 /* ---- tScreenCongrats::DrawForeground  (screencongrats.cpp:360) ---- */
@@ -709,17 +709,17 @@ void tScreenTournamentTrophy::DrawCongratsMessage() {
 
   /* MATCH: the non-Congrats message is the ELSE arm (oracle `bnez $v0,.L800491DC`
      branches FORWARD to a block sitting just before the epilogue). */
-  if (this->congratsMessage == kScreenCongrats_Congrats) {
-    int firstmessage, secondmessage;
-    secondmessage = firstmessage = 0;   /* oracle: `addu s2,zero,zero; addu s3,s2,zero` */
-    tTourneyInfo *tourneyInfo = tournamentManager.CurrentTourney();
+  if (this->congratsMessage == kScreenCongrats_Congrats)
+  {
+    int firstmessage = 0; int secondmessage; tTourneyInfo *tourneyInfo = tournamentManager.CurrentTourney();
+    secondmessage = firstmessage;
     /* fPrevBestPlacement/fTournamentID are shared-header plain `char` (unsigned by platform
      * default); the oracle reads BOTH signed (`lb`) throughout -- cast at every read site. */
 
 
-    if ('\x03' < tournamentManager.PreviousPlacement()) {
-      int placeoffset;
-      firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3b3;
+    if ('\x03' < (signed char)tournamentManager.PreviousPlacement())
+    {
+      int placeoffset; firstmessage = (signed char)tourneyInfo->fTournamentID + 0x3b3;
 
       switch (this->trophy) {
       case kTrophyGold:
@@ -737,9 +737,9 @@ void tScreenTournamentTrophy::DrawCongratsMessage() {
       sprintf(buffer1,TextSys_Word((signed char)tourneyInfo->fTournamentID + 0x3b3),
               TextSys_Word(placeoffset + 0x3e1));
     }
+
     if (((this->trophy == kTrophyGold) &&
         (tournamentManager.PreviousPlacement() != '\x01')) ||
-
        (this->trophy == kTrophyCar)) {
 
       if (firstmessage == 0) {
@@ -768,10 +768,10 @@ void tScreenTournamentTrophy::DrawCongratsMessage() {
 
 
     tournamentManager.GetAwardInformation(tInfo);
-    if (tInfo.fAwardCarGarageFull != 0) {
+    if (tInfo.fAwardCarGarageFull != 0)
+    {
       char buffer [256];
       char money [64];
-
 
       r.x = 0x104;
       r.y = 200;
@@ -781,9 +781,9 @@ void tScreenTournamentTrophy::DrawCongratsMessage() {
       FETextRender_WordWrapTextFade ((int)this->fScreenFadeVal,TextSys_Word(0x40),r,textState_Selected, textType_PostGame);
     }
   }
-  else {
+  else
+  {
     int yyy;
-
     /* MATCH: the -10 bias is folded into the jal delay slot (oracle
        `addiu $s0,$v0,-0xA`); computing it after the call costs a copy + addiu. */
     yyy = TextSys_WordY(800) + -10;
@@ -1014,9 +1014,9 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
   FETextRender_WordWrapText(TextSys_Word((int)tInfo.fCompletedText),r,
                             textState_Selected,textType_PostGame);
 
-  if (tInfo.fCompletedGarageFull != 0) {
-    char buffer [256];
-    char money [64];
+  if (tInfo.fCompletedGarageFull != 0)
+  {
+    char buffer [256]; char money [64];
     /* @0x39F4C-58: oracle overwrites r.y/r.w here (NOT r.w/r.h) -- confirmed via the exact sp
      * offsets (0x12=r.y, 0x14=r.w), not a naive "next two fields" guess. */
     r.y = 0xb4;

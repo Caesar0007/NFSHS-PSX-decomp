@@ -177,10 +177,10 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
 #line 241 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_SwitchSong(void)
 {
-  if (((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->availablesongs != 0)) && (0 < AudioMus_g->volume)) {
-    AudioMus_tSongEntry *info;
-    AudioMus_g->newswitch = 1; AudioMus_g->songname = (char *)0x0;
-
+  if (((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->availablesongs != 0)) && (0 < AudioMus_g->volume))
+  {
+    AudioMus_tSongEntry *info; AudioMus_g->songname = (char *)0x0;
+    AudioMus_g->newswitch = 1;
     AudioMus_g->errorcode = 0;
 
 
@@ -364,14 +364,16 @@ void AudioMus_SetCurrentSongInfo(void)
    * The positive default-state guard also removes switchMode: it preserves
    * the CSE path carrying the anonymous constant2 in s0 across the queue call.
    * The literal/ordinary-switch form alone was300words/16diffs. No ordinary
-   * local remains. The existing done label and residual SLD groups still need
-   * source recovery; no new alias or codegen device is introduced. */
+   * local remains. The former done label has no retail source record. A real
+   * file-header guard and mutually exclusive recovery/ordinary-processing arms
+   * remove it without changing300words, branch targets or supplied SLD facts.
+   * Original literal spelling is not established by those matching facts. */
 
 
 #line 406 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 int AudioMus_Server(int mode,int ticks)
 {
-  if (AudioMus_g->bigfileheader == (char *)0x0) goto done;
+  if (AudioMus_g->bigfileheader != (char *)0x0) {
 
 
 
@@ -387,7 +389,7 @@ int AudioMus_Server(int mode,int ticks)
     AudioMus_g->errorcode = -2;
     AudioMus_g->newswitch = 1;
 
-    if (AudioMus_g->requestsong < 0) goto done;
+    if (AudioMus_g->requestsong < 0) return 0;
 
     SNDSTRM_autovol(AudioMus_g->streamhandle,AudioMus_Buffered(),0); return 0;
   }
@@ -400,12 +402,12 @@ int AudioMus_Server(int mode,int ticks)
 
     AudioMus_g->errorcode = -5;
 
-    if (AudioMus_g->requestsong < 0) goto done;
+    if (AudioMus_g->requestsong >= 0) {
 
     AudioMus_g->newswitch = 1;
     AudioMus_g->switchsong = 2;
-    AudioMus_g->failby = gettick() + 0x280; goto done;
-  }
+    AudioMus_g->failby = gettick() + 0x280; }
+  } else {
 
 
 
@@ -455,7 +457,7 @@ int AudioMus_Server(int mode,int ticks)
 
       if (AudioMus_g->streamstatus.outstandingrequests == 0) return 0;
 
-      if (AudioMus_g->requeststatus.timebuffered <= AudioMus_g->threshold) goto done;
+      if (AudioMus_g->requeststatus.timebuffered <= AudioMus_g->threshold) return 0;
 
       if (AudioMus_g->errorcode == -5) {
         AudioMus_g->errorcode = 0;
@@ -504,7 +506,7 @@ int AudioMus_Server(int mode,int ticks)
     AudioMus_g->newswitch = 1;
     AudioMus_g->firstswitch = 1;
   }
-done:
+  } }
   return 0;
 }
 
@@ -529,9 +531,9 @@ AudioMus_GetSongList(char *pattern,int memtype)
   AudioMus_tSongEntry*song;
   int numsongs; numsongs = 0;
 
-  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
-    {
-      int i; for (i = numsongs; i < AudioMus_g->totalsongs; i = i + 1) {
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0)
+  {
+    { int i; for (i = numsongs; i < AudioMus_g->totalsongs; i = i + 1) {
         if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(int *)0x0,(unsigned int *)0x0), pattern) != 0) {
           numsongs = numsongs + 1;
         }
@@ -624,6 +626,13 @@ void AudioMus_InitDriverGlobals(void)
 }
 
 /* ---- AudioMus_DriverStartUp__Fii  [@0x8007aad4] ---- */
+/* Source/owner recovery (2026-11-01): stream-creation eligibility selects the
+ * actual case; absent-buffer and completed-creation paths leave that case.
+ * Their genuine exits keep the local work end682 and restore the three
+ * ancestor ends686, without a dummy/no-op or new declaring scope. All81 tags
+ * and every supplied local/type/home/address fact survive. Original literal
+ * switch/if punctuation remains unproved. Receipt:
+ * build/tmp/v/audiomus_producers_20261101/live-proof.json. */
 
 
 #line 641 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
@@ -636,11 +645,11 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
     }
     AudioMus_g->threshold = buffersize + spusize >> 5;
 
-    if (AudioMus_g->streamhandle < 0)
-    {
-      if (AudioMus_g->streambuffer != (char *)0x0) {
-        int chunks;
-        int size;
+    switch (AudioMus_g->streamhandle < 0)
+    { case true:
+      if (AudioMus_g->streambuffer != (char *)0x0)
+      {
+        int chunks; int size;
         SNDLIMITS sndlimits; SNDPLAYOPTS opts; chunks = buffersize / 0x400;
         size = buffersize + SNDSTRM_overhead(1,chunks);
 
@@ -670,8 +679,8 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
           SNDSTRM_setpriority(AudioMus_g->streamhandle,0xff,5);
         }
       }
-    }
 
+      else break; break; default: break; }
 
     gMusicHandle = AudioMus_g->streamhandle;
 
@@ -685,6 +694,10 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
 }
 
 /* ---- AudioMus_SysStartUp__FiiPc  [@0x8007ac18] ---- */
+/* Source review (2026-11-01): plain integer block-count/overhead stages retain
+ * every code/metadata/tag fact; const was not required for their debug elision.
+ * Both captured identifiers and their original producer spelling remain
+ * unprovided, not excused by the absent rows. No capture removal is claimed. */
 
 
 #line 700 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
@@ -707,8 +720,8 @@ void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
 
 
 
-  const int blocks = buffersize / 0x400;  /* DEVICE (exact-only): record-less temp, retail tags the divide r18 */
-  const int overhead = SNDSTRM_overhead(0x1,blocks);  /* DEVICE (exact-only): record-less temp, call r19 */
+  int blocks = buffersize / 0x400; /* Actual block-count stage; original identifier remains unproved. */
+  int overhead = SNDSTRM_overhead(0x1,blocks); /* Actual overhead stage; no const disguise is needed. */
   AudioMus_g->streambuffer = (char*)reservememadr("Music Buffer",buffersize + overhead,0);
 
 
@@ -895,9 +908,9 @@ int AudioMus_PlaySong(char *pattern)
 
       AudioMus_BuildPattern(pattern);
 
-      if ((AudioMus_g->availablesongs == 0) && (strlen(pattern) < 0x3d)) {
+      if ((AudioMus_g->availablesongs == 0) && (strlen(pattern) < 0x3d))
+      {
         char title[128];
-
 
         sprintf(title,"*-%s",pattern);
         AudioMus_BuildPattern(title);
@@ -977,17 +990,17 @@ void AudioMus_Volume(int volume)
 {
   if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0)
   {
-    if (AudioMus_g->volume != volume) {
+    if (AudioMus_g->volume != volume)
+    {
       int ticksleft = 0;
-
 
       if (volume == 0) {
 
         AudioMus_g->volume = 0;
         AudioMus_StopSong(ticksleft);
       }
-      else {
-
+      else
+      {
         if ((AudioMus_g->fadetime != 0) && (-1 < AudioMus_g->streamhandle))
         {
 

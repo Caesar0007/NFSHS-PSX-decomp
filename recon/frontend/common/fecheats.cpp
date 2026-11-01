@@ -211,16 +211,16 @@ void FECheat_ActivateBonus(tCheatCode cheat)
      `1` it holds is REUSED as the shift base of the gFECheats mask
      (shared-constant, methodology 3.12 #17).  Outer loop is exit-in-the-middle
      so gcc does NOT rotate it (top slti + unconditional `j` back-edge). */
-  /* SYM-INLINE-THIS: SetString
-     SYM records the inlined tDialogMessageString receiver `this` in $s0 at
-     source line 14.  Collapsing this receiver into direct SetString/Display
-     spellings is FAIL36-37 and swaps the long-lived result/i allocation.
-     SYM-CODEGEN-CARRIER: dlgThis
-     SYM-CODEGEN-CARRIER: wordText
-     SYM-CODEGEN-CARRIER: feApp
-     These two source-only staging names place the FEApp reload between the
-     TextSys_Word call and the dialog-string store; removing either is FAIL2
-     (66/66), moving that load across the store. */
+  /* SYM-INLINE-THIS: the existing word-ID SetString member keeps its implicit
+     MessageString receiver alive across TextSys_Word.  With the genuine
+     WithTimeout constructor definition visible, the three old caller
+     captures disappear without losing supplied type occurrences.  Both
+     loaded code/data and prior source notes remain unchanged.  Original
+     header visibility and the exact setter signature remain review work.
+     SYM/SLD loop recovery: the real FOR increment follows the body in GCC's
+     source-note lowering, preserving the condition's backedge tag.  Its
+     binding region and ordinary closing layout match all supplied scopes;
+     no added work or source object is needed. */
 #line 239 "C:/nfs4/FRONTEND/COMMON/FECHEATS.CPP"
 bool FECheat_ActivateCheat(char *cheat)
 
@@ -228,11 +228,11 @@ bool FECheat_ActivateCheat(char *cheat)
 {
   int i;
   int j;
-  char buffer [8]; bool result; tFEApplication *feApp; char *wordText; tDialogMessageString *dlgThis; result = 0;
+  char buffer [8]; bool result; result = 0;
 
   FECheat_EncodeString(cheat,buffer);
 
-  i = 0; while (true) { if (9 < i) break;
+  for (i = 0; ; i = i + 1) { if (9 < i) break;
     for (j = 0; j < 8; j = j + 1) {
 
       if (cheatList[0].name[j + i * 12] != buffer[j]) break;
@@ -240,20 +240,20 @@ bool FECheat_ActivateCheat(char *cheat)
 
     if (j == 8) {
 
-      AudioCmn_PlayFESFX(0x1a); dlgThis = &FEApp->MemCardDialog; wordText = TextSys_Word(0x27a);
+      AudioCmn_PlayFESFX(0x1a); FEApp->MemCardDialog.SetString(0x27a);
 
 
-      feApp = FEApp; dlgThis->SetString(wordText); ((tDialogBase *)&feApp->MemCardDialog)->Display();
+      FEApp->MemCardDialog.Display();
 
 
       FECheat_HandleActivation((tCheatCode)cheatList[i].cheat);
       result = 1; gFECheats = gFECheats | result << cheatList[i].cheat;
+
+
+
       break;
     }
-    i = i + 1;
   }
-
-
   return result;
 }
 

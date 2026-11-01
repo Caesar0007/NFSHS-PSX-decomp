@@ -32,4 +32,21 @@ void  FECheat_ActivateBonus(tCheatCode cheat);
  * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
+/* The constructor body is recovered from FEApp's existing definition.  Its
+ * owner-header visibility here is inferred from retained type declarations,
+ * not claimed as the unique original include graph. */
+#pragma interface
+inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
+{
+  timeOutTicks = 0x480;
+}
+
+/* Existing word-ID overload; exact original signature remains unretained.
+ * Its implicit MessageString receiver spans the real word lookup. */
+inline tDialogMessageString *tDialogMessageString::SetString(int word)
+{
+  string = TextSys_Word(word);
+  return this;
+}
+
 #endif

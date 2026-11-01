@@ -283,10 +283,12 @@ void Texture_ColorCarPalette(char *from,char *to,int numentry)
       from = from + 2; numentry = numentry + -1; to = (char *)((int)to + 2); } while (numentry != -1); } return; }
 
 /* ---- Texture_CopyPalette__FPciii  [TEXTURE.CPP:339-352] SLD-VERIFIED ---- */
-/* SYM locals (no separate 'slot' local -- fold the address inline, SYM order i/dest/source).
- * `zero` is a runtime-zero device (permuter-derived, cf. methodology sec 3.13 "^ zero"):
- * a typed 0-holder shared by the counter init AND the initial-guard compare is what pins
- * i/dest onto the oracle's t0/t1 pair instead of the reverse coloring. Pin-free (plain C). */
+/* SYM locals: i/dest/source only. Source recovery (2026-11-01): the actual
+ * forward-copy for loop with both pointer postincrements removes the old
+ * runtime-zero device, retaining24words and all three supplied homes. Indexing
+ * source while walking dest also matched bytes but lost source's supplied row;
+ * both real pointer updates preserve it. Whole-TU declarations/regions/tags
+ * remain unchanged. Receipt: build/tmp/v/texture_middle_20261101/proof.json. */
 #line 336 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 void Texture_CopyPalette(char *data,int width,int x,int y)
 
@@ -295,14 +297,14 @@ void Texture_CopyPalette(char *data,int width,int x,int y)
   int i;
   short *dest;
   short *source;
-  u_char zero; /* SYM-CODEGEN-CARRIER: zero -- pins retail's counter/destination coloring */
+
   (Texture_palCopy + Texture_palNum)->x = x; (Texture_palCopy + Texture_palNum)->y = y;
 
 
   dest = (Texture_palCopy + Texture_palNum)->pal; source = (short *)data;
 
 
-  zero = 0; i = zero; if (zero < width) { do { *dest = *source; source = source + 1; i = i + 1; dest = dest + 1; } while (i < width); }
+  i = 0; for (; i < width; i++) { *dest++ = *source++; }
 
   Texture_palNum = Texture_palNum + 1;
 }
@@ -495,7 +497,9 @@ void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
 /* 2026-10-18: retail owns USHORT abr in the 'k' branch, not at function
  * scope. Its actual declaration restores all local/type/home/owner records
  * and the full eight-boundary region tree without changing any of30words.
- * Exact original spelling and complete SLD attribution remain unsealed. */
+ * Exact original spelling and complete SLD attribution remain unsealed.
+ * 2026-11-01: canonical8-bit type and signed24-bit next fields replace the
+ * old byte/word views; all instructions, declarations and source tags survive. */
 #line 511 "C:/nfs4/GAME/PSX/TEXTURE.CPP"
 int Texture_GetTranslucencyMode(shapetbl *shp)
 
@@ -504,7 +508,7 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
   while( true ) { if (shp == (shapetbl *)0x0) break;
 
 
-    if (*(char *)shp == 'k')
+    if (shp->type == 'k')
     {
       u_short abr;
 
@@ -516,7 +520,7 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
       if (abr == 3) { abr = 2; }
       return abr;
     }
-    if ((*(u_int *)shp & 0xffffff00) != 0) { shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8)); } else { shp = (shapetbl *)0x0;
+    if (shp->next != 0) { shp = (shapetbl *)((char *)shp + shp->next); } else { shp = (shapetbl *)0x0;
     }
   } return 0;
 }
@@ -525,7 +529,9 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
 /* 2026-10-18: the real transposed bitfield with ordinary true/false assignment
  * arms reproduces the masked-word/Boolean sequence without an fl capture or
  * byte-offset view. Direct Boolean assignment and reusing rotated as the mask
- * do not produce the same compiler stream on this shape. Full SLD is open. */
+ * do not produce the same compiler stream on this shape. Full SLD is open.
+ * 2026-11-01: clutptr uses the canonical signed24-bit next member directly,
+ * not a whole-word shift; the entire object and debug contracts are unchanged. */
 /* SYM-driven local set (rule 8): shpptr=$s0 x=$s5 y=$s6 u=$a0 v=$a1 h=$fp
  * bpp=$s4 clutptr=$s1, and the AUTO spill slots w@sp+24 rotated@sp+28
  * bshapex@32 bshapey@36 bwidth@40 bheight@44 bpp_real@48 bwidthclut@52.
@@ -594,7 +600,7 @@ void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_t
     if (bpp != 2)
     { shapetbl *clutptr;
       int bwidthclut;
-      clutptr = (shapetbl *)((int)shpptr + (*(int *)shpptr >> 8));
+      clutptr = (shapetbl *)((char *)shpptr + shpptr->next);
 
 
       bwidthclut = clutptr->width;

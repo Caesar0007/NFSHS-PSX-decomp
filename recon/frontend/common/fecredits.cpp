@@ -29,26 +29,31 @@ void tCreditManager::Setup()
 
 /* ---- tCreditManager::Init  [FECREDITS.CPP:57-99] ---- */
   /* The trailing int remains in the ABI; retail SYM has no name for this
-     unused parameter, so the definition leaves it unnamed. */
+     unused parameter, so the definition leaves it unnamed.
+     Source/SLD follow-up (2026-11-01): the initialized early return and real
+     zero-store/credit-selection order preserve all56 words and restore the
+     root end99 plus every instruction tag. The selected compiler schedules
+     the later ShowCreditNum/TextFade constants before those earlier stores.
+     Receipt: build/tmp/v/fecredits_fresh_20261101/proof.json. */
 #line 54 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 void tCreditManager::Init(int)
 
 
 {
-  char filename [80]; if (this->fCreditsInitialized == 0) {
+  char filename [80]; if (this->fCreditsInitialized != 0) return;
 
     if (this->fRequestDeInit != 0) {
       this->fRequestDeInit = 0;
     }
-    this->fShowCreditNum = -1; this->fTextFade = 0x80; this->fStartTicks = 0;
+    this->fStartTicks = 0;
     this->StartedTransition = 0;
     this->StartedLines = 0;
     this->StartedTextFade = 0;
 
     this->fRequestDeInit = 0;
-
+    this->fShowCreditNum = -1;
     this->fCurrCredit = 0;
-
+    this->fTextFade = 0x80;
 
 
 
@@ -76,7 +81,7 @@ void tCreditManager::Init(int)
 
 
     this->fCreditsInitialized = 1;
-  } return; }
+}
 
 
 
@@ -92,6 +97,11 @@ void tCreditManager::DeInit()
 
 
 /* ---- tCreditManager::RealDeInit  [FECREDITS.CPP:107-117] ---- */
+/* Source/SLD recovery: clear the request, return if already inactive, otherwise
+ * release the buffer and fall through. The real body ends117. This preserves
+ * all16 instructions/tags while restoring root end10 instead of11; simply
+ * deleting the old inner return loses four correct epilogue tags.
+ * Receipt: build/tmp/v/fecredits_cleanup_20261101/probes.json. */
 #line 104 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 void tCreditManager::RealDeInit()
 
@@ -101,14 +111,14 @@ void tCreditManager::RealDeInit()
   this->fRequestDeInit = 0;
 
 
-  if (this->fCreditsInitialized != 0)
-  {
+  if (this->fCreditsInitialized == 0) return;
 
-    purgememadr(this->CreditBuffer);
-    this->fCreditsInitialized = 0;
-    return;
-  }
+
+  purgememadr(this->CreditBuffer);
+  this->fCreditsInitialized = 0;
 }
+
+
 
 
 
@@ -120,7 +130,10 @@ void tCreditManager::Draw(bool selected)
    fTextFade MAX argument order is significant: field first reproduces the
    retail v1/a0 comparison and result funnel.
    P880: direct scalar screenMain access also removes the extra mainScreen
-   local; the native i/REG6 loop and all normal object bytes stay unchanged. */
+   local; the native i/REG6 loop and all normal object bytes stay unchanged.
+   Source/SLD follow-up (2026-11-01): genuine RealDeInit-arm return140 and
+   implicit terminal fallthrough restore81 tags and all four block line/address
+   records without changing the whole normal object or any declaration. */
 
 #line 120 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 {
@@ -143,7 +156,7 @@ void tCreditManager::Draw(bool selected)
 
     if (this->fRequestDeInit != 0) {
       this->RealDeInit();
-    }
+      return; }
   }
   else if (this->fCreditsInitialized != 0) {
 
@@ -154,7 +167,7 @@ void tCreditManager::Draw(bool selected)
     if (this->fShowCreditNum != -1) {
       this->DrawCurrCredit();
     }
-  } return; }
+  } }
 
 
 
@@ -169,13 +182,15 @@ void tCreditManager::SetupCurrCredit()
 
 /* MATCH (w37-a2 + later source-restoration rounds): SYM records function-static
    `lasttick`, nested-block `NNNNN` in $v1, and `this`. The input-key tests now
-   use direct short-circuiting; const snapshots of nextCredit and textFade
-   emit no extra debug locals. Reusing fShowCreditNum after its assignment
+   use direct short-circuiting. Source follow-up removes backgroundReady and
+   textFade through the real background predicate and compound field update.
+   Their old captures were not necessary source objects. Reusing fShowCreditNum after its assignment
    removes the source-only currentCredit carrier while preserving 199 instructions.
-   The volatile FE_Ticks() snapshot remains a compile-shaping expression, not a
-   claimed original spelling: a direct/nonvolatile read loses two oracle
-   instructions and moves the load after the field stores. Native locals
-   now match retail; lexical scope blocks (ours 9, retail 28) remain open.
+   The final time read uses the existing FE_Ticks getter directly. The current
+   vars.h already declares the ISR-updated ticks global volatile; the old
+   captured value and explicit volatile cast are unnecessary on this source
+   shape. Repricing that old failure restores the two real getter regions
+   without adding a qualifier, source object or artificial scope.
    Two levers found:
    (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
    nested-block local (SYM block@0x80035f94) for `currentCredit+1`, not a
@@ -185,8 +200,13 @@ void tCreditManager::SetupCurrCredit()
    the point of use (not via a cached tick temporary) with the store-order
    `fLineTicks=FE_Ticks(); StartedLines=1;`. The follow-up's compare-operand
    order makes the FE_Ticks() `%hi` issue before CREDFADETICKS like retail,
-   while the final block-local volatile snapshot preserves retail's
-   second FE_Ticks() load and keeps it in $v1 across the two preceding stores.
+   while real final field/source order preserves retail's second FE_Ticks()
+   load and its $v1 value without a caller-local capture.
+   Real nested timer guards also remove nextCredit: the outer start-time guard
+   owns the inner elapsed-time predicate and its getter regions. A direct field
+   increment then retains the supplied regions without a capture declaration.
+   Source/SLD receipt: build/tmp/v/credits_tick_getter_20261101/proof.json.
+   The inferred getter spelling is not uniquely retained original text.
    The final two-diff load-order residual was source-shape: spelling the first
    wrap test as `fCurrCredit >= fNumCredits` presents GCC with retail's operand
    order while preserving the same comparison and branch. */
@@ -194,14 +214,14 @@ void tCreditManager::SetupCurrCredit()
 #line 155 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 {
   static int lasttick = 0;
-  bool backgroundReady; if (((0xc < FE_Ticks() - lasttick) && (this->fTextFade == 0)) && this->fCurrCredit == this->fShowCreditNum) {
-    if (FEInput_GetNoDebounceKey(0x20,0) != 0 ||
-        FEInput_GetNoDebounceKey(0x20,1) != 0) {
-
+  if (((0xc < FE_Ticks() - lasttick) && (this->fTextFade == 0)) && this->fCurrCredit == this->fShowCreditNum)
+  {
+    if (FEInput_GetNoDebounceKey(0x20,0) != 0 || FEInput_GetNoDebounceKey(0x20,1) != 0)
+    {
       AudioCmn_PlayFESFX(6);
-      this->fStartTicks = 0; this->fCurrCredit = this->fShowCreditNum + 1;
+      this->fCurrCredit = this->fShowCreditNum + 1;
       lasttick = FE_Ticks();
-    }
+      this->fStartTicks = 0; }
 
 
 
@@ -220,18 +240,18 @@ void tCreditManager::SetupCurrCredit()
   }
 
 
+  if (this->fStartTicks != 0)
+  {
+    if (FE_Ticks() - this->fStartTicks > CREDFADETICKS) {
 
-
-  if ((this->fStartTicks != 0) && (FE_Ticks() - this->fStartTicks > CREDFADETICKS)) {
-
-    const int nextCredit = this->fCurrCredit + 1; this->fCurrCredit = nextCredit;
-    if (this->fNumCredits <= nextCredit) {
+    this->fCurrCredit++;
+    if (this->fNumCredits <= this->fCurrCredit) {
       this->fCurrCredit = 0;
     } if (this->fCurrCredit < 0) {
       this->fCurrCredit = this->fNumCredits + -1;
     }
     this->fStartTicks = 0;
-  }
+    } }
 
 
   if (this->fShowCreditNum != this->fCurrCredit) {
@@ -243,37 +263,39 @@ void tCreditManager::SetupCurrCredit()
     this->StartedTextFade = 0;
   }
 
-  const int textFade = this->fTextFade + this->fTextFadeDir;
-  this->fTextFade = textFade;
-  if (textFade < 1) {
+  this->fTextFade += this->fTextFadeDir;
+
+  if (this->fTextFade < 1) {
     this->fTextFade = 0;
   } if (0x7f < this->fTextFade) {
     this->fTextFade = 0x80;
   }
 
 
-  if ((this->fTextFade == 0x80) && (this->StartedTransition == 0)) {
-
+  if ((this->fTextFade == 0x80) && (this->StartedTransition == 0))
+  {
     this->StartedTransition = 1;
     this->fShowCreditNum = this->fCurrCredit;
-    if ((this->fShowCreditNum == (this->fShowCreditNum / 3) * 3) || (this->CreditBuffer[this->fShowCreditNum].bgNumber != -1)) {
-
+    if ((this->fShowCreditNum == (this->fShowCreditNum / 3) * 3) || (this->CreditBuffer[this->fShowCreditNum].bgNumber != -1))
+    {
       int NNNNN = this->fShowCreditNum + 1;
       if (this->fNumCredits < NNNNN) { NNNNN = 0;
       } screenMain->SwapBackground((int)this->CreditBuffer[NNNNN].bgNumber);
     }
   }
-  if (((this->StartedLines == 0) && (this->StartedTransition != 0)) &&
-     (backgroundReady = screenMain->DoneLoadingBackground(), backgroundReady)
-     ) {
-    this->fLineTicks = FE_Ticks();
-    this->StartedLines = 1;
-  }
-  if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&
 
-     (0x1e < FE_Ticks() - this->fLineTicks)) {
-    const int startTicksSnapshot = *(volatile int *)&ticks;
-    this->StartedTextFade = 1; this->fTextFadeDir = -8; this->fStartTicks = startTicksSnapshot; } return; }
+
+  if (((this->StartedLines == 0) && (this->StartedTransition != 0)) && screenMain->DoneLoadingBackground())
+  {
+    this->StartedLines = 1;
+    this->fLineTicks = FE_Ticks();
+  }
+
+  if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) && (0x1e < FE_Ticks() - this->fLineTicks))
+  {
+    this->fStartTicks = FE_Ticks();
+    this->StartedTextFade = 1;
+    this->fTextFadeDir = -8; } return; }
 
 
 
@@ -290,9 +312,9 @@ void tCreditManager::SetupCurrCredit()
          -- the oracle's plain render is the FALL-THROUGH and the cheat
          check is the branch target, so the source condition is `!hidden`
          with the plain-render body first. */
-    /* MATCH (w37-a2): a single conditional-value store (not two separate
-       assignments) -- the oracle computes v0=2000/700 via one branch and
-       stores it ONCE, scheduled into the jaguar-branch's delay slot. */
+    /* Real conditional assignment arms retain distinct363/366 source notes.
+       GCC merges both stores into the single retail store in the jaguar
+       branch's slot; a shared ternary had hidden those two supplied tags. */
     /* W85-S5: same removal as the tag==10 arm above -- plain join re-read. */
     /* W85-S5: was `tag = *(volatile byte *)p;` INSIDE the block.  A plain
        re-read placed at the JOIN is byte-identical (7/7 PASS): the skip loop
@@ -330,9 +352,10 @@ void tCreditManager::SetupCurrCredit()
      (offset 8) as the 2nd arg, not the literal 0x40 (0x40 IS correct for
      the two tail bright-line CalcFadeVal calls, which stayed literal).
      Result: 610->8 verify_asm diffs, insn count now EXACT (451/451).
-     The 2026-08-03 follow-up makes the post-NEWLINE and post-ASTERISK
-     tag reads volatile: this defeats GCC's inappropriate cross-join CSE
-     and restores both of retail's fresh `lbu v1,0(s0)` instructions at
+     Historically the 2026-08-03 follow-up made two tag reads volatile;
+     later join-position recovery removed both qualifiers. That old necessity
+     claim is superseded by the current ordinary reads documented above.
+     That recovery restores both retail `lbu v1,0(s0)` reads at
      zero code-size cost. The 2026-08-24 SLD follow-up restores `y` as the
      recorded SHORT and recovers the missing post-join statement: every tag
      case shares one final `y += 8` after the jaguar/rollthedice/normal branch,
@@ -344,9 +367,14 @@ void tCreditManager::SetupCurrCredit()
      the top-level `width` in $s0.  P862 removes five source-only locals with
      direct expressions and the retained color locals. Each color's two-step
      fade follows retail SLD 269/270 and 272/273; the remaining tag snapshot
-     has no recovered spelling:
-     SYM-CODEGEN-CARRIER: tag
+     has no supplied original spelling or proved source-object necessity;
+     it remains the explicit source-review item below, not an exemption.
      PASS, 451/451 instructions. */
+/* SOURCE-REVIEW-UNRESOLVED: tag is not supplied as an original local. Its
+ * captured skip sentinel still needs source/macro recovery; literal-loop
+ * failures do not prove a distinct source object. All451 numeric tags now
+ * agree, but the parser-loop end remains149 versus retail148 at+0x534.
+ * Receipt: build/tmp/v/credits_tick_getter_20261101/proof.json. */
 #line 243 "C:/nfs4/FRONTEND/COMMON/FECREDITS.CPP"
 void tCreditManager::DrawCurrCredit()
 
@@ -468,10 +496,10 @@ void tCreditManager::DrawCurrCredit()
 
         p = p + 1; } while (*p == tag);
     }
-    CREDFADETICKS = rollthedice ? 2000 : 700;
+    if (rollthedice) CREDFADETICKS = 2000;
 
-
-
+    else
+      CREDFADETICKS = 700;
 
     if (jaguar) {
 
@@ -479,8 +507,8 @@ void tCreditManager::DrawCurrCredit()
 
       FETextRender_WordWrapTextRGBJustify(TextSys_Word(0x596),r,ColText,0,0,false);
     }
-    else if (rollthedice) {
-
+    else if (rollthedice)
+    {
       for (int rtd = 0; rtd < 0x19; rtd++) {
 
         FETextRender_FullTextRGB(TextSys_Word(rtd + 0x597),x,y,ColText,'\0',fShowCred->textJustify);
@@ -509,8 +537,8 @@ void tCreditManager::DrawCurrCredit()
 
 
 
-  if (this->StartedLines != 0) {
-    int dist;
+  if (this->StartedLines != 0)
+  { int dist;
     int width;
     int height; dist = ((FE_Ticks() - this->fLineTicks) * 0x208) / 0x50;
     width = 200;

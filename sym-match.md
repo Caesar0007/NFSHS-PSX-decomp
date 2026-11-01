@@ -1,10 +1,1309 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
+## Board status snapshot — 2026-11-01
+
+Initial refresh compiled all 522 main-tree probe TUs after Claude's work.
+Subsequent source/header rounds preserved every untouched source/reference;
+the latest full522-TU refresh includes the tested section-boundary repair.
+All retail function entries remain covered; Claude's six edits are untouched.
+
+| Measure | Latest available result | Scope / freshness |
+|---|---:|---|
+| Native SYM common-name CLEAN | 2422 / 2570 (94.24%) | Refreshed native comparison; 148 DIRTY |
+| Honest linked code | 299819 / 299819 words | Fresh real link/raw comparison; zero masked overlap mismatches |
+| Function byte board | 3494 / 3494 (100%) | Fresh pinned objdiff report; `MATCH_PROGRESS.txt` regenerated |
+| SLD exact tags | 2325 / 2581 (90.08%) | Full baseline plus affected-TU refreshes; includes corrected parser bounds |
+| SLD exact tags + reported block lines | 2170 / 2581 (84.08%) | Source-bound update; not a full native-contract seal |
+| Absolute function header line | 2525 / 2581 (97.83%) | Filename equality separately verified for new absolute seals |
+| Independent TU provenance | 2581 / 2581 (100%) | Current hash-bound producer/include evidence; not source completion |
+
+Remaining tag differences: **1712 / 207991 instruction words**. Rounds h-u
+repair81 genuine tags and add twenty-one complete supplied native contracts, plus
+partial source/type/control-flow improvements. The earlier round
+repairs10 genuine source tags and removes45 false mismatches from51 foreign-
+section words previously appended to five functions. The earlier1848/208042
+board has a buggy denominator: not all55 fewer mismatches are source gains.
+The block-line diagnostic compares the
+ordered line sequence, not complete native owner/address/depth/end/file records.
+`build/psyq_g/sldtree_report.json` is also refreshed after selective native
+recompilation of the affected TUs; untouched native inputs are preserved,
+not independently recertified as freshly compiled. Native common-name SYM totals and the 2581 SLD
+function occurrences have different denominators; none is a whole-source seal.
+
+| Source directory | Exact tags | Exact tags + block lines | Remaining tag differences |
+|---|---:|---:|---:|
+| GAME/COMMON | 1181 / 1258 | 1108 / 1258 | 315 |
+| GAME/PSX | 373 / 395 | 350 / 395 | 63 |
+| FRONTEND/COMMON | 697 / 838 | 647 / 838 | 1178 |
+| FRONTEND/PSX | 74 / 85 | 65 / 85 | 46 |
+| EACLIB/PSX (partial retail coverage) | 0 / 5 | 0 / 5 | 110 |
+
+Receipts: `build/tmp/v/sld_refresh_20261101/{board,proof,summary}.json` and
+per-TU stdout/stderr logs. Published generated boards:
+`build/tmp/v/sld_board.json` and `build/tmp/v/sld_board_now.json`; the prior
+Oct 31 snapshot is retained in the dated receipt directory. Ten probe alignment
+warnings are explicitly recorded, all outside the retail-covered functions;
+there are no compile failures or lost retail entries.
+The nine-TU update and its preserved pre-round board are under
+`build/tmp/v/color_sld_20261101/{board.before,board.after,integration-proof}.json`.
+Latest full board/proof/logs: `build/tmp/v/ai_header_sld_20261101/board_refresh/`.
+All522 probes compile; all2581 retail entries remain covered and every source
+hash stays fixed during the run. Ten alignment warnings remain outside retail coverage.
+
+Code checks: detailed gates cover all 3484 known-VA board rows, using the actual
+source names and VA-selected immutable oracles for 16 legacy copy labels.
+Seven SDK rows fail the additional stricter source-only diagnostic but all
+pass under the standing project configuration; this refresh changes neither
+that configuration nor their source. The fresh pinned objdiff report covers
+all 3494 rows, including the ten address-unlisted helper/data/template entries.
+Strict branch checks cover 3489 entries / 17726 branch words with zero
+mismatches after diagnostic copy-name routing; five data labels have no
+standalone function oracle and are not claimed as independently branch-gated.
+The actual linked RECON stream remains 299819/299819 words, BLOB passthrough
+2022 excluded, overlap audit zero masked differences, foreign-label audit zero.
+
+No new asm/volatile, retail edits, or new output-rewrite mechanisms were
+introduced. The pre-existing user edits remain in femenu.cpp, fescreen.cpp,
+screencongrats.cpp, ai.cpp, aih_cop.cpp and object.cpp. The additional
+source/header/tool changes below belong to these rounds. No commit or push
+was performed; the restoration goal remains active.
+
 Newest dated receipts below are authoritative only for their verified scope.
 Older snapshot tables and open-case lists later in this file are historical,
 not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
+
+2026-11-01v commit/push/pause finalization (user request).
+
+The last accepted ScreenController change uses its existing IsVisible and Run
+members. Moving the real dialogIsIdle=false initialization into predicate967
+retains the previously correct currentlyOn read tag (that read was misnamed
+negconChoice in an older private explanation). No new API/helper/qualifier or
+source object is introduced. Complete correct target regions improve5->6/33;
+nine tag differences and other ownership/alias work remain. All22 functions/
+267 branch words pass; whole normal ELF remains SHA114cc8e6... identical.
+Fresh full-debug/native audit preserves all2581 previous correct owner/frame/
+complete-region/tag/file/header/end facts and the ENTIRE ordered raw Def/type
+stream. Native dump59741a22...->6ae81c51...; raw CPE stays SHA060d48b6... .
+Fast/native totals above remain unchanged; no new full contract is claimed.
+Receipt:build/tmp/v/source_round_v_20261101/{proof,gates,owners.before,
+owners.after,board.before,board.after}.json and
+controller_visibility_source_20261101/{landing.txt,live.proof.json}.
+
+All workers stopped at the user's pause request. CurrentMenu remains PRIVATE
+and UNLANDED: username_getter_private_20261101/receipt.json documents its
+compiler-private flareextra UID rename and still-wrong receiver owner path.
+The SysStartUp one-value size pipelines also remain PRIVATE and UNLANDED:
+audiomus_size_stages_20261101/ has code/tag/phase evidence, not a completed
+full-preservation acceptance audit. Live AUDIOmus stays81ea538a... . Do not
+mistake either private experiment for an accepted or fully restored source.
+
+The requested commit includes verified project source/tooling/tests and the
+pre-existing six Claude matching/layout edits without rewriting them. Runtime
+captures, scratch/mod trees, unrelated documents and backup/generated files
+are excluded. Final rebuild/objdiff/link/test and remote commit/push receipts
+are reported in the chat. Goal is PAUSED at user request, not complete.
+The final full NFS4_STRICT=1 normal rebuild completed without failed TUs;
+fresh objdiff3494/3494, real linked299819/299819,273 unit tests and vtable1473
+all pass. No private candidate was promoted during finalization.
+
+2026-11-01u dialog type/member producers and real music-driver scope exits.
+
+SetCurrentController uses the existing word-ID SetString overload with its
+known lookup/string-store body and the real negconPopUp.SetChoices call,
+instead of pre-looked-up text plus three raw choice/default writes. The body
+is supplied in owner-private screencontroller_externs.h under the existing
+header interface, with signature/header visibility explicitly inferred.
+No class API, field, vtable slot or layout is added. A fresh whole-recon
+include census and actual .i corpus identify only screencontroller.cpp as
+consumer; no shared fedialog header is changed. Its before-header backup is
+in source_round_u_20261101/screencontroller_externs.before.h.
+
+Two previously missing supplied tDialogMessageString TPDEF copies return
+(4->6 of7). The existing first this REG16 was ALREADY present and is not
+claimed newly recovered. SetChoices recovers two complete supplied empty
+region tuples3->5/33 and the actual default-field store tag at+0x54 changes
+943->951. Nine tag misses and other missing regions/aliases remain; no full
+SetCurrentController or header-graph restoration seal is claimed. The full
+old ordered raw Def stream survives as a subsequence, not merely an alias
+count: only the two supplied class/type/size152/tag/name records are added.
+All22 detailed gates/267 branch words pass; whole normal ELF remains
+SHA114cc8e6... byte-identical, with all21 neighbor traces preserved.
+
+AudioMus_DriverStartUp's actual stream-creation eligibility selector and real
+buffer-null/case exits restore three ancestor scope-end lines40->44 while
+the local chunks/size/opts/sndlimits work body still ends40. All seven
+COMPLETE region tuples (14 separate begin/end boundary records),81 word/file
+tags, supplied locals/types/homes/owners, header and function end now agree.
+This is a new complete supplied contract, not uniquely recovered switch/if
+punctuation. No extra source object, no-op, one-shot loop or fake scope is
+introduced. Plain int blocks/overhead in SysStartUp also remove two unnecessary
+const qualifiers; the actual staging captures/identifiers remain explicitly
+unproved, NOT removed or exempted. Music's const pointer is unchanged: plain
+pointer creates an unprovided row and remains a private negative, not proof
+of an original const declaration. Prior Server label/goto repair is intact.
+All23 detailed gates/156 branch words pass; whole normal ELF remains
+SHAe64c3f8f... byte-identical and all other22 complete maps are unchanged.
+
+Parent freshly gates45 functions/423 branch words and both full-debug TUs,
+then original ASPSX524/0 and PSYLINK0; both origin witnesses validate.
+Hash-stable whole-native audit covers2581 occurrences: all old correct owner/
+frame/complete-region/tag/file/header/end facts survive. Exactly one tag is
+repaired, three driver scope ends and two controller tuples improve, one
+new full supplied contract is added. No old raw definition/type is deleted;
+the only additions are the two supplied MessageString copies, with the ENTIRE
+old ordered stream preserved. Native dump89369cd1...->59741a22...; raw CPE
+remains SHA060d48b6... byte-identical. No compiler/debug output is rewritten.
+
+Fresh objdiff3494/3494, real linked RECON299819/299819, vtable1473 PASS,
+masked-overlap/foreign0. Native CLEAN2422/2570 remains148DIRTY; EXTRA104,
+SCOPE30,BLOCKS94 unchanged. Native relative SLD2112/native+SLD2083.
+Fresh pipeline/origin/source-owner unit tests273/273 PASS.
+GAME/COMMON strict covered1105->1106/1258; FRONTEND/COMMON587/838 unchanged.
+Review452 marker locations/44address-derived locations remain, not unique
+original-object counts or source completion. Fast board1712differences/
+207991words,2325/2581 tags and2170tag+block, with all2581 occurrences paired.
+SDK/library coverage remains explicitly partial.
+
+Receipts:build/tmp/v/source_round_u_20261101/{proof,gates,owners.before,
+owners.after,board.before,board.after,objdiff.final}.json and source_queue/;
+controller_receiver_source_20261101/{landing.txt,live.proof.json} and exact
+production-proposal.diff; audiomus_producers_20261101/live-proof.json and
+stock phase/boundary controls. Source refreshes include the owner-private
+header hash; untouched TUs retain earlier proof, not a new whole-tree compile.
+Goal remains active/incomplete; no commit/push performed.
+
+2026-11-01t five input/packet captures removed without losing existing metadata.
+
+Username ProcessInput removes stringLength,character and soundId. The actual
+strlen result goes directly into the existing short column; the real masked
+selectedChar expressions replace character. Real Up/Down sound calls follow
+their actual row updates; GCC tail-merges them to retail's single call. The
+Down call remains on supplied1734, not1733: the earlier private placement
+preserves bytes but loses two correct call tags and is rejected. This source
+shape also repairs two previously wrong row-store/jump tags1724->1725.
+All240 words remain exact. Every other source tag, filename, frame, complete
+owner/region/end and ordered alias/type fact survives. Raw definitions lose
+exactly stringLength UINT REG3,character UINT REG4,soundId INT REG4; none is
+supplied by retail. Selected-character/cursor/index producers, missing actual
+getter pairs and two117-vs118 tags remain open, not an original-object claim.
+Typed-matrix and offset-removal controls change code; the redundant early-break
+control does not repair those last tags and is not adopted.
+
+DrawDropShadow removes tagMask/palTag through the existing POLY_G4.tag fields
+on both genuine tag reads/writes. No P_TAG definition, header import, type
+filter, register pin or new object is introduced. The complete normal and
+full-debug assembly AND ELF remain byte-identical for the executable landing,
+including every type/local/region/line record. Existing addrMask,addr_24 and
+pal_link still need original producer recovery: retaining their current stages
+is not an exemption or a source-object necessity certificate. Canonical P_TAG
+still generates nine absent type records and stays private. Full five-capture
+removal through real word fields instead exposes a13-diff allocation rotation;
+retaining the existing real masked-address/OT-address stages restores that
+web while allowing the two actual captures to disappear. Source-only flags
+and selected G0 identity are independently confirmed; wrongly chosen G4/G8
+diagnostic observers are rejected, not used as acceptance evidence.
+
+Parent retires the two stale active packet-carrier markers and historical
+snapshot/fence-necessity wording before the existing function anchor. Child's
+executable proof binds historical source05f8c407...; fresh parent gates/debug/
+native audit bind comment-cleaned479063e6... . No generated output is rewritten.
+All105 detailed gates/470 branch words pass; whole normal ELFs remain
+SHAd493c5f0.../4f6c96d2... . ASPSX524/0, PSYLINK0, both origin witnesses valid.
+
+Hash-stable native audit covers2581 occurrences. Every prior correct owner/
+frame/complete-region/tag/file/header/end survives; no region/end changes.
+ENTIRE ordered raw definition/type stream is unchanged except the three
+unprovided input locals above. Two tags repaired, no new full native contract
+claimed. Native dump9b628d2c...->89369cd1...; raw CPE remains byte-identical
+SHA060d48b6... . Fresh objdiff3494/3494, real linked RECON299819/299819,
+vtable1473 PASS, masked-overlap/foreign0. Native CLEAN2422/2570,148DIRTY,
+EXTRA104,SCOPE30,BLOCKS94 unchanged; removing three actual rows need not remove
+a whole dirty-function category. FRONTEND/COMMON name-surplus147->144,
+ownerPASS775/63DIFF and strict covered587/838 unchanged. Review457->452 marker
+locations;44address-derived locations remain. Fast board1713differences/
+207991words,2325/2581 exact tags,2169tag+block; all prior seals survive.
+
+Receipts:build/tmp/v/source_round_t_20261101/{proof,gates,owners.before,
+owners.after,board.before,board.after,objdiff.final}.json and source_queue/;
+username_input_source_20261101/{results,preservation,sld_views}.json and
+private controls; screenmain_packet_private_20261101/{receipt,landed}.json.
+That child's historical source hash is not silently overwritten by parent
+comment cleanup. Untouched sources retain previous certificates; this is not
+a whole-project source completion claim. No commit/push performed.
+
+2026-11-01s username source captures and constructor field order.
+
+tUserNameMenuItem Draw removes columnx,row and menuStartY rather than hiding
+them behind const or an inferred name. The supplied xx coordinate is computed
+from the actual column and used by every cursor glyph; yy reads the actual
+MENUUSERNAME_STARTY and current-row field. Columnx removal alone preserves
+the entire92-function compiler trace; removing the other two captures also
+repairs the two wrong tags at+0x1e4/+0x1f4 to1919. These are real field/global
+reads, not dummy uses or manufactured getter pairs. The three actual opening
+braces now occupy supplied relative12,49,70, preserving all statement notes
+and restoring complete region/owner lines. All254 word/file tags, supplied
+locals/types/homes/order, frame136, complete regions and header1874/end1966
+now agree. This is a new complete supplied contract, NOT unique original text:
+boxRight/right still need source recovery. Direct/joint literal substitutions
+for those two alter code and stay private. All92 detailed gates/354 branch
+words pass; whole normal ELF remains SHAd493c5f0... byte-identical.
+
+The GoToMenuNFS4Button constructor initializes fNumFrames on155 and fButtonImage
+on157 BEFORE its transition fields158..160. The prior reconstruction put
+those real stores on161/162. Restoring source order repairs nine tags while
+GCC preserves the same execution order,26words and whole normal ELF
+SHAa56723c4... . Root region, header152 and implicit function end160 now agree;
+this is a second new complete supplied contract. All57 detailed gates/90
+branch words pass. The other56 function traces and entire ordered type/def
+stream remain identical. DrawTextBox's rejected carrier/clamp experiments
+remain private; no new asm, volatile, helper, qualifier or artificial scope.
+
+Parent freshly gates149 functions/444 branch words and compiles both debug
+TUs. ASPSX524/0, PSYLINK0, both origin witnesses valid. After confirming the
+producer process terminal, a fresh hash-stable native audit covers2581
+occurrences: exactly eleven repaired tags, two new supplied contracts, all
+prior correct owners/frames/complete-regions/tags/files/headers/ends preserved,
+and the ENTIRE ordered raw definition/type stream identical. Native dump
+a8094fac...->9b628d2c...; raw CPE remains SHA060d48b6... byte-identical.
+The earlier in-flight audit is not the acceptance proof; the final audit is
+rerun after producer completion and verifies unchanged inputs throughout.
+
+Fresh board3494/3494, real linked RECON299819/299819, vtable1473 PASS,
+masked-overlap/foreign0. Native CLEAN remains2422/2570,148DIRTY; EXTRA104,
+SCOPE30,BLOCKS94 unchanged. Native relative SLD2111/native+SLD2082.
+FRONTEND/COMMON covered local/frame/SLD exact585->587/838; ownerPASS775/63DIFF
+and name-surplus147/missing30 unchanged. Source review markers460->457,
+44address-derived locations remain. None is a whole original-source count.
+Fast board2325/2581 tags,2169tag+block,1715differences/207991words;
+all2581 occurrences independently paired, with partial SDK/library coverage.
+
+Receipts:build/tmp/v/source_round_s_20261101/{proof,gates,owners.before,
+owners.after,board.before,board.after,objdiff.final}.json and source_queue/;
+username_draw_source_20261101/{results,preservation,sld_views}.json and private
+controls; menu_extended_source_20261101/{landing.txt,live.preservation.json}.
+Untouched TUs retain prior certificates, not a new whole-tree compile. No
+instruction/debug rewriting, reference change, new source object or register
+pin is introduced. Goal active/incomplete; no commit/push performed.
+
+2026-11-01r real tick getters and track-decode branches remove two source devices.
+
+SetPads no longer declares waiting. Retail's first two empty regions enclose
+the actual tick load, not AnalogOn; its later group contains the real while
+binding plus the second tick-read pair. A genuine FE_Ticks getter at both
+reads, direct frontEnd.AnalogOn[j], the real outer for and the supplied inner
+i declaring region recover that source graph. FE_Ticks is an explicitly
+inferred semantic spelling, not an invented claim of a retained retail name.
+ticks already has its ISR volatile qualification in vars.h; none is added.
+All eight supplied complete local/type/home/depth/owner/order tuples now agree
+(previously two). Complete correct region tuples improve1->11/12. Every old
+correct tuple survives; all instruction tags are unchanged, including the two
+remaining PadInfoMode-condition misses. One region contract stays open.
+This is genuine source/local recovery, not a complete function SLD seal.
+The earlier worker prose's11/14 and three-remaining count was a handcount
+error: parent raw tuple census proves11native/12retail, all11native tuples
+exact and only the +0xc0..+0xe8/relative17..24 tuple missing. No comparator
+or acceptance rule was changed to obtain this correction.
+
+AudioCmn_Init's real full true/false track-decoding assignments make the old
+volatile direction-test cast unnecessary. The bonus arm computes the actual
+decoded track; the false arm assigns the real track value. The subsequent
+test is now plain audioBackwardsDirection == 0. No replacement qualifier,
+fence, object, helper, fake use or region is introduced. Selected-stock initial
+RTL already has the ordinary direction load on both graphs; first CSE deletes
+it on the old flat-update graph but retains it on this true/false assignment
+funnel. Observed/unobserved -g and -g/-da outputs agree. All94 words and
+all48 complete maps, ordered declarations/types/aliases and filenames remain
+unchanged. Older isolated plain-test failures did not prove a volatile source.
+Original punctuation and other early-j/source-role uncertainty remain open.
+
+Parent freshly gates all91 functions/639 branch words, compiles both full-debug
+TUs and links original ASPSX/PSYLINK:524/0, zero errors, both origin witnesses
+valid. Whole normal ELFs remain4c300b4a.../78caa6e5... byte-identical. Full-native
+audit covers2581 occurrences: every prior correct owner/frame/complete-region/
+word tag/filename/header/end survives. ENTIRE ordered raw definition/type stream
+changes ONLY by removing unprovided waiting BOOL REG3. CPE remains raw-identical
+SHA060d48b6...; native dumpd579cefa...->a8094fac... . No output rewrite.
+
+Fresh objdiff3494/3494, real linked RECON299819/299819, vtable1473 PASS,
+masked-overlap/foreign0. Native CLEAN2422/2570 remains148DIRTY; EXTRA105->104
+functions and SCOPE31->30. FRONTEND/COMMON ownerPASS774->775/838,63DIFF,
+name-surplus148->147; covered local/frame/SLD exact remains585. Source review
+marker locations462->460;44 address-derived locations remain. None is a count
+of uniquely recovered original objects. Fast SLD totals remain2323/2581 tags,
+2167 tag+block and1726differences/207991words; no new complete supplied
+contract or tag gain is claimed for this source-device removal round.
+
+Private SCREENMAIN canonical P_TAG link macros reproduce69words and remove
+five packet scaffolds, but introduce nine type records absent from retail.
+They are NOT adopted. The shared slim header's universal cast-only/debug-elided
+comment is contradicted by this full-debug control; do not rely on that claim
+or filter away the emitted records. Existing real primitive-tag views avoid
+new types but still differ; the stock initial RTL locates the RHS/address
+evaluation-order question before CSE. Keep that genuine producer task open,
+not a type exemption, invented overlay, new fence or allocator floor.
+
+Private Calibrate stock phase evidence likewise shows direct address folding
+emits the player shift before the gPadinfo materialization; its passing staged
+source has the opposite initial-RTL order. Repeated address expressions have
+no pre-help materialization at all. The three stock -dr/-ds/-dl/-dg versus
+unobserved controls have byte-identical full assembly, executable/input hashes
+and target dumps. This changes the next investigation to the real frontend/
+address producer, not blind allocation dials; it does NOT prove the retained
+padInfo/padBase are original or necessary source objects. No failed variant
+lands. Receipt:build/tmp/v/calibrate_phase_20261101/phase-proof.json.
+
+Accepted receipts:build/tmp/v/source_round_r_20261101/{proof,gates,owners.before,
+owners.after,board.before,board.after,objdiff.final}.json and source_queue/;
+setpads_getter_source_20261101/{receipt.txt,live.proof.json};
+audio_direction_producer_20261101/{live-proof,preservation-proof}.json.
+Untouched sources retain prior certificates, not a new whole-tree compile.
+All library retail coverage limitations and original-source review obligations
+remain; goal active/incomplete. No commit/push performed.
+
+2026-11-01q FRONT ownership, SCREENMAIN source order, calibration and typed audio arrays.
+
+Front_SecondaryMemCardCheck closes its existing j-owned declaring block after
+the real card loop, before DeInit_Memcard/SetPads and flag cleanup. No block,
+object or operation is added. j's endpoint becomes the supplied +0x90/line15,
+while i remains +0x84/line14 and the root remains line18. All50 word tags,
+all six ordered complete region rows, absolute header852/end872 and supplied
+locals now agree. This is one new complete supplied contract, not a claim of
+unique literal original syntax. All43 detailed gates/240 branch words pass;
+whole normal ELF SHA4c300b4a... remains byte-identical.
+
+SCREENMAIN restores actual phases, not per-statement directives: SwapBackground's
+slot flip belongs on255 before old-state handling; SetState's first i=0 belongs
+at the real loop entry299; PreLoad's second i=0 belongs at its second-loop
+entry779. Six native tags improve. All111/181/131 numeric maps are exact;
+SwapBackground and PreLoad gain complete supplied contracts. SetState still
+has other scope/source debt and is NOT claimed fully exact. All13 detailed
+gates/116 branch words pass; whole normal ELF SHA4f6c96d2... is identical,
+with every prior ordered declaration/type/scope fact retained.
+
+Calibrate now initializes player on1598 before the actual pad-base/address
+phase1600. Both gPadinfo address words recover their supplied1600 tag, with
+all200 words, every other tag and all owner/type/region records unchanged.
+All92 FEMENUOPTIONS detailed gates/354 branch words pass; whole normal ELF
+SHAd493c5f0... remains identical. Two deadSpot clamp/store tags and unprovided
+padInfo/padBase/minimum/two value captures remain OPEN, not original-object
+exemptions. Direct max/conditional, typed destination and fused-load controls
+fail and remain private. Splitting the assignment's closing punctuation onto
+the next line preserves bytes but moves three previously correct clamp tags;
+it is rejected. No per-statement #line or new object/fence/qualifier is used.
+
+AudioCmn_Init uses the real fAmbientRangeON[j]/fMysticWindON[j] array elements
+instead of two integer-address casts. Entire normal ELF SHA78caa6e5... and
+entire selected-stock full-debug assembly/ELF are byte-identical. All48
+detailed gates/399 branch words pass. This is typed source restoration, not
+a carrier-count or SLD-number improvement. The rejected SoundCar freq reuse
+changes code and its supplied home; it is not retained or called original.
+
+Parent independently re-gates all196 functions/1109 branch words and freshly
+compiles all four full-debug TUs. ASPSX524/0, PSYLINK0; both compiler-input
+origin witnesses validate. Whole-native audit covers2581 occurrences: exactly
+eight repaired instruction tags, three new complete supplied contracts, and
+one repaired Front region. Every old correct owner/frame/complete-region/tag/
+filename/header/end and the ENTIRE ordered raw definition/type stream survive.
+All four whole normal ELFs and raw native CPE remain identical; CPE SHA060d48b6...
+Native dump changes3d3203ae...->d579cefa... through original source compilation
+only. No instruction/debug output rewrite, new asm/volatile/pin or fake use.
+
+Fresh real linked RECON299819/299819, objdiff3494/3494, vtable1473 PASS,
+overlap43857bytes with zero masked mismatches and zero foreign labels.
+Pipeline/origin/source-owner unit tests273/273 PASS in a fresh run. Native
+common-name CLEAN remains2422/2570,148DIRTY. Native relative SLD2109 and
+native+SLD2080; these denominators differ from the2581-occurrence probe board.
+Frontend/common strict covered585/838, ownerPASS774/64DIFF; name-surplus148
+and missing-name30 unchanged. Review462 marker locations/44 address-derived
+locations remain, not distinct original objects or source completion. All2581
+occurrences independently paired; SDK/library retail coverage remains partial.
+Fast board2323/2581 exact tags,2167 tag+block,1726differences/207991words.
+Native GAME/PSX has62 differing tags versus probe63; retain that diagnostic gap.
+
+Receipts: build/tmp/v/source_round_q_20261101/{proof,gates,owners.before,
+owners.after,board.before,board.after,objdiff.final}.json and source_queue/;
+front_source_20261101/receipt.txt, screenmain_source_20261101/receipt.json,
+audiocmn_roles_20261101/proof.json, calibrate_source_20261101/ private stock
+controls. Untouched TUs retain their earlier proof, not a fresh whole-tree
+recompile. Original literal spelling and remaining source producers stay open.
+No commit/push performed; full original-source/SYM/SLD goal remains active.
+
+2026-11-01h STATTOOL genuine singleton path and two menu receiver repairs.
+
+Stattool_nCreateIndex now matches the complete supplied local/frame/absolute-SLD
+contract:77words, three params and five locals, root end180, all five local
+owner endpoints at+280 rather than the previous+272. Matched NFS2's real
+singleton cleanup/early-return before sorting removes the unprovided one REG2,
+its empty identity-asm fence and its artificial declaring region. GCC naturally
+tail-merges the two real purge calls while rematerializing j=1. Implicit void
+fallthrough retains the final180 epilogue tag independently of purge179.
+All11 detailed/strict-branch gates pass (25 branch words); the whole normal
+ELF remains SHA1e60de82... unchanged. All11 numeric maps remain exact; block
+contracts improve10/11->11/11. This does not uniquely recover literal source text.
+
+Choice/Slider ProcessInput now call the genuine existing IsEnabled member
+instead of the free IsDisabled helper. Two item REG4 records become the
+provided nested this receivers, with types/homes/owners unchanged. Four actual
+native tags at+0x10/+0x14 are corrected:563->564 and630->631. All73 FEMenu
+functions/115 branch words pass; whole normal ELF remains SHA06af9ed1... .
+Both root params were already correct: legacy same-name collapse was not
+evidence of missing roots. No new API, local, asm, qualifier or fake use is added.
+
+The three frameFiller arrays remain explicit unprovided source-review items.
+Removing padding changes frame32->24; that is not proof of an original source
+object. Padding-free getter and GoToMenuButton controls do not preserve every
+previous correct tag/byte and were not retained. The unused shared free helper's
+true type producer also remains unresolved, not a generic carrier exemption.
+
+Full native audit covers2581 occurrences and preserves all previously correct
+owners, frames, regions, filenames, tags and function ends. Raw definition delta
+is exactly two item->this replacements and removal of one; no global/type delta.
+Native CLEAN2419->2420/2570, DIRTY150. Frontend/common ownerPASS772->773/838;
+covered local/frame/absolute-SLD exact568->569. CPE remains RAW identical
+SHA060d48b6... . Fresh selective probes improve total tags2304->2306 and
+tag+block2146->2149, remaining differences1793->1789. Other board rows retain
+their prior proof; this is not a new whole-tree compile or source-completion seal.
+Native relative SLD2088->2091; native+SLD2062->2063. Real linked code remains
+299819/299819 identical, pinned objdiff3494/3494, vtable1473 PASS, masked
+overlap/foreign0. No commit or push performed.
+
+Receipts: build/tmp/v/menu_frame_source_20261101/{proof,owners.before,
+owners.after,board.before,board.after,objdiff.final}.json and source_queue/
+per-directory reports; stattool_source_20261101/receipt.json. Failed TEXTPIX
+and FECheats controls were restored exactly. FECheats' capture-free setter
+loses one supplied WithTimeout type copy; the fresh28-TU mixed type census
+rules out a uniform missing-typedef patch. Neither failure is an object
+necessity proof or a floor. The full original-source/SYM/SLD goal stays open.
+
+2026-11-01i FEAudio success/failure and real exits recover source attribution.
+
+FEAudio_StartLoadPatch now has its complete supplied native contract,41words,
+two AUTO locals, exact root/header/end and every word/file tag. Put real success
+work in the positive offset/length guard, return1 after the flag clear on61,
+and return0 on the common failure tail64. This gives the shared constant61
+and epilogue64 independently, repairing the last+0x84 tag64->61 without an
+extra object, condition or declaring region. A single return-line move loses
+four correct epilogue tags; direct status-return alternatives do not solve it.
+No new capture or field-role reuse is introduced. Original punctuation is
+nonunique; the exact supplied facts, not guessed text, are certified.
+
+Feaudio_StartPatch returns immediately after the real next-patch acquisition
+and completion-flag clears, instead of a generic terminal void return. Other
+paths use implicit fallthrough. All73 words and every numeric tag remain
+unchanged, while the root end line54->51 now equals retail at+0x114. The real
+epilogue/function end stays121 (relative53). Merely deleting the terminal
+return also fixes the block but loses four correct epilogue tags; that control
+is not retained. Whole10-function normal ELF SHA1c86831e... remains identical;
+all10 detailed gates/42 strict branch words pass. Full-debug code is unchanged.
+Fresh selective ASPSX/PSYLINK has524/0 and0 errors; both compiler-origin witnesses
+remain valid. Native audit covers all2581 occurrences: every other region,
+owner/frame/type/global, word filename, numeric tag and end remains unchanged.
+CPE is RAW identical SHA060d48b6... . This is a partial source/SLD repair:
+the bank-add call's two84-vs81 tags remain. No full function seal is claimed.
+
+Private source/stock-compiler controls also reject simple return-status
+substitutions, isolated return-line moves, and a one-case switch. The latter preserves
+bytes but either moves the comparison/tail tags or retains the two residuals;
+it is not adopted. No new object, invented name, asm/volatile, fake use/scope,
+compiler flag or postcompile rewrite is introduced. Literal original exit
+punctuation remains nonunique. Receipt:
+build/tmp/v/feaudio_source_20261101/{proof,owners.after,branches,return-probe,
+exit-probe,switch-probe,success-probe}.json. The wider goal and explicit backlog remain open.
+
+2026-11-01j FECREDITS seals and AUDIOMUS real state control.
+
+CreditManager Init56words restores actual zero-store phases before ShowCreditNum,
+CurrCredit and TextFade. A real initialized early guard plus implicit void
+fallthrough resolves four tags and the root end43->42. Draw81words returns
+after the real RealDeInit work and otherwise falls through, resolving two tags
+and the root end32->30. All supplied declarations/owners, headers/endlines and
+all other five functions' facts are preserved. Both functions now have complete
+supplied native contracts; no original literal punctuation claim follows.
+All7 detailed gates/71 branch words pass; entire normal ELF SHA2f39bbc8...
+unchanged. Tail-return-only controls lose correct epilogue tags and are rejected.
+
+AudioMus_Server removes unsupported LABEL done and five gotos through real
+state branches: positive library-header guard, recovery(error=-2) versus normal
+playback processing, and positive request-song work. Blind goto-to-return and
+header-guard-only controls both fail303words/21diffs; the real mutually exclusive
+state structure restores all300 words. All23 detailed gates/156 branch words,
+whole normal ELF SHAe64c3f8f... and every prior owner/type/frame/SLD fact survive.
+The only raw definition delta is deleted LABEL done; supplied variable done in
+other functions remains intact. Existing music/blocks/overhead captures and
+DriverStartUp endpoints remain unresolved, not exemptions.
+
+Parent fresh native audit covers2581 occurrences and exact CPE bytes; every
+previous correct declaration/type/region/tag/file/header/end survives. It records
+exactly the six repaired credit tags and one removed unprovided label. Two new
+complete contracts are credited, not a whole-module/project seal. Receipts:
+build/tmp/v/credits_music_integrate_20261101/{proof,owners.before,owners.after}.json,
+fecredits_fresh_20261101/proof.json, audiomus_carriers_source_20261101/receipt.json.
+
+2026-11-01k FECheats genuine constructor/type producer unlocks capture removal.
+
+The recovered existing WithTimeout constructor body(timeOutTicks=0x480), visible
+as a private header-interface definition, recovers the missing supplied typedef
+copy. With real SetString(int) then Display calls, dlgThis/wordText/feApp disappear.
+WithTimeout aliases2->3/retail3, MessageString4->6/retail7, surplus FEApplication
+2->1/retail0. No new field, vtable slot, object, asm/volatile or fake use is added.
+The setter's exact signature and header visibility are inferred, not unique
+original text/include-graph recovery. Remaining aliases/scopes/two tags stay open.
+
+Only the existing SetString(int) prototype becomes shared-visible; the constructor
+definition stays owner-private. All28 actual shared-header consumers/684functions
+and entire normal ELFs remain identical. All28 full-debug compiles preserve runtime
+code; ASPSX524/0, PSYLINK0. Ordered type evidence preserves ALL old retail-matching
+alias subsequences (206states), not merely counts or an arbitrary LCS. Native
+before/after audit preserves every prior correct owner/region/frame/word/file/end
+across2581 occurrences; other TU ordered definitions stay identical. Exact delta:
+remove two unprovided root locals and one surplus FEApp alias, add two missing
+MessageString aliases and one missing WithTimeout alias. CPE remains RAW identical
+SHA060d48b6... . No full function seal or whole-goal completion is claimed.
+
+Combined refreshed results:3494/3494 byte board,299819/299819 real linked words,
+masked-overlap/foreign0, vtable1473 PASS. Native CLEAN2420/2570, EXTRA105functions,
+DIRTY150. Fast tag board2309/2581, tag+block2152,1782differences/207991words;
+native relative SLD2094 and native+SLD2066. Frontend/common covered local/frame/
+absolute-SLD exact572/838; name-surplus occurrences149, missing-name occurrences30.
+All2581/2581 occurrences remain independently paired. Review inventory still has
+466 marker locations,44 address-derived-name locations, and zero old synthetic/
+register-spelling locations: these are locations, not uniquely identified objects
+or a source-completion claim. Pipe224, origin34, source-owner15 tests pass.
+
+Receipts: build/tmp/v/cheat_typeproducer_20261101/{landing-proof,live.preservation}.json,
+native_integrate/proof.json, cohort/gates.json; credits_music_integrate_20261101/
+{board.after,objdiff.final}.json and source_queue/ per-directory reports.
+No commit/push performed. The restoration goal remains active; no source policy,
+retail reference, comparator or post-recompile output was relaxed or rewritten.
+
+2026-11-01l real cleanup/FOR/debounce ownership and two capture removals.
+
+RealDeInit16words now has its complete supplied native contract: after clearing
+the deinit request, a real inactive-state early return precedes buffer cleanup
+and implicit fallthrough. The actual body ends117; root end11->10 becomes
+retail-exact while the epilogue remains117. Removing the old inner return alone
+also repairs the block but loses four correct epilogue tags; not retained.
+The early guard and true function extent must be recovered together. No new
+work/object/use/region is introduced, and punctuation remains nonunique.
+
+SetupCurrCredit removes the debug-elided backgroundReady and textFade source
+captures through the real DoneLoadingBackground predicate and compound field
+update. All199 words, every raw declaration/type, every region and numeric tag
+are unchanged. A direct nextCredit removal also preserves code but removes an
+existing declaring region: its actual source producer is still unresolved, not
+proved necessary by that control. nextCredit and startTicksSnapshot stay explicit
+review items; no new volatile/asm or const disguise is introduced.
+
+ActivateCheat66words restores a real FOR increment while retaining the top
+exit-in-body test, so stock GCC keeps retail's nonrotated code. The two backedge
+tags267->255 (relative25->13) and all14 ordered scope records now match retail,
+including the genuine FOR region previously absent. Real successful break,
+closing braces and return retain body end27/root30/end271. All supplied local
+types/homes/owners now agree: this is a second complete function contract, not
+an assertion that the remaining header aliases/original include graph are exact.
+Accepted constructor/setter bodies and alias counts6/3/1 remain unchanged.
+
+FEInput_GetDebounceKey69words restores all14 ordered source-line/address scope
+records with genuine brace placement and a negative non-direction early return,
+instead of a positive work wrapper plus trailing return0. The tick-load tag
+152->153 is repaired; two branch/call split tags remain and are not hidden.
+All prior correct tags survive. Reference follow-up proves NFS2PC's Input_Update
+is device polling and its debounce APIs use bit-index/history-ring semantics;
+it does not justify an invented PSX status local. Stock pre-RTL condition-note
+producer remains the precise open question, not a scheduler/reload floor.
+
+All21 affected functions pass detailed gates and135 branch words. All three
+normal ELFs and debug runtime output remain unchanged. Fresh native audit over
+2581 occurrences preserves every previously correct owner, frame, region, word
+tag/file, header and end; the ENTIRE ordered raw Def/Def2 stream is identical.
+Only three numeric tags are repaired, with two new complete contracts plus the
+partial input scope repair. ASPSX524/0, PSYLINK0; both compiler-origin witnesses
+validate. CPE remains RAW identical SHA060d48b6... . Real linked code remains
+299819/299819, pinned objdiff3494/3494, masked-overlap/foreign0, vtable1473 PASS.
+No tool, shared header, retail reference or generated compiler output was changed.
+
+Latest native CLEAN2421/2570 (149DIRTY); native relative SLD2096 and combined2068.
+Fast tags2310/2581, tag+block2154,1779diffs/207991words. Frontend/common owner
+PASS774/838,64DIFF; covered local/frame/absolute-SLD exact574. Name-surplus149
+and missing-name30 occurrences remain; all2581/2581 functions stay independently
+paired. Review locations467 and address-derived names44 remain: the wider goal
+is not complete. No commit/push was performed.
+
+Receipts: build/tmp/v/fecredits_cleanup_20261101/{proof,owners.before,owners.after,
+probes,carrier-probes,board.after,objdiff.final}.json and source_queue/ directory
+reports; cheat_loop_source_20261101/receipt.txt and live.notes.json;
+feinput_debounce_20261101/proof.json, feinput_reference_producer_20261101/evidence.json.
+The private explicit-base constructor control is neutral, not a source change:
+cheat_loop_source_20261101/ctor-explicit-base-receipt.txt. Remaining FEApp alias
+comes from the completed class producer, not a caller capture; never prune it
+or its real fields merely to clean a counter.
+
+2026-11-01m timer source ownership, controller value roles and record phases.
+
+SetupCurrCredit now matches ALL199 word/file tags and end238, not a complete
+source seal. Real nested start-time/elapsed-time guards restore ownership and
+remove nextCredit; its previous isolated deletion had removed a region only
+because that guard structure was wrong. No extra source object is introduced.
+The actual source resets fStartTicks AFTER the key/time work, although stock
+still schedules its store before the later fields. StartedLines precedes the
+fLineTicks read/store in source, and fStartTicks precedes StartedTextFade and
+fTextFadeDir; GCC preserves retail's same machine stream. Ordinary real brace
+positions distinguish condition and body ownership; there are no statement
+#line overrides, invented regions or fake operations.
+
+Exact complete region tuples improve9->26/retail28. The parent audit includes
+lexical path, begin/end addresses and both lines, not only counts or independent
+begin/end rows. ALL26 remaining tuples are provided ones; the ONLY missing pair
+is two nested zero-length getter scopes at+0x2f0, relative81. The existing final
+startTicksSnapshot/volatile tick producer remains explicitly unresolved; no new
+asm/volatile was added. A nested background-guard control preserves code but
+loses four correct call/branch tags, so it is rejected. The accepted compound
+guard plus genuine field order repairs the read/store tags without that loss.
+
+ScreenController HorzVertLine147words restores the supplied quantities: length
+owns the scaled/truncated span, brightlength owns its one-eighth bright segment
+used by the real draw arguments. Previously brightlength incorrectly named the
+full span, then was truncated/shifted only at use. All3 tag differences and20
+ordered region records now match. DrawBackground137words restores actual frame/
+controller writes BEFORE final transition flags in source, with unchanged machine
+store order. Existing counter initialization and real body brace have separate
+lines; all5 tag differences and8 region records now match. Both have complete
+supplied native function contracts, without invented names or objects. All20
+other functions' facts are unchanged. The early CheckConfigs store control changes
+code and is restored; it is not evidence of an unavoidable carrier.
+
+ScreenTrackRecords DrawRecords120words separates the real flare_intensity bias167
+from scale168. The +0x88 shift tag167->168 is repaired, with no new object or region.
+Root{1@0 }39@+1b0, header161, end199 and provided nLapIndicator/k/this/maxitem owners
+remain exact. This is the third new complete supplied function contract. All6
+other functions' facts survive; inferred helper spellings and widened expressions
+remain source review rather than unique original-text claims.
+
+All36 affected detailed functions and367 branch words pass; all3 complete normal
+ELFs remain byte-identical and full-debug runtime code agrees. Parent native
+audit covers2581 occurrences, preserves every previously correct owner/frame/
+region/tag/file/header/end, and proves ENTIRE ordered raw Def/Def2 stream identical.
+Exactly20 numeric tags are repaired. ASPSX524/0, PSYLINK0; compiler-origin witnesses2
+remain valid. CPE is RAW identical SHA060d48b6... . Real linked RECON299819/299819,
+pinned objdiff3494/3494, masked-overlap/foreign0 and vtable1473 PASS.
+
+Fast tags2314/2581, tag+block2157,1759diffs/207991words; native relative SLD2099,
+combined2071. Frontend/common covered local/frame/absolute-SLD exact577/838;
+ownerPASS774,64DIFF. Native common-name CLEAN2421/2570 stays unchanged: restoring
+SLD/role facts is real progress even when that legacy name/home score is neutral.
+Review locations467/address-derived44 remain; source restoration is NOT complete.
+No commit/push was performed.
+
+TrophyInfo is restored EXACTLY to its prior source/object baseline,3PASS and13
+clean branch words. Getter controls fail: they move the second preserved pair
+from0 to+0xac, change tourn REG5->6 and lose HI selector extension. Both original
+Definition pairs stay intact. Selected stock already lowers the direct SHORT
+conditional into an SI byte-offset phi before allocation; investigate frontend
+conversion/folding/pointer_int_sum for an authentic narrow VALUE expression, not
+register pins, a const disguise, invented getter regions or a floor claim.
+
+Receipts: build/tmp/v/credits_tick_source_20261101/{proof,owners.before,owners.after,
+probes,gates,board.after,objdiff.final}.json and source_queue/ per-directory reports;
+controller_source_20261101/{receipt.txt,live.preservation.json},
+trackrecords_source_20261101/proof.json,
+screentrophyinfo_source_20261101/pair_and_rtl_proof.json. Shared headers, production
+tools, retail references and generated compiler outputs were not rewritten.
+
+2026-11-01n genuine tick getter, conditional arms and two cross-module seals.
+
+SetupCurrCredit199words now has the complete supplied native contract, including
+ALL28 complete region tuples and every absolute tag/header/file/end. The current
+included vars.h ALREADY declares the ISR-updated ticks global volatile. With the
+restored timer/field order, the EXISTING FE_Ticks getter directly reproduces the
+last read and both missing+0x2f0 inline scopes. Remove startTicksSnapshot and its
+explicit volatile cast. No helper, API, qualifier, source object, fake use or
+scope is added; the original getter spelling remains inferred. Old isolated
+read failures do not establish an object requirement on this current source.
+This supersedes round m's final-tick-capture/missing-scope queue.
+
+DrawCurrCredit451words now has all numeric tags exact and14/15 complete scopes,
+not a whole supplied function seal. Two genuine CREDFADETICKS assignment arms
+at363/366 tail-merge to the single retail store; the shared ternary had erased
+the700/load-address366 attribution. Real brace positions recover the roll-loop
+scope130 and tail dist/width/height/getter scopes160 without retagging code.
+The ONLY remaining scope tuple is while-body path[0,1], +0x318..+0x534, begin92,
+end149 versus supplied148. Loop closure/braceless-if controls are neutral; FOR
+preserves code but adds an unprovided scope, DO and failed-line early-break
+forms change code and are rejected. No added transfer or dummy operation lands.
+This known endpoint remains active recovery work. The unprovided tag capture
+also remains an explicit source/macro review item; its generic carrier label
+is retired, not silently treated as a recovered original object.
+
+FeAudio_systemtask161words restores actual nested loading/status and playing/
+SNDover guards, independently supported by the NFS2 body, and source nHandle159
+BEFORE soundIsPlaying160. Stock still schedules the byte clear first. All11
+numeric differences disappear with root81@+274/header124/end204 and all supplied
+owners unchanged: second new full native contract. Other9 maps, including the
+previous StartLoadPatch/StartPatch repairs, are preserved. InitViv's109word real
+break/continue controls leave its4tags unchanged; no PC status local is imported
+when NFS4 supplies only vivHandle/lumpHead/bigfileHeader.
+
+Replay_LoadCameraFile219words puts the real return in the failed-file ELSE arm,
+not inside the successful cameraFile owner. It preserves the correct i/j body
+end112 while extending only the implicit IF endpoint112->121. All28 region
+tuples and numeric tags now equal retail: third new full native contract. All15
+neighbors, ordered declarations/types and actual runtime code are preserved.
+GetInput late-test/joint-guard controls change code and are restored; its final
+tag/source-control producer remains open, not a floor or invented getter.
+
+FONT removes SetABR's y and SwitchFont's arg3 through the ALREADY authoritative
+shapetbl type, signed12-bit shapex/shapey and actual type field. No raw packed-word
+staging is needed. Entire15-function normal ELF, full-debug ELF AND debug .s are
+byte-identical; all source/SLD facts survive. SwitchFont2tags/TextXY2tags remain
+open. Member-expression and direct-v controls lose earlier correct tags; restored.
+Selected-stock RTL locates those note differences before scheduling; no new
+capture/header/API/qualifier is introduced and no full FONT seal is claimed.
+
+Parent native audit covers2581 occurrences and preserves every old correct
+owner/frame/complete region/tag/file/header/end. The ENTIRE ordered Def/Def2
+stream is identical; precisely13 numeric tags are repaired. All48 affected
+detailed functions/297 branch words pass, all4 normal ELFs unchanged, debug
+runtime code identical. ASPSX524/0, PSYLINK0 and both origin witnesses validate.
+CPE remains RAW identical SHA060d48b6... . Real linked RECON299819/299819,
+pinned objdiff3494/3494, overlap/foreign0, vtable1473 PASS. Comment-only receipt
+clarification is separately recompiled/source-bound; no output rewrite occurs.
+
+Latest: native CLEAN2422/2570 (148DIRTY), relative SLD2102/combined2074. Fast tags
+2316/2581, tag+block2160,1746diffs/207991words. Covered local/frame/absolute-SLD
+exact frontend/common579/838 and game/common1105/1258; declaration-owner counts
+stay774 and1235 respectively. All2581 occurrences remain independently paired.
+Review locations465/address-derived44 remain, zero old synthetic/register-name
+spellings. These location counts are not objects or an original-source certificate;
+the complete goal remains active. No commit/push performed.
+
+Receipts: build/tmp/v/credits_tick_getter_20261101/{proof,probe,draw_probe,
+owners.before,owners.after,gates,board.after,objdiff.final}.json plus source_queue/;
+feaudio_viv_20261101/proof.json; replay_source_20261101/receipt.txt and
+live.preservation.json; font_source_20261101/receipt.json. Prior user edits,
+shared headers, production build/comparison tools and retail references remain
+untouched by this round. No new asm/volatile or post-recompile rewrite is used.
+
+2026-11-01o real Control scope layout, Username loop initialization and texture fields.
+
+Control_Human288words improves1->7/8 COMPLETE region tuples, preserving every
+instruction/tag and ordered declaration. The switch body opens separately;
+the real AI-flag/toggle body braces retain their distinct provided starts. The
+final case's existing break belongs with the guard close254, not255. Existing
+newGear declaration scope starts256 while its call stays257. Remove the generic
+terminal return265: root end186->183 becomes supplied-exact, while actual epilogue
+and function end277 remain unchanged. No new work, object, use or scope is added.
+The only missing tuple is zero-length+0x3c8, lines156..158, path[0,0,0,0,0,0,0].
+The unprovided lights capture and move-a0 tag237vs239 remain explicit active
+recovery work; finite direct-field failures do not establish object necessity.
+GNU value blocks/conditional-call controls either change code or add unprovided
+scopes, so none lands. This is not a full Control source/SYM/SLD seal.
+
+ScreenUserName Initialize48words restores actual i=0 at loop entry44 rather
+than beside fTextFade35. One+0x10 tag35->44 is repaired; header/root/end and all
+provided locals/owners remain unchanged, yielding a new complete supplied native
+function contract. All5 neighboring maps survive. DrawBackground for-loop/funnel
+controls preserve code only with the existing fence but lose old correct tags/
+root-start facts, and no-fence versions change code; all are restored. A fence's
+old necessity claim is not adopted as proof of original source.
+
+Texture_CopyPalette24words removes zero through the genuine forward loop with
+BOTH *dest++ and *source++. The indexed-source variant was also byte-PASS but
+lost supplied source REG4 and is rejected. The accepted form keeps iREG8/destREG9/
+sourceREG4, all tags and existing regions. GetTranslucencyMode and LoadPmx replace
+three raw byte/word mask/shift access forms with existing shapetbl type/next
+fields; no declaration/type/API is added. All24 function maps, runtime code and
+ordered declaration/region metadata remain identical. deadfrm is untouched.
+
+Full parent native audit covers2581 occurrences, preserves every prior correct
+owner/frame/complete region/tag/file/header/end and the ENTIRE ordered Def/Def2
+stream. All32 detailed functions/132 branch words pass, all3 normal ELFs remain
+byte-identical, full-debug runtime code unchanged. ASPSX524/0, PSYLINK0, origin
+witnesses2 validate; CPE RAW identical SHA060d48b6... . Honest RECON299819/299819,
+objdiff3494/3494, overlap/foreign0, vtable1473 PASS. No new asm/volatile, source
+object, attribute, tool change or post-recompile rewrite is introduced.
+
+Selected-stock compiler/source investigations also change the next action:
+
+- Credits endpoint149 is a MAXIMUM-NOTE producer, not a closing-brace coordinate.
+  Stock -da assembly is identical to unobserved output. NOTE394 stays before
+  BLOCK_END979 after scheduling, although actual increment977 moves after it.
+  final.c tracks the maximum note; sdbout emits394 minus function base245 =149.
+  Supplied148 needs maximum393 at that owner END. Do not treat raw SDB block
+  numbers as literal closing-brace lines or assume header+offset is its exact
+  source base. The actual loop-step/body binding is the evidence target.
+- A real inner work block retains an extra outer WHILE owner; rejected. Diagnostic
+  -fno-for-scope removes empty FOR's extra owner but also loses a SUPPLIED rtd
+  region and still gives149. Default new-for-scope1 and compatibility lookup are
+  confirmed separately. No production flag recommendation or fake block lands.
+- Private Control ToggleLights member creates290vs288words, unsupported this
+  REG3 Car_tControl*, and wrong inline pair endpoints+0x39c instead of+0x3c8.
+  Computed receivers therefore do NOT universally elide parameter rows. Selected
+  initial RTL uses user reg/v:QI211 lights, NOT an initially SI source web; trace
+  its off-path combine/CSE/ABI preference rather than inventing an INT helper.
+- Canonical PsyQ strcpy/memcpy signatures still produce392vs394 Username words;
+  strncpy becomes a real call. Initial RTL has HI loads/stores, while the existing
+  aggregate copy has BLK size2/alignment1. Recover real byte-alignment provenance;
+  no replacement artificial type/attribute/pointer identity is adopted.
+- Texture_Vramf current stock is80bytes/107words; no deadfrm gives64/107. Natural
+  /8/2 and /4/4 unit conversions ALSO64/107 and identical RTL from initial expansion
+  onward: they fold too early to supply orphan slots. Width LH and opaque signed
+  depth do not prove nonnegative input. RECT.w intermediate narrowing has a concrete
+  counterexample, so do not import it without real domain/type evidence.
+
+Fresh board2317/2581 tags,2161 tag+block,1745diffs/207991words; native relative
+SLD2103/combined2075. Frontend/common covered local/frame/absolute-SLD exact580/838;
+other directory strict totals unchanged. Native CLEAN2422/2570,148DIRTY remains;
+all2581 occurrences independently paired. Review465/address-derived44 locations
+remain, zero old synthetic/register spellings: no whole-goal completion claim.
+No commit/push performed. Prior user edits and all failed experimental live
+variants are preserved/restored exactly as appropriate.
+
+Receipts: build/tmp/v/control_source_20261101/{proof,owners.before,owners.after,
+probes,gates,board.after,objdiff.final}.json and source_queue/; username_source_20261101/
+receipt.json; texture_middle_20261101/proof.json. Negative/phase evidence:
+credits_endnote_20261101/findings.txt, credits_loop_ownership_20261101/findings.txt,
+control_inline_private_20261101/receipt.json, username_copy_private_20261101/receipt.json,
+texture_frame_units_20261101/evidence.json. All those controls remain private.
+
+Further private loop-step receipts (no production change): an actual comma/
+conditional FOR step preserves the whole loaded code but gives declared-body
+end144; its extra default FOR owner alone gets148. A genuine body IF/BREAK393
+with unconditional step recovers declared-owner148 but changes451->449 words.
+Selected-stock .jump2 still has EQ(p2,0), the increment and backedge; .dbr alone
+inverts NE and moves increment into its conditional delay slot, deleting two
+words. This is measured reorg/delayed-branch collapse, NOT an assumed pointer-
+nonnull fold. The genuine integer-address+1 step emits exactly the same failed
+assembly as pointer+1, so no cast or flag recommendation follows. Existing
+other-six-function code and ordered definitions stay identical. Metadata/code
+failures remain private; see credits_loop_ownership_20261101/{actual-step-findings,
+step-break-findings,step-integer-findings}.txt and their comparison JSON files.
+
+2026-11-01p actual slider arguments, TV phases and TrophyRoom definition getters.
+
+InsideBoxTwoWaySlider Draw176words removes BOTH selection and fWidth source
+captures. The virtual Value read belongs in its actual first DrawSlider argument;
+existing w receives `(short)((w>>1)-8)` in its actual width argument, then supplies
+the second call too. Selected stock evaluates the required virtual read before
+width narrowing. Narrowing before a nested Value call was10diffs; moving the real
+assignment into its actual argument is whole-code/debug-record identical. No
+original-value w use remains after this phase. This also replaces the old
+decompiler multiply/shift truncation with ordinary explicit short conversion.
+No new object, qualifier, fake use or identity is added. Whole92-function normal
+ELF remains SHA d493c5f0...; entire ordered types/declarations/locations/frame/
+begin/end records and all instruction streams stay identical. Earlier isolated
+argument failures do not prove the two objects were original or necessary.
+
+DrawTVLines213words initializes the real x on69 before its FOR condition71/body73;
+five initializer tags are repaired. InitTV132words uses genuine implicit void
+fallthrough, repairing five epilogue tags and end309. Both functions now have
+their complete supplied native contracts; all3 other TV maps and metadata stay
+unchanged. The remaining DrawTV helper is not claimed solved: direct packet
+link/mask/fence forms change code, while its init-phase153 control repairs3
+misses but loses13 already correct helper tags. Those controls are restored.
+
+TrophyRoom Initialize first removes curIdx via the genuine bound-first minimum
+and two incorrect early FrontEnd getter pairs via actual frontEnd.tier reads.
+All118 tags now agree, one125->126 word repaired, sole raw definition deletion
+is unsupported curIdx REG3. No type row is lost. Then the EXISTING inferred
+tTournamentManager Definition accessor at TWO actual loop definition reads
+recovers the missing two inline pairs exactly at+0x98, lines18. All9 provided
+complete region tuples now agree (5->9); no named receiver/local is added.
+Eight manager-family completed aliases are naturally recovered within real
+retail deficits: Lineup20/Tier12/Tourney84/Track40/Definition10532/Award68/
+Competitor16/Manager644. The full old ordered definition stream is preserved
+by insertion; all prior word/file tags and every other native owner/region/end
+fact across2581 occurrences survives. Original getter spelling remains inferred.
+Initialize still has unprovided objects, so this is NOT its full-source seal.
+
+Role-only getter visibility reuses the existing TROPHYROOM surface. FRONT method
+declarations are packed without changing header line count or any field/layout/
+virtual slot; no unused no-arg prototype is added. Fresh174-CPP census identifies
+18 actual screendisplay_types.h consumers. All451 functions and every complete
+normal object remain identical, and all18 debug compiles preserve runtime code.
+Current-basin loopFe removal is independently9diffs/118 and loses a supplied
+tfrontEnd alias; rejected, not proof loopFe was an original object. The header
+still hoists into s3: stock traces locate the mismatch in the earlier base/count
+handoff, not a lost-hoist explanation. Receipt: trophy_loopfe_private_20261101/
+receipt.json; no live variant is retained.
+
+The broad shared tDrawShapeExtended proposal remains PRIVATE, not adopted:
+- All19 complete-type consumers were compiled;18 lack exactly one completed
+  alias, TrophyRoom4/4 currently compensates through const drawFlagsPtr.
+- Completed-typedef plus pointer removal keeps code/count4/4 but loses a genuinely
+  common FULL alias sequence [Room344,Draw24,Draw24,Draw24]. The DFA has independent
+  brute-force regression controls; this is not a forward/complete name ambiguity.
+- Actual Room/Draw/Screen/frontend/tournament include-order controls preserve
+  type bodies/runtime output but still lose other genuine FULL tuple sequences,
+  including [Tourney84,Draw24,Room344,Tourney84]. Native TourneyInfo precedes
+  Screen/Room; retail has Room before the foreign model graph. Retail8 Tourney
+  aliases versus current3/now4 expose missing real getter producers as well.
+- The accepted Definition calls add8 real family copies and exact loop pairs,
+  unlike count-padding aliases. Draw's existing CurrentTourney overload removes
+  four captures at261/PASS but loses11 old correct tags/alias order and is restored.
+  drawFlagsPtr stays explicitly unresolved until the real shared producer/order
+  is recovered. No dummy typedef/reference or inferred count-buying API lands.
+
+Parent whole native audits cover2581 occurrences before/after each stage. Every
+old correct owner/frame/complete region/tag/file/header/end is preserved. First
+stage removes only curIdx; second inserts exactly8 TPDEF rows and changes no
+named row. All106 source-stage detailed functions/467 branch words and the
+451-function shared-header cohort pass. ASPSX524/0, PSYLINK0, both origin witnesses
+validate; CPE RAW identical SHA060d48b6... . Actual linked RECON299819/299819,
+pinned objdiff3494/3494, overlap/foreign0, vtable1473 PASS. Tool tests224+34+15 PASS.
+No shared completed typedef/include topology, compiler flag, retail reference,
+production-tool or post-recompile rewrite is adopted.
+
+Latest board2320/2581 tags,2164 tag+block,1734diffs/207991words; native relative
+SLD2106/combined2077. Common-name CLEAN2422/2570 remains148DIRTY, BLOCKS94.
+Frontend/common strict covered582/838, ownerPASS774/64DIFF; name-surplus148 and
+missing-name30 occurrences. All2581 occurrences independently paired. Review462/
+address-derived44 locations remain, zero old synthetic/register spellings; the
+entire source-restoration goal is still active, not complete. No commit/push.
+
+Receipts: build/tmp/v/options_source_20261101/{proof,preservation,probes,owners.before,
+owners.after,gates,board.after,objdiff.final}.json and source_queue/;
+fetv_packet_source_20261101/receipt.txt; trophyroom_source_20261101/receipt.json
+(final_safe artifacts only, NOT rejected pointer-free final); trophy_joint_private_20261101/
+receipt.json; trophy_definition_integrate_20261101/{proof,owners.after,gates,board.after,
+objdiff.final}.json and source_queue/. Header/census/order negatives:
+drawshape_typedef_private_20261101/{receipt,subsequence_proof,include_round_receipt}.json;
+trophy_loopfe_private_20261101/display_consumers.json. Prior user edits preserved.
+
+2026-11-01g help-dialog member producer and genuine Fog counter recovery.
+
+FEApp DisplayHelp now has the full supplied native contract:9words, frame24/
+mask80000000, original root this/variant params, the retained nested tDialogHelp
+this REG:$4 size212 at depth2, three exact zero-length region pairs, all9
+absolute word/file tags, header463/end465. The caller-local this_tDialogHelp
+capture and its generic SYM-CODEGEN-CARRIER marker are removed. A real Help
+variant mutator followed by the real base Display call preserves the common
+receiver and lets the compiler fill the call slot with its store. The combined
+inline-display control was byte-PASS but lost two correct tags; not retained.
+SetVariant(int)'s spelling/signature/interface placement are inferred, not a
+uniquely retained API. The widened value argument is naturally debug-elided;
+no fake receiver, alias cast, inserted use, asm or volatile is introduced.
+
+The shared fedialog.h adds only its nonvirtual prototype on an existing source
+line, with no class-size/vtable change. All28 actual header-consumer TUs /684
+functions preserve their normal whole ELF bytes and all previous probe facts.
+The separate16-function Fog TU also passes, total700 affected code gates;
+all29 full-debug TUs generate identical runtime code. Native CPE is RAW byte-
+identical to pre-round SHA060d48b6... (not the earlier759c... container).
+ASPSX524/0, PSYLINK0. Full native audit covers2581 occurrences, preserving all
+prior correct owner/frame/scope/header/word/end facts and every numeric SLD/
+word-file stream. All untouched function declarations and regions are identical.
+
+One natural tDialogHelp typedef occurrence is recovered by the member producer:
+FEApp5->6 versus retail7, still one missing, no new type surplus. Isolated
+vendor-object linking proves that budget; it is not a runtime certificate.
+Full raw definition-count delta contains only removed caller-capture row,
+added true Help receiver, this alias, and the Fog i row below. Native CLEAN
+2418->2419 /2570, DIRTY152->151. Source review markers469->468 locations.
+
+Fog_InitFogTriggers recovers the missing SECOND i row with no i declaration
+added. Change the second manual k block/for-assignment into the real for-owned
+`int k` form after allocation. Old GCC naturally re-records the preceding
+for-owned i in the next sibling after k, exactly retail's order/homes/ranges
+(k REG16, i REG3). All16 prior tags/block maps and complete normal ELF stay
+identical; the exact selected-stock debug delta is one added i .def. This is
+source ownership recovery, not a duplicate inserted to satisfy an audit.
+openval remains EXTRA/unresolved, so this is NOT a complete Fog source seal.
+Literal postdecrement58/57words7diff and predecrement57/57words2diff controls
+were reverted, not treated as object-necessity proofs.
+
+Actual real link299819/299819, pinned objdiff3494/3494, vtable1473 PASS,
+overlap/foreign0. Pipe224tests, root origin34tests, source-owner15tests PASS.
+Fast numeric tag board2304/2581 and1793diffs is unchanged; reported tag+block
+exact2145->2146. Native relative SLD2087->2088, native+SLD2061->2062. Current
+per-directory queue remains fully paired2581/2581; FRONTEND/COMMON now772
+ownerPASS/66DIFF,568 covered local/frame/absolute-SLD exact. Other groups retain
+previous status; GAME/PSX misses one fewer supplied name but still38 ownerDIFF.
+
+Failed parallel controls are restored exactly: FEDialog's genuine MessageString
+getter reaches the correct receiver and inline owner but loses four already
+correct epilogue tags on every tested source exit. No change retained; its
+unused proposed header prototype was removed. Preserve diagnostic candidates
+for the getter/exit coupling, not a floor. CopSpeak's six semantic capture-free
+forms fail; a historical79word direct-global return returns the SUCCESSOR,
+not retail's old slot and must never be accepted as a semantic fix. Both TUs
+finish all byte/branch PASS with whole source/ELF restored. No blind rename or
+record-filler scope/declaration is adopted.
+
+Receipts: build/tmp/v/dialog_members_20261101/{proof,owners.before,owners.after,
+type-proof,gates}.json and source/normal backups; fog_init_source_20261101/
+receipt.json; dialog_receiver_source_20261101/receipt.txt and diagnostic source;
+copspeak_source_20261101/proof.json. Main source changes: feapp.cpp,
+feapp_externs.h, shared fedialog.h, textureprocess.cpp. Existing unrelated edits
+are preserved. No commit/push or whole-goal completion claim.
+
+2026-11-01f original compiler-input identity and complete function provenance.
+
+The221 unpaired occurrences are now independently paired: all2581 native and
+retail function occurrences have known TU provenance. This is NOT221 restored
+bodies or a whole-source seal. Actual stock compilation now names FEMENUDEFS
+and SPEECH with their supplied original MAIN filenames, before CC1 sees input.
+Only exact physical-main filename fields in fresh CPP line markers change;
+all tokens, literals, numeric markers, flags, includes and source files stay
+untouched. Preserve the real raw CPP as *.preorigin.i. Policy is explicitly
+limited to these two TUs; applying it globally had regressed AISTATE.
+
+Fresh controls: FEMENUDEFS66functions/6226words and SPEECH155/6434, physical
+versus canonical MAIN under the actual stock61781c... compiler and real G0/G8,
+debug/NII flags. Both normal/debug preserve runtime sections, BSS/layout,
+bindings and relocations, local declarations, scopes/positions, frames and all
+numeric SLD. Expected debug filename-string/relocation offsets change; they
+are not runtime differences. Production normal objects and CPP inputs exactly
+equal the private canonical controls. No reconstructed source/header, compiler
+output, object or SYM record is post-recompile rewritten. Actual native output
+improves25 wrong main headers (8+17) and1626 instruction filenames (175+1451).
+All prior correct word filenames and every other raw declaration/function/
+frame/region/end/numeric-tag fact are preserved. Raw Def/Def2 stream identical.
+
+SPEECH's real SPCHEVNT.C include group is proven by a dump-bound origin sidecar,
+not a filename alias heuristic. It validates the current source/include hashes,
+literal #include edge, declared INCLUDED_SOURCES member, raw and mapped CPP
+hashes, exact replay of the input-only mapping, compiler assembly hash and
+actual ASPSX object hash. Unknown/stale/malformed/tampered/duplicate claims do
+not supply an owner. Only the explicit supplied canonical included identity
+GAME/COMMON/SPCHEVNT.C is permitted; no future original paths are inferred from
+directory spelling. Native/retail filename comparisons remain exact apart from
+ordinary slash/case representation. The owner decoder never changes a raw
+header/file field or pairs by symbol similarity, VA or ordinal. Legacy physical
+include provenance still has its original independent checks.
+
+Files: new tools/compiler_input_origin.py and its24tests; new compile_cpp-stage
+integration tests10; compiler_origin_evidence.py38tests plus canonical-owner
+integration18; native_origin_writer.py; guarded wiring in build.py,
+psylink_lane.py and local_owner_cmp.py. Existing flag-only test fixture adapts
+its dependencies without changing its assertions. Full pipe suite224 PASS,
+root origin tests34 PASS, source-owner tests15 PASS. Existing tool backups and
+comments are under build/tmp/v/compiler_identity_20261101/*.before.py.
+
+CPE transparency: raw CPE is NOT byte-identical (14bytes differ, same1556056
+size, SHA060d48b630061b4326932fcab7e02f293fa8d690c80e12f717cf45c925d674f1).
+Only two immediately adjacent load-command boundaries move by4bytes. An ordered
+command comparison joins only contiguous adjacent loads, never sorts/flattens/
+masks overlaps, and proves every loaded byte and every nonload command equal.
+Independent strict-framing audit agrees;16 adversarial tests reject changed or
+later-overwritten bytes, reordering, overlap substitution and changed controls.
+Thus the decoded native runtime image is exact while the container encoding
+differs; neither an instruction rewrite nor a weakened primary gate was used.
+
+Fresh actual GNU link remains299819/299819 reconstructed words, overlap masked
+mismatches0, foreign labels0, vtable1473 PASS, pinned objdiff3494/3494. Native
+common-name CLEAN remains2418/2570 with152DIRTY; native relative SLD2087 and
+native+SLD2061 unchanged. Fast numeric SLD board2304tags/2145tag+blocklines and
+1793differences is unchanged, not a synthetic score gain from provenance.
+Per-directory current owner queue (all COMPLETE_PROVENANCE_PAIRING where supplied):
+FRONTEND/COMMON771PASS/67DIFF,567 covered local/frame/absolute-SLD exact;
+FRONTEND/PSX79/6,61exact; GAME/COMMON1235/23,1104exact; GAME/PSX357/38,336exact;
+available EACLIB/PSX5/0,0exact. SYSlib has no supplied function records here.
+These strict reports still exclude full raw global/type/storage restoration;
+STAT storage-address and source-object reviews remain explicit obligations.
+
+Receipts: build/tmp/v/canonical_main_20261101/{summary,proof,word_files}.json;
+compiler_identity_20261101/{native-proof,cpe-proof}.json and owner_queue/;
+cpe_boundary_audit_20261101/proof.json. No commit/push or completion claim.
+Next work is actual remaining source mismatches, not the now-closed221-pair
+blocker. Current469review markers/112string producers/44address-derived name
+locations remain diagnostics, not unique-variable counts or exemptions.
+
+2026-11-01e FEMenu receiver/source-producer correction: one new complete contract.
+
+tMenu::Initialize now matches all provided native declarations, owner paths,
+frame0/mask0, regions, all37 absolute word/file tags, header1026 and end1044.
+Retail's two nested this REG:$2 PTR tMenuItem28 rows replace the invented free
+helper's item rows at the same depth3/ranges; root this REGPARM:$4 was already
+correct and is unchanged. This is genuine member-call source recovery, NOT
+renaming a formal to disguise it. Native common-name CLEAN2417->2418/2570,
+DIRTY153->152; legacy EXTRA/MISSING issue-function counts108/24. Raw surplus/
+missing names each decrease by TWO, despite the collapsed legacy issue row.
+
+Use the existing inferred IsEnabled spelling as a true inline tMenuItem member.
+An in-class relational predicate control was38words/frame8 and added an
+unprovided standalone getter. The accepted out-of-class XOR/low-bit predicate
+in the documented header interface form is37words/frame0 and emits no getter
+footer. No compiler flag, assembly, volatile, fake use or output rewrite.
+The owner's existing role now supplies its nonvirtual declaration as optional
+declaration text; other roles keep the empty value. This preserves every other
+consumer's exact preprocessed input, including physical line coordinates.
+The inferred API spelling/signature/interface placement are not uniquely
+retained literal-original-source evidence; no whole-header completion claim.
+
+GetNumberEnabledItems' third call also uses that member after independently
+checking its distinct receiver-elision case. Its complete native records and
+all26 tags remain identical, with NO added receiver row. The now-unused free
+MenuItem_IsEnabled wrapper is removed. All73 FEMenu detailed/branch gates PASS,
+115 branch words; complete normal ELF identical SHA256
+06af9ed1c037bf061bc85e50192e803e67fad2d5a6af5832debbc04c52a5ac16.
+Fresh preprocessing of523 main-tree source inputs (including the standalone
+included source) agrees with the standing cached inputs; source-role changes
+affect only FEMenu. A stale SCENE input from a restored negative control was
+freshly rebuilt and its whole ELF independently matches its original backup.
+
+Native proof: every function's header/frame/block/SLD records and the entire
+word-file event stream are identical before/after. Every native declaration
+outside Initialize is unchanged. Ordered raw definitions differ only by the
+two genuine receiver names and ONE additional tMenuItem typedef occurrence.
+An isolated, unmodified vendor-object link establishes FEMenu alias count
+24->25 versus retail35 (still10 missing, NOT type-exact). This is a natural
+member-reference producer, not an inserted dead typedef; no type surplus is
+introduced. The isolated type link is NOT a runtime byte certificate. Real
+whole CPE stays759c8233..., real honest GNU link299819/299819, objdiff3494/3494,
+masked overlap/foreign-label audits0, vtable1473 PASS; source-owner tests15 PASS.
+
+Claude's pre-existing UpdateTransition edits are byte-for-byte preserved.
+The entire FEMenu source differs from this round's backup in exactly three
+getter call expressions, with no other byte/line-ending changes. Parent files:
+femenu.cpp, femenu_types.h, femenu_externs.h, fe_core_types.h. Backups and
+full native/CPP/type/object evidence: build/tmp/v/femenu_initialize_20261101/
+{proof.json,owners.before.json,owners.after.json,type-proof.json,
+preprocessor_census.json,all_verify.txt,all_sld.txt,branches.json}. The source-
+bound fast board is unchanged2304 exact tags/2145 tag+block sequences: this is
+a declaration/source fix, not an invented SLD score gain. Native relative
+SLD remains2087, native+SLD2060->2061. Goal remains active; no commit/push.
+
+Parallel work restored exact baselines, with new measured next angles:
+CheckChaserPosition's root receiver is also already correct. Its missing
+second GetCarObj receiver plus proper loop locals reach87words/8diffs; the
+compiler then emits a real blez BEFORE the old handwritten duplicate branch.
+Natural asm-free loop-tail control is85words/26diffs, not PASS, and is NOT
+landed. Recover joint tail/allocation from that basin, not a renamed receiver
+or a floor. See build/tmp/v/basicperp_chaser_20261101/proof.json. NFS3 source/
+ELF restored with11 byte/branch PASS; for-owned p controls fail10diffs19/21.
+Startup's missing scope is ONE zero-length BIND before allocation, not a full
+pair. Three real new spellings do not restore it; no fake wrapper was added.
+Trap z0/z1 source pins still need authentic producer recovery. Evidence:
+build/tmp/v/nfs3_sym_sld_20261101/receipt.json.
+
+Next pipeline angle: build/tmp/v/main_input_identity_20261101/findings.txt
+documents221 unpaired existing occurrences, not442 missing bodies. Only25
+wrong main primary filenames (8 FEMENUDEFS,17 SPEECH) trigger that ambiguity;
+FEMENUDEFS also has7 wrong header-copy paths. GCC locks main_input_filename
+from the FIRST CPP marker; a later source #line or tested CPP prefix-map does
+not replace it. Bounded original MAIN input naming for these two TUs has a
+prior byte/SLD-neutral prototype; global application regresses AISTATE. SPEECH
+also needs independently hash-bound original-main/SPCHEVNT include provenance.
+Do not fuzzy-pair, normalize away bad output paths, or rewrite compiled data.
+
+2026-11-01d header/source-producer round:32 new complete absolute contracts.
+
+AISTATE.H and AIHIGH.H now carry supplied method coordinates; synthesized
+destructor anchors identify actual class-closing definition sites, without
+inventing explicit destructor bodies. PAUSEMENU.H getters use115/116. Fresh
+522-source textual/CPP census proves13 AISTATE consumers,11 AIHIGH consumers
+(a subset), and one disjoint PAUSEMENU consumer. All230 AI and60 PAUSEMENU byte
+gates pass; pre-header normal payload/layout backups match. All16 affected
+full-debug TUs are code-identical. Native ASPSX524/0, PSYLINK0; all338 supplied
+occurrences retain every prior correct local owner/frame/region, absolute word/
+file tag, header and end. All2581 occurrences remain accounted for; unselected
+native function/word facts, ordered raw Def/Def2 streams and CPE are identical.
+
+Native proof records24 newly complete header-defined occurrences plus eight
+source-function seals below,32 total. The previous seven relative-only header/
+file gaps are CLOSED, with no remaining relative-EXACT/absolute-unsealed case
+inside this338-record cohort. Other unsealed project sources/types/globals
+are not exempted. Proof: `build/tmp/v/ai_header_sld_20261101/native-proof.json`,
+owner reports, cohort snapshots/gates and per-directory owner_queue/*.json.
+
+DRAW now25/25 complete covered native contracts: SetView, AllocatePrimitivesBuffer,
+StartRenderingView and DirectSetEnvironment are newly complete. Actual count,
+read/budget/source phases remove three unprovided const captures (viewIndex,
+midGroundOtzNumerator, roundedNumerator) without replacements. These were debug-
+elided: no native EXTRA-count decrease is claimed. All25 byte/branch gates pass
+and the entire normal ELF is identical. AUDIOMUS adds SwitchSong, GetSongList,
+PlaySong and Volume; all23 byte/branch gates pass and its entire normal ELF is
+identical. DriverStartUp repairs one begin but three endpoints remain open.
+No new names/objects/asm/volatile/qualifiers/fake work or output rewrites.
+
+Read-only parser correction: sldprobe carried its current function across
+objdump executable-section boundaries, appending .text.strip helper bytes to
+the preceding .text function. Reset only at an actual section header; retain
+LM/interior-label and destructor handling. Backup/private proof under
+`build/tmp/v/sld_section_diagnostic_20261101/`. Six production-reader regression
+tests pass (three failed before), full pipe suite168 PASS, source-owner15 PASS.
+Five supplied functions lose51 foreign words/45 false differences: AutoVolume
+62->48, fasttransmult91->82, ObjectAnim destructor23->13, MatToQuat239->231,
+GetUVWH60->50. No source/object/debug/reference bytes are rewritten. The separate
+unlisted stripped AudioMus helper manifest gap remains open. Fresh522-TU board
+and hash/coverage proof are under ai_header_sld_20261101/board_refresh/.
+
+Fresh objdiff3494/3494 and honest299819/299819 remain unchanged; overlap/foreign
+zero, vtable1473 PASS; CPE SHA256759c8233e6192518146566ad0b8b352f5c0c98b584885f34c0aba0f1006dd131.
+Native CLEAN remains2417/2570. Native relative SLD2087/2570 EXACT,2060 native+
+SLD; five ambiguous names stay flagged. Fast GAME/PSX probe63differences versus
+native62 leaves one diagnostic discrepancy: actual native SYM/verify_asm are
+authoritative, not a reason to force source around a probe artifact.
+
+Whole-goal queue remains explicit: all2581 native/retail occurrences accounted
+for, but221 cannot independently pair (66 frontend/common,155 game/common),
+chiefly mixed primary source identities in FEMENUDEFS/SPEECH. Accounting is
+not pairing or source restoration. Current lexical diagnostics list469 review
+marker locations,112 unresolved string-producer locations,44 address-derived
+identifier locations (not distinct objects), zero legacy synthetic/register
+artifact spellings. These do not excuse any source-only capture.
+
+Next evidence-backed angle: tMenu::Initialize root this REGPARM:$4 already
+matches raw retail. Legacy MISSING-root wording collapses duplicate names;
+the two nested free-helper item REG:$2 rows should be real tMenuItem receivers.
+Existing conditional IsEnabled and matched NFS2 FindFreeSelection support a
+member-call experiment, not renaming item. Preserve37 correct tags/regions,
+check extra-inline-copy/type-graph risk and leave GetNumberEnabledItems' distinct
+receiver-elision case intact. Read-only receipt:
+`build/tmp/v/femenu_initialize_readonly_20261101/findings.json`. Claude's six
+pre-existing source edits remain intact. No commit/push or goal-completion claim.
+
+2026-11-01c parallel source/SLD round: sixteen new complete covered absolute contracts.
+
+Nine TUs /149 supplied native function occurrences were independently paired
+by compilation-unit provenance and symbol. The round preserves every previously
+correct local tuple, scope address, block-line field, absolute instruction tag,
+filename, header/frame and function end; all unselected native function records
+and word tags remain identical. The complete ordered raw Def/Def2 declaration
+stream (types, globals and locals) is unchanged. All2581 native occurrences
+remain accounted for. Native CPE remains byte-identical, SHA256
+`759c8233e6192518146566ad0b8b352f5c0c98b584885f34c0aba0f1006dd131`.
+All nine normal object payload/layout snapshots match their real pre-edit
+backups; all149 detailed gates and branch checks pass. Fresh whole objdiff
+remains3494/3494; fresh honest link299819/299819, zero masked overlaps or
+foreign labels; vtable1473 PASS. No reference was reset or weakened.
+
+New complete absolute contracts: COLOR IsNumChar; AILIFE EvaluateLife and
+IsCoordInThisVisibleArea; ANIM Handle, two-int AnimScript constructor and indexed
+GetTimedAnimPosRot; TRSPROJ TransPtN16 and TransformProjectVertex; CONTROL AI;
+SCHEDULE ExecuteCheck; AIHIGH StartUp and Execute; PAUSEMENU tPMenuConstructor;
+REPLAY Decompress, InitReplay and ResetReplay. This is16 additional functions,
+not a whole-TU/source-text completion claim. Selected tags53->27; project probe
+tags1874->1848. Genuine loop/cursor/initialization phases and source brace/return
+locations suffice: no new names/objects, asm, volatile, scopes or fake work.
+COLOR's explicit digit/minus/plus chain is independently supported by matched
+NFS2 PC `match/risk/IsNumChar.c`; decompiler range casts were unnecessary.
+
+Native relative reports call seven old header-defined copies EXACT but their
+absolute headers/paths are still wrong. They are NOT absolute seals: AIHIGH's
+AIState_None::Execute (31 vs35), AIHigh_None::HighExecute (25 vs132),
+AIState_Base::TestForRelease (24 vs25), Base/None destructors (23/30 vs24/34),
+and PAUSEMENU's IsDisabled/IsEnabled (17/18 vs115/116). Current paths point into
+the checkout instead of C:/nfs4/GAME/COMMON. The complete error tuples are in
+`integration-proof.json:pre_existing_relative_exact_absolute_unsealed`.
+Shared-header producer/anchor repair requires all-includer byte/debug gates;
+do not hide this gap behind relative percentages or silently normalize paths.
+
+Other explicit residuals: ANIM GetAnimFrameInfo13tags and Restart3block ends;
+AILIFE two slice-helper pointer-load tags; REPLAY GetInput1tag and CameraFile
+one endpoint; AIHIGH constructor3tags; PAUSEMENU slider7tags and other existing
+scope/end facts; CONTROL Human1tag/missing nested regions; SCENE custom-list
+end44 (ours39). Moving only SCENE's closing brace is byte-neutral but does NOT
+fix its end record; the experiment was restored byte-for-byte. All failed
+controls remain private receipts, not source-object necessity verdicts.
+
+Receipts: `build/tmp/v/color_sld_20261101/integration-proof.json` plus before/
+after owner reports and source-bound board. Per-TU experiments/baselines are
+under ailife_sld_20261101, anim_sld_20261101, trsproj_sld_20261101,
+control_sld_20261101, schedule_sld_20261101, aihigh_sld_20261101,
+pausemenu_sld_20261101, replay_sld_20261101 and scene_sld_20261101 in build/tmp/v.
 
 2026-11-01b incremental commit (agents ANCHOR, FRONT6, GAME2), byte-identical.
 

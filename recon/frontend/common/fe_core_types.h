@@ -102,7 +102,7 @@ struct tMenuItem {
     }
 #endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
-    void UpdateSelFade(bool);
+    void UpdateSelFade(bool); NFS4_FE_CORE_FEMENU_METHODS
 #endif
 #ifdef NFS4_FE_CORE_MENUITEM_SETENABLED
     inline void Disable() { fFlags |= 1; }
@@ -119,7 +119,7 @@ struct tMenuItem {
 #endif
 };
 
-/* non-member: an inline MEMBER of a class whose key function is in the TU (FEMenu) would get an out-of-line copy */
+/* SOURCE-REVIEW-UNRESOLVED: unused reconstruction helper/type producer; genuine header-interface members avoid the formerly presumed mandatory standalone copy. */
 static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags & 1) != 0; }
 
 typedef tMenuItem *tItemList[16];

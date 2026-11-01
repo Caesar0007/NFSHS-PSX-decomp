@@ -510,14 +510,25 @@ int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly)
  * quick-siren reset738 follows SFX level737 in source,not scheduled execution.
  * Ordinary layout under the existing anchor seals all94 word/file tags,both
  * block records and end738 with unchanged ELF/CPE and complete local owners.
- * SOURCE-REVIEW-UNRESOLVED: the existing volatile test read is not proved an
- * original qualifier. Plain/recorded-index/branch forms were repriced on this
- * basin:the94-word index form matches locals/SLD but reloads GameSetup's field,
- * not the retail gp audio global. No failed candidate or replacement device
- * is adopted;neither those trials nor this seal proves literal original text.
+ * Historical plain/recorded-index/direction-branch controls did not remove
+ * the old volatile test safely. Those flat track-update graphs did not prove
+ * an original qualifier: the real full track-assignment funnel below now
+ * preserves the ordinary gp audio-global reload without that cast or a fence.
+ * All original literal macro/punctuation identities remain unproved.
  * Original early-j reuse/macro spelling remains unproved;the direct-store
  * control also changes code. Verbatim previous comments are in before.cpp.
- * Receipt:build/nc12/audiocmn_init_source_20261027/. */
+ * Receipt:build/nc12/audiocmn_init_source_20261027/.
+ * Source follow-up (2026-11-01): the actual two-player ambient/mystic arrays
+ * use their typed j subscripts, not integer address casts. The entire normal
+ * and full-debug objects/assembly remain identical, including all aliases,
+ * owners, regions and tags.
+ * Receipt:build/tmp/v/audiocmn_roles_20261101/proof.json.
+ * Source follow-up (2026-11-01): actual bonus-track and normal-track assignment
+ * arms remove the volatile direction cast at94/94, with every prior metadata
+ * and tag fact unchanged. Selected-stock first CSE retains the normal MEM load
+ * on this full assignment graph; the older flat mutation forwarded its store.
+ * No helper, qualifier, source object, fake use or region is substituted.
+ * Receipt:build/tmp/v/audio_direction_producer_20261101/live-proof.json. */
 
 
 #line 677 "C:/nfs4/GAME/COMMON/AUDIOCMN.CPP"
@@ -535,8 +546,8 @@ void AudioCmn_Init(void)
     AudioCmn_InitChannelArray();
 
     j = GameSetup_gData.reverseTrack; audioBackwardsDirection = j;
-    temptrack = GameSetup_gData.track; if ((temptrack & 0x10) != 0) { temptrack = (temptrack & 0xf) + 5; }
-    if (*(volatile int *)&audioBackwardsDirection == 0) {
+    if ((GameSetup_gData.track & 0x10) != 0) { temptrack = (GameSetup_gData.track & 0xf) + 5; } else { temptrack = GameSetup_gData.track; }
+    if (audioBackwardsDirection == 0) {
 
 
       falseLapTrigCur = falseLapTrigNumsForward[temptrack][0];
@@ -558,8 +569,8 @@ void AudioCmn_Init(void)
     j = 0; do {
 
       AudioCmn_gReTrig[j].count = 0;
-      *(char *)((int)j + (int)fAmbientRangeON) = '\0';
-      *(char *)((int)j + (int)fMysticWindON) = '\0';
+      fAmbientRangeON[j] = '\0';
+      fMysticWindON[j] = '\0';
       currentLap[j] = '\0';
       bestLapTime[j] = 0;
       PlayersRampedGasLevel[j] = 0;

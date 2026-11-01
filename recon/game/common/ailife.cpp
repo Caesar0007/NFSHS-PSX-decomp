@@ -43,18 +43,18 @@ void AILife_Debug(char *format, ...);
 #line 50 "C:/nfs4/GAME/COMMON/AILIFE.CPP"
 int AILife_EvaluateLife(Car_tObj *carObj)
 {
-  if (((carObj->carFlags & 0x400U) == 0) &&
-      (AILife_IsCoordInThisLiveArea( &(carObj->N).position,carObj->basisCar) == 0)) {
+  if (
+      (carObj->carFlags & 0x400U) == 0) {
 
 
 
-
+    if (AILife_IsCoordInThisLiveArea(&(carObj->N).position,carObj->basisCar) == 0) {
 
     carObj->basisCar = AILife_IsTrafficCarInAnyLiveArea(carObj);
     if (carObj->basisCar == (Car_tObj *)0x0) {
       return 1;
     }
-  }
+  } }
   return 0;
 }
 
@@ -629,7 +629,10 @@ int AILife_IsCoordInThisVisibleArea(coorddef *tPos,Car_tObj *racer)
 
   if (zD < xD) { dist = xD + (zD >> 2); } else { dist = zD + (xD >> 2);
   }
-  return 0xac0000 < dist ^ 1;
+  if (0xac0000 < dist)
+    return 0;
+
+  return 1;
 }
 
 /* ---- AILife_IsCarInAnyVisibleArea__FP8Car_tObj  [@0x800687ec] ---- */

@@ -492,9 +492,9 @@ int Fog_ReadFogKeys(void)
 }
 
 /* ---- Fog_InitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1082-1119] ----
- * Indexed countdown owns retail's first i. Ordinary typed player-position
- * indexing removes slice_off and the counter absorption identity. openval
- * and retail's missing second i still require original-source recovery. */
+ * Indexed countdown owns retail's first i. A for-owned k naturally makes
+ * this compiler re-record i in the following sibling, matching retail's
+ * second occurrence without another declaration. openval remains review work. */
 /* 2026-10-13: consume Fog_ReadFogKeys' success directly; it is not a
  * player count. A natural for(k=0;k<num_player;k++) with typed fogslicePos+k
  * gives57/57 and preserves k in s0, without slice_off or a fake identity.
@@ -503,7 +503,8 @@ int Fog_ReadFogKeys(void)
  * Remove that duplicate guard, not an allocation fence. sizeof(BWorldSm_Pos)
  * supplies the verified132byte allocation stride. The literal first-loop
  * store still2dif/57, including a grouped real reset/for initializer, and
- * is restored. openval/original second-i producer and full SLD remain open. */
+ * is restored. The second-i producer is now recovered by for-owned k; openval
+ * still requires original-source recovery, not a generic carrier exemption. */
   /* Fog_gCurrentKey is retail's two-element pointer array. */
 #line 1079 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void Fog_InitFogTriggers(void)
@@ -541,12 +542,12 @@ void Fog_InitFogTriggers(void)
 
     num_player = 2;
   }
-  { int k; fogslicePos = reservememadr("fog pos",num_player * sizeof(BWorldSm_Pos),0);
+  fogslicePos = reservememadr("fog pos",num_player * sizeof(BWorldSm_Pos),0);
 
-    for (k = 0; k < num_player; k++) {
+    for (int k = 0; k < num_player; k++) {
 
       BWorldSm_SetSlice(0,fogslicePos + k);
-    } } return; }
+    } return; }
 
 /* ---- Fog_DeInitFogTriggers__Fv  [TEXTUREPROCESS.CPP:1123-1124] SLD-VERIFIED ---- */
 #line 1120 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"

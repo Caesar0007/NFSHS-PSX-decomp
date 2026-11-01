@@ -36,6 +36,8 @@
    aliases/pairs; the original helper/macro spelling is not proved. */
 
 /* ---- DrawTVLines  [FETV.CPP:25-77] SLD-VERIFIED ---- */
+/* Actual x initialization precedes the existing FOR condition: all213 word
+ * tags and the supplied root scope match without changing compiled bytes. */
 
 #line 22 "C:/nfs4/FRONTEND/COMMON/FETV.CPP"
 void DrawTVLines(tTVConfig &tv)
@@ -85,9 +87,9 @@ void DrawTVLines(tTVConfig &tv)
 
   if ((tv.flags & 0x20) != 0) {
 
+    x = (short)((u_short)tv.x + 4 & 0xfffc);
 
-
-    for (x = (short)((u_short)tv.x + 4 & 0xfffc); x < tv.x + tv.w; x += 4) {
+    for (; x < tv.x + tv.w; x += 4) {
 
       PSXDrawTransSquare(0xa0a0a,x,tv.y,1,tv.h,1);
     }
@@ -507,7 +509,7 @@ void InitTV(tTVConfig &tv,tTexture_ShapeInfo *textures,short index)
   tv.flip_axis = 0;
   tv.transition = 0;
   tv.destBrightness = 0x80;
-  return;
+
 }
 
 

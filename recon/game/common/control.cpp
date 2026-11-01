@@ -17,11 +17,11 @@ extern "C" int sprintf(char *, const char *, ...);
 #line 39 "C:/nfs4/GAME/COMMON/CONTROL.CPP"
 void Control_AI(Car_tObj *carObj)
 {
+
+
+
+
   return;
-
-
-
-
 
 
 
@@ -54,7 +54,11 @@ void Control_AI(Car_tObj *carObj)
 /* Retail owns newGear only in the post-event gear selection region.
  * Retail has an additional lexical region around the headlight toggle at
  * +0x39c. lights is debug-elided, not a recovered source name;
- * direct field and fused store/test forms were 17 diffs/289 words. */
+ * direct field and fused store/test forms were 17 diffs/289 words.
+ * SOURCE-REVIEW-UNRESOLVED: that finite failure is not proof that lights was
+ * a distinct source object. The missing off-mask region and its source
+ * producer remain active work. Scope/layout receipt:
+ * build/tmp/v/control_source_20261101/proof.json. */
 
 #line 79 "C:/nfs4/GAME/COMMON/CONTROL.CPP"
 void Control_Human(Car_tObj *carObj)
@@ -115,8 +119,8 @@ void Control_Human(Car_tObj *carObj)
   }
 
 
-  switch((carObj->control).event) {
-  case '\x04':
+  switch((carObj->control).event)
+  { case '\x04':
 
     if (HudBustedOverlay != 0) break;
 
@@ -207,9 +211,9 @@ void Control_Human(Car_tObj *carObj)
     } break;
   case '\f':
 
-    if ((carObj->AIFlags & 2U) == 0) {
-      {
-        signed char lights; lights = carObj->control.lights ^ 3;
+    if ((carObj->AIFlags & 2U) == 0)
+    {
+      { signed char lights; lights = carObj->control.lights ^ 3;
         carObj->control.lights = lights;
         if ((lights & 2) != 0) {
           R3DCar_TurnHeadLightOn(carObj,1);
@@ -232,10 +236,10 @@ void Control_Human(Car_tObj *carObj)
       }
       else { R3DCar_TurnHeadLightOff(carObj,1);
       }
-    }
-    break;
-  }
-  { int newGear; newGear = Input_Gear((carObj->control).gear,carObj->specs->numGears);
+    } break;
+
+  } { int newGear;
+    newGear = Input_Gear((carObj->control).gear,carObj->specs->numGears);
 
   if ((carObj->flywheelRpm <= carObj->specs->redline) || ((carObj->control).gear <= newGear)) {
 
@@ -243,7 +247,7 @@ void Control_Human(Car_tObj *carObj)
     (carObj->control).desiredGear = newGear;
   }
   }
-  return;
+
 
 
 

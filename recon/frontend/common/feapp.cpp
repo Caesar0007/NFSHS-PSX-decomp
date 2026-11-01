@@ -790,20 +790,18 @@ void tFEApplication::SetScreen(short i,tScreen *screen)
 
 /* ---- tFEApplication::DisplayHelp  [FEAPP.CPP:463-479] SLD-VERIFIED ---- */
 
-  /* P868: direct member use, with or without widening its address,
-     gave FAIL4 at 9/9 and moved the variant store out of the call slot.
-     Those probes were restored; original inline-method spelling is open. */
-  /* MATCH: SYM-CODEGEN-CARRIER: this_tDialogHelp -- store variant through
-   * the helpPopup pointer (base = this+0x158) so gcc reuses that
-   * same base ($a0) for the Display() call AND the `sh a1,0x90(a0)` store (in the jal delay
-   * slot) — not the full `sh a1,0x1E8(this)` offset with a separate base computation. */
+/* Retail's zero-length inline pair owns a tDialogHelp receiver, not a caller
+ * pointer capture. A real variant mutator preserves that ownership and lets
+ * the compiler move its store into the following base Display call's slot.
+ * SetVariant's name/signature are inferred; direct field controls and the
+ * combined inline-display control are not unique-original-source evidence. */
 #line 460 "C:/nfs4/FRONTEND/COMMON/FEAPP.CPP"
 void tFEApplication::DisplayHelp(short variant)
 
 
-{ tDialogHelp *this_tDialogHelp; this_tDialogHelp = &this->helpPopup;
-  this_tDialogHelp->variant = variant;
-  ((tDialogBase *)this_tDialogHelp)->Display(); return;
+{
+  this->helpPopup.SetVariant(variant);
+  this->helpPopup.Display(); return;
 }
 
 

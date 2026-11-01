@@ -608,13 +608,11 @@ tMenuItemLeftRightChoice::~tMenuItemLeftRightChoice() {}
 
   /* MATCH: retail falls off the end here -- no return-value materialization
      ($v0 is the AudioCmn_PlayFESFX leftover in the oracle). */
-  /* SYM-INLINE-THIS: IsDisabled */
-  /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 with vars=8 but
-     records no named local at any scope.  Removing these two words is FAIL
-     12 (44/44): only the frame allocation, save/restore offsets, and final
-     stack adjustment change to 24 bytes.  The retail binary therefore proves
-     an anonymous eight-byte source/compiler temporary, but neither artifact
-     can recover its original spelling or type. */
+  /* SYM-INLINE-THIS: the real tMenuItem predicate receiver is restored.
+     SOURCE-REVIEW-UNRESOLVED: frameFiller has no supplied declaration.
+     The padding-free member form is44words/12diffs with frame24 vs32;
+     that proves the frame requirement, NOT a distinct eight-byte source
+     object or permission to exempt this artificial array from recovery. */
   /* The unused command reference remains in the `R12tMenuCommand` ABI;
      retail SYM leaves its source name absent. */
 #line 559 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
@@ -623,7 +621,7 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 
 
 {
-  int frameFiller[2]; if (tMenuItem_IsDisabled(this)) {
+  int frameFiller[2]; if (!IsEnabled()) {
     return;
   }
   switch (keyval) {
@@ -712,9 +710,10 @@ long tMenuItemLeftRightSlider::DebounceKeys()
 
 
 /* ---- tMenuItemLeftRightSlider::ProcessInput  [FEMENU.CPP:630-650] SLD-VERIFIED ---- */
-/* Retail leaves the command reference unnamed. The anonymous two-word frame
-   carrier preserves its 32-byte frame. Case-local sound calls merge into the
-   single retail call site while staging its arguments before the key store. */
+/* Retail leaves the command reference unnamed. SOURCE-REVIEW-UNRESOLVED:
+   frameFiller is unprovided, not a proved original object. The real predicate
+   receiver is restored; recover the genuine frame producer independently.
+   Case-local sound calls merge into the single retail call site. */
 
 #line 626 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
@@ -722,7 +721,7 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 
 
 {
-  int frameFiller[2]; if (tMenuItem_IsDisabled(this)) {
+  int frameFiller[2]; if (!IsEnabled()) {
     return;
   }
   switch (keyval) {
@@ -1341,10 +1340,9 @@ tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton() {}
 
 /* ---- tMenuItemGoToMenuButton::ProcessInput  [FEMENU.CPP:897-926] SLD-VERIFIED ---- */
 
-  /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 but records no
-     source local.  Removing this two-word storage keeps 36 instructions yet
-     changes the frame to 24 bytes (12 detailed diffs).  The retail binary
-     proves the eight-byte allocation, not its original optimized spelling. */
+  /* SOURCE-REVIEW-UNRESOLVED: frameFiller is an unprovided reconstruction
+     object. Removing it keeps36words but yields frame24/12diffs vs32;
+     the frame size does not prove the original source-object producer. */
 #line 893 "C:/nfs4/FRONTEND/COMMON/FEMENU.CPP"
 void tMenuItemGoToMenuButton::ProcessInput(tPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
@@ -1447,13 +1445,13 @@ void tMenu::Initialize()
 {
   int original;
 
-  if (MenuItem_IsEnabled(this->fItemList[this->fCurrentItem])) {
+  if (this->fItemList[this->fCurrentItem]->IsEnabled()) {
     return;
   }
 
   original = this->fCurrentItem;
 
-  while (!MenuItem_IsEnabled(this->fItemList[this->fCurrentItem])) {
+  while (!this->fItemList[this->fCurrentItem]->IsEnabled()) {
 
     this->fCurrentItem++;
 
@@ -1625,7 +1623,7 @@ short tMenu::GetNumberEnabledItems()
 
   for (i = 0; this->fItemList[i] != 0; i++) {
 
-    if (MenuItem_IsEnabled(this->fItemList[i])) {
+    if (this->fItemList[i]->IsEnabled()) {
       result = result + 1;
     } }
 
@@ -1661,8 +1659,8 @@ void tMenu::UpdateTransition()
   { short item; item = 0; while (this->fItemList[item] != (tMenuItem *)0x0) {
       this->fItemList[item]->UpdateTransition(this->fCurrentItem == (int)item); item = item + 1;
     }
-  }
-  return; }
+  } return;
+}
 
 
 

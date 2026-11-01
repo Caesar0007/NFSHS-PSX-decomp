@@ -811,27 +811,30 @@ GetPSXPadValue_gotType:
        plain `for (i=0;i<numoffsets;i++)` rotates to a `blez` zero-trip guard + bottom test.
        This ALSO fixed the whole 3-way {pad,gotone,theanalogoffset} s1/s3/s4 rotation for
        free -- the loop shape was driving the allocation, not the other way round. */
-    /* SYM-CODEGEN-CARRIER: waiting -- the explicit false/conditional update
-     * preserves retail's boolean normalization and constant/register handout;
-     * a direct short-circuit loop is FAIL 21 / 78 versus PASS 79. */
+/* Raw SYM's two empty pairs enclose the tick reads, not AnalogOn. Restoring
+ * the actual getters permits an ordinary short-circuit wait without the
+ * unprovided waiting object. ticks already has its ISR volatile type in
+ * vars.h; no qualifier is added. FE_Ticks is an inferred helper spelling,
+ * not a uniquely retained retail name. Remaining scan scopes/tags stay open. */
+static inline int FE_Ticks(void) { return ticks; }
 #line 471 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void SetPads(void)
 
 
 {
   int j;
-  int pad; j = 0; while (j < 2) {
+  int pad; for (j = 0; j < 2; j++) {
     int LookingFor;
     int starttick;
-    LookingFor = 4; pad = j << 4; if (FrontEnd().AnalogOn[j] != 0) { LookingFor = 7; } starttick = ticks;
-    bool waiting;
-    do {
-      waiting = false;
-      if (ticks - starttick < 0x80) { waiting = PadGetState(pad) != 6; } } while (waiting);
-    if (PadGetState(pad) == 6) {
-      int theanalogoffset;
-      bool gotone;
-      int numoffsets; int i; theanalogoffset = 0; gotone = false;
+    LookingFor = 4; pad = j << 4; if (frontEnd.AnalogOn[j] != 0) { LookingFor = 7; } starttick = FE_Ticks();
+
+
+
+    while (FE_Ticks() - starttick < 0x80 && PadGetState(pad) != 6) {}
+    if (PadGetState(pad) == 6)
+    {
+      int theanalogoffset; bool gotone; int numoffsets; {
+      int i; theanalogoffset = 0; gotone = false;
       numoffsets = PadInfoMode(pad,4,-1);
 
       i = 0; while (1) { if (i >= numoffsets) break;
@@ -844,10 +847,10 @@ void SetPads(void)
           theanalogoffset = i;
         }
         i++;
-      } if (gotone) {
+      } } if (gotone) {
         PadSetMainMode(pad,theanalogoffset,0);
       }
-    } j++; } return; }
+    } } return; }
 
 
 
@@ -1126,7 +1129,9 @@ void Front_InitialMemCardCheck(void)
        EXIT-IN-THE-MIDDLE keeps the test+unconditional-j-back TOP-TEST shape the oracle uses
        (a plain `while(card_i<2)` rotates to a bottom-test loop instead). */
     /* SYM SCOPE/ORDER: `j` belongs to this outer lexical block; `i` is
-       recorded one block deeper, inside the loop body. */
+       recorded one block deeper, inside the loop body. The j owner ends
+       before memcard/pad cleanup, preserving the supplied +0x90/line15
+       boundary without adding a scope or changing any instruction. */
 #line 849 "C:/nfs4/FRONTEND/COMMON/FRONT.CPP"
 void Front_SecondaryMemCardCheck(void)
 
@@ -1147,12 +1152,12 @@ void Front_SecondaryMemCardCheck(void)
       memCardReadOK = 0;
       j = j + 1;
     }
-
+  }
     DeInit_Memcard();
     SetPads();
 
     MEMCARDFRONTENDISINITTED = true;
-  }
+
 }
 
 

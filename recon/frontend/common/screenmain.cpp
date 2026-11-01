@@ -133,12 +133,12 @@ void tScreenMain::SwapBackground(int num)
     }
     sprintf(buffer,"zyVid%02d",this->fCurrentBG[this->fCurrentSlot]);
     ::AsyncLoadShapeFile((tScreen *)this,buffer,this->fVideoShapes + this->fCurrentSlot);
-
+    this->fCurrentSlot = 1 - this->fCurrentSlot;
 
 
     oldState = this->fState;
     this->fState = kScreenMain_Off;
-    this->fCurrentSlot = 1 - this->fCurrentSlot; if (oldState != kScreenMain_WarningImage) {
+    if (oldState != kScreenMain_WarningImage) {
       this->SetState(kScreenMain_StaticImage);
     }
     else { this->SetState(kScreenMain_WarningImage);
@@ -195,10 +195,10 @@ void tScreenMain::SetState(tScreenMainState state)
       DeInit(&CreditManager);
     }
 
-    i = 0; this->fState = state;
+    this->fState = state;
     this->fStartTicks = FE_Ticks();
-    do {
 
+    i = 0; do {
 
       shape = this->fVideoShapes[this->fCurrentSlot].fShapes + i;
 
@@ -334,20 +334,21 @@ void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
     /* MATCH (2026-08-11, 32 -> PASS, 69/69):
        SYM-CODEGEN-CARRIER: addr_24
        SYM-CODEGEN-CARRIER: addrMask
-       SYM-CODEGEN-CARRIER: tagMask
-       DEBUG-ELIDED SOURCE VALUE: pal_link (const at its loop use site)
-       SYM-CODEGEN-CARRIER: palTag
+       SOURCE-REVIEW-UNRESOLVED: pal_link (const at its loop use site)
        allocsim reproduced all seven
        allocnos and priced the 3-way rotation to exactly +2 weighted refs on
        addrMask.  Re-masking the already-masked addr_24 inside the loop supplies
        those refs at zero instructions, yielding retail's i->$t0,
-       0xFFFFFF->$a3 and 0x808080->$t1 handout.  The named early palTag snapshot
-       keeps the second tag RMW in $v1 across the packet-pointer update; the
-       prim/pal fence prevents the first tag store from sinking past it.  Keeping
+       0xFFFFFF->$a3 and 0x808080->$t1 handout. The historical palTag snapshot
+       and fence-necessity claims are superseded by the real tag fields below.
+       Keeping
        the mask initializers at the top of the loop lets loop.c hoist them after
        the two scratchpad address constants in the exact retail order. */
-  /* [SYM] the 8c block records exactly `i` then `prim`. addr_24 and
-     addrMask remain source-only; palette values are staged at use sites. */
+  /* 2026-11-01t: the actual POLY_G4.tag accesses remove tagMask/palTag;
+     whole normal/full-debug assembly and objects remain identical. No P_TAG
+     import or new type records. SYM records only i/prim; addr_24,addrMask,
+     pal_link still need original producer recovery, not a const exemption.
+     Receipt: build/tmp/v/screenmain_packet_private_20261101/ (agent ledger). */
 #line 414 "C:/nfs4/FRONTEND/COMMON/SCREENMAIN.CPP"
 void tScreenMain::DrawDropShadow()
 
@@ -359,7 +360,7 @@ void tScreenMain::DrawDropShadow()
   uint addrMask;
   i = 0; do {
 
-    prim = (POLY_G4 *)Render_gPacketPtr; u_char *const pal_link = Render_gPalettePtr; addrMask = 0xffffff; const uint tagMask = 0xff000000; *(uint *)prim = *(uint *)prim & tagMask | *(uint *)pal_link & addrMask; const uint palTag = *(uint *)pal_link; addr_24 = (uint)prim & addrMask; Render_gPacketPtr = (u_char *)prim + 0x24; *(uint *)pal_link = palTag & tagMask | (addr_24 & addrMask);
+    prim = (POLY_G4 *)Render_gPacketPtr; u_char *const pal_link = Render_gPalettePtr; addrMask = 0xffffff; prim->tag = (prim->tag & 0xff000000UL) | (((POLY_G4 *)pal_link)->tag & addrMask); addr_24 = (uint)prim & addrMask; Render_gPacketPtr = (u_char *)prim + 0x24; ((POLY_G4 *)pal_link)->tag = (((POLY_G4 *)pal_link)->tag & 0xff000000UL) | (addr_24 & addrMask);
     *(u_int *)((u_char *)prim + 4) = 0x808080; ((u_char *)prim)[7] = 0x3a; *(u_int *)((u_char *)prim + 0xc) = 0x808080;
     *(u_int *)((u_char *)prim + 0x1c) = 0; *(u_int *)((u_char *)prim + 0x14) = 0;
     ((u_char *)prim)[3] = 8;
@@ -822,9 +823,9 @@ void tScreenMain::PreLoad()
     i = i + 1; } while (i < 2);
 
   this->fCurrentBG[0] = rand() % 0x1c;
-  i = 0; this->fCurrentBG[1] = (this->fCurrentBG[0] + rand() % 0x1b + 1) % 0x1c;
+  this->fCurrentBG[1] = (this->fCurrentBG[0] + rand() % 0x1b + 1) % 0x1c;
 
-  do {
+  i = 0; do {
 
     sprintf(buffer,"zyVid%02d",this->fCurrentBG[i]);
 

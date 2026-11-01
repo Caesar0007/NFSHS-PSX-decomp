@@ -22,7 +22,7 @@ void tScreenUserName::Initialize()
 
 {
   short i;
-  i = 0; this->fTextFade = 0x80;
+  this->fTextFade = 0x80;
 
 
 
@@ -31,7 +31,7 @@ void tScreenUserName::Initialize()
   MENUUSERNAME_STARTY = 0x82 - (short)(menu_kUserNameRows * 0xf >> 1);
 
 
-  if (0 < menu_kUserNameRows) { do {
+  i = 0; if (0 < menu_kUserNameRows) { do {
 
       sprintf(this->fRowList[i],TextSys_Word(i + 0x1fb));
       i = i + 1; } while (i < menu_kUserNameRows);

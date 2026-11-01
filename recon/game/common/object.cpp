@@ -207,8 +207,8 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
   int altChunk;
 
 
-  if (Track_chunkList[slicePos->chunk].simObjBuf != (Group *)0x0) {
-    objList->numObjects = Track_chunkList[slicePos->chunk].simObjBuf->GetNumElements();
+  if (Track_chunkList[slicePos->chunk].simObjBuf != (Group *)0x0)
+  { objList->numObjects = Track_chunkList[slicePos->chunk].simObjBuf->GetNumElements();
   } else {
     objList->numObjects = 0;
   } objList->chunk = (int)slicePos->chunk;
@@ -246,10 +246,10 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
     if (0 < Object_customSimObjs->GetNumElements())
     {
       if (Math_DistXZ((coorddef *)(BWorldSm_slices + Object_customSliceNum),
-                      (coorddef *)(BWorldSm_slices + slicePos->slice)) <= 0xbfffff) {
+                      (coorddef *)(BWorldSm_slices + slicePos->slice)) <= 0xbfffff)
 
 
-
+      {
         *numObj = *numObj + Object_customSimObjs->GetNumElements();
       }
     }

@@ -86,12 +86,14 @@ void Font_TextTint(int rgb)
 }
 
 /* ---- Font_SetABR__Fi  [FONT.CPP:96-101] SLD-FLAG:NONMONO ---- */
-  /* Canonical PsyQ GetTPage y argument. Const use-site expression leaves no
-     extra SYM local and preserves the 18-instruction match; direct argument
-     substitution swaps a2/a3 (six diffs). Original local spelling is unknown.
+  /* Canonical PsyQ GetTPage coordinates. The former const y capture was
+     debug-elided, not supplied by SYM. Raw shift argument substitution
+     swapped a2/a3 (six diffs); that did not prove a source object was needed.
      2026-10-13 direct 64-bit shift36/52 gives17dif/23; casting the widened
      shift4 back to target int before shift20 gives6dif/18. Both restored;
-     y remains unresolved source-only staging despite native debug elision. */
+     2026-11-01 existing shapetbl signed12-bit shapex/shapey member reads
+     remove y at18/18 with the whole normal ELF, debug records and complete
+     SLD map unchanged. Literal original expression spelling remains open. */
 #line 93 "C:/nfs4/GAME/PSX/FONT.CPP"
 void Font_SetABR(int abr)
 
@@ -101,7 +103,7 @@ void Font_SetABR(int abr)
 
 
 
-  const int y = (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 20; font_currentTPage = GetTPage(*(u_char *)(*(int *)((u_char *)&(currentfont) + 136)) & 3,abr, (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14, y); return;
+  font_currentTPage = GetTPage((*(shapetbl **)(currentfont + 136))->type & 3,abr, (*(shapetbl **)(currentfont + 136))->shapex, (*(shapetbl **)(currentfont + 136))->shapey); return;
 }
 
 /* ---- Font_Blit__FiiPviiP12charactertbli  [FONT.CPP:128-152] SLD-FLAG:NONMONO ----
@@ -395,12 +397,16 @@ void Font_ReSetBlitter(void)
  * the operative bit. */
 /* 2026-10-13 source review: remove unrecorded fontShape/abr_val snapshots
  * using actual header-field and font_abr reads at27/27. Native still DIRTY
- * for base;decoded-coordinate arg3 staging also remains unrecorded source
+ * for base;the former decoded-coordinate arg3 staging was unrecorded source
  * work despite debug elision. Direct header anchor13dif/28 before and
  *16dif/27 after snapshot removal;arg3 direct/widened forms6dif/27 alter
  * word-load destination/shift order. All failed trials restored. Literal
  * macro/producer syntax and full SLD unsealed;no new object/name/helper,
- * asm/volatile/pin/qualifier or compiler-output rewrite retained. */
+ * asm/volatile/pin/qualifier or compiler-output rewrite retained.
+ * 2026-11-01: actual shapetbl type/shapex/shapey member reads remove arg3,
+ * unlike the older direct raw-shift controls. All27 words, whole normal
+ * ELF, every debug record and complete SLD map remain unchanged. The
+ * whole-header base producer and two final SLD tags remain unresolved. */
 /* w46-a8 SEAL (2 -> PASS, 27/27).  THE MEM_IN_STRUCT_P STORE VIEW, and it is the STORE
    side alone that is the operative bit -- font_abr is untouched.  Writing the three
    currentfont zero stores through a STRUCT type sets MEM_IN_STRUCT_P on them, which
@@ -427,7 +433,7 @@ void Font_SwitchFont(char *f1)
 
 
 
-  int arg3 = (*(int *)(*(u_char **)(base + 136) + 0xc) << 4) >> 0x14; font_currentTPage = GetTPage(**(u_char **)(base + 136) & 3,font_abr, (*(int *)(*(u_char **)(base + 136) + 0xc) << 0x14) >> 0x14, arg3); /* SOURCE-REVIEW-UNRESOLVED: arg3 = unrecorded decoded-coordinate staging. */
+  font_currentTPage = GetTPage((*(shapetbl **)(base + 136))->type & 3,font_abr, (*(shapetbl **)(base + 136))->shapex, (*(shapetbl **)(base + 136))->shapey);
   gFontSpaceWidth = Font_Getcharacter(0x20)->advance;
   return; }
 

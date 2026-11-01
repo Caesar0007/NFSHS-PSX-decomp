@@ -1,7 +1,8 @@
 /* game/common/aihigh.h -- retail AIHIGH.H declarations recovered so far.
  * 2026-10-16: shared AIHigh class definitions recovered here so far.
  * Retail destructor records identify AIHIGH.H. The shared hierarchy includes
- * this header after their bases are complete; no source-location directives.
+ * this header after their bases are complete. Retained method locations below
+ * use retail coordinates; a synthesized destructor is located at its class end.
  * This is not a claim that the entire original header has been recovered. */
 #if !defined(NFS4_AIHIGH_TYPE_PART) && !defined(_GAME_COMMON_AIHIGH_H_)
 #define _GAME_COMMON_AIHIGH_H_
@@ -22,11 +23,13 @@ void AIHigh_Execute(void);   /* :134 */
 /* The two emitted None methods identify AIHIGH.H in retail. */
 struct AIHigh_None : public AIHigh_Base {
     AIHigh_None(Car_tObj *carObj) : AIHigh_Base(carObj) {}
+#line 132 "C:/nfs4/GAME/COMMON/AIHIGH.H"
     void HighExecute() {}
+
 };
 
 /* Retail records both inline destructors in AIHIGH.H, not the private
-   reconstruction hierarchy header. Definitions move verbatim, without #line. */
+   reconstruction hierarchy header. Method bodies remain unchanged. */
 struct AIHigh_BasicPerp : public AIHigh_Base {
     enum {
         PULLOVER_NONE = 0,
@@ -43,6 +46,7 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
     void RemoveChaser(int a, int b, copType ct);
     int CheckChaserPosition(int a, int b);
     AIHigh_BasicPerp(Car_tObj *carObj);
+#line 164 "C:/nfs4/GAME/COMMON/AIHIGH.H"
     ~AIHigh_BasicPerp() {}
     virtual void CheckForCrimes();
     int CheckIfCaught();
@@ -54,6 +58,7 @@ struct AIHigh_Player : public AIHigh_BasicPerp {
     int numWarnings_, numBusts_, newTriggerProb_, lastTriggerCheckSlice_;
     AICop_PerpChaseInfo perpChaseInfo_;
     AIHigh_Player(Car_tObj *carObj);
+#line 202 "C:/nfs4/GAME/COMMON/AIHIGH.H"
     ~AIHigh_Player() {}
     void HandleCops();
     int CheckIfABlockadeCanBeSetup();
@@ -86,6 +91,7 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     void NotifyHumanCopsOfArrestHud();
     void ClearForNewStage(AIHigh_BTC_HumanCop *cop);
     AIHigh_BTC_HumanCop *CheckForActivation();
+#line 267 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
 /* Retail's HumanPerp destructor is synthesized: its only nested declarations
@@ -94,17 +100,19 @@ struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
     AIHigh_BTC_HumanPerp(Car_tObj *carObj);
     void NewStage(AIHigh_BTC_HumanCop *cop);
     void HighExecute();
+#line 281 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
 /* Retail's synthesized Human destructor also identifies AIHIGH.H. */
 struct AIHigh_Human : public AIHigh_Player {
     AIHigh_Human(Car_tObj *carObj);
     void HighExecute();
+#line 219 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
 /* Retail's synthesized Opponent destructor identifies AIHIGH.H. Keep the
    actual class here, shared by its implementation and placement-new caller;
-   no explicit destructor body or source-location directive is required. */
+   no explicit destructor body is added. */
 struct AIHigh_Opponent : public AIHigh_Player {
     AIHigh_tAttackMode attackMode_;
     Car_tObj *lastHumanHitter_;
@@ -114,10 +122,11 @@ struct AIHigh_Opponent : public AIHigh_Player {
     int DoRearEnder();
     void HighExecute();
     int DoProvokedAttack();
+#line 242 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
 /* Cop definitions: retail destructor records also identify AIHIGH.H.
-   Moved verbatim with their data-type dependency; no source-location overrides. */
+   Method bodies and data-type dependencies are unchanged. */
 #include "shared/blockade_t.h"
 
 
@@ -144,6 +153,7 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     inline blockadeMode_t BlockadeMode() { return blockade_.mode; }   /* retail pairs (this typed AIHigh_BasicCop) */
     inline blockade_t *Blockade() { return &blockade_; }
     inline copType Type() { return type_; }
+#line 414 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
@@ -165,6 +175,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     void FalseArrest(AIHigh_BTC_Perp *p);
     virtual void FreezeAndEndChase();
     void HudOff();
+#line 471 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
 struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
@@ -203,6 +214,7 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     void SetDesiredSpeed();
     void HighExecute();
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
+#line 527 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 
 #elif defined(NFS4_AIHIGH_TYPE_PART)
@@ -228,6 +240,7 @@ struct AIHigh_Cop : public AIHigh_BasicCop {
     trigger_t *CheckForNewTriggers();
     /* Inferred spelling already used by Traffic's retail inline receiver. */
     inline AIHigh_Player *PerpTarget() { return perpTarget_; }
+#line 448 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 #endif
 #elif NFS4_AIHIGH_TYPE_PART == 2
@@ -247,6 +260,7 @@ struct AIHigh_Traffic : public AIHigh_Base {
     /* These inline-only spellings remain inferred, not uniquely SYM-named. */
     inline int ForcePurgatory() { return forcePurgatory_; }
     inline void SetAccidentData(SceneElem *accidentData) { accidentData_ = accidentData; }
+#line 584 "C:/nfs4/GAME/COMMON/AIHIGH.H"
 };
 #endif
 #else

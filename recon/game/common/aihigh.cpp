@@ -50,8 +50,8 @@ void AIHigh_StartUp(void)
   AIState_StartUp(); if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) && (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 || ((Cars_gNumHumanRaceCars == 2 &&
 
 
-         ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
-
+         ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0))))))
+  {
     for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
 
       Car_tObj *carObj = Cars_gList[carLoop]; highLevelAIObjs[carLoop] = (carObj->carFlags & 0x200U) != 0 ? new AIHigh_BTC_HumanCop(carObj,copCounter++) : (carObj->carFlags & 4U) != 0 ? new AIHigh_BTC_HumanPerp(carObj) : (carObj->carFlags & 8U) != 0 ? new AIHigh_BTC_AIPerp(carObj) : (carObj->carFlags & 0x10U) != 0 ? new AIHigh_Traffic(carObj) : (carObj->carFlags & 0x20U) != 0 ? new AIHigh_BTC_Wingman(carObj,copCounter++) :
@@ -71,11 +71,11 @@ void AIHigh_StartUp(void)
     if (humanCopCounter == 1) { if (copCounter == humanCopCounter) {
         AIHigh_CopGameType = COP_GAME_BTC_1HC1HP; return; } }
 
-    AIHigh_CopGameType = COP_GAME_BTC_1HC; } else {
+    AIHigh_CopGameType = COP_GAME_BTC_1HC; } else
 
 
 
-
+  {
     for (carLoop = 0, copCounter = carLoop; carLoop < Cars_gNumCars; carLoop++) {
 
       Car_tObj *carObj = Cars_gList[carLoop]; highLevelAIObjs[carLoop] = (carObj->carFlags & 4U) != 0 ? new AIHigh_Human(carObj) : (carObj->carFlags & 8U) != 0 ? new AIHigh_Opponent(carObj) : (carObj->carFlags & 0x10U) != 0 ? new AIHigh_Traffic(carObj) : (carObj->carFlags & 0x20U) != 0 ? new AIHigh_Cop(carObj,copCounter++) :
@@ -179,9 +179,9 @@ void AIHigh_Execute(void)
 
     Car_tObj *carObj = Cars_gList[carLoop];
 
-    if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0) { if (highLevelAIObjs[carLoop]->SchedulingOff() || (Sched_ExecuteCheck(1,0,carObj->N.distToPlayer,carObj->N.objID,
-
-             &AI_time,&AI_elapsedTime,&AI_iTime,carObj->forceNoSimOptz) != 0))
+    if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0)
+    {
+      if (highLevelAIObjs[carLoop]->SchedulingOff() || (Sched_ExecuteCheck(1,0,carObj->N.distToPlayer,carObj->N.objID,&AI_time,&AI_elapsedTime,&AI_iTime,carObj->forceNoSimOptz) != 0))
 
 
         highLevelAIObjs[carLoop]->HighExecute(); }

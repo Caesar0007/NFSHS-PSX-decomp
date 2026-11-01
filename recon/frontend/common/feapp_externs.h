@@ -104,4 +104,12 @@ static inline tGlobalMenuDefs * MenuDefs(void) { return menuDefs; }
 /* Retail feapp.obj opens .rodata with this unreferenced class tag. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 
+/* Inferred operation/name: retail DisplayHelp retains a tDialogHelp receiver
+ * for the variant mutation, not a caller pointer capture.
+ * The widened value parameter is unretained in the supplied inline records. */
+#pragma interface
+inline void tDialogHelp::SetVariant(int variant) {
+    this->variant = variant;
+}
+
 #endif

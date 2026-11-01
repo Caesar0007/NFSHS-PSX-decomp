@@ -837,8 +837,8 @@ void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &
 
 
 /* ---- tPMenu::tPMenuConstructor [PAUSEMENU.CPP:640-659] -- locals match retail (only p; the element
-   counter i is eliminated by loop.c strength reduction, so it leaves no record); SLD 18/19 tags,
-   blocks exact; open: the slot address is tagged 14 in retail (ours 15, same statement). ---- */
+   counter i is eliminated by loop.c strength reduction, so it leaves no record); slot-store654
+   precedes null-test655, retaining all19 retail tags including the branch-delay store. ---- */
 
 #line 637 "C:/nfs4/GAME/COMMON/PAUSEMENU.CPP"
 void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
@@ -858,8 +858,8 @@ void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
     ap = (void *)((int)ap + 4);
     p = ((tPMenuItem **)ap)[-1];
 
-    *(tPMenuItem **)((int)this + ((i - 1) << 2) + 8)
-      = p; if (p == (tPMenuItem *)0x0) break;
+    *(tPMenuItem **)((int)this + ((i - 1) << 2) + 8) = p;
+    if (p == (tPMenuItem *)0x0) break;
     this->fNumItems = this->fNumItems + 1;
     i++;
   }
@@ -1034,8 +1034,8 @@ void tPMenu::Draw()
     gPause_CurrentY = 0x62;
     this->fItemList[0]->Draw(false);
 
-
-    item = 1; gPause_CurrentY = 0x75; while (true) { if (this->fItemList[item] == (tPMenuItem *)0x0) break;
+    gPause_CurrentY = 0x75;
+    item = 1; while (true) { if (this->fItemList[item] == (tPMenuItem *)0x0) break;
 
       if (this->fItemList[item]->IsEnabled()) {
 

@@ -20,19 +20,24 @@ struct AIState_Base {
     AIState_Base(Car_tObj *carObj);
     void StateExecute();
     virtual void Execute() = 0;
+#line 24 "C:/nfs4/GAME/COMMON/AISTATE.H"
     virtual ~AIState_Base() {}
+#line 25 "C:/nfs4/GAME/COMMON/AISTATE.H"
     virtual int TestForRelease() { return 0; }
 };
 
 /* Retail places None's inline definitions before Normal and Idle. */
 struct AIState_None : public AIState_Base {
     AIState_None(Car_tObj *carObj) : AIState_Base(carObj) {}
+#line 34 "C:/nfs4/GAME/COMMON/AISTATE.H"
     ~AIState_None() {}
+#line 35 "C:/nfs4/GAME/COMMON/AISTATE.H"
     void Execute() {}
 };
 
 struct AIState_Normal : public AIState_Base {
     AIState_Normal(Car_tObj *carObj);
+#line 45 "C:/nfs4/GAME/COMMON/AISTATE.H"
     ~AIState_Normal() {}
     void Execute();
 };
@@ -41,6 +46,7 @@ struct AIState_Idle : public AIState_Base {
     int roadPosition_, idleInPlaceFlag_;
     AIState_Idle(Car_tObj *carObj);   /* inline, defined in aih_hierarchy_types.h: retail aistate.obj (the key TU, Execute) has NO copy */
     AIState_Idle(Car_tObj *carObj, int idleInPlace);   /* inline, likewise (aih_btccop_types.h) */
+#line 58 "C:/nfs4/GAME/COMMON/AISTATE.H"
     ~AIState_Idle() { carObj_->carFlags = carObj_->carFlags & 0xfffffbff; }   /* inline: retail emits it in the deferred batch after ~AIState_NonActive */
     void Execute();
     void SetIdlePosition(int pos);
@@ -106,11 +112,13 @@ struct AIState_NonActive : public AIState_Base {
             }
         }
     }
+#line 169 "C:/nfs4/GAME/COMMON/AISTATE.H"
     ~AIState_NonActive()
     {
 
         (carObj_->N).active = '\x01'; }   /* declared before Execute: the deferred batch is emitted in reverse member order (retail: Execute 0x80072750, dtor 0x80072758) */
 
+#line 174 "C:/nfs4/GAME/COMMON/AISTATE.H"
     void Execute() {}
 };
 

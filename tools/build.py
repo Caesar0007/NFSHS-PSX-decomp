@@ -1761,6 +1761,60 @@ def run(cmd, **kw):
     return r
 
 
+def _cpp_origin_source_sha(src):
+    """Only the explicit original-main policy needs a fresh-source fence.
+
+    2026-11-01: original filename is compiler INPUT, not a post-compile debug
+    correction. Backup: build/tmp/v/compiler_identity_20261101/build.before.py.
+    """
+    from compiler_input_origin import identities
+    key = src.resolve().relative_to(ROOT.resolve()).as_posix()
+    return hashlib.sha256(src.read_bytes()).hexdigest() if key in identities() else None
+
+
+def _prepare_cpp_origin(src, i_file, expected_source_sha256):
+    """Retain fresh CPP verbatim, then bind only its main-source markers."""
+    if expected_source_sha256 is None:
+        return None
+    from compiler_input_origin import rewrite_main_input
+    original = i_file.read_bytes()
+    mapped, origin = rewrite_main_input(ROOT, src, original,
+                                       expected_source_sha256=expected_source_sha256)
+    if origin is None:
+        raise ValueError('Declared compiler-input origin unexpectedly absent')
+    retained = i_file.with_suffix('.preorigin.i')
+    retained.write_bytes(original)
+    i_file.write_bytes(mapped)
+    def artifact(path):
+        return dict(path=path.resolve().relative_to(ROOT.resolve()).as_posix(),
+                    sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    included = []
+    if origin['source'] == 'recon/game/common/speech.cpp':
+        path = ROOT / 'recon/game/common/spchevnt.c'
+        if path.relative_to(ROOT).as_posix() not in INCLUDED_SOURCES:
+            raise ValueError('Speech included source is not declared in INCLUDED_SOURCES')
+        included.append(dict(source=path.relative_to(ROOT).as_posix(),
+                             source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                             canonical_source='C:/nfs4/GAME/COMMON/SPCHEVNT.C'))
+    return dict(source=origin['source'], source_sha256=origin['source_sha256'],
+                canonical_main=origin['canonical_main'], included_sources=included,
+                before_input=artifact(retained), compiler_input=artifact(i_file),
+                build_manifest_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                policy_sha256=origin['policy_sha256'], origin=origin)
+
+
+def _finish_cpp_origin(i_file, s_file, origin):
+    """Bind compiler-produced assembly, without modifying any assembly byte."""
+    if origin is None:
+        return
+    import json
+    path = s_file.resolve()
+    origin['assembly'] = dict(path=path.relative_to(ROOT.resolve()).as_posix(),
+                              sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    i_file.with_suffix(i_file.suffix + '.origin.json').write_text(
+        json.dumps(origin, indent=2) + '\n', encoding='utf-8')
+
+
 _MOVE_RE = re.compile(r"^(\tmove\t)(\$[a-z0-9]+),(\$[a-z0-9]+)[ \t]*$", re.M)
 
 
@@ -2062,6 +2116,7 @@ def compile_cpp(src: Path) -> Path:
     obj.parent.mkdir(parents=True, exist_ok=True)
     i_file = obj.with_suffix(".i")
     s_file = obj.with_suffix(".s")
+    origin_source_sha = _cpp_origin_source_sha(src)
     # Preprocess in C mode (-x c) so the cpp driver uses cc1, not cc1plus
     # (the slim CI toolchain ships cc1 only). -D__cplusplus keeps the C++
     # branches of nfs4_types.h (e.g. no `bool` typedef) — verified byte-identical
@@ -2071,6 +2126,9 @@ def compile_cpp(src: Path) -> Path:
              f"-I{RECON}", src, "-o", i_file])
     if r.returncode:
         sys.exit(f"[cpp++] {rel}\n{r.stderr}")
+    # Original source identity is fixed before the stock compiler consumes CPP;
+    # no generated assembly/object/debug record is repaired after compilation.
+    input_origin = _prepare_cpp_origin(src, i_file, origin_source_sha)
     cc1pl_flags = ["-quiet", "-O2", f"-G{tu_g_value}"]
     if tu_flags.get("debug_g"):
         # Original compiler input; maspsx already handles SN debug directives.
@@ -2109,6 +2167,7 @@ def compile_cpp(src: Path) -> Path:
 
     _apply_cc1plus_ver_splice(rel.as_posix(), s_file, i_file, cc1pl_flags)
     _apply_fn_splice(rel.as_posix(), s_file, i_file, cc1pl, cc1pl_flags)
+    _finish_cpp_origin(i_file, s_file, input_origin)
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",

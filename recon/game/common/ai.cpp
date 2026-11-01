@@ -1694,18 +1694,18 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
            6 - (u_int)(BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount >> 4)) ||
           (carObj->laneIndex == (BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount & 0xf) + 7)) {
 
-        CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + 0x960000;
+        CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + 0x960000; return;
       }
       else if (carObj->laneIndex < 7) {
 
-        CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x960000;
+        CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x960000; return;
       }
       else {
 
         CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + 0x960000;
       }
     }
-  } return; }
+  } }
 
 /* ---- AI_MaybeChangeLaneSlack__FP8Car_tObj  [@0x8005a8c0] ---- */
 

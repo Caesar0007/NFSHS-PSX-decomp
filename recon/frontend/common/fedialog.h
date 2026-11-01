@@ -44,7 +44,7 @@ struct tDialogHelp : public tDialogBase {
     char *text[7];
     int cont[7];
     short numItems, helpcontrollers, lefttext;
-    void AddItem(short, short);
+    void AddItem(short, short); inline void SetVariant(int);
     inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
     tDialogHelp();
 };
@@ -63,8 +63,8 @@ struct tDialogMessageString : public tDialogBase {
     /* Inferred word-ID overload: retail SaveGame holds this across the word
        lookup. The operation/receiver are verified; literal original signature
        and cross-owner visibility are not uniquely recovered. */
-    inline tDialogMessageString *SetString(int);
 #endif
+    inline tDialogMessageString *SetString(int);
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
     /* ORIGINAL-SIGNATURE-UNRESOLVED: owner-local inferred display overloads;
      * their actual expansions are validated against retail receiver scopes. */

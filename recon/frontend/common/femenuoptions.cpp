@@ -2055,22 +2055,21 @@ void tInsideBoxTwoWaySlider::ProcessInput(tPlayer,tInputKeyType &keyval,
      what puts the `w` param in $s2 and `y` in $s1 like the oracle.
      Also: read fSelFade AT the call вЂ” a `short sVar1` copy makes gcc stage it
      `lhu; sll 16; sra 16` (+2) where the oracle has a bare `lh`. */
-  /* SYM-CODEGEN-CARRIER: fWidth
-     A named narrow value preserves the shared 16-bit width passed to both
-     DrawSlider calls; inlining it changes the retail argument schedule. */
-  /* SYM ORDER (W86-S2): the 8c Def rows read ww, col2, col, coltext; the two
-     non-SYM carriers follow the SYM set. */
-  /* SYM-CODEGEN-CARRIER: selection
-     The virtual read must remain a separate statement before fWidth so retail
-     performs the jalr before the width narrowing; SYM retains only the inlined
-     tListIterator `this`, so no original name survives for this value. */
+  /* The provided w parameter owns the narrowed half-width after its final
+     original-width use. Updating it at the real phase preserves both slider
+     arguments without the unprovided fWidth local. Receipt:
+     build/tmp/v/options_source_20261101/preservation.json. */
+  /* SYM ORDER (W86-S2): the Def rows remain ww, col2, col, coltext. The real
+     virtual read is argument0; existing w is narrowed in its actual width
+     argument. Selected stock preserves the required read-before-narrow order
+     without selection or fWidth captures, unlike narrowing before the call. */
   /* Retail ABI bool is unnamed while the `iiib` linkage retains it. */
 #line 1540 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.CPP"
 void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool)
 
 
 {
-  int ww; int col; int col2; int coltext; u_short selection; short fWidth; if (this->fActive != 0) {
+  int ww; int col; int col2; int coltext; if (this->fActive != 0) {
 
     this->Calibrate();
   }
@@ -2097,9 +2096,9 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool)
 
 
 
-  selection = this->fData->Value((tPlayer)-1); fWidth = (short)((u_int)(((w >> 1) + -8) * 0x10000) >> 0x10); DrawSlider(selection & 0xff,this->fData->MinValue(), ListIterator_Max(this->fData), this->fX + 1,this->fY + 2,fWidth, this->fHeight,4,4,true,0, this->fSelFade,0);
+  DrawSlider((u_char)this->fData->Value((tPlayer)-1),this->fData->MinValue(), ListIterator_Max(this->fData), this->fX + 1,this->fY + 2,(w = (short)((w >> 1) - 8)), this->fHeight,4,4,true,0, this->fSelFade,0);
 
-  selection = this->fData->Value((tPlayer)-1); DrawSlider(selection & 0xff,this->fData->MinValue(), ListIterator_Max(this->fData), (short)(((u_int)(u_short)this->fX + ww + 10) * 0x10000 >> 0x10),this->fY + 2,fWidth, this->fHeight,4,4,false,0,this->fSelFade,0);
+  DrawSlider((u_char)this->fData->Value((tPlayer)-1),this->fData->MinValue(), ListIterator_Max(this->fData), (short)(((u_int)(u_short)this->fX + ww + 10) * 0x10000 >> 0x10),this->fY + 2,w, this->fHeight,4,4,false,0,this->fSelFade,0);
 }
 
 
@@ -2163,9 +2162,9 @@ void tInsideBoxTwoWaySlider::Calibrate()
 {
   int range;
   int player;
-  __typeof__(gPadinfo) *padInfo; __typeof__(gPadinfo) *padBase; padBase = &gPadinfo; player = (u_char)FEApp->fInputPlayer;
+  __typeof__(gPadinfo) *padInfo; __typeof__(gPadinfo) *padBase; player = (u_char)FEApp->fInputPlayer;
 
-  padInfo = (__typeof__(gPadinfo) *)((char *)padBase + player * 0x20);
+  padBase = &gPadinfo; padInfo = (__typeof__(gPadinfo) *)((char *)padBase + player * 0x20);
 
   fHelpText = GetHelpText(screenControllerConfig[0]);
   switch (this->fType) {
@@ -2310,10 +2309,7 @@ bool CheckForCheats(char *fData)
      ABI-PARAM: tMenuCommand& remains in the mangling, unnamed.
      SYM-CODEGEN-CARRIER: selectedChar
      SYM-CODEGEN-CARRIER: column
-     SYM-CODEGEN-CARRIER: stringLength
-     SYM-CODEGEN-CARRIER: character
      SYM-CODEGEN-CARRIER: rowBase
-     SYM-CODEGEN-CARRIER: soundId
      SYM-CODEGEN-CARRIER: rowOffset
      SYM-CODEGEN-CARRIER: lastColumn
      These semantic carrier names are reconstruction descriptions, not claims
@@ -2324,6 +2320,11 @@ bool CheckForCheats(char *fData)
      Up/Down test: Down supplies the tiny 0x200 header while Up reuses the
      dispatch compare. menu_kUserNameRows is read lazily in that shared body
      (the oracle stages its lui in the split-test delay slot). */
+/* 2026-11-01t: direct length/masked-character expressions and genuine
+ * direction-arm sound calls remove stringLength,character,soundId.
+ * GCC merges the real sound calls; no value/alias/fence substitutes them.
+ * Remaining cursor/byte captures and missing getter regions stay open.
+ * Receipt: build/tmp/v/username_input_source_20261101/. */
 #line 1708 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.CPP"
 void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
               tMenuCommand &)
@@ -2332,26 +2333,26 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
 {
   u_int selectedChar;
   short column;
-  u_int stringLength;
-  u_int character; int rowBase; int soundId; switch (keyval) {
+
+  int rowBase; switch (keyval) {
   case kInput_KeyType_Down:
   case kInput_KeyType_Up:
 
     if (keyval == kInput_KeyType_Up) {
 
       this->fCurrentRow--;
-      soundId = 3; if (this->fCurrentRow < 0) {
+      if (this->fCurrentRow < 0) {
         this->fCurrentRow = menu_kUserNameRows + -1;
-      }
+      } AudioCmn_PlayFESFX(3);
     }
     else {
 
       this->fCurrentRow++;
-      soundId = 4; if (this->fCurrentRow >= (short)menu_kUserNameRows) {
+      if (this->fCurrentRow >= (short)menu_kUserNameRows) {
 
         this->fCurrentRow = 0;
       }
-    } AudioCmn_PlayFESFX(soundId);
+      AudioCmn_PlayFESFX(4); }
 
 
     if (this->fCurrentColumn < 0) {
@@ -2364,11 +2365,11 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
 
 
     this->fCurrentColumn--;
-    soundId = 3; if (this->fCurrentColumn < 0) {
+    if (this->fCurrentColumn < 0) {
 
       this->fCurrentColumn = 5;
     }
-    AudioCmn_PlayFESFX(soundId);
+    AudioCmn_PlayFESFX(3);
     keyval = kInput_KeyType_AlreadyProcessed;
 
 
@@ -2395,9 +2396,9 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
 
 
 
-    stringLength = strlen(this->fData);
+    column = (short)strlen(this->fData);
 
-    selectedChar = this->fRowList[this->fCurrentRow][this->fCurrentColumn]; column = (short)stringLength; if ((u_int)(selectedChar - 0x23) < 2) {
+    selectedChar = this->fRowList[this->fCurrentRow][this->fCurrentColumn]; if ((u_int)(selectedChar - 0x23) < 2) {
 
       if (0 < column) {
 
@@ -2407,7 +2408,7 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
       keyval = kInput_KeyType_AlreadyProcessed; break;
     }
     else {
-      character = selectedChar & 0xff; if ((character == 0x21) || (character == 0x40)) {
+      if (((selectedChar & 0xff) == 0x21) || ((selectedChar & 0xff) == 0x40)) {
 
         if (CheckForCheats(this->fData)) {
 
@@ -2429,7 +2430,7 @@ void tUserNameMenuItem::ProcessInput(tPlayer,tInputKeyType &keyval,
           AudioCmn_PlayFESFX(1);
         }
       }
-      else if ((character == 0x26) || (character == 0x5e)) {
+      else if (((selectedChar & 0xff) == 0x26) || ((selectedChar & 0xff) == 0x5e)) {
 
         if (column < this->fMaxStringLength) {
 
@@ -2510,9 +2511,6 @@ int SpecialCharacter(char current)
        row loaded before columnx 3. */
   /* Retail ABI bool is unnamed;
      SYM-CODEGEN-CARRIER: boxRight
-     SYM-CODEGEN-CARRIER: menuStartY
-     SYM-CODEGEN-CARRIER: columnx
-     SYM-CODEGEN-CARRIER: row
      SYM-CODEGEN-CARRIER: right
      SYM names x/y/shape and the inner lexical locals, but not the remaining
      expression carriers; the descriptive names below are not claimed as
@@ -2660,6 +2658,11 @@ int SpecialCharacter(char current)
            verdict is FALSE: a dead SET un-shares where a volatile asm does not
            (cse invalidates pseudos on SETs, hard regs on clobbers).  Kept here as
            the mechanism note only -- the sealed shape needs no un-sharer. */
+/* 2026-11-01s: use recorded xx for all cursor glyphs and the actual row/
+ * MENUUSERNAME_STARTY reads; columnx,row,menuStartY are gone, not renamed or
+ * hidden by const. Real brace coordinates restore the supplied owner starts.
+ * Whole code/old metadata preserved; boxRight/right remain source review.
+ * Receipt: build/tmp/v/username_draw_source_20261101/. */
 #line 1871 "C:/nfs4/FRONTEND/COMMON/FEMENUOPTIONS.CPP"
 void tUserNameMenuItem::Draw(bool)
 
@@ -2674,14 +2677,14 @@ void tUserNameMenuItem::Draw(bool)
 
   shape = &gHelpShapes[0x1e];
 
-  if (this->fFadeVal != 0x80) {
-    short j;
+  if (this->fFadeVal != 0x80)
+  { short j;
     char output[2];
     int ColText;
     int Col;
     tDrawShapeExtended tCol;
     short sl;
-    short startx; short *menuStartY; int xx; int yy; output[1] = '\0';
+    short startx; int xx; int yy; output[1] = '\0';
 
     ColText = CalcFadeVal(0xbebe,(int)this->fFadeVal);
 
@@ -2705,35 +2708,35 @@ void tUserNameMenuItem::Draw(bool)
         PSXDrawSquare(Col,startx + j * 0x14,y + 0x19,0x11,1);
         j = j + 1; } while (j < this->fMaxStringLength);
     }
-    menuStartY = &MENUUSERNAME_STARTY;
 
 
-    const int columnx = this->fCurrentColumn * 0x1c; const int row = this->fCurrentRow; xx = columnx + 0x102;
-    yy = *menuStartY + row * 0xf;
 
-    if (this->fFadeVal == 0) {
-      tDrawShapeExtended fFlags;
+    xx = this->fCurrentColumn * 0x1c + 0x102;
+    yy = MENUUSERNAME_STARTY + this->fCurrentRow * 0xf;
+
+    if (this->fFadeVal == 0)
+    { tDrawShapeExtended fFlags;
       char current;
       fFlags.tint[0] = PulsateYellow;
       current = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
       if ((current == '!') || (current == '@')) {
 
 
-        DrawShapeExtended(0x4e,0x10,columnx + 0xfd,yy - 3,0,0,&fFlags);
+        DrawShapeExtended(0x4e,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }
       else if ((u_char)(current - 0x23U) < 2) {
 
 
 
-        DrawShapeExtended(0x4f,0x10,columnx + 0xfd,yy - 3,0,0,&fFlags);
+        DrawShapeExtended(0x4f,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }
       else if ((current == '&') || (current == '^')) {
 
 
-        DrawShapeExtended(0x50,0x10,columnx + 0xfd,yy - 3,0,0,&fFlags);
+        DrawShapeExtended(0x50,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }
-      else {
-        int shapetodraw;
+      else
+      { int shapetodraw;
 
         if ((u_char)(current - 0x61U) < 0x1a) {
           shapetodraw = (u_char)this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9] - 0x37;

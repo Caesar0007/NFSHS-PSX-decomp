@@ -14,7 +14,9 @@ void PauseMenu_MenuText(short index, bool selected, bool disabled);   /* :103 */
  * lines115/116 contain these adjacent definitions in this order; both the
  * expanded uses and compiler-deferred standalone copies belong to this file.
  * No class storage, virtual slot, qualifier or source object is added. */
+#line 115 "C:/nfs4/GAME/COMMON/PAUSEMENU.H"
 inline bool tPMenuItem::IsDisabled() { return this->fFlags & 1; }
+#line 116 "C:/nfs4/GAME/COMMON/PAUSEMENU.H"
 inline bool tPMenuItem::IsEnabled() { return (this->fFlags ^ 1) & 1; }
 
 #endif /* _GAME_COMMON_PAUSEMENU_H_ */

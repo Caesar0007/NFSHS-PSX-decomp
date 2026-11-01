@@ -12,6 +12,10 @@ scratchpad/sldprobe_before_macro_20261031.py.
 2026-10-31b (from agent DRAW): objdump -z keeps zero words, .word lines (GTE cop2 templates)
 count as instructions, gcc #nop entries keep their own tag, and an assembler load-delay nop takes
 the NEXT statement's tag (a branch-delay nop keeps the branch's). Backup: build/tmp/v/sldprobe_macro_only.py.
+2026-11-01: reset disassembly attribution at section boundaries. LINK_STRIPPED
+helpers in .text.strip are not members of the preceding .text function. This
+changes the read-only probe grouping, never compiler/assembler/debug output.
+Backup: build/tmp/v/sld_section_diagnostic_20261101/sldprobe.before.py.
 """
 import bisect
 import re
@@ -108,6 +112,12 @@ real_obj = build.OUT / (src.relative_to(ROOT).as_posix() + '.o')
 dis = subprocess.run([OBJD, '-d', '-z', str(real_obj)], capture_output=True, text=True).stdout
 real = {}; cur = None
 for l in dis.splitlines():
+    # A separate executable section has its own offsets and function symbols.
+    # Keep same-section LM/interior labels below, but never append another
+    # section's unregistered LINK_STRIPPED helper to the preceding function.
+    if l.startswith('Disassembly of section '):
+        cur = None
+        continue
     m = re.match(r'^[0-9a-f]+ <(.+)>:', l)
     if m:
         nm = m[1]

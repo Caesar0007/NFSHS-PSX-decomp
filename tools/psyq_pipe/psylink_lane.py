@@ -38,6 +38,10 @@ from pathlib import Path
 from collections import defaultdict, Counter
 ROOT = Path(__file__).resolve().parents[2]; sys.path.insert(0, str(ROOT / 'tools'))
 import build
+# 2026-11-01: provenance witnesses bind actual compiler inputs/ASPSX objects;
+# they never change compiler, object or SYM records. Backup:
+# build/tmp/v/compiler_identity_20261101/psylink_lane.before.py.
+from native_origin_writer import capture_object, write_dump_evidence
 ASPSX = 'C:/Temp/psq43/PSSN/ASPSX.EXE'; PSYLINK = 'C:/Temp/psq43/PSSN/PSYLINK.EXE'
 if '--aspsx' in sys.argv:                     # e.g. --aspsx C:/Temp/claud/scratch_dos/ASPSX256.EXE
     ASPSX = sys.argv[sys.argv.index('--aspsx') + 1]
@@ -409,6 +413,7 @@ if '--assemble' in steps:
         # success. Backup: build/diagnostics/nativecommon_full_20261012/
         # psylink_lane_before_nonempty_guard.py; no output rewriting here.
         if aspsx_output_ok(r, obj):
+            capture_object(ROOT, s, sfile, obj)
             ok += 1
             if r.returncode:
                 warnings.append((rel, (r.stdout + r.stderr).strip().splitlines()))
@@ -676,6 +681,8 @@ if '--compare' in steps:
 
     r = subprocess.run([DUMPSYM, str(OUT / 'nfs4.sym')], capture_output=True, text=True, timeout=600)
     (WOUT / 'nfs4_sym.txt').write_text(r.stdout)
+    origin_units = write_dump_evidence(ROOT, WOUT / 'nfs4_sym.txt', OUT)
+    print('validated compiler-input origin units:', origin_units)
     ours = parse_symtxt(r.stdout); retail = parse_symtxt(RETAIL_SYM_TXT.read_text(errors='replace'))
 
     def by_obj(objs):

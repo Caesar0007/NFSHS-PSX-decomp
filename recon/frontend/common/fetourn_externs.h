@@ -57,4 +57,7 @@ static inline int Tournament_BestPlacement(tTournamentManager &tm, int tournamen
 
 static inline int Tier_TournOffset(tTierInfo &tier) { return tier.fTournOffset; }
 
+/* FRONT6: defined in a header (retail records its inline pairs at the caller's line). */
+inline tTourneyInfo *tTournamentManager::CurrentTourney() { return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament]; }
+
 #endif

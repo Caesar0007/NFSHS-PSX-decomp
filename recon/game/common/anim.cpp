@@ -118,8 +118,8 @@ int Anim_InitSystem(char *trackName)
 
 
 
-  if (gPersistObjInst != (Group *)0x0) {
-
+  if (gPersistObjInst != (Group *)0x0)
+  {
     int numParts = gPersistObjInst->m_num_elements;
     Trk_AnimateInst *objInstance = (Trk_AnimateInst *)(gPersistObjInst + 1);
 

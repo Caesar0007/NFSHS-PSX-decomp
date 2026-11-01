@@ -629,15 +629,15 @@ void AudioMus_InitDriverGlobals(void)
 #line 641 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_DriverStartUp(int buffersize,int spusize)
 {
-  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
-
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0)
+  {
     if (AudioMus_g->driveractive == 0) {
       AudioMus_InitDriverGlobals();
     }
     AudioMus_g->threshold = buffersize + spusize >> 5;
 
-    if (AudioMus_g->streamhandle < 0) {
-
+    if (AudioMus_g->streamhandle < 0)
+    {
       if (AudioMus_g->streambuffer != (char *)0x0) {
         int chunks;
         int size;
@@ -884,10 +884,10 @@ int AudioMus_PlaySong(char *pattern)
 
 
 
-  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
-
-    if (pattern != (char *)0x0) {
-
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0)
+  {
+    if (pattern != (char *)0x0)
+    {
 
 
 
@@ -916,8 +916,8 @@ int AudioMus_PlaySong(char *pattern)
     if (AudioMus_g->volume == 0)
       return 0;
 
-    if (AudioMus_g->availablesongs != 0) {
-
+    if (AudioMus_g->availablesongs != 0)
+    {
       AudioMus_g->randomize = 1;
       int newsong = AudioMus_g->availablesongs;
 
@@ -975,8 +975,8 @@ int AudioMus_PlaySong(char *pattern)
 #line 960 "C:/nfs4/GAME/COMMON/AUDIOMUS.CPP"
 void AudioMus_Volume(int volume)
 {
-  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
-
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0)
+  {
     if (AudioMus_g->volume != volume) {
       int ticksleft = 0;
 
@@ -988,8 +988,8 @@ void AudioMus_Volume(int volume)
       }
       else {
 
-        if ((AudioMus_g->fadetime != 0) && (-1 < AudioMus_g->streamhandle)) {
-
+        if ((AudioMus_g->fadetime != 0) && (-1 < AudioMus_g->streamhandle))
+        {
 
 
           int curvol = SNDSTRM_getvol(AudioMus_g->streamhandle);

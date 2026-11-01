@@ -1249,11 +1249,11 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 inline int AICop_PerpChaseInfo::GetChaseLevelIndex() { return chaseLevelIndex_; }
 
 /* ---- CheckForWipeOut__10AIHigh_Cop [retail AIH_COP.CPP:845-885;
- * 94/94 byte PASS, native ownership exact, full SLD attribution open] ---- */
+ * 94/94 byte PASS, BYTE+SYM+SLD exact] ---- */
 /* Both actual getter pairs permit the direct guard without skipWipeOut.
- * A conditional-expression store keeps the loop getter pair at its retail
- * address without an extra if owner. Literal original macro/helper names are
- * unproven; all named locals and all12 native scope regions match. */
+ * RAND is written out on its statement line (retail macro: no inline nest, code on
+ * the stmt line); thisTargetLevel reads through the header getter (the {17 nest).
+ * BYTE+SYM+SLD exact (GAME2 2026-11-01). */
   /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
      (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
      materializations, the AI_elapsedTime load, NumHumanRaceCars(), the perpTarget_
@@ -1285,26 +1285,26 @@ void AIHigh_Cop::CheckForWipeOut()
 
   if ((this->perpTarget_ == (AIHigh_Player *)0x0) || (((AIHigh_GetCarObj(this->perpTarget_))->carFlags & 8U) == 0) || (simGlobal.gameTicks < (this->carObj_)->wipeOutEndTick) || (this->perpTarget_->perpChaseInfo_.RemainingEngagementTime() >= 2))
     return;
-  randVal = AI_Rand();
-  thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
 
+  randtemp = fastRandom * randSeed; fastRandom = randtemp & 0xffff; randVal = (int)((randtemp >> 8) & 0xffff);
+  thisTargetLevel = this->perpTarget_->perpChaseInfo_.GetChaseLevelIndex();
 
 
   for (int hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop++) {
     Car_tObj *thisPlayerObj;
     AIHigh_Player *thisPlayer; thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
-    thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
+    thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex]; const int thisPlayerLevel = thisPlayer->perpChaseInfo_.GetChaseLevelIndex(); /* DEVICE (exact-only): record-less const keeps the getter nest out of the if (no if-scope block) */
 
     perTickProb = AI_elapsedTime * 89;
 
-    (thisTargetLevel < thisPlayer->perpChaseInfo_.GetChaseLevelIndex() &&
-     randVal < perTickProb)
-      ? (void)(this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0x280)
+    if (thisTargetLevel < thisPlayerLevel &&
 
 
-      : (void)0;
 
 
+        randVal < perTickProb)
+
+      this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0x280;
 
 
 

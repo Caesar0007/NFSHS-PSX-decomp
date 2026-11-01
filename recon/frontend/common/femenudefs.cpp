@@ -43,6 +43,7 @@ tGlobalMenuDefs *menuDefs;   /* @0x80051a58 base VA */
    
    [ghidra-meta] section: front.text */
 
+#line 143 /* file name omitted on the anchors through MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: cc1plus keeps line notes of members synthesized/inlined in a body only under the main input file name */
 void MenuExtended_SetOnePlayer(tMenuCommand &command)
 
 {
@@ -65,6 +66,7 @@ void MenuExtended_SetOnePlayer(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
+#line 156
 void MenuExtended_SetTwoPlayer(tMenuCommand &command)
 
 {
@@ -95,6 +97,7 @@ void MenuExtended_SetTwoPlayer(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 170
 void MenuExtended_SetTestDrive(tMenuCommand &)
 
 {
@@ -120,6 +123,7 @@ void MenuExtended_SetTestDrive(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 178
 void MenuExtended_SetSingleRace(tMenuCommand &)
 
 {
@@ -145,6 +149,7 @@ void MenuExtended_SetSingleRace(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 193
 void MenuExtended_SetTournament(tMenuCommand &)
 
 {
@@ -171,6 +176,7 @@ void MenuExtended_SetTournament(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 202
 void MenuExtended_SetSpecialEvent(tMenuCommand &)
 
 {
@@ -197,6 +203,7 @@ void MenuExtended_SetSpecialEvent(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 211
 void MenuExtended_SetSoloRace(tMenuCommand &)
 
 {
@@ -226,6 +233,7 @@ void MenuExtended_SetSoloRace(tMenuCommand &)
    Implicit construction plus ordinary fallthrough reproduce all 13 retail
    scopes; scope destruction supplies the sole destructor call. */
 
+#line 220
 void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
 {
   tDialogYesNoTri YesNoDialog;
@@ -269,6 +277,7 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 245 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetDuelRace(tMenuCommand &)
 
 {
@@ -294,6 +303,7 @@ void MenuExtended_SetDuelRace(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 253 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetFullGrid(tMenuCommand &)
 
 {
@@ -317,6 +327,7 @@ void MenuExtended_SetFullGrid(tMenuCommand &)
    fDefault=0 (= No is default). Run shows the modal dialog and returns user_choice. Destructor on
    dialog. Returns user_choice (1=Yes, 0=No). */
 
+#line 273 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 int AskTheUserToSaveTheGame(void)
 {
   if ((FECheat_IsTheUserACryBabyCheater() ^ 1) != 0) {
@@ -349,6 +360,7 @@ int AskTheUserToSaveTheGame(void)
 /* P874: native SYM 5b47bd records only command. With scalar menuDefs,
    the two original statements need no menuDefsBase carrier. SLD296 assigns
    nextMenu before SLD297 assigns type: PASS7/exact-g, all line groups exact. */
+#line 293 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &command)
 
 {
@@ -371,6 +383,7 @@ void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &command)
    before type makes GCC load menuDefs before the independent type store and is
    exact PASS 19/19; the opposite source order is FAIL 5 (20/19). */
 
+#line 299 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand &command)
 
 {
@@ -405,6 +418,7 @@ void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand &comm
    Its value is the popup address held across GetTrack; no new variable name,
    qualifier, fake use, ASM or scope wrapper is used to hide the uncertainty. */
 
+#line 311 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToCarSelect(tMenuCommand &command)
 
 {
@@ -566,6 +580,7 @@ MX_GoToCar_oppFilterSetup:
    to native SYM 64b0d0 PTR tScreenCarSelect, permitting the ordinary receiver.
    With the old array extern, [0] gave FAIL11 and staged scalar code FAIL14.
    No helper, new local, asm, volatile, or postcompile rewrite is involved. */
+#line 421 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 static void MenuExtended_GoToDealer(tMenuCommand &command)
 
 {
@@ -600,6 +615,7 @@ static void MenuExtended_GoToDealer(tMenuCommand &command)
 /* P872: the same scalar-source repair as GoToDealer gives PASS26/exact-g,
    zero locals/inflators, and the native SLD432-437 statement groups.
    P873 also replaces its scalar-punning view with the native declaration. */
+#line 430 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 static void MenuExtended_GoToSeller(tMenuCommand &command)
 
 {
@@ -624,6 +640,7 @@ static void MenuExtended_GoToSeller(tMenuCommand &command)
    obsolete. Native SYM records only command, so retain the three statements
    and no menuDefsBase alias. PASS16/exact-g; every SLD441-444 group matches.
    GoToShowroom and GoToDealerShowroom use the same source shape below. */
+#line 439 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 static void MenuExtended_GoToUpgrades(tMenuCommand &command)
 
 {
@@ -655,6 +672,7 @@ static void MenuExtended_GoToUpgrades(tMenuCommand &command)
    The result temp only stays a plain move (`addu s0,v0,zero`, not a `sltu` bool
    normalisation) because SaveGame is ALSO BOOL in the SYM (@0x80034988) -- the
    femenudefs_externs.h decl was corrected in the same pass. */
+#line 447 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 bool GenericMenuSaveGame(int showdialog)
 {
   bool successful;
@@ -706,6 +724,7 @@ bool GenericMenuSaveGame(int showdialog)
    declaration/home/type/owner records and all native scope pairs match;
    all200 linked bytes are exact. Full SLD remains unresolved (42/50 tags,
    end delta17 versus20); this is not a literal-original-text certificate. */
+#line 482 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 bool PinkSlipsPreSave(void)
 
 {
@@ -746,6 +765,7 @@ bool PinkSlipsPreSave(void)
    then nextMenu (the menuDefs load is scheduled first either way); with the
    retail line layout all three clones are exact on bytes, SLD and blocks. */
 
+#line 506 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToBestOfOne(tMenuCommand &command)
 
 {
@@ -772,6 +792,7 @@ void MenuExtended_GoToBestOfOne(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
+#line 521 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToBestOfThree(tMenuCommand &command)
 
 {
@@ -797,6 +818,7 @@ void MenuExtended_GoToBestOfThree(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
+#line 535 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToBestOfFive(tMenuCommand &command)
 
 {
@@ -839,6 +861,7 @@ void MenuExtended_GoToBestOfFive(tMenuCommand &command)
      named owners. The declared short count results need no decompiler-style
      unsigned shift test; direct comparisons retain87PASS. Full SLD is open. */
 
+#line 549 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToRace(tMenuCommand &command)
 
 {
@@ -923,6 +946,7 @@ void MenuExtended_GoToRace(tMenuCommand &command)
      retail scope pairs and named owners. Direct short-result comparison
      retains83PASS without the unsigned-shift transcription. Full SLD is open. */
 
+#line 608 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
 
 {
@@ -997,6 +1021,7 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
    now remove all four caller aliases and both fences at90PASS; all32 retail
    scope pairs and six named declaration owners match. Full SLD is open. */
 
+#line 656 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
 
 {
@@ -1060,6 +1085,7 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
    remove the three caller aliases and both fences at91PASS; all32 retail
    scope pairs and six named declaration owners match. Full SLD remains open. */
 
+#line 694 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
 
 {
@@ -1119,6 +1145,7 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
    command/inline-this/data/m records and statement grouping are retained;
    the private inline identifiers remain inferred, not recovered spellings. */
 
+#line 732 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_EnterUserName(tMenuCommand &command)
 
 {
@@ -1140,6 +1167,7 @@ void MenuExtended_EnterUserName(tMenuCommand &command)
    [ghidra-meta] section: front.text */
 
 /* P874: no caller locals in SYM5b649c; PASS16/exact-g, exact SLD750-753. */
+#line 748 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToShowroom(tMenuCommand &command)
 
 {
@@ -1159,6 +1187,7 @@ void MenuExtended_GoToShowroom(tMenuCommand &command)
    [ghidra-meta] section: front.text */
 
 /* P874: no caller locals in SYM5b6547; PASS16/exact-g, exact SLD757-760. */
+#line 755 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToDealerShowroom(tMenuCommand &command)
 
 {
@@ -1184,6 +1213,7 @@ void MenuExtended_GoToDealerShowroom(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 762 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetHPSoloRace(tMenuCommand &)
 
 {
@@ -1209,6 +1239,7 @@ void MenuExtended_SetHPSoloRace(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 770 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetHPDuelRace(tMenuCommand &)
 
 {
@@ -1235,6 +1266,7 @@ void MenuExtended_SetHPDuelRace(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 778 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetHotPursuit(tMenuCommand &)
 
 {
@@ -1290,6 +1322,7 @@ void MenuExtended_SetHotPursuit(tMenuCommand &)
    fallthrough remove unrecorded metadata. Chained SetString/base Display
    preserves the retail inline endpoint; all22 scope pairs and named owners
    match. Full SLD/literal original source text remain unresolved. */
+#line 790 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SellCar(tMenuCommand &)
 
 {
@@ -1370,6 +1403,7 @@ void MenuExtended_SellCar(tMenuCommand &)
    The GetMoney/SubtractMoney operations and split text/base Display now
    recover all27 retail scope pairs and all named declaration owners, still
    85PASS. Getter/mutator literal spellings remain inferred; full SLD is open. */
+#line 817 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_BuyCar(tMenuCommand &)
 
 {
@@ -1461,6 +1495,7 @@ void MenuExtended_BuyCar(tMenuCommand &)
      Chained SetString/base Display restores text setup independently of display.
      Literal getter spellings/full SLD remain unresolved. */
 
+#line 852 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_PurchaseUpgrade(int upgradeNumber)
 
 {
@@ -1505,6 +1540,7 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 881 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_PurchaseUpgrade1(tMenuCommand &)
 
 {
@@ -1528,6 +1564,7 @@ void MenuExtended_PurchaseUpgrade1(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 886 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_PurchaseUpgrade2(tMenuCommand &)
 
 {
@@ -1551,6 +1588,7 @@ void MenuExtended_PurchaseUpgrade2(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 891 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_PurchaseUpgrade3(tMenuCommand &)
 
 {
@@ -1572,6 +1610,7 @@ void MenuExtended_PurchaseUpgrade3(tMenuCommand &)
    [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SaveGame__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
     */
 
+#line 896 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SaveGame(tMenuCommand &)
 
 {
@@ -1594,6 +1633,7 @@ void MenuExtended_SaveGame(tMenuCommand &)
    quantity before screenMemcard's, giving retail s0/s1. Explicit app-then-mc volatile reloads
    on both sides of LoadGame reproduce retail's value registers and scheduling. */
 
+#line 921 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void GenericMenuLoadGame(int player)
 {
   if (CURRENTLYUSINGMEMCARD == 0) {
@@ -1643,6 +1683,7 @@ void GenericMenuLoadGame(int player)
    slot producer still needs recovery. Normal PASS is not a native/SLD seal,
    and no substitute dummy object, zero identity or fake use is justified. */
 
+#line 944 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_LoadGame(tMenuCommand &)
 {
   if (MenuItem_IsDisabled(menuDefs->itemLoadGame)) {
@@ -1675,6 +1716,7 @@ void MenuExtended_LoadGame(tMenuCommand &)
    predicate use plus branch-local command.nextMenu assignments remove the former
    iVar1/ptVar2 while preserving exact PASS 32/32 and the exact -g twin. */
 
+#line 958 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_TierFinished(tMenuCommand &command)
 
 {
@@ -1731,6 +1773,7 @@ void MenuExtended_TierFinished(tMenuCommand &command)
      long-lived result pseudo (it landed in $a0); a real `result` local + flat early-return
      guard chain (04T `return VARIABLE;` keeps DISTINCT return sites -> the oracle's
      `addu v0,s3,zero` in each guard's delay slot) reproduces the 4-saved-reg frame. */
+#line 1009 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 static bool MenuExtended_DidUserWinBeTheCop(void)
 
 {
@@ -1782,6 +1825,7 @@ static bool MenuExtended_DidUserWinBeTheCop(void)
    Native declaration/tree exactness is not complete SLD/source-text proof. */
 
       /* SYM-INLINE-THIS: SetDrawMoney */
+#line 1038 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_PostGameMenu(tMenuCommand &command)
 
 {
@@ -1857,6 +1901,7 @@ void MenuExtended_PostGameMenu(tMenuCommand &command)
        SYM-INLINE-LOCAL: m = SetCallingMenu */
     /* SYM-INLINE-THIS: SetPostGameNameData */
   /* SYM: dummyCars and nBestCarIndex belong to the else block, not fn scope. */
+#line 1088 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
 
 {
@@ -1905,6 +1950,7 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
 
   /* SYM: `dummyCars` is the real REG Car_tStats pointer in $s1 and is reused
      across all four stat-tool calls; `nBestCarIndex` is its recorded AUTO. */
+#line 1123 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
 
 {
@@ -1951,6 +1997,7 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
    `pinkSlipsWinner[i]=-1`) reproduces the oracle's per-iteration sll<<16;sra>>16 exactly.
    -> byte-match, 48/48 insns. */
 
+#line 1144 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetPinkSlips(tMenuCommand &)
 
 {
@@ -1990,6 +2037,7 @@ void MenuExtended_SetPinkSlips(tMenuCommand &)
    Winner's literal getter name and word-setter signature remain inferred;
    full statement-line attribution is still under restoration. */
 
+#line 1161 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
 
 {
@@ -2073,6 +2121,7 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
    at 42/42. The explicit if/else assignments below restore PASS42 and
    the retail SLD1228/1229/1230 condition/then/else partition. The existing
    garageIterator carrier still represents an unrecovered inline this scope. */
+#line 1221 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToGarage(tMenuCommand &command)
 {
   frontEnd.carListType = '\x01';
@@ -2103,6 +2152,7 @@ void MenuExtended_GoToGarage(tMenuCommand &command)
    MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand(int arg0)'. Fixed via m2c body (arg0 = struct
    deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern. */
 
+#line 1233 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToTournTrophyRoom(tMenuCommand &)
 
 {
@@ -2126,6 +2176,7 @@ void MenuExtended_GoToTournTrophyRoom(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 1238 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_GoToSETrophyRoom(tMenuCommand &)
 
 {
@@ -2148,6 +2199,7 @@ void MenuExtended_GoToSETrophyRoom(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 1243 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetBeginner(tMenuCommand &)
 
 {
@@ -2171,6 +2223,7 @@ void MenuExtended_SetBeginner(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 1248 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetIntermediate(tMenuCommand &)
 
 {
@@ -2193,6 +2246,7 @@ void MenuExtended_SetIntermediate(tMenuCommand &)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
+#line 1253 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_SetExpert(tMenuCommand &)
 
 {
@@ -2218,6 +2272,7 @@ void MenuExtended_SetExpert(tMenuCommand &)
 
 /* 2026-10-15: ordinary void fallthrough removes the extra destructor contour
    at36PASS; no scope wrapper or replacement variable is required. */
+#line 1258 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_ExitTourney(tMenuCommand &command)
 
 {
@@ -2270,6 +2325,7 @@ void MenuExtended_ExitTourney(tMenuCommand &command)
    Implicit void fallthrough removes the extra destructor contour. The older
    goto/hand-hoisted-address necessity claim above was source-shape-relative;
    no artificial scope, new helper name or replacement pointer is required. */
+#line 1272 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
 
 {
@@ -2317,6 +2373,7 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
    the || test; it keeps the retail polarity without the old goto. Exact on
    bytes 27/27, SLD 0 tags, blocks exact. */
 
+#line 1302 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 void MenuExtended_PinkSlipsContinue(tMenuCommand &command)
 
 {
@@ -2835,6 +2892,7 @@ void MenuExtended_PinkSlipsContinue(tMenuCommand &command)
    PREVIOUS statement's line 2172), which flips the const-2 / fFlags-load pair
    onto retail's registers ($a0 / $v1).  Measured over all 24 permutations of the
    four calls: 1023 (this one) = PASS, 3021 = 4, 0123 (old) = 14, worst 21. */
+#line 1352 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 tGlobalMenuDefs::tGlobalMenuDefs()
  : itemMainOnePlayerRace(0x5b, (tMenu*)&menuOnePlayer, (void (*)(tMenuCommand&))MenuExtended_SetOnePlayer, 0x1e, 10)   /* +0x0 tMenuItemGoToMenuNFS4Button */
 
@@ -3702,6 +3760,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
      phantoms with no definition anywhere in the tree, mirroring `tDialogYesNo_ctor`). Deleting
      the whole explicit call list and letting the automatic member destruction run alone
      byte-matches the oracle exactly (763/763). */
+#line 2202 "C:/nfs4/FRONTEND/COMMON/FEMENUDEFS.CPP"
 tGlobalMenuDefs::~tGlobalMenuDefs()
 
 {

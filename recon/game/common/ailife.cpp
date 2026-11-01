@@ -706,10 +706,10 @@ void AILife_Debug(char *format, ...)
   /* SYM fsize=0, no locals besides REGPARM format -- the Ghidra-decompiled dead locals this
    * used to carry (sliceDist/dist/newSlice/... /rotMatrix) were leftover decompiler noise from
    * a larger un-optimized debug body; dropped per SYM (w14-a2, matches oracle's zero-size frame). */
+
+
+
+
   return;
-
-
-
-
 
 }

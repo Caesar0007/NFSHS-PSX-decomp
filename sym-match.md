@@ -6,6 +6,38 @@ not a current work queue. Native declaration cleanliness is not full source
 restoration; do not hide an unresolved carrier behind a new name or add dummy
 objects/uses merely to reproduce an empty debug region.
 
+2026-11-01b incremental commit (agents ANCHOR, FRONT6, GAME2), byte-identical.
+
+Gate on the tree (no file newer than the gated build): honest 299819/299819, 0 masked overlap bytes;
+vtable 1473 PASS; link-stripped 83/0; gdebug 181/181; SYM board CLEAN 2414 -> 2417 of 2570; regcheck vs the
+34e9c55e baseline reg [] (CalculateDimensions__20tDialogMessageString, LoadDescription__18tTournamentManager,
+Night_GenerateAllLightTables improved).
+
+- ANCHOR: femenudefs.cpp (59/59) and speech.cpp own fns (102/102) now carry retail's absolute header lines.
+  cc1plus emits line notes for compiler-generated members (implicit tDialogYesNoTri dtor; the Speech-owned
+  DispatchSpeaker/MobileSpeaker ctor) only when the note's file equals the main input name, so the anchors up
+  to and including those functions are file-less `#line N` (8 + 16 functions keep our physical path in their
+  SLD file records; user accepted). Prototype of compiling under retail's main-file name
+  (build/tmp/v/BUILDNAME/, ANCHOR_state.md): bytes/data identical, small SLD gain, aistate worse (4 added
+  helpers relied on dropped notes) -> held, not applied.
+- FRONT6: fedialog 136->31, fetourn 81->21 tags; tDialogMessageString::CalculateDimensions, LoadDescription,
+  GetTrackFinishPrize, StartNewTournament, ValidCar, GetCar, DoMemCardStuff exact. Five fedialog helper inlines
+  removed (their extra records gone); tourneyDef carrier and three goto labels removed. Header edits gated on
+  every includer (fe_core_tmenu.h, fedialog_types.h new inline BackDepth (name inferred), fetourn_externs.h,
+  screencarselect_externs.h).
+- GAME2: CheckForWipeOut, Car_DoPostCollisionStuff, Fog_Update exact; Night_GenerateAllLightTables' missing
+  block-29 `i` restored (a for-declaration in the previous loop); ~20 block-only fixes in ai/aitriger/audiomus/
+  aidatarecord/gmesetup/udff/ailife/anim.
+- Devices (exact-only, marked): CalculateDimensions const temps + const short pair; CheckForWipeOut
+  thisPlayerLevel; DoPostCollisionStuff rollOffset; Fog_Update fd.
+
+Laws: an inline in an expression statement on line L gets block L+1 with code at L, in a declaration
+initializer it takes the previous note; `x - 0x32 - y` folds to `x - (y + 50)` (a separate const keeps
+retail's order); a `for (int v ..)` variable is re-recorded in the next sibling scope (retail's "unused
+duplicate carrying the previous loop's register" = a for-declaration); code after a `({ })` takes its last note.
+Tooling: GAME_allman_all.py mis-offsets on anchored files (use GAME2_allman.py); FRONT6_show.py numbers
+listings from real file lines.
+
 2026-11-01 strict BYTE+SYM+SLD round + absolute-line anchors (agents PHYS..PHYS6, CAMIN..CAMIN3, AUDAI..AUDAI6, FRONT..FRONT5, HUDFX..HUDFX6, DRAW..DRAW5, EAC..EAC4, GFX/GFX2, GAME, HDR).
 
 Gate on the committed tree (quiet, fingerprinted unchanged during the run): honest 299819/299819 (0 diff

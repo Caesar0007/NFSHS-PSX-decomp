@@ -235,4 +235,41 @@ static inline short CarStatValue(tCarStatType carStat, tCarInfo *carInfo)
    (its long return type supplies the signed remainder the old `signedTicks` carrier staged) */
 static inline long GetTicks(void) { return (long)::ticks[0]; }
 
+/* FRONT6: moved from screencarselect.cpp -- defined in a header, these inlines record the caller's line (retail). */
+/* The retail SLD records this three-store expansion as an inline tDialogBase
+   scope in both car-select SetDialog methods.  No standalone symbol survives,
+   so SetPosition is a semantic reconstruction of the unavailable identifier. */
+inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player)
+{
+  OffsetX = x;
+  OffsetY = y;
+  specificPlayer = (short)player;
+  return this;
+}
+
+inline tDialogBase *tDialogBase::SetPosition(short x, short y)
+{
+  OffsetX = x;
+  OffsetY = y;
+  return this;
+}
+
+inline void tDialogBase::SetSpecificPlayer(short player)
+{
+  specificPlayer = player;
+}
+
+/* Inferred overloads: receiver ownership is authoritative, spelling is not. */
+inline void tDialogMessageString::Display(char *text)
+{
+  string = text;
+  tDialogBase::Display();
+}
+
+inline void tDialogMessageString::Display(int word)
+{
+  string = TextSys_Word(word);
+  tDialogBase::Display();
+}
+
 #endif

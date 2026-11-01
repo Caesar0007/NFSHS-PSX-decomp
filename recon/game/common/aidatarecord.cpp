@@ -151,7 +151,7 @@ void AIDataRecord_t::CleanUp1(void)
 #line 165 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 void AIDataRecord_t::CleanUp2(void)
 {
-  return; }
+}
 
 /* ---- Setup__14AIDataRecord_t ---- */
 
@@ -200,8 +200,8 @@ void AIDataRecord_t::Setup()
 int AIDataRecord_t::Load()
 {
 
-  if (this->RecordMethod() == NORMAL_M) {
-
+  if (this->RecordMethod() == NORMAL_M)
+  {
     this->SetDataBuffer((char *)loadpackadrz(this->Name(),(void *)0x0));
   }
 
@@ -220,7 +220,8 @@ int AIDataRecord_t::Load()
 #line 242 "C:/nfs4/GAME/COMMON/AIDATARECORD.CPP"
 int AIDataRecord_t::SaveAndPurge()
 {
-  if (this->DataBuffer() != (char *)0x0) {
+  if (this->DataBuffer() != (char *)0x0)
+  {
 
 
 
@@ -231,9 +232,8 @@ int AIDataRecord_t::SaveAndPurge()
 
 
 
-
-    if (this->preAllocatedBuffer_ == (char *)0x0) {
-
+    if (this->preAllocatedBuffer_ == (char *)0x0)
+    {
       purgememadr(this->DataBuffer());
     }
     this->SetDataBuffer((char *)0x0);

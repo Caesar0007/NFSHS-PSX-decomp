@@ -260,6 +260,6 @@ void GameSetup_StartUp(int *FrontEndDataStream)
 #line 368 "C:/nfs4/GAME/COMMON/GMESETUP.CPP"
 void GameSetup_CleanUp(void)
 {
-    return; }
+}
 
 /* end of gmesetup.cpp */

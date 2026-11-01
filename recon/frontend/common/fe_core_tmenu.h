@@ -46,7 +46,8 @@ struct tMenu {
                fOnButtonPress != 0x0;
     }
 #endif
-#ifdef NFS4_FE_CORE_FEAPP_METHODS
+#if defined(NFS4_FE_CORE_FEAPP_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS)
+    // FEDialog: retail tDialogHelp::CalculateDimensions records this receiver-only inline pair (line 71).
     inline bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
 #endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS

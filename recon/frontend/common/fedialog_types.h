@@ -73,6 +73,8 @@ struct tFEApplication {
     int speechToPlay[2];
 
     inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
+    /* name inferred: tDialogHelp::CalculateDimensions records a this+player inline pair at line 69 */
+    inline int BackDepth(tPlayer player) { return backDepth[player]; }
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
     inline tPlayer GetPlayer() { return (tPlayer)fPlayer; }
 #endif

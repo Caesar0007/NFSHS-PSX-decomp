@@ -997,7 +997,7 @@ void Night_SetWeatherColors(int colorIndex)
 /* ---- Night_GenerateAllLightTables__Fv  [NIGHT.CPP:556-625] SLD-VERIFIED ---- */
       /* Retail's inner i begins after the weather call (+0e8); its bright
        * body starts at +0ec. A for-declaration restores those exact scopes.
-       * The unused outer i's missing REG:$6 record remains unresolved. */
+       * The outer i REG $6 record in the colorIndex scope = the first loop written as `for (int i ..)` (g++ 2.8 dead-for-local). */
 #line 553 "C:/nfs4/GAME/PSX/NIGHT.CPP"
 void Night_GenerateAllLightTables(void)
 
@@ -1021,13 +1021,13 @@ void Night_GenerateAllLightTables(void)
 
 
   gTableCache = (tCompRGB *)&Render_gPalettePtr;
-  { int i; i = 0; do {
+  for (int i = 0; i < 0x100; i = i + 1) {
 
       gTableCache[i].r = Chunk_lightTable[i].r;
       gTableCache[i].g = Chunk_lightTable[i].g;
       gTableCache[i].b = Chunk_lightTable[i].b;
-      i = i + 1; } while (i < 0x100);
-  }
+      }
+
 
 
   for (int colorIndex = 0; colorIndex < Night_gTotalLights; colorIndex = colorIndex + 1) {

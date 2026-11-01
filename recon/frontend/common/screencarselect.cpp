@@ -24,41 +24,6 @@ typedef struct tPsyQPrimTag {
   unsigned int len : 8;
 } tPsyQPrimTag;
 
-/* The retail SLD records this three-store expansion as an inline tDialogBase
-   scope in both car-select SetDialog methods.  No standalone symbol survives,
-   so SetPosition is a semantic reconstruction of the unavailable identifier. */
-inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player)
-{
-  OffsetX = x;
-  OffsetY = y;
-  specificPlayer = (short)player;
-  return this;
-}
-
-inline tDialogBase *tDialogBase::SetPosition(short x, short y)
-{
-  OffsetX = x;
-  OffsetY = y;
-  return this;
-}
-
-inline void tDialogBase::SetSpecificPlayer(short player)
-{
-  specificPlayer = player;
-}
-
-/* Inferred overloads: receiver ownership is authoritative, spelling is not. */
-inline void tDialogMessageString::Display(char *text)
-{
-  string = text;
-  tDialogBase::Display();
-}
-
-inline void tDialogMessageString::Display(int word)
-{
-  string = TextSys_Word(word);
-  tDialogBase::Display();
-}
 
 /* SYM-INLINE reconstruction (original identifier/declaration site unavailable):
    DrawSliders and both multiplayer DrawForeground functions contain the same
@@ -916,9 +881,9 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 
 {
-  switch(this->fState) {
-  case 0:
-  case 5:
+  switch(this->fState)
+  {
+  case 0: case 5:
 
     carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
     if ((int)(uint)(byte)frontEnd.playerCar[0] < CarManager_NumCars(carManager)) {
@@ -961,8 +926,8 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
         ((this->fState == 3) ? frontEnd.sellerCar : frontEnd.garageCar[0]),carInfo);
     carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
+    break;
   }
-
 
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
 
@@ -2172,10 +2137,10 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
 void tScreenCarSelectTwoPlayer::SetDialog()
 {
   int player = FEApp->GetPlayer();
-  if (FEApp->waitingForOtherPlayer[player] != 0) {
-
-
+  if (FEApp->waitingForOtherPlayer[player] != 0)
+  {
     Dialog_SetString(this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c, (tPlayer)(short)player),
+
       (sprintf(WaitingString,Text_WaitingForPlayer(),PlayerName(1 - player)), WaitingString));
 
     this->CarDialog.tDialogBase::Display();
@@ -2337,8 +2302,8 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
     return;
   }
 
-  if (PinkSlipsScreenState[player] != CardCurrentlyLoading) {
-
+  if (PinkSlipsScreenState[player] != CardCurrentlyLoading)
+  {
 
     MCRD_handlecardevents(card);
     this->pCI = MCRD_getcard(card);
@@ -2346,9 +2311,9 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
 
       PinkSlipsScreenState[player] = NoCardInserted;
     }
-    else if ((CURRENTLYUSINGMEMCARD == 0) && (PinkSlipsScreenState[player] == NoCardInserted)) {
+    else if ((CURRENTLYUSINGMEMCARD == 0) && (PinkSlipsScreenState[player] == NoCardInserted))
+    {
       int ret;   /* [SYM] REG $v1, block opened at SLD 39 */
-
       PinkSlipsScreenState[player] = CardCurrentlyLoading;
       FEApp->Redraw();
       FEApp->Redraw();
@@ -2358,9 +2323,9 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
         carManager.GetNumPinkSlipsCars((ushort)player); carManager.CheapestCarStockPrice();
         if (carManager.GetNumPinkSlipsCars((ushort)player) == 0x20) {
 
-          PinkSlipsScreenState[player] = TooManyCars; goto DoMC_pinkSlipsIter;
+          PinkSlipsScreenState[player] = TooManyCars;
         }
-        if ((1 < carManager.GetNumPinkSlipsCars((ushort)player)) ||
+        else if ((1 < carManager.GetNumPinkSlipsCars((ushort)player)) ||
            ((carManager.GetNumPinkSlipsCars((ushort)player) == 1) && (frontEnd.pinkSlipsCash[player] >= carManager.CheapestCarStockPrice()))) {
 
           PinkSlipsScreenState[player] = CardLoadedFine;
@@ -2378,13 +2343,13 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
 
 
 
-          goto DoMC_pinkSlipsIter;
+          break;
         case 2:
 
 
 
           PinkSlipsScreenState[player] = CardFailedUnformatted;
-          goto DoMC_pinkSlipsIter;
+          break;
         default:
 
 
@@ -2395,7 +2360,7 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
       }
     }
   }
-DoMC_pinkSlipsIter:
+
 
 
   if (PinkSlipsScreenState[player] == CardLoadedFine) {
@@ -2412,7 +2377,7 @@ DoMC_pinkSlipsIter:
     DeInit_Memcard();
     SetLicensePlate();
   }
-  return; }
+}
 
 
 
@@ -2512,21 +2477,21 @@ void tScreenPinkSlipsCarSelect::SetDialog()
 
 
   if (((PinkSlipsScreenState[0] != CardLoadedFine) && (player == 1)) || (this->fExitingScreen != 0)) {
-    goto switchD_8003f3b4_caseD_7;
+    ((tDialogBase *)&this->CarDialog)->Hide(); return;
   }
 
 
   if (PinkSlipsScreenState[player] != NoCardInserted) {
     this->fStartCheckTick = 0;
   }
-  switch(PinkSlipsScreenState[player]) {
+  switch(PinkSlipsScreenState[player])
+  {
   case WhoCaresWeBeExiting:
-switchD_8003f3b4_caseD_7:
     ((tDialogBase *)&this->CarDialog)->Hide();
     return;
   case CardLoadedFine:
-    if ((FEApp->waitingForOtherPlayer[player] != 0) || (PinkSlipsScreenState[1 - player] != CardLoadedFine)) {
-      /* P866: both references are the module's SYM WaitingString buffer. */
+    if ((FEApp->waitingForOtherPlayer[player] != 0) || (PinkSlipsScreenState[1 - player] != CardLoadedFine))
+    {
       sprintf(WaitingString,TextSys_Word(0x2a8),PlayerName(1 - player));
 
       this->CarDialog.Display(WaitingString);
@@ -2539,20 +2504,20 @@ switchD_8003f3b4_caseD_7:
     this->fStartCheckTick = 0;
     goto SetDlg_cardOkReturn;
   case NoCardInserted:
-    if (this->fCardFailed == 0) {
-
+    if (this->fCardFailed == 0)
+    {
       if (this->fStartCheckTick == 0) { this->fStartCheckTick = FE_Ticks();
       } this->CarDialog.Display(FE_Ticks() - this->fStartCheckTick <= 799 ? player + 0x2ab : player + 0x2a9);
     }
-    else {
+    else
 
-
+    {
       if (this->fStartCheckTick == 0) { this->fStartCheckTick = FE_Ticks();
       } if (FE_Ticks() - this->fStartCheckTick < 0x385) {
         return;
-      }
-      this->fStartCheckTick = 0;
-      this->fCardFailed = 0;
+      } else { this->fStartCheckTick = 0; this->fCardFailed = 0; }
+
+
     }
     break;
   case CardFailedNotFound:
@@ -2591,10 +2556,10 @@ switchD_8003f3b4_caseD_7:
     this->fStartCheckTick = 0;
 SetDlg_cardOkReturn: this->fCardFailed = 0;
     return;
-  default:
-    goto switchD_8003f3b4_default;
   }
-switchD_8003f3b4_default: return; }
+
+
+}
 
 
 

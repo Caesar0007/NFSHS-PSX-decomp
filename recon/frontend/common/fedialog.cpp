@@ -310,19 +310,19 @@ void tDialogHelp::CalculateDimensions()
   if (specificPlayer != -1) {
     player = (tPlayer)specificPlayer;
   }
-  if (helpArray[this->variant].autoGenerate != '\0') {
-    bool showLeftRight;
-    bool showCross;
-    tMenu *menu; showLeftRight = false; showCross = false;
-    menu = FEApp->CurrentMenu(player);
+  if (helpArray[this->variant].autoGenerate != '\0')
+  {
+    bool showLeftRight; bool showCross; tMenu *menu; showLeftRight = false;
+    menu = FEApp->CurrentMenu(player); showCross = false;
+
 
 
 
     i = 0;
-    while (true) { if (FEApp->CurrentMenu(player)->fItemList[i] == (tMenuItem *)0x0) {
-        break;
-      } if (((FEApp->CurrentMenu(player)->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+    while (FEApp->CurrentMenu(player)->fItemList[i] != (tMenuItem *)0x0) {
 
+      if (((FEApp->CurrentMenu(player)->fItemList[i]->fFlags ^ 1) & 1) != 0)
+      {
         if ((FEApp->CurrentMenu(player)->fItemList[i]->fFlags & 0x400) != 0) {
           showLeftRight = true;
         }
@@ -335,20 +335,20 @@ void tDialogHelp::CalculateDimensions()
       AddItem(0x52,0x50);
     } if (showLeftRight) {
       AddItem(0x53,0xa0);
-    } if (showCross) {
-      /* SYM-INLINE-THIS: HasFlag */
-      if (menu->HasFlag(0x10000) || menu->HasFlag(0x20000)) {
+    } if (showCross)
+    {
+      if (menu->HasFlag(0x10000) || menu->HasFlag(0x20000)) { /* SYM-INLINE-THIS: HasFlag */
         AddItem(0x56,0x4000);
       }
       else { AddItem(0x55,0x4000);
       }
     }
-    if (0 < FEApp->backDepth[player]) {
+    if (0 < FEApp->BackDepth(player)) {
       AddItem(0x54,0x1000);
-    } if (menu->fOptionsMenu != (tMenu *)0x0) {
+    } if (menu->HasOptionsMenu()) {
       AddItem(0x57,-0x8000);
     }
-    if ((menu->fFlags & 0x800) != 0) {
+    if (menu->HasFlag(0x800)) {
       AddItem(0x58,8);
     }
     else { if (menu->CanContinue()) {
@@ -393,43 +393,43 @@ void tDialogHelp::CalculateDimensions()
   }
   if (helpcontrollers == 3) {
 
+    width += 0x46;
+    lefttext = 0x46;
+  }
 
-    lefttext = 0x46; width += 0x46;
-  }
   else {
-    lefttext = 0x28;
     width += 0x28;
-  }
+    lefttext = 0x28; }
 
 
   if (numItems < 2) {
     height = 0;
   }
-  else {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    height = numItems * 0xf;
+  else { height = numItems * 0xf;
   }
-  DialogHelpPositionAndClamp(this,&gHelpShapes[3]);
-  DialogHelpAnimateOpen(this);
-  top = 0x14;
+  left = (short)((screenwidth - width) / 2);
+  top = (short)((0xf0 - height) / 2);
+
+  if (width < gHelpShapes[3].width + 0x14) {
+    width = gHelpShapes[3].width + 0x14;
+  }
+
+  long currentTicks = FE_Ticks(); width += 0x14;
+  height += 10;
+
+
+
+  if ((u_int)(currentTicks - startTicks) < 0x32)
+  {
+    short shapeWidth = gHelpShapes[0x2a].width * 2;
+    short shapeHeight = gHelpShapes[0x2a].height * 2;
+
+    width = shapeWidth + (short)((u_int)((width - shapeWidth) * (currentTicks - startTicks)) / 0x32);
+    height = shapeHeight + (short)((u_int)((height - shapeHeight) * (currentTicks - startTicks)) / 0x32);
+  }
+
+
+
 
 
 
@@ -440,7 +440,7 @@ void tDialogHelp::CalculateDimensions()
 
 
   left = 0x1f9 - width;
-}
+  top = 0x14; }
 
 
 
@@ -572,7 +572,11 @@ DialogHelpDraw_buttonsDone:;
    reduction came from promoting the signed shape width/height into separate
    int temporaries and writing width/height directly in each MaxH branch;
    the old short reuse and `w` phi caused lhu/sign-extension and preload
-   cascades. */
+   cascades.
+   FRONT6 (2026-11-01): BYTE+SYM+SLD exact.  The three helper inlines
+   (TickAge/ClampFade/AnimateOpen) carried retail-absent param/local records;
+   retail = two FE_Ticks() inlines (lines 1/30), record-less clamp temps on
+   line 3 and the open animation written in the body (if at 34, '{' own line). */
 
 #line 548 "C:/nfs4/FRONTEND/COMMON/FEDIALOG.CPP"
 void tDialogMessageString::CalculateDimensions()
@@ -580,9 +584,9 @@ void tDialogMessageString::CalculateDimensions()
 
 {
   int ticks;
-  ticks = ::ticks[0]; fFadeText = 0x80 - ((DialogMessageTickAge(ticks) - startTicks) * 0x80) / 100;
-
-  if (DialogMessageClampFade(this) != 0) {
+  ticks = FE_Ticks(); const int age = ticks - 0x32; /* DEVICE (exact-only): record-less const temp keeps (ticks-50)-startTicks from folding to ticks-(startTicks+50) */ fFadeText = 0x80 - ((age - startTicks) * 0x80) / 100;
+  const int fade = (0x80 < fFadeText) ? 0x80 : fFadeText; const int clamped = (fade < 0) ? 0 : fade; /* DEVICE (exact-only): record-less const clamp temps = retail's two register copies, no SYM record */ fFadeText = clamped;
+  if (clamped != 0) {
     fFullyOpen = 0;
   }
 
@@ -607,24 +611,24 @@ void tDialogMessageString::CalculateDimensions()
   else {
 
     Centerit = 0;
-    height = MaxH;
+    height = MaxH; }
+  ticks = FE_Ticks();
+
+
+
+  if (ticks - startTicks < 0x32)
+  {
+    const short shapeWidth = gHelpShapes[0x2a].width * 2;   /* DEVICE (exact-only): record-less const pair = retail's empty {36 }37 scope */
+    const short shapeHeight = gHelpShapes[0x2a].height * 2;
+
+    width = shapeWidth + (short)(((width - shapeWidth) * (ticks - startTicks)) / 0x32);
+    height = shapeHeight + (short)(((height - shapeHeight) * (ticks - startTicks)) / 0x32);
+    fFullyOpen = 0;
   }
+  else {
 
-
-
-
-
-
-
-
-
-  ticks = ::ticks[0];
-  DialogMessageAnimateOpen(this, ticks);
-
-
-
-
-
+    fFullyOpen = 1;
+  }
 
   left = OffsetX + (short)((screenwidth - width) / 2);
   top = OffsetY + (short)((0xf0 - height) / 2);
@@ -646,7 +650,7 @@ void tDialogMessageString::Draw()
 {
   int col;
   RECT r;
-  
+
 
 
   CalculateDimensions();
@@ -668,7 +672,7 @@ void tDialogMessageString::Draw()
     }
 
 
-    col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][4]],fFadeText);
+    col = CalcFadeVal(kRGBVals[(u_char)DialogTextDefinitionsBase()[8 * 6 + 4]],fFadeText);
 
 
     r.x = left + 0x11; r.y = top + 10; r.w = width + -0x14; r.h = height - ((u_short)reservedheight + 8);

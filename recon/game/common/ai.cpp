@@ -91,7 +91,7 @@ void AI_CleanUp(void) {
 #line 156 "C:/nfs4/GAME/COMMON/AI.CPP"
 void AI_Main_OverallSetup(void)
 {
-  return;
+
 
 
 
@@ -482,8 +482,8 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   }
 
 
-  if (0 < carObj->barrierThinkHarder) {
-
+  if (0 < carObj->barrierThinkHarder)
+  {
     interval = (slicesAhead * 0xa3d) / 0x10000;
     sliceLoop = 0; if (interval == 0) { interval = 1;
     }
@@ -970,8 +970,8 @@ void AI_CalcBestLineMerits(Car_tObj *carObj)
 
                 AIDataRecord_BestLine->Get(checkSlice));
   carObj->preferredLateralPosition = carObj->preferredLateralPosition - carObj->laneSlack * carObj->direction;
-  carObj->preferredLateralPositionPower = 0x50000;
-  return;
+  carObj->preferredLateralPositionPower = 0x50000; return;
+
 
 
 
@@ -1092,8 +1092,8 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
     }
 
 
-    if (((observations[0] != 0) && (observations[1] != 0)) && (observations[2] != 0)) {
-      int leftDistance;
+    if (((observations[0] != 0) && (observations[1] != 0)) && (observations[2] != 0))
+    { int leftDistance;
       int rightDistance; leftDistance = carObj->roadPosition - leftLatPosition;
       rightDistance = carObj->roadPosition - rightLatPosition;
       leftDistance = __builtin_abs(leftDistance);
@@ -1106,8 +1106,8 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
     }
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + observations[0];
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + observations[1];
-    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + observations[2];
-  return;
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + observations[2]; return;
+
 }
 
 /* ---- AI_HandleTrafficHonking__FP8Car_tObj  [@0x80059b88] COVERED-SLD-PASS ---- */
@@ -1520,7 +1520,7 @@ void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
   } if (carObj->desiredLatPos < (carObj->N).dimension.x - (BWorldSm_slices[slice].leftDrive << 8)) {
     carObj->desiredLatPos = (carObj->N).dimension.x - (BWorldSm_slices[slice].leftDrive << 8);
   }
-  return;
+
 
 
 
@@ -1649,24 +1649,24 @@ void AI_KeepCarsInLane(Car_tObj *carObj)
   if (0) {
     AI_IsMellowZone(carObj,0);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
 

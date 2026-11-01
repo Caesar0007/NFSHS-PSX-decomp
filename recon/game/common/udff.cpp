@@ -98,8 +98,8 @@ void Udff_Close(Udff_tInfo *handle)
     }
 
 
-    purgememadr(handle);
-  } return; }
+    purgememadr(handle); } return;
+}
 
 /* ---- Udff_GetInt__FP10Udff_tInfo  [UDFF.CPP:105-123] SLD-VERIFIED ---- */
 #line 102 "C:/nfs4/GAME/COMMON/UDFF.CPP"

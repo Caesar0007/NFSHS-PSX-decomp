@@ -45,8 +45,8 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
     this->lastTriggerChecked_[tLoop] = 0; }
 
 
-  if (rawTriggers != (char *)0x0) {
-    numTriggers = (int *)rawTriggers;   /* SYM: numTriggers is a REG PTR INT, aliases rawTriggers's count header */
+  if (rawTriggers == (char *)0x0) return;
+  numTriggers = (int *)rawTriggers;   /* SYM: numTriggers is a REG PTR INT, aliases rawTriggers's count header */
 
 
 
@@ -55,20 +55,20 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
 
 
 
-    currentTrigger = (char *)(numTriggers + 1);   /* SYM: currentTrigger is a REG PTR CHAR (byte cursor, NOT trigger_t* -- must NOT scale by sizeof(trigger_t)=72) */
-    tLoop = 0; if (0 < *numTriggers) {
-      do {
-        currentTrigger = currentTrigger + this->InsertTrigger((trigger_t *)currentTrigger,true);
-        tLoop = tLoop + 1; } while (tLoop < *numTriggers);
-    }
-    this->Sort();
-
-    if (this->numTriggers_ != 0) {
-
-      this->invNumTriggers_ = fixeddiv(0x10000,this->numTriggers_ << 0x10);
-    }
+  currentTrigger = (char *)(numTriggers + 1);   /* SYM: currentTrigger is a REG PTR CHAR (byte cursor, NOT trigger_t* -- must NOT scale by sizeof(trigger_t)=72) */
+  tLoop = 0; if (0 < *numTriggers) {
+    do {
+      currentTrigger = currentTrigger + this->InsertTrigger((trigger_t *)currentTrigger,true);
+      tLoop = tLoop + 1; } while (tLoop < *numTriggers);
   }
-  return;
+  this->Sort();
+
+  if (this->numTriggers_ != 0) {
+
+    this->invNumTriggers_ = fixeddiv(0x10000,this->numTriggers_ << 0x10);
+  }
+
+
 
 
 }
@@ -342,12 +342,12 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
 #line 277 "C:/nfs4/GAME/COMMON/AITRIGER.CPP"
 void AITrigger_TriggerManager::DescribeTrigger(trigger_t *trigger)
 {
+
+
+
+
+
   return;
-
-
-
-
-
 
 }
 
@@ -377,5 +377,5 @@ void AITrigger_TriggerManager::Sort()
   if (this->numTriggers_ != 0) {
 
 
-    qsort(this->triggers_,this->numTriggers_,4,(int)AITrigger_Compare /* @0x80072e18 qsort comparator */);
-  } return; }
+    qsort(this->triggers_,this->numTriggers_,4,(int)AITrigger_Compare /* @0x80072e18 qsort comparator */); } return;
+}

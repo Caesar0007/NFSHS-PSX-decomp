@@ -356,7 +356,7 @@ void Fog_AddKey(int slice,int distance)
  * nextkey dies after the initial reads; key->next is reloaded for interpolation.
  * The conditional's computation region and inner wrap region reproduce retail
  * binding scopes without extra declarations. Original macro spelling is unknown.
- * Complete source-line attribution remains subject to the SLD comparison. */
+ * BYTE+SYM+SLD exact (GAME2): the conditional is a record-less const initializer (decl-line note). */
 
 #line 839 "C:/nfs4/GAME/PSX/TEXTUREPROCESS.CPP"
 void Fog_Update(int player)
@@ -377,11 +377,11 @@ void Fog_Update(int player)
 
     nextkey = key->next;
     nextslice = nextkey->slice;
-    final_dist = key->distance != nextkey->distance ?
 
 
 
 
+    const int fd = (final_dist = key->distance != nextkey->distance ? /* DEVICE (exact-only): unused record-less const; its initialized declaration puts the test on retail line 21 */
 
 
       ({
@@ -400,7 +400,7 @@ void Fog_Update(int player)
       diffdistance = key->next->distance - key->distance;
 
       key->distance + ((currentslice - key->slice) * diffdistance) / diffslice;
-    }) : key->distance;
+    }) : key->distance);
   }
 
   ((CFogSpec *)(TrackSpec_gSpec + 4))->start = final_dist;

@@ -51,7 +51,7 @@ void AudioClc_SoundSpeech(void);
 #line 112 "C:/nfs4/GAME/COMMON/AUDIOCLC.CPP"
 void AudioClc_SndError(int shandle)
 {
-  return;
+
 
 
 

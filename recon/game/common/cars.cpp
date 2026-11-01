@@ -1384,11 +1384,11 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
  * to the old statement/expression shape. Only retail's Yoffset remains named.
  * Source coordinates below come from retail SLD. Blank gaps restore coordinates,
  * not unknowable original comments or the literal spelling of EA's macros. */
-/* SOURCE-REVIEW-UNRESOLVED: the value-producing height expression preserves
- * every supplied local/region tuple and block/end coordinate, but seven
- * post-call word tags still say1719 instead of retail1720. Recorded-variable
- * and destination-field update controls change code and are not adopted.
- * Original expression/macro boundaries remain open; no full SLD/text seal. */
+/* SLD: Yoffset clamp r65, the fixedmult on its own statement r66, abs and the
+ * subtracts r67 (the ({ }) sequence's last note): BYTE+SYM+SLD exact (GAME2).
+ * Original expression/macro spelling of the clamp is unknown.
+ *
+ * */
 
 
 #line 1652 "C:/nfs4/GAME/COMMON/CARS.CPP"
@@ -1459,8 +1459,8 @@ void Car_DoPostCollisionStuff(Car_tObj *carObj)
 
     (carObj->render).currentHeight = ({
       int Yoffset = ((0x51e < -(carObj->N).groundVel / 0x20 ? 0x51e : -(carObj->N).groundVel / 0x20) < -0xa3c) ? -0xa3d : (0x51e < -(carObj->N).groundVel / 0x20 ? 0x51e : -(carObj->N).groundVel / 0x20);
-      Yoffset - __builtin_abs(fixedmult(((carObj->render).currentRoll * 3) / 2, carObj->specs->bodyRollFactor)); })
-        - carObj->specs->rideOffset;
+      const int rollOffset = fixedmult(((carObj->render).currentRoll * 3) / 2, carObj->specs->bodyRollFactor); /* DEVICE (exact-only): record-less const puts the fixedmult on its own line (retail 66/67 split) */
+      Yoffset - __builtin_abs(rollOffset); }) - carObj->specs->rideOffset;
 
 
     (carObj->render).bodyRoll = (carObj->render).currentRoll;

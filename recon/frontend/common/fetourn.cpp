@@ -4,7 +4,6 @@
  */
 #include "fetourn.h"
 
-inline tTourneyInfo *tTournamentManager::CurrentTourney() { return &fDefinition->fTournaments[fDefinition->fTiers[fTier].fTournOffset + fTournament]; }
 
 /* ---- tTournamentManager::Initialize  [FETOURN.CPP:36-82] ---- */
 
@@ -67,11 +66,10 @@ void tTournamentManager::Initialize()
 
   /* SYM ORDER (W86-S2): the 8c Def rows read input, data, tier, tourney,
      track, filename; the three non-SYM carriers follow the SYM set. */
-  /* SYM-CODEGEN-CARRIER: tourneyDef
-     SYM-CODEGEN-CARRIER: trackId
-     SYM-CODEGEN-CARRIER: trnId
-     These promoted traversal values preserve the retail loop bounds and
-     callee-saved allocation; folding tourneyDef changes 77 instructions. */
+  /* FRONT6: BYTE+SYM+SLD exact.  tourneyDef carrier removed (this->fDefinition
+     read directly); the loop starts trnId/trackId are short, which leaves them
+     record-less like retail; the two inner loops are whiles whose condition
+     ends on the retail line (multi-line condition: both tests tagged there). */
 #line 86 "C:/nfs4/FRONTEND/COMMON/FETOURN.CPP"
 void tTournamentManager::LoadDescription()
 
@@ -83,9 +81,9 @@ void tTournamentManager::LoadDescription()
   short tourney;
   short track;
   char filename [80];
-  tTournamentDefinition *tourneyDef;
-  uint trackId;
-  uint trnId;
+
+  short trackId;
+  short trnId;
   sprintf(filename,"%s%s",Paths_Paths[0x25],"tourn.trn");
 
 
@@ -98,35 +96,35 @@ void tTournamentManager::LoadDescription()
   this->fNumTiers = input[Tourn_TRN_HeaderSize];
 
 
-
-
-  tourneyDef = reservememadr("Tourney",sizeof(tTournamentDefinition),0); tier = 0; this->fDefinition = tourneyDef;
   data = input + Tourn_TRN_EntriesStart;
-  if (this->fNumTiers != 0) {
-    do {
-      blockmove(data,this->fDefinition->fTiers + tier, sizeof(tTierInfo));
 
-      tourneyDef = this->fDefinition; tourney = (short)tourneyDef->fTiers[tier].fTournOffset;
-      trnId = (uint)tourney;
-      data += sizeof(tTierInfo);
-      if ((short)trnId < (short)trnId + tourneyDef->fTiers[tier].fNumTournaments) { do {
+  this->fDefinition = (tTournamentDefinition *)reservememadr("Tourney",sizeof(tTournamentDefinition),0);
 
+  for (tier = 0; tier < (int)(uint)(byte)this->fNumTiers; tier++) {
 
-          blockmove(data, tourneyDef->fTournaments + tourney, sizeof(tTourneyInfo));
+    blockmove(data,this->fDefinition->fTiers + tier, sizeof(tTierInfo));
 
-          tourneyDef = this->fDefinition; track = (short)tourneyDef->fTournaments[tourney].fTrackOffset;
-          trackId = (uint)track;
-          data += sizeof(tTourneyInfo);
-          if ((short)trackId < (short)trackId + tourneyDef->fTournaments[tourney].fNumTracks) { do { blockmove(data, tourneyDef->fTracks + track, sizeof(tTrackInfo)); track = track + 1; tourneyDef = this->fDefinition; data += sizeof(tTrackInfo); } while (track < (int)((short)trackId + tourneyDef->fTournaments[tourney].fNumTracks));
-          }
+    tourney = (short)this->fDefinition->fTiers[tier].fTournOffset;
+    trnId = tourney;
+    data += sizeof(tTierInfo); while (tourney <
+           trnId + this->fDefinition->fTiers[tier].fNumTournaments) {
 
 
+      blockmove(data, this->fDefinition->fTournaments + tourney, sizeof(tTourneyInfo));
+
+      track = (short)this->fDefinition->fTournaments[tourney].fTrackOffset;
+      trackId = track;
+      data += sizeof(tTourneyInfo); while (track <
+             trackId + this->fDefinition->fTournaments[tourney].fNumTracks) {
 
 
-          tourney = tourney + 1;
-          tourneyDef = this->fDefinition; } while (tourney < (int)((short)trnId + tourneyDef->fTiers[tier].fNumTournaments)); } tier = tier + 1; } while (tier < (int)(uint)(byte)this->fNumTiers);
-  }
-  purgememadr(input); return;
+        blockmove(data, this->fDefinition->fTracks + track, sizeof(tTrackInfo));
+
+        track = track + 1; data += sizeof(tTrackInfo);
+      } tourney = tourney + 1;
+    } }
+
+  purgememadr(input);
 }
 
 
@@ -265,23 +263,23 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
 
     track = &this->fDefinition->fTracks[tourn->fTrackOffset + i];
 
-
-    if ((this->fDirection[i] = track->fDirection) > 1) {
+    this->fDirection[i] = track->fDirection;
+    if (this->fDirection[i] > 1) {
 
       this->fDirection[i] = rand() & 1;
     }
-
-    if ((this->fMirror[i] = track->fMirrored) > 1) {
+    this->fMirror[i] = track->fMirrored;
+    if (this->fMirror[i] > 1) {
 
       this->fMirror[i] = rand() & 1;
     }
-
-    if ((this->fTimeOfDay[i] = track->fTimeOfDay) > 1) {
+    this->fTimeOfDay[i] = track->fTimeOfDay;
+    if (this->fTimeOfDay[i] > 1) {
 
       this->fTimeOfDay[i] = rand() & 1;
     }
-
-    if ((this->fWeather[i] = track->fWeather) > 1) {
+    this->fWeather[i] = track->fWeather;
+    if (this->fWeather[i] > 1) {
 
       this->fWeather[i] = rand() & 1;
     }
@@ -935,30 +933,30 @@ long tTournamentManager::GetTrackFinishPrize(short position)
   };
 
 
-
-  if ((ushort)position < 6) {
-    currentTourney = this->CurrentTourney();
-    if ((currentTourney->fOpponentCarClass == '\n') &&
-       (carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0),
+  if ((ushort)position < 6)
+  { currentTourney = this->CurrentTourney();
 
 
 
 
 
 
-       carInfo.fCarClass < 7)) {
 
+    if (currentTourney->fOpponentCarClass == '\n') {
 
-      carPrice = carInfo.fPrices[0];
-      if ((carInfo.fUpgrades & 1) != 0) {
-        carPrice = carPrice + carInfo.fPrices[1];
-      } if ((carInfo.fUpgrades & 2) != 0) {
-        carPrice = carPrice + carInfo.fPrices[2];
-      } if ((carInfo.fUpgrades & 4) != 0) {
-        carPrice = carPrice + carInfo.fPrices[3];
-      }
-      result += fixedmult(openClassAdjust[carInfo.fCarClass][position],carPrice);
-    }
+      carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
+      if (carInfo.fCarClass < 7) {
+
+        carPrice = carInfo.fPrices[0];
+        if ((carInfo.fUpgrades & 1) != 0) {
+          carPrice = carPrice + carInfo.fPrices[1];
+        } if ((carInfo.fUpgrades & 2) != 0) {
+          carPrice = carPrice + carInfo.fPrices[2];
+        } if ((carInfo.fUpgrades & 4) != 0) {
+          carPrice = carPrice + carInfo.fPrices[3];
+        }
+        result += fixedmult(openClassAdjust[carInfo.fCarClass][position],carPrice);
+      } }
     result = result + this->fDefinition->fTracks[
 
 
@@ -1131,11 +1129,11 @@ bool tTournamentManager::ValidCar(tCarInfo &carInfo)
 
 
 {
-  tTourneyInfo *tourney;
-  bool result;
+  tTourneyInfo *tourney = this->CurrentTourney();
+  bool result = 1;
 
-  tourney = this->CurrentTourney();
-  result = 1;
+
+
   if (tourney->fOpponentCarClass != '\n') {
 
     result = carInfo.fCarClass == tourney->fOpponentCarClass;
